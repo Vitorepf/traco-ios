@@ -151,10 +151,10 @@ ABERTOS NOVOS (pedido do dono, 31/ago — prioridade alta):
 ## Varredura de flows (31/ago, tarde) — bloco 1
 - 7 flows órfãos deletados (cena/chamada/duplo/epigrafe/formula/passos/pausa):
   testavam chips que a poda da régua (ADR 31b) removeu da UI.
-- BURACO REVELADO (soma ao P1 do motor de formas): o §12 prevê "menu de
-  templates" para o catálogo completo (136 formas) e essa porta AINDA NÃO
-  EXISTE na UI — hoje só as 12 da régua têm entrada. O formato de arquivo
-  aceita todas (import), mas o autor não tem como criá-las.
+- Menu das 136 formas (SPEC §12): porta **Todas** na régua (as 12 ficam);
+  folha com o resto do catálogo, nomes em português, campos vazios, zero prosa
+  da IA. `/tmp/traco-verify/menu-136.png` · `menuNasceFormaForaDaReguaVaziaSemProsaDaIA`.
+  (31 ago, grok/menu-136)
 
 ## Pesquisa: pool da assinatura no app (31/ago) — CAMINHO EXISTE
 Verificado direto no servidor da xAI (`https://auth.x.ai/.well-known/openid-configuration`):

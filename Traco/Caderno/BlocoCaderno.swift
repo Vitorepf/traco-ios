@@ -377,6 +377,34 @@ enum Caderno: Sendable {
         }
     }
 
+    /// Materializa o gesto da régua / do menu. Campos nascem vazios; a prosa
+    /// só entra se o autor já a tinha escrito. A IA não passa daqui.
+    nonisolated static func bloco(de papel: PapelForma, texto: String) -> BlocoCaderno {
+        let linhas = texto.split(separator: "\n", omittingEmptySubsequences: true).map(String.init)
+        switch papel.gesto {
+        case .titulo(let n):
+            return .titulo(n, texto.trimmingCharacters(in: .newlines))
+        case .lista(let ordenada):
+            return .itens(linhas.isEmpty ? [""] : linhas, ordenada: ordenada)
+        case .tarefa:
+            let xs = (linhas.isEmpty ? [""] : linhas).map { TarefaCaderno(feito: false, texto: $0) }
+            return .tarefas(xs)
+        case .citacao:
+            return .citacao(linhas.isEmpty ? [""] : linhas)
+        case .codigo(let lingua):
+            return .codigo(lingua: lingua ?? "texto", fonte: "")
+        case .tabela:
+            return .tabela(cabeca: ["", ""], corpo: [["", ""]])
+        case .divisoria:
+            return .divisoria
+        case .recipiente:
+            if linhas.isEmpty {
+                return .recipiente(slug: papel.slug, linhas: papel.cromo == .duplo ? ["", ""] : [""])
+            }
+            return .recipiente(slug: papel.slug, linhas: linhas)
+        }
+    }
+
     nonisolated static func forma(_ forma: FormaCaderno, texto: String) -> BlocoCaderno {
         let linhas = texto.split(separator: "\n", omittingEmptySubsequences: true).map(String.init)
         switch forma {

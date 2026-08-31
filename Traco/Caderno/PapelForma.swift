@@ -11,7 +11,7 @@ enum GestoPapel: Equatable, Hashable, Sendable {
     case recipiente
 }
 
-enum CromoPapel: String, Sendable, Hashable {
+enum CromoPapel: String, Sendable, Hashable, CaseIterable {
     case padrao
     case chamada
     case voz
@@ -25,6 +25,25 @@ enum CromoPapel: String, Sendable, Hashable {
     case passos
     case silencio
     case epigrafe
+
+    /// Família mental do menu (SPEC §12). Palavra, nunca slug.
+    var familia: String {
+        switch self {
+        case .padrao: "Página"
+        case .chamada: "Chamada"
+        case .voz: "Voz"
+        case .verso: "Verso"
+        case .pergunta: "Pergunta"
+        case .ideia: "Ideia"
+        case .decisao: "Decisão"
+        case .risco: "Risco"
+        case .duplo: "Dois lados"
+        case .cena: "Cena"
+        case .passos: "Passos"
+        case .silencio: "Silêncio"
+        case .epigrafe: "Epígrafe"
+        }
+    }
 }
 
 struct PapelForma: Hashable, Identifiable, Sendable {
@@ -39,11 +58,43 @@ struct PapelForma: Hashable, Identifiable, Sendable {
     /// A régua do teclado mostra SÓ estas (SPEC §12: menu de 136 nomes é template em menu).
     /// O catálogo completo continua existindo para o ARQUIVO: toda `:::slug` já gravada
     /// segue sendo lida e renderizada — poda-se o menu, nunca o formato.
+    static let slugsDaRegua: [String] = [
+        "titulo", "seccao", "lista", "numerada", "tarefa", "citacao",
+        "codigo", "tabela", "divisoria", "verso", "ideia", "silencio",
+    ]
+
     static let regua: [PapelForma] = {
-        let slugs = ["titulo", "seccao", "lista", "numerada", "tarefa", "citacao",
-                     "codigo", "tabela", "divisoria", "verso", "ideia", "silencio"]
-        return slugs.compactMap { s in catalogo.first { $0.slug == s } }
+        slugsDaRegua.compactMap { s in catalogo.first { $0.slug == s } }
     }()
+
+    /// Folha das 136: agrupadas por família, nomes em português, sem slug na cara.
+    struct FamiliaMenu: Identifiable, Sendable {
+        var id: String { nome }
+        let nome: String
+        let formas: [PapelForma]
+    }
+
+    static var menu: [FamiliaMenu] { menu(filtrado: "") }
+
+    static func menu(filtrado busca: String) -> [FamiliaMenu] {
+        let q = busca.trimmingCharacters(in: .whitespacesAndNewlines)
+            .folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
+        return CromoPapel.allCases.compactMap { cromo in
+            var xs = catalogo.filter { $0.cromo == cromo && !estaNaRegua($0.slug) }
+            if !q.isEmpty {
+                xs = xs.filter {
+                    $0.nome.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
+                        .contains(q)
+                }
+            }
+            guard !xs.isEmpty else { return nil }
+            return FamiliaMenu(nome: cromo.familia, formas: xs)
+        }
+    }
+
+    static func estaNaRegua(_ slug: String) -> Bool {
+        slugsDaRegua.contains(slug)
+    }
 
     static let porSlug: [String: PapelForma] = Dictionary(
         uniqueKeysWithValues: catalogo.map { ($0.slug, $0) }

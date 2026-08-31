@@ -1,0 +1,26 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: pagina
+- tapOn:
+    id: regua-todas
+- extendedWaitUntil:
+    visible:
+      id: menu-formas
+    timeout: 4000
+- takeScreenshot: /tmp/traco-verify/menu-136
+- assertNotVisible: ":::"
+- tapOn:
+    id: catalogo-chamada
+- waitForAnimationToEnd:
+    timeout: 3000
+- extendedWaitUntil:
+    visible:
+      id: portal-chamada
+    timeout: 5000
+- takeScreenshot: /tmp/traco-verify/menu-136-chamada
+- assertVisible:
+    id: portal-chamada
+- assertNotVisible: ":::"

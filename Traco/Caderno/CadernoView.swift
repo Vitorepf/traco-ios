@@ -25,6 +25,8 @@ struct CadernoView: View {
     @State private var importaFicheiro = false
     @State private var menuArquivo = false
     @State private var menuLingua = false
+    @State private var menuFormas = false
+    @State private var formaDoMenu: PapelForma?
     @State private var gravando = false
     @State private var gravador: AVAudioRecorder?
 
@@ -151,6 +153,15 @@ struct CadernoView: View {
             Button("Shell") { transformarCodigo("bash") }
             Button("Texto") { transformarCodigo("texto") }
         }
+        .sheet(isPresented: $menuFormas, onDismiss: {
+            guard let papel = formaDoMenu else { return }
+            formaDoMenu = nil
+            withAnimation(.easeOut(duration: 0.18)) { transformar(papel) }
+        }) {
+            MenuFormasView { papel in
+                formaDoMenu = papel
+            }
+        }
     }
 
     private var regua: some View {
@@ -176,6 +187,14 @@ struct CadernoView: View {
                 }
             )
             .accessibilityIdentifier("regua")
+            Button("Todas") {
+                Toque.selecao()
+                menuFormas = true
+            }
+            .buttonStyle(PressaoDiscreta())
+            .frame(minHeight: Tema.alvo)
+            .padding(.leading, 8)
+            .accessibilityIdentifier("regua-todas")
             Button {
                 editando = nil
                 Teclado.recolher()
@@ -449,29 +468,7 @@ struct CadernoView: View {
     }
 
     private func bloco(de papel: PapelForma, texto: String) -> BlocoCaderno {
-        let linhas = texto.split(separator: "\n", omittingEmptySubsequences: true).map(String.init)
-        switch papel.gesto {
-        case .titulo(let n):
-            return .titulo(n, texto.trimmingCharacters(in: .newlines))
-        case .lista(let ordenada):
-            return .itens(linhas.isEmpty ? [""] : linhas, ordenada: ordenada)
-        case .tarefa:
-            let xs = (linhas.isEmpty ? [""] : linhas).map { TarefaCaderno(feito: false, texto: $0) }
-            return .tarefas(xs)
-        case .citacao:
-            return .citacao(linhas.isEmpty ? [""] : linhas)
-        case .codigo(let lingua):
-            return .codigo(lingua: lingua ?? "texto", fonte: "")
-        case .tabela:
-            return .tabela(cabeca: ["", ""], corpo: [["", ""]])
-        case .divisoria:
-            return .divisoria
-        case .recipiente:
-            if linhas.isEmpty {
-                return .recipiente(slug: papel.slug, linhas: papel.cromo == .duplo ? ["", ""] : [""])
-            }
-            return .recipiente(slug: papel.slug, linhas: linhas)
-        }
+        Caderno.bloco(de: papel, texto: texto)
     }
 
     private var fatiaAlvo: FatiaCaderno? {
