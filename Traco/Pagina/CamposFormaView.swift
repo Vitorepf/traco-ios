@@ -18,8 +18,10 @@ struct CamposFormaView: View {
             ForEach(Array(gesto.campos.enumerated()), id: \.element.id) { indice, campo in
                 LinhaCampo(id: campo.id, rotulo: campo.rotulo, texto: valor(campo.id))
                     // a forma chega como quem entra: campo a campo, um respiro entre eles
-                    .transition(.opacity.combined(with: .offset(y: 6)))
-                    .animation(.easeOut(duration: 0.35).delay(Double(indice) * 0.05), value: gesto)
+                    // (ancorado em `nascida`, que muda DEPOIS do onAppear — dispara garantido)
+                    .opacity(nascida || reduceMotion ? 1 : 0)
+                    .offset(y: nascida || reduceMotion ? 0 : 6)
+                    .animation(.easeOut(duration: 0.35).delay(Double(indice) * 0.05), value: nascida)
             }
         }
         .padding(.horizontal, Tema.margem)

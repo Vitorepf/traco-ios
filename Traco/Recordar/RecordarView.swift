@@ -87,6 +87,7 @@ struct RecordarView: View {
                     .accessibilityLabel("Memória")
                 Button("Revelar") {
                     Toque.suave()
+                    foco = false // o teclado desce COM a virada — a recompensa em tela cheia
                     aoRevelar() // a revisão cumpre-se aqui, não no toque da notificação
                     withAnimation(.easeOut(duration: 0.35)) { fase = .revelar }
                 }

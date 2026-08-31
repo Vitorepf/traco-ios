@@ -10,10 +10,12 @@ struct PaginaView: View {
     @FocusState private var focoPagina: Bool
     @ScaledMetric(relativeTo: .body) private var corpoFolga: CGFloat = 9
     @State private var abrirArquivo = false
+    @State private var chegou = false
 
     var body: some View {
         Empilha(aberto: $sessao.mostrarNotas, reduceMotion: reduceMotion) {
             pagina
+                .opacity(chegou || reduceMotion ? 1 : 0)
         } frente: {
             NotasView(sessao: sessao)
         }
@@ -41,6 +43,8 @@ struct PaginaView: View {
             : .easeIn(duration: 0.15),
             value: sessao.confirmacao != nil)
         .onAppear {
+            // a chegada assenta em vez de piscar pronta
+            withAnimation(.easeOut(duration: 0.25)) { chegou = true }
             sessao.trancarExpressivasVencidas(no: context)
             sessao.varrerAnexosOrfaos(no: context)
             restaurarFoco()
@@ -148,6 +152,7 @@ struct PaginaView: View {
                     .overlay(Capsule().strokeBorder(Tema.linha, lineWidth: 0.5))
                     .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
                     .padding(.bottom, 88)
+                    .transition(.opacity.combined(with: .offset(y: 6)))
                     .accessibilityIdentifier("toast-analise")
                     .accessibilityAddTraits(.isStaticText)
                     .transition(.opacity)

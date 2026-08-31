@@ -63,7 +63,8 @@ struct Empilha<Fundo: View, Frente: View>: View {
                 let restante = deveFechar
                     ? max(largura - valor.translation.width, 1)
                     : max(valor.translation.width, 1)
-                let vel = abs(valor.velocity.width) / restante
+                // o sinal importa: fechar segue o dedo; cancelar parte CONTRA ele
+                let vel = (deveFechar ? valor.velocity.width : -valor.velocity.width) / restante
                 withAnimation(.interpolatingSpring(stiffness: 320, damping: 32, initialVelocity: vel)) {
                     if deveFechar { aberto = false }
                     arrasto = 0

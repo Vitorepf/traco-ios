@@ -63,20 +63,18 @@ struct CartaoAnaliseView: View {
                 }
                 .buttonStyle(CartaoBotaoStyle())
                 .accessibilityHint("Campos vazios nascem abaixo do seu texto")
-            case .vestida(let gesto, let pergunta):
-                // §17.3: com confiança alta, a forma já veio vestida — decidir é fricção.
-                chip(gesto.nome, aviso: false)
-                if !pergunta.isEmpty {
-                    Text(pergunta)
-                        .font(Tema.corpo)
-                        .foregroundStyle(Tema.tinta)
-                        .fixedSize(horizontal: false, vertical: true)
+            case .vestida(let gesto, _):
+                // §17.3: a forma já veio vestida — o cartão vira UMA linha e o
+                // palco (os campos) fica em cena. Os rótulos já perguntam tudo.
+                HStack(spacing: 12) {
+                    chip(gesto.nome, aviso: false)
+                    Spacer(minLength: 0)
+                    Button("Soltar a forma") {
+                        sessao.soltarForma()
+                    }
+                    .buttonStyle(CompactoStyle())
+                    .accessibilityHint("Desfaz a forma; o seu texto fica intacto")
                 }
-                Button("Soltar a forma") {
-                    sessao.soltarForma()
-                }
-                .buttonStyle(CartaoBotaoStyle())
-                .accessibilityHint("Desfaz a forma; o seu texto fica intacto")
             case .expressiva:
                 chip("Escrita expressiva", aviso: false)
                 Text("Isto pede 15 minutos — fato E sentimento, sobre o mesmo evento. Ao fim, a nota tranca e não se relê.")
@@ -105,6 +103,21 @@ struct CartaoAnaliseView: View {
             .font(Tema.label)
             .tracking(Tema.trackingLabel)
             .foregroundStyle(aviso ? Tema.aviso : Tema.tintaSuave)
+    }
+}
+
+private struct CompactoStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(Tema.barra)
+            .foregroundStyle(Tema.ambar)
+            .frame(minHeight: Tema.alvo)
+            .scaleEffect(configuration.isPressed ? Tema.pressao : 1)
+            .opacity(configuration.isPressed ? 0.7 : 1)
+            .animation(configuration.isPressed
+                ? .easeOut(duration: 0.08)
+                : .spring(response: 0.32, dampingFraction: 0.65),
+                value: configuration.isPressed)
     }
 }
 
