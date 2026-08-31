@@ -21,19 +21,18 @@ struct PerfilView: View {
     var body: some View {
         ZStack {
             Tema.fundo.ignoresSafeArea()
+            VStack(alignment: .leading, spacing: 0) {
+            TituloTela("Meu perfil")
             ScrollView {
-                VStack(alignment: .leading, spacing: 28) {
-                    Text("Meu perfil")
-                        .font(.title2.weight(.semibold))
-                        .foregroundStyle(Tema.tinta)
-                        .accessibilityAddTraits(.isHeader)
-
+                VStack(alignment: .leading, spacing: Tema.entreSecoes) {
                     conta
                     ajustes
                     dados
                     Spacer(minLength: 8)
                 }
-                .padding(28)
+                .padding(.horizontal, Tema.margem)
+                .padding(.bottom, 24)
+            }
             }
         }
         .fileImporter(isPresented: $importarMd,
@@ -71,7 +70,7 @@ struct PerfilView: View {
     // MARK: - Conta
 
     private var conta: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: Tema.entreItens) {
             rotulo("CONTA")
             Text("Grok")
                 .font(Tema.corpo.weight(.medium))
@@ -154,7 +153,7 @@ struct PerfilView: View {
     // MARK: - Ajustes
 
     private var ajustes: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: Tema.entreItens) {
             rotulo("AJUSTES")
             Toggle(isOn: Binding(
                 get: { sessao.autoAnalise },
@@ -179,29 +178,40 @@ struct PerfilView: View {
     // MARK: - Dados (§20: exportar/importar são AÇÃO, não navegação — moram aqui)
 
     private var dados: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: Tema.entreItens) {
             rotulo("DADOS")
-            Button("Exportar o corpus (.md)") {
+            linhaAcao("Exportar o corpus (.md)") {
                 corpusURL = Corpus.exportar(notas: notas)
             }
-            .font(Tema.corpo)
-            .foregroundStyle(Tema.tinta)
-            .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .leading)
-            .buttonStyle(PressaoDiscreta())
             .accessibilityIdentifier("exportar-corpus")
             .accessibilityHint("Gera um Markdown com as notas abertas. Trancadas nunca saem.")
             Rectangle().fill(Tema.linha).frame(height: 0.5)
-            Button("Importar .md") { importarMd = true }
-                .font(Tema.corpo)
-                .foregroundStyle(Tema.tinta)
-                .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .leading)
-                .buttonStyle(PressaoDiscreta())
+            linhaAcao("Importar .md") { importarMd = true }
                 .accessibilityIdentifier("importar-md")
                 .accessibilityHint("Traz notas de arquivos Markdown. Import nunca cria trancada.")
             Text("O backup automático já grava no Arquivos a cada nota concluída.")
                 .font(.footnote)
                 .foregroundStyle(Tema.tintaFraca)
         }
+    }
+
+    /// Ação parece ação: chevron à direita (critique-affordance). Sem ele, era
+    /// texto branco idêntico ao rótulo morto ao lado.
+    private func linhaAcao(_ titulo: String, acao: @escaping () -> Void) -> some View {
+        Button(action: acao) {
+            HStack {
+                Text(titulo)
+                    .font(Tema.chrome)
+                    .foregroundStyle(Tema.tinta)
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(Tema.tintaFraca)
+            }
+            .frame(maxWidth: .infinity, minHeight: Tema.alvo)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(PressaoDiscreta())
     }
 
     private func rotulo(_ t: String) -> some View {

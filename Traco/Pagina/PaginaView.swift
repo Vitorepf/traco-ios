@@ -19,28 +19,41 @@ struct PaginaView: View {
                 .opacity(chegou || reduceMotion ? 1 : 0)
                 .sheet(isPresented: $mostrarCampos) {
                     if let gesto = sessao.gesto, gesto != .expressiva {
-                        ScrollView {
-                            VStack(alignment: .leading, spacing: 4) {
-                                HStack {
-                                    Spacer()
-                                    Button("Soltar a forma") {
-                                        sessao.soltarForma()
-                                        mostrarCampos = false
-                                    }
-                                    .font(Tema.label)
-                                    .foregroundStyle(Tema.ambar)
-                                    .frame(minHeight: Tema.alvo)
-                                    .accessibilityIdentifier("soltar-na-folha")
+                        VStack(alignment: .leading, spacing: 0) {
+                            // a folha tem cabeçalho de verdade: o nome da forma é
+                            // TÍTULO, não um sexto rótulo. E o âmbar sai do botão
+                            // que descarta — o olho não entra pela ação destrutiva
+                            HStack(alignment: .firstTextBaseline) {
+                                Text(gesto.nome)
+                                    .font(Tema.tituloTela)
+                                    .tracking(Tema.trackingTitulo)
+                                    .foregroundStyle(Tema.tinta)
+                                    .accessibilityAddTraits(.isHeader)
+                                Spacer(minLength: 8)
+                                Button("Soltar a forma") {
+                                    sessao.soltarForma()
+                                    mostrarCampos = false
                                 }
-                                .padding(.horizontal, Tema.margem)
-                                CamposFormaView(gesto: gesto, campos: $sessao.campos)
+                                .font(Tema.meta)
+                                .foregroundStyle(Tema.tintaSuave)
+                                .buttonStyle(PressaoDiscreta())
+                                .accessibilityIdentifier("soltar-na-folha")
+                                .accessibilityHint("Desfaz a forma; o seu texto fica intacto")
                             }
-                            .padding(.top, 8)
+                            .padding(.horizontal, Tema.margem)
+                            .padding(.top, 20)
+                            .padding(.bottom, 12)
+
+                            ScrollView {
+                                CamposFormaView(gesto: gesto, campos: $sessao.campos)
+                                    .padding(.bottom, 24)
+                            }
+                            .scrollDismissesKeyboard(.interactively)
                         }
-                        .scrollDismissesKeyboard(.interactively)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                         .presentationDetents([.medium, .large])
                         .presentationDragIndicator(.visible)
-                        .presentationBackground(Tema.fundo)
+                        .presentationBackground(Tema.superficie)
                     }
                 }
         } frente: {
@@ -63,6 +76,14 @@ struct PaginaView: View {
             #if DEBUG
             print("TRACO_PAGINA_PRONTA")
             #endif
+        }
+        .onChange(of: sessao.aba) { _, nova in
+            if nova != .escrever {
+                focoPagina = false
+                Teclado.recolher()
+            } else {
+                restaurarFoco()
+            }
         }
         .onChange(of: sessao.mostrarNotas) { _, aberto in
             if aberto {
@@ -360,8 +381,13 @@ struct PaginaView: View {
     }
 
     /// Página livre: o cursor volta. Notas, padrões ou confirmação cobrem — o teclado some.
+    /// A casa e o arquivo vivem ao MESMO tempo (§20): sem esta guarda a página
+    /// continuava com o foco enquanto o autor estava no Perfil, e o teclado
+    /// ficava preso numa tela sem campo nenhum.
     private func restaurarFoco() {
-        guard !sessao.mostrarNotas, !sessao.mostrarPadroes, sessao.confirmacao == nil else { return }
+        guard sessao.aba == .escrever, sessao.confirmacao == nil,
+              sessao.fechoExpressiva == nil, !mostrarCampos
+        else { return }
         focoPagina = true
     }
 }

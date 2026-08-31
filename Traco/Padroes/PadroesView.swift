@@ -31,13 +31,7 @@ struct PadroesView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             // §20: voltar é da barra inferior. Aqui fica o nome da tela, e só.
-            Text("Padrões")
-                .font(.title2.weight(.semibold))
-                .foregroundStyle(Tema.tinta)
-                .accessibilityAddTraits(.isHeader)
-                .padding(.horizontal, Tema.margem)
-                .padding(.top, 4)
-                .padding(.bottom, 10)
+            TituloTela("Padrões")
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
@@ -75,11 +69,7 @@ struct PadroesView: View {
                                         .accessibilityHidden(true)
                                 }
                                 .padding(16)
-                                .background(Tema.superficie, in: RoundedRectangle(cornerRadius: Tema.raio, style: .continuous))
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: Tema.raio, style: .continuous)
-                                        .strokeBorder(Tema.linha, lineWidth: 0.5)
-                                )
+                                .superficieElevada()
                                 .frame(minHeight: Tema.alvo)
                             }
                             .buttonStyle(PressaoDiscreta())

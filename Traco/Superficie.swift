@@ -1,0 +1,38 @@
+import SwiftUI
+
+/// Uma superfície elevada de verdade (auditoria 31/ago): preenchimento, fio de
+/// luz no topo, hairline em volta e sombra de contato. Sem isso, sobre preto,
+/// um retângulo mais claro lê como buraco em vez de objeto (law-of-figure-ground).
+struct SuperficieElevada: ViewModifier {
+    var raio: CGFloat = Tema.raio
+    var fundo: Color = Tema.superficie
+    /// Superfície grande é mais "grossa": sombra mais profunda (apple-design §12).
+    var grande: Bool = false
+
+    func body(content: Content) -> some View {
+        content
+            .background(fundo, in: RoundedRectangle(cornerRadius: raio, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: raio, style: .continuous)
+                    .strokeBorder(
+                        LinearGradient(
+                            colors: [Tema.luzBorda, Tema.linha.opacity(0.7)],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        ),
+                        lineWidth: 0.5
+                    )
+            }
+            .shadow(color: Tema.sombraContato,
+                    radius: grande ? 24 : 12,
+                    y: grande ? 8 : 4)
+    }
+}
+
+extension View {
+    func superficieElevada(raio: CGFloat = Tema.raio,
+                           fundo: Color = Tema.superficie,
+                           grande: Bool = false) -> some View {
+        modifier(SuperficieElevada(raio: raio, fundo: fundo, grande: grande))
+    }
+}

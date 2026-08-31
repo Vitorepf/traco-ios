@@ -58,15 +58,21 @@ struct BarraNavegacao: View {
                 aoNovaNota()
             } label: {
                 VStack(spacing: 3) {
+                    // Dois âmbares fixos no rodapé (esta pílula + a aba
+                    // selecionada) faziam o acento não significar nada, e o olho
+                    // entrava pela navegação em vez de pelo conteúdo
+                    // (von-restorff-effect). A ação se distingue por FORMA e
+                    // PESO — o âmbar fica só para dizer onde você está.
                     Image(systemName: "square.and.pencil")
-                        .font(.system(size: 17, weight: .semibold))
-                        .foregroundStyle(Tema.fundo)
+                        .font(.system(size: 19, weight: .semibold))
+                        .foregroundStyle(Tema.tinta)
                         .frame(width: 38, height: 26)
-                        .background(Tema.ambar, in: Capsule())
+                        .background(Tema.superficieAlta, in: Capsule())
+                        .overlay(Capsule().strokeBorder(Tema.luzBorda, lineWidth: 0.5))
                     Text("Nova")
                         .font(.caption2.weight(.semibold))
                         .tracking(0.4)
-                        .foregroundStyle(Tema.ambar)
+                        .foregroundStyle(Tema.tintaSuave)
                 }
                 .frame(maxWidth: .infinity, minHeight: Tema.alvo)
                 .contentShape(Rectangle())
@@ -75,12 +81,6 @@ struct BarraNavegacao: View {
             .accessibilityIdentifier("nova-nota")
             .accessibilityLabel("Nova nota")
             .accessibilityHint("Guarda esta e abre uma página em branco")
-
-            // um fio separa o que FAZ do que LEVA (law-of-common-region)
-            Rectangle()
-                .fill(Tema.linha)
-                .frame(width: 0.5, height: 26)
-                .padding(.horizontal, 2)
 
             ForEach(Aba.naBarra) { item in
                 Button {
@@ -120,7 +120,7 @@ struct BarraNavegacao: View {
                 .fill(Tema.fundo.opacity(0.82))
                 .background(.ultraThinMaterial)
                 .overlay(alignment: .top) {
-                    Rectangle().fill(Tema.linha).frame(height: 0.5)
+                    Rectangle().fill(Tema.luzBorda).frame(height: 0.5)
                 }
                 .ignoresSafeArea(edges: .bottom)
         }

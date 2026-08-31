@@ -1,0 +1,63 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- takeScreenshot: /tmp/traco-verify/auditoria/01-casa-vazia
+- tapOn: Página
+- inputText: "a arquitetura do app precisa de uma tabela de rotas"
+- takeScreenshot: /tmp/traco-verify/auditoria/02-escrevendo-regua
+- swipe:
+    direction: DOWN
+- takeScreenshot: /tmp/traco-verify/auditoria/03-casa-com-texto
+- extendedWaitUntil:
+    visible:
+      id: "cartao-analise"
+    timeout: 8000
+- takeScreenshot: /tmp/traco-verify/auditoria/04-cartao-vestido
+- tapOn:
+    id: "abrir-campos"
+- takeScreenshot: /tmp/traco-verify/auditoria/05-folha-campos
+- swipe:
+    direction: DOWN
+- tapOn:
+    id: "concluir"
+- tapOn: Página
+- inputText: "eu sou um vencedor"
+- extendedWaitUntil:
+    visible:
+      id: "cartao-analise"
+    timeout: 8000
+- takeScreenshot: /tmp/traco-verify/auditoria/06-cartao-aviso
+- tapOn:
+    id: "concluir"
+- swipe:
+    start: 1%, 50%
+    end: 85%, 50%
+- takeScreenshot: /tmp/traco-verify/auditoria/07-notas-lista
+- tapOn:
+    id: "busca-notas"
+- inputText: "tabela"
+- takeScreenshot: /tmp/traco-verify/auditoria/08-notas-busca
+- tapOn:
+    id: "limpar-busca"
+- swipe:
+    direction: DOWN
+- extendedWaitUntil:
+    visible:
+      id: aba-padroes
+    timeout: 5000
+- tapOn:
+    id: aba-padroes
+- takeScreenshot: /tmp/traco-verify/auditoria/09-padroes
+- tapOn:
+    id: aba-perfil
+- takeScreenshot: /tmp/traco-verify/auditoria/10-perfil
+- tapOn:
+    id: aba-notas
+- tapOn: ".*tabela de rotas.*"
+- takeScreenshot: /tmp/traco-verify/auditoria/11-nota-aberta
+- tapOn: Recordar
+- extendedWaitUntil:
+    visible: "RECORDAR"
+    timeout: 5000
+- takeScreenshot: /tmp/traco-verify/auditoria/12-recordar

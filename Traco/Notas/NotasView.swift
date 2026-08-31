@@ -29,16 +29,7 @@ struct NotasView: View {
     /// SPEC §20: navegar é da barra inferior. Aqui fica só o título da tela e a
     /// ÚNICA ação que pertence a esta tela — começar uma página nova.
     private var topbar: some View {
-        HStack(alignment: .firstTextBaseline) {
-            Text("Notas")
-                .font(.title2.weight(.semibold))
-                .foregroundStyle(Tema.tinta)
-                .accessibilityAddTraits(.isHeader)
-            Spacer()
-        }
-        .padding(.horizontal, Tema.margem)
-        .padding(.top, 4)
-        .padding(.bottom, 10)
+        TituloTela("Notas")
     }
 
     private var campoBusca: some View {
@@ -163,9 +154,12 @@ struct NotasView: View {
                                 .padding(.top, 20)
                                 .padding(.bottom, 6)
                                 .accessibilityAddTraits(.isHeader)
-                            ForEach(secao.notas, id: \.uuid) { nota in
+                            ForEach(Array(secao.notas.enumerated()), id: \.element.uuid) { i, nota in
                                 botaoNota(nota)
-                                Rectangle().fill(Tema.linha).frame(height: 0.5)
+                                // sem separador depois do último: a lista fecha
+                                if i < secao.notas.count - 1 {
+                                    Rectangle().fill(Tema.linha).frame(height: 0.5)
+                                }
                             }
                         }
                         if visiveis.count > 6 {
@@ -246,21 +240,28 @@ struct NotasView: View {
                         .foregroundStyle(Tema.tintaFraca)
                 } else {
                     DestaqueBusca.texto(titulo(nota), termo: busca, base: Tema.tinta)
-                        .font(.body.weight(.semibold))
+                        .font(Tema.chrome.weight(.semibold))
                         .lineLimit(1)
-                    HStack(spacing: 6) {
+                    HStack(spacing: 8) {
+                        // tag é CHIP, data é texto: dois tipos de dado, duas
+                        // roupas (law-of-similarity — antes liam como uma string)
                         if let g = nota.gesto {
-                            Text(g.nome)
+                            Text(g.nome.uppercased())
+                                .font(Tema.label)
+                                .tracking(Tema.trackingLabel)
                                 .foregroundStyle(Tema.tintaSuave)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Color.white.opacity(0.06), in: Capsule())
                         }
-                        DestaqueBusca.texto(subtitulo(nota), termo: busca, base: Tema.tintaSuave)
+                        DestaqueBusca.texto(subtitulo(nota), termo: busca, base: Tema.tintaFraca)
+                            .font(Tema.meta)
                             .lineLimit(1)
                     }
-                    .font(.subheadline)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.vertical, 14)
+            .padding(.vertical, 12)
             .frame(minHeight: Tema.alvo)
             .contentShape(Rectangle())
         }

@@ -1,0 +1,25 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn: Página
+- inputText: "uma nota qualquer"
+# do teclado aberto direto para o arquivo: o foco da casa tem de cair
+- swipe:
+    start: 1%, 50%
+    end: 85%, 50%
+- extendedWaitUntil:
+    visible:
+      id: aba-perfil
+    timeout: 6000
+- tapOn:
+    id: aba-perfil
+- extendedWaitUntil:
+    visible: "Meu perfil"
+    timeout: 5000
+- takeScreenshot: /tmp/traco-verify/nav/60-perfil-sem-teclado
+# a barra tem de estar visível: se o teclado estivesse preso, ela sumiria
+- assertVisible:
+    id: aba-notas
+- assertVisible:
+    id: nova-nota
