@@ -169,6 +169,19 @@ struct NotasView: View {
                             botaoNota(nota)
                             Rectangle().fill(Tema.linha).frame(height: 0.5)
                         }
+                        // Export mora no fim do arquivo: ação de arquivamento, não de uso diário.
+                        if busca.isEmpty, filtro == nil, let corpus = Corpus.exportar(notas: notas) {
+                            ShareLink(item: corpus) {
+                                Text("exportar o corpus (.md)")
+                                    .font(.subheadline)
+                                    .foregroundStyle(Tema.tintaFraca)
+                                    .frame(maxWidth: .infinity, minHeight: Tema.alvo)
+                            }
+                            .buttonStyle(PressaoDiscreta())
+                            .padding(.top, 12)
+                            .accessibilityIdentifier("exportar-corpus")
+                            .accessibilityHint("Gera um arquivo Markdown com as notas abertas. Trancadas nunca saem.")
+                        }
                     }
                     .padding(.horizontal, Tema.margem)
                 }

@@ -408,3 +408,23 @@ struct RevisoesTests {
         #expect(dias == 3)
     }
 }
+
+@MainActor
+struct CorpusTests {
+    @Test func trancadaNuncaSaiNoExport() {
+        let corpo = Corpus.corpoDoCorpus(notas: [
+            ("segredo do desabafo", .expressiva, [:], true, Date(timeIntervalSince1970: 1)),
+            ("quero correr de manhã", .woop, ["obstaculo": "celular na cama"], false, Date(timeIntervalSince1970: 2)),
+        ])
+        #expect(!corpo.contains("segredo"))
+        #expect(corpo.contains("quero correr de manhã"))
+        #expect(corpo.contains("celular na cama")) // respostas dos campos entram
+        #expect(corpo.contains("---")) // frontmatter legível
+    }
+
+    @Test func arquivoMdEhLegivelEVersionavel() {
+        let md = Corpus.arquivoMd(texto: "uma ideia", gesto: nil, campos: [:], criadaEm: Date(timeIntervalSince1970: 0))
+        #expect(md.hasPrefix("---\ncriada: 1970"))
+        #expect(md.contains("uma ideia"))
+    }
+}
