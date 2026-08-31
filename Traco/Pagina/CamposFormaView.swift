@@ -14,7 +14,7 @@ struct CamposFormaView: View {
     @State private var nascida = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(alignment: .leading, spacing: 4) {
             ForEach(Array(gesto.campos.enumerated()), id: \.element.id) { indice, campo in
                 LinhaCampo(id: campo.id, rotulo: campo.rotulo, texto: valor(campo.id))
                     // a forma chega como quem entra: campo a campo, um respiro
@@ -23,9 +23,7 @@ struct CamposFormaView: View {
                     .opacity(nascida || reduceMotion ? 1 : 0)
                     .offset(y: nascida || reduceMotion ? 0 : 6)
                     .animation(.easeOut(duration: 0.35).delay(min(Double(indice), 5) * 0.05), value: nascida)
-                if indice < gesto.campos.count - 1 {
-                    Rectangle().fill(Tema.linha).frame(height: 0.5)
-                }
+
             }
         }
         .padding(.horizontal, Tema.margem)
@@ -51,22 +49,36 @@ private struct LinhaCampo: View {
     let rotulo: String
     @Binding var texto: String
 
+    private var preenchido: Bool {
+        !texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 8) {
             Text(rotulo.uppercased())
                 .font(Tema.label)
                 .tracking(Tema.trackingLabel)
-                .foregroundStyle(Tema.tintaFraca)
+                .foregroundStyle(Tema.tintaSuave)
+            // o campo precisa PARECER que recebe texto: sem superfície própria,
+            // a folha inteira lia como somente-leitura (critique-affordance)
             TextField("", text: $texto, axis: .vertical)
                 .font(Tema.corpo)
                 .foregroundStyle(Tema.tinta)
                 .textFieldStyle(.plain)
                 .tint(Tema.ambar)
                 .lineLimit(1...5)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 10)
+                .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .topLeading)
+                .background(Tema.superficieAlta, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .strokeBorder(preenchido ? Tema.ambar.opacity(0.28) : Tema.linha, lineWidth: 0.5)
+                }
                 .accessibilityLabel(rotulo)
                 .accessibilityIdentifier("campo-\(id)")
         }
-        .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .leading)
-        .padding(.vertical, 14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.vertical, 12)
     }
 }

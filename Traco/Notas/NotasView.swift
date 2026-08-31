@@ -86,15 +86,24 @@ struct NotasView: View {
                             filtro = filtro == item ? nil : item
                         }
                     } label: {
-                        Text(item.rawValue)
+                        Text(item.rawValue.uppercased())
                             .font(Tema.label)
+                            .tracking(Tema.trackingLabel)
                             .foregroundStyle(filtro == item ? Tema.ambar : Tema.tintaSuave)
                             .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
-                            .frame(minHeight: 32)
+                            .padding(.vertical, 8)
+                            .frame(minHeight: 34)
                             .background(
                                 Capsule().fill(filtro == item ? Tema.ambarSuave : Tema.superficie)
                             )
+                            // o estado ligado precisa ser inequívoco, não só um
+                            // cinza um pouco mais claro (critique-affordance)
+                            .overlay {
+                                Capsule().strokeBorder(
+                                    filtro == item ? Tema.ambar.opacity(0.5) : Tema.linha,
+                                    lineWidth: 0.5
+                                )
+                            }
                     }
                     // alvo de toque 44 sem inflar o visual
                     .frame(minHeight: Tema.alvo)
