@@ -172,7 +172,14 @@ final class Sessao {
             context.insert(nota)
             self.notaUUID = nota.uuid
         }
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            // A escrita do autor nunca se perde em silêncio: o texto segue na página
+            // e o aviso diz isso. (Tranca de expressiva continua garantida pelo
+            // expressivaPrazo persistido na próxima gravação/arranque.)
+            mostrarToast("não consegui gravar — o texto continua na página.")
+        }
     }
 
     /// Expressiva vencida sobrevive à morte do processo: a notas não pode vazar o texto.
