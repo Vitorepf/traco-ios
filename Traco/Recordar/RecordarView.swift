@@ -25,14 +25,17 @@ struct RecordarView: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
+                // controle e título não podem vestir a mesma roupa: um se toca,
+                // o outro se lê (critique-visual-hierarchy)
                 Button { dismiss() } label: {
                     HStack(spacing: 5) {
                         Image(systemName: "chevron.backward")
                             .font(.subheadline.weight(.semibold))
                         Text("voltar")
+                            .font(Tema.chrome)
                     }
                 }
-                    .foregroundStyle(Tema.tintaSuave)
+                    .foregroundStyle(Tema.tinta)
                     .frame(minHeight: Tema.alvo)
                     .buttonStyle(PressaoDiscreta())
                     .accessibilityLabel("Voltar")
@@ -40,7 +43,7 @@ struct RecordarView: View {
                 Text("RECORDAR")
                     .font(Tema.label)
                     .tracking(Tema.trackingLabel)
-                    .foregroundStyle(Tema.tintaSuave)
+                    .foregroundStyle(Tema.tintaFraca)
                 Spacer()
                 Color.clear.frame(width: 64, height: Tema.alvo)
             }

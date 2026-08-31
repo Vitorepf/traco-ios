@@ -63,8 +63,8 @@ struct PaginaView: View {
             RecordarView(texto: sessao.recordarTexto, campos: sessao.recordarCampos) {
                 sessao.cumprirRevisaoPendente(no: context)
             }
-                .presentationBackground(Tema.fundo)
-                .presentationDragIndicator(.hidden)
+                .presentationBackground(Tema.superficie)
+                .presentationDragIndicator(.visible)
         }
         .onAppear {
             // a chegada assenta em vez de piscar pronta
