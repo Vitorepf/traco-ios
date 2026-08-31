@@ -98,6 +98,10 @@ struct BarraNavegacao: View {
                             .tracking(0.4)
                     }
                     .foregroundStyle(aba == item ? Tema.ambar : Tema.tintaSuave)
+                    // o aceso é ESTADO, não transição: acendia em fade meio
+                    // segundo depois do conteúdo, deixando quadros sem aba
+                    // selecionada nenhuma
+                    .animation(nil, value: aba)
                     .frame(maxWidth: .infinity, minHeight: Tema.alvo)
                     .contentShape(Rectangle())
                 }

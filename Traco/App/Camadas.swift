@@ -15,9 +15,6 @@ import SwiftUI
 /// o menor arranjo que não tem esse laço.
 struct Camadas<Arquivo: View, Escrita: View>: View {
     @Binding var arquivoAberto: Bool
-    /// 0 = escrevendo · 1 = arquivo à mostra. Quem está por baixo escurece com
-    /// isto, e a barra do arquivo viaja com isto — a camada é UMA peça.
-    @Binding var progresso: CGFloat
     var gestoAtivo: Bool
     var reduceMotion: Bool
     @ViewBuilder var arquivo: () -> Arquivo
@@ -42,7 +39,7 @@ struct Camadas<Arquivo: View, Escrita: View>: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 // profundidade de verdade: a folha do sistema escurece o fundo
                 // em 48%; a nossa escurecia 0,7% e lia como substituição
-                .overlay(Color.black.opacity(0.45 * progresso).ignoresSafeArea())
+                .overlay(Color.black.opacity(0.45 * fracao).ignoresSafeArea())
                 .allowsHitTesting(!arquivoAberto)
                 .accessibilityHidden(arquivoAberto)
 
@@ -50,10 +47,6 @@ struct Camadas<Arquivo: View, Escrita: View>: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .shadow(color: .black.opacity(0.6), radius: 18, x: 6)
                 .offset(x: pos)
-                .onChange(of: pos) { _, novo in
-                    guard largura > 0 else { return }
-                    progresso = max(0, min(1, 1 + novo / largura))
-                }
                 .allowsHitTesting(arquivoAberto)
                 .accessibilityHidden(!arquivoAberto)
         }
@@ -66,7 +59,6 @@ struct Camadas<Arquivo: View, Escrita: View>: View {
                     .onAppear {
                         largura = g.size.width
                         pos = arquivoAberto ? 0 : -g.size.width
-                        progresso = arquivoAberto ? 1 : 0
                     }
                     .onChange(of: g.size.width) { _, nova in
                         largura = nova
@@ -86,6 +78,13 @@ struct Camadas<Arquivo: View, Escrita: View>: View {
     /// A folha do sistema pousa com passo de 0,96px; a nossa pousava com 76px.
     /// `response` maior + `dampingFraction` um pouco menor = cauda longa, que é
     /// o que faz o movimento POUSAR em vez de bater.
+    /// 0 = escrevendo · 1 = arquivo à mostra. Derivado do MESMO valor animado,
+    /// dentro do body — nunca por `onChange`, que não roda por quadro.
+    private var fracao: CGFloat {
+        guard largura > 0 else { return arquivoAberto ? 1 : 0 }
+        return max(0, min(1, 1 + pos / largura))
+    }
+
     private func mola(reduzido: Bool) -> Animation {
         reduzido ? .easeOut(duration: 0.2) : .spring(response: 0.55, dampingFraction: 0.82)
     }
@@ -125,12 +124,14 @@ struct Camadas<Arquivo: View, Escrita: View>: View {
                 // mesma posição — era isso que re-acelerava na chegada.
                 animandoPeloGesto = true
                 withAnimation(mola(reduzido: reduceMotion)) { pos = alvo ? 0 : -w }
-                if mudou {
-                    arquivoAberto = alvo
-                    Toque.selecao()
-                }
+                if mudou { Toque.selecao() }
                 Task { @MainActor in
-                    try? await Task.sleep(for: .milliseconds(600))
+                    // o estado vira no quadro SEGUINTE: mudá-lo junto com a
+                    // animação dispara salvar + troca de árvore no mesmo
+                    // instante, e isso matava a mola (a volta saía em 1 quadro)
+                    try? await Task.sleep(for: .milliseconds(16))
+                    if mudou { arquivoAberto = alvo }
+                    try? await Task.sleep(for: .milliseconds(700))
                     animandoPeloGesto = false
                 }
             }

@@ -34,6 +34,8 @@ Se o patch faz uma destas coisas, é fail. Não "v2". Não "flag". Não "só no 
 ## Visual / iOS
 
 - Segundo tema claro "para acessibilidade" (a página preta é o produto; acessibilidade é contraste e Dynamic Type no escuro).
+- VoiceOver. Nunca. O app é de um dono, iPhone. Passe de leitor de tela não entra.
+- iPad / família 2. Nunca. O dono não tem iPad.
 - Dois âmbares vivos no mesmo ecrã.
 - Animação enquanto se escreve.
 - Alvo <44pt em acto real (régua, Porteiro, Concluída).

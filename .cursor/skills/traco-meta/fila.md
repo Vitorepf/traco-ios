@@ -32,4 +32,4 @@ Actualiza quando uma linha morrer ou nascer. Sem ticket theatre.
 
 ## Nunca fila
 
-- API paga, chat, resumo, nuvem, busca semântica, Android, tema claro, gamificação.
+- API paga, chat, resumo, nuvem, busca semântica, Android, tema claro, gamificação, VoiceOver, iPad.

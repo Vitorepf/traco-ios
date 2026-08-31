@@ -9,8 +9,6 @@ struct RaizView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var sessao = Sessao()
     @State private var tecladoAberto = false
-    /// 0 = escrevendo · 1 = arquivo. A barra do arquivo viaja com a camada.
-    @State private var progresso: CGFloat = 0
 
     private var arquivoAberto: Binding<Bool> {
         Binding(
@@ -22,7 +20,6 @@ struct RaizView: View {
     var body: some View {
         Camadas(
             arquivoAberto: arquivoAberto,
-            progresso: $progresso,
             // o gesto vive SEMPRE: ele nasce nos 28pt da borda, longe da seleção
             // de texto — matá-lo com o teclado de pé criava atrito depois de
             // concluir uma nota (o teclado volta e a saída sumia)
@@ -45,6 +42,21 @@ struct RaizView: View {
                 // deixava um quadro inteiramente VAZIO no meio (k423). Troca
                 // seca não tem vão — e aba não tem direção espacial mesmo.
                 .transaction { t in t.animation = nil }
+
+                // a barra vive DENTRO da camada: fora dela andava 34px enquanto
+                // o corpo andava 233px, e não era recortada pela borda
+                BarraNavegacao(
+                    aba: Binding(
+                        get: { sessao.abaArquivo },
+                        set: { nova in sessao.irPara(nova, no: context) }
+                    ),
+                    escondida: tecladoAberto,
+                    aoNovaNota: {
+                        sessao.salvar(no: context)
+                        sessao.novaPagina()
+                        sessao.irPara(.escrever, no: context)
+                    }
+                )
             }
         } escrita: {
             ZStack(alignment: .leading) {
@@ -79,28 +91,6 @@ struct RaizView: View {
             }
         }
         .animation(.easeOut(duration: 0.22), value: sessao.fechoExpressiva)
-        // a barra é chrome da CASCA, não de uma camada deslocada: dentro do trilho
-        // o `ignoresSafeArea` do material era cortado junto com a camada
-        .overlay(alignment: .bottom) {
-            if progresso > 0.01 {
-                BarraNavegacao(
-                    aba: Binding(
-                        get: { sessao.abaArquivo },
-                        set: { nova in sessao.irPara(nova, no: context) }
-                    ),
-                    escondida: tecladoAberto,
-                    aoNovaNota: {
-                        sessao.salvar(no: context)
-                        sessao.novaPagina()
-                        sessao.irPara(.escrever, no: context)
-                    }
-                )
-                // a barra ENTRA COM a camada: antes ela materializava depois
-                // que tudo já tinha pousado, e a camada não era uma peça só
-                .offset(x: (1 - progresso) * -60)
-                .opacity(progresso)
-            }
-        }
         .preferredColorScheme(.dark)
         .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
             tecladoAberto = true
