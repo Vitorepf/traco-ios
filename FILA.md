@@ -180,3 +180,19 @@ devs (pode quebrar), consentimento mostra o cliente compartilhado, gate por
 tier pode mudar → fallback local obrigatório em 401/403.
 TESTE BARATO ANTES DE CODAR: instalar o CLI oficial e rodar `grok login` na
 conta Heavy; se autenticar e inferir, o caminho está confirmado.
+
+### PROVADO na conta do dono (31/ago, tarde)
+CLI oficial instalado (grok 1.0.13, ~/.grok/bin, sem sudo). Conta já autenticada
+via OIDC em auth.x.ai ("You are logged in with grok.com"), modelos grok-4.6/4.5.
+- `grok -p` respondeu → **tier Heavy passa o gate** (nada de 403).
+- **Token OAuth da assinatura chamando `https://api.x.ai/v1/chat/completions`
+  direto → HTTP 200**, formato OpenAI-compatível idêntico ao que AnaliseRemota
+  já usa. Só muda o header: Bearer <access token OIDC> em vez de xai-<chave>.
+- Prova de que NÃO é crédito de API: o console do dono está em US$ 0,00 com
+  recarga automática desligada — chamada metered seria recusada; retornou 200.
+IMPLEMENTAÇÃO NO APP (pronta para decisão): device-code/PKCE em
+ASWebAuthenticationSession → access+refresh no Keychain (Chave.swift) → Bearer
+em api.x.ai → refresh por offline_access → queda para local em 401/403.
+CAVEAT ABERTO: o client_id é o do Grok CLI (cliente público da xAI). O app se
+apresentaria com essa identidade; a xAI não publicou registro de cliente próprio
+(sem registration_endpoint). Decisão do dono.
