@@ -172,12 +172,6 @@ struct PaginaView: View {
                 }
                 editor
             }
-            .safeAreaInset(edge: .bottom, spacing: 0) {
-                if sessao.cartao == nil && !sessao.paginaVazia {
-                    bottomBar
-                        .transition(.opacity)
-                }
-            }
 
             if let toast = sessao.toast {
                 Text(toast)
@@ -199,11 +193,14 @@ struct PaginaView: View {
                 CartaoAnaliseView(cartao: cartao, sessao: sessao, aoAbrirCampos: { mostrarCampos = true })
                     .padding(.horizontal, 12)
                     .padding(.bottom, 12)
+                    // f073→f074: nascia a 164px do destino, a 97% de opacidade,
+                    // com UM quadro de meio. É o momento de assinatura do
+                    // produto e era o único sem movimento. Agora sobe da borda.
                     .transition(reduceMotion
                         ? .opacity
                         : .asymmetric(
-                            insertion: .scale(scale: 0.96, anchor: .bottom).combined(with: .opacity).combined(with: .offset(y: 14)),
-                            removal: .opacity
+                            insertion: .move(edge: .bottom).combined(with: .opacity),
+                            removal: .move(edge: .bottom).combined(with: .opacity)
                         ))
             }
         }
@@ -244,6 +241,9 @@ struct PaginaView: View {
 
     private var editor: some View {
         CadernoView(
+            rodape: sessao.cartao == nil && !sessao.paginaVazia
+                ? AnyView(bottomBar.transition(.move(edge: .bottom)))
+                : nil,
             texto: $sessao.texto,
             foco: $focoPagina,
             folga: corpoFolga,

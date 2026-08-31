@@ -82,7 +82,9 @@ enum Tema {
 
     static let formaNasce: Double = 0.48
     static let cartaoEntra: Double = 0.26
-    static let cartaoSai: Double = 0.16
+    /// Saída existe: o cartão sumia em ZERO quadros e lia como erro de render.
+    /// Mais rápida que a entrada — o autor já decidiu.
+    static let cartaoSai: Double = 0.18
     static let confirmacaoEntra: Double = 0.22
     static let push: Double = 0.40
 

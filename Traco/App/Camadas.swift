@@ -80,14 +80,12 @@ struct Camadas<Arquivo: View, Escrita: View>: View {
                 let virar = abs(projetado) > w * 0.3
                 let alvo = arquivoAberto ? !virar : virar
                 let mudou = alvo != arquivoAberto
+                // antes: mola dura demais — o painel acelerava e batia num muro
+                // (+76px num quadro, zero no seguinte). `interactiveSpring`
+                // herda a velocidade do dedo e ASSENTA (apple-design §5/§6).
                 let mola: Animation = reduceMotion
                     ? .easeOut(duration: 0.2)
-                    : .interpolatingSpring(
-                        stiffness: 340,
-                        damping: 34,
-                        // a mola herda a velocidade do dedo: sem costura
-                        initialVelocity: abs(v.velocity.width) / max(w, 1)
-                    )
+                    : .interactiveSpring(response: 0.38, dampingFraction: 0.86, blendDuration: 0.1)
                 withAnimation(mola) {
                     arquivoAberto = alvo
                     arrasto = 0

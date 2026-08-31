@@ -4,6 +4,9 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct CadernoView: View {
+    /// A barra de ações da página viaja DENTRO deste mesmo inset: uma barra
+    /// deslizando e outra aparecendo por opacidade se atravessavam no ar.
+    var rodape: AnyView?
     @Binding var texto: String
     var foco: FocusState<Bool>.Binding
     var folga: CGFloat
@@ -77,10 +80,14 @@ struct CadernoView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .background(Tema.fundo)
                         .overlay(alignment: .top) {
-                            Rectangle().fill(Tema.linha).frame(height: 0.5)
+                            Rectangle().fill(Tema.luzBorda).frame(height: 0.5)
                         }
+                        .transition(.move(edge: .bottom))
                 }
+                // a barra de ações da página mora AQUI: um container, uma lei
+                rodape
             }
+            .animation(Tema.gaveta(reduzido: false), value: foco.wrappedValue)
         }
         .onAppear {
             unaCrua = Caderno.paginaUna(texto) != nil
