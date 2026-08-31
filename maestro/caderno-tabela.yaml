@@ -5,10 +5,11 @@ appId: app.traco
 - tapOn:
     id: pagina
 - inputText: "nome"
-- swipe:
-    from:
-      id: regua
-    direction: LEFT
+- scrollUntilVisible:
+    element:
+      id: regua-tabela
+    direction: RIGHT
+    timeout: 8000
 - tapOn:
     id: regua-tabela
 - takeScreenshot: /tmp/traco-verify/tabela-regua

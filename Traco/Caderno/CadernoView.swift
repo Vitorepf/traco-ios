@@ -166,6 +166,9 @@ struct CadernoView: View {
                         .frame(minHeight: Tema.alvo)
                         .accessibilityIdentifier("regua-\(papel.slug)")
                     }
+                    // o último chip precisa SAIR de baixo da máscara de fade,
+                    // senão fica cortado para sempre e é inalcançável
+                    Color.clear.frame(width: 20)
                 }
             }
             .mask(

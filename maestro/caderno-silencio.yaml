@@ -4,18 +4,12 @@ appId: app.traco
     clearState: true
 - tapOn:
     id: pagina
-- swipe:
-    from:
-      id: regua
-    direction: LEFT
-- swipe:
-    from:
-      id: regua
-    direction: LEFT
-- swipe:
-    from:
-      id: regua
-    direction: LEFT
+# o chip "Silêncio" é o ÚLTIMO da régua: rolar até ele
+- scrollUntilVisible:
+    element:
+      id: regua-silencio
+    direction: RIGHT
+    timeout: 8000
 - tapOn:
     id: regua-silencio
 - takeScreenshot: /tmp/traco-verify/silencio-regua

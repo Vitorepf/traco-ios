@@ -504,6 +504,12 @@ Com fade, sobram quadros sem nenhuma aba selecionada.
 **Chrome de uma camada mora DENTRO dela.** A barra que ficava fora andava 34px
 enquanto o corpo andava 233px, e não era recortada pela borda.
 
+**Build incremental pode linkar código de arquivo deletado.** Em 31/ago o app
+rodou horas com uma tela FANTASMA (um catálogo "Todas", de um arquivo que não
+existe em disco nem nunca esteve no git) porque o objeto velho continuava sendo
+linkado. Ao ver comportamento que o código não explica, **build limpo ANTES de
+investigar** — não depois de três hipóteses erradas.
+
 **O sistema é a régua.** No mesmo vídeo há animações do iOS (teclado, folha
 modal). Elas desaceleram monotonicamente, com cauda longa. Se a do app não se
 parece com aquilo, é a do app que está errada.
