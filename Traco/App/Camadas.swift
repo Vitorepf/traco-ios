@@ -1,13 +1,18 @@
 import SwiftUI
 
-/// Duas camadas num trilho horizontal (SPEC §20 rev.2):
+/// Duas camadas (SPEC §20 rev.2):
 ///
-///     [ Notas · Padrões · Perfil ]  ←→  [ ESCREVER ]
-///            com barra                    sem nada
+///     [ Notas · Padrões · Perfil ]  desliza por cima de  [ ESCREVER ]
 ///
-/// Escrever não é aba: é a casa. Do arquivo, arrastar para a ESQUERDA volta a
-/// escrever; da escrita, a borda esquerda traz o arquivo. O arrasto é 1:1 e a
-/// soltura herda a velocidade do dedo (apple-design §2, §5, §6).
+/// Escrever não é aba: é a casa, e fica PARADA no fundo. O arquivo entra pela
+/// esquerda e sai para a esquerda. Um só elemento se move — layout determinístico:
+/// as duas camadas são irmãs de tela cheia num ZStack, então nenhuma pode ser
+/// proposta com largura menor que a tela.
+///
+/// ponytail: já tentei trilho de duas páginas (HStack deslocado) e ZStack com
+/// offset nos DOIS filhos. Ambos realimentavam o layout e entregavam o arquivo
+/// com ~72% da largura, deixando a escrita aparecer numa faixa à direita. Este é
+/// o menor arranjo que não tem esse laço.
 struct Camadas<Arquivo: View, Escrita: View>: View {
     @Binding var arquivoAberto: Bool
     var gestoAtivo: Bool
@@ -16,72 +21,78 @@ struct Camadas<Arquivo: View, Escrita: View>: View {
     @ViewBuilder var escrita: () -> Escrita
 
     @State private var arrasto: CGFloat = 0
+    @State private var largura: CGFloat = 0
 
     private let borda: CGFloat = 28
 
     var body: some View {
-        GeometryReader { geo in
-            let w = geo.size.width
-            ZStack {
-                arquivo()
-                    .frame(width: w, height: geo.size.height)
-                    .offset(x: posicao(w) - w)
-                    .allowsHitTesting(arquivoAberto)
-                    .accessibilityHidden(!arquivoAberto)
+        ZStack {
+            escrita()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .allowsHitTesting(!arquivoAberto)
+                .accessibilityHidden(arquivoAberto)
 
-                escrita()
-                    .frame(width: w, height: geo.size.height)
-                    .offset(x: posicao(w))
-                    .allowsHitTesting(!arquivoAberto)
-                    .accessibilityHidden(arquivoAberto)
-            }
-            .contentShape(Rectangle())
-            .gesture(gestoAtivo ? trilho(w) : nil)
-            .animation(reduceMotion ? .easeOut(duration: 0.2) : nil, value: arquivoAberto)
+            arquivo()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .offset(x: deslocamento)
+                .allowsHitTesting(arquivoAberto)
+                .accessibilityHidden(!arquivoAberto)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background {
+            // medir POR FORA: um GeometryReader que também dimensiona os filhos
+            // realimenta o layout
+            GeometryReader { g in
+                Color.clear
+                    .onAppear { largura = g.size.width }
+                    .onChange(of: g.size.width) { _, nova in largura = nova }
+            }
+        }
+        .contentShape(Rectangle())
+        .gesture(gestoAtivo && largura > 0 ? trilho(largura) : nil)
+        .animation(reduceMotion ? .easeOut(duration: 0.2) : nil, value: arquivoAberto)
     }
 
-    /// 0 = escrevendo · w = arquivo à mostra. O dedo move o trilho inteiro.
-    private func posicao(_ w: CGFloat) -> CGFloat {
-        let base: CGFloat = arquivoAberto ? w : 0
-        return max(0, min(w, base + arrasto))
+    /// 0 = arquivo à mostra · −largura = arquivo fora, à esquerda.
+    private var deslocamento: CGFloat {
+        guard largura > 0 else { return -10_000 } // antes de medir, some de vez
+        let base: CGFloat = arquivoAberto ? 0 : -largura
+        return max(-largura, min(0, base + arrasto))
     }
 
     private func trilho(_ w: CGFloat) -> some Gesture {
         DragGesture(minimumDistance: 12)
             .onChanged { v in
                 if arquivoAberto {
-                    // do arquivo: só o arrasto para a ESQUERDA conta, e só da
-                    // borda direita — o scroll dos chips continua sendo dele
+                    // do arquivo: para a ESQUERDA, a partir da borda direita —
+                    // o scroll horizontal dos chips continua sendo deles
                     guard v.startLocation.x > w - borda else { return }
                     arrasto = min(0, v.translation.width)
                 } else {
-                    // da escrita: borda esquerda, para não roubar a seleção de texto
+                    // da escrita: borda esquerda, longe da seleção de texto
                     guard v.startLocation.x < borda else { return }
                     arrasto = max(0, v.translation.width)
                 }
             }
             .onEnded { v in
                 guard arrasto != 0 else { return }
-                let indo = v.translation.width
-                let projetado = indo + v.predictedEndTranslation.width * 0.35
+                let projetado = v.translation.width + v.predictedEndTranslation.width * 0.35
                 let virar = abs(projetado) > w * 0.3
                 let alvo = arquivoAberto ? !virar : virar
-                if reduceMotion {
-                    withAnimation(.easeOut(duration: 0.2)) {
-                        arquivoAberto = alvo
-                        arrasto = 0
-                    }
-                } else {
-                    // a mola herda a velocidade: sem costura entre dedo e animação
-                    let restante = max(abs(w - abs(indo)), 1)
-                    let vel = abs(v.velocity.width) / restante
-                    withAnimation(.interpolatingSpring(stiffness: 340, damping: 34, initialVelocity: vel)) {
-                        arquivoAberto = alvo
-                        arrasto = 0
-                    }
+                let mudou = alvo != arquivoAberto
+                let mola: Animation = reduceMotion
+                    ? .easeOut(duration: 0.2)
+                    : .interpolatingSpring(
+                        stiffness: 340,
+                        damping: 34,
+                        // a mola herda a velocidade do dedo: sem costura
+                        initialVelocity: abs(v.velocity.width) / max(w, 1)
+                    )
+                withAnimation(mola) {
+                    arquivoAberto = alvo
+                    arrasto = 0
                 }
-                if alvo != (arrasto != 0) { Toque.selecao() }
+                if mudou { Toque.selecao() }
             }
     }
 }

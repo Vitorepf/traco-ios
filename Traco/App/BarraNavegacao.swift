@@ -45,10 +45,43 @@ enum Aba: String, CaseIterable, Identifiable, Sendable {
 struct BarraNavegacao: View {
     @Binding var aba: Aba
     var escondida: Bool
+    /// Começar uma nota é AÇÃO, não destino — por isso tem forma própria.
+    var aoNovaNota: () -> Void
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         HStack(spacing: 0) {
+            // ação, não destino: pílula âmbar cheia, sem estado de seleção.
+            // `law-of-similarity` — o que FAZ não pode parecer o que LEVA.
+            Button {
+                Toque.leve()
+                aoNovaNota()
+            } label: {
+                VStack(spacing: 3) {
+                    Image(systemName: "square.and.pencil")
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundStyle(Tema.fundo)
+                        .frame(width: 38, height: 26)
+                        .background(Tema.ambar, in: Capsule())
+                    Text("Nova")
+                        .font(.caption2.weight(.semibold))
+                        .tracking(0.4)
+                        .foregroundStyle(Tema.ambar)
+                }
+                .frame(maxWidth: .infinity, minHeight: Tema.alvo)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(PressaoDiscreta())
+            .accessibilityIdentifier("nova-nota")
+            .accessibilityLabel("Nova nota")
+            .accessibilityHint("Guarda esta e abre uma página em branco")
+
+            // um fio separa o que FAZ do que LEVA (law-of-common-region)
+            Rectangle()
+                .fill(Tema.linha)
+                .frame(width: 0.5, height: 26)
+                .padding(.horizontal, 2)
+
             ForEach(Aba.naBarra) { item in
                 Button {
                     guard aba != item else { return }
@@ -74,6 +107,7 @@ struct BarraNavegacao: View {
                 .accessibilityHint(item.dica)
                 .accessibilityAddTraits(aba == item ? [.isButton, .isSelected] : .isButton)
             }
+
         }
         .padding(.top, 6)
         .padding(.bottom, 2)

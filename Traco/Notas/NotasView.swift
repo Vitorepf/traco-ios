@@ -35,20 +35,6 @@ struct NotasView: View {
                 .foregroundStyle(Tema.tinta)
                 .accessibilityAddTraits(.isHeader)
             Spacer()
-            Button {
-                sessao.salvar(no: context)
-                sessao.novaPagina()
-                sessao.aba = .escrever
-            } label: {
-                Image(systemName: "square.and.pencil")
-                    .font(.body.weight(.medium))
-                    .foregroundStyle(Tema.ambar)
-                    .frame(width: Tema.alvo, height: Tema.alvo)
-                    .contentShape(Rectangle())
-            }
-            .buttonStyle(PressaoDiscreta())
-            .accessibilityIdentifier("nova-pagina")
-            .accessibilityLabel("Nova página")
         }
         .padding(.horizontal, Tema.margem)
         .padding(.top, 4)

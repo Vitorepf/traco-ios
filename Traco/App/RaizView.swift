@@ -40,14 +40,6 @@ struct RaizView: View {
                 }
                 .transition(.opacity)
                 .animation(reduceMotion ? nil : .easeOut(duration: 0.18), value: sessao.abaArquivo)
-
-                BarraNavegacao(
-                    aba: Binding(
-                        get: { sessao.abaArquivo },
-                        set: { nova in sessao.irPara(nova, no: context) }
-                    ),
-                    escondida: tecladoAberto
-                )
             }
         } escrita: {
             ZStack(alignment: .leading) {
@@ -75,6 +67,26 @@ struct RaizView: View {
             ? .easeOut(duration: Tema.confirmacaoEntra)
             : .easeIn(duration: 0.15),
             value: sessao.confirmacao != nil)
+        // a barra é chrome da CASCA, não de uma camada deslocada: dentro do trilho
+        // o `ignoresSafeArea` do material era cortado junto com a camada
+        .overlay(alignment: .bottom) {
+            if sessao.aba != .escrever {
+                BarraNavegacao(
+                    aba: Binding(
+                        get: { sessao.abaArquivo },
+                        set: { nova in sessao.irPara(nova, no: context) }
+                    ),
+                    escondida: tecladoAberto,
+                    aoNovaNota: {
+                        sessao.salvar(no: context)
+                        sessao.novaPagina()
+                        sessao.irPara(.escrever, no: context)
+                    }
+                )
+                .transition(.opacity)
+            }
+        }
+        .animation(.easeOut(duration: 0.18), value: sessao.aba)
         .preferredColorScheme(.dark)
         .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
             tecladoAberto = true

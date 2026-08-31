@@ -408,6 +408,20 @@ descobribilidade sem ocupar a tela; some com o teclado.
 
 `hicks-law`: três destinos, não quatro. A casa não se escolhe — volta-se para ela.
 
+**A barra carrega UMA ação: "Nova".** Começar uma nota não é destino, é ato — por
+isso tem forma própria (pílula âmbar cheia, sem estado de seleção) e **lidera** a
+barra, separada dos destinos por um fio (`law-of-common-region`). No fim da barra
+ela roubava o olho do último destino e lia como um quarto item torto. O ícone
+duplicado no topo das Notas foi removido: a mesma ação em dois lugares é ruído.
+
+**Layout (o erro que custou três tentativas):** a escrita fica PARADA no fundo e
+só o arquivo desliza sobre ela. Trilho de duas páginas (HStack deslocado) e ZStack
+com offset nos DOIS filhos realimentam o layout do SwiftUI e entregam o arquivo
+com ~72% da largura — com a escrita vazando numa faixa preta à direita. A largura
+é medida por um `GeometryReader` no `background`, fora do fluxo que dimensiona os
+filhos. E a barra é chrome da CASCA, não da camada: dentro do trilho, o
+`ignoresSafeArea` do material era cortado junto.
+
 **Tokens (fixos antes de desenhar):** altura `Tema.barraNav` = 52pt + safe area · ícone 21pt ·
 rótulo `.caption2` com tracking 0.4 · ativo = âmbar, inativo = tintaFraca ·
 fundo `.ultraThinMaterial` sobre o fundo do tema, hairline de 0.5 no topo ·
