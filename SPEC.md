@@ -6,6 +6,8 @@
 > primeira viagem entende sem manual; verbo para ação, substantivo comum para tela; zero
 > metáfora interna. "Gesto" permanece: é conceito da tese, não nome de UI. Rename atômico
 > em código+testes+maestro+specs; propriedades persistidas do SwiftData intocadas.
+> ADR 2026-08-31b — Régua do Caderno podada 136→12 (menu grande = template em menu, §12);
+> o catálogo completo permanece no formato de arquivo: nota antiga nunca quebra.
 > O protótipo-espelho (HTML) demonstra os fluxos; o código real vem depois da spec aprovada.
 
 ## 1. Visão

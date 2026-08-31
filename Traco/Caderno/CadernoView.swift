@@ -126,7 +126,7 @@ struct CadernoView: View {
         HStack(spacing: 0) {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 16) {
-                    ForEach(PapelForma.catalogo) { papel in
+                    ForEach(PapelForma.regua) { papel in
                         Button(papel.nome) { transformar(papel) }
                             .frame(minHeight: Tema.alvo)
                             .accessibilityIdentifier("regua-\(papel.slug)")

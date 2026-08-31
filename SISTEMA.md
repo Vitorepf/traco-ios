@@ -75,11 +75,12 @@ Fim do timer **grava e tranca**. Sem isso o método não existe.
 ## Caderno (a nota é o artefato)
 
 A página não é um `TextEditor` nu. **Markdown é arquivo, não língua.** O autor
-nunca escreve `#`, ` ``` `, `:::`, `|---|` ou `- [ ]`. A régua do teclado
-(gesto de iOS, não uma sintaxe do Traço) é o vocabulário visual da nota:
-mais de cem nomes em português — Título, Verso, Cena, Dúvida, Silêncio… —
-num scroll horizontal. O toque aplica a forma ao bloco em que o cursor
-está. Edita-se o conteúdo — o título, o verso, o código — nunca a marcação.
+nunca escreve `#`, ` ``` `, `:::`, `|---|` ou `- [ ]`. A régua do teclado(gesto de iOS, não uma sintaxe do Traço) é o vocabulário visual da nota:
+DOZE formas na régua (Título, Secção, Lista, Numerada, Tarefa, Citação,
+Código, Tabela, Divisória, Verso, Ideia, Silêncio) — menu grande é template
+em menu (SPEC §12). O catálogo completo (~136 slugs) vive só no ARQUIVO:
+toda `:::slug` já gravada segue lendo e renderizando. O toque aplica a forma
+ao bloco em que o cursor está. Edita-se o conteúdo — o título, o verso, o código — nunca a marcação.
 A IA não escreve o bloco; o app só materializa o gesto. Formas novas
 guardam-se como `:::slug` no arquivo; a página nunca mostra essa cerca.
 

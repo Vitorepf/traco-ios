@@ -68,7 +68,7 @@ struct CadernoTests {
         #expect(Caderno.serializar(bloco) == ":::cena\na porta abre\n:::")
         #expect(!Caderno.visivel(":::cena\na porta abre\n:::").contains(":::"))
         #expect(Caderno.visivel(":::cena\na porta abre\n:::").contains("a porta abre"))
-        #expect(PapelForma.catalogo.prefix(24).map(\.slug).contains("cena"))
+        #expect(PapelForma.catalogo.contains { $0.slug == "cena" }) // fora da régua, vivo no arquivo
     }
 
     @Test func formulaVisivelNaoTemCerca() {
@@ -300,13 +300,14 @@ struct CadernoTests {
         #expect(Caderno.serializar(.titulo(2, "capa")) == "## capa")
     }
 
-    @Test func vocabularioDaReguaEVastoEUnico() {
+    @Test func reguaEnxutaCatalogoVasto() {
+        // SPEC §12: a RÉGUA é enxuta (≤12 — menu grande é template em menu).
+        #expect(PapelForma.regua.count == 12)
+        #expect(PapelForma.regua.prefix(6).map(\.nome) == ["Título", "Secção", "Lista", "Numerada", "Tarefa", "Citação"])
+        // O CATÁLOGO segue vasto e único: todo `:::slug` já gravado continua lendo.
         #expect(PapelForma.catalogo.count >= 120)
         #expect(Set(PapelForma.catalogo.map(\.slug)).count == PapelForma.catalogo.count)
-        #expect(PapelForma.catalogo.prefix(6).map(\.nome) == ["Título", "Lista", "Tarefa", "Citação", "Código", "Tabela"])
-        let perto = PapelForma.catalogo.prefix(20).map(\.slug)
-        #expect(perto.contains("traducao") && perto.contains("comparar") && perto.contains("causa"))
-        #expect(PapelForma.catalogo.prefix(24).map(\.slug).contains("cena"))
+        #expect(PapelForma.regua.allSatisfy { r in PapelForma.catalogo.contains { $0.slug == r.slug } })
     }
 
     @Test func idDaFatiaNaoReshuffleAoEditar() {

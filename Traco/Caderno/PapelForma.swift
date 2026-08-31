@@ -36,6 +36,15 @@ struct PapelForma: Hashable, Identifiable, Sendable {
 
     static let catalogo: [PapelForma] = fazerCatalogo()
 
+    /// A régua do teclado mostra SÓ estas (SPEC §12: menu de 136 nomes é template em menu).
+    /// O catálogo completo continua existindo para o ARQUIVO: toda `:::slug` já gravada
+    /// segue sendo lida e renderizada — poda-se o menu, nunca o formato.
+    static let regua: [PapelForma] = {
+        let slugs = ["titulo", "seccao", "lista", "numerada", "tarefa", "citacao",
+                     "codigo", "tabela", "divisoria", "verso", "ideia", "silencio"]
+        return slugs.compactMap { s in catalogo.first { $0.slug == s } }
+    }()
+
     static let porSlug: [String: PapelForma] = Dictionary(
         uniqueKeysWithValues: catalogo.map { ($0.slug, $0) }
     )
