@@ -178,7 +178,7 @@ struct PaginaView: View {
                 .foregroundStyle(sessao.paginaVazia || sessao.gesto != nil || sessao.cartao != nil ? Tema.tintaFraca : Tema.ambar)
                 .disabled(sessao.paginaVazia)
                 .accessibilityLabel("Analisar")
-                .accessibilityHint("Classifica o que você escreconfirmacao. Não escreve na nota.")
+                .accessibilityHint("Classifica o que você escreveu. Não escreve na nota.")
 
             if !sessao.paginaVazia {
                 Button("Recordar") { sessao.irRecordar(no: context) }

@@ -127,11 +127,11 @@ struct SessaoTests {
     @Test func padroesNaoEntraNaNota() {
         let s = Sessao()
         s.texto = "rascunho"
-        s.perguntaPadroes = "Você escreconfirmacao “x”. O que fez diferente?"
+        s.perguntaPadroes = "Você escreveu “x”. O que fez diferente?"
         s.novaPagina()
-        s.perguntaPadroes = "Você escreconfirmacao “x”. O que fez diferente?"
+        s.perguntaPadroes = "Você escreveu “x”. O que fez diferente?"
         #expect(s.texto.isEmpty)
-        #expect(s.perguntaPadroes?.contains("escreconfirmacao") == true)
+        #expect(s.perguntaPadroes?.contains("escreveu") == true)
     }
 
     @Test func timerNasceComQuinzeMinutos() {
@@ -219,5 +219,84 @@ struct SessaoTests {
         #expect(s.timerLigado)
         #expect(s.segundosRestantes >= 179 && s.segundosRestantes <= 180)
         s.pararTimer()
+    }
+
+    // MARK: - Fecho da expressiva (P0: onde uma regressão apaga ou expõe a escrita)
+
+    private func sessaoExpressiva(minutosEscritos: Int) throws -> (Sessao, ModelContext) {
+        let container = try ModelContainer(
+            for: Nota.self,
+            configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+        )
+        let context = ModelContext(container)
+        let s = Sessao()
+        s.texto = "hoje senti medo e chorei, o peito pesado não saiu o dia inteiro."
+        s.gesto = .expressiva
+        let t0 = Date()
+        s.iniciarTimer(agora: t0)
+        s.alinharTimerAoRelogio(agora: t0.addingTimeInterval(TimeInterval(minutosEscritos * 60)))
+        return (s, context)
+    }
+
+    @Test func concluirComDezMinutosTrancaDireto() throws {
+        let (s, context) = try sessaoExpressiva(minutosEscritos: 11)
+        s.concluir(no: context)
+        let notas = try context.fetch(FetchDescriptor<Nota>())
+        #expect(notas.first?.trancada == true)
+        #expect(s.texto.isEmpty)
+        #expect(s.timerLigado == false)
+    }
+
+    @Test func concluirAntesDosDezPassaPelaConfirmacao() throws {
+        let (s, context) = try sessaoExpressiva(minutosEscritos: 5)
+        s.concluir(no: context)
+        #expect(s.confirmacao == .sairTranca(destino: .pagina))
+        let notas = try context.fetch(FetchDescriptor<Nota>())
+        #expect(notas.allSatisfy { !$0.trancada })
+        #expect(!s.texto.isEmpty) // a escrita não foi apagada nem salva destrancada
+        s.pararTimer()
+    }
+
+    @Test func sairPelasNotasDuranteTimerAbreConfirmacao() throws {
+        let (s, context) = try sessaoExpressiva(minutosEscritos: 3)
+        s.irNotas(no: context)
+        #expect(s.confirmacao == .sairTranca(destino: .notas))
+        #expect(s.mostrarNotas == false)
+        let notas = try context.fetch(FetchDescriptor<Nota>())
+        #expect(notas.allSatisfy { !$0.trancada && $0.expressivaPrazo != nil } || notas.isEmpty)
+        s.pararTimer()
+    }
+
+    @Test func recordarDuranteTimerNaoCapturaTexto() throws {
+        let (s, context) = try sessaoExpressiva(minutosEscritos: 3)
+        s.irRecordar(no: context)
+        #expect(s.confirmacao == .sairTranca(destino: .recordar))
+        #expect(s.recordarTexto.isEmpty) // a expressiva não vaza pela rota do Recordar
+        #expect(s.mostrarRecordar == false)
+        s.trancarESair(no: context, destino: .recordar)
+        #expect(s.recordarTexto.isEmpty)
+        #expect(s.confirmacao == .trancada(destino: .pagina)) // trancada não se recorda
+    }
+
+    @Test func analiseCalaEmExpressivaNoMotor() {
+        // §8.5 no motor, não só na UI: mesmo conteúdo que dispararia aviso, cala.
+        let v = AnaliseLocal.classificar(
+            texto: "eu sou um vencedor e preciso falar com alguém",
+            gestoAtual: .expressiva,
+            campos: [:]
+        )
+        #expect(v == .silencio)
+    }
+
+    @Test func padroesSemObstaculoNaoRepeteFragmento() {
+        let perguntas = PadroesLocal.perguntas(vozes: [
+            "quero parar de adiar o projeto do app",
+            "percebi que executo bem o que escrevi ontem",
+            "quero acordar cedo para treinar",
+        ])
+        for p in perguntas {
+            let frags = p.split(separator: "“").dropFirst().map { $0.prefix(while: { $0 != "”" }) }
+            #expect(Set(frags).count == frags.count, "pergunta repete fragmento: \(p)")
+        }
     }
 }

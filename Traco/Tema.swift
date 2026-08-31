@@ -42,7 +42,6 @@ enum Tema {
     static let cartaoEntra: Double = 0.26
     static let cartaoSai: Double = 0.16
     static let confirmacaoEntra: Double = 0.22
-    static let confirmacaoSai: Double = 0.14
     static let push: Double = 0.40
 
     static func gaveta(reduzido: Bool) -> Animation {

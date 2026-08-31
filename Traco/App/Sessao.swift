@@ -171,6 +171,8 @@ final class Sessao {
         perguntaPadroes = nil
         cartao = nil
         confirmacao = nil
+        recordarTexto = ""
+        recordarCampos = [:]
     }
 
     func abrir(_ nota: Nota, mesmoTrancada: Bool = false) {
@@ -218,12 +220,14 @@ final class Sessao {
 
     func irRecordar(no context: ModelContext) {
         guard !paginaVazia else { return }
-        recordarTexto = texto
-        recordarCampos = campos
+        // A cópia só acontece quando o Recordar vai mesmo abrir: durante o timer,
+        // nada é capturado — a expressiva não pode vazar por esta rota.
         if timerLigado {
             confirmacao = .sairTranca(destino: .recordar)
             return
         }
+        recordarTexto = texto
+        recordarCampos = campos
         salvar(no: context)
         mostrarRecordar = true
     }
@@ -240,12 +244,10 @@ final class Sessao {
         salvar(no: context, trancar: true)
         novaPagina()
         Toque.fechou()
-        switch destino {
-        case .pagina: break
-        case .notas: mostrarNotas = true
-        case .recordar: break
-        }
-        confirmacao = .trancada(destino: destino)
+        // Nota trancada não se recorda: o destino Recordar vira página.
+        let destinoFinal: DestinoConfirmacao = destino == .recordar ? .pagina : destino
+        if destinoFinal == .notas { mostrarNotas = true }
+        confirmacao = .trancada(destino: destinoFinal)
     }
 
     static func buscar(uuid: UUID, no context: ModelContext) -> Nota? {

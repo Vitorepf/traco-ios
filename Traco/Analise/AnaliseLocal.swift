@@ -18,6 +18,9 @@ enum AnaliseLocal: Sendable {
     static let perguntaWOOP = "Qual é o hábito ou o medo seu que vai impedir — não o relógio, não os outros?"
 
     static func classificar(texto: String, gestoAtual: Gesto?, campos: [String: String]) -> Veredito {
+        // §8.5 no motor, não só na UI: a análise NUNCA comenta uma expressiva —
+        // nem reaberta por dupla confirmação, nem com o timer parado.
+        if gestoAtual == .expressiva { return .silencio }
         let bruto = Caderno.prosa(de: texto).trimmingCharacters(in: .whitespacesAndNewlines)
         guard !bruto.isEmpty else { return .silencio }
 
@@ -40,7 +43,6 @@ enum AnaliseLocal: Sendable {
                 .filter { !$0.isEmpty }
                 .joined(separator: "\n")
             if let novo = detectarGesto(posForma, posForma.lowercased(), estrito: true),
-               novo != .expressiva || gestoAtual != .expressiva,
                novo != gestoAtual {
                 return .aviso(avisoDoisGestos)
             }

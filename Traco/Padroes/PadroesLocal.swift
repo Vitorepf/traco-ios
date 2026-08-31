@@ -29,7 +29,7 @@ enum PadroesLocal: Sendable {
         }
 
         if let repetido = fragmentoRepetido(em: limpas), !usados.contains(repetido.lowercased()) {
-            saida.append("Você escreconfirmacao “\(repetido)” em mais de uma nota — o que fez diferente na vez que andou?")
+            saida.append("Você escreveu “\(repetido)” em mais de uma nota — o que fez diferente na vez que andou?")
             usados.insert(repetido.lowercased())
         }
 
@@ -38,12 +38,14 @@ enum PadroesLocal: Sendable {
             guard titulo.count >= 8, !usados.contains(titulo.lowercased()) else { continue }
             if saida.count == 0 {
                 saida.append("Sua nota diz: “\(titulo)”. Se isso é verdade, o que deveria estar escrito hoje — e não está?")
-            } else if saida.count == 1, let outra = limpas.dropFirst().first.map({ VozDoAutor.truncar(VozDoAutor.titulo($0), 36) }),
-                      outra.count >= 8, !usados.contains(outra.lowercased()) {
+            } else if saida.count == 1,
+                      let outra = limpas
+                          .map({ VozDoAutor.truncar(VozDoAutor.titulo($0), 36) })
+                          .first(where: { $0.count >= 8 && $0.lowercased() != titulo.lowercased() && !usados.contains($0.lowercased()) }) {
                 saida.append("“\(titulo)” e “\(outra)” — o que liga as duas, nas suas palavras?")
                 usados.insert(outra.lowercased())
             } else {
-                saida.append("Você escreconfirmacao “\(titulo)”. Na vez em que o pé andou, o que havia de diferente?")
+                saida.append("Você escreveu “\(titulo)”. Na vez em que o pé andou, o que havia de diferente?")
             }
             usados.insert(titulo.lowercased())
             if saida.count >= 3 { break }
