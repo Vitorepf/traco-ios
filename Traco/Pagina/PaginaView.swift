@@ -202,14 +202,16 @@ struct PaginaView: View {
     /// de conteúdo dentro do mesmo container.
     @ViewBuilder
     private var rodapeUnico: some View {
+        // sem `.transition(.opacity)`: cross-fade deixava as DUAS barras
+        // legíveis nas mesmas linhas por um quadro inteiro. Elementos que
+        // ocupam o mesmo espaço não se dissolvem um no outro — um sai, o outro
+        // entra, e quem anima é a ALTURA do container.
         if let cartao = sessao.cartao {
             CartaoAnaliseView(cartao: cartao, sessao: sessao, aoAbrirCampos: { mostrarCampos = true })
                 .padding(.horizontal, 12)
                 .padding(.bottom, 12)
-                .transition(.opacity)
         } else if !sessao.paginaVazia {
             bottomBar
-                .transition(.opacity)
         }
     }
 

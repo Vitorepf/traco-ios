@@ -26,6 +26,9 @@ struct Camadas<Arquivo: View, Escrita: View>: View {
     /// depois de um passo de 35 (g229→g230). Mola não acelera na chegada.
     @State private var pos: CGFloat = -10_000
     @State private var arrastando = false
+    /// O gesto já animou `pos`: o `onChange` externo não pode re-cravar o alvo
+    /// em pleno voo (dois alvos no mesmo movimento = re-aceleração na chegada).
+    @State private var animandoPeloGesto = false
     @State private var largura: CGFloat = 0
 
     private let borda: CGFloat = 28
@@ -39,6 +42,7 @@ struct Camadas<Arquivo: View, Escrita: View>: View {
 
             arquivo()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .shadow(color: .black.opacity(0.6), radius: 18, x: 6)
                 .offset(x: pos)
                 .allowsHitTesting(arquivoAberto)
                 .accessibilityHidden(!arquivoAberto)
@@ -63,7 +67,7 @@ struct Camadas<Arquivo: View, Escrita: View>: View {
         .gesture(gestoAtivo && largura > 0 ? trilho(largura) : nil)
         // mudança vinda de FORA do gesto (tocar numa aba, voltar por código)
         .onChange(of: arquivoAberto) { _, aberto in
-            guard !arrastando, largura > 0 else { return }
+            guard !arrastando, !animandoPeloGesto, largura > 0 else { return }
             withAnimation(mola(reduzido: reduceMotion)) { pos = aberto ? 0 : -largura }
         }
     }
@@ -80,11 +84,15 @@ struct Camadas<Arquivo: View, Escrita: View>: View {
                     // do arquivo: para a ESQUERDA, a partir da borda direita —
                     // o scroll horizontal dos chips continua sendo deles
                     guard v.startLocation.x > w - borda else { return }
+                    if !arrastando { Teclado.recolher() } // o teclado sai ANTES
                     arrastando = true
                     pos = max(-w, min(0, base + min(0, v.translation.width)))
                 } else {
                     // da escrita: borda esquerda, longe da seleção de texto
                     guard v.startLocation.x < borda else { return }
+                    // o teclado desce ANTES do deslize: descendo JUNTO, ele muda
+                    // o encaixe da camada e o conteúdo chega em dois pedaços
+                    if !arrastando { Teclado.recolher() }
                     arrastando = true
                     pos = max(-w, min(0, base + max(0, v.translation.width)))
                 }
@@ -98,11 +106,18 @@ struct Camadas<Arquivo: View, Escrita: View>: View {
                 let virar = abs(projetado) > w * 0.3
                 let alvo = arquivoAberto ? !virar : virar
                 let mudou = alvo != arquivoAberto
-                // a posição é PERSEGUIDA pela mola; nada é cravado
+                // a posição é PERSEGUIDA pela mola; nada é cravado. O flag
+                // impede que o `onChange` dispare uma SEGUNDA animação sobre a
+                // mesma posição — era isso que re-acelerava na chegada.
+                animandoPeloGesto = true
                 withAnimation(mola(reduzido: reduceMotion)) { pos = alvo ? 0 : -w }
                 if mudou {
                     arquivoAberto = alvo
                     Toque.selecao()
+                }
+                Task { @MainActor in
+                    try? await Task.sleep(for: .milliseconds(600))
+                    animandoPeloGesto = false
                 }
             }
     }

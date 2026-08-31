@@ -90,9 +90,11 @@ struct CadernoView: View {
                 rodape
             }
             // uma animação para a superfície inteira: os filhos trocam DENTRO
-            // dela, em vez de cada um ter a sua própria lei
+            // dela — quem anima é a ALTURA do container, não a opacidade de
+            // dois irmãos que ocupam as mesmas linhas
             .animation(Tema.gaveta(reduzido: false), value: foco.wrappedValue)
             .animation(Tema.gaveta(reduzido: false), value: esconderRegua)
+            .clipped()
         }
         .onAppear {
             unaCrua = Caderno.paginaUna(texto) != nil

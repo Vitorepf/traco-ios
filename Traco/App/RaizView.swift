@@ -38,7 +38,12 @@ struct RaizView: View {
                 .safeAreaInset(edge: .bottom, spacing: 0) {
                     Color.clear.frame(height: tecladoAberto ? 0 : Tema.barraNav)
                 }
-                .transition(.opacity)
+                // a troca de aba anima SÓ quando a camada já está parada: durante
+                // o deslize ela era um segundo driver, e o conteúdo chegava em
+                // dois pedaços (cabeçalho e lista a 26px um do outro)
+                .transaction { t in
+                    if sessao.aba == .escrever { t.animation = nil }
+                }
                 .animation(reduceMotion ? nil : .easeOut(duration: 0.18), value: sessao.abaArquivo)
             }
         } escrita: {
