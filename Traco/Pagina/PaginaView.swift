@@ -76,6 +76,12 @@ struct PaginaView: View {
             sessao.alinharTimerAoRelogio()
             sessao.trancarExpressivasVencidas(no: context)
         }
+        .onReceive(NotificationCenter.default.publisher(for: Revisoes.abrirRevisao)) { aviso in
+            // §17: um passo — a notificação abre direto o Recordar da nota
+            guard let uuid = aviso.object as? UUID,
+                  let nota = Sessao.buscar(uuid: uuid, no: context) else { return }
+            sessao.recordarDaNotas(nota)
+        }
     }
 
     private var pagina: some View {

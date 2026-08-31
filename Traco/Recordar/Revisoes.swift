@@ -31,8 +31,34 @@ enum Revisoes {
             let quando = proximaRevisao(aPartirDe: max(criadaEm, .now))
             let comps = Calendar.current.dateComponents([.year, .month, .day, .hour], from: quando)
             let gatilho = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)
+            conteudo.userInfo = ["uuid": uuid.uuidString]
             let pedido = UNNotificationRequest(identifier: "revisao-\(uuid.uuidString)", content: conteudo, trigger: gatilho)
             centro.add(pedido)
+        }
+    }
+
+    // MARK: - Toque na notificação → direto ao Recordar da nota (§17: um passo)
+
+    nonisolated static func uuidDaResposta(_ userInfo: [AnyHashable: Any]) -> UUID? {
+        (userInfo["uuid"] as? String).flatMap(UUID.init(uuidString:))
+    }
+
+    static let abrirRevisao = Notification.Name("traco.abrirRevisao")
+
+    final class Delegate: NSObject, UNUserNotificationCenterDelegate {
+        static let compartilhado = Delegate()
+
+        func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                    didReceive response: UNNotificationResponse) async {
+            guard let uuid = Revisoes.uuidDaResposta(response.notification.request.content.userInfo) else { return }
+            await MainActor.run {
+                NotificationCenter.default.post(name: Revisoes.abrirRevisao, object: uuid)
+            }
+        }
+
+        func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                    willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {
+            [.banner]
         }
     }
 

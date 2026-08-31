@@ -556,3 +556,12 @@ struct ImportarTests {
         #expect(Corpus.importar("   \n  ").isEmpty)
     }
 }
+
+struct RevisaoRotaTests {
+    @Test func uuidSaiDoUserInfo() {
+        let u = UUID()
+        #expect(Revisoes.uuidDaResposta(["uuid": u.uuidString]) == u)
+        #expect(Revisoes.uuidDaResposta(["uuid": "lixo"]) == nil)
+        #expect(Revisoes.uuidDaResposta([:]) == nil)
+    }
+}
