@@ -23,12 +23,13 @@ struct ConfirmacaoView: View {
                     switch estado {
                     case .sairTranca(let destino):
                         titulo("Sair agora tranca.")
-                        texto("A escrita expressiva fecha a porta de qualquer jeito — dentro ou fora do tempo.")
+                        texto("A escrita expressiva fecha a porta de qualquer jeito — dentro ou fora do tempo. Você escolhe qual: selar ou queimar.")
                         botao("Continuar escrevendo", id: "confirmacao-continuar") { sessao.confirmacao = nil }
-                        botaoMudo("Trancar e sair", id: "confirmacao-trancar") {
+                        botaoMudo("Fechar a escrita", id: "confirmacao-trancar") {
                             Task {
                                 try? await Task.sleep(for: .milliseconds(220))
-                                sessao.trancarESair(no: context, destino: destino)
+                                // §8: sair não tranca sozinho — abre a escolha
+                                sessao.abrirFecho(no: context)
                             }
                         }
                     case .trancada(let destino):
@@ -45,10 +46,16 @@ struct ConfirmacaoView: View {
                     case .insistirReabrir(let uuid):
                         titulo("Ela foi escrita para ficar fechada.")
                         botao("Deixar fechada", id: "confirmacao-deixar") { sessao.confirmacao = nil }
-                        botaoMudo("Abrir assim mesmo", id: "confirmacao-insistir") {
-                            sessao.confirmacao = nil
-                            if let nota = Sessao.buscar(uuid: uuid, no: context) {
-                                sessao.abrir(nota, mesmoTrancada: true)
+                        botaoMudo(Biometria.disponivel ? "Abrir com Face ID" : "Abrir assim mesmo",
+                                  id: "confirmacao-insistir") {
+                            // SPEC §8: o último degrau do atrito é o seu rosto —
+                            // ninguém com o telefone destravado na mão passa daqui
+                            Task {
+                                guard await Biometria.pedir("Abrir uma escrita selada") else { return }
+                                sessao.confirmacao = nil
+                                if let nota = Sessao.buscar(uuid: uuid, no: context) {
+                                    sessao.abrir(nota, mesmoTrancada: true)
+                                }
                             }
                         }
                     case .apagar(let uuid):

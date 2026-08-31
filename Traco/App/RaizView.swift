@@ -67,6 +67,13 @@ struct RaizView: View {
             ? .easeOut(duration: Tema.confirmacaoEntra)
             : .easeIn(duration: 0.15),
             value: sessao.confirmacao != nil)
+        .overlay {
+            if let minutos = sessao.fechoExpressiva {
+                FechoExpressivaView(sessao: sessao, minutos: minutos)
+                    .transition(.opacity)
+            }
+        }
+        .animation(.easeOut(duration: 0.22), value: sessao.fechoExpressiva)
         // a barra é chrome da CASCA, não de uma camada deslocada: dentro do trilho
         // o `ignoresSafeArea` do material era cortado junto com a camada
         .overlay(alignment: .bottom) {

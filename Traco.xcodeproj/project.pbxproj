@@ -25,6 +25,7 @@
 		50BDC2DAF155F65D6076D8CD /* Revisoes.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB811F3145B921C3557FB6CF /* Revisoes.swift */; };
 		56A38C95EE9713A63A475FC8 /* NotasESessaoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B544C7CB0EEA5F5D2DAFB30C /* NotasESessaoTests.swift */; };
 		5A36977E5B83A71BE62DD42B /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 8250E3200AC60E254A9A3BB0 /* PrivacyInfo.xcprivacy */; };
+		5B9AE29312A3CD5A78A518FC /* FechoExpressivaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CB7E1BBDF9B934FC651E5E1 /* FechoExpressivaView.swift */; };
 		611B3215CD20394B57D23B03 /* Intencoes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E1B7B58FD49695380C335BA /* Intencoes.swift */; };
 		61AFC497AD6793FD5616F122 /* Empilha.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FDEE4E634F20086C0076DA8 /* Empilha.swift */; };
 		790B6E9A5A75BFDBB00BFF9F /* PapelForma.swift in Sources */ = {isa = PBXBuildFile; fileRef = 665F2C234F3966C3C528A729 /* PapelForma.swift */; };
@@ -54,6 +55,7 @@
 		F148642627D0F541F44FC281 /* CadernoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC971448D0B5207611E641F1 /* CadernoView.swift */; };
 		F27B18C71280288BE9473182 /* EditorBlocoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67B5D4AE1A40807B1EF842C2 /* EditorBlocoView.swift */; };
 		F56D7F602C6E9A08A50F1995 /* TracoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A3AE8285B42EB802930300 /* TracoApp.swift */; };
+		FB6AB509E7EB62D3C765CF9C /* Biometria.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E940D918A358CD4BD45629E /* Biometria.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -73,6 +75,7 @@
 		0A273C7A77EA3B9F5AAAC13A /* Tema.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tema.swift; sourceTree = "<group>"; };
 		1629E684196EC743E4367A0E /* DestaqueBusca.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DestaqueBusca.swift; sourceTree = "<group>"; };
 		1C7AAAC02FD4111DF3F7A6A6 /* TracoTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = TracoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		2CB7E1BBDF9B934FC651E5E1 /* FechoExpressivaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FechoExpressivaView.swift; sourceTree = "<group>"; };
 		2CD2B3195498A124686B86F4 /* ConfirmacaoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfirmacaoView.swift; sourceTree = "<group>"; };
 		3012217369C9A480FC336A64 /* Corpus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Corpus.swift; sourceTree = "<group>"; };
 		39E5B1F01B36DA923CEA022B /* Sessao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sessao.swift; sourceTree = "<group>"; };
@@ -81,6 +84,7 @@
 		44CF1006FD54376D4F9A5274 /* PaginaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaginaView.swift; sourceTree = "<group>"; };
 		481F4361236B561E2D58A0D1 /* PadroesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PadroesView.swift; sourceTree = "<group>"; };
 		497B071C1D5EF6487614814F /* PortalFormulaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortalFormulaView.swift; sourceTree = "<group>"; };
+		4E940D918A358CD4BD45629E /* Biometria.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Biometria.swift; sourceTree = "<group>"; };
 		559F50CC1AF6E37EF3CA94F7 /* AnaliseRemota.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnaliseRemota.swift; sourceTree = "<group>"; };
 		65BEA908CA56E5E6C5353906 /* PadroesLocal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PadroesLocal.swift; sourceTree = "<group>"; };
 		665F2C234F3966C3C528A729 /* PapelForma.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PapelForma.swift; sourceTree = "<group>"; };
@@ -221,7 +225,9 @@
 		8FAD282C36528CE1432292DD /* Confirmacao */ = {
 			isa = PBXGroup;
 			children = (
+				4E940D918A358CD4BD45629E /* Biometria.swift */,
 				2CD2B3195498A124686B86F4 /* ConfirmacaoView.swift */,
+				2CB7E1BBDF9B934FC651E5E1 /* FechoExpressivaView.swift */,
 			);
 			path = Confirmacao;
 			sourceTree = "<group>";
@@ -387,6 +393,7 @@
 				47CDB34EC591FC6D2C9B98F1 /* AnaliseRemota.swift in Sources */,
 				4C087E51618A29E54C7DB4BF /* AnexoDisco.swift in Sources */,
 				EFE3BD16FDB33FBF2B0E27C7 /* BarraNavegacao.swift in Sources */,
+				FB6AB509E7EB62D3C765CF9C /* Biometria.swift in Sources */,
 				8ACDA4B666D4AA6D1B5F76F6 /* BlocoCaderno.swift in Sources */,
 				F148642627D0F541F44FC281 /* CadernoView.swift in Sources */,
 				80ADF1AB86E85FB378787A92 /* Camadas.swift in Sources */,
@@ -398,6 +405,7 @@
 				0FA3C90485245DA99E3B96B8 /* DestaqueBusca.swift in Sources */,
 				F27B18C71280288BE9473182 /* EditorBlocoView.swift in Sources */,
 				61AFC497AD6793FD5616F122 /* Empilha.swift in Sources */,
+				5B9AE29312A3CD5A78A518FC /* FechoExpressivaView.swift in Sources */,
 				9AE336A415F4A83195416BE2 /* Gesto.swift in Sources */,
 				BFBA450F8798775C427206AB /* Holofote.swift in Sources */,
 				611B3215CD20394B57D23B03 /* Intencoes.swift in Sources */,

@@ -40,6 +40,8 @@ enum Tema {
     static let alvo: CGFloat = 44
     /// SPEC §20: altura da barra inferior — o encaixe que mantém TODA tela acima dela.
     static let barraNav: CGFloat = 52
+    /// A queima acontece em cena: rara, e por isso pode ter peso (SPEC §8).
+    static let queima: Double = 0.55
     static let margem: CGFloat = 22
     static let pressao: CGFloat = 0.94
 

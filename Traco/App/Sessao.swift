@@ -33,6 +33,11 @@ final class Sessao {
     var recordarTexto = ""
     var recordarCampos: [String: String] = [:]
     var timerEsgotou = false
+    /// SPEC §8: o fecho da expressiva (selar ou queimar) é escolha do autor.
+    var fechoExpressiva: Int?
+    /// A linha de sentido viaja até o salvar — nunca entra no texto selado.
+    var sentidoPendente: String?
+    var fechoUUID: UUID?
 
     private var toastTask: Task<Void, Never>?
     private var timerTask: Task<Void, Never>?
@@ -148,7 +153,7 @@ final class Sessao {
         Revisoes.registrarCumprida(uuid)
         if let nota = Self.buscar(uuid: uuid, no: context) {
             Revisoes.agendar(uuid: nota.uuid, criadaEm: nota.criadaEm, gesto: nota.gesto,
-                             trancada: nota.trancada, texto: nota.texto)
+                             trancada: nota.fechada, texto: nota.texto)
         }
     }
 
@@ -244,7 +249,28 @@ final class Sessao {
     func esgotarTimer(no context: ModelContext) {
         guard timerLigado || timerEsgotou else { return }
         timerEsgotou = false
+        // §8: o tempo acabou — sela (garantia) e oferece a escolha do fecho
+        abrirFecho(no: context)
+    }
+
+    /// §8: fecha SELADO primeiro — o selo é garantia e não pode depender de o
+    /// autor responder (matar o app no meio deixaria a nota aberta). Só então
+    /// oferece a escolha: manter selada ou queimar.
+    func abrirFecho(no context: ModelContext) {
+        let minutos = minutosExpressiva
+        confirmacao = nil
         trancarESair(no: context, destino: .pagina)
+        confirmacao = nil
+        fechoUUID = Self.ultimaTrancada(no: context)?.uuid
+        fechoExpressiva = minutos
+    }
+
+    /// A recém-selada: a queima do fecho age sobre ela, mesmo depois do novaPagina.
+    private static func ultimaTrancada(no context: ModelContext) -> Nota? {
+        let todas = (try? context.fetch(FetchDescriptor<Nota>())) ?? []
+        return todas
+            .filter { $0.trancada && !$0.queimada }
+            .max { $0.editadaEm < $1.editadaEm }
     }
 
     func salvar(no context: ModelContext, trancar: Bool = false) {
@@ -257,9 +283,14 @@ final class Sessao {
             nota.campos = campos
             nota.expressivaPrazo = prazo
             if trancar { nota.trancada = true }
+            if let sentidoPendente { nota.sentido = sentidoPendente }
+            nota.minutosEscritos = max(nota.minutosEscritos, minutosExpressiva)
             nota.editadaEm = .now
         } else {
-            let nota = Nota(texto: texto, gesto: gesto, campos: campos, trancada: trancar, expressivaPrazo: prazo)
+            let nota = Nota(texto: texto, gesto: gesto, campos: campos, trancada: trancar,
+                            expressivaPrazo: prazo,
+                            minutosEscritos: minutosExpressiva,
+                            sentido: sentidoPendente ?? "")
             context.insert(nota)
             self.notaUUID = nota.uuid
         }
@@ -310,6 +341,11 @@ final class Sessao {
     }
 
     func abrir(_ nota: Nota, mesmoTrancada: Bool = false) {
+        // queimada não abre: não existe texto. Dizer isso é honestidade, não erro.
+        if nota.queimada {
+            mostrarToast("essa você queimou. ficou a data e o que você entendeu.")
+            return
+        }
         if nota.trancada, !mesmoTrancada {
             confirmacao = .naoSeRele(nota.uuid)
             return
@@ -330,8 +366,10 @@ final class Sessao {
 
     func concluir(no context: ModelContext) {
         if timerLigado {
+            // §8: Concluída depois de 10 min já mereceu a porta — mas quem
+            // escolhe QUAL porta (selar ou queimar) é sempre o autor
             if minutosExpressiva >= 10 {
-                trancarESair(no: context, destino: .pagina)
+                abrirFecho(no: context)
             } else {
                 confirmacao = .sairTranca(destino: .pagina)
             }
@@ -344,10 +382,10 @@ final class Sessao {
         if let todas = try? context.fetch(FetchDescriptor<Nota>()) {
             Corpus.backupAutomatico(notas: todas)
             // Exp 3: Spotlight indexa só as abertas (o selo vale para o sistema)
-            Holofote.indexar(notas: todas.map { ($0.uuid, $0.vozDoAutor, $0.trancada) })
+            Holofote.indexar(notas: todas.map { ($0.uuid, $0.vozDoAutor, $0.fechada) })
         }
         if let notaUUID, let nota = Self.buscar(uuid: notaUUID, no: context) {
-            Revisoes.agendar(uuid: nota.uuid, criadaEm: nota.criadaEm, gesto: nota.gesto, trancada: nota.trancada, texto: nota.texto) { [weak self] in
+            Revisoes.agendar(uuid: nota.uuid, criadaEm: nota.criadaEm, gesto: nota.gesto, trancada: nota.fechada, texto: nota.texto) { [weak self] in
                 Task { @MainActor in
                     self?.mostrarToast("revisões precisam de permissão — Ajustes › Traço › Notificações.")
                 }
@@ -396,15 +434,73 @@ final class Sessao {
     }
 
     func recordarDaNotas(_ nota: Nota) {
-        guard !nota.trancada else { return }
+        guard !nota.fechada else { return }
         recordarTexto = nota.texto
         recordarCampos = nota.campos
         mostrarRecordar = true
     }
 
+    /// SPEC §8: QUEIMAR. Não é esconder — é destruir. O texto é sobrescrito antes
+    /// de sumir (não basta marcar), e o backup no Arquivos é regravado na hora,
+    /// senão a promessa seria mentira. Sobram data, minutos e a linha de sentido.
+    func queimar(no context: ModelContext, sentido linha: String) {
+        pararTimer()
+        let minutos = minutosExpressiva
+        let corte = linha.trimmingCharacters(in: .whitespacesAndNewlines)
+        let nota: Nota
+        if let alvo = fechoUUID ?? notaUUID, let existente = Self.buscar(uuid: alvo, no: context) {
+            nota = existente
+        } else {
+            nota = Nota(gesto: .expressiva)
+            context.insert(nota)
+        }
+        // a cinza não guarda o texto: sobrescreve, depois esvazia
+        nota.texto = String(repeating: " ", count: max(nota.texto.count, 1))
+        nota.texto = ""
+        nota.campos = [:]
+        nota.gesto = .expressiva
+        nota.trancada = false
+        nota.queimada = true
+        nota.queimadaEm = .now
+        nota.minutosEscritos = minutos
+        nota.sentido = corte
+        nota.expressivaPrazo = nil
+        nota.editadaEm = .now
+        try? context.save()
+        // nada de janela de desfazer: queimar não tem volta, e isso é o método
+        apagadaRecuperavel = nil
+        Revisoes.cancelar(uuid: nota.uuid)
+        if let todas = try? context.fetch(FetchDescriptor<Nota>()) {
+            Corpus.backupAutomatico(notas: todas)
+            Holofote.indexar(notas: todas.map { ($0.uuid, $0.vozDoAutor, $0.fechada) })
+        }
+        novaPagina()
+        Toque.fechou()
+        confirmacao = nil
+        fechoExpressiva = nil
+        sentidoPendente = nil
+        fechoUUID = nil
+    }
+
+    /// O "Selar" do fecho: a nota já está selada; aqui só grava a linha de
+    /// sentido, que vive FORA do selo e entra no corpus.
+    func guardarSentidoDoFecho(_ linha: String, no context: ModelContext) {
+        if let alvo = fechoUUID, let nota = Self.buscar(uuid: alvo, no: context) {
+            nota.sentido = linha.trimmingCharacters(in: .whitespacesAndNewlines)
+            nota.editadaEm = .now
+            try? context.save()
+        }
+        fechoExpressiva = nil
+        fechoUUID = nil
+        sentidoPendente = nil
+        Toque.suave()
+    }
+
     func trancarESair(no context: ModelContext, destino: DestinoConfirmacao) {
         pararTimer()
         salvar(no: context, trancar: true)
+        sentidoPendente = nil
+        fechoExpressiva = nil
         novaPagina()
         Toque.fechou()
         // Nota trancada não se recorda: o destino Recordar vira página.

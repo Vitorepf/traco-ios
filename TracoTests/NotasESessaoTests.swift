@@ -733,3 +733,99 @@ struct PadroesRemotoTests {
         UserDefaults.standard.removeObject(forKey: "padroesVistas")
     }
 }
+
+/// SPEC §8: os DOIS fechos da expressiva são métodos distintos, com garantias
+/// distintas. Se a promessa "queimou" não for verdade em TODAS as rotas, é mentira.
+@MainActor
+struct FechoExpressivaTests {
+    private func container() throws -> ModelContainer {
+        try ModelContainer.traco(emMemoria: true)
+    }
+
+    @Test func queimarDestroiOTextoEGuardaOSentido() throws {
+        let c = try container()
+        let s = Sessao()
+        s.gesto = .expressiva
+        s.texto = "a coisa que eu não queria ter escrito"
+        s.salvar(no: c.mainContext)
+        s.queimar(no: c.mainContext, sentido: "o medo era de decepcionar, não de falhar")
+
+        let notas = try c.mainContext.fetch(FetchDescriptor<Nota>())
+        #expect(notas.count == 1)
+        let nota = try #require(notas.first)
+        #expect(nota.queimada)
+        #expect(nota.texto.isEmpty)                    // o texto foi destruído
+        #expect(nota.campos.isEmpty)
+        #expect(nota.sentido == "o medo era de decepcionar, não de falhar")
+        #expect(nota.queimadaEm != nil)
+        #expect(nota.fechada)                          // vale como fechada em toda rota
+        #expect(!nota.trancada)                        // queimar ≠ selar
+    }
+
+    @Test func queimadaNuncaSaiNoExportNemNoBackup() throws {
+        let c = try container()
+        let s = Sessao()
+        s.gesto = .expressiva
+        s.texto = "isto não pode sair daqui"
+        s.salvar(no: c.mainContext)
+        s.queimar(no: c.mainContext, sentido: "aprendi X")
+
+        let notas = try c.mainContext.fetch(FetchDescriptor<Nota>())
+        let corpo = Corpus.corpoDoCorpus(
+            notas: notas.map { ($0.texto, $0.gesto, $0.campos, $0.fechada, $0.criadaEm) }
+        )
+        #expect(!corpo.contains("isto não pode sair daqui"))
+    }
+
+    @Test func queimarNaoDeixaJanelaDeDesfazer() throws {
+        let c = try container()
+        let s = Sessao()
+        s.gesto = .expressiva
+        s.texto = "sem volta"
+        s.salvar(no: c.mainContext)
+        s.queimar(no: c.mainContext, sentido: "")
+        // desfazer traria o texto de volta — queimar não tem volta, é o método
+        #expect(s.apagadaRecuperavel == nil)
+    }
+
+    @Test func queimadaNaoAbre() throws {
+        let c = try container()
+        let s = Sessao()
+        s.gesto = .expressiva
+        s.texto = "conteúdo"
+        s.salvar(no: c.mainContext)
+        s.queimar(no: c.mainContext, sentido: "")
+        let nota = try #require(try c.mainContext.fetch(FetchDescriptor<Nota>()).first)
+        s.abrir(nota)
+        #expect(s.texto.isEmpty)     // nada foi carregado para a página
+        #expect(s.toast != nil)      // e o app diz por quê, em vez de calar
+    }
+
+    @Test func selarGuardaOTextoEOSentido() throws {
+        let c = try container()
+        let s = Sessao()
+        s.gesto = .expressiva
+        s.texto = "o que eu escrevi fica comigo"
+        s.sentidoPendente = "o que ficou claro"
+        s.trancarESair(no: c.mainContext, destino: .pagina)
+
+        let nota = try #require(try c.mainContext.fetch(FetchDescriptor<Nota>()).first)
+        #expect(nota.trancada)
+        #expect(!nota.queimada)
+        #expect(nota.texto == "o que eu escrevi fica comigo") // selar preserva
+        #expect(nota.sentido == "o que ficou claro")
+        #expect(nota.fechada)
+    }
+
+    @Test func oFechoEEscolhaDoAutorNaoDoRelogio() {
+        let s = Sessao()
+        s.gesto = .expressiva
+        s.texto = "escrevi"
+        s.timerLigado = true
+        s.timerEsgotou = true
+        s.segundosRestantes = 0
+        let c = try? ModelContainer.traco(emMemoria: true)
+        s.esgotarTimer(no: c!.mainContext)
+        #expect(s.fechoExpressiva != nil) // o tempo abre a ESCOLHA, não tranca
+    }
+}

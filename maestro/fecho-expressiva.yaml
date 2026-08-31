@@ -1,0 +1,48 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn: Página
+- inputText: "hoje senti um peso no peito quando acordei e o medo de nao dar conta voltou. chorei no chuveiro. estava pesado o dia inteiro e eu nao disse a ninguem."
+- extendedWaitUntil:
+    visible: "Começar o timer"
+    timeout: 8000
+- tapOn: "Começar o timer"
+# §8: sair abre a escolha do fecho — dois métodos, não um
+- swipe:
+    start: 1%, 50%
+    end: 85%, 50%
+- extendedWaitUntil:
+    visible:
+      id: "confirmacao-trancar"
+    timeout: 5000
+- tapOn:
+    id: "confirmacao-trancar"
+- extendedWaitUntil:
+    visible:
+      id: "fecho-expressiva"
+    timeout: 5000
+- assertVisible:
+    id: "fecho-selar"
+- assertVisible:
+    id: "fecho-queimar"
+- takeScreenshot: /tmp/traco-verify/nav/40-fecho
+# a linha de sentido é do autor e é a única coisa que sai daqui
+- tapOn:
+    id: "campo-sentido"
+- inputText: "o medo era de decepcionar, nao de falhar"
+- tapOn:
+    id: "fecho-queimar"
+- extendedWaitUntil:
+    visible: "Concluída"
+    timeout: 6000
+- swipe:
+    start: 1%, 50%
+    end: 85%, 50%
+- extendedWaitUntil:
+    visible: "Expressiva — queimada"
+    timeout: 6000
+# o texto morreu; o sentido vive
+- assertNotVisible: "chorei no chuveiro"
+- assertVisible: "o medo era de decepcionar, nao de falhar"
+- takeScreenshot: /tmp/traco-verify/nav/41-queimada

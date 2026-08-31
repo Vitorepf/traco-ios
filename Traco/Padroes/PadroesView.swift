@@ -10,7 +10,7 @@ struct PadroesView: View {
     @State private var carregou = false
 
     private var abertas: [Nota] {
-        Array(notas.filter { !$0.trancada && !$0.vozDoAutor.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }.prefix(12))
+        Array(notas.filter { !$0.fechada && !$0.vozDoAutor.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }.prefix(12))
     }
 
     /// Grok quando há chave (perguntas NOVAS a cada visita); local de guarda.

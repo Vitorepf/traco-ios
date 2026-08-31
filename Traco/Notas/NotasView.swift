@@ -212,14 +212,32 @@ struct NotasView: View {
 
     private func botaoNota(_ nota: Nota) -> some View {
         Button {
-            if nota.trancada {
+            if nota.queimada {
+                sessao.abrir(nota) // diz honestamente que não há o que abrir
+            } else if nota.trancada {
                 sessao.confirmacao = .naoSeRele(nota.uuid)
             } else {
                 sessao.abrir(nota)
             }
         } label: {
             VStack(alignment: .leading, spacing: 4) {
-                if nota.trancada {
+                if nota.queimada {
+                    // §8: a queimada não finge existir. Mostra o que sobrou —
+                    // e o que sobrou é justamente o que se multiplica.
+                    Label("Expressiva — queimada", systemImage: "flame")
+                        .font(.body.weight(.semibold))
+                        .foregroundStyle(Tema.tintaSuave)
+                    if !nota.sentido.isEmpty {
+                        DestaqueBusca.texto(nota.sentido, termo: busca, base: Tema.tinta)
+                            .font(.subheadline)
+                            .lineLimit(2)
+                    }
+                    Text(nota.minutosEscritos >= 1
+                         ? "\(nota.minutosEscritos) min · \(VozDoAutor.relativo(nota.criadaEm))"
+                         : VozDoAutor.relativo(nota.criadaEm))
+                        .font(.subheadline)
+                        .foregroundStyle(Tema.tintaFraca)
+                } else if nota.trancada {
                     Label("Expressiva — trancada", systemImage: "lock.fill")
                         .font(.body.weight(.semibold))
                         .foregroundStyle(Tema.tintaSuave)

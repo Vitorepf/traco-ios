@@ -143,12 +143,32 @@ Disponível na nota aberta e nas notas (segurar o cartão).
 Ao abrir a forma Expressiva:
 1. Timer de **15 minutos** visível, discreto.
 2. Instrução única: fato E sentimento, sobre o mesmo evento.
-3. Ao fim do timer: a nota **grava e tranca**. Qualquer outra rota durante o timer
-   pede “Sair agora tranca.” **Concluída após ≥10 min** tranca direto — a escrita
-   já mereceu a porta. Antes dos 10 min, Concluída também passa pelo confirmação.
-4. Nota trancada aparece nas notas com cadeado, título oculto. Reabrir exige confirmação
-   dupla com atrito ("Pennebaker pede para não reler. Abrir mesmo assim?").
-5. A Análise nunca comenta o conteúdo de uma expressiva. Nunca.
+3. Ao fim do timer (ou ao sair, ou em Concluída ≥10 min) a nota **grava e sela**
+   — e só então o app abre o **FECHO**, com a escolha. Selar primeiro é regra: o
+   selo é garantia e não pode depender de o autor responder; matar o app no meio
+   do fecho deixaria a nota aberta.
+4. **O fecho oferece DOIS métodos validados, com objetivos diferentes** (ADR
+   2026-08-31l — lei do dono: nada de método inventado; o app carrega os que já
+   têm resultado comprovado):
+
+   | Método | Origem | Objetivo | O que acontece |
+   |---|---|---|---|
+   | **Selar** | Pennebaker | O ganho vem da construção de sentido; reler à toa desfaz | O texto fica no aparelho, fora de tudo. Reabrir = dupla confirmação **+ Face ID** |
+   | **Queimar** | Briñol e col., 2013 | Descartar o pensamento como objeto material reduz o poder dele | O texto é **destruído**. Sobram data, minutos e a linha de sentido |
+
+5. **A linha de sentido** ("o que ficou claro?") vem ANTES da escolha, é escrita
+   pelo AUTOR (a IA nunca a toca) e é **pulável** — obrigar depois de 15 minutos
+   de peso é atrito na hora errada. Ela vive FORA do fecho: entra na busca, nos
+   Padrões, no Recordar e no export. **É a única coisa que sai daqui** — a dor
+   fecha, o sentido se multiplica.
+6. **Queimar tem de ser verdade em todas as rotas**, senão é mentira: o texto é
+   sobrescrito antes de esvaziar, o backup no Arquivos é regravado na hora, o
+   índice do Spotlight é refeito, a revisão é cancelada e **não há janela de
+   desfazer** — não ter volta é o método. Teste por rota.
+7. Queimada NÃO abre: o app diz que não há o que abrir, em vez de calar.
+   Na lista ela aparece como "Expressiva — queimada", com a linha de sentido e os
+   minutos. Selada aparece com cadeado e título oculto.
+8. A Análise nunca comenta o conteúdo de uma expressiva. Nunca.
 
 ## 9. Padrões (padrões no tempo)
 

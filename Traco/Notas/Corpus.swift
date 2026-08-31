@@ -77,7 +77,7 @@ enum Corpus {
     /// Backup silencioso no Documents (visível no app Arquivos; entra no backup
     /// do aparelho). Trancadas continuam de fora — o selo vale para o restauro.
     static func backupAutomatico(notas: [Nota]) {
-        let corpo = corpoDoCorpus(notas: notas.map { ($0.texto, $0.gesto, $0.campos, $0.trancada, $0.criadaEm) })
+        let corpo = corpoDoCorpus(notas: notas.map { ($0.texto, $0.gesto, $0.campos, $0.fechada, $0.criadaEm) })
         guard !corpo.isEmpty,
               let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
         else { return }
@@ -85,7 +85,7 @@ enum Corpus {
     }
 
     static func exportar(notas: [Nota]) -> URL? {
-        let corpo = corpoDoCorpus(notas: notas.map { ($0.texto, $0.gesto, $0.campos, $0.trancada, $0.criadaEm) })
+        let corpo = corpoDoCorpus(notas: notas.map { ($0.texto, $0.gesto, $0.campos, $0.fechada, $0.criadaEm) })
         guard !corpo.isEmpty else { return nil }
         let f = DateFormatter()
         f.dateFormat = "yyyy-MM-dd"

@@ -11,6 +11,17 @@ final class Nota {
     var criadaEm: Date
     var editadaEm: Date
     var expressivaPrazo: Date?
+    /// SPEC §8: a expressiva fecha por um de DOIS métodos.
+    /// `trancada` = SELADA (Pennebaker: o texto fica, mas não se relê à toa).
+    /// `queimada` = o texto foi DESTRUÍDO (Briñol 2013: descartar o pensamento
+    /// como objeto material reduz o poder dele). Só sobram data, duração e a
+    /// linha de sentido que o autor escreveu.
+    var queimada: Bool = false
+    var queimadaEm: Date?
+    var minutosEscritos: Int = 0
+    /// A frase que o AUTOR escreveu no fim ("o que ficou claro?"). Nunca é da IA.
+    /// Vive fora do selo: entra na busca, nos Padrões e no Recordar.
+    var sentido: String = ""
 
     init(
         texto: String = "",
@@ -19,7 +30,11 @@ final class Nota {
         trancada: Bool = false,
         criadaEm: Date = .now,
         editadaEm: Date = .now,
-        expressivaPrazo: Date? = nil
+        expressivaPrazo: Date? = nil,
+        queimada: Bool = false,
+        queimadaEm: Date? = nil,
+        minutosEscritos: Int = 0,
+        sentido: String = ""
     ) {
         self.uuid = UUID()
         self.texto = texto
@@ -29,7 +44,15 @@ final class Nota {
         self.criadaEm = criadaEm
         self.editadaEm = editadaEm
         self.expressivaPrazo = expressivaPrazo
+        self.queimada = queimada
+        self.queimadaEm = queimadaEm
+        self.minutosEscritos = minutosEscritos
+        self.sentido = sentido
     }
+
+    /// Fechada de qualquer jeito: selada OU queimada. Quem pergunta "pode sair
+    /// daqui?" tem de olhar esta, nunca só `trancada`.
+    var fechada: Bool { trancada || queimada }
 
     var gesto: Gesto? {
         get { gestoRaw.flatMap(Gesto.init(rawValue:)) }
