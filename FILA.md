@@ -103,3 +103,17 @@ ABERTOS (3): App Store signing/TestFlight (BLOQUEADO: conta Apple Developer do
 dono) · passe manual de VoiceOver ponta-a-ponta (requer humano com o aparelho) ·
 física nativa do swipe-back (P3 OPCIONAL por ADR h).
 Nenhum item P1. Nenhum item executável por sessão autônoma.
+
+
+## Campanha "barra de anos" (31/ago, tarde) — estado
+- MOTION: **APROVADO** (rodada 3) — swipe com momentum, pressão assimétrica em
+  tudo, cerimônias do vestir e do Revelar, piano de hápticos, chegada que assenta.
+- VISUAL: **APROVADO** (rodada 2) — tipografia com música, materiais, timer-
+  instrumento, véu material, chips lapidados; P3 aplicados.
+- EXPERIÊNCIA dia-200: feitos — soltar preserva respostas · apagar com desfazer ·
+  Padrões pelo Grok sem repetir · revisão cumpre-se no Revelar · chave testável ·
+  backup automático no Arquivos · busca sem acento · atalhos ⌘ · medida de linha ·
+  silêncio explicado 1ª vez.
+  ABERTOS (M/L): app fora do app (widget + App Intent + share extension +
+  Spotlight) · lista com seções por mês · registro discreto de revisões no
+  cartão · contagem de palavras/busca na nota · iPad digno (família 2).
