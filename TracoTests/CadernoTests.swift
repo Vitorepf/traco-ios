@@ -223,7 +223,17 @@ struct CadernoTests {
         #expect({
             if case .tabela = Caderno.paginaUna("|")?.bloco { true } else { false }
         }())
-        #expect(Caderno.paginaUna("- um\n- dois") == nil)
+        // lista de qualquer tamanho continua una: a digitação nunca troca de campo
+        #expect({
+            if case .itens(let xs, false) = Caderno.paginaUna("- um\n- dois")?.bloco { xs == ["um", "dois"] } else { false }
+        }())
+        // a edição crua só vive em prosa+lista: mobiliário NUNCA aparece cru
+        #expect(Caderno.soProsaELista("oi\n\n1. um\n2. dois"))
+        #expect(!Caderno.soProsaELista("```rust\nfe\n```"))
+        #expect(!Caderno.soProsaELista("> citação"))
+        #expect(!Caderno.soProsaELista("[arquivo:guia.pdf](traco://file/00000000-0000-4000-8000-000000000001)"))
+        #expect(!Caderno.soProsaELista("| a | b |"))
+        #expect(!Caderno.soProsaELista("- [ ] tarefa"))
         #expect(!Caderno.temMarca(Caderno.visivel("- [ ] abrir")))
         #expect(!Caderno.visivel("- leite").contains("- "))
     }
@@ -469,5 +479,58 @@ struct DesempenhoParserTests {
         let mediaMs = Double(total.components.attoseconds) / 1e15 / Double(n)
             + Double(total.components.seconds) * 1000 / Double(n)
         #expect(mediaMs < 30, "parse médio de 10k palavras: \(mediaMs)ms — acima do teto (debug)")
+    }
+}
+
+/// A bateria do screenshot do dono: todos os casos de digitação de lista.
+struct DigitacaoDeListaTests {
+    @Test func enterContinuaListaNumerada() {
+        let velho = "1. comprar leite"
+        let novo = velho + "\n"
+        #expect(Caderno.continuar(velho: velho, novo: novo) == "1. comprar leite\n2. ")
+    }
+
+    @Test func enterContinuaListaSimplesETarefa() {
+        #expect(Caderno.continuar(velho: "- pão", novo: "- pão\n") == "- pão\n- ")
+        #expect(Caderno.continuar(velho: "- [ ] ligar", novo: "- [ ] ligar\n") == "- [ ] ligar\n- [ ] ")
+    }
+
+    @Test func enterEmItemVazioSaiDaLista() {
+        // "1. a\n2. " + Enter → o "2. " morre e a linha fica livre
+        let velho = "1. a\n2. "
+        let novo = velho + "\n"
+        #expect(Caderno.continuar(velho: velho, novo: novo) == "1. a\n\n")
+        #expect(Caderno.continuar(velho: "- ", novo: "- \n") == "\n")
+        #expect(Caderno.continuar(velho: "3.", novo: "3.\n") == "\n")
+    }
+
+    @Test func mudancaQueNaoEEnterNaoMexe() {
+        #expect(Caderno.continuar(velho: "1. a", novo: "1. ab") == "1. ab")
+        #expect(Caderno.continuar(velho: "1. a", novo: "1. a\nx e mais") == "1. a\nx e mais")
+        #expect(Caderno.continuar(velho: "abc", novo: "abc\n") == "abc\n") // linha comum: nada a herdar
+    }
+
+    @Test func enterNoMeioDoTextoTambemContinua() {
+        // Enter com texto depois (quebrar um item em dois)
+        let velho = "1. um dois"
+        // \n inserido depois de "um " → "1. um \ndois"… continuação insere "2. " antes de "dois"
+        let novo = "1. um \ndois"
+        #expect(Caderno.continuar(velho: velho, novo: novo) == "1. um \n2. dois")
+    }
+
+    @Test func numeroSoltoJaEItem() {
+        // o caso do screenshot: "3." em linhas soltas não vira parágrafos órfãos
+        let f = Caderno.fatias("3.\n3.\n3.")
+        // uma lista só (+ o parágrafo vazio aberto que o parser anexa para seguir digitando)
+        #expect({ if case .itens(let xs, true) = f[0].bloco { xs == ["", "", ""] } else { false } }())
+        #expect(!f.dropFirst().contains { if case .itens = $0.bloco { true } else { false } })
+        let f2 = Caderno.fatias("-")
+        #expect({ if case .itens(let xs, false) = f2[0].bloco { xs == [""] } else { false } }())
+    }
+
+    @Test func serializacaoRenumeraLimpo() {
+        // itens com marcador digitado à mão nunca duplicam: o conteúdo é só conteúdo
+        let md = Caderno.serializar(.itens(["a", "b"], ordenada: true))
+        #expect(md == "1. a\n2. b")
     }
 }

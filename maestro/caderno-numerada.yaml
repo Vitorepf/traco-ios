@@ -5,17 +5,13 @@ appId: app.traco
 - tapOn:
     id: pagina
 - inputText: "leite"
-- swipe:
-    from:
-      id: regua
-    direction: LEFT
-- swipe:
-    from:
-      id: regua
-    direction: LEFT
 - tapOn:
     id: regua-numerada
 - takeScreenshot: /tmp/traco-verify/numerada-regua
 - assertVisible:
     id: portal-lista
+# editando, a lista mostra o marcador cru; o gutter veste ao soltar
+- assertVisible: "1. leite"
+- tapOn: "Esconder teclado"
+- assertNotVisible: "1. leite"
 - assertVisible: "leite"

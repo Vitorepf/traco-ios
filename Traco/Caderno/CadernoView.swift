@@ -11,6 +11,7 @@ struct CadernoView: View {
     var aoMudar: () -> Void
 
     @State private var editando: String?
+    @State private var unaCrua = false
     @State private var foto: PhotosPickerItem?
     @State private var video: PhotosPickerItem?
     @State private var menuFoto = false
@@ -33,7 +34,12 @@ struct CadernoView: View {
 
     var body: some View {
         Group {
-            if let una = Caderno.paginaUna(texto) {
+            // a página nasceu una e o teclado segue de pé: o campo sob o cursor
+            // NUNCA morre no meio da digitação — a prosa veste ao soltar o teclado
+            if let una = Caderno.paginaUna(texto)
+                ?? (unaCrua && foco.wrappedValue && Caderno.soProsaELista(texto)
+                    ? FatiaCaderno(id: "una-crua", bloco: .paragrafo(texto), fonte: texto, aberto: true)
+                    : nil) {
                 editorUna(una)
                     .padding(.horizontal, Tema.margem)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -75,6 +81,14 @@ struct CadernoView: View {
                         }
                 }
             }
+        }
+        .onAppear {
+            unaCrua = Caderno.paginaUna(texto) != nil
+        }
+        .onChange(of: foco.wrappedValue) { _, f in
+            // o vínculo cru se decide quando o teclado SOBE (a nota era una?);
+            // ao descer, a condição do branch já solta a forma sozinha
+            if f { unaCrua = Caderno.paginaUna(texto) != nil }
         }
         .onDisappear {
             if gravando { pararGravacao() }
@@ -169,24 +183,44 @@ struct CadernoView: View {
         let eTituloCapa = nivel == 1
         let mostraSinal = eTabela || eSeccao || eSub
         let nomeSinal = eSeccao ? "seção" : eSub ? "subseção" : "tabela"
-        let feito = if case .tarefas(let xs) = fatia.bloco { xs.first?.feito == true } else { false }
-        let ordenada = if case .itens(_, let o) = fatia.bloco { o } else { false }
         return VStack(alignment: .leading, spacing: 0) {
             SinalTipo(nome: nomeSinal)
                 .opacity(mostraSinal ? 1 : 0)
                 .frame(height: mostraSinal ? 18 : 0)
                 .padding(.bottom, mostraSinal ? 8 : 0)
                 .accessibilityHidden(!mostraSinal)
-            HStack(alignment: .top, spacing: eLista || eTarefa || eCitacao ? 12 : 0) {
+            // lista digita CRUA no mesmo campo (o cursor nunca troca de árvore);
+            // ao soltar o teclado, veste a forma
+            if eLista, !foco.wrappedValue,
+               !texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                ProsaView(bloco: fatia.bloco)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentShape(Rectangle())
+                    .onTapGesture { foco.wrappedValue = true }
+            } else {
+                linhaEditor(fatia)
+            }
+        }
+        .padding(eCitacao ? 12 : 0)
+        .background(eCitacao ? Tema.superficie : .clear, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .accessibilityIdentifier(
+            eLista ? "portal-lista"
+                : eTarefa ? "portal-tarefa"
+                : eTabela ? "portal-tabela"
+                : eCitacao ? "portal-citacao"
+                : eSeccao ? "portal-seccao"
+                : eSub ? "portal-subseccao"
+                : eTituloCapa ? "portal-titulo"
+                : "pagina"
+        )
+    }
+
+    private func linhaEditor(_ fatia: FatiaCaderno) -> some View {
+        let eTarefa = if case .tarefas = fatia.bloco { true } else { false }
+        let eCitacao = if case .citacao = fatia.bloco { true } else { false }
+        let feito = if case .tarefas(let xs) = fatia.bloco { xs.first?.feito == true } else { false }
+        return HStack(alignment: .top, spacing: eTarefa || eCitacao ? 12 : 0) {
                 ZStack {
-                    Circle()
-                        .fill(Tema.tintaFraca)
-                        .frame(width: 5, height: 5)
-                        .opacity(eLista && !ordenada ? 1 : 0)
-                    Text("1.")
-                        .font(Tema.corpo.monospacedDigit())
-                        .foregroundStyle(Tema.tintaFraca)
-                        .opacity(eLista && ordenada ? 1 : 0)
                     RoundedRectangle(cornerRadius: 1, style: .continuous)
                         .fill(Tema.tintaFraca)
                         .frame(width: 2, height: 28)
@@ -210,28 +244,19 @@ struct CadernoView: View {
                     .accessibilityLabel(feito ? "Feita" : "Por fazer")
                     .accessibilityHidden(!eTarefa)
                 }
-                .frame(width: eLista || eTarefa || eCitacao ? (eTarefa ? Tema.alvo : 20) : 0)
+                .frame(width: eTarefa || eCitacao ? (eTarefa ? Tema.alvo : 20) : 0)
                 campoUna(fatia)
-            }
         }
-        .padding(eCitacao ? 12 : 0)
-        .background(eCitacao ? Tema.superficie : .clear, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
-        .accessibilityIdentifier(
-            eLista ? "portal-lista"
-                : eTarefa ? "portal-tarefa"
-                : eTabela ? "portal-tabela"
-                : eCitacao ? "portal-citacao"
-                : eSeccao ? "portal-seccao"
-                : eSub ? "portal-subseccao"
-                : eTituloCapa ? "portal-titulo"
-                : "pagina"
-        )
     }
 
     private func campoUna(_ fatia: FatiaCaderno) -> some View {
         let nivel = if case .titulo(let n, _) = fatia.bloco { n } else { 0 }
         let eCitacao = if case .citacao = fatia.bloco { true } else { false }
-        let projeta = if case .paragrafo = fatia.bloco { false } else { true }
+        // lista não projeta: edita o documento cru e o Enter herda o marcador
+        let projeta = switch fatia.bloco {
+        case .paragrafo, .itens: false
+        default: true
+        }
         return TextEditor(text: Binding(
             get: {
                 if projeta {
@@ -240,10 +265,17 @@ struct CadernoView: View {
                 return texto
             },
             set: { novo in
+                // clobber de teardown: quando a régua transforma o documento, o
+                // campo velho morre na troca de branch e tenta reescrever o texto
+                // antigo por cima — um escrito de um campo que já não representa
+                // o documento é descartado
+                let vivo = Caderno.paginaUna(texto)
                 if projeta {
+                    guard vivo?.id == fatia.id else { return }
                     texto = Caderno.aplicar(fatias, id: fatia.id, bloco: Caderno.comTexto(fatia.bloco, novo))
                 } else {
-                    texto = novo
+                    guard vivo != nil || (foco.wrappedValue && Caderno.soProsaELista(texto)) else { return }
+                    texto = Caderno.continuar(velho: texto, novo: novo)
                 }
                 aoMudar()
             }

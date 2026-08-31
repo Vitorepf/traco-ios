@@ -117,3 +117,33 @@ Nenhum item P1. Nenhum item executável por sessão autônoma.
   ABERTOS (M/L): app fora do app (widget + App Intent + share extension +
   Spotlight) · lista com seções por mês · registro discreto de revisões no
   cartão · contagem de palavras/busca na nota · iPad digno (família 2).
+
+## Digitação viva (31/ago, manhã→meio-dia) — a lista digita como o Notes
+FECHADOS:
+- Lista numerada/simples digita fluida: `Caderno.continuar` herda o marcador no
+  Enter, double-Enter sai da lista; parser tolerante ("3." solto é item).
+- Arquitetura nova da edição una: **o campo sob o cursor nunca morre no meio da
+  digitação** — prosa+lista edita CRUA num TextEditor só (modo grudento
+  `unaCrua`), e a forma veste ao soltar o teclado (ProsaView com gutter).
+- ListaViva (per-item TextField) deletada — foco programático por item era a
+  raiz das perdas de digitação.
+- Mobiliário NUNCA aparece cru: `soProsaELista` derruba o modo cru na hora em
+  que o documento ganha código/tabela/citação/anexo (report do dono, 31/ago).
+- Clobber de teardown: campo moribundo na troca de branch não reescreve mais o
+  documento (guarda no binding da campoUna).
+- Flows atualizados: lista-viva (E2E completo digitação→vestir), caderno-lista,
+  caderno-numerada, caderno-toque-lista, caderno-tabela, caderno-codigo, aceite
+  (pós-§17: a análise chega sozinha).
+
+ABERTOS NOVOS (pedido do dono, 31/ago — prioridade alta):
+- **Motor de formas sem fricção (P1)**: apertar "Tabela" na régua deve montar um
+  construtor visual ultra-premium (colunas/linhas por toque), nunca exigir
+  entender a forma; o mesmo padrão para TODOS os formatos da régua. Hoje a
+  tabela abre grid vazio cru — funcional, não premium.
+- **"Vestir a nota" (P1)**: um botão que transforma a nota inteira visualmente —
+  o autor só escreve; a IA/motor aplica a estrutura visual (títulos, listas,
+  destaques) num toque. Versos/estruturas manuais são "o básico"; isso é o
+  próximo degrau.
+- Vestir automático × dedo a caminho da régua: a forma vestindo no meio de um
+  alcance do dedo desloca alvos (visto em E2E). Observar; talvez segurar o
+  vestir enquanto há toque em voo.

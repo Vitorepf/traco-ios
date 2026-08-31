@@ -219,9 +219,12 @@ enum Caderno: Sendable {
             if lista(trim) != nil {
                 var itens: [String] = []
                 var ordenada = false
-                while i < linhas.count, let item = lista(trims[i]) {
-                    itens.append(item.texto)
-                    ordenada = item.ordenada
+                while i < linhas.count, let detectado = lista(trims[i]) {
+                    // o trim detecta o marcador; o CONTEÚDO sai da linha crua —
+                    // senão o espaço que o autor acabou de digitar morre a cada tecla
+                    let crua = String(linhas[i].drop(while: { $0 == " " }))
+                    itens.append(lista(crua)?.texto ?? detectado.texto)
+                    ordenada = detectado.ordenada
                     i += 1
                 }
                 let fim = depoisDeVazias(i)
@@ -446,6 +449,17 @@ enum Caderno: Sendable {
         fatias(fonte).map { textoVisivel($0.bloco) }.joined(separator: "\n")
     }
 
+    /// Só prosa e lista: o ÚNICO terreno onde a edição crua nunca expõe
+    /// mobiliário markdown (o autor jamais vê ```/traco:///:::/>).
+    nonisolated static func soProsaELista(_ fonte: String) -> Bool {
+        fatias(fonte).allSatisfy {
+            switch $0.bloco {
+            case .paragrafo, .itens: return true
+            default: return false
+            }
+        }
+    }
+
     nonisolated static func temMarca(_ s: String) -> Bool {
         s.contains("```") || s.contains(":::") || s.contains("|---") || s.contains("- [ ]") || s.contains("traco://")
     }
@@ -464,7 +478,8 @@ enum Caderno: Sendable {
         guard let u else { return nil }
         switch u.bloco {
         case .paragrafo, .titulo: return u
-        case .itens(let xs, _): return xs.count <= 1 ? u : nil
+        // lista de qualquer tamanho continua una: a digitação nunca troca de campo
+        case .itens: return u
         case .tarefas(let xs): return xs.count <= 1 ? u : nil
         case .citacao(let xs): return xs.count <= 1 ? u : nil
         case .tabela(let cabeca, let corpo):
@@ -514,12 +529,69 @@ enum Caderno: Sendable {
         if linha.hasPrefix("- ") || linha.hasPrefix("* ") {
             return (String(linha.dropFirst(2)), false)
         }
+        // digitação ao vivo: "-" e "1." sozinhos JÁ são itens (vazios) —
+        // o gutter assume o marcador e o autor nunca vê número duplicado
+        if linha == "-" || linha == "*" { return ("", false) }
         if let ponto = linha.firstIndex(of: "."),
-           linha[..<ponto].allSatisfy(\.isNumber),
-           linha[ponto...].hasPrefix(". ") {
-            return (String(linha[linha.index(ponto, offsetBy: 2)...]), true)
+           !linha[..<ponto].isEmpty,
+           linha[..<ponto].allSatisfy(\.isNumber) {
+            if linha[ponto...].hasPrefix(". ") {
+                return (String(linha[linha.index(ponto, offsetBy: 2)...]), true)
+            }
+            if linha.index(after: ponto) == linha.endIndex {
+                return ("", true) // "3." exato
+            }
         }
         return nil
+    }
+
+    /// O Enter que todo bloco de notas honra (digitação livre na página):
+    /// - Enter no fim de "1. abc" → a linha nova nasce "2. "
+    /// - Enter no fim de "- abc" / "* abc" → "- " / "* "
+    /// - Enter no fim de "- [ ] x" → "- [ ] "
+    /// - Enter num item VAZIO ("1. ", "- ", "3.") → o marcador morre: sai da lista
+    /// Age só quando a mudança é exatamente UM \n inserido; senão devolve `novo` intacto.
+    nonisolated static func continuar(velho: String, novo: String) -> String {
+        guard novo.count == velho.count + 1 else { return novo }
+        let vs = Array(velho), ns = Array(novo)
+        var i = 0
+        while i < vs.count, vs[i] == ns[i] { i += 1 }
+        guard i < ns.count, ns[i] == "\n" else { return novo }
+        // o resto precisa coincidir (inserção pura de um \n)
+        guard Array(ns[(i + 1)...]) == Array(vs[i...]) else { return novo }
+        let antes = String(ns[..<i])
+        let inicioLinha = antes.lastIndex(of: "\n").map { antes.index(after: $0) } ?? antes.startIndex
+        let linha = String(antes[inicioLinha...])
+        let resto = String(ns[(i + 1)...])
+
+        func montar(prefixo: String) -> String {
+            antes + "\n" + prefixo + resto
+        }
+        func sairDaLista() -> String {
+            String(antes[..<inicioLinha]) + "\n" + resto
+        }
+
+        // tarefa
+        for marca in ["- [ ] ", "- [x] ", "- [X] ", "- [ ]", "- [x]", "- [X]"] where linha.hasPrefix(marca) {
+            let conteudo = linha.dropFirst(marca.count).trimmingCharacters(in: .whitespaces)
+            return conteudo.isEmpty ? sairDaLista() : montar(prefixo: "- [ ] ")
+        }
+        // lista simples
+        for marca in ["- ", "* "] where linha.hasPrefix(marca) {
+            let conteudo = linha.dropFirst(2).trimmingCharacters(in: .whitespaces)
+            return conteudo.isEmpty ? sairDaLista() : montar(prefixo: marca)
+        }
+        if linha == "-" || linha == "*" { return sairDaLista() }
+        // numerada
+        if let ponto = linha.firstIndex(of: "."),
+           !linha[..<ponto].isEmpty,
+           linha[..<ponto].allSatisfy(\.isNumber),
+           let n = Int(linha[..<ponto]) {
+            let depois = linha[linha.index(after: ponto)...]
+            if depois.isEmpty || depois == " " { return sairDaLista() }
+            if depois.hasPrefix(" ") { return montar(prefixo: "\(n + 1). ") }
+        }
+        return novo
     }
 
     nonisolated private static func tarefa(_ linha: String) -> TarefaCaderno? {

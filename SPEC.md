@@ -12,6 +12,12 @@
 > ADR 2026-08-31h — swipe-back custom (Empilha) aceito; física nativa fica em P3.
 > ADR 2026-08-31b — Régua do Caderno podada 136→12 (menu grande = template em menu, §12);
 > o catálogo completo permanece no formato de arquivo: nota antiga nunca quebra.
+> ADR 2026-08-31i — **Digitação viva**: em prosa+lista a página edita CRUA num único
+> campo (o campo sob o cursor nunca morre no meio da digitação; Enter herda o marcador,
+> double-Enter sai) e a forma VESTE ao soltar o teclado. O modo cru é proibido fora de
+> prosa+lista: código/tabela/citação/anexo abrem sempre nos portais vestidos — o autor
+> jamais vê markdown de mobiliário (```, traco://, :::, >). Lei do dono (31/ago):
+> "eu nunca devo lembrar os códigos Markdown".
 > O protótipo-espelho (HTML) demonstra os fluxos; o código real vem depois da spec aprovada.
 
 ## 1. Visão

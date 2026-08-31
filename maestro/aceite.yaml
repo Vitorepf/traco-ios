@@ -3,35 +3,33 @@ appId: app.traco
 - launchApp:
     clearState: true
 - assertVisible: Notas
-- assertVisible: Analisar
 - tapOn: "Página"
 - inputText: "quero correr de manhã"
-- hideKeyboard
-- tapOn: Analisar
+# §17: a análise chega sozinha na pausa e veste a forma de confiança alta
 - extendedWaitUntil:
     visible:
       id: "cartao-analise"
-    timeout: 5000
-- tapOn: "Abrir a forma WOOP"
+    timeout: 8000
 - assertVisible:
     id: "forma-woop"
+- assertVisible: "Soltar a forma"
 - assertVisible: "quero correr de manhã"
 - tapOn:
     id: "concluir"
 - tapOn: "Página"
 - inputText: "eu sou um vencedor"
-- hideKeyboard
-- tapOn: Analisar
 - extendedWaitUntil:
     visible:
       id: "cartao-analise"
-    timeout: 5000
+    timeout: 8000
 - assertVisible: "Aviso"
 - tapOn:
     id: "concluir"
 - tapOn: "Página"
 - inputText: "leite"
 - hideKeyboard
+# silêncio no automático é invisível; o manual responde com o toast
+- assertVisible: Analisar
 - tapOn: Analisar
 - extendedWaitUntil:
     visible:

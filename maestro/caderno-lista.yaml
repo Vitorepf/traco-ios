@@ -7,5 +7,8 @@ appId: app.traco
 - inputText: "- "
 - inputText: "leite"
 - takeScreenshot: /tmp/traco-verify/lista-una
-- assertNotVisible: "- "
+# a lista digita crua (marcador visível); veste ao soltar o teclado
+- assertVisible: "- leite"
+- tapOn: "Esconder teclado"
+- assertNotVisible: "- leite"
 - assertVisible: "leite"

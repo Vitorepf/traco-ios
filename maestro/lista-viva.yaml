@@ -1,0 +1,22 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: Notas
+    timeout: 8000
+- tapOn: "Página"
+- inputText: "1. comprar leite"
+- pressKey: Enter
+- inputText: "pagar conta"
+- pressKey: Enter
+- pressKey: Enter
+- inputText: "3."
+- pressKey: Enter
+- inputText: "3."
+- pressKey: Enter
+- pressKey: Enter
+- inputText: "texto livre depois"
+- takeScreenshot: /tmp/traco-verify/hoje/lista-viva
+- tapOn: "Esconder teclado"
+- takeScreenshot: /tmp/traco-verify/hoje/lista-viva-vestida

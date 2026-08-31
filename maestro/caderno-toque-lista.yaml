@@ -7,8 +7,7 @@ appId: app.traco
 - inputText: "abrir a porta"
 - tapOn:
     id: regua-lista
-- tapOn:
-    id: portal-lista
+- tapOn: "Esconder teclado"
 - takeScreenshot: /tmp/traco-verify/toque-lista
-- assertNotVisible: "- "
+- assertNotVisible: "- abrir a porta"
 - assertVisible: "abrir a porta"

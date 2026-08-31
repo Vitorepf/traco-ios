@@ -4,7 +4,12 @@ appId: app.traco
     clearState: true
 - tapOn:
     id: pagina
-- inputText: "quero um parser"
+# texto neutro: sem verbo de desejo, a análise cala e não corre com o dedo
+- inputText: "um parser"
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
 - tapOn:
     id: regua-codigo
 - tapOn: "Swift"

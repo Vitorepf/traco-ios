@@ -38,8 +38,24 @@ struct EditorBlocoView: View {
                     .accessibilityLabel(n <= 1 ? "Título" : n == 2 ? "Seção" : "Subseção")
                     .accessibilityIdentifier(n <= 1 ? "portal-titulo" : n == 2 ? "portal-seccao" : "portal-subseccao")
             }
-        case .itens(let xs, let ordenada):
-            editorItens(xs, ordenada: ordenada)
+        case .itens:
+            // lista edita CRUA (marcadores visíveis) num campo só: o cursor nunca
+            // troca de árvore e o Enter herda o marcador via Caderno.continuar
+            TextEditor(text: Binding(
+                get: { Caderno.serializar(bloco) },
+                set: { novo in
+                    aoMudar(.paragrafo(Caderno.continuar(velho: Caderno.serializar(bloco), novo: novo)))
+                }
+            ))
+            .font(Tema.corpo)
+            .lineSpacing(folga)
+            .foregroundStyle(Tema.tinta)
+            .scrollContentBackground(.hidden)
+            .focused(foco)
+            .tint(Tema.ambar)
+            .frame(maxWidth: .infinity, minHeight: 72, alignment: .topLeading)
+            .accessibilityLabel("Lista")
+            .accessibilityIdentifier("portal-lista")
         case .citacao:
             HStack(alignment: .top, spacing: 12) {
                 RoundedRectangle(cornerRadius: 1, style: .continuous)
@@ -103,49 +119,6 @@ struct EditorBlocoView: View {
         case .recipiente(let slug, _): PapelForma.nome(de: slug)
         default: "Página"
         }
-    }
-
-    private func editorItens(_ xs: [String], ordenada: Bool) -> some View {
-        let linhas = xs.isEmpty ? [""] : xs
-        let extra = !(linhas.last ?? "").trimmingCharacters(in: .whitespaces).isEmpty
-        let visiveis = extra ? linhas + [""] : linhas
-        return VStack(alignment: .leading, spacing: 8) {
-            ForEach(Array(visiveis.enumerated()), id: \.offset) { i, item in
-                HStack(alignment: .firstTextBaseline, spacing: 12) {
-                    if ordenada {
-                        Text("\(i + 1).")
-                            .font(Tema.corpo.monospacedDigit())
-                            .foregroundStyle(Tema.tintaFraca)
-                            .frame(minWidth: 20, alignment: .trailing)
-                    } else {
-                        Circle()
-                            .fill(Tema.tintaFraca)
-                            .frame(width: 5, height: 5)
-                            .padding(.top, 8)
-                            .frame(width: 20, alignment: .center)
-                    }
-                    TextField("", text: Binding(
-                        get: { item },
-                        set: { novo in
-                            var next = linhas
-                            if i < next.count {
-                                next[i] = novo
-                            } else {
-                                next.append(novo)
-                            }
-                            aoMudar(.itens(next.isEmpty ? [""] : next, ordenada: ordenada))
-                        }
-                    ), axis: .vertical)
-                    .font(Tema.corpo)
-                    .foregroundStyle(Tema.tinta)
-                    .textFieldStyle(.plain)
-                    .focused(foco)
-                    .tint(Tema.ambar)
-                }
-            }
-        }
-        .accessibilityLabel(ordenada ? "Numerada" : "Lista")
-        .accessibilityIdentifier("portal-lista")
     }
 
     private func editorTarefas(_ xs: [TarefaCaderno]) -> some View {
