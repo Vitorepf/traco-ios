@@ -6,6 +6,10 @@
 > primeira viagem entende sem manual; verbo para ação, substantivo comum para tela; zero
 > metáfora interna. "Gesto" permanece: é conceito da tese, não nome de UI. Rename atômico
 > em código+testes+maestro+specs; propriedades persistidas do SwiftData intocadas.
+> ADR 2026-08-31e — IA real como padrão (ver §5). ADR 2026-08-31f — nota PODE ser
+> apagada, com atrito (confirmação; trancada = dupla) + cancela revisão + varre anexos.
+> ADR 2026-08-31g — onboarding: nenhum; a auto-análise É o onboarding (§17).
+> ADR 2026-08-31h — swipe-back custom (Empilha) aceito; física nativa fica em P3.
 > ADR 2026-08-31b — Régua do Caderno podada 136→12 (menu grande = template em menu, §12);
 > o catálogo completo permanece no formato de arquivo: nota antiga nunca quebra.
 > O protótipo-espelho (HTML) demonstra os fluxos; o código real vem depois da spec aprovada.
@@ -66,19 +70,24 @@ abrir app ──► página em branco ──► usuário escreve (traço livre)
 
 ## 5. A Análise (lógica de IA)
 
-- **Gatilho:** botão explícito. NUNCA roda a cada tecla, NUNCA na pausa (decisão de produto:
-  controle total, zero vigilância).
-- **Motor v1 (obrigatório):** análise **local**, no aparelho — as mesmas heurísticas do
-  protótipo-espelho. **Zero rede. Zero token. Zero fatura.**
-- **SuperGrok ≠ API.** A conta Super (grok.com / app Grok) é chat de consumidor com
-  cota semanal. A [API da xAI](https://docs.x.ai/developers/pricing) é outro produto,
-  cobrado por token, créditos não-reembolsáveis. Os dois medidores **não se misturam**.
-  Extra Usage Credits da Super também são gasto extra — **proibidos**.
-- **Proibido no código:** `api.x.ai`, chave de Console, Keychain de API, `URLSession`
-  para modelo, qualquer fallback que “só um pouquinho” cobre. Se a análise não
-  classificar, o veredito é silêncio — nunca uma chamada paga.
-- Grok de verdade no app só entra se a xAI um dia oferecer cota Super *dentro* do
-  app, sem ledger de API. Até lá, Super fica no app oficial; Traço não gasta.
+> ADR 2026-08-31e (decisão do dono): **IA real como padrão.** Revoga a proibição
+> anterior de API. ADR 2026-08-31c (§17): gatilho automático na pausa.
+
+- **Gatilho:** automático na pausa da escrita (debounce ~1.6s) + botão Analisar.
+  Toque longo no botão liga/desliga o automático. Silêncio automático é invisível.
+- **Motor padrão: xAI Grok (API oficial)** quando há chave configurada e rede.
+  Endpoint OpenAI-compatível, JSON estrito `{gesto, aviso|null, pergunta|null}`,
+  temperatura 0, sem histórico (não é chat). **Silêncio em erro** — resposta fora
+  do formato, sem rede, timeout: cai no motor local, nunca inventa.
+- **Motor local é o fallback permanente:** sem chave, offline ou erro → as mesmas
+  heurísticas de hoje. Sem chave configurada, o app é 100% local e gratuito.
+- **Chave e custo:** chave do PRÓPRIO dono (console xAI), guardada no Keychain,
+  nunca em texto plano. A API cobra por token — o custo é do dono e a tela da
+  chave diz isso com todas as letras. **SuperGrok ≠ API** continua verdade: a
+  conta Super (grok.com) não serve ao app; é a API, com ledger próprio.
+- **Proibido:** chamada de rede SEM chave configurada pelo dono; qualquer gasto
+  que o dono não ligou explicitamente; conteúdo de nota TRANCADA em qualquer
+  chamada de rede (o selo vale para a rede).
 
 ### Avisos obrigatórios (no system prompt)
 | Detecta | Aviso (essência) |
