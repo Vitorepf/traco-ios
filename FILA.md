@@ -85,3 +85,21 @@ FILA FINAL DA SESSÃO — abertos (4): pt/en fatia 2 (strings dinâmicas, S/M) �
 passe manual de VoiceOver (M, requer humano) · física nativa do swipe-back
 (P3 opcional, ADR h) · App Store signing/TestFlight (BLOQUEADO: conta Apple
 Developer do dono).
+
+
+## Varredura nº 4 — encerramento (31/ago)
+**REGRAS DE FERRO: 5/5 GARANTIDAS** com evidência formal (auditoria no histórico
+da sessão): (a) IA nunca escreve — Veredito é lista fechada, campos nascem vazios,
+testes expressivaTrancaEAnalisarNaoEscreve/padroesNaoEntraNaNota; (b) trancada
+selada em TODAS as rotas — busca, índice, recordar, padrões, export, import, rede,
+notificação, apagar, processo morto — cada rota com teste ou guarda citada;
+(c) um gesto por sessão — doisGestosAvisom/mesmaFormaESilencio; (d) silêncio
+válido — 4 testes; (e) zero chat/streaks/XP/ouvinte/elogio/resumo — varrido.
+
+Fechados na rodada final: prompt remoto responde no idioma do autor · anúncio de
+VoiceOver quando a forma se veste sozinha.
+
+ABERTOS (3): App Store signing/TestFlight (BLOQUEADO: conta Apple Developer do
+dono) · passe manual de VoiceOver ponta-a-ponta (requer humano com o aparelho) ·
+física nativa do swipe-back (P3 OPCIONAL por ADR h).
+Nenhum item P1. Nenhum item executável por sessão autônoma.

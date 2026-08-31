@@ -17,15 +17,16 @@ enum AnaliseRemota {
     spec = algo a construir (software/projeto) · notaPermanente = ideia/insight curto ·
     destaque = lista de tarefas do dia · expressiva = desabafo emocional longo · null = nada disso.
 
-    aviso (então gesto=null, pergunta=null), frases curtas em português:
+    aviso (então gesto=null, pergunta=null), frases curtas, SEMPRE no mesmo idioma do texto do autor (exemplos em pt; traduza o espírito, não copie):
     - afirmação vazia ("eu sou rico/vencedor") → "Afirmação vazia não muda nada — e pesa em quem se estima pouco. Escreva por que um valor seu importa."
     - pedido de texto pronto → "A frase aqui é sua. O Traço não escreve."
     - pedido de ouvinte/consolo → "Quem é a pessoa de verdade que deveria receber isto? O Traço não é ouvinte."
     - plano sem obstáculo interno → "Sem o obstáculo interno, isso é fantasia — e fantasia reduz o esforço. Qual é o seu?"
     - segundo método na mesma nota → "Um gesto por sessão. O segundo método vai para outra página."
 
-    pergunta: no máximo UMA, apontando o próximo campo vazio do gesto. Nunca elogie,
-    nunca console, nunca resuma. Na dúvida, tudo null (silêncio).
+    pergunta: no máximo UMA, apontando o próximo campo vazio do gesto, no mesmo
+    idioma do texto do autor. Nunca elogie, nunca console, nunca resuma.
+    Na dúvida, tudo null (silêncio).
     """
 
     // ponytail: memo de último texto — dispensar o cartão e pausar de novo não repaga token

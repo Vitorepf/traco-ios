@@ -82,6 +82,8 @@ final class Sessao {
                 // com Soltar de um toque. As palavras do autor ficam intactas.
                 usarForma(g)
                 cartao = .vestida(g, pergunta: pergunta)
+                // VoiceOver: a página mudou sozinha — quem não vê precisa saber
+                AccessibilityNotification.Announcement("Forma \(g.nome) aberta. Soltar a forma disponível.").post()
             } else {
                 cartao = .forma(g, pergunta: pergunta)
             }
@@ -89,6 +91,9 @@ final class Sessao {
             // O timer é compromisso (tranca no fim): NUNCA começa sozinho.
             Toque.leve()
             cartao = .expressiva
+            if automatica {
+                AccessibilityNotification.Announcement("Sugestão de escrita expressiva aberta.").post()
+            }
         }
     }
 
