@@ -25,6 +25,7 @@
 		50BDC2DAF155F65D6076D8CD /* Revisoes.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB811F3145B921C3557FB6CF /* Revisoes.swift */; };
 		56A38C95EE9713A63A475FC8 /* NotasESessaoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B544C7CB0EEA5F5D2DAFB30C /* NotasESessaoTests.swift */; };
 		5A36977E5B83A71BE62DD42B /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 8250E3200AC60E254A9A3BB0 /* PrivacyInfo.xcprivacy */; };
+		611B3215CD20394B57D23B03 /* Intencoes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E1B7B58FD49695380C335BA /* Intencoes.swift */; };
 		61AFC497AD6793FD5616F122 /* Empilha.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FDEE4E634F20086C0076DA8 /* Empilha.swift */; };
 		6C2CB34514F3774356733677 /* Chave.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21ADCEB8B69F3D9612519DA4 /* Chave.swift */; };
 		790B6E9A5A75BFDBB00BFF9F /* PapelForma.swift in Sources */ = {isa = PBXBuildFile; fileRef = 665F2C234F3966C3C528A729 /* PapelForma.swift */; };
@@ -41,6 +42,7 @@
 		9AE336A415F4A83195416BE2 /* Gesto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 854249702104D325072DC8FA /* Gesto.swift */; };
 		B941B2650E94D6E093A1394A /* PadroesRemoto.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE5E37AF9BC96722920E0256 /* PadroesRemoto.swift */; };
 		BE9E364EB4D15B9B4A0FD32C /* SintaxeLocal.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE31B44AE2B9734818934EE6 /* SintaxeLocal.swift */; };
+		BFBA450F8798775C427206AB /* Holofote.swift in Sources */ = {isa = PBXBuildFile; fileRef = C231AAA4F75F1F358615DD8D /* Holofote.swift */; };
 		D37ABADE9FFCD8F825DC5E8B /* Tema.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A273C7A77EA3B9F5AAAC13A /* Tema.swift */; };
 		D624B7699CB6224EC14D1089 /* PortalCodigoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFD400F0A39FE3685B78CF60 /* PortalCodigoView.swift */; };
 		E392DABE7E7AC33038D67110 /* PadroesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 481F4361236B561E2D58A0D1 /* PadroesView.swift */; };
@@ -62,6 +64,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		003219BD29767A986648826F /* Info-extra.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Info-extra.plist"; sourceTree = "<group>"; };
 		07E0810B1D0BA208B63D167C /* AnaliseLocal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnaliseLocal.swift; sourceTree = "<group>"; };
 		07FEF6E398FEED60218FF5E1 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		09E42139AC71241743C8C27F /* ChaveView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChaveView.swift; sourceTree = "<group>"; };
@@ -90,6 +93,7 @@
 		854249702104D325072DC8FA /* Gesto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gesto.swift; sourceTree = "<group>"; };
 		8A31CF16DDDD850E4008ED6A /* VozDoAutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VozDoAutor.swift; sourceTree = "<group>"; };
 		8FDEE4E634F20086C0076DA8 /* Empilha.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Empilha.swift; sourceTree = "<group>"; };
+		9E1B7B58FD49695380C335BA /* Intencoes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Intencoes.swift; sourceTree = "<group>"; };
 		A4D7AFFE24FE679844349AD3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AECFB44B4FF4BE148A31BF05 /* AnaliseLocalTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnaliseLocalTests.swift; sourceTree = "<group>"; };
 		AFD400F0A39FE3685B78CF60 /* PortalCodigoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortalCodigoView.swift; sourceTree = "<group>"; };
@@ -98,6 +102,7 @@
 		B5A488C4342AF60848A88895 /* CadernoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CadernoTests.swift; sourceTree = "<group>"; };
 		BB811F3145B921C3557FB6CF /* Revisoes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Revisoes.swift; sourceTree = "<group>"; };
 		BC971448D0B5207611E641F1 /* CadernoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CadernoView.swift; sourceTree = "<group>"; };
+		C231AAA4F75F1F358615DD8D /* Holofote.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Holofote.swift; sourceTree = "<group>"; };
 		C905B08A3932A5955A7DAFA6 /* BlocoCaderno.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlocoCaderno.swift; sourceTree = "<group>"; };
 		C9F22E37F6BFFDA21C00C087 /* CartaoAnaliseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CartaoAnaliseView.swift; sourceTree = "<group>"; };
 		CE31B44AE2B9734818934EE6 /* SintaxeLocal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SintaxeLocal.swift; sourceTree = "<group>"; };
@@ -158,6 +163,7 @@
 			isa = PBXGroup;
 			children = (
 				8FDEE4E634F20086C0076DA8 /* Empilha.swift */,
+				9E1B7B58FD49695380C335BA /* Intencoes.swift */,
 				39E5B1F01B36DA923CEA022B /* Sessao.swift */,
 				E2751D1D96F07B6B9980FA75 /* Toque.swift */,
 			);
@@ -217,6 +223,7 @@
 			children = (
 				3012217369C9A480FC336A64 /* Corpus.swift */,
 				1629E684196EC743E4367A0E /* DestaqueBusca.swift */,
+				C231AAA4F75F1F358615DD8D /* Holofote.swift */,
 				6F477183BCC594161BCBE7B8 /* NotasFiltro.swift */,
 				6A0D2FB8492AF79193900392 /* NotasView.swift */,
 			);
@@ -238,6 +245,7 @@
 			isa = PBXGroup;
 			children = (
 				A4D7AFFE24FE679844349AD3 /* Assets.xcassets */,
+				003219BD29767A986648826F /* Info-extra.plist */,
 				07FEF6E398FEED60218FF5E1 /* Localizable.xcstrings */,
 				8250E3200AC60E254A9A3BB0 /* PrivacyInfo.xcprivacy */,
 				0A273C7A77EA3B9F5AAAC13A /* Tema.swift */,
@@ -373,6 +381,8 @@
 				F27B18C71280288BE9473182 /* EditorBlocoView.swift in Sources */,
 				61AFC497AD6793FD5616F122 /* Empilha.swift in Sources */,
 				9AE336A415F4A83195416BE2 /* Gesto.swift in Sources */,
+				BFBA450F8798775C427206AB /* Holofote.swift in Sources */,
+				611B3215CD20394B57D23B03 /* Intencoes.swift in Sources */,
 				03A483C4387E081D6204D93A /* Migracao.swift in Sources */,
 				206C9E23B411F0F28E1162E0 /* Nota.swift in Sources */,
 				3E3F2462A04B514F3BFA686B /* NotasFiltro.swift in Sources */,
@@ -418,6 +428,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Traco/Info-extra.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Traço";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
@@ -534,6 +545,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Traco/Info-extra.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Traço";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;

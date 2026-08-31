@@ -19,6 +19,12 @@ targets:
     platform: iOS
     sources:
       - path: Traco
+    info:
+      path: Traco/Info-extra.plist
+      properties:
+        CFBundleURLTypes:
+          - CFBundleURLName: app.traco
+            CFBundleURLSchemes: [traco]
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: app.traco

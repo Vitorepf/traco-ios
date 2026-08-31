@@ -330,6 +330,8 @@ final class Sessao {
         // Exp 9: o corpus vive também no app Arquivos — backup sem nuvem, sem conta
         if let todas = try? context.fetch(FetchDescriptor<Nota>()) {
             Corpus.backupAutomatico(notas: todas)
+            // Exp 3: Spotlight indexa só as abertas (o selo vale para o sistema)
+            Holofote.indexar(notas: todas.map { ($0.uuid, $0.vozDoAutor, $0.trancada) })
         }
         if let notaUUID, let nota = Self.buscar(uuid: notaUUID, no: context) {
             Revisoes.agendar(uuid: nota.uuid, criadaEm: nota.criadaEm, gesto: nota.gesto, trancada: nota.trancada, texto: nota.texto) { [weak self] in

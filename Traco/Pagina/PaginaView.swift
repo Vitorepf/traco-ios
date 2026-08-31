@@ -90,6 +90,12 @@ struct PaginaView: View {
             sessao.alinharTimerAoRelogio()
             sessao.trancarExpressivasVencidas(no: context)
         }
+        .onOpenURL { url in
+            if let destino = Rota.daURL(url) { seguirRota(destino) }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: Rota.mudou)) { _ in
+            if let destino = Rota.pendente { Rota.pendente = nil; seguirRota(destino) }
+        }
         .onReceive(NotificationCenter.default.publisher(for: Revisoes.abrirRevisao)) { aviso in
             // §17: um passo — a notificação abre direto o Recordar da nota
             guard let uuid = aviso.object as? UUID,
@@ -329,6 +335,19 @@ struct PaginaView: View {
         .padding(.horizontal, 10)
         .padding(.bottom, 8)
         .accessibilityIdentifier("cartao-padroes")
+    }
+
+    private func seguirRota(_ destino: Rota.Destino) {
+        switch destino {
+        case .novaPagina:
+            sessao.salvar(no: context)
+            sessao.novaPagina()
+            sessao.mostrarNotas = false
+            sessao.mostrarPadroes = false
+        case .notas:
+            sessao.salvar(no: context)
+            sessao.mostrarNotas = true
+        }
     }
 
     /// Página livre: o cursor volta. Notas, padrões ou confirmação cobrem — o teclado some.
