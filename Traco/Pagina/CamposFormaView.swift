@@ -26,6 +26,10 @@ struct CamposFormaView: View {
         .padding(.top, 8)
         .padding(.bottom, 12)
         .background(Tema.superficie, in: RoundedRectangle(cornerRadius: Tema.raio, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: Tema.raio, style: .continuous)
+                .strokeBorder(Tema.linha, lineWidth: 0.5)
+        )
         .padding(.horizontal, 10)
         .blur(radius: nascida || reduceMotion ? 0 : 3)
         .opacity(nascida || reduceMotion ? 1 : 0.55)

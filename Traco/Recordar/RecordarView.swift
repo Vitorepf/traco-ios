@@ -111,6 +111,15 @@ struct RecordarView: View {
                                 .animation(.easeOut(duration: 0.35).delay(0.08), value: fase)
                         }
                         .padding(Tema.margem)
+                        .overlay {
+                            if ladoALado {
+                                // documento comparado: uma régua entre memória e nota
+                                Rectangle()
+                                    .fill(Tema.linha)
+                                    .frame(width: 0.5)
+                                    .padding(.vertical, Tema.margem)
+                            }
+                        }
                     }
                 }
                 Button("Voltar à página") { dismiss() }

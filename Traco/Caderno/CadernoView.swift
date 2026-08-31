@@ -137,6 +137,13 @@ struct CadernoView: View {
                     }
                 }
             }
+            .mask(
+                HStack(spacing: 0) {
+                    Rectangle()
+                    LinearGradient(colors: [.black, .clear], startPoint: .leading, endPoint: .trailing)
+                        .frame(width: 16)
+                }
+            )
             .accessibilityIdentifier("regua")
             Button {
                 editando = nil

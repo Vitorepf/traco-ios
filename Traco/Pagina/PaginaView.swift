@@ -28,7 +28,12 @@ struct PaginaView: View {
         .overlay {
             if let confirmacao = sessao.confirmacao {
                 ConfirmacaoView(estado: confirmacao, sessao: sessao, context: context)
-                    .transition(reduceMotion ? .opacity : .opacity.combined(with: .scale(scale: 1.03)))
+                    .transition(reduceMotion
+                        ? .opacity
+                        : .asymmetric(
+                            insertion: .opacity.combined(with: .scale(scale: 1.03)),
+                            removal: .opacity.combined(with: .scale(scale: 1.02))
+                        ))
             }
         }
         .animation(sessao.confirmacao != nil
@@ -247,7 +252,7 @@ struct PaginaView: View {
         VStack(spacing: 6) {
             // o tempo é o instrumento do método: corpo de verdade, legenda separada
             Text(tempoFormatado)
-                .font(.title3.weight(.semibold).monospacedDigit())
+                .font(.system(.title3, design: .rounded).weight(.semibold).monospacedDigit())
                 .foregroundStyle(Tema.tinta)
                 .contentTransition(.numericText(countsDown: true))
                 .animation(.linear(duration: 0.3), value: sessao.segundosRestantes)

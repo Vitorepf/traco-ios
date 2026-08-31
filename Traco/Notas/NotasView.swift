@@ -149,7 +149,7 @@ struct NotasView: View {
         }
         .padding(.horizontal, 12)
         .frame(minHeight: Tema.alvo)
-        .background(Tema.superficie, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+        .background(Tema.superficie, in: RoundedRectangle(cornerRadius: Tema.raio, style: .continuous))
         .padding(.horizontal, Tema.margem)
         .padding(.bottom, 8)
         .opacity(filtro == .trancadas ? 0.4 : 1)
@@ -203,7 +203,7 @@ struct NotasView: View {
         return Group {
             if visiveis.isEmpty {
                 VStack(spacing: 12) {
-                    Image(systemName: "square.and.pencil")
+                    Image(systemName: busca.isEmpty && filtro == nil ? "square.and.pencil" : "magnifyingglass")
                         .font(.system(size: 28, weight: .light))
                         .foregroundStyle(Tema.tintaFraca)
                         .accessibilityHidden(true)

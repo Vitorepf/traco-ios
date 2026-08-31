@@ -1,0 +1,43 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: Notas
+    timeout: 8000
+- tapOn: "Página"
+- inputText: "quero correr de manhã"
+- extendedWaitUntil:
+    visible: "Soltar a forma"
+    timeout: 6000
+- tapOn: "Soltar a forma"
+- tapOn:
+    id: "concluir"
+- tapOn: "Página"
+- inputText: "eu sou um vencedor"
+- extendedWaitUntil:
+    visible: "Aviso"
+    timeout: 6000
+- tapOn:
+    id: "concluir"
+- tapOn:
+    id: "abrir-notas"
+- tapOn:
+    id: "abrir-padroes"
+- extendedWaitUntil:
+    visible: "PADRÕES"
+    timeout: 5000
+- tapOn: "notas"
+- tapOn:
+    id: "voltar-pagina"
+- tapOn: "Página"
+- inputText: "uma nota para recordar depois"
+- tapOn: "Recordar"
+- extendedWaitUntil:
+    visible: "Revelar"
+    timeout: 12000
+- inputText: "uma nota para recordar"
+- tapOn: "Revelar"
+- extendedWaitUntil:
+    visible: "DE MEMÓRIA"
+    timeout: 5000
