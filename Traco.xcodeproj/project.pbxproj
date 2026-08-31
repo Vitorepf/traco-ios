@@ -21,6 +21,7 @@
 		41477564BC9389B7A7982A6C /* Toque.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2751D1D96F07B6B9980FA75 /* Toque.swift */; };
 		43856A9FFE628D9063718BF2 /* AnaliseLocal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07E0810B1D0BA208B63D167C /* AnaliseLocal.swift */; };
 		4C087E51618A29E54C7DB4BF /* AnexoDisco.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6781E6B90271EAB559E46EB7 /* AnexoDisco.swift */; };
+		50BDC2DAF155F65D6076D8CD /* Revisoes.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB811F3145B921C3557FB6CF /* Revisoes.swift */; };
 		56A38C95EE9713A63A475FC8 /* NotasESessaoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B544C7CB0EEA5F5D2DAFB30C /* NotasESessaoTests.swift */; };
 		61AFC497AD6793FD5616F122 /* Empilha.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FDEE4E634F20086C0076DA8 /* Empilha.swift */; };
 		790B6E9A5A75BFDBB00BFF9F /* PapelForma.swift in Sources */ = {isa = PBXBuildFile; fileRef = 665F2C234F3966C3C528A729 /* PapelForma.swift */; };
@@ -82,6 +83,7 @@
 		B496594B9155DDF9FAE0B85C /* CamposFormaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CamposFormaView.swift; sourceTree = "<group>"; };
 		B544C7CB0EEA5F5D2DAFB30C /* NotasESessaoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotasESessaoTests.swift; sourceTree = "<group>"; };
 		B5A488C4342AF60848A88895 /* CadernoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CadernoTests.swift; sourceTree = "<group>"; };
+		BB811F3145B921C3557FB6CF /* Revisoes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Revisoes.swift; sourceTree = "<group>"; };
 		BC971448D0B5207611E641F1 /* CadernoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CadernoView.swift; sourceTree = "<group>"; };
 		C905B08A3932A5955A7DAFA6 /* BlocoCaderno.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlocoCaderno.swift; sourceTree = "<group>"; };
 		C9F22E37F6BFFDA21C00C087 /* CartaoAnaliseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CartaoAnaliseView.swift; sourceTree = "<group>"; };
@@ -107,6 +109,7 @@
 			isa = PBXGroup;
 			children = (
 				6B3F4812CA2DDBAB60FE7D78 /* RecordarView.swift */,
+				BB811F3145B921C3557FB6CF /* Revisoes.swift */,
 			);
 			path = Recordar;
 			sourceTree = "<group>";
@@ -355,6 +358,7 @@
 				207C686843759571A4FD1DC5 /* PortalFormulaView.swift in Sources */,
 				3300AF225512A35291C48F3D /* ProsaView.swift in Sources */,
 				0BD2BD74128AD32BFB929D54 /* RecordarView.swift in Sources */,
+				50BDC2DAF155F65D6076D8CD /* Revisoes.swift in Sources */,
 				8963B4E83A2289A6F95A4424 /* Sessao.swift in Sources */,
 				BE9E364EB4D15B9B4A0FD32C /* SintaxeLocal.swift in Sources */,
 				D37ABADE9FFCD8F825DC5E8B /* Tema.swift in Sources */,

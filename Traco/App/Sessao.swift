@@ -239,6 +239,11 @@ final class Sessao {
             return
         }
         salvar(no: context)
+        // FILA P1.5: a nota concluída marca a própria revisão — o Recordar chega
+        // no dia certo sem o autor lembrar (§17).
+        if let notaUUID, let nota = Self.buscar(uuid: notaUUID, no: context) {
+            Revisoes.agendar(uuid: nota.uuid, criadaEm: nota.criadaEm, gesto: nota.gesto, trancada: nota.trancada, texto: nota.texto)
+        }
         novaPagina()
         Toque.leve()
     }

@@ -390,3 +390,21 @@ struct AutoAnaliseTests {
         s.autoAnalise = true // restaura o default global (UserDefaults é real nos testes)
     }
 }
+
+@MainActor
+struct RevisoesTests {
+    @Test func trancadaEExpressivaNuncaAgendam() {
+        #expect(!Revisoes.podeAgendar(gesto: .expressiva, trancada: false, texto: "desabafo"))
+        #expect(!Revisoes.podeAgendar(gesto: .woop, trancada: true, texto: "segredo"))
+        #expect(!Revisoes.podeAgendar(gesto: nil, trancada: false, texto: "   "))
+        #expect(Revisoes.podeAgendar(gesto: .woop, trancada: false, texto: "quero correr"))
+        #expect(Revisoes.podeAgendar(gesto: nil, trancada: false, texto: "nota nua"))
+    }
+
+    @Test func revisaoCaiTresDiasDepois() {
+        let criada = Date(timeIntervalSince1970: 1_700_000_000)
+        let quando = Revisoes.proximaRevisao(aPartirDe: criada)
+        let dias = Calendar.current.dateComponents([.day], from: criada, to: quando).day
+        #expect(dias == 3)
+    }
+}

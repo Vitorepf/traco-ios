@@ -6,7 +6,7 @@ import UserNotifications
 /// ponytail: intervalo fixo; a escada espaçada (3→7→21) entra quando houver
 /// registro de revisões feitas.
 enum Revisoes {
-    static let intervaloDias = 3
+    nonisolated static let intervaloDias = 3
 
     /// Trancada/expressiva NUNCA agenda — e a notificação nunca carrega conteúdo
     /// da nota (lock screen é rota de exposição).
