@@ -26,6 +26,20 @@ struct CartaoAnaliseView: View {
                 }
                 .buttonStyle(CartaoBotaoStyle())
                 .accessibilityHint("Campos vazios nascem abaixo do seu texto")
+            case .vestida(let gesto, let pergunta):
+                // §17.3: com confiança alta, a forma já veio vestida — decidir é fricção.
+                chip(gesto.nome, aviso: false)
+                if !pergunta.isEmpty {
+                    Text(pergunta)
+                        .font(Tema.corpo)
+                        .foregroundStyle(Tema.tinta)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                Button("Soltar a forma") {
+                    sessao.soltarForma()
+                }
+                .buttonStyle(CartaoBotaoStyle())
+                .accessibilityHint("Desfaz a forma; o seu texto fica intacto")
             case .expressiva:
                 chip("Escrita expressiva", aviso: false)
                 Text("Isto pede 15 minutos — fato E sentimento, sobre o mesmo evento. Ao fim, a nota tranca e não se relê.")

@@ -350,7 +350,9 @@ struct AutoAnaliseTests {
         s.texto = "quero correr de manhã"
         s.agendarAutoAnalise(depois: 0)
         try await Task.sleep(for: .milliseconds(80))
-        #expect(s.cartao == .forma(.woop, pergunta: AnaliseLocal.perguntaWOOP))
+        // §17.3 superou a fatia 1: no automático a forma já vem vestida
+        #expect(s.cartao == .vestida(.woop, pergunta: AnaliseLocal.perguntaWOOP))
+        #expect(s.gesto == .woop)
     }
 
     @Test func silencioAutomaticoEInvisivel() async throws {
@@ -485,5 +487,46 @@ struct AnaliseRemotaTests {
         Chave.apagar()
         let v = await AnaliseRemota.classificar(texto: "quero correr", gestoAtual: nil)
         #expect(v == nil) // sem chave: zero rede, cai no local
+    }
+}
+
+@MainActor
+struct AutoVestirTests {
+    @Test func pausaVesteDireto() async throws {
+        let s = Sessao()
+        s.autoAnalise = true
+        s.texto = "quero correr de manhã"
+        s.agendarAutoAnalise(depois: 0)
+        try await Task.sleep(for: .milliseconds(120))
+        #expect(s.gesto == .woop) // vestida sozinha (§17.3)
+        #expect(s.campos.keys.sorted() == ["obstaculo", "plano", "resultado"])
+        #expect(s.texto == "quero correr de manhã") // as palavras do autor intactas
+        if case .vestida(.woop, _) = s.cartao {} else { Issue.record("cartão devia ser .vestida") }
+    }
+
+    @Test func soltarDesfazESuprimeNaNota() async throws {
+        let s = Sessao()
+        s.autoAnalise = true
+        s.texto = "quero correr de manhã"
+        s.agendarAutoAnalise(depois: 0)
+        try await Task.sleep(for: .milliseconds(120))
+        s.soltarForma()
+        #expect(s.gesto == nil)
+        #expect(s.campos.isEmpty)
+        s.agendarAutoAnalise(depois: 0)
+        try await Task.sleep(for: .milliseconds(120))
+        #expect(s.gesto == nil) // §17.2: opt-out por nota — não re-veste
+        s.novaPagina()
+        #expect(s.autoSuprimidaNaNota == false) // página nova zera a supressão
+    }
+
+    @Test func expressivaNuncaComecaSozinha() async throws {
+        let s = Sessao()
+        s.autoAnalise = true
+        s.texto = "hoje foi pesado, briguei com meu sócio e senti que tudo pode desmoronar, dói pensar nisso e o medo não sai da cabeça de jeito nenhum"
+        s.agendarAutoAnalise(depois: 0)
+        try await Task.sleep(for: .milliseconds(120))
+        #expect(s.timerLigado == false) // timer é compromisso: só com toque
+        #expect(s.cartao == .expressiva) // a oferta aparece; a decisão é do autor
     }
 }

@@ -76,12 +76,30 @@ final class Sessao {
             cartao = .aviso(frase)
         case .gesto(let g, let pergunta):
             Toque.leve()
-            cartao = .forma(g, pergunta: pergunta)
+            if automatica {
+                // §17.3: gatilho explícito = confiança alta → a forma já vem vestida,
+                // com Soltar de um toque. As palavras do autor ficam intactas.
+                usarForma(g)
+                cartao = .vestida(g, pergunta: pergunta)
+            } else {
+                cartao = .forma(g, pergunta: pergunta)
+            }
         case .expressiva:
+            // O timer é compromisso (tranca no fim): NUNCA começa sozinho.
             Toque.leve()
             cartao = .expressiva
         }
     }
+
+    /// §17: um toque desfaz o vestir automático — e a nota fica quieta até novo texto.
+    func soltarForma() {
+        gesto = nil
+        campos = [:]
+        cartao = nil
+        autoSuprimidaNaNota = true // opt-out POR NOTA (§17.2)
+        Toque.leve()
+    }
+    var autoSuprimidaNaNota = false
 
     // MARK: - §17: análise automática na pausa (o autor nunca precisa lembrar do botão)
 
@@ -92,7 +110,7 @@ final class Sessao {
 
     func agendarAutoAnalise(depois segundos: Double = 1.6) {
         autoTask?.cancel()
-        guard autoAnalise, !timerLigado, !paginaVazia, gesto != .expressiva, cartao == nil else { return }
+        guard autoAnalise, !autoSuprimidaNaNota, !timerLigado, !paginaVazia, gesto != .expressiva, cartao == nil else { return }
         autoTask = Task { [weak self] in
             try? await Task.sleep(for: .seconds(segundos))
             guard let self, !Task.isCancelled else { return }
@@ -236,6 +254,7 @@ final class Sessao {
         confirmacao = nil
         recordarTexto = ""
         recordarCampos = [:]
+        autoSuprimidaNaNota = false
     }
 
     func abrir(_ nota: Nota, mesmoTrancada: Bool = false) {
@@ -355,6 +374,7 @@ final class Sessao {
 enum CartaoAnalisar: Equatable {
     case aviso(String)
     case forma(Gesto, pergunta: String)
+    case vestida(Gesto, pergunta: String)
     case expressiva
 }
 

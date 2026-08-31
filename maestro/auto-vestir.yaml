@@ -1,0 +1,15 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: Notas
+    timeout: 8000
+- tapOn: "Página"
+- inputText: "quero correr de manhã"
+- extendedWaitUntil:
+    visible: "Soltar a forma"
+    timeout: 6000
+- assertVisible:
+    id: "forma-woop"
+- takeScreenshot: /tmp/traco-verify/hoje/09-auto-vestir
