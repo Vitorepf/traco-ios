@@ -26,7 +26,7 @@ struct EditorBlocoView: View {
         case .titulo(let n, _):
             VStack(alignment: .leading, spacing: 6) {
                 if n > 1 {
-                    SinalTipo(nome: n == 2 ? "secção" : "subsecção")
+                    SinalTipo(nome: n == 2 ? "seção" : "subseção")
                 }
                 TextField("", text: binding { Caderno.comTexto(bloco, $0) }, axis: .vertical)
                     .font(n <= 1 ? Tema.tituloNota : Tema.secaoNota)
@@ -35,7 +35,7 @@ struct EditorBlocoView: View {
                     .focused(foco)
                     .tint(Tema.ambar)
                     .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .leading)
-                    .accessibilityLabel(n <= 1 ? "Título" : n == 2 ? "Secção" : "Subsecção")
+                    .accessibilityLabel(n <= 1 ? "Título" : n == 2 ? "Seção" : "Subseção")
                     .accessibilityIdentifier(n <= 1 ? "portal-titulo" : n == 2 ? "portal-seccao" : "portal-subseccao")
             }
         case .itens(let xs, let ordenada):

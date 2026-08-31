@@ -159,7 +159,7 @@ Persistência local (SwiftData/arquivo). Sem nuvem na v1. Sem conta.
 - **Motion:** mínimo. A forma nasce com um fade curto (~250ms). Nada anima enquanto
   o usuário digita. `prefers-reduced-motion` respeitado.
 - A UI inteira do editor: topo com [Notas] e [Concluída], página, e UMA barra inferior
-  discreta [Analisar · Recordar]. Nada mais.
+  discreta [Analisar · Recordar · Anexar]. Nada mais. (ADR 31/ago: Anexar entrou com o Caderno.)
 
 ## 12. Não-objetivos (v1)
 

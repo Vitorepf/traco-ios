@@ -11,7 +11,8 @@ struct CamposFormaView: View {
             Text(gesto.nome.uppercased())
                 .font(Tema.label)
                 .tracking(1.3)
-                .foregroundStyle(Tema.tintaFraca)
+                .foregroundStyle(Tema.tintaSuave)
+                .padding(.bottom, 8)
                 .accessibilityAddTraits(.isHeader)
                 .accessibilityIdentifier("forma-\(gesto.rawValue)")
             ForEach(gesto.campos) { campo in

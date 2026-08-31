@@ -65,7 +65,7 @@ enum FiltroNotas: String, CaseIterable, Identifiable {
     case woop = "WOOP"
     case seEntao = "Se–então"
     case spec = "Spec"
-    case notaPermanente = "Nota permanente"
+    case notaPermanente = "Permanente"
     case destaque = "Destaque"
     case trancadas = "Trancadas"
 

@@ -30,7 +30,7 @@ struct RecordarView: View {
                     .buttonStyle(PressaoDiscreta())
                     .accessibilityLabel("Voltar")
                 Spacer()
-                Text("PUXAR")
+                Text("RECORDAR")
                     .font(Tema.label)
                     .tracking(1.4)
                     .foregroundStyle(Tema.tintaSuave)

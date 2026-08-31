@@ -42,7 +42,7 @@ struct CartaoAnaliseView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background {
             RoundedRectangle(cornerRadius: Tema.raioCartao)
-                .fill(Tema.superficieAlta.opacity(0.94))
+                .fill(Tema.superficieAlta)
                 .shadow(color: .black.opacity(0.45), radius: 16, y: 8)
         }
         .overlay {

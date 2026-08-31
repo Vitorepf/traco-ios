@@ -186,16 +186,16 @@ struct PaginaView: View {
                     .foregroundStyle(Tema.tintaSuave)
                     .accessibilityLabel("Recordar")
                     .accessibilityHint("Esconde a nota e cobra a memória")
-                Button("Arquivo") { abrirArquivo = true }
+                Button("Anexar") { abrirArquivo = true }
                     .foregroundStyle(Tema.tintaSuave)
-                    .accessibilityLabel("Arquivo")
-                    .accessibilityHint("Foto, vídeo, áudio, gravar ou ficheiro")
+                    .accessibilityLabel("Anexar")
+                    .accessibilityHint("Foto, vídeo, áudio, gravar ou arquivo")
                     .accessibilityIdentifier("abrir-arquivo")
             }
         }
         .font(Tema.barra)
         .buttonStyle(BarraBotaoStyle())
-        .background(Tema.fundo.opacity(0.72))
+        .background(Tema.fundo)
         .overlay(alignment: .top) {
             Rectangle().fill(Tema.linha).frame(height: 0.5)
         }
@@ -243,7 +243,7 @@ struct PaginaView: View {
 
     private func cartaoPergunta(_ pergunta: String) -> some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("PERGUNTA DO CÓDICE")
+            Text("PERGUNTA DOS PADRÕES")
                 .font(Tema.label)
                 .tracking(1.2)
                 .foregroundStyle(Tema.tintaFraca)

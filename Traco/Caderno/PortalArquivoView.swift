@@ -63,7 +63,7 @@ struct PortalArquivoView: View {
             }
         }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("Portal de imagem, \(alt)")
+        .accessibilityLabel("Imagem, \(alt)")
         .accessibilityHint("Imagem desta nota")
         .accessibilityIdentifier("portal-imagem")
     }
@@ -96,7 +96,7 @@ struct PortalArquivoView: View {
         .contentShape(Rectangle())
         .onTapGesture(perform: aoEditar)
         .accessibilityElement(children: .contain)
-        .accessibilityLabel("Portal de áudio, \(nome)")
+        .accessibilityLabel("Áudio, \(nome)")
         .accessibilityIdentifier("portal-audio")
     }
 
@@ -118,7 +118,7 @@ struct PortalArquivoView: View {
             .onTapGesture(perform: aoEditar)
         }
         .accessibilityElement(children: .contain)
-        .accessibilityLabel("Portal de vídeo, \(nome)")
+        .accessibilityLabel("Vídeo, \(nome)")
         .accessibilityIdentifier("portal-video")
     }
 
@@ -158,7 +158,7 @@ struct PortalArquivoView: View {
                         .foregroundStyle(Tema.tintaSuave)
                         .frame(width: Tema.alvo, height: Tema.alvo)
                 }
-                .accessibilityLabel("Partilhar PDF")
+                .accessibilityLabel("Compartilhar PDF")
             }
         }
         .padding(14)
@@ -169,7 +169,7 @@ struct PortalArquivoView: View {
         }
         .overlay(alignment: .leading) { trilho }
         .accessibilityElement(children: .contain)
-        .accessibilityLabel("Portal de PDF, \(nome)")
+        .accessibilityLabel("PDF, \(nome)")
         .accessibilityIdentifier("portal-pdf")
     }
 
@@ -203,7 +203,7 @@ struct PortalArquivoView: View {
                         .foregroundStyle(Tema.tintaSuave)
                         .frame(width: Tema.alvo, height: Tema.alvo)
                 }
-                .accessibilityLabel("Partilhar arquivo")
+                .accessibilityLabel("Compartilhar arquivo")
             }
         }
         .padding(14)
@@ -216,7 +216,7 @@ struct PortalArquivoView: View {
         .contentShape(Rectangle())
         .onTapGesture(perform: aoEditar)
         .accessibilityElement(children: .contain)
-        .accessibilityLabel("Portal de arquivo, \(nome)")
+        .accessibilityLabel("Arquivo, \(nome)")
         .accessibilityIdentifier("portal-arquivo")
     }
 

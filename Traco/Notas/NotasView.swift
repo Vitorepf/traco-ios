@@ -45,6 +45,7 @@ struct NotasView: View {
                 Teclado.recolher()
                 sessao.mostrarPadroes = true
             }
+            .font(.subheadline)
             .foregroundStyle(Tema.tintaSuave)
             .frame(minHeight: Tema.alvo)
             .contentShape(Rectangle())

@@ -85,8 +85,8 @@ extension PapelForma {
             item("codigo", "Código", .codigo(lingua: nil)),
             item("tabela", "Tabela", .tabela),
 
-            item("seccao", "Secção", .titulo(2)),
-            item("subseccao", "Subsecção", .titulo(3)),
+            item("seccao", "Seção", .titulo(2)),
+            item("subseccao", "Subseção", .titulo(3)),
             item("numerada", "Numerada", .lista(ordenada: true)),
             recipiente("passos", "Passos", .passos),
             item("divisoria", "Divisória", .divisoria),
@@ -165,7 +165,7 @@ extension PapelForma {
             recipiente("confissao", "Confissão", .voz),
             recipiente("carta", "Carta", .voz),
             recipiente("relato", "Relato", .chamada),
-            recipiente("cronica", "Crónica", .chamada),
+            recipiente("cronica", "Crônica", .chamada),
             recipiente("ensaio", "Ensaio", .chamada),
             recipiente("manifesto", "Manifesto", .decisao),
 

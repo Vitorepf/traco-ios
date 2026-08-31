@@ -303,7 +303,7 @@ struct CadernoTests {
     @Test func reguaEnxutaCatalogoVasto() {
         // SPEC §12: a RÉGUA é enxuta (≤12 — menu grande é template em menu).
         #expect(PapelForma.regua.count == 12)
-        #expect(PapelForma.regua.prefix(6).map(\.nome) == ["Título", "Secção", "Lista", "Numerada", "Tarefa", "Citação"])
+        #expect(PapelForma.regua.prefix(6).map(\.nome) == ["Título", "Seção", "Lista", "Numerada", "Tarefa", "Citação"])
         // O CATÁLOGO segue vasto e único: todo `:::slug` já gravado continua lendo.
         #expect(PapelForma.catalogo.count >= 120)
         #expect(Set(PapelForma.catalogo.map(\.slug)).count == PapelForma.catalogo.count)

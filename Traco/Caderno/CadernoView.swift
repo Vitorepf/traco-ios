@@ -69,7 +69,7 @@ struct CadernoView: View {
                         .padding(.horizontal, 16)
                         .padding(.vertical, 8)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Tema.fundo.opacity(0.92))
+                        .background(Tema.fundo)
                         .overlay(alignment: .top) {
                             Rectangle().fill(Tema.linha).frame(height: 0.5)
                         }
@@ -99,12 +99,12 @@ struct CadernoView: View {
         .fileImporter(isPresented: $importaFicheiro, allowedContentTypes: [.item], allowsMultipleSelection: false) { resultado in
             importarResultado(resultado)
         }
-        .confirmationDialog("Portal de arquivo", isPresented: $menuArquivo, titleVisibility: .visible) {
+        .confirmationDialog("Anexar", isPresented: $menuArquivo, titleVisibility: .visible) {
             Button("Foto") { menuFoto = true }
             Button("Vídeo") { menuVideo = true }
             Button("Áudio") { importaAudio = true }
             Button(gravando ? "Parar" : "Gravar") { tocarGravacao() }
-            Button("Ficheiro") { importaFicheiro = true }
+            Button("Arquivo") { importaFicheiro = true }
         }
         .confirmationDialog("Língua do código", isPresented: $menuLingua, titleVisibility: .visible) {
             Button("Swift") { transformarCodigo("swift") }
@@ -158,7 +158,7 @@ struct CadernoView: View {
         let eSub = nivel == 3
         let eTituloCapa = nivel == 1
         let mostraSinal = eTabela || eSeccao || eSub
-        let nomeSinal = eSeccao ? "secção" : eSub ? "subsecção" : "tabela"
+        let nomeSinal = eSeccao ? "seção" : eSub ? "subseção" : "tabela"
         let feito = if case .tarefas(let xs) = fatia.bloco { xs.first?.feito == true } else { false }
         let ordenada = if case .itens(_, let o) = fatia.bloco { o } else { false }
         return VStack(alignment: .leading, spacing: 0) {
@@ -248,8 +248,8 @@ struct CadernoView: View {
         .id("pagina-una")
         .accessibilityLabel(
             nivel == 1 ? "Título"
-                : nivel == 2 ? "Secção"
-                : nivel == 3 ? "Subsecção"
+                : nivel == 2 ? "Seção"
+                : nivel == 3 ? "Subseção"
                 : eCitacao ? "Citação"
                 : "Página"
         )

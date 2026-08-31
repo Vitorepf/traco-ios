@@ -27,7 +27,7 @@ struct PadroesView: View {
                     .buttonStyle(PressaoDiscreta())
                     .accessibilityLabel("Voltar às notas")
                 Spacer()
-                Text("CÓDICE")
+                Text("PADRÕES")
                     .font(Tema.label)
                     .tracking(1.4)
                     .foregroundStyle(Tema.tintaSuave)

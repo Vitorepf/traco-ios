@@ -1,0 +1,38 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: Notas
+    timeout: 8000
+- takeScreenshot: /tmp/traco-verify/hoje/01-pagina-vazia
+- tapOn: "Página"
+- inputText: "quero correr de manhã"
+- hideKeyboard
+- tapOn: Analisar
+- extendedWaitUntil:
+    visible:
+      id: "cartao-analise"
+    timeout: 5000
+- takeScreenshot: /tmp/traco-verify/hoje/02-cartao-woop
+- tapOn: "Abrir a forma WOOP"
+- takeScreenshot: /tmp/traco-verify/hoje/03-forma-woop
+- tapOn:
+    id: "concluir"
+- tapOn: "Página"
+- inputText: "eu sou um vencedor"
+- hideKeyboard
+- tapOn: Analisar
+- extendedWaitUntil:
+    visible:
+      id: "cartao-analise"
+    timeout: 5000
+- takeScreenshot: /tmp/traco-verify/hoje/04-aviso
+- tapOn:
+    id: "concluir"
+- tapOn:
+    id: "abrir-notas"
+- takeScreenshot: /tmp/traco-verify/hoje/05-notas
+- tapOn:
+    id: "abrir-padroes"
+- takeScreenshot: /tmp/traco-verify/hoje/06-padroes

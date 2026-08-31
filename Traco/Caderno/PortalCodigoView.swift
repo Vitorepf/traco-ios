@@ -49,7 +49,7 @@ struct PortalCodigoView: View {
             .frame(width: 3)
         }
         .accessibilityElement(children: edicao == nil ? .combine : .contain)
-        .accessibilityLabel("Portal de \(nomePapel), \(nomeLingua)")
+        .accessibilityLabel("Código \(nomePapel), \(nomeLingua)")
         .accessibilityHint(edicao == nil ? "Toque para escrever o código" : "Escreva o código")
         .accessibilityIdentifier("portal-codigo")
     }
