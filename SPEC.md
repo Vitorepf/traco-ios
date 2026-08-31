@@ -488,6 +488,22 @@ mola *acelera* na chegada. Mola não acelera na chegada. Nunca.
 escurecimento do que fica atrás, "deslizar por cima" lê como conteúdo sendo
 apagado, não como camada.
 
+**Nada de estado escrito durante a animação.** `onChange` não roda por quadro de
+animação — roda em mudança de estado. Derivar um valor da posição por `onChange`
+e escrevê-lo num `@State` de outra view invalida a árvore no meio do voo e
+atropela a própria mola: os passos saem 35 · 62 · 25 · 37 · 35 · 22 · 45 · **0** ·
+69 px, que não é integração de mola nenhuma. Valor derivado se lê no `body`, do
+mesmo valor animado, como MODIFICADOR animável — o SwiftUI interpola os dois
+juntos. E mudar estado pesado (gravar no SwiftData, trocar de aba) no mesmo
+instante em que a animação começa mata a animação: o estado vira no quadro
+seguinte, com o movimento já em curso.
+
+**Estado de seleção não se dissolve.** Uma aba acesa é ESTADO, não transição.
+Com fade, sobram quadros sem nenhuma aba selecionada.
+
+**Chrome de uma camada mora DENTRO dela.** A barra que ficava fora andava 34px
+enquanto o corpo andava 233px, e não era recortada pela borda.
+
 **O sistema é a régua.** No mesmo vídeo há animações do iOS (teclado, folha
 modal). Elas desaceleram monotonicamente, com cauda longa. Se a do app não se
 parece com aquilo, é a do app que está errada.
