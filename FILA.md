@@ -1,4 +1,4 @@
-# FILA — varredura de completude (31/ago, pós-P0)
+# FILA — varredura nº 2 (31/ago, pós-arrancada 2)
 
 Saída do loop de COMPLETUDE (META-FINAL). Próxima varredura marca o que fechou.
 
@@ -37,3 +37,18 @@ Recordar · Padrões sem repetição · fecho da expressiva testado · régua 13
 anexos com ciclo de vida · schema versionado · resíduos pt-PT e "CÓDICE"/"PUXAR" ·
 oclusões de translucidez (barra/cartão/régua opacos) · ícone real · §17 na SPEC ·
 aceite E2E §13 passando inteiro.
+
+
+## Varredura nº 2 — atualização
+Fechados: §17 fatia 1 (auto-análise) · P1.5 revisões v1 · P1.4 export · P1.2 memo ·
+P2.10 save visível · loop r1. Corrigidos na própria varredura: trigger de revisão no
+passado (base = max(criadaEm, agora)) · export sem I/O no body (gera no toque) ·
+"puxar"→"recordar" na notificação.
+
+Abertos (15): roteador automático §17 passos 3–4 (M) · parser incremental (M) ·
+import .md (M) · rota da notificação à nota + permissão no momento certo (M) ·
+opt-out por nota (S) · pt/en (M) · App Store (M) · auditoria AX/VoiceOver (M) ·
+escada 3→7→21 (M) · IA real (L, bloqueada).
+
+BLOQUEADOS NO DONO: ADR IA real × SPEC §5 · onboarding (nada ou toast) ·
+nota apagável ou não (ADR) · swipe-back custom (ADR).

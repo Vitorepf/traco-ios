@@ -1,4 +1,5 @@
 import SwiftData
+import UIKit
 import SwiftUI
 
 struct NotasView: View {
@@ -8,6 +9,7 @@ struct NotasView: View {
     @Query(sort: \Nota.criadaEm, order: .reverse) private var notas: [Nota]
     @State private var busca = ""
     @State private var filtro: FiltroNotas?
+    @State private var corpusURL: URL?
 
     var body: some View {
         Empilha(aberto: $sessao.mostrarPadroes, reduceMotion: reduceMotion) {
@@ -25,6 +27,12 @@ struct NotasView: View {
                 campoBusca
                 chips
                 lista
+            }
+        }
+        .sheet(isPresented: Binding(get: { corpusURL != nil }, set: { if !$0 { corpusURL = nil } })) {
+            if let corpusURL {
+                CompartilharArquivo(url: corpusURL)
+                    .presentationDetents([.medium, .large])
             }
         }
     }
@@ -170,8 +178,11 @@ struct NotasView: View {
                             Rectangle().fill(Tema.linha).frame(height: 0.5)
                         }
                         // Export mora no fim do arquivo: ação de arquivamento, não de uso diário.
-                        if busca.isEmpty, filtro == nil, let corpus = Corpus.exportar(notas: notas) {
-                            ShareLink(item: corpus) {
+                        // A geração acontece NO TOQUE (nada de I/O no body).
+                        if busca.isEmpty, filtro == nil, notas.contains(where: { !$0.trancada }) {
+                            Button {
+                                corpusURL = Corpus.exportar(notas: notas)
+                            } label: {
                                 Text("exportar o corpus (.md)")
                                     .font(.subheadline)
                                     .foregroundStyle(Tema.tintaFraca)
@@ -263,4 +274,14 @@ struct NotasView: View {
         }
         return VozDoAutor.truncar(respostas.joined(separator: " · "), 56)
     }
+}
+
+
+/// Folha de compartilhamento do sistema (o export gera no toque, não no body).
+private struct CompartilharArquivo: UIViewControllerRepresentable {
+    let url: URL
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: [url], applicationActivities: nil)
+    }
+    func updateUIViewController(_ vc: UIActivityViewController, context: Context) {}
 }

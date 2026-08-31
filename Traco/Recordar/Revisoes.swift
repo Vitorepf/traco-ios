@@ -26,8 +26,9 @@ enum Revisoes {
             let conteudo = UNMutableNotificationContent()
             conteudo.title = "Recordar"
             // sem conteúdo da nota: o selo vale também na lock screen
-            conteudo.body = "Uma nota de \(Self.intervaloDias) dias atrás espera você puxar de memória."
-            let quando = proximaRevisao(aPartirDe: criadaEm)
+            conteudo.body = "Uma nota de \(Self.intervaloDias) dias atrás espera você recordar."
+            // nota velha reeditada: a base é o agora — trigger no passado nunca dispara
+            let quando = proximaRevisao(aPartirDe: max(criadaEm, .now))
             let comps = Calendar.current.dateComponents([.year, .month, .day, .hour], from: quando)
             let gatilho = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)
             let pedido = UNNotificationRequest(identifier: "revisao-\(uuid.uuidString)", content: conteudo, trigger: gatilho)
