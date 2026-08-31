@@ -48,3 +48,24 @@ enum Chave {
 
     static var existe: Bool { ler() != nil }
 }
+
+
+extension Chave {
+    /// Exp 7: quem paga por token merece saber se a chave vive.
+    /// GET /v1/models é barato e não gasta crédito de geração.
+    static func testar() async -> String {
+        guard let chave = ler() else { return "sem chave guardada." }
+        var pedido = URLRequest(url: URL(string: "https://api.x.ai/v1/models")!)
+        pedido.timeoutInterval = 8
+        pedido.setValue("Bearer \(chave)", forHTTPHeaderField: "Authorization")
+        guard let (_, resposta) = try? await URLSession.shared.data(for: pedido),
+              let http = resposta as? HTTPURLResponse
+        else { return "sem rede — o motor local segue de guarda." }
+        switch http.statusCode {
+        case 200: return "chave viva — o Grok é o motor."
+        case 401, 403: return "chave inválida ou revogada — o app está no motor local."
+        case 429: return "sem crédito ou limite atingido — motor local de guarda."
+        default: return "resposta \(http.statusCode) — motor local de guarda."
+        }
+    }
+}

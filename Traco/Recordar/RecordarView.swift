@@ -3,6 +3,7 @@ import SwiftUI
 struct RecordarView: View {
     let texto: String
     let campos: [String: String]
+    var aoRevelar: () -> Void = {}
     @Environment(\.dismiss) private var dismiss
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var fase: Fase = .ler
@@ -86,6 +87,7 @@ struct RecordarView: View {
                     .accessibilityLabel("Memória")
                 Button("Revelar") {
                     Toque.suave()
+                    aoRevelar() // a revisão cumpre-se aqui, não no toque da notificação
                     withAnimation(.easeOut(duration: 0.35)) { fase = .revelar }
                 }
                 .disabled(memoriaVazia)

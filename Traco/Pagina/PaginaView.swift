@@ -19,7 +19,9 @@ struct PaginaView: View {
         }
         .tint(Tema.ambar)
         .sheet(isPresented: $sessao.mostrarRecordar) {
-            RecordarView(texto: sessao.recordarTexto, campos: sessao.recordarCampos)
+            RecordarView(texto: sessao.recordarTexto, campos: sessao.recordarCampos) {
+                sessao.cumprirRevisaoPendente(no: context)
+            }
                 .presentationBackground(Tema.fundo)
                 .presentationDragIndicator(.hidden)
         }
@@ -83,10 +85,8 @@ struct PaginaView: View {
             // §17: um passo — a notificação abre direto o Recordar da nota
             guard let uuid = aviso.object as? UUID,
                   let nota = Sessao.buscar(uuid: uuid, no: context) else { return }
-            // revisão cumprida sobe o degrau (3→7→21) e marca a próxima
-            Revisoes.registrarCumprida(uuid)
-            Revisoes.agendar(uuid: nota.uuid, criadaEm: nota.criadaEm, gesto: nota.gesto,
-                             trancada: nota.trancada, texto: nota.texto)
+            // o degrau só sobe quando o autor REVELA — abrir e fechar não é revisão
+            sessao.revisaoPendente = uuid
             sessao.recordarDaNotas(nota)
         }
     }
@@ -168,6 +168,7 @@ struct PaginaView: View {
     private var topbar: some View {
         HStack {
             Button("Notas") { sessao.irNotas(no: context) }
+                .keyboardShortcut("l", modifiers: .command)
                 .foregroundStyle(Tema.tintaSuave)
                 .frame(minHeight: Tema.alvo)
                 .accessibilityIdentifier("abrir-notas")
@@ -177,6 +178,7 @@ struct PaginaView: View {
             Spacer()
 
             Button("Concluída") { sessao.concluir(no: context) }
+                .keyboardShortcut(.return, modifiers: .command)
                 .foregroundStyle(concluidaEAmbar ? Tema.ambar : Tema.tintaSuave)
                 .opacity(sessao.paginaVazia ? 0 : 1)
                 .allowsHitTesting(!sessao.paginaVazia)
@@ -206,7 +208,8 @@ struct PaginaView: View {
             withTransaction(t) { sessao.cartao = nil }
             sessao.agendarAutoAnalise() // §17: a pausa chama a análise sozinha
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .frame(maxWidth: 680)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
 
     private var bottomBar: some View {

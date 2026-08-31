@@ -70,7 +70,14 @@ final class Sessao {
             // §17: no modo automático o silêncio é invisível — toast a cada pausa seria ruído
             if !automatica {
                 Toque.leve()
-                mostrarToast("silêncio.")
+                let d = UserDefaults.standard
+                if d.bool(forKey: "silencioExplicado") {
+                    mostrarToast("silêncio.")
+                } else {
+                    d.set(true, forKey: "silencioExplicado")
+                    // só na primeira vez: o contrato de que silêncio é resposta
+                    mostrarToast("silêncio. (sem gesto a vestir, a análise não inventa)")
+                }
             }
         case .aviso(let frase):
             Toque.aviso()
@@ -119,6 +126,18 @@ final class Sessao {
         Toque.leve()
     }
     var autoSuprimidaNaNota = false
+    var revisaoPendente: UUID?
+
+    /// Exp 12: abrir a notificação não é revisão — REVELAR é.
+    func cumprirRevisaoPendente(no context: ModelContext) {
+        guard let uuid = revisaoPendente else { return }
+        revisaoPendente = nil
+        Revisoes.registrarCumprida(uuid)
+        if let nota = Self.buscar(uuid: uuid, no: context) {
+            Revisoes.agendar(uuid: nota.uuid, criadaEm: nota.criadaEm, gesto: nota.gesto,
+                             trancada: nota.trancada, texto: nota.texto)
+        }
+    }
 
     // MARK: - §17: análise automática na pausa (o autor nunca precisa lembrar do botão)
 
@@ -308,6 +327,10 @@ final class Sessao {
         salvar(no: context)
         // FILA P1.5: a nota concluída marca a própria revisão — o Recordar chega
         // no dia certo sem o autor lembrar (§17).
+        // Exp 9: o corpus vive também no app Arquivos — backup sem nuvem, sem conta
+        if let todas = try? context.fetch(FetchDescriptor<Nota>()) {
+            Corpus.backupAutomatico(notas: todas)
+        }
         if let notaUUID, let nota = Self.buscar(uuid: notaUUID, no: context) {
             Revisoes.agendar(uuid: nota.uuid, criadaEm: nota.criadaEm, gesto: nota.gesto, trancada: nota.trancada, texto: nota.texto) { [weak self] in
                 Task { @MainActor in

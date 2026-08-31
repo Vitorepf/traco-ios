@@ -74,6 +74,16 @@ enum Corpus {
         return saida
     }
 
+    /// Backup silencioso no Documents (visível no app Arquivos; entra no backup
+    /// do aparelho). Trancadas continuam de fora — o selo vale para o restauro.
+    static func backupAutomatico(notas: [Nota]) {
+        let corpo = corpoDoCorpus(notas: notas.map { ($0.texto, $0.gesto, $0.campos, $0.trancada, $0.criadaEm) })
+        guard !corpo.isEmpty,
+              let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
+        else { return }
+        try? corpo.data(using: .utf8)?.write(to: docs.appendingPathComponent("traco-corpus.md"), options: .atomic)
+    }
+
     static func exportar(notas: [Nota]) -> URL? {
         let corpo = corpoDoCorpus(notas: notas.map { ($0.texto, $0.gesto, $0.campos, $0.trancada, $0.criadaEm) })
         guard !corpo.isEmpty else { return nil }

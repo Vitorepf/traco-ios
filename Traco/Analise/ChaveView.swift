@@ -5,6 +5,8 @@ struct ChaveView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var valor = ""
     @State private var temChave = Chave.existe
+    @State private var resultadoTeste: String?
+    @State private var testando = false
 
     var body: some View {
         ZStack {
@@ -47,6 +49,18 @@ struct ChaveView: View {
                 .buttonStyle(PressaoDiscreta())
 
                 if temChave {
+                    Button(testando ? "testando…" : (resultadoTeste ?? "testar a chave")) {
+                        testando = true
+                        Task {
+                            resultadoTeste = await Chave.testar()
+                            testando = false
+                        }
+                    }
+                    .font(.subheadline)
+                    .foregroundStyle(Tema.tintaSuave)
+                    .frame(minHeight: Tema.alvo)
+                    .buttonStyle(PressaoDiscreta())
+                    .disabled(testando)
                     Button("Remover a chave — voltar ao motor local") {
                         Chave.apagar()
                         temChave = false
