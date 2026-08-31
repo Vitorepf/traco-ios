@@ -94,6 +94,12 @@ abrir app ──► página em branco ──► usuário escreve (traço livre)
 - **Proibido:** chamada de rede SEM chave configurada pelo dono; qualquer gasto
   que o dono não ligou explicitamente; conteúdo de nota TRANCADA em qualquer
   chamada de rede (o selo vale para a rede).
+- **ADR 2026-08-31j (lei do dono): SÓ A ASSINATURA.** A IA usa somente o que a
+  assinatura do Grok já paga cobre — nunca pagar por token, nunca uso extra
+  cobrado. Enquanto a API xAI for metered fora da assinatura, o padrão do app é
+  100% local e gratuito; a chave por token é opt-in explícito e a tela da chave
+  avisa o custo. Se a assinatura passar a incluir crédito de API, essa é a única
+  via aceita.
 
 ### Avisos obrigatórios (no system prompt)
 | Detecta | Aviso (essência) |
