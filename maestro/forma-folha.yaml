@@ -1,0 +1,19 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: pagina
+- inputText: "quero correr de manhã"
+# §17: a forma veste sozinha e os campos abrem POR CIMA da tela
+- extendedWaitUntil:
+    visible:
+      id: "forma-woop"
+    timeout: 8000
+- takeScreenshot: /tmp/traco-verify/folha-vestida
+- tapOn:
+    id: "campo-resultado"
+- inputText: "correr 5km"
+- takeScreenshot: /tmp/traco-verify/folha-preenchida
+- assertVisible: "correr 5km"
+- assertVisible: "Soltar a forma"

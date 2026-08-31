@@ -8,6 +8,7 @@ struct PaginaView: View {
     @Environment(\.scenePhase) private var scenePhase
     @State private var sessao = Sessao()
     @FocusState private var focoPagina: Bool
+    @State private var mostrarCampos = false
     @ScaledMetric(relativeTo: .body) private var corpoFolga: CGFloat = 9
     @State private var abrirArquivo = false
     @State private var chegou = false
@@ -71,6 +72,39 @@ struct PaginaView: View {
         .onChange(of: sessao.confirmacao != nil) { _, coberto in
             if !coberto { restaurarFoco() }
         }
+        // a forma vestiu (auto ou manual) → os campos abrem POR CIMA da tela
+        .onChange(of: sessao.gesto) { _, g in
+            mostrarCampos = g != nil && g != .expressiva
+        }
+        .onChange(of: mostrarCampos) { _, aberto in
+            if !aberto { restaurarFoco() }
+        }
+        .sheet(isPresented: $mostrarCampos) {
+            if let gesto = sessao.gesto, gesto != .expressiva {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack {
+                            Spacer()
+                            Button("Soltar a forma") {
+                                sessao.soltarForma()
+                                mostrarCampos = false
+                            }
+                            .font(Tema.label)
+                            .foregroundStyle(Tema.ambar)
+                            .frame(minHeight: Tema.alvo)
+                            .accessibilityIdentifier("soltar-na-folha")
+                        }
+                        .padding(.horizontal, Tema.margem)
+                        CamposFormaView(gesto: gesto, campos: $sessao.campos)
+                    }
+                    .padding(.top, 8)
+                }
+                .scrollDismissesKeyboard(.interactively)
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
+                .presentationBackground(Tema.fundo)
+            }
+        }
         .onChange(of: sessao.timerEsgotou) { _, esgotou in
             if esgotou { sessao.esgotarTimer(no: context) }
         }
@@ -130,15 +164,34 @@ struct PaginaView: View {
                     timerBar
                 }
                 editor
-                if let gesto = sessao.gesto, gesto != .expressiva {
-                    ScrollView {
-                        CamposFormaView(gesto: gesto, campos: $sessao.campos)
-                            // com o cartão vivo, a forma respira acima dele —
-                            // a assinatura do produto nunca acontece fora de cena
-                            .padding(.bottom, sessao.cartao != nil ? 132 : 0)
+                // a forma abre POR CIMA da tela (folha): preencher tem espaço
+                // próprio; aqui embaixo fica só a alça de reabrir
+                if let gesto = sessao.gesto, gesto != .expressiva, !mostrarCampos {
+                    Button {
+                        Toque.selecao()
+                        mostrarCampos = true
+                    } label: {
+                        HStack(spacing: 8) {
+                            Text(gesto.nome.uppercased())
+                                .font(Tema.label)
+                                .tracking(Tema.trackingLabel)
+                            Spacer()
+                            Text("abrir campos")
+                                .font(Tema.label)
+                            Image(systemName: "chevron.up")
+                                .font(.caption)
+                        }
+                        .foregroundStyle(Tema.tintaSuave)
+                        .padding(.horizontal, Tema.margem)
+                        .frame(minHeight: Tema.alvo)
+                        .contentShape(Rectangle())
                     }
-                    .scrollDismissesKeyboard(.interactively)
-                    .frame(maxHeight: 260)
+                    .buttonStyle(PressaoDiscreta())
+                    .background(Tema.superficie, in: RoundedRectangle(cornerRadius: Tema.raio, style: .continuous))
+                    .padding(.horizontal, 10)
+                    .padding(.bottom, 8)
+                    .accessibilityIdentifier("abrir-campos")
+                    .accessibilityLabel("Abrir campos da forma \(gesto.nome)")
                 }
             }
             .safeAreaInset(edge: .bottom, spacing: 0) {
