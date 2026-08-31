@@ -175,7 +175,7 @@ struct EditorBlocoView: View {
             Grid(alignment: .leading, horizontalSpacing: 0, verticalSpacing: 0) {
                 GridRow {
                     ForEach(0..<cols, id: \.self) { c in
-                        campo(c < cabeca.count ? cabeca[c] : "") { novo in
+                        campo(c < cabeca.count ? cabeca[c] : "", cabecalho: true) { novo in
                             var next = cabeca
                             while next.count <= c { next.append("") }
                             next[c] = novo
@@ -204,17 +204,40 @@ struct EditorBlocoView: View {
                 RoundedRectangle(cornerRadius: 8, style: .continuous)
                     .strokeBorder(Tema.linha, lineWidth: 1)
             }
+            // a tabela cresce por toque — o autor estrutura, nunca monta a forma
+            HStack(spacing: 20) {
+                Button("+ linha") {
+                    Toque.selecao()
+                    aoMudar(.tabela(cabeca: cabeca, corpo: corpo + [Array(repeating: "", count: cols)]))
+                }
+                .accessibilityIdentifier("tabela-mais-linha")
+                Button("+ coluna") {
+                    Toque.selecao()
+                    aoMudar(.tabela(cabeca: cabeca + [""], corpo: corpo.map { $0 + [""] }))
+                }
+                .accessibilityIdentifier("tabela-mais-coluna")
+            }
+            .font(Tema.label)
+            .foregroundStyle(Tema.tintaSuave)
+            .buttonStyle(PressaoDiscreta())
+            .frame(minHeight: Tema.alvo)
         }
         .accessibilityIdentifier("portal-tabela")
     }
 
-    private func campo(_ valor: String, ao: @escaping @Sendable (String) -> Void) -> some View {
+    private func campo(_ valor: String, cabecalho: Bool = false,
+                       ao: @escaping @Sendable (String) -> Void) -> some View {
         TextField("", text: Binding(get: { valor }, set: ao))
-            .font(Tema.corpo)
-            .foregroundStyle(Tema.tinta)
+            .font(cabecalho ? Tema.corpo.weight(.medium) : Tema.corpo)
+            .foregroundStyle(cabecalho ? Tema.tintaSuave : Tema.tinta)
             .padding(8)
             .focused(foco)
             .tint(Tema.ambar)
+            .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .leading)
+            .background(cabecalho ? Tema.superficie : .clear)
+            // a estrutura precisa ser VISÍVEL: fio entre células, senão crescer não muda nada
+            .overlay(alignment: .bottom) { Rectangle().fill(Tema.linha).frame(height: 0.5) }
+            .overlay(alignment: .trailing) { Rectangle().fill(Tema.linha).frame(width: 0.5) }
     }
 
     private func binding(_ mapa: @escaping (String) -> BlocoCaderno) -> Binding<String> {

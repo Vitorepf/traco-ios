@@ -14,3 +14,6 @@ appId: app.traco
 - takeScreenshot: /tmp/traco-verify/tabela-regua
 - assertVisible:
     id: portal-tabela
+- tapOn: ".*linha.*"
+- tapOn: ".*coluna.*"
+- takeScreenshot: /tmp/traco-verify/tabela-cresce
