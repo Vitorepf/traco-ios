@@ -182,7 +182,7 @@ enum ContaGrok {
 extension ContaGrok {
     /// Estado honesto da conta, em uma linha, para o perfil.
     static func estado() async -> String {
-        guard ligada else { return "não conectada — o Traço está no motor local." }
+        guard ligada else { return "sem conta — tudo funciona aqui no aparelho." }
         guard let token = await token() else {
             return "sessão expirada — entre de novo."
         }
@@ -191,13 +191,13 @@ extension ContaGrok {
         pedido.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         guard let (_, resposta) = try? await URLSession.shared.data(for: pedido),
               let http = resposta as? HTTPURLResponse
-        else { return "sem rede — o motor local segue de guarda." }
+        else { return "sem rede. o app segue funcionando aqui no aparelho." }
         switch http.statusCode {
         case 200: return "conectada — o Grok é o motor, pago pela sua assinatura."
         case 401: return "sessão expirada — entre de novo."
-        case 403: return "a assinatura não libera este acesso — motor local de guarda."
-        case 429: return "limite semanal atingido — motor local de guarda."
-        default: return "resposta \(http.statusCode) — motor local de guarda."
+        case 403: return "a sua assinatura não libera este acesso. o app segue funcionando aqui no aparelho."
+        case 429: return "limite semanal do Grok atingido. o app segue funcionando aqui no aparelho."
+        default: return "o Grok respondeu \(http.statusCode). o app segue funcionando aqui no aparelho."
         }
     }
 }

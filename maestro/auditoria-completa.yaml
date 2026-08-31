@@ -34,6 +34,24 @@ appId: app.traco
     start: 1%, 50%
     end: 85%, 50%
 - takeScreenshot: /tmp/traco-verify/auditoria/07-notas-lista
+- extendedWaitUntil:
+    visible: ".*arquitetura.*"
+    timeout: 5000
+- tapOn: ".*arquitetura.*"
+- takeScreenshot: /tmp/traco-verify/auditoria/11-nota-aberta
+- tapOn: Recordar
+- extendedWaitUntil:
+    visible: "RECORDAR"
+    timeout: 5000
+- takeScreenshot: /tmp/traco-verify/auditoria/12-recordar
+- tapOn: "voltar"
+- swipe:
+    start: 1%, 50%
+    end: 85%, 50%
+- extendedWaitUntil:
+    visible:
+      id: "busca-notas"
+    timeout: 6000
 - tapOn:
     id: "busca-notas"
 - inputText: "tabela"
@@ -48,16 +66,13 @@ appId: app.traco
     timeout: 5000
 - tapOn:
     id: aba-padroes
+- extendedWaitUntil:
+    visible: "Padrões"
+    timeout: 6000
 - takeScreenshot: /tmp/traco-verify/auditoria/09-padroes
 - tapOn:
     id: aba-perfil
-- takeScreenshot: /tmp/traco-verify/auditoria/10-perfil
-- tapOn:
-    id: aba-notas
-- tapOn: ".*tabela de rotas.*"
-- takeScreenshot: /tmp/traco-verify/auditoria/11-nota-aberta
-- tapOn: Recordar
 - extendedWaitUntil:
-    visible: "RECORDAR"
-    timeout: 5000
-- takeScreenshot: /tmp/traco-verify/auditoria/12-recordar
+    visible: "Perfil"
+    timeout: 6000
+- takeScreenshot: /tmp/traco-verify/auditoria/10-perfil

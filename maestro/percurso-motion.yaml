@@ -43,7 +43,7 @@ appId: app.traco
 - tapOn:
     id: aba-perfil
 - extendedWaitUntil:
-    visible: "Meu perfil"
+    visible: "Perfil"
     timeout: 6000
 - tapOn:
     id: aba-notas

@@ -22,7 +22,7 @@ struct PerfilView: View {
         ZStack {
             Tema.fundo.ignoresSafeArea()
             VStack(alignment: .leading, spacing: 0) {
-            TituloTela("Meu perfil")
+            TituloTela("Perfil")
             ScrollView {
                 VStack(alignment: .leading, spacing: Tema.entreSecoes) {
                     conta
