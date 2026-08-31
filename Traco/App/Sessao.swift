@@ -33,9 +33,9 @@ final class Sessao {
         max(0, (15 * 60 - segundosRestantes) / 60)
     }
 
-    func analisar() {
+    func analisar(automatica: Bool = false) {
         if timerLigado {
-            mostrarToast("a análise cala durante a escrita.")
+            if !automatica { mostrarToast("a análise cala durante a escrita.") }
             return
         }
         guard !paginaVazia else { return }
@@ -45,8 +45,11 @@ final class Sessao {
 
         switch AnaliseLocal.classificar(texto: texto, gestoAtual: gesto, campos: campos) {
         case .silencio:
-            Toque.leve()
-            mostrarToast("silêncio.")
+            // §17: no modo automático o silêncio é invisível — toast a cada pausa seria ruído
+            if !automatica {
+                Toque.leve()
+                mostrarToast("silêncio.")
+            }
         case .aviso(let frase):
             Toque.aviso()
             cartao = .aviso(frase)
@@ -57,6 +60,29 @@ final class Sessao {
             Toque.leve()
             cartao = .expressiva
         }
+    }
+
+    // MARK: - §17: análise automática na pausa (o autor nunca precisa lembrar do botão)
+
+    var autoAnalise = UserDefaults.standard.object(forKey: "autoAnalise") as? Bool ?? true {
+        didSet { UserDefaults.standard.set(autoAnalise, forKey: "autoAnalise") }
+    }
+    private var autoTask: Task<Void, Never>?
+
+    func agendarAutoAnalise(depois segundos: Double = 1.6) {
+        autoTask?.cancel()
+        guard autoAnalise, !timerLigado, !paginaVazia, gesto != .expressiva, cartao == nil else { return }
+        autoTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(segundos))
+            guard let self, !Task.isCancelled else { return }
+            self.analisar(automatica: true)
+        }
+    }
+
+    func alternarAutoAnalise() {
+        autoAnalise.toggle()
+        autoTask?.cancel()
+        mostrarToast(autoAnalise ? "análise automática ligada." : "análise automática desligada.")
     }
 
     func usarForma(_ g: Gesto) {

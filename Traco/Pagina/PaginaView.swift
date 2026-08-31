@@ -169,6 +169,7 @@ struct PaginaView: View {
             var t = Transaction()
             t.disablesAnimations = true
             withTransaction(t) { sessao.cartao = nil }
+            sessao.agendarAutoAnalise() // §17: a pausa chama a análise sozinha
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
@@ -178,8 +179,11 @@ struct PaginaView: View {
             Button("Analisar") { sessao.analisar() }
                 .foregroundStyle(sessao.paginaVazia || sessao.gesto != nil || sessao.cartao != nil ? Tema.tintaFraca : Tema.ambar)
                 .disabled(sessao.paginaVazia)
+                .simultaneousGesture(LongPressGesture(minimumDuration: 0.6).onEnded { _ in
+                    sessao.alternarAutoAnalise() // §17: opt-out sem tela de ajustes
+                })
                 .accessibilityLabel("Analisar")
-                .accessibilityHint("Classifica o que você escreveu. Não escreve na nota.")
+                .accessibilityHint("Classifica o que você escreveu. Não escreve na nota. Toque longo liga ou desliga a análise automática.")
 
             if !sessao.paginaVazia {
                 Button("Recordar") { sessao.irRecordar(no: context) }

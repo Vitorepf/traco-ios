@@ -341,3 +341,52 @@ struct CicloDeVidaTests {
         #expect(refs.contains(id))
     }
 }
+
+@MainActor
+struct AutoAnaliseTests {
+    @Test func pausaVesteWOOPSemBotao() async throws {
+        let s = Sessao()
+        s.autoAnalise = true
+        s.texto = "quero correr de manhã"
+        s.agendarAutoAnalise(depois: 0)
+        try await Task.sleep(for: .milliseconds(80))
+        #expect(s.cartao == .forma(.woop, pergunta: AnaliseLocal.perguntaWOOP))
+    }
+
+    @Test func silencioAutomaticoEInvisivel() async throws {
+        let s = Sessao()
+        s.autoAnalise = true
+        s.texto = "leite"
+        s.agendarAutoAnalise(depois: 0)
+        try await Task.sleep(for: .milliseconds(80))
+        #expect(s.cartao == nil)
+        #expect(s.toast == nil) // §17: no automático, silêncio não faz barulho
+    }
+
+    @Test func digitarCancelaOAgendamento() async throws {
+        let s = Sessao()
+        s.autoAnalise = true
+        s.texto = "quero correr de manhã"
+        s.agendarAutoAnalise(depois: 10)
+        s.texto = "quero correr de manhã cedo"
+        s.agendarAutoAnalise(depois: 10) // reagenda: o antigo cancela
+        try await Task.sleep(for: .milliseconds(50))
+        #expect(s.cartao == nil) // nada dispara antes da pausa real
+    }
+
+    @Test func naoRodaDuranteTimerNemComFormaOuOptOut() async throws {
+        let s = Sessao()
+        s.autoAnalise = true
+        s.texto = "quero correr de manhã"
+        s.gesto = .expressiva
+        s.agendarAutoAnalise(depois: 0)
+        try await Task.sleep(for: .milliseconds(60))
+        #expect(s.cartao == nil)
+        s.gesto = nil
+        s.autoAnalise = false
+        s.agendarAutoAnalise(depois: 0)
+        try await Task.sleep(for: .milliseconds(60))
+        #expect(s.cartao == nil)
+        s.autoAnalise = true // restaura o default global (UserDefaults é real nos testes)
+    }
+}
