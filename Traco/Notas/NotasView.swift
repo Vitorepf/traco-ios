@@ -43,7 +43,10 @@ struct NotasView: View {
                 guard let conteudo = try? String(contentsOf: url, encoding: .utf8) else { continue }
                 for item in Corpus.importar(conteudo) {
                     // Regra do selo: import JAMAIS cria trancada.
-                    let nota = Nota(texto: item.texto, gesto: item.gestoNome.flatMap(Gesto.doNome))
+                    let gesto = item.gestoNome.flatMap(Gesto.doNome)
+                    // labels do export voltam a ser CAMPOS, nunca voz do autor
+                    let (corpo, campos) = Corpus.separarCampos(texto: item.texto, gesto: gesto)
+                    let nota = Nota(texto: corpo, gesto: gesto, campos: campos)
                     nota.criadaEm = item.criadaEm
                     context.insert(nota)
                     total += 1

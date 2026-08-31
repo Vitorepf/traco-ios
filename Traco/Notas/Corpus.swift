@@ -30,6 +30,23 @@ enum Corpus {
         return blocos.joined(separator: "\n")
     }
 
+    /// Reconstrói os campos achatados pelo export ("— Nome —\nRótulo: resposta"):
+    /// labels são mobiliário — não podem virar voz do autor no import (§15/§16).
+    static func separarCampos(texto: String, gesto: Gesto?) -> (texto: String, campos: [String: String]) {
+        guard let gesto, let alcance = texto.range(of: "\n\n— \(gesto.nome) —\n") else {
+            return (texto, [:])
+        }
+        let corpo = String(texto[..<alcance.lowerBound])
+        let bloco = String(texto[alcance.upperBound...])
+        var campos: [String: String] = [:]
+        for linha in bloco.split(separator: "\n") {
+            for campo in gesto.campos where linha.hasPrefix("\(campo.rotulo): ") {
+                campos[campo.id] = String(linha.dropFirst(campo.rotulo.count + 2))
+            }
+        }
+        return campos.isEmpty ? (texto, [:]) : (corpo, campos)
+    }
+
     /// Import (FILA P1.3): lê o formato do próprio export — e qualquer .md solto.
     /// REGRA DO SELO: import JAMAIS cria nota trancada; tudo que entra, entra aberto.
     nonisolated static func importar(_ conteudo: String) -> [(texto: String, gestoNome: String?, criadaEm: Date)] {

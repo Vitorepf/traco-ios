@@ -601,3 +601,25 @@ struct CorrecoesVarredura3Tests {
         #expect(s.gesto == nil) // o veredito velho não vestiu o texto novo
     }
 }
+
+@MainActor
+struct RoundtripCamposTests {
+    @Test func camposVoltamComoCamposNaoComoVoz() {
+        let corpo = Corpus.corpoDoCorpus(notas: [
+            ("quero correr de manhã", .woop, ["obstaculo": "o celular na cama", "resultado": "energia"], false, Date(timeIntervalSince1970: 5)),
+        ])
+        let item = Corpus.importar(corpo)[0]
+        let gesto = item.gestoNome.flatMap(Gesto.doNome)
+        let (texto, campos) = Corpus.separarCampos(texto: item.texto, gesto: gesto)
+        #expect(texto == "quero correr de manhã") // sem labels na voz
+        #expect(campos["obstaculo"] == "o celular na cama")
+        #expect(campos["resultado"] == "energia")
+        #expect(!texto.contains("Obstáculo interno")) // mobiliário não indexa
+    }
+
+    @Test func semBlocoDeFormaNadaMuda() {
+        let (texto, campos) = Corpus.separarCampos(texto: "nota simples", gesto: .woop)
+        #expect(texto == "nota simples")
+        #expect(campos.isEmpty)
+    }
+}
