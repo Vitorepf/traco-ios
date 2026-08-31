@@ -52,3 +52,15 @@ escada 3→7→21 (M) · IA real (L, bloqueada).
 
 BLOQUEADOS NO DONO: ADR IA real × SPEC §5 · onboarding (nada ou toast) ·
 nota apagável ou não (ADR) · swipe-back custom (ADR).
+
+
+## Varredura nº 3 — atualização (fim da sessão 31/ago)
+Fechados nesta rodada: §17 COMPLETO (auto-vestir + Soltar + opt-out por nota) ·
+IA real padrão (ADR e) · apagar com atrito (ADR f) · import .md + roundtrip
+completo (gesto E campos preservados; labels nunca viram voz) · notificação →
+Recordar direto · escada 3→7→21 · corrida do veredito · memo de token · teto do
+aviso · permissão honesta · PrivacyInfo.
+
+Abertos (5): parser incremental por bloco (M) · pt/en (M) · auditoria Dynamic
+Type/VoiceOver (M) · física nativa do swipe-back (P3, opcional) · App Store
+signing/TestFlight (BLOQUEADO: conta Apple Developer do dono).

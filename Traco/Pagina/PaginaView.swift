@@ -80,6 +80,10 @@ struct PaginaView: View {
             // §17: um passo — a notificação abre direto o Recordar da nota
             guard let uuid = aviso.object as? UUID,
                   let nota = Sessao.buscar(uuid: uuid, no: context) else { return }
+            // revisão cumprida sobe o degrau (3→7→21) e marca a próxima
+            Revisoes.registrarCumprida(uuid)
+            Revisoes.agendar(uuid: nota.uuid, criadaEm: nota.criadaEm, gesto: nota.gesto,
+                             trancada: nota.trancada, texto: nota.texto)
             sessao.recordarDaNotas(nota)
         }
     }

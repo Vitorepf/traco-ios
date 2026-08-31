@@ -623,3 +623,19 @@ struct RoundtripCamposTests {
         #expect(campos.isEmpty)
     }
 }
+
+@MainActor
+struct EscadaTests {
+    @Test func escadaSobeETemTeto() {
+        let u = UUID()
+        UserDefaults.standard.removeObject(forKey: "revisaoNivel")
+        #expect(Revisoes.dias(nivel: Revisoes.nivel(u)) == 3)
+        Revisoes.registrarCumprida(u)
+        #expect(Revisoes.dias(nivel: Revisoes.nivel(u)) == 7)
+        Revisoes.registrarCumprida(u)
+        #expect(Revisoes.dias(nivel: Revisoes.nivel(u)) == 21)
+        Revisoes.registrarCumprida(u) // teto: fica em 21
+        #expect(Revisoes.dias(nivel: Revisoes.nivel(u)) == 21)
+        UserDefaults.standard.removeObject(forKey: "revisaoNivel")
+    }
+}

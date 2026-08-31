@@ -6,7 +6,26 @@ import UserNotifications
 /// ponytail: intervalo fixo; a escada espaçada (3→7→21) entra quando houver
 /// registro de revisões feitas.
 enum Revisoes {
-    nonisolated static let intervaloDias = 3
+    /// Escada espaçada: cada revisão cumprida sobe um degrau.
+    /// ponytail: nível em UserDefaults (não é schema); migra para o modelo se a
+    /// escada crescer além de 3 degraus.
+    nonisolated static let escada = [3, 7, 21]
+    nonisolated static let intervaloDias = 3 // compat: degrau 0
+
+    nonisolated static func dias(nivel: Int) -> Int {
+        escada[max(0, min(nivel, escada.count - 1))]
+    }
+
+    static func nivel(_ uuid: UUID) -> Int {
+        (UserDefaults.standard.dictionary(forKey: "revisaoNivel") as? [String: Int])?[uuid.uuidString] ?? 0
+    }
+
+    /// Tocar a notificação e recordar = revisão cumprida: sobe o degrau.
+    static func registrarCumprida(_ uuid: UUID) {
+        var d = (UserDefaults.standard.dictionary(forKey: "revisaoNivel") as? [String: Int]) ?? [:]
+        d[uuid.uuidString] = min((d[uuid.uuidString] ?? 0) + 1, escada.count - 1)
+        UserDefaults.standard.set(d, forKey: "revisaoNivel")
+    }
 
     /// Trancada/expressiva NUNCA agenda — e a notificação nunca carrega conteúdo
     /// da nota (lock screen é rota de exposição).
@@ -35,9 +54,10 @@ enum Revisoes {
             let conteudo = UNMutableNotificationContent()
             conteudo.title = "Recordar"
             // sem conteúdo da nota: o selo vale também na lock screen
-            conteudo.body = "Uma nota de \(Self.intervaloDias) dias atrás espera você recordar."
+            let degrau = Self.dias(nivel: Self.nivel(uuid))
+            conteudo.body = "Uma nota de \(degrau) dias atrás espera você recordar."
             // nota velha reeditada: a base é o agora — trigger no passado nunca dispara
-            let quando = proximaRevisao(aPartirDe: max(criadaEm, .now))
+            let quando = Calendar.current.date(byAdding: .day, value: degrau, to: max(criadaEm, .now)) ?? .now
             let comps = Calendar.current.dateComponents([.year, .month, .day, .hour], from: quando)
             let gatilho = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)
             conteudo.userInfo = ["uuid": uuid.uuidString]
