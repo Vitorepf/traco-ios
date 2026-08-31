@@ -21,7 +21,7 @@ struct CamposFormaView: View {
                     // (ancorado em `nascida`, que muda DEPOIS do onAppear — dispara garantido)
                     .opacity(nascida || reduceMotion ? 1 : 0)
                     .offset(y: nascida || reduceMotion ? 0 : 6)
-                    .animation(.easeOut(duration: 0.35).delay(Double(indice) * 0.05), value: nascida)
+                    .animation(.easeOut(duration: 0.35).delay(min(Double(indice), 5) * 0.05), value: nascida)
             }
         }
         .padding(.horizontal, Tema.margem)

@@ -114,20 +114,14 @@ private struct CompactoStyle: ButtonStyle {
             .frame(minHeight: Tema.alvo)
             .scaleEffect(configuration.isPressed ? Tema.pressao : 1)
             .opacity(configuration.isPressed ? 0.7 : 1)
-            .animation(configuration.isPressed
-                ? .easeOut(duration: 0.08)
-                : .spring(response: 0.32, dampingFraction: 0.65),
-                value: configuration.isPressed)
+            .animation(Tema.pressaoAnim(configuration.isPressed), value: configuration.isPressed)
     }
 }
 
 private struct CartaoBotaoStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .animation(configuration.isPressed
-                ? .easeOut(duration: 0.08)
-                : .spring(response: 0.32, dampingFraction: 0.65),
-                value: configuration.isPressed)
+            .animation(Tema.pressaoAnim(configuration.isPressed), value: configuration.isPressed)
             .font(Tema.barra)
             .foregroundStyle(Tema.ambar)
             .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .leading)

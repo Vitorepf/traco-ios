@@ -53,6 +53,13 @@ enum Tema {
             : .timingCurve(0.32, 0.72, 0, 1, duration: push)
     }
 
+    /// A curva de pressão da casa: press quase instantâneo, release com vida.
+    static func pressaoAnim(_ isPressed: Bool) -> Animation {
+        isPressed
+            ? .easeOut(duration: 0.08)
+            : .spring(response: 0.32, dampingFraction: 0.65)
+    }
+
     static func cartao(reduzido: Bool, aEntrar: Bool) -> Animation {
         if reduzido { return .easeOut(duration: 0.18) }
         return .easeOut(duration: aEntrar ? cartaoEntra : cartaoSai)
@@ -76,9 +83,6 @@ struct PressaoDiscreta: ButtonStyle {
             .scaleEffect(configuration.isPressed ? Tema.pressao : 1)
             .opacity(configuration.isPressed ? 0.7 : 1)
             // press quase instantâneo; o soltar volta com vida (spring leve)
-            .animation(configuration.isPressed
-                ? .easeOut(duration: 0.08)
-                : .spring(response: 0.32, dampingFraction: 0.65),
-                value: configuration.isPressed)
+            .animation(Tema.pressaoAnim(configuration.isPressed), value: configuration.isPressed)
     }
 }
