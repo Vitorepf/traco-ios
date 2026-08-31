@@ -162,6 +162,15 @@ final class Sessao {
         if mudou { try? context.save() }
     }
 
+    /// P0 6: no arranque, anexos sem marcador em NOTA NENHUMA (trancadas incluídas —
+    /// o texto delas segue referenciando os arquivos) saem do disco.
+    func varrerAnexosOrfaos(no context: ModelContext) {
+        guard let notas = try? context.fetch(FetchDescriptor<Nota>()) else { return }
+        var textos = notas.map(\.texto)
+        textos.append(texto) // a página aberta também referencia
+        AnexoDisco.varrerOrfaos(textos: textos)
+    }
+
     func novaPagina() {
         pararTimer()
         texto = ""

@@ -32,6 +32,7 @@ struct PaginaView: View {
         .animation(Tema.gaveta(reduzido: reduceMotion), value: sessao.confirmacao != nil)
         .onAppear {
             sessao.trancarExpressivasVencidas(no: context)
+            sessao.varrerAnexosOrfaos(no: context)
             restaurarFoco()
             #if DEBUG
             print("TRACO_PAGINA_PRONTA")

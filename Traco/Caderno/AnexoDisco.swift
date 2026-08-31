@@ -42,6 +42,37 @@ enum AnexoDisco {
         return String(format: "%.1f MB", Double(n) / (1024 * 1024))
     }
 
+    // MARK: - Ciclo de vida (P0 6): anexo sem marcador em nota nenhuma é órfão
+
+    static func idsReferenciados(em textos: [String]) -> Set<String> {
+        let rx = try! NSRegularExpression(pattern: #"traco://[a-z]+/([0-9A-Fa-f-]{36})"#)
+        var ids = Set<String>()
+        for t in textos {
+            rx.enumerateMatches(in: t, range: NSRange(t.startIndex..., in: t)) { m, _, _ in
+                if let m, let r = Range(m.range(at: 1), in: t) { ids.insert(String(t[r]).lowercased()) }
+            }
+        }
+        return ids
+    }
+
+    static func orfaos(referenciados: Set<String>, arquivos: [URL], agora: Date = .now) -> [URL] {
+        arquivos.filter { url in
+            let id = url.deletingPathExtension().lastPathComponent.lowercased()
+            guard !referenciados.contains(id) else { return false }
+            // ponytail: 24h de carência protege anexo recém-gravado de nota ainda não salva
+            let mod = (try? url.resourceValues(forKeys: [.contentModificationDateKey]))?.contentModificationDate ?? .distantPast
+            return agora.timeIntervalSince(mod) > 24 * 3600
+        }
+    }
+
+    static func varrerOrfaos(textos: [String]) {
+        let arquivos = (try? FileManager.default.contentsOfDirectory(
+            at: pasta(), includingPropertiesForKeys: [.contentModificationDateKey])) ?? []
+        for url in orfaos(referenciados: idsReferenciados(em: textos), arquivos: arquivos) {
+            try? FileManager.default.removeItem(at: url)
+        }
+    }
+
     static func marcaMarkdown(id: UUID, nome: String, tipo: UTType) -> String {
         if tipo.conforms(to: .image) {
             return "\n\n![\(nome)](traco://img/\(id.uuidString))\n"

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		03A483C4387E081D6204D93A /* Migracao.swift in Sources */ = {isa = PBXBuildFile; fileRef = F903485BBAA804C94399C747 /* Migracao.swift */; };
 		05008721B50DE83B33C36004 /* CamposFormaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B496594B9155DDF9FAE0B85C /* CamposFormaView.swift */; };
 		0BD2BD74128AD32BFB929D54 /* RecordarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B3F4812CA2DDBAB60FE7D78 /* RecordarView.swift */; };
 		0EE55C0236D7E574EA1A7F6D /* VozDoAutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A31CF16DDDD850E4008ED6A /* VozDoAutor.swift */; };
@@ -88,6 +89,7 @@
 		D3D27C2F2E3EE0267AF20320 /* Traco.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Traco.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E2751D1D96F07B6B9980FA75 /* Toque.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Toque.swift; sourceTree = "<group>"; };
 		F8A3AE8285B42EB802930300 /* TracoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TracoApp.swift; sourceTree = "<group>"; };
+		F903485BBAA804C94399C747 /* Migracao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Migracao.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -159,6 +161,7 @@
 			isa = PBXGroup;
 			children = (
 				854249702104D325072DC8FA /* Gesto.swift */,
+				F903485BBAA804C94399C747 /* Migracao.swift */,
 				752E5B8AEE11066FE1493A3D /* Nota.swift */,
 				8A31CF16DDDD850E4008ED6A /* VozDoAutor.swift */,
 			);
@@ -339,6 +342,7 @@
 				F27B18C71280288BE9473182 /* EditorBlocoView.swift in Sources */,
 				61AFC497AD6793FD5616F122 /* Empilha.swift in Sources */,
 				9AE336A415F4A83195416BE2 /* Gesto.swift in Sources */,
+				03A483C4387E081D6204D93A /* Migracao.swift in Sources */,
 				206C9E23B411F0F28E1162E0 /* Nota.swift in Sources */,
 				3E3F2462A04B514F3BFA686B /* NotasFiltro.swift in Sources */,
 				357488D47F6447389B1B4B14 /* NotasView.swift in Sources */,

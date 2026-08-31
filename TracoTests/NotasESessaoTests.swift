@@ -300,3 +300,44 @@ struct SessaoTests {
         }
     }
 }
+
+@MainActor
+struct CicloDeVidaTests {
+    @Test func migracaoVersionadaInicializa() throws {
+        let container = try ModelContainer.traco(emMemoria: true)
+        let context = ModelContext(container)
+        context.insert(Nota(texto: "nota sob schema V1"))
+        try context.save()
+        #expect(try context.fetch(FetchDescriptor<Nota>()).count == 1)
+    }
+
+    @Test func anexoOrfaoEDetectadoComCarencia() {
+        let id = UUID().uuidString.lowercased()
+        let refs = AnexoDisco.idsReferenciados(em: ["texto com ![f](traco://img/\(id)) no meio"])
+        #expect(refs == [id])
+
+        let dir = FileManager.default.temporaryDirectory
+        let referenciado = dir.appendingPathComponent("\(id).png")
+        let orfaoVelho = dir.appendingPathComponent("\(UUID().uuidString.lowercased()).png")
+        let orfaoNovo = dir.appendingPathComponent("\(UUID().uuidString.lowercased()).png")
+        for u in [referenciado, orfaoVelho, orfaoNovo] {
+            try? Data("x".utf8).write(to: u)
+        }
+        // orfaoVelho "envelhece" simulando o relógio: agora = amanhã
+        let amanha = Date().addingTimeInterval(25 * 3600)
+        let mortos = AnexoDisco.orfaos(referenciados: refs, arquivos: [referenciado, orfaoVelho, orfaoNovo], agora: amanha)
+        #expect(mortos.map(\.lastPathComponent).contains(orfaoVelho.lastPathComponent))
+        #expect(!mortos.map(\.lastPathComponent).contains(referenciado.lastPathComponent))
+        // com o relógio de agora, o órfão recém-criado tem carência de 24h
+        let vivos = AnexoDisco.orfaos(referenciados: refs, arquivos: [orfaoNovo], agora: .now)
+        #expect(vivos.isEmpty)
+        for u in [referenciado, orfaoVelho, orfaoNovo] { try? FileManager.default.removeItem(at: u) }
+    }
+
+    @Test func trancadaSeguraSeusAnexos() {
+        // O texto da trancada continua referenciando: o anexo dela NÃO é órfão.
+        let id = UUID().uuidString.lowercased()
+        let refs = AnexoDisco.idsReferenciados(em: ["desabafo com [audio:a](traco://audio/\(id))"])
+        #expect(refs.contains(id))
+    }
+}
