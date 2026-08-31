@@ -1,0 +1,17 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: pagina
+- inputText: "capa"
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- tapOn:
+    id: regua-seccao
+- takeScreenshot: /tmp/traco-verify/seccao-regua
+- assertVisible:
+    id: portal-seccao
+- assertVisible: "capa"

@@ -1,0 +1,32 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn: Página
+- inputText: "quero correr de manhã"
+- hideKeyboard
+- tapOn: Porteiro
+- tapOn: "Abrir a forma WOOP"
+- hideKeyboard
+- extendedWaitUntil:
+    visible:
+      id: "forma-woop"
+    timeout: 4000
+- tapOn:
+    id: "campo-obstaculo"
+- inputText: "o celular na cama"
+- hideKeyboard
+- tapOn:
+    id: "concluir"
+- tapOn:
+    id: "abrir-pilha"
+- tapOn:
+    id: "busca-pilha"
+- inputText: "celular"
+- extendedWaitUntil:
+    visible:
+      id: "busca-pilha"
+      text: "celular"
+    timeout: 4000
+- assertVisible: "o celular na cama"
+- takeScreenshot: busca-celular

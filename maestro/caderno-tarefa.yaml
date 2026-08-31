@@ -1,0 +1,11 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: pagina
+- inputText: "- [ ] "
+- inputText: "abrir"
+- takeScreenshot: /tmp/traco-verify/tarefa-una
+- assertNotVisible: "- [ ]"
+- assertVisible: "abrir"

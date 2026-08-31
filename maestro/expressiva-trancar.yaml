@@ -1,0 +1,16 @@
+appId: app.traco
+---
+- tapOn:
+    id: "veu-trancar"
+- extendedWaitUntil:
+    visible: "Trancada"
+    timeout: 4000
+- tapOn:
+    id: "veu-seguir"
+- extendedWaitUntil:
+    visible: "Expressiva — trancada"
+    timeout: 5000
+- tapOn: "Expressiva — trancada"
+- tapOn:
+    id: "veu-abrir"
+- assertVisible: "Ela foi escrita para ficar fechada"

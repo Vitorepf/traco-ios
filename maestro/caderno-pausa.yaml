@@ -1,0 +1,33 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: pagina
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- tapOn:
+    id: regua-pausa
+- takeScreenshot: /tmp/traco-verify/pausa-regua
+- assertVisible:
+    id: portal-pausa
+- tapOn:
+    id: portal-pausa
+- assertVisible:
+    id: portal-pausa
+- assertVisible:
+    id: regua

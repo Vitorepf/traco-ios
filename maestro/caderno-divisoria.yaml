@@ -1,0 +1,28 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: pagina
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- tapOn:
+    id: regua-divisoria
+- takeScreenshot: /tmp/traco-verify/divisoria-regua
+- assertVisible:
+    id: portal-divisoria
+- tapOn:
+    id: portal-divisoria
+- takeScreenshot: /tmp/traco-verify/divisoria-toque
+- assertVisible:
+    id: portal-divisoria

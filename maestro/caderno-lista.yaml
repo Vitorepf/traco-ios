@@ -1,0 +1,11 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: pagina
+- inputText: "- "
+- inputText: "leite"
+- takeScreenshot: /tmp/traco-verify/lista-una
+- assertNotVisible: "- "
+- assertVisible: "leite"

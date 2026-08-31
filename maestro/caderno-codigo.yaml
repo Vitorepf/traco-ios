@@ -1,0 +1,24 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: pagina
+- inputText: "quero um parser"
+- tapOn:
+    id: regua-codigo
+- tapOn: "Swift"
+- extendedWaitUntil:
+    visible:
+      id: pagina-codigo
+    timeout: 5000
+- tapOn:
+    id: pagina-codigo
+- inputText: "func senti"
+- takeScreenshot: /tmp/traco-verify/codigo-editar
+- assertNotVisible: "```"
+- assertVisible:
+    id: portal-codigo
+- assertVisible:
+    id: pagina-codigo
+    text: ".*senti.*"

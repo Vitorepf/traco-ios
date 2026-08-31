@@ -1,0 +1,38 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn: Página
+- inputText: "quero correr de manhã"
+- hideKeyboard
+- tapOn: Porteiro
+- tapOn: "Abrir a forma WOOP"
+- extendedWaitUntil:
+    visible:
+      id: "forma-woop"
+    timeout: 4000
+- tapOn:
+    id: "campo-obstaculo"
+- inputText: "o celular na cama"
+- hideKeyboard
+- tapOn:
+    id: "concluir"
+- tapOn:
+    id: "abrir-pilha"
+- tapOn:
+    id: "abrir-codice"
+- extendedWaitUntil:
+    visible: "CÓDICE"
+    timeout: 4000
+- extendedWaitUntil:
+    visible:
+      id: "pergunta-codice-0"
+    timeout: 6000
+- tapOn:
+    id: "pergunta-codice-0"
+- extendedWaitUntil:
+    visible:
+      id: "cartao-codice"
+    timeout: 4000
+- assertVisible: "PERGUNTA DO CÓDICE"
+- takeScreenshot: codice-resposta

@@ -1,0 +1,10 @@
+appId: app.traco
+---
+- tapOn:
+    id: "abrir-pilha"
+    optional: true
+- tapOn:
+    id: "busca-pilha"
+- eraseText
+- inputText: "celular"
+- assertVisible: "o celular na cama"

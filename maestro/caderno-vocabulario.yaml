@@ -1,0 +1,44 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: pagina
+- inputText: "a noite abre a casa"
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- tapOn:
+    id: regua-verso
+- takeScreenshot: /tmp/traco-verify/regua-verso
+- assertNotVisible: ":::"
+- assertVisible: "a noite abre a casa"

@@ -1,0 +1,49 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: pagina
+- inputText: "a noite fecha"
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- tapOn:
+    id: regua-epigrafe
+- takeScreenshot: /tmp/traco-verify/epigrafe-regua
+- assertVisible:
+    id: portal-epigrafe
+- assertVisible: "a noite fecha"
+- assertNotVisible: ":::"
+- tapOn:
+    id: portal-epigrafe
+- takeScreenshot: /tmp/traco-verify/epigrafe-toque
+- assertVisible:
+    id: portal-epigrafe
+- assertVisible:
+    id: regua

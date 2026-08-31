@@ -1,0 +1,7 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- assertVisible: Pilha
+- assertVisible: Porteiro
+- takeScreenshot: launch-vazio

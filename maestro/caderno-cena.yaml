@@ -1,0 +1,53 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: pagina
+- inputText: "a porta abre"
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- tapOn:
+    id: regua-cena
+- takeScreenshot: /tmp/traco-verify/cena-regua
+- assertVisible:
+    id: portal-cena
+- assertVisible: "a porta abre"
+- assertNotVisible: ":::"
+- tapOn:
+    id: portal-cena
+- takeScreenshot: /tmp/traco-verify/cena-toque
+- assertVisible:
+    id: portal-cena
+- assertVisible:
+    id: regua

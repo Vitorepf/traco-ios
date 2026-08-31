@@ -1,0 +1,12 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: false
+- tapOn:
+    id: pagina
+- inputText: "[arquivo:guia.pdf](traco://file/00000000-0000-4000-8000-000000000001)"
+- takeScreenshot: /tmp/traco-verify/pdf-portal
+- assertVisible:
+    id: portal-pdf
+- assertVisible: "guia.pdf"
+- assertNotVisible: "traco://"

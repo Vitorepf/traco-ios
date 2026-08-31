@@ -1,0 +1,40 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: pagina
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- tapOn:
+    id: regua-formula
+- extendedWaitUntil:
+    visible:
+      id: pagina-formula
+    timeout: 5000
+- tapOn:
+    id: pagina-formula
+- inputText: "a + b"
+- takeScreenshot: /tmp/traco-verify/formula-regua
+- assertVisible:
+    id: portal-formula
+- assertVisible: "a + b"
+- assertNotVisible: "```"

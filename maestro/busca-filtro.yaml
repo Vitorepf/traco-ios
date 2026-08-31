@@ -1,0 +1,20 @@
+appId: app.traco
+---
+- tapOn:
+    id: "limpar-busca"
+    optional: true
+- tapOn:
+    id: "filtro-woop"
+- assertVisible: "quero correr de manhã"
+- tapOn:
+    id: "filtro-woop"
+- tapOn:
+    id: "busca-pilha"
+- eraseText
+- inputText: "celular"
+- assertVisible: "o celular na cama"
+- tapOn:
+    id: "limpar-busca"
+- assertVisible:
+    id: "busca-pilha"
+    text: "vazio"

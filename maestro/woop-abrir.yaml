@@ -1,0 +1,6 @@
+appId: app.traco
+---
+- tapOn: "Abrir a forma WOOP"
+- extendedWaitUntil:
+    visible: "OBSTÁCULO INTERNO"
+    timeout: 4000

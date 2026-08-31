@@ -1,0 +1,7 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: pagina
+- takeScreenshot: caderno-regua

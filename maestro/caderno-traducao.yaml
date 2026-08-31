@@ -1,0 +1,44 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: pagina
+- inputText: "casa"
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- tapOn:
+    id: regua-traducao
+- tapOn:
+    id: portal-traducao
+- assertVisible:
+    id: regua
+- takeScreenshot: /tmp/traco-verify/traducao-toque
+- assertNotVisible: ":::"
+- assertVisible: "casa"
+- assertVisible:
+    id: duplo-esquerda
+- assertVisible:
+    id: duplo-direita

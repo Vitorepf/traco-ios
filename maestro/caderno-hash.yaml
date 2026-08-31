@@ -1,0 +1,11 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: pagina
+- inputText: "#"
+- inputText: "capa"
+- takeScreenshot: /tmp/traco-verify/hash-capa
+- assertNotVisible: "#"
+- assertVisible: "capa"

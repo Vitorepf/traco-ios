@@ -1,0 +1,14 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: pagina
+- inputText: "abrir a porta"
+- tapOn:
+    id: regua-lista
+- tapOn:
+    id: portal-lista
+- takeScreenshot: /tmp/traco-verify/toque-lista
+- assertNotVisible: "- "
+- assertVisible: "abrir a porta"

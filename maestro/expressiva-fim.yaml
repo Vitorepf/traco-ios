@@ -1,0 +1,24 @@
+appId: app.traco
+---
+# Não limpa estado — anexa à sessão que esgotou os 15 min.
+- launchApp:
+    clearState: false
+- takeScreenshot: expressiva-15-fim
+- tapOn:
+    id: "veu-seguir"
+    optional: true
+- tapOn:
+    id: "abrir-pilha"
+    optional: true
+- extendedWaitUntil:
+    visible: "Expressiva — trancada"
+    timeout: 6000
+- tapOn: "Expressiva — trancada"
+- extendedWaitUntil:
+    visible:
+      id: "veu-abrir"
+    timeout: 4000
+- tapOn:
+    id: "veu-abrir"
+- assertVisible: "Ela foi escrita para ficar fechada"
+- takeScreenshot: expressiva-15-dupla

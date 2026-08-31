@@ -1,0 +1,21 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: pagina
+- inputText: "leite"
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- tapOn:
+    id: regua-numerada
+- takeScreenshot: /tmp/traco-verify/numerada-regua
+- assertVisible:
+    id: portal-lista
+- assertVisible: "leite"

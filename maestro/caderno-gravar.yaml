@@ -1,0 +1,25 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: pagina
+- inputText: "voz"
+- tapOn:
+    id: abrir-arquivo
+- tapOn: "Gravar"
+- extendedWaitUntil:
+    visible:
+      id: a-gravar
+    timeout: 8000
+- takeScreenshot: /tmp/traco-verify/a-gravar
+- waitForAnimationToEnd:
+    timeout: 2000
+- tapOn:
+    id: a-gravar
+- extendedWaitUntil:
+    visible:
+      id: portal-audio
+    timeout: 5000
+- takeScreenshot: /tmp/traco-verify/portal-voz
+- assertNotVisible: "traco://"

@@ -1,0 +1,21 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: pagina
+- inputText: "abrir o dia"
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- tapOn:
+    id: regua-passos
+- takeScreenshot: /tmp/traco-verify/passos-regua
+- assertVisible:
+    id: portal-passos
+- assertVisible: "abrir o dia"

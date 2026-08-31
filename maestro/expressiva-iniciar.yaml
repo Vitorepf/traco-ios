@@ -1,0 +1,13 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn: Página
+- inputText: "hoje senti um peso no peito quando acordei e o medo de nao dar conta voltou. chorei no chuveiro. estava pesado o dia inteiro e eu nao disse a ninguem."
+- hideKeyboard
+- tapOn: Porteiro
+- tapOn: "Começar o timer"
+- extendedWaitUntil:
+    visible: "tranca"
+    timeout: 4000
+- takeScreenshot: expressiva-inicio

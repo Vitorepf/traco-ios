@@ -1,0 +1,12 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: pagina
+- inputText: "|"
+- inputText: "nome"
+- takeScreenshot: /tmp/traco-verify/tabela-una
+- assertVisible:
+    id: portal-tabela
+- assertVisible: "nome"

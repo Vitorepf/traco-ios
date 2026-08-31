@@ -1,0 +1,12 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: pagina
+- inputText: "capa"
+- tapOn:
+    id: regua-titulo
+- takeScreenshot: /tmp/traco-verify/titulo-regua
+- assertNotVisible: "#"
+- assertVisible: "capa"

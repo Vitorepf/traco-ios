@@ -1,0 +1,282 @@
+import Foundation
+import SwiftData
+import SwiftUI
+
+@Observable
+final class Sessao {
+    var texto: String = ""
+    var gesto: Gesto?
+    var campos: [String: String] = [:]
+    var notaUUID: UUID?
+    var perguntaCodice: String?
+    var cartao: CartaoPorteiro?
+    var toast: String?
+    var timerLigado = false
+    var segundosRestantes = 15 * 60
+    var mostrarPilha = false
+    var mostrarPuxar = false
+    var mostrarCodice = false
+    var veu: VeuEstado?
+    var puxarTexto = ""
+    var puxarCampos: [String: String] = [:]
+    var timerEsgotou = false
+
+    private var toastTask: Task<Void, Never>?
+    private var timerTask: Task<Void, Never>?
+    private var timerPrazo: Date?
+
+    var paginaVazia: Bool {
+        texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    var minutosExpressiva: Int {
+        max(0, (15 * 60 - segundosRestantes) / 60)
+    }
+
+    func chamarPorteiro() {
+        if timerLigado {
+            mostrarToast("o porteiro cala durante a escrita.")
+            return
+        }
+        guard !paginaVazia else { return }
+        var transacao = Transaction()
+        transacao.disablesAnimations = true
+        withTransaction(transacao) { cartao = nil }
+
+        switch PorteiroLocal.classificar(texto: texto, gestoAtual: gesto, campos: campos) {
+        case .silencio:
+            Toque.leve()
+            mostrarToast("silêncio.")
+        case .trava(let frase):
+            Toque.aviso()
+            cartao = .trava(frase)
+        case .gesto(let g, let pergunta):
+            Toque.leve()
+            cartao = .forma(g, pergunta: pergunta)
+        case .expressiva:
+            Toque.leve()
+            cartao = .expressiva
+        }
+    }
+
+    func usarForma(_ g: Gesto) {
+        gesto = g
+        campos = Dictionary(uniqueKeysWithValues: g.campos.map { ($0.id, "") })
+        cartao = nil
+        Toque.leve()
+    }
+
+    func comecarExpressiva(no context: ModelContext) {
+        gesto = .expressiva
+        cartao = nil
+        iniciarTimer()
+        salvar(no: context)
+    }
+
+    func iniciarTimer(agora: Date = .now, duracao: TimeInterval = 15 * 60) {
+        timerLigado = true
+        timerEsgotou = false
+        timerPrazo = agora.addingTimeInterval(duracao)
+        segundosRestantes = max(0, Int(duracao.rounded(.down)))
+        timerTask?.cancel()
+        timerTask = Task { [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(1))
+                guard let self, !Task.isCancelled else { return }
+                self.alinharTimerAoRelogio()
+                if self.timerEsgotou { return }
+            }
+        }
+    }
+
+    /// Relógio de parede — sobreviver a lock screen e `scenePhase` suspenso.
+    func alinharTimerAoRelogio(agora: Date = .now) {
+        guard timerLigado, let prazo = timerPrazo else { return }
+        let resto = max(0, Int(prazo.timeIntervalSince(agora).rounded(.down)))
+        segundosRestantes = resto
+        if resto <= 0 {
+            timerEsgotou = true
+            timerTask?.cancel()
+        }
+    }
+
+    func retomarExpressiva(prazo: Date?, agora: Date = .now) {
+        guard let prazo else {
+            iniciarTimer(agora: agora)
+            return
+        }
+        let resto = prazo.timeIntervalSince(agora)
+        if resto <= 0 {
+            timerLigado = true
+            timerPrazo = prazo
+            segundosRestantes = 0
+            timerEsgotou = true
+        } else {
+            iniciarTimer(agora: agora, duracao: resto)
+        }
+    }
+
+    func pararTimer() {
+        timerTask?.cancel()
+        timerTask = nil
+        timerLigado = false
+        timerPrazo = nil
+    }
+
+    /// Fim do relógio de 15 min — mesma porta que “Trancar e sair”.
+    func esgotarTimer(no context: ModelContext) {
+        guard timerLigado || timerEsgotou else { return }
+        timerEsgotou = false
+        trancarESair(no: context, destino: .pagina)
+    }
+
+    func salvar(no context: ModelContext, trancar: Bool = false) {
+        let limpo = texto.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !limpo.isEmpty || trancar else { return }
+        let prazo = (timerLigado && !trancar) ? timerPrazo : nil
+        if let notaUUID, let nota = Self.buscar(uuid: notaUUID, no: context) {
+            nota.texto = texto
+            nota.gesto = gesto
+            nota.campos = campos
+            nota.expressivaPrazo = prazo
+            if trancar { nota.trancada = true }
+            nota.editadaEm = .now
+        } else {
+            let nota = Nota(texto: texto, gesto: gesto, campos: campos, trancada: trancar, expressivaPrazo: prazo)
+            context.insert(nota)
+            self.notaUUID = nota.uuid
+        }
+        try? context.save()
+    }
+
+    /// Expressiva vencida sobrevive à morte do processo: a pilha não pode vazar o texto.
+    func trancarExpressivasVencidas(no context: ModelContext, agora: Date = .now) {
+        guard let notas = try? context.fetch(FetchDescriptor<Nota>()) else { return }
+        var mudou = false
+        for nota in notas {
+            guard nota.gesto == .expressiva, !nota.trancada, let prazo = nota.expressivaPrazo, prazo <= agora else { continue }
+            nota.trancada = true
+            nota.expressivaPrazo = nil
+            mudou = true
+        }
+        if mudou { try? context.save() }
+    }
+
+    func novaPagina() {
+        pararTimer()
+        texto = ""
+        gesto = nil
+        campos = [:]
+        notaUUID = nil
+        perguntaCodice = nil
+        cartao = nil
+        veu = nil
+    }
+
+    func abrir(_ nota: Nota, mesmoTrancada: Bool = false) {
+        if nota.trancada, !mesmoTrancada {
+            veu = .naoSeRele(nota.uuid)
+            return
+        }
+        pararTimer()
+        texto = nota.texto
+        gesto = nota.gesto
+        campos = nota.campos
+        notaUUID = nota.uuid
+        perguntaCodice = nil
+        cartao = nil
+        mostrarPilha = false
+        mostrarCodice = false
+        if nota.gesto == .expressiva, !nota.trancada {
+            retomarExpressiva(prazo: nota.expressivaPrazo)
+        }
+    }
+
+    func concluir(no context: ModelContext) {
+        if timerLigado {
+            if minutosExpressiva >= 10 {
+                trancarESair(no: context, destino: .pagina)
+            } else {
+                veu = .sairTranca(destino: .pagina)
+            }
+            return
+        }
+        salvar(no: context)
+        novaPagina()
+        Toque.leve()
+    }
+
+    func irPilha(no context: ModelContext) {
+        if timerLigado {
+            veu = .sairTranca(destino: .pilha)
+            return
+        }
+        salvar(no: context)
+        Teclado.recolher()
+        mostrarPilha = true
+    }
+
+    func irPuxar(no context: ModelContext) {
+        guard !paginaVazia else { return }
+        puxarTexto = texto
+        puxarCampos = campos
+        if timerLigado {
+            veu = .sairTranca(destino: .puxar)
+            return
+        }
+        salvar(no: context)
+        mostrarPuxar = true
+    }
+
+    func puxarDaPilha(_ nota: Nota) {
+        guard !nota.trancada else { return }
+        puxarTexto = nota.texto
+        puxarCampos = nota.campos
+        mostrarPuxar = true
+    }
+
+    func trancarESair(no context: ModelContext, destino: DestinoVeu) {
+        pararTimer()
+        salvar(no: context, trancar: true)
+        novaPagina()
+        Toque.fechou()
+        switch destino {
+        case .pagina: break
+        case .pilha: mostrarPilha = true
+        case .puxar: break
+        }
+        veu = .trancada(destino: destino)
+    }
+
+    static func buscar(uuid: UUID, no context: ModelContext) -> Nota? {
+        let d = FetchDescriptor<Nota>(predicate: #Predicate { $0.uuid == uuid })
+        return try? context.fetch(d).first
+    }
+
+    func mostrarToast(_ msg: String) {
+        toast = msg
+        AccessibilityNotification.Announcement(msg).post()
+        toastTask?.cancel()
+        toastTask = Task {
+            try? await Task.sleep(for: .seconds(2.5))
+            if !Task.isCancelled { toast = nil }
+        }
+    }
+}
+
+enum CartaoPorteiro: Equatable {
+    case trava(String)
+    case forma(Gesto, pergunta: String)
+    case expressiva
+}
+
+enum DestinoVeu {
+    case pagina, pilha, puxar
+}
+
+enum VeuEstado: Equatable {
+    case sairTranca(destino: DestinoVeu)
+    case trancada(destino: DestinoVeu)
+    case naoSeRele(UUID)
+    case insistirReabrir(UUID)
+}

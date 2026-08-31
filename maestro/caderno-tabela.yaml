@@ -1,0 +1,12 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: pagina
+- inputText: "nome"
+- tapOn:
+    id: regua-tabela
+- takeScreenshot: /tmp/traco-verify/tabela-regua
+- assertVisible:
+    id: portal-tabela

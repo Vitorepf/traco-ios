@@ -1,0 +1,20 @@
+---
+description: Tese do Traço — mente × IA que recusa × Markdown-arquivo. Sempre ler antes de mudar o app.
+alwaysApply: true
+---
+
+# Traço
+
+Produto da vida. iOS puro. Página preta. Cursor. Sem placeholder.
+
+**Tese:** a IA multiplica o gesto (escrever sob regra, ver a forma, lembrar). Nunca o atalho (texto pronto, língua de arquivo, dívida cognitiva).
+
+Três eixos — os três, sempre. Falta um = o trabalho é lixo:
+
+1. **Mente** — vocabulário visual (régua de palavras). O autor escolhe a forma; a mente entra no sítio. Multiplicar visualização, escrita, leitura.
+2. **IA** — lista fechada: rotar, travar, uma pergunta, Puxar, Códice, calar. **Nunca escreve na nota.** Porteiro só no botão. v1 local. Proibido `api.x.ai`, Keychain de API, `URLSession` para modelo.
+3. **Markdown-arquivo** — a nota é Markdown no disco. A página **nunca** é Markdown. Autor não escreve `#`, ` ``` `, `:::`, `|---|`, `- [ ]`. Toque edita o conteúdo dentro da figura.
+
+Antes de uma sessão longa, leia `.cursor/skills/traco-meta/SKILL.md` e corra o loop. SPEC.md e SISTEMA.md vencem o palpite.
+
+Um âmbar vivo por vista. Sem Chat, streak, resumo, nuvem, ouvinte. Sem copiar o Expo `/Users/vitorepf/develop/traco`.

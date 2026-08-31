@@ -1,0 +1,25 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: pagina
+- tapOn:
+    id: regua-codigo
+- tapOn: "Swift"
+- extendedWaitUntil:
+    visible:
+      id: pagina-codigo
+    timeout: 5000
+- tapOn:
+    id: pagina-codigo
+- inputText: "func senti"
+- tapOn:
+    id: concluir
+- tapOn:
+    id: abrir-pilha
+- takeScreenshot: /tmp/traco-verify/pilha-sem-cerca
+- assertVisible:
+    id: nota-pilha
+- assertVisible: "func senti"
+- assertNotVisible: "```"

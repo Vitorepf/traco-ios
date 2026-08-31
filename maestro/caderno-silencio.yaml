@@ -1,0 +1,30 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: pagina
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- tapOn:
+    id: regua-silencio
+- takeScreenshot: /tmp/traco-verify/silencio-regua
+- assertVisible:
+    id: portal-silencio
+- tapOn:
+    id: portal-silencio
+- takeScreenshot: /tmp/traco-verify/silencio-toque
+- assertVisible:
+    id: portal-silencio
+- assertVisible:
+    id: regua

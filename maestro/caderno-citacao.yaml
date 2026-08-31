@@ -1,0 +1,13 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: pagina
+- inputText: "a noite"
+- tapOn:
+    id: regua-citacao
+- takeScreenshot: /tmp/traco-verify/citacao-regua
+- assertVisible:
+    id: portal-citacao
+- assertVisible: "a noite"

@@ -1,0 +1,38 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: pagina
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
+- tapOn:
+    id: regua-terminal
+- extendedWaitUntil:
+    visible:
+      id: pagina-codigo
+    timeout: 5000
+- tapOn:
+    id: pagina-codigo
+- inputText: "echo ola"
+- takeScreenshot: /tmp/traco-verify/terminal-regua
+- assertVisible:
+    id: portal-codigo
+- assertVisible:
+    id: pagina-codigo
+    text: ".*ola.*"
+- assertNotVisible: "```"

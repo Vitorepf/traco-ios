@@ -1,0 +1,18 @@
+appId: app.traco
+---
+- tapOn:
+    id: "voltar-pagina"
+    optional: true
+- tapOn:
+    text: "‹ pilha"
+    optional: true
+- tapOn:
+    id: "abrir-pilha"
+    optional: true
+- tapOn: "quero correr de manhã"
+- hideKeyboard
+- tapOn: Puxar
+- extendedWaitUntil:
+    visible: "PUXAR"
+    timeout: 4000
+- assertVisible: "Leia uma última vez"

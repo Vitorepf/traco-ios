@@ -1,0 +1,9 @@
+appId: app.traco
+---
+- tapOn: Memória
+- inputText: "correr de manha"
+- tapOn: Revelar
+- extendedWaitUntil:
+    visible: "DE MEMÓRIA"
+    timeout: 4000
+- assertVisible: "A NOTA"
