@@ -14,51 +14,50 @@ struct PaginaView: View {
     @State private var chegou = false
 
     var body: some View {
-        Empilha(aberto: $sessao.mostrarNotas, reduceMotion: reduceMotion) {
-            pagina
-                .opacity(chegou || reduceMotion ? 1 : 0)
-                .sheet(isPresented: $mostrarCampos) {
-                    if let gesto = sessao.gesto, gesto != .expressiva {
-                        VStack(alignment: .leading, spacing: 0) {
-                            // a folha tem cabeçalho de verdade: o nome da forma é
-                            // TÍTULO, não um sexto rótulo. E o âmbar sai do botão
-                            // que descarta — o olho não entra pela ação destrutiva
-                            HStack(alignment: .firstTextBaseline) {
-                                Text(gesto.nome)
-                                    .font(Tema.tituloTela)
-                                    .tracking(Tema.trackingTitulo)
-                                    .foregroundStyle(Tema.tinta)
-                                    .accessibilityAddTraits(.isHeader)
-                                Spacer(minLength: 8)
-                                Button("Soltar a forma") {
-                                    sessao.soltarForma()
-                                    mostrarCampos = false
-                                }
-                                .font(Tema.meta)
-                                .foregroundStyle(Tema.tintaSuave)
-                                .buttonStyle(PressaoDiscreta())
-                                .accessibilityIdentifier("soltar-na-folha")
-                                .accessibilityHint("Desfaz a forma; o seu texto fica intacto")
+        // §20: a navegação é da RAIZ. Este Empilha era resíduo da arquitetura
+        // antiga e renderizava a NotasView uma SEGUNDA vez, por baixo da camada
+        // de arquivo que a raiz já mostra.
+        pagina
+            .opacity(chegou || reduceMotion ? 1 : 0)
+            .sheet(isPresented: $mostrarCampos) {
+                if let gesto = sessao.gesto, gesto != .expressiva {
+                    VStack(alignment: .leading, spacing: 0) {
+                        // a folha tem cabeçalho de verdade: o nome da forma é
+                        // TÍTULO, não um sexto rótulo. E o âmbar sai do botão
+                        // que descarta — o olho não entra pela ação destrutiva
+                        HStack(alignment: .firstTextBaseline) {
+                            Text(gesto.nome)
+                                .font(Tema.tituloTela)
+                                .tracking(Tema.trackingTitulo)
+                                .foregroundStyle(Tema.tinta)
+                                .accessibilityAddTraits(.isHeader)
+                            Spacer(minLength: 8)
+                            Button("Soltar a forma") {
+                                sessao.soltarForma()
+                                mostrarCampos = false
                             }
-                            .padding(.horizontal, Tema.margem)
-                            .padding(.top, 20)
-                            .padding(.bottom, 12)
-
-                            ScrollView {
-                                CamposFormaView(gesto: gesto, campos: $sessao.campos)
-                                    .padding(.bottom, 24)
-                            }
-                            .scrollDismissesKeyboard(.interactively)
+                            .font(Tema.meta)
+                            .foregroundStyle(Tema.tintaSuave)
+                            .buttonStyle(PressaoDiscreta())
+                            .accessibilityIdentifier("soltar-na-folha")
+                            .accessibilityHint("Desfaz a forma; o seu texto fica intacto")
                         }
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                        .presentationDetents([.medium, .large])
-                        .presentationDragIndicator(.visible)
-                        .presentationBackground(Tema.superficie)
+                        .padding(.horizontal, Tema.margem)
+                        .padding(.top, 20)
+                        .padding(.bottom, 12)
+
+                        ScrollView {
+                            CamposFormaView(gesto: gesto, campos: $sessao.campos)
+                                .padding(.bottom, 24)
+                        }
+                        .scrollDismissesKeyboard(.interactively)
                     }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                    .presentationDetents([.medium, .large])
+                    .presentationDragIndicator(.visible)
+                    .presentationBackground(Tema.superficie)
                 }
-        } frente: {
-            NotasView(sessao: sessao)
-        }
+            }
         .tint(Tema.ambar)
         .sheet(isPresented: $sessao.mostrarRecordar) {
             RecordarView(texto: sessao.recordarTexto, campos: sessao.recordarCampos) {
@@ -189,24 +188,29 @@ struct PaginaView: View {
                     .transition(.opacity)
             }
 
-            if let cartao = sessao.cartao {
-                CartaoAnaliseView(cartao: cartao, sessao: sessao, aoAbrirCampos: { mostrarCampos = true })
-                    .padding(.horizontal, 12)
-                    .padding(.bottom, 12)
-                    // f073→f074: nascia a 164px do destino, a 97% de opacidade,
-                    // com UM quadro de meio. É o momento de assinatura do
-                    // produto e era o único sem movimento. Agora sobe da borda.
-                    .transition(reduceMotion
-                        ? .opacity
-                        : .asymmetric(
-                            insertion: .move(edge: .bottom).combined(with: .opacity),
-                            removal: .move(edge: .bottom).combined(with: .opacity)
-                        ))
-            }
         }
-        .animation(Tema.cartao(reduzido: reduceMotion, aEntrar: sessao.cartao != nil), value: sessao.cartao != nil)
         .animation(.easeOut(duration: 0.2), value: sessao.paginaVazia)
         .animation(.easeOut(duration: 0.2), value: sessao.toast)
+    }
+
+    /// Auditoria de movimento: UMA superfície no rodapé.
+    ///
+    /// Régua, barra de ações e cartão eram três views independentes, cada uma
+    /// com sua opacidade e sua lei — e se atravessavam no ar (g111: "SPEC" e
+    /// "Analisar" legíveis na MESMA linha de base; g112: a régua legível DENTRO
+    /// do cartão). Aqui só existe UM ocupante por vez, e a troca é uma transição
+    /// de conteúdo dentro do mesmo container.
+    @ViewBuilder
+    private var rodapeUnico: some View {
+        if let cartao = sessao.cartao {
+            CartaoAnaliseView(cartao: cartao, sessao: sessao, aoAbrirCampos: { mostrarCampos = true })
+                .padding(.horizontal, 12)
+                .padding(.bottom, 12)
+                .transition(.opacity)
+        } else if !sessao.paginaVazia {
+            bottomBar
+                .transition(.opacity)
+        }
     }
 
     private var topbar: some View {
@@ -241,9 +245,8 @@ struct PaginaView: View {
 
     private var editor: some View {
         CadernoView(
-            rodape: sessao.cartao == nil && !sessao.paginaVazia
-                ? AnyView(bottomBar.transition(.move(edge: .bottom)))
-                : nil,
+            rodape: AnyView(rodapeUnico),
+            esconderRegua: sessao.cartao != nil,
             texto: $sessao.texto,
             foco: $focoPagina,
             folga: corpoFolga,
@@ -285,7 +288,7 @@ struct PaginaView: View {
         .buttonStyle(BarraBotaoStyle())
         .background(Tema.fundo)
         .overlay(alignment: .top) {
-            Rectangle().fill(Tema.linha).frame(height: 0.5)
+            Rectangle().fill(Tema.luzBorda).frame(height: 0.5)
         }
     }
 

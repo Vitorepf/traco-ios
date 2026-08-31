@@ -7,6 +7,8 @@ struct CadernoView: View {
     /// A barra de ações da página viaja DENTRO deste mesmo inset: uma barra
     /// deslizando e outra aparecendo por opacidade se atravessavam no ar.
     var rodape: AnyView?
+    /// Com o cartão em cena, a régua sai: o rodapé tem UM ocupante por vez.
+    var esconderRegua: Bool = false
     @Binding var texto: String
     var foco: FocusState<Bool>.Binding
     var folga: CGFloat
@@ -73,7 +75,7 @@ struct CadernoView: View {
                         .accessibilityIdentifier("a-gravar")
                         .accessibilityLabel("Parar gravação")
                 }
-                if foco.wrappedValue {
+                if foco.wrappedValue, !esconderRegua {
                     regua
                         .padding(.horizontal, 16)
                         .padding(.vertical, 8)
@@ -87,7 +89,10 @@ struct CadernoView: View {
                 // a barra de ações da página mora AQUI: um container, uma lei
                 rodape
             }
+            // uma animação para a superfície inteira: os filhos trocam DENTRO
+            // dela, em vez de cada um ter a sua própria lei
             .animation(Tema.gaveta(reduzido: false), value: foco.wrappedValue)
+            .animation(Tema.gaveta(reduzido: false), value: esconderRegua)
         }
         .onAppear {
             unaCrua = Caderno.paginaUna(texto) != nil
