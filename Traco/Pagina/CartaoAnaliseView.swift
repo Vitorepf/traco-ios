@@ -6,6 +6,29 @@ struct CartaoAnaliseView: View {
     @Environment(\.modelContext) private var context
 
     var body: some View {
+        // AX: em Dynamic Type grande o texto cresce — o cartão rola por dentro
+        // e nunca cobre a topbar (o resto da UI continua alcançável).
+        ScrollView {
+            conteudo
+        }
+        .frame(maxHeight: 380)
+        .fixedSize(horizontal: false, vertical: true)
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background {
+            RoundedRectangle(cornerRadius: Tema.raioCartao)
+                .fill(Tema.superficieAlta)
+                .shadow(color: .black.opacity(0.45), radius: 16, y: 8)
+        }
+        .overlay {
+            RoundedRectangle(cornerRadius: Tema.raioCartao)
+                .stroke(Tema.linha, lineWidth: 0.5)
+        }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("cartao-analise")
+    }
+
+    private var conteudo: some View {
         VStack(alignment: .leading, spacing: 10) {
             switch cartao {
             case .aviso(let frase):
@@ -52,19 +75,7 @@ struct CartaoAnaliseView: View {
                 .buttonStyle(CartaoBotaoStyle())
             }
         }
-        .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background {
-            RoundedRectangle(cornerRadius: Tema.raioCartao)
-                .fill(Tema.superficieAlta)
-                .shadow(color: .black.opacity(0.45), radius: 16, y: 8)
-        }
-        .overlay {
-            RoundedRectangle(cornerRadius: Tema.raioCartao)
-                .stroke(Tema.linha, lineWidth: 0.5)
-        }
-        .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("cartao-analise")
     }
 
     private func chip(_ titulo: String, aviso: Bool) -> some View {

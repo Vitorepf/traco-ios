@@ -64,3 +64,14 @@ aviso · permissão honesta · PrivacyInfo.
 Abertos (5): parser incremental por bloco (M) · pt/en (M) · auditoria Dynamic
 Type/VoiceOver (M) · física nativa do swipe-back (P3, opcional) · App Store
 signing/TestFlight (BLOQUEADO: conta Apple Developer do dono).
+
+
+## Varredura nº 3 — fechamentos finais da sessão
++ Parser 22× (254→11.5ms debug; teste de desempenho permanente contra O(n²)).
++ Auditoria Dynamic Type AX5 no fluxo principal: cartão com teto+rolagem interna
+  (não prende mais a UI); página/forma/notas escalam. VoiceOver ponta-a-ponta
+  segue como passe manual pendente.
+
+Abertos (4): pt/en (M) · passe manual de VoiceOver (M) · física nativa do
+swipe-back (P3 opcional) · App Store signing/TestFlight (BLOQUEADO: conta
+Apple Developer do dono).

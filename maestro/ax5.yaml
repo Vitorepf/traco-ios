@@ -1,0 +1,19 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: Notas
+    timeout: 8000
+- takeScreenshot: /tmp/traco-verify/hoje/ax5-01-pagina
+- tapOn: "Página"
+- inputText: "quero correr de manhã"
+- extendedWaitUntil:
+    visible: "Soltar a forma"
+    timeout: 6000
+- takeScreenshot: /tmp/traco-verify/hoje/ax5-02-forma
+- tapOn:
+    id: "concluir"
+- tapOn:
+    id: "abrir-notas"
+- takeScreenshot: /tmp/traco-verify/hoje/ax5-03-notas
