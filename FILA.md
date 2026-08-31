@@ -155,3 +155,28 @@ ABERTOS NOVOS (pedido do dono, 31/ago — prioridade alta):
   templates" para o catálogo completo (136 formas) e essa porta AINDA NÃO
   EXISTE na UI — hoje só as 12 da régua têm entrada. O formato de arquivo
   aceita todas (import), mas o autor não tem como criá-las.
+
+## Pesquisa: pool da assinatura no app (31/ago) — CAMINHO EXISTE
+Verificado direto no servidor da xAI (`https://auth.x.ai/.well-known/openid-configuration`):
+- OAuth de primeira mão, oficial. authorize `/oauth2/authorize`, device code
+  `/oauth2/device/code`, token `/oauth2/token`, revoke, userinfo.
+- PKCE S256; `token_endpoint_auth_methods` inclui **"none"** → cliente PÚBLICO
+  (app móvel) é suportado por design. Grants: authorization_code, refresh_token,
+  **device_code**. Escopos: `api:access`, `grok-cli:access`, `offline_access`,
+  `conversations:read/write`.
+- **Sem `registration_endpoint`** → não dá para registrar client_id próprio; os
+  apps usam o cliente compartilhado da xAI (consentimento aparece como Grok
+  Build/CLI).
+- Gate é por TIER DE CONTA, não por app: SuperGrok padrão ($30) toma 403;
+  **Heavy passa** (o plano do dono é Heavy). X Premium+ não serve para API.
+- Existe CLI OFICIAL da xAI (`x.ai/cli/install.sh`), `grok login` → token em
+  `~/.grok/auth.json`, cobrado no POOL da assinatura, não por token.
+
+IMPLICAÇÃO (P1, decisão do dono pendente): o Traço pode fazer OAuth com
+ASWebAuthenticationSession/device-code, guardar token+refresh no Keychain
+(Chave.swift já faz), e chamar api.x.ai com Bearer → debita o pool semanal.
+Satisfaz ADR 31j (zero token pago). RISCOS: superfície sem doc pública para
+devs (pode quebrar), consentimento mostra o cliente compartilhado, gate por
+tier pode mudar → fallback local obrigatório em 401/403.
+TESTE BARATO ANTES DE CODAR: instalar o CLI oficial e rodar `grok login` na
+conta Heavy; se autenticar e inferir, o caminho está confirmado.
