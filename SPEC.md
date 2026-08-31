@@ -301,3 +301,51 @@ Um lugar só para conta e ajustes, alcançável do rodapé das Notas. Contém: e
 honesto da conta Grok em uma linha (conectada / expirada / sem rede / limite),
 entrar e sair, e os ajustes que hoje só existiam em toque longo (análise
 automática). Nada de chave, nada de preço, nada de medidor.
+
+## 19. Divisão de responsabilidades: IA × algoritmo
+
+A lei que decide quem faz o quê. **Se um item da coluna do algoritmo passar a
+depender de IA, é bug de arquitetura** — o app tem de continuar inteiro sem rede,
+sem conta e sem modelo. A IA é multiplicador; nunca alicerce.
+
+### 19.1 Responsabilidade da IA (só isto, nada além)
+A IA só existe em cima do texto do autor, e o resultado dela é sempre uma
+ESCOLHA dentro de uma lista fechada — nunca prosa que entra na nota (§2).
+
+| # | Papel | O que ela devolve | Se falhar |
+|---|---|---|---|
+| 1 | **Rotear o gesto** | um nome de forma da lista fixa (WOOP, Se–então, Spec, Nota permanente, Destaque, Expressiva) ou nada | heurística local roteia |
+| 2 | **Avisar** | uma frase curta de recusa, dentro dos casos da tabela do §5 | heurística local avisa |
+| 3 | **Perguntar** | UMA pergunta sobre o próximo campo vazio | pergunta fixa do template |
+| 4 | **Perguntas de Padrões** | perguntas sobre padrões entre notas, citando fragmento literal do autor | perguntas locais |
+| 5 | **Calar** | silêncio (resposta válida e frequente) | silêncio |
+
+**Regras que valem para todos os cinco:** temperatura 0 · JSON estrito
+`{gesto, aviso|null, pergunta|null}` · sem histórico (não é chat) · resposta fora
+do formato = silêncio, nunca improviso · nota **trancada** e **expressiva** jamais
+saem do aparelho · só a VOZ do autor viaja (`Caderno.prosa` tira mobiliário e
+anexos) · sem conta ligada, nenhuma chamada acontece.
+
+**Proibido à IA, para sempre:** escrever, completar, reescrever, resumir,
+traduzir ou "melhorar" o texto · elogiar, consolar, bajular, fazer companhia ·
+gerar título, tag ou resumo da nota · pontuar, dar nota, medir progresso ·
+decidir o que é apagado ou trancado · qualquer texto que entre na nota.
+
+### 19.2 Responsabilidade do algoritmo (fechado, determinístico, offline)
+Tudo abaixo é código nosso, testado, sem rede. É o corpo do produto — a IA some e
+o Traço continua um bloco de notas inteiro.
+
+| Domínio | O que o algoritmo faz sozinho |
+|---|---|
+| **Escrita** | parser Markdown ao vivo, digitação viva da lista (Enter herda marcador, double-Enter sai), vestir a forma ao soltar o teclado, régua de 12 formas, tabela que cresce por toque, código com sintaxe local, anexos |
+| **Formas** | os templates e seus campos (labels são NOSSOS, não do modelo), abrir/soltar preservando resposta, um gesto por sessão |
+| **Roteamento de reserva** | heurísticas locais: verbo de intenção, afirmação vazia (Wood), plano sem obstáculo (Oettingen), pedido de texto pronto, pedido de ouvinte, desabafo longo |
+| **Memória** | Recordar (esconder → escrever de memória → revelar → comparar), escada de revisão 3→7→21, notificação sem conteúdo da nota |
+| **Selo** | expressiva com timer, trancar ao fim, e o bloqueio em TODAS as rotas de saída (busca, Padrões, export, Spotlight, rede, notificação) |
+| **Arquivo** | SwiftData, export/import Markdown, backup automático, busca sem acento, filtros, seções por mês |
+| **Sistema** | Atalhos/Siri, `traco://`, Spotlight, hápticos, movimento, acessibilidade, Dynamic Type |
+| **Conta** | OAuth device-code, Keychain, renovação de sessão, queda para local em 401/403/429 |
+
+### 19.3 A fronteira, em uma frase
+**O algoritmo garante; a IA sugere.** Nada que o autor perca se a IA sumir pode
+morar do lado da IA — e nada que a IA escreva pode entrar na nota.
