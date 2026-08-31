@@ -98,7 +98,19 @@ final class Sessao {
     }
 
     /// §17: um toque desfaz o vestir automático — e a nota fica quieta até novo texto.
+    /// Soltar NUNCA destrói resposta: o que o autor escreveu nos campos volta ao texto
+    /// (a voz fica; só o mobiliário sai).
     func soltarForma() {
+        if let g = gesto {
+            let respostas = g.campos.compactMap { campo -> String? in
+                let r = campos[campo.id]?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                return r.isEmpty ? nil : r
+            }
+            if !respostas.isEmpty {
+                texto = texto.trimmingCharacters(in: .whitespacesAndNewlines)
+                    + "\n" + respostas.joined(separator: "\n")
+            }
+        }
         gesto = nil
         campos = [:]
         cartao = nil
@@ -350,13 +362,20 @@ final class Sessao {
 
     /// ADR 2026-08-31f: apagar apaga de verdade — nota, revisão marcada e,
     /// na próxima varredura, os anexos que só ela referenciava.
+    /// Dia 200: a confirmação vira piloto automático — por isso existe a janela
+    /// de desfazer (a cópia vive até a próxima ação ou 6s).
+    var apagadaRecuperavel: (texto: String, gesto: Gesto?, campos: [String: String], criadaEm: Date)?
+    private var desfazerTask: Task<Void, Never>?
+
     func apagar(uuid: UUID, no context: ModelContext) {
         guard let nota = Self.buscar(uuid: uuid, no: context) else { return }
+        apagadaRecuperavel = (nota.texto, nota.gesto, nota.campos, nota.criadaEm)
         Revisoes.cancelar(uuid: uuid)
         context.delete(nota)
         do {
             try context.save()
         } catch {
+            apagadaRecuperavel = nil
             mostrarToast("não consegui apagar — a nota continua.")
             return
         }
@@ -364,6 +383,22 @@ final class Sessao {
         varrerAnexosOrfaos(no: context)
         confirmacao = nil
         Toque.fechou()
+        desfazerTask?.cancel()
+        desfazerTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(6))
+            if !Task.isCancelled { self?.apagadaRecuperavel = nil }
+        }
+    }
+
+    func desfazerApagar(no context: ModelContext) {
+        guard let a = apagadaRecuperavel else { return }
+        let nota = Nota(texto: a.texto, gesto: a.gesto, campos: a.campos)
+        nota.criadaEm = a.criadaEm
+        context.insert(nota)
+        try? context.save()
+        apagadaRecuperavel = nil
+        desfazerTask?.cancel()
+        Toque.leve()
     }
 
     static func buscar(uuid: UUID, no context: ModelContext) -> Nota? {

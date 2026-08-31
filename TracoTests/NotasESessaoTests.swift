@@ -639,3 +639,46 @@ struct EscadaTests {
         UserDefaults.standard.removeObject(forKey: "revisaoNivel")
     }
 }
+
+@MainActor
+struct ConfiancaDia200Tests {
+    @Test func soltarPreservaAsRespostas() {
+        let s = Sessao()
+        s.texto = "quero correr de manhã"
+        s.usarForma(.woop)
+        s.campos["obstaculo"] = "o celular na cama"
+        s.campos["plano"] = "deixo na cozinha"
+        s.soltarForma()
+        #expect(s.gesto == nil)
+        #expect(s.texto.contains("quero correr de manhã"))
+        #expect(s.texto.contains("o celular na cama")) // a voz voltou ao texto
+        #expect(s.texto.contains("deixo na cozinha"))
+        #expect(!s.texto.contains("Obstáculo interno")) // sem mobiliário
+    }
+
+    @Test func soltarSemRespostasNaoSujaOTexto() {
+        let s = Sessao()
+        s.texto = "quero correr"
+        s.usarForma(.woop)
+        s.soltarForma()
+        #expect(s.texto == "quero correr")
+    }
+
+    @Test func apagarTemJanelaDeDesfazer() throws {
+        let container = try ModelContainer.traco(emMemoria: true)
+        let context = ModelContext(container)
+        let nota = Nota(texto: "não era para apagar", gesto: .woop, campos: ["obstaculo": "x"])
+        context.insert(nota)
+        try context.save()
+        let s = Sessao()
+        s.apagar(uuid: nota.uuid, no: context)
+        #expect(try context.fetch(FetchDescriptor<Nota>()).isEmpty)
+        #expect(s.apagadaRecuperavel != nil)
+        s.desfazerApagar(no: context)
+        let voltou = try context.fetch(FetchDescriptor<Nota>())
+        #expect(voltou.count == 1)
+        #expect(voltou[0].texto == "não era para apagar")
+        #expect(voltou[0].campos["obstaculo"] == "x")
+        #expect(s.apagadaRecuperavel == nil)
+    }
+}
