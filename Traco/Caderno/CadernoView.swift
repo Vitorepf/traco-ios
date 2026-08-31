@@ -77,7 +77,7 @@ struct CadernoView: View {
                 }
                 if foco.wrappedValue, !esconderRegua {
                     regua
-                        .padding(.horizontal, 16)
+                        .padding(.horizontal, Tema.margem)
                         .padding(.vertical, 8)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .background(Tema.fundo)
@@ -175,7 +175,7 @@ struct CadernoView: View {
                 HStack(spacing: 0) {
                     Rectangle()
                     LinearGradient(colors: [.black, .clear], startPoint: .leading, endPoint: .trailing)
-                        .frame(width: 16)
+                        .frame(width: 24)
                 }
             )
             .accessibilityIdentifier("regua")
@@ -185,6 +185,7 @@ struct CadernoView: View {
             } label: {
                 Image(systemName: "keyboard.chevron.compact.down")
                     .frame(width: Tema.alvo, height: 32)
+                    .padding(.leading, 8)
             }
             .accessibilityLabel("Esconder teclado")
         }

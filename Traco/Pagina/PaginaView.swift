@@ -209,7 +209,7 @@ struct PaginaView: View {
         // entra, e quem anima é a ALTURA do container.
         if let cartao = sessao.cartao {
             CartaoAnaliseView(cartao: cartao, sessao: sessao, aoAbrirCampos: { mostrarCampos = true })
-                .padding(.horizontal, 12)
+                .padding(.horizontal, Tema.margem)
                 .padding(.bottom, 12)
         } else if sessao.analisando, !sessao.paginaVazia {
             // o sinal de que ALGO está acontecendo — sem ele a tela fica muda
@@ -304,7 +304,7 @@ struct PaginaView: View {
         }
         .font(Tema.barra)
         .buttonStyle(BarraBotaoStyle())
-        .padding(.horizontal, 12)
+        .padding(.horizontal, Tema.margem)
         .padding(.vertical, 8)
         .background(Tema.fundo)
         .overlay(alignment: .top) {

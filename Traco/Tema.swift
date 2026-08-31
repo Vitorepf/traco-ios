@@ -78,7 +78,7 @@ enum Tema {
     // fio de luz no topo — a borda onde a luz bate — mais a sombra de contato.
     // É o detalhe que Linear, Craft e Things têm e que ninguém sabe nomear.
     static let luzBorda = Color.white.opacity(0.07)
-    static let sombraContato = Color.black.opacity(0.55)
+    static let sombraContato = Color.black.opacity(0.35)
 
     static let formaNasce: Double = 0.48
     static let cartaoEntra: Double = 0.26

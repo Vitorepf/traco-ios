@@ -207,6 +207,7 @@ struct PerfilView: View {
                 Image(systemName: "chevron.right")
                     .font(.footnote.weight(.semibold))
                     .foregroundStyle(Tema.tintaFraca)
+                    .padding(.trailing, 2)
             }
             .frame(maxWidth: .infinity, minHeight: Tema.alvo)
             .contentShape(Rectangle())

@@ -72,8 +72,8 @@ struct CartaoAnaliseView: View {
                 // largar e aplicar — metade tocaria achando que confirma.
                 chip(gesto.nome, aviso: false)
                 Text(gesto.reconhecimento)
-                    .font(Tema.meta)
-                    .foregroundStyle(Tema.tintaSuave)
+                    .font(Tema.corpo)
+                    .foregroundStyle(Tema.tinta)
                     .fixedSize(horizontal: false, vertical: true)
                 HStack(spacing: 10) {
                     Button("Abrir os campos") { aoAbrirCampos?() }
@@ -113,15 +113,16 @@ struct CartaoAnaliseView: View {
         Text(titulo.uppercased())
             .font(Tema.label)
             .tracking(Tema.trackingLabel)
-            .foregroundStyle(aviso ? Tema.aviso : Tema.tintaSuave)
+            .foregroundStyle(aviso ? Tema.aviso : Tema.tintaFraca)
     }
 }
 
+/// A secundária NÃO é âmbar: duas saídas em âmbar empatam em peso e o olho não
+/// sabe qual é o caminho (von-restorff-effect).
 private struct CompactoStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(Tema.barra)
-            .foregroundStyle(Tema.ambar)
             .frame(minHeight: Tema.alvo)
             .scaleEffect(configuration.isPressed ? Tema.pressao : 1)
             .opacity(configuration.isPressed ? 0.7 : 1)

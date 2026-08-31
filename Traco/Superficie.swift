@@ -23,9 +23,9 @@ struct SuperficieElevada: ViewModifier {
                         lineWidth: 0.5
                     )
             }
-            .shadow(color: Tema.sombraContato,
-                    radius: grande ? 24 : 12,
-                    y: grande ? 8 : 4)
+            // contato é 2pt, não 18: a sombra alcançava o gutter inteiro e
+            // deixava o fundo abaixo do próprio token
+            .shadow(color: Tema.sombraContato, radius: grande ? 6 : 4, y: 1)
     }
 }
 

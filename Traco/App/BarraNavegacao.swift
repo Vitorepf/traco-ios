@@ -64,13 +64,11 @@ struct BarraNavegacao: View {
                     // (von-restorff-effect). A ação se distingue por FORMA e
                     // PESO — o âmbar fica só para dizer onde você está.
                     Image(systemName: "square.and.pencil")
-                        .font(.system(size: 19, weight: .semibold))
-                        .foregroundStyle(Tema.tinta)
-                        .frame(width: 38, height: 26)
-                        .background(Tema.superficieAlta, in: Capsule())
-                        .overlay(Capsule().strokeBorder(Tema.luzBorda, lineWidth: 0.5))
+                        .font(.system(size: 21, weight: .semibold))
+                        .foregroundStyle(Tema.tintaSuave)
+                        .frame(height: 24)
                     Text("Escrever")
-                        .font(.caption2.weight(.semibold))
+                        .font(.caption2)
                         .tracking(0.4)
                         .foregroundStyle(Tema.tintaSuave)
                 }

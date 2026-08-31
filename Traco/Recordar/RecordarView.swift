@@ -52,10 +52,11 @@ struct RecordarView: View {
             switch fase {
             case .ler:
                 Text("Leia uma última vez — a nota vai se esconder.")
-                    .font(Tema.corpo)
+                    .font(Tema.meta)
                     .foregroundStyle(Tema.tintaSuave)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, Tema.margem)
-                    .padding(.bottom, 12)
+                    .padding(.bottom, 16)
                 ScrollView {
                     Text(notaInteira)
                         .font(Tema.corpo)

@@ -137,9 +137,17 @@ struct NotasView: View {
                     .accessibilityIdentifier("filtro-\(item.slug)")
                     .accessibilityLabel(item.rawValue)
                 }
+                Color.clear.frame(width: 4)
             }
             .padding(.horizontal, Tema.margem)
         }
+        .mask(
+            HStack(spacing: 0) {
+                Rectangle()
+                LinearGradient(colors: [.black, .clear], startPoint: .leading, endPoint: .trailing)
+                    .frame(width: 28)
+            }
+        )
         .mask(
             HStack(spacing: 0) {
                 Rectangle()
@@ -341,7 +349,13 @@ struct NotasView: View {
 
     private func subtitulo(_ nota: Nota) -> String {
         if !busca.isEmpty {
-            return VozDoAutor.trecho(em: nota.vozDoAutor, termo: busca)
+            let trecho = VozDoAutor.trecho(em: nota.vozDoAutor, termo: busca)
+            // trecho que repete o título gasta uma linha e não informa nada
+            let t = titulo(nota)
+            if trecho == t || t.hasPrefix(trecho) || trecho.hasPrefix(t) {
+                return VozDoAutor.relativo(nota.criadaEm)
+            }
+            return trecho
         }
         // arquivo do esforço, não streak: quantas vezes esta nota foi recordada
         let recordadas = Revisoes.contagem(nota.uuid)
