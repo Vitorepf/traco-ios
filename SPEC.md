@@ -459,3 +459,35 @@ expressiva rodando, a saída pede confirmação: o selo vale também aqui.
 
 **Consequência:** ações de dados (exportar, importar) saem do rodapé das Notas e
 vão para o Perfil, onde pertencem — navegação e ação deixam de se parecer.
+
+## 21. Leis de movimento (aprendidas a duras penas, ago/2026)
+
+Quatro rodadas de crítica em VÍDEO REAL, medindo deslocamento quadro a quadro.
+As três primeiras foram reprovadas. O que ficou:
+
+**Um objeto, um driver.** Se duas partes da mesma tela chegam em offsets
+diferentes, ela chega "em dois pedaços" — e nenhum app caro faz isso. Medida de
+aceite: o deslocamento por faixa horizontal tem de ser IGUAL em todos os quadros
+da transição. Causas que já pegamos: o teclado descendo junto com o deslize
+(mudava o encaixe no meio do movimento — agora ele sai no INÍCIO do gesto) e a
+troca de aba animando durante o deslize (agora só anima com a camada parada).
+
+**Nada de cross-fade entre irmãos que ocupam as mesmas linhas.** Duas barras
+dissolvendo uma na outra deixam as DUAS legíveis por um quadro inteiro — lê como
+erro de render. Um sai, o outro entra; quem anima é a ALTURA do container.
+Medida de aceite: nenhum quadro com dois textos de barras diferentes legíveis na
+mesma linha de base.
+
+**Uma posição, uma fonte de verdade.** Duas variáveis para a mesma posição
+(deslocamento + estado booleano) mudadas no mesmo instante cravam o valor final
+em vez de persegui-lo. Pior: animar a posição e DEPOIS mudar o estado dispara um
+segundo `onChange` que re-anima a MESMA posição — dois alvos no mesmo voo, e a
+mola *acelera* na chegada. Mola não acelera na chegada. Nunca.
+
+**Camada que desliza precisa de profundidade.** Sem sombra na borda nem
+escurecimento do que fica atrás, "deslizar por cima" lê como conteúdo sendo
+apagado, não como camada.
+
+**O sistema é a régua.** No mesmo vídeo há animações do iOS (teclado, folha
+modal). Elas desaceleram monotonicamente, com cauda longa. Se a do app não se
+parece com aquilo, é a do app que está errada.
