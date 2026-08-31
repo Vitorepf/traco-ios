@@ -25,9 +25,9 @@ struct PerfilView: View {
             TituloTela("Perfil")
             ScrollView {
                 VStack(alignment: .leading, spacing: Tema.entreSecoes) {
-                    conta
-                    ajustes
-                    dados
+                    conta.emCartao()
+                    ajustes.emCartao()
+                    dados.emCartao()
                     Spacer(minLength: 8)
                 }
                 .padding(.horizontal, Tema.margem)
@@ -180,16 +180,16 @@ struct PerfilView: View {
     private var dados: some View {
         VStack(alignment: .leading, spacing: Tema.entreItens) {
             rotulo("DADOS")
-            linhaAcao("Exportar o corpus (.md)") {
+            linhaAcao("Exportar todas as notas (.md)") {
                 corpusURL = Corpus.exportar(notas: notas)
             }
             .accessibilityIdentifier("exportar-corpus")
             .accessibilityHint("Gera um Markdown com as notas abertas. Trancadas nunca saem.")
             Rectangle().fill(Tema.linha).frame(height: 0.5)
-            linhaAcao("Importar .md") { importarMd = true }
+            linhaAcao("Importar notas (.md)") { importarMd = true }
                 .accessibilityIdentifier("importar-md")
                 .accessibilityHint("Traz notas de arquivos Markdown. Import nunca cria trancada.")
-            Text("O backup automático já grava no Arquivos a cada nota concluída.")
+            Text("O backup automático grava no app Arquivos a cada nota concluída — nada disso depende de nuvem nem de conta.")
                 .font(.footnote)
                 .foregroundStyle(Tema.tintaFraca)
         }
@@ -219,5 +219,15 @@ struct PerfilView: View {
             .font(Tema.label)
             .tracking(Tema.trackingLabel)
             .foregroundStyle(Tema.tintaFraca)
+    }
+}
+
+private extension View {
+    /// Seção com região própria: sobre preto, espaçamento sozinho não agrupa.
+    func emCartao() -> some View {
+        self
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(16)
+            .superficieElevada()
     }
 }

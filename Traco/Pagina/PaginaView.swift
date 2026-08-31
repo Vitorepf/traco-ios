@@ -12,6 +12,7 @@ struct PaginaView: View {
     @ScaledMetric(relativeTo: .body) private var corpoFolga: CGFloat = 9
     @State private var abrirArquivo = false
     @State private var chegou = false
+    @State private var pulso = false
 
     var body: some View {
         // §20: a navegação é da RAIZ. Este Empilha era resíduo da arquitetura
@@ -210,6 +211,21 @@ struct PaginaView: View {
             CartaoAnaliseView(cartao: cartao, sessao: sessao, aoAbrirCampos: { mostrarCampos = true })
                 .padding(.horizontal, 12)
                 .padding(.bottom, 12)
+        } else if sessao.analisando, !sessao.paginaVazia {
+            // o sinal de que ALGO está acontecendo — sem ele a tela fica muda
+            HStack(spacing: 8) {
+                Circle()
+                    .fill(Tema.ambar)
+                    .frame(width: 5, height: 5)
+                    .opacity(pulso ? 1 : 0.25)
+                    .animation(.easeInOut(duration: 0.7).repeatForever(autoreverses: true), value: pulso)
+                Text("lendo…")
+                    .font(Tema.meta)
+                    .foregroundStyle(Tema.tintaSuave)
+            }
+            .frame(maxWidth: .infinity, minHeight: 54)
+            .onAppear { pulso = true }
+            .accessibilityIdentifier("analisando")
         } else if !sessao.paginaVazia {
             bottomBar
         }
@@ -279,9 +295,9 @@ struct PaginaView: View {
                     .foregroundStyle(Tema.tintaSuave)
                     .accessibilityLabel("Recordar")
                     .accessibilityHint("Esconde a nota e cobra a memória")
-                Button("Anexar") { abrirArquivo = true }
+                Button("Anexar arquivo") { abrirArquivo = true }
                     .foregroundStyle(Tema.tintaSuave)
-                    .accessibilityLabel("Anexar")
+                    .accessibilityLabel("Anexar arquivo")
                     .accessibilityHint("Foto, vídeo, áudio, gravar ou arquivo")
                     .accessibilityIdentifier("abrir-arquivo")
             }

@@ -6,7 +6,8 @@ appId: app.traco
     visible:
       id: pagina
     timeout: 8000
-- tapOn: "Página"
+- tapOn:
+    id: pagina
 - inputText: "quero correr de manhã"
 # §17: veste sozinha e o cartão anuncia — sem roubar a página
 - extendedWaitUntil:

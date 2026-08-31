@@ -3,7 +3,8 @@ appId: app.traco
 - launchApp:
     clearState: true
 - takeScreenshot: /tmp/traco-verify/auditoria/01-casa-vazia
-- tapOn: Página
+- tapOn:
+    id: pagina
 - inputText: "a arquitetura do app precisa de uma tabela de rotas"
 - takeScreenshot: /tmp/traco-verify/auditoria/02-escrevendo-regua
 - swipe:
@@ -21,7 +22,8 @@ appId: app.traco
     direction: DOWN
 - tapOn:
     id: "concluir"
-- tapOn: Página
+- tapOn:
+    id: pagina
 - inputText: "eu sou um vencedor"
 - extendedWaitUntil:
     visible:

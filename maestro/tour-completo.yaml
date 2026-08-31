@@ -6,7 +6,8 @@ appId: app.traco
     visible:
       id: pagina
     timeout: 8000
-- tapOn: "Página"
+- tapOn:
+    id: pagina
 - inputText: "quero correr de manhã"
 - extendedWaitUntil:
     visible: "Deixar como nota"
@@ -14,7 +15,8 @@ appId: app.traco
 - tapOn: "Deixar como nota"
 - tapOn:
     id: "concluir"
-- tapOn: "Página"
+- tapOn:
+    id: pagina
 - inputText: "eu sou um vencedor"
 - extendedWaitUntil:
     visible: "Pergunta"
@@ -37,7 +39,8 @@ appId: app.traco
 - swipe:
     start: 99%, 50%
     end: 15%, 50%
-- tapOn: "Página"
+- tapOn:
+    id: pagina
 - inputText: "uma nota para recordar depois"
 - tapOn: "Recordar"
 - extendedWaitUntil:

@@ -2,7 +2,8 @@ appId: app.traco
 ---
 - launchApp:
     clearState: true
-- tapOn: Página
+- tapOn:
+    id: pagina
 - inputText: "o texto desta nota de teste"
 - swipe:
     direction: DOWN

@@ -34,6 +34,9 @@ final class Sessao {
     var recordarCampos: [String: String] = [:]
     var timerEsgotou = false
     /// SPEC §8: o fecho da expressiva (selar ou queimar) é escolha do autor.
+    /// A análise remota leva tempo de rede: sem sinal, a tela fica muda e o
+    /// app parece travado (doherty-threshold).
+    var analisando = false
     var fechoExpressiva: Int?
     /// A linha de sentido viaja até o salvar — nunca entra no texto selado.
     var sentidoPendente: String?
@@ -67,7 +70,9 @@ final class Sessao {
         let gestoAtual = gesto
         let camposAtuais = campos
         analiseTask?.cancel()
+        analisando = true
         analiseTask = Task { [weak self] in
+            defer { Task { @MainActor in self?.analisando = false } }
             // ADR 2026-08-31e: Grok é o padrão — mas só a VOZ do autor viaja
             // (Caderno.prosa tira mobiliário/anexos), nunca com forma aberta
             // (a lógica pós-forma é local) e nunca expressiva (selo).

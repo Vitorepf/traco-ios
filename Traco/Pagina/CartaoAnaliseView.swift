@@ -82,6 +82,7 @@ struct CartaoAnaliseView: View {
                         .accessibilityHint("Os campos da forma abrem numa folha; o seu texto fica intacto")
                     Button("Deixar como nota") { sessao.soltarForma() }
                         .buttonStyle(CompactoStyle())
+                        .foregroundStyle(Tema.tintaSuave)
                         .accessibilityIdentifier("soltar-forma")
                         .accessibilityHint("Desfaz a forma; o seu texto fica intacto")
                 }

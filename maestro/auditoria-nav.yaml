@@ -2,7 +2,8 @@ appId: app.traco
 ---
 - launchApp:
     clearState: true
-- tapOn: "Página"
+- tapOn:
+    id: pagina
 - inputText: "a nota de ontem sobre o projeto"
 - takeScreenshot: /tmp/traco-verify/nav/01-escrevendo
 - swipe:

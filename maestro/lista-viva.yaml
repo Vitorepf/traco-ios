@@ -6,7 +6,8 @@ appId: app.traco
     visible:
       id: pagina
     timeout: 8000
-- tapOn: "Página"
+- tapOn:
+    id: pagina
 - inputText: "1. comprar leite"
 - pressKey: Enter
 - inputText: "pagar conta"

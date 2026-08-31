@@ -2,7 +2,8 @@ appId: app.traco
 ---
 - launchApp:
     clearState: true
-- tapOn: Página
+- tapOn:
+    id: pagina
 - inputText: "quero correr de manhã"
 - extendedWaitUntil:
     visible:

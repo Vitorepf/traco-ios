@@ -2,7 +2,8 @@ appId: app.traco
 ---
 - launchApp:
     clearState: true
-- tapOn: Página
+- tapOn:
+    id: pagina
 - inputText: "quero correr de manhã"
 # §17: veste sozinha; a folha dos campos sobe a um toque
 - extendedWaitUntil:

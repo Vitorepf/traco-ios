@@ -7,7 +7,8 @@ appId: app.traco
       id: pagina
     timeout: 8000
 - takeScreenshot: /tmp/traco-verify/hoje/01-pagina-vazia
-- tapOn: "Página"
+- tapOn:
+    id: pagina
 - inputText: "quero correr de manhã"
 - extendedWaitUntil:
     visible:
@@ -26,7 +27,8 @@ appId: app.traco
     direction: DOWN
 - tapOn:
     id: "concluir"
-- tapOn: "Página"
+- tapOn:
+    id: pagina
 - inputText: "eu sou um vencedor"
 - extendedWaitUntil:
     visible:

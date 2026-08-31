@@ -4,7 +4,8 @@ appId: app.traco
     clearState: true
 - assertVisible:
     id: pagina
-- tapOn: "Página"
+- tapOn:
+    id: pagina
 - inputText: "quero correr de manhã"
 # §17: a análise chega sozinha na pausa e veste a forma de confiança alta
 - extendedWaitUntil:
@@ -22,7 +23,8 @@ appId: app.traco
     direction: DOWN
 - tapOn:
     id: "concluir"
-- tapOn: "Página"
+- tapOn:
+    id: pagina
 - inputText: "eu sou um vencedor"
 - extendedWaitUntil:
     visible:
@@ -31,7 +33,8 @@ appId: app.traco
 - assertVisible: "Pergunta"
 - tapOn:
     id: "concluir"
-- tapOn: "Página"
+- tapOn:
+    id: pagina
 - inputText: "leite"
 - hideKeyboard
 # silêncio no automático é invisível; o manual responde com o toast

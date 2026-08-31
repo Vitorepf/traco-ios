@@ -79,6 +79,31 @@ struct NotasView: View {
     private var chips: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
+                // "Todas" é a saída: sem ela, filtrar era um caminho sem volta
+                // óbvio (critique-affordance)
+                Button {
+                    Toque.selecao()
+                    withAnimation(.easeOut(duration: 0.25)) { filtro = nil }
+                } label: {
+                    Text("Todas")
+                        .font(Tema.meta.weight(.medium))
+                        .foregroundStyle(filtro == nil ? Tema.ambar : Tema.tintaSuave)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .frame(minHeight: 34)
+                        .background(Capsule().fill(filtro == nil ? Tema.ambarSuave : Tema.superficie))
+                        .overlay {
+                            Capsule().strokeBorder(
+                                filtro == nil ? Tema.ambar.opacity(0.5) : Tema.linha,
+                                lineWidth: 0.5
+                            )
+                        }
+                }
+                .frame(minHeight: Tema.alvo)
+                .contentShape(Rectangle())
+                .buttonStyle(PressaoDiscreta())
+                .accessibilityIdentifier("filtro-todas")
+                .accessibilityAddTraits(filtro == nil ? [.isSelected] : [])
                 ForEach(FiltroNotas.allCases) { item in
                     Button {
                         Toque.selecao()
@@ -86,9 +111,8 @@ struct NotasView: View {
                             filtro = filtro == item ? nil : item
                         }
                     } label: {
-                        Text(item.rawValue.uppercased())
-                            .font(Tema.label)
-                            .tracking(Tema.trackingLabel)
+                        Text(item.rawValue)
+                            .font(Tema.meta.weight(.medium))
                             .foregroundStyle(filtro == item ? Tema.ambar : Tema.tintaSuave)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 8)
@@ -154,6 +178,13 @@ struct NotasView: View {
             } else {
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 0) {
+                        if !busca.isEmpty || filtro != nil {
+                            Text(contagem(visiveis.count))
+                                .font(Tema.meta)
+                                .foregroundStyle(Tema.tintaFraca)
+                                .padding(.top, 12)
+                                .accessibilityIdentifier("contagem-busca")
+                        }
                         // O arquivo tem tempo: seções por mês, não um pergaminho cego.
                         ForEach(meses(visiveis), id: \.titulo) { secao in
                             Text(secao.titulo)
@@ -171,13 +202,7 @@ struct NotasView: View {
                                 }
                             }
                         }
-                        if visiveis.count > 6 {
-                            Text("\(visiveis.count) notas")
-                                .font(Tema.meta)
-                                .foregroundStyle(Tema.tintaFraca)
-                                .frame(maxWidth: .infinity)
-                                .padding(.top, 16)
-                        }
+
                     }
                     .padding(.horizontal, Tema.margem)
                 }
@@ -200,7 +225,11 @@ struct NotasView: View {
         for nota in notas {
             let ano = cal.component(.year, from: nota.criadaEm)
             f.dateFormat = ano == anoAtual ? "LLLL" : "LLLL yyyy"
-            let titulo = f.string(from: nota.criadaEm).uppercased()
+            // a seção de hoje se chama HOJE: repetir "agosto" no cabeçalho e
+            // "hoje" em cada linha gasta a única informação temporal útil
+            let titulo = cal.isDateInToday(nota.criadaEm)
+                ? "HOJE"
+                : f.string(from: nota.criadaEm).uppercased()
             if grupos[titulo] == nil { ordem.append(titulo) }
             grupos[titulo, default: []].append(nota)
         }
@@ -209,8 +238,17 @@ struct NotasView: View {
 
     private var vazioTitulo: String {
         if filtro == .trancadas { return "nenhuma trancada." }
-        if !busca.isEmpty { return "nada com “\(busca)”" }
-        return "nada aqui."
+        if !busca.isEmpty { return "nenhuma nota com “\(busca)”." }
+        return "nada aqui ainda."
+    }
+
+    /// A busca não dizia quantas achou: o autor não sabia se tinha terminado
+    /// (zeigarnik-effect).
+    private func contagem(_ n: Int) -> String {
+        if !busca.isEmpty {
+            return n == 1 ? "1 nota com “\(busca)”" : "\(n) notas com “\(busca)”"
+        }
+        return n == 1 ? "1 nota" : "\(n) notas"
     }
 
     private func botaoNota(_ nota: Nota) -> some View {
@@ -263,9 +301,12 @@ struct NotasView: View {
                                 .padding(.vertical, 2)
                                 .background(Color.white.opacity(0.06), in: Capsule())
                         }
-                        DestaqueBusca.texto(subtitulo(nota), termo: busca, base: Tema.tintaFraca)
-                            .font(Tema.meta)
-                            .lineLimit(1)
+                        let sub = subtitulo(nota)
+                        if !(sub == "hoje" && busca.isEmpty) {
+                            DestaqueBusca.texto(sub, termo: busca, base: Tema.tintaFraca)
+                                .font(Tema.meta)
+                                .lineLimit(1)
+                        }
                     }
                 }
             }

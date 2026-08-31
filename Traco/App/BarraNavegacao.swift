@@ -69,7 +69,7 @@ struct BarraNavegacao: View {
                         .frame(width: 38, height: 26)
                         .background(Tema.superficieAlta, in: Capsule())
                         .overlay(Capsule().strokeBorder(Tema.luzBorda, lineWidth: 0.5))
-                    Text("Nova")
+                    Text("Escrever")
                         .font(.caption2.weight(.semibold))
                         .tracking(0.4)
                         .foregroundStyle(Tema.tintaSuave)
@@ -79,7 +79,7 @@ struct BarraNavegacao: View {
             }
             .buttonStyle(PressaoDiscreta())
             .accessibilityIdentifier("nova-nota")
-            .accessibilityLabel("Nova nota")
+            .accessibilityLabel("Escrever uma nota nova")
             .accessibilityHint("Guarda esta e abre uma página em branco")
 
             ForEach(Aba.naBarra) { item in
