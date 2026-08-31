@@ -446,3 +446,28 @@ struct SintaxeTests {
         #expect(outro.count >= a.count) // mudança real invalida o memo
     }
 }
+
+struct DesempenhoParserTests {
+    /// META: "nota de 10k palavras fluida". Este teste roda em DEBUG (sem -O);
+    /// o teto de 30ms aqui equivale a poucos ms em Release — e barra qualquer
+    /// regressão quadrática (a versão O(n²) media 254ms neste mesmo harness).
+    @Test func dezMilPalavrasCabemNumFrame() {
+        var linhas: [String] = []
+        for i in 0..<500 {
+            linhas.append("# seção \(i)")
+            linhas.append(String(repeating: "palavra ", count: 18))
+            linhas.append("- item um da lista \(i)")
+            linhas.append("- item dois da lista \(i)")
+            linhas.append("> uma citação com algum corpo \(i)")
+        }
+        let doc = linhas.joined(separator: "\n") // ~10k palavras, blocos variados
+        _ = Caderno.fatiasSemMemo(doc) // aquecimento
+        let inicio = ContinuousClock.now
+        let n = 20
+        for _ in 0..<n { _ = Caderno.fatiasSemMemo(doc) }
+        let total = ContinuousClock.now - inicio
+        let mediaMs = Double(total.components.attoseconds) / 1e15 / Double(n)
+            + Double(total.components.seconds) * 1000 / Double(n)
+        #expect(mediaMs < 30, "parse médio de 10k palavras: \(mediaMs)ms — acima do teto (debug)")
+    }
+}

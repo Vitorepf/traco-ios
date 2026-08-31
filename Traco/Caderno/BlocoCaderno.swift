@@ -60,6 +60,8 @@ enum Caderno: Sendable {
         }
 
         let linhas = fonte.split(separator: "\n", omittingEmptySubsequences: false).map(String.init)
+        // trim pré-computado: cada linha era trimada 2–4× em passadas diferentes
+        let trims = linhas.map { $0.trimmingCharacters(in: .whitespaces) }
         var saida: [FatiaCaderno] = []
         var i = 0
 
@@ -69,21 +71,25 @@ enum Caderno: Sendable {
 
         func depoisDeVazias(_ de: Int) -> Int {
             var k = de
-            while k < linhas.count, linhas[k].trimmingCharacters(in: .whitespaces).isEmpty {
+            while k < linhas.count, trims[k].isEmpty {
                 k += 1
             }
             return k
         }
 
+        // contador por papel: O(1) por bloco (o filter aqui era O(n²) no documento
+        // inteiro — 254ms a 10k palavras). Ids idênticos aos de antes.
+        var irmaos: [String: Int] = [:]
         func emite(_ bloco: BlocoCaderno, fonte: String, aberto: Bool) {
             let papel = chave(bloco)
-            let irmao = saida.filter { chave($0.bloco) == papel }.count
+            let irmao = irmaos[papel, default: 0]
+            irmaos[papel] = irmao + 1
             saida.append(FatiaCaderno(id: "\(papel):\(irmao)", bloco: bloco, fonte: fonte, aberto: aberto))
         }
 
         while i < linhas.count {
             let inicio = i
-            let trim = linhas[i].trimmingCharacters(in: .whitespaces)
+            let trim = trims[i]
 
             if trim.isEmpty {
                 i += 1
@@ -96,7 +102,7 @@ enum Caderno: Sendable {
                 var j = i + 1
                 var fechou = false
                 while j < linhas.count {
-                    if linhas[j].trimmingCharacters(in: .whitespaces).hasPrefix("```") {
+                    if trims[j].hasPrefix("```") {
                         fechou = true
                         j += 1
                         break
@@ -131,7 +137,7 @@ enum Caderno: Sendable {
                 var j = i + 1
                 var fechou = false
                 while j < linhas.count {
-                    if linhas[j].trimmingCharacters(in: .whitespaces) == ":::" {
+                    if trims[j] == ":::" {
                         fechou = true
                         j += 1
                         break
@@ -169,11 +175,11 @@ enum Caderno: Sendable {
                     } else {
                         cabeca = primeira
                         i += 1
-                        if i < linhas.count, let sep = celulas(linhas[i].trimmingCharacters(in: .whitespaces)), eSeparador(sep) {
+                        if i < linhas.count, let sep = celulas(trims[i]), eSeparador(sep) {
                             i += 1
                         }
                     }
-                    while i < linhas.count, let row = celulas(linhas[i].trimmingCharacters(in: .whitespaces)), !eSeparador(row) {
+                    while i < linhas.count, let row = celulas(trims[i]), !eSeparador(row) {
                         corpo.append(row)
                         i += 1
                     }
@@ -187,7 +193,7 @@ enum Caderno: Sendable {
             if trim.hasPrefix(">") {
                 var bloco: [String] = []
                 while i < linhas.count {
-                    let t = linhas[i].trimmingCharacters(in: .whitespaces)
+                    let t = trims[i]
                     guard t.hasPrefix(">") else { break }
                     bloco.append(String(t.drop(while: { $0 == ">" || $0 == " " })))
                     i += 1
@@ -200,7 +206,7 @@ enum Caderno: Sendable {
 
             if tarefa(trim) != nil {
                 var itens: [TarefaCaderno] = []
-                while i < linhas.count, let item = tarefa(linhas[i].trimmingCharacters(in: .whitespaces)) {
+                while i < linhas.count, let item = tarefa(trims[i]) {
                     itens.append(item)
                     i += 1
                 }
@@ -213,7 +219,7 @@ enum Caderno: Sendable {
             if lista(trim) != nil {
                 var itens: [String] = []
                 var ordenada = false
-                while i < linhas.count, let item = lista(linhas[i].trimmingCharacters(in: .whitespaces)) {
+                while i < linhas.count, let item = lista(trims[i]) {
                     itens.append(item.texto)
                     ordenada = item.ordenada
                     i += 1
@@ -225,7 +231,7 @@ enum Caderno: Sendable {
             }
 
             while i < linhas.count {
-                let t = linhas[i].trimmingCharacters(in: .whitespaces)
+                let t = trims[i]
                 if t.isEmpty { break }
                 if t.hasPrefix("```") || t.hasPrefix(":::") || t == "---" || t == "***" || titulo(t) != nil
                     || lista(t) != nil || tarefa(t) != nil || t.hasPrefix(">")
@@ -582,6 +588,8 @@ enum Caderno: Sendable {
     }
 
     nonisolated private static func anexo(_ linha: String) -> BlocoCaderno? {
+        // pré-filtro O(1): sem "traco://" não há anexo — e nenhuma regex roda
+        guard linha.contains("traco://") else { return nil }
         if let m = captura(linha, #"^!\[(.*?)\]\(traco://img/([0-9A-Fa-f-]+)\)$"#) {
             return .imagem(id: m[1], alt: m[0])
         }
@@ -597,8 +605,24 @@ enum Caderno: Sendable {
         return nil
     }
 
+    // regex compiladas UMA vez (antes: uma compilação por linha por padrão — o
+    // custo dominante do parse em nota longa)
+    nonisolated(unsafe) private static var regexCache: [String: NSRegularExpression] = [:]
+    nonisolated(unsafe) private static let regexLock = NSLock()
+
     nonisolated private static func captura(_ texto: String, _ padrao: String) -> [String]? {
-        guard let regex = try? NSRegularExpression(pattern: padrao) else { return nil }
+        regexLock.lock()
+        let regex: NSRegularExpression
+        if let r = regexCache[padrao] {
+            regex = r
+        } else if let r = try? NSRegularExpression(pattern: padrao) {
+            regexCache[padrao] = r
+            regex = r
+        } else {
+            regexLock.unlock()
+            return nil
+        }
+        regexLock.unlock()
         let faixa = NSRange(texto.startIndex..., in: texto)
         guard let m = regex.firstMatch(in: texto, range: faixa), m.numberOfRanges >= 3 else { return nil }
         func g(_ i: Int) -> String {
