@@ -5,10 +5,6 @@ appId: app.traco
 - tapOn:
     id: pagina
 - inputText: "capa"
-- swipe:
-    from:
-      id: regua
-    direction: LEFT
 - tapOn:
     id: regua-seccao
 - takeScreenshot: /tmp/traco-verify/seccao-regua

@@ -138,27 +138,51 @@ struct PortalArquivoView: View {
                         RoundedRectangle(cornerRadius: Tema.raio, style: .continuous)
                             .strokeBorder(Color.white.opacity(0.1), lineWidth: 1)
                     }
-            } else {
-                Text(nome)
-                    .font(Tema.corpo)
-                    .foregroundStyle(Tema.tintaSuave)
-                    .frame(maxWidth: .infinity, minHeight: 88, alignment: .leading)
-            }
-            HStack {
-                Text(nome)
-                    .font(Tema.label)
-                    .foregroundStyle(Tema.tintaSuave)
-                    .lineLimit(1)
-                Spacer()
-                Text(AnexoDisco.tamanho(id, nome: nome))
-                    .font(Tema.label)
-                    .foregroundStyle(Tema.tintaFraca)
-                ShareLink(item: url) {
-                    Image(systemName: "square.and.arrow.up")
+                HStack {
+                    Text(nome)
+                        .font(Tema.label)
                         .foregroundStyle(Tema.tintaSuave)
-                        .frame(width: Tema.alvo, height: Tema.alvo)
+                        .lineLimit(1)
+                    Spacer()
+                    Text(AnexoDisco.tamanho(id, nome: nome))
+                        .font(Tema.label)
+                        .foregroundStyle(Tema.tintaFraca)
+                    ShareLink(item: url) {
+                        Image(systemName: "square.and.arrow.up")
+                            .foregroundStyle(Tema.tintaSuave)
+                            .frame(width: Tema.alvo, height: Tema.alvo)
+                    }
+                    .accessibilityLabel("Compartilhar PDF")
                 }
-                .accessibilityLabel("Compartilhar PDF")
+            } else {
+                // sem capa, o PDF é um CARTÃO de arquivo — ícone, nome UMA vez,
+                // tamanho. Nunca um bloco de texto que parece código.
+                HStack(spacing: 12) {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 6, style: .continuous)
+                            .fill(Tema.superficieAlta)
+                            .frame(width: 40, height: 52)
+                        Image(systemName: "doc.richtext")
+                            .foregroundStyle(Tema.tintaSuave)
+                    }
+                    .accessibilityHidden(true)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(nome)
+                            .font(Tema.corpo)
+                            .foregroundStyle(Tema.tinta)
+                            .lineLimit(2)
+                        Text(AnexoDisco.tamanho(id, nome: nome))
+                            .font(Tema.label)
+                            .foregroundStyle(Tema.tintaFraca)
+                    }
+                    Spacer(minLength: 8)
+                    ShareLink(item: url) {
+                        Image(systemName: "square.and.arrow.up")
+                            .foregroundStyle(Tema.tintaSuave)
+                            .frame(width: Tema.alvo, height: Tema.alvo)
+                    }
+                    .accessibilityLabel("Compartilhar PDF")
+                }
             }
         }
         .padding(14)
