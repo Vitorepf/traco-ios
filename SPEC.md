@@ -234,3 +234,38 @@ trabalho do Recordar. Padrão Apple Notes (Jakob):
 
 Critério de aceite: buscar "celular" encontra a nota WOOP pelo trecho do obstáculo,
 com realce; nota trancada não aparece; filtro WOOP mostra só WOOPs; limpar restaura tudo.
+
+## 17. Assistência automática (a diretriz TDAH — lei de produto)
+
+> Palavra do dono (31/ago): "Impossível eu aprender a usar todas as formas. A IA tem
+> que cobrir todas as minhas incapacidades. Dificuldade no uso, ou exigir lembrar de
+> alguma coisa para deixar bonito, quebra totalmente o meu uso."
+
+**Princípio.** Fricção é bug. O autor nunca precisa saber o nome de uma forma nem de
+um método. Quem conhece o catálogo é a IA; quem escreve é o autor. Ponto.
+
+**A distinção que preserva a regra de ferro:**
+- **Auto-FORMA: SIM.** A IA aplica forma automaticamente às palavras do autor —
+  detecta lista e veste lista, detecta desabafo e veste o modo certo, detecta verso
+  e veste verso. A página fica visualmente impecável sozinha. Nenhuma palavra é
+  escrita, movida, resumida ou corrigida: a IA **veste** o texto, nunca o toca.
+- **Auto-PROSA: NUNCA.** A regra de ferro (§2) permanece intacta.
+
+**Consequências:**
+1. O catálogo de formas cresce sem teto (136 → 300+): ele serve à IA, não à memória
+   do humano. A régua de 12 vira atalho manual opcional — não o caminho principal.
+2. O catálogo de MÉTODOS também é vasto (WOOP, se–então, spec, expressiva, e todos
+   os que o inventário conhece): a IA roteia automaticamente o melhor para o momento,
+   sem o autor pedir. Revoga-se o "só quando chamado" do §5 (ADR 2026-08-31c):
+   o gatilho passa a ser automático na pausa da escrita, com:
+   - **um toque desfaz** qualquer aplicação automática (Soltar forma);
+   - **silêncio continua válido** — na dúvida, a IA não veste nada;
+   - opt-out por nota e global.
+3. Toda sugestão de método aparece pronta (campos vazios já abertos quando a
+   confiança é alta), não como pergunta que exige decisão. Decidir também é fricção.
+4. Acessibilidade cognitiva é critério de aceite: nenhum fluxo pode exigir memória
+   de recurso, nome de feature ou mais de um passo para o caminho principal.
+
+**Fila que isto abre (P1):** motor de auto-forma local (heurística por bloco) →
+auto-forma com IA real → roteador automático de métodos → confiança calibrada
+(vestir só quando certeza; senão, silêncio).
