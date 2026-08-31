@@ -1,7 +1,7 @@
 import Foundation
 
-enum PilhaFiltro {
-    static func visiveis(_ notas: [Nota], busca: String, filtro: FiltroPilha?) -> [Nota] {
+enum NotasFiltro {
+    static func visiveis(_ notas: [Nota], busca: String, filtro: FiltroNotas?) -> [Nota] {
         notas.filter { nota in
             if filtro == .trancadas { return nota.trancada }
             if nota.trancada { return busca.isEmpty && filtro == nil }

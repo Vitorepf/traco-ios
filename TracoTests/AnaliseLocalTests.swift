@@ -1,51 +1,51 @@
 import Testing
 @testable import Traco
 
-struct PorteiroLocalTests {
+struct AnaliseLocalTests {
     @Test func paginaVaziaESilencio() {
-        #expect(PorteiroLocal.classificar(texto: "   ", gestoAtual: nil, campos: [:]) == .silencio)
+        #expect(AnaliseLocal.classificar(texto: "   ", gestoAtual: nil, campos: [:]) == .silencio)
     }
 
     @Test func woopPeloDesejo() {
-        let v = PorteiroLocal.classificar(texto: "quero correr de manhã", gestoAtual: nil, campos: [:])
-        #expect(v == .gesto(.woop, pergunta: PorteiroLocal.perguntaWOOP))
+        let v = AnaliseLocal.classificar(texto: "quero correr de manhã", gestoAtual: nil, campos: [:])
+        #expect(v == .gesto(.woop, pergunta: AnaliseLocal.perguntaWOOP))
     }
 
     @Test func woodNaoAbreForma() {
-        let v = PorteiroLocal.classificar(texto: "eu sou um vencedor", gestoAtual: nil, campos: [:])
-        #expect(v == .trava(PorteiroLocal.travaWood))
+        let v = AnaliseLocal.classificar(texto: "eu sou um vencedor", gestoAtual: nil, campos: [:])
+        #expect(v == .aviso(AnaliseLocal.avisoWood))
     }
 
     @Test func banalESilencio() {
-        let v = PorteiroLocal.classificar(texto: "leite", gestoAtual: nil, campos: [:])
+        let v = AnaliseLocal.classificar(texto: "leite", gestoAtual: nil, campos: [:])
         #expect(v == .silencio)
     }
 
-    @Test func oettingenTravaPlanoSemObstaculo() {
-        let v = PorteiroLocal.classificar(texto: "meu plano é acordar e vai dar certo", gestoAtual: nil, campos: [:])
-        #expect(v == .trava(PorteiroLocal.travaOettingen))
+    @Test func oettingenAvisoPlanoSemObstaculo() {
+        let v = AnaliseLocal.classificar(texto: "meu plano é acordar e vai dar certo", gestoAtual: nil, campos: [:])
+        #expect(v == .aviso(AnaliseLocal.avisoOettingen))
     }
 
     @Test func oettingenNaoRoubaWOOP() {
-        let v = PorteiroLocal.classificar(texto: "quero correr e vai dar certo", gestoAtual: nil, campos: [:])
+        let v = AnaliseLocal.classificar(texto: "quero correr e vai dar certo", gestoAtual: nil, campos: [:])
         guard case .gesto(.woop, _) = v else {
             Issue.record("WOOP deveria vencer o plano")
             return
         }
     }
 
-    @Test func fraseProntaTrava() {
-        let v = PorteiroLocal.classificar(texto: "escreve pra mim um parágrafo", gestoAtual: nil, campos: [:])
-        #expect(v == .trava(PorteiroLocal.travaFrasePronta))
+    @Test func fraseProntaAviso() {
+        let v = AnaliseLocal.classificar(texto: "escreve pra mim um parágrafo", gestoAtual: nil, campos: [:])
+        #expect(v == .aviso(AnaliseLocal.avisoFrasePronta))
     }
 
-    @Test func ouvinteTrava() {
-        let v = PorteiroLocal.classificar(texto: "preciso falar com alguém", gestoAtual: nil, campos: [:])
-        #expect(v == .trava(PorteiroLocal.travaOuvinte))
+    @Test func ouvinteAviso() {
+        let v = AnaliseLocal.classificar(texto: "preciso falar com alguém", gestoAtual: nil, campos: [:])
+        #expect(v == .aviso(AnaliseLocal.avisoOuvinte))
     }
 
     @Test func desabafoLongoEExpressiva() {
-        let v = PorteiroLocal.classificar(
+        let v = AnaliseLocal.classificar(
             texto: "hoje senti um peso no peito quando acordei e o medo de nao dar conta voltou. chorei no chuveiro. estava pesado o dia inteiro e eu nao disse a ninguem.",
             gestoAtual: nil,
             campos: [:]
@@ -54,7 +54,7 @@ struct PorteiroLocalTests {
     }
 
     @Test func mesmaFormaESilencio() {
-        let v = PorteiroLocal.classificar(
+        let v = AnaliseLocal.classificar(
             texto: "quero correr",
             gestoAtual: .woop,
             campos: ["obstaculo": "o celular na cama"]
@@ -69,26 +69,26 @@ struct PorteiroLocalTests {
         func quero() {}
         ```
         """
-        #expect(PorteiroLocal.classificar(texto: md, gestoAtual: nil, campos: [:]) == .silencio)
+        #expect(AnaliseLocal.classificar(texto: md, gestoAtual: nil, campos: [:]) == .silencio)
     }
 
-    @Test func doisGestosTravam() {
-        let v = PorteiroLocal.classificar(
+    @Test func doisGestosAvisom() {
+        let v = AnaliseLocal.classificar(
             texto: "quero correr",
             gestoAtual: .woop,
             campos: ["obstaculo": "sempre que pego o telefone"]
         )
-        #expect(v == .trava(PorteiroLocal.travaDoisGestos))
+        #expect(v == .aviso(AnaliseLocal.avisoDoisGestos))
     }
 }
 
-struct CodiceLocalTests {
+struct PadroesLocalTests {
     @Test func vazioNaoInventa() {
-        #expect(CodiceLocal.perguntas(vozes: []).isEmpty)
+        #expect(PadroesLocal.perguntas(vozes: []).isEmpty)
     }
 
     @Test func citaFragmentoLiteral() {
-        let qs = CodiceLocal.perguntas(
+        let qs = PadroesLocal.perguntas(
             vozes: ["quero acordar cedo para treinar", "o celular na cama ganhou de novo"],
             obstaculos: ["o celular na cama"]
         )
@@ -98,7 +98,7 @@ struct CodiceLocalTests {
     }
 
     @Test func nuncaDiagnostica() {
-        let qs = CodiceLocal.perguntas(vozes: ["percebi que a pressa come o dia"])
+        let qs = PadroesLocal.perguntas(vozes: ["percebi que a pressa come o dia"])
         #expect(qs.allSatisfy { !$0.lowercased().contains("você sempre") })
         #expect(qs.allSatisfy { !$0.lowercased().contains("você falha") })
     }

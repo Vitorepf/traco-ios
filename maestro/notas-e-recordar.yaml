@@ -5,14 +5,14 @@ appId: app.traco
     optional: true
 - hideKeyboard
 - tapOn:
-    id: "abrir-pilha"
+    id: "abrir-notas"
 - extendedWaitUntil:
     visible: "quero correr de manhã"
     timeout: 4000
 - tapOn: "Buscar nas notas"
 - inputText: "celular"
 - hideKeyboard
-- tapOn: códice
+- tapOn: padrões
 - extendedWaitUntil:
     visible: "CÓDICE"
     timeout: 4000

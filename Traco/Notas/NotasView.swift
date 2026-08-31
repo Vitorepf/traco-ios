@@ -1,23 +1,23 @@
 import SwiftData
 import SwiftUI
 
-struct PilhaView: View {
+struct NotasView: View {
     @Bindable var sessao: Sessao
     @Environment(\.modelContext) private var context
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Query(sort: \Nota.criadaEm, order: .reverse) private var notas: [Nota]
     @State private var busca = ""
-    @State private var filtro: FiltroPilha?
+    @State private var filtro: FiltroNotas?
 
     var body: some View {
-        Empilha(aberto: $sessao.mostrarCodice, reduceMotion: reduceMotion) {
-            pilha
+        Empilha(aberto: $sessao.mostrarPadroes, reduceMotion: reduceMotion) {
+            telaNotas
         } frente: {
-            CodiceView(sessao: sessao)
+            PadroesView(sessao: sessao)
         }
     }
 
-    private var pilha: some View {
+    private var telaNotas: some View {
         ZStack {
             Tema.fundo.ignoresSafeArea()
             VStack(alignment: .leading, spacing: 0) {
@@ -32,8 +32,8 @@ struct PilhaView: View {
     private var topbar: some View {
         HStack {
             Button("‹ página") {
-                sessao.mostrarCodice = false
-                sessao.mostrarPilha = false
+                sessao.mostrarPadroes = false
+                sessao.mostrarNotas = false
             }
             .foregroundStyle(Tema.tintaSuave)
             .frame(minHeight: Tema.alvo)
@@ -41,21 +41,21 @@ struct PilhaView: View {
             .accessibilityIdentifier("voltar-pagina")
             .accessibilityLabel("Voltar à página")
             Spacer()
-            Button("códice") {
+            Button("padrões") {
                 Teclado.recolher()
-                sessao.mostrarCodice = true
+                sessao.mostrarPadroes = true
             }
             .foregroundStyle(Tema.tintaSuave)
             .frame(minHeight: Tema.alvo)
             .contentShape(Rectangle())
-            .accessibilityIdentifier("abrir-codice")
-            .accessibilityLabel("Códice")
+            .accessibilityIdentifier("abrir-padroes")
+            .accessibilityLabel("Padrões")
             .accessibilityHint("Perguntas sobre padrões das suas notas")
             Button {
                 sessao.salvar(no: context)
                 sessao.novaPagina()
-                sessao.mostrarCodice = false
-                sessao.mostrarPilha = false
+                sessao.mostrarPadroes = false
+                sessao.mostrarNotas = false
             } label: {
                 Image(systemName: "plus")
                     .font(.body.weight(.medium))
@@ -86,7 +86,7 @@ struct PilhaView: View {
                 .font(Tema.corpo)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
-                .accessibilityIdentifier("busca-pilha")
+                .accessibilityIdentifier("busca-notas")
                 .accessibilityLabel("Buscar nas notas")
                 .accessibilityValue(busca.isEmpty ? "vazio" : busca)
                 .accessibilityHint(filtro == .trancadas ? "Indisponível no filtro de trancadas" : "Procura a voz do autor")
@@ -117,7 +117,7 @@ struct PilhaView: View {
     private var chips: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
-                ForEach(FiltroPilha.allCases) { item in
+                ForEach(FiltroNotas.allCases) { item in
                     Button(item.rawValue) {
                         filtro = filtro == item ? nil : item
                     }
@@ -151,7 +151,7 @@ struct PilhaView: View {
                         .foregroundStyle(Tema.tintaSuave)
                     Button("escrever na página") {
                         sessao.novaPagina()
-                        sessao.mostrarPilha = false
+                        sessao.mostrarNotas = false
                     }
                     .font(Tema.chrome)
                     .foregroundStyle(Tema.tinta)
@@ -184,7 +184,7 @@ struct PilhaView: View {
     private func botaoNota(_ nota: Nota) -> some View {
         Button {
             if nota.trancada {
-                sessao.veu = .naoSeRele(nota.uuid)
+                sessao.confirmacao = .naoSeRele(nota.uuid)
             } else {
                 sessao.abrir(nota)
             }
@@ -221,16 +221,16 @@ struct PilhaView: View {
         .tint(Tema.tinta)
         .contextMenu {
             if !nota.trancada {
-                Button("Puxar") { sessao.puxarDaPilha(nota) }
+                Button("Recordar") { sessao.recordarDaNotas(nota) }
             }
         }
         .accessibilityLabel(nota.trancada ? "Expressiva trancada" : titulo(nota))
-        .accessibilityHint(nota.trancada ? "Reabrir pede confirmação dupla" : "Segure para puxar a memória")
-        .accessibilityIdentifier("nota-pilha")
+        .accessibilityHint(nota.trancada ? "Reabrir pede confirmação dupla" : "Segure para recordar a memória")
+        .accessibilityIdentifier("nota-notas")
     }
 
     private var filtradas: [Nota] {
-        PilhaFiltro.visiveis(notas, busca: busca, filtro: filtro)
+        NotasFiltro.visiveis(notas, busca: busca, filtro: filtro)
     }
 
     private func titulo(_ nota: Nota) -> String {

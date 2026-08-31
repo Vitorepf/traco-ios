@@ -1,7 +1,7 @@
 import SwiftData
 import SwiftUI
 
-struct CodiceView: View {
+struct PadroesView: View {
     @Bindable var sessao: Sessao
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Query(sort: \Nota.criadaEm, order: .reverse) private var notas: [Nota]
@@ -12,7 +12,7 @@ struct CodiceView: View {
     }
 
     private var perguntas: [String] {
-        CodiceLocal.perguntas(
+        PadroesLocal.perguntas(
             vozes: abertas.map(\.vozDoAutor),
             obstaculos: abertas.compactMap { $0.campos["obstaculo"] }
         )
@@ -21,11 +21,11 @@ struct CodiceView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
-                Button("‹ pilha") { sessao.mostrarCodice = false }
+                Button("‹ notas") { sessao.mostrarPadroes = false }
                     .foregroundStyle(Tema.tintaSuave)
                     .frame(minHeight: Tema.alvo)
                     .buttonStyle(PressaoDiscreta())
-                    .accessibilityLabel("Voltar à pilha")
+                    .accessibilityLabel("Voltar às notas")
                 Spacer()
                 Text("CÓDICE")
                     .font(Tema.label)
@@ -51,9 +51,9 @@ struct CodiceView: View {
                         ForEach(Array(perguntas.enumerated()), id: \.offset) { indice, pergunta in
                             Button {
                                 sessao.novaPagina()
-                                sessao.perguntaCodice = pergunta
-                                sessao.mostrarCodice = false
-                                sessao.mostrarPilha = false
+                                sessao.perguntaPadroes = pergunta
+                                sessao.mostrarPadroes = false
+                                sessao.mostrarNotas = false
                             } label: {
                                 Text(pergunta)
                                     .font(Tema.corpo)
@@ -67,7 +67,7 @@ struct CodiceView: View {
                             .buttonStyle(PressaoDiscreta())
                             .opacity(reduceMotion || visiveis > indice ? 1 : 0)
                             .offset(y: reduceMotion || visiveis > indice ? 0 : 8)
-                            .accessibilityIdentifier("pergunta-codice-\(indice)")
+                            .accessibilityIdentifier("pergunta-padroes-\(indice)")
                             .accessibilityHint("Abre uma página vazia com esta pergunta no cartão")
                         }
                     }

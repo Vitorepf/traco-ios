@@ -10,7 +10,7 @@ enum Tema {
     static let linha = Color(hex: 0x26262A)
     static let ambar = Color(hex: 0xD9A542)
     static let ambarSuave = Color(hex: 0xD9A542).opacity(0.14)
-    static let trava = Color(hex: 0xC4614D)
+    static let aviso = Color(hex: 0xC4614D)
     static let codigoFundo = Color(hex: 0x12141A)
     static let codigoGutter = Color(hex: 0x0E1016)
     static let synChave = Color(hex: 0xC9A56A)
@@ -29,8 +29,8 @@ enum Tema {
     static let chrome: Font = .body
     static let barra: Font = .subheadline.weight(.semibold)
     static let label: Font = .caption.weight(.semibold)
-    static let veuTitulo: Font = .title.weight(.semibold)
-    static let veuCorpo: Font = .body
+    static let confirmacaoTitulo: Font = .title.weight(.semibold)
+    static let confirmacaoCorpo: Font = .body
 
     static let raio: CGFloat = 12
     static let raioCartao: CGFloat = 14
@@ -41,8 +41,8 @@ enum Tema {
     static let formaNasce: Double = 0.48
     static let cartaoEntra: Double = 0.26
     static let cartaoSai: Double = 0.16
-    static let veuEntra: Double = 0.22
-    static let veuSai: Double = 0.14
+    static let confirmacaoEntra: Double = 0.22
+    static let confirmacaoSai: Double = 0.14
     static let push: Double = 0.40
 
     static func gaveta(reduzido: Bool) -> Animation {

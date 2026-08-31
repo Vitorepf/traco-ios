@@ -5,27 +5,27 @@ appId: app.traco
 - waitForAnimationToEnd:
     timeout: 4000
 - tapOn:
-    id: "veu-seguir"
+    id: "confirmacao-seguir"
     optional: true
 - tapOn:
     text: "Voltar à página"
     optional: true
 - tapOn:
-    id: "abrir-pilha"
+    id: "abrir-notas"
     optional: true
 - extendedWaitUntil:
     visible: "Expressiva — trancada"
     timeout: 12000
-- takeScreenshot: expressiva-15-pilha
+- takeScreenshot: expressiva-15-notas
 - tapOn: "Expressiva — trancada"
 - extendedWaitUntil:
     visible:
-      id: "veu-abrir"
+      id: "confirmacao-abrir"
     timeout: 4000
 - tapOn:
-    id: "veu-abrir"
+    id: "confirmacao-abrir"
 - extendedWaitUntil:
     visible:
-      id: "veu-insistir"
+      id: "confirmacao-insistir"
     timeout: 4000
 - takeScreenshot: expressiva-15-dupla

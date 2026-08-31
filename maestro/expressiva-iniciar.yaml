@@ -5,7 +5,7 @@ appId: app.traco
 - tapOn: Página
 - inputText: "hoje senti um peso no peito quando acordei e o medo de nao dar conta voltou. chorei no chuveiro. estava pesado o dia inteiro e eu nao disse a ninguem."
 - hideKeyboard
-- tapOn: Porteiro
+- tapOn: Analisar
 - tapOn: "Começar o timer"
 - extendedWaitUntil:
     visible: "tranca"

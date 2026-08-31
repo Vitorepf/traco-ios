@@ -5,7 +5,7 @@ appId: app.traco
 - tapOn: Página
 - inputText: "quero correr de manhã"
 - hideKeyboard
-- tapOn: Puxar
+- tapOn: Recordar
 - extendedWaitUntil:
     visible: "PUXAR"
     timeout: 4000
@@ -19,4 +19,4 @@ appId: app.traco
     visible: "DE MEMÓRIA"
     timeout: 4000
 - assertVisible: "A NOTA"
-- takeScreenshot: puxar-lado-a-lado
+- takeScreenshot: recordar-lado-a-lado

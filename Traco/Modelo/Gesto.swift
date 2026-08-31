@@ -61,7 +61,7 @@ struct CampoForma: Identifiable, Hashable {
     let rotulo: String
 }
 
-enum FiltroPilha: String, CaseIterable, Identifiable {
+enum FiltroNotas: String, CaseIterable, Identifiable {
     case woop = "WOOP"
     case seEntao = "Se–então"
     case spec = "Spec"

@@ -1,8 +1,8 @@
 appId: app.traco
 ---
 - tapOn:
-    id: "veu-seguir"
+    id: "confirmacao-seguir"
 - tapOn: "Expressiva — trancada"
 - tapOn:
-    id: "veu-abrir"
+    id: "confirmacao-abrir"
 - assertVisible: "Ela foi escrita para ficar fechada"

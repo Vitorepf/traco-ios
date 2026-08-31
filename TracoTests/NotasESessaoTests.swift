@@ -10,24 +10,24 @@ struct DestaqueBuscaTests {
     }
 }
 
-struct PilhaFiltroTests {
+struct NotasFiltroTests {
     @Test func buscaAchaObstaculoEIgnoraLabel() {
         let woop = Nota(
             texto: "quero correr de manhã",
             gesto: .woop,
             campos: ["obstaculo": "o celular na cama", "resultado": ""]
         )
-        let achados = PilhaFiltro.visiveis([woop], busca: "celular", filtro: nil)
+        let achados = NotasFiltro.visiveis([woop], busca: "celular", filtro: nil)
         #expect(achados.count == 1)
-        let falso = PilhaFiltro.visiveis([woop], busca: "Resultado", filtro: nil)
+        let falso = NotasFiltro.visiveis([woop], busca: "Resultado", filtro: nil)
         #expect(falso.isEmpty)
     }
 
     @Test func trancadaNaoEntraNaBusca() {
         let secreta = Nota(texto: "o celular na cama", gesto: .expressiva, trancada: true)
         let aberta = Nota(texto: "quero o celular na cozinha", gesto: .woop)
-        #expect(PilhaFiltro.visiveis([secreta, aberta], busca: "celular", filtro: nil).map(\.texto) == [aberta.texto])
-        let soTrancadas = PilhaFiltro.visiveis([secreta, aberta], busca: "", filtro: .trancadas)
+        #expect(NotasFiltro.visiveis([secreta, aberta], busca: "celular", filtro: nil).map(\.texto) == [aberta.texto])
+        let soTrancadas = NotasFiltro.visiveis([secreta, aberta], busca: "", filtro: .trancadas)
         #expect(soTrancadas.count == 1)
         #expect(soTrancadas.first?.trancada == true)
     }
@@ -35,7 +35,7 @@ struct PilhaFiltroTests {
     @Test func filtroWOOPSoWOOP() {
         let woop = Nota(texto: "quero", gesto: .woop)
         let spec = Nota(texto: "construir o app", gesto: .spec)
-        let v = PilhaFiltro.visiveis([woop, spec], busca: "", filtro: .woop)
+        let v = NotasFiltro.visiveis([woop, spec], busca: "", filtro: .woop)
         #expect(v.map(\.gesto) == [.woop])
     }
 
@@ -47,15 +47,15 @@ struct PilhaFiltroTests {
         )
         let spec = Nota(texto: "construir o app", gesto: .spec)
         let notas = [woop, spec]
-        #expect(PilhaFiltro.visiveis(notas, busca: "celular", filtro: nil).map(\.gesto) == [.woop])
-        #expect(PilhaFiltro.visiveis(notas, busca: "", filtro: .woop).map(\.gesto) == [.woop])
-        #expect(PilhaFiltro.visiveis(notas, busca: "", filtro: nil).count == 2)
+        #expect(NotasFiltro.visiveis(notas, busca: "celular", filtro: nil).map(\.gesto) == [.woop])
+        #expect(NotasFiltro.visiveis(notas, busca: "", filtro: .woop).map(\.gesto) == [.woop])
+        #expect(NotasFiltro.visiveis(notas, busca: "", filtro: nil).count == 2)
     }
 }
 
 @MainActor
 struct SessaoTests {
-    @Test func expressivaTrancaEPorteiroNaoEscreve() throws {
+    @Test func expressivaTrancaEAnalisarNaoEscreve() throws {
         let container = try ModelContainer(
             for: Nota.self,
             configurations: ModelConfiguration(isStoredInMemoryOnly: true)
@@ -70,7 +70,7 @@ struct SessaoTests {
         #expect(notas[0].trancada)
         #expect(notas[0].texto.contains("senti medo"))
         #expect(s.texto.isEmpty)
-        #expect(s.perguntaCodice == nil)
+        #expect(s.perguntaPadroes == nil)
     }
 
     @Test func abrirTrancadaNaoMostraTexto() throws {
@@ -84,7 +84,7 @@ struct SessaoTests {
         let s = Sessao()
         s.abrir(nota)
         #expect(s.texto.isEmpty)
-        guard case .naoSeRele = s.veu else {
+        guard case .naoSeRele = s.confirmacao else {
             Issue.record("tinha de pedir a dupla confirmação")
             return
         }
@@ -124,14 +124,14 @@ struct SessaoTests {
         #expect(s.texto.isEmpty)
     }
 
-    @Test func codiceNaoEntraNaNota() {
+    @Test func padroesNaoEntraNaNota() {
         let s = Sessao()
         s.texto = "rascunho"
-        s.perguntaCodice = "Você escreveu “x”. O que fez diferente?"
+        s.perguntaPadroes = "Você escreconfirmacao “x”. O que fez diferente?"
         s.novaPagina()
-        s.perguntaCodice = "Você escreveu “x”. O que fez diferente?"
+        s.perguntaPadroes = "Você escreconfirmacao “x”. O que fez diferente?"
         #expect(s.texto.isEmpty)
-        #expect(s.perguntaCodice?.contains("escreveu") == true)
+        #expect(s.perguntaPadroes?.contains("escreconfirmacao") == true)
     }
 
     @Test func timerNasceComQuinzeMinutos() {
@@ -184,7 +184,7 @@ struct SessaoTests {
         #expect(nota.trancada)
     }
 
-    @Test func vencidaNaPilhaTrancaSemAbrir() throws {
+    @Test func vencidaNaNotasTrancaSemAbrir() throws {
         let container = try ModelContainer(
             for: Nota.self,
             configurations: ModelConfiguration(isStoredInMemoryOnly: true)

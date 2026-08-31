@@ -5,7 +5,7 @@ appId: app.traco
 - tapOn: Página
 - inputText: "quero correr de manhã"
 - hideKeyboard
-- tapOn: Porteiro
+- tapOn: Analisar
 - tapOn: "Abrir a forma WOOP"
 - extendedWaitUntil:
     visible:
@@ -18,21 +18,21 @@ appId: app.traco
 - tapOn:
     id: "concluir"
 - tapOn:
-    id: "abrir-pilha"
+    id: "abrir-notas"
 - tapOn:
-    id: "abrir-codice"
+    id: "abrir-padroes"
 - extendedWaitUntil:
     visible: "CÓDICE"
     timeout: 4000
 - extendedWaitUntil:
     visible:
-      id: "pergunta-codice-0"
+      id: "pergunta-padroes-0"
     timeout: 6000
 - tapOn:
-    id: "pergunta-codice-0"
+    id: "pergunta-padroes-0"
 - extendedWaitUntil:
     visible:
-      id: "cartao-codice"
+      id: "cartao-padroes"
     timeout: 4000
 - assertVisible: "PERGUNTA DO CÓDICE"
-- takeScreenshot: codice-resposta
+- takeScreenshot: padroes-resposta

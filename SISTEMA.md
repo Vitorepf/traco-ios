@@ -9,19 +9,19 @@ Contraste medido com `tastemaker/scripts/check_contrast.py` em 29 ago 2026.
 |---|---|---|---|
 | fundo | `#0B0B0D` | página | — |
 | superficie | `#161619` | cartão / campo busca | texto 16.6:1 |
-| superficieAlta | `#1E1E22` | cartão do porteiro | texto ok |
+| superficieAlta | `#1E1E22` | cartão da análise | texto ok |
 | tinta | `#ECECEA` | prosa do autor | 16.62:1 no fundo |
 | tintaSuave | `#9A9A96` | chrome, meta | ~7:1 no fundo |
 | tintaFraca | `#8E8E8A` | labels de forma, vazio | ≥4.5:1 (o `#5C5C5A` do espelho falha 2.93:1 — não usar em texto) |
 | linha | `#26262A` | hairline | estrutura, não texto |
 | ambar | `#D9A542` | **um** acento vivo por vista | 8.81:1 no fundo (componente). Proibido como fill sob texto. |
 | ambarSuave | `rgba(217,165,66,0.14)` | realce de busca, fill do timer | não é texto |
-| trava | `#C4614D` | só o chip “Trava” | recusa, nunca fill de botão |
+| trava | `#C4614D` | só o chip “Aviso” | recusa, nunca fill de botão |
 
 **Regra Von Restorff:** âmbar é isolamento. Uma coisa âmbar por ecrã.
 - Página vazia: só o cursor.
-- Página com texto: Concluída **ou** Porteiro — não os dois + Puxar + timer.
-- Pilha: só o `+` (volta à página). Notas e filtros em tinta.
+- Página com texto: Concluída **ou** Análise — não os dois + Recordar + timer.
+- Notas: só o `+` (volta à página). Notas e filtros em tinta.
 
 ## Tipo (SF, semântico, Dynamic Type)
 
@@ -31,7 +31,7 @@ Contraste medido com `tastemaker/scripts/check_contrast.py` em 29 ago 2026.
 | chrome / botão | `.body` | 17 | — |
 | barra inferior | `.subheadline.weight(.semibold)` | 15 | — |
 | label de forma | `.caption.weight(.semibold)` + tracking 1.0–1.3 + uppercase | 12–13 | — |
-| título de véu | `.title.weight(.semibold)` | 28 | apertado |
+| título de confirmação | `.title.weight(.semibold)` | 28 | apertado |
 | vazio / meta | `.subheadline` em tintaSuave | 15 | — |
 
 Nada de `.system(size:)` solto. Escala com o utilizador.
@@ -41,7 +41,7 @@ Nada de `.system(size:)` solto. Escala com o utilizador.
 4 · 8 · 12 · 16 · 22 · 28 · 44
 - Margem da página: 22 (espelho)
 - Alvo: 44
-- Raio cartão: 12; cartão do porteiro: 14
+- Raio cartão: 12; cartão da análise: 14
 - Grupo interno 8; entre grupos ≥16
 
 ## Motion (depois do layout)
@@ -49,10 +49,10 @@ Nada de `.system(size:)` solto. Escala com o utilizador.
 | Momento | Curva | Duração | Origem |
 |---|---|---|---|
 | push/pop | cubic-bezier(0.32, 0.72, 0, 1) | 400ms | página recua −28% |
-| sheet (Puxar) | sistema, fundo opaco | — | sobe; nunca cross-fade de texto |
-| cartão porteiro | ease-out | 160/260ms | origin embaixo, +14pt, scale 0.96 |
+| sheet (Recordar) | sistema, fundo opaco | — | sobe; nunca cross-fade de texto |
+| cartãa análise | ease-out | 160/260ms | origin embaixo, +14pt, scale 0.96 |
 | forma nasce | ease-out | 480ms | **só o bloco novo** blur 3→0 |
-| véu | materializa | entra 220ms, sai mais rápido | blur+scale; RM = opacity |
+| confirmação | materializa | entra 220ms, sai mais rápido | blur+scale; RM = opacity |
 | press | 120ms | scale 0.94, opacity 0.7 | todo pressable |
 | busca / tecla | **proibido** | — | Emil: ação frequente não anima |
 
@@ -61,10 +61,10 @@ Nada de `.system(size:)` solto. Escala com o utilizador.
 ## Hierarquia por ecrã
 
 1. **Página:** o vazio / o texto é figura. Chrome some para tintaSuave. Barra = hairline, sem dock pesado.
-2. **Pilha:** as notas são figura. Sem wordmark 34pt. Busca e chips recuados.
-3. **Porteiro:** com o cartão aberto, a barra apaga. Uma pergunta, um ato.
-4. **Puxar:** memória | nota, lado a lado. Sem score.
-5. **Véu:** uma frase. Dois caminhos. Atrito no destrutivo.
+2. **Notas:** as notas são figura. Sem wordmark 34pt. Busca e chips recuados.
+3. **Análise:** com o cartão aberto, a barra apaga. Uma pergunta, um ato.
+4. **Recordar:** memória | nota, lado a lado. Sem score.
+5. **Confirmação:** uma frase. Dois caminhos. Atrito no destrutivo.
 
 ## Expressiva (contradição §8 × §15)
 

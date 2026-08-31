@@ -4,14 +4,14 @@ appId: app.traco
     id: "voltar-pagina"
     optional: true
 - tapOn:
-    text: "‹ pilha"
+    text: "‹ notas"
     optional: true
 - tapOn:
-    id: "abrir-pilha"
+    id: "abrir-notas"
     optional: true
 - tapOn: "quero correr de manhã"
 - hideKeyboard
-- tapOn: Puxar
+- tapOn: Recordar
 - extendedWaitUntil:
     visible: "PUXAR"
     timeout: 4000

@@ -424,7 +424,7 @@ enum Caderno: Sendable {
         s.contains("```") || s.contains(":::") || s.contains("|---") || s.contains("- [ ]") || s.contains("traco://")
     }
 
-    /// Uma página, um campo: prosa nua ou um título. Vários blocos → nil (a pilha de figuras).
+    /// Uma página, um campo: prosa nua ou um título. Vários blocos → nil (a notas de figuras).
     nonisolated static func paginaUna(_ fonte: String) -> FatiaCaderno? {
         let xs = fatias(fonte)
         let nucleo = xs.filter { fatia in

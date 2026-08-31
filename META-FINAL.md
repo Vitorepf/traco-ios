@@ -14,7 +14,7 @@ iOS nativo impecável: o bloco mais simples do mercado, com IA que recusa escrev
 - Caderno maduro: Markdown invisível ao autor, portais (código/imagem/áudio/PDF), régua enxuta (≤12 formas — 136 é menu: podar e emendar a SPEC).
 - Excelência de plataforma: Dynamic Type, VoiceOver, nota de 10k palavras fluida (parser incremental), swipe-back, háptica sóbria, pt/en, pronto para App Store.
 
-## REFORMA DA LINGUAGEM (primeira fatia depois do commit)
+## REFORMA DA LINGUAGEM — ✅ EXECUTADA 31/ago (ADR na SPEC): Notas · Analisar/Análise · Recordar · Padrões · Confirmação · Aviso
 A nomenclatura atual (Porteiro, Puxar, Pilha, Códice, Véu, Trava) é amadora.
 Loop: (1) propõe 3 sistemas COMPLETOS de nomes; critérios: usuário de primeira viagem entende sem manual, tom Apple/iOS (ação = verbo claro, tela = substantivo comum), zero metáfora interna, consistência total UI+código+SPEC+testes. (2) escolhe 1 por critério, não por apego. (3) rename ATÔMICO num commit só — UI, tipos, arquivos, testes, SPEC, SISTEMA. Renomear pela metade é pior que não renomear.
 Direções (não imposições): Pilha→Notas · Puxar→De memória / Recordar · Porteiro→Análise / Orientar · Códice→Padrões · Trava→Limite.

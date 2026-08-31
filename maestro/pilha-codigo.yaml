@@ -17,9 +17,9 @@ appId: app.traco
 - tapOn:
     id: concluir
 - tapOn:
-    id: abrir-pilha
-- takeScreenshot: /tmp/traco-verify/pilha-sem-cerca
+    id: abrir-notas
+- takeScreenshot: /tmp/traco-verify/notas-sem-cerca
 - assertVisible:
-    id: nota-pilha
+    id: nota-notas
 - assertVisible: "func senti"
 - assertNotVisible: "```"

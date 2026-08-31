@@ -5,10 +5,10 @@ appId: app.traco
     clearState: false
 - takeScreenshot: expressiva-15-fim
 - tapOn:
-    id: "veu-seguir"
+    id: "confirmacao-seguir"
     optional: true
 - tapOn:
-    id: "abrir-pilha"
+    id: "abrir-notas"
     optional: true
 - extendedWaitUntil:
     visible: "Expressiva — trancada"
@@ -16,9 +16,9 @@ appId: app.traco
 - tapOn: "Expressiva — trancada"
 - extendedWaitUntil:
     visible:
-      id: "veu-abrir"
+      id: "confirmacao-abrir"
     timeout: 4000
 - tapOn:
-    id: "veu-abrir"
+    id: "confirmacao-abrir"
 - assertVisible: "Ela foi escrita para ficar fechada"
 - takeScreenshot: expressiva-15-dupla

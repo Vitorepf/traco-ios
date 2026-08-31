@@ -1,22 +1,22 @@
 import SwiftUI
 
-struct CartaoPorteiroView: View {
-    let cartao: CartaoPorteiro
+struct CartaoAnaliseView: View {
+    let cartao: CartaoAnalisar
     let sessao: Sessao
     @Environment(\.modelContext) private var context
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             switch cartao {
-            case .trava(let frase):
-                chip("Trava", trava: true)
+            case .aviso(let frase):
+                chip("Aviso", aviso: true)
                 Text(frase)
                     .font(Tema.corpo)
                     .foregroundStyle(Tema.tinta)
                     .fixedSize(horizontal: false, vertical: true)
                     .accessibilityAddTraits(.isStaticText)
             case .forma(let gesto, let pergunta):
-                chip(gesto.nome, trava: false)
+                chip(gesto.nome, aviso: false)
                 Text(pergunta)
                     .font(Tema.corpo)
                     .foregroundStyle(Tema.tinta)
@@ -27,7 +27,7 @@ struct CartaoPorteiroView: View {
                 .buttonStyle(CartaoBotaoStyle())
                 .accessibilityHint("Campos vazios nascem abaixo do seu texto")
             case .expressiva:
-                chip("Escrita expressiva", trava: false)
+                chip("Escrita expressiva", aviso: false)
                 Text("Isto pede 15 minutos — fato E sentimento, sobre o mesmo evento. Ao fim, a nota tranca e não se relê.")
                     .font(Tema.corpo)
                     .foregroundStyle(Tema.tinta)
@@ -50,14 +50,14 @@ struct CartaoPorteiroView: View {
                 .stroke(Tema.linha, lineWidth: 0.5)
         }
         .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("cartao-porteiro")
+        .accessibilityIdentifier("cartao-analise")
     }
 
-    private func chip(_ titulo: String, trava: Bool) -> some View {
+    private func chip(_ titulo: String, aviso: Bool) -> some View {
         Text(titulo.uppercased())
             .font(Tema.label)
             .tracking(1.1)
-            .foregroundStyle(trava ? Tema.trava : Tema.tintaSuave)
+            .foregroundStyle(aviso ? Tema.aviso : Tema.tintaSuave)
     }
 }
 

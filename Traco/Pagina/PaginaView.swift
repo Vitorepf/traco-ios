@@ -12,24 +12,24 @@ struct PaginaView: View {
     @State private var abrirArquivo = false
 
     var body: some View {
-        Empilha(aberto: $sessao.mostrarPilha, reduceMotion: reduceMotion) {
+        Empilha(aberto: $sessao.mostrarNotas, reduceMotion: reduceMotion) {
             pagina
         } frente: {
-            PilhaView(sessao: sessao)
+            NotasView(sessao: sessao)
         }
         .tint(Tema.ambar)
-        .sheet(isPresented: $sessao.mostrarPuxar) {
-            PuxarView(texto: sessao.puxarTexto, campos: sessao.puxarCampos)
+        .sheet(isPresented: $sessao.mostrarRecordar) {
+            RecordarView(texto: sessao.recordarTexto, campos: sessao.recordarCampos)
                 .presentationBackground(Tema.fundo)
                 .presentationDragIndicator(.hidden)
         }
         .overlay {
-            if let veu = sessao.veu {
-                VeuView(estado: veu, sessao: sessao, context: context)
+            if let confirmacao = sessao.confirmacao {
+                ConfirmacaoView(estado: confirmacao, sessao: sessao, context: context)
                     .transition(reduceMotion ? .opacity : .opacity.combined(with: .scale(scale: 1.03)))
             }
         }
-        .animation(Tema.gaveta(reduzido: reduceMotion), value: sessao.veu != nil)
+        .animation(Tema.gaveta(reduzido: reduceMotion), value: sessao.confirmacao != nil)
         .onAppear {
             sessao.trancarExpressivasVencidas(no: context)
             restaurarFoco()
@@ -37,7 +37,7 @@ struct PaginaView: View {
             print("TRACO_PAGINA_PRONTA")
             #endif
         }
-        .onChange(of: sessao.mostrarPilha) { _, aberto in
+        .onChange(of: sessao.mostrarNotas) { _, aberto in
             if aberto {
                 focoPagina = false
                 Teclado.recolher()
@@ -45,15 +45,15 @@ struct PaginaView: View {
                 restaurarFoco()
             }
         }
-        .onChange(of: sessao.mostrarCodice) { _, aberto in
+        .onChange(of: sessao.mostrarPadroes) { _, aberto in
             if aberto {
                 focoPagina = false
                 Teclado.recolher()
-            } else if !sessao.mostrarPilha {
+            } else if !sessao.mostrarNotas {
                 restaurarFoco()
             }
         }
-        .onChange(of: sessao.veu != nil) { _, coberto in
+        .onChange(of: sessao.confirmacao != nil) { _, coberto in
             if !coberto { restaurarFoco() }
         }
         .onChange(of: sessao.timerEsgotou) { _, esgotou in
@@ -64,7 +64,7 @@ struct PaginaView: View {
             case .active:
                 sessao.alinharTimerAoRelogio()
                 sessao.trancarExpressivasVencidas(no: context)
-                if !sessao.mostrarPilha { restaurarFoco() }
+                if !sessao.mostrarNotas { restaurarFoco() }
             case .inactive, .background:
                 if sessao.timerLigado { sessao.salvar(no: context) }
             default:
@@ -83,7 +83,7 @@ struct PaginaView: View {
 
             VStack(spacing: 0) {
                 topbar
-                if let pergunta = sessao.perguntaCodice {
+                if let pergunta = sessao.perguntaPadroes {
                     cartaoPergunta(pergunta)
                 }
                 if sessao.timerLigado {
@@ -109,13 +109,13 @@ struct PaginaView: View {
                     .font(Tema.corpo)
                     .foregroundStyle(Tema.tintaSuave)
                     .padding(.bottom, 88)
-                    .accessibilityIdentifier("toast-porteiro")
+                    .accessibilityIdentifier("toast-analise")
                     .accessibilityAddTraits(.isStaticText)
                     .transition(.opacity)
             }
 
             if let cartao = sessao.cartao {
-                CartaoPorteiroView(cartao: cartao, sessao: sessao)
+                CartaoAnaliseView(cartao: cartao, sessao: sessao)
                     .padding(.horizontal, 10)
                     .padding(.bottom, 12)
                     .transition(reduceMotion
@@ -132,11 +132,11 @@ struct PaginaView: View {
 
     private var topbar: some View {
         HStack {
-            Button("Pilha") { sessao.irPilha(no: context) }
+            Button("Notas") { sessao.irNotas(no: context) }
                 .foregroundStyle(Tema.tintaSuave)
                 .frame(minHeight: Tema.alvo)
-                .accessibilityIdentifier("abrir-pilha")
-                .accessibilityLabel("Pilha")
+                .accessibilityIdentifier("abrir-notas")
+                .accessibilityLabel("Notas")
                 .accessibilityHint("Abre as notas anteriores")
 
             Spacer()
@@ -174,16 +174,16 @@ struct PaginaView: View {
 
     private var bottomBar: some View {
         HStack(spacing: 0) {
-            Button("Porteiro") { sessao.chamarPorteiro() }
+            Button("Analisar") { sessao.analisar() }
                 .foregroundStyle(sessao.paginaVazia || sessao.gesto != nil || sessao.cartao != nil ? Tema.tintaFraca : Tema.ambar)
                 .disabled(sessao.paginaVazia)
-                .accessibilityLabel("Porteiro")
-                .accessibilityHint("Classifica o que você escreveu. Não escreve na nota.")
+                .accessibilityLabel("Analisar")
+                .accessibilityHint("Classifica o que você escreconfirmacao. Não escreve na nota.")
 
             if !sessao.paginaVazia {
-                Button("Puxar") { sessao.irPuxar(no: context) }
+                Button("Recordar") { sessao.irRecordar(no: context) }
                     .foregroundStyle(Tema.tintaSuave)
-                    .accessibilityLabel("Puxar")
+                    .accessibilityLabel("Recordar")
                     .accessibilityHint("Esconde a nota e cobra a memória")
                 Button("Arquivo") { abrirArquivo = true }
                     .foregroundStyle(Tema.tintaSuave)
@@ -225,7 +225,7 @@ struct PaginaView: View {
         .padding(.bottom, 8)
     }
 
-    /// Um âmbar por vista: com forma aberta, Concluída; senão o porteiro/cartão leva o acento.
+    /// Um âmbar por vista: com forma aberta, Concluída; senão o analise/cartão leva o acento.
     private var concluidaEAmbar: Bool {
         sessao.gesto != nil && sessao.gesto != .expressiva && sessao.cartao == nil
     }
@@ -251,7 +251,7 @@ struct PaginaView: View {
                 .foregroundStyle(Tema.tinta)
                 .fixedSize(horizontal: false, vertical: true)
             Button("soltar a pergunta") {
-                sessao.perguntaCodice = nil
+                sessao.perguntaPadroes = nil
             }
             .font(Tema.corpo)
             .foregroundStyle(Tema.tintaSuave)
@@ -264,12 +264,12 @@ struct PaginaView: View {
         .background(Tema.superficie, in: RoundedRectangle(cornerRadius: Tema.raio))
         .padding(.horizontal, 10)
         .padding(.bottom, 8)
-        .accessibilityIdentifier("cartao-codice")
+        .accessibilityIdentifier("cartao-padroes")
     }
 
-    /// Página livre: o cursor volta. Pilha, códice ou véu cobrem — o teclado some.
+    /// Página livre: o cursor volta. Notas, padrões ou confirmação cobrem — o teclado some.
     private func restaurarFoco() {
-        guard !sessao.mostrarPilha, !sessao.mostrarCodice, sessao.veu == nil else { return }
+        guard !sessao.mostrarNotas, !sessao.mostrarPadroes, sessao.confirmacao == nil else { return }
         focoPagina = true
     }
 }

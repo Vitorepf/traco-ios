@@ -2,7 +2,7 @@ import Foundation
 
 /// Lê a voz do autor e devolve perguntas que citam fragmentos literais.
 /// Nunca conclui, nunca diagnostica, nunca elogia.
-enum CodiceLocal: Sendable {
+enum PadroesLocal: Sendable {
     private static let paragens: Set<String> = [
         "de", "da", "do", "das", "dos", "que", "e", "o", "a", "os", "as",
         "um", "uma", "para", "pra", "com", "não", "nao", "na", "no", "em",
@@ -29,7 +29,7 @@ enum CodiceLocal: Sendable {
         }
 
         if let repetido = fragmentoRepetido(em: limpas), !usados.contains(repetido.lowercased()) {
-            saida.append("Você escreveu “\(repetido)” em mais de uma nota — o que fez diferente na vez que andou?")
+            saida.append("Você escreconfirmacao “\(repetido)” em mais de uma nota — o que fez diferente na vez que andou?")
             usados.insert(repetido.lowercased())
         }
 
@@ -43,7 +43,7 @@ enum CodiceLocal: Sendable {
                 saida.append("“\(titulo)” e “\(outra)” — o que liga as duas, nas suas palavras?")
                 usados.insert(outra.lowercased())
             } else {
-                saida.append("Você escreveu “\(titulo)”. Na vez em que o pé andou, o que havia de diferente?")
+                saida.append("Você escreconfirmacao “\(titulo)”. Na vez em que o pé andou, o que havia de diferente?")
             }
             usados.insert(titulo.lowercased())
             if saida.count >= 3 { break }

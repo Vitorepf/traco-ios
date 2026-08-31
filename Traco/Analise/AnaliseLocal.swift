@@ -1,20 +1,20 @@
 import Foundation
 
-/// Porteiro do app. Roda só no aparelho.
+/// Analisar do app. Roda só no aparelho.
 /// Nunca chama api.x.ai, nunca gasta crédito Super, nunca paga token.
-enum PorteiroLocal: Sendable {
+enum AnaliseLocal: Sendable {
     enum Veredito: Equatable {
         case silencio
-        case trava(String)
+        case aviso(String)
         case gesto(Gesto, pergunta: String)
         case expressiva
     }
 
-    static let travaFrasePronta = "A frase aqui é sua. O porteiro não escreve."
-    static let travaWood = "Afirmação vazia não muda nada — e pesa em quem se estima pouco. Escreva por que um valor seu importa."
-    static let travaOuvinte = "Quem é a pessoa de verdade que deveria receber isto? O porteiro não é ouvinte."
-    static let travaOettingen = "Sem o obstáculo interno, isso é fantasia — e fantasia reduz o esforço. Qual é o seu?"
-    static let travaDoisGestos = "Um gesto por sessão. O segundo método vai para outra página."
+    static let avisoFrasePronta = "A frase aqui é sua. O Traço não escreve."
+    static let avisoWood = "Afirmação vazia não muda nada — e pesa em quem se estima pouco. Escreva por que um valor seu importa."
+    static let avisoOuvinte = "Quem é a pessoa de verdade que deveria receber isto? O Traço não é ouvinte."
+    static let avisoOettingen = "Sem o obstáculo interno, isso é fantasia — e fantasia reduz o esforço. Qual é o seu?"
+    static let avisoDoisGestos = "Um gesto por sessão. O segundo método vai para outra página."
     static let perguntaWOOP = "Qual é o hábito ou o medo seu que vai impedir — não o relógio, não os outros?"
 
     static func classificar(texto: String, gestoAtual: Gesto?, campos: [String: String]) -> Veredito {
@@ -25,13 +25,13 @@ enum PorteiroLocal: Sendable {
         let lower = voz.lowercased()
 
         if lower.contains(regex: #"escrev[ae] (por|pra|para) mim|melhore|reescreva|resuma"#) {
-            return .trava(travaFrasePronta)
+            return .aviso(avisoFrasePronta)
         }
         if lower.contains(regex: #"eu sou (rico|um vencedor|incrível|o melhor|imparável)"#) {
-            return .trava(travaWood)
+            return .aviso(avisoWood)
         }
         if lower.contains(regex: #"me escuta|me console|desabafar com você|preciso falar com alguém"#) {
-            return .trava(travaOuvinte)
+            return .aviso(avisoOuvinte)
         }
 
         if let gestoAtual {
@@ -42,7 +42,7 @@ enum PorteiroLocal: Sendable {
             if let novo = detectarGesto(posForma, posForma.lowercased(), estrito: true),
                novo != .expressiva || gestoAtual != .expressiva,
                novo != gestoAtual {
-                return .trava(travaDoisGestos)
+                return .aviso(avisoDoisGestos)
             }
             return .silencio
         }
@@ -53,7 +53,7 @@ enum PorteiroLocal: Sendable {
         }
 
         if ePlanoSemObstaculo(lower) {
-            return .trava(travaOettingen)
+            return .aviso(avisoOettingen)
         }
         return .silencio
     }

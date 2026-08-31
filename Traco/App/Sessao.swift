@@ -8,17 +8,17 @@ final class Sessao {
     var gesto: Gesto?
     var campos: [String: String] = [:]
     var notaUUID: UUID?
-    var perguntaCodice: String?
-    var cartao: CartaoPorteiro?
+    var perguntaPadroes: String?
+    var cartao: CartaoAnalisar?
     var toast: String?
     var timerLigado = false
     var segundosRestantes = 15 * 60
-    var mostrarPilha = false
-    var mostrarPuxar = false
-    var mostrarCodice = false
-    var veu: VeuEstado?
-    var puxarTexto = ""
-    var puxarCampos: [String: String] = [:]
+    var mostrarNotas = false
+    var mostrarRecordar = false
+    var mostrarPadroes = false
+    var confirmacao: ConfirmacaoEstado?
+    var recordarTexto = ""
+    var recordarCampos: [String: String] = [:]
     var timerEsgotou = false
 
     private var toastTask: Task<Void, Never>?
@@ -33,9 +33,9 @@ final class Sessao {
         max(0, (15 * 60 - segundosRestantes) / 60)
     }
 
-    func chamarPorteiro() {
+    func analisar() {
         if timerLigado {
-            mostrarToast("o porteiro cala durante a escrita.")
+            mostrarToast("a análise cala durante a escrita.")
             return
         }
         guard !paginaVazia else { return }
@@ -43,13 +43,13 @@ final class Sessao {
         transacao.disablesAnimations = true
         withTransaction(transacao) { cartao = nil }
 
-        switch PorteiroLocal.classificar(texto: texto, gestoAtual: gesto, campos: campos) {
+        switch AnaliseLocal.classificar(texto: texto, gestoAtual: gesto, campos: campos) {
         case .silencio:
             Toque.leve()
             mostrarToast("silêncio.")
-        case .trava(let frase):
+        case .aviso(let frase):
             Toque.aviso()
-            cartao = .trava(frase)
+            cartao = .aviso(frase)
         case .gesto(let g, let pergunta):
             Toque.leve()
             cartao = .forma(g, pergunta: pergunta)
@@ -149,7 +149,7 @@ final class Sessao {
         try? context.save()
     }
 
-    /// Expressiva vencida sobrevive à morte do processo: a pilha não pode vazar o texto.
+    /// Expressiva vencida sobrevive à morte do processo: a notas não pode vazar o texto.
     func trancarExpressivasVencidas(no context: ModelContext, agora: Date = .now) {
         guard let notas = try? context.fetch(FetchDescriptor<Nota>()) else { return }
         var mudou = false
@@ -168,14 +168,14 @@ final class Sessao {
         gesto = nil
         campos = [:]
         notaUUID = nil
-        perguntaCodice = nil
+        perguntaPadroes = nil
         cartao = nil
-        veu = nil
+        confirmacao = nil
     }
 
     func abrir(_ nota: Nota, mesmoTrancada: Bool = false) {
         if nota.trancada, !mesmoTrancada {
-            veu = .naoSeRele(nota.uuid)
+            confirmacao = .naoSeRele(nota.uuid)
             return
         }
         pararTimer()
@@ -183,10 +183,10 @@ final class Sessao {
         gesto = nota.gesto
         campos = nota.campos
         notaUUID = nota.uuid
-        perguntaCodice = nil
+        perguntaPadroes = nil
         cartao = nil
-        mostrarPilha = false
-        mostrarCodice = false
+        mostrarNotas = false
+        mostrarPadroes = false
         if nota.gesto == .expressiva, !nota.trancada {
             retomarExpressiva(prazo: nota.expressivaPrazo)
         }
@@ -197,7 +197,7 @@ final class Sessao {
             if minutosExpressiva >= 10 {
                 trancarESair(no: context, destino: .pagina)
             } else {
-                veu = .sairTranca(destino: .pagina)
+                confirmacao = .sairTranca(destino: .pagina)
             }
             return
         }
@@ -206,46 +206,46 @@ final class Sessao {
         Toque.leve()
     }
 
-    func irPilha(no context: ModelContext) {
+    func irNotas(no context: ModelContext) {
         if timerLigado {
-            veu = .sairTranca(destino: .pilha)
+            confirmacao = .sairTranca(destino: .notas)
             return
         }
         salvar(no: context)
         Teclado.recolher()
-        mostrarPilha = true
+        mostrarNotas = true
     }
 
-    func irPuxar(no context: ModelContext) {
+    func irRecordar(no context: ModelContext) {
         guard !paginaVazia else { return }
-        puxarTexto = texto
-        puxarCampos = campos
+        recordarTexto = texto
+        recordarCampos = campos
         if timerLigado {
-            veu = .sairTranca(destino: .puxar)
+            confirmacao = .sairTranca(destino: .recordar)
             return
         }
         salvar(no: context)
-        mostrarPuxar = true
+        mostrarRecordar = true
     }
 
-    func puxarDaPilha(_ nota: Nota) {
+    func recordarDaNotas(_ nota: Nota) {
         guard !nota.trancada else { return }
-        puxarTexto = nota.texto
-        puxarCampos = nota.campos
-        mostrarPuxar = true
+        recordarTexto = nota.texto
+        recordarCampos = nota.campos
+        mostrarRecordar = true
     }
 
-    func trancarESair(no context: ModelContext, destino: DestinoVeu) {
+    func trancarESair(no context: ModelContext, destino: DestinoConfirmacao) {
         pararTimer()
         salvar(no: context, trancar: true)
         novaPagina()
         Toque.fechou()
         switch destino {
         case .pagina: break
-        case .pilha: mostrarPilha = true
-        case .puxar: break
+        case .notas: mostrarNotas = true
+        case .recordar: break
         }
-        veu = .trancada(destino: destino)
+        confirmacao = .trancada(destino: destino)
     }
 
     static func buscar(uuid: UUID, no context: ModelContext) -> Nota? {
@@ -264,19 +264,19 @@ final class Sessao {
     }
 }
 
-enum CartaoPorteiro: Equatable {
-    case trava(String)
+enum CartaoAnalisar: Equatable {
+    case aviso(String)
     case forma(Gesto, pergunta: String)
     case expressiva
 }
 
-enum DestinoVeu {
-    case pagina, pilha, puxar
+enum DestinoConfirmacao {
+    case pagina, notas, recordar
 }
 
-enum VeuEstado: Equatable {
-    case sairTranca(destino: DestinoVeu)
-    case trancada(destino: DestinoVeu)
+enum ConfirmacaoEstado: Equatable {
+    case sairTranca(destino: DestinoConfirmacao)
+    case trancada(destino: DestinoConfirmacao)
     case naoSeRele(UUID)
     case insistirReabrir(UUID)
 }

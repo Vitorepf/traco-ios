@@ -1,8 +1,8 @@
 import SwiftData
 import SwiftUI
 
-struct VeuView: View {
-    let estado: VeuEstado
+struct ConfirmacaoView: View {
+    let estado: ConfirmacaoEstado
     let sessao: Sessao
     let context: ModelContext
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -19,8 +19,8 @@ struct VeuView: View {
                     case .sairTranca(let destino):
                         titulo("Sair agora tranca.")
                         texto("A escrita expressiva fecha a porta de qualquer jeito — dentro ou fora do tempo.")
-                        botao("Continuar escrevendo", id: "veu-continuar") { sessao.veu = nil }
-                        botaoMudo("Trancar e sair", id: "veu-trancar") {
+                        botao("Continuar escrevendo", id: "confirmacao-continuar") { sessao.confirmacao = nil }
+                        botaoMudo("Trancar e sair", id: "confirmacao-trancar") {
                             Task {
                                 try? await Task.sleep(for: .milliseconds(220))
                                 sessao.trancarESair(no: context, destino: destino)
@@ -29,19 +29,19 @@ struct VeuView: View {
                     case .trancada(let destino):
                         titulo("Trancada.")
                         texto("A escrita expressiva não se relê. A porta fechou — e é isso que faz o método funcionar.")
-                        botao(rotuloDestino(destino), id: "veu-seguir") {
+                        botao(rotuloDestino(destino), id: "confirmacao-seguir") {
                             fecharTrancada(destino)
                         }
                     case .naoSeRele(let uuid):
                         titulo("Não se relê.")
                         texto("Reler o desabafo reacende o que a escrita encerrou.")
-                        botao("Deixar fechada", id: "veu-deixar") { sessao.veu = nil }
-                        botaoMudo("Abrir mesmo assim", id: "veu-abrir") { sessao.veu = .insistirReabrir(uuid) }
+                        botao("Deixar fechada", id: "confirmacao-deixar") { sessao.confirmacao = nil }
+                        botaoMudo("Abrir mesmo assim", id: "confirmacao-abrir") { sessao.confirmacao = .insistirReabrir(uuid) }
                     case .insistirReabrir(let uuid):
                         titulo("Ela foi escrita para ficar fechada.")
-                        botao("Deixar fechada", id: "veu-deixar") { sessao.veu = nil }
-                        botaoMudo("Abrir assim mesmo", id: "veu-insistir") {
-                            sessao.veu = nil
+                        botao("Deixar fechada", id: "confirmacao-deixar") { sessao.confirmacao = nil }
+                        botaoMudo("Abrir assim mesmo", id: "confirmacao-insistir") {
+                            sessao.confirmacao = nil
                             if let nota = Sessao.buscar(uuid: uuid, no: context) {
                                 sessao.abrir(nota, mesmoTrancada: true)
                             }
@@ -56,25 +56,25 @@ struct VeuView: View {
             .opacity(materializado || reduceMotion ? 1 : 0)
         }
         .onAppear {
-            withAnimation(reduceMotion ? .easeOut(duration: 0.18) : .easeOut(duration: Tema.veuEntra)) {
+            withAnimation(reduceMotion ? .easeOut(duration: 0.18) : .easeOut(duration: Tema.confirmacaoEntra)) {
                 materializado = true
             }
         }
         .onChange(of: estado) { _, _ in
             if reduceMotion { return }
             materializado = false
-            withAnimation(.easeOut(duration: Tema.veuEntra)) { materializado = true }
+            withAnimation(.easeOut(duration: Tema.confirmacaoEntra)) { materializado = true }
         }
         .accessibilityAddTraits(.isModal)
         .accessibilityAction(.escape) { escapar() }
     }
 
-    private func fecharTrancada(_ destino: DestinoVeu) {
-        sessao.veu = nil
+    private func fecharTrancada(_ destino: DestinoConfirmacao) {
+        sessao.confirmacao = nil
         switch destino {
         case .pagina: break
-        case .pilha: sessao.mostrarPilha = true
-        case .puxar: sessao.mostrarPuxar = true
+        case .notas: sessao.mostrarNotas = true
+        case .recordar: sessao.mostrarRecordar = true
         }
     }
 
@@ -82,32 +82,32 @@ struct VeuView: View {
     private func escapar() {
         switch estado {
         case .sairTranca:
-            sessao.veu = nil
+            sessao.confirmacao = nil
         case .trancada(let destino):
             fecharTrancada(destino)
         case .naoSeRele, .insistirReabrir:
-            sessao.veu = nil
+            sessao.confirmacao = nil
         }
     }
 
-    private func rotuloDestino(_ destino: DestinoVeu) -> String {
+    private func rotuloDestino(_ destino: DestinoConfirmacao) -> String {
         switch destino {
         case .pagina: "Voltar à página"
-        case .pilha: "Ir à pilha"
-        case .puxar: "Puxar o que ficou"
+        case .notas: "Ir às notas"
+        case .recordar: "Recordar o que ficou"
         }
     }
 
     private func titulo(_ t: String) -> some View {
         Text(t)
-            .font(Tema.veuTitulo)
+            .font(Tema.confirmacaoTitulo)
             .foregroundStyle(Tema.tinta)
             .accessibilityAddTraits(.isHeader)
     }
 
     private func texto(_ t: String) -> some View {
         Text(t)
-            .font(Tema.veuCorpo)
+            .font(Tema.confirmacaoCorpo)
             .foregroundStyle(Tema.tintaSuave)
     }
 

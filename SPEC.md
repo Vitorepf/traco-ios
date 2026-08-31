@@ -1,6 +1,11 @@
 # Traço — spec do produto
 
 > iOS puro (Swift/SwiftUI). Este documento é a fonte da verdade.
+> ADR 2026-08-31 — Reforma da linguagem: Pilha→Notas · Porteiro→Análise (botão: Analisar) ·
+> Puxar→Recordar · Códice→Padrões · Véu→Confirmação · Trava→Aviso. Critérios: usuário de
+> primeira viagem entende sem manual; verbo para ação, substantivo comum para tela; zero
+> metáfora interna. "Gesto" permanece: é conceito da tese, não nome de UI. Rename atômico
+> em código+testes+maestro+specs; propriedades persistidas do SwiftData intocadas.
 > O protótipo-espelho (HTML) demonstra os fluxos; o código real vem depois da spec aprovada.
 
 ## 1. Visão
@@ -21,10 +26,10 @@ disparado por classificação — nunca prosa do modelo.
 
 ### Lista fechada do que a IA pode fazer
 1. **Rotear** — nomear o gesto que o texto do usuário já começou
-2. **Travar** — recusar o atalho, numa frase curta
+2. **Avisar** — recusar o atalho, numa frase curta
 3. **Perguntar** — no máximo UMA pergunta: o próximo campo vazio
-4. **Puxar** — cobrar memória (ver §7)
-5. **Códice** — devolver perguntas sobre padrões das próprias notas (ver §9)
+4. **Recordar** — cobrar memória (ver §7)
+5. **Padrões** — devolver perguntas sobre padrões das próprias notas (ver §9)
 6. **Calar** — silêncio é resposta válida e frequente
 
 Fora da lista = bug de produto, não feature.
@@ -34,50 +39,50 @@ Fora da lista = bug de produto, não feature.
 O app **abre direto na página em branco**, escura, cursor pronto. Sem placeholder,
 sem dica, sem chip. O vazio é intencional (o "ainda-não" do gesto).
 
-- A **pilha** (notas anteriores) fica atrás de um gesto: botão discreto no topo-esquerdo.
-- A home não é a pilha. A pilha não é o altar — reler cartões à noite é o anti-padrão.
+- As **notas** anteriores ficam atrás de um gesto: botão discreto no topo-esquerdo.
+- A home não é a lista. As notas não são o altar — reler cartões à noite é o anti-padrão.
 
 ## 4. Fluxo central
 
 ```
 abrir app ──► página em branco ──► usuário escreve (traço livre)
                                         │
-                          [botão Porteiro — só quando chamado]
+                          [botão Analisar — só quando chamado]
                                         │
               ┌──────────────┬──────────┴─────────┬──────────────┐
-           gesto            trava              pergunta        silêncio
+           gesto            aviso              pergunta        silêncio
         identificado     (recusa curta)      (uma, campo       (nada
               │                                 vazio)          aparece)
         "abrir forma"
               │
       campos VAZIOS nascem abaixo do texto do usuário
               │
-      usuário preenche ──► "Concluída" ──► nota vai à pilha
+      usuário preenche ──► "Concluída" ──► nota vai às notas
 ```
 
-**Um gesto por sessão.** Se o Porteiro detecta segundo método na mesma nota → trava.
+**Um gesto por sessão.** Se a Análise detecta segundo método na mesma nota → aviso.
 
-## 5. O Porteiro (lógica de IA)
+## 5. A Análise (lógica de IA)
 
 - **Gatilho:** botão explícito. NUNCA roda a cada tecla, NUNCA na pausa (decisão de produto:
   controle total, zero vigilância).
-- **Motor v1 (obrigatório):** porteiro **local**, no aparelho — as mesmas heurísticas do
+- **Motor v1 (obrigatório):** análise **local**, no aparelho — as mesmas heurísticas do
   protótipo-espelho. **Zero rede. Zero token. Zero fatura.**
 - **SuperGrok ≠ API.** A conta Super (grok.com / app Grok) é chat de consumidor com
   cota semanal. A [API da xAI](https://docs.x.ai/developers/pricing) é outro produto,
   cobrado por token, créditos não-reembolsáveis. Os dois medidores **não se misturam**.
   Extra Usage Credits da Super também são gasto extra — **proibidos**.
 - **Proibido no código:** `api.x.ai`, chave de Console, Keychain de API, `URLSession`
-  para modelo, qualquer fallback que “só um pouquinho” cobre. Se o porteiro não
+  para modelo, qualquer fallback que “só um pouquinho” cobre. Se a análise não
   classificar, o veredito é silêncio — nunca uma chamada paga.
 - Grok de verdade no app só entra se a xAI um dia oferecer cota Super *dentro* do
   app, sem ledger de API. Até lá, Super fica no app oficial; Traço não gasta.
 
-### Travas obrigatórias (no system prompt)
-| Detecta | Trava (essência) |
+### Avisos obrigatórios (no system prompt)
+| Detecta | Aviso (essência) |
 |---|---|
 | Afirmação vazia ("eu sou rico/vencedor") | Piora quem se estima pouco (Wood 2009). Escreva POR QUE um valor seu importa. |
-| Pedido de texto pronto | A frase aqui é sua. O porteiro não escreve. |
+| Pedido de texto pronto | A frase aqui é sua. O Traço não escreve. |
 | Pedido de ouvinte/consolo | Quem é a pessoa de verdade que deveria receber isto? |
 | Plano sem obstáculo | Sem obstáculo interno, é fantasia — e fantasia reduz esforço (Oettingen). |
 | Dois métodos na mesma nota | Um gesto por sessão. |
@@ -95,9 +100,9 @@ Templates do app. Nascem VAZIAS abaixo do texto do usuário. Uma forma por nota.
 | **Destaque** | lista de tarefas / "hoje" | A única coisa de hoje, primeiro, até acabar |
 | **Expressiva** | desabafo emocional longo | sem campos — vira o modo do §8 |
 
-## 7. Puxar (retrieval)
+## 7. Recordar (retrieval)
 
-Disponível na nota aberta e na pilha (segurar o cartão).
+Disponível na nota aberta e nas notas (segurar o cartão).
 
 1. O conteúdo da nota some da tela.
 2. O usuário escreve de memória o que estava lá.
@@ -112,14 +117,14 @@ Ao abrir a forma Expressiva:
 2. Instrução única: fato E sentimento, sobre o mesmo evento.
 3. Ao fim do timer: a nota **grava e tranca**. Qualquer outra rota durante o timer
    pede “Sair agora tranca.” **Concluída após ≥10 min** tranca direto — a escrita
-   já mereceu a porta. Antes dos 10 min, Concluída também passa pelo véu.
-4. Nota trancada aparece na pilha com cadeado, título oculto. Reabrir exige confirmação
+   já mereceu a porta. Antes dos 10 min, Concluída também passa pelo confirmação.
+4. Nota trancada aparece nas notas com cadeado, título oculto. Reabrir exige confirmação
    dupla com atrito ("Pennebaker pede para não reler. Abrir mesmo assim?").
-5. O Porteiro nunca comenta o conteúdo de uma expressiva. Nunca.
+5. A Análise nunca comenta o conteúdo de uma expressiva. Nunca.
 
-## 9. Códice (padrões no tempo)
+## 9. Padrões (padrões no tempo)
 
-Botão na pilha ("Ler o códice"). Só quando o usuário pede.
+Botão nas notas ("Ler os padrões"). Só quando o usuário pede.
 
 1. A IA lê as últimas ~12 notas não-trancadas.
 2. Devolve **2–3 perguntas**, cada uma citando um fragmento literal das notas do usuário
@@ -146,13 +151,13 @@ Persistência local (SwiftData/arquivo). Sem nuvem na v1. Sem conta.
 
 - **Âncora:** Apple Notes dark + iOS HIG. Deve parecer o bloco que a pessoa já conhece.
 - **Cor:** fundo `#0B0B0D` · texto `#ECECEA` · secundário `#9A9A96` · linha `#26262A`
-  · acento âmbar `#D9A542` · trava `#C4614D`. Tema escuro único (a página preta é o produto).
+  · acento âmbar `#D9A542` · aviso `#C4614D`. Tema escuro único (a página preta é o produto).
 - **Tipo:** SF (sistema). Corpo 17/26. Labels 13 uppercase c/ tracking.
 - **Espaço:** escala de 4. Raio 12.
 - **Motion:** mínimo. A forma nasce com um fade curto (~250ms). Nada anima enquanto
   o usuário digita. `prefers-reduced-motion` respeitado.
-- A UI inteira do editor: topo com [Pilha] e [Concluída], página, e UMA barra inferior
-  discreta [Porteiro · Puxar]. Nada mais.
+- A UI inteira do editor: topo com [Notas] e [Concluída], página, e UMA barra inferior
+  discreta [Analisar · Recordar]. Nada mais.
 
 ## 12. Não-objetivos (v1)
 
@@ -163,18 +168,18 @@ Agenda/calendário. Android/web.
 ## 13. Pronto quando (critérios de aceite)
 
 - [ ] Abrir o app → página em branco com cursor em <1s
-- [ ] "quero correr de manhã" + Porteiro → chip WOOP + pergunta do obstáculo;
+- [ ] "quero correr de manhã" + Analisar → chip WOOP + pergunta do obstáculo;
       "abrir forma" → campos vazios abaixo do meu texto
-- [ ] "eu sou um vencedor" + Porteiro → trava Wood, sem forma
-- [ ] Nota curta banal + Porteiro → silêncio (nenhum cartão)
+- [ ] "eu sou um vencedor" + Analisar → aviso Wood, sem forma
+- [ ] Nota curta banal + Analisar → silêncio (nenhum cartão)
 - [ ] Expressiva: timer 15 min → tranca → reabrir exige dupla confirmação
-- [ ] Puxar: esconde, escrevo de memória, revela comparação lado a lado
-- [ ] Códice: 2–3 perguntas citando minhas frases; toque abre nota-resposta
+- [ ] Recordar: esconde, escrevo de memória, revela comparação lado a lado
+- [ ] Padrões: 2–3 perguntas citando minhas frases; toque abre nota-resposta
 - [ ] Em nenhum fluxo a IA insere prosa na minha nota
 
 ## 14. Casos-limite
 
-Nota vazia + Porteiro → nada (sem trabalho). Sem rede → o papel continua; o porteiro
+Nota vazia + Analisar → nada (sem trabalho). Sem rede → o papel continua; a análise
 local não precisa de rede. Sem chave de API → correto: **não existe chave**. Nota
 gigante → classificar pela voz do autor; nunca truncar o texto persistido.
 
@@ -187,35 +192,35 @@ Três críticos (hierarquia, motion, UX) em 3 rodadas — decisões que valem pa
 - **Classificador nunca lê o mobiliário do app**: remover marcadores de forma e labels
   (preservando as respostas do usuário) antes de classificar; com forma na nota, só o
   trecho pós-forma pode pedir outro gesto, e heurísticas de formato não contam.
-- **Mesma forma → silêncio** (o porteiro não pune quem usou a forma que ele ofereceu).
-- **A pergunta do códice é cartão fixo não-editável** — nunca entra no texto da nota.
+- **Mesma forma → silêncio** (a análise não pune quem usou a forma que ele ofereceu).
+- **A pergunta do padrões é cartão fixo não-editável** — nunca entra no texto da nota.
 - **Expressiva sem escapatória digna**: sair durante o timer (qualquer rota, incluindo
-  Puxar) → "Sair agora tranca." [Continuar escrevendo | Trancar e sair]; destino
-  preservado após a tranca; beat de ~220ms entre véus.
-- **Puxar**: desabilitado com página vazia; beat "Leia uma última vez — a nota vai se
+  Recordar) → "Sair agora tranca." [Continuar escrevendo | Trancar e sair]; destino
+  preservado após a tranca; beat de ~220ms entre confirmações.
+- **Recordar**: desabilitado com página vazia; beat "Leia uma última vez — a nota vai se
   esconder." antes do blur; Revelar desabilitado até haver memória; saída "‹ voltar".
-- **Copy**: sem citações acadêmicas na interface. Trava de afirmação: "Afirmação vazia
+- **Copy**: sem citações acadêmicas na interface. Aviso de afirmação: "Afirmação vazia
   não muda nada — e pesa em quem se estima pouco. Escreva por que um valor seu importa."
   Reabrir trancada: "Reler o desabafo reacende o que a escrita encerrou." / "Ela foi
-  escrita para ficar fechada." Silêncio do porteiro: toast "silêncio." ~2,5s (é resposta,
-  não bug); durante o timer: "o porteiro cala durante a escrita."
-- **Concluída** (texto, ≥44pt, oculto quando vazio) no lugar de ✓; "Pilha" sem ☰;
+  escrita para ficar fechada." Silêncio da análise: toast "silêncio." ~2,5s (é resposta,
+  não bug); durante o timer: "a análise cala durante a escrita."
+- **Concluída** (texto, ≥44pt, oculto quando vazio) no lugar de ✓; "Notas" sem ☰;
   toda tela com rota de volta; alvos ≥44pt; página vazia SEM placeholder (decisão mantida).
 - **Motion**: push/pop com parallax (curva drawer 0.32,0.72,0,1, ~400ms); sheet sobe
-  opaco (nunca cross-fade de texto); cartão do porteiro é overlay (só transform/opacity,
-  nasce da barra, transform-origin embaixo); véus materializam (blur+scale, exit mais
+  opaco (nunca cross-fade de texto); cartão da análise é overlay (só transform/opacity,
+  nasce da barra, transform-origin embaixo); confirmações materializam (blur+scale, exit mais
   rápido); staggers 45–70ms com teto; :active scale(0.94–0.98) em todo pressable;
   reduced-motion vira cross-fade; navegação interruptível com fila (nunca engolir toque).
-- **Pilha**: preview mostra só a voz do autor; trancadas com data relativa; códice é
+- **Notas**: preview mostra só a voz do autor; trancadas com data relativa; padrões é
   botão discreto na topbar (as notas dominam a tela).
 - Para o Swift: swipe-back nativo; "só o bloco novo borra" ao nascer a forma.
 
 ## 16. Busca (adição pós-protótipo)
 
 Busca é **arquivo**, não memória: acha a nota para agir (GTD); lembrar continua sendo
-trabalho do Puxar. Padrão Apple Notes (Jakob):
+trabalho do Recordar. Padrão Apple Notes (Jakob):
 
-- Campo de busca na pilha + filtros por gesto em chips (WOOP, Se–então, Spec,
+- Campo de busca nas notas + filtros por gesto em chips (WOOP, Se–então, Spec,
   Nota permanente, Destaque, Trancadas). Toque alterna; um filtro por vez.
 - Busca instantânea, local, sobre **a voz do autor** (labels/scaffold das formas não
   indexam — buscar "Resultado" não pode devolver toda nota WOOP).

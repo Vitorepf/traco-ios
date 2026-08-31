@@ -9,12 +9,12 @@ appId: app.traco
 - tapOn:
     id: "filtro-woop"
 - tapOn:
-    id: "busca-pilha"
+    id: "busca-notas"
 - eraseText
 - inputText: "celular"
 - assertVisible: "o celular na cama"
 - tapOn:
     id: "limpar-busca"
 - assertVisible:
-    id: "busca-pilha"
+    id: "busca-notas"
     text: "vazio"

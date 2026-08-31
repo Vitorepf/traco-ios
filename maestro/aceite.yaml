@@ -2,15 +2,15 @@ appId: app.traco
 ---
 - launchApp:
     clearState: true
-- assertVisible: Pilha
-- assertVisible: Porteiro
+- assertVisible: Notas
+- assertVisible: Analisar
 - tapOn: "Página"
 - inputText: "quero correr de manhã"
 - hideKeyboard
-- tapOn: Porteiro
+- tapOn: Analisar
 - extendedWaitUntil:
     visible:
-      id: "cartao-porteiro"
+      id: "cartao-analise"
     timeout: 5000
 - tapOn: "Abrir a forma WOOP"
 - assertVisible:
@@ -21,23 +21,23 @@ appId: app.traco
 - tapOn: "Página"
 - inputText: "eu sou um vencedor"
 - hideKeyboard
-- tapOn: Porteiro
+- tapOn: Analisar
 - extendedWaitUntil:
     visible:
-      id: "cartao-porteiro"
+      id: "cartao-analise"
     timeout: 5000
-- assertVisible: "Trava"
+- assertVisible: "Aviso"
 - tapOn:
     id: "concluir"
 - tapOn: "Página"
 - inputText: "leite"
 - hideKeyboard
-- tapOn: Porteiro
+- tapOn: Analisar
 - extendedWaitUntil:
     visible:
-      id: "toast-porteiro"
+      id: "toast-analise"
     timeout: 4000
 - tapOn:
-    id: "abrir-pilha"
+    id: "abrir-notas"
 - tapOn:
     id: "voltar-pagina"

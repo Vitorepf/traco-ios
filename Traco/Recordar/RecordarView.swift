@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct PuxarView: View {
+struct RecordarView: View {
     let texto: String
     let campos: [String: String]
     @Environment(\.dismiss) private var dismiss
