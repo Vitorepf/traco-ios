@@ -682,3 +682,25 @@ struct ConfiancaDia200Tests {
         #expect(s.apagadaRecuperavel == nil)
     }
 }
+
+@MainActor
+struct PadroesRemotoTests {
+    @Test func parseEstritoDasPerguntas() {
+        let ok = PadroesRemoto.parsePerguntas(#"{"perguntas":["Você escreveu “x” — por quê?","Segunda?"]}"#)
+        #expect(ok?.count == 2)
+        #expect(PadroesRemoto.parsePerguntas("sem json") == nil)
+        #expect(PadroesRemoto.parsePerguntas(#"{"perguntas":[]}"#) == [])
+    }
+
+    @Test func nuncaRepeteDuasVisitasSeguidas() {
+        UserDefaults.standard.removeObject(forKey: "padroesVistas")
+        let p1 = ["Você escreveu “adiar” de novo — o que mudou?", "E a promessa sem data?"]
+        #expect(PadroesRemoto.ineditas(p1) == p1)
+        PadroesRemoto.registrarVistas(p1)
+        let p2 = ["Você escreveu “adiar” de novo — o que mudou?", "Uma pergunta nova?"]
+        #expect(PadroesRemoto.ineditas(p2) == ["Uma pergunta nova?"])
+        // tudo visto → repete em vez de calar para sempre
+        #expect(PadroesRemoto.ineditas(p1) == p1)
+        UserDefaults.standard.removeObject(forKey: "padroesVistas")
+    }
+}

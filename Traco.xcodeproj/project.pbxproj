@@ -39,6 +39,7 @@
 		994B7BC3E12C8BBED0205FC1 /* PaginaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44CF1006FD54376D4F9A5274 /* PaginaView.swift */; };
 		9971859FF28FB8990D88F5DD /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 07FEF6E398FEED60218FF5E1 /* Localizable.xcstrings */; };
 		9AE336A415F4A83195416BE2 /* Gesto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 854249702104D325072DC8FA /* Gesto.swift */; };
+		B941B2650E94D6E093A1394A /* PadroesRemoto.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE5E37AF9BC96722920E0256 /* PadroesRemoto.swift */; };
 		BE9E364EB4D15B9B4A0FD32C /* SintaxeLocal.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE31B44AE2B9734818934EE6 /* SintaxeLocal.swift */; };
 		D37ABADE9FFCD8F825DC5E8B /* Tema.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A273C7A77EA3B9F5AAAC13A /* Tema.swift */; };
 		D624B7699CB6224EC14D1089 /* PortalCodigoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFD400F0A39FE3685B78CF60 /* PortalCodigoView.swift */; };
@@ -104,6 +105,7 @@
 		E2751D1D96F07B6B9980FA75 /* Toque.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Toque.swift; sourceTree = "<group>"; };
 		F8A3AE8285B42EB802930300 /* TracoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TracoApp.swift; sourceTree = "<group>"; };
 		F903485BBAA804C94399C747 /* Migracao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Migracao.swift; sourceTree = "<group>"; };
+		FE5E37AF9BC96722920E0256 /* PadroesRemoto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PadroesRemoto.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -187,6 +189,7 @@
 			isa = PBXGroup;
 			children = (
 				65BEA908CA56E5E6C5353906 /* PadroesLocal.swift */,
+				FE5E37AF9BC96722920E0256 /* PadroesRemoto.swift */,
 				481F4361236B561E2D58A0D1 /* PadroesView.swift */,
 			);
 			path = Padroes;
@@ -375,6 +378,7 @@
 				3E3F2462A04B514F3BFA686B /* NotasFiltro.swift in Sources */,
 				357488D47F6447389B1B4B14 /* NotasView.swift in Sources */,
 				8A24CF2697C9F3270B72614B /* PadroesLocal.swift in Sources */,
+				B941B2650E94D6E093A1394A /* PadroesRemoto.swift in Sources */,
 				E392DABE7E7AC33038D67110 /* PadroesView.swift in Sources */,
 				994B7BC3E12C8BBED0205FC1 /* PaginaView.swift in Sources */,
 				790B6E9A5A75BFDBB00BFF9F /* PapelForma.swift in Sources */,

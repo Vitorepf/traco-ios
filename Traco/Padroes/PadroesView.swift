@@ -6,16 +6,26 @@ struct PadroesView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Query(sort: \Nota.criadaEm, order: .reverse) private var notas: [Nota]
     @State private var visiveis = 0
+    @State private var perguntas: [String] = []
+    @State private var carregou = false
 
     private var abertas: [Nota] {
         Array(notas.filter { !$0.trancada && !$0.vozDoAutor.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }.prefix(12))
     }
 
-    private var perguntas: [String] {
-        PadroesLocal.perguntas(
-            vozes: abertas.map(\.vozDoAutor),
+    /// Grok quando há chave (perguntas NOVAS a cada visita); local de guarda.
+    /// Nunca a mesma pergunta duas visitas seguidas.
+    private func carregarPerguntas() async {
+        let vozes = abertas.map(\.vozDoAutor)
+        let locais = PadroesLocal.perguntas(
+            vozes: vozes,
             obstaculos: abertas.compactMap { $0.campos["obstaculo"] }
         )
+        let remotas = await PadroesRemoto.perguntas(vozes: vozes)
+        let escolhidas = PadroesRemoto.ineditas(remotas ?? locais)
+        PadroesRemoto.registrarVistas(escolhidas)
+        perguntas = escolhidas
+        carregou = true
     }
 
     var body: some View {
@@ -44,7 +54,12 @@ struct PadroesView: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
-                    if perguntas.isEmpty {
+                    if !carregou {
+                        Text("lendo as suas notas…")
+                            .font(Tema.corpo)
+                            .foregroundStyle(Tema.tintaFraca)
+                            .padding(.top, 8)
+                    } else if perguntas.isEmpty {
                         Text("ainda não há o que ler. escreva primeiro.")
                             .font(Tema.corpo)
                             .foregroundStyle(Tema.tintaSuave)
@@ -93,6 +108,7 @@ struct PadroesView: View {
         }
         .background(Tema.fundo.ignoresSafeArea())
         .task {
+            await carregarPerguntas()
             guard !reduceMotion else {
                 visiveis = perguntas.count
                 return
