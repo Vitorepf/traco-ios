@@ -6,6 +6,11 @@ git commit atômico ao fim de CADA fatia. Se o repo tiver trabalho sem commit: c
 
 ## ESTADO FINAL (o produto de 2 anos — o alvo de todas as filas)
 iOS nativo impecável: o bloco mais simples do mercado, com IA que recusa escrever e multiplica a mente do autor.
+**A BARRA (palavra do dono, 31/ago): instalar no iPhone e sentir um produto
+ultra-profissional com ANOS de polimento — visual, movimento, experiência,
+features. "Funciona e tem teste" NÃO é a barra; é o piso. Todo crítico julga
+contra apps lapidados por anos (Apple Notes, Things, Craft). Motion se julga
+em VÍDEO do app real, nunca só em screenshot.**
 - IA real (xAI, chave no Keychain, JSON estrito, silêncio em erro) no lugar da heurística local; mesma lista fechada de permissões.
 - Análise de padrões sobre anos de notas: perguntas citando frases literais do autor, nunca conclusões.
 - Revisões agendadas: repetição espaçada sobre as notas do próprio autor, no dia certo.
