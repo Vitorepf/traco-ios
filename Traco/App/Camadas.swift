@@ -20,7 +20,12 @@ struct Camadas<Arquivo: View, Escrita: View>: View {
     @ViewBuilder var arquivo: () -> Arquivo
     @ViewBuilder var escrita: () -> Escrita
 
-    @State private var arrasto: CGFloat = 0
+    /// UMA fonte de verdade para a posição. Antes havia duas (`arrasto` +
+    /// `arquivoAberto`), e soltar mudava as duas no mesmo instante: o valor
+    /// final era CRAVADO em vez de perseguido, e o último quadro saltava 69px
+    /// depois de um passo de 35 (g229→g230). Mola não acelera na chegada.
+    @State private var pos: CGFloat = -10_000
+    @State private var arrastando = false
     @State private var largura: CGFloat = 0
 
     private let borda: CGFloat = 28
@@ -34,7 +39,7 @@ struct Camadas<Arquivo: View, Escrita: View>: View {
 
             arquivo()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .offset(x: deslocamento)
+                .offset(x: pos)
                 .allowsHitTesting(arquivoAberto)
                 .accessibilityHidden(!arquivoAberto)
         }
@@ -44,53 +49,61 @@ struct Camadas<Arquivo: View, Escrita: View>: View {
             // realimenta o layout
             GeometryReader { g in
                 Color.clear
-                    .onAppear { largura = g.size.width }
-                    .onChange(of: g.size.width) { _, nova in largura = nova }
+                    .onAppear {
+                        largura = g.size.width
+                        pos = arquivoAberto ? 0 : -g.size.width
+                    }
+                    .onChange(of: g.size.width) { _, nova in
+                        largura = nova
+                        if !arrastando { pos = arquivoAberto ? 0 : -nova }
+                    }
             }
         }
         .contentShape(Rectangle())
         .gesture(gestoAtivo && largura > 0 ? trilho(largura) : nil)
-        .animation(reduceMotion ? .easeOut(duration: 0.2) : nil, value: arquivoAberto)
+        // mudança vinda de FORA do gesto (tocar numa aba, voltar por código)
+        .onChange(of: arquivoAberto) { _, aberto in
+            guard !arrastando, largura > 0 else { return }
+            withAnimation(mola(reduzido: reduceMotion)) { pos = aberto ? 0 : -largura }
+        }
     }
 
-    /// 0 = arquivo à mostra · −largura = arquivo fora, à esquerda.
-    private var deslocamento: CGFloat {
-        guard largura > 0 else { return -10_000 } // antes de medir, some de vez
-        let base: CGFloat = arquivoAberto ? 0 : -largura
-        return max(-largura, min(0, base + arrasto))
+    private func mola(reduzido: Bool) -> Animation {
+        reduzido ? .easeOut(duration: 0.2) : .spring(response: 0.42, dampingFraction: 0.86)
     }
 
     private func trilho(_ w: CGFloat) -> some Gesture {
         DragGesture(minimumDistance: 12)
             .onChanged { v in
+                let base: CGFloat = arquivoAberto ? 0 : -w
                 if arquivoAberto {
                     // do arquivo: para a ESQUERDA, a partir da borda direita —
                     // o scroll horizontal dos chips continua sendo deles
                     guard v.startLocation.x > w - borda else { return }
-                    arrasto = min(0, v.translation.width)
+                    arrastando = true
+                    pos = max(-w, min(0, base + min(0, v.translation.width)))
                 } else {
                     // da escrita: borda esquerda, longe da seleção de texto
                     guard v.startLocation.x < borda else { return }
-                    arrasto = max(0, v.translation.width)
+                    arrastando = true
+                    pos = max(-w, min(0, base + max(0, v.translation.width)))
                 }
             }
             .onEnded { v in
-                guard arrasto != 0 else { return }
+                guard arrastando else { return }
+                arrastando = false
+                // o destino sai da PROJEÇÃO do movimento, não da posição solta:
+                // um peteleco curto e rápido vira a página (apple-design §6)
                 let projetado = v.translation.width + v.predictedEndTranslation.width * 0.35
                 let virar = abs(projetado) > w * 0.3
                 let alvo = arquivoAberto ? !virar : virar
                 let mudou = alvo != arquivoAberto
-                // antes: mola dura demais — o painel acelerava e batia num muro
-                // (+76px num quadro, zero no seguinte). `interactiveSpring`
-                // herda a velocidade do dedo e ASSENTA (apple-design §5/§6).
-                let mola: Animation = reduceMotion
-                    ? .easeOut(duration: 0.2)
-                    : .interactiveSpring(response: 0.38, dampingFraction: 0.86, blendDuration: 0.1)
-                withAnimation(mola) {
+                // a posição é PERSEGUIDA pela mola; nada é cravado
+                withAnimation(mola(reduzido: reduceMotion)) { pos = alvo ? 0 : -w }
+                if mudou {
                     arquivoAberto = alvo
-                    arrasto = 0
+                    Toque.selecao()
                 }
-                if mudou { Toque.selecao() }
             }
     }
 }

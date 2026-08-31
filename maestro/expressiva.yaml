@@ -8,39 +8,46 @@ appId: app.traco
     visible: "Começar o timer"
     timeout: 8000
 - tapOn: "Começar o timer"
-# §20: da escrita, a borda esquerda traz o arquivo
+# §20: sair com o timer de pé pede confirmação — o selo vale no gesto
 - swipe:
     start: 1%, 50%
     end: 85%, 50%
-# o selo vale no gesto: sair com o timer de pé pede confirmação
 - extendedWaitUntil:
     visible:
       id: "confirmacao-trancar"
-    timeout: 4000
+    timeout: 5000
 - tapOn:
     id: "confirmacao-trancar"
+# §8: fecha SELADO e oferece a escolha dos dois métodos
 - extendedWaitUntil:
     visible:
-      id: "confirmacao-seguir"
-    timeout: 4000
+      id: "fecho-expressiva"
+    timeout: 5000
+- assertVisible:
+    id: "fecho-selar"
+- assertVisible:
+    id: "fecho-queimar"
 - tapOn:
-    id: "confirmacao-seguir"
-- tapOn:
-    id: "aba-notas"
-    optional: true
+    id: "fecho-selar"
+# a selada entra no arquivo com o selo, sem uma linha do conteúdo
+- swipe:
+    start: 1%, 50%
+    end: 85%, 50%
 - extendedWaitUntil:
     visible: "Expressiva — trancada"
-    timeout: 4000
-- takeScreenshot: expressiva-trancada
+    timeout: 6000
+- assertNotVisible: "chorei no chuveiro"
+- takeScreenshot: /tmp/traco-verify/nav/70-selada
+# reabrir custa dupla confirmação
 - tapOn: "Expressiva — trancada"
 - extendedWaitUntil:
     visible:
       id: "confirmacao-abrir"
-    timeout: 4000
+    timeout: 5000
 - tapOn:
     id: "confirmacao-abrir"
 - extendedWaitUntil:
     visible:
       id: "confirmacao-insistir"
-    timeout: 4000
-- takeScreenshot: expressiva-dupla
+    timeout: 5000
+- takeScreenshot: /tmp/traco-verify/nav/71-dupla

@@ -17,12 +17,13 @@ appId: app.traco
     timeout: 5000
 - tapOn:
     id: "confirmacao-trancar"
+# §8: a saída SELA e abre a escolha dos dois métodos validados
 - extendedWaitUntil:
     visible:
-      id: "confirmacao-seguir"
+      id: "fecho-expressiva"
     timeout: 5000
 - tapOn:
-    id: "confirmacao-seguir"
+    id: "fecho-selar"
 # o que este flow prova sozinho: o selo SOBREVIVE ao relançamento do app
 - stopApp
 - launchApp:
@@ -30,23 +31,8 @@ appId: app.traco
 - swipe:
     start: 1%, 50%
     end: 85%, 50%
-- tapOn:
-    id: "aba-notas"
-    optional: true
 - extendedWaitUntil:
     visible: "Expressiva — trancada"
-    timeout: 12000
+    timeout: 6000
 - assertNotVisible: "chorei no chuveiro"
-- takeScreenshot: /tmp/traco-verify/nav/21-trancada-depois
-# e continua pedindo dupla confirmação depois de reabrir o app
-- tapOn: "Expressiva — trancada"
-- extendedWaitUntil:
-    visible:
-      id: "confirmacao-abrir"
-    timeout: 5000
-- tapOn:
-    id: "confirmacao-abrir"
-- extendedWaitUntil:
-    visible:
-      id: "confirmacao-insistir"
-    timeout: 5000
+- takeScreenshot: /tmp/traco-verify/nav/74-selada-depois

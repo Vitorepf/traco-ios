@@ -8,7 +8,6 @@ appId: app.traco
     visible: "Começar o timer"
     timeout: 8000
 - tapOn: "Começar o timer"
-# §20: sair com o timer de pé dispara o selo — o gesto vale como saída
 - swipe:
     start: 1%, 50%
     end: 85%, 50%
@@ -18,16 +17,20 @@ appId: app.traco
     timeout: 5000
 - tapOn:
     id: "confirmacao-trancar"
+# §8: a saída SELA e abre a escolha dos dois métodos validados
 - extendedWaitUntil:
     visible:
-      id: "confirmacao-seguir"
+      id: "fecho-expressiva"
     timeout: 5000
 - tapOn:
-    id: "confirmacao-seguir"
+    id: "fecho-selar"
+- swipe:
+    start: 1%, 50%
+    end: 85%, 50%
 - extendedWaitUntil:
     visible: "Expressiva — trancada"
     timeout: 6000
-# reabrir uma trancada custa DUAS confirmações — o selo tem atrito de propósito
+# reabrir uma selada custa DUAS confirmações — o selo tem atrito de propósito
 - tapOn: "Expressiva — trancada"
 - extendedWaitUntil:
     visible:
@@ -40,4 +43,3 @@ appId: app.traco
       id: "confirmacao-insistir"
     timeout: 5000
 - assertVisible: "Ela foi escrita para ficar fechada."
-- takeScreenshot: /tmp/traco-verify/nav/19-dupla
