@@ -1,16 +1,32 @@
 appId: app.traco
 ---
 - launchApp:
-    clearState: false
-- waitForAnimationToEnd:
-    timeout: 4000
+    clearState: true
+- tapOn: Página
+- inputText: "hoje senti um peso no peito quando acordei e o medo de nao dar conta voltou. chorei no chuveiro. estava pesado o dia inteiro e eu nao disse a ninguem."
+- extendedWaitUntil:
+    visible: "Começar o timer"
+    timeout: 8000
+- tapOn: "Começar o timer"
+- swipe:
+    start: 1%, 50%
+    end: 85%, 50%
+- extendedWaitUntil:
+    visible:
+      id: "confirmacao-trancar"
+    timeout: 5000
+- tapOn:
+    id: "confirmacao-trancar"
+- extendedWaitUntil:
+    visible:
+      id: "confirmacao-seguir"
+    timeout: 5000
 - tapOn:
     id: "confirmacao-seguir"
-    optional: true
-- tapOn:
-    text: "Voltar à página"
-    optional: true
-# §20: da escrita, a borda esquerda traz o arquivo
+# o que este flow prova sozinho: o selo SOBREVIVE ao relançamento do app
+- stopApp
+- launchApp:
+    clearState: false
 - swipe:
     start: 1%, 50%
     end: 85%, 50%
@@ -20,16 +36,17 @@ appId: app.traco
 - extendedWaitUntil:
     visible: "Expressiva — trancada"
     timeout: 12000
-- takeScreenshot: expressiva-15-notas
+- assertNotVisible: "chorei no chuveiro"
+- takeScreenshot: /tmp/traco-verify/nav/21-trancada-depois
+# e continua pedindo dupla confirmação depois de reabrir o app
 - tapOn: "Expressiva — trancada"
 - extendedWaitUntil:
     visible:
       id: "confirmacao-abrir"
-    timeout: 4000
+    timeout: 5000
 - tapOn:
     id: "confirmacao-abrir"
 - extendedWaitUntil:
     visible:
       id: "confirmacao-insistir"
-    timeout: 4000
-- takeScreenshot: expressiva-15-dupla
+    timeout: 5000
