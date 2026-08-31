@@ -295,10 +295,10 @@ struct PaginaView: View {
                     .foregroundStyle(Tema.tintaSuave)
                     .accessibilityLabel("Recordar")
                     .accessibilityHint("Esconde a nota e cobra a memória")
-                Button("Anexar arquivo") { abrirArquivo = true }
+                Button("Anexar") { abrirArquivo = true }
                     .foregroundStyle(Tema.tintaSuave)
                     .accessibilityLabel("Anexar arquivo")
-                    .accessibilityHint("Foto, vídeo, áudio, gravar ou arquivo")
+                    .accessibilityHint("Anexar foto, vídeo, áudio, gravação ou arquivo")
                     .accessibilityIdentifier("abrir-arquivo")
             }
         }

@@ -1,4 +1,5 @@
 import AVFoundation
+import UIKit
 import PhotosUI
 import SwiftUI
 import UniformTypeIdentifiers
@@ -17,6 +18,9 @@ struct CadernoView: View {
 
     @State private var editando: String?
     @State private var unaCrua = false
+    /// A régua acompanha o TECLADO, não o foco: o foco sobrevive ao teclado
+    /// descer, e a régua ficava parada no alto abrindo um vão até o rodapé.
+    @State private var tecladoNaTela = false
     @State private var foto: PhotosPickerItem?
     @State private var video: PhotosPickerItem?
     @State private var menuFoto = false
@@ -65,6 +69,9 @@ struct CadernoView: View {
                 .scrollDismissesKeyboard(editando == nil ? .interactively : .never)
             }
         }
+        // o encaixe ancora no FIM desta view: sem preencher a altura, a régua
+        // ficava pendurada no meio da tela, com um vão até a barra de ações
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .safeAreaInset(edge: .bottom, spacing: 0) {
             VStack(spacing: 0) {
                 if gravando {
@@ -75,7 +82,7 @@ struct CadernoView: View {
                         .accessibilityIdentifier("a-gravar")
                         .accessibilityLabel("Parar gravação")
                 }
-                if foco.wrappedValue, !esconderRegua {
+                if foco.wrappedValue, tecladoNaTela, !esconderRegua {
                     regua
                         .padding(.horizontal, Tema.margem)
                         .padding(.vertical, 8)
@@ -97,10 +104,17 @@ struct CadernoView: View {
             // dois irmãos que ocupam as mesmas linhas
             .animation(Tema.gaveta(reduzido: false), value: foco.wrappedValue)
             .animation(Tema.gaveta(reduzido: false), value: esconderRegua)
+            .animation(Tema.gaveta(reduzido: false), value: tecladoNaTela)
             .clipped()
         }
         .onAppear {
             unaCrua = Caderno.paginaUna(texto) != nil
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
+            tecladoNaTela = true
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
+            tecladoNaTela = false
         }
         .onChange(of: foco.wrappedValue) { _, f in
             // o vínculo cru se decide quando o teclado SOBE (a nota era una?);
@@ -154,6 +168,8 @@ struct CadernoView: View {
     }
 
     private var regua: some View {
+        // ScrollView horizontal SEM altura engole todo o espaço oferecido: era
+        // ela que abria o vão entre a régua e a barra de ações
         HStack(spacing: 0) {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 16) {
@@ -191,6 +207,7 @@ struct CadernoView: View {
         }
         .font(Tema.label)
         .foregroundStyle(Tema.tintaSuave)
+        .frame(height: 36)
     }
 
     private func editorUna(_ fatia: FatiaCaderno) -> some View {
