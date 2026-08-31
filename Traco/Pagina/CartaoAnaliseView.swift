@@ -16,12 +16,23 @@ struct CartaoAnaliseView: View {
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background {
-            RoundedRectangle(cornerRadius: Tema.raioCartao)
+            RoundedRectangle(cornerRadius: Tema.raioCartao, style: .continuous)
                 .fill(Tema.superficieAlta)
+                // material de verdade: sombra ambiente + sombra de contato
                 .shadow(color: .black.opacity(0.45), radius: 16, y: 8)
+                .shadow(color: .black.opacity(0.30), radius: 2, y: 1)
         }
         .overlay {
-            RoundedRectangle(cornerRadius: Tema.raioCartao)
+            // em OLED escuro quem constrói presença é a luz na aresta superior
+            RoundedRectangle(cornerRadius: Tema.raioCartao, style: .continuous)
+                .strokeBorder(
+                    LinearGradient(colors: [.white.opacity(0.07), .clear],
+                                   startPoint: .top, endPoint: .bottom),
+                    lineWidth: 1
+                )
+        }
+        .overlay {
+            RoundedRectangle(cornerRadius: Tema.raioCartao, style: .continuous)
                 .stroke(Tema.linha, lineWidth: 0.5)
         }
         .accessibilityElement(children: .contain)
@@ -32,12 +43,15 @@ struct CartaoAnaliseView: View {
         VStack(alignment: .leading, spacing: 10) {
             switch cartao {
             case .aviso(let frase):
-                chip("Aviso", aviso: true)
-                Text(frase)
-                    .font(Tema.corpo)
-                    .foregroundStyle(Tema.tinta)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .accessibilityAddTraits(.isStaticText)
+                HStack(alignment: .top, spacing: 10) {
+                    UnevenRoundedRectangle(topLeadingRadius: 2, bottomLeadingRadius: 2)
+                        .fill(Tema.aviso.opacity(0.5))
+                        .frame(width: 3)
+                    VStack(alignment: .leading, spacing: 8) {
+                        chip("Aviso", aviso: true)
+                        avisoTexto(frase)
+                    }
+                }
             case .forma(let gesto, let pergunta):
                 chip(gesto.nome, aviso: false)
                 Text(pergunta)
@@ -78,10 +92,18 @@ struct CartaoAnaliseView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
+    private func avisoTexto(_ frase: String) -> some View {
+        Text(frase)
+            .font(Tema.corpo)
+            .foregroundStyle(Tema.tinta)
+            .fixedSize(horizontal: false, vertical: true)
+            .accessibilityAddTraits(.isStaticText)
+    }
+
     private func chip(_ titulo: String, aviso: Bool) -> some View {
         Text(titulo.uppercased())
             .font(Tema.label)
-            .tracking(1.1)
+            .tracking(Tema.trackingLabel)
             .foregroundStyle(aviso ? Tema.aviso : Tema.tintaSuave)
     }
 }
@@ -89,6 +111,10 @@ struct CartaoAnaliseView: View {
 private struct CartaoBotaoStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
+            .animation(configuration.isPressed
+                ? .easeOut(duration: 0.08)
+                : .spring(response: 0.32, dampingFraction: 0.65),
+                value: configuration.isPressed)
             .font(Tema.barra)
             .foregroundStyle(Tema.ambar)
             .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .leading)

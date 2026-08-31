@@ -10,19 +10,22 @@ struct CamposFormaView: View {
         VStack(alignment: .leading, spacing: 16) {
             Text(gesto.nome.uppercased())
                 .font(Tema.label)
-                .tracking(1.3)
+                .tracking(Tema.trackingLabel)
                 .foregroundStyle(Tema.tintaSuave)
                 .padding(.bottom, 8)
                 .accessibilityAddTraits(.isHeader)
                 .accessibilityIdentifier("forma-\(gesto.rawValue)")
-            ForEach(gesto.campos) { campo in
+            ForEach(Array(gesto.campos.enumerated()), id: \.element.id) { indice, campo in
                 LinhaCampo(id: campo.id, rotulo: campo.rotulo, texto: valor(campo.id))
+                    // a forma chega como quem entra: campo a campo, um respiro entre eles
+                    .transition(.opacity.combined(with: .offset(y: 6)))
+                    .animation(.easeOut(duration: 0.35).delay(Double(indice) * 0.05), value: gesto)
             }
         }
         .padding(.horizontal, Tema.margem)
         .padding(.top, 8)
         .padding(.bottom, 12)
-        .background(Tema.superficie.opacity(0.55), in: RoundedRectangle(cornerRadius: Tema.raio))
+        .background(Tema.superficie, in: RoundedRectangle(cornerRadius: Tema.raio, style: .continuous))
         .padding(.horizontal, 10)
         .blur(radius: nascida || reduceMotion ? 0 : 3)
         .opacity(nascida || reduceMotion ? 1 : 0.55)
@@ -51,7 +54,7 @@ private struct LinhaCampo: View {
         VStack(alignment: .leading, spacing: 6) {
             Text(rotulo.uppercased())
                 .font(Tema.label)
-                .tracking(1.0)
+                .tracking(Tema.trackingLabel)
                 .foregroundStyle(Tema.tintaFraca)
             TextField("", text: $texto, axis: .vertical)
                 .font(Tema.corpo)

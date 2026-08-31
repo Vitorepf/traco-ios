@@ -42,7 +42,7 @@ struct EditorBlocoView: View {
             editorItens(xs, ordenada: ordenada)
         case .citacao:
             HStack(alignment: .top, spacing: 12) {
-                RoundedRectangle(cornerRadius: 1)
+                RoundedRectangle(cornerRadius: 1, style: .continuous)
                     .fill(Tema.tintaFraca)
                     .frame(width: 2)
                 editorLinhas
@@ -163,6 +163,7 @@ struct EditorBlocoView: View {
                         }
                     } label: {
                         Image(systemName: item.feito ? "checkmark.circle.fill" : "circle")
+                            .contentTransition(.symbolEffect(.replace))
                             .font(.body)
                             .foregroundStyle(item.feito ? Tema.tintaSuave : Tema.tintaFraca)
                             .frame(width: Tema.alvo, height: Tema.alvo)

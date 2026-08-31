@@ -6,7 +6,7 @@ enum Tema {
     static let superficieAlta = Color(hex: 0x1E1E22)
     static let tinta = Color(hex: 0xECECEA)
     static let tintaSuave = Color(hex: 0x9A9A96)
-    static let tintaFraca = Color(hex: 0x8E8E8A)
+    static let tintaFraca = Color(hex: 0x6B6B70)
     static let linha = Color(hex: 0x26262A)
     static let ambar = Color(hex: 0xD9A542)
     static let ambarSuave = Color(hex: 0xD9A542).opacity(0.14)
@@ -26,9 +26,12 @@ enum Tema {
     static let secaoNota: Font = .title3.weight(.semibold)
 
     static let corpo: Font = .body
-    static let chrome: Font = .body
+    static let chrome: Font = .subheadline
+    static let tituloTela: Font = .headline
+    static let meta: Font = .footnote
     static let barra: Font = .subheadline.weight(.semibold)
     static let label: Font = .caption.weight(.semibold)
+    static let trackingLabel: CGFloat = 1.2
     static let confirmacaoTitulo: Font = .title.weight(.semibold)
     static let confirmacaoCorpo: Font = .body
 
@@ -72,6 +75,10 @@ struct PressaoDiscreta: ButtonStyle {
         configuration.label
             .scaleEffect(configuration.isPressed ? Tema.pressao : 1)
             .opacity(configuration.isPressed ? 0.7 : 1)
-            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
+            // press quase instantâneo; o soltar volta com vida (spring leve)
+            .animation(configuration.isPressed
+                ? .easeOut(duration: 0.08)
+                : .spring(response: 0.32, dampingFraction: 0.65),
+                value: configuration.isPressed)
     }
 }

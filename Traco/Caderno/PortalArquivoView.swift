@@ -10,7 +10,7 @@ struct SinalTipo: View {
     var body: some View {
         Text(nome.uppercased())
             .font(Tema.label)
-            .tracking(1.2)
+            .tracking(Tema.trackingLabel)
             .foregroundStyle(Tema.tintaFraca)
     }
 }

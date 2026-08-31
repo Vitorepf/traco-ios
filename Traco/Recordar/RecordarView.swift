@@ -24,7 +24,13 @@ struct RecordarView: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Button("‹ voltar") { dismiss() }
+                Button { dismiss() } label: {
+                    HStack(spacing: 5) {
+                        Image(systemName: "chevron.backward")
+                            .font(.subheadline.weight(.semibold))
+                        Text("voltar")
+                    }
+                }
                     .foregroundStyle(Tema.tintaSuave)
                     .frame(minHeight: Tema.alvo)
                     .buttonStyle(PressaoDiscreta())
@@ -32,7 +38,7 @@ struct RecordarView: View {
                 Spacer()
                 Text("RECORDAR")
                     .font(Tema.label)
-                    .tracking(1.4)
+                    .tracking(Tema.trackingLabel)
                     .foregroundStyle(Tema.tintaSuave)
                 Spacer()
                 Color.clear.frame(width: 64, height: Tema.alvo)
@@ -79,8 +85,8 @@ struct RecordarView: View {
                     .padding(.horizontal, 14)
                     .accessibilityLabel("Memória")
                 Button("Revelar") {
-                    Toque.leve()
-                    fase = .revelar
+                    Toque.suave()
+                    withAnimation(.easeOut(duration: 0.35)) { fase = .revelar }
                 }
                 .disabled(memoriaVazia)
                 .buttonStyle(PrimarioStyle(recede: memoriaVazia))
@@ -95,8 +101,12 @@ struct RecordarView: View {
                         : [GridItem(.flexible())]
                     ScrollView {
                         LazyVGrid(columns: colunas, alignment: .leading, spacing: 22) {
+                            // a folha vira: memória primeiro, a nota chega um respiro depois
                             bloco("DE MEMÓRIA", memoria)
+                                .transition(.opacity.combined(with: .offset(y: 10)))
                             bloco("A NOTA", notaInteira)
+                                .transition(.opacity.combined(with: .offset(y: 10)))
+                                .animation(.easeOut(duration: 0.35).delay(0.08), value: fase)
                         }
                         .padding(Tema.margem)
                     }
@@ -114,7 +124,7 @@ struct RecordarView: View {
             try? await Task.sleep(for: esperaLeitura)
             withAnimation(.easeOut(duration: reduceMotion ? 0.18 : 0.4)) { fase = .esconder }
             try? await Task.sleep(for: esperaBlur)
-            fase = .escrever
+            withAnimation(.easeOut(duration: 0.3)) { fase = .escrever }
             foco = true
         }
     }
@@ -123,7 +133,7 @@ struct RecordarView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text(titulo)
                 .font(Tema.label)
-                .tracking(1.2)
+                .tracking(Tema.trackingLabel)
                 .foregroundStyle(Tema.tintaSuave)
             Text(corpo)
                 .font(Tema.corpo)
@@ -139,6 +149,10 @@ private struct PrimarioStyle: ButtonStyle {
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
+            .animation(configuration.isPressed
+                ? .easeOut(duration: 0.08)
+                : .spring(response: 0.32, dampingFraction: 0.65),
+                value: configuration.isPressed)
             .font(Tema.barra)
             .foregroundStyle(recede ? Tema.tintaFraca : Tema.ambar)
             .frame(maxWidth: .infinity, minHeight: Tema.alvo)

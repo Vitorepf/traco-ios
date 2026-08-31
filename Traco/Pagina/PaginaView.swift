@@ -29,7 +29,10 @@ struct PaginaView: View {
                     .transition(reduceMotion ? .opacity : .opacity.combined(with: .scale(scale: 1.03)))
             }
         }
-        .animation(Tema.gaveta(reduzido: reduceMotion), value: sessao.confirmacao != nil)
+        .animation(sessao.confirmacao != nil
+            ? .easeOut(duration: Tema.confirmacaoEntra)
+            : .easeIn(duration: 0.15),
+            value: sessao.confirmacao != nil)
         .onAppear {
             sessao.trancarExpressivasVencidas(no: context)
             sessao.varrerAnexosOrfaos(no: context)
@@ -94,6 +97,17 @@ struct PaginaView: View {
 
             VStack(spacing: 0) {
                 topbar
+                if sessao.paginaVazia && sessao.gesto == nil && !sessao.timerLigado {
+                    // a única companhia do cursor: o dia (some no primeiro caractere)
+                    Text(Date.now, format: .dateTime.weekday(.wide).day().month(.wide))
+                        .font(Tema.meta)
+                        .foregroundStyle(Tema.tintaFraca)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, Tema.margem)
+                        .padding(.bottom, 2)
+                        .transition(.opacity)
+                        .accessibilityHidden(true)
+                }
                 if let pergunta = sessao.perguntaPadroes {
                     cartaoPergunta(pergunta)
                 }
@@ -104,14 +118,18 @@ struct PaginaView: View {
                 if let gesto = sessao.gesto, gesto != .expressiva {
                     ScrollView {
                         CamposFormaView(gesto: gesto, campos: $sessao.campos)
+                            // com o cartão vivo, a forma respira acima dele —
+                            // a assinatura do produto nunca acontece fora de cena
+                            .padding(.bottom, sessao.cartao != nil ? 132 : 0)
                     }
                     .scrollDismissesKeyboard(.interactively)
                     .frame(maxHeight: 260)
                 }
             }
             .safeAreaInset(edge: .bottom, spacing: 0) {
-                if sessao.cartao == nil {
+                if sessao.cartao == nil && !sessao.paginaVazia {
                     bottomBar
+                        .transition(.opacity)
                 }
             }
 
@@ -119,6 +137,11 @@ struct PaginaView: View {
                 Text(toast)
                     .font(Tema.corpo)
                     .foregroundStyle(Tema.tintaSuave)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 10)
+                    .background(Tema.superficieAlta, in: Capsule())
+                    .overlay(Capsule().strokeBorder(Tema.linha, lineWidth: 0.5))
+                    .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
                     .padding(.bottom, 88)
                     .accessibilityIdentifier("toast-analise")
                     .accessibilityAddTraits(.isStaticText)
@@ -127,7 +150,7 @@ struct PaginaView: View {
 
             if let cartao = sessao.cartao {
                 CartaoAnaliseView(cartao: cartao, sessao: sessao)
-                    .padding(.horizontal, 10)
+                    .padding(.horizontal, 12)
                     .padding(.bottom, 12)
                     .transition(reduceMotion
                         ? .opacity
@@ -138,6 +161,7 @@ struct PaginaView: View {
             }
         }
         .animation(Tema.cartao(reduzido: reduceMotion, aEntrar: sessao.cartao != nil), value: sessao.cartao != nil)
+        .animation(.easeOut(duration: 0.2), value: sessao.paginaVazia)
         .animation(.easeOut(duration: 0.2), value: sessao.toast)
     }
 
@@ -167,6 +191,7 @@ struct PaginaView: View {
         .padding(.horizontal, Tema.margem)
         .padding(.top, 4)
         .padding(.bottom, 8)
+        .animation(.easeOut(duration: 0.2), value: sessao.paginaVazia)
     }
 
     private var editor: some View {
@@ -216,28 +241,39 @@ struct PaginaView: View {
     }
 
     private var timerBar: some View {
-        VStack(spacing: 8) {
-            Text(timerTexto)
-                .font(Tema.label.monospacedDigit())
-                .foregroundStyle(Tema.tintaSuave)
-                .frame(minHeight: 28)
+        VStack(spacing: 6) {
+            // o tempo é o instrumento do método: corpo de verdade, legenda separada
+            Text(tempoFormatado)
+                .font(.title3.weight(.semibold).monospacedDigit())
+                .foregroundStyle(Tema.tinta)
+                .contentTransition(.numericText(countsDown: true))
+                .animation(.linear(duration: 0.3), value: sessao.segundosRestantes)
                 .accessibilityLabel("Tempo da escrita expressiva")
-                .accessibilityValue(timerTexto)
+                .accessibilityValue(tempoFormatado)
                 .accessibilityIdentifier("timer-expressiva")
+            Text("fato e sentimento — ao fim, tranca")
+                .font(.caption)
+                .foregroundStyle(Tema.tintaSuave)
             GeometryReader { geo in
                 Capsule()
                     .fill(Tema.linha)
                     .overlay(alignment: .leading) {
                         Capsule()
-                            .fill(Tema.ambarSuave)
+                            .fill(sessao.segundosRestantes <= 60 ? Tema.aviso : Tema.ambar)
                             .frame(width: geo.size.width * progresso)
+                            .animation(.linear(duration: 1), value: progresso)
                     }
             }
-            .frame(height: 2)
+            .frame(height: 3)
             .padding(.horizontal, Tema.margem)
+            .padding(.top, 2)
             .accessibilityHidden(true)
         }
         .padding(.bottom, 8)
+    }
+
+    private var tempoFormatado: String {
+        String(format: "%02d:%02d", sessao.segundosRestantes / 60, sessao.segundosRestantes % 60)
     }
 
     /// Um âmbar por vista: com forma aberta, Concluída; senão o analise/cartão leva o acento.
@@ -259,7 +295,7 @@ struct PaginaView: View {
         VStack(alignment: .leading, spacing: 6) {
             Text("PERGUNTA DOS PADRÕES")
                 .font(Tema.label)
-                .tracking(1.2)
+                .tracking(Tema.trackingLabel)
                 .foregroundStyle(Tema.tintaFraca)
             Text(pergunta)
                 .font(Tema.corpo)
@@ -274,9 +310,9 @@ struct PaginaView: View {
             .buttonStyle(PressaoDiscreta())
             .accessibilityLabel("Soltar a pergunta")
         }
-        .padding(13)
+        .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Tema.superficie, in: RoundedRectangle(cornerRadius: Tema.raio))
+        .background(Tema.superficie, in: RoundedRectangle(cornerRadius: Tema.raio, style: .continuous))
         .padding(.horizontal, 10)
         .padding(.bottom, 8)
         .accessibilityIdentifier("cartao-padroes")
@@ -292,6 +328,10 @@ struct PaginaView: View {
 private struct BarraBotaoStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
+            .animation(configuration.isPressed
+                ? .easeOut(duration: 0.08)
+                : .spring(response: 0.32, dampingFraction: 0.65),
+                value: configuration.isPressed)
             .frame(maxWidth: .infinity, minHeight: Tema.alvo)
             .scaleEffect(configuration.isPressed ? Tema.pressao : 1)
             .opacity(configuration.isPressed ? 0.7 : 1)

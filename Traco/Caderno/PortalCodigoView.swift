@@ -56,16 +56,12 @@ struct PortalCodigoView: View {
 
     private var cabeca: some View {
         HStack(spacing: 8) {
-            Text("</>")
-                .font(Tema.label.monospaced())
-                .foregroundStyle(Tema.synChave)
-                .accessibilityHidden(true)
             Button {
                 aoLingua?()
             } label: {
                 Text(nomeLingua.uppercased())
                     .font(Tema.label)
-                    .tracking(1.1)
+                    .tracking(Tema.trackingLabel)
                     .foregroundStyle(Tema.tinta)
             }
             .buttonStyle(.plain)
@@ -74,7 +70,7 @@ struct PortalCodigoView: View {
             Spacer(minLength: 8)
             Text(nomePapel)
                 .font(Tema.label)
-                .tracking(1.2)
+                .tracking(Tema.trackingLabel)
                 .foregroundStyle(Tema.tintaFraca)
         }
         .padding(.horizontal, 16)
@@ -112,7 +108,7 @@ struct PortalCodigoView: View {
         VStack(alignment: .trailing, spacing: 0) {
             ForEach(Array(linhas.enumerated()), id: \.offset) { i, _ in
                 Text("\(i + 1)")
-                    .font(Tema.mono)
+                    .font(.caption.monospaced())
                     .monospacedDigit()
                     .foregroundStyle(Tema.tintaFraca)
                     .frame(minWidth: 28, minHeight: 22, alignment: .trailing)

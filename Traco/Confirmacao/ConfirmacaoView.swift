@@ -10,8 +10,13 @@ struct ConfirmacaoView: View {
 
     var body: some View {
         ZStack {
+            // material de verdade, não tinta chapada: o fundo recua com profundidade
+            Rectangle()
+                .fill(.ultraThinMaterial)
+                .environment(\.colorScheme, .dark)
+                .ignoresSafeArea()
             Tema.fundo
-                .opacity(0.92)
+                .opacity(0.55)
                 .ignoresSafeArea()
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
@@ -50,12 +55,12 @@ struct ConfirmacaoView: View {
                         titulo("Apagar esta nota?")
                         texto("O traço some do aparelho — e a revisão marcada some com ele.")
                         botao("Manter", id: "confirmacao-manter") { sessao.confirmacao = nil }
-                        botaoMudo("Apagar", id: "confirmacao-apagar") { sessao.apagar(uuid: uuid, no: context) }
+                        botaoDestrutivo("Apagar", id: "confirmacao-apagar") { sessao.apagar(uuid: uuid, no: context) }
                     case .apagarTrancada(let uuid):
                         titulo("Apagar a trancada?")
                         texto("Ela foi escrita para ficar fechada. Apagar apaga para sempre — sem reler.")
                         botao("Manter", id: "confirmacao-manter") { sessao.confirmacao = nil }
-                        botaoMudo("Apagar para sempre", id: "confirmacao-apagar-trancada") { sessao.apagar(uuid: uuid, no: context) }
+                        botaoDestrutivo("Apagar para sempre", id: "confirmacao-apagar-trancada") { sessao.apagar(uuid: uuid, no: context) }
                     }
                 }
                 .padding(28)
@@ -134,6 +139,15 @@ struct ConfirmacaoView: View {
         Button(t, action: acao)
             .font(Tema.chrome)
             .foregroundStyle(Tema.tintaSuave)
+            .frame(minHeight: Tema.alvo)
+            .buttonStyle(PressaoDiscreta())
+            .accessibilityIdentifier(id)
+    }
+
+    private func botaoDestrutivo(_ t: String, id: String, acao: @escaping () -> Void) -> some View {
+        Button(t, action: acao)
+            .font(Tema.chrome)
+            .foregroundStyle(Tema.aviso)
             .frame(minHeight: Tema.alvo)
             .buttonStyle(PressaoDiscreta())
             .accessibilityIdentifier(id)

@@ -65,9 +65,15 @@ struct NotasView: View {
 
     private var topbar: some View {
         HStack {
-            Button("‹ página") {
+            Button {
                 sessao.mostrarPadroes = false
                 sessao.mostrarNotas = false
+            } label: {
+                HStack(spacing: 5) {
+                    Image(systemName: "chevron.backward")
+                        .font(.subheadline.weight(.semibold))
+                    Text("página")
+                }
             }
             .foregroundStyle(Tema.tintaSuave)
             .frame(minHeight: Tema.alvo)
@@ -94,7 +100,7 @@ struct NotasView: View {
             } label: {
                 Image(systemName: "plus")
                     .font(.body.weight(.medium))
-                    .foregroundStyle(busca.isEmpty ? Tema.ambar : Tema.tintaSuave)
+                    .foregroundStyle(Tema.ambar)
                     .frame(width: Tema.alvo, height: Tema.alvo)
                     .contentShape(Rectangle())
             }
@@ -102,7 +108,7 @@ struct NotasView: View {
         }
         .font(Tema.chrome)
         .buttonStyle(PressaoDiscreta())
-        .padding(.horizontal, 18)
+        .padding(.horizontal, Tema.margem)
         .frame(minHeight: Tema.alvo)
     }
 
@@ -136,13 +142,14 @@ struct NotasView: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(PressaoDiscreta())
+                .transition(.opacity.combined(with: .scale(scale: 0.8)))
                 .accessibilityIdentifier("limpar-busca")
                 .accessibilityLabel("Limpar busca")
             }
         }
         .padding(.horizontal, 12)
         .frame(minHeight: Tema.alvo)
-        .background(Tema.superficie, in: RoundedRectangle(cornerRadius: 10))
+        .background(Tema.superficie, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
         .padding(.horizontal, Tema.margem)
         .padding(.bottom, 8)
         .opacity(filtro == .trancadas ? 0.4 : 1)
@@ -153,17 +160,25 @@ struct NotasView: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
                 ForEach(FiltroNotas.allCases) { item in
-                    Button(item.rawValue) {
-                        filtro = filtro == item ? nil : item
+                    Button {
+                        Toque.selecao()
+                        withAnimation(.easeOut(duration: 0.25)) {
+                            filtro = filtro == item ? nil : item
+                        }
+                    } label: {
+                        Text(item.rawValue)
+                            .font(Tema.label)
+                            .foregroundStyle(filtro == item ? Tema.ambar : Tema.tintaSuave)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .frame(minHeight: 32)
+                            .background(
+                                Capsule().fill(filtro == item ? Tema.ambarSuave : Tema.superficie)
+                            )
                     }
-                    .font(Tema.label)
-                    .foregroundStyle(filtro == item ? Tema.tinta : Tema.tintaSuave)
-                    .padding(.horizontal, 14)
+                    // alvo de toque 44 sem inflar o visual
                     .frame(minHeight: Tema.alvo)
-                    .background(
-                        Capsule()
-                            .stroke(filtro == item ? Tema.tintaSuave : Tema.linha, lineWidth: 1)
-                    )
+                    .contentShape(Rectangle())
                     .buttonStyle(PressaoDiscreta())
                     .accessibilityAddTraits(filtro == item ? [.isSelected] : [])
                     .accessibilityIdentifier("filtro-\(item.slug)")
@@ -172,6 +187,13 @@ struct NotasView: View {
             }
             .padding(.horizontal, Tema.margem)
         }
+        .mask(
+            HStack(spacing: 0) {
+                Rectangle()
+                LinearGradient(colors: [.black, .clear], startPoint: .leading, endPoint: .trailing)
+                    .frame(width: 16)
+            }
+        )
         .padding(.bottom, 8)
         .accessibilityHint("Um filtro por vez")
     }
@@ -180,7 +202,11 @@ struct NotasView: View {
         let visiveis = filtradas
         return Group {
             if visiveis.isEmpty {
-                VStack(alignment: .leading, spacing: 12) {
+                VStack(spacing: 12) {
+                    Image(systemName: "square.and.pencil")
+                        .font(.system(size: 28, weight: .light))
+                        .foregroundStyle(Tema.tintaFraca)
+                        .accessibilityHidden(true)
                     Text(vazioTitulo)
                         .font(Tema.corpo)
                         .foregroundStyle(Tema.tintaSuave)
@@ -188,8 +214,8 @@ struct NotasView: View {
                         sessao.novaPagina()
                         sessao.mostrarNotas = false
                     }
-                    .font(Tema.chrome)
-                    .foregroundStyle(Tema.tinta)
+                    .font(Tema.chrome.weight(.semibold))
+                    .foregroundStyle(Tema.ambar)
                     .frame(minHeight: Tema.alvo)
                     .buttonStyle(PressaoDiscreta())
                     if busca.isEmpty, filtro == nil {
@@ -206,9 +232,9 @@ struct NotasView: View {
                         .accessibilityHint("Chave da API da xAI no Keychain. Sem chave, o app é 100% local.")
                     }
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(maxWidth: .infinity)
                 .padding(Tema.margem)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
             } else {
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 0) {

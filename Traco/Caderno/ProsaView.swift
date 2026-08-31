@@ -66,7 +66,7 @@ struct ProsaView: View {
             .accessibilityIdentifier("portal-tarefa")
         case .citacao(let xs):
             HStack(alignment: .top, spacing: 12) {
-                RoundedRectangle(cornerRadius: 1)
+                RoundedRectangle(cornerRadius: 1, style: .continuous)
                     .fill(Tema.tintaFraca)
                     .frame(width: 2)
                 Text(atributos(xs.joined(separator: "\n")))
@@ -321,7 +321,7 @@ struct RecipienteView: View {
 
     private var trilho: some View {
         HStack(alignment: .top, spacing: 12) {
-            RoundedRectangle(cornerRadius: 1)
+            RoundedRectangle(cornerRadius: 1, style: .continuous)
                 .fill(Tema.tintaFraca.opacity(0.55))
                 .frame(width: 2)
             VStack(alignment: .leading, spacing: 8) {

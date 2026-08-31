@@ -82,6 +82,7 @@ final class Sessao {
                 // com Soltar de um toque. As palavras do autor ficam intactas.
                 usarForma(g)
                 cartao = .vestida(g, pergunta: pergunta)
+                Toque.suave() // o app percebeu você — vibra macio, não estala
                 // VoiceOver: a página mudou sozinha — quem não vê precisa saber
                 AccessibilityNotification.Announcement("Forma \(g.nome) aberta. Soltar a forma disponível.").post()
             } else {

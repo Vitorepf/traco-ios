@@ -18,4 +18,18 @@ enum Toque {
     static func fechou() {
         UINotificationFeedbackGenerator().notificationOccurred(.success)
     }
+
+    /// O piano completo (motion 6): seleção para chips/régua, suave para a
+    /// análise "perceber" o autor, firme para fechos físicos.
+    static func selecao() {
+        UISelectionFeedbackGenerator().selectionChanged()
+    }
+
+    static func suave() {
+        UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+    }
+
+    static func firme() {
+        UIImpactFeedbackGenerator(style: .rigid).impactOccurred()
+    }
 }

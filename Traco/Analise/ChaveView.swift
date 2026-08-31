@@ -31,7 +31,7 @@ struct ChaveView: View {
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
                 .padding(12)
-                .background(Tema.superficie, in: RoundedRectangle(cornerRadius: 10))
+                .background(Tema.superficie, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
                 .accessibilityLabel("Chave da API da xAI")
 
                 Button(temChave && valor.isEmpty ? "Chave guardada" : "Guardar no Keychain") {

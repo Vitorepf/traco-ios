@@ -127,9 +127,13 @@ struct CadernoView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 16) {
                     ForEach(PapelForma.regua) { papel in
-                        Button(papel.nome) { transformar(papel) }
-                            .frame(minHeight: Tema.alvo)
-                            .accessibilityIdentifier("regua-\(papel.slug)")
+                        Button(papel.nome) {
+                            Toque.selecao()
+                            withAnimation(.easeOut(duration: 0.18)) { transformar(papel) }
+                        }
+                        .buttonStyle(PressaoDiscreta())
+                        .frame(minHeight: Tema.alvo)
+                        .accessibilityIdentifier("regua-\(papel.slug)")
                     }
                 }
             }
@@ -145,7 +149,6 @@ struct CadernoView: View {
         }
         .font(Tema.label)
         .foregroundStyle(Tema.tintaSuave)
-        .buttonStyle(.plain)
     }
 
     private func editorUna(_ fatia: FatiaCaderno) -> some View {
@@ -177,7 +180,7 @@ struct CadernoView: View {
                         .font(Tema.corpo.monospacedDigit())
                         .foregroundStyle(Tema.tintaFraca)
                         .opacity(eLista && ordenada ? 1 : 0)
-                    RoundedRectangle(cornerRadius: 1)
+                    RoundedRectangle(cornerRadius: 1, style: .continuous)
                         .fill(Tema.tintaFraca)
                         .frame(width: 2, height: 28)
                         .opacity(eCitacao ? 1 : 0)
@@ -189,6 +192,7 @@ struct CadernoView: View {
                         aoMudar()
                     } label: {
                         Image(systemName: feito ? "checkmark.circle.fill" : "circle")
+                            .contentTransition(.symbolEffect(.replace))
                             .font(.body)
                             .foregroundStyle(feito ? Tema.tintaSuave : Tema.tintaFraca)
                             .frame(width: Tema.alvo, height: Tema.alvo)

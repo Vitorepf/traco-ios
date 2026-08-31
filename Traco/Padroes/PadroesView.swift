@@ -21,7 +21,13 @@ struct PadroesView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
-                Button("‹ notas") { sessao.mostrarPadroes = false }
+                Button { sessao.mostrarPadroes = false } label: {
+                    HStack(spacing: 5) {
+                        Image(systemName: "chevron.backward")
+                            .font(.subheadline.weight(.semibold))
+                        Text("notas")
+                    }
+                }
                     .foregroundStyle(Tema.tintaSuave)
                     .frame(minHeight: Tema.alvo)
                     .buttonStyle(PressaoDiscreta())
@@ -29,7 +35,7 @@ struct PadroesView: View {
                 Spacer()
                 Text("PADRÕES")
                     .font(Tema.label)
-                    .tracking(1.4)
+                    .tracking(Tema.trackingLabel)
                     .foregroundStyle(Tema.tintaSuave)
                 Spacer()
                 Color.clear.frame(width: 64, height: Tema.alvo)
@@ -55,14 +61,24 @@ struct PadroesView: View {
                                 sessao.mostrarPadroes = false
                                 sessao.mostrarNotas = false
                             } label: {
-                                Text(pergunta)
-                                    .font(Tema.corpo)
-                                    .foregroundStyle(Tema.tinta)
-                                    .multilineTextAlignment(.leading)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .padding(16)
-                                    .background(Tema.superficie, in: RoundedRectangle(cornerRadius: Tema.raio))
-                                    .frame(minHeight: Tema.alvo)
+                                HStack(alignment: .center, spacing: 12) {
+                                    Text(pergunta)
+                                        .font(Tema.corpo)
+                                        .foregroundStyle(Tema.tinta)
+                                        .multilineTextAlignment(.leading)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                    Image(systemName: "arrow.forward")
+                                        .font(.footnote.weight(.semibold))
+                                        .foregroundStyle(Tema.ambar)
+                                        .accessibilityHidden(true)
+                                }
+                                .padding(16)
+                                .background(Tema.superficie, in: RoundedRectangle(cornerRadius: Tema.raio, style: .continuous))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: Tema.raio, style: .continuous)
+                                        .strokeBorder(Tema.linha, lineWidth: 0.5)
+                                )
+                                .frame(minHeight: Tema.alvo)
                             }
                             .buttonStyle(PressaoDiscreta())
                             .opacity(reduceMotion || visiveis > indice ? 1 : 0)

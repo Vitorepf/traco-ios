@@ -17,7 +17,10 @@ struct Empilha<Fundo: View, Frente: View>: View {
                 fundo()
                     .frame(width: geo.size.width, height: geo.size.height)
                     .offset(x: deslocamentoFundo(largura))
-                    .opacity(aberto && !reduceMotion ? 0.85 : 1)
+                    // o fundo clareia COM o dedo — as duas propriedades são um corpo só
+                    .opacity(aberto && !reduceMotion
+                        ? 0.85 + 0.15 * min(1, max(0, arrasto / max(largura, 1)))
+                        : 1)
                     .allowsHitTesting(!aberto)
                     .accessibilityHidden(aberto)
 
@@ -48,10 +51,24 @@ struct Empilha<Fundo: View, Frente: View>: View {
             .onEnded { valor in
                 let deveFechar = valor.translation.width > largura * 0.28
                     || valor.predictedEndTranslation.width > largura * 0.45
-                withAnimation(Tema.gaveta(reduzido: reduceMotion)) {
+                if reduceMotion {
+                    withAnimation(.easeOut(duration: 0.18)) {
+                        if deveFechar { aberto = false }
+                        arrasto = 0
+                    }
+                    if deveFechar { Toque.suave() }
+                    return
+                }
+                // O dedo soltou com velocidade: a animação a HERDA — sem freio no meio.
+                let restante = deveFechar
+                    ? max(largura - valor.translation.width, 1)
+                    : max(valor.translation.width, 1)
+                let vel = abs(valor.velocity.width) / restante
+                withAnimation(.interpolatingSpring(stiffness: 320, damping: 32, initialVelocity: vel)) {
                     if deveFechar { aberto = false }
                     arrasto = 0
                 }
+                if deveFechar { Toque.suave() }
             }
     }
 }
