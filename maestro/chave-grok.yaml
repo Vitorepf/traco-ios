@@ -1,0 +1,15 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: Notas
+    timeout: 8000
+- tapOn:
+    id: "abrir-notas"
+- tapOn:
+    id: "configurar-chave"
+- extendedWaitUntil:
+    visible: "Análise com Grok"
+    timeout: 5000
+- takeScreenshot: /tmp/traco-verify/hoje/08-chave-grok

@@ -458,3 +458,32 @@ struct ApagarTests {
         #expect(try context.fetch(FetchDescriptor<Nota>()).isEmpty)
     }
 }
+
+@MainActor
+struct AnaliseRemotaTests {
+    @Test func parseVereditoEstrito() {
+        #expect(AnaliseRemota.parseVeredito(#"{"gesto":"woop","aviso":null,"pergunta":"Qual o obstáculo?"}"#)
+                == .gesto(.woop, pergunta: "Qual o obstáculo?"))
+        #expect(AnaliseRemota.parseVeredito(#"{"gesto":null,"aviso":"Um gesto por sessão. O segundo método vai para outra página.","pergunta":null}"#)
+                == .aviso("Um gesto por sessão. O segundo método vai para outra página."))
+        #expect(AnaliseRemota.parseVeredito(#"{"gesto":"expressiva","aviso":null,"pergunta":null}"#) == .expressiva)
+        #expect(AnaliseRemota.parseVeredito(#"{"gesto":null,"aviso":null,"pergunta":null}"#) == .silencio)
+        #expect(AnaliseRemota.parseVeredito("claro! aqui está: nada de json") == nil) // fora do formato → silêncio/local
+        #expect(AnaliseRemota.parseVeredito(#"{"gesto":"golpe","aviso":null,"pergunta":null}"#) == .silencio)
+    }
+
+    @Test func chaveVaiEVoltaDoKeychain() {
+        Chave.apagar()
+        #expect(!Chave.existe)
+        Chave.salvar("xai-teste-123")
+        #expect(Chave.ler() == "xai-teste-123")
+        Chave.apagar()
+        #expect(Chave.ler() == nil)
+    }
+
+    @Test func semChaveRemotaCalaSemRede() async {
+        Chave.apagar()
+        let v = await AnaliseRemota.classificar(texto: "quero correr", gestoAtual: nil)
+        #expect(v == nil) // sem chave: zero rede, cai no local
+    }
+}

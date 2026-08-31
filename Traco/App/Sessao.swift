@@ -33,6 +33,8 @@ final class Sessao {
         max(0, (15 * 60 - segundosRestantes) / 60)
     }
 
+    private var analiseTask: Task<Void, Never>?
+
     func analisar(automatica: Bool = false) {
         if timerLigado {
             if !automatica { mostrarToast("a análise cala durante a escrita.") }
@@ -43,7 +45,26 @@ final class Sessao {
         transacao.disablesAnimations = true
         withTransaction(transacao) { cartao = nil }
 
-        switch AnaliseLocal.classificar(texto: texto, gestoAtual: gesto, campos: campos) {
+        let textoAtual = texto
+        let gestoAtual = gesto
+        let camposAtuais = campos
+        analiseTask?.cancel()
+        analiseTask = Task { [weak self] in
+            // ADR 2026-08-31e: Grok é o padrão — mas só a VOZ do autor viaja
+            // (Caderno.prosa tira mobiliário/anexos), nunca com forma aberta
+            // (a lógica pós-forma é local) e nunca expressiva (selo).
+            var remoto: AnaliseLocal.Veredito?
+            if gestoAtual == nil {
+                remoto = await AnaliseRemota.classificar(texto: Caderno.prosa(de: textoAtual), gestoAtual: gestoAtual)
+            }
+            guard let self, !Task.isCancelled else { return }
+            let veredito = remoto ?? AnaliseLocal.classificar(texto: textoAtual, gestoAtual: gestoAtual, campos: camposAtuais)
+            self.aplicar(veredito, automatica: automatica)
+        }
+    }
+
+    private func aplicar(_ veredito: AnaliseLocal.Veredito, automatica: Bool) {
+        switch veredito {
         case .silencio:
             // §17: no modo automático o silêncio é invisível — toast a cada pausa seria ruído
             if !automatica {

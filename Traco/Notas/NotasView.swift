@@ -10,6 +10,7 @@ struct NotasView: View {
     @State private var busca = ""
     @State private var filtro: FiltroNotas?
     @State private var corpusURL: URL?
+    @State private var mostrarChave = false
 
     var body: some View {
         Empilha(aberto: $sessao.mostrarPadroes, reduceMotion: reduceMotion) {
@@ -29,6 +30,7 @@ struct NotasView: View {
                 lista
             }
         }
+        .sheet(isPresented: $mostrarChave) { ChaveView() }
         .sheet(isPresented: Binding(get: { corpusURL != nil }, set: { if !$0 { corpusURL = nil } })) {
             if let corpusURL {
                 CompartilharArquivo(url: corpusURL)
@@ -166,6 +168,19 @@ struct NotasView: View {
                     .foregroundStyle(Tema.tinta)
                     .frame(minHeight: Tema.alvo)
                     .buttonStyle(PressaoDiscreta())
+                    if busca.isEmpty, filtro == nil {
+                        Button {
+                            mostrarChave = true
+                        } label: {
+                            Text(Chave.existe ? "análise com Grok: chave guardada" : "análise com Grok: configurar chave")
+                                .font(.subheadline)
+                                .foregroundStyle(Tema.tintaFraca)
+                                .frame(minHeight: Tema.alvo)
+                        }
+                        .buttonStyle(PressaoDiscreta())
+                        .accessibilityIdentifier("configurar-chave")
+                        .accessibilityHint("Chave da API da xAI no Keychain. Sem chave, o app é 100% local.")
+                    }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(Tema.margem)
@@ -192,6 +207,19 @@ struct NotasView: View {
                             .padding(.top, 12)
                             .accessibilityIdentifier("exportar-corpus")
                             .accessibilityHint("Gera um arquivo Markdown com as notas abertas. Trancadas nunca saem.")
+                        }
+                        if busca.isEmpty, filtro == nil {
+                            Button {
+                                mostrarChave = true
+                            } label: {
+                                Text(Chave.existe ? "análise com Grok: chave guardada" : "análise com Grok: configurar chave")
+                                    .font(.subheadline)
+                                    .foregroundStyle(Tema.tintaFraca)
+                                    .frame(maxWidth: .infinity, minHeight: Tema.alvo)
+                            }
+                            .buttonStyle(PressaoDiscreta())
+                            .accessibilityIdentifier("configurar-chave")
+                            .accessibilityHint("Chave da API da xAI no Keychain. Sem chave, o app é 100% local.")
                         }
                     }
                     .padding(.horizontal, Tema.margem)
