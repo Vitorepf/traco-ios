@@ -5,6 +5,10 @@ appId: app.traco
 - tapOn:
     id: pagina
 - inputText: "leite"
+- extendedWaitUntil:
+    visible:
+      id: regua-numerada
+    timeout: 5000
 - tapOn:
     id: regua-numerada
 - takeScreenshot: /tmp/traco-verify/numerada-regua
