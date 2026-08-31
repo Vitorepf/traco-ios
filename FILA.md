@@ -147,3 +147,11 @@ ABERTOS NOVOS (pedido do dono, 31/ago — prioridade alta):
 - Vestir automático × dedo a caminho da régua: a forma vestindo no meio de um
   alcance do dedo desloca alvos (visto em E2E). Observar; talvez segurar o
   vestir enquanto há toque em voo.
+
+## Varredura de flows (31/ago, tarde) — bloco 1
+- 7 flows órfãos deletados (cena/chamada/duplo/epigrafe/formula/passos/pausa):
+  testavam chips que a poda da régua (ADR 31b) removeu da UI.
+- BURACO REVELADO (soma ao P1 do motor de formas): o §12 prevê "menu de
+  templates" para o catálogo completo (136 formas) e essa porta AINDA NÃO
+  EXISTE na UI — hoje só as 12 da régua têm entrada. O formato de arquivo
+  aceita todas (import), mas o autor não tem como criá-las.
