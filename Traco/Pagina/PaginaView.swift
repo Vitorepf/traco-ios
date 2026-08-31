@@ -262,7 +262,7 @@ struct PaginaView: View {
     }
 
     private var bottomBar: some View {
-        HStack(spacing: 0) {
+        HStack(spacing: 8) {
             Button("Analisar") { sessao.analisar() }
                 .foregroundStyle(sessao.paginaVazia || sessao.gesto != nil || sessao.cartao != nil ? Tema.tintaFraca : Tema.ambar)
                 .disabled(sessao.paginaVazia)
@@ -286,6 +286,8 @@ struct PaginaView: View {
         }
         .font(Tema.barra)
         .buttonStyle(BarraBotaoStyle())
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
         .background(Tema.fundo)
         .overlay(alignment: .top) {
             Rectangle().fill(Tema.luzBorda).frame(height: 0.5)
@@ -395,12 +397,25 @@ struct PaginaView: View {
     }
 }
 
+/// As ações da página eram palavras soltas numa faixa: sem contêiner, sem
+/// borda, sem fundo — nada dizia que eram tocáveis (critique-affordance).
 private struct BarraBotaoStyle: ButtonStyle {
+    @Environment(\.isEnabled) private var ativo
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .animation(Tema.pressaoAnim(configuration.isPressed), value: configuration.isPressed)
-            .frame(maxWidth: .infinity, minHeight: Tema.alvo)
+            .frame(maxWidth: .infinity, minHeight: 38)
+            .background(
+                Tema.superficieAlta.opacity(configuration.isPressed ? 1 : 0.85),
+                in: RoundedRectangle(cornerRadius: 10, style: .continuous)
+            )
+            .overlay {
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .strokeBorder(Tema.luzBorda, lineWidth: 0.5)
+            }
+            // desabilitado é OPACIDADE da cor ativa, nunca uma cor diferente
+            .opacity(ativo ? 1 : 0.38)
             .scaleEffect(configuration.isPressed ? Tema.pressao : 1)
-            .opacity(configuration.isPressed ? 0.7 : 1)
+            .animation(Tema.pressaoAnim(configuration.isPressed), value: configuration.isPressed)
     }
 }

@@ -1,0 +1,55 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn: Página
+- inputText: "a arquitetura do app precisa de uma tabela de rotas"
+- swipe:
+    direction: DOWN
+- extendedWaitUntil:
+    visible:
+      id: "cartao-analise"
+    timeout: 8000
+- tapOn:
+    id: "abrir-campos"
+- extendedWaitUntil:
+    visible:
+      id: "campo-problema"
+    timeout: 5000
+- swipe:
+    direction: DOWN
+- tapOn:
+    id: "concluir"
+- tapOn: Página
+- inputText: "eu sou um vencedor"
+- extendedWaitUntil:
+    visible:
+      id: "cartao-analise"
+    timeout: 8000
+- tapOn:
+    id: "concluir"
+- swipe:
+    start: 1%, 50%
+    end: 85%, 50%
+- extendedWaitUntil:
+    visible:
+      id: aba-padroes
+    timeout: 6000
+- tapOn:
+    id: aba-padroes
+- extendedWaitUntil:
+    visible: "Padrões"
+    timeout: 6000
+- tapOn:
+    id: aba-perfil
+- extendedWaitUntil:
+    visible: "Meu perfil"
+    timeout: 6000
+- tapOn:
+    id: aba-notas
+- swipe:
+    start: 99%, 50%
+    end: 15%, 50%
+- extendedWaitUntil:
+    visible: "Concluída"
+    timeout: 6000
