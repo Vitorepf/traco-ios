@@ -10,8 +10,12 @@ appId: app.traco
 - tapOn:
     text: "Voltar à página"
     optional: true
+# §20: da escrita, a borda esquerda traz o arquivo
+- swipe:
+    start: 1%, 50%
+    end: 85%, 50%
 - tapOn:
-    id: "abrir-notas"
+    id: "aba-notas"
     optional: true
 - extendedWaitUntil:
     visible: "Expressiva — trancada"

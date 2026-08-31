@@ -3,7 +3,8 @@ appId: app.traco
 - launchApp:
     clearState: true
 - extendedWaitUntil:
-    visible: Notas
+    visible:
+      id: pagina
     timeout: 8000
 - takeScreenshot: /tmp/traco-verify/hoje/ax5-01-pagina
 - tapOn: "Página"
@@ -14,6 +15,10 @@ appId: app.traco
 - takeScreenshot: /tmp/traco-verify/hoje/ax5-02-forma
 - tapOn:
     id: "concluir"
+# §20: da escrita, a borda esquerda traz o arquivo
+- swipe:
+    start: 1%, 50%
+    end: 85%, 50%
 - tapOn:
-    id: "abrir-notas"
+    id: "aba-notas"
 - takeScreenshot: /tmp/traco-verify/hoje/ax5-03-notas

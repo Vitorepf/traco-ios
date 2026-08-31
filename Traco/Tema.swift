@@ -38,6 +38,8 @@ enum Tema {
     static let raio: CGFloat = 12
     static let raioCartao: CGFloat = 14
     static let alvo: CGFloat = 44
+    /// SPEC §20: altura da barra inferior — o encaixe que mantém TODA tela acima dela.
+    static let barraNav: CGFloat = 52
     static let margem: CGFloat = 22
     static let pressao: CGFloat = 0.94
 

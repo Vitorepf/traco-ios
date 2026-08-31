@@ -3,7 +3,8 @@ appId: app.traco
 - launchApp:
     clearState: true
 - extendedWaitUntil:
-    visible: Notas
+    visible:
+      id: pagina
     timeout: 8000
 - tapOn: "Página"
 - inputText: "quero correr de manhã"
@@ -20,16 +21,22 @@ appId: app.traco
     timeout: 6000
 - tapOn:
     id: "concluir"
+# §20: da escrita, a borda esquerda traz o arquivo
+- swipe:
+    start: 1%, 50%
+    end: 85%, 50%
 - tapOn:
-    id: "abrir-notas"
+    id: "aba-notas"
 - tapOn:
-    id: "abrir-padroes"
+    id: "aba-padroes"
 - extendedWaitUntil:
     visible: "PADRÕES"
     timeout: 5000
 - tapOn: "notas"
-- tapOn:
-    id: "voltar-pagina"
+# §20: do arquivo, a borda direita devolve a escrita
+- swipe:
+    start: 99%, 50%
+    end: 15%, 50%
 - tapOn: "Página"
 - inputText: "uma nota para recordar depois"
 - tapOn: "Recordar"

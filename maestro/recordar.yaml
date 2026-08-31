@@ -1,18 +1,26 @@
 appId: app.traco
 ---
+- launchApp:
+    clearState: true
+- tapOn: Página
+- inputText: "a ideia que quero lembrar depois"
+- swipe:
+    direction: DOWN
 - tapOn:
-    id: "voltar-pagina"
-    optional: true
+    id: "concluir"
+# §20: da escrita, a borda esquerda traz o arquivo
+- swipe:
+    start: 1%, 50%
+    end: 85%, 50%
 - tapOn:
-    text: "‹ notas"
-    optional: true
-- tapOn:
-    id: "abrir-notas"
-    optional: true
-- tapOn: "quero correr de manhã"
-- hideKeyboard
+    id: "aba-notas"
+- tapOn: "a ideia que quero lembrar depois"
+- extendedWaitUntil:
+    visible: "Concluída"
+    timeout: 5000
 - tapOn: Recordar
 - extendedWaitUntil:
-    visible: "PUXAR"
+    visible: "RECORDAR"
     timeout: 4000
-- assertVisible: "Leia uma última vez"
+- assertVisible: "Leia uma última vez — a nota vai se esconder."
+- takeScreenshot: /tmp/traco-verify/nav/13-recordar

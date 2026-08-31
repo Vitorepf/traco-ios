@@ -30,27 +30,14 @@ struct PadroesView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack {
-                Button { sessao.mostrarPadroes = false } label: {
-                    HStack(spacing: 5) {
-                        Image(systemName: "chevron.backward")
-                            .font(.subheadline.weight(.semibold))
-                        Text("notas")
-                    }
-                }
-                    .foregroundStyle(Tema.tintaSuave)
-                    .frame(minHeight: Tema.alvo)
-                    .buttonStyle(PressaoDiscreta())
-                    .accessibilityLabel("Voltar às notas")
-                Spacer()
-                Text("PADRÕES")
-                    .font(Tema.label)
-                    .tracking(Tema.trackingLabel)
-                    .foregroundStyle(Tema.tintaSuave)
-                Spacer()
-                Color.clear.frame(width: 64, height: Tema.alvo)
-            }
-            .padding(.horizontal, Tema.margem)
+            // §20: voltar é da barra inferior. Aqui fica o nome da tela, e só.
+            Text("Padrões")
+                .font(.title2.weight(.semibold))
+                .foregroundStyle(Tema.tinta)
+                .accessibilityAddTraits(.isHeader)
+                .padding(.horizontal, Tema.margem)
+                .padding(.top, 4)
+                .padding(.bottom, 10)
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {

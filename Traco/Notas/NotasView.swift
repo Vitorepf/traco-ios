@@ -9,16 +9,9 @@ struct NotasView: View {
     @Query(sort: \Nota.criadaEm, order: .reverse) private var notas: [Nota]
     @State private var busca = ""
     @State private var filtro: FiltroNotas?
-    @State private var corpusURL: URL?
-    @State private var mostrarPerfil = false
-    @State private var importarMd = false
 
     var body: some View {
-        Empilha(aberto: $sessao.mostrarPadroes, reduceMotion: reduceMotion) {
-            telaNotas
-        } frente: {
-            PadroesView(sessao: sessao)
-        }
+        telaNotas
     }
 
     private var telaNotas: some View {
@@ -31,85 +24,35 @@ struct NotasView: View {
                 lista
             }
         }
-        .sheet(isPresented: $mostrarPerfil) { PerfilView(sessao: sessao) }
-        .fileImporter(isPresented: $importarMd,
-                      allowedContentTypes: [.plainText, .init(filenameExtension: "md") ?? .plainText],
-                      allowsMultipleSelection: true) { resultado in
-            guard case .success(let urls) = resultado else { return }
-            var total = 0
-            for url in urls {
-                let acesso = url.startAccessingSecurityScopedResource()
-                defer { if acesso { url.stopAccessingSecurityScopedResource() } }
-                guard let conteudo = try? String(contentsOf: url, encoding: .utf8) else { continue }
-                for item in Corpus.importar(conteudo) {
-                    // Regra do selo: import JAMAIS cria trancada.
-                    let gesto = item.gestoNome.flatMap(Gesto.doNome)
-                    // labels do export voltam a ser CAMPOS, nunca voz do autor
-                    let (corpo, campos) = Corpus.separarCampos(texto: item.texto, gesto: gesto)
-                    let nota = Nota(texto: corpo, gesto: gesto, campos: campos)
-                    nota.criadaEm = item.criadaEm
-                    context.insert(nota)
-                    total += 1
-                }
-            }
-            try? context.save()
-            if total > 0 { sessao.mostrarToast("\(total) nota\(total == 1 ? "" : "s") importada\(total == 1 ? "" : "s").") }
-        }
-        .sheet(isPresented: Binding(get: { corpusURL != nil }, set: { if !$0 { corpusURL = nil } })) {
-            if let corpusURL {
-                CompartilharArquivo(url: corpusURL)
-                    .presentationDetents([.medium, .large])
-            }
-        }
     }
 
+    /// SPEC §20: navegar é da barra inferior. Aqui fica só o título da tela e a
+    /// ÚNICA ação que pertence a esta tela — começar uma página nova.
     private var topbar: some View {
-        HStack {
-            Button {
-                sessao.mostrarPadroes = false
-                sessao.mostrarNotas = false
-            } label: {
-                HStack(spacing: 5) {
-                    Image(systemName: "chevron.backward")
-                        .font(.subheadline.weight(.semibold))
-                    Text("página")
-                }
-            }
-            .foregroundStyle(Tema.tintaSuave)
-            .frame(minHeight: Tema.alvo)
-            .contentShape(Rectangle())
-            .accessibilityIdentifier("voltar-pagina")
-            .accessibilityLabel("Voltar à página")
+        HStack(alignment: .firstTextBaseline) {
+            Text("Notas")
+                .font(.title2.weight(.semibold))
+                .foregroundStyle(Tema.tinta)
+                .accessibilityAddTraits(.isHeader)
             Spacer()
-            Button("padrões") {
-                Teclado.recolher()
-                sessao.mostrarPadroes = true
-            }
-            .font(.subheadline)
-            .foregroundStyle(Tema.tintaSuave)
-            .frame(minHeight: Tema.alvo)
-            .contentShape(Rectangle())
-            .accessibilityIdentifier("abrir-padroes")
-            .accessibilityLabel("Padrões")
-            .accessibilityHint("Perguntas sobre padrões das suas notas")
             Button {
                 sessao.salvar(no: context)
                 sessao.novaPagina()
-                sessao.mostrarPadroes = false
-                sessao.mostrarNotas = false
+                sessao.aba = .escrever
             } label: {
-                Image(systemName: "plus")
+                Image(systemName: "square.and.pencil")
                     .font(.body.weight(.medium))
                     .foregroundStyle(Tema.ambar)
                     .frame(width: Tema.alvo, height: Tema.alvo)
                     .contentShape(Rectangle())
             }
+            .buttonStyle(PressaoDiscreta())
+            .accessibilityIdentifier("nova-pagina")
             .accessibilityLabel("Nova página")
         }
-        .font(Tema.chrome)
-        .buttonStyle(PressaoDiscreta())
         .padding(.horizontal, Tema.margem)
-        .frame(minHeight: Tema.alvo)
+        .padding(.top, 4)
+        .padding(.bottom, 10)
     }
 
     private var campoBusca: some View {
@@ -218,19 +161,6 @@ struct NotasView: View {
                     .foregroundStyle(Tema.ambar)
                     .frame(minHeight: Tema.alvo)
                     .buttonStyle(PressaoDiscreta())
-                    if busca.isEmpty, filtro == nil {
-                        Button {
-                            mostrarPerfil = true
-                        } label: {
-                            Text("meu perfil")
-                                .font(.subheadline)
-                                .foregroundStyle(Tema.tintaFraca)
-                                .frame(minHeight: Tema.alvo)
-                        }
-                        .buttonStyle(PressaoDiscreta())
-                        .accessibilityIdentifier("abrir-perfil")
-                        .accessibilityHint("Conta Grok e ajustes. Sem conta, o app é 100% local.")
-                    }
                 }
                 .frame(maxWidth: .infinity)
                 .padding(Tema.margem)
@@ -258,48 +188,6 @@ struct NotasView: View {
                                 .foregroundStyle(Tema.tintaFraca)
                                 .frame(maxWidth: .infinity)
                                 .padding(.top, 16)
-                        }
-                        // Export mora no fim do arquivo: ação de arquivamento, não de uso diário.
-                        // A geração acontece NO TOQUE (nada de I/O no body).
-                        if busca.isEmpty, filtro == nil, notas.contains(where: { !$0.trancada }) {
-                            Button {
-                                corpusURL = Corpus.exportar(notas: notas)
-                            } label: {
-                                Text("exportar o corpus (.md)")
-                                    .font(.subheadline)
-                                    .foregroundStyle(Tema.tintaFraca)
-                                    .frame(maxWidth: .infinity, minHeight: Tema.alvo)
-                            }
-                            .buttonStyle(PressaoDiscreta())
-                            .padding(.top, 12)
-                            .accessibilityIdentifier("exportar-corpus")
-                            .accessibilityHint("Gera um arquivo Markdown com as notas abertas. Trancadas nunca saem.")
-                        }
-                        if busca.isEmpty, filtro == nil {
-                            Button {
-                                mostrarPerfil = true
-                            } label: {
-                                Text("meu perfil")
-                                    .font(.subheadline)
-                                    .foregroundStyle(Tema.tintaFraca)
-                                    .frame(maxWidth: .infinity, minHeight: Tema.alvo)
-                            }
-                            .buttonStyle(PressaoDiscreta())
-                            .accessibilityIdentifier("abrir-perfil")
-                            .accessibilityHint("Conta Grok e ajustes. Sem conta, o app é 100% local.")
-                        }
-                        if busca.isEmpty, filtro == nil {
-                            Button {
-                                importarMd = true
-                            } label: {
-                                Text("importar .md")
-                                    .font(.subheadline)
-                                    .foregroundStyle(Tema.tintaFraca)
-                                    .frame(maxWidth: .infinity, minHeight: Tema.alvo)
-                            }
-                            .buttonStyle(PressaoDiscreta())
-                            .accessibilityIdentifier("importar-md")
-                            .accessibilityHint("Traz notas de arquivos Markdown. Tudo entra aberto — import nunca cria trancada.")
                         }
                     }
                     .padding(.horizontal, Tema.margem)
@@ -415,7 +303,7 @@ struct NotasView: View {
 
 
 /// Folha de compartilhamento do sistema (o export gera no toque, não no body).
-private struct CompartilharArquivo: UIViewControllerRepresentable {
+struct CompartilharArquivo: UIViewControllerRepresentable {
     let url: URL
     func makeUIViewController(context: Context) -> UIActivityViewController {
         UIActivityViewController(activityItems: [url], applicationActivities: nil)

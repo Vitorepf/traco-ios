@@ -29,6 +29,7 @@
 		61AFC497AD6793FD5616F122 /* Empilha.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FDEE4E634F20086C0076DA8 /* Empilha.swift */; };
 		790B6E9A5A75BFDBB00BFF9F /* PapelForma.swift in Sources */ = {isa = PBXBuildFile; fileRef = 665F2C234F3966C3C528A729 /* PapelForma.swift */; };
 		7F26309223D4872E96CFEA82 /* ContaGrok.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DBB3255C8D14DB1494C3558 /* ContaGrok.swift */; };
+		80ADF1AB86E85FB378787A92 /* Camadas.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACC5FB2B7162F211E437D280 /* Camadas.swift */; };
 		810CC40FDE779309217667CD /* AnaliseLocalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AECFB44B4FF4BE148A31BF05 /* AnaliseLocalTests.swift */; };
 		8963B4E83A2289A6F95A4424 /* Sessao.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39E5B1F01B36DA923CEA022B /* Sessao.swift */; };
 		8A24CF2697C9F3270B72614B /* PadroesLocal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BEA908CA56E5E6C5353906 /* PadroesLocal.swift */; };
@@ -41,6 +42,7 @@
 		9AE336A415F4A83195416BE2 /* Gesto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 854249702104D325072DC8FA /* Gesto.swift */; };
 		B941B2650E94D6E093A1394A /* PadroesRemoto.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE5E37AF9BC96722920E0256 /* PadroesRemoto.swift */; };
 		BE9E364EB4D15B9B4A0FD32C /* SintaxeLocal.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE31B44AE2B9734818934EE6 /* SintaxeLocal.swift */; };
+		BEB1C73B65013B7CFE80D18D /* RaizView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70BC8BBFDD05D262FE72B42E /* RaizView.swift */; };
 		BFBA450F8798775C427206AB /* Holofote.swift in Sources */ = {isa = PBXBuildFile; fileRef = C231AAA4F75F1F358615DD8D /* Holofote.swift */; };
 		C16DEDA3E5975B71E9FCB6AD /* PerfilView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BD1932583F37382718A680D /* PerfilView.swift */; };
 		D37ABADE9FFCD8F825DC5E8B /* Tema.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A273C7A77EA3B9F5AAAC13A /* Tema.swift */; };
@@ -48,6 +50,7 @@
 		E392DABE7E7AC33038D67110 /* PadroesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 481F4361236B561E2D58A0D1 /* PadroesView.swift */; };
 		E5380F1B20384BEBC3ABBD06 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A4D7AFFE24FE679844349AD3 /* Assets.xcassets */; };
 		EAE5E994955519A08418ADD6 /* CadernoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A488C4342AF60848A88895 /* CadernoTests.swift */; };
+		EFE3BD16FDB33FBF2B0E27C7 /* BarraNavegacao.swift in Sources */ = {isa = PBXBuildFile; fileRef = A810EC1AF4E17D4DB08A56B3 /* BarraNavegacao.swift */; };
 		F148642627D0F541F44FC281 /* CadernoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC971448D0B5207611E641F1 /* CadernoView.swift */; };
 		F27B18C71280288BE9473182 /* EditorBlocoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67B5D4AE1A40807B1EF842C2 /* EditorBlocoView.swift */; };
 		F56D7F602C6E9A08A50F1995 /* TracoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A3AE8285B42EB802930300 /* TracoApp.swift */; };
@@ -87,6 +90,7 @@
 		6B3F4812CA2DDBAB60FE7D78 /* RecordarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordarView.swift; sourceTree = "<group>"; };
 		6DBB3255C8D14DB1494C3558 /* ContaGrok.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContaGrok.swift; sourceTree = "<group>"; };
 		6F477183BCC594161BCBE7B8 /* NotasFiltro.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotasFiltro.swift; sourceTree = "<group>"; };
+		70BC8BBFDD05D262FE72B42E /* RaizView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RaizView.swift; sourceTree = "<group>"; };
 		752E5B8AEE11066FE1493A3D /* Nota.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Nota.swift; sourceTree = "<group>"; };
 		8250E3200AC60E254A9A3BB0 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		830A6A725EE5ACDC831582DF /* PortalArquivoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortalArquivoView.swift; sourceTree = "<group>"; };
@@ -95,6 +99,8 @@
 		8FDEE4E634F20086C0076DA8 /* Empilha.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Empilha.swift; sourceTree = "<group>"; };
 		9E1B7B58FD49695380C335BA /* Intencoes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Intencoes.swift; sourceTree = "<group>"; };
 		A4D7AFFE24FE679844349AD3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A810EC1AF4E17D4DB08A56B3 /* BarraNavegacao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarraNavegacao.swift; sourceTree = "<group>"; };
+		ACC5FB2B7162F211E437D280 /* Camadas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camadas.swift; sourceTree = "<group>"; };
 		AECFB44B4FF4BE148A31BF05 /* AnaliseLocalTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnaliseLocalTests.swift; sourceTree = "<group>"; };
 		AFD400F0A39FE3685B78CF60 /* PortalCodigoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortalCodigoView.swift; sourceTree = "<group>"; };
 		B496594B9155DDF9FAE0B85C /* CamposFormaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CamposFormaView.swift; sourceTree = "<group>"; };
@@ -170,8 +176,11 @@
 		5CCD748C62CA770B789E3C49 /* App */ = {
 			isa = PBXGroup;
 			children = (
+				A810EC1AF4E17D4DB08A56B3 /* BarraNavegacao.swift */,
+				ACC5FB2B7162F211E437D280 /* Camadas.swift */,
 				8FDEE4E634F20086C0076DA8 /* Empilha.swift */,
 				9E1B7B58FD49695380C335BA /* Intencoes.swift */,
+				70BC8BBFDD05D262FE72B42E /* RaizView.swift */,
 				39E5B1F01B36DA923CEA022B /* Sessao.swift */,
 				E2751D1D96F07B6B9980FA75 /* Toque.swift */,
 			);
@@ -377,8 +386,10 @@
 				43856A9FFE628D9063718BF2 /* AnaliseLocal.swift in Sources */,
 				47CDB34EC591FC6D2C9B98F1 /* AnaliseRemota.swift in Sources */,
 				4C087E51618A29E54C7DB4BF /* AnexoDisco.swift in Sources */,
+				EFE3BD16FDB33FBF2B0E27C7 /* BarraNavegacao.swift in Sources */,
 				8ACDA4B666D4AA6D1B5F76F6 /* BlocoCaderno.swift in Sources */,
 				F148642627D0F541F44FC281 /* CadernoView.swift in Sources */,
+				80ADF1AB86E85FB378787A92 /* Camadas.swift in Sources */,
 				05008721B50DE83B33C36004 /* CamposFormaView.swift in Sources */,
 				921E42407F002A0F679BA76F /* CartaoAnaliseView.swift in Sources */,
 				21C607B41ECFAE7A1BAE87B9 /* ConfirmacaoView.swift in Sources */,
@@ -404,6 +415,7 @@
 				D624B7699CB6224EC14D1089 /* PortalCodigoView.swift in Sources */,
 				207C686843759571A4FD1DC5 /* PortalFormulaView.swift in Sources */,
 				3300AF225512A35291C48F3D /* ProsaView.swift in Sources */,
+				BEB1C73B65013B7CFE80D18D /* RaizView.swift in Sources */,
 				0BD2BD74128AD32BFB929D54 /* RecordarView.swift in Sources */,
 				50BDC2DAF155F65D6076D8CD /* Revisoes.swift in Sources */,
 				8963B4E83A2289A6F95A4424 /* Sessao.swift in Sources */,

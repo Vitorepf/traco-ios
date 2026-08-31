@@ -1,0 +1,28 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn: "Página"
+- inputText: "a nota de ontem sobre o projeto"
+- takeScreenshot: /tmp/traco-verify/nav/01-escrevendo
+- swipe:
+    direction: DOWN
+- takeScreenshot: /tmp/traco-verify/nav/02-pagina
+# §20: da escrita, a borda esquerda traz o arquivo
+- swipe:
+    start: 1%, 50%
+    end: 85%, 50%
+- tapOn:
+    id: aba-notas
+- takeScreenshot: /tmp/traco-verify/nav/03-notas
+- tapOn:
+    id: aba-padroes
+- takeScreenshot: /tmp/traco-verify/nav/04-padroes
+- tapOn:
+    id: aba-perfil
+- takeScreenshot: /tmp/traco-verify/nav/05-perfil
+# §20: do arquivo, a borda direita devolve a escrita
+- swipe:
+    start: 99%, 50%
+    end: 15%, 50%
+- takeScreenshot: /tmp/traco-verify/nav/06-volta

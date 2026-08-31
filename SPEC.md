@@ -374,3 +374,54 @@ a do template, porque o algoritmo já sabe qual é o próximo campo vazio.
 ### 19.3 A fronteira, em uma frase
 **O algoritmo garante; a IA sugere.** Nada que o autor perca se a IA sumir pode
 morar do lado da IA — e nada que a IA escreva pode entrar na nota.
+
+## 20. Navegação (sistema, ago/2026)
+
+**Auditoria que motivou (Fase 5 do roteador):** os destinos moravam no topo
+(`fitts-law` — zona morta do polegar), e perfil/exportar/importar flutuavam
+soltos no rodapé das Notas com peso igual (`law-of-common-region`,
+`law-of-proximity`), com navegação e ação vestidas iguais (`law-of-similarity`)
+e sem affordance de toque (`critique-affordance`). iOS tem padrão universal para
+destino — barra inferior (`jakobs-law`); links de texto no meio da tela o quebram.
+
+**Decisão (rev. 2, correção do dono): escrever NÃO é uma aba — é a casa.**
+Barra inferior só existe no ARQUIVO; na escrita não há chrome nenhum (§3).
+
+```
+[ Notas · Padrões · Perfil ]  ←→  [ ESCREVER ]
+        com barra                   sem nada
+```
+
+| Destino | Ícone | O que é |
+|---|---|---|
+| Notas | `rectangle.stack` | arquivo, busca e filtros |
+| Padrões | `circle.hexagongrid` | perguntas sobre o que se repete |
+| Perfil | `person.crop.circle` | conta e ajustes |
+
+**O trânsito é gesto, não botão:** da escrita, arrastar a partir da borda
+ESQUERDA traz o arquivo; do arquivo, arrastar a partir da borda DIREITA para a
+esquerda devolve a escrita. Arrasto 1:1, mola herdando a velocidade do dedo
+(apple-design §2/§5/§6). O gesto nasce nos 28pt da borda — nunca rouba a seleção
+de texto — e por isso vive mesmo com o teclado de pé (matá-lo criava atrito
+depois de concluir uma nota). Um puxador de 3×36pt na borda esquerda dá
+descobribilidade sem ocupar a tela; some com o teclado.
+
+`hicks-law`: três destinos, não quatro. A casa não se escolhe — volta-se para ela.
+
+**Tokens (fixos antes de desenhar):** altura `Tema.barraNav` = 52pt + safe area · ícone 21pt ·
+rótulo `.caption2` com tracking 0.4 · ativo = âmbar, inativo = tintaFraca ·
+fundo `.ultraThinMaterial` sobre o fundo do tema, hairline de 0.5 no topo ·
+alvo mínimo 44pt por item · troca de aba em cross-fade de 0.18s (aba não tem
+direção espacial: slide seria mentira).
+
+**Regra que salva o §3:** na escrita não há barra nenhuma; no arquivo, ela
+recolhe quando o teclado sobe. O encaixe (`safeAreaInset` de `Tema.barraNav`) é
+sistêmico na raiz: nenhuma tela precisa saber que a barra existe, e nada do
+conteúdo morre atrás dela.
+
+**Trocar de tela SALVA.** Todo trânsito passa por `Sessao.irPara(_:no:)`, que
+grava antes de sair — navegar nunca custa uma palavra do autor. Com o timer da
+expressiva rodando, a saída pede confirmação: o selo vale também aqui.
+
+**Consequência:** ações de dados (exportar, importar) saem do rodapé das Notas e
+vão para o Perfil, onde pertencem — navegação e ação deixam de se parecer.

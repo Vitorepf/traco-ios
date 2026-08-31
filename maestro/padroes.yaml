@@ -22,10 +22,14 @@ appId: app.traco
     direction: DOWN
 - tapOn:
     id: "concluir"
+# §20: da escrita, a borda esquerda traz o arquivo
+- swipe:
+    start: 1%, 50%
+    end: 85%, 50%
 - tapOn:
-    id: "abrir-notas"
+    id: "aba-notas"
 - tapOn:
-    id: "abrir-padroes"
+    id: "aba-padroes"
 - extendedWaitUntil:
     visible: "PADRÕES"
     timeout: 5000

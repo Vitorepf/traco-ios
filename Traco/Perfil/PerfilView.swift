@@ -1,3 +1,4 @@
+import SwiftData
 import SwiftUI
 
 /// Meu perfil (SPEC §18): conta e ajustes num lugar só.
@@ -5,7 +6,6 @@ import SwiftUI
 /// pela ASSINATURA do autor (ADR 2026-08-31k).
 struct PerfilView: View {
     var sessao: Sessao
-    @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var abrir
 
     @State private var ligada = ContaGrok.ligada
@@ -13,6 +13,10 @@ struct PerfilView: View {
     @State private var codigo: ContaGrok.Codigo?
     @State private var entrando = false
     @State private var tarefa: Task<Void, Never>?
+    @State private var corpusURL: URL?
+    @State private var importarMd = false
+    @Environment(\.modelContext) private var context
+    @Query(sort: \Nota.criadaEm, order: .reverse) private var notas: [Nota]
 
     var body: some View {
         ZStack {
@@ -26,13 +30,40 @@ struct PerfilView: View {
 
                     conta
                     ajustes
+                    dados
                     Spacer(minLength: 8)
                 }
                 .padding(28)
             }
         }
-        .presentationDetents([.large])
-        .presentationBackground(Tema.fundo)
+        .fileImporter(isPresented: $importarMd,
+                      allowedContentTypes: [.plainText, .init(filenameExtension: "md") ?? .plainText],
+                      allowsMultipleSelection: true) { resultado in
+            guard case .success(let urls) = resultado else { return }
+            var total = 0
+            for url in urls {
+                let acesso = url.startAccessingSecurityScopedResource()
+                defer { if acesso { url.stopAccessingSecurityScopedResource() } }
+                guard let conteudo = try? String(contentsOf: url, encoding: .utf8) else { continue }
+                for item in Corpus.importar(conteudo) {
+                    // Regra do selo: import JAMAIS cria trancada.
+                    let gesto = item.gestoNome.flatMap(Gesto.doNome)
+                    // labels do export voltam a ser CAMPOS, nunca voz do autor
+                    let (corpo, campos) = Corpus.separarCampos(texto: item.texto, gesto: gesto)
+                    let nota = Nota(texto: corpo, gesto: gesto, campos: campos)
+                    nota.criadaEm = item.criadaEm
+                    context.insert(nota)
+                    total += 1
+                }
+            }
+            try? context.save()
+            if total > 0 { sessao.mostrarToast("\(total) nota\(total == 1 ? "" : "s") importada\(total == 1 ? "" : "s").") }
+        }
+        .sheet(isPresented: Binding(get: { corpusURL != nil }, set: { if !$0 { corpusURL = nil } })) {
+            if let corpusURL {
+                CompartilharArquivo(url: corpusURL)
+            }
+        }
         .onDisappear { tarefa?.cancel() }
         .task { estado = await ContaGrok.estado() }
     }
@@ -142,6 +173,34 @@ struct PerfilView: View {
             }
             .tint(Tema.ambar)
             .accessibilityIdentifier("ajuste-auto-analise")
+        }
+    }
+
+    // MARK: - Dados (§20: exportar/importar são AÇÃO, não navegação — moram aqui)
+
+    private var dados: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            rotulo("DADOS")
+            Button("Exportar o corpus (.md)") {
+                corpusURL = Corpus.exportar(notas: notas)
+            }
+            .font(Tema.corpo)
+            .foregroundStyle(Tema.tinta)
+            .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .leading)
+            .buttonStyle(PressaoDiscreta())
+            .accessibilityIdentifier("exportar-corpus")
+            .accessibilityHint("Gera um Markdown com as notas abertas. Trancadas nunca saem.")
+            Rectangle().fill(Tema.linha).frame(height: 0.5)
+            Button("Importar .md") { importarMd = true }
+                .font(Tema.corpo)
+                .foregroundStyle(Tema.tinta)
+                .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .leading)
+                .buttonStyle(PressaoDiscreta())
+                .accessibilityIdentifier("importar-md")
+                .accessibilityHint("Traz notas de arquivos Markdown. Import nunca cria trancada.")
+            Text("O backup automático já grava no Arquivos a cada nota concluída.")
+                .font(.footnote)
+                .foregroundStyle(Tema.tintaFraca)
         }
     }
 

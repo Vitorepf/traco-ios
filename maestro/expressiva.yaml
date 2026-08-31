@@ -7,8 +7,12 @@ appId: app.traco
 - hideKeyboard
 - tapOn: Analisar
 - tapOn: "Começar o timer"
+# §20: da escrita, a borda esquerda traz o arquivo
+- swipe:
+    start: 1%, 50%
+    end: 85%, 50%
 - tapOn:
-    id: "abrir-notas"
+    id: "aba-notas"
 - extendedWaitUntil:
     visible:
       id: "confirmacao-trancar"
@@ -22,7 +26,7 @@ appId: app.traco
 - tapOn:
     id: "confirmacao-seguir"
 - tapOn:
-    id: "abrir-notas"
+    id: "aba-notas"
     optional: true
 - extendedWaitUntil:
     visible: "Expressiva — trancada"

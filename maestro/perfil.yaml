@@ -2,10 +2,14 @@ appId: app.traco
 ---
 - launchApp:
     clearState: true
+# §20: da escrita, a borda esquerda traz o arquivo
+- swipe:
+    start: 1%, 50%
+    end: 85%, 50%
 - tapOn:
-    id: abrir-notas
+    id: aba-notas
 - tapOn:
-    id: abrir-perfil
+    id: aba-perfil
 - extendedWaitUntil:
     visible: "Meu perfil"
     timeout: 5000

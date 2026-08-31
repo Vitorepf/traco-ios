@@ -15,8 +15,7 @@ struct TracoApp: App {
 
     var body: some Scene {
         WindowGroup {
-            PaginaView()
-                .preferredColorScheme(.dark)
+            RaizView()
         }
         .modelContainer(container)
     }

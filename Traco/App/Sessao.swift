@@ -13,9 +13,22 @@ final class Sessao {
     var toast: String?
     var timerLigado = false
     var segundosRestantes = 15 * 60
-    var mostrarNotas = false
+    /// SPEC §20: um destino por vez. `mostrarNotas`/`mostrarPadroes` continuam
+    /// existindo como ponte para a lógica antiga (foco, rota, notificação).
+    var aba: Aba = .escrever
+    /// A última tela de arquivo visitada: voltar ao arquivo devolve onde parou.
+    var abaArquivo: Aba = .notas
     var mostrarRecordar = false
-    var mostrarPadroes = false
+
+    var mostrarNotas: Bool {
+        get { aba == .notas }
+        set { aba = newValue ? .notas : .escrever }
+    }
+
+    var mostrarPadroes: Bool {
+        get { aba == .padroes }
+        set { aba = newValue ? .padroes : .escrever }
+    }
     var confirmacao: ConfirmacaoEstado?
     var recordarTexto = ""
     var recordarCampos: [String: String] = [:]
@@ -342,6 +355,20 @@ final class Sessao {
         }
         novaPagina()
         Toque.leve()
+    }
+
+    /// Trocar de aba NUNCA perde texto: salva antes de sair (§20).
+    /// Com o timer da expressiva rodando, a saída pede confirmação — o selo vale.
+    func irPara(_ nova: Aba, no context: ModelContext) {
+        guard nova != aba else { return }
+        if timerLigado, nova != .escrever {
+            confirmacao = .sairTranca(destino: .notas)
+            return
+        }
+        salvar(no: context)
+        Teclado.recolher()
+        if nova != .escrever { abaArquivo = nova }
+        aba = nova
     }
 
     func irNotas(no context: ModelContext) {

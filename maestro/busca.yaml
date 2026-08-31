@@ -4,22 +4,29 @@ appId: app.traco
     clearState: true
 - tapOn: Página
 - inputText: "quero correr de manhã"
-- hideKeyboard
-- tapOn: Analisar
-- tapOn: "Abrir a forma WOOP"
-- hideKeyboard
+- extendedWaitUntil:
+    visible:
+      id: "abrir-campos"
+    timeout: 8000
+- tapOn:
+    id: "abrir-campos"
 - extendedWaitUntil:
     visible:
       id: "forma-woop"
-    timeout: 4000
+    timeout: 5000
 - tapOn:
     id: "campo-obstaculo"
 - inputText: "o celular na cama"
-- hideKeyboard
+- swipe:
+    direction: DOWN
 - tapOn:
     id: "concluir"
+# §20: da escrita, a borda esquerda traz o arquivo
+- swipe:
+    start: 1%, 50%
+    end: 85%, 50%
 - tapOn:
-    id: "abrir-notas"
+    id: "aba-notas"
 - tapOn:
     id: "busca-notas"
 - inputText: "celular"

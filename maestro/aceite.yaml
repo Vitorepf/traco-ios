@@ -2,7 +2,8 @@ appId: app.traco
 ---
 - launchApp:
     clearState: true
-- assertVisible: Notas
+- assertVisible:
+    id: pagina
 - tapOn: "Página"
 - inputText: "quero correr de manhã"
 # §17: a análise chega sozinha na pausa e veste a forma de confiança alta
@@ -40,7 +41,13 @@ appId: app.traco
     visible:
       id: "toast-analise"
     timeout: 4000
+# §20: da escrita, a borda esquerda traz o arquivo
+- swipe:
+    start: 1%, 50%
+    end: 85%, 50%
 - tapOn:
-    id: "abrir-notas"
-- tapOn:
-    id: "voltar-pagina"
+    id: "aba-notas"
+# §20: do arquivo, a borda direita devolve a escrita
+- swipe:
+    start: 99%, 50%
+    end: 15%, 50%

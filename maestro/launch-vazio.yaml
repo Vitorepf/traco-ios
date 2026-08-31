@@ -2,6 +2,7 @@ appId: app.traco
 ---
 - launchApp:
     clearState: true
-- assertVisible: Notas
+- assertVisible:
+    id: pagina
 - assertVisible: Analisar
 - takeScreenshot: launch-vazio

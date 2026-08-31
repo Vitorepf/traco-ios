@@ -6,7 +6,7 @@ struct PaginaView: View {
     @Environment(\.modelContext) private var context
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.scenePhase) private var scenePhase
-    @State private var sessao = Sessao()
+    @Bindable var sessao: Sessao
     @FocusState private var focoPagina: Bool
     @State private var mostrarCampos = false
     @ScaledMetric(relativeTo: .body) private var corpoFolga: CGFloat = 9
@@ -208,13 +208,12 @@ struct PaginaView: View {
 
     private var topbar: some View {
         HStack {
-            Button("Notas") { sessao.irNotas(no: context) }
+            // §20: o destino "Notas" mora na barra inferior; o atalho ⌘L continua
+            Button("") { sessao.irNotas(no: context) }
                 .keyboardShortcut("l", modifiers: .command)
-                .foregroundStyle(Tema.tintaSuave)
-                .frame(minHeight: Tema.alvo)
-                .accessibilityIdentifier("abrir-notas")
-                .accessibilityLabel("Notas")
-                .accessibilityHint("Abre as notas anteriores")
+                .frame(width: 0, height: 0)
+                .opacity(0)
+                .accessibilityHidden(true)
 
             Spacer()
 

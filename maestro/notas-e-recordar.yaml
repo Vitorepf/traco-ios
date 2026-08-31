@@ -1,18 +1,40 @@
 appId: app.traco
 ---
+- launchApp:
+    clearState: true
+- tapOn: Página
+- inputText: "quero correr de manhã"
+- extendedWaitUntil:
+    visible:
+      id: "abrir-campos"
+    timeout: 8000
 - tapOn:
-    id: "voltar-pagina"
-    optional: true
-- hideKeyboard
+    id: "abrir-campos"
 - tapOn:
-    id: "abrir-notas"
+    id: "campo-obstaculo"
+- inputText: "o celular na cama"
+- swipe:
+    direction: DOWN
+- tapOn:
+    id: "concluir"
+# §20: da escrita, a borda esquerda traz o arquivo
+- swipe:
+    start: 1%, 50%
+    end: 85%, 50%
+- tapOn:
+    id: "aba-notas"
 - extendedWaitUntil:
     visible: "quero correr de manhã"
-    timeout: 4000
-- tapOn: "Buscar nas notas"
+    timeout: 5000
+- tapOn:
+    id: "busca-notas"
 - inputText: "celular"
-- hideKeyboard
-- tapOn: padrões
 - extendedWaitUntil:
-    visible: "CÓDICE"
+    visible: "o celular na cama"
     timeout: 4000
+- tapOn:
+    id: "aba-padroes"
+- extendedWaitUntil:
+    visible: "Padrões"
+    timeout: 5000
+- takeScreenshot: /tmp/traco-verify/nav/14-notas-padroes
