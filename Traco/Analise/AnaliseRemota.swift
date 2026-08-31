@@ -5,28 +5,30 @@ import Foundation
 /// devolve nil e o chamador cai na heurística local — nunca inventa, nunca trava.
 /// O selo vale para a rede: expressiva/trancada jamais chega aqui (guarda na Sessao).
 enum AnaliseRemota {
-    static let modelo = "grok-4-fast-non-reasoning" // ajustável; custo por token é do dono
+    static let modelo = "grok-4-fast-non-reasoning" // pago pelo pool da assinatura (ADR 31k)
 
+    /// Contrato FECHADO (§19.4): a IA escolhe um rótulo de lista fixa. Ela nunca
+    /// devolve texto — as palavras da tela são todas do app. O que não é
+    /// verificável não é perguntado.
     static let sistema = """
-    Você é a Análise de um bloco de notas. Você NUNCA escreve conteúdo pelo autor.
-    Responda APENAS um JSON válido, sem markdown:
+    Você é a Análise de um bloco de notas. Você NUNCA escreve texto.
+    Você apenas CLASSIFICA. Responda APENAS um JSON válido, sem markdown:
     {"gesto": "woop"|"seEntao"|"spec"|"notaPermanente"|"destaque"|"expressiva"|null, \
-    "aviso": string|null, "pergunta": string|null}
+    "aviso": "afirmacaoVazia"|"textoPronto"|"ouvinte"|"semObstaculo"|"doisGestos"|null}
 
     gesto: woop = desejo/meta pessoal · seEntao = hábito que emperra num gatilho ·
     spec = algo a construir (software/projeto) · notaPermanente = ideia/insight curto ·
     destaque = lista de tarefas do dia · expressiva = desabafo emocional longo · null = nada disso.
 
-    aviso (então gesto=null, pergunta=null), frases curtas, SEMPRE no mesmo idioma do texto do autor (exemplos em pt; traduza o espírito, não copie):
-    - afirmação vazia ("eu sou rico/vencedor") → "Afirmação vazia não muda nada — e pesa em quem se estima pouco. Escreva por que um valor seu importa."
-    - pedido de texto pronto → "A frase aqui é sua. O Traço não escreve."
-    - pedido de ouvinte/consolo → "Quem é a pessoa de verdade que deveria receber isto? O Traço não é ouvinte."
-    - plano sem obstáculo interno → "Sem o obstáculo interno, isso é fantasia — e fantasia reduz o esforço. Qual é o seu?"
-    - segundo método na mesma nota → "Um gesto por sessão. O segundo método vai para outra página."
+    aviso (quando houver aviso, gesto=null):
+    - afirmacaoVazia = o autor afirma qualidade sobre si ("eu sou rico/vencedor")
+    - textoPronto = pede que você escreva, resuma, melhore ou traduza por ele
+    - ouvinte = pede escuta, consolo ou companhia
+    - semObstaculo = plano/meta sem nomear o obstáculo interno
+    - doisGestos = há um segundo método na mesma nota
 
-    pergunta: no máximo UMA, apontando o próximo campo vazio do gesto, no mesmo
-    idioma do texto do autor. Nunca elogie, nunca console, nunca resuma.
-    Na dúvida, tudo null (silêncio).
+    Qualquer outra chave, texto livre ou explicação = resposta inválida.
+    Na dúvida, os dois null (silêncio).
     """
 
     // ponytail: memo de último texto — dispensar o cartão e pausar de novo não repaga token
@@ -80,21 +82,23 @@ enum AnaliseRemota {
         return String(limpa.prefix(teto)).trimmingCharacters(in: .whitespaces) + "…"
     }
 
-    /// Parsing estrito e testável: fora do formato → nil (silêncio é melhor que inventar).
+    /// Parsing estrito: a IA devolve RÓTULO; as palavras são do app. Rótulo
+    /// desconhecido, texto livre ou chave extra → silêncio (nunca inventa).
     nonisolated static func parseVeredito(_ cru: String) -> AnaliseLocal.Veredito? {
         guard let ini = cru.firstIndex(of: "{"), let fim = cru.lastIndex(of: "}") else { return nil }
         guard let dados = String(cru[ini...fim]).data(using: .utf8),
               let j = try? JSONSerialization.jsonObject(with: dados) as? [String: Any]
         else { return nil }
-        if let aviso = j["aviso"] as? String, !aviso.isEmpty {
-            return .aviso(umaFrase(aviso))
+        if let rotulo = j["aviso"] as? String, !rotulo.isEmpty {
+            guard let frase = AnaliseLocal.avisos[rotulo] else { return .silencio }
+            return .aviso(frase)
         }
         guard let nomeGesto = j["gesto"] as? String else { return .silencio }
         if nomeGesto == "expressiva" { return .expressiva }
         let mapa: [String: Gesto] = ["woop": .woop, "seEntao": .seEntao, "spec": .spec,
                                      "notaPermanente": .notaPermanente, "destaque": .destaque]
         guard let gesto = mapa[nomeGesto] else { return .silencio }
-        let pergunta = umaFrase((j["pergunta"] as? String) ?? "")
-        return .gesto(gesto, pergunta: pergunta)
+        // a pergunta é do TEMPLATE, sempre: o algoritmo já sabe o próximo campo
+        return .gesto(gesto, pergunta: AnaliseLocal.pergunta(gesto))
     }
 }

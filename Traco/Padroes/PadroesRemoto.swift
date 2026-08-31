@@ -44,18 +44,57 @@ enum PadroesRemoto {
               let escolhas = raiz["choices"] as? [[String: Any]],
               let msg = (escolhas.first?["message"] as? [String: Any])?["content"] as? String
         else { return nil }
-        return parsePerguntas(msg)
+        return parsePerguntas(msg, vozes: vozes)
     }
 
-    nonisolated static func parsePerguntas(_ cru: String) -> [String]? {
+    nonisolated static func parsePerguntas(_ cru: String, vozes: [String] = []) -> [String]? {
         guard let ini = cru.firstIndex(of: "{"), let fim = cru.lastIndex(of: "}"),
               let dados = String(cru[ini...fim]).data(using: .utf8),
               let j = try? JSONSerialization.jsonObject(with: dados) as? [String: Any],
               let lista = j["perguntas"] as? [String]
         else { return nil }
-        return Array(lista.filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
+        return Array(lista
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+            .filter { !$0.isEmpty }
+            // §19.4: texto livre da IA só passa se o ALGORITMO conseguir verificar.
+            // Aqui a prova é dura: a citação tem de existir literalmente nas notas.
+            .filter { vozes.isEmpty || ehPergunta($0) && citaOAutor($0, em: vozes) }
             .map { AnaliseRemota.umaFrase($0, teto: 280) }
             .prefix(3))
+    }
+
+    /// Pergunta é pergunta: sem "?", é conclusão disfarçada — e conclusão é do autor.
+    nonisolated static func ehPergunta(_ p: String) -> Bool { p.contains("?") }
+
+    /// Todo fragmento entre aspas tem de aparecer LITERALMENTE em alguma nota.
+    /// Sem citação, ou com citação inventada, a pergunta é descartada.
+    nonisolated static func citaOAutor(_ pergunta: String, em vozes: [String]) -> Bool {
+        let fragmentos = fragmentosCitados(pergunta)
+        guard !fragmentos.isEmpty else { return false }
+        let corpus = vozes.joined(separator: "\n").lowercased()
+        return fragmentos.allSatisfy { corpus.contains($0.lowercased()) }
+    }
+
+    nonisolated static func fragmentosCitados(_ p: String) -> [String] {
+        var saida: [String] = []
+        var dentro = false
+        var atual = ""
+        for c in p {
+            if c == "\u{201C}" || c == "\u{201D}" || c == "\"" {
+                if dentro {
+                    let t = atual.trimmingCharacters(in: .whitespacesAndNewlines)
+                    // fragmento curto demais não é prova de nada
+                    if t.count >= 4 { saida.append(t) }
+                    atual = ""
+                    dentro = false
+                } else {
+                    dentro = true
+                }
+            } else if dentro {
+                atual.append(c)
+            }
+        }
+        return saida
     }
 
     // MARK: - Nunca a mesma pergunta duas visitas seguidas (vale para local e remoto)

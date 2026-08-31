@@ -10,12 +10,22 @@ enum AnaliseLocal: Sendable {
         case expressiva
     }
 
-    static let avisoFrasePronta = "A frase aqui é sua. O Traço não escreve."
-    static let avisoWood = "Afirmação vazia não muda nada — e pesa em quem se estima pouco. Escreva por que um valor seu importa."
-    static let avisoOuvinte = "Quem é a pessoa de verdade que deveria receber isto? O Traço não é ouvinte."
-    static let avisoOettingen = "Sem o obstáculo interno, isso é fantasia — e fantasia reduz o esforço. Qual é o seu?"
-    static let avisoDoisGestos = "Um gesto por sessão. O segundo método vai para outra página."
-    static let perguntaWOOP = "Qual é o hábito ou o medo seu que vai impedir — não o relógio, não os outros?"
+    nonisolated static let avisoFrasePronta = "A frase aqui é sua. O Traço não escreve."
+    nonisolated static let avisoWood = "Afirmação vazia não muda nada — e pesa em quem se estima pouco. Escreva por que um valor seu importa."
+    nonisolated static let avisoOuvinte = "Quem é a pessoa de verdade que deveria receber isto? O Traço não é ouvinte."
+    nonisolated static let avisoOettingen = "Sem o obstáculo interno, isso é fantasia — e fantasia reduz o esforço. Qual é o seu?"
+    nonisolated static let avisoDoisGestos = "Um gesto por sessão. O segundo método vai para outra página."
+
+    /// A ÚNICA porta entre um rótulo da IA e uma frase na tela (§19.4).
+    /// Rótulo fora deste dicionário = silêncio.
+    nonisolated static let avisos: [String: String] = [
+        "afirmacaoVazia": avisoWood,
+        "textoPronto": avisoFrasePronta,
+        "ouvinte": avisoOuvinte,
+        "semObstaculo": avisoOettingen,
+        "doisGestos": avisoDoisGestos,
+    ]
+    nonisolated static let perguntaWOOP = "Qual é o hábito ou o medo seu que vai impedir — não o relógio, não os outros?"
 
     static func classificar(texto: String, gestoAtual: Gesto?, campos: [String: String]) -> Veredito {
         // §8.5 no motor, não só na UI: a análise NUNCA comenta uma expressiva —
@@ -93,7 +103,8 @@ enum AnaliseLocal: Sendable {
         return nil
     }
 
-    private static func pergunta(_ gesto: Gesto) -> String {
+    /// A pergunta é sempre do template — nunca do modelo (§19.4).
+    nonisolated static func pergunta(_ gesto: Gesto) -> String {
         switch gesto {
         case .woop: perguntaWOOP
         case .seEntao: "Quando o gatilho vier, você faz o quê — concreto, substituto?"

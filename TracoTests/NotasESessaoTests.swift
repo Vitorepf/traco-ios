@@ -464,14 +464,15 @@ struct ApagarTests {
 @MainActor
 struct AnaliseRemotaTests {
     @Test func parseVereditoEstrito() {
-        #expect(AnaliseRemota.parseVeredito(#"{"gesto":"woop","aviso":null,"pergunta":"Qual o obstáculo?"}"#)
-                == .gesto(.woop, pergunta: "Qual o obstáculo?"))
-        #expect(AnaliseRemota.parseVeredito(#"{"gesto":null,"aviso":"Um gesto por sessão. O segundo método vai para outra página.","pergunta":null}"#)
-                == .aviso("Um gesto por sessão. O segundo método vai para outra página."))
-        #expect(AnaliseRemota.parseVeredito(#"{"gesto":"expressiva","aviso":null,"pergunta":null}"#) == .expressiva)
-        #expect(AnaliseRemota.parseVeredito(#"{"gesto":null,"aviso":null,"pergunta":null}"#) == .silencio)
+        // §19.4: a IA devolve RÓTULO; a pergunta e a frase são do app
+        #expect(AnaliseRemota.parseVeredito(#"{"gesto":"woop","aviso":null}"#)
+                == .gesto(.woop, pergunta: AnaliseLocal.pergunta(.woop)))
+        #expect(AnaliseRemota.parseVeredito(#"{"gesto":null,"aviso":"doisGestos"}"#)
+                == .aviso(AnaliseLocal.avisoDoisGestos))
+        #expect(AnaliseRemota.parseVeredito(#"{"gesto":"expressiva","aviso":null}"#) == .expressiva)
+        #expect(AnaliseRemota.parseVeredito(#"{"gesto":null,"aviso":null}"#) == .silencio)
         #expect(AnaliseRemota.parseVeredito("claro! aqui está: nada de json") == nil) // fora do formato → silêncio/local
-        #expect(AnaliseRemota.parseVeredito(#"{"gesto":"golpe","aviso":null,"pergunta":null}"#) == .silencio)
+        #expect(AnaliseRemota.parseVeredito(#"{"gesto":"golpe","aviso":null}"#) == .silencio)
     }
 
     @Test func contaDesligadaNaoDeixaRastroNoCofre() async {
@@ -588,13 +589,35 @@ struct CorrecoesVarredura3Tests {
         #expect(item?.gestoNome.flatMap(Gesto.doNome) == .woop)
     }
 
-    @Test func avisoDoModeloTemTeto() {
+    /// A prova da doutrina: NENHUMA palavra do modelo chega à tela.
+    @Test func modeloNaoConsegueEscreverNaTela() {
         let gigante = String(repeating: "bla ", count: 200)
-        let v = AnaliseRemota.parseVeredito("{\"gesto\":null,\"aviso\":\"\(gigante)\",\"pergunta\":null}")
-        if case .aviso(let frase) = v {
-            #expect(frase.count <= 201)
-            #expect(frase.hasSuffix("…"))
-        } else { Issue.record("devia ser aviso") }
+        // texto livre no lugar do rótulo = rótulo desconhecido = silêncio
+        #expect(AnaliseRemota.parseVeredito("{\"gesto\":null,\"aviso\":\"\(gigante)\"}") == .silencio)
+        #expect(AnaliseRemota.parseVeredito(#"{"gesto":null,"aviso":"você é incrível!"}"#) == .silencio)
+        // rótulo válido só pode virar UMA das nossas frases
+        for (rotulo, frase) in AnaliseLocal.avisos {
+            #expect(AnaliseRemota.parseVeredito("{\"gesto\":null,\"aviso\":\"\(rotulo)\"}") == .aviso(frase))
+        }
+        // pergunta inventada pelo modelo é ignorada: a do template vence
+        #expect(AnaliseRemota.parseVeredito(#"{"gesto":"spec","aviso":null,"pergunta":"eu inventei isto"}"#)
+                == .gesto(.spec, pergunta: AnaliseLocal.pergunta(.spec)))
+    }
+
+    /// Texto livre em Padrões só passa se o algoritmo VERIFICAR a citação.
+    @Test func perguntaSoPassaSeCitarOAutorDeVerdade() {
+        let vozes = ["quero acordar cedo mas o celular fica na cama"]
+        let bom = #"{"perguntas":["O que muda se o “celular fica na cama” sair do quarto?"]}"#
+        #expect(PadroesRemoto.parsePerguntas(bom, vozes: vozes)?.count == 1)
+        // citação que o autor nunca escreveu → descartada
+        let inventado = #"{"perguntas":["E quando você disse “eu sempre desisto”, o que sentiu?"]}"#
+        #expect(PadroesRemoto.parsePerguntas(inventado, vozes: vozes)?.isEmpty == true)
+        // conclusão disfarçada (sem "?") → descartada
+        let conclusao = #"{"perguntas":["Você claramente evita o “celular fica na cama”."]}"#
+        #expect(PadroesRemoto.parsePerguntas(conclusao, vozes: vozes)?.isEmpty == true)
+        // sem citação nenhuma → descartada
+        let solta = #"{"perguntas":["O que você faria diferente amanhã?"]}"#
+        #expect(PadroesRemoto.parsePerguntas(solta, vozes: vozes)?.isEmpty == true)
     }
 
     @Test func textoMudadoEmVooNaoVeste() async throws {

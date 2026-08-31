@@ -346,6 +346,31 @@ o Traço continua um bloco de notas inteiro.
 | **Sistema** | Atalhos/Siri, `traco://`, Spotlight, hápticos, movimento, acessibilidade, Dynamic Type |
 | **Conta** | OAuth device-code, Keychain, renovação de sessão, queda para local em 401/403/429 |
 
+### 19.4 Doutrina: algoritmo primeiro (lei do dono, 31/ago)
+
+**Tudo que fecha em algoritmo TEM de ser algoritmo.** Algoritmo não erra: ou faz o
+planejado, ou é bug — e bug se conserta. Uma IA dá N respostas para a mesma
+entrada; isso é inaceitável no núcleo de um produto que existe para multiplicar
+pensamento sem introduzir erro. A IA fica só com o que não fecha, e ali ela vale
+como **algoritmo dinâmico** — poderosa justamente por não ser fixa.
+
+Três regras que decorrem disso, e que valem como aceite:
+
+1. **Antes de perguntar à IA, tente a regra.** Se fecha, escreve-se a regra.
+   A IA nunca é o caminho mais curto; é o último.
+2. **A IA só devolve o que o algoritmo sabe VERIFICAR.** Nada de texto livre para
+   a tela ou para a nota: ela devolve RÓTULO de lista fechada, e o app supõe as
+   palavras. Rótulo desconhecido = silêncio.
+3. **Onde texto livre é inevitável, a verificação é dura.** Em Padrões, a IA
+   escreve perguntas — então o algoritmo exige: tem "?" (pergunta, não conclusão)
+   e cada trecho entre aspas existe LITERALMENTE nas notas. Falhou a prova,
+   a pergunta é descartada sem aparecer.
+
+**Consequência já aplicada:** o contrato remoto virou
+`{gesto: <enum|null>, aviso: <enum|null>}`. A pergunta saiu do contrato — é sempre
+a do template, porque o algoritmo já sabe qual é o próximo campo vazio.
+**Nenhuma palavra do modelo chega à tela do autor.**
+
 ### 19.3 A fronteira, em uma frase
 **O algoritmo garante; a IA sugere.** Nada que o autor perca se a IA sumir pode
 morar do lado da IA — e nada que a IA escreva pode entrar na nota.
