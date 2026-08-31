@@ -5,11 +5,17 @@ appId: app.traco
 - tapOn:
     id: pagina
 - inputText: "quero correr de manhã"
-# §17: a forma veste sozinha e os campos abrem POR CIMA da tela
+# §17: a forma veste sozinha; a folha sobe a UM toque (modal não rouba a escrita)
+- extendedWaitUntil:
+    visible:
+      id: "abrir-campos"
+    timeout: 8000
+- tapOn:
+    id: "abrir-campos"
 - extendedWaitUntil:
     visible:
       id: "forma-woop"
-    timeout: 8000
+    timeout: 5000
 - takeScreenshot: /tmp/traco-verify/folha-vestida
 - tapOn:
     id: "campo-resultado"

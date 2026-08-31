@@ -17,6 +17,32 @@ struct PaginaView: View {
         Empilha(aberto: $sessao.mostrarNotas, reduceMotion: reduceMotion) {
             pagina
                 .opacity(chegou || reduceMotion ? 1 : 0)
+                .sheet(isPresented: $mostrarCampos) {
+                    if let gesto = sessao.gesto, gesto != .expressiva {
+                        ScrollView {
+                            VStack(alignment: .leading, spacing: 4) {
+                                HStack {
+                                    Spacer()
+                                    Button("Soltar a forma") {
+                                        sessao.soltarForma()
+                                        mostrarCampos = false
+                                    }
+                                    .font(Tema.label)
+                                    .foregroundStyle(Tema.ambar)
+                                    .frame(minHeight: Tema.alvo)
+                                    .accessibilityIdentifier("soltar-na-folha")
+                                }
+                                .padding(.horizontal, Tema.margem)
+                                CamposFormaView(gesto: gesto, campos: $sessao.campos)
+                            }
+                            .padding(.top, 8)
+                        }
+                        .scrollDismissesKeyboard(.interactively)
+                        .presentationDetents([.medium, .large])
+                        .presentationDragIndicator(.visible)
+                        .presentationBackground(Tema.fundo)
+                    }
+                }
         } frente: {
             NotasView(sessao: sessao)
         }
@@ -72,38 +98,13 @@ struct PaginaView: View {
         .onChange(of: sessao.confirmacao != nil) { _, coberto in
             if !coberto { restaurarFoco() }
         }
-        // a forma vestiu (auto ou manual) → os campos abrem POR CIMA da tela
+        // a forma vestiu sozinha, mas a folha NÃO sobe sozinha: modal no meio da
+        // escrita rouba a página. A alça "abrir campos" é a porta, a um toque.
         .onChange(of: sessao.gesto) { _, g in
-            mostrarCampos = g != nil && g != .expressiva
+            if g == nil || g == .expressiva { mostrarCampos = false }
         }
         .onChange(of: mostrarCampos) { _, aberto in
             if !aberto { restaurarFoco() }
-        }
-        .sheet(isPresented: $mostrarCampos) {
-            if let gesto = sessao.gesto, gesto != .expressiva {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 4) {
-                        HStack {
-                            Spacer()
-                            Button("Soltar a forma") {
-                                sessao.soltarForma()
-                                mostrarCampos = false
-                            }
-                            .font(Tema.label)
-                            .foregroundStyle(Tema.ambar)
-                            .frame(minHeight: Tema.alvo)
-                            .accessibilityIdentifier("soltar-na-folha")
-                        }
-                        .padding(.horizontal, Tema.margem)
-                        CamposFormaView(gesto: gesto, campos: $sessao.campos)
-                    }
-                    .padding(.top, 8)
-                }
-                .scrollDismissesKeyboard(.interactively)
-                .presentationDetents([.medium, .large])
-                .presentationDragIndicator(.visible)
-                .presentationBackground(Tema.fundo)
-            }
         }
         .onChange(of: sessao.timerEsgotou) { _, esgotou in
             if esgotou { sessao.esgotarTimer(no: context) }
@@ -164,35 +165,6 @@ struct PaginaView: View {
                     timerBar
                 }
                 editor
-                // a forma abre POR CIMA da tela (folha): preencher tem espaço
-                // próprio; aqui embaixo fica só a alça de reabrir
-                if let gesto = sessao.gesto, gesto != .expressiva, !mostrarCampos {
-                    Button {
-                        Toque.selecao()
-                        mostrarCampos = true
-                    } label: {
-                        HStack(spacing: 8) {
-                            Text(gesto.nome.uppercased())
-                                .font(Tema.label)
-                                .tracking(Tema.trackingLabel)
-                            Spacer()
-                            Text("abrir campos")
-                                .font(Tema.label)
-                            Image(systemName: "chevron.up")
-                                .font(.caption)
-                        }
-                        .foregroundStyle(Tema.tintaSuave)
-                        .padding(.horizontal, Tema.margem)
-                        .frame(minHeight: Tema.alvo)
-                        .contentShape(Rectangle())
-                    }
-                    .buttonStyle(PressaoDiscreta())
-                    .background(Tema.superficie, in: RoundedRectangle(cornerRadius: Tema.raio, style: .continuous))
-                    .padding(.horizontal, 10)
-                    .padding(.bottom, 8)
-                    .accessibilityIdentifier("abrir-campos")
-                    .accessibilityLabel("Abrir campos da forma \(gesto.nome)")
-                }
             }
             .safeAreaInset(edge: .bottom, spacing: 0) {
                 if sessao.cartao == nil && !sessao.paginaVazia {
@@ -218,7 +190,7 @@ struct PaginaView: View {
             }
 
             if let cartao = sessao.cartao {
-                CartaoAnaliseView(cartao: cartao, sessao: sessao)
+                CartaoAnaliseView(cartao: cartao, sessao: sessao, aoAbrirCampos: { mostrarCampos = true })
                     .padding(.horizontal, 12)
                     .padding(.bottom, 12)
                     .transition(reduceMotion

@@ -20,7 +20,7 @@ enum PadroesRemoto {
     """
 
     static func perguntas(vozes: [String]) async -> [String]? {
-        guard let chave = Chave.ler(), !vozes.isEmpty else { return nil }
+        guard !vozes.isEmpty, let chave = await ContaGrok.token() else { return nil }
         var pedido = URLRequest(url: URL(string: "https://api.x.ai/v1/chat/completions")!)
         pedido.httpMethod = "POST"
         pedido.timeoutInterval = 12

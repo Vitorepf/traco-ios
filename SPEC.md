@@ -81,25 +81,30 @@ abrir app ──► página em branco ──► usuário escreve (traço livre)
 
 - **Gatilho:** automático na pausa da escrita (debounce ~1.6s) + botão Analisar.
   Toque longo no botão liga/desliga o automático. Silêncio automático é invisível.
-- **Motor padrão: xAI Grok (API oficial)** quando há chave configurada e rede.
+- **Motor padrão: xAI Grok** quando a conta do autor está ligada e há rede.
   Endpoint OpenAI-compatível, JSON estrito `{gesto, aviso|null, pergunta|null}`,
   temperatura 0, sem histórico (não é chat). **Silêncio em erro** — resposta fora
   do formato, sem rede, timeout: cai no motor local, nunca inventa.
-- **Motor local é o fallback permanente:** sem chave, offline ou erro → as mesmas
-  heurísticas de hoje. Sem chave configurada, o app é 100% local e gratuito.
-- **Chave e custo:** chave do PRÓPRIO dono (console xAI), guardada no Keychain,
-  nunca em texto plano. A API cobra por token — o custo é do dono e a tela da
-  chave diz isso com todas as letras. **SuperGrok ≠ API** continua verdade: a
-  conta Super (grok.com) não serve ao app; é a API, com ledger próprio.
-- **Proibido:** chamada de rede SEM chave configurada pelo dono; qualquer gasto
-  que o dono não ligou explicitamente; conteúdo de nota TRANCADA em qualquer
-  chamada de rede (o selo vale para a rede).
-- **ADR 2026-08-31j (lei do dono): SÓ A ASSINATURA.** A IA usa somente o que a
-  assinatura do Grok já paga cobre — nunca pagar por token, nunca uso extra
-  cobrado. Enquanto a API xAI for metered fora da assinatura, o padrão do app é
-  100% local e gratuito; a chave por token é opt-in explícito e a tela da chave
-  avisa o custo. Se a assinatura passar a incluir crédito de API, essa é a única
-  via aceita.
+- **Motor local é o fallback permanente:** sem conta, offline ou erro → as mesmas
+  heurísticas de hoje. Sem conta ligada, o app é 100% local e gratuito.
+- **Conta e custo: ZERO.** Não existe chave de API neste app. O autor entra com
+  a PRÓPRIA conta Grok (OAuth 2.0 device-code em `auth.x.ai`; access+refresh no
+  Keychain, nunca em texto plano) e as chamadas a `api.x.ai` debitam o **pool
+  semanal da assinatura**. Provado na conta do dono em 31/ago: HTTP 200 com
+  crédito de console em US$ 0,00 — logo, não é medidor de token.
+- **Proibido:** chamada de rede SEM conta ligada pelo dono; qualquer cobrança por
+  token (não existe caminho de chave de API no código); conteúdo de nota TRANCADA
+  em qualquer chamada de rede (o selo vale para a rede).
+- **ADR 2026-08-31j (lei do dono): SÓ A ASSINATURA.** Nunca pagar por token,
+  nunca uso extra cobrado.
+- **ADR 2026-08-31k: login por assinatura, chave de API REMOVIDA.** O caminho de
+  `xai-…` no console foi apagado do código (Chave/ChaveView deletadas). Entra
+  `ContaGrok`: device-code em `auth.x.ai/oauth2/device/code`, escopos
+  `openid profile email offline_access api:access`, renovação automática, e
+  `Bearer` nas chamadas. Cliente público da xAI (o do Grok CLI) — não há
+  `registration_endpoint` para identidade própria; se a xAI publicar, troca-se a
+  constante. Superfície sem doc pública → **fallback local obrigatório** em
+  401/403/429. Sem conta, o app é 100% local.
 
 ### Avisos obrigatórios (no system prompt)
 | Detecta | Aviso (essência) |
@@ -290,3 +295,9 @@ um método. Quem conhece o catálogo é a IA; quem escreve é o autor. Ponto.
 **Fila que isto abre (P1):** motor de auto-forma local (heurística por bloco) →
 auto-forma com IA real → roteador automático de métodos → confiança calibrada
 (vestir só quando certeza; senão, silêncio).
+
+## 18. Meu perfil
+Um lugar só para conta e ajustes, alcançável do rodapé das Notas. Contém: estado
+honesto da conta Grok em uma linha (conectada / expirada / sem rede / limite),
+entrar e sair, e os ajustes que hoje só existiam em toque longo (análise
+automática). Nada de chave, nada de preço, nada de medidor.

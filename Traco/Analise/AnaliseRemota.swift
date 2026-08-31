@@ -45,7 +45,7 @@ enum AnaliseRemota {
     }
 
     static func classificar(texto: String, gestoAtual: Gesto?) async -> AnaliseLocal.Veredito? {
-        guard let chave = Chave.ler() else { return nil }
+        guard let chave = await ContaGrok.token() else { return nil }
         guard gestoAtual != .expressiva else { return nil } // selo: nunca à rede
         if case .some(let hit) = memoLido(texto) { return hit }
         var pedido = URLRequest(url: URL(string: "https://api.x.ai/v1/chat/completions")!)

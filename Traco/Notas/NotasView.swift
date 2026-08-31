@@ -10,7 +10,7 @@ struct NotasView: View {
     @State private var busca = ""
     @State private var filtro: FiltroNotas?
     @State private var corpusURL: URL?
-    @State private var mostrarChave = false
+    @State private var mostrarPerfil = false
     @State private var importarMd = false
 
     var body: some View {
@@ -31,7 +31,7 @@ struct NotasView: View {
                 lista
             }
         }
-        .sheet(isPresented: $mostrarChave) { ChaveView() }
+        .sheet(isPresented: $mostrarPerfil) { PerfilView(sessao: sessao) }
         .fileImporter(isPresented: $importarMd,
                       allowedContentTypes: [.plainText, .init(filenameExtension: "md") ?? .plainText],
                       allowsMultipleSelection: true) { resultado in
@@ -220,16 +220,16 @@ struct NotasView: View {
                     .buttonStyle(PressaoDiscreta())
                     if busca.isEmpty, filtro == nil {
                         Button {
-                            mostrarChave = true
+                            mostrarPerfil = true
                         } label: {
-                            Text(Chave.existe ? "análise com Grok: chave guardada" : "análise com Grok: configurar chave")
+                            Text("meu perfil")
                                 .font(.subheadline)
                                 .foregroundStyle(Tema.tintaFraca)
                                 .frame(minHeight: Tema.alvo)
                         }
                         .buttonStyle(PressaoDiscreta())
-                        .accessibilityIdentifier("configurar-chave")
-                        .accessibilityHint("Chave da API da xAI no Keychain. Sem chave, o app é 100% local.")
+                        .accessibilityIdentifier("abrir-perfil")
+                        .accessibilityHint("Conta Grok e ajustes. Sem conta, o app é 100% local.")
                     }
                 }
                 .frame(maxWidth: .infinity)
@@ -277,16 +277,16 @@ struct NotasView: View {
                         }
                         if busca.isEmpty, filtro == nil {
                             Button {
-                                mostrarChave = true
+                                mostrarPerfil = true
                             } label: {
-                                Text(Chave.existe ? "análise com Grok: chave guardada" : "análise com Grok: configurar chave")
+                                Text("meu perfil")
                                     .font(.subheadline)
                                     .foregroundStyle(Tema.tintaFraca)
                                     .frame(maxWidth: .infinity, minHeight: Tema.alvo)
                             }
                             .buttonStyle(PressaoDiscreta())
-                            .accessibilityIdentifier("configurar-chave")
-                            .accessibilityHint("Chave da API da xAI no Keychain. Sem chave, o app é 100% local.")
+                            .accessibilityIdentifier("abrir-perfil")
+                            .accessibilityHint("Conta Grok e ajustes. Sem conta, o app é 100% local.")
                         }
                         if busca.isEmpty, filtro == nil {
                             Button {

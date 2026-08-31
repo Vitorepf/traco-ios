@@ -1,0 +1,21 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: abrir-notas
+- tapOn:
+    id: abrir-perfil
+- extendedWaitUntil:
+    visible: "Meu perfil"
+    timeout: 5000
+- takeScreenshot: /tmp/traco-verify/perfil
+- assertVisible: "Grok"
+- assertVisible:
+    id: entrar-conta
+- assertVisible:
+    id: ajuste-auto-analise
+# a lei do dono: nenhuma palavra de chave, token ou preço nesta tela
+- assertNotVisible: "xai-"
+- assertNotVisible: "Keychain"
+- assertNotVisible: "console"

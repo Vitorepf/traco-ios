@@ -474,19 +474,25 @@ struct AnaliseRemotaTests {
         #expect(AnaliseRemota.parseVeredito(#"{"gesto":"golpe","aviso":null,"pergunta":null}"#) == .silencio)
     }
 
-    @Test func chaveVaiEVoltaDoKeychain() {
-        Chave.apagar()
-        #expect(!Chave.existe)
-        Chave.salvar("xai-teste-123")
-        #expect(Chave.ler() == "xai-teste-123")
-        Chave.apagar()
-        #expect(Chave.ler() == nil)
+    @Test func contaDesligadaNaoDeixaRastroNoCofre() async {
+        ContaGrok.sair()
+        #expect(!ContaGrok.ligada)
+        #expect(await ContaGrok.token() == nil) // sem sessão: nada a renovar
     }
 
-    @Test func semChaveRemotaCalaSemRede() async {
-        Chave.apagar()
+    @Test func semContaRemotaCalaSemRede() async {
+        ContaGrok.sair()
         let v = await AnaliseRemota.classificar(texto: "quero correr", gestoAtual: nil)
-        #expect(v == nil) // sem chave: zero rede, cai no local
+        #expect(v == nil) // sem conta: zero rede, cai no local
+    }
+
+    /// A lei do dono (ADR 31j/31k): não existe chave de API neste app.
+    @Test func loginEPelaAssinaturaNaoPorToken() {
+        #expect(ContaGrok.escopos.contains("api:access"))
+        #expect(ContaGrok.escopos.contains("offline_access")) // renova sozinho
+        let corpo = String(data: ContaGrok.corpo(["a": "x y", "b": "z"]), encoding: .utf8) ?? ""
+        #expect(corpo.contains("a=x%20y"))
+        #expect(corpo.contains("b=z"))
     }
 }
 

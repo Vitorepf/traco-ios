@@ -3,6 +3,7 @@ import SwiftUI
 struct CartaoAnaliseView: View {
     let cartao: CartaoAnalisar
     let sessao: Sessao
+    var aoAbrirCampos: (() -> Void)?
     @Environment(\.modelContext) private var context
 
     var body: some View {
@@ -67,7 +68,21 @@ struct CartaoAnaliseView: View {
                 // §17.3: a forma já veio vestida — o cartão vira UMA linha e o
                 // palco (os campos) fica em cena. Os rótulos já perguntam tudo.
                 HStack(spacing: 12) {
-                    chip(gesto.nome, aviso: false)
+                    // o cartão É a porta dos campos: um toque abre a folha
+                    Button {
+                        aoAbrirCampos?()
+                    } label: {
+                        HStack(spacing: 8) {
+                            chip(gesto.nome, aviso: false)
+                            Image(systemName: "chevron.up")
+                                .font(.caption2)
+                                .foregroundStyle(Tema.tintaSuave)
+                        }
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(PressaoDiscreta())
+                    .accessibilityIdentifier("abrir-campos")
+                    .accessibilityLabel("Abrir campos da forma \(gesto.nome)")
                     Spacer(minLength: 0)
                     Button("Soltar a forma") {
                         sessao.soltarForma()
