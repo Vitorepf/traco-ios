@@ -9,6 +9,8 @@ struct RaizView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var sessao = Sessao()
     @State private var tecladoAberto = false
+    /// 0 = escrevendo · 1 = arquivo. A barra do arquivo viaja com a camada.
+    @State private var progresso: CGFloat = 0
 
     private var arquivoAberto: Binding<Bool> {
         Binding(
@@ -20,6 +22,7 @@ struct RaizView: View {
     var body: some View {
         Camadas(
             arquivoAberto: arquivoAberto,
+            progresso: $progresso,
             // o gesto vive SEMPRE: ele nasce nos 28pt da borda, longe da seleção
             // de texto — matá-lo com o teclado de pé criava atrito depois de
             // concluir uma nota (o teclado volta e a saída sumia)
@@ -38,20 +41,17 @@ struct RaizView: View {
                 .safeAreaInset(edge: .bottom, spacing: 0) {
                     Color.clear.frame(height: tecladoAberto ? 0 : Tema.barraNav)
                 }
-                // a troca de aba anima SÓ quando a camada já está parada: durante
-                // o deslize ela era um segundo driver, e o conteúdo chegava em
-                // dois pedaços (cabeçalho e lista a 26px um do outro)
-                .transaction { t in
-                    if sessao.aba == .escrever { t.animation = nil }
-                }
-                .animation(reduceMotion ? nil : .easeOut(duration: 0.18), value: sessao.abaArquivo)
+                // sem animação na troca de aba: saída em corte + entrada em fade
+                // deixava um quadro inteiramente VAZIO no meio (k423). Troca
+                // seca não tem vão — e aba não tem direção espacial mesmo.
+                .transaction { t in t.animation = nil }
             }
         } escrita: {
             ZStack(alignment: .leading) {
                 Tema.fundo.ignoresSafeArea()
                 PaginaView(sessao: sessao)
                 if !tecladoAberto {
-                    PuxadorBorda()
+                    AbaArquivo { sessao.irPara(sessao.abaArquivo, no: context) }
                         .transition(.opacity)
                 }
             }
@@ -82,7 +82,7 @@ struct RaizView: View {
         // a barra é chrome da CASCA, não de uma camada deslocada: dentro do trilho
         // o `ignoresSafeArea` do material era cortado junto com a camada
         .overlay(alignment: .bottom) {
-            if sessao.aba != .escrever {
+            if progresso > 0.01 {
                 BarraNavegacao(
                     aba: Binding(
                         get: { sessao.abaArquivo },
@@ -95,10 +95,12 @@ struct RaizView: View {
                         sessao.irPara(.escrever, no: context)
                     }
                 )
-                .transition(.opacity)
+                // a barra ENTRA COM a camada: antes ela materializava depois
+                // que tudo já tinha pousado, e a camada não era uma peça só
+                .offset(x: (1 - progresso) * -60)
+                .opacity(progresso)
             }
         }
-        .animation(.easeOut(duration: 0.18), value: sessao.aba)
         .preferredColorScheme(.dark)
         .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
             tecladoAberto = true

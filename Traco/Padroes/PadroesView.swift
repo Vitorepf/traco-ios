@@ -45,7 +45,10 @@ struct PadroesView: View {
                             .font(Tema.corpo)
                             .foregroundStyle(Tema.tintaSuave)
                     } else {
-                        Text("Li as últimas \(abertas.count) notas. Perguntas — toque numa para respondê-la. Quem conclui é você.")
+                        // "Li" dava um EU à IA — e o app não é interlocutor.
+                        // Se é preciso avisar que quem conclui é o autor, é
+                        // porque a frase anterior sugeriu o contrário.
+                        Text("\(abertas.count) notas, \(perguntas.count) pergunta\(perguntas.count == 1 ? "" : "s"). Toque numa para responder — a resposta vira nota sua.")
                             .font(Tema.corpo)
                             .foregroundStyle(Tema.tintaSuave)
                             .padding(.bottom, 8)

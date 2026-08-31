@@ -32,7 +32,7 @@ struct PaginaView: View {
                                 .foregroundStyle(Tema.tinta)
                                 .accessibilityAddTraits(.isHeader)
                             Spacer(minLength: 8)
-                            Button("Soltar a forma") {
+                            Button("Deixar como nota") {
                                 sessao.soltarForma()
                                 mostrarCampos = false
                             }
@@ -226,7 +226,7 @@ struct PaginaView: View {
 
             Spacer()
 
-            Button("Concluída") { sessao.concluir(no: context) }
+            Button("Concluir") { sessao.concluir(no: context) }
                 .keyboardShortcut(.return, modifiers: .command)
                 .foregroundStyle(concluidaEAmbar ? Tema.ambar : Tema.tintaSuave)
                 .opacity(sessao.paginaVazia ? 0 : 1)
@@ -234,7 +234,7 @@ struct PaginaView: View {
                 .frame(minHeight: Tema.alvo)
                 .accessibilityHidden(sessao.paginaVazia)
                 .accessibilityIdentifier("concluir")
-                .accessibilityLabel("Concluída")
+                .accessibilityLabel("Concluir")
                 .accessibilityHint("Guarda e abre uma página nova")
         }
         .font(Tema.chrome)

@@ -22,4 +22,4 @@ appId: app.traco
 - inputText: "correr 5km"
 - takeScreenshot: /tmp/traco-verify/folha-preenchida
 - assertVisible: "correr 5km"
-- assertVisible: "Soltar a forma"
+- assertVisible: "Deixar como nota"

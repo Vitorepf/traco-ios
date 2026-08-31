@@ -28,6 +28,19 @@ enum Gesto: String, CaseIterable, Codable, Identifiable {
         }
     }
 
+    /// O que o app RECONHECEU no texto — não um elogio, não uma conclusão:
+    /// a razão da classificação, para o autor poder discordar dela.
+    var reconhecimento: String {
+        switch self {
+        case .woop: "isto é um desejo com obstáculo pela frente."
+        case .seEntao: "isto é um hábito que trava num gatilho."
+        case .spec: "isto tem problema e critério de pronto."
+        case .notaPermanente: "isto é uma ideia que vale guardar inteira."
+        case .destaque: "isto parece a lista do seu dia."
+        case .expressiva: "isto é desabafo — pede tempo e porta fechada."
+        }
+    }
+
     var campos: [CampoForma] {
         switch self {
         case .woop:

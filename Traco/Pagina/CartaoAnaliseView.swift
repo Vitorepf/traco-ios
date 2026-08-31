@@ -49,7 +49,7 @@ struct CartaoAnaliseView: View {
                         .fill(Tema.aviso.opacity(0.5))
                         .frame(width: 3)
                     VStack(alignment: .leading, spacing: 8) {
-                        chip("Aviso", aviso: true)
+                        chip("Pergunta", aviso: false)
                         avisoTexto(frase)
                     }
                 }
@@ -65,30 +65,25 @@ struct CartaoAnaliseView: View {
                 .buttonStyle(CartaoBotaoStyle())
                 .accessibilityHint("Campos vazios nascem abaixo do seu texto")
             case .vestida(let gesto, _):
-                // §17.3: a forma já veio vestida — o cartão vira UMA linha e o
-                // palco (os campos) fica em cena. Os rótulos já perguntam tudo.
-                HStack(spacing: 12) {
-                    // o cartão É a porta dos campos: um toque abre a folha
-                    Button {
-                        aoAbrirCampos?()
-                    } label: {
-                        HStack(spacing: 8) {
-                            chip(gesto.nome, aviso: false)
-                            Image(systemName: "chevron.up")
-                                .font(.caption2)
-                                .foregroundStyle(Tema.tintaSuave)
-                        }
-                        .contentShape(Rectangle())
-                    }
-                    .buttonStyle(PressaoDiscreta())
-                    .accessibilityIdentifier("abrir-campos")
-                    .accessibilityLabel("Abrir campos da forma \(gesto.nome)")
-                    Spacer(minLength: 0)
-                    Button("Soltar a forma") {
-                        sessao.soltarForma()
-                    }
-                    .buttonStyle(CompactoStyle())
-                    .accessibilityHint("Desfaz a forma; o seu texto fica intacto")
+                // Auditoria de UX: o âmbar estava no botão que JOGA FORA a
+                // classificação, e o caminho positivo era um chevron sem rótulo.
+                // O funil principal apontava ao contrário (fitts-law +
+                // von-restorff-effect). E "soltar" é ambíguo em pt-BR entre
+                // largar e aplicar — metade tocaria achando que confirma.
+                chip(gesto.nome, aviso: false)
+                Text(gesto.reconhecimento)
+                    .font(Tema.meta)
+                    .foregroundStyle(Tema.tintaSuave)
+                    .fixedSize(horizontal: false, vertical: true)
+                HStack(spacing: 10) {
+                    Button("Abrir os campos") { aoAbrirCampos?() }
+                        .buttonStyle(CartaoBotaoStyle())
+                        .accessibilityIdentifier("abrir-campos")
+                        .accessibilityHint("Os campos da forma abrem numa folha; o seu texto fica intacto")
+                    Button("Deixar como nota") { sessao.soltarForma() }
+                        .buttonStyle(CompactoStyle())
+                        .accessibilityIdentifier("soltar-forma")
+                        .accessibilityHint("Desfaz a forma; o seu texto fica intacto")
                 }
             case .expressiva:
                 chip("Escrita expressiva", aviso: false)

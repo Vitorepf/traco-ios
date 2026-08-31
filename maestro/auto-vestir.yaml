@@ -10,7 +10,7 @@ appId: app.traco
 - inputText: "quero correr de manhã"
 # §17: veste sozinha e o cartão anuncia — sem roubar a página
 - extendedWaitUntil:
-    visible: "Soltar a forma"
+    visible: "Deixar como nota"
     timeout: 6000
 - assertVisible: "quero correr de manhã"
 # o cartão é a porta: um toque abre a folha dos campos

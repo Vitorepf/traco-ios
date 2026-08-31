@@ -375,7 +375,11 @@ final class Sessao {
             }
             return
         }
+        let nomeGesto = gesto?.nome.lowercased()
         salvar(no: context)
+        // peak-end-rule: o fim do percurso não devolvia NADA — nem confirmação,
+        // nem onde a nota foi parar. Uma linha, e ela some sozinha.
+        mostrarToast(nomeGesto.map { "\($0) guardada · também no Arquivos" } ?? "guardada · também no Arquivos")
         // FILA P1.5: a nota concluída marca a própria revisão — o Recordar chega
         // no dia certo sem o autor lembrar (§17).
         // Exp 9: o corpus vive também no app Arquivos — backup sem nuvem, sem conta

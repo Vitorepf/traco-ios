@@ -9,15 +9,15 @@ appId: app.traco
 - tapOn: "Página"
 - inputText: "quero correr de manhã"
 - extendedWaitUntil:
-    visible: "Soltar a forma"
+    visible: "Deixar como nota"
     timeout: 6000
-- tapOn: "Soltar a forma"
+- tapOn: "Deixar como nota"
 - tapOn:
     id: "concluir"
 - tapOn: "Página"
 - inputText: "eu sou um vencedor"
 - extendedWaitUntil:
-    visible: "Aviso"
+    visible: "Pergunta"
     timeout: 6000
 - tapOn:
     id: "concluir"

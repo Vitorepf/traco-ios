@@ -34,7 +34,7 @@ appId: app.traco
 - tapOn:
     id: "fecho-queimar"
 - extendedWaitUntil:
-    visible: "Concluída"
+    visible: "Concluir"
     timeout: 6000
 - swipe:
     start: 1%, 50%

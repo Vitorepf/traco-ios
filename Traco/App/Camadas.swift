@@ -15,6 +15,9 @@ import SwiftUI
 /// o menor arranjo que não tem esse laço.
 struct Camadas<Arquivo: View, Escrita: View>: View {
     @Binding var arquivoAberto: Bool
+    /// 0 = escrevendo · 1 = arquivo à mostra. Quem está por baixo escurece com
+    /// isto, e a barra do arquivo viaja com isto — a camada é UMA peça.
+    @Binding var progresso: CGFloat
     var gestoAtivo: Bool
     var reduceMotion: Bool
     @ViewBuilder var arquivo: () -> Arquivo
@@ -37,6 +40,9 @@ struct Camadas<Arquivo: View, Escrita: View>: View {
         ZStack {
             escrita()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                // profundidade de verdade: a folha do sistema escurece o fundo
+                // em 48%; a nossa escurecia 0,7% e lia como substituição
+                .overlay(Color.black.opacity(0.45 * progresso).ignoresSafeArea())
                 .allowsHitTesting(!arquivoAberto)
                 .accessibilityHidden(arquivoAberto)
 
@@ -44,6 +50,10 @@ struct Camadas<Arquivo: View, Escrita: View>: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .shadow(color: .black.opacity(0.6), radius: 18, x: 6)
                 .offset(x: pos)
+                .onChange(of: pos) { _, novo in
+                    guard largura > 0 else { return }
+                    progresso = max(0, min(1, 1 + novo / largura))
+                }
                 .allowsHitTesting(arquivoAberto)
                 .accessibilityHidden(!arquivoAberto)
         }
@@ -56,6 +66,7 @@ struct Camadas<Arquivo: View, Escrita: View>: View {
                     .onAppear {
                         largura = g.size.width
                         pos = arquivoAberto ? 0 : -g.size.width
+                        progresso = arquivoAberto ? 1 : 0
                     }
                     .onChange(of: g.size.width) { _, nova in
                         largura = nova
@@ -72,8 +83,11 @@ struct Camadas<Arquivo: View, Escrita: View>: View {
         }
     }
 
+    /// A folha do sistema pousa com passo de 0,96px; a nossa pousava com 76px.
+    /// `response` maior + `dampingFraction` um pouco menor = cauda longa, que é
+    /// o que faz o movimento POUSAR em vez de bater.
     private func mola(reduzido: Bool) -> Animation {
-        reduzido ? .easeOut(duration: 0.2) : .spring(response: 0.42, dampingFraction: 0.86)
+        reduzido ? .easeOut(duration: 0.2) : .spring(response: 0.55, dampingFraction: 0.82)
     }
 
     private func trilho(_ w: CGFloat) -> some Gesture {
@@ -123,16 +137,31 @@ struct Camadas<Arquivo: View, Escrita: View>: View {
     }
 }
 
-/// O puxador: 3×36pt na borda esquerda da escrita. Descobribilidade sem chrome —
-/// diz "tem algo aqui" sem ocupar a tela nem pedir leitura.
-struct PuxadorBorda: View {
+/// A aba do arquivo, na borda esquerda da escrita.
+///
+/// Auditoria de UX: o arquivo inteiro (Notas · Padrões · Perfil) dependia de o
+/// autor LEMBRAR que existe uma borda arrastável, marcada por um traço cinza de
+/// 3pt sobre preto. Num app cuja lei é "atrito é bug, não posso ter de lembrar
+/// de nada" (§17), isso não era escolha estética — era o bug definido pela
+/// própria lei. Agora é âmbar, visível, e **tocável**: o gesto continua para
+/// quem já sabe, o toque existe para quem não sabe.
+struct AbaArquivo: View {
+    var aoTocar: () -> Void
+
     var body: some View {
-        Capsule()
-            .fill(Tema.tintaFraca.opacity(0.35))
-            .frame(width: 3, height: 36)
-            .padding(.leading, 2)
-            .frame(maxHeight: .infinity, alignment: .center)
-            .allowsHitTesting(false)
-            .accessibilityHidden(true)
+        Button(action: aoTocar) {
+            Capsule()
+                .fill(Tema.ambar.opacity(0.55))
+                .frame(width: 4, height: 64)
+                .padding(.leading, 3)
+                .padding(.vertical, 20)
+                .padding(.trailing, 16)   // alvo largo sem chrome largo
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(PressaoDiscreta())
+        .frame(maxHeight: .infinity, alignment: .center)
+        .accessibilityIdentifier("aba-arquivo")
+        .accessibilityLabel("Abrir as notas")
+        .accessibilityHint("Também abre arrastando da borda esquerda")
     }
 }

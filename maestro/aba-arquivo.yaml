@@ -1,0 +1,18 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn: Página
+- inputText: "uma nota qualquer"
+- swipe:
+    direction: DOWN
+# a lei do atrito: o arquivo não pode depender de LEMBRAR um gesto invisível
+- assertVisible:
+    id: "aba-arquivo"
+- tapOn:
+    id: "aba-arquivo"
+- extendedWaitUntil:
+    visible:
+      id: aba-notas
+    timeout: 5000
+- takeScreenshot: /tmp/traco-verify/nav/90-aba-arquivo

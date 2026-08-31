@@ -86,8 +86,11 @@ struct CadernoView: View {
                         }
                         .transition(.move(edge: .bottom))
                 }
-                // a barra de ações da página mora AQUI: um container, uma lei
+                // a barra de ações da página mora AQUI: um container, uma lei.
+                // A altura mínima impede o quadro VAZIO entre um ocupante sair
+                // e o outro entrar (k175) — sem voltar à sobreposição.
                 rodape
+                    .frame(minHeight: rodape == nil ? 0 : 54)
             }
             // uma animação para a superfície inteira: os filhos trocam DENTRO
             // dela — quem anima é a ALTURA do container, não a opacidade de

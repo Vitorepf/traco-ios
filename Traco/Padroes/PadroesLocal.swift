@@ -44,9 +44,12 @@ enum PadroesLocal: Sendable {
                           .first(where: { $0.count >= 8 && $0.lowercased() != titulo.lowercased() && !usados.contains($0.lowercased()) }) {
                 saida.append("“\(titulo)” e “\(outra)” — o que liga as duas, nas suas palavras?")
                 usados.insert(outra.lowercased())
-            } else {
-                saida.append("Você escreveu “\(titulo)”. Na vez em que o pé andou, o que havia de diferente?")
             }
+            // Auditoria de UX: havia aqui um template de HÁBITO ("na vez em que
+            // o pé andou") colado em qualquer nota — inclusive numa de
+            // arquitetura de software. Uma pergunta genérica é a prova visível
+            // de que o app não reconheceu nada, e contamina a aba inteira.
+            // Sem pergunta específica, silêncio (§19.4).
             usados.insert(titulo.lowercased())
             if saida.count >= 3 { break }
         }

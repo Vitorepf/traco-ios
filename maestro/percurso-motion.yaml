@@ -51,5 +51,5 @@ appId: app.traco
     start: 99%, 50%
     end: 15%, 50%
 - extendedWaitUntil:
-    visible: "Concluída"
+    visible: "Concluir"
     timeout: 6000

@@ -11,9 +11,9 @@ enum AnaliseLocal: Sendable {
     }
 
     nonisolated static let avisoFrasePronta = "A frase aqui é sua. O Traço não escreve."
-    nonisolated static let avisoWood = "Afirmação vazia não muda nada — e pesa em quem se estima pouco. Escreva por que um valor seu importa."
-    nonisolated static let avisoOuvinte = "Quem é a pessoa de verdade que deveria receber isto? O Traço não é ouvinte."
-    nonisolated static let avisoOettingen = "Sem o obstáculo interno, isso é fantasia — e fantasia reduz o esforço. Qual é o seu?"
+    nonisolated static let avisoWood = "Afirmação sem prova não gruda. O que aconteceu que fez você escrever isso?"
+    nonisolated static let avisoOuvinte = "Quem é a pessoa de verdade que deveria ouvir isto?"
+    nonisolated static let avisoOettingen = "Falta o obstáculo. O que, em você, costuma atrapalhar isto?"
     nonisolated static let avisoDoisGestos = "Um gesto por sessão. O segundo método vai para outra página."
 
     /// A ÚNICA porta entre um rótulo da IA e uma frase na tela (§19.4).

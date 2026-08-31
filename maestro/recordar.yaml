@@ -16,7 +16,7 @@ appId: app.traco
     id: "aba-notas"
 - tapOn: "o texto desta nota de teste"
 - extendedWaitUntil:
-    visible: "Concluída"
+    visible: "Concluir"
     timeout: 5000
 - tapOn: Recordar
 - extendedWaitUntil:
