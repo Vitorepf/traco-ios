@@ -238,9 +238,26 @@ struct NotasView: View {
             } else {
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 0) {
-                        ForEach(visiveis, id: \.uuid) { nota in
-                            botaoNota(nota)
-                            Rectangle().fill(Tema.linha).frame(height: 0.5)
+                        // O arquivo tem tempo: seções por mês, não um pergaminho cego.
+                        ForEach(meses(visiveis), id: \.titulo) { secao in
+                            Text(secao.titulo)
+                                .font(Tema.label)
+                                .tracking(Tema.trackingLabel)
+                                .foregroundStyle(Tema.tintaFraca)
+                                .padding(.top, 20)
+                                .padding(.bottom, 6)
+                                .accessibilityAddTraits(.isHeader)
+                            ForEach(secao.notas, id: \.uuid) { nota in
+                                botaoNota(nota)
+                                Rectangle().fill(Tema.linha).frame(height: 0.5)
+                            }
+                        }
+                        if visiveis.count > 6 {
+                            Text("\(visiveis.count) notas")
+                                .font(Tema.meta)
+                                .foregroundStyle(Tema.tintaFraca)
+                                .frame(maxWidth: .infinity)
+                                .padding(.top, 16)
                         }
                         // Export mora no fim do arquivo: ação de arquivamento, não de uso diário.
                         // A geração acontece NO TOQUE (nada de I/O no body).
@@ -289,6 +306,28 @@ struct NotasView: View {
                 }
             }
         }
+    }
+
+    private struct SecaoMes {
+        let titulo: String
+        let notas: [Nota]
+    }
+
+    private func meses(_ notas: [Nota]) -> [SecaoMes] {
+        let cal = Calendar.current
+        let anoAtual = cal.component(.year, from: .now)
+        var ordem: [String] = []
+        var grupos: [String: [Nota]] = [:]
+        let f = DateFormatter()
+        f.locale = .current
+        for nota in notas {
+            let ano = cal.component(.year, from: nota.criadaEm)
+            f.dateFormat = ano == anoAtual ? "LLLL" : "LLLL yyyy"
+            let titulo = f.string(from: nota.criadaEm).uppercased()
+            if grupos[titulo] == nil { ordem.append(titulo) }
+            grupos[titulo, default: []].append(nota)
+        }
+        return ordem.map { SecaoMes(titulo: $0, notas: grupos[$0] ?? []) }
     }
 
     private var vazioTitulo: String {
@@ -361,13 +400,16 @@ struct NotasView: View {
         if !busca.isEmpty {
             return VozDoAutor.trecho(em: nota.vozDoAutor, termo: busca)
         }
+        // arquivo do esforço, não streak: quantas vezes esta nota foi recordada
+        let recordadas = Revisoes.contagem(nota.uuid)
+        let sufixo = recordadas > 0 ? " · recordada \(recordadas)×" : ""
         let respostas = nota.campos.values
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
         if respostas.isEmpty {
-            return VozDoAutor.relativo(nota.criadaEm)
+            return VozDoAutor.relativo(nota.criadaEm) + sufixo
         }
-        return VozDoAutor.truncar(respostas.joined(separator: " · "), 56)
+        return VozDoAutor.truncar(respostas.joined(separator: " · "), 56) + sufixo
     }
 }
 

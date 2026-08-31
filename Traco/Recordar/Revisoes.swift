@@ -25,6 +25,14 @@ enum Revisoes {
         var d = (UserDefaults.standard.dictionary(forKey: "revisaoNivel") as? [String: Int]) ?? [:]
         d[uuid.uuidString] = min((d[uuid.uuidString] ?? 0) + 1, escada.count - 1)
         UserDefaults.standard.set(d, forKey: "revisaoNivel")
+        var c = (UserDefaults.standard.dictionary(forKey: "revisaoConta") as? [String: Int]) ?? [:]
+        c[uuid.uuidString] = (c[uuid.uuidString] ?? 0) + 1
+        UserDefaults.standard.set(c, forKey: "revisaoConta")
+    }
+
+    /// Arquivo do esforço, não streak: "recordada 3×" no cartão da nota.
+    static func contagem(_ uuid: UUID) -> Int {
+        (UserDefaults.standard.dictionary(forKey: "revisaoConta") as? [String: Int])?[uuid.uuidString] ?? 0
     }
 
     /// Trancada/expressiva NUNCA agenda — e a notificação nunca carrega conteúdo
