@@ -34,7 +34,27 @@ struct FatiaCaderno: Identifiable, Equatable, Sendable {
 }
 
 enum Caderno: Sendable {
+    // ponytail: memo de último valor — o body do SwiftUI avalia `fatias` 2+ vezes por
+    // tecla sobre o MESMO texto; isto corta o reparse redundante. Teto conhecido:
+    // ainda é O(n) por mudança real; parser incremental por bloco fica na FILA (P1.2).
+    nonisolated(unsafe) private static let memoLock = NSLock()
+    nonisolated(unsafe) private static var memo: (fonte: String, fatias: [FatiaCaderno])?
+
     nonisolated static func fatias(_ fonte: String) -> [FatiaCaderno] {
+        memoLock.lock()
+        if let m = memo, m.fonte == fonte {
+            memoLock.unlock()
+            return m.fatias
+        }
+        memoLock.unlock()
+        let f = fatiasSemMemo(fonte)
+        memoLock.lock()
+        memo = (fonte, f)
+        memoLock.unlock()
+        return f
+    }
+
+    nonisolated static func fatiasSemMemo(_ fonte: String) -> [FatiaCaderno] {
         if fonte.isEmpty {
             return [FatiaCaderno(id: "paragrafo:0", bloco: .paragrafo(""), fonte: "", aberto: true)]
         }

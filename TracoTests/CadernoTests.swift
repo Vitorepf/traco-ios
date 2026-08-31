@@ -436,4 +436,13 @@ struct SintaxeTests {
         let p = SintaxeLocal.pintar("# def foo", lingua: "python")
         #expect(p.contains { $0.1 == .comentario })
     }
+    @Test func memoDevolveOMesmoResultadoDoParser() {
+        let md = "# capa\n- um\n- dois\n> dito"
+        let a = Caderno.fatias(md)
+        let b = Caderno.fatias(md) // segunda chamada: memo
+        #expect(a == b)
+        #expect(a.map(\.id) == Caderno.fatiasSemMemo(md).map(\.id))
+        let outro = Caderno.fatias(md + "\nmais")
+        #expect(outro.count >= a.count) // mudança real invalida o memo
+    }
 }
