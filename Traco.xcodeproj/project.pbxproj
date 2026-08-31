@@ -37,6 +37,7 @@
 		921E42407F002A0F679BA76F /* CartaoAnaliseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9F22E37F6BFFDA21C00C087 /* CartaoAnaliseView.swift */; };
 		93D35C3A111837E5CA2D4133 /* PortalArquivoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 830A6A725EE5ACDC831582DF /* PortalArquivoView.swift */; };
 		994B7BC3E12C8BBED0205FC1 /* PaginaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44CF1006FD54376D4F9A5274 /* PaginaView.swift */; };
+		9971859FF28FB8990D88F5DD /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 07FEF6E398FEED60218FF5E1 /* Localizable.xcstrings */; };
 		9AE336A415F4A83195416BE2 /* Gesto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 854249702104D325072DC8FA /* Gesto.swift */; };
 		BE9E364EB4D15B9B4A0FD32C /* SintaxeLocal.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE31B44AE2B9734818934EE6 /* SintaxeLocal.swift */; };
 		D37ABADE9FFCD8F825DC5E8B /* Tema.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A273C7A77EA3B9F5AAAC13A /* Tema.swift */; };
@@ -61,6 +62,7 @@
 
 /* Begin PBXFileReference section */
 		07E0810B1D0BA208B63D167C /* AnaliseLocal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnaliseLocal.swift; sourceTree = "<group>"; };
+		07FEF6E398FEED60218FF5E1 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		09E42139AC71241743C8C27F /* ChaveView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChaveView.swift; sourceTree = "<group>"; };
 		0A273C7A77EA3B9F5AAAC13A /* Tema.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tema.swift; sourceTree = "<group>"; };
 		1629E684196EC743E4367A0E /* DestaqueBusca.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DestaqueBusca.swift; sourceTree = "<group>"; };
@@ -233,6 +235,7 @@
 			isa = PBXGroup;
 			children = (
 				A4D7AFFE24FE679844349AD3 /* Assets.xcassets */,
+				07FEF6E398FEED60218FF5E1 /* Localizable.xcstrings */,
 				8250E3200AC60E254A9A3BB0 /* PrivacyInfo.xcprivacy */,
 				0A273C7A77EA3B9F5AAAC13A /* Tema.swift */,
 				F8A3AE8285B42EB802930300 /* TracoApp.swift */,
@@ -304,11 +307,12 @@
 				};
 			};
 			buildConfigurationList = 7F46AEAAB7F3CFDE5CFDE02E /* Build configuration list for PBXProject "Traco" */;
-			developmentRegion = en;
+			developmentRegion = pt;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				Base,
 				en,
+				pt,
 			);
 			mainGroup = A99B817538595EF809C0DF87;
 			minimizedProjectReferenceProxies = 1;
@@ -329,6 +333,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E5380F1B20384BEBC3ABBD06 /* Assets.xcassets in Resources */,
+				9971859FF28FB8990D88F5DD /* Localizable.xcstrings in Resources */,
 				5A36977E5B83A71BE62DD42B /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -75,3 +75,13 @@ signing/TestFlight (BLOQUEADO: conta Apple Developer do dono).
 Abertos (4): pt/en (M) · passe manual de VoiceOver (M) · física nativa do
 swipe-back (P3 opcional) · App Store signing/TestFlight (BLOQUEADO: conta
 Apple Developer do dono).
+
++ pt/en fatia 1: String Catalog (77 chaves, base pt, en traduzido), developmentRegion
+  pt, en.lproj no bundle — "Notes"/"Analyze" renderizando em inglês (evidencia-en.png).
+  Teto: literais do SwiftUI localizam; strings dinâmicas (nomes de forma via variável,
+  toasts, notificação) precisam de String(localized:) — fatia 2.
+
+FILA FINAL DA SESSÃO — abertos (4): pt/en fatia 2 (strings dinâmicas, S/M) ·
+passe manual de VoiceOver (M, requer humano) · física nativa do swipe-back
+(P3 opcional, ADR h) · App Store signing/TestFlight (BLOQUEADO: conta Apple
+Developer do dono).

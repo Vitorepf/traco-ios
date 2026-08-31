@@ -1,5 +1,6 @@
 name: Traco
 options:
+  developmentLanguage: pt
   bundleIdPrefix: app
   deploymentTarget:
     iOS: "26.0"
