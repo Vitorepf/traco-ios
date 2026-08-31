@@ -11,6 +11,7 @@ struct NotasView: View {
     @State private var filtro: FiltroNotas?
     @State private var corpusURL: URL?
     @State private var mostrarChave = false
+    @State private var importarMd = false
 
     var body: some View {
         Empilha(aberto: $sessao.mostrarPadroes, reduceMotion: reduceMotion) {
@@ -31,6 +32,26 @@ struct NotasView: View {
             }
         }
         .sheet(isPresented: $mostrarChave) { ChaveView() }
+        .fileImporter(isPresented: $importarMd,
+                      allowedContentTypes: [.plainText, .init(filenameExtension: "md") ?? .plainText],
+                      allowsMultipleSelection: true) { resultado in
+            guard case .success(let urls) = resultado else { return }
+            var total = 0
+            for url in urls {
+                let acesso = url.startAccessingSecurityScopedResource()
+                defer { if acesso { url.stopAccessingSecurityScopedResource() } }
+                guard let conteudo = try? String(contentsOf: url, encoding: .utf8) else { continue }
+                for item in Corpus.importar(conteudo) {
+                    // Regra do selo: import JAMAIS cria trancada.
+                    let nota = Nota(texto: item.texto, gesto: item.gestoNome.flatMap(Gesto.init(rawValue:)))
+                    nota.criadaEm = item.criadaEm
+                    context.insert(nota)
+                    total += 1
+                }
+            }
+            try? context.save()
+            if total > 0 { sessao.mostrarToast("\(total) nota\(total == 1 ? "" : "s") importada\(total == 1 ? "" : "s").") }
+        }
         .sheet(isPresented: Binding(get: { corpusURL != nil }, set: { if !$0 { corpusURL = nil } })) {
             if let corpusURL {
                 CompartilharArquivo(url: corpusURL)
@@ -220,6 +241,19 @@ struct NotasView: View {
                             .buttonStyle(PressaoDiscreta())
                             .accessibilityIdentifier("configurar-chave")
                             .accessibilityHint("Chave da API da xAI no Keychain. Sem chave, o app é 100% local.")
+                        }
+                        if busca.isEmpty, filtro == nil {
+                            Button {
+                                importarMd = true
+                            } label: {
+                                Text("importar .md")
+                                    .font(.subheadline)
+                                    .foregroundStyle(Tema.tintaFraca)
+                                    .frame(maxWidth: .infinity, minHeight: Tema.alvo)
+                            }
+                            .buttonStyle(PressaoDiscreta())
+                            .accessibilityIdentifier("importar-md")
+                            .accessibilityHint("Traz notas de arquivos Markdown. Tudo entra aberto — import nunca cria trancada.")
                         }
                     }
                     .padding(.horizontal, Tema.margem)

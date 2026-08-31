@@ -530,3 +530,29 @@ struct AutoVestirTests {
         #expect(s.cartao == .expressiva) // a oferta aparece; a decisão é do autor
     }
 }
+
+@MainActor
+struct ImportarTests {
+    @Test func importaOProprioExport() {
+        let corpo = Corpus.corpoDoCorpus(notas: [
+            ("quero correr de manhã", .woop, ["obstaculo": "celular"], false, Date(timeIntervalSince1970: 1000)),
+            ("percebi que executo o que escrevi", nil, [:], false, Date(timeIntervalSince1970: 2000)),
+        ])
+        let itens = Corpus.importar(corpo)
+        #expect(itens.count == 2)
+        #expect(itens[0].texto.contains("quero correr"))
+        #expect(itens[0].gestoNome == "WOOP")
+        #expect(abs(itens[0].criadaEm.timeIntervalSince1970 - 1000) < 1)
+        #expect(itens[1].gestoNome == nil)
+    }
+
+    @Test func mdSoltoViraUmaNota() {
+        let itens = Corpus.importar("# uma ideia\nsem frontmatter nenhum")
+        #expect(itens.count == 1)
+        #expect(itens[0].texto.contains("uma ideia"))
+    }
+
+    @Test func vazioNaoImportaNada() {
+        #expect(Corpus.importar("   \n  ").isEmpty)
+    }
+}

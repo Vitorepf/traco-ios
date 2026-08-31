@@ -30,6 +30,33 @@ enum Corpus {
         return blocos.joined(separator: "\n")
     }
 
+    /// Import (FILA P1.3): lê o formato do próprio export — e qualquer .md solto.
+    /// REGRA DO SELO: import JAMAIS cria nota trancada; tudo que entra, entra aberto.
+    nonisolated static func importar(_ conteudo: String) -> [(texto: String, gestoNome: String?, criadaEm: Date)] {
+        let f = ISO8601DateFormatter()
+        // blocos do nosso export: "---\ncriada: ...\n[gesto: ...]\n---\n\ncorpo"
+        let padrao = try! NSRegularExpression(
+            pattern: #"(?m)^---\ncriada: (\S+)\n(?:gesto: (.+)\n)?---\n"#)
+        let ns = conteudo as NSString
+        let hits = padrao.matches(in: conteudo, range: NSRange(location: 0, length: ns.length))
+        guard !hits.isEmpty else {
+            let limpo = conteudo.trimmingCharacters(in: .whitespacesAndNewlines)
+            return limpo.isEmpty ? [] : [(limpo, nil, .now)]
+        }
+        var saida: [(String, String?, Date)] = []
+        for (i, hit) in hits.enumerated() {
+            let inicioCorpo = hit.range.location + hit.range.length
+            let fimCorpo = i + 1 < hits.count ? hits[i + 1].range.location : ns.length
+            let corpo = ns.substring(with: NSRange(location: inicioCorpo, length: fimCorpo - inicioCorpo))
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !corpo.isEmpty else { continue }
+            let data = f.date(from: ns.substring(with: hit.range(at: 1))) ?? .now
+            let gestoNome = hit.range(at: 2).location == NSNotFound ? nil : ns.substring(with: hit.range(at: 2))
+            saida.append((corpo, gestoNome, data))
+        }
+        return saida
+    }
+
     static func exportar(notas: [Nota]) -> URL? {
         let corpo = corpoDoCorpus(notas: notas.map { ($0.texto, $0.gesto, $0.campos, $0.trancada, $0.criadaEm) })
         guard !corpo.isEmpty else { return nil }
