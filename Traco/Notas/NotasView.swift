@@ -248,6 +248,10 @@ struct NotasView: View {
             if !nota.trancada {
                 Button("Recordar") { sessao.recordarDaNotas(nota) }
             }
+            // ADR 2026-08-31f: apagar existe, com atrito — trancada exige dupla.
+            Button("Apagar", role: .destructive) {
+                sessao.confirmacao = nota.trancada ? .apagarTrancada(nota.uuid) : .apagar(nota.uuid)
+            }
         }
         .accessibilityLabel(nota.trancada ? "Expressiva trancada" : titulo(nota))
         .accessibilityHint(nota.trancada ? "Reabrir pede confirmação dupla" : "Segure para recordar a memória")

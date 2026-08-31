@@ -428,3 +428,33 @@ struct CorpusTests {
         #expect(md.contains("uma ideia"))
     }
 }
+
+@MainActor
+struct ApagarTests {
+    @Test func apagarRemoveNotaELimpaSessao() throws {
+        let container = try ModelContainer.traco(emMemoria: true)
+        let context = ModelContext(container)
+        let nota = Nota(texto: "para apagar")
+        context.insert(nota)
+        try context.save()
+        let s = Sessao()
+        s.abrir(nota)
+        s.apagar(uuid: nota.uuid, no: context)
+        #expect(try context.fetch(FetchDescriptor<Nota>()).isEmpty)
+        #expect(s.texto.isEmpty) // a página não segura fantasma
+        #expect(s.confirmacao == nil)
+    }
+
+    @Test func apagarOutraNotaNaoMexeNaPagina() throws {
+        let container = try ModelContainer.traco(emMemoria: true)
+        let context = ModelContext(container)
+        let alvo = Nota(texto: "para apagar")
+        context.insert(alvo)
+        try context.save()
+        let s = Sessao()
+        s.texto = "escrita viva na página"
+        s.apagar(uuid: alvo.uuid, no: context)
+        #expect(s.texto == "escrita viva na página")
+        #expect(try context.fetch(FetchDescriptor<Nota>()).isEmpty)
+    }
+}

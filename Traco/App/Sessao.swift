@@ -297,6 +297,24 @@ final class Sessao {
         confirmacao = .trancada(destino: destinoFinal)
     }
 
+    /// ADR 2026-08-31f: apagar apaga de verdade — nota, revisão marcada e,
+    /// na próxima varredura, os anexos que só ela referenciava.
+    func apagar(uuid: UUID, no context: ModelContext) {
+        guard let nota = Self.buscar(uuid: uuid, no: context) else { return }
+        Revisoes.cancelar(uuid: uuid)
+        context.delete(nota)
+        do {
+            try context.save()
+        } catch {
+            mostrarToast("não consegui apagar — a nota continua.")
+            return
+        }
+        if notaUUID == uuid { novaPagina() }
+        varrerAnexosOrfaos(no: context)
+        confirmacao = nil
+        Toque.fechou()
+    }
+
     static func buscar(uuid: UUID, no context: ModelContext) -> Nota? {
         let d = FetchDescriptor<Nota>(predicate: #Predicate { $0.uuid == uuid })
         return try? context.fetch(d).first
@@ -328,4 +346,6 @@ enum ConfirmacaoEstado: Equatable {
     case trancada(destino: DestinoConfirmacao)
     case naoSeRele(UUID)
     case insistirReabrir(UUID)
+    case apagar(UUID)
+    case apagarTrancada(UUID)
 }

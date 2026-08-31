@@ -46,6 +46,16 @@ struct ConfirmacaoView: View {
                                 sessao.abrir(nota, mesmoTrancada: true)
                             }
                         }
+                    case .apagar(let uuid):
+                        titulo("Apagar esta nota?")
+                        texto("O traço some do aparelho — e a revisão marcada some com ele.")
+                        botao("Manter", id: "confirmacao-manter") { sessao.confirmacao = nil }
+                        botaoMudo("Apagar", id: "confirmacao-apagar") { sessao.apagar(uuid: uuid, no: context) }
+                    case .apagarTrancada(let uuid):
+                        titulo("Apagar a trancada?")
+                        texto("Ela foi escrita para ficar fechada. Apagar apaga para sempre — sem reler.")
+                        botao("Manter", id: "confirmacao-manter") { sessao.confirmacao = nil }
+                        botaoMudo("Apagar para sempre", id: "confirmacao-apagar-trancada") { sessao.apagar(uuid: uuid, no: context) }
                     }
                 }
                 .padding(28)
@@ -85,7 +95,7 @@ struct ConfirmacaoView: View {
             sessao.confirmacao = nil
         case .trancada(let destino):
             fecharTrancada(destino)
-        case .naoSeRele, .insistirReabrir:
+        case .naoSeRele, .insistirReabrir, .apagar, .apagarTrancada:
             sessao.confirmacao = nil
         }
     }
