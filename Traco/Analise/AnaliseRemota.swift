@@ -28,9 +28,25 @@ enum AnaliseRemota {
     nunca console, nunca resuma. Na dúvida, tudo null (silêncio).
     """
 
+    // ponytail: memo de último texto — dispensar o cartão e pausar de novo não repaga token
+    nonisolated(unsafe) private static var memo: (texto: String, veredito: AnaliseLocal.Veredito?)?
+    nonisolated(unsafe) private static let memoLock = NSLock()
+
+    nonisolated private static func memoLido(_ texto: String) -> AnaliseLocal.Veredito?? {
+        memoLock.lock(); defer { memoLock.unlock() }
+        if let m = memo, m.texto == texto { return .some(m.veredito) }
+        return .none
+    }
+
+    nonisolated private static func memoGrava(_ texto: String, _ v: AnaliseLocal.Veredito?) {
+        memoLock.lock(); defer { memoLock.unlock() }
+        memo = (texto, v)
+    }
+
     static func classificar(texto: String, gestoAtual: Gesto?) async -> AnaliseLocal.Veredito? {
         guard let chave = Chave.ler() else { return nil }
         guard gestoAtual != .expressiva else { return nil } // selo: nunca à rede
+        if case .some(let hit) = memoLido(texto) { return hit }
         var pedido = URLRequest(url: URL(string: "https://api.x.ai/v1/chat/completions")!)
         pedido.httpMethod = "POST"
         pedido.timeoutInterval = 10
@@ -51,7 +67,16 @@ enum AnaliseRemota {
               let escolhas = raiz["choices"] as? [[String: Any]],
               let msg = (escolhas.first?["message"] as? [String: Any])?["content"] as? String
         else { return nil }
-        return parseVeredito(msg)
+        let v = parseVeredito(msg)
+        memoGrava(texto, v)
+        return v
+    }
+
+    /// O cartão promete "uma frase curta" (§2): o modelo não fura o teto.
+    nonisolated static func umaFrase(_ s: String, teto: Int = 200) -> String {
+        let limpa = s.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard limpa.count > teto else { return limpa }
+        return String(limpa.prefix(teto)).trimmingCharacters(in: .whitespaces) + "…"
     }
 
     /// Parsing estrito e testável: fora do formato → nil (silêncio é melhor que inventar).
@@ -61,14 +86,14 @@ enum AnaliseRemota {
               let j = try? JSONSerialization.jsonObject(with: dados) as? [String: Any]
         else { return nil }
         if let aviso = j["aviso"] as? String, !aviso.isEmpty {
-            return .aviso(aviso)
+            return .aviso(umaFrase(aviso))
         }
         guard let nomeGesto = j["gesto"] as? String else { return .silencio }
         if nomeGesto == "expressiva" { return .expressiva }
         let mapa: [String: Gesto] = ["woop": .woop, "seEntao": .seEntao, "spec": .spec,
                                      "notaPermanente": .notaPermanente, "destaque": .destaque]
         guard let gesto = mapa[nomeGesto] else { return .silencio }
-        let pergunta = (j["pergunta"] as? String) ?? ""
+        let pergunta = umaFrase((j["pergunta"] as? String) ?? "")
         return .gesto(gesto, pergunta: pergunta)
     }
 }

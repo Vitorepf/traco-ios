@@ -58,6 +58,7 @@ final class Sessao {
                 remoto = await AnaliseRemota.classificar(texto: Caderno.prosa(de: textoAtual), gestoAtual: gestoAtual)
             }
             guard let self, !Task.isCancelled else { return }
+            guard self.texto == textoAtual else { return } // o texto mudou em voo: silêncio
             let veredito = remoto ?? AnaliseLocal.classificar(texto: textoAtual, gestoAtual: gestoAtual, campos: camposAtuais)
             self.aplicar(veredito, automatica: automatica)
         }
@@ -110,6 +111,7 @@ final class Sessao {
 
     func agendarAutoAnalise(depois segundos: Double = 1.6) {
         autoTask?.cancel()
+        analiseTask?.cancel() // veredito em voo não pode vestir texto que mudou
         guard autoAnalise, !autoSuprimidaNaNota, !timerLigado, !paginaVazia, gesto != .expressiva, cartao == nil else { return }
         autoTask = Task { [weak self] in
             try? await Task.sleep(for: .seconds(segundos))
@@ -289,7 +291,11 @@ final class Sessao {
         // FILA P1.5: a nota concluída marca a própria revisão — o Recordar chega
         // no dia certo sem o autor lembrar (§17).
         if let notaUUID, let nota = Self.buscar(uuid: notaUUID, no: context) {
-            Revisoes.agendar(uuid: nota.uuid, criadaEm: nota.criadaEm, gesto: nota.gesto, trancada: nota.trancada, texto: nota.texto)
+            Revisoes.agendar(uuid: nota.uuid, criadaEm: nota.criadaEm, gesto: nota.gesto, trancada: nota.trancada, texto: nota.texto) { [weak self] in
+                Task { @MainActor in
+                    self?.mostrarToast("revisões precisam de permissão — Ajustes › Traço › Notificações.")
+                }
+            }
         }
         novaPagina()
         Toque.leve()

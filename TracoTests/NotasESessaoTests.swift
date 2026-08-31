@@ -565,3 +565,39 @@ struct RevisaoRotaTests {
         #expect(Revisoes.uuidDaResposta([:]) == nil)
     }
 }
+
+@MainActor
+struct CorrecoesVarredura3Tests {
+    @Test func gestoVoltaDoNomeEDoRaw() {
+        #expect(Gesto.doNome("WOOP") == .woop)
+        #expect(Gesto.doNome("woop") == .woop)
+        #expect(Gesto.doNome("Nota permanente") == .notaPermanente)
+        #expect(Gesto.doNome("Se–então") == .seEntao)
+        #expect(Gesto.doNome("inexistente") == nil)
+    }
+
+    @Test func roundtripPreservaOGesto() {
+        let corpo = Corpus.corpoDoCorpus(notas: [("quero correr", .woop, [:], false, Date(timeIntervalSince1970: 9))])
+        let item = Corpus.importar(corpo).first
+        #expect(item?.gestoNome.flatMap(Gesto.doNome) == .woop)
+    }
+
+    @Test func avisoDoModeloTemTeto() {
+        let gigante = String(repeating: "bla ", count: 200)
+        let v = AnaliseRemota.parseVeredito("{\"gesto\":null,\"aviso\":\"\(gigante)\",\"pergunta\":null}")
+        if case .aviso(let frase) = v {
+            #expect(frase.count <= 201)
+            #expect(frase.hasSuffix("…"))
+        } else { Issue.record("devia ser aviso") }
+    }
+
+    @Test func textoMudadoEmVooNaoVeste() async throws {
+        let s = Sessao()
+        s.autoAnalise = true
+        s.texto = "quero correr de manhã"
+        s.agendarAutoAnalise(depois: 0.05)
+        s.texto = "outra coisa completamente banal" // muda antes do veredito
+        try await Task.sleep(for: .milliseconds(200))
+        #expect(s.gesto == nil) // o veredito velho não vestiu o texto novo
+    }
+}

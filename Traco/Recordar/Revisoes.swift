@@ -18,11 +18,20 @@ enum Revisoes {
         Calendar.current.date(byAdding: .day, value: intervaloDias, to: data) ?? data.addingTimeInterval(TimeInterval(intervaloDias) * 86400)
     }
 
-    static func agendar(uuid: UUID, criadaEm: Date, gesto: Gesto?, trancada: Bool, texto: String) {
+    static func agendar(uuid: UUID, criadaEm: Date, gesto: Gesto?, trancada: Bool, texto: String,
+                        aoNegar: @escaping @Sendable () -> Void = {}) {
         guard podeAgendar(gesto: gesto, trancada: trancada, texto: texto) else { return }
         let centro = UNUserNotificationCenter.current()
         centro.requestAuthorization(options: [.alert]) { ok, _ in
-            guard ok else { return }
+            guard ok else {
+                // negação não é morte silenciosa: o app diz UMA vez o que se perdeu
+                let d = UserDefaults.standard
+                if !d.bool(forKey: "avisoRevisoesNegadas") {
+                    d.set(true, forKey: "avisoRevisoesNegadas")
+                    aoNegar()
+                }
+                return
+            }
             let conteudo = UNMutableNotificationContent()
             conteudo.title = "Recordar"
             // sem conteúdo da nota: o selo vale também na lock screen

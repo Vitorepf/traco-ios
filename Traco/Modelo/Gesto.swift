@@ -10,6 +10,13 @@ enum Gesto: String, CaseIterable, Codable, Identifiable {
 
     var id: String { rawValue }
 
+    /// Import/export aceitam o nome de exibição ("WOOP") E o rawValue ("woop") —
+    /// o roundtrip do corpus nunca perde o gesto por causa da grafia.
+    static func doNome(_ s: String) -> Gesto? {
+        let alvo = s.trimmingCharacters(in: .whitespaces)
+        return Gesto(rawValue: alvo) ?? allCases.first { $0.nome.caseInsensitiveCompare(alvo) == .orderedSame }
+    }
+
     var nome: String {
         switch self {
         case .woop: "WOOP"
