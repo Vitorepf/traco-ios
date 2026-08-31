@@ -3,7 +3,7 @@ appId: app.traco
 - launchApp:
     clearState: true
 - tapOn: Página
-- inputText: "a ideia que quero lembrar depois"
+- inputText: "o texto desta nota de teste"
 - swipe:
     direction: DOWN
 - tapOn:
@@ -14,7 +14,7 @@ appId: app.traco
     end: 85%, 50%
 - tapOn:
     id: "aba-notas"
-- tapOn: "a ideia que quero lembrar depois"
+- tapOn: "o texto desta nota de teste"
 - extendedWaitUntil:
     visible: "Concluída"
     timeout: 5000

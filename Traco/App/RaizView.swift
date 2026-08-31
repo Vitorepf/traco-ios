@@ -60,6 +60,21 @@ struct RaizView: View {
             }
             .animation(.easeOut(duration: 0.2), value: tecladoAberto)
         }
+        .overlay {
+            if let confirmacao = sessao.confirmacao {
+                ConfirmacaoView(estado: confirmacao, sessao: sessao, context: context)
+                    .transition(reduceMotion
+                        ? .opacity
+                        : .asymmetric(
+                            insertion: .opacity.combined(with: .scale(scale: 1.03)),
+                            removal: .opacity.combined(with: .scale(scale: 1.02))
+                        ))
+            }
+        }
+        .animation(sessao.confirmacao != nil
+            ? .easeOut(duration: Tema.confirmacaoEntra)
+            : .easeIn(duration: 0.15),
+            value: sessao.confirmacao != nil)
         .preferredColorScheme(.dark)
         .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
             tecladoAberto = true

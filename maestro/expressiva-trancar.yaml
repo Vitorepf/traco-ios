@@ -1,16 +1,24 @@
 appId: app.traco
 ---
+- launchApp:
+    clearState: true
+- tapOn: Página
+- inputText: "hoje senti um peso no peito quando acordei e o medo de nao dar conta voltou. chorei no chuveiro. estava pesado o dia inteiro e eu nao disse a ninguem."
+- extendedWaitUntil:
+    visible: "Começar o timer"
+    timeout: 8000
+- tapOn: "Começar o timer"
+# §20: sair com o timer de pé dispara o selo — o gesto vale como saída
+- swipe:
+    start: 1%, 50%
+    end: 85%, 50%
+- extendedWaitUntil:
+    visible:
+      id: "confirmacao-trancar"
+    timeout: 5000
 - tapOn:
     id: "confirmacao-trancar"
 - extendedWaitUntil:
-    visible: "Trancada"
-    timeout: 4000
-- tapOn:
-    id: "confirmacao-seguir"
-- extendedWaitUntil:
-    visible: "Expressiva — trancada"
+    visible: "Trancada."
     timeout: 5000
-- tapOn: "Expressiva — trancada"
-- tapOn:
-    id: "confirmacao-abrir"
-- assertVisible: "Ela foi escrita para ficar fechada"
+- takeScreenshot: /tmp/traco-verify/nav/17-trancada

@@ -1,28 +1,32 @@
 appId: app.traco
 ---
-# Não limpa estado — anexa à sessão que esgotou os 15 min.
 - launchApp:
-    clearState: false
-- takeScreenshot: expressiva-15-fim
-- tapOn:
-    id: "confirmacao-seguir"
-    optional: true
-# §20: da escrita, a borda esquerda traz o arquivo
+    clearState: true
+- tapOn: Página
+- inputText: "hoje senti um peso no peito quando acordei e o medo de nao dar conta voltou. chorei no chuveiro. estava pesado o dia inteiro e eu nao disse a ninguem."
+- extendedWaitUntil:
+    visible: "Começar o timer"
+    timeout: 8000
+- tapOn: "Começar o timer"
+# §20: sair com o timer de pé dispara o selo — o gesto vale como saída
 - swipe:
     start: 1%, 50%
     end: 85%, 50%
+- extendedWaitUntil:
+    visible:
+      id: "confirmacao-trancar"
+    timeout: 5000
 - tapOn:
-    id: "aba-notas"
-    optional: true
+    id: "confirmacao-trancar"
+- extendedWaitUntil:
+    visible:
+      id: "confirmacao-seguir"
+    timeout: 5000
+- tapOn:
+    id: "confirmacao-seguir"
+# a trancada entra no arquivo com o selo à mostra, e sem uma linha do conteúdo
 - extendedWaitUntil:
     visible: "Expressiva — trancada"
     timeout: 6000
-- tapOn: "Expressiva — trancada"
-- extendedWaitUntil:
-    visible:
-      id: "confirmacao-abrir"
-    timeout: 4000
-- tapOn:
-    id: "confirmacao-abrir"
-- assertVisible: "Ela foi escrita para ficar fechada"
-- takeScreenshot: expressiva-15-dupla
+- assertNotVisible: "chorei no chuveiro"
+- takeScreenshot: /tmp/traco-verify/nav/18-arquivo-trancada

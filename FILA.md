@@ -196,3 +196,20 @@ em api.x.ai → refresh por offline_access → queda para local em 401/403.
 CAVEAT ABERTO: o client_id é o do Grok CLI (cliente público da xAI). O app se
 apresentaria com essa identidade; a xAI não publicou registro de cliente próprio
 (sem registration_endpoint). Decisão do dono.
+
+## Varredura E2E completa (31/ago, tarde) — a suíte inteira verde
+Depois do redesenho de navegação (§20), a varredura de TODOS os flows achou 15
+quebrados. Triagem e conserto:
+- **Órfãos deletados (2):** chave-grok (a tela de chave não existe mais — ADR 31k)
+  e woop-abrir (o cartão manual virou vestir automático — §17).
+- **Encadeados → autossuficientes (7):** busca-filtro, busca-foto,
+  notas-e-recordar, recordar, recordar-revelar, expressiva-trancar/-fim/-dupla
+  dependiam do estado deixado pelo flow anterior. Agora cada um planta o próprio
+  estado. Determinismo vale para o teste também (§19.4).
+- **Bug REAL encontrado pela varredura:** a confirmação (véu) morava dentro da
+  PaginaView; com as duas camadas, sair para o arquivo levava a página — e a
+  confirmação ia junto. Movida para a raiz, que é o nível dela.
+- **Assert por identificador** onde o texto dependia da árvore de acessibilidade
+  (timer-expressiva).
+- **Texto de teste NEUTRO** onde a barra de ações precisa continuar viva: "a
+  ideia…" casava a heurística de nota permanente, o cartão subia e comia a barra.

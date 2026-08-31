@@ -3,11 +3,12 @@ appId: app.traco
 - launchApp:
     clearState: true
 - tapOn: Página
-- inputText: "quero correr de manhã"
-- hideKeyboard
+- inputText: "o texto desta nota de teste"
+- swipe:
+    direction: DOWN
 - tapOn: Recordar
 - extendedWaitUntil:
-    visible: "PUXAR"
+    visible: "RECORDAR"
     timeout: 4000
 - extendedWaitUntil:
     visible: "O que estava escrito?"

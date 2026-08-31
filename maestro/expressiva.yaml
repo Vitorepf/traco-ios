@@ -4,15 +4,15 @@ appId: app.traco
     clearState: true
 - tapOn: Página
 - inputText: "hoje senti um peso no peito quando acordei e o medo de nao dar conta voltou. chorei no chuveiro. estava pesado o dia inteiro e eu nao disse a ninguem."
-- hideKeyboard
-- tapOn: Analisar
+- extendedWaitUntil:
+    visible: "Começar o timer"
+    timeout: 8000
 - tapOn: "Começar o timer"
 # §20: da escrita, a borda esquerda traz o arquivo
 - swipe:
     start: 1%, 50%
     end: 85%, 50%
-- tapOn:
-    id: "aba-notas"
+# o selo vale no gesto: sair com o timer de pé pede confirmação
 - extendedWaitUntil:
     visible:
       id: "confirmacao-trancar"

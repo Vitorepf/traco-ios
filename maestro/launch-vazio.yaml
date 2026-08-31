@@ -2,7 +2,11 @@ appId: app.traco
 ---
 - launchApp:
     clearState: true
+# §3 + §20: a casa é só o cursor. Sem barra de navegação, sem barra de ações,
+# sem placeholder — a página vazia não oferece nada além de escrever.
 - assertVisible:
     id: pagina
-- assertVisible: Analisar
-- takeScreenshot: launch-vazio
+- assertNotVisible: "Analisar"
+- assertNotVisible: "Notas"
+- assertNotVisible: "Perfil"
+- takeScreenshot: /tmp/traco-verify/nav/15-casa-vazia

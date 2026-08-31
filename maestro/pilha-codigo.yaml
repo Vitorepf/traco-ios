@@ -4,6 +4,10 @@ appId: app.traco
     clearState: true
 - tapOn:
     id: pagina
+- swipe:
+    from:
+      id: regua
+    direction: LEFT
 - tapOn:
     id: regua-codigo
 - tapOn: "Swift"

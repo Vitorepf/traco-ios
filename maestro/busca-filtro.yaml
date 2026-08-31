@@ -1,8 +1,28 @@
 appId: app.traco
 ---
+- launchApp:
+    clearState: true
+- tapOn: Página
+- inputText: "quero correr de manhã"
+- extendedWaitUntil:
+    visible:
+      id: "abrir-campos"
+    timeout: 8000
 - tapOn:
-    id: "limpar-busca"
-    optional: true
+    id: "abrir-campos"
+- tapOn:
+    id: "campo-obstaculo"
+- inputText: "o celular na cama"
+- swipe:
+    direction: DOWN
+- tapOn:
+    id: "concluir"
+# §20: da escrita, a borda esquerda traz o arquivo
+- swipe:
+    start: 1%, 50%
+    end: 85%, 50%
+- tapOn:
+    id: "aba-notas"
 - tapOn:
     id: "filtro-woop"
 - assertVisible: "quero correr de manhã"

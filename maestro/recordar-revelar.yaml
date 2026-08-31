@@ -1,5 +1,15 @@
 appId: app.traco
 ---
+- launchApp:
+    clearState: true
+- tapOn: Página
+- inputText: "o texto desta nota de teste"
+- swipe:
+    direction: DOWN
+- tapOn: Recordar
+- extendedWaitUntil:
+    visible: "RECORDAR"
+    timeout: 5000
 - tapOn: Memória
 - inputText: "correr de manha"
 - tapOn: Revelar
