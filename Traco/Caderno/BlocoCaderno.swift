@@ -177,8 +177,13 @@ enum Caderno: Sendable {
                 continue
             }
 
-            if let (nivel, texto) = titulo(trim) {
+            if let (nivel, _) = titulo(trim) {
                 let fim = depoisDeVazias(i + 1)
+                // o trim detecta o "#"; o CONTEÚDO sai da linha crua — senão o
+                // espaço que o autor acabou de digitar morre a cada tecla no
+                // campo projetado (mesmo conserto da lista, logo abaixo)
+                let crua = String(linhas[inicio].drop(while: { $0 == " " }))
+                let texto = titulo(crua)?.1 ?? trim
                 emite(.titulo(nivel, texto), fonte: pega(inicio, fim), aberto: false)
                 i = fim
                 continue
@@ -212,9 +217,10 @@ enum Caderno: Sendable {
             if trim.hasPrefix(">") {
                 var bloco: [String] = []
                 while i < linhas.count {
-                    let t = trims[i]
-                    guard t.hasPrefix(">") else { break }
-                    bloco.append(String(t.drop(while: { $0 == ">" || $0 == " " })))
+                    guard trims[i].hasPrefix(">") else { break }
+                    // conteúdo da linha crua: o espaço à cauda sobrevive à tecla
+                    let crua = String(linhas[i].drop(while: { $0 == " " }))
+                    bloco.append(String(crua.drop(while: { $0 == ">" || $0 == " " })))
                     i += 1
                 }
                 let fim = depoisDeVazias(i)
@@ -226,7 +232,9 @@ enum Caderno: Sendable {
             if tarefa(trim) != nil {
                 var itens: [TarefaCaderno] = []
                 while i < linhas.count, let item = tarefa(trims[i]) {
-                    itens.append(item)
+                    // conteúdo da linha crua: o espaço à cauda sobrevive à tecla
+                    let crua = String(linhas[i].drop(while: { $0 == " " }))
+                    itens.append(tarefa(crua) ?? item)
                     i += 1
                 }
                 let fim = depoisDeVazias(i)
@@ -546,7 +554,12 @@ enum Caderno: Sendable {
         let u = nucleo.count <= 1 ? (nucleo.first ?? xs.first) : nil
         guard let u else { return nil }
         switch u.bloco {
-        case .paragrafo, .titulo: return u
+        case .paragrafo: return u
+        // título de UMA linha é una (o "#" digitado à mão precisa de campo
+        // vivo; o parser preserva o espaço à cauda). Qualquer \n na fonte é o
+        // autor descendo para o corpo: multi-bloco, com a cauda aberta — sem
+        // isso a nota só-título era armadilha (todo toque editava o título).
+        case .titulo: return fonte.contains("\n") ? nil : u
         // lista de qualquer tamanho continua una: a digitação nunca troca de campo
         case .itens: return u
         case .tarefas(let xs): return xs.count <= 1 ? u : nil

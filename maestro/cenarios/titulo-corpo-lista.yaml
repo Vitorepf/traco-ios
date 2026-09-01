@@ -1,0 +1,24 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: pagina
+- inputText: "treino da semana"
+- tapOn:
+    id: regua-titulo
+- pressKey: Enter
+- inputText: "correr na terça"
+- pressKey: Enter
+- inputText: "alongar todo dia"
+- tapOn:
+    id: regua-lista
+- pressKey: Enter
+- pressKey: Enter
+- inputText: "comprar tênis novo"
+- assertVisible: "treino da semana"
+- assertVisible: "correr na terça"
+- assertVisible: "alongar todo dia"
+- assertVisible: "comprar tênis novo"
+- tapOn: "Deixar como nota"
+- tapOn: "Esconder teclado"

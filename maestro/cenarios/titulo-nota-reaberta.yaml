@@ -1,0 +1,23 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: pagina
+- inputText: "treino da semana"
+- tapOn:
+    id: regua-titulo
+- pressKey: Enter
+- inputText: "alongar todo dia"
+- tapOn:
+    id: regua-lista
+- tapOn: "Esconder teclado"
+- tapOn:
+    id: "concluir"
+- swipe:
+    start: 1%, 50%
+    end: 85%, 50%
+- tapOn:
+    id: "aba-notas"
+- tapOn: "treino da semana"
+- assertVisible: "alongar todo dia"

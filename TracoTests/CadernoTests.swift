@@ -204,11 +204,18 @@ struct CadernoTests {
     }
 
     @Test func paginaUnaETituloOuProsa() {
+        // título de UMA linha é una (o "#" digitado à mão precisa de campo
+        // vivo); qualquer \n na fonte é o autor descendo para o corpo:
+        // multi-bloco, com a cauda aberta esperando o cursor. Sem a descida a
+        // nota só-título era armadilha — todo toque editava o título.
         #expect({
             if case .titulo(1, "capa") = Caderno.paginaUna("#capa")?.bloco { true } else { false }
         }())
-        #expect(Caderno.textoVisivel(Caderno.paginaUna("#capa")!.bloco) == "capa")
-        #expect(!Caderno.textoVisivel(Caderno.paginaUna("#")!.bloco).contains("#"))
+        #expect(Caderno.paginaUna("# capa\n") == nil)
+        #expect({
+            let f = Caderno.fatias("# capa\n")
+            return f.last.map { if case .paragrafo("") = $0.bloco { $0.aberto } else { false } } ?? false
+        }())
         #expect({
             if case .paragrafo = Caderno.paginaUna("leite")?.bloco { true } else { false }
         }())
@@ -302,12 +309,45 @@ struct CadernoTests {
     }
 
     @Test func seccaoVisivelNaoTemHash() {
+        // seção de uma linha é una, como o título; com \n desce para o corpo
         #expect({
             if case .titulo(2, "capa") = Caderno.paginaUna("## capa")?.bloco { true } else { false }
         }())
+        #expect(Caderno.paginaUna("## capa\n") == nil)
         #expect(Caderno.textoVisivel(.titulo(2, "capa")) == "capa")
         #expect(!Caderno.visivel("## capa").contains("#"))
         #expect(Caderno.serializar(.titulo(2, "capa")) == "## capa")
+    }
+
+    // O campo projetado ressincroniza do parse a cada tecla: quando o parser
+    // aparava o espaço à cauda, todo espaço digitado morria no instante em que
+    // nascia (visto ao vivo: "o rato roeu a roupa" virou "oratorouaropa").
+    @Test func espacoACaudaSobreviveAoReparse() {
+        #expect(Caderno.textoVisivel(Caderno.fatias("# capa ").first!.bloco) == "capa ")
+        #expect(Caderno.textoVisivel(Caderno.fatias("> cita ").first!.bloco) == "cita ")
+        #expect({
+            if case .tarefas(let xs) = Caderno.fatias("- [ ] abrir ").first!.bloco {
+                xs.first?.texto == "abrir "
+            } else { false }
+        }())
+        #expect({
+            if case .itens(let xs, _) = Caderno.fatias("- leite ").first!.bloco {
+                xs == ["leite "]
+            } else { false }
+        }())
+    }
+
+    // Enter no título desce para o corpo: a cabeça fica título, o resto nasce
+    // parágrafo — nunca mais "capa" + Enter + prosa virando "capaoratorouaropa".
+    @Test func enterNoTituloDesceParaOCorpo() {
+        let antes = Caderno.fatias("# capa")
+        let doc = Caderno.aplicar(
+            antes, id: antes.first!.id,
+            novo: Caderno.serializar(.titulo(1, "capa")) + "\n\n" + "o rato"
+        )
+        let f = Caderno.fatias(doc)
+        #expect(f.contains { if case .titulo(1, "capa") = $0.bloco { true } else { false } })
+        #expect(f.contains { if case .paragrafo("o rato") = $0.bloco { true } else { false } })
     }
 
     @Test func reguaEnxutaCatalogoVasto() {

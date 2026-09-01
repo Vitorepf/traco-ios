@@ -17,6 +17,10 @@ struct CadernoView: View {
     var aoMudar: () -> Void
 
     @State private var editando: String?
+    // Enter no título/parágrafo troca o campo focado: se o FocusState cair na
+    // troca, esta flag devolve o foco ao editor que nasce (medido em 01/set:
+    // sem ela o teclado descia no meio da descida para o corpo)
+    @State private var descendoDoTitulo = false
     @State private var unaCrua = false
     @State private var foto: PhotosPickerItem?
     @State private var video: PhotosPickerItem?
@@ -71,6 +75,12 @@ struct CadernoView: View {
         // o encaixe ancora no FIM desta view: sem preencher a altura, a régua
         // ficava pendurada no meio da tela, com um vão até a barra de ações
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .onChange(of: foco.wrappedValue) { _, agora in
+            if !agora, descendoDoTitulo {
+                descendoDoTitulo = false
+                foco.wrappedValue = true
+            }
+        }
         .safeAreaInset(edge: .bottom, spacing: 0) {
             VStack(spacing: 0) {
                 if gravando {
@@ -228,6 +238,7 @@ struct CadernoView: View {
             .padding(.leading, 12)
             .accessibilityIdentifier("regua-todas")
             Button {
+                descendoDoTitulo = false
                 editando = nil
                 Teclado.recolher()
             } label: {
@@ -350,6 +361,23 @@ struct CadernoView: View {
                 let vivo = Caderno.paginaUna(texto)
                 if projeta {
                     guard vivo?.id == fatia.id else { return }
+                    // Enter no título una desce para o corpo: a cabeça fica
+                    // título, o cursor nasce no parágrafo da cauda (mesma
+                    // receita do multi: editando + flag de rearme do foco)
+                    if case .titulo(let n, _) = fatia.bloco, let corte = novo.firstIndex(of: "\n") {
+                        let cabeca = String(novo[..<corte])
+                        let resto = String(novo[novo.index(after: corte)...])
+                        texto = Caderno.aplicar(
+                            fatias, id: fatia.id,
+                            novo: Caderno.serializar(.titulo(n, cabeca)) + "\n\n" + resto
+                        )
+                        editando = Caderno.fatias(texto).first {
+                            if case .paragrafo = $0.bloco { true } else { false }
+                        }?.id
+                        descendoDoTitulo = true
+                        aoMudar()
+                        return
+                    }
                     texto = Caderno.aplicar(fatias, id: fatia.id, bloco: Caderno.comTexto(fatia.bloco, novo))
                 } else {
                     guard vivo != nil || (foco.wrappedValue && Caderno.soProsaELista(texto)) else { return }
@@ -423,6 +451,67 @@ struct CadernoView: View {
             folga: folga,
             foco: foco,
             aoMudar: { bloco in
+                // Enter no título ou no parágrafo desce para um bloco NOVO
+                // (Notes): o \n parte o texto no corte, o resto nasce parágrafo
+                // e o cursor vai atrás por adoção — o editor seguinte nasce no
+                // MESMO ciclo, vinculado ao mesmo foco, e o teclado nunca desce
+                // decide pela FATIA editada, não pelo bloco que chega: o editor
+                // de lista envia .paragrafo(cru multilinha) pelo caminho do
+                // continuar, e parti-lo no primeiro \n mutilava a lista
+                let eTituloOuParagrafo = switch fatia.bloco {
+                case .titulo, .paragrafo: true
+                default: false
+                }
+                let quebra: (novo: String, corte: String.Index)? = if eTituloOuParagrafo {
+                    switch bloco {
+                    case .titulo(_, let t): t.firstIndex(of: "\n").map { (t, $0) }
+                    case .paragrafo(let t): t.firstIndex(of: "\n").map { (t, $0) }
+                    default: nil
+                    }
+                } else {
+                    nil
+                }
+                if let (t, corte) = quebra {
+                    let cabeca = String(t[..<corte])
+                    let resto = String(t[t.index(after: corte)...])
+                    let cabecote: BlocoCaderno = if case .titulo(let n, _) = bloco {
+                        .titulo(n, cabeca)
+                    } else {
+                        .paragrafo(cabeca)
+                    }
+                    let posicao = fatias.firstIndex { $0.id == fatia.id }
+                    texto = Caderno.aplicar(
+                        fatias, id: fatia.id,
+                        novo: Caderno.serializar(cabecote) + "\n\n" + resto
+                    )
+                    if let p = posicao {
+                        editando = Caderno.fatias(texto).dropFirst(p + 1).first {
+                            if case .paragrafo = $0.bloco { true } else { false }
+                        }?.id ?? editando
+                    }
+                    descendoDoTitulo = true
+                    aoMudar()
+                    return
+                }
+                // saída da lista (double-Enter): o continuar removeu o
+                // marcador e deixou "\n" à cauda — o cursor desce para o
+                // parágrafo seguinte, como no título
+                if case .itens = fatia.bloco, case .paragrafo(let t) = bloco, t.hasSuffix("\n") {
+                    let posicao = fatias.firstIndex { $0.id == fatia.id }
+                    texto = Caderno.aplicar(fatias, id: fatia.id, novo: t)
+                    if let p = posicao {
+                        editando = Caderno.fatias(texto).dropFirst(p + 1).first {
+                            if case .paragrafo = $0.bloco { true } else { false }
+                        }?.id ?? editando
+                    }
+                    descendoDoTitulo = true
+                    aoMudar()
+                    return
+                }
+                // a primeira tecla no corpo confirma a adoção do foco: a
+                // flag da descida já cumpriu o papel e não pode sobrar armada
+                // (sobrando, o rearme brigaria com a próxima dispensa do teclado)
+                descendoDoTitulo = false
                 texto = Caderno.aplicar(fatias, id: fatia.id, bloco: bloco)
                 aoMudar()
             },

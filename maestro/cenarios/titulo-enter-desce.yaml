@@ -1,0 +1,13 @@
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: pagina
+- inputText: "capa"
+- tapOn:
+    id: regua-titulo
+- pressKey: Enter
+- inputText: "o rato roeu a roupa"
+- assertVisible: "capa"
+- assertVisible: "o rato roeu a roupa"
