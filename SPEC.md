@@ -513,3 +513,30 @@ investigar** — não depois de três hipóteses erradas.
 **O sistema é a régua.** No mesmo vídeo há animações do iOS (teclado, folha
 modal). Elas desaceleram monotonicamente, com cauda longa. Se a do app não se
 parece com aquilo, é a do app que está errada.
+
+## 22. Corpo de texto e Dynamic Type — DEFEITO ABERTO (set/2026)
+
+Medido no simulador, mesma tela, corpo do sistema em `medium` e em
+`accessibility-extra-extra-extra-large`:
+
+- a ENTRELINHA do editor cresce (`@ScaledMetric(relativeTo: .body) corpoFolga`,
+  em `PaginaView`, vai de 9 para ~28)
+- o TAMANHO DA LETRA não cresce: todo o `Tema` é `.system(size:)`, que é ponto
+  fixo e ignora o corpo do sistema
+- o cartão de análise — WOOP, o reconhecimento, as duas saídas — fica idêntico,
+  pixel a pixel, nos dois tamanhos
+
+Quem precisa de letra grande recebe a MESMA letra pequena com vãos enormes: o
+layout estica e o texto continua ilegível. É Dynamic Type pela metade, e o meio
+que funciona é justamente o que não ajuda a ler.
+
+O conserto é de sistema: cada token do `Tema` passa de `.system(size:)` para
+fonte que escala (`.custom(_, size:, relativeTo:)` ou `Font.system(.body)` com
+ajuste). Isso REFLUI TODA TELA — a régua de 12 chips, os cartões, a barra
+inferior, a folha de 124 formas. Não é mudança para entrar sem o dono ver: a
+régua já perde chips a 15pt, e a XXXL ela não cabe de jeito nenhum.
+
+Decisão do dono, com duas saídas plausíveis:
+1. escalar tudo e aceitar que a régua vire outra coisa em corpos grandes
+2. escalar o CONTEÚDO (texto do autor, cartões, notas) e travar o CHROME
+   (régua, barra), que é o que Notes e Bear fazem
