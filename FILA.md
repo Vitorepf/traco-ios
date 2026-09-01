@@ -213,3 +213,28 @@ quebrados. Triagem e conserto:
   (timer-expressiva).
 - **Texto de teste NEUTRO** onde a barra de ações precisa continuar viva: "a
   ideia…" casava a heurística de nota permanente, o cartão subia e comia a barra.
+
+## Sessão 01/set (manhã) — auditoria com lei + motor de digitação do título
+FECHADOS:
+- Busca prendia o teclado (jakobs-law): scrollDismissesKeyboard nas notas.
+- Vazio da busca centralizado contra tela de eixo esquerdo (law-of-continuity;
+  precedente 9eb6124): agora nasce onde os resultados nasceriam. Glifo
+  decorativo removido (critique-visual-hierarchy).
+- "Spec" → "Especificação" (ADR 2026-09-01a): único nome de método em inglês;
+  rawValue preservado, corpus antigo importa.
+- SISTEMA.md emendado onde mentia sobre a tela real (aba âmbar do arquivo,
+  âmbar de estado no §20, realce de busca em texto).
+- MOTOR: digitação em volta do título consertada NA RAIZ (commit 43cb23a) —
+  parser lia conteúdo da linha trimada (espaços morriam a cada tecla em
+  título/citação/tarefa); nota só-título era armadilha sem corpo; Enter agora
+  desce título→corpo, parágrafo→parágrafo e lista→prosa por adoção de foco.
+  LEI MEDIDA: adoção de FocusState só é confiável dentro do branch multi;
+  rearme por Task perde teclas; síncrono no onChange segura.
+- Degrau de 5pt do TextEditor fora do eixo (Tema.sangriaEditor).
+- 3 cenários novos permanentes: titulo-enter-desce, titulo-corpo-lista,
+  titulo-nota-reaberta.
+
+ABERTOS DA SESSÃO: rodadas limpas do Portão 1 (2× sem achado) · varredura E2E
+3× (nº 1 rodando) · iPhone real (cert Apple Development de Vitor existe —
+team W28WF9A5A2; build de aparelho em teste) · citação/editorLinhas fora da
+compensação de eixo (auditar com captura antes de mexer).
