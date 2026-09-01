@@ -69,6 +69,10 @@ enum Tema {
     /// A queima acontece em cena: rara, e por isso pode ter peso (SPEC §8).
     static let queima: Double = 0.55
     static let margem: CGFloat = 20
+    /// O TextEditor traz ~5pt de recuo interno: sem compensar, a linha editada
+    /// nasce num degrau à direita do portal vizinho (medido: 26pt vs 21pt na
+    /// mesma nota — law-of-continuity). O Recordar já usa margem − 5.
+    static let sangriaEditor: CGFloat = 5
     static let pressao: CGFloat = 0.94
 
     // MARK: - Material de superfície elevada

@@ -53,6 +53,7 @@ struct EditorBlocoView: View {
             .scrollContentBackground(.hidden)
             .focused(foco)
             .tint(Tema.ambar)
+            .padding(.horizontal, -Tema.sangriaEditor)
             .frame(maxWidth: .infinity, minHeight: 72, alignment: .topLeading)
             .accessibilityLabel("Lista")
             .accessibilityIdentifier("portal-lista")
@@ -89,6 +90,8 @@ struct EditorBlocoView: View {
                 .scrollContentBackground(.hidden)
                 .focused(foco)
                 .tint(Tema.ambar)
+                // o recuo interno do TextEditor tirava a linha do eixo
+                .padding(.horizontal, -Tema.sangriaEditor)
                 .frame(maxWidth: .infinity, minHeight: 88, alignment: .topLeading)
                 .accessibilityLabel("Página")
                 .accessibilityIdentifier("pagina")

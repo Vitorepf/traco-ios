@@ -393,6 +393,9 @@ struct CadernoView: View {
         .scrollContentBackground(.hidden)
         .focused(foco)
         .tint(Tema.ambar)
+        // o recuo interno do TextEditor punha a prosa num degrau à direita do
+        // rótulo da data (26pt vs 24pt medidos) — mesmo conserto do Recordar
+        .padding(.horizontal, -Tema.sangriaEditor)
         .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .topLeading)
         .id("pagina-una")
         .accessibilityLabel(
