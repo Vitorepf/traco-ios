@@ -117,7 +117,11 @@ struct PerfilView: View {
                     codigo = nil
                     Task { estado = await ContaGrok.estado() }
                 }
-                .font(.subheadline)
+                // peso de AÇÃO: idêntico ao parágrafo explicativo, a única
+                // ação do cartão lia como prosa (visto na captura do dono no
+                // iPhone real, 01/set — critique-affordance). Discreta segue
+                // sendo (sair é raro); tocável precisa parecer.
+                .font(.subheadline.weight(.semibold))
                 .foregroundStyle(Tema.tintaSuave)
                 .frame(minHeight: Tema.alvo)
                 .buttonStyle(PressaoDiscreta())

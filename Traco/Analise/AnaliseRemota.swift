@@ -16,13 +16,16 @@ enum AnaliseRemota {
     {"gesto": "woop"|"seEntao"|"spec"|"notaPermanente"|"destaque"|"expressiva"|null, \
     "aviso": "afirmacaoVazia"|"textoPronto"|"ouvinte"|"semObstaculo"|"doisGestos"|null}
 
-    gesto: woop = desejo/meta pessoal · seEntao = hábito que emperra num gatilho ·
+    gesto: woop = desejo/meta pessoal ("quero…", "gostaria de…", "preciso começar…") ·
+    seEntao = hábito que emperra num gatilho ·
     spec = algo a construir (software/projeto) · notaPermanente = ideia/insight curto ·
     destaque = lista de tarefas do dia · expressiva = desabafo emocional longo · null = nada disso.
 
-    aviso (quando houver aviso, gesto=null):
+    aviso (quando houver aviso, gesto=null). Aviso é RARO e grave — na dúvida, null:
     - afirmacaoVazia = o autor afirma qualidade sobre si ("eu sou rico/vencedor")
-    - textoPronto = pede que você escreva, resuma, melhore ou traduza por ele
+    - textoPronto = pede que VOCÊ produza texto por ele ("escreva isto por mim",
+      "resuma", "melhore", "traduza"). Um desejo do autor sobre a vida dele
+      ("gostaria de começar a ler") NUNCA é textoPronto — é woop.
     - ouvinte = pede escuta, consolo ou companhia
     - semObstaculo = plano/meta sem nomear o obstáculo interno
     - doisGestos = há um segundo método na mesma nota
@@ -70,9 +73,21 @@ enum AnaliseRemota {
               let escolhas = raiz["choices"] as? [[String: Any]],
               let msg = (escolhas.first?["message"] as? [String: Any])?["content"] as? String
         else { return nil }
-        let v = parseVeredito(msg)
+        let v = moderar(parseVeredito(msg), texto: texto, gestoAtual: gestoAtual)
         memoGrava(texto, v)
         return v
+    }
+
+    /// Aviso é recusa na cara do autor: o erro mais caro que a análise pode
+    /// cometer ("Gostaria de começar a ler" tomou um textoPronto no iPhone do
+    /// dono, 01/set). O remoto vale pelo ROTEAMENTO de gestos; recusa remota
+    /// só passa quando a heurística local, que define os casos do §5, chega
+    /// ao MESMO aviso — senão silêncio, que é resposta válida.
+    static func moderar(_ v: AnaliseLocal.Veredito?, texto: String,
+                        gestoAtual: Gesto?) -> AnaliseLocal.Veredito? {
+        guard case .aviso = v else { return v }
+        let local = AnaliseLocal.classificar(texto: texto, gestoAtual: gestoAtual, campos: [:])
+        return local == v ? v : .silencio
     }
 
     /// O cartão promete "uma frase curta" (§2): o modelo não fura o teto.

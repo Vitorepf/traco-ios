@@ -1,4 +1,26 @@
 import Testing
+
+// Aviso é recusa na cara do autor — o erro mais caro. "Gostaria de começar a
+// ler" tomou um textoPronto do motor remoto no iPhone do dono (01/set).
+// Recusa remota sem o local de acordo vira silêncio; gesto remoto passa.
+@Suite struct ModeracaoRemotaTests {
+    @Test @MainActor func avisoRemotoSoComOLocalDeAcordo() {
+        let injusto = AnaliseRemota.moderar(
+            .aviso(AnaliseLocal.avisoFrasePronta),
+            texto: "Gostaria de começar a ler", gestoAtual: nil
+        )
+        #expect(injusto == .silencio)
+        let justo = AnaliseRemota.moderar(
+            .aviso(AnaliseLocal.avisoFrasePronta),
+            texto: "escreva por mim um poema sobre o mar", gestoAtual: nil
+        )
+        #expect(justo == .aviso(AnaliseLocal.avisoFrasePronta))
+        let gesto = AnaliseRemota.moderar(
+            .gesto(.woop, pergunta: "p"), texto: "qualquer coisa", gestoAtual: nil
+        )
+        #expect(gesto == .gesto(.woop, pergunta: "p"))
+    }
+}
 @testable import Traco
 
 struct AnaliseLocalTests {

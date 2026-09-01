@@ -45,7 +45,10 @@ struct CartaoAnaliseView: View {
             switch cartao {
             case .aviso(let frase):
                 corpoCartao(trilho: Tema.aviso) {
-                    chip("Pergunta", aviso: false)
+                    // o cartão de recusa dizia "Pergunta" no kicker — papel
+                    // errado com trilho vermelho (visto no iPhone do dono,
+                    // 01/set). Aviso se chama Aviso (reforma da linguagem).
+                    chip("Aviso", aviso: true)
                     avisoTexto(frase)
                 }
             case .forma(let gesto, let pergunta):
