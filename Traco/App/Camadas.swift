@@ -67,7 +67,12 @@ struct Camadas<Arquivo: View, Escrita: View>: View {
             }
         }
         .contentShape(Rectangle())
-        .gesture(gestoAtivo && largura > 0 ? trilho(largura) : nil)
+        // SIMULTÂNEO, não exclusivo: o ScrollView do editor é filho e disputava
+        // o mesmo arrasto — com `.gesture` o pai perde, e o gesto de borda (a
+        // ÚNICA saída da escrita para o arquivo, §20) só pegava de vez em
+        // quando. A guarda de `startLocation.x < borda` continua sendo quem
+        // decide; simultâneo só garante que o reconhecedor chegue a rodar.
+        .simultaneousGesture(gestoAtivo && largura > 0 ? trilho(largura) : nil)
         // mudança vinda de FORA do gesto (tocar numa aba, voltar por código)
         .onChange(of: arquivoAberto) { _, aberto in
             guard !arrastando, !animandoPeloGesto, largura > 0 else { return }

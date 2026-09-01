@@ -5,10 +5,11 @@ appId: app.traco
 - tapOn:
     id: pagina
 - inputText: "nome"
-# a régua rola DENTRO de si: scrollUntilVisible pegava o scroll do editor,
-# soltava o teclado e a régua saía de cena antes do toque
+# a regua rola DENTRO de si. Dois arrastos: "Tabela" e o 8o chip, e a
+# fileira SATURA no fim — com 8 arrastos ela passa do ponto e o chip fica
+# para tras, fora da tela.
 - repeat:
-    times: 8
+    times: 2
     commands:
       - swipe:
           from:
