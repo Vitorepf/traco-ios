@@ -30,7 +30,7 @@ appId: app.traco
     visible:
       id: "cartao-analise"
     timeout: 8000
-- assertVisible: "Pergunta"
+- assertVisible: "Aviso"
 - tapOn:
     id: "concluir"
 - tapOn:

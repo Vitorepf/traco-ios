@@ -36,7 +36,13 @@ appId: app.traco
     id: "fecho-queimar"
 - extendedWaitUntil:
     visible: "Concluir"
-    timeout: 6000
+    timeout: 9000
+# a cena da queima (3s) fecha com o amanhecer (0,9s): o gesto de borda só
+# depois do véu ir embora, senão o arrasto morre no overlay em saída
+- extendedWaitUntil:
+    notVisible:
+      id: "fecho-expressiva"
+    timeout: 8000
 - swipe:
     start: 1%, 50%
     end: 85%, 50%

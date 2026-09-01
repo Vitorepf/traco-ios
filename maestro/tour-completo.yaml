@@ -19,7 +19,7 @@ appId: app.traco
     id: pagina
 - inputText: "eu sou um vencedor"
 - extendedWaitUntil:
-    visible: "Pergunta"
+    visible: "Aviso"
     timeout: 6000
 - tapOn:
     id: "concluir"
