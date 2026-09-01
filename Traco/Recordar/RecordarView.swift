@@ -81,9 +81,13 @@ struct RecordarView: View {
                         .accessibilityHidden(true)
                 }
             case .escrever:
+                // sem `alignment: .leading` o VStack CENTRALIZAVA a pergunta: o
+                // eixo esquerdo do app quebrava justo na linha que o autor
+                // precisa responder, e a resposta dele nascia num eixo terceiro
                 Text("O que estava escrito?")
                     .font(Tema.corpo)
                     .foregroundStyle(Tema.tintaSuave)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, Tema.margem)
                     .padding(.bottom, 8)
                 TextEditor(text: $memoria)
@@ -92,7 +96,9 @@ struct RecordarView: View {
                     .scrollContentBackground(.hidden)
                     .focused($foco)
                     .tint(Tema.ambar)
-                    .padding(.horizontal, 14)
+                    // o TextEditor já traz ~5pt de recuo próprio: 14 aqui punha
+                    // a memória num degrau à esquerda da pergunta
+                    .padding(.horizontal, Tema.margem - 5)
                     .accessibilityLabel("Memória")
                 Button("Revelar") {
                     Toque.suave()
