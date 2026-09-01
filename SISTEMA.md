@@ -15,13 +15,18 @@ Contraste medido com `tastemaker/scripts/check_contrast.py` em 29 ago 2026.
 | tintaFraca | `#8E8E8A` | labels de forma, vazio | ≥4.5:1 (o `#5C5C5A` do espelho falha 2.93:1 — não usar em texto) |
 | linha | `#26262A` | hairline | estrutura, não texto |
 | ambar | `#D9A542` | **um** acento vivo por vista | 8.81:1 no fundo (componente). Proibido como fill sob texto. |
-| ambarSuave | `rgba(217,165,66,0.14)` | realce de busca, fill do timer | não é texto |
+| ambarSuave | `rgba(217,165,66,0.14)` | fill do timer, fill do chip de filtro ativo | não é texto |
+
+Realce de busca: o termo achado vai em **texto âmbar** (DestaqueBusca), não em
+fill — repetição semântica, não compete com o acento único do ecrã.
 | trava | `#C4614D` | só o chip “Aviso” | recusa, nunca fill de botão |
 
 **Regra Von Restorff:** âmbar é isolamento. Uma coisa âmbar por ecrã.
-- Página vazia: só o cursor.
+- Página vazia: o cursor — mais a aba do arquivo na borda (âmbar 0.55 por
+  auditoria de UX: o traço cinza era invisível e §17 proíbe "ter de lembrar").
 - Página com texto: Concluída **ou** Análise — não os dois + Recordar + timer.
-- Notas: só o `+` (volta à página). Notas e filtros em tinta.
+- Arquivo (§20, tab bar): âmbar marca ESTADO — a aba ativa e o filtro ativo.
+  Ação âmbar só quando é a única saída do ecrã (vazio da busca). Resto em tinta.
 
 ## Tipo (SF, semântico, Dynamic Type)
 

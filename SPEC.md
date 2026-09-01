@@ -123,7 +123,7 @@ Templates do app. Nascem VAZIAS abaixo do texto do usuário. Uma forma por nota.
 |---|---|---|
 | **WOOP** | desejo/meta ("quero...") | Resultado · Obstáculo interno · Se [obstáculo], então eu |
 | **Se–então** | hábito que trava num gatilho | Se (hora/lugar/obstáculo) · Então eu (substituto, não negação) |
-| **Spec** | algo a construir (software/projeto) | Problema · Pronto quando · O que eu NÃO vou fazer · Restrições · O que pode dar errado |
+| **Especificação** (interno: Spec) | algo a construir (software/projeto) | Problema · Pronto quando · O que eu NÃO vou fazer · Restrições · O que pode dar errado |
 | **Nota permanente** | ideia/insight curto | Uma ideia nas suas palavras · Liga a · Fonte |
 | **Destaque** | lista de tarefas / "hoje" | A única coisa de hoje, primeiro, até acabar |
 | **Expressiva** | desabafo emocional longo | sem campos — vira o modo do §8 |
@@ -268,7 +268,7 @@ Três críticos (hierarquia, motion, UX) em 3 rodadas — decisões que valem pa
 Busca é **arquivo**, não memória: acha a nota para agir (GTD); lembrar continua sendo
 trabalho do Recordar. Padrão Apple Notes (Jakob):
 
-- Campo de busca nas notas + filtros por gesto em chips (WOOP, Se–então, Spec,
+- Campo de busca nas notas + filtros por gesto em chips (WOOP, Se–então, Especificação,
   Nota permanente, Destaque, Trancadas). Toque alterna; um filtro por vez.
 - Busca instantânea, local, sobre **a voz do autor** (labels/scaffold das formas não
   indexam — buscar "Resultado" não pode devolver toda nota WOOP).
@@ -334,7 +334,7 @@ ESCOLHA dentro de uma lista fechada — nunca prosa que entra na nota (§2).
 
 | # | Papel | O que ela devolve | Se falhar |
 |---|---|---|---|
-| 1 | **Rotear o gesto** | um nome de forma da lista fixa (WOOP, Se–então, Spec, Nota permanente, Destaque, Expressiva) ou nada | heurística local roteia |
+| 1 | **Rotear o gesto** | um nome de forma da lista fixa (WOOP, Se–então, Especificação, Nota permanente, Destaque, Expressiva) ou nada | heurística local roteia |
 | 2 | **Avisar** | uma frase curta de recusa, dentro dos casos da tabela do §5 | heurística local avisa |
 | 3 | **Perguntar** | UMA pergunta sobre o próximo campo vazio | pergunta fixa do template |
 | 4 | **Perguntas de Padrões** | perguntas sobre padrões entre notas, citando fragmento literal do autor | perguntas locais |
@@ -540,3 +540,10 @@ Decisão do dono, com duas saídas plausíveis:
 1. escalar tudo e aceitar que a régua vire outra coisa em corpos grandes
 2. escalar o CONTEÚDO (texto do autor, cartões, notas) e travar o CHROME
    (régua, barra), que é o que Notes e Bear fazem
+
+## ADR 2026-09-01a — "Spec" vira "Especificação" na UI
+
+Era o único nome de método em inglês entre cinco em português — jargão de
+programador num app de escrever; o autor de primeira viagem não o entende.
+Muda só a exibição (`Gesto.nome`): o rawValue segue "Spec" e `doNome` aceita
+as duas grafias, então o corpus já exportado importa sem perder o gesto.

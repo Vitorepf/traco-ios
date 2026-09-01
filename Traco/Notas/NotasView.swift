@@ -162,11 +162,12 @@ struct NotasView: View {
         let visiveis = filtradas
         return Group {
             if visiveis.isEmpty {
-                VStack(spacing: 12) {
-                    Image(systemName: busca.isEmpty && filtro == nil ? "square.and.pencil" : "magnifyingglass")
-                        .font(.system(size: 28, weight: .light))
-                        .foregroundStyle(Tema.tintaFraca)
-                        .accessibilityHidden(true)
+                // No eixo do app, onde os resultados nasceriam — não um placar
+                // centralizado contra a tela toda (law-of-continuity; mesmo
+                // conserto do Recordar em 9eb6124). O glifo decorativo saiu:
+                // era o elemento mais chamativo do ecrã carregando zero
+                // conteúdo (critique-visual-hierarchy).
+                VStack(alignment: .leading, spacing: 12) {
                     Text(vazioTitulo)
                         .font(Tema.corpo)
                         .foregroundStyle(Tema.tintaSuave)
@@ -194,9 +195,10 @@ struct NotasView: View {
                         .accessibilityIdentifier("limpar-busca")
                     }
                 }
-                .frame(maxWidth: .infinity)
-                .padding(Tema.margem)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, Tema.margem)
+                .padding(.top, 12)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             } else {
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 0) {
@@ -228,6 +230,11 @@ struct NotasView: View {
                     }
                     .padding(.horizontal, Tema.margem)
                 }
+                // o mesmo gesto do caderno (CadernoView:68): arrastar a lista
+                // devolve a tela — sem isto o teclado da busca prendia a tab
+                // bar atrás de si e a única saída era o "x" (jakobs-law: no
+                // Notes, arrastar a lista dispensa o teclado)
+                .scrollDismissesKeyboard(.interactively)
             }
         }
     }

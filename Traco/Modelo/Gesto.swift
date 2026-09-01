@@ -21,7 +21,11 @@ enum Gesto: String, CaseIterable, Codable, Identifiable {
         switch self {
         case .woop: "WOOP"
         case .seEntao: "Se–então"
-        case .spec: "Spec"
+        // "Spec" era o único nome em inglês entre cinco em português — jargão
+        // de programador num app de escrever (o próprio arquivo manda: rótulos
+        // na língua de quem escreve). rawValue segue "Spec": o corpus antigo
+        // importa por doNome.
+        case .spec: "Especificação"
         case .notaPermanente: "Nota permanente"
         case .destaque: "Destaque"
         case .expressiva: "Expressiva"
@@ -88,7 +92,7 @@ struct CampoForma: Identifiable, Hashable {
 enum FiltroNotas: String, CaseIterable, Identifiable {
     case woop = "WOOP"
     case seEntao = "Se–então"
-    case spec = "Spec"
+    case spec = "Especificação"
     case notaPermanente = "Permanente"
     case destaque = "Destaque"
     case trancadas = "Trancadas"
