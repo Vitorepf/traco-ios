@@ -1,0 +1,27 @@
+appId: app.traco
+---
+# U4 — as rotas que o widget dispara (Rota já existente, via onOpenURL). O widget
+# é só a porta; aqui provo end-to-end que as portas levam aos lugares certos:
+# traco://recordar → Recordar; traco://nova → página em branco.
+- launchApp:
+    clearState: true
+- tapOn:
+    id: pagina
+- inputText: "a nota de ontem sobre o projeto"
+- tapOn:
+    id: "concluir"
+# traco://recordar → recordarMaisRecente → o Recordar da nota mais recente
+- openLink: traco://recordar
+- extendedWaitUntil:
+    visible: "RECORDAR"
+    timeout: 8000
+- assertVisible: "Leia uma última vez — a nota vai se esconder."
+- takeScreenshot: /tmp/traco-verify/widget-recordar
+- tapOn: "Voltar"
+# traco://nova → página em branco (o texto de antes não está mais na página)
+- openLink: traco://nova
+- extendedWaitUntil:
+    visible:
+      id: pagina
+    timeout: 8000
+- assertNotVisible: "a nota de ontem sobre o projeto"

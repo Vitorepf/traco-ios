@@ -12,16 +12,19 @@
 		0BD2BD74128AD32BFB929D54 /* RecordarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B3F4812CA2DDBAB60FE7D78 /* RecordarView.swift */; };
 		0EE55C0236D7E574EA1A7F6D /* VozDoAutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A31CF16DDDD850E4008ED6A /* VozDoAutor.swift */; };
 		0FA3C90485245DA99E3B96B8 /* DestaqueBusca.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1629E684196EC743E4367A0E /* DestaqueBusca.swift */; };
+		18E59F465C2E5F093AD7040E /* TracoWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 8C37AE5D202E97779C84A745 /* TracoWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		206C9E23B411F0F28E1162E0 /* Nota.swift in Sources */ = {isa = PBXBuildFile; fileRef = 752E5B8AEE11066FE1493A3D /* Nota.swift */; };
 		207C686843759571A4FD1DC5 /* PortalFormulaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 497B071C1D5EF6487614814F /* PortalFormulaView.swift */; };
 		21C607B41ECFAE7A1BAE87B9 /* ConfirmacaoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD2B3195498A124686B86F4 /* ConfirmacaoView.swift */; };
 		295A215EC19C2F11945E6734 /* CadernoFuzzTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1757D3DFD4D2B96B4136FB92 /* CadernoFuzzTests.swift */; };
+		2EDE2DC95FFCC08152DD4D8C /* TracoWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7460E11C15C79C8BF502E84 /* TracoWidget.swift */; };
 		3300AF225512A35291C48F3D /* ProsaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4207F1ADDB6DE919995145D4 /* ProsaView.swift */; };
 		357488D47F6447389B1B4B14 /* NotasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0D2FB8492AF79193900392 /* NotasView.swift */; };
 		3E3F2462A04B514F3BFA686B /* NotasFiltro.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F477183BCC594161BCBE7B8 /* NotasFiltro.swift */; };
 		41477564BC9389B7A7982A6C /* Toque.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2751D1D96F07B6B9980FA75 /* Toque.swift */; };
 		43856A9FFE628D9063718BF2 /* AnaliseLocal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07E0810B1D0BA208B63D167C /* AnaliseLocal.swift */; };
 		47CDB34EC591FC6D2C9B98F1 /* AnaliseRemota.swift in Sources */ = {isa = PBXBuildFile; fileRef = 559F50CC1AF6E37EF3CA94F7 /* AnaliseRemota.swift */; };
+		49F55E4771098FD4F183F1D0 /* Tema.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A273C7A77EA3B9F5AAAC13A /* Tema.swift */; };
 		4C087E51618A29E54C7DB4BF /* AnexoDisco.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6781E6B90271EAB559E46EB7 /* AnexoDisco.swift */; };
 		50BDC2DAF155F65D6076D8CD /* Revisoes.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB811F3145B921C3557FB6CF /* Revisoes.swift */; };
 		56A38C95EE9713A63A475FC8 /* NotasESessaoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B544C7CB0EEA5F5D2DAFB30C /* NotasESessaoTests.swift */; };
@@ -71,7 +74,28 @@
 			remoteGlobalIDString = F911088A54FB6A484B3562AE;
 			remoteInfo = Traco;
 		};
+		FFFD90424DBC10AECB89FFEE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B57362ED6EF32EA7FF67684F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B914E6C2B64B3277308D643C;
+			remoteInfo = TracoWidget;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		B5FF803BA12925DD150E51DA /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				18E59F465C2E5F093AD7040E /* TracoWidget.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		003219BD29767A986648826F /* Info-extra.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Info-extra.plist"; sourceTree = "<group>"; };
@@ -110,6 +134,7 @@
 		830A6A725EE5ACDC831582DF /* PortalArquivoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortalArquivoView.swift; sourceTree = "<group>"; };
 		854249702104D325072DC8FA /* Gesto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gesto.swift; sourceTree = "<group>"; };
 		8A31CF16DDDD850E4008ED6A /* VozDoAutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VozDoAutor.swift; sourceTree = "<group>"; };
+		8C37AE5D202E97779C84A745 /* TracoWidget.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = TracoWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		8FDEE4E634F20086C0076DA8 /* Empilha.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Empilha.swift; sourceTree = "<group>"; };
 		9E1B7B58FD49695380C335BA /* Intencoes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Intencoes.swift; sourceTree = "<group>"; };
 		A4D7AFFE24FE679844349AD3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -123,10 +148,12 @@
 		BB811F3145B921C3557FB6CF /* Revisoes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Revisoes.swift; sourceTree = "<group>"; };
 		BC971448D0B5207611E641F1 /* CadernoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CadernoView.swift; sourceTree = "<group>"; };
 		C231AAA4F75F1F358615DD8D /* Holofote.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Holofote.swift; sourceTree = "<group>"; };
+		C7460E11C15C79C8BF502E84 /* TracoWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TracoWidget.swift; sourceTree = "<group>"; };
 		C905B08A3932A5955A7DAFA6 /* BlocoCaderno.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlocoCaderno.swift; sourceTree = "<group>"; };
 		C9F22E37F6BFFDA21C00C087 /* CartaoAnaliseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CartaoAnaliseView.swift; sourceTree = "<group>"; };
 		CE31B44AE2B9734818934EE6 /* SintaxeLocal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SintaxeLocal.swift; sourceTree = "<group>"; };
 		D3D27C2F2E3EE0267AF20320 /* Traco.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Traco.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D559A524E20BFCB3DD3265B3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		E2751D1D96F07B6B9980FA75 /* Toque.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Toque.swift; sourceTree = "<group>"; };
 		F8A3AE8285B42EB802930300 /* TracoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TracoApp.swift; sourceTree = "<group>"; };
 		F903485BBAA804C94399C747 /* Migracao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Migracao.swift; sourceTree = "<group>"; };
@@ -184,6 +211,7 @@
 			children = (
 				D3D27C2F2E3EE0267AF20320 /* Traco.app */,
 				1C7AAAC02FD4111DF3F7A6A6 /* TracoTests.xctest */,
+				8C37AE5D202E97779C84A745 /* TracoWidget.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -251,6 +279,7 @@
 			children = (
 				EA58459834CE0856F23C7739 /* Traco */,
 				686520F100AADC6764F73F5E /* TracoTests */,
+				E75D0E3079EF955B92C02FBE /* TracoWidget */,
 				4FD0343DA6A44F13F705F2AA /* Products */,
 			);
 			sourceTree = "<group>";
@@ -275,6 +304,15 @@
 				6DBB3255C8D14DB1494C3558 /* ContaGrok.swift */,
 			);
 			path = Analise;
+			sourceTree = "<group>";
+		};
+		E75D0E3079EF955B92C02FBE /* TracoWidget */ = {
+			isa = PBXGroup;
+			children = (
+				D559A524E20BFCB3DD3265B3 /* Info.plist */,
+				C7460E11C15C79C8BF502E84 /* TracoWidget.swift */,
+			);
+			path = TracoWidget;
 			sourceTree = "<group>";
 		};
 		EA58459834CE0856F23C7739 /* Traco */ = {
@@ -322,16 +360,35 @@
 			productReference = 1C7AAAC02FD4111DF3F7A6A6 /* TracoTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		B914E6C2B64B3277308D643C /* TracoWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 17545AFA40CA17909B5E8C06 /* Build configuration list for PBXNativeTarget "TracoWidget" */;
+			buildPhases = (
+				F4FDC91107C10B58CF7117DB /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TracoWidget;
+			packageProductDependencies = (
+			);
+			productName = TracoWidget;
+			productReference = 8C37AE5D202E97779C84A745 /* TracoWidget.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		F911088A54FB6A484B3562AE /* Traco */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 8F066A74147ED289636BE30D /* Build configuration list for PBXNativeTarget "Traco" */;
 			buildPhases = (
 				4C2FD30C1551C3B1BB8B55C6 /* Sources */,
 				46465F8155F0D6083D771CB5 /* Resources */,
+				B5FF803BA12925DD150E51DA /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				3FB3128770691FC8310DEB88 /* PBXTargetDependency */,
 			);
 			name = Traco;
 			packageProductDependencies = (
@@ -349,6 +406,10 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
+					B914E6C2B64B3277308D643C = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
 					F911088A54FB6A484B3562AE = {
 						DevelopmentTeam = "";
 						ProvisioningStyle = Automatic;
@@ -372,6 +433,7 @@
 			targets = (
 				F911088A54FB6A484B3562AE /* Traco */,
 				43F42E3792C32EA482A3CE65 /* TracoTests */,
+				B914E6C2B64B3277308D643C /* TracoWidget */,
 			);
 		};
 /* End PBXProject section */
@@ -455,6 +517,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F4FDC91107C10B58CF7117DB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				49F55E4771098FD4F183F1D0 /* Tema.swift in Sources */,
+				2EDE2DC95FFCC08152DD4D8C /* TracoWidget.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -462,6 +533,11 @@
 			isa = PBXTargetDependency;
 			target = F911088A54FB6A484B3562AE /* Traco */;
 			targetProxy = 2E33F895A05185F64EA76E29 /* PBXContainerItemProxy */;
+		};
+		3FB3128770691FC8310DEB88 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B914E6C2B64B3277308D643C /* TracoWidget */;
+			targetProxy = FFFD90424DBC10AECB89FFEE /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -496,6 +572,27 @@
 				PRODUCT_MODULE_NAME = Traco;
 				PRODUCT_NAME = "Traço";
 				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		11C78EF2807C4166D7E39FD9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				INFOPLIST_FILE = TracoWidget/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.traco.widget;
+				PRODUCT_NAME = TracoWidget;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -676,6 +773,27 @@
 			};
 			name = Release;
 		};
+		CF64B2E1EE274E58EE31AFB4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				INFOPLIST_FILE = TracoWidget/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.traco.widget;
+				PRODUCT_NAME = TracoWidget;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
 		FF78329D6F62EC2F268AB1B4 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -701,6 +819,15 @@
 			buildConfigurations = (
 				2A34C891CDB7A7800A2DC394 /* Debug */,
 				FF78329D6F62EC2F268AB1B4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		17545AFA40CA17909B5E8C06 /* Build configuration list for PBXNativeTarget "TracoWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CF64B2E1EE274E58EE31AFB4 /* Debug */,
+				11C78EF2807C4166D7E39FD9 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

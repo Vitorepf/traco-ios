@@ -484,6 +484,20 @@ final class Sessao {
         mostrarRecordar = true
     }
 
+    /// Rota "Recordar" do widget (U4): recorda a nota em voo, se houver; senão a
+    /// mais recente que ainda se relê. Sem nada a recordar, abre as notas — o
+    /// toque do widget nunca cai no vazio.
+    func recordarMaisRecente(no context: ModelContext) {
+        if !paginaVazia { irRecordar(no: context); return }
+        var desc = FetchDescriptor<Nota>(sortBy: [SortDescriptor(\.editadaEm, order: .reverse)])
+        desc.fetchLimit = 8
+        if let nota = (try? context.fetch(desc))?.first(where: { !$0.fechada }) {
+            recordarDaNotas(nota)
+        } else {
+            mostrarNotas = true
+        }
+    }
+
     /// SPEC §8: QUEIMAR. Não é esconder — é destruir. O texto é sobrescrito antes
     /// de sumir (não basta marcar), e o backup no Arquivos é regravado na hora,
     /// senão a promessa seria mentira. Sobram data, minutos e a linha de sentido.
