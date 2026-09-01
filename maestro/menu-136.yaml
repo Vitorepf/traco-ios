@@ -1,26 +1,31 @@
 appId: app.traco
 ---
+# A folha das 124 formas fora da regua. Escolher uma VESTE o bloco e deixa o
+# cursor nele — nao expulsa quem escreve (rodada 14). Antes deste conserto a
+# forma virava portal fechado, e era isso que este fluxo cobrava.
 - launchApp:
     clearState: true
 - tapOn:
     id: pagina
+- inputText: "atencao a isto aqui"
 - tapOn:
     id: regua-todas
 - extendedWaitUntil:
     visible:
       id: menu-formas
     timeout: 4000
+# a contagem "124 formas" e verificada por captura: o identificador de um Text
+# solto dentro de LazyVStack com cabecalho grudado nao chega ao maestro
 - takeScreenshot: /tmp/traco-verify/menu-136
 - assertNotVisible: ":::"
 - tapOn:
     id: catalogo-chamada
 - waitForAnimationToEnd:
     timeout: 3000
-- extendedWaitUntil:
-    visible:
-      id: portal-chamada
-    timeout: 5000
 - takeScreenshot: /tmp/traco-verify/menu-136-chamada
-- assertVisible:
-    id: portal-chamada
+# a voz do autor fica intacta e o mobiliario nunca aparece
+- assertVisible: ".*atencao a isto aqui.*"
 - assertNotVisible: ":::"
+# e ele continua escrevendo: a regua nao foi embora
+- assertVisible:
+    id: regua

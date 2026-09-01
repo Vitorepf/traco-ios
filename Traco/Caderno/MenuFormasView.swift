@@ -11,6 +11,14 @@ struct MenuFormasView: View {
         PapelForma.menu(filtrado: busca)
     }
 
+    private var contagem: String {
+        let n = familias.reduce(0) { $0 + $1.formas.count }
+        let formas = n == 1 ? "forma" : "formas"
+        return busca.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            ? "\(n) \(formas)"
+            : "\(n) \(formas) com “\(busca)”"
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             // "Todas" é o rótulo do BOTÃO que abriu isto, não o nome da tela.
@@ -18,17 +26,39 @@ struct MenuFormasView: View {
             TituloTela("Formas")
             campoBusca
             ScrollView {
-                LazyVStack(alignment: .leading, spacing: 0) {
-                    ForEach(familias) { familia in
-                        // o cabeçalho não repete o que vem logo abaixo dele:
-                        // "CHAMADA" seguido de "Chamada" lia como falha de
-                        // renderização, não como agrupamento (law-of-similarity)
-                        if !(familia.formas.count == 1 && familia.formas[0].nome == familia.nome) {
-                            SinalTipo(nome: familia.nome)
-                                .padding(.horizontal, Tema.margem)
-                                .padding(.top, 20)
-                                .padding(.bottom, 6)
+                // cabeçalho GRUDADO: com 124 formas em 13 famílias, rolar
+                // apagava o rótulo e o autor perdia onde estava. É o que toda
+                // lista longa do iOS faz (jakobs-law).
+                LazyVStack(alignment: .leading, spacing: 0, pinnedViews: [.sectionHeaders]) {
+                    // a contagem no TOPO, como no arquivo: sem ela o autor abria
+                    // uma lista sem fim e não sabia se a busca tinha terminado
+                    // (zeigarnik). Mesma tinta e mesmo corpo dos "3 notas com X".
+                    Text(contagem)
+                        .font(Tema.meta)
+                        .foregroundStyle(Tema.tintaFraca)
+                        .padding(.horizontal, Tema.margem)
+                        .padding(.top, 4)
+                        .accessibilityIdentifier("contagem-formas")
+
+                    if familias.isEmpty {
+                        // vazio que ENSINA e devolve a saída, como em Notas
+                        VStack(spacing: 12) {
+                            Text("nenhuma forma com “\(busca)”.")
+                                .font(Tema.corpo)
+                                .foregroundStyle(Tema.tintaSuave)
+                            Button("ver todas as formas") { busca = "" }
+                                .font(Tema.chrome.weight(.semibold))
+                                .foregroundStyle(Tema.ambar)
+                                .frame(minHeight: Tema.alvo)
+                                .buttonStyle(PressaoDiscreta())
+                                .accessibilityIdentifier("limpar-filtro-formas")
                         }
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, 64)
+                    }
+
+                    ForEach(familias) { familia in
+                      Section {
                         ForEach(Array(familia.formas.enumerated()), id: \.element.id) { indice, papel in
                             // a linha INTEIRA é o alvo. Com moldura e
                             // contentShape do lado de FORA do Button, só a
@@ -62,6 +92,16 @@ struct MenuFormasView: View {
                             .buttonStyle(PressaoDiscreta())
                             .accessibilityIdentifier("catalogo-\(papel.slug)")
                         }
+                      } header: {
+                        // fundo opaco: grudado, sem ele as linhas passariam por
+                        // baixo do rótulo e as duas leituras se somariam
+                        SinalTipo(nome: familia.nome)
+                            .padding(.horizontal, Tema.margem)
+                            .padding(.top, 20)
+                            .padding(.bottom, 6)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(Tema.superficie)
+                      }
                     }
                 }
                 .padding(.bottom, 28)
@@ -84,7 +124,8 @@ struct MenuFormasView: View {
             TextField(
                 "",
                 text: $busca,
-                prompt: Text("Buscar").foregroundStyle(Tema.tintaFraca)
+                // "Buscar" sozinho não diz onde: no arquivo é "Buscar nas notas"
+                prompt: Text("Buscar forma").foregroundStyle(Tema.tintaFraca)
             )
             .foregroundStyle(Tema.tinta)
             .tint(Tema.ambar)
