@@ -255,3 +255,14 @@ geral ainda fraca.
 - ABERTO (P1): folha-VISUAL da nota aberta (papel com borda/profundidade?) ·
   arrastar a nota NA LISTA como folha ("apenas visualizando" — desenho
   pendente) · elevar a estrutura geral (rodadas de crítica com o vídeo).
+
+## Portões da meta (01/set, 11h15) — estado
+- PORTÃO 1 (polimento): FECHADO — rodada 1 (página vazia, notas, busca,
+  padrões) e rodada 2 (recordar, perfil, expressiva, formas) seguidas, sem
+  achado novo com lei.
+- PORTÃO 2 (simples e premium): FECHADO para as telas auditadas, capturas em
+  scratchpad/rodadas/caps/.
+- PORTÃO 3 (estabilidade): suíte 143/27 verde e fuzz verde na revisão; E2E
+  3× em curso (varredura nº1 do ensaio: 53 flows, FALHAS: nenhuma); iPhone
+  REAL: build assinado pronto (team W28WF9A5A2), túnel conecta, aparelho
+  BLOQUEADO — monitor armado para instalar ao desbloquear.
