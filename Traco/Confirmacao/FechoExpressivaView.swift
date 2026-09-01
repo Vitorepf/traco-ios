@@ -43,7 +43,15 @@ struct FechoExpressivaView: View {
                             .fixedSize(horizontal: false, vertical: true)
                     }
 
-                    TextField("", text: $sentido, axis: .vertical)
+                    // um TextField `.plain` VAZIO e sem prompt é invisível: nada
+                    // de moldura, nada de fundo, nada de texto. O autor lia "uma
+                    // linha, se veio — é a única coisa que sai daqui" e não via
+                    // onde escrevê-la; o fio de baixo lia como divisor de seção,
+                    // não como linha de resposta (critique-affordance). O prompt
+                    // mostra a FORMA da resposta sem sugerir o conteúdo.
+                    TextField("", text: $sentido,
+                              prompt: Text("uma linha").foregroundStyle(Tema.tintaFraca),
+                              axis: .vertical)
                         .font(Tema.corpo)
                         .foregroundStyle(Tema.tinta)
                         .textFieldStyle(.plain)
