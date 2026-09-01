@@ -304,6 +304,14 @@ struct PaginaView: View {
                 .accessibilityLabel("Analisar")
                 .accessibilityHint("Classifica o que você escreveu. Não escreve na nota. Toque longo liga ou desliga a análise automática.")
 
+            // "Vestir" é irmão de "Analisar": age sobre o MESMO texto, mas veste
+            // a forma em vez de classificar. A IA não escreve — só estrutura.
+            Button("Vestir") { sessao.vestirNota() }
+                .foregroundStyle(Tema.tintaSuave)
+                .accessibilityLabel("Vestir a nota")
+                .accessibilityHint("Estrutura o que você escreveu em título, listas e destaques. Não escreve na nota.")
+                .accessibilityIdentifier("vestir-nota")
+
             // sem `if !paginaVazia` aqui: o rodapeUnico só chega nesta barra com
             // a página cheia. A condição repetida era morta e fazia parecer que
             // existe um estado em que "Analisar" aparece sozinho — não existe.

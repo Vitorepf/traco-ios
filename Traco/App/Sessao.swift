@@ -186,6 +186,23 @@ final class Sessao {
         mostrarToast(autoAnalise ? "análise automática ligada." : "análise automática desligada.")
     }
 
+    /// "Vestir a nota" (FILA P1): um toque estrutura a nota INTEIRA (título,
+    /// listas, seções) a partir do que o autor já escreveu. A IA não escreve —
+    /// `Caderno.estruturar` só veste a forma em volta das palavras dele. Um
+    /// cartão em voo é cancelado para não cobrir a nota recém-vestida.
+    func vestirNota() {
+        guard !paginaVazia else { return }
+        autoTask?.cancel()
+        let vestido = Caderno.estruturar(texto)
+        guard vestido != texto else {
+            Toque.leve()
+            mostrarToast("nada a vestir aqui.")
+            return
+        }
+        texto = vestido
+        Toque.fechou()
+    }
+
     func usarForma(_ g: Gesto) {
         gesto = g
         campos = Dictionary(uniqueKeysWithValues: g.campos.map { ($0.id, "") })
