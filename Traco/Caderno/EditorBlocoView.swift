@@ -109,6 +109,9 @@ struct EditorBlocoView: View {
             .scrollContentBackground(.hidden)
             .focused(foco)
             .tint(Tema.ambar)
+            // o mesmo recuo interno dos irmãos: dentro do cartão, a linha
+            // editada nascia 5pt à direita da renderizada
+            .padding(.horizontal, -Tema.sangriaEditor)
             .frame(maxWidth: .infinity, minHeight: 72, alignment: .topLeading)
             .accessibilityLabel(rotuloLinhas)
             .accessibilityIdentifier("pagina")

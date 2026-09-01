@@ -238,3 +238,20 @@ ABERTOS DA SESSÃO: rodadas limpas do Portão 1 (2× sem achado) · varredura E2
 3× (nº 1 rodando) · iPhone real (cert Apple Development de Vitor existe —
 team W28WF9A5A2; build de aparelho em teste) · citação/editorLinhas fora da
 compensação de eixo (auditar com captura antes de mexer).
+
+## Mandato do dono (01/set, ao vivo): "sinto a página" — nota 7 ainda
+Palavras dele: páginas como um caderno de folhas; arrastar a nota como quem
+arrasta uma folha, fluido e ultra-sensível ("sem senso tático, eu sinto a
+página"); queimar tem que ter a folha sendo destruída pelo fogo; estrutura
+geral ainda fraca.
+- FEITO nesta sessão (julgar em VÍDEO antes de dar por bom):
+  · Queima em cena: frente de fogo irregular consome a folha de baixo para
+    cima, brasa com tremor, fagulhas subindo (Queima.swift; 2,2s easeIn).
+  · Folha no swipe-back da nota aberta: segue o dedo também no Y, inclina
+    2,2° na pega, sombra aprofunda no lift (Empilha).
+  · Pilha nas Camadas: a escrita RECUA (scale 0,955) sob o arquivo.
+  · Toast na língua da casa: cartão raio 12 na margem (era cápsula centrada
+    — report do dono).
+- ABERTO (P1): folha-VISUAL da nota aberta (papel com borda/profundidade?) ·
+  arrastar a nota NA LISTA como folha ("apenas visualizando" — desenho
+  pendente) · elevar a estrutura geral (rodadas de crítica com o vídeo).

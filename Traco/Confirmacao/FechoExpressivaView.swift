@@ -20,7 +20,7 @@ struct FechoExpressivaView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @State private var sentido = ""
-    @State private var queimando = false
+    @State private var progressoQueima: CGFloat = 0
     @FocusState private var foco: Bool
 
     var body: some View {
@@ -85,11 +85,10 @@ struct FechoExpressivaView: View {
                 .padding(28)
             }
             .scrollDismissesKeyboard(.interactively)
-            // a queima é o método, então ela acontece EM CENA: o painel é
-            // consumido antes de sumir (Briñol: o ato é o que age)
-            .opacity(queimando ? 0 : 1)
-            .scaleEffect(queimando ? 0.97 : 1)
-            .blur(radius: queimando ? 12 : 0)
+            // a queima é o método, então ela acontece EM CENA: o fogo consome
+            // a folha de baixo para cima — frente irregular, brasa, fagulhas
+            // (Briñol: o ato é o que age; Queima.swift tem a cena)
+            .modifier(QueimaModifier(progresso: progressoQueima))
         }
         .accessibilityIdentifier("fecho-expressiva")
     }
@@ -105,9 +104,12 @@ struct FechoExpressivaView: View {
             sessao.queimar(no: context, sentido: linha)
             return
         }
-        withAnimation(.easeIn(duration: Tema.queima)) { queimando = true }
         Task { @MainActor in
-            try? await Task.sleep(for: .seconds(Tema.queima))
+            // o teclado desce ANTES da cena: com ele de pé, o fogo nascia
+            // atrás das teclas e a queima acontecia fora do palco
+            try? await Task.sleep(for: .milliseconds(320))
+            withAnimation(.easeIn(duration: Tema.queimaCena)) { progressoQueima = 1 }
+            try? await Task.sleep(for: .seconds(Tema.queimaCena + 0.15))
             sessao.queimar(no: context, sentido: linha)
         }
     }

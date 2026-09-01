@@ -68,6 +68,9 @@ enum Tema {
     static let barraNav: CGFloat = 52
     /// A queima acontece em cena: rara, e por isso pode ter peso (SPEC §8).
     static let queima: Double = 0.55
+    /// A cena inteira do fogo consumindo a folha (pedido do dono, 01/set).
+    /// easeIn: a ignição é lenta, o fogo acelera.
+    static let queimaCena: Double = 3.0
     static let margem: CGFloat = 20
     /// O TextEditor traz ~5pt de recuo interno: sem compensar, a linha editada
     /// nasce num degrau à direita do portal vizinho (medido: 26pt vs 21pt na

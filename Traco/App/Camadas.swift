@@ -40,6 +40,10 @@ struct Camadas<Arquivo: View, Escrita: View>: View {
                 // profundidade de verdade: a folha do sistema escurece o fundo
                 // em 48%; a nossa escurecia 0,7% e lia como substituição
                 .overlay(Color.black.opacity(0.45 * fracao).ignoresSafeArea())
+                // e RECUA: a folha de cima não desliza sobre um plano — ela
+                // cobre uma página que afunda na pilha (dono, 01/set: caderno
+                // de folhas, não painéis)
+                .scaleEffect(reduceMotion ? 1 : 1 - 0.045 * fracao)
                 .allowsHitTesting(!arquivoAberto)
                 .accessibilityHidden(arquivoAberto)
 

@@ -90,7 +90,13 @@ struct RaizView: View {
                     .transition(.opacity)
             }
         }
-        .animation(.easeOut(duration: 0.22), value: sessao.fechoExpressiva)
+        // a ENTRADA do fecho é rápida (o autor decidiu); a SAÍDA é o fim do
+        // ritual — da cinza escura, a página nova amanhece devagar (dono,
+        // 01/set: "o fim de um ciclo e o começo de uma nova era")
+        .animation(sessao.fechoExpressiva != nil
+            ? .easeOut(duration: 0.22)
+            : .easeOut(duration: 0.9),
+            value: sessao.fechoExpressiva)
         .preferredColorScheme(.dark)
         // A página em voo GRAVA ao sair de cena. Fica na RAIZ e escuta a
         // notificação do UIApplication: o `scenePhase` de uma view aninhada

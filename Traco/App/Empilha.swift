@@ -9,17 +9,22 @@ struct Empilha<Fundo: View, Frente: View>: View {
     @ViewBuilder var frente: () -> Frente
 
     @State private var arrasto: CGFloat = 0
+    /// A folha segue o dedo também no eixo Y (amortecido): é o que faz a
+    /// página parecer SEGURA na mão, não um painel num trilho (dono, 01/set:
+    /// "sem senso tático, eu sinto a página").
+    @State private var arrastoY: CGFloat = 0
 
     var body: some View {
         GeometryReader { geo in
             let largura = geo.size.width
+            let pega = min(1, max(0, arrasto / max(largura, 1)))
             ZStack {
                 fundo()
                     .frame(width: geo.size.width, height: geo.size.height)
                     .offset(x: deslocamentoFundo(largura))
                     // o fundo clareia COM o dedo — as duas propriedades são um corpo só
                     .opacity(aberto && !reduceMotion
-                        ? 0.85 + 0.15 * min(1, max(0, arrasto / max(largura, 1)))
+                        ? 0.85 + 0.15 * pega
                         : 1)
                     .allowsHitTesting(!aberto)
                     .accessibilityHidden(aberto)
@@ -27,7 +32,13 @@ struct Empilha<Fundo: View, Frente: View>: View {
                 if aberto {
                     frente()
                         .frame(width: geo.size.width, height: geo.size.height)
-                        .offset(x: arrasto)
+                        .offset(x: arrasto, y: reduceMotion ? 0 : arrastoY * 0.16)
+                        // a folha inclina de leve em torno do ponto de pega e a
+                        // sombra aprofunda: papel levantado, não painel deslizado
+                        .rotationEffect(.degrees(reduceMotion ? 0 : Double(pega) * 2.2),
+                                        anchor: UnitPoint(x: 0, y: 0.12))
+                        .shadow(color: .black.opacity(0.30 + 0.25 * pega),
+                                radius: 14 + 16 * pega, x: -6, y: 2 + 6 * pega)
                         .zIndex(1)
                         .transition(reduceMotion ? .opacity : .move(edge: .trailing))
                         .gesture(swipe(largura))
@@ -47,6 +58,7 @@ struct Empilha<Fundo: View, Frente: View>: View {
             .onChanged { valor in
                 guard valor.startLocation.x < 24 else { return }
                 arrasto = max(0, valor.translation.width)
+                arrastoY = valor.translation.height
             }
             .onEnded { valor in
                 let deveFechar = valor.translation.width > largura * 0.28
@@ -55,6 +67,7 @@ struct Empilha<Fundo: View, Frente: View>: View {
                     withAnimation(.easeOut(duration: 0.18)) {
                         if deveFechar { aberto = false }
                         arrasto = 0
+                        arrastoY = 0
                     }
                     if deveFechar { Toque.suave() }
                     return
@@ -68,6 +81,7 @@ struct Empilha<Fundo: View, Frente: View>: View {
                 withAnimation(.interpolatingSpring(stiffness: 320, damping: 32, initialVelocity: vel)) {
                     if deveFechar { aberto = false }
                     arrasto = 0
+                    arrastoY = 0
                 }
                 if deveFechar { Toque.suave() }
             }

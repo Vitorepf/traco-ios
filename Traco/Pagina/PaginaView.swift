@@ -180,14 +180,21 @@ struct PaginaView: View {
             }
 
             if let toast = sessao.toast {
+                // O aviso fala a língua das outras superfícies: cartão de raio
+                // 12, largura cheia, texto na margem — a cápsula centrada era o
+                // único oval do app e quebrava o eixo esquerdo (report do dono,
+                // 01/set: "esses elementos estão diferentes do resto";
+                // law-of-similarity com o cartão da análise).
                 Text(toast)
                     .font(Tema.corpo)
                     .foregroundStyle(Tema.tintaSuave)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 16)
-                    .padding(.vertical, 10)
-                    .background(Tema.superficieAlta, in: Capsule())
-                    .overlay(Capsule().strokeBorder(Tema.linha, lineWidth: 0.5))
+                    .padding(.vertical, 12)
+                    .background(Tema.superficieAlta, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(Tema.linha, lineWidth: 0.5))
                     .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
+                    .padding(.horizontal, Tema.margem)
                     .padding(.bottom, 88)
                     .transition(.opacity.combined(with: .offset(y: 6)))
                     .accessibilityIdentifier("toast-analise")
