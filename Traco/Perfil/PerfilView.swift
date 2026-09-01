@@ -70,15 +70,22 @@ struct PerfilView: View {
     // MARK: - Conta
 
     private var conta: some View {
-        VStack(alignment: .leading, spacing: Tema.entreItens) {
+        // spacing 0 e folgas por GRUPO: com um vão igual entre os cinco irmãos,
+        // o nome, o estado, a ação e a nota de rodapé pareciam quatro coisas
+        // soltas — e o cartão ficava alto e oco ao lado dos vizinhos. São três
+        // grupos: quem é a conta, o que fazer, e a letra miúda
+        // (law-of-proximity).
+        VStack(alignment: .leading, spacing: 0) {
             rotulo("CONTA")
-            // um nível a menos: "Grok" e o estado viram uma linha só
+            // nome e estado são UMA coisa: a conta e como ela está
             Text("Grok")
                 .font(Tema.chrome.weight(.semibold))
                 .foregroundStyle(Tema.tinta)
+                .padding(.top, Tema.entreItens)
             Text(estado ?? "verificando…")
                 .font(Tema.meta)
                 .foregroundStyle(Tema.tintaSuave)
+                .padding(.top, 2)
                 .accessibilityIdentifier("estado-conta")
 
             if let codigo {
@@ -99,8 +106,10 @@ struct PerfilView: View {
                 }
                 .padding(14)
                 .background(Tema.superficie, in: RoundedRectangle(cornerRadius: Tema.raio, style: .continuous))
+                .padding(.top, Tema.entreItens)
             }
 
+            // a AÇÃO, separada de quem a conta é
             if ligada {
                 Button("Sair da conta — voltar ao motor local") {
                     ContaGrok.sair()
@@ -112,6 +121,7 @@ struct PerfilView: View {
                 .foregroundStyle(Tema.tintaSuave)
                 .frame(minHeight: Tema.alvo)
                 .buttonStyle(PressaoDiscreta())
+                .padding(.top, 6)
                 .accessibilityIdentifier("sair-conta")
             } else {
                 Button(entrando ? "esperando aprovação…" : "Entrar com a conta Grok") {
@@ -122,6 +132,7 @@ struct PerfilView: View {
                 .frame(minHeight: Tema.alvo)
                 .buttonStyle(PressaoDiscreta())
                 .disabled(entrando)
+                .padding(.top, 6)
                 .accessibilityIdentifier("entrar-conta")
             }
 
@@ -129,6 +140,7 @@ struct PerfilView: View {
                 .font(Tema.meta)
                 .foregroundStyle(Tema.tintaFraca)
                 .frame(maxWidth: 280, alignment: .leading)
+                .padding(.top, Tema.entreItens)
         }
     }
 
