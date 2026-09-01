@@ -5,11 +5,15 @@ appId: app.traco
 - tapOn:
     id: pagina
 - inputText: "nome"
-- scrollUntilVisible:
-    element:
-      id: regua-tabela
-    direction: RIGHT
-    timeout: 8000
+# a régua rola DENTRO de si: scrollUntilVisible pegava o scroll do editor,
+# soltava o teclado e a régua saía de cena antes do toque
+- repeat:
+    times: 8
+    commands:
+      - swipe:
+          from:
+            id: regua
+          direction: LEFT
 - tapOn:
     id: regua-tabela
 - takeScreenshot: /tmp/traco-verify/tabela-regua

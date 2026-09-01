@@ -123,7 +123,7 @@ Templates do app. Nascem VAZIAS abaixo do texto do usuário. Uma forma por nota.
 |---|---|---|
 | **WOOP** | desejo/meta ("quero...") | Resultado · Obstáculo interno · Se [obstáculo], então eu |
 | **Se–então** | hábito que trava num gatilho | Se (hora/lugar/obstáculo) · Então eu (substituto, não negação) |
-| **Spec** | algo a construir (software/projeto) | Problema · Pronto quando · Não-objetivos · Restrições · Casos-limite |
+| **Spec** | algo a construir (software/projeto) | Problema · Pronto quando · O que eu NÃO vou fazer · Restrições · O que pode dar errado |
 | **Nota permanente** | ideia/insight curto | Uma ideia nas suas palavras · Liga a · Fonte |
 | **Destaque** | lista de tarefas / "hoje" | A única coisa de hoje, primeiro, até acabar |
 | **Expressiva** | desabafo emocional longo | sem campos — vira o modo do §8 |

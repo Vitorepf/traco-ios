@@ -4,12 +4,15 @@ appId: app.traco
     clearState: true
 - tapOn:
     id: pagina
-# o chip "Silêncio" é o ÚLTIMO da régua: rolar até ele
-- scrollUntilVisible:
-    element:
-      id: regua-silencio
-    direction: RIGHT
-    timeout: 8000
+# "Silêncio" é o ÚLTIMO dos doze chips: a régua rola DENTRO de si, e
+# scrollUntilVisible pegava o scroll do editor em vez dela
+- repeat:
+    times: 12
+    commands:
+      - swipe:
+          from:
+            id: regua
+          direction: LEFT
 - tapOn:
     id: regua-silencio
 - takeScreenshot: /tmp/traco-verify/silencio-regua

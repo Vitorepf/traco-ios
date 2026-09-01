@@ -1,0 +1,12 @@
+appId: app.traco
+---
+# Escrever, apagar tudo, escrever de novo: nada do texto velho sobrevive.
+- launchApp:
+    clearState: true
+- tapOn:
+    id: pagina
+- inputText: "texto que vai sumir"
+- eraseText: 30
+- inputText: "texto novo depois de apagar"
+- assertVisible: ".*texto novo depois de apagar.*"
+- assertNotVisible: ".*texto que vai sumir.*"

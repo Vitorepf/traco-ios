@@ -137,6 +137,9 @@ struct PortalCodigoView: View {
             .padding(.vertical, 12)
             .frame(maxWidth: .infinity, minHeight: 72, alignment: .topLeading)
         }
+        // ScrollView horizontal abraça a própria altura: sem isto ele estica
+        // para todo o espaço oferecido — foi esse o vão da régua e o dos filtros
+        .fixedSize(horizontal: false, vertical: true)
     }
 
     private var pe: some View {

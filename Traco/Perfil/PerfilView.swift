@@ -72,11 +72,12 @@ struct PerfilView: View {
     private var conta: some View {
         VStack(alignment: .leading, spacing: Tema.entreItens) {
             rotulo("CONTA")
+            // um nível a menos: "Grok" e o estado viram uma linha só
             Text("Grok")
-                .font(Tema.corpo.weight(.medium))
+                .font(Tema.chrome.weight(.semibold))
                 .foregroundStyle(Tema.tinta)
             Text(estado ?? "verificando…")
-                .font(.subheadline)
+                .font(Tema.meta)
                 .foregroundStyle(Tema.tintaSuave)
                 .accessibilityIdentifier("estado-conta")
 
@@ -113,10 +114,10 @@ struct PerfilView: View {
                 .buttonStyle(PressaoDiscreta())
                 .accessibilityIdentifier("sair-conta")
             } else {
-                Button(entrando ? "esperando aprovação…" : "Entrar com a minha conta Grok") {
+                Button(entrando ? "esperando aprovação…" : "Entrar com a conta Grok") {
                     entrar()
                 }
-                .font(Tema.chrome.weight(.semibold))
+                .font(Tema.chrome)
                 .foregroundStyle(Tema.ambar)
                 .frame(minHeight: Tema.alvo)
                 .buttonStyle(PressaoDiscreta())
@@ -124,9 +125,10 @@ struct PerfilView: View {
                 .accessibilityIdentifier("entrar-conta")
             }
 
-            Text("A análise usa a sua assinatura do Grok. O Traço não tem chave de API e nunca cobra por uso. Sem conta, ele funciona 100% local. Notas trancadas jamais vão à rede.")
-                .font(.footnote)
+            Text("A análise usa a sua assinatura do Grok — sem chave de API, sem cobrança por uso. Notas trancadas jamais vão à rede.")
+                .font(Tema.meta)
                 .foregroundStyle(Tema.tintaFraca)
+                .frame(maxWidth: 280, alignment: .leading)
         }
     }
 

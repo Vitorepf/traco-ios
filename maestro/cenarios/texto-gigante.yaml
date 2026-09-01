@@ -1,0 +1,17 @@
+appId: app.traco
+---
+# Nota longa: o autor escreve por anos na mesma pagina.
+- launchApp:
+    clearState: true
+- tapOn:
+    id: pagina
+- repeat:
+    times: 12
+    commands:
+      - inputText: "esta e uma linha longa de prosa que o autor escreveu sem parar. "
+- tapOn:
+    id: concluir
+- swipe:
+    start: 1%, 50%
+    end: 85%, 50%
+- assertVisible: ".*esta e uma linha longa.*"

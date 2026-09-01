@@ -1,0 +1,18 @@
+appId: app.traco
+---
+# Concluir duas vezes nao pode criar duas notas nem apagar a primeira.
+- launchApp:
+    clearState: true
+- tapOn:
+    id: pagina
+- inputText: "so uma nota"
+- tapOn:
+    id: concluir
+- tapOn:
+    id: pagina
+- tapOn:
+    id: concluir
+- swipe:
+    start: 1%, 50%
+    end: 85%, 50%
+- assertVisible: "so uma nota"

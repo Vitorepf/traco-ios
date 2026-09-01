@@ -18,9 +18,6 @@ struct CadernoView: View {
 
     @State private var editando: String?
     @State private var unaCrua = false
-    /// A régua acompanha o TECLADO, não o foco: o foco sobrevive ao teclado
-    /// descer, e a régua ficava parada no alto abrindo um vão até o rodapé.
-    @State private var tecladoNaTela = false
     @State private var foto: PhotosPickerItem?
     @State private var video: PhotosPickerItem?
     @State private var menuFoto = false
@@ -84,10 +81,10 @@ struct CadernoView: View {
                         .accessibilityIdentifier("a-gravar")
                         .accessibilityLabel("Parar gravação")
                 }
-                if foco.wrappedValue, tecladoNaTela, !esconderRegua {
+                if foco.wrappedValue, !esconderRegua {
                     regua
                         .padding(.horizontal, Tema.margem)
-                        .padding(.vertical, 8)
+                        .padding(.vertical, 4)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .background(Tema.fundo)
                         .overlay(alignment: .top) {
@@ -106,18 +103,17 @@ struct CadernoView: View {
             // dois irmãos que ocupam as mesmas linhas
             .animation(Tema.gaveta(reduzido: false), value: foco.wrappedValue)
             .animation(Tema.gaveta(reduzido: false), value: esconderRegua)
-            .animation(Tema.gaveta(reduzido: false), value: tecladoNaTela)
             .clipped()
         }
         .onAppear {
             unaCrua = Caderno.paginaUna(texto) != nil
         }
-        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
-            tecladoNaTela = true
-        }
-        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
-            tecladoNaTela = false
-        }
+        // A régua segue o FOCO e mais nada. Duas tentativas de amarrá-la ao
+        // teclado falharam: seguir a PRESENÇA do teclado apagava a régua inteira
+        // com teclado físico (iPad, Magic Keyboard); soltar o foco no
+        // keyboardWillHide matava o editor recém-aberto, porque trocar de campo
+        // posta willHide antes de o novo campo assumir. O vão que o dono viu era
+        // do ScrollView sem altura — já corrigido lá embaixo, na própria régua.
         .onChange(of: foco.wrappedValue) { _, f in
             // o vínculo cru se decide quando o teclado SOBE (a nota era una?);
             // ao descer, a condição do branch já solta a forma sozinha
@@ -219,14 +215,22 @@ struct CadernoView: View {
                 Teclado.recolher()
             } label: {
                 Image(systemName: "keyboard.chevron.compact.down")
-                    .frame(width: Tema.alvo, height: 32)
+                    .frame(width: Tema.alvo, height: Tema.alvo)
                     .padding(.leading, 8)
             }
             .accessibilityLabel("Esconder teclado")
         }
+        // 11pt é pequeno para um instrumento — mas medi: a 15pt cabem 5 das 12
+        // formas e a máscara de fade cai num VÃO entre chips, sem sinalizar
+        // nada; a 11pt cabem 6 e o fade pega glifo. Enquanto a régua for uma
+        // fileira única de 12 rótulos, alcance vence legibilidade. A troca certa
+        // é de ESTRUTURA, não de corpo de letra — e é decisão do dono.
         .font(Tema.label)
         .foregroundStyle(Tema.tintaSuave)
-        .frame(height: 36)
+        // 44, não 36: o .clipped() do encaixe corta o que passa da moldura, e
+        // com 36 o alvo de toque dos chips ficava ABAIXO do mínimo da Apple —
+        // o dedo errava a forma perto da borda (fitts-law)
+        .frame(height: Tema.alvo)
     }
 
     private func editorUna(_ fatia: FatiaCaderno) -> some View {
@@ -451,11 +455,11 @@ struct CadernoView: View {
             abrirUltimo(de: papel)
         } else {
             texto = Caderno.juntar(antes, bloco(de: papel, texto: ultimo))
-            if ultimo.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                abrirUltimo(de: papel)
-            } else {
-                editando = nil
-            }
+            // vestir a forma NÃO expulsa quem escreve. Com texto na linha, o
+            // editor fechava (editando = nil), o teclado descia junto e a régua
+            // ia com ele: o autor tocava VERSO e perdia a escrita. A prosa veste
+            // ao SOLTAR o teclado, não ao formatar.
+            abrirUltimo(de: papel)
         }
     }
 
@@ -476,8 +480,14 @@ struct CadernoView: View {
                 abrirUltimo(de: papel)
             }
         } else {
+            // o id carrega o papel ("paragrafo:0" -> "recipiente:0"), então o
+            // bloco vestido é reencontrado pela POSIÇÃO, não pelo id antigo
+            let posicao = fatias.firstIndex { $0.id == alvo.id }
             texto = Caderno.aplicar(fatias, id: alvo.id, bloco: bloco(de: papel, texto: visivel))
-            editando = vazio ? alvo.id : nil
+            let novas = Caderno.fatias(texto)
+            editando = vazio
+                ? alvo.id
+                : posicao.flatMap { novas.indices.contains($0) ? novas[$0].id : nil } ?? novas.last?.id
         }
     }
 

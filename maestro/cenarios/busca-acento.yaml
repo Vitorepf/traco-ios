@@ -1,0 +1,17 @@
+appId: app.traco
+---
+# Buscar sem acento tem que achar com acento.
+- launchApp:
+    clearState: true
+- tapOn:
+    id: pagina
+- inputText: "coração partido"
+- tapOn:
+    id: concluir
+- swipe:
+    start: 1%, 50%
+    end: 85%, 50%
+- tapOn:
+    id: busca-notas
+- inputText: "coracao"
+- assertVisible: "coração partido"

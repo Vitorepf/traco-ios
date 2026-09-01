@@ -1,0 +1,21 @@
+appId: app.traco
+---
+# O vazio da busca oferece a saida do BURACO, nao "escrever".
+- launchApp:
+    clearState: true
+- tapOn:
+    id: pagina
+- inputText: "uma nota qualquer"
+- tapOn:
+    id: concluir
+- swipe:
+    start: 1%, 50%
+    end: 85%, 50%
+- tapOn:
+    id: busca-notas
+- inputText: "zzzznaoexiste"
+- assertVisible:
+    id: limpar-busca
+- tapOn:
+    id: limpar-busca
+- assertVisible: "uma nota qualquer"

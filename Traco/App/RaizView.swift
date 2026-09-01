@@ -92,6 +92,15 @@ struct RaizView: View {
         }
         .animation(.easeOut(duration: 0.22), value: sessao.fechoExpressiva)
         .preferredColorScheme(.dark)
+        // A página em voo GRAVA ao sair de cena. Fica na RAIZ e escuta a
+        // notificação do UIApplication: o `scenePhase` de uma view aninhada
+        // chegou tarde demais para gravar antes da suspensão.
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
+            sessao.salvar(no: context)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)) { _ in
+            sessao.salvar(no: context)
+        }
         .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
             tecladoAberto = true
         }

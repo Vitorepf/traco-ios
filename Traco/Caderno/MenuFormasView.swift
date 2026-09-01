@@ -23,17 +23,24 @@ struct MenuFormasView: View {
                             .padding(.top, 16)
                             .padding(.bottom, 8)
                         ForEach(familia.formas) { papel in
-                            Button(papel.nome) {
+                            // a linha INTEIRA é o alvo. Com moldura e
+                            // contentShape do lado de FORA do Button, só a
+                            // palavra respondia: numa lista de 136 nomes curtos
+                            // o dedo cai na faixa vazia à direita e nada
+                            // acontece (fitts-law)
+                            Button {
                                 Toque.selecao()
                                 aoEscolher(papel)
                                 dismiss()
+                            } label: {
+                                Text(papel.nome)
+                                    .font(Tema.chrome)
+                                    .foregroundStyle(Tema.tinta)
+                                    .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .leading)
+                                    .padding(.horizontal, Tema.margem)
+                                    .contentShape(Rectangle())
                             }
                             .buttonStyle(PressaoDiscreta())
-                            .font(Tema.chrome)
-                            .foregroundStyle(Tema.tinta)
-                            .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .leading)
-                            .padding(.horizontal, Tema.margem)
-                            .contentShape(Rectangle())
                             .accessibilityIdentifier("catalogo-\(papel.slug)")
                         }
                     }

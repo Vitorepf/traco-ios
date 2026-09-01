@@ -122,7 +122,13 @@ struct PaginaView: View {
                 sessao.trancarExpressivasVencidas(no: context)
                 if !sessao.mostrarNotas { restaurarFoco() }
             case .inactive, .background:
-                if sessao.timerLigado { sessao.salvar(no: context) }
+                // TODA página em voo grava ao sair de cena, não só a do timer.
+                // Antes disto, escrever e a tela bloquear — ou uma ligação, ou
+                // o dedo no botão errado — apagava o que o autor tinha acabado
+                // de escrever, porque o texto só existia na memória até
+                // "Concluir". `salvar` ignora página vazia e reusa o notaUUID,
+                // então isto não cria nota do nada nem duplica.
+                sessao.salvar(no: context)
             default:
                 break
             }
@@ -281,8 +287,16 @@ struct PaginaView: View {
 
     private var bottomBar: some View {
         HStack(spacing: 8) {
+            // O âmbar marca o que o AUTOR ainda precisa fazer. Com a análise
+            // automática ligada — cujo próprio texto promete "você nunca precisa
+            // lembrar do botão" — o app já faz isto sozinho: o botão fica de pé
+            // como atalho, mas para de gritar (von-restorff).
             Button("Analisar") { sessao.analisar() }
-                .foregroundStyle(sessao.paginaVazia || sessao.gesto != nil || sessao.cartao != nil ? Tema.tintaFraca : Tema.ambar)
+                .foregroundStyle(
+                    sessao.paginaVazia || sessao.gesto != nil || sessao.cartao != nil ? Tema.tintaFraca
+                        : sessao.autoAnalise ? Tema.tintaSuave
+                        : Tema.ambar
+                )
                 .disabled(sessao.paginaVazia)
                 .simultaneousGesture(LongPressGesture(minimumDuration: 0.6).onEnded { _ in
                     sessao.alternarAutoAnalise() // §17: opt-out sem tela de ajustes
@@ -290,17 +304,18 @@ struct PaginaView: View {
                 .accessibilityLabel("Analisar")
                 .accessibilityHint("Classifica o que você escreveu. Não escreve na nota. Toque longo liga ou desliga a análise automática.")
 
-            if !sessao.paginaVazia {
-                Button("Recordar") { sessao.irRecordar(no: context) }
-                    .foregroundStyle(Tema.tintaSuave)
-                    .accessibilityLabel("Recordar")
-                    .accessibilityHint("Esconde a nota e cobra a memória")
-                Button("Anexar") { abrirArquivo = true }
-                    .foregroundStyle(Tema.tintaSuave)
-                    .accessibilityLabel("Anexar arquivo")
-                    .accessibilityHint("Anexar foto, vídeo, áudio, gravação ou arquivo")
-                    .accessibilityIdentifier("abrir-arquivo")
-            }
+            // sem `if !paginaVazia` aqui: o rodapeUnico só chega nesta barra com
+            // a página cheia. A condição repetida era morta e fazia parecer que
+            // existe um estado em que "Analisar" aparece sozinho — não existe.
+            Button("Recordar") { sessao.irRecordar(no: context) }
+                .foregroundStyle(Tema.tintaSuave)
+                .accessibilityLabel("Recordar")
+                .accessibilityHint("Esconde a nota e cobra a memória")
+            Button("Anexar") { abrirArquivo = true }
+                .foregroundStyle(Tema.tintaSuave)
+                .accessibilityLabel("Anexar arquivo")
+                .accessibilityHint("Anexar foto, vídeo, áudio, gravação ou arquivo")
+                .accessibilityIdentifier("abrir-arquivo")
         }
         .font(Tema.barra)
         .buttonStyle(BarraBotaoStyle())

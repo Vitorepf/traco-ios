@@ -59,7 +59,13 @@ enum Caderno: Sendable {
             return [FatiaCaderno(id: "paragrafo:0", bloco: .paragrafo(""), fonte: "", aberto: true)]
         }
 
-        let linhas = fonte.split(separator: "\n", omittingEmptySubsequences: false).map(String.init)
+        // CRLF entra por import de .md feito fora do iPhone. Sem normalizar, o
+        // \r sobrevive até a TELA e até a análise — caractere de controle
+        // invisível grudado no fim de cada linha da nota.
+        let normal = fonte.contains("\r")
+            ? fonte.replacingOccurrences(of: "\r\n", with: "\n").replacingOccurrences(of: "\r", with: "\n")
+            : fonte
+        let linhas = normal.split(separator: "\n", omittingEmptySubsequences: false).map(String.init)
         // trim pré-computado: cada linha era trimada 2–4× em passadas diferentes
         let trims = linhas.map { $0.trimmingCharacters(in: .whitespaces) }
         var saida: [FatiaCaderno] = []
@@ -107,15 +113,21 @@ enum Caderno: Sendable {
                         j += 1
                         break
                     }
+                    // uma cerca não come a outra: sem isto, um ``` sem fecho
+                    // engolia o resto da nota e o mobiliário do que veio depois
+                    // (":::", "|---") virava CONTEÚDO VISÍVEL
+                    if trims[j].hasPrefix(":::") { break }
                     corpo.append(linhas[j])
                     j += 1
                 }
                 let fim = depoisDeVazias(j)
-                emite(
-                    .codigo(lingua: lingua.isEmpty ? "texto" : lingua, fonte: corpo.joined(separator: "\n")),
-                    fonte: pega(inicio, fim),
-                    aberto: !fechou
-                )
+                let bloco = BlocoCaderno.codigo(lingua: lingua.isEmpty ? "texto" : lingua,
+                                                fonte: corpo.joined(separator: "\n"))
+                // cerca SEM FECHO só chega aqui por import de .md corrompido, e
+                // o recorte cru dela não se descreve: remontar o documento
+                // deslocava os blocos vizinhos. Guardamos a forma canônica —
+                // tocar a nota conserta o arquivo quebrado.
+                emite(bloco, fonte: fechou ? pega(inicio, fim) : serializar(bloco), aberto: !fechou)
                 i = fim
                 continue
             }
@@ -142,11 +154,18 @@ enum Caderno: Sendable {
                         j += 1
                         break
                     }
+                    // idem: um recipiente sem fecho não engole o irmão seguinte
+                    if trims[j].hasPrefix(":::") || trims[j].hasPrefix("```") { break }
                     corpo.append(linhas[j])
                     j += 1
                 }
                 let fim = depoisDeVazias(j)
-                emite(.recipiente(slug: slug, linhas: corpo), fonte: pega(inicio, fim), aberto: !fechou)
+                // corpo vazio vira UMA linha vazia: é o mesmo que `bloco(de:)`
+                // cria para um recipiente novo, e sem isso ":::verso" sem fecho
+                // (vem de import de .md quebrado) ganhava uma linha em branco a
+                // cada ida e volta pela serialização
+                let bloco = BlocoCaderno.recipiente(slug: slug, linhas: corpo.isEmpty ? [""] : corpo)
+                emite(bloco, fonte: fechou ? pega(inicio, fim) : serializar(bloco), aberto: !fechou)
                 i = fim
                 continue
             }
@@ -448,7 +467,12 @@ enum Caderno: Sendable {
         while partes.last?.isEmpty == true {
             partes.removeLast()
         }
-        return partes.joined(separator: "\n")
+        // "\n\n", não "\n": a linha em branco é o que SEPARA dois parágrafos.
+        // Com um \n só, trocar uma fatia por ELA MESMA fundia os parágrafos do
+        // autor num só — bastava tocar um chip ou editar um bloco para a nota
+        // perder a divisão que ele escreveu. Entre blocos a linha em branco é
+        // sempre segura; o que ela não pode é faltar.
+        return partes.joined(separator: "\n\n")
     }
 
     nonisolated static func prosa(de markdown: String) -> String {
@@ -468,19 +492,36 @@ enum Caderno: Sendable {
                 return nil
             }
         }
-        .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+        .map { semReferenciaInterna($0).trimmingCharacters(in: .whitespacesAndNewlines) }
         .filter { !$0.isEmpty }
         .joined(separator: "\n")
     }
 
+    /// A defesa mora na FRONTEIRA, não na sorte de o parser reconhecer cada
+    /// forma de anexo. `prosa` é o que viaja para a rede: uma referência interna
+    /// que escapou do parser (import de .md com o link quebrado, por exemplo)
+    /// sairia daqui como se fosse a voz do autor.
+    nonisolated static func semReferenciaInterna(_ s: String) -> String {
+        guard s.contains("traco://") else { return s }
+        return s
+            .split(separator: "\n", omittingEmptySubsequences: false)
+            .map { $0.contains("traco://") ? "" : String($0) }
+            .joined(separator: "\n")
+    }
+
     nonisolated static func visivel(_ fonte: String) -> String {
-        fatias(fonte).map { textoVisivel($0.bloco) }.joined(separator: "\n")
+        fatias(fonte).map { semReferenciaInterna(textoVisivel($0.bloco)) }.joined(separator: "\n")
     }
 
     /// Só prosa e lista: o ÚNICO terreno onde a edição crua nunca expõe
     /// mobiliário markdown (o autor jamais vê ```/traco:///:::/>).
     nonisolated static func soProsaELista(_ fonte: String) -> Bool {
-        fatias(fonte).allSatisfy {
+        // O portão e a definição de "marca" precisam CONCORDAR. Uma linha ":::"
+        // solta, ou um "traco://" que escapou do parser, vira parágrafo comum —
+        // o portão abria e o autor via mobiliário na cara. A lei é: se há marca
+        // em qualquer lugar do texto, a edição crua não abre.
+        if temMarca(fonte) { return false }
+        return fatias(fonte).allSatisfy {
             switch $0.bloco {
             case .paragrafo, .itens: return true
             default: return false

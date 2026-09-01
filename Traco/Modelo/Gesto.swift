@@ -56,11 +56,15 @@ enum Gesto: String, CaseIterable, Codable, Identifiable {
             ]
         case .spec:
             [
+                // rótulos na língua de quem escreve, não no jargão do método:
+                // "não-objetivos" e "casos-limite" pediam ao autor que soubesse
+                // vocabulário de spec antes de conseguir responder. Os ids ficam
+                // (estão gravados nas notas) — só a pergunta muda.
                 CampoForma(id: "problema", rotulo: "Problema"),
                 CampoForma(id: "pronto", rotulo: "Pronto quando"),
-                CampoForma(id: "nao", rotulo: "Não-objetivos"),
-                CampoForma(id: "restricoes", rotulo: "Restrições"),
-                CampoForma(id: "limites", rotulo: "Casos-limite"),
+                CampoForma(id: "nao", rotulo: "O que eu NÃO vou fazer"),
+                CampoForma(id: "restricoes", rotulo: "Restrições (prazo, dinheiro, gente)"),
+                CampoForma(id: "limites", rotulo: "O que pode dar errado"),
             ]
         case .notaPermanente:
             [

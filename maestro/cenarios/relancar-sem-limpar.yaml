@@ -1,0 +1,16 @@
+appId: app.traco
+---
+# Persistência de verdade: matar o app e abrir de novo, sem clearState.
+- launchApp:
+    clearState: true
+- tapOn:
+    id: pagina
+- inputText: "nota que precisa sobreviver"
+- tapOn:
+    id: concluir
+- stopApp
+- launchApp
+- swipe:
+    start: 1%, 50%
+    end: 85%, 50%
+- assertVisible: "nota que precisa sobreviver"

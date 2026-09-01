@@ -1,0 +1,17 @@
+appId: app.traco
+---
+# Trocar de forma sobre o MESMO texto: titulo -> citacao -> lista.
+- launchApp:
+    clearState: true
+- tapOn:
+    id: pagina
+- inputText: "muda de roupa tres vezes"
+- tapOn:
+    id: regua-titulo
+- tapOn:
+    id: regua-citacao
+- tapOn:
+    id: regua-lista
+- assertVisible: "muda de roupa tres vezes"
+- assertNotVisible: "#"
+- assertNotVisible: ">"

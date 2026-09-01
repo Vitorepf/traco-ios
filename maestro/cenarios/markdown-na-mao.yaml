@@ -1,0 +1,15 @@
+appId: app.traco
+---
+# O autor digita a propria sintaxe no MEIO de uma frase. E texto dele: aparece
+# como escreveu, sem virar bloco e sem sumir.
+- launchApp:
+    clearState: true
+- tapOn:
+    id: pagina
+- inputText: "vou falar sobre ``` e sobre ::: no meio da frase"
+- tapOn:
+    id: concluir
+- swipe:
+    start: 1%, 50%
+    end: 85%, 50%
+- assertVisible: ".*vou falar sobre.*"

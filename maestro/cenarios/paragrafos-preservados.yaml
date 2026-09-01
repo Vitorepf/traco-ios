@@ -1,0 +1,15 @@
+appId: app.traco
+---
+# A divisao em paragrafos do autor sobrevive a uma edicao de bloco.
+# (Foi exatamente isto que o fuzz pegou: aplicar() fundia paragrafos.)
+- launchApp:
+    clearState: true
+- tapOn:
+    id: pagina
+- inputText: "primeiro paragrafo"
+- inputText: "\n\n"
+- inputText: "segundo paragrafo"
+- tapOn:
+    id: regua-titulo
+- assertVisible: "primeiro paragrafo"
+- assertVisible: "segundo paragrafo"

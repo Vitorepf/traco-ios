@@ -1,0 +1,26 @@
+appId: app.traco
+---
+# Trocar de aba rapido nao pode deixar duas telas na mesma camada.
+- launchApp:
+    clearState: true
+- tapOn:
+    id: pagina
+- inputText: "base"
+- tapOn:
+    id: concluir
+- swipe:
+    start: 1%, 50%
+    end: 85%, 50%
+- tapOn:
+    id: aba-padroes
+- tapOn:
+    id: aba-perfil
+- tapOn:
+    id: aba-notas
+- tapOn:
+    id: aba-padroes
+- tapOn:
+    id: aba-notas
+- assertVisible: "base"
+- assertVisible:
+    id: busca-notas

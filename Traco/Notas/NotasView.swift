@@ -141,18 +141,17 @@ struct NotasView: View {
             }
             .padding(.horizontal, Tema.margem)
         }
+        // MESMO defeito da régua do caderno: ScrollView horizontal sem altura
+        // engole todo o espaço que o VStack oferece. A fileira de filtros
+        // flutuava no meio de um bloco de ~280pt — 110pt de vão até a busca e
+        // 128pt até a lista, três ilhas soltas onde devia haver uma coluna
+        // (law-of-proximity).
+        .frame(height: Tema.alvo)
         .mask(
             HStack(spacing: 0) {
                 Rectangle()
                 LinearGradient(colors: [.black, .clear], startPoint: .leading, endPoint: .trailing)
                     .frame(width: 28)
-            }
-        )
-        .mask(
-            HStack(spacing: 0) {
-                Rectangle()
-                LinearGradient(colors: [.black, .clear], startPoint: .leading, endPoint: .trailing)
-                    .frame(width: 16)
             }
         )
         .padding(.bottom, 8)
@@ -171,14 +170,29 @@ struct NotasView: View {
                     Text(vazioTitulo)
                         .font(Tema.corpo)
                         .foregroundStyle(Tema.tintaSuave)
-                    Button("escrever na página") {
-                        sessao.novaPagina()
-                        sessao.mostrarNotas = false
+                    // a saída tem que ser do BURACO em que o autor caiu: quando
+                    // o vazio é da busca, "escrever na página" joga fora o que
+                    // ele estava procurando em vez de devolver o arquivo
+                    if busca.isEmpty, filtro == nil {
+                        Button("escrever na página") {
+                            sessao.novaPagina()
+                            sessao.mostrarNotas = false
+                        }
+                        .font(Tema.chrome.weight(.semibold))
+                        .foregroundStyle(Tema.ambar)
+                        .frame(minHeight: Tema.alvo)
+                        .buttonStyle(PressaoDiscreta())
+                    } else {
+                        Button("ver todas as notas") {
+                            busca = ""
+                            filtro = nil
+                        }
+                        .font(Tema.chrome.weight(.semibold))
+                        .foregroundStyle(Tema.ambar)
+                        .frame(minHeight: Tema.alvo)
+                        .buttonStyle(PressaoDiscreta())
+                        .accessibilityIdentifier("limpar-busca")
                     }
-                    .font(Tema.chrome.weight(.semibold))
-                    .foregroundStyle(Tema.ambar)
-                    .frame(minHeight: Tema.alvo)
-                    .buttonStyle(PressaoDiscreta())
                 }
                 .frame(maxWidth: .infinity)
                 .padding(Tema.margem)

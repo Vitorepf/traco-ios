@@ -1,0 +1,22 @@
+appId: app.traco
+---
+# Abrir o menu de anexo e desistir nao pode deixar a tela travada. Em iOS 26 ele
+# se apresenta como POPOVER ancorado no botao: a saida e o toque fora dele — o
+# botao de cancelar e descartado pelo proprio SwiftUI nessa apresentacao.
+- launchApp:
+    clearState: true
+- tapOn:
+    id: pagina
+- inputText: "nota com anexo cancelado"
+- tapOn:
+    id: abrir-arquivo
+- extendedWaitUntil:
+    visible: "Foto"
+    timeout: 5000
+- tapOn:
+    point: 6%, 50%
+- assertVisible: ".*nota com anexo cancelado.*"
+- tapOn:
+    id: regua-titulo
+- assertVisible:
+    id: regua

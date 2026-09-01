@@ -1,0 +1,16 @@
+appId: app.traco
+---
+# Dedo nervoso: dois toques no mesmo chip. A forma nao pode aninhar nem sumir.
+- launchApp:
+    clearState: true
+- tapOn:
+    id: pagina
+- inputText: "linha para vestir duas vezes"
+- tapOn:
+    id: regua-titulo
+- tapOn:
+    id: regua-titulo
+- assertVisible: "linha para vestir duas vezes"
+- assertNotVisible: "##"
+- assertVisible:
+    id: regua

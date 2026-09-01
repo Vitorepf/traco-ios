@@ -48,8 +48,11 @@ struct PadroesView: View {
                         // "Li" dava um EU à IA — e o app não é interlocutor.
                         // Se é preciso avisar que quem conclui é o autor, é
                         // porque a frase anterior sugeriu o contrário.
+                        // contagem + instrução são METADADO: no corpo de 20pt
+                        // pesavam igual às próprias perguntas, que são o
+                        // conteúdo. Mesmo tamanho da contagem em Notas.
                         Text("\(abertas.count) \(abertas.count == 1 ? "nota" : "notas"), \(perguntas.count) \(perguntas.count == 1 ? "pergunta" : "perguntas"). Toque numa para responder — a resposta vira nota sua.")
-                            .font(Tema.corpo)
+                            .font(Tema.meta)
                             .foregroundStyle(Tema.tintaSuave)
                             .padding(.bottom, 8)
 

@@ -1,0 +1,17 @@
+appId: app.traco
+---
+# Texto que nao e ASCII: emoji com modificador, acento e RTL.
+- launchApp:
+    clearState: true
+- tapOn:
+    id: pagina
+- inputText: "saudade 😀 coração"
+- tapOn:
+    id: regua-citacao
+- assertVisible: "saudade 😀 coração"
+- tapOn:
+    id: concluir
+- swipe:
+    start: 1%, 50%
+    end: 85%, 50%
+- assertVisible: "saudade 😀 coração"

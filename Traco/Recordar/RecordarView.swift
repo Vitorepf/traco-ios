@@ -49,14 +49,19 @@ struct RecordarView: View {
             }
             .padding(.horizontal, Tema.margem)
 
-            switch fase {
-            case .ler:
+            // a promessa fica em cena enquanto está sendo CUMPRIDA: durante 1,3s
+            // a nota borrava sozinha sem uma palavra explicando (doherty)
+            if fase == .ler || fase == .esconder {
                 Text("Leia uma última vez — a nota vai se esconder.")
                     .font(Tema.meta)
                     .foregroundStyle(Tema.tintaSuave)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, Tema.margem)
                     .padding(.bottom, 16)
+            }
+
+            switch fase {
+            case .ler:
                 ScrollView {
                     Text(notaInteira)
                         .font(Tema.corpo)
