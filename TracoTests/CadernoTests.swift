@@ -631,4 +631,54 @@ struct DigitacaoDeListaTests {
         let md = Caderno.serializar(.itens(["a", "b"], ordenada: true))
         #expect(md == "1. a\n2. b")
     }
+
+    // MARK: - Vestir a nota (FILA P1): a IA veste a forma, NUNCA escreve
+
+    /// A lei: nenhuma palavra do autor some ao vestir, e nenhuma marca vaza na tela.
+    @Test func vestirNuncaPerdePalavraDoAutor() {
+        let notas = [
+            "compras da semana\n\nleite\npão\novos",
+            "reunião\n\npauta\n\ndecidir a data\ncomprar o bolo",
+            "linha um\nlinha dois\nlinha três",
+            "hoje foi um dia difícil e eu precisei escrever para entender o que senti.",
+        ]
+        for nota in notas {
+            let depois = Caderno.visivel(Caderno.estruturar(nota))
+            for palavra in Caderno.visivel(nota).split(whereSeparator: { " \n".contains($0) }) where !palavra.isEmpty {
+                #expect(depois.contains(palavra), "vestir perdeu \(palavra.debugDescription) em \(nota.debugDescription)")
+            }
+            #expect(!depois.contains("#"), "marca de título vazou na tela: \(depois.debugDescription)")
+        }
+    }
+
+    @Test func vestirDaTituloEListaAoTextoCru() {
+        let f = Caderno.fatias(Caderno.estruturar("compras da semana\n\nleite\npão\novos"))
+        #expect(f.contains { if case .titulo(1, let t) = $0.bloco { return t == "compras da semana" } else { return false } })
+        #expect(f.contains { if case .itens(let xs, false) = $0.bloco { return xs == ["leite", "pão", "ovos"] } else { return false } })
+    }
+
+    /// A primeira linha solta é título; a próxima linha solta é DESTAQUE (seção).
+    @Test func vestirDaSecaoAUmaSegundaLinhaSolta() {
+        let f = Caderno.fatias(Caderno.estruturar("capa\n\nprimeiro item\nsegundo item\n\nurgente"))
+        #expect(f.contains { if case .titulo(1, let t) = $0.bloco { return t == "capa" } else { return false } })
+        #expect(f.contains { if case .titulo(2, let t) = $0.bloco { return t == "urgente" } else { return false } })
+    }
+
+    @Test func vestirEhIdempotente() {
+        for nota in ["compras\n\nleite\npão", "capa\n\nurgente", "# já vestido\n\n- a\n- b"] {
+            let uma = Caderno.estruturar(nota)
+            #expect(Caderno.estruturar(uma) == uma, "vestir de novo mexeu: \(nota.debugDescription)")
+        }
+    }
+
+    @Test func vestirNaoTocaFormaQueOAutorJaFez() {
+        let ja = "# título à mão\n\n- item um\n- item dois\n\n> uma citação"
+        #expect(Caderno.estruturar(ja) == ja)
+    }
+
+    /// Uma frase de verdade (longa, com ponto final) não pode virar título.
+    @Test func vestirNaoTitulaProsaLonga() {
+        let prosa = "hoje foi um dia difícil e eu precisei escrever para entender o que senti."
+        #expect(!Caderno.estruturar(prosa).hasPrefix("#"))
+    }
 }

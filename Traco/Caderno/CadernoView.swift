@@ -14,6 +14,9 @@ struct CadernoView: View {
     var foco: FocusState<Bool>.Binding
     var folga: CGFloat
     @Binding var abrirArquivo: Bool
+    /// §17 × dedo em voo: o toque na régua avisa a sessão para SEGURAR o vestir
+    /// automático — a forma não veste no meio do alcance e o chip não salta.
+    var aoTocarRegua: ((Bool) -> Void)? = nil
     var aoMudar: () -> Void
 
     @State private var editando: String?
@@ -259,6 +262,14 @@ struct CadernoView: View {
         // com 36 o alvo de toque dos chips ficava ABAIXO do mínimo da Apple —
         // o dedo errava a forma perto da borda (fitts-law)
         .frame(height: Tema.alvo)
+        // toque em voo à régua SEGURA o vestir automático (o chip não salta sob
+        // o dedo). minimumDistance 0 pega o instante do encostar; simultâneo,
+        // não rouba o tap dos chips nem o rolar horizontal da fileira.
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 0)
+                .onChanged { _ in aoTocarRegua?(true) }
+                .onEnded { _ in aoTocarRegua?(false) }
+        )
     }
 
     private func editorUna(_ fatia: FatiaCaderno) -> some View {

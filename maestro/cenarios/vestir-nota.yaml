@@ -1,0 +1,52 @@
+appId: app.traco
+---
+# U2 — um botão veste a nota INTEIRA num toque: o autor só escreveu prosa crua e
+# o "Vestir" aplica título + lista + destaque (seção). A IA não escreve — só a
+# forma nasce; toda palavra do autor sobrevive (FILA P1 "Vestir a nota").
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: pagina
+    timeout: 8000
+- tapOn:
+    id: pagina
+# o autor escreve prosa CRUA: um título solto, uma lista de linhas, um destaque
+- inputText: "compras da semana"
+- inputText: "\n\n"
+- inputText: "leite"
+- pressKey: Enter
+- inputText: "pão"
+- pressKey: Enter
+- inputText: "ovos"
+- inputText: "\n\n"
+- inputText: "urgente"
+# §17 lê a pausa e sugere uma forma num cartão. Deixamos como nota: o teste é do
+# botão MANUAL, e soltar aquieta a nota (§17.2 autoSuprimidaNaNota).
+- extendedWaitUntil:
+    visible: "Deixar como nota"
+    timeout: 8000
+- tapOn: "Deixar como nota"
+# antes: a nota CRUA — o autor só escreveu, sem forma
+- takeScreenshot: /tmp/traco-verify/vestir-antes
+# UM toque veste a nota inteira (o rótulo de acessibilidade é "Vestir a nota",
+# como "Anexar arquivo" — maestro casa a linha inteira, então regex por trecho)
+- tapOn: ".*Vestir.*"
+# ao vestir, o campo cru vira portais de leitura e o teclado costuma cair
+# sozinho; se ainda estiver de pé, some com ele — opcional, os dois casos valem
+- tapOn:
+    text: "Esconder teclado"
+    optional: true
+# a nota veste: título + lista + destaque (seção), sem o autor tocar em sintaxe
+- assertVisible:
+    id: portal-titulo
+- assertVisible:
+    id: portal-lista
+- assertVisible:
+    id: portal-seccao
+# a VOZ do autor sobrevive inteira — a IA não escreveu nada, só vestiu a forma
+- assertVisible: "compras da semana"
+- assertVisible: "leite"
+- assertVisible: "ovos"
+- assertVisible: "urgente"
+- takeScreenshot: /tmp/traco-verify/vestir-depois

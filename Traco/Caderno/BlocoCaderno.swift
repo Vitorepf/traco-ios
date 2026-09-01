@@ -451,6 +451,83 @@ enum Caderno: Sendable {
         }
     }
 
+    /// "Vestir a nota" (FILA P1): estrutura o texto CRU do autor em formas
+    /// visuais — título, seções, listas — sem inventar UMA palavra. Só insere o
+    /// mobiliário em volta do que ele já escreveu, lendo a ESTRUTURA (linhas
+    /// curtas paralelas = lista; linha curta sozinha = título, depois seção). A
+    /// IA não passa daqui: é heurística de forma, nunca de conteúdo. Idempotente
+    /// (bloco que já tem forma fica intocado) e reversível (editar volta ao cru).
+    nonisolated static func estruturar(_ texto: String) -> String {
+        let normal = texto.contains("\r")
+            ? texto.replacingOccurrences(of: "\r\n", with: "\n").replacingOccurrences(of: "\r", with: "\n")
+            : texto
+        let linhas = normal.split(separator: "\n", omittingEmptySubsequences: false).map(String.init)
+        // blocos separados por linha em branco: o autor agrupa o que é junto
+        var blocos: [[String]] = []
+        var atual: [String] = []
+        for l in linhas {
+            if l.trimmingCharacters(in: .whitespaces).isEmpty {
+                if !atual.isEmpty { blocos.append(atual); atual = [] }
+            } else {
+                atual.append(l)
+            }
+        }
+        if !atual.isEmpty { blocos.append(atual) }
+        guard !blocos.isEmpty else { return texto }
+
+        var temTitulo = false
+        var vestidos: [String] = []
+        for bloco in blocos {
+            // bloco que já carrega forma/marca é escolha do autor — não se toca
+            if bloco.contains(where: jaVestida) {
+                if bloco.count == 1, bloco[0].trimmingCharacters(in: .whitespaces).hasPrefix("#") {
+                    temTitulo = true
+                }
+                vestidos.append(bloco.joined(separator: "\n"))
+                continue
+            }
+            if bloco.count >= 2, bloco.allSatisfy(curtaSemPonto) {
+                // linhas curtas paralelas = lista: cada uma vira item
+                vestidos.append(bloco.map { "- " + $0.trimmingCharacters(in: .whitespaces) }.joined(separator: "\n"))
+                continue
+            }
+            if bloco.count == 1, curtaSemPonto(bloco[0]) {
+                // linha curta sozinha = título (a primeira) ou seção (as demais)
+                let t = bloco[0].trimmingCharacters(in: .whitespaces)
+                vestidos.append(temTitulo ? "## " + t : "# " + t)
+                temTitulo = true
+                continue
+            }
+            vestidos.append(bloco.joined(separator: "\n")) // prosa: fica prosa
+        }
+        return vestidos.joined(separator: "\n\n")
+    }
+
+    /// Linha curta e sem pontuação de fim de frase: candidata a título ou item.
+    nonisolated private static func curtaSemPonto(_ linha: String) -> Bool {
+        let t = linha.trimmingCharacters(in: .whitespaces)
+        guard !t.isEmpty, t.count <= 60, let ultimo = t.last else { return false }
+        return ultimo != "." && ultimo != "!" && ultimo != "?"
+    }
+
+    /// A linha já traz forma (mobiliário, marcador de lista/título/tarefa,
+    /// tabela, numerada): vestir de novo dobraria a marca ou mentiria a voz.
+    nonisolated private static func jaVestida(_ linha: String) -> Bool {
+        let t = linha.trimmingCharacters(in: .whitespaces)
+        guard !t.isEmpty else { return false }
+        if temMarca(t) { return true }
+        for p in ["#", "- ", "* ", "> ", "|", "```", ":::", "- [", "* ["] where t.hasPrefix(p) {
+            return true
+        }
+        if t == "-" || t == "*" { return true }
+        // numerada: "3." ou "3. algo"
+        if let ponto = t.firstIndex(of: "."), ponto != t.startIndex,
+           t[..<ponto].allSatisfy(\.isNumber) {
+            return true
+        }
+        return false
+    }
+
     nonisolated static func partirUltimo(_ texto: String) -> (antes: String, ultimo: String) {
         if let faixa = texto.range(of: "\n\n", options: .backwards) {
             return (String(texto[..<faixa.lowerBound]), String(texto[faixa.upperBound...]))
