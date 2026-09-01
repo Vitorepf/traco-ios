@@ -28,7 +28,6 @@
 		5A36977E5B83A71BE62DD42B /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 8250E3200AC60E254A9A3BB0 /* PrivacyInfo.xcprivacy */; };
 		5B9AE29312A3CD5A78A518FC /* FechoExpressivaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CB7E1BBDF9B934FC651E5E1 /* FechoExpressivaView.swift */; };
 		611B3215CD20394B57D23B03 /* Intencoes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E1B7B58FD49695380C335BA /* Intencoes.swift */; };
-		61AFC497AD6793FD5616F122 /* Empilha.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FDEE4E634F20086C0076DA8 /* Empilha.swift */; };
 		62F244DD1EE82BE8E45B1831 /* CadernoDiagnostico.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BE14BD28362A74300FD085A /* CadernoDiagnostico.swift */; };
 		790B6E9A5A75BFDBB00BFF9F /* PapelForma.swift in Sources */ = {isa = PBXBuildFile; fileRef = 665F2C234F3966C3C528A729 /* PapelForma.swift */; };
 		7955B1999142FE2CCC93DDD9 /* TituloTela.swift in Sources */ = {isa = PBXBuildFile; fileRef = 813C9D0A44A4071EBACC0EFD /* TituloTela.swift */; };
@@ -112,7 +111,6 @@
 		830A6A725EE5ACDC831582DF /* PortalArquivoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortalArquivoView.swift; sourceTree = "<group>"; };
 		854249702104D325072DC8FA /* Gesto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gesto.swift; sourceTree = "<group>"; };
 		8A31CF16DDDD850E4008ED6A /* VozDoAutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VozDoAutor.swift; sourceTree = "<group>"; };
-		8FDEE4E634F20086C0076DA8 /* Empilha.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Empilha.swift; sourceTree = "<group>"; };
 		9E1B7B58FD49695380C335BA /* Intencoes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Intencoes.swift; sourceTree = "<group>"; };
 		A4D7AFFE24FE679844349AD3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A810EC1AF4E17D4DB08A56B3 /* BarraNavegacao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarraNavegacao.swift; sourceTree = "<group>"; };
@@ -195,7 +193,6 @@
 			children = (
 				A810EC1AF4E17D4DB08A56B3 /* BarraNavegacao.swift */,
 				ACC5FB2B7162F211E437D280 /* Camadas.swift */,
-				8FDEE4E634F20086C0076DA8 /* Empilha.swift */,
 				9E1B7B58FD49695380C335BA /* Intencoes.swift */,
 				70BC8BBFDD05D262FE72B42E /* RaizView.swift */,
 				39E5B1F01B36DA923CEA022B /* Sessao.swift */,
@@ -424,7 +421,6 @@
 				8B41722379ED1CB7724E946C /* Corpus.swift in Sources */,
 				0FA3C90485245DA99E3B96B8 /* DestaqueBusca.swift in Sources */,
 				F27B18C71280288BE9473182 /* EditorBlocoView.swift in Sources */,
-				61AFC497AD6793FD5616F122 /* Empilha.swift in Sources */,
 				5B9AE29312A3CD5A78A518FC /* FechoExpressivaView.swift in Sources */,
 				9AE336A415F4A83195416BE2 /* Gesto.swift in Sources */,
 				BFBA450F8798775C427206AB /* Holofote.swift in Sources */,

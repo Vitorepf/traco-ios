@@ -10,6 +10,8 @@
 > apagada, com atrito (confirmação; trancada = dupla) + cancela revisão + varre anexos.
 > ADR 2026-08-31g — onboarding: nenhum; a auto-análise É o onboarding (§17).
 > ADR 2026-08-31h — swipe-back custom (Empilha) aceito; física nativa fica em P3.
+> (01/set: a navegação do §20 rev.2 deixou o Empilha sem chamador; componente deletado.
+> A física de folha do arrasto vive nas Camadas; o peek de folha na lista é P1 na FILA.)
 > ADR 2026-08-31b — Régua do Caderno podada 136→12 (menu grande = template em menu, §12);
 > o catálogo completo permanece no formato de arquivo: nota antiga nunca quebra.
 > ADR 2026-08-31i — **Digitação viva**: em prosa+lista a página edita CRUA num único
