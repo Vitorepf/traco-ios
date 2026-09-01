@@ -1,0 +1,36 @@
+appId: app.traco
+---
+# U1 — o chip da régua abre um CONSTRUTOR visual, não um grid cru. Um toque na
+# forma já traz suas afordâncias de montar (+ coluna / + linha) VISÍVEIS na tela,
+# e outro toque MONTA a estrutura — o autor nunca vê a sintaxe (SPEC §Escrita:
+# "tabela que cresce por toque"; lei do dono: "eu nunca devo lembrar os códigos
+# Markdown"). As afordâncias respondem por TEXTO, como na caderno-tabela.
+- launchApp:
+    clearState: true
+- tapOn:
+    id: pagina
+- inputText: "custos"
+# antes: o autor só escreveu — a régua é o instrumento, a forma ainda não veio
+- takeScreenshot: /tmp/traco-verify/regua-antes
+# a régua rola DENTRO de si; dois arrastos alcançam o chip Tabela (mesma máscara
+# de fade da caderno-tabela) — um chip cortado tem o centro fora da tela
+- repeat:
+    times: 2
+    commands:
+      - swipe:
+          from:
+            id: regua
+          direction: LEFT
+- tapOn:
+    id: regua-tabela
+# o chip ABRIU o construtor: a forma e suas afordâncias de montar já estão na
+# tela — não é grid cru, o autor não precisa entender a sintaxe
+- assertVisible:
+    id: portal-tabela
+- assertVisible: ".*coluna.*"
+- assertVisible: ".*linha.*"
+# toque MONTA: coluna e depois linha crescem a forma, sem markdown, sem entender
+- tapOn: ".*coluna.*"
+- tapOn: ".*linha.*"
+# depois: o construtor montado — não é grid vazio cru
+- takeScreenshot: /tmp/traco-verify/regua-construtor
