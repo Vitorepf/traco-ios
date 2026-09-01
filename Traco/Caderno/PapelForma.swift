@@ -80,7 +80,10 @@ struct PapelForma: Hashable, Identifiable, Sendable {
         let q = busca.trimmingCharacters(in: .whitespacesAndNewlines)
             .folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
         return CromoPapel.allCases.compactMap { cromo in
-            var xs = catalogo.filter { $0.cromo == cromo && !estaNaRegua($0.slug) }
+            // a vitrine mostra só o ALÉM-régua (SPEC §12: as 12 moram na
+            // régua); a BUSCA cobre tudo — o autor que digita "tabela" não
+            // tem como saber onde a forma mora (jakobs-law: busca é busca)
+            var xs = catalogo.filter { $0.cromo == cromo && (q.isEmpty ? !estaNaRegua($0.slug) : true) }
             if !q.isEmpty {
                 xs = xs.filter {
                     $0.nome.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)

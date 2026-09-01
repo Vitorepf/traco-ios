@@ -41,8 +41,9 @@ struct MenuFormasView: View {
                         .accessibilityIdentifier("contagem-formas")
 
                     if familias.isEmpty {
-                        // vazio que ENSINA e devolve a saída, como em Notas
-                        VStack(spacing: 12) {
+                        // vazio que ENSINA e devolve a saída, NO EIXO da folha
+                        // (law-of-continuity; mesmo conserto da busca de notas)
+                        VStack(alignment: .leading, spacing: 12) {
                             Text("nenhuma forma com “\(busca)”.")
                                 .font(Tema.corpo)
                                 .foregroundStyle(Tema.tintaSuave)
@@ -53,8 +54,9 @@ struct MenuFormasView: View {
                                 .buttonStyle(PressaoDiscreta())
                                 .accessibilityIdentifier("limpar-filtro-formas")
                         }
-                        .frame(maxWidth: .infinity)
-                        .padding(.top, 64)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, Tema.margem)
+                        .padding(.top, 12)
                     }
 
                     ForEach(familias) { familia in

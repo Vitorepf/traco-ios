@@ -319,6 +319,16 @@ struct CadernoTests {
         #expect(Caderno.serializar(.titulo(2, "capa")) == "## capa")
     }
 
+    // A vitrine do menu esconde as formas da régua (§12), mas a BUSCA cobre
+    // tudo: o autor que digita "tabela" recebia "0 formas" com a Tabela viva
+    // na régua — mentira funcional (visto ao vivo em 01/set).
+    @Test func buscaDoMenuCobreAsFormasDaRegua() {
+        let achadas = PapelForma.menu(filtrado: "tabela").flatMap(\.formas)
+        #expect(achadas.contains { $0.slug == "tabela" })
+        let vitrine = PapelForma.menu(filtrado: "").flatMap(\.formas)
+        #expect(!vitrine.contains { $0.slug == "tabela" })
+    }
+
     // O campo projetado ressincroniza do parse a cada tecla: quando o parser
     // aparava o espaço à cauda, todo espaço digitado morria no instante em que
     // nascia (visto ao vivo: "o rato roeu a roupa" virou "oratorouaropa").

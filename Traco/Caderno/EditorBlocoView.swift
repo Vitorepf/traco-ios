@@ -178,57 +178,81 @@ struct EditorBlocoView: View {
         let cols = max(cabeca.count, corpo.map(\.count).max() ?? 0, 1)
         return VStack(alignment: .leading, spacing: 8) {
             SinalTipo(nome: "tabela")
-            Grid(alignment: .leading, horizontalSpacing: 0, verticalSpacing: 0) {
-                GridRow {
-                    ForEach(0..<cols, id: \.self) { c in
-                        campo(c < cabeca.count ? cabeca[c] : "", cabecalho: true) { novo in
-                            var next = cabeca
-                            while next.count <= c { next.append("") }
-                            next[c] = novo
-                            aoMudar(.tabela(cabeca: next, corpo: corpo))
+            // a tabela cresce por toque nos TRILHOS-FANTASMA: a linha e a
+            // coluna seguintes já estão desenhadas, tracejadas, esperando
+            // existir — o gesto é a metáfora (FILA P1: construtor sem fricção)
+            HStack(alignment: .top, spacing: 6) {
+                VStack(spacing: 6) {
+                    Grid(alignment: .leading, horizontalSpacing: 0, verticalSpacing: 0) {
+                        GridRow {
+                            ForEach(0..<cols, id: \.self) { c in
+                                campo(c < cabeca.count ? cabeca[c] : "", cabecalho: true) { novo in
+                                    var next = cabeca
+                                    while next.count <= c { next.append("") }
+                                    next[c] = novo
+                                    aoMudar(.tabela(cabeca: next, corpo: corpo))
+                                }
+                            }
                         }
-                    }
-                }
-                ForEach(Array(corpo.enumerated()), id: \.offset) { i, row in
-                    GridRow {
-                        ForEach(0..<cols, id: \.self) { c in
-                            campo(c < row.count ? row[c] : "") { novo in
-                                var next = corpo
-                                while next.count <= i { next.append(Array(repeating: "", count: cols)) }
-                                var linha = next[i]
-                                while linha.count <= c { linha.append("") }
-                                linha[c] = novo
-                                next[i] = linha
-                                aoMudar(.tabela(cabeca: cabeca, corpo: next))
+                        ForEach(Array(corpo.enumerated()), id: \.offset) { i, row in
+                            GridRow {
+                                ForEach(0..<cols, id: \.self) { c in
+                                    campo(c < row.count ? row[c] : "") { novo in
+                                        var next = corpo
+                                        while next.count <= i { next.append(Array(repeating: "", count: cols)) }
+                                        var linha = next[i]
+                                        while linha.count <= c { linha.append("") }
+                                        linha[c] = novo
+                                        next[i] = linha
+                                        aoMudar(.tabela(cabeca: cabeca, corpo: next))
+                                    }
+                                }
                             }
                         }
                     }
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                            .strokeBorder(Tema.linha, lineWidth: 1)
+                    }
+                    trilho(id: "tabela-mais-linha", rotulo: "Adicionar linha", altura: 36) {
+                        aoMudar(.tabela(cabeca: cabeca, corpo: corpo + [Array(repeating: "", count: cols)]))
+                    }
                 }
-            }
-            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-            .overlay {
-                RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .strokeBorder(Tema.linha, lineWidth: 1)
-            }
-            // a tabela cresce por toque — o autor estrutura, nunca monta a forma
-            HStack(spacing: 20) {
-                Button("+ linha") {
-                    Toque.selecao()
-                    aoMudar(.tabela(cabeca: cabeca, corpo: corpo + [Array(repeating: "", count: cols)]))
-                }
-                .accessibilityIdentifier("tabela-mais-linha")
-                Button("+ coluna") {
-                    Toque.selecao()
+                trilho(id: "tabela-mais-coluna", rotulo: "Adicionar coluna", altura: nil) {
                     aoMudar(.tabela(cabeca: cabeca + [""], corpo: corpo.map { $0 + [""] }))
                 }
-                .accessibilityIdentifier("tabela-mais-coluna")
+                .frame(width: 34)
+                .frame(maxHeight: .infinity)
             }
-            .font(Tema.label)
-            .foregroundStyle(Tema.tintaSuave)
-            .buttonStyle(PressaoDiscreta())
-            .frame(minHeight: Tema.alvo)
+            .fixedSize(horizontal: false, vertical: true)
         }
         .accessibilityIdentifier("portal-tabela")
+    }
+
+    /// A célula que ainda não existe: tracejada, com o "+" quieto no meio.
+    private func trilho(id: String, rotulo: String, altura: CGFloat?,
+                        acao: @escaping () -> Void) -> some View {
+        Button {
+            Toque.selecao()
+            withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                acao()
+            }
+        } label: {
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .strokeBorder(Tema.linha, style: StrokeStyle(lineWidth: 1, dash: [5, 4]))
+                .overlay {
+                    Image(systemName: "plus")
+                        .font(.footnote.weight(.semibold))
+                        .foregroundStyle(Tema.tintaFraca)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .frame(height: altura)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(PressaoDiscreta())
+        .accessibilityIdentifier(id)
+        .accessibilityLabel(rotulo)
     }
 
     private func campo(_ valor: String, cabecalho: Bool = false,
