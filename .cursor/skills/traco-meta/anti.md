@@ -27,7 +27,7 @@ Se o patch faz uma destas coisas, é fail. Não "v2". Não "flag". Não "só no 
 - Ícones no lugar de palavras na régua (sopa de Hick sem vocabulário).
 - Formas com nome de rito do Porteiro (WOOP, Wood, Desejo, Puxar, Códice, Traço).
 - Achatamento: laboratório = template; acto = botão mágico; rito = streak.
-- Copiar o Expo `/Users/vitorepf/develop/traco` ou o ChatGPT.
+- Copiar o Expo morto (arquivado em `_historico/traco-react-native.tar.gz`) ou o ChatGPT.
 - "Onboarding" que explica o produto na página vazia.
 - Gamificação, streaks, XP, dashboards de escrita.
 

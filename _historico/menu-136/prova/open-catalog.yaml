@@ -1,0 +1,11 @@
+appId: app.traco
+---
+- tapOn:
+    id: regua-todas
+- extendedWaitUntil:
+    visible:
+      id: menu-formas
+    timeout: 5000
+- takeScreenshot: /Users/vitorepf/develop/traco-ios-grok/_proof-menu-136/02-menu-catalogo
+- scroll
+- takeScreenshot: /Users/vitorepf/develop/traco-ios-grok/_proof-menu-136/03-menu-scroll
