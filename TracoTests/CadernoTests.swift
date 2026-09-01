@@ -313,11 +313,59 @@ struct CadernoTests {
     @Test func reguaEnxutaCatalogoVasto() {
         // SPEC §12: a RÉGUA é enxuta (≤12 — menu grande é template em menu).
         #expect(PapelForma.regua.count == 12)
+        #expect(PapelForma.slugsDaRegua.count == 12)
         #expect(PapelForma.regua.prefix(6).map(\.nome) == ["Título", "Seção", "Lista", "Numerada", "Tarefa", "Citação"])
         // O CATÁLOGO segue vasto e único: todo `:::slug` já gravado continua lendo.
         #expect(PapelForma.catalogo.count >= 120)
         #expect(Set(PapelForma.catalogo.map(\.slug)).count == PapelForma.catalogo.count)
         #expect(PapelForma.regua.allSatisfy { r in PapelForma.catalogo.contains { $0.slug == r.slug } })
+    }
+
+    @Test func menuDoCatalogoCobreAs136SemMarca() {
+        let noMenu = Set(PapelForma.menu.flatMap(\.formas).map(\.slug))
+        let noCatalogo = Set(PapelForma.catalogo.map(\.slug))
+        let naRegua = Set(PapelForma.slugsDaRegua)
+        #expect(noMenu.union(naRegua) == noCatalogo)
+        #expect(noMenu.isDisjoint(with: naRegua))
+        #expect(PapelForma.catalogo.count >= 136)
+        #expect(PapelForma.menu.count >= 6)
+        #expect(PapelForma.menu.allSatisfy { !$0.formas.isEmpty })
+        #expect(PapelForma.menu.allSatisfy { familia in
+            !familia.nome.contains(":::") && !familia.nome.contains("#")
+                && familia.formas.allSatisfy { !$0.nome.contains(":::") && !$0.nome.contains("#") }
+        })
+        #expect(!PapelForma.estaNaRegua("chamada"))
+        #expect(noMenu.contains("chamada"))
+        #expect(!noMenu.contains("titulo"))
+        let filtrado = PapelForma.menu(filtrado: "Chamada")
+        #expect(filtrado.contains { $0.formas.contains { $0.slug == "chamada" } })
+        #expect(!filtrado.contains { $0.formas.contains { $0.slug == "verso" } })
+    }
+
+    @Test func menuNasceFormaForaDaReguaVaziaSemProsaDaIA() throws {
+        let papel = try #require(PapelForma.porSlug["chamada"])
+        #expect(!PapelForma.estaNaRegua(papel.slug))
+        let bloco = Caderno.bloco(de: papel, texto: "")
+        #expect({
+            if case .recipiente("chamada", let xs) = bloco {
+                xs.allSatisfy { $0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+            } else { false }
+        }())
+        let visivel = Caderno.textoVisivel(bloco)
+        #expect(visivel.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+        #expect(!visivel.contains(":::"))
+        #expect(!visivel.contains("#"))
+        #expect(!visivel.contains("```"))
+        let md = Caderno.serializar(bloco)
+        #expect(md.hasPrefix(":::chamada"))
+        #expect(!Caderno.visivel(md).contains(":::"))
+        #expect(!Caderno.visivel(md).contains("#"))
+        let prosa = Caderno.prosa(de: md).trimmingCharacters(in: .whitespacesAndNewlines)
+        #expect(prosa.isEmpty)
+        // zero template-como-se-fosse-IA: nenhum rótulo entra no corpo
+        #expect(!md.lowercased().contains("resultado"))
+        #expect(!md.lowercased().contains("escreva"))
+        #expect(!md.contains("WOOP"))
     }
 
     @Test func idDaFatiaNaoReshuffleAoEditar() {
