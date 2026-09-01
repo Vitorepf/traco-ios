@@ -172,11 +172,29 @@ final class Sessao {
     func agendarAutoAnalise(depois segundos: Double = 1.6) {
         autoTask?.cancel()
         analiseTask?.cancel() // veredito em voo não pode vestir texto que mudou
-        guard autoAnalise, !autoSuprimidaNaNota, !timerLigado, !paginaVazia, gesto != .expressiva, cartao == nil else { return }
+        guard autoAnalise, !autoSuprimidaNaNota, !tocandoRegua, !timerLigado, !paginaVazia, gesto != .expressiva, cartao == nil else { return }
         autoTask = Task { [weak self] in
             try? await Task.sleep(for: .seconds(segundos))
             guard let self, !Task.isCancelled else { return }
             self.analisar(automatica: true)
+        }
+    }
+
+    /// §17 × dedo a caminho da régua: enquanto o dedo TOCA a régua (toque em
+    /// voo), o vestir automático fica preso — a forma não veste no meio do
+    /// alcance e o chip que o dedo mira não salta (a régua some quando o cartão
+    /// entra). Solta com um respiro DEPOIS do toque, porque a ordem entre o fim
+    /// do gesto e a ação do chip no soltar é indefinida.
+    private(set) var tocandoRegua = false
+    func tocarRegua(_ tocando: Bool) {
+        if tocando {
+            tocandoRegua = true
+            autoTask?.cancel() // um veredito em voo não pode vestir sob o dedo
+        } else {
+            Task { @MainActor in
+                try? await Task.sleep(for: .milliseconds(250))
+                tocandoRegua = false
+            }
         }
     }
 

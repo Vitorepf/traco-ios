@@ -274,7 +274,8 @@ struct PaginaView: View {
             texto: $sessao.texto,
             foco: $focoPagina,
             folga: corpoFolga,
-            abrirArquivo: $abrirArquivo
+            abrirArquivo: $abrirArquivo,
+            aoTocarRegua: { sessao.tocarRegua($0) }
         ) {
             var t = Transaction()
             t.disablesAnimations = true

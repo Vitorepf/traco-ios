@@ -1,0 +1,37 @@
+appId: app.traco
+---
+# U3 — dedo a caminho da régua: com o vestir automático ARMADO (WOOP, 1.6s até o
+# cartão), um toque EM VOO na régua o SEGURA — a forma não veste no meio do
+# alcance, a régua não some sob o dedo, e o chip ainda ACERTA. (FILA: "segurar o
+# vestir enquanto há toque em voo".)
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: pagina
+    timeout: 8000
+- tapOn:
+    id: pagina
+# "quero correr de manhã" arma o vestir automático (WOOP)
+- inputText: "quero correr de manhã"
+- takeScreenshot: /tmp/traco-verify/dedo-antes
+# dedo EM VOO na régua ATRAVESSANDO o tempo do cartão: arraste lento de 2.5s
+# (> 1.6s). Sem a lei, o cartão entra no meio e a régua some sob o dedo.
+- swipe:
+    from:
+      id: regua
+    direction: UP
+    duration: 2500
+# a régua NÃO sumiu (o vestir foi segurado) e nenhum cartão cobriu a nota
+- assertVisible:
+    id: regua-seccao
+- assertNotVisible: "Deixar como nota"
+- assertVisible: "quero correr de manhã"
+# e o chip ACERTA: um toque veste a SEÇÃO — o rótulo "seção" prova que a forma
+# nasceu (não é só o texto cru); a voz do autor fica intacta
+- tapOn:
+    id: regua-seccao
+- assertVisible:
+    id: portal-seccao
+- assertVisible: "quero correr de manhã"
+- takeScreenshot: /tmp/traco-verify/dedo-depois
