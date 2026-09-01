@@ -264,5 +264,5 @@ geral ainda fraca.
   scratchpad/rodadas/caps/.
 - PORTÃO 3 (estabilidade): suíte 143/27 verde e fuzz verde na revisão; E2E
   3× em curso (varredura nº1 do ensaio: 53 flows, FALHAS: nenhuma); iPhone
-  REAL: build assinado pronto (team W28WF9A5A2), túnel conecta, aparelho
-  BLOQUEADO — monitor armado para instalar ao desbloquear.
+  REAL: INSTALADO E LANÇADO (11h51 — devicectl launch app.traco no iPhone
+  16 Pro Max do dono, team W28WF9A5A2).
