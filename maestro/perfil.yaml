@@ -3,6 +3,10 @@ appId: app.traco
 - launchApp:
     clearState: true
 # §20: da escrita, a borda esquerda traz o arquivo
+- extendedWaitUntil:
+    visible:
+      id: pagina
+    timeout: 8000
 - swipe:
     start: 1%, 50%
     end: 85%, 50%
