@@ -431,6 +431,8 @@ struct PaginaView: View {
         case .notas:
             sessao.salvar(no: context)
             sessao.mostrarNotas = true
+        case .recordar:
+            sessao.recordarMaisRecente(no: context)
         }
     }
 

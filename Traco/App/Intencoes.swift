@@ -49,7 +49,7 @@ struct TracoAtalhos: AppShortcutsProvider {
 /// Rota de entrada única: intents e traco:// convergem aqui; a PaginaView consome.
 @MainActor
 enum Rota {
-    enum Destino { case novaPagina, notas }
+    enum Destino { case novaPagina, notas, recordar }
     static var pendente: Destino?
     static let mudou = Notification.Name("traco.rotaMudou")
 
@@ -58,6 +58,7 @@ enum Rota {
         switch url.host ?? url.path.trimmingCharacters(in: CharacterSet(charactersIn: "/")) {
         case "nova", "": return .novaPagina
         case "notas": return .notas
+        case "recordar": return .recordar
         default: return nil
         }
     }

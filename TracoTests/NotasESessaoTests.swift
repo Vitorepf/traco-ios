@@ -829,3 +829,19 @@ struct FechoExpressivaTests {
         #expect(s.fechoExpressiva != nil) // o tempo abre a ESCOLHA, não tranca
     }
 }
+
+// U4 — o widget dispara as rotas JÁ existentes: traco://nova e traco://recordar
+// caem nos destinos certos; esquema alheio ou host desconhecido = sem rota.
+@MainActor
+struct RotaDoWidgetTests {
+    private func destino(_ s: String) -> Rota.Destino? { Rota.daURL(URL(string: s)!) }
+
+    @Test func widgetAbreAsRotasDaCasa() {
+        #expect({ if case .novaPagina = destino("traco://nova") { true } else { false } }())
+        #expect({ if case .novaPagina = destino("traco://") { true } else { false } }())
+        #expect({ if case .recordar = destino("traco://recordar") { true } else { false } }())
+        #expect({ if case .notas = destino("traco://notas") { true } else { false } }())
+        #expect(destino("https://exemplo.com") == nil)   // esquema alheio, sem rota
+        #expect(destino("traco://inexistente") == nil)    // host desconhecido, sem rota
+    }
+}
