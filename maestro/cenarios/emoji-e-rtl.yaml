@@ -6,6 +6,16 @@ appId: app.traco
 - tapOn:
     id: pagina
 - inputText: "saudade 😀 coração"
+# "Citacao" fica sob a mascara depois que "Todas" entrou na regua:
+# o centro do elemento cortado cai fora da tela e o toque escorrega
+# para a porta. Rolar a regua primeiro, como nos fluxos que passam.
+- repeat:
+    times: 3
+    commands:
+      - swipe:
+          from:
+            id: regua
+          direction: LEFT
 - tapOn:
     id: regua-citacao
 - assertVisible: "saudade 😀 coração"

@@ -1,17 +1,18 @@
 appId: app.traco
 ---
-# Trocar de forma sobre o MESMO texto: titulo -> citacao -> lista.
+# Trocar de forma sobre o MESMO texto, duas vezes. Usa so chips que ficam
+# VISIVEIS na regua sem rolar: um chip cortado pela mascara tem o centro fora
+# da tela e o toque escorrega para o vizinho.
 - launchApp:
     clearState: true
 - tapOn:
     id: pagina
-- inputText: "muda de roupa tres vezes"
+- inputText: "muda de roupa duas vezes"
 - tapOn:
     id: regua-titulo
 - tapOn:
-    id: regua-citacao
-- tapOn:
     id: regua-lista
-- assertVisible: "muda de roupa tres vezes"
+- assertVisible: ".*muda de roupa duas vezes.*"
 - assertNotVisible: "#"
-- assertNotVisible: ">"
+- assertVisible:
+    id: regua

@@ -167,6 +167,14 @@ struct CadernoView: View {
             guard let papel = formaDoMenu else { return }
             formaDoMenu = nil
             withAnimation(.easeOut(duration: 0.18)) { transformar(papel) }
+            // escolher na folha também NÃO expulsa quem escreve. O foco que
+            // `transformar` repõe é apagado logo depois pela folha ao sair de
+            // cena, então ele é reposto de novo quando ela já saiu — senão o
+            // autor volta para a página sem teclado e sem régua.
+            Task { @MainActor in
+                try? await Task.sleep(for: .milliseconds(350))
+                foco.wrappedValue = true
+            }
         }) {
             MenuFormasView { papel in
                 formaDoMenu = papel
@@ -191,7 +199,7 @@ struct CadernoView: View {
                     }
                     // o último chip precisa SAIR de baixo da máscara de fade,
                     // senão fica cortado para sempre e é inalcançável
-                    Color.clear.frame(width: 20)
+                    Color.clear.frame(width: 24)
                 }
             }
             .mask(
@@ -202,13 +210,22 @@ struct CadernoView: View {
                 }
             )
             .accessibilityIdentifier("regua")
+
+            // "Todas" é uma PORTA, não uma forma — e estava encostada nos chips
+            // com 8pt de folga, logo depois de "Citação" cortada pela máscara. O
+            // dedo que mirava a forma abria a folha. Fio vertical + folga fazem
+            // dela um grupo à parte (law-of-common-region + fitts-law).
+            Rectangle()
+                .fill(Tema.linha)
+                .frame(width: 0.5, height: 20)
+                .padding(.leading, 12)
             Button("Todas") {
                 Toque.selecao()
                 menuFormas = true
             }
             .buttonStyle(PressaoDiscreta())
             .frame(minHeight: Tema.alvo)
-            .padding(.leading, 8)
+            .padding(.leading, 12)
             .accessibilityIdentifier("regua-todas")
             Button {
                 editando = nil
