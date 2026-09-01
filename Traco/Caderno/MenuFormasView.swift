@@ -13,16 +13,23 @@ struct MenuFormasView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            TituloTela("Todas")
+            // "Todas" é o rótulo do BOTÃO que abriu isto, não o nome da tela.
+            // A tela mostra formas — é assim que ela se chama.
+            TituloTela("Formas")
             campoBusca
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 0) {
                     ForEach(familias) { familia in
-                        SinalTipo(nome: familia.nome)
-                            .padding(.horizontal, Tema.margem)
-                            .padding(.top, 16)
-                            .padding(.bottom, 8)
-                        ForEach(familia.formas) { papel in
+                        // o cabeçalho não repete o que vem logo abaixo dele:
+                        // "CHAMADA" seguido de "Chamada" lia como falha de
+                        // renderização, não como agrupamento (law-of-similarity)
+                        if !(familia.formas.count == 1 && familia.formas[0].nome == familia.nome) {
+                            SinalTipo(nome: familia.nome)
+                                .padding(.horizontal, Tema.margem)
+                                .padding(.top, 20)
+                                .padding(.bottom, 6)
+                        }
+                        ForEach(Array(familia.formas.enumerated()), id: \.element.id) { indice, papel in
                             // a linha INTEIRA é o alvo. Com moldura e
                             // contentShape do lado de FORA do Button, só a
                             // palavra respondia: numa lista de 136 nomes curtos
@@ -33,12 +40,24 @@ struct MenuFormasView: View {
                                 aoEscolher(papel)
                                 dismiss()
                             } label: {
-                                Text(papel.nome)
-                                    .font(Tema.chrome)
-                                    .foregroundStyle(Tema.tinta)
-                                    .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .leading)
-                                    .padding(.horizontal, Tema.margem)
-                                    .contentShape(Rectangle())
+                                VStack(alignment: .leading, spacing: 0) {
+                                    // fio entre irmãos: 136 nomes soltos no
+                                    // escuro não tinham espinha para o olho
+                                    // descer (law-of-continuity). Recuado até a
+                                    // margem do texto, como no arquivo.
+                                    if indice > 0 {
+                                        Rectangle()
+                                            .fill(Tema.linha)
+                                            .frame(height: 0.5)
+                                            .padding(.leading, Tema.margem)
+                                    }
+                                    Text(papel.nome)
+                                        .font(Tema.chrome)
+                                        .foregroundStyle(Tema.tinta)
+                                        .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .leading)
+                                        .padding(.horizontal, Tema.margem)
+                                }
+                                .contentShape(Rectangle())
                             }
                             .buttonStyle(PressaoDiscreta())
                             .accessibilityIdentifier("catalogo-\(papel.slug)")
