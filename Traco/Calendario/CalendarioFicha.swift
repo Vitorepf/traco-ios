@@ -23,7 +23,7 @@ struct CalendarioFichaView: View {
                             .frame(width: Tema.alvo, height: Tema.alvo)
                             .contentShape(Rectangle())
                     }
-                    .buttonStyle(PressaoDiscreta())
+                    .buttonStyle(PressaoClara())
                     .accessibilityLabel("Fechar")
                     .accessibilityIdentifier("ficha-fechar")
 
@@ -159,7 +159,7 @@ struct CalendarioFichaView: View {
                             .foregroundStyle(CalendarioTema.aviso)
                             .frame(maxWidth: .infinity, minHeight: Tema.alvo)
                     }
-                    .buttonStyle(PressaoDiscreta())
+                    .buttonStyle(PressaoClara())
                     .accessibilityIdentifier("ficha-apagar")
                 }
             }

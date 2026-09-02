@@ -118,7 +118,7 @@ struct CalendarioView: View {
                 .frame(width: Tema.alvo, height: Tema.alvo)
                 .contentShape(Rectangle())
         }
-        .buttonStyle(PressaoDiscreta())
+        .buttonStyle(PressaoClara())
     }
 
     // MARK: escalas — um objeto em quatro zooms
@@ -206,7 +206,7 @@ struct CalendarioView: View {
                             .frame(width: 40, height: Tema.alvo)
                             .contentShape(Rectangle())
                     }
-                    .buttonStyle(PressaoDiscreta())
+                    .buttonStyle(PressaoClara())
                     .accessibilityIdentifier("escala-\(escala.rawValue)")
                     .accessibilityLabel(escala.nome)
                     .accessibilityAddTraits(ligado ? [.isButton, .isSelected] : .isButton)
@@ -232,7 +232,7 @@ struct CalendarioView: View {
                         .frame(height: Tema.alvo)
                         .contentShape(Capsule())
                 }
-                .buttonStyle(PressaoDiscreta())
+                .buttonStyle(PressaoClara())
                 .accessibilityIdentifier("calendario-hoje")
                 .opacity(agenda.ancoraEHoje(agora) && agenda.escala == .dia ? 0.55 : 1)
         }
@@ -269,7 +269,7 @@ struct CalendarioView: View {
                 .frame(width: 40, height: Tema.alvo)
                 .contentShape(Rectangle())
         }
-        .buttonStyle(PressaoDiscreta())
+        .buttonStyle(PressaoClara())
         .accessibilityIdentifier("modo-\(modo.rawValue)")
         .accessibilityLabel(modo == .lista ? "Lista" : "Grade")
         .accessibilityAddTraits(ligado ? [.isButton, .isSelected] : .isButton)
@@ -287,14 +287,14 @@ struct CalendarioView: View {
                     .frame(width: Tema.alvo, height: Tema.alvo)
                     .contentShape(Rectangle())
             }
-            .buttonStyle(PressaoDiscreta())
+            .buttonStyle(PressaoClara())
             .accessibilityLabel("Marcar")
 
             TextField(
                 "",
                 text: $agenda.prosa,
                 prompt: Text("Dentista sexta às 14:30")
-                    .foregroundStyle(CalendarioTema.tintaSuave)
+                    .foregroundStyle(CalendarioTema.tintaFraca)
             )
             .font(.callout)
             .foregroundStyle(CalendarioTema.tinta)
@@ -318,7 +318,7 @@ struct CalendarioView: View {
                     .frame(width: Tema.alvo, height: Tema.alvo)
                     .contentShape(Rectangle())
             }
-            .buttonStyle(PressaoDiscreta())
+            .buttonStyle(PressaoClara())
             .disabled(!temTexto)
             .animation(.easeOut(duration: 0.15), value: temTexto)
             .accessibilityLabel("Marcar o compromisso")
@@ -411,7 +411,7 @@ struct CalendarioListaView: View {
                                 .background(CalendarioTema.cartao, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
                                 .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                             }
-                            .buttonStyle(PressaoDiscreta())
+                            .buttonStyle(PressaoClara())
                         }
                     }
                 }

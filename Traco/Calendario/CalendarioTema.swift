@@ -99,12 +99,12 @@ enum CalendarioTema {
         if reduzido { return .opacity }
         return .asymmetric(
             insertion: .modifier(
-                active: Desdobra(t: 0, escala: aproximando ? 0.92 : 1.06, foco: foco),
-                identity: Desdobra(t: 1, escala: 1, foco: foco)
+                active: Desdobra(t: 0, escala: aproximando ? 0.92 : 1.06, foco: foco, saida: false),
+                identity: Desdobra(t: 1, escala: 1, foco: foco, saida: false)
             ),
             removal: .modifier(
-                active: Desdobra(t: 0, escala: aproximando ? 1.06 : 0.92, foco: foco),
-                identity: Desdobra(t: 1, escala: 1, foco: foco)
+                active: Desdobra(t: 0, escala: aproximando ? 1.06 : 0.92, foco: foco, saida: true),
+                identity: Desdobra(t: 1, escala: 1, foco: foco, saida: true)
             )
         )
     }
@@ -114,6 +114,7 @@ struct Desdobra: ViewModifier, Animatable {
     var t: CGFloat
     var escala: CGFloat
     var foco: UnitPoint
+    var saida: Bool
 
     var animatableData: CGFloat {
         get { t }
@@ -122,10 +123,42 @@ struct Desdobra: ViewModifier, Animatable {
 
     func body(content: Content) -> some View {
         let k = min(1, max(0, t))
+        // quem sai some cedo (k⁴); quem entra amanhece (k²): nunca duas
+        // escalas meio opacas ao mesmo tempo
+        let opacidade = saida ? k * k * k * k : k * k
         content
             .scaleEffect(escala + (1 - escala) * k, anchor: foco)
-            .opacity(Double(k * k))
+            .opacity(Double(opacidade))
     }
+}
+
+/// Pressão no mundo claro: só escala. Baixar a opacidade (o estilo da casa
+/// no escuro) sobre papel lê como piscar.
+struct PressaoClara: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.96 : 1)
+            .animation(Tema.pressaoAnim(configuration.isPressed), value: configuration.isPressed)
+    }
+}
+
+/// Texto que desvanece na borda direita em vez de cortar no meio da letra.
+struct Desvanece: ViewModifier {
+    var largura: CGFloat = 14
+
+    func body(content: Content) -> some View {
+        content.mask {
+            HStack(spacing: 0) {
+                Rectangle()
+                LinearGradient(colors: [.black, .clear], startPoint: .leading, endPoint: .trailing)
+                    .frame(width: largura)
+            }
+        }
+    }
+}
+
+extension View {
+    func desvanece(_ largura: CGFloat = 14) -> some View { modifier(Desvanece(largura: largura)) }
 }
 
 /// Aviso curto do calendário, na voz do app: verdade, sem desculpa.
@@ -141,5 +174,59 @@ struct CalendarioToast: View {
             .background(CalendarioTema.chipActivo, in: Capsule())
             .shadow(color: CalendarioTema.sombraFlutuante, radius: 16, y: 6)
             .accessibilityIdentifier("calendario-toast")
+    }
+}
+
+/// Arrastar para andar no tempo. É um `UIPanGestureRecognizer` de verdade,
+/// não um `DragGesture`: o do SwiftUI perdia para os botões e para o
+/// ScrollView; este só começa quando o dedo já mostrou o eixo, e convive
+/// com o scroll vertical do dia.
+struct Arrasto: UIGestureRecognizerRepresentable {
+    enum Eixo { case horizontal, ambos }
+    var eixo: Eixo = .horizontal
+    /// passo +1 = seguinte, −1 = anterior
+    var aoTerminar: (Int) -> Void
+
+    func makeUIGestureRecognizer(context: Context) -> UIPanGestureRecognizer {
+        let g = UIPanGestureRecognizer()
+        g.delegate = context.coordinator
+        g.maximumNumberOfTouches = 1
+        return g
+    }
+
+    func handleUIGestureRecognizerAction(_ g: UIPanGestureRecognizer, context: Context) {
+        guard g.state == .ended, let vista = g.view else { return }
+        let t = g.translation(in: vista)
+        let v = g.velocity(in: vista)
+        let horizontal = abs(t.x) >= abs(t.y)
+        let d = horizontal ? t.x : t.y
+        let vel = horizontal ? v.x : v.y
+        guard abs(d) > 44 || abs(vel) > 600 else { return }
+        if eixo == .horizontal, !horizontal { return }
+        aoTerminar(d < 0 ? 1 : -1)
+    }
+
+    func makeCoordinator(converter: CoordinateSpaceConverter) -> Coordenador {
+        Coordenador(eixo: eixo)
+    }
+
+    final class Coordenador: NSObject, UIGestureRecognizerDelegate {
+        let eixo: Eixo
+        init(eixo: Eixo) { self.eixo = eixo }
+
+        func gestureRecognizerShouldBegin(_ g: UIGestureRecognizer) -> Bool {
+            guard let p = g as? UIPanGestureRecognizer, let vista = p.view else { return false }
+            let v = p.velocity(in: vista)
+            switch eixo {
+            case .horizontal: return abs(v.x) > abs(v.y) * 1.5
+            case .ambos: return true
+            }
+        }
+
+        func gestureRecognizer(_ g: UIGestureRecognizer,
+                               shouldRecognizeSimultaneouslyWith outro: UIGestureRecognizer) -> Bool {
+            // o scroll vertical do dia continua dele; o nosso só vale no eixo X
+            true
+        }
     }
 }

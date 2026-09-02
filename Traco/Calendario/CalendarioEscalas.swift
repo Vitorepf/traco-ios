@@ -34,6 +34,15 @@ struct CalendarioDiaView: View {
             }
             timeline(doDia)
         }
+        .gesture(Arrasto { passo in andar(.day, passo) })
+    }
+
+    /// Arrastar para o lado anda no tempo: um dia aqui, sete na semana.
+    private func andar(_ unidade: Calendar.Component, _ passo: Int) {
+        if let novo = agenda.cal.date(byAdding: unidade, value: passo, to: agenda.ancora) {
+            Toque.selecao()
+            withAnimation(CalendarioTema.morph(reduceMotion)) { agenda.ir(dia: novo) }
+        }
     }
 
     private var faixaSemana: some View {
@@ -53,7 +62,7 @@ struct CalendarioDiaView: View {
                     )
                     .matchedGeometryEffect(id: idDia(dia, agenda.cal), in: morph, isSource: agenda.escala == .dia)
                 }
-                .buttonStyle(PressaoDiscreta())
+                .buttonStyle(PressaoClara())
                 .accessibilityIdentifier("dia-chip-\(Calendario.formatar(dia, "yyyy-MM-dd", agenda.cal))")
             }
         }
@@ -83,7 +92,7 @@ struct CalendarioDiaView: View {
                         .frame(minHeight: Tema.alvo)
                         .contentShape(Capsule())
                     }
-                    .buttonStyle(PressaoDiscreta())
+                    .buttonStyle(PressaoClara())
                 }
             }
             .padding(.horizontal, CalendarioTema.margem)
@@ -99,8 +108,9 @@ struct CalendarioDiaView: View {
             GeometryReader { geo in
                 ZStack(alignment: .topLeading) {
                     horas
+                    if hoje { fioAgora }
                     eventos(colunas, largura: geo.size.width)
-                    if hoje { linhaAgora }
+                    if hoje { marcaAgora }
                 }
             }
             .frame(height: altura * 24 + 8)
@@ -196,17 +206,26 @@ struct CalendarioDiaView: View {
                 )
                 .contentShape(RoundedRectangle(cornerRadius: CalendarioTema.raio, style: .continuous))
             }
-            .buttonStyle(PressaoDiscreta())
+            .buttonStyle(PressaoClara())
             .offset(x: x, y: topo)
             .accessibilityLabel("\(evento.titulo), \(Calendario.intervalo(evento, agenda.cal))")
             .accessibilityIdentifier("evento-\(evento.id.uuidString)")
         }
     }
 
-    /// O agora: a única vez que o âmbar aparece no calendário.
-    private var linhaAgora: some View {
-        let y = offset(de: agora)
-        return HStack(spacing: 6) {
+    /// O agora: a única vez que o âmbar aparece no calendário. O fio passa
+    /// POR BAIXO dos compromissos, para não riscar o título; a marca, por cima.
+    private var fioAgora: some View {
+        Rectangle()
+            .fill(CalendarioTema.agora)
+            .frame(height: 1.5)
+            .padding(.leading, gutter + 4)
+            .offset(y: offset(de: agora) - 0.75)
+            .allowsHitTesting(false)
+    }
+
+    private var marcaAgora: some View {
+        HStack(spacing: 6) {
             Text(Calendario.horaCurta(agora, agenda.cal))
                 .font(CalendarioTema.hora.weight(.semibold))
                 .foregroundStyle(CalendarioTema.tinta)
@@ -217,11 +236,8 @@ struct CalendarioDiaView: View {
             Circle()
                 .fill(CalendarioTema.agora)
                 .frame(width: 7, height: 7)
-            Rectangle()
-                .fill(CalendarioTema.agora)
-                .frame(height: 1.5)
         }
-        .offset(y: y - 9)
+        .offset(y: offset(de: agora) - 9)
         .allowsHitTesting(false)
         .accessibilityLabel("agora, \(Calendario.horaCurta(agora, agenda.cal))")
         .accessibilityIdentifier("calendario-agora")
@@ -262,6 +278,13 @@ struct CalendarioSemanaView: View {
                 Spacer(minLength: 0)
             }
             .padding(.horizontal, 12)
+            .contentShape(Rectangle())
+            .gesture(Arrasto { passo in
+                if let novo = agenda.cal.date(byAdding: .day, value: passo * 7, to: agenda.ancora) {
+                    Toque.selecao()
+                    withAnimation(CalendarioTema.morph(reduceMotion)) { agenda.ir(dia: novo) }
+                }
+            })
         }
         .accessibilityIdentifier("calendario-semana")
     }
@@ -295,7 +318,7 @@ struct CalendarioSemanaView: View {
                 CalendarioChipDia(dia: dia, activo: activo, hoje: hoje, cal: agenda.cal, compacto: true)
                     .matchedGeometryEffect(id: idDia(dia, agenda.cal), in: morph, isSource: agenda.escala == .semana)
             }
-            .buttonStyle(PressaoDiscreta())
+            .buttonStyle(PressaoClara())
             .accessibilityIdentifier("semana-chip-\(Calendario.formatar(dia, "yyyy-MM-dd", agenda.cal))")
 
             Button {
@@ -371,14 +394,15 @@ struct CalendarioSemanaView: View {
                 .foregroundStyle(CalendarioTema.tinta(de: evento.dominio))
                 .lineLimit(1)
                 .fixedSize(horizontal: true, vertical: false)
-                .padding(.horizontal, 7)
+                .padding(.leading, 7)
                 .frame(width: w, height: h, alignment: .leading)
+                .desvanece(12)
                 .background(CalendarioTema.fundo(de: evento.dominio))
                 .clipShape(Capsule())
                 .frame(height: Tema.alvo)
                 .contentShape(Capsule())
         }
-        .buttonStyle(PressaoDiscreta())
+        .buttonStyle(PressaoClara())
         .offset(x: x, y: y)
         .accessibilityLabel("\(evento.titulo), \(Calendario.intervalo(evento, agenda.cal))")
     }
@@ -447,19 +471,12 @@ struct CalendarioMesView: View {
             .padding(.horizontal, 10)
             .matchedGeometryEffect(id: idMes(agenda.ancora, agenda.cal), in: morph, isSource: agenda.escala == .mes)
             .contentShape(Rectangle())
-            .gesture(
-                DragGesture(minimumDistance: 40)
-                    .onEnded { valor in
-                        guard abs(valor.translation.height) > abs(valor.translation.width) else { return }
-                        let delta = valor.translation.height < 0 ? 1 : -1
-                        if let novo = agenda.cal.date(byAdding: .month, value: delta, to: agenda.ancora) {
-                            Toque.selecao()
-                            withAnimation(CalendarioTema.morph(reduceMotion)) {
-                                agenda.ir(dia: novo)
-                            }
-                        }
-                    }
-            )
+            .gesture(Arrasto(eixo: .ambos) { passo in
+                if let novo = agenda.cal.date(byAdding: .month, value: passo, to: agenda.ancora) {
+                    Toque.selecao()
+                    withAnimation(CalendarioTema.morph(reduceMotion)) { agenda.ir(dia: novo) }
+                }
+            })
             Spacer(minLength: 0)
         }
     }
@@ -493,13 +510,21 @@ struct CalendarioMesView: View {
                     .matchedGeometryEffect(id: idDia(dia, agenda.cal), in: morph, isSource: agenda.escala == .mes)
                     .frame(maxWidth: .infinity, alignment: .center)
                 ForEach(visiveis) { evento in
-                    Text(evento.titulo)
-                        .font(.system(size: tamChip, weight: .semibold))
-                        .foregroundStyle(CalendarioTema.tinta(de: evento.dominio))
-                        .lineLimit(1)
-                        .padding(.horizontal, 4)
-                        .padding(.vertical, 3)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                    // o texto vai em overlay: não propõe largura, e a coluna
+                    // continua igual às outras
+                    Color.clear
+                        .frame(height: tamChip + 6)
+                        .frame(maxWidth: .infinity)
+                        .overlay(alignment: .leading) {
+                            Text(evento.titulo)
+                                .font(.system(size: tamChip, weight: .semibold))
+                                .foregroundStyle(CalendarioTema.tinta(de: evento.dominio))
+                                .lineLimit(1)
+                                .fixedSize(horizontal: true, vertical: false)
+                                .padding(.leading, 4)
+                        }
+                        .desvanece(10)
+                        .clipped()
                         .background(
                             CalendarioTema.fundo(de: evento.dominio),
                             in: RoundedRectangle(cornerRadius: 5, style: .continuous)
@@ -519,7 +544,7 @@ struct CalendarioMesView: View {
             .clipped()
             .contentShape(Rectangle())
         }
-        .buttonStyle(PressaoDiscreta())
+        .buttonStyle(PressaoClara())
         .accessibilityLabel(Calendario.diaPorExtenso(dia, agenda.cal))
         .accessibilityValue(eventos.isEmpty ? "" : (eventos.count == 1 ? "1 compromisso" : "\(eventos.count) compromissos"))
         .accessibilityAddTraits(activo ? [.isButton, .isSelected] : .isButton)
@@ -547,6 +572,12 @@ struct CalendarioAnoView: View {
             .padding(.horizontal, 16)
             .padding(.bottom, 180)
         }
+        .gesture(Arrasto { passo in
+            if let novo = agenda.cal.date(byAdding: .year, value: passo, to: agenda.ancora) {
+                Toque.selecao()
+                withAnimation(CalendarioTema.morph(reduceMotion)) { agenda.ir(dia: novo) }
+            }
+        })
         .accessibilityIdentifier("calendario-ano")
     }
 
@@ -585,7 +616,7 @@ struct CalendarioAnoView: View {
             }
             .contentShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         }
-        .buttonStyle(PressaoDiscreta())
+        .buttonStyle(PressaoClara())
         .matchedGeometryEffect(id: idMes(mes, agenda.cal), in: morph, isSource: agenda.escala == .ano)
         .accessibilityLabel(Calendario.formatar(mes, "MMMM 'de' yyyy", agenda.cal))
         .accessibilityIdentifier(actual ? "calendario-ano-actual" : "calendario-ano-\(Calendario.formatar(mes, "yyyy-MM", agenda.cal))")
