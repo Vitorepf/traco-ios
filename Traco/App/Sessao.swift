@@ -299,18 +299,11 @@ final class Sessao {
     func abrirFecho(no context: ModelContext) {
         let minutos = minutosExpressiva
         confirmacao = nil
-        trancarESair(no: context, destino: .pagina)
+        // o fecho age sobre ESTA nota, pelo id — não sobre "a última trancada"
+        // achada por varredura, que podia ser outra se a gravação falhasse
+        fechoUUID = trancarESair(no: context, destino: .pagina)
         confirmacao = nil
-        fechoUUID = Self.ultimaTrancada(no: context)?.uuid
         fechoExpressiva = minutos
-    }
-
-    /// A recém-selada: a queima do fecho age sobre ela, mesmo depois do novaPagina.
-    private static func ultimaTrancada(no context: ModelContext) -> Nota? {
-        let todas = (try? context.fetch(FetchDescriptor<Nota>())) ?? []
-        return todas
-            .filter { $0.trancada && !$0.queimada }
-            .max { $0.editadaEm < $1.editadaEm }
     }
 
     func salvar(no context: ModelContext, trancar: Bool = false) {
@@ -342,6 +335,17 @@ final class Sessao {
             // expressivaPrazo persistido na próxima gravação/arranque.)
             mostrarToast("não consegui gravar — o texto continua na página.")
         }
+    }
+
+    /// A ÚNICA porta para o disco: tudo que muda o banco (concluir, selar,
+    /// queimar, apagar, importar, a linha de sentido) passa por aqui. Antes, só
+    /// concluir e queimar regravavam — uma nota apagada continuava legível no
+    /// app Arquivos e na busca do iOS até o próximo Concluir de outra nota.
+    func refletirNoDisco(no context: ModelContext) {
+        guard let todas = try? context.fetch(FetchDescriptor<Nota>()) else { return }
+        Corpus.backupAutomatico(notas: todas)
+        // Spotlight indexa só as abertas (o selo vale para o sistema)
+        Holofote.indexar(notas: todas.map { ($0.uuid, $0.vozDoAutor, $0.fechada) })
     }
 
     /// Expressiva vencida sobrevive à morte do processo: a notas não pode vazar o texto.
@@ -420,14 +424,10 @@ final class Sessao {
         // peak-end-rule: o fim do percurso não devolvia NADA — nem confirmação,
         // nem onde a nota foi parar. Uma linha, e ela some sozinha.
         mostrarToast(nomeGesto.map { "\($0) guardada · também no Arquivos" } ?? "guardada · também no Arquivos")
+        // Exp 9: o corpus vive também no app Arquivos — backup sem nuvem, sem conta
+        refletirNoDisco(no: context)
         // FILA P1.5: a nota concluída marca a própria revisão — o Recordar chega
         // no dia certo sem o autor lembrar (§17).
-        // Exp 9: o corpus vive também no app Arquivos — backup sem nuvem, sem conta
-        if let todas = try? context.fetch(FetchDescriptor<Nota>()) {
-            Corpus.backupAutomatico(notas: todas)
-            // Exp 3: Spotlight indexa só as abertas (o selo vale para o sistema)
-            Holofote.indexar(notas: todas.map { ($0.uuid, $0.vozDoAutor, $0.fechada) })
-        }
         if let notaUUID, let nota = Self.buscar(uuid: notaUUID, no: context) {
             Revisoes.agendar(uuid: nota.uuid, criadaEm: nota.criadaEm, gesto: nota.gesto, trancada: nota.fechada, texto: nota.texto) { [weak self] in
                 Task { @MainActor in
@@ -493,9 +493,11 @@ final class Sessao {
     }
 
     func recordarDaNotas(_ nota: Nota) {
-        guard !nota.fechada else { return }
-        recordarTexto = nota.texto
-        recordarCampos = nota.campos
+        // fechada: só a linha de sentido se recorda (SPEC §8.5) — nunca o texto
+        let texto = nota.fechada ? nota.sentido : nota.texto
+        guard !texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        recordarTexto = texto
+        recordarCampos = nota.fechada ? [:] : nota.campos
         mostrarRecordar = true
     }
 
@@ -543,10 +545,7 @@ final class Sessao {
         // nada de janela de desfazer: queimar não tem volta, e isso é o método
         apagadaRecuperavel = nil
         Revisoes.cancelar(uuid: nota.uuid)
-        if let todas = try? context.fetch(FetchDescriptor<Nota>()) {
-            Corpus.backupAutomatico(notas: todas)
-            Holofote.indexar(notas: todas.map { ($0.uuid, $0.vozDoAutor, $0.fechada) })
-        }
+        refletirNoDisco(no: context)
         novaPagina()
         Toque.fechou()
         confirmacao = nil
@@ -562,6 +561,7 @@ final class Sessao {
             nota.sentido = linha.trimmingCharacters(in: .whitespacesAndNewlines)
             nota.editadaEm = .now
             try? context.save()
+            refletirNoDisco(no: context) // a linha de sentido entra no corpus (§8.5)
         }
         fechoExpressiva = nil
         fechoUUID = nil
@@ -569,9 +569,13 @@ final class Sessao {
         Toque.suave()
     }
 
-    func trancarESair(no context: ModelContext, destino: DestinoConfirmacao) {
+    /// Devolve o id da nota selada — antes de `novaPagina` o limpar.
+    @discardableResult
+    func trancarESair(no context: ModelContext, destino: DestinoConfirmacao) -> UUID? {
         pararTimer()
         salvar(no: context, trancar: true)
+        let selada = notaUUID
+        refletirNoDisco(no: context)
         sentidoPendente = nil
         fechoExpressiva = nil
         novaPagina()
@@ -580,6 +584,7 @@ final class Sessao {
         let destinoFinal: DestinoConfirmacao = destino == .recordar ? .pagina : destino
         if destinoFinal == .notas { mostrarNotas = true }
         confirmacao = .trancada(destino: destinoFinal)
+        return selada
     }
 
     /// ADR 2026-08-31f: apagar apaga de verdade — nota, revisão marcada e,
@@ -602,6 +607,7 @@ final class Sessao {
             return
         }
         if notaUUID == uuid { novaPagina() }
+        refletirNoDisco(no: context)
         varrerAnexosOrfaos(no: context)
         confirmacao = nil
         Toque.fechou()
@@ -618,6 +624,7 @@ final class Sessao {
         nota.criadaEm = a.criadaEm
         context.insert(nota)
         try? context.save()
+        refletirNoDisco(no: context)
         apagadaRecuperavel = nil
         desfazerTask?.cancel()
         Toque.leve()

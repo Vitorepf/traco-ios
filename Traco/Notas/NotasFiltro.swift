@@ -2,19 +2,17 @@ import Foundation
 
 enum NotasFiltro {
     static func visiveis(_ notas: [Nota], busca: String, filtro: FiltroNotas?) -> [Nota] {
-        notas.filter { nota in
+        // "analise" acha "análise": busca sem acento e sem caixa
+        func bate(_ texto: String) -> Bool {
+            busca.isEmpty || texto.range(of: busca, options: [.caseInsensitive, .diacriticInsensitive], locale: .current) != nil
+        }
+        return notas.filter { nota in
             if filtro == .trancadas { return nota.trancada }
-            if nota.fechada { return busca.isEmpty && filtro == nil }
+            // fechada: o texto nunca entra; a linha de sentido é a única coisa
+            // que sai do selo (SPEC §8.5) — e por isso a busca a acha
+            if nota.fechada { return filtro == nil && bate(nota.sentido) }
             if let filtro, let g = filtro.gesto, nota.gesto != g { return false }
-            if !busca.isEmpty {
-                // "analise" acha "análise": busca sem acento e sem caixa
-                return nota.vozDoAutor.range(
-                    of: busca,
-                    options: [.caseInsensitive, .diacriticInsensitive],
-                    locale: .current
-                ) != nil
-            }
-            return true
+            return bate(nota.vozDoAutor)
         }
     }
 }

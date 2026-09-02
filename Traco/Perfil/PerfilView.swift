@@ -56,6 +56,7 @@ struct PerfilView: View {
                 }
             }
             try? context.save()
+            sessao.refletirNoDisco(no: context)
             if total > 0 { sessao.mostrarToast("\(total) nota\(total == 1 ? "" : "s") importada\(total == 1 ? "" : "s").") }
         }
         .sheet(isPresented: Binding(get: { corpusURL != nil }, set: { if !$0 { corpusURL = nil } })) {

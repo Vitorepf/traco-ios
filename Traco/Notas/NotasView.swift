@@ -347,7 +347,7 @@ struct NotasView: View {
         .buttonStyle(PressaoDiscreta())
         .tint(Tema.tinta)
         .contextMenu {
-            if !nota.trancada {
+            if !nota.fechada || !nota.sentido.isEmpty {
                 Button("Recordar") { sessao.recordarDaNotas(nota) }
             }
             // ADR 2026-08-31f: apagar existe, com atrito — trancada exige dupla.

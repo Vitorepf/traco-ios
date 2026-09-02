@@ -951,3 +951,79 @@ struct ArranqueEBackupTests {
         #expect(TracoMigracao.schemas.count == 1)
     }
 }
+
+// Radiografia 02/set, P1: uma porta só para o disco; a linha de sentido sai do
+// selo (§8.5) por busca, export, Padrões e Recordar; o fecho age pelo id.
+@MainActor
+struct PortaDoDiscoESentidoTests {
+    private func contexto() throws -> ModelContext {
+        let container = try ModelContainer(
+            for: Nota.self,
+            configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+        )
+        return ModelContext(container)
+    }
+    private var backup: URL {
+        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("traco-corpus.md")
+    }
+
+    @Test func aLinhaDeSentidoEAUnicaCoisaQueSaiDoSelo() {
+        let d = Date(timeIntervalSince1970: 1_000)
+        let corpo = Corpus.corpoDoCorpus(
+            notas: [("hoje chorei o dia inteiro", .expressiva, [:], true, d)],
+            sentidos: [("o que ficou claro: eu preciso de gente", d)]
+        )
+        #expect(!corpo.contains("chorei"))
+        #expect(corpo.contains("o que ficou claro: eu preciso de gente"))
+        #expect(corpo.contains("expressiva: sentido"))
+        // volta como nota ABERTA, sem gesto: importar nunca acorda um timer
+        let itens = Corpus.importar(corpo)
+        #expect(itens.map(\.texto) == ["o que ficou claro: eu preciso de gente"])
+        #expect(itens.first?.gestoNome == nil)
+    }
+
+    @Test func buscaAchaPeloSentidoENuncaPeloTextoSelado() {
+        let selada = Nota(texto: "o segredo", gesto: .expressiva, trancada: true, sentido: "clareza sobre o luto")
+        #expect(NotasFiltro.visiveis([selada], busca: "luto", filtro: nil).count == 1)
+        #expect(NotasFiltro.visiveis([selada], busca: "segredo", filtro: nil).isEmpty)
+        #expect(NotasFiltro.visiveis([selada], busca: "luto", filtro: .woop).isEmpty)
+    }
+
+    @Test func recordarDaListaSoRecordaOSentidoDeUmaFechada() {
+        let s = Sessao()
+        let queimada = Nota(texto: "", gesto: .expressiva, queimada: true, sentido: "ficou claro")
+        s.recordarDaNotas(queimada)
+        #expect(s.recordarTexto == "ficou claro" && s.mostrarRecordar)
+        let s2 = Sessao()
+        s2.recordarDaNotas(Nota(texto: "em curso", gesto: .expressiva))
+        #expect(s2.recordarTexto.isEmpty && !s2.mostrarRecordar)
+    }
+
+    @Test func apagarRegravaOBackupNaHora() throws {
+        defer { try? FileManager.default.removeItem(at: backup) }
+        let context = try contexto()
+        let s = Sessao()
+        s.texto = "fica"; s.concluir(no: context)
+        s.texto = "some"; s.concluir(no: context)
+        #expect(try String(contentsOf: backup, encoding: .utf8).contains("some"))
+        let alvo = try #require(context.fetch(FetchDescriptor<Nota>()).first { $0.texto == "some" })
+        s.apagar(uuid: alvo.uuid, no: context)
+        let depois = try String(contentsOf: backup, encoding: .utf8)
+        #expect(depois.contains("fica") && !depois.contains("some"))
+    }
+
+    @Test func oFechoAgeSobreANotaRecemSeladaPeloId() throws {
+        let context = try contexto()
+        // uma trancada MAIS recente por editadaEm: a varredura antiga escolheria esta
+        let outra = Nota(texto: "outra", gesto: .expressiva, trancada: true, editadaEm: .now.addingTimeInterval(600))
+        context.insert(outra)
+        let s = Sessao()
+        s.texto = "o desabafo de hoje"
+        s.gesto = .expressiva
+        s.iniciarTimer()
+        s.abrirFecho(no: context)
+        let alvo = try #require(s.fechoUUID)
+        #expect(Sessao.buscar(uuid: alvo, no: context)?.texto == "o desabafo de hoje")
+        #expect(alvo != outra.uuid)
+    }
+}

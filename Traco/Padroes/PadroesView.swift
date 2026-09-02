@@ -15,8 +15,14 @@ struct PadroesView: View {
 
     /// Grok quando há chave (perguntas NOVAS a cada visita); local de guarda.
     /// Nunca a mesma pergunta duas visitas seguidas.
+    /// SPEC §8.5: a linha de sentido sai do selo e entra nos Padrões.
+    private var sentidos: [String] {
+        Array(notas.filter { $0.fechada && !$0.sentido.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+            .prefix(12).map(\.sentido))
+    }
+
     private func carregarPerguntas() async {
-        let vozes = abertas.map(\.vozDoAutor)
+        let vozes = abertas.map(\.vozDoAutor) + sentidos
         let locais = PadroesLocal.perguntas(
             vozes: vozes,
             obstaculos: abertas.compactMap { $0.campos["obstaculo"] }

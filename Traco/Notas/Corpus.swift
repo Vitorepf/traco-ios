@@ -5,7 +5,8 @@ import Foundation
 /// também para a rota de backup/restauro (META-FINAL). Elas vivem só no aparelho.
 /// ponytail: um arquivo único v1; um-.md-por-nota + import ficam na FILA.
 enum Corpus {
-    static func arquivoMd(texto: String, gesto: Gesto?, campos: [String: String], criadaEm: Date) -> String {
+    static func arquivoMd(texto: String, gesto: Gesto?, campos: [String: String], criadaEm: Date,
+                          extra: String? = nil) -> String {
         var corpo = texto.trimmingCharacters(in: .whitespacesAndNewlines)
         if let gesto, !campos.isEmpty {
             let respostas = gesto.campos.compactMap { campo -> String? in
@@ -19,15 +20,27 @@ enum Corpus {
         let f = ISO8601DateFormatter()
         var cab = "criada: \(f.string(from: criadaEm))"
         if let gesto { cab += "\ngesto: \(gesto.nome)" }
+        if let extra { cab += "\n\(extra)" }
         return "---\n\(cab)\n---\n\n\(corpo)\n"
     }
 
-    static func corpoDoCorpus(notas: [(texto: String, gesto: Gesto?, campos: [String: String], trancada: Bool, criadaEm: Date)]) -> String {
-        let abertas = notas.filter { !$0.trancada && !$0.texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
-        let blocos = abertas
-            .sorted { $0.criadaEm < $1.criadaEm }
-            .map { arquivoMd(texto: $0.texto, gesto: $0.gesto, campos: $0.campos, criadaEm: $0.criadaEm) }
-        return blocos.joined(separator: "\n")
+    /// `sentidos`: SPEC §8.5 — a linha de sentido é a ÚNICA coisa que sai do
+    /// selo. Vai como bloco próprio, SEM gesto: importar não pode acordar um
+    /// timer de expressiva, e a linha volta como nota aberta nas palavras do autor.
+    static func corpoDoCorpus(notas: [(texto: String, gesto: Gesto?, campos: [String: String], trancada: Bool, criadaEm: Date)],
+                              sentidos: [(sentido: String, criadaEm: Date)] = []) -> String {
+        let abertas = notas
+            .filter { !$0.trancada && !$0.texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+            .map { ($0.criadaEm, arquivoMd(texto: $0.texto, gesto: $0.gesto, campos: $0.campos, criadaEm: $0.criadaEm)) }
+        let linhas = sentidos
+            .filter { !$0.sentido.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+            .map { ($0.criadaEm, arquivoMd(texto: $0.sentido, gesto: nil, campos: [:], criadaEm: $0.criadaEm, extra: "expressiva: sentido")) }
+        return (abertas + linhas).sorted { $0.0 < $1.0 }.map(\.1).joined(separator: "\n")
+    }
+
+    /// O que sai do selo: só a linha de sentido das fechadas (§8.5).
+    private static func sentidos(_ notas: [Nota]) -> [(sentido: String, criadaEm: Date)] {
+        notas.filter(\.fechada).map { ($0.sentido, $0.criadaEm) }
     }
 
     /// Reconstrói os campos achatados pelo export ("— Nome —\nRótulo: resposta"):
@@ -51,9 +64,10 @@ enum Corpus {
     /// REGRA DO SELO: import JAMAIS cria nota trancada; tudo que entra, entra aberto.
     nonisolated static func importar(_ conteudo: String) -> [(texto: String, gestoNome: String?, criadaEm: Date)] {
         let f = ISO8601DateFormatter()
-        // blocos do nosso export: "---\ncriada: ...\n[gesto: ...]\n---\n\ncorpo"
+        // blocos do nosso export: "---\ncriada: ...\n[gesto: ...]\n[chave: ...]\n---\n\ncorpo"
+        // (linhas extras no cabeçalho são toleradas: um export mais novo importa no app velho)
         let padrao = try! NSRegularExpression(
-            pattern: #"(?m)^---\ncriada: (\S+)\n(?:gesto: (.+)\n)?---\n"#)
+            pattern: #"(?m)^---\ncriada: (\S+)\n(?:gesto: (.+)\n)?(?:\w+: .*\n)*---\n"#)
         let ns = conteudo as NSString
         let hits = padrao.matches(in: conteudo, range: NSRange(location: 0, length: ns.length))
         guard !hits.isEmpty else {
@@ -80,7 +94,8 @@ enum Corpus {
         // Em emergência o corpus da RAM não é o corpus: reescrever o arquivo
         // mataria o único backup que existe sem nuvem.
         guard !Arranque.bancoEmMemoria else { return }
-        let corpo = corpoDoCorpus(notas: notas.map { ($0.texto, $0.gesto, $0.campos, $0.fechada, $0.criadaEm) })
+        let corpo = corpoDoCorpus(notas: notas.map { ($0.texto, $0.gesto, $0.campos, $0.fechada, $0.criadaEm) },
+                                  sentidos: sentidos(notas))
         guard !corpo.isEmpty,
               let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
         else { return }
@@ -102,7 +117,8 @@ enum Corpus {
     }
 
     static func exportar(notas: [Nota]) -> URL? {
-        let corpo = corpoDoCorpus(notas: notas.map { ($0.texto, $0.gesto, $0.campos, $0.fechada, $0.criadaEm) })
+        let corpo = corpoDoCorpus(notas: notas.map { ($0.texto, $0.gesto, $0.campos, $0.fechada, $0.criadaEm) },
+                                  sentidos: sentidos(notas))
         guard !corpo.isEmpty else { return nil }
         let f = DateFormatter()
         f.dateFormat = "yyyy-MM-dd"
