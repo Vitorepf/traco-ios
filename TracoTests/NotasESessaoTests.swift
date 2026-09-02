@@ -940,9 +940,8 @@ struct ArranqueEBackupTests {
         defer { try? FileManager.default.removeItem(at: anexo) }
         AnexoDisco.varrerOrfaos(textos: [])
         #expect(FileManager.default.fileExists(atPath: anexo.path))
-        Arranque.bancoEmMemoria = false
-        AnexoDisco.varrerOrfaos(textos: [])
-        #expect(!FileManager.default.fileExists(atPath: anexo.path)) // com banco, o órfão sai
+        // e com banco ele SERIA varrido (a função pura, para não varrer o container real)
+        #expect(AnexoDisco.orfaos(referenciados: [], arquivos: [anexo]) == [anexo])
     }
 
     @Test func emEmergenciaOBackupNaoETocadoESempreHaUmaGeracaoDeVolta() throws {
@@ -1124,5 +1123,60 @@ struct DesfazerApagarTests {
         let volta = try #require(try context.fetch(FetchDescriptor<Nota>()).first)
         #expect(volta.trancada && volta.sentido == "clareza" && volta.texto.contains(anexoID.uuidString))
         #expect(s.apagadaRecuperavel == nil && s.toast == nil && s.toastAcao == nil)
+    }
+}
+
+// Radiografia 02/set (crítico do lote D): com a gravação na pausa a nota entra
+// no banco enquanto se escreve — apagar tudo não pode deixar o texto velho lá.
+@MainActor
+struct ApagarTudoTests {
+    private func contexto() throws -> ModelContext {
+        ModelContext(try ModelContainer(for: Nota.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true)))
+    }
+
+    @Test func notaEsvaziadaSomeComoNoNotes() throws {
+        let context = try contexto()
+        let s = Sessao()
+        s.texto = "texto que vai sumir"
+        s.salvar(no: context)
+        #expect(try context.fetch(FetchDescriptor<Nota>()).count == 1)
+        s.texto = ""
+        s.salvar(no: context) // a pausa, a troca de camada ou o fundo
+        #expect(try context.fetch(FetchDescriptor<Nota>()).isEmpty)
+        #expect(s.notaUUID == nil)
+        s.texto = "texto novo depois de apagar"
+        s.salvar(no: context)
+        #expect(try context.fetch(FetchDescriptor<Nota>()).map(\.texto) == ["texto novo depois de apagar"])
+    }
+
+    @Test func fechadaOuComRespostaNuncaSomePorEsvaziar() throws {
+        let context = try contexto()
+        let s = Sessao()
+        s.texto = "quero correr"
+        s.gesto = .woop
+        s.campos = ["obstaculo": "o celular"]
+        s.salvar(no: context)
+        s.texto = ""
+        s.salvar(no: context)
+        #expect(try context.fetch(FetchDescriptor<Nota>()).count == 1) // a resposta é conteúdo
+
+        let selada = Nota(texto: "segredo", gesto: .expressiva, trancada: true)
+        context.insert(selada); try context.save()
+        s.abrir(selada, mesmoTrancada: true)
+        s.texto = ""
+        s.salvar(no: context)
+        #expect(Sessao.buscar(uuid: selada.uuid, no: context)?.texto == "segredo")
+    }
+
+    @Test func abrirOutraNotaZeraOOptOutPorNota() throws {
+        let context = try contexto()
+        let s = Sessao()
+        s.texto = "a"
+        s.soltarForma()
+        #expect(s.autoSuprimidaNaNota)
+        let b = Nota(texto: "b")
+        context.insert(b); try context.save()
+        s.abrir(b)
+        #expect(!s.autoSuprimidaNaNota)
     }
 }

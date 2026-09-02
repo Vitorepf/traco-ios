@@ -189,10 +189,9 @@ struct ProsaView: View {
                 resto = resto[resto.index(after: urlFim)...]
                 continue
             }
-            let next = resto.firstIndex(of: "`")
-                ?? resto.firstIndex(of: "*")
-                ?? resto.firstIndex(of: "~")
-                ?? resto.firstIndex(of: "[")
+            // o marcador MAIS PRÓXIMO, não o de maior prioridade: "x *it* `c`"
+            // pulava o itálico e o imprimia cru
+            let next = ["`", "*", "~", "["].compactMap { resto.firstIndex(of: Character($0)) }.min()
                 ?? resto.endIndex
             saida += AttributedString(String(resto[..<next]))
             resto = resto[next...]

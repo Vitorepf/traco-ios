@@ -166,6 +166,22 @@ struct CadernoFuzzTests {
         }
     }
 
+    /// Aplicar CONVERGE: o espaçamento entre blocos vira "\n\n" na primeira
+    /// edição, e a segunda não muda mais um byte. (ponytail: a voz fica; o
+    /// número de linhas em branco entre blocos, não — preservá-lo exigiria
+    /// faixas no parser. Em modo vestido ele nem se vê.)
+    @Test func aplicarConvergeEmUmaEdicao() {
+        for doc in Self.documentos(quantos: 300, semente: 77) {
+            let fs = Caderno.fatias(doc)
+            guard let alvo = fs.first else { continue }
+            let a = Caderno.aplicar(fs, id: alvo.id, novo: alvo.fonte)
+            let fs2 = Caderno.fatias(a)
+            guard let alvo2 = fs2.first else { continue }
+            let b = Caderno.aplicar(fs2, id: alvo2.id, novo: alvo2.fonte)
+            #expect(a == b, "a segunda edição mudou bytes: \(doc.debugDescription)")
+        }
+    }
+
     /// A VOZ do autor não se perde: toda palavra de prosa que entrou continua
     /// legível na saída visível.
     @Test func aVozNaoSePerde() {

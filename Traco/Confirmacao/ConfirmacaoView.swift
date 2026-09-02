@@ -21,7 +21,7 @@ struct ConfirmacaoView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     switch estado {
-                    case .sairTranca(let destino):
+                    case .sairTranca:
                         titulo("Sair agora tranca.")
                         texto("A escrita expressiva fecha a porta de qualquer jeito — dentro ou fora do tempo. Você escolhe qual: selar ou queimar.")
                         botao("Continuar escrevendo", id: "confirmacao-continuar") { sessao.confirmacao = nil }

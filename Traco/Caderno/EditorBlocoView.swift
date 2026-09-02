@@ -256,7 +256,7 @@ struct EditorBlocoView: View {
     }
 
     private func campo(_ valor: String, cabecalho: Bool = false,
-                       ao: @escaping @Sendable (String) -> Void) -> some View {
+                       ao: @escaping (String) -> Void) -> some View {
         TextField("", text: Binding(get: { valor }, set: ao))
             .font(cabecalho ? Tema.corpo.weight(.medium) : Tema.corpo)
             .foregroundStyle(cabecalho ? Tema.tintaSuave : Tema.tinta)

@@ -1,16 +1,15 @@
-import CoreSpotlight
+@preconcurrency import CoreSpotlight
 import Foundation
 import UniformTypeIdentifiers
 
 /// Spotlight (exp 3): as notas ABERTAS aparecem na busca do iOS.
 /// O selo tem a regra pronta: trancada JAMAIS entra no índice do sistema.
 enum Holofote {
-    private static let dominio = "app.traco.notas"
+    nonisolated private static let dominio = "app.traco.notas"
 
     static func indexar(notas: [(uuid: UUID, voz: String, fechada: Bool)]) {
-        let indice = CSSearchableIndex.default()
         // reconstrução simples: apaga o domínio e regrava as abertas
-        indice.deleteSearchableItems(withDomainIdentifiers: [dominio]) { _ in
+        CSSearchableIndex.default().deleteSearchableItems(withDomainIdentifiers: [dominio]) { _ in
             let itens = notas
                 .filter { !$0.fechada && !$0.voz.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
                 .prefix(200)
@@ -26,7 +25,7 @@ enum Holofote {
                     )
                 }
             guard !itens.isEmpty else { return }
-            indice.indexSearchableItems(Array(itens))
+            CSSearchableIndex.default().indexSearchableItems(Array(itens))
         }
     }
 }

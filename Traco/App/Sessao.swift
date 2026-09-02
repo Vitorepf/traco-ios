@@ -170,11 +170,12 @@ final class Sessao {
 
     private var gravacaoTask: Task<Void, Never>?
 
-    /// A MESMA pausa que chama a análise grava a página. Antes, `salvar` só
-    /// corria ao sair de cena, trocar de camada ou concluir: um crash em
-    /// primeiro plano custava a nota inteira. `salvar` ignora página vazia e
-    /// reusa o notaUUID, então isto não cria nota do nada nem duplica.
-    func agendarGravacao(no context: ModelContext, depois segundos: Double = 1.6) {
+    /// A pausa grava a página. Antes, `salvar` só corria ao sair de cena,
+    /// trocar de camada ou concluir: um crash em primeiro plano custava a nota
+    /// inteira. `salvar` reusa o notaUUID, então isto não duplica.
+    /// 1,0s, não os 1,6s da análise: §21 proíbe gravar no SwiftData no mesmo
+    /// instante em que a forma anima — a gravação vem 600ms ANTES do vestir.
+    func agendarGravacao(no context: ModelContext, depois segundos: Double = 1.0) {
         gravacaoTask?.cancel()
         gravacaoTask = Task { [weak self] in
             try? await Task.sleep(for: .seconds(segundos))
@@ -329,7 +330,20 @@ final class Sessao {
 
     func salvar(no context: ModelContext, trancar: Bool = false) {
         let limpo = texto.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !limpo.isEmpty || trancar else { return }
+        if limpo.isEmpty, !trancar {
+            // O autor apagou tudo. Com a gravação na pausa a nota já está no
+            // banco — e ficaria lá com o texto velho para sempre. Como no
+            // Notes: nota esvaziada some. Nunca uma fechada, nunca uma com
+            // resposta de campo (isso é conteúdo).
+            if let notaUUID, let nota = Self.buscar(uuid: notaUUID, no: context),
+               !nota.fechada, nota.campos.values.allSatisfy({ $0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }) {
+                Revisoes.cancelar(uuid: notaUUID)
+                context.delete(nota)
+                try? context.save()
+                self.notaUUID = nil
+            }
+            return
+        }
         let prazo = (timerLigado && !trancar) ? timerPrazo : nil
         if let notaUUID, let nota = Self.buscar(uuid: notaUUID, no: context) {
             nota.texto = texto
@@ -425,6 +439,7 @@ final class Sessao {
         }
         pararTimer()
         gravacaoTask?.cancel()
+        autoSuprimidaNaNota = false // §17.2: o opt-out é POR NOTA — esta é outra
         texto = nota.texto
         gesto = nota.gesto
         campos = nota.campos
@@ -567,8 +582,10 @@ final class Sessao {
             fechoUUID = nil
             return
         }
-        // a cinza não guarda o texto: sobrescreve, depois esvazia
-        nota.texto = String(repeating: " ", count: max(nota.texto.count, 1))
+        // A cinza não guarda o texto. A promessa é de PRODUTO (nenhuma rota do
+        // app lê o que foi queimado), não de disco: o SQLite pode guardar
+        // páginas velhas no WAL, e "sobrescrever antes de esvaziar" em memória
+        // não muda isso — só o que chega ao banco é a string vazia.
         nota.texto = ""
         nota.campos = [:]
         nota.gesto = .expressiva

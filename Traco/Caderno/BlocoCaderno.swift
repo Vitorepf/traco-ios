@@ -34,22 +34,27 @@ struct FatiaCaderno: Identifiable, Equatable, Sendable {
 }
 
 enum Caderno: Sendable {
-    // ponytail: memo de último valor — o body do SwiftUI avalia `fatias` 2+ vezes por
-    // tecla sobre o MESMO texto; isto corta o reparse redundante. Teto conhecido:
-    // ainda é O(n) por mudança real; parser incremental por bloco fica na FILA (P1.2).
-    nonisolated(unsafe) private static let memoLock = NSLock()
-    nonisolated(unsafe) private static var memo: (fonte: String, fatias: [FatiaCaderno])?
+    // ponytail: memo por texto, com teto. O body do SwiftUI avalia `fatias` 2+
+    // vezes por tecla sobre o MESMO texto; e a busca do arquivo chama `vozDoAutor`
+    // de TODAS as notas a cada tecla — com um slot só, notas diferentes se
+    // expulsavam e era parse completo × N notas × tecla. Teto: 512 textos, e o
+    // memo esvazia inteiro (sem LRU: barato e suficiente). Parser incremental
+    // por bloco fica na FILA (P1.2).
+    nonisolated private static let memoLock = NSLock()
+    nonisolated(unsafe) private static var memo: [String: [FatiaCaderno]] = [:]
+    nonisolated private static let memoTeto = 512
 
     nonisolated static func fatias(_ fonte: String) -> [FatiaCaderno] {
         memoLock.lock()
-        if let m = memo, m.fonte == fonte {
+        if let f = memo[fonte] {
             memoLock.unlock()
-            return m.fatias
+            return f
         }
         memoLock.unlock()
         let f = fatiasSemMemo(fonte)
         memoLock.lock()
-        memo = (fonte, f)
+        if memo.count >= memoTeto { memo.removeAll(keepingCapacity: true) }
+        memo[fonte] = f
         memoLock.unlock()
         return f
     }
@@ -317,7 +322,10 @@ enum Caderno: Sendable {
         case .citacao(let xs):
             return xs.map { "> \($0)" }.joined(separator: "\n")
         case .tabela(let cabeca, let corpo):
-            let cols = max(cabeca.count, 1)
+            // a linha mais larga manda: a tela desenha max(cabeça, corpo) e o
+            // arquivo tem de guardar o mesmo — antes, uma célula além do
+            // cabeçalho aparecia e sumia ao editar
+            let cols = max(cabeca.count, corpo.map(\.count).max() ?? 0, 1)
             func linha(_ c: [String]) -> String {
                 let cells = (0..<cols).map { $0 < c.count ? c[$0] : "" }
                 return "| " + cells.joined(separator: " | ") + " |"
@@ -548,7 +556,16 @@ enum Caderno: Sendable {
     }
 
     nonisolated static func aplicar(_ fatias: [FatiaCaderno], id: String, novo: String) -> String {
-        var partes = fatias.map { $0.id == id ? novo : $0.fonte }
+        // Cada parte sai SEM as linhas em branco de cauda que o parser guarda na
+        // fonte (depoisDeVazias). Antes, cada edição somava "\n\n" às que já
+        // estavam lá: o documento crescia uma linha em branco por toque num
+        // chip, e o backup .md inchava. Agora uma edição converge — a segunda
+        // não muda um byte (CadernoFuzzTests.aplicarConvergeEmUmaEdicao).
+        var partes = fatias.map { f -> String in
+            var p = f.id == id ? novo : f.fonte
+            while p.hasSuffix("\n") { p.removeLast() }
+            return p
+        }
         while partes.last?.isEmpty == true {
             partes.removeLast()
         }
@@ -839,7 +856,7 @@ enum Caderno: Sendable {
     // regex compiladas UMA vez (antes: uma compilação por linha por padrão — o
     // custo dominante do parse em nota longa)
     nonisolated(unsafe) private static var regexCache: [String: NSRegularExpression] = [:]
-    nonisolated(unsafe) private static let regexLock = NSLock()
+    nonisolated private static let regexLock = NSLock()
 
     nonisolated private static func captura(_ texto: String, _ padrao: String) -> [String]? {
         regexLock.lock()

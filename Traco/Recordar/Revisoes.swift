@@ -1,5 +1,5 @@
 import Foundation
-import UserNotifications
+@preconcurrency import UserNotifications
 
 /// Revisões agendadas (FILA P1.5): o Recordar chega no dia certo, sem o autor
 /// precisar lembrar de usá-lo (§17). v1: uma revisão, 3 dias após concluir.
@@ -48,8 +48,8 @@ enum Revisoes {
     static func agendar(uuid: UUID, criadaEm: Date, gesto: Gesto?, fechada: Bool, texto: String,
                         aoNegar: @escaping @Sendable () -> Void = {}) {
         guard podeAgendar(gesto: gesto, fechada: fechada, texto: texto) else { return }
-        let centro = UNUserNotificationCenter.current()
-        centro.requestAuthorization(options: [.alert]) { ok, _ in
+        let degrau = dias(nivel: nivel(uuid)) // lido aqui, no MainActor — o closure abaixo não é
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert]) { ok, _ in
             guard ok else {
                 // negação não é morte silenciosa: o app diz UMA vez o que se perdeu
                 let d = UserDefaults.standard
@@ -62,7 +62,6 @@ enum Revisoes {
             let conteudo = UNMutableNotificationContent()
             conteudo.title = "Recordar"
             // sem conteúdo da nota: o selo vale também na lock screen
-            let degrau = Self.dias(nivel: Self.nivel(uuid))
             conteudo.body = "Uma nota de \(degrau) dias atrás espera você recordar."
             // nota velha reeditada: a base é o agora — trigger no passado nunca dispara
             let quando = Calendar.current.date(byAdding: .day, value: degrau, to: max(criadaEm, .now)) ?? .now
@@ -70,7 +69,7 @@ enum Revisoes {
             let gatilho = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)
             conteudo.userInfo = ["uuid": uuid.uuidString]
             let pedido = UNNotificationRequest(identifier: "revisao-\(uuid.uuidString)", content: conteudo, trigger: gatilho)
-            centro.add(pedido)
+            UNUserNotificationCenter.current().add(pedido)
         }
     }
 

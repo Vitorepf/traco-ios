@@ -682,3 +682,16 @@ struct DigitacaoDeListaTests {
         #expect(!Caderno.estruturar(prosa).hasPrefix("#"))
     }
 }
+
+// Radiografia 02/set, P2: a tabela perdia células mais largas que o cabeçalho.
+struct TabelaLargaTests {
+    @Test func linhaMaisLargaQueOCabecalhoSobreviveAoArquivo() {
+        let t = BlocoCaderno.tabela(cabeca: ["a"], corpo: [["1", "2", "3"]])
+        let md = Caderno.serializar(t)
+        guard case .tabela(let cabeca, let corpo)? = Caderno.fatias(md).first?.bloco else {
+            Issue.record("não voltou tabela: \(md)"); return
+        }
+        #expect(cabeca.count == 3)
+        #expect(corpo == [["1", "2", "3"]])
+    }
+}

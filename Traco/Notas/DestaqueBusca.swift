@@ -14,14 +14,14 @@ enum DestaqueBusca {
         while cursor < texto.endIndex,
               let faixa = texto.range(of: chave, options: [.caseInsensitive, .diacriticInsensitive], range: cursor..<texto.endIndex) {
             if faixa.lowerBound > cursor {
-                saida = saida + Text(String(texto[cursor..<faixa.lowerBound])).foregroundStyle(base)
+                saida = Text("\(saida)\(Text(String(texto[cursor..<faixa.lowerBound])).foregroundStyle(base))")
             }
-            saida = saida + Text(String(texto[faixa])).foregroundStyle(Tema.ambar)
+            saida = Text("\(saida)\(Text(String(texto[faixa])).foregroundStyle(Tema.ambar))")
             cursor = faixa.upperBound
             achou = true
         }
         if cursor < texto.endIndex {
-            saida = saida + Text(String(texto[cursor...])).foregroundStyle(base)
+            saida = Text("\(saida)\(Text(String(texto[cursor...])).foregroundStyle(base))")
         }
         return achou ? saida : Text(texto).foregroundStyle(base)
     }

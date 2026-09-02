@@ -36,7 +36,7 @@ enum AnaliseRemota {
 
     // ponytail: memo de último texto — dispensar o cartão e pausar de novo não repaga token
     nonisolated(unsafe) private static var memo: (texto: String, veredito: AnaliseLocal.Veredito?)?
-    nonisolated(unsafe) private static let memoLock = NSLock()
+    nonisolated private static let memoLock = NSLock()
 
     nonisolated private static func memoLido(_ texto: String) -> AnaliseLocal.Veredito?? {
         memoLock.lock(); defer { memoLock.unlock() }
