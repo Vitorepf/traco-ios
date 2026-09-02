@@ -1,4 +1,5 @@
 import Foundation
+import SwiftData
 import Testing
 @testable import Traco
 
@@ -209,5 +210,54 @@ struct PastaEspelhoTests {
         var chamou = false
         PastaEspelho.comAcesso { _ in chamou = true }
         #expect(!chamou)
+    }
+}
+
+private enum DiscoRecusou: Error { case gravar }
+
+struct BloqueadoresDeDadosTests {
+    @Test func fechoNaoApagaAPaginaSeODiscoRecusa() throws {
+        let c = try ModelContainer.traco(emMemoria: true)
+        let s = Sessao()
+        s.texto = "quinze minutos de escrita que não podem sumir"
+        s.gesto = .expressiva
+        s.persistirNoDisco = { _ in throw DiscoRecusou.gravar }
+        s.abrirFecho(no: c.mainContext)
+        #expect(s.texto == "quinze minutos de escrita que não podem sumir")
+        #expect(s.fechoExpressiva == nil)
+        #expect(s.toast != nil)
+    }
+
+    @Test func fechoSegueQuandoODiscoAceita() throws {
+        let c = try ModelContainer.traco(emMemoria: true)
+        let s = Sessao()
+        s.texto = "escrita"
+        s.gesto = .expressiva
+        s.abrirFecho(no: c.mainContext)
+        #expect(s.texto.isEmpty)
+        #expect(s.fechoExpressiva != nil)
+        let nota = try #require(try c.mainContext.fetch(FetchDescriptor<Nota>()).first)
+        #expect(nota.trancada)
+    }
+
+    @Test func expressivaEmCursoNuncaVaiAoSpotlight() {
+        #expect(!Holofote.sai(fechada: false, expressivaEmCurso: true, voz: "desabafo"))
+        #expect(!Holofote.sai(fechada: true, expressivaEmCurso: false, voz: "selada"))
+        #expect(!Holofote.sai(fechada: false, expressivaEmCurso: false, voz: "   "))
+        #expect(Holofote.sai(fechada: false, expressivaEmCurso: false, voz: "aberta"))
+    }
+
+    @Test func apagarTiraDoEspelhoNaHora() throws {
+        Corpus.diretorio = FileManager.default.temporaryDirectory.appendingPathComponent("esp-\(UUID().uuidString)")
+        let c = try ModelContainer.traco(emMemoria: true)
+        let s = Sessao()
+        s.texto = "nota que vai ser apagada"
+        s.salvar(no: c.mainContext)
+        let nota = try #require(try c.mainContext.fetch(FetchDescriptor<Nota>()).first)
+        Corpus.backupAutomatico(notas: [nota])
+        let arquivo = Corpus.pastaNotas.appendingPathComponent(nota.uuid.uuidString.lowercased() + ".md")
+        #expect(FileManager.default.fileExists(atPath: arquivo.path))
+        s.apagar(uuid: nota.uuid, no: c.mainContext)
+        #expect(!FileManager.default.fileExists(atPath: arquivo.path))
     }
 }

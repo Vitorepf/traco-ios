@@ -10,7 +10,8 @@ struct PadroesView: View {
     @State private var carregou = false
 
     private var abertas: [Nota] {
-        Array(notas.filter { !$0.fechada && !$0.vozDoAutor.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }.prefix(12))
+        // §8.8, §19.1: expressiva em curso (app morto no timer, relançado) nunca vai à rede
+        Array(notas.filter { !$0.fechada && $0.gesto != .expressiva && !$0.vozDoAutor.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }.prefix(12))
     }
 
     /// Grok quando há chave (perguntas NOVAS a cada visita); local de guarda.

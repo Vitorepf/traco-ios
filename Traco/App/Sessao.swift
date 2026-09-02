@@ -393,7 +393,9 @@ final class Sessao {
         let minutos = minutosExpressiva
         confirmacao = nil
         pararTimer()
-        salvar(no: context, trancar: true)
+        // o selo tem de estar no disco ANTES de a página virar: com o disco
+        // recusando, quinze minutos de escrita sumiam e o toast dizia o contrário
+        guard salvar(no: context, trancar: true) else { return }
         let alvo = notaUUID
         sentidoPendente = nil
         novaPagina()
@@ -429,13 +431,16 @@ final class Sessao {
             em: Revisoes.proximoDiaDaSerie())
     }
 
-    func salvar(no context: ModelContext, trancar: Bool = false) {
+    /// Devolve se o disco aceitou. Quem vai apagar a página DEPOIS de gravar
+    /// tem de olhar isto: gravar recusada + página nova = texto perdido.
+    @discardableResult
+    func salvar(no context: ModelContext, trancar: Bool = false) -> Bool {
         let serieEmVoo = gesto == .expressiva && seriePendente != nil
         guard temVoz || trancar || serieEmVoo else {
             // Página vazia não é nota — o disco fica. A tela bloqueada não:
             // o autor apagou a única de hoje, e a linha some no mesmo instante.
             if let notaUUID { DestaqueDoDia.apagar(id: notaUUID) }
-            return
+            return true
         }
         let prazo = (timerLigado && !trancar) ? timerPrazo : nil
         let nota: Nota
@@ -467,14 +472,14 @@ final class Sessao {
         aplicarSerie(na: nota)
         aplicarGatilho(na: nota)
         aplicarDestaque(na: nota)
-        do {
-            try context.save()
-        } catch {
+        guard persistir(context) else {
             // A escrita do autor nunca se perde em silêncio: o texto segue na página
             // e o aviso diz isso. (Tranca de expressiva continua garantida pelo
             // expressivaPrazo persistido na próxima gravação/arranque.)
             mostrarToast("não consegui gravar — o texto continua na página.")
+            return false
         }
+        return true
     }
 
     private func aplicarDominio(na nota: Nota) {
@@ -578,6 +583,9 @@ final class Sessao {
                 mostrarToast("não consegui trancar — a nota continua aberta.")
                 return
             }
+            // a recém-selada sai do Spotlight e vira só metadado no espelho
+            Corpus.backupAutomatico(notas: notas)
+            Holofote.indexar(notas: notas)
             if let recem, recem.sentido.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
                fechoExpressiva == nil {
                 fechoUUID = recem.uuid
@@ -690,7 +698,7 @@ final class Sessao {
         if let todas = try? context.fetch(FetchDescriptor<Nota>()) {
             Corpus.backupAutomatico(notas: todas)
             // Exp 3: Spotlight indexa só as abertas (o selo vale para o sistema)
-            Holofote.indexar(notas: todas.map { ($0.uuid, $0.vozDoAutor, $0.fechada) })
+            Holofote.indexar(notas: todas)
         }
         if let notaUUID, let nota = Self.buscar(uuid: notaUUID, no: context) {
             Revisoes.agendar(uuid: nota.uuid, criadaEm: nota.criadaEm, gesto: nota.gesto, trancada: nota.fechada, texto: nota.texto, campos: nota.campos) { [weak self] in
@@ -820,7 +828,7 @@ final class Sessao {
         Revisoes.cancelar(uuid: nota.uuid)
         if let todas = try? context.fetch(FetchDescriptor<Nota>()) {
             Corpus.backupAutomatico(notas: todas)
-            Holofote.indexar(notas: todas.map { ($0.uuid, $0.vozDoAutor, $0.fechada) })
+            Holofote.indexar(notas: todas)
         }
         novaPagina()
         Toque.fechou()
@@ -934,6 +942,11 @@ final class Sessao {
         DestaqueDoDia.apagar(id: uuid)
         Versoes.apagar(uuid)
         Apontar.apagar(uuid)
+        // regra de ferro 2: apagar tira a nota do espelho em Arquivos e do Spotlight AGORA
+        if let todas = try? context.fetch(FetchDescriptor<Nota>()) {
+            Corpus.backupAutomatico(notas: todas)
+            Holofote.indexar(notas: todas)
+        }
         if notaUUID == uuid { novaPagina() }
         varrerAnexosOrfaos(no: context)
         confirmacao = nil

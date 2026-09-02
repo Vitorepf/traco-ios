@@ -7,6 +7,18 @@ import UniformTypeIdentifiers
 enum Holofote {
     private static let dominio = "app.traco.notas"
 
+    /// O que pode ir ao Spotlight: só a aberta que não é expressiva em curso.
+    /// Fechada (selada ou queimada) e expressiva em curso nunca (§19.1, §8.8).
+    nonisolated static func sai(fechada: Bool, expressivaEmCurso: Bool, voz: String) -> Bool {
+        !fechada && !expressivaEmCurso && !voz.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    static func indexar(notas todas: [Nota]) {
+        indexar(notas: todas.map { n in
+            (n.uuid, n.vozDoAutor, !sai(fechada: n.fechada, expressivaEmCurso: n.gesto == .expressiva && !n.fechada, voz: n.vozDoAutor))
+        })
+    }
+
     static func indexar(notas: [(uuid: UUID, voz: String, trancada: Bool)]) {
         let indice = CSSearchableIndex.default()
         // reconstrução simples: apaga o domínio e regrava as abertas
