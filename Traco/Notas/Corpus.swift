@@ -276,27 +276,36 @@ enum Corpus {
     }
 
     static func escreverEspelho(fatias: [FatiaCorpus]) {
+        escrever(fatias: fatias, em: diretorio)
+        // a pasta do autor (iCloud Drive ou outro provedor), se ele escolheu uma
+        PastaEspelho.comAcesso { pasta in escrever(fatias: fatias, em: pasta) }
+    }
+
+    /// Escreve a pasta do segundo cérebro em `raiz`: LEIA-ME, notas/*.md,
+    /// traco-corpus.md e INDICE.md. Só o que pode sair (`nuncaSai` fica).
+    static func escrever(fatias: [FatiaCorpus], em raiz: URL) {
         let fm = FileManager.default
-        try? fm.createDirectory(at: pastaNotas, withIntermediateDirectories: true)
+        let notasDir = raiz.appendingPathComponent("notas", isDirectory: true)
+        try? fm.createDirectory(at: notasDir, withIntermediateDirectories: true)
         try? contrato.data(using: .utf8)?.write(
-            to: diretorio.appendingPathComponent("LEIA-ME.md"), options: .atomic)
+            to: raiz.appendingPathComponent("LEIA-ME.md"), options: .atomic)
         let vivas = fatias.filter { !$0.nuncaSai }
         var ids = Set<String>()
         for f in vivas {
             let nome = f.id.uuidString.lowercased() + ".md"
             ids.insert(nome)
             try? arquivoMd(f).data(using: .utf8)?.write(
-                to: pastaNotas.appendingPathComponent(nome), options: .atomic)
+                to: notasDir.appendingPathComponent(nome), options: .atomic)
         }
-        if let existentes = try? fm.contentsOfDirectory(atPath: pastaNotas.path) {
+        if let existentes = try? fm.contentsOfDirectory(atPath: notasDir.path) {
             for nome in existentes where nome.hasSuffix(".md") && !ids.contains(nome) {
-                try? fm.removeItem(at: pastaNotas.appendingPathComponent(nome))
+                try? fm.removeItem(at: notasDir.appendingPathComponent(nome))
             }
         }
         let corpus = corpoDoCorpus(fatias: vivas)
         try? corpus.data(using: .utf8)?.write(
-            to: diretorio.appendingPathComponent("traco-corpus.md"), options: .atomic)
+            to: raiz.appendingPathComponent("traco-corpus.md"), options: .atomic)
         try? indice(fatias: vivas).data(using: .utf8)?.write(
-            to: diretorio.appendingPathComponent("INDICE.md"), options: .atomic)
+            to: raiz.appendingPathComponent("INDICE.md"), options: .atomic)
     }
 }

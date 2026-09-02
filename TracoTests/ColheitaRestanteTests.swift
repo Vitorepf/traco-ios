@@ -172,3 +172,42 @@ struct VersoesEApontarTests {
         #expect(Apontar.listar(id).isEmpty)
     }
 }
+
+struct PastaEspelhoTests {
+    @Test func espelhoEscreveNaPastaDoAutorESoOQuePodeSair() throws {
+        let raiz = FileManager.default.temporaryDirectory.appendingPathComponent("esp-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: raiz, withIntermediateDirectories: true)
+        PastaEspelho.defaults = UserDefaults(suiteName: "teste-espelho-\(UUID().uuidString)")!
+        #expect(PastaEspelho.nome == nil)
+        #expect(PastaEspelho.guardar(raiz))
+        #expect(PastaEspelho.nome == raiz.lastPathComponent)
+
+        let aberta = FatiaCorpus(id: UUID(), texto: "quero correr", gesto: .woop, campos: [:],
+                                 criadaEm: .now, editadaEm: .now, recordada: 0, sentido: "", minutos: 0,
+                                 trancada: false, queimada: false, expressivaEmCurso: false,
+                                 dominio: nil, serie: nil, dia: 0)
+        let emCurso = FatiaCorpus(id: UUID(), texto: "desabafo", gesto: .expressiva, campos: [:],
+                                  criadaEm: .now, editadaEm: .now, recordada: 0, sentido: "", minutos: 3,
+                                  trancada: false, queimada: false, expressivaEmCurso: true,
+                                  dominio: nil, serie: nil, dia: 0)
+        var escrita: URL?
+        PastaEspelho.comAcesso { pasta in
+            Corpus.escrever(fatias: [aberta, emCurso], em: pasta)
+            escrita = pasta
+        }
+        let pasta = try #require(escrita)
+        #expect(pasta.lastPathComponent == "Traço")
+        let notas = try FileManager.default.contentsOfDirectory(atPath: pasta.appendingPathComponent("notas").path)
+        #expect(notas == [aberta.id.uuidString.lowercased() + ".md"])
+        #expect(FileManager.default.fileExists(atPath: pasta.appendingPathComponent("LEIA-ME.md").path))
+        #expect(FileManager.default.fileExists(atPath: pasta.appendingPathComponent("traco-corpus.md").path))
+        let corpus = try String(contentsOf: pasta.appendingPathComponent("traco-corpus.md"), encoding: .utf8)
+        #expect(!corpus.contains("desabafo"))
+
+        PastaEspelho.limpar()
+        #expect(PastaEspelho.nome == nil)
+        var chamou = false
+        PastaEspelho.comAcesso { _ in chamou = true }
+        #expect(!chamou)
+    }
+}

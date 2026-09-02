@@ -15,6 +15,7 @@ struct PerfilView: View {
     @State private var tarefa: Task<Void, Never>?
     @State private var corpusURL: URL?
     @State private var importarMd = false
+    @State private var escolherPasta = false
     @Environment(\.modelContext) private var context
     @Query(sort: \Nota.criadaEm, order: .reverse) private var notas: [Nota]
 
@@ -33,6 +34,15 @@ struct PerfilView: View {
                 .padding(.horizontal, Tema.margem)
                 .padding(.bottom, 24)
             }
+            }
+        }
+        .fileImporter(isPresented: $escolherPasta, allowedContentTypes: [.folder]) { resultado in
+            guard case .success(let url) = resultado else { return }
+            if PastaEspelho.guardar(url) {
+                Corpus.escreverEspelho(fatias: notas.map(FatiaCorpus.de))
+                Toque.suave()
+            } else {
+                sessao.mostrarToast("não consegui guardar essa pasta.")
             }
         }
         .fileImporter(isPresented: $importarMd,
@@ -224,7 +234,25 @@ struct PerfilView: View {
             linhaAcao("Importar notas (.md)") { importarMd = true }
                 .accessibilityIdentifier("importar-md")
                 .accessibilityHint("Traz notas de arquivos Markdown. Import nunca cria trancada.")
-            Text("O backup automático grava no app Arquivos a cada nota concluída — nada disso depende de nuvem nem de conta.")
+            Rectangle().fill(Tema.linha).frame(height: 0.5)
+            // ADR 2026-09-02n: a pasta pode viver no iCloud Drive do autor
+            // porque é a nuvem DELE — escolhida no seletor do sistema, sem
+            // conta do Traço, sem entitlement. Qualquer provedor serve.
+            if let nome = PastaEspelho.nome {
+                linhaAcao("Espelhando em “\(nome)”") { escolherPasta = true }
+                    .accessibilityIdentifier("espelho-pasta")
+                    .accessibilityHint("Toque para trocar a pasta")
+                linhaAcao("Parar de espelhar") {
+                    PastaEspelho.limpar()
+                    Toque.leve()
+                }
+                .accessibilityIdentifier("espelho-parar")
+            } else {
+                linhaAcao("Espelhar numa pasta (iCloud Drive…)") { escolherPasta = true }
+                    .accessibilityIdentifier("espelho-pasta")
+                    .accessibilityHint("Escolhe uma pasta sua; o Traço grava lá uma cópia da pasta do segundo cérebro a cada nota concluída")
+            }
+            Text("O backup automático grava no app Arquivos a cada nota concluída — nada disso depende de nuvem nem de conta. Se escolher uma pasta, a mesma cópia vai para lá; o Traço só escreve, nunca lê de volta.")
                 .font(.footnote)
                 .foregroundStyle(Tema.tintaFraca)
         }
