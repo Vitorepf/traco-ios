@@ -1,5 +1,8 @@
 # Traço — sistema visual (Fase 2)
 
+> **02/set/2026 — substituído.** O Traço vive no mundo claro (ADR 2026-09-02h): os tokens, medidas e componentes vigentes estão em `SISTEMA-CLARO.md`. Este arquivo fica como registro do sistema escuro.
+
+
 Travado antes do pixel. Âncora: Apple Notes dark + protótipo-espelho + SPEC §11/§15.
 Contraste medido com `tastemaker/scripts/check_contrast.py` em 29 ago 2026.
 

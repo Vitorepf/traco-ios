@@ -145,7 +145,7 @@ struct FechoExpressivaView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(titulo)
                     .font(Tema.barra)
-                    .foregroundStyle(destaque ? Tema.ambar : Tema.tintaSuave)
+                    .foregroundStyle(destaque ? Tema.ambarTinta : Tema.tintaSuave)
                 Text(corpo)
                     .font(.footnote)
                     .foregroundStyle(Tema.tintaFraca)

@@ -20,14 +20,14 @@ struct CartaoAnaliseView: View {
             RoundedRectangle(cornerRadius: Tema.raioCartao, style: .continuous)
                 .fill(Tema.superficieAlta)
                 // material de verdade: sombra ambiente + sombra de contato
-                .shadow(color: .black.opacity(0.45), radius: 16, y: 8)
-                .shadow(color: .black.opacity(0.30), radius: 2, y: 1)
+                .shadow(color: Tema.sombraFlutuante, radius: 16, y: 6)
+                .shadow(color: Tema.sombraContato, radius: 2, y: 1)
         }
         .overlay {
             // em OLED escuro quem constrói presença é a luz na aresta superior
             RoundedRectangle(cornerRadius: Tema.raioCartao, style: .continuous)
                 .strokeBorder(
-                    LinearGradient(colors: [.white.opacity(0.07), .clear],
+                    LinearGradient(colors: [Tema.luzBorda, .clear],
                                    startPoint: .top, endPoint: .bottom),
                     lineWidth: 1
                 )
@@ -82,7 +82,7 @@ struct CartaoAnaliseView: View {
                                 .foregroundStyle(Tema.tintaSuave)
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
-                                .background(Color.white.opacity(0.06), in: Capsule())
+                                .background(Tema.chip, in: Capsule())
                         }
                         .buttonStyle(PressaoDiscreta())
                         .accessibilityLabel(d.nome)
@@ -171,7 +171,7 @@ private struct CartaoBotaoStyle: ButtonStyle {
         configuration.label
             .animation(Tema.pressaoAnim(configuration.isPressed), value: configuration.isPressed)
             .font(Tema.barra)
-            .foregroundStyle(Tema.ambar)
+            .foregroundStyle(Tema.ambarTinta)
             .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .leading)
             .scaleEffect(configuration.isPressed ? Tema.pressao : 1)
             .opacity(configuration.isPressed ? 0.7 : 1)

@@ -61,15 +61,15 @@ struct BarraNavegacao: View {
                 aoNovaNota()
             } label: {
                 VStack(spacing: 3) {
-                    // Dois âmbares fixos no rodapé (esta pílula + a aba
-                    // selecionada) faziam o acento não significar nada, e o olho
-                    // entrava pela navegação em vez de pelo conteúdo
-                    // (von-restorff-effect). A ação se distingue por FORMA e
-                    // PESO — o âmbar fica só para dizer onde você está.
+                    // No mundo claro o preto diz onde você está e o âmbar volta
+                    // a ser a assinatura da AÇÃO: uma pílula, uma vez na tela,
+                    // com o glifo escuro por cima (7,6:1). Forma e cor a
+                    // separam dos destinos (law-of-similarity).
                     Image(systemName: "square.and.pencil")
-                        .font(.system(size: 21, weight: .semibold))
-                        .foregroundStyle(Tema.tintaSuave)
-                        .frame(height: 24)
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundStyle(Tema.tinta)
+                        .frame(width: 44, height: 24)
+                        .background(Tema.ambar, in: Capsule())
                     Text("Escrever")
                         .font(.caption2)
                         .tracking(0.4)
@@ -98,7 +98,7 @@ struct BarraNavegacao: View {
                             .font(.caption2.weight(aba == item ? .semibold : .regular))
                             .tracking(0.4)
                     }
-                    .foregroundStyle(aba == item ? Tema.ambar : Tema.tintaSuave)
+                    .foregroundStyle(aba == item ? Tema.tinta : Tema.tintaFraca)
                     // o aceso é ESTADO, não transição: acendia em fade meio
                     // segundo depois do conteúdo, deixando quadros sem aba
                     // selecionada nenhuma
@@ -122,10 +122,10 @@ struct BarraNavegacao: View {
             // o material lavava o âmbar: o fundo sustenta a cor, o vidro só
             // deixa o conteúdo passar por baixo sem sumir (apple-design §12)
             Rectangle()
-                .fill(Tema.fundo.opacity(0.82))
+                .fill(Tema.superficie.opacity(0.85))
                 .background(.ultraThinMaterial)
                 .overlay(alignment: .top) {
-                    Rectangle().fill(Tema.luzBorda).frame(height: 0.5)
+                    Rectangle().fill(Tema.linha).frame(height: 0.5)
                 }
                 .ignoresSafeArea(edges: .bottom)
         }

@@ -31,7 +31,7 @@ private struct AtalhoTraco: View {
         Link(destination: URL(string: rota)!) {
             Text(rotulo)
                 .font(.system(size: 15, weight: .medium))
-                .foregroundStyle(destaque ? Tema.ambar : Tema.tinta)
+                .foregroundStyle(destaque ? Tema.ambarTinta : Tema.tinta)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
                 .frame(maxWidth: .infinity, alignment: .leading)

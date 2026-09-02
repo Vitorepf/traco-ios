@@ -85,12 +85,12 @@ struct PerfilView: View {
                         .foregroundStyle(Tema.tintaSuave)
                     Text(codigo.userCode)
                         .font(.title.monospaced().weight(.semibold))
-                        .foregroundStyle(Tema.ambar)
+                        .foregroundStyle(Tema.ambarTinta)
                         .textSelection(.enabled)
                         .accessibilityIdentifier("codigo-dispositivo")
                     Button("Abrir a página de aprovação") { abrir(codigo.url) }
                         .font(Tema.chrome.weight(.semibold))
-                        .foregroundStyle(Tema.ambar)
+                        .foregroundStyle(Tema.ambarTinta)
                         .frame(minHeight: Tema.alvo)
                         .buttonStyle(PressaoDiscreta())
                 }
@@ -122,7 +122,7 @@ struct PerfilView: View {
                     entrar()
                 }
                 .font(Tema.chrome)
-                .foregroundStyle(Tema.ambar)
+                .foregroundStyle(Tema.ambarTinta)
                 .frame(minHeight: Tema.alvo)
                 .buttonStyle(PressaoDiscreta())
                 .disabled(entrando)

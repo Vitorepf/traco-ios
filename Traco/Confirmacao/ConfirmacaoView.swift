@@ -13,7 +13,6 @@ struct ConfirmacaoView: View {
             // material de verdade, não tinta chapada: o fundo recua com profundidade
             Rectangle()
                 .fill(.ultraThinMaterial)
-                .environment(\.colorScheme, .dark)
                 .ignoresSafeArea()
             Tema.fundo
                 .opacity(0.55)
@@ -136,7 +135,7 @@ struct ConfirmacaoView: View {
     private func botao(_ t: String, id: String, acao: @escaping () -> Void) -> some View {
         Button(t, action: acao)
             .font(Tema.barra)
-            .foregroundStyle(Tema.ambar)
+            .foregroundStyle(Tema.ambarTinta)
             .frame(minHeight: Tema.alvo)
             .buttonStyle(PressaoDiscreta())
             .accessibilityIdentifier(id)

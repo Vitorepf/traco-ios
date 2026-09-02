@@ -16,7 +16,7 @@ enum DestaqueBusca {
             if faixa.lowerBound > cursor {
                 saida = saida + Text(String(texto[cursor..<faixa.lowerBound])).foregroundStyle(base)
             }
-            saida = saida + Text(String(texto[faixa])).foregroundStyle(Tema.ambar)
+            saida = saida + Text(String(texto[faixa])).foregroundStyle(Tema.ambarTinta)
             cursor = faixa.upperBound
             achou = true
         }

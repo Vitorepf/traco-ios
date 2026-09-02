@@ -39,7 +39,7 @@ struct Camadas<Arquivo: View, Escrita: View>: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 // profundidade de verdade: a folha do sistema escurece o fundo
                 // em 48%; a nossa escurecia 0,7% e lia como substituição
-                .overlay(Color.black.opacity(0.45 * fracao).ignoresSafeArea())
+                .overlay(Color.black.opacity(0.28 * fracao).ignoresSafeArea())
                 // e RECUA: a folha de cima não desliza sobre um plano — ela
                 // cobre uma página que afunda na pilha (dono, 01/set: caderno
                 // de folhas, não painéis)
@@ -49,7 +49,7 @@ struct Camadas<Arquivo: View, Escrita: View>: View {
 
             arquivo()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .shadow(color: .black.opacity(0.6), radius: 18, x: 6)
+                .shadow(color: Color(hex: 0x1C1C1E, opacity: 0.22), radius: 18, x: 6)
                 .offset(x: pos)
                 .allowsHitTesting(arquivoAberto)
                 .accessibilityHidden(!arquivoAberto)

@@ -322,7 +322,7 @@ private struct PrimarioStyle: ButtonStyle {
         configuration.label
             .animation(Tema.pressaoAnim(configuration.isPressed), value: configuration.isPressed)
             .font(Tema.barra)
-            .foregroundStyle(recede ? Tema.tintaFraca : Tema.ambar)
+            .foregroundStyle(recede ? Tema.tintaFraca : Tema.ambarTinta)
             .frame(maxWidth: .infinity, minHeight: Tema.alvo)
             .scaleEffect(configuration.isPressed ? Tema.pressao : 1)
             .opacity(configuration.isPressed ? 0.7 : 1)

@@ -132,7 +132,7 @@ struct CadernoView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .background(Tema.fundo)
                         .overlay(alignment: .top) {
-                            Rectangle().fill(Tema.luzBorda).frame(height: 0.5)
+                            Rectangle().fill(Tema.linha).frame(height: 0.5)
                         }
                         .transition(.move(edge: .bottom))
                 }

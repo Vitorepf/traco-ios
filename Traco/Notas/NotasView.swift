@@ -105,17 +105,11 @@ struct NotasView: View {
                 } label: {
                     Text("Todas")
                         .font(Tema.meta.weight(.medium))
-                        .foregroundStyle(filtro == nil ? Tema.ambar : Tema.tintaSuave)
+                        .foregroundStyle(filtro == nil ? .white : Tema.tintaSuave)
                         .padding(.horizontal, 12)
                         .padding(.vertical, 8)
                         .frame(minHeight: 34)
-                        .background(Capsule().fill(filtro == nil ? Tema.ambarSuave : Tema.superficie))
-                        .overlay {
-                            Capsule().strokeBorder(
-                                filtro == nil ? Tema.ambar.opacity(0.5) : Tema.linha,
-                                lineWidth: 0.5
-                            )
-                        }
+                        .background(Capsule().fill(filtro == nil ? Tema.chipAtivo : Tema.chip))
                 }
                 .frame(minHeight: Tema.alvo)
                 .contentShape(Rectangle())
@@ -173,15 +167,11 @@ struct NotasView: View {
         } label: {
             Text(titulo)
                 .font(Tema.meta.weight(.medium))
-                .foregroundStyle(ligado ? Tema.ambar : Tema.tintaSuave)
+                .foregroundStyle(ligado ? .white : Tema.tintaSuave)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
                 .frame(minHeight: 34)
-                .background(Capsule().fill(ligado ? Tema.ambarSuave : Tema.superficie))
-                .overlay {
-                    Capsule().strokeBorder(
-                        ligado ? Tema.ambar.opacity(0.5) : Tema.linha, lineWidth: 0.5)
-                }
+                .background(Capsule().fill(ligado ? Tema.chipAtivo : Tema.chip))
         }
         .frame(minHeight: Tema.alvo)
         .contentShape(Rectangle())
@@ -213,7 +203,7 @@ struct NotasView: View {
                             sessao.mostrarNotas = false
                         }
                         .font(Tema.chrome.weight(.semibold))
-                        .foregroundStyle(Tema.ambar)
+                        .foregroundStyle(Tema.ambarTinta)
                         .frame(minHeight: Tema.alvo)
                         .buttonStyle(PressaoDiscreta())
                     } else {
@@ -223,7 +213,7 @@ struct NotasView: View {
                             filtroDominio = nil
                         }
                         .font(Tema.chrome.weight(.semibold))
-                        .foregroundStyle(Tema.ambar)
+                        .foregroundStyle(Tema.ambarTinta)
                         .frame(minHeight: Tema.alvo)
                         .buttonStyle(PressaoDiscreta())
                         .accessibilityIdentifier("limpar-busca")
@@ -365,7 +355,7 @@ struct NotasView: View {
                                     .foregroundStyle(Tema.tintaSuave)
                                     .padding(.horizontal, 6)
                                     .padding(.vertical, 2)
-                                    .background(Color.white.opacity(0.06), in: Capsule())
+                                    .background(Tema.chip, in: Capsule())
                             }
                             let sub = subtitulo(nota)
                             if !(sub == "hoje" && busca.isEmpty) {
@@ -395,7 +385,7 @@ struct NotasView: View {
                         .foregroundStyle(Tema.tintaSuave)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
-                        .background(Color.white.opacity(0.06), in: Capsule())
+                        .background(Tema.chip, in: Capsule())
                 }
                 .buttonStyle(PressaoDiscreta())
                 .accessibilityLabel(d.nome)

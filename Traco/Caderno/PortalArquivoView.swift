@@ -49,7 +49,7 @@ struct PortalArquivoView: View {
                     .clipShape(RoundedRectangle(cornerRadius: Tema.raio, style: .continuous))
                     .overlay {
                         RoundedRectangle(cornerRadius: Tema.raio, style: .continuous)
-                            .strokeBorder(Color.white.opacity(0.1), lineWidth: 1)
+                            .strokeBorder(Tema.linha, lineWidth: 1)
                     }
                     .onTapGesture(perform: aoEditar)
             } else {
@@ -136,7 +136,7 @@ struct PortalArquivoView: View {
                     .clipShape(RoundedRectangle(cornerRadius: Tema.raio, style: .continuous))
                     .overlay {
                         RoundedRectangle(cornerRadius: Tema.raio, style: .continuous)
-                            .strokeBorder(Color.white.opacity(0.1), lineWidth: 1)
+                            .strokeBorder(Tema.linha, lineWidth: 1)
                     }
                 HStack {
                     Text(nome)
@@ -316,7 +316,7 @@ private struct PlayerVideo: View {
             .clipShape(RoundedRectangle(cornerRadius: Tema.raio, style: .continuous))
             .overlay {
                 RoundedRectangle(cornerRadius: Tema.raio, style: .continuous)
-                    .strokeBorder(Color.white.opacity(0.1), lineWidth: 1)
+                    .strokeBorder(Tema.linha, lineWidth: 1)
             }
             .onAppear {
                 if player == nil { player = AVPlayer(url: url) }

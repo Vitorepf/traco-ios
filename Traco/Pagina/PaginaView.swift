@@ -215,7 +215,7 @@ struct PaginaView: View {
                     .padding(.vertical, 12)
                     .background(Tema.superficieAlta, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                     .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(Tema.linha, lineWidth: 0.5))
-                    .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
+                    .shadow(color: Tema.sombraContato, radius: 2, y: 1)
                     .padding(.horizontal, Tema.margem)
                     .padding(.bottom, 88)
                     .transition(.opacity.combined(with: .offset(y: 6)))
@@ -279,7 +279,7 @@ struct PaginaView: View {
 
             Button("Concluir") { sessao.concluir(no: context) }
                 .keyboardShortcut(.return, modifiers: .command)
-                .foregroundStyle(sessao.concluirEAmbar ? Tema.ambar : Tema.tintaSuave)
+                .foregroundStyle(sessao.concluirEAmbar ? Tema.ambarTinta : Tema.tintaSuave)
                 .opacity(sessao.temVoz ? 1 : 0)
                 .allowsHitTesting(sessao.temVoz)
                 .frame(minHeight: Tema.alvo)
@@ -335,7 +335,7 @@ struct PaginaView: View {
                 .foregroundStyle(
                     sessao.paginaVazia || sessao.gesto != nil || sessao.cartao != nil ? Tema.tintaFraca
                         : sessao.autoAnalise ? Tema.tintaSuave
-                        : Tema.ambar
+                        : Tema.ambarTinta
                 )
                 .disabled(sessao.paginaVazia)
                 .simultaneousGesture(LongPressGesture(minimumDuration: 0.6).onEnded { _ in
@@ -363,7 +363,7 @@ struct PaginaView: View {
         .padding(.vertical, 8)
         .background(Tema.fundo)
         .overlay(alignment: .top) {
-            Rectangle().fill(Tema.luzBorda).frame(height: 0.5)
+            Rectangle().fill(Tema.linha).frame(height: 0.5)
         }
     }
 

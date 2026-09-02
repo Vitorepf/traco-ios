@@ -1,30 +1,40 @@
 import SwiftUI
 
 enum Tema {
-    static let fundo = Color(hex: 0x0B0B0D)
-    static let superficie = Color(hex: 0x161619)
-    static let superficieAlta = Color(hex: 0x1E1E22)
-    static let tinta = Color(hex: 0xECECEA)
-    static let tintaSuave = Color(hex: 0x9A9A96)
-    /// AA de verdade: o antigo #6B6B70 media 3,41–3,71:1 e reprovava em todo
-    /// rótulo pequeno (better-accessibility). Este mede 5,26–5,72:1.
-    static let tintaFraca = Color(hex: 0x8A8A8F)
+    // MARK: - O mundo claro (ADR 2026-09-02h; hex e medidas em SISTEMA-CLARO.md)
+    //
+    // Papel, não tela. Um acento de estado, o preto (carvão). O âmbar é a
+    // assinatura de AÇÃO e vive como fill (cursor, Nova, agora); como texto
+    // usa `ambarTinta`, porque #D9A542 sobre o papel mede 2,0:1.
+    static let fundo = Color(hex: 0xF4F4F2)            // papel
+    static let superficie = Color(hex: 0xFFFFFF)       // cartão
+    static let superficieAlta = Color(hex: 0xFFFFFF)   // o que flutua (com sombra)
+    static let superficieBaixa = Color(hex: 0xEBEBEA)  // névoa: campo, trilho
+    static let chip = Color(hex: 0xE8E8E6)
+    static let chipAtivo = Color(hex: 0x2C2C2E)        // carvão
+    static let tinta = Color(hex: 0x1C1C1E)            // 15,5:1
+    /// 5,7:1 sobre o papel, 5,2:1 sobre o chip.
+    static let tintaSuave = Color(hex: 0x5F5F64)
+    /// Ícones e letras grandes: 3,3:1.
+    static let tintaFraca = Color(hex: 0x86868B)
     /// Só para DESABILITADO real — nunca para texto que deve ser lido.
-    static let tintaMorta = Color(hex: 0x6B6B70)
-    static let linha = Color(hex: 0x26262A)
+    static let tintaMorta = Color(hex: 0xC7C7CC)
+    /// Hairline: ninguém vê a linha, vê a ordem.
+    static let linha = Color(hex: 0x1C1C1E, opacity: 0.08)
     static let ambar = Color(hex: 0xD9A542)
-    static let ambarSuave = Color(hex: 0xD9A542).opacity(0.14)
-    /// Media 4,09:1 sobre #1E1E22 e reprovava AA no rótulo em versalete.
-    /// Este mede 6,24:1 — um vermelho só, sem versão apagada.
-    static let aviso = Color(hex: 0xE8836A)
-    static let codigoFundo = Color(hex: 0x12141A)
-    static let codigoGutter = Color(hex: 0x0E1016)
-    static let synChave = Color(hex: 0xC9A56A)
-    static let synValor = Color(hex: 0x7EB8A8)
-    static let synNumero = Color(hex: 0x8AA4C8)
-    static let synTipo = Color(hex: 0x9B8FBF)
-    static let synFuncao = Color(hex: 0x8EB4D4)
-    static let synPontuacao = Color(hex: 0x6E6E6A)
+    static let ambarSuave = Color(hex: 0xD9A542).opacity(0.22)
+    /// O âmbar que se lê: 5,8:1 sobre o papel.
+    static let ambarTinta = Color(hex: 0x7A5A16)
+    /// 5,3:1 sobre o papel.
+    static let aviso = Color(hex: 0xB5432F)
+    static let codigoFundo = Color(hex: 0xEBEBEA)
+    static let codigoGutter = Color(hex: 0xE4E4E2)
+    static let synChave = Color(hex: 0x7A4E10)
+    static let synValor = Color(hex: 0x1F6B5A)
+    static let synNumero = Color(hex: 0x2F4F8A)
+    static let synTipo = Color(hex: 0x5A3D7A)
+    static let synFuncao = Color(hex: 0x245A66)
+    static let synPontuacao = Color(hex: 0x6E6E73)
     static let synComentario = tintaFraca
     static let synTexto = tinta
     static let mono: Font = .system(size: 17, design: .monospaced)
@@ -84,8 +94,10 @@ enum Tema {
     // não como objeto acima do plano (law-of-figure-ground). O que falta é o
     // fio de luz no topo — a borda onde a luz bate — mais a sombra de contato.
     // É o detalhe que Linear, Craft e Things têm e que ninguém sabe nomear.
-    static let luzBorda = Color.white.opacity(0.07)
-    static let sombraContato = Color.black.opacity(0.35)
+    static let luzBorda = Color.white.opacity(0.6)
+    /// Sombra com tinta, não preto: cinza-quente, só no que flutua.
+    static let sombraContato = Color(hex: 0x1C1C1E, opacity: 0.10)
+    static let sombraFlutuante = Color(hex: 0x1C1C1E, opacity: 0.08)
 
     static let formaNasce: Double = 0.48
     static let cartaoEntra: Double = 0.26
@@ -129,7 +141,7 @@ struct PressaoDiscreta: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .scaleEffect(configuration.isPressed ? Tema.pressao : 1)
-            .opacity(configuration.isPressed ? 0.7 : 1)
+            // só escala: baixar a opacidade sobre papel lê como piscar
             // press quase instantâneo; o soltar volta com vida (spring leve)
             .animation(Tema.pressaoAnim(configuration.isPressed), value: configuration.isPressed)
     }

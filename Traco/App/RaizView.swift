@@ -112,7 +112,8 @@ struct RaizView: View {
                 .accessibilityIdentifier("disco-falhou")
             }
         }
-        .preferredColorScheme(sessao.aba == .calendario ? .light : .dark)
+        // um mundo só (ADR 2026-09-02h): nunca claro numa aba e escuro noutra
+        .preferredColorScheme(.light)
         // A página em voo GRAVA ao sair de cena. Fica na RAIZ e escuta a
         // notificação do UIApplication: o `scenePhase` de uma view aninhada
         // chegou tarde demais para gravar antes da suspensão.

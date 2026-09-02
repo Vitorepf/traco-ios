@@ -49,7 +49,7 @@ struct MenuFormasView: View {
                                 .foregroundStyle(Tema.tintaSuave)
                             Button("ver todas as formas") { busca = "" }
                                 .font(Tema.chrome.weight(.semibold))
-                                .foregroundStyle(Tema.ambar)
+                                .foregroundStyle(Tema.ambarTinta)
                                 .frame(minHeight: Tema.alvo)
                                 .buttonStyle(PressaoDiscreta())
                                 .accessibilityIdentifier("limpar-filtro-formas")
