@@ -11,12 +11,11 @@ appId: app.traco
 - tapOn:
     id: "concluir"
 # traco://recordar → recordarMaisRecente → o Recordar da nota mais recente
-- openLink: traco://recordar
-# num simulador novo o iOS pergunta "Abrir com Traço?" — e o diálogo, se ficar,
-# cobre todos os fluxos seguintes
-- tapOn:
-    text: "Abrir"
-    optional: true
+# num simulador novo o iOS pergunta "Abrir com Traço?"; autoVerify aceita —
+# um toque opcional chegava antes do diálogo e o deixava cobrindo os fluxos seguintes
+- openLink:
+    link: traco://recordar
+    autoVerify: true
 - extendedWaitUntil:
     visible: "RECORDAR"
     timeout: 8000
@@ -24,10 +23,9 @@ appId: app.traco
 - takeScreenshot: /tmp/traco-verify/widget-recordar
 - tapOn: "Voltar"
 # traco://nova → página em branco (o texto de antes não está mais na página)
-- openLink: traco://nova
-- tapOn:
-    text: "Abrir"
-    optional: true
+- openLink:
+    link: traco://nova
+    autoVerify: true
 - extendedWaitUntil:
     visible:
       id: pagina

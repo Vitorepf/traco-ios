@@ -307,7 +307,7 @@ struct NotasView: View {
                          : VozDoAutor.relativo(nota.criadaEm))
                         .font(.subheadline)
                         .foregroundStyle(Tema.tintaFraca)
-                } else if nota.gesto == .expressiva {
+                } else if nota.gesto == .expressiva, !nota.trancada {
                     // em curso (app morto no meio do timer): retomar é um toque —
                     // mas a primeira linha do desabafo não vai para a lista
                     Label("Expressiva — em curso", systemImage: "timer")
