@@ -63,8 +63,9 @@ appId: app.traco
 - takeScreenshot: /tmp/traco-verify/auditoria/08-notas-busca
 - tapOn:
     id: "limpar-busca"
-- swipe:
-    direction: DOWN
+# Return solta o teclado da busca: com ele de pé a barra se esconde e o toque
+# na aba atravessa e digita letras no campo (lei 4 do instrumento)
+- pressKey: Enter
 - extendedWaitUntil:
     visible:
       id: aba-padroes
