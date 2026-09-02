@@ -10,6 +10,7 @@ struct NotasView: View {
     @State private var busca = ""
     @State private var filtro: FiltroNotas?
     @State private var filtroDominio: Dominio?
+    @State private var versoesDe: Nota?
     @State private var contextoURL: URL?
 
     var body: some View {
@@ -156,6 +157,9 @@ struct NotasView: View {
         .sheet(isPresented: Binding(get: { contextoURL != nil },
                                     set: { if !$0 { contextoURL = nil } })) {
             if let contextoURL { CompartilharArquivo(url: contextoURL) }
+        }
+        .sheet(item: $versoesDe) { nota in
+            VersoesView(nota: nota, sessao: sessao)
         }
     }
 
@@ -404,6 +408,9 @@ struct NotasView: View {
                 Button("Como contexto") {
                     contextoURL = Corpus.urlComoContexto([fatia], nome: "traco-contexto.md")
                 }
+            }
+            if !nota.fechada, nota.gesto != .expressiva {
+                Button("Versões") { versoesDe = nota }
             }
             // ADR 2026-08-31f: apagar existe, com atrito — trancada exige dupla.
             Button("Apagar", role: .destructive) {

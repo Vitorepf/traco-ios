@@ -440,6 +440,12 @@ final class Sessao {
         let prazo = (timerLigado && !trancar) ? timerPrazo : nil
         let nota: Nota
         if let notaUUID, let existente = Self.buscar(uuid: notaUUID, no: context) {
+            // a versão anterior fica guardada ANTES de sobrescrever (ADR m);
+            // a expressiva nunca: o que queima não pode sobreviver aqui
+            if existente.texto != texto || existente.campos != campos {
+                Versoes.registrar(existente.uuid, texto: existente.texto, campos: existente.campos,
+                                  gesto: existente.gesto, fechada: existente.fechada)
+            }
             existente.texto = texto
             existente.gesto = gesto
             existente.campos = campos
@@ -616,6 +622,25 @@ final class Sessao {
         filaAtiva = false
     }
 
+    /// Restaurar uma versão guarda a atual primeiro: nada se perde.
+    func restaurar(_ nota: Nota, versao: VersaoNota, no context: ModelContext) {
+        guard !nota.fechada, nota.gesto != .expressiva else { return }
+        Versoes.registrar(nota.uuid, texto: nota.texto, campos: nota.campos,
+                          gesto: nota.gesto, fechada: nota.fechada)
+        nota.texto = versao.texto
+        nota.campos = versao.campos
+        nota.editadaEm = .now
+        if notaUUID == nota.uuid {
+            texto = versao.texto
+            campos = versao.campos
+        }
+        guard persistir(context) else {
+            mostrarToast("não consegui restaurar — a nota ficou como estava.")
+            return
+        }
+        Toque.suave()
+    }
+
     func abrir(_ nota: Nota, mesmoTrancada: Bool = false) {
         // queimada não abre: não existe texto. Dizer isso é honestidade, não erro.
         if nota.queimada {
@@ -790,6 +815,8 @@ final class Sessao {
         }
         // nada de janela de desfazer: queimar não tem volta, e isso é o método
         apagadaRecuperavel = nil
+        Versoes.apagar(nota.uuid)
+        Apontar.apagar(nota.uuid)
         Revisoes.cancelar(uuid: nota.uuid)
         if let todas = try? context.fetch(FetchDescriptor<Nota>()) {
             Corpus.backupAutomatico(notas: todas)
@@ -905,6 +932,8 @@ final class Sessao {
             return
         }
         DestaqueDoDia.apagar(id: uuid)
+        Versoes.apagar(uuid)
+        Apontar.apagar(uuid)
         if notaUUID == uuid { novaPagina() }
         varrerAnexosOrfaos(no: context)
         confirmacao = nil

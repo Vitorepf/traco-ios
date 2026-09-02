@@ -123,3 +123,52 @@ struct LenteTests {
         #expect(l.adjetivos.isEmpty)
     }
 }
+
+struct VersoesEApontarTests {
+    private func pastaTemp() -> URL {
+        let u = FileManager.default.temporaryDirectory.appendingPathComponent("v-\(UUID().uuidString)")
+        try? FileManager.default.createDirectory(at: u, withIntermediateDirectories: true)
+        return u
+    }
+
+    @Test func versaoGuardaAAnteriorENuncaAExpressiva() {
+        Versoes.diretorio = pastaTemp()
+        let id = UUID()
+        #expect(Versoes.registrar(id, texto: "primeira", campos: [:], gesto: nil, fechada: false))
+        // igual à última: não duplica
+        #expect(!Versoes.registrar(id, texto: "primeira", campos: [:], gesto: nil, fechada: false))
+        #expect(Versoes.registrar(id, texto: "segunda", campos: ["se": "x"], gesto: .seEntao, fechada: false))
+        let lista = Versoes.listar(id)
+        #expect(lista.count == 2)
+        #expect(lista[0].texto == "segunda")
+        // expressiva e fechada nunca entram
+        #expect(!Versoes.registrar(UUID(), texto: "desabafo", campos: [:], gesto: .expressiva, fechada: false))
+        #expect(!Versoes.registrar(UUID(), texto: "selada", campos: [:], gesto: nil, fechada: true))
+        Versoes.apagar(id)
+        #expect(Versoes.listar(id).isEmpty)
+    }
+
+    @Test func versoesTemTeto() {
+        Versoes.diretorio = pastaTemp()
+        let id = UUID()
+        for i in 0..<40 { Versoes.registrar(id, texto: "v\(i)", campos: [:], gesto: nil, fechada: false) }
+        #expect(Versoes.listar(id).count == Versoes.teto)
+        #expect(Versoes.listar(id)[0].texto == "v39")
+    }
+
+    @Test func apontarSoTrechoDoProprioTexto() {
+        Apontar.diretorio = pastaTemp()
+        let id = UUID()
+        let texto = "no final do dia o projeto foi entregue"
+        #expect(Apontar.marcar(id, trecho: "no final do dia", rotulo: .fraseFeita, noTexto: texto))
+        #expect(!Apontar.marcar(id, trecho: "frase que não existe", rotulo: .vago, noTexto: texto))
+        #expect(Apontar.marcar(id, trecho: "foi entregue", rotulo: .passiva, noTexto: texto))
+        let lista = Apontar.listar(id)
+        #expect(lista.count == 2)
+        #expect(lista[0].rotulo == .passiva)
+        #expect(Apontar.desmarcar(id, id: lista[0].id))
+        #expect(Apontar.listar(id).count == 1)
+        Apontar.apagar(id)
+        #expect(Apontar.listar(id).isEmpty)
+    }
+}

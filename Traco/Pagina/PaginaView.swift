@@ -358,7 +358,10 @@ struct PaginaView: View {
                 .accessibilityHint("Anexar foto, vídeo, áudio, gravação ou arquivo")
                 .accessibilityIdentifier("abrir-arquivo")
             // a lente da língua: regra local, aponta e não reescreve
-            Button("Lente") { lenteAberta = true }
+            Button("Lente") {
+                sessao.salvar(no: context) // apontar precisa da nota no disco
+                lenteAberta = true
+            }
                 .foregroundStyle(Tema.tintaSuave)
                 .disabled(sessao.paginaVazia)
                 .accessibilityLabel("Lente da língua")
@@ -366,7 +369,7 @@ struct PaginaView: View {
                 .accessibilityIdentifier("abrir-lente")
         }
         .sheet(isPresented: $lenteAberta) {
-            LenteView(texto: sessao.texto)
+            LenteView(texto: sessao.texto, notaUUID: sessao.gesto == .expressiva ? nil : sessao.notaUUID)
         }
         .font(Tema.barra)
         .buttonStyle(BarraBotaoStyle())
