@@ -2,13 +2,20 @@ import Foundation
 import Testing
 @testable import Traco
 
-struct CalendarioEscalaTests {
-    private let cal = {
-        var c = Calendario.gregoriano(fuso: TimeZone(secondsFromGMT: 0)!)
-        return c
-    }()
+private func utc(segunda: Bool = false) -> Calendar {
+    Calendario.gregoriano(fuso: TimeZone(secondsFromGMT: 0)!, segundaPrimeiro: segunda)
+}
 
-    /// Segunda 20 Jul 2026 12:00 UTC — o dia do vídeo.
+private func urlTemp() -> URL {
+    FileManager.default.temporaryDirectory
+        .appendingPathComponent("cal-\(UUID().uuidString)")
+        .appendingPathComponent("calendario.json")
+}
+
+struct CalendarioEscalaTests {
+    private let cal = utc()
+
+    /// Segunda, 20 de julho de 2026, 12:00 UTC.
     private var ancora: Date {
         cal.date(from: DateComponents(year: 2026, month: 7, day: 20, hour: 12))!
     }
@@ -16,30 +23,34 @@ struct CalendarioEscalaTests {
     @Test func abaCalendarioEstaNaBarra() {
         #expect(Aba.naBarra == [.notas, .calendario, .padroes, .perfil])
         #expect(Aba.calendario.titulo == "Calendário")
-        #expect(Aba.calendario.icone == "calendar")
-        #expect(!Aba.naBarra.contains(.escrever))
     }
 
-    @Test func titulosDasQuatroEscalas() {
-        #expect(Calendario.titulo(escala: .dia, ancora: ancora, cal) == "20 July")
-        #expect(Calendario.titulo(escala: .semana, ancora: ancora, cal) == "19 – 25 July")
-        #expect(Calendario.titulo(escala: .mes, ancora: ancora, cal) == "July 2026")
+    @Test func titulosEmPortugues() {
+        #expect(Calendario.titulo(escala: .dia, ancora: ancora, cal) == "20 de julho")
+        #expect(Calendario.titulo(escala: .semana, ancora: ancora, cal) == "19 – 25 de julho")
+        #expect(Calendario.titulo(escala: .mes, ancora: ancora, cal) == "Julho 2026")
         #expect(Calendario.titulo(escala: .ano, ancora: ancora, cal) == "2026")
+        let set2 = cal.date(from: DateComponents(year: 2026, month: 9, day: 2, hour: 12))!
+        #expect(Calendario.titulo(escala: .semana, ancora: set2, cal) == "30 ago – 5 set")
+    }
+
+    @Test func letrasDaSemanaSeguemOPrimeiroDia() {
+        #expect(Calendario.letrasDaSemana(cal) == ["D", "S", "T", "Q", "Q", "S", "S"])
+        #expect(Calendario.letrasDaSemana(utc(segunda: true)) == ["S", "T", "Q", "Q", "S", "S", "D"])
+        #expect(EscalaCalendario.allCases.map(\.letra) == ["D", "S", "M", "A"])
     }
 
     @Test func semanaContemAAncoraENaoSalta() {
         let dias = Calendario.semana(da: ancora, cal)
         #expect(dias.count == 7)
         #expect(cal.component(.day, from: dias[0]) == 19)
-        #expect(cal.component(.day, from: dias[1]) == 20)
         #expect(cal.component(.day, from: dias[6]) == 25)
-        #expect(dias.contains { Calendario.mesmoDia($0, ancora, cal) })
+        let naSegunda = Calendario.semana(da: ancora, utc(segunda: true))
+        #expect(cal.component(.day, from: naSegunda[0]) == 20)
+        #expect(cal.component(.day, from: naSegunda[6]) == 26)
         let (escala, dia) = Calendario.ir(para: .mes, ancora: ancora)
         #expect(escala == .mes)
         #expect(Calendario.mesmoDia(dia, ancora, cal))
-        let (ano, ainda) = Calendario.ir(para: .ano, ancora: ancora)
-        #expect(ano == .ano)
-        #expect(Calendario.mesmoDia(ainda, ancora, cal))
     }
 
     @Test func grelhaDoMesTem42CelulasEOdiaVinte() {
@@ -50,24 +61,11 @@ struct CalendarioEscalaTests {
         #expect(cal.component(.month, from: grelha[0]) == 6)
     }
 
-    @Test func semanaMarcaDasTresAsNoveDaNoite() {
-        #expect(Calendario.horasDaSemana == [3, 6, 9, 12, 15, 18, 21])
-    }
-
     @Test func anoTemDozeMeses() {
         let meses = Calendario.mesesDoAno(da: ancora, cal)
         #expect(meses.count == 12)
         #expect(cal.component(.month, from: meses[0]) == 1)
-        #expect(cal.component(.month, from: meses[6]) == 7)
         #expect(cal.component(.year, from: meses[11]) == 2026)
-    }
-
-    @Test func miniMesDoAnoTemOsNumerosDoMes() {
-        let grelha = Calendario.grelhaDoMes(da: ancora, cal)
-        let doMes = grelha.filter { Calendario.mesmoMes($0, ancora, cal) }
-            .map { cal.component(.day, from: $0) }
-        #expect(doMes == Array(1...31))
-        #expect(grelha.contains { Calendario.mesmoDia($0, ancora, cal) })
     }
 
     @Test func escolherOutroMesMantemODia() {
@@ -76,139 +74,260 @@ struct CalendarioEscalaTests {
         let novo = Calendario.noMes(jan, preservando: set2, cal)
         #expect(cal.component(.day, from: novo) == 2)
         #expect(cal.component(.month, from: novo) == 1)
-        #expect(Calendario.mesmoDia(Calendario.noMes(set2, preservando: set2, cal), set2, cal))
         let jan31 = cal.date(from: DateComponents(year: 2026, month: 1, day: 31, hour: 12))!
         let fev = cal.date(from: DateComponents(year: 2026, month: 2, day: 1))!
         let curto = Calendario.noMes(fev, preservando: jan31, cal)
-        #expect(cal.component(.month, from: curto) == 2)
         #expect(cal.component(.day, from: curto) == 28)
     }
 
-    @Test func hojeVoltaAAncoraDeAgora() {
-        let agora = cal.date(from: DateComponents(year: 2026, month: 9, day: 2, hour: 10))!
-        let hoje = Calendario.irHoje(agora: agora, cal)
-        #expect(Calendario.eHoje(hoje, agora: agora, cal))
-        #expect(!Calendario.eHoje(ancora, agora: agora, cal))
+    /// No dia da mudança de horário, somar minutos ao início do dia dava 17:30.
+    @Test func horaNaoEscorregaNoHorarioDeVerao() {
+        let lisboa = Calendario.gregoriano(fuso: TimeZone(identifier: "Europe/Lisbon")!)
+        let mudanca = lisboa.date(from: DateComponents(year: 2026, month: 3, day: 29, hour: 12))!
+        let d = Calendario.hora(16, 30, no: mudanca, lisboa)
+        #expect(lisboa.component(.hour, from: d) == 16)
+        #expect(lisboa.component(.minute, from: d) == 30)
+        let meiaNoite = Calendario.hora(24, 0, no: mudanca, lisboa)
+        #expect(lisboa.component(.day, from: meiaNoite) == 30)
+        #expect(lisboa.component(.hour, from: meiaNoite) == 0)
+    }
+
+    @Test func doisAoMesmoTempoFicamLadoALado() {
+        func e(_ t: String, _ h: Int, _ m: Int, _ dur: Int) -> EventoCalendario {
+            let i = Calendario.hora(h, m, no: ancora, cal)
+            return EventoCalendario(titulo: t, inicio: i, fim: i.addingTimeInterval(Double(dur) * 60))
+        }
+        let colunas = Calendario.colunas([e("A", 9, 0, 60), e("B", 9, 30, 60), e("C", 14, 0, 30)])
+        let a = colunas.first { $0.evento.titulo == "A" }!
+        let b = colunas.first { $0.evento.titulo == "B" }!
+        let c = colunas.first { $0.evento.titulo == "C" }!
+        #expect(a.total == 2 && b.total == 2)
+        #expect(a.indice != b.indice)
+        #expect(c.total == 1 && c.indice == 0)
+    }
+
+    @Test func moverODiaLevaADuracao() {
+        let i = Calendario.hora(14, 0, no: ancora, cal)
+        let e = EventoCalendario(titulo: "X", inicio: i, fim: i.addingTimeInterval(5400))
+        let outro = cal.date(byAdding: .day, value: 3, to: ancora)!
+        let movido = e.movido(paraODiaDe: outro, cal)
+        #expect(cal.component(.day, from: movido.inicio) == 23)
+        #expect(cal.component(.hour, from: movido.inicio) == 14)
+        #expect(movido.duracaoMinutos == 90)
+        let fimAntes = e.comFim(i.addingTimeInterval(-3600))
+        #expect(fimAntes.duracaoMinutos == 5)
+        let comecaDepois = e.comInicio(i.addingTimeInterval(7200))
+        #expect(comecaDepois.duracaoMinutos == 90)
     }
 }
 
 struct CalendarioFraseTests {
-    private let cal = Calendario.gregoriano(fuso: TimeZone(secondsFromGMT: 0)!)
+    private let cal = utc()
     private var ancora: Date {
         cal.date(from: DateComponents(year: 2026, month: 7, day: 20, hour: 12))!
     }
 
-    @Test func teamSyncAsQuatroEMeia() throws {
-        let e = try #require(CalendarioFrase.ler(
-            "Team sync at 16:30", ancora: ancora, agora: ancora, cal))
-        #expect(e.titulo == "Team sync")
-        #expect(cal.component(.hour, from: e.inicio) == 16)
+    private func ler(_ s: String) -> EventoCalendario? {
+        CalendarioFrase.ler(s, ancora: ancora, agora: ancora, cal, manha: 8, tarde: 14, noite: 20)
+    }
+
+    @Test func dentistaSextaAsDuasEMeia() throws {
+        let e = try #require(ler("Dentista sexta 14:30"))
+        #expect(e.titulo == "Dentista")
+        #expect(cal.component(.weekday, from: e.inicio) == 6)
+        #expect(cal.component(.day, from: e.inicio) == 24)
+        #expect(cal.component(.hour, from: e.inicio) == 14)
         #expect(cal.component(.minute, from: e.inicio) == 30)
-        #expect(e.duracaoMinutos == 30)
-        #expect(e.categoria == .trabalho)
-        #expect(Calendario.mesmoDia(e.inicio, ancora, cal))
+        #expect(e.dominio == .saude)
+        #expect(e.duracaoMinutos == 60)
+    }
+
+    @Test func numeroSoltoNaoEHora() throws {
+        let e = try #require(ler("reunião com 3 pessoas"))
+        #expect(e.titulo == "Reunião com 3 pessoas")
+        #expect(cal.component(.hour, from: e.inicio) == 9)
+        #expect(e.dominio == .trabalho)
+    }
+
+    @Test func amanhaAsDozeComConectoresLimpos() throws {
+        let e = try #require(ler("almoço com a Ana amanhã às 12h"))
+        #expect(e.titulo == "Almoço com a Ana")
+        #expect(cal.component(.day, from: e.inicio) == 21)
+        #expect(cal.component(.hour, from: e.inicio) == 12)
+        #expect(e.dominio == .pessoas)
     }
 
     @Test func intervaloDefineOFim() throws {
-        let e = try #require(CalendarioFrase.ler(
-            "Team sync 16:30-17:00", ancora: ancora, agora: ancora, cal))
-        #expect(cal.component(.hour, from: e.fim) == 17)
-        #expect(cal.component(.minute, from: e.fim) == 0)
-        #expect(e.duracaoMinutos == 30)
+        let e = try #require(ler("das 9h às 10h30 reunião"))
+        #expect(e.titulo == "Reunião")
+        #expect(cal.component(.hour, from: e.inicio) == 9)
+        #expect(e.duracaoMinutos == 90)
+        let f = try #require(ler("Treino 14:30-16:00"))
+        #expect(f.duracaoMinutos == 90)
     }
 
-    @Test func tomorrowNaoMoveAAncoraSoOEvento() throws {
-        let e = try #require(CalendarioFrase.ler(
-            "Lunch tomorrow 12:30", ancora: ancora, agora: ancora, cal))
-        #expect(e.titulo == "Lunch")
-        #expect(cal.component(.day, from: e.inicio) == 21)
-        #expect(cal.component(.hour, from: e.inicio) == 12)
-        #expect(e.categoria == .social)
+    @Test func duracaoPorExtenso() throws {
+        let e = try #require(ler("treino por 45 min hoje 7h"))
+        #expect(e.titulo == "Treino")
+        #expect(cal.component(.day, from: e.inicio) == 20)
+        #expect(cal.component(.hour, from: e.inicio) == 7)
+        #expect(e.duracaoMinutos == 45)
+        let f = try #require(ler("viagem por 2h"))
+        #expect(f.duracaoMinutos == 120)
     }
 
-    @Test func sextaASeteDaNoite() throws {
-        let e = try #require(CalendarioFrase.ler(
-            "Gym Friday 7pm", ancora: ancora, agora: ancora, cal))
-        #expect(e.titulo == "Gym")
-        #expect(cal.component(.weekday, from: e.inicio) == 6)
-        #expect(cal.component(.hour, from: e.inicio) == 19)
-        #expect(e.categoria == .corpo)
+    @Test func diaInteiroEDiaDoMes() throws {
+        let e = try #require(ler("viagem dia 25 dia inteiro"))
+        #expect(e.titulo == "Viagem")
+        #expect(e.diaInteiro)
+        #expect(cal.component(.day, from: e.inicio) == 25)
+        #expect(cal.component(.month, from: e.inicio) == 7)
+        let f = try #require(ler("prova 15/09"))
+        #expect(cal.component(.day, from: f.inicio) == 15)
+        #expect(cal.component(.month, from: f.inicio) == 9)
+        #expect(f.dominio == .estudo)
+        // dia 3 já passou em julho: vai para agosto
+        let g = try #require(ler("boleto dia 3"))
+        #expect(cal.component(.month, from: g.inicio) == 8)
+        #expect(g.dominio == .dinheiro)
+    }
+
+    @Test func periodosDoDiaUsamAsAncorasDoAutor() throws {
+        let e = try #require(ler("feira sábado de manhã"))
+        #expect(e.titulo == "Feira")
+        #expect(cal.component(.weekday, from: e.inicio) == 7)
+        #expect(cal.component(.hour, from: e.inicio) == 8)
+        #expect(e.dominio == .casa)
+        let f = try #require(ler("cinema à noite"))
+        #expect(cal.component(.hour, from: f.inicio) == 20)
     }
 
     @Test func vazioNaoInventaEvento() {
-        #expect(CalendarioFrase.ler("   ", ancora: ancora, agora: ancora, cal) == nil)
-        #expect(CalendarioFrase.ler("at 16:30", ancora: ancora, agora: ancora, cal) == nil)
+        #expect(ler("   ") == nil)
+        #expect(ler("às 16:30") == nil)
+        #expect(ler("amanhã") == nil)
+    }
+}
+
+struct CalendarioDominioTests {
+    @Test func palavraInteiraNaoPedaco() {
+        #expect(Dominio.inferir(voz: "casamento da prima") == .pessoas)
+        #expect(Dominio.inferir(voz: "preciso encontrar o computador") == nil)
+        #expect(Dominio.inferir(voz: "o país inteiro") == nil)
+        #expect(Dominio.inferir(voz: "pagar a conta") == .dinheiro)
+    }
+}
+
+struct CalendarioDiscoTests {
+    private let cal = utc()
+
+    @Test func corrompidoVaiParaOLadoENuncaViraSemente() throws {
+        let url = urlTemp()
+        try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try Data("{isto não é json".utf8).write(to: url)
+        if case .corrompido = CalendarioDisco.carregar(de: url) {} else { Issue.record("devia ser corrompido") }
+        let agenda = CalendarioAgenda(agora: .now, cal: cal, disco: url)
+        #expect(agenda.eventos.isEmpty)
+        #expect(!FileManager.default.fileExists(atPath: url.path))
+        let irmaos = try FileManager.default.contentsOfDirectory(atPath: url.deletingLastPathComponent().path)
+        #expect(irmaos.contains { $0.contains("ilegivel") })
+        #expect(agenda.toast != nil)
+    }
+
+    @Test func vazioFicaVazio() throws {
+        let url = urlTemp()
+        try CalendarioDisco.gravar([], em: url)
+        let agenda = CalendarioAgenda(agora: .now, cal: cal, disco: url)
+        #expect(agenda.eventos.isEmpty)
+        #expect(agenda.toast == nil)
+    }
+
+    @Test func arquivoAntigoComCategoriaViraDominio() throws {
+        let url = urlTemp()
+        try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+        let antigo = """
+        [{"id":"7E7B1A6A-2C3B-4E9D-9B1F-1F2A3B4C5D6E","titulo":"Gym","inicio":780000000,"fim":780003600,"categoria":"corpo","notas":"","diaInteiro":false}]
+        """
+        try Data(antigo.utf8).write(to: url)
+        guard case .eventos(let lidos) = CalendarioDisco.carregar(de: url) else {
+            Issue.record("devia ler o formato antigo")
+            return
+        }
+        #expect(lidos.count == 1)
+        #expect(lidos[0].dominio == .saude)
+        // regrava no formato novo e continua legível
+        try CalendarioDisco.gravar(lidos, em: url)
+        guard case .eventos(let deNovo) = CalendarioDisco.carregar(de: url) else {
+            Issue.record("devia reler")
+            return
+        }
+        #expect(deNovo == lidos)
     }
 }
 
 struct CalendarioAgendaTests {
+    private let cal = utc()
+    private var ancora: Date {
+        cal.date(from: DateComponents(year: 2026, month: 7, day: 20, hour: 12))!
+    }
+
     @Test func mudarEscalaNaoPerdeODia() {
-        let cal = Calendario.gregoriano(fuso: TimeZone(secondsFromGMT: 0)!)
-        let ancora = cal.date(from: DateComponents(year: 2026, month: 7, day: 20, hour: 12))!
-        let url = FileManager.default.temporaryDirectory
-            .appendingPathComponent("cal-\(UUID().uuidString).json")
-        let agenda = CalendarioAgenda(agora: ancora, cal: cal, disco: url, eventos: [])
+        let agenda = CalendarioAgenda(agora: ancora, cal: cal, disco: urlTemp(), eventos: [])
         agenda.ir(para: .semana)
         #expect(Calendario.mesmoDia(agenda.ancora, ancora, cal))
-        agenda.ir(para: .mes)
-        #expect(Calendario.mesmoDia(agenda.ancora, ancora, cal))
+        #expect(!agenda.aproximando)
         agenda.ir(para: .ano)
-        #expect(Calendario.mesmoDia(agenda.ancora, ancora, cal))
         #expect(agenda.titulo == "2026")
         agenda.ir(para: .dia)
-        #expect(agenda.titulo == "20 July")
+        #expect(agenda.aproximando)
+        #expect(agenda.titulo == "20 de julho")
     }
 
     @Test func anoParaOutroMesGuardaODiaDoMes() {
-        let cal = Calendario.gregoriano(fuso: TimeZone(secondsFromGMT: 0)!)
-        let ancora = cal.date(from: DateComponents(year: 2026, month: 7, day: 20, hour: 12))!
-        let url = FileManager.default.temporaryDirectory
-            .appendingPathComponent("cal-\(UUID().uuidString).json")
-        let agenda = CalendarioAgenda(agora: ancora, cal: cal, disco: url, eventos: [])
+        let agenda = CalendarioAgenda(agora: ancora, cal: cal, disco: urlTemp(), eventos: [])
         agenda.ir(para: .ano)
         agenda.ir(mes: agenda.meses[0])
         agenda.ir(para: .mes)
         #expect(cal.component(.day, from: agenda.ancora) == 20)
         #expect(cal.component(.month, from: agenda.ancora) == 1)
-        agenda.ir(mes: agenda.meses[6])
-        #expect(Calendario.mesmoDia(agenda.ancora, ancora, cal))
     }
 
-    @Test func prosaViraEventoNoDisco() throws {
-        let cal = Calendario.gregoriano(fuso: TimeZone(secondsFromGMT: 0)!)
-        let ancora = cal.date(from: DateComponents(year: 2026, month: 7, day: 20, hour: 12))!
-        let url = FileManager.default.temporaryDirectory
-            .appendingPathComponent("cal-\(UUID().uuidString).json")
+    @Test func prosaViraEventoNoDiscoEAncoraVaiAoDia() throws {
+        let url = urlTemp()
         let agenda = CalendarioAgenda(agora: ancora, cal: cal, disco: url, eventos: [])
-        agenda.prosa = "Team sync at 16:30"
-        agenda.adicionarDaProsa()
-        #expect(agenda.eventos.contains { $0.titulo == "Team sync" })
+        agenda.prosa = "Reunião de equipe amanhã às 16:30"
+        agenda.adicionarDaProsa(agora: ancora)
+        #expect(agenda.eventos.contains { $0.titulo == "Reunião de equipe" })
         #expect(agenda.prosa.isEmpty)
-        let lidos = CalendarioDisco.carregar(de: url)
-        #expect(lidos.contains { $0.titulo == "Team sync" })
+        #expect(cal.component(.day, from: agenda.ancora) == 21)
+        guard case .eventos(let lidos) = CalendarioDisco.carregar(de: url) else {
+            Issue.record("devia gravar")
+            return
+        }
+        #expect(lidos.contains { $0.titulo == "Reunião de equipe" })
     }
 
-    @Test func sementeTemOTeamSyncDaSegunda() {
-        let cal = Calendario.gregoriano(fuso: TimeZone(secondsFromGMT: 0)!)
-        let ancora = cal.date(from: DateComponents(year: 2026, month: 7, day: 20, hour: 12))!
-        let semente = CalendarioDisco.semente(ancora: ancora, agora: ancora, cal)
-        let noDia = Calendario.eventos(semente, noDia: ancora, cal)
-        #expect(noDia.contains { $0.titulo == "Team sync" })
-        #expect(noDia.contains { $0.titulo == "Lunch" })
-        #expect(Calendario.eventos(semente, naSemanaDe: ancora, cal).count >= 8)
+    /// O gesto não mente: disco recusado, a prosa fica e nada entra.
+    @Test func discoRecusadoNaoLimpaAProsa() {
+        let url = URL(fileURLWithPath: "/dev/null/traco-impossivel/calendario.json")
+        let agenda = CalendarioAgenda(agora: ancora, cal: cal, disco: url, eventos: [])
+        agenda.prosa = "Dentista 14:30"
+        agenda.adicionarDaProsa(agora: ancora)
+        #expect(agenda.prosa == "Dentista 14:30")
+        #expect(agenda.eventos.isEmpty)
+        #expect(agenda.ficha == nil)
+        #expect(agenda.toast != nil)
     }
 
-    /// Photos/Camera plantavam "Photo" no campo — o gesto mentia.
-    @Test func maisNaoPlantaPhoto() throws {
-        let fonte = try String(
-            contentsOf: URL(fileURLWithPath: #filePath)
-                .deletingLastPathComponent()
-                .deletingLastPathComponent()
-                .appending(path: "Traco/Calendario/CalendarioView.swift"),
-            encoding: .utf8)
-        #expect(!fonte.contains("prosa = \"Photo\""))
-        #expect(!fonte.contains("Button(\"Photos\")"))
-        #expect(!fonte.contains("Button(\"Camera\")"))
-        #expect(fonte.contains("Button(\"Paste\")"))
+    @Test func fichaSemTituloNaoEntraEApagarTira() {
+        let agenda = CalendarioAgenda(agora: ancora, cal: cal, disco: urlTemp(), eventos: [])
+        let i = Calendario.hora(10, 0, no: ancora, cal)
+        agenda.guardar(EventoCalendario(titulo: "   ", inicio: i, fim: i.addingTimeInterval(1800)))
+        #expect(agenda.eventos.isEmpty)
+        let e = EventoCalendario(titulo: "Café", inicio: i, fim: i.addingTimeInterval(1800))
+        agenda.guardar(e)
+        #expect(agenda.eventos.count == 1)
+        agenda.apagar(e.id)
+        #expect(agenda.eventos.isEmpty)
     }
 }

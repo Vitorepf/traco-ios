@@ -1,15 +1,24 @@
 import Foundation
 
-/// As quatro distâncias do clone: o dia âncora não muda ao zoomar.
+/// As quatro distâncias: o dia âncora não muda ao zoomar.
 nonisolated enum EscalaCalendario: String, CaseIterable, Sendable {
     case dia, semana, mes, ano
 
     var letra: String {
         switch self {
         case .dia: "D"
-        case .semana: "W"
+        case .semana: "S"
         case .mes: "M"
-        case .ano: "Y"
+        case .ano: "A"
+        }
+    }
+
+    var nome: String {
+        switch self {
+        case .dia: "Dia"
+        case .semana: "Semana"
+        case .mes: "Mês"
+        case .ano: "Ano"
         }
     }
 }
@@ -18,16 +27,14 @@ nonisolated enum ModoCalendario: String, Sendable {
     case lista, grelha
 }
 
-nonisolated enum CategoriaEvento: String, Codable, Sendable, CaseIterable {
-    case trabalho, corpo, social, casa, outro
-}
-
+/// Um compromisso. O domínio é o MESMO das notas (ADR 2026-09-02c): uma
+/// taxonomia só. Arquivos antigos traziam `categoria`; a leitura converte.
 nonisolated struct EventoCalendario: Identifiable, Codable, Equatable, Sendable {
     var id: UUID
     var titulo: String
     var inicio: Date
     var fim: Date
-    var categoria: CategoriaEvento
+    var dominio: Dominio?
     var notas: String
     var diaInteiro: Bool
 
@@ -36,7 +43,7 @@ nonisolated struct EventoCalendario: Identifiable, Codable, Equatable, Sendable 
         titulo: String,
         inicio: Date,
         fim: Date,
-        categoria: CategoriaEvento = .outro,
+        dominio: Dominio? = nil,
         notas: String = "",
         diaInteiro: Bool = false
     ) {
@@ -44,28 +51,92 @@ nonisolated struct EventoCalendario: Identifiable, Codable, Equatable, Sendable 
         self.titulo = titulo
         self.inicio = inicio
         self.fim = fim
-        self.categoria = categoria
+        self.dominio = dominio
         self.notas = notas
         self.diaInteiro = diaInteiro
+    }
+
+    private enum Chave: String, CodingKey {
+        case id, titulo, inicio, fim, dominio, categoria, notas, diaInteiro
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: Chave.self)
+        id = try c.decode(UUID.self, forKey: .id)
+        titulo = try c.decode(String.self, forKey: .titulo)
+        inicio = try c.decode(Date.self, forKey: .inicio)
+        fim = try c.decode(Date.self, forKey: .fim)
+        notas = try c.decodeIfPresent(String.self, forKey: .notas) ?? ""
+        diaInteiro = try c.decodeIfPresent(Bool.self, forKey: .diaInteiro) ?? false
+        if let d = try c.decodeIfPresent(String.self, forKey: .dominio) {
+            dominio = Dominio(rawValue: d)
+        } else if let antiga = try c.decodeIfPresent(String.self, forKey: .categoria) {
+            // o clone tinha cinco categorias próprias; viram domínio
+            dominio = switch antiga {
+            case "trabalho": .trabalho
+            case "corpo": .saude
+            case "social": .pessoas
+            case "casa": .casa
+            default: nil
+            }
+        } else {
+            dominio = nil
+        }
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: Chave.self)
+        try c.encode(id, forKey: .id)
+        try c.encode(titulo, forKey: .titulo)
+        try c.encode(inicio, forKey: .inicio)
+        try c.encode(fim, forKey: .fim)
+        try c.encodeIfPresent(dominio?.rawValue, forKey: .dominio)
+        try c.encode(notas, forKey: .notas)
+        try c.encode(diaInteiro, forKey: .diaInteiro)
     }
 
     var duracaoMinutos: Int {
         max(0, Int(fim.timeIntervalSince(inicio) / 60))
     }
+
+    /// Mudar o dia leva o fim junto: a duração é do compromisso, não da data.
+    func movido(paraODiaDe novo: Date, _ cal: Calendar) -> EventoCalendario {
+        var e = self
+        let h = cal.component(.hour, from: inicio)
+        let m = cal.component(.minute, from: inicio)
+        e.inicio = Calendario.hora(h, m, no: novo, cal)
+        e.fim = e.inicio.addingTimeInterval(fim.timeIntervalSince(inicio))
+        return e
+    }
+
+    /// Começa depois de terminar? O fim segue o início e guarda a duração.
+    func comInicio(_ novo: Date) -> EventoCalendario {
+        var e = self
+        let duracao = max(5 * 60, fim.timeIntervalSince(inicio))
+        e.inicio = novo
+        e.fim = novo.addingTimeInterval(duracao)
+        return e
+    }
+
+    /// O fim nunca fica antes do início: o mínimo são cinco minutos.
+    func comFim(_ novo: Date) -> EventoCalendario {
+        var e = self
+        e.fim = max(novo, inicio.addingTimeInterval(5 * 60))
+        return e
+    }
 }
 
 /// Matemática do calendário — `nonisolated` para os testes e para o parse.
 nonisolated enum Calendario {
-    /// Marcas da semana do clone: sete barras, 03 às 21.
+    /// Marcas da semana: sete barras, 03 às 21.
     static let horasDaSemana = [3, 6, 9, 12, 15, 18, 21]
 
-    /// Domingo primeiro, nomes em inglês: o clone é S M T W T F S / 20 July.
-    nonisolated static func gregoriano(fuso: TimeZone = .current) -> Calendar {
+    /// pt-BR; domingo primeiro por padrão (o autor troca no ajuste).
+    nonisolated static func gregoriano(fuso: TimeZone = .current, segundaPrimeiro: Bool = false) -> Calendar {
         var cal = Calendar(identifier: .gregorian)
-        cal.locale = Locale(identifier: "en_GB")
+        cal.locale = Locale(identifier: "pt_BR")
         cal.timeZone = fuso
-        // locale en_GB começa na segunda; o clone é S M T W T F S.
-        cal.firstWeekday = 1
+        cal.firstWeekday = segundaPrimeiro ? 2 : 1
         return cal
     }
 
@@ -73,17 +144,25 @@ nonisolated enum Calendario {
         cal.startOfDay(for: data)
     }
 
+    /// Hora do dia SEM somar minutos ao início: no dia da mudança de horário,
+    /// somar 16h30 ao começo do dia dava 17h30.
+    nonisolated static func hora(_ h: Int, _ m: Int, no dia: Date, _ cal: Calendar) -> Date {
+        let base = inicioDoDia(dia, cal)
+        if h >= 24 { return cal.date(byAdding: .day, value: 1, to: base) ?? base }
+        return cal.date(bySettingHour: h, minute: m, second: 0, of: base) ?? base
+    }
+
     nonisolated static func mesmoDia(_ a: Date, _ b: Date, _ cal: Calendar) -> Bool {
         cal.isDate(a, inSameDayAs: b)
     }
 
-    /// Os sete dias da semana que contém a âncora, domingo→sábado.
+    /// Os sete dias da semana que contém a âncora, do primeiro dia da semana.
     nonisolated static func semana(da ancora: Date, _ cal: Calendar) -> [Date] {
         let dia = inicioDoDia(ancora, cal)
         let weekday = cal.component(.weekday, from: dia)
-        let recuo = weekday - cal.firstWeekday
-        let domingo = cal.date(byAdding: .day, value: -recuo, to: dia) ?? dia
-        return (0..<7).compactMap { cal.date(byAdding: .day, value: $0, to: domingo) }
+        let recuo = (weekday - cal.firstWeekday + 7) % 7
+        let primeiro = cal.date(byAdding: .day, value: -recuo, to: dia) ?? dia
+        return (0..<7).compactMap { cal.date(byAdding: .day, value: $0, to: primeiro) }
     }
 
     /// 42 células (6×7): o mês e as sobras do anterior/seguinte.
@@ -108,31 +187,64 @@ nonisolated enum Calendario {
     nonisolated static func titulo(escala: EscalaCalendario, ancora: Date, _ cal: Calendar) -> String {
         switch escala {
         case .dia:
-            return formatar(ancora, "d MMMM", cal)
+            return formatar(ancora, "d 'de' MMMM", cal)
         case .semana:
             let dias = semana(da: ancora, cal)
             guard let primeiro = dias.first, let ultimo = dias.last else { return "" }
             if cal.component(.month, from: primeiro) == cal.component(.month, from: ultimo) {
-                return "\(formatar(primeiro, "d", cal)) – \(formatar(ultimo, "d MMMM", cal))"
+                return "\(formatar(primeiro, "d", cal)) – \(formatar(ultimo, "d 'de' MMMM", cal))"
             }
-            return "\(formatar(primeiro, "d MMM", cal)) – \(formatar(ultimo, "d MMM", cal))"
+            return "\(formatar(primeiro, "d", cal)) \(mesCurto(primeiro, cal)) – \(formatar(ultimo, "d", cal)) \(mesCurto(ultimo, cal))"
         case .mes:
-            return formatar(ancora, "MMMM yyyy", cal)
+            return formatar(ancora, "MMMM yyyy", cal).capitalizadoNoInicio
         case .ano:
             return formatar(ancora, "yyyy", cal)
         }
     }
 
-    nonisolated static func letraDoDia(_ data: Date, _ cal: Calendar) -> String {
-        formatar(data, "EEEEE", cal)
+    /// "set", sem o ponto que o pt-BR põe.
+    nonisolated static func mesCurto(_ data: Date, _ cal: Calendar) -> String {
+        formatar(data, "MMM", cal).replacingOccurrences(of: ".", with: "")
     }
 
+    nonisolated static func letraDoDia(_ data: Date, _ cal: Calendar) -> String {
+        formatar(data, "EEEEE", cal).uppercased()
+    }
+
+    /// As sete letras na ordem da semana do calendário.
+    nonisolated static func letrasDaSemana(_ cal: Calendar) -> [String] {
+        semana(da: Date(timeIntervalSince1970: 0), cal).map { letraDoDia($0, cal) }
+    }
+
+    nonisolated static func diaPorExtenso(_ data: Date, _ cal: Calendar) -> String {
+        formatar(data, "EEEE, d 'de' MMMM", cal).capitalizadoNoInicio
+    }
+
+    nonisolated static func horaCurta(_ data: Date, _ cal: Calendar) -> String {
+        formatar(data, "HH:mm", cal)
+    }
+
+    nonisolated static func intervalo(_ e: EventoCalendario, _ cal: Calendar) -> String {
+        if e.diaInteiro { return "Dia inteiro" }
+        return "\(horaCurta(e.inicio, cal)) – \(horaCurta(e.fim, cal))"
+    }
+
+    // Um DateFormatter por formato: alocar um por chamada custava 84 por
+    // render do mês e 504 no ano.
+    nonisolated private static let tranca = NSLock()
+    nonisolated(unsafe) private static var formatadores: [String: DateFormatter] = [:]
+
     nonisolated static func formatar(_ data: Date, _ formato: String, _ cal: Calendar) -> String {
+        let chave = "\(formato)|\(cal.timeZone.identifier)|\(cal.locale?.identifier ?? "")|\(cal.firstWeekday)"
+        tranca.lock()
+        defer { tranca.unlock() }
+        if let f = formatadores[chave] { return f.string(from: data) }
         let f = DateFormatter()
         f.calendar = cal
         f.locale = cal.locale
         f.timeZone = cal.timeZone
         f.dateFormat = formato
+        formatadores[chave] = f
         return f.string(from: data)
     }
 
@@ -143,7 +255,7 @@ nonisolated enum Calendario {
     ) -> [EventoCalendario] {
         todos
             .filter { mesmoDia($0.inicio, dia, cal) }
-            .sorted { $0.inicio < $1.inicio }
+            .sorted { ($0.diaInteiro ? 0 : 1, $0.inicio) < ($1.diaInteiro ? 0 : 1, $1.inicio) }
     }
 
     nonisolated static func eventos(
@@ -162,14 +274,60 @@ nonisolated enum Calendario {
         noMesDe ancora: Date,
         _ cal: Calendar
     ) -> [EventoCalendario] {
-        let mes = cal.component(.month, from: ancora)
-        let ano = cal.component(.year, from: ancora)
-        return todos
-            .filter {
-                cal.component(.month, from: $0.inicio) == mes
-                    && cal.component(.year, from: $0.inicio) == ano
-            }
+        todos
+            .filter { mesmoMes($0.inicio, ancora, cal) }
             .sorted { $0.inicio < $1.inicio }
+    }
+
+    /// Eventos por dia, calculado UMA vez por render (o mês perguntava 42
+    /// vezes, o ano 504, cada uma filtrando a lista inteira).
+    nonisolated static func porDia(_ todos: [EventoCalendario], _ cal: Calendar) -> [Date: [EventoCalendario]] {
+        var mapa: [Date: [EventoCalendario]] = [:]
+        for e in todos { mapa[inicioDoDia(e.inicio, cal), default: []].append(e) }
+        for chave in mapa.keys {
+            mapa[chave]?.sort { ($0.diaInteiro ? 0 : 1, $0.inicio) < ($1.diaInteiro ? 0 : 1, $1.inicio) }
+        }
+        return mapa
+    }
+
+    /// Dois compromissos à mesma hora ficam lado a lado, não um sobre o outro.
+    /// Cada evento recebe a coluna e o total de colunas do seu grupo.
+    nonisolated struct Coluna: Equatable, Sendable {
+        var evento: EventoCalendario
+        var indice: Int
+        var total: Int
+    }
+
+    nonisolated static func colunas(_ eventos: [EventoCalendario]) -> [Coluna] {
+        let ordenados = eventos.filter { !$0.diaInteiro }.sorted {
+            $0.inicio == $1.inicio ? $0.fim > $1.fim : $0.inicio < $1.inicio
+        }
+        var saida: [Coluna] = []
+        var grupo: [(EventoCalendario, Int)] = []
+        var fimDoGrupo: Date = .distantPast
+        var fimsDasColunas: [Date] = []
+
+        func fecharGrupo() {
+            let total = max(1, fimsDasColunas.count)
+            saida += grupo.map { Coluna(evento: $0.0, indice: $0.1, total: total) }
+            grupo = []
+            fimsDasColunas = []
+        }
+
+        for e in ordenados {
+            if e.inicio >= fimDoGrupo, !grupo.isEmpty { fecharGrupo() }
+            var coluna = fimsDasColunas.firstIndex { $0 <= e.inicio }
+            if coluna == nil {
+                fimsDasColunas.append(e.fim)
+                coluna = fimsDasColunas.count - 1
+            } else {
+                fimsDasColunas[coluna!] = e.fim
+            }
+            grupo.append((e, coluna!))
+            fimDoGrupo = max(fimDoGrupo, e.fim)
+        }
+        if !grupo.isEmpty { fecharGrupo() }
+        return saida
     }
 
     /// Mudar a escala NUNCA move a âncora — o dia em que estás é o sítio.
@@ -177,7 +335,7 @@ nonisolated enum Calendario {
         (escala, ancora)
     }
 
-    /// Escolher um mês (ano → mês) guarda o dia: 2 Set → 2 Jan, não o dia 1.
+    /// Escolher um mês (ano → mês) guarda o dia: 2 set → 2 jan, não o dia 1.
     /// No próprio mês a âncora não mexe. Fevereiro come o 31.
     nonisolated static func noMes(_ mes: Date, preservando ancora: Date, _ cal: Calendar) -> Date {
         if mesmoMes(mes, ancora, cal) { return inicioDoDia(ancora, cal) }
@@ -200,51 +358,82 @@ nonisolated enum Calendario {
         cal.component(.month, from: a) == cal.component(.month, from: b)
             && cal.component(.year, from: a) == cal.component(.year, from: b)
     }
+
+    nonisolated static func minutosDoDia(_ data: Date, _ cal: Calendar) -> Int {
+        cal.component(.hour, from: data) * 60 + cal.component(.minute, from: data)
+    }
 }
 
-/// Cria evento a partir de prosa — local, sem modelo. O clone pede inglês.
+nonisolated extension String {
+    var capitalizadoNoInicio: String {
+        guard let primeira = first else { return self }
+        return primeira.uppercased() + dropFirst()
+    }
+}
+
+/// Cria compromisso a partir de prosa em português — local, sem modelo.
+/// "dentista sexta 14:30", "almoço com a Ana amanhã às 12h", "feira sábado de
+/// manhã", "viagem dia 15 dia inteiro", "reunião 9h-10h30 por 2h".
 nonisolated enum CalendarioFrase {
     nonisolated static func ler(
         _ prosa: String,
         ancora: Date,
         agora: Date,
-        _ cal: Calendar
+        _ cal: Calendar,
+        manha: Int = 8,
+        tarde: Int = 14,
+        noite: Int = 20
     ) -> EventoCalendario? {
         let limpo = prosa.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !limpo.isEmpty else { return nil }
 
         var resto = limpo
         var dia = Calendario.inicioDoDia(ancora, cal)
-        var inicioMinutos = 9 * 60
-        var duracao = 30
+        var inicioMinutos: Int? = nil
+        var duracao: Int? = nil
         var diaInteiro = false
 
         if let (d, r) = comerDia(resto, ancora: ancora, agora: agora, cal) {
             dia = d
             resto = r
         }
-        if let (i, d, r, todo) = comerHora(resto) {
-            inicioMinutos = i
+        if let r = comerDiaInteiro(resto) {
+            diaInteiro = true
+            resto = r
+        }
+        if let (d, r) = comerDuracao(resto) {
             duracao = d
             resto = r
-            diaInteiro = todo
+        }
+        if !diaInteiro, let (i, d, r) = comerHora(resto, manha: manha, tarde: tarde, noite: noite) {
+            inicioMinutos = i
+            if let d { duracao = d }
+            resto = r
         }
 
-        let titulo = resto
-            .replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression)
-            .trimmingCharacters(in: CharacterSet(charactersIn: " ,.-"))
+        let titulo = limparTitulo(resto)
         guard !titulo.isEmpty else { return nil }
 
-        let inicio = cal.date(byAdding: .minute, value: inicioMinutos, to: dia) ?? dia
-        let fim = cal.date(byAdding: .minute, value: duracao, to: inicio) ?? inicio
+        let inicio: Date
+        let fim: Date
+        if diaInteiro {
+            inicio = Calendario.inicioDoDia(dia, cal)
+            fim = Calendario.hora(24, 0, no: dia, cal)
+        } else {
+            let m = inicioMinutos ?? 9 * 60
+            inicio = Calendario.hora(m / 60, m % 60, no: dia, cal)
+            fim = inicio.addingTimeInterval(TimeInterval((duracao ?? 60) * 60))
+        }
         return EventoCalendario(
             titulo: titulo,
             inicio: inicio,
             fim: fim,
-            categoria: categoria(de: titulo),
+            dominio: Dominio.inferir(voz: titulo),
             diaInteiro: diaInteiro
         )
     }
+
+    // MARK: dia
 
     nonisolated private static func comerDia(
         _ texto: String,
@@ -252,194 +441,227 @@ nonisolated enum CalendarioFrase {
         agora: Date,
         _ cal: Calendar
     ) -> (Date, String)? {
-        let baixo = texto.lowercased()
         let hoje = Calendario.inicioDoDia(agora, cal)
-        let pares: [(String, Date)] = [
-            ("today", hoje),
-            ("tomorrow", cal.date(byAdding: .day, value: 1, to: hoje) ?? hoje),
-            ("monday", proximo(.monday, aPartir: ancora, cal)),
-            ("tuesday", proximo(.tuesday, aPartir: ancora, cal)),
-            ("wednesday", proximo(.wednesday, aPartir: ancora, cal)),
-            ("thursday", proximo(.thursday, aPartir: ancora, cal)),
-            ("friday", proximo(.friday, aPartir: ancora, cal)),
-            ("saturday", proximo(.saturday, aPartir: ancora, cal)),
-            ("sunday", proximo(.sunday, aPartir: ancora, cal)),
+        func mais(_ n: Int) -> Date { cal.date(byAdding: .day, value: n, to: hoje) ?? hoje }
+
+        // "15/09" ou "15/9"
+        if let m = achar(#"\b(\d{1,2})/(\d{1,2})(?:/(\d{2,4}))?\b"#, texto) {
+            let d = Int(m.grupos[1]) ?? 1
+            let mes = Int(m.grupos[2]) ?? 1
+            var ano = cal.component(.year, from: hoje)
+            if let a = Int(m.grupos[3]) { ano = a < 100 ? 2000 + a : a }
+            if let data = cal.date(from: DateComponents(year: ano, month: mes, day: d)) {
+                return (Calendario.inicioDoDia(data, cal), m.resto)
+            }
+        }
+        // "dia 15": este mês se ainda não passou, senão o próximo
+        if let m = achar(#"\bdia\s+(\d{1,2})\b"#, texto), let d = Int(m.grupos[1]), (1...31).contains(d) {
+            var comps = cal.dateComponents([.year, .month], from: hoje)
+            comps.day = d
+            if let neste = cal.date(from: comps), neste >= hoje {
+                return (Calendario.inicioDoDia(neste, cal), m.resto)
+            }
+            if let proximoMes = cal.date(byAdding: .month, value: 1, to: hoje) {
+                var c2 = cal.dateComponents([.year, .month], from: proximoMes)
+                c2.day = d
+                if let data = cal.date(from: c2) { return (Calendario.inicioDoDia(data, cal), m.resto) }
+            }
+        }
+
+        let fixos: [(String, Date)] = [
+            (#"\bdepois de amanh[ãa]\b"#, mais(2)),
+            (#"\bamanh[ãa]\b"#, mais(1)),
+            (#"\bhoje\b"#, hoje),
         ]
-        for (palavra, data) in pares {
-            if let r = cortar(palavra, de: baixo, original: texto) {
-                return (data, r)
+        for (padrao, data) in fixos {
+            if let m = achar(padrao, texto) { return (data, m.resto) }
+        }
+
+        let semana: [(String, Int)] = [
+            (#"\b(domingo|dom)\b"#, 1),
+            (#"\b(segunda(?:-feira)?|seg)\b"#, 2),
+            (#"\b(ter[çc]a(?:-feira)?|ter)\b"#, 3),
+            (#"\b(quarta(?:-feira)?|qua)\b"#, 4),
+            (#"\b(quinta(?:-feira)?|qui)\b"#, 5),
+            (#"\b(sexta(?:-feira)?|sex)\b"#, 6),
+            (#"\b(s[áa]bado|sab)\b"#, 7),
+        ]
+        for (padrao, weekday) in semana {
+            if let m = achar(padrao, texto) {
+                return (proximo(weekday, aPartir: ancora, cal), m.resto)
             }
         }
         return nil
     }
 
-    nonisolated private static func proximo(
-        _ weekday: Weekday,
-        aPartir de: Date,
-        _ cal: Calendar
-    ) -> Date {
+    /// O próximo weekday a partir da âncora, contando o próprio dia.
+    nonisolated private static func proximo(_ weekday: Int, aPartir de: Date, _ cal: Calendar) -> Date {
         let dia = Calendario.inicioDoDia(de, cal)
-        let alvo = weekday.rawValue
         let actual = cal.component(.weekday, from: dia)
-        var delta = alvo - actual
+        var delta = weekday - actual
         if delta < 0 { delta += 7 }
         return cal.date(byAdding: .day, value: delta, to: dia) ?? dia
     }
 
-    /// Sunday=1 … Saturday=7, igual ao Gregorian.
-    private enum Weekday: Int {
-        case sunday = 1, monday, tuesday, wednesday, thursday, friday, saturday
+    nonisolated private static func comerDiaInteiro(_ texto: String) -> String? {
+        achar(#"\b(o\s+)?dia\s+(inteiro|todo)\b"#, texto)?.resto
     }
 
-    nonisolated private static func comerHora(_ texto: String) -> (Int, Int, String, Bool)? {
-        let baixo = texto.lowercased()
-        if baixo.contains("all day") || baixo.contains("all-day") {
-            let r = texto.replacingOccurrences(of: #"(?i)\s*all[-\s]?day\s*"#, with: " ", options: .regularExpression)
-            return (0, 24 * 60, r, true)
-        }
+    // MARK: duração
 
-        let padroes: [(NSRegularExpression, (NSTextCheckingResult, String) -> (Int, Int, String)?)] = [
-            // 16:30-17:00 ou 16:30 – 17:00
-            (
-                try! NSRegularExpression(pattern: #"\b(\d{1,2})[:.](\d{2})\s*[–\-]\s*(\d{1,2})[:.](\d{2})\b"#),
-                { m, s in
-                    let a = minutos(hora: grupo(m, 1, s), minuto: grupo(m, 2, s), pm: false, meridio: false)
-                    let b = minutos(hora: grupo(m, 3, s), minuto: grupo(m, 4, s), pm: false, meridio: false)
-                    return (a, max(15, b - a), cortar(m, de: s))
-                }
-            ),
-            // at 4:30pm / 16:30 / 7pm
-            (
-                try! NSRegularExpression(pattern: #"(?:\bat\s+)?(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)?"#),
-                { m, s in
-                    let meridio = !grupo(m, 3, s).isEmpty
-                    let pm = grupo(m, 3, s).lowercased() == "pm"
-                    let a = minutos(hora: grupo(m, 1, s), minuto: grupo(m, 2, s), pm: pm, meridio: meridio)
-                    return (a, 30, cortar(m, de: s))
-                }
-            ),
-        ]
-
-        for (regex, ler) in padroes {
-            let range = NSRange(texto.startIndex..., in: texto)
-            if let m = regex.firstMatch(in: texto, range: range),
-               let valor = ler(m, texto) {
-                return (valor.0, valor.1, valor.2, false)
-            }
+    nonisolated private static func comerDuracao(_ texto: String) -> (Int, String)? {
+        // "por 2h", "por 1h30", "por 45 min", "durante 2 horas"
+        if let m = achar(#"\b(?:por|durante)\s+(\d{1,2})(?:\s*h(?:oras?)?\s*(\d{2})?|\s*(min(?:utos?)?))\b"#, texto) {
+            let n = Int(m.grupos[1]) ?? 0
+            if !m.grupos[3].isEmpty { return (max(5, n), m.resto) }
+            let extra = Int(m.grupos[2]) ?? 0
+            return (max(5, n * 60 + extra), m.resto)
         }
         return nil
     }
 
-    nonisolated private static func minutos(hora: String, minuto: String, pm: Bool, meridio: Bool) -> Int {
-        var h = Int(hora) ?? 0
-        let m = Int(minuto) ?? 0
-        if meridio {
-            if pm, h < 12 { h += 12 }
-            if !pm, h == 12 { h = 0 }
+    // MARK: hora
+
+    /// Devolve (início em minutos, duração se houver intervalo, resto).
+    /// Um número solto NUNCA é hora: "reunião com 3 pessoas" não é às 03:00.
+    nonisolated private static func comerHora(
+        _ texto: String,
+        manha: Int,
+        tarde: Int,
+        noite: Int
+    ) -> (Int, Int?, String)? {
+        let hora = #"(\d{1,2})(?:[:h](\d{2})?)?"#
+        // intervalo: "14:30-16:00", "das 9h às 10h30", "9 às 11h", "14h até 15h"
+        if let m = achar(#"(?:\bdas?\s+)?\b"# + hora + #"\s*(?:[–\-]|às|as|até|ate|a)\s*"# + hora + #"(?:\s*h)?\b"#, texto),
+           temMarcador(m.texto) {
+            let a = minutos(m.grupos[1], m.grupos[2])
+            let b = minutos(m.grupos[3], m.grupos[4])
+            return (a, b > a ? b - a : nil, m.resto)
         }
-        return max(0, min(23, h)) * 60 + max(0, min(59, m))
+        // "às 14:30", "as 14h", "14h30", "14:30", "à 1h"
+        if let m = achar(#"(?:\b[àa]s?\s+)?\b(\d{1,2})(?:[:h](\d{2})?|\s*h(?:oras)?\b)"#, texto) {
+            return (minutos(m.grupos[1], m.grupos[2]), nil, m.resto)
+        }
+        if let m = achar(#"\b[àa]s\s+(\d{1,2})\b"#, texto) {
+            return (minutos(m.grupos[1], ""), nil, m.resto)
+        }
+        if let m = achar(#"\bmeio[-\s]dia\b"#, texto) { return (12 * 60, nil, m.resto) }
+        if let m = achar(#"\bmeia[-\s]noite\b"#, texto) { return (0, nil, m.resto) }
+        if let m = achar(#"\b(de|pela|na)\s+manh[ãa]\b"#, texto) { return (manha * 60, nil, m.resto) }
+        if let m = achar(#"\b([àa]|de|pela|na)\s+tarde\b"#, texto) { return (tarde * 60, nil, m.resto) }
+        if let m = achar(#"\b([àa]|de|pela|na)\s+noite\b"#, texto) { return (noite * 60, nil, m.resto) }
+        return nil
     }
 
-    nonisolated private static func grupo(_ m: NSTextCheckingResult, _ i: Int, _ s: String) -> String {
-        guard let r = Range(m.range(at: i), in: s) else { return "" }
-        return String(s[r])
+    /// Intervalo só vale com um marcador de hora em algum lado: "9 às 11h",
+    /// "14:30-16:00". "2 a 3 pessoas" não tem.
+    nonisolated private static func temMarcador(_ trecho: String) -> Bool {
+        trecho.contains(":") || trecho.lowercased().contains("h")
+            || trecho.lowercased().contains("às") || trecho.lowercased().contains("das")
     }
 
-    nonisolated private static func cortar(_ m: NSTextCheckingResult, de s: String) -> String {
-        guard let r = Range(m.range, in: s) else { return s }
-        return s.replacingCharacters(in: r, with: " ")
+    nonisolated private static func minutos(_ hora: String, _ minuto: String) -> Int {
+        let h = max(0, min(23, Int(hora) ?? 0))
+        let m = max(0, min(59, Int(minuto) ?? 0))
+        return h * 60 + m
     }
 
-    nonisolated private static func cortar(_ palavra: String, de baixo: String, original: String) -> String? {
-        guard let range = baixo.range(of: palavra) else { return nil }
-        let start = original.index(original.startIndex, offsetBy: baixo.distance(from: baixo.startIndex, to: range.lowerBound))
-        let end = original.index(start, offsetBy: palavra.count)
-        return String(original[..<start] + " " + original[end...])
+    // MARK: título
+
+    nonisolated private static let conectores: Set<String> = [
+        "às", "as", "à", "a", "o", "de", "do", "da", "dos", "das", "no", "na", "nos", "nas",
+        "em", "e", "ao", "aos", "com", "para", "pra", "por",
+    ]
+
+    nonisolated private static func limparTitulo(_ texto: String) -> String {
+        var palavras = texto
+            .replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression)
+            .trimmingCharacters(in: CharacterSet(charactersIn: " ,.-–"))
+            .split(separator: " ")
+            .map(String.init)
+        while let ultima = palavras.last, conectores.contains(ultima.lowercased()) { palavras.removeLast() }
+        while let primeira = palavras.first, conectores.contains(primeira.lowercased()) { palavras.removeFirst() }
+        return palavras.joined(separator: " ")
+            .trimmingCharacters(in: CharacterSet(charactersIn: " ,.-–"))
+            .capitalizadoNoInicio
     }
 
-    nonisolated static func categoria(de titulo: String) -> CategoriaEvento {
-        let t = titulo.lowercased()
-        if t.contains("sync") || t.contains("standup") || t.contains("design")
-            || t.contains("work") || t.contains("review") { return .trabalho }
-        if t.contains("run") || t.contains("gym") || t.contains("yoga")
-            || t.contains("walk") { return .corpo }
-        if t.contains("brunch") || t.contains("museum") || t.contains("movie")
-            || t.contains("lunch") || t.contains("dinner") { return .social }
-        if t.contains("grocery") || t.contains("meal") || t.contains("farmers")
-            || t.contains("shop") { return .casa }
-        return .outro
+    // MARK: regex
+
+    nonisolated private struct Achado {
+        var texto: String
+        var grupos: [String]
+        var resto: String
+    }
+
+    nonisolated private static func achar(_ padrao: String, _ texto: String) -> Achado? {
+        guard let regex = try? NSRegularExpression(pattern: padrao, options: [.caseInsensitive]) else { return nil }
+        let range = NSRange(texto.startIndex..., in: texto)
+        guard let m = regex.firstMatch(in: texto, range: range),
+              let todo = Range(m.range, in: texto) else { return nil }
+        var grupos: [String] = []
+        for i in 0..<m.numberOfRanges {
+            if let r = Range(m.range(at: i), in: texto) { grupos.append(String(texto[r])) } else { grupos.append("") }
+        }
+        let resto = texto.replacingCharacters(in: todo, with: " ")
+        return Achado(texto: String(texto[todo]), grupos: grupos, resto: resto)
     }
 }
 
-/// Eventos no aparelho — ficheiro próprio, fora do schema das notas.
+/// Compromissos no aparelho — arquivo próprio, fora do schema das notas.
+/// O arquivo é do autor (aparece em Arquivos): vazio é vazio, e corrompido
+/// nunca vira semente.
 nonisolated enum CalendarioDisco {
+    nonisolated enum Leitura: Sendable {
+        case semArquivo
+        case eventos([EventoCalendario])
+        case corrompido
+    }
+
     static func urlPadrao() -> URL {
         let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         return docs.appendingPathComponent("Traço/calendario.json")
     }
 
-    static func carregar(de url: URL = urlPadrao()) -> [EventoCalendario] {
-        guard FileManager.default.fileExists(atPath: url.path) else { return [] }
+    static func carregar(de url: URL = urlPadrao()) -> Leitura {
+        guard FileManager.default.fileExists(atPath: url.path) else { return .semArquivo }
         do {
             let data = try Data(contentsOf: url)
-            return try JSONDecoder().decode([EventoCalendario].self, from: data)
+            let dec = JSONDecoder()
+            dec.dateDecodingStrategy = .iso8601
+            return .eventos(try dec.decode([EventoCalendario].self, from: data))
         } catch {
-            return []
+            // arquivos gravados antes de 02/set usavam o formato numérico
+            if let data = try? Data(contentsOf: url),
+               let antigos = try? JSONDecoder().decode([EventoCalendario].self, from: data) {
+                return .eventos(antigos)
+            }
+            return .corrompido
         }
     }
 
-    static func gravar(_ eventos: [EventoCalendario], em url: URL = urlPadrao()) {
+    /// Guarda o arquivo ilegível ao lado, com a hora, e nunca por cima.
+    @discardableResult
+    static func porDeLado(_ url: URL = urlPadrao()) -> URL? {
+        let carimbo = ISO8601DateFormatter().string(from: .now).replacingOccurrences(of: ":", with: "-")
+        let destino = url.deletingPathExtension().appendingPathExtension("ilegivel-\(carimbo).json")
         do {
-            try FileManager.default.createDirectory(
-                at: url.deletingLastPathComponent(),
-                withIntermediateDirectories: true
-            )
-            let data = try JSONEncoder().encode(eventos)
-            try data.write(to: url, options: .atomic)
+            try FileManager.default.moveItem(at: url, to: destino)
+            return destino
         } catch {
-            return
+            return nil
         }
     }
 
-    /// A semente do clone: a semana da âncora parece o vídeo (Team sync, Lunch, pílulas).
-    nonisolated static func semente(ancora: Date, agora: Date, _ cal: Calendar) -> [EventoCalendario] {
-        let dias = Calendario.semana(da: ancora, cal)
-        func em(_ dia: Date, _ h: Int, _ m: Int, duracao: Int = 30) -> (Date, Date) {
-            let inicio = cal.date(byAdding: .minute, value: h * 60 + m, to: Calendario.inicioDoDia(dia, cal)) ?? dia
-            let fim = cal.date(byAdding: .minute, value: duracao, to: inicio) ?? inicio
-            return (inicio, fim)
-        }
-        func evento(_ titulo: String, _ dia: Date, _ h: Int, _ m: Int, _ duracao: Int, _ cat: CategoriaEvento) -> EventoCalendario {
-            let (a, b) = em(dia, h, m, duracao: duracao)
-            return EventoCalendario(titulo: titulo, inicio: a, fim: b, categoria: cat)
-        }
-
-        var lista: [EventoCalendario] = []
-        if dias.count == 7 {
-            lista += [
-                evento("Brunch", dias[0], 10, 0, 75, .social),
-                evento("Museum visit", dias[0], 14, 0, 90, .social),
-                evento("Standup", dias[1], 9, 0, 15, .trabalho),
-                evento("Lunch", dias[1], 12, 30, 45, .social),
-                evento("Team sync", dias[1], 16, 30, 30, .trabalho),
-                evento("Long run", dias[2], 7, 0, 60, .corpo),
-                evento("Design review", dias[2], 15, 0, 45, .trabalho),
-                evento("Yoga", dias[3], 8, 0, 45, .corpo),
-                evento("Grocery shop", dias[3], 18, 0, 40, .casa),
-                evento("Standup", dias[4], 9, 0, 15, .trabalho),
-                evento("Gym session", dias[4], 17, 30, 60, .corpo),
-                evento("Farmers market", dias[5], 9, 30, 60, .casa),
-                evento("Movie", dias[5], 20, 0, 120, .social),
-                evento("Meal prep", dias[6], 11, 0, 50, .casa),
-            ]
-        }
-        // Se a âncora não é a segunda-feira da semente, o Team sync do vídeo
-        // ainda precisa de um bloco no dia em que o autor está.
-        let hoje = Calendario.inicioDoDia(agora, cal)
-        if !lista.contains(where: { $0.titulo == "Team sync" && Calendario.mesmoDia($0.inicio, hoje, cal) }) {
-            let (a, b) = em(hoje, 16, 30, duracao: 30)
-            lista.append(EventoCalendario(titulo: "Team sync", inicio: a, fim: b, categoria: .trabalho))
-        }
-        return lista
+    static func gravar(_ eventos: [EventoCalendario], em url: URL = urlPadrao()) throws {
+        try FileManager.default.createDirectory(
+            at: url.deletingLastPathComponent(),
+            withIntermediateDirectories: true
+        )
+        let enc = JSONEncoder()
+        enc.dateEncodingStrategy = .iso8601
+        enc.outputFormatting = [.sortedKeys]
+        let data = try enc.encode(eventos)
+        try data.write(to: url, options: .atomic)
     }
 }

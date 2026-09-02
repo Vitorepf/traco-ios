@@ -4,31 +4,18 @@ struct CalendarioView: View {
     @State var agenda: CalendarioAgenda
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Namespace private var morph
+    /// 32pt bold com tracking −0,6, escalando com o texto do sistema.
+    @ScaledMetric(relativeTo: .largeTitle) private var tamTitulo: CGFloat = 32
+    @State private var confirmarApagarTudo = false
 
     init(agenda: CalendarioAgenda = CalendarioAgenda()) {
         _agenda = State(initialValue: agenda)
     }
 
     var body: some View {
-        ZStack(alignment: .bottom) {
-            CalendarioTema.fundo.ignoresSafeArea()
-
-            VStack(alignment: .leading, spacing: 0) {
-                cabeca
-                Group {
-                    if agenda.modo == .lista {
-                        CalendarioListaView(agenda: agenda)
-                    } else {
-                        escalas
-                    }
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
-            // A camada do arquivo é full-bleed: sem isto o título sobe ao
-            // Dynamic Island e o «2026» do mês some por baixo do pill.
-            .padding(.top, 56)
-
-            chrome
+        // o "agora" anda: a linha, o "Hoje" e o anel do dia seguem o relógio
+        TimelineView(.everyMinute) { contexto in
+            conteudo(agora: contexto.date)
         }
         .foregroundStyle(CalendarioTema.tinta)
         .preferredColorScheme(.light)
@@ -36,24 +23,54 @@ struct CalendarioView: View {
             CalendarioFichaView(evento: evento, agenda: agenda)
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
+                .presentationBackground(CalendarioTema.fundo)
         }
         .sheet(isPresented: $agenda.ajustes) {
-            CalendarioAjustesView()
+            CalendarioAjustesView(agenda: agenda)
+                .presentationDetents([.medium])
+                .presentationDragIndicator(.visible)
+                .presentationBackground(CalendarioTema.fundo)
         }
-        .confirmationDialog("Add", isPresented: $agenda.menuMais, titleVisibility: .hidden) {
-            Button("Paste") { agenda.colar() }
-            Button("Edit existing events") {
-                if let primeiro = agenda.eventos(no: agenda.ancora).first {
-                    agenda.ficha = primeiro
-                }
-            }
-            Button("Cancel", role: .cancel) {}
+        .confirmationDialog("Marcar", isPresented: $agenda.menuMais, titleVisibility: .hidden) {
+            Button("Novo compromisso") { agenda.novoEmBranco() }
+            Button("Colar") { agenda.colar() }
+            Button("Cancelar", role: .cancel) {}
         }
         .accessibilityIdentifier("calendario")
         .onAppear { aplicarEscalaDaRota() }
         .onReceive(NotificationCenter.default.publisher(for: Rota.mudou)) { _ in
             aplicarEscalaDaRota()
         }
+    }
+
+    private func conteudo(agora: Date) -> some View {
+        ZStack(alignment: .bottom) {
+            CalendarioTema.fundo.ignoresSafeArea()
+
+            VStack(alignment: .leading, spacing: 0) {
+                cabeca(agora: agora)
+                Group {
+                    if agenda.modo == .lista {
+                        CalendarioListaView(agenda: agenda)
+                            .transition(.opacity)
+                    } else {
+                        escalas(agora: agora)
+                    }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+
+            chrome(agora: agora)
+        }
+        .overlay(alignment: .top) {
+            if let toast = agenda.toast {
+                CalendarioToast(texto: toast)
+                    .padding(.top, 8)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+            }
+        }
+        .animation(.easeOut(duration: 0.22), value: agenda.toast)
+        .animation(CalendarioTema.morph(reduceMotion), value: agenda.modo)
     }
 
     private func aplicarEscalaDaRota() {
@@ -64,83 +81,111 @@ struct CalendarioView: View {
         }
     }
 
-    private var cabeca: some View {
+    // MARK: cabeça
+
+    private func cabeca(agora: Date) -> some View {
         HStack(alignment: .center, spacing: 10) {
             Text(agenda.titulo)
-                .font(CalendarioTema.titulo)
-                .tracking(-0.6)
+                .font(.system(size: tamTitulo, weight: .bold))
+                .tracking(CalendarioTema.tituloTracking)
                 .foregroundStyle(CalendarioTema.tinta)
                 .lineLimit(1)
-                .minimumScaleFactor(0.5)
+                .minimumScaleFactor(0.6)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .layoutPriority(0)
+                .contentTransition(.numericText())
+                .animation(CalendarioTema.morph(reduceMotion), value: agenda.titulo)
                 .accessibilityAddTraits(.isHeader)
                 .accessibilityIdentifier("calendario-titulo")
             cabecaBotao("ellipsis") { agenda.menuMais = true }
-                .accessibilityLabel("More")
-                .layoutPriority(1)
+                .accessibilityLabel("Marcar")
+                .accessibilityIdentifier("calendario-mais")
             cabecaBotao("gearshape") { agenda.ajustes = true }
-                .accessibilityLabel("Settings")
-                .layoutPriority(1)
+                .accessibilityLabel("Ajustes do calendário")
+                .accessibilityIdentifier("calendario-ajustes")
         }
-        .padding(.horizontal, 20)
-        .padding(.top, 12)
-        .padding(.bottom, 10)
+        .padding(.horizontal, CalendarioTema.margem)
+        .padding(.top, 8)
+        .padding(.bottom, 12)
     }
 
     private func cabecaBotao(_ icone: String, acao: @escaping () -> Void) -> some View {
         Button(action: acao) {
             Image(systemName: icone)
-                .font(.system(size: 15, weight: .semibold))
+                .font(.subheadline.weight(.semibold))
                 .foregroundStyle(CalendarioTema.tintaSuave)
-                .frame(width: 36, height: 36)
+                .frame(width: CalendarioTema.controle, height: CalendarioTema.controle)
                 .background(CalendarioTema.chip, in: Circle())
+                .frame(width: Tema.alvo, height: Tema.alvo)
+                .contentShape(Rectangle())
         }
         .buttonStyle(PressaoDiscreta())
-        .frame(minWidth: Tema.alvo, minHeight: Tema.alvo)
     }
 
+    // MARK: escalas — um objeto em quatro zooms
+
     @ViewBuilder
-    private var escalas: some View {
+    private func escalas(agora: Date) -> some View {
+        let foco = focoDaAncora()
         ZStack {
             if agenda.escala == .dia {
-                CalendarioDiaView(agenda: agenda, morph: morph)
-                    .transition(CalendarioTema.transicao(reduzido: reduceMotion))
+                CalendarioDiaView(agenda: agenda, morph: morph, agora: agora)
+                    .transition(CalendarioTema.desdobra(reduzido: reduceMotion, aproximando: agenda.aproximando, foco: foco))
             }
             if agenda.escala == .semana {
-                CalendarioSemanaView(agenda: agenda, morph: morph)
-                    .transition(CalendarioTema.transicao(reduzido: reduceMotion))
+                CalendarioSemanaView(agenda: agenda, morph: morph, agora: agora)
+                    .transition(CalendarioTema.desdobra(reduzido: reduceMotion, aproximando: agenda.aproximando, foco: foco))
             }
             if agenda.escala == .mes {
-                CalendarioMesView(agenda: agenda, morph: morph)
-                    .transition(CalendarioTema.transicao(reduzido: reduceMotion))
+                CalendarioMesView(agenda: agenda, morph: morph, agora: agora)
+                    .transition(CalendarioTema.desdobra(reduzido: reduceMotion, aproximando: agenda.aproximando, foco: foco))
             }
             if agenda.escala == .ano {
-                CalendarioAnoView(agenda: agenda, morph: morph)
-                    .transition(CalendarioTema.transicao(reduzido: reduceMotion))
+                CalendarioAnoView(agenda: agenda, morph: morph, agora: agora)
+                    .transition(CalendarioTema.desdobra(reduzido: reduceMotion, aproximando: agenda.aproximando, foco: foco))
             }
         }
-        .clipped()
         .animation(CalendarioTema.morph(reduceMotion), value: agenda.escala)
     }
 
-    private var chrome: some View {
+    /// Onde o dia âncora está na tela da escala atual: o desdobramento nasce dali.
+    private func focoDaAncora() -> UnitPoint {
+        let cal = agenda.cal
+        switch agenda.escala {
+        case .dia:
+            let i = agenda.semana.firstIndex { Calendario.mesmoDia($0, agenda.ancora, cal) } ?? 3
+            return UnitPoint(x: (CGFloat(i) + 0.5) / 7, y: 0.06)
+        case .semana:
+            let i = agenda.semana.firstIndex { Calendario.mesmoDia($0, agenda.ancora, cal) } ?? 3
+            return UnitPoint(x: 0.08, y: 0.1 + (CGFloat(i) + 0.5) / 7 * 0.7)
+        case .mes:
+            let i = agenda.grelha.firstIndex { Calendario.mesmoDia($0, agenda.ancora, cal) } ?? 21
+            return UnitPoint(x: (CGFloat(i % 7) + 0.5) / 7, y: 0.08 + (CGFloat(i / 7) + 0.5) / 6 * 0.8)
+        case .ano:
+            let m = cal.component(.month, from: agenda.ancora) - 1
+            return UnitPoint(x: (CGFloat(m % 3) + 0.5) / 3, y: (CGFloat(m / 3) + 0.5) / 4)
+        }
+    }
+
+    // MARK: chrome flutuante
+
+    private func chrome(agora: Date) -> some View {
         VStack(spacing: 10) {
-            interruptor
+            interruptor(agora: agora)
             campoProsa
         }
         .padding(.horizontal, 14)
         .padding(.bottom, 8)
     }
 
-    private var interruptor: some View {
-        HStack(spacing: 10) {
-            HStack(spacing: 4) {
+    private func interruptor(agora: Date) -> some View {
+        HStack(spacing: 8) {
+            HStack(spacing: 2) {
                 modoBotao(.lista, icone: "list.bullet")
                 modoBotao(.grelha, icone: "calendar")
             }
             HStack(spacing: 0) {
                 ForEach(EscalaCalendario.allCases, id: \.self) { escala in
+                    let ligado = agenda.escala == escala
                     Button {
                         Toque.selecao()
                         withAnimation(CalendarioTema.morph(reduceMotion)) {
@@ -148,142 +193,172 @@ struct CalendarioView: View {
                         }
                     } label: {
                         Text(escala.letra)
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundStyle(agenda.escala == escala ? .white : CalendarioTema.tintaSuave)
-                            .frame(width: 36, height: 36)
+                            .font(CalendarioTema.escala)
+                            .foregroundStyle(ligado ? .white : CalendarioTema.tintaSuave)
+                            .frame(width: CalendarioTema.controle, height: CalendarioTema.controle)
                             .background {
-                                if agenda.escala == escala {
-                                    Circle().fill(CalendarioTema.chipActivo)
+                                if ligado {
+                                    Circle()
+                                        .fill(CalendarioTema.chipActivo)
+                                        .matchedGeometryEffect(id: "escala-selecionada", in: morph)
                                 }
                             }
+                            .frame(width: 40, height: Tema.alvo)
+                            .contentShape(Rectangle())
                     }
                     .buttonStyle(PressaoDiscreta())
                     .accessibilityIdentifier("escala-\(escala.rawValue)")
-                    .accessibilityLabel(escala.rawValue)
-                    .accessibilityAddTraits(agenda.escala == escala ? [.isButton, .isSelected] : .isButton)
+                    .accessibilityLabel(escala.nome)
+                    .accessibilityAddTraits(ligado ? [.isButton, .isSelected] : .isButton)
                 }
             }
-            .padding(4)
+            .padding(.horizontal, 2)
             .background(CalendarioTema.campo, in: Capsule())
+            .animation(CalendarioTema.morph(reduceMotion), value: agenda.escala)
 
-            if !agenda.ancoraEHoje || agenda.escala == .mes || agenda.escala == .ano {
-                Button {
+            // sempre presente: um botão que aparece e some mexe no layout inteiro
+            Button {
                     Toque.selecao()
                     withAnimation(CalendarioTema.morph(reduceMotion)) {
-                        agenda.irHoje()
+                        agenda.irHoje(agora: agora)
                     }
                 } label: {
-                    Text("Today")
-                        .font(.system(size: 15, weight: .semibold))
+                    Text("Hoje")
+                        .font(CalendarioTema.chrome)
                         .foregroundStyle(.white)
                         .padding(.horizontal, 14)
-                        .frame(height: 36)
+                        .frame(height: CalendarioTema.controle)
                         .background(CalendarioTema.chipActivo, in: Capsule())
+                        .frame(height: Tema.alvo)
+                        .contentShape(Capsule())
                 }
                 .buttonStyle(PressaoDiscreta())
                 .accessibilityIdentifier("calendario-hoje")
-            }
+                .opacity(agenda.ancoraEHoje(agora) && agenda.escala == .dia ? 0.55 : 1)
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 8)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(CalendarioTema.cartao, in: Capsule())
-        .shadow(color: .black.opacity(0.08), radius: 16, y: 6)
+        .background {
+            Capsule()
+                .fill(CalendarioTema.cartao)
+                // vidro sobre alumínio, não cartão: o fio de luz no topo
+                .overlay(Capsule().strokeBorder(CalendarioTema.luzBorda, lineWidth: 1))
+                .shadow(color: CalendarioTema.sombraFlutuante, radius: 16, y: 6)
+        }
         .accessibilityIdentifier("calendario-interruptor")
     }
 
     private func modoBotao(_ modo: ModoCalendario, icone: String) -> some View {
-        Button {
+        let ligado = agenda.modo == modo
+        return Button {
             Toque.selecao()
-            withAnimation(CalendarioTema.morph(reduceMotion)) {
-                agenda.modo = modo
-            }
+            agenda.modo = modo
         } label: {
             Image(systemName: icone)
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundStyle(agenda.modo == modo ? .white : CalendarioTema.tintaSuave)
-                .frame(width: 36, height: 36)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(ligado ? .white : CalendarioTema.tintaSuave)
+                .frame(width: CalendarioTema.controle, height: CalendarioTema.controle)
                 .background {
-                    if agenda.modo == modo {
-                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    if ligado {
+                        RoundedRectangle(cornerRadius: CalendarioTema.raioAcao, style: .continuous)
                             .fill(CalendarioTema.chipActivo)
+                            .matchedGeometryEffect(id: "modo-selecionado", in: morph)
                     }
                 }
+                .frame(width: 40, height: Tema.alvo)
+                .contentShape(Rectangle())
         }
         .buttonStyle(PressaoDiscreta())
         .accessibilityIdentifier("modo-\(modo.rawValue)")
-        .accessibilityLabel(modo == .lista ? "List" : "Grid")
-        .accessibilityAddTraits(agenda.modo == modo ? [.isButton, .isSelected] : .isButton)
+        .accessibilityLabel(modo == .lista ? "Lista" : "Grade")
+        .accessibilityAddTraits(ligado ? [.isButton, .isSelected] : .isButton)
     }
 
     private var campoProsa: some View {
-        HStack(spacing: 10) {
+        let temTexto = !agenda.prosa.trimmingCharacters(in: .whitespaces).isEmpty
+        return HStack(spacing: 8) {
             Button {
                 agenda.menuMais = true
             } label: {
                 Image(systemName: "plus")
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.callout.weight(.semibold))
                     .foregroundStyle(CalendarioTema.tinta)
                     .frame(width: Tema.alvo, height: Tema.alvo)
+                    .contentShape(Rectangle())
             }
             .buttonStyle(PressaoDiscreta())
-            .accessibilityLabel("Add")
+            .accessibilityLabel("Marcar")
 
             TextField(
                 "",
                 text: $agenda.prosa,
-                prompt: Text("Add events in plain English…")
+                prompt: Text("Dentista sexta às 14:30")
                     .foregroundStyle(CalendarioTema.tintaSuave)
             )
-            .font(.system(size: 16))
+            .font(.callout)
             .foregroundStyle(CalendarioTema.tinta)
             .textInputAutocapitalization(.sentences)
             .submitLabel(.done)
             .onSubmit { agenda.adicionarDaProsa() }
             .accessibilityIdentifier("calendario-prosa")
-            .accessibilityLabel("Add events in plain English")
+            .accessibilityLabel("Marcar em palavras")
 
             Button {
                 agenda.adicionarDaProsa()
             } label: {
-                Image(systemName: "mic.fill")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(CalendarioTema.tinta)
-                    .frame(width: 36, height: 36)
-                    .background(CalendarioTema.chip, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                Image(systemName: "arrow.up")
+                    .font(.subheadline.weight(.bold))
+                    .foregroundStyle(temTexto ? .white : CalendarioTema.tintaMorta)
+                    .frame(width: CalendarioTema.controle, height: CalendarioTema.controle)
+                    .background(
+                        temTexto ? CalendarioTema.chipActivo : CalendarioTema.chip,
+                        in: RoundedRectangle(cornerRadius: CalendarioTema.raioAcao, style: .continuous)
+                    )
+                    .frame(width: Tema.alvo, height: Tema.alvo)
+                    .contentShape(Rectangle())
             }
             .buttonStyle(PressaoDiscreta())
-            .accessibilityLabel("Add the event")
-            .accessibilityIdentifier("calendario-microfone")
+            .disabled(!temTexto)
+            .animation(.easeOut(duration: 0.15), value: temTexto)
+            .accessibilityLabel("Marcar o compromisso")
+            .accessibilityIdentifier("calendario-marcar")
         }
-        .padding(.leading, 6)
-        .padding(.trailing, 10)
-        .padding(.vertical, 6)
+        .padding(.leading, 2)
+        .padding(.trailing, 4)
+        .padding(.vertical, 2)
         .background(CalendarioTema.campo, in: Capsule())
-        .shadow(color: .black.opacity(0.06), radius: 12, y: 4)
+        .shadow(color: CalendarioTema.sombraCampo, radius: 12, y: 4)
     }
 }
 
+/// O chip do dia: círculo em `chip`, ativo em carvão; 44 de alvo sempre.
 struct CalendarioChipDia: View {
     let dia: Date
     let activo: Bool
+    let hoje: Bool
     let cal: Calendar
     var compacto: Bool = false
 
     var body: some View {
+        let lado: CGFloat = compacto ? 36 : 44
         VStack(spacing: compacto ? 0 : 1) {
             Text(Calendario.letraDoDia(dia, cal))
                 .font(CalendarioTema.letra)
             Text(Calendario.formatar(dia, "d", cal))
-                .font(compacto ? CalendarioTema.meta : CalendarioTema.dia)
+                .font(compacto ? CalendarioTema.meta.monospacedDigit() : CalendarioTema.dia)
         }
         .foregroundStyle(activo ? .white : CalendarioTema.tintaSuave)
-        .frame(width: compacto ? 36 : 44, height: compacto ? 36 : 44)
-        .background(
-            activo ? CalendarioTema.chipActivo : CalendarioTema.chip,
-            in: Circle()
-        )
-        .accessibilityLabel(Calendario.formatar(dia, "EEEE d MMMM", cal))
+        .frame(width: lado, height: lado)
+        .background(activo ? CalendarioTema.chipActivo : CalendarioTema.chip, in: Circle())
+        .overlay {
+            if hoje, !activo {
+                Circle().strokeBorder(CalendarioTema.tinta, lineWidth: 1.5)
+            }
+        }
+        .frame(width: Tema.alvo, height: Tema.alvo)
+        .contentShape(Rectangle())
+        .accessibilityLabel(Calendario.diaPorExtenso(dia, cal))
         .accessibilityAddTraits(activo ? [.isButton, .isSelected] : .isButton)
     }
 }
@@ -297,73 +372,122 @@ struct CalendarioListaView: View {
         }
         let dias = grupos.keys.sorted()
         ScrollView {
-            LazyVStack(alignment: .leading, spacing: 18) {
+            LazyVStack(alignment: .leading, spacing: 20) {
                 if dias.isEmpty {
-                    Text("No events in this view.")
+                    Text("Nada marcado.")
                         .font(CalendarioTema.evento)
                         .foregroundStyle(CalendarioTema.tintaSuave)
                         .padding(.top, 24)
+                        .accessibilityIdentifier("calendario-lista-vazia")
                 }
                 ForEach(dias, id: \.self) { dia in
                     VStack(alignment: .leading, spacing: 8) {
-                        Text(Calendario.formatar(dia, "EEEE d MMMM", agenda.cal))
+                        Text(Calendario.diaPorExtenso(dia, agenda.cal))
                             .font(CalendarioTema.meta)
                             .foregroundStyle(CalendarioTema.tintaSuave)
+                            .padding(.leading, 4)
                         ForEach(grupos[dia] ?? []) { evento in
                             Button {
                                 agenda.ficha = evento
                             } label: {
-                                HStack(spacing: 10) {
-                                    Circle()
-                                        .fill(CalendarioTema.fundo(de: evento.categoria))
-                                        .frame(width: 10, height: 10)
+                                HStack(spacing: 12) {
+                                    Image(systemName: CalendarioTema.icone(de: evento.dominio))
+                                        .font(.caption.weight(.semibold))
+                                        .foregroundStyle(CalendarioTema.tinta(de: evento.dominio))
+                                        .frame(width: 28, height: 28)
+                                        .background(CalendarioTema.fundo(de: evento.dominio), in: Circle())
                                     Text(evento.titulo)
                                         .font(CalendarioTema.evento)
                                         .foregroundStyle(CalendarioTema.tinta)
-                                    Spacer()
-                                    Text(hora(evento))
+                                        .lineLimit(1)
+                                    Spacer(minLength: 8)
+                                    Text(Calendario.intervalo(evento, agenda.cal))
                                         .font(CalendarioTema.hora)
                                         .foregroundStyle(CalendarioTema.tintaSuave)
                                 }
-                                .padding(14)
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 12)
+                                .frame(minHeight: Tema.alvo)
                                 .background(CalendarioTema.cartao, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                                .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                             }
                             .buttonStyle(PressaoDiscreta())
                         }
                     }
                 }
             }
-            .padding(.horizontal, 20)
+            .padding(.horizontal, CalendarioTema.margem)
             .padding(.bottom, 160)
         }
         .accessibilityIdentifier("calendario-lista")
     }
-
-    private func hora(_ evento: EventoCalendario) -> String {
-        if evento.diaInteiro { return "All day" }
-        return "\(Calendario.formatar(evento.inicio, "HH:mm", agenda.cal))–\(Calendario.formatar(evento.fim, "HH:mm", agenda.cal))"
-    }
 }
 
 struct CalendarioAjustesView: View {
+    @Bindable var agenda: CalendarioAgenda
     @Environment(\.dismiss) private var dismiss
+    @State private var confirmarApagar = false
 
     var body: some View {
-        NavigationStack {
-            List {
-                Section {
-                    Text("This calendar lives on the phone. It does not sync, and it never writes into a note.")
-                        .font(Tema.meta)
-                        .foregroundStyle(Tema.tintaSuave)
-                }
+        VStack(alignment: .leading, spacing: 24) {
+            HStack {
+                Text("Calendário")
+                    .font(.title2.weight(.bold))
+                    .tracking(-0.4)
+                Spacer()
+                Button("Pronto") { dismiss() }
+                    .font(CalendarioTema.chrome)
+                    .foregroundStyle(CalendarioTema.tinta)
+                    .padding(.horizontal, 14)
+                    .frame(height: CalendarioTema.controle)
+                    .background(CalendarioTema.chip, in: Capsule())
+                    .accessibilityIdentifier("ajustes-pronto")
             }
-            .navigationTitle("Settings")
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") { dismiss() }
-                }
+
+            Text("Vive no aparelho. Não sincroniza, e nunca escreve numa nota.")
+                .font(CalendarioTema.meta)
+                .foregroundStyle(CalendarioTema.tintaSuave)
+
+            Toggle(isOn: Binding(
+                get: { agenda.segundaPrimeiro },
+                set: { agenda.segundaPrimeiro = $0 }
+            )) {
+                Text("Semana começa na segunda")
+                    .font(.callout)
             }
+            .tint(CalendarioTema.chipActivo)
+            .padding(14)
+            .background(CalendarioTema.campo, in: RoundedRectangle(cornerRadius: CalendarioTema.raioCampo, style: .continuous))
+            .accessibilityIdentifier("ajustes-segunda")
+
+            HStack {
+                Text(agenda.eventos.count == 1 ? "1 compromisso" : "\(agenda.eventos.count) compromissos")
+                    .font(.callout)
+                    .foregroundStyle(CalendarioTema.tintaSuave)
+                Spacer()
+                Button("Apagar tudo", role: .destructive) { confirmarApagar = true }
+                    .font(CalendarioTema.meta)
+                    .foregroundStyle(CalendarioTema.aviso)
+                    .disabled(agenda.eventos.isEmpty)
+                    .accessibilityIdentifier("ajustes-apagar-tudo")
+            }
+            .padding(14)
+            .background(CalendarioTema.campo, in: RoundedRectangle(cornerRadius: CalendarioTema.raioCampo, style: .continuous))
+
+            Spacer()
         }
+        .padding(CalendarioTema.margem)
+        .padding(.top, 8)
+        .foregroundStyle(CalendarioTema.tinta)
         .preferredColorScheme(.light)
+        .confirmationDialog("Apagar todos os compromissos?", isPresented: $confirmarApagar, titleVisibility: .visible) {
+            Button("Apagar tudo", role: .destructive) {
+                agenda.apagarTudo()
+                dismiss()
+            }
+            Button("Cancelar", role: .cancel) {}
+        } message: {
+            Text("Não volta.")
+        }
     }
 }

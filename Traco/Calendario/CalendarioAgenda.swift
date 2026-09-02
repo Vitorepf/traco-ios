@@ -12,29 +12,42 @@ final class CalendarioAgenda {
     var ficha: EventoCalendario?
     var menuMais = false
     var ajustes = false
-    var ouvir = false
+    /// O que o disco recusou ou o arquivo que não abriu. Some sozinho.
+    var toast: String?
+    /// A escala anterior decide a direção do desdobramento.
+    private(set) var escalaAnterior: EscalaCalendario = .dia
 
     private let disco: URL
-    let cal: Calendar
+    private(set) var cal: Calendar
+    private var toastTask: Task<Void, Never>?
+
+    static let chaveSegunda = "calendario-segunda-primeiro"
 
     init(
         agora: Date = .now,
-        cal: Calendar = Calendario.gregoriano(),
+        cal: Calendar? = nil,
         disco: URL = CalendarioDisco.urlPadrao(),
         eventos: [EventoCalendario]? = nil
     ) {
-        self.cal = cal
+        let segunda = UserDefaults.standard.bool(forKey: Self.chaveSegunda)
+        let c = cal ?? Calendario.gregoriano(segundaPrimeiro: segunda)
+        self.cal = c
         self.disco = disco
-        let dia = Calendario.inicioDoDia(agora, cal)
-        self.ancora = dia
+        self.ancora = Calendario.inicioDoDia(agora, c)
         if let eventos {
             self.eventos = eventos
-        } else {
-            let lidos = CalendarioDisco.carregar(de: disco)
-            self.eventos = lidos.isEmpty
-                ? CalendarioDisco.semente(ancora: dia, agora: agora, cal)
-                : lidos
-            if lidos.isEmpty { gravar() }
+            return
+        }
+        switch CalendarioDisco.carregar(de: disco) {
+        case .semArquivo:
+            self.eventos = []
+        case .eventos(let lidos):
+            self.eventos = lidos
+        case .corrompido:
+            // nunca por cima: o arquivo é do autor
+            self.eventos = []
+            CalendarioDisco.porDeLado(disco)
+            mostrar("o arquivo do calendário não abriu. guardei uma cópia ao lado e comecei vazio.")
         }
     }
 
@@ -42,13 +55,33 @@ final class CalendarioAgenda {
     var semana: [Date] { Calendario.semana(da: ancora, cal) }
     var grelha: [Date] { Calendario.grelhaDoMes(da: ancora, cal) }
     var meses: [Date] { Calendario.mesesDoAno(da: ancora, cal) }
-    var ancoraEHoje: Bool { Calendario.eHoje(ancora, agora: .now, cal) }
-    var mesEDeHoje: Bool { Calendario.mesmoMes(ancora, .now, cal) }
+    var porDia: [Date: [EventoCalendario]] { Calendario.porDia(eventos, cal) }
+
+    func ancoraEHoje(_ agora: Date) -> Bool { Calendario.eHoje(ancora, agora: agora, cal) }
+
+    var segundaPrimeiro: Bool {
+        get { cal.firstWeekday == 2 }
+        set {
+            UserDefaults.standard.set(newValue, forKey: Self.chaveSegunda)
+            cal = Calendario.gregoriano(fuso: cal.timeZone, segundaPrimeiro: newValue)
+        }
+    }
 
     func ir(para nova: EscalaCalendario) {
+        guard nova != escala else { return }
+        escalaAnterior = escala
         let (e, a) = Calendario.ir(para: nova, ancora: ancora)
         escala = e
         ancora = a
+    }
+
+    /// Aproximar é ir do ano para o dia: a escala nova cresce; afastar recua.
+    var aproximando: Bool {
+        indice(escala) < indice(escalaAnterior)
+    }
+
+    private func indice(_ e: EscalaCalendario) -> Int {
+        EscalaCalendario.allCases.firstIndex(of: e) ?? 0
     }
 
     func ir(dia: Date) {
@@ -59,8 +92,8 @@ final class CalendarioAgenda {
         ancora = Calendario.noMes(mes, preservando: ancora, cal)
     }
 
-    func irHoje() {
-        ancora = Calendario.irHoje(agora: .now, cal)
+    func irHoje(agora: Date = .now) {
+        ancora = Calendario.irHoje(agora: agora, cal)
     }
 
     func eventos(no dia: Date) -> [EventoCalendario] {
@@ -79,31 +112,80 @@ final class CalendarioAgenda {
         }
     }
 
-    func adicionarDaProsa() {
+    // MARK: escrever — o gesto não mente se o disco recusa
+
+    /// Da prosa ao disco. Se o disco recusa, a prosa fica onde estava.
+    func adicionarDaProsa(agora: Date = .now) {
         let frase = prosa
-        guard let evento = CalendarioFrase.ler(frase, ancora: ancora, agora: .now, cal) else { return }
+        guard let evento = CalendarioFrase.ler(
+            frase, ancora: ancora, agora: agora, cal,
+            manha: Ancora.hora(.manha), tarde: Ancora.hora(.tarde), noite: Ancora.hora(.noite)
+        ) else {
+            if !frase.trimmingCharacters(in: .whitespaces).isEmpty {
+                mostrar("faltou o quê: escreva o compromisso, com dia e hora se quiser.")
+            }
+            return
+        }
         eventos.append(evento)
+        guard gravar() else {
+            eventos.removeAll { $0.id == evento.id }
+            return
+        }
         prosa = ""
         Teclado.recolher()
-        gravar()
         Toque.suave()
+        ancora = Calendario.inicioDoDia(evento.inicio, cal)
         ficha = evento
     }
 
+    /// Um compromisso em branco no dia âncora, para quem prefere a ficha.
+    func novoEmBranco(agora: Date = .now) {
+        let h = Calendario.eHoje(ancora, agora: agora, cal)
+            ? min(22, cal.component(.hour, from: agora) + 1)
+            : 9
+        let inicio = Calendario.hora(h, 0, no: ancora, cal)
+        ficha = EventoCalendario(titulo: "", inicio: inicio, fim: inicio.addingTimeInterval(3600))
+    }
+
+    /// Guarda a ficha. Título vazio não entra: um compromisso sem nome não é nada.
     func guardar(_ evento: EventoCalendario) {
-        if let i = eventos.firstIndex(where: { $0.id == evento.id }) {
-            eventos[i] = evento
-        } else {
-            eventos.append(evento)
+        var e = evento
+        e.titulo = e.titulo.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !e.titulo.isEmpty else {
+            if eventos.contains(where: { $0.id == e.id }) { apagar(e.id) }
+            return
         }
-        gravar()
-        ancora = Calendario.inicioDoDia(evento.inicio, cal)
+        let antes = eventos
+        if let i = eventos.firstIndex(where: { $0.id == e.id }) {
+            eventos[i] = e
+        } else {
+            eventos.append(e)
+        }
+        guard gravar() else {
+            eventos = antes
+            return
+        }
+        ancora = Calendario.inicioDoDia(e.inicio, cal)
     }
 
     func apagar(_ id: UUID) {
+        let antes = eventos
         eventos.removeAll { $0.id == id }
+        guard gravar() else {
+            eventos = antes
+            return
+        }
         if ficha?.id == id { ficha = nil }
-        gravar()
+    }
+
+    func apagarTudo() {
+        let antes = eventos
+        eventos = []
+        guard gravar() else {
+            eventos = antes
+            return
+        }
+        ficha = nil
     }
 
     func colar() {
@@ -113,7 +195,25 @@ final class CalendarioAgenda {
         }
     }
 
-    private func gravar() {
-        CalendarioDisco.gravar(eventos, em: disco)
+    @discardableResult
+    private func gravar() -> Bool {
+        do {
+            try CalendarioDisco.gravar(eventos, em: disco)
+            return true
+        } catch {
+            mostrar("o disco recusou. o calendário ficou como estava.")
+            Toque.aviso()
+            return false
+        }
+    }
+
+    func mostrar(_ msg: String) {
+        toast = msg
+        AccessibilityNotification.Announcement(msg).post()
+        toastTask?.cancel()
+        toastTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(3))
+            if !Task.isCancelled { self?.toast = nil }
+        }
     }
 }

@@ -26,26 +26,34 @@ enum Dominio: String, CaseIterable, Codable, Identifiable, Sendable {
     }
 
     /// Léxico local primeiro. Sem confiança = silêncio. Rótulo fora da lista = nenhum.
-    static func inferir(voz: String) -> Dominio? {
+    nonisolated static func inferir(voz: String) -> Dominio? {
         let lower = voz.lowercased()
         let pontos: [(Dominio, [String])] = [
             (.trabalho, ["reunião", "reuniao", "cliente", "deploy", "prazo", "sprint",
-                         "chefe", "colega", "escritório", "escritorio", "standup", "slack"]),
+                         "chefe", "colega", "escritório", "escritorio", "standup", "slack",
+                         "entrevista", "apresentação", "apresentacao", "call"]),
             (.casa, ["casa", "aluguel", "faxina", "geladeira", "cozinha", "quarto",
-                     "reforma", "vizinho", "condomínio", "condominio"]),
+                     "reforma", "vizinho", "condomínio", "condominio", "mercado", "feira",
+                     "mudança", "mudanca", "encanador", "eletricista"]),
             (.saude, ["consulta", "dor", "remédio", "remedio", "médico", "medico",
-                      "sono", "ansiedade", "terapia", "exame", "hospital"]),
+                      "sono", "ansiedade", "terapia", "exame", "hospital", "dentista",
+                      "academia", "treino", "corrida", "yoga", "nutricionista", "fisioterapia"]),
             (.dinheiro, ["dinheiro", "conta", "boleto", "salário", "salario", "imposto",
                          "investimento", "dívida", "divida", "cartão", "cartao", "banco"]),
             (.pessoas, ["mãe", "mae", "pai", "filho", "filha", "amigo", "amiga",
-                        "namoro", "casamento", "família", "familia"]),
+                        "namoro", "casamento", "família", "familia", "almoço", "almoco", "jantar",
+                        "aniversário", "aniversario", "visita", "encontro"]),
             (.estudo, ["estudo", "aula", "prova", "curso", "ler", "livro", "aprender",
-                       "dissertação", "dissertacao"]),
+                       "dissertação", "dissertacao", "faculdade", "palestra", "workshop"]),
             (.ideias, ["ideia", "insight", "percebi", "hipótese", "hipotese", "conceito"]),
         ]
         var melhor: (Dominio, Int)?
         for (dom, palavras) in pontos {
-            let n = palavras.filter { lower.contains($0) }.count
+            // palavra inteira: "casamento" não é Casa, "encontrar" não é Dinheiro
+            let n = palavras.filter { p in
+                lower.range(of: "\\b\(NSRegularExpression.escapedPattern(for: p))\\b",
+                            options: .regularExpression) != nil
+            }.count
             if n > 0, n >= (melhor?.1 ?? 0) { melhor = (dom, n) }
         }
         guard let melhor, melhor.1 >= 1 else { return nil }
