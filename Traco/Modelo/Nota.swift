@@ -84,6 +84,12 @@ final class Nota {
         set { dominioRaw = newValue?.rawValue ?? "" }
     }
 
+    /// Um toque no chip: tira o rótulo e trava a inferência. Não volta sozinho.
+    func soltarDominio() {
+        dominio = nil
+        dominioTravado = true
+    }
+
     var serieUUID: UUID? {
         get { serieRaw.isEmpty ? nil : UUID(uuidString: serieRaw) }
         set { serieRaw = newValue?.uuidString ?? "" }
@@ -93,6 +99,20 @@ final class Nota {
     /// A linha de sentido vive fora do selo e entra aqui (§8.5).
     var vozDoAutor: String {
         VozDoAutor.juntar(texto: texto, campos: campos, sentido: sentido)
+    }
+
+    /// Página sem voz não é nota: o arquivo e o Recordar não a tratam como traço.
+    var temVoz: Bool {
+        !vozDoAutor.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    /// O que a lista mostra. Página vazia do dia N não é uma linha muda.
+    var tituloNaLista: String {
+        let t = VozDoAutor.titulo(texto, gesto: gesto, campos: campos)
+        if !t.isEmpty { return t }
+        if gesto == .expressiva, diaDaSerie >= 1 { return "Expressiva · dia \(diaDaSerie)" }
+        if gesto == .expressiva { return "Expressiva" }
+        return t
     }
 
     private static func encode(_ campos: [String: String]) -> String {
@@ -105,4 +125,52 @@ final class Nota {
         else { return [:] }
         return map
     }
+
+    /// Cópia fiel para a janela de desfazer — o mesmo id, as mesmas datas.
+    func retrato() -> NotaRecuperavel {
+        NotaRecuperavel(
+            uuid: uuid, texto: texto, gesto: gesto, campos: campos,
+            criadaEm: criadaEm, editadaEm: editadaEm,
+            trancada: trancada, queimada: queimada, queimadaEm: queimadaEm,
+            minutosEscritos: minutosEscritos, sentido: sentido,
+            dominio: dominio, dominioTravado: dominioTravado,
+            gatilhoEm: gatilhoEm, serieUUID: serieUUID, diaDaSerie: diaDaSerie
+        )
+    }
+
+    static func de(_ r: NotaRecuperavel) -> Nota {
+        let n = Nota(
+            texto: r.texto, gesto: r.gesto, campos: r.campos,
+            trancada: r.trancada, criadaEm: r.criadaEm, editadaEm: r.editadaEm,
+            queimada: r.queimada, queimadaEm: r.queimadaEm,
+            minutosEscritos: r.minutosEscritos, sentido: r.sentido,
+            dominio: r.dominio
+        )
+        n.uuid = r.uuid
+        n.dominioTravado = r.dominioTravado
+        n.gatilhoEm = r.gatilhoEm
+        n.serieUUID = r.serieUUID
+        n.diaDaSerie = r.diaDaSerie
+        return n
+    }
+}
+
+/// O que o desfazer precisa para não mentir: é a mesma nota, não um primo.
+struct NotaRecuperavel: Sendable, Equatable {
+    var uuid: UUID
+    var texto: String
+    var gesto: Gesto?
+    var campos: [String: String]
+    var criadaEm: Date
+    var editadaEm: Date
+    var trancada: Bool
+    var queimada: Bool
+    var queimadaEm: Date?
+    var minutosEscritos: Int
+    var sentido: String
+    var dominio: Dominio?
+    var dominioTravado: Bool
+    var gatilhoEm: Date?
+    var serieUUID: UUID?
+    var diaDaSerie: Int
 }

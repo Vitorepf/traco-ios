@@ -26,6 +26,8 @@ fill — repetição semântica, não compete com o acento único do ecrã.
   auditoria de UX: o traço cinza era invisível e §17 proíbe "ter de lembrar").
 - Página com texto: Concluída **ou** Análise — não os dois + Recordar + timer.
 - Arquivo (§20, tab bar): âmbar marca ESTADO — a aba ativa e o filtro ativo.
+  Calendário (ADR 2026-09-02g) é mundo claro; o âmbar da barra continua a
+  marcar a aba, não pinta o dia.
   Ação âmbar só quando é a única saída do ecrã (vazio da busca). Resto em tinta.
 
 ## Tipo (SF, semântico, Dynamic Type)

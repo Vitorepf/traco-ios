@@ -63,13 +63,41 @@ enum TracoMigracao: SchemaMigrationPlan {
     }
 }
 
+/// O disco falhou: a página não finge que o caderno está vazio.
+enum DiscoTraco {
+    static var aviso: String?
+
+    /// Testes: memória. App: disco. Se o disco recusa, o aviso diz a verdade
+    /// e o contentor em memória só existe para o SwiftUI não explodir.
+    static func abrir(
+        emTeste: Bool,
+        disco: () throws -> ModelContainer = { try ModelContainer.traco() },
+        memoria: () throws -> ModelContainer = { try ModelContainer.traco(emMemoria: true) }
+    ) rethrows -> ModelContainer {
+        if emTeste { return try memoria() }
+        do {
+            aviso = nil
+            return try disco()
+        } catch {
+            aviso = "as notas estão no disco e não abri. o app não inventa um caderno vazio."
+            return try memoria()
+        }
+    }
+}
+
 extension ModelContainer {
     /// Container oficial do app — sempre com o plano de migração.
-    static func traco(emMemoria: Bool = false) throws -> ModelContainer {
-        try ModelContainer(
+    static func traco(emMemoria: Bool = false, url: URL? = nil) throws -> ModelContainer {
+        let config: ModelConfiguration
+        if let url {
+            config = ModelConfiguration(url: url)
+        } else {
+            config = ModelConfiguration(isStoredInMemoryOnly: emMemoria)
+        }
+        return try ModelContainer(
             for: Schema(versionedSchema: TracoSchemaV2.self),
             migrationPlan: TracoMigracao.self,
-            configurations: ModelConfiguration(isStoredInMemoryOnly: emMemoria)
+            configurations: config
         )
     }
 }

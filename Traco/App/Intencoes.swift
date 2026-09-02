@@ -49,8 +49,10 @@ struct TracoAtalhos: AppShortcutsProvider {
 /// Rota de entrada única: intents e traco:// convergem aqui; a PaginaView consome.
 @MainActor
 enum Rota {
-    enum Destino { case novaPagina, notas, recordar }
+    enum Destino { case novaPagina, notas, calendario, recordar }
     static var pendente: Destino?
+    /// Só o deep link das escalas — a aba sozinha abre no dia.
+    static var escalaCalendario: EscalaCalendario?
     static let mudou = Notification.Name("traco.rotaMudou")
 
     static func daURL(_ url: URL) -> Destino? {
@@ -58,6 +60,16 @@ enum Rota {
         switch url.host ?? url.path.trimmingCharacters(in: CharacterSet(charactersIn: "/")) {
         case "nova", "": return .novaPagina
         case "notas": return .notas
+        case "calendario":
+            let resto = url.path.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+            switch resto {
+            case "semana", "week", "w": escalaCalendario = .semana
+            case "mes", "month", "m": escalaCalendario = .mes
+            case "ano", "year", "y": escalaCalendario = .ano
+            case "dia", "day", "d", "": escalaCalendario = .dia
+            default: escalaCalendario = .dia
+            }
+            return .calendario
         case "recordar": return .recordar
         default: return nil
         }

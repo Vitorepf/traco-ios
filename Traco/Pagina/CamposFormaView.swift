@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Os campos da forma, dentro da folha.
+/// Os campos da forma — abaixo do texto na página, ou na folha se o cartão abrir.
 ///
 /// Auditoria 31/ago: havia um CARTÃO dentro da folha — caixa dentro de caixa.
 /// O nome da forma vestia a mesma roupa dos cinco rótulos e lia como um sexto
@@ -15,6 +15,8 @@ struct CamposFormaView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
+            // SPEC §20: a casa não tem chrome. Palavra é escrever o sentido
+            // (minhas / frase / onde). Look Up é o do iOS no texto seleccionado.
             ForEach(Array(gesto.campos.enumerated()), id: \.element.id) { indice, campo in
                 LinhaCampo(id: campo.id, rotulo: campo.rotulo, teto: campo.teto, texto: valor(campo.id))
                     // a forma chega como quem entra: campo a campo, um respiro

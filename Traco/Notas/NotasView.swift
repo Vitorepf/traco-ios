@@ -28,8 +28,8 @@ struct NotasView: View {
         }
     }
 
-    /// SPEC §20: navegar é da barra inferior. Aqui fica só o título da tela e a
-    /// ÚNICA ação que pertence a esta tela — começar uma página nova.
+    /// SPEC §20: navegar é da barra inferior. Aqui o título e o export do
+    /// conjunto visível — a casa de escrever não carrega este chrome.
     private var topbar: some View {
         TituloTela(texto: "Notas") {
             if !filtradas.isEmpty {
@@ -314,64 +314,52 @@ struct NotasView: View {
         return n == 1 ? "1 nota" : "\(n) notas"
     }
 
+    private func abrirDaLista(_ nota: Nota) {
+        if nota.queimada {
+            sessao.abrir(nota) // diz honestamente que não há o que abrir
+        } else if nota.trancada {
+            sessao.confirmacao = .naoSeRele(nota.uuid)
+        } else {
+            sessao.abrir(nota)
+        }
+    }
+
     private func botaoNota(_ nota: Nota) -> some View {
-        Button {
-            if nota.queimada {
-                sessao.abrir(nota) // diz honestamente que não há o que abrir
-            } else if nota.trancada {
-                sessao.confirmacao = .naoSeRele(nota.uuid)
-            } else {
-                sessao.abrir(nota)
-            }
-        } label: {
-            VStack(alignment: .leading, spacing: 4) {
-                if nota.queimada {
-                    // §8: a queimada não finge existir. Mostra o que sobrou —
-                    // e o que sobrou é justamente o que se multiplica.
-                    Label("Expressiva — queimada", systemImage: "flame")
-                        .font(.body.weight(.semibold))
-                        .foregroundStyle(Tema.tintaSuave)
-                    if !nota.sentido.isEmpty {
-                        DestaqueBusca.texto(nota.sentido, termo: busca, base: Tema.tinta)
-                            .font(.subheadline)
-                            .lineLimit(2)
-                    }
-                    Text(nota.minutosEscritos >= 1
-                         ? "\(nota.minutosEscritos) min · \(VozDoAutor.relativo(nota.criadaEm))"
-                         : VozDoAutor.relativo(nota.criadaEm))
-                        .font(.subheadline)
-                        .foregroundStyle(Tema.tintaFraca)
-                } else if nota.trancada {
-                    Label("Expressiva — trancada", systemImage: "lock.fill")
-                        .font(.body.weight(.semibold))
-                        .foregroundStyle(Tema.tintaSuave)
-                    Text("não se relê · \(VozDoAutor.relativo(nota.criadaEm))")
-                        .font(.subheadline)
-                        .foregroundStyle(Tema.tintaFraca)
-                } else {
-                    DestaqueBusca.texto(titulo(nota), termo: busca, base: Tema.tinta)
-                        .font(Tema.chrome.weight(.semibold))
-                        .lineLimit(1)
-                    HStack(spacing: 8) {
-                        // tag é CHIP, data é texto: dois tipos de dado, duas
-                        // roupas (law-of-similarity — antes liam como uma string)
-                        if let g = nota.gesto {
-                            Text(g.nome.uppercased())
-                                .font(Tema.label)
-                                .tracking(Tema.trackingLabel)
-                                .foregroundStyle(Tema.tintaSuave)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(Color.white.opacity(0.06), in: Capsule())
+        // Dois botões irmãos — nunca um Button dentro do outro. O chip de
+        // domínio promete um toque; aninhado, o toque abria a nota.
+        HStack(alignment: .center, spacing: 8) {
+            Button { abrirDaLista(nota) } label: {
+                VStack(alignment: .leading, spacing: 4) {
+                    if nota.queimada {
+                        // §8: a queimada não finge existir. Mostra o que sobrou —
+                        // e o que sobrou é justamente o que se multiplica.
+                        Text("Expressiva — queimada")
+                            .font(.body.weight(.semibold))
+                            .foregroundStyle(Tema.tintaSuave)
+                        if !nota.sentido.isEmpty {
+                            DestaqueBusca.texto(nota.sentido, termo: busca, base: Tema.tinta)
+                                .font(.subheadline)
+                                .lineLimit(2)
                         }
-                        if let d = nota.dominio {
-                            Button {
-                                Toque.leve()
-                                nota.dominio = nil
-                                nota.dominioTravado = true
-                                try? context.save()
-                            } label: {
-                                Text(d.nome.uppercased())
+                        Text(nota.minutosEscritos >= 1
+                             ? "\(nota.minutosEscritos) min · \(VozDoAutor.relativo(nota.criadaEm))"
+                             : VozDoAutor.relativo(nota.criadaEm))
+                            .font(.subheadline)
+                            .foregroundStyle(Tema.tintaFraca)
+                    } else if nota.trancada {
+                        Text("Expressiva — trancada")
+                            .font(.body.weight(.semibold))
+                            .foregroundStyle(Tema.tintaSuave)
+                        Text("não se relê · \(VozDoAutor.relativo(nota.criadaEm))")
+                            .font(.subheadline)
+                            .foregroundStyle(Tema.tintaFraca)
+                    } else {
+                        DestaqueBusca.texto(titulo(nota), termo: busca, base: Tema.tinta)
+                            .font(Tema.chrome.weight(.semibold))
+                            .lineLimit(1)
+                        HStack(spacing: 8) {
+                            if let g = nota.gesto {
+                                Text(g.nome.uppercased())
                                     .font(Tema.label)
                                     .tracking(Tema.trackingLabel)
                                     .foregroundStyle(Tema.tintaSuave)
@@ -379,38 +367,59 @@ struct NotasView: View {
                                     .padding(.vertical, 2)
                                     .background(Color.white.opacity(0.06), in: Capsule())
                             }
-                            .buttonStyle(PressaoDiscreta())
-                            .accessibilityLabel(d.nome)
-                            .accessibilityHint("Um toque tira o domínio")
-                        }
-                        let sub = subtitulo(nota)
-                        if !(sub == "hoje" && busca.isEmpty) {
-                            DestaqueBusca.texto(sub, termo: busca, base: Tema.tintaFraca)
-                                .font(Tema.meta)
-                                .lineLimit(1)
+                            let sub = subtitulo(nota)
+                            if !(sub == "hoje" && busca.isEmpty) {
+                                DestaqueBusca.texto(sub, termo: busca, base: Tema.tintaFraca)
+                                    .font(Tema.meta)
+                                    .lineLimit(1)
+                            }
                         }
                     }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.vertical, 12)
-            .frame(minHeight: Tema.alvo)
-            .contentShape(Rectangle())
+            .buttonStyle(PressaoDiscreta())
+            .tint(Tema.tinta)
+            .accessibilityLabel(nota.trancada ? "Expressiva trancada" : titulo(nota))
+            .accessibilityHint(nota.trancada ? "Reabrir pede confirmação dupla" : "Segure para recordar a memória")
+            .accessibilityIdentifier("nota-notas")
+
+            if !nota.fechada, let d = nota.dominio {
+                Button {
+                    sessao.soltarDominio(nota, no: context)
+                } label: {
+                    Text(d.nome.uppercased())
+                        .font(Tema.label)
+                        .tracking(Tema.trackingLabel)
+                        .foregroundStyle(Tema.tintaSuave)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Color.white.opacity(0.06), in: Capsule())
+                }
+                .buttonStyle(PressaoDiscreta())
+                .accessibilityLabel(d.nome)
+                .accessibilityHint("Um toque tira o domínio")
+                .accessibilityIdentifier("chip-dominio")
+            }
         }
-        .buttonStyle(PressaoDiscreta())
-        .tint(Tema.tinta)
+        .padding(.vertical, 12)
+        .frame(minHeight: Tema.alvo)
         .contextMenu {
             if !nota.trancada {
                 Button("Recordar") { sessao.recordarDaNotas(nota) }
+            }
+            let fatia = FatiaCorpus.de(nota)
+            if !fatia.nuncaSai {
+                Button("Como contexto") {
+                    contextoURL = Corpus.urlComoContexto([fatia], nome: "traco-contexto.md")
+                }
             }
             // ADR 2026-08-31f: apagar existe, com atrito — trancada exige dupla.
             Button("Apagar", role: .destructive) {
                 sessao.confirmacao = nota.trancada ? .apagarTrancada(nota.uuid) : .apagar(nota.uuid)
             }
         }
-        .accessibilityLabel(nota.trancada ? "Expressiva trancada" : titulo(nota))
-        .accessibilityHint(nota.trancada ? "Reabrir pede confirmação dupla" : "Segure para recordar a memória")
-        .accessibilityIdentifier("nota-notas")
     }
 
     private var filtradas: [Nota] {
@@ -418,7 +427,7 @@ struct NotasView: View {
     }
 
     private func titulo(_ nota: Nota) -> String {
-        VozDoAutor.titulo(nota.texto, gesto: nota.gesto, campos: nota.campos)
+        nota.tituloNaLista
     }
 
     private func subtitulo(_ nota: Nota) -> String {

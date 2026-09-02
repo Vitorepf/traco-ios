@@ -51,7 +51,7 @@ enum Gesto: String, CaseIterable, Codable, Identifiable {
         }
     }
 
-    var campos: [CampoForma] {
+    nonisolated var campos: [CampoForma] {
         switch self {
         case .woop:
             [

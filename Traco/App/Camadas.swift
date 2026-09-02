@@ -2,7 +2,7 @@ import SwiftUI
 
 /// Duas camadas (SPEC §20 rev.2):
 ///
-///     [ Notas · Padrões · Perfil ]  desliza por cima de  [ ESCREVER ]
+///     [ Notas · Calendário · Padrões · Perfil ]  desliza por cima de  [ ESCREVER ]
 ///
 /// Escrever não é aba: é a casa, e fica PARADA no fundo. O arquivo entra pela
 /// esquerda e sai para a esquerda. Um só elemento se move — layout determinístico:

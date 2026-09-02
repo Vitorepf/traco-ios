@@ -2,13 +2,14 @@ import SwiftData
 import SwiftUI
 
 /// A raiz (SPEC §20 rev.2): a página em branco é a CASA e não tem chrome nenhum.
-/// O arquivo (Notas · Padrões · Perfil) é uma camada ao lado, com barra própria.
+/// O arquivo (Notas · Calendário · Padrões · Perfil) é uma camada ao lado, com barra própria.
 /// Vai-se e volta-se por gesto — escrever nunca divide a tela com navegação.
 struct RaizView: View {
     @Environment(\.modelContext) private var context
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var sessao = Sessao()
     @State private var tecladoAberto = false
+    @State private var agenda = CalendarioAgenda()
 
     private var arquivoAberto: Binding<Bool> {
         Binding(
@@ -30,6 +31,7 @@ struct RaizView: View {
                 Tema.fundo.ignoresSafeArea()
                 Group {
                     switch sessao.abaArquivo {
+                    case .calendario: CalendarioView(agenda: agenda)
                     case .padroes: PadroesView(sessao: sessao)
                     case .perfil: PerfilView(sessao: sessao)
                     default: NotasView(sessao: sessao)
@@ -97,7 +99,20 @@ struct RaizView: View {
             ? .easeOut(duration: 0.22)
             : .easeOut(duration: 0.9),
             value: sessao.fechoExpressiva)
-        .preferredColorScheme(.dark)
+        .overlay {
+            if let aviso = DiscoTraco.aviso {
+                ZStack {
+                    Tema.fundo.ignoresSafeArea()
+                    Text(aviso)
+                        .font(Tema.corpo)
+                        .foregroundStyle(Tema.tinta)
+                        .padding(Tema.margem)
+                        .frame(maxWidth: 680)
+                }
+                .accessibilityIdentifier("disco-falhou")
+            }
+        }
+        .preferredColorScheme(sessao.aba == .calendario ? .light : .dark)
         // A página em voo GRAVA ao sair de cena. Fica na RAIZ e escuta a
         // notificação do UIApplication: o `scenePhase` de uma view aninhada
         // chegou tarde demais para gravar antes da suspensão.

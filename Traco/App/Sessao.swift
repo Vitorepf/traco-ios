@@ -52,6 +52,10 @@ final class Sessao {
     var recordarGesto: Gesto?
     var recordarUUID: UUID?
     var filaUUIDs: [UUID] = []
+    /// Só a notificação do dia liga a fila. Recordar solto nunca mostra "próxima".
+    var filaAtiva = false
+    /// Testes: injeta recusa do disco. Produção deixa nil e grava o contexto.
+    var persistirNoDisco: ((ModelContext) throws -> Void)?
 
     private var toastTask: Task<Void, Never>?
     private var timerTask: Task<Void, Never>?
@@ -59,6 +63,28 @@ final class Sessao {
 
     var paginaVazia: Bool {
         texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    /// A voz pode viver só nos campos (Se, Destilar, WOOP). Página vazia ≠ sem nota.
+    var temVoz: Bool {
+        !VozDoAutor.juntar(texto: texto, campos: campos, sentido: sentidoPendente ?? "")
+            .trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    /// Recordar esconde um alvo. O alvo pode ser só o Então, só a frase.
+    var podeRecordar: Bool {
+        RitualRecordar.de(gesto).temAlvo(texto: texto, campos: campos)
+    }
+
+    /// SPEC §4/§6: a forma vive abaixo do texto. Expressiva não tem campos.
+    var temCamposDaForma: Bool {
+        guard let g = gesto, g != .expressiva else { return false }
+        return !g.campos.isEmpty
+    }
+
+    /// Um âmbar por vista: Concluir cede enquanto a análise lê ou o cartão fala.
+    var concluirEAmbar: Bool {
+        gesto != nil && gesto != .expressiva && cartao == nil && !analisando
     }
 
     var minutosExpressiva: Int {
@@ -172,7 +198,7 @@ final class Sessao {
         Revisoes.registrarCumprida(uuid)
         if let nota = Self.buscar(uuid: uuid, no: context) {
             Revisoes.agendar(uuid: nota.uuid, criadaEm: nota.criadaEm, gesto: nota.gesto,
-                             trancada: nota.fechada, texto: nota.texto)
+                             trancada: nota.fechada, texto: nota.texto, campos: nota.campos)
         }
     }
 
@@ -184,8 +210,9 @@ final class Sessao {
     }
 
     var temProximaFila: Bool {
+        guard filaAtiva else { return false }
         guard let atual = recordarUUID, let i = filaUUIDs.firstIndex(of: atual) else {
-            return filaUUIDs.count > 1
+            return false
         }
         return i + 1 < filaUUIDs.count
     }
@@ -194,6 +221,7 @@ final class Sessao {
         let notas = (try? context.fetch(FetchDescriptor<Nota>())) ?? []
         let fila = Revisoes.filaDoDia(notas: notas)
         filaUUIDs = fila.map(\.uuid)
+        filaAtiva = !fila.isEmpty
         guard let primeira = fila.first else {
             mostrarToast("nada a recordar hoje.")
             return
@@ -287,6 +315,13 @@ final class Sessao {
     }
 
     func abrirDiaDaSerie(_ serie: UUID, dia: Int, no context: ModelContext) {
+        let todas = (try? context.fetch(FetchDescriptor<Nota>())) ?? []
+        if let existente = todas.first(where: {
+            $0.serieUUID == serie && $0.diaDaSerie == dia && !$0.fechada
+        }) {
+            abrir(existente)
+            return
+        }
         novaPagina()
         seriePendente = serie
         diaPendente = dia
@@ -357,11 +392,15 @@ final class Sessao {
     func abrirFecho(no context: ModelContext) {
         let minutos = minutosExpressiva
         confirmacao = nil
-        trancarESair(no: context, destino: .pagina)
-        confirmacao = nil
-        fechoUUID = Self.ultimaTrancada(no: context)?.uuid
+        pararTimer()
+        salvar(no: context, trancar: true)
+        let alvo = notaUUID
+        sentidoPendente = nil
+        novaPagina()
+        Toque.fechou()
+        fechoUUID = alvo
         fechoExpressiva = minutos
-        if let uuid = fechoUUID, let nota = Self.buscar(uuid: uuid, no: context) {
+        if let uuid = alvo, let nota = Self.buscar(uuid: uuid, no: context) {
             sentidosDaSerie = Self.sentidosAnteriores(nota, no: context)
         }
     }
@@ -376,6 +415,9 @@ final class Sessao {
     }
 
     func continuarSerie(na nota: Nota) {
+        let temVoz = !nota.sentido.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            || !nota.texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        guard temVoz else { return }
         if nota.serieUUID == nil {
             nota.serieUUID = UUID()
             nota.diaDaSerie = 1
@@ -387,17 +429,14 @@ final class Sessao {
             em: Revisoes.proximoDiaDaSerie())
     }
 
-    /// A recém-selada: a queima do fecho age sobre ela, mesmo depois do novaPagina.
-    private static func ultimaTrancada(no context: ModelContext) -> Nota? {
-        let todas = (try? context.fetch(FetchDescriptor<Nota>())) ?? []
-        return todas
-            .filter { $0.trancada && !$0.queimada }
-            .max { $0.editadaEm < $1.editadaEm }
-    }
-
     func salvar(no context: ModelContext, trancar: Bool = false) {
-        let limpo = texto.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !limpo.isEmpty || trancar else { return }
+        let serieEmVoo = gesto == .expressiva && seriePendente != nil
+        guard temVoz || trancar || serieEmVoo else {
+            // Página vazia não é nota — o disco fica. A tela bloqueada não:
+            // o autor apagou a única de hoje, e a linha some no mesmo instante.
+            if let notaUUID { DestaqueDoDia.apagar(id: notaUUID) }
+            return
+        }
         let prazo = (timerLigado && !trancar) ? timerPrazo : nil
         let nota: Nota
         if let notaUUID, let existente = Self.buscar(uuid: notaUUID, no: context) {
@@ -455,20 +494,46 @@ final class Sessao {
     }
 
     private func aplicarGatilho(na nota: Nota) {
-        guard gesto == .seEntao || gesto == .woop else { return }
-        let fonte = (campos["se"] ?? campos["plano"] ?? "")
-        guard let quando = Gatilho.data(em: fonte) else { return }
-        nota.gatilhoEm = quando
+        let fonte = (gesto == .seEntao || gesto == .woop)
+            ? (campos["se"] ?? campos["plano"] ?? "")
+            : ""
+        guard let quando = Gatilho.data(em: fonte) else {
+            nota.gatilhoEm = nil
+            Revisoes.cancelarGatilho(uuid: nota.uuid)
+            return
+        }
         let titulo = VozDoAutor.titulo(texto, gesto: gesto, campos: campos)
-        guard !titulo.isEmpty else { return }
+        guard !titulo.isEmpty else {
+            nota.gatilhoEm = nil
+            Revisoes.cancelarGatilho(uuid: nota.uuid)
+            return
+        }
+        nota.gatilhoEm = quando
+        Revisoes.cancelarGatilho(uuid: nota.uuid)
         Revisoes.agendarGatilho(uuid: nota.uuid, titulo: titulo, em: quando)
     }
 
+    /// A nota do disco — id, datas e sentido reais. Nunca um cabeçalho inventado.
+    func fatiaComoContexto(no context: ModelContext) -> FatiaCorpus? {
+        salvar(no: context)
+        guard let id = notaUUID, let nota = Self.buscar(uuid: id, no: context) else { return nil }
+        let fatia = FatiaCorpus.de(nota)
+        return fatia.nuncaSai ? nil : fatia
+    }
+
+    /// `unica` vazio depois de vestir a forma não é ausência — o campo existe
+    /// como "". A prosa do corpo é a única de hoje até o autor preencher o sítio.
+    private func linhaDoDestaque(texto: String, campos: [String: String]) -> String {
+        let unica = campos["unica"]?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        return unica.isEmpty ? VozDoAutor.titulo(texto) : unica
+    }
+
     private func aplicarDestaque(na nota: Nota) {
-        guard gesto == .destaque, !nota.fechada else { return }
-        let linha = campos["unica"]?.trimmingCharacters(in: .whitespacesAndNewlines)
-            ?? VozDoAutor.titulo(texto)
-        DestaqueDoDia.gravar(linha)
+        if gesto == .destaque, !nota.fechada {
+            DestaqueDoDia.gravar(linhaDoDestaque(texto: texto, campos: campos), id: nota.uuid)
+            return
+        }
+        DestaqueDoDia.apagar(id: nota.uuid)
     }
 
     func desfazerDominio() {
@@ -477,17 +542,46 @@ final class Sessao {
         Toque.leve()
     }
 
+    /// ADR 2026-09-02c: um toque no chip tira o rótulo e trava. Se o disco
+    /// recusa, o rótulo continua — o gesto não mente.
+    @discardableResult
+    func soltarDominio(_ nota: Nota, no context: ModelContext) -> Bool {
+        nota.soltarDominio()
+        guard persistir(context) else {
+            mostrarToast("não consegui soltar o domínio — o rótulo continua.")
+            return false
+        }
+        Toque.leve()
+        return true
+    }
+
     /// Expressiva vencida sobrevive à morte do processo: a notas não pode vazar o texto.
     func trancarExpressivasVencidas(no context: ModelContext, agora: Date = .now) {
         guard let notas = try? context.fetch(FetchDescriptor<Nota>()) else { return }
         var mudou = false
+        var recem: Nota?
         for nota in notas {
-            guard nota.gesto == .expressiva, !nota.trancada, let prazo = nota.expressivaPrazo, prazo <= agora else { continue }
+            guard nota.gesto == .expressiva, !nota.fechada, let prazo = nota.expressivaPrazo, prazo <= agora else { continue }
             nota.trancada = true
             nota.expressivaPrazo = nil
+            recem = nota
             mudou = true
         }
-        if mudou { try? context.save() }
+        if mudou {
+            guard persistir(context) else {
+                mostrarToast("não consegui trancar — a nota continua aberta.")
+                return
+            }
+            if let recem, recem.sentido.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+               fechoExpressiva == nil {
+                fechoUUID = recem.uuid
+                fechoExpressiva = recem.minutosEscritos
+                sentidosDaSerie = Self.sentidosAnteriores(recem, no: context)
+            }
+            if let todas = try? context.fetch(FetchDescriptor<Nota>()) {
+                Corpus.backupAutomatico(notas: todas)
+            }
+        }
     }
 
     /// P0 6: no arranque, anexos sem marcador em NOTA NENHUMA (trancadas incluídas —
@@ -518,6 +612,8 @@ final class Sessao {
         sentidosDaSerie = []
         recordarGesto = nil
         recordarUUID = nil
+        filaUUIDs = []
+        filaAtiva = false
     }
 
     func abrir(_ nota: Nota, mesmoTrancada: Bool = false) {
@@ -557,6 +653,7 @@ final class Sessao {
             }
             return
         }
+        guard temVoz else { return }
         let nomeGesto = gesto?.nome.lowercased()
         salvar(no: context)
         // peak-end-rule: o fim do percurso não devolvia NADA — nem confirmação,
@@ -571,7 +668,7 @@ final class Sessao {
             Holofote.indexar(notas: todas.map { ($0.uuid, $0.vozDoAutor, $0.fechada) })
         }
         if let notaUUID, let nota = Self.buscar(uuid: notaUUID, no: context) {
-            Revisoes.agendar(uuid: nota.uuid, criadaEm: nota.criadaEm, gesto: nota.gesto, trancada: nota.fechada, texto: nota.texto) { [weak self] in
+            Revisoes.agendar(uuid: nota.uuid, criadaEm: nota.criadaEm, gesto: nota.gesto, trancada: nota.fechada, texto: nota.texto, campos: nota.campos) { [weak self] in
                 Task { @MainActor in
                     self?.mostrarToast("revisões precisam de permissão — Ajustes › Traço › Notificações.")
                 }
@@ -606,13 +703,18 @@ final class Sessao {
     }
 
     func irRecordar(no context: ModelContext) {
-        guard !paginaVazia else { return }
+        guard podeRecordar else {
+            if temVoz || !paginaVazia { mostrarToast("ainda não há o que recordar.") }
+            return
+        }
         // A cópia só acontece quando o Recordar vai mesmo abrir: durante o timer,
         // nada é capturado — a expressiva não pode vazar por esta rota.
         if timerLigado {
             confirmacao = .sairTranca(destino: .recordar)
             return
         }
+        filaAtiva = false
+        filaUUIDs = []
         recordarTexto = texto
         recordarCampos = campos
         recordarGesto = gesto
@@ -622,7 +724,10 @@ final class Sessao {
     }
 
     func recordarDaNotas(_ nota: Nota) {
-        guard !nota.fechada else { return }
+        guard !nota.fechada,
+              RitualRecordar.de(nota.gesto).temAlvo(texto: nota.texto, campos: nota.campos)
+        else { return }
+        if !filaAtiva { filaUUIDs = [] }
         recordarTexto = nota.texto
         recordarCampos = nota.campos
         recordarGesto = nota.gesto
@@ -635,10 +740,15 @@ final class Sessao {
     /// mais recente que ainda se relê. Sem nada a recordar, abre as notas — o
     /// toque do widget nunca cai no vazio.
     func recordarMaisRecente(no context: ModelContext) {
-        if !paginaVazia { irRecordar(no: context); return }
+        if RitualRecordar.de(gesto).temAlvo(texto: texto, campos: campos) {
+            irRecordar(no: context)
+            return
+        }
         var desc = FetchDescriptor<Nota>(sortBy: [SortDescriptor(\.editadaEm, order: .reverse)])
         desc.fetchLimit = 8
-        if let nota = (try? context.fetch(desc))?.first(where: { !$0.fechada }) {
+        if let nota = (try? context.fetch(desc))?.first(where: {
+            !$0.fechada && RitualRecordar.de($0.gesto).temAlvo(texto: $0.texto, campos: $0.campos)
+        }) {
             recordarDaNotas(nota)
         } else {
             mostrarNotas = true
@@ -648,7 +758,9 @@ final class Sessao {
     /// SPEC §8: QUEIMAR. Não é esconder — é destruir. O texto é sobrescrito antes
     /// de sumir (não basta marcar), e o backup no Arquivos é regravado na hora,
     /// senão a promessa seria mentira. Sobram data, minutos e a linha de sentido.
-    func queimar(no context: ModelContext, sentido linha: String) {
+    /// Se o disco recusa, a queima não aconteceu: o texto e o fecho ficam.
+    @discardableResult
+    func queimar(no context: ModelContext, sentido linha: String) -> Bool {
         pararTimer()
         let minutos = minutosExpressiva
         let corte = linha.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -672,7 +784,10 @@ final class Sessao {
         nota.expressivaPrazo = nil
         nota.editadaEm = .now
         continuarSerie(na: nota)
-        try? context.save()
+        guard persistir(context) else {
+            mostrarToast("não consegui queimar — o texto continua.")
+            return false
+        }
         // nada de janela de desfazer: queimar não tem volta, e isso é o método
         apagadaRecuperavel = nil
         Revisoes.cancelar(uuid: nota.uuid)
@@ -686,16 +801,21 @@ final class Sessao {
         fechoExpressiva = nil
         sentidoPendente = nil
         fechoUUID = nil
+        return true
     }
 
     /// O "Selar" do fecho: a nota já está selada; aqui só grava a linha de
     /// sentido, que vive FORA do selo e entra no corpus.
-    func guardarSentidoDoFecho(_ linha: String, no context: ModelContext) {
+    @discardableResult
+    func guardarSentidoDoFecho(_ linha: String, no context: ModelContext) -> Bool {
         if let alvo = fechoUUID, let nota = Self.buscar(uuid: alvo, no: context) {
             nota.sentido = linha.trimmingCharacters(in: .whitespacesAndNewlines)
             nota.editadaEm = .now
             continuarSerie(na: nota)
-            try? context.save()
+            guard persistir(context) else {
+                mostrarToast("não consegui gravar o sentido — o fecho continua.")
+                return false
+            }
             if let todas = try? context.fetch(FetchDescriptor<Nota>()) {
                 Corpus.backupAutomatico(notas: todas)
             }
@@ -707,6 +827,47 @@ final class Sessao {
         seriePendente = nil
         diaPendente = 0
         Toque.suave()
+        return true
+    }
+
+    /// Grava ou recua. Sem `try?`: o gesto que promete disco não mente.
+    @discardableResult
+    private func persistir(_ context: ModelContext) -> Bool {
+        do {
+            if let persistirNoDisco {
+                try persistirNoDisco(context)
+            } else {
+                try context.save()
+            }
+            return true
+        } catch {
+            context.rollback()
+            return false
+        }
+    }
+
+    /// SPEC ADR 2026-09-02a: import é gesto. Se o disco recusa, as notas não
+    /// entraram — o aviso não mente que entraram.
+    @discardableResult
+    func importarCorpus(
+        _ itens: [(texto: String, gestoNome: String?, criadaEm: Date)],
+        no context: ModelContext
+    ) -> Int {
+        guard !itens.isEmpty else { return 0 }
+        for item in itens {
+            let gesto = item.gestoNome.flatMap(Gesto.doNome)
+            let (corpo, campos) = Corpus.separarCampos(texto: item.texto, gesto: gesto)
+            let nota = Nota(texto: corpo, gesto: gesto, campos: campos)
+            nota.criadaEm = item.criadaEm
+            context.insert(nota)
+        }
+        guard persistir(context) else {
+            mostrarToast("não consegui importar — as notas não entraram.")
+            return 0
+        }
+        let n = itens.count
+        mostrarToast("\(n) nota\(n == 1 ? "" : "s") importada\(n == 1 ? "" : "s").")
+        return n
     }
 
     func trancarESair(no context: ModelContext, destino: DestinoConfirmacao) {
@@ -726,12 +887,12 @@ final class Sessao {
     /// na próxima varredura, os anexos que só ela referenciava.
     /// Dia 200: a confirmação vira piloto automático — por isso existe a janela
     /// de desfazer (a cópia vive até a próxima ação ou 6s).
-    var apagadaRecuperavel: (texto: String, gesto: Gesto?, campos: [String: String], criadaEm: Date)?
+    var apagadaRecuperavel: NotaRecuperavel?
     private var desfazerTask: Task<Void, Never>?
 
     func apagar(uuid: UUID, no context: ModelContext) {
         guard let nota = Self.buscar(uuid: uuid, no: context) else { return }
-        apagadaRecuperavel = (nota.texto, nota.gesto, nota.campos, nota.criadaEm)
+        apagadaRecuperavel = nota.retrato()
         Revisoes.cancelar(uuid: uuid)
         Revisoes.cancelarGatilho(uuid: uuid)
         if let serie = nota.serieUUID { Revisoes.cancelarSerie(serie: serie) }
@@ -743,6 +904,7 @@ final class Sessao {
             mostrarToast("não consegui apagar — a nota continua.")
             return
         }
+        DestaqueDoDia.apagar(id: uuid)
         if notaUUID == uuid { novaPagina() }
         varrerAnexosOrfaos(no: context)
         confirmacao = nil
@@ -756,10 +918,31 @@ final class Sessao {
 
     func desfazerApagar(no context: ModelContext) {
         guard let a = apagadaRecuperavel else { return }
-        let nota = Nota(texto: a.texto, gesto: a.gesto, campos: a.campos)
-        nota.criadaEm = a.criadaEm
+        let nota = Nota.de(a)
         context.insert(nota)
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            mostrarToast("não consegui devolver a nota.")
+            return
+        }
+        if nota.gesto == .destaque, !nota.fechada {
+            DestaqueDoDia.gravar(
+                linhaDoDestaque(texto: nota.texto, campos: nota.campos), id: nota.uuid)
+        }
+        if let quando = nota.gatilhoEm {
+            let titulo = VozDoAutor.titulo(nota.texto, gesto: nota.gesto, campos: nota.campos)
+            if !titulo.isEmpty {
+                Revisoes.agendarGatilho(uuid: nota.uuid, titulo: titulo, em: quando)
+            }
+        }
+        Revisoes.agendar(
+            uuid: nota.uuid, criadaEm: nota.criadaEm, gesto: nota.gesto,
+            trancada: nota.fechada, texto: nota.texto, campos: nota.campos)
+        if let serie = nota.serieUUID, nota.gesto == .expressiva,
+           nota.diaDaSerie > 0, nota.diaDaSerie < 4 {
+            Revisoes.agendarSerie(serie: serie, dia: nota.diaDaSerie + 1, em: Revisoes.proximoDiaDaSerie())
+        }
         apagadaRecuperavel = nil
         desfazerTask?.cancel()
         Toque.leve()

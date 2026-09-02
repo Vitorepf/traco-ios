@@ -124,7 +124,7 @@ struct FechoExpressivaView: View {
         foco = false
         let linha = corte
         guard !reduceMotion else {
-            sessao.queimar(no: context, sentido: linha)
+            _ = sessao.queimar(no: context, sentido: linha)
             return
         }
         Task { @MainActor in
@@ -133,7 +133,9 @@ struct FechoExpressivaView: View {
             try? await Task.sleep(for: .milliseconds(320))
             withAnimation(.easeIn(duration: Tema.queimaCena)) { progressoQueima = 1 }
             try? await Task.sleep(for: .seconds(Tema.queimaCena + 0.15))
-            sessao.queimar(no: context, sentido: linha)
+            if !sessao.queimar(no: context, sentido: linha) {
+                withAnimation(.easeOut(duration: 0.2)) { progressoQueima = 0 }
+            }
         }
     }
 

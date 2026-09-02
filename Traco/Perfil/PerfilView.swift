@@ -39,24 +39,14 @@ struct PerfilView: View {
                       allowedContentTypes: [.plainText, .init(filenameExtension: "md") ?? .plainText],
                       allowsMultipleSelection: true) { resultado in
             guard case .success(let urls) = resultado else { return }
-            var total = 0
+            var itens: [(texto: String, gestoNome: String?, criadaEm: Date)] = []
             for url in urls {
                 let acesso = url.startAccessingSecurityScopedResource()
                 defer { if acesso { url.stopAccessingSecurityScopedResource() } }
                 guard let conteudo = try? String(contentsOf: url, encoding: .utf8) else { continue }
-                for item in Corpus.importar(conteudo) {
-                    // Regra do selo: import JAMAIS cria trancada.
-                    let gesto = item.gestoNome.flatMap(Gesto.doNome)
-                    // labels do export voltam a ser CAMPOS, nunca voz do autor
-                    let (corpo, campos) = Corpus.separarCampos(texto: item.texto, gesto: gesto)
-                    let nota = Nota(texto: corpo, gesto: gesto, campos: campos)
-                    nota.criadaEm = item.criadaEm
-                    context.insert(nota)
-                    total += 1
-                }
+                itens.append(contentsOf: Corpus.importar(conteudo))
             }
-            try? context.save()
-            if total > 0 { sessao.mostrarToast("\(total) nota\(total == 1 ? "" : "s") importada\(total == 1 ? "" : "s").") }
+            _ = sessao.importarCorpus(itens, no: context)
         }
         .sheet(isPresented: Binding(get: { corpusURL != nil }, set: { if !$0 { corpusURL = nil } })) {
             if let corpusURL {

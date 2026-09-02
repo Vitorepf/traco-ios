@@ -21,29 +21,21 @@ struct ProvedorTraco: TimelineProvider {
     }
 }
 
-/// Um alvo de toque do widget: ícone + rótulo, área inteira tocável, abre a rota.
+/// Um alvo de toque: a palavra, a área inteira. Sem ícone — o vocabulário é o gesto.
 private struct AtalhoTraco: View {
     let rota: String
-    let simbolo: String
     let rotulo: String
     let destaque: Bool
 
     var body: some View {
         Link(destination: URL(string: rota)!) {
-            HStack(spacing: 10) {
-                Image(systemName: simbolo)
-                    .font(.system(size: 17, weight: .medium))
-                    .foregroundStyle(destaque ? Tema.ambar : Tema.tintaSuave)
-                    .frame(width: 22)
-                Text(rotulo)
-                    .font(.system(size: 15, weight: .medium))
-                    .foregroundStyle(Tema.tinta)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
-                Spacer(minLength: 0)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .contentShape(Rectangle())
+            Text(rotulo)
+                .font(.system(size: 15, weight: .medium))
+                .foregroundStyle(destaque ? Tema.ambar : Tema.tinta)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
         }
         .accessibilityLabel(rotulo)
     }
@@ -57,16 +49,21 @@ struct TracoWidgetView: View {
         Group {
             switch familia {
             case .accessoryInline:
-                Text(entrada.destaque ?? "Traço")
+                Text(DestaqueDoDia.naTelaBloqueada())
             case .accessoryRectangular:
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("DESTAQUE")
-                        .font(.system(size: 10, weight: .semibold))
-                        .tracking(1.2)
-                        .foregroundStyle(.secondary)
-                    Text(entrada.destaque ?? "—")
+                if let linha = entrada.destaque {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("DESTAQUE")
+                            .font(.system(size: 10, weight: .semibold))
+                            .tracking(1.2)
+                            .foregroundStyle(.secondary)
+                        Text(linha)
+                            .font(.system(size: 14, weight: .medium))
+                            .lineLimit(2)
+                    }
+                } else {
+                    Text(DestaqueDoDia.naTelaBloqueada())
                         .font(.system(size: 14, weight: .medium))
-                        .lineLimit(2)
                 }
             default:
                 casa
@@ -83,18 +80,14 @@ struct TracoWidgetView: View {
                 .foregroundStyle(Tema.tintaFraca)
             Spacer(minLength: 12)
             if familia == .systemSmall {
-                AtalhoTraco(rota: "traco://nova", simbolo: "square.and.pencil",
-                            rotulo: "Nova nota", destaque: true)
+                AtalhoTraco(rota: "traco://nova", rotulo: "Nova nota", destaque: true)
                 Rectangle().fill(Tema.linha).frame(height: 0.5).padding(.vertical, 12)
-                AtalhoTraco(rota: "traco://recordar", simbolo: "arrow.counterclockwise",
-                            rotulo: "Recordar", destaque: false)
+                AtalhoTraco(rota: "traco://recordar", rotulo: "Recordar", destaque: false)
             } else {
                 HStack(spacing: 16) {
-                    AtalhoTraco(rota: "traco://nova", simbolo: "square.and.pencil",
-                                rotulo: "Nova nota", destaque: true)
+                    AtalhoTraco(rota: "traco://nova", rotulo: "Nova nota", destaque: true)
                     Rectangle().fill(Tema.linha).frame(width: 0.5)
-                    AtalhoTraco(rota: "traco://recordar", simbolo: "arrow.counterclockwise",
-                                rotulo: "Recordar", destaque: false)
+                    AtalhoTraco(rota: "traco://recordar", rotulo: "Recordar", destaque: false)
                 }
             }
             Spacer(minLength: 0)

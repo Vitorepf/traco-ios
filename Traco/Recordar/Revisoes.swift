@@ -47,8 +47,12 @@ enum Revisoes {
         contas()[uuid.uuidString] ?? 0
     }
 
-    nonisolated static func podeAgendar(gesto: Gesto?, trancada: Bool, texto: String) -> Bool {
-        !trancada && gesto != .expressiva && !texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    /// Há o que lembrar: o alvo do rito, não a voz solta. Destilar sem corte
+    /// e Se sem Então não entram na fila — Recordar vazio é mentira.
+    nonisolated static func podeAgendar(gesto: Gesto?, trancada: Bool,
+                                        texto: String, campos: [String: String] = [:]) -> Bool {
+        guard !trancada, gesto != .expressiva else { return false }
+        return RitualRecordar.de(gesto).temAlvo(texto: texto, campos: campos)
     }
 
     nonisolated static func proximaRevisao(aPartirDe data: Date) -> Date {
@@ -62,9 +66,10 @@ enum Revisoes {
     }
 
     /// Grava o vencimento. A notificação é UMA, diária — nunca por nota.
-    static func agendar(uuid: UUID, criadaEm: Date, gesto: Gesto?, trancada: Bool, texto: String,
+    static func agendar(uuid: UUID, criadaEm: Date, gesto: Gesto?, trancada: Bool,
+                        texto: String, campos: [String: String] = [:],
                         aoNegar: @escaping @Sendable () -> Void = {}) {
-        guard podeAgendar(gesto: gesto, trancada: trancada, texto: texto) else { return }
+        guard podeAgendar(gesto: gesto, trancada: trancada, texto: texto, campos: campos) else { return }
         if proximaData(uuid) == nil {
             marcarProxima(uuid, daquiA: dias(nivel: nivel(uuid)), agora: max(criadaEm, .now))
         }
@@ -76,7 +81,8 @@ enum Revisoes {
         let hoje = Calendar.current.startOfDay(for: agora)
         return notas
             .filter { nota in
-                guard podeAgendar(gesto: nota.gesto, trancada: nota.fechada, texto: nota.texto) else {
+                guard podeAgendar(gesto: nota.gesto, trancada: nota.fechada,
+                                  texto: nota.texto, campos: nota.campos) else {
                     return false
                 }
                 let vencimento = proximaData(nota.uuid)

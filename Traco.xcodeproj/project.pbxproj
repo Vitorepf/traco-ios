@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		01A1C7D0250C97038CF7CB30 /* CalendarioFicha.swift in Sources */ = {isa = PBXBuildFile; fileRef = D50C2B948E98337ABC4CE64A /* CalendarioFicha.swift */; };
 		03A483C4387E081D6204D93A /* Migracao.swift in Sources */ = {isa = PBXBuildFile; fileRef = F903485BBAA804C94399C747 /* Migracao.swift */; };
 		05008721B50DE83B33C36004 /* CamposFormaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B496594B9155DDF9FAE0B85C /* CamposFormaView.swift */; };
 		074CEFA001610B7014480820 /* ColheitaEixosTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF372B1BEFF3653F9B724C23 /* ColheitaEixosTests.swift */; };
@@ -28,12 +29,15 @@
 		47CDB34EC591FC6D2C9B98F1 /* AnaliseRemota.swift in Sources */ = {isa = PBXBuildFile; fileRef = 559F50CC1AF6E37EF3CA94F7 /* AnaliseRemota.swift */; };
 		49F55E4771098FD4F183F1D0 /* Tema.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A273C7A77EA3B9F5AAAC13A /* Tema.swift */; };
 		4C087E51618A29E54C7DB4BF /* AnexoDisco.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6781E6B90271EAB559E46EB7 /* AnexoDisco.swift */; };
+		4E18148DDC66D42063567090 /* CalendarioTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7537CF8C51549F26D7FCB726 /* CalendarioTests.swift */; };
 		50BDC2DAF155F65D6076D8CD /* Revisoes.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB811F3145B921C3557FB6CF /* Revisoes.swift */; };
 		56A38C95EE9713A63A475FC8 /* NotasESessaoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B544C7CB0EEA5F5D2DAFB30C /* NotasESessaoTests.swift */; };
 		5A36977E5B83A71BE62DD42B /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 8250E3200AC60E254A9A3BB0 /* PrivacyInfo.xcprivacy */; };
 		5B9AE29312A3CD5A78A518FC /* FechoExpressivaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CB7E1BBDF9B934FC651E5E1 /* FechoExpressivaView.swift */; };
+		5DCE4A68B37975A8776F1BEA /* CalendarioEscalas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1A0C028CE98D7512FD39AB /* CalendarioEscalas.swift */; };
 		611B3215CD20394B57D23B03 /* Intencoes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E1B7B58FD49695380C335BA /* Intencoes.swift */; };
 		62F244DD1EE82BE8E45B1831 /* CadernoDiagnostico.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BE14BD28362A74300FD085A /* CadernoDiagnostico.swift */; };
+		6C51B66439DD2E152C8A1D77 /* CalendarioTema.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AD715564AD56997FD28528F /* CalendarioTema.swift */; };
 		790B6E9A5A75BFDBB00BFF9F /* PapelForma.swift in Sources */ = {isa = PBXBuildFile; fileRef = 665F2C234F3966C3C528A729 /* PapelForma.swift */; };
 		7955B1999142FE2CCC93DDD9 /* TituloTela.swift in Sources */ = {isa = PBXBuildFile; fileRef = 813C9D0A44A4071EBACC0EFD /* TituloTela.swift */; };
 		7F26309223D4872E96CFEA82 /* ContaGrok.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DBB3255C8D14DB1494C3558 /* ContaGrok.swift */; };
@@ -50,7 +54,10 @@
 		994B7BC3E12C8BBED0205FC1 /* PaginaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44CF1006FD54376D4F9A5274 /* PaginaView.swift */; };
 		9971859FF28FB8990D88F5DD /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 07FEF6E398FEED60218FF5E1 /* Localizable.xcstrings */; };
 		9AE336A415F4A83195416BE2 /* Gesto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 854249702104D325072DC8FA /* Gesto.swift */; };
+		A12EC39DE749ED01C731FA65 /* CalendarioView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C84F5A9736B63E8169395C4D /* CalendarioView.swift */; };
 		A730B9AC03A66E91B4194C3E /* DestaqueDoDia.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BB175F2F50DED6365BFB989 /* DestaqueDoDia.swift */; };
+		AAC0CE44B9DDC600F55E2BCF /* CalendarioAgenda.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4B0FC29FDAE2DA9A9B41BC2 /* CalendarioAgenda.swift */; };
+		B4026232B29E9D53DD9CE8A3 /* Calendario.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00FF648389CB7C318B68A693 /* Calendario.swift */; };
 		B941B2650E94D6E093A1394A /* PadroesRemoto.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE5E37AF9BC96722920E0256 /* PadroesRemoto.swift */; };
 		BE9E364EB4D15B9B4A0FD32C /* SintaxeLocal.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE31B44AE2B9734818934EE6 /* SintaxeLocal.swift */; };
 		BEB1C73B65013B7CFE80D18D /* RaizView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70BC8BBFDD05D262FE72B42E /* RaizView.swift */; };
@@ -68,7 +75,6 @@
 		F27B18C71280288BE9473182 /* EditorBlocoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67B5D4AE1A40807B1EF842C2 /* EditorBlocoView.swift */; };
 		F28182FA5448CBF7FD5242E7 /* Superficie.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9CC2EA0F0A4BA7D91CB26E /* Superficie.swift */; };
 		F56D7F602C6E9A08A50F1995 /* TracoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8A3AE8285B42EB802930300 /* TracoApp.swift */; };
-		F95F4A8C7DAFEDA808EC6FB9 /* DicionarioNativo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 209F6B81D0461A99D026B58D /* DicionarioNativo.swift */; };
 		FB6AB509E7EB62D3C765CF9C /* Biometria.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E940D918A358CD4BD45629E /* Biometria.swift */; };
 /* End PBXBuildFile section */
 
@@ -105,6 +111,7 @@
 
 /* Begin PBXFileReference section */
 		003219BD29767A986648826F /* Info-extra.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Info-extra.plist"; sourceTree = "<group>"; };
+		00FF648389CB7C318B68A693 /* Calendario.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Calendario.swift; sourceTree = "<group>"; };
 		0654F54BA318B17E77C8F1F5 /* Traco.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Traco.entitlements; sourceTree = "<group>"; };
 		07E0810B1D0BA208B63D167C /* AnaliseLocal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnaliseLocal.swift; sourceTree = "<group>"; };
 		07FEF6E398FEED60218FF5E1 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
@@ -114,7 +121,7 @@
 		1B0F9BB5E377CB48CE727C3F /* Queima.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Queima.swift; sourceTree = "<group>"; };
 		1C7AAAC02FD4111DF3F7A6A6 /* TracoTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = TracoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1E777317BA19B73B43328EA4 /* MenuFormasView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuFormasView.swift; sourceTree = "<group>"; };
-		209F6B81D0461A99D026B58D /* DicionarioNativo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DicionarioNativo.swift; sourceTree = "<group>"; };
+		1F1A0C028CE98D7512FD39AB /* CalendarioEscalas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarioEscalas.swift; sourceTree = "<group>"; };
 		2CB7E1BBDF9B934FC651E5E1 /* FechoExpressivaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FechoExpressivaView.swift; sourceTree = "<group>"; };
 		2CD2B3195498A124686B86F4 /* ConfirmacaoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfirmacaoView.swift; sourceTree = "<group>"; };
 		3012217369C9A480FC336A64 /* Corpus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Corpus.swift; sourceTree = "<group>"; };
@@ -140,6 +147,7 @@
 		6F91F61A55D69A7BC4E8B9B8 /* TracoWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TracoWidget.entitlements; sourceTree = "<group>"; };
 		70BC8BBFDD05D262FE72B42E /* RaizView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RaizView.swift; sourceTree = "<group>"; };
 		752E5B8AEE11066FE1493A3D /* Nota.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Nota.swift; sourceTree = "<group>"; };
+		7537CF8C51549F26D7FCB726 /* CalendarioTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarioTests.swift; sourceTree = "<group>"; };
 		7BB175F2F50DED6365BFB989 /* DestaqueDoDia.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DestaqueDoDia.swift; sourceTree = "<group>"; };
 		813C9D0A44A4071EBACC0EFD /* TituloTela.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TituloTela.swift; sourceTree = "<group>"; };
 		8250E3200AC60E254A9A3BB0 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -147,7 +155,9 @@
 		854249702104D325072DC8FA /* Gesto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gesto.swift; sourceTree = "<group>"; };
 		8A31CF16DDDD850E4008ED6A /* VozDoAutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VozDoAutor.swift; sourceTree = "<group>"; };
 		8C37AE5D202E97779C84A745 /* TracoWidget.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = TracoWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		9AD715564AD56997FD28528F /* CalendarioTema.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarioTema.swift; sourceTree = "<group>"; };
 		9E1B7B58FD49695380C335BA /* Intencoes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Intencoes.swift; sourceTree = "<group>"; };
+		A4B0FC29FDAE2DA9A9B41BC2 /* CalendarioAgenda.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarioAgenda.swift; sourceTree = "<group>"; };
 		A4D7AFFE24FE679844349AD3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A810EC1AF4E17D4DB08A56B3 /* BarraNavegacao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarraNavegacao.swift; sourceTree = "<group>"; };
 		ACC5FB2B7162F211E437D280 /* Camadas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camadas.swift; sourceTree = "<group>"; };
@@ -161,11 +171,13 @@
 		C231AAA4F75F1F358615DD8D /* Holofote.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Holofote.swift; sourceTree = "<group>"; };
 		C7460E11C15C79C8BF502E84 /* TracoWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TracoWidget.swift; sourceTree = "<group>"; };
 		C8368BD8FD67D026089BF81E /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		C84F5A9736B63E8169395C4D /* CalendarioView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarioView.swift; sourceTree = "<group>"; };
 		C905B08A3932A5955A7DAFA6 /* BlocoCaderno.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlocoCaderno.swift; sourceTree = "<group>"; };
 		C9F22E37F6BFFDA21C00C087 /* CartaoAnaliseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CartaoAnaliseView.swift; sourceTree = "<group>"; };
 		CE31B44AE2B9734818934EE6 /* SintaxeLocal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SintaxeLocal.swift; sourceTree = "<group>"; };
 		CF372B1BEFF3653F9B724C23 /* ColheitaEixosTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColheitaEixosTests.swift; sourceTree = "<group>"; };
 		D3D27C2F2E3EE0267AF20320 /* Traco.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Traco.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D50C2B948E98337ABC4CE64A /* CalendarioFicha.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarioFicha.swift; sourceTree = "<group>"; };
 		D559A524E20BFCB3DD3265B3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		E2751D1D96F07B6B9980FA75 /* Toque.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Toque.swift; sourceTree = "<group>"; };
 		F8A3AE8285B42EB802930300 /* TracoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TracoApp.swift; sourceTree = "<group>"; };
@@ -190,7 +202,6 @@
 			children = (
 				B496594B9155DDF9FAE0B85C /* CamposFormaView.swift */,
 				C9F22E37F6BFFDA21C00C087 /* CartaoAnaliseView.swift */,
-				209F6B81D0461A99D026B58D /* DicionarioNativo.swift */,
 				44CF1006FD54376D4F9A5274 /* PaginaView.swift */,
 			);
 			path = Pagina;
@@ -231,6 +242,19 @@
 			path = Caderno;
 			sourceTree = "<group>";
 		};
+		432EDF6D036BCF0A652A26D3 /* Calendario */ = {
+			isa = PBXGroup;
+			children = (
+				00FF648389CB7C318B68A693 /* Calendario.swift */,
+				A4B0FC29FDAE2DA9A9B41BC2 /* CalendarioAgenda.swift */,
+				1F1A0C028CE98D7512FD39AB /* CalendarioEscalas.swift */,
+				D50C2B948E98337ABC4CE64A /* CalendarioFicha.swift */,
+				9AD715564AD56997FD28528F /* CalendarioTema.swift */,
+				C84F5A9736B63E8169395C4D /* CalendarioView.swift */,
+			);
+			path = Calendario;
+			sourceTree = "<group>";
+		};
 		4FD0343DA6A44F13F705F2AA /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -262,6 +286,7 @@
 				4BE14BD28362A74300FD085A /* CadernoDiagnostico.swift */,
 				1757D3DFD4D2B96B4136FB92 /* CadernoFuzzTests.swift */,
 				B5A488C4342AF60848A88895 /* CadernoTests.swift */,
+				7537CF8C51549F26D7FCB726 /* CalendarioTests.swift */,
 				CF372B1BEFF3653F9B724C23 /* ColheitaEixosTests.swift */,
 				B544C7CB0EEA5F5D2DAFB30C /* NotasESessaoTests.swift */,
 			);
@@ -359,6 +384,7 @@
 				C3B86D2D8B3DF93E2F8A7FA6 /* Analise */,
 				5CCD748C62CA770B789E3C49 /* App */,
 				4094DF2F6FAF456DD3AFDF7E /* Caderno */,
+				432EDF6D036BCF0A652A26D3 /* Calendario */,
 				8FAD282C36528CE1432292DD /* Confirmacao */,
 				69C58EBBB2BA6B088529BBAA /* Modelo */,
 				C338321710072474EE95E8D4 /* Notas */,
@@ -500,6 +526,7 @@
 				62F244DD1EE82BE8E45B1831 /* CadernoDiagnostico.swift in Sources */,
 				295A215EC19C2F11945E6734 /* CadernoFuzzTests.swift in Sources */,
 				EAE5E994955519A08418ADD6 /* CadernoTests.swift in Sources */,
+				4E18148DDC66D42063567090 /* CalendarioTests.swift in Sources */,
 				074CEFA001610B7014480820 /* ColheitaEixosTests.swift in Sources */,
 				56A38C95EE9713A63A475FC8 /* NotasESessaoTests.swift in Sources */,
 			);
@@ -516,6 +543,12 @@
 				FB6AB509E7EB62D3C765CF9C /* Biometria.swift in Sources */,
 				8ACDA4B666D4AA6D1B5F76F6 /* BlocoCaderno.swift in Sources */,
 				F148642627D0F541F44FC281 /* CadernoView.swift in Sources */,
+				B4026232B29E9D53DD9CE8A3 /* Calendario.swift in Sources */,
+				AAC0CE44B9DDC600F55E2BCF /* CalendarioAgenda.swift in Sources */,
+				5DCE4A68B37975A8776F1BEA /* CalendarioEscalas.swift in Sources */,
+				01A1C7D0250C97038CF7CB30 /* CalendarioFicha.swift in Sources */,
+				6C51B66439DD2E152C8A1D77 /* CalendarioTema.swift in Sources */,
+				A12EC39DE749ED01C731FA65 /* CalendarioView.swift in Sources */,
 				80ADF1AB86E85FB378787A92 /* Camadas.swift in Sources */,
 				05008721B50DE83B33C36004 /* CamposFormaView.swift in Sources */,
 				921E42407F002A0F679BA76F /* CartaoAnaliseView.swift in Sources */,
@@ -524,7 +557,6 @@
 				8B41722379ED1CB7724E946C /* Corpus.swift in Sources */,
 				0FA3C90485245DA99E3B96B8 /* DestaqueBusca.swift in Sources */,
 				A730B9AC03A66E91B4194C3E /* DestaqueDoDia.swift in Sources */,
-				F95F4A8C7DAFEDA808EC6FB9 /* DicionarioNativo.swift in Sources */,
 				C50148780B8DC1A48C2EE0E2 /* Dominio.swift in Sources */,
 				F27B18C71280288BE9473182 /* EditorBlocoView.swift in Sources */,
 				5B9AE29312A3CD5A78A518FC /* FechoExpressivaView.swift in Sources */,

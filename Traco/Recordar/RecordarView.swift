@@ -1,5 +1,53 @@
 import SwiftUI
 
+/// O que cada forma esconde no Recordar. Destilar some tudo; o resto mostra
+/// o alvo na leitura — Palavra e Se deixam a pista visível.
+enum RitualRecordar: Equatable, Sendable {
+    case livre, destilada, palavra, seEntao
+
+    nonisolated static func de(_ gesto: Gesto?) -> Self {
+        switch gesto {
+        case .destilar: .destilada
+        case .palavra: .palavra
+        case .seEntao: .seEntao
+        default: .livre
+        }
+    }
+
+    /// Destilar some tudo. Palavra deixa a definição e some a palavra.
+    /// Mostrar o alvo antes é ditado, não memória.
+    nonisolated var mostraAlvoAntesDeEscrever: Bool {
+        switch self {
+        case .destilada, .palavra: false
+        default: true
+        }
+    }
+
+    /// O que o autor tenta lembrar. Destilar cobra a frase — ou o corte
+    /// mais curto que ele chegou a fazer. O rascunho de origem nunca é o alvo:
+    /// era o que se cortava, não o que se lembra.
+    nonisolated func alvo(texto: String, campos: [String: String]) -> String {
+        switch self {
+        case .livre:
+            return VozDoAutor.juntar(texto: texto, campos: campos)
+        case .destilada:
+            for id in ["frase", "em50", "em100", "em200"] {
+                let corte = campos[id]?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                if !corte.isEmpty { return corte }
+            }
+            return ""
+        case .palavra:
+            return Caderno.prosa(de: texto).trimmingCharacters(in: .whitespacesAndNewlines)
+        case .seEntao:
+            return campos["entao"]?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        }
+    }
+
+    nonisolated func temAlvo(texto: String, campos: [String: String]) -> Bool {
+        !alvo(texto: texto, campos: campos).isEmpty
+    }
+}
+
 struct RecordarView: View {
     let texto: String
     let campos: [String: String]
@@ -9,7 +57,7 @@ struct RecordarView: View {
     var aoProxima: (() -> Void)?
     @Environment(\.dismiss) private var dismiss
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var fase: Fase = .ler
+    @State private var fase: Fase
     @State private var memoria = ""
     @FocusState private var foco: Bool
 
@@ -17,21 +65,20 @@ struct RecordarView: View {
         case ler, esconder, escrever, revelar
     }
 
-    private enum Modo {
-        case livre
-        case destilada
-        case palavra
-        case seEntao
+    init(texto: String, campos: [String: String], gesto: Gesto? = nil,
+         aoRevelar: @escaping () -> Void = {},
+         aoCobrarAntes: (() -> Void)? = nil,
+         aoProxima: (() -> Void)? = nil) {
+        self.texto = texto
+        self.campos = campos
+        self.gesto = gesto
+        self.aoRevelar = aoRevelar
+        self.aoCobrarAntes = aoCobrarAntes
+        self.aoProxima = aoProxima
+        _fase = State(initialValue: RitualRecordar.de(gesto).mostraAlvoAntesDeEscrever ? .ler : .escrever)
     }
 
-    private var modo: Modo {
-        switch gesto {
-        case .destilar: .destilada
-        case .palavra: .palavra
-        case .seEntao: .seEntao
-        default: .livre
-        }
-    }
+    private var modo: RitualRecordar { RitualRecordar.de(gesto) }
 
     private var notaInteira: String {
         VozDoAutor.juntar(texto: texto, campos: campos)
@@ -47,12 +94,7 @@ struct RecordarView: View {
     }
 
     private var alvo: String {
-        switch modo {
-        case .livre: notaInteira
-        case .destilada: campos["frase"]?.trimmingCharacters(in: .whitespacesAndNewlines) ?? notaInteira
-        case .palavra: texto.trimmingCharacters(in: .whitespacesAndNewlines)
-        case .seEntao: campos["entao"]?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        }
+        modo.alvo(texto: texto, campos: campos)
     }
 
     private var pergunta: String {
@@ -131,13 +173,7 @@ struct RecordarView: View {
                             .padding(.horizontal, Tema.margem)
                             .padding(.bottom, 16)
                     }
-                    if modo != .destilada {
-                        Text(alvo)
-                            .font(Tema.corpo)
-                            .foregroundStyle(Tema.tinta)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.horizontal, Tema.margem)
-                    } else if !alvo.isEmpty {
+                    if modo.mostraAlvoAntesDeEscrever {
                         Text(alvo)
                             .font(Tema.corpo)
                             .foregroundStyle(Tema.tinta)
@@ -155,7 +191,7 @@ struct RecordarView: View {
                             .padding(.horizontal, Tema.margem)
                             .padding(.bottom, 16)
                     }
-                    if modo != .destilada {
+                    if modo.mostraAlvoAntesDeEscrever {
                         Text(alvo)
                             .font(Tema.corpo)
                             .foregroundStyle(Tema.tinta)
@@ -250,9 +286,7 @@ struct RecordarView: View {
         }
         .background(Tema.fundo.ignoresSafeArea())
         .task {
-            if modo == .destilada {
-                try? await Task.sleep(for: reduceMotion ? .milliseconds(200) : .milliseconds(900))
-                withAnimation(.easeOut(duration: 0.3)) { fase = .escrever }
+            if !modo.mostraAlvoAntesDeEscrever {
                 foco = true
                 return
             }

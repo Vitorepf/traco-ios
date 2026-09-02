@@ -98,19 +98,68 @@ enum Ancora: String, CaseIterable, Codable, Sendable {
     }
 }
 
-/// Lê hora ou período no campo "Se" / plano. Determinístico (NSDataDetector).
+/// Lê hora ou período no campo "Se" / plano. Determinístico.
 enum Gatilho: Sendable {
     nonisolated static func data(em texto: String, agora: Date = .now) -> Date? {
         let limpo = texto.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !limpo.isEmpty else { return nil }
+        // Hora em português primeiro: o detector, em locale inglês, lê "8h" como 20h.
+        if let hm = horaEscrita(limpo) {
+            return proximaHora(hm, aPartirDe: agora)
+        }
         let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.date.rawValue)
         let alcance = NSRange(limpo.startIndex..., in: limpo)
         let hit = detector?.firstMatch(in: limpo, options: [], range: alcance)
-        if let data = hit?.date, data > agora.addingTimeInterval(-60) { return data }
+        if let data = hit?.date {
+            if data > agora.addingTimeInterval(-60) { return data }
+            // Hora de hoje já passou: a intenção é a próxima vez, não o silêncio.
+            if Calendar.current.isDate(data, inSameDayAs: agora) {
+                return Calendar.current.date(byAdding: .day, value: 1, to: data)
+            }
+        }
         if let ancora = Ancora.doPeriodo(limpo) {
             return Self.proxima(ancora, aPartirDe: agora)
         }
         return nil
+    }
+
+    /// "às 8", "as 8h", "14h30" — o detector falha em locale inglês.
+    nonisolated static func horaEscrita(_ texto: String) -> DateComponents? {
+        let lower = texto.lowercased()
+        let padroes = [
+            #"(?:às?|as)\s*(\d{1,2})h(\d{2})?"#,
+            #"(?:às?|as)\s*(\d{1,2}):(\d{2})"#,
+            #"às\s*(\d{1,2})\b"#,
+            #"(\d{1,2})h(\d{2})?"#,
+        ]
+        for p in padroes {
+            guard let re = try? NSRegularExpression(pattern: p),
+                  let m = re.firstMatch(in: lower, range: NSRange(lower.startIndex..., in: lower)),
+                  let r1 = Range(m.range(at: 1), in: lower),
+                  let h = Int(lower[r1]), (0...23).contains(h)
+            else { continue }
+            var minuto = 0
+            if m.numberOfRanges > 2, m.range(at: 2).location != NSNotFound,
+               let r2 = Range(m.range(at: 2), in: lower) {
+                guard let mm = Int(lower[r2]), (0...59).contains(mm) else { continue }
+                minuto = mm
+            }
+            var c = DateComponents()
+            c.hour = h
+            c.minute = minuto
+            return c
+        }
+        return nil
+    }
+
+    nonisolated static func proximaHora(_ hm: DateComponents, aPartirDe agora: Date) -> Date {
+        var comps = Calendar.current.dateComponents([.year, .month, .day], from: agora)
+        comps.hour = hm.hour
+        comps.minute = hm.minute ?? 0
+        comps.second = 0
+        let hoje = Calendar.current.date(from: comps) ?? agora
+        if hoje > agora.addingTimeInterval(-60) { return hoje }
+        return Calendar.current.date(byAdding: .day, value: 1, to: hoje) ?? hoje.addingTimeInterval(86400)
     }
 
     nonisolated static func proxima(_ ancora: Ancora, aPartirDe agora: Date) -> Date {

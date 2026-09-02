@@ -9,11 +9,8 @@ struct TracoApp: App {
     init() {
         // O plano de migração é obrigatório: sem ele, uma mudança de schema
         // apaga as notas do autor em silêncio.
-        if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil {
-            container = try! ModelContainer.traco(emMemoria: true)
-        } else {
-            container = (try? ModelContainer.traco()) ?? (try! ModelContainer.traco(emMemoria: true))
-        }
+        let emTeste = ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+        container = try! DiscoTraco.abrir(emTeste: emTeste)
         UNUserNotificationCenter.current().delegate = Revisoes.Delegate.compartilhado
         Revisoes.agendarFilaDiaria()
     }

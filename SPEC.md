@@ -129,7 +129,7 @@ Templates do app. Nascem VAZIAS abaixo do texto do usuário. Uma forma por nota.
 | **Nota permanente** | ideia/insight curto | Uma ideia nas suas palavras · Liga a · Fonte |
 | **Destaque** | lista de tarefas / "hoje" | A única coisa de hoje, primeiro, até acabar |
 | **Destilar** | texto que pede corte ("numa frase", "em 200") | Em 200 · Em 100 · Em 50 · Numa frase (tetos; aviso se estourar) |
-| **Palavra** | uma palavra que o autor quer poder usar | Nas minhas palavras · Uma frase minha · Onde a encontrei — Look Up nativo |
+| **Palavra** | uma palavra que o autor quer poder usar | Nas minhas palavras · Uma frase minha · Onde a encontrei |
 | **Expressiva** | desabafo emocional longo | sem campos — vira o modo do §8 |
 
 Domínio de vida (Trabalho, Casa, Saúde, Dinheiro, Pessoas, Estudo, Ideias) é
@@ -279,7 +279,8 @@ Três críticos (hierarquia, motion, UX) em 3 rodadas — decisões que valem pa
 - **Expressiva sem escapatória digna**: sair durante o timer (qualquer rota, incluindo
   Recordar) → "Sair agora tranca." [Continuar escrevendo | Trancar e sair]; destino
   preservado após a tranca; beat de ~220ms entre confirmações.
-- **Recordar**: desabilitado com página vazia; beat "Leia uma última vez — a nota vai se
+- **Recordar**: desabilitado sem alvo (corpo vazio E campos sem o que recordar);
+  voz só no Se / na frase conta; beat "Leia uma última vez — a nota vai se
   esconder." antes do blur; Revelar desabilitado até haver memória; saída "‹ voltar".
 - **Copy**: sem citações acadêmicas na interface. Aviso de afirmação: "Afirmação vazia
   não muda nada — e pesa em quem se estima pouco. Escreva por que um valor seu importa."
@@ -442,13 +443,14 @@ destino — barra inferior (`jakobs-law`); links de texto no meio da tela o queb
 Barra inferior só existe no ARQUIVO; na escrita não há chrome nenhum (§3).
 
 ```
-[ Notas · Padrões · Perfil ]  ←→  [ ESCREVER ]
+[ Notas · Calendário · Padrões · Perfil ]  ←→  [ ESCREVER ]
         com barra                   sem nada
 ```
 
 | Destino | Ícone | O que é |
 |---|---|---|
 | Notas | `rectangle.stack` | arquivo, busca e filtros |
+| Calendário | `calendar` | uma escala (D/W/M/Y); o dia âncora não salta |
 | Padrões | `circle.hexagongrid` | perguntas sobre o que se repete |
 | Perfil | `person.crop.circle` | conta e ajustes |
 
@@ -460,7 +462,7 @@ de texto — e por isso vive mesmo com o teclado de pé (matá-lo criava atrito
 depois de concluir uma nota). Um puxador de 3×36pt na borda esquerda dá
 descobribilidade sem ocupar a tela; some com o teclado.
 
-`hicks-law`: três destinos, não quatro. A casa não se escolhe — volta-se para ela.
+`hicks-law`: quatro destinos no arquivo, não cinco. A casa não se escolhe — volta-se para ela. O quarto destino é o calendário (ADR 2026-09-02g): o dono pediu o clone, não um atalho de agenda.
 
 **A barra carrega UMA ação: "Nova".** Começar uma nota não é destino, é ato — por
 isso tem forma própria (pílula âmbar cheia, sem estado de seleção) e **lidera** a
@@ -598,8 +600,8 @@ ignora `id`. Sem servidor, sem conta do Traço.
 
 Duas formas que treinam Linguagem. Destilar corta (200 / 100 / 50 / uma frase)
 com teto visível. Palavra pede a definição nas palavras do autor, uma frase
-sua e a fonte; o dicionário é o nativo do iOS (Look Up). A IA só roteia o
-rótulo; nunca resume, nunca define. Recordar destas formas é invertido:
+sua e a fonte. Look Up é o do iOS no texto seleccionado — a casa não ganha
+botão (§20). A IA só roteia o rótulo; nunca resume, nunca define. Recordar destas formas é invertido:
 Destilar esconde tudo; Palavra mostra a definição e esconde a palavra.
 
 ## ADR 2026-09-02c — Domínio inferido, nunca arquivado
@@ -628,3 +630,11 @@ ADR 31l carregou os métodos validados (Pennebaker, Briñol). A série não inve
 método: são quatro sessões do mesmo, com notificação sem conteúdo abrindo a
 página. No quarto fecho as quatro linhas de sentido ficam visíveis juntas.
 O selo de cada dia vale sozinho.
+
+## ADR 2026-09-02g — Calendário local, uma escala
+
+§12 proibia agenda-como-produto (EventKit, sync, recorrência de sistema). O
+calendário que o dono pediu não é isso: é uma tela do arquivo, eventos no
+aparelho (`calendario.json`), criados em prosa local — a IA nunca escreve o
+evento. D / W / M / Y são zooms do mesmo dia. O aviso do Se continua a não ser
+este calendário. Sem nuvem, sem EventKit, sem escrever na nota.

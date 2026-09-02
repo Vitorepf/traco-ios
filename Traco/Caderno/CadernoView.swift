@@ -8,6 +8,8 @@ struct CadernoView: View {
     /// A barra de ações da página viaja DENTRO deste mesmo inset: uma barra
     /// deslizando e outra aparecendo por opacidade se atravessavam no ar.
     var rodape: AnyView?
+    /// Campos da forma — abaixo do texto, não numa folha que some ao reabrir.
+    var abaixo: AnyView? = nil
     /// Com o cartão em cena, a régua sai: o rodapé tem UM ocupante por vez.
     var esconderRegua: Bool = false
     @Binding var texto: String
@@ -47,34 +49,63 @@ struct CadernoView: View {
         }
     }
 
-    var body: some View {
-        Group {
-            // a página nasceu una e o teclado segue de pé: o campo sob o cursor
-            // NUNCA morre no meio da digitação — a prosa veste ao soltar o teclado
-            if let una = Caderno.paginaUna(texto)
-                ?? (unaCrua && foco.wrappedValue && Caderno.soProsaELista(texto)
-                    ? FatiaCaderno(id: "una-crua", bloco: .paragrafo(texto), fonte: texto, aberto: true)
-                    : nil) {
-                editorUna(una)
-                    .padding(.horizontal, Tema.margem)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            } else {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 16) {
-                        ForEach(fatias) { fatia in
-                            if deveEditar(fatia) {
-                                editor(fatia)
-                            } else {
-                                portal(fatia)
-                            }
-                        }
-                    }
-                    .padding(.horizontal, Tema.margem)
-                    .padding(.bottom, 28)
-                }
-                .scrollDismissesKeyboard(editando == nil ? .interactively : .never)
-            }
+    @ViewBuilder
+    private var paginaCaderno: some View {
+        if let una = Caderno.paginaUna(texto)
+            ?? (unaCrua && foco.wrappedValue && Caderno.soProsaELista(texto)
+                ? FatiaCaderno(id: "una-crua", bloco: .paragrafo(texto), fonte: texto, aberto: true)
+                : nil) {
+            paginaUna(una)
+        } else {
+            paginaFatias
         }
+    }
+
+    @ViewBuilder
+    private func paginaUna(_ una: FatiaCaderno) -> some View {
+        if abaixo != nil {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    editorUna(una)
+                        .padding(.horizontal, Tema.margem)
+                        .frame(maxWidth: .infinity, minHeight: 160, alignment: .topLeading)
+                    abaixo
+                }
+                .padding(.bottom, 28)
+            }
+            .scrollDismissesKeyboard(.interactively)
+        } else {
+            editorUna(una)
+                .padding(.horizontal, Tema.margem)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        }
+    }
+
+    private var paginaFatias: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                ForEach(fatias) { fatia in
+                    fatiaNaPagina(fatia)
+                        .padding(.horizontal, Tema.margem)
+                }
+                abaixo
+            }
+            .padding(.bottom, 28)
+        }
+        .scrollDismissesKeyboard(editando == nil ? .interactively : .never)
+    }
+
+    @ViewBuilder
+    private func fatiaNaPagina(_ fatia: FatiaCaderno) -> some View {
+        if deveEditar(fatia) {
+            editor(fatia)
+        } else {
+            portal(fatia)
+        }
+    }
+
+    var body: some View {
+        paginaCaderno
         // o encaixe ancora no FIM desta view: sem preencher a altura, a régua
         // ficava pendurada no meio da tela, com um vão até a barra de ações
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)

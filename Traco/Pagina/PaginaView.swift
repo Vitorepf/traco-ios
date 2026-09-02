@@ -13,8 +13,6 @@ struct PaginaView: View {
     @State private var abrirArquivo = false
     @State private var chegou = false
     @State private var pulso = false
-    @State private var contextoURL: URL?
-    @State private var dicionario = false
 
     var body: some View {
         // §20: a navegação é da RAIZ. Este Empilha era resíduo da arquitetura
@@ -50,7 +48,10 @@ struct PaginaView: View {
                         .padding(.bottom, 12)
 
                         ScrollView {
-                            CamposFormaView(gesto: gesto, campos: $sessao.campos)
+                            CamposFormaView(
+                                gesto: gesto,
+                                campos: $sessao.campos
+                            )
                                 .padding(.bottom, 24)
                         }
                         .scrollDismissesKeyboard(.interactively)
@@ -74,13 +75,6 @@ struct PaginaView: View {
             .id(sessao.recordarUUID)
             .presentationBackground(Tema.superficie)
             .presentationDragIndicator(.visible)
-        }
-        .sheet(isPresented: Binding(get: { contextoURL != nil },
-                                    set: { if !$0 { contextoURL = nil } })) {
-            if let contextoURL { CompartilharArquivo(url: contextoURL) }
-        }
-        .sheet(isPresented: $dicionario) {
-            DicionarioNativo(termo: palavraDaPagina)
         }
         .onAppear {
             // a chegada assenta em vez de piscar pronta
@@ -267,7 +261,7 @@ struct PaginaView: View {
             .frame(maxWidth: .infinity, minHeight: 54)
             .onAppear { pulso = true }
             .accessibilityIdentifier("analisando")
-        } else if !sessao.paginaVazia {
+        } else if !sessao.paginaVazia || sessao.podeRecordar {
             bottomBar
         }
     }
@@ -281,49 +275,15 @@ struct PaginaView: View {
                 .opacity(0)
                 .accessibilityHidden(true)
 
-            if sessao.notaUUID != nil, !sessao.paginaVazia, sessao.gesto != .expressiva {
-                Button("Como contexto") {
-                    contextoURL = Corpus.urlComoContexto(
-                        [FatiaCorpus(
-                            id: sessao.notaUUID ?? UUID(),
-                            texto: sessao.texto,
-                            gesto: sessao.gesto,
-                            campos: sessao.campos,
-                            criadaEm: .now,
-                            editadaEm: .now,
-                            recordada: sessao.notaUUID.map(Revisoes.contagem) ?? 0,
-                            sentido: sessao.sentidoPendente ?? "",
-                            minutos: sessao.minutosExpressiva,
-                            trancada: false,
-                            queimada: false,
-                            expressivaEmCurso: sessao.gesto == .expressiva && sessao.timerLigado,
-                            dominio: sessao.dominio,
-                            serie: sessao.seriePendente,
-                            dia: sessao.diaPendente
-                        )],
-                        nome: "traco-contexto.md")
-                }
-                .foregroundStyle(Tema.tintaSuave)
-                .frame(minHeight: Tema.alvo)
-                .accessibilityHint("Entrega esta nota à sua IA, sem servidor")
-            }
-
-            if sessao.gesto == .palavra, !palavraDaPagina.isEmpty {
-                Button("Definir") { dicionario = true }
-                    .foregroundStyle(Tema.tintaSuave)
-                    .frame(minHeight: Tema.alvo)
-                    .accessibilityHint("Abre o dicionário do iOS")
-            }
-
             Spacer()
 
             Button("Concluir") { sessao.concluir(no: context) }
                 .keyboardShortcut(.return, modifiers: .command)
-                .foregroundStyle(concluidaEAmbar ? Tema.ambar : Tema.tintaSuave)
-                .opacity(sessao.paginaVazia ? 0 : 1)
-                .allowsHitTesting(!sessao.paginaVazia)
+                .foregroundStyle(sessao.concluirEAmbar ? Tema.ambar : Tema.tintaSuave)
+                .opacity(sessao.temVoz ? 1 : 0)
+                .allowsHitTesting(sessao.temVoz)
                 .frame(minHeight: Tema.alvo)
-                .accessibilityHidden(sessao.paginaVazia)
+                .accessibilityHidden(!sessao.temVoz)
                 .accessibilityIdentifier("concluir")
                 .accessibilityLabel("Concluir")
                 .accessibilityHint("Guarda e abre uma página nova")
@@ -333,12 +293,22 @@ struct PaginaView: View {
         .padding(.horizontal, Tema.margem)
         .padding(.top, 4)
         .padding(.bottom, 8)
-        .animation(.easeOut(duration: 0.2), value: sessao.paginaVazia)
+        .animation(.easeOut(duration: 0.2), value: sessao.temVoz)
+    }
+
+    /// SPEC §4: os campos nascem abaixo do texto. Reabrir a nota não os esconde.
+    private var camposAbaixo: AnyView? {
+        guard sessao.temCamposDaForma, let gesto = sessao.gesto else { return nil }
+        return AnyView(CamposFormaView(
+            gesto: gesto,
+            campos: $sessao.campos
+        ))
     }
 
     private var editor: some View {
         CadernoView(
             rodape: AnyView(rodapeUnico),
+            abaixo: camposAbaixo,
             esconderRegua: sessao.cartao != nil,
             texto: $sessao.texto,
             foco: $focoPagina,
@@ -374,19 +344,11 @@ struct PaginaView: View {
                 .accessibilityLabel("Analisar")
                 .accessibilityHint("Classifica o que você escreveu. Não escreve na nota. Toque longo liga ou desliga a análise automática.")
 
-            // "Vestir" é irmão de "Analisar": age sobre o MESMO texto, mas veste
-            // a forma em vez de classificar. A IA não escreve — só estrutura.
-            Button("Vestir") { sessao.vestirNota() }
-                .foregroundStyle(Tema.tintaSuave)
-                .accessibilityLabel("Vestir a nota")
-                .accessibilityHint("Estrutura o que você escreveu em título, listas e destaques. Não escreve na nota.")
-                .accessibilityIdentifier("vestir-nota")
-
-            // sem `if !paginaVazia` aqui: o rodapeUnico só chega nesta barra com
-            // a página cheia. A condição repetida era morta e fazia parecer que
-            // existe um estado em que "Analisar" aparece sozinho — não existe.
+            // A barra chega com corpo OU com alvo só nos campos. Recordar
+            // não some porque a prosa viveu no Se / na frase, não no corpo.
             Button("Recordar") { sessao.irRecordar(no: context) }
                 .foregroundStyle(Tema.tintaSuave)
+                .disabled(!sessao.podeRecordar)
                 .accessibilityLabel("Recordar")
                 .accessibilityHint("Esconde a nota e cobra a memória")
             Button("Anexar") { abrirArquivo = true }
@@ -441,18 +403,6 @@ struct PaginaView: View {
         String(format: "%02d:%02d", sessao.segundosRestantes / 60, sessao.segundosRestantes % 60)
     }
 
-    private var palavraDaPagina: String {
-        sessao.texto.trimmingCharacters(in: .whitespacesAndNewlines)
-            .split(whereSeparator: { $0.isWhitespace || $0.isNewline })
-            .first
-            .map(String.init) ?? ""
-    }
-
-    /// Um âmbar por vista: com forma aberta, Concluída; senão o analise/cartão leva o acento.
-    private var concluidaEAmbar: Bool {
-        sessao.gesto != nil && sessao.gesto != .expressiva && sessao.cartao == nil
-    }
-
     private var timerTexto: String {
         let m = sessao.segundosRestantes / 60
         let s = sessao.segundosRestantes % 60
@@ -500,6 +450,9 @@ struct PaginaView: View {
         case .notas:
             sessao.salvar(no: context)
             sessao.mostrarNotas = true
+        case .calendario:
+            sessao.irPara(.calendario, no: context)
+            NotificationCenter.default.post(name: Rota.mudou, object: nil)
         case .recordar:
             sessao.recordarMaisRecente(no: context)
         }

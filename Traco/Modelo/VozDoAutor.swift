@@ -14,7 +14,8 @@ enum VozDoAutor: Sendable {
             .joined(separator: "\n")
     }
 
-    /// Destilada mostra a frase; as outras, a primeira linha.
+    /// Destilada mostra a frase; Palavra, a definição; Destaque, a única
+    /// (a mesma linha da tela bloqueada). Sem isso, a lista fica muda.
     nonisolated static func titulo(_ texto: String, gesto: Gesto? = nil,
                                    campos: [String: String] = [:]) -> String {
         if gesto == .destilar {
@@ -25,11 +26,24 @@ enum VozDoAutor: Sendable {
             let minhas = campos["minhas"]?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
             if !minhas.isEmpty { return minhas }
         }
+        if gesto == .destaque {
+            let unica = campos["unica"]?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            if !unica.isEmpty { return unica }
+        }
         let prosa = Caderno.prosa(de: texto)
         let base = prosa.isEmpty ? Caderno.visivel(texto) : prosa
-        return base.split(separator: "\n", omittingEmptySubsequences: true)
+        let doCorpo = base.split(separator: "\n", omittingEmptySubsequences: true)
             .first
             .map(String.init) ?? ""
+        if !doCorpo.isEmpty { return doCorpo }
+        // voz só nos campos: o arquivo não finge que a nota não tem nome
+        if let gesto {
+            for campo in gesto.campos {
+                let v = campos[campo.id]?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                if !v.isEmpty { return v }
+            }
+        }
+        return ""
     }
 
     nonisolated static func truncar(_ texto: String, _ n: Int) -> String {

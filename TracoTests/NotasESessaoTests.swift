@@ -3,6 +3,8 @@ import SwiftUI
 import Testing
 @testable import Traco
 
+private enum DiscoRecusou: Error { case gravar }
+
 struct DestaqueBuscaTests {
     @Test func marcaOTermoSemComerOResto() {
         let t = DestaqueBusca.texto("o celular na cama", termo: "celular", base: .white)
@@ -58,6 +60,24 @@ struct NotasFiltroTests {
         let v = NotasFiltro.visiveis([casa, trabalho], busca: "", filtro: .woop, dominio: .casa)
         #expect(v.map(\.dominio) == [.casa])
     }
+
+    @Test func paginaSemVozNaoEntraNoArquivo() {
+        let fantasma = Nota(texto: "", gesto: .expressiva)
+        fantasma.diaDaSerie = 2
+        let escrita = Nota(texto: "hoje senti o peito", gesto: .expressiva)
+        let selada = Nota(texto: "", gesto: .expressiva, trancada: true)
+        let queimada = Nota(texto: "", gesto: .expressiva, queimada: true, sentido: "o medo tinha nome")
+        let campo = Nota(texto: "", gesto: .woop, campos: ["resultado": "acordar cedo"])
+        let v = NotasFiltro.visiveis(
+            [fantasma, escrita, selada, queimada, campo], busca: "", filtro: nil)
+        #expect(v.contains { $0.texto == "hoje senti o peito" })
+        #expect(v.contains { $0.trancada })
+        #expect(v.contains { $0.queimada && $0.sentido == "o medo tinha nome" })
+        #expect(v.contains { $0.campos["resultado"] == "acordar cedo" })
+        #expect(!v.contains { !$0.fechada && !$0.temVoz })
+        #expect(!fantasma.temVoz)
+        #expect(campo.temVoz)
+    }
 }
 
 @MainActor
@@ -78,6 +98,20 @@ struct SessaoTests {
         #expect(notas[0].texto.contains("senti medo"))
         #expect(s.texto.isEmpty)
         #expect(s.perguntaPadroes == nil)
+    }
+
+    @Test func umAmbarEnquantoLe() {
+        let s = Sessao()
+        s.gesto = .woop
+        #expect(s.concluirEAmbar)
+        s.analisando = true
+        #expect(!s.concluirEAmbar)
+        s.analisando = false
+        s.cartao = .aviso("corta o atalho")
+        #expect(!s.concluirEAmbar)
+        s.cartao = nil
+        s.gesto = .expressiva
+        #expect(!s.concluirEAmbar)
     }
 
     @Test func abrirTrancadaNaoMostraTexto() throws {
@@ -207,6 +241,32 @@ struct SessaoTests {
         s.trancarExpressivasVencidas(no: context)
         #expect(nota.trancada)
         #expect(nota.expressivaPrazo == nil)
+        #expect(s.texto.isEmpty) // a dor não abre
+        #expect(s.fechoExpressiva != nil) // o fecho ainda é devido
+    }
+
+    @Test func vencidaNaoMenteSeODiscoRecusa() throws {
+        let container = try ModelContainer.traco(emMemoria: true)
+        let context = container.mainContext
+        let nota = Nota(
+            texto: "hoje senti medo e o peito ficou pesado o dia inteiro, chorei.",
+            gesto: .expressiva,
+            expressivaPrazo: Date().addingTimeInterval(-30)
+        )
+        context.insert(nota)
+        try context.save()
+        let s = Sessao()
+        let uuid = nota.uuid
+        s.persistirNoDisco = { _ in throw DiscoRecusou.gravar }
+        s.trancarExpressivasVencidas(no: context)
+        #expect(s.fechoExpressiva == nil)
+        #expect(s.fechoUUID == nil)
+        #expect(s.toast != nil)
+
+        let viva = try #require(try context.fetch(FetchDescriptor<Nota>()).first)
+        #expect(viva.uuid == uuid)
+        #expect(!viva.trancada)
+        #expect(viva.expressivaPrazo != nil)
     }
 
     @Test func prazoAbertoRetomaOResto() throws {
@@ -408,6 +468,15 @@ struct RevisoesTests {
         #expect(!Revisoes.podeAgendar(gesto: nil, trancada: false, texto: "   "))
         #expect(Revisoes.podeAgendar(gesto: .woop, trancada: false, texto: "quero correr"))
         #expect(Revisoes.podeAgendar(gesto: nil, trancada: false, texto: "nota nua"))
+        let se = Nota(texto: "", gesto: .seEntao,
+                      campos: ["se": "o celular na cama", "entao": "ponho-o na cozinha"])
+        #expect(se.texto.isEmpty)
+        #expect(se.temVoz)
+        #expect(Revisoes.podeAgendar(gesto: se.gesto, trancada: se.fechada,
+                                    texto: se.texto, campos: se.campos))
+        #expect(!Revisoes.podeAgendar(
+            gesto: .destilar, trancada: false,
+            texto: "um parágrafo longo para cortar", campos: [:]))
     }
 
     @Test func revisaoCaiTresDiasDepois() {
@@ -716,17 +785,24 @@ struct ConfiancaDia200Tests {
         let container = try ModelContainer.traco(emMemoria: true)
         let context = ModelContext(container)
         let nota = Nota(texto: "não era para apagar", gesto: .woop, campos: ["obstaculo": "x"])
+        nota.dominio = .casa
+        nota.dominioTravado = true
+        let id = nota.uuid
+        let criada = nota.criadaEm
         context.insert(nota)
         try context.save()
         let s = Sessao()
-        s.apagar(uuid: nota.uuid, no: context)
+        s.apagar(uuid: id, no: context)
         #expect(try context.fetch(FetchDescriptor<Nota>()).isEmpty)
         #expect(s.apagadaRecuperavel != nil)
         s.desfazerApagar(no: context)
-        let voltou = try context.fetch(FetchDescriptor<Nota>())
-        #expect(voltou.count == 1)
-        #expect(voltou[0].texto == "não era para apagar")
-        #expect(voltou[0].campos["obstaculo"] == "x")
+        let voltou = try #require(try context.fetch(FetchDescriptor<Nota>()).first)
+        #expect(voltou.uuid == id)
+        #expect(voltou.criadaEm == criada)
+        #expect(voltou.texto == "não era para apagar")
+        #expect(voltou.campos["obstaculo"] == "x")
+        #expect(voltou.dominio == .casa)
+        #expect(voltou.dominioTravado)
         #expect(s.apagadaRecuperavel == nil)
     }
 }
@@ -797,6 +873,49 @@ struct FechoExpressivaTests {
         #expect(corpo.contains("# Traço — corpus"))
     }
 
+    @Test func queimarNaoMenteSeODiscoRecusa() throws {
+        let c = try container()
+        let s = Sessao()
+        s.gesto = .expressiva
+        s.texto = "a coisa que eu não queria ter escrito"
+        s.timerLigado = true
+        s.abrirFecho(no: c.mainContext)
+        let uuid = try #require(s.fechoUUID)
+        s.persistirNoDisco = { _ in throw DiscoRecusou.gravar }
+
+        #expect(!s.queimar(no: c.mainContext, sentido: "o medo"))
+        #expect(s.fechoUUID == uuid)
+        #expect(s.fechoExpressiva != nil)
+        #expect(s.toast != nil)
+
+        let nota = try #require(try c.mainContext.fetch(FetchDescriptor<Nota>()).first)
+        #expect(nota.uuid == uuid)
+        #expect(!nota.queimada)
+        #expect(nota.texto == "a coisa que eu não queria ter escrito")
+        #expect(nota.trancada)
+    }
+
+    @Test func sentidoDoFechoNaoMenteSeODiscoRecusa() throws {
+        let c = try container()
+        let s = Sessao()
+        s.gesto = .expressiva
+        s.texto = "o que eu escrevi fica"
+        s.timerLigado = true
+        s.abrirFecho(no: c.mainContext)
+        let uuid = try #require(s.fechoUUID)
+        s.persistirNoDisco = { _ in throw DiscoRecusou.gravar }
+
+        #expect(!s.guardarSentidoDoFecho("o que ficou claro", no: c.mainContext))
+        #expect(s.fechoUUID == uuid)
+        #expect(s.fechoExpressiva != nil)
+        #expect(s.toast != nil)
+
+        let nota = try #require(try c.mainContext.fetch(FetchDescriptor<Nota>()).first)
+        #expect(nota.sentido != "o que ficou claro")
+        #expect(nota.trancada)
+        #expect(nota.texto == "o que eu escrevi fica")
+    }
+
     @Test func queimarNaoDeixaJanelaDeDesfazer() throws {
         let c = try container()
         let s = Sessao()
@@ -861,6 +980,10 @@ struct RotaDoWidgetTests {
         #expect({ if case .novaPagina = destino("traco://") { true } else { false } }())
         #expect({ if case .recordar = destino("traco://recordar") { true } else { false } }())
         #expect({ if case .notas = destino("traco://notas") { true } else { false } }())
+        #expect({ if case .calendario = destino("traco://calendario") { true } else { false } }())
+        #expect({ if case .calendario = destino("traco://calendario/semana") { true } else { false } }())
+        _ = destino("traco://calendario/mes")
+        #expect(Rota.escalaCalendario == .mes)
         #expect(destino("https://exemplo.com") == nil)   // esquema alheio, sem rota
         #expect(destino("traco://inexistente") == nil)    // host desconhecido, sem rota
     }

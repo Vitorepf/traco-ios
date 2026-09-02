@@ -3,18 +3,19 @@ import SwiftUI
 /// Os quatro destinos do app (SPEC §20). Destino ≠ ação: o que se FAZ mora na
 /// tela; o para onde se VAI mora aqui.
 enum Aba: String, CaseIterable, Identifiable, Sendable {
-    case escrever, notas, padroes, perfil
+    case escrever, notas, calendario, padroes, perfil
 
     var id: String { rawValue }
 
-    /// A barra só lista o ARQUIVO. Escrever é a casa — chega-se por gesto,
-    /// não por aba (`hicks-law`: três escolhas, não quatro).
-    static let naBarra: [Aba] = [.notas, .padroes, .perfil]
+    /// A barra lista o ARQUIVO. Escrever é a casa — chega-se por gesto,
+    /// não por aba. Calendário é o quarto destino (ADR 2026-09-02g).
+    static let naBarra: [Aba] = [.notas, .calendario, .padroes, .perfil]
 
     var titulo: String {
         switch self {
         case .escrever: "Escrever"
         case .notas: "Notas"
+        case .calendario: "Calendário"
         case .padroes: "Padrões"
         case .perfil: "Perfil"
         }
@@ -24,6 +25,7 @@ enum Aba: String, CaseIterable, Identifiable, Sendable {
         switch self {
         case .escrever: "square.and.pencil"
         case .notas: "rectangle.stack"
+        case .calendario: "calendar"
         case .padroes: "circle.hexagongrid"
         case .perfil: "person.crop.circle"
         }
@@ -33,6 +35,7 @@ enum Aba: String, CaseIterable, Identifiable, Sendable {
         switch self {
         case .escrever: "A página em branco"
         case .notas: "Suas notas, busca e filtros"
+        case .calendario: "Dia, semana, mês e ano — o dia em que estás"
         case .padroes: "Perguntas sobre o que se repete nas suas notas"
         case .perfil: "Conta e ajustes"
         }
