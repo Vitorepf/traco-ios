@@ -37,4 +37,4 @@ appId: app.traco
       text: "celular"
     timeout: 4000
 - assertVisible: "o celular na cama"
-- takeScreenshot: busca-celular
+- takeScreenshot: /tmp/traco-verify/busca-celular

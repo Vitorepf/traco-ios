@@ -60,9 +60,9 @@ enum Revisoes {
                 return
             }
             let conteudo = UNMutableNotificationContent()
-            conteudo.title = "Recordar"
+            conteudo.title = String(localized: "Recordar")
             // sem conteúdo da nota: o selo vale também na lock screen
-            conteudo.body = "Uma nota de \(degrau) dias atrás espera você recordar."
+            conteudo.body = String(localized: "Uma nota de \(degrau) dias atrás espera você recordar.")
             // nota velha reeditada: a base é o agora — trigger no passado nunca dispara
             let quando = Calendar.current.date(byAdding: .day, value: degrau, to: max(criadaEm, .now)) ?? .now
             let comps = Calendar.current.dateComponents([.year, .month, .day, .hour], from: quando)

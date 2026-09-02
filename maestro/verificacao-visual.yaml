@@ -18,6 +18,7 @@ appId: app.traco
     visible:
       id: "cartao-analise"
     timeout: 5000
+- assertVisible: "Deixar como nota"
 - takeScreenshot: /tmp/traco-verify/hoje/02-cartao-woop
 - tapOn:
     id: "abrir-campos"
@@ -51,3 +52,5 @@ appId: app.traco
 - tapOn:
     id: "aba-padroes"
 - takeScreenshot: /tmp/traco-verify/hoje/06-padroes
+# Padrões cita a voz do autor
+- assertVisible: ".*quero correr.*"

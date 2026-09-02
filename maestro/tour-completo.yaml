@@ -51,3 +51,5 @@ appId: app.traco
 - extendedWaitUntil:
     visible: "DE MEMÓRIA"
     timeout: 5000
+# memória e nota lado a lado (§7)
+- assertVisible: ".*uma nota para recordar depois.*"

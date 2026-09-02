@@ -16,6 +16,8 @@ appId: app.traco
     visible:
       id: aba-notas
     timeout: 4000
+- assertVisible:
+    id: aba-notas
 - takeScreenshot: /tmp/traco-verify/nav/11-arquivo
 # do arquivo: borda direita para a esquerda volta a escrever
 - swipe:
@@ -25,3 +27,5 @@ appId: app.traco
     visible: "Concluir"
     timeout: 4000
 - takeScreenshot: /tmp/traco-verify/nav/12-volta
+# a escrita voltou COM o texto: trocar de camada nunca custa uma palavra (§20)
+- assertVisible: ".*a nota de ontem.*"

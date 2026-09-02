@@ -55,3 +55,6 @@ appId: app.traco
 - extendedWaitUntil:
     visible: "Concluir"
     timeout: 6000
+# de volta à casa, inteira
+- assertVisible:
+    id: pagina

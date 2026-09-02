@@ -36,13 +36,19 @@ xcodebuild test -project Traco.xcodeproj -scheme Traco \
 ```
 
 Varredura E2E ([Maestro](https://maestro.mobile.dev)) — recusa rodar com mais
-de um simulador ligado, porque com dois o instalador e o driver escolhem
-aparelhos diferentes e o veredito sai falso:
+de um simulador ligado (com dois o instalador e o driver escolhem aparelhos
+diferentes e o veredito sai falso), **compila antes de instalar** (fotografar
+build velho é o mesmo bug) e termina com código 1 quando um fluxo falha. Logs
+por fluxo em `/tmp/traco-verify/varredura/`.
 
 ```bash
 ./maestro/varrer.sh                    # todos os fluxos
 ./maestro/varrer.sh maestro/busca.yaml # um fluxo
+SEM_BUILD=1 ./maestro/varrer.sh        # reusa build/ (só quando você sabe que é o atual)
 ```
+
+Capturas de evidência que os fluxos gravam vão para `/tmp/traco-verify/`;
+as que valem guardar moram em `evidencia/`, nunca na raiz.
 
 ## Os documentos
 

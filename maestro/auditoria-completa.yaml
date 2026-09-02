@@ -57,6 +57,7 @@ appId: app.traco
 - tapOn:
     id: "busca-notas"
 - inputText: "tabela"
+- assertVisible: ".*tabela.*"
 - takeScreenshot: /tmp/traco-verify/auditoria/08-notas-busca
 - tapOn:
     id: "limpar-busca"
@@ -78,3 +79,4 @@ appId: app.traco
     visible: "Perfil"
     timeout: 6000
 - takeScreenshot: /tmp/traco-verify/auditoria/10-perfil
+- assertVisible: "Perfil"

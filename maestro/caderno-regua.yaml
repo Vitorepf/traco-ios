@@ -4,4 +4,9 @@ appId: app.traco
     clearState: true
 - tapOn:
     id: pagina
-- takeScreenshot: caderno-regua
+- takeScreenshot: /tmp/traco-verify/caderno-regua
+# a régua existe, com as 12 e a porta "Todas" (ADR 31b)
+- assertVisible:
+    id: "regua-titulo"
+- assertVisible:
+    id: "regua-todas"

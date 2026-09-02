@@ -14,3 +14,5 @@ appId: app.traco
       id: "cartao-analise"
     timeout: 6000
 - takeScreenshot: /tmp/traco-verify/hoje/07-auto-analise
+# §17: a forma veio VESTIDA, com o Soltar a um toque
+- assertVisible: "Deixar como nota"

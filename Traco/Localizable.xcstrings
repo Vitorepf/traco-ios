@@ -1,23 +1,72 @@
 {
   "sourceLanguage": "pt",
-  "version": "1.0",
   "strings": {
-    "Notas": {
+    "%@ guardada · também no Arquivos": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Notes"
+            "value": "%@ saved · also in Files"
           }
         }
       }
     },
-    "Concluída": {
+    "%lld notas importadas.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Done"
+            "value": "%lld notes imported."
+          }
+        }
+      }
+    },
+    "1 nota importada.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 note imported."
+          }
+        }
+      }
+    },
+    "A gravar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recording"
+          }
+        }
+      }
+    },
+    "Abrir a forma %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the %@ form"
+          }
+        }
+      }
+    },
+    "Abrir assim mesmo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open it anyway"
+          }
+        }
+      }
+    },
+    "Abrir mesmo assim": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open anyway"
           }
         }
       }
@@ -32,16 +81,6 @@
         }
       }
     },
-    "Recordar": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Recall"
-          }
-        }
-      }
-    },
     "Anexar": {
       "localizations": {
         "en": {
@@ -52,42 +91,372 @@
         }
       }
     },
-    "‹ página": {
+    "Análise com Grok": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "‹ page"
+            "value": "Grok analysis"
           }
         }
       }
     },
-    "‹ notas": {
+    "Apagar": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "‹ notes"
+            "value": "Delete"
           }
         }
       }
     },
-    "padrões": {
+    "Apagar a trancada?": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "patterns"
+            "value": "Delete the sealed note?"
           }
         }
       }
     },
-    "Padrões": {
+    "Apagar esta nota?": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Patterns"
+            "value": "Delete this note?"
+          }
+        }
+      }
+    },
+    "Apagar para sempre": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete forever"
+          }
+        }
+      }
+    },
+    "Arquivo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "File"
+          }
+        }
+      }
+    },
+    "Aviso": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notice"
+          }
+        }
+      }
+    },
+    "Buscar nas notas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search notes"
+          }
+        }
+      }
+    },
+    "Chave guardada": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Key saved"
+          }
+        }
+      }
+    },
+    "Citação": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quote"
+          }
+        }
+      }
+    },
+    "Começar o timer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start the timer"
+          }
+        }
+      }
+    },
+    "Concluída": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
+          }
+        }
+      }
+    },
+    "Continuar escrevendo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep writing"
+          }
+        }
+      }
+    },
+    "Código": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Code"
+          }
+        }
+      }
+    },
+    "Deixar fechada": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leave it sealed"
+          }
+        }
+      }
+    },
+    "Desfazer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Undo"
+          }
+        }
+      }
+    },
+    "Destaque": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Highlight"
+          }
+        }
+      }
+    },
+    "Divisória": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Divider"
+          }
+        }
+      }
+    },
+    "Ela foi escrita para ficar fechada.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It was written to stay sealed."
+          }
+        }
+      }
+    },
+    "Esconder teclado": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide keyboard"
+          }
+        }
+      }
+    },
+    "Especificação": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spec"
+          }
+        }
+      }
+    },
+    "Expressiva": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Expressive"
+          }
+        }
+      }
+    },
+    "Expressiva — trancada": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Expressive — sealed"
+          }
+        }
+      }
+    },
+    "Forma %@ aberta. Soltar a forma disponível.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Form %@ opened. Release form available."
+          }
+        }
+      }
+    },
+    "Foto": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photo"
+          }
+        }
+      }
+    },
+    "Gravar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Record"
+          }
+        }
+      }
+    },
+    "Guardar no Keychain": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save to Keychain"
+          }
+        }
+      }
+    },
+    "Ideia": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Idea"
+          }
+        }
+      }
+    },
+    "Ir às notas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Go to notes"
+          }
+        }
+      }
+    },
+    "Limpar busca": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear search"
+          }
+        }
+      }
+    },
+    "Lista": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "List"
+          }
+        }
+      }
+    },
+    "Manter": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep"
+          }
+        }
+      }
+    },
+    "Nota permanente": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permanent note"
+          }
+        }
+      }
+    },
+    "Notas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notes"
+          }
+        }
+      }
+    },
+    "Nova página": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New page"
+          }
+        }
+      }
+    },
+    "Numerada": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Numbered"
+          }
+        }
+      }
+    },
+    "Não se relê.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It is not reread."
           }
         }
       }
@@ -112,6 +481,36 @@
         }
       }
     },
+    "Padrões": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Patterns"
+          }
+        }
+      }
+    },
+    "Parar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stop"
+          }
+        }
+      }
+    },
+    "Permanente": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permanent"
+          }
+        }
+      }
+    },
     "RECORDAR": {
       "localizations": {
         "en": {
@@ -122,12 +521,82 @@
         }
       }
     },
-    "Aviso": {
+    "Recordar": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Notice"
+            "value": "Recall"
+          }
+        }
+      }
+    },
+    "Recordar o que ficou": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recall what remains"
+          }
+        }
+      }
+    },
+    "Remover a chave — voltar ao motor local": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove the key — back to the local engine"
+          }
+        }
+      }
+    },
+    "Revelar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reveal"
+          }
+        }
+      }
+    },
+    "Sair agora tranca.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leaving now seals it."
+          }
+        }
+      }
+    },
+    "Seção": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Section"
+          }
+        }
+      }
+    },
+    "Se–então": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If–then"
+          }
+        }
+      }
+    },
+    "Silêncio": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Silence"
           }
         }
       }
@@ -142,52 +611,212 @@
         }
       }
     },
-    "Abrir a forma %@": {
+    "Sugestão de escrita expressiva aberta.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Open the %@ form"
+            "value": "Expressive writing suggestion opened."
           }
         }
       }
     },
-    "Começar o timer": {
+    "Tabela": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Start the timer"
+            "value": "Table"
           }
         }
       }
     },
-    "Buscar nas notas": {
+    "Tarefa": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Search notes"
+            "value": "Task"
           }
         }
       }
     },
-    "Limpar busca": {
+    "Trancada.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Clear search"
+            "value": "Sealed."
           }
         }
       }
     },
-    "Nova página": {
+    "Trancadas": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "New page"
+            "value": "Sealed"
+          }
+        }
+      }
+    },
+    "Trancar e sair": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seal and leave"
+          }
+        }
+      }
+    },
+    "Título": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Title"
+          }
+        }
+      }
+    },
+    "Uma nota de %lld dias atrás espera você recordar.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A note from %lld days ago is waiting to be recalled."
+          }
+        }
+      }
+    },
+    "Verso": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verse"
+          }
+        }
+      }
+    },
+    "Voltar à página": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back to the page"
+          }
+        }
+      }
+    },
+    "Vídeo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Video"
+          }
+        }
+      }
+    },
+    "WOOP": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "WOOP"
+          }
+        }
+      }
+    },
+    "a análise cala durante a escrita.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "the analysis stays quiet while you write."
+          }
+        }
+      }
+    },
+    "a sua assinatura não libera este acesso. o app segue funcionando aqui no aparelho.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "your subscription doesn't include this access. the app keeps working here on the device."
+          }
+        }
+      }
+    },
+    "análise automática desligada.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "automatic analysis off."
+          }
+        }
+      }
+    },
+    "análise automática ligada.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "automatic analysis on."
+          }
+        }
+      }
+    },
+    "análise com Grok: chave guardada": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grok analysis: key saved"
+          }
+        }
+      }
+    },
+    "análise com Grok: configurar chave": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grok analysis: set up key"
+          }
+        }
+      }
+    },
+    "apagada.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "deleted."
+          }
+        }
+      }
+    },
+    "as notas não abriram. nada do que você escrever agora fica. feche o app e abra de novo; se continuar assim, o backup está no app Arquivos › Traço.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "the notes didn't open. nothing you write now will stay. close the app and open it again; if it keeps happening, the backup is in the Files app › Traço."
+          }
+        }
+      }
+    },
+    "conectada — o Grok é o motor, pago pela sua assinatura.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "connected — Grok is the engine, paid by your subscription."
           }
         }
       }
@@ -198,6 +827,66 @@
           "stringUnit": {
             "state": "translated",
             "value": "write on the page"
+          }
+        }
+      }
+    },
+    "essa você queimou. ficou a data e o que você entendeu.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "you burned that one. what's left is the date and what you understood."
+          }
+        }
+      }
+    },
+    "exportar o corpus (.md)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "export the corpus (.md)"
+          }
+        }
+      }
+    },
+    "guardada · também no Arquivos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "saved · also in Files"
+          }
+        }
+      }
+    },
+    "importar .md": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "import .md"
+          }
+        }
+      }
+    },
+    "limite semanal do Grok atingido. o app segue funcionando aqui no aparelho.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grok's weekly limit reached. the app keeps working here on the device."
+          }
+        }
+      }
+    },
+    "nada a vestir aqui.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "nothing to dress here."
           }
         }
       }
@@ -222,412 +911,122 @@
         }
       }
     },
-    "exportar o corpus (.md)": {
+    "não consegui apagar — a nota continua.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "export the corpus (.md)"
+            "value": "couldn't delete — the note stays."
           }
         }
       }
     },
-    "importar .md": {
+    "não consegui gravar — o texto continua na página.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "import .md"
+            "value": "couldn't save — the text stays on the page."
           }
         }
       }
     },
-    "análise com Grok: configurar chave": {
+    "não ficou: as notas não abriram.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Grok analysis: set up key"
+            "value": "not saved: the notes didn't open."
           }
         }
       }
     },
-    "análise com Grok: chave guardada": {
+    "não há o que queimar.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Grok analysis: key saved"
+            "value": "nothing to burn."
           }
         }
       }
     },
-    "Análise com Grok": {
+    "o Grok respondeu %lld. o app segue funcionando aqui no aparelho.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Grok analysis"
+            "value": "Grok answered %lld. the app keeps working here on the device."
           }
         }
       }
     },
-    "Guardar no Keychain": {
+    "padrões": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Save to Keychain"
+            "value": "patterns"
           }
         }
       }
     },
-    "Chave guardada": {
+    "revisões precisam de permissão — Ajustes › Traço › Notificações.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Key saved"
+            "value": "reviews need permission — Settings › Traço › Notifications."
           }
         }
       }
     },
-    "Remover a chave — voltar ao motor local": {
+    "sem conta — tudo funciona aqui no aparelho.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Remove the key — back to the local engine"
+            "value": "no account — everything works here on the device."
           }
         }
       }
     },
-    "Apagar": {
+    "sem rede. o app segue funcionando aqui no aparelho.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Delete"
+            "value": "no network. the app keeps working here on the device."
           }
         }
       }
     },
-    "Apagar esta nota?": {
+    "sessão expirada — entre de novo.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Delete this note?"
+            "value": "session expired — sign in again."
           }
         }
       }
     },
-    "Apagar a trancada?": {
+    "silêncio.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Delete the sealed note?"
+            "value": "silence."
           }
         }
       }
     },
-    "Apagar para sempre": {
+    "silêncio. (sem gesto a vestir, a análise não inventa)": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Delete forever"
-          }
-        }
-      }
-    },
-    "Manter": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Keep"
-          }
-        }
-      }
-    },
-    "Sair agora tranca.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Leaving now seals it."
-          }
-        }
-      }
-    },
-    "Continuar escrevendo": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Keep writing"
-          }
-        }
-      }
-    },
-    "Trancar e sair": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Seal and leave"
-          }
-        }
-      }
-    },
-    "Trancada.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sealed."
-          }
-        }
-      }
-    },
-    "Não se relê.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "It is not reread."
-          }
-        }
-      }
-    },
-    "Deixar fechada": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Leave it sealed"
-          }
-        }
-      }
-    },
-    "Abrir mesmo assim": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Open anyway"
-          }
-        }
-      }
-    },
-    "Abrir assim mesmo": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Open it anyway"
-          }
-        }
-      }
-    },
-    "Ela foi escrita para ficar fechada.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "It was written to stay sealed."
-          }
-        }
-      }
-    },
-    "Voltar à página": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Back to the page"
-          }
-        }
-      }
-    },
-    "Ir às notas": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Go to notes"
-          }
-        }
-      }
-    },
-    "Recordar o que ficou": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Recall what remains"
-          }
-        }
-      }
-    },
-    "Revelar": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Reveal"
-          }
-        }
-      }
-    },
-    "Título": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Title"
-          }
-        }
-      }
-    },
-    "Seção": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Section"
-          }
-        }
-      }
-    },
-    "Lista": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "List"
-          }
-        }
-      }
-    },
-    "Numerada": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Numbered"
-          }
-        }
-      }
-    },
-    "Tarefa": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Task"
-          }
-        }
-      }
-    },
-    "Citação": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Quote"
-          }
-        }
-      }
-    },
-    "Código": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Code"
-          }
-        }
-      }
-    },
-    "Tabela": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Table"
-          }
-        }
-      }
-    },
-    "Divisória": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Divider"
-          }
-        }
-      }
-    },
-    "Verso": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Verse"
-          }
-        }
-      }
-    },
-    "Ideia": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Idea"
-          }
-        }
-      }
-    },
-    "Silêncio": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Silence"
-          }
-        }
-      }
-    },
-    "Esconder teclado": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hide keyboard"
-          }
-        }
-      }
-    },
-    "Foto": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Photo"
-          }
-        }
-      }
-    },
-    "Vídeo": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Video"
+            "value": "silence. (no gesture to dress — the analysis doesn't invent one)"
           }
         }
       }
@@ -642,135 +1041,26 @@
         }
       }
     },
-    "Gravar": {
+    "‹ notas": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Record"
+            "value": "‹ notes"
           }
         }
       }
     },
-    "Parar": {
+    "‹ página": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Stop"
-          }
-        }
-      }
-    },
-    "Arquivo": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "File"
-          }
-        }
-      }
-    },
-    "A gravar": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Recording"
-          }
-        }
-      }
-    },
-    "WOOP": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "WOOP"
-          }
-        }
-      }
-    },
-    "Se–então": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "If–then"
-          }
-        }
-      }
-    },
-    "Nota permanente": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Permanent note"
-          }
-        }
-      }
-    },
-    "Permanente": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Permanent"
-          }
-        }
-      }
-    },
-    "Destaque": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Highlight"
-          }
-        }
-      }
-    },
-    "Expressiva": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Expressive"
-          }
-        }
-      }
-    },
-    "Trancadas": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sealed"
-          }
-        }
-      }
-    },
-    "Expressiva — trancada": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Expressive — sealed"
-          }
-        }
-      }
-    },
-    "Especificação": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Spec"
+            "value": "‹ page"
           }
         }
       }
     }
-  }
+  },
+  "version": "1.0"
 }

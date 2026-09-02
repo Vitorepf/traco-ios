@@ -206,8 +206,10 @@ Persistência local (SwiftData/arquivo). Sem nuvem na v1. Sem conta.
 - **Espaço:** escala de 4. Raio 12.
 - **Motion:** mínimo. A forma nasce com um fade curto (~250ms). Nada anima enquanto
   o usuário digita. `prefers-reduced-motion` respeitado.
-- A UI inteira do editor: topo com [Notas] e [Concluída], página, e UMA barra inferior
-  discreta [Analisar · Recordar · Anexar]. Nada mais. (ADR 31/ago: Anexar entrou com o Caderno.)
+- A UI inteira do editor: topo com [Concluir], página, e — só com o teclado de
+  pé — a régua de 12 formas e UMA barra inferior discreta
+  [Analisar · Vestir · Recordar · Anexar]. Em repouso, nada. (ADR 31/ago: Anexar
+  entrou com o Caderno; ADR 2026-09-02a: Vestir, e a régua é chrome do teclado.)
 
 ## 12. Não-objetivos (v1)
 
@@ -550,3 +552,41 @@ Era o único nome de método em inglês entre cinco em português — jargão de
 programador num app de escrever; o autor de primeira viagem não o entende.
 Muda só a exibição (`Gesto.nome`): o rawValue segue "Spec" e `doNome` aceita
 as duas grafias, então o corpus já exportado importa sem perder o gesto.
+
+## ADR 2026-09-02 — radiografia: o que o código já fazia e a SPEC não dizia
+
+Auditoria completa do código em 02/set (relatório "Radiografia do Traço"),
+seguida da correção de todos os furos com um crítico fresco por lote. As
+decisões que o código passou a carregar, e que este documento assume:
+
+- **a. A barra de ações tem QUATRO atos e a régua mora com o teclado.** §11
+  dizia "[Analisar · Recordar · Anexar]. Nada mais". Vestir entrou na barra por
+  pedido do dono (FILA, 31/ago: "Vestir a nota" P1). Régua e barra são chrome
+  DO TECLADO, não da página: sobem e descem com ele. A página em repouso segue
+  sem chrome (§3, §20). O §11 passa a ler: barra inferior
+  [Analisar · Vestir · Recordar · Anexar] sobre a régua, ambas só com o
+  teclado de pé.
+- **b. "Concluir", não "Concluída".** Verbo para ação (reforma da linguagem,
+  ADR 2026-08-31). O §15 fica emendado.
+- **c. O selo vale desde o primeiro caractere.** `Nota.fechada` inclui a
+  expressiva EM CURSO: rede, backup, índice, busca, Padrões e Recordar da lista
+  nunca a leem; só retomar o timer (abrir) olha `trancada`. Toda porta de
+  "nova nota" (barra, widget, `traco://`, Atalhos) passa pela confirmação
+  quando o timer roda.
+- **d. A pausa grava.** §20 dizia "trocar de tela salva"; agora a pausa de
+  1,0s grava também (600ms ANTES do vestir automático — §21). Nota esvaziada
+  some, como no Notes — nunca uma fechada, nunca uma com resposta de campo.
+- **e. Uma porta para o disco.** Concluir, selar, queimar, apagar, desfazer,
+  importar e a linha de sentido regravam backup e índice na mesma hora
+  (`Sessao.refletirNoDisco`). O backup guarda sempre a geração anterior
+  (`traco-corpus-anterior.md`). Em emergência (banco que não abre) a página
+  avisa e nada destrutivo roda.
+- **f. Apagar tem desfazer de verdade.** Emenda ao ADR 2026-08-31f: 6s com
+  "Desfazer" no toast; a cópia devolve a nota inteira (selo, minutos, linha de
+  sentido, anexos e revisão).
+- **g. A linha de sentido sai do selo pelas quatro rotas do §8.5**: busca,
+  Padrões, Recordar da lista e export (como bloco próprio, sem gesto). O §16
+  registra a exceção.
+- **h. Uma edição converge.** `Caderno.aplicar` normaliza o espaçamento entre
+  blocos UMA vez; a segunda edição não muda um byte. A voz fica; o número de
+  linhas em branco entre blocos, não.

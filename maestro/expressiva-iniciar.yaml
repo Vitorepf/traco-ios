@@ -13,4 +13,6 @@ appId: app.traco
     visible:
       id: "timer-expressiva"
     timeout: 4000
-- takeScreenshot: expressiva-inicio
+- takeScreenshot: /tmp/traco-verify/expressiva-inicio
+- assertVisible:
+    id: "timer-expressiva"

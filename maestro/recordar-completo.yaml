@@ -21,4 +21,4 @@ appId: app.traco
     visible: "DE MEMÓRIA"
     timeout: 4000
 - assertVisible: "A NOTA"
-- takeScreenshot: recordar-lado-a-lado
+- takeScreenshot: /tmp/traco-verify/recordar-lado-a-lado

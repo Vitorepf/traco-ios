@@ -39,3 +39,5 @@ appId: app.traco
     visible: "Padrões"
     timeout: 5000
 - takeScreenshot: /tmp/traco-verify/nav/14-notas-padroes
+# §19.4.3: a pergunta dos Padrões cita um fragmento LITERAL do autor
+- assertVisible: ".*celular.*"

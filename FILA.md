@@ -266,3 +266,36 @@ geral ainda fraca.
   3× em curso (varredura nº1 do ensaio: 53 flows, FALHAS: nenhuma); iPhone
   REAL: INSTALADO E LANÇADO (11h51 — devicectl launch app.traco no iPhone
   16 Pro Max do dono, team W28WF9A5A2).
+
+
+## Radiografia 02/set — o que fechou (branch fix/furos-radiografia)
+Auditoria completa (relatório "Radiografia do Traço") + correção de todos os
+furos, cada lote julgado por um crítico fresco até PASS. Suíte unitária verde
+no iPhone 17 Pro a cada lote (o simulador do dono não foi tocado).
+- P0 · selo desde o primeiro caractere: expressiva em curso é `fechada` em
+  toda rota de saída (Padrões/xAI, backup, busca, Spotlight, Recordar);
+  `Sessao.novaNota` guarda o timer para widget/traco://Atalhos.
+- P0 · arranque honesto: banco que não abre avisa na página e não toca backup,
+  índice nem anexos; backup guarda a geração anterior; schema V1 congelado por
+  teste.
+- P1 · a pausa grava (1,0s); Soltar cancela a análise armada; nota esvaziada
+  some; opt-out por nota zera ao abrir outra.
+- P1 · uma porta para o disco (`refletirNoDisco`); apagar e selar regravam
+  backup e Spotlight na hora; a linha de sentido sai pelas 4 rotas do §8.5.
+- P1 · apagar com desfazer DE VERDADE (toast com ação, cópia inteira, anexos
+  esperam a janela, revisão volta); widget com a versão do app.
+- P2 · `aplicar` converge (o documento crescia uma linha em branco por toque);
+  cache da busca com teto; tabela não perde célula; marcador inline por
+  posição; queima com comentário honesto; 16 avisos de concorrência a zero.
+- Instrumento · `varrer.sh` compila antes de instalar e sai 1 com falha (logs
+  por fluxo em /tmp/traco-verify/varredura); 72→70 fluxos, todos com asserção
+  explícita; PNGs de evidência saem da raiz (`evidencia/`); `condicoes.sh` com
+  a lei do aparelho único; a suíte nunca toca backup, anexos nem sessão Grok
+  reais (`Arranque.sobTeste`); `.cursor` alinhado ao ADR 31e.
+- pt/en fatia 2: toasts, anúncios de VoiceOver, notificação e estado da conta
+  em `String(localized:)` — 106 chaves, en traduzido.
+
+ABERTOS (decisão do dono ou humano com aparelho): §22 Dynamic Type (escalar
+tudo × travar o chrome) · passe manual de VoiceOver · App Store
+signing/TestFlight · `client_id` do Grok CLI (risco estratégico documentado em
+§5; fallback local existe).

@@ -35,3 +35,5 @@ appId: app.traco
     visible: "PADRÕES"
     timeout: 5000
 - takeScreenshot: /tmp/traco-verify/padroes
+# §19.4.3: a pergunta cita um fragmento LITERAL do autor (o obstáculo)
+- assertVisible: ".*celular.*"

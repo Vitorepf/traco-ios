@@ -22,3 +22,9 @@ appId: app.traco
 - takeScreenshot: /tmp/traco-verify/hoje/lista-viva
 - tapOn: "Esconder teclado"
 - takeScreenshot: /tmp/traco-verify/hoje/lista-viva-vestida
+# a lista vestiu ao soltar o teclado, com cada palavra do autor
+- assertVisible:
+    id: "portal-lista"
+- assertVisible: ".*comprar leite.*"
+- assertVisible: ".*pagar conta.*"
+- assertVisible: ".*texto livre depois.*"

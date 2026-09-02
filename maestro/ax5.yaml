@@ -14,6 +14,7 @@ appId: app.traco
     visible: "Deixar como nota"
     timeout: 6000
 - takeScreenshot: /tmp/traco-verify/hoje/ax5-02-forma
+- assertVisible: "Deixar como nota"
 - tapOn:
     id: "concluir"
 # §20: da escrita, a borda esquerda traz o arquivo
@@ -23,3 +24,5 @@ appId: app.traco
 - tapOn:
     id: "aba-notas"
 - takeScreenshot: /tmp/traco-verify/hoje/ax5-03-notas
+# a nota concluída está no arquivo, legível no corpo XXXL
+- assertVisible: ".*quero correr.*"

@@ -17,7 +17,9 @@ enum ContaGrok {
 
     // MARK: - Keychain (o mesmo cofre de sempre: nunca UserDefaults, nunca log)
 
-    private static let servico = "app.traco.xai"
+    /// Sob teste, outro cofre: a suíte roda dentro do app e nunca pode apagar
+    /// a sessão real de quem a roda.
+    private static let servico = Arranque.sobTeste ? "app.traco.xai.testes" : "app.traco.xai"
     private static let contaAcesso = "oauth-acesso"
     private static let contaRenova = "oauth-renova"
     private static let chaveExpira = "grokExpiraEm"
@@ -182,22 +184,22 @@ enum ContaGrok {
 extension ContaGrok {
     /// Estado honesto da conta, em uma linha, para o perfil.
     static func estado() async -> String {
-        guard ligada else { return "sem conta — tudo funciona aqui no aparelho." }
+        guard ligada else { return String(localized: "sem conta — tudo funciona aqui no aparelho.") }
         guard let token = await token() else {
-            return "sessão expirada — entre de novo."
+            return String(localized: "sessão expirada — entre de novo.")
         }
         var pedido = URLRequest(url: URL(string: "https://api.x.ai/v1/models")!)
         pedido.timeoutInterval = 10
         pedido.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         guard let (_, resposta) = try? await URLSession.shared.data(for: pedido),
               let http = resposta as? HTTPURLResponse
-        else { return "sem rede. o app segue funcionando aqui no aparelho." }
+        else { return String(localized: "sem rede. o app segue funcionando aqui no aparelho.") }
         switch http.statusCode {
-        case 200: return "conectada — o Grok é o motor, pago pela sua assinatura."
-        case 401: return "sessão expirada — entre de novo."
-        case 403: return "a sua assinatura não libera este acesso. o app segue funcionando aqui no aparelho."
-        case 429: return "limite semanal do Grok atingido. o app segue funcionando aqui no aparelho."
-        default: return "o Grok respondeu \(http.statusCode). o app segue funcionando aqui no aparelho."
+        case 200: return String(localized: "conectada — o Grok é o motor, pago pela sua assinatura.")
+        case 401: return String(localized: "sessão expirada — entre de novo.")
+        case 403: return String(localized: "a sua assinatura não libera este acesso. o app segue funcionando aqui no aparelho.")
+        case 429: return String(localized: "limite semanal do Grok atingido. o app segue funcionando aqui no aparelho.")
+        default: return String(localized: "o Grok respondeu \(http.statusCode). o app segue funcionando aqui no aparelho.")
         }
     }
 }

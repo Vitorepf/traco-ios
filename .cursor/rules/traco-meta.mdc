@@ -12,7 +12,7 @@ Produto da vida. iOS puro. Página preta. Cursor. Sem placeholder.
 Três eixos — os três, sempre. Falta um = o trabalho é lixo:
 
 1. **Mente** — vocabulário visual (régua de palavras). O autor escolhe a forma; a mente entra no sítio. Multiplicar visualização, escrita, leitura.
-2. **IA** — lista fechada: rotar, travar, uma pergunta, Puxar, Códice, calar. **Nunca escreve na nota.** Porteiro só no botão. v1 local. Proibido `api.x.ai`, Keychain de API, `URLSession` para modelo.
+2. **IA** — lista fechada: rotear, avisar, uma pergunta, Recordar, Padrões, calar. **Nunca escreve na nota.** Análise automática na pausa + botão Analisar (§17). Grok pela ASSINATURA (ADR 31e/31k): rede para modelo SÓ em `AnaliseRemota`/`PadroesRemoto`, com `Bearer` de `ContaGrok.token()` (Keychain). Proibido: chave de API (`xai-…`), `URLSession` para modelo fora desses dois arquivos, texto de nota FECHADA em qualquer chamada. Sem conta, 100% local.
 3. **Markdown-arquivo** — a nota é Markdown no disco. A página **nunca** é Markdown. Autor não escreve `#`, ` ``` `, `:::`, `|---|`, `- [ ]`. Toque edita o conteúdo dentro da figura.
 
 Antes de uma sessão longa, leia `.cursor/skills/traco-meta/SKILL.md` e corra o loop. SPEC.md e SISTEMA.md vencem o palpite.

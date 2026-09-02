@@ -6,7 +6,15 @@
 #   ./maestro/condicoes.sh [fluxo ...]
 set -u
 cd "$(dirname "$0")/.."
-M=~/bin/maestro
+
+# a mesma lei do varrer.sh: com dois simuladores o veredito sai falso
+BOOTED=$(xcrun simctl list devices booted | grep -c "(Booted)")
+if [ "$BOOTED" -ne 1 ]; then
+    echo "PARADO: $BOOTED simuladores booted — desligue os extras: xcrun simctl shutdown <UDID>"
+    exit 2
+fi
+UDID=$(xcrun simctl list devices booted | grep -oE '[0-9A-F-]{36}' | head -1)
+M="$HOME/bin/maestro --udid $UDID"
 FLUXOS=${@:-"maestro/caderno-lista.yaml maestro/notas-e-recordar.yaml maestro/perfil.yaml maestro/padroes.yaml maestro/forma-folha.yaml"}
 
 restaurar() {

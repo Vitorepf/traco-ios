@@ -61,7 +61,7 @@ final class Sessao {
     func analisar(automatica: Bool = false) {
         if automatica, autoSuprimidaNaNota { return } // §17.2: o autor soltou — a nota fica quieta
         if timerLigado {
-            if !automatica { mostrarToast("a análise cala durante a escrita.") }
+            if !automatica { mostrarToast(String(localized: "a análise cala durante a escrita.")) }
             return
         }
         guard !paginaVazia else { return }
@@ -98,11 +98,11 @@ final class Sessao {
                 Toque.leve()
                 let d = UserDefaults.standard
                 if d.bool(forKey: "silencioExplicado") {
-                    mostrarToast("silêncio.")
+                    mostrarToast(String(localized: "silêncio."))
                 } else {
                     d.set(true, forKey: "silencioExplicado")
                     // só na primeira vez: o contrato de que silêncio é resposta
-                    mostrarToast("silêncio. (sem gesto a vestir, a análise não inventa)")
+                    mostrarToast(String(localized: "silêncio. (sem gesto a vestir, a análise não inventa)"))
                 }
             }
         case .aviso(let frase):
@@ -117,7 +117,7 @@ final class Sessao {
                 cartao = .vestida(g, pergunta: pergunta)
                 Toque.suave() // o app percebeu você — vibra macio, não estala
                 // VoiceOver: a página mudou sozinha — quem não vê precisa saber
-                AccessibilityNotification.Announcement("Forma \(g.nome) aberta. Soltar a forma disponível.").post()
+                AccessibilityNotification.Announcement(String(localized: "Forma \(g.nome) aberta. Soltar a forma disponível.")).post()
             } else {
                 cartao = .forma(g, pergunta: pergunta)
             }
@@ -126,7 +126,7 @@ final class Sessao {
             Toque.leve()
             cartao = .expressiva
             if automatica {
-                AccessibilityNotification.Announcement("Sugestão de escrita expressiva aberta.").post()
+                AccessibilityNotification.Announcement(String(localized: "Sugestão de escrita expressiva aberta.")).post()
             }
         }
     }
@@ -223,7 +223,7 @@ final class Sessao {
     func alternarAutoAnalise() {
         autoAnalise.toggle()
         autoTask?.cancel()
-        mostrarToast(autoAnalise ? "análise automática ligada." : "análise automática desligada.")
+        mostrarToast(String(localized: autoAnalise ? "análise automática ligada." : "análise automática desligada."))
     }
 
     /// "Vestir a nota" (FILA P1): um toque estrutura a nota INTEIRA (título,
@@ -236,7 +236,7 @@ final class Sessao {
         let vestido = Caderno.estruturar(texto)
         guard vestido != texto else {
             Toque.leve()
-            mostrarToast("nada a vestir aqui.")
+            mostrarToast(String(localized: "nada a vestir aqui."))
             return
         }
         texto = vestido
@@ -368,7 +368,7 @@ final class Sessao {
             // A escrita do autor nunca se perde em silêncio: o texto segue na página
             // e o aviso diz isso. (Tranca de expressiva continua garantida pelo
             // expressivaPrazo persistido na próxima gravação/arranque.)
-            mostrarToast("não consegui gravar — o texto continua na página.")
+            mostrarToast(String(localized: "não consegui gravar — o texto continua na página."))
         }
     }
 
@@ -430,7 +430,7 @@ final class Sessao {
     func abrir(_ nota: Nota, mesmoTrancada: Bool = false) {
         // queimada não abre: não existe texto. Dizer isso é honestidade, não erro.
         if nota.queimada {
-            mostrarToast("essa você queimou. ficou a data e o que você entendeu.")
+            mostrarToast(String(localized: "essa você queimou. ficou a data e o que você entendeu."))
             return
         }
         if nota.trancada, !mesmoTrancada {
@@ -469,9 +469,9 @@ final class Sessao {
         // peak-end-rule: o fim do percurso não devolvia NADA — nem confirmação,
         // nem onde a nota foi parar. Uma linha, e ela some sozinha.
         if Arranque.bancoEmMemoria {
-            mostrarToast("não ficou: as notas não abriram.")
+            mostrarToast(String(localized: "não ficou: as notas não abriram."))
         } else {
-            mostrarToast(nomeGesto.map { "\($0) guardada · também no Arquivos" } ?? "guardada · também no Arquivos")
+            mostrarToast(nomeGesto.map { String(localized: "\($0) guardada · também no Arquivos") } ?? String(localized: "guardada · também no Arquivos"))
         }
         // Exp 9: o corpus vive também no app Arquivos — backup sem nuvem, sem conta
         refletirNoDisco(no: context)
@@ -480,7 +480,7 @@ final class Sessao {
         if let notaUUID, let nota = Self.buscar(uuid: notaUUID, no: context) {
             Revisoes.agendar(uuid: nota.uuid, criadaEm: nota.criadaEm, gesto: nota.gesto, fechada: nota.fechada, texto: nota.texto) { [weak self] in
                 Task { @MainActor in
-                    self?.mostrarToast("revisões precisam de permissão — Ajustes › Traço › Notificações.")
+                    self?.mostrarToast(String(localized: "revisões precisam de permissão — Ajustes › Traço › Notificações."))
                 }
             }
         }
@@ -576,7 +576,7 @@ final class Sessao {
         // sem alvo, nada se inventa: uma nota vazia "queimada" diria que
         // queimou o que continua selado no banco — a mentira que §8.6 proíbe
         guard let alvo = fechoUUID ?? notaUUID, let nota = Self.buscar(uuid: alvo, no: context) else {
-            mostrarToast("não há o que queimar.")
+            mostrarToast(String(localized: "não há o que queimar."))
             fechoExpressiva = nil
             sentidoPendente = nil
             fechoUUID = nil
@@ -665,7 +665,7 @@ final class Sessao {
         do {
             try context.save()
         } catch {
-            mostrarToast("não consegui apagar — a nota continua.")
+            mostrarToast(String(localized: "não consegui apagar — a nota continua."))
             return
         }
         apagadaRecuperavel = copia
@@ -673,7 +673,7 @@ final class Sessao {
         refletirNoDisco(no: context)
         confirmacao = nil
         Toque.fechou()
-        mostrarToast("apagada.", acao: ("Desfazer", { [weak self] in self?.desfazerApagar(no: context) }), duracao: 6)
+        mostrarToast(String(localized: "apagada."), acao: (String(localized: "Desfazer"), { [weak self] in self?.desfazerApagar(no: context) }), duracao: 6)
         desfazerTask?.cancel()
         desfazerTask = Task { [weak self] in
             try? await Task.sleep(for: .seconds(6))

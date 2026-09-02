@@ -67,7 +67,8 @@ struct PapelForma: Hashable, Identifiable, Sendable {
         slugsDaRegua.compactMap { s in catalogo.first { $0.slug == s } }
     }()
 
-    /// Folha das 136: agrupadas por família, nomes em português, sem slug na cara.
+    /// Folha das 124 (as 136 do catálogo menos as 12 da régua): agrupadas por
+    /// família, nomes em português, sem slug na cara.
     struct FamiliaMenu: Identifiable, Sendable {
         var id: String { nome }
         let nome: String
