@@ -30,9 +30,10 @@ struct SuperficieElevada: ViewModifier {
 }
 
 /// O aviso da casa: cartão de raio 12 na margem, texto em tintaSuave — e, só
-/// quando há volta, UMA ação em âmbar à direita ("Desfazer" do apagar).
-/// Vive na página E no arquivo: apagar acontece no arquivo, e o toast tinha
-/// que morar onde o gesto acontece.
+/// quando há volta, UMA ação à direita ("Desfazer" do apagar). Em tinta, não
+/// âmbar: no arquivo o âmbar já marca a aba e o filtro (SISTEMA: "uma coisa
+/// âmbar por ecrã"). Vive na página E no arquivo: apagar acontece no arquivo,
+/// e o toast tinha que morar onde o gesto acontece.
 struct ToastView: View {
     let texto: String
     var acao: (rotulo: String, acao: () -> Void)? = nil
@@ -43,21 +44,23 @@ struct ToastView: View {
                 .font(Tema.corpo)
                 .foregroundStyle(Tema.tintaSuave)
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .accessibilityAddTraits(.isStaticText)
             if let acao {
                 Button(acao.rotulo, action: acao.acao)
                     .font(Tema.chrome.weight(.semibold))
-                    .foregroundStyle(Tema.ambar)
+                    .foregroundStyle(Tema.tinta)
+                    .frame(minHeight: Tema.alvo)
+                    .buttonStyle(PressaoDiscreta())
                     .accessibilityIdentifier("toast-acao")
             }
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, 12)
+        .padding(.vertical, acao == nil ? 12 : 4)
         .background(Tema.superficieAlta, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
         .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(Tema.linha, lineWidth: 0.5))
         .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
         .padding(.horizontal, Tema.margem)
         .accessibilityIdentifier("toast-analise")
-        .accessibilityAddTraits(.isStaticText)
     }
 }
 

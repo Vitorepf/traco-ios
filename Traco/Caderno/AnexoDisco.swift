@@ -3,8 +3,12 @@ import UniformTypeIdentifiers
 
 enum AnexoDisco {
     static func pasta() -> URL {
-        let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("Traco/Anexos", isDirectory: true)
+        // sob teste, uma pasta temporária: a suíte roda dentro do app e nunca
+        // pode varrer os anexos reais de quem a roda
+        let raiz = Arranque.sobTeste
+            ? FileManager.default.temporaryDirectory
+            : FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+        let base = raiz.appendingPathComponent("Traco/Anexos", isDirectory: true)
         try? FileManager.default.createDirectory(at: base, withIntermediateDirectories: true)
         return base
     }

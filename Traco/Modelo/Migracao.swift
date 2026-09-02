@@ -19,6 +19,12 @@ enum TracoMigracao: SchemaMigrationPlan {
 /// Nunca em silêncio: a página avisa (radiografia 02/set, P0).
 enum Arranque {
     static var bancoEmMemoria = false
+
+    /// A suíte roda DENTRO do app (TEST_HOST): tudo que toca disco real —
+    /// backup no Documents, anexos no Application Support — desvia para
+    /// pastas temporárias quando isto é verdade.
+    static let sobTeste = ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+        || NSClassFromString("XCTestCase") != nil
 }
 
 extension ModelContainer {

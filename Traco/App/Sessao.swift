@@ -688,6 +688,8 @@ final class Sessao {
         context.insert(nota)
         try? context.save()
         refletirNoDisco(no: context)
+        // a revisão cancelada no apagar volta com a nota (uuid novo, agenda nova)
+        Revisoes.agendar(uuid: nota.uuid, criadaEm: nota.criadaEm, gesto: nota.gesto, fechada: nota.fechada, texto: nota.texto)
         apagadaRecuperavel = nil
         desfazerTask?.cancel()
         toastTask?.cancel()
@@ -703,11 +705,14 @@ final class Sessao {
 
     func mostrarToast(_ msg: String, acao: (rotulo: String, acao: () -> Void)? = nil, duracao: Double = 2.5) {
         toast = msg
-        toastAcao = acao
+        // um toast comum no meio da janela de desfazer mostra a mensagem nova,
+        // mas não rouba o botão: a janela sem botão seria o furo original de volta
+        let segura = acao == nil && toastAcao != nil && apagadaRecuperavel != nil
+        if !segura { toastAcao = acao }
         AccessibilityNotification.Announcement(msg).post()
         toastTask?.cancel()
         toastTask = Task {
-            try? await Task.sleep(for: .seconds(duracao))
+            try? await Task.sleep(for: .seconds(segura ? max(duracao, 6) : duracao))
             if !Task.isCancelled { toast = nil; toastAcao = nil }
         }
     }

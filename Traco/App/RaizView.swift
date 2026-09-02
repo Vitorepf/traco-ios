@@ -56,7 +56,7 @@ struct RaizView: View {
                 // o toast do arquivo: "apagada. Desfazer" acontece aqui, não na página
                 if let toast = sessao.toast {
                     ToastView(texto: toast, acao: sessao.toastAcao)
-                        .padding(.bottom, Tema.barraNav + 12)
+                        .padding(.bottom, tecladoAberto ? 12 : Tema.barraNav + 12)
                         .transition(.opacity.combined(with: .offset(y: 6)))
                 }
             }

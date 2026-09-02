@@ -106,7 +106,7 @@ enum Corpus {
     /// a suíte roda dentro do próprio app e nunca pode tocar o backup real de
     /// quem a roda (no simulador do dono, seria o corpus dele).
     static var pastaBackup: URL = {
-        if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil {
+        if Arranque.sobTeste {
             let url = FileManager.default.temporaryDirectory.appendingPathComponent("traco-testes-backup", isDirectory: true)
             try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
             return url
