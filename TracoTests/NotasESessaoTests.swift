@@ -845,3 +845,67 @@ struct RotaDoWidgetTests {
         #expect(destino("traco://inexistente") == nil)    // host desconhecido, sem rota
     }
 }
+
+// Radiografia 02/set, P0: o selo vale desde o PRIMEIRO caractere. A expressiva
+// entra no banco destrancada quando o timer começa; morte do processo ou a
+// rota do widget a deixavam assim — e Padrões, backup, busca e Spotlight liam.
+@MainActor
+struct SeloDesdeOPrimeiroCaractereTests {
+    private func contexto() throws -> ModelContext {
+        let container = try ModelContainer(
+            for: Nota.self,
+            configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+        )
+        return ModelContext(container)
+    }
+
+    @Test func expressivaEmCursoEFechadaParaTodaRotaDeSaida() {
+        let emCurso = Nota(texto: "hoje senti medo e chorei", gesto: .expressiva)
+        #expect(emCurso.trancada == false) // ainda pode retomar o timer
+        #expect(emCurso.fechada == true)   // mas não sai do aparelho
+        let corpus = Corpus.corpoDoCorpus(notas: [(emCurso.texto, emCurso.gesto, [:], emCurso.fechada, emCurso.criadaEm)])
+        #expect(corpus.isEmpty)
+        // a busca por texto não a encontra; a lista sem filtro ainda a mostra (retomar)
+        #expect(NotasFiltro.visiveis([emCurso], busca: "medo", filtro: nil).isEmpty)
+        #expect(NotasFiltro.visiveis([emCurso], busca: "", filtro: nil).count == 1)
+    }
+
+    @Test func novaNotaDuranteTimerPedeConfirmacao() throws {
+        let context = try contexto()
+        let s = Sessao()
+        s.texto = "o peito pesado não saiu o dia inteiro"
+        s.gesto = .expressiva
+        s.iniciarTimer()
+        s.novaNota(no: context) // o widget, o traco://nova e a barra passam por aqui
+        #expect(s.confirmacao == .sairTranca(destino: .pagina))
+        #expect(s.timerLigado)               // o timer não parou em silêncio
+        #expect(!s.texto.isEmpty)            // o desabafo não foi descartado
+        let notas = try context.fetch(FetchDescriptor<Nota>())
+        #expect(notas.isEmpty)               // e nada foi gravado destrancado
+        s.pararTimer()
+    }
+
+    @Test func novaNotaSemTimerGravaEVoltaParaACasa() throws {
+        let context = try contexto()
+        let s = Sessao()
+        s.texto = "comprar pão"
+        s.aba = .notas
+        s.novaNota(no: context)
+        #expect(s.confirmacao == nil)
+        #expect(s.texto.isEmpty)
+        #expect(s.aba == .escrever)
+        #expect(try context.fetch(FetchDescriptor<Nota>()).map(\.texto) == ["comprar pão"])
+    }
+
+    @Test func vestirERecordarNaoTocamUmaExpressiva() throws {
+        let context = try contexto()
+        let s = Sessao()
+        s.texto = "hoje\nchorei\nmuito"
+        s.gesto = .expressiva // selada reaberta com Face ID, ou em curso
+        s.vestirNota()
+        #expect(s.texto == "hoje\nchorei\nmuito")
+        s.irRecordar(no: context)
+        #expect(s.mostrarRecordar == false)
+        #expect(s.recordarTexto.isEmpty)
+    }
+}

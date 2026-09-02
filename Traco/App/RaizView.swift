@@ -51,11 +51,7 @@ struct RaizView: View {
                         set: { nova in sessao.irPara(nova, no: context) }
                     ),
                     escondida: tecladoAberto,
-                    aoNovaNota: {
-                        sessao.salvar(no: context)
-                        sessao.novaPagina()
-                        sessao.irPara(.escrever, no: context)
-                    }
+                    aoNovaNota: { sessao.novaNota(no: context) }
                 )
             }
         } escrita: {

@@ -209,7 +209,7 @@ final class Sessao {
     /// `Caderno.estruturar` só veste a forma em volta das palavras dele. Um
     /// cartão em voo é cancelado para não cobrir a nota recém-vestida.
     func vestirNota() {
-        guard !paginaVazia else { return }
+        guard !paginaVazia, gesto != .expressiva else { return } // §8.8: ninguém mexe no desabafo
         autoTask?.cancel()
         let vestido = Caderno.estruturar(texto)
         guard vestido != texto else {
@@ -453,6 +453,20 @@ final class Sessao {
         aba = nova
     }
 
+    /// "Nova nota" por QUALQUER porta (barra do arquivo, widget, traco://,
+    /// Atalhos): com o timer da expressiva rodando, a saída pede confirmação —
+    /// o selo vale também aqui. Antes, a rota do widget parava o timer em
+    /// silêncio e deixava o desabafo destrancado no banco.
+    func novaNota(no context: ModelContext) {
+        if timerLigado {
+            confirmacao = .sairTranca(destino: .pagina)
+            return
+        }
+        salvar(no: context)
+        novaPagina()
+        aba = .escrever
+    }
+
     func irNotas(no context: ModelContext) {
         if timerLigado {
             confirmacao = .sairTranca(destino: .notas)
@@ -471,6 +485,7 @@ final class Sessao {
             confirmacao = .sairTranca(destino: .recordar)
             return
         }
+        guard gesto != .expressiva else { return } // selada reaberta não se recorda
         recordarTexto = texto
         recordarCampos = campos
         salvar(no: context)

@@ -424,13 +424,9 @@ struct PaginaView: View {
     private func seguirRota(_ destino: Rota.Destino) {
         switch destino {
         case .novaPagina:
-            sessao.salvar(no: context)
-            sessao.novaPagina()
-            sessao.mostrarNotas = false
-            sessao.mostrarPadroes = false
+            sessao.novaNota(no: context)
         case .notas:
-            sessao.salvar(no: context)
-            sessao.mostrarNotas = true
+            sessao.irNotas(no: context)
         case .recordar:
             sessao.recordarMaisRecente(no: context)
         }

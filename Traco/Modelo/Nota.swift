@@ -50,9 +50,14 @@ final class Nota {
         self.sentido = sentido
     }
 
-    /// Fechada de qualquer jeito: selada OU queimada. Quem pergunta "pode sair
-    /// daqui?" tem de olhar esta, nunca só `trancada`.
-    var fechada: Bool { trancada || queimada }
+    /// Fechada de qualquer jeito: selada, queimada OU expressiva ainda em curso.
+    /// Quem pergunta "pode sair daqui?" tem de olhar esta, nunca só `trancada`.
+    /// A expressiva entra no banco destrancada no instante em que o timer
+    /// começa; morte do processo ou uma rota externa a deixam assim por até
+    /// 15 min. O selo vale desde o primeiro caractere: rede, backup, índice,
+    /// busca e Padrões não a leem nunca. Só `abrir` (retomar o timer) olha
+    /// `trancada`.
+    var fechada: Bool { trancada || queimada || gesto == .expressiva }
 
     var gesto: Gesto? {
         get { gestoRaw.flatMap(Gesto.init(rawValue:)) }
