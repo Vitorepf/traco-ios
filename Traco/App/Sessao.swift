@@ -57,6 +57,7 @@ final class Sessao {
     private var analiseTask: Task<Void, Never>?
 
     func analisar(automatica: Bool = false) {
+        if automatica, autoSuprimidaNaNota { return } // §17.2: o autor soltou — a nota fica quieta
         if timerLigado {
             if !automatica { mostrarToast("a análise cala durante a escrita.") }
             return
@@ -146,6 +147,7 @@ final class Sessao {
         campos = [:]
         cartao = nil
         autoSuprimidaNaNota = true // opt-out POR NOTA (§17.2)
+        autoTask?.cancel() // uma análise armada na última tecla revestiria a nota 1,6s depois
         Toque.leve()
     }
     var autoSuprimidaNaNota = false
@@ -158,7 +160,24 @@ final class Sessao {
         Revisoes.registrarCumprida(uuid)
         if let nota = Self.buscar(uuid: uuid, no: context) {
             Revisoes.agendar(uuid: nota.uuid, criadaEm: nota.criadaEm, gesto: nota.gesto,
-                             trancada: nota.fechada, texto: nota.texto)
+                             fechada: nota.fechada, texto: nota.texto)
+        }
+    }
+
+    // MARK: - Gravar na pausa (radiografia P1: só se gravava ao sair de cena)
+
+    private var gravacaoTask: Task<Void, Never>?
+
+    /// A MESMA pausa que chama a análise grava a página. Antes, `salvar` só
+    /// corria ao sair de cena, trocar de camada ou concluir: um crash em
+    /// primeiro plano custava a nota inteira. `salvar` ignora página vazia e
+    /// reusa o notaUUID, então isto não cria nota do nada nem duplica.
+    func agendarGravacao(no context: ModelContext, depois segundos: Double = 1.6) {
+        gravacaoTask?.cancel()
+        gravacaoTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(segundos))
+            guard let self, !Task.isCancelled else { return }
+            self.salvar(no: context)
         }
     }
 
@@ -342,6 +361,9 @@ final class Sessao {
     /// concluir e queimar regravavam — uma nota apagada continuava legível no
     /// app Arquivos e na busca do iOS até o próximo Concluir de outra nota.
     func refletirNoDisco(no context: ModelContext) {
+        // Em emergência o banco da RAM não é o corpus: nem backup nem índice
+        // podem ser reescritos a partir dele.
+        guard !Arranque.bancoEmMemoria else { return }
         guard let todas = try? context.fetch(FetchDescriptor<Nota>()) else { return }
         Corpus.backupAutomatico(notas: todas)
         // Spotlight indexa só as abertas (o selo vale para o sistema)
@@ -372,6 +394,7 @@ final class Sessao {
 
     func novaPagina() {
         pararTimer()
+        gravacaoTask?.cancel() // a gravação armada era da página que acabou
         texto = ""
         gesto = nil
         campos = [:]
@@ -395,6 +418,7 @@ final class Sessao {
             return
         }
         pararTimer()
+        gravacaoTask?.cancel()
         texto = nota.texto
         gesto = nota.gesto
         campos = nota.campos
@@ -423,13 +447,17 @@ final class Sessao {
         salvar(no: context)
         // peak-end-rule: o fim do percurso não devolvia NADA — nem confirmação,
         // nem onde a nota foi parar. Uma linha, e ela some sozinha.
-        mostrarToast(nomeGesto.map { "\($0) guardada · também no Arquivos" } ?? "guardada · também no Arquivos")
+        if Arranque.bancoEmMemoria {
+            mostrarToast("não ficou: as notas não abriram.")
+        } else {
+            mostrarToast(nomeGesto.map { "\($0) guardada · também no Arquivos" } ?? "guardada · também no Arquivos")
+        }
         // Exp 9: o corpus vive também no app Arquivos — backup sem nuvem, sem conta
         refletirNoDisco(no: context)
         // FILA P1.5: a nota concluída marca a própria revisão — o Recordar chega
         // no dia certo sem o autor lembrar (§17).
         if let notaUUID, let nota = Self.buscar(uuid: notaUUID, no: context) {
-            Revisoes.agendar(uuid: nota.uuid, criadaEm: nota.criadaEm, gesto: nota.gesto, trancada: nota.fechada, texto: nota.texto) { [weak self] in
+            Revisoes.agendar(uuid: nota.uuid, criadaEm: nota.criadaEm, gesto: nota.gesto, fechada: nota.fechada, texto: nota.texto) { [weak self] in
                 Task { @MainActor in
                     self?.mostrarToast("revisões precisam de permissão — Ajustes › Traço › Notificações.")
                 }
@@ -505,7 +533,9 @@ final class Sessao {
     /// mais recente que ainda se relê. Sem nada a recordar, abre as notas — o
     /// toque do widget nunca cai no vazio.
     func recordarMaisRecente(no context: ModelContext) {
-        if !paginaVazia { irRecordar(no: context); return }
+        // a página em voo, se se recorda (uma expressiva — selada reaberta ou
+        // em curso — não se recorda: cai na lista, nunca no vazio)
+        if !paginaVazia, gesto != .expressiva { irRecordar(no: context); return }
         var desc = FetchDescriptor<Nota>(sortBy: [SortDescriptor(\.editadaEm, order: .reverse)])
         desc.fetchLimit = 8
         if let nota = (try? context.fetch(desc))?.first(where: { !$0.fechada }) {

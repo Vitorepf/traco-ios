@@ -66,6 +66,9 @@ enum AnexoDisco {
     }
 
     static func varrerOrfaos(textos: [String]) {
+        // Em emergência o banco está vazio: nenhum anexo é referenciado e a
+        // varredura apagaria TODOS com mais de 24h. Nada destrutivo sem banco.
+        guard !Arranque.bancoEmMemoria else { return }
         let arquivos = (try? FileManager.default.contentsOfDirectory(
             at: pasta(), includingPropertiesForKeys: [.contentModificationDateKey])) ?? []
         for url in orfaos(referenciados: idsReferenciados(em: textos), arquivos: arquivos) {

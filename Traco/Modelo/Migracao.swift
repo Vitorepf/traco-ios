@@ -23,11 +23,27 @@ enum Arranque {
 
 extension ModelContainer {
     /// Container oficial do app — sempre com o plano de migração.
-    static func traco(emMemoria: Bool = false) throws -> ModelContainer {
-        try ModelContainer(
+    static func traco(emMemoria: Bool = false, url: URL? = nil) throws -> ModelContainer {
+        let config = url.map { ModelConfiguration(url: $0) } ?? ModelConfiguration(isStoredInMemoryOnly: emMemoria)
+        return try ModelContainer(
             for: Schema(versionedSchema: TracoSchemaV1.self),
             migrationPlan: TracoMigracao.self,
-            configurations: ModelConfiguration(isStoredInMemoryOnly: emMemoria)
+            configurations: config
         )
+    }
+
+    /// O arranque do app. Se o banco de disco não abre (schema, disco cheio,
+    /// arquivo corrompido), abre em memória e LEVANTA A BANDEIRA: a página
+    /// avisa, e nada destrutivo (backup, índice, varredura de anexos) roda.
+    /// O arquivo em disco não é tocado.
+    static func tracoOuEmergencia(url: URL? = nil) -> ModelContainer {
+        do {
+            let c = try traco(url: url)
+            Arranque.bancoEmMemoria = false
+            return c
+        } catch {
+            Arranque.bancoEmMemoria = true
+            return try! traco(emMemoria: true)
+        }
     }
 }

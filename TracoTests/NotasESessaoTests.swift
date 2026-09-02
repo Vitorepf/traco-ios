@@ -396,11 +396,11 @@ struct AutoAnaliseTests {
 @MainActor
 struct RevisoesTests {
     @Test func trancadaEExpressivaNuncaAgendam() {
-        #expect(!Revisoes.podeAgendar(gesto: .expressiva, trancada: false, texto: "desabafo"))
-        #expect(!Revisoes.podeAgendar(gesto: .woop, trancada: true, texto: "segredo"))
-        #expect(!Revisoes.podeAgendar(gesto: nil, trancada: false, texto: "   "))
-        #expect(Revisoes.podeAgendar(gesto: .woop, trancada: false, texto: "quero correr"))
-        #expect(Revisoes.podeAgendar(gesto: nil, trancada: false, texto: "nota nua"))
+        #expect(!Revisoes.podeAgendar(gesto: .expressiva, fechada: false, texto: "desabafo"))
+        #expect(!Revisoes.podeAgendar(gesto: .woop, fechada: true, texto: "segredo"))
+        #expect(!Revisoes.podeAgendar(gesto: nil, fechada: false, texto: "   "))
+        #expect(Revisoes.podeAgendar(gesto: .woop, fechada: false, texto: "quero correr"))
+        #expect(Revisoes.podeAgendar(gesto: nil, fechada: false, texto: "nota nua"))
     }
 
     @Test func revisaoCaiTresDiasDepois() {
@@ -874,14 +874,13 @@ struct SeloDesdeOPrimeiroCaractereTests {
         let context = try contexto()
         let s = Sessao()
         s.texto = "o peito pesado não saiu o dia inteiro"
-        s.gesto = .expressiva
-        s.iniciarTimer()
+        s.comecarExpressiva(no: context) // grava destrancada — por desenho
         s.novaNota(no: context) // o widget, o traco://nova e a barra passam por aqui
         #expect(s.confirmacao == .sairTranca(destino: .pagina))
         #expect(s.timerLigado)               // o timer não parou em silêncio
         #expect(!s.texto.isEmpty)            // o desabafo não foi descartado
         let notas = try context.fetch(FetchDescriptor<Nota>())
-        #expect(notas.isEmpty)               // e nada foi gravado destrancado
+        #expect(notas.count == 1 && !notas[0].trancada && notas[0].fechada) // no banco, mas fechada
         s.pararTimer()
     }
 
@@ -915,15 +914,47 @@ struct SeloDesdeOPrimeiroCaractereTests {
 // tem bandeira, o backup a respeita, e toda sobrescrita guarda a geração anterior.
 @MainActor
 struct ArranqueEBackupTests {
-    private var docs: URL { FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0] }
+    /// Pasta temporária: a suíte nunca toca o backup real de quem a roda.
+    private func pastaTemporaria() throws -> URL {
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent("traco-teste-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+        return url
+    }
+
+    @Test func bancoQueNaoAbreLevantaABandeiraENaoTocaODisco() throws {
+        defer { Arranque.bancoEmMemoria = false }
+        // um caminho impossível: o "diretório" do store é um arquivo
+        let bloqueio = try pastaTemporaria().appendingPathComponent("bloqueio")
+        try Data("x".utf8).write(to: bloqueio)
+        let c = ModelContainer.tracoOuEmergencia(url: bloqueio.appendingPathComponent("Traco.store"))
+        #expect(Arranque.bancoEmMemoria)
+        let context = ModelContext(c)
+        context.insert(Nota(texto: "só na RAM"))
+        #expect((try? context.save()) != nil) // o app fica de pé para mostrar o aviso
+        // e a varredura de anexos, que no arranque apagaria TODOS os anexos
+        // sem banco para referenciá-los, não roda
+        let pasta = AnexoDisco.pasta()
+        let anexo = pasta.appendingPathComponent("00000000-0000-0000-0000-00000000dead.png")
+        try Data("png".utf8).write(to: anexo)
+        try FileManager.default.setAttributes([.modificationDate: Date.distantPast], ofItemAtPath: anexo.path)
+        defer { try? FileManager.default.removeItem(at: anexo) }
+        AnexoDisco.varrerOrfaos(textos: [])
+        #expect(FileManager.default.fileExists(atPath: anexo.path))
+        Arranque.bancoEmMemoria = false
+        AnexoDisco.varrerOrfaos(textos: [])
+        #expect(!FileManager.default.fileExists(atPath: anexo.path)) // com banco, o órfão sai
+    }
 
     @Test func emEmergenciaOBackupNaoETocadoESempreHaUmaGeracaoDeVolta() throws {
         let fm = FileManager.default
+        let docs = try pastaTemporaria()
+        let pastaReal = Corpus.pastaBackup
+        Corpus.pastaBackup = docs
         let atual = docs.appendingPathComponent("traco-corpus.md")
         let anterior = docs.appendingPathComponent("traco-corpus-anterior.md")
         defer {
-            try? fm.removeItem(at: atual)
-            try? fm.removeItem(at: anterior)
+            Corpus.pastaBackup = pastaReal
+            try? fm.removeItem(at: docs)
             Arranque.bancoEmMemoria = false
         }
         try "corpus de anos".write(to: atual, atomically: true, encoding: .utf8)
@@ -963,9 +994,7 @@ struct PortaDoDiscoESentidoTests {
         )
         return ModelContext(container)
     }
-    private var backup: URL {
-        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("traco-corpus.md")
-    }
+    private var backup: URL { Corpus.pastaBackup.appendingPathComponent("traco-corpus.md") }
 
     @Test func aLinhaDeSentidoEAUnicaCoisaQueSaiDoSelo() {
         let d = Date(timeIntervalSince1970: 1_000)
@@ -1000,7 +1029,10 @@ struct PortaDoDiscoESentidoTests {
     }
 
     @Test func apagarRegravaOBackupNaHora() throws {
-        defer { try? FileManager.default.removeItem(at: backup) }
+        let pastaReal = Corpus.pastaBackup
+        Corpus.pastaBackup = FileManager.default.temporaryDirectory.appendingPathComponent("traco-teste-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: Corpus.pastaBackup, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: Corpus.pastaBackup); Corpus.pastaBackup = pastaReal }
         let context = try contexto()
         let s = Sessao()
         s.texto = "fica"; s.concluir(no: context)
@@ -1025,5 +1057,39 @@ struct PortaDoDiscoESentidoTests {
         let alvo = try #require(s.fechoUUID)
         #expect(Sessao.buscar(uuid: alvo, no: context)?.texto == "o desabafo de hoje")
         #expect(alvo != outra.uuid)
+    }
+}
+
+// Radiografia 02/set, P1: a pausa grava; Soltar cancela a análise armada.
+@MainActor
+struct GravarNaPausaTests {
+    @Test func aPausaGravaAPagina() async throws {
+        let container = try ModelContainer(for: Nota.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true))
+        let context = ModelContext(container)
+        let s = Sessao()
+        s.texto = "comprar pão"
+        s.agendarGravacao(no: context, depois: 0.05)
+        s.texto = "comprar pão e leite" // tecla nova rearma: só a última versão grava
+        s.agendarGravacao(no: context, depois: 0.05)
+        try await Task.sleep(for: .milliseconds(400))
+        #expect(try context.fetch(FetchDescriptor<Nota>()).map(\.texto) == ["comprar pão e leite"])
+        s.texto = "comprar pão e leite e ovos"
+        s.agendarGravacao(no: context, depois: 0.05)
+        try await Task.sleep(for: .milliseconds(400))
+        #expect(try context.fetch(FetchDescriptor<Nota>()).count == 1) // reusa a nota, não duplica
+    }
+
+    @Test func soltarAFormaCancelaAAnaliseArmadaNaUltimaTecla() async throws {
+        let s = Sessao()
+        s.autoAnalise = true
+        s.texto = "quero correr de manhã" // veste WOOP sozinha na pausa
+        s.agendarAutoAnalise(depois: 0.05)
+        s.soltarForma() // o autor soltou ANTES da pausa vencer
+        try await Task.sleep(for: .milliseconds(500))
+        #expect(s.gesto == nil)   // nada revestiu
+        #expect(s.cartao == nil)
+        s.analisar(automatica: true) // e a automática respeita o opt-out da nota
+        try await Task.sleep(for: .milliseconds(200))
+        #expect(s.gesto == nil)
     }
 }

@@ -27,10 +27,10 @@ enum Corpus {
     /// `sentidos`: SPEC §8.5 — a linha de sentido é a ÚNICA coisa que sai do
     /// selo. Vai como bloco próprio, SEM gesto: importar não pode acordar um
     /// timer de expressiva, e a linha volta como nota aberta nas palavras do autor.
-    static func corpoDoCorpus(notas: [(texto: String, gesto: Gesto?, campos: [String: String], trancada: Bool, criadaEm: Date)],
+    static func corpoDoCorpus(notas: [(texto: String, gesto: Gesto?, campos: [String: String], fechada: Bool, criadaEm: Date)],
                               sentidos: [(sentido: String, criadaEm: Date)] = []) -> String {
         let abertas = notas
-            .filter { !$0.trancada && !$0.texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+            .filter { !$0.fechada && !$0.texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
             .map { ($0.criadaEm, arquivoMd(texto: $0.texto, gesto: $0.gesto, campos: $0.campos, criadaEm: $0.criadaEm)) }
         let linhas = sentidos
             .filter { !$0.sentido.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
@@ -96,22 +96,26 @@ enum Corpus {
         guard !Arranque.bancoEmMemoria else { return }
         let corpo = corpoDoCorpus(notas: notas.map { ($0.texto, $0.gesto, $0.campos, $0.fechada, $0.criadaEm) },
                                   sentidos: sentidos(notas))
-        guard !corpo.isEmpty,
-              let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
-        else { return }
-        gravar(corpo, em: docs)
+        guard !corpo.isEmpty else { return }
+        gravar(corpo, em: pastaBackup)
     }
+
+    /// Documents (visível no app Arquivos). Os testes apontam para uma pasta
+    /// temporária — a suíte nunca toca o backup real de quem a roda.
+    static var pastaBackup: URL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
 
     /// Uma geração de volta: o arquivo anterior vira `traco-corpus-anterior.md`
     /// antes de qualquer sobrescrita. Um bug, ou um apagar por engano, nunca
     /// custa o corpus inteiro — o autor tem sempre o de antes, no Arquivos.
+    /// O atual nunca corre risco: sai por `move` e volta por escrita atômica;
+    /// um crash no meio deixa, no pior caso, só a geração anterior.
     static func gravar(_ corpo: String, em docs: URL) {
         let fm = FileManager.default
         let atual = docs.appendingPathComponent("traco-corpus.md")
         let anterior = docs.appendingPathComponent("traco-corpus-anterior.md")
         if fm.fileExists(atPath: atual.path) {
             try? fm.removeItem(at: anterior)
-            try? fm.copyItem(at: atual, to: anterior)
+            try? fm.moveItem(at: atual, to: anterior)
         }
         try? corpo.data(using: .utf8)?.write(to: atual, options: .atomic)
     }

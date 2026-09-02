@@ -162,7 +162,7 @@ struct PaginaView: View {
                 if Arranque.bancoEmMemoria {
                     // Emergência não se esconde: sem isto o autor escreveria
                     // numa página que parece de sempre e perderia tudo ao fechar.
-                    Text("as notas não abriram. o arquivo delas ficou intacto no aparelho — mas nada do que você escrever agora fica.")
+                    Text("as notas não abriram. nada do que você escrever agora fica. feche o app e abra de novo; se continuar assim, o backup está no app Arquivos › Traço.")
                         .font(Tema.meta)
                         .foregroundStyle(Tema.aviso)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -299,6 +299,7 @@ struct PaginaView: View {
             t.disablesAnimations = true
             withTransaction(t) { sessao.cartao = nil }
             sessao.agendarAutoAnalise() // §17: a pausa chama a análise sozinha
+            sessao.agendarGravacao(no: context) // e grava — um crash não custa a nota
         }
         .frame(maxWidth: 680)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)

@@ -37,17 +37,17 @@ enum Revisoes {
 
     /// Trancada/expressiva NUNCA agenda — e a notificação nunca carrega conteúdo
     /// da nota (lock screen é rota de exposição).
-    nonisolated static func podeAgendar(gesto: Gesto?, trancada: Bool, texto: String) -> Bool {
-        !trancada && gesto != .expressiva && !texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    nonisolated static func podeAgendar(gesto: Gesto?, fechada: Bool, texto: String) -> Bool {
+        !fechada && gesto != .expressiva && !texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
     nonisolated static func proximaRevisao(aPartirDe data: Date) -> Date {
         Calendar.current.date(byAdding: .day, value: intervaloDias, to: data) ?? data.addingTimeInterval(TimeInterval(intervaloDias) * 86400)
     }
 
-    static func agendar(uuid: UUID, criadaEm: Date, gesto: Gesto?, trancada: Bool, texto: String,
+    static func agendar(uuid: UUID, criadaEm: Date, gesto: Gesto?, fechada: Bool, texto: String,
                         aoNegar: @escaping @Sendable () -> Void = {}) {
-        guard podeAgendar(gesto: gesto, trancada: trancada, texto: texto) else { return }
+        guard podeAgendar(gesto: gesto, fechada: fechada, texto: texto) else { return }
         let centro = UNUserNotificationCenter.current()
         centro.requestAuthorization(options: [.alert]) { ok, _ in
             guard ok else {
