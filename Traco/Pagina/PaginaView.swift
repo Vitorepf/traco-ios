@@ -196,21 +196,9 @@ struct PaginaView: View {
                 // único oval do app e quebrava o eixo esquerdo (report do dono,
                 // 01/set: "esses elementos estão diferentes do resto";
                 // law-of-similarity com o cartão da análise).
-                Text(toast)
-                    .font(Tema.corpo)
-                    .foregroundStyle(Tema.tintaSuave)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-                    .background(Tema.superficieAlta, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-                    .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(Tema.linha, lineWidth: 0.5))
-                    .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
-                    .padding(.horizontal, Tema.margem)
+                ToastView(texto: toast, acao: sessao.toastAcao)
                     .padding(.bottom, 88)
                     .transition(.opacity.combined(with: .offset(y: 6)))
-                    .accessibilityIdentifier("toast-analise")
-                    .accessibilityAddTraits(.isStaticText)
-                    .transition(.opacity)
             }
 
         }

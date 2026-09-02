@@ -276,7 +276,8 @@ trabalho do Recordar. Padrão Apple Notes (Jakob):
   indexam — buscar "Resultado" não pode devolver toda nota WOOP).
 - Resultado mostra o trecho onde bateu, com o termo em destaque âmbar; truncado em palavra.
 - **Trancadas nunca expõem conteúdo**: não entram em busca por texto; só aparecem
-  pelo chip "Trancadas". O selo vale também para o índice.
+  pelo chip "Trancadas". O selo vale também para o índice. A única exceção é a
+  linha de sentido (§8.5): a busca a acha, e o cartão da trancada a mostra.
 - Sem animação de stagger durante a filtragem (ação frequente não anima — Emil).
 - Busca semântica/IA continua **não-objetivo** (v1): a busca acha, não interpreta.
 

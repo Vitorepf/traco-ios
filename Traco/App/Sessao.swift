@@ -11,6 +11,8 @@ final class Sessao {
     var perguntaPadroes: String?
     var cartao: CartaoAnalisar?
     var toast: String?
+    /// UMA ação no toast, quando há volta (apagar com desfazer).
+    var toastAcao: (rotulo: String, acao: () -> Void)?
     var timerLigado = false
     var segundosRestantes = 15 * 60
     /// SPEC §20: um destino por vez. `mostrarNotas`/`mostrarPadroes` continuam
@@ -360,6 +362,10 @@ final class Sessao {
     /// queimar, apagar, importar, a linha de sentido) passa por aqui. Antes, só
     /// concluir e queimar regravavam — uma nota apagada continuava legível no
     /// app Arquivos e na busca do iOS até o próximo Concluir de outra nota.
+    /// ponytail: fetch de tudo + corpus inteiro + reindex, no MainActor, por
+    /// evento (não por tecla — `salvar` da pausa não passa aqui). Teto: ~2 mil
+    /// notas começa a hesitar; aí `Corpus.gravar` recebe uma String e vai para
+    /// uma Task.detached, e o índice reindexa só a nota tocada.
     func refletirNoDisco(no context: ModelContext) {
         // Em emergência o banco da RAM não é o corpus: nem backup nem índice
         // podem ser reescritos a partir dele.
@@ -552,12 +558,14 @@ final class Sessao {
         pararTimer()
         let minutos = minutosExpressiva
         let corte = linha.trimmingCharacters(in: .whitespacesAndNewlines)
-        let nota: Nota
-        if let alvo = fechoUUID ?? notaUUID, let existente = Self.buscar(uuid: alvo, no: context) {
-            nota = existente
-        } else {
-            nota = Nota(gesto: .expressiva)
-            context.insert(nota)
+        // sem alvo, nada se inventa: uma nota vazia "queimada" diria que
+        // queimou o que continua selado no banco — a mentira que §8.6 proíbe
+        guard let alvo = fechoUUID ?? notaUUID, let nota = Self.buscar(uuid: alvo, no: context) else {
+            mostrarToast("não há o que queimar.")
+            fechoExpressiva = nil
+            sentidoPendente = nil
+            fechoUUID = nil
+            return
         }
         // a cinza não guarda o texto: sobrescreve, depois esvazia
         nota.texto = String(repeating: " ", count: max(nota.texto.count, 1))
@@ -618,45 +626,56 @@ final class Sessao {
     }
 
     /// ADR 2026-08-31f: apagar apaga de verdade — nota, revisão marcada e,
-    /// na próxima varredura, os anexos que só ela referenciava.
+    /// passada a janela, os anexos que só ela referenciava.
     /// Dia 200: a confirmação vira piloto automático — por isso existe a janela
-    /// de desfazer (a cópia vive até a próxima ação ou 6s).
-    var apagadaRecuperavel: (texto: String, gesto: Gesto?, campos: [String: String], criadaEm: Date)?
+    /// de desfazer: 6s com "Desfazer" no toast (radiografia 02/set: a janela
+    /// existia sem botão nenhum). A cópia é uma Nota INTEIRA fora do banco:
+    /// desfazer devolve trancada, queimada, minutos e a linha de sentido —
+    /// e os anexos, porque a varredura só corre quando a janela fecha.
+    var apagadaRecuperavel: Nota?
     private var desfazerTask: Task<Void, Never>?
 
     func apagar(uuid: UUID, no context: ModelContext) {
         guard let nota = Self.buscar(uuid: uuid, no: context) else { return }
-        apagadaRecuperavel = (nota.texto, nota.gesto, nota.campos, nota.criadaEm)
+        let copia = Nota(
+            texto: nota.texto, gesto: nota.gesto, campos: nota.campos, trancada: nota.trancada,
+            criadaEm: nota.criadaEm, editadaEm: nota.editadaEm, expressivaPrazo: nota.expressivaPrazo,
+            queimada: nota.queimada, queimadaEm: nota.queimadaEm,
+            minutosEscritos: nota.minutosEscritos, sentido: nota.sentido
+        )
         Revisoes.cancelar(uuid: uuid)
         context.delete(nota)
         do {
             try context.save()
         } catch {
-            apagadaRecuperavel = nil
             mostrarToast("não consegui apagar — a nota continua.")
             return
         }
+        apagadaRecuperavel = copia
         if notaUUID == uuid { novaPagina() }
         refletirNoDisco(no: context)
-        varrerAnexosOrfaos(no: context)
         confirmacao = nil
         Toque.fechou()
+        mostrarToast("apagada.", acao: ("Desfazer", { [weak self] in self?.desfazerApagar(no: context) }), duracao: 6)
         desfazerTask?.cancel()
         desfazerTask = Task { [weak self] in
             try? await Task.sleep(for: .seconds(6))
-            if !Task.isCancelled { self?.apagadaRecuperavel = nil }
+            guard let self, !Task.isCancelled else { return }
+            self.apagadaRecuperavel = nil
+            self.varrerAnexosOrfaos(no: context) // só agora: desfazer devolvia a nota sem as fotos
         }
     }
 
     func desfazerApagar(no context: ModelContext) {
-        guard let a = apagadaRecuperavel else { return }
-        let nota = Nota(texto: a.texto, gesto: a.gesto, campos: a.campos)
-        nota.criadaEm = a.criadaEm
+        guard let nota = apagadaRecuperavel else { return }
         context.insert(nota)
         try? context.save()
         refletirNoDisco(no: context)
         apagadaRecuperavel = nil
         desfazerTask?.cancel()
+        toastTask?.cancel()
+        toast = nil
+        toastAcao = nil
         Toque.leve()
     }
 
@@ -665,13 +684,14 @@ final class Sessao {
         return try? context.fetch(d).first
     }
 
-    func mostrarToast(_ msg: String) {
+    func mostrarToast(_ msg: String, acao: (rotulo: String, acao: () -> Void)? = nil, duracao: Double = 2.5) {
         toast = msg
+        toastAcao = acao
         AccessibilityNotification.Announcement(msg).post()
         toastTask?.cancel()
         toastTask = Task {
-            try? await Task.sleep(for: .seconds(2.5))
-            if !Task.isCancelled { toast = nil }
+            try? await Task.sleep(for: .seconds(duracao))
+            if !Task.isCancelled { toast = nil; toastAcao = nil }
         }
     }
 }

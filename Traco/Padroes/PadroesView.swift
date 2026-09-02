@@ -15,14 +15,17 @@ struct PadroesView: View {
 
     /// Grok quando há chave (perguntas NOVAS a cada visita); local de guarda.
     /// Nunca a mesma pergunta duas visitas seguidas.
-    /// SPEC §8.5: a linha de sentido sai do selo e entra nos Padrões.
-    private var sentidos: [String] {
-        Array(notas.filter { $0.fechada && !$0.sentido.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
-            .prefix(12).map(\.sentido))
+    /// SPEC §9.1: as últimas ~12 vozes. De uma fechada só entra a linha de
+    /// sentido (§8.5) — nunca o texto; `notas` já vem da mais recente à mais antiga.
+    private var vozes: [String] {
+        Array(notas.compactMap { nota -> String? in
+            let voz = nota.fechada ? nota.sentido : nota.vozDoAutor
+            return voz.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : voz
+        }.prefix(12))
     }
 
     private func carregarPerguntas() async {
-        let vozes = abertas.map(\.vozDoAutor) + sentidos
+        let vozes = vozes
         let locais = PadroesLocal.perguntas(
             vozes: vozes,
             obstaculos: abertas.compactMap { $0.campos["obstaculo"] }

@@ -53,7 +53,14 @@ struct RaizView: View {
                     escondida: tecladoAberto,
                     aoNovaNota: { sessao.novaNota(no: context) }
                 )
+                // o toast do arquivo: "apagada. Desfazer" acontece aqui, não na página
+                if let toast = sessao.toast {
+                    ToastView(texto: toast, acao: sessao.toastAcao)
+                        .padding(.bottom, Tema.barraNav + 12)
+                        .transition(.opacity.combined(with: .offset(y: 6)))
+                }
             }
+            .animation(.easeOut(duration: 0.2), value: sessao.toast)
         } escrita: {
             ZStack(alignment: .leading) {
                 Tema.fundo.ignoresSafeArea()
@@ -102,6 +109,9 @@ struct RaizView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)) { _ in
             sessao.salvar(no: context)
+            // a nota aberta não fica velha no Arquivos nem no Spotlight até um
+            // Concluir: ir para o fundo é o momento barato de refletir
+            sessao.refletirNoDisco(no: context)
         }
         .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
             tecladoAberto = true

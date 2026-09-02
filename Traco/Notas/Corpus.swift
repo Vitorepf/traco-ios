@@ -5,6 +5,9 @@ import Foundation
 /// também para a rota de backup/restauro (META-FINAL). Elas vivem só no aparelho.
 /// ponytail: um arquivo único v1; um-.md-por-nota + import ficam na FILA.
 enum Corpus {
+    /// um por processo, não um por bloco: com 2 mil notas era o custo dominante do backup
+    private static let iso = ISO8601DateFormatter()
+
     static func arquivoMd(texto: String, gesto: Gesto?, campos: [String: String], criadaEm: Date,
                           extra: String? = nil) -> String {
         var corpo = texto.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -17,8 +20,7 @@ enum Corpus {
                 corpo += "\n\n— \(gesto.nome) —\n" + respostas.joined(separator: "\n")
             }
         }
-        let f = ISO8601DateFormatter()
-        var cab = "criada: \(f.string(from: criadaEm))"
+        var cab = "criada: \(iso.string(from: criadaEm))"
         if let gesto { cab += "\ngesto: \(gesto.nome)" }
         if let extra { cab += "\n\(extra)" }
         return "---\n\(cab)\n---\n\n\(corpo)\n"
@@ -67,7 +69,7 @@ enum Corpus {
         // blocos do nosso export: "---\ncriada: ...\n[gesto: ...]\n[chave: ...]\n---\n\ncorpo"
         // (linhas extras no cabeçalho são toleradas: um export mais novo importa no app velho)
         let padrao = try! NSRegularExpression(
-            pattern: #"(?m)^---\ncriada: (\S+)\n(?:gesto: (.+)\n)?(?:\w+: .*\n)*---\n"#)
+            pattern: #"(?m)^---\ncriada: (\S+)\n(?:gesto: (.+)\n)?(?:[^\n:]+: .*\n)*---\n"#)
         let ns = conteudo as NSString
         let hits = padrao.matches(in: conteudo, range: NSRange(location: 0, length: ns.length))
         guard !hits.isEmpty else {
@@ -100,9 +102,17 @@ enum Corpus {
         gravar(corpo, em: pastaBackup)
     }
 
-    /// Documents (visível no app Arquivos). Os testes apontam para uma pasta
-    /// temporária — a suíte nunca toca o backup real de quem a roda.
-    static var pastaBackup: URL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+    /// Documents (visível no app Arquivos). Sob teste, uma pasta temporária:
+    /// a suíte roda dentro do próprio app e nunca pode tocar o backup real de
+    /// quem a roda (no simulador do dono, seria o corpus dele).
+    static var pastaBackup: URL = {
+        if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil {
+            let url = FileManager.default.temporaryDirectory.appendingPathComponent("traco-testes-backup", isDirectory: true)
+            try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+            return url
+        }
+        return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+    }()
 
     /// Uma geração de volta: o arquivo anterior vira `traco-corpus-anterior.md`
     /// antes de qualquer sobrescrita. Um bug, ou um apagar por engano, nunca

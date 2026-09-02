@@ -311,6 +311,12 @@ struct NotasView: View {
                     Label("Expressiva — trancada", systemImage: "lock.fill")
                         .font(.body.weight(.semibold))
                         .foregroundStyle(Tema.tintaSuave)
+                    // §8.5: a linha de sentido sai do selo — a busca a acha, o cartão a mostra
+                    if !nota.sentido.isEmpty {
+                        DestaqueBusca.texto(nota.sentido, termo: busca, base: Tema.tinta)
+                            .font(.subheadline)
+                            .lineLimit(2)
+                    }
                     Text("não se relê · \(VozDoAutor.relativo(nota.criadaEm))")
                         .font(.subheadline)
                         .foregroundStyle(Tema.tintaFraca)

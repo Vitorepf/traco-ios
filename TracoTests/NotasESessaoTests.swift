@@ -1093,3 +1093,36 @@ struct GravarNaPausaTests {
         #expect(s.gesto == nil)
     }
 }
+
+// Radiografia 02/set, P1: "apagar com desfazer" existia sem botão; e o desfazer,
+// se ligado, devolvia a nota destrancada e sem os anexos.
+@MainActor
+struct DesfazerApagarTests {
+    @Test func desfazerDevolveANotaInteiraEOsAnexosEsperamAJanela() throws {
+        let pastaReal = Corpus.pastaBackup
+        Corpus.pastaBackup = FileManager.default.temporaryDirectory.appendingPathComponent("traco-teste-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: Corpus.pastaBackup, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: Corpus.pastaBackup); Corpus.pastaBackup = pastaReal }
+        let container = try ModelContainer(for: Nota.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true))
+        let context = ModelContext(container)
+        let anexoID = UUID()
+        let nota = Nota(texto: "![foto](traco://img/\(anexoID.uuidString))", gesto: .expressiva, trancada: true, sentido: "clareza")
+        context.insert(nota)
+        try context.save()
+        let anexo = AnexoDisco.pasta().appendingPathComponent("\(anexoID.uuidString).png")
+        try Data("png".utf8).write(to: anexo)
+        try FileManager.default.setAttributes([.modificationDate: Date.distantPast], ofItemAtPath: anexo.path)
+        defer { try? FileManager.default.removeItem(at: anexo) }
+
+        let s = Sessao()
+        s.apagar(uuid: nota.uuid, no: context)
+        #expect(try context.fetch(FetchDescriptor<Nota>()).isEmpty)
+        #expect(s.toastAcao?.rotulo == "Desfazer")
+        #expect(FileManager.default.fileExists(atPath: anexo.path)) // a janela ainda está aberta
+
+        s.toastAcao?.acao() // o toque em "Desfazer"
+        let volta = try #require(try context.fetch(FetchDescriptor<Nota>()).first)
+        #expect(volta.trancada && volta.sentido == "clareza" && volta.texto.contains(anexoID.uuidString))
+        #expect(s.apagadaRecuperavel == nil && s.toast == nil && s.toastAcao == nil)
+    }
+}
