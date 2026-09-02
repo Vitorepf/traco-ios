@@ -1,18 +1,30 @@
 import Foundation
 
 enum VozDoAutor: Sendable {
-    nonisolated static func juntar(texto: String, campos: [String: String]) -> String {
+    nonisolated static func juntar(texto: String, campos: [String: String],
+                                   sentido: String = "") -> String {
         let respostas = campos.values
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
         let prosa = Caderno.prosa(de: texto)
-        return ([prosa] + respostas)
+        let linha = sentido.trimmingCharacters(in: .whitespacesAndNewlines)
+        return ([prosa] + respostas + (linha.isEmpty ? [] : [linha]))
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
             .joined(separator: "\n")
     }
 
-    nonisolated static func titulo(_ texto: String) -> String {
+    /// Destilada mostra a frase; as outras, a primeira linha.
+    nonisolated static func titulo(_ texto: String, gesto: Gesto? = nil,
+                                   campos: [String: String] = [:]) -> String {
+        if gesto == .destilar {
+            let frase = campos["frase"]?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            if !frase.isEmpty { return frase }
+        }
+        if gesto == .palavra {
+            let minhas = campos["minhas"]?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            if !minhas.isEmpty { return minhas }
+        }
         let prosa = Caderno.prosa(de: texto)
         let base = prosa.isEmpty ? Caderno.visivel(texto) : prosa
         return base.split(separator: "\n", omittingEmptySubsequences: true)

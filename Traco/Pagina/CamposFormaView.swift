@@ -16,7 +16,7 @@ struct CamposFormaView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             ForEach(Array(gesto.campos.enumerated()), id: \.element.id) { indice, campo in
-                LinhaCampo(id: campo.id, rotulo: campo.rotulo, texto: valor(campo.id))
+                LinhaCampo(id: campo.id, rotulo: campo.rotulo, teto: campo.teto, texto: valor(campo.id))
                     // a forma chega como quem entra: campo a campo, um respiro
                     // entre eles (ancorado em `nascida`, que muda DEPOIS do
                     // onAppear — dispara garantido)
@@ -47,18 +47,36 @@ struct CamposFormaView: View {
 private struct LinhaCampo: View {
     let id: String
     let rotulo: String
+    var teto: Int? = nil
     @Binding var texto: String
 
     private var preenchido: Bool {
         !texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
+    private var estourou: Bool {
+        guard let teto else { return false }
+        return texto.count > teto
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(rotulo.uppercased())
-                .font(Tema.label)
-                .tracking(Tema.trackingLabel)
-                .foregroundStyle(Tema.tintaSuave)
+            HStack(alignment: .firstTextBaseline) {
+                Text(rotulo.uppercased())
+                    .font(Tema.label)
+                    .tracking(Tema.trackingLabel)
+                    .foregroundStyle(Tema.tintaSuave)
+                if let teto {
+                    Spacer(minLength: 8)
+                    Text("\(texto.count)/\(teto)")
+                        .font(Tema.label)
+                        .monospacedDigit()
+                        .foregroundStyle(estourou ? Tema.aviso : Tema.tintaFraca)
+                        .accessibilityLabel(estourou
+                            ? "\(texto.count) de \(teto), passou"
+                            : "\(texto.count) de \(teto)")
+                }
+            }
             // o campo precisa PARECER que recebe texto: sem superfície própria,
             // a folha inteira lia como somente-leitura (critique-affordance)
             TextField("", text: $texto, axis: .vertical)

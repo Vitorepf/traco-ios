@@ -13,13 +13,14 @@ enum AnaliseRemota {
     static let sistema = """
     Você é a Análise de um bloco de notas. Você NUNCA escreve texto.
     Você apenas CLASSIFICA. Responda APENAS um JSON válido, sem markdown:
-    {"gesto": "woop"|"seEntao"|"spec"|"notaPermanente"|"destaque"|"expressiva"|null, \
+    {"gesto": "woop"|"seEntao"|"spec"|"notaPermanente"|"destaque"|"destilar"|"palavra"|"expressiva"|null, \
     "aviso": "afirmacaoVazia"|"textoPronto"|"ouvinte"|"semObstaculo"|"doisGestos"|null}
 
     gesto: woop = desejo/meta pessoal ("quero…", "gostaria de…", "preciso começar…") ·
     seEntao = hábito que emperra num gatilho ·
     spec = algo a construir (software/projeto) · notaPermanente = ideia/insight curto ·
-    destaque = lista de tarefas do dia · expressiva = desabafo emocional longo · null = nada disso.
+    destaque = lista de tarefas do dia · destilar = texto que pede corte até uma frase ·
+    palavra = o autor quer poder usar uma palavra · expressiva = desabafo emocional longo · null = nada disso.
 
     aviso (quando houver aviso, gesto=null). Aviso é RARO e grave — na dúvida, null:
     - afirmacaoVazia = o autor afirma qualidade sobre si ("eu sou rico/vencedor")
@@ -111,7 +112,8 @@ enum AnaliseRemota {
         guard let nomeGesto = j["gesto"] as? String else { return .silencio }
         if nomeGesto == "expressiva" { return .expressiva }
         let mapa: [String: Gesto] = ["woop": .woop, "seEntao": .seEntao, "spec": .spec,
-                                     "notaPermanente": .notaPermanente, "destaque": .destaque]
+                                     "notaPermanente": .notaPermanente, "destaque": .destaque,
+                                     "destilar": .destilar, "palavra": .palavra]
         guard let gesto = mapa[nomeGesto] else { return .silencio }
         // a pergunta é do TEMPLATE, sempre: o algoritmo já sabe o próximo campo
         return .gesto(gesto, pergunta: AnaliseLocal.pergunta(gesto))

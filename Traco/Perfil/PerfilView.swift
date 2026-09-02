@@ -190,7 +190,34 @@ struct PerfilView: View {
             }
             .tint(Tema.ambar)
             .accessibilityIdentifier("ajuste-auto-analise")
+            hora("Recordar às", valor: Binding(
+                get: { Revisoes.hora },
+                set: { Revisoes.hora = $0 }
+            ))
+            hora("manhã", valor: Binding(
+                get: { Ancora.hora(.manha) },
+                set: { Ancora.gravar(.manha, hora: $0) }
+            ))
+            hora("tarde", valor: Binding(
+                get: { Ancora.hora(.tarde) },
+                set: { Ancora.gravar(.tarde, hora: $0) }
+            ))
+            hora("noite", valor: Binding(
+                get: { Ancora.hora(.noite) },
+                set: { Ancora.gravar(.noite, hora: $0) }
+            ))
         }
+    }
+
+    private func hora(_ titulo: String, valor: Binding<Int>) -> some View {
+        Stepper(value: valor, in: 0...23) {
+            Text("\(titulo) \(valor.wrappedValue)h")
+                .font(Tema.corpo)
+                .foregroundStyle(Tema.tinta)
+        }
+        .tint(Tema.tintaSuave)
+        .accessibilityLabel(titulo)
+        .accessibilityValue("\(valor.wrappedValue) horas")
     }
 
     // MARK: - Dados (§20: exportar/importar são AÇÃO, não navegação — moram aqui)

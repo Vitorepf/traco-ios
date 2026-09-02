@@ -72,6 +72,22 @@ struct CartaoAnaliseView: View {
                     // von-restorff-effect). E "soltar" é ambíguo em pt-BR entre
                     // largar e aplicar — metade tocaria achando que confirma.
                     chip(gesto.nome, aviso: false)
+                    if let d = sessao.dominio {
+                        Button {
+                            sessao.desfazerDominio()
+                        } label: {
+                            Text(d.nome.uppercased())
+                                .font(Tema.label)
+                                .tracking(Tema.trackingLabel)
+                                .foregroundStyle(Tema.tintaSuave)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Color.white.opacity(0.06), in: Capsule())
+                        }
+                        .buttonStyle(PressaoDiscreta())
+                        .accessibilityLabel(d.nome)
+                        .accessibilityHint("Um toque tira o domínio")
+                    }
                     Text(gesto.reconhecimento)
                         .font(Tema.corpo)
                         .foregroundStyle(Tema.tinta)

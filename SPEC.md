@@ -128,7 +128,13 @@ Templates do app. Nascem VAZIAS abaixo do texto do usuário. Uma forma por nota.
 | **Especificação** (interno: Spec) | algo a construir (software/projeto) | Problema · Pronto quando · O que eu NÃO vou fazer · Restrições · O que pode dar errado |
 | **Nota permanente** | ideia/insight curto | Uma ideia nas suas palavras · Liga a · Fonte |
 | **Destaque** | lista de tarefas / "hoje" | A única coisa de hoje, primeiro, até acabar |
+| **Destilar** | texto que pede corte ("numa frase", "em 200") | Em 200 · Em 100 · Em 50 · Numa frase (tetos; aviso se estourar) |
+| **Palavra** | uma palavra que o autor quer poder usar | Nas minhas palavras · Uma frase minha · Onde a encontrei — Look Up nativo |
 | **Expressiva** | desabafo emocional longo | sem campos — vira o modo do §8 |
+
+Domínio de vida (Trabalho, Casa, Saúde, Dinheiro, Pessoas, Estudo, Ideias) é
+inferido no salvar, nunca arquivado à mão. Um toque no chip desfaz e trava a
+inferência. Sem cor por domínio. ADR 2026-09-02c.
 
 ## 7. Recordar (retrieval)
 
@@ -137,6 +143,13 @@ Disponível na nota aberta e nas notas (segurar o cartão).
 1. O conteúdo da nota some da tela.
 2. O usuário escreve de memória o que estava lá.
 3. **Revelar** → memória e nota lado a lado. Sem nota da IA, sem score — o olho compara.
+
+Modos: Destilar esconde tudo e cobra a frase; Palavra mostra a definição e
+esconde a palavra; Se–então mostra o Se e esconde o Então.
+
+**Fila do dia** (ADR 2026-09-02d): uma notificação na hora que o autor escolhe
+(padrão 8h), sem corpo da nota e sem contagem. Uma nota por tela. Silêncio
+(Revelar) sobe a escada 3→7→21→60→180→365; "cobrar antes" volta ao 3.
 
 É o único momento em que "esquecer dói" — e a dor é o treino (generation/testing effect).
 
@@ -171,6 +184,11 @@ Ao abrir a forma Expressiva:
    Na lista ela aparece como "Expressiva — queimada", com a linha de sentido e os
    minutos. Selada aparece com cadeado e título oculto.
 8. A Análise nunca comenta o conteúdo de uma expressiva. Nunca.
+9. **Série de quatro dias** (ADR 2026-09-02f): o fecho abre a série. No dia
+   seguinte uma notificação sem conteúdo abre a página em Expressiva. No quarto
+   fecho as quatro linhas de sentido aparecem juntas. Revoga a leitura de
+   "sessão única" do ADR 31l — o método continua Pennebaker; o que muda é o
+   número de sessões, não o método.
 
 ## 9. Padrões (padrões no tempo)
 
@@ -193,9 +211,17 @@ struct Nota {
   var trancada: Bool       // expressiva pós-timer
   let criadaEm: Date
   var editadaEm: Date
+  var sentido: String
+  var dominio: Dominio?
+  var gatilhoEm: Date?
+  var serie: UUID?
+  var diaDaSerie: Int
 }
 ```
-Persistência local (SwiftData/arquivo). Sem nuvem na v1. Sem conta.
+Persistência local (SwiftData/arquivo). Sem nuvem na v1. Sem conta do Traço.
+O export (ADR 2026-09-02a) leva `id`, datas, `recordada`, `sentido`, `estado`,
+`minutos` e o cabeçalho-contrato. Um `.md` por nota na pasta do app em Arquivos.
+Import ignora `id`. Trancada e queimada saem só como metadado + sentido.
 
 ## 11. Design
 
@@ -212,8 +238,14 @@ Persistência local (SwiftData/arquivo). Sem nuvem na v1. Sem conta.
 ## 12. Não-objetivos (v1)
 
 Chat/conversa. Streaks, XP, gamificação. Ouvinte emocional. Resumos. Busca semântica.
-Sync/nuvem/conta. Compartilhamento. Templates em menu (a forma nasce da palavra).
-Agenda/calendário. Android/web.
+Sync/nuvem/conta do Traço. Templates em menu (a forma nasce da palavra).
+Android/web.
+
+**Exceções (ADR 2026-09-02a, 2026-09-02e):** "Compartilhar como contexto" é
+export pela folha do sistema — entrega a nota do autor à IA do autor; não é
+compartilhar com pessoas. O aviso do "Se" com hora é uma notificação com o
+título da nota, não um evento de calendário. Três âncoras (manhã, tarde, noite)
+substituem streak.
 
 ## 13. Pronto quando (critérios de aceite)
 
@@ -549,3 +581,50 @@ Era o único nome de método em inglês entre cinco em português — jargão de
 programador num app de escrever; o autor de primeira viagem não o entende.
 Muda só a exibição (`Gesto.nome`): o rawValue segue "Spec" e `doNome` aceita
 as duas grafias, então o corpus já exportado importa sem perder o gesto.
+
+## ADR 2026-09-02a — Segundo cérebro: export completo e "Como contexto"
+
+§12 proibia "Compartilhamento". Continua proibido compartilhar com pessoas.
+Entregar a própria nota à própria IA pela folha do sistema é export — e export
+é algoritmo desde o §19.2. Toda rota nova passa no teste do selo: WOOP aberta
+sai inteira; selada e queimada saem só como cabeçalho + `sentido`; expressiva
+em curso não sai; `traco://` nunca sai.
+
+O arquivo ganha um cabeçalho fixo (contrato para qualquer IA), `id`, `criada`,
+`editada`, `recordada`, e um `.md` por nota em Documents/Arquivos. Import
+ignora `id`. Sem servidor, sem conta do Traço.
+
+## ADR 2026-09-02b — Destilar e Palavra entram no §6
+
+Duas formas que treinam Linguagem. Destilar corta (200 / 100 / 50 / uma frase)
+com teto visível. Palavra pede a definição nas palavras do autor, uma frase
+sua e a fonte; o dicionário é o nativo do iOS (Look Up). A IA só roteia o
+rótulo; nunca resume, nunca define. Recordar destas formas é invertido:
+Destilar esconde tudo; Palavra mostra a definição e esconde a palavra.
+
+## ADR 2026-09-02c — Domínio inferido, nunca arquivado
+
+Ordem sem bibliotecário. Sete rótulos fechados, léxico local, um toque desfaz
+e trava. Sem cor por domínio. Não é pasta, não é tag, não é arquivo à mão.
+
+## ADR 2026-09-02d — Fila do dia e escada que responde
+
+§7 ganhava uma revisão a 3 dias, por nota. Isso vira ritual: uma notificação
+diária na hora do autor, fila das vencidas, uma nota por tela, sem contagem.
+Escada 3→7→21→60→180→365. Revelar (silêncio) avança; "cobrar antes" volta ao 3.
+
+## ADR 2026-09-02e — Aviso do Se, âncoras, Destaque na tela bloqueada
+
+§12 proibia agenda. Um aviso com o título da nota, disparado pela hora ou
+pelo período escrito no "Se", não é calendário: não cria evento, não sincroniza,
+não tem recorrência. Três âncoras (8 / 14 / 21, ajustáveis no Perfil) no lugar
+de streak. O Destaque do dia — uma linha do autor — vai à tela bloqueada
+(`accessoryRectangular` / `inline`) via App Group. Nunca expressiva, nunca
+trancada.
+
+## ADR 2026-09-02f — Expressiva em série de quatro dias
+
+ADR 31l carregou os métodos validados (Pennebaker, Briñol). A série não inventa
+método: são quatro sessões do mesmo, com notificação sem conteúdo abrindo a
+página. No quarto fecho as quatro linhas de sentido ficam visíveis juntas.
+O selo de cada dia vale sozinho.

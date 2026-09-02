@@ -92,6 +92,12 @@ enum AnaliseLocal: Sendable {
         if lower.contains(regex: #"\b(feature|sistema|api|tela|site|função|app|módulo|construir)\b"#) {
             return .spec
         }
+        if lower.contains(regex: #"destilar|numa frase|em 200|em 100|em 50|a ess[êe]ncia"#) {
+            return .destilar
+        }
+        if lower.contains(regex: #"significa|quer dizer|n[ãa]o conhecia|o que (quer dizer|significa)"#) {
+            return .palavra
+        }
         if lower.contains(regex: #"percebi|entendi que|ideia|insight"#) {
             return .notaPermanente
         }
@@ -111,13 +117,15 @@ enum AnaliseLocal: Sendable {
         case .spec: "O que fica explicitamente de fora desta rodada?"
         case .notaPermanente: "Nas suas palavras: qual é a UMA ideia?"
         case .destaque: "Qual é a única de hoje — primeiro, até acabar?"
+        case .destilar: "Corta até sobrar uma frase. A frase é sua."
+        case .palavra: "Nas suas palavras: o que ela quer dizer?"
         case .expressiva: ""
         }
     }
 }
 
 extension String {
-    func contains(regex pattern: String) -> Bool {
+    nonisolated func contains(regex pattern: String) -> Bool {
         range(of: pattern, options: .regularExpression) != nil
     }
 }

@@ -13,6 +13,8 @@ struct PaginaView: View {
     @State private var abrirArquivo = false
     @State private var chegou = false
     @State private var pulso = false
+    @State private var contextoURL: URL?
+    @State private var dicionario = false
 
     var body: some View {
         // §20: a navegação é da RAIZ. Este Empilha era resíduo da arquitetura
@@ -61,11 +63,24 @@ struct PaginaView: View {
             }
         .tint(Tema.ambar)
         .sheet(isPresented: $sessao.mostrarRecordar) {
-            RecordarView(texto: sessao.recordarTexto, campos: sessao.recordarCampos) {
-                sessao.cumprirRevisaoPendente(no: context)
-            }
-                .presentationBackground(Tema.superficie)
-                .presentationDragIndicator(.visible)
+            RecordarView(
+                texto: sessao.recordarTexto,
+                campos: sessao.recordarCampos,
+                gesto: sessao.recordarGesto,
+                aoRevelar: { sessao.cumprirRevisaoPendente(no: context) },
+                aoCobrarAntes: { sessao.cobrarAntesPendente() },
+                aoProxima: sessao.temProximaFila ? { sessao.proximaDaFila(no: context) } : nil
+            )
+            .id(sessao.recordarUUID)
+            .presentationBackground(Tema.superficie)
+            .presentationDragIndicator(.visible)
+        }
+        .sheet(isPresented: Binding(get: { contextoURL != nil },
+                                    set: { if !$0 { contextoURL = nil } })) {
+            if let contextoURL { CompartilharArquivo(url: contextoURL) }
+        }
+        .sheet(isPresented: $dicionario) {
+            DicionarioNativo(termo: palavraDaPagina)
         }
         .onAppear {
             // a chegada assenta em vez de piscar pronta
@@ -150,6 +165,19 @@ struct PaginaView: View {
             // o degrau só sobe quando o autor REVELA — abrir e fechar não é revisão
             sessao.revisaoPendente = uuid
             sessao.recordarDaNotas(nota)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: Revisoes.abrirFila)) { _ in
+            sessao.abrirFilaDoDia(no: context)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: Revisoes.abrirSerie)) { aviso in
+            guard let serie = aviso.object as? UUID else { return }
+            let dia = aviso.userInfo?["dia"] as? Int ?? 2
+            sessao.abrirDiaDaSerie(serie, dia: dia, no: context)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: Revisoes.abrirGatilho)) { aviso in
+            guard let uuid = aviso.object as? UUID,
+                  let nota = Sessao.buscar(uuid: uuid, no: context) else { return }
+            sessao.abrir(nota)
         }
     }
 
@@ -252,6 +280,40 @@ struct PaginaView: View {
                 .frame(width: 0, height: 0)
                 .opacity(0)
                 .accessibilityHidden(true)
+
+            if sessao.notaUUID != nil, !sessao.paginaVazia, sessao.gesto != .expressiva {
+                Button("Como contexto") {
+                    contextoURL = Corpus.urlComoContexto(
+                        [FatiaCorpus(
+                            id: sessao.notaUUID ?? UUID(),
+                            texto: sessao.texto,
+                            gesto: sessao.gesto,
+                            campos: sessao.campos,
+                            criadaEm: .now,
+                            editadaEm: .now,
+                            recordada: sessao.notaUUID.map(Revisoes.contagem) ?? 0,
+                            sentido: sessao.sentidoPendente ?? "",
+                            minutos: sessao.minutosExpressiva,
+                            trancada: false,
+                            queimada: false,
+                            expressivaEmCurso: sessao.gesto == .expressiva && sessao.timerLigado,
+                            dominio: sessao.dominio,
+                            serie: sessao.seriePendente,
+                            dia: sessao.diaPendente
+                        )],
+                        nome: "traco-contexto.md")
+                }
+                .foregroundStyle(Tema.tintaSuave)
+                .frame(minHeight: Tema.alvo)
+                .accessibilityHint("Entrega esta nota à sua IA, sem servidor")
+            }
+
+            if sessao.gesto == .palavra, !palavraDaPagina.isEmpty {
+                Button("Definir") { dicionario = true }
+                    .foregroundStyle(Tema.tintaSuave)
+                    .frame(minHeight: Tema.alvo)
+                    .accessibilityHint("Abre o dicionário do iOS")
+            }
 
             Spacer()
 
@@ -377,6 +439,13 @@ struct PaginaView: View {
 
     private var tempoFormatado: String {
         String(format: "%02d:%02d", sessao.segundosRestantes / 60, sessao.segundosRestantes % 60)
+    }
+
+    private var palavraDaPagina: String {
+        sessao.texto.trimmingCharacters(in: .whitespacesAndNewlines)
+            .split(whereSeparator: { $0.isWhitespace || $0.isNewline })
+            .first
+            .map(String.init) ?? ""
     }
 
     /// Um âmbar por vista: com forma aberta, Concluída; senão o analise/cartão leva o acento.

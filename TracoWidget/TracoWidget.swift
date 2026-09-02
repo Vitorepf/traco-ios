@@ -1,21 +1,23 @@
 import WidgetKit
 import SwiftUI
 
-// U4 — o Traço fora do app: um widget que é só dois atalhos. Um toque = página
-// em branco (traco://nova); outro = Recordar (traco://recordar). As rotas já
-// existem no app (Rota/onOpenURL); o widget só as chama. Visual da casa: cores e
-// tom do Tema, nada de pele nova. Widget não anima (snapshot); Fase 4 pulada.
-
-struct EntradaTraco: TimelineEntry { let date: Date }
+struct EntradaTraco: TimelineEntry {
+    let date: Date
+    let destaque: String?
+}
 
 struct ProvedorTraco: TimelineProvider {
-    func placeholder(in context: Context) -> EntradaTraco { EntradaTraco(date: .now) }
+    func placeholder(in context: Context) -> EntradaTraco {
+        EntradaTraco(date: .now, destaque: DestaqueDoDia.linhaDeHoje())
+    }
     func getSnapshot(in context: Context, completion: @escaping (EntradaTraco) -> Void) {
-        completion(EntradaTraco(date: .now))
+        completion(EntradaTraco(date: .now, destaque: DestaqueDoDia.linhaDeHoje()))
     }
     func getTimeline(in context: Context, completion: @escaping (Timeline<EntradaTraco>) -> Void) {
-        // atalho, não painel de dados: uma entrada, sem recarga
-        completion(Timeline(entries: [EntradaTraco(date: .now)], policy: .never))
+        let entrada = EntradaTraco(date: .now, destaque: DestaqueDoDia.linhaDeHoje())
+        let amanha = Calendar.current.startOfDay(
+            for: Calendar.current.date(byAdding: .day, value: 1, to: .now) ?? .now)
+        completion(Timeline(entries: [entrada], policy: .after(amanha)))
     }
 }
 
@@ -52,6 +54,28 @@ struct TracoWidgetView: View {
     var entrada: EntradaTraco
 
     var body: some View {
+        Group {
+            switch familia {
+            case .accessoryInline:
+                Text(entrada.destaque ?? "Traço")
+            case .accessoryRectangular:
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("DESTAQUE")
+                        .font(.system(size: 10, weight: .semibold))
+                        .tracking(1.2)
+                        .foregroundStyle(.secondary)
+                    Text(entrada.destaque ?? "—")
+                        .font(.system(size: 14, weight: .medium))
+                        .lineLimit(2)
+                }
+            default:
+                casa
+            }
+        }
+        .containerBackground(Tema.fundo, for: .widget)
+    }
+
+    private var casa: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text("TRAÇO")
                 .font(.system(size: 11, weight: .semibold))
@@ -76,7 +100,6 @@ struct TracoWidgetView: View {
             Spacer(minLength: 0)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .containerBackground(Tema.fundo, for: .widget)
     }
 }
 
@@ -86,8 +109,8 @@ struct TracoWidget: Widget {
             TracoWidgetView(entrada: entrada)
         }
         .configurationDisplayName("Traço")
-        .description("Uma página em branco ou Recordar, num toque.")
-        .supportedFamilies([.systemSmall, .systemMedium])
+        .description("O Destaque do dia na tela bloqueada. Na casa: uma página ou Recordar.")
+        .supportedFamilies([.systemSmall, .systemMedium, .accessoryRectangular, .accessoryInline])
     }
 }
 

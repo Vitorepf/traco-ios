@@ -9,6 +9,8 @@ struct NotasView: View {
     @Query(sort: \Nota.criadaEm, order: .reverse) private var notas: [Nota]
     @State private var busca = ""
     @State private var filtro: FiltroNotas?
+    @State private var filtroDominio: Dominio?
+    @State private var contextoURL: URL?
 
     var body: some View {
         telaNotas
@@ -29,7 +31,19 @@ struct NotasView: View {
     /// SPEC §20: navegar é da barra inferior. Aqui fica só o título da tela e a
     /// ÚNICA ação que pertence a esta tela — começar uma página nova.
     private var topbar: some View {
-        TituloTela("Notas")
+        TituloTela(texto: "Notas") {
+            if !filtradas.isEmpty {
+                Button("Como contexto") {
+                    contextoURL = Corpus.urlComoContexto(
+                        filtradas.map(FatiaCorpus.de), nome: "traco-contexto.md")
+                }
+                .font(Tema.meta)
+                .foregroundStyle(Tema.tintaSuave)
+                .frame(minHeight: Tema.alvo)
+                .buttonStyle(PressaoDiscreta())
+                .accessibilityHint("Entrega estas notas à sua IA, sem servidor")
+            }
+        }
     }
 
     private var campoBusca: some View {
@@ -55,6 +69,7 @@ struct NotasView: View {
                 Button {
                     busca = ""
                     filtro = nil
+                    filtroDominio = nil
                 } label: {
                     Image(systemName: "xmark.circle.fill")
                         .foregroundStyle(Tema.tintaFraca)
@@ -83,7 +98,10 @@ struct NotasView: View {
                 // óbvio (critique-affordance)
                 Button {
                     Toque.selecao()
-                    withAnimation(.easeOut(duration: 0.25)) { filtro = nil }
+                    withAnimation(.easeOut(duration: 0.25)) {
+                        filtro = nil
+                        filtroDominio = nil
+                    }
                 } label: {
                     Text("Todas")
                         .font(Tema.meta.weight(.medium))
@@ -105,37 +123,22 @@ struct NotasView: View {
                 .accessibilityIdentifier("filtro-todas")
                 .accessibilityAddTraits(filtro == nil ? [.isSelected] : [])
                 ForEach(FiltroNotas.allCases) { item in
-                    Button {
-                        Toque.selecao()
-                        withAnimation(.easeOut(duration: 0.25)) {
-                            filtro = filtro == item ? nil : item
-                        }
-                    } label: {
-                        Text(item.rawValue)
-                            .font(Tema.meta.weight(.medium))
-                            .foregroundStyle(filtro == item ? Tema.ambar : Tema.tintaSuave)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 8)
-                            .frame(minHeight: 34)
-                            .background(
-                                Capsule().fill(filtro == item ? Tema.ambarSuave : Tema.superficie)
-                            )
-                            // o estado ligado precisa ser inequívoco, não só um
-                            // cinza um pouco mais claro (critique-affordance)
-                            .overlay {
-                                Capsule().strokeBorder(
-                                    filtro == item ? Tema.ambar.opacity(0.5) : Tema.linha,
-                                    lineWidth: 0.5
-                                )
-                            }
+                    chipFiltro(
+                        titulo: item.rawValue,
+                        ligado: filtro == item,
+                        id: "filtro-\(item.slug)"
+                    ) {
+                        filtro = filtro == item ? nil : item
                     }
-                    // alvo de toque 44 sem inflar o visual
-                    .frame(minHeight: Tema.alvo)
-                    .contentShape(Rectangle())
-                    .buttonStyle(PressaoDiscreta())
-                    .accessibilityAddTraits(filtro == item ? [.isSelected] : [])
-                    .accessibilityIdentifier("filtro-\(item.slug)")
-                    .accessibilityLabel(item.rawValue)
+                }
+                ForEach(Dominio.allCases) { item in
+                    chipFiltro(
+                        titulo: item.nome,
+                        ligado: filtroDominio == item,
+                        id: "filtro-dominio-\(item.rawValue)"
+                    ) {
+                        filtroDominio = filtroDominio == item ? nil : item
+                    }
                 }
                 Color.clear.frame(width: 4)
             }
@@ -156,6 +159,36 @@ struct NotasView: View {
         )
         .padding(.bottom, 8)
         .accessibilityHint("Um filtro por vez")
+        .sheet(isPresented: Binding(get: { contextoURL != nil },
+                                    set: { if !$0 { contextoURL = nil } })) {
+            if let contextoURL { CompartilharArquivo(url: contextoURL) }
+        }
+    }
+
+    private func chipFiltro(titulo: String, ligado: Bool, id: String,
+                            acao: @escaping () -> Void) -> some View {
+        Button {
+            Toque.selecao()
+            withAnimation(.easeOut(duration: 0.25)) { acao() }
+        } label: {
+            Text(titulo)
+                .font(Tema.meta.weight(.medium))
+                .foregroundStyle(ligado ? Tema.ambar : Tema.tintaSuave)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .frame(minHeight: 34)
+                .background(Capsule().fill(ligado ? Tema.ambarSuave : Tema.superficie))
+                .overlay {
+                    Capsule().strokeBorder(
+                        ligado ? Tema.ambar.opacity(0.5) : Tema.linha, lineWidth: 0.5)
+                }
+        }
+        .frame(minHeight: Tema.alvo)
+        .contentShape(Rectangle())
+        .buttonStyle(PressaoDiscreta())
+        .accessibilityAddTraits(ligado ? [.isSelected] : [])
+        .accessibilityIdentifier(id)
+        .accessibilityLabel(titulo)
     }
 
     private var lista: some View {
@@ -174,7 +207,7 @@ struct NotasView: View {
                     // a saída tem que ser do BURACO em que o autor caiu: quando
                     // o vazio é da busca, "escrever na página" joga fora o que
                     // ele estava procurando em vez de devolver o arquivo
-                    if busca.isEmpty, filtro == nil {
+                    if busca.isEmpty, filtro == nil, filtroDominio == nil {
                         Button("escrever na página") {
                             sessao.novaPagina()
                             sessao.mostrarNotas = false
@@ -187,6 +220,7 @@ struct NotasView: View {
                         Button("ver todas as notas") {
                             busca = ""
                             filtro = nil
+                            filtroDominio = nil
                         }
                         .font(Tema.chrome.weight(.semibold))
                         .foregroundStyle(Tema.ambar)
@@ -202,7 +236,7 @@ struct NotasView: View {
             } else {
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 0) {
-                        if !busca.isEmpty || filtro != nil {
+                        if !busca.isEmpty || filtro != nil || filtroDominio != nil {
                             Text(contagem(visiveis.count))
                                 .font(Tema.meta)
                                 .foregroundStyle(Tema.tintaFraca)
@@ -330,6 +364,25 @@ struct NotasView: View {
                                 .padding(.vertical, 2)
                                 .background(Color.white.opacity(0.06), in: Capsule())
                         }
+                        if let d = nota.dominio {
+                            Button {
+                                Toque.leve()
+                                nota.dominio = nil
+                                nota.dominioTravado = true
+                                try? context.save()
+                            } label: {
+                                Text(d.nome.uppercased())
+                                    .font(Tema.label)
+                                    .tracking(Tema.trackingLabel)
+                                    .foregroundStyle(Tema.tintaSuave)
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 2)
+                                    .background(Color.white.opacity(0.06), in: Capsule())
+                            }
+                            .buttonStyle(PressaoDiscreta())
+                            .accessibilityLabel(d.nome)
+                            .accessibilityHint("Um toque tira o domínio")
+                        }
                         let sub = subtitulo(nota)
                         if !(sub == "hoje" && busca.isEmpty) {
                             DestaqueBusca.texto(sub, termo: busca, base: Tema.tintaFraca)
@@ -361,11 +414,11 @@ struct NotasView: View {
     }
 
     private var filtradas: [Nota] {
-        NotasFiltro.visiveis(notas, busca: busca, filtro: filtro)
+        NotasFiltro.visiveis(notas, busca: busca, filtro: filtro, dominio: filtroDominio)
     }
 
     private func titulo(_ nota: Nota) -> String {
-        VozDoAutor.titulo(nota.texto)
+        VozDoAutor.titulo(nota.texto, gesto: nota.gesto, campos: nota.campos)
     }
 
     private func subtitulo(_ nota: Nota) -> String {

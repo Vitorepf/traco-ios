@@ -37,10 +37,33 @@ struct FechoExpressivaView: View {
                             .font(.title2.weight(.semibold))
                             .foregroundStyle(Tema.tinta)
                             .accessibilityAddTraits(.isHeader)
-                        Text("O que ficou claro? Uma linha, se veio. É a única coisa que sai daqui.")
+                        Text(sessao.sentidosDaSerie.isEmpty
+                             ? "O que ficou claro? Uma linha, se veio. É a única coisa que sai daqui."
+                             : "Quatro dias. Quatro linhas. O que ficou claro neste?")
                             .font(Tema.corpo)
                             .foregroundStyle(Tema.tintaSuave)
                             .fixedSize(horizontal: false, vertical: true)
+                    }
+
+                    if !sessao.sentidosDaSerie.isEmpty {
+                        VStack(alignment: .leading, spacing: 14) {
+                            ForEach(Array(sessao.sentidosDaSerie.enumerated()), id: \.offset) { i, linha in
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("DIA \(i + 1)")
+                                        .font(Tema.label)
+                                        .tracking(Tema.trackingLabel)
+                                        .foregroundStyle(Tema.tintaFraca)
+                                    Text(linha)
+                                        .font(Tema.corpo)
+                                        .foregroundStyle(Tema.tinta)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                }
+                            }
+                            Text("DIA \(sessao.sentidosDaSerie.count + 1)")
+                                .font(Tema.label)
+                                .tracking(Tema.trackingLabel)
+                                .foregroundStyle(Tema.tintaFraca)
+                        }
                     }
 
                     // um TextField `.plain` VAZIO e sem prompt é invisível: nada

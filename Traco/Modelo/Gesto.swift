@@ -7,6 +7,8 @@ enum Gesto: String, CaseIterable, Codable, Identifiable {
     case notaPermanente
     case destaque
     case expressiva
+    case destilar
+    case palavra
 
     var id: String { rawValue }
 
@@ -29,6 +31,8 @@ enum Gesto: String, CaseIterable, Codable, Identifiable {
         case .notaPermanente: "Nota permanente"
         case .destaque: "Destaque"
         case .expressiva: "Expressiva"
+        case .destilar: "Destilar"
+        case .palavra: "Palavra"
         }
     }
 
@@ -42,6 +46,8 @@ enum Gesto: String, CaseIterable, Codable, Identifiable {
         case .notaPermanente: "isto é uma ideia que vale guardar inteira."
         case .destaque: "isto parece a lista do seu dia."
         case .expressiva: "isto é desabafo — pede tempo e porta fechada."
+        case .destilar: "isto pede ser cortado até sobrar uma frase."
+        case .palavra: "isto é uma palavra que você quer poder usar."
         }
     }
 
@@ -80,6 +86,19 @@ enum Gesto: String, CaseIterable, Codable, Identifiable {
             [CampoForma(id: "unica", rotulo: "A única coisa de hoje, primeiro, até acabar")]
         case .expressiva:
             []
+        case .destilar:
+            [
+                CampoForma(id: "em200", rotulo: "Em 200", teto: 200),
+                CampoForma(id: "em100", rotulo: "Em 100", teto: 100),
+                CampoForma(id: "em50", rotulo: "Em 50", teto: 50),
+                CampoForma(id: "frase", rotulo: "Numa frase", teto: 140),
+            ]
+        case .palavra:
+            [
+                CampoForma(id: "minhas", rotulo: "Nas minhas palavras"),
+                CampoForma(id: "frase", rotulo: "Uma frase minha com ela"),
+                CampoForma(id: "onde", rotulo: "Onde a encontrei"),
+            ]
         }
     }
 }
@@ -87,6 +106,7 @@ enum Gesto: String, CaseIterable, Codable, Identifiable {
 struct CampoForma: Identifiable, Hashable {
     let id: String
     let rotulo: String
+    var teto: Int? = nil
 }
 
 enum FiltroNotas: String, CaseIterable, Identifiable {
@@ -95,6 +115,8 @@ enum FiltroNotas: String, CaseIterable, Identifiable {
     case spec = "Especificação"
     case notaPermanente = "Permanente"
     case destaque = "Destaque"
+    case destilar = "Destilar"
+    case palavra = "Palavras"
     case trancadas = "Trancadas"
 
     var id: String { rawValue }
@@ -106,6 +128,8 @@ enum FiltroNotas: String, CaseIterable, Identifiable {
         case .spec: "spec"
         case .notaPermanente: "nota-permanente"
         case .destaque: "destaque"
+        case .destilar: "destilar"
+        case .palavra: "palavra"
         case .trancadas: "trancadas"
         }
     }
@@ -117,6 +141,8 @@ enum FiltroNotas: String, CaseIterable, Identifiable {
         case .spec: .spec
         case .notaPermanente: .notaPermanente
         case .destaque: .destaque
+        case .destilar: .destilar
+        case .palavra: .palavra
         case .trancadas: nil
         }
     }

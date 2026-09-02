@@ -22,6 +22,15 @@ final class Nota {
     /// A frase que o AUTOR escreveu no fim ("o que ficou claro?"). Nunca é da IA.
     /// Vive fora do selo: entra na busca, nos Padrões e no Recordar.
     var sentido: String = ""
+    /// Domínio inferido (COLHEITA). Vazio = silêncio. `dominioTravado` = o autor
+    /// tocou o chip: a inferência não volta a escrever por cima.
+    var dominioRaw: String = ""
+    var dominioTravado: Bool = false
+    /// Aviso do "Se" com hora — não é calendário.
+    var gatilhoEm: Date?
+    /// Série da expressiva (1–4). `serieRaw` vazio = sessão única.
+    var serieRaw: String = ""
+    var diaDaSerie: Int = 0
 
     init(
         texto: String = "",
@@ -34,7 +43,8 @@ final class Nota {
         queimada: Bool = false,
         queimadaEm: Date? = nil,
         minutosEscritos: Int = 0,
-        sentido: String = ""
+        sentido: String = "",
+        dominio: Dominio? = nil
     ) {
         self.uuid = UUID()
         self.texto = texto
@@ -48,6 +58,11 @@ final class Nota {
         self.queimadaEm = queimadaEm
         self.minutosEscritos = minutosEscritos
         self.sentido = sentido
+        self.dominioRaw = dominio?.rawValue ?? ""
+        self.dominioTravado = dominio != nil
+        self.gatilhoEm = nil
+        self.serieRaw = ""
+        self.diaDaSerie = 0
     }
 
     /// Fechada de qualquer jeito: selada OU queimada. Quem pergunta "pode sair
@@ -64,9 +79,20 @@ final class Nota {
         set { camposJSON = Self.encode(newValue) }
     }
 
+    var dominio: Dominio? {
+        get { Dominio(rawValue: dominioRaw) }
+        set { dominioRaw = newValue?.rawValue ?? "" }
+    }
+
+    var serieUUID: UUID? {
+        get { serieRaw.isEmpty ? nil : UUID(uuidString: serieRaw) }
+        set { serieRaw = newValue?.uuidString ?? "" }
+    }
+
     /// Só a voz do autor — labels do app não entram na busca nem no classificador.
+    /// A linha de sentido vive fora do selo e entra aqui (§8.5).
     var vozDoAutor: String {
-        VozDoAutor.juntar(texto: texto, campos: campos)
+        VozDoAutor.juntar(texto: texto, campos: campos, sentido: sentido)
     }
 
     private static func encode(_ campos: [String: String]) -> String {

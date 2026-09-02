@@ -21,12 +21,18 @@ targets:
       - path: Traco
     dependencies:
       - target: TracoWidget
+      - sdk: WidgetKit.framework
     info:
       path: Traco/Info-extra.plist
       properties:
         CFBundleURLTypes:
           - CFBundleURLName: app.traco
             CFBundleURLSchemes: [traco]
+    entitlements:
+      path: Traco/Traco.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.app.traco
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: app.traco
@@ -68,6 +74,12 @@ targets:
     sources:
       - path: TracoWidget
       - path: Traco/Tema.swift
+      - path: Traco/Modelo/DestaqueDoDia.swift
+    entitlements:
+      path: TracoWidget/TracoWidget.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.app.traco
     info:
       path: TracoWidget/Info.plist
       properties:

@@ -51,6 +51,13 @@ struct NotasFiltroTests {
         #expect(NotasFiltro.visiveis(notas, busca: "", filtro: .woop).map(\.gesto) == [.woop])
         #expect(NotasFiltro.visiveis(notas, busca: "", filtro: nil).count == 2)
     }
+
+    @Test func filtroDeDominioNaoPintaNemMistura() {
+        let casa = Nota(texto: "a geladeira quebrou", gesto: .woop, dominio: .casa)
+        let trabalho = Nota(texto: "reunião", gesto: .woop, dominio: .trabalho)
+        let v = NotasFiltro.visiveis([casa, trabalho], busca: "", filtro: .woop, dominio: .casa)
+        #expect(v.map(\.dominio) == [.casa])
+    }
 }
 
 @MainActor
@@ -426,8 +433,10 @@ struct CorpusTests {
 
     @Test func arquivoMdEhLegivelEVersionavel() {
         let md = Corpus.arquivoMd(texto: "uma ideia", gesto: nil, campos: [:], criadaEm: Date(timeIntervalSince1970: 0))
-        #expect(md.hasPrefix("---\ncriada: 1970"))
+        #expect(md.hasPrefix("---\nid: "))
+        #expect(md.contains("criada: 1970"))
         #expect(md.contains("uma ideia"))
+        #expect(md.contains("recordada: 0"))
     }
 }
 
@@ -663,9 +672,19 @@ struct EscadaTests {
         #expect(Revisoes.dias(nivel: Revisoes.nivel(u)) == 7)
         Revisoes.registrarCumprida(u)
         #expect(Revisoes.dias(nivel: Revisoes.nivel(u)) == 21)
-        Revisoes.registrarCumprida(u) // teto: fica em 21
-        #expect(Revisoes.dias(nivel: Revisoes.nivel(u)) == 21)
+        Revisoes.registrarCumprida(u)
+        #expect(Revisoes.dias(nivel: Revisoes.nivel(u)) == 60)
+        Revisoes.registrarCumprida(u)
+        #expect(Revisoes.dias(nivel: Revisoes.nivel(u)) == 180)
+        Revisoes.registrarCumprida(u)
+        #expect(Revisoes.dias(nivel: Revisoes.nivel(u)) == 365)
+        Revisoes.registrarCumprida(u) // teto
+        #expect(Revisoes.dias(nivel: Revisoes.nivel(u)) == 365)
+        Revisoes.cobrarAntes(u)
+        #expect(Revisoes.dias(nivel: Revisoes.nivel(u)) == 3)
         UserDefaults.standard.removeObject(forKey: "revisaoNivel")
+        UserDefaults.standard.removeObject(forKey: "revisaoProxima")
+        UserDefaults.standard.removeObject(forKey: "revisaoConta")
     }
 }
 
@@ -771,10 +790,11 @@ struct FechoExpressivaTests {
         s.queimar(no: c.mainContext, sentido: "aprendi X")
 
         let notas = try c.mainContext.fetch(FetchDescriptor<Nota>())
-        let corpo = Corpus.corpoDoCorpus(
-            notas: notas.map { ($0.texto, $0.gesto, $0.campos, $0.fechada, $0.criadaEm) }
-        )
+        let corpo = Corpus.corpoDoCorpus(fatias: notas.map(FatiaCorpus.de))
         #expect(!corpo.contains("isto não pode sair daqui"))
+        #expect(corpo.contains("aprendi X"))
+        #expect(corpo.contains("estado: queimada"))
+        #expect(corpo.contains("# Traço — corpus"))
     }
 
     @Test func queimarNaoDeixaJanelaDeDesfazer() throws {
