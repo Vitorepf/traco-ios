@@ -16,8 +16,6 @@ appId: app.traco
     visible:
       id: aba-notas
     timeout: 4000
-- assertVisible:
-    id: aba-notas
 - takeScreenshot: /tmp/traco-verify/nav/11-arquivo
 # do arquivo: borda direita para a esquerda volta a escrever
 - swipe:

@@ -71,7 +71,7 @@ final class Nota {
 
     /// Só a voz do autor — labels do app não entram na busca nem no classificador.
     var vozDoAutor: String {
-        VozDoAutor.juntar(texto: texto, campos: campos)
+        VozDoAutor.voz(uuid: uuid, editadaEm: editadaEm, texto: texto, campos: campos)
     }
 
     private static func encode(_ campos: [String: String]) -> String {

@@ -7,7 +7,7 @@ Cada portão: método + condição de passagem + evidência. Sem evidência = fa
 | # | Método | Passa se | Evidência |
 |---|---|---|---|
 | F1 | Grep + leitura do diff | Nenhuma prosa de modelo / complete / resumo / elogio entra em `Nota.texto` | paths |
-| F2 | Grep | `api.x.ai` só em `AnaliseRemota`/`PadroesRemoto`, via `ContaGrok.token()`; zero chave `xai-`; nada de `Nota.fechada` na rede | `rg 'api.x.ai' Traco` = 2 arquivos; `rg 'xai-'` vazio |
+| F2 | Grep | URL do modelo só em `AnaliseRemota`, `PadroesRemoto` e `ContaGrok` (ping de estado), via `ContaGrok.token()`; zero chave `xai-`; nada de `Nota.fechada` na rede | `rg -l 'https://api\.x\.ai' Traco` = esses 3; `rg 'xai-' Traco` vazio |
 | F3 | Leitura | Análise na pausa (§17) e no botão; classifica `Caderno.prosa` / voz do autor | call site |
 | F4 | Lista fechada | IA só: rotear, avisar, uma pergunta, Recordar, Padrões, calar | diff |
 

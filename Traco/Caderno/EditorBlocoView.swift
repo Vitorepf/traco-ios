@@ -257,7 +257,30 @@ struct EditorBlocoView: View {
 
     private func campo(_ valor: String, cabecalho: Bool = false,
                        ao: @escaping (String) -> Void) -> some View {
-        TextField("", text: Binding(get: { valor }, set: ao))
+        CelulaTabela(valor: valor, cabecalho: cabecalho, foco: foco, ao: ao)
+    }
+
+    private func binding(_ mapa: @escaping (String) -> BlocoCaderno) -> Binding<String> {
+        Binding(
+            get: { Caderno.textoVisivel(bloco) },
+            set: { aoMudar(mapa($0)) }
+        )
+    }
+}
+
+/// Uma célula: `@State` espelha o valor e `onChange` avisa. Sem
+/// `Binding(get:set:)` com closure passado — sob concorrência estrita o
+/// Binding exige `@Sendable`, o body exige MainActor, e o compilador (6.3)
+/// cai ao reabstrair `@MainActor @Sendable`. O espelho é o jeito do SwiftUI.
+private struct CelulaTabela: View {
+    let valor: String
+    let cabecalho: Bool
+    let foco: FocusState<Bool>.Binding
+    let ao: (String) -> Void
+    @State private var texto = ""
+
+    var body: some View {
+        TextField("", text: $texto)
             .font(cabecalho ? Tema.corpo.weight(.medium) : Tema.corpo)
             .foregroundStyle(cabecalho ? Tema.tintaSuave : Tema.tinta)
             .padding(8)
@@ -268,12 +291,9 @@ struct EditorBlocoView: View {
             // a estrutura precisa ser VISÍVEL: fio entre células, senão crescer não muda nada
             .overlay(alignment: .bottom) { Rectangle().fill(Tema.linha).frame(height: 0.5) }
             .overlay(alignment: .trailing) { Rectangle().fill(Tema.linha).frame(width: 0.5) }
+            .onAppear { texto = valor }
+            .onChange(of: valor) { _, novo in if novo != texto { texto = novo } }
+            .onChange(of: texto) { _, novo in if novo != valor { ao(novo) } }
     }
 
-    private func binding(_ mapa: @escaping (String) -> BlocoCaderno) -> Binding<String> {
-        Binding(
-            get: { Caderno.textoVisivel(bloco) },
-            set: { aoMudar(mapa($0)) }
-        )
-    }
 }

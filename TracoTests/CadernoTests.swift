@@ -695,3 +695,21 @@ struct TabelaLargaTests {
         #expect(corpo == [["1", "2", "3"]])
     }
 }
+
+// Radiografia 02/set (crítico G): um marcador inline SEM par prendia o laço de
+// atributos para sempre — "3 * 4" travava a renderização da nota.
+@MainActor
+struct MarcadorSemParTests {
+    @Test func marcadorSemParSaiCruEOLacoTermina() {
+        for (bruto, visivel) in [
+            ("3 * 4", "3 * 4"),
+            ("a ` b", "a ` b"),
+            ("vale [ok]", "vale [ok]"),
+            ("custa 5 * 3 e `x`", "custa 5 * 3 e x"),
+            ("x *it* `c`", "x it c"),
+            ("**forte** e ~~fora~~", "forte e fora"),
+        ] {
+            #expect(String(ProsaView.atributos(bruto).characters) == visivel, "\(bruto)")
+        }
+    }
+}

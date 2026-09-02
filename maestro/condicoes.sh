@@ -14,8 +14,11 @@ if [ "$BOOTED" -ne 1 ]; then
     exit 2
 fi
 UDID=$(xcrun simctl list devices booted | grep -oE '[0-9A-F-]{36}' | head -1)
-M="$HOME/bin/maestro --udid $UDID"
-FLUXOS=${@:-"maestro/caderno-lista.yaml maestro/notas-e-recordar.yaml maestro/perfil.yaml maestro/padroes.yaml maestro/forma-folha.yaml"}
+M=("$HOME/bin/maestro" --udid "$UDID")
+if [ $# -gt 0 ]; then FLUXOS=("$@"); else FLUXOS=(maestro/caderno-lista.yaml maestro/notas-e-recordar.yaml maestro/perfil.yaml maestro/padroes.yaml maestro/forma-folha.yaml); fi
+LOGS=/tmp/traco-verify/condicoes
+mkdir -p "$LOGS"
+TOTAL=0
 
 restaurar() {
     xcrun simctl ui booted content_size medium >/dev/null 2>&1
@@ -27,8 +30,10 @@ trap restaurar EXIT
 roda() {
     local rotulo="$1"; shift
     local falhas=""
-    for f in $FLUXOS; do
-        $M test "$f" >/dev/null 2>&1 || falhas="$falhas $(basename $f .yaml)"
+    for f in "${FLUXOS[@]}"; do
+        local nome
+        nome=$(basename "$f" .yaml)
+        "${M[@]}" test "$f" > "$LOGS/$rotulo-$nome.log" 2>&1 || { falhas="$falhas $nome"; TOTAL=$((TOTAL + 1)); }
     done
     printf "%-28s %s\n" "$rotulo" "${falhas:-ok}"
 }
@@ -50,4 +55,5 @@ xcrun simctl ui booted increase_contrast enabled >/dev/null 2>&1
 roda "contraste aumentado"
 
 restaurar
-echo "--- fim ---"
+echo "--- fim: $TOTAL falha(s); logs em $LOGS ---"
+[ "$TOTAL" -eq 0 ]

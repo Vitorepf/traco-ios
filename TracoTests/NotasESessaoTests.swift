@@ -1140,10 +1140,14 @@ struct ApagarTudoTests {
         s.texto = "texto que vai sumir"
         s.salvar(no: context)
         #expect(try context.fetch(FetchDescriptor<Nota>()).count == 1)
+        s.refletirNoDisco(no: context)
+        let backup = Corpus.pastaBackup.appendingPathComponent("traco-corpus.md")
+        #expect(try String(contentsOf: backup, encoding: .utf8).contains("texto que vai sumir"))
         s.texto = ""
         s.salvar(no: context) // a pausa, a troca de camada ou o fundo
         #expect(try context.fetch(FetchDescriptor<Nota>()).isEmpty)
         #expect(s.notaUUID == nil)
+        #expect(!(try String(contentsOf: backup, encoding: .utf8)).contains("texto que vai sumir")) // nem no Arquivos
         s.texto = "texto novo depois de apagar"
         s.salvar(no: context)
         #expect(try context.fetch(FetchDescriptor<Nota>()).map(\.texto) == ["texto novo depois de apagar"])

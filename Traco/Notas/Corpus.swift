@@ -98,7 +98,8 @@ enum Corpus {
         guard !Arranque.bancoEmMemoria else { return }
         let corpo = corpoDoCorpus(notas: notas.map { ($0.texto, $0.gesto, $0.campos, $0.fechada, $0.criadaEm) },
                                   sentidos: sentidos(notas))
-        guard !corpo.isEmpty else { return }
+        // corpus vazio também se grava (a última nota apagada não pode ficar no
+        // Arquivos); a geração anterior guarda o que havia antes
         gravar(corpo, em: pastaBackup)
     }
 

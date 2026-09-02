@@ -14,5 +14,5 @@ appId: app.traco
       id: "timer-expressiva"
     timeout: 4000
 - takeScreenshot: /tmp/traco-verify/expressiva-inicio
-- assertVisible:
-    id: "timer-expressiva"
+# o cartão fechou: o timer está rodando, não foi só desenhado
+- assertNotVisible: "Começar o timer"

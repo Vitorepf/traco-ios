@@ -341,6 +341,7 @@ final class Sessao {
                 context.delete(nota)
                 try? context.save()
                 self.notaUUID = nil
+                refletirNoDisco(no: context) // o texto apagado não fica no Arquivos nem no Spotlight
             }
             return
         }

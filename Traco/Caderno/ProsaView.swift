@@ -7,7 +7,7 @@ struct ProsaView: View {
     var body: some View {
         switch bloco {
         case .paragrafo(let t):
-            Text(atributos(t))
+            Text(Self.atributos(t))
                 .font(Tema.corpo)
                 .foregroundStyle(Tema.tinta)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -35,7 +35,7 @@ struct ProsaView: View {
                                 .padding(.top, 8)
                                 .frame(width: 20, alignment: .center)
                         }
-                        Text(atributos(item))
+                        Text(Self.atributos(item))
                             .font(Tema.corpo)
                             .foregroundStyle(Tema.tinta)
                     }
@@ -56,7 +56,7 @@ struct ProsaView: View {
                         }
                         .buttonStyle(.plain)
                         .accessibilityLabel(item.feito ? "Feita" : "Por fazer")
-                        Text(atributos(item.texto))
+                        Text(Self.atributos(item.texto))
                             .font(Tema.corpo)
                             .foregroundStyle(item.feito ? Tema.tintaFraca : Tema.tinta)
                             .strikethrough(item.feito, color: Tema.tintaFraca)
@@ -69,7 +69,7 @@ struct ProsaView: View {
                 RoundedRectangle(cornerRadius: 1, style: .continuous)
                     .fill(Tema.tintaFraca)
                     .frame(width: 2)
-                Text(atributos(xs.joined(separator: "\n")))
+                Text(Self.atributos(xs.joined(separator: "\n")))
                     .font(Tema.corpo.italic())
                     .foregroundStyle(Tema.tintaSuave)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -134,7 +134,7 @@ struct ProsaView: View {
             .background(cabeca ? Tema.superficieAlta : Tema.superficie)
     }
 
-    private func atributos(_ bruto: String) -> AttributedString {
+    static func atributos(_ bruto: String) -> AttributedString {
         var saida = AttributedString()
         var resto = bruto[...]
         while !resto.isEmpty {
@@ -193,6 +193,13 @@ struct ProsaView: View {
             // pulava o itálico e o imprimia cru
             let next = ["`", "*", "~", "["].compactMap { resto.firstIndex(of: Character($0)) }.min()
                 ?? resto.endIndex
+            if next == resto.startIndex {
+                // marcador SEM par ("3 * 4", "a ` b", "vale [ok]"): é texto do
+                // autor — sai cru e o laço avança, senão prendia aqui para sempre
+                saida += AttributedString(String(resto[resto.startIndex]))
+                resto = resto.dropFirst()
+                continue
+            }
             saida += AttributedString(String(resto[..<next]))
             resto = resto[next...]
         }

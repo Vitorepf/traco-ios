@@ -44,7 +44,6 @@ por fluxo em `/tmp/traco-verify/varredura/`.
 ```bash
 ./maestro/varrer.sh                    # todos os fluxos
 ./maestro/varrer.sh maestro/busca.yaml # um fluxo
-SEM_BUILD=1 ./maestro/varrer.sh        # reusa build/ (só quando você sabe que é o atual)
 ```
 
 Capturas de evidência que os fluxos gravam vão para `/tmp/traco-verify/`;

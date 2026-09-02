@@ -172,12 +172,13 @@ struct CadernoFuzzTests {
     /// faixas no parser. Em modo vestido ele nem se vê.)
     @Test func aplicarConvergeEmUmaEdicao() {
         for doc in Self.documentos(quantos: 300, semente: 77) {
+            // a edição REAL: o bloco serializado (um chip, um toggle), nunca a fonte crua
             let fs = Caderno.fatias(doc)
             guard let alvo = fs.first else { continue }
-            let a = Caderno.aplicar(fs, id: alvo.id, novo: alvo.fonte)
+            let a = Caderno.aplicar(fs, id: alvo.id, novo: Caderno.serializar(alvo.bloco))
             let fs2 = Caderno.fatias(a)
             guard let alvo2 = fs2.first else { continue }
-            let b = Caderno.aplicar(fs2, id: alvo2.id, novo: alvo2.fonte)
+            let b = Caderno.aplicar(fs2, id: alvo2.id, novo: Caderno.serializar(alvo2.bloco))
             #expect(a == b, "a segunda edição mudou bytes: \(doc.debugDescription)")
         }
     }

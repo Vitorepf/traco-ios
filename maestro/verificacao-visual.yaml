@@ -2,6 +2,8 @@ appId: app.traco
 ---
 - launchApp:
     clearState: true
+    arguments:
+      sem-grok: true
 - extendedWaitUntil:
     visible:
       id: pagina

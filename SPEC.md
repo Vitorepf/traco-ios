@@ -71,7 +71,7 @@ abrir app ──► página em branco ──► usuário escreve (traço livre)
               │
       campos VAZIOS nascem abaixo do texto do usuário
               │
-      usuário preenche ──► "Concluída" ──► nota vai às notas
+      usuário preenche ──► "Concluir" ──► nota vai às notas
 ```
 
 **Um gesto por sessão.** Se a Análise detecta segundo método na mesma nota → aviso.
@@ -145,7 +145,7 @@ Disponível na nota aberta e nas notas (segurar o cartão).
 Ao abrir a forma Expressiva:
 1. Timer de **15 minutos** visível, discreto.
 2. Instrução única: fato E sentimento, sobre o mesmo evento.
-3. Ao fim do timer (ou ao sair, ou em Concluída ≥10 min) a nota **grava e sela**
+3. Ao fim do timer (ou ao sair, ou em Concluir ≥10 min) a nota **grava e sela**
    — e só então o app abre o **FECHO**, com a escolha. Selar primeiro é regra: o
    selo é garantia e não pode depender de o autor responder; matar o app no meio
    do fecho deixaria a nota aberta.
@@ -256,7 +256,7 @@ Três críticos (hierarquia, motion, UX) em 3 rodadas — decisões que valem pa
   Reabrir trancada: "Reler o desabafo reacende o que a escrita encerrou." / "Ela foi
   escrita para ficar fechada." Silêncio da análise: toast "silêncio." ~2,5s (é resposta,
   não bug); durante o timer: "a análise cala durante a escrita."
-- **Concluída** (texto, ≥44pt, oculto quando vazio) no lugar de ✓; "Notas" sem ☰;
+- **Concluir** (texto, ≥44pt, oculto quando vazio; era "Concluída" — ADR 2026-09-02b) no lugar de ✓; "Notas" sem ☰;
   toda tela com rota de volta; alvos ≥44pt; página vazia SEM placeholder (decisão mantida).
 - **Motion**: push/pop com parallax (curva drawer 0.32,0.72,0,1, ~400ms); sheet sobe
   opaco (nunca cross-fade de texto); cartão da análise é overlay (só transform/opacity,

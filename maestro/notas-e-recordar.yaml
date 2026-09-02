@@ -2,6 +2,8 @@ appId: app.traco
 ---
 - launchApp:
     clearState: true
+    arguments:
+      sem-grok: true
 - tapOn:
     id: pagina
 - inputText: "quero correr de manhã"

@@ -1,6 +1,28 @@
 import Foundation
 
 enum VozDoAutor: Sendable {
+    // ponytail: cache por (uuid, editadaEm). A busca do arquivo pede a voz de
+    // TODAS as notas a cada tecla; sem isto era o parser inteiro × N notas ×
+    // tecla. Guarda só a string da voz (não as fatias); teto 4096 e esvazia.
+    // `Nota` (PersistentModel) é nonisolated: o cache vive sob lock, como o memo do parser.
+    nonisolated private static let lock = NSLock()
+    nonisolated(unsafe) private static var cache: [UUID: (editadaEm: Date, voz: String)] = [:]
+
+    nonisolated static func voz(uuid: UUID, editadaEm: Date, texto: String, campos: [String: String]) -> String {
+        lock.lock()
+        if let c = cache[uuid], c.editadaEm == editadaEm {
+            lock.unlock()
+            return c.voz
+        }
+        lock.unlock()
+        let v = juntar(texto: texto, campos: campos)
+        lock.lock()
+        if cache.count >= 4096 { cache.removeAll(keepingCapacity: true) }
+        cache[uuid] = (editadaEm, v)
+        lock.unlock()
+        return v
+    }
+
     nonisolated static func juntar(texto: String, campos: [String: String]) -> String {
         let respostas = campos.values
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }

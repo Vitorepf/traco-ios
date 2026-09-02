@@ -120,6 +120,10 @@ enum ContaGrok {
 
     /// O único jeito de obter Authorization no app. Devolve nil = motor local.
     static func token() async -> String? {
+        // `-sem-grok` no launch: os fluxos E2E asseveram o motor LOCAL, e o
+        // clearState do Maestro não limpa o Keychain — sem isto, numa máquina
+        // com sessão, a asserção passaria a julgar saída de modelo
+        if ProcessInfo.processInfo.arguments.contains("-sem-grok") { return nil }
         if let acesso = lido(contaAcesso), !expirado { return acesso }
         return await renovar()
     }

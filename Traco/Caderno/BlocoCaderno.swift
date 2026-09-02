@@ -34,27 +34,24 @@ struct FatiaCaderno: Identifiable, Equatable, Sendable {
 }
 
 enum Caderno: Sendable {
-    // ponytail: memo por texto, com teto. O body do SwiftUI avalia `fatias` 2+
-    // vezes por tecla sobre o MESMO texto; e a busca do arquivo chama `vozDoAutor`
-    // de TODAS as notas a cada tecla — com um slot só, notas diferentes se
-    // expulsavam e era parse completo × N notas × tecla. Teto: 512 textos, e o
-    // memo esvazia inteiro (sem LRU: barato e suficiente). Parser incremental
-    // por bloco fica na FILA (P1.2).
+    // ponytail: memo de último valor — o body do SwiftUI avalia `fatias` 2+ vezes por
+    // tecla sobre o MESMO texto; isto corta o reparse redundante. A busca do
+    // arquivo (todas as notas por tecla) tem cache próprio, por nota, em
+    // `VozDoAutor.voz` — aqui um slot basta. Teto conhecido: ainda é O(n) por
+    // mudança real; parser incremental por bloco fica na FILA (P1.2).
     nonisolated private static let memoLock = NSLock()
-    nonisolated(unsafe) private static var memo: [String: [FatiaCaderno]] = [:]
-    nonisolated private static let memoTeto = 512
+    nonisolated(unsafe) private static var memo: (fonte: String, fatias: [FatiaCaderno])?
 
     nonisolated static func fatias(_ fonte: String) -> [FatiaCaderno] {
         memoLock.lock()
-        if let f = memo[fonte] {
+        if let m = memo, m.fonte == fonte {
             memoLock.unlock()
-            return f
+            return m.fatias
         }
         memoLock.unlock()
         let f = fatiasSemMemo(fonte)
         memoLock.lock()
-        if memo.count >= memoTeto { memo.removeAll(keepingCapacity: true) }
-        memo[fonte] = f
+        memo = (fonte, f)
         memoLock.unlock()
         return f
     }
@@ -562,7 +559,8 @@ enum Caderno: Sendable {
         // chip, e o backup .md inchava. Agora uma edição converge — a segunda
         // não muda um byte (CadernoFuzzTests.aplicarConvergeEmUmaEdicao).
         var partes = fatias.map { f -> String in
-            var p = f.id == id ? novo : f.fonte
+            if f.id == id { return novo } // o texto novo é do autor: o "\n" de cauda da saída da lista vive nele
+            var p = f.fonte
             while p.hasSuffix("\n") { p.removeLast() }
             return p
         }

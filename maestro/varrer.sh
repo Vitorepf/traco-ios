@@ -13,7 +13,8 @@
 #
 #   ./maestro/varrer.sh                  # tudo
 #   ./maestro/varrer.sh maestro/x.yaml   # um ou mais fluxos
-#   SEM_BUILD=1 ./maestro/varrer.sh      # reusa build/ (só quando você SABE que é o atual)
+# (quem tem certeza de que build/ é o atual chama `maestro test` direto; o
+# roteiro não oferece atalho para o bug que existe para fechar)
 set -u
 cd "$(dirname "$0")/.."
 
@@ -27,12 +28,10 @@ fi
 UDID=$(xcrun simctl list devices booted | grep -oE '[0-9A-F-]{36}' | head -1)
 
 APP=build/Build/Products/Debug-iphonesimulator/Traço.app
-if [ -z "${SEM_BUILD:-}" ]; then
-    echo "compilando para $UDID…"
-    xcodebuild build -project Traco.xcodeproj -scheme Traco \
-        -destination "platform=iOS Simulator,id=$UDID" \
-        -derivedDataPath build -quiet || { echo "PARADO: o build falhou"; exit 2; }
-fi
+echo "compilando para $UDID…"
+xcodebuild build -project Traco.xcodeproj -scheme Traco \
+    -destination "platform=iOS Simulator,id=$UDID" \
+    -derivedDataPath build -quiet || { echo "PARADO: o build falhou"; exit 2; }
 if [ ! -d "$APP" ]; then
     echo "PARADO: não há build em $APP"
     exit 2
