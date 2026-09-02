@@ -1184,3 +1184,22 @@ struct ApagarTudoTests {
         #expect(!s.autoSuprimidaNaNota)
     }
 }
+
+// Radiografia 02/set (crítico final): a análise armada numa página não pode
+// vestir a nota que o autor abriu em seguida.
+@MainActor
+struct AbrirCancelaAAnaliseArmadaTests {
+    @Test func aAnaliseArmadaNaPaginaAnteriorNaoVesteANotaAberta() async throws {
+        let container = try ModelContainer(for: Nota.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true))
+        let context = ModelContext(container)
+        let b = Nota(texto: "quero correr de manhã") // vestível: WOOP
+        context.insert(b); try context.save()
+        let s = Sessao()
+        s.autoAnalise = true
+        s.texto = "x"
+        s.agendarAutoAnalise(depois: 0.05) // armada na página anterior
+        s.abrir(b)
+        try await Task.sleep(for: .milliseconds(500))
+        #expect(s.gesto == nil) // ninguém vestiu a nota recém-aberta
+    }
+}

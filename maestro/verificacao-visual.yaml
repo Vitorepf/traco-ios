@@ -54,5 +54,5 @@ appId: app.traco
 - tapOn:
     id: "aba-padroes"
 - takeScreenshot: /tmp/traco-verify/hoje/06-padroes
-# Padrões cita a voz do autor
-- assertVisible: ".*quero correr.*"
+# Padrões cita a voz do autor — a nota mais recente vem primeiro (§9)
+- assertVisible: ".*eu sou um vencedor.*"

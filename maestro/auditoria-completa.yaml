@@ -81,5 +81,5 @@ appId: app.traco
     visible: "Perfil"
     timeout: 6000
 - takeScreenshot: /tmp/traco-verify/auditoria/10-perfil
-- assertVisible:
-    id: "estado-conta"
+# o Perfil de verdade: a ação de dados que §20 mandou para cá
+- assertVisible: ".*Exportar todas as notas.*"

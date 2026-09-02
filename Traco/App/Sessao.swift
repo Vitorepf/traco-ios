@@ -440,6 +440,8 @@ final class Sessao {
         }
         pararTimer()
         gravacaoTask?.cancel()
+        autoTask?.cancel()    // a análise armada era da página anterior: vestiria esta
+        analiseTask?.cancel()
         autoSuprimidaNaNota = false // §17.2: o opt-out é POR NOTA — esta é outra
         texto = nota.texto
         gesto = nota.gesto

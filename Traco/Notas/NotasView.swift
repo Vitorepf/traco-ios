@@ -307,6 +307,15 @@ struct NotasView: View {
                          : VozDoAutor.relativo(nota.criadaEm))
                         .font(.subheadline)
                         .foregroundStyle(Tema.tintaFraca)
+                } else if nota.gesto == .expressiva {
+                    // em curso (app morto no meio do timer): retomar é um toque —
+                    // mas a primeira linha do desabafo não vai para a lista
+                    Label("Expressiva — em curso", systemImage: "timer")
+                        .font(.body.weight(.semibold))
+                        .foregroundStyle(Tema.tintaSuave)
+                    Text("toque para continuar · \(VozDoAutor.relativo(nota.criadaEm))")
+                        .font(.subheadline)
+                        .foregroundStyle(Tema.tintaFraca)
                 } else if nota.trancada {
                     Label("Expressiva — trancada", systemImage: "lock.fill")
                         .font(.body.weight(.semibold))
@@ -361,7 +370,7 @@ struct NotasView: View {
                 sessao.confirmacao = nota.trancada ? .apagarTrancada(nota.uuid) : .apagar(nota.uuid)
             }
         }
-        .accessibilityLabel(nota.trancada ? "Expressiva trancada" : titulo(nota))
+        .accessibilityLabel(nota.trancada ? "Expressiva trancada" : nota.gesto == .expressiva ? "Expressiva em curso" : titulo(nota))
         .accessibilityHint(nota.trancada ? "Reabrir pede confirmação dupla" : "Segure para recordar a memória")
         .accessibilityIdentifier("nota-notas")
     }

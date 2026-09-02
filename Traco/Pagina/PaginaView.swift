@@ -108,6 +108,12 @@ struct PaginaView: View {
         // escrita rouba a página. A alça "abrir campos" é a porta, a um toque.
         .onChange(of: sessao.gesto) { _, g in
             if g == nil || g == .expressiva { mostrarCampos = false }
+            // a forma vestida (ou solta) só existia na RAM até a próxima tecla
+            sessao.agendarGravacao(no: context)
+        }
+        .onChange(of: sessao.campos) { _, _ in
+            // a folha de campos escreve direto em `campos`, sem passar pelo editor
+            sessao.agendarGravacao(no: context)
         }
         .onChange(of: mostrarCampos) { _, aberto in
             if !aberto { restaurarFoco() }
