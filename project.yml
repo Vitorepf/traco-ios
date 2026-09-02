@@ -47,7 +47,8 @@ targets:
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.productivity
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
-        INFOPLIST_KEY_UIStatusBarStyle: UIStatusBarStyleLightContent
+        INFOPLIST_KEY_UIStatusBarStyle: UIStatusBarStyleDefault
+        INFOPLIST_KEY_NSSupportsLiveActivities: YES
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         DEVELOPMENT_TEAM: ""
@@ -75,6 +76,7 @@ targets:
       - path: TracoWidget
       - path: Traco/Tema.swift
       - path: Traco/Modelo/DestaqueDoDia.swift
+      - path: Traco/Modelo/DestaqueAtividade.swift
     entitlements:
       path: TracoWidget/TracoWidget.entitlements
       properties:

@@ -76,19 +76,20 @@ struct CalendarioDiaView: View {
             HStack(spacing: 6) {
                 ForEach(eventos) { evento in
                     Button {
-                        agenda.ficha = evento
+                        agenda.abrir(evento)
                     } label: {
                         HStack(spacing: 6) {
-                            Image(systemName: CalendarioTema.icone(de: evento.dominio))
+                            Image(systemName: CalendarioTema.icone(de: evento))
                                 .font(.caption2.weight(.semibold))
                             Text(evento.titulo)
                                 .font(CalendarioTema.meta)
                                 .lineLimit(1)
                         }
-                        .foregroundStyle(CalendarioTema.tinta(de: evento.dominio))
+                        .foregroundStyle(CalendarioTema.tinta(de: evento))
                         .padding(.horizontal, 12)
                         .frame(height: 32)
-                        .background(CalendarioTema.fundo(de: evento.dominio), in: Capsule())
+                        .background(CalendarioTema.fundo(de: evento), in: Capsule())
+                        .overlay { if evento.eDeixa { Capsule().strokeBorder(CalendarioTema.contornoDeixa, lineWidth: 1) } }
                         .frame(minHeight: Tema.alvo)
                         .contentShape(Capsule())
                     }
@@ -175,11 +176,11 @@ struct CalendarioDiaView: View {
             let x = gutter + larguraColuna * CGFloat(coluna.indice)
             let compacto = alturaBloco < 60
             Button {
-                agenda.ficha = evento
+                agenda.abrir(evento)
             } label: {
                 VStack(alignment: .leading, spacing: 4) {
                     HStack(spacing: 6) {
-                        Image(systemName: CalendarioTema.icone(de: evento.dominio))
+                        Image(systemName: CalendarioTema.icone(de: evento))
                             .font(.caption.weight(.semibold))
                         Text(evento.titulo)
                             .font(CalendarioTema.evento)
@@ -196,14 +197,20 @@ struct CalendarioDiaView: View {
                             .opacity(0.85)
                     }
                 }
-                .foregroundStyle(CalendarioTema.tinta(de: evento.dominio))
+                .foregroundStyle(CalendarioTema.tinta(de: evento))
                 .padding(.horizontal, 12)
                 .padding(.vertical, compacto ? 8 : 12)
                 .frame(width: max(44, larguraColuna - 4), height: alturaBloco, alignment: .topLeading)
                 .background(
-                    CalendarioTema.fundo(de: evento.dominio),
+                    CalendarioTema.fundo(de: evento),
                     in: RoundedRectangle(cornerRadius: min(CalendarioTema.raio, alturaBloco / 2.6), style: .continuous)
                 )
+                .overlay {
+                    if evento.eDeixa {
+                        RoundedRectangle(cornerRadius: min(CalendarioTema.raio, alturaBloco / 2.6), style: .continuous)
+                            .strokeBorder(CalendarioTema.contornoDeixa, lineWidth: 1)
+                    }
+                }
                 .contentShape(RoundedRectangle(cornerRadius: CalendarioTema.raio, style: .continuous))
             }
             .buttonStyle(PressaoClara())
@@ -387,18 +394,19 @@ struct CalendarioSemanaView: View {
     /// O rótulo é CORTADO pela cápsula, não abreviado com reticências: "Corri", não "Co…".
     private func pilula(_ evento: EventoCalendario, x: CGFloat, w: CGFloat, y: CGFloat, h: CGFloat) -> some View {
         Button {
-            agenda.ficha = evento
+            agenda.abrir(evento)
         } label: {
             Text(evento.titulo)
                 .font(.system(size: h < 18 ? 9 : 11, weight: .semibold))
-                .foregroundStyle(CalendarioTema.tinta(de: evento.dominio))
+                .foregroundStyle(CalendarioTema.tinta(de: evento))
                 .lineLimit(1)
                 .fixedSize(horizontal: true, vertical: false)
                 .padding(.leading, 7)
                 .frame(width: w, height: h, alignment: .leading)
                 .desvanece(12)
-                .background(CalendarioTema.fundo(de: evento.dominio))
+                .background(CalendarioTema.fundo(de: evento))
                 .clipShape(Capsule())
+                .overlay { if evento.eDeixa { Capsule().strokeBorder(CalendarioTema.contornoDeixa, lineWidth: 1) } }
                 .frame(height: Tema.alvo)
                 .contentShape(Capsule())
         }
@@ -518,7 +526,7 @@ struct CalendarioMesView: View {
                         .overlay(alignment: .leading) {
                             Text(evento.titulo)
                                 .font(.system(size: tamChip, weight: .semibold))
-                                .foregroundStyle(CalendarioTema.tinta(de: evento.dominio))
+                                .foregroundStyle(CalendarioTema.tinta(de: evento))
                                 .lineLimit(1)
                                 .fixedSize(horizontal: true, vertical: false)
                                 .padding(.leading, 4)
@@ -526,9 +534,15 @@ struct CalendarioMesView: View {
                         .desvanece(10)
                         .clipped()
                         .background(
-                            CalendarioTema.fundo(de: evento.dominio),
+                            CalendarioTema.fundo(de: evento),
                             in: RoundedRectangle(cornerRadius: 5, style: .continuous)
                         )
+                        .overlay {
+                            if evento.eDeixa {
+                                RoundedRectangle(cornerRadius: 5, style: .continuous)
+                                    .strokeBorder(CalendarioTema.contornoDeixa, lineWidth: 1)
+                            }
+                        }
                 }
                 if extra > 0 {
                     Text("+\(extra)")

@@ -21,7 +21,9 @@
 		295A215EC19C2F11945E6734 /* CadernoFuzzTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1757D3DFD4D2B96B4136FB92 /* CadernoFuzzTests.swift */; };
 		2EDE2DC95FFCC08152DD4D8C /* TracoWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7460E11C15C79C8BF502E84 /* TracoWidget.swift */; };
 		3300AF225512A35291C48F3D /* ProsaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4207F1ADDB6DE919995145D4 /* ProsaView.swift */; };
+		33E7048C7B524548344C17B3 /* ColheitaRestanteTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6A126EE0A969827F3AF54EB /* ColheitaRestanteTests.swift */; };
 		357488D47F6447389B1B4B14 /* NotasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A0D2FB8492AF79193900392 /* NotasView.swift */; };
+		392E57CEB6D76DF81EACAF02 /* DestaqueAtividade.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6997D9DCDD92186D27F39546 /* DestaqueAtividade.swift */; };
 		3E3F2462A04B514F3BFA686B /* NotasFiltro.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F477183BCC594161BCBE7B8 /* NotasFiltro.swift */; };
 		41477564BC9389B7A7982A6C /* Toque.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2751D1D96F07B6B9980FA75 /* Toque.swift */; };
 		4377608A080691855723E246 /* DestaqueDoDia.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BB175F2F50DED6365BFB989 /* DestaqueDoDia.swift */; };
@@ -34,6 +36,7 @@
 		56A38C95EE9713A63A475FC8 /* NotasESessaoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B544C7CB0EEA5F5D2DAFB30C /* NotasESessaoTests.swift */; };
 		5A36977E5B83A71BE62DD42B /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 8250E3200AC60E254A9A3BB0 /* PrivacyInfo.xcprivacy */; };
 		5B9AE29312A3CD5A78A518FC /* FechoExpressivaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CB7E1BBDF9B934FC651E5E1 /* FechoExpressivaView.swift */; };
+		5C1790A9FFB5B806B351CA85 /* LenteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84222ED2C50DC930433527F8 /* LenteView.swift */; };
 		5DCE4A68B37975A8776F1BEA /* CalendarioEscalas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1A0C028CE98D7512FD39AB /* CalendarioEscalas.swift */; };
 		611B3215CD20394B57D23B03 /* Intencoes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E1B7B58FD49695380C335BA /* Intencoes.swift */; };
 		62F244DD1EE82BE8E45B1831 /* CadernoDiagnostico.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BE14BD28362A74300FD085A /* CadernoDiagnostico.swift */; };
@@ -65,6 +68,8 @@
 		C16DEDA3E5975B71E9FCB6AD /* PerfilView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BD1932583F37382718A680D /* PerfilView.swift */; };
 		C50148780B8DC1A48C2EE0E2 /* Dominio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FB4D87DCC6F49ABB1CBA6A8 /* Dominio.swift */; };
 		C6C32FF3D2FE034D30B4ECBA /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C8368BD8FD67D026089BF81E /* WidgetKit.framework */; };
+		CCB91675AA304E1025BD2234 /* DestaqueAtividade.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6997D9DCDD92186D27F39546 /* DestaqueAtividade.swift */; };
+		D09B0D63B27C76243977D354 /* Lente.swift in Sources */ = {isa = PBXBuildFile; fileRef = B95713C947DED6A38489925D /* Lente.swift */; };
 		D37ABADE9FFCD8F825DC5E8B /* Tema.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A273C7A77EA3B9F5AAAC13A /* Tema.swift */; };
 		D624B7699CB6224EC14D1089 /* PortalCodigoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFD400F0A39FE3685B78CF60 /* PortalCodigoView.swift */; };
 		E392DABE7E7AC33038D67110 /* PadroesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 481F4361236B561E2D58A0D1 /* PadroesView.swift */; };
@@ -139,6 +144,7 @@
 		665F2C234F3966C3C528A729 /* PapelForma.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PapelForma.swift; sourceTree = "<group>"; };
 		6781E6B90271EAB559E46EB7 /* AnexoDisco.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnexoDisco.swift; sourceTree = "<group>"; };
 		67B5D4AE1A40807B1EF842C2 /* EditorBlocoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorBlocoView.swift; sourceTree = "<group>"; };
+		6997D9DCDD92186D27F39546 /* DestaqueAtividade.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DestaqueAtividade.swift; sourceTree = "<group>"; };
 		6A0D2FB8492AF79193900392 /* NotasView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotasView.swift; sourceTree = "<group>"; };
 		6B3F4812CA2DDBAB60FE7D78 /* RecordarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordarView.swift; sourceTree = "<group>"; };
 		6D9CC2EA0F0A4BA7D91CB26E /* Superficie.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Superficie.swift; sourceTree = "<group>"; };
@@ -152,6 +158,7 @@
 		813C9D0A44A4071EBACC0EFD /* TituloTela.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TituloTela.swift; sourceTree = "<group>"; };
 		8250E3200AC60E254A9A3BB0 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		830A6A725EE5ACDC831582DF /* PortalArquivoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortalArquivoView.swift; sourceTree = "<group>"; };
+		84222ED2C50DC930433527F8 /* LenteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LenteView.swift; sourceTree = "<group>"; };
 		854249702104D325072DC8FA /* Gesto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gesto.swift; sourceTree = "<group>"; };
 		8A31CF16DDDD850E4008ED6A /* VozDoAutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VozDoAutor.swift; sourceTree = "<group>"; };
 		8C37AE5D202E97779C84A745 /* TracoWidget.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = TracoWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -166,6 +173,7 @@
 		B496594B9155DDF9FAE0B85C /* CamposFormaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CamposFormaView.swift; sourceTree = "<group>"; };
 		B544C7CB0EEA5F5D2DAFB30C /* NotasESessaoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotasESessaoTests.swift; sourceTree = "<group>"; };
 		B5A488C4342AF60848A88895 /* CadernoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CadernoTests.swift; sourceTree = "<group>"; };
+		B95713C947DED6A38489925D /* Lente.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lente.swift; sourceTree = "<group>"; };
 		BB811F3145B921C3557FB6CF /* Revisoes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Revisoes.swift; sourceTree = "<group>"; };
 		BC971448D0B5207611E641F1 /* CadernoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CadernoView.swift; sourceTree = "<group>"; };
 		C231AAA4F75F1F358615DD8D /* Holofote.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Holofote.swift; sourceTree = "<group>"; };
@@ -180,6 +188,7 @@
 		D50C2B948E98337ABC4CE64A /* CalendarioFicha.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarioFicha.swift; sourceTree = "<group>"; };
 		D559A524E20BFCB3DD3265B3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		E2751D1D96F07B6B9980FA75 /* Toque.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Toque.swift; sourceTree = "<group>"; };
+		E6A126EE0A969827F3AF54EB /* ColheitaRestanteTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColheitaRestanteTests.swift; sourceTree = "<group>"; };
 		F8A3AE8285B42EB802930300 /* TracoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TracoApp.swift; sourceTree = "<group>"; };
 		F903485BBAA804C94399C747 /* Migracao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Migracao.swift; sourceTree = "<group>"; };
 		FE5E37AF9BC96722920E0256 /* PadroesRemoto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PadroesRemoto.swift; sourceTree = "<group>"; };
@@ -202,6 +211,7 @@
 			children = (
 				B496594B9155DDF9FAE0B85C /* CamposFormaView.swift */,
 				C9F22E37F6BFFDA21C00C087 /* CartaoAnaliseView.swift */,
+				84222ED2C50DC930433527F8 /* LenteView.swift */,
 				44CF1006FD54376D4F9A5274 /* PaginaView.swift */,
 			);
 			path = Pagina;
@@ -288,6 +298,7 @@
 				B5A488C4342AF60848A88895 /* CadernoTests.swift */,
 				7537CF8C51549F26D7FCB726 /* CalendarioTests.swift */,
 				CF372B1BEFF3653F9B724C23 /* ColheitaEixosTests.swift */,
+				E6A126EE0A969827F3AF54EB /* ColheitaRestanteTests.swift */,
 				B544C7CB0EEA5F5D2DAFB30C /* NotasESessaoTests.swift */,
 			);
 			path = TracoTests;
@@ -296,6 +307,7 @@
 		69C58EBBB2BA6B088529BBAA /* Modelo */ = {
 			isa = PBXGroup;
 			children = (
+				6997D9DCDD92186D27F39546 /* DestaqueAtividade.swift */,
 				7BB175F2F50DED6365BFB989 /* DestaqueDoDia.swift */,
 				4FB4D87DCC6F49ABB1CBA6A8 /* Dominio.swift */,
 				854249702104D325072DC8FA /* Gesto.swift */,
@@ -356,6 +368,7 @@
 				07E0810B1D0BA208B63D167C /* AnaliseLocal.swift */,
 				559F50CC1AF6E37EF3CA94F7 /* AnaliseRemota.swift */,
 				6DBB3255C8D14DB1494C3558 /* ContaGrok.swift */,
+				B95713C947DED6A38489925D /* Lente.swift */,
 			);
 			path = Analise;
 			sourceTree = "<group>";
@@ -528,6 +541,7 @@
 				EAE5E994955519A08418ADD6 /* CadernoTests.swift in Sources */,
 				4E18148DDC66D42063567090 /* CalendarioTests.swift in Sources */,
 				074CEFA001610B7014480820 /* ColheitaEixosTests.swift in Sources */,
+				33E7048C7B524548344C17B3 /* ColheitaRestanteTests.swift in Sources */,
 				56A38C95EE9713A63A475FC8 /* NotasESessaoTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -555,6 +569,7 @@
 				21C607B41ECFAE7A1BAE87B9 /* ConfirmacaoView.swift in Sources */,
 				7F26309223D4872E96CFEA82 /* ContaGrok.swift in Sources */,
 				8B41722379ED1CB7724E946C /* Corpus.swift in Sources */,
+				CCB91675AA304E1025BD2234 /* DestaqueAtividade.swift in Sources */,
 				0FA3C90485245DA99E3B96B8 /* DestaqueBusca.swift in Sources */,
 				A730B9AC03A66E91B4194C3E /* DestaqueDoDia.swift in Sources */,
 				C50148780B8DC1A48C2EE0E2 /* Dominio.swift in Sources */,
@@ -563,6 +578,8 @@
 				9AE336A415F4A83195416BE2 /* Gesto.swift in Sources */,
 				BFBA450F8798775C427206AB /* Holofote.swift in Sources */,
 				611B3215CD20394B57D23B03 /* Intencoes.swift in Sources */,
+				D09B0D63B27C76243977D354 /* Lente.swift in Sources */,
+				5C1790A9FFB5B806B351CA85 /* LenteView.swift in Sources */,
 				95A4CF4E0115E6A253620E90 /* MenuFormasView.swift in Sources */,
 				03A483C4387E081D6204D93A /* Migracao.swift in Sources */,
 				206C9E23B411F0F28E1162E0 /* Nota.swift in Sources */,
@@ -597,6 +614,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				392E57CEB6D76DF81EACAF02 /* DestaqueAtividade.swift in Sources */,
 				4377608A080691855723E246 /* DestaqueDoDia.swift in Sources */,
 				49F55E4771098FD4F183F1D0 /* Tema.swift in Sources */,
 				2EDE2DC95FFCC08152DD4D8C /* TracoWidget.swift in Sources */,
@@ -637,9 +655,10 @@
 				INFOPLIST_KEY_NSAppTransportSecurity_NSAllowsArbitraryLoads = NO;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Traço guarda nesta nota o áudio que você gravou.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Traço guarda nesta nota a foto que você escolheu.";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIFileSharingEnabled = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UIStatusBarStyle = UIStatusBarStyleLightContent;
+				INFOPLIST_KEY_UIStatusBarStyle = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -777,9 +796,10 @@
 				INFOPLIST_KEY_NSAppTransportSecurity_NSAllowsArbitraryLoads = NO;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Traço guarda nesta nota o áudio que você gravou.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Traço guarda nesta nota a foto que você escolheu.";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIFileSharingEnabled = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UIStatusBarStyle = UIStatusBarStyleLightContent;
+				INFOPLIST_KEY_UIStatusBarStyle = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

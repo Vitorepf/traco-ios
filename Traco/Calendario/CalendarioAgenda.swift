@@ -8,6 +8,11 @@ final class CalendarioAgenda {
     var escala: EscalaCalendario = .dia
     var modo: ModoCalendario = .grelha
     var eventos: [EventoCalendario]
+    /// As deixas das notas ("Se" com hora), lidas do modelo pela view. Não
+    /// vão ao disco do calendário: a nota é a dona.
+    var deixas: [EventoCalendario] = []
+    /// Tocar numa deixa abre a nota; a raiz liga isto à Sessao.
+    var aoAbrirNota: ((UUID) -> Void)?
     var prosa = ""
     var ficha: EventoCalendario?
     var menuMais = false
@@ -55,7 +60,9 @@ final class CalendarioAgenda {
     var semana: [Date] { Calendario.semana(da: ancora, cal) }
     var grelha: [Date] { Calendario.grelhaDoMes(da: ancora, cal) }
     var meses: [Date] { Calendario.mesesDoAno(da: ancora, cal) }
-    var porDia: [Date: [EventoCalendario]] { Calendario.porDia(eventos, cal) }
+    /// Compromissos e deixas, juntos, para todas as escalas.
+    var todos: [EventoCalendario] { eventos + deixas }
+    var porDia: [Date: [EventoCalendario]] { Calendario.porDia(todos, cal) }
 
     func ancoraEHoje(_ agora: Date) -> Bool { Calendario.eHoje(ancora, agora: agora, cal) }
 
@@ -97,18 +104,27 @@ final class CalendarioAgenda {
     }
 
     func eventos(no dia: Date) -> [EventoCalendario] {
-        Calendario.eventos(eventos, noDia: dia, cal)
+        Calendario.eventos(todos, noDia: dia, cal)
     }
 
     func eventosDaEscala() -> [EventoCalendario] {
         switch escala {
-        case .dia: Calendario.eventos(eventos, noDia: ancora, cal)
-        case .semana: Calendario.eventos(eventos, naSemanaDe: ancora, cal)
-        case .mes: Calendario.eventos(eventos, noMesDe: ancora, cal)
+        case .dia: Calendario.eventos(todos, noDia: ancora, cal)
+        case .semana: Calendario.eventos(todos, naSemanaDe: ancora, cal)
+        case .mes: Calendario.eventos(todos, noMesDe: ancora, cal)
         case .ano:
-            eventos
+            todos
                 .filter { cal.component(.year, from: $0.inicio) == cal.component(.year, from: ancora) }
                 .sorted { $0.inicio < $1.inicio }
+        }
+    }
+
+    /// Compromisso abre a ficha; deixa abre a nota que a criou.
+    func abrir(_ evento: EventoCalendario) {
+        if let origem = evento.origem {
+            aoAbrirNota?(origem)
+        } else {
+            ficha = evento
         }
     }
 
@@ -117,6 +133,15 @@ final class CalendarioAgenda {
     /// Da prosa ao disco. Se o disco recusa, a prosa fica onde estava.
     func adicionarDaProsa(agora: Date = .now) {
         let frase = prosa
+        // pergunta, não marcação: o app responde indo até o dia
+        if let (dia, nova) = CalendarioFrase.consulta(frase, ancora: ancora, agora: agora, cal) {
+            prosa = ""
+            Teclado.recolher()
+            Toque.selecao()
+            ancora = dia
+            ir(para: nova)
+            return
+        }
         guard let evento = CalendarioFrase.ler(
             frase, ancora: ancora, agora: agora, cal,
             manha: Ancora.hora(.manha), tarde: Ancora.hora(.tarde), noite: Ancora.hora(.noite)
@@ -149,6 +174,7 @@ final class CalendarioAgenda {
 
     /// Guarda a ficha. Título vazio não entra: um compromisso sem nome não é nada.
     func guardar(_ evento: EventoCalendario) {
+        guard evento.origem == nil else { return }
         var e = evento
         e.titulo = e.titulo.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !e.titulo.isEmpty else {

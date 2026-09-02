@@ -1,4 +1,5 @@
 import AppIntents
+import SwiftData
 import SwiftUI
 
 /// O app fora do app (exp 3): Atalhos, Siri e Action Button chegam de graça
@@ -43,6 +44,139 @@ struct TracoAtalhos: AppShortcutsProvider {
             shortTitle: "Notas",
             systemImageName: "list.bullet"
         )
+        AppShortcut(
+            intent: DestaqueDeHojeIntent(),
+            phrases: ["Destaque de hoje no \(.applicationName)", "Qual é o meu destaque no \(.applicationName)"],
+            shortTitle: "Destaque de hoje",
+            systemImageName: "sparkle"
+        )
+        AppShortcut(
+            intent: CompromissosDeHojeIntent(),
+            phrases: ["Meu dia no \(.applicationName)", "O que tenho hoje no \(.applicationName)"],
+            shortTitle: "Meu dia",
+            systemImageName: "calendar"
+        )
+        AppShortcut(
+            intent: LinhasDeSentidoIntent(),
+            phrases: ["Linhas de sentido do \(.applicationName)"],
+            shortTitle: "Linhas de sentido",
+            systemImageName: "text.quote"
+        )
+        AppShortcut(
+            intent: CorpusComoContextoIntent(),
+            phrases: ["Contexto do \(.applicationName)", "Minhas notas como contexto no \(.applicationName)"],
+            shortTitle: "Como contexto",
+            systemImageName: "doc.text"
+        )
+    }
+}
+
+// MARK: - Intents que DEVOLVEM texto (COLHEITA: 23 blocos pediam isto)
+//
+// O Traço lido sem ser aberto: Atalhos, Siri e o botão de Ação recebem texto
+// e passam adiante, para a IA do autor ou para onde ele quiser. O selo vale
+// aqui como vale no export: expressiva em curso nunca sai; selada e queimada
+// saem só como metadado e linha de sentido (§8.5, §19.1).
+
+/// Lê o disco por conta própria: o intent pode rodar com o app fechado.
+@MainActor
+private func fatiasDoDisco() -> [FatiaCorpus] {
+    guard let container = try? ModelContainer.traco() else { return [] }
+    let contexto = ModelContext(container)
+    let notas = (try? contexto.fetch(FetchDescriptor<Nota>())) ?? []
+    return notas.filter(\.temVoz).map(FatiaCorpus.de)
+}
+
+struct DestaqueDeHojeIntent: AppIntent {
+    static let title: LocalizedStringResource = "Destaque de hoje"
+    static let description = IntentDescription("A única linha de hoje, escrita por você. Vazio se não houver.")
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ReturnsValue<String> & ProvidesDialog {
+        let linha = DestaqueDoDia.linhaDeHoje() ?? ""
+        return .result(value: linha, dialog: IntentDialog(stringLiteral: linha.isEmpty ? "Sem destaque hoje." : linha))
+    }
+}
+
+struct CompromissosDeHojeIntent: AppIntent {
+    static let title: LocalizedStringResource = "Meu dia"
+    static let description = IntentDescription("Os compromissos de hoje, um por linha, com a hora.")
+
+    @Parameter(title: "Dia", description: "Vazio = hoje", default: nil)
+    var dia: Date?
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ReturnsValue<String> & ProvidesDialog {
+        let cal = Calendario.gregoriano()
+        let alvo = dia ?? .now
+        var eventos: [EventoCalendario] = []
+        if case .eventos(let lidos) = CalendarioDisco.carregar() { eventos = lidos }
+        let doDia = Calendario.eventos(eventos, noDia: alvo, cal)
+        let linhas = doDia.map { e in
+            e.diaInteiro ? "Dia inteiro · \(e.titulo)" : "\(Calendario.horaCurta(e.inicio, cal)) · \(e.titulo)"
+        }
+        let texto = linhas.joined(separator: "\n")
+        let fala = linhas.isEmpty ? "Nada marcado em \(Calendario.diaPorExtenso(alvo, cal))." : texto
+        return .result(value: texto, dialog: IntentDialog(stringLiteral: fala))
+    }
+}
+
+struct LinhasDeSentidoIntent: AppIntent {
+    static let title: LocalizedStringResource = "Linhas de sentido"
+    static let description = IntentDescription("As frases que você escreveu ao fechar cada expressiva, da mais recente para trás.")
+
+    @Parameter(title: "Quantas", default: 10)
+    var quantas: Int
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ReturnsValue<String> & ProvidesDialog {
+        let linhas = fatiasDoDisco()
+            .filter { !$0.nuncaSai }
+            .filter { !$0.sentido.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+            .sorted { $0.criadaEm > $1.criadaEm }
+            .prefix(max(1, quantas))
+            .map { "— \($0.sentido.trimmingCharacters(in: .whitespacesAndNewlines))" }
+        let texto = linhas.joined(separator: "\n")
+        return .result(value: texto, dialog: IntentDialog(stringLiteral: texto.isEmpty ? "Nenhuma linha de sentido ainda." : texto))
+    }
+}
+
+struct CorpusComoContextoIntent: AppIntent {
+    static let title: LocalizedStringResource = "Como contexto"
+    static let description = IntentDescription("O corpus inteiro em Markdown, com o contrato do app no topo: pronto para a sua IA ler.")
+
+    @Parameter(title: "Só a forma", default: nil)
+    var forma: GestoEscolha?
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ReturnsValue<String> {
+        var fatias = fatiasDoDisco()
+        if let forma { fatias = fatias.filter { $0.gesto == forma.gesto } }
+        return .result(value: Corpus.corpoDoCorpus(fatias: fatias))
+    }
+}
+
+/// As formas do §6 como enum de Atalhos.
+enum GestoEscolha: String, AppEnum {
+    case woop, seEntao, spec, notaPermanente, destaque, destilar, palavra
+
+    static let typeDisplayRepresentation = TypeDisplayRepresentation(name: "Forma")
+    static let caseDisplayRepresentations: [GestoEscolha: DisplayRepresentation] = [
+        .woop: "WOOP", .seEntao: "Se–então", .spec: "Especificação",
+        .notaPermanente: "Nota permanente", .destaque: "Destaque",
+        .destilar: "Destilar", .palavra: "Palavra",
+    ]
+
+    var gesto: Gesto {
+        switch self {
+        case .woop: .woop
+        case .seEntao: .seEntao
+        case .spec: .spec
+        case .notaPermanente: .notaPermanente
+        case .destaque: .destaque
+        case .destilar: .destilar
+        case .palavra: .palavra
+        }
     }
 }
 

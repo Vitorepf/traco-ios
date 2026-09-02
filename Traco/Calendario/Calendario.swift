@@ -37,6 +37,11 @@ nonisolated struct EventoCalendario: Identifiable, Codable, Equatable, Sendable 
     var dominio: Dominio?
     var notas: String
     var diaInteiro: Bool
+    /// Deixa de uma nota (o "Se" com hora): a nota é a dona; não vai ao disco
+    /// do calendário, e tocar abre a nota. É o calendário das intenções.
+    var origem: UUID? = nil
+
+    var eDeixa: Bool { origem != nil }
 
     init(
         id: UUID = UUID(),
@@ -45,7 +50,8 @@ nonisolated struct EventoCalendario: Identifiable, Codable, Equatable, Sendable 
         fim: Date,
         dominio: Dominio? = nil,
         notas: String = "",
-        diaInteiro: Bool = false
+        diaInteiro: Bool = false,
+        origem: UUID? = nil
     ) {
         self.id = id
         self.titulo = titulo
@@ -54,6 +60,7 @@ nonisolated struct EventoCalendario: Identifiable, Codable, Equatable, Sendable 
         self.dominio = dominio
         self.notas = notas
         self.diaInteiro = diaInteiro
+        self.origem = origem
     }
 
     private enum Chave: String, CodingKey {
@@ -375,6 +382,51 @@ nonisolated extension String {
 /// "dentista sexta 14:30", "almoço com a Ana amanhã às 12h", "feira sábado de
 /// manhã", "viagem dia 15 dia inteiro", "reunião 9h-10h30 por 2h".
 nonisolated enum CalendarioFrase {
+    /// Consulta, não marcação: "o que tenho sexta?", "semana que vem",
+    /// "amanhã?", "este mês". Devolve para onde ir. Nada de chat: o app
+    /// responde mostrando o dia. Só é consulta se, tirando as palavras de
+    /// pergunta e a data, não sobra nada para virar título.
+    nonisolated static func consulta(
+        _ prosa: String,
+        ancora: Date,
+        agora: Date,
+        _ cal: Calendar
+    ) -> (dia: Date, escala: EscalaCalendario)? {
+        var texto = prosa.lowercased()
+            .replacingOccurrences(of: "?", with: " ")
+        let hoje = Calendario.inicioDoDia(agora, cal)
+        var destino: (Date, EscalaCalendario)?
+        let periodos: [(String, Int, Calendar.Component, EscalaCalendario)] = [
+            (#"\b(semana que vem|pr[óo]xima semana|semana seguinte)\b"#, 7, .day, .semana),
+            (#"\b(semana passada|[úu]ltima semana)\b"#, -7, .day, .semana),
+            (#"\b(est[ae]|ness?a)\s+semana\b"#, 0, .day, .semana),
+            (#"\b(m[êe]s que vem|pr[óo]ximo m[êe]s|m[êe]s seguinte)\b"#, 1, .month, .mes),
+            (#"\b(m[êe]s passado|[úu]ltimo m[êe]s)\b"#, -1, .month, .mes),
+            (#"\b(est[ae]|ness?e)\s+m[êe]s\b"#, 0, .month, .mes),
+            (#"\b(ano que vem|pr[óo]ximo ano)\b"#, 1, .year, .ano),
+            (#"\b(est[ae]|ness?e)\s+ano\b"#, 0, .year, .ano),
+        ]
+        for (padrao, passo, unidade, escala) in periodos {
+            if let m = achar(padrao, texto) {
+                let dia = cal.date(byAdding: unidade, value: passo, to: hoje) ?? hoje
+                destino = (Calendario.inicioDoDia(dia, cal), escala)
+                texto = m.resto
+                break
+            }
+        }
+        if destino == nil, let (d, r) = comerDia(texto, ancora: ancora, agora: agora, cal) {
+            destino = (d, .dia)
+            texto = r
+        }
+        guard let destino else { return nil }
+        // o que sobra tem de ser só pergunta
+        let pergunta = #"\b(o que|que|tenho|tem|h[áa]|eu|marcad[oa]s?|compromissos?|agenda|mostra|mostre|me|ver|vai ter|tem algo|algo|alguma coisa|de|em|na|no|para|pra|a|as|os|e)\b"#
+        let resto = texto.replacingOccurrences(of: pergunta, with: " ", options: .regularExpression)
+            .trimmingCharacters(in: CharacterSet(charactersIn: " ,.-–!"))
+        guard resto.isEmpty else { return nil }
+        return destino
+    }
+
     nonisolated static func ler(
         _ prosa: String,
         ancora: Date,

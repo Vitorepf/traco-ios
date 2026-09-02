@@ -31,7 +31,16 @@ struct RaizView: View {
                 Tema.fundo.ignoresSafeArea()
                 Group {
                     switch sessao.abaArquivo {
-                    case .calendario: CalendarioView(agenda: agenda)
+                    case .calendario:
+                        CalendarioView(agenda: agenda)
+                            .onAppear {
+                                agenda.aoAbrirNota = { uuid in
+                                    guard let nota = Sessao.buscar(uuid: uuid, no: context) else { return }
+                                    sessao.salvar(no: context)
+                                    sessao.abrir(nota)
+                                    sessao.irPara(.escrever, no: context)
+                                }
+                            }
                     case .padroes: PadroesView(sessao: sessao)
                     case .perfil: PerfilView(sessao: sessao)
                     default: NotasView(sessao: sessao)

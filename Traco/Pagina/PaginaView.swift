@@ -11,6 +11,7 @@ struct PaginaView: View {
     @State private var mostrarCampos = false
     @ScaledMetric(relativeTo: .body) private var corpoFolga: CGFloat = 9
     @State private var abrirArquivo = false
+    @State private var lenteAberta = false
     @State private var chegou = false
     @State private var pulso = false
 
@@ -356,6 +357,16 @@ struct PaginaView: View {
                 .accessibilityLabel("Anexar arquivo")
                 .accessibilityHint("Anexar foto, vídeo, áudio, gravação ou arquivo")
                 .accessibilityIdentifier("abrir-arquivo")
+            // a lente da língua: regra local, aponta e não reescreve
+            Button("Lente") { lenteAberta = true }
+                .foregroundStyle(Tema.tintaSuave)
+                .disabled(sessao.paginaVazia)
+                .accessibilityLabel("Lente da língua")
+                .accessibilityHint("Muletas, frases feitas, passivas e adjetivos repetidos. Só aponta.")
+                .accessibilityIdentifier("abrir-lente")
+        }
+        .sheet(isPresented: $lenteAberta) {
+            LenteView(texto: sessao.texto)
         }
         .font(Tema.barra)
         .buttonStyle(BarraBotaoStyle())

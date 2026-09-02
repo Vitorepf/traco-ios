@@ -1,3 +1,4 @@
+import ActivityKit
 import WidgetKit
 import SwiftUI
 
@@ -107,7 +108,52 @@ struct TracoWidget: Widget {
     }
 }
 
+/// O Destaque vivo: uma linha do autor, papel e tinta, enquanto o dia dura.
+struct DestaqueVivo: Widget {
+    var body: some WidgetConfiguration {
+        ActivityConfiguration(for: DestaqueAtividade.self) { contexto in
+            HStack(alignment: .firstTextBaseline, spacing: 10) {
+                Text("DESTAQUE")
+                    .font(.system(size: 10, weight: .semibold))
+                    .tracking(1.2)
+                    .foregroundStyle(Tema.tintaSuave)
+                Text(contexto.state.linha)
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundStyle(Tema.tinta)
+                    .lineLimit(2)
+                Spacer(minLength: 0)
+            }
+            .padding(16)
+            .activityBackgroundTint(Tema.fundo)
+            .activitySystemActionForegroundColor(Tema.tinta)
+        } dynamicIsland: { contexto in
+            DynamicIsland {
+                DynamicIslandExpandedRegion(.bottom) {
+                    Text(contexto.state.linha)
+                        .font(.system(size: 15, weight: .medium))
+                        .lineLimit(2)
+                        .padding(.horizontal, 4)
+                }
+            } compactLeading: {
+                Image(systemName: "sparkle")
+                    .foregroundStyle(Tema.ambar)
+            } compactTrailing: {
+                Text(contexto.state.linha)
+                    .font(.system(size: 12, weight: .medium))
+                    .lineLimit(1)
+                    .frame(maxWidth: 96)
+            } minimal: {
+                Image(systemName: "sparkle")
+                    .foregroundStyle(Tema.ambar)
+            }
+        }
+    }
+}
+
 @main
 struct TracoWidgetBundle: WidgetBundle {
-    var body: some Widget { TracoWidget() }
+    var body: some Widget {
+        TracoWidget()
+        DestaqueVivo()
+    }
 }

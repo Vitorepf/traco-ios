@@ -71,6 +71,22 @@ enum CalendarioTema {
         }
     }
 
+    /// A deixa de uma nota é papel com contorno, não tinta chapada: vem de
+    /// fora do calendário e a nota é a dona.
+    static func fundo(de evento: EventoCalendario) -> Color {
+        evento.eDeixa ? cartao : fundo(de: evento.dominio)
+    }
+
+    static func tinta(de evento: EventoCalendario) -> Color {
+        evento.eDeixa ? tinta : tinta(de: evento.dominio)
+    }
+
+    static func icone(de evento: EventoCalendario) -> String {
+        evento.eDeixa ? "arrow.turn.down.right" : icone(de: evento.dominio)
+    }
+
+    static let contornoDeixa = Color(hex: 0x1C1C1E).opacity(0.35)
+
     static func icone(de dominio: Dominio?) -> String {
         switch dominio {
         case .trabalho: "briefcase.fill"

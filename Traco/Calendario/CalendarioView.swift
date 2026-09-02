@@ -1,7 +1,12 @@
+import SwiftData
 import SwiftUI
 
 struct CalendarioView: View {
     @State var agenda: CalendarioAgenda
+    /// O calendário das intenções: as notas cujo "Se" tem hora entram como
+    /// deixas. Só abertas; a expressiva e a fechada nunca.
+    @Query(filter: #Predicate<Nota> { $0.gatilhoEm != nil && !$0.trancada && !$0.queimada })
+    private var notasComDeixa: [Nota]
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Namespace private var morph
     /// 32pt bold com tracking −0,6, escalando com o texto do sistema.
@@ -37,7 +42,13 @@ struct CalendarioView: View {
             Button("Cancelar", role: .cancel) {}
         }
         .accessibilityIdentifier("calendario")
-        .onAppear { aplicarEscalaDaRota() }
+        .onAppear {
+            aplicarEscalaDaRota()
+            agenda.deixas = deixas(de: notasComDeixa)
+        }
+        .onChange(of: notasComDeixa.map { "\($0.uuid)\($0.gatilhoEm?.timeIntervalSince1970 ?? 0)\($0.tituloNaLista)" }) { _, _ in
+            agenda.deixas = deixas(de: notasComDeixa)
+        }
         .onReceive(NotificationCenter.default.publisher(for: Rota.mudou)) { _ in
             aplicarEscalaDaRota()
         }
@@ -71,6 +82,20 @@ struct CalendarioView: View {
         }
         .animation(.easeOut(duration: 0.22), value: agenda.toast)
         .animation(CalendarioTema.morph(reduceMotion), value: agenda.modo)
+    }
+
+    private func deixas(de notas: [Nota]) -> [EventoCalendario] {
+        notas.compactMap { nota in
+            guard let quando = nota.gatilhoEm, nota.gesto != .expressiva else { return nil }
+            let se = nota.campos["se"]?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            let titulo = se.isEmpty ? nota.tituloNaLista : se
+            guard !titulo.isEmpty else { return nil }
+            return EventoCalendario(
+                id: nota.uuid, titulo: titulo, inicio: quando,
+                fim: quando.addingTimeInterval(30 * 60),
+                dominio: nota.dominio, origem: nota.uuid
+            )
+        }
     }
 
     private func aplicarEscalaDaRota() {
@@ -388,14 +413,14 @@ struct CalendarioListaView: View {
                             .padding(.leading, 4)
                         ForEach(grupos[dia] ?? []) { evento in
                             Button {
-                                agenda.ficha = evento
+                                agenda.abrir(evento)
                             } label: {
                                 HStack(spacing: 12) {
-                                    Image(systemName: CalendarioTema.icone(de: evento.dominio))
+                                    Image(systemName: CalendarioTema.icone(de: evento))
                                         .font(.caption.weight(.semibold))
-                                        .foregroundStyle(CalendarioTema.tinta(de: evento.dominio))
+                                        .foregroundStyle(CalendarioTema.tinta(de: evento))
                                         .frame(width: 28, height: 28)
-                                        .background(CalendarioTema.fundo(de: evento.dominio), in: Circle())
+                                        .background(CalendarioTema.fundo(de: evento), in: Circle())
                                     Text(evento.titulo)
                                         .font(CalendarioTema.evento)
                                         .foregroundStyle(CalendarioTema.tinta)
