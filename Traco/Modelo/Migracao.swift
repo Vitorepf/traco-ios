@@ -13,6 +13,14 @@ enum TracoMigracao: SchemaMigrationPlan {
     static var stages: [MigrationStage] { [] }
 }
 
+/// Verdade sobre o arranque. Se o banco de disco não abriu, o app está em
+/// memória: NADA do que se escreve fica, e o backup no Arquivos não pode ser
+/// tocado — senão o único backup do corpus morreria reescrito com uma nota.
+/// Nunca em silêncio: a página avisa (radiografia 02/set, P0).
+enum Arranque {
+    static var bancoEmMemoria = false
+}
+
 extension ModelContainer {
     /// Container oficial do app — sempre com o plano de migração.
     static func traco(emMemoria: Bool = false) throws -> ModelContainer {

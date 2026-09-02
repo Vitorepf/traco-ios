@@ -909,3 +909,45 @@ struct SeloDesdeOPrimeiroCaractereTests {
         #expect(s.recordarTexto.isEmpty)
     }
 }
+
+// Radiografia 02/set, P0: o arranque caía em memória em silêncio e o primeiro
+// Concluir reescrevia o único backup com o corpus da RAM. Agora a emergência
+// tem bandeira, o backup a respeita, e toda sobrescrita guarda a geração anterior.
+@MainActor
+struct ArranqueEBackupTests {
+    private var docs: URL { FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0] }
+
+    @Test func emEmergenciaOBackupNaoETocadoESempreHaUmaGeracaoDeVolta() throws {
+        let fm = FileManager.default
+        let atual = docs.appendingPathComponent("traco-corpus.md")
+        let anterior = docs.appendingPathComponent("traco-corpus-anterior.md")
+        defer {
+            try? fm.removeItem(at: atual)
+            try? fm.removeItem(at: anterior)
+            Arranque.bancoEmMemoria = false
+        }
+        try "corpus de anos".write(to: atual, atomically: true, encoding: .utf8)
+
+        Arranque.bancoEmMemoria = true
+        Corpus.backupAutomatico(notas: [Nota(texto: "só uma nota da RAM")])
+        #expect(try String(contentsOf: atual, encoding: .utf8) == "corpus de anos")
+
+        Arranque.bancoEmMemoria = false
+        Corpus.backupAutomatico(notas: [Nota(texto: "só uma nota da RAM")])
+        #expect(try String(contentsOf: atual, encoding: .utf8).contains("só uma nota da RAM"))
+        #expect(try String(contentsOf: anterior, encoding: .utf8) == "corpus de anos")
+    }
+
+    /// O schema V1 apontava para o modelo vivo: quatro campos entraram depois
+    /// dele sem versão nova. Este teste é o congelamento — mudou `Nota`? Então
+    /// nasce V2 + estágio em Migracao.swift, e SÓ ENTÃO esta lista muda.
+    @Test func v1EstaCongeladoNosCamposQueOAparelhoDoDonoJaTem() {
+        let entidade = Schema(versionedSchema: TracoSchemaV1.self).entities.first { $0.name == "Nota" }
+        let nomes = Set(entidade?.properties.map { $0.name } ?? [])
+        #expect(nomes == [
+            "uuid", "texto", "gestoRaw", "camposJSON", "trancada", "criadaEm", "editadaEm",
+            "expressivaPrazo", "queimada", "queimadaEm", "minutosEscritos", "sentido",
+        ])
+        #expect(TracoMigracao.schemas.count == 1)
+    }
+}

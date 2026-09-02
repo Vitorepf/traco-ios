@@ -159,6 +159,17 @@ struct PaginaView: View {
 
             VStack(spacing: 0) {
                 topbar
+                if Arranque.bancoEmMemoria {
+                    // Emergência não se esconde: sem isto o autor escreveria
+                    // numa página que parece de sempre e perderia tudo ao fechar.
+                    Text("as notas não abriram. o arquivo delas ficou intacto no aparelho — mas nada do que você escrever agora fica.")
+                        .font(Tema.meta)
+                        .foregroundStyle(Tema.aviso)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, Tema.margem)
+                        .padding(.bottom, 10)
+                        .accessibilityIdentifier("aviso-banco")
+                }
                 if sessao.paginaVazia && sessao.gesto == nil && !sessao.timerLigado {
                     // a única companhia do cursor: o dia (some no primeiro caractere)
                     Text(Date.now, format: .dateTime.weekday(.wide).day().month(.wide))

@@ -77,11 +77,28 @@ enum Corpus {
     /// Backup silencioso no Documents (visível no app Arquivos; entra no backup
     /// do aparelho). Trancadas continuam de fora — o selo vale para o restauro.
     static func backupAutomatico(notas: [Nota]) {
+        // Em emergência o corpus da RAM não é o corpus: reescrever o arquivo
+        // mataria o único backup que existe sem nuvem.
+        guard !Arranque.bancoEmMemoria else { return }
         let corpo = corpoDoCorpus(notas: notas.map { ($0.texto, $0.gesto, $0.campos, $0.fechada, $0.criadaEm) })
         guard !corpo.isEmpty,
               let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
         else { return }
-        try? corpo.data(using: .utf8)?.write(to: docs.appendingPathComponent("traco-corpus.md"), options: .atomic)
+        gravar(corpo, em: docs)
+    }
+
+    /// Uma geração de volta: o arquivo anterior vira `traco-corpus-anterior.md`
+    /// antes de qualquer sobrescrita. Um bug, ou um apagar por engano, nunca
+    /// custa o corpus inteiro — o autor tem sempre o de antes, no Arquivos.
+    static func gravar(_ corpo: String, em docs: URL) {
+        let fm = FileManager.default
+        let atual = docs.appendingPathComponent("traco-corpus.md")
+        let anterior = docs.appendingPathComponent("traco-corpus-anterior.md")
+        if fm.fileExists(atPath: atual.path) {
+            try? fm.removeItem(at: anterior)
+            try? fm.copyItem(at: atual, to: anterior)
+        }
+        try? corpo.data(using: .utf8)?.write(to: atual, options: .atomic)
     }
 
     static func exportar(notas: [Nota]) -> URL? {
