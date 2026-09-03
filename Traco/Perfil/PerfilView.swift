@@ -235,6 +235,25 @@ struct PerfilView: View {
                 .accessibilityIdentifier("importar-md")
                 .accessibilityHint("Traz notas de arquivos Markdown. Import nunca cria trancada.")
             Rectangle().fill(Tema.linha).frame(height: 0.5)
+            Toggle(isOn: Binding(
+                get: { Revisoes.revisaoSemanalLigada },
+                set: { ligada in
+                    UserDefaults.standard.set(ligada, forKey: Revisoes.chaveRevisaoSemanal)
+                    Revisoes.agendarRevisaoSemanal()
+                }
+            )) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Revisão da semana no domingo")
+                        .font(Tema.chrome)
+                        .foregroundStyle(Tema.tinta)
+                    Text("um aviso sem conteúdo, na hora da noite, abrindo os Padrões")
+                        .font(.footnote)
+                        .foregroundStyle(Tema.tintaFraca)
+                }
+            }
+            .tint(Tema.ambar)
+            .accessibilityIdentifier("revisao-semanal")
+            Rectangle().fill(Tema.linha).frame(height: 0.5)
             // ADR 2026-09-02n: a pasta pode viver no iCloud Drive do autor
             // porque é a nuvem DELE — escolhida no seletor do sistema, sem
             // conta do Traço, sem entitlement. Qualquer provedor serve.

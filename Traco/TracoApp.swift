@@ -14,6 +14,7 @@ struct TracoApp: App {
         DiscoTraco.compartilhado = container
         UNUserNotificationCenter.current().delegate = Revisoes.Delegate.compartilhado
         Revisoes.agendarFilaDiaria()
+        Revisoes.agendarRevisaoSemanal()
     }
 
     var body: some Scene {

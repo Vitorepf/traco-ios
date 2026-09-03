@@ -114,6 +114,30 @@ class Pasta:
                 break
         return saida
 
+    def semana(self, dias: int = 7):
+        """O que a mente deixou no papel nos últimos `dias`: por forma, destaques,
+        decisões (escolha e o que se esperava) e as linhas de sentido."""
+        import datetime as dt
+        corte = (dt.datetime.now() - dt.timedelta(days=dias)).date().isoformat()
+        por_forma: dict = {}
+        destaques, decisoes, sentidos = [], [], []
+        for p in self.arquivos():
+            c = self.cabecalho(p.read_text(encoding="utf-8"))
+            criada = c.get("criada", "")[:10]
+            if criada < corte:
+                continue
+            g = c.get("gesto", "") or "sem forma"
+            if c.get("estado", "") in ("em curso",):
+                continue
+            por_forma[g] = por_forma.get(g, 0) + 1
+            if g == "Destaque" and c.get("unica"):
+                destaques.append(c["unica"])
+            if g == "Decisão":
+                decisoes.append({"escolha": c.get("escolha", ""), "espero": c.get("espero", ""), "aconteceu": c.get("aconteceu", "")})
+            if c.get("sentido"):
+                sentidos.append(c["sentido"])
+        return {"desde": corte, "por_forma": por_forma, "destaques": destaques, "decisoes": decisoes, "sentidos": sentidos}
+
     def sentidos(self, limite: int = 20):
         saida = []
         for p in self.arquivos():
@@ -143,6 +167,8 @@ FERRAMENTAS = [
      "inputSchema": {"type": "object", "properties": {"limite": {"type": "integer", "default": 20}}}},
     {"name": "traco_corpus", "description": "O corpus inteiro (traco-corpus.md), com o contrato no topo. Grande.",
      "inputSchema": {"type": "object", "properties": {}}},
+    {"name": "traco_semana", "description": "A revisão da semana: notas por forma nos últimos sete dias, destaques, decisões, o que ficou claro.",
+     "inputSchema": {"type": "object", "properties": {"dias": {"type": "integer", "default": 7}}}},
 ]
 
 
@@ -163,6 +189,8 @@ def chamar(pasta: Pasta, nome: str, args: dict) -> str:
         return json.dumps(pasta.sentidos(int(args.get("limite", 20))), ensure_ascii=False, indent=1)
     if nome == "traco_corpus":
         return pasta.corpus() or "Sem traco-corpus.md ainda."
+    if nome == "traco_semana":
+        return json.dumps(pasta.semana(int(args.get("dias", 7))), ensure_ascii=False, indent=1)
     raise KeyError(nome)
 
 
@@ -221,7 +249,7 @@ def autoteste():
     r = responder(pasta, {"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {}})
     assert r["result"]["serverInfo"]["name"] == "traco"
     r = responder(pasta, {"jsonrpc": "2.0", "id": 2, "method": "tools/list"})
-    assert len(r["result"]["tools"]) == 7
+    assert len(r["result"]["tools"]) == 8
     r = responder(pasta, {"jsonrpc": "2.0", "id": 3, "method": "tools/call", "params": {"name": "traco_notas", "arguments": {"gesto": "woop"}}})
     lista = json.loads(r["result"]["content"][0]["text"])
     assert len(lista) == 1 and lista[0]["titulo"] == "quero correr todo dia"
@@ -233,6 +261,13 @@ def autoteste():
     assert "Não há nota" in r["result"]["content"][0]["text"]
     r = responder(pasta, {"jsonrpc": "2.0", "id": 7, "method": "tools/call", "params": {"name": "inexistente", "arguments": {}}})
     assert "error" in r
+    import datetime as dt
+    hoje = dt.date.today().isoformat()
+    (raiz / "notas" / "cccc-3.md").write_text(
+        f"---\ngesto: Destaque\ncriada: {hoje}\nunica: terminar o relatório\n---\nlista do dia\n", encoding="utf-8")
+    r = responder(pasta, {"jsonrpc": "2.0", "id": 8, "method": "tools/call", "params": {"name": "traco_semana", "arguments": {}}})
+    semana = json.loads(r["result"]["content"][0]["text"])
+    assert semana["destaques"] == ["terminar o relatório"] and semana["por_forma"].get("Destaque", 0) >= 1
     print("autoteste ok")
 
 

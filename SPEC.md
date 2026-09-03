@@ -131,6 +131,8 @@ Templates do app. Nascem VAZIAS abaixo do texto do usuário. Uma forma por nota.
 | **Destilar** | texto que pede corte ("numa frase", "em 200") | Em 200 · Em 100 · Em 50 · Numa frase (tetos; aviso se estourar) |
 | **Palavra** | uma palavra que o autor quer poder usar | Nas minhas palavras · Uma frase minha · Onde a encontrei |
 | **Expressiva** | desabafo emocional longo | sem campos — vira o modo do §8 |
+| **Decisão** (ADR p) | escolha entre caminhos ("decidir", "escolher entre") | O que estou decidindo · As opções · O que decide entre elas · Decidi · O que espero e quando confiro (vira aviso e deixa) · O que aconteceu |
+| **Pré-mortem** (ADR p) | plano que quer imaginar a própria falha | O plano em uma frase · Um ano depois, falhou: o que aconteceu? · O primeiro sinal · O que eu mudo agora |
 
 Domínio de vida (Trabalho, Casa, Saúde, Dinheiro, Pessoas, Estudo, Ideias) é
 inferido no salvar, nunca arquivado à mão. Um toque no chip desfaz e trava a

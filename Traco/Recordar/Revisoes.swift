@@ -114,6 +114,34 @@ enum Revisoes {
         }
     }
 
+    // MARK: - A revisão da semana (ADR q): domingo, na hora da noite do autor
+
+    static let chaveRevisaoSemanal = "revisao-semanal-ligada"
+
+    static var revisaoSemanalLigada: Bool {
+        UserDefaults.standard.object(forKey: chaveRevisaoSemanal) as? Bool ?? true
+    }
+
+    static func agendarRevisaoSemanal() {
+        let centro = UNUserNotificationCenter.current()
+        centro.removePendingNotificationRequests(withIdentifiers: ["revisao-semanal"])
+        guard revisaoSemanalLigada else { return }
+        centro.getNotificationSettings { estado in
+            guard estado.authorizationStatus == .authorized
+                    || estado.authorizationStatus == .provisional else { return }
+            let conteudo = UNMutableNotificationContent()
+            conteudo.title = "Esta semana"
+            conteudo.body = ""
+            conteudo.userInfo = ["semana": true]
+            var comps = DateComponents()
+            comps.weekday = 1 // domingo
+            comps.hour = Ancora.hora(.noite)
+            comps.minute = 0
+            let gatilho = UNCalendarNotificationTrigger(dateMatching: comps, repeats: true)
+            centro.add(UNNotificationRequest(identifier: "revisao-semanal", content: conteudo, trigger: gatilho))
+        }
+    }
+
     // MARK: - Aviso do Se (título da nota, sem corpo)
 
     static func agendarGatilho(uuid: UUID, titulo: String, em data: Date) {
@@ -184,6 +212,7 @@ enum Revisoes {
     static let abrirFila = Notification.Name("traco.abrirFila")
     static let abrirSerie = Notification.Name("traco.abrirSerie")
     static let abrirGatilho = Notification.Name("traco.abrirGatilho")
+    static let abrirSemana = Notification.Name("traco.abrirSemana")
 
     final class Delegate: NSObject, UNUserNotificationCenterDelegate {
         static let compartilhado = Delegate()
@@ -194,6 +223,10 @@ enum Revisoes {
             await MainActor.run {
                 if info["fila"] != nil {
                     NotificationCenter.default.post(name: Revisoes.abrirFila, object: nil)
+                    return
+                }
+                if info["semana"] != nil {
+                    NotificationCenter.default.post(name: Revisoes.abrirSemana, object: nil)
                     return
                 }
                 if let raw = info["serie"] as? String, let serie = UUID(uuidString: raw) {

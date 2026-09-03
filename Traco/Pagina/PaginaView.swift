@@ -175,6 +175,10 @@ struct PaginaView: View {
         .onReceive(NotificationCenter.default.publisher(for: Revisoes.abrirFila)) { _ in
             sessao.abrirFilaDoDia(no: context)
         }
+        .onReceive(NotificationCenter.default.publisher(for: Revisoes.abrirSemana)) { _ in
+            // ADR q: o aviso de domingo abre os Padrões, onde a semana está
+            sessao.irPara(.padroes, no: context)
+        }
         .onReceive(NotificationCenter.default.publisher(for: Revisoes.abrirSerie)) { aviso in
             guard let serie = aviso.object as? UUID else { return }
             let dia = aviso.userInfo?["dia"] as? Int ?? 2
