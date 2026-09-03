@@ -44,6 +44,12 @@ nonisolated struct Lente: Sendable, Equatable {
         "vale a pena", "sem dúvida", "de uma vez por todas", "hoje em dia",
     ]
 
+    /// Tempo, lugar e negação: advérbios que não são muleta nem enfeite.
+    static let adverbiosNeutros: Set<String> = [
+        "hoje", "ontem", "amanhã", "agora", "sempre", "nunca", "já", "ainda", "depois", "antes",
+        "aqui", "ali", "lá", "aí", "cedo", "tarde", "não", "sim", "também", "só", "logo", "então",
+    ]
+
     /// ser/estar + particípio: a passiva esconde quem faz.
     static let passiva = #"\b(é|são|foi|foram|era|eram|será|serão|seja|sejam|fosse|fossem|sendo|sido|está|estão|estava|estavam|ser|estar)\s+([\p{L}]+(?:ado|ada|ados|adas|ido|ida|idos|idas)|(?:entregue|feit[oa]|dit[oa]|vist[oa]|post[oa]|abert[oa]|escrit[oa]|cobert[oa]|mort[oa]|pag[oa]|ganh[oa]|gast[oa]|aceit[oa]|impress[oa]|expuls[oa]|extint[oa]|inclus[oa]|solt[oa]|salv[oa]|pres[oa]|suspens[oa]|eleit[oa]|frit[oa]|limp[oa]|peg[oa]|resolvid[oa]|descobert[oa])s?)\b"#
 
@@ -89,7 +95,8 @@ nonisolated struct Lente: Sendable, Equatable {
         tagger.enumerateTags(in: limpo.startIndex..<limpo.endIndex, unit: .word, scheme: .lexicalClass, options: opcoes) { tag, faixa in
             let palavra = limpo[faixa].lowercased()
             guard palavra.count > 2 else { return true }
-            if tag == .adverb || palavra.hasSuffix("mente") {
+            // advérbio de tempo e lugar não enfraquece o verbo: fica de fora
+            if (tag == .adverb || palavra.hasSuffix("mente")), !Self.adverbiosNeutros.contains(palavra) {
                 adverbios[palavra, default: 0] += 1
             } else if tag == .adjective {
                 adjetivos[palavra, default: 0] += 1

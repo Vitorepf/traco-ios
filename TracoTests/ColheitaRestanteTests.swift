@@ -381,3 +381,19 @@ struct SabiaTests {
         #expect(AnaliseLocal.classificar(texto: "pré-mortem do lançamento de outubro", gestoAtual: nil, campos: [:]) == .gesto(.premortem, pergunta: AnaliseLocal.pergunta(.premortem)))
     }
 }
+
+struct DeixaPuraTests {
+    @Test func aDeixaSoNasceDeNotaAbertaComHora() {
+        let agora = Date()
+        let ok = Calendario.deixa(uuid: UUID(), gesto: .seEntao, fechada: false, gatilhoEm: agora,
+                                  se: "chegar em casa às 18h", tituloNaLista: "x", dominio: .casa)
+        #expect(ok?.titulo == "chegar em casa às 18h")
+        #expect(ok?.eDeixa == true)
+        #expect(ok?.duracaoMinutos == 30)
+        #expect(Calendario.deixa(uuid: UUID(), gesto: .expressiva, fechada: false, gatilhoEm: agora, se: "x", tituloNaLista: "x", dominio: nil) == nil)
+        #expect(Calendario.deixa(uuid: UUID(), gesto: .seEntao, fechada: true, gatilhoEm: agora, se: "x", tituloNaLista: "x", dominio: nil) == nil)
+        #expect(Calendario.deixa(uuid: UUID(), gesto: .seEntao, fechada: false, gatilhoEm: nil, se: "x", tituloNaLista: "x", dominio: nil) == nil)
+        // sem "se", vale o título da nota
+        #expect(Calendario.deixa(uuid: UUID(), gesto: .woop, fechada: false, gatilhoEm: agora, se: "", tituloNaLista: "correr", dominio: nil)?.titulo == "correr")
+    }
+}

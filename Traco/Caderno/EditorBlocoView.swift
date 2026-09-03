@@ -54,6 +54,7 @@ struct EditorBlocoView: View {
             .focused(foco)
             .tint(Tema.ambar)
             .padding(.horizontal, -Tema.sangriaEditor)
+            .fixedSize(horizontal: false, vertical: true)
             .frame(maxWidth: .infinity, minHeight: 72, alignment: .topLeading)
             .accessibilityLabel("Lista")
             .accessibilityIdentifier("portal-lista")
@@ -92,6 +93,7 @@ struct EditorBlocoView: View {
                 .tint(Tema.ambar)
                 // o recuo interno do TextEditor tirava a linha do eixo
                 .padding(.horizontal, -Tema.sangriaEditor)
+                .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, minHeight: 88, alignment: .topLeading)
                 .accessibilityLabel("Página")
                 .accessibilityIdentifier("pagina")
@@ -112,6 +114,7 @@ struct EditorBlocoView: View {
             // o mesmo recuo interno dos irmãos: dentro do cartão, a linha
             // editada nascia 5pt à direita da renderizada
             .padding(.horizontal, -Tema.sangriaEditor)
+            .fixedSize(horizontal: false, vertical: true)
             .frame(maxWidth: .infinity, minHeight: 72, alignment: .topLeading)
             .accessibilityLabel(rotuloLinhas)
             .accessibilityIdentifier("pagina")

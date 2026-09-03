@@ -1,0 +1,25 @@
+# Instigar (ADR o): a sábia devolve perguntas; sem conta, o app diz.
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn: {id: pagina}
+- inputText: "Especificação do módulo de rotas. O problema é que hoje cada tela decide sozinha para onde ir."
+- waitForAnimationToEnd: {timeout: 2500}
+# o cartão da análise ocupa o rodapé; solta a forma para a barra voltar
+- extendedWaitUntil:
+    visible: {id: "soltar-forma"}
+    timeout: 10000
+- tapOn: {id: "soltar-forma"}
+- extendedWaitUntil:
+    visible: {id: "abrir-lente"}
+    timeout: 6000
+- tapOn: {id: "abrir-lente"}
+- extendedWaitUntil:
+    visible: {id: "instigar"}
+    timeout: 6000
+- tapOn: {id: "instigar"}
+- extendedWaitUntil:
+    visible: "precisa da sua conta Grok.*"
+    timeout: 4000
+- takeScreenshot: /tmp/traco-verify/nav/88-instigar
