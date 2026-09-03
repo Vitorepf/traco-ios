@@ -66,9 +66,12 @@ final class Sessao {
     }
 
     /// A voz pode viver só nos campos (Se, Destilar, WOOP). Página vazia ≠ sem nota.
+    /// Código também é voz: uma nota só com um bloco de código é nota (o corpus
+    /// e a IA continuam lendo só a prosa; isto decide se GRAVA).
     var temVoz: Bool {
-        !VozDoAutor.juntar(texto: texto, campos: campos, sentido: sentidoPendente ?? "")
-            .trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        !paginaVazia
+            || !VozDoAutor.juntar(texto: texto, campos: campos, sentido: sentidoPendente ?? "")
+                .trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
     /// Recordar esconde um alvo. O alvo pode ser só o Então, só a frase.

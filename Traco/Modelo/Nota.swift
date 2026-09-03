@@ -103,7 +103,8 @@ final class Nota {
 
     /// Página sem voz não é nota: o arquivo e o Recordar não a tratam como traço.
     var temVoz: Bool {
-        !vozDoAutor.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        !texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            || !vozDoAutor.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
     /// O que a lista mostra. Página vazia do dia N não é uma linha muda.

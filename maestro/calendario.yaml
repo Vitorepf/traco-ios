@@ -1,6 +1,6 @@
-# O calendário: quatro escalas, arrasto no tempo, consulta em prosa e marcação.
-# Toques por ponto (iPhone 17 / 17 Pro): os ids dentro das escalas não são
-# achados pelo maestro (licoes-swiftui 3).
+# O calendário: consulta em prosa, marcação, quatro escalas e arrasto no tempo.
+# Ids dentro das escalas não são achados pelo maestro (licoes-swiftui 3 e 6);
+# o chrome tem ids. Toques por ponto (iPhone 17 / 17 Pro) só nas escalas.
 appId: app.traco
 ---
 - launchApp:
@@ -9,37 +9,38 @@ appId: app.traco
 - extendedWaitUntil:
     visible: {id: "calendario-titulo"}
     timeout: 6000
-- tapOn: {point: "43%,80%"}
-- waitForAnimationToEnd: {timeout: 2000}
-- tapOn: {point: "53%,80%"}
-- waitForAnimationToEnd: {timeout: 2000}
-- tapOn: {point: "63%,80%"}
-- waitForAnimationToEnd: {timeout: 2000}
-- tapOn: {point: "33%,80%"}
-- waitForAnimationToEnd: {timeout: 2000}
-# arrastar anda um dia; "Hoje" volta
-- swipe: {start: "80%,45%", end: "20%,45%", duration: 400}
-- waitForAnimationToEnd: {timeout: 1500}
-- tapOn: {point: "78%,80%"}
-- waitForAnimationToEnd: {timeout: 1500}
 # consulta em prosa: vai à semana que vem sem marcar nada
-- tapOn: {point: "40%,86%"}
+- tapOn: {id: "calendario-prosa"}
 - waitForAnimationToEnd: {timeout: 2000}
 - inputText: "o que tenho na semana que vem?"
-- tapOn: {point: "90%,58%"}
-- waitForAnimationToEnd: {timeout: 2500}
-- assertVisible: {id: "calendario-titulo", text: ".* – .*"}
-- tapOn: {point: "78%,80%"}
+- waitForAnimationToEnd: {timeout: 1000}
+- tapOn: {id: "calendario-marcar"}
+- extendedWaitUntil:
+    visible: {id: "calendario-titulo", text: ".* – .*"}
+    timeout: 5000
+- tapOn: {id: "calendario-hoje"}
 - waitForAnimationToEnd: {timeout: 1500}
 # marcação em prosa abre a ficha em português
-- tapOn: {point: "40%,86%"}
+- tapOn: {id: "calendario-prosa"}
 - waitForAnimationToEnd: {timeout: 2000}
 - inputText: "Dentista sexta às 14:30"
-- tapOn: {point: "90%,58%"}
+- waitForAnimationToEnd: {timeout: 1000}
+- tapOn: {id: "calendario-marcar"}
 - extendedWaitUntil:
     visible: {id: "ficha-pronto"}
     timeout: 5000
 - assertVisible: "Dentista.*"
 - tapOn: {id: "ficha-pronto"}
+- waitForAnimationToEnd: {timeout: 2000}
+# as quatro escalas e o arrasto no tempo
+- tapOn: {id: "escala-semana"}
+- waitForAnimationToEnd: {timeout: 2000}
+- tapOn: {id: "escala-mes"}
+- waitForAnimationToEnd: {timeout: 2000}
+- tapOn: {id: "escala-ano"}
+- waitForAnimationToEnd: {timeout: 2000}
+- tapOn: {id: "escala-dia"}
+- waitForAnimationToEnd: {timeout: 2000}
+- swipe: {start: "80%,45%", end: "20%,45%", duration: 400}
 - waitForAnimationToEnd: {timeout: 2000}
 - takeScreenshot: /tmp/traco-verify/nav/80-calendario
