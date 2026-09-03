@@ -330,3 +330,54 @@ struct RevisaoNoturnaTests {
         #expect(!FileManager.default.fileExists(atPath: pai.appendingPathComponent("Traço/LEIA-ME.md").path))
     }
 }
+
+struct SabiaTests {
+    @Test func mapaSoEntraSeForVerificavel() {
+        let ok = Sabia.parseMapa(#"[{"i":0,"forma":"titulo"},{"i":1,"forma":"lista"},{"i":2,"forma":"prosa"}]"#, blocos: 3)
+        #expect(ok?.count == 3)
+        #expect(Sabia.parseMapa(#"[{"i":0,"forma":"poema"}]"#, blocos: 1) == nil)      // forma fora da lista
+        #expect(Sabia.parseMapa(#"[{"i":5,"forma":"lista"}]"#, blocos: 2) == nil)      // índice inexistente
+        #expect(Sabia.parseMapa(#"[{"i":0,"forma":"titulo"},{"i":1,"forma":"titulo"}]"#, blocos: 2) == nil) // dois títulos
+        #expect(Sabia.parseMapa("claro! aqui vai: [{\"i\":0,\"forma\":\"secao\"}]", blocos: 1)?.first?.forma == .secao)
+    }
+
+    @Test func perguntasSoComInterrogacao() {
+        let r = Sabia.parsePerguntas(#"{"perguntas":["Isso depende de quê?","Faça assim: x","E quando falhar, quem avisa?"]}"#)
+        #expect(r == ["Isso depende de quê?", "E quando falhar, quem avisa?"])
+        #expect(Sabia.parsePerguntas(#"{"perguntas":["sem interrogação"]}"#) == nil)
+    }
+
+    @Test func aplicarVesteSemMudarPalavras() {
+        let texto = "Plano do app\n\nprimeira\nsegunda\nterceira\n\nUm parágrafo com ponto final."
+        let mapa = [Sabia.Rotulo(i: 0, forma: .titulo), Sabia.Rotulo(i: 1, forma: .numerada), Sabia.Rotulo(i: 2, forma: .prosa)]
+        let v = Sabia.aplicar(mapa, a: texto)
+        #expect(v == "# Plano do app\n\n1. primeira\n2. segunda\n3. terceira\n\nUm parágrafo com ponto final.")
+        // as palavras são as mesmas
+        let so = { (s: String) in s.replacingOccurrences(of: #"[#\-\d.\[\] ]"#, with: "", options: .regularExpression) }
+        #expect(so(v) == so(texto))
+        // bloco já vestido não se toca
+        #expect(Sabia.aplicar([Sabia.Rotulo(i: 0, forma: .lista)], a: "# já é título") == "# já é título")
+    }
+
+    @Test func aLinhaComInterrogacaoEAPergunta() {
+        #expect(Sabia.perguntaNaNota("texto\n? como defino isso\nmais") == "como defino isso")
+        #expect(Sabia.perguntaNaNota("sem pergunta") == nil)
+        #expect(Sabia.perguntaNaNota("?") == nil)
+    }
+
+    @Test func respostaTemTetoESemMarkdownPesado() {
+        let r = Sabia.limparResposta("## Título\n**forte** e " + String(repeating: "x", count: 2000), teto: 100)
+        #expect(r?.hasSuffix("…") == true)
+        #expect(r?.contains("**") == false)
+        #expect(r?.hasPrefix("Título") == true)
+    }
+
+    @Test func formasDeEstrategiaEntramNaLista() {
+        #expect(Gesto.decisao.campos.map(\.id) == ["escolha", "opcoes", "criterio", "decidido", "espero"])
+        #expect(Gesto.premortem.campos.count == 4)
+        #expect(Gesto.doNome("Decisão") == .decisao)
+        #expect(Gesto.doNome("Pré-mortem") == .premortem)
+        #expect(AnaliseLocal.classificar(texto: "preciso decidir entre ficar no emprego ou abrir a empresa", gestoAtual: nil, campos: [:]) == .gesto(.decisao, pergunta: AnaliseLocal.pergunta(.decisao)))
+        #expect(AnaliseLocal.classificar(texto: "pré-mortem do lançamento de outubro", gestoAtual: nil, campos: [:]) == .gesto(.premortem, pergunta: AnaliseLocal.pergunta(.premortem)))
+    }
+}

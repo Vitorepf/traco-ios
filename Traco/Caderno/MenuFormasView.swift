@@ -4,6 +4,8 @@ import SwiftUI
 /// Palavras, nunca slug, cerca, ou prosa da IA.
 struct MenuFormasView: View {
     var aoEscolher: (PapelForma) -> Void
+    /// ADR o: dar forma ao texto inteiro sem tocar numa palavra.
+    var aoVestirTudo: (() -> Void)? = nil
     @Environment(\.dismiss) private var dismiss
     @State private var busca = ""
 
@@ -39,6 +41,29 @@ struct MenuFormasView: View {
                         .padding(.horizontal, Tema.margem)
                         .padding(.top, 4)
                         .accessibilityIdentifier("contagem-formas")
+
+                    if let aoVestirTudo, busca.trimmingCharacters(in: .whitespaces).isEmpty {
+                        Button {
+                            Toque.selecao()
+                            aoVestirTudo()
+                            dismiss()
+                        } label: {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Vestir tudo")
+                                    .font(Tema.chrome.weight(.semibold))
+                                    .foregroundStyle(Tema.tinta)
+                                Text("dá forma ao texto inteiro — título, seções, listas, tabelas — sem mudar uma palavra")
+                                    .font(.footnote)
+                                    .foregroundStyle(Tema.tintaSuave)
+                            }
+                            .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .leading)
+                            .padding(.horizontal, Tema.margem)
+                            .padding(.vertical, 8)
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(PressaoDiscreta())
+                        .accessibilityIdentifier("vestir-tudo")
+                    }
 
                     if familias.isEmpty {
                         // vazio que ENSINA e devolve a saída, NO EIXO da folha

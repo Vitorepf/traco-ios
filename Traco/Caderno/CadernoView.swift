@@ -19,6 +19,8 @@ struct CadernoView: View {
     /// §17 × dedo em voo: o toque na régua avisa a sessão para SEGURAR o vestir
     /// automático — a forma não veste no meio do alcance e o chip não salta.
     var aoTocarRegua: ((Bool) -> Void)? = nil
+    /// ADR o: "Vestir tudo" no menu de formas.
+    var aoVestirTudo: (() -> Void)? = nil
     var aoMudar: () -> Void
 
     @State private var editando: String?
@@ -220,9 +222,7 @@ struct CadernoView: View {
                 foco.wrappedValue = true
             }
         }) {
-            MenuFormasView { papel in
-                formaDoMenu = papel
-            }
+            MenuFormasView(aoEscolher: { papel in formaDoMenu = papel }, aoVestirTudo: aoVestirTudo)
         }
     }
 

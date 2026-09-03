@@ -104,6 +104,82 @@ struct CartaoAnaliseView: View {
                             .accessibilityHint("Desfaz a forma; o seu texto fica intacto")
                     }
                 }
+            case .pergunta(let q):
+                corpoCartao(trilho: Tema.ambar) {
+                    chip("Sua pergunta", aviso: false)
+                    Text(q)
+                        .font(Tema.corpo)
+                        .foregroundStyle(Tema.tinta)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Button("Perguntar à sábia") { sessao.perguntarASabia() }
+                        .buttonStyle(CartaoBotaoStyle())
+                        .accessibilityIdentifier("perguntar-sabia")
+                        .accessibilityHint("A resposta vem aqui, nunca na nota")
+                }
+            case .sabiaPensando:
+                corpoCartao(trilho: Tema.ambar) {
+                    chip("A sábia", aviso: false)
+                    HStack(spacing: 10) {
+                        ProgressView().tint(Tema.tintaSuave)
+                        Text("pensando…")
+                            .font(Tema.corpo)
+                            .foregroundStyle(Tema.tintaSuave)
+                    }
+                }
+            case .resposta(let q, let texto):
+                corpoCartao(trilho: Tema.ambar) {
+                    chip("A sábia, sobre: \(q)", aviso: false)
+                    Text(texto)
+                        .font(Tema.corpo)
+                        .foregroundStyle(Tema.tinta)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .textSelection(.enabled)
+                        .accessibilityIdentifier("resposta-sabia")
+                    HStack(spacing: 10) {
+                        Button("Copiar") {
+                            UIPasteboard.general.string = texto
+                            Toque.leve()
+                        }
+                        .buttonStyle(CartaoBotaoStyle())
+                        .accessibilityHint("Vai para a área de transferência; colar é gesto seu")
+                        Button("Fechar") {
+                            var t = Transaction(); t.disablesAnimations = true
+                            withTransaction(t) { sessao.cartao = nil }
+                        }
+                        .buttonStyle(CompactoStyle())
+                        .foregroundStyle(Tema.tintaSuave)
+                    }
+                }
+            case .vestido(let antes):
+                corpoCartao(trilho: Tema.ambar) {
+                    chip("Vestido", aviso: false)
+                    Text("As suas palavras, com forma. Nenhuma mudou.")
+                        .font(Tema.corpo)
+                        .foregroundStyle(Tema.tinta)
+                        .fixedSize(horizontal: false, vertical: true)
+                    HStack(spacing: 10) {
+                        Button("Desfazer") { sessao.desfazerVestir(antes) }
+                            .buttonStyle(CartaoBotaoStyle())
+                            .accessibilityIdentifier("desfazer-vestir")
+                        Button("Ficar assim") {
+                            var t = Transaction(); t.disablesAnimations = true
+                            withTransaction(t) { sessao.cartao = nil }
+                        }
+                        .buttonStyle(CompactoStyle())
+                        .foregroundStyle(Tema.tintaSuave)
+                    }
+                }
+            case .semConta:
+                corpoCartao(trilho: Tema.aviso) {
+                    chip("Sem conta", aviso: true)
+                    avisoTexto("a sábia precisa da sua conta Grok, em Perfil. Sem ela, tudo o mais continua.")
+                    Button("Fechar") {
+                        var t = Transaction(); t.disablesAnimations = true
+                        withTransaction(t) { sessao.cartao = nil }
+                    }
+                    .buttonStyle(CompactoStyle())
+                    .foregroundStyle(Tema.tintaSuave)
+                }
             case .expressiva:
                 corpoCartao(trilho: Tema.ambar) {
                     chip("Escrita expressiva", aviso: false)

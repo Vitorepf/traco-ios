@@ -98,6 +98,12 @@ enum AnaliseLocal: Sendable {
         if lower.contains(regex: #"significa|quer dizer|n[ãa]o conhecia|o que (quer dizer|significa)"#) {
             return .palavra
         }
+        if lower.contains(regex: #"pr[ée]-?mortem|imagin[ae] que (deu errado|falhou)|se isto falhar"#) {
+            return .premortem
+        }
+        if lower.contains(regex: #"\b(preciso|tenho que|vou ter que) (decidir|escolher)\b|\bdecis[ãa]o\b|escolher entre|\bou ent[ãa]o\b.*\bou\b"#) {
+            return .decisao
+        }
         if lower.contains(regex: #"percebi|entendi que|ideia|insight"#) {
             return .notaPermanente
         }
@@ -119,6 +125,8 @@ enum AnaliseLocal: Sendable {
         case .destaque: "Qual é a única de hoje — primeiro, até acabar?"
         case .destilar: "Corta até sobrar uma frase. A frase é sua."
         case .palavra: "Nas suas palavras: o que ela quer dizer?"
+        case .decisao: "Quais são as opções — uma por linha?"
+        case .premortem: "Um ano depois, o plano falhou. O que aconteceu?"
         case .expressiva: ""
         }
     }

@@ -167,13 +167,13 @@ struct CorpusComoContextoIntent: AppIntent {
 
 /// As formas do §6 como enum de Atalhos.
 enum GestoEscolha: String, AppEnum {
-    case woop, seEntao, spec, notaPermanente, destaque, destilar, palavra
+    case woop, seEntao, spec, notaPermanente, destaque, destilar, palavra, decisao, premortem
 
     static let typeDisplayRepresentation = TypeDisplayRepresentation(name: "Forma")
     static let caseDisplayRepresentations: [GestoEscolha: DisplayRepresentation] = [
         .woop: "WOOP", .seEntao: "Se–então", .spec: "Especificação",
         .notaPermanente: "Nota permanente", .destaque: "Destaque",
-        .destilar: "Destilar", .palavra: "Palavra",
+        .destilar: "Destilar", .palavra: "Palavra", .decisao: "Decisão", .premortem: "Pré-mortem",
     ]
 
     var gesto: Gesto {
@@ -185,6 +185,8 @@ enum GestoEscolha: String, AppEnum {
         case .destaque: .destaque
         case .destilar: .destilar
         case .palavra: .palavra
+        case .decisao: .decisao
+        case .premortem: .premortem
         }
     }
 }

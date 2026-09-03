@@ -321,7 +321,8 @@ struct PaginaView: View {
             foco: $focoPagina,
             folga: corpoFolga,
             abrirArquivo: $abrirArquivo,
-            aoTocarRegua: { sessao.tocarRegua($0) }
+            aoTocarRegua: { sessao.tocarRegua($0) },
+            aoVestirTudo: { sessao.vestirTudo() }
         ) {
             var t = Transaction()
             t.disablesAnimations = true
@@ -375,7 +376,7 @@ struct PaginaView: View {
                 .accessibilityIdentifier("abrir-lente")
         }
         .sheet(isPresented: $lenteAberta) {
-            LenteView(texto: sessao.texto, notaUUID: sessao.gesto == .expressiva ? nil : sessao.notaUUID)
+            LenteView(texto: sessao.texto, notaUUID: sessao.gesto == .expressiva ? nil : sessao.notaUUID, gesto: sessao.gesto)
         }
         .font(Tema.barra)
         .buttonStyle(BarraBotaoStyle())

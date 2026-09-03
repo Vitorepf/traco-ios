@@ -1,0 +1,13 @@
+# A linha "?" (ADR o): a pergunta do autor vira cartão; sem conta, o app diz.
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn: {id: pagina}
+- inputText: "estou desenhando a tabela de rotas do app\n? como posso definir a fronteira entre rota e destino"
+- extendedWaitUntil:
+    visible: {id: "perguntar-sabia"}
+    timeout: 15000
+- tapOn: {id: "perguntar-sabia"}
+- waitForAnimationToEnd: {timeout: 2000}
+- assertVisible: "a sábia precisa da sua conta Grok.*"

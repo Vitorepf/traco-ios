@@ -774,7 +774,8 @@ struct GestoNovosNomesTests {
             atPath: raiz.appending(path: "Traco/Pagina/DicionarioNativo.swift").path))
     }
 
-    /// SPEC §11: a barra da casa é Analisar · Recordar · Anexar. Nada mais.
+    /// SPEC §11 + ADR o: a barra da casa é Analisar · Recordar · Anexar · Lente.
+    /// "Vestir tudo" existe, mas no menu de formas — nunca como botão da barra.
     @Test func casaNaoTemVestir() throws {
         let pagina = try String(
             contentsOf: URL(fileURLWithPath: #filePath)
@@ -782,7 +783,7 @@ struct GestoNovosNomesTests {
                 .deletingLastPathComponent()
                 .appending(path: "Traco/Pagina/PaginaView.swift"),
             encoding: .utf8)
-        #expect(!pagina.contains("Vestir"))
+        #expect(!pagina.contains("Button(\"Vestir"))
         #expect(!pagina.contains("vestir-nota"))
         #expect(!pagina.contains("vestirNota"))
         #expect(pagina.contains("Analisar"))

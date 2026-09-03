@@ -96,12 +96,25 @@ final class Sessao {
 
     private var analiseTask: Task<Void, Never>?
 
+    /// A linha "?" da nota (ADR o): a pergunta do autor à sábia.
+    var perguntaNaNota: String? {
+        gesto == .expressiva ? nil : Sabia.perguntaNaNota(texto)
+    }
+
     func analisar(automatica: Bool = false) {
         if timerLigado {
             if !automatica { mostrarToast("a análise cala durante a escrita.") }
             return
         }
         guard !paginaVazia else { return }
+        // ADR o: uma pergunta do autor tem precedência sobre a classificação
+        if let q = perguntaNaNota {
+            if case .resposta(let p, _)? = cartao, p == q { return }
+            if case .sabiaPensando? = cartao { return }
+            var t = Transaction(); t.disablesAnimations = true
+            withTransaction(t) { cartao = .pergunta(q) }
+            return
+        }
         var transacao = Transaction()
         transacao.disablesAnimations = true
         withTransaction(transacao) { cartao = nil }
@@ -290,6 +303,67 @@ final class Sessao {
     /// listas, seções) a partir do que o autor já escreveu. A IA não escreve —
     /// `Caderno.estruturar` só veste a forma em volta das palavras dele. Um
     /// cartão em voo é cancelado para não cobrir a nota recém-vestida.
+    // MARK: ADR o — a sábia
+
+    /// Responde a linha "?" num cartão. Sem conta, diz que precisa dela.
+    func perguntarASabia() {
+        guard let q = perguntaNaNota, gesto != .expressiva else { return }
+        guard ContaGrok.ligada else {
+            cartao = .semConta
+            return
+        }
+        cartao = .sabiaPensando
+        let contexto = Caderno.prosa(de: texto)
+        let g = gesto
+        Task { [weak self] in
+            let r = await Sabia.responder(pergunta: q, contexto: contexto, gesto: g)
+            guard let self else { return }
+            guard case .sabiaPensando? = self.cartao else { return }
+            if let r {
+                self.cartao = .resposta(pergunta: q, texto: r)
+                Toque.suave()
+            } else {
+                self.cartao = nil
+                self.mostrarToast("a sábia não respondeu. tente de novo.")
+            }
+        }
+    }
+
+    /// Veste o texto inteiro: motor local agora; a sábia, se ligada, refina
+    /// com um mapa de rótulos. Nenhuma palavra muda. Um toque desfaz.
+    func vestirTudo() {
+        guard !paginaVazia, gesto != .expressiva else { return }
+        autoTask?.cancel()
+        let antes = texto
+        let local = Caderno.estruturar(texto)
+        if local != texto {
+            texto = local
+            cartao = .vestido(antes: antes)
+            Toque.fechou()
+        }
+        guard ContaGrok.ligada else {
+            if local == antes { mostrarToast("nada a vestir aqui.") }
+            return
+        }
+        let base = texto
+        let g = gesto
+        Task { [weak self] in
+            guard let mapa = await Sabia.vestir(blocos: Sabia.blocos(antes), gesto: g) else { return }
+            guard let self, self.texto == base else { return } // o autor mexeu: silêncio
+            let refinado = Sabia.aplicar(mapa, a: antes)
+            guard refinado != base, refinado != antes else { return }
+            self.texto = refinado
+            self.cartao = .vestido(antes: antes)
+            Toque.suave()
+        }
+    }
+
+    func desfazerVestir(_ antes: String) {
+        texto = antes
+        cartao = nil
+        Toque.leve()
+    }
+
     func vestirNota() {
         guard !paginaVazia else { return }
         autoTask?.cancel()
@@ -1028,6 +1102,16 @@ enum CartaoAnalisar: Equatable {
     case forma(Gesto, pergunta: String)
     case vestida(Gesto, pergunta: String)
     case expressiva
+    /// ADR o: a linha "?" da nota, à espera de o autor pedir a resposta
+    case pergunta(String)
+    /// a resposta da sábia — no cartão, nunca na nota
+    case resposta(pergunta: String, texto: String)
+    /// a sábia pensando (rede)
+    case sabiaPensando
+    /// vestiu tudo; um toque desfaz
+    case vestido(antes: String)
+    /// pediu a sábia sem conta ligada
+    case semConta
 }
 
 enum DestinoConfirmacao {

@@ -7,7 +7,11 @@ struct LenteView: View {
     let texto: String
     /// Sem nota no disco (ou expressiva) não se aponta: só se lê.
     var notaUUID: UUID?
+    var gesto: Gesto? = nil
     @Environment(\.dismiss) private var dismiss
+    @State private var perguntasDaSabia: [String] = []
+    @State private var instigando = false
+    @State private var semConta = false
     @State private var apontados: [Apontamento] = []
     @State private var trechoNovo = ""
     @State private var recusado = false
@@ -89,6 +93,40 @@ struct LenteView: View {
                     }
                 }
 
+                // ADR o: instigar — a sábia devolve perguntas, nunca respostas
+                if notaUUID != nil, gesto != .expressiva {
+                    secao("Instigar", "a sábia lê e devolve perguntas: buracos, dependências, o que falta decidir") {
+                        VStack(alignment: .leading, spacing: 0) {
+                            ForEach(perguntasDaSabia, id: \.self) { q in
+                                linha(q, nil, rotulo: nil)
+                            }
+                            if semConta {
+                                Text("precisa da sua conta Grok, em Perfil.")
+                                    .font(Tema.meta)
+                                    .foregroundStyle(Tema.aviso)
+                                    .padding(.horizontal, 14)
+                                    .padding(.vertical, 10)
+                            }
+                            Button {
+                                instigar()
+                            } label: {
+                                HStack(spacing: 8) {
+                                    if instigando { ProgressView().tint(Tema.tintaSuave) }
+                                    Text(perguntasDaSabia.isEmpty ? "Instigar" : "Mais perguntas")
+                                        .font(Tema.barra)
+                                }
+                                .foregroundStyle(Tema.ambarTinta)
+                                .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .leading)
+                                .padding(.horizontal, 14)
+                                .contentShape(Rectangle())
+                            }
+                            .buttonStyle(PressaoDiscreta())
+                            .disabled(instigando)
+                            .accessibilityIdentifier("instigar")
+                        }
+                    }
+                }
+
                 if notaUUID != nil {
                     secao("Apontar um trecho", "cole ou escreva um pedaço do seu texto e diga o que ele é") {
                         VStack(spacing: 0) {
@@ -133,6 +171,19 @@ struct LenteView: View {
         .presentationDragIndicator(.visible)
         .presentationBackground(Tema.fundo)
         .onAppear { if let notaUUID { apontados = Apontar.listar(notaUUID) } }
+    }
+
+    private func instigar() {
+        guard ContaGrok.ligada else { semConta = true; return }
+        semConta = false
+        instigando = true
+        let t = prosa
+        let g = gesto
+        Task {
+            let r = await Sabia.instigar(texto: t, gesto: g)
+            instigando = false
+            if let r { perguntasDaSabia = r; Toque.suave() } else { Toque.aviso() }
+        }
     }
 
     private func marcar(_ trecho: String, _ rotulo: RotuloApontar) {

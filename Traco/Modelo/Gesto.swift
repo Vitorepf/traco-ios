@@ -9,6 +9,11 @@ enum Gesto: String, CaseIterable, Codable, Identifiable {
     case expressiva
     case destilar
     case palavra
+    /// Diário de decisão (Kahneman/Klein): a escolha, as opções, o critério e
+    /// o que eu espero — para comparar depois com o que aconteceu.
+    case decisao
+    /// Pré-mortem (Gary Klein, 2007): imaginar que já falhou e explicar por quê.
+    case premortem
 
     var id: String { rawValue }
 
@@ -33,6 +38,8 @@ enum Gesto: String, CaseIterable, Codable, Identifiable {
         case .expressiva: "Expressiva"
         case .destilar: "Destilar"
         case .palavra: "Palavra"
+        case .decisao: "Decisão"
+        case .premortem: "Pré-mortem"
         }
     }
 
@@ -48,6 +55,8 @@ enum Gesto: String, CaseIterable, Codable, Identifiable {
         case .expressiva: "isto é desabafo — pede tempo e porta fechada."
         case .destilar: "isto pede ser cortado até sobrar uma frase."
         case .palavra: "isto é uma palavra que você quer poder usar."
+        case .decisao: "isto é uma escolha entre caminhos."
+        case .premortem: "isto é um plano que ainda não imaginou a própria falha."
         }
     }
 
@@ -99,6 +108,21 @@ enum Gesto: String, CaseIterable, Codable, Identifiable {
                 CampoForma(id: "frase", rotulo: "Uma frase minha com ela"),
                 CampoForma(id: "onde", rotulo: "Onde a encontrei"),
             ]
+        case .decisao:
+            [
+                CampoForma(id: "escolha", rotulo: "O que estou decidindo"),
+                CampoForma(id: "opcoes", rotulo: "As opções (uma por linha)"),
+                CampoForma(id: "criterio", rotulo: "O que decide entre elas"),
+                CampoForma(id: "decidido", rotulo: "Decidi"),
+                CampoForma(id: "espero", rotulo: "O que espero que aconteça, e quando eu confiro"),
+            ]
+        case .premortem:
+            [
+                CampoForma(id: "plano", rotulo: "O plano, em uma frase"),
+                CampoForma(id: "falhou", rotulo: "Um ano depois, falhou. O que aconteceu?"),
+                CampoForma(id: "sinal", rotulo: "O primeiro sinal de que estava indo por aí"),
+                CampoForma(id: "mudo", rotulo: "O que eu mudo no plano agora"),
+            ]
         }
     }
 }
@@ -117,6 +141,8 @@ enum FiltroNotas: String, CaseIterable, Identifiable {
     case destaque = "Destaque"
     case destilar = "Destilar"
     case palavra = "Palavras"
+    case decisao = "Decisões"
+    case premortem = "Pré-mortem"
     case trancadas = "Trancadas"
 
     var id: String { rawValue }
@@ -130,6 +156,8 @@ enum FiltroNotas: String, CaseIterable, Identifiable {
         case .destaque: "destaque"
         case .destilar: "destilar"
         case .palavra: "palavra"
+        case .decisao: "decisao"
+        case .premortem: "premortem"
         case .trancadas: "trancadas"
         }
     }
@@ -143,6 +171,8 @@ enum FiltroNotas: String, CaseIterable, Identifiable {
         case .destaque: .destaque
         case .destilar: .destilar
         case .palavra: .palavra
+        case .decisao: .decisao
+        case .premortem: .premortem
         case .trancadas: nil
         }
     }

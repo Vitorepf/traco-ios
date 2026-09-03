@@ -1,0 +1,23 @@
+# Vestir tudo (ADR o): forma ao texto inteiro sem mudar uma palavra; um toque desfaz.
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn: {id: pagina}
+# prosa que a análise não veste sozinha: o teste é do Vestir tudo, não dela
+- inputText: "Reunião sobre a loja nova\n\nlayout da entrada\ntempo de espera no caixa\nhorário do suporte\n\nA loja abre em outubro e o suporte passa a atender a partir das nove da manhã, com a equipe inteira presente na primeira semana."
+- waitForAnimationToEnd: {timeout: 1500}
+- extendedWaitUntil:
+    visible: {id: "regua-todas"}
+    timeout: 6000
+- tapOn: {id: "regua-todas"}
+- extendedWaitUntil:
+    visible: {id: "vestir-tudo"}
+    timeout: 5000
+- takeScreenshot: /tmp/traco-verify/nav/86-menu-vestir
+- tapOn: {id: "vestir-tudo"}
+- extendedWaitUntil:
+    visible: {id: "desfazer-vestir"}
+    timeout: 6000
+- assertVisible: "As suas palavras, com forma.*"
+- takeScreenshot: /tmp/traco-verify/nav/87-vestido
