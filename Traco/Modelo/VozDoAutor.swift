@@ -68,3 +68,13 @@ enum VozDoAutor: Sendable {
         return truncar(linha, limite)
     }
 }
+
+nonisolated extension String {
+    /// Uma linha só, com teto: o campo do pré-mortem quer a frase, não a nota.
+    func linhaUnica(teto: Int) -> String {
+        let plano = split(whereSeparator: \.isNewline).joined(separator: " ")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        guard plano.count > teto else { return plano }
+        return String(plano.prefix(teto)).trimmingCharacters(in: .whitespaces) + "…"
+    }
+}

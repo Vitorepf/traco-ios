@@ -397,6 +397,21 @@ final class Sessao {
         Toque.leve()
     }
 
+    /// ADR p × q: um plano sem a própria falha nomeada abre um pré-mortem.
+    /// Nota NOVA (o plano continua intacto), com o plano copiado das palavras
+    /// do autor para o primeiro campo. A IA não escreve nada aqui.
+    func abrirPremortem(de plano: Nota, no context: ModelContext) {
+        guard salvar(no: context) else { return }
+        let frase = [plano.campos["problema"], plano.campos["resultado"], plano.texto]
+            .compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .first { !$0.isEmpty } ?? plano.tituloNaLista
+        novaPagina()
+        usarForma(.premortem)
+        campos["plano"] = Caderno.prosa(de: frase).linhaUnica(teto: 200)
+        irPara(.escrever, no: context)
+        Toque.suave()
+    }
+
     func comecarExpressiva(no context: ModelContext) {
         gesto = .expressiva
         cartao = nil

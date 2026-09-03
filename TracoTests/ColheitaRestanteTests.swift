@@ -486,3 +486,22 @@ struct PlanosSemRiscoTests {
         #expect(r.semRisco.contains { $0.texto.contains("obstáculo") })
     }
 }
+
+struct PremortemDeUmPlanoTests {
+    @Test func oPlanoAbreUmPremortemSemPerderOPlano() throws {
+        let c = try ModelContainer.traco(emMemoria: true)
+        let s = Sessao()
+        s.texto = "vamos lançar a loja em outubro"
+        s.gesto = .spec
+        s.campos = ["problema": "a loja precisa abrir antes do Natal", "limites": ""]
+        #expect(s.salvar(no: c.mainContext))
+        let plano = try #require(try c.mainContext.fetch(FetchDescriptor<Nota>()).first)
+        s.abrirPremortem(de: plano, no: c.mainContext)
+        #expect(s.gesto == .premortem)
+        #expect(s.campos["plano"] == "a loja precisa abrir antes do Natal")
+        #expect(s.notaUUID == nil) // nota NOVA: o plano não foi tocado
+        let ainda = try #require(Sessao.buscar(uuid: plano.uuid, no: c.mainContext))
+        #expect(ainda.gesto == .spec)
+        #expect(ainda.texto == "vamos lançar a loja em outubro")
+    }
+}

@@ -1,0 +1,28 @@
+# ADR p × q: um plano sem "o que pode dar errado" abre o pré-mortem num toque,
+# e o plano continua intacto.
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn: {id: pagina}
+- inputText: "vamos construir o módulo de rotas do app até outubro"
+- extendedWaitUntil:
+    visible: {id: "campo-problema"}
+    timeout: 15000
+- tapOn: {id: "campo-problema"}
+- inputText: "cada tela decide sozinha para onde ir"
+- tapOn: "Concluir"
+- waitForAnimationToEnd: {timeout: 2000}
+- openLink: traco://notas
+- waitForAnimationToEnd: {timeout: 1500}
+- tapOn: {text: "Padrões"}
+- extendedWaitUntil:
+    visible: "Planos sem a falha nomeada"
+    timeout: 8000
+- assertVisible: "PRÉ-MORTEM"
+- tapOn: ".*sem “o que pode dar errado”.*"
+- extendedWaitUntil:
+    visible: {id: "campo-falhou"}
+    timeout: 6000
+- assertVisible: "cada tela decide sozinha para onde ir"
+- takeScreenshot: /tmp/traco-verify/nav/89-premortem

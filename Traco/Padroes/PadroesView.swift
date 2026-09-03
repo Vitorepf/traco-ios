@@ -144,7 +144,7 @@ struct PadroesView: View {
                     bloco("O que está em jogo", r.desejos)
                 }
                 if !r.semRisco.isEmpty {
-                    bloco("Planos sem a falha nomeada", r.semRisco)
+                    bloco("Planos sem a falha nomeada", r.semRisco, premortem: true)
                 }
                 if !r.proximos.isEmpty {
                     bloco("Próximos sete dias", r.proximos)
@@ -170,14 +170,18 @@ struct PadroesView: View {
         }
     }
 
-    private func bloco(_ titulo: String, _ linhas: [RevisaoSemanal.Linha]) -> some View {
+    private func bloco(_ titulo: String, _ linhas: [RevisaoSemanal.Linha], premortem: Bool = false) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(titulo)
                 .font(Tema.meta.weight(.semibold))
                 .foregroundStyle(Tema.tinta)
             ForEach(linhas) { linha in
                 Button {
-                    if let nota = Sessao.buscar(uuid: linha.id, no: context) {
+                    guard let nota = Sessao.buscar(uuid: linha.id, no: context) else { return }
+                    if premortem {
+                        // um toque abre o pré-mortem DESTE plano; o plano fica
+                        sessao.abrirPremortem(de: nota, no: context)
+                    } else {
                         sessao.abrir(nota)
                         sessao.irPara(.escrever, no: context)
                     }
@@ -193,6 +197,13 @@ struct PadroesView: View {
                             .foregroundStyle(Tema.tintaSuave)
                             .lineLimit(2)
                             .multilineTextAlignment(.leading)
+                        if premortem {
+                            Spacer(minLength: 4)
+                            Text("PRÉ-MORTEM")
+                                .font(.system(size: 9, weight: .semibold))
+                                .tracking(0.8)
+                                .foregroundStyle(Tema.ambarTinta)
+                        }
                     }
                     .frame(maxWidth: .infinity, minHeight: 28, alignment: .leading)
                     .contentShape(Rectangle())
