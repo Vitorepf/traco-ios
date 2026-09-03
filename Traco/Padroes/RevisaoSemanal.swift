@@ -109,6 +109,33 @@ nonisolated struct RevisaoSemanal: Equatable, Sendable {
     }
 }
 
+extension RevisaoSemanal {
+    /// A revisão em texto, para os Atalhos e a Siri: o mesmo que o cartão diz.
+    nonisolated static func texto(_ r: RevisaoSemanal) -> String {
+        var linhas: [String] = []
+        if !r.porForma.isEmpty {
+            linhas.append(r.porForma.map { "\($0.quantas) \($0.forma?.rawValue ?? "sem forma")" }.joined(separator: " · "))
+        }
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "pt_BR")
+        f.dateFormat = "EEE d, HH:mm"
+        func bloco(_ t: String, _ xs: [Linha]) {
+            guard !xs.isEmpty else { return }
+            linhas.append(t + ":")
+            for x in xs { linhas.append("— " + (x.quando.map { f.string(from: $0).replacingOccurrences(of: ".", with: "") + " " } ?? "") + x.texto) }
+        }
+        bloco("Destaques", r.destaques)
+        bloco("Decisões a conferir", r.decisoesAConferir)
+        bloco("Em jogo", r.desejos)
+        bloco("Próximos sete dias", r.proximos)
+        if !r.sentidos.isEmpty {
+            linhas.append("O que ficou claro:")
+            linhas += r.sentidos.map { "— " + $0 }
+        }
+        return linhas.joined(separator: "\n")
+    }
+}
+
 nonisolated private extension String {
     var nonVazio: String? { isEmpty ? nil : self }
 }

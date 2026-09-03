@@ -63,6 +63,12 @@ struct TracoAtalhos: AppShortcutsProvider {
             systemImageName: "text.quote"
         )
         AppShortcut(
+            intent: EstaSemanaIntent(),
+            phrases: ["Minha semana no \(.applicationName)", "Esta semana no \(.applicationName)"],
+            shortTitle: "Esta semana",
+            systemImageName: "calendar.badge.clock"
+        )
+        AppShortcut(
             intent: CorpusComoContextoIntent(),
             phrases: ["Contexto do \(.applicationName)", "Minhas notas como contexto no \(.applicationName)"],
             shortTitle: "Como contexto",
@@ -162,6 +168,25 @@ struct CorpusComoContextoIntent: AppIntent {
         var fatias = fatiasDoDisco()
         if let forma { fatias = fatias.filter { $0.gesto == forma.gesto } }
         return .result(value: Corpus.corpoDoCorpus(fatias: fatias))
+    }
+}
+
+struct EstaSemanaIntent: AppIntent {
+    static let title: LocalizedStringResource = "Esta semana"
+    static let description = IntentDescription("A revisão da semana (ADR q): notas por forma, destaques, decisões a conferir, os próximos sete dias e o que ficou claro.")
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ReturnsValue<String> & ProvidesDialog {
+        var eventos: [EventoCalendario] = []
+        if case .eventos(let lidos) = CalendarioDisco.carregar() { eventos = lidos }
+        let lidas = notasDoDisco().map {
+            RevisaoSemanal.NotaLida(uuid: $0.uuid, gesto: $0.gesto, fechada: $0.fechada, criadaEm: $0.criadaEm,
+                                    gatilhoEm: $0.gatilhoEm, titulo: $0.tituloNaLista, campos: $0.campos,
+                                    sentido: $0.sentido, queimadaOuSeladaEm: $0.queimadaEm ?? $0.editadaEm)
+        }
+        let r = RevisaoSemanal.ler(notas: lidas, eventos: eventos)
+        let texto = RevisaoSemanal.texto(r)
+        return .result(value: texto, dialog: IntentDialog(stringLiteral: texto.isEmpty ? "Nada esta semana ainda." : texto))
     }
 }
 

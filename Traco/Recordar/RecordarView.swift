@@ -3,13 +3,14 @@ import SwiftUI
 /// O que cada forma esconde no Recordar. Destilar some tudo; o resto mostra
 /// o alvo na leitura — Palavra e Se deixam a pista visível.
 enum RitualRecordar: Equatable, Sendable {
-    case livre, destilada, palavra, seEntao
+    case livre, destilada, palavra, seEntao, decisao
 
     nonisolated static func de(_ gesto: Gesto?) -> Self {
         switch gesto {
         case .destilar: .destilada
         case .palavra: .palavra
         case .seEntao: .seEntao
+        case .decisao: .decisao
         default: .livre
         }
     }
@@ -40,6 +41,10 @@ enum RitualRecordar: Equatable, Sendable {
             return Caderno.prosa(de: texto).trimmingCharacters(in: .whitespacesAndNewlines)
         case .seEntao:
             return campos["entao"]?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        case .decisao:
+            // o que eu esperava, antes de saber o que aconteceu: é o que a
+            // memória reescreve primeiro (hindsight), por isso é o alvo
+            return campos["espero"]?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         }
     }
 
@@ -90,6 +95,7 @@ struct RecordarView: View {
         case .destilada: ""
         case .palavra: campos["minhas"]?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         case .seEntao: campos["se"]?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        case .decisao: [campos["escolha"], campos["decidido"]].compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }.joined(separator: "\n")
         }
     }
 
@@ -103,6 +109,7 @@ struct RecordarView: View {
         case .destilada: "A frase?"
         case .palavra: "Qual era a palavra?"
         case .seEntao: "Então você faz o quê?"
+        case .decisao: "O que você esperava que acontecesse?"
         }
     }
 
@@ -112,6 +119,7 @@ struct RecordarView: View {
         case .destilada: "A frase some. Escreva-a de memória."
         case .palavra: "A definição fica. A palavra some."
         case .seEntao: "O Se fica. O Então some."
+        case .decisao: "A escolha fica. O que você esperava some."
         }
     }
 
@@ -121,6 +129,7 @@ struct RecordarView: View {
         case .destilada: "A FRASE"
         case .palavra: "A PALAVRA"
         case .seEntao: "ENTÃO"
+        case .decisao: "O QUE EU ESPERAVA"
         }
     }
 

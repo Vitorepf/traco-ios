@@ -373,7 +373,7 @@ struct SabiaTests {
     }
 
     @Test func formasDeEstrategiaEntramNaLista() {
-        #expect(Gesto.decisao.campos.map(\.id) == ["escolha", "opcoes", "criterio", "decidido", "espero"])
+        #expect(Gesto.decisao.campos.map(\.id) == ["escolha", "opcoes", "criterio", "decidido", "espero", "aconteceu"])
         #expect(Gesto.premortem.campos.count == 4)
         #expect(Gesto.doNome("Decisão") == .decisao)
         #expect(Gesto.doNome("Pré-mortem") == .premortem)
@@ -443,5 +443,27 @@ struct RevisaoSemanalTests {
         #expect(r.porForma.reduce(0) { $0 + $1.quantas } == 4)  // a expressiva em curso e a antiga não contam
         #expect(!r.vazia)
         #expect(RevisaoSemanal.ler(notas: [], eventos: [], agora: agora, cal: cal).vazia)
+    }
+}
+
+struct DecisaoRecordarTests {
+    @Test func oRecordarDaDecisaoEscondeOQueEuEsperava() {
+        let r = RitualRecordar.de(.decisao)
+        #expect(r == .decisao)
+        #expect(!r.mostraAlvoAntesDeEscrever == false) // mostra a escolha (a pista) antes
+        let campos = ["escolha": "ficar ou sair", "espero": "mais calma em três meses", "aconteceu": ""]
+        #expect(r.alvo(texto: "", campos: campos) == "mais calma em três meses")
+        #expect(Gesto.decisao.campos.map(\.id).contains("aconteceu"))
+    }
+
+    @Test func aSemanaEmTextoParaOsAtalhos() {
+        let vazia = RevisaoSemanal.ler(notas: [], eventos: [])
+        #expect(RevisaoSemanal.texto(vazia).isEmpty)
+        let agora = Date()
+        let n = RevisaoSemanal.NotaLida(uuid: UUID(), gesto: .destaque, fechada: false, criadaEm: agora,
+                                        gatilhoEm: nil, titulo: "t", campos: ["unica": "terminar o relatório"], sentido: "", queimadaOuSeladaEm: nil)
+        let t = RevisaoSemanal.texto(RevisaoSemanal.ler(notas: [n], eventos: [], agora: agora))
+        #expect(t.contains("1 destaque"))
+        #expect(t.contains("terminar o relatório"))
     }
 }

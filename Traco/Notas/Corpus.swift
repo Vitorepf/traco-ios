@@ -91,6 +91,8 @@ enum Corpus {
     - Destaque: unica (a única coisa daquele dia)
     - Destilar: em200, em100, em50, frase
     - Palavra: minhas, frase, onde
+    - Decisão: escolha, opcoes, criterio, decidido, espero, aconteceu
+    - Pré-mortem: plano, falhou, sinal, mudo
     - Expressiva: sem corpo; só sentido e minutos
 
     Import ignore `id`. Trancadas e queimadas nunca voltam como nota aberta.

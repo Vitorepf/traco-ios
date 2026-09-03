@@ -115,6 +115,7 @@ enum Gesto: String, CaseIterable, Codable, Identifiable {
                 CampoForma(id: "criterio", rotulo: "O que decide entre elas"),
                 CampoForma(id: "decidido", rotulo: "Decidi"),
                 CampoForma(id: "espero", rotulo: "O que espero que aconteça, e quando eu confiro"),
+                CampoForma(id: "aconteceu", rotulo: "O que aconteceu (na conferência)"),
             ]
         case .premortem:
             [
