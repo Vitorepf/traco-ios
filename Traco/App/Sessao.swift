@@ -587,9 +587,13 @@ final class Sessao {
     }
 
     private func aplicarGatilho(na nota: Nota) {
-        let fonte = (gesto == .seEntao || gesto == .woop)
-            ? (campos["se"] ?? campos["plano"] ?? "")
-            : ""
+        // Decisão (ADR p): "o que espero, e quando eu confiro" agenda a
+        // conferência — o diário de decisão só vale se a data cobra
+        let fonte: String = switch gesto {
+        case .seEntao, .woop: campos["se"] ?? campos["plano"] ?? ""
+        case .decisao: campos["espero"] ?? ""
+        default: ""
+        }
         guard let quando = Gatilho.data(em: fonte) else {
             nota.gatilhoEm = nil
             Revisoes.cancelarGatilho(uuid: nota.uuid)

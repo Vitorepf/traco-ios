@@ -397,3 +397,20 @@ struct DeixaPuraTests {
         #expect(Calendario.deixa(uuid: UUID(), gesto: .woop, fechada: false, gatilhoEm: agora, se: "", tituloNaLista: "correr", dominio: nil)?.titulo == "correr")
     }
 }
+
+struct DecisaoConfereTests {
+    @Test func aDataDeConferirViraGatilho() throws {
+        let c = try ModelContainer.traco(emMemoria: true)
+        let s = Sessao()
+        s.texto = "preciso decidir entre ficar no emprego ou abrir a empresa"
+        s.gesto = .decisao
+        s.campos = ["escolha": "ficar ou sair", "espero": "mais calma; confiro dia 20 às 9h"]
+        #expect(s.salvar(no: c.mainContext))
+        let nota = try #require(try c.mainContext.fetch(FetchDescriptor<Nota>()).first)
+        #expect(nota.gatilhoEm != nil)
+        // e entra no calendário como deixa, com o título da nota
+        let deixa = Calendario.deixa(uuid: nota.uuid, gesto: nota.gesto, fechada: nota.fechada, gatilhoEm: nota.gatilhoEm,
+                                     se: nota.campos["se"] ?? "", tituloNaLista: nota.tituloNaLista, dominio: nota.dominio)
+        #expect(deixa != nil)
+    }
+}
