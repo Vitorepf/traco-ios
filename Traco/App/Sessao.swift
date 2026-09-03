@@ -289,6 +289,9 @@ final class Sessao {
             Task { @MainActor in
                 try? await Task.sleep(for: .milliseconds(250))
                 tocandoRegua = false
+                // quem digitou DURANTE o respiro não reagendou nada: a pausa
+                // seguinte nunca chegava e a análise ficava muda até a próxima tecla
+                agendarAutoAnalise()
             }
         }
     }
