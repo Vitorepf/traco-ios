@@ -350,7 +350,7 @@ struct NotasView: View {
                     } else {
                         DestaqueBusca.texto(titulo(nota), termo: busca, base: Tema.tinta)
                             .font(Tema.chrome.weight(.semibold))
-                            .lineLimit(1)
+                            .lineLimit(2)
                         HStack(spacing: 8) {
                             if let g = nota.gesto {
                                 Text(g.nome.uppercased())

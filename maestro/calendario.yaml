@@ -1,0 +1,43 @@
+# O calendário: quatro escalas, arrasto no tempo, consulta em prosa e marcação.
+# Toques por ponto (iPhone 17 / 17 Pro): os ids dentro das escalas não são
+# achados pelo maestro (licoes-swiftui 3).
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- openLink: traco://calendario/dia
+- extendedWaitUntil:
+    visible: {id: "calendario-titulo"}
+    timeout: 6000
+- tapOn: {point: "43%,80%"}
+- waitForAnimationToEnd: {timeout: 2000}
+- tapOn: {point: "53%,80%"}
+- waitForAnimationToEnd: {timeout: 2000}
+- tapOn: {point: "63%,80%"}
+- waitForAnimationToEnd: {timeout: 2000}
+- tapOn: {point: "33%,80%"}
+- waitForAnimationToEnd: {timeout: 2000}
+# arrastar anda um dia; "Hoje" volta
+- swipe: {start: "80%,45%", end: "20%,45%", duration: 400}
+- waitForAnimationToEnd: {timeout: 1500}
+- tapOn: {point: "78%,80%"}
+- waitForAnimationToEnd: {timeout: 1500}
+# consulta em prosa: vai à semana que vem sem marcar nada
+- tapOn: {point: "40%,86%"}
+- inputText: "o que tenho na semana que vem?"
+- pressKey: Enter
+- waitForAnimationToEnd: {timeout: 2500}
+- assertVisible: {id: "calendario-titulo", text: ".* – .*"}
+- tapOn: {point: "78%,80%"}
+- waitForAnimationToEnd: {timeout: 1500}
+# marcação em prosa abre a ficha em português
+- tapOn: {point: "40%,86%"}
+- inputText: "Dentista sexta às 14:30"
+- pressKey: Enter
+- extendedWaitUntil:
+    visible: {id: "ficha-pronto"}
+    timeout: 5000
+- assertVisible: "Dentista.*"
+- tapOn: {id: "ficha-pronto"}
+- waitForAnimationToEnd: {timeout: 2000}
+- takeScreenshot: /tmp/traco-verify/nav/80-calendario

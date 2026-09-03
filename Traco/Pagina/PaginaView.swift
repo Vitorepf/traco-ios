@@ -462,8 +462,9 @@ struct PaginaView: View {
             sessao.mostrarNotas = false
             sessao.mostrarPadroes = false
         case .notas:
-            sessao.salvar(no: context)
-            sessao.mostrarNotas = true
+            // `mostrarNotas = true` só mudava `aba`; a camada do arquivo lê
+            // `abaArquivo`, e do calendário o link ficava no calendário
+            sessao.irPara(.notas, no: context)
         case .calendario:
             sessao.irPara(.calendario, no: context)
             NotificationCenter.default.post(name: Rota.mudou, object: nil)

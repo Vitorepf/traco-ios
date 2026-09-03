@@ -87,7 +87,6 @@ struct VersoesView: View {
                 versoes = Versoes.listar(nota.uuid)
             }
         }
-        .accessibilityIdentifier("versoes")
     }
 
     private func quando(_ d: Date) -> String {

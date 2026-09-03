@@ -1,0 +1,25 @@
+# O Se com hora vira deixa no calendário (ADR 2026-09-02i).
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn: {id: pagina}
+- inputText: "toda vez que eu chegar em casa deixo o celular na gaveta e vou ler"
+- extendedWaitUntil:
+    visible: {id: "campo-se"}
+    timeout: 15000
+- tapOn: {id: "campo-se"}
+- inputText: "chegar em casa às 18h"
+- tapOn: {id: "campo-entao"}
+- inputText: "deixo o celular na gaveta e vou ler"
+- waitForAnimationToEnd: {timeout: 1000}
+- tapOn: "Concluir"
+- waitForAnimationToEnd: {timeout: 2500}
+- openLink: traco://calendario/semana
+- waitForAnimationToEnd: {timeout: 2000}
+- openLink: traco://calendario/dia
+- openLink: traco://calendario/semana
+- extendedWaitUntil:
+    visible: "chegar em casa.*"
+    timeout: 15000
+- takeScreenshot: /tmp/traco-verify/nav/82-deixa

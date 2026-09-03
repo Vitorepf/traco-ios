@@ -133,7 +133,6 @@ struct LenteView: View {
         .presentationDragIndicator(.visible)
         .presentationBackground(Tema.fundo)
         .onAppear { if let notaUUID { apontados = Apontar.listar(notaUUID) } }
-        .accessibilityIdentifier("lente")
     }
 
     private func marcar(_ trecho: String, _ rotulo: RotuloApontar) {

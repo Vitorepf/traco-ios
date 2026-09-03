@@ -41,7 +41,8 @@ struct CalendarioView: View {
             Button("Colar") { agenda.colar() }
             Button("Cancelar", role: .cancel) {}
         }
-        .accessibilityIdentifier("calendario")
+        // sem id na raiz: ele cobria os ids de TODOS os filhos (34 elementos
+        // viravam "calendario" e nenhum botão era achado por id)
         .onAppear {
             aplicarEscalaDaRota()
             agenda.deixas = deixas(de: notasComDeixa)
@@ -166,10 +167,16 @@ struct CalendarioView: View {
             }
             if agenda.escala == .ano {
                 CalendarioAnoView(agenda: agenda, morph: morph, agora: agora)
+                    // o ano é um mapa: 504 células não cabem em corpo maior;
+                    // o teto tem de vir de FORA para o ScaledMetric de dentro obedecer
+                    .dynamicTypeSize(...DynamicTypeSize.large)
                     .transition(CalendarioTema.desdobra(reduzido: reduceMotion, aproximando: agenda.aproximando, foco: foco))
             }
         }
         .animation(CalendarioTema.morph(reduceMotion), value: agenda.escala)
+        // grade densa escala até xxLarge e para: acima disso os números
+        // estouravam as células (mesma escolha do Calendário do sistema)
+        .dynamicTypeSize(...DynamicTypeSize.xxLarge)
     }
 
     /// Onde o dia âncora está na tela da escala atual: o desdobramento nasce dali.
@@ -200,6 +207,7 @@ struct CalendarioView: View {
         }
         .padding(.horizontal, 14)
         .padding(.bottom, 8)
+        .dynamicTypeSize(...DynamicTypeSize.xLarge)
     }
 
     private func interruptor(agora: Date) -> some View {
@@ -271,7 +279,6 @@ struct CalendarioView: View {
                 .overlay(Capsule().strokeBorder(CalendarioTema.luzBorda, lineWidth: 1))
                 .shadow(color: CalendarioTema.sombraFlutuante, radius: 16, y: 6)
         }
-        .accessibilityIdentifier("calendario-interruptor")
     }
 
     private func modoBotao(_ modo: ModoCalendario, icone: String) -> some View {
@@ -444,7 +451,6 @@ struct CalendarioListaView: View {
             .padding(.horizontal, CalendarioTema.margem)
             .padding(.bottom, 160)
         }
-        .accessibilityIdentifier("calendario-lista")
     }
 }
 

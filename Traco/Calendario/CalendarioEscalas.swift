@@ -20,8 +20,7 @@ struct CalendarioDiaView: View {
     var agora: Date
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var posicao = ScrollPosition()
-
-    private let gutter: CGFloat = 58
+    @ScaledMetric(relativeTo: .caption) private var gutter: CGFloat = 58
     private var altura: CGFloat { CalendarioTema.horaAltura }
 
     var body: some View {
@@ -68,7 +67,6 @@ struct CalendarioDiaView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.horizontal, 12)
-        .accessibilityIdentifier("calendario-faixa-semana")
     }
 
     private func diaInteiro(_ eventos: [EventoCalendario]) -> some View {
@@ -99,7 +97,6 @@ struct CalendarioDiaView: View {
             .padding(.horizontal, CalendarioTema.margem)
         }
         .frame(height: Tema.alvo)
-        .accessibilityIdentifier("calendario-dia-inteiro")
     }
 
     private func timeline(_ doDia: [EventoCalendario]) -> some View {
@@ -124,7 +121,6 @@ struct CalendarioDiaView: View {
             rolar(doDia: agenda.eventos(no: agenda.ancora),
                   hoje: Calendario.eHoje(agenda.ancora, agora: agora, agenda.cal), animado: true)
         }
-        .accessibilityIdentifier("calendario-dia")
     }
 
     /// Hoje: o agora a um quarto da tela. Outro dia: o primeiro compromisso. Vazio: a manhã.
@@ -293,7 +289,6 @@ struct CalendarioSemanaView: View {
                 }
             })
         }
-        .accessibilityIdentifier("calendario-semana")
     }
 
     private var cabecalhoHoras: some View {
@@ -328,21 +323,23 @@ struct CalendarioSemanaView: View {
             .buttonStyle(PressaoClara())
             .accessibilityIdentifier("semana-chip-\(Calendario.formatar(dia, "yyyy-MM-dd", agenda.cal))")
 
-            Button {
+            // a barra NÃO é Button: um Button com rótulo engolia as pílulas de
+            // dentro, e o VoiceOver não chegava a nenhum compromisso da semana
+            GeometryReader { geo in
+                barra(dia: dia, eventos: eventos, hoje: hoje, largura: geo.size.width, altura: geo.size.height)
+            }
+            .frame(height: alturaLinha)
+            .contentShape(Capsule())
+            .onTapGesture {
                 Toque.selecao()
                 withAnimation(CalendarioTema.morph(reduceMotion)) {
                     agenda.ir(dia: dia)
                     agenda.ir(para: .dia)
                 }
-            } label: {
-                GeometryReader { geo in
-                    barra(dia: dia, eventos: eventos, hoje: hoje, largura: geo.size.width, altura: geo.size.height)
-                }
-                .frame(height: alturaLinha)
-                .contentShape(Capsule())
             }
-            .buttonStyle(.plain)
+            .accessibilityElement(children: .contain)
             .accessibilityLabel(Calendario.diaPorExtenso(dia, agenda.cal))
+            .accessibilityHint("Toque para abrir o dia")
         }
     }
 
@@ -452,7 +449,6 @@ struct CalendarioMesView: View {
             let alturaCelula = max(64, (geo.size.height - CalendarioSemanaView.reservaChrome - 14 - 8 - 5 * 4) / 6)
             grade(semanas: semanas, mapa: mapa, alturaCelula: alturaCelula)
         }
-        .accessibilityIdentifier("calendario-mes")
     }
 
     private func grade(semanas: [[Date]], mapa: [Date: [EventoCalendario]], alturaCelula: CGFloat) -> some View {
@@ -592,7 +588,6 @@ struct CalendarioAnoView: View {
                 withAnimation(CalendarioTema.morph(reduceMotion)) { agenda.ir(dia: novo) }
             }
         })
-        .accessibilityIdentifier("calendario-ano")
     }
 
     private func mesMini(_ mes: Date, mapa: [Date: [EventoCalendario]]) -> some View {

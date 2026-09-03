@@ -1,0 +1,17 @@
+# A lente da língua: muletas, frases de outro, passivas — só aponta.
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn: {id: pagina}
+- inputText: "Tipo, eu acho que no final do dia o relatório foi entregue. Basicamente deu certo."
+- waitForAnimationToEnd: {timeout: 1500}
+- tapOn: {id: "abrir-lente"}
+- extendedWaitUntil:
+    visible: {id: "lente-pronto"}
+    timeout: 5000
+- assertVisible: "no final do dia"
+- assertVisible: "foi entregue"
+- assertVisible: "basicamente"
+- takeScreenshot: /tmp/traco-verify/nav/81-lente
+- tapOn: {id: "lente-pronto"}

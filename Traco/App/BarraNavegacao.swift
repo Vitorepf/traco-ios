@@ -116,6 +116,8 @@ struct BarraNavegacao: View {
         }
         .padding(.top, 6)
         .padding(.bottom, 2)
+        // barra de abas: o sistema também não escala o rótulo no lugar
+        .dynamicTypeSize(...DynamicTypeSize.xLarge)
         .background {
             // material de verdade: o conteúdo passa por baixo, não some atrás de
             // uma faixa opaca (apple-design §12)

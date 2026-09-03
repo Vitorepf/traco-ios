@@ -74,3 +74,9 @@ Traco/
 TracoTests/    suíte + fuzz do parser
 maestro/       fluxos E2E; cenarios/ = famílias hostis
 ```
+
+## Documentos de setembro
+
+- `SISTEMA-CLARO.md` — o mundo claro: tokens medidos, componentes por estado, movimento, ordem de aplicação (ADR 2026-09-02h).
+- `DOSSIE.md`, `VIZINHANCA.md`, `REFERENCIAS.md`, `CATALOGO.md`, `COLHEITA.md` — o mercado e o que se colheu dele.
+- `ferramentas/traco-mcp/` — o companheiro no Mac: servidor MCP só de leitura sobre a pasta do Traço.

@@ -37,9 +37,11 @@ enum Tema {
     static let synPontuacao = Color(hex: 0x6E6E73)
     static let synComentario = tintaFraca
     static let synTexto = tinta
-    static let mono: Font = .system(size: 17, design: .monospaced)
-    static let tituloNota: Font = .system(size: 28, weight: .semibold)
-    static let secaoNota: Font = .system(size: 22, weight: .semibold)
+    // §22 fechado (02/set): tudo por estilo de texto, escalando com o
+    // tamanho do sistema. Os pontos ao lado são os do tamanho padrão.
+    static let mono: Font = .system(.body, design: .monospaced)          // 17
+    static let tituloNota: Font = .title.weight(.semibold)               // 28
+    static let secaoNota: Font = .title2.weight(.semibold)               // 22
 
     // MARK: - Escala tipográfica (5 degraus, razão ≥1.25)
     //
@@ -49,20 +51,20 @@ enum Tema {
     // Num app de escrita o CORPO pode ser o maior depois do título: o texto do
     // autor é o assunto.
     /// 28 — título de tela. Tracking negativo: tamanho grande junta as letras.
-    static let tituloTela: Font = .system(size: 28, weight: .bold)
+    static let tituloTela: Font = .title.weight(.bold)
     static let trackingTitulo: CGFloat = -0.5
     /// 20 — o corpo, e a voz do autor.
-    static let corpo: Font = .system(size: 20)
+    static let corpo: Font = .title3
     /// 17 — título de linha, chrome, ações.
-    static let chrome: Font = .system(size: 17)
-    static let barra: Font = .system(size: 17, weight: .semibold)
+    static let chrome: Font = .body
+    static let barra: Font = .body.weight(.semibold)
     /// 15 — metadado, legenda, apoio.
-    static let meta: Font = .system(size: 15)
+    static let meta: Font = .subheadline
     /// 11 — rótulo de seção, sempre em caixa alta com tracking positivo.
-    static let label: Font = .system(size: 11, weight: .semibold)
+    static let label: Font = .caption2.weight(.semibold)
     static let trackingLabel: CGFloat = 1.2
-    static let confirmacaoTitulo: Font = .system(size: 28, weight: .semibold)
-    static let confirmacaoCorpo: Font = .system(size: 20)
+    static let confirmacaoTitulo: Font = .title.weight(.semibold)
+    static let confirmacaoCorpo: Font = .title3
 
     // MARK: - Grade (um gutter, dois raios — nada mais)
     //
