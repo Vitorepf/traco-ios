@@ -501,11 +501,11 @@
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
 					B914E6C2B64B3277308D643C = {
-						DevelopmentTeam = "";
+						DevelopmentTeam = W28WF9A5A2;
 						ProvisioningStyle = Automatic;
 					};
 					F911088A54FB6A484B3562AE = {
-						DevelopmentTeam = "";
+						DevelopmentTeam = W28WF9A5A2;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -666,7 +666,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = W28WF9A5A2;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Traco/Info-extra.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Traço";
@@ -699,7 +699,7 @@
 				CODE_SIGN_ENTITLEMENTS = TracoWidget/TracoWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = W28WF9A5A2;
 				INFOPLIST_FILE = TracoWidget/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -807,7 +807,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = W28WF9A5A2;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Traco/Info-extra.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Traço";
@@ -899,7 +899,7 @@
 				CODE_SIGN_ENTITLEMENTS = TracoWidget/TracoWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = W28WF9A5A2;
 				INFOPLIST_FILE = TracoWidget/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
