@@ -326,7 +326,12 @@ struct PaginaView: View {
         ) {
             var t = Transaction()
             t.disablesAnimations = true
-            withTransaction(t) { sessao.cartao = nil }
+            // a forma vestida sozinha fica com o Soltar à mão enquanto o autor
+            // segue escrevendo: uma tecla não pode apagar o "um toque desfaz"
+            // (e a análise seguinte, já com a forma, seria silêncio sem cartão)
+            if case .vestida? = sessao.cartao {} else {
+                withTransaction(t) { sessao.cartao = nil }
+            }
             sessao.agendarAutoAnalise() // §17: a pausa chama a análise sozinha
         }
         .frame(maxWidth: 680)
