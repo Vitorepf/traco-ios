@@ -414,3 +414,34 @@ struct DecisaoConfereTests {
         #expect(deixa != nil)
     }
 }
+
+struct RevisaoSemanalTests {
+    @Test func aSemanaContaCobraEMostraSoOQuePodeSair() {
+        let cal = Calendar(identifier: .gregorian)
+        let agora = Date()
+        func nota(_ g: Gesto?, dias: Int, campos: [String: String] = [:], fechada: Bool = false, gatilho: Date? = nil, sentido: String = "") -> RevisaoSemanal.NotaLida {
+            RevisaoSemanal.NotaLida(uuid: UUID(), gesto: g, fechada: fechada, criadaEm: cal.date(byAdding: .day, value: dias, to: agora)!,
+                                    gatilhoEm: gatilho, titulo: "t", campos: campos, sentido: sentido, queimadaOuSeladaEm: nil)
+        }
+        let amanha = cal.date(byAdding: .day, value: 1, to: agora)!
+        let notas = [
+            nota(.destaque, dias: -1, campos: ["unica": "terminar o relatório"]),
+            nota(.woop, dias: -2, campos: ["obstaculo": "preguiça"]),
+            nota(.decisao, dias: -3, campos: ["escolha": "ficar ou sair"], gatilho: amanha),
+            nota(.seEntao, dias: -4, campos: ["se": "chegar em casa"], gatilho: amanha),
+            nota(.expressiva, dias: -1, fechada: true, sentido: "o medo era de decepcionar"),
+            nota(.expressiva, dias: -1, fechada: false),           // em curso: nunca
+            nota(nil, dias: -20),                                    // fora da semana
+        ]
+        let ev = EventoCalendario(titulo: "Dentista", inicio: amanha, fim: amanha.addingTimeInterval(3600))
+        let r = RevisaoSemanal.ler(notas: notas, eventos: [ev], agora: agora, cal: cal)
+        #expect(r.destaques.map(\.texto) == ["terminar o relatório"])
+        #expect(r.decisoesAConferir.map(\.texto) == ["ficar ou sair"])
+        #expect(r.desejos.count == 1 && r.desejos[0].texto.contains("preguiça"))
+        #expect(r.proximos.map(\.texto).sorted() == ["Dentista", "chegar em casa", "ficar ou sair"].sorted())
+        #expect(r.sentidos == ["o medo era de decepcionar"])
+        #expect(r.porForma.reduce(0) { $0 + $1.quantas } == 4)  // a expressiva em curso e a antiga não contam
+        #expect(!r.vazia)
+        #expect(RevisaoSemanal.ler(notas: [], eventos: [], agora: agora, cal: cal).vazia)
+    }
+}

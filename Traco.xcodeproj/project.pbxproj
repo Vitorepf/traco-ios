@@ -52,6 +52,7 @@
 		8A24CF2697C9F3270B72614B /* PadroesLocal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65BEA908CA56E5E6C5353906 /* PadroesLocal.swift */; };
 		8ACDA4B666D4AA6D1B5F76F6 /* BlocoCaderno.swift in Sources */ = {isa = PBXBuildFile; fileRef = C905B08A3932A5955A7DAFA6 /* BlocoCaderno.swift */; };
 		8B41722379ED1CB7724E946C /* Corpus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3012217369C9A480FC336A64 /* Corpus.swift */; };
+		8DA96DF335BC3E25F8A006F2 /* RevisaoSemanal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E13C7C695CD548A18F4EE2 /* RevisaoSemanal.swift */; };
 		921E42407F002A0F679BA76F /* CartaoAnaliseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9F22E37F6BFFDA21C00C087 /* CartaoAnaliseView.swift */; };
 		93D35C3A111837E5CA2D4133 /* PortalArquivoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 830A6A725EE5ACDC831582DF /* PortalArquivoView.swift */; };
 		95A4CF4E0115E6A253620E90 /* MenuFormasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E777317BA19B73B43328EA4 /* MenuFormasView.swift */; };
@@ -121,6 +122,7 @@
 /* Begin PBXFileReference section */
 		003219BD29767A986648826F /* Info-extra.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Info-extra.plist"; sourceTree = "<group>"; };
 		00FF648389CB7C318B68A693 /* Calendario.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Calendario.swift; sourceTree = "<group>"; };
+		01E13C7C695CD548A18F4EE2 /* RevisaoSemanal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RevisaoSemanal.swift; sourceTree = "<group>"; };
 		0654F54BA318B17E77C8F1F5 /* Traco.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Traco.entitlements; sourceTree = "<group>"; };
 		07E0810B1D0BA208B63D167C /* AnaliseLocal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnaliseLocal.swift; sourceTree = "<group>"; };
 		07FEF6E398FEED60218FF5E1 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
@@ -333,6 +335,7 @@
 				65BEA908CA56E5E6C5353906 /* PadroesLocal.swift */,
 				FE5E37AF9BC96722920E0256 /* PadroesRemoto.swift */,
 				481F4361236B561E2D58A0D1 /* PadroesView.swift */,
+				01E13C7C695CD548A18F4EE2 /* RevisaoSemanal.swift */,
 			);
 			path = Padroes;
 			sourceTree = "<group>";
@@ -611,6 +614,7 @@
 				81E975420DBEB751048DCF3B /* Queima.swift in Sources */,
 				BEB1C73B65013B7CFE80D18D /* RaizView.swift in Sources */,
 				0BD2BD74128AD32BFB929D54 /* RecordarView.swift in Sources */,
+				8DA96DF335BC3E25F8A006F2 /* RevisaoSemanal.swift in Sources */,
 				50BDC2DAF155F65D6076D8CD /* Revisoes.swift in Sources */,
 				FC215869D96D8E84425E1A13 /* Sabia.swift in Sources */,
 				8963B4E83A2289A6F95A4424 /* Sessao.swift in Sources */,

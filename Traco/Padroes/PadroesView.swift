@@ -8,6 +8,19 @@ struct PadroesView: View {
     @State private var visiveis = 0
     @State private var perguntas: [String] = []
     @State private var carregou = false
+    @Environment(\.modelContext) private var context
+
+    /// ADR q: a revisão da semana, sem rede. Deixas e compromissos vêm do calendário.
+    private var semana: RevisaoSemanal {
+        var eventos: [EventoCalendario] = []
+        if case .eventos(let lidos) = CalendarioDisco.carregar() { eventos = lidos }
+        let lidas = notas.map {
+            RevisaoSemanal.NotaLida(uuid: $0.uuid, gesto: $0.gesto, fechada: $0.fechada, criadaEm: $0.criadaEm,
+                                    gatilhoEm: $0.gatilhoEm, titulo: $0.tituloNaLista, campos: $0.campos,
+                                    sentido: $0.sentido, queimadaOuSeladaEm: $0.queimadaEm ?? $0.editadaEm)
+        }
+        return RevisaoSemanal.ler(notas: lidas, eventos: eventos)
+    }
 
     private var abertas: [Nota] {
         // §8.8, §19.1: expressiva em curso (app morto no timer, relançado) nunca vai à rede
@@ -36,6 +49,7 @@ struct PadroesView: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
+                    revisaoDaSemana
                     if !carregou {
                         Text("lendo as suas notas…")
                             .font(Tema.corpo)
@@ -102,5 +116,95 @@ struct PadroesView: View {
                 visiveis = i + 1
             }
         }
+    }
+
+    // MARK: - A semana (ADR q)
+
+    @ViewBuilder
+    private var revisaoDaSemana: some View {
+        let r = semana
+        if !r.vazia {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("ESTA SEMANA")
+                    .font(Tema.label)
+                    .tracking(Tema.trackingLabel)
+                    .foregroundStyle(Tema.tintaSuave)
+                if !r.porForma.isEmpty {
+                    Text(r.porForma.map { "\($0.quantas) \($0.forma?.nome.lowercased() ?? "sem forma")" }.joined(separator: " · "))
+                        .font(Tema.meta)
+                        .foregroundStyle(Tema.tintaSuave)
+                }
+                if !r.destaques.isEmpty {
+                    bloco("Os destaques", r.destaques)
+                }
+                if !r.decisoesAConferir.isEmpty {
+                    bloco("Decisões a conferir", r.decisoesAConferir)
+                }
+                if !r.desejos.isEmpty {
+                    bloco("O que está em jogo", r.desejos)
+                }
+                if !r.proximos.isEmpty {
+                    bloco("Próximos sete dias", r.proximos)
+                }
+                if !r.sentidos.isEmpty {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("O que ficou claro")
+                            .font(Tema.meta.weight(.semibold))
+                            .foregroundStyle(Tema.tinta)
+                        ForEach(r.sentidos, id: \.self) { linha in
+                            Text("— " + linha)
+                                .font(Tema.meta)
+                                .foregroundStyle(Tema.tintaSuave)
+                        }
+                    }
+                }
+            }
+            .padding(16)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .superficieElevada()
+            .padding(.bottom, 8)
+            .accessibilityIdentifier("revisao-semana")
+        }
+    }
+
+    private func bloco(_ titulo: String, _ linhas: [RevisaoSemanal.Linha]) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(titulo)
+                .font(Tema.meta.weight(.semibold))
+                .foregroundStyle(Tema.tinta)
+            ForEach(linhas) { linha in
+                Button {
+                    if let nota = Sessao.buscar(uuid: linha.id, no: context) {
+                        sessao.abrir(nota)
+                        sessao.irPara(.escrever, no: context)
+                    }
+                } label: {
+                    HStack(alignment: .firstTextBaseline, spacing: 8) {
+                        if let q = linha.quando {
+                            Text(RevisaoSemanalFormato.quando(q))
+                                .font(Tema.meta.monospacedDigit())
+                                .foregroundStyle(Tema.tintaFraca)
+                        }
+                        Text(linha.texto)
+                            .font(Tema.meta)
+                            .foregroundStyle(Tema.tintaSuave)
+                            .lineLimit(2)
+                            .multilineTextAlignment(.leading)
+                    }
+                    .frame(maxWidth: .infinity, minHeight: 28, alignment: .leading)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(PressaoDiscreta())
+            }
+        }
+    }
+}
+
+enum RevisaoSemanalFormato {
+    static func quando(_ d: Date) -> String {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "pt_BR")
+        f.dateFormat = "EEE d, HH:mm"
+        return f.string(from: d).replacingOccurrences(of: ".", with: "")
     }
 }
