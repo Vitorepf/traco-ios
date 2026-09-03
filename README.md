@@ -80,3 +80,4 @@ maestro/       fluxos E2E; cenarios/ = famílias hostis
 - `SISTEMA-CLARO.md` — o mundo claro: tokens medidos, componentes por estado, movimento, ordem de aplicação (ADR 2026-09-02h).
 - `DOSSIE.md`, `VIZINHANCA.md`, `REFERENCIAS.md`, `CATALOGO.md`, `COLHEITA.md` — o mercado e o que se colheu dele.
 - `ferramentas/traco-mcp/` — o companheiro no Mac: servidor MCP só de leitura sobre a pasta do Traço.
+- SPEC ADRs 2026-09-02o a q — a sábia (a fronteira pelo efeito: forma, informação e pergunta; nunca a resposta do autor), as formas Decisão e Pré-mortem, e a revisão da semana nos Padrões.
