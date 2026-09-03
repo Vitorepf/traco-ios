@@ -1,0 +1,24 @@
+appId: app.traco
+---
+# U1 — a porta do Share: a extensão é só o carteiro; aqui provo a entrega.
+# traco://criar?texto=… pousa o texto de fora numa nota NOVA: a que estava em
+# voo grava e vai para o arquivo — não engole o que chegou (regra 2).
+- launchApp:
+    clearState: true
+- tapOn:
+    id: pagina
+- inputText: "a nota que estava em voo"
+- openLink: "traco://criar?texto=chegou%20de%20fora"
+- extendedWaitUntil:
+    visible: "chegou de fora"
+    timeout: 8000
+- assertNotVisible: "a nota que estava em voo"
+# as duas notas existem no arquivo: a que estava em voo e a que chegou
+- openLink: traco://notas
+- extendedWaitUntil:
+    visible: "a nota que estava em voo"
+    timeout: 8000
+- assertVisible: "chegou de fora"
+# a prova num quadro só: as DUAS notas no arquivo — a de fora virou nota nova,
+# a que estava em voo foi guardada à parte (regra 2, não engoliu).
+- takeScreenshot: /tmp/traco-verify/share-criar

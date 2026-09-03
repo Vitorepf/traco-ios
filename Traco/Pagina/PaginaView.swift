@@ -433,6 +433,9 @@ struct PaginaView: View {
             sessao.mostrarNotas = true
         case .recordar:
             sessao.recordarMaisRecente(no: context)
+        case .criar(let texto):
+            // U1 Share: o texto de fora nasce numa nota NOVA (regra 2).
+            sessao.receberDeFora(texto, no: context)
         }
     }
 

@@ -498,6 +498,19 @@ final class Sessao {
         }
     }
 
+    /// U1 Share: texto de outro app pousa numa nota NOVA, destrancada — a
+    /// página em voo grava e sai antes (regra 2: trancada nunca entra, e a
+    /// expressiva não herda o texto de fora nem empresta o timer). Salva já
+    /// no pouso: "texto vira nota" na chegada, não no próximo salvar.
+    func receberDeFora(_ textoDeFora: String, no context: ModelContext) {
+        salvar(no: context)
+        novaPagina()
+        texto = textoDeFora
+        mostrarNotas = false
+        mostrarPadroes = false
+        salvar(no: context)
+    }
+
     /// SPEC §8: QUEIMAR. Não é esconder — é destruir. O texto é sobrescrito antes
     /// de sumir (não basta marcar), e o backup no Arquivos é regravado na hora,
     /// senão a promessa seria mentira. Sobram data, minutos e a linha de sentido.

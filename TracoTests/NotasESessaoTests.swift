@@ -845,3 +845,47 @@ struct RotaDoWidgetTests {
         #expect(destino("traco://inexistente") == nil)    // host desconhecido, sem rota
     }
 }
+
+// U1 — a porta do Share: traco://criar?texto=… carrega o texto compartilhado;
+// sem texto, página em branco. A nota de fora nasce NOVA e destrancada — a que
+// estava em voo (expressiva incluída) grava à parte e não engole o que chegou
+// (regra 2: trancada nunca entra por rota nenhuma).
+@MainActor
+struct RotaDoShareTests {
+    private func destino(_ s: String) -> Rota.Destino? { Rota.daURL(URL(string: s)!) }
+
+    @Test func criarCarregaOTextoCompartilhado() {
+        #expect(destino("traco://criar?texto=oi%20de%20fora") == .criar(texto: "oi de fora"))
+        // & e quebra de linha sobrevivem à viagem pela query
+        #expect(destino("traco://criar?texto=a%26b%0Aduas") == .criar(texto: "a&b\nduas"))
+        #expect(destino("traco://criar?texto=") == .novaPagina)
+        #expect(destino("traco://criar") == .novaPagina)
+    }
+
+    @Test func oTextoDeForaNasceNumaNotaNovaEDestrancada() throws {
+        let c = try ModelContainer.traco(emMemoria: true)
+        let s = Sessao()
+        s.texto = "prosa do autor em voo"
+        s.receberDeFora("chegou de fora", no: c.mainContext)
+        #expect(s.texto == "chegou de fora")
+        let uuid = try #require(s.notaUUID)
+        let nova = try #require(Sessao.buscar(uuid: uuid, no: c.mainContext))
+        #expect(nova.texto == "chegou de fora")
+        #expect(nova.trancada == false)
+        let todas = (try? c.mainContext.fetch(FetchDescriptor<Nota>())) ?? []
+        #expect(todas.count == 2) // a que estava em voo foi guardada à parte
+        #expect(todas.contains { $0.texto == "prosa do autor em voo" })
+    }
+
+    @Test func oShareNaoEntraNaExpressivaEmVoo() throws {
+        let c = try ModelContainer.traco(emMemoria: true)
+        let s = Sessao()
+        s.texto = "desabafo em voo"
+        s.comecarExpressiva(no: c.mainContext)
+        s.receberDeFora("chegou de fora", no: c.mainContext)
+        let expressiva = (try? c.mainContext.fetch(FetchDescriptor<Nota>()))?
+            .first { $0.gesto == .expressiva }
+        #expect(expressiva?.texto == "desabafo em voo") // intocada pelo texto de fora
+        #expect(s.timerLigado == false)                  // a página nova não herda o timer
+    }
+}

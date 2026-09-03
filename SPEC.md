@@ -14,6 +14,11 @@
 > A física de folha do arrasto vive nas Camadas; o peek de folha na lista é P1 na FILA.)
 > ADR 2026-08-31b — Régua do Caderno podada 136→12 (menu grande = template em menu, §12);
 > o catálogo completo permanece no formato de arquivo: nota antiga nunca quebra.
+> ADR 2026-09-01b (decisão do dono, PLAN U1) — **Share de ENTRADA vira objetivo**: texto
+> compartilhado noutro app abre o Traço numa nota NOVA, destrancada (extensão TracoShare →
+> traco://criar?texto=…). A IA continua sem escrever nada; a regra 2 vale na chegada
+> (trancada nunca recebe texto de fora). O não-objetivo do §12 fica restrito a
+> compartilhar PARA fora.
 > ADR 2026-08-31i — **Digitação viva**: em prosa+lista a página edita CRUA num único
 > campo (o campo sob o cursor nunca morre no meio da digitação; Enter herda o marcador,
 > double-Enter sai) e a forma VESTE ao soltar o teclado. O modo cru é proibido fora de
@@ -212,8 +217,8 @@ Persistência local (SwiftData/arquivo). Sem nuvem na v1. Sem conta.
 ## 12. Não-objetivos (v1)
 
 Chat/conversa. Streaks, XP, gamificação. Ouvinte emocional. Resumos. Busca semântica.
-Sync/nuvem/conta. Compartilhamento. Templates em menu (a forma nasce da palavra).
-Agenda/calendário. Android/web.
+Sync/nuvem/conta. Compartilhamento para fora (o de ENTRADA é objetivo — ADR 2026-09-01b).
+Templates em menu (a forma nasce da palavra). Agenda/calendário. Android/web.
 
 ## 13. Pronto quando (critérios de aceite)
 

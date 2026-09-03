@@ -46,10 +46,10 @@ struct TracoAtalhos: AppShortcutsProvider {
     }
 }
 
-/// Rota de entrada única: intents e traco:// convergem aqui; a PaginaView consome.
+/// Rota de entrada única: intents, traco:// e o Share convergem aqui; a PaginaView consome.
 @MainActor
 enum Rota {
-    enum Destino { case novaPagina, notas, recordar }
+    enum Destino: Equatable { case novaPagina, notas, recordar, criar(texto: String) }
     static var pendente: Destino?
     static let mudou = Notification.Name("traco.rotaMudou")
 
@@ -59,6 +59,12 @@ enum Rota {
         case "nova", "": return .novaPagina
         case "notas": return .notas
         case "recordar": return .recordar
+        case "criar":
+            // U1 Share: o texto compartilhado viaja na query; sem texto, o
+            // pouso não cai no vazio — vira página em branco.
+            let texto = URLComponents(url: url, resolvingAgainstBaseURL: false)?
+                .queryItems?.first(where: { $0.name == "texto" })?.value ?? ""
+            return texto.isEmpty ? .novaPagina : .criar(texto: texto)
         default: return nil
         }
     }
