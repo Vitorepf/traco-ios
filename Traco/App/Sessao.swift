@@ -96,6 +96,12 @@ final class Sessao {
 
     private var analiseTask: Task<Void, Never>?
 
+    /// Algum campo da forma tem resposta do autor. Campos recém-criados são
+    /// todos vazios: vestir não conta como preencher.
+    var camposComResposta: Bool {
+        campos.values.contains { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+    }
+
     /// A hora de conferir a decisão já chegou (o "espero" trazia data e ela
     /// passou): só então o campo da volta aparece.
     var conferenciaDevida: Bool {

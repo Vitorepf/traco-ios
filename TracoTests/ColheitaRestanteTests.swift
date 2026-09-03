@@ -571,3 +571,15 @@ struct CartaoNaoCobreOsCamposTests {
         #expect(s.cartao == nil)
     }
 }
+
+struct VestirNaoContaComoPreencherTests {
+    @Test func campoVazioRecemCriadoNaoEResposta() {
+        let s = Sessao()
+        s.usarForma(.decisao)
+        #expect(!s.camposComResposta)   // vestir cria campos vazios
+        s.campos["escolha"] = "  "
+        #expect(!s.camposComResposta)   // espaço não é resposta
+        s.campos["escolha"] = "ficar ou sair"
+        #expect(s.camposComResposta)
+    }
+}

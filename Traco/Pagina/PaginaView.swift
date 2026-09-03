@@ -120,8 +120,11 @@ struct PaginaView: View {
         // o cartão vestido vive enquanto o autor escreve na PÁGINA (o "um toque
         // desfaz" fica à mão), mas sai assim que ele começa a preencher a FORMA:
         // ali ele cobre os campos de baixo, e cobrir é fricção (§17)
-        .onChange(of: sessao.campos) { _, _ in
-            if case .vestida? = sessao.cartao {
+        // ATENÇÃO: vestir a forma cria os campos VAZIOS, o que também muda
+        // `campos`. Só o CONTEÚDO conta — senão o cartão morria no instante
+        // em que nascia (16 fluxos caíram assim).
+        .onChange(of: sessao.camposComResposta) { _, agora in
+            if agora, case .vestida? = sessao.cartao {
                 var t = Transaction(); t.disablesAnimations = true
                 withTransaction(t) { sessao.cartao = nil }
             }
