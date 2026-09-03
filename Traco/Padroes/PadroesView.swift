@@ -149,6 +149,54 @@ struct PadroesView: View {
                 if !r.proximos.isEmpty {
                     bloco("Próximos sete dias", r.proximos)
                 }
+                if !r.calibragem.isEmpty {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Decisões conferidas")
+                            .font(Tema.meta.weight(.semibold))
+                            .foregroundStyle(Tema.tinta)
+                        ForEach(r.calibragem) { c in
+                            Button {
+                                if let nota = Sessao.buscar(uuid: c.id, no: context) {
+                                    sessao.abrir(nota)
+                                    sessao.irPara(.escrever, no: context)
+                                }
+                            } label: {
+                                VStack(alignment: .leading, spacing: 3) {
+                                    Text(c.escolha)
+                                        .font(Tema.meta)
+                                        .foregroundStyle(Tema.tinta)
+                                        .lineLimit(1)
+                                    HStack(alignment: .top, spacing: 6) {
+                                        Text("esperava")
+                                            .font(Tema.label)
+                                            .tracking(Tema.trackingLabel)
+                                            .foregroundStyle(Tema.tintaFraca)
+                                            .frame(width: 74, alignment: .leading)
+                                        Text(c.esperava)
+                                            .font(Tema.meta)
+                                            .foregroundStyle(Tema.tintaSuave)
+                                            .lineLimit(2)
+                                    }
+                                    HStack(alignment: .top, spacing: 6) {
+                                        Text("aconteceu")
+                                            .font(Tema.label)
+                                            .tracking(Tema.trackingLabel)
+                                            .foregroundStyle(Tema.tintaFraca)
+                                            .frame(width: 74, alignment: .leading)
+                                        Text(c.aconteceu)
+                                            .font(Tema.meta)
+                                            .foregroundStyle(Tema.tinta)
+                                            .lineLimit(2)
+                                    }
+                                }
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .contentShape(Rectangle())
+                            }
+                            .buttonStyle(PressaoDiscreta())
+                            .accessibilityIdentifier("calibragem")
+                        }
+                    }
+                }
                 if !r.sentidos.isEmpty {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("O que ficou claro")

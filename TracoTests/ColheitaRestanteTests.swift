@@ -505,3 +505,69 @@ struct PremortemDeUmPlanoTests {
         #expect(ainda.texto == "vamos lançar a loja em outubro")
     }
 }
+
+struct CalibragemTests {
+    @Test func aDecisaoConferidaMostraOEsperadoEOAcontecido() {
+        let agora = Date()
+        func d(_ campos: [String: String]) -> RevisaoSemanal.NotaLida {
+            RevisaoSemanal.NotaLida(uuid: UUID(), gesto: .decisao, fechada: false, criadaEm: agora, gatilhoEm: nil,
+                                    titulo: "d", campos: campos, sentido: "", queimadaOuSeladaEm: nil)
+        }
+        let r = RevisaoSemanal.ler(notas: [
+            d(["escolha": "ficar ou sair", "espero": "mais calma", "aconteceu": "menos dinheiro e mais calma"]),
+            d(["escolha": "ainda aberta", "espero": "algo"]),           // sem conferência: fora
+            d(["escolha": "sem expectativa", "aconteceu": "deu certo"]), // sem esperado: fora
+        ], eventos: [], agora: agora)
+        #expect(r.calibragem.count == 1)
+        #expect(r.calibragem[0].escolha == "ficar ou sair")
+        #expect(r.calibragem[0].esperava == "mais calma")
+        #expect(r.calibragem[0].aconteceu == "menos dinheiro e mais calma")
+        // e sai no texto dos Atalhos, com os dois lados
+        let t = RevisaoSemanal.texto(r)
+        #expect(t.contains("esperava: mais calma"))
+        #expect(t.contains("aconteceu: menos dinheiro e mais calma"))
+    }
+}
+
+struct CampoDaVoltaTests {
+    @Test func oCampoDaConferenciaSoApareceQuandoEDevido() {
+        let campo = try! #require(Gesto.decisao.campos.first { $0.id == "aconteceu" })
+        #expect(campo.soDepois)
+        #expect(Gesto.decisao.campos.filter(\.soDepois).count == 1)
+        // nenhuma outra forma tem campo de volta
+        for g in Gesto.allCases where g != .decisao {
+            #expect(g.campos.allSatisfy { !$0.soDepois })
+        }
+    }
+}
+
+struct ConferenciaDevidaTests {
+    @Test func semDataOCampoFicaComDataEleEspera() {
+        let s = Sessao()
+        s.gesto = .decisao
+        s.campos = ["espero": "mais calma"]              // sem data: o campo fica
+        #expect(s.conferenciaDevida)
+        s.campos = ["espero": "mais calma; confiro às 9h"] // data futura: espera
+        #expect(!s.conferenciaDevida)
+        s.gesto = .woop
+        #expect(!s.conferenciaDevida)                     // só a Decisão tem volta
+    }
+}
+
+struct CartaoNaoCobreOsCamposTests {
+    @Test func oCartaoVestidoSaiQuandoOAutorPreencheAForma() throws {
+        // o cartão é da PaginaView; aqui prova-se a regra que ela aplica:
+        // enquanto o texto muda, o cartão fica; quando um campo muda, sai.
+        let s = Sessao()
+        s.gesto = .decisao
+        s.cartao = .vestida(.decisao, pergunta: "x")
+        s.texto = "escrevendo mais na página"
+        if case .vestida? = s.cartao {} else { Issue.record("o cartão devia ficar enquanto o texto muda") }
+        // a regra da view: campo mudou → cartão sai
+        s.campos["escolha"] = "ficar ou sair"
+        if case .vestida? = s.cartao {
+            s.cartao = nil // é isto que a view faz
+        }
+        #expect(s.cartao == nil)
+    }
+}

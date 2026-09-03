@@ -117,6 +117,15 @@ struct PaginaView: View {
         // §3: a página em branco chega com o cursor pronto — também a que
         // nasce depois de Concluir (a barra tinha três "pagina" e o toque do
         // fluxo caía fora do editor; com o foco de volta, nada depende dele)
+        // o cartão vestido vive enquanto o autor escreve na PÁGINA (o "um toque
+        // desfaz" fica à mão), mas sai assim que ele começa a preencher a FORMA:
+        // ali ele cobre os campos de baixo, e cobrir é fricção (§17)
+        .onChange(of: sessao.campos) { _, _ in
+            if case .vestida? = sessao.cartao {
+                var t = Transaction(); t.disablesAnimations = true
+                withTransaction(t) { sessao.cartao = nil }
+            }
+        }
         .onChange(of: sessao.geracaoDaPagina) { _, _ in
             // a página nova troca o editor de identidade no mesmo ciclo: o foco
             // pedido ANTES da troca caía no editor velho e se perdia (1 em 3)
@@ -317,7 +326,8 @@ struct PaginaView: View {
         guard sessao.temCamposDaForma, let gesto = sessao.gesto else { return nil }
         return AnyView(CamposFormaView(
             gesto: gesto,
-            campos: $sessao.campos
+            campos: $sessao.campos,
+            conferenciaDevida: sessao.conferenciaDevida
         ))
     }
 

@@ -10,6 +10,8 @@ import SwiftUI
 struct CamposFormaView: View {
     let gesto: Gesto
     @Binding var campos: [String: String]
+    /// Quando a conferência é devida (a hora do "espero" já passou). Nil = não.
+    var conferenciaDevida: Bool = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var nascida = false
 
@@ -17,7 +19,7 @@ struct CamposFormaView: View {
         VStack(alignment: .leading, spacing: 4) {
             // SPEC §20: a casa não tem chrome. Palavra é escrever o sentido
             // (minhas / frase / onde). Look Up é o do iOS no texto seleccionado.
-            ForEach(Array(gesto.campos.enumerated()), id: \.element.id) { indice, campo in
+            ForEach(Array(visiveis.enumerated()), id: \.element.id) { indice, campo in
                 LinhaCampo(id: campo.id, rotulo: campo.rotulo, teto: campo.teto, texto: valor(campo.id))
                     // a forma chega como quem entra: campo a campo, um respiro
                     // entre eles (ancorado em `nascida`, que muda DEPOIS do
@@ -36,6 +38,15 @@ struct CamposFormaView: View {
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("forma-\(gesto.rawValue)")
+    }
+
+    /// O campo da volta só entra quando é devido, ou quando já foi respondido.
+    private var visiveis: [CampoForma] {
+        gesto.campos.filter { campo in
+            guard campo.soDepois else { return true }
+            let resposta = campos[campo.id]?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            return conferenciaDevida || !resposta.isEmpty
+        }
     }
 
     private func valor(_ id: String) -> Binding<String> {

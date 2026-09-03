@@ -696,3 +696,7 @@ Palavra do dono (02/set): organização e estratégia são ofícios da mente e n
 ## ADR 2026-09-02q — A revisão da semana
 
 Emenda ao §9 (Padrões). Organização é ofício da mente (dono, 02/set): no topo dos Padrões, um cartão "Esta semana", todo algoritmo, sem rede: quantas notas por forma nos últimos sete dias, os Destaques escolhidos, as decisões com data de conferir por vir, os desejos WOOP com obstáculo nomeado, as deixas e compromissos dos próximos sete dias, e as linhas de sentido das expressivas fechadas na semana (só o sentido, nunca o texto). Cada linha abre a nota. Nada é comentado, contado como mérito nem comparado com semanas anteriores.
+
+## ADR 2026-09-03a — Calibração: o que eu esperava, e o que aconteceu
+
+Emenda à ADR p. O diário de decisão só vale se a previsão sobreviver ao resultado: depois de saber o fim, a memória reescreve o que se esperava (hindsight). Por isso a Decisão ganha um campo de VOLTA, "O que aconteceu", que só aparece quando é devido — se o autor marcou quando confere, o campo espera essa hora; sem data marcada, ele fica desde o início, porque o app não adivinha. Na revisão da semana, "Decisões conferidas" mostra escolha, esperava e aconteceu, lado a lado, e cada linha abre a nota. Não há nota, placar, acerto nem comparação entre semanas: só a evidência que o papel guardou. O mesmo texto sai no intent "Esta semana" e no MCP.

@@ -96,6 +96,16 @@ final class Sessao {
 
     private var analiseTask: Task<Void, Never>?
 
+    /// A hora de conferir a decisão já chegou (o "espero" trazia data e ela
+    /// passou): só então o campo da volta aparece.
+    var conferenciaDevida: Bool {
+        guard gesto == .decisao else { return false }
+        // sem data marcada o app não adivinha a hora: o campo fica, e quem
+        // decide quando responder é o autor. Com data, ele espera a data.
+        guard let quando = Gatilho.data(em: campos["espero"] ?? "") else { return true }
+        return quando <= .now
+    }
+
     /// A linha "?" da nota (ADR o): a pergunta do autor à sábia.
     var perguntaNaNota: String? {
         gesto == .expressiva ? nil : Sabia.perguntaNaNota(texto)

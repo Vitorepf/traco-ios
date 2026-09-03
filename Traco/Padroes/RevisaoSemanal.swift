@@ -25,17 +25,29 @@ nonisolated struct RevisaoSemanal: Equatable, Sendable {
     /// Planos sem a própria falha nomeada: especificação sem "o que pode dar
     /// errado", desejo sem obstáculo. É onde o pré-mortem entra.
     var semRisco: [Linha] = []
+    /// Decisões já conferidas: o que o autor esperava, e o que aconteceu.
+    /// Lado a lado, sem nota nem placar — a memória reescreve a expectativa
+    /// depois de saber o fim (hindsight), e só o papel guarda a versão de antes.
+    var calibragem: [Calibragem] = []
+
+    nonisolated struct Calibragem: Equatable, Sendable, Identifiable {
+        var id: UUID
+        var escolha: String
+        var esperava: String
+        var aconteceu: String
+    }
 
     var vazia: Bool {
         porForma.isEmpty && decisoesAConferir.isEmpty && desejos.isEmpty
             && proximos.isEmpty && destaques.isEmpty && sentidos.isEmpty && semRisco.isEmpty
+            && calibragem.isEmpty
     }
 
     static func == (a: RevisaoSemanal, b: RevisaoSemanal) -> Bool {
         a.porForma.map { "\($0.forma?.rawValue ?? "-"):\($0.quantas)" } == b.porForma.map { "\($0.forma?.rawValue ?? "-"):\($0.quantas)" }
             && a.decisoesAConferir == b.decisoesAConferir && a.desejos == b.desejos
             && a.proximos == b.proximos && a.destaques == b.destaques && a.sentidos == b.sentidos
-            && a.semRisco == b.semRisco
+            && a.semRisco == b.semRisco && a.calibragem == b.calibragem
     }
 
     /// Uma nota, sem SwiftData: o que a revisão precisa saber dela.
@@ -117,8 +129,20 @@ nonisolated struct RevisaoSemanal: Equatable, Sendable {
             }
         }
 
+        let calibragem = notas
+            .filter { $0.gesto == .decisao && !$0.fechada }
+            .compactMap { n -> Calibragem? in
+                let esperava = (n.campos["espero"] ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+                let aconteceu = (n.campos["aconteceu"] ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !esperava.isEmpty, !aconteceu.isEmpty else { return nil }
+                let escolha = (n.campos["escolha"] ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+                return Calibragem(id: n.uuid, escolha: escolha.isEmpty ? n.titulo : escolha,
+                                  esperava: esperava, aconteceu: aconteceu)
+            }
+
         return RevisaoSemanal(porForma: porForma, decisoesAConferir: decisoes, desejos: desejos,
-                              proximos: proximos, destaques: destaques, sentidos: sentidos, semRisco: semRisco)
+                              proximos: proximos, destaques: destaques, sentidos: sentidos, semRisco: semRisco,
+                              calibragem: calibragem)
     }
 }
 
@@ -141,6 +165,14 @@ extension RevisaoSemanal {
         bloco("Decisões a conferir", r.decisoesAConferir)
         bloco("Em jogo", r.desejos)
         bloco("Planos sem a falha nomeada", r.semRisco)
+        if !r.calibragem.isEmpty {
+            linhas.append("Decisões conferidas:")
+            for c in r.calibragem {
+                linhas.append("— " + c.escolha)
+                linhas.append("   esperava: " + c.esperava)
+                linhas.append("   aconteceu: " + c.aconteceu)
+            }
+        }
         bloco("Próximos sete dias", r.proximos)
         if !r.sentidos.isEmpty {
             linhas.append("O que ficou claro:")

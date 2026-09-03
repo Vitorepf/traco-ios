@@ -115,7 +115,7 @@ enum Gesto: String, CaseIterable, Codable, Identifiable {
                 CampoForma(id: "criterio", rotulo: "O que decide entre elas"),
                 CampoForma(id: "decidido", rotulo: "Decidi"),
                 CampoForma(id: "espero", rotulo: "O que espero que aconteça, e quando eu confiro"),
-                CampoForma(id: "aconteceu", rotulo: "O que aconteceu (na conferência)"),
+                CampoForma(id: "aconteceu", rotulo: "O que aconteceu", soDepois: true),
             ]
         case .premortem:
             [
@@ -132,6 +132,10 @@ struct CampoForma: Identifiable, Hashable {
     let id: String
     let rotulo: String
     var teto: Int? = nil
+    /// Campo que só faz sentido na VOLTA (a conferência da decisão). Some
+    /// enquanto está vazio e a hora não chegou: perguntar o resultado no dia
+    /// em que se decide é ruído, e ruído é fricção (§17).
+    var soDepois: Bool = false
 }
 
 enum FiltroNotas: String, CaseIterable, Identifiable {

@@ -12,6 +12,9 @@ appId: app.traco
     direction: LEFT
 - tapOn:
     id: regua-codigo
+- extendedWaitUntil:
+    visible: "Swift"
+    timeout: 6000
 - tapOn: "Swift"
 - extendedWaitUntil:
     visible:

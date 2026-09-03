@@ -1,0 +1,40 @@
+# ADR p: a decisão conferida mostra o que eu esperava E o que aconteceu, lado a
+# lado — a versão de antes, que a memória reescreve depois de saber o fim.
+# Entre campos, o campo é CENTRALIZADO antes do toque: com o teclado de pé, um
+# toque num campo de baixo cai na tecla (leis do instrumento 4).
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn: {id: pagina}
+- inputText: "preciso decidir entre ficar no emprego ou abrir a empresa"
+- extendedWaitUntil:
+    visible: {id: "campo-escolha"}
+    timeout: 15000
+- tapOn: {id: "campo-escolha"}
+- inputText: "ficar ou sair"
+- scrollUntilVisible:
+    element: {id: "campo-espero"}
+    direction: DOWN
+    centerElement: true
+    timeout: 6000
+- tapOn: {id: "campo-espero"}
+- inputText: "mais calma em tres meses"
+- scrollUntilVisible:
+    element: {id: "campo-aconteceu"}
+    direction: DOWN
+    centerElement: true
+    timeout: 6000
+- tapOn: {id: "campo-aconteceu"}
+- inputText: "menos dinheiro e mais calma"
+- tapOn: "Concluir"
+- waitForAnimationToEnd: {timeout: 2000}
+- openLink: traco://notas
+- waitForAnimationToEnd: {timeout: 1500}
+- tapOn: {text: "Padrões"}
+- extendedWaitUntil:
+    visible: "Decisões conferidas"
+    timeout: 8000
+- assertVisible: "mais calma em tres meses"
+- assertVisible: "menos dinheiro e mais calma"
+- takeScreenshot: /tmp/traco-verify/nav/90-calibragem

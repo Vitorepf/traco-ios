@@ -10,6 +10,10 @@ appId: app.traco
     direction: LEFT
 - tapOn:
     id: regua-codigo
+# a folha do sistema tem animação própria: esperar por ela, não tocar no escuro
+- extendedWaitUntil:
+    visible: "Swift"
+    timeout: 6000
 - tapOn: "Swift"
 - extendedWaitUntil:
     visible:
