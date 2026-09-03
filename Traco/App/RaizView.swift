@@ -60,6 +60,8 @@ struct RaizView: View {
             }
         } escrita: {
             ZStack(alignment: .leading) {
+                // o "tampo" (vazio) atrás da folha — a folha inset e sua sombra
+                // vivem em PaginaView, flutuando sobre este fundo.
                 Tema.fundo.ignoresSafeArea()
                 PaginaView(sessao: sessao)
                 if !tecladoAberto {

@@ -153,9 +153,38 @@ struct PaginaView: View {
         }
     }
 
+    /// A folha (dono, 01/set: "sinto a página"). A página não é vazio chapado:
+    /// é papel INSET sobre o tampo (o fundo), com a borda de luz (fio claro no
+    /// topo → hairline embaixo, o modelo de luz-de-cima da casa) e a sombra de
+    /// contato que a descola do plano. Sangra pela base — a folha vem de baixo,
+    /// como no caderno; o topo mostra o canto arredondado. O corpo do autor
+    /// segue na margem 20, dentro da folha: o texto continua sendo a figura.
+    private var folhaFundo: some View {
+        // Sobre preto, profundidade NÃO é sombra (some no escuro): é o papel um
+        // degrau mais claro que o tampo (0x18→0x12) + o fio de luz no topo (SISTEMA,
+        // material de superfície elevada). A escada da casa se mantém porque os
+        // cartões da página (análise, toast, pergunta) são superficieAlta 0x1E —
+        // acima da folha: tampo 0x0B < folha 0x18 < cartão 0x1E. Contraste medido no
+        // ponto mais claro (0x18): corpo (tinta) ~15:1, rótulos (tintaFraca) 5,15:1
+        // — acima de AA.
+        RoundedRectangle(cornerRadius: 26, style: .continuous)
+            .fill(LinearGradient(colors: [Color(hex: 0x18181D), Color(hex: 0x121217)],
+                                 startPoint: .top, endPoint: .bottom))
+            .overlay {
+                RoundedRectangle(cornerRadius: 26, style: .continuous)
+                    .strokeBorder(LinearGradient(colors: [.white.opacity(0.10), Tema.linha],
+                                                 startPoint: .top, endPoint: .bottom),
+                                  lineWidth: 0.75)
+            }
+            .shadow(color: Tema.sombraContato, radius: 12, y: 3)
+            .padding(.horizontal, 9)
+            .padding(.bottom, -60)          // sangra pela base — a folha vem de baixo
+            .ignoresSafeArea(edges: .bottom)
+    }
+
     private var pagina: some View {
         ZStack(alignment: .bottom) {
-            Tema.fundo.ignoresSafeArea()
+            folhaFundo
 
             VStack(spacing: 0) {
                 topbar
@@ -415,7 +444,9 @@ struct PaginaView: View {
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Tema.superficie, in: RoundedRectangle(cornerRadius: Tema.raio, style: .continuous))
+        // superficieAlta (não superficie): sobre a folha 0x18, um cartão precisa
+        // ficar ACIMA dela (0x1E), como os outros cartões da página.
+        .background(Tema.superficieAlta, in: RoundedRectangle(cornerRadius: Tema.raio, style: .continuous))
         .padding(.horizontal, 10)
         .padding(.bottom, 8)
         .accessibilityIdentifier("cartao-padroes")

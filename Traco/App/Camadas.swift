@@ -42,7 +42,9 @@ struct Camadas<Arquivo: View, Escrita: View>: View {
                 .overlay(Color.black.opacity(0.45 * fracao).ignoresSafeArea())
                 // e RECUA: a folha de cima não desliza sobre um plano — ela
                 // cobre uma página que afunda na pilha (dono, 01/set: caderno
-                // de folhas, não painéis)
+                // de folhas, não painéis). A própria página já é uma FOLHA
+                // (fundo inset com borda e sombra em PaginaView): o recuo a
+                // encolhe como quem afunda uma folha na pilha.
                 .scaleEffect(reduceMotion ? 1 : 1 - 0.045 * fracao)
                 .allowsHitTesting(!arquivoAberto)
                 .accessibilityHidden(arquivoAberto)
