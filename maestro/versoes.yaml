@@ -1,0 +1,29 @@
+# Versões da nota (ADR 2026-09-02m): cada gravação que muda o texto guarda a anterior.
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn: {id: pagina}
+- inputText: "primeira versão da ideia"
+- waitForAnimationToEnd: {timeout: 1500}
+- tapOn: "Concluir"
+- waitForAnimationToEnd: {timeout: 2000}
+- openLink: traco://notas
+- waitForAnimationToEnd: {timeout: 2000}
+- tapOn: "primeira versão da ideia"
+- waitForAnimationToEnd: {timeout: 2000}
+- tapOn: {id: pagina}
+- inputText: " e a segunda camada"
+- waitForAnimationToEnd: {timeout: 1000}
+- tapOn: "Concluir"
+- waitForAnimationToEnd: {timeout: 2000}
+- openLink: traco://notas
+- waitForAnimationToEnd: {timeout: 2000}
+- longPressOn: "primeira versão da ideia.*"
+- waitForAnimationToEnd: {timeout: 1500}
+- tapOn: "Versões"
+- extendedWaitUntil:
+    visible: {id: "versoes-pronto"}
+    timeout: 5000
+- assertVisible: "1 versão"
+- takeScreenshot: /tmp/traco-verify/nav/83-versoes

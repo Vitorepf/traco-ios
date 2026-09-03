@@ -1,0 +1,18 @@
+# Apontar (ADR 2026-09-02k): o autor marca um achado da lente com um rótulo.
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn: {id: pagina}
+- inputText: "Tipo, eu acho que no final do dia o relatório foi entregue. Basicamente deu certo."
+- waitForAnimationToEnd: {timeout: 1500}
+- tapOn: {id: "abrir-lente"}
+- extendedWaitUntil:
+    visible: {id: "lente-pronto"}
+    timeout: 5000
+- tapOn: "no final do dia"
+- waitForAnimationToEnd: {timeout: 1500}
+- tapOn: "Frase feita"
+- waitForAnimationToEnd: {timeout: 1500}
+- assertVisible: "FRASE FEITA"
+- takeScreenshot: /tmp/traco-verify/nav/84-apontar
