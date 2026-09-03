@@ -20,5 +20,9 @@ appId: app.traco
 - assertVisible: "correr na terça"
 - assertVisible: "alongar todo dia"
 - assertVisible: "comprar tênis novo"
-- tapOn: "Deixar como nota"
+# o cartão chega na pausa da escrita: esperar por ele, não tocar no escuro
+- extendedWaitUntil:
+    visible: {id: "soltar-forma"}
+    timeout: 12000
+- tapOn: {id: "soltar-forma"}
 - tapOn: "Esconder teclado"
