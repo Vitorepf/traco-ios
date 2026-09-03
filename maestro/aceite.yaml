@@ -36,7 +36,10 @@ appId: app.traco
 - tapOn:
     id: pagina
 - inputText: "leite"
-- hideKeyboard
+# hideKeyboard do maestro é inerte no iOS (leis do instrumento 4): o botão da
+# régua fecha o teclado de verdade, e o toast sai de trás dele
+- tapOn: {text: "Esconder teclado", optional: true}
+- waitForAnimationToEnd: {timeout: 1500}
 # silêncio no automático é invisível; o manual responde com o toast
 - assertVisible: Analisar
 - tapOn: Analisar

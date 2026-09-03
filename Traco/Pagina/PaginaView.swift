@@ -118,7 +118,12 @@ struct PaginaView: View {
         // nasce depois de Concluir (a barra tinha três "pagina" e o toque do
         // fluxo caía fora do editor; com o foco de volta, nada depende dele)
         .onChange(of: sessao.geracaoDaPagina) { _, _ in
-            if !sessao.mostrarNotas { restaurarFoco() }
+            // a página nova troca o editor de identidade no mesmo ciclo: o foco
+            // pedido ANTES da troca caía no editor velho e se perdia (1 em 3)
+            Task { @MainActor in
+                try? await Task.sleep(for: .milliseconds(80))
+                if !sessao.mostrarNotas { restaurarFoco() }
+            }
         }
         // a forma vestiu sozinha, mas a folha NÃO sobe sozinha: modal no meio da
         // escrita rouba a página. A alça "abrir campos" é a porta, a um toque.
