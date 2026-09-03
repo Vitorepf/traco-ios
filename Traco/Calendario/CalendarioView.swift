@@ -57,7 +57,7 @@ struct CalendarioView: View {
 
     private func conteudo(agora: Date) -> some View {
         ZStack(alignment: .bottom) {
-            CalendarioTema.fundo.ignoresSafeArea()
+            Rectangle().fill(CalendarioTema.papel).ignoresSafeArea()
 
             VStack(alignment: .leading, spacing: 0) {
                 cabeca(agora: agora)
@@ -86,17 +86,8 @@ struct CalendarioView: View {
     }
 
     private func deixas(de notas: [Nota]) -> [EventoCalendario] {
-        notas.compactMap { nota in
-            guard let quando = nota.gatilhoEm, nota.gesto != .expressiva else { return nil }
-            let se = nota.campos["se"]?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-            let titulo = se.isEmpty ? nota.tituloNaLista : se
-            guard !titulo.isEmpty else { return nil }
-            return EventoCalendario(
-                id: nota.uuid, titulo: titulo, inicio: quando,
-                fim: quando.addingTimeInterval(30 * 60),
-                dominio: nota.dominio, origem: nota.uuid
-            )
-        }
+        notas.compactMap { Calendario.deixa(uuid: $0.uuid, gesto: $0.gesto, fechada: $0.fechada, gatilhoEm: $0.gatilhoEm,
+                                            se: $0.campos["se"] ?? "", tituloNaLista: $0.tituloNaLista, dominio: $0.dominio) }
     }
 
     private func aplicarEscalaDaRota() {
@@ -140,7 +131,9 @@ struct CalendarioView: View {
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(CalendarioTema.tintaSuave)
                 .frame(width: CalendarioTema.controle, height: CalendarioTema.controle)
-                .background(CalendarioTema.chip, in: Circle())
+                .background(CalendarioTema.cartao.opacity(0.85), in: Circle())
+                .overlay(Circle().strokeBorder(CalendarioTema.luzBorda, lineWidth: 1))
+                .shadow(color: CalendarioTema.sombraCampo, radius: 6, y: 2)
                 .frame(width: Tema.alvo, height: Tema.alvo)
                 .contentShape(Rectangle())
         }
@@ -233,6 +226,7 @@ struct CalendarioView: View {
                                 if ligado {
                                     Circle()
                                         .fill(CalendarioTema.chipActivo)
+                                        .shadow(color: CalendarioTema.sombraControle, radius: 4, y: 2)
                                         .matchedGeometryEffect(id: "escala-selecionada", in: morph)
                                 }
                             }
@@ -246,7 +240,7 @@ struct CalendarioView: View {
                 }
             }
             .padding(.horizontal, 2)
-            .background(CalendarioTema.campo, in: Capsule())
+            .background(Capsule().fill(CalendarioTema.trilho))
             .animation(CalendarioTema.morph(reduceMotion), value: agenda.escala)
 
             // sempre presente: um botão que aparece e some mexe no layout inteiro
@@ -262,6 +256,7 @@ struct CalendarioView: View {
                         .padding(.horizontal, 14)
                         .frame(height: CalendarioTema.controle)
                         .background(CalendarioTema.chipActivo, in: Capsule())
+                        .shadow(color: CalendarioTema.sombraControle, radius: 4, y: 2)
                         .frame(height: Tema.alvo)
                         .contentShape(Capsule())
                 }
@@ -295,6 +290,7 @@ struct CalendarioView: View {
                     if ligado {
                         RoundedRectangle(cornerRadius: CalendarioTema.raioAcao, style: .continuous)
                             .fill(CalendarioTema.chipActivo)
+                            .shadow(color: CalendarioTema.sombraControle, radius: 4, y: 2)
                             .matchedGeometryEffect(id: "modo-selecionado", in: morph)
                     }
                 }
@@ -359,7 +355,7 @@ struct CalendarioView: View {
         .padding(.leading, 2)
         .padding(.trailing, 4)
         .padding(.vertical, 2)
-        .background(CalendarioTema.campo, in: Capsule())
+        .background(Capsule().fill(CalendarioTema.trilho))
         .shadow(color: CalendarioTema.sombraCampo, radius: 12, y: 4)
     }
 }

@@ -26,7 +26,7 @@ enum DestaqueDoDia: Sendable {
         d.set(diaISO(data), forKey: chaveDia)
         d.set(id.uuidString, forKey: chaveId)
         recarregar()
-        Task { await atividade(linha: corte, dia: diaISO(data)) }
+        FilaDeAtividade.compartilhada.enfileirar { await atividade(linha: corte, dia: diaISO(data)) }
     }
 
     /// Só a dona da linha pode apagá-la. Outra nota não silencia o Destaque alheio.
@@ -37,7 +37,7 @@ enum DestaqueDoDia: Sendable {
         d.removeObject(forKey: chaveDia)
         d.removeObject(forKey: chaveId)
         recarregar()
-        Task { await encerrarAtividades() }
+        FilaDeAtividade.compartilhada.enfileirar { await encerrarAtividades() }
     }
 
     // MARK: Live Activity (a Ilha e a tela bloqueada, enquanto o dia dura)
@@ -97,5 +97,23 @@ enum DestaqueDoDia: Sendable {
         f.timeZone = .current
         f.dateFormat = "yyyy-MM-dd"
         return f.string(from: data)
+    }
+}
+
+/// Uma fila para a Live Activity: gravar e apagar em sequência, nunca em
+/// corrida (dois autosaves seguidos criavam dois cartões).
+nonisolated final class FilaDeAtividade: @unchecked Sendable {
+    nonisolated static let compartilhada = FilaDeAtividade()
+    private let tranca = NSLock()
+    private var ultima: Task<Void, Never>?
+
+    nonisolated func enfileirar(_ op: @escaping @Sendable () async -> Void) {
+        tranca.lock()
+        let anterior = ultima
+        ultima = Task {
+            await anterior?.value
+            await op()
+        }
+        tranca.unlock()
     }
 }

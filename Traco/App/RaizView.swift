@@ -36,7 +36,7 @@ struct RaizView: View {
                             .onAppear {
                                 agenda.aoAbrirNota = { uuid in
                                     guard let nota = Sessao.buscar(uuid: uuid, no: context) else { return }
-                                    sessao.salvar(no: context)
+                                    guard sessao.salvar(no: context) else { return }
                                     sessao.abrir(nota)
                                     sessao.irPara(.escrever, no: context)
                                 }
@@ -63,7 +63,8 @@ struct RaizView: View {
                     ),
                     escondida: tecladoAberto,
                     aoNovaNota: {
-                        sessao.salvar(no: context)
+                        // disco recusou = a página fica; nada de página nova por cima
+                        guard sessao.salvar(no: context) else { return }
                         sessao.novaPagina()
                         sessao.irPara(.escrever, no: context)
                     }
@@ -126,6 +127,12 @@ struct RaizView: View {
         // A página em voo GRAVA ao sair de cena. Fica na RAIZ e escuta a
         // notificação do UIApplication: o `scenePhase` de uma view aninhada
         // chegou tarde demais para gravar antes da suspensão.
+        // ADR l: o Destaque vivo acaba com o dia; ao voltar sem Destaque de hoje, encerra
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
+            if DestaqueDoDia.linhaDeHoje() == nil {
+                Task { await DestaqueDoDia.encerrarAtividades() }
+            }
+        }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
             sessao.salvar(no: context)
         }

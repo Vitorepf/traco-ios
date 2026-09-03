@@ -261,3 +261,72 @@ struct BloqueadoresDeDadosTests {
         #expect(!FileManager.default.fileExists(atPath: arquivo.path))
     }
 }
+
+struct RevisaoNoturnaTests {
+    @Test func selarApagaVersoesEApontamentos() throws {
+        Versoes.diretorio = FileManager.default.temporaryDirectory.appendingPathComponent("v-\(UUID().uuidString)")
+        Apontar.diretorio = FileManager.default.temporaryDirectory.appendingPathComponent("a-\(UUID().uuidString)")
+        let c = try ModelContainer.traco(emMemoria: true)
+        let s = Sessao()
+        s.texto = "primeiro rascunho comum"
+        #expect(s.salvar(no: c.mainContext))
+        let uuid = try #require(s.notaUUID)
+        s.texto = "primeiro rascunho comum e mais"
+        #expect(s.salvar(no: c.mainContext))
+        #expect(!Versoes.listar(uuid).isEmpty)
+        Apontar.marcar(uuid, trecho: "rascunho", rotulo: .vago, noTexto: s.texto)
+        s.gesto = .expressiva
+        #expect(s.salvar(no: c.mainContext, trancar: true))
+        #expect(Versoes.listar(uuid).isEmpty)
+        #expect(Apontar.listar(uuid).isEmpty)
+    }
+
+    @Test func consultaDeSextaPartesDeHojeNaoDaTelaOlhada() throws {
+        let cal = utc()
+        let hoje = cal.date(from: DateComponents(year: 2026, month: 7, day: 20, hour: 12))!
+        let olhando = cal.date(from: DateComponents(year: 2025, month: 3, day: 3))!
+        let (dia, _) = try #require(CalendarioFrase.consulta("o que tenho sexta?", ancora: olhando, agora: hoje, cal))
+        #expect(cal.component(.year, from: dia) == 2026)
+        #expect(cal.component(.day, from: dia) == 24)
+    }
+
+    @Test func diaInvalidoNaoViraOutroMes() {
+        let cal = utc()
+        let hoje = cal.date(from: DateComponents(year: 2026, month: 7, day: 20, hour: 12))!
+        let e = CalendarioFrase.ler("reunião 31/02", ancora: hoje, agora: hoje, cal)
+        // sem data válida, a frase inteira vira título no dia âncora
+        #expect(e?.titulo == "Reunião 31/02")
+        #expect(cal.component(.month, from: e!.inicio) == 7)
+    }
+
+    @Test func espelhoDoAutorSoApagaOQueEsteAparelhoEscreveu() throws {
+        let raiz = FileManager.default.temporaryDirectory.appendingPathComponent("esp-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: raiz.appendingPathComponent("notas"), withIntermediateDirectories: true)
+        PastaEspelho.defaults = UserDefaults(suiteName: "teste-espelho-\(UUID().uuidString)")!
+        let alheio = raiz.appendingPathComponent("notas/do-outro-aparelho.md")
+        try Data("---\ngesto: WOOP\n---\nnota de outro iPhone\n".utf8).write(to: alheio)
+        func fatia(_ t: String) -> FatiaCorpus {
+            FatiaCorpus(id: UUID(), texto: t, gesto: nil, campos: [:], criadaEm: .now, editadaEm: .now, recordada: 0,
+                        sentido: "", minutos: 0, trancada: false, queimada: false, expressivaEmCurso: false,
+                        dominio: nil, serie: nil, dia: 0)
+        }
+        let a = fatia("a"), b = fatia("b")
+        Corpus.escrever(fatias: [a, b], em: raiz, soOsMeus: true)
+        Corpus.escrever(fatias: [a], em: raiz, soOsMeus: true)
+        let nomes = try FileManager.default.contentsOfDirectory(atPath: raiz.appendingPathComponent("notas").path).sorted()
+        #expect(nomes.contains("do-outro-aparelho.md"))
+        #expect(nomes.contains(a.id.uuidString.lowercased() + ".md"))
+        #expect(!nomes.contains(b.id.uuidString.lowercased() + ".md"))
+        // parar de espelhar tira o que é meu e deixa o alheio
+        let pai = FileManager.default.temporaryDirectory.appendingPathComponent("pai-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: pai, withIntermediateDirectories: true)
+        #expect(PastaEspelho.guardar(pai))
+        PastaEspelho.comAcesso { Corpus.escrever(fatias: [a], em: $0, soOsMeus: true) }
+        let dentro = pai.appendingPathComponent("Traço/notas")
+        try Data("---\n---\nalheia\n".utf8).write(to: dentro.appendingPathComponent("alheia.md"))
+        PastaEspelho.limpar()
+        let depois = try FileManager.default.contentsOfDirectory(atPath: dentro.path)
+        #expect(depois == ["alheia.md"])
+        #expect(!FileManager.default.fileExists(atPath: pai.appendingPathComponent("Traço/LEIA-ME.md").path))
+    }
+}

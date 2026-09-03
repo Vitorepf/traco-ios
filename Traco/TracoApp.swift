@@ -11,6 +11,7 @@ struct TracoApp: App {
         // apaga as notas do autor em silêncio.
         let emTeste = ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
         container = try! DiscoTraco.abrir(emTeste: emTeste)
+        DiscoTraco.compartilhado = container
         UNUserNotificationCenter.current().delegate = Revisoes.Delegate.compartilhado
         Revisoes.agendarFilaDiaria()
     }

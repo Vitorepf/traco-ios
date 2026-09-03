@@ -114,6 +114,12 @@ struct PaginaView: View {
         .onChange(of: sessao.confirmacao != nil) { _, coberto in
             if !coberto { restaurarFoco() }
         }
+        // §3: a página em branco chega com o cursor pronto — também a que
+        // nasce depois de Concluir (a barra tinha três "pagina" e o toque do
+        // fluxo caía fora do editor; com o foco de volta, nada depende dele)
+        .onChange(of: sessao.geracaoDaPagina) { _, _ in
+            if !sessao.mostrarNotas { restaurarFoco() }
+        }
         // a forma vestiu sozinha, mas a folha NÃO sobe sozinha: modal no meio da
         // escrita rouba a página. A alça "abrir campos" é a porta, a um toque.
         .onChange(of: sessao.gesto) { _, g in
@@ -457,7 +463,7 @@ struct PaginaView: View {
     private func seguirRota(_ destino: Rota.Destino) {
         switch destino {
         case .novaPagina:
-            sessao.salvar(no: context)
+            guard sessao.salvar(no: context) else { return }
             sessao.novaPagina()
             sessao.mostrarNotas = false
             sessao.mostrarPadroes = false

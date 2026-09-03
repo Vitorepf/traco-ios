@@ -636,6 +636,9 @@ struct CalendarioAnoView: View {
         let noMes = Calendario.mesmoMes(dia, mes, agenda.cal)
         let ancora = noMes && Calendario.mesmoDia(dia, agenda.ancora, agenda.cal)
         let hoje = noMes && Calendario.eHoje(dia, agora: agora, agenda.cal)
+        // a semana da âncora em azul de papel: o "onde estou" do clone, mesmo
+        // quando a semana atravessa dois meses (30, 31 | 1…5)
+        let naSemana = noMes && agenda.semana.contains { Calendario.mesmoDia($0, dia, agenda.cal) }
         let tinta = noMes ? eventos.first?.dominio : nil
         let numero = agenda.cal.component(.day, from: dia)
         return Text("\(numero)")
@@ -646,6 +649,8 @@ struct CalendarioAnoView: View {
             .background {
                 if ancora {
                     Circle().fill(CalendarioTema.chipActivo)
+                } else if naSemana {
+                    Circle().fill(CalendarioTema.semanaAncora)
                 } else if let tinta, !eventos.isEmpty {
                     Circle().fill(CalendarioTema.fundo(de: tinta))
                 } else if hoje {

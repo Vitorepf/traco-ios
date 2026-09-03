@@ -278,12 +278,14 @@ enum Corpus {
     static func escreverEspelho(fatias: [FatiaCorpus]) {
         escrever(fatias: fatias, em: diretorio)
         // a pasta do autor (iCloud Drive ou outro provedor), se ele escolheu uma
-        PastaEspelho.comAcesso { pasta in escrever(fatias: fatias, em: pasta) }
+        PastaEspelho.comAcesso { pasta in escrever(fatias: fatias, em: pasta, soOsMeus: true) }
     }
 
     /// Escreve a pasta do segundo cérebro em `raiz`: LEIA-ME, notas/*.md,
     /// traco-corpus.md e INDICE.md. Só o que pode sair (`nuncaSai` fica).
-    static func escrever(fatias: [FatiaCorpus], em raiz: URL) {
+    /// `soOsMeus`: na pasta do autor, só se apaga o que ESTE aparelho escreveu
+    /// (manifesto ao lado); um .md dele, ou de outro aparelho, fica.
+    static func escrever(fatias: [FatiaCorpus], em raiz: URL, soOsMeus: Bool = false) {
         let fm = FileManager.default
         let notasDir = raiz.appendingPathComponent("notas", isDirectory: true)
         try? fm.createDirectory(at: notasDir, withIntermediateDirectories: true)
@@ -297,10 +299,18 @@ enum Corpus {
             try? arquivoMd(f).data(using: .utf8)?.write(
                 to: notasDir.appendingPathComponent(nome), options: .atomic)
         }
+        let manifesto = raiz.appendingPathComponent(".espelho-\(PastaEspelho.aparelho).json")
+        let meusAntes: Set<String> = soOsMeus
+            ? ((try? Data(contentsOf: manifesto)).flatMap { try? JSONDecoder().decode(Set<String>.self, from: $0) } ?? [])
+            : []
         if let existentes = try? fm.contentsOfDirectory(atPath: notasDir.path) {
             for nome in existentes where nome.hasSuffix(".md") && !ids.contains(nome) {
+                if soOsMeus, !meusAntes.contains(nome) { continue }
                 try? fm.removeItem(at: notasDir.appendingPathComponent(nome))
             }
+        }
+        if soOsMeus {
+            try? JSONEncoder().encode(ids).write(to: manifesto, options: .atomic)
         }
         let corpus = corpoDoCorpus(fatias: vivas)
         try? corpus.data(using: .utf8)?.write(

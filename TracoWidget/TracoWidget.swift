@@ -117,7 +117,8 @@ struct DestaqueVivo: Widget {
                     .font(.system(size: 10, weight: .semibold))
                     .tracking(1.2)
                     .foregroundStyle(Tema.tintaSuave)
-                Text(contexto.state.linha)
+                // velha (passou da meia-noite): a linha de ontem não fica na tela
+                Text(contexto.isStale ? "Traço" : contexto.state.linha)
                     .font(.system(size: 16, weight: .medium))
                     .foregroundStyle(Tema.tinta)
                     .lineLimit(2)

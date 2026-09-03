@@ -135,6 +135,18 @@ nonisolated struct EventoCalendario: Identifiable, Codable, Equatable, Sendable 
 
 /// Matemática do calendário — `nonisolated` para os testes e para o parse.
 nonisolated enum Calendario {
+    /// A deixa de uma nota (ADR i): o "Se" com hora, 30 minutos, dona = a nota.
+    /// Expressiva e fechada nunca.
+    nonisolated static func deixa(uuid: UUID, gesto: Gesto?, fechada: Bool, gatilhoEm: Date?,
+                                  se: String, tituloNaLista: String, dominio: Dominio?) -> EventoCalendario? {
+        guard let quando = gatilhoEm, !fechada, gesto != .expressiva else { return nil }
+        let corte = se.trimmingCharacters(in: .whitespacesAndNewlines)
+        let titulo = corte.isEmpty ? tituloNaLista : corte
+        guard !titulo.isEmpty else { return nil }
+        return EventoCalendario(id: uuid, titulo: titulo, inicio: quando,
+                                fim: quando.addingTimeInterval(30 * 60), dominio: dominio, origem: uuid)
+    }
+
     /// Marcas da semana: sete barras, 03 às 21.
     static let horasDaSemana = [3, 6, 9, 12, 15, 18, 21]
 
@@ -414,7 +426,9 @@ nonisolated enum CalendarioFrase {
                 break
             }
         }
-        if destino == nil, let (d, r) = comerDia(texto, ancora: ancora, agora: agora, cal) {
+        // pergunta é sobre a vida, não sobre onde a tela está: "sexta" é a
+        // próxima sexta a partir de HOJE, mesmo olhando outro mês
+        if destino == nil, let (d, r) = comerDia(texto, ancora: hoje, agora: agora, cal) {
             destino = (d, .dia)
             texto = r
         }
@@ -502,7 +516,9 @@ nonisolated enum CalendarioFrase {
             let mes = Int(m.grupos[2]) ?? 1
             var ano = cal.component(.year, from: hoje)
             if let a = Int(m.grupos[3]) { ano = a < 100 ? 2000 + a : a }
-            if let data = cal.date(from: DateComponents(year: ano, month: mes, day: d)) {
+            // "31/02" não vira 3 de março em silêncio
+            if let data = cal.date(from: DateComponents(year: ano, month: mes, day: d)),
+               cal.component(.day, from: data) == d, cal.component(.month, from: data) == mes {
                 return (Calendario.inicioDoDia(data, cal), m.resto)
             }
         }

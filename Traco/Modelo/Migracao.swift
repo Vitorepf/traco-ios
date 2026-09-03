@@ -66,6 +66,8 @@ enum TracoMigracao: SchemaMigrationPlan {
 /// O disco falhou: a página não finge que o caderno está vazio.
 enum DiscoTraco {
     static var aviso: String?
+    /// O container do app, para os intents reusarem em vez de abrir outro.
+    static var compartilhado: ModelContainer?
 
     /// Testes: memória. App: disco. Se o disco recusa, o aviso diz a verdade
     /// e o contentor em memória só existe para o SwiftUI não explodir.

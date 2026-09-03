@@ -80,11 +80,15 @@ struct TracoAtalhos: AppShortcutsProvider {
 
 /// Lê o disco por conta própria: o intent pode rodar com o app fechado.
 @MainActor
-private func fatiasDoDisco() -> [FatiaCorpus] {
-    guard let container = try? ModelContainer.traco() else { return [] }
+private func notasDoDisco() -> [Nota] {
+    guard let container = DiscoTraco.compartilhado ?? (try? ModelContainer.traco()) else { return [] }
     let contexto = ModelContext(container)
-    let notas = (try? contexto.fetch(FetchDescriptor<Nota>())) ?? []
-    return notas.filter(\.temVoz).map(FatiaCorpus.de)
+    return (try? contexto.fetch(FetchDescriptor<Nota>())) ?? []
+}
+
+@MainActor
+private func fatiasDoDisco() -> [FatiaCorpus] {
+    notasDoDisco().filter(\.temVoz).map(FatiaCorpus.de)
 }
 
 struct DestaqueDeHojeIntent: AppIntent {
@@ -111,6 +115,11 @@ struct CompromissosDeHojeIntent: AppIntent {
         let alvo = dia ?? .now
         var eventos: [EventoCalendario] = []
         if case .eventos(let lidos) = CalendarioDisco.carregar() { eventos = lidos }
+        // as deixas do "Se" (ADR i) entram no dia como no app
+        eventos += notasDoDisco().compactMap {
+            Calendario.deixa(uuid: $0.uuid, gesto: $0.gesto, fechada: $0.fechada, gatilhoEm: $0.gatilhoEm,
+                             se: $0.campos["se"] ?? "", tituloNaLista: $0.tituloNaLista, dominio: $0.dominio)
+        }
         let doDia = Calendario.eventos(eventos, noDia: alvo, cal)
         let linhas = doDia.map { e in
             e.diaInteiro ? "Dia inteiro · \(e.titulo)" : "\(Calendario.horaCurta(e.inicio, cal)) · \(e.titulo)"

@@ -455,7 +455,12 @@ final class Sessao {
             existente.gesto = gesto
             existente.campos = campos
             existente.expressivaPrazo = prazo
-            if trancar { existente.trancada = true }
+            if trancar {
+                existente.trancada = true
+                // o selo vale para o disco: nada do texto selado fica em Arquivos
+                Versoes.apagar(existente.uuid)
+                Apontar.apagar(existente.uuid)
+            }
             if let sentidoPendente { existente.sentido = sentidoPendente }
             existente.minutosEscritos = max(existente.minutosEscritos, minutosExpressiva)
             existente.editadaEm = .now
@@ -575,6 +580,8 @@ final class Sessao {
             guard nota.gesto == .expressiva, !nota.fechada, let prazo = nota.expressivaPrazo, prazo <= agora else { continue }
             nota.trancada = true
             nota.expressivaPrazo = nil
+            Versoes.apagar(nota.uuid)
+            Apontar.apagar(nota.uuid)
             recem = nota
             mudou = true
         }
@@ -607,7 +614,12 @@ final class Sessao {
         AnexoDisco.varrerOrfaos(textos: textos)
     }
 
+    /// Sobe a cada página nova: o `onChange` da view não vê uuid→nil quando
+    /// gravar e zerar acontecem no mesmo ciclo.
+    var geracaoDaPagina = 0
+
     func novaPagina() {
+        geracaoDaPagina += 1
         pararTimer()
         texto = ""
         gesto = nil
@@ -633,6 +645,8 @@ final class Sessao {
     /// Restaurar uma versão guarda a atual primeiro: nada se perde.
     func restaurar(_ nota: Nota, versao: VersaoNota, no context: ModelContext) {
         guard !nota.fechada, nota.gesto != .expressiva else { return }
+        // a página aberta pode ter edição em voo: grava (vira versão) antes de trocar
+        if notaUUID == nota.uuid { guard salvar(no: context) else { return } }
         Versoes.registrar(nota.uuid, texto: nota.texto, campos: nota.campos,
                           gesto: nota.gesto, fechada: nota.fechada)
         nota.texto = versao.texto

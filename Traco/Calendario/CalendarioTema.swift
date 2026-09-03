@@ -26,6 +26,19 @@ enum CalendarioTema {
     /// Sombra com tinta, não preto puro: cinza-quente.
     static let sombraFlutuante = Color(hex: 0x1C1C1E).opacity(0.08)
     static let sombraCampo = Color(hex: 0x1C1C1E).opacity(0.06)
+    /// A semana da âncora no ano e no mês: azul de papel, o "onde estou" do clone.
+    static let semanaAncora = Color(hex: 0xD6E2F8)
+    /// A luz do papel: o centro um fio mais claro que a borda, como folha sob luz.
+    static var papel: some ShapeStyle {
+        RadialGradient(colors: [Color(hex: 0xF7F7F5), fundo], center: UnitPoint(x: 0.5, y: 0.35), startRadius: 0, endRadius: 700)
+    }
+    /// Trilho afundado: o que recebe o dedo está um degrau abaixo do papel.
+    static var trilho: some ShapeStyle {
+        campo.shadow(.inner(color: Color(hex: 0x1C1C1E).opacity(0.10), radius: 3, y: 1))
+            .shadow(.inner(color: .white.opacity(0.9), radius: 1, y: -1))
+    }
+    /// O controle selecionado é o único objeto que se levanta do trilho.
+    static let sombraControle = Color(hex: 0x1C1C1E).opacity(0.28)
 
     // MARK: tipo (escala com Dynamic Type; fecha o §22 no calendário)
     static let evento: Font = .callout.weight(.semibold)        // 16

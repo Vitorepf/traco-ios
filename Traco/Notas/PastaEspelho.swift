@@ -27,7 +27,32 @@ nonisolated enum PastaEspelho {
         return defaults.string(forKey: chaveNome)
     }
 
+    /// Este aparelho, para o manifesto do espelho: dois iPhones na mesma
+    /// pasta não apagam as notas um do outro.
+    static var aparelho: String {
+        if let id = defaults.string(forKey: "aparelho-id") { return id }
+        let novo = String(UUID().uuidString.prefix(8)).lowercased()
+        defaults.set(novo, forKey: "aparelho-id")
+        return novo
+    }
+
+    /// Parar de espelhar TIRA a cópia: apagar no app apaga de verdade, e uma
+    /// pasta que ninguém mais atualiza mentiria. Só o que este aparelho escreveu.
     static func limpar() {
+        comAcesso { raiz in
+            let fm = FileManager.default
+            let manifesto = raiz.appendingPathComponent(".espelho-\(aparelho).json")
+            let meus: Set<String> = (try? Data(contentsOf: manifesto))
+                .flatMap { try? JSONDecoder().decode(Set<String>.self, from: $0) } ?? []
+            let notas = raiz.appendingPathComponent("notas", isDirectory: true)
+            for nome in meus { try? fm.removeItem(at: notas.appendingPathComponent(nome)) }
+            try? fm.removeItem(at: manifesto)
+            for solto in ["LEIA-ME.md", "INDICE.md", "traco-corpus.md"] {
+                try? fm.removeItem(at: raiz.appendingPathComponent(solto))
+            }
+            if let resto = try? fm.contentsOfDirectory(atPath: notas.path), resto.isEmpty { try? fm.removeItem(at: notas) }
+            if let resto = try? fm.contentsOfDirectory(atPath: raiz.path), resto.isEmpty { try? fm.removeItem(at: raiz) }
+        }
         defaults.removeObject(forKey: chave)
         defaults.removeObject(forKey: chaveNome)
     }
