@@ -24,16 +24,18 @@ appId: app.traco
 - waitForAnimationToEnd: {timeout: 1500}
 # consulta em prosa: vai à semana que vem sem marcar nada
 - tapOn: {point: "40%,86%"}
+- waitForAnimationToEnd: {timeout: 2000}
 - inputText: "o que tenho na semana que vem?"
-- pressKey: Enter
+- tapOn: {point: "90%,58%"}
 - waitForAnimationToEnd: {timeout: 2500}
 - assertVisible: {id: "calendario-titulo", text: ".* – .*"}
 - tapOn: {point: "78%,80%"}
 - waitForAnimationToEnd: {timeout: 1500}
 # marcação em prosa abre a ficha em português
 - tapOn: {point: "40%,86%"}
+- waitForAnimationToEnd: {timeout: 2000}
 - inputText: "Dentista sexta às 14:30"
-- pressKey: Enter
+- tapOn: {point: "90%,58%"}
 - extendedWaitUntil:
     visible: {id: "ficha-pronto"}
     timeout: 5000
