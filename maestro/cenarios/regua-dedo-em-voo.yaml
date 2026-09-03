@@ -14,7 +14,8 @@ appId: app.traco
     id: pagina
 # "quero correr de manhã" arma o vestir automático (WOOP)
 - inputText: "quero correr de manhã"
-- takeScreenshot: /tmp/traco-verify/dedo-antes
+# sem screenshot aqui: ele come parte da janela de 1.6s que este teste existe
+# para provar (o dedo tem de CHEGAR à régua antes de o cartão nascer)
 # dedo EM VOO na régua ATRAVESSANDO o tempo do cartão: arraste lento de 2.5s
 # (> 1.6s). Sem a lei, o cartão entra no meio e a régua some sob o dedo.
 - swipe:
