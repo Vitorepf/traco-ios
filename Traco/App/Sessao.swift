@@ -267,6 +267,9 @@ final class Sessao {
     func agendarAutoAnalise(depois segundos: Double = 1.6) {
         autoTask?.cancel()
         analiseTask?.cancel() // veredito em voo não pode vestir texto que mudou
+        // o dedo na régua segura o vestir; se o autor DIGITOU nesse meio tempo,
+        // a pausa dele fica guardada e é reposta quando o dedo sai
+        if tocandoRegua { pediuAnaliseNaRegua = true }
         guard autoAnalise, !autoSuprimidaNaNota, !tocandoRegua, !timerLigado, !paginaVazia, gesto != .expressiva, cartao == nil else { return }
         autoTask = Task { [weak self] in
             try? await Task.sleep(for: .seconds(segundos))
@@ -281,17 +284,24 @@ final class Sessao {
     /// entra). Solta com um respiro DEPOIS do toque, porque a ordem entre o fim
     /// do gesto e a ação do chip no soltar é indefinida.
     private(set) var tocandoRegua = false
+    /// O autor digitou enquanto o dedo estava na régua: a pausa dele não se perde.
+    private var pediuAnaliseNaRegua = false
     func tocarRegua(_ tocando: Bool) {
         if tocando {
             tocandoRegua = true
+            pediuAnaliseNaRegua = false
             autoTask?.cancel() // um veredito em voo não pode vestir sob o dedo
         } else {
             Task { @MainActor in
                 try? await Task.sleep(for: .milliseconds(250))
                 tocandoRegua = false
-                // quem digitou DURANTE o respiro não reagendou nada: a pausa
-                // seguinte nunca chegava e a análise ficava muda até a próxima tecla
-                agendarAutoAnalise()
+                // só quem DIGITOU durante o respiro recupera a pausa perdida.
+                // Reagendar sempre fazia o cartão entrar e a régua sumir com o
+                // dedo ainda a caminho do chip (cenário U3, dedo em voo).
+                if pediuAnaliseNaRegua {
+                    pediuAnaliseNaRegua = false
+                    agendarAutoAnalise()
+                }
             }
         }
     }
