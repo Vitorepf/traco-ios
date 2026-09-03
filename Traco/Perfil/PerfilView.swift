@@ -140,7 +140,7 @@ struct PerfilView: View {
                 .accessibilityIdentifier("entrar-conta")
             }
 
-            Text("A análise usa a sua assinatura do Grok — sem chave de API, sem cobrança por uso. Notas trancadas jamais vão à rede.")
+            Text("A análise e a sábia usam a sua assinatura do Grok — sem chave de API, sem cobrança por uso. Com a conta: a linha “?” responde num cartão, “Vestir tudo” refina a forma, e “Instigar” devolve perguntas. Notas trancadas e expressivas jamais vão à rede.")
                 .font(Tema.meta)
                 .foregroundStyle(Tema.tintaFraca)
                 .frame(maxWidth: 280, alignment: .leading)

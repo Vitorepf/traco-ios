@@ -467,3 +467,22 @@ struct DecisaoRecordarTests {
         #expect(t.contains("terminar o relatório"))
     }
 }
+
+struct PlanosSemRiscoTests {
+    @Test func especificacaoSemRiscoEDesejoSemObstaculoSaoCobrados() {
+        let agora = Date()
+        func n(_ g: Gesto, _ campos: [String: String]) -> RevisaoSemanal.NotaLida {
+            RevisaoSemanal.NotaLida(uuid: UUID(), gesto: g, fechada: false, criadaEm: agora, gatilhoEm: nil,
+                                    titulo: g.nome, campos: campos, sentido: "", queimadaOuSeladaEm: nil)
+        }
+        let r = RevisaoSemanal.ler(notas: [
+            n(.spec, ["problema": "x"]),                 // sem limites: cobrado
+            n(.spec, ["limites": "pode faltar gente"]),  // ok
+            n(.woop, ["obstaculo": ""]),                 // cobrado
+            n(.woop, ["obstaculo": "preguiça"]),         // ok
+        ], eventos: [], agora: agora)
+        #expect(r.semRisco.count == 2)
+        #expect(r.semRisco.contains { $0.texto.contains("dar errado") })
+        #expect(r.semRisco.contains { $0.texto.contains("obstáculo") })
+    }
+}

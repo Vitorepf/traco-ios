@@ -22,16 +22,20 @@ nonisolated struct RevisaoSemanal: Equatable, Sendable {
     var destaques: [Linha]
     /// Expressivas fechadas na semana: só a contagem e as linhas de sentido.
     var sentidos: [String]
+    /// Planos sem a própria falha nomeada: especificação sem "o que pode dar
+    /// errado", desejo sem obstáculo. É onde o pré-mortem entra.
+    var semRisco: [Linha] = []
 
     var vazia: Bool {
         porForma.isEmpty && decisoesAConferir.isEmpty && desejos.isEmpty
-            && proximos.isEmpty && destaques.isEmpty && sentidos.isEmpty
+            && proximos.isEmpty && destaques.isEmpty && sentidos.isEmpty && semRisco.isEmpty
     }
 
     static func == (a: RevisaoSemanal, b: RevisaoSemanal) -> Bool {
         a.porForma.map { "\($0.forma?.rawValue ?? "-"):\($0.quantas)" } == b.porForma.map { "\($0.forma?.rawValue ?? "-"):\($0.quantas)" }
             && a.decisoesAConferir == b.decisoesAConferir && a.desejos == b.desejos
             && a.proximos == b.proximos && a.destaques == b.destaques && a.sentidos == b.sentidos
+            && a.semRisco == b.semRisco
     }
 
     /// Uma nota, sem SwiftData: o que a revisão precisa saber dela.
@@ -104,8 +108,17 @@ nonisolated struct RevisaoSemanal: Equatable, Sendable {
             .map { $0.sentido.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
 
+        let semRisco = daSemana.compactMap { n -> Linha? in
+            let vazio: (String) -> Bool = { (n.campos[$0] ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+            switch n.gesto {
+            case .spec where vazio("limites"): return Linha(id: n.uuid, texto: n.titulo + " · sem “o que pode dar errado”", quando: nil)
+            case .woop where vazio("obstaculo"): return Linha(id: n.uuid, texto: n.titulo + " · sem obstáculo nomeado", quando: nil)
+            default: return nil
+            }
+        }
+
         return RevisaoSemanal(porForma: porForma, decisoesAConferir: decisoes, desejos: desejos,
-                              proximos: proximos, destaques: destaques, sentidos: sentidos)
+                              proximos: proximos, destaques: destaques, sentidos: sentidos, semRisco: semRisco)
     }
 }
 
@@ -127,6 +140,7 @@ extension RevisaoSemanal {
         bloco("Destaques", r.destaques)
         bloco("Decisões a conferir", r.decisoesAConferir)
         bloco("Em jogo", r.desejos)
+        bloco("Planos sem a falha nomeada", r.semRisco)
         bloco("Próximos sete dias", r.proximos)
         if !r.sentidos.isEmpty {
             linhas.append("O que ficou claro:")

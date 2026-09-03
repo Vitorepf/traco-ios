@@ -143,6 +143,9 @@ struct PadroesView: View {
                 if !r.desejos.isEmpty {
                     bloco("O que está em jogo", r.desejos)
                 }
+                if !r.semRisco.isEmpty {
+                    bloco("Planos sem a falha nomeada", r.semRisco)
+                }
                 if !r.proximos.isEmpty {
                     bloco("Próximos sete dias", r.proximos)
                 }
