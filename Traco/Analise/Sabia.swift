@@ -1,4 +1,5 @@
 import Foundation
+import CoreFoundation
 import FoundationModels
 
 /// A sábia (ADR 2026-09-02o): a IA que dá forma, dá informação e dá pergunta,
@@ -52,12 +53,12 @@ enum Sabia {
     """
 
     static func responderNasNotas(pergunta: String, contexto: String, retrato: String = "") async -> String? {
-        // a pergunta vai PRIMEIRO: o modelo de bordo corta o pedido no teto, e
-        // com o contexto na frente ele repetia o contexto em vez de responder
-        // (visto na primeira chamada real, 05/set)
+        // No aparelho, sacrifica retrato antes do contexto; pergunta e instrução ficam.
         let usuario = "Pergunta: \(pergunta)\n\nResponda só à pergunta, em prosa corrida, sem repetir nem citar os blocos abaixo.\n\n"
             + contexto + blocoDoRetrato(retrato)
-        guard let cru = await chamar(sistema: sistemaResponderNasNotas, usuario: usuario, temperatura: 0.3) else { return nil }
+        guard let cru = await chamar(sistema: sistemaResponderNasNotas, usuario: usuario, temperatura: 0.3,
+                                     mensagemLocal: { montarResponder(pergunta: pergunta, contexto: contexto, retrato: retrato) })
+        else { return nil }
         return limparResposta(cru, teto: tetoResposta)
     }
 
@@ -164,11 +165,37 @@ enum Sabia {
         return r.isEmpty ? "" : "\n\nSOBRE QUEM ESCREVE (evidência do caderno dela, nas palavras dela):\n\(r)"
     }
 
+    /// ADR 05m: carga e cabeçalhos são indivisíveis; só o contexto perde a cauda.
+    /// Se a carga não cabe, silêncio. O transporte nunca decide o que é descartável.
+    nonisolated static func mensagemDoAparelho(carga: String, contexto: String = "",
+                                              teto: Int = tetoNoAparelho) -> String? {
+        guard !carga.isEmpty, carga.count <= teto else { return nil }
+        return carga + contexto.prefix(teto - carga.count)
+    }
+
+    nonisolated static func montarResponder(pergunta: String, contexto: String, retrato: String = "",
+                                            teto: Int = tetoNoAparelho) -> String? {
+        let carga = "Pergunta: \(pergunta)\n\nResponda só à pergunta, em prosa corrida, sem repetir nem citar os blocos abaixo.\n\n"
+        // Sacrifica retrato primeiro, depois contexto; nunca pergunta/instrução.
+        return mensagemDoAparelho(carga: carga, contexto: contexto + blocoDoRetrato(retrato), teto: teto)
+    }
+
+    nonisolated static func montarConferir(pontos: [String], memoria: String,
+                                           teto: Int = tetoNoAparelho) -> String? {
+        let escrito = memoria.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !pontos.isEmpty, !escrito.isEmpty else { return nil }
+        let lista = pontos.enumerated().map { "[\($0.offset)] \($0.element)" }.joined(separator: "\n")
+        // Não sacrifica evidência: pontos e memória inteiros, ou silêncio sem memo.
+        return mensagemDoAparelho(carga: "PONTOS:\n\(lista)\n\nDE MEMÓRIA:\n\(escrito)", teto: teto)
+    }
+
     static func responder(pergunta: String, contexto: String, gesto: Gesto?, retrato: String = "") async -> String? {
         guard gesto != .expressiva else { return nil }
         let usuario = "Contexto (a nota, só para você entender; não a reescreva):\n\(contexto.prefix(5000))"
             + blocoDoRetrato(retrato) + "\n\nPergunta: \(pergunta)"
-        guard let cru = await chamar(sistema: sistemaResponder, usuario: usuario, temperatura: 0.3) else { return nil }
+        guard let cru = await chamar(sistema: sistemaResponder, usuario: usuario, temperatura: 0.3,
+                                     mensagemLocal: { montarResponder(pergunta: pergunta, contexto: contexto, retrato: retrato) })
+        else { return nil }
         return limparResposta(cru, teto: tetoResposta)
     }
 
@@ -184,7 +211,13 @@ enum Sabia {
         usuario += "\n\n" + Degraus.instrucaoDeInstigar(degrau)
         usuario += blocoDoRetrato(retrato)
         usuario += "\n\nO RASCUNHO:\n\(texto.prefix(6000))"
-        guard let cru = await chamar(sistema: sistemaInstigar, usuario: usuario, temperatura: 0.4) else { return nil }
+        guard let cru = await chamar(sistema: sistemaInstigar, usuario: usuario, temperatura: 0.4,
+                                     mensagemLocal: {
+            // Sacrifica retrato antes do método; forma, degrau e rascunho ficam inteiros.
+            mensagemDoAparelho(carga: "Forma: \(gesto?.nome ?? "nota")\n\n"
+                + Degraus.instrucaoDeInstigar(degrau) + "\n\nO RASCUNHO:\n\(texto)",
+                contexto: "\n\nO MÉTODO desta forma, que as perguntas devem cobrar:\n\(metodo)" + blocoDoRetrato(retrato))
+        }) else { return nil }
         return parsePerguntas(cru)
     }
 
@@ -197,7 +230,12 @@ enum Sabia {
         if !metodo.isEmpty { usuario += "\n\nO MÉTODO desta forma:\n\(metodo)" }
         usuario += blocoDoRetrato(retrato)
         usuario += "\n\nA NOTA:\n\(texto.prefix(6000))"
-        guard let cru = await chamar(sistema: sistemaContrapor, usuario: usuario, temperatura: 0.5) else { return nil }
+        guard let cru = await chamar(sistema: sistemaContrapor, usuario: usuario, temperatura: 0.5,
+                                     mensagemLocal: {
+            // Sacrifica retrato antes do método; forma e nota ficam inteiras.
+            mensagemDoAparelho(carga: "Forma: \(gesto?.nome ?? "nota")\n\nA NOTA:\n\(texto)",
+                contexto: "\n\nO MÉTODO desta forma:\n\(metodo)" + blocoDoRetrato(retrato))
+        }) else { return nil }
         return parseContraparte(cru)
     }
 
@@ -234,7 +272,12 @@ enum Sabia {
         // mudar, e sem isto abrir o Recordar dez vezes eram dez chamadas pagas
         // por uma nota que não mudou. Sobe o degrau, muda a chave, vem outra.
         guard let cru = await chamar(sistema: sistemaRecordar, usuario: usuario, temperatura: 0.5,
-                                     memoPor: "prova\u{1}\(max(0, degrau))\u{1}\(alvoLimpo.hashValue)")
+                                     memoPor: "prova\u{1}\(max(0, degrau))\u{1}\(alvoLimpo.hashValue)",
+                                     mensagemLocal: {
+            // Sacrifica retrato antes da pista; degrau e alvo ficam inteiros.
+            mensagemDoAparelho(carga: "DEGRAU: \(max(0, degrau))\n\nNOTA:\n\(alvoLimpo)",
+                contexto: "\n\nPISTA JÁ VISÍVEL (não repita):\n\(p.prefix(600))" + blocoDoRetrato(retrato))
+        })
         else { return nil }
         return parsePerguntaDeRecordar(cru, alvo: alvoLimpo)
     }
@@ -244,12 +287,16 @@ enum Sabia {
         guard gesto != .expressiva, !pontos.isEmpty else { return nil }
         let escrito = memoria.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !escrito.isEmpty else { return nil }
+        // ADR 05m: veredito sobre evidência cortada não é veredito. Se a memória ou um
+        // ponto não cabe inteiro nos limites da montagem, cala — em qualquer caminho.
+        guard escrito.count <= 4000, pontos.allSatisfy({ $0.count <= 400 }) else { return nil }
         let lista = pontos.enumerated()
             .map { "[\($0.offset)] \($0.element.prefix(400))" }
             .joined(separator: "\n")
         let usuario = "PONTOS:\n\(lista)\n\nDE MEMÓRIA:\n\(escrito.prefix(4000))"
         guard let cru = await chamar(sistema: sistemaConferir, usuario: usuario, temperatura: 0,
-                                     memoPor: "conferir\u{1}\(usuario.hashValue)")
+                                     memoPor: "conferir\u{1}\(usuario.hashValue)",
+                                     mensagemLocal: { montarConferir(pontos: pontos, memoria: escrito) })
         else { return nil }
         return parseVoltaram(cru, pontos: pontos.count)
     }
@@ -263,7 +310,11 @@ enum Sabia {
             .joined(separator: "\n\n")
         let usuario = "NOTA:\n\(nota.prefix(3000))\n\nOUTRAS NOTAS:\n\(corpo.prefix(9000))"
         guard let cru = await chamar(sistema: sistemaEcos, usuario: usuario, temperatura: 0.2,
-                                     memoPor: "ecos\u{1}\(usuario.hashValue)")
+                                     memoPor: "ecos\u{1}\(usuario.hashValue)",
+                                     mensagemLocal: {
+            // Sacrifica candidatas; a nota-alvo e os cabeçalhos ficam inteiros.
+            mensagemDoAparelho(carga: "NOTA:\n\(nota)\n\nOUTRAS NOTAS:\n", contexto: corpo)
+        })
         else { return nil }
         return parseEcos(cru, candidatas: candidatas)
     }
@@ -295,25 +346,31 @@ enum Sabia {
     /// conta; o modelo do APARELHO quando não há, ou quando a rede falhou. Os
     /// parsers são os mesmos e continuam duros: JSON fora do formato é
     /// silêncio, venha de onde vier. A janela do aparelho é menor, então o
-    /// pedido é cortado — menos candidatas, nunca menos verificação.
+    /// chamador escolhe o contexto descartável; carga grande demais é silêncio.
+    /// Vestir, calibragem e Padrões não cortam mais aqui: sem montagem própria,
+    /// só seguem no aparelho se a mensagem inteira couber.
     static func chamar(sistema: String, usuario: String, temperatura: Double,
-                       memoPor chave: String? = nil) async -> String? {
+                       memoPor chave: String? = nil, mensagemLocal: (() -> String?)? = nil) async -> String? {
         if let r = await Grok.responder(sistema: sistema, usuario: usuario,
                                         temperatura: temperatura, memoPor: chave) {
             return r
         }
-        return await noAparelho(sistema: sistema, usuario: usuario, temperatura: temperatura)
+        // A recusa de orçamento não é resposta e nunca passa pelo memo do Grok.
+        let pedido: String?
+        if let mensagemLocal { pedido = mensagemLocal() }
+        else { pedido = mensagemDoAparelho(carga: usuario) }
+        guard let pedido else { return nil }
+        return await noAparelho(sistema: sistema, usuario: pedido, temperatura: temperatura)
     }
 
-    static let tetoNoAparelho = 3500
+    nonisolated static let tetoNoAparelho = 3500
 
     static func noAparelho(sistema: String, usuario: String, temperatura: Double) async -> String? {
-        guard noAparelho else { return nil }
+        guard noAparelho, !usuario.isEmpty, usuario.count <= tetoNoAparelho else { return nil }
         if #available(iOS 26.0, *) {
             let sessao = LanguageModelSession(instructions: sistema)
-            let pedido = String(usuario.prefix(tetoNoAparelho))
             let opcoes = GenerationOptions(temperature: temperatura)
-            guard let r = try? await sessao.respond(to: pedido, options: opcoes) else { return nil }
+            guard let r = try? await sessao.respond(to: usuario, options: opcoes) else { return nil }
             return r.content
         }
         return nil
@@ -417,14 +474,17 @@ enum Sabia {
     /// sobre o que não voltou.
     nonisolated static func parseVoltaram(_ cru: String, pontos: Int) -> Set<Int>? {
         guard pontos > 0,
-              let ini = cru.firstIndex(of: "{"), let fim = cru.lastIndex(of: "}"),
+              let ini = cru.firstIndex(of: "{"), let fim = cru.lastIndex(of: "}"), ini <= fim,
               let dados = String(cru[ini...fim]).data(using: .utf8),
               let j = try? JSONSerialization.jsonObject(with: dados) as? [String: Any],
+              Set(j.keys) == ["voltaram"],
               let lista = j["voltaram"] as? [Any]
         else { return nil }
         var saida = Set<Int>()
         for item in lista {
-            guard let i = item as? Int, i >= 0, i < pontos else { return nil }
+            guard let numero = item as? NSNumber,
+                  CFGetTypeID(numero as CFTypeRef) != CFBooleanGetTypeID(),
+                  let i = item as? Int, i >= 0, i < pontos else { return nil }
             saida.insert(i)
         }
         return saida

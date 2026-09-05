@@ -2111,3 +2111,32 @@ base v3 intacta e ancestral v4→v3, mantendo ação pendente ligada à v1 e rel
 A captura `markdown-historico-preservado.png` registra a lista das quatro versões.
 HTML interativo, sincronização
 contínua e conclusão integral da visão permanecem fora dessa evidência.
+
+## ADR 2026-09-05m — A sábia preserva o que precisa ler
+
+**A distância.** O corte cego do aparelho (teto de 3.500 caracteres, ADR 04t)
+podia remover a pergunta em `responder` ou a memória do autor em `conferir` e
+ainda produzir uma resposta; e `parseVoltaram` convertia booleanos em índices
+de pontos, alimentando Sinais e Retrato com uma conferência falsa sobre a
+memória do autor, que depois viajava à rede. Achados P1 da revisão de 05/set.
+
+**A decisão.** A montagem preserva pergunta, nota/alvo e cabeçalhos; sacrifica
+retrato antes de contexto, método ou pista, e candidatas nos ecos. Carga que
+não cabe devolve nil. O transporte não corta mais: mensagem acima do teto é
+recusada, nunca truncada. A conferência conserva pontos, todos os índices e a
+memória completos ou cala, em qualquer caminho (remoto ou aparelho): memória
+acima de 4.000 ou ponto acima de 400 caracteres não gera veredito. Recusa de
+orçamento não é memoizada. O parser recusa booleanos, frações, strings,
+índices inválidos e qualquer chave além de `voltaram`; lista vazia é válida.
+
+**Custo assumido, nomeado:** vestir, calibragem e Padrões (até 9.000
+caracteres) só seguem no aparelho se a mensagem couber inteira; acima do
+teto, calam onde antes o corte cego era verificado contra vozes inteiras.
+Montagem por item para essas três rotas fica na FILA.
+
+**Volta:** melhorar na conferência do Recordar; multiplicar ao responder.
+**O que a IA sabe:** só a carga preservada e o contexto que coube.
+**Prova:** 17 testes focados (`SabiaOrcamentoTests`) e suíte integral 565/0
+no simulador de teste; nenhum teste comprova a qualidade semântica do modelo.
+**Fora:** reparo de sinais antigos, UI nova, mudança de autoria, validação
+semântica do provedor.
