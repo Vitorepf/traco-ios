@@ -65,6 +65,7 @@
 		5F0999C9FAE51419644AA628 /* Trabalho.swift in Sources */ = {isa = PBXBuildFile; fileRef = 208C4D2D6B7CDE3139AB46D9 /* Trabalho.swift */; };
 		611B3215CD20394B57D23B03 /* Intencoes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E1B7B58FD49695380C335BA /* Intencoes.swift */; };
 		62F244DD1EE82BE8E45B1831 /* CadernoDiagnostico.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BE14BD28362A74300FD085A /* CadernoDiagnostico.swift */; };
+		6316127746D5DEF2A9900FB9 /* RevisaoTrabalho.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80097AC5D039C24E7A2B7E04 /* RevisaoTrabalho.swift */; };
 		68866A915706D914EB1EFCC3 /* ProximoCompromisso.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C82A29BB5E74DA79ECDBAE /* ProximoCompromisso.swift */; };
 		6C51B66439DD2E152C8A1D77 /* CalendarioTema.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AD715564AD56997FD28528F /* CalendarioTema.swift */; };
 		6D43C242414B765A5F777549 /* ConferenciaTrabalhoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAD1B67DFB05E314DF1EEA2C /* ConferenciaTrabalhoTests.swift */; };
@@ -252,6 +253,7 @@
 		7537CF8C51549F26D7FCB726 /* CalendarioTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarioTests.swift; sourceTree = "<group>"; };
 		7AADD8085337A3F3C82395E8 /* AgendamentoAcaoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgendamentoAcaoView.swift; sourceTree = "<group>"; };
 		7BB175F2F50DED6365BFB989 /* DestaqueDoDia.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DestaqueDoDia.swift; sourceTree = "<group>"; };
+		80097AC5D039C24E7A2B7E04 /* RevisaoTrabalho.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RevisaoTrabalho.swift; sourceTree = "<group>"; };
 		813C9D0A44A4071EBACC0EFD /* TituloTela.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TituloTela.swift; sourceTree = "<group>"; };
 		8250E3200AC60E254A9A3BB0 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		830A6A725EE5ACDC831582DF /* PortalArquivoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortalArquivoView.swift; sourceTree = "<group>"; };
@@ -361,6 +363,7 @@
 				D3C04A315E242E28949A4C24 /* IntercambioTrabalho.swift */,
 				35F9676C1446FB02DB1223BC /* IntercambioTrabalhoView.swift */,
 				DBE905DFA3CEA272597F706D /* OficinaTrabalho.swift */,
+				80097AC5D039C24E7A2B7E04 /* RevisaoTrabalho.swift */,
 				208C4D2D6B7CDE3139AB46D9 /* Trabalho.swift */,
 				E4E86ED863C6D7F804028F82 /* TrabalhosView.swift */,
 				43C245F482C5E68ABE6C0BD1 /* TrabalhoView.swift */,
@@ -858,6 +861,7 @@
 				3335D22042BB5555CF503651 /* RedeView.swift in Sources */,
 				C229BEB0A1CD7BE925536CCA /* Retrato.swift in Sources */,
 				8DA96DF335BC3E25F8A006F2 /* RevisaoSemanal.swift in Sources */,
+				6316127746D5DEF2A9900FB9 /* RevisaoTrabalho.swift in Sources */,
 				50BDC2DAF155F65D6076D8CD /* Revisoes.swift in Sources */,
 				FC215869D96D8E84425E1A13 /* Sabia.swift in Sources */,
 				504F76B11137DE02C2174E62 /* SerieView.swift in Sources */,

@@ -2259,3 +2259,47 @@ deixou passar a ausência de traduções, como a própria justificativa declara.
 destinatário, comparação com/sem histórico, e a jornada pela tela — o portão
 `Motores.desligados` (03p) desliga o modelo dentro do XCTest, então o caso real
 foi executado por sonda não commitada, fora da `TrabalhoView`.
+
+## ADR 2026-09-05q — Conferir com a IA, e pedir o ajuste num toque
+
+**A distância.** A conferência de 05p lê FORMA: no caso real de prova/4.md ela
+apontou o tempo e DEIXOU PASSAR a ausência de traduções, porque idioma por
+bloco não vê papel. E a divergência era beco — o autor tinha de reescrever o
+pedido à mão. Versão que ficou sem conferência não dizia nada na tela.
+
+**A decisão.** Dois botões de texto no disclosure, nenhum automático.
+"Conferir com IA" monta SESSÃO NOVA com intenção, resultado, instrução
+vigente, o artefato INTEIRO e os critérios que a checagem local extraiu, sem
+dizer quem produziu; pede JSON estrito `{"criterios":[…]}` e grava OUTRA
+`Conferencia` AO LADO da local, com o provedor EFETIVO devolvido por
+`Sabia.chamarComProveniencia` mais "· revisão assistida", data e método —
+configuração não prova executor. Uma chamada por toque; `gerar` nunca chama. O
+parser derruba a revisão inteira para `indisponivel` por chave fora das seis
+do contrato, `fonte`/`situacao` fora da lista, campo faltando ou JSON
+inválido: recusa não vira ausência de problema. Citação não literal do pedido
+ou do artefato derruba só AQUELE critério para `inconclusivo` com "citação não
+encontrada", apagando a citação inventada; e citação válida não certifica
+interpretação. ADR 05m: pedido, artefato e critérios cabem inteiros na janela
+ou a revisão fica `indisponivel` por "limite do aparelho", sem cortar. O
+acesso à origem (05j) é revalidado antes de enviar, depois do await e antes de
+gravar. Favorável diz "a IA não apontou divergências nos critérios
+examinados", nunca "aprovado". "Pedir ajuste" surge com divergência: preenche
+o CAMPO do pedido com "Ajustar a versão anterior:" e uma linha por
+divergência, nas palavras da conferência, e leva o foco ao campo — o autor
+edita e toca "Preparar nova versão com IA", a rota de sempre. Versão sem
+conferência mostra "Conferência: não feita · Conferir".
+
+**Custo assumido, nomeado:** é o MESMO tipo de provedor lendo de novo —
+crítica assistida, não independência, e o rodapé diz isso. No caso real
+(prova/5.md) a montagem deu 3.977 caracteres contra o teto de 3.500 do
+aparelho: pela rota do app o estado foi `indisponivel` por limite e nada saiu;
+forçada fora do contrato, a Apple Intelligence devolveu JSON inválido nas duas
+amostras e não viu as traduções ausentes.
+
+**Volta:** melhorar na conferência, multiplicar no ajuste. **O que a IA
+sabe:** o pedido vigente e o artefato inteiro, sem saber quem os produziu.
+**Prova:** 40 testes (`ConferenciaTrabalhoTests`), suíte integral 618/0 e o
+caso real de prova/5.md, lido: a revisão assistida NÃO melhorou a qualidade.
+**Fora:** revisão pelo Grok (sem conta neste simulador), jornada pela tela (o
+portão 03p desliga o modelo no XCTest) e montagem por item para caber no
+aparelho.
