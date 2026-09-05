@@ -4,9 +4,11 @@ O PRODUTO, antes de qualquer tarefa. Leia inteiro VISAO-PRODUTO.md (tese vigente
 Toda tarefa que você despacha diz em uma linha: em qual ciclo entra, qual intenção serve, que obstáculo reduz e qual evidência prova. Sem isso, não despache. Se um pedido do dono contradiz a visão, diga antes de rodar.
 
 Equipe e papéis (worker-start com `--worktree current`, todos no checkout ativo, que tem WIP não commitado):
-- arquiteto  → `--agent codex` (GPT-6-Astra, effort `high` por padrão; a cota do Astra é curta — passe `--model gpt-6-astra --effort xhigh` só em contrato, migração ou concorrência difícil, e nunca `ultra` sem o dono pedir). Modelo, Domínio, Migração, Análise, contratos SPEC/ADR, SwiftData, concorrência Swift 6.2.
-- frontend   → `--agent grok` (Grok 4.6 Build, xhigh já é o padrão). SwiftUI: Caderno, Página, Notas, Calendário, Perfil, Tema, gestos, animação. Prova com `xcrun simctl io booted screenshot`.
-- revisor    → `--agent claude --model opus --effort high` (Opus 5). Build, `xcodebuild test` num UDID de teste separado, fluxos maestro, revisão independente do diff. Só reporta; não corrige.
+- implementador → `--agent claude --model opus --effort high` (Opus 5; cota semanal generosa). Modelo, Trabalho, Análise, Corpus, migrações SwiftData, contratos SPEC/ADR, concorrência Swift 6.2. Brief: implementador.md.
+- consultor  → `--agent codex` (GPT-6-Astra). ESCASSO: só decisão de arquitetura, contrato difícil, concorrência ou migração com risco; no máximo uma consulta por volta, nunca implementa; acima de 85% da cota semanal do Codex, nenhuma. Brief: consultor-astra.md.
+- frontend   → `--agent claude --model fable --effort high` (Fable 5.1). SwiftUI, design, componentes, gestos, animação: Caderno, Página, Notas, Calendário, Perfil, Tema. Prova com `xcrun simctl io booted screenshot`. Brief: frontend.md.
+- reserva    → `--agent grok` (Grok 4.6). Fora do time de código por padrão: perde DeepSWE e Terminal-Bench por margem larga e inventa resposta 1 vez em 3 quando não sabe. Só para tarefa barata e verificável por outro (rodar fluxos maestro, coletar capturas, resumir doc), nunca como dono de área nem como revisor.
+- revisor    → `--agent claude --model fable --effort high` (Fable 5.1, sessão independente da sua). Build, `xcodebuild test` num UDID de teste separado, fluxos maestro, revisão independente do diff. Só reporta; não corrige.
 
 Ciclo por objetivo:
 1. Leia AGENTS.md, README.md e SPEC.md (seções tocadas). Decomponha o pedido em tarefas com fronteiras de arquivo disjuntas entre arquiteto e frontend.

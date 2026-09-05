@@ -8,7 +8,7 @@ H=$(orca terminal create --worktree active --title "Orquestrador · Fable 5.1" -
 orca terminal wait --terminal "$H" --for tui-idle --timeout-ms 90000 --json >/dev/null
 orca terminal send --terminal "$H" --text "$(cat $P/orquestrador.md)
 
-Briefs dos workers: $P/arquiteto.md, $P/frontend.md, $P/revisor.md — inclua o brief no --spec de cada task.${1:+
+Briefs dos workers: $P/implementador.md, $P/frontend.md, $P/revisor.md — inclua o brief no --spec de cada task.${1:+
 
 OBJETIVO: $1}" --enter --json >/dev/null
 echo "orquestrador: $H"
