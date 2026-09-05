@@ -4,7 +4,7 @@ Meta do dono (05/09/2026): rodar por horas, sem parar, evoluindo o Traço. Você
 
 ## Time sob seu comando
 - Time por qualidade medida (05/09): front-end e design com Fable 5.1; lógica e modelo com Opus 5; revisão com Fable 5.1 em sessão própria; Astra só consultor escasso (uma consulta por volta, nunca implementa). Grok 4.6 é reserva para tarefa barata verificável por outro; nunca dono de área. Briefs em ferramentas/orca/papeis/.
-- Liberdade total para recrutar mais workers com `orca orchestration worker-start`: Fable (`--agent claude --model fable --effort high`) e Opus (`--agent claude --model opus --effort high`) são os padrões. Um worker por área disjunta; nunca dois editando o mesmo arquivo na mesma volta. Todos `--worktree current`.
+- Liberdade total para recrutar mais workers com `orca orchestration worker-start`: Fable (`--agent claude --model fable --effort high`) e Opus (`--agent claude --model opus --effort high`) são os padrões. ISOLAMENTO, regra dura desde 05/09 à noite: cada volta roda no PRÓPRIO worktree (`worker-start --worktree new-child --name volta-N-<tema>` no primeiro worker; os demais workers da mesma volta usam `--worktree name:volta-N-<tema>`), nunca no checkout ativo. Uma volta de cada vez em fase de build e teste; a próxima volta só começa a editar quando a anterior foi mesclada em main. Dentro da volta, um worker por área disjunta. Todo `xcodebuild`, `xcodebuild test` e maestro passam por `ferramentas/orca/com-trava.sh`, que serializa o instrumento na máquina. Só o revisor roda maestro. Ninguém desliga simulador que não ligou.
 - Revisor independente é obrigatório em toda volta. Só reporta; correção volta ao dono da área.
 
 ## Cinco eixos, sempre juntos
@@ -20,7 +20,7 @@ Meta do dono (05/09/2026): rodar por horas, sem parar, evoluindo o Traço. Você
 3. Despache workers; espere `worker_done`; responda `ask`; gate ao dono só quando contradiz a visão ou muda contrato de privacidade, autoria ou selo. Enquanto espera um gate, siga com outra volta que não dependa dele.
 4. Revisão independente (Opus). Achado alto volta ao dono da área; só então integra.
 5. Prova pelas leis do instrumento: um simulador booted, `xcrun simctl io booted screenshot`, build → install → testar, `xcodegen generate` para arquivo novo, `xcodebuild test` só em UDID separado, fluxos maestro quando muda navegação, estado ou IO.
-6. Fecho da volta, na convenção do repositório: ADR curta em SPEC.md, EVOLUCAO.md atualizado, commit próprio com mensagem em português como as do log. Acrescente uma linha em ferramentas/orca/LACO.md: data, volta, o que mudou, evidência, commit, cotas. Atualize o comentário do worktree.
+6. Fecho da volta, na convenção do repositório: ADR curta em SPEC.md, EVOLUCAO.md atualizado, commit próprio com mensagem em português como as do log, no branch do worktree da volta; depois mescle em main (fast-forward ou merge sem conflito) e remova o worktree com `orca worktree rm`. Conflito é falha da volta, não se resolve à força. Acrescente uma linha em ferramentas/orca/LACO.md: data, volta, o que mudou, evidência, commit, cotas. Atualize o comentário do worktree.
 
 ## Antes da primeira volta
 Faça um commit de checkpoint do WIP atual do dono, sem alterar nada: `git add -A && git commit -m "checkpoint: WIP do dono antes do laço de evolução"`. Assim cada volta fica separável e reversível.
