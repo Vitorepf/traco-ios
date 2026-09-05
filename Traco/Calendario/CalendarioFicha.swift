@@ -244,6 +244,8 @@ struct CalendarioFichaView: View {
                     .frame(height: Tema.alvo)
                 }
                 .accessibilityIdentifier("ficha-dominio")
+                .accessibilityLabel("Domínio: \(evento.dominio?.nome ?? "sem domínio")")
+                .accessibilityHint("Abre o menu para trocar ou tirar o domínio")
                 }
 
                 secao("Notas") {

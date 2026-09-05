@@ -9,6 +9,7 @@ struct RedeView: View {
     let sessao: Sessao
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     /// Cruzar todas as notas contra todas as menções é trabalho de abrir a
     /// folha, não de cada avaliação de `body`.
@@ -174,7 +175,7 @@ struct RedeView: View {
                 .background(Tema.superficieBaixa, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
             }
             .accessibilityIdentifier("rede-ecos")
-            .transition(.opacity.combined(with: .offset(y: 8)))
+            .transition(Tema.transicao(.opacity.combined(with: .offset(y: 8)), reduzido: reduceMotion))
         }
     }
 

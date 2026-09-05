@@ -181,6 +181,12 @@ struct PaginaView: View {
         .onChange(of: mostrarCampos) { _, aberto in
             if !aberto { restaurarFoco() }
         }
+        // VoiceOver: o cartão muda sozinho no rodapé — quem não vê precisa ouvir
+        // (a forma vestida e a expressiva já são anunciadas pela Sessão)
+        .onChange(of: sessao.cartao) { _, novo in
+            guard let msg = anuncio(novo) else { return }
+            AccessibilityNotification.Announcement(msg).post()
+        }
         .onChange(of: sessao.timerEsgotou) { _, esgotou in
             if esgotou { sessao.esgotarTimer(no: context) }
         }
@@ -290,10 +296,9 @@ struct PaginaView: View {
                     .shadow(color: Tema.sombraContato, radius: 2, y: 1)
                     .padding(.horizontal, Tema.margem)
                     .padding(.bottom, 88)
-                    .transition(.opacity.combined(with: .offset(y: 6)))
+                    .transition(Tema.transicao(.opacity.combined(with: .offset(y: 6)), reduzido: reduceMotion))
                     .accessibilityIdentifier("toast-analise")
                     .accessibilityAddTraits(.isStaticText)
-                    .transition(.opacity)
             }
 
         }
@@ -325,7 +330,8 @@ struct PaginaView: View {
                     .fill(Tema.ambar)
                     .frame(width: 5, height: 5)
                     .opacity(pulso ? 1 : 0.25)
-                    .animation(.easeInOut(duration: 0.7).repeatForever(autoreverses: true), value: pulso)
+                    // movimento reduzido: sem laço — o ponto fica aceso, e o "lendo…" já diz
+                    .animation(reduceMotion ? nil : .easeInOut(duration: 0.7).repeatForever(autoreverses: true), value: pulso)
                 Text("lendo…")
                     .font(Tema.meta)
                     .foregroundStyle(Tema.tintaSuave)
@@ -448,7 +454,11 @@ struct PaginaView: View {
                     sessao.alternarAutoAnalise() // §17: opt-out sem tela de ajustes
                 })
                 .accessibilityLabel("Analisar")
-                .accessibilityHint("Classifica o que você escreveu. Não escreve na nota. Toque longo liga ou desliga a análise automática.")
+                .accessibilityHint("Classifica o que você escreveu. Não escreve na nota.")
+                // o toque longo tem par no rotor: quem usa VoiceOver liga e desliga por ação
+                .accessibilityAction(named: Text(sessao.autoAnalise ? "Desligar análise automática" : "Ligar análise automática")) {
+                    sessao.alternarAutoAnalise()
+                }
 
             // A barra chega com corpo OU com alvo só nos campos. Recordar
             // não some porque a prosa viveu no Se / na frase, não no corpo.
@@ -570,6 +580,18 @@ struct PaginaView: View {
         .padding(.horizontal, 10)
         .padding(.bottom, 8)
         .accessibilityIdentifier("cartao-padroes")
+    }
+
+    private func anuncio(_ cartao: CartaoAnalisar?) -> String? {
+        switch cartao {
+        case .forma(let g, _): "Forma \(g.nome) sugerida. Abrir a forma disponível."
+        case .aviso(let frase): frase
+        case .sabiaPensando: "A sábia está pensando."
+        case .resposta: "A sábia respondeu. A resposta está no cartão."
+        case .vestido: "Vestido. Desfazer disponível."
+        case .semConta: "A sábia " + Sabia.porOndeEmPalavras + "."
+        default: nil
+        }
     }
 
     private func seguirRota(_ destino: Rota.Destino) {

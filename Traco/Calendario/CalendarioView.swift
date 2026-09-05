@@ -137,7 +137,7 @@ struct CalendarioView: View {
             if let toast = agenda.toast {
                 CalendarioToast(texto: toast, ajustes: agenda.toastComAjustes)
                     .padding(.top, 8)
-                    .transition(.move(edge: .top).combined(with: .opacity))
+                    .transition(Tema.transicao(.move(edge: .top).combined(with: .opacity), reduzido: reduceMotion))
             }
         }
         .animation(.easeOut(duration: 0.22), value: agenda.toast)

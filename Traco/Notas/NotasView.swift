@@ -6,6 +6,7 @@ struct NotasView: View {
     @Bindable var sessao: Sessao
     @Environment(\.modelContext) private var context
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.dynamicTypeSize) private var tamanhoTexto
     @Query(sort: \Nota.criadaEm, order: .reverse) private var notas: [Nota]
     @State private var conversaNotas = ConversaNotas()
     private var busca: String {
@@ -71,7 +72,21 @@ struct NotasView: View {
             .animation(reduceMotion ? nil : .easeOut(duration: 0.25), value: conversaNotas.semModelo)
             .transaction { if reduceMotion { $0.disablesAnimations = true } }
             .onChange(of: conversaNotas.trocas.count) { antes, depois in
-                if depois > antes { Toque.suave() }
+                if depois > antes {
+                    Toque.suave()
+                    AccessibilityNotification.Announcement("A sábia respondeu. A resposta está no cartão.").post()
+                }
+            }
+            // VoiceOver: o cartão sobe sozinho no pé da tela — quem não vê precisa ouvir
+            .onChange(of: conversaNotas.estado) { _, estado in
+                switch estado {
+                case .pensando: AccessibilityNotification.Announcement("A sábia está pensando.").post()
+                case .falhou: AccessibilityNotification.Announcement("A sábia não respondeu. Repetir pergunta disponível.").post()
+                default: break
+                }
+            }
+            .onChange(of: conversaNotas.semModelo) { _, sem in
+                if sem { AccessibilityNotification.Announcement("A sábia " + Sabia.porOndeEmPalavras + ". A busca continua.").post() }
             }
             .padding(.top, 8)
             .background(Tema.fundo.opacity(0.96))
@@ -194,7 +209,10 @@ struct NotasView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Tema.superficie, in: RoundedRectangle(cornerRadius: Tema.raio, style: .continuous))
             .padding(.horizontal, Tema.margem)
-            .transition(reduceMotion ? .opacity : .move(edge: .bottom).combined(with: .opacity))
+            .transition(Tema.transicao(.move(edge: .bottom).combined(with: .opacity), reduzido: reduceMotion))
+            // um cartão, lido inteiro na ordem: rótulo, resposta, quem foi junto, avaliação
+            .accessibilityElement(children: .contain)
+            .accessibilityLabel("Cartão da sábia")
             .accessibilityIdentifier("cartao-sabia-notas")
         }
     }
@@ -226,6 +244,9 @@ struct NotasView: View {
                     .accessibilityLabel("Como contexto")
                     .accessibilityHint("Entrega estas notas à sua IA, sem servidor")
                 }
+                // dois controles de chrome ao lado do título: em AX5 cresciam
+                // até partir "Notas" em duas linhas; teto igual ao das barras
+                .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
             }
         }
     }
@@ -244,8 +265,14 @@ struct NotasView: View {
             }
         } label: {
             HStack(spacing: 4) {
-                Text(ordem.nome)
-                    .font(Tema.meta.weight(.medium))
+                if tamanhoTexto.isAccessibilitySize {
+                    // AX5: o nome não cabe ao lado do título e virava "…"
+                    Image(systemName: "arrow.up.arrow.down")
+                        .font(Tema.meta.weight(.medium))
+                } else {
+                    Text(ordem.nome)
+                        .font(Tema.meta.weight(.medium))
+                }
                 Image(systemName: "chevron.down")
                     .font(.caption2.weight(.semibold))
             }
@@ -337,7 +364,7 @@ struct NotasView: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(PressaoDiscreta())
-                .transition(.opacity.combined(with: .scale(scale: 0.8)))
+                .transition(Tema.transicao(.opacity.combined(with: .scale(scale: 0.8)), reduzido: reduceMotion))
                 .accessibilityIdentifier("limpar-busca")
                 .accessibilityLabel("Limpar busca")
             }

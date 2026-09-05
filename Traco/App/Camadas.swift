@@ -51,6 +51,9 @@ struct Camadas<Arquivo: View, Escrita: View>: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .shadow(color: Color(hex: 0x1C1C1E, opacity: 0.22), radius: 18, x: 6)
                 .offset(x: pos)
+                // movimento reduzido: a posição corta seco e o arquivo entra por fade
+                .opacity(reduceMotion && !arquivoAberto && !arrastando ? 0 : 1)
+                .animation(reduceMotion ? Tema.fadeReduzido : nil, value: arquivoAberto)
                 .allowsHitTesting(arquivoAberto)
                 .accessibilityHidden(!arquivoAberto)
         }
@@ -80,7 +83,7 @@ struct Camadas<Arquivo: View, Escrita: View>: View {
         // mudança vinda de FORA do gesto (tocar numa aba, voltar por código)
         .onChange(of: arquivoAberto) { _, aberto in
             guard !arrastando, !animandoPeloGesto, largura > 0 else { return }
-            withAnimation(mola(reduzido: reduceMotion)) { pos = aberto ? 0 : -largura }
+            withAnimation(mola) { pos = aberto ? 0 : -largura }
         }
     }
 
@@ -94,8 +97,9 @@ struct Camadas<Arquivo: View, Escrita: View>: View {
         return max(0, min(1, 1 + pos / largura))
     }
 
-    private func mola(reduzido: Bool) -> Animation {
-        reduzido ? .easeOut(duration: 0.2) : .spring(response: 0.55, dampingFraction: 0.82)
+    /// Reduzido: nil — a posição CORTA, sem deslizar; o fade é da opacidade acima.
+    private var mola: Animation? {
+        reduceMotion ? nil : .spring(response: 0.55, dampingFraction: 0.82)
     }
 
     private func trilho(_ w: CGFloat) -> some Gesture {
@@ -132,7 +136,7 @@ struct Camadas<Arquivo: View, Escrita: View>: View {
                 // impede que o `onChange` dispare uma SEGUNDA animação sobre a
                 // mesma posição — era isso que re-acelerava na chegada.
                 animandoPeloGesto = true
-                withAnimation(mola(reduzido: reduceMotion)) { pos = alvo ? 0 : -w }
+                withAnimation(mola) { pos = alvo ? 0 : -w }
                 if mudou { Toque.selecao() }
                 Task { @MainActor in
                     // o estado vira no quadro SEGUINTE: mudá-lo junto com a

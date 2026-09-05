@@ -27,6 +27,7 @@ struct CadernoView: View {
     var titulosParaLigar: [String] = []
     var aoMudar: () -> Void
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var editando: String?
     // Enter no título/parágrafo troca o campo focado: se o FocusState cair na
     // troca, esta flag devolve o foco ao editor que nasce (medido em 01/set:
@@ -141,7 +142,7 @@ struct CadernoView: View {
                         .overlay(alignment: .top) {
                             Rectangle().fill(Tema.linha).frame(height: 0.5)
                         }
-                        .transition(.move(edge: .bottom))
+                        .transition(Tema.transicao(.move(edge: .bottom), reduzido: reduceMotion))
                 } else if foco.wrappedValue, !esconderRegua {
                     regua
                         .padding(.horizontal, Tema.margem)
@@ -151,7 +152,7 @@ struct CadernoView: View {
                         .overlay(alignment: .top) {
                             Rectangle().fill(Tema.linha).frame(height: 0.5)
                         }
-                        .transition(.move(edge: .bottom))
+                        .transition(Tema.transicao(.move(edge: .bottom), reduzido: reduceMotion))
                 }
                 // a barra de ações da página mora AQUI: um container, uma lei.
                 // A altura mínima impede o quadro VAZIO entre um ocupante sair
@@ -162,8 +163,8 @@ struct CadernoView: View {
             // uma animação para a superfície inteira: os filhos trocam DENTRO
             // dela — quem anima é a ALTURA do container, não a opacidade de
             // dois irmãos que ocupam as mesmas linhas
-            .animation(Tema.gaveta(reduzido: false), value: foco.wrappedValue)
-            .animation(Tema.gaveta(reduzido: false), value: esconderRegua)
+            .animation(Tema.gaveta(reduzido: reduceMotion), value: foco.wrappedValue)
+            .animation(Tema.gaveta(reduzido: reduceMotion), value: esconderRegua)
             .clipped()
         }
         .onAppear {
@@ -292,6 +293,7 @@ struct CadernoView: View {
                         .buttonStyle(PressaoDiscreta())
                         .frame(minHeight: Tema.alvo)
                         .accessibilityIdentifier("regua-\(papel.slug)")
+                        .accessibilityHint("Dá esta forma à linha do cursor")
                     }
                     // o último chip precisa SAIR de baixo da máscara de fade,
                     // senão fica cortado para sempre e é inalcançável
@@ -306,6 +308,7 @@ struct CadernoView: View {
                 }
             )
             .accessibilityIdentifier("regua")
+            .accessibilityLabel("Régua de formas")
 
             // "Todas" é uma PORTA, não uma forma — e estava encostada nos chips
             // com 8pt de folga, logo depois de "Citação" cortada pela máscara. O
@@ -323,6 +326,7 @@ struct CadernoView: View {
             .frame(minHeight: Tema.alvo)
             .padding(.leading, 12)
             .accessibilityIdentifier("regua-todas")
+            .accessibilityHint("Abre a lista com todas as formas")
             Button {
                 descendoDoTitulo = false
                 editando = nil
@@ -341,6 +345,9 @@ struct CadernoView: View {
         // é de ESTRUTURA, não de corpo de letra — e é decisão do dono.
         .font(Tema.label)
         .foregroundStyle(Tema.tintaSuave)
+        // a régua é chrome, como a barra de baixo: em AX5 sobrava 1,5 chip e
+        // "Seção" saía cortada sob a máscara; o teto é o mesmo das barras do sistema
+        .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
         // 44, não 36: o .clipped() do encaixe corta o que passa da moldura, e
         // com 36 o alvo de toque dos chips ficava ABAIXO do mínimo da Apple —
         // o dedo errava a forma perto da borda (fitts-law)

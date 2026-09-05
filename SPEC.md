@@ -2382,3 +2382,57 @@ pasta indisponível e bookmark morto), suíte integral 642/0 em 05/09/2026,
 build genérico. **Fora:** captura da linha do espelho no aparelho do dono — não encenável sem
 maestro: nenhuma rota `traco://` abre o Perfil; garantia física do queimar
 (§8.6) e sincronização contínua da pasta.
+
+## ADR 2026-09-05t — Quem não vê, ouve; quem enjoa, não vê deslizar
+
+**A distância.** Oitenta rótulos de acessibilidade espalhados, nenhum passe
+ponta a ponta. Quatro gestos sem par acessível: o arrasto do calendário (a
+ÚNICA forma de andar um dia, uma semana, um mês, um ano sem tocar em chip), o
+toque longo em "Analisar" (liga e desliga a análise automática — invisível ao
+VoiceOver), a borda da escrita e a régua. A forma vestia sozinha com anúncio
+(varredura nº 4), mas a sábia respondia, pensava e calava em silêncio, no
+rodapé da página e no pé das Notas. E "Reduzir movimento" valia em 10
+arquivos: a barra de destinos descia 130 pt, o arquivo deslizava, a régua
+subia de baixo, o cartão da Rede e os blocos do Recordar entravam com
+deslocamento, o ponto de "lendo…" pulsava em laço, e o `Tema.gaveta` do
+Caderno recebia `reduzido: false` cravado.
+
+**A decisão.** (1) Uma lei de movimento num lugar só: `Tema.animacao` e
+`Tema.transicao` devolvem `fadeReduzido` (0,15 s) ou `.opacity` quando o
+sistema pede menos movimento; toda animação e transição custom das jornadas
+principais passa por elas. Camadas corta seco a posição e entra por fade; a
+barra não desce, apaga; o ponto de "lendo…" fica aceso, sem laço. (2) O arrasto
+do calendário ganha par no rotor: "Dia/Semana/Mês/Ano seguinte" e "anterior",
+uma ação por escala, no mesmo `andar` do gesto. O toque longo em "Analisar"
+vira "Ligar/Desligar análise automática" no rotor. A régua diz o que faz
+("Dá esta forma à linha do cursor") e "Todas" diz aonde leva. (3) Anúncios:
+a página anuncia o cartão que muda sozinho no rodapé (forma sugerida, aviso,
+sábia pensando, sábia respondeu, vestido, sem conta); as Notas anunciam a
+sábia pensando, respondida, calada e sem modelo. O vestir automático, a
+expressiva e o toast já eram anunciados pela Sessão (V7): não se duplica.
+(4) O cartão da sábia nas Notas é um contêiner nomeado; o menu do domínio na
+ficha do calendário diz "Domínio: X" e o que abre. Nada de "botão" em rótulo.
+
+(5) AX5, o que a captura mostrou e fechou: a régua deixava 1,5 chip à vista e
+cortava "Seção"; o menu de ordem das Notas virava "…" e, com ícone, partia
+"Notas" em duas linhas; no Recordar a pergunta era comprimida a "O que
+estava…" pelo editor abaixo. Régua, cabeçalho do Recordar e os dois controles
+ao lado do título das Notas são chrome e param em `xxxLarge`, como as barras
+do sistema; a pergunta e a pista do Recordar ganham `fixedSize` vertical; o
+menu de ordem mostra o ícone de ordenar em tamanhos AX (o rótulo de VoiceOver
+"Ordenar por X" já dizia tudo).
+
+**Custo assumido:** a ação de rotor é descoberta, não vista — quem não conhece
+o rotor continua sem andar no calendário; o chip do dia é o caminho visível.
+No AX5, o ano continua preso em `large` e a grade em `xxLarge` (decisão da
+ADR 02h: 504 células não cabem em corpo maior); a régua a `xxxLarge`.
+
+**Prova:** build e suíte integral 623/0 em 122 suítes (05/09/2026, `TemaTests`
+novo). Árvore esperada por tela documentada no relatório da volta 8; a
+conferência com `maestro hierarchy` é do revisor.
+Capturas `simctl` em tamanho normal e AX5 das cinco telas no simulador da
+volta (`ferramentas/orca/v8-*.png`), tamanho de texto restaurado a `medium`; o
+iPhone do dono estava em uso por outra volta e não foi tocado além de uma
+instalação e três rotas, sem mudar tamanho nem dados.
+**Fora:** passe manual com VoiceOver ligado em aparelho real (requer humano);
+a data da página segue oculta ao VoiceOver por decisão anterior.

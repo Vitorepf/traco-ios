@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct EditorBlocoView: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let bloco: BlocoCaderno
     var folga: CGFloat
     var foco: FocusState<Bool>.Binding
@@ -238,7 +239,7 @@ struct EditorBlocoView: View {
                         acao: @escaping () -> Void) -> some View {
         Button {
             Toque.selecao()
-            withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+            withAnimation(Tema.animacao(.spring(response: 0.35, dampingFraction: 0.8), reduzido: reduceMotion)) {
                 acao()
             }
         } label: {

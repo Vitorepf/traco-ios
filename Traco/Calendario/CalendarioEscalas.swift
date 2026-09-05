@@ -34,6 +34,9 @@ struct CalendarioDiaView: View {
             timeline(doDia)
         }
         .gesture(Arrasto { passo in andar(.day, passo) })
+        // o arrasto tem par no rotor do VoiceOver (ADR 05t)
+        .accessibilityAction(named: Text("Dia seguinte")) { andar(.day, 1) }
+        .accessibilityAction(named: Text("Dia anterior")) { andar(.day, -1) }
     }
 
     /// Arrastar para o lado anda no tempo: um dia aqui, sete na semana.
@@ -269,6 +272,14 @@ struct CalendarioSemanaView: View {
     var agora: Date
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
+    /// Arrastar ou, no VoiceOver, a ação do rotor: sete dias por passo.
+    private func andar(_ passo: Int) {
+        if let novo = agenda.cal.date(byAdding: .day, value: passo * 7, to: agenda.ancora) {
+            Toque.selecao()
+            withAnimation(CalendarioTema.morph(reduceMotion)) { agenda.ir(dia: novo) }
+        }
+    }
+
     private let horas = Calendario.horasDaSemana
     private let origem = 3 * 60
     private let span = 18 * 60
@@ -292,12 +303,9 @@ struct CalendarioSemanaView: View {
             }
             .padding(.horizontal, 12)
             .contentShape(Rectangle())
-            .gesture(Arrasto { passo in
-                if let novo = agenda.cal.date(byAdding: .day, value: passo * 7, to: agenda.ancora) {
-                    Toque.selecao()
-                    withAnimation(CalendarioTema.morph(reduceMotion)) { agenda.ir(dia: novo) }
-                }
-            })
+            .gesture(Arrasto { passo in andar(passo) })
+            .accessibilityAction(named: Text("Semana seguinte")) { andar(1) }
+            .accessibilityAction(named: Text("Semana anterior")) { andar(-1) }
         }
     }
 
@@ -454,6 +462,14 @@ struct CalendarioMesView: View {
     var morph: Namespace.ID
     var agora: Date
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    /// Arrastar ou, no VoiceOver, a ação do rotor: um mês por passo.
+    private func andar(_ passo: Int) {
+        if let novo = agenda.cal.date(byAdding: .month, value: passo, to: agenda.ancora) {
+            Toque.selecao()
+            withAnimation(CalendarioTema.morph(reduceMotion)) { agenda.ir(dia: novo) }
+        }
+    }
     @ScaledMetric(relativeTo: .caption2) private var tamChip: CGFloat = 10
 
     var body: some View {
@@ -490,12 +506,9 @@ struct CalendarioMesView: View {
             .padding(.horizontal, 10)
             .matchedGeometryEffect(id: idMes(agenda.ancora, agenda.cal), in: morph, isSource: agenda.escala == .mes)
             .contentShape(Rectangle())
-            .gesture(Arrasto(eixo: .ambos) { passo in
-                if let novo = agenda.cal.date(byAdding: .month, value: passo, to: agenda.ancora) {
-                    Toque.selecao()
-                    withAnimation(CalendarioTema.morph(reduceMotion)) { agenda.ir(dia: novo) }
-                }
-            })
+            .gesture(Arrasto(eixo: .ambos) { passo in andar(passo) })
+            .accessibilityAction(named: Text("Mês seguinte")) { andar(1) }
+            .accessibilityAction(named: Text("Mês anterior")) { andar(-1) }
             Spacer(minLength: 0)
         }
     }
@@ -593,6 +606,14 @@ struct CalendarioAnoView: View {
     var morph: Namespace.ID
     var agora: Date
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    /// Arrastar ou, no VoiceOver, a ação do rotor: um ano por passo.
+    private func andar(_ passo: Int) {
+        if let novo = agenda.cal.date(byAdding: .year, value: passo, to: agenda.ancora) {
+            Toque.selecao()
+            withAnimation(CalendarioTema.morph(reduceMotion)) { agenda.ir(dia: novo) }
+        }
+    }
     @ScaledMetric(relativeTo: .caption2) private var tamDia: CGFloat = 8
 
     var body: some View {
@@ -606,12 +627,9 @@ struct CalendarioAnoView: View {
             .padding(.horizontal, 16)
             .padding(.bottom, 180)
         }
-        .gesture(Arrasto { passo in
-            if let novo = agenda.cal.date(byAdding: .year, value: passo, to: agenda.ancora) {
-                Toque.selecao()
-                withAnimation(CalendarioTema.morph(reduceMotion)) { agenda.ir(dia: novo) }
-            }
-        })
+        .gesture(Arrasto { passo in andar(passo) })
+        .accessibilityAction(named: Text("Ano seguinte")) { andar(1) }
+        .accessibilityAction(named: Text("Ano anterior")) { andar(-1) }
     }
 
     private func mesMini(_ mes: Date, mapa: [Date: [EventoCalendario]]) -> some View {

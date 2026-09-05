@@ -203,7 +203,7 @@ struct RecordarView: View {
                 .accessibilityIdentifier("recordar-nao-voltou")
                 // chega alguns segundos depois do lado a lado: aparecer de
                 // estalo assusta quem está lendo (§21)
-                .transition(.opacity.combined(with: .offset(y: 8)))
+                .transition(Tema.transicao(.opacity.combined(with: .offset(y: 8)), reduzido: reduceMotion))
             }
         }
     }
@@ -256,6 +256,9 @@ struct RecordarView: View {
                 Color.clear.frame(width: 64, height: Tema.alvo)
             }
             .padding(.horizontal, Tema.margem)
+            // cabeçalho é chrome: como a barra do sistema, não cresce em AX
+            // (a AX5 partia "RECORDAR" em duas linhas e cortava "voltar")
+            .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
 
             if fase == .ler || fase == .esconder {
                 Text(instrucao)
@@ -311,6 +314,7 @@ struct RecordarView: View {
                     Text(pista)
                         .font(Tema.corpo)
                         .foregroundStyle(Tema.tintaSuave)
+                        .fixedSize(horizontal: false, vertical: true)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, Tema.margem)
                         .padding(.bottom, 12)
@@ -322,6 +326,8 @@ struct RecordarView: View {
                 Text(perguntaDaSabia ?? pergunta)
                     .font(Tema.corpo)
                     .foregroundStyle(Tema.tintaSuave)
+                    // AX5: comprimida pelo editor abaixo, a pergunta virava "O que estava…"
+                    .fixedSize(horizontal: false, vertical: true)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, Tema.margem)
                     .padding(.bottom, 8)
@@ -389,9 +395,9 @@ struct RecordarView: View {
                     ScrollView {
                         LazyVGrid(columns: colunas, alignment: .leading, spacing: 22) {
                             bloco("DE MEMÓRIA", memoria)
-                                .transition(.opacity.combined(with: .offset(y: 10)))
+                                .transition(Tema.transicao(.opacity.combined(with: .offset(y: 10)), reduzido: reduceMotion))
                             bloco(rotuloAlvo, alvo)
-                                .transition(.opacity.combined(with: .offset(y: 10)))
+                                .transition(Tema.transicao(.opacity.combined(with: .offset(y: 10)), reduzido: reduceMotion))
                                 .animation(.easeOut(duration: 0.35).delay(0.08), value: fase)
                         }
                         .padding(Tema.margem)

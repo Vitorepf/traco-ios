@@ -23,3 +23,14 @@ appId: app.traco
 - tapOn:
     id: "aba-notas"
 - takeScreenshot: /tmp/traco-verify/hoje/ax5-03-notas
+# volta 8 (ADR 05t): as duas telas seguintes da jornada também em AX5
+- tapOn:
+    id: "aba-calendario"
+- extendedWaitUntil:
+    visible:
+      id: calendario-titulo
+    timeout: 6000
+- takeScreenshot: /tmp/traco-verify/hoje/ax5-04-calendario
+- tapOn:
+    id: "aba-perfil"
+- takeScreenshot: /tmp/traco-verify/hoje/ax5-05-perfil

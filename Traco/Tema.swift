@@ -115,6 +115,22 @@ enum Tema {
     static let confirmacaoEntra: Double = 0.22
     static let push: Double = 0.40
 
+    // MARK: - Movimento reduzido (ADR 2026-09-05t)
+    //
+    // Uma lei para o app inteiro: com "Reduzir movimento" ligado, nada
+    // desliza nem cresce — o que entra, entra por opacidade curta ou em corte
+    // seco. Toda animação e transição custom passa por aqui; a view só diz
+    // qual seria o movimento normal.
+    static let fadeReduzido: Animation = .easeOut(duration: 0.15)
+
+    static func animacao(_ normal: Animation, reduzido: Bool) -> Animation {
+        reduzido ? fadeReduzido : normal
+    }
+
+    static func transicao(_ normal: AnyTransition, reduzido: Bool) -> AnyTransition {
+        reduzido ? .opacity : normal
+    }
+
     static func gaveta(reduzido: Bool) -> Animation {
         reduzido
             ? .easeOut(duration: 0.18)
