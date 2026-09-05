@@ -2333,3 +2333,49 @@ melhorou a qualidade em nenhum deles.
 **Fora:** revisão pelo Grok (sem conta neste simulador), jornada pela tela (o
 portão 03p desliga o modelo no XCTest) e montagem por item para caber no
 aparelho.
+
+## ADR 2026-09-05s — O commit antes do anúncio, em toda rota
+
+**A distância.** A 05h fechou a entrada e o concluir. As outras rotas de
+escrita anunciavam ou projetavam ANTES de o disco dizer sim, e o autor não
+tinha como saber. A auditoria de 05/09/2026, rota por rota da `Sessao`:
+
+| Rota | Antes do commit (main, 05/09) | Agora |
+|---|---|---|
+| `salvar` | widget/Destaque gravado, versão anterior registrada e, no selo, versões/apontamentos/índice apagados; aviso sumia em 2,5 s | tudo depois do `save`; recusa deixa UMA linha fixa na página |
+| `trancarESair` | ignorava a recusa: `novaPagina` apagava o texto e `.trancada` anunciava um selo que não existia | recusa mantém o texto e cala |
+| `trancarExpressivasVencidas` | versões, apontamentos e índice apagados antes do `save` | depois |
+| `apagar`, `desfazerApagar` | `try context.save()` sem `rollback` e fora da injeção de recusa; avisos cancelados antes; nota devolvida não voltava ao espelho/Spotlight/índice | `persistir`; avisos e projeções depois; varredura inteira ao devolver |
+| `importarCorpus` | commit certo, mas NENHUMA projeção: espelho, Spotlight e índice só no arranque seguinte | varredura inteira depois do commit (04o) |
+| `restaurar` | versão substituída registrada antes | depois |
+| `abrirFecho`, `concluir`, `queimar`, `guardarSentidoDoFecho`, `recolherEntrada` | já certas (05h) | — |
+
+**A decisão.** Nada sai da `Sessao` antes de `persistir` devolver sim: nem
+versão, nem widget, nem índice, nem espelho, nem aviso. Recusa recua o
+contexto, mantém o texto e diz "Não consegui guardar agora. O texto continua
+aqui." — linha FIXA (`mostrarToast(fixo:)`), que só some quando um `salvar`
+grava. Projeções ganham um relógio lógico (`Geracao`, na main): o `.md` de
+uma conclusão fora da main, a varredura do selo e a entrada do Mac só andam
+para a frente — alvo a alvo no corpus (`Corpus.avanca`), nota a nota no
+índice (`Indice.avanca`), lote a lote no Spotlight (`Holofote.geracao`). A
+escrita atrasada não regrava a nota selada nem apaga o `.md` recém-criado.
+Pasta espelhada que resolve mas não recebe escrita não roda a cópia e o
+Perfil diz "iCloud indisponível; guardando só no aparelho" (ou o nome da
+pasta, quando não é iCloud); bookmark morto limpa a escolha (05h) e diz que
+a pasta não existe mais. A linha some quando a cópia volta a chegar, ou ao
+escolher/parar. Eixo 4: nenhuma tela, nenhuma opção; só linhas onde havia
+silêncio.
+
+**Custo assumido, nomeado:** a trava global do corpus faz a varredura do
+selo na main esperar um `.md` em voo (uma nota e três agregados; fila serial
+por pasta se doer). A checagem de escrita da pasta é `isWritableFile` no
+raiz: um iCloud que aceita e descarta depois não é visto. Avisos (`Revisoes`)
+e haptics continuam fora do contrato de commit; listados, não provados.
+
+**Volta:** multiplicar (a nota nunca se perde; o protegido nunca vaza). **O
+que a IA sabe:** nada — é disco, ordem e relógio. **Prova:** 17 testes em
+`IntegridadeRotasTests` (rota × recusa, ordem forçada sem sleep, matriz do
+selo × projeção, pasta indisponível e bookmark morto), suíte integral
+639/0 em 05/09/2026, build genérico. **Fora:** captura da linha do espelho no aparelho do dono — não encenável sem
+maestro: nenhuma rota `traco://` abre o Perfil; garantia física do queimar
+(§8.6) e sincronização contínua da pasta.

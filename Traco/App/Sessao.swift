@@ -951,24 +951,20 @@ final class Sessao {
         }
         let prazo = (timerLigado && !trancar) ? timerPrazo : nil
         let nota: Nota
+        // ADR 05s: nada sai da Sessão antes do commit — versão, widget e índice
+        // esperam o disco dizer sim. A anterior fica guardada aqui e vai ao
+        // disco só depois (ADR m); a expressiva nunca: o que queima não pode
+        // sobreviver aqui.
+        var versaoAnterior: (texto: String, campos: [String: String], gesto: Gesto?, fechada: Bool)?
         if let notaUUID, let existente = Self.buscar(uuid: notaUUID, no: context) {
-            // a versão anterior fica guardada ANTES de sobrescrever (ADR m);
-            // a expressiva nunca: o que queima não pode sobreviver aqui
             if existente.texto != texto || existente.campos != campos {
-                Versoes.registrar(existente.uuid, texto: existente.texto, campos: existente.campos,
-                                  gesto: existente.gesto, fechada: existente.fechada)
+                versaoAnterior = (existente.texto, existente.campos, existente.gesto, existente.fechada)
             }
             existente.texto = texto
             existente.gesto = gesto
             existente.campos = campos
             existente.expressivaPrazo = prazo
-            if trancar {
-                existente.trancada = true
-                // o selo vale para o disco: nada do texto selado fica em Arquivos
-                Versoes.apagar(existente.uuid)
-                Apontar.apagar(existente.uuid)
-                Indice.remover(existente.uuid)
-            }
+            if trancar { existente.trancada = true }
             if let sentidoPendente { existente.sentido = sentidoPendente }
             existente.minutosEscritos = max(existente.minutosEscritos, minutosExpressiva)
             existente.editadaEm = .now
@@ -984,26 +980,35 @@ final class Sessao {
         aplicarDominio(na: nota)
         aplicarSerie(na: nota)
         aplicarGatilho(na: nota)
-        aplicarDestaque(na: nota)
         if criadaEmDaPagina == nil { criadaEmDaPagina = nota.criadaEm }
         guard persistir(context) else {
             // A escrita do autor nunca se perde em silêncio: o texto segue na página
-            // e o aviso diz isso. (Tranca de expressiva continua garantida pelo
-            // expressivaPrazo persistido na próxima gravação/arranque.)
-            mostrarToast("não consegui gravar — o texto continua na página.")
+            // e a linha fica até uma gravação dizer sim. (Tranca de expressiva
+            // continua garantida pelo expressivaPrazo persistido na próxima
+            // gravação/arranque.)
+            mostrarToast("Não consegui guardar agora. O texto continua aqui.", fixo: true)
             return false
         }
+        if toastFixo { toast = nil; toastFixo = false }
+        if let v = versaoAnterior {
+            Versoes.registrar(nota.uuid, texto: v.texto, campos: v.campos, gesto: v.gesto, fechada: v.fechada)
+        }
+        aplicarDestaque(na: nota)
         // ADR 04n: o índice de sentido acompanha a nota — fora da main thread,
         // porque `salvar` roda em toda troca de cena e o índice regrava o
         // arquivo inteiro (ponytail: JSON de N×200 floats; formato binário por
         // nota se um dia doer a mil notas). O selo, esse, tira na hora:
         // `remover` é síncrono nas rotas de selar, queimar e apagar.
         if trancar || nota.fechada {
-            Indice.remover(nota.uuid)
+            // o selo vale para o disco: nada do texto selado fica em Arquivos
+            Versoes.apagar(nota.uuid)
+            Apontar.apagar(nota.uuid)
+            Indice.remover(nota.uuid, geracao: Geracao.proxima())
             calarAcoesDerivadas(de: nota.uuid, no: context)
         } else {
             let lida = Self.paraIndice(nota)
-            Task.detached(priority: .utility) { Indice.atualizar(lida) }
+            let g = Geracao.proxima()
+            Task.detached(priority: .utility) { Indice.atualizar(lida, geracao: g) }
             classificarDominioNoAparelho(da: nota, no: context) // ADR 05d
         }
         return true
@@ -1025,7 +1030,8 @@ final class Sessao {
     func sincronizarIndice(no context: ModelContext) {
         guard let notas = try? context.fetch(FetchDescriptor<Nota>()) else { return }
         let lidas = notas.map(Self.paraIndice)
-        Task.detached(priority: .utility) { Indice.sincronizar(lidas) }
+        let g = Geracao.proxima()
+        Task.detached(priority: .utility) { Indice.sincronizar(lidas, geracao: g) }
     }
 
     private func aplicarDominio(na nota: Nota) {
@@ -1192,22 +1198,25 @@ final class Sessao {
     /// Expressiva vencida sobrevive à morte do processo: a notas não pode vazar o texto.
     func trancarExpressivasVencidas(no context: ModelContext, agora: Date = .now) {
         guard let notas = try? context.fetch(FetchDescriptor<Nota>()) else { return }
-        var mudou = false
+        var seladas: [UUID] = []
         var recem: Nota?
         for nota in notas {
             guard nota.gesto == .expressiva, !nota.fechada, let prazo = nota.expressivaPrazo, prazo <= agora else { continue }
             nota.trancada = true
             nota.expressivaPrazo = nil
-            Versoes.apagar(nota.uuid)
-            Apontar.apagar(nota.uuid)
-            Indice.remover(nota.uuid)
             recem = nota
-            mudou = true
+            seladas.append(nota.uuid)
         }
-        if mudou {
+        if !seladas.isEmpty {
             guard persistir(context) else {
                 mostrarToast("não consegui trancar — a nota continua aberta.")
                 return
+            }
+            // ADR 05s: o selo só chega ao disco depois do commit
+            for uuid in seladas {
+                Versoes.apagar(uuid)
+                Apontar.apagar(uuid)
+                Indice.remover(uuid, geracao: Geracao.proxima())
             }
             // a recém-selada sai do Spotlight e vira só metadado no espelho
             Corpus.backupAutomatico(notas: notas)
@@ -1267,11 +1276,18 @@ final class Sessao {
         UserDefaults.standard.set(Date.now, forKey: Entrada.chaveUltima)
         if !falhou { mostrarToast(total == 1 ? "1 nota veio de fora." : "\(total) notas vieram de fora.") }
         if let todas = try? context.fetch(FetchDescriptor<Nota>()) {
-            Corpus.backupAutomatico(notas: todas)
-            Holofote.indexar(notas: todas)
-            let lidas = todas.map(Self.paraIndice)
-            Task.detached(priority: .utility) { Indice.sincronizar(lidas) }
+            projetarTudo(todas)
         }
+    }
+
+    /// ADR 05s: a varredura inteira das três projeções, sempre DEPOIS do
+    /// commit — importar, entrada do Mac e as rotas do selo passam por aqui.
+    private func projetarTudo(_ todas: [Nota]) {
+        Corpus.backupAutomatico(notas: todas)
+        Holofote.indexar(notas: todas)
+        let lidas = todas.map(Self.paraIndice)
+        let g = Geracao.proxima()
+        Task.detached(priority: .utility) { Indice.sincronizar(lidas, geracao: g) }
     }
 
     /// V3: no arranque, série viva que perdeu o aviso volta a ter um.
@@ -1327,8 +1343,7 @@ final class Sessao {
         guard !nota.fechada, nota.gesto != .expressiva else { return }
         // a página aberta pode ter edição em voo: grava (vira versão) antes de trocar
         if notaUUID == nota.uuid { guard salvar(no: context) else { return } }
-        Versoes.registrar(nota.uuid, texto: nota.texto, campos: nota.campos,
-                          gesto: nota.gesto, fechada: nota.fechada)
+        let anterior = (texto: nota.texto, campos: nota.campos, gesto: nota.gesto, fechada: nota.fechada)
         nota.texto = versao.texto
         nota.campos = versao.campos
         nota.editadaEm = .now
@@ -1340,6 +1355,9 @@ final class Sessao {
             mostrarToast("não consegui restaurar — a nota ficou como estava.")
             return
         }
+        // ADR 05s: a versão que restaurar substitui só vira histórico depois do commit
+        Versoes.registrar(nota.uuid, texto: anterior.texto, campos: anterior.campos,
+                          gesto: anterior.gesto, fechada: anterior.fechada)
         Toque.suave()
     }
 
@@ -1531,7 +1549,7 @@ final class Sessao {
         apagadaRecuperavel = nil
         Versoes.apagar(nota.uuid)
         Apontar.apagar(nota.uuid)
-        Indice.remover(nota.uuid)
+        Indice.remover(nota.uuid, geracao: Geracao.proxima())
         Revisoes.cancelar(uuid: nota.uuid)
         calarAcoesDerivadas(de: nota.uuid, no: context)
         if let todas = try? context.fetch(FetchDescriptor<Nota>()) {
@@ -1612,12 +1630,17 @@ final class Sessao {
         }
         let n = itens.count
         if anunciar { mostrarToast("\(n) nota\(n == 1 ? "" : "s") importada\(n == 1 ? "" : "s").") }
+        // ADR 04o/05s: importar é rota inteira — as notas que entraram chegam
+        // ao espelho, ao Spotlight e ao índice agora, não no próximo arranque.
+        if let todas = try? context.fetch(FetchDescriptor<Nota>()) { projetarTudo(todas) }
         return n
     }
 
     func trancarESair(no context: ModelContext, destino: DestinoConfirmacao) {
         pararTimer()
-        salvar(no: context, trancar: true)
+        // ADR 05s: com o disco recusando, a página não vira — o texto fica e a
+        // linha diz; o destino espera.
+        guard salvar(no: context, trancar: true) else { return }
         sentidoPendente = nil
         fechoExpressiva = nil
         novaPagina()
@@ -1638,22 +1661,22 @@ final class Sessao {
     func apagar(uuid: UUID, no context: ModelContext) {
         guard let nota = Self.buscar(uuid: uuid, no: context) else { return }
         apagadaRecuperavel = nota.retrato()
-        Revisoes.cancelar(uuid: uuid)
-        Revisoes.cancelarGatilho(uuid: uuid)
-        if let serie = nota.serieUUID { Revisoes.cancelarSerie(serie: serie) }
+        let serie = nota.serieUUID
         context.delete(nota)
-        do {
-            try context.save()
-        } catch {
+        // ADR 05s: avisos e projeções só depois do commit; recusa recua o contexto
+        guard persistir(context) else {
             apagadaRecuperavel = nil
             mostrarToast("não consegui apagar — a nota continua.")
             return
         }
+        Revisoes.cancelar(uuid: uuid)
+        Revisoes.cancelarGatilho(uuid: uuid)
+        if let serie { Revisoes.cancelarSerie(serie: serie) }
         DestaqueDoDia.apagar(id: uuid)
         calarAcoesDerivadas(de: uuid, no: context)
         Versoes.apagar(uuid)
         Apontar.apagar(uuid)
-        Indice.remover(uuid)
+        Indice.remover(uuid, geracao: Geracao.proxima())
         // regra de ferro 2: apagar tira a nota do espelho em Arquivos e do Spotlight AGORA
         if let todas = try? context.fetch(FetchDescriptor<Nota>()) {
             Corpus.backupAutomatico(notas: todas)
@@ -1674,9 +1697,7 @@ final class Sessao {
         guard let a = apagadaRecuperavel else { return }
         let nota = Nota.de(a)
         context.insert(nota)
-        do {
-            try context.save()
-        } catch {
+        guard persistir(context) else {
             mostrarToast("não consegui devolver a nota.")
             return
         }
@@ -1699,6 +1720,8 @@ final class Sessao {
         }
         apagadaRecuperavel = nil
         desfazerTask?.cancel()
+        // ADR 05s: a nota devolvida volta ao espelho, ao Spotlight e ao índice agora
+        if let todas = try? context.fetch(FetchDescriptor<Nota>()) { projetarTudo(todas) }
         Toque.leve()
     }
 
@@ -1707,10 +1730,16 @@ final class Sessao {
         return try? context.fetch(d).first
     }
 
-    func mostrarToast(_ msg: String) {
+    /// ADR 05s: a linha de gravação recusada é `fixo` — fica na página até
+    /// uma gravação dizer sim, em vez de sumir em 2,5 s e deixar silêncio.
+    private(set) var toastFixo = false
+
+    func mostrarToast(_ msg: String, fixo: Bool = false) {
         toast = msg
+        toastFixo = fixo
         AccessibilityNotification.Announcement(msg).post()
         toastTask?.cancel()
+        guard !fixo else { return }
         toastTask = Task {
             try? await Task.sleep(for: .seconds(2.5))
             if !Task.isCancelled { toast = nil }

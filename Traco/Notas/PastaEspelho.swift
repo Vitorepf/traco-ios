@@ -7,7 +7,12 @@ import Foundation
 nonisolated enum PastaEspelho {
     static let chave = "pasta-espelho-bookmark"
     static let chaveNome = "pasta-espelho-nome"
+    /// ADR 05s: a linha honesta do Perfil quando a cópia não chegou à pasta.
+    /// Nil = a última gravação chegou (ou nunca houve pasta).
+    static let chaveEstado = "pasta-espelho-estado"
     nonisolated(unsafe) static var defaults: UserDefaults = .standard
+
+    static var estado: String? { defaults.string(forKey: chaveEstado) }
 
     /// Guarda o bookmark. A URL do seletor vem com escopo: abre-se para criar o bookmark.
     @discardableResult
@@ -19,6 +24,7 @@ nonisolated enum PastaEspelho {
         }
         defaults.set(dados, forKey: chave)
         defaults.set(url.lastPathComponent, forKey: chaveNome)
+        defaults.removeObject(forKey: chaveEstado)
         return true
     }
 
@@ -55,19 +61,24 @@ nonisolated enum PastaEspelho {
         }
         defaults.removeObject(forKey: chave)
         defaults.removeObject(forKey: chaveNome)
+        defaults.removeObject(forKey: chaveEstado)
     }
 
     /// Resolve o bookmark e abre o acesso só durante `corpo`. Bookmark morto
     /// (pasta apagada, provedor removido) some sozinho: melhor nenhum espelho
-    /// que um espelho que finge gravar.
+    /// que um espelho que finge gravar — e o Perfil diz que sumiu (ADR 05s).
+    /// Pasta que resolve mas não recebe escrita (iCloud fora, volume ausente)
+    /// não roda `corpo`: a cópia fica só no aparelho, e a linha diz isso.
     static func comAcesso(_ corpo: (URL) -> Void) {
         guard let dados = defaults.data(forKey: chave) else { return }
+        let nome = defaults.string(forKey: chaveNome) ?? "escolhida"
         var velho = false
         guard let url = try? URL(resolvingBookmarkData: dados, options: [], relativeTo: nil, bookmarkDataIsStale: &velho) else {
             // Não há URL acessível para limpar arquivos. Retira apenas a
             // escolha inválida: limpar() tentaria resolver o mesmo bookmark.
             defaults.removeObject(forKey: chave)
             defaults.removeObject(forKey: chaveNome)
+            defaults.set("a pasta “\(nome)” não existe mais; guardando só no aparelho", forKey: chaveEstado)
             return
         }
         if velho, let novo = try? url.bookmarkData(options: [], includingResourceValuesForKeys: nil, relativeTo: nil) {
@@ -75,6 +86,13 @@ nonisolated enum PastaEspelho {
         }
         let acesso = url.startAccessingSecurityScopedResource()
         defer { if acesso { url.stopAccessingSecurityScopedResource() } }
+        guard (try? url.checkResourceIsReachable()) == true, FileManager.default.isWritableFile(atPath: url.path) else {
+            let nuvem = url.path.contains("Mobile Documents") || url.path.contains("CloudDocs")
+            defaults.set(nuvem ? "iCloud indisponível; guardando só no aparelho"
+                               : "a pasta “\(nome)” está indisponível; guardando só no aparelho", forKey: chaveEstado)
+            return
+        }
+        defaults.removeObject(forKey: chaveEstado)
         let raiz = url.appendingPathComponent("Traço", isDirectory: true)
         corpo(raiz)
     }
