@@ -9,6 +9,16 @@ struct NotasView: View {
     @Query(sort: \Nota.criadaEm, order: .reverse) private var notas: [Nota]
     @State private var busca = ""
     @State private var filtro: FiltroNotas?
+    /// U3 — a folha na lista: quanto cada nota já foi puxada para o lado (por uuid).
+    /// Arrastar a nota é arrastar uma folha: ela desliza rígida, ergue a sombra e,
+    /// passada a soleira, se solta para o Recordar. Eixos ortogonais ao scroll
+    /// vertical (só engata no horizontal), então nunca rouba a rolagem.
+    /// ponytail: estado no PAI reavalia a lista a cada quadro do arrasto (filtrar+
+    /// agrupar). Ok para o arquivo típico; se travar em corpus grande, extrair
+    /// uma LinhaNota com @State local (só a linha puxada re-renderiza).
+    @State private var puxada: [UUID: CGFloat] = [:]
+    private let folhaLargura: CGFloat = 108   // quanto a folha revela ao ser puxada
+    private let folhaSoleira: CGFloat = 72    // passar disto e soltar = Recordar
 
     var body: some View {
         telaNotas
@@ -280,7 +290,101 @@ struct NotasView: View {
         return n == 1 ? "1 nota" : "\(n) notas"
     }
 
+    /// A nota como FOLHA na lista: desliza rígida sob o dedo, ergue a sombra de
+    /// contato (descola da pilha) e, passada a soleira, se solta para o Recordar
+    /// — como quem puxa uma folha do bloco. Só a nota que se relê (nem trancada
+    /// nem queimada) puxa: as outras ficam firmes. O pan (`PanFolha`) só engata no
+    /// horizontal — a rolagem vertical nunca é roubada (eixos ortogonais).
     private func botaoNota(_ nota: Nota) -> some View {
+        let recordavel = !nota.trancada && !nota.queimada
+        let dx = puxada[nota.uuid] ?? 0
+        let progresso = min(1, Double(-dx / folhaSoleira))
+        return ZStack(alignment: .trailing) {
+            if recordavel {
+                // o que a folha revela ao descolar: Recordar. Sem âmbar — o único
+                // acento da tela é o filtro ativo (Von Restorff).
+                Label("Recordar", systemImage: "arrow.counterclockwise")
+                    .font(Tema.meta.weight(.medium))
+                    .foregroundStyle(Tema.tintaSuave)
+                    .padding(.trailing, 20)
+                    .opacity(progresso)
+                    .accessibilityHidden(true)
+            }
+            folhaRow(nota, dx: dx, progresso: progresso, recordavel: recordavel)
+        }
+    }
+
+    /// A linha como folha: o papel materializa sob o conteúdo e desliza com ele.
+    /// Só a nota recordável ENGATA o pan; trancada/queimada ficam firmes — o toque
+    /// abre, com o atrito próprio de cada uma.
+    @ViewBuilder
+    private func folhaRow(_ nota: Nota, dx: CGFloat, progresso: Double, recordavel: Bool) -> some View {
+        let base = linhaConteudo(nota)
+            // a nota VIRA folha ao ser erguida: o papel materializa sob ela e é ELE
+            // que projeta a sombra de contato — sobre texto pelado a sombra some no
+            // preto e o arrasto lia como swipe de lista, não folha
+            .background(folhaErguida(progresso))
+            .offset(x: dx)
+        if recordavel {
+            base.gesture(PanFolha(aoMover: { puxa(nota, $0) }, aoSoltar: { solta(nota, $0) }))
+        } else {
+            base
+        }
+    }
+
+    /// A folha que só existe enquanto a linha é ERGUIDA (progresso 0 = pilha
+    /// plana: a lista em repouso fica intocada, texto puro sobre o tampo). Mesmo
+    /// papel da PaginaView/U2 — gradiente 0x18→0x12, fio de luz no topo → hairline
+    /// (o modelo de luz-de-cima da casa) — e a sombra de contato que a descola da
+    /// pilha. É o papel opaco que projeta a sombra: descolar exige superfície.
+    private func folhaErguida(_ progresso: Double) -> some View {
+        // rampa 4x: a folha SNAPA ao tom cheio logo nos primeiros ~18pt do arrasto
+        // (não fica um cinza translúcido a meio caminho, que lia como buraco). Sobre
+        // preto a profundidade NÃO é sombra (preto não escurece preto) — é a
+        // superfície mais clara + o fio de luz + o fosso. Tokens da casa: erguida,
+        // a linha sobe ao nível do CARTÃO (superficieAlta 0x1E, a superfície mais
+        // clara da casa) — um degrau CLARO acima do tampo 0x0B e das linhas
+        // vizinhas. A nota agarrada é o topo do modelo de luz, não um recuo.
+        let p = min(1, progresso * 4)
+        return RoundedRectangle(cornerRadius: Tema.raio, style: .continuous)
+            // FILL SÓLIDO no nível do cartão (superficieAlta 0x1E) — o gradiente pra
+            // superficie escurecia o meio da linha fina (lia como 0x18, subtil demais
+            // pra descolar). Sólido = a superfície inteira um degrau claro; o "luz de
+            // cima" fica por conta do fio de luz forte na borda, não do gradiente.
+            .fill(Tema.superficieAlta)
+            .overlay {
+                // fio de luz FORTE no topo → hairline: a borda que "pega" o erguer.
+                // 0.40 no topo = a quina de cima acende (a lip de luz de quem ergue
+                // a folha); sem essa borda que acende, a superfície lia como recuo.
+                RoundedRectangle(cornerRadius: Tema.raio, style: .continuous)
+                    .strokeBorder(LinearGradient(colors: [.white.opacity(0.40), Tema.linha],
+                                                 startPoint: .top, endPoint: .bottom),
+                                  lineWidth: 1)
+            }
+            // a folha FLUTUA: um VÃO de tampo (6pt) acima/baixo a descola das
+            // vizinhas — é o fosso escuro, não a sombra (preto não escurece preto),
+            // que faz a folha ler ERGUIDA da pilha, não uma linha selecionada rente.
+            .padding(.vertical, 6)
+            .opacity(p)
+    }
+
+    /// A folha desliza sob o dedo; borracha depois da largura (resiste, não escapa).
+    private func puxa(_ nota: Nota, _ x: CGFloat) {
+        puxada[nota.uuid] = x < 0 ? max(-folhaLargura, x) : 0
+    }
+
+    /// Solta: passada a soleira, a folha se desprende pro Recordar; senão volta.
+    private func solta(_ nota: Nota, _ x: CGFloat) {
+        if x < -folhaSoleira {
+            Toque.selecao()
+            sessao.recordarDaNotas(nota) // a folha se solta: vai recordar
+        }
+        withAnimation(.spring(response: 0.42, dampingFraction: 0.82)) {
+            puxada[nota.uuid] = 0
+        }
+    }
+
+    private func linhaConteudo(_ nota: Nota) -> some View {
         Button {
             if nota.queimada {
                 sessao.abrir(nota) // diz honestamente que não há o que abrir
@@ -391,6 +495,51 @@ struct NotasView: View {
     }
 }
 
+
+/// Pan HORIZONTAL da folha na lista. O `DragGesture` do SwiftUI vazava o toque do
+/// Button (a nota abria ao puxar de leve) e brigava com a rolagem — lição paga em
+/// 02/set. Um `UIPanGestureRecognizer` resolve os dois: só COMEÇA quando o gesto é
+/// horizontal (o vertical cede à rolagem do ScrollView) e, ao começar, CANCELA o
+/// toque do Button (`cancelsTouchesInView`) — a folha puxa sem abrir a nota.
+/// iOS 18+ (o alvo é 26).
+struct PanFolha: UIGestureRecognizerRepresentable {
+    let aoMover: (CGFloat) -> Void   // translation.x corrente
+    let aoSoltar: (CGFloat) -> Void  // translation.x final
+
+    func makeCoordinator(converter: CoordinateSpaceConverter) -> Coordenador { Coordenador() }
+
+    func makeUIGestureRecognizer(context: Context) -> UIPanGestureRecognizer {
+        let g = UIPanGestureRecognizer()
+        g.delegate = context.coordinator
+        g.cancelsTouchesInView = true   // engatou → o toque do Button é cancelado
+        return g
+    }
+
+    func handleUIGestureRecognizerAction(_ g: UIPanGestureRecognizer, context: Context) {
+        // a direção é resolvida AQUI, não num gate de início: puxão vertical é
+        // rolagem (x=0, não puxa nem recorda), só o horizontal move a folha.
+        let t = g.translation(in: g.view)
+        let x = abs(t.x) > abs(t.y) ? t.x : 0
+        switch g.state {
+        case .changed:                    aoMover(x)
+        case .ended, .cancelled, .failed: aoSoltar(x)
+        default:                          break
+        }
+    }
+
+    /// Coexiste com a rolagem (simultâneo): o vertical rola a lista, o horizontal
+    /// puxa a folha. SEM gate de direção no início — um `shouldBegin` horizontal
+    /// FALHAVA o pan no arrasto lento (translação ambígua no primeiro quadro) e a
+    /// nota abria. Aqui o pan sempre engata e cancela o toque do Button; quem
+    /// decide a direção é o handler. O `cancelsTouchesInView` garante que puxar
+    /// (em qualquer direção) nunca dispare o toque — rolar também não abre a nota.
+    final class Coordenador: NSObject, UIGestureRecognizerDelegate {
+        func gestureRecognizer(_ g: UIGestureRecognizer,
+                               shouldRecognizeSimultaneouslyWith other: UIGestureRecognizer) -> Bool {
+            true
+        }
+    }
+}
 
 /// Folha de compartilhamento do sistema (o export gera no toque, não no body).
 struct CompartilharArquivo: UIViewControllerRepresentable {

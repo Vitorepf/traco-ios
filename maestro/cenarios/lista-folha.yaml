@@ -1,0 +1,34 @@
+appId: app.traco
+---
+# U3 — a nota se arrasta como folha na lista. Duas garantias num fluxo:
+#  (1) puxar de leve ERGUE a folha e ela VOLTA — nunca abre a nota (o toque do
+#      Button não vaza pelo pan; era o bug da lição #2, DragGesture vs Button);
+#  (2) puxar além da soleira SOLTA a folha para o Recordar.
+# (Só a nota que se relê puxa — trancada/queimada ficam firmes.)
+- launchApp:
+    clearState: true
+- tapOn:
+    id: pagina
+- inputText: "a nota de hoje sobre o projeto"
+- tapOn:
+    id: concluir
+- openLink: traco://notas
+- extendedWaitUntil:
+    visible: "a nota de hoje sobre o projeto"
+    timeout: 8000
+# (1) puxão curto, ABAIXO da soleira: a folha ergue e solta de volta na lista.
+- swipe:
+    start: "88%, 34%"
+    end: "80%, 34%"
+    duration: 700
+# a nota NÃO abriu — seguimos na lista (a busca só existe na lista, some na página)
+- assertVisible: "Buscar nas notas"
+# (2) agora a FOLHA vai além da soleira → se solta no Recordar
+- swipe:
+    from:
+      text: "a nota de hoje sobre o projeto"
+    direction: LEFT
+- extendedWaitUntil:
+    visible: "RECORDAR"
+    timeout: 8000
+- assertVisible: "Leia uma última vez — a nota vai se esconder."
