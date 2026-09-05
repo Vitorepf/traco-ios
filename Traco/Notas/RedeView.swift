@@ -162,8 +162,7 @@ struct RedeView: View {
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.horizontal, 14)
                                 .padding(.vertical, 12)
-                                .frame(minHeight: Tema.alvo)
-                                .contentShape(Rectangle())
+                                .alvo()
                             }
                             .buttonStyle(PressaoDiscreta())
                             .overlay(alignment: .bottom) {
@@ -210,8 +209,7 @@ struct RedeView: View {
                             }
                             .padding(.horizontal, 14)
                             .padding(.vertical, 12)
-                            .frame(minHeight: Tema.alvo)
-                            .contentShape(Rectangle())
+                            .alvo()
                         }
                         .buttonStyle(PressaoDiscreta())
                         .overlay(alignment: .bottom) {

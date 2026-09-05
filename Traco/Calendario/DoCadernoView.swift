@@ -53,8 +53,7 @@ struct DoCadernoView: View {
                             }
                         }
                         .padding(.vertical, 10)
-                        .frame(minHeight: Tema.alvo)
-                        .contentShape(Rectangle())
+                        .alvo()
                     }
                     .buttonStyle(PressaoClara())
                     .accessibilityHint("Abre a nota")

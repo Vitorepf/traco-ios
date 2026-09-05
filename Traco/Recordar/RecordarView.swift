@@ -244,7 +244,7 @@ struct RecordarView: View {
                     }
                 }
                     .foregroundStyle(Tema.tinta)
-                    .frame(minHeight: Tema.alvo)
+                    .alvo()
                     .buttonStyle(PressaoDiscreta())
                     .accessibilityLabel("Voltar")
                 Spacer()
@@ -372,11 +372,13 @@ struct RecordarView: View {
                 HStack(spacing: 20) {
                     if let aoAdiar {
                         Button("hoje não") { aoAdiar() }
+                            .alvo()
                             .accessibilityHint("Volta amanhã. A escada não muda.")
                             .accessibilityIdentifier("recordar-adiar")
                     }
                     if let aoPular {
                         Button("pular") { aoPular() }
+                            .alvo()
                             .accessibilityHint("Vai à próxima sem revelar esta")
                             .accessibilityIdentifier("recordar-pular")
                     }
@@ -444,7 +446,7 @@ struct RecordarView: View {
             let esperaLeitura: Duration = reduceMotion ? .milliseconds(200) : .milliseconds(1500)
             let esperaBlur: Duration = reduceMotion ? .milliseconds(250) : .milliseconds(900)
             try? await Task.sleep(for: esperaLeitura)
-            withAnimation(.easeOut(duration: reduceMotion ? 0.18 : 0.4)) { fase = .esconder }
+            withAnimation(Tema.animacao(.easeOut(duration: 0.4), reduzido: reduceMotion)) { fase = .esconder }
             try? await Task.sleep(for: esperaBlur)
             withAnimation(.easeOut(duration: 0.3)) { fase = .escrever }
             foco = true
@@ -479,6 +481,7 @@ private struct PrimarioStyle: ButtonStyle {
             .font(Tema.barra)
             .foregroundStyle(recede ? Tema.tintaFraca : Tema.ambarTinta)
             .frame(maxWidth: .infinity, minHeight: Tema.alvo)
+            .contentShape(Rectangle())
             .scaleEffect(configuration.isPressed ? Tema.pressao : 1)
             .opacity(configuration.isPressed ? 0.7 : 1)
     }

@@ -35,7 +35,7 @@ struct PaginaView: View {
                         .font(Tema.meta)
                         .padding(.horizontal, Tema.margem)
                         .padding(.top, 16)
-                        .frame(minHeight: Tema.alvo)
+                        .alvo()
                         .accessibilityIdentifier("voltar-campos")
                         // a folha tem cabeçalho de verdade: o nome da forma é
                         // TÍTULO, não um sexto rótulo. E o âmbar sai do botão
@@ -348,7 +348,7 @@ struct PaginaView: View {
         HStack {
             Button("Notas") { sessao.irNotas(no: context) }
                 .keyboardShortcut("l", modifiers: .command)
-                .frame(minHeight: Tema.alvo)
+                .alvo()
                 .accessibilityIdentifier("notas-da-pagina")
 
             Spacer()
@@ -358,7 +358,7 @@ struct PaginaView: View {
                 .foregroundStyle(sessao.concluirEAmbar ? Tema.ambarTinta : Tema.tintaSuave)
                 .opacity(sessao.temVoz ? 1 : 0)
                 .allowsHitTesting(sessao.temVoz)
-                .frame(minHeight: Tema.alvo)
+                .alvo()
                 .accessibilityHidden(!sessao.temVoz)
                 .accessibilityIdentifier("concluir")
                 .accessibilityLabel("Concluir")
@@ -570,7 +570,7 @@ struct PaginaView: View {
             }
             .font(Tema.corpo)
             .foregroundStyle(Tema.tintaSuave)
-            .frame(minHeight: Tema.alvo)
+            .alvo()
             .buttonStyle(PressaoDiscreta())
             .accessibilityLabel("Soltar a pergunta")
         }
@@ -645,6 +645,8 @@ private struct BarraBotaoStyle: ButtonStyle {
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
                     .strokeBorder(Tema.luzBorda, lineWidth: 0.5)
             }
+            // a pílula mede 38; o alvo mede 44 (3 para cada lado, no vão da barra)
+            .alvo(folgaV: 3)
             // desabilitado é OPACIDADE da cor ativa, nunca uma cor diferente
             .opacity(ativo ? 1 : 0.38)
             .scaleEffect(configuration.isPressed ? Tema.pressao : 1)

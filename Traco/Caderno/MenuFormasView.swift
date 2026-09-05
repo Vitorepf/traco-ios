@@ -75,7 +75,7 @@ struct MenuFormasView: View {
                             Button("ver todas as formas") { busca = "" }
                                 .font(Tema.chrome.weight(.semibold))
                                 .foregroundStyle(Tema.ambarTinta)
-                                .frame(minHeight: Tema.alvo)
+                                .alvo()
                                 .buttonStyle(PressaoDiscreta())
                                 .accessibilityIdentifier("limpar-filtro-formas")
                         }
@@ -173,7 +173,7 @@ struct MenuFormasView: View {
             }
         }
         .padding(.horizontal, 12)
-        .frame(minHeight: Tema.alvo)
+        .alvo()
         .background(Tema.fundo, in: RoundedRectangle(cornerRadius: Tema.raio, style: .continuous))
         .padding(.horizontal, Tema.margem)
         .padding(.bottom, 8)

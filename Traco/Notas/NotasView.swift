@@ -51,7 +51,7 @@ struct NotasView: View {
                     Label("Trabalhos", systemImage: "doc.text")
                         .font(Tema.meta)
                         .foregroundStyle(Tema.ambarTinta)
-                        .frame(minHeight: Tema.alvo)
+                        .alvo()
                 }
                 .padding(.horizontal, Tema.margem)
                 .accessibilityHint("Retoma intenções, versões e próximos atos")
@@ -177,7 +177,7 @@ struct NotasView: View {
                     Button("Repetir pergunta") { repetirPergunta() }
                         .font(Tema.meta)
                         .foregroundStyle(Tema.ambarTinta)
-                        .frame(minHeight: Tema.alvo)
+                        .alvo()
                         .buttonStyle(PressaoDiscreta())
                         .accessibilityIdentifier("repetir-pergunta-notas")
                 }
@@ -283,8 +283,7 @@ struct NotasView: View {
         }
         .menuStyle(.button)
         .buttonStyle(PressaoDiscreta())
-        .frame(minHeight: Tema.alvo)
-        .contentShape(Rectangle())
+        .alvo()
         .accessibilityLabel("Ordenar por \(ordem.nome)")
         .accessibilityIdentifier("ordem-notas")
     }
@@ -309,7 +308,7 @@ struct NotasView: View {
                 .foregroundStyle(Tema.tinta)
                 .accessibilityIdentifier("lote-pronto")
         }
-        .frame(minHeight: Tema.alvo)
+        .alvo()
         .buttonStyle(PressaoDiscreta())
     }
 
@@ -330,6 +329,7 @@ struct NotasView: View {
                 .autocorrectionDisabled()
                 .submitLabel(.send)
                 .onSubmit { perguntar() }
+                .alvo()
                 .accessibilityIdentifier("busca-notas")
                 .accessibilityLabel("Buscar ou perguntar")
                 .accessibilityValue(busca.isEmpty ? "vazio" : busca)
@@ -370,7 +370,7 @@ struct NotasView: View {
             }
         }
         .padding(.horizontal, 12)
-        .frame(minHeight: Tema.alvo)
+        .alvo()
         .background(Tema.superficie, in: RoundedRectangle(cornerRadius: Tema.raio, style: .continuous))
         .padding(.horizontal, Tema.margem)
         .padding(.bottom, 8)
@@ -398,8 +398,7 @@ struct NotasView: View {
                         .frame(minHeight: 34)
                         .background(Capsule().fill(filtro == nil ? Tema.chipAtivo : Tema.chip))
                 }
-                .frame(minHeight: Tema.alvo)
-                .contentShape(Rectangle())
+                .alvo()
                 .buttonStyle(PressaoDiscreta())
                 .accessibilityIdentifier("filtro-todas")
                 .accessibilityAddTraits(filtro == nil ? [.isSelected] : [])
@@ -482,8 +481,7 @@ struct NotasView: View {
                 .frame(minHeight: 34)
                 .background(Capsule().fill(ligado ? Tema.chipAtivo : Tema.chip))
         }
-        .frame(minHeight: Tema.alvo)
-        .contentShape(Rectangle())
+        .alvo()
         .buttonStyle(PressaoDiscreta())
         .accessibilityAddTraits(ligado ? [.isSelected] : [])
         .accessibilityIdentifier(id)
@@ -571,7 +569,7 @@ struct NotasView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .contentShape(Rectangle())
                     .padding(.vertical, 12)
-                    .frame(minHeight: Tema.alvo)
+                    .alvo()
                 }
                 .buttonStyle(PressaoDiscreta())
                 .accessibilityLabel("\(Volta.cobranca(par.campo)) \(titulo(par.nota))")
@@ -607,7 +605,7 @@ struct NotasView: View {
                         }
                         .font(Tema.chrome.weight(.semibold))
                         .foregroundStyle(Tema.ambarTinta)
-                        .frame(minHeight: Tema.alvo)
+                        .alvo()
                         .buttonStyle(PressaoDiscreta())
                     } else {
                         Button("ver todas as notas") {
@@ -617,7 +615,7 @@ struct NotasView: View {
                         }
                         .font(Tema.chrome.weight(.semibold))
                         .foregroundStyle(Tema.ambarTinta)
-                        .frame(minHeight: Tema.alvo)
+                        .alvo()
                         .buttonStyle(PressaoDiscreta())
                         .accessibilityIdentifier("limpar-busca")
                     }
@@ -790,6 +788,8 @@ struct NotasView: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(PressaoDiscreta())
+            // a linha de um título só mede 24; o alvo pega 10 do vão de cada lado
+            .alvo(folgaV: 10)
             .tint(Tema.tinta)
             .accessibilityLabel(nota.trancada ? "Expressiva trancada" : titulo(nota))
             .accessibilityHint(nota.trancada ? "Reabrir pede confirmação dupla" : "Segure para recordar a memória")
@@ -804,7 +804,7 @@ struct NotasView: View {
         }
         .padding(.vertical, 12)
         .padding(.horizontal, escolhidas.contains(nota.uuid) ? 10 : 0)
-        .frame(minHeight: Tema.alvo)
+        .alvo()
         .background(
             escolhidas.contains(nota.uuid) ? Tema.chip : .clear,
             in: RoundedRectangle(cornerRadius: 10, style: .continuous))

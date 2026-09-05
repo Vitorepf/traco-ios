@@ -52,7 +52,7 @@ struct LenteView: View {
                     Button("Pronto") { dismiss() }
                         .font(Tema.barra)
                         .foregroundStyle(Tema.tinta)
-                        .frame(minHeight: Tema.alvo)
+                        .alvo()
                         .buttonStyle(PressaoDiscreta())
                         .accessibilityIdentifier("lente-pronto")
                 }
@@ -162,7 +162,7 @@ struct LenteView: View {
                                 .font(Tema.label)
                                 .foregroundStyle(Tema.tintaFraca)
                                 .buttonStyle(PressaoDiscreta())
-                                .frame(minHeight: Tema.alvo)
+                                .alvo()
                                 .padding(.horizontal, 14)
                             }
                             if semConta {
@@ -373,8 +373,7 @@ struct LenteView: View {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 10)
-        .frame(minHeight: Tema.alvo)
-        .contentShape(Rectangle())
+        .alvo()
         .overlay(alignment: .bottom) {
             Rectangle().fill(Tema.linha).frame(height: 1).padding(.leading, 14)
         }

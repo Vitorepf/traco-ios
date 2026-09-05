@@ -37,8 +37,7 @@ struct ChipDominio: View {
         }
         .menuStyle(.button)
         .buttonStyle(PressaoDiscreta())
-        .frame(minHeight: Tema.alvo)
-        .contentShape(Rectangle())
+        .alvo()
         .accessibilityLabel(atual.map { "Domínio: \($0.nome)" } ?? "Sem domínio")
         .accessibilityHint("Abre o menu para trocar ou tirar o domínio")
         .accessibilityIdentifier("chip-dominio")

@@ -5,8 +5,13 @@ struct CartaoAnaliseView: View {
     let sessao: Sessao
     var aoAbrirCampos: (() -> Void)?
     @Environment(\.modelContext) private var context
+    @Environment(\.dynamicTypeSize) private var tamanhoTexto
     /// ADR 04h: já disse se serviu — as duas saídas somem depois do toque.
     @State private var avaliou = false
+    /// Em tamanhos AX o texto rola e as ações NÃO rolam junto: ficam no pé do
+    /// cartão, sempre à vista. A revisão da volta 8 mediu, em AX5, "Deixar
+    /// como nota" três páginas abaixo, dentro do teto de 380.
+    private var acoesNoPe: Bool { tamanhoTexto.isAccessibilitySize }
 
     /// As duas saídas discretas de todo texto de modelo: serviu / não serviu.
     /// É a entrada da segunda volta do ciclo (a IA aprendendo esta mente).
@@ -34,10 +39,21 @@ struct CartaoAnaliseView: View {
     var body: some View {
         // AX: em Dynamic Type grande o texto cresce — o cartão rola por dentro
         // e nunca cobre a topbar (o resto da UI continua alcançável).
-        ScrollView {
-            conteudo
+        VStack(alignment: .leading, spacing: 10) {
+            ScrollView {
+                conteudo
+            }
+            if acoesNoPe {
+                VStack(alignment: .leading, spacing: 0) { acoes }
+                    .padding(.leading, 15) // alinha com o texto: trilho 3 + vão 12
+                    // o pé não cede: sem isto o VStack o comprimia e "Abrir os
+                    // campos" virava "Abrir os ca…" (visto em AX5, 05/09)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
         }
-        .frame(maxHeight: 380)
+        // em AX o teto sobe: duas ações de duas linhas (≈256 pt) mais três
+        // linhas de texto que rolam; em tamanhos normais o cartão é o que era
+        .frame(maxHeight: acoesNoPe ? 480 : 380)
         .fixedSize(horizontal: false, vertical: true)
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -100,12 +116,6 @@ struct CartaoAnaliseView: View {
                         .font(Tema.corpo)
                         .foregroundStyle(Tema.tinta)
                         .fixedSize(horizontal: false, vertical: true)
-                    Button("Abrir a forma \(gesto.nome)") {
-                        sessao.usarForma(gesto)
-                    }
-                    .buttonStyle(CartaoBotaoStyle())
-                    .accessibilityHint("Campos vazios nascem abaixo do seu texto")
-                    botaoPergunta
                 }
             case .vestida(let gesto, let perguntaTemplate):
                 corpoCartao(trilho: Tema.ambar) {
@@ -134,19 +144,6 @@ struct CartaoAnaliseView: View {
                         .fixedSize(horizontal: false, vertical: true)
                         .accessibilityIdentifier("pergunta-da-forma")
                     if let q = sessao.perguntaDaSabia { avaliacao(q) }
-                    HStack(spacing: 10) {
-                        // ADR 04r: abrir os campos é ATO — é aqui que a sábia instiga
-                        Button("Abrir os campos") { sessao.instigarSePreciso(); aoAbrirCampos?() }
-                            .buttonStyle(CartaoBotaoStyle())
-                            .accessibilityIdentifier("abrir-campos")
-                            .accessibilityHint("Os campos da forma abrem numa folha; o seu texto fica intacto")
-                        Button("Deixar como nota") { sessao.soltarForma() }
-                            .buttonStyle(CompactoStyle())
-                            .foregroundStyle(Tema.tintaSuave)
-                            .accessibilityIdentifier("soltar-forma")
-                            .accessibilityHint("Desfaz a forma; o seu texto fica intacto")
-                    }
-                    botaoPergunta
                 }
             case .pergunta(let q):
                 corpoCartao(trilho: Tema.ambar) {
@@ -155,10 +152,6 @@ struct CartaoAnaliseView: View {
                         .font(Tema.corpo)
                         .foregroundStyle(Tema.tinta)
                         .fixedSize(horizontal: false, vertical: true)
-                    Button("Perguntar à sábia") { sessao.perguntarASabia(no: context) }
-                        .buttonStyle(CartaoBotaoStyle())
-                        .accessibilityIdentifier("perguntar-sabia")
-                        .accessibilityHint("A resposta vem aqui, nunca na nota")
                 }
             case .sabiaPensando:
                 corpoCartao(trilho: Tema.ambar) {
@@ -192,50 +185,19 @@ struct CartaoAnaliseView: View {
                             .accessibilityIdentifier("notas-na-pergunta")
                     }
                     avaliacao(texto, resposta: true)
-                    HStack(spacing: 10) {
-                        Button("Copiar") {
-                            UIPasteboard.general.string = texto
-                            Toque.leve()
-                        }
-                        .buttonStyle(CartaoBotaoStyle())
-                        .accessibilityHint("Vai para a área de transferência; colar é gesto seu")
-                        Button("Fechar") {
-                            var t = Transaction(); t.disablesAnimations = true
-                            withTransaction(t) { sessao.cartao = nil }
-                        }
-                        .buttonStyle(CompactoStyle())
-                        .foregroundStyle(Tema.tintaSuave)
-                    }
                 }
-            case .vestido(let antes):
+            case .vestido:
                 corpoCartao(trilho: Tema.ambar) {
                     chip("Vestido", aviso: false)
                     Text("As suas palavras, com forma. Nenhuma mudou.")
                         .font(Tema.corpo)
                         .foregroundStyle(Tema.tinta)
                         .fixedSize(horizontal: false, vertical: true)
-                    HStack(spacing: 10) {
-                        Button("Desfazer") { sessao.desfazerVestir(antes) }
-                            .buttonStyle(CartaoBotaoStyle())
-                            .accessibilityIdentifier("desfazer-vestir")
-                        Button("Ficar assim") {
-                            var t = Transaction(); t.disablesAnimations = true
-                            withTransaction(t) { sessao.cartao = nil }
-                        }
-                        .buttonStyle(CompactoStyle())
-                        .foregroundStyle(Tema.tintaSuave)
-                    }
                 }
             case .semConta:
                 corpoCartao(trilho: Tema.aviso) {
                     chip("Sem conta", aviso: true)
                     avisoTexto("a sábia " + Sabia.porOndeEmPalavras + ". Sem ela, tudo o mais continua.")
-                    Button("Fechar") {
-                        var t = Transaction(); t.disablesAnimations = true
-                        withTransaction(t) { sessao.cartao = nil }
-                    }
-                    .buttonStyle(CompactoStyle())
-                    .foregroundStyle(Tema.tintaSuave)
                 }
             case .expressiva:
                 corpoCartao(trilho: Tema.ambar) {
@@ -244,14 +206,88 @@ struct CartaoAnaliseView: View {
                         .font(Tema.corpo)
                         .foregroundStyle(Tema.tinta)
                         .fixedSize(horizontal: false, vertical: true)
-                    Button("Começar o timer") {
-                        sessao.comecarExpressiva(no: context)
-                    }
-                    .buttonStyle(CartaoBotaoStyle())
                 }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private func fechar() {
+        var t = Transaction(); t.disablesAnimations = true
+        withTransaction(t) { sessao.cartao = nil }
+    }
+
+    /// As saídas de cada cartão, num lugar só: no corpo em tamanhos normais
+    /// (dentro do trilho, como sempre), no pé em AX (`acoesNoPe`).
+    @ViewBuilder private var acoes: some View {
+        switch cartao {
+        case .aviso, .sabiaPensando:
+            EmptyView()
+        case .forma(let gesto, _):
+            Button("Abrir a forma \(gesto.nome)") {
+                sessao.usarForma(gesto)
+            }
+            .buttonStyle(CartaoBotaoStyle())
+            .accessibilityHint("Campos vazios nascem abaixo do seu texto")
+            botaoPergunta
+        case .vestida:
+            ladoALado {
+                // ADR 04r: abrir os campos é ATO — é aqui que a sábia instiga
+                Button("Abrir os campos") { sessao.instigarSePreciso(); aoAbrirCampos?() }
+                    .buttonStyle(CartaoBotaoStyle())
+                    .accessibilityIdentifier("abrir-campos")
+                    .accessibilityHint("Os campos da forma abrem numa folha; o seu texto fica intacto")
+                Button("Deixar como nota") { sessao.soltarForma() }
+                    .buttonStyle(CompactoStyle())
+                    .foregroundStyle(Tema.tintaSuave)
+                    .accessibilityIdentifier("soltar-forma")
+                    .accessibilityHint("Desfaz a forma; o seu texto fica intacto")
+            }
+            botaoPergunta
+        case .pergunta:
+            Button("Perguntar à sábia") { sessao.perguntarASabia(no: context) }
+                .buttonStyle(CartaoBotaoStyle())
+                .accessibilityIdentifier("perguntar-sabia")
+                .accessibilityHint("A resposta vem aqui, nunca na nota")
+        case .resposta(_, let texto):
+            ladoALado {
+                Button("Copiar") {
+                    UIPasteboard.general.string = texto
+                    Toque.leve()
+                }
+                .buttonStyle(CartaoBotaoStyle())
+                .accessibilityHint("Vai para a área de transferência; colar é gesto seu")
+                Button("Fechar", action: fechar)
+                    .buttonStyle(CompactoStyle())
+                    .foregroundStyle(Tema.tintaSuave)
+            }
+        case .vestido(let antes):
+            ladoALado {
+                Button("Desfazer") { sessao.desfazerVestir(antes) }
+                    .buttonStyle(CartaoBotaoStyle())
+                    .accessibilityIdentifier("desfazer-vestir")
+                Button("Ficar assim", action: fechar)
+                    .buttonStyle(CompactoStyle())
+                    .foregroundStyle(Tema.tintaSuave)
+            }
+        case .semConta:
+            Button("Fechar", action: fechar)
+                .buttonStyle(CompactoStyle())
+                .foregroundStyle(Tema.tintaSuave)
+        case .expressiva:
+            Button("Começar o timer") {
+                sessao.comecarExpressiva(no: context)
+            }
+            .buttonStyle(CartaoBotaoStyle())
+        }
+    }
+
+    /// Duas saídas lado a lado; em AX, uma por linha (não cabem juntas).
+    private func ladoALado<Conteudo: View>(@ViewBuilder _ conteudo: () -> Conteudo) -> some View {
+        let leiaute = acoesNoPe
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: 0))
+            : AnyLayout(HStackLayout(spacing: 10))
+        return leiaute { conteudo() }
     }
 
     private func avisoTexto(_ frase: String) -> some View {
@@ -274,6 +310,7 @@ struct CartaoAnaliseView: View {
                 .frame(width: 3)
             VStack(alignment: .leading, spacing: 10) {
                 conteudo()
+                if !acoesNoPe { acoes }
             }
         }
     }
@@ -292,7 +329,7 @@ private struct CompactoStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(Tema.barra)
-            .frame(minHeight: Tema.alvo)
+            .alvo()
             .scaleEffect(configuration.isPressed ? Tema.pressao : 1)
             .opacity(configuration.isPressed ? 0.7 : 1)
             .animation(Tema.pressaoAnim(configuration.isPressed), value: configuration.isPressed)
@@ -306,6 +343,7 @@ private struct CartaoBotaoStyle: ButtonStyle {
             .font(Tema.barra)
             .foregroundStyle(Tema.ambarTinta)
             .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .leading)
+            .contentShape(Rectangle())
             .scaleEffect(configuration.isPressed ? Tema.pressao : 1)
             .opacity(configuration.isPressed ? 0.7 : 1)
     }

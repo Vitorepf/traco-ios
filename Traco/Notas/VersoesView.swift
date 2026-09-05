@@ -60,8 +60,7 @@ struct VersoesView: View {
                                 }
                                 .padding(.horizontal, 14)
                                 .padding(.vertical, 12)
-                                .frame(minHeight: Tema.alvo)
-                                .contentShape(Rectangle())
+                                .alvo()
                             }
                             .buttonStyle(PressaoDiscreta())
                             .overlay(alignment: .bottom) {

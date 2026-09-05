@@ -91,7 +91,7 @@ struct CalendarioDiaView: View {
                         .frame(height: 32)
                         .background(CalendarioTema.fundo(de: evento), in: Capsule())
                         .overlay { if CalendarioTema.temContorno(evento) { Capsule().strokeBorder(CalendarioTema.contorno(de: evento), lineWidth: 1) } }
-                        .frame(minHeight: Tema.alvo)
+                        .alvo()
                         .contentShape(Capsule())
                     }
                     .buttonStyle(PressaoClara())
@@ -635,6 +635,9 @@ struct CalendarioAnoView: View {
     private func mesMini(_ mes: Date, mapa: [Date: [EventoCalendario]]) -> some View {
         let actual = Calendario.mesmoMes(mes, agenda.ancora, agenda.cal)
         let celulas = Calendario.grelhaDoMes(da: mes, agenda.cal)
+        let compromissos = celulas
+            .filter { Calendario.mesmoMes($0, mes, agenda.cal) }
+            .reduce(0) { $0 + (mapa[Calendario.inicioDoDia($1, agenda.cal)]?.count ?? 0) }
         return Button {
             Toque.selecao()
             withAnimation(CalendarioTema.morph(reduceMotion)) {
@@ -669,7 +672,12 @@ struct CalendarioAnoView: View {
         }
         .buttonStyle(PressaoClara())
         .matchedGeometryEffect(id: idMes(mes, agenda.cal), in: morph, isSource: agenda.escala == .ano)
+        // um elemento por mês: os 42 números de 8 pt não são leitura, são desenho
+        // (G3 v8: ~500 elementos soltos no rotor)
+        .accessibilityElement(children: .ignore)
         .accessibilityLabel(Calendario.formatar(mes, "MMMM 'de' yyyy", agenda.cal))
+        .accessibilityValue(compromissos == 0 ? "" : (compromissos == 1 ? "1 compromisso" : "\(compromissos) compromissos"))
+        .accessibilityAddTraits(actual ? [.isButton, .isSelected] : .isButton)
         .accessibilityIdentifier(actual ? "calendario-ano-actual" : "calendario-ano-\(Calendario.formatar(mes, "yyyy-MM", agenda.cal))")
     }
 

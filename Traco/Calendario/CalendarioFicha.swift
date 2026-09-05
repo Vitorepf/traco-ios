@@ -154,8 +154,7 @@ struct CalendarioFichaView: View {
                                     .font(.caption2.weight(.semibold))
                                     .foregroundStyle(CalendarioTema.tintaSuave)
                             }
-                            .frame(minHeight: Tema.alvo)
-                            .contentShape(Rectangle())
+                            .alvo()
                         }
                         .accessibilityIdentifier("ficha-aviso")
                         .accessibilityLabel("Avisar: \(Aviso.nome(evento.avisoMinutos, diaInteiro: evento.diaInteiro))")

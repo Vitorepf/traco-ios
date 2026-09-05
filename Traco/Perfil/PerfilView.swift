@@ -293,7 +293,7 @@ struct PerfilView: View {
                     Button("Abrir a página de aprovação") { abrir(codigo.url) }
                         .font(Tema.chrome.weight(.semibold))
                         .foregroundStyle(Tema.ambarTinta)
-                        .frame(minHeight: Tema.alvo)
+                        .alvo()
                         .buttonStyle(PressaoDiscreta())
                 }
                 .padding(14)
@@ -315,7 +315,7 @@ struct PerfilView: View {
                 // sendo (sair é raro); tocável precisa parecer.
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(Tema.tintaSuave)
-                .frame(minHeight: Tema.alvo)
+                .alvo()
                 .buttonStyle(PressaoDiscreta())
                 .padding(.top, 6)
                 .accessibilityIdentifier("sair-conta")
@@ -325,7 +325,7 @@ struct PerfilView: View {
                 }
                 .font(Tema.chrome)
                 .foregroundStyle(Tema.ambarTinta)
-                .frame(minHeight: Tema.alvo)
+                .alvo()
                 .buttonStyle(PressaoDiscreta())
                 .disabled(entrando)
                 .padding(.top, 6)
@@ -400,7 +400,7 @@ struct PerfilView: View {
                 }
                 .font(Tema.chrome.weight(.semibold))
                 .foregroundStyle(Tema.ambarTinta)
-                .frame(minHeight: Tema.alvo)
+                .alvo()
                 .buttonStyle(PressaoDiscreta())
                 .accessibilityIdentifier("abrir-ajustes")
                 .accessibilityHint("O iOS só deixa mudar uma permissão negada por lá")
@@ -466,7 +466,7 @@ struct PerfilView: View {
                     .disabled(agenda.eventos.isEmpty)
                     .accessibilityIdentifier("ajustes-apagar-tudo")
             }
-            .frame(minHeight: Tema.alvo)
+            .alvo()
         }
         .confirmationDialog("Apagar todos os compromissos?",
                             isPresented: $confirmarApagarCalendario, titleVisibility: .visible) {
@@ -530,6 +530,7 @@ struct PerfilView: View {
                 .font(Tema.meta)
                 .foregroundStyle(Tema.tintaSuave)
                 .frame(minHeight: Tema.alvo, alignment: .leading)
+                .contentShape(Rectangle())
                 .buttonStyle(PressaoDiscreta())
                 .accessibilityIdentifier("ferias-sem-data")
             }

@@ -482,6 +482,8 @@ struct CalendarioChipDia: View {
         }
         .frame(width: Tema.alvo, height: Tema.alvo)
         .contentShape(Rectangle())
+        // um elemento só: sem isto a letra e o número repetem o rótulo (G3 v8)
+        .accessibilityElement(children: .ignore)
         // o risco é invisível ao VoiceOver: quem não vê precisa ouvir o nome
         .accessibilityLabel(
             feriado.map { "\(Calendario.diaPorExtenso(dia, cal)), feriado, \($0.nome)" }
@@ -535,7 +537,7 @@ struct CalendarioListaView: View {
                                 }
                                 .padding(.horizontal, 14)
                                 .padding(.vertical, 12)
-                                .frame(minHeight: Tema.alvo)
+                                .alvo()
                                 .background(CalendarioTema.cartao, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
                                 .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                             }

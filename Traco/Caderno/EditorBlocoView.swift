@@ -266,7 +266,8 @@ struct EditorBlocoView: View {
                        // do Xcode 17F113 CRASHAR ao compilar este arquivo.
                        // Sem ela, o aviso sobra no `Binding` do SwiftUI, que é
                        // fronteira de framework: menos ruído e nenhum crash.
-                       // Reavaliar quando a toolchain subir.
+                       // Reavaliar quando a toolchain subir. (05/09: só
+                       // `@MainActor`, sem `@Sendable`, também derruba o compilador.)
                        ao: @escaping (String) -> Void) -> some View {
         TextField("", text: Binding(get: { valor }, set: ao))
             .font(cabecalho ? Tema.corpo.weight(.medium) : Tema.corpo)

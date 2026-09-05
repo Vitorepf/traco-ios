@@ -132,9 +132,7 @@ enum Tema {
     }
 
     static func gaveta(reduzido: Bool) -> Animation {
-        reduzido
-            ? .easeOut(duration: 0.18)
-            : .timingCurve(0.32, 0.72, 0, 1, duration: push)
+        animacao(.timingCurve(0.32, 0.72, 0, 1, duration: push), reduzido: reduzido)
     }
 
     /// A curva de pressão da casa: press quase instantâneo, release com vida.
@@ -142,11 +140,6 @@ enum Tema {
         isPressed
             ? .easeOut(duration: 0.08)
             : .spring(response: 0.32, dampingFraction: 0.65)
-    }
-
-    static func cartao(reduzido: Bool, aEntrar: Bool) -> Animation {
-        if reduzido { return .easeOut(duration: 0.18) }
-        return .easeOut(duration: aEntrar ? cartaoEntra : cartaoSai)
     }
 }
 
@@ -164,9 +157,29 @@ extension Color {
 struct PressaoDiscreta: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
+            // o rótulo inteiro recebe o dedo, não só o glifo
+            .contentShape(Rectangle())
             .scaleEffect(configuration.isPressed ? Tema.pressao : 1)
             // só escala: baixar a opacidade sobre papel lê como piscar
             // press quase instantâneo; o soltar volta com vida (spring leve)
             .animation(Tema.pressaoAnim(configuration.isPressed), value: configuration.isPressed)
+    }
+}
+
+extension View {
+    /// SISTEMA-CLARO: "36 é o desenho, 44 é o alvo". Um `.frame(minHeight: 44)`
+    /// por fora do Button só RESERVA espaço — o dedo e o VoiceOver medem o
+    /// `contentShape`. A revisão da volta 8 mediu: "Notas" 45×20 com frame de
+    /// 44 sem contentShape; "Como contexto" 44×44 com os dois. Este é o alvo
+    /// de verdade, e a `folga` dá o alvo a quem vive apertado (chips da régua,
+    /// pílulas de 38 na barra, linhas de 24 nas Notas) sem mover um pixel: o
+    /// alvo cresce para os lados e devolve o espaço ao layout.
+    func alvo(folgaH: CGFloat = 0, folgaV: CGFloat = 0) -> some View {
+        padding(.horizontal, folgaH)
+            .padding(.vertical, folgaV)
+            .frame(minHeight: Tema.alvo)
+            .contentShape(Rectangle())
+            .padding(.horizontal, -folgaH)
+            .padding(.vertical, -folgaV)
     }
 }

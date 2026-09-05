@@ -35,7 +35,7 @@ struct CamposFormaView: View {
         }
         .padding(.horizontal, Tema.margem)
         .onAppear {
-            withAnimation(reduceMotion ? .easeOut(duration: 0.18) : .easeOut(duration: Tema.formaNasce)) {
+            withAnimation(Tema.animacao(.easeOut(duration: Tema.formaNasce), reduzido: reduceMotion)) {
                 nascida = true
             }
         }

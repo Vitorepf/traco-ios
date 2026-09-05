@@ -2400,8 +2400,14 @@ Caderno recebia `reduzido: false` cravado.
 **A decisão.** (1) Uma lei de movimento num lugar só: `Tema.animacao` e
 `Tema.transicao` devolvem `fadeReduzido` (0,15 s) ou `.opacity` quando o
 sistema pede menos movimento; toda animação e transição custom das jornadas
-principais passa por elas. Camadas corta seco a posição e entra por fade; a
-barra não desce, apaga; o ponto de "lendo…" fica aceso, sem laço. (2) O arrasto
+principais passa por elas. Duas têm nome próprio e passam pela mesma lei: a
+gaveta do Caderno (`Tema.gaveta`) e o morph/desdobramento do Calendário
+(`CalendarioTema.morph`/`desdobra`) — em reduzido devolvem o MESMO
+`fadeReduzido`, não um segundo valor (o G3 mediu 0,18 s em `gaveta` e num
+`Tema.cartao` sem uso desde 31/ago; o segundo foi apagado). O pé das Notas
+corta seco por `transaction`: o corte é o outro lado permitido da lei.
+Camadas corta seco a posição e entra por fade; a barra não desce, apaga; o
+ponto de "lendo…" fica aceso, sem laço. (2) O arrasto
 do calendário ganha par no rotor: "Dia/Semana/Mês/Ano seguinte" e "anterior",
 uma ação por escala, no mesmo `andar` do gesto. O toque longo em "Analisar"
 vira "Ligar/Desligar análise automática" no rotor. A régua diz o que faz
@@ -2422,14 +2428,38 @@ do sistema; a pergunta e a pista do Recordar ganham `fixedSize` vertical; o
 menu de ordem mostra o ícone de ordenar em tamanhos AX (o rótulo de VoiceOver
 "Ordenar por X" já dizia tudo).
 
+(6) O alvo é o que se mede, não o que se reserva (correções do G3, 05/09).
+Um `.frame(minHeight: 44)` POR FORA do Button só reserva espaço: o dedo e o
+VoiceOver medem o `contentShape` — a revisão mediu "Notas" 45×20 com o frame
+de 44 e "Como contexto" 44×44 com frame e contentShape. `View.alvo()` em
+`Tema` é frame E contentShape; `alvo(folgaH:folgaV:)` dá o alvo a quem vive
+apertado (chips da régua, "Todas", pílulas de 38 da barra, linhas de 24 das
+Notas) crescendo para os lados e devolvendo o espaço ao layout — nenhum pixel
+se move. O chip do dia e da semana é UM elemento (`children: .ignore`): a
+letra e o número não repetem o rótulo. O ano é um elemento por mês, "setembro
+de 2026" com valor "N compromissos": os 42 números de 8 pt são desenho, não
+leitura. O cartão da análise em tamanhos AX rola o TEXTO e prende as AÇÕES no
+pé, uma por linha — "Abrir os campos" e "Deixar como nota" ficam à vista sem
+rolar (o G3 mediu a ação três páginas abaixo em AX5); em tamanhos normais o
+cartão é o que era.
+
 **Custo assumido:** a ação de rotor é descoberta, não vista — quem não conhece
 o rotor continua sem andar no calendário; o chip do dia é o caminho visível.
 No AX5, o ano continua preso em `large` e a grade em `xxLarge` (decisão da
-ADR 02h: 504 células não cabem em corpo maior); a régua a `xxxLarge`.
+ADR 02h: 504 células não cabem em corpo maior); a régua a `xxxLarge`. A folga
+dos chips da régua é fixa (9 pt): em `large` o menor chip ("Lista") mede 44;
+abaixo de `large` mede 42. "pular" no Recordar e a aba do arquivo (23 pt de
+largura, `Camadas`) seguem estreitos. O idioma `frame` sem `contentShape`
+sobrevive fora das jornadas desta volta (Confirmação, Padrões, Trabalho).
 
 **Prova:** build e suíte integral 623/0 em 122 suítes (05/09/2026, `TemaTests`
-novo). Árvore esperada por tela documentada no relatório da volta 8; a
-conferência com `maestro hierarchy` é do revisor.
+novo); após as correções do G3, 624/0 em 122 suítes e build limpo com um só
+aviso, o pré-existente de `EditorBlocoView`. Aparência intacta em `large`:
+diff de pixels antes/depois no mesmo simulador — Notas, mês, ano e Recordar
+0 %; página 0,001 % (teclado); dia e semana só a linha "agora"; cartão da
+forma vestida 0 %. `maestro/ax5.yaml` passa em `large` E em AX5 (16 passos, "Deixar como nota" visível; rodado pelo orquestrador no simulador da correção). Árvore esperada por
+tela documentada no relatório da volta 8; a conferência com `maestro
+hierarchy` é do revisor.
 Capturas `simctl` em tamanho normal e AX5 das cinco telas no simulador da
 volta (`ferramentas/orca/v8-*.png`), tamanho de texto restaurado a `medium`; o
 iPhone do dono estava em uso por outra volta e não foi tocado além de uma

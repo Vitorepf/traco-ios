@@ -265,8 +265,7 @@ struct CadernoView: View {
                             .padding(.horizontal, 12)
                             .padding(.vertical, 8)
                             .background(Tema.chip, in: Capsule())
-                            .frame(minHeight: Tema.alvo)
-                            .contentShape(Rectangle())
+                            .alvo()
                     }
                     .buttonStyle(PressaoDiscreta())
                     .accessibilityIdentifier("ligar-\(titulo)")
@@ -291,7 +290,9 @@ struct CadernoView: View {
                             withAnimation(.easeOut(duration: 0.18)) { transformar(papel) }
                         }
                         .buttonStyle(PressaoDiscreta())
-                        .frame(minHeight: Tema.alvo)
+                        // 44 de alvo num chip de 26–57 pt de texto: a folga
+                        // cresce 9 para cada lado e o layout fica onde estava
+                        .alvo(folgaH: 9)
                         .accessibilityIdentifier("regua-\(papel.slug)")
                         .accessibilityHint("Dá esta forma à linha do cursor")
                     }
@@ -299,7 +300,11 @@ struct CadernoView: View {
                     // senão fica cortado para sempre e é inalcançável
                     Color.clear.frame(width: 24)
                 }
+                // o primeiro chip começa 9 pt antes da margem para o alvo
+                // dele não ser cortado pelo ScrollView; o texto não se move
+                .padding(.leading, 9)
             }
+            .padding(.leading, -9)
             .mask(
                 HStack(spacing: 0) {
                     Rectangle()
@@ -323,7 +328,7 @@ struct CadernoView: View {
                 menuFormas = true
             }
             .buttonStyle(PressaoDiscreta())
-            .frame(minHeight: Tema.alvo)
+            .alvo(folgaH: 9)
             .padding(.leading, 12)
             .accessibilityIdentifier("regua-todas")
             .accessibilityHint("Abre a lista com todas as formas")

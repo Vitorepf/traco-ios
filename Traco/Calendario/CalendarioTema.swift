@@ -134,17 +134,14 @@ enum CalendarioTema {
     // MARK: movimento
     /// Mola com massa e sem pressa, para a troca de escala e de dia.
     static func morph(_ reduce: Bool) -> Animation {
-        reduce
-            ? .easeOut(duration: 0.15)
-            : .spring(response: 0.55, dampingFraction: 0.86)
+        Tema.animacao(.spring(response: 0.55, dampingFraction: 0.86), reduzido: reduce)
     }
 
     /// O desdobramento: a escala nova cresce do lugar do dia âncora e a antiga
     /// recua um passo. Sem blur, sem máscara: o objeto que viaja é o chip do
     /// dia, por `matchedGeometryEffect`; isto só dá corpo ao resto.
     static func desdobra(reduzido: Bool, aproximando: Bool, foco: UnitPoint) -> AnyTransition {
-        if reduzido { return .opacity }
-        return .asymmetric(
+        Tema.transicao(.asymmetric(
             insertion: .modifier(
                 active: Desdobra(t: 0, escala: aproximando ? 0.92 : 1.06, foco: foco, saida: false),
                 identity: Desdobra(t: 1, escala: 1, foco: foco, saida: false)
@@ -153,7 +150,7 @@ enum CalendarioTema {
                 active: Desdobra(t: 0, escala: aproximando ? 1.06 : 0.92, foco: foco, saida: true),
                 identity: Desdobra(t: 1, escala: 1, foco: foco, saida: true)
             )
-        )
+        ), reduzido: reduzido)
     }
 }
 

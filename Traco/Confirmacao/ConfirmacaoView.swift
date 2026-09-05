@@ -79,7 +79,7 @@ struct ConfirmacaoView: View {
             .opacity(materializado || reduceMotion ? 1 : 0)
         }
         .onAppear {
-            withAnimation(reduceMotion ? .easeOut(duration: 0.18) : .easeOut(duration: Tema.confirmacaoEntra)) {
+            withAnimation(Tema.animacao(.easeOut(duration: Tema.confirmacaoEntra), reduzido: reduceMotion)) {
                 materializado = true
             }
         }
