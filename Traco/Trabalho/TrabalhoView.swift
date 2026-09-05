@@ -77,6 +77,7 @@ struct TrabalhoView: View {
         .onChange(of: trabalho.conteudoJSON) { _, _ in revalidar() }
         .onChange(of: scenePhase) { _, fase in
             revalidar()
+            if fase == .active, let oficina { Task { await oficina.lerAvisos() } }
         }
         .onDisappear { oficina?.cancelar() }
         .confirmationDialog("Descartar os rascunhos dos campos?", isPresented: $confirmarDescarte) {
@@ -260,8 +261,9 @@ struct TrabalhoView: View {
                         Text("Material: versão \(numero(id, em: o.documento))")
                             .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
                     }
-                    AgendamentoAcaoView(acao: acao, podeGuardar: o.salvo, guardar: { data in
-                        aplicar(o) { try $0.agendar(acao.id, para: data) }
+                    AgendamentoAcaoView(acao: acao, podeGuardar: o.salvo, aviso: o.avisos[acao.id],
+                                        permissaoNegada: o.permissaoNegada, guardar: { data, aviso in
+                        aplicar(o) { try $0.agendar(acao.id, para: data, aviso: aviso) }
                     }, verNoCalendario: { data in
                         guard o.verificarAcesso(), o.salvo else { revalidar(); return false }
                         o.cancelar()
@@ -425,6 +427,8 @@ struct TrabalhoView: View {
             oficina = nova
             exibicaoSuspensa = false
             erroDeLeitura = nil
+            // ADR 05n: a folha aberta conta o estado real do aviso, não o que se pediu
+            Task { await nova.lerAvisos() }
         } catch {
             erroDeLeitura = "Não consegui abrir este trabalho. O registro foi preservado; nenhum documento vazio foi criado."
         }

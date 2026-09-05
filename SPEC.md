@@ -2140,3 +2140,40 @@ Montagem por item para essas três rotas fica na FILA.
 no simulador de teste; nenhum teste comprova a qualidade semântica do modelo.
 **Fora:** reparo de sinais antigos, UI nova, mudança de autoria, validação
 semântica do provedor.
+
+## ADR 2026-09-05n — A ação do Trabalho avisa
+
+**A distância.** A ação pendente entrava no calendário "sem alerta" (a ADR
+05k declarava não implementado) e, pela ADR 04a, o que se marca e não avisa é
+como não marcado: a ponte do calendário (visão 05g) ligava a intenção a um
+horário que ninguém ouvia.
+
+**A decisão.** O aviso mora na ação (`Acao.avisoMinutos`, lista fechada de
+`Aviso.opcoes`; chave ausente = sem alerta, como foi prometido às ações
+antigas; sem horário, sem aviso). A folha do horário ganha o seletor em
+cápsula e mostra UMA linha de estado: antes de guardar, a promessa em hora
+real ("Toca sexta-feira, 11 de set. às 13:55 · 30 min antes"), e só quando a
+permissão não está negada; depois do commit, o que aconteceu de fato:
+marcado, sem permissão (com "Abrir os Ajustes"), sem espaço no teto de 64,
+hora passada, ou "não está marcado no iPhone — guarde de novo". Ao abrir a
+Oficina, o estado é lido do centro de notificações e da permissão de hoje,
+nunca presumido. O motor (`Revisoes.agendarAcao`) arma UMA notificação
+`timeSensitive` no namespace `acao-<id>`, e a Oficina só sincroniza depois de
+o disco aceitar: executar, cancelar, retirar e mudar o horário calam ou
+reagendam num ponto só. Selar, queimar ou apagar a nota de origem cala no ato
+os avisos dos Trabalhos derivados (ADR 05j). O calendário projeta o sino; a
+projeção continua só leitura. O toque na notificação abre o Trabalho na ação
+pela mesma rota da projeção, revalidando a origem; o toque expira em 5 min.
+
+**Volta:** a primeira, multiplicar: o próximo ato acontece na hora porque o
+autor é avisado. **O que a IA sabe:** nada; relógio, algoritmo e a escolha do
+autor. **Prova:** suíte integral 576/0 no simulador de teste; fluxo
+`maestro/trabalho-acao-aviso.yaml`; capturas antes/depois/reaberta. O estado
+"sem permissão" na folha reaberta não é encenável no simulador (a permissão
+fica indeterminada); está provado por teste com permissão injetada e pela
+captura logo após guardar. **Fora:** repetição, duração, widget/Ilha da ação,
+re-armar ao liberar a origem (a folha diz que não está armado), fila de
+prioridade do teto (ADR 04b), rota de apagar Trabalho (não existe; quando
+nascer, precisa do mesmo gancho). A notificação não cria compromisso nem vai
+ao disco do calendário (ADR 05k).
+

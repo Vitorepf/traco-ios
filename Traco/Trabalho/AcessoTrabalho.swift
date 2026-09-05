@@ -55,4 +55,13 @@ enum AcessoTrabalho {
     static func permitido(_ trabalho: Trabalho, no context: ModelContext) -> Bool {
         estado(trabalho, no: context).permitido
     }
+
+    /// Os Trabalhos que nasceram desta nota. Só o vínculo é decodificado: selar
+    /// a origem não é motivo para abrir o conteúdo de ninguém.
+    static func derivados(daNota nota: UUID, no context: ModelContext) -> [UUID] {
+        guard let todos = try? context.fetch(FetchDescriptor<Trabalho>()) else { return [] }
+        return todos.filter {
+            (try? JSONDecoder().decode(Vinculo.self, from: $0.conteudoJSON))?.notaOrigemID == nota
+        }.map(\.uuid)
+    }
 }

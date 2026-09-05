@@ -16,6 +16,19 @@ final class OficinaTrabalho {
     private(set) var erro: String?
     private(set) var salvo = true
     private(set) var acesso: AcessoTrabalho.Estado = .permitido
+    /// ADR 05n: o que o aviso de cada ação virou DEPOIS do commit — a folha
+    /// conta com isto, nunca com o que pediu. Some quando o aviso se cala.
+    private(set) var avisos: [UUID: ResultadoDoAviso] = [:]
+    /// ADR 05n: o iPhone está com os avisos do Traço desligados? A folha
+    /// pergunta antes de prometer que alguma coisa vai tocar.
+    private(set) var permissaoNegada = false
+    @ObservationIgnored private var avisosArmados: [UUID: DocumentoTrabalho.Acao]
+    @ObservationIgnored var armarAviso: (DocumentoTrabalho.Acao, UUID) async -> ResultadoDoAviso = {
+        await Revisoes.agendarAcao($0, trabalho: $1)
+    }
+    @ObservationIgnored var desarmarAviso: (UUID) -> Void = { Revisoes.cancelarAcao(id: $0) }
+    @ObservationIgnored var lerPendentes: () async -> Set<UUID> = { await Revisoes.acoesPendentes() }
+    @ObservationIgnored var lerPermissao: () async -> Avisos.Estado = { await Avisos.estado() }
     let trabalho: Trabalho
     @ObservationIgnored private let context: ModelContext
     @ObservationIgnored private let container: ModelContainer
@@ -33,8 +46,10 @@ final class OficinaTrabalho {
         self.trabalho = trabalho
         self.context = context
         self.container = context.container
-        self.documento = try trabalho.ler()
+        let lido = try trabalho.ler()
+        self.documento = lido
         self.basePersistida = trabalho.conteudoJSON
+        self.avisosArmados = Self.comAviso(lido)
         self.produzir = produzir
         if let ativo = documento.pedidoAtivo, Self.execucoes[ativo.id] != nil {
             throw ErroAbertura.emExecucao
@@ -81,6 +96,7 @@ final class OficinaTrabalho {
             basePersistida = trabalho.conteudoJSON
             salvo = true
             erro = nil
+            sincronizarAvisos()
             return true
         } catch {
             // Reverta somente esta escrita. O contexto também pode conter uma
@@ -93,6 +109,47 @@ final class OficinaTrabalho {
             erro = "Não consegui guardar. Suas alterações continuam aqui; tente guardar novamente."
             return false
         }
+    }
+
+    /// As ações que devem ter alarme, como o disco as confirmou.
+    private static func comAviso(_ d: DocumentoTrabalho) -> [UUID: DocumentoTrabalho.Acao] {
+        Dictionary(uniqueKeysWithValues: d.acoes.filter { Revisoes.instanteDaAcao($0) != nil }.map { ($0.id, $0) })
+    }
+
+    /// ADR 05n/04a: ao abrir e ao voltar à cena, o estado do aviso vem do
+    /// centro de notificações e da permissão de hoje — nunca da memória do que
+    /// se pediu. Sem isto a folha reaberta promete um alarme que não existe.
+    func lerAvisos(agora: Date = .now) async {
+        let pendentes = await lerPendentes()
+        permissaoNegada = await lerPermissao() == .negado
+        var lidos: [UUID: ResultadoDoAviso] = [:]
+        for (id, acao) in avisosArmados {
+            guard let quando = Revisoes.instanteDaAcao(acao) else { continue }
+            lidos[id] = pendentes.contains(id) ? .agendado(quando)
+                : permissaoNegada ? .semPermissao
+                : quando <= agora ? .passou : .semAviso
+        }
+        avisos = lidos
+    }
+
+    /// Só depois do commit (ADR 05k): executar, cancelar, retirar ou mudar o
+    /// horário cala o aviso; horário com aviso arma (mudar reagenda). Um
+    /// ponto só, para toda rota que altera o agregado.
+    private func sincronizarAvisos() {
+        let agora = Self.comAviso(documento)
+        for id in avisosArmados.keys where agora[id] == nil {
+            desarmarAviso(id)
+            avisos[id] = nil
+        }
+        let trabalhoID = trabalho.uuid
+        for (id, acao) in agora where avisosArmados[id] != acao {
+            Task { [weak self] in
+                let r = await self?.armarAviso(acao, trabalhoID)
+                guard let self, let r, documento.acoes.first(where: { $0.id == id }) == acao else { return }
+                avisos[id] = r
+            }
+        }
+        avisosArmados = agora
     }
 
     @discardableResult
@@ -144,6 +201,8 @@ final class OficinaTrabalho {
             tarefa = nil
             documento.cancelarPedido()
             erro = acesso.mensagem
+            // ADR 05n: o selo da origem cala o alarme que diria o texto da ação
+            if estavaPermitido { Revisoes.cancelarAcoes(doTrabalho: trabalho.uuid) }
             return false
         }
         if !estavaPermitido {

@@ -303,6 +303,90 @@ enum Revisoes {
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ids)
     }
 
+    // MARK: - Aviso da ação do Trabalho (ADR 2026-09-05n)
+
+    /// Namespace próprio, nunca o do compromisso: a projeção da ação no
+    /// calendário usa o mesmo UUID, e `cancelarCompromisso` não pode alcançar
+    /// este aviso nem o contrário.
+    nonisolated static func idDaAcao(_ id: UUID) -> String { "acao-\(id.uuidString)" }
+
+    /// O instante em que a ação avisa. Puro, para a folha prometer antes de
+    /// guardar e o teste conferir sem o centro de notificações.
+    nonisolated static func instanteDaAcao(_ acao: DocumentoTrabalho.Acao) -> Date? {
+        guard acao.estado == .pendente, let inicio = acao.agendadaEm, let m = acao.avisoMinutos else { return nil }
+        return inicio.addingTimeInterval(-Double(m) * 60)
+    }
+
+    /// UMA notificação (ação não repete), `timeSensitive` porque é o que o
+    /// autor marcou (ADR 04e). Não cria compromisso nem toca o disco do
+    /// calendário: o Trabalho continua dono do horário (ADR 05k).
+    @discardableResult
+    static func agendarAcao(_ acao: DocumentoTrabalho.Acao, trabalho: UUID,
+                            cal: Calendar = Calendario.gregoriano(),
+                            agora: Date = .now) async -> ResultadoDoAviso {
+        cancelarAcao(id: acao.id)
+        let titulo = acao.texto.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let quando = instanteDaAcao(acao), !titulo.isEmpty else { return .semAviso }
+        guard await Avisos.pedirSePreciso() == .concedido else { return .semPermissao }
+        let id = idDaAcao(acao.id)
+        guard await Avisos.cabem(1, reusando: [id]) else { return .semEspaco }
+        guard quando > agora else { return .passou }
+        let conteudo = UNMutableNotificationContent()
+        conteudo.title = titulo
+        conteudo.body = ""
+        conteudo.sound = .default
+        conteudo.interruptionLevel = .timeSensitive
+        conteudo.userInfo = ["trabalho": trabalho.uuidString, "acao": acao.id.uuidString]
+        let comps = cal.dateComponents([.year, .month, .day, .hour, .minute], from: quando)
+        try? await UNUserNotificationCenter.current().add(UNNotificationRequest(
+            identifier: id, content: conteudo,
+            trigger: UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)))
+        return .agendado(quando)
+    }
+
+    static func cancelarAcao(id: UUID) {
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [idDaAcao(id)])
+    }
+
+    /// Origem protegida ou ausente: cala todos os avisos do Trabalho sem
+    /// precisar ler o agregado — o `userInfo` diz de quem é cada um.
+    static func cancelarAcoes(doTrabalho trabalho: UUID) { calarTrabalho(trabalho) }
+
+    /// A varredura em si, atrás de uma costura: o teste observa as rotas de
+    /// selar, queimar e apagar sem um centro de notificações de verdade.
+    static var calarTrabalho: (UUID) -> Void = { trabalho in
+        Task {
+            let centro = UNUserNotificationCenter.current()
+            let ids = await centro.pendingNotificationRequests()
+                .filter { $0.content.userInfo["trabalho"] as? String == trabalho.uuidString }
+                .map(\.identifier)
+            guard !ids.isEmpty else { return }
+            centro.removePendingNotificationRequests(withIdentifiers: ids)
+        }
+    }
+
+    /// Os avisos de ação que o centro REALMENTE guarda. A folha lê isto ao
+    /// abrir: o que se pediu não é o que está armado (ADR 04a).
+    static func acoesPendentes() async -> Set<UUID> {
+        await Set(UNUserNotificationCenter.current().pendingNotificationRequests().compactMap {
+            $0.identifier.hasPrefix("acao-") ? UUID(uuidString: String($0.identifier.dropFirst(5))) : nil
+        })
+    }
+
+    /// O toque na notificação da ação: o calendário abre (rota do
+    /// compromisso) e a agenda, ao ganhar quem abre Trabalhos, consome isto.
+    /// Expira: no arranque a frio o post pode sair antes de a tela montar, e um
+    /// par guardado não pode abrir o Trabalho horas depois, sozinho.
+    static var acaoTocada: (trabalho: UUID, acao: UUID, em: Date)?  // interno: o teste envelhece o par
+    nonisolated static let validadeDoToque: TimeInterval = 300
+    static var acaoDaNotificacao: (trabalho: UUID, acao: UUID)? {
+        get {
+            guard let t = acaoTocada, Date.now.timeIntervalSince(t.em) < validadeDoToque else { return nil }
+            return (t.trabalho, t.acao)
+        }
+        set { acaoTocada = newValue.map { ($0.trabalho, $0.acao, .now) } }
+    }
+
     // MARK: - Série da expressiva (notificação sem conteúdo → página)
 
     static func agendarSerie(serie: UUID, dia: Int, em quando: Date) {
@@ -403,6 +487,13 @@ enum Revisoes {
                     let dia = info["dia"] as? Int ?? 2
                     NotificationCenter.default.post(
                         name: Revisoes.abrirSerie, object: serie, userInfo: ["dia": dia])
+                    return
+                }
+                if let t = (info["trabalho"] as? String).flatMap(UUID.init(uuidString:)),
+                   let a = (info["acao"] as? String).flatMap(UUID.init(uuidString:)) {
+                    // ADR 05n: mesma rota do toque na projeção (aoAbrirTrabalho)
+                    Revisoes.acaoDaNotificacao = (t, a)
+                    NotificationCenter.default.post(name: Revisoes.abrirCompromisso, object: nil)
                     return
                 }
                 if let raw = info["compromisso"] as? String,

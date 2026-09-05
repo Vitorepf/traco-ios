@@ -1,0 +1,130 @@
+# ADR 2026-09-05n — a ação do Trabalho avisa. Planta um Trabalho com ato, abre a
+# folha do horário, escolhe o aviso, confere a promessa em hora real e guarda.
+# Capturas de prova: xcrun simctl io booted screenshot (a do maestro fotografa build velho).
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- openLink: traco://notas
+# aparelho novo pergunta "Abrir com Traço?"; o flow não pode depender de já ter aceito
+- runFlow:
+    when:
+      visible: "Abrir"
+    commands:
+      - tapOn: "Abrir"
+      - waitForAnimationToEnd: {timeout: 1500}
+- extendedWaitUntil:
+    visible: {id: "abrir-trabalhos"}
+    timeout: 15000
+- tapOn: {id: "abrir-trabalhos"}
+- extendedWaitUntil:
+    visible: {id: "trabalho-nova-intencao"}
+    timeout: 15000
+- tapOn: {id: "trabalho-nova-intencao"}
+- inputText: "Apresentar a ideia ao cliente"
+- waitForAnimationToEnd: {timeout: 1000}
+- tapOn: {id: "trabalho-criar"}
+- extendedWaitUntil:
+    visible: {id: "trabalho-acao"}
+    timeout: 15000
+- waitForAnimationToEnd: {timeout: 2000}
+# o id fica no contêiner; o toque certo é no campo, pelo exemplo dele
+- tapOn: "Ensaiar a apresentação"
+- waitForAnimationToEnd: {timeout: 1500}
+- inputText: "Ligar para o cliente"
+- extendedWaitUntil:
+    visible: "Ligar para o cliente"
+    timeout: 5000
+- waitForAnimationToEnd: {timeout: 2000}
+# o teclado cobre o botão; rolar o conteúdo o traz para cima (hideKeyboard é inerte)
+- swipe:
+    start: 50%, 40%
+    end: 50%, 12%
+    duration: 700
+- waitForAnimationToEnd: {timeout: 1500}
+- swipe:
+    start: 50%, 40%
+    end: 50%, 12%
+    duration: 700
+- waitForAnimationToEnd: {timeout: 1500}
+- tapOn: {id: "trabalho-preparar-acao"}
+- extendedWaitUntil:
+    visible: "Realização ainda não confirmada"
+    timeout: 15000
+- waitForAnimationToEnd: {timeout: 1500}
+- swipe:
+    start: 50%, 40%
+    end: 50%, 12%
+    duration: 700
+- waitForAnimationToEnd: {timeout: 1500}
+- swipe:
+    start: 50%, 40%
+    end: 50%, 12%
+    duration: 700
+- waitForAnimationToEnd: {timeout: 1500}
+- tapOn: "Escolher um horário"
+- extendedWaitUntil:
+    visible: {id: "trabalho-aviso"}
+    timeout: 15000
+- waitForAnimationToEnd: {timeout: 1500}
+- tapOn: {id: "trabalho-aviso"}
+- extendedWaitUntil:
+    visible: "30 min antes"
+    timeout: 5000
+- tapOn: "30 min antes"
+- waitForAnimationToEnd: {timeout: 1500}
+# arrastar até o teclado o recolhe (scrollDismissesKeyboard interactively)
+- swipe:
+    start: 50%, 30%
+    end: 50%, 85%
+    duration: 900
+- waitForAnimationToEnd: {timeout: 1500}
+- scrollUntilVisible:
+    element: {id: "trabalho-aviso-promessa"}
+    direction: DOWN
+    centerElement: true
+    timeout: 10000
+- waitForAnimationToEnd: {timeout: 1500}
+# a promessa é do horário de hoje: nada de data literal, que quebra amanhã
+- assertVisible: "Toca hoje às.*"
+- takeScreenshot: /tmp/traco-verify/acao-aviso-antes
+- tapOn: {id: "trabalho-agendar"}
+- waitForAnimationToEnd: {timeout: 2500}
+# o iOS pergunta UMA vez; conceder é o caminho principal
+- runFlow:
+    when:
+      visible: "Permitir"
+    commands:
+      - tapOn: "Permitir"
+      - waitForAnimationToEnd: {timeout: 2500}
+- extendedWaitUntil:
+    visible: {id: "trabalho-aviso-estado"}
+    timeout: 15000
+- waitForAnimationToEnd: {timeout: 1500}
+# ADR 05n: UMA linha de estado. Com os avisos negados, a promessa não convive
+# com "nada vai tocar" — a contradição da volta 2.
+- assertNotVisible: "Toca hoje às.*"
+- takeScreenshot: /tmp/traco-verify/acao-aviso-depois
+# reabrir a folha: o estado vem do centro de notificações, não da memória
+- tapOn: {id: "trabalho-voltar"}
+- extendedWaitUntil:
+    visible: "Apresentar a ideia ao cliente"
+    timeout: 15000
+- waitForAnimationToEnd: {timeout: 1500}
+- tapOn: "Apresentar a ideia ao cliente"
+- extendedWaitUntil:
+    visible: {id: "trabalho-acao"}
+    timeout: 15000
+- waitForAnimationToEnd: {timeout: 2000}
+- scrollUntilVisible:
+    element: "Horário no calendário"
+    direction: DOWN
+    centerElement: true
+    timeout: 10000
+- tapOn: "Horário no calendário"
+- extendedWaitUntil:
+    visible: {id: "trabalho-aviso-estado"}
+    timeout: 15000
+- waitForAnimationToEnd: {timeout: 1500}
+- assertNotVisible: "Toca hoje às.*"
+- takeScreenshot: /tmp/traco-verify/acao-aviso-reaberto

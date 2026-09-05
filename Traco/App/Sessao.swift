@@ -1000,6 +1000,7 @@ final class Sessao {
         // `remover` é síncrono nas rotas de selar, queimar e apagar.
         if trancar || nota.fechada {
             Indice.remover(nota.uuid)
+            calarAcoesDerivadas(de: nota.uuid, no: context)
         } else {
             let lida = Self.paraIndice(nota)
             Task.detached(priority: .utility) { Indice.atualizar(lida) }
@@ -1071,6 +1072,15 @@ final class Sessao {
         nota.gatilhoEm = quando
         Revisoes.cancelarGatilho(uuid: nota.uuid)
         Revisoes.agendarGatilho(uuid: nota.uuid, titulo: titulo, em: quando)
+    }
+
+    /// ADR 05n/05j: selar, queimar ou apagar a origem cala NO ATO o aviso da
+    /// ação derivada. O título do aviso é texto do Trabalho, e o Trabalho fica
+    /// restrito no mesmo instante — deixar tocar seria o selo tocando sozinho.
+    private func calarAcoesDerivadas(de nota: UUID, no context: ModelContext) {
+        for t in AcessoTrabalho.derivados(daNota: nota, no: context) {
+            Revisoes.cancelarAcoes(doTrabalho: t)
+        }
     }
 
     /// A nota do disco — id, datas e sentido reais. Nunca um cabeçalho inventado.
@@ -1523,6 +1533,7 @@ final class Sessao {
         Apontar.apagar(nota.uuid)
         Indice.remover(nota.uuid)
         Revisoes.cancelar(uuid: nota.uuid)
+        calarAcoesDerivadas(de: nota.uuid, no: context)
         if let todas = try? context.fetch(FetchDescriptor<Nota>()) {
             Corpus.backupAutomatico(notas: todas)
             Holofote.indexar(notas: todas)
@@ -1639,6 +1650,7 @@ final class Sessao {
             return
         }
         DestaqueDoDia.apagar(id: uuid)
+        calarAcoesDerivadas(de: uuid, no: context)
         Versoes.apagar(uuid)
         Apontar.apagar(uuid)
         Indice.remover(uuid)

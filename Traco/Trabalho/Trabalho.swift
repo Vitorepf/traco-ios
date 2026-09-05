@@ -63,6 +63,10 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
         var responsavel: Origem = .pessoa
         var artefatoID: UUID?
         var agendadaEm: Date?
+        /// ADR 05n: minutos antes do horário em que o aviso toca; `nil` = sem
+        /// alerta. Chave ausente no disco (ação de antes) fica `nil`: a ela
+        /// foi prometido "sem alerta", e a promessa vale.
+        var avisoMinutos: Int?
         var estado: EstadoAcao = .pendente
         var executadaEm: Date?
     }
@@ -159,10 +163,12 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
         guard !texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw Erro.vazio }
         acoes.append(.init(texto: texto, artefatoID: versaoAtual?.id))
     }
-    mutating func agendar(_ acaoID: UUID, para data: Date?) throws {
+    mutating func agendar(_ acaoID: UUID, para data: Date?, aviso: Int? = 0) throws {
         guard let i = acoes.firstIndex(where: { $0.id == acaoID }) else { throw Erro.referencia }
         guard data == nil || acoes[i].estado == .pendente else { throw Erro.referencia }
         acoes[i].agendadaEm = data
+        // ação sem horário não tem aviso; fora da lista fechada não entra
+        acoes[i].avisoMinutos = data == nil ? nil : (Aviso.opcoes.contains(aviso) ? aviso : 0)
     }
     mutating func registrarRelato(_ texto: String, acaoID: UUID) throws {
         guard !texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw Erro.vazio }
@@ -193,6 +199,7 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
                   a.anteriorID.map({ artefatoIDs.contains($0) && $0 != a.id }) ?? true else { throw Erro.referencia }
         }
         for a in acoes where !(a.artefatoID.map(artefatoIDs.contains) ?? true) { throw Erro.referencia }
+        for a in acoes where a.agendadaEm == nil && a.avisoMinutos != nil { throw Erro.referencia }
         for e in evidencias {
             guard let a = acoes.first(where: { $0.id == e.acaoID }), a.artefatoID == e.artefatoID else { throw Erro.referencia }
         }

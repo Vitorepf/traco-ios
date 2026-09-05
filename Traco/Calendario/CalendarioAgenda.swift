@@ -13,7 +13,7 @@ final class CalendarioAgenda {
     var deixas: [EventoCalendario] = []
     /// Ações confirmadas no Trabalho, somente para leitura nesta agenda.
     var acoesDosTrabalhos: [EventoCalendario] = []
-    var aoAbrirTrabalho: ((UUID, UUID) -> Void)?
+    var aoAbrirTrabalho: ((UUID, UUID) -> Void)? { didSet { abrirAcaoDaNotificacao() } }
     /// Tocar numa deixa abre a nota; a raiz liga isto à Sessao.
     var aoAbrirNota: ((UUID) -> Void)?
     /// A3: os compromissos do iPhone, só leitura. A view os alimenta.
@@ -38,6 +38,9 @@ final class CalendarioAgenda {
     private let disco: URL
     private(set) var cal: Calendar
     private var toastTask: Task<Void, Never>?
+    /// ADR 05n: o toque na notificação da ação chega pela rota do compromisso
+    /// (abrir o calendário); se o calendário já está na frente, é aqui que se ouve.
+    private var ouvinteDaAcao: (any NSObjectProtocol)?
 
     static let chaveSegunda = "calendario-segunda-primeiro"
 
@@ -54,19 +57,22 @@ final class CalendarioAgenda {
         self.ancora = Calendario.inicioDoDia(agora, c)
         if let eventos {
             self.eventos = eventos
-            return
+        } else {
+            switch CalendarioDisco.carregar(de: disco) {
+            case .semArquivo:
+                self.eventos = []
+            case .eventos(let lidos):
+                self.eventos = lidos
+            case .corrompido:
+                // nunca por cima: o arquivo é do autor
+                self.eventos = []
+                CalendarioDisco.porDeLado(disco)
+                mostrar("o arquivo do calendário não abriu. guardei uma cópia ao lado e comecei vazio.")
+            }
         }
-        switch CalendarioDisco.carregar(de: disco) {
-        case .semArquivo:
-            self.eventos = []
-        case .eventos(let lidos):
-            self.eventos = lidos
-        case .corrompido:
-            // nunca por cima: o arquivo é do autor
-            self.eventos = []
-            CalendarioDisco.porDeLado(disco)
-            mostrar("o arquivo do calendário não abriu. guardei uma cópia ao lado e comecei vazio.")
-        }
+        ouvinteDaAcao = NotificationCenter.default.addObserver(
+            forName: Revisoes.abrirCompromisso, object: nil, queue: .main
+        ) { [weak self] _ in MainActor.assumeIsolated { self?.abrirAcaoDaNotificacao() } }
     }
 
     var titulo: String { Calendario.titulo(escala: escala, ancora: ancora, cal) }
@@ -166,6 +172,17 @@ final class CalendarioAgenda {
                 .filter { cal.component(.year, from: $0.inicio) == cal.component(.year, from: ancora) }
                 .sorted { $0.inicio < $1.inicio }
         }
+    }
+
+    isolated deinit {
+        if let ouvinteDaAcao { NotificationCenter.default.removeObserver(ouvinteDaAcao) }
+    }
+
+    /// A mesma rota do toque na projeção: quem abre Trabalhos revalida a origem.
+    func abrirAcaoDaNotificacao() {
+        guard let (trabalho, acao) = Revisoes.acaoDaNotificacao, let aoAbrirTrabalho else { return }
+        Revisoes.acaoDaNotificacao = nil
+        aoAbrirTrabalho(trabalho, acao)
     }
 
     /// Compromisso abre a ficha; deixa abre a nota que a criou; o que veio do
