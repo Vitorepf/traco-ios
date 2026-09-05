@@ -4,7 +4,7 @@ import Testing
 
 /// ADR 2026-09-04l: o catálogo é dado. Se o JSON do bundle quebrar, TODA nota
 /// perde os campos — este é o teste que grita antes do autor.
-@Suite struct CatalogoTests {
+@Suite(.serialized) struct CatalogoTests {
     @Test func oBundleTemOsVinteEUmMetodos() {
         let ids = Catalogo.doApp.map(\.id)
         #expect(ids.count == 21)
@@ -42,6 +42,75 @@ import Testing
         #expect(g?.nome == "metodoQueSumiu")
         #expect(g?.campos.isEmpty == true)
         #expect(Gesto(rawValue: "  ") == nil)
+    }
+
+    /// ADR 05o: o método do autor sai da pasta e a nota não vira prosa — o
+    /// corpus volta com o mesmo gesto e com os campos que ele respondeu.
+    @MainActor @Test func oCorpusVoltaComOMetodoQueSumiuDaPasta() throws {
+        let pasta = FileManager.default.temporaryDirectory.appendingPathComponent("metodos-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: pasta, withIntermediateDirectories: true)
+        defer {
+            try? FileManager.default.removeItem(at: pasta)
+            Catalogo.pastaDoAutor = pasta.deletingLastPathComponent().appendingPathComponent("nada")
+            Catalogo.recarregar()
+        }
+        let arquivo = pasta.appendingPathComponent("cornell.json")
+        try #"{"id":"cornell","nome":"Cornell","campos":[{"id":"pistas","rotulo":"Pistas"},{"id":"resumo","rotulo":"Resumo"}]}"#
+            .write(to: arquivo, atomically: true, encoding: .utf8)
+        Catalogo.pastaDoAutor = pasta
+        Catalogo.recarregar()
+        let gesto = try #require(Gesto(rawValue: "cornell"))
+        #expect(gesto.nome == "Cornell")
+        let campos = ["pistas": "a atenção é finita", "resumo": "o que fica da aula"]
+        let md = Corpus.arquivoMd(texto: "a aula de hoje", gesto: gesto, campos: campos,
+                                  criadaEm: Date(timeIntervalSince1970: 0))
+
+        try FileManager.default.removeItem(at: arquivo)
+        Catalogo.recarregar()
+        #expect(Catalogo.metodo("cornell") == nil)
+
+        let item = try #require(Corpus.importar(md).first)
+        let devolvido = try #require(item.gestoNome.flatMap(Gesto.doNome))
+        #expect(devolvido == gesto)
+        #expect(devolvido.conhecido == false)
+        let restaurada = Corpus.separarCampos(texto: item.texto, gesto: devolvido)
+        #expect(restaurada.texto == "a aula de hoje")
+        #expect(restaurada.campos == campos)
+    }
+
+    /// ADR 05o: a fronteira do import. Um .md alheio com `gesto:` em prosa não
+    /// planta um id — a nota entra sem gesto, como antes do catálogo.
+    @Test func textoLivreNoGestoNaoViraId() throws {
+        let frase = String(repeating: "uma frase inteira ", count: 25)
+        let md = """
+            ---
+            criada: 1970-01-01T00:00:00Z
+            gesto: \(frase)
+            ---
+
+            a nota de fora
+            """
+        let item = try #require(Corpus.importar(md).first)
+        #expect(item.gestoNome == nil)
+        #expect(Gesto.doNome(frase) == nil)
+        #expect(Gesto.doNome("metodoQueSumiu")?.conhecido == false) // id curto ainda entra
+    }
+
+    /// ADR 05o: quando os dois vêm, o id manda — o nome é exibição e pode ter
+    /// sido reaproveitado por outro método.
+    @Test func oMetodoPrevaleceSobreONome() throws {
+        let md = """
+            ---
+            criada: 1970-01-01T00:00:00Z
+            gesto: WOOP
+            metodo: cornellDoAutor
+            ---
+
+            a aula de hoje
+            """
+        let item = try #require(Corpus.importar(md).first)
+        #expect(item.gestoNome == "cornellDoAutor")
+        #expect(item.gestoNome.flatMap(Gesto.doNome)?.rawValue == "cornellDoAutor")
     }
 
     @Test func oCatalogoRoteiaOsMetodosNovos() {

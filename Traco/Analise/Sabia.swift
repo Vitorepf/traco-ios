@@ -159,25 +159,101 @@ enum Sabia {
         return parseMapa(cru, blocos: blocos.count)
     }
 
+    nonisolated static let rotuloRetrato = "SOBRE QUEM ESCREVE (evidência do caderno dela, nas palavras dela):"
+    nonisolated static let rotuloContextoDaNota = "Contexto (a nota, só para você entender; não a reescreva):"
+
     /// ADR 04i: o bloco SOBRE QUEM ESCREVE, quando há retrato.
     nonisolated static func blocoDoRetrato(_ retrato: String) -> String {
         let r = retrato.trimmingCharacters(in: .whitespacesAndNewlines)
-        return r.isEmpty ? "" : "\n\nSOBRE QUEM ESCREVE (evidência do caderno dela, nas palavras dela):\n\(r)"
+        return r.isEmpty ? "" : "\n\n\(rotuloRetrato)\n\(r)"
     }
 
-    /// ADR 05m: carga e cabeçalhos são indivisíveis; só o contexto perde a cauda.
-    /// Se a carga não cabe, silêncio. O transporte nunca decide o que é descartável.
-    nonisolated static func mensagemDoAparelho(carga: String, contexto: String = "",
+    /// Uma seção do contexto no aparelho: rótulo e conteúdo viajam juntos ou
+    /// não viajam (ADR 05o). `minimo` > 0 = o conteúdo pode perder a cauda,
+    /// nunca ficar abaixo disso — rótulo com um resto de nada é só ruído pago.
+    nonisolated struct Secao: Sendable {
+        var rotulo: String
+        var corpo: String
+        var minimo: Int = 0
+    }
+
+    /// ADR 05m: carga e cabeçalhos são indivisíveis; se a carga não cabe,
+    /// silêncio. ADR 05o: as seções entram na ordem dada — a que não couber
+    /// fica de fora inteira, com o rótulo.
+    nonisolated static func mensagemDoAparelho(carga: String, secoes: [Secao] = [],
                                               teto: Int = tetoNoAparelho) -> String? {
         guard !carga.isEmpty, carga.count <= teto else { return nil }
-        return carga + contexto.prefix(teto - carga.count)
+        var msg = carga
+        for s in secoes {
+            let corpo = s.corpo.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !corpo.isEmpty else { continue }
+            let junta = s.rotulo.isEmpty ? "\n\n" : "\n\n\(s.rotulo)\n"
+            let cabe = teto - msg.count - junta.count
+            if cabe >= corpo.count { msg += junta + corpo }
+            else if s.minimo > 0, cabe >= s.minimo { msg += junta + corpo.prefix(cabe) }
+            else { break } // a ordem É a prioridade: o de trás não passa na frente
+        }
+        return msg
     }
 
+    /// O contexto perde a cauda, o retrato some inteiro; pergunta e instrução
+    /// ficam. `rotulo` vazio = a barra das Notas, cujos blocos já se nomeiam.
     nonisolated static func montarResponder(pergunta: String, contexto: String, retrato: String = "",
+                                            rotulo: String = "", teto: Int = tetoNoAparelho) -> String? {
+        mensagemDoAparelho(
+            carga: "Pergunta: \(pergunta)\n\nResponda só à pergunta, em prosa corrida, sem repetir nem citar os blocos abaixo.",
+            secoes: [Secao(rotulo: rotulo, corpo: contexto, minimo: 200),
+                     Secao(rotulo: rotuloRetrato, corpo: retrato)],
+            teto: teto)
+    }
+
+    /// Sacrifica retrato antes do método; forma, degrau e rascunho ficam inteiros.
+    nonisolated static func montarInstigar(texto: String, gesto: Gesto?, degrau: Int = 0,
+                                           retrato: String = "", teto: Int = tetoNoAparelho) -> String? {
+        mensagemDoAparelho(
+            carga: "Forma: \(gesto?.nome ?? "nota")\n\n" + Degraus.instrucaoDeInstigar(degrau)
+                + "\n\nO RASCUNHO:\n\(texto)",
+            secoes: [Secao(rotulo: "O MÉTODO desta forma, que as perguntas devem cobrar:", corpo: gesto?.metodo ?? ""),
+                     Secao(rotulo: rotuloRetrato, corpo: retrato)],
+            teto: teto)
+    }
+
+    /// Sacrifica retrato antes do método; forma e nota ficam inteiras.
+    nonisolated static func montarContrapor(texto: String, gesto: Gesto?, retrato: String = "",
                                             teto: Int = tetoNoAparelho) -> String? {
-        let carga = "Pergunta: \(pergunta)\n\nResponda só à pergunta, em prosa corrida, sem repetir nem citar os blocos abaixo.\n\n"
-        // Sacrifica retrato primeiro, depois contexto; nunca pergunta/instrução.
-        return mensagemDoAparelho(carga: carga, contexto: contexto + blocoDoRetrato(retrato), teto: teto)
+        mensagemDoAparelho(
+            carga: "Forma: \(gesto?.nome ?? "nota")\n\nA NOTA:\n\(texto)",
+            secoes: [Secao(rotulo: "O MÉTODO desta forma:", corpo: gesto?.metodo ?? ""),
+                     Secao(rotulo: rotuloRetrato, corpo: retrato)],
+            teto: teto)
+    }
+
+    /// Sacrifica retrato antes da pista; degrau e alvo ficam inteiros.
+    nonisolated static func montarRecordar(alvo: String, pista: String, degrau: Int = 0,
+                                           retrato: String = "", teto: Int = tetoNoAparelho) -> String? {
+        mensagemDoAparelho(
+            carga: "DEGRAU: \(max(0, degrau))\n\nNOTA:\n\(alvo)",
+            secoes: [Secao(rotulo: "PISTA JÁ VISÍVEL (não repita):", corpo: String(pista.prefix(600))),
+                     Secao(rotulo: rotuloRetrato, corpo: retrato)],
+            teto: teto)
+    }
+
+    /// ADR 05o: candidatas INTEIRAS, com o índice da lista original, e nunca
+    /// menos que `minimo` — "quais destas falam da mesma coisa" sobre uma
+    /// candidata só não é rede: é gastar o aparelho para não haver escolha.
+    nonisolated static func montarEcos(nota: String, candidatas: [String], minimo: Int = 2,
+                                       teto: Int = tetoNoAparelho) -> String? {
+        let carga = "NOTA:\n\(nota)\n\nOUTRAS NOTAS:\n"
+        guard !nota.isEmpty, carga.count <= teto else { return nil }
+        var corpo = ""
+        var quantas = 0
+        for (i, c) in candidatas.enumerated() {
+            let item = (corpo.isEmpty ? "" : "\n\n") + "[\(i)] \(c)"
+            guard carga.count + corpo.count + item.count <= teto else { break }
+            corpo += item
+            quantas += 1
+        }
+        return quantas >= minimo ? carga + corpo : nil
     }
 
     nonisolated static func montarConferir(pontos: [String], memoria: String,
@@ -191,10 +267,11 @@ enum Sabia {
 
     static func responder(pergunta: String, contexto: String, gesto: Gesto?, retrato: String = "") async -> String? {
         guard gesto != .expressiva else { return nil }
-        let usuario = "Contexto (a nota, só para você entender; não a reescreva):\n\(contexto.prefix(5000))"
+        let usuario = "\(rotuloContextoDaNota)\n\(contexto.prefix(5000))"
             + blocoDoRetrato(retrato) + "\n\nPergunta: \(pergunta)"
         guard let cru = await chamar(sistema: sistemaResponder, usuario: usuario, temperatura: 0.3,
-                                     mensagemLocal: { montarResponder(pergunta: pergunta, contexto: contexto, retrato: retrato) })
+                                     mensagemLocal: { montarResponder(pergunta: pergunta, contexto: contexto,
+                                                                      retrato: retrato, rotulo: rotuloContextoDaNota) })
         else { return nil }
         return limparResposta(cru, teto: tetoResposta)
     }
@@ -213,10 +290,7 @@ enum Sabia {
         usuario += "\n\nO RASCUNHO:\n\(texto.prefix(6000))"
         guard let cru = await chamar(sistema: sistemaInstigar, usuario: usuario, temperatura: 0.4,
                                      mensagemLocal: {
-            // Sacrifica retrato antes do método; forma, degrau e rascunho ficam inteiros.
-            mensagemDoAparelho(carga: "Forma: \(gesto?.nome ?? "nota")\n\n"
-                + Degraus.instrucaoDeInstigar(degrau) + "\n\nO RASCUNHO:\n\(texto)",
-                contexto: "\n\nO MÉTODO desta forma, que as perguntas devem cobrar:\n\(metodo)" + blocoDoRetrato(retrato))
+            montarInstigar(texto: texto, gesto: gesto, degrau: degrau, retrato: retrato)
         }) else { return nil }
         return parsePerguntas(cru)
     }
@@ -232,9 +306,7 @@ enum Sabia {
         usuario += "\n\nA NOTA:\n\(texto.prefix(6000))"
         guard let cru = await chamar(sistema: sistemaContrapor, usuario: usuario, temperatura: 0.5,
                                      mensagemLocal: {
-            // Sacrifica retrato antes do método; forma e nota ficam inteiras.
-            mensagemDoAparelho(carga: "Forma: \(gesto?.nome ?? "nota")\n\nA NOTA:\n\(texto)",
-                contexto: "\n\nO MÉTODO desta forma:\n\(metodo)" + blocoDoRetrato(retrato))
+            montarContrapor(texto: texto, gesto: gesto, retrato: retrato)
         }) else { return nil }
         return parseContraparte(cru)
     }
@@ -274,9 +346,7 @@ enum Sabia {
         guard let cru = await chamar(sistema: sistemaRecordar, usuario: usuario, temperatura: 0.5,
                                      memoPor: "prova\u{1}\(max(0, degrau))\u{1}\(alvoLimpo.hashValue)",
                                      mensagemLocal: {
-            // Sacrifica retrato antes da pista; degrau e alvo ficam inteiros.
-            mensagemDoAparelho(carga: "DEGRAU: \(max(0, degrau))\n\nNOTA:\n\(alvoLimpo)",
-                contexto: "\n\nPISTA JÁ VISÍVEL (não repita):\n\(p.prefix(600))" + blocoDoRetrato(retrato))
+            montarRecordar(alvo: alvoLimpo, pista: p, degrau: degrau, retrato: retrato)
         })
         else { return nil }
         return parsePerguntaDeRecordar(cru, alvo: alvoLimpo)
@@ -311,10 +381,7 @@ enum Sabia {
         let usuario = "NOTA:\n\(nota.prefix(3000))\n\nOUTRAS NOTAS:\n\(corpo.prefix(9000))"
         guard let cru = await chamar(sistema: sistemaEcos, usuario: usuario, temperatura: 0.2,
                                      memoPor: "ecos\u{1}\(usuario.hashValue)",
-                                     mensagemLocal: {
-            // Sacrifica candidatas; a nota-alvo e os cabeçalhos ficam inteiros.
-            mensagemDoAparelho(carga: "NOTA:\n\(nota)\n\nOUTRAS NOTAS:\n", contexto: corpo)
-        })
+                                     mensagemLocal: { montarEcos(nota: nota, candidatas: candidatas) })
         else { return nil }
         return parseEcos(cru, candidatas: candidatas)
     }

@@ -86,9 +86,9 @@ enum Corpus {
     dor não está aqui e não deve ser pedido. Expressivas em curso não saem.
 
     Campos do cabeçalho: `id` (cite por ele), `criada`, `editada`, `gesto`,
-    `dominio`, `recordada` (quantas vezes o autor lembrou de memória),
-    `sentido` (a linha que ele escreveu no fecho), `estado`, `minutos`,
-    `serie`, `dia`.
+    `metodo` (o id da forma, quando não é o nome), `dominio`, `recordada`
+    (quantas vezes o autor lembrou de memória), `sentido` (a linha que ele
+    escreveu no fecho), `estado`, `minutos`, `serie`, `dia`.
 
     Gestos e o que cada um guarda:
     - WOOP: resultado, obstaculo, plano
@@ -114,7 +114,12 @@ enum Corpus {
             "criada: \(iso.string(from: f.criadaEm))",
             "editada: \(iso.string(from: f.editadaEm))",
         ]
-        if let gesto = f.gesto { cab.append("gesto: \(gesto.nome)") }
+        if let gesto = f.gesto {
+            cab.append("gesto: \(gesto.nome)")
+            // ADR 05o: o id vai junto quando não é o nome. É por ele que a nota
+            // reencontra o método — o nome muda, e o método pode sair da pasta.
+            if gesto.rawValue != gesto.nome { cab.append("metodo: \(gesto.rawValue)") }
+        }
         if let dominio = f.dominio { cab.append("dominio: \(dominio.nome)") }
         cab.append("recordada: \(f.recordada)")
         if f.soMetadado {
@@ -214,12 +219,14 @@ enum Corpus {
     /// texto, em vez de descartar respostas que não conseguimos reconstruir.
     static func separarCampos(texto: String, gesto: Gesto?) -> (texto: String, campos: [String: String]) {
         guard let gesto else { return (texto, [:]) }
-        let cabecalhoNovo = "— \(gesto.nome) —\n\(marcadorCampos)\n"
-        let alcanceNovo = texto.range(of: "\n\n" + cabecalhoNovo, options: .backwards)
-            ?? (texto.hasPrefix(cabecalhoNovo)
-                ? texto.startIndex..<texto.index(texto.startIndex, offsetBy: cabecalhoNovo.count) : nil)
-        if let alcance = alcanceNovo {
-            let bloco = texto[alcance.upperBound...]
+        // ADR 05o: quem delimita o bloco é o MARCADOR, não o rótulo. O
+        // "— Nome —" é o nome do método na hora da exportação; se ele mudou, ou
+        // saiu da pasta, as respostas do autor não podem sair junto.
+        if let marca = texto.range(of: marcadorCampos + "\n", options: .backwards),
+           texto[..<marca.lowerBound].hasSuffix("—\n") {
+            let rotulo = texto[..<marca.lowerBound].dropLast()
+            let inicio = rotulo.lastIndex(of: "\n").map { rotulo.index(after: $0) } ?? texto.startIndex
+            let bloco = texto[marca.upperBound...]
             var campos: [String: String] = [:]
             for linha in bloco.split(separator: "\n", omittingEmptySubsequences: false) {
                 guard let doisPontos = linha.range(of: ": ") else { return (texto, [:]) }
@@ -230,7 +237,9 @@ enum Corpus {
                 else { return (texto, [:]) }
                 campos[id] = valor
             }
-            return (String(texto[..<alcance.lowerBound]), campos)
+            var corpo = String(texto[..<inicio])
+            while corpo.hasSuffix("\n") { corpo.removeLast() }
+            return (corpo, campos)
         }
         let cabecalhoLegado = "— \(gesto.nome) —\n"
         let alcanceLegado = texto.range(of: "\n\n" + cabecalhoLegado)
@@ -266,7 +275,7 @@ enum Corpus {
     ) {
         let f = ISO8601DateFormatter()
         let padrao = try! NSRegularExpression(
-            pattern: #"(?m)^---\n(?:id: \S+\n)?criada: (\S+)\n(?:editada: \S+\n)?(?:gesto: (.+)\n)?"#)
+            pattern: #"(?m)^---\n(?:id: \S+\n)?criada: (\S+)\n(?:editada: \S+\n)?(?:gesto: (.+)\n)?(?:metodo: (\S+)\n)?"#)
         let ns = conteudo as NSString
         let hits = padrao.matches(in: conteudo, range: NSRange(location: 0, length: ns.length))
         guard !hits.isEmpty else {
@@ -295,8 +304,14 @@ enum Corpus {
             let corpo = String(bloco[fecha.upperBound...]).trimmingCharacters(in: .whitespacesAndNewlines)
             guard !corpo.isEmpty else { continue }
             let data = f.date(from: ns.substring(with: hit.range(at: 1))) ?? .now
-            let gestoNome = hit.range(at: 2).location == NSNotFound ? nil : ns.substring(with: hit.range(at: 2))
+            let nomeDoGesto = hit.range(at: 2).location == NSNotFound ? nil : ns.substring(with: hit.range(at: 2))
                 .trimmingCharacters(in: .newlines)
+            let idDoMetodo = hit.range(at: 3).location == NSNotFound ? nil : ns.substring(with: hit.range(at: 3))
+            // O `metodo:` é a chave estável e vence o nome, que é exibição
+            // (ADR 05o). Nome que o catálogo não conhece, sem `metodo:`, NÃO
+            // vira id: texto livre de um .md alheio não entra como forma.
+            let gestoNome = idDoMetodo
+                ?? nomeDoGesto.flatMap { Gesto.doNome($0)?.conhecido == true ? $0 : nil }
             saida.append((corpo, gestoNome, data))
         }
         return (saida, contemProtegida)

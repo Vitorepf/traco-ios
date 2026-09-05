@@ -53,8 +53,78 @@ import Testing
 
     @Test func cargaInteiraNoLimiteSacrificaContexto() {
         let carga = "DEGRAU: 2\n\nNOTA:\nAté o último caractere 🧠"
-        #expect(Sabia.mensagemDoAparelho(carga: carga, contexto: "DESCARTÁVEL", teto: carga.count) == carga)
+        let secao = Sabia.Secao(rotulo: "PISTA:", corpo: "DESCARTÁVEL")
+        #expect(Sabia.mensagemDoAparelho(carga: carga, secoes: [secao], teto: carga.count) == carga)
         #expect(Sabia.mensagemDoAparelho(carga: carga, teto: carga.count - 1) == nil)
+    }
+
+    /// ADR 05o: rótulo sem conteúdo é ruído que o aparelho paga.
+    @Test func rotuloNaoViajaSemConteudo() throws {
+        let carga = "NOTA:\numa nota"
+        #expect(Sabia.mensagemDoAparelho(carga: carga, secoes: [Sabia.Secao(rotulo: "PISTA:", corpo: " \n ")]) == carga)
+        // nem pela metade: a seção que não cabe sai inteira, com o rótulo
+        let apertado = try #require(Sabia.mensagemDoAparelho(
+            carga: carga, secoes: [Sabia.Secao(rotulo: "PISTA:", corpo: "cabe mal")], teto: carga.count + 8))
+        #expect(!apertado.contains("PISTA:"))
+    }
+
+    @Test func instigarNaoMandaCabecalhoDeMetodoVazio() throws {
+        let semMetodo = try #require(Sabia.montarInstigar(texto: "rascunho", gesto: nil, degrau: 1, retrato: "RETRATO"))
+        #expect(!semMetodo.contains("O MÉTODO"))
+        #expect(semMetodo.contains("DEGRAU 1"))
+        #expect(semMetodo.contains("O RASCUNHO:\nrascunho"))
+        #expect(semMetodo.contains("RETRATO"))
+        let comMetodo = try #require(Sabia.montarInstigar(texto: "rascunho", gesto: .woop))
+        #expect(comMetodo.contains("O MÉTODO desta forma, que as perguntas devem cobrar:\n\(Gesto.woop.metodo)"))
+        // o rascunho é carga: não cabe, não vai — e o método some antes do teto
+        #expect(Sabia.montarInstigar(texto: String(repeating: "r", count: 3501), gesto: .woop) == nil)
+        let apertado = try #require(Sabia.montarInstigar(texto: String(repeating: "r", count: 3300),
+                                                         gesto: .woop, retrato: "RETRATO"))
+        #expect(!apertado.contains("O MÉTODO") && !apertado.contains("RETRATO"))
+        #expect(apertado.count <= 3500)
+    }
+
+    @Test func contraporNaoMandaCabecalhoDeMetodoVazio() throws {
+        let semMetodo = try #require(Sabia.montarContrapor(texto: "a nota", gesto: nil))
+        #expect(!semMetodo.contains("O MÉTODO"))
+        #expect(semMetodo.contains("A NOTA:\na nota"))
+        let comMetodo = try #require(Sabia.montarContrapor(texto: "a nota", gesto: .decisao, retrato: "RETRATO"))
+        #expect(comMetodo.contains("O MÉTODO desta forma:\n\(Gesto.decisao.metodo)"))
+        #expect(comMetodo.contains("SOBRE QUEM ESCREVE"))
+    }
+
+    @Test func provaNaoMandaCabecalhoDePistaVazia() throws {
+        let semPista = try #require(Sabia.montarRecordar(alvo: "o miolo da nota", pista: "  ", degrau: 2))
+        #expect(!semPista.contains("PISTA"))
+        #expect(semPista.hasPrefix("DEGRAU: 2\n\nNOTA:\no miolo da nota"))
+        let comPista = try #require(Sabia.montarRecordar(alvo: "o miolo da nota", pista: "primeira linha",
+                                                         retrato: "RETRATO"))
+        #expect(comPista.contains("PISTA JÁ VISÍVEL (não repita):\nprimeira linha"))
+        // o alvo é carga: alvo que não cabe cala, em vez de virar pergunta sobre meia nota
+        #expect(Sabia.montarRecordar(alvo: String(repeating: "a", count: 3500), pista: "") == nil)
+    }
+
+    /// ADR 05o: ecos sobre uma candidata só não é rede — é gasto sem escolha.
+    @Test func ecosPedeCandidatasInteirasOuCala() throws {
+        let candidatas = ["a primeira outra nota", "a segunda outra nota", "a terceira outra nota"]
+        let mensagem = try #require(Sabia.montarEcos(nota: "a nota alvo", candidatas: candidatas))
+        for i in candidatas.indices { #expect(mensagem.contains("[\(i)] \(candidatas[i])")) }
+        // nota longa: o que sobra não dá duas candidatas inteiras → silêncio, não chamada vazia
+        #expect(Sabia.montarEcos(nota: String(repeating: "n", count: 3450), candidatas: candidatas) == nil)
+        #expect(Sabia.montarEcos(nota: "a nota alvo", candidatas: ["só uma"]) == nil)
+        // e o corte é por candidata inteira, nunca pela metade
+        let duas = try #require(Sabia.montarEcos(nota: "a nota alvo",
+                                                 candidatas: candidatas + [String(repeating: "c", count: 4000)]))
+        #expect(duas.contains("[2] \(candidatas[2])") && !duas.contains("[3]"))
+    }
+
+    /// A fronteira da IA (ADR o) é carga: a proibição de reescrever a nota
+    /// viaja junto com a nota, no aparelho como no remoto.
+    @Test func responderLocalMantemANotaSobRotulo() throws {
+        let mensagem = try #require(Sabia.montarResponder(pergunta: "e daqui?", contexto: "a nota do autor",
+                                                          rotulo: Sabia.rotuloContextoDaNota))
+        #expect(mensagem.contains("não a reescreva"))
+        #expect(mensagem.contains("\(Sabia.rotuloContextoDaNota)\na nota do autor"))
     }
 
     @Test func orcamentoRecusadoNaoImpedeTentativaMaior() {

@@ -626,7 +626,8 @@ struct ImportarTests {
         let itens = Corpus.importar(corpo)
         #expect(itens.count == 2)
         #expect(itens[0].texto.contains("quero correr"))
-        #expect(itens[0].gestoNome == "WOOP")
+        // ADR 05o: o `metodo:` volta como chave; "WOOP" é só exibição.
+        #expect(itens[0].gestoNome.flatMap(Gesto.doNome) == .woop)
         #expect(abs(itens[0].criadaEm.timeIntervalSince1970 - 1000) < 1)
         #expect(itens[1].gestoNome == nil)
     }
@@ -658,7 +659,9 @@ struct CorrecoesVarredura3Tests {
         #expect(Gesto.doNome("woop") == .woop)
         #expect(Gesto.doNome("Nota permanente") == .notaPermanente)
         #expect(Gesto.doNome("Se–então") == .seEntao)
-        #expect(Gesto.doNome("inexistente") == nil)
+        // ADR 05o: id gravado que sumiu do catálogo entra como em init?(rawValue:)
+        #expect(Gesto.doNome("inexistente")?.conhecido == false)
+        #expect(Gesto.doNome("  ") == nil)
     }
 
     @Test func roundtripPreservaOGesto() {

@@ -2177,3 +2177,34 @@ prioridade do teto (ADR 04b), rota de apagar Trabalho (não existe; quando
 nascer, precisa do mesmo gancho). A notificação não cria compromisso nem vai
 ao disco do calendário (ADR 05k).
 
+## ADR 2026-09-05o — O método volta com a nota
+
+**A distância.** `Gesto.doNome` recusava id que sumiu do catálogo: o autor
+apagava o método da pasta e o corpus reimportado devolvia a nota como prosa,
+sem gesto e sem campos, enquanto `init?(rawValue:)` já aceitava o mesmo id no
+disco. O arquivo só levava o NOME, e por ele delimitava os campos. No
+aparelho, cabeçalho de método e de pista viajavam vazios, o "não a reescreva"
+sumia em `responder` local, e nota longa deixava lugar para zero candidatas de
+eco. Achados P2/P3 das revisões de 05/set.
+
+**A decisão.** `doNome` aceita o id gravado, desde que tenha cara de id (sem
+espaço, até 64 caracteres): frase livre num `gesto:` de arquivo alheio não
+vira id. O cabeçalho leva `metodo: <id>` quando o id não é o nome, e o import
+prefere o id ao nome; o bloco de campos é delimitado pelo marcador (ADR 05h),
+não pelo rótulo. No aparelho o contexto virou seção: rótulo e conteúdo
+indivisíveis, a ordem é a prioridade, e a seção que não cabe sai inteira com o
+rótulo — exceto o contexto da nota em `responder`, que perde a cauda até um
+mínimo de 200 caracteres antes de sair. A proibição de reescrever a nota é a
+mesma constante nos dois caminhos. Ecos exigem duas candidatas inteiras ou
+calam.
+
+**Custo assumido, nomeado:** como os 21 métodos têm id ≠ nome, todo `.md` com
+gesto ganha a linha `metodo:` e é reescrito UMA vez, nas duas pastas
+(Documents e iCloud), na primeira rota de selo depois desta versão (selar,
+queimar, apagar, sentido do fecho), síncrona na thread principal como manda a
+ADR 04o; a ordem por data do `traco_notas` no Mac muda nesse momento.
+
+**Volta:** multiplicar. **O que a IA sabe:** só o que coube, com rótulo.
+**Prova:** 10 testes novos (CatalogoTests, SabiaOrcamentoTests), suíte
+integral 578/0 no simulador de teste. **Fora:** montagem por item de
+vestir/calibragem/Padrões, caminho remoto, dizer na tela que o método sumiu.

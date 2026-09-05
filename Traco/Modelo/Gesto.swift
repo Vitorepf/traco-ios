@@ -36,12 +36,19 @@ nonisolated struct Gesto: Hashable, Codable, Identifiable, Sendable, CaseIterabl
     static var allCases: [Gesto] { Catalogo.todos.map { Gesto($0.id) } }
 
     /// Import/export aceitam o nome de exibição ("WOOP") E o rawValue ("woop") —
-    /// o roundtrip do corpus nunca perde o gesto por causa da grafia.
+    /// o roundtrip do corpus nunca perde o gesto por causa da grafia. O que não
+    /// está mais no catálogo também entra (ADR 05o: um método apagado da pasta
+    /// não pode transformar a nota em prosa), mas só com cara de id: sem
+    /// espaço e até 64 caracteres. Frase inteira de um .md alheio fica de fora.
     static func doNome(_ s: String) -> Gesto? {
         let alvo = s.trimmingCharacters(in: .whitespaces)
         guard !alvo.isEmpty else { return nil }
         if Catalogo.metodo(alvo) != nil { return Gesto(alvo) }
-        return allCases.first { $0.nome.caseInsensitiveCompare(alvo) == .orderedSame }
+        if let doCatalogo = allCases.first(where: { $0.nome.caseInsensitiveCompare(alvo) == .orderedSame }) {
+            return doCatalogo
+        }
+        guard alvo.count <= 64, alvo.rangeOfCharacter(from: .whitespacesAndNewlines) == nil else { return nil }
+        return Gesto(rawValue: alvo)
     }
 
     // MARK: o método, do catálogo
