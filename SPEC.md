@@ -2334,6 +2334,82 @@ melhorou a qualidade em nenhum deles.
 portão 03p desliga o modelo no XCTest) e montagem por item para caber no
 aparelho.
 
+## ADR 2026-09-05r — Praticar de verdade: exercício, tentativa do autor e feedback sem resposta
+
+**A distância.** `Apoio.praticar` só mudava uma frase do prompt: a IA
+entregava o artefato do mesmo jeito, e quem escolheu praticar recebia a
+resposta pronta. A tentativa da pessoa não tinha lugar no modelo —
+`guardarVersaoHumana` criaria origem mista e trocaria a versão vigente pela
+resposta de um exercício. E nada registrava demonstração de capacidade com
+estado honesto: relato, uso e ação executada se pareciam com aprendizagem.
+
+**A decisão.** Tudo aditivo, sem migração: formato 1 e SwiftData V4
+preservados; chave ausente no disco é ausência, nunca "sem prática".
+`Artefato.pratica?` guarda a preparação (capacidade, situação, dificuldade,
+`hipoteseID`, enunciado, exemplo e critérios COM identidade).
+`Evidencia.tentativa?` guarda a resposta do autor — `tipo: .tentativa`,
+`origem: .pessoa`, `apoioUtilizado` obrigatório (desconhecido nunca vira "sem
+ajuda"), `anteriorID` para a revisão e as suas próprias conferências. A
+tentativa é EVIDÊNCIA da ação ligada ao material, nunca versão: guardar não
+marca ação executada nem capacidade adquirida, e a primeira tentativa nunca é
+sobrescrita. `Hipotese` ganha `propostaPor`, `avaliadaEm` e `motivoAvaliacao`;
+registro antigo fica com autoria DESCONHECIDA, não reconstruída. Em
+`combinar`, `trechoExercitado` delimita o que a pessoa exercita — sem ele,
+combinar é entrega e nada vira exercício.
+
+Em `praticar`, `MotorTrabalho` ramifica para preparação ESTRUTURADA: enunciado
+executável, exemplo resolvido de caso diferente e 2 a 6 critérios de
+desempenho. O contrato é TIPO, não instrução — no aparelho o schema é gerado
+com os IDs reais dos critérios (a escada da ADR 04t) e a resposta volta como
+JSON pelo MESMO parser estrito do Grok. A validação é pura e igual para os
+dois: exemplo dentro do enunciado recusa; critério que repete quatro palavras
+seguidas do exemplo recusa, pela mesma prova do Recordar (`Prova.vaza`).
+Falha mantém o material bruto e a tela diz que a prática estruturada não ficou
+disponível.
+
+"Conferir minha tentativa" é operação PRÓPRIA, uma chamada por toque: lê
+enunciado, critérios, apoio e tentativa INTEIROS (05m: cabe ou fica
+`indisponivel`, nada é cortado) e devolve por critério `{criterioID, situacao,
+trechoDaTentativa, observacao}`. Chave fora do contrato, enum desconhecido,
+campo faltando ou ID inventado derrubam a leitura inteira. Trecho não literal
+da tentativa, veredito sem trecho nenhum, observação acima do teto ou que
+repete o exemplo derrubam AQUELE critério para `inconclusivo`, apagando a
+citação. Critério não coberto volta `naoAvaliado` — cobertura incompleta nunca
+é acerto implícito. Reavaliar acrescenta à mesma tentativa e não cria outra
+demonstração; feedback nunca sobrescreve a resposta. O convite "Reveja este
+critério e tente novamente" é do APP. A seção "Praticar" mostra objetivo e
+dificuldade corrigíveis ("O que está dificultando isso?" aceita contexto,
+recursos, acesso ou divisão do trabalho); pessoa ou IA propõem com autoria
+explícita, só a pessoa confirma ou contesta, com motivo — e confirmar é
+concordância contextual, nunca certificação. O acesso à origem (05j) é
+revalidado antes de enviar, depois do await e dentro de `alterar`; retorno
+atrasado é descartado se mudou a tentativa vigente, o material, o apoio ou uma
+hipótese.
+
+**Custo assumido, nomeado:** a validação lê FORMA. Ela não pega um exemplo que
+satisfaz o próprio enunciado quando o enunciado é genérico, nem um critério
+que cobra o que a conferência textual não pode ler ("pronunciar corretamente",
+"praticar várias vezes") — os dois aconteceram no caso real. Preparação que
+não valida gasta uma segunda chamada, a da produção de sempre, para o material
+bruto não se perder. E o feedback continua sendo o mesmo tipo de provedor
+lendo: não é avaliação independente, e o rodapé diz isso.
+
+**Volta:** melhorar — gargalo, prática, tentativa, feedback, recalibrar. **O
+que a IA sabe:** para preparar, o objetivo, o resultado, a dificuldade
+declarada e o pedido; nunca a tentativa. Para conferir, o exercício, o apoio e
+a tentativa, sem saber quem escreveu. **Prova:** 36 testes
+(`PraticaTrabalhoTests`), suíte integral 658/0 em 05/09/2026, e o caso real de
+prova/6.md em quatro amostras: a preparação e o feedback estruturados SAÍRAM
+do modelo de bordo por geração guiada — o que a V5 não conseguiu com JSON
+livre —, mas o exercício reduziu 15 minutos a uma frase e o feedback não
+conferiu um único critério, porque nas 12 citações não copiou a tentativa
+literalmente. Sem essa regra, a amostra 2 teria mostrado seis critérios
+"atendidos" sobre um texto transcrito errado. **Fora:** Degraus, Sinais,
+Retrato e Trajetória (nada é alimentado por isto); qualquer streak, medalha,
+contagem ou promoção; prática pelo Grok (sem conta neste simulador); a jornada
+pela tela (o portão 03p desliga o modelo no XCTest); aprendizagem duradoura,
+pronúncia e transferência.
+
 ## ADR 2026-09-05s — O commit antes do anúncio, em toda rota
 
 **A distância.** A 05h fechou a entrada e o concluir. As outras rotas de

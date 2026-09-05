@@ -1,10 +1,14 @@
 import Foundation
+import FoundationModels
 import Observation
 import SwiftData
 
 nonisolated struct ProducaoTrabalho: Sendable {
     var texto: String
     var produtor: String
+    /// ADR 05r: a preparação estruturada, quando ela validou. `nil` com apoio
+    /// de prática significa material bruto — a tela diz isso com essas palavras.
+    var pratica: DocumentoTrabalho.Pratica?
 }
 
 /// Uma instância acompanha o trabalho aberto. Respostas aplicam somente ao
@@ -178,9 +182,16 @@ final class OficinaTrabalho {
                 guard verificarAcesso(), !Task.isCancelled, documento.pedidoAtivo?.id == pedido.id else { return }
                 // ADR 05p: a versão vai ao disco PRIMEIRO. A conferência é um
                 // segundo commit; se ele falhar, o artefato já está guardado.
-                guard alterar({ try $0.receber(resultado.texto, produtor: resultado.produtor, pedidoID: pedido.id) }),
+                guard alterar({ try $0.receber(resultado.texto, produtor: resultado.produtor,
+                                               pedidoID: pedido.id, pratica: resultado.pratica) }),
                       let versao = documento.versaoAtual else { return }
                 conferir(versao.id, pedidoID: pedido.id)
+                // ADR 05r: pedir prática e receber material bruto não pode
+                // passar calado — a tela diz que o exercício não saiu. Depois
+                // do commit da conferência, que limpa `erro` ao dar certo.
+                if entrada.praticaPedida, resultado.pratica == nil, salvo {
+                    erro = PraticaTrabalho.preparacaoIndisponivel
+                }
             } catch {
                 guard verificarAcesso(), !Task.isCancelled, documento.pedidoAtivo?.id == pedido.id else { return }
                 alterar { $0.falharPedido(pedido.id) }
@@ -233,6 +244,52 @@ final class OficinaTrabalho {
             guard verificarAcesso(), !Task.isCancelled,
                   documento.versaoAtual?.id == artefatoID else { return }
             alterar { try $0.registrarConferencia(registro, em: artefatoID) }
+        }
+    }
+
+    // MARK: - ADR 05r: a prática
+
+    /// A resposta do autor. Entra como EVIDÊNCIA da ação ligada ao material —
+    /// nunca por `guardarVersaoHumana`, que criaria origem mista e trocaria a
+    /// versão. Guardar não marca ação executada nem capacidade adquirida.
+    @discardableResult
+    func guardarTentativa(_ texto: String, apoioUtilizado: String,
+                          artefatoID: UUID, anteriorID: UUID? = nil) -> Bool {
+        alterar { try $0.guardarTentativa(texto, apoioUtilizado: apoioUtilizado,
+                                          artefatoID: artefatoID, anteriorID: anteriorID) }
+    }
+
+    @ObservationIgnored var feedbackDaTentativa: (DocumentoTrabalho.Pratica, String, String) async -> DocumentoTrabalho.ConferenciaTentativa = {
+        await MotorTrabalho.conferirTentativa(pratica: $0, tentativa: $1, apoioUtilizado: $2)
+    }
+    private(set) var conferindoTentativa = false
+
+    /// "Conferir minha tentativa": operação própria, uma chamada por toque.
+    /// O acesso é revalidado antes de enviar, depois do await e de novo dentro
+    /// de `alterar`. Um retorno atrasado é DESCARTADO se, enquanto ele vinha,
+    /// mudou a tentativa vigente, o material, o apoio ou uma hipótese — a
+    /// leitura pertence ao contexto que a produziu.
+    @discardableResult
+    func conferirTentativa(_ evidenciaID: UUID) -> Task<Void, Never>? {
+        guard !conferindoTentativa, verificarAcesso() else { return nil }
+        guard let evidencia = documento.evidencias.first(where: { $0.id == evidenciaID }),
+              let tentativa = evidencia.tentativa,
+              let artefatoID = evidencia.artefatoID,
+              let pratica = documento.artefatos.first(where: { $0.id == artefatoID })?.pratica,
+              documento.tentativaAtual?.id == evidenciaID else { return nil }
+        let apoio = documento.apoio, hipoteses = documento.hipoteses
+        let texto = evidencia.texto, apoioUtilizado = tentativa.apoioUtilizado
+        conferindoTentativa = true
+        return Task { [weak self] in
+            guard let self else { return }
+            defer { conferindoTentativa = false }
+            guard verificarAcesso() else { return }
+            let registro = await feedbackDaTentativa(pratica, texto, apoioUtilizado)
+            guard verificarAcesso(), !Task.isCancelled,
+                  documento.tentativaAtual?.id == evidenciaID,
+                  documento.versaoAtual?.id == artefatoID,
+                  documento.apoio == apoio, documento.hipoteses == hipoteses else { return }
+            alterar { try $0.registrarConferenciaDaTentativa(registro, em: evidenciaID) }
         }
     }
 
@@ -341,6 +398,14 @@ enum MotorTrabalho {
 
     static func produzir(_ d: DocumentoTrabalho, _ p: DocumentoTrabalho.Pedido) async throws -> ProducaoTrabalho {
         guard disponivel else { throw Erro.indisponivel }
+        // ADR 05r: quem escolheu praticar recebe EXERCÍCIO, não entrega. A
+        // preparação estruturada é a primeira tentativa; se ela não validar,
+        // cai na produção de sempre e o material bruto fica preservado.
+        if d.praticaPedida, let preparada = await prepararPratica(d, p) {
+            return .init(texto: PraticaTrabalho.emMarkdown(preparada.pratica),
+                         produtor: preparada.produtor, pratica: preparada.pratica)
+        }
+        try Task.checkCancellation()
         let remoto = pedido(d, p, teto: tetoRemoto)
         if remoto.count <= tetoRemoto,
            let texto = await Grok.responder(sistema: sistema, usuario: remoto, temperatura: 0.3),
@@ -355,5 +420,80 @@ enum MotorTrabalho {
             return .init(texto: texto, produtor: local.contains("[CONTEXTO PARCIAL:") ? "Apple Intelligence · parte do histórico" : "Apple Intelligence no aparelho")
         }
         throw Erro.respostaVazia
+    }
+}
+
+// MARK: - ADR 05r: preparação estruturada e feedback da tentativa
+
+@MainActor
+extension MotorTrabalho {
+    /// A preparação ESTRUTURADA. No Grok, JSON estrito; no aparelho, geração
+    /// guiada por schema tipado (ADR 04t) cuja resposta volta como JSON e
+    /// passa pelo MESMO parser. `nil` = não validou: o chamador cai na
+    /// produção de sempre e o material bruto fica preservado.
+    static func prepararPratica(_ d: DocumentoTrabalho, _ p: DocumentoTrabalho.Pedido)
+        async -> (pratica: DocumentoTrabalho.Pratica, produtor: String)? {
+        let mensagem = PraticaTrabalho.montarPreparacao(d, p)
+        let dificuldade = d.dificuldadeVigente
+        if mensagem.count <= tetoRemoto,
+           let cru = await Grok.responder(sistema: PraticaTrabalho.sistemaPreparar,
+                                          usuario: mensagem, temperatura: 0.3),
+           let bruta = PraticaTrabalho.parsePreparacao(cru),
+           let pratica = PraticaTrabalho.validar(bruta, dificuldade: dificuldade) {
+            return (pratica, "Grok · exercício preparado")
+        }
+        guard !Task.isCancelled, Sabia.noAparelho, mensagem.count <= Sabia.tetoNoAparelho else { return nil }
+        guard let esquema = try? PraticaTrabalho.esquemaPreparacao() else { return nil }
+        let sessao = LanguageModelSession(instructions: PraticaTrabalho.sistemaPreparar)
+        guard let r = try? await sessao.respond(to: mensagem, schema: esquema,
+                                                options: GenerationOptions(temperature: 0.3)),
+              let bruta = PraticaTrabalho.parsePreparacao(r.content.jsonString),
+              let pratica = PraticaTrabalho.validar(bruta, dificuldade: dificuldade) else { return nil }
+        return (pratica, "Apple Intelligence no aparelho · exercício preparado")
+    }
+
+    /// "Conferir minha tentativa". ADR 05m: enunciado, critérios, apoio e
+    /// tentativa cabem inteiros ou fica `indisponivel` — nada é cortado.
+    static func conferirTentativa(pratica: DocumentoTrabalho.Pratica,
+                                  tentativa: String,
+                                  apoioUtilizado: String) async -> DocumentoTrabalho.ConferenciaTentativa {
+        func registro(_ estado: DocumentoTrabalho.EstadoConferencia, executor: String,
+                      motivo: String? = nil,
+                      resultados: [DocumentoTrabalho.ResultadoDaTentativa] = []) -> DocumentoTrabalho.ConferenciaTentativa {
+            .init(executor: executor, versaoDoMetodo: PraticaTrabalho.versaoDoMetodo,
+                  estado: estado, motivo: motivo, resultados: resultados)
+        }
+        let mensagem = PraticaTrabalho.montarConferencia(pratica, tentativa: tentativa,
+                                                         apoioUtilizado: apoioUtilizado)
+        let teto = ContaGrok.ligada ? tetoRemoto : Sabia.tetoNoAparelho
+        guard mensagem.count <= teto else {
+            return registro(.indisponivel, executor: PraticaTrabalho.naoExecutada,
+                motivo: "Limite do aparelho: o enunciado, os critérios, o apoio e a sua tentativa somam \(mensagem.count) caracteres e a janela é de \(teto). Não mandei um pedaço deles.")
+        }
+        if ContaGrok.ligada,
+           let cru = await Grok.responder(sistema: PraticaTrabalho.sistemaConferir,
+                                          usuario: mensagem, temperatura: 0.2) {
+            let executor = "Grok \(PraticaTrabalho.sufixoDoExecutor)"
+            guard let resultados = PraticaTrabalho.parseConferencia(cru, pratica: pratica, tentativa: tentativa) else {
+                return registro(.indisponivel, executor: executor, motivo: PraticaTrabalho.foraDoContrato)
+            }
+            return registro(.concluida, executor: executor, resultados: resultados)
+        }
+        guard Sabia.noAparelho, let esquema = try? PraticaTrabalho.esquemaConferencia(pratica) else {
+            return registro(.indisponivel, executor: PraticaTrabalho.naoExecutada,
+                            motivo: PraticaTrabalho.semProvedor)
+        }
+        let sessao = LanguageModelSession(instructions: PraticaTrabalho.sistemaConferir)
+        let executor = "Apple Intelligence no aparelho \(PraticaTrabalho.sufixoDoExecutor)"
+        guard let r = try? await sessao.respond(to: mensagem, schema: esquema,
+                                                options: GenerationOptions(temperature: 0.2)) else {
+            return registro(.indisponivel, executor: PraticaTrabalho.naoExecutada,
+                motivo: "Nenhum provedor respondeu a esta conferência. Nada da sua tentativa foi lido.")
+        }
+        guard let resultados = PraticaTrabalho.parseConferencia(r.content.jsonString,
+                                                                pratica: pratica, tentativa: tentativa) else {
+            return registro(.indisponivel, executor: executor, motivo: PraticaTrabalho.foraDoContrato)
+        }
+        return registro(.concluida, executor: executor, resultados: resultados)
     }
 }

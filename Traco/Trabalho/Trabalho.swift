@@ -37,11 +37,14 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
     enum Origem: String, Codable { case pessoa, ia, mista, externa }
     enum FormatoArtefato: String, Codable { case markdown, html }
     enum EstadoAcao: String, Codable { case pendente, executada, cancelada }
-    enum TipoEvidencia: String, Codable { case relato, arquivo, verificacao }
+    /// ADR 05r: `tentativa` é a resposta do autor a um exercício. Nasce aqui e
+    /// não no disco antigo — nenhum registro anterior vira tentativa por
+    /// releitura. Continua sendo evidência de uma AÇÃO, nunca versão.
+    enum TipoEvidencia: String, Codable { case relato, arquivo, verificacao, tentativa }
     enum EstadoHipotese: String, Codable { case proposta, confirmada, contestada }
     enum EstadoPedido: String, Codable { case preparando, interrompido, falhou, cancelado, pronto }
     enum FonteCriterio: String, Codable { case intencao, resultado, instrucao }
-    enum SituacaoCriterio: String, Codable { case atendidoNoEscopo, divergencia, inconclusivo, naoAvaliado }
+    enum SituacaoCriterio: String, Codable, CaseIterable { case atendidoNoEscopo, divergencia, inconclusivo, naoAvaliado }
     enum EstadoConferencia: String, Codable { case concluida, indisponivel }
 
     struct Intencao: Codable, Sendable, Equatable, Identifiable {
@@ -74,6 +77,25 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
         var motivo: String?
         var resultados: [Resultado] = []
     }
+    /// ADR 05r: um critério de desempenho do exercício, com identidade — o
+    /// feedback aponta o ID, nunca repete o texto do critério por conta própria.
+    struct Criterio: Codable, Sendable, Equatable, Identifiable {
+        var id = UUID()
+        var texto: String
+    }
+    /// ADR 05r: a preparação da IA quando a pessoa escolheu PRATICAR. É
+    /// material de exercício, não a resposta: o `exemplo` é resolvido e
+    /// diferente do que se pede na tentativa. `nil` = esta versão não é
+    /// prática — nunca "prática sem critérios".
+    struct Pratica: Codable, Sendable, Equatable {
+        var capacidade: String
+        var situacao: String
+        var dificuldade: String?
+        var hipoteseID: UUID?
+        var enunciado: String
+        var exemplo: String
+        var criterios: [Criterio]
+    }
     struct Artefato: Codable, Sendable, Equatable, Identifiable {
         var id = UUID()
         var data = Date.now
@@ -84,6 +106,7 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
         var intencaoID: UUID
         var anteriorID: UUID?
         var conferencias: [Conferencia]?
+        var pratica: Pratica?
     }
     struct Acao: Codable, Sendable, Equatable, Identifiable {
         var id = UUID()
@@ -98,6 +121,36 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
         var estado: EstadoAcao = .pendente
         var executadaEm: Date?
     }
+    /// ADR 05r: o que a conferência achou de UM critério na tentativa. O
+    /// trecho é literal da tentativa (a validação apaga o que não for) e a
+    /// observação não traz solução, reescrita nem elogio.
+    struct ResultadoDaTentativa: Codable, Sendable, Equatable, Identifiable {
+        var id = UUID()
+        var criterioID: UUID
+        var situacao: SituacaoCriterio
+        var trechoDaTentativa: String
+        var observacao: String
+    }
+    /// ADR 05r: uma passada de feedback sobre UMA tentativa. Reavaliar
+    /// acrescenta aqui e não cria outra tentativa — nem outra demonstração.
+    struct ConferenciaTentativa: Codable, Sendable, Equatable, Identifiable {
+        var id = UUID()
+        var data = Date.now
+        var executor: String
+        var versaoDoMetodo: Int
+        var estado: EstadoConferencia
+        var motivo: String?
+        var resultados: [ResultadoDaTentativa] = []
+    }
+    /// ADR 05r: a resposta que a pessoa escreveu. `apoioUtilizado` é dela e é
+    /// obrigatório — desconhecido nunca vira "sem ajuda". `anteriorID` liga
+    /// uma revisão à tentativa que veio antes, sem apagá-la.
+    struct Tentativa: Codable, Sendable, Equatable {
+        var origem: Origem = .pessoa
+        var apoioUtilizado: String
+        var anteriorID: UUID?
+        var conferencias: [ConferenciaTentativa]?
+    }
     struct Evidencia: Codable, Sendable, Equatable, Identifiable {
         var id = UUID()
         var data = Date.now
@@ -107,6 +160,7 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
         var acaoID: UUID
         var artefatoID: UUID?
         var referencia: String?
+        var tentativa: Tentativa?
     }
     struct Hipotese: Codable, Sendable, Equatable, Identifiable {
         var id = UUID()
@@ -116,6 +170,11 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
         var evidencias: [UUID]
         var estado: EstadoHipotese = .proposta
         var avaliadaPor: String?
+        /// ADR 05r: quem PROPÔS. Registro antigo fica `nil` e a tela diz
+        /// "autoria desconhecida"; ninguém reconstrói autor por dedução.
+        var propostaPor: String?
+        var avaliadaEm: Date?
+        var motivoAvaliacao: String?
     }
     struct Pedido: Codable, Sendable, Equatable, Identifiable {
         var id = UUID()
@@ -137,6 +196,10 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
     var hipoteses: [Hipotese] = []
     var pedidos: [Pedido] = []
     var encerrado = false
+    /// ADR 05r: em `combinar`, o trecho que a PESSOA vai exercitar. Sem esta
+    /// delimitação, combinar é entrega delegada — classificar a entrega
+    /// inteira como prática seria chamar de exercício o que ela não fez.
+    var trechoExercitado: String?
 
     init(intencao: String, resultado: String = "", notaOrigemID: UUID? = nil) {
         self.intencoes = [.init(texto: intencao, resultado: resultado)]
@@ -144,6 +207,23 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
     }
     var intencaoAtual: Intencao { intencoes.last ?? .init(texto: "", resultado: "") }
     var versaoAtual: Artefato? { artefatos.last }
+    /// ADR 05r: este pedido prepara PRÁTICA? Em `praticar`, sempre. Em
+    /// `combinar`, só com o trecho delimitado. Em `delegar`, nunca.
+    var praticaPedida: Bool {
+        switch apoio {
+        case .praticar: true
+        case .combinar: !(trechoExercitado ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        case .delegar: false
+        }
+    }
+    /// A dificuldade que a pessoa registrou e não contestou — o que entra na
+    /// preparação. Contestar retira; ninguém pratica contra a própria correção.
+    var dificuldadeVigente: Hipotese? { hipoteses.last { $0.estado != .contestada } }
+    /// A última tentativa guardada. As anteriores continuam na lista.
+    var tentativaAtual: Evidencia? { evidencias.last { $0.tentativa != nil } }
+    func tentativas(doArtefato id: UUID) -> [Evidencia] {
+        evidencias.filter { $0.tentativa != nil && $0.artefatoID == id }
+    }
     var pedidoAtivo: Pedido? { pedidos.last(where: { $0.estado == .preparando }) }
     /// O pedido que produziu esta versão, quando houve um: a rota para conferir
     /// uma versão que ficou sem conferência (ADR 05q). Versão escrita à mão ou
@@ -179,14 +259,72 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
         guard let i = pedidos.firstIndex(where: { $0.id == id && $0.estado == .preparando }) else { return }
         pedidos[i].estado = .falhou
     }
-    mutating func receber(_ texto: String, produtor: String, pedidoID: UUID) throws {
+    mutating func receber(_ texto: String, produtor: String, pedidoID: UUID,
+                          pratica: Pratica? = nil) throws {
         guard let i = pedidos.firstIndex(where: { $0.id == pedidoID && $0.estado == .preparando }),
               pedidos[i].intencaoID == intencaoAtual.id,
               pedidos[i].artefatoID == versaoAtual?.id else { throw Erro.pedidoAntigo }
         guard !texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw Erro.vazio }
         artefatos.append(.init(conteudo: texto, origem: .ia, produtor: produtor,
-                              intencaoID: intencaoAtual.id, anteriorID: pedidos[i].artefatoID))
+                              intencaoID: intencaoAtual.id, anteriorID: pedidos[i].artefatoID,
+                              pratica: pratica))
         pedidos[i].estado = .pronto
+    }
+
+    /// ADR 05r: a resposta do autor entra como EVIDÊNCIA da ação ligada ao
+    /// material, nunca como versão — `guardarVersaoHumana` criaria origem
+    /// mista e trocaria a versão vigente pela resposta de um exercício.
+    /// A primeira tentativa nunca é sobrescrita: cada guardar acrescenta.
+    /// Guardar não marca ação executada nem capacidade adquirida.
+    @discardableResult
+    mutating func guardarTentativa(_ texto: String, apoioUtilizado: String,
+                                   artefatoID: UUID, anteriorID: UUID? = nil) throws -> Evidencia {
+        guard !texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+              !apoioUtilizado.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw Erro.vazio }
+        guard let artefato = artefatos.first(where: { $0.id == artefatoID }),
+              artefato.pratica != nil else { throw Erro.referencia }
+        if let anteriorID {
+            guard evidencias.contains(where: { $0.id == anteriorID && $0.tentativa != nil }) else { throw Erro.referencia }
+        }
+        // A tentativa é um ATO sobre este material. Reusa a ação que já existe
+        // para ele; só cria uma quando não há nenhuma, e ela nasce pendente.
+        let acaoID: UUID
+        if let existente = acoes.first(where: { $0.artefatoID == artefatoID && $0.estado != .cancelada }) {
+            acaoID = existente.id
+        } else {
+            let nova = Acao(texto: "Fazer o exercício preparado", artefatoID: artefatoID)
+            acoes.append(nova)
+            acaoID = nova.id
+        }
+        let evidencia = Evidencia(tipo: .tentativa, texto: texto, atribuidaA: "Você",
+                                  acaoID: acaoID, artefatoID: artefatoID,
+                                  tentativa: .init(apoioUtilizado: apoioUtilizado, anteriorID: anteriorID))
+        evidencias.append(evidencia)
+        return evidencia
+    }
+
+    /// Feedback nunca sobrescreve a resposta: acrescenta uma leitura à
+    /// tentativa. Reavaliar a mesma tentativa não cria outra demonstração.
+    mutating func registrarConferenciaDaTentativa(_ c: ConferenciaTentativa, em evidenciaID: UUID) throws {
+        guard let i = evidencias.firstIndex(where: { $0.id == evidenciaID }),
+              var tentativa = evidencias[i].tentativa else { throw Erro.referencia }
+        tentativa.conferencias = (tentativa.conferencias ?? []) + [c]
+        evidencias[i].tentativa = tentativa
+    }
+
+    /// A dificuldade, proposta por quem de fato a propôs. Sem evidências
+    /// pertinentes selecionadas, a lista fica vazia — apontar todas as
+    /// evidências do Trabalho seria inventar pertinência.
+    @discardableResult
+    mutating func proporHipotese(_ texto: String, propostaPor: String,
+                                 evidencias pertinentes: [UUID] = []) throws -> Hipotese {
+        guard !texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw Erro.vazio }
+        let conhecidas = Set(self.evidencias.map(\.id))
+        guard pertinentes.allSatisfy({ conhecidas.contains($0) }) else { throw Erro.referencia }
+        let h = Hipotese(texto: texto, contexto: intencaoAtual.texto, evidencias: pertinentes,
+                         propostaPor: propostaPor)
+        hipoteses.append(h)
+        return h
     }
     /// Só a versão vigente recebe conferência: um retorno sobre a versão
     /// anterior não pode ser exibido como leitura da que está na tela.
@@ -225,11 +363,16 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
         acoes[i].estado = .executada
         acoes[i].executadaEm = .now
     }
-    mutating func avaliarHipotese(_ id: UUID, estado: EstadoHipotese) throws {
+    /// Só a pessoa avalia, e "faz sentido neste contexto" é concordância
+    /// contextual — nunca certificação do app nem declaração de aprendizagem.
+    mutating func avaliarHipotese(_ id: UUID, estado: EstadoHipotese, motivo: String? = nil) throws {
         guard let i = hipoteses.firstIndex(where: { $0.id == id }) else { throw Erro.referencia }
         cancelarPedido()
         hipoteses[i].estado = estado
         hipoteses[i].avaliadaPor = estado == .proposta ? nil : "Você"
+        hipoteses[i].avaliadaEm = estado == .proposta ? nil : .now
+        let limpo = motivo?.trimmingCharacters(in: .whitespacesAndNewlines)
+        hipoteses[i].motivoAvaliacao = estado == .proposta || (limpo ?? "").isEmpty ? nil : limpo
     }
     func validar() throws {
         guard formato == 1, !intencoes.isEmpty else { throw Erro.formato }
@@ -243,6 +386,12 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
         for a in artefatos {
             guard intencaoIDs.contains(a.intencaoID),
                   a.anteriorID.map({ artefatoIDs.contains($0) && $0 != a.id }) ?? true else { throw Erro.referencia }
+            if let p = a.pratica {
+                let criterioIDs = Set(p.criterios.map(\.id))
+                guard !p.criterios.isEmpty, criterioIDs.count == p.criterios.count,
+                      p.criterios.allSatisfy({ !$0.texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }),
+                      p.hipoteseID.map({ id in hipoteses.contains { $0.id == id } }) ?? true else { throw Erro.referencia }
+            }
             guard let cs = a.conferencias else { continue }
             guard Set(cs.map(\.id)).count == cs.count,
                   cs.allSatisfy({ pedidoIDs.contains($0.pedidoID) }) else { throw Erro.referencia }
@@ -251,6 +400,21 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
         for a in acoes where a.agendadaEm == nil && a.avisoMinutos != nil { throw Erro.referencia }
         for e in evidencias {
             guard let a = acoes.first(where: { $0.id == e.acaoID }), a.artefatoID == e.artefatoID else { throw Erro.referencia }
+            guard let t = e.tentativa else { continue }
+            // Tentativa é resposta a um exercício: sem ação ligada ao material
+            // de prática, não há a que ela responda (ADR 05r).
+            guard e.tipo == .tentativa, t.origem == .pessoa,
+                  let artefatoID = e.artefatoID,
+                  let pratica = artefatos.first(where: { $0.id == artefatoID })?.pratica,
+                  t.anteriorID.map({ id in id != e.id && evidencias.contains { $0.id == id && $0.tentativa != nil } }) ?? true
+            else { throw Erro.referencia }
+            guard let cs = t.conferencias else { continue }
+            let criterioIDs = Set(pratica.criterios.map(\.id))
+            guard Set(cs.map(\.id)).count == cs.count,
+                  cs.allSatisfy({ c in
+                      Set(c.resultados.map(\.id)).count == c.resultados.count
+                          && c.resultados.allSatisfy { criterioIDs.contains($0.criterioID) }
+                  }) else { throw Erro.referencia }
         }
         for h in hipoteses where !h.evidencias.allSatisfy(evidenciaIDs.contains) { throw Erro.referencia }
         for p in pedidos {

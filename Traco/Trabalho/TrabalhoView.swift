@@ -125,6 +125,7 @@ struct TrabalhoView: View {
             }
         }
         intencao(o)
+        praticar(o)
         producao(o)
         if let versao = o.documento.versaoAtual { artefato(versao, oficina: o) }
         IntercambioTrabalhoView(oficina: o, permiteImportar: !edicaoPendente(o))
@@ -187,6 +188,221 @@ struct TrabalhoView: View {
                 }.padding(.top, 8)
             }
         }
+    }
+
+    // MARK: - ADR 05r: praticar
+
+    /// A seção da prática. Aparece com apoio "praticar"; em "combinar" só
+    /// depois que a pessoa delimita o trecho que ela mesma vai exercitar —
+    /// sem delimitação, combinar é entrega delegada e não prática.
+    @ViewBuilder private func praticar(_ o: OficinaTrabalho) -> some View {
+        if o.documento.apoio != .delegar {
+            VStack(alignment: .leading, spacing: 16) {
+                titulo("Praticar")
+                Text("O que você quer conseguir fazer: \(o.documento.intencaoAtual.texto)")
+                    .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+                    .accessibilityIdentifier("pratica-objetivo")
+                if o.documento.apoio == .combinar { delimitacao(o) }
+                dificuldade(o)
+                if o.documento.praticaPedida {
+                    if let versao = o.documento.versaoAtual, let pratica = versao.pratica {
+                        exercicio(pratica)
+                        tentativas(versao, pratica: pratica, oficina: o)
+                    } else {
+                        Text("Nenhum exercício preparado ainda. Escreva abaixo o que você quer praticar e toque em preparar: a IA prepara enunciado, exemplo e critérios; a tentativa é sua.")
+                            .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+                            .accessibilityIdentifier("pratica-sem-exercicio")
+                    }
+                }
+            }
+        }
+    }
+
+    private func delimitacao(_ o: OficinaTrabalho) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            campo("O trecho que eu mesmo vou exercitar", chave: "trecho",
+                  padrao: o.documento.trechoExercitado ?? "", exemplo: "As frases em espanhol")
+                .accessibilityIdentifier("pratica-trecho")
+            Button("Guardar o trecho") {
+                let texto = rascunhos["trecho"] ?? ""
+                aplicar(o, limpar: ["trecho"]) { $0.trechoExercitado = texto }
+            }
+            .disabled(!o.salvo || vazio("trecho"))
+            if !o.documento.praticaPedida {
+                Text("Sem esse trecho, combinar entrega o trabalho inteiro: nada aqui vira exercício.")
+                    .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+            }
+        }
+    }
+
+    /// O gargalo, corrigível. A pergunta aceita contexto, recursos, acesso ou
+    /// divisão do trabalho — não só habilidade. Só a pessoa confirma ou
+    /// contesta, e confirmar é concordar neste contexto, não ser avaliada.
+    private func dificuldade(_ o: OficinaTrabalho) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            campo("O que está dificultando isso?", chave: "dificuldade",
+                  exemplo: "Pode ser contexto, recursos, acesso ou divisão do trabalho")
+                .accessibilityIdentifier("pratica-dificuldade")
+            Button("Guardar esta dificuldade") {
+                let texto = rascunhos["dificuldade"] ?? ""
+                aplicar(o, limpar: ["dificuldade"]) { try $0.proporHipotese(texto, propostaPor: "Você") }
+            }
+            .disabled(!o.salvo || vazio("dificuldade"))
+            .accessibilityIdentifier("pratica-guardar-dificuldade")
+            ForEach(o.documento.hipoteses) { h in
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(h.texto)
+                    Text("Proposta por \(h.propostaPor ?? "autoria desconhecida") · \(h.estado.rawValue)\(avaliacao(h))")
+                        .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+                    if let motivo = h.motivoAvaliacao {
+                        Text("Seu motivo: \(motivo)").font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+                    }
+                    let chave = "motivo-\(h.id.uuidString)"
+                    campo("Por quê? (opcional)", chave: chave, exemplo: "O que te faz dizer isso")
+                    Button("Faz sentido neste contexto") { avaliar(h, .confirmada, chave: chave, oficina: o) }
+                        .accessibilityIdentifier("pratica-confirmar-hipotese")
+                    Button("Não é essa a dificuldade") { avaliar(h, .contestada, chave: chave, oficina: o) }
+                        .accessibilityIdentifier("pratica-contestar-hipotese")
+                    Text("Concordar aqui é concordar neste contexto. Não é o app avaliando você, nem prova de que você aprendeu.")
+                        .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+                }.disabled(!o.salvo)
+            }
+        }
+    }
+
+    private func avaliacao(_ h: DocumentoTrabalho.Hipotese) -> String {
+        guard let quando = h.avaliadaEm else { return "" }
+        return " · por \(h.avaliadaPor ?? "você") em \(quando.formatted(date: .abbreviated, time: .shortened))"
+    }
+
+    private func avaliar(_ h: DocumentoTrabalho.Hipotese, _ estado: DocumentoTrabalho.EstadoHipotese,
+                         chave: String, oficina o: OficinaTrabalho) {
+        let motivo = rascunhos[chave]
+        aplicar(o, limpar: [chave]) { try $0.avaliarHipotese(h.id, estado: estado, motivo: motivo) }
+    }
+
+    private func exercicio(_ p: DocumentoTrabalho.Pratica) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Exercício: \(p.capacidade)").font(Tema.barra)
+            Text("Situação: \(p.situacao)").font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+            Text("O que fazer").font(Tema.barra)
+            Text(p.enunciado).textSelection(.enabled)
+                .accessibilityIdentifier("pratica-enunciado")
+            Text("Exemplo resolvido, de outro caso — não é a sua resposta").font(Tema.barra)
+            Text(p.exemplo).textSelection(.enabled)
+                .accessibilityIdentifier("pratica-exemplo")
+            Text("Como conferir o seu desempenho").font(Tema.barra)
+            ForEach(p.criterios) { c in Text("• \(c.texto)").font(Tema.meta) }
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Tema.superficie, in: RoundedRectangle(cornerRadius: Tema.raio))
+    }
+
+    /// O campo começa VAZIO e a IA nunca o preenche. Guardar acrescenta uma
+    /// tentativa ligada à anterior; a primeira nunca é sobrescrita, e guardar
+    /// não marca ação executada nem capacidade adquirida.
+    private func tentativas(_ versao: DocumentoTrabalho.Artefato, pratica p: DocumentoTrabalho.Pratica,
+                            oficina o: OficinaTrabalho) -> some View {
+        let guardadas = o.documento.tentativas(doArtefato: versao.id)
+        return VStack(alignment: .leading, spacing: 16) {
+            campo("Minha tentativa", chave: "tentativa", exemplo: "Escreva aqui a sua resposta")
+                .accessibilityIdentifier("pratica-tentativa")
+            campo("Que apoio você usou?", chave: "apoio-usado", exemplo: "Ex.: olhei o exemplo")
+                .accessibilityIdentifier("pratica-apoio-usado")
+            Button(guardadas.isEmpty ? "Guardar minha tentativa" : "Guardar esta nova tentativa") {
+                let texto = rascunhos["tentativa"] ?? "", apoio = rascunhos["apoio-usado"] ?? ""
+                guard acesso.permitido, o.verificarAcesso() else { revalidar(); return }
+                if o.guardarTentativa(texto, apoioUtilizado: apoio, artefatoID: versao.id,
+                                     anteriorID: guardadas.last?.id) {
+                    limpar(["tentativa", "apoio-usado"])
+                }
+            }
+            .disabled(!o.salvo || vazio("tentativa") || vazio("apoio-usado"))
+            .accessibilityIdentifier("pratica-guardar-tentativa")
+            Text("Guardar preserva a sua resposta como sua. Não marca a ação como realizada nem declara capacidade adquirida.")
+                .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+            if !guardadas.isEmpty {
+                Text("Tentativas (\(guardadas.count))").font(Tema.barra)
+                ForEach(guardadas) { e in tentativa(e, pratica: p, ultima: e.id == o.documento.tentativaAtual?.id, oficina: o) }
+            }
+        }
+    }
+
+    @ViewBuilder private func tentativa(_ e: DocumentoTrabalho.Evidencia, pratica p: DocumentoTrabalho.Pratica,
+                                        ultima: Bool, oficina o: OficinaTrabalho) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Sua tentativa · \(e.data.formatted(date: .abbreviated, time: .shortened))")
+                .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+            Text(e.texto).textSelection(.enabled)
+                .accessibilityIdentifier("pratica-tentativa-guardada")
+            Text("Apoio usado: \(e.tentativa?.apoioUtilizado ?? "não registrado")")
+                .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+            ForEach(e.tentativa?.conferencias ?? []) { c in feedback(c, pratica: p) }
+            if ultima { botaoDoFeedback(e, oficina: o) }
+        }
+        .padding(.vertical, 12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .overlay(alignment: .top) { Rectangle().fill(Tema.linha).frame(height: 1) }
+    }
+
+    @ViewBuilder private func botaoDoFeedback(_ e: DocumentoTrabalho.Evidencia, oficina o: OficinaTrabalho) -> some View {
+        if !MotorTrabalho.disponivel {
+            Text(PraticaTrabalho.semProvedor).font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+                .accessibilityIdentifier("pratica-sem-provedor")
+        } else if o.conferindoTentativa {
+            ProgressView("A IA está conferindo sua tentativa…").font(Tema.meta)
+                .accessibilityIdentifier("pratica-conferindo")
+        } else {
+            Button("Conferir minha tentativa") {
+                guard acesso.permitido, o.verificarAcesso(), o.salvo else { revalidar(); return }
+                o.conferirTentativa(e.id)
+            }
+            .disabled(!o.salvo)
+            .accessibilityIdentifier("pratica-conferir-tentativa")
+            Button("Nova tentativa") {
+                definir("tentativa", "")
+                definir("apoio-usado", "")
+                campoEmFoco = "tentativa"
+                rolarPara = "tentativa"
+            }
+            .accessibilityIdentifier("pratica-nova-tentativa")
+        }
+    }
+
+    private func feedback(_ c: DocumentoTrabalho.ConferenciaTentativa, pratica p: DocumentoTrabalho.Pratica) -> some View {
+        DisclosureGroup {
+            VStack(alignment: .leading, spacing: 12) {
+                if let motivo = c.motivo {
+                    Text(motivo).font(Tema.meta).foregroundStyle(Tema.aviso)
+                }
+                ForEach(c.resultados) { r in
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(p.criterios.first { $0.id == r.criterioID }?.texto ?? "Critério removido")
+                            .font(Tema.barra)
+                        Text(situacao(r.situacao)).font(Tema.meta)
+                            .foregroundStyle(r.situacao == .divergencia ? Tema.aviso : Tema.tintaSuave)
+                        if !r.trechoDaTentativa.isEmpty {
+                            Text("Na sua tentativa: “\(r.trechoDaTentativa)”")
+                                .font(Tema.meta).foregroundStyle(Tema.tintaSuave).textSelection(.enabled)
+                        }
+                        Text(r.observacao).font(Tema.meta)
+                        // O convite é do APP: a IA não pede nada e não dá a resposta.
+                        if r.situacao == .divergencia {
+                            Text(PraticaTrabalho.convite).font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+                        }
+                    }
+                }
+                Text("Lido por \(c.executor) em \(c.data.formatted(date: .abbreviated, time: .shortened)). Lê a sua tentativa contra os critérios deste exercício; não avalia você, não corrige o texto e não prova aprendizagem.")
+                    .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+            }.padding(.top, 8)
+        } label: {
+            Text(PraticaTrabalho.linha(c))
+                .multilineTextAlignment(.leading)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .font(Tema.meta)
+        .accessibilityIdentifier("pratica-feedback")
     }
 
     private func producao(_ o: OficinaTrabalho) -> some View {
@@ -455,7 +671,7 @@ struct TrabalhoView: View {
                 titulo("O que aconteceu")
                 ForEach(o.documento.evidencias) { e in
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("Relato de \(e.atribuidaA) · \(e.data.formatted(date: .abbreviated, time: .shortened))")
+                        Text("\(e.tipo == .tentativa ? "Tentativa de" : "Relato de") \(e.atribuidaA) · \(e.data.formatted(date: .abbreviated, time: .shortened))")
                             .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
                         Text(e.texto).textSelection(.enabled)
                     }
