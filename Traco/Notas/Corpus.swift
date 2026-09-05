@@ -331,35 +331,60 @@ enum Corpus {
         let fatia = FatiaCorpus.de(nota)
         let fatias = todas.map(FatiaCorpus.de)
         let raiz = diretorio
+        let g = Geracao.proxima()
         Task.detached(priority: .utility) {
-            escreverUma(fatia, agregados: fatias, em: raiz)
-            PastaEspelho.comAcesso { escreverUma(fatia, agregados: fatias, em: $0, registrar: true) }
+            escreverUma(fatia, agregados: fatias, em: raiz, geracao: g)
+            PastaEspelho.comAcesso { escreverUma(fatia, agregados: fatias, em: $0, registrar: true, geracao: g) }
         }
     }
 
+    /// ADR 05s: as escritas só andam para a frente. A tarefa fora da main que
+    /// chega DEPOIS da varredura do selo (mais nova) não regrava o `.md` nem os
+    /// agregados com a nota ainda aberta; e a varredura mais velha não apaga o
+    /// `.md` que uma conclusão mais nova acabou de criar.
+    // ponytail: uma trava global e um mapa alvo→geração; fila serial por
+    // pasta se a espera na main doer um dia.
+    nonisolated private static let ordem = NSLock()
+    nonisolated(unsafe) private static var gravadas: [String: Int] = [:]
+
+    nonisolated private static func avanca(_ alvo: URL, _ g: Int) -> Bool {
+        if let atual = gravadas[alvo.path], atual > g { return false }
+        gravadas[alvo.path] = g
+        return true
+    }
+
     nonisolated static func escreverUma(_ f: FatiaCorpus, agregados: [FatiaCorpus], em raiz: URL,
-                                        registrar: Bool = false) {
+                                        registrar: Bool = false, geracao g: Int = 0) {
+        ordem.lock(); defer { ordem.unlock() }
         let fm = FileManager.default
         let notasDir = raiz.appendingPathComponent("notas", isDirectory: true)
         try? fm.createDirectory(at: notasDir, withIntermediateDirectories: true)
         let vivas = agregados.filter { !$0.nuncaSai }
         let nome = f.id.uuidString.lowercased() + ".md"
-        if f.nuncaSai {
-            try? fm.removeItem(at: notasDir.appendingPathComponent(nome))
-        } else {
-            escreverSeMudou(arquivoMd(f).data(using: .utf8), em: notasDir.appendingPathComponent(nome))
-            if registrar {
-                // o manifesto do espelho continua sabendo o que é deste aparelho
-                let manifesto = raiz.appendingPathComponent(".espelho-\(PastaEspelho.aparelho).json")
-                var meus: Set<String> = (try? Data(contentsOf: manifesto))
-                    .flatMap { try? JSONDecoder().decode(Set<String>.self, from: $0) } ?? []
-                if meus.insert(nome).inserted {
-                    try? JSONEncoder().encode(meus).write(to: manifesto, options: .atomic)
+        let alvo = notasDir.appendingPathComponent(nome)
+        if avanca(alvo, g) {
+            if f.nuncaSai {
+                try? fm.removeItem(at: alvo)
+            } else {
+                escreverSeMudou(arquivoMd(f).data(using: .utf8), em: alvo)
+                if registrar {
+                    // o manifesto do espelho continua sabendo o que é deste aparelho
+                    let manifesto = raiz.appendingPathComponent(".espelho-\(PastaEspelho.aparelho).json")
+                    var meus: Set<String> = (try? Data(contentsOf: manifesto))
+                        .flatMap { try? JSONDecoder().decode(Set<String>.self, from: $0) } ?? []
+                    if meus.insert(nome).inserted {
+                        try? JSONEncoder().encode(meus).write(to: manifesto, options: .atomic)
+                    }
                 }
             }
         }
-        escreverSeMudou(corpoDoCorpus(fatias: vivas).data(using: .utf8),
-                        em: raiz.appendingPathComponent("traco-corpus.md"))
+        escreverAgregados(vivas, em: raiz, geracao: g)
+    }
+
+    nonisolated private static func escreverAgregados(_ vivas: [FatiaCorpus], em raiz: URL, geracao g: Int) {
+        let corpus = raiz.appendingPathComponent("traco-corpus.md")
+        guard avanca(corpus, g) else { return }
+        escreverSeMudou(corpoDoCorpus(fatias: vivas).data(using: .utf8), em: corpus)
         escreverSeMudou(indice(fatias: vivas).data(using: .utf8),
                         em: raiz.appendingPathComponent("INDICE.md"))
     }
@@ -386,9 +411,10 @@ enum Corpus {
     }
 
     static func escreverEspelho(fatias: [FatiaCorpus]) {
-        escrever(fatias: fatias, em: diretorio)
+        let g = Geracao.proxima()
+        escrever(fatias: fatias, em: diretorio, geracao: g)
         // a pasta do autor (iCloud Drive ou outro provedor), se ele escolheu uma
-        PastaEspelho.comAcesso { pasta in escrever(fatias: fatias, em: pasta, soOsMeus: true) }
+        PastaEspelho.comAcesso { pasta in escrever(fatias: fatias, em: pasta, soOsMeus: true, geracao: g) }
     }
 
     /// Escreve a pasta do segundo cérebro em `raiz`: LEIA-ME, notas/*.md,
@@ -411,7 +437,8 @@ enum Corpus {
         return true
     }
 
-    static func escrever(fatias: [FatiaCorpus], em raiz: URL, soOsMeus: Bool = false) {
+    static func escrever(fatias: [FatiaCorpus], em raiz: URL, soOsMeus: Bool = false, geracao g: Int = 0) {
+        ordem.lock(); defer { ordem.unlock() }
         let fm = FileManager.default
         let notasDir = raiz.appendingPathComponent("notas", isDirectory: true)
         try? fm.createDirectory(at: notasDir, withIntermediateDirectories: true)
@@ -421,8 +448,9 @@ enum Corpus {
         for f in vivas {
             let nome = f.id.uuidString.lowercased() + ".md"
             ids.insert(nome)
-            escreverSeMudou(arquivoMd(f).data(using: .utf8),
-                            em: notasDir.appendingPathComponent(nome))
+            let alvo = notasDir.appendingPathComponent(nome)
+            guard avanca(alvo, g) else { continue }
+            escreverSeMudou(arquivoMd(f).data(using: .utf8), em: alvo)
         }
         let manifesto = raiz.appendingPathComponent(".espelho-\(PastaEspelho.aparelho).json")
         let meusAntes: Set<String> = soOsMeus
@@ -431,7 +459,9 @@ enum Corpus {
         if let existentes = try? fm.contentsOfDirectory(atPath: notasDir.path) {
             for nome in existentes where nome.hasSuffix(".md") && !ids.contains(nome) {
                 if soOsMeus, !meusAntes.contains(nome) { continue }
-                try? fm.removeItem(at: notasDir.appendingPathComponent(nome))
+                let alvo = notasDir.appendingPathComponent(nome)
+                guard avanca(alvo, g) else { continue }
+                try? fm.removeItem(at: alvo)
             }
         }
         if soOsMeus {
@@ -443,9 +473,6 @@ enum Corpus {
            raiz != diretorio {
             try? calendario.write(to: raiz.appendingPathComponent("calendario.json"), options: .atomic)
         }
-        escreverSeMudou(corpoDoCorpus(fatias: vivas).data(using: .utf8),
-                        em: raiz.appendingPathComponent("traco-corpus.md"))
-        escreverSeMudou(indice(fatias: vivas).data(using: .utf8),
-                        em: raiz.appendingPathComponent("INDICE.md"))
+        escreverAgregados(vivas, em: raiz, geracao: g)
     }
 }

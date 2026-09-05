@@ -36,6 +36,15 @@ nonisolated enum Indice {
 
     private static let tranca = NSLock()
     private nonisolated(unsafe) static var memoria: [String: Entrada]?
+    /// ADR 05s: a última geração que tocou cada nota. Uma escrita fora da main
+    /// que chega depois de um selo mais novo não ressuscita a nota.
+    private nonisolated(unsafe) static var geracoes: [String: Int] = [:]
+
+    private static func avanca(_ chave: String, _ g: Int) -> Bool {
+        if let atual = geracoes[chave], atual > g { return false }
+        geracoes[chave] = g
+        return true
+    }
 
     /// Testes apontam para um temp.
     nonisolated(unsafe) static var url: URL = {
@@ -125,29 +134,39 @@ nonisolated enum Indice {
     /// Refaz o índice inteiro contra as notas dadas: entra o que pode, sai o
     /// que não pode mais (selo) ou não existe mais. Só recalcula a nota cuja
     /// `editadaEm` mudou.
-    static func sincronizar(_ notas: [NotaLida]) {
+    /// `geracao` (ADR 05s): ordem em que a rota foi chamada na main; a nota
+    /// que um selo mais novo já tirou fica de fora mesmo que esta lista,
+    /// mais velha, ainda a traga como aberta.
+    static func sincronizar(_ notas: [NotaLida], geracao g: Int = 0) {
         guard disponivel else { return }
         tranca.lock(); defer { tranca.unlock() }
         var atual = carregar()
         var novo: [String: Entrada] = [:]
-        for n in notas where n.podeEntrar {
+        for n in notas {
             let chave = n.uuid.uuidString
+            defer { atual.removeValue(forKey: chave) }
+            guard avanca(chave, g) else {
+                if let e = atual[chave] { novo[chave] = e }
+                continue
+            }
+            guard n.podeEntrar else { continue }
             if let e = atual[chave], e.editadaEm == n.editadaEm {
                 novo[chave] = e
             } else if let v = vetor(expandirAnexos(n.voz)) {
                 novo[chave] = Entrada(editadaEm: n.editadaEm, vetor: v)
             }
-            atual.removeValue(forKey: chave)
         }
+        for (chave, e) in atual where !avanca(chave, g) { novo[chave] = e }
         gravar(novo)
     }
 
     /// Uma nota que mudou — sem passar por todas.
-    static func atualizar(_ n: NotaLida) {
+    static func atualizar(_ n: NotaLida, geracao g: Int = 0) {
         guard disponivel else { return }
         tranca.lock(); defer { tranca.unlock() }
         var atual = carregar()
         let chave = n.uuid.uuidString
+        guard avanca(chave, g) else { return }
         if n.podeEntrar, let v = vetor(expandirAnexos(n.voz)) {
             atual[chave] = Entrada(editadaEm: n.editadaEm, vetor: v)
         } else {
@@ -157,9 +176,10 @@ nonisolated enum Indice {
     }
 
     /// O selo, na hora: selar ou apagar tira do índice antes de qualquer busca.
-    static func remover(_ uuid: UUID) {
+    static func remover(_ uuid: UUID, geracao g: Int = 0) {
         tranca.lock(); defer { tranca.unlock() }
         var atual = carregar()
+        guard avanca(uuid.uuidString, g) else { return }
         guard atual.removeValue(forKey: uuid.uuidString) != nil else { return }
         gravar(atual)
     }
@@ -167,6 +187,7 @@ nonisolated enum Indice {
     static func apagarTudo() {
         tranca.lock(); defer { tranca.unlock() }
         memoria = [:]
+        geracoes = [:]
         try? FileManager.default.removeItem(at: url)
     }
 
@@ -217,5 +238,18 @@ nonisolated enum Indice {
         guard let bytes = try? enc.encode(dados) else { return }
         try? FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
         try? bytes.write(to: url, options: .atomic)
+    }
+}
+
+/// ADR 05s: um relógio lógico para as projeções (corpus, índice, Spotlight).
+/// Cada rota que projeta pega um número na main, na ordem em que foi chamada;
+/// quem grava fora da main leva o número junto, e uma gravação atrasada nunca
+/// passa por cima de uma mais nova.
+@MainActor
+enum Geracao {
+    private static var contador = 0
+    static func proxima() -> Int {
+        contador += 1
+        return contador
     }
 }

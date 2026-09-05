@@ -684,6 +684,13 @@ struct PerfilView: View {
                     .accessibilityIdentifier("espelho-pasta")
                     .accessibilityHint("Escolhe uma pasta sua; o Traço grava lá uma cópia da pasta do segundo cérebro a cada nota concluída")
             }
+            // ADR 05s: a cópia que não chegou à pasta não fica muda (ADR 03e)
+            if let estadoDoEspelho = PastaEspelho.estado {
+                Text(estadoDoEspelho)
+                    .font(Tema.meta)
+                    .foregroundStyle(Tema.tintaSuave)
+                    .accessibilityIdentifier("estado-espelho")
+            }
             Text("O backup automático grava no app Arquivos a cada nota concluída — nada disso depende de nuvem nem de conta. Se escolher uma pasta, a mesma cópia vai para lá; o Traço só escreve, nunca lê de volta — exceto a subpasta entrada/.")
                 .font(.footnote)
                 .foregroundStyle(Tema.tintaFraca)

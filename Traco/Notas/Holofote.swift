@@ -13,7 +13,8 @@ enum Holofote {
         !fechada && !expressivaEmCurso && !voz.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
-    static func indexar(notas todas: [Nota]) {
+    @discardableResult
+    static func indexar(notas todas: [Nota]) -> [CSSearchableItem] {
         indexar(notas: todas.map { n in
             (n.uuid, n.vozDoAutor, !sai(fechada: n.fechada, expressivaEmCurso: n.gesto == .expressiva && !n.fechada, voz: n.vozDoAutor))
         })
@@ -22,9 +23,33 @@ enum Holofote {
     /// Os itens são montados ANTES do salto: a versão com closure lia
     /// `dominio` (isolado no MainActor) e capturava o `CSSearchableIndex`
     /// (não-Sendable) dentro de uma closure `@Sendable`.
-    static func indexar(notas: [(uuid: UUID, voz: String, trancada: Bool)]) {
+    @discardableResult
+    static func indexar(notas: [(uuid: UUID, voz: String, trancada: Bool)]) -> [CSSearchableItem] {
         let alvo = dominio
-        let itens = notas
+        let itens = lote(notas)
+        // ADR 05s: dois lotes em voo (concluir e, logo depois, selar) só
+        // terminam na ordem da chamada: o mais velho desiste ao ver um mais novo.
+        geracao += 1
+        let g = geracao
+        Task {
+            let indice = CSSearchableIndex.default()
+            // reconstrução simples: apaga o domínio e regrava as abertas.
+            // A ordem importa — apagar DEPOIS de indexar limparia o que acabou
+            // de entrar, e o selo depende deste apagar acontecer.
+            guard g == geracao else { return }
+            try? await indice.deleteSearchableItems(withDomainIdentifiers: [alvo])
+            guard g == geracao, !itens.isEmpty else { return }
+            try? await indice.indexSearchableItems(itens)
+        }
+        return itens
+    }
+
+    private static var geracao = 0
+
+    /// O lote que vai ao sistema: nada de fechada, nada sem voz.
+    static func lote(_ notas: [(uuid: UUID, voz: String, trancada: Bool)]) -> [CSSearchableItem] {
+        let alvo = dominio
+        return notas
             .filter { !$0.trancada && !$0.voz.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
             // era 200, sem comentário e sem fila: da nota 201 em diante o
             // arquivo simplesmente não existia para a busca do iPhone, e nada
@@ -41,14 +66,5 @@ enum Holofote {
                     attributeSet: attr
                 )
             }
-        Task {
-            let indice = CSSearchableIndex.default()
-            // reconstrução simples: apaga o domínio e regrava as abertas.
-            // A ordem importa — apagar DEPOIS de indexar limparia o que acabou
-            // de entrar, e o selo depende deste apagar acontecer.
-            try? await indice.deleteSearchableItems(withDomainIdentifiers: [alvo])
-            guard !itens.isEmpty else { return }
-            try? await indice.indexSearchableItems(Array(itens))
-        }
     }
 }
