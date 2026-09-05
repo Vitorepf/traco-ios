@@ -21,6 +21,8 @@ struct TrabalhoView: View {
     @State private var confirmarApagarCopia = false
     @State private var copiaCopiada = false
     @State private var exibicaoSuspensa = false
+    @FocusState private var campoEmFoco: String?
+    @State private var rolarPara: String?
 
     private var chaveRascunho: String { "trabalho.rascunhos.\(trabalho.uuid.uuidString)" }
     private var selos: [SeloOrigemTrabalho] { notas.map(SeloOrigemTrabalho.init) }
@@ -58,6 +60,18 @@ struct TrabalhoView: View {
                 if oficina != nil, acesso.permitido, let acaoEmFoco {
                     await Task.yield()
                     rolagem.scrollTo(acaoEmFoco, anchor: .top)
+                }
+            }
+            // O texto que o autor não escreveu começa no alto: sem isto o foco
+            // rola para o FIM do campo e ele vê um rabo de frase (V5, P3-b).
+            .onChange(of: rolarPara) { _, alvo in
+                guard let alvo else { return }
+                Task {
+                    // ponytail: espera o teclado subir; a rolagem do foco vem
+                    // depois da nossa. Se o tempo mudar, é aqui que se calibra.
+                    try? await Task.sleep(for: .milliseconds(400))
+                    withAnimation { rolagem.scrollTo(alvo, anchor: .top) }
+                    rolarPara = nil
                 }
             }
             }
@@ -240,22 +254,47 @@ struct TrabalhoView: View {
         .background(Tema.superficie, in: RoundedRectangle(cornerRadius: Tema.raio))
     }
 
-    /// ADR 05p: a checagem local ao lado do produtor. Diz o que foi examinado
-    /// e o que não foi; nunca "qualidade verificada". Não bloqueia ler ou usar.
+    /// ADR 05p/05q: a checagem local ao lado do produtor e, quando o autor
+    /// pede, a revisão assistida — em linhas separadas, porque uma lê regra e
+    /// a outra lê sentido. Nenhuma diz "qualidade verificada"; nenhuma bloqueia
+    /// ler ou usar. Versão sem conferência DIZ que não foi feita (04a).
     @ViewBuilder private func conferencia(_ a: DocumentoTrabalho.Artefato, oficina o: OficinaTrabalho) -> some View {
-        if let c = a.conferencias?.last {
-            DisclosureGroup(ConferenciaTrabalho.linha(c)) {
+        // Só o ÚLTIMO de cada tipo vira linha: conferir de novo não empilha
+        // cartão idêntico. O histórico inteiro continua no documento (V5, P3-c).
+        let todos = a.conferencias ?? []
+        let registros = [todos.last { !daIA($0) }, todos.last { daIA($0) }]
+            .compactMap { $0 }.sorted { $0.data < $1.data }
+        // "Conferir com IA" mora num lugar só: o último cartão mostrado (P3-d).
+        let ondeIA = registros.last?.id
+        if registros.isEmpty {
+            VStack(alignment: .leading, spacing: 8) {
+                let pedido = o.documento.pedidoDe(a)
+                Text(pedido == nil ? "Conferência: não feita · sem pedido a conferir" : "Conferência: não feita")
+                    .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+                if let pedido {
+                    Button("Conferir") { conferir(a, pedido: pedido.id, oficina: o) }
+                        .accessibilityIdentifier("trabalho-conferir-primeira")
+                    botaoDaIA(a, pedido: pedido.id, oficina: o)
+                }
+            }
+            .accessibilityIdentifier("trabalho-sem-conferencia")
+        }
+        ForEach(registros) { c in
+            DisclosureGroup {
                 VStack(alignment: .leading, spacing: 12) {
                     if let motivo = c.motivo {
                         Text(motivo).font(Tema.meta).foregroundStyle(Tema.aviso)
                     }
+                    let comTrecho = primeiraPorFonte(c.resultados)
                     ForEach(c.resultados) { r in
                         VStack(alignment: .leading, spacing: 4) {
                             Text(r.criterio).font(Tema.barra)
                             Text(situacao(r.situacao)).font(Tema.meta)
                                 .foregroundStyle(r.situacao == .divergencia ? Tema.aviso : Tema.tintaSuave)
-                            Text("No pedido (\(fonte(r.fonte))): “\(r.trechoFonte)”")
-                                .font(Tema.meta).foregroundStyle(Tema.tintaSuave).textSelection(.enabled)
+                            if comTrecho.contains(r.id) {
+                                Text("No pedido (\(fonte(r.fonte))): “\(r.trechoFonte)”")
+                                    .font(Tema.meta).foregroundStyle(Tema.tintaSuave).textSelection(.enabled)
+                            }
                             ForEach(Array(r.trechosDoArtefato.enumerated()), id: \.offset) { _, trecho in
                                 Text("No artefato: “\(trecho)”")
                                     .font(Tema.meta).foregroundStyle(Tema.tintaSuave).textSelection(.enabled)
@@ -263,19 +302,78 @@ struct TrabalhoView: View {
                             Text(r.justificativa).font(Tema.meta)
                         }
                     }
-                    Text("Conferida por \(c.executor) em \(c.data.formatted(date: .abbreviated, time: .shortened)). Esta checagem lê regras, não sentido: nada aqui aprova o artefato.")
-                        .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
-                    Button("Conferir de novo") {
-                        guard acesso.permitido, o.verificarAcesso(), o.salvo else { revalidar(); return }
-                        o.conferir(a.id, pedidoID: c.pedidoID)
+                    Text(rodape(c)).font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+                    if let ajuste = ConferenciaTrabalho.pedidoDeAjuste(c) {
+                        Button("Pedir ajuste") {
+                            guard acesso.permitido, o.verificarAcesso() else { revalidar(); return }
+                            definir("pedido", ajuste)
+                            campoEmFoco = "pedido"
+                            rolarPara = "pedido"
+                        }
+                        .accessibilityIdentifier("trabalho-pedir-ajuste")
                     }
-                    .disabled(!o.salvo)
-                    .accessibilityIdentifier("trabalho-conferir")
+                    if !daIA(c) {
+                        Button("Conferir de novo") { conferir(a, pedido: c.pedidoID, oficina: o) }
+                            .disabled(!o.salvo)
+                            .accessibilityIdentifier("trabalho-conferir")
+                    }
+                    if c.id == ondeIA { botaoDaIA(a, pedido: c.pedidoID, oficina: o) }
                 }.padding(.top, 8)
+            } label: {
+                Text(daIA(c) ? RevisaoTrabalho.linha(c) : ConferenciaTrabalho.linha(c))
+                    .multilineTextAlignment(.leading)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
             .font(Tema.meta)
-            .accessibilityIdentifier("trabalho-conferencia")
+            .accessibilityIdentifier(daIA(c) ? "trabalho-revisao-ia" : "trabalho-conferencia")
         }
+    }
+
+    /// Um toque, uma chamada. Enquanto a anterior não volta, o botão sai.
+    /// Sem provedor que produza a revisão não há botão: no lugar dele fica a
+    /// linha que diz por quê (ADR 05q, volta 5).
+    @ViewBuilder private func botaoDaIA(_ a: DocumentoTrabalho.Artefato, pedido: UUID,
+                                        oficina o: OficinaTrabalho) -> some View {
+        if let aviso = RevisaoTrabalho.oferta() {
+            Text(aviso).font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+                .accessibilityIdentifier("trabalho-revisao-sem-provedor")
+        } else if o.revisando {
+            ProgressView("A IA está conferindo…")
+                .font(Tema.meta)
+                .accessibilityIdentifier("trabalho-revisando")
+        } else {
+            Button("Conferir com IA") {
+                guard acesso.permitido, o.verificarAcesso(), o.salvo else { revalidar(); return }
+                o.revisarComIA(a.id, pedidoID: pedido)
+            }
+            .disabled(!o.salvo)
+            .accessibilityIdentifier("trabalho-conferir-ia")
+        }
+    }
+
+    private func conferir(_ a: DocumentoTrabalho.Artefato, pedido: UUID, oficina o: OficinaTrabalho) {
+        guard acesso.permitido, o.verificarAcesso(), o.salvo else { revalidar(); return }
+        o.conferir(a.id, pedidoID: pedido)
+    }
+
+    private func daIA(_ c: DocumentoTrabalho.Conferencia) -> Bool {
+        c.executor.hasSuffix(RevisaoTrabalho.sufixoDoExecutor) || c.executor == RevisaoTrabalho.naoExecutada
+    }
+
+    private func rodape(_ c: DocumentoTrabalho.Conferencia) -> String {
+        let quando = "\(c.executor) em \(c.data.formatted(date: .abbreviated, time: .shortened))"
+        return daIA(c)
+            ? "Lido por \(quando). É uma segunda leitura do mesmo tipo de provedor, não uma revisão independente: nada aqui aprova o artefato."
+            : "Conferida por \(quando). Esta checagem lê regras, não sentido: nada aqui aprova o artefato."
+    }
+
+    /// O mesmo trecho do pedido aparece UMA vez por fonte, não uma por critério.
+    private func primeiraPorFonte(_ rs: [DocumentoTrabalho.Resultado]) -> Set<UUID> {
+        var vistos = Set<String>(), primeiras = Set<UUID>()
+        for r in rs where !r.trechoFonte.isEmpty {
+            if vistos.insert(r.fonte.rawValue + "\u{1}" + r.trechoFonte).inserted { primeiras.insert(r.id) }
+        }
+        return primeiras
     }
 
     private func fonte(_ f: DocumentoTrabalho.FonteCriterio) -> String {
@@ -401,8 +499,8 @@ struct TrabalhoView: View {
                 ForEach(o.documento.artefatos.reversed()) { a in
                     DisclosureGroup("Versão \(numero(a.id, em: o.documento)) · \(a.produtor)") {
                         VStack(alignment: .leading, spacing: 8) {
-                            if let c = a.conferencias?.last {
-                                Text(ConferenciaTrabalho.linha(c))
+                            ForEach(a.conferencias ?? []) { c in
+                                Text(daIA(c) ? RevisaoTrabalho.linha(c) : ConferenciaTrabalho.linha(c))
                                     .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
                             }
                             ConteudoTrabalhoView(fonte: a.conteudo)
@@ -425,6 +523,8 @@ struct TrabalhoView: View {
             TextField(exemplo, text: Binding(get: { rascunhos[chave] ?? padrao },
                                            set: { definir(chave, $0) }), axis: .vertical)
                 .lineLimit(2...12)
+                .id(chave)
+                .focused($campoEmFoco, equals: chave)
                 .padding(12)
                 .background(Tema.superficie, in: RoundedRectangle(cornerRadius: Tema.raio))
                 .accessibilityLabel(titulo)

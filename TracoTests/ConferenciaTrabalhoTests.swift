@@ -142,6 +142,9 @@ struct ConferenciaTrabalhoTests {
         #expect(r.situacao == .inconclusivo)
         #expect(r.justificativa.contains("40 caracteres"))
         #expect(r.justificativa.contains("Não é o mesmo que dizer que o idioma está certo"))
+        // V5, P2-a: nada divergente não é nada confirmado.
+        #expect(ConferenciaTrabalho.linha(conferir(d, p))
+                == "Conferência: nada confirmado · 1 inconclusivo · 1 critério não avaliado")
     }
 
     @Test func cabecalhoTabelaECodigoNaoEntramNaLeituraDeIdioma() {
@@ -410,5 +413,312 @@ struct ConferenciaTrabalhoTests {
         #expect(importada.origem == .externa)
         #expect(importada.conferencias == nil)
         try d.validar()
+    }
+
+    // MARK: - Revisão assistida (ADR 05q)
+
+    /// O par que a revisão lê, com o pedido do caso real de prova/4.md.
+    private func paraRevisar() throws -> (DocumentoTrabalho, DocumentoTrabalho.Pedido) {
+        try recebido(intencao: "Praticar espanhol sozinho, do zero",
+                     resultado: "Conseguir falar as frases em voz alta hoje",
+                     pedido: "roteiro solo de espanhol, 3 blocos de 5 minutos, frases em espanhol com tradução em português, para iniciante",
+                     artefato: bilingue)
+    }
+
+    private func revisar(_ d: DocumentoTrabalho, _ p: DocumentoTrabalho.Pedido,
+                         resposta: String, provedor: String = "Grok",
+                         janela: Int = 100_000) async -> DocumentoTrabalho.Conferencia {
+        await RevisaoTrabalho.revisar(pedido: p, intencao: d.intencaoAtual,
+                                      artefato: d.versaoAtual?.conteudo ?? "", criterios: [],
+                                      janela: { janela }, chamar: { _, _ in (resposta, provedor) })
+    }
+
+    private func criterioJSON(_ pares: String) -> String { #"{"criterios":[{"# + pares + "}]}" }
+
+    @Test func aMensagemLevaPedidoArtefatoECriteriosInteiros() throws {
+        let (d, p) = try paraRevisar()
+        let locais = conferir(d, p).resultados
+        let m = RevisaoTrabalho.montar(pedido: p, intencao: d.intencaoAtual, artefato: bilingue, criterios: locais)
+        #expect(m.contains(d.intencaoAtual.texto))
+        #expect(m.contains(d.intencaoAtual.resultado))
+        #expect(m.contains(p.instrucao))
+        #expect(m.contains(bilingue))
+        #expect(m.contains("Tempo pedido: 3 blocos de 5 minutos (15 no total)"))
+    }
+
+    @Test func parserRecusaChaveAlemDoContrato() throws {
+        let (d, p) = try paraRevisar()
+        let cru = criterioJSON(#""criterio":"Traduções","trechoFonte":"tradução em português","fonte":"instrucao","situacao":"divergencia","trechosDoArtefato":[],"justificativa":"Faltam.","confianca":0.9"#)
+        #expect(RevisaoTrabalho.parse(cru, pedido: p, intencao: d.intencaoAtual, artefato: bilingue) == nil)
+        let extraNoTopo = #"{"criterios":[],"resumo":"tudo certo"}"#
+        #expect(RevisaoTrabalho.parse(extraNoTopo, pedido: p, intencao: d.intencaoAtual, artefato: bilingue) == nil)
+    }
+
+    @Test func parserRecusaSituacaoOuFonteForaDaLista() throws {
+        let (d, p) = try paraRevisar()
+        let situacao = criterioJSON(#""criterio":"Traduções","trechoFonte":"tradução em português","fonte":"instrucao","situacao":"aprovado","trechosDoArtefato":[],"justificativa":"Faltam.""#)
+        #expect(RevisaoTrabalho.parse(situacao, pedido: p, intencao: d.intencaoAtual, artefato: bilingue) == nil)
+        let fonte = criterioJSON(#""criterio":"Traduções","trechoFonte":"tradução em português","fonte":"pedido","situacao":"divergencia","trechosDoArtefato":[],"justificativa":"Faltam.""#)
+        #expect(RevisaoTrabalho.parse(fonte, pedido: p, intencao: d.intencaoAtual, artefato: bilingue) == nil)
+    }
+
+    @Test func citacaoQueNaoEstaNoOriginalViraInconclusivoESomeDaTela() throws {
+        let (d, p) = try paraRevisar()
+        let inventadaNoPedido = criterioJSON(#""criterio":"Duração","trechoFonte":"quatro blocos de dez minutos","fonte":"instrucao","situacao":"divergencia","trechosDoArtefato":[],"justificativa":"O pedido exigia outra coisa.""#)
+        let a = try #require(RevisaoTrabalho.parse(inventadaNoPedido, pedido: p, intencao: d.intencaoAtual, artefato: bilingue))
+        #expect(a.count == 1)
+        #expect(a[0].situacao == .inconclusivo)
+        #expect(a[0].trechoFonte.isEmpty)
+        #expect(a[0].justificativa.hasPrefix("Citação não encontrada"))
+
+        let inventadaNoArtefato = criterioJSON(#""criterio":"Traduções","trechoFonte":"tradução em português","fonte":"instrucao","situacao":"atendidoNoEscopo","trechosDoArtefato":["Bom dia, tudo bem com você?"],"justificativa":"Traduziu tudo.""#)
+        let b = try #require(RevisaoTrabalho.parse(inventadaNoArtefato, pedido: p, intencao: d.intencaoAtual, artefato: bilingue))
+        #expect(b[0].situacao == .inconclusivo)
+        #expect(b[0].trechosDoArtefato.isEmpty)
+        #expect(b[0].justificativa.contains("no artefato"))
+    }
+
+    @Test func citacaoLiteralPassaEPreservaOQueAIADisse() throws {
+        let (d, p) = try paraRevisar()
+        let cru = criterioJSON(#""criterio":"Traduções para o português","trechoFonte":"tradução em português","fonte":"instrucao","situacao":"atendidoNoEscopo","trechosDoArtefato":["Bom dia, como vai?"],"justificativa":"Cada frase tem a tradução na mesma linha.""#)
+        let r = try #require(RevisaoTrabalho.parse(cru, pedido: p, intencao: d.intencaoAtual, artefato: bilingue))
+        #expect(r[0].situacao == .atendidoNoEscopo)
+        #expect(r[0].trechoFonte == "tradução em português")
+        #expect(r[0].trechosDoArtefato == ["Bom dia, como vai?"])
+        #expect(r[0].justificativa == "Cada frase tem a tradução na mesma linha.")
+    }
+
+    @Test func jsonInvalidoDeixaARevisaoIndisponivelSemInventarAusenciaDeProblema() async throws {
+        let (d, p) = try paraRevisar()
+        let c = await revisar(d, p, resposta: "Claro! Li o roteiro e ele está ótimo.")
+        #expect(c.estado == .indisponivel)
+        #expect(c.resultados.isEmpty)
+        let linha = RevisaoTrabalho.linha(c)
+        #expect(linha.hasPrefix("Revisão da IA indisponível:"))
+        #expect(!linha.contains("aprovad"))
+    }
+
+    @Test func aProvenienciaGravadaEODoProvedorEfetivoNaoDaConfiguracao() async throws {
+        let (d, p) = try paraRevisar()
+        let cru = criterioJSON(#""criterio":"Traduções","trechoFonte":"tradução em português","fonte":"instrucao","situacao":"divergencia","trechosDoArtefato":["Buenos días, ¿cómo estás?"],"justificativa":"Sem tradução.""#)
+        let noAparelho = await revisar(d, p, resposta: cru, provedor: "Apple Intelligence no aparelho")
+        #expect(noAparelho.executor == "Apple Intelligence no aparelho · revisão assistida")
+        let noGrok = await revisar(d, p, resposta: cru, provedor: "Grok")
+        #expect(noGrok.executor == "Grok · revisão assistida")
+        #expect(noGrok.estado == .concluida)
+    }
+
+    @Test func aRespostaFavoravelNaoAprovaEDizQuemNaoApontou() async throws {
+        let (d, p) = try paraRevisar()
+        let cru = criterioJSON(#""criterio":"Traduções para o português","trechoFonte":"tradução em português","fonte":"instrucao","situacao":"atendidoNoEscopo","trechosDoArtefato":["Bom dia, como vai?"],"justificativa":"Cada frase tem tradução.""#)
+        let c = await revisar(d, p, resposta: cru)
+        #expect(RevisaoTrabalho.linha(c) == "Revisão da IA: a IA não apontou divergências nos critérios examinados")
+        #expect(!RevisaoTrabalho.linha(c).contains("aprovad"))
+        #expect(!RevisaoTrabalho.linha(c).contains("verificad"))
+    }
+
+    @Test func acimaDaJanelaDoAparelhoFicaIndisponivelSemCortarNemChamar() async throws {
+        let (d, p) = try paraRevisar()
+        nonisolated(unsafe) var chamadas = 0
+        let c = await RevisaoTrabalho.revisar(
+            pedido: p, intencao: d.intencaoAtual, artefato: bilingue, criterios: [],
+            janela: { 200 }, chamar: { _, _ in chamadas += 1; return ("{}", "Grok") })
+        #expect(chamadas == 0)
+        #expect(c.estado == .indisponivel)
+        #expect(c.executor == RevisaoTrabalho.naoExecutada)
+        #expect(try #require(c.motivo).hasPrefix("Limite do aparelho:"))
+        #expect(try #require(c.motivo).contains("Não mandei um pedaço"))
+        // O artefato continua inteiro no documento: nada foi resumido para caber.
+        #expect(d.versaoAtual?.conteudo == bilingue)
+    }
+
+    @Test func nenhumProvedorRespondeNaoViraAusenciaDeDivergencia() async throws {
+        let (d, p) = try paraRevisar()
+        let c = await RevisaoTrabalho.revisar(pedido: p, intencao: d.intencaoAtual,
+                                              artefato: bilingue, criterios: [],
+                                              janela: { 100_000 }, chamar: { _, _ in nil })
+        #expect(c.estado == .indisponivel)
+        #expect(c.executor == RevisaoTrabalho.naoExecutada)
+        #expect(RevisaoTrabalho.linha(c).contains("Nenhum provedor respondeu"))
+    }
+
+    @Test func gerarNaoDisparaRevisaoDaIA() async throws {
+        let container = try ModelContainer.traco(emMemoria: true)
+        let d = DocumentoTrabalho(intencao: "Praticar espanhol sozinho, do zero",
+                                  resultado: "Conseguir falar as frases em voz alta hoje")
+        let trabalho = try Trabalho(documento: d)
+        container.mainContext.insert(trabalho)
+        try container.mainContext.save()
+        let oficina = try OficinaTrabalho(trabalho: trabalho, context: container.mainContext,
+                                          produzir: { _, _ in .init(texto: self.bilingue, produtor: "Fake controlado, só para teste") })
+        oficina.estaDisponivel = { true }
+        nonisolated(unsafe) var revisoes = 0
+        oficina.revisao = { pedido, _, _, _ in
+            revisoes += 1
+            return .init(pedidoID: pedido.id, executor: "x · revisão assistida", versaoDoMetodo: 1, estado: .concluida)
+        }
+
+        await oficina.gerar("roteiro solo de espanhol, 3 blocos de 5 minutos, frases em espanhol com tradução em português")?.value
+        #expect(revisoes == 0)
+        let versao = try #require(oficina.documento.versaoAtual)
+        // A conferência local roda; a revisão da IA só a pedido.
+        #expect(versao.conferencias?.count == 1)
+        #expect(versao.conferencias?.first?.executor == ConferenciaTrabalho.executor)
+    }
+
+    @Test func conferirComIAGravaOutraConferenciaSemApagarALocal() async throws {
+        let container = try ModelContainer.traco(emMemoria: true)
+        var (d, p) = try paraRevisar()
+        try d.registrarConferencia(conferir(d, p), em: try #require(d.versaoAtual).id)
+        let trabalho = try Trabalho(documento: d)
+        container.mainContext.insert(trabalho)
+        try container.mainContext.save()
+        let oficina = try OficinaTrabalho(trabalho: trabalho, context: container.mainContext)
+        nonisolated(unsafe) var criteriosVistos: [String] = []
+        oficina.revisao = { pedido, _, _, criterios in
+            criteriosVistos = criterios.map(\.criterio)
+            return .init(pedidoID: pedido.id, executor: "Apple Intelligence no aparelho · revisão assistida",
+                         versaoDoMetodo: 1, estado: .concluida,
+                         resultados: [.init(criterio: "Traduções", trechoFonte: "tradução em português",
+                                            fonte: .instrucao, situacao: .divergencia,
+                                            justificativa: "Nenhuma frase tem tradução.")])
+        }
+
+        let artefatoID = try #require(d.versaoAtual).id
+        await oficina.revisarComIA(artefatoID, pedidoID: p.id)?.value
+        let guardadas = try #require(try trabalho.ler().versaoAtual?.conferencias)
+        #expect(guardadas.count == 2)
+        #expect(guardadas[0].executor == ConferenciaTrabalho.executor)
+        #expect(guardadas[1].executor == "Apple Intelligence no aparelho · revisão assistida")
+        // A lista de critérios já extraídos viaja com o pedido.
+        #expect(criteriosVistos.contains { $0.hasPrefix("Tempo pedido:") })
+        #expect(oficina.revisando == false)
+    }
+
+    @Test func acessoNegadoNaoChamaAIANemGravaRevisao() async throws {
+        let container = try ModelContainer.traco(emMemoria: true)
+        let nota = Nota(texto: "Frase privada identificável")
+        container.mainContext.insert(nota)
+        var (d, p) = try paraRevisar()
+        d.notaOrigemID = nota.uuid
+        let trabalho = try Trabalho(documento: d)
+        container.mainContext.insert(trabalho)
+        try container.mainContext.save()
+        let oficina = try OficinaTrabalho(trabalho: trabalho, context: container.mainContext)
+        nonisolated(unsafe) var chamadas = 0
+        oficina.revisao = { pedido, _, _, _ in
+            chamadas += 1
+            return .init(pedidoID: pedido.id, executor: "x · revisão assistida", versaoDoMetodo: 1, estado: .concluida)
+        }
+
+        nota.trancada = true
+        try container.mainContext.save()
+        #expect(oficina.revisarComIA(try #require(d.versaoAtual).id, pedidoID: p.id) == nil)
+        #expect(chamadas == 0)
+        #expect(try trabalho.ler().artefatos.allSatisfy { $0.conferencias == nil })
+    }
+
+    // MARK: - Pedir ajuste e versão sem conferência
+
+    @Test func duasDivergenciasViramOPedidoDeAjusteNasPalavrasDaConferencia() throws {
+        let c = DocumentoTrabalho.Conferencia(
+            pedidoID: UUID(), executor: ConferenciaTrabalho.executor, versaoDoMetodo: 1, estado: .concluida,
+            resultados: [
+                .init(criterio: "Tempo pedido: 3 blocos de 5 minutos (15 no total)",
+                      trechoFonte: "3 blocos de 5 minutos", fonte: .instrucao, situacao: .divergencia,
+                      trechosDoArtefato: ["5 min"],
+                      justificativa: "O pedido pede 3 blocos de 5 minutos (15 no total); encontrei 1 marca somando 5."),
+                .init(criterio: "Traduções para o português", trechoFonte: "tradução em português",
+                      fonte: .instrucao, situacao: .divergencia, trechosDoArtefato: [],
+                      justificativa: "Nenhuma frase traz tradução."),
+                .init(criterio: "Destinatário, conteúdo e adequação", trechoFonte: "para iniciante",
+                      fonte: .instrucao, situacao: .naoAvaliado, justificativa: "Ninguém leu."),
+            ])
+        let texto = try #require(ConferenciaTrabalho.pedidoDeAjuste(c))
+        let marca = "Ajustar a versão anterior (a partir da conferência de \(c.data.formatted(date: .abbreviated, time: .shortened)), por aparelho · regras v1):"
+        #expect(texto == """
+        \(marca)
+        - Tempo pedido: 3 blocos de 5 minutos (15 no total). Na versão anterior: “5 min”. O pedido diz: “3 blocos de 5 minutos”. O pedido pede 3 blocos de 5 minutos (15 no total); encontrei 1 marca somando 5.
+        - Traduções para o português. O pedido diz: “tradução em português”. Nenhuma frase traz tradução.
+        """)
+        #expect(!texto.contains("Destinatário"))
+    }
+
+    @Test func semDivergenciaNaoHaPedidoDeAjuste() throws {
+        let (d, p) = try recebido(intencao: "Praticar espanhol",
+                                  pedido: "Frases em espanhol com tradução em português.",
+                                  artefato: bilingue)
+        #expect(ConferenciaTrabalho.pedidoDeAjuste(conferir(d, p)) == nil)
+    }
+
+    @Test func versaoSemConferenciaTemRotaParaAPrimeiraPeloPedidoQueAProduziu() throws {
+        var (d, p) = try paraRevisar()
+        let versao = try #require(d.versaoAtual)
+        #expect(versao.conferencias == nil)
+        #expect(d.pedidoDe(versao)?.id == p.id)
+        // Versão escrita à mão não nasceu de pedido: não há contra o que conferir.
+        try d.guardarVersaoHumana("Reescrevi tudo à mão, do meu jeito, em português.")
+        #expect(d.pedidoDe(try #require(d.versaoAtual)) == nil)
+    }
+
+    // MARK: - Correções da volta 5
+
+    /// P2-a: três inconclusivos são ZERO critérios confirmados. Este é o caso
+    /// real da revisão pela tela (05/09/2026): o modelo do aparelho devolveu
+    /// três critérios com citações não literais e a linha soava favorável.
+    @Test func tresInconclusivosNaoViramAusenciaDeDivergencia() async throws {
+        let (d, p) = try paraRevisar()
+        let tres = #"""
+        {"criterios":[
+        {"criterio":"Traduções para o português","trechoFonte":"não está no pedido","fonte":"instrucao","situacao":"atendidoNoEscopo","trechosDoArtefato":[],"justificativa":"Traduziu."},
+        {"criterio":"Distribuição do tempo","trechoFonte":"também não está","fonte":"instrucao","situacao":"naoAvaliado","trechosDoArtefato":[],"justificativa":"Não li."},
+        {"criterio":"Material para iniciante","trechoFonte":"nem isto","fonte":"instrucao","situacao":"divergencia","trechosDoArtefato":[],"justificativa":"Faltou."}
+        ]}
+        """#
+        let c = await revisar(d, p, resposta: tres)
+        #expect(c.resultados.count == 3)
+        #expect(c.resultados.allSatisfy { $0.situacao == .inconclusivo })
+        let linha = RevisaoTrabalho.linha(c)
+        #expect(linha == "Revisão da IA: nada confirmado · 3 inconclusivos")
+        #expect(!linha.contains("não apontou"))
+        #expect(!linha.contains("aprovad"))
+    }
+
+    /// P2-b: material importado não nasceu de pedido nenhum. Sem `origem == .ia`
+    /// o casamento por `anteriorID` nulo achava o PRIMEIRO pedido do trabalho.
+    @Test func versaoImportadaNaoOfereceConferenciaContraPedidoAlheio() throws {
+        var (d, p) = try paraRevisar()
+        let primeira = try #require(d.versaoAtual)
+        #expect(d.pedidoDe(primeira)?.id == p.id)
+
+        let solto = Data("Um texto qualquer, escrito fora do Traço, sem envelope e sem vínculo.".utf8)
+        let previa = try IntercambioTrabalho.preparar(solto, para: d)
+        #expect(previa.estado == .semVinculo)
+        #expect(try d.aplicarVersaoExterna(previa))
+        let importada = try #require(d.versaoAtual)
+        #expect(importada.origem == .externa)
+        #expect(importada.anteriorID == nil)
+        #expect(d.pedidoDe(importada) == nil)
+    }
+
+    /// Decisão da volta 5: a revisão assistida só é OFERECIDA onde há provedor
+    /// que a produza. Sem conta Grok, no lugar do botão fica a linha honesta.
+    @Test func semContaGrokNaoHaBotaoDaIAEHaLinhaQueDizPorQue() {
+        #expect(RevisaoTrabalho.oferta(contaLigada: true) == nil)
+        let aviso = RevisaoTrabalho.oferta(contaLigada: false)
+        #expect(aviso == RevisaoTrabalho.semProvedor)
+        #expect(aviso?.contains("conta Grok") == true)
+        #expect(aviso?.contains("não devolveu revisão válida") == true)
+        #expect(aviso?.contains("Criar") == false)
+    }
+
+    /// P3-a: nos dois casos reais o modelo pôs o nome do enum como título do
+    /// critério. Título não é situação: a resposta não veio no formato exigido.
+    @Test func criterioComNomeDeEnumNoTituloDerrubaARevisaoInteira() throws {
+        let (d, p) = try paraRevisar()
+        for nome in ["atendidoNoEscopo", "divergencia", "naoAvaliado", "instrucao"] {
+            let cru = criterioJSON(#""criterio":"\#(nome)","trechoFonte":"tradução em português","fonte":"instrucao","situacao":"inconclusivo","trechosDoArtefato":[],"justificativa":"Alguma coisa.""#)
+            #expect(RevisaoTrabalho.parse(cru, pedido: p, intencao: d.intencaoAtual, artefato: bilingue) == nil)
+        }
     }
 }

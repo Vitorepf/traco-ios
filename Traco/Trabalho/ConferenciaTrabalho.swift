@@ -45,23 +45,50 @@ nonisolated enum ConferenciaTrabalho {
     }
 
     /// A linha que a versão mostra. Nunca diz “verificado” nem “aprovado”.
-    static func linha(_ c: DocumentoTrabalho.Conferencia) -> String {
+    /// `titulo` e `semDivergencia` existem para a revisão assistida (ADR 05q)
+    /// falar como ela é — "a IA não apontou" — sem uma segunda cópia da conta.
+    static func linha(_ c: DocumentoTrabalho.Conferencia,
+                      titulo: String = "Conferência",
+                      semDivergencia: String = "nenhuma divergência nos critérios examinados") -> String {
         switch c.estado {
-        case .indisponivel: return "Conferência indisponível: \(c.motivo ?? "sem motivo registrado.")"
+        case .indisponivel: return "\(titulo) indisponível: \(c.motivo ?? "sem motivo registrado.")"
         case .concluida: break
         }
         let d = c.resultados.count { $0.situacao == .divergencia }
         let i = c.resultados.count { $0.situacao == .inconclusivo }
         let n = c.resultados.count { $0.situacao == .naoAvaliado }
-        let naoAvaliados = " · \(n) \(n == 1 ? "critério não avaliado" : "critérios não avaliados")"
+        let naoAvaliados = n == 0 ? "" : " · \(n) \(n == 1 ? "critério não avaliado" : "critérios não avaliados")"
         let inconclusivos = i == 0 ? "" : " · \(i) \(i == 1 ? "inconclusivo" : "inconclusivos")"
         if c.resultados.count == n {
-            return "Conferência: nenhum critério examinado" + naoAvaliados
+            return "\(titulo): nenhum critério examinado" + naoAvaliados
+        }
+        // Nada divergente E nada atendido: dizer "não apontou divergências"
+        // seria selo sobre uma leitura que não confirmou nada (V5, P2-a).
+        if d == 0, i + n == c.resultados.count {
+            return "\(titulo): nada confirmado" + inconclusivos + naoAvaliados
         }
         if d == 0 {
-            return "Conferência: nenhuma divergência nos critérios examinados" + inconclusivos + naoAvaliados
+            return "\(titulo): " + semDivergencia + inconclusivos + naoAvaliados
         }
-        return "Conferência: \(d) \(d == 1 ? "possível divergência" : "possíveis divergências")" + inconclusivos + naoAvaliados
+        return "\(titulo): \(d) \(d == 1 ? "possível divergência" : "possíveis divergências")" + inconclusivos + naoAvaliados
+    }
+
+    /// ADR 05q: as divergências viram o pedido de ajuste, nas palavras da
+    /// própria conferência. O texto vai para o CAMPO — o autor edita e pede a
+    /// nova versão. Nada aqui gera sozinho.
+    static func pedidoDeAjuste(_ c: DocumentoTrabalho.Conferencia) -> String? {
+        let divergencias = c.resultados.filter { $0.situacao == .divergencia }
+        guard !divergencias.isEmpty else { return nil }
+        let linhas = divergencias.map { r -> String in
+            let naVersao = r.trechosDoArtefato.isEmpty ? ""
+                : " Na versão anterior: “\(r.trechosDoArtefato.joined(separator: "”, “"))”."
+            let noPedido = r.trechoFonte.isEmpty ? "" : " O pedido diz: “\(r.trechoFonte)”."
+            return "- \(r.criterio).\(naVersao)\(noPedido) \(r.justificativa)"
+        }
+        // A marca de origem fica no texto: o que a IA escreveu não entra no
+        // pedido como voz do autor sem dizer de onde veio (V5, P3-e).
+        let marca = "Ajustar a versão anterior (a partir da conferência de \(c.data.formatted(date: .abbreviated, time: .shortened)), por \(c.executor)):"
+        return ([marca] + linhas).joined(separator: "\n")
     }
 
     // MARK: - Critérios

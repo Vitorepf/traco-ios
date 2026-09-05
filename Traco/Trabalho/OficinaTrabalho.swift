@@ -207,6 +207,35 @@ final class OficinaTrabalho {
 
     @ObservationIgnored var conferencia: (DocumentoTrabalho.Pedido, DocumentoTrabalho.Intencao, String) -> DocumentoTrabalho.Conferencia = ConferenciaTrabalho.conferir
 
+    /// ADR 05q: a revisão assistida. SÓ A PEDIDO — `gerar` nunca chama isto —
+    /// e uma chamada por toque: `revisando` fecha a porta enquanto a anterior
+    /// não voltou. O acesso é revalidado antes de enviar, depois do await e de
+    /// novo dentro de `alterar`, antes de a leitura aparecer na tela.
+    @ObservationIgnored var revisao: (DocumentoTrabalho.Pedido, DocumentoTrabalho.Intencao, String, [DocumentoTrabalho.Resultado]) async -> DocumentoTrabalho.Conferencia = {
+        await RevisaoTrabalho.revisar(pedido: $0, intencao: $1, artefato: $2, criterios: $3)
+    }
+    private(set) var revisando = false
+
+    @discardableResult
+    func revisarComIA(_ artefatoID: UUID, pedidoID: UUID) -> Task<Void, Never>? {
+        guard !revisando, verificarAcesso() else { return nil }
+        guard let artefato = documento.artefatos.first(where: { $0.id == artefatoID }),
+              artefato.id == documento.versaoAtual?.id,
+              let pedido = documento.pedidos.first(where: { $0.id == pedidoID }),
+              let intencao = documento.intencoes.first(where: { $0.id == artefato.intencaoID }) else { return nil }
+        let criterios = artefato.conferencias?.last { $0.executor == ConferenciaTrabalho.executor }?.resultados ?? []
+        revisando = true
+        return Task { [weak self] in
+            guard let self else { return }
+            defer { revisando = false }
+            guard verificarAcesso() else { return }
+            let registro = await revisao(pedido, intencao, artefato.conteudo, criterios)
+            guard verificarAcesso(), !Task.isCancelled,
+                  documento.versaoAtual?.id == artefatoID else { return }
+            alterar { try $0.registrarConferencia(registro, em: artefatoID) }
+        }
+    }
+
     @ObservationIgnored var estaDisponivel: () -> Bool = { MotorTrabalho.disponivel }
 
     /// A UI chama ao mudar a origem ou a cena, antes de mostrar/copiar drafts.
@@ -243,6 +272,8 @@ final class OficinaTrabalho {
 enum MotorTrabalho {
     enum Erro: Error { case indisponivel, respostaVazia }
     static var disponivel: Bool { Sabia.disponivel }
+    /// A janela do provedor remoto. Acima disso a montagem desce ao aparelho.
+    static let tetoRemoto = 18_000
 
     static let sistema = """
     Você trabalha com uma pessoa para transformar intenção em realização.
@@ -310,8 +341,8 @@ enum MotorTrabalho {
 
     static func produzir(_ d: DocumentoTrabalho, _ p: DocumentoTrabalho.Pedido) async throws -> ProducaoTrabalho {
         guard disponivel else { throw Erro.indisponivel }
-        let remoto = pedido(d, p, teto: 18000)
-        if remoto.count <= 18000,
+        let remoto = pedido(d, p, teto: tetoRemoto)
+        if remoto.count <= tetoRemoto,
            let texto = await Grok.responder(sistema: sistema, usuario: remoto, temperatura: 0.3),
            !texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             return .init(texto: texto, produtor: remoto.contains("[CONTEXTO PARCIAL:") ? "Grok · parte do histórico" : "Grok")

@@ -145,6 +145,16 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
     var intencaoAtual: Intencao { intencoes.last ?? .init(texto: "", resultado: "") }
     var versaoAtual: Artefato? { artefatos.last }
     var pedidoAtivo: Pedido? { pedidos.last(where: { $0.estado == .preparando }) }
+    /// O pedido que produziu esta versão, quando houve um: a rota para conferir
+    /// uma versão que ficou sem conferência (ADR 05q). Versão escrita à mão ou
+    /// importada não tem pedido, e conferir contra nada não é conferir — só
+    /// `receber` cria versão a partir de um pedido, por isso `origem == .ia`:
+    /// sem isso, material importado com `anteriorID` nulo casava o PRIMEIRO
+    /// pedido e a conferência ficava presa a um texto que ele não gerou.
+    func pedidoDe(_ a: Artefato) -> Pedido? {
+        guard a.origem == .ia else { return nil }
+        return pedidos.last { $0.estado == .pronto && $0.intencaoID == a.intencaoID && $0.artefatoID == a.anteriorID }
+    }
 
     mutating func reverIntencao(_ texto: String, resultado: String) throws {
         guard !texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw Erro.vazio }

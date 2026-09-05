@@ -418,16 +418,28 @@ enum Sabia {
     /// só seguem no aparelho se a mensagem inteira couber.
     static func chamar(sistema: String, usuario: String, temperatura: Double,
                        memoPor chave: String? = nil, mensagemLocal: (() -> String?)? = nil) async -> String? {
+        await chamarComProveniencia(sistema: sistema, usuario: usuario, temperatura: temperatura,
+                                    memoPor: chave, mensagemLocal: mensagemLocal)?.texto
+    }
+
+    /// A mesma escada, dizendo QUEM respondeu. `chamar` devolve só o texto, e
+    /// configuração não prova executor: quem precisa registrar proveniência —
+    /// a revisão assistida do Trabalho (ADR 05q) — chama por aqui e grava o
+    /// provedor efetivo, não o que estava ligado quando o toque começou.
+    static func chamarComProveniencia(sistema: String, usuario: String, temperatura: Double,
+                                      memoPor chave: String? = nil,
+                                      mensagemLocal: (() -> String?)? = nil) async -> (texto: String, provedor: String)? {
         if let r = await Grok.responder(sistema: sistema, usuario: usuario,
                                         temperatura: temperatura, memoPor: chave) {
-            return r
+            return (r, "Grok")
         }
         // A recusa de orçamento não é resposta e nunca passa pelo memo do Grok.
         let pedido: String?
         if let mensagemLocal { pedido = mensagemLocal() }
         else { pedido = mensagemDoAparelho(carga: usuario) }
         guard let pedido else { return nil }
-        return await noAparelho(sistema: sistema, usuario: pedido, temperatura: temperatura)
+        guard let r = await noAparelho(sistema: sistema, usuario: pedido, temperatura: temperatura) else { return nil }
+        return (r, "Apple Intelligence no aparelho")
     }
 
     nonisolated static let tetoNoAparelho = 3500
