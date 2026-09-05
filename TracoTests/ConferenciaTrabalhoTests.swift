@@ -223,6 +223,76 @@ struct ConferenciaTrabalhoTests {
         #expect(r.trechosDoArtefato == ["5 min, 5 min, 5 min"])
     }
 
+    // O defeito da volta 4: o pedido lia números por extenso e o artefato só
+    // dígitos, então a tela afirmava "nenhuma marca de minutos" sobre artefato
+    // que tinha três. Um léxico só, dos dois lados.
+
+    @Test func artefatoComTempoPorExtensoContaComoMarcaEAtende() throws {
+        let (d, p) = try recebido(intencao: "Praticar espanhol",
+                                  pedido: "Roteiro solo em espanhol, 3 blocos de 5 minutos.",
+                                  artefato: """
+                                  ## Bloco 1
+                                  Leia as frases em voz alta, devagar, cada um com cinco minutos de prática.
+                                  ## Bloco 2
+                                  Grave a si mesmo dizendo as mesmas frases, cinco minutos, e ouça depois.
+                                  ## Bloco 3
+                                  Responda às perguntas em voz alta por cinco minutos, sem consultar nada.
+                                  """)
+        let r = try criterio(conferir(d, p), contendo: "Tempo")
+        #expect(r.situacao == .atendidoNoEscopo)
+        #expect(r.justificativa.contains("3 marcas"))
+        #expect(r.justificativa.contains("somando 15"))
+        #expect(r.trechosDoArtefato == ["5 min, 5 min, 5 min"])
+    }
+
+    @Test func umaMarcaPorExtensoDivergeEConcordaNoSingular() throws {
+        let (d, p) = try recebido(intencao: "Praticar espanhol",
+                                  pedido: "Roteiro solo em espanhol, 3 blocos de 5 minutos.",
+                                  artefato: """
+                                  ## Bloco 1
+                                  Leia as frases em voz alta, devagar, com cinco minutos de prática atenta.
+                                  ## Bloco 2
+                                  Grave a si mesmo dizendo as mesmas frases e ouça a gravação inteira depois.
+                                  ## Bloco 3
+                                  Responda às perguntas em voz alta, sem consultar as traduções do material.
+                                  """)
+        let r = try criterio(conferir(d, p), contendo: "Tempo")
+        #expect(r.situacao == .divergencia)
+        #expect(r.justificativa == "O pedido pede 3 blocos de 5 minutos (15 no total); encontrei 1 marca somando 5.")
+        #expect(!r.justificativa.contains("nenhuma marca"))
+    }
+
+    @Test func pedidoPorExtensoEArtefatoEmDigitosLeemOMesmoLexico() throws {
+        let (d, p) = try recebido(intencao: "Praticar espanhol",
+                                  pedido: "Roteiro solo, três blocos de cinco minutos cada.",
+                                  artefato: """
+                                  ## Bloco 1 — 5 minutos
+                                  Leia as frases em voz alta, devagar, prestando atenção nas vogais abertas.
+                                  ## Bloco 2 — 5 minutos
+                                  Grave a si mesmo dizendo as mesmas frases e ouça a gravação inteira depois.
+                                  ## Bloco 3 — 5 minutos
+                                  Responda em voz alta às perguntas abaixo, sem consultar as traduções.
+                                  """)
+        let r = try criterio(conferir(d, p), contendo: "Tempo")
+        #expect(r.criterio == "Tempo pedido: 3 blocos de 5 minutos (15 no total)")
+        #expect(r.situacao == .atendidoNoEscopo)
+    }
+
+    @Test func meiaHoraEApostrofoSaoMarcasDeTempo() throws {
+        let (d, p) = try recebido(intencao: "Praticar espanhol",
+                                  pedido: "Prepare um roteiro de meia hora para praticar sozinho.",
+                                  artefato: """
+                                  ## Aquecimento
+                                  Leia as frases em voz alta, devagar, durante quinze minutos, sem pressa.
+                                  ## Prática
+                                  Grave a si mesmo repetindo cada frase por 15', ouvindo a gravação depois.
+                                  """)
+        let r = try criterio(conferir(d, p), contendo: "Tempo")
+        #expect(r.criterio == "Tempo pedido: 30 minutos")
+        #expect(r.situacao == .atendidoNoEscopo)
+        #expect(r.trechosDoArtefato == ["15 min, 15 min"])
+    }
+
     // MARK: - Cobertura declarada
 
     @Test func pedidoSemRestricaoReconhecidaFicaTodoNaoAvaliadoEALinhaDiz() throws {

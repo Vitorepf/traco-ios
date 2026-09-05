@@ -42,7 +42,7 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
     enum EstadoPedido: String, Codable { case preparando, interrompido, falhou, cancelado, pronto }
     enum FonteCriterio: String, Codable { case intencao, resultado, instrucao }
     enum SituacaoCriterio: String, Codable { case atendidoNoEscopo, divergencia, inconclusivo, naoAvaliado }
-    enum EstadoConferencia: String, Codable { case concluida, indisponivel, falhou }
+    enum EstadoConferencia: String, Codable { case concluida, indisponivel }
 
     struct Intencao: Codable, Sendable, Equatable, Identifiable {
         var id = UUID()

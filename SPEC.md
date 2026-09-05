@@ -2224,7 +2224,11 @@ pedido. A extração ancora cada critério num trecho LITERAL do pedido vigente,
 com instrução > resultado desejado > intenção, e a gramática é pequena e
 declarada: idioma explícito (inclusive papéis bilíngues, "frases em X com
 tradução em Y" = dois idiomas no escopo) e distribuição temporal ("N blocos de
-M minutos", "X minutos"). O que não casa fica `naoAvaliado` e aparece contado
+M minutos", "X minutos"). O léxico de tempo é UM SÓ para o pedido e para o
+artefato — dígitos, número por extenso até trinta, "5'" e "meia hora": ler o
+artefato com gramática mais pobre que a do pedido faz a tela afirmar "nenhuma
+marca de minutos" sobre artefato que escreveu "cinco minutos" (correção da
+revisão de 05/09). O que não casa fica `naoAvaliado` e aparece contado
 na linha. O idioma é lido por `NLLanguageRecognizer` no aparelho, por trecho
 de prosa com pelo menos 40 caracteres (cabeçalho, tabela e código ficam fora),
 instância nova por trecho; confiança baixa é `inconclusivo`, e bilinguismo
@@ -2247,8 +2251,8 @@ papel — foi o que aconteceu no caso real (prova/4.md). O critério
 tela: ele diz, em toda conferência, que ninguém leu o conteúdo.
 
 **Volta:** multiplicar. **O que a IA sabe:** nada de gerativo — regras e o
-reconhecedor de idioma do aparelho, sem rede. **Prova:** 20 testes novos
-(`ConferenciaTrabalhoTests`), suíte integral 598/0 no simulador de teste, e um
+reconhecedor de idioma do aparelho, sem rede. **Prova:** 24 testes
+(`ConferenciaTrabalhoTests`), suíte integral 602/0 no simulador de teste, e um
 caso real executado e lido em prova/4.md: a conferência apontou o tempo e
 deixou passar a ausência de traduções, como a própria justificativa declara.
 **Fora:** segunda passada da IA ("Conferir com IA"), adequação semântica e ao

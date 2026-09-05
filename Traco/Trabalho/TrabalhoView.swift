@@ -254,7 +254,7 @@ struct TrabalhoView: View {
                             Text(r.criterio).font(Tema.barra)
                             Text(situacao(r.situacao)).font(Tema.meta)
                                 .foregroundStyle(r.situacao == .divergencia ? Tema.aviso : Tema.tintaSuave)
-                            Text("No pedido (\(r.fonte.rawValue)): “\(r.trechoFonte)”")
+                            Text("No pedido (\(fonte(r.fonte))): “\(r.trechoFonte)”")
                                 .font(Tema.meta).foregroundStyle(Tema.tintaSuave).textSelection(.enabled)
                             ForEach(Array(r.trechosDoArtefato.enumerated()), id: \.offset) { _, trecho in
                                 Text("No artefato: “\(trecho)”")
@@ -275,6 +275,14 @@ struct TrabalhoView: View {
             }
             .font(Tema.meta)
             .accessibilityIdentifier("trabalho-conferencia")
+        }
+    }
+
+    private func fonte(_ f: DocumentoTrabalho.FonteCriterio) -> String {
+        switch f {
+        case .instrucao: "instrução"
+        case .resultado: "resultado desejado"
+        case .intencao: "intenção"
         }
     }
 

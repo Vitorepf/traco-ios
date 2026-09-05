@@ -48,7 +48,6 @@ nonisolated enum ConferenciaTrabalho {
     static func linha(_ c: DocumentoTrabalho.Conferencia) -> String {
         switch c.estado {
         case .indisponivel: return "Conferência indisponível: \(c.motivo ?? "sem motivo registrado.")"
-        case .falhou: return "Conferência não concluída: \(c.motivo ?? "sem motivo registrado.")"
         case .concluida: break
         }
         let d = c.resultados.count { $0.situacao == .divergencia }
@@ -130,19 +129,38 @@ nonisolated enum ConferenciaTrabalho {
 
     private static let numeros: [String: Int] = [
         "um": 1, "uma": 1, "dois": 2, "duas": 2, "tres": 3, "três": 3, "quatro": 4, "cinco": 5,
-        "seis": 6, "sete": 7, "oito": 8, "nove": 9, "dez": 10, "quinze": 15, "vinte": 20, "trinta": 30,
+        "seis": 6, "sete": 7, "oito": 8, "nove": 9, "dez": 10, "onze": 11, "doze": 12, "treze": 13,
+        "catorze": 14, "quatorze": 14, "quinze": 15, "dezesseis": 16, "dezessete": 17, "dezoito": 18,
+        "dezenove": 19, "vinte": 20, "trinta": 30,
     ]
     private static func valor(_ s: Substring) -> Int? { Int(s) ?? numeros[s.lowercased()] }
 
+    /// UM léxico de tempo: o mesmo padrão lê o pedido e lê o artefato. Enquanto
+    /// o do artefato só via dígitos, a tela afirmava “nenhuma marca de minutos”
+    /// sobre artefato que escrevia “cinco minutos” três vezes. Em texto porque
+    /// literal de regex não interpola; `\b` evita achar “um” dentro de “algum”.
+    private static let quantia = #"(?:\d+|dezesseis|dezessete|dezenove|dezoito|quatorze|catorze|quinze|treze|trinta|vinte|dois|duas|tr[êe]s|quatro|cinco|seis|sete|oito|nove|dez|onze|doze|uma?)"#
+    /// Uma marca de tempo solta: “5 min”, “cinco minutos”, “5'”, “meia hora”.
+    private static let marcaDeTempo = #"(?:\b\#(quantia)\s*(?:minutos?|mins?\b|')|\bmeia\s+horas?)"#
+    private static let blocosDeTempo = #"\b(\#(quantia))\s+(?:blocos?|partes?|se[çc][õo]es?|rodadas?)\s+de\s+(\#(marcaDeTempo))"#
+
+    /// Padrão literal deste arquivo: só falha se ele estiver errado, e a suíte pega.
+    private static func regex(_ padrao: String) -> Regex<AnyRegexOutput> { try! Regex("(?i)" + padrao) }
+
+    private static func minutos(_ marca: Substring) -> Int? {
+        if marca.lowercased().contains("hora") { return 30 }
+        return valor(marca.first?.isNumber == true ? marca.prefix(while: \.isNumber) : marca.prefix(while: \.isLetter))
+    }
+
     private static func tempo(em texto: String, fonte: DocumentoTrabalho.FonteCriterio) -> Criterio? {
-        let comBlocos = #/(?i)(?<n>\d+|um|uma|dois|duas|tr[êe]s|quatro|cinco|seis|sete|oito|nove|dez|quinze|vinte|trinta)\s+(blocos?|partes?|se[çc][õo]es?|rodadas?)\s+de\s+(?<m>\d+|um|uma|dois|duas|tr[êe]s|quatro|cinco|seis|sete|oito|nove|dez|quinze|vinte|trinta)\s*(minutos?|mins?\b)/#
-        if let m = texto.firstMatch(of: comBlocos), let n = valor(m.output.n), let cada = valor(m.output.m), n > 0, cada > 0 {
+        if let m = texto.firstMatch(of: regex(blocosDeTempo)),
+           let n = m.output[1].substring.flatMap(valor),
+           let cada = m.output[2].substring.flatMap(minutos), n > 0, cada > 0 {
             return .init(rotulo: "Tempo pedido: \(n) blocos de \(cada) minutos (\(n * cada) no total)",
                          trecho: frase(em: texto, contendo: m.range), fonte: fonte,
                          alvo: .tempo(blocos: n, cada: cada, total: n * cada))
         }
-        let soTotal = #/(?i)(?<x>\d+|um|uma|dois|duas|tr[êe]s|quatro|cinco|seis|sete|oito|nove|dez|quinze|vinte|trinta)\s*(minutos?|mins?\b)/#
-        if let m = texto.firstMatch(of: soTotal), let x = valor(m.output.x), x > 0 {
+        if let m = texto.firstMatch(of: regex(marcaDeTempo)), let x = minutos(texto[m.range]), x > 0 {
             return .init(rotulo: "Tempo pedido: \(x) minutos", trecho: frase(em: texto, contendo: m.range),
                          fonte: fonte, alvo: .tempo(blocos: nil, cada: nil, total: x))
         }
@@ -206,10 +224,10 @@ nonisolated enum ConferenciaTrabalho {
         _ blocos: Int?, _ cada: Int?, _ total: Int, _ artefato: String,
         _ resultado: (DocumentoTrabalho.SituacaoCriterio, [String], String) -> DocumentoTrabalho.Resultado
     ) -> DocumentoTrabalho.Resultado {
-        let marcas = artefato.matches(of: #/(?i)(?<x>\d+)\s*(minutos?|mins?\b)/#).compactMap { Int($0.output.x) }
+        let marcas = artefato.matches(of: regex(marcaDeTempo)).compactMap { minutos(artefato[$0.range]) }
         guard !marcas.isEmpty else {
             return resultado(.divergencia, [],
-                "Não encontrei distribuição: nenhuma marca de minutos no artefato. Isso não é o mesmo que dizer que os tempos somam errado — é dizer que não há tempo escrito para conferir.")
+                "Não encontrei distribuição: nenhuma marca de minutos no artefato, nem em dígitos nem por extenso. Isso não é o mesmo que dizer que os tempos somam errado — é dizer que não há tempo escrito para conferir.")
         }
         // Um total anunciado no cabeçalho não conta duas vezes.
         var contadas = marcas
