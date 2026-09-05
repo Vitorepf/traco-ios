@@ -7,7 +7,7 @@ Mantido pelo orquestrador a cada fecho (ESTEIRA.md). Volta que não está aqui n
 | volta | tema | área | estado |
 |---|---|---|---|
 | V6 | prática no Trabalho (ADR 05r) | Traco/Trabalho | G3 em curso (revisor Fable); G4 depois |
-| V7 | integridade e selo nas rotas restantes (ADR 05s) | Sessao, Corpus/Indice/Holofote, Modelo | editando |
+| V7 | integridade e selo nas rotas restantes (ADR 05s) | Sessao, Corpus/Indice/Holofote, Modelo | MESCLADA em main |
 | V8 | acessibilidade real: VoiceOver, movimento reduzido, AX5 (ADR 05t) | views de Pagina/Notas/Caderno/Calendario/App, Tema | editando; G4 obrigatório |
 
 ## Trilha própria: Fora do app (Fable permanente; brief em papeis/fora-do-app.md)
@@ -37,7 +37,7 @@ Sempre uma volta desta trilha em edição, em paralelo às voltas comuns, no pr�
 | 1 | V9 Auditoria de front-end: nota base por tela | alto: sem ela toda volta visual é palpite | M (1 Fable, sem código) | multiplicar (uso simples) | "Direção visual e uso simples"; linha design-router |
 | 2 | V10 Fundação de design: tokens, Traco/Componentes com previews, biblioteca de movimento | alto: cada tela depois sobe sobre isto | G (2 Fable: tokens+movimento / componentes) | multiplicar + eixo 4 | idem; Componentes e Movimento do scorecard |
 | 3 | V11 Ambiente Markdown: conflitos e retry na UI real, revogação com seletor aberto | alto: continuidade entre ferramentas é a tese | M (1 Fable) | multiplicar | "Ambiente Markdown compartilhado" |
-| 4 | V12 Telas até 9: Página e Caderno (a porta de entrada) | alto | M | multiplicar | nota base da V9 |
+| 4 | V12 Telas até 9: Página e Caderno (a porta de entrada); inclui o achado do re-G3 da V7: Camadas anima a camada Notas antes do binding (fix de 2 linhas no onEnded do trilho) | alto | M | multiplicar | nota base da V9 |
 | 5 | V13 Telas até 9: Notas e barra de baixo | alto | M | multiplicar | nota base da V9 |
 | 6 | V14 Calendário: duração explícita e estados de navegação/acessibilidade | médio | M | multiplicar | "Calendário ligado à realização" |
 | 7 | V15 Telas até 9: Calendário e ficha | médio | M | multiplicar | nota base da V9 |
