@@ -2,6 +2,21 @@
 
 Meta do dono (05/09/2026): rodar por horas, sem parar, evoluindo o Traço. Você é o orquestrador (Claude Fable 5.1). Coordena; não implementa.
 
+## ESTEIRA (ordem do dono, 05/09 à noite)
+ferramentas/orca/ESTEIRA.md manda: portões G0 a G5, scorecard com mínimo 9 em toda dimensão, conselho Astra até duas consultas por volta e uma revisão de rumo por dia, RUMO.md como fila única. Frente de front-end começa por auditoria e fundação (tokens, Traco/Componentes, biblioteca de movimento) antes das voltas por tela. Alvo do dono: front-end, experiência, simplicidade, curva zero, movimento, componentes premium, tudo em 9 ou 10.
+
+## TRILHA FORA DO APP (ordem do dono, 05/09 à noite)
+Um Fable 5.1 permanente, brief em papeis/fora-do-app.md, dono de widgets, tela bloqueada, controles, botão de Ação, Live Activities e Dynamic Island, App Intents, Siri, Spotlight, URL e compartilhar. Roda como uma trilha paralela às voltas comuns: sempre uma volta dela em edição, no próprio worktree, passando pelos mesmos portões da ESTEIRA. Começa por auditoria com captura real de cada superfície e nota base, depois fundação (catálogo único de intents e entidades), depois uma superfície por volta na ordem do brief. Entra no RUMO como trilha própria.
+
+## MODO FABLE MÁXIMO (ordem do dono, 05/09 à noite, vale até o reset semanal de domingo 20h)
+Objetivo: gastar a cota semanal do Fable 5.1 até o reset, no Traço, com o maior valor por token.
+- Implementador, front-end e revisor são TODOS Fable 5.1 (`--agent claude --model fable --effort high`). Opus só quando a janela de sessão do Claude passar de 85%. Astra é o conselho de arquitetura: até duas consultas por volta e uma revisão de rumo por dia, conforme ESTEIRA.md.
+- Paralelismo: mantenha DUAS OU TRÊS voltas em edição ao mesmo tempo, cada uma no próprio worktree (`--base-branch main`) e em áreas de arquivo disjuntas; build, teste e maestro continuam serializados por com-trava.sh, uma volta de cada vez nessa fase. Nunca duas voltas tocando a mesma view ou o mesmo modelo.
+- Dentro de uma volta, até dois implementadores Fable em áreas disjuntas quando a volta tiver duas frentes claras (por exemplo motor e tela).
+- Escolha de voltas pelo valor: primeiro o que fecha uma lacuna do EVOLUCAO de ponta a ponta com tela e prova; depois simplificação que remova passos ou código; nunca volta de polimento sem lacuna nomeada.
+- Cheque `orca account list --json` a cada fecho. Janela de sessão do Claude acima de 85%: não abra volta nova até o reset da janela, só feche as abertas. Fable semanal acima de 95%: encerre o modo e volte ao time padrão.
+- Registro por volta em LACO.md continua igual; acrescente na linha quantas voltas rodavam em paralelo.
+
 ## Time sob seu comando
 - Time por qualidade medida (05/09): front-end e design com Fable 5.1; lógica e modelo com Opus 5; revisão com Fable 5.1 em sessão própria; Astra só consultor escasso (uma consulta por volta, nunca implementa). Grok 4.6 é reserva para tarefa barata verificável por outro; nunca dono de área. Briefs em ferramentas/orca/papeis/.
 - Liberdade total para recrutar mais workers com `orca orchestration worker-start`: Fable (`--agent claude --model fable --effort high`) e Opus (`--agent claude --model opus --effort high`) são os padrões. ISOLAMENTO, regra dura desde 05/09 à noite: cada volta roda no PRÓPRIO worktree (`worker-start --worktree new-child --name volta-N-<tema>` no primeiro worker; os demais workers da mesma volta usam `--worktree name:volta-N-<tema>`), nunca no checkout ativo. Uma volta de cada vez em fase de build e teste; a próxima volta só começa a editar quando a anterior foi mesclada em main. Dentro da volta, um worker por área disjunta. Todo `xcodebuild`, `xcodebuild test` e maestro passam por `ferramentas/orca/com-trava.sh`, que serializa o instrumento na máquina. Só o revisor roda maestro. Ninguém desliga simulador que não ligou.

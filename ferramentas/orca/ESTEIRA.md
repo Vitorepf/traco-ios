@@ -32,6 +32,7 @@ Duas recusas seguidas na mesma volta abrem consulta ao conselho (Astra) antes da
 | Privacidade e autoria | selo, origem e rotas protegidas intactos; nada publica, gasta ou envia sem gesto | teste + leitura do diff |
 | Estado honesto | produzido, agendado, executado e observado distintos na tela; falha visível, nunca escondida | captura da falha |
 | Complexidade | linhas líquidas, arquivos e dependências não crescem sem lacuna que justifique; simplificação conta como entrega | shortstat |
+| Fora do app | superfície entregue com captura real em todos os estados (início, bloqueada, Ilha compacta/expandida/mínima, StandBy), um toque faz uma coisa, nada protegido exposto, orçamento de atualização respeitado | capturas por estado + vídeo |
 | Relato | fecho em seis linhas com evidência, legível por quem não abre terminal | LACO |
 
 ## Conselho de arquitetura (Astra)

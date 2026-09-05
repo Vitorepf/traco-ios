@@ -10,6 +10,26 @@ Mantido pelo orquestrador a cada fecho (ESTEIRA.md). Volta que não está aqui n
 | V7 | integridade e selo nas rotas restantes (ADR 05s) | Sessao, Corpus/Indice/Holofote, Modelo | editando |
 | V8 | acessibilidade real: VoiceOver, movimento reduzido, AX5 (ADR 05t) | views de Pagina/Notas/Caderno/Calendario/App, Tema | editando; G4 obrigatório |
 
+## Trilha própria: Fora do app (Fable permanente; brief em papeis/fora-do-app.md)
+
+Sempre uma volta desta trilha em edição, em paralelo às voltas comuns, no próprio worktree e pelos mesmos portões. Dimensão "Fora do app" do scorecard.
+
+| # | volta | superfície / entrega | estado |
+|---|---|---|---|
+| F1 | Auditoria fora do app | inventário com captura real de cada superfície existente (início clara e escura, bloqueada, Ilha compacta/expandida/mínima, StandBy, Siri), nota base por superfície, lista do que falta; consulta ao conselho sobre intents compartilhados | abrindo |
+| F2 | Fundação | catálogo único de App Intents usado por widgets, controles, Siri, atalhos, Spotlight e URL; entidades nota/compromisso/trabalho como AppEntity; dados do widget por App Group com snapshot barato; tokens visuais do widget de Tema.swift | depois de F1 |
+| F3 | Captar pensamento em um toque | controle na tela bloqueada + botão de Ação que abre o app já em ditado, ou anota por Siri sem abrir | |
+| F4 | Widget "próxima volta" interativo | botão de feito na própria superfície | |
+| F5 | Ilha do compromisso vivo | estados completos (compacta, expandida, mínima, fim) | |
+| F6 | Widgets da tela bloqueada | accessoryCircular e accessoryInline do dia | |
+| F7 | Controle da Central de Controle | Recordar | |
+| F8 | Widget configurável | por pasta ou método | |
+| F9 | Spotlight | notas e trabalhos, com selo | |
+| F10 | Extensão de compartilhar | texto, link e imagem com origem preservada | |
+| F11 | Sugestões de Siri | por horário | |
+
+**G0 de F1.** Ciclo: multiplicar (o Traço presente onde a pessoa está, sem abrir o app). Intenção: saber, com captura real, o que cada superfície fora do app entrega hoje e quanto vale. Obstáculo: há widgets, Live Activities, 12 atalhos e 10 intents sem inventário nem nota; captura só no preview do Xcode não conta. Evidência: ferramentas/orca/auditoria-fora-do-app.md com capturas simctl por superfície e estado, nota 0-10 nas dimensões Fora do app, Design, Simplicidade, Movimento, Acessibilidade, Privacidade e Estado honesto, lista do que falta, e a consulta ao conselho gravada em consulta-fora-intents.md. Escopo: nenhum arquivo de código.
+
 ## Próximas, em ordem
 
 | # | volta | valor | esforço | ciclo | lacuna (EVOLUCAO) |
