@@ -19,6 +19,12 @@ struct TracoApp: App {
         Ferias.expirarSePassou()
         Revisoes.agendarFilaDiaria()
         Revisoes.agendarRevisaoSemanal()
+        // ADR 05u: atividade órfã (o app morreu entre o commit e o ActivityKit,
+        // ou o dia virou) é reconciliada com o estado guardado no arranque
+        FilaDeAtividade.compartilhada.enfileirar {
+            await DestaqueDoDia.reconciliar()
+            await ProximoCompromisso.reconciliar()
+        }
     }
 
     var body: some Scene {

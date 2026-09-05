@@ -71,6 +71,11 @@ enum Tema {
     static let trackingLabel: CGFloat = 1.2
     static let confirmacaoTitulo: Font = .title.weight(.semibold)
     static let confirmacaoCorpo: Font = .title3
+    /// 12 — só FORA do app (ADR 05u): a faixa compacta da Ilha e o rodapé do
+    /// widget não têm 15pt. Escala com o sistema como os outros degraus.
+    static let miudo: Font = .caption
+    /// 13 — o botão da Live Activity (cápsula de 38pt).
+    static let acaoViva: Font = .footnote.weight(.semibold)
 
     // MARK: - Grade (um gutter, dois raios — nada mais)
     //

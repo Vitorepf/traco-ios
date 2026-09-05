@@ -22,12 +22,11 @@ targets:
     type: application
     platform: iOS
     sources:
+      # ADR 05u: `Traco/App/Intents/` é o catálogo; `Compartilhado/` também
+      # compila no widget (declarações que o `Button(intent:)` precisa).
+      # ADR 04f: `LiveActivityIntent` roda no processo do APP — só o app
+      # executa (`TRACO_APP`); a extensão só declara.
       - path: Traco
-      # ADR 04f: `LiveActivityIntent` roda no processo do APP. Sem o tipo
-      # também aqui, o botão da tela bloqueada falharia calado — que é
-      # exatamente o defeito que a ADR 04a proíbe.
-      - path: TracoWidget/DestaqueFeitoIntent.swift
-      - path: TracoWidget/LembrarDepoisIntent.swift
     dependencies:
       - target: TracoWidget
       - sdk: WidgetKit.framework
@@ -66,6 +65,7 @@ targets:
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         DEVELOPMENT_TEAM: "W28WF9A5A2"
         CODE_SIGN_STYLE: Automatic
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) TRACO_APP"
         INFOPLIST_KEY_NSAppTransportSecurity_NSAllowsArbitraryLoads: NO
         INFOPLIST_KEY_NSPhotoLibraryUsageDescription: "Traço guarda nesta nota a foto que você escolheu."
         INFOPLIST_KEY_NSMicrophoneUsageDescription: "Traço guarda nesta nota o áudio que você gravou."
@@ -92,9 +92,10 @@ targets:
     sources:
       - path: TracoWidget
       - path: Traco/Tema.swift
-      - path: Traco/Modelo/DestaqueDoDia.swift
-      - path: Traco/Modelo/DestaqueAtividade.swift
-      - path: Traco/Modelo/ProximoCompromisso.swift
+      # ADR 05u: só a superfície (snapshot), os atributos das atividades e
+      # as declarações dos dois LiveActivityIntent. Nada de SwiftData, Rota
+      # ou domínio na extensão: o app é o único escritor.
+      - path: Traco/App/Intents/Compartilhado
     entitlements:
       path: TracoWidget/TracoWidget.entitlements
       properties:

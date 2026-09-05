@@ -3,24 +3,42 @@ import AppIntents
 import WidgetKit
 import SwiftUI
 
+// ADR 05u: os widgets LEEM `Superficie` (o snapshot do App Group) e nada mais.
+// Nenhuma chave solta, nenhum domínio, nenhum reload por minuto: a linha do
+// tempo já traz as transições conhecidas (meia-noite, fim de cada próximo,
+// horizonte) e o app recarrega os kinds afetados depois de cada escrita.
+// Tipografia pelos degraus de `Tema` (D3): escala com o sistema.
+
 struct EntradaTraco: TimelineEntry {
     let date: Date
-    let destaque: String?
-    var feito: Bool = false
+    let leitura: SuperficieDisco.Leitura
+
+    var indisponivel: Bool { leitura == .indisponivel }
+    var destaque: Superficie.Destaque? {
+        guard case .disponivel(let s) = leitura else { return nil }
+        return s.destaqueDeHoje(agora: date)
+    }
 }
 
 struct ProvedorTraco: TimelineProvider {
-    func placeholder(in context: Context) -> EntradaTraco {
-        EntradaTraco(date: .now, destaque: DestaqueDoDia.linhaDeHoje(), feito: DestaqueDoDia.feitoHoje())
+    private func entrada(_ agora: Date = .now) -> EntradaTraco {
+        EntradaTraco(date: agora, leitura: SuperficieDisco.ler())
     }
+    func placeholder(in context: Context) -> EntradaTraco { entrada() }
     func getSnapshot(in context: Context, completion: @escaping (EntradaTraco) -> Void) {
-        completion(EntradaTraco(date: .now, destaque: DestaqueDoDia.linhaDeHoje(), feito: DestaqueDoDia.feitoHoje()))
+        completion(entrada())
     }
     func getTimeline(in context: Context, completion: @escaping (Timeline<EntradaTraco>) -> Void) {
-        let entrada = EntradaTraco(date: .now, destaque: DestaqueDoDia.linhaDeHoje(), feito: DestaqueDoDia.feitoHoje())
-        let amanha = Calendar.current.startOfDay(
-            for: Calendar.current.date(byAdding: .day, value: 1, to: .now) ?? .now)
-        completion(Timeline(entries: [entrada], policy: .after(amanha)))
+        let agora = Date()
+        let e = entrada(agora)
+        var entradas = [e]
+        if e.destaque != nil {
+            // o Destaque acaba com o dia: à meia-noite a mesma leitura vira ausência
+            let meiaNoite = Calendar.current.startOfDay(
+                for: Calendar.current.date(byAdding: .day, value: 1, to: agora) ?? agora)
+            entradas.append(EntradaTraco(date: meiaNoite, leitura: e.leitura))
+        }
+        completion(Timeline(entries: entradas, policy: entradas.count > 1 ? .atEnd : .never))
     }
 }
 
@@ -33,7 +51,7 @@ private struct AtalhoTraco: View {
     var body: some View {
         Link(destination: URL(string: rota)!) {
             Text(rotulo)
-                .font(.system(size: 15, weight: .medium))
+                .font(Tema.meta.weight(.medium))
                 .foregroundStyle(destaque ? Tema.ambarTinta : Tema.tinta)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
@@ -41,6 +59,26 @@ private struct AtalhoTraco: View {
                 .contentShape(Rectangle())
         }
         .accessibilityLabel(rotulo)
+    }
+}
+
+/// O botão do feito, com identidade (ADR 05u): marca ou desfaz — dois
+/// intents, nunca um toggle. O mesmo gesto na casa e na tela bloqueada (04f).
+private struct BotaoFeito<Rotulo: View>: View {
+    let destaque: Superficie.Destaque
+    @ViewBuilder let rotulo: () -> Rotulo
+
+    var body: some View {
+        Group {
+            if destaque.feito {
+                Button(intent: DestaqueDesfazerIntent(nota: destaque.id, dia: destaque.dia)) { rotulo() }
+            } else {
+                Button(intent: DestaqueFeitoIntent(nota: destaque.id, dia: destaque.dia)) { rotulo() }
+            }
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(destaque.feito ? "Feito: \(destaque.linha)" : destaque.linha)
+        .accessibilityHint(destaque.feito ? "Desfaz o feito" : "Marca a única coisa de hoje como feita")
     }
 }
 
@@ -52,36 +90,31 @@ struct TracoWidgetView: View {
         Group {
             switch familia {
             case .accessoryInline:
-                Text(DestaqueDoDia.naTelaBloqueada())
+                Text(entrada.destaque?.linha ?? "Traço")
             case .accessoryRectangular:
-                if let linha = entrada.destaque {
+                if let d = entrada.destaque {
                     // ADR 04f: na tela bloqueada o Destaque também se marca.
-                    // Era só cartaz aqui e botão na casa — a mesma coisa com
-                    // duas leis diferentes é o que confunde o dedo.
-                    Button(intent: DestaqueFeitoIntent()) {
+                    BotaoFeito(destaque: d) {
                         HStack(alignment: .top, spacing: 6) {
-                            Image(systemName: entrada.feito ? "checkmark.circle.fill" : "circle")
-                                .font(.system(size: 12))
+                            Image(systemName: d.feito ? "checkmark.circle.fill" : "circle")
+                                .font(Tema.miudo)
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("DESTAQUE")
-                                    .font(.system(size: 10, weight: .semibold))
-                                    .tracking(1.2)
+                                    .font(Tema.label)
+                                    .tracking(Tema.trackingLabel)
                                     .foregroundStyle(.secondary)
-                                Text(linha)
-                                    .font(.system(size: 14, weight: .medium))
+                                Text(d.linha)
+                                    .font(Tema.meta.weight(.medium))
                                     .lineLimit(2)
-                                    .strikethrough(entrada.feito)
+                                    .strikethrough(d.feito)
                             }
                             Spacer(minLength: 0)
                         }
                         .contentShape(Rectangle())
                     }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel(entrada.feito ? "Feito: \(linha)" : linha)
-                    .accessibilityHint("Marca a única coisa de hoje como feita")
                 } else {
-                    Text(DestaqueDoDia.naTelaBloqueada())
-                        .font(.system(size: 14, weight: .medium))
+                    Text(entrada.indisponivel ? "Traço · sem dados" : "Traço")
+                        .font(Tema.meta.weight(.medium))
                 }
             default:
                 casa
@@ -93,31 +126,34 @@ struct TracoWidgetView: View {
     private var casa: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text("TRAÇO")
-                .font(.system(size: 11, weight: .semibold))
-                .tracking(1.5)
+                .font(Tema.label)
+                .tracking(Tema.trackingLabel)
                 .foregroundStyle(Tema.tintaFraca)
             Spacer(minLength: 12)
-            if let linha = entrada.destaque {
+            if entrada.indisponivel {
+                // App Group indisponível ou arquivo corrompido: dito, nunca fingido
+                Text("sem dados · abra o Traço")
+                    .font(Tema.meta.weight(.medium))
+                    .foregroundStyle(Tema.tintaFraca)
+                Rectangle().fill(Tema.linha).frame(height: 0.5).padding(.vertical, 10)
+            } else if let d = entrada.destaque {
                 // F2: a única coisa de hoje, e um toque que a fecha sem abrir
                 // o app. Não é streak nem contagem — vale só para hoje.
-                Button(intent: DestaqueFeitoIntent()) {
+                BotaoFeito(destaque: d) {
                     HStack(alignment: .top, spacing: 8) {
-                        Image(systemName: entrada.feito ? "checkmark.circle.fill" : "circle")
-                            .font(.system(size: 14))
-                            .foregroundStyle(entrada.feito ? Tema.tintaSuave : Tema.tintaFraca)
-                        Text(linha)
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundStyle(entrada.feito ? Tema.tintaFraca : Tema.tinta)
-                            .strikethrough(entrada.feito, color: Tema.tintaFraca)
+                        Image(systemName: d.feito ? "checkmark.circle.fill" : "circle")
+                            .font(Tema.meta)
+                            .foregroundStyle(d.feito ? Tema.tintaSuave : Tema.tintaFraca)
+                        Text(d.linha)
+                            .font(Tema.meta.weight(.medium))
+                            .foregroundStyle(d.feito ? Tema.tintaFraca : Tema.tinta)
+                            .strikethrough(d.feito, color: Tema.tintaFraca)
                             .lineLimit(2)
                             .multilineTextAlignment(.leading)
                         Spacer(minLength: 0)
                     }
                     .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
-                .accessibilityLabel(entrada.feito ? "Feito: \(linha)" : linha)
-                .accessibilityHint("Marca a única coisa de hoje como feita")
                 Rectangle().fill(Tema.linha).frame(height: 0.5).padding(.vertical, 10)
             }
             if familia == .systemSmall {
@@ -139,7 +175,7 @@ struct TracoWidgetView: View {
 
 struct TracoWidget: Widget {
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: "TracoWidget", provider: ProvedorTraco()) { entrada in
+        StaticConfiguration(kind: SuperficieDisco.kindDestaque, provider: ProvedorTraco()) { entrada in
             TracoWidgetView(entrada: entrada)
         }
         .configurationDisplayName("Traço")
@@ -149,6 +185,8 @@ struct TracoWidget: Widget {
 }
 
 /// O Destaque vivo: uma linha do autor, papel e tinta, enquanto o dia dura.
+/// Velha (passou da meia-noite, `isStale`): a linha de ontem não fica e o
+/// botão some — quem encerra é o app, ao reconciliar (ADR 05u).
 struct DestaqueVivo: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: DestaqueAtividade.self) { contexto in
@@ -158,31 +196,36 @@ struct DestaqueVivo: Widget {
                         .fill(Tema.ambar)
                         .frame(width: 6, height: 6)
                     Text("DESTAQUE")
-                        .font(.system(size: 10, weight: .semibold))
-                        .tracking(1.4)
+                        .font(Tema.label)
+                        .tracking(Tema.trackingLabel)
                         .foregroundStyle(.secondary)
                     Spacer(minLength: 0)
                 }
-                // ADR 04f: a tela bloqueada deixa de ser cartaz. O círculo é o
-                // mesmo gesto do widget da casa, e o alvo é a LINHA inteira.
-                Button(intent: DestaqueFeitoIntent()) {
-                    HStack(alignment: .top, spacing: 12) {
-                        Image(systemName: "circle")
-                            .font(.system(size: 21, weight: .light))
-                            .foregroundStyle(Tema.ambar)
-                        // velha (passou da meia-noite): a linha de ontem não fica
-                        Text(contexto.isStale ? "Traço" : contexto.state.linha)
-                            .font(.system(size: 19, weight: .medium))
-                            .tracking(-0.3)
-                            .foregroundStyle(.primary)
-                            .lineLimit(2)
-                            .multilineTextAlignment(.leading)
-                        Spacer(minLength: 0)
+                if contexto.isStale {
+                    Text("Traço")
+                        .font(Tema.corpo.weight(.medium))
+                        .foregroundStyle(.secondary)
+                } else {
+                    // ADR 04f: a tela bloqueada deixa de ser cartaz. O círculo é o
+                    // mesmo gesto do widget da casa, e o alvo é a LINHA inteira.
+                    Button(intent: DestaqueFeitoIntent(nota: contexto.attributes.id, dia: contexto.attributes.dia)) {
+                        HStack(alignment: .top, spacing: 12) {
+                            Image(systemName: "circle")
+                                .font(Tema.corpo.weight(.light))
+                                .foregroundStyle(Tema.ambar)
+                            Text(contexto.state.linha)
+                                .font(Tema.corpo.weight(.medium))
+                                .tracking(-0.3)
+                                .foregroundStyle(.primary)
+                                .lineLimit(2)
+                                .multilineTextAlignment(.leading)
+                            Spacer(minLength: 0)
+                        }
+                        .contentShape(Rectangle())
                     }
-                    .contentShape(Rectangle())
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Marcar como feito")
                 }
-                .buttonStyle(.plain)
-                .accessibilityLabel("Marcar como feito")
             }
             .padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -191,17 +234,19 @@ struct DestaqueVivo: Widget {
             DynamicIsland {
                 DynamicIslandExpandedRegion(.bottom) {
                     HStack(spacing: 10) {
-                        Button(intent: DestaqueFeitoIntent()) {
-                            Image(systemName: "circle")
-                                .font(.system(size: 18, weight: .light))
-                                .foregroundStyle(Tema.ambar)
-                                .frame(width: 44, height: 44)
-                                .contentShape(Rectangle())
+                        if !contexto.isStale {
+                            Button(intent: DestaqueFeitoIntent(nota: contexto.attributes.id, dia: contexto.attributes.dia)) {
+                                Image(systemName: "circle")
+                                    .font(Tema.chrome.weight(.light))
+                                    .foregroundStyle(Tema.ambar)
+                                    .frame(width: Tema.alvo, height: Tema.alvo)
+                                    .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("Marcar como feito")
                         }
-                        .buttonStyle(.plain)
-                        .accessibilityLabel("Marcar como feito")
-                        Text(contexto.state.linha)
-                            .font(.system(size: 15, weight: .medium))
+                        Text(contexto.isStale ? "Traço" : contexto.state.linha)
+                            .font(Tema.meta.weight(.medium))
                             .lineLimit(2)
                         Spacer(minLength: 0)
                     }
@@ -211,8 +256,8 @@ struct DestaqueVivo: Widget {
                 Image(systemName: "sparkle")
                     .foregroundStyle(Tema.ambar)
             } compactTrailing: {
-                Text(contexto.state.linha)
-                    .font(.system(size: 12, weight: .medium))
+                Text(contexto.isStale ? "Traço" : contexto.state.linha)
+                    .font(Tema.miudo.weight(.medium))
                     .lineLimit(1)
                     .frame(maxWidth: 96)
             } minimal: {
@@ -227,12 +272,25 @@ struct DestaqueVivo: Widget {
 
 struct EntradaProximo: TimelineEntry {
     let date: Date
-    let proximo: ProximoCompromisso.Fatia?
+    let leitura: SuperficieDisco.Leitura
+
+    /// Um estado só por entrada, decidido pela DATA da entrada: a mesma
+    /// leitura vira "nada marcado" quando o último acaba e "desatualizado"
+    /// quando o horizonte passa — sem acordar ninguém.
+    var estado: Superficie.EstadoDoProximo {
+        guard case .disponivel(let s) = leitura else { return .indisponivel }
+        return s.estadoDoProximo(agora: date)
+    }
+
+    var geradoEm: Date? {
+        guard case .disponivel(let s) = leitura else { return nil }
+        return s.geradoEm
+    }
 }
 
 struct ProvedorProximo: TimelineProvider {
     private func entrada(_ agora: Date = .now) -> EntradaProximo {
-        EntradaProximo(date: agora, proximo: ProximoCompromisso.lido(agora: agora))
+        EntradaProximo(date: agora, leitura: SuperficieDisco.ler())
     }
     func placeholder(in context: Context) -> EntradaProximo { entrada() }
     func getSnapshot(in context: Context, completion: @escaping (EntradaProximo) -> Void) {
@@ -240,12 +298,12 @@ struct ProvedorProximo: TimelineProvider {
     }
     func getTimeline(in context: Context, completion: @escaping (Timeline<EntradaProximo>) -> Void) {
         let agora = Date()
-        let e = entrada(agora)
-        // o widget vira sozinho quando o compromisso acaba: sem isto, o de
-        // hoje de manhã ficaria na tela bloqueada a tarde inteira
-        let virada = e.proximo.map { min($0.fim, $0.inicio.addingTimeInterval(60)) }
-            ?? agora.addingTimeInterval(3600)
-        completion(Timeline(entries: [e], policy: .after(max(virada, agora.addingTimeInterval(60)))))
+        let leitura = SuperficieDisco.ler()
+        // as transições REAIS: cada fim (o seguinte entra, ou "nada marcado"),
+        // a soneca que passa, e o horizonte (depois dele, "desatualizado").
+        // Poucas entradas, nenhuma inventada, e nenhum reload por minuto.
+        let entradas = Superficie.transicoes(leitura, agora: agora).map { EntradaProximo(date: $0, leitura: leitura) }
+        completion(Timeline(entries: entradas, policy: .never))
     }
 }
 
@@ -253,33 +311,46 @@ struct ProximoWidgetView: View {
     @Environment(\.widgetFamily) private var familia
     var entrada: EntradaProximo
 
-    private var quando: String {
-        guard let p = entrada.proximo else { return "" }
-        let dia = ProximoCompromisso.diaEmPalavras(p.inicio, agora: entrada.date)
-        return p.diaInteiro ? dia : "\(dia) às \(ProximoCompromisso.horaCurta(p.inicio))"
+    private func quando(_ p: Superficie.Proximo) -> String {
+        let dia = Superficie.diaEmPalavras(p.inicio, agora: entrada.date)
+        return p.diaInteiro ? dia : "\(dia) às \(Superficie.horaCurta(p.inicio))"
+    }
+
+    /// O que a superfície diz quando não há compromisso para mostrar.
+    private var ausencia: String {
+        switch entrada.estado {
+        case .indisponivel: "sem dados · abra o Traço"
+        case .desatualizado: "desatualizado · abra o Traço"
+        default: "nada marcado"
+        }
     }
 
     var body: some View {
         Group {
             switch familia {
             case .accessoryInline:
-                Text(ProximoCompromisso.naTelaBloqueada(agora: entrada.date))
+                if case .proximo(let p) = entrada.estado {
+                    Text(Superficie.linhaDoProximo(p))
+                } else {
+                    Text("Traço")
+                }
             case .accessoryRectangular:
                 VStack(alignment: .leading, spacing: 2) {
                     Text("PRÓXIMO")
-                        .font(.system(size: 10, weight: .semibold))
-                        .tracking(1.2)
+                        .font(Tema.label)
+                        .tracking(Tema.trackingLabel)
                         .foregroundStyle(.secondary)
-                    if let p = entrada.proximo {
+                    if case .proximo(let p) = entrada.estado {
                         Text(p.titulo)
-                            .font(.system(size: 14, weight: .medium))
+                            .font(Tema.meta.weight(.medium))
                             .lineLimit(1)
-                        Text(quando)
-                            .font(.system(size: 12))
+                        Text(quando(p))
+                            .font(Tema.miudo)
                             .foregroundStyle(.secondary)
                     } else {
-                        Text("nada marcado")
-                            .font(.system(size: 14, weight: .medium))
+                        Text(ausencia)
+                            .font(Tema.meta.weight(.medium))
+                            .lineLimit(2)
                     }
                 }
             default:
@@ -293,37 +364,54 @@ struct ProximoWidgetView: View {
     private var casa: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text("PRÓXIMO")
-                .font(.system(size: 11, weight: .semibold))
-                .tracking(1.5)
+                .font(Tema.label)
+                .tracking(Tema.trackingLabel)
                 .foregroundStyle(Tema.tintaFraca)
             Spacer(minLength: 10)
-            if let p = entrada.proximo {
+            if case .proximo(let p) = entrada.estado {
                 Text(p.titulo)
-                    .font(.system(size: 17, weight: .semibold))
+                    .font(Tema.chrome.weight(.semibold))
                     .foregroundStyle(Tema.tinta)
                     .lineLimit(2)
-                Text(quando)
-                    .font(.system(size: 13, weight: .medium))
+                Text(quando(p))
+                    .font(Tema.miudo.weight(.medium))
                     .foregroundStyle(Tema.tintaSuave)
                     .padding(.top, 2)
                 // a promessa também aqui: o autor confere o alarme sem abrir
                 // o app (ADR 04a — ele tem de VER que vai ser cobrado)
-                if let aviso = p.aviso {
+                if let quando = p.lembrarEm {
+                    HStack(spacing: 4) {
+                        Image(systemName: "bell.badge")
+                            .font(Tema.label)
+                        Text("lembro às \(Superficie.horaCurta(quando))")
+                            .font(Tema.miudo.weight(.medium))
+                    }
+                    .foregroundStyle(Tema.ambarTinta)
+                    .padding(.top, 6)
+                } else if let aviso = p.aviso {
                     HStack(spacing: 4) {
                         Image(systemName: "bell.fill")
-                            .font(.system(size: 9))
-                        Text(ProximoCompromisso.horaCurta(aviso))
-                            .font(.system(size: 11, weight: .medium))
+                            .font(Tema.label)
+                        Text(Superficie.horaCurta(aviso))
+                            .font(Tema.miudo.weight(.medium))
                     }
                     .foregroundStyle(Tema.tintaSuave)
                     .padding(.top, 6)
                 }
             } else {
-                Text("nada marcado")
-                    .font(.system(size: 15, weight: .medium))
+                Text(ausencia)
+                    .font(Tema.meta.weight(.medium))
                     .foregroundStyle(Tema.tintaSuave)
             }
             Spacer(minLength: 0)
+            // ADR 05u: a idade do que está na tela, dita — o sistema conta o
+            // tempo sozinho, sem o widget acordar
+            if let gerado = entrada.geradoEm {
+                Text("atualizado há \(Text(gerado, style: .relative))")
+                    .font(Tema.miudo)
+                    .foregroundStyle(Tema.tintaFraca)
+                    .lineLimit(1)
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
@@ -331,7 +419,7 @@ struct ProximoWidgetView: View {
 
 struct TracoProximoWidget: Widget {
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: "TracoProximo", provider: ProvedorProximo()) { entrada in
+        StaticConfiguration(kind: SuperficieDisco.kindProximo, provider: ProvedorProximo()) { entrada in
             ProximoWidgetView(entrada: entrada)
         }
         .configurationDisplayName("Próximo compromisso")
@@ -353,34 +441,78 @@ private func contando(_ inicio: Date, agora: Date = .now) -> Bool {
     return falta > 0 && falta <= 3600
 }
 
-private func horaDoCompromisso(_ data: Date) -> String {
-    let f = DateFormatter()
-    f.locale = Locale(identifier: "pt_BR")
-    f.dateFormat = "HH:mm"
-    return f.string(from: data)
+/// A cápsula da ação, uma só para o cartão e a Ilha: a assinatura do app numa
+/// tela que não é do app. O fill âmbar não sobrevive ao material do sistema
+/// (sai ocre sujo — visto em 04/set), então a cor vive no TRAÇO e na letra.
+private struct CapsulaLembrar: View {
+    let ocorrencia: String
+    let naIlha: Bool
+
+    var body: some View {
+        Button(intent: LembrarDepoisIntent(ocorrencia: ocorrencia)) {
+            Text("Lembrar em 10 min")
+                .font(naIlha ? Tema.miudo.weight(.semibold) : Tema.acaoViva)
+                .foregroundStyle(Tema.ambar)
+                .padding(.horizontal, naIlha ? 14 : 18)
+                // 38pt: o alvo do §15 é 44, e no cartão da tela bloqueada 38 é
+                // o teto do que cabe sem empurrar o título — a área tocável
+                // ganha o resto na moldura
+                .frame(height: naIlha ? 32 : 38)
+                .background(.quaternary, in: Capsule())
+                .overlay(Capsule().strokeBorder(Tema.ambar.opacity(0.55), lineWidth: 1))
+                .contentShape(Capsule())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Lembrar em 10 minutos")
+    }
+}
+
+/// O retorno do toque (ADR 04f): a hora em que vai cobrar, a razão de não ir,
+/// ou o botão. Velho (`isStale`): nada — o compromisso acabou.
+private struct LinhaDaAcao: View {
+    let estado: CompromissoAtividade.ContentState
+    let ocorrencia: String
+    let velho: Bool
+    let naIlha: Bool
+
+    var body: some View {
+        if velho {
+            Text("acabou")
+                .font(Tema.miudo.weight(.medium))
+                .foregroundStyle(.secondary)
+        } else if let recado = estado.recado {
+            Label(recado, systemImage: "bell.slash")
+                .font(Tema.miudo.weight(.medium))
+                .foregroundStyle(Tema.aviso)
+        } else if let quando = estado.lembrarEm, quando > .now {
+            Label("lembro às \(Superficie.horaCurta(quando))", systemImage: "bell.badge")
+                .font(Tema.miudo.weight(.medium))
+                .foregroundStyle(Tema.ambar)
+        } else {
+            CapsulaLembrar(ocorrencia: ocorrencia, naIlha: naIlha)
+        }
+    }
 }
 
 struct CompromissoVivo: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: CompromissoAtividade.self) { contexto in
-            // O cartão veste a CASA: papel opaco, tinta do app, e o âmbar como
-            // assinatura da ação — a mesma pílula da "Nova" (§20). O cinza do
-            // sistema com um chip morto não era o Traço; era um placeholder.
+            // O cartão veste a CASA pela tipografia e pelo âmbar; o material é
+            // do sistema (forçar papel por baixo devolvia um cinza sujo).
             //
             // Hierarquia: o assunto é o COMPROMISSO. O relógio é metadado, não
-            // manchete (`critique-visual-hierarchy` — a versão anterior tinha
-            // 20pt para a hora e 16 para o que importa).
+            // manchete (`critique-visual-hierarchy`).
             VStack(alignment: .leading, spacing: 12) {
                 HStack(spacing: 7) {
                     Circle()
                         .fill(Tema.ambar)
                         .frame(width: 6, height: 6)
                     Text("PRÓXIMO")
-                        .font(.system(size: 10, weight: .semibold))
-                        .tracking(1.4)
+                        .font(Tema.label)
+                        .tracking(Tema.trackingLabel)
                         .foregroundStyle(.secondary)
                     Spacer(minLength: 8)
-                    if !contexto.state.diaInteiro {
+                    if !contexto.state.diaInteiro, !contexto.isStale {
                         Group {
                             if contando(contexto.state.inicio) {
                                 Text(contexto.state.inicio, style: .timer)
@@ -388,7 +520,7 @@ struct CompromissoVivo: Widget {
                                 Text(contexto.state.inicio, style: .relative)
                             }
                         }
-                        .font(.system(size: 12, weight: .medium).monospacedDigit())
+                        .font(Tema.miudo.weight(.medium).monospacedDigit())
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                         .frame(maxWidth: 92, alignment: .trailing)
@@ -397,54 +529,25 @@ struct CompromissoVivo: Widget {
 
                 HStack(alignment: .firstTextBaseline, spacing: 10) {
                     Text(contexto.state.titulo)
-                        .font(.system(size: 21, weight: .semibold))
+                        .font(Tema.corpo.weight(.semibold))
                         .tracking(-0.4)
-                        .foregroundStyle(.primary)
+                        .foregroundStyle(contexto.isStale ? .secondary : .primary)
                         .lineLimit(2)
                     Spacer(minLength: 8)
                     if !contexto.state.diaInteiro {
-                        Text(horaDoCompromisso(contexto.state.inicio))
-                            .font(.system(size: 17, weight: .semibold).monospacedDigit())
-                            .foregroundStyle(.primary)
+                        Text(Superficie.horaCurta(contexto.state.inicio))
+                            .font(Tema.chrome.weight(.semibold).monospacedDigit())
+                            .foregroundStyle(contexto.isStale ? .secondary : .primary)
                     }
                 }
 
                 // ADR 04f: ver não é agir. Um botão, um significado — e o toque
                 // VIRA texto, senão o botão é mudo (ADR 04a do tamanho do dedo).
-                if let recado = contexto.state.recado {
-                    Label(recado, systemImage: "bell.slash")
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundStyle(Tema.aviso)
-                } else if let quando = contexto.state.lembrarEm, quando > .now {
-                    Label("lembro às \(horaDoCompromisso(quando))", systemImage: "bell.badge")
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundStyle(Tema.ambar)
-                } else {
-                    Button(intent: LembrarDepoisIntent()) {
-                        // a assinatura do app numa tela que não é do app: o
-                        // fill âmbar não sobrevive ao material do sistema (sai
-                        // ocre sujo — visto em 04/set), então a cor vive no
-                        // TRAÇO e na letra, sobre o vidro que o iOS já desenha
-                        Text("Lembrar em 10 min")
-                            .font(.system(size: 13, weight: .semibold))
-                            .foregroundStyle(Tema.ambar)
-                            .padding(.horizontal, 18)
-                            // 38pt: o alvo do §15 é 44, e no cartão da tela
-                            // bloqueada 38 é o teto do que cabe sem empurrar o
-                            // título — a área tocável ganha o resto na moldura
-                            .frame(height: 38)
-                            .background(.quaternary, in: Capsule())
-                            .overlay(Capsule().strokeBorder(Tema.ambar.opacity(0.55), lineWidth: 1))
-                            .contentShape(Capsule())
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel("Lembrar em 10 minutos")
-                }
+                LinhaDaAcao(estado: contexto.state, ocorrencia: contexto.attributes.chave,
+                            velho: contexto.isStale, naIlha: false)
             }
             .padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)
-            // o material é do SISTEMA: forçar papel por baixo dele devolvia um
-            // cinza sujo. Aqui o app entra pela tipografia e pelo âmbar.
             .activitySystemActionForegroundColor(Tema.ambar)
         } dynamicIsland: { contexto in
             DynamicIsland {
@@ -453,10 +556,10 @@ struct CompromissoVivo: Widget {
                         .foregroundStyle(Tema.ambar)
                 }
                 DynamicIslandExpandedRegion(.trailing) {
-                    if !contexto.state.diaInteiro {
+                    if !contexto.state.diaInteiro, !contexto.isStale {
                         // aberta há espaço: aqui a contagem cabe inteira
                         Text(contexto.state.inicio, style: .timer)
-                            .font(.system(size: 15, weight: .semibold).monospacedDigit())
+                            .font(Tema.meta.weight(.semibold).monospacedDigit())
                             .frame(maxWidth: 76)
                             .multilineTextAlignment(.trailing)
                     }
@@ -464,33 +567,11 @@ struct CompromissoVivo: Widget {
                 DynamicIslandExpandedRegion(.bottom) {
                     VStack(alignment: .leading, spacing: 8) {
                         Text(contexto.state.titulo)
-                            .font(.system(size: 15, weight: .medium))
+                            .font(Tema.meta.weight(.medium))
                             .lineLimit(2)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                        if let recado = contexto.state.recado {
-                            Label(recado, systemImage: "bell.slash")
-                                .font(.system(size: 12, weight: .medium))
-                                .foregroundStyle(Tema.aviso)
-                        } else if let quando = contexto.state.lembrarEm, quando > .now {
-                            Label("lembro às \(horaDoCompromisso(quando))", systemImage: "bell.badge")
-                                .font(.system(size: 12, weight: .medium))
-                                .foregroundStyle(Tema.ambar)
-                        } else {
-                            Button(intent: LembrarDepoisIntent()) {
-                                // a Ilha veste a mesma roupa do cartão: acento
-                                // âmbar no contorno e na letra, material do
-                                // sistema por baixo
-                                Text("Lembrar em 10 min")
-                                    .font(.system(size: 12, weight: .semibold))
-                                    .foregroundStyle(Tema.ambar)
-                                    .padding(.horizontal, 14)
-                                    .frame(height: 32)
-                                    .background(.quaternary, in: Capsule())
-                                    .overlay(Capsule().strokeBorder(Tema.ambar.opacity(0.55), lineWidth: 1))
-                                    .contentShape(Capsule())
-                            }
-                            .buttonStyle(.plain)
-                        }
+                        LinhaDaAcao(estado: contexto.state, ocorrencia: contexto.attributes.chave,
+                                    velho: contexto.isStale, naIlha: true)
                     }
                     .padding(.horizontal, 4)
                 }
@@ -498,19 +579,23 @@ struct CompromissoVivo: Widget {
                 Image(systemName: "calendar")
                     .foregroundStyle(Tema.ambar)
             } compactTrailing: {
-                if contexto.state.diaInteiro {
+                if contexto.isStale {
+                    Text("acabou")
+                        .font(Tema.miudo.weight(.medium))
+                        .frame(maxWidth: 52)
+                } else if contexto.state.diaInteiro {
                     Text(contexto.state.titulo)
-                        .font(.system(size: 12, weight: .medium))
+                        .font(Tema.miudo.weight(.medium))
                         .lineLimit(1)
                         .frame(maxWidth: 76)
                 } else if contando(contexto.state.inicio) {
                     Text(contexto.state.inicio, style: .timer)
-                        .font(.system(size: 12, weight: .medium).monospacedDigit())
+                        .font(Tema.miudo.weight(.medium).monospacedDigit())
                         .frame(maxWidth: 52)
                         .multilineTextAlignment(.trailing)
                 } else {
-                    Text(horaDoCompromisso(contexto.state.inicio))
-                        .font(.system(size: 12, weight: .medium).monospacedDigit())
+                    Text(Superficie.horaCurta(contexto.state.inicio))
+                        .font(Tema.miudo.weight(.medium).monospacedDigit())
                         .frame(maxWidth: 44)
                 }
             } minimal: {

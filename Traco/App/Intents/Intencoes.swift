@@ -4,6 +4,11 @@ import SwiftUI
 
 /// O app fora do app (exp 3): Atalhos, Siri e Action Button chegam de graça
 /// com App Intents no alvo principal — sem extensão, sem app group.
+///
+/// ADR 05u: este é o catálogo do app. O que os widgets e as Live Activities
+/// precisam declarar mora em `Compartilhado/` e é compilado nos dois alvos;
+/// o resto só aqui. Toda entrada (Siri, Atalhos, URL, widget, Ilha) converge
+/// em `Rota` ou numa função concreta do app — nunca em lógica duplicada.
 struct NovaNotaIntent: AppIntent {
     static let title: LocalizedStringResource = "Nova nota"
     static let description = IntentDescription("Abre o Traço numa página em branco, pronta para escrever.")
@@ -11,8 +16,7 @@ struct NovaNotaIntent: AppIntent {
 
     @MainActor
     func perform() async throws -> some IntentResult {
-        Rota.pendente = .novaPagina
-        NotificationCenter.default.post(name: Rota.mudou, object: nil)
+        Rota.ir(.novaPagina)
         return .result()
     }
 }
@@ -29,12 +33,28 @@ struct AnotarIntent: AppIntent {
 
     static var parameterSummary: some ParameterSummary { Summary("Anotar \(\.$texto)") }
 
+    /// ADR 05u: vazio e falha de gravação são duas respostas. "anotado"
+    /// significa depósito confirmado em `entrada/`, não nota importada.
+    enum Resposta: Equatable {
+        case vazio, falhou, anotado
+        var fala: String {
+            switch self {
+            case .vazio: "nada a anotar."
+            case .falhou: "não consegui guardar. A frase não entrou."
+            case .anotado: "anotado."
+            }
+        }
+    }
+
+    @MainActor
+    static func anotar(_ texto: String) -> Resposta {
+        guard !texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return .vazio }
+        return Entrada.depositar(texto, raiz: Entrada.raizDoApp) ? .anotado : .falhou
+    }
+
     @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog {
-        guard Entrada.depositar(texto, raiz: Entrada.raizDoApp) else {
-            return .result(dialog: "nada a anotar.")
-        }
-        return .result(dialog: "anotado.")
+        .result(dialog: IntentDialog(stringLiteral: Self.anotar(texto).fala))
     }
 }
 
@@ -45,74 +65,8 @@ struct AbrirNotasIntent: AppIntent {
 
     @MainActor
     func perform() async throws -> some IntentResult {
-        Rota.pendente = .notas
-        NotificationCenter.default.post(name: Rota.mudou, object: nil)
+        Rota.ir(.notas)
         return .result()
-    }
-}
-
-struct TracoAtalhos: AppShortcutsProvider {
-    static var appShortcuts: [AppShortcut] {
-        AppShortcut(
-            intent: NovaNotaIntent(),
-            phrases: ["Nova nota no \(.applicationName)", "Escrever no \(.applicationName)"],
-            shortTitle: "Nova nota",
-            systemImageName: "square.and.pencil"
-        )
-        AppShortcut(
-            intent: AnotarIntent(),
-            phrases: ["Anotar no \(.applicationName)", "Anota no \(.applicationName)"],
-            shortTitle: "Anotar",
-            systemImageName: "text.append"
-        )
-        AppShortcut(
-            intent: AbrirNotasIntent(),
-            phrases: ["Minhas notas no \(.applicationName)"],
-            shortTitle: "Notas",
-            systemImageName: "list.bullet"
-        )
-        AppShortcut(
-            intent: DestaqueDeHojeIntent(),
-            phrases: ["Destaque de hoje no \(.applicationName)", "Qual é o meu destaque no \(.applicationName)"],
-            shortTitle: "Destaque de hoje",
-            systemImageName: "sparkle"
-        )
-        AppShortcut(
-            intent: CompromissosDeHojeIntent(),
-            phrases: ["Meu dia no \(.applicationName)", "O que tenho hoje no \(.applicationName)"],
-            shortTitle: "Meu dia",
-            systemImageName: "calendar"
-        )
-        AppShortcut(
-            intent: LinhasDeSentidoIntent(),
-            phrases: ["Linhas de sentido do \(.applicationName)"],
-            shortTitle: "Linhas de sentido",
-            systemImageName: "text.quote"
-        )
-        AppShortcut(
-            intent: EstaSemanaIntent(),
-            phrases: ["Minha semana no \(.applicationName)", "Esta semana no \(.applicationName)"],
-            shortTitle: "Esta semana",
-            systemImageName: "calendar.badge.clock"
-        )
-        AppShortcut(
-            intent: TrajetoriaIntent(),
-            phrases: ["Minha trajetória no \(.applicationName)"],
-            shortTitle: "Trajetória",
-            systemImageName: "point.topleft.down.to.point.bottomright.curvepath"
-        )
-        AppShortcut(
-            intent: MarcarCompromissoIntent(),
-            phrases: ["Marcar no \(.applicationName)", "Marcar compromisso no \(.applicationName)"],
-            shortTitle: "Marcar",
-            systemImageName: "calendar.badge.plus"
-        )
-        AppShortcut(
-            intent: CorpusComoContextoIntent(),
-            phrases: ["Contexto do \(.applicationName)", "Minhas notas como contexto no \(.applicationName)"],
-            shortTitle: "Como contexto",
-            systemImageName: "doc.text"
-        )
     }
 }
 
@@ -125,7 +79,7 @@ struct TracoAtalhos: AppShortcutsProvider {
 
 /// Lê o disco por conta própria: o intent pode rodar com o app fechado.
 @MainActor
-private func notasDoDisco() -> [Nota] {
+func notasDoDisco() -> [Nota] {
     guard let container = DiscoTraco.compartilhado ?? (try? ModelContainer.traco()) else { return [] }
     let contexto = ModelContext(container)
     return (try? contexto.fetch(FetchDescriptor<Nota>())) ?? []
@@ -324,8 +278,20 @@ enum GestoEscolha: String, AppEnum {
 /// Rota de entrada única: intents e traco:// convergem aqui; a PaginaView consome.
 @MainActor
 enum Rota {
-    enum Destino: Equatable { case novaPagina, notas, calendario, recordar, anotar(String) }
+    enum Destino: Equatable {
+        case novaPagina, notas, calendario, recordar, anotar(String)
+        /// ADR 05u: entidades chegam por aqui (Atalhos, Spotlight, avisos);
+        /// a tela revalida o selo/acesso antes de abrir.
+        case nota(UUID), trabalho(UUID), compromisso(id: UUID, inicio: Date)
+    }
+    /// Anunciada por `mudou` e consumida quando a cena está pronta — também no
+    /// arranque frio, em que o intent corre antes de a `PaginaView` escutar.
     static var pendente: Destino?
+
+    static func ir(_ destino: Destino) {
+        pendente = destino
+        NotificationCenter.default.post(name: mudou, object: nil)
+    }
     /// Só o deep link das escalas — a aba sozinha abre no dia.
     static var escalaCalendario: EscalaCalendario?
     static let mudou = Notification.Name("traco.rotaMudou")

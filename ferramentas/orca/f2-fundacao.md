@@ -1,0 +1,31 @@
+# F2 — Fundação fora do app (ADR 2026-09-05u)
+
+Worker: Fable 5.1 (trilha Fora do app), 05/09/2026, worktree `fora-2-fundacao` sobre main `e51550e`. Simulador de teste: iPhone 17e `C7341E64` (sem Ilha), ligado por esta volta. Instrumento: tudo por `com-trava.sh`; `orca emulator` para toques; sem maestro.
+
+Linha da volta: ciclo MULTIPLICAR; intenção: o mesmo comando produz o mesmo estado confirmado em qualquer entrada (widget, Ilha, Siri/Atalhos, URL) sem expor nota protegida; obstáculo: 12 intents soltos, chaves soltas no App Group, dois LiveActivityIntents que confirmam sem persistir, reload por minuto, 39 tamanhos fixos (D3), widget serve apagado (D6); evidência: 18 testes sem UI + capturas + build dos dois alvos sem aviso.
+
+## O que entrou (contrato do orquestrador, item a item)
+
+1. **Catálogo** `Traco/App/Intents/`: `Intencoes.swift` (movido; 8 intents, `GestoEscolha`, `Rota`), `TracoAtalhos.swift`, `Entidades.swift`; `Compartilhado/` compilado nos dois alvos (`SuperficieFora.swift`, `Atividades.swift`, `DestaqueFeitoIntent.swift` com `DestaqueDesfazerIntent`, `LembrarDepoisIntent.swift`). `TRACO_APP` só no app: a extensão declara e `ForaDoAlvo.recusar()` no `perform()`. Nomes de tipos preservados; `Rota.ir(_:)` é a convergência; rota pendente consumida também no `onAppear` (arranque frio). Rotas novas: `.nota`, `.trabalho`, `.compromisso`.
+2. **Snapshot** `Superficie` (versao, revisao, geradoEm, validoAte, destaque{id,dia,linha,feito}, proximos[≤3]{id,inicio,fim,titulo,aviso,lembrarEm,doSistema}) em `group.app.traco/superficie.json`, escrito atômico por `SuperficieDisco.publicar` (idêntico não regrava; reload só dos kinds cuja seção mudou; falha → `false`; ausência/corrupção/versão → `.indisponivel`). Timeline do widget = `Superficie.transicoes` (agora, fim de cada próximo, soneca, horizonte), política `.never`; `estadoDoProximo`: indisponível / desatualizado / vazio / próximo. "atualizado há…" pelo sistema (`Text(style: .relative)`). `ProvedorProximo` não pede mais reload por minuto. D6: `gravar(nil)` publica lista vazia e recarrega.
+3. **Dois intents com identidade**: `DestaqueFeitoIntent(nota:dia:)` → `DestaqueDoDia.marcarFeito` (revalida dona+dia, feito=true, publica; recusa desfaz e não confirma) → `encerrarAtividades` aguardado; `DestaqueDesfazerIntent` explícito. `LembrarDepoisIntent(ocorrencia:)` → `ProximoCompromisso.lembrarDepois`: `revalidar` no disco (ou doSistema na projeção), `Revisoes.soneca` (permissão, `Avisos.livres`, `add` que pode falhar), revalida de novo depois do await, registra soneca, republica, só então `contar` na atividade. Reconciliação `DestaqueDoDia.reconciliar`/`ProximoCompromisso.reconciliar` no arranque (`TracoApp`), retorno (`RaizView`) e após comandos; `isStale` neutraliza texto e botões no cartão e na Ilha (compacta e expandida).
+4. **Entidades**: `NotaEntity`/`TrabalhoEntity`/`CompromissoEntity` com queries (ids, sugestões ≤10, texto) que aplicam o selo antes de representar; `AbrirNota/Trabalho/CompromissoIntent` revalidam em `destino(_:)` no `perform()`.
+5. **D3**: zero `.system(size:)` no widget; degraus `Tema.label/miudo/meta/chrome/corpo/acaoViva` (dois tokens novos, documentados como "só fora do app").
+6. **Anotar**: `AnotarIntent.anotar` → `.vazio` / `.falhou` / `.anotado` com falas distintas.
+
+Bônus: D18 (aviso pré-existente em `EditorBlocoView.swift:270`) fechado com `@MainActor` no parâmetro + `assumeIsolated` no `set` do Binding (sem `@Sendable`, sem crash do frontend). Build dos dois alvos: **0 avisos**.
+
+## Prova
+
+- `ForaDoAppTests` (18): snapshot versionado/idempotente; reload por kind; App Group indisponível não confirma; truncado/versão errada → indisponível; horizonte vencido → desatualizado, vazio dentro dele; D6; linha do tempo curta; feito repetido não inverte + desfazer; cartão velho (outra nota/outro dia, também pelo intent); superfície recusada desfaz o feito; soneca negada/lotada/falhada não anuncia (+ intent real com `notDetermined`); soneca aceita guarda/publica e repetir substitui; ocorrência velha não chama o centro; corrida com editor durante o await; selo nas entidades; compromisso só do autor; proteção depois da consulta; anotar honesto.
+- Suíte integral: **660 testes, 0 falhas** (17e, 05/09 20:15). Linhas: `✔ Test run with 660 tests in 123 suites passed after 7.178 seconds.` / `** TEST SUCCEEDED **` / build: `** BUILD SUCCEEDED **` com `grep warning:` vazio nos dois alvos.
+- Capturas (17e, simctl): `fora2-bloqueada-compromisso-vivo.png` (cartão da bloqueada com a tipografia de Tema, compromisso marcado pela prosa do app → publicado em `superficie.json` → atividade), `fora2-bloqueada-lembrar-recusado-honesto.png` (toque em "Lembrar em 10 min" com avisos `notDetermined`: o intent com identidade rodou no app, revalidou no disco, o centro recusou e o cartão diz "avisos desligados no iPhone" sem prometer hora; `superficie.json` sem `lembrarEm`).
+
+## D1, literalmente
+
+Tentado: (a) `com.apple.developer.team-identifier` + `application-identifier` embutidos no build de simulador via `CODE_SIGN_ENTITLEMENTS[sdk=iphonesimulator*]` — o binário passou a carregar os entitlements (`strings` confirma), mas o `linkd` continua: `Unable to get teamId from app.traco PID` → ele lê o teamId da ASSINATURA do processo (adhoc, `TeamIdentifier=not set`), não do entitlement; alerta igual ao da F1 (`fora2-atalhos-team-identifier-alerta.png`). (b) `CODE_SIGN_IDENTITY[sdk=iphonesimulator*]: Apple Development` — o Xcode ignora e assina "Sign to Run Locally". (c) reassinatura manual com o certificado real (`TeamIdentifier=W28WF9A5A2`) — o SpringBoard recusa lançar (`SBMainWorkspace denied`). Conclusão: App Shortcuts/Siri não executam de fora em simulador; Atalhos/Intents ficam **n/c**; a prova é no aparelho do dono. Ajustes revertidos; nada disso ficou no repositório.
+
+## O que não foi possível
+
+- Widgets na tela de início (claro/escuro/AX5, estados sem dados/desatualizado/vazio) e Ilha compacta/expandida: o 17e não tem Ilha e o long-press do `orca emulator` não entra no modo de edição da casa; os simuladores com Ilha estavam com V6/V8/V9 (resposta do orquestrador). Pendente para o Air quando liberar ou para o re-G3.
+- Accessory na bloqueada, StandBy, Ilha mínima: limites do simulador (F1 §7).
