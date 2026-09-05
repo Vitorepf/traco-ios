@@ -1,0 +1,119 @@
+{
+ "evidencias": [],
+ "artefatos": [
+  {
+   "formato": "markdown",
+   "origem": "ia",
+   "data": 810331862.200981,
+   "intencaoID": "25D1A918-9FD0-42F2-A9AE-31B1FD607E74",
+   "conferencias": [
+    {
+     "versaoDoMetodo": 1,
+     "pedidoID": "47C1D6BD-A28F-458F-8657-BF8A3A2F004F",
+     "data": 810331862.222271,
+     "executor": "aparelho · regras v1",
+     "id": "D5AC42F9-EED8-499E-8AB7-593DEE03482E",
+     "estado": "concluida",
+     "resultados": [
+      {
+       "justificativa": "Os trechos examinados ficam dentro de português e espanhol. Não conferi qual frase é original e qual é tradução — isso exige leitura.",
+       "situacao": "atendidoNoEscopo",
+       "trechosDoArtefato": [],
+       "criterio": "Idiomas pedidos: português e espanhol",
+       "fonte": "instrucao",
+       "id": "68FA8960-7112-4EC5-BE90-4BE159593C63",
+       "trechoFonte": "roteiro solo de espanhol, 3 blocos de 5 minutos, frases em espanhol com tradução em português, para iniciante"
+      },
+      {
+       "justificativa": "Não encontrei distribuição: nenhuma marca de minutos no artefato, nem em dígitos nem por extenso. Isso não é o mesmo que dizer que os tempos somam errado — é dizer que não há tempo escrito para conferir.",
+       "situacao": "divergencia",
+       "trechosDoArtefato": [],
+       "criterio": "Tempo pedido: 3 blocos de 5 minutos (15 no total)",
+       "fonte": "instrucao",
+       "id": "C2B79414-8709-4F91-851B-1BADCAECB694",
+       "trechoFonte": "roteiro solo de espanhol, 3 blocos de 5 minutos, frases em espanhol com tradução em português, para iniciante"
+      },
+      {
+       "trechoFonte": "roteiro solo de espanhol, 3 blocos de 5 minutos, frases em espanhol com tradução em português, para iniciante",
+       "criterio": "Destinatário, conteúdo e adequação",
+       "justificativa": "Se o material serve a quem foi pedido, se as traduções estão corretas e se o texto é utilizável, ninguém leu. Isso exige leitura, não regra.",
+       "situacao": "naoAvaliado",
+       "fonte": "instrucao",
+       "trechosDoArtefato": [],
+       "id": "DC2FF140-A65F-433D-9534-7AED30CFCBC7"
+      }
+     ]
+    },
+    {
+     "estado": "concluida",
+     "id": "3A18B745-D48D-4C39-8CC9-0F7A2EB18EA6",
+     "pedidoID": "47C1D6BD-A28F-458F-8657-BF8A3A2F004F",
+     "executor": "Apple Intelligence no aparelho · revisão assistida",
+     "resultados": [
+      {
+       "justificativa": "Citação não encontrada: a IA citou um trecho que não aparece literalmente no pedido. Este critério não foi confirmado.",
+       "trechosDoArtefato": [
+        "Este roteiro é projetado para ajudar você a praticar espanhol sozinho, começando do zero. Cada bloco contém frases em espanhol com suas traduções em português, e você pode repetir as frases para aprimorar sua pronúncia e compreensão."
+       ],
+       "situacao": "inconclusivo",
+       "fonte": "instrucao",
+       "trechoFonte": "",
+       "id": "027031FF-67F4-439C-ABDE-C876A1FF601C",
+       "criterio": "atendidoNoEscopo"
+      },
+      {
+       "justificativa": "Citação não encontrada: a IA citou um trecho que não aparece literalmente no pedido. Este critério não foi confirmado.",
+       "trechosDoArtefato": [
+        "Este roteiro é projetado para ajudar você a praticar espanhol sozinho, começando do zero. Cada bloco contém frases em espanhol com suas traduções em português, e você pode repetir as frases para aprimorar sua pronúncia e compreensão."
+       ],
+       "situacao": "inconclusivo",
+       "fonte": "instrucao",
+       "trechoFonte": "",
+       "id": "7C9809AB-51D1-453E-9E14-45D7DCFA413C",
+       "criterio": "divergencia"
+      },
+      {
+       "justificativa": "Citação não encontrada: a IA citou um trecho que não aparece literalmente no pedido. Este critério não foi confirmado.",
+       "trechosDoArtefato": [
+        "Este roteiro é projetado para ajudar você a praticar espanhol sozinho, começando do zero. Cada bloco contém frases em espanhol com suas traduções em português, e você pode repetir as frases para aprimorar sua pronúncia e compreensão."
+       ],
+       "situacao": "inconclusivo",
+       "fonte": "instrucao",
+       "trechoFonte": "",
+       "id": "7990374E-B2D0-4611-931C-2AABD8730DAE",
+       "criterio": "naoAvaliado"
+      }
+     ],
+     "data": 810332656.072346,
+     "versaoDoMetodo": 1
+    }
+   ],
+   "id": "B80CECEB-23A9-44E0-996B-F553B58C2C7B",
+   "produtor": "Apple Intelligence no aparelho",
+   "conteudo": "### Roteiro Solo de Espanhol para Iniciante\n\nEste roteiro é projetado para ajudar você a praticar espanhol sozinho, começando do zero. Cada bloco contém frases em espanhol com suas traduções em português, e você pode repetir as frases para aprimorar sua pronúncia e compreensão.\n\n---\n\n**Bloco 1: Introdução ao Espanhol**\n\n1.  **Frase 1:** Hola, como estás?\n\n    *   Tradução: Olá, como você está?\n\n2.  **Frase 2:** Me llamo \\[Seu Nome].\n\n    *   Tradução: Meu nome é \\[Seu Nome].\n\n3.  **Frase 3:** ¿Cómo estás?\n\n    *   Tradução: Como você está?\n\n4.  **Frase 4:** Estoy bien, gracias.\n\n    *   Tradução: Estou bem, obrigado.\n\n5.  **Frase 5:** ¿Dónde está el baño?\n\n    *   Tradução: Onde está o banheiro?\n\n---\n\n**Bloco 2: Conversação Básica**\n\n1.  **Frase 1:** ¿Qué tal el tiempo?\n\n    *   Tradução: Como está o tempo?\n\n2.  **Frase 2:** Está muy soleado.\n\n    *   Tradução: Está muito ensolarado.\n\n3.  **Frase 3:** Me gusta el sol.\n\n    *   Tradução: Eu gosto do sol.\n\n4.  **Frase 4:** ¿Has comido?\n\n    *   Tradução: Você comeu?\n\n5.  **Frase 5:** Sí, he comido un desayuno.\n\n    *   Tradução: Sim, eu comi um café da manhã.\n\n---\n\n**Bloco 3: Situações Cotidianas**\n\n1.  **Frase 1:** ¿Dónde está el supermercado?\n\n    *   Tradução: Onde está o supermercado?\n\n2.  **Frase 2:** Está en la calle 5.\n\n    *   Tradução: Está na rua 5.\n\n3.  **Frase 3:** ¿Cuánto cuesta el pan?\n\n    *   Tradução: Quanto custa o pão?\n\n4.  **Frase 4:** El pan cuesta 2 euros.\n\n    *   Tradução: O pão custa 2 euros.\n\n5.  **Frase 5:** ¿Hay agua?\n\n    *   Tradução: Tem água?\n\n---\n\n**Observações:**\n\n- Repita cada frase várias vezes para praticar a pronúncia.\n- Tente usar as frases em situações reais, como conversar com um amigo ou pedir informações.\n- Se precisar de mais ajuda, você pode consultar recursos online ou aplicativos de aprendizado de idiomas.\n\n---\n\nEste roteiro é um ponto de partida para sua jornada de aprendizado de espanhol. Continue praticando regularmente e você verá melhorias significativas em seu nível de compreensão e comunicação."
+  }
+ ],
+ "pedidos": [
+  {
+   "id": "47C1D6BD-A28F-458F-8657-BF8A3A2F004F",
+   "instrucao": "roteiro solo de espanhol, 3 blocos de 5 minutos, frases em espanhol com tradução em português, para iniciante",
+   "data": 810331849.661986,
+   "estado": "pronto",
+   "intencaoID": "25D1A918-9FD0-42F2-A9AE-31B1FD607E74"
+  }
+ ],
+ "acoes": [],
+ "hipoteses": [],
+ "encerrado": false,
+ "id": "A0E09D32-1B9F-4973-B9D6-B8709D592F02",
+ "intencoes": [
+  {
+   "id": "25D1A918-9FD0-42F2-A9AE-31B1FD607E74",
+   "texto": "Praticar espanhol sozinho, do zero",
+   "data": 810331513.997479,
+   "resultado": ""
+  }
+ ],
+ "apoio": "delegar",
+ "formato": 1
+}
