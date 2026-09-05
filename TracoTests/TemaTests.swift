@@ -18,4 +18,12 @@ struct TemaTests {
         #expect(CalendarioTema.morph(true) == Tema.fadeReduzido)
         #expect(CalendarioTema.morph(false) != Tema.fadeReduzido)
     }
+
+    /// G4 da volta 8: o que se arrasta com o dedo corta seco em reduzido —
+    /// nil, nenhum fade, nenhum quadro em que o painel some sob o dedo.
+    @Test func oQueSeArrastaCortaSecoEmReduzido() {
+        let mola = Animation.spring(response: 0.55, dampingFraction: 0.82)
+        #expect(Tema.corte(mola, reduzido: true) == nil)
+        #expect(Tema.corte(mola, reduzido: false) == mola)
+    }
 }

@@ -2406,7 +2406,8 @@ gaveta do Caderno (`Tema.gaveta`) e o morph/desdobramento do Calendário
 `fadeReduzido`, não um segundo valor (o G3 mediu 0,18 s em `gaveta` e num
 `Tema.cartao` sem uso desde 31/ago; o segundo foi apagado). O pé das Notas
 corta seco por `transaction`: o corte é o outro lado permitido da lei.
-Camadas corta seco a posição e entra por fade; a barra não desce, apaga; o
+Camadas corta seco, posição e opacidade juntas, sem fade (o G4 viu o painel
+sumir um quadro sob o dedo ao soltar, 05/09); a barra não desce, apaga; o
 ponto de "lendo…" fica aceso, sem laço. (2) O arrasto
 do calendário ganha par no rotor: "Dia/Semana/Mês/Ano seguinte" e "anterior",
 uma ação por escala, no mesmo `andar` do gesto. O toque longo em "Analisar"

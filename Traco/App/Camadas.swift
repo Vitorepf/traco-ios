@@ -51,9 +51,9 @@ struct Camadas<Arquivo: View, Escrita: View>: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .shadow(color: Color(hex: 0x1C1C1E, opacity: 0.22), radius: 18, x: 6)
                 .offset(x: pos)
-                // movimento reduzido: a posição corta seco e o arquivo entra por fade
-                .opacity(reduceMotion && !arquivoAberto && !arrastando ? 0 : 1)
-                .animation(reduceMotion ? Tema.fadeReduzido : nil, value: arquivoAberto)
+                // movimento reduzido: corte total. Já teve fade de opacidade
+                // aqui; como `arrastando` cai um quadro antes de `arquivoAberto`
+                // virar, o painel sumia sob o dedo e voltava em fade (G4 v8).
                 .allowsHitTesting(arquivoAberto)
                 .accessibilityHidden(!arquivoAberto)
         }
@@ -97,9 +97,9 @@ struct Camadas<Arquivo: View, Escrita: View>: View {
         return max(0, min(1, 1 + pos / largura))
     }
 
-    /// Reduzido: nil — a posição CORTA, sem deslizar; o fade é da opacidade acima.
+    /// Reduzido: nil — a posição CORTA, sem deslizar nem fade (Tema.corte).
     private var mola: Animation? {
-        reduceMotion ? nil : .spring(response: 0.55, dampingFraction: 0.82)
+        Tema.corte(.spring(response: 0.55, dampingFraction: 0.82), reduzido: reduceMotion)
     }
 
     private func trilho(_ w: CGFloat) -> some Gesture {

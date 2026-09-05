@@ -131,6 +131,13 @@ enum Tema {
         reduzido ? .opacity : normal
     }
 
+    /// O outro lado permitido da lei: nil = corte seco, sem quadro intermediário.
+    /// Para o que a pessoa arrasta com o dedo (Camadas): um fade sobre a posição
+    /// cortada pisca, porque o estado vira um quadro depois de soltar.
+    static func corte(_ normal: Animation, reduzido: Bool) -> Animation? {
+        reduzido ? nil : normal
+    }
+
     static func gaveta(reduzido: Bool) -> Animation {
         animacao(.timingCurve(0.32, 0.72, 0, 1, duration: push), reduzido: reduzido)
     }
