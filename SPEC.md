@@ -2289,17 +2289,47 @@ divergência, nas palavras da conferência, e leva o foco ao campo — o autor
 edita e toca "Preparar nova versão com IA", a rota de sempre. Versão sem
 conferência mostra "Conferência: não feita · Conferir".
 
+**A decisão da volta 5 (revisão independente de 05/09/2026).** "Conferir com
+IA" só aparece com `ContaGrok.ligada` — o único provedor que hoje devolve a
+revisão estruturada. Sem conta, no lugar do botão fica UMA linha: "Revisão
+pela IA precisa da conta Grok; o modelo do aparelho não devolveu revisão
+válida." Sem link para criar conta e sem cartaz: a linha informa, não vende. O
+caminho local continua no código e provado por teste, para quando o modelo de
+bordo servir — só não é oferecido como decisão na tela. A condição é o
+PROVEDOR, não o tamanho: no segundo caso real a montagem COUBE (2.997 ≤ 3.500)
+e mesmo assim nada utilizável voltou; portão por tamanho ofereceria o botão
+justamente onde ele engana mais. Junto: nenhuma linha soa favorável sem nada
+confirmado — com zero divergências E zero atendidos a linha diz "nada
+confirmado · N inconclusivos", nunca "não apontou divergências"; `pedidoDe` só
+casa pedido que produziu a versão (`origem == .ia`), e versão importada ou
+escrita à mão mostra "não feita · sem pedido a conferir" em vez de oferecer
+conferência contra pedido alheio; título de critério igual a um nome de enum
+(`atendidoNoEscopo`, `instrucao`) é formato descumprido e derruba a revisão
+inteira; só o ÚLTIMO registro de cada tipo (local, IA) vira linha no cartão;
+"Conferir com IA" existe em UM lugar; o texto de "Pedir ajuste" leva a marca
+"a partir da conferência de <data>, por <executor>" e a rolagem vai ao COMEÇO
+do campo.
+
 **Custo assumido, nomeado:** é o MESMO tipo de provedor lendo de novo —
 crítica assistida, não independência, e o rodapé diz isso. No caso real
 (prova/5.md) a montagem deu 3.977 caracteres contra o teto de 3.500 do
 aparelho: pela rota do app o estado foi `indisponivel` por limite e nada saiu;
 forçada fora do contrato, a Apple Intelligence devolveu JSON inválido nas duas
-amostras e não viu as traduções ausentes.
+amostras e não viu as traduções ausentes. No SEGUNDO caso real, pela tela
+(prova/5.md, §9), a chamada rodou — 2.997 caracteres, 13 s — e voltou JSON
+válido com três critérios cujos títulos eram nomes de enum e cujas citações
+não eram literais: três `inconclusivo`, nada acrescentado à leitura local.
+**O custo da decisão da volta 5:** quem não tem conta Grok perde o toque, não
+a informação — e perde também a chance de a revisão de bordo acertar um dia
+sem que ninguém a ofereça. Assumido: duas provas de que ela não acerta hoje
+valem mais que a promessa de que poderia. `ContaGrok.ligada` é lida a cada
+avaliação da tela, que já revalida ao voltar à cena.
 
 **Volta:** melhorar na conferência, multiplicar no ajuste. **O que a IA
 sabe:** o pedido vigente e o artefato inteiro, sem saber quem os produziu.
-**Prova:** 40 testes (`ConferenciaTrabalhoTests`), suíte integral 618/0 e o
-caso real de prova/5.md, lido: a revisão assistida NÃO melhorou a qualidade.
+**Prova:** 44 testes (`ConferenciaTrabalhoTests`), suíte integral 622/0 em
+05/09/2026 e os DOIS casos reais de prova/5.md, lidos: a revisão assistida NÃO
+melhorou a qualidade em nenhum deles.
 **Fora:** revisão pelo Grok (sem conta neste simulador), jornada pela tela (o
 portão 03p desliga o modelo no XCTest) e montagem por item para caber no
 aparelho.

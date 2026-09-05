@@ -62,6 +62,11 @@ nonisolated enum ConferenciaTrabalho {
         if c.resultados.count == n {
             return "\(titulo): nenhum critério examinado" + naoAvaliados
         }
+        // Nada divergente E nada atendido: dizer "não apontou divergências"
+        // seria selo sobre uma leitura que não confirmou nada (V5, P2-a).
+        if d == 0, i + n == c.resultados.count {
+            return "\(titulo): nada confirmado" + inconclusivos + naoAvaliados
+        }
         if d == 0 {
             return "\(titulo): " + semDivergencia + inconclusivos + naoAvaliados
         }
@@ -80,7 +85,10 @@ nonisolated enum ConferenciaTrabalho {
             let noPedido = r.trechoFonte.isEmpty ? "" : " O pedido diz: “\(r.trechoFonte)”."
             return "- \(r.criterio).\(naVersao)\(noPedido) \(r.justificativa)"
         }
-        return (["Ajustar a versão anterior:"] + linhas).joined(separator: "\n")
+        // A marca de origem fica no texto: o que a IA escreveu não entra no
+        // pedido como voz do autor sem dizer de onde veio (V5, P3-e).
+        let marca = "Ajustar a versão anterior (a partir da conferência de \(c.data.formatted(date: .abbreviated, time: .shortened)), por \(c.executor)):"
+        return ([marca] + linhas).joined(separator: "\n")
     }
 
     // MARK: - Critérios

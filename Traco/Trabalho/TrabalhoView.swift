@@ -22,6 +22,7 @@ struct TrabalhoView: View {
     @State private var copiaCopiada = false
     @State private var exibicaoSuspensa = false
     @FocusState private var campoEmFoco: String?
+    @State private var rolarPara: String?
 
     private var chaveRascunho: String { "trabalho.rascunhos.\(trabalho.uuid.uuidString)" }
     private var selos: [SeloOrigemTrabalho] { notas.map(SeloOrigemTrabalho.init) }
@@ -59,6 +60,18 @@ struct TrabalhoView: View {
                 if oficina != nil, acesso.permitido, let acaoEmFoco {
                     await Task.yield()
                     rolagem.scrollTo(acaoEmFoco, anchor: .top)
+                }
+            }
+            // O texto que o autor não escreveu começa no alto: sem isto o foco
+            // rola para o FIM do campo e ele vê um rabo de frase (V5, P3-b).
+            .onChange(of: rolarPara) { _, alvo in
+                guard let alvo else { return }
+                Task {
+                    // ponytail: espera o teclado subir; a rolagem do foco vem
+                    // depois da nossa. Se o tempo mudar, é aqui que se calibra.
+                    try? await Task.sleep(for: .milliseconds(400))
+                    withAnimation { rolagem.scrollTo(alvo, anchor: .top) }
+                    rolarPara = nil
                 }
             }
             }
@@ -246,16 +259,22 @@ struct TrabalhoView: View {
     /// a outra lê sentido. Nenhuma diz "qualidade verificada"; nenhuma bloqueia
     /// ler ou usar. Versão sem conferência DIZ que não foi feita (04a).
     @ViewBuilder private func conferencia(_ a: DocumentoTrabalho.Artefato, oficina o: OficinaTrabalho) -> some View {
-        let registros = a.conferencias ?? []
+        // Só o ÚLTIMO de cada tipo vira linha: conferir de novo não empilha
+        // cartão idêntico. O histórico inteiro continua no documento (V5, P3-c).
+        let todos = a.conferencias ?? []
+        let registros = [todos.last { !daIA($0) }, todos.last { daIA($0) }]
+            .compactMap { $0 }.sorted { $0.data < $1.data }
+        // "Conferir com IA" mora num lugar só: o último cartão mostrado (P3-d).
+        let ondeIA = registros.last?.id
         if registros.isEmpty {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Conferência: não feita").font(Tema.meta).foregroundStyle(Tema.tintaSuave)
-                if let pedido = o.documento.pedidoDe(a) {
-                    HStack(spacing: 16) {
-                        Button("Conferir") { conferir(a, pedido: pedido.id, oficina: o) }
-                            .accessibilityIdentifier("trabalho-conferir-primeira")
-                        botaoDaIA(a, pedido: pedido.id, oficina: o)
-                    }
+            VStack(alignment: .leading, spacing: 8) {
+                let pedido = o.documento.pedidoDe(a)
+                Text(pedido == nil ? "Conferência: não feita · sem pedido a conferir" : "Conferência: não feita")
+                    .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+                if let pedido {
+                    Button("Conferir") { conferir(a, pedido: pedido.id, oficina: o) }
+                        .accessibilityIdentifier("trabalho-conferir-primeira")
+                    botaoDaIA(a, pedido: pedido.id, oficina: o)
                 }
             }
             .accessibilityIdentifier("trabalho-sem-conferencia")
@@ -289,6 +308,7 @@ struct TrabalhoView: View {
                             guard acesso.permitido, o.verificarAcesso() else { revalidar(); return }
                             definir("pedido", ajuste)
                             campoEmFoco = "pedido"
+                            rolarPara = "pedido"
                         }
                         .accessibilityIdentifier("trabalho-pedir-ajuste")
                     }
@@ -297,7 +317,7 @@ struct TrabalhoView: View {
                             .disabled(!o.salvo)
                             .accessibilityIdentifier("trabalho-conferir")
                     }
-                    botaoDaIA(a, pedido: c.pedidoID, oficina: o)
+                    if c.id == ondeIA { botaoDaIA(a, pedido: c.pedidoID, oficina: o) }
                 }.padding(.top, 8)
             } label: {
                 Text(daIA(c) ? RevisaoTrabalho.linha(c) : ConferenciaTrabalho.linha(c))
@@ -310,9 +330,14 @@ struct TrabalhoView: View {
     }
 
     /// Um toque, uma chamada. Enquanto a anterior não volta, o botão sai.
+    /// Sem provedor que produza a revisão não há botão: no lugar dele fica a
+    /// linha que diz por quê (ADR 05q, volta 5).
     @ViewBuilder private func botaoDaIA(_ a: DocumentoTrabalho.Artefato, pedido: UUID,
                                         oficina o: OficinaTrabalho) -> some View {
-        if o.revisando {
+        if let aviso = RevisaoTrabalho.oferta() {
+            Text(aviso).font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+                .accessibilityIdentifier("trabalho-revisao-sem-provedor")
+        } else if o.revisando {
             ProgressView("A IA está conferindo…")
                 .font(Tema.meta)
                 .accessibilityIdentifier("trabalho-revisando")
@@ -498,6 +523,7 @@ struct TrabalhoView: View {
             TextField(exemplo, text: Binding(get: { rascunhos[chave] ?? padrao },
                                            set: { definir(chave, $0) }), axis: .vertical)
                 .lineLimit(2...12)
+                .id(chave)
                 .focused($campoEmFoco, equals: chave)
                 .padding(12)
                 .background(Tema.superficie, in: RoundedRectangle(cornerRadius: Tema.raio))

@@ -142,6 +142,9 @@ struct ConferenciaTrabalhoTests {
         #expect(r.situacao == .inconclusivo)
         #expect(r.justificativa.contains("40 caracteres"))
         #expect(r.justificativa.contains("Não é o mesmo que dizer que o idioma está certo"))
+        // V5, P2-a: nada divergente não é nada confirmado.
+        #expect(ConferenciaTrabalho.linha(conferir(d, p))
+                == "Conferência: nada confirmado · 1 inconclusivo · 1 critério não avaliado")
     }
 
     @Test func cabecalhoTabelaECodigoNaoEntramNaLeituraDeIdioma() {
@@ -632,8 +635,9 @@ struct ConferenciaTrabalhoTests {
                       fonte: .instrucao, situacao: .naoAvaliado, justificativa: "Ninguém leu."),
             ])
         let texto = try #require(ConferenciaTrabalho.pedidoDeAjuste(c))
+        let marca = "Ajustar a versão anterior (a partir da conferência de \(c.data.formatted(date: .abbreviated, time: .shortened)), por aparelho · regras v1):"
         #expect(texto == """
-        Ajustar a versão anterior:
+        \(marca)
         - Tempo pedido: 3 blocos de 5 minutos (15 no total). Na versão anterior: “5 min”. O pedido diz: “3 blocos de 5 minutos”. O pedido pede 3 blocos de 5 minutos (15 no total); encontrei 1 marca somando 5.
         - Traduções para o português. O pedido diz: “tradução em português”. Nenhuma frase traz tradução.
         """)
@@ -655,5 +659,66 @@ struct ConferenciaTrabalhoTests {
         // Versão escrita à mão não nasceu de pedido: não há contra o que conferir.
         try d.guardarVersaoHumana("Reescrevi tudo à mão, do meu jeito, em português.")
         #expect(d.pedidoDe(try #require(d.versaoAtual)) == nil)
+    }
+
+    // MARK: - Correções da volta 5
+
+    /// P2-a: três inconclusivos são ZERO critérios confirmados. Este é o caso
+    /// real da revisão pela tela (05/09/2026): o modelo do aparelho devolveu
+    /// três critérios com citações não literais e a linha soava favorável.
+    @Test func tresInconclusivosNaoViramAusenciaDeDivergencia() async throws {
+        let (d, p) = try paraRevisar()
+        let tres = #"""
+        {"criterios":[
+        {"criterio":"Traduções para o português","trechoFonte":"não está no pedido","fonte":"instrucao","situacao":"atendidoNoEscopo","trechosDoArtefato":[],"justificativa":"Traduziu."},
+        {"criterio":"Distribuição do tempo","trechoFonte":"também não está","fonte":"instrucao","situacao":"naoAvaliado","trechosDoArtefato":[],"justificativa":"Não li."},
+        {"criterio":"Material para iniciante","trechoFonte":"nem isto","fonte":"instrucao","situacao":"divergencia","trechosDoArtefato":[],"justificativa":"Faltou."}
+        ]}
+        """#
+        let c = await revisar(d, p, resposta: tres)
+        #expect(c.resultados.count == 3)
+        #expect(c.resultados.allSatisfy { $0.situacao == .inconclusivo })
+        let linha = RevisaoTrabalho.linha(c)
+        #expect(linha == "Revisão da IA: nada confirmado · 3 inconclusivos")
+        #expect(!linha.contains("não apontou"))
+        #expect(!linha.contains("aprovad"))
+    }
+
+    /// P2-b: material importado não nasceu de pedido nenhum. Sem `origem == .ia`
+    /// o casamento por `anteriorID` nulo achava o PRIMEIRO pedido do trabalho.
+    @Test func versaoImportadaNaoOfereceConferenciaContraPedidoAlheio() throws {
+        var (d, p) = try paraRevisar()
+        let primeira = try #require(d.versaoAtual)
+        #expect(d.pedidoDe(primeira)?.id == p.id)
+
+        let solto = Data("Um texto qualquer, escrito fora do Traço, sem envelope e sem vínculo.".utf8)
+        let previa = try IntercambioTrabalho.preparar(solto, para: d)
+        #expect(previa.estado == .semVinculo)
+        #expect(try d.aplicarVersaoExterna(previa))
+        let importada = try #require(d.versaoAtual)
+        #expect(importada.origem == .externa)
+        #expect(importada.anteriorID == nil)
+        #expect(d.pedidoDe(importada) == nil)
+    }
+
+    /// Decisão da volta 5: a revisão assistida só é OFERECIDA onde há provedor
+    /// que a produza. Sem conta Grok, no lugar do botão fica a linha honesta.
+    @Test func semContaGrokNaoHaBotaoDaIAEHaLinhaQueDizPorQue() {
+        #expect(RevisaoTrabalho.oferta(contaLigada: true) == nil)
+        let aviso = RevisaoTrabalho.oferta(contaLigada: false)
+        #expect(aviso == RevisaoTrabalho.semProvedor)
+        #expect(aviso?.contains("conta Grok") == true)
+        #expect(aviso?.contains("não devolveu revisão válida") == true)
+        #expect(aviso?.contains("Criar") == false)
+    }
+
+    /// P3-a: nos dois casos reais o modelo pôs o nome do enum como título do
+    /// critério. Título não é situação: a resposta não veio no formato exigido.
+    @Test func criterioComNomeDeEnumNoTituloDerrubaARevisaoInteira() throws {
+        let (d, p) = try paraRevisar()
+        for nome in ["atendidoNoEscopo", "divergencia", "naoAvaliado", "instrucao"] {
+            let cru = criterioJSON(#""criterio":"\#(nome)","trechoFonte":"tradução em português","fonte":"instrucao","situacao":"inconclusivo","trechosDoArtefato":[],"justificativa":"Alguma coisa.""#)
+            #expect(RevisaoTrabalho.parse(cru, pedido: p, intencao: d.intencaoAtual, artefato: bilingue) == nil)
+        }
     }
 }

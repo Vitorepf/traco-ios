@@ -17,6 +17,16 @@ enum RevisaoTrabalho {
     /// Quantos critérios a resposta pode trazer antes de virar despejo.
     nonisolated static let tetoDeCriterios = 12
 
+    /// ADR 05q (volta 5): a revisão assistida só é OFERECIDA onde há provedor
+    /// que a produza. Em dois casos reais o modelo do aparelho não devolveu
+    /// revisão válida; sem conta Grok o lugar do botão diz isso, e o caminho
+    /// local segue no código para quando o modelo de bordo servir.
+    static let semProvedor = "Revisão pela IA precisa da conta Grok; o modelo do aparelho não devolveu revisão válida."
+    /// `nil` = ofereça o botão. Texto = mostre esta linha no lugar dele.
+    static func oferta(contaLigada: Bool = ContaGrok.ligada) -> String? {
+        contaLigada ? nil : semProvedor
+    }
+
     /// A janela do provedor que a sábia usaria hoje. ADR 05m: o pedido, o
     /// artefato e os critérios cabem inteiros ou a revisão fica indisponível.
     static var janelaPadrao: Int {
@@ -94,7 +104,7 @@ enum RevisaoTrabalho {
         var vistos = Set<String>()
         for item in lista {
             guard Set(item.keys) == chavesDoCriterio,
-                  let criterio = texto(item["criterio"]), !criterio.isEmpty,
+                  let criterio = texto(item["criterio"]), !criterio.isEmpty, !nomeDeEnum(criterio),
                   let bruto = texto(item["trechoFonte"]),
                   let f = item["fonte"] as? String, let fonte = DocumentoTrabalho.FonteCriterio(rawValue: f),
                   let s = item["situacao"] as? String,
@@ -121,6 +131,14 @@ enum RevisaoTrabalho {
                                justificativa: justificativa))
         }
         return saida
+    }
+
+    /// Título de critério é frase da revisão, não etiqueta do contrato. Nos
+    /// dois casos reais o modelo do aparelho pôs "atendidoNoEscopo" ali: isso
+    /// não é critério, é o formato exigido descumprido (V5, P3-a).
+    private nonisolated static func nomeDeEnum(_ s: String) -> Bool {
+        DocumentoTrabalho.SituacaoCriterio(rawValue: s) != nil
+            || DocumentoTrabalho.FonteCriterio(rawValue: s) != nil
     }
 
     private nonisolated static func texto(_ v: Any?) -> String? {
