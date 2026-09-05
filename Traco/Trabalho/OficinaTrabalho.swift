@@ -176,7 +176,11 @@ final class OficinaTrabalho {
                       documento.pedidoAtivo?.id == pedido.id else { return }
                 let resultado = try await produzir(entrada, pedido)
                 guard verificarAcesso(), !Task.isCancelled, documento.pedidoAtivo?.id == pedido.id else { return }
-                alterar { try $0.receber(resultado.texto, produtor: resultado.produtor, pedidoID: pedido.id) }
+                // ADR 05p: a versão vai ao disco PRIMEIRO. A conferência é um
+                // segundo commit; se ele falhar, o artefato já está guardado.
+                guard alterar({ try $0.receber(resultado.texto, produtor: resultado.produtor, pedidoID: pedido.id) }),
+                      let versao = documento.versaoAtual else { return }
+                conferir(versao.id, pedidoID: pedido.id)
             } catch {
                 guard verificarAcesso(), !Task.isCancelled, documento.pedidoAtivo?.id == pedido.id else { return }
                 alterar { $0.falharPedido(pedido.id) }
@@ -186,6 +190,22 @@ final class OficinaTrabalho {
         Self.execucoes[pedido.id] = tarefa
         return tarefa
     }
+
+    /// ADR 05p: checagem local do artefato contra o pedido que o produziu.
+    /// Lê a origem protegida, então revalida o acesso antes de abrir o texto;
+    /// só a versão vigente recebe o registro, e um retorno nunca é aplicado a
+    /// uma versão posterior. Falhar aqui não desfaz a versão já commitada.
+    @discardableResult
+    func conferir(_ artefatoID: UUID, pedidoID: UUID) -> Bool {
+        guard verificarAcesso() else { return false }
+        guard let artefato = documento.artefatos.first(where: { $0.id == artefatoID }),
+              let pedido = documento.pedidos.first(where: { $0.id == pedidoID }),
+              let intencao = documento.intencoes.first(where: { $0.id == artefato.intencaoID }) else { return false }
+        let registro = conferencia(pedido, intencao, artefato.conteudo)
+        return alterar { try $0.registrarConferencia(registro, em: artefatoID) }
+    }
+
+    @ObservationIgnored var conferencia: (DocumentoTrabalho.Pedido, DocumentoTrabalho.Intencao, String) -> DocumentoTrabalho.Conferencia = ConferenciaTrabalho.conferir
 
     @ObservationIgnored var estaDisponivel: () -> Bool = { MotorTrabalho.disponivel }
 

@@ -40,12 +40,39 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
     enum TipoEvidencia: String, Codable { case relato, arquivo, verificacao }
     enum EstadoHipotese: String, Codable { case proposta, confirmada, contestada }
     enum EstadoPedido: String, Codable { case preparando, interrompido, falhou, cancelado, pronto }
+    enum FonteCriterio: String, Codable { case intencao, resultado, instrucao }
+    enum SituacaoCriterio: String, Codable { case atendidoNoEscopo, divergencia, inconclusivo, naoAvaliado }
+    enum EstadoConferencia: String, Codable { case concluida, indisponivel, falhou }
 
     struct Intencao: Codable, Sendable, Equatable, Identifiable {
         var id = UUID()
         var data = Date.now
         var texto: String
         var resultado: String
+    }
+    /// Um critério lido do pedido e o que se achou dele no artefato. O trecho
+    /// da fonte é literal: o autor confere a leitura, não confia nela.
+    struct Resultado: Codable, Sendable, Equatable, Identifiable {
+        var id = UUID()
+        var criterio: String
+        var trechoFonte: String
+        var fonte: FonteCriterio
+        var situacao: SituacaoCriterio
+        var trechosDoArtefato: [String] = []
+        var justificativa: String
+    }
+    /// ADR 05p: uma passada de conferência sobre UMA versão, presa ao pedido
+    /// que a produziu. `nil` no disco antigo significa sem conferência —
+    /// nunca "sem divergências".
+    struct Conferencia: Codable, Sendable, Equatable, Identifiable {
+        var id = UUID()
+        var pedidoID: UUID
+        var data = Date.now
+        var executor: String
+        var versaoDoMetodo: Int
+        var estado: EstadoConferencia
+        var motivo: String?
+        var resultados: [Resultado] = []
     }
     struct Artefato: Codable, Sendable, Equatable, Identifiable {
         var id = UUID()
@@ -56,6 +83,7 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
         var produtor: String
         var intencaoID: UUID
         var anteriorID: UUID?
+        var conferencias: [Conferencia]?
     }
     struct Acao: Codable, Sendable, Equatable, Identifiable {
         var id = UUID()
@@ -150,6 +178,13 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
                               intencaoID: intencaoAtual.id, anteriorID: pedidos[i].artefatoID))
         pedidos[i].estado = .pronto
     }
+    /// Só a versão vigente recebe conferência: um retorno sobre a versão
+    /// anterior não pode ser exibido como leitura da que está na tela.
+    mutating func registrarConferencia(_ c: Conferencia, em artefatoID: UUID) throws {
+        guard let i = artefatos.firstIndex(where: { $0.id == artefatoID }),
+              i == artefatos.count - 1 else { throw Erro.pedidoAntigo }
+        artefatos[i].conferencias = (artefatos[i].conferencias ?? []) + [c]
+    }
     mutating func guardarVersaoHumana(_ texto: String) throws {
         guard !texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw Erro.vazio }
         cancelarPedido()
@@ -194,9 +229,13 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
               acaoIDs.count == acoes.count, evidenciaIDs.count == evidencias.count,
               Set(pedidos.map(\.id)).count == pedidos.count,
               Set(hipoteses.map(\.id)).count == hipoteses.count else { throw Erro.referencia }
+        let pedidoIDs = Set(pedidos.map(\.id))
         for a in artefatos {
             guard intencaoIDs.contains(a.intencaoID),
                   a.anteriorID.map({ artefatoIDs.contains($0) && $0 != a.id }) ?? true else { throw Erro.referencia }
+            guard let cs = a.conferencias else { continue }
+            guard Set(cs.map(\.id)).count == cs.count,
+                  cs.allSatisfy({ pedidoIDs.contains($0.pedidoID) }) else { throw Erro.referencia }
         }
         for a in acoes where !(a.artefatoID.map(artefatoIDs.contains) ?? true) { throw Erro.referencia }
         for a in acoes where a.agendadaEm == nil && a.avisoMinutos != nil { throw Erro.referencia }

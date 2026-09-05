@@ -2208,3 +2208,50 @@ ADR 04o; a ordem por data do `traco_notas` no Mac muda nesse momento.
 **Prova:** 10 testes novos (CatalogoTests, SabiaOrcamentoTests), suíte
 integral 578/0 no simulador de teste. **Fora:** montagem por item de
 vestir/calibragem/Padrões, caminho remoto, dizer na tela que o método sumiu.
+
+## ADR 2026-09-05p — A conferência do artefato contra o pedido
+
+**A distância.** O `MotorTrabalho.sistema` já mandava conferir idioma, duração
+e destinatário, mas a única prova de qualidade que o Trabalho tinha era "texto
+não vazio". O caso real de 05/set (EVOLUCAO, linha "IA produz trabalho
+delegado com origem") saiu omitindo tempos e traduções e misturando idiomas, e
+nada na tela dizia isso. Reforçar o prompt não é evidência.
+
+**A decisão.** Cada versão produzida guarda `Artefato.conferencias`
+(opcional; ausência no disco é SEM conferência, nunca "sem divergências"),
+presa ao `pedidoID` que a produziu e à revisão da intenção — nunca ao último
+pedido. A extração ancora cada critério num trecho LITERAL do pedido vigente,
+com instrução > resultado desejado > intenção, e a gramática é pequena e
+declarada: idioma explícito (inclusive papéis bilíngues, "frases em X com
+tradução em Y" = dois idiomas no escopo) e distribuição temporal ("N blocos de
+M minutos", "X minutos"). O que não casa fica `naoAvaliado` e aparece contado
+na linha. O idioma é lido por `NLLanguageRecognizer` no aparelho, por trecho
+de prosa com pelo menos 40 caracteres (cabeçalho, tabela e código ficam fora),
+instância nova por trecho; confiança baixa é `inconclusivo`, e bilinguismo
+declarado não vira erro. O tempo confere quantidade E soma, sem contar o total
+do cabeçalho duas vezes; "não encontrei distribuição" é dito com essas
+palavras e não vira "os tempos somam errado". Roda automaticamente depois de
+`receber` — a versão vai ao disco PRIMEIRO e a conferência é um segundo
+commit, então falhar aqui não perde o artefato — e sob demanda em "Conferir de
+novo". Só a versão vigente recebe registro: retorno sobre versão antiga é
+recusado. O acesso à origem é revalidado antes de ler e antes de mostrar (ADR
+05j); o intercâmbio Markdown (05l) não exporta nem importa conferência. Acima
+de 200.000 caracteres a conferência fica `indisponivel` em vez de ler um
+pedaço (05m). A linha na versão nunca diz "verificado" ou "aprovado", e não
+bloqueia ler, copiar ou usar.
+
+**Custo assumido, nomeado:** a checagem lê REGRA, não sentido. Um artefato sem
+nenhuma tradução passa no critério de idioma, porque idioma por bloco não vê
+papel — foi o que aconteceu no caso real (prova/4.md). O critério
+`naoAvaliado` de destinatário/conteúdo existe para essa mentira não caber na
+tela: ele diz, em toda conferência, que ninguém leu o conteúdo.
+
+**Volta:** multiplicar. **O que a IA sabe:** nada de gerativo — regras e o
+reconhecedor de idioma do aparelho, sem rede. **Prova:** 20 testes novos
+(`ConferenciaTrabalhoTests`), suíte integral 598/0 no simulador de teste, e um
+caso real executado e lido em prova/4.md: a conferência apontou o tempo e
+deixou passar a ausência de traduções, como a própria justificativa declara.
+**Fora:** segunda passada da IA ("Conferir com IA"), adequação semântica e ao
+destinatário, comparação com/sem histórico, e a jornada pela tela — o portão
+`Motores.desligados` (03p) desliga o modelo dentro do XCTest, então o caso real
+foi executado por sonda não commitada, fora da `TrabalhoView`.

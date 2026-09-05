@@ -218,6 +218,7 @@ struct TrabalhoView: View {
         VStack(alignment: .leading, spacing: 12) {
             titulo("Versão \(numero(a.id, em: o.documento))")
             Text(a.produtor).font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+            conferencia(a, oficina: o)
             if a.intencaoID != o.documento.intencaoAtual.id {
                 Text("Esta versão foi preparada para uma intenção anterior. Confira o que ainda serve.")
                     .font(Tema.meta).foregroundStyle(Tema.aviso)
@@ -237,6 +238,53 @@ struct TrabalhoView: View {
         }
         .padding(16)
         .background(Tema.superficie, in: RoundedRectangle(cornerRadius: Tema.raio))
+    }
+
+    /// ADR 05p: a checagem local ao lado do produtor. Diz o que foi examinado
+    /// e o que não foi; nunca "qualidade verificada". Não bloqueia ler ou usar.
+    @ViewBuilder private func conferencia(_ a: DocumentoTrabalho.Artefato, oficina o: OficinaTrabalho) -> some View {
+        if let c = a.conferencias?.last {
+            DisclosureGroup(ConferenciaTrabalho.linha(c)) {
+                VStack(alignment: .leading, spacing: 12) {
+                    if let motivo = c.motivo {
+                        Text(motivo).font(Tema.meta).foregroundStyle(Tema.aviso)
+                    }
+                    ForEach(c.resultados) { r in
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(r.criterio).font(Tema.barra)
+                            Text(situacao(r.situacao)).font(Tema.meta)
+                                .foregroundStyle(r.situacao == .divergencia ? Tema.aviso : Tema.tintaSuave)
+                            Text("No pedido (\(r.fonte.rawValue)): “\(r.trechoFonte)”")
+                                .font(Tema.meta).foregroundStyle(Tema.tintaSuave).textSelection(.enabled)
+                            ForEach(Array(r.trechosDoArtefato.enumerated()), id: \.offset) { _, trecho in
+                                Text("No artefato: “\(trecho)”")
+                                    .font(Tema.meta).foregroundStyle(Tema.tintaSuave).textSelection(.enabled)
+                            }
+                            Text(r.justificativa).font(Tema.meta)
+                        }
+                    }
+                    Text("Conferida por \(c.executor) em \(c.data.formatted(date: .abbreviated, time: .shortened)). Esta checagem lê regras, não sentido: nada aqui aprova o artefato.")
+                        .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+                    Button("Conferir de novo") {
+                        guard acesso.permitido, o.verificarAcesso(), o.salvo else { revalidar(); return }
+                        o.conferir(a.id, pedidoID: c.pedidoID)
+                    }
+                    .disabled(!o.salvo)
+                    .accessibilityIdentifier("trabalho-conferir")
+                }.padding(.top, 8)
+            }
+            .font(Tema.meta)
+            .accessibilityIdentifier("trabalho-conferencia")
+        }
+    }
+
+    private func situacao(_ s: DocumentoTrabalho.SituacaoCriterio) -> String {
+        switch s {
+        case .atendidoNoEscopo: "Atendido no escopo examinado"
+        case .divergencia: "Possível divergência"
+        case .inconclusivo: "Inconclusivo"
+        case .naoAvaliado: "Não avaliado"
+        }
     }
 
     private func atos(_ o: OficinaTrabalho) -> some View {
@@ -344,9 +392,15 @@ struct TrabalhoView: View {
             VStack(alignment: .leading, spacing: 16) {
                 ForEach(o.documento.artefatos.reversed()) { a in
                     DisclosureGroup("Versão \(numero(a.id, em: o.documento)) · \(a.produtor)") {
-                        ConteudoTrabalhoView(fonte: a.conteudo)
-                            .id(a.id)
-                            .frame(maxWidth: .infinity, alignment: .leading).padding(.top, 8)
+                        VStack(alignment: .leading, spacing: 8) {
+                            if let c = a.conferencias?.last {
+                                Text(ConferenciaTrabalho.linha(c))
+                                    .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+                            }
+                            ConteudoTrabalhoView(fonte: a.conteudo)
+                                .id(a.id)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }.padding(.top, 8)
                     }
                 }
             }.padding(.top, 8)
