@@ -16,8 +16,8 @@ Sempre uma volta desta trilha em edição, em paralelo às voltas comuns, no pr�
 
 | # | volta | superfície / entrega | estado |
 |---|---|---|---|
-| F1 | Auditoria fora do app | inventário com captura real de cada superfície existente (início clara e escura, bloqueada, Ilha compacta/expandida/mínima, StandBy, Siri), nota base por superfície, lista do que falta; consulta ao conselho sobre intents compartilhados | abrindo |
-| F2 | Fundação | catálogo único de App Intents usado por widgets, controles, Siri, atalhos, Spotlight e URL; entidades nota/compromisso/trabalho como AppEntity; dados do widget por App Group com snapshot barato; tokens visuais do widget de Tema.swift | depois de F1 |
+| F1 | Auditoria fora do app | inventário com 24 capturas reais, nota base por superfície, lacunas F2-F11, conselho gravado (ferramentas/orca/auditoria-fora-do-app.md, consulta-fora-intents.md) | MESCLADA em main |
+| F2 | Fundação | conforme o conselho: sem framework; Traco/App/Intents/ nos dois alvos; app como único escritor de domínio; snapshot público versionado no App Group com generatedAt/validUntil e "desatualizado"; entidades mínimas com selo; DestaqueFeito/LembrarDepois com identidade do item e confirmação real; reload só dos kinds afetados; stale neutraliza ação | abrindo |
 | F3 | Captar pensamento em um toque | controle na tela bloqueada + botão de Ação que abre o app já em ditado, ou anota por Siri sem abrir | |
 | F4 | Widget "próxima volta" interativo | botão de feito na própria superfície | |
 | F5 | Ilha do compromisso vivo | estados completos (compacta, expandida, mínima, fim) | |
