@@ -880,10 +880,12 @@ final class Sessao {
     func abrirFecho(no context: ModelContext, destino: DestinoConfirmacao = .pagina) {
         let minutos = minutosExpressiva
         confirmacao = nil
-        pararTimer()
         // o selo tem de estar no disco ANTES de a página virar: com o disco
-        // recusando, quinze minutos de escrita sumiam e o toast dizia o contrário
+        // recusando, quinze minutos de escrita sumiam e o toast dizia o contrário.
+        // O relógio só para depois do commit: parado antes, a recusa deixava a
+        // expressiva sem prazo e a gravação seguinte apagava o `expressivaPrazo`.
         guard salvar(no: context, trancar: true) else { return }
+        pararTimer()
         let alvo = notaUUID
         sentidoPendente = nil
         novaPagina()
@@ -989,7 +991,10 @@ final class Sessao {
             mostrarToast("Não consegui guardar agora. O texto continua aqui.", fixo: true)
             return false
         }
-        if toastFixo { toast = nil; toastFixo = false }
+        if let fixa = linhaFixa {
+            linhaFixa = nil
+            if toast == fixa { toast = nil }
+        }
         if let v = versaoAnterior {
             Versoes.registrar(nota.uuid, texto: v.texto, campos: v.campos, gesto: v.gesto, fechada: v.fechada)
         }
@@ -1518,7 +1523,6 @@ final class Sessao {
     /// Se o disco recusa, a queima não aconteceu: o texto e o fecho ficam.
     @discardableResult
     func queimar(no context: ModelContext, sentido linha: String) -> Bool {
-        pararTimer()
         let minutos = minutosExpressiva
         let corte = linha.trimmingCharacters(in: .whitespacesAndNewlines)
         let nota: Nota
@@ -1545,6 +1549,7 @@ final class Sessao {
             mostrarToast("não consegui queimar — o texto continua.")
             return false
         }
+        pararTimer()
         // nada de janela de desfazer: queimar não tem volta, e isso é o método
         apagadaRecuperavel = nil
         Versoes.apagar(nota.uuid)
@@ -1637,10 +1642,10 @@ final class Sessao {
     }
 
     func trancarESair(no context: ModelContext, destino: DestinoConfirmacao) {
-        pararTimer()
-        // ADR 05s: com o disco recusando, a página não vira — o texto fica e a
-        // linha diz; o destino espera.
+        // ADR 05s: com o disco recusando, a página não vira — o texto fica, a
+        // linha diz e o relógio continua; o destino espera.
         guard salvar(no: context, trancar: true) else { return }
+        pararTimer()
         sentidoPendente = nil
         fechoExpressiva = nil
         novaPagina()
@@ -1732,17 +1737,19 @@ final class Sessao {
 
     /// ADR 05s: a linha de gravação recusada é `fixo` — fica na página até
     /// uma gravação dizer sim, em vez de sumir em 2,5 s e deixar silêncio.
-    private(set) var toastFixo = false
+    /// Um aviso transitório passa por cima e, ao sumir, devolve a linha.
+    private var linhaFixa: String?
+    var toastFixo: Bool { linhaFixa != nil }
 
-    func mostrarToast(_ msg: String, fixo: Bool = false) {
+    func mostrarToast(_ msg: String, fixo: Bool = false, duracao: Duration = .seconds(2.5)) {
         toast = msg
-        toastFixo = fixo
+        if fixo { linhaFixa = msg }
         AccessibilityNotification.Announcement(msg).post()
         toastTask?.cancel()
         guard !fixo else { return }
         toastTask = Task {
-            try? await Task.sleep(for: .seconds(2.5))
-            if !Task.isCancelled { toast = nil }
+            try? await Task.sleep(for: duracao)
+            if !Task.isCancelled { toast = linhaFixa }
         }
     }
 }

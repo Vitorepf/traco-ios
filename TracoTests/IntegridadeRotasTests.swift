@@ -103,6 +103,64 @@ struct IntegridadeRotasTests {
         }
     }
 
+    /// Achado 1 da revisão da volta 7: o relógio parava ANTES do commit; na
+    /// recusa a expressiva ficava sem prazo e a gravação automática seguinte
+    /// apagava o `expressivaPrazo` — aberta sem tranca, para sempre.
+    @Test func trancarESairRecusadoDeixaORelogioDePeEAGravacaoSeguinteLevaOPrazo() throws {
+        try isolado { _ in
+            let c = try ModelContainer.traco(emMemoria: true)
+            let s = Sessao()
+            defer { s.pararTimer() }
+            s.gesto = .expressiva
+            s.texto = "quinze minutos"
+            s.iniciarTimer()
+            s.persistirNoDisco = { _ in throw Recusa.disco }
+            s.trancarESair(no: c.mainContext, destino: .notas)
+            #expect(s.timerLigado && s.toastFixo)
+            // a gravação automática (cena ao fundo, troca de aba) leva o prazo
+            s.persistirNoDisco = nil
+            #expect(s.salvar(no: c.mainContext))
+            let nota = try #require(try c.mainContext.fetch(FetchDescriptor<Nota>()).first)
+            #expect(nota.expressivaPrazo != nil && !nota.trancada)
+            #expect(s.timerLigado && !s.toastFixo)
+            // e a varredura do arranque sela sem o autor responder (§8)
+            s.trancarExpressivasVencidas(no: c.mainContext, agora: .distantFuture)
+            #expect(nota.trancada && nota.expressivaPrazo == nil)
+        }
+    }
+
+    @Test func abrirFechoRecusadoDeixaORelogioDePeEOFechoAbreNaSegunda() throws {
+        try isolado { _ in
+            let c = try ModelContainer.traco(emMemoria: true)
+            let s = Sessao()
+            defer { s.pararTimer() }
+            s.gesto = .expressiva
+            s.texto = "quinze minutos"
+            s.iniciarTimer()
+            s.persistirNoDisco = { _ in throw Recusa.disco }
+            s.abrirFecho(no: c.mainContext)
+            #expect(s.timerLigado && s.fechoUUID == nil && s.texto == "quinze minutos")
+            s.persistirNoDisco = nil
+            #expect(s.salvar(no: c.mainContext))
+            let nota = try #require(try c.mainContext.fetch(FetchDescriptor<Nota>()).first)
+            #expect(nota.expressivaPrazo != nil)
+            s.abrirFecho(no: c.mainContext)
+            #expect(!s.timerLigado && s.fechoUUID == nota.uuid && nota.trancada && nota.expressivaPrazo == nil)
+        }
+    }
+
+    /// Achado 2: qualquer aviso transitório apagava a linha fixa de recusa
+    /// antes de haver gravação. Agora ele passa por cima e a linha volta.
+    @Test func avisoTransitorioNaoApagaALinhaDeRecusa() async throws {
+        let s = Sessao()
+        let recusa = "Não consegui guardar agora. O texto continua aqui."
+        s.mostrarToast(recusa, fixo: true)
+        s.mostrarToast("3 notas vieram de fora.", duracao: .milliseconds(10))
+        #expect(s.toast == "3 notas vieram de fora." && s.toastFixo)
+        try await Task.sleep(for: .milliseconds(300))
+        #expect(s.toast == recusa && s.toastFixo)
+    }
+
     @Test func versaoSoEntraNoHistoricoDepoisDoCommit() throws {
         try isolado { _ in
             let c = try ModelContainer.traco(emMemoria: true)

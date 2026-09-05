@@ -2344,6 +2344,8 @@ tinha como saber. A auditoria de 05/09/2026, rota por rota da `Sessao`:
 |---|---|---|
 | `salvar` | widget/Destaque gravado, versão anterior registrada e, no selo, versões/apontamentos/índice apagados; aviso sumia em 2,5 s | tudo depois do `save`; recusa deixa UMA linha fixa na página |
 | `trancarESair` | ignorava a recusa: `novaPagina` apagava o texto e `.trancada` anunciava um selo que não existia | recusa mantém o texto e cala |
+| `trancarESair`, `abrirFecho`, `queimar` (relógio) | `pararTimer` antes do commit: na recusa a expressiva ficava sem prazo e a gravação automática seguinte apagava o `expressivaPrazo` — aberta sem tranca | o relógio só para depois do commit; a gravação seguinte leva o prazo e a varredura sela |
+| `mostrarToast` | qualquer aviso transitório zerava a linha fixa antes de haver gravação | o transitório passa por cima e, ao sumir, a linha volta |
 | `trancarExpressivasVencidas` | versões, apontamentos e índice apagados antes do `save` | depois |
 | `apagar`, `desfazerApagar` | `try context.save()` sem `rollback` e fora da injeção de recusa; avisos cancelados antes; nota devolvida não voltava ao espelho/Spotlight/índice | `persistir`; avisos e projeções depois; varredura inteira ao devolver |
 | `importarCorpus` | commit certo, mas NENHUMA projeção: espelho, Spotlight e índice só no arranque seguinte | varredura inteira depois do commit (04o) |
@@ -2373,9 +2375,10 @@ raiz: um iCloud que aceita e descarta depois não é visto. Avisos (`Revisoes`)
 e haptics continuam fora do contrato de commit; listados, não provados.
 
 **Volta:** multiplicar (a nota nunca se perde; o protegido nunca vaza). **O
-que a IA sabe:** nada — é disco, ordem e relógio. **Prova:** 17 testes em
-`IntegridadeRotasTests` (rota × recusa, ordem forçada sem sleep, matriz do
-selo × projeção, pasta indisponível e bookmark morto), suíte integral
-639/0 em 05/09/2026, build genérico. **Fora:** captura da linha do espelho no aparelho do dono — não encenável sem
+que a IA sabe:** nada — é disco, ordem e relógio. **Prova:** 20 testes em
+`IntegridadeRotasTests` (rota × recusa, ordem forçada sem sleep, relógio de
+pé na recusa, linha fixa sob aviso transitório, matriz do selo × projeção,
+pasta indisponível e bookmark morto), suíte integral 642/0 em 05/09/2026,
+build genérico. **Fora:** captura da linha do espelho no aparelho do dono — não encenável sem
 maestro: nenhuma rota `traco://` abre o Perfil; garantia física do queimar
 (§8.6) e sincronização contínua da pasta.
