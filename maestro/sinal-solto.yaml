@@ -1,0 +1,48 @@
+# ADR 04h/04j: três Soltar seguidos numa forma viram sinal — e a forma passa a
+# ser SUGERIDA em vez de vestida. O Perfil diz.
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+# três vezes, desenroladas (o `repeat` do maestro parou na primeira volta em 04/set)
+- tapOn: {id: pagina}
+- inputText: "quero correr de manhã"
+- extendedWaitUntil:
+    visible: {id: "soltar-forma"}
+    timeout: 8000
+- tapOn: {id: "soltar-forma"}
+- tapOn: {id: "concluir"}
+- tapOn: {id: pagina}
+- inputText: "quero correr de manhã"
+- extendedWaitUntil:
+    visible: {id: "soltar-forma"}
+    timeout: 8000
+- tapOn: {id: "soltar-forma"}
+- tapOn: {id: "concluir"}
+- tapOn: {id: pagina}
+- inputText: "quero correr de manhã"
+- extendedWaitUntil:
+    visible: {id: "soltar-forma"}
+    timeout: 8000
+- tapOn: {id: "soltar-forma"}
+- tapOn: {id: "concluir"}
+- tapOn: {id: pagina}
+- inputText: "quero correr de manhã"
+# a quarta vez SUGERE: o cartão tem "Abrir a forma", e não "Deixar como nota"
+- extendedWaitUntil:
+    visible: "Abrir a forma WOOP"
+    timeout: 25000
+- assertNotVisible: {id: "soltar-forma"}
+- takeScreenshot: /tmp/traco-verify/ciclo/10-forma-sugerida
+- tapOn: {id: "concluir"}
+- swipe:
+    start: 1%, 50%
+    end: 85%, 50%
+- tapOn: {id: aba-notas}
+- tapOn: {id: aba-perfil}
+- scrollUntilVisible:
+    element: {text: ".*soltou três vezes seguidas.*"}
+    direction: DOWN
+    timeout: 25000
+- assertVisible: ".*sugerir em vez de vestir.*"
+- takeScreenshot: /tmp/traco-verify/ciclo/11-perfil-formas-sugeridas

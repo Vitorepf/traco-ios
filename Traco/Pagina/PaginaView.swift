@@ -6,9 +6,13 @@ struct PaginaView: View {
     @Environment(\.modelContext) private var context
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.dynamicTypeSize) private var tamanhoTexto
     @Bindable var sessao: Sessao
+    /// Q2: os títulos das outras notas alimentam o completar de `[[ligação]]`.
+    @Query(sort: \Nota.editadaEm, order: .reverse) private var notas: [Nota]
     @FocusState private var focoPagina: Bool
     @State private var mostrarCampos = false
+    @State private var trabalhoAberto: Trabalho?
     @ScaledMetric(relativeTo: .body) private var corpoFolga: CGFloat = 9
     @State private var abrirArquivo = false
     @State private var lenteAberta = false
@@ -24,6 +28,15 @@ struct PaginaView: View {
             .sheet(isPresented: $mostrarCampos) {
                 if let gesto = sessao.gesto, gesto != .expressiva {
                     VStack(alignment: .leading, spacing: 0) {
+                        Button("Voltar à página") {
+                            guard sessao.salvar(no: context) else { return }
+                            mostrarCampos = false
+                        }
+                        .font(Tema.meta)
+                        .padding(.horizontal, Tema.margem)
+                        .padding(.top, 16)
+                        .frame(minHeight: Tema.alvo)
+                        .accessibilityIdentifier("voltar-campos")
                         // a folha tem cabeçalho de verdade: o nome da forma é
                         // TÍTULO, não um sexto rótulo. E o âmbar sai do botão
                         // que descarta — o olho não entra pela ação destrutiva
@@ -51,18 +64,24 @@ struct PaginaView: View {
                         ScrollView {
                             CamposFormaView(
                                 gesto: gesto,
-                                campos: $sessao.campos
+                                campos: $sessao.campos,
+                                conferenciaDevida: sessao.conferenciaDevida,
+                                aoEncadear: { e in
+                                    mostrarCampos = false
+                                    sessao.encadear(e, no: context)
+                                }
                             )
                                 .padding(.bottom, 24)
                         }
                         .scrollDismissesKeyboard(.interactively)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                    .presentationDetents([.medium, .large])
+                    .presentationDetents([.large]) // ADR 04u: folha de leitura nasce inteira, nunca cortada no médio
                     .presentationDragIndicator(.visible)
                     .presentationBackground(Tema.superficie)
                 }
             }
+        .sheet(item: $trabalhoAberto) { trabalho in TrabalhoView(trabalho: trabalho) }
         .tint(Tema.ambar)
         .sheet(isPresented: $sessao.mostrarRecordar) {
             RecordarView(
@@ -71,7 +90,11 @@ struct PaginaView: View {
                 gesto: sessao.recordarGesto,
                 aoRevelar: { sessao.cumprirRevisaoPendente(no: context) },
                 aoCobrarAntes: { sessao.cobrarAntesPendente() },
-                aoProxima: sessao.temProximaFila ? { sessao.proximaDaFila(no: context) } : nil
+                aoProxima: sessao.temProximaFila ? { sessao.proximaDaFila(no: context) } : nil,
+                aoAdiar: { sessao.adiarPendente() },
+                aoPular: sessao.temProximaFila ? { sessao.pularDaFila(no: context) } : nil,
+                degrau: sessao.recordarUUID.map { Revisoes.nivel($0) } ?? 0,
+                retrato: sessao.retratoAtual()
             )
             .id(sessao.recordarUUID)
             .presentationBackground(Tema.superficie)
@@ -82,6 +105,17 @@ struct PaginaView: View {
             withAnimation(.easeOut(duration: 0.25)) { chegou = true }
             sessao.trancarExpressivasVencidas(no: context)
             sessao.varrerAnexosOrfaos(no: context)
+            sessao.rearmarSeries(no: context)
+            // ADR 04i: o retrato lê o disco quando a sábia precisa dele
+            sessao.notasParaRetrato = {
+                ((try? context.fetch(FetchDescriptor<Nota>())) ?? []).map {
+                    Retrato.NotaLida(gesto: $0.gesto, fechada: $0.fechada, expressiva: $0.gesto == .expressiva,
+                                     criadaEm: $0.criadaEm, campos: $0.campos)
+                }
+            }
+            // ADR 04n / 04p: o índice de sentido e a entrada do Mac, no arranque
+            sessao.sincronizarIndice(no: context)
+            sessao.recolherEntrada(no: context)
             restaurarFoco()
             #if DEBUG
             print("TRACO_PAGINA_PRONTA")
@@ -128,6 +162,8 @@ struct PaginaView: View {
                 var t = Transaction(); t.disablesAnimations = true
                 withTransaction(t) { sessao.cartao = nil }
             }
+            // ADR 04r: o primeiro caractere num campo é ATO — a sábia instiga aqui
+            if agora { sessao.instigarSePreciso() }
         }
         .onChange(of: sessao.geracaoDaPagina) { _, _ in
             // a página nova troca o editor de identidade no mesmo ciclo: o foco
@@ -153,6 +189,7 @@ struct PaginaView: View {
             case .active:
                 sessao.alinharTimerAoRelogio()
                 sessao.trancarExpressivasVencidas(no: context)
+                sessao.recolherEntrada(no: context)
                 if !sessao.mostrarNotas { restaurarFoco() }
             case .inactive, .background:
                 // TODA página em voo grava ao sair de cena, não só a do timer.
@@ -201,6 +238,11 @@ struct PaginaView: View {
                   let nota = Sessao.buscar(uuid: uuid, no: context) else { return }
             sessao.abrir(nota)
         }
+        // ADR 04a: o compromisso avisa; tocar no aviso abre o calendário no dia
+        .onReceive(NotificationCenter.default.publisher(for: Revisoes.abrirCompromisso)) { _ in
+            Rota.escalaCalendario = .dia
+            sessao.irPara(.calendario, no: context)
+        }
     }
 
     private var pagina: some View {
@@ -219,6 +261,8 @@ struct PaginaView: View {
                         .padding(.bottom, 2)
                         .transition(.opacity)
                         .accessibilityHidden(true)
+                    // ADR 05b: a data diz o que o dia espera
+                    LinhaDaVolta { sessao.irPara(.notas, no: context) }
                 }
                 if let pergunta = sessao.perguntaPadroes {
                     cartaoPergunta(pergunta)
@@ -296,12 +340,10 @@ struct PaginaView: View {
 
     private var topbar: some View {
         HStack {
-            // §20: o destino "Notas" mora na barra inferior; o atalho ⌘L continua
-            Button("") { sessao.irNotas(no: context) }
+            Button("Notas") { sessao.irNotas(no: context) }
                 .keyboardShortcut("l", modifiers: .command)
-                .frame(width: 0, height: 0)
-                .opacity(0)
-                .accessibilityHidden(true)
+                .frame(minHeight: Tema.alvo)
+                .accessibilityIdentifier("notas-da-pagina")
 
             Spacer()
 
@@ -330,7 +372,8 @@ struct PaginaView: View {
         return AnyView(CamposFormaView(
             gesto: gesto,
             campos: $sessao.campos,
-            conferenciaDevida: sessao.conferenciaDevida
+            conferenciaDevida: sessao.conferenciaDevida,
+            aoEncadear: { sessao.encadear($0, no: context) }
         ))
     }
 
@@ -344,7 +387,8 @@ struct PaginaView: View {
             folga: corpoFolga,
             abrirArquivo: $abrirArquivo,
             aoTocarRegua: { sessao.tocarRegua($0) },
-            aoVestirTudo: { sessao.vestirTudo() }
+            aoVestirTudo: { sessao.vestirTudo() },
+            titulosParaLigar: titulosParaLigar
         ) {
             var t = Transaction()
             t.disablesAnimations = true
@@ -360,8 +404,35 @@ struct PaginaView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
 
-    private var bottomBar: some View {
-        HStack(spacing: 8) {
+    /// Só o que pode ser ligado: o selo vale aqui como vale na rede (ADR 03b),
+    /// e a própria nota aberta não se liga a si mesma.
+    private var titulosParaLigar: [String] {
+        notas
+            .filter { !$0.fechada && $0.gesto != .expressiva && $0.uuid != sessao.notaUUID }
+            .prefix(200)
+            .map(\.tituloNaLista)
+            .filter { !$0.isEmpty }
+    }
+
+    private func trabalharNisto() {
+        guard sessao.gesto != .expressiva, sessao.temVoz,
+              sessao.salvar(no: context), let id = sessao.notaUUID,
+              let nota = Sessao.buscar(uuid: id, no: context), !nota.fechada else { return }
+        do {
+            let documento = DocumentoTrabalho(intencao: nota.vozDoAutor, notaOrigemID: id)
+            let trabalho = try Trabalho(documento: documento)
+            context.insert(trabalho)
+            try context.save()
+            Teclado.recolher()
+            trabalhoAberto = trabalho
+        } catch {
+            context.rollback()
+            sessao.mostrarToast("Não consegui criar o trabalho. Sua nota continua guardada.")
+        }
+    }
+
+    private var acoesDaPagina: some View {
+        Group {
             // O âmbar marca o que o AUTOR ainda precisa fazer. Com a análise
             // automática ligada — cujo próprio texto promete "você nunca precisa
             // lembrar do botão" — o app já faz isto sozinho: o botão fica de pé
@@ -393,7 +464,7 @@ struct PaginaView: View {
                 .accessibilityIdentifier("abrir-arquivo")
             // a lente da língua: regra local, aponta e não reescreve
             Button("Lente") {
-                sessao.salvar(no: context) // apontar precisa da nota no disco
+                guard sessao.salvar(no: context) else { return }
                 lenteAberta = true
             }
                 .foregroundStyle(Tema.tintaSuave)
@@ -402,8 +473,27 @@ struct PaginaView: View {
                 .accessibilityHint("Muletas, frases feitas, passivas e adjetivos repetidos. Só aponta.")
                 .accessibilityIdentifier("abrir-lente")
         }
+    }
+
+    private var bottomBar: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            if sessao.temVoz, sessao.gesto != .expressiva {
+                Button("Trabalhar nisto", action: trabalharNisto)
+                    .foregroundStyle(Tema.ambarTinta)
+                    .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .leading)
+                    .accessibilityHint("Cria um trabalho com esta intenção; sua nota é preservada")
+                    .accessibilityIdentifier("trabalhar-nisto")
+            }
+            if tamanhoTexto.isAccessibilitySize {
+                Menu("Mais ações da nota") { acoesDaPagina }
+                    .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .leading)
+            } else {
+                HStack(spacing: 8) { acoesDaPagina }
+            }
+        }
         .sheet(isPresented: $lenteAberta) {
-            LenteView(texto: sessao.texto, notaUUID: sessao.gesto == .expressiva ? nil : sessao.notaUUID, gesto: sessao.gesto)
+            LenteView(texto: sessao.texto, notaUUID: sessao.gesto == .expressiva ? nil : sessao.notaUUID, gesto: sessao.gesto,
+                      retrato: sessao.retratoAtual())
         }
         .font(Tema.barra)
         .buttonStyle(BarraBotaoStyle())
@@ -449,12 +539,6 @@ struct PaginaView: View {
 
     private var tempoFormatado: String {
         String(format: "%02d:%02d", sessao.segundosRestantes / 60, sessao.segundosRestantes % 60)
-    }
-
-    private var timerTexto: String {
-        let m = sessao.segundosRestantes / 60
-        let s = sessao.segundosRestantes % 60
-        return String(format: "%02d:%02d · fato e sentimento — ao fim, tranca", m, s)
     }
 
     private var progresso: CGFloat {
@@ -504,6 +588,10 @@ struct PaginaView: View {
             NotificationCenter.default.post(name: Rota.mudou, object: nil)
         case .recordar:
             sessao.recordarMaisRecente(no: context)
+        case .anotar(let texto):
+            // ADR 05a: pela rota, a entrada é recolhida na hora
+            Entrada.depositar(texto, raiz: Entrada.raizDoApp)
+            sessao.recolherEntrada(no: context)
         }
     }
 
@@ -539,5 +627,35 @@ private struct BarraBotaoStyle: ButtonStyle {
             .opacity(ativo ? 1 : 0.38)
             .scaleEffect(configuration.isPressed ? Tema.pressao : 1)
             .animation(Tema.pressaoAnim(configuration.isPressed), value: configuration.isPressed)
+    }
+}
+
+/// ADR 05b — "1 volta a conferir" sob a data, só quando há; um toque abre
+/// as Notas, onde A VOLTA (04v) já espera.
+private struct LinhaDaVolta: View {
+    var aoTocar: () -> Void
+    @Query private var notas: [Nota]
+
+    private var quantas: Int {
+        notas.filter { Volta.campoDevido(gesto: $0.gesto, campos: $0.campos, criadaEm: $0.criadaEm, fechado: $0.fechada) != nil }.count
+    }
+
+    var body: some View {
+        let linha = Volta.emPalavras(quantas: quantas)
+        if !linha.isEmpty {
+            Button(action: aoTocar) {
+                Text(linha)
+                    .font(Tema.meta)
+                    .foregroundStyle(Tema.ambarTinta)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(PressaoDiscreta())
+            .padding(.horizontal, Tema.margem)
+            .padding(.bottom, 2)
+            .transition(.opacity)
+            .accessibilityHint("Abre as Notas, na seção A VOLTA")
+            .accessibilityIdentifier("linha-da-volta")
+        }
     }
 }

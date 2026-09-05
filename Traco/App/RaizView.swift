@@ -42,7 +42,7 @@ struct RaizView: View {
                                 }
                             }
                     case .padroes: PadroesView(sessao: sessao)
-                    case .perfil: PerfilView(sessao: sessao)
+                    case .perfil: PerfilView(sessao: sessao, agenda: agenda)
                     default: NotasView(sessao: sessao)
                     }
                 }
@@ -124,6 +124,13 @@ struct RaizView: View {
         }
         // um mundo só (ADR 2026-09-02h): nunca claro numa aba e escuro noutra
         .preferredColorScheme(.light)
+        .environment(\.abrirCalendarioDoTrabalho, { data in
+            guard sessao.salvar(no: context) else { return false }
+            agenda.ancora = Calendario.inicioDoDia(data, agenda.cal)
+            agenda.ir(para: .dia)
+            sessao.irPara(.calendario, no: context)
+            return sessao.aba == .calendario && sessao.abaArquivo == .calendario
+        })
         // A página em voo GRAVA ao sair de cena. Fica na RAIZ e escuta a
         // notificação do UIApplication: o `scenePhase` de uma view aninhada
         // chegou tarde demais para gravar antes da suspensão.
@@ -132,7 +139,18 @@ struct RaizView: View {
             if DestaqueDoDia.linhaDeHoje() == nil {
                 Task { await DestaqueDoDia.encerrarAtividades() }
             }
+            // ADR 04a: o compromisso vive fora do app. O relógio anda enquanto
+            // o Traço dorme, então quem republica o próximo é o voltar à cena —
+            // sem isto, o widget e a Ilha mostravam o de ontem.
+            agenda.publicarProximo()
+            // volta das férias sem o app ser morto: reagenda o que estava calado
+            if Ferias.expirarSePassou() {
+                Revisoes.agendarFilaDiaria()
+                Revisoes.agendarRevisaoSemanal()
+            }
         }
+        // ADR 04k: os encadeamentos que marcam compromisso passam pela agenda
+        .onAppear { sessao.agenda = agenda }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
             sessao.salvar(no: context)
         }

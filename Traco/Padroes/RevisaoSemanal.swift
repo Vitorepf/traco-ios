@@ -131,6 +131,9 @@ nonisolated struct RevisaoSemanal: Equatable, Sendable {
 
         let calibragem = notas
             .filter { $0.gesto == .decisao && !$0.fechada }
+            // "Esta semana" é esta semana: sem janela, uma decisão conferida em
+            // junho ficava no cartão para sempre
+            .filter { ($0.queimadaOuSeladaEm ?? $0.criadaEm) >= seteAtras }
             .compactMap { n -> Calibragem? in
                 let esperava = (n.campos["espero"] ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
                 let aconteceu = (n.campos["aconteceu"] ?? "").trimmingCharacters(in: .whitespacesAndNewlines)

@@ -20,6 +20,6 @@ appId: app.traco
     timeout: 6000
 - tapOn: {id: "instigar"}
 - extendedWaitUntil:
-    visible: "precisa da sua conta Grok.*"
+    visible: "pensando.*|.*\\?"
     timeout: 4000
 - takeScreenshot: /tmp/traco-verify/nav/88-instigar

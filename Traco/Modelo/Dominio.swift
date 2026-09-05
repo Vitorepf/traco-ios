@@ -13,7 +13,7 @@ enum Dominio: String, CaseIterable, Codable, Identifiable, Sendable {
 
     var id: String { rawValue }
 
-    var nome: String {
+    nonisolated var nome: String {
         switch self {
         case .trabalho: "Trabalho"
         case .casa: "Casa"
@@ -48,16 +48,30 @@ enum Dominio: String, CaseIterable, Codable, Identifiable, Sendable {
             (.ideias, ["ideia", "insight", "percebi", "hipótese", "hipotese", "conceito"]),
         ]
         var melhor: (Dominio, Int)?
+        var empatou = false
         for (dom, palavras) in pontos {
             // palavra inteira: "casamento" não é Casa, "encontrar" não é Dinheiro
             let n = palavras.filter { p in
                 lower.range(of: "\\b\(NSRegularExpression.escapedPattern(for: p))\\b",
                             options: .regularExpression) != nil
             }.count
-            if n > 0, n >= (melhor?.1 ?? 0) { melhor = (dom, n) }
+            guard n > 0 else { continue }
+            if n > (melhor?.1 ?? 0) { melhor = (dom, n); empatou = false }
+            else if n == melhor?.1 { empatou = true }
         }
-        guard let melhor, melhor.1 >= 1 else { return nil }
+        // ADR 05d: empate é silêncio — "chegar em casa … vou ler" não é Casa
+        // por vir antes de Estudo na lista. Sem confiança, sem chip.
+        guard let melhor, !empatou else { return nil }
         return melhor.0
+    }
+
+    /// ADR 05d: o rótulo que o modelo de bordo devolveu. "nenhum" = sem
+    /// domínio; qualquer outra coisa fora da lista = nil (falha, fica o léxico).
+    nonisolated static func doModelo(_ rotulo: String) -> Dominio?? {
+        let limpo = rotulo.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        if limpo == "nenhum" { return .some(nil) }
+        guard let d = Dominio(rawValue: limpo) else { return nil }
+        return .some(d)
     }
 
     static func doNome(_ s: String) -> Dominio? {

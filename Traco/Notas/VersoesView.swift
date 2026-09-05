@@ -78,7 +78,7 @@ struct VersoesView: View {
         .padding(.top, 8)
         .foregroundStyle(Tema.tinta)
         .background(Tema.fundo.ignoresSafeArea())
-        .presentationDetents([.medium, .large])
+        .presentationDetents([.large]) // ADR 04u: folha de leitura nasce inteira, nunca cortada no médio
         .presentationDragIndicator(.visible)
         .presentationBackground(Tema.fundo)
         .onAppear { versoes = Versoes.listar(nota.uuid) }

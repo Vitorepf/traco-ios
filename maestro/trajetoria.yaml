@@ -1,0 +1,34 @@
+# ADR 04q: a trajetória nos Padrões — dois períodos, nas palavras do autor.
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn: {id: pagina}
+- inputText: "quero correr de manhã"
+- extendedWaitUntil:
+    visible: {id: "abrir-campos"}
+    timeout: 25000
+- tapOn: {id: "abrir-campos"}
+- extendedWaitUntil:
+    visible: {id: "forma-woop"}
+    timeout: 5000
+- tapOn: {id: "campo-obstaculo"}
+- inputText: "o celular na cama"
+- swipe:
+    direction: DOWN
+- tapOn: {id: "concluir"}
+- swipe:
+    start: 1%, 50%
+    end: 85%, 50%
+- tapOn: {id: "aba-notas"}
+- tapOn: {id: "aba-padroes"}
+- extendedWaitUntil:
+    visible: "PADRÕES"
+    timeout: 5000
+- scrollUntilVisible:
+    element: {id: "trajetoria"}
+    direction: DOWN
+    timeout: 25000
+- assertVisible: "TRAJETÓRIA"
+- assertVisible: ".*o celular na cama.*"
+- takeScreenshot: /tmp/traco-verify/ciclo/06-trajetoria

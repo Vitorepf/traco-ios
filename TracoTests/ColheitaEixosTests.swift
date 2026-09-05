@@ -15,7 +15,11 @@ struct CorpusSeloTests {
                 dominio: .saude, serie: nil, dia: 0)
         ])
         #expect(corpo.hasPrefix("# Traço — corpus"))
-        #expect(corpo.contains("Nenhuma\npalavra aqui veio de um modelo") || corpo.contains("Nenhuma palavra aqui veio de um modelo"))
+        // Importação/colagem não prova autoria: o cabeçalho não pode certificar
+        // uma origem que Nota não registra. A proteção do selo segue abaixo.
+        #expect(corpo.contains("não certifica autoria humana"))
+        #expect(corpo.contains("não inclui o histórico dos Trabalhos"))
+        #expect(!corpo.contains("palavra aqui veio de um modelo"))
         #expect(corpo.contains("recordada: 2"))
         #expect(corpo.contains("dominio: Saúde"))
         #expect(corpo.contains("id: "))
@@ -538,6 +542,25 @@ struct DominioNaNotaTests {
         s.salvar(no: c.mainContext)
         #expect(nota.dominio == nil)
         #expect(nota.dominioTravado)
+    }
+
+    /// ADR 05d: a escolha no menu vale na nota e na página aberta, e trava.
+    @Test func escolherNoMenuTravaEValeNaPagina() throws {
+        let c = try ModelContainer.traco(emMemoria: true)
+        let nota = Nota(texto: "reunião com o cliente", dominio: .trabalho)
+        c.mainContext.insert(nota)
+        try c.mainContext.save()
+        let s = Sessao()
+        s.abrir(nota)
+        #expect(s.escolherDominio(.estudo, na: nota, no: c.mainContext))
+        #expect(nota.dominio == .estudo && nota.dominioTravado)
+        #expect(s.dominio == .estudo && s.dominioTravado)
+        s.texto = "reunião com o cliente no slack"
+        s.salvar(no: c.mainContext)
+        #expect(nota.dominio == .estudo) // travada: o léxico não volta
+        s.escolherDominioNaPagina(nil)
+        s.salvar(no: c.mainContext)
+        #expect(nota.dominio == nil && nota.dominioTravado)
     }
 
     @Test func toqueNoChipSoltaETrava() throws {

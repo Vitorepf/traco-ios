@@ -1,0 +1,50 @@
+# ADR 2026-09-04a — o que se marca AVISA, e a tela diz isso.
+#
+# O defeito que este fluxo existe para impedir: o motor agendava desde a ADR
+# 03d e a ficha não tinha uma palavra sobre aviso. Motor sem superfície não é
+# feature — e uma varredura que só olha a chamada não pega isso. Este fluxo
+# olha a TELA.
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- openLink: traco://calendario/dia
+- extendedWaitUntil:
+    visible: {id: "calendario-titulo"}
+    timeout: 6000
+- tapOn: {id: "calendario-prosa"}
+- waitForAnimationToEnd: {timeout: 2000}
+- inputText: "Dentista sexta às 14:30"
+- waitForAnimationToEnd: {timeout: 1000}
+- tapOn: {id: "calendario-marcar"}
+- extendedWaitUntil:
+    visible: {id: "ficha-pronto"}
+    timeout: 5000
+# 1. a promessa existe, e está na ficha que abre sozinha ao marcar
+- assertVisible: "AVISO"
+- assertVisible: {id: "ficha-aviso"}
+- assertVisible: "Na hora"
+# 2. a promessa é dita na HORA REAL, não no rótulo abstrato
+- assertVisible: {id: "ficha-aviso-promessa"}
+- assertVisible: "Toca .*14:30.*"
+# 3. o controle é do autor: um toque troca a antecedência
+- tapOn: {id: "ficha-aviso"}
+- waitForAnimationToEnd: {timeout: 1500}
+- tapOn: "30 min antes"
+- waitForAnimationToEnd: {timeout: 1500}
+- assertVisible: "Toca .*14:00.*"
+- takeScreenshot: /tmp/traco-verify/aviso/10-ficha-com-aviso
+# 4. e dá para calar: silêncio pedido é escolha, e some a promessa
+- tapOn: {id: "ficha-aviso"}
+- waitForAnimationToEnd: {timeout: 1500}
+- tapOn: "Não avisa"
+- waitForAnimationToEnd: {timeout: 1500}
+- assertNotVisible: {id: "ficha-aviso-promessa"}
+- tapOn: {id: "ficha-aviso"}
+- waitForAnimationToEnd: {timeout: 1500}
+- tapOn: "Na hora"
+- waitForAnimationToEnd: {timeout: 1500}
+- tapOn: {id: "ficha-pronto"}
+- waitForAnimationToEnd: {timeout: 2000}
+# 5. e o sino aparece na grade: o autor vê que aquilo vai cobrá-lo
+- takeScreenshot: /tmp/traco-verify/aviso/20-grade-com-sino

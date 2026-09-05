@@ -259,7 +259,14 @@ struct EditorBlocoView: View {
     }
 
     private func campo(_ valor: String, cabecalho: Bool = false,
-                       ao: @escaping @Sendable (String) -> Void) -> some View {
+                       // `@Sendable` aqui fazia o aviso apontar para `aoMudar`
+                       // (isolado no MainActor). A anotação CORRETA seria
+                       // `@MainActor @Sendable` — e ela faz o swift-frontend
+                       // do Xcode 17F113 CRASHAR ao compilar este arquivo.
+                       // Sem ela, o aviso sobra no `Binding` do SwiftUI, que é
+                       // fronteira de framework: menos ruído e nenhum crash.
+                       // Reavaliar quando a toolchain subir.
+                       ao: @escaping (String) -> Void) -> some View {
         TextField("", text: Binding(get: { valor }, set: ao))
             .font(cabecalho ? Tema.corpo.weight(.medium) : Tema.corpo)
             .foregroundStyle(cabecalho ? Tema.tintaSuave : Tema.tinta)

@@ -1,76 +1,37 @@
-# Portões
+# Provas proporcionais à tarefa vigente
 
-Cada portão: método + condição de passagem + evidência. Sem evidência = fail.
+Leia [VISAO-PRODUTO](../../../VISAO-PRODUTO.md), [SPEC](../../../SPEC.md) e [EVOLUCAO](../../../EVOLUCAO.md). Registre passou/falhou/não verificado/não aplicável, com motivo e evidência. Ausência de prova não é defeito demonstrado nem aprovação. Se já houver matriz do coordenador, preencha essa matriz; não crie um segundo predicado de conclusão.
 
-## F — Ferro (sempre)
+## Contrato, integridade e origem
 
-| # | Método | Passa se | Evidência |
-|---|---|---|---|
-| F1 | Grep + leitura do diff | Nenhuma prosa de modelo / complete / resumo / elogio entra em `Nota.texto` | paths |
-| F2 | Grep | Zero `api.x.ai`, Keychain de API, `URLSession` para modelo | `rg` vazio |
-| F3 | Leitura | Porteiro só no botão; classifica `Caderno.prosa` / voz do autor | call site |
-| F4 | Lista fechada | IA só: rotar, travar, uma pergunta, Puxar, Códice, calar | diff |
-
-## C — Caderno / Markdown-arquivo (se tocou na página)
-
-| # | Método | Passa se | Evidência |
-|---|---|---|---|
-| C1 | Teste + ecrã | `textoVisivel` e a página não contêm `#` isolado de título, ` ``` `, `:::`, `\|---`, `- [ ]`, `traco://` | `CadernoTests` + screenshot |
-| C2 | Toque no portal | Editar mantém a figura (cartão, colunas, gutter). Não vira campo nu nem fonte | Maestro ou simctl + png |
-| C3 | Régua | Toque aplica **palavra** → forma. Autor não digita marca | screenshot da régua + bloco |
-| C4 | Parser | Cerca aberta de recipiente continua recipiente, não parágrafo-fonte | teste |
-| C5 | Round-trip | `serializar` → `fatias` → `textoVisivel` = o que o autor escreveu | teste |
-
-## V — Visual (se tocou UI)
-
-| # | Método | Passa se | Evidência |
-|---|---|---|---|
-| V1 | Ecrã | Um âmbar vivo. Cursor **ou** Porteiro **ou** Concluída — não um festival | png |
-| V2 | Contraste | Texto em `tinta` / `tintaSuave` / `tintaFraca` (#8E8E8A). Sem #5C5C5A | hex no diff |
-| V3 | Portal | Código anuncia-se (língua + gutter + sintaxe ≠ âmbar). Ficheiro tem figura por tipo | png |
-| V4 | Vazio | Página sem forma = cursor, sem placeholder, sem chip | png |
-| V5 | Alvo | Controlos ≥44pt. Régua scrollável, palavras não ícones-sopa | hierarquia / png |
-
-## R — Runtime (se tocou código)
-
-| # | Método | Passa se | Evidência |
-|---|---|---|---|
-| R1 | `xcodebuild test` | Suite verde | log `TEST SUCCEEDED` |
-| R2 | Instalar no Simulator iPhone 17 | App abre <1s na página vazia | `simctl launch` + png |
-| R3 | Fluxo da fatia | Maestro ou toque manual do gesto ponta a ponta | yaml + png |
-| R4 | Regressão | Porteiro WOOP/trava/silêncio e caderno código/título ainda passam se a fatia os pode partir | testes existentes |
-
-Comandos (repo `/Users/vitorepf/develop/traco-ios`):
-
-```bash
-xcodegen generate
-xcodebuild -scheme Traco \
-  -destination 'platform=iOS Simulator,id=1A46B6D3-71A6-49C0-BB2C-D73FCD43CABF' \
-  -derivedDataPath build test
-xcrun simctl install 1A46B6D3-71A6-49C0-BB2C-D73FCD43CABF \
-  build/Build/Products/Debug-iphonesimulator/Traço.app
-```
-
-UDID pode mudar. Confirma com `xcrun simctl list devices booted`.
-
-Evidência visual em `/tmp/traco-verify/`. Não deixes png de Maestro na raiz do repo.
-
-## P — Produto (sempre, leitura)
-
-| # | Método | Passa se |
+| Eixo | Condição observável | Prova pertinente |
 |---|---|---|
-| P1 | SPEC §2 §12 | Sem chat, streak, resumo, nuvem, ouvinte, busca semântica |
-| P2 | SPEC §3 | Sem placeholder na página vazia |
-| P3 | SISTEMA caderno | Régua = vocabulário; cromo por família, sem arco-íris |
-| P4 | Tese | A fatia multiplica gesto/visão/memória — não atalho |
+| Autoria | Conteúdo pessoal, gerado, externo e misto conservam origem; prática escolhida não é substituída silenciosamente | Rota real + teste de origem/versionamento |
+| Selo | Origem restrita não expõe conteúdo por UI, contexto, derivação ou exportação; liberar recupera trabalho conforme contrato | Revogar/liberar, reabrir e guards de serviço |
+| Persistência | Gravação confirmada precede anúncio e efeitos; falha preserva entrada; replay não duplica nem destrói fonte | Fault injection, retomada e round-trip hostil |
+| Produção delegada | Provider real produz no contrato autorizado; falha/cancelamento mantêm dados e descartam resposta obsoleta | Chamada real quando disponível + testes controlados de falha |
+| Fronteira de ação | Artefato, agendamento, execução e resultado não se confundem | Read-back/observação da ação e evidência atribuída |
+| Capacidade | Hipótese contextual corrigível; assistência e resultado não fingem aprendizagem | Tarefa pertinente e efeito real da correção no próximo apoio |
 
-## Como reportar no fim da fatia
+Listas fechadas e gatilhos da Análise são verificados nas rotas de notas a que pertencem, segundo ADR vigente. Não exigir ausência de API de modelo ou de todo texto gerado como portão global.
 
-```
-FATIA: …
-F1 pass … 
-C2 pass /tmp/traco-verify/….png
-R1 pass (N testes)
-P4 pass — <uma frase honesta>
-AINDA P0: …
-```
+## Documento e experiência
+
+| Eixo | Condição observável | Prova pertinente |
+|---|---|---|
+| Leitura/edição | Conteúdo compreensível, representação apropriada, sem marca acidental nem controles falsos | Render e interação de cada tipo afetado |
+| Intercâmbio | MD preserva conteúdo/origem/identidade; importação antiga é revisável; formato não suportado não executa nem some | Exportar, editar, importar e reabrir |
+| Visual | Tokens vigentes, hierarquia e contraste nos fundos reais | Captura identificada + medição quando aplicável |
+| Acesso | Ações encontráveis e rótulos legíveis, inclusive com teclado, AX e leitor de tela | Jornada e tecnologia assistiva disponível; declarar o não exercitado |
+| Movimento | Transições preservam orientação e respeitam preferência relevante | Vídeo/interrupção, não screenshot isolado |
+| Recuperação | Voltar, cancelar, erro e retomar preservam o que prometem | Percurso adversarial com dados fictícios |
+
+Registrar candidato com WIP, rota/folha, conteúdo, configuração e procedimento. Nome da captura não confirma estado. Restaurar configuração temporária anterior não fecha defeito descoberto no teste.
+
+## Execução técnica
+
+Confirme os comandos e alvo no [README](../../../README.md) e projeto reais. Use o simulador coordenado disponível; UDID, conta, assinatura e número histórico de testes não são constantes. Não instalar ferramentas, acionar serviço pago ou disputar aparelho por consequência deste documento.
+
+Build e suíte validam seus predicados. Execute caso de reprodução, testes afetados e integração pertinente; prove o provider/caminho real quando a capacidade o exige. Fixtures não demonstram geração disponível. Correção documental não exige iniciar build ou simulador se nenhum comportamento executável mudou.
+
+Uma entrega passa quando a pessoa consegue o resultado contratado com os estados críticos verificados. Não exigir um número fixo de juízes, rodadas vazias ou um commit para substituir evidência. Preserve as capacidades restantes na matriz integral.

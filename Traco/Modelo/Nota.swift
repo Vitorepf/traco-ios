@@ -90,6 +90,13 @@ final class Nota {
         dominioTravado = true
     }
 
+    /// E devolve. A ADR c dizia "um toque desfaz e trava" — e não previu que
+    /// não havia segundo toque: quem errasse o dedo perdia o domínio daquela
+    /// nota para sempre. Destravar faz a inferência voltar no próximo salvar.
+    func devolverDominio() {
+        dominioTravado = false
+    }
+
     var serieUUID: UUID? {
         get { serieRaw.isEmpty ? nil : UUID(uuidString: serieRaw) }
         set { serieRaw = newValue?.uuidString ?? "" }

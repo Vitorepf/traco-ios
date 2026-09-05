@@ -3,6 +3,12 @@ import SwiftUI
 
 struct CalendarioView: View {
     @State var agenda: CalendarioAgenda
+    @Environment(\.modelContext) private var context
+    @Environment(\.scenePhase) private var scenePhase
+    @Query private var trabalhos: [Trabalho]
+    @Query private var origensDosTrabalhos: [Nota]
+    @State private var trabalhoAberto: DestinoTrabalhoCalendario?
+    private var selosDosTrabalhos: [SeloOrigemTrabalho] { origensDosTrabalhos.map(SeloOrigemTrabalho.init) }
     /// O calendário das intenções: as notas cujo "Se" tem hora entram como
     /// deixas. Só abertas; a expressiva e a fechada nunca.
     @Query(filter: #Predicate<Nota> { $0.gatilhoEm != nil && !$0.trancada && !$0.queimada })
@@ -12,6 +18,23 @@ struct CalendarioView: View {
     /// 32pt bold com tracking −0,6, escalando com o texto do sistema.
     @ScaledMetric(relativeTo: .largeTitle) private var tamTitulo: CGFloat = 32
     @State private var confirmarApagarTudo = false
+    /// A ficha nasce inteira (ver o `.sheet`): ordem de detente não escolhe.
+    @State private var detenteDaFicha: PresentationDetent = .large
+    /// Ditar em vez de digitar: o texto reconhecido cai no campo de prosa e o
+    /// resto do caminho é o algoritmo local de sempre.
+    @State private var ditado = Ditado()
+    /// Os calendários que já estão no iPhone: alimentam a recomendação do
+    /// campo (sete dias) E a grade (a faixa visível), sempre só leitura.
+    @State private var sistema = CalendarioSistema()
+    @FocusState private var prosaEmFoco: Bool
+
+    /// O exemplo inventado só aparece quando não há compromisso de verdade.
+    private var dicaDoCampo: String {
+        // a recomendação longa cortava a meio da palavra ("Independência do
+        // Brasil depois de a…"): exemplo que não cabe não é exemplo
+        if let r = Recomendacao.primeira(de: sistema.proximos, agenda.cal), r.count <= 30 { return r }
+        return "Dentista sexta às 14:30"
+    }
 
     init(agenda: CalendarioAgenda = CalendarioAgenda()) {
         _agenda = State(initialValue: agenda)
@@ -24,17 +47,26 @@ struct CalendarioView: View {
         }
         .foregroundStyle(CalendarioTema.tinta)
         .preferredColorScheme(.light)
+        .sheet(item: $trabalhoAberto) { destino in
+            TrabalhoView(trabalho: destino.trabalho, acaoEmFoco: destino.acaoID)
+        }
         .sheet(item: $agenda.ficha) { evento in
             CalendarioFichaView(evento: evento, agenda: agenda)
-                .presentationDetents([.medium, .large])
+                // A ORDEM NÃO ESCOLHE O DETENTE. O comentário anterior dizia
+                // que `.large` primeiro bastava; a captura de 04/set mostrou a
+                // ficha abrindo no médio, cortada em "Termina" — com Notas,
+                // Apagar e o AVISO inteiro fora da tela. Só a `selection`
+                // decide, e a ficha nasce de um toque deliberado: nasce
+                // inteira, e desce se o autor quiser.
+                .presentationDetents([.large, .medium], selection: $detenteDaFicha)
                 .presentationDragIndicator(.visible)
                 .presentationBackground(CalendarioTema.fundo)
         }
-        .sheet(isPresented: $agenda.ajustes) {
-            CalendarioAjustesView(agenda: agenda)
-                .presentationDetents([.medium])
-                .presentationDragIndicator(.visible)
-                .presentationBackground(CalendarioTema.fundo)
+        .sheet(item: $agenda.fichaDoSistema) { evento in
+            CalendarioFichaSistemaView(
+                evento: evento,
+                calendario: sistema.naFaixa.first { $0.inicio == evento.inicio && $0.titulo == evento.titulo }?.calendario ?? "",
+                agenda: agenda)
         }
         .confirmationDialog("Marcar", isPresented: $agenda.menuMais, titleVisibility: .hidden) {
             Button("Novo compromisso") { agenda.novoEmBranco() }
@@ -46,6 +78,33 @@ struct CalendarioView: View {
         .onAppear {
             aplicarEscalaDaRota()
             agenda.deixas = deixas(de: notasComDeixa)
+            atualizarTrabalhos()
+            agenda.aoAbrirTrabalho = { trabalhoID, acaoID in
+                guard let trabalho = trabalhos.first(where: { $0.uuid == trabalhoID }),
+                      AcessoTrabalho.permitido(trabalho, no: context) else {
+                    atualizarTrabalhos()
+                    agenda.mostrar("Este trabalho não está disponível para abrir.")
+                    return
+                }
+                trabalhoAberto = .init(trabalho: trabalho, acaoID: acaoID)
+            }
+            ditado.aoTexto = { [weak agenda] falado in agenda?.prosa = falado }
+        }
+        // o acesso ao calendário é pedido AQUI, olhando um calendário — nunca
+        // no arranque (§3: o app abre na página em branco, sem cerimônia)
+        .task {
+            await sistema.pedirAcesso()
+            recarregarSistema()
+        }
+        .onChange(of: agenda.escala) { _, _ in recarregarSistema() }
+        .onChange(of: trabalhos.map(\.conteudoJSON)) { _, _ in atualizarTrabalhos() }
+        .onChange(of: selosDosTrabalhos) { _, _ in atualizarTrabalhos() }
+        .onChange(of: scenePhase) { _, _ in atualizarTrabalhos() }
+        .onChange(of: agenda.ancora) { _, _ in recarregarSistema() }
+        // sair da tela com o microfone aberto seria gravar às escondidas
+        .onDisappear { ditado.parar() }
+        .onChange(of: ditado.recado) { _, novo in
+            if let novo { agenda.mostrar(novo) }
         }
         .onChange(of: notasComDeixa.map { "\($0.uuid)\($0.gatilhoEm?.timeIntervalSince1970 ?? 0)\($0.tituloNaLista)" }) { _, _ in
             agenda.deixas = deixas(de: notasComDeixa)
@@ -76,7 +135,7 @@ struct CalendarioView: View {
         }
         .overlay(alignment: .top) {
             if let toast = agenda.toast {
-                CalendarioToast(texto: toast)
+                CalendarioToast(texto: toast, ajustes: agenda.toastComAjustes)
                     .padding(.top, 8)
                     .transition(.move(edge: .top).combined(with: .opacity))
             }
@@ -85,9 +144,25 @@ struct CalendarioView: View {
         .animation(CalendarioTema.morph(reduceMotion), value: agenda.modo)
     }
 
+    /// A3: a grade pede a faixa que está à vista; a recomendação continua com
+    /// os sete dias. Duas janelas, uma leitura só por mudança de escala.
+    private func recarregarSistema() {
+        guard sistema.podeLer else {
+            agenda.doSistema = []
+            return
+        }
+        let (de, a) = agenda.faixaParaOSistema
+        sistema.carregarFaixa(de: de, a: a)
+        agenda.doSistema = sistema.naFaixa.map(\.comoEvento)
+    }
+
     private func deixas(de notas: [Nota]) -> [EventoCalendario] {
         notas.compactMap { Calendario.deixa(uuid: $0.uuid, gesto: $0.gesto, fechada: $0.fechada, gatilhoEm: $0.gatilhoEm,
                                             se: $0.campos["se"] ?? "", tituloNaLista: $0.tituloNaLista, dominio: $0.dominio) }
+    }
+
+    private func atualizarTrabalhos() {
+        agenda.acoesDosTrabalhos = scenePhase == .active ? CalendarioTrabalho.eventos(trabalhos, no: context) : []
     }
 
     private func aplicarEscalaDaRota() {
@@ -101,44 +176,40 @@ struct CalendarioView: View {
     // MARK: cabeça
 
     private func cabeca(agora: Date) -> some View {
-        HStack(alignment: .center, spacing: 10) {
-            Text(agenda.titulo)
-                .font(.system(size: tamTitulo, weight: .bold))
-                .tracking(CalendarioTema.tituloTracking)
-                .foregroundStyle(CalendarioTema.tinta)
-                .lineLimit(1)
-                .minimumScaleFactor(0.6)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .contentTransition(.numericText())
-                .animation(CalendarioTema.morph(reduceMotion), value: agenda.titulo)
-                .accessibilityAddTraits(.isHeader)
-                .accessibilityIdentifier("calendario-titulo")
-            cabecaBotao("ellipsis") { agenda.menuMais = true }
-                .accessibilityLabel("Marcar")
-                .accessibilityIdentifier("calendario-mais")
-            cabecaBotao("gearshape") { agenda.ajustes = true }
-                .accessibilityLabel("Ajustes do calendário")
-                .accessibilityIdentifier("calendario-ajustes")
+        // O risco diz QUE não é dia útil; o nome diz QUAL é. Ele mora aqui, e
+        // não na escala do dia, porque tocar num dia riscado — em qualquer
+        // escala — muda a âncora, e é esta linha que responde ao toque.
+        let feriado = Feriados.de(agenda.ancora, agenda.cal)
+        return VStack(alignment: .leading, spacing: 1) {
+            HStack(alignment: .center, spacing: 10) {
+                Text(agenda.titulo)
+                    .font(.system(size: tamTitulo, weight: .bold))
+                    .tracking(CalendarioTema.tituloTracking)
+                    .foregroundStyle(CalendarioTema.tinta)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentTransition(.numericText())
+                    .animation(CalendarioTema.morph(reduceMotion), value: agenda.titulo)
+                    .accessibilityAddTraits(.isHeader)
+                    .accessibilityIdentifier("calendario-titulo")
+            }
+            if let feriado {
+                Text(feriado.facultativo ? "\(feriado.nome) · ponto facultativo" : feriado.nome)
+                    .font(CalendarioTema.meta)
+                    .foregroundStyle(CalendarioTema.tintaSuave)
+                    .lineLimit(2)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .accessibilityIdentifier("calendario-feriado")
+            }
         }
         .padding(.horizontal, CalendarioTema.margem)
         .padding(.top, 8)
         .padding(.bottom, 12)
+        // quem anima é a ALTURA do container (§21), não a opacidade da linha
+        .animation(CalendarioTema.morph(reduceMotion), value: feriado)
     }
 
-    private func cabecaBotao(_ icone: String, acao: @escaping () -> Void) -> some View {
-        Button(action: acao) {
-            Image(systemName: icone)
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(CalendarioTema.tintaSuave)
-                .frame(width: CalendarioTema.controle, height: CalendarioTema.controle)
-                .background(CalendarioTema.cartao.opacity(0.85), in: Circle())
-                .overlay(Circle().strokeBorder(CalendarioTema.luzBorda, lineWidth: 1))
-                .shadow(color: CalendarioTema.sombraCampo, radius: 6, y: 2)
-                .frame(width: Tema.alvo, height: Tema.alvo)
-                .contentShape(Rectangle())
-        }
-        .buttonStyle(PressaoClara())
-    }
 
     // MARK: escalas — um objeto em quatro zooms
 
@@ -321,35 +392,48 @@ struct CalendarioView: View {
             TextField(
                 "",
                 text: $agenda.prosa,
-                prompt: Text("Dentista sexta às 14:30")
+                prompt: Text(dicaDoCampo)
                     .foregroundStyle(CalendarioTema.tintaFraca)
             )
             .font(.callout)
             .foregroundStyle(CalendarioTema.tinta)
             .textInputAutocapitalization(.sentences)
             .submitLabel(.done)
+            .focused($prosaEmFoco)
             .onSubmit { agenda.adicionarDaProsa() }
+            // ADR 05c: o campo nunca se preenche sozinho — a recomendação é o
+            // exemplo cinza, e o cinza é fantasma (jakobs-law). Tocar é tocar.
             .accessibilityIdentifier("calendario-prosa")
             .accessibilityLabel("Marcar em palavras")
+            .accessibilityHint("Escreva o compromisso em palavras, como no exemplo")
 
+            // um botão, dois estados: com texto ele envia; vazio ele grava a
+            // voz. Antes, vazio, era um alvo de 44pt que não fazia nada.
             Button {
-                agenda.adicionarDaProsa()
+                if temTexto {
+                    ditado.parar()
+                    agenda.adicionarDaProsa()
+                } else {
+                    ditado.alternar()
+                }
             } label: {
-                Image(systemName: "arrow.up")
+                Image(systemName: temTexto ? "arrow.up" : (ditado.gravando ? "stop.fill" : "mic"))
                     .font(.subheadline.weight(.bold))
-                    .foregroundStyle(temTexto ? .white : CalendarioTema.tintaMorta)
+                    .contentTransition(.symbolEffect(.replace))
+                    .foregroundStyle(temTexto || ditado.gravando ? .white : CalendarioTema.tinta)
                     .frame(width: CalendarioTema.controle, height: CalendarioTema.controle)
                     .background(
-                        temTexto ? CalendarioTema.chipActivo : CalendarioTema.chip,
+                        temTexto || ditado.gravando ? CalendarioTema.chipActivo : CalendarioTema.chip,
                         in: RoundedRectangle(cornerRadius: CalendarioTema.raioAcao, style: .continuous)
                     )
                     .frame(width: Tema.alvo, height: Tema.alvo)
                     .contentShape(Rectangle())
             }
             .buttonStyle(PressaoClara())
-            .disabled(!temTexto)
             .animation(.easeOut(duration: 0.15), value: temTexto)
-            .accessibilityLabel("Marcar o compromisso")
+            .animation(.easeOut(duration: 0.15), value: ditado.gravando)
+            .accessibilityLabel(temTexto ? "Marcar o compromisso"
+                : ditado.gravando ? "Parar de gravar" : "Ditar o compromisso")
             .accessibilityIdentifier("calendario-marcar")
         }
         .padding(.leading, 2)
@@ -358,6 +442,12 @@ struct CalendarioView: View {
         .background(Capsule().fill(CalendarioTema.trilho))
         .shadow(color: CalendarioTema.sombraCampo, radius: 12, y: 4)
     }
+}
+
+private struct DestinoTrabalhoCalendario: Identifiable {
+    let trabalho: Trabalho
+    let acaoID: UUID
+    var id: UUID { acaoID }
 }
 
 /// O chip do dia: círculo em `chip`, ativo em carvão; 44 de alvo sempre.
@@ -370,11 +460,17 @@ struct CalendarioChipDia: View {
 
     var body: some View {
         let lado: CGFloat = compacto ? 36 : 44
+        // o dia que não é útil vem cortado: um risco no número, na tinta que
+        // ele já tem. Sem cor própria, sem ícone — o corte é o recado inteiro.
+        let feriado = Feriados.de(dia, cal)
         VStack(spacing: compacto ? 0 : 1) {
             Text(Calendario.letraDoDia(dia, cal))
                 .font(CalendarioTema.letra)
             Text(Calendario.formatar(dia, "d", cal))
                 .font(compacto ? CalendarioTema.meta.monospacedDigit() : CalendarioTema.dia)
+                .riscoDeFeriado(feriado != nil,
+                                largura: compacto ? 13 : 15,
+                                cor: activo ? .white : CalendarioTema.tintaSuave)
         }
         .foregroundStyle(activo ? .white : CalendarioTema.tintaSuave)
         .frame(width: lado, height: lado)
@@ -386,7 +482,11 @@ struct CalendarioChipDia: View {
         }
         .frame(width: Tema.alvo, height: Tema.alvo)
         .contentShape(Rectangle())
-        .accessibilityLabel(Calendario.diaPorExtenso(dia, cal))
+        // o risco é invisível ao VoiceOver: quem não vê precisa ouvir o nome
+        .accessibilityLabel(
+            feriado.map { "\(Calendario.diaPorExtenso(dia, cal)), feriado, \($0.nome)" }
+                ?? Calendario.diaPorExtenso(dia, cal)
+        )
         .accessibilityAddTraits(activo ? [.isButton, .isSelected] : .isButton)
     }
 }
@@ -446,75 +546,6 @@ struct CalendarioListaView: View {
             }
             .padding(.horizontal, CalendarioTema.margem)
             .padding(.bottom, 160)
-        }
-    }
-}
-
-struct CalendarioAjustesView: View {
-    @Bindable var agenda: CalendarioAgenda
-    @Environment(\.dismiss) private var dismiss
-    @State private var confirmarApagar = false
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            HStack {
-                Text("Calendário")
-                    .font(.title2.weight(.bold))
-                    .tracking(-0.4)
-                Spacer()
-                Button("Pronto") { dismiss() }
-                    .font(CalendarioTema.chrome)
-                    .foregroundStyle(CalendarioTema.tinta)
-                    .padding(.horizontal, 14)
-                    .frame(height: CalendarioTema.controle)
-                    .background(CalendarioTema.chip, in: Capsule())
-                    .accessibilityIdentifier("ajustes-pronto")
-            }
-
-            Text("Vive no aparelho. Não sincroniza, e nunca escreve numa nota.")
-                .font(CalendarioTema.meta)
-                .foregroundStyle(CalendarioTema.tintaSuave)
-
-            Toggle(isOn: Binding(
-                get: { agenda.segundaPrimeiro },
-                set: { agenda.segundaPrimeiro = $0 }
-            )) {
-                Text("Semana começa na segunda")
-                    .font(.callout)
-            }
-            .tint(CalendarioTema.chipActivo)
-            .padding(14)
-            .background(CalendarioTema.campo, in: RoundedRectangle(cornerRadius: CalendarioTema.raioCampo, style: .continuous))
-            .accessibilityIdentifier("ajustes-segunda")
-
-            HStack {
-                Text(agenda.eventos.count == 1 ? "1 compromisso" : "\(agenda.eventos.count) compromissos")
-                    .font(.callout)
-                    .foregroundStyle(CalendarioTema.tintaSuave)
-                Spacer()
-                Button("Apagar tudo", role: .destructive) { confirmarApagar = true }
-                    .font(CalendarioTema.meta)
-                    .foregroundStyle(CalendarioTema.aviso)
-                    .disabled(agenda.eventos.isEmpty)
-                    .accessibilityIdentifier("ajustes-apagar-tudo")
-            }
-            .padding(14)
-            .background(CalendarioTema.campo, in: RoundedRectangle(cornerRadius: CalendarioTema.raioCampo, style: .continuous))
-
-            Spacer()
-        }
-        .padding(CalendarioTema.margem)
-        .padding(.top, 8)
-        .foregroundStyle(CalendarioTema.tinta)
-        .preferredColorScheme(.light)
-        .confirmationDialog("Apagar todos os compromissos?", isPresented: $confirmarApagar, titleVisibility: .visible) {
-            Button("Apagar tudo", role: .destructive) {
-                agenda.apagarTudo()
-                dismiss()
-            }
-            Button("Cancelar", role: .cancel) {}
-        } message: {
-            Text("Não volta.")
         }
     }
 }

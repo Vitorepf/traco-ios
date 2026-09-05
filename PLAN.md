@@ -1,3 +1,12 @@
+# PLAN — registro histórico da campanha de 01/set
+
+**Histórico, sem autoridade operativa.** O plano abaixo pertence a um worktree e uma sessão anteriores. Não limita o escopo atual, não autoriza commits ou alterações de ambiente, não veta VoiceOver e não manda executar widget/share hoje. “IA nunca escreve” era a fronteira antiga: a [visão vigente](VISAO-PRODUTO.md) permite produção delegada com origem preservada, mantendo regras locais de prática e selo.
+
+Para agir, use pedido atual → [SPEC e ADRs vigentes](SPEC.md) → [EVOLUCAO.md](EVOLUCAO.md), código e evidência atuais. “Passou”, “cap”, “visual aprovado” e instruções de parada abaixo descrevem apenas a campanha histórica; não provam nem governam a tarefa presente. [META.md](META.md) contém o prompt operativo de continuidade.
+
+<details>
+<summary>Plano original de 01/set — preservado somente para consulta histórica</summary>
+
 # PLAN — Traço unidades 1–5 (01/set)
 
 Uma unidade por volta. Sequencial. Destino, não arquitetura. Não mergeie. Não dê push. Não mexa em /Users/vitorepf/develop/traco-ios (outro Claude lá).
@@ -47,3 +56,5 @@ Barra:
 - prova/5-depois.png
 
 Stop do hop: as 5 barras passaram, ou cap, ou aparelho/permissão faltando. Grava prova/PROVA.md. Não declare done em compile.
+
+</details>

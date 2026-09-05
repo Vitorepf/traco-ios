@@ -12,6 +12,8 @@ struct CamposFormaView: View {
     @Binding var campos: [String: String]
     /// Quando a conferência é devida (a hora do "espero" já passou). Nil = não.
     var conferenciaDevida: Bool = false
+    /// ADR 04k: para onde esta forma leva. Nil = a folha não encadeia (Recordar).
+    var aoEncadear: ((Metodo.Encadeamento) -> Void)?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var nascida = false
 
@@ -29,6 +31,7 @@ struct CamposFormaView: View {
                     .animation(.easeOut(duration: 0.35).delay(min(Double(indice), 5) * 0.05), value: nascida)
 
             }
+            depoisDisto
         }
         .padding(.horizontal, Tema.margem)
         .onAppear {
@@ -38,6 +41,45 @@ struct CamposFormaView: View {
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("forma-\(gesto.rawValue)")
+    }
+
+    /// ADR 04k — a linha DEPOIS DISTO: um botão por encadeamento, aceso quando
+    /// os campos de origem têm resposta. O toque copia as palavras do autor
+    /// para a próxima forma e liga as duas. A IA não escreve nada aqui.
+    @ViewBuilder private var depoisDisto: some View {
+        if let aoEncadear, !gesto.encadeamentos.isEmpty {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("DEPOIS DISTO")
+                    .font(Tema.label)
+                    .tracking(Tema.trackingLabel)
+                    .foregroundStyle(Tema.tintaFraca)
+                    .padding(.top, 8)
+                ForEach(gesto.encadeamentos) { e in
+                    let pronto = e.exige.allSatisfy { !(campos[$0] ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+                    Button {
+                        aoEncadear(e)
+                    } label: {
+                        HStack(spacing: 8) {
+                            Image(systemName: e.compromisso == nil ? "arrow.turn.down.right" : "calendar.badge.plus")
+                                .font(.footnote.weight(.semibold))
+                            Text(e.rotulo)
+                                .font(Tema.barra)
+                            Spacer(minLength: 0)
+                        }
+                        .foregroundStyle(pronto ? Tema.ambarTinta : Tema.tintaFraca)
+                        .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .leading)
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(PressaoDiscreta())
+                    .disabled(!pronto)
+                    .accessibilityIdentifier("encadear-\(e.para ?? "compromisso")")
+                    .accessibilityHint(pronto
+                        ? "Abre a próxima forma com as suas palavras copiadas e liga as duas notas"
+                        : "Responda \(e.exige.joined(separator: ", ")) primeiro")
+                }
+            }
+            .padding(.vertical, 8)
+        }
     }
 
     /// O campo da volta só entra quando é devido, ou quando já foi respondido.

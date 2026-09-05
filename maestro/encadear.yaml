@@ -1,0 +1,37 @@
+# ADR 04k: as formas se encadeiam. O WOOP com obstáculo leva ao Se–então com
+# as palavras do autor copiadas e a ligação [[origem]] no destino.
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn: {id: pagina}
+- inputText: "quero correr de manhã"
+- extendedWaitUntil:
+    visible: {id: "abrir-campos"}
+    timeout: 25000
+- tapOn: {id: "abrir-campos"}
+- extendedWaitUntil:
+    visible: {id: "forma-woop"}
+    timeout: 5000
+- tapOn: {id: "campo-obstaculo"}
+- inputText: "o celular na cama"
+- tapOn: {id: "campo-plano"}
+- inputText: "deixo o celular na cozinha"
+# depois de responder o último campo a folha já está no pé, onde mora a linha
+# DEPOIS DISTO. Nada de swipe nem de hideKeyboard aqui: os dois tocam a tela,
+# e um toque que cai sobre o botão encadeia antes de o teste ver (04/set,
+# quatro vezes seguidas).
+- extendedWaitUntil:
+    visible: "Virar Se–então"
+    timeout: 8000
+- assertVisible: "DEPOIS DISTO"
+- takeScreenshot: /tmp/traco-verify/ciclo/01-depois-disto
+- tapOn: "Virar Se–então"
+- extendedWaitUntil:
+    visible: {id: "forma-seEntao"}
+    timeout: 25000
+# as palavras são dele, copiadas; a origem está ligada
+- assertVisible: "o celular na cama"
+- assertVisible: "deixo o celular na cozinha"
+- assertVisible: ".*quero correr de manhã.*"
+- takeScreenshot: /tmp/traco-verify/ciclo/02-se-entao-encadeado

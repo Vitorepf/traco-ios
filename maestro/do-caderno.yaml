@@ -1,0 +1,36 @@
+# ADR 04w: o caderno chega antes do compromisso. A nota sobre o orçamento
+# aparece na ficha da reunião de orçamento, e um toque abre a nota.
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn: {id: pagina}
+- inputText: "preciso fechar o orçamento do trimestre com a equipe de finanças antes da reunião"
+- waitForAnimationToEnd: {timeout: 2500}
+- tapOn: {id: "concluir"}
+- waitForAnimationToEnd: {timeout: 1500}
+- openLink: traco://calendario/dia
+- extendedWaitUntil:
+    visible: {id: "calendario-titulo"}
+    timeout: 6000
+- tapOn: {id: "calendario-prosa"}
+- waitForAnimationToEnd: {timeout: 2000}
+- inputText: "Reunião de orçamento com finanças amanhã às 10"
+- waitForAnimationToEnd: {timeout: 1000}
+- tapOn: {id: "calendario-marcar"}
+- extendedWaitUntil:
+    visible: {id: "ficha-pronto"}
+    timeout: 5000
+# a seção mora abaixo de Quando, Aviso e Notas: rola até ela
+- scrollUntilVisible:
+    element: {id: "ficha-do-caderno"}
+    direction: DOWN
+    timeout: 15000
+- assertVisible: "preciso fechar o orçamento.*"
+- takeScreenshot: /tmp/traco-verify/ciclo/33-do-caderno
+- tapOn: "preciso fechar o orçamento.*"
+- extendedWaitUntil:
+    visible: "preciso fechar o orçamento do trimestre.*"
+    timeout: 8000
+- assertVisible: {id: "concluir"}
+- takeScreenshot: /tmp/traco-verify/ciclo/34-do-caderno-aberta

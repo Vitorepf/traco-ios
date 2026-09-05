@@ -58,6 +58,9 @@ enum ContaGrok {
         guardar(nil, em: contaAcesso)
         guardar(nil, em: contaRenova)
         UserDefaults.standard.removeObject(forKey: chaveExpira)
+        // sair é sair: o que o autor perguntou não fica na memória do app
+        Grok.esquecerMemo()
+        PadroesRemoto.esquecerMemo()
     }
 
     // MARK: - Login por código de dispositivo (sem redirect, serve no iPhone)
@@ -95,8 +98,13 @@ enum ContaGrok {
     /// Passo 2: espera o autor aprovar no navegador. Devolve true quando entrou.
     static func aguardar(_ codigo: Codigo, ateSegundos teto: Int = 300) async -> Bool {
         let fim = Date().addingTimeInterval(TimeInterval(teto))
+        // RFC 8628 §3.5: `slow_down` manda somar CINCO segundos ao intervalo e
+        // seguir. Bater no mesmo ritmo depois do pedido de calma é como o
+        // servidor recusa o login de vez — e aí o autor fica sem conta sem
+        // entender por quê.
+        var intervalo = codigo.intervalo
         while Date() < fim {
-            try? await Task.sleep(for: .seconds(codigo.intervalo))
+            try? await Task.sleep(for: .seconds(intervalo))
             if Task.isCancelled { return false }
             let campos = [
                 "client_id": clienteID,
@@ -106,9 +114,9 @@ enum ContaGrok {
             guard let j = await postToken(campos) else { continue }
             if guardarSessao(j) { return true }
             // authorization_pending / slow_down: segue esperando em silêncio
-            if let erro = j["error"] as? String,
-               erro != "authorization_pending", erro != "slow_down" {
-                return false
+            if let erro = j["error"] as? String {
+                if erro == "slow_down" { intervalo += 5 }
+                if erro != "authorization_pending", erro != "slow_down" { return false }
             }
         }
         return false
@@ -124,7 +132,11 @@ enum ContaGrok {
 
     private static var expirado: Bool {
         let quando = UserDefaults.standard.double(forKey: chaveExpira)
-        guard quando > 0 else { return false }
+        // sem prazo gravado (a xAI omitiu `expires_in`) NÃO é "vive para
+        // sempre": era isso que deixava um access token morto em uso, com a
+        // conta quebrada em silêncio até o autor sair e entrar de novo.
+        // Sem prazo, tenta renovar — se não houver refresh, cai no local.
+        guard quando > 0 else { return true }
         // 60s de folga: token que morre no meio do voo é erro à toa
         return Date().timeIntervalSince1970 > quando - 60
     }

@@ -20,4 +20,6 @@ appId: app.traco
 - tapOn:
     id: "aba-notas"
 - tapOn: "treino da semana"
-- assertVisible: "alongar todo dia"
+- extendedWaitUntil:
+    visible: "alongar todo dia"
+    timeout: 5000

@@ -1,0 +1,43 @@
+# ADR 2026-09-03c/d: o feriado riscado com o nome no cabeçalho, e a série que
+# nasce da frase e aparece na ficha com os dias escolhidos.
+# Ids dentro das escalas não são achados (licoes-swiftui 3 e 6): o dia riscado
+# é alcançado pelo chip da faixa, que tem id.
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- openLink: traco://calendario/dia
+- extendedWaitUntil:
+    visible: {id: "calendario-titulo"}
+    timeout: 6000
+
+# "toda sexta e segunda" vira UMA série, não uma data solta
+- tapOn: {id: "calendario-prosa"}
+- waitForAnimationToEnd: {timeout: 2000}
+- inputText: "academia toda sexta e segunda às 8:30"
+- waitForAnimationToEnd: {timeout: 1000}
+- tapOn: {id: "calendario-marcar"}
+- extendedWaitUntil:
+    visible: {id: "ficha-pronto"}
+    timeout: 5000
+# o título saiu limpo: os dias foram comidos pelo parser
+- assertVisible: "Academia"
+# a ficha diz que repete, e em quais dias
+- assertVisible: {id: "ficha-repete"}
+# os dias escolhidos, por texto: id de filho aninhado não sobe para o
+# maestro (licoes-swiftui 3 e 6), então a prova é o que se lê
+- assertVisible: "Repete"
+- assertVisible: ".*seg.*sex.*" 
+# e a data é "A partir de", não "Data" — série tem começo, não dia
+- assertVisible: "A partir de"
+- tapOn: {id: "ficha-pronto"}
+- waitForAnimationToEnd: {timeout: 2000}
+
+# o feriado: 7 de setembro tem nome no cabeçalho quando é a âncora
+- openLink: traco://calendario/dia
+- waitForAnimationToEnd: {timeout: 2000}
+- tapOn: {id: "calendario-prosa"}
+- waitForAnimationToEnd: {timeout: 1500}
+- inputText: "o que tenho dia 7 de setembro?"
+- tapOn: {id: "calendario-marcar"}
+- waitForAnimationToEnd: {timeout: 2500}

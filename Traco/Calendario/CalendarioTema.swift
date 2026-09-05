@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 /// O mundo claro (SISTEMA-CLARO.md): papel, um acento (o preto), cápsulas,
 /// hairline a 8%, sombra só no que flutua. Componente cita token, nunca hex.
@@ -12,8 +13,9 @@ enum CalendarioTema {
     static let tinta = Color(hex: 0x1C1C1E)
     /// 5,2:1 sobre o chip e 5,7:1 sobre o papel. O #8E8E93 do clone media 2,96.
     static let tintaSuave = Color(hex: 0x5F5F64)
-    /// Ícones e letras grandes: 3,3:1 sobre o papel.
-    static let tintaFraca = Color(hex: 0x86868B)
+    /// O mesmo passo do `Tema.tintaFraca` (ADR 02h × varredura 04/set): 5,04:1
+    /// no papel. As horas da grade e os dias de outro mês são TEXTO.
+    static let tintaFraca = Color(hex: 0x68686C)
     /// Só para dias fora do mês e desabilitado real.
     static let tintaMorta = Color(hex: 0xC7C7CC)
     static let linha = Color(hex: 0x1C1C1E).opacity(0.08)
@@ -85,17 +87,33 @@ enum CalendarioTema {
     }
 
     /// A deixa de uma nota é papel com contorno, não tinta chapada: vem de
-    /// fora do calendário e a nota é a dona.
+    /// fora do calendário e a nota é a dona. O do iPhone (A3) é papel também,
+    /// e mais apagado ainda: não é nosso, não se edita, e não pode competir
+    /// com o que o autor marcou aqui.
     static func fundo(de evento: EventoCalendario) -> Color {
-        evento.eDeixa ? cartao : fundo(de: evento.dominio)
+        if evento.doSistema { return cartao }
+        return evento.eDeixa ? cartao : fundo(de: evento.dominio)
     }
 
     static func tinta(de evento: EventoCalendario) -> Color {
-        evento.eDeixa ? tinta : tinta(de: evento.dominio)
+        if evento.doSistema { return tintaSuave }
+        return evento.eDeixa ? tinta : tinta(de: evento.dominio)
     }
 
     static func icone(de evento: EventoCalendario) -> String {
-        evento.eDeixa ? "arrow.turn.down.right" : icone(de: evento.dominio)
+        if evento.doSistema { return "circle.dotted" }
+        return evento.eDeixa ? "arrow.turn.down.right" : icone(de: evento.dominio)
+    }
+
+    /// Quem leva contorno em vez de fundo cheio: o que não nasceu aqui.
+    static func temContorno(_ evento: EventoCalendario) -> Bool {
+        evento.eDeixa || evento.doSistema
+    }
+
+    static let contornoSistema = Color(hex: 0x1C1C1E).opacity(0.18)
+
+    static func contorno(de evento: EventoCalendario) -> Color {
+        evento.doSistema ? contornoSistema : contornoDeixa
     }
 
     static let contornoDeixa = Color(hex: 0x1C1C1E).opacity(0.35)
@@ -193,16 +211,31 @@ extension View {
 /// Aviso curto do calendário, na voz do app: verdade, sem desculpa.
 struct CalendarioToast: View {
     let texto: String
+    /// ADR 03e × 04a: aviso sem saída é beco. Quando o que falhou tem uma
+    /// volta — e a única que o iOS dá é os Ajustes — ela vem no próprio toast.
+    var ajustes = false
 
     var body: some View {
-        Text(texto)
-            .font(CalendarioTema.meta)
-            .foregroundStyle(.white)
-            .padding(.horizontal, 16)
-            .padding(.vertical, 10)
-            .background(CalendarioTema.chipActivo, in: Capsule())
-            .shadow(color: CalendarioTema.sombraFlutuante, radius: 16, y: 6)
-            .accessibilityIdentifier("calendario-toast")
+        HStack(spacing: 14) {
+            Text(texto)
+                .font(CalendarioTema.meta)
+                .foregroundStyle(.white)
+            if ajustes {
+                Button("Ajustes") {
+                    if let url = URL(string: UIApplication.openSettingsURLString) {
+                        UIApplication.shared.open(url)
+                    }
+                }
+                .font(CalendarioTema.meta.weight(.semibold))
+                .foregroundStyle(Tema.ambar)
+                .accessibilityIdentifier("toast-ajustes")
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+        .background(CalendarioTema.chipActivo, in: Capsule())
+        .shadow(color: CalendarioTema.sombraFlutuante, radius: 16, y: 6)
+        .accessibilityIdentifier("calendario-toast")
     }
 }
 

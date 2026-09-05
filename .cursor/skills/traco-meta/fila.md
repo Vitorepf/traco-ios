@@ -1,3 +1,12 @@
+# Fila histórica do caderno
+
+**Registro de 30–31/ago, não backlog operativo.** A lista abaixo conserva hipóteses e observações daquele período. Não é uma ordem para ampliar a régua, repetir correções ou aplicar exclusões antigas. Consulte [VISAO-PRODUTO](../../../VISAO-PRODUTO.md), [SPEC](../../../SPEC.md) e [EVOLUCAO](../../../EVOLUCAO.md) para propósito, contratos e estado atual; o pedido vigente define o trabalho autorizado.
+
+A antiga seção “Nunca fila” está revogada como regra global: produção delegada, providers autorizados, conversa contextual, busca semântica e acessibilidade seguem seus contratos atuais. A presença de uma ideia na visão tampouco a torna obrigatória nesta tarefa. Selagem, origem e prática escolhida continuam protegidas. Capturas e estados “feito” abaixo não certificam a versão atual.
+
+<details>
+<summary>Lista original — somente consulta histórica</summary>
+
 # Fila conhecida
 
 Não é roadmap. É dívida vista. O loop escolhe pelo quadro P0–P3 de SKILL.md, não pela ordem desta lista.
@@ -33,3 +42,5 @@ Actualiza quando uma linha morrer ou nascer. Sem ticket theatre.
 ## Nunca fila
 
 - API paga, chat, resumo, nuvem, busca semântica, Android, tema claro, gamificação, VoiceOver, iPad.
+
+</details>

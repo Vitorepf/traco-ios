@@ -1,6 +1,8 @@
 # Colheita — o que cada app dá ao Traço, e como entra
 
-> O `DOSSIE.md` julga; o `CATALOGO.md` inventaria; este arquivo DECIDE. Para cada
+**Classificação — propostas de pesquisa de 02/09/2026, com prioridades e premissas históricas.** A finalidade e a divisão de trabalho vigentes estão em [VISAO-PRODUTO.md](VISAO-PRODUTO.md); contratos aceitos, proteções e capacidades implementadas devem ser conferidos na [SPEC.md](SPEC.md) e no [README.md](README.md). Notas de esforço, “agora/depois/nunca”, “como entra” e pedidos de ADR não comprovam aprovação nem implementação. A concordância entre agentes sob o mesmo brief não equivale a validação independente da tese ou evidência científica.
+
+> O `DOSSIE.md` registra juízos; o `CATALOGO.md` inventaria; este arquivo reúne PROPOSTAS. Para cada
 > um dos 71 apps, um bloco diz o que vale pegar, como entra no Traço, que poder
 > da mente multiplica, que estrutura traz e o quanto eleva o produto.
 > A pergunta que manda em cada bloco não é "que recurso é este?" e sim
@@ -8,7 +10,7 @@
 > palavra-do-dia vira ferramenta de pensar, um app de tarefas vira ordem na
 > cabeça, e um segundo cérebro vira contexto perfeito para as IAs do autor.
 > Escrito por dez agentes: oito lotes de apps pensando com o mesmo brief, um
-> cientista cognitivo (capítulo dos poderes) e um arquiteto (capítulo do segundo
+> agente com tarefa de pesquisa cognitiva (capítulo dos poderes) e um com tarefa de arquitetura (capítulo do segundo
 > cérebro). A síntese do fim é do editor. Fatos de app vêm do catálogo; nada aqui
 > inventa função. Data: 2026-09-02.
 
@@ -28,12 +30,13 @@ Cada bloco de app começa com uma linha de metadados:
 Esforço: **S** dias · **M** semanas · **L** meses ou depende de ADR.
 Quando: **agora** cabe na FILA como P1 · **depois** P2/P3 · **nunca** o bloco existe para registrar o porquê.
 
-Regras que nenhuma adoção atravessa: as cinco de ferro do README, mais §17
-(fricção é bug), §19.4 (algoritmo primeiro), §3 (página nua) e §11 (motion
-mínimo). Onde uma adoção contradiz a SPEC, o bloco diz o que pediria de ADR em
-vez de fingir que cabe.
+**Critério operativo atual de adoção:** servir à intenção e à realização, preservar origem e privacidade, escolher apoio ou prática conforme o objetivo e verificar resultados proporcionalmente. IA pode produzir trabalho delegado; escrita pessoal e exercício escolhido não podem ser substituídos silenciosamente. A forma de entrada pode começar por uma intenção, não somente por uma nota nua. Conferir decisões aceitas na SPEC antes de tratar uma proposta como requisito.
 
-## Os dez poderes da mente
+**Premissa usada na pesquisa original:** os blocos foram escritos sob as antigas “cinco regras de ferro”, página nua e lista fechada de usos da IA. Suas referências numéricas e proibições documentam aquela configuração. Não transferir a recusa de geração na nota pessoal para artefatos de Trabalho, nem inferir que gerar código ou resumos sempre causa dívida cognitiva.
+
+## Os dez poderes da mente — enquadramento de pesquisa
+
+As associações entre métodos, cognição e produtos abaixo são interpretações do levantamento, com fontes preservadas. Não constituem diagnóstico, prescrição clínica, garantia de ganho ou validação experimental do Traço. A definição operacional atual de dívida cognitiva é contextual: importa a capacidade ainda necessária à autonomia pretendida, não a quantidade de trabalho delegada.
 
 Cada app deste documento é lido duas vezes: uma pelo que diz que é, outra pelo que faz com a mente de quem usa. Este capítulo fixa a segunda leitura. Dez poderes, e para cada um: o mecanismo que o faz crescer de verdade, a armadilha que só parece fazê-lo crescer, quem executa melhor entre os 71, o que o Traço já faz, e o salto que falta.
 
@@ -47,7 +50,7 @@ Cada app deste documento é lido duas vezes: uma pelo que diz que é, outra pelo
 
 **Quem faz melhor hoje.** Anki: SM-2 e FSRS, um cartão por tela, tipo de nota "type in the answer", nenhuma gamificação. Mochi: resposta binária Remembered/Forgot, FSRS, local-first, sem streak encontrado. SuperMemo: SM-18 e a Algorithm Arena, onde cinco algoritmos competem nos dados da própria pessoa.
 
-**O que o Traço já faz.** Recordar (§7): a nota some, o autor escreve de memória, Revelar põe os dois lado a lado; sem nota da IA, sem score — o olho compara. Escada de revisão 3→7→21 e notificação sem conteúdo da nota (§19.2); a notificação abre direto no Recordar; o widget tem um atalho para ele (traco://recordar). Busca é arquivo, não memória (§16).
+**Estado do Traço descrito na pesquisa original.** Recordar (§7): a nota some, o autor escreve de memória, Revelar põe os dois lado a lado; sem nota da IA, sem score — o olho compara. Escada de revisão 3→7→21 e notificação sem conteúdo da nota (§19.2); a notificação abre direto no Recordar; o widget tem um atalho para ele (traco://recordar). Busca é arquivo, não memória (§16).
 
 **O que falta.** A escada é fixa e cega: não sabe se o autor lembrou, e cobra toda nota igual, quando poucas merecem ser lembradas. O espaçamento ainda não reage ao que a comparação mostrou.
 
@@ -61,7 +64,7 @@ Cada app deste documento é lido duas vezes: uma pelo que diz que é, outra pelo
 
 **Quem faz melhor hoje.** one sec: pausa antes de abrir o app-alvo, Re-Intervention que expulsa depois de X minutos, lógica toda local. Flowstate: cinco segundos sem digitar apagam tudo; o texto só é salvo quando o timer termina. TIDE: timer com modo imersivo e lista de apps permitidos, sem streak encontrado.
 
-**O que o Traço já faz.** A página abre nua, escura, cursor pronto, sem placeholder (§3). Na escrita não há chrome nenhum (§20). Nada anima enquanto o autor digita (§11). Um gesto por sessão (§4). A Expressiva tem timer de 15 minutos e a Análise cala durante ele (§8, §15). O Destaque é uma forma de um campo só: a única coisa de hoje (§6).
+**Estado do Traço descrito na pesquisa original.** A página abre nua, escura, cursor pronto, sem placeholder (§3). Na escrita não há chrome nenhum (§20). Nada anima enquanto o autor digita (§11). Um gesto por sessão (§4). A Expressiva tem timer de 15 minutos e a Análise cala durante ele (§8, §15). O Destaque é uma forma de um campo só: a única coisa de hoje (§6).
 
 **O que falta.** O atrito contra a fuga só existe dentro da Expressiva. Fora dela, a página nua não segura o autor que sai do app, e o Destaque escrito não acompanha o dia — fica na nota.
 
@@ -75,7 +78,7 @@ Cada app deste documento é lido duas vezes: uma pelo que diz que é, outra pelo
 
 **Quem faz melhor hoje.** Things 3: Inbox, Today com This Evening, Upcoming, Anytime, Someday, Logbook; Área > Projeto > Cabeçalho; nenhuma gamificação. TickTick: caixa única, Smart Recognition da data dentro do texto, Matriz de Eisenhower, e Pasta > Lista > Seção para separar trabalho de vida — o exemplo do dono de pôr a cabeça em harmonia.
 
-**O que o Traço já faz.** Auto-forma (§17): a IA veste o texto sem tocá-lo, um toque solta. Régua de 12 como atalho opcional (ADR 31b); digitação viva com a forma vestindo ao soltar o teclado (ADR 31i). Notas com busca, filtros por gesto e seções por mês (§16, §19.2). Três destinos e uma ação (§20).
+**Estado do Traço descrito na pesquisa original.** Auto-forma (§17): a IA veste o texto sem tocá-lo, um toque solta. Régua de 12 como atalho opcional (ADR 31b); digitação viva com a forma vestindo ao soltar o teclado (ADR 31i). Notas com busca, filtros por gesto e seções por mês (§16, §19.2). Três destinos e uma ação (§20).
 
 **O que falta.** A ordem do Traço é dentro da nota, não entre notas: não há domínio de vida, e a nota concluída não tem destino além do arquivo por mês.
 
@@ -89,7 +92,7 @@ Cada app deste documento é lido duas vezes: uma pelo que diz que é, outra pelo
 
 **Quem faz melhor hoje.** Signal vs Noise: texto bruto → 200 → 100 → 50 caracteres → uma frase, Hard Mode irreversível, sem IA por princípio. iA Writer: Syntax Highlight pinta adjetivos, substantivos, advérbios e verbos, Style Check acha fillers e clichês localmente, Authorship marca o que veio de IA. Vocabulary: uma palavra por tela, com etimologia, exemplos e sinônimos, em ritmo diário.
 
-**O que o Traço já faz.** Quase nada — mas protege o material: a IA nunca completa, resume ou melhora (§2, §19.1). A busca indexa só a voz do autor (§16), Padrões cita fragmento literal (§9), a Nota permanente pede "uma ideia nas suas palavras" (§6), e o aviso de afirmação vazia exige escrever por que um valor importa (§5).
+**Estado do Traço descrito na pesquisa original.** Quase nada — mas protege o material: a IA nunca completa, resume ou melhora (§2, §19.1). A busca indexa só a voz do autor (§16), Padrões cita fragmento literal (§9), a Nota permanente pede "uma ideia nas suas palavras" (§6), e o aviso de afirmação vazia exige escrever por que um valor importa (§5).
 
 **O que falta.** Tudo que treina, e não só preserva: uma forma que corta em vez de acrescentar, a palavra da emoção na Expressiva, e o vocabulário do próprio autor como material — as palavras que ele usa e as que nunca usa.
 
@@ -103,7 +106,7 @@ Cada app deste documento é lido duas vezes: uma pelo que diz que é, outra pelo
 
 **Quem faz melhor hoje.** Zenpen: escrever sem parar, o texto desaparece em 30 segundos, sem conta, e a orientação de não escrever todo dia. Rescript: sessões cronometradas de 15–20 min por quatro dias, e ao fim selar, queimar ou deixar na mesa — sem streak por decisão de design. MindScribber: 15 minutos por dia, três dias, com jogo de vocabulário emocional.
 
-**O que o Traço já faz.** Expressiva (§8): timer de 15 min, instrução única (fato e sentimento), grava e sela antes do fecho; fecho com dois métodos validados, Selar (Pennebaker) e Queimar (Briñol), Queimar verdadeiro em toda rota. A linha de sentido é do autor, pulável, e é a única coisa que sai. A Análise nunca comenta uma expressiva. Pedido de consolo recebe aviso (§5); reabrir trancada exige dupla confirmação e Face ID.
+**Estado do Traço descrito na pesquisa original.** Expressiva (§8): timer de 15 min, instrução única (fato e sentimento), grava e sela antes do fecho; fecho com dois métodos validados, Selar (Pennebaker) e Queimar (Briñol), Queimar verdadeiro em toda rota. A linha de sentido é do autor, pulável, e é a única coisa que sai. A Análise nunca comenta uma expressiva. Pedido de consolo recebe aviso (§5); reabrir trancada exige dupla confirmação e Face ID.
 
 **O que falta.** O protocolo original é de três a quatro sessões; o Traço sela uma e não volta. E a linha de sentido, uma vez escrita, não tem retorno — entra na busca, mas nada a traz de volta no momento certo.
 
@@ -117,7 +120,7 @@ Cada app deste documento é lido duas vezes: uma pelo que diz que é, outra pelo
 
 **Quem faz melhor hoje.** WOOP app: quatro passos guiados, "se [obstáculo], então eu [ação]", lembretes recorrentes, grátis, sem IA. one sec: o autor declara a intenção antes de o app-alvo abrir. Things 3: Today e This Evening como recorte do dia, sem placar.
 
-**O que o Traço já faz.** Quatro formas de intenção (§6): WOOP com obstáculo interno, Se–então com substituto e não negação, Especificação com "o que eu NÃO vou fazer", Destaque com a única coisa de hoje. Campos nascem vazios (§2, §4); a pergunta é sempre o próximo campo vazio (§19.4). Plano sem obstáculo recebe aviso (§5). A forma é roteada sozinha (§17).
+**Estado do Traço descrito na pesquisa original.** Quatro formas de intenção (§6): WOOP com obstáculo interno, Se–então com substituto e não negação, Especificação com "o que eu NÃO vou fazer", Destaque com a única coisa de hoje. Campos nascem vazios (§2, §4); a pergunta é sempre o próximo campo vazio (§19.4). Plano sem obstáculo recebe aviso (§5). A forma é roteada sozinha (§17).
 
 **O que falta.** Escrever a intenção é metade. O Traço não volta para perguntar se o gatilho disparou: o WOOP salvo nunca é cobrado, o Se–então não sabe a hora nem o lugar, o Destaque não sabe se aconteceu.
 
@@ -131,7 +134,7 @@ Cada app deste documento é lido duas vezes: uma pelo que diz que é, outra pelo
 
 **Quem faz melhor hoje.** Whoop e Oura acertam a parte honesta: o autor marca comportamentos no Journal e o app cruza com o medido e mostra correlação (Discovery Hub, Monthly Performance Assessment) — o erro é a nota. Rosebud responde com links às entradas: a citação é o certo, a resposta é a armadilha. 750 Words mede o próprio processo — tempo até 750 palavras, distrações, palavras por minuto — sem LLM.
 
-**O que o Traço já faz.** Padrões (§9): só quando pedido, lê as últimas ~12 notas não-trancadas, devolve 2–3 perguntas citando fragmento literal; a pergunta vira cartão fixo e o autor responde na página vazia; proibido conclusão, diagnóstico e dashboard. Verificação dura (§19.4): tem "?" e cada trecho entre aspas existe literalmente, ou é descartada. Recordar é o outro espelho: comparação lado a lado, sem nota (§7).
+**Estado do Traço descrito na pesquisa original.** Padrões (§9): só quando pedido, lê as últimas ~12 notas não-trancadas, devolve 2–3 perguntas citando fragmento literal; a pergunta vira cartão fixo e o autor responde na página vazia; proibido conclusão, diagnóstico e dashboard. Verificação dura (§19.4): tem "?" e cada trecho entre aspas existe literalmente, ou é descartada. Recordar é o outro espelho: comparação lado a lado, sem nota (§7).
 
 **O que falta.** Padrões não tem memória de si: a pergunta feita, a resposta dada e o que mudou não se ligam. E o Recordar mostra a comparação uma vez e ela some — o autor nunca vê onde a própria estimativa costuma errar.
 
@@ -145,7 +148,7 @@ Cada app deste documento é lido duas vezes: uma pelo que diz que é, outra pelo
 
 **Quem faz melhor hoje.** Shazam: um toque, Central de Controle, botão de Ação, Siri sem o app instalado, fila offline — o resultado chega depois. Drafts: abre em rascunho novo com o teclado pronto, captura pelo Watch, folha de compartilhamento com Quick Capture sem interação. Câmera na tela bloqueada: ação de sistema sem desbloquear — o teto de ambição. Obsidian: "Capture to Daily Note" roda em segundo plano, sem abrir o app.
 
-**O que o Traço já faz.** Widget de dois atalhos (U4): um toque abre a página em branco (traco://nova), outro o Recordar (traco://recordar). Atalhos, Siri, traco:// e Spotlight (§19.2). A página abre com cursor em menos de um segundo (§13). Trocar de tela salva; navegar nunca custa uma palavra (§20).
+**Estado do Traço descrito na pesquisa original.** Widget de dois atalhos (U4): um toque abre a página em branco (traco://nova), outro o Recordar (traco://recordar). Atalhos, Siri, traco:// e Spotlight (§19.2). A página abre com cursor em menos de um segundo (§13). Trocar de tela salva; navegar nunca custa uma palavra (§20).
 
 **O que falta.** O widget abre a página, mas nada entra por ela de fora: sem folha de compartilhamento, sem voz, sem captura da tela bloqueada. O traço ainda precisa do teclado e do app aberto.
 
@@ -159,7 +162,7 @@ Cada app deste documento é lido duas vezes: uma pelo que diz que é, outra pelo
 
 **Quem faz melhor hoje.** Obsidian: uma pasta local de arquivos Markdown, Importer de mais de dez fontes, File recovery, sync ponta a ponta opcional. iA Writer: arquivos de texto simples em iCloud ou Files, "iA Inc does not have access to any of the user's content", Style Check e Authorship processados no aparelho. Drafts: backups .draftsExport periódicos, histórico de versões, Advanced Data Protection ponta a ponta.
 
-**O que o Traço já faz.** SwiftData local, sem nuvem, sem conta (§10, §12). Export e import Markdown com gesto e campos preservados; backup automático; busca sem acento; seções por mês (§19.2). Nota antiga nunca quebra: o catálogo completo de formas permanece no formato de arquivo (ADR 31b). Selo em toda rota de saída, Queimar verdadeiro por rota (§8, §19.2). Apagar com atrito (ADR f). Exportar e importar moram no Perfil (§20).
+**Estado do Traço descrito na pesquisa original.** SwiftData local, sem nuvem, sem conta (§10, §12). Export e import Markdown com gesto e campos preservados; backup automático; busca sem acento; seções por mês (§19.2). Nota antiga nunca quebra: o catálogo completo de formas permanece no formato de arquivo (ADR 31b). Selo em toda rota de saída, Queimar verdadeiro por rota (§8, §19.2). Apagar com atrito (ADR f). Exportar e importar moram no Perfil (§20).
 
 **O que falta.** O .md ainda é backup do SwiftData, não a fonte: o arquivo não sobrevive ao app por si. E não há histórico de versões — a nota editada perde a anterior.
 
@@ -173,7 +176,7 @@ Cada app deste documento é lido duas vezes: uma pelo que diz que é, outra pelo
 
 **Quem faz melhor hoje.** Obsidian: o corpus é a pasta, o CLI cobre cerca de 30 áreas de comando, e não há IA nativa no app. Drafts: servidor MCP e CLI, ações que chamam os modelos com a chave do próprio usuário, Apple Intelligence no aparelho para resumo e tags. Fabric: a ambição completa — MCP, CLI, API, agents, memória — na nuvem, com créditos.
 
-**O que o Traço já faz.** Não tem seção na SPEC: é direção nova do dono (02/set). O que já serve a ela: corpus local em Markdown exportável (§19.2); só a voz do autor viaja, sem mobiliário nem anexos (§19.1); nota trancada e expressiva jamais saem do aparelho (§19.1); zero servidor próprio, zero conta obrigatória, zero cobrança por token (§5, README).
+**Estado do Traço descrito na pesquisa original.** Não tem seção na SPEC: é direção nova do dono (02/set). O que já serve a ela: corpus local em Markdown exportável (§19.2); só a voz do autor viaja, sem mobiliário nem anexos (§19.1); nota trancada e expressiva jamais saem do aparelho (§19.1); zero servidor próprio, zero conta obrigatória, zero cobrança por token (§5, README).
 
 **O que falta.** Uma porta de saída que não seja exportar à mão — o corpus chegar às IAs do autor com o selo valendo — e o ADR que isso exige: §12 lista sync, nuvem e busca semântica como não-objetivos, e §19 diz que só a voz do autor viaja.
 
@@ -205,11 +208,15 @@ Cada app deste documento é lido duas vezes: uma pelo que diz que é, outra pelo
 
 - Segundo cérebro é a soma: só vale se os outros nove estiverem vivos. Corpus escrito por IA é contexto de ninguém.
 
-### O que nenhum dos 71 faz
+### O que nenhum dos 71 faz — hipótese histórica de diferenciação
+
+A exclusividade e a certeza de “100% autor” abaixo não são garantias vigentes. Origem precisa de registro verificável por conteúdo; ter um corpus de notas não prova autoria integral nem representação completa da pessoa.
 
 Os 71 dividem os dez poderes em 71 produtos: o Anki guarda a memória, o TickTick a ordem, o Rescript o sentido, o Fabric o segundo cérebro — cada um com o próprio cofre, cada um exigindo que o autor fabrique um segundo artefato (cartão, tarefa, entrada) para servir àquele poder. O Traço aposta que a mesma nota, escrita uma vez, serve aos dez: é o que foi capturado, arquivado, vestido, cobrado, perguntado e entregue como contexto. A mesma regra de ferro governa os dez — a IA nunca escreve — e isso faz do corpus a única coisa no mercado que uma IA pode receber como contexto com a certeza de que é 100% o autor. Nenhum dos 71 tem uma nota que o próprio produto se recusa a ler; o Traço tem, e é ela que torna o resto confiável.
 
-### O critério para cada adoção
+### O critério para cada adoção — proposta da pesquisa original
+
+**Uso atual:** não aplicar os itens 2 e 3 como veto à delegação. A realização pode depender legitimamente de ferramentas; preservar autonomia não exige reproduzir sozinho tudo que foi delegado. O limite é substituir uma capacidade ou prática ainda necessária ao objetivo sem reconhecer essa escolha.
 
 1. A pergunta não é "que recurso é este?", é "que poder da mente isto multiplica, e como?" — com o mecanismo nomeado, ou não entra.
 
@@ -223,11 +230,15 @@ Os 71 dividem os dez poderes em 71 produtos: o Anki guarda a memória, o TickTic
 
 ---
 
-## O segundo cérebro: o corpus como contexto perfeito
+## O segundo cérebro: proposta histórica de corpus como contexto
+
+“Contexto perfeito” e “mente inteira”, no texto original abaixo, são formulações da pesquisa de 02/09, não propriedades demonstradas. O capítulo continua preservado como fonte de propostas; o limite vigente está explicitado a seguir.
 
 `poder: Segundo cérebro (novo) · toca Arquivo, Intenção, Sentido, Captura` · direção declarada pelo dono em 02/set/2026 · ainda sem seção na SPEC
 
-### A direção do dono, em uma frase
+### A direção do dono, em uma frase — interpretação registrada em 02/09
+
+Esta formulação do levantamento não substitui a explicação direta do criador consolidada em VISAO-PRODUTO em 05/09.
 
 O Traço não guarda só a mente do autor: entrega essa mente, inteira e
 estruturada, a cada IA que ele usa — Claude, ChatGPT, Grok, Raycast — para que
@@ -240,7 +251,11 @@ viajar também para as outras IAs, pelas rotas de export que o §19.2 já chama
 de algoritmo ("Arquivo", "Sistema"). Nada volta; nenhuma IA ganha porta de
 escrita. A regra 10 fica de pé: sem servidor, o corpus vai direto ao autor.
 
-### O que faz um corpus ser "contexto perfeito"
+### Limite vigente do capítulo de segundo cérebro
+
+O corpus de notas é uma fonte parcial de contexto. Não representa a mente inteira nem fornece contexto perfeito. O modelo da pessoa deve distinguir observação, relato e hipótese, com fonte e correção possível. O fluxo atual admite produção delegada em Trabalho e intercâmbio Markdown com proveniência; não se reduz a exportação de notas nem a “nada volta”. O MCP de notas conserva permissões próprias: consulte [seu contrato operativo](ferramentas/traco-mcp/README.md), sem deduzir delas os limites de todo o produto. Os desenhos de canal e ADRs a seguir são propostas históricas, não autorização para ampliar rotas de dados privados.
+
+### O que a pesquisa chamou de "contexto perfeito"
 
 O não-óbvio: a IA não precisa de mais prosa sobre o autor. Precisa de DADOS
 sobre a intenção dele — e as formas do §6 já são isso. Um WOOP exportado
@@ -413,7 +428,9 @@ ADR. Risco: mais notas, mais tentação de conclusão e placar — §9.4 proíbe
 7. **§9 "as últimas ~12 notas".** "As 12 mais pertinentes, por algoritmo
    local; o teto de 12 fica — é o que cabe na verificação e no pool."
 
-### A armadilha do Fabric
+### A armadilha do Fabric — interpretação histórica
+
+A oposição abaixo entre máquinas “fora” e mente “dentro” não rege o propósito vigente. Recuperação assistida, prática e produção podem coexistir no Traço; a divisão depende da intenção. A antiga ausência de retorno/MCP de escrita/chat não deve ser tratada como estado atual.
 
 Recuperar não é formar (VIZINHANCA, "O vão" 4): Fabric vende achar por
 significado para nunca precisar lembrar — o adversário conceitual do §7. O
@@ -470,7 +487,7 @@ O canal 7 fica depois: é o único que melhora o Traço por dentro, e pede ADR a
 
 **O quanto eleva.** 3: não abre poder novo, mas o selo é o mecanismo do Sentido, e mecanismo com furo não é polimento — é método quebrado. O autor sente na primeira vez que troca de app no meio de um desabafo.
 
-**O que fica de fora.** Cofres, coleções, tags. Watchtower com "pontuação de segurança": placar (regra 5). Histórico de versões por item: no Traço a nota é o que o autor deixou, e guardar rascunhos é convidar a reler — §3 diz que reler é o anti-padrão. Travel Mode (esconder cofres por contexto) pede domínios de vida que o Traço não tem.
+**O que fica de fora — proposta histórica.** Cofres, coleções, tags. Watchtower com "pontuação de segurança": placar (regra 5). Histórico de versões por item: no Traço a nota é o que o autor deixou, e guardar rascunhos é convidar a reler — §3 diz que reler é o anti-padrão. Travel Mode (esconder cofres por contexto) pede domínios de vida que o Traço não tem.
 
 **O não-óbvio.** O 1Password é um app de NÃO lembrar: existe para a cabeça largar o que pode ser confiado ao cofre — e só funciona porque a recuperação é instantânea e nunca falha. O Traço tem as duas metades e precisa deixá-las claras: Notas/busca é o cofre (offloading — o que está lá, a cabeça pode soltar), Recordar é o treino (o que o autor decidiu carregar). A escada 3→7→21 precisa de um critério para saber qual nota é qual, e o 1Password sugere o critério sem perguntar nada: ele ordena por frequência de uso. A nota que o autor nunca reabriu depois de Concluída é cofre; a que ele reabriu é candidata a memória.
 
@@ -495,7 +512,7 @@ O canal 7 fica depois: é o único que melhora o Traço por dentro, e pede ADR a
 
 **O quanto eleva.** 2: roteia melhor e mede sem placar, mas não muda o que o app faz pela mente. O que o 750 Words faz de melhor — a cota como único mecanismo — o Traço já tem como timer, na versão com mais evidência (Pennebaker, 15 minutos).
 
-**O que fica de fora.** Pontos, streaks, badges de animais, Wall of Shame, tempo até 750 palavras, contagem de distrações, palavras por minuto — §12 e regra 5, por nome. Silly Robot (prompts diários da IA a partir da entrada de ontem): §3 proíbe prompt no vazio e §2 proíbe a IA propor tema. O "daily nudge": o Traço cobra memória, não presença — notificação para escrever é streak disfarçado.
+**O que fica de fora — proposta histórica.** Pontos, streaks, badges de animais, Wall of Shame, tempo até 750 palavras, contagem de distrações, palavras por minuto — §12 e regra 5, por nome. Silly Robot (prompts diários da IA a partir da entrada de ontem): §3 proíbe prompt no vazio e §2 proíbe a IA propor tema. O "daily nudge": o Traço cobra memória, não presença — notificação para escrever é streak disfarçado.
 
 **O não-óbvio.** O 750 Words é o único app do lote que provou um classificador de afeto SEM modelo, por dicionário, e vendeu isso por quinze anos. É a doutrina do §19.4 num produto vivo: o que fecha em regra é regra. O erro deles é mostrar o resultado (gráfico de emoções); o acerto do Traço é usar o mesmo sinal calado, só para decidir se veste Expressiva ou fica em silêncio.
 
@@ -521,7 +538,7 @@ O canal 7 fica depois: é o único que melhora o Traço por dentro, e pede ADR a
 
 **O quanto eleva.** 5: abre o poder que o Traço hoje não multiplica — o corpus como contexto perfeito para as IAs do autor — com o que já existe (backup .md) mais um cabeçalho. E dá à Memória o alvo certo.
 
-**O que fica de fora.** Agenda e calendário (§12). Task Score exibido, Victory Value, rastreador de humor correlacionado, badges, coins, grupos de metas: placar. O Ample Agent que "refina linguagem, resume, limpa": regra 1. MCP com escrita: nenhuma IA escreve no corpus, nem de fora — a pasta é só leitura. Markdown cru na cara do autor (lei do dono, 31/ago). Jots futuros: nota entregue numa data é agenda disfarçada; o gatilho por nota vive no bloco do Lembretes.
+**O que fica de fora — proposta histórica.** Agenda e calendário (§12). Task Score exibido, Victory Value, rastreador de humor correlacionado, badges, coins, grupos de metas: placar. O Ample Agent que "refina linguagem, resume, limpa": regra 1. MCP com escrita: nenhuma IA escreve no corpus, nem de fora — a pasta é só leitura. Markdown cru na cara do autor (lei do dono, 31/ago). Jots futuros: nota entregue numa data é agenda disfarçada; o gatilho por nota vive no bloco do Lembretes.
 
 **O não-óbvio.** O Amplenote descobriu que a atenção dada a uma nota (dias em que foi aberta) é sinal mais honesto de importância do que qualquer tag — e escondeu isso dentro de um placar. Tirado o placar, sobra um fato que Padrões cita sem inventar nada. E a segunda leitura da pasta: quando as IAs do autor leem o corpus, o Traço deixa de ser um app de notas e vira a memória de trabalho de todas as ferramentas dele. O poder multiplicado não é só o do autor — é o de tudo o que ele usa.
 
@@ -547,7 +564,7 @@ O canal 7 fica depois: é o único que melhora o Traço por dentro, e pede ADR a
 
 **O quanto eleva.** 4: a Memória do Traço hoje para no dia 21; com a escada aberta, a nota que o autor decidiu reter fica retida por anos, e o julgamento dele passa a contar. Salto grande num poder que já existe.
 
-**O que fica de fora.** O diff de "type in the answer": o olho comparando é o método (§7) — a máquina marcando o que faltou tira do autor justamente o ato de notar. Cloze: pista é o que O vão 1 recusa. Quatro botões, retenção desejada, fator de facilidade, dezenas de opções por baralho: §17 chama isso de fricção. Estatísticas e gráficos: placar.
+**O que fica de fora — proposta histórica.** O diff de "type in the answer": o olho comparando é o método (§7) — a máquina marcando o que faltou tira do autor justamente o ato de notar. Cloze: pista é o que O vão 1 recusa. Quatro botões, retenção desejada, fator de facilidade, dezenas de opções por baralho: §17 chama isso de fricção. Estatísticas e gráficos: placar.
 
 **O não-óbvio.** O revlog do Anki, em texto no front matter, transforma o arquivo num mapa do que está DE FATO na cabeça do autor — não só do que ele escreveu. Para o segundo cérebro isso muda tudo: a IA que lê a pasta distingue a ideia que o autor tem de cor da que ele anotou uma vez e nunca mais viu. Nenhum app de notas dá esse sinal às IAs; o Anki tem o dado e não tem as notas.
 
@@ -573,7 +590,7 @@ O canal 7 fica depois: é o único que melhora o Traço por dentro, e pede ADR a
 
 **O quanto eleva.** 4: dois poderes de uma vez — Captura de fora do app e Memória pelo ato certo — e a primeira ferramenta de Linguagem do Traço nasce sem uma linha de IA.
 
-**O que fica de fora.** Metas de leitura, streaks, notificações de coaching (§12). O destaque como fim em si: o trecho nunca entra sem o campo vazio abaixo dele. A loja.
+**O que fica de fora — proposta histórica.** Metas de leitura, streaks, notificações de coaching (§12). O destaque como fim em si: o trecho nunca entra sem o campo vazio abaixo dele. A loja.
 
 **O não-óbvio.** "Traduzir, buscar e copiar seleção" é menu do sistema: Look Up e Translate existem em qualquer campo de texto do iOS, de graça. O Traço não tem dicionário — e não precisa de um; precisa não suprimir o menu nativo na seleção. Linguagem entra por omissão de código. Segunda leitura: o Books nunca pergunta o que o leitor achou; só guarda o que ele marcou. O Traço é a pergunta que falta — e a Fonte com link dá ao segundo cérebro a proveniência de cada ideia.
 
@@ -600,7 +617,7 @@ O canal 7 fica depois: é o único que melhora o Traço por dentro, e pede ADR a
 
 **O quanto eleva.** 3: o autor sente no primeiro dia — as notas antigas dentro, a captura sem abrir o app — sem mudar o que o Traço faz pela mente.
 
-**O que fica de fora.** Writing Tools (resumir, revisar, reescrever) e Image Wand: a antítese da regra 1, e a maior ameaça do produto por vir de graça. Math Notes: a página é para pensar, não calcular — e um resultado inserido pelo app é texto que não é do autor. O bloqueio do Notes como contraexemplo: título visível e "abrir uma abre todas" são os dois furos que o §8 fecha. Smart Folders e tags: Notas não é o altar (§3); um filtro por vez.
+**O que fica de fora — proposta histórica.** Writing Tools (resumir, revisar, reescrever) e Image Wand: a antítese da regra 1, e a maior ameaça do produto por vir de graça. Math Notes: a página é para pensar, não calcular — e um resultado inserido pelo app é texto que não é do autor. O bloqueio do Notes como contraexemplo: título visível e "abrir uma abre todas" são os dois furos que o §8 fecha. Smart Folders e tags: Notas não é o altar (§3); um filtro por vez.
 
 **O não-óbvio.** O Notes provou que "nota nova a cada abertura" é o padrão certo para captura — o §3 do Traço tem precedente no sistema, e o autor de primeira viagem já foi treinado por ele. Segunda leitura: a transcrição de áudio no aparelho, em português. Pennebaker testou a expressiva falada e ela funciona. Uma expressiva por voz — timer rodando, o autor fala, o texto é dele — seria a versão para quem não consegue digitar quinze minutos. É ADR (§8 diz "escreve"), e é depois.
 
@@ -626,7 +643,7 @@ O canal 7 fica depois: é o único que melhora o Traço por dentro, e pede ADR a
 
 **O quanto eleva.** 3: fecha o buraco que a escada abriu ao virar automática — o autor sente na primeira revisão que não quer.
 
-**O que fica de fora.** Memórias com música (a máquina decidindo que a dor virou conteúdo — §2 proíbe o equivalente). Busca em linguagem natural (§12). Anos e Meses "curados" para a lista de Notas: um algoritmo escondendo notas "parecidas" decide o que importa — é a conclusão que §9 proíbe. Clean Up: edita conteúdo.
+**O que fica de fora — proposta histórica.** Memórias com música (a máquina decidindo que a dor virou conteúdo — §2 proíbe o equivalente). Busca em linguagem natural (§12). Anos e Meses "curados" para a lista de Notas: um algoritmo escondendo notas "parecidas" decide o que importa — é a conclusão que §9 proíbe. Clean Up: edita conteúdo.
 
 **O não-óbvio.** O Fotos é a maior máquina de memória involuntária do telefone; o Traço é a de memória voluntária. A lição não é o cadeado (o DOSSIE já disse) — é que a Apple precisou de quatro controles de opt-out (dia, lugar, pessoa, feriado) porque a escolha do que ressurgir era inteligente. A escada do Traço é burra de propósito (§19.4: regra, não modelo) e por isso precisa de UM controle, não quatro. Burro é mais seguro quando o assunto é o passado de alguém.
 
@@ -650,7 +667,7 @@ O canal 7 fica depois: é o único que melhora o Traço por dentro, e pede ADR a
 
 **O quanto eleva.** 4: Intenção existe no Traço como texto; com o gatilho, a forma vira o dispositivo que o método pede. E a captura ganha a porta mais curta do sistema.
 
-**O que fica de fora.** Listas, seções, tags, Smart Lists, modelos de lista (templates em menu, §12), lista de compras. "Sugestões de tarefas a partir de texto com Include All": IA extraindo o que fazer do texto do autor é IA escrevendo. When Messaging: API fechada da Apple. A notificação que reaparece até marcar feito: cobrança sem consequência ensina a ignorar — o gatilho do Traço dispara uma vez.
+**O que fica de fora — proposta histórica.** Listas, seções, tags, Smart Lists, modelos de lista (templates em menu, §12), lista de compras. "Sugestões de tarefas a partir de texto com Include All": IA extraindo o que fazer do texto do autor é IA escrevendo. When Messaging: API fechada da Apple. A notificação que reaparece até marcar feito: cobrança sem consequência ensina a ignorar — o gatilho do Traço dispara uma vez.
 
 **O não-óbvio.** "Sugestões de itens repetidos ao digitar texto já concluído" é o Lembretes lembrando o que você já quis antes — um Padrões de uma linha, algorítmico, no momento da escrita. No Traço a versão honesta não é sugerir: é o fato para Padrões citar — "você armou 'ler à noite' três vezes e desarmou duas". Segunda leitura: o Lembretes prova que o sistema operacional aceita ser o "se" de qualquer app. O Traço não precisa virar agenda para que o telefone execute o que o autor escreveu.
 
@@ -675,7 +692,7 @@ O canal 7 fica depois: é o único que melhora o Traço por dentro, e pede ADR a
 
 **O quanto eleva.** 4: Atenção e Intenção de uma vez, e o Destaque deixa de ser um campo que ninguém vê depois de fechar a nota. Fica em "depois" porque depende do ADR de conteúdo na tela bloqueada, que o Lembretes abre primeiro.
 
-**O que fica de fora.** Pagamento, chaves, ingressos — nada. O duplo clique no botão lateral é reservado ao sistema; o botão de Ação (Lembretes) é o equivalente aberto. O rastreamento de pedidos por IA a partir do Mail: IA lendo e escrevendo por você.
+**O que fica de fora — proposta histórica.** Pagamento, chaves, ingressos — nada. O duplo clique no botão lateral é reservado ao sistema; o botão de Ação (Lembretes) é o equivalente aberto. O rastreamento de pedidos por IA a partir do Mail: IA lendo e escrevendo por você.
 
 **O não-óbvio.** O Wallet é o único app da Apple sem gordura porque só faz uma coisa por vez, no momento certo, e depois some — e o "depois some" é a parte esquecida. Expirar é uma função de Ordem: a pilha fica limpa porque o tempo remove, não o usuário. O Destaque que expira sozinho é a única forma do Traço que deveria ter data de validade — e é o que o distingue de uma lista de tarefas: não acumula.
 
@@ -700,7 +717,7 @@ O canal 7 fica depois: é o único que melhora o Traço por dentro, e pede ADR a
 
 **O quanto eleva.** 4 — o Se–então hoje é frase que o autor tem de lembrar; com a pista entregue pelo sistema ele vira gatilho de verdade, e a captura ganha o Watch e o botão de Ação sem tela.
 
-**O que fica de fora.** A Galeria de atalhos prontos (template em menu, §12). As ações "Use Model", Fazer Lista, Fazer Tabela, Resumir e Reescrever: o Traço não expõe nenhuma ação que passe por modelo. O que o autor encadeia por conta própria fora do app é dele — a regra do §2 é sobre a IA do Traço, e ela continua não escrevendo.
+**O que fica de fora — proposta histórica.** A Galeria de atalhos prontos (template em menu, §12). As ações "Use Model", Fazer Lista, Fazer Tabela, Resumir e Reescrever: o Traço não expõe nenhuma ação que passe por modelo. O que o autor encadeia por conta própria fora do app é dele — a regra do §2 é sobre a IA do Traço, e ela continua não escrevendo.
 
 **O não-óbvio.** O Atalhos parece ferramenta de automação. Visto pela pergunta certa, a tela de gatilhos dele é a lista de "Se" do §6 pronta e operável pelo sistema: local, hora, alarme, Foco, fim de treino. O Traço nunca precisará de agenda (§12) — o relógio e o mapa do autor já estão no Atalhos; basta o Traço ser um "Então" endereçável por nota.
 
@@ -724,7 +741,7 @@ O canal 7 fica depois: é o único que melhora o Traço por dentro, e pede ADR a
 
 **O quanto eleva.** 5 — abre o poder que o Traço hoje não multiplica (segundo cérebro para as IAs do autor) pela via que a regra 2 exige: escopo antes de exposição.
 
-**O que fica de fora.** Tags e Workspace: o Traço não tem tag por decisão (a forma nasce da palavra, §17), e "domínio de vida" é assunto de outro bloco. Sync por CloudKit (§12). Bear Web. O widget "última nota editada" mostrando conteúdo: reler cartões é o anti-padrão do §3.
+**O que fica de fora — proposta histórica.** Tags e Workspace: o Traço não tem tag por decisão (a forma nasce da palavra, §17), e "domínio de vida" é assunto de outro bloco. Sync por CloudKit (§12). Bear Web. O widget "última nota editada" mostrando conteúdo: reler cartões é o anti-padrão do §3.
 
 **O não-óbvio.** O MCP do Bear parece integração para programador. Visto pela pergunta certa, "Only tags / Exclude tags" é a primeira interface de consumo em que o dono desenha a borda do que a IA pode saber dele. É exatamente a peça que falta para o Traço virar segundo cérebro sem virar vazamento — e ela é regra, não modelo.
 
@@ -749,7 +766,7 @@ O canal 7 fica depois: é o único que melhora o Traço por dentro, e pede ADR a
 
 **O quanto eleva.** 4 — Arquivo e Segundo cérebro de uma vez: a nota do autor passa a morar onde a mente dele já trabalha, e o selo fecha a última fresta visível.
 
-**O que fica de fora.** BeaverSync com conta e histórico pago (§12, regra 10). Colaboração em tempo real e plugins com "Core Access". Bases de dados estilo Notion. Comando `/` e paleta: o autor nunca lembra código (ADR 31i).
+**O que fica de fora — proposta histórica.** BeaverSync com conta e histórico pago (§12, regra 10). Colaboração em tempo real e plugins com "Core Access". Bases de dados estilo Notion. Comando `/` e paleta: o autor nunca lembra código (ADR 31i).
 
 **O não-óbvio.** A promessa do Beaver ("sem nuvem, sem IA") lê como ausência — o DOSSIE já disse. Mas a pasta escolhida é a peça mais barata de todo o segundo cérebro: não exige MCP, servidor nem protocolo. Uma pasta no lugar certo já é contexto perfeito para qualquer IA que leia disco.
 
@@ -774,7 +791,7 @@ O canal 7 fica depois: é o único que melhora o Traço por dentro, e pede ADR a
 
 **O quanto eleva.** 3 — fortalece Metacognição com um insumo que hoje não existe; o autor sente no primeiro dia a diferença entre o que escolheu escrever e o que estava lá.
 
-**O que fica de fora.** Feed, amigos, Discovery, RealMoji, Bonus, streaks, anúncios, mapa: tudo que existe para audiência. A proibição de editar depois — sem leitor, o carimbo de hora já faz o trabalho; trancar edição na nota do autor é atrito sem função.
+**O que fica de fora — proposta histórica.** Feed, amigos, Discovery, RealMoji, Bonus, streaks, anúncios, mapa: tudo que existe para audiência. A proibição de editar depois — sem leitor, o carimbo de hora já faz o trabalho; trancar edição na nota do autor é atrito sem função.
 
 **O não-óbvio.** O BeReal parece rede social de honestidade. Visto pela pergunta certa, é o único produto de massa que implementou amostragem de experiência — e a honestidade dele não vem da câmera dupla, vem do sorteio da hora. A audiência foi o que corrompeu; retire a audiência e sobra o instrumento.
 
@@ -799,7 +816,7 @@ O canal 7 fica depois: é o único que melhora o Traço por dentro, e pede ADR a
 
 **O quanto eleva.** 4 — salto grande em Sentido: o Traço passa a carregar o protocolo inteiro, não o primeiro dia dele.
 
-**O que fica de fora.** Streak com anel e Safety Net (regra 5). Check-Ins de humor com histórico: painel (§9 proíbe dashboards). Paywall e catálogo de celebridades. Respiração guiada antes de escrever: um passo a mais no caminho principal (regra 6).
+**O que fica de fora — proposta histórica.** Streak com anel e Safety Net (regra 5). Check-Ins de humor com histórico: painel (§9 proíbe dashboards). Paywall e catálogo de celebridades. Respiração guiada antes de escrever: um passo a mais no caminho principal (regra 6).
 
 **O não-óbvio.** O Calm vende conteúdo. Visto pela pergunta certa, a estrutura "Dia 1 de 21" é um contrato com fim: diferente da streak, ele termina — e terminar é o que o §8 precisa para a série de Pennebaker não virar hábito de reler dor. O DOSSIE marcou "sequência de dias" como lixo; a distinção é o fim conhecido.
 
@@ -824,7 +841,7 @@ O canal 7 fica depois: é o único que melhora o Traço por dentro, e pede ADR a
 
 **O quanto eleva.** 3 — Captura que o autor sente no primeiro dia: um aperto, sem desbloquear conscientemente, sem tela de home.
 
-**O que fica de fora.** Inteligência Visual (IA no botão). Abrir o Traço pelo Controle da Câmera: ele abre apps de câmera, e o Traço não é um. E a honestidade do limite: app de terceiro não roda na tela trancada; o piso do Traço é o Face ID passivo, não o zero da Câmera.
+**O que fica de fora — proposta histórica.** Inteligência Visual (IA no botão). Abrir o Traço pelo Controle da Câmera: ele abre apps de câmera, e o Traço não é um. E a honestidade do limite: app de terceiro não roda na tela trancada; o piso do Traço é o Face ID passivo, não o zero da Câmera.
 
 **O não-óbvio.** A Câmera trancada roda em modo restrito: mostra só as fotos daquela sessão, nunca a fototeca. É o desenho do selo em recurso de sistema — capturar sem expor o arquivo. A página nua do Traço aberta pelo controle já obedece a isso: nasce vazia, e as Notas ficam atrás de um gesto (§3).
 
@@ -849,7 +866,7 @@ O canal 7 fica depois: é o único que melhora o Traço por dentro, e pede ADR a
 
 **O quanto eleva.** 4 — Intenção e Atenção de uma vez: a única coisa deixa de ser frase guardada e passa a ser o rosto do aparelho.
 
-**O que fica de fora.** Loot, colecionáveis, conquistas, 398 temas, pacotes de som e a melodia ascendente ao limpar a lista (regra 5: recompensa é placar com outro nome; os hápticos já fazem a confirmação). Lembretes com Adiar/Reagendar e tarefas repetidas (§12: agenda). Compartilhar lista por link.
+**O que fica de fora — proposta histórica.** Loot, colecionáveis, conquistas, 398 temas, pacotes de som e a melodia ascendente ao limpar a lista (regra 5: recompensa é placar com outro nome; os hápticos já fazem a confirmação). Lembretes com Adiar/Reagendar e tarefas repetidas (§12: agenda). Compartilhar lista por link.
 
 **O não-óbvio.** O Clear parece aula de gesto — o DOSSIE já cobriu. Visto pela pergunta certa, o mapa de calor é um sistema de prioridade sem vocabulário: ninguém escolhe "alta/média/baixa", só arrasta. É a régua do §17 para a Ordem — o autor nunca precisa saber o nome de um nível de prioridade.
 
@@ -874,7 +891,7 @@ O canal 7 fica depois: é o único que melhora o Traço por dentro, e pede ADR a
 
 **O quanto eleva.** 4 — abre Linguagem (resumo nas próprias palavras como campo obrigatório de um método validado) e dá ao Recordar um modo guiado pelo próprio autor.
 
-**O que fica de fora.** Surfaces: a nota do Traço é texto que sobrevive em .md por décadas; posição no canvas não sobrevive. Nuvem, colaboração, planner com calendário (§12). Matriz de Eisenhower como grade manual: template em menu; se entrar, entra pela palavra (§17).
+**O que fica de fora — proposta histórica.** Surfaces: a nota do Traço é texto que sobrevive em .md por décadas; posição no canvas não sobrevive. Nuvem, colaboração, planner com calendário (§12). Matriz de Eisenhower como grade manual: template em menu; se entrar, entra pela palavra (§17).
 
 **O não-óbvio.** O Clover vendia Cornell como template de layout — e morreu. Visto pela pergunta certa, Cornell não é layout: é o único método de anotação cujo desenho já contém o teste (a coluna de pistas). O Traço tem Recordar e tem formas; Cornell é a forma que nasce com o Recordar dentro.
 
@@ -899,7 +916,7 @@ O canal 7 fica depois: é o único que melhora o Traço por dentro, e pede ADR a
 
 **O quanto eleva.** 4 — salto grande em Ordem e Intenção: o §17 passa a funcionar sem conta, offline, para todo autor, sem quebrar a regra 1.
 
-**O que fica de fora.** Execute, Document Review, Smart Search, Help Agent, prompts customizados, BYOK: tudo que escreve, resume ou responde dentro do documento (§2). Email to Craft (exige servidor, regra 10). Spaces, Coleções com vistas, publicação, colaboração, histórico de versões pago (§12).
+**O que fica de fora — proposta histórica.** Execute, Document Review, Smart Search, Help Agent, prompts customizados, BYOK: tudo que escreve, resume ou responde dentro do documento (§2). Email to Craft (exige servidor, regra 10). Spaces, Coleções com vistas, publicação, colaboração, histórico de versões pago (§12).
 
 **O não-óbvio.** O Craft vende assistente que escreve. Visto pela pergunta certa, a linha mais importante do catálogo é a menos vendida: "Local não conta na cota e não edita". Eles construíram, por acidente de custo, o modo que o Traço tem por doutrina — e provaram que ele roda no iPhone. O Traço pega o motor e deixa o assistente.
 
@@ -925,7 +942,7 @@ O canal 7 fica depois: é o único que melhora o Traço por dentro, e pede ADR a
 
 **O quanto eleva.** 3: a escada já existe; o Traço passa a cobrar memória na escala em que promete durar (décadas) e o Recordar ganha uma pista honesta — mas o degrau 365 só se sente depois de um ano.
 
-**O que fica de fora.** Streaks com calendário (§12). Daily Chat, Go Deeper, Multi-Entry Summary, Entry Highlights, Title Suggestions, geração de imagem (regra 1: a IA não escreve, não resume, não intitula). Journaling Suggestions da Apple: prompt ocupando o vazio (regra 8). Diários compartilhados (§12). Mapa das entradas: o DOSSIE já chamou de métrica; a pista de contexto não é o mapa — é uma linha, e serve só ao Recordar. Create/Update Entry do MCP: IA escrevendo no diário é o que a regra 1 proíbe.
+**O que fica de fora — proposta histórica.** Streaks com calendário (§12). Daily Chat, Go Deeper, Multi-Entry Summary, Entry Highlights, Title Suggestions, geração de imagem (regra 1: a IA não escreve, não resume, não intitula). Journaling Suggestions da Apple: prompt ocupando o vazio (regra 8). Diários compartilhados (§12). Mapa das entradas: o DOSSIE já chamou de métrica; a pista de contexto não é o mapa — é uma linha, e serve só ao Recordar. Create/Update Entry do MCP: IA escrevendo no diário é o que a regra 1 proíbe.
 
 **O não-óbvio.** O produto cognitivo do Day One não é escrever, é o reencontro — On This Day e o livro impresso são máquinas de reexposição autobiográfica. O Traço recusa a reexposição como altar e a converte em recuperação: o mesmo evento, um ano depois, vira o degrau mais longo do Recordar. E o Day One grava clima e lugar sem dizer por quê; a razão é que contexto é a pista mais forte da memória episódica — por isso parece "memória", sendo só arquivo.
 
@@ -952,7 +969,7 @@ O canal 7 fica depois: é o único que melhora o Traço por dentro, e pede ADR a
 
 **O quanto eleva.** 4: Captura hoje é um widget de dois atalhos; com folha, pulso e voz o Traço passa a pegar o traço onde ele nasce — e a lista ganha a operação de ordenar que a mente faz sozinha.
 
-**O que fica de fora.** Biblioteca de ações em JavaScript, workspaces, badge de "não processados" (pressão de inbox; o Traço não tem inbox — §3). Mail Drop e Web Capture (servidor: regra 10). Ações de IA com chave própria (regra 10; regra 1). Writing Tools no editor (reescreve: regra 1). Sintaxes e markdown cru (lei do dono: nunca lembrar código).
+**O que fica de fora — proposta histórica.** Biblioteca de ações em JavaScript, workspaces, badge de "não processados" (pressão de inbox; o Traço não tem inbox — §3). Mail Drop e Web Capture (servidor: regra 10). Ações de IA com chave própria (regra 10; regra 1). Writing Tools no editor (reescreve: regra 1). Sintaxes e markdown cru (lei do dono: nunca lembrar código).
 
 **O não-óbvio.** O Drafts não é um app de texto; é um app de adiamento de decisão. Ele descobriu que "para onde vai" custa mais que "o que é" — e tirou a pergunta do começo. O Traço já faz isso na página nua; o que falta é fazê-lo de fora do app. E o Arrange Mode diz o que nenhum app de notas diz: a ordem das frases é conteúdo, e quem só digita nunca a revisita.
 
@@ -977,7 +994,7 @@ O canal 7 fica depois: é o único que melhora o Traço por dentro, e pede ADR a
 
 **O quanto eleva.** 4: o Recordar existe, mas em peça única; ganha tamanho certo, direção nos dois sentidos e um último degrau que é exercício de linguagem — dois poderes de uma vez.
 
-**O que fica de fora.** Streak, XP, gems, ligas, Daily Quests, Friends Quests, coruja chantageando na notificação (§12 por nome). Explain My Answer, Video Call, Roleplay (IA escreve e conversa: regras 1 e 5). Teste de nivelamento (o Traço não nivela pessoas). Energy como moeda de assinatura.
+**O que fica de fora — proposta histórica.** Streak, XP, gems, ligas, Daily Quests, Friends Quests, coruja chantageando na notificação (§12 por nome). Explain My Answer, Video Call, Roleplay (IA escreve e conversa: regras 1 e 5). Teste de nivelamento (o Traço não nivela pessoas). Energy como moeda de assinatura.
 
 **O não-óbvio.** O Duolingo é acusado de otimizar retenção e não fluência — e é verdade — mas o mecanismo que retém é o mesmo que ensina: uma pergunta, agora, curta. Tire a coruja e sobra a melhor máquina de recuperação ativa do mercado. E o degrau 21 pedindo "uma frase" não é atalho: é o que a memória faz sozinha depois de três semanas — guarda o essencial e perde o detalhe. Cobrar a essência é cobrar o que ficou.
 
@@ -1001,7 +1018,7 @@ O canal 7 fica depois: é o único que melhora o Traço por dentro, e pede ADR a
 
 **O quanto eleva.** 5: Linguagem é o poder que o Traço hoje não multiplica; isto abre a porta sem ferir a regra de ferro, porque aponta e não escreve.
 
-**O que fica de fora.** Os seis índices de legibilidade: índice é placar (regra 5). Metas de palavras, mapas de calor, sprints com histórico, modo desafio (§12). Worldbuilding, EPUB, beta-readers: outro produto. Blindwrite: o Traço já não tem chrome. Os 120 prompts como prompts: nenhum prompt ocupa o vazio (regra 8) — entram só como perguntas de Padrões, citando o autor.
+**O que fica de fora — proposta histórica.** Os seis índices de legibilidade: índice é placar (regra 5). Metas de palavras, mapas de calor, sprints com histórico, modo desafio (§12). Worldbuilding, EPUB, beta-readers: outro produto. Blindwrite: o Traço já não tem chrome. Os 120 prompts como prompts: nenhum prompt ocupa o vazio (regra 8) — entram só como perguntas de Padrões, citando o autor.
 
 **O não-óbvio.** A frase feita é o ChatGPT de dentro: texto pronto que entrou pela mão do autor. A regra de ferro recusa o texto pronto que vem de fora; o Skald mostra como recusar o que vem de dentro — sem escrever uma palavra. E a Edda vende isso por US$ 39, sem assinatura, sem nuvem: prova de mercado de que "aponta e não escreve" é produto, não limitação.
 
@@ -1026,7 +1043,7 @@ O canal 7 fica depois: é o único que melhora o Traço por dentro, e pede ADR a
 
 **O quanto eleva.** 3: o arquivo passa a achar o que o autor viu, não só o que digitou; e o app chega sozinho na hora do hábito — sente-se no primeiro dia, sem mudar o que o Traço faz pela mente.
 
-**O que fica de fora.** AI Assistant, Semantic Search, AI Edit, AI Meeting Notes, resumos, legendas automáticas, AI Memory (regra 1, §12). Tarefas e calendário (§12). Home com widgets e Scratch Pad: a home é altar (§3). Colaboração e espaços (§12). Criptografia de trecho selecionado: selo parcial vaza em alguma rota — busca, Padrões, export — e o Traço só sabe selar a nota inteira em todas elas (regra 2).
+**O que fica de fora — proposta histórica.** AI Assistant, Semantic Search, AI Edit, AI Meeting Notes, resumos, legendas automáticas, AI Memory (regra 1, §12). Tarefas e calendário (§12). Home com widgets e Scratch Pad: a home é altar (§3). Colaboração e espaços (§12). Criptografia de trecho selecionado: selo parcial vaza em alguma rota — busca, Padrões, export — e o Traço só sabe selar a nota inteira em todas elas (regra 2).
 
 **O não-óbvio.** "Remember everything" produziu o contrário no usuário: quando a mente sabe que está guardado, guarda menos e lembra só onde está (efeito Google, Sparrow 2011). O Evernote é o experimento em escala do que o §16 evita ao separar busca (arquivo) de Recordar (memória). Pegue a busca dentro da foto, que é arquivo puro; deixe a promessa, que é o adversário.
 
@@ -1050,7 +1067,7 @@ O canal 7 fica depois: é o único que melhora o Traço por dentro, e pede ADR a
 
 **O quanto eleva.** 4: Sentido deixa de ser exclusivo do desabafo e vira o fecho de qualquer pensamento — e o mesmo gesto alimenta Padrões e o segundo cérebro sem uma linha de IA.
 
-**O que fica de fora.** Streaks, metas anuais, Reading Wraps, BookAura, badges, estatísticas (§12). Clubes, feed, mensagens, Social Mode (§12). Scout e recomendação (IA decidindo pelo leitor). Marcos com ritmo sugerido: o Traço não dá ritmo a ninguém.
+**O que fica de fora — proposta histórica.** Streaks, metas anuais, Reading Wraps, BookAura, badges, estatísticas (§12). Clubes, feed, mensagens, Social Mode (§12). Scout e recomendação (IA decidindo pelo leitor). Marcos com ritmo sugerido: o Traço não dá ritmo a ninguém.
 
 **O não-óbvio.** No Fable, o leitor só escreve num lugar: a sala de reflexão do fim. O app inteiro é social, e o único ato solitário é o que fica. O Traço já tem esse lugar — a linha de sentido — mas o trancou atrás dos 15 minutos da expressiva. Soltá-lo para toda nota é a mudança de uma linha com maior alcance deste lote: o autor passa a escrever, ele mesmo, o índice do próprio corpus.
 
@@ -1080,7 +1097,7 @@ Pede ADR: §23 novo ("Segundo cérebro": a pasta como superfície, layout, LEIA-
 
 **O quanto eleva.** 5: abre o poder que ainda não tem seção na SPEC — e o abre sem uma linha de rede, porque o export bem feito já é o segundo cérebro.
 
-**O que fica de fora.** Chat com o corpus dentro do app e busca semântica (§12: a IA da casa devolve rótulo, não conversa). Organização automática, renomeação automática, sugestão de tag (§19.1: a IA não intitula nem etiqueta). Memória do assistente escrita pela IA (regra 1). Agents com agenda, trabalhos agendados, Email-to-Fabric, conexões com Drive/Notion (servidor próprio: regra 10). Créditos de pensamento (ADR 31j). Nuvem própria e export sem reimportação: o anti-modelo do §10.
+**O que fica de fora — proposta histórica.** Chat com o corpus dentro do app e busca semântica (§12: a IA da casa devolve rótulo, não conversa). Organização automática, renomeação automática, sugestão de tag (§19.1: a IA não intitula nem etiqueta). Memória do assistente escrita pela IA (regra 1). Agents com agenda, trabalhos agendados, Email-to-Fabric, conexões com Drive/Notion (servidor próprio: regra 10). Créditos de pensamento (ADR 31j). Nuvem própria e export sem reimportação: o anti-modelo do §10.
 
 **O não-óbvio.** O segundo cérebro para as IAs do autor não é uma feature a construir; é o export feito direito. O Fabric precisa de MCP, CLI e API porque o corpus dele mora num servidor; o do Traço mora numa pasta — e pasta é a interface que todo agente já fala. Segundo: o Fabric resolve recuperação e o Traço resolve proveniência, e para uma IA a proveniência vale mais que o volume — um corpus onde nada foi escrito por máquina é o único que não devolve à IA o eco dela mesma. Terceiro: a promessa do Fabric ("nunca precise lembrar") é o que o Traço recusa para o autor e concede às IAs — a mente treina dentro, as máquinas leem fora.
 
@@ -1105,7 +1122,7 @@ Pede ADR: §23 novo ("Segundo cérebro": a pasta como superfície, layout, LEIA-
 
 **O quanto eleva.** 2: polimento que se sente na cerimônia mais grave do app; as leis de movimento do Family já estão no §21.
 
-**O que fica de fora.** Tudo que é carteira: chat, contatos, notificações por atividade, badges. O domínio inteiro, como o DOSSIE já disse.
+**O que fica de fora — proposta histórica.** Tudo que é carteira: chat, contatos, notificações por atividade, badges. O domínio inteiro, como o DOSSIE já disse.
 
 **O não-óbvio.** O Family é o único app deste lote que pratica recuperação ativa: o backup manual exige que a pessoa prove que lembra as doze palavras. Faz isso porque é a única memória que importa no domínio dele. O Traço faz o mesmo com a nota — e a lição é a forma: um teste curto, sem placar, no momento em que esquecer custaria caro.
 
@@ -1129,7 +1146,7 @@ Pede ADR: §23 novo ("Segundo cérebro": a pasta como superfície, layout, LEIA-
 
 **O quanto eleva.** 3: a expressiva já existe e já cala a Análise; passa a calar também o editor de dentro — o autor sente na primeira sessão.
 
-**O que fica de fora.** Apagar o texto por pausa: destruição como pedagogia fere o §8 (o texto se sela ou se queima por escolha, nunca por castigo). "Salvar só ao fim do timer": o Traço salva a cada trânsito (§20). Escolha de 5/30 minutos: o protocolo da expressiva é 15. E um fato do CATALOGO: em 2026 não há versão iOS na loja e o site está fora do ar — a referência é histórica.
+**O que fica de fora — proposta histórica.** Apagar o texto por pausa: destruição como pedagogia fere o §8 (o texto se sela ou se queima por escolha, nunca por castigo). "Salvar só ao fim do timer": o Traço salva a cada trânsito (§20). Escolha de 5/30 minutos: o protocolo da expressiva é 15. E um fato do CATALOGO: em 2026 não há versão iOS na loja e o site está fora do ar — a referência é histórica.
 
 **O não-óbvio.** Flowstate e Traço concordam no essencial: avaliar tem de esperar. O Flowstate impõe isso pelo medo; o Traço, pelo silêncio da Análise durante a escrita. O que faltava ver é que o autor também avalia — com a tecla de apagar — e que dá para tirar essa tecla sem tirar o texto.
 
@@ -1153,7 +1170,7 @@ Pede ADR: §23 novo ("Segundo cérebro": a pasta como superfície, layout, LEIA-
 
 **O quanto eleva.** 4 — o Traço passa a multiplicar Atenção e Intenção FORA do app, onde hoje não faz nada; dois poderes num mecanismo só.
 
-**O que fica de fora.** Árvore, moedas, loja, ranking, Plant Together, Focus Challenge, streaks: §12 por nome. Deep Focus e Allow List (bloquear outros apps): exige entitlement FamilyControls e põe o app policiando o dono; o atrito do Traço mora na escrita, não no sistema. Time Guard: agenda, §12. Mindful Space (respiração, paisagens sonoras): não escreve nada; fora do escopo.
+**O que fica de fora — proposta histórica.** Árvore, moedas, loja, ranking, Plant Together, Focus Challenge, streaks: §12 por nome. Deep Focus e Allow List (bloquear outros apps): exige entitlement FamilyControls e põe o app policiando o dono; o atrito do Traço mora na escrita, não no sistema. Time Guard: agenda, §12. Mindful Space (respiração, paisagens sonoras): não escreve nada; fora do escopo.
 
 **O não-óbvio.** A etiqueta da sessão do Forest ("para que é esta sessão?") é o Destaque. Só que o Forest pergunta antes, e o Traço já tem a resposta nas palavras do autor. O que falta não é a pergunta; é tirá-la do arquivo. A Live Activity é o único chrome que o §3 permite, porque fica do lado de fora da página.
 
@@ -1177,7 +1194,7 @@ Pede ADR: §23 novo ("Segundo cérebro": a pasta como superfície, layout, LEIA-
 
 **O quanto eleva.** 3 — a expressiva fica mais fiel ao protocolo no primeiro dia; Sentido e Atenção já existem e ganham corpo.
 
-**O que fica de fora.** Pastas A/B/C escolhidas por chave antes de escrever: o Traço veste depois da palavra, nunca pede domínio antes (§17). Streaks e "Writing Days" do Postbox (§12). Sprinter com meta de palavras: placar. Nuvem própria (§12). Shred com confirmação digitada: o Queimar já tem o atrito certo; digitar "queimar" depois de 15 minutos de peso é atrito na hora errada (§8.5).
+**O que fica de fora — proposta histórica.** Pastas A/B/C escolhidas por chave antes de escrever: o Traço veste depois da palavra, nunca pede domínio antes (§17). Streaks e "Writing Days" do Postbox (§12). Sprinter com meta de palavras: placar. Nuvem própria (§12). Shred com confirmação digitada: o Queimar já tem o atrito certo; digitar "queimar" depois de 15 minutos de peso é atrito na hora errada (§8.5).
 
 **O não-óbvio.** O sync do Freewrite é de UMA via: do aparelho para fora, nunca de volta. É a direção exata que o segundo cérebro do dono precisa: o corpus sai para as IAs do autor, e nada volta para dentro da nota. Vale como frase de ADR. E a chave A/B/C prova que Ordem pode ser posição em vez de nome; o Traço responde com a auto-forma, mas a lição é a mesma: o autor não nomeia.
 
@@ -1202,7 +1219,7 @@ Pede ADR: §23 novo ("Segundo cérebro": a pasta como superfície, layout, LEIA-
 
 **O quanto eleva.** 3 — Arquivo e Memória ficam mais fundos no primeiro dia; nenhum poder novo se abre.
 
-**O que fica de fora.** Ask Photos: chat dentro do arquivo, §12 duas vezes (chat, busca semântica). Memories como carrossel: mostra o conteúdo; é o "reler cartões à noite" do §3 com música. O botão azul da Locked Folder (o par com o Apple Photos já está nas REFERENCIAS). Partner sharing, álbuns, nuvem. Free up space não tem análogo: nota não pesa.
+**O que fica de fora — proposta histórica.** Ask Photos: chat dentro do arquivo, §12 duas vezes (chat, busca semântica). Memories como carrossel: mostra o conteúdo; é o "reler cartões à noite" do §3 com música. O botão azul da Locked Folder (o par com o Apple Photos já está nas REFERENCIAS). Partner sharing, álbuns, nuvem. Free up space não tem análogo: nota não pesa.
 
 **O não-óbvio.** O Google Photos é o segundo cérebro visual mais poderoso que existe, e mostra a armadilha inteira: o corpus mora no servidor deles e a IA mora DENTRO do arquivo. O segundo cérebro do Traço inverte os dois: o corpus no .md do autor, a IA do lado de fora, alimentada por exportação. O que se copia do Photos não é a IA; é a regra "zero esforço de organização", que já é o §17.
 
@@ -1226,7 +1243,7 @@ Pede ADR: §23 novo ("Segundo cérebro": a pasta como superfície, layout, LEIA-
 
 **O quanto eleva.** 4 — Memória ganha uma unidade nova (o período), Metacognição ganha a via sem IA, Sentido ganha um segundo método validado.
 
-**O que fica de fora.** O prompt no vazio (§3, decisão mantida). Dados do Saúde dentro da nota: o Traço só guarda o que o autor escreveu. Minutos de meditação no Saúde: é streak por procuração; o gráfico mora no app da Apple, mas é o mesmo placar. Figurinhas de humor, citações, eventos do calendário (§12 agenda), sync próprio.
+**O que fica de fora — proposta histórica.** O prompt no vazio (§3, decisão mantida). Dados do Saúde dentro da nota: o Traço só guarda o que o autor escreveu. Minutos de meditação no Saúde: é streak por procuração; o gráfico mora no app da Apple, mas é o mesmo placar. Figurinhas de humor, citações, eventos do calendário (§12 agenda), sync próprio.
 
 **O não-óbvio.** A grade não é prompt: é CHUNKING. Nove células pequenas baixam o custo da primeira frase, o mesmo que os campos do WOOP fazem, só que o Grid Diary chunka antes da palavra e o Traço depois. E o centro fixo da Mandala é o Destaque: uma coisa no meio, oito em volta. A leitura que fica: o Traço tem escada para a nota e nenhum período para o autor; o Recordar do período dá o período sem dar o dashboard.
 
@@ -1251,7 +1268,7 @@ Pede ADR: §23 novo ("Segundo cérebro": a pasta como superfície, layout, LEIA-
 
 **O quanto eleva.** 3 — Captura fica completa (widget, controle, botão físico) e o autor sente no primeiro dia; sem poder novo.
 
-**O que fica de fora.** O curso de 10 dias: onboarding é nenhum (ADR 31g), e o Traço não pode virar o Halide das notas; a curva de aprendizado é a IA que cobre (§17). Histograma, waveform, zebras: instrumentos sobre a imagem; no Traço não há medidor sobre o autor (§19.1). Looks como menu (§12 templates), embora RAW + Look seja exatamente texto cru + forma vestida do §17.
+**O que fica de fora — proposta histórica.** O curso de 10 dias: onboarding é nenhum (ADR 31g), e o Traço não pode virar o Halide das notas; a curva de aprendizado é a IA que cobre (§17). Histograma, waveform, zebras: instrumentos sobre a imagem; no Traço não há medidor sobre o autor (§19.1). Looks como menu (§12 templates), embora RAW + Look seja exatamente texto cru + forma vestida do §17.
 
 **O não-óbvio.** Process Zero é "zero IA" vendido como a feature premium de um app pago e premiado. É a prova de mercado de que a recusa do §2 é produto, não limitação, e de que dá para cobrar por ela. E o "não guarda ajustes entre sessões bloqueadas" é um selo de outro tipo: a captura que não abre o cofre.
 
@@ -1278,7 +1295,7 @@ Pede ADR: §23 novo ("Segundo cérebro": a pasta como superfície, layout, LEIA-
 
 **O quanto eleva.** 5 — abre Linguagem, que hoje é "quase nada", por algoritmo puro; e dá o primeiro mecanismo concreto do segundo cérebro sem servidor.
 
-**O que fica de fora.** A marcação à mostra (o autor digita `#`): lei do dono. Os atalhos que chamam o ChatGPT (Proofread, Shorten, Change Tone): §2, sem exceção. Publicar em WordPress/Medium (§12). Smart Folders, operadores AND/OR/NEAR, Command Palette: power-user; a página nua não tem onde pôr isso. Fontes iA Mono/Duo/Quattro: SF é a âncora (§11).
+**O que fica de fora — proposta histórica.** A marcação à mostra (o autor digita `#`): lei do dono. Os atalhos que chamam o ChatGPT (Proofread, Shorten, Change Tone): §2, sem exceção. Publicar em WordPress/Medium (§12). Smart Folders, operadores AND/OR/NEAR, Command Palette: power-user; a página nua não tem onde pôr isso. Fontes iA Mono/Duo/Quattro: SF é a âncora (§11).
 
 **O não-óbvio.** O iA Writer se vende como "nada entre você e o texto", e o que ele tem de único é o contrário: instrumentos ENTRE o autor e o texto, que mostram sem tocar. Um histograma da prosa. É o §19.4 com anos de prova: regra, local, sem modelo, e o autor faz o corte. E o Authorship não é ética: é higiene de corpus, a condição para que o segundo cérebro não minta.
 
@@ -1303,7 +1320,7 @@ Pede ADR: §23 novo ("Segundo cérebro": a pasta como superfície, layout, LEIA-
 
 **O quanto eleva.** 4 — Captura ganha o canal da leitura, Memória ganha a cauda longa; Segundo cérebro ganha o corpus digerido em vez de colecionado.
 
-**O que fica de fora.** Summaries: resumo é §12 e §19.1 "proibido para sempre". E-mail de captura: exige servidor (regra 10). Etiquetas: organização à mão é fricção (§17). AI Voices, playlists, speed reading: consumo. Entrega no Kindle: sem correspondente. Busca em texto completo do arquivo alheio: o Traço só indexa a voz do autor.
+**O que fica de fora — proposta histórica.** Summaries: resumo é §12 e §19.1 "proibido para sempre". E-mail de captura: exige servidor (regra 10). Etiquetas: organização à mão é fricção (§17). AI Voices, playlists, speed reading: consumo. Entrega no Kindle: sem correspondente. Busca em texto completo do arquivo alheio: o Traço só indexa a voz do autor.
 
 **O não-óbvio.** O Instapaper vende leitura e entrega adiamento: tira a decisão "leio agora?" da frente e protege a atenção de hoje; a pilha de amanhã é onde ele morre (o DOSSIE já viu). O Traço não pode ter pilha porque a unidade não é o artigo, é a frase reescrita: sem a frase do autor não há nada para acumular. E o limite de 5 notas por mês, que é paywall, funciona como método: escassez de anotação melhora a anotação, a mesma aposta do Destaque e das 2–3 perguntas do Padrões.
 
@@ -1325,7 +1342,7 @@ Pede ADR: §23 novo ("Segundo cérebro": a pasta como superfície, layout, LEIA-
 
 **O quanto eleva.** 2 — confirma decisões tomadas; não muda o que o app faz pela mente.
 
-**O que fica de fora.** Meta de palavras: placar (§12). localStorage: o oposto do §10; limpar o navegador apaga a obra. Sem backspace: erro de digitação não é edição. "Clear text" sem arquivo: o Queimar sem a linha de sentido, ou seja, a dor sem o ganho (§8.5).
+**O que fica de fora — proposta histórica.** Meta de palavras: placar (§12). localStorage: o oposto do §10; limpar o navegador apaga a obra. Sem backspace: erro de digitação não é edição. "Clear text" sem arquivo: o Queimar sem a linha de sentido, ou seja, a dor sem o ganho (§8.5).
 
 **O não-óbvio.** O Just Write chegou ao fecho do §8 por acidente: ou você fica com tudo (download) ou joga tudo fora (Clear text), sem meio. É o Selar/Queimar sem o método. A diferença é o que sobrevive: no Traço, a linha de sentido sai do fecho e entra em tudo; no Just Write, nada sai. O que vale registrar é a confirmação, por um app que só recusa, de que recusa sozinha é zero.
 
@@ -1351,7 +1368,7 @@ Pede ADR: §23 novo ("Segundo cérebro": a pasta como superfície, layout, LEIA-
 
 **O quanto eleva.** 4 — Linguagem abre pela via do vocabulário (a outra via é a lente do iA Writer), e Memória ganha um tipo de nota feito para ser cobrado.
 
-**O que fica de fora.** My Notebook: a pilha de palavras alheias para reler é o §3 negado; no Traço só existe o que o autor reescreveu. Reading Challenges, streaks, conquistas (§12). Sync de posição (§12). Word Wise: definição passiva sobre a palavra, reconhecimento sem produção, o oposto do item 1. Immersion Reading: Audible. DRM: o argumento do §10 já está no DOSSIE.
+**O que fica de fora — proposta histórica.** My Notebook: a pilha de palavras alheias para reler é o §3 negado; no Traço só existe o que o autor reescreveu. Reading Challenges, streaks, conquistas (§12). Sync de posição (§12). Word Wise: definição passiva sobre a palavra, reconhecimento sem produção, o oposto do item 1. Immersion Reading: Audible. DRM: o argumento do §10 já está no DOSSIE.
 
 **O não-óbvio.** O Kindle põe o dicionário exatamente onde a palavra aparece e depois não faz nada com ela: o grifo fica preso, a palavra evapora. É captura sem multiplicação. O ciclo que falta é curto (encontrar, dizer numa frase minha, ser cobrado em 3, 7 e 21 dias) e cada peça já existe no Traço, menos a forma.
 
@@ -1373,7 +1390,7 @@ Pede ADR: §23 novo ("Segundo cérebro": a pasta como superfície, layout, LEIA-
 
 **O quanto eleva.** 1 — não há poder que o Traço passe a multiplicar; o ganho é saber, com nome, o que a barra do timer nunca vai ter.
 
-**O que fica de fora.** Tudo: XP, níveis, streak, Hard Mode, cartas, Book Summary (resumo, §12), AI Calorie Tracker, pedidos de amizade (compartilhamento, §12) e os quatro controles do timer — mais um minuto, pular, pausar, barra arrastável.
+**O que fica de fora — proposta histórica.** Tudo: XP, níveis, streak, Hard Mode, cartas, Book Summary (resumo, §12), AI Calorie Tracker, pedidos de amizade (compartilhamento, §12) e os quatro controles do timer — mais um minuto, pular, pausar, barra arrastável.
 
 **O não-óbvio.** Life Reset é o Traço invertido no eixo da Intenção. Onde o WOOP obriga o autor a escrever o próprio obstáculo, o questionário escreve o programa por ele; onde o §5 recusa "eu sou um vencedor", o app vende a frase em carta colecionável. É a prova de que o atalho tem mercado de 1,5 milhão — e de que o Traço não compete com ele. Compete com o Apple Notes.
 
@@ -1397,7 +1414,7 @@ Pede ADR: §23 novo ("Segundo cérebro": a pasta como superfície, layout, LEIA-
 
 **O quanto eleva.** 4 — o Traço deixa de ter uma versão inventada (sessão única) do método que o ADR 31l exige comprovado; o mesmo timer, três vezes.
 
-**O que fica de fora.** Mood tracker e inventário TASI (placar, §12); 365 prompts (§3: nada ocupa o vazio); citações e vídeos relaxantes (consolo, §5); os jogos como jogo (§12); Firebase (regra 10); ditado por voz (o teclado do iOS já dita — nada a construir).
+**O que fica de fora — proposta histórica.** Mood tracker e inventário TASI (placar, §12); 365 prompts (§3: nada ocupa o vazio); citações e vídeos relaxantes (consolo, §5); os jogos como jogo (§12); Firebase (regra 10); ditado por voz (o teclado do iOS já dita — nada a construir).
 
 **O não-óbvio.** O app vende o método a quem tem trauma e o enterra em acessórios; mas a única função que ele leva a sério é justamente a que o Traço ainda não fez: contar os dias. E o léxico mostra que vocabulário não é só palavra difícil — a palavra exata para o que se sente é precisão, e precisão é poder de pensar.
 
@@ -1422,7 +1439,7 @@ Pede ADR: §23 novo ("Segundo cérebro": a pasta como superfície, layout, LEIA-
 
 **O quanto eleva.** 4 — o §17 promete "catálogo de métodos vasto" e o Traço tem seis; passa a cobrir decisão e revisão, que hoje caem em silêncio. Dois poderes de uma vez.
 
-**O que fica de fora.** Entry Analysis, Minds, Ask Your Journal, Story View, Memory Profile, Big Five, Plutchik, arte, resumos, sugestões (regra 1); tags por IA (§19.1 proíbe tag); habit tracker, streak, e-mail semanal (§12); rituais com prompts (§3); Call Mode (chat, §12); nuvem (regra 10).
+**O que fica de fora — proposta histórica.** Entry Analysis, Minds, Ask Your Journal, Story View, Memory Profile, Big Five, Plutchik, arte, resumos, sugestões (regra 1); tags por IA (§19.1 proíbe tag); habit tracker, streak, e-mail semanal (§12); rituais com prompts (§3); Call Mode (chat, §12); nuvem (regra 10).
 
 **O não-óbvio.** Os 52 frameworks são todos listas de perguntas. A Mindsera os usa como prompt para a IA responder; lidos como formulário, eles são o Traço — e a prova de que o §6 escala sem uma linha de prosa do modelo. Segundo: a "Mind" Thinking Traps é uma lista fechada de distorções (Burns). Daria o primeiro Aviso (§5) sobre COMO o autor pensa, não sobre o que ele pede ao app — mas encosta em diagnóstico (§9.4). Fica registrado, não proposto.
 
@@ -1447,7 +1464,7 @@ Pede ADR: §23 novo ("Segundo cérebro": a pasta como superfície, layout, LEIA-
 
 **O quanto eleva.** 4 — Memória dá salto (a escada passa a descer) e Intenção ganha ensaio; dois poderes.
 
-**O que fica de fora.** Fabricar cartão a partir da nota (o segundo momento, bug do §17); FSRS por cartão (dificuldade e estabilidade são medidor — a escada de três degraus basta e é legível); cramming; dashboard de retenção (placar); sync (regra 10); campos de IA — TTS, tradução, gerador (regra 1); publicar deck (§12); texto oculto manual (o Recordar esconde tudo).
+**O que fica de fora — proposta histórica.** Fabricar cartão a partir da nota (o segundo momento, bug do §17); FSRS por cartão (dificuldade e estabilidade são medidor — a escada de três degraus basta e é legível); cramming; dashboard de retenção (placar); sync (regra 10); campos de IA — TTS, tradução, gerador (regra 1); publicar deck (§12); texto oculto manual (o Recordar esconde tudo).
 
 **O não-óbvio.** O Traço já tem cloze e não sabe: toda forma é um cloze em que os rótulos são a parte visível. E `recordada: N` no corpus diz às IAs do autor o que ele de fato retém, contra o que só escreveu — a IA que sabe o que o autor lembra fala com ele de outro jeito.
 
@@ -1469,7 +1486,7 @@ Pede ADR: §23 novo ("Segundo cérebro": a pasta como superfície, layout, LEIA-
 
 **O quanto eleva.** 1 — o Traço não deixa de não ter nada.
 
-**O que fica de fora.** Tudo.
+**O que fica de fora — proposta histórica.** Tudo.
 
 **O não-óbvio.** "AI columns": a coluna que a IA preenche. O Traço já tem uma — `gesto`, rótulo de lista fechada devolvido pela IA (§19.1, Rotear). A tentação seria uma segunda: domínio da vida (trabalho, casa, saúde, gente), que é a harmonia que o brief atribui ao TickTick e cabe no poder Ordem. Mas §19.1 proíbe à IA "gerar tag", e domínio não fecha em regra (§19.4). Se o dono quiser domínios, é ADR: ou emenda §19.1 para admitir domínio como rótulo fechado, ou o autor não tem domínios. Registrado, não proposto.
 
@@ -1494,7 +1511,7 @@ Pede ADR: §23 novo ("Segundo cérebro": a pasta como superfície, layout, LEIA-
 
 **O quanto eleva.** 5 — abre o poder Segundo cérebro, hoje sem seção na SPEC: o corpus deixa de ser backup e vira contexto.
 
-**O que fica de fora.** Banco de dados dentro do app — Table, Board, Calendar, Gallery (§3: reler cartões é o anti-padrão; §12: agenda); Relation, Rollup, Formula (planilha); Autofill de propriedades pela IA (§19.1, tag); Notion AI, Agents, Research Mode (regra 1); nuvem obrigatória e histórico por plano (regra 10); a barra invertida (§17); publicação web e comentários (§12).
+**O que fica de fora — proposta histórica.** Banco de dados dentro do app — Table, Board, Calendar, Gallery (§3: reler cartões é o anti-padrão; §12: agenda); Relation, Rollup, Formula (planilha); Autofill de propriedades pela IA (§19.1, tag); Notion AI, Agents, Research Mode (regra 1); nuvem obrigatória e histórico por plano (regra 10); a barra invertida (§17); publicação web e comentários (§12).
 
 **O não-óbvio.** O banco do Notion vale não pelas vistas, e sim porque a propriedade É o esquema que um agente lê — o Notion MCP prova isso. O Traço ganhou a metade difícil de graça: a forma que nasce da palavra do autor já é um registro tipado — a IA roteou o tipo, o autor escreveu os valores. Falta só o formato. Segundo: um corpus que se explica vale mais que um corpus maior.
 
@@ -1518,7 +1535,7 @@ Pede ADR: §23 novo ("Segundo cérebro": a pasta como superfície, layout, LEIA-
 
 **O quanto eleva.** 3 — a tabela deixa de ser grid cru (P1 aberto) e o autor sente no primeiro toque; o CSV é bônus de um dia.
 
-**O que fica de fora.** Magic Fill (IA escreve células, regra 1); fórmulas, tabelas dinâmicas e gráficos (placar, §12); controles em célula — estrelas e sliders (placar); categorias com resumo (resumo, §12); colaboração e Creator Studio.
+**O que fica de fora — proposta histórica.** Magic Fill (IA escreve células, regra 1); fórmulas, tabelas dinâmicas e gráficos (placar, §12); controles em célula — estrelas e sliders (placar); categorias com resumo (resumo, §12); colaboração e Creator Studio.
 
 **O não-óbvio.** O Formulário↔Tabela do Numbers enuncia a verdade escondida do Traço: a forma é a vista móvel de uma linha de tabela. Cada WOOP preenchido é uma linha numa tabela que o autor nunca vê — e a tabela dos próprios obstáculos é o único Padrões que o algoritmo consegue mostrar sem modelo. Se ela aparece no app (§3 diz que não há altar) ou só sai como CSV é ADR do dono; o export é o primeiro passo seguro.
 
@@ -1543,7 +1560,7 @@ Pede ADR: §23 novo ("Segundo cérebro": a pasta como superfície, layout, LEIA-
 
 **O quanto eleva.** 3 — Memória e Atenção ganham uma forma que o autor sente no terceiro dia; as Ligações são degrau a mais, depois.
 
-**O que fica de fora.** Streaks, badges, leaderboard, Wordle Bot (placar, §12); arquivo de 10.000 (catálogo infinito é o oposto do dia único); compartilhar pontuação (§12); fóruns de dica.
+**O que fica de fora — proposta histórica.** Streaks, badges, leaderboard, Wordle Bot (placar, §12); arquivo de 10.000 (catálogo infinito é o oposto do dia único); compartilhar pontuação (§12); fóruns de dica.
 
 **O não-óbvio.** NYT Games é uma academia de Linguagem disfarçada de jogo: Spelling Bee é geração de vocabulário, Connections é categorização semântica, Crossword é recall por definição. O Traço não vai ter jogos — mas Connections mostra o formato de uma pergunta de Padrões em que o autor faz o trabalho de achar o padrão. E a lição maior: o Wordle original funcionava sem streak; o "recordada 3×" do cartão é arquivo do esforço, não sequência — nunca deixar virar "7 dias seguidos".
 
@@ -1568,7 +1585,7 @@ Pede ADR: §23 novo ("Segundo cérebro": a pasta como superfície, layout, LEIA-
 
 **O quanto eleva.** 5 — abre Segundo cérebro (a pasta é o contexto) e sela Arquivo (a nota vira arquivo, não linha de banco).
 
-**O que fica de fora.** Markdown cru na tela (ADR 31i); plugins e configuração (§17: o Traço monta os eixos, o autor não); o grafo como tela (belíssimo, inútil sem ligação); Canvas, Slides, web viewer; Sync e Publish pagos (regra 10 — iCloud é a única nuvem, e é do autor); Web Clipper com Interpreter (IA escreve, regra 1); nota diária (§3); "Require Face ID" no app inteiro — mata os widgets, como o próprio Obsidian admite; o selo do Traço é por nota, e o U4 continua vivo.
+**O que fica de fora — proposta histórica.** Markdown cru na tela (ADR 31i); plugins e configuração (§17: o Traço monta os eixos, o autor não); o grafo como tela (belíssimo, inútil sem ligação); Canvas, Slides, web viewer; Sync e Publish pagos (regra 10 — iCloud é a única nuvem, e é do autor); Web Clipper com Interpreter (IA escreve, regra 1); nota diária (§3); "Require Face ID" no app inteiro — mata os widgets, como o próprio Obsidian admite; o selo do Traço é por nota, e o U4 continua vivo.
 
 **O não-óbvio.** O grafo do Obsidian é inútil porque as arestas são manuais. O Traço tem um algoritmo que já acha fragmentos literais repetidos entre notas (`PadroesLocal.fragmentoRepetido`): as arestas existem como subproduto. Se elas vão para o arquivo (`relacionadas:`) é ADR — é algoritmo, não IA, mas é o app decidindo sentido; por ora ficam nos Padrões. O mais fundo: uma pasta do Obsidian é contexto ruim para uma IA porque é prosa que o usuário estruturou à mão ao longo de meses. A pasta do Traço é estruturada pela forma que a IA roteou e o autor preencheu — legível na nota um.
 
@@ -1592,7 +1609,7 @@ Pede ADR: §23 novo ("Segundo cérebro": a pasta como superfície, layout, LEIA-
 
 **O quanto eleva.** 3 — fortalece Atenção, Captura e Intenção que já existem, e o autor sente no primeiro dia em que a página aparece antes do Instagram; não abre poder novo.
 
-**O que fica de fora.** O placar de "tempo economizado", estatísticas e comparações de progresso (regra 5). O rastreamento de emoções. O bloqueio em si e a expulsão do app: o Traço não vigia nem castiga — a Re-Intervention viraria atrito do lado errado (regra 6). A dependência de automação frágil fica do lado do iOS, não no código do Traço: se a automação quebrar, o app continua inteiro (§19.3).
+**O que fica de fora — proposta histórica.** O placar de "tempo economizado", estatísticas e comparações de progresso (regra 5). O rastreamento de emoções. O bloqueio em si e a expulsão do app: o Traço não vigia nem castiga — a Re-Intervention viraria atrito do lado errado (regra 6). A dependência de automação frágil fica do lado do iOS, não no código do Traço: se a automação quebrar, o app continua inteiro (§19.3).
 
 **O não-óbvio.** O One Sec não é app de tempo de tela. É o único app da lista cujo produto é o instante ANTES de outro app — e esse instante é onde o pensamento que ia para a fuga pode virar traço. O Traço já tem a porta (`traco://nova`); o One Sec ensina que a porta rende mais no corredor da fuga do que na tela inicial. E o mecanismo dele é o inverso do Se–então: ele interpõe uma pausa no gatilho para desfazer um hábito; o Traço pode interpor a nota no gatilho para instalar um.
 
@@ -1617,7 +1634,7 @@ Pede ADR: §23 novo ("Segundo cérebro": a pasta como superfície, layout, LEIA-
 
 **O quanto eleva.** 3 — o Recordar já existe; o áudio lhe dá um gabarito que o texto não tem (a memória confere contra o que foi dito, não contra o que foi escrito), e a forma Conversa põe um gesto novo no catálogo. Sente-se na primeira reunião.
 
-**O que fica de fora.** A transcrição, o resumo, os itens de ação por IA, o chat sobre a reunião, o Notetaker que entra nas chamadas, o vocabulário personalizado e a nuvem que treina "on de-identified audio recordings and on transcriptions". Tudo isso é a IA fazendo o gesto pelo autor (§2), e o áudio de terceiros no servidor de alguém é o oposto do selo. Transcrever a PRÓPRIA voz do autor é outra pergunta — está no bloco do Reflection, como ADR.
+**O que fica de fora — proposta histórica.** A transcrição, o resumo, os itens de ação por IA, o chat sobre a reunião, o Notetaker que entra nas chamadas, o vocabulário personalizado e a nuvem que treina "on de-identified audio recordings and on transcriptions". Tudo isso é a IA fazendo o gesto pelo autor (§2), e o áudio de terceiros no servidor de alguém é o oposto do selo. Transcrever a PRÓPRIA voz do autor é outra pergunta — está no bloco do Reflection, como ADR.
 
 **O não-óbvio.** O Otter não é o polo invertido só por resumir. Ele mostra qual conteúdo é o mais perecível da vida do autor — o que foi dito numa conversa — e resolve a perecibilidade guardando. O Traço resolve a mesma perecibilidade cobrando: a conversa é o melhor material de Recordar que existe, porque o gabarito está gravado e ninguém precisa reler cartão à noite para conferir. O que o Otter chama de Takeaways, o Traço chama de campos vazios.
 
@@ -1642,7 +1659,7 @@ Pede ADR: §23 novo ("Segundo cérebro": a pasta como superfície, layout, LEIA-
 
 **O quanto eleva.** 3 — o Traço hoje só multiplica Ordem por forma de texto; o desenho com vestir dá ao autor uma segunda linguagem de organizar, e o efeito se sente no primeiro esquema. Não abre poder novo. A folha com massa (mandato de 01/set) é polimento (2) e já está na FILA — não é item deste bloco.
 
-**O que fica de fora.** O skeuomorfismo do papel com grão e da tinta molhada (o dossiê já decidiu: física sim, textura não). Journals com capa, loja de cadernos com prompts, colagem, pincéis — o Traço tem uma página. Aquarela, mixer de cor, paletas: o desenho aqui é esquema, não arte.
+**O que fica de fora — proposta histórica.** O skeuomorfismo do papel com grão e da tinta molhada (o dossiê já decidiu: física sim, textura não). Journals com capa, loja de cadernos com prompts, colagem, pincéis — o Traço tem uma página. Aquarela, mixer de cor, paletas: o desenho aqui é esquema, não arte.
 
 **O não-óbvio.** A VIZINHANCA diz que o auto-forma do §17 "não tem precedente comercial". Tem — no desenho. O Diagram do Paper é vestir-sem-tocar de uma década atrás, e ensina duas regras que valem para o texto: a lista de formas reconhecidas é pequena e fechada (rótulo, não prosa — §19.4), e o gatilho é a PAUSA do gesto, nunca o meio dele (§11: nada anima enquanto o autor digita). O Paper é a prova de que vestir na pausa parece mágica e vestir no meio parece autocorretor.
 
@@ -1669,7 +1686,7 @@ Pede ADR: §23 novo ("Segundo cérebro": a pasta como superfície, layout, LEIA-
 
 **O quanto eleva.** 5 — abre o poder que o Traço hoje não multiplica: o corpus como contexto perfeito para as IAs do autor, dentro das regras 1, 2 e 10. É a direção nova do dono, e o Raycast é o mapa técnico de como um app de iPhone chega a todo campo de texto do sistema.
 
-**O que fica de fora.** O AI Chat com dezenas de modelos, os AI Commands que reescrevem texto selecionado ("Fix Spelling", "Change Tone"), o ditado com pós-processamento por IA (estilos "Email", "Notes") — §2 e §19.1. O Cloud Sync com servidor deles (§12). O papel de cliente MCP: o Traço não conversa com servidores; entrega arquivo. E um servidor MCP no próprio iPhone: possível por HTTP na rede local, mas morre em segundo plano e vira superfície de exposição — a regra 2 não sobrevive a um processo que responde sozinho.
+**O que fica de fora — proposta histórica.** O AI Chat com dezenas de modelos, os AI Commands que reescrevem texto selecionado ("Fix Spelling", "Change Tone"), o ditado com pós-processamento por IA (estilos "Email", "Notes") — §2 e §19.1. O Cloud Sync com servidor deles (§12). O papel de cliente MCP: o Traço não conversa com servidores; entrega arquivo. E um servidor MCP no próprio iPhone: possível por HTTP na rede local, mas morre em segundo plano e vira superfície de exposição — a regra 2 não sobrevive a um processo que responde sozinho.
 
 **O não-óbvio.** O teclado do Raycast é lido como recurso de produtividade. Visto pela pergunta certa, é o único lugar do iOS onde um app fala dentro de OUTRO app sem que ninguém tenha combinado nada — nem a Apple, nem a Anthropic, nem a OpenAI. Para um app sem servidor, que se recusa a ter conta própria, o teclado é o MCP do soberano: o contexto vai onde o autor manda, e só quando ele manda. E há um segundo não-óbvio: o Raycast prova, com as Notes que "viraram o conteúdo que a base mais cria", que a nota nascida de uma superfície do sistema é a que mais se escreve — captura não é conveniência, é volume de corpus, e volume de corpus é qualidade de contexto.
 
@@ -1695,7 +1712,7 @@ Pede ADR: §23 novo ("Segundo cérebro": a pasta como superfície, layout, LEIA-
 
 **O quanto eleva.** 4 — salto grande no Segundo cérebro (o corpus deixa de ser dado e vira contexto com lei) e dois outros poderes de carona, cada um em dias.
 
-**O que fica de fora.** O e-mail diário (regra 10: sem servidor); o destaque aleatório no widget e a releitura passiva em geral (§3: reler cartões é o anti-padrão); streak e tela de conclusão (§12); o Ghostreader que resume, simplifica e redige; busca semântica e "Find Similar Highlights" (§16); o OCR de livro físico — a foto anexada já tem Live Text nativo, e a palavra de outro entra em "Fonte", não como voz do autor.
+**O que fica de fora — proposta histórica.** O e-mail diário (regra 10: sem servidor); o destaque aleatório no widget e a releitura passiva em geral (§3: reler cartões é o anti-padrão); streak e tela de conclusão (§12); o Ghostreader que resume, simplifica e redige; busca semântica e "Find Similar Highlights" (§16); o OCR de livro físico — a foto anexada já tem Live Text nativo, e a palavra de outro entra em "Fonte", não como voz do autor.
 
 **O não-óbvio.** O Readwise se vende como memória e é, na verdade, um canal: leva o arquivo até onde a pessoa está (e-mail, Kindle, Obsidian, Claude Code). Para o Traço, a lição não é a revisão — é que o arquivo precisa de um formato que EXPLIQUE a si mesmo para valer como contexto. Um .md com `gesto:` e `sentido:` é dado; o mesmo .md com o contrato no topo é um segundo cérebro que ensina a IA a não ser o primeiro. E a inversão: o fluxo "quiz" do Readwise é a IA de fora cobrando memória — o Traço pode entregar o corpus e pedir exatamente isso, sem que nenhuma palavra volte para dentro.
 
@@ -1720,7 +1737,7 @@ Pede ADR: §23 novo ("Segundo cérebro": a pasta como superfície, layout, LEIA-
 
 **O quanto eleva.** 4 — dá ao Segundo cérebro a volta que faltava sem abrir a porta (só pergunta, verificada), e a transcrição no aparelho é um salto de Captura; depende de duas ADRs, por isso depois.
 
-**O que fica de fora.** A escrita por MCP (a IA de fora criando entradas — regra 1, sem exceção). Ask Your Journal e a busca semântica (§16). Insights de sentimento, paisagem emocional, "celebração de progresso", revisões semanais/mensais/anuais geradas, streak e vista de consistência (§12, regra 5). O Voice Call de duas vias (chat). A pergunta "em tempo real" enquanto o autor escreve: o §19.4 tirou a pergunta livre do contrato da Análise por decisão recente; trazê-la de volta exigiria reabrir essa consequência com a mesma prova dura do Padrões — fica registrado, não proposto.
+**O que fica de fora — proposta histórica.** A escrita por MCP (a IA de fora criando entradas — regra 1, sem exceção). Ask Your Journal e a busca semântica (§16). Insights de sentimento, paisagem emocional, "celebração de progresso", revisões semanais/mensais/anuais geradas, streak e vista de consistência (§12, regra 5). O Voice Call de duas vias (chat). A pergunta "em tempo real" enquanto o autor escreve: o §19.4 tirou a pergunta livre do contrato da Análise por decisão recente; trazê-la de volta exigiria reabrir essa consequência com a mesma prova dura do Padrões — fica registrado, não proposto.
 
 **O não-óbvio.** O Reflection é lido como "a IA que pergunta". Visto pelo canal, ele é o primeiro diário que virou ferramenta de um agente — e o fez com escrita, o que o transforma em caixa de entrada para prosa alheia. O Traço pode ser o segundo, com a regra invertida: o único verbo que entra é perguntar. Isso muda o que o Claude do autor É para ele: deixa de ser quem responde e passa a ser quem, tendo lido tudo, faz a pergunta que o autor ainda não se fez — e o Traço é onde ele responde por escrito. É o Padrões com o corpus inteiro e um modelo melhor, sem cobrar um token a mais (regra 10: o autor já paga o Claude).
 
@@ -1745,7 +1762,7 @@ Pede ADR: §23 novo ("Segundo cérebro": a pasta como superfície, layout, LEIA-
 
 **O quanto eleva.** 4 — o Recordar passa a servir a toda nota, e o Se–então ganha o treino que o método pede: salto grande em Memória e Intenção ao mesmo tempo, sem uma tela nova.
 
-**O que fica de fora.** A sintaxe de cartão no texto (`::`, cloze com marcação) — o autor jamais digita marcação (ADR 31i). Geração de cartão, quiz, resumo, explicação e tutor por IA (§2). Streaks, metas, widget de streak, estatísticas, "Flashcard Insights" (§12). Exam Scheduler e agendadores customizados — o autor não configura memória; a escada é uma. Oclusão de imagem e múltipla escolha: pista demais para o que o Traço quer.
+**O que fica de fora — proposta histórica.** A sintaxe de cartão no texto (`::`, cloze com marcação) — o autor jamais digita marcação (ADR 31i). Geração de cartão, quiz, resumo, explicação e tutor por IA (§2). Streaks, metas, widget de streak, estatísticas, "Flashcard Insights" (§12). Exam Scheduler e agendadores customizados — o autor não configura memória; a escada é uma. Oclusão de imagem e múltipla escolha: pista demais para o que o Traço quer.
 
 **O não-óbvio.** O dossiê diz que o RemNote "cobra com pista" e o Traço "sem pista", como se fosse uma escolha entre dois. Não é: a pista certa depende do MÉTODO. Recall livre é o treino para uma ideia; recall com o gatilho é o treino para um plano se–então — dar pista ali não é facilitar, é ensaiar o elo que o método existe para criar. O RemNote fez o autor escolher o tipo de cartão; o Traço já sabe o tipo, porque sabe o gesto. O cartão sem segundo momento que o dono pediu não é recurso novo: é o Recordar lendo a forma que já vestiu a nota.
 
@@ -1770,7 +1787,7 @@ Pede ADR: §23 novo ("Segundo cérebro": a pasta como superfície, layout, LEIA-
 
 **O quanto eleva.** 4 — o §8 deixa de ser um dia de um método de quatro; Sentido dá um salto que o autor sente na primeira série, e Metacognição ganha o único "padrão" que não precisa de IA: o autor comparando as próprias frases.
 
-**O que fica de fora.** Toda a IA do Rescript: tom emocional, temas recorrentes, padrões cognitivos, análise de sentimento, o "arco emocional" escrito pelo modelo — o §8.8 diz "nunca", e é o ponto mais sensível do produto. As trilhas por situação (Breakup, Grief, Job Loss…): template em menu (§12) e especialização que o Traço não tem; o desabafo se roteia pela palavra (§17). "Na mesa" como terceira saída: o Traço sela antes do fecho por regra (§8.3) — na mesa é selada, e não precisa de nome.
+**O que fica de fora — proposta histórica.** Toda a IA do Rescript: tom emocional, temas recorrentes, padrões cognitivos, análise de sentimento, o "arco emocional" escrito pelo modelo — o §8.8 diz "nunca", e é o ponto mais sensível do produto. As trilhas por situação (Breakup, Grief, Job Loss…): template em menu (§12) e especialização que o Traço não tem; o desabafo se roteia pela palavra (§17). "Na mesa" como terceira saída: o Traço sela antes do fecho por regra (§8.3) — na mesa é selada, e não precisa de nome.
 
 **O não-óbvio.** O Rescript é lido como "o §8 com IA". A leitura que interessa é outra: ele é o único app que trata o desabafo como MÉTODO com posologia — quatro doses, uma por dia, sem streak. O Traço herdou a dose e perdeu a posologia, e a parte cara do método está na repetição. E a segunda leitura: o "arco de 4 dias" do Rescript prova que o público quer ver o próprio percurso — o Traço pode dar isso sem uma palavra de IA, porque já pede ao autor a frase que resume cada dia. A linha de sentido, vista quatro vezes, é o relatório que a regra de ferro permite.
 
@@ -1795,7 +1812,7 @@ Pede ADR: §23 novo ("Segundo cérebro": a pasta como superfície, layout, LEIA-
 
 **O quanto eleva.** 4 — dois poderes de uma vez que o Traço mal toca (Ordem por domínio; Intenção fechada à noite) e o Padrões com memória de corpus inteiro, sem IA nova.
 
-**O que fica de fora.** O chat dentro da entrada, "Dig deeper", "Reflect", Guiding Light (a IA sugerindo ângulos quando o autor trava — é a IA ocupando o vazio, regra 8), personas, tom e voz da IA, relatório semanal, rastreador de humor, Happiness Recipe (metas sugeridas pela IA), streaks e "frases diárias (afirmações, haicais, provérbios)" — a afirmação diária é exatamente o que o aviso Wood do §5 recusa. A memória de longo prazo como a do Rosebud (servidor, histórico no modelo) fere as regras 2 e 10; a versão do Traço é seleção local e chamada sem histórico.
+**O que fica de fora — proposta histórica.** O chat dentro da entrada, "Dig deeper", "Reflect", Guiding Light (a IA sugerindo ângulos quando o autor trava — é a IA ocupando o vazio, regra 8), personas, tom e voz da IA, relatório semanal, rastreador de humor, Happiness Recipe (metas sugeridas pela IA), streaks e "frases diárias (afirmações, haicais, provérbios)" — a afirmação diária é exatamente o que o aviso Wood do §5 recusa. A memória de longo prazo como a do Rosebud (servidor, histórico no modelo) fere as regras 2 e 10; a versão do Traço é seleção local e chamada sem histórico.
 
 **O não-óbvio.** O Rosebud é lido como "diário com chat". Visto pela pergunta certa, o que retém a base dele não é a conversa — é ser lembrado: a IA que "lembra do que você já disse" faz o autor sentir que o próprio passado conta. O Traço pode dar a mesma sensação sem a IA lembrar nada: a regra acha o eco, a pergunta cita a data, e quem lembra é o autor. E o par manhã/noite revela um buraco no Destaque: o Traço pede a única coisa de hoje e nunca pergunta o que houve com ela — o método está pela metade, como a expressiva sem os quatro dias.
 
@@ -1821,7 +1838,7 @@ Pede ADR: §23 novo ("Segundo cérebro": a pasta como superfície, layout, LEIA-
 
 **O quanto eleva.** 2/5 — polimento que se sente na nota longa; não muda o que o app faz pela mente.
 
-**O que fica de fora.** Números de linha, guia de página, invisíveis, temas por escopo, regex na substituição, encoding: chrome de editor de código, contra o §3 e o §11 (tema único). "Lembrar linguagem por arquivo" já existe no Traço como `gesto` na nota.
+**O que fica de fora — proposta histórica.** Números de linha, guia de página, invisíveis, temas por escopo, regex na substituição, encoding: chrome de editor de código, contra o §3 e o §11 (tema único). "Lembrar linguagem por arquivo" já existe no Traço como `gesto` na nota.
 
 **O não-óbvio.** O Runestone é um motor vestindo uma UI mínima: o app é o parser, o resto é régua. O Traço tomou a mesma decisão sem dizer (o parser 22× foi o item mais caro da FILA). A leitura que fica: toda função acima do motor tem de ser régua, não chrome — e o overscroll, vendido lá como opção Premium de programador, é a única função de Atenção do app inteiro.
 
@@ -1848,7 +1865,7 @@ Nenhuma dessas portas pergunta nada. Uma tela intermediária na captura seria im
 
 **O quanto eleva.** 3/5 — fortalece Captura de um jeito que se sente no primeiro dia (o botão físico vira o Traço), sem abrir poder novo.
 
-**O que fica de fora.** Auto Shazam (escuta contínua): vigilância, e o Traço não capta nada sem o autor apertar. Fila offline com notificação de resultado: a Análise em silêncio no erro é regra (§5); nada "resolve depois" e muda a nota pelas costas. Abas de conteúdo, iCloud Sync (§12), Watch (alvo novo, L, fora do "iOS puro").
+**O que fica de fora — proposta histórica.** Auto Shazam (escuta contínua): vigilância, e o Traço não capta nada sem o autor apertar. Fila offline com notificação de resultado: a Análise em silêncio no erro é regra (§5); nada "resolve depois" e muda a nota pelas costas. Abas de conteúdo, iCloud Sync (§12), Watch (alvo novo, L, fora do "iOS puro").
 
 **O não-óbvio.** O Shazam não é um app de música: é um fechador de ciclo aberto. A coceira "que música é essa?" some em um toque antes de cobrar atenção. É por isso que "zero opção" não é estética: qualquer escolha na hora da captura taxa exatamente o pensamento que está sendo salvo. E a porta mais barata de todas é a que não tem tela — Toque Traseiro e Botão de Ação capturam de olhos fechados.
 
@@ -1874,7 +1891,7 @@ Nenhuma dessas portas pergunta nada. Uma tela intermediária na captura seria im
 
 **O quanto eleva.** 3/5 — fortalece o poder que a expressiva já tem, e o autor sente no primeiro dia em que troca de app com o timer rodando e vê o seletor escuro.
 
-**O que fica de fora.** Face ID na abertura do app com timeout: fricção na porta da captura (§3, §17); o bloqueio do iPhone cobre. Secure Backups com chave de 64 caracteres: a trancada não precisa sobreviver ao aparelho — reler desfaz o ganho. Username, número, Stories, grupos: outro produto.
+**O que fica de fora — proposta histórica.** Face ID na abertura do app com timeout: fricção na porta da captura (§3, §17); o bloqueio do iPhone cobre. Secure Backups com chave de 64 caracteres: a trancada não precisa sobreviver ao aparelho — reler desfaz o ganho. Username, número, Stories, grupos: outro produto.
 
 **O não-óbvio.** O Signal ensina que a garantia que funciona é a que o usuário não sabe que existe. O Traço fez o inverso no lugar certo (a cerimônia de trancar é visível, é método) e o mesmo no lugar errado: o selo é visível na UI e inexistente nos bytes. O par certo é cerimônia na tela, criptografia embaixo — e nenhuma das duas pede que o autor aprenda algo.
 
@@ -1901,7 +1918,7 @@ Nenhuma dessas portas pergunta nada. Uma tela intermediária na captura seria im
 
 **O quanto eleva.** 5/5 — abre Linguagem, que o Traço hoje não multiplica em nada, e de quebra torna o Recordar viável para a nota longa.
 
-**O que fica de fora.** Hard Mode como irreversibilidade: os degraus continuam editáveis; sem volta é só o Queimar (§8). Os três modos: uma forma só. Toggle de qualquer coisa. A frase não vai para a IA remota como "resumo" — só viaja como voz do autor, igual ao resto (§19.1).
+**O que fica de fora — proposta histórica.** Hard Mode como irreversibilidade: os degraus continuam editáveis; sem volta é só o Queimar (§8). Os três modos: uma forma só. Toggle de qualquer coisa. A frase não vai para a IA remota como "resumo" — só viaja como voz do autor, igual ao resto (§19.1).
 
 **O não-óbvio.** O Traço já pede a frase duas vezes — "o que ficou claro?" na expressiva e "uma ideia nas suas palavras" na Nota permanente — e nunca dá a escada para chegar nela. Para a mente que o §17 descreve, "diga numa frase" é um muro; quatro caixas que encolhem são degraus. E o arquivo de frases que se acumula é o índice da própria cabeça, escrito pelo dono dela — o único índice que a regra de ferro permite.
 
@@ -1927,7 +1944,7 @@ Nenhuma dessas portas pergunta nada. Uma tela intermediária na captura seria im
 
 **O quanto eleva.** 4/5 — dá salto em Intenção (o Destaque passa a ser cobrado) e abre uma peça de Metacognição sem placar.
 
-**O que fica de fora.** Humor ao abrir, métricas 1–5, hábitos, streaks com recuperação, Trends, calendário de consistência: medir o autor (§19.1) e gamificar (§12). Prompt semanal e sugestões por fotos/Health: ocupam o vazio (§3). Mentores de IA e "Go Deeper": prosa e chat (§2, §12). Stoic Shield e respiração: não é escrita.
+**O que fica de fora — proposta histórica.** Humor ao abrir, métricas 1–5, hábitos, streaks com recuperação, Trends, calendário de consistência: medir o autor (§19.1) e gamificar (§12). Prompt semanal e sugestões por fotos/Health: ocupam o vazio (§3). Mentores de IA e "Go Deeper": prosa e chat (§2, §12). Stoic Shield e respiração: não é escrita.
 
 **O não-óbvio.** O Stoic vende duzentos exercícios e o que funciona são dois horários. E o segundo horário faz algo que nenhum app de tarefas faz: transforma a lista de hoje em experimento sobre si — o que eu disse de manhã contra o que aconteceu, visto por mim, sem nota. É Metacognição feita com a peça mais antiga do Traço, o Recordar, apontada para o dia em vez de para a memória.
 
@@ -1953,7 +1970,7 @@ Nenhuma dessas portas pergunta nada. Uma tela intermediária na captura seria im
 
 **O quanto eleva.** 5/5 — é a direção nova do dono (02/set) ganhando forma: o poder que o Traço não multiplica ainda, com o modelo de conector mais bem resolvido do mercado.
 
-**O que fica de fora.** Kudos, seguidores, clubes, segmentos, leaderboards, desafios, badges: audiência e placar (§12). Athlete Intelligence: resumo por IA dentro do app, sem desligar — o contraexemplo exato do §19.1. Fitness Score, Relative Effort, metas no widget: medir o autor. Beacon, Live Activities de treino: outro esporte.
+**O que fica de fora — proposta histórica.** Kudos, seguidores, clubes, segmentos, leaderboards, desafios, badges: audiência e placar (§12). Athlete Intelligence: resumo por IA dentro do app, sem desligar — o contraexemplo exato do §19.1. Fitness Score, Relative Effort, metas no widget: medir o autor. Beacon, Live Activities de treino: outro esporte.
 
 **O não-óbvio.** A Strava fabrica identidade com o olhar dos outros. O Traço não pode ter plateia — mas pode ter leitor: a IA do autor lê tudo e não devolve kudos, devolve contexto. É a única audiência compatível com a nota que se sela. E o conector deles é somente leitura por acaso comercial; no Traço é somente leitura por lei — a mesma regra que proíbe a IA de escrever na nota proíbe qualquer IA de escrever no corpus.
 
@@ -1979,7 +1996,7 @@ Nenhuma dessas portas pergunta nada. Uma tela intermediária na captura seria im
 
 **O quanto eleva.** 4/5 — salto grande em Memória (fila, unidade, resposta) e Intenção de uma vez.
 
-**O que fica de fora.** SM-18, Arena, curvas visíveis: painel (§9.4) e complexidade que a barreira de uso já derrotou. Cramming: anti-tese. Importar PDF, EPub, YouTube: palavras de outros — o Readwise da vizinhança; se o segundo cérebro um dia quiser leitura, é ADR separado. Explicações por IA ao extrair: prosa (§2).
+**O que fica de fora — proposta histórica.** SM-18, Arena, curvas visíveis: painel (§9.4) e complexidade que a barreira de uso já derrotou. Cramming: anti-tese. Importar PDF, EPub, YouTube: palavras de outros — o Readwise da vizinhança; se o segundo cérebro um dia quiser leitura, é ADR separado. Explicações por IA ao extrair: prosa (§2).
 
 **O não-óbvio.** O SuperMemo diz que agenda uniforme está errada para tudo — e a resposta do Traço não é um algoritmo, é a forma: ela já sabe o horizonte da memória (um dia, semanas, para sempre) antes de qualquer curva. E o Anki venceu o SuperMemo sendo pior porque abria mais rápido: o Recordar vence se ficar a um toque da notificação, e perde no dia em que ganhar uma tela de opções.
 
@@ -2006,7 +2023,7 @@ Nenhuma dessas portas pergunta nada. Uma tela intermediária na captura seria im
 
 **O quanto eleva.** 3/5 — Captura e Intenção sentidas no primeiro dia; Ordem cresce depois.
 
-**O que fica de fora.** Ações em JavaScript, galeria de ações, paleta `/`, barra de marcação, TextExpander, Working Copy: tudo que exige aprender o app (§17). Clipboard como aba: as palavras de outros não são o corpus. "Open in place" para outros apps editarem o .md: o SwiftData é a verdade; conflito seria ADR. Exportar PDF/HTML: o autor já tem o .md.
+**O que fica de fora — proposta histórica.** Ações em JavaScript, galeria de ações, paleta `/`, barra de marcação, TextExpander, Working Copy: tudo que exige aprender o app (§17). Clipboard como aba: as palavras de outros não são o corpus. "Open in place" para outros apps editarem o .md: o SwiftData é a verdade; conflito seria ADR. Exportar PDF/HTML: o autor já tem o .md.
 
 **O não-óbvio.** A aba de clipboard do Taio é uma caixa de entrada para tudo que a pessoa copia — o custo de "onde ponho isto" cai a zero. A página nua do Traço é essa caixa, mas só para o que se digita nela; o Atalho com texto abre a caixa para o que nasceu em outro lugar. E o Taio prova por contraste o que o §17 afirma: todo poder que ele expõe na barra é o mesmo poder que o Traço esconde atrás do vestir.
 
@@ -2031,7 +2048,7 @@ Nenhuma dessas portas pergunta nada. Uma tela intermediária na captura seria im
 
 **O quanto eleva.** 3/5 — fortalece Sentido e Atenção na expressiva, e o autor sente no primeiro desabafo.
 
-**O que fica de fora.** Perda total e "You failed": destruição sem escolha — no Traço, destruir é método do autor (Queimar), nunca castigo. Prompt aleatório (§3). Tuíte (§12). Meta por palavras: placar. Backspace desligado: briga com o teclado, não com o censor.
+**O que fica de fora — proposta histórica.** Perda total e "You failed": destruição sem escolha — no Traço, destruir é método do autor (Queimar), nunca castigo. Prompt aleatório (§3). Tuíte (§12). Meta por palavras: placar. Backspace desligado: briga com o teclado, não com o censor.
 
 **O não-óbvio.** O MDWA é a expressiva do Traço com a memória arrancada: mesma sessão cronometrada, contínua, sem edição — mas o texto morre por falha. O Traço já converteu o estado de falha em método (Queimar, Briñol). O que falta é o contrário: a parte do MDWA que funciona antes do fim, o fluxo, hoje depende só da disciplina do autor. A escuridão atrás entrega o fluxo, e a vontade de não parar deixa de ser tarefa do autor — passa a ser do app (Tesler: a complexidade não some, muda de lado).
 
@@ -2056,7 +2073,7 @@ Nenhuma dessas portas pergunta nada. Uma tela intermediária na captura seria im
 
 **O quanto eleva.** 4 — dá ao segundo cérebro a forma mais segura possível (a que o app mais bem desenhado do iOS escolheu) e liga notas por gesto; não é 5 porque a porta é uma peça, não a direção inteira.
 
-**O que fica de fora.** Writing Tools da Apple nas notas (reescrever, resumir — §2, §19.1). Things Cloud e sync (§12). Datas, prazos, repetição, calendário (§12). Tortas de progresso e anel de percentual (§19.1). Áreas e projetos como hierarquia mantida à mão (ver TickTick: a divisão entra inferida, não arquivada).
+**O que fica de fora — proposta histórica.** Writing Tools da Apple nas notas (reescrever, resumir — §2, §19.1). Things Cloud e sync (§12). Datas, prazos, repetição, calendário (§12). Tortas de progresso e anel de percentual (§19.1). Áreas e projetos como hierarquia mantida à mão (ver TickTick: a divisão entra inferida, não arquivada).
 
 **O não-óbvio.** O Things é o único da lista que publicou uma posição sobre IA de terceiros, e ela é o §19.3 dito ao contrário: o que a IA pode fazer com os seus dados é o que o app deixa fazer pela frente. O Traço não precisa de API, MCP nem servidor (regra 10) para ser segundo cérebro — precisa que as intents de leitura devolvam exatamente o que a busca devolve, com o selo dentro.
 
@@ -2084,7 +2101,7 @@ Nenhuma dessas portas pergunta nada. Uma tela intermediária na captura seria im
 
 **O quanto eleva.** 5 — o Traço passa a organizar a vida do autor em domínios sem que ele arquive nada, e o corpus passa a servir às IAs dele: um poder novo (Segundo cérebro) e a Ordem que hoje só existe por gesto.
 
-**O que fica de fora.** A suíte: calendário, Kanban, Timeline, matriz de Eisenhower, contagens regressivas, Pomodoro com estatística (§12; e o dossiê: suíte compete pela barra). Achievement Score, medalhas, mapa de calor, taxa de conclusão (§12 por nome). Constant Reminder e alarme que ignora o silencioso (a notificação que insiste). Summary (texto gerado), AI Voice Add (reestrutura a fala do autor), transcrição com resumo — §2, §19.1. Colaboração, atribuição, comentários (§12). Conta obrigatória, e-mail-para-tarefa e bot do Telegram (exigem servidor — regra 10). 40 temas (tema único, §11). Modelos de tarefa e de nota (§12: templates em menu).
+**O que fica de fora — proposta histórica.** A suíte: calendário, Kanban, Timeline, matriz de Eisenhower, contagens regressivas, Pomodoro com estatística (§12; e o dossiê: suíte compete pela barra). Achievement Score, medalhas, mapa de calor, taxa de conclusão (§12 por nome). Constant Reminder e alarme que ignora o silencioso (a notificação que insiste). Summary (texto gerado), AI Voice Add (reestrutura a fala do autor), transcrição com resumo — §2, §19.1. Colaboração, atribuição, comentários (§12). Conta obrigatória, e-mail-para-tarefa e bot do Telegram (exigem servidor — regra 10). 40 temas (tema único, §11). Modelos de tarefa e de nota (§12: templates em menu).
 
 **O não-óbvio.** Três. Primeiro: o TickTick organiza a mente fazendo do autor o bibliotecário — e a conta do dono prova que o bibliotecário pede demissão. A harmonia é real; a manutenção é o que mata. Separar sem arquivar é o §17 aplicado à Ordem. Segundo: o único calendário que o Traço pode ter sem virar agenda é o das intenções — não o evento, mas a deixa do "se" chegando na hora. Terceiro: a matriz de Eisenhower e o Destaque respondem à mesma pergunta por caminhos opostos — a matriz pede que o autor classifique quatro quadrantes; o Destaque pede uma coisa. O Traço já escolheu.
 
@@ -2109,7 +2126,7 @@ Nenhuma dessas portas pergunta nada. Uma tela intermediária na captura seria im
 
 **O quanto eleva.** 2 — polimento que se sente na primeira expressiva; o poder (o timer que não negocia) o §8 já tem.
 
-**O que fica de fora.** Modo imersivo com lista de apps permitidos (Screen Time API — pesado, e o §8 já tranca ao sair). Sono, soneca, alarme, respiração 4-7-8 e meditações: método fora do §8, e o ADR 31l proíbe método sem prova dentro do fluxo. Tide Diary com relatório e cartão de compartilhamento (§12). Citação diária (§3: nada ocupa o vazio). Cenas e catálogo de sons (§12: menu).
+**O que fica de fora — proposta histórica.** Modo imersivo com lista de apps permitidos (Screen Time API — pesado, e o §8 já tranca ao sair). Sono, soneca, alarme, respiração 4-7-8 e meditações: método fora do §8, e o ADR 31l proíbe método sem prova dentro do fluxo. Tide Diary com relatório e cartão de compartilhamento (§12). Citação diária (§3: nada ocupa o vazio). Cenas e catálogo de sons (§12: menu).
 
 **O não-óbvio.** O TIDE separa sono, foco e meditação por cena, não por ajuste: uma cena é uma intenção. O Traço tem uma cena só — a expressiva — e é por isso que o intent vale mais que o som: entrar já na cena certa é o que o TIDE faz com um toque na tela inicial.
 
@@ -2135,7 +2152,7 @@ Nenhuma dessas portas pergunta nada. Uma tela intermediária na captura seria im
 
 **O quanto eleva.** 5 — Linguagem é o poder que a tabela dos dez marca como "quase nada hoje"; a forma Palavra e a pergunta sobre a muleta abrem esse poder, e a fila diária dá à Memória o ritual que a escada ainda não tem.
 
-**O que fica de fora.** Streaks, coroa, paywall, jogos gamificados, temas e fundos (§12, §11). A serifa no centro: §11 é SF, e a tela do Recordar de uma Palavra fica em SF. O feed de palavras alheias: o Traço nunca põe conteúdo no vazio (§3) — a palavra entra porque o autor a trouxe. Widget com "palavra do dia" e complicação de Watch com conteúdo: mostrariam texto do autor fora do app (o selo e o §3 falam contra). Rastreamento e publicidade.
+**O que fica de fora — proposta histórica.** Streaks, coroa, paywall, jogos gamificados, temas e fundos (§12, §11). A serifa no centro: §11 é SF, e a tela do Recordar de uma Palavra fica em SF. O feed de palavras alheias: o Traço nunca põe conteúdo no vazio (§3) — a palavra entra porque o autor a trouxe. Widget com "palavra do dia" e complicação de Watch com conteúdo: mostrariam texto do autor fora do app (o selo e o §3 falam contra). Rastreamento e publicidade.
 
 **O não-óbvio.** Três. Primeiro: o Vocabulary vende palavras de fora; a ferramenta que faltava ao autor é entender as de dentro — a muleta que ele repete catorze vezes é mais reveladora que qualquer palavra rara do feed. Segundo: o quiz do Vocabulary é receptivo (vê a palavra, escolhe o sentido); poder de pensar é produtivo (tem o sentido, acha a palavra). O Recordar invertido é a única "prática" que serve à tese. Terceiro: o ritual diário do Vocabulary não vem do streak — vem de o app ter absorvido a decisão "o que eu estudo hoje?" (Tesler). A fila do dia faz o mesmo pelo Recordar, e é por isso que dispensa a ofensiva.
 
@@ -2161,7 +2178,7 @@ Nenhuma dessas portas pergunta nada. Uma tela intermediária na captura seria im
 
 **O quanto eleva.** 4 — salto grande na Metacognição (de doze notas para anos) e toca Sentido; não abre poder novo.
 
-**O que fica de fora.** Toda nota: Sleep Score, Readiness, Recovery, Strain 0–21, Stress 0–3, Healthspan e "idade" (§19.1: pontuar, medir progresso e dar nota são proibidos para sempre). Mostradores, anéis, mapas de calor, relatórios em PDF (§9.4: dashboards). Coach e Advisor em chat com memória (§12). Notificações de hora de dormir e de inatividade (a insistência). Teams e Circles (§12). Weekly Plan como revisão semanal obrigatória: sistema que pede manutenção morre.
+**O que fica de fora — proposta histórica.** Toda nota: Sleep Score, Readiness, Recovery, Strain 0–21, Stress 0–3, Healthspan e "idade" (§19.1: pontuar, medir progresso e dar nota são proibidos para sempre). Mostradores, anéis, mapas de calor, relatórios em PDF (§9.4: dashboards). Coach e Advisor em chat com memória (§12). Notificações de hora de dormir e de inatividade (a insistência). Teams e Circles (§12). Weekly Plan como revisão semanal obrigatória: sistema que pede manutenção morre.
 
 **O não-óbvio.** A nota de 0 a 100 cria ansiedade não porque é número, mas porque é *recebida* — o autor consome um veredito sobre si. A pergunta é *respondida*: o autor produz. É a mesma distinção da regra de ferro (texto pronto × texto escrito), aplicada ao retorno. E a biometria do Traço já existe: a hora em que se escreve e a forma que se veste são sinais tão longitudinais quanto HRV, e não precisam de anel.
 
@@ -2186,7 +2203,7 @@ Nenhuma dessas portas pergunta nada. Uma tela intermediária na captura seria im
 
 **O quanto eleva.** 3 — o WOOP do Traço passa a ser fiel ao método no primeiro uso; o autor sente na primeira nota "quero…".
 
-**O que fica de fora.** O formulário como porta (§3, §17: o texto vem antes da forma). Lembretes recorrentes "para criar o hábito de fazer WOOP" — cobrança sem deixa, o mesmo erro do Lembretes; a deixa com hora entra pelo bloco TickTick. Lista de WOOPs com progresso (§19.1: medir progresso). WOOP em grupo (§12).
+**O que fica de fora — proposta histórica.** O formulário como porta (§3, §17: o texto vem antes da forma). Lembretes recorrentes "para criar o hábito de fazer WOOP" — cobrança sem deixa, o mesmo erro do Lembretes; a deixa com hora entra pelo bloco TickTick. Lista de WOOPs com progresso (§19.1: medir progresso). WOOP em grupo (§12).
 
 **O não-óbvio.** O app da Oettingen "acompanha o progresso" de um WOOP olhando se o plano se cumpriu. O Traço faz o progresso acontecer: cobrar o plano de memória é o ensaio que deixa o elo se–então acessível na hora em que o obstáculo aparece. O Recordar não é só memória — para as formas de intenção, é o mecanismo de execução.
 
@@ -2210,7 +2227,7 @@ Nenhuma dessas portas pergunta nada. Uma tela intermediária na captura seria im
 
 **O quanto eleva.** 2 — polimento que se sente na primeira expressiva; o poder está no §8.
 
-**O que fica de fora.** Som estridente e cor (§15: tom sóbrio). Kamikaze: apagar palavras de trás para frente. Meta de palavras (placar, §19.1). Modo Reward (§12). Word wars (§12). Backspace bloqueado: no teclado do iPhone é castigo, não método.
+**O que fica de fora — proposta histórica.** Som estridente e cor (§15: tom sóbrio). Kamikaze: apagar palavras de trás para frente. Meta de palavras (placar, §19.1). Modo Reward (§12). Word wars (§12). Backspace bloqueado: no teclado do iPhone é castigo, não método.
 
 **O não-óbvio.** A ameaça do Kamikaze — perder o texto — é vazia na expressiva: o texto vai ser selado ou queimado de qualquer jeito; o autor não perde nada que fosse guardar. A única moeda que a sessão tem é continuidade, então a consequência tem de agir sobre o relógio, não sobre o texto. E o jeito mais barato de "não voltar" não é travar o backspace: é tirar o sublinhado que chama de volta.
 
@@ -2235,14 +2252,16 @@ Nenhuma dessas portas pergunta nada. Uma tela intermediária na captura seria im
 
 **O quanto eleva.** 4 — o poder Sentido existe no Traço e dá um salto: da sessão para o arco; a linha de sentido deixa de ser um resíduo e vira o material do quarto dia.
 
-**O que fica de fora.** Apagar tudo sem separar (o Zenpen destrói a linha de sentido junto — o dossiê já disse). O apagamento em 30 segundos enquanto se escreve: o catálogo não confirma se é fade progressivo ou limpeza; não se constrói sobre o não verificado. O timer de 05:00 (o §8 tem 15). PWA e web (§12).
+**O que fica de fora — proposta histórica.** Apagar tudo sem separar (o Zenpen destrói a linha de sentido junto — o dossiê já disse). O apagamento em 30 segundos enquanto se escreve: o catálogo não confirma se é fade progressivo ou limpeza; não se constrói sobre o não verificado. O timer de 05:00 (o §8 tem 15). PWA e web (§12).
 
 **O não-óbvio.** O Zenpen erra o que guardar e acerta o que o Traço não viu: a unidade do método não é a sessão, é a série. Selar e queimar resolvem a noite; o sentido se faz entre as noites — e as quatro linhas juntas são a única "releitura" que o método permite, porque não releem a dor, releem o que ficou claro.
 
 
 ---
 
-## A síntese do editor
+## A síntese do editor — propostas históricas
+
+Esta síntese conserva prioridades e conclusões de 02/09. “Segundo cérebro é o export” e “único calendário possível” são formulações superadas pela visão de realização e desenvolvimento: exportar é uma capacidade do ambiente; calendário liga intenção, ação e retorno. Não transformar esta lista em backlog aprovado sem verificar SPEC, evidência e necessidades atuais.
 
 Oito lotes escreveram os 71 blocos sem se ler. O que apareceu em vários deles ao
 mesmo tempo é o sinal mais forte deste documento: convergência sem combinação.

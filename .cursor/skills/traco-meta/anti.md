@@ -1,49 +1,33 @@
-# Anti — parece progresso, é traição
+# Fronteiras que a evolução deve preservar
 
-Se o patch faz uma destas coisas, é fail. Não "v2". Não "flag". Não "só no DEBUG".
+Aplicar à tarefa e às ADRs vigentes da [SPEC](../../../SPEC.md), sob a tese de [VISAO-PRODUTO](../../../VISAO-PRODUTO.md). Proibição histórica de toda geração ou rede não rege o produto atual.
 
-## IA
+## Autoria, prática e delegação
 
-- Completar, resumir, melhorar, consolar, elogiar, ou "sugerir o parágrafo".
-- Porteiro a cada tecla ou na pausa.
-- `URLSession` / SDK / proxy "só para classificar melhor".
-- Segundo gesto na mesma nota "para ajudar".
-- Códice que diagnostica, planeia, ou elogia.
-- Puxar com score, nota da IA, ou revelar sem o autor ter escrito memória.
+- Não apresentar texto gerado, importado ou misto como relato espontâneo da pessoa. Incorporar texto não muda retroativamente sua origem.
+- Não substituir silenciosamente a atividade que a pessoa escolheu praticar. Tampouco impor escrita ou programação manual a quem delegou produção para atingir outro objetivo.
+- Não relaxar regras da Análise de notas pessoais para habilitar produção fora do contrato de Trabalho. Campos de prática vazios e ocultação do alvo no Recordar continuam quando exigidos pelo método escolhido.
+- Não inferir capacidade por delegação, ausência de resposta, contagem de uso ou satisfação. Hipóteses precisam de contexto, origem e correção possível.
+- Não inventar resposta de modelo, pesquisa, ação, cliente, medição ou aprendizagem. Indisponibilidade é estado de erro/limitação, com entrada preservada.
 
-## Markdown / caderno
+## Privacidade e execução
 
-- Ensinar `#`, fences, `:::`, tabelas pipe, `- [ ]` como língua do autor.
-- Toque no bloco → `TextEditor` com a fonte, ou `soProsa` a mostrar o ficheiro inteiro.
-- Placeholder "escreve em markdown".
-- Menu "inserir snippet" com marcas visíveis.
-- Cor por nome de forma (arco-íris). Sintaxe de código no âmbar vivo.
-- Código como dump monoespaçado sem portal.
-- Anexo genérico para imagem/áudio/vídeo/PDF.
-- IDs de fatia que, ao reparse, editam o bloco errado e "desmancham" a forma.
+- Não expor Expressiva, selo ou conteúdo privado por busca, contexto, derivação, preview, exportação, recuperação ou reabertura. Revogação deve bloquear a superfície sem destruir alterações recuperáveis.
+- Não chamar artefato pronto de publicado, agenda de ação executada ou relato de observação independente.
+- Não executar código/HTML ou resolver anexos e URLs locais de conteúdo importado sem o contrato e a autorização correspondentes.
+- Não enviar, publicar, gastar ou assumir compromisso só porque o app produziu uma proposta. Respeitar a delegação já concedida, sem reconfirmá-la por ritual.
 
-## Mente
+## Experiência e representação
 
-- Ícones no lugar de palavras na régua (sopa de Hick sem vocabulário).
-- Formas com nome de rito do Porteiro (WOOP, Wood, Desejo, Puxar, Códice, Traço).
-- Achatamento: laboratório = template; acto = botão mágico; rito = streak.
-- Copiar o Expo morto (arquivado em `_historico/traco-react-native.tar.gz`) ou o ChatGPT.
-- "Onboarding" que explica o produto na página vazia.
-- Gamificação, streaks, XP, dashboards de escrita.
+- Não exigir aprender sintaxe para operar a jornada comum. Fonte explícita para edição externa, código ou formato não suportado é diferente de vazamento acidental de marca na leitura.
+- Não criar botão sem ação em tarefa estática de artefato, esconder erro para limpar a tela ou perder texto ao voltar.
+- Não impor régua, método ou wizard antes de saber se ajuda o objetivo. Preservar acesso a poder e detalhe sem transformar o produto em um catálogo de formas.
+- Não aplicar tema, paleta ou tamanho de fonte históricos por automatismo. Usar sistema vigente, Dynamic Type, VoiceOver e movimento reduzido nos estados afetados. Teste temporário não redefine preferência da pessoa.
+- Não copiar outra implementação ou redesenhar superfície fora do pedido. Julgar identidade e uso com artefato real, sem referências inventadas.
 
-## Visual / iOS
+## Prova e processo
 
-- Segundo tema claro "para acessibilidade" (a página preta é o produto; acessibilidade é contraste e Dynamic Type no escuro).
-- VoiceOver. Nunca. O app é de um dono, iPhone. Passe de leitor de tela não entra.
-- iPad / família 2. Nunca. O dono não tem iPad.
-- Dois âmbares vivos no mesmo ecrã.
-- Animação enquanto se escreve.
-- Alvo <44pt em acto real (régua, Porteiro, Concluída).
-- Placeholder no vazio.
-
-## Processo
-
-- Fechar o turno com "está melhor" sem screenshot / teste.
-- 40 features num plano para parecer horas de trabalho.
-- Baixar um portão porque o Maestro falhou e "deve estar ok".
-- Inventar referência visual (Mobbin/Craft) sem ter aberto o ecrã.
+- Não tratar fonte lida, teste unitário, screenshot e interação como provas equivalentes.
+- Não baixar o critério para acomodar falha da ferramenta, nem chamar revisão autoral de independente.
+- Não iniciar commits, apagar WIP, publicar ou executar tarefas antigas porque um prompt de sessão arquivado mandava.
+- Não tratar esta lista como veto à evolução autorizada: conflitos de intenção se resolvem pela visão e instrução vigentes; fronteiras de dados e efeitos precisam continuar explícitas.

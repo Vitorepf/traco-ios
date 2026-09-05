@@ -1,0 +1,41 @@
+# ADR 04l: cada faculdade nova vestindo na tela, uma por vez — criação,
+# raciocínio, foco, calibragem, aprender de fora (com o PDF anexado).
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn: {id: pagina}
+- inputText: "defendo que a atenção se treina, e a tese principal é essa"
+- extendedWaitUntil: {visible: "ARGUMENTO", timeout: 8000}
+- takeScreenshot: /tmp/traco-verify/ciclo/16-argumento
+- tapOn: {id: "concluir"}
+- tapOn: {id: pagina}
+- inputText: "preciso planejar o dia com calma antes de abrir o e-mail"
+- extendedWaitUntil: {visible: "DIA", timeout: 8000}
+- takeScreenshot: /tmp/traco-verify/ciclo/17-dia
+- tapOn: {id: "concluir"}
+- tapOn: {id: pagina}
+- inputText: "brainstorm de nomes para o novo lançamento, de quantos jeitos der"
+- extendedWaitUntil: {visible: "DIVERGÊNCIA", timeout: 8000}
+- takeScreenshot: /tmp/traco-verify/ciclo/18-divergencia
+- tapOn: {id: "concluir"}
+- tapOn: {id: pagina}
+- inputText: "a posição contrária diz que o remoto mata a cultura, e quem discorda tem razão em parte"
+- extendedWaitUntil: {visible: "STEELMAN", timeout: 8000}
+- takeScreenshot: /tmp/traco-verify/ciclo/19-steelman
+- tapOn: {id: "concluir"}
+- tapOn: {id: pagina}
+- inputText: "aposto que o lançamento sai em março, probabilidade alta"
+- extendedWaitUntil: {visible: "ATUALIZAÇÃO", timeout: 8000}
+- takeScreenshot: /tmp/traco-verify/ciclo/20-atualizacao
+- tapOn: {id: "concluir"}
+- tapOn: {id: pagina}
+# o marcador entra PRIMEIRO e sozinho, como o Anexar o insere (inteiro, de
+# uma vez — o fluxo caderno-pdf faz o mesmo); só depois a prosa do autor. O
+# arquivo é o que decide a forma, e ele só conta quando há uma palavra dele.
+- inputText: "[arquivo:guia.pdf](traco://file/00000000-0000-4000-8000-000000000001)"
+- extendedWaitUntil: {visible: {id: "portal-pdf"}, timeout: 6000}
+- tapOn: {id: pagina}
+- inputText: "o capítulo dois sobre atenção"
+- extendedWaitUntil: {visible: "LEITURA", timeout: 8000}
+- takeScreenshot: /tmp/traco-verify/ciclo/21-pdf-vira-leitura

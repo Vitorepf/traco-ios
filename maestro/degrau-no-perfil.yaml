@@ -1,0 +1,40 @@
+# ADR 04x: o degrau ouve o sinal, e o Perfil mostra o degrau por forma.
+# Um WOOP concluído com campo respondido é um sinal "ficou": degrau 1.
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn: {id: pagina}
+- inputText: "quero correr de manhã"
+- extendedWaitUntil:
+    visible: {id: "abrir-campos"}
+    timeout: 25000
+- tapOn: {id: "abrir-campos"}
+- extendedWaitUntil:
+    visible: {id: "forma-woop"}
+    timeout: 5000
+- tapOn: {id: "campo-obstaculo"}
+- inputText: "o celular na cama"
+# a folha fecha pelo puxador (o arrasto começa no indicador, nunca sobre um botão)
+- swipe:
+    start: 50%, 9%
+    end: 50%, 95%
+- extendedWaitUntil:
+    visible: {id: "concluir"}
+    timeout: 5000
+- tapOn: {id: "concluir"}
+- waitForAnimationToEnd: {timeout: 2500}
+- swipe:
+    start: 1%, 50%
+    end: 85%, 50%
+- tapOn: {id: aba-notas}
+- tapOn: {id: aba-perfil}
+- extendedWaitUntil:
+    visible: "Perfil"
+    timeout: 5000
+- scrollUntilVisible:
+    element: {text: "A SÁBIA E VOCÊ"}
+    direction: DOWN
+    timeout: 25000
+- assertVisible: ".*WOOP no degrau 1.*"
+- takeScreenshot: /tmp/traco-verify/ciclo/35-degrau-no-perfil

@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
-"""O companheiro no Mac: um servidor MCP só de leitura sobre a pasta do Traço.
+"""O companheiro no Mac: um servidor MCP sobre a pasta do Traço.
+
+Lê tudo; escreve em UMA subpasta, `entrada/` (ADR 2026-09-04p), e em
+`metodos/` (ADR 04l). O que cai em `entrada/` vira nota aberta quando o app
+abre; o que cai em `metodos/` entra no catálogo. Nunca toca em `notas/`.
 
 Lê a pasta espelhada (Documents/Traço, via cabo, ou a pasta que o autor
 escolheu em Perfil › Espelhar numa pasta, no iCloud Drive) e a expõe a
-Claude, ChatGPT, Cursor ou qualquer cliente MCP por stdio. Nunca escreve.
+Claude, ChatGPT, Cursor ou qualquer cliente MCP por stdio. A escrita fica
+restrita a entrada/metodos; não altera notas existentes nem versões de Trabalho.
 
 Sem dependências: fala JSON-RPC 2.0 sobre stdin/stdout, como o protocolo
 MCP pede (Content-Length não é exigido no transporte stdio; uma mensagem por
@@ -138,6 +143,39 @@ class Pasta:
                 sentidos.append(c["sentido"])
         return {"desde": corte, "por_forma": por_forma, "destaques": destaques, "decisoes": decisoes, "sentidos": sentidos}
 
+    # --- a entrada (ADR 04p): o único lugar em que o Mac escreve
+
+    def escrever(self, titulo: str, texto: str, forma: str | None = None) -> str:
+        """Um .md em entrada/, com o cabeçalho do corpus. O app o transforma em
+        nota aberta ao abrir e apaga o arquivo. Import jamais tranca."""
+        import datetime
+        corpo = (titulo.strip() + "\n\n" + texto.strip()).strip() if titulo.strip() else texto.strip()
+        if not corpo:
+            return "Nada a escrever: o texto está vazio."
+        pasta = self.raiz / "entrada"
+        pasta.mkdir(parents=True, exist_ok=True)
+        agora = datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0)
+        cab = [f"criada: {agora.isoformat().replace('+00:00', 'Z')}"]
+        if forma:
+            cab.append(f"gesto: {forma.strip()}")
+        slug = re.sub(r"[^a-z0-9]+", "-", (titulo or texto)[:40].lower()).strip("-") or "nota"
+        nome = f"{agora.strftime('%Y%m%d-%H%M%S')}-{slug}.md"
+        (pasta / nome).write_text("---\n" + "\n".join(cab) + "\n---\n\n" + corpo + "\n", encoding="utf-8")
+        return f"Guardado em entrada/{nome}. Vira nota aberta quando o Traço abrir no iPhone."
+
+    def escrever_metodo(self, metodo: dict) -> str:
+        """Um método novo em metodos/<id>.json (ADR 04l). O app valida ao ler:
+        id único, nome, campos com ids distintos."""
+        id_ = str(metodo.get("id", "")).strip()
+        if not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]{1,40}", id_):
+            return "O id precisa ser uma palavra (letras e dígitos, sem espaço), ex.: cornell."
+        if not str(metodo.get("nome", "")).strip() or not metodo.get("campos"):
+            return "Faltam nome ou campos: [{id, rotulo}]."
+        pasta = self.raiz / "metodos"
+        pasta.mkdir(parents=True, exist_ok=True)
+        (pasta / f"{id_}.json").write_text(json.dumps(metodo, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        return f"Guardado em metodos/{id_}.json. Entra no catálogo quando o Traço abrir no iPhone."
+
     def sentidos(self, limite: int = 20):
         saida = []
         for p in self.arquivos():
@@ -169,6 +207,14 @@ FERRAMENTAS = [
      "inputSchema": {"type": "object", "properties": {}}},
     {"name": "traco_semana", "description": "A revisão da semana: notas por forma nos últimos sete dias, destaques, decisões, o que ficou claro.",
      "inputSchema": {"type": "object", "properties": {"dias": {"type": "integer", "default": 7}}}},
+    {"name": "traco_escrever", "description": "Escreve uma nota NOVA na entrada do Traço (entrada/*.md). Vira nota aberta no iPhone quando o app abrir. Use só com texto do próprio autor — nunca redija por ele.",
+     "inputSchema": {"type": "object", "properties": {
+         "titulo": {"type": "string", "description": "A primeira linha da nota"},
+         "texto": {"type": "string", "description": "O corpo, nas palavras do autor"},
+         "forma": {"type": "string", "description": "Opcional: o nome da forma (WOOP, Decisão, Leitura…)"}},
+         "required": ["texto"]}},
+    {"name": "traco_metodo_escrever", "description": "Adiciona um MÉTODO ao catálogo do Traço (metodos/<id>.json): id, nome, origem, campos [{id, rotulo}], movimento (o que a sábia cobra), pergunta, roteamento (regex).",
+     "inputSchema": {"type": "object", "properties": {"metodo": {"type": "object"}}, "required": ["metodo"]}},
 ]
 
 
@@ -191,6 +237,11 @@ def chamar(pasta: Pasta, nome: str, args: dict) -> str:
         return pasta.corpus() or "Sem traco-corpus.md ainda."
     if nome == "traco_semana":
         return json.dumps(pasta.semana(int(args.get("dias", 7))), ensure_ascii=False, indent=1)
+    if nome == "traco_escrever":
+        return pasta.escrever(str(args.get("titulo", "")), str(args.get("texto", "")), args.get("forma"))
+    if nome == "traco_metodo_escrever":
+        m = args.get("metodo")
+        return pasta.escrever_metodo(m if isinstance(m, dict) else {})
     raise KeyError(nome)
 
 
@@ -249,7 +300,7 @@ def autoteste():
     r = responder(pasta, {"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {}})
     assert r["result"]["serverInfo"]["name"] == "traco"
     r = responder(pasta, {"jsonrpc": "2.0", "id": 2, "method": "tools/list"})
-    assert len(r["result"]["tools"]) == 8
+    assert len(r["result"]["tools"]) == 10
     r = responder(pasta, {"jsonrpc": "2.0", "id": 3, "method": "tools/call", "params": {"name": "traco_notas", "arguments": {"gesto": "woop"}}})
     lista = json.loads(r["result"]["content"][0]["text"])
     assert len(lista) == 1 and lista[0]["titulo"] == "quero correr todo dia"
@@ -265,6 +316,14 @@ def autoteste():
     hoje = dt.date.today().isoformat()
     (raiz / "notas" / "cccc-3.md").write_text(
         f"---\ngesto: Destaque\ncriada: {hoje}\nunica: terminar o relatório\n---\nlista do dia\n", encoding="utf-8")
+    r = responder(pasta, {"jsonrpc": "2.0", "id": 9, "method": "tools/call", "params": {"name": "traco_escrever", "arguments": {"titulo": "do Mac", "texto": "uma linha escrita no computador", "forma": "Leitura"}}})
+    assert "entrada/" in r["result"]["content"][0]["text"], r
+    entrada = list((pasta.raiz / "entrada").glob("*.md"))
+    assert len(entrada) == 1 and "gesto: Leitura" in entrada[0].read_text(encoding="utf-8")
+    r = responder(pasta, {"jsonrpc": "2.0", "id": 10, "method": "tools/call", "params": {"name": "traco_metodo_escrever", "arguments": {"metodo": {"id": "cornell", "nome": "Cornell", "campos": [{"id": "pistas", "rotulo": "Pistas"}]}}}})
+    assert (pasta.raiz / "metodos" / "cornell.json").exists(), r
+    r = responder(pasta, {"jsonrpc": "2.0", "id": 11, "method": "tools/call", "params": {"name": "traco_metodo_escrever", "arguments": {"metodo": {"id": "../x", "nome": "x", "campos": [{"id": "a", "rotulo": "A"}]}}}})
+    assert "id precisa" in r["result"]["content"][0]["text"]
     r = responder(pasta, {"jsonrpc": "2.0", "id": 8, "method": "tools/call", "params": {"name": "traco_semana", "arguments": {}}})
     semana = json.loads(r["result"]["content"][0]["text"])
     assert semana["destaques"] == ["terminar o relatório"] and semana["por_forma"].get("Destaque", 0) >= 1

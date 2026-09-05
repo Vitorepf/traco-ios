@@ -1,14 +1,7 @@
-Traço neste worktree. Não mexa na outra pasta. Não mergeie. Não dê push.
+# Retomar trabalho no Traço
 
-1–3 já fecharam (prova/1.md 2.md 3.md, commit aaa8ec2). NÃO refaça. Próxima unidade: 4 widget. Depois 5 share. Sequencial.
+Leia [VISAO-PRODUTO.md](VISAO-PRODUTO.md), ADRs vigentes de [SPEC.md](SPEC.md), [EVOLUCAO.md](EVOLUCAO.md) e o contrato da tarefa atual antes de agir. A visão é intenção→realização→desenvolvimento; notas e métodos são meios. Produção delegada pela IA é permitida nos contratos próprios, com origem preservada; selo e prática escolhida continuam protegidos.
 
-Já existe WIP: TracoWidget/, Intencoes.swift, maestro/cenarios/widget-rotas.yaml. Termina isso até a barra, não recomeça do zero.
+Releia o checkpoint e o WIP real. Retome a primeira dependência não provada do objetivo autorizado, preservando o escopo integral e distinguindo incremento de conclusão. Use [META.md](META.md) para o processo. Não faça commits, push, publicação ou instalação por consequência deste prompt. Coordene o simulador; não crie outro para disputar a corrida.
 
-Lei: a IA nunca escreve a prosa do autor. Campo vazio. Visual já aprovado. Só iPhone. Sem Expo. Sem drive-by. Se o simulador estiver ocupado, não ligue o segundo.
-
-U4 barra: alvo Widget no xcodeproj, build 0, toque = página em branco e toque = Recordar (rotas já existentes), prova/4-depois.png + prova/4.md.
-U5 barra: alvo Share Extension, build 0, texto compartilhado vira nota sem prosa da IA, prova/5-depois.png + prova/5.md.
-
-Por unidade: faz → comando da barra → conserta (teto 3) → crítico fresco (subagent, só screenshot+teste+barra). Sem crítico, não fecha.
-
-Para em prova/PROVA.md quando 4 e 5 passarem, ou teto, ou permissão faltando. Commit por unidade. Não afrouxa a barra.
+O antigo despacho das unidades 1–5 pertence à sessão de 01/set registrada em [PLAN.md](PLAN.md). Ele não manda terminar widget/share hoje, não concede autoridade para commit e não certifica que o visual continua aprovado. Revalide qualquer item histórico contra o pedido, o código e a evidência atuais.

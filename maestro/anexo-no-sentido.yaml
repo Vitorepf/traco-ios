@@ -1,0 +1,20 @@
+# Corre pelo ./maestro/anexo-no-sentido.sh, que planta o PDF e a nota ANTES
+# deste arranque. Sem clearState. ADR 04y: a busca por sentido acha a nota
+# pelo assunto do PDF, embora a nota não diga "orçamento".
+appId: app.traco
+---
+- launchApp
+- extendedWaitUntil:
+    visible: "1 nota veio de fora."
+    timeout: 10000
+- swipe:
+    start: 1%, 50%
+    end: 85%, 50%
+- tapOn: {id: "aba-notas"}
+- tapOn: {id: "busca-notas"}
+- inputText: "reunião de orçamento com finanças"
+- extendedWaitUntil:
+    visible: "PELO SENTIDO"
+    timeout: 10000
+- assertVisible: "o relatório está no anexo"
+- takeScreenshot: /tmp/traco-verify/ciclo/36-anexo-no-sentido

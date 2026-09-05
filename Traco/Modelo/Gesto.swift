@@ -1,184 +1,105 @@
 import Foundation
 
-enum Gesto: String, CaseIterable, Codable, Identifiable {
-    case woop
-    case seEntao
-    case spec
-    case notaPermanente
-    case destaque
-    case expressiva
-    case destilar
-    case palavra
-    /// Diário de decisão (Kahneman/Klein): a escolha, as opções, o critério e
-    /// o que eu espero — para comparar depois com o que aconteceu.
-    case decisao
-    /// Pré-mortem (Gary Klein, 2007): imaginar que já falhou e explicar por quê.
-    case premortem
-
+/// Uma forma do §6 — agora um id sobre o catálogo (ADR 2026-09-04l), não um
+/// `case`. Os dez de origem continuam com os mesmos ids (`gestoRaw` no disco
+/// e o corpus exportado não mudam); os demais vêm do `Metodos.json` e da
+/// pasta do autor. `Gesto.woop` e os outros estáticos existem para o código
+/// que precisa falar de uma forma pelo nome — o selo da expressiva, a escada
+/// do Recordar, a decisão com data de conferir.
+nonisolated struct Gesto: Hashable, Codable, Identifiable, Sendable, CaseIterable {
+    let rawValue: String
     var id: String { rawValue }
+
+    /// Todo id conhecido pelo catálogo, e também os que já foram gravados
+    /// num `gestoRaw` e cujo método sumiu da pasta: a nota não perde o gesto.
+    init?(rawValue: String) {
+        let limpo = rawValue.trimmingCharacters(in: .whitespaces)
+        guard !limpo.isEmpty else { return nil }
+        self.rawValue = limpo
+    }
+
+    private init(_ raw: String) { rawValue = raw }
+
+    static let woop = Gesto("woop")
+    static let seEntao = Gesto("seEntao")
+    static let spec = Gesto("spec")
+    static let notaPermanente = Gesto("notaPermanente")
+    static let destaque = Gesto("destaque")
+    static let expressiva = Gesto("expressiva")
+    static let destilar = Gesto("destilar")
+    static let palavra = Gesto("palavra")
+    static let decisao = Gesto("decisao")
+    static let premortem = Gesto("premortem")
+    static let dia = Gesto("dia")
+
+    /// Na ordem do catálogo: os do app primeiro, depois os do autor.
+    static var allCases: [Gesto] { Catalogo.todos.map { Gesto($0.id) } }
 
     /// Import/export aceitam o nome de exibição ("WOOP") E o rawValue ("woop") —
     /// o roundtrip do corpus nunca perde o gesto por causa da grafia.
     static func doNome(_ s: String) -> Gesto? {
         let alvo = s.trimmingCharacters(in: .whitespaces)
-        return Gesto(rawValue: alvo) ?? allCases.first { $0.nome.caseInsensitiveCompare(alvo) == .orderedSame }
+        guard !alvo.isEmpty else { return nil }
+        if Catalogo.metodo(alvo) != nil { return Gesto(alvo) }
+        return allCases.first { $0.nome.caseInsensitiveCompare(alvo) == .orderedSame }
     }
 
-    var nome: String {
-        switch self {
-        case .woop: "WOOP"
-        case .seEntao: "Se–então"
-        // "Spec" era o único nome em inglês entre cinco em português — jargão
-        // de programador num app de escrever (o próprio arquivo manda: rótulos
-        // na língua de quem escreve). rawValue segue "Spec": o corpus antigo
-        // importa por doNome.
-        case .spec: "Especificação"
-        case .notaPermanente: "Nota permanente"
-        case .destaque: "Destaque"
-        case .expressiva: "Expressiva"
-        case .destilar: "Destilar"
-        case .palavra: "Palavra"
-        case .decisao: "Decisão"
-        case .premortem: "Pré-mortem"
-        }
+    // MARK: o método, do catálogo
+
+    var metodoDef: Metodo { Catalogo.metodo(rawValue) ?? .desconhecido(rawValue) }
+    var nome: String { metodoDef.nome }
+    /// O MOVIMENTO do método (ADR 03n) — o que a sábia cobra.
+    var metodo: String { metodoDef.movimento }
+    var reconhecimento: String { metodoDef.reconhecimento }
+    var campos: [CampoForma] { metodoDef.campos }
+    var origem: String { metodoDef.origem }
+    var encadeamentos: [Metodo.Encadeamento] { metodoDef.encadeamentos }
+    /// O catálogo conhece este id? Falso = método que sumiu da pasta.
+    var conhecido: Bool { Catalogo.metodo(rawValue) != nil }
+
+    // MARK: Codable como texto (o que o disco e o corpus sempre guardaram)
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.singleValueContainer()
+        rawValue = try c.decode(String.self)
     }
 
-    /// O que o app RECONHECEU no texto — não um elogio, não uma conclusão:
-    /// a razão da classificação, para o autor poder discordar dela.
-    var reconhecimento: String {
-        switch self {
-        case .woop: "isto é um desejo com obstáculo pela frente."
-        case .seEntao: "isto é um hábito que trava num gatilho."
-        case .spec: "isto tem problema e critério de pronto."
-        case .notaPermanente: "isto é uma ideia que vale guardar inteira."
-        case .destaque: "isto parece a lista do seu dia."
-        case .expressiva: "isto é desabafo — pede tempo e porta fechada."
-        case .destilar: "isto pede ser cortado até sobrar uma frase."
-        case .palavra: "isto é uma palavra que você quer poder usar."
-        case .decisao: "isto é uma escolha entre caminhos."
-        case .premortem: "isto é um plano que ainda não imaginou a própria falha."
-        }
-    }
-
-    nonisolated var campos: [CampoForma] {
-        switch self {
-        case .woop:
-            [
-                CampoForma(id: "resultado", rotulo: "Resultado (o melhor desfecho)"),
-                CampoForma(id: "obstaculo", rotulo: "Obstáculo interno (o SEU hábito/medo)"),
-                CampoForma(id: "plano", rotulo: "Se [obstáculo], então eu"),
-            ]
-        case .seEntao:
-            [
-                CampoForma(id: "se", rotulo: "Se (hora / lugar / obstáculo)"),
-                CampoForma(id: "entao", rotulo: "Então eu (substituto concreto, não “não faço”)"),
-            ]
-        case .spec:
-            [
-                // rótulos na língua de quem escreve, não no jargão do método:
-                // "não-objetivos" e "casos-limite" pediam ao autor que soubesse
-                // vocabulário de spec antes de conseguir responder. Os ids ficam
-                // (estão gravados nas notas) — só a pergunta muda.
-                CampoForma(id: "problema", rotulo: "Problema"),
-                CampoForma(id: "pronto", rotulo: "Pronto quando"),
-                CampoForma(id: "nao", rotulo: "O que eu NÃO vou fazer"),
-                CampoForma(id: "restricoes", rotulo: "Restrições (prazo, dinheiro, gente)"),
-                CampoForma(id: "limites", rotulo: "O que pode dar errado"),
-            ]
-        case .notaPermanente:
-            [
-                CampoForma(id: "ideia", rotulo: "Uma ideia, nas suas palavras"),
-                CampoForma(id: "liga", rotulo: "Liga a"),
-                CampoForma(id: "fonte", rotulo: "Fonte"),
-            ]
-        case .destaque:
-            [CampoForma(id: "unica", rotulo: "A única coisa de hoje, primeiro, até acabar")]
-        case .expressiva:
-            []
-        case .destilar:
-            [
-                CampoForma(id: "em200", rotulo: "Em 200", teto: 200),
-                CampoForma(id: "em100", rotulo: "Em 100", teto: 100),
-                CampoForma(id: "em50", rotulo: "Em 50", teto: 50),
-                CampoForma(id: "frase", rotulo: "Numa frase", teto: 140),
-            ]
-        case .palavra:
-            [
-                CampoForma(id: "minhas", rotulo: "Nas minhas palavras"),
-                CampoForma(id: "frase", rotulo: "Uma frase minha com ela"),
-                CampoForma(id: "onde", rotulo: "Onde a encontrei"),
-            ]
-        case .decisao:
-            [
-                CampoForma(id: "escolha", rotulo: "O que estou decidindo"),
-                CampoForma(id: "opcoes", rotulo: "As opções (uma por linha)"),
-                CampoForma(id: "criterio", rotulo: "O que decide entre elas"),
-                CampoForma(id: "decidido", rotulo: "Decidi"),
-                CampoForma(id: "espero", rotulo: "O que espero que aconteça, e quando eu confiro"),
-                CampoForma(id: "aconteceu", rotulo: "O que aconteceu", soDepois: true),
-            ]
-        case .premortem:
-            [
-                CampoForma(id: "plano", rotulo: "O plano, em uma frase"),
-                CampoForma(id: "falhou", rotulo: "Um ano depois, falhou. O que aconteceu?"),
-                CampoForma(id: "sinal", rotulo: "O primeiro sinal de que estava indo por aí"),
-                CampoForma(id: "mudo", rotulo: "O que eu mudo no plano agora"),
-            ]
-        }
+    func encode(to encoder: Encoder) throws {
+        var c = encoder.singleValueContainer()
+        try c.encode(rawValue)
     }
 }
 
-struct CampoForma: Identifiable, Hashable {
-    let id: String
-    let rotulo: String
-    var teto: Int? = nil
-    /// Campo que só faz sentido na VOLTA (a conferência da decisão). Some
-    /// enquanto está vazio e a hora não chegou: perguntar o resultado no dia
-    /// em que se decide é ruído, e ruído é fricção (§17).
-    var soDepois: Bool = false
-}
-
-enum FiltroNotas: String, CaseIterable, Identifiable {
-    case woop = "WOOP"
-    case seEntao = "Se–então"
-    case spec = "Especificação"
-    case notaPermanente = "Permanente"
-    case destaque = "Destaque"
-    case destilar = "Destilar"
-    case palavra = "Palavras"
-    case decisao = "Decisões"
-    case premortem = "Pré-mortem"
-    case trancadas = "Trancadas"
-
+/// Os chips da busca: um por método com `filtro`, mais Trancadas.
+nonisolated struct FiltroNotas: Hashable, Identifiable, Sendable {
+    let rawValue: String
+    let gesto: Gesto?
     var id: String { rawValue }
 
-    var slug: String {
-        switch self {
-        case .woop: "woop"
-        case .seEntao: "se-entao"
-        case .spec: "spec"
-        case .notaPermanente: "nota-permanente"
-        case .destaque: "destaque"
-        case .destilar: "destilar"
-        case .palavra: "palavra"
-        case .decisao: "decisao"
-        case .premortem: "premortem"
-        case .trancadas: "trancadas"
-        }
+    static let trancadas = FiltroNotas(rawValue: "Trancadas", gesto: nil)
+    static let woop = FiltroNotas(rawValue: "WOOP", gesto: .woop)
+    static let seEntao = FiltroNotas(rawValue: "Se–então", gesto: .seEntao)
+    static let spec = FiltroNotas(rawValue: "Especificação", gesto: .spec)
+    static let notaPermanente = FiltroNotas(rawValue: "Permanente", gesto: .notaPermanente)
+    static let destaque = FiltroNotas(rawValue: "Destaque", gesto: .destaque)
+    static let destilar = FiltroNotas(rawValue: "Destilar", gesto: .destilar)
+    static let palavra = FiltroNotas(rawValue: "Palavras", gesto: .palavra)
+    static let decisao = FiltroNotas(rawValue: "Decisões", gesto: .decisao)
+    static let premortem = FiltroNotas(rawValue: "Pré-mortem", gesto: .premortem)
+
+    static var allCases: [FiltroNotas] {
+        Catalogo.todos.compactMap { m in
+            guard let f = m.filtro else { return nil }
+            return FiltroNotas(rawValue: f, gesto: Gesto(rawValue: m.id))
+        } + [trancadas]
     }
 
-    var gesto: Gesto? {
-        switch self {
-        case .woop: .woop
-        case .seEntao: .seEntao
-        case .spec: .spec
-        case .notaPermanente: .notaPermanente
-        case .destaque: .destaque
-        case .destilar: .destilar
-        case .palavra: .palavra
-        case .decisao: .decisao
-        case .premortem: .premortem
-        case .trancadas: nil
+    var slug: String {
+        guard let gesto else { return "trancadas" }
+        switch gesto {
+        case .seEntao: return "se-entao"
+        case .notaPermanente: return "nota-permanente"
+        default: return gesto.rawValue.lowercased()
         }
     }
 }

@@ -4,15 +4,26 @@ import SwiftUI
 /// o alvo na leitura — Palavra e Se deixam a pista visível.
 enum RitualRecordar: Equatable, Sendable {
     case livre, destilada, palavra, seEntao, decisao
+    /// ADR 04l: o ritual declarado no catálogo — o método diz o que some e o
+    /// que fica de pista.
+    case campos(Metodo.RecordarSpec)
 
     nonisolated static func de(_ gesto: Gesto?) -> Self {
         switch gesto {
-        case .destilar: .destilada
-        case .palavra: .palavra
-        case .seEntao: .seEntao
-        case .decisao: .decisao
-        default: .livre
+        case .destilar: return .destilada
+        case .palavra: return .palavra
+        case .seEntao: return .seEntao
+        case .decisao: return .decisao
+        default:
+            if let spec = gesto?.metodoDef.recordar, !spec.alvo.isEmpty { return .campos(spec) }
+            return .livre
         }
+    }
+
+    nonisolated static func juntar(_ ids: [String], _ campos: [String: String]) -> String {
+        ids.compactMap { campos[$0]?.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+            .joined(separator: "\n")
     }
 
     /// Destilar some tudo. Palavra deixa a definição e some a palavra.
@@ -20,6 +31,7 @@ enum RitualRecordar: Equatable, Sendable {
     nonisolated var mostraAlvoAntesDeEscrever: Bool {
         switch self {
         case .destilada, .palavra: false
+        case .campos(let spec): spec.mostraAntes
         default: true
         }
     }
@@ -45,6 +57,8 @@ enum RitualRecordar: Equatable, Sendable {
             // o que eu esperava, antes de saber o que aconteceu: é o que a
             // memória reescreve primeiro (hindsight), por isso é o alvo
             return campos["espero"]?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        case .campos(let spec):
+            return Self.juntar(spec.alvo, campos)
         }
     }
 
@@ -60,10 +74,26 @@ struct RecordarView: View {
     var aoRevelar: () -> Void = {}
     var aoCobrarAntes: (() -> Void)?
     var aoProxima: (() -> Void)?
+    /// R1: "hoje não" — empurra para amanhã sem mexer na escada.
+    var aoAdiar: (() -> Void)?
+    /// R2: pular a fila sem revelar (revelar sobe o degrau).
+    var aoPular: (() -> Void)?
+    /// ADR 03i: em que degrau da escada esta nota está AGORA (antes de revelar).
+    /// A mesma nota tem de cobrar mais fundo a cada volta — senão a décima
+    /// revisão é idêntica à primeira, e recuperação sem dificuldade não fixa.
+    var degrau: Int = 0
+    /// ADR 04i: o retrato vai junto da pergunta da prova.
+    var retrato: String = ""
+    @State private var avaliou = false
     @Environment(\.dismiss) private var dismiss
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var fase: Fase
     @State private var memoria = ""
+    /// ADR 03i: a pergunta que a sábia fez sobre ESTA nota. nil = a fixa.
+    @State private var perguntaDaSabia: String?
+    /// Quais pontos do alvo voltaram na memória do autor. nil = não conferiu
+    /// (sem conta, sem rede, ou resposta recusada) — e aí não se mostra nada.
+    @State private var voltaram: Set<Int>?
     @FocusState private var foco: Bool
 
     private enum Fase {
@@ -73,13 +103,21 @@ struct RecordarView: View {
     init(texto: String, campos: [String: String], gesto: Gesto? = nil,
          aoRevelar: @escaping () -> Void = {},
          aoCobrarAntes: (() -> Void)? = nil,
-         aoProxima: (() -> Void)? = nil) {
+         aoProxima: (() -> Void)? = nil,
+         aoAdiar: (() -> Void)? = nil,
+         aoPular: (() -> Void)? = nil,
+         degrau: Int = 0,
+         retrato: String = "") {
         self.texto = texto
         self.campos = campos
         self.gesto = gesto
         self.aoRevelar = aoRevelar
         self.aoCobrarAntes = aoCobrarAntes
         self.aoProxima = aoProxima
+        self.aoAdiar = aoAdiar
+        self.aoPular = aoPular
+        self.degrau = degrau
+        self.retrato = retrato
         _fase = State(initialValue: RitualRecordar.de(gesto).mostraAlvoAntesDeEscrever ? .ler : .escrever)
     }
 
@@ -96,6 +134,7 @@ struct RecordarView: View {
         case .palavra: campos["minhas"]?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         case .seEntao: campos["se"]?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         case .decisao: [campos["escolha"], campos["decidido"]].compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }.joined(separator: "\n")
+        case .campos(let spec): RitualRecordar.juntar(spec.pista, campos)
         }
     }
 
@@ -110,6 +149,7 @@ struct RecordarView: View {
         case .palavra: "Qual era a palavra?"
         case .seEntao: "Então você faz o quê?"
         case .decisao: "O que você esperava que acontecesse?"
+        case .campos(let spec): spec.pergunta
         }
     }
 
@@ -120,6 +160,7 @@ struct RecordarView: View {
         case .palavra: "A definição fica. A palavra some."
         case .seEntao: "O Se fica. O Então some."
         case .decisao: "A escolha fica. O que você esperava some."
+        case .campos(let spec): spec.instrucao
         }
     }
 
@@ -130,6 +171,60 @@ struct RecordarView: View {
         case .palavra: "A PALAVRA"
         case .seEntao: "ENTÃO"
         case .decisao: "O QUE EU ESPERAVA"
+        case .campos(let spec): spec.rotuloAlvo
+        }
+    }
+
+    /// O que a memória NÃO trouxe — nas palavras do autor, sempre.
+    ///
+    /// Sem placar, sem nota, sem porcentagem (§12): recuperação parcial é o
+    /// caso NORMAL da prática de recuperação, não um fracasso a medir. Só se
+    /// mostra o que faltou, que é a única parte com serventia — reler.
+    @ViewBuilder private var naoVoltou: some View {
+        if let voltaram {
+            let faltando = Prova.pontos(alvo).enumerated()
+                .filter { !voltaram.contains($0.offset) }
+                .map(\.element)
+            if !faltando.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("O QUE NÃO VOLTOU")
+                        .font(Tema.label)
+                        .tracking(Tema.trackingLabel)
+                        .foregroundStyle(Tema.tintaFraca)
+                    ForEach(Array(faltando.enumerated()), id: \.offset) { _, ponto in
+                        Text(ponto)
+                            .font(Tema.corpo)
+                            .foregroundStyle(Tema.tintaSuave)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                }
+                .padding(.horizontal, Tema.margem)
+                .padding(.bottom, Tema.margem)
+                .accessibilityIdentifier("recordar-nao-voltou")
+                // chega alguns segundos depois do lado a lado: aparecer de
+                // estalo assusta quem está lendo (§21)
+                .transition(.opacity.combined(with: .offset(y: 8)))
+            }
+        }
+    }
+
+    /// A pergunta da prova, uma vez por abertura. Silêncio em qualquer falha.
+    private func pedirPergunta() async {
+        guard perguntaDaSabia == nil, Sabia.disponivel else { return }
+        perguntaDaSabia = await Sabia.perguntaDeRecordar(alvo: alvo, pista: pista,
+                                                         gesto: gesto, degrau: degrau, retrato: retrato)
+    }
+
+    private func conferir() {
+        guard Sabia.disponivel else { return }
+        let pontos = Prova.pontos(alvo)
+        let escrito = memoria
+        let g = gesto
+        Task {
+            let r = await Sabia.conferir(pontos: pontos, memoria: escrito, gesto: g)
+            withAnimation(.easeOut(duration: 0.3)) { voltaram = r }
+            // ADR 04h: o que não voltou é sinal — entra no retrato e na trajetória
+            if let r { Sinais.naoVoltou(g, faltaram: pontos.count - r.count, de: pontos.count) }
         }
     }
 
@@ -220,12 +315,32 @@ struct RecordarView: View {
                         .padding(.horizontal, Tema.margem)
                         .padding(.bottom, 12)
                 }
-                Text(pergunta)
+                // ADR 03i: a pergunta era uma de cinco frases fixas — a mesma
+                // para toda nota, para sempre, no ritual mais repetido do app.
+                // A da sábia entra quando passa na prova de não vazar; a fixa
+                // segura o lugar sempre (sem conta, sem rede, ou recusada).
+                Text(perguntaDaSabia ?? pergunta)
                     .font(Tema.corpo)
                     .foregroundStyle(Tema.tintaSuave)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, Tema.margem)
                     .padding(.bottom, 8)
+                    .accessibilityIdentifier("recordar-pergunta")
+                if let q = perguntaDaSabia, !avaliou {
+                    // ADR 04h: a pergunta da prova também recebe o sinal
+                    HStack(spacing: 14) {
+                        Button("serviu") { Sinais.pergunta(q, forma: gesto, serviu: true); avaliou = true; Toque.leve() }
+                            .accessibilityIdentifier("serviu")
+                        Button("não serviu") { Sinais.pergunta(q, forma: gesto, serviu: false); avaliou = true; Toque.leve() }
+                            .accessibilityIdentifier("nao-serviu")
+                    }
+                    .font(Tema.label)
+                    .foregroundStyle(Tema.tintaFraca)
+                    .buttonStyle(PressaoDiscreta())
+                    .frame(minHeight: 32)
+                    .padding(.horizontal, Tema.margem)
+                    .padding(.bottom, 4)
+                }
                 TextEditor(text: $memoria)
                     .font(Tema.corpo)
                     .foregroundStyle(Tema.tinta)
@@ -238,6 +353,7 @@ struct RecordarView: View {
                     Toque.suave()
                     foco = false
                     aoRevelar()
+                    conferir()
                     withAnimation(.easeOut(duration: 0.35)) { fase = .revelar }
                 }
                 .disabled(memoriaVazia)
@@ -245,6 +361,25 @@ struct RecordarView: View {
                 .padding(.horizontal, Tema.margem)
                 .padding(.bottom, 24)
                 .accessibilityHint(memoriaVazia ? "Escreva de memória primeiro" : "Mostra memória e nota lado a lado")
+                // as duas saídas honestas: adiar não é falhar, e pular não
+                // pode custar um degrau da escada
+                HStack(spacing: 20) {
+                    if let aoAdiar {
+                        Button("hoje não") { aoAdiar() }
+                            .accessibilityHint("Volta amanhã. A escada não muda.")
+                            .accessibilityIdentifier("recordar-adiar")
+                    }
+                    if let aoPular {
+                        Button("pular") { aoPular() }
+                            .accessibilityHint("Vai à próxima sem revelar esta")
+                            .accessibilityIdentifier("recordar-pular")
+                    }
+                }
+                .font(Tema.meta)
+                .foregroundStyle(Tema.tintaSuave)
+                .frame(maxWidth: .infinity, minHeight: Tema.alvo)
+                .buttonStyle(PressaoDiscreta())
+                .padding(.bottom, 8)
             case .revelar:
                 GeometryReader { geo in
                     let ladoALado = geo.size.width >= 360
@@ -268,6 +403,7 @@ struct RecordarView: View {
                                     .padding(.vertical, Tema.margem)
                             }
                         }
+                        naoVoltou
                     }
                 }
                 VStack(spacing: 4) {
@@ -307,6 +443,10 @@ struct RecordarView: View {
             withAnimation(.easeOut(duration: 0.3)) { fase = .escrever }
             foco = true
         }
+        // task separada: a pergunta vem pela rede e o ritmo do ritual NÃO pode
+        // esperar por ela. Chegou a tempo, entra; chegou tarde, o autor já está
+        // escrevendo com a frase fixa e nada muda embaixo dele.
+        .task { await pedirPergunta() }
     }
 
     private func bloco(_ titulo: String, _ corpo: String) -> some View {

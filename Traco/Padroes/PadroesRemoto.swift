@@ -19,30 +19,34 @@ enum PadroesRemoto {
     - Mesmo idioma das notas. Na dúvida, menos perguntas — ou nenhuma: [].
     """
 
+    // ponytail: memo pelas vozes lidas. Padrões virou DESTINO da barra (§20), e
+    // sem isto trocar de aba e voltar mandava as notas do autor à rede outra
+    // vez — até 9.000 caracteres por visita, debitando a assinatura dele.
+    // O memo cai quando as notas mudam, que é quando há padrão novo para ler.
+    // sem tranca: `perguntas` só é chamada da tela, no MainActor — e NSLock em
+    // contexto assíncrono é erro no modo Swift 6
+    private static var memo: (chave: String, perguntas: [String]?)?
+
+    static func esquecerMemo() { memo = nil }
+
     static func perguntas(vozes: [String]) async -> [String]? {
-        guard !vozes.isEmpty, let chave = await ContaGrok.token() else { return nil }
-        var pedido = URLRequest(url: URL(string: "https://api.x.ai/v1/chat/completions")!)
-        pedido.httpMethod = "POST"
-        pedido.timeoutInterval = 12
-        pedido.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        pedido.setValue("Bearer \(chave)", forHTTPHeaderField: "Authorization")
+        guard !vozes.isEmpty, Sabia.disponivel else { return nil }
+        let assinatura = vozes.joined(separator: "\u{1}")
+        if let m = memo, m.chave == assinatura { return m.perguntas }
+        let saida = await pedir(vozes: vozes)
+        memo = (assinatura, saida)
+        return saida
+    }
+
+    private static func pedir(vozes: [String]) async -> [String]? {
         let notas = vozes.enumerated()
             .map { "NOTA \($0.offset + 1):\n\(String($0.element.prefix(800)))" }
             .joined(separator: "\n\n")
-        let corpo: [String: Any] = [
-            "model": AnaliseRemota.modelo,
-            "temperature": 0.4,
-            "messages": [
-                ["role": "system", "content": sistema],
-                ["role": "user", "content": String(notas.prefix(9000))],
-            ],
-        ]
-        pedido.httpBody = try? JSONSerialization.data(withJSONObject: corpo)
-        guard let (dados, resposta) = try? await URLSession.shared.data(for: pedido),
-              (resposta as? HTTPURLResponse)?.statusCode == 200,
-              let raiz = try? JSONSerialization.jsonObject(with: dados) as? [String: Any],
-              let escolhas = raiz["choices"] as? [[String: Any]],
-              let msg = (escolhas.first?["message"] as? [String: Any])?["content"] as? String
+        // sem memo aqui: o memo dos Padrões é o desta enum (por vozes lidas), e
+        // quem volta à tela QUER perguntas novas — `ineditas` cuida do resto
+        // ADR 04t: pela escada da sábia — Grok, depois o modelo do aparelho
+        guard let msg = await Sabia.chamar(sistema: sistema, usuario: String(notas.prefix(9000)),
+                                           temperatura: 0.4)
         else { return nil }
         return parsePerguntas(msg, vozes: vozes)
     }

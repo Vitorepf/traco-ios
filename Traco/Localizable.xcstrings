@@ -3,774 +3,235 @@
   "version": "1.0",
   "strings": {
     "Notas": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Notes"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Concluída": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Done"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Analisar": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Analyze"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Recordar": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Recall"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Anexar": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Attach"
-          }
-        }
-      }
+      "localizations": {}
     },
     "‹ página": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "‹ page"
-          }
-        }
-      }
+      "localizations": {}
     },
     "‹ notas": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "‹ notes"
-          }
-        }
-      }
+      "localizations": {}
     },
     "padrões": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "patterns"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Padrões": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Patterns"
-          }
-        }
-      }
+      "localizations": {}
     },
     "PADRÕES": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "PATTERNS"
-          }
-        }
-      }
+      "localizations": {}
     },
     "PERGUNTA DOS PADRÕES": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "PATTERNS ASK"
-          }
-        }
-      }
+      "localizations": {}
     },
     "RECORDAR": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "RECALL"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Aviso": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Notice"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Soltar a forma": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Undo the form"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Abrir a forma %@": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Open the %@ form"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Começar o timer": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Start the timer"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Buscar nas notas": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Search notes"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Limpar busca": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Clear search"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Nova página": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "New page"
-          }
-        }
-      }
+      "localizations": {}
     },
     "escrever na página": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "write on the page"
-          }
-        }
-      }
+      "localizations": {}
     },
     "nada aqui.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "nothing here."
-          }
-        }
-      }
+      "localizations": {}
     },
     "nenhuma trancada.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "no sealed notes."
-          }
-        }
-      }
+      "localizations": {}
     },
     "exportar o corpus (.md)": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "export the corpus (.md)"
-          }
-        }
-      }
+      "localizations": {}
     },
     "importar .md": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "import .md"
-          }
-        }
-      }
+      "localizations": {}
     },
     "análise com Grok: configurar chave": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Grok analysis: set up key"
-          }
-        }
-      }
+      "localizations": {}
     },
     "análise com Grok: chave guardada": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Grok analysis: key saved"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Análise com Grok": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Grok analysis"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Guardar no Keychain": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Save to Keychain"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Chave guardada": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Key saved"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Remover a chave — voltar ao motor local": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Remove the key — back to the local engine"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Apagar": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Delete"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Apagar esta nota?": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Delete this note?"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Apagar a trancada?": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Delete the sealed note?"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Apagar para sempre": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Delete forever"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Manter": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Keep"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Sair agora tranca.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Leaving now seals it."
-          }
-        }
-      }
+      "localizations": {}
     },
     "Continuar escrevendo": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Keep writing"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Trancar e sair": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Seal and leave"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Trancada.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sealed."
-          }
-        }
-      }
+      "localizations": {}
     },
     "Não se relê.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "It is not reread."
-          }
-        }
-      }
+      "localizations": {}
     },
     "Deixar fechada": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Leave it sealed"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Abrir mesmo assim": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Open anyway"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Abrir assim mesmo": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Open it anyway"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Ela foi escrita para ficar fechada.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "It was written to stay sealed."
-          }
-        }
-      }
+      "localizations": {}
     },
     "Voltar à página": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Back to the page"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Ir às notas": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Go to notes"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Recordar o que ficou": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Recall what remains"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Revelar": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Reveal"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Título": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Title"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Seção": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Section"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Lista": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "List"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Numerada": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Numbered"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Tarefa": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Task"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Citação": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Quote"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Código": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Code"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Tabela": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Table"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Divisória": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Divider"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Verso": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Verse"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Ideia": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Idea"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Silêncio": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Silence"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Esconder teclado": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hide keyboard"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Foto": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Photo"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Vídeo": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Video"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Áudio": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Audio"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Gravar": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Record"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Parar": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Stop"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Arquivo": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "File"
-          }
-        }
-      }
+      "localizations": {}
     },
     "A gravar": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Recording"
-          }
-        }
-      }
+      "localizations": {}
     },
     "WOOP": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "WOOP"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Se–então": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "If–then"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Nota permanente": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Permanent note"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Permanente": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Permanent"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Destaque": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Highlight"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Expressiva": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Expressive"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Trancadas": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sealed"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Expressiva — trancada": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Expressive — sealed"
-          }
-        }
-      }
+      "localizations": {}
     },
     "Especificação": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Spec"
-          }
-        }
-      }
+      "localizations": {}
     }
   }
 }

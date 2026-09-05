@@ -1,0 +1,985 @@
+[
+  {
+    "id": "woop",
+    "nome": "WOOP",
+    "origem": "Gabriele Oettingen",
+    "faculdade": "desejo",
+    "filtro": "WOOP",
+    "reconhecimento": "isto é um desejo com obstáculo pela frente.",
+    "movimento": "WOOP (Oettingen): desejo, resultado, OBSTÁCULO, plano. O obstáculo é INTERNO — o que o próprio autor faz ou sente que o atrapalha —, e é o passo que todo mundo pula escrevendo obstáculo externo. Cobre o obstáculo interno, e o \"se … então …\" que responde a ele.",
+    "pergunta": "Qual é o hábito ou o medo seu que vai impedir — não o relógio, não os outros?",
+    "roteamento": [
+      "(?m)^quero|^preciso começar|^preciso parar|meu objetivo|quero parar"
+    ],
+    "campos": [
+      {
+        "id": "resultado",
+        "rotulo": "Resultado (o melhor desfecho)"
+      },
+      {
+        "id": "obstaculo",
+        "rotulo": "Obstáculo interno (o SEU hábito/medo)"
+      },
+      {
+        "id": "plano",
+        "rotulo": "Se [obstáculo], então eu"
+      }
+    ],
+    "encadeamentos": [
+      {
+        "rotulo": "Virar Se–então",
+        "para": "seEntao",
+        "mapa": {
+          "se": "obstaculo",
+          "entao": "plano"
+        },
+        "exige": [
+          "obstaculo"
+        ]
+      }
+    ],
+    "definicao": "desejo ou meta pessoal (\"quero…\", \"gostaria de…\", \"preciso começar…\")"
+  },
+  {
+    "id": "seEntao",
+    "nome": "Se–então",
+    "origem": "Peter Gollwitzer",
+    "faculdade": "hábito",
+    "filtro": "Se–então",
+    "reconhecimento": "isto é um hábito que trava num gatilho.",
+    "movimento": "Intenção de implementação (Gollwitzer). O gatilho tem de ser CONCRETO e observável (hora, lugar, coisa que acontece), nunca um estado de espírito. E a resposta tem de ser um comportamento SUBSTITUTO, não \"não fazer X\". Cobre os dois onde estiverem vagos.",
+    "pergunta": "Quando o gatilho vier, você faz o quê — concreto, substituto?",
+    "roteamento": [
+      "sempre que|toda vez|não consigo parar"
+    ],
+    "campos": [
+      {
+        "id": "se",
+        "rotulo": "Se (hora / lugar / obstáculo)"
+      },
+      {
+        "id": "entao",
+        "rotulo": "Então eu (substituto concreto, não “não faço”)"
+      }
+    ],
+    "encadeamentos": [
+      {
+        "rotulo": "Conferir o hábito em 7 dias",
+        "compromisso": {
+          "titulo": "conferir o hábito: ",
+          "campo": "se",
+          "dias": 7
+        },
+        "exige": [
+          "se"
+        ]
+      }
+    ],
+    "definicao": "hábito que emperra num gatilho (\"sempre que…\", \"toda vez que…\")"
+  },
+  {
+    "id": "spec",
+    "nome": "Especificação",
+    "origem": "engenharia",
+    "faculdade": "construção",
+    "filtro": "Especificação",
+    "reconhecimento": "isto tem problema e critério de pronto.",
+    "movimento": "Especificação. Cobre o que fica EXPLICITAMENTE de fora, qual é a menor coisa que prova que funciona, e o que quebraria isto. Escopo sem não-escopo é desejo.",
+    "pergunta": "O que fica explicitamente de fora desta rodada?",
+    "roteamento": [
+      "\\b(feature|sistema|api|tela|site|função|app|módulo|construir)\\b"
+    ],
+    "campos": [
+      {
+        "id": "problema",
+        "rotulo": "Problema"
+      },
+      {
+        "id": "pronto",
+        "rotulo": "Pronto quando"
+      },
+      {
+        "id": "nao",
+        "rotulo": "O que eu NÃO vou fazer"
+      },
+      {
+        "id": "restricoes",
+        "rotulo": "Restrições (prazo, dinheiro, gente)"
+      },
+      {
+        "id": "limites",
+        "rotulo": "O que pode dar errado"
+      }
+    ],
+    "encadeamentos": [
+      {
+        "rotulo": "Pré-mortem deste plano",
+        "para": "premortem",
+        "mapa": {
+          "plano": "problema"
+        },
+        "exige": [
+          "problema"
+        ]
+      }
+    ],
+    "definicao": "algo a construir (software, projeto, sistema)"
+  },
+  {
+    "id": "notaPermanente",
+    "nome": "Nota permanente",
+    "origem": "Niklas Luhmann",
+    "faculdade": "ideia",
+    "filtro": "Permanente",
+    "reconhecimento": "isto é uma ideia que vale guardar inteira.",
+    "movimento": "Nota permanente (Zettelkasten). Uma ideia só, nas palavras do autor, e ligada a alguma coisa. Cobre qual é a UMA ideia se houver mais de uma, e a que ela se opõe.",
+    "pergunta": "Nas suas palavras: qual é a UMA ideia?",
+    "roteamento": [
+      "percebi|entendi que|ideia|insight"
+    ],
+    "campos": [
+      {
+        "id": "ideia",
+        "rotulo": "Uma ideia, nas suas palavras"
+      },
+      {
+        "id": "liga",
+        "rotulo": "Liga a"
+      },
+      {
+        "id": "fonte",
+        "rotulo": "Fonte"
+      }
+    ],
+    "definicao": "ideia ou insight curto, nas palavras do autor"
+  },
+  {
+    "id": "destaque",
+    "nome": "Destaque",
+    "origem": "Gary Keller",
+    "faculdade": "foco",
+    "filtro": "Destaque",
+    "reconhecimento": "isto parece a lista do seu dia.",
+    "movimento": "A única do dia. Cobre qual é A única se houver mais de uma, e o que cai se o dia encolher pela metade.",
+    "pergunta": "Qual é a única de hoje — primeiro, até acabar?",
+    "roteamento": [],
+    "campos": [
+      {
+        "id": "unica",
+        "rotulo": "A única coisa de hoje, primeiro, até acabar"
+      }
+    ],
+    "definicao": "lista de tarefas do dia, a única coisa de hoje"
+  },
+  {
+    "id": "expressiva",
+    "nome": "Expressiva",
+    "origem": "James Pennebaker",
+    "faculdade": "sentir",
+    "reconhecimento": "isto é desabafo — pede tempo e porta fechada.",
+    "movimento": "",
+    "pergunta": "",
+    "roteamento": [
+      "senti|sinto|dói|doeu|medo|triste|raiva|chorei|pesado|desmoronar"
+    ],
+    "campos": [],
+    "definicao": "desabafo emocional longo"
+  },
+  {
+    "id": "destilar",
+    "nome": "Destilar",
+    "origem": "escrita",
+    "faculdade": "linguagem",
+    "filtro": "Destilar",
+    "reconhecimento": "isto pede ser cortado até sobrar uma frase.",
+    "movimento": "Destilar. Cobre o que sobrevive se ficar UMA frase, e qual palavra está carregando peso que ela não aguenta.",
+    "pergunta": "Corta até sobrar uma frase. A frase é sua.",
+    "roteamento": [
+      "destilar|numa frase|em 200|em 100|em 50|a ess[êe]ncia"
+    ],
+    "campos": [
+      {
+        "id": "em200",
+        "rotulo": "Em 200",
+        "teto": 200
+      },
+      {
+        "id": "em100",
+        "rotulo": "Em 100",
+        "teto": 100
+      },
+      {
+        "id": "em50",
+        "rotulo": "Em 50",
+        "teto": 50
+      },
+      {
+        "id": "frase",
+        "rotulo": "Numa frase",
+        "teto": 140
+      }
+    ],
+    "definicao": "texto que pede corte até uma frase"
+  },
+  {
+    "id": "palavra",
+    "nome": "Palavra",
+    "origem": "vocabulário",
+    "faculdade": "linguagem",
+    "filtro": "Palavras",
+    "reconhecimento": "isto é uma palavra que você quer poder usar.",
+    "movimento": "A palavra. Cobre onde ela NÃO se aplica — o limite é o que separa saber a palavra de saber usá-la.",
+    "pergunta": "Nas suas palavras: o que ela quer dizer?",
+    "roteamento": [
+      "significa|quer dizer|n[ãa]o conhecia|o que (quer dizer|significa)"
+    ],
+    "campos": [
+      {
+        "id": "minhas",
+        "rotulo": "Nas minhas palavras"
+      },
+      {
+        "id": "frase",
+        "rotulo": "Uma frase minha com ela"
+      },
+      {
+        "id": "onde",
+        "rotulo": "Onde a encontrei"
+      }
+    ],
+    "definicao": "o autor quer poder usar uma palavra"
+  },
+  {
+    "id": "decisao",
+    "nome": "Decisão",
+    "origem": "Kahneman e Klein",
+    "faculdade": "decidir",
+    "filtro": "Decisões",
+    "reconhecimento": "isto é uma escolha entre caminhos.",
+    "movimento": "Diário de decisão. Cobre: quais são as opções de verdade (duas não são opções se uma é palha), qual CRITÉRIO separa uma da outra, que evidência faria mudar de ideia, quanto custa errar para cada lado, e se dá para desfazer. Decisão reversível e barata não merece o mesmo cuidado que uma que não volta.",
+    "pergunta": "Quais são as opções — uma por linha?",
+    "roteamento": [
+      "\\b(preciso|tenho que|vou ter que) (decidir|escolher)\\b|\\bdecis[ãa]o\\b|escolher entre|\\bou ent[ãa]o\\b.*\\bou\\b"
+    ],
+    "campos": [
+      {
+        "id": "escolha",
+        "rotulo": "O que estou decidindo"
+      },
+      {
+        "id": "opcoes",
+        "rotulo": "As opções (uma por linha)"
+      },
+      {
+        "id": "criterio",
+        "rotulo": "O que decide entre elas"
+      },
+      {
+        "id": "decidido",
+        "rotulo": "Decidi"
+      },
+      {
+        "id": "espero",
+        "rotulo": "O que espero que aconteça, e quando eu confiro"
+      },
+      {
+        "id": "aconteceu",
+        "rotulo": "O que aconteceu",
+        "soDepois": true
+      },
+      {
+        "id": "saldo",
+        "rotulo": "Ficou aquém, igual ou além do que eu esperava?",
+        "soDepois": true
+      }
+    ],
+    "encadeamentos": [
+      {
+        "rotulo": "Pré-mortem do que decidi",
+        "para": "premortem",
+        "mapa": {
+          "plano": "decidido"
+        },
+        "exige": [
+          "decidido"
+        ]
+      }
+    ],
+    "definicao": "escolha entre caminhos (\"decidir\", \"escolher entre\")"
+  },
+  {
+    "id": "premortem",
+    "nome": "Pré-mortem",
+    "origem": "Gary Klein, 2007",
+    "faculdade": "estratégia",
+    "filtro": "Pré-mortem",
+    "reconhecimento": "isto é um plano que ainda não imaginou a própria falha.",
+    "movimento": "Pré-mortem (Klein, 2007). O enquadramento é obrigatório: é um ano depois e o plano JÁ FALHOU — nunca \"o que pode dar errado\". Cobre as causas dessa falha, qual é a mais provável, e que sinal PRECOCE apareceria primeiro.",
+    "pergunta": "Um ano depois, o plano falhou. O que aconteceu?",
+    "roteamento": [
+      "pr[ée]-?mortem|imagin[ae] que (deu errado|falhou)|se isto falhar"
+    ],
+    "campos": [
+      {
+        "id": "plano",
+        "rotulo": "O plano, em uma frase"
+      },
+      {
+        "id": "falhou",
+        "rotulo": "Um ano depois, falhou. O que aconteceu?"
+      },
+      {
+        "id": "sinal",
+        "rotulo": "O primeiro sinal de que estava indo por aí"
+      },
+      {
+        "id": "mudo",
+        "rotulo": "O que eu mudo no plano agora"
+      }
+    ],
+    "encadeamentos": [
+      {
+        "rotulo": "Vigiar o sinal (Se–então)",
+        "para": "seEntao",
+        "mapa": {
+          "se": "sinal",
+          "entao": "mudo"
+        },
+        "exige": [
+          "sinal"
+        ]
+      },
+      {
+        "rotulo": "Conferir o sinal em 14 dias",
+        "compromisso": {
+          "titulo": "vigiar o sinal: ",
+          "campo": "sinal",
+          "dias": 14
+        },
+        "exige": [
+          "sinal"
+        ]
+      }
+    ],
+    "definicao": "plano que quer imaginar a própria falha"
+  },
+  {
+    "id": "argumento",
+    "nome": "Argumento",
+    "origem": "Stephen Toulmin",
+    "faculdade": "raciocínio",
+    "filtro": "Argumento",
+    "reconhecimento": "isto é uma tese que pede evidência e objeção.",
+    "movimento": "Argumento (Toulmin). Tese, evidência, a MELHOR objeção e a resposta a ela. O passo que se pula é a objeção forte: todo mundo responde à fraca. Cobre se a evidência sustenta a tese ou só a ilustra, e se a objeção escolhida é a que um adversário competente faria.",
+    "pergunta": "Qual é a melhor objeção — a que um adversário competente faria?",
+    "roteamento": [
+      "\\b(argumento|tese|defendo que|obje[çc][ãa]o|contra-?argumento|sustento que)\\b"
+    ],
+    "campos": [
+      {
+        "id": "tese",
+        "rotulo": "A tese"
+      },
+      {
+        "id": "evidencia",
+        "rotulo": "A evidência"
+      },
+      {
+        "id": "objecao",
+        "rotulo": "A melhor objeção"
+      },
+      {
+        "id": "resposta",
+        "rotulo": "Minha resposta a ela"
+      },
+      {
+        "id": "mudaria",
+        "rotulo": "O que me faria mudar de ideia"
+      }
+    ],
+    "recordar": {
+      "alvo": [
+        "tese",
+        "evidencia"
+      ],
+      "pista": [
+        "objecao"
+      ],
+      "pergunta": "Qual era a tese, e o que a sustentava?",
+      "instrucao": "A objeção fica. A tese e a evidência somem.",
+      "rotuloAlvo": "A TESE"
+    },
+    "encadeamentos": [
+      {
+        "rotulo": "Decidir sobre isto",
+        "para": "decisao",
+        "mapa": {
+          "escolha": "tese"
+        },
+        "exige": [
+          "tese"
+        ]
+      }
+    ],
+    "definicao": "uma tese com evidência, objeção e resposta (\"defendo que\", \"a tese\")"
+  },
+  {
+    "id": "leitura",
+    "nome": "Leitura",
+    "origem": "Mortimer Adler",
+    "faculdade": "aprender de fora",
+    "filtro": "Leitura",
+    "reconhecimento": "isto é algo que você leu e quer que fique.",
+    "movimento": "Leitura ativa (Adler). A tese do autor NAS PALAVRAS DE QUEM LÊ, o que surpreendeu, onde discorda, a pergunta que ficou. O passo que se pula é discordar: quem só concorda não leu, copiou. Cobre se a tese está nas palavras do leitor ou nas do livro, e onde ele discorda de verdade.",
+    "pergunta": "A tese da fonte, nas suas palavras — não nas dela?",
+    "roteamento": [
+      "\\bli (que|o|a|no|na|um|uma)\\b|\\bo livro\\b|\\bo artigo\\b|\\bo autor (diz|defende|argumenta)\\b|\\bsegundo (o|a) \\w+\\b|\\bestou lendo\\b|\\bterminei de ler\\b"
+    ],
+    "campos": [
+      {
+        "id": "fonte",
+        "rotulo": "Fonte (livro, artigo, aula)"
+      },
+      {
+        "id": "tese",
+        "rotulo": "A tese, nas minhas palavras"
+      },
+      {
+        "id": "surpreendeu",
+        "rotulo": "O que me surpreendeu"
+      },
+      {
+        "id": "discordo",
+        "rotulo": "Onde discordo"
+      },
+      {
+        "id": "ficou",
+        "rotulo": "A pergunta que ficou"
+      }
+    ],
+    "recordar": {
+      "alvo": [
+        "tese",
+        "surpreendeu",
+        "discordo"
+      ],
+      "pista": [
+        "fonte"
+      ],
+      "pergunta": "O que a fonte dizia, nas suas palavras?",
+      "instrucao": "A fonte fica. O que você entendeu some.",
+      "rotuloAlvo": "A TESE"
+    },
+    "encadeamentos": [
+      {
+        "rotulo": "Guardar como nota permanente",
+        "para": "notaPermanente",
+        "mapa": {
+          "ideia": "tese",
+          "fonte": "fonte"
+        },
+        "exige": [
+          "tese"
+        ]
+      }
+    ],
+    "definicao": "algo que o autor leu ou ouviu e quer que fique (livro, artigo, aula)"
+  },
+  {
+    "id": "feynman",
+    "nome": "Feynman",
+    "origem": "Richard Feynman",
+    "faculdade": "compreensão",
+    "filtro": "Feynman",
+    "reconhecimento": "isto é algo que você quer entender de verdade.",
+    "movimento": "Técnica de Feynman. Explicar como para uma criança de doze anos, achar onde TRAVA, voltar à fonte só nesse ponto. O passo que se pula é o travar: quem explica sem travar usou jargão no lugar da compreensão. Cobre qual palavra da explicação esconde o que não se entende.",
+    "pergunta": "Onde a explicação travou — qual palavra você usou sem saber explicar?",
+    "roteamento": [
+      "\\bexplicar (como|para|pra)\\b|\\bnão entendi\\b|\\bentender de verdade\\b|\\bfeynman\\b|\\bcomo funciona\\b"
+    ],
+    "campos": [
+      {
+        "id": "assunto",
+        "rotulo": "O que estou explicando"
+      },
+      {
+        "id": "crianca",
+        "rotulo": "Como para uma criança de 12 anos"
+      },
+      {
+        "id": "travei",
+        "rotulo": "Onde travei"
+      },
+      {
+        "id": "fui",
+        "rotulo": "O que fui ver na fonte"
+      }
+    ],
+    "recordar": {
+      "alvo": [
+        "crianca"
+      ],
+      "pista": [
+        "assunto"
+      ],
+      "pergunta": "Explique de novo, como para uma criança?",
+      "instrucao": "O assunto fica. A explicação some.",
+      "rotuloAlvo": "A EXPLICAÇÃO"
+    },
+    "encadeamentos": [
+      {
+        "rotulo": "Guardar como nota permanente",
+        "para": "notaPermanente",
+        "mapa": {
+          "ideia": "crianca",
+          "fonte": "fui"
+        },
+        "exige": [
+          "crianca"
+        ]
+      }
+    ],
+    "definicao": "algo que o autor quer entender de verdade, explicando como para uma criança"
+  },
+  {
+    "id": "dia",
+    "nome": "Dia",
+    "origem": "Ivy Lee",
+    "faculdade": "foco",
+    "filtro": "Dia",
+    "reconhecimento": "isto é o seu dia pedindo ordem.",
+    "movimento": "O dia (Ivy Lee). A única, as três seguintes em ordem, o que vai ROUBAR o dia e o que se faz quando roubar. O passo que se pula é nomear o ladrão antes: todo mundo planeja como se o dia fosse obedecer. À noite, o que roubou de fato. Cobre se a única é uma só, e se o ladrão nomeado é o de verdade.",
+    "pergunta": "O que vai roubar o dia — e o que você faz quando roubar?",
+    "roteamento": [
+      "\\bmeu dia\\b|\\bplanejar o dia\\b|\\bo dia de hoje\\b|\\bprioridades de hoje\\b|\\bhoje eu (preciso|tenho que|vou)\\b"
+    ],
+    "campos": [
+      {
+        "id": "unica",
+        "rotulo": "A única de hoje, primeiro, até acabar"
+      },
+      {
+        "id": "tres",
+        "rotulo": "As três seguintes, em ordem"
+      },
+      {
+        "id": "roubar",
+        "rotulo": "O que vai roubar o dia"
+      },
+      {
+        "id": "seRoubar",
+        "rotulo": "Se roubar, então eu"
+      },
+      {
+        "id": "roubou",
+        "rotulo": "O que roubou o dia (à noite)",
+        "soDepois": true
+      }
+    ],
+    "definicao": "o planejamento do dia de hoje: a única, as seguintes, o que vai roubar o dia"
+  },
+  {
+    "id": "analogia",
+    "nome": "Analogia",
+    "origem": "Dedre Gentner",
+    "faculdade": "criação",
+    "filtro": "Analogia",
+    "reconhecimento": "isto é um problema que já foi resolvido em outro campo.",
+    "movimento": "Analogia estrutural (Gentner). O problema, ONDE ele já foi resolvido em outro campo, o que se traz de lá e o que NÃO se transfere. O passo que se pula é o último: analogia sem limite vira engano. Cobre se a semelhança é de estrutura ou só de superfície, e o que quebra ao trazer.",
+    "pergunta": "Em que outro campo isto já foi resolvido — e o que não se transfere de lá?",
+    "roteamento": [
+      "\\banalogia\\b|\\bem outro (campo|dom[ií]nio|[áa]rea)\\b|\\bonde (isso|isto) já foi resolvido\\b|\\bé como (se|quando)\\b"
+    ],
+    "campos": [
+      {
+        "id": "problema",
+        "rotulo": "O problema"
+      },
+      {
+        "id": "outroCampo",
+        "rotulo": "Onde isto já foi resolvido, em outro campo"
+      },
+      {
+        "id": "trago",
+        "rotulo": "O que trago de lá"
+      },
+      {
+        "id": "naoTransfere",
+        "rotulo": "O que não se transfere"
+      }
+    ],
+    "recordar": {
+      "alvo": [
+        "outroCampo",
+        "trago"
+      ],
+      "pista": [
+        "problema"
+      ],
+      "pergunta": "Onde isto já foi resolvido, e o que você trouxe de lá?",
+      "instrucao": "O problema fica. A analogia some.",
+      "rotuloAlvo": "A ANALOGIA"
+    },
+    "encadeamentos": [
+      {
+        "rotulo": "Guardar o que trouxe",
+        "para": "notaPermanente",
+        "mapa": {
+          "ideia": "trago",
+          "liga": "outroCampo"
+        },
+        "exige": [
+          "trago"
+        ]
+      }
+    ],
+    "definicao": "um problema que já foi resolvido em outro campo"
+  },
+  {
+    "id": "inversao",
+    "nome": "Inversão",
+    "origem": "Charlie Munger",
+    "faculdade": "estratégia",
+    "filtro": "Inversão",
+    "reconhecimento": "isto pede ser pensado ao contrário.",
+    "movimento": "Inversão (Munger, de Jacobi). Em vez de \"como consigo X\", \"como GARANTO que X falhe\" — e depois evitar exatamente isso. O passo que se pula é levar a sério a lista de falhas: ela costuma ser mais concreta que a de sucessos. Cobre se cada modo de falha nomeado é algo que o autor faz, e o que ele passa a evitar.",
+    "pergunta": "Como você garantiria que isto falhe — e o que disso você já faz?",
+    "roteamento": [
+      "\\binvers[ãa]o\\b|\\bcomo garantir que (falhe|dê errado)\\b|\\bo que evitar\\b|\\bpior jeito de\\b|\\bao contr[áa]rio\\b"
+    ],
+    "campos": [
+      {
+        "id": "quero",
+        "rotulo": "O que quero"
+      },
+      {
+        "id": "falhe",
+        "rotulo": "Como garantir que falhe"
+      },
+      {
+        "id": "evito",
+        "rotulo": "Logo, o que eu evito"
+      }
+    ],
+    "recordar": {
+      "alvo": [
+        "falhe",
+        "evito"
+      ],
+      "pista": [
+        "quero"
+      ],
+      "pergunta": "Como garantir que falhe — e o que você evita?",
+      "instrucao": "O que você quer fica. O resto some.",
+      "rotuloAlvo": "A INVERSÃO"
+    },
+    "encadeamentos": [
+      {
+        "rotulo": "Virar Pré-mortem",
+        "para": "premortem",
+        "mapa": {
+          "plano": "quero",
+          "falhou": "falhe"
+        },
+        "exige": [
+          "falhe"
+        ]
+      },
+      {
+        "rotulo": "Vigiar o que evito (Se–então)",
+        "para": "seEntao",
+        "mapa": {
+          "se": "falhe",
+          "entao": "evito"
+        },
+        "exige": [
+          "evito"
+        ]
+      }
+    ],
+    "definicao": "pensar ao contrário: como garantir que falhe, para evitar"
+  },
+  {
+    "id": "steelman",
+    "nome": "Steelman",
+    "origem": "Daniel Dennett",
+    "faculdade": "raciocínio",
+    "filtro": "Steelman",
+    "reconhecimento": "isto é uma posição que merece o outro lado, no melhor.",
+    "movimento": "Steelman (Dennett, regras de Rapoport). Reescrever a posição CONTRÁRIA tão bem que quem a defende diria \"eu não teria dito melhor\", dizer o que ela acerta, e só então responder. O passo que se pula é o segundo: admitir o que o outro lado acerta. Cobre se a versão contrária é a melhor ou a mais fácil de derrubar.",
+    "pergunta": "Quem defende o contrário diria que você o entendeu — ou que você o enfraqueceu?",
+    "roteamento": [
+      "\\bsteelman\\b|\\bposi[çc][ãa]o contr[áa]ria\\b|\\bo outro lado\\b|\\bquem discorda\\b|\\bmelhor argumento contra\\b"
+    ],
+    "campos": [
+      {
+        "id": "contraria",
+        "rotulo": "A posição contrária, no melhor"
+      },
+      {
+        "id": "acerta",
+        "rotulo": "O que ela acerta"
+      },
+      {
+        "id": "respondo",
+        "rotulo": "O que eu respondo"
+      }
+    ],
+    "recordar": {
+      "alvo": [
+        "contraria",
+        "acerta"
+      ],
+      "pergunta": "Qual era a posição contrária, no melhor?",
+      "instrucao": "A posição contrária some. Escreva-a de memória.",
+      "rotuloAlvo": "O OUTRO LADO"
+    },
+    "encadeamentos": [
+      {
+        "rotulo": "Montar o argumento",
+        "para": "argumento",
+        "mapa": {
+          "objecao": "contraria",
+          "resposta": "respondo"
+        },
+        "exige": [
+          "contraria"
+        ]
+      }
+    ],
+    "definicao": "a posição contrária escrita no melhor, antes de responder"
+  },
+  {
+    "id": "divergencia",
+    "nome": "Divergência",
+    "origem": "Alex Osborn",
+    "faculdade": "criação",
+    "filtro": "Divergência",
+    "reconhecimento": "isto pede muitas opções antes de escolher.",
+    "movimento": "Divergência (Osborn, brainstorming individual). Dez opções cruas SEM julgar, a mais estranha, e o que a estranha ensina. O passo que se pula é chegar a dez: a maioria para na terceira, que é a óbvia. Cobre se há dez de verdade, e o que a mais estranha revela sobre o problema.",
+    "pergunta": "Há dez de verdade — ou você parou na terceira, que é a óbvia?",
+    "roteamento": [
+      "\\bdez (op[çc][õo]es|ideias|jeitos)\\b|\\bbrainstorm\\b|\\bdivergir\\b|\\btodas as (op[çc][õo]es|ideias|possibilidades)\\b|\\bde quantos jeitos\\b"
+    ],
+    "campos": [
+      {
+        "id": "dez",
+        "rotulo": "Dez opções cruas (uma por linha)"
+      },
+      {
+        "id": "estranha",
+        "rotulo": "A mais estranha"
+      },
+      {
+        "id": "ensina",
+        "rotulo": "O que ela ensina"
+      }
+    ],
+    "recordar": {
+      "alvo": [
+        "estranha",
+        "ensina"
+      ],
+      "pergunta": "Qual era a opção mais estranha, e o que ela ensinou?",
+      "instrucao": "As opções somem. Escreva a estranha de memória.",
+      "rotuloAlvo": "A MAIS ESTRANHA"
+    },
+    "encadeamentos": [
+      {
+        "rotulo": "Decidir entre elas",
+        "para": "decisao",
+        "mapa": {
+          "opcoes": "dez"
+        },
+        "exige": [
+          "dez"
+        ]
+      }
+    ],
+    "definicao": "muitas opções cruas antes de escolher (dez ideias, brainstorm)"
+  },
+  {
+    "id": "primeirosPrincipios",
+    "nome": "Primeiros princípios",
+    "origem": "Aristóteles",
+    "faculdade": "estratégia",
+    "filtro": "Princípios",
+    "reconhecimento": "isto pede separar o que se sabe do que se supõe.",
+    "movimento": "Primeiros princípios. O que o autor ACHA que sabe, o que é verdade de fato (e como sabe), e o que se constrói do zero a partir só disso. O passo que se pula é o do meio: distinguir o que foi verificado do que foi herdado. Cobre, para cada suposição, de onde ela veio.",
+    "pergunta": "Do que você acha que sabe, o que foi verificado — e o que foi herdado?",
+    "roteamento": [
+      "\\bprimeiros princ[íi]pios\\b|\\bdo zero\\b|\\bo que (é|e) verdade de fato\\b|\\bpressupostos?\\b|\\bsuposi[çc][õo]es\\b"
+    ],
+    "campos": [
+      {
+        "id": "acho",
+        "rotulo": "O que acho que sei"
+      },
+      {
+        "id": "verdade",
+        "rotulo": "O que é verdade de fato (e como sei)"
+      },
+      {
+        "id": "zero",
+        "rotulo": "O que construo do zero"
+      }
+    ],
+    "recordar": {
+      "alvo": [
+        "verdade",
+        "zero"
+      ],
+      "pista": [
+        "acho"
+      ],
+      "pergunta": "O que é verdade de fato, e o que você construiu do zero?",
+      "instrucao": "O que você achava fica. O resto some.",
+      "rotuloAlvo": "DO ZERO"
+    },
+    "encadeamentos": [
+      {
+        "rotulo": "Especificar do zero",
+        "para": "spec",
+        "mapa": {
+          "problema": "zero",
+          "restricoes": "verdade"
+        },
+        "exige": [
+          "zero"
+        ]
+      }
+    ],
+    "definicao": "separar o que se sabe de fato do que se supõe, e construir do zero"
+  },
+  {
+    "id": "praticaDeliberada",
+    "nome": "Prática deliberada",
+    "origem": "Anders Ericsson",
+    "faculdade": "habilidade",
+    "filtro": "Prática",
+    "reconhecimento": "isto é uma habilidade que pede treino com alvo.",
+    "movimento": "Prática deliberada (Ericsson). A habilidade, o PEDAÇO que falha, o exercício que ataca só esse pedaço, e como se sabe que melhorou. O passo que se pula é isolar o pedaço: treinar a habilidade inteira é repetir o que já se faz bem. Cobre se o exercício é menor que a habilidade e se a medida de melhora é observável.",
+    "pergunta": "Qual é o pedaço que falha — não a habilidade inteira?",
+    "roteamento": [
+      "\\bpr[áa]tica deliberada\\b|\\btreinar\\b|\\bexerc[íi]cio de\\b|\\bmelhorar (em|no|na)\\b|\\bhabilidade\\b"
+    ],
+    "campos": [
+      {
+        "id": "habilidade",
+        "rotulo": "A habilidade"
+      },
+      {
+        "id": "falha",
+        "rotulo": "O pedaço que falha"
+      },
+      {
+        "id": "exercicio",
+        "rotulo": "O exercício, só para esse pedaço"
+      },
+      {
+        "id": "medida",
+        "rotulo": "Como sei que melhorou"
+      }
+    ],
+    "recordar": {
+      "alvo": [
+        "falha",
+        "exercicio"
+      ],
+      "pista": [
+        "habilidade"
+      ],
+      "pergunta": "Qual pedaço falha, e qual é o exercício?",
+      "instrucao": "A habilidade fica. O pedaço e o exercício somem.",
+      "rotuloAlvo": "O EXERCÍCIO"
+    },
+    "encadeamentos": [
+      {
+        "rotulo": "Virar hábito (Se–então)",
+        "para": "seEntao",
+        "mapa": {
+          "se": "falha",
+          "entao": "exercicio"
+        },
+        "exige": [
+          "exercicio"
+        ]
+      },
+      {
+        "rotulo": "Medir em 7 dias",
+        "compromisso": {
+          "titulo": "medir: ",
+          "campo": "medida",
+          "dias": 7
+        },
+        "exige": [
+          "medida"
+        ]
+      }
+    ],
+    "definicao": "uma habilidade que pede treino num pedaço que falha"
+  },
+  {
+    "id": "atualizacao",
+    "nome": "Atualização",
+    "origem": "Philip Tetlock",
+    "faculdade": "calibragem",
+    "filtro": "Atualização",
+    "reconhecimento": "isto é uma crença que pede um número.",
+    "movimento": "Atualização (Tetlock, superforecasting). O que o autor acredita, QUANTO (0 a 100), o que o faria subir, o que o faria descer — e depois, quanto agora. O passo que se pula é o número: sem ele não há como saber se mudou de ideia. Cobre se o número é honesto (nem 50 por preguiça, nem 95 por orgulho) e se as evidências nomeadas são observáveis.",
+    "pergunta": "Quanto, de 0 a 100 — e o que faria esse número descer?",
+    "roteamento": [
+      "\\bquanto (eu )?acredito\\b|\\bprobabilidade\\b|\\bapost(o|aria)\\b|\\bconfian[çc]a de \\d|\\b\\d{1,3} ?% de chance\\b"
+    ],
+    "campos": [
+      {
+        "id": "acredito",
+        "rotulo": "O que acredito"
+      },
+      {
+        "id": "quanto",
+        "rotulo": "Quanto (0–100)",
+        "teto": 3
+      },
+      {
+        "id": "subir",
+        "rotulo": "O que me faria subir"
+      },
+      {
+        "id": "descer",
+        "rotulo": "O que me faria descer"
+      },
+      {
+        "id": "depois",
+        "rotulo": "Depois: quanto agora, e por quê",
+        "soDepois": true
+      }
+    ],
+    "recordar": {
+      "alvo": [
+        "quanto",
+        "subir",
+        "descer"
+      ],
+      "pista": [
+        "acredito"
+      ],
+      "pergunta": "Quanto você acreditava — e o que mudaria isso?",
+      "instrucao": "A crença fica. O número e as evidências somem.",
+      "rotuloAlvo": "QUANTO"
+    },
+    "encadeamentos": [
+      {
+        "rotulo": "Decidir sobre isto",
+        "para": "decisao",
+        "mapa": {
+          "escolha": "acredito"
+        },
+        "exige": [
+          "acredito"
+        ]
+      }
+    ],
+    "definicao": "uma crença com número (0–100) e o que a faria subir ou descer"
+  }
+]

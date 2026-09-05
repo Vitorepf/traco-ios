@@ -1,7 +1,7 @@
 import Foundation
 
 /// Uma nota pronta para sair — ou para ficar de fora. O selo decide.
-struct FatiaCorpus: Sendable, Equatable {
+nonisolated struct FatiaCorpus: Sendable, Equatable {
     var id: UUID
     var texto: String
     var gesto: Gesto?
@@ -30,7 +30,7 @@ struct FatiaCorpus: Sendable, Equatable {
     /// Selada ou queimada: cabeçalho e sentido; o corpo da dor não viaja.
     var soMetadado: Bool { trancada || queimada }
 
-    static func de(_ nota: Nota) -> FatiaCorpus {
+    @MainActor static func de(_ nota: Nota) -> FatiaCorpus {
         FatiaCorpus(
             id: nota.uuid,
             texto: nota.texto,
@@ -63,16 +63,23 @@ enum Corpus {
 
     static var pastaNotas: URL { diretorio.appendingPathComponent("notas", isDirectory: true) }
 
-    static let contrato = """
+    nonisolated static let contrato = """
     # Traço — corpus
 
-    Este arquivo é o segundo cérebro do autor. Foi escrito por ele. Nenhuma
-    palavra aqui veio de um modelo.
+    Este arquivo é uma exportação das notas do Traço, não o segundo cérebro
+    completo. Traço combina mente, IA e ambiente compartilhado para realizar
+    intenções e desenvolver capacidades pertinentes.
+
+    Estar nesta exportação não certifica autoria humana. Notas podem conter
+    texto colado ou importado; não atribua ao autor uma origem não demonstrada.
+    Este snapshot não inclui o histórico dos Trabalhos e seus artefatos.
 
     Você pode: ler, citar literalmente, cruzar datas e gestos, cobrar uma
     intenção pelos campos `resultado`, `obstaculo`, `plano`, `se`, `entao`.
-    Você não pode: escrever neste arquivo, completar uma nota, resumir para
-    devolver ao autor como se fosse dele, inventar um campo.
+    Esta rota é contexto de notas, não escrita direta no documento do autor.
+    Não complete silenciosamente uma nota nem devolva resumo como se fosse
+    voz pessoal. Produção delegada é permitida em artefato separado com origem
+    explícita; use o intercâmbio de Trabalho para versões, sem inventar campos.
 
     Cada nota aberta tem front matter e corpo. Expressivas seladas ou queimadas
     aparecem SÓ como cabeçalho (`estado`, `minutos`, `sentido`) — o texto da
@@ -100,7 +107,7 @@ enum Corpus {
 
     // MARK: - Formato
 
-    static func arquivoMd(_ f: FatiaCorpus) -> String {
+    nonisolated static func arquivoMd(_ f: FatiaCorpus) -> String {
         let iso = ISO8601DateFormatter()
         var cab: [String] = [
             "id: \(f.id.uuidString)",
@@ -123,14 +130,16 @@ enum Corpus {
         }
         var corpo = f.texto.trimmingCharacters(in: .whitespacesAndNewlines)
         if let gesto = f.gesto, !f.campos.isEmpty {
-            let respostas = gesto.campos.compactMap { campo -> String? in
-                guard let r = f.campos[campo.id]?.trimmingCharacters(in: .whitespacesAndNewlines),
-                      !r.isEmpty else { return nil }
-                return "\(campo.id): \(r)"
+            // ADR 05h: strings JSON conservam parágrafos, espaços e linhas
+            // que parecem outro campo ou front matter. Chaves antigas também
+            // sobrevivem quando o catálogo já não as conhece.
+            let conhecidas = gesto.campos.map(\.id).filter { f.campos[$0] != nil }
+            let outras = f.campos.keys.filter { !conhecidas.contains($0) }.sorted()
+            let respostas = (conhecidas + outras).map { id in
+                let valor = String(decoding: try! JSONEncoder().encode(f.campos[id]!), as: UTF8.self)
+                return "\(id): \(valor)"
             }
-            if !respostas.isEmpty {
-                corpo += "\n\n— \(gesto.nome) —\n" + respostas.joined(separator: "\n")
-            }
+            corpo += "\n\n— \(gesto.nome) —\n\(marcadorCampos)\n" + respostas.joined(separator: "\n")
         }
         let sentido = f.sentido.trimmingCharacters(in: .whitespacesAndNewlines)
         if !sentido.isEmpty, f.gesto != .expressiva {
@@ -150,7 +159,7 @@ enum Corpus {
         ))
     }
 
-    static func corpoDoCorpus(fatias: [FatiaCorpus]) -> String {
+    nonisolated static func corpoDoCorpus(fatias: [FatiaCorpus]) -> String {
         let saidas = fatias
             .filter { !$0.nuncaSai }
             .sorted { $0.criadaEm < $1.criadaEm }
@@ -172,7 +181,7 @@ enum Corpus {
         })
     }
 
-    static func indice(fatias: [FatiaCorpus]) -> String {
+    nonisolated static func indice(fatias: [FatiaCorpus]) -> String {
         let abertas = fatias.filter { !$0.soMetadado }
         let fechadas = fatias.filter(\.soMetadado)
         let sentidos = fatias.filter { !$0.sentido.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
@@ -198,10 +207,36 @@ enum Corpus {
 
     // MARK: - Import
 
-    /// Reconstrói os campos achatados. Aceita `id: resposta` (novo) e
-    /// `Rótulo: resposta` (export antigo). Labels nunca viram voz.
+    nonisolated private static let marcadorCampos = "<!-- traco-campos:json-v1 -->"
+
+    /// ADR 05h: novo bloco sem ambiguidade; id/rótulo achatado continua
+    /// legível para arquivos antigos. Bloco novo inválido fica inteiro como
+    /// texto, em vez de descartar respostas que não conseguimos reconstruir.
     static func separarCampos(texto: String, gesto: Gesto?) -> (texto: String, campos: [String: String]) {
-        guard let gesto, let alcance = texto.range(of: "\n\n— \(gesto.nome) —\n") else {
+        guard let gesto else { return (texto, [:]) }
+        let cabecalhoNovo = "— \(gesto.nome) —\n\(marcadorCampos)\n"
+        let alcanceNovo = texto.range(of: "\n\n" + cabecalhoNovo, options: .backwards)
+            ?? (texto.hasPrefix(cabecalhoNovo)
+                ? texto.startIndex..<texto.index(texto.startIndex, offsetBy: cabecalhoNovo.count) : nil)
+        if let alcance = alcanceNovo {
+            let bloco = texto[alcance.upperBound...]
+            var campos: [String: String] = [:]
+            for linha in bloco.split(separator: "\n", omittingEmptySubsequences: false) {
+                guard let doisPontos = linha.range(of: ": ") else { return (texto, [:]) }
+                let id = String(linha[..<doisPontos.lowerBound])
+                let json = Data(linha[doisPontos.upperBound...].utf8)
+                guard !id.isEmpty, campos[id] == nil,
+                      let valor = try? JSONDecoder().decode(String.self, from: json)
+                else { return (texto, [:]) }
+                campos[id] = valor
+            }
+            return (String(texto[..<alcance.lowerBound]), campos)
+        }
+        let cabecalhoLegado = "— \(gesto.nome) —\n"
+        let alcanceLegado = texto.range(of: "\n\n" + cabecalhoLegado)
+            ?? (texto.hasPrefix(cabecalhoLegado)
+                ? texto.startIndex..<texto.index(texto.startIndex, offsetBy: cabecalhoLegado.count) : nil)
+        guard let alcance = alcanceLegado else {
             return (texto, [:])
         }
         let corpo = String(texto[..<alcance.lowerBound])
@@ -221,6 +256,14 @@ enum Corpus {
 
     /// REGRA DO SELO: import JAMAIS cria nota trancada.
     nonisolated static func importar(_ conteudo: String) -> [(texto: String, gestoNome: String?, criadaEm: Date)] {
+        importarComEstado(conteudo).itens
+    }
+
+    /// O coletor precisa saber se parte do arquivo foi recusada pelo selo:
+    /// importar suas notas abertas não autoriza apagar a fonte inteira.
+    nonisolated static func importarComEstado(_ conteudo: String) -> (
+        itens: [(texto: String, gestoNome: String?, criadaEm: Date)], contemProtegida: Bool
+    ) {
         let f = ISO8601DateFormatter()
         let padrao = try! NSRegularExpression(
             pattern: #"(?m)^---\n(?:id: \S+\n)?criada: (\S+)\n(?:editada: \S+\n)?(?:gesto: (.+)\n)?"#)
@@ -228,18 +271,27 @@ enum Corpus {
         let hits = padrao.matches(in: conteudo, range: NSRange(location: 0, length: ns.length))
         guard !hits.isEmpty else {
             let limpo = conteudo.trimmingCharacters(in: .whitespacesAndNewlines)
-            if limpo.isEmpty || limpo.hasPrefix("# Traço") { return [] }
-            return [(limpo, nil, .now)]
+            if limpo.isEmpty || limpo.hasPrefix("# Traço") { return ([], false) }
+            return ([(limpo, nil, .now)], false)
         }
         var saida: [(String, String?, Date)] = []
+        var contemProtegida = false
         for (i, hit) in hits.enumerated() {
             let inicioBloco = hit.range.location
             let fimBloco = i + 1 < hits.count ? hits[i + 1].range.location : ns.length
             let bloco = ns.substring(with: NSRange(location: inicioBloco, length: fimBloco - inicioBloco))
-            if bloco.contains("estado: selada") || bloco.contains("estado: queimada") {
+            // Só o cabeçalho define proteção. Uma frase do corpo (inclusive
+            // dentro de campo JSON) pode discutir "estado: selada" livremente.
+            let inicioCabecalho = bloco.index(bloco.startIndex, offsetBy: 4)
+            guard let fecha = bloco.range(of: "\n---\n", range: inicioCabecalho..<bloco.endIndex) else { continue }
+            let cabecalho = bloco[inicioCabecalho..<fecha.lowerBound]
+            if cabecalho.split(separator: "\n").contains(where: {
+                let linha = $0.trimmingCharacters(in: .whitespaces)
+                return linha == "estado: selada" || linha == "estado: queimada"
+            }) {
+                contemProtegida = true
                 continue
             }
-            guard let fecha = bloco.range(of: "---\n\n") ?? bloco.range(of: "---\n") else { continue }
             let corpo = String(bloco[fecha.upperBound...]).trimmingCharacters(in: .whitespacesAndNewlines)
             guard !corpo.isEmpty else { continue }
             let data = f.date(from: ns.substring(with: hit.range(at: 1))) ?? .now
@@ -247,13 +299,54 @@ enum Corpus {
                 .trimmingCharacters(in: .newlines)
             saida.append((corpo, gestoNome, data))
         }
-        return saida
+        return (saida, contemProtegida)
     }
 
     // MARK: - Disco
 
     static func backupAutomatico(notas: [Nota]) {
         escreverEspelho(fatias: notas.map(FatiaCorpus.de))
+    }
+
+    /// ADR 04o: concluir uma nota grava SÓ o `.md` dela e os três agregados,
+    /// fora da main thread. A varredura completa (apagar o que não existe
+    /// mais) fica para as rotas do selo — selar, queimar, apagar, importar e
+    /// o arranque —, que continuam síncronas e inteiras.
+    static func backupDeUma(_ nota: Nota, entre todas: [Nota]) {
+        let fatia = FatiaCorpus.de(nota)
+        let fatias = todas.map(FatiaCorpus.de)
+        let raiz = diretorio
+        Task.detached(priority: .utility) {
+            escreverUma(fatia, agregados: fatias, em: raiz)
+            PastaEspelho.comAcesso { escreverUma(fatia, agregados: fatias, em: $0, registrar: true) }
+        }
+    }
+
+    nonisolated static func escreverUma(_ f: FatiaCorpus, agregados: [FatiaCorpus], em raiz: URL,
+                                        registrar: Bool = false) {
+        let fm = FileManager.default
+        let notasDir = raiz.appendingPathComponent("notas", isDirectory: true)
+        try? fm.createDirectory(at: notasDir, withIntermediateDirectories: true)
+        let vivas = agregados.filter { !$0.nuncaSai }
+        let nome = f.id.uuidString.lowercased() + ".md"
+        if f.nuncaSai {
+            try? fm.removeItem(at: notasDir.appendingPathComponent(nome))
+        } else {
+            escreverSeMudou(arquivoMd(f).data(using: .utf8), em: notasDir.appendingPathComponent(nome))
+            if registrar {
+                // o manifesto do espelho continua sabendo o que é deste aparelho
+                let manifesto = raiz.appendingPathComponent(".espelho-\(PastaEspelho.aparelho).json")
+                var meus: Set<String> = (try? Data(contentsOf: manifesto))
+                    .flatMap { try? JSONDecoder().decode(Set<String>.self, from: $0) } ?? []
+                if meus.insert(nome).inserted {
+                    try? JSONEncoder().encode(meus).write(to: manifesto, options: .atomic)
+                }
+            }
+        }
+        escreverSeMudou(corpoDoCorpus(fatias: vivas).data(using: .utf8),
+                        em: raiz.appendingPathComponent("traco-corpus.md"))
+        escreverSeMudou(indice(fatias: vivas).data(using: .utf8),
+                        em: raiz.appendingPathComponent("INDICE.md"))
     }
 
     static func exportar(notas: [Nota]) -> URL? {
@@ -287,19 +380,34 @@ enum Corpus {
     /// traco-corpus.md e INDICE.md. Só o que pode sair (`nuncaSai` fica).
     /// `soOsMeus`: na pasta do autor, só se apaga o que ESTE aparelho escreveu
     /// (manifesto ao lado); um .md dele, ou de outro aparelho, fica.
+    /// Grava só o que MUDOU. O espelho reescrevia um .md por nota a cada
+    /// conclusão — 1.000 notas = 1.000 escritas atômicas (medido: 0,19 ms cada
+    /// no SSD, e muito pior na pasta do iCloud, que ainda sobe tudo de novo).
+    /// Ler para comparar custa uma fração de escrever, e o conteúdo é
+    /// determinístico: se é igual, escrever é desperdício puro.
+    ///
+    /// ponytail: isto NÃO troca a semântica — o selo continua reescrevendo a
+    /// nota que virou metadado, porque aí o conteúdo mudou.
+    @discardableResult
+    nonisolated static func escreverSeMudou(_ dados: Data?, em alvo: URL) -> Bool {
+        guard let dados else { return false }
+        if let atual = try? Data(contentsOf: alvo), atual == dados { return false }
+        try? dados.write(to: alvo, options: .atomic)
+        return true
+    }
+
     static func escrever(fatias: [FatiaCorpus], em raiz: URL, soOsMeus: Bool = false) {
         let fm = FileManager.default
         let notasDir = raiz.appendingPathComponent("notas", isDirectory: true)
         try? fm.createDirectory(at: notasDir, withIntermediateDirectories: true)
-        try? contrato.data(using: .utf8)?.write(
-            to: raiz.appendingPathComponent("LEIA-ME.md"), options: .atomic)
+        escreverSeMudou(contrato.data(using: .utf8), em: raiz.appendingPathComponent("LEIA-ME.md"))
         let vivas = fatias.filter { !$0.nuncaSai }
         var ids = Set<String>()
         for f in vivas {
             let nome = f.id.uuidString.lowercased() + ".md"
             ids.insert(nome)
-            try? arquivoMd(f).data(using: .utf8)?.write(
-                to: notasDir.appendingPathComponent(nome), options: .atomic)
+            escreverSeMudou(arquivoMd(f).data(using: .utf8),
+                            em: notasDir.appendingPathComponent(nome))
         }
         let manifesto = raiz.appendingPathComponent(".espelho-\(PastaEspelho.aparelho).json")
         let meusAntes: Set<String> = soOsMeus
@@ -314,10 +422,15 @@ enum Corpus {
         if soOsMeus {
             try? JSONEncoder().encode(ids).write(to: manifesto, options: .atomic)
         }
-        let corpus = corpoDoCorpus(fatias: vivas)
-        try? corpus.data(using: .utf8)?.write(
-            to: raiz.appendingPathComponent("traco-corpus.md"), options: .atomic)
-        try? indice(fatias: vivas).data(using: .utf8)?.write(
-            to: raiz.appendingPathComponent("INDICE.md"), options: .atomic)
+        // A4: os compromissos vão junto. Sem isto, a pasta que o autor abre
+        // noutro computador — e que o MCP lê — não tinha um único compromisso.
+        if let calendario = try? Data(contentsOf: CalendarioDisco.urlPadrao()),
+           raiz != diretorio {
+            try? calendario.write(to: raiz.appendingPathComponent("calendario.json"), options: .atomic)
+        }
+        escreverSeMudou(corpoDoCorpus(fatias: vivas).data(using: .utf8),
+                        em: raiz.appendingPathComponent("traco-corpus.md"))
+        escreverSeMudou(indice(fatias: vivas).data(using: .utf8),
+                        em: raiz.appendingPathComponent("INDICE.md"))
     }
 }

@@ -59,6 +59,16 @@ enum AnaliseLocal: Sendable {
             return .silencio
         }
 
+        // ADR 04l: um arquivo de leitura anexado (pdf, epub) com prosa ao lado é
+        // material de fora entrando — a forma é a Leitura (antes das
+        // regex de prosa: o arquivo pesa mais que uma palavra solta como "ideia"), com a sua prova no
+        // Recordar. O arquivo continua arquivo; o conhecimento é o que o autor
+        // escreve nas próprias palavras.
+        if texto.contains(regex: #"\]\(traco://file/[0-9A-Fa-f-]{36}\)"#),
+           texto.lowercased().contains(regex: #"\[arquivo:[^\]]*\.(pdf|epub)\]"#),
+           let leitura = Gesto(rawValue: "leitura"), leitura.conhecido {
+            return .gesto(leitura, pergunta: pergunta(leitura))
+        }
         if let gesto = detectarGesto(voz, lower, estrito: false) {
             if gesto == .expressiva { return .expressiva }
             return .gesto(gesto, pergunta: pergunta(gesto))
@@ -79,33 +89,15 @@ enum AnaliseLocal: Sendable {
         return temPlano && !temObstaculo && !temWOOP
     }
 
+    /// Roteia pela regex do CATÁLOGO (ADR 04l), na ordem do catálogo. Duas
+    /// regras continuam em código porque não são regex: a expressiva pede
+    /// texto longo além das palavras de sentimento, e o Destaque é uma lista
+    /// de linhas curtas sem palavra nenhuma.
     private static func detectarGesto(_ x: String, _ lower: String, estrito: Bool) -> Gesto? {
-        if x.count > 120 && lower.contains(regex: #"senti|sinto|dói|doeu|medo|triste|raiva|chorei|pesado|desmoronar"#) {
-            return .expressiva
-        }
-        if lower.contains(regex: #"(?m)^quero|^preciso começar|^preciso parar|meu objetivo|quero parar"#) {
-            return .woop
-        }
-        if lower.contains(regex: #"sempre que|toda vez|não consigo parar"#) {
-            return .seEntao
-        }
-        if lower.contains(regex: #"\b(feature|sistema|api|tela|site|função|app|módulo|construir)\b"#) {
-            return .spec
-        }
-        if lower.contains(regex: #"destilar|numa frase|em 200|em 100|em 50|a ess[êe]ncia"#) {
-            return .destilar
-        }
-        if lower.contains(regex: #"significa|quer dizer|n[ãa]o conhecia|o que (quer dizer|significa)"#) {
-            return .palavra
-        }
-        if lower.contains(regex: #"pr[ée]-?mortem|imagin[ae] que (deu errado|falhou)|se isto falhar"#) {
-            return .premortem
-        }
-        if lower.contains(regex: #"\b(preciso|tenho que|vou ter que) (decidir|escolher)\b|\bdecis[ãa]o\b|escolher entre|\bou ent[ãa]o\b.*\bou\b"#) {
-            return .decisao
-        }
-        if lower.contains(regex: #"percebi|entendi que|ideia|insight"#) {
-            return .notaPermanente
+        for m in Catalogo.todos where !m.roteamento.isEmpty {
+            guard let g = Gesto(rawValue: m.id) else { continue }
+            if g == .expressiva, x.count <= 120 { continue }
+            if m.roteamento.contains(where: { lower.contains(regex: $0) }) { return g }
         }
         if estrito { return nil }
         let linhas = x.split(separator: "\n").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
@@ -117,18 +109,7 @@ enum AnaliseLocal: Sendable {
 
     /// A pergunta é sempre do template — nunca do modelo (§19.4).
     nonisolated static func pergunta(_ gesto: Gesto) -> String {
-        switch gesto {
-        case .woop: perguntaWOOP
-        case .seEntao: "Quando o gatilho vier, você faz o quê — concreto, substituto?"
-        case .spec: "O que fica explicitamente de fora desta rodada?"
-        case .notaPermanente: "Nas suas palavras: qual é a UMA ideia?"
-        case .destaque: "Qual é a única de hoje — primeiro, até acabar?"
-        case .destilar: "Corta até sobrar uma frase. A frase é sua."
-        case .palavra: "Nas suas palavras: o que ela quer dizer?"
-        case .decisao: "Quais são as opções — uma por linha?"
-        case .premortem: "Um ano depois, o plano falhou. O que aconteceu?"
-        case .expressiva: ""
-        }
+        gesto.metodoDef.pergunta
     }
 }
 

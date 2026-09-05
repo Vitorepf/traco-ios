@@ -30,6 +30,7 @@ appId: app.traco
     visible: {id: "ficha-pronto"}
     timeout: 5000
 - assertVisible: "Dentista.*"
+- takeScreenshot: /tmp/traco-verify/nav/81-ficha
 - tapOn: {id: "ficha-pronto"}
 - waitForAnimationToEnd: {timeout: 2000}
 # as quatro escalas e o arrasto no tempo

@@ -96,6 +96,7 @@ final class Sessao {
 
     private var analiseTask: Task<Void, Never>?
 
+
     /// Algum campo da forma tem resposta do autor. Campos recém-criados são
     /// todos vazios: vestir não conta como preencher.
     var camposComResposta: Bool {
@@ -104,13 +105,29 @@ final class Sessao {
 
     /// A hora de conferir a decisão já chegou (o "espero" trazia data e ela
     /// passou): só então o campo da volta aparece.
-    var conferenciaDevida: Bool {
-        guard gesto == .decisao else { return false }
-        // sem data marcada o app não adivinha a hora: o campo fica, e quem
-        // decide quando responder é o autor. Com data, ele espera a data.
-        guard let quando = Gatilho.data(em: campos["espero"] ?? "") else { return true }
-        return quando <= .now
+    var conferenciaDevida: Bool { conferenciaDevida(agora: .now) }
+
+    /// Com `agora` explícito: o relógio é parâmetro, não ambiente. A versão que
+    /// lia `.now` por dentro tornava o teste dependente da hora da máquina —
+    /// ele passava o dia inteiro e reprovava no minuto das 9h.
+    func conferenciaDevida(agora: Date) -> Bool {
+        // ADR 04v: a regra é uma só, e vive fora — a lista cobra pela mesma
+        Volta.devida(gesto: gesto, campos: campos, criadaEm: criadaEmDaPagina, agora: agora)
     }
+
+    /// Quando a nota aberta nasceu — o campo da volta do Dia e da Atualização
+    /// olha para isto. Nil na página nova.
+    var criadaEmDaPagina: Date?
+    /// O calendário, para os encadeamentos que marcam compromisso (ADR 04k).
+    /// A raiz liga; nos testes fica nil e o disco recebe direto.
+    weak var agenda: CalendarioAgenda?
+
+    /// A pergunta que a sábia fez sobre ESTE texto ao abrir a forma (ADR 03h).
+    /// nil = ficou a do template.
+    var perguntaDaSabia: String?
+    /// Os títulos das notas ligadas que foram junto da última pergunta — o
+    /// cartão mostra, porque quem manda texto à rede tem de saber o quê.
+    var notasNaPergunta: [String] = []
 
     /// A linha "?" da nota (ADR o): a pergunta do autor à sábia.
     var perguntaNaNota: String? {
@@ -123,13 +140,10 @@ final class Sessao {
             return
         }
         guard !paginaVazia else { return }
-        // ADR o: uma pergunta do autor tem precedência sobre a classificação
+        // ADR o: a linha "?" já tem cartão no ar — não o atropela
         if let q = perguntaNaNota {
             if case .resposta(let p, _)? = cartao, p == q { return }
             if case .sabiaPensando? = cartao { return }
-            var t = Transaction(); t.disablesAnimations = true
-            withTransaction(t) { cartao = .pergunta(q) }
-            return
         }
         var transacao = Transaction()
         transacao.disablesAnimations = true
@@ -145,20 +159,66 @@ final class Sessao {
             // ADR 2026-08-31e: Grok é o padrão — mas só a VOZ do autor viaja
             // (Caderno.prosa tira mobiliário/anexos), nunca com forma aberta
             // (a lógica pós-forma é local) e nunca expressiva (selo).
+            // ADR 2026-09-03k — a escada de três degraus. Grok primeiro quando há
+            // conta (é o maior); o modelo DO APARELHO quando não há conta ou
+            // quando a rede falhou; as quinze regex por último.
+            //
+            // O degrau do meio é o que muda a natureza do app: até aqui, sem
+            // conta ou sem sinal, o cérebro caía direto para as regex. Agora o
+            // Traço pensa no avião, no metrô e sem assinatura — de graça, e sem
+            // nada sair do iPhone.
             var remoto: AnaliseLocal.Veredito?
             if gestoAtual == nil {
                 remoto = await AnaliseRemota.classificar(texto: Caderno.prosa(de: textoAtual), gestoAtual: gestoAtual)
+                if remoto == nil, #available(iOS 26.0, *) {
+                    remoto = await AnaliseDeBordo.classificar(
+                        texto: Caderno.prosa(de: textoAtual), gestoAtual: gestoAtual)
+                }
             }
             guard let self, !Task.isCancelled else { return }
             guard self.texto == textoAtual else { return } // o texto mudou em voo: silêncio
-            let veredito = remoto ?? AnaliseLocal.classificar(texto: textoAtual, gestoAtual: gestoAtual, campos: camposAtuais)
+            // §17.2: o autor soltou enquanto o veredito viajava — a nota fica quieta
+            if automatica, self.autoSuprimidaNaNota { return }
+            // ADR 2026-09-04c: o modelo roteia FORMA; o aviso é do algoritmo,
+            // sempre. O degrau do aparelho devolve `.silencio` (não nil) quando
+            // não é forma nenhuma — e com `remoto ?? local` isso ENGOLIA as
+            // quinze regex: os cinco avisos do §5 ficavam inalcançáveis num
+            // iPhone com Apple Intelligence e sem conta, e o aceite do §13
+            // ("eu sou um vencedor" → aviso Wood) falhava justamente na
+            // configuração padrão. Silêncio do modelo não é veredito.
+            let local = AnaliseLocal.classificar(texto: textoAtual, gestoAtual: gestoAtual, campos: camposAtuais)
+            let veredito = Self.escolher(remoto: remoto, local: local)
             self.aplicar(veredito, automatica: automatica)
+        }
+    }
+
+    /// ADR 2026-09-04c — quem decide entre o degrau de cima e a regex.
+    /// Silêncio do modelo devolve a palavra ao algoritmo; forma do modelo
+    /// manda. É a §19.4 em três linhas: o algoritmo garante, a IA sugere.
+    nonisolated static func escolher(remoto: AnaliseLocal.Veredito?,
+                                     local: AnaliseLocal.Veredito) -> AnaliseLocal.Veredito {
+        // ADR 04r: aviso local vence gesto remoto — o aviso é do algoritmo, sempre
+        if case .aviso = local { return local }
+        switch remoto {
+        case .none, .some(.silencio): return local
+        case .some(let v): return v
         }
     }
 
     private func aplicar(_ veredito: AnaliseLocal.Veredito, automatica: Bool) {
         switch veredito {
         case .silencio:
+            // ADR o: a pergunta do autor entra AQUI, no silêncio — não antes da
+            // classificação. Com precedência absoluta, uma linha "?" no meio de
+            // uma especificação bloqueava a forma para sempre: o autor não tinha
+            // como perguntar e ainda receber o gesto. Agora a forma vem primeiro
+            // e o "?" ocupa o rodapé quando não há gesto a vestir (e depois da
+            // forma aberta, quando a análise é silêncio de qualquer jeito).
+            if let q = perguntaNaNota {
+                var t = Transaction(); t.disablesAnimations = true
+                withTransaction(t) { cartao = .pergunta(q) }
+                return
+            }
             // §17: no modo automático o silêncio é invisível — toast a cada pausa seria ruído
             if !automatica {
                 Toque.leve()
@@ -179,10 +239,12 @@ final class Sessao {
             if !dominioTravado {
                 dominio = Dominio.inferir(voz: VozDoAutor.juntar(texto: texto, campos: campos))
             }
-            if automatica {
+            if automatica, !Sinais.sugerirEmVezDeVestir(g) {
                 // §17.3: gatilho explícito = confiança alta → a forma já vem vestida,
                 // com Soltar de um toque. As palavras do autor ficam intactas.
-                usarForma(g)
+                // ADR 04j: se o autor soltou esta forma três vezes seguidas,
+                // ela passa a ser SUGERIDA (o ramo de baixo) até ele abrir uma.
+                usarForma(g, explicita: false)
                 cartao = .vestida(g, pergunta: pergunta)
                 Toque.suave() // o app percebeu você — vibra macio, não estala
                 // VoiceOver: a página mudou sozinha — quem não vê precisa saber
@@ -204,7 +266,13 @@ final class Sessao {
     /// Soltar NUNCA destrói resposta: o que o autor escreveu nos campos volta ao texto
     /// (a voz fica; só o mobiliário sai).
     func soltarForma() {
+        // um veredito em voo (Grok ou bordo, lentos) não pode vestir por cima
+        // do Soltar: visto na varredura viva de 04/set — o autor soltou e a
+        // forma voltou sozinha um segundo depois
+        analiseTask?.cancel()
+        autoTask?.cancel()
         if let g = gesto {
+            Sinais.solto(g) // ADR 04h: o Soltar deixa de morrer no ar
             let respostas = g.campos.compactMap { campo -> String? in
                 let r = campos[campo.id]?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
                 return r.isEmpty ? nil : r
@@ -239,6 +307,24 @@ final class Sessao {
         Revisoes.cobrarAntes(uuid)
         Toque.leve()
         mostrarToast("volta em 3 dias.")
+    }
+
+    /// R1: "hoje não". Empurra para amanhã sem mexer na escada e fecha.
+    func adiarPendente() {
+        guard let uuid = recordarUUID ?? revisaoPendente else { return }
+        Revisoes.adiar(uuid)
+        revisaoPendente = nil
+        Toque.leve()
+        mostrarToast("volta amanhã.")
+        mostrarRecordar = false
+    }
+
+    /// R2: pular sem revelar. Antes, o botão "próxima" só existia DEPOIS de
+    /// revelar — e revelar sobe o degrau. Não havia como passar uma nota da
+    /// fila sem mentir para a própria escada.
+    func pularDaFila(no context: ModelContext) {
+        revisaoPendente = nil // não cumpriu: a escada não anda
+        proximaDaFila(no: context)
     }
 
     var temProximaFila: Bool {
@@ -334,19 +420,141 @@ final class Sessao {
     /// cartão em voo é cancelado para não cobrir a nota recém-vestida.
     // MARK: ADR o — a sábia
 
+    /// As notas que ESTA página liga com `[[…]]`, para irem junto da pergunta.
+    ///
+    /// Uma pessoa sábia ao lado de quem escreve leu o que a pessoa já escreveu
+    /// — a sábia lia só a página aberta. O que viaja não é o caderno inteiro:
+    /// é o que o AUTOR ligou de próprio punho, e ligar é ato explícito dele.
+    ///
+    /// O selo manda: `Rede.podeLigar` já corta expressiva (em curso ou
+    /// fechada), trancada e queimada. Mesmo filtro da Rede, mesma regra de
+    /// casamento — nenhuma lógica nova que pudesse divergir do selo.
+    func notasLigadas(no context: ModelContext, teto: Int = 3) -> [(titulo: String, prosa: String)] {
+        guard !Rede.mencoes(texto).isEmpty else { return [] }
+        let todas = (try? context.fetch(FetchDescriptor<Nota>())) ?? []
+        let lidas = todas.map {
+            Rede.NotaLida(uuid: $0.uuid, titulo: $0.tituloNaLista, texto: $0.texto, campos: $0.campos,
+                          gesto: $0.gesto, fechada: $0.fechada,
+                          expressivaEmCurso: $0.gesto == .expressiva && !$0.fechada)
+        }
+        // a página aberta ainda não é nota: entra como uma, para reusar o
+        // casamento de `ligacoes` em vez de reescrevê-lo aqui
+        let euUUID = notaUUID ?? UUID()
+        // título vazio de propósito: `ligacoes` pula chave vazia ao indexar
+        // alvos, então a página é só ORIGEM — nunca vira destino de si mesma
+        // nem rouba o casamento de uma nota de verdade.
+        let eu = Rede.NotaLida(uuid: euUUID, titulo: "", texto: texto, campos: campos,
+                               gesto: gesto, fechada: false, expressivaEmCurso: false)
+        let ligacoes = Rede.daqui(euUUID, Rede.ligacoes(lidas.filter { $0.uuid != euUUID } + [eu]))
+        var saida: [(titulo: String, prosa: String)] = []
+        for l in ligacoes.prefix(teto) {
+            guard let n = todas.first(where: { $0.uuid == l.para }) else { continue }
+            let prosa = Caderno.prosa(de: n.texto).trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !prosa.isEmpty else { continue }
+            saida.append((n.tituloNaLista, String(prosa.prefix(1200))))
+        }
+        return saida
+    }
+
+    /// O caderno que vai junto da pergunta (ADR 2026-09-03m): o que o autor
+    /// LIGOU, mais o que ele não ligou e fala da mesma coisa.
+    ///
+    /// A ligação explícita é o que ele sabe que se conecta. O eco é o que ele
+    /// esqueceu que escreveu — e é justamente aí que mora o valor de ter um
+    /// segundo cérebro em vez de uma página. Sem isto a sábia respondia lendo
+    /// só a página aberta e a nota que ele lembrou de citar.
+    ///
+    /// O selo corta antes, nos dois caminhos: `Rede.podeLigar` nas ligadas,
+    /// `fechada`/expressiva nas candidatas a eco.
+    /// Quantas notas do caderno foram LIDAS pela rede na última pergunta —
+    /// não as que voltaram. O cartão dizia só as que voltaram (3), enquanto o
+    /// índice de até 40 viajava: quem manda texto à rede tem de ver o quanto.
+    var notasLidasNaPergunta = 0
+
+    /// O que a rede viu, em uma linha: quantas notas foram lidas em índice
+    /// (título + 240 caracteres) e quais foram inteiras.
+    var divulgacaoDaPergunta: String {
+        var partes: [String] = []
+        if notasLidasNaPergunta > 0 {
+            partes.append(notasLidasNaPergunta == 1
+                ? "leu o começo de 1 nota sua"
+                : "leu o começo de \(notasLidasNaPergunta) notas suas")
+        }
+        if !notasNaPergunta.isEmpty {
+            partes.append("foram junto: " + notasNaPergunta.joined(separator: " · "))
+        }
+        return partes.joined(separator: " · ")
+    }
+
+    func contextoDoCaderno(no context: ModelContext, pergunta: String = "") async -> [(titulo: String, prosa: String)] {
+        var saida = notasLigadas(no: context)
+        var jaTem = Set(saida.map(\.titulo))
+        let todas = (try? context.fetch(FetchDescriptor<Nota>())) ?? []
+        let podem = todas.filter {
+            $0.uuid != notaUUID && !$0.fechada && $0.gesto != .expressiva
+                && !Caderno.prosa(de: $0.texto).trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        }
+        // ADR 04n: as seis mais próximas da PERGUNTA vão inteiras (600 chars)
+        if !pergunta.isEmpty {
+            let excluir = Set(saida.compactMap { t in podem.first { $0.tituloNaLista == t.titulo }?.uuid })
+            for v in Indice.vizinhas(de: pergunta, teto: 6, exceto: excluir.union([notaUUID].compactMap { $0 })) {
+                guard let n = podem.first(where: { $0.uuid == v.uuid }), !jaTem.contains(n.tituloNaLista) else { continue }
+                let prosa = Caderno.prosa(de: n.texto).trimmingCharacters(in: .whitespacesAndNewlines)
+                saida.append((n.tituloNaLista, String(prosa.prefix(600))))
+                jaTem.insert(n.tituloNaLista)
+            }
+        }
+        // ADR 04n: as candidatas a eco são as 40 mais PRÓXIMAS desta nota, não
+        // as 40 primeiras de um fetch sem ordem — e só quando há índice
+        let proximas = Indice.vizinhas(de: Caderno.prosa(de: texto), teto: 40, minimo: 0.15,
+                                       exceto: Set([notaUUID].compactMap { $0 }))
+        let ordem = Dictionary(uniqueKeysWithValues: proximas.enumerated().map { ($0.element.uuid, $0.offset) })
+        let candidatas = podem
+            .filter { !jaTem.contains($0.tituloNaLista) }
+            .filter { ordem.isEmpty || ordem[$0.uuid] != nil }
+            .sorted { (ordem[$0.uuid] ?? .max) < (ordem[$1.uuid] ?? .max) }
+            .prefix(40).map { $0 }
+        notasLidasNaPergunta = candidatas.count
+        guard !candidatas.isEmpty else { return saida }
+        let linhas = candidatas.map {
+            "\($0.tituloNaLista) :: \(Caderno.prosa(de: $0.texto).prefix(240))"
+        }
+        guard let ecos = await Sabia.ecos(nota: Caderno.prosa(de: texto),
+                                          candidatas: linhas, gesto: gesto)
+        else { return saida }
+        for eco in ecos where eco.i < candidatas.count {
+            let n = candidatas[eco.i]
+            let prosa = Caderno.prosa(de: n.texto).trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !prosa.isEmpty else { continue }
+            saida.append((n.tituloNaLista, String(prosa.prefix(1200))))
+        }
+        return saida
+    }
+
     /// Responde a linha "?" num cartão. Sem conta, diz que precisa dela.
-    func perguntarASabia() {
+    func perguntarASabia(no context: ModelContext) {
         guard let q = perguntaNaNota, gesto != .expressiva else { return }
-        guard ContaGrok.ligada else {
+        guard Sabia.disponivel else {
             cartao = .semConta
             return
         }
+        // a resposta tem até 900 caracteres e o teclado cobria metade dela
+        // (visto na primeira chamada real, 03/set). Quem pergunta vai LER.
+        Teclado.recolher()
         cartao = .sabiaPensando
-        let contexto = Caderno.prosa(de: texto)
         let g = gesto
+        let retrato = retratoAtual()
         Task { [weak self] in
-            let r = await Sabia.responder(pergunta: q, contexto: contexto, gesto: g)
             guard let self else { return }
+            let doCaderno = await self.contextoDoCaderno(no: context, pergunta: q)
+            guard case .sabiaPensando? = self.cartao else { return }
+            // o cartão diz o que viajou: quem manda texto à rede tem de saber qual
+            self.notasNaPergunta = doCaderno.map(\.titulo)
+            var contexto = Caderno.prosa(de: self.texto)
+            for n in doCaderno {
+                contexto += "\n\n--- outra nota sua: \(n.titulo) ---\n\(n.prosa)"
+            }
+            let r = await Sabia.responder(pergunta: q, contexto: contexto, gesto: g, retrato: retrato)
             guard case .sabiaPensando? = self.cartao else { return }
             if let r {
                 self.cartao = .resposta(pergunta: q, texto: r)
@@ -356,6 +564,52 @@ final class Sessao {
                 self.mostrarToast("a sábia não respondeu. tente de novo.")
             }
         }
+    }
+
+    // MARK: ADR 05e — perguntar nas Notas
+
+    nonisolated struct TrocaNasNotas: Equatable, Sendable {
+        var pergunta: String
+        var resposta: String
+    }
+
+    /// O que viaja com a pergunta feita nas Notas: as vizinhas pelo sentido
+    /// (inteiras até o teto), o catálogo em uma linha por forma, e a conversa
+    /// até aqui. O selo corta: fechada e expressiva nunca. Devolve o texto e
+    /// os títulos que foram.
+    func contextoDasNotas(pergunta: String, conversa: [TrocaNasNotas], no context: ModelContext,
+                          teto: Int = 8) -> (texto: String, titulos: [String]) {
+        var partes: [String] = []
+        partes.append("FORMAS DO TRAÇO (nome: para que serve):\n" + Catalogo.todos
+            .filter { $0.id != Gesto.expressiva.rawValue }
+            .map { "\($0.nome): \($0.definicao)" }.joined(separator: "\n"))
+        var titulos: [String] = []
+        let vizinhas = Indice.vizinhas(de: pergunta, teto: teto, minimo: 0.15)
+        if !vizinhas.isEmpty, let notas = try? context.fetch(FetchDescriptor<Nota>()) {
+            let porId = Dictionary(uniqueKeysWithValues: notas.map { ($0.uuid, $0) })
+            var linhas: [String] = []
+            for v in vizinhas {
+                guard let n = porId[v.uuid], !n.fechada, n.gesto != .expressiva, n.temVoz else { continue }
+                let prosa = n.vozDoAutor.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !prosa.isEmpty else { continue }
+                titulos.append(n.tituloNaLista)
+                linhas.append("--- nota sua: \(n.tituloNaLista) ---\n\(prosa.prefix(1200))")
+            }
+            if !linhas.isEmpty { partes.append("NOTAS DELA (só para você entender; não as reescreva):\n" + linhas.joined(separator: "\n\n")) }
+        }
+        if !conversa.isEmpty {
+            partes.append("CONVERSA ATÉ AQUI:\n" + conversa.suffix(4)
+                .map { "Ela: \($0.pergunta)\nVocê: \($0.resposta)" }.joined(separator: "\n"))
+        }
+        return (partes.joined(separator: "\n\n"), titulos)
+    }
+
+    /// A resposta da sábia à barra das Notas. nil = não respondeu.
+    func responderNasNotas(_ pergunta: String, conversa: [TrocaNasNotas],
+                           no context: ModelContext) async -> (resposta: String?, titulos: [String]) {
+        let (contexto, titulos) = contextoDasNotas(pergunta: pergunta, conversa: conversa, no: context)
+        let r = await Sabia.responderNasNotas(pergunta: pergunta, contexto: contexto, retrato: retratoAtual())
+        return (r, titulos)
     }
 
     /// Veste o texto inteiro: motor local agora; a sábia, se ligada, refina
@@ -370,7 +624,7 @@ final class Sessao {
             cartao = .vestido(antes: antes)
             Toque.fechou()
         }
-        guard ContaGrok.ligada else {
+        guard Sabia.disponivel else {
             if local == antes { mostrarToast("nada a vestir aqui.") }
             return
         }
@@ -393,24 +647,135 @@ final class Sessao {
         Toque.leve()
     }
 
-    func vestirNota() {
-        guard !paginaVazia else { return }
-        autoTask?.cancel()
-        let vestido = Caderno.estruturar(texto)
-        guard vestido != texto else {
-            Toque.leve()
-            mostrarToast("nada a vestir aqui.")
-            return
-        }
-        texto = vestido
-        Toque.fechou()
-    }
-
-    func usarForma(_ g: Gesto) {
+    /// `explicita` = o autor abriu (cartão, encadeamento, Padrões). A pausa
+    /// veste com `false` e NÃO instiga: abundante no ato, calada na pausa
+    /// (ADR 04r). O instigar da forma vestida sozinha chega quando ele toca
+    /// nela — `instigarSePreciso`.
+    func usarForma(_ g: Gesto, explicita: Bool = true) {
         gesto = g
         campos = Dictionary(uniqueKeysWithValues: g.campos.map { ($0.id, "") })
         cartao = nil
         Toque.leve()
+        instigou = false
+        if explicita { instigarSePreciso() }
+    }
+
+    /// Uma instigação por forma aberta. Chamada pelo ato: abrir os campos,
+    /// o primeiro caractere num campo, abrir a forma pelo cartão.
+    private var instigou = false
+    func instigarSePreciso() {
+        guard let g = gesto, !instigou else { return }
+        instigou = true
+        instigarSobreAForma(g)
+    }
+
+    /// A pergunta da forma era uma de nove strings fixas: toda spec que o autor
+    /// já escreveu ouviu a MESMA frase. A lei do dono é outra — "instiga,
+    /// pergunta, e eu construo enquanto aprendo" — e `Sabia.instigar` já existe,
+    /// com verificação dura (só entra o que termina em "?").
+    ///
+    /// Dispara ao ABRIR a forma, não a cada pausa: abrir é ato explícito, uma
+    /// vez por nota, e é exatamente onde a pergunta vale. Falhou, veio vazio ou
+    /// não há conta: fica a do template. Silêncio é resposta válida (§19.4).
+    func instigarSobreAForma(_ g: Gesto) {
+        perguntaDaSabia = nil
+        guard g != .expressiva, Sabia.disponivel else { return }
+        let prosa = Caderno.prosa(de: texto)
+        guard prosa.count >= 80 else { return } // texto curto não tem buraco a apontar
+        let geracao = geracaoDaPagina
+        // ADR 04j: o degrau sobe com a prática nesta forma; ADR 04i: a sábia
+        // sabe quem escreve
+        let sinais = Sinais.todos()
+        let degrau = Degraus.instigar(g, sinais: sinais) // ADR 04x: ouve o sinal
+        let retrato = retratoAtual(sinais: sinais)
+        Task { [weak self] in
+            let r = await Sabia.instigar(texto: prosa, gesto: g, degrau: degrau, retrato: retrato)
+            guard let self, self.geracaoDaPagina == geracao, self.gesto == g else { return }
+            self.perguntaDaSabia = r?.first
+        }
+    }
+
+    // MARK: ADR 04i — o retrato
+
+    /// As notas do disco, lidas para o retrato. A view injeta (`notasParaRetrato`)
+    /// porque a sessão não guarda um contexto; nos testes fica vazio.
+    var notasParaRetrato: () -> [Retrato.NotaLida] = { [] }
+
+    /// O bloco SOBRE QUEM ESCREVE — vazio quando desligado, sem conta, ou sem nada.
+    func retratoAtual(sinais: [Sinal]? = nil) -> String {
+        guard Retrato.ligado, Sabia.disponivel else { return "" }
+        return Retrato.ler(notas: notasParaRetrato(), sinais: sinais ?? Sinais.todos())
+    }
+
+    /// O autor disse se a pergunta da forma serviu (ADR 04h).
+    func avaliarPergunta(_ texto: String, serviu: Bool) {
+        Sinais.pergunta(texto, forma: gesto, serviu: serviu)
+        Toque.leve()
+    }
+
+    func avaliarResposta(_ texto: String, serviu: Bool) {
+        Sinais.resposta(texto, forma: gesto, serviu: serviu)
+        Toque.leve()
+    }
+
+    // MARK: ADR 04k — os encadeamentos
+
+    /// Da forma aberta para a próxima, com as palavras do autor copiadas e o
+    /// `[[título]]` da origem no destino. A IA não escreve nada aqui.
+    func encadear(_ e: Metodo.Encadeamento, no context: ModelContext, agora: Date = .now) {
+        guard let g = gesto, g != .expressiva, salvar(no: context) else { return }
+        let origemCampos = campos
+        let origemTitulo = VozDoAutor.titulo(texto, gesto: g, campos: campos)
+        if let c = e.compromisso {
+            let frase = (origemCampos[c.campo] ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !frase.isEmpty else { return }
+            let cal = Calendario.gregoriano()
+            let dia = cal.date(byAdding: .day, value: c.dias, to: Calendario.inicioDoDia(agora, cal)) ?? agora
+            let inicio = Calendario.hora(Ancora.hora(.manha), 0, no: dia, cal)
+            let evento = EventoCalendario(titulo: c.titulo + String(frase.prefix(80)), inicio: inicio,
+                                          fim: inicio.addingTimeInterval(1800),
+                                          notas: origemTitulo.isEmpty ? "" : "[[\(origemTitulo)]]")
+            if let agenda {
+                agenda.guardar(evento)
+            } else if case .eventos(var lista) = CalendarioDisco.carregar() {
+                lista.append(evento)
+                try? CalendarioDisco.gravar(lista)
+            } else {
+                try? CalendarioDisco.gravar([evento])
+            }
+            let f = DateFormatter()
+            f.locale = Locale(identifier: "pt_BR")
+            f.dateFormat = "EEEE d, HH:mm"
+            mostrarToast("marcado para \(f.string(from: inicio)) · com aviso")
+            Toque.suave()
+            return
+        }
+        guard let para = e.para, let destino = Gesto(rawValue: para), destino.conhecido else { return }
+        novaPagina()
+        usarForma(destino, explicita: true)
+        for (campoDestino, campoOrigem) in e.mapa {
+            let v = (origemCampos[campoOrigem] ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            if !v.isEmpty, destino.campos.contains(where: { $0.id == campoDestino }) { campos[campoDestino] = v }
+        }
+        if !origemTitulo.isEmpty {
+            let liga = "[[\(origemTitulo)]]"
+            if destino.campos.contains(where: { $0.id == "liga" }) {
+                campos["liga"] = liga
+            } else {
+                texto = liga
+            }
+        }
+        irPara(.escrever, no: context)
+        mostrarToast("\(destino.nome) aberta com as suas palavras" + (origemTitulo.isEmpty ? "" : " · ligada a “\(VozDoAutor.truncar(origemTitulo, 28))”"))
+        Toque.suave()
+    }
+
+    /// Os encadeamentos da forma aberta que já podem acender (ADR 04k).
+    var encadeamentosProntos: [Metodo.Encadeamento] {
+        guard let g = gesto, g != .expressiva else { return [] }
+        return g.encadeamentos.filter { e in
+            e.exige.allSatisfy { !(campos[$0] ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+        }
     }
 
     /// ADR p × q: um plano sem a própria falha nomeada abre um pré-mortem.
@@ -510,7 +875,9 @@ final class Sessao {
     /// §8: fecha SELADO primeiro — o selo é garantia e não pode depender de o
     /// autor responder (matar o app no meio deixaria a nota aberta). Só então
     /// oferece a escolha: manter selada ou queimar.
-    func abrirFecho(no context: ModelContext) {
+    /// `destino`: para onde o autor ia quando o timer o interrompeu (§15 — o
+    /// destino se preserva depois da tranca). `.pagina` = ficar onde está.
+    func abrirFecho(no context: ModelContext, destino: DestinoConfirmacao = .pagina) {
         let minutos = minutosExpressiva
         confirmacao = nil
         pararTimer()
@@ -523,8 +890,27 @@ final class Sessao {
         Toque.fechou()
         fechoUUID = alvo
         fechoExpressiva = minutos
+        fechoDestino = destino
         if let uuid = alvo, let nota = Self.buscar(uuid: uuid, no: context) {
             sentidosDaSerie = Self.sentidosAnteriores(nota, no: context)
+        }
+    }
+
+    /// Para onde ir quando o fecho terminar. `novaPagina` não pode zerar isto:
+    /// ela roda DENTRO do `abrirFecho`, antes de o autor escolher a porta.
+    var fechoDestino: DestinoConfirmacao = .pagina
+
+    /// O fecho acabou (selou ou queimou): agora o trânsito que o timer barrou
+    /// pode acontecer. Sem isto, tocar em Notas com o timer de pé terminava na
+    /// página — a §15 promete o destino preservado.
+    private func seguirDestinoDoFecho(no context: ModelContext) {
+        let destino = fechoDestino
+        fechoDestino = .pagina
+        switch destino {
+        case .pagina: break
+        case .notas: irPara(.notas, no: context)
+        // trancada não se recorda: o destino Recordar vira página
+        case .recordar: break
         }
     }
 
@@ -581,6 +967,7 @@ final class Sessao {
                 // o selo vale para o disco: nada do texto selado fica em Arquivos
                 Versoes.apagar(existente.uuid)
                 Apontar.apagar(existente.uuid)
+                Indice.remover(existente.uuid)
             }
             if let sentidoPendente { existente.sentido = sentidoPendente }
             existente.minutosEscritos = max(existente.minutosEscritos, minutosExpressiva)
@@ -598,6 +985,7 @@ final class Sessao {
         aplicarSerie(na: nota)
         aplicarGatilho(na: nota)
         aplicarDestaque(na: nota)
+        if criadaEmDaPagina == nil { criadaEmDaPagina = nota.criadaEm }
         guard persistir(context) else {
             // A escrita do autor nunca se perde em silêncio: o texto segue na página
             // e o aviso diz isso. (Tranca de expressiva continua garantida pelo
@@ -605,7 +993,38 @@ final class Sessao {
             mostrarToast("não consegui gravar — o texto continua na página.")
             return false
         }
+        // ADR 04n: o índice de sentido acompanha a nota — fora da main thread,
+        // porque `salvar` roda em toda troca de cena e o índice regrava o
+        // arquivo inteiro (ponytail: JSON de N×200 floats; formato binário por
+        // nota se um dia doer a mil notas). O selo, esse, tira na hora:
+        // `remover` é síncrono nas rotas de selar, queimar e apagar.
+        if trancar || nota.fechada {
+            Indice.remover(nota.uuid)
+        } else {
+            let lida = Self.paraIndice(nota)
+            Task.detached(priority: .utility) { Indice.atualizar(lida) }
+            classificarDominioNoAparelho(da: nota, no: context) // ADR 05d
+        }
         return true
+    }
+
+    nonisolated static func paraIndice(_ n: Nota) -> Indice.NotaLida {
+        // ADR 04y: os marcadores de PDF viajam com a voz; o índice os expande
+        // no texto do anexo, fora da main thread
+        let ns = n.texto as NSString
+        let marcadores = Indice.marcadorPDF.matches(in: n.texto, range: NSRange(location: 0, length: ns.length))
+            .map { ns.substring(with: $0.range) }
+        return Indice.NotaLida(uuid: n.uuid, editadaEm: n.editadaEm,
+                               voz: ([n.vozDoAutor] + marcadores).joined(separator: "\n"),
+                               podeEntrar: !n.fechada && n.gesto != .expressiva && n.temVoz)
+    }
+
+    /// No arranque: o índice inteiro contra o disco (entra o que pode, sai o
+    /// que não pode mais).
+    func sincronizarIndice(no context: ModelContext) {
+        guard let notas = try? context.fetch(FetchDescriptor<Nota>()) else { return }
+        let lidas = notas.map(Self.paraIndice)
+        Task.detached(priority: .utility) { Indice.sincronizar(lidas) }
     }
 
     private func aplicarDominio(na nota: Nota) {
@@ -674,6 +1093,14 @@ final class Sessao {
             DestaqueDoDia.gravar(linhaDoDestaque(texto: texto, campos: campos), id: nota.uuid)
             return
         }
+        // ADR 04k: a única do Dia é o Destaque do dia — mesma lei, mesma tela
+        if let g = gesto, g != .destaque, !nota.fechada, g.campos.contains(where: { $0.id == "unica" }) {
+            let unica = campos["unica"]?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            if !unica.isEmpty {
+                DestaqueDoDia.gravar(unica, id: nota.uuid)
+                return
+            }
+        }
         DestaqueDoDia.apagar(id: nota.uuid)
     }
 
@@ -683,17 +1110,73 @@ final class Sessao {
         Toque.leve()
     }
 
+    /// Devolve a inferência à nota. Roda o léxico na hora, para o autor ver o
+    /// resultado sem precisar reabrir e salvar.
+    @discardableResult
+    func devolverDominio(_ nota: Nota, no context: ModelContext) -> Bool {
+        nota.devolverDominio()
+        nota.dominio = Dominio.inferir(voz: nota.vozDoAutor)
+        guard persistir(context) else {
+            mostrarToast("não consegui devolver o domínio.")
+            return false
+        }
+        if notaUUID == nota.uuid {
+            dominio = nota.dominio
+            dominioTravado = false
+        }
+        Toque.leve()
+        return true
+    }
+
     /// ADR 2026-09-02c: um toque no chip tira o rótulo e trava. Se o disco
     /// recusa, o rótulo continua — o gesto não mente.
     @discardableResult
     func soltarDominio(_ nota: Nota, no context: ModelContext) -> Bool {
-        nota.soltarDominio()
+        escolherDominio(nil, na: nota, no: context)
+    }
+
+    /// ADR 05d: o autor escolhe no menu (um dos sete, ou nenhum) e a nota
+    /// trava — a IA não volta a mexer até "Devolver ao app".
+    @discardableResult
+    func escolherDominio(_ d: Dominio?, na nota: Nota, no context: ModelContext) -> Bool {
+        nota.dominio = d
+        nota.dominioTravado = true
         guard persistir(context) else {
-            mostrarToast("não consegui soltar o domínio — o rótulo continua.")
+            mostrarToast("não consegui guardar o domínio — o rótulo continua.")
             return false
+        }
+        if notaUUID == nota.uuid {
+            dominio = d
+            dominioTravado = true
         }
         Toque.leve()
         return true
+    }
+
+    /// Na página: a escolha vale na hora e vai ao disco no próximo salvar.
+    func escolherDominioNaPagina(_ d: Dominio?) {
+        dominio = d
+        dominioTravado = true
+        Toque.leve()
+    }
+
+    /// ADR 05d: a IA do aparelho corrige o léxico, fora da main thread, só
+    /// quando a voz mudou desde a última vez e o autor não travou.
+    private var vozClassificada = ""
+    private func classificarDominioNoAparelho(da nota: Nota, no context: ModelContext) {
+        guard !nota.dominioTravado, nota.gesto != .expressiva, !nota.fechada else { return }
+        let voz = nota.vozDoAutor
+        guard voz != vozClassificada, voz.count >= 12 else { return }
+        vozClassificada = voz
+        let uuid = nota.uuid
+        Task { [weak self] in
+            guard let r = await AnaliseDeBordo.dominio(texto: voz), let self else { return }
+            guard let viva = Self.buscar(uuid: uuid, no: context), !viva.dominioTravado,
+                  viva.vozDoAutor == voz, viva.dominio != r else { return }
+            viva.dominio = r
+            _ = self.persistir(context)
+            if self.notaUUID == uuid, !self.dominioTravado { self.dominio = r }
+        }
     }
 
     /// Expressiva vencida sobrevive à morte do processo: a notas não pode vazar o texto.
@@ -707,6 +1190,7 @@ final class Sessao {
             nota.expressivaPrazo = nil
             Versoes.apagar(nota.uuid)
             Apontar.apagar(nota.uuid)
+            Indice.remover(nota.uuid)
             recem = nota
             mudou = true
         }
@@ -724,10 +1208,66 @@ final class Sessao {
                 fechoExpressiva = recem.minutosEscritos
                 sentidosDaSerie = Self.sentidosAnteriores(recem, no: context)
             }
-            if let todas = try? context.fetch(FetchDescriptor<Nota>()) {
-                Corpus.backupAutomatico(notas: todas)
+        }
+    }
+
+    /// ADR 04p: o que o Mac deixou em `entrada/` vira nota; `metodos/` entra
+    /// no catálogo. Chamado no arranque e ao voltar à cena.
+    func recolherEntrada(no context: ModelContext) {
+        var total = 0
+        var falhou = false
+        func recolher(_ raiz: URL) {
+            guard !falhou else { return }
+            if Entrada.recolherMetodos(raizes: [raiz]) > 0 { Catalogo.recarregar() }
+            let arquivos = Entrada.arquivos(raizes: [raiz])
+            guard !arquivos.isEmpty else { return }
+            do {
+                let recibos = try context.fetch(FetchDescriptor<ReciboEntrada>())
+                var conhecidas = Set(recibos.map(\.chave))
+                var novas = 0
+                for arquivo in arquivos where !conhecidas.contains(arquivo.chave) {
+                    for item in arquivo.itens {
+                        let gesto = item.gestoNome.flatMap(Gesto.doNome)
+                        let partes = Corpus.separarCampos(texto: item.texto, gesto: gesto)
+                        let nota = Nota(texto: partes.texto, gesto: gesto, campos: partes.campos)
+                        nota.criadaEm = item.criadaEm
+                        context.insert(nota)
+                        novas += 1
+                    }
+                    context.insert(ReciboEntrada(chave: arquivo.chave))
+                    conhecidas.insert(arquivo.chave)
+                }
+                if novas > 0, !persistir(context) {
+                    falhou = true
+                    mostrarToast("não consegui importar — os arquivos continuam na entrada.")
+                    return
+                }
+                // O recibo sobrevive à remoção da nota: replay não ressuscita conteúdo.
+                for arquivo in arquivos { Entrada.confirmar(arquivo) }
+                total += novas
+            } catch {
+                falhou = true
+                mostrarToast("não consegui ler as importações — os arquivos continuam na entrada.")
             }
         }
+        recolher(Entrada.raizDoApp)
+        // Ler e confirmar enquanto o acesso security-scoped continua aberto.
+        PastaEspelho.comAcesso { recolher($0) }
+        guard total > 0 else { return }
+        UserDefaults.standard.set(Date.now, forKey: Entrada.chaveUltima)
+        if !falhou { mostrarToast(total == 1 ? "1 nota veio de fora." : "\(total) notas vieram de fora.") }
+        if let todas = try? context.fetch(FetchDescriptor<Nota>()) {
+            Corpus.backupAutomatico(notas: todas)
+            Holofote.indexar(notas: todas)
+            let lidas = todas.map(Self.paraIndice)
+            Task.detached(priority: .utility) { Indice.sincronizar(lidas) }
+        }
+    }
+
+    /// V3: no arranque, série viva que perdeu o aviso volta a ter um.
+    func rearmarSeries(no context: ModelContext) {
+        guard let notas = try? context.fetch(FetchDescriptor<Nota>()) else { return }
+        Task { await Revisoes.rearmarSeries(notas: notas) }
     }
 
     /// P0 6: no arranque, anexos sem marcador em NOTA NENHUMA (trancadas incluídas —
@@ -746,11 +1286,16 @@ final class Sessao {
     func novaPagina() {
         geracaoDaPagina += 1
         pararTimer()
+        criadaEmDaPagina = nil
+        instigou = false
         texto = ""
         gesto = nil
         campos = [:]
         notaUUID = nil
         perguntaPadroes = nil
+        perguntaDaSabia = nil
+        notasNaPergunta = []
+        notasLidasNaPergunta = 0
         cartao = nil
         confirmacao = nil
         recordarTexto = ""
@@ -803,9 +1348,13 @@ final class Sessao {
         gesto = nota.gesto
         campos = nota.campos
         notaUUID = nota.uuid
+        criadaEmDaPagina = nota.criadaEm
+        instigou = false
         dominio = nota.dominio
         dominioTravado = nota.dominioTravado
         perguntaPadroes = nil
+        perguntaDaSabia = nil
+        notasNaPergunta = []
         cartao = nil
         mostrarNotas = false
         mostrarPadroes = false
@@ -827,15 +1376,23 @@ final class Sessao {
         }
         guard temVoz else { return }
         let nomeGesto = gesto?.nome.lowercased()
-        salvar(no: context)
+        guard salvar(no: context) else { return }
+        // Só uma gravação confirmada pode contar como conclusão.
+        if let g = gesto, g != .expressiva, camposComResposta { Sinais.ficou(g) }
         // peak-end-rule: o fim do percurso não devolvia NADA — nem confirmação,
         // nem onde a nota foi parar. Uma linha, e ela some sozinha.
-        mostrarToast(nomeGesto.map { "\($0) guardada · também no Arquivos" } ?? "guardada · também no Arquivos")
+        mostrarToast(nomeGesto.map { "\($0) guardada" } ?? "guardada")
         // FILA P1.5: a nota concluída marca a própria revisão — o Recordar chega
         // no dia certo sem o autor lembrar (§17).
-        // Exp 9: o corpus vive também no app Arquivos — backup sem nuvem, sem conta
+        // Exp 9: o corpus vive também no app Arquivos — backup sem nuvem, sem conta.
+        // ADR 04o: concluir grava SÓ a nota que mudou (e os agregados), fora da
+        // main thread; a varredura completa fica para as rotas do selo.
         if let todas = try? context.fetch(FetchDescriptor<Nota>()) {
-            Corpus.backupAutomatico(notas: todas)
+            if let notaUUID, let nota = Self.buscar(uuid: notaUUID, no: context) {
+                Corpus.backupDeUma(nota, entre: todas)
+            } else {
+                Corpus.backupAutomatico(notas: todas)
+            }
             // Exp 3: Spotlight indexa só as abertas (o selo vale para o sistema)
             Holofote.indexar(notas: todas)
         }
@@ -858,7 +1415,7 @@ final class Sessao {
             confirmacao = .sairTranca(destino: .notas)
             return
         }
-        salvar(no: context)
+        guard salvar(no: context) else { return }
         Teclado.recolher()
         if nova != .escrever { abaArquivo = nova }
         aba = nova
@@ -869,7 +1426,7 @@ final class Sessao {
             confirmacao = .sairTranca(destino: .notas)
             return
         }
-        salvar(no: context)
+        guard salvar(no: context) else { return }
         Teclado.recolher()
         mostrarNotas = true
     }
@@ -885,13 +1442,13 @@ final class Sessao {
             confirmacao = .sairTranca(destino: .recordar)
             return
         }
+        guard salvar(no: context) else { return }
         filaAtiva = false
         filaUUIDs = []
         recordarTexto = texto
         recordarCampos = campos
         recordarGesto = gesto
         recordarUUID = notaUUID
-        salvar(no: context)
         mostrarRecordar = true
     }
 
@@ -964,6 +1521,7 @@ final class Sessao {
         apagadaRecuperavel = nil
         Versoes.apagar(nota.uuid)
         Apontar.apagar(nota.uuid)
+        Indice.remover(nota.uuid)
         Revisoes.cancelar(uuid: nota.uuid)
         if let todas = try? context.fetch(FetchDescriptor<Nota>()) {
             Corpus.backupAutomatico(notas: todas)
@@ -975,6 +1533,7 @@ final class Sessao {
         fechoExpressiva = nil
         sentidoPendente = nil
         fechoUUID = nil
+        seguirDestinoDoFecho(no: context)
         return true
     }
 
@@ -1000,6 +1559,7 @@ final class Sessao {
         sentidosDaSerie = []
         seriePendente = nil
         diaPendente = 0
+        seguirDestinoDoFecho(no: context)
         Toque.suave()
         return true
     }
@@ -1025,7 +1585,7 @@ final class Sessao {
     @discardableResult
     func importarCorpus(
         _ itens: [(texto: String, gestoNome: String?, criadaEm: Date)],
-        no context: ModelContext
+        no context: ModelContext, anunciar: Bool = true
     ) -> Int {
         guard !itens.isEmpty else { return 0 }
         for item in itens {
@@ -1040,7 +1600,7 @@ final class Sessao {
             return 0
         }
         let n = itens.count
-        mostrarToast("\(n) nota\(n == 1 ? "" : "s") importada\(n == 1 ? "" : "s").")
+        if anunciar { mostrarToast("\(n) nota\(n == 1 ? "" : "s") importada\(n == 1 ? "" : "s").") }
         return n
     }
 
@@ -1081,6 +1641,7 @@ final class Sessao {
         DestaqueDoDia.apagar(id: uuid)
         Versoes.apagar(uuid)
         Apontar.apagar(uuid)
+        Indice.remover(uuid)
         // regra de ferro 2: apagar tira a nota do espelho em Arquivos e do Spotlight AGORA
         if let todas = try? context.fetch(FetchDescriptor<Nota>()) {
             Corpus.backupAutomatico(notas: todas)

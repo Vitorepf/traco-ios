@@ -1,0 +1,44 @@
+# Q3 e Q4: a lista ordena por mais de uma coisa, e dá para escolher várias.
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: {id: "pagina"}
+    timeout: 6000
+- tapOn: {id: "pagina"}
+- inputText: "primeira ideia do caderno"
+- waitForAnimationToEnd: {timeout: 2500}
+- tapOn: {id: "concluir"}
+- waitForAnimationToEnd: {timeout: 2000}
+- tapOn: {id: "pagina"}
+- inputText: "segunda ideia do caderno"
+- waitForAnimationToEnd: {timeout: 2500}
+- tapOn: {id: "concluir"}
+- waitForAnimationToEnd: {timeout: 2000}
+
+- swipe: {direction: DOWN}
+- waitForAnimationToEnd: {timeout: 1500}
+- tapOn: {id: "aba-arquivo"}
+- extendedWaitUntil:
+    visible: {id: "ordem-notas"}
+    timeout: 5000
+
+# Q3: a ordem se troca
+- tapOn: {id: "ordem-notas"}
+- waitForAnimationToEnd: {timeout: 1500}
+- tapOn: "Editadas por último"
+- waitForAnimationToEnd: {timeout: 1500}
+- assertVisible: {id: "ordem-notas"}
+
+# Q4: escolher pelo menu, e a barra do lote aparece
+- longPressOn: {id: "nota-notas"}
+- waitForAnimationToEnd: {timeout: 1500}
+- tapOn: "Escolher"
+- extendedWaitUntil:
+    visible: {id: "lote-apagar"}
+    timeout: 4000
+- assertVisible: {id: "lote-pronto"}
+- tapOn: {id: "lote-pronto"}
+- waitForAnimationToEnd: {timeout: 1500}
+- assertNotVisible: {id: "lote-apagar"}

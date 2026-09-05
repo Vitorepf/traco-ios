@@ -1,0 +1,32 @@
+# ADR 05e: a busca vive no pé e também pergunta. Escrever filtra; enviar sobe
+# o cartão da sábia. Com os motores desligados, o cartão diz por onde ela
+# responderia — e a busca continua.
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn: {id: pagina}
+- inputText: "quero correr de manhã antes do trabalho"
+- waitForAnimationToEnd: {timeout: 2500}
+- tapOn: {id: "concluir"}
+- swipe:
+    start: 1%, 50%
+    end: 85%, 50%
+- tapOn: {id: "aba-notas"}
+- tapOn: {id: "busca-notas"}
+- inputText: "correr"
+- assertVisible: "quero correr de manhã antes do trabalho"
+- assertVisible: {id: "perguntar-notas"}
+- takeScreenshot: /tmp/traco-verify/ciclo/44-barra-de-baixo
+- tapOn: {id: "perguntar-notas"}
+- extendedWaitUntil:
+    visible: {id: "cartao-sabia-notas"}
+    timeout: 5000
+# motores desligados: a sábia não responde, e o cartão diz isso onde o autor olha
+- extendedWaitUntil:
+    visible: ".*a sábia (não respondeu|precisa|pela|pelo).*"
+    timeout: 15000
+- takeScreenshot: /tmp/traco-verify/ciclo/45-cartao-sem-resposta
+# o id do cartão engole o do botão na árvore do maestro: tocar pelo texto
+- tapOn: "Fechar"
+- assertNotVisible: "Fechar"

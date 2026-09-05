@@ -1,6 +1,14 @@
 import Foundation
 
 enum VozDoAutor: Sendable {
+    /// Tira os colchetes de ligação (ADR 2026-09-03b): eles são sintaxe, não
+    /// voz — não aparecem no título da lista nem no que viaja.
+    nonisolated static func semColchetes(_ s: String) -> String {
+        guard s.contains("[[") else { return s }
+        return s.replacingOccurrences(of: #"\[\[([^\[\]\n]{1,120})\]\]"#, with: "$1",
+                                      options: .regularExpression)
+    }
+
     nonisolated static func juntar(texto: String, campos: [String: String],
                                    sentido: String = "") -> String {
         let respostas = campos.values
@@ -32,10 +40,14 @@ enum VozDoAutor: Sendable {
         }
         let prosa = Caderno.prosa(de: texto)
         let base = prosa.isEmpty ? Caderno.visivel(texto) : prosa
-        let doCorpo = base.split(separator: "\n", omittingEmptySubsequences: true)
-            .first
-            .map(String.init) ?? ""
-        if !doCorpo.isEmpty { return doCorpo }
+        let primeira = base.split(separator: "\n", omittingEmptySubsequences: true).first.map(String.init) ?? ""
+        let doCorpo = semColchetes(primeira)
+        // ADR 04k: uma nota encadeada nasce com só `[[origem]]` no corpo e a
+        // voz nos campos — a ligação é sintaxe, não título
+        let soLigacao = primeira.trimmingCharacters(in: .whitespaces)
+            .range(of: #"^\[\[[^\[\]\n]+\]\]$"#, options: .regularExpression) != nil
+        let temCampo = gesto?.campos.contains { !(campos[$0.id] ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty } ?? false
+        if !doCorpo.isEmpty, !(soLigacao && temCampo) { return doCorpo }
         // voz só nos campos: o arquivo não finge que a nota não tem nome
         if let gesto {
             for campo in gesto.campos {

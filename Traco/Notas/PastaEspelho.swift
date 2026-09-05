@@ -64,7 +64,10 @@ nonisolated enum PastaEspelho {
         guard let dados = defaults.data(forKey: chave) else { return }
         var velho = false
         guard let url = try? URL(resolvingBookmarkData: dados, options: [], relativeTo: nil, bookmarkDataIsStale: &velho) else {
-            limpar()
+            // Não há URL acessível para limpar arquivos. Retira apenas a
+            // escolha inválida: limpar() tentaria resolver o mesmo bookmark.
+            defaults.removeObject(forKey: chave)
+            defaults.removeObject(forKey: chaveNome)
             return
         }
         if velho, let novo = try? url.bookmarkData(options: [], includingResourceValuesForKeys: nil, relativeTo: nil) {

@@ -8,8 +8,9 @@ appId: app.traco
 - swipe:
     direction: DOWN
 # a lei do atrito: o arquivo não pode depender de LEMBRAR um gesto invisível
-- assertVisible:
-    id: "aba-arquivo"
+- extendedWaitUntil:
+    visible: {id: "aba-arquivo"}
+    timeout: 5000
 - tapOn:
     id: "aba-arquivo"
 - extendedWaitUntil:

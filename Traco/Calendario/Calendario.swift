@@ -40,8 +40,28 @@ nonisolated struct EventoCalendario: Identifiable, Codable, Equatable, Sendable 
     /// Deixa de uma nota (o "Se" com hora): a nota é a dona; não vai ao disco
     /// do calendário, e tocar abre a nota. É o calendário das intenções.
     var origem: UUID? = nil
+    /// Projeção transitória de uma ação; o agregado Trabalho continua dono.
+    var origemTrabalho: UUID? = nil
+    /// Dias da semana em que repete (1 = domingo … 7 = sábado). Vazio = uma vez
+    /// só. O disco guarda a SÉRIE, nunca as ocorrências: "toda sexta" é uma
+    /// linha no arquivo, não cinquenta e duas.
+    var repeteEm: [Int] = []
+
+    /// ADR 2026-09-04a: minutos ANTES do começo em que o aviso toca.
+    /// `nil` = não avisa. Arquivo gravado antes desta ADR não tem a chave e
+    /// vale 0 (na hora): o comportamento da ADR 03d fica de pé para tudo que
+    /// já estava marcado.
+    var avisoMinutos: Int? = 0
+
+    /// A3: veio do calendário do iPhone (Apple, Google…). Não é nosso: não vai
+    /// ao disco, não se edita, não se apaga e não sai no export. Só se lê.
+    /// Não é codificável de propósito — nada disto atravessa o `calendario.json`.
+    var doSistema: Bool = false
 
     var eDeixa: Bool { origem != nil }
+    var repete: Bool { !repeteEm.isEmpty }
+    /// O que o Traço pode mexer: o que ele mesmo guardou.
+    var editavel: Bool { origem == nil && origemTrabalho == nil && !doSistema }
 
     init(
         id: UUID = UUID(),
@@ -51,7 +71,10 @@ nonisolated struct EventoCalendario: Identifiable, Codable, Equatable, Sendable 
         dominio: Dominio? = nil,
         notas: String = "",
         diaInteiro: Bool = false,
-        origem: UUID? = nil
+        origem: UUID? = nil,
+        origemTrabalho: UUID? = nil,
+        repeteEm: [Int] = [],
+        avisoMinutos: Int? = 0
     ) {
         self.id = id
         self.titulo = titulo
@@ -61,10 +84,13 @@ nonisolated struct EventoCalendario: Identifiable, Codable, Equatable, Sendable 
         self.notas = notas
         self.diaInteiro = diaInteiro
         self.origem = origem
+        self.origemTrabalho = origemTrabalho
+        self.repeteEm = repeteEm
+        self.avisoMinutos = avisoMinutos
     }
 
     private enum Chave: String, CodingKey {
-        case id, titulo, inicio, fim, dominio, categoria, notas, diaInteiro
+        case id, titulo, inicio, fim, dominio, categoria, notas, diaInteiro, repeteEm, avisoMinutos
     }
 
     init(from decoder: Decoder) throws {
@@ -75,6 +101,15 @@ nonisolated struct EventoCalendario: Identifiable, Codable, Equatable, Sendable 
         fim = try c.decode(Date.self, forKey: .fim)
         notas = try c.decodeIfPresent(String.self, forKey: .notas) ?? ""
         diaInteiro = try c.decodeIfPresent(Bool.self, forKey: .diaInteiro) ?? false
+        // arquivo gravado antes da repetição não tem a chave: uma vez só
+        repeteEm = (try c.decodeIfPresent([Int].self, forKey: .repeteEm) ?? [])
+            .filter { (1...7).contains($0) }
+            .sorted()
+        // chave ausente = arquivo velho = avisa na hora; chave nula = o autor
+        // desligou o aviso deste compromisso, e isso tem de sobreviver ao disco
+        avisoMinutos = c.contains(.avisoMinutos)
+            ? try c.decodeIfPresent(Int.self, forKey: .avisoMinutos)
+            : 0
         if let d = try c.decodeIfPresent(String.self, forKey: .dominio) {
             dominio = Dominio(rawValue: d)
         } else if let antiga = try c.decodeIfPresent(String.self, forKey: .categoria) {
@@ -92,6 +127,10 @@ nonisolated struct EventoCalendario: Identifiable, Codable, Equatable, Sendable 
     }
 
     func encode(to encoder: Encoder) throws {
+        guard origemTrabalho == nil else {
+            throw EncodingError.invalidValue(self, .init(codingPath: encoder.codingPath,
+                debugDescription: "A ação pertence ao Trabalho e não pode virar compromisso independente."))
+        }
         var c = encoder.container(keyedBy: Chave.self)
         try c.encode(id, forKey: .id)
         try c.encode(titulo, forKey: .titulo)
@@ -100,6 +139,8 @@ nonisolated struct EventoCalendario: Identifiable, Codable, Equatable, Sendable 
         try c.encodeIfPresent(dominio?.rawValue, forKey: .dominio)
         try c.encode(notas, forKey: .notas)
         try c.encode(diaInteiro, forKey: .diaInteiro)
+        if repete { try c.encode(repeteEm, forKey: .repeteEm) }
+        try c.encode(avisoMinutos, forKey: .avisoMinutos)
     }
 
     var duracaoMinutos: Int {
@@ -130,6 +171,70 @@ nonisolated struct EventoCalendario: Identifiable, Codable, Equatable, Sendable 
         var e = self
         e.fim = max(novo, inicio.addingTimeInterval(5 * 60))
         return e
+    }
+}
+
+/// ADR 2026-09-04a — a antecedência do aviso, em lista fechada.
+///
+/// O rótulo é do app; a ficha mostra a HORA REAL ao lado, porque é ela que o
+/// autor confere. "Avisa 30 min antes" é promessa abstrata; "sexta, 13h30" é
+/// promessa em unidade do mundo dele.
+nonisolated enum Aviso {
+    /// Minutos antes do começo. `nil` = não avisa.
+    static let opcoes: [Int?] = [nil, 0, 5, 10, 15, 30, 60, 120, 1440]
+    /// Dia inteiro não tem "minutos antes" que signifiquem coisa alguma: ou
+    /// cobra na âncora da manhã, ou na véspera, ou cala.
+    static let opcoesDiaInteiro: [Int?] = [nil, 0, 1440]
+
+    static func nome(_ minutos: Int?, diaInteiro: Bool = false) -> String {
+        guard let m = minutos else { return "Não avisa" }
+        if diaInteiro { return m >= 1440 ? "Um dia antes, de manhã" : "Na manhã do dia" }
+        switch m {
+        case 0: return "Na hora"
+        case 60: return "1 h antes"
+        case 120: return "2 h antes"
+        case 1440: return "1 dia antes"
+        default: return "\(m) min antes"
+        }
+    }
+
+    /// O instante em que o aviso toca. Dia inteiro cobra na âncora da manhã do
+    /// autor — à meia-noite ninguém lê — e "um dia antes" na manhã da véspera.
+    static func instante(de evento: EventoCalendario, _ cal: Calendar, manha: Int) -> Date? {
+        guard let m = evento.avisoMinutos else { return nil }
+        if evento.diaInteiro {
+            let dia = m >= 1440
+                ? (cal.date(byAdding: .day, value: -1, to: evento.inicio) ?? evento.inicio)
+                : evento.inicio
+            return Calendario.hora(manha, 0, no: dia, cal)
+        }
+        return evento.inicio.addingTimeInterval(-Double(m) * 60)
+    }
+
+    /// Quantos dias o aviso recuou em relação ao começo (0, 1 ou mais). Uma
+    /// antecedência pode empurrar o alarme para a véspera — e aí o dia da
+    /// semana da série anda junto, senão o aviso toca seis dias atrasado.
+    static func diasDeRecuo(inicio: Date, aviso: Date, _ cal: Calendar) -> Int {
+        let a = cal.startOfDay(for: inicio)
+        let b = cal.startOfDay(for: aviso)
+        return max(0, cal.dateComponents([.day], from: b, to: a).day ?? 0)
+    }
+
+    /// A promessa em uma linha, do jeito que o autor confere. Vazia quando não
+    /// há aviso — silêncio pedido não se anuncia.
+    static func promessa(de evento: EventoCalendario, _ cal: Calendar,
+                         manha: Int, agora: Date = .now) -> String? {
+        guard let quando = instante(de: evento, cal, manha: manha) else { return nil }
+        let hora = Calendario.horaCurta(quando, cal)
+        if evento.repete {
+            let recuo = diasDeRecuo(inicio: evento.inicio, aviso: quando, cal)
+            let dias = evento.repeteEm.map { ((($0 - 1 - recuo) % 7) + 7) % 7 + 1 }.sorted()
+            return "toda \(Calendario.diasEmLetras(dias, cal)) às \(hora)"
+        }
+        if cal.isDate(quando, inSameDayAs: agora) { return "hoje às \(hora)" }
+        if let amanha = cal.date(byAdding: .day, value: 1, to: agora),
+           cal.isDate(quando, inSameDayAs: amanha) { return "amanhã às \(hora)" }
+        return "\(Calendario.formatar(quando, "EEEE, d 'de' MMM", cal)) às \(hora)"
     }
 }
 
@@ -226,6 +331,15 @@ nonisolated enum Calendario {
         formatar(data, "MMM", cal).replacingOccurrences(of: ".", with: "")
     }
 
+    /// "seg · sex" — os dias da série na língua do autor, na ordem da semana.
+    nonisolated static func diasEmLetras(_ dias: [Int], _ cal: Calendar) -> String {
+        let semana = Calendario.semana(da: Date(timeIntervalSince1970: 0), cal)
+        return semana
+            .filter { dias.contains(cal.component(.weekday, from: $0)) }
+            .map { formatar($0, "EEE", cal).replacingOccurrences(of: ".", with: "") }
+            .joined(separator: " · ")
+    }
+
     nonisolated static func letraDoDia(_ data: Date, _ cal: Calendar) -> String {
         formatar(data, "EEEEE", cal).uppercased()
     }
@@ -245,6 +359,7 @@ nonisolated enum Calendario {
 
     nonisolated static func intervalo(_ e: EventoCalendario, _ cal: Calendar) -> String {
         if e.diaInteiro { return "Dia inteiro" }
+        if e.origemTrabalho != nil { return horaCurta(e.inicio, cal) }
         return "\(horaCurta(e.inicio, cal)) – \(horaCurta(e.fim, cal))"
     }
 
@@ -265,6 +380,40 @@ nonisolated enum Calendario {
         f.dateFormat = formato
         formatadores[chave] = f
         return f.string(from: data)
+    }
+
+    /// As ocorrências concretas no intervalo, inclusive nas duas pontas.
+    ///
+    /// Evento sem repetição sai como ele mesmo. Com repetição, sai uma cópia
+    /// por dia que casa, a partir do início da série — e a cópia guarda o
+    /// MESMO `id`, para que tocar nela abra a série, não um fantasma.
+    /// É a única porta entre a série guardada e o que a tela desenha.
+    nonisolated static func ocorrencias(
+        _ eventos: [EventoCalendario],
+        de inicio: Date,
+        a fim: Date,
+        _ cal: Calendar
+    ) -> [EventoCalendario] {
+        let primeiro = inicioDoDia(inicio, cal)
+        let ultimo = inicioDoDia(fim, cal)
+        guard primeiro <= ultimo else { return [] }
+        var saida: [EventoCalendario] = []
+        for e in eventos {
+            guard e.repete else {
+                saida.append(e)
+                continue
+            }
+            let comeco = max(primeiro, inicioDoDia(e.inicio, cal))
+            var dia = comeco
+            while dia <= ultimo {
+                if e.repeteEm.contains(cal.component(.weekday, from: dia)) {
+                    saida.append(e.movido(paraODiaDe: dia, cal))
+                }
+                guard let proximo = cal.date(byAdding: .day, value: 1, to: dia) else { break }
+                dia = proximo
+            }
+        }
+        return saida
     }
 
     nonisolated static func eventos(
@@ -428,7 +577,7 @@ nonisolated enum CalendarioFrase {
         }
         // pergunta é sobre a vida, não sobre onde a tela está: "sexta" é a
         // próxima sexta a partir de HOJE, mesmo olhando outro mês
-        if destino == nil, let (d, r) = comerDia(texto, ancora: hoje, agora: agora, cal) {
+        if destino == nil, let (d, r) = comerDia(texto, agora: agora, cal) {
             destino = (d, .dia)
             texto = r
         }
@@ -458,8 +607,15 @@ nonisolated enum CalendarioFrase {
         var inicioMinutos: Int? = nil
         var duracao: Int? = nil
         var diaInteiro = false
+        var repeteEm: [Int] = []
 
-        if let (d, r) = comerDia(resto, ancora: ancora, agora: agora, cal) {
+        // "toda sexta e segunda" antes de "sexta": a repetição come os dias,
+        // senão `comerDia` levaria um deles e a série viraria uma data só
+        if let (dias, r) = comerRepeticao(resto) {
+            repeteEm = dias
+            dia = primeiraOcorrencia(dias, aPartirDe: agora, cal)
+            resto = r
+        } else if let (d, r) = comerDia(resto, agora: agora, cal) {
             dia = d
             resto = r
         }
@@ -495,15 +651,56 @@ nonisolated enum CalendarioFrase {
             inicio: inicio,
             fim: fim,
             dominio: Dominio.inferir(voz: titulo),
-            diaInteiro: diaInteiro
+            diaInteiro: diaInteiro,
+            repeteEm: repeteEm
         )
     }
 
     // MARK: dia
 
+    /// Os sete dias da semana, com o número do `weekday` do Calendar.
+    /// O plural conta: "todas as sextas" é como se diz — sem o `s?` opcional,
+    /// `\bsexta\b` não casava em "sextas" e a série virava uma data só.
+    nonisolated private static let diasDaSemana: [(String, Int)] = [
+        (#"\b(domingos?|dom)\b"#, 1),
+        (#"\b(segundas?(?:-feiras?)?|seg)\b"#, 2),
+        (#"\b(ter[çc]as?(?:-feiras?)?|ter)\b"#, 3),
+        (#"\b(quartas?(?:-feiras?)?|qua)\b"#, 4),
+        (#"\b(quintas?(?:-feiras?)?|qui)\b"#, 5),
+        (#"\b(sextas?(?:-feiras?)?|sex)\b"#, 6),
+        (#"\b(s[áa]bados?|sab)\b"#, 7),
+    ]
+
+    /// "toda sexta e segunda", "todas as terças", "todo sábado" → os dias que
+    /// repetem, e o texto sem eles. Sem a palavra de repetição, nil: aí é uma
+    /// data só, e quem cuida é `comerDia`.
+    nonisolated static func comerRepeticao(_ texto: String) -> (dias: [Int], resto: String)? {
+        guard let marca = achar(#"\b(todas?\s+(?:as?\s+)?|todos?\s+(?:os?\s+)?)"#, texto) else { return nil }
+        var resto = marca.resto
+        var dias: Set<Int> = []
+        // um dia pode aparecer mais de uma vez; cada passada come o que achou
+        for (padrao, weekday) in diasDaSemana {
+            while let m = achar(padrao, resto) {
+                dias.insert(weekday)
+                resto = m.resto
+            }
+        }
+        guard !dias.isEmpty else { return nil }
+        return (dias.sorted(), resto)
+    }
+
+    /// O primeiro dia, a partir de hoje (inclusive), que casa com a série.
+    nonisolated static func primeiraOcorrencia(_ dias: [Int], aPartirDe agora: Date, _ cal: Calendar) -> Date {
+        let hoje = Calendario.inicioDoDia(agora, cal)
+        for passo in 0..<7 {
+            guard let d = cal.date(byAdding: .day, value: passo, to: hoje) else { break }
+            if dias.contains(cal.component(.weekday, from: d)) { return d }
+        }
+        return hoje
+    }
+
     nonisolated private static func comerDia(
         _ texto: String,
-        ancora: Date,
         agora: Date,
         _ cal: Calendar
     ) -> (Date, String)? {
@@ -545,24 +742,22 @@ nonisolated enum CalendarioFrase {
             if let m = achar(padrao, texto) { return (data, m.resto) }
         }
 
-        let semana: [(String, Int)] = [
-            (#"\b(domingo|dom)\b"#, 1),
-            (#"\b(segunda(?:-feira)?|seg)\b"#, 2),
-            (#"\b(ter[çc]a(?:-feira)?|ter)\b"#, 3),
-            (#"\b(quarta(?:-feira)?|qua)\b"#, 4),
-            (#"\b(quinta(?:-feira)?|qui)\b"#, 5),
-            (#"\b(sexta(?:-feira)?|sex)\b"#, 6),
-            (#"\b(s[áa]bado|sab)\b"#, 7),
-        ]
-        for (padrao, weekday) in semana {
-            if let m = achar(padrao, texto) {
-                return (proximo(weekday, aPartir: ancora, cal), m.resto)
-            }
+        // o dia que vem PRIMEIRO NA FRASE, não o primeiro da nossa lista: com
+        // "sexta e segunda", `segunda` ganhava por estar antes na lista e o
+        // "sexta" sobrava no título
+        let achados = diasDaSemana.compactMap { padrao, weekday in
+            achar(padrao, texto).map { (m: $0, weekday: weekday) }
+        }
+        if let primeiro = achados.min(by: { $0.m.posicao < $1.m.posicao }) {
+            // a partir de HOJE, nunca da âncora da tela: marcar segue o
+            // relógio, como perguntar já seguia. Com a tela em julho, "segunda"
+            // caía em julho e o compromisso nascia dois meses atrás.
+            return (proximo(primeiro.weekday, aPartir: agora, cal), primeiro.m.resto)
         }
         return nil
     }
 
-    /// O próximo weekday a partir da âncora, contando o próprio dia.
+    /// O próximo weekday a partir da data dada, contando o próprio dia.
     nonisolated private static func proximo(_ weekday: Int, aPartir de: Date, _ cal: Calendar) -> Date {
         let dia = Calendario.inicioDoDia(de, cal)
         let actual = cal.component(.weekday, from: dia)
@@ -660,6 +855,9 @@ nonisolated enum CalendarioFrase {
         var texto: String
         var grupos: [String]
         var resto: String
+        /// Onde casou. Com dois dias na frase ("sexta e segunda"), quem manda é
+        /// a ordem da FRASE, não a ordem da nossa lista.
+        var posicao: Int
     }
 
     nonisolated private static func achar(_ padrao: String, _ texto: String) -> Achado? {
@@ -672,7 +870,7 @@ nonisolated enum CalendarioFrase {
             if let r = Range(m.range(at: i), in: texto) { grupos.append(String(texto[r])) } else { grupos.append("") }
         }
         let resto = texto.replacingCharacters(in: todo, with: " ")
-        return Achado(texto: String(texto[todo]), grupos: grupos, resto: resto)
+        return Achado(texto: String(texto[todo]), grupos: grupos, resto: resto, posicao: m.range.location)
     }
 }
 
@@ -729,7 +927,49 @@ nonisolated enum CalendarioDisco {
         let enc = JSONEncoder()
         enc.dateEncodingStrategy = .iso8601
         enc.outputFormatting = [.sortedKeys]
-        let data = try enc.encode(eventos)
+        let data = try enc.encode(eventos.filter(\.editavel))
         try data.write(to: url, options: .atomic)
+    }
+}
+
+// MARK: - ADR 2026-09-04a: o próximo compromisso sai do app
+
+extension ProximoCompromisso {
+    /// Publica o próximo compromisso das duas semanas seguintes no App Group,
+    /// para o widget e para a Ilha.
+    ///
+    /// Deixa de nota não entra: a nota é a dona dela, já tem o próprio gatilho,
+    /// e o selo vale para a tela bloqueada como vale para a rede. O que veio do
+    /// iPhone entra (é contexto do dia do autor), mas nunca promete aviso —
+    /// quem avisa por ele é o app Calendário, que é o dono.
+    /// `mudo` é o compromisso cujo alarme o sistema RECUSOU (sem permissão,
+    /// sem espaço, hora passada): ele aparece, mas sem sino — a tela não
+    /// promete o que não vai acontecer.
+    static func publicar(_ eventos: [EventoCalendario], cal: Calendar,
+                         manha: Int = Ancora.hora(.manha), agora: Date = .now,
+                         mudo: UUID? = nil) {
+        let fatia = proximaFatia(eventos, cal: cal, manha: manha, agora: agora, mudo: mudo)
+        gravar(fatia)
+        FilaDeAtividade.compartilhada.enfileirar {
+            await atualizarAtividade(fatia, agora: agora)
+        }
+    }
+
+    /// Seleção sem efeitos externos, compartilhada pela publicação e seus testes.
+    static func proximaFatia(_ eventos: [EventoCalendario], cal: Calendar,
+                             manha: Int, agora: Date, mudo: UUID? = nil) -> Fatia? {
+        let ate = cal.date(byAdding: .day, value: 14, to: agora) ?? agora
+        let vivos = eventos.filter { !$0.eDeixa && $0.origemTrabalho == nil }
+        let proximo = Calendario.ocorrencias(vivos, de: agora, a: ate, cal)
+            .filter { $0.fim > agora }
+            .min { $0.inicio < $1.inicio }
+        let fatia = proximo.map { e in
+            Fatia(id: e.id, titulo: e.titulo, inicio: e.inicio, fim: e.fim,
+                  diaInteiro: e.diaInteiro,
+                  aviso: (e.editavel && e.id != mudo)
+                      ? Aviso.instante(de: e, cal, manha: manha) : nil,
+                  lembrarEm: nil)
+        }
+        return fatia
     }
 }

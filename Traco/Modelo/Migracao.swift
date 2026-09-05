@@ -56,10 +56,22 @@ enum TracoSchemaV2: VersionedSchema {
     static var models: [any PersistentModel.Type] { [Nota.self] }
 }
 
+enum TracoSchemaV3: VersionedSchema {
+    static var versionIdentifier: Schema.Version { Schema.Version(3, 0, 0) }
+    static var models: [any PersistentModel.Type] { [Nota.self, ReciboEntrada.self] }
+}
+
+enum TracoSchemaV4: VersionedSchema {
+    static var versionIdentifier: Schema.Version { Schema.Version(4, 0, 0) }
+    static var models: [any PersistentModel.Type] { [Nota.self, ReciboEntrada.self, Trabalho.self] }
+}
+
 enum TracoMigracao: SchemaMigrationPlan {
-    static var schemas: [any VersionedSchema.Type] { [TracoSchemaV1.self, TracoSchemaV2.self] }
+    static var schemas: [any VersionedSchema.Type] { [TracoSchemaV1.self, TracoSchemaV2.self, TracoSchemaV3.self, TracoSchemaV4.self] }
     static var stages: [MigrationStage] {
-        [MigrationStage.lightweight(fromVersion: TracoSchemaV1.self, toVersion: TracoSchemaV2.self)]
+        [MigrationStage.lightweight(fromVersion: TracoSchemaV1.self, toVersion: TracoSchemaV2.self),
+         MigrationStage.lightweight(fromVersion: TracoSchemaV2.self, toVersion: TracoSchemaV3.self),
+         MigrationStage.lightweight(fromVersion: TracoSchemaV3.self, toVersion: TracoSchemaV4.self)]
     }
 }
 
@@ -97,7 +109,7 @@ extension ModelContainer {
             config = ModelConfiguration(isStoredInMemoryOnly: emMemoria)
         }
         return try ModelContainer(
-            for: Schema(versionedSchema: TracoSchemaV2.self),
+            for: Schema(versionedSchema: TracoSchemaV4.self),
             migrationPlan: TracoMigracao.self,
             configurations: config
         )

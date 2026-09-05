@@ -11,7 +11,18 @@ struct PadroesView: View {
     @Environment(\.modelContext) private var context
 
     /// ADR q: a revisão da semana, sem rede. Deixas e compromissos vêm do calendário.
-    private var semana: RevisaoSemanal {
+    ///
+    /// Lida UMA vez, no `.task` — era propriedade computada lida do `body`, e
+    /// abria e decodificava `calendario.json` do disco em toda invalidação da
+    /// árvore, mais um `tituloNaLista` por nota.
+    @State private var semana: RevisaoSemanal?
+    /// ADR 03o: a leitura da calibragem — o padrão ENTRE os pares que o autor
+    /// não vê olhando um de cada vez. Vazio = nada verificado, e nada se mostra.
+    @State private var sobreOJuizo: [String] = []
+    /// ADR 04q: dois períodos lado a lado, sem seta e sem placar.
+    @State private var trajetoria: Trajetoria?
+
+    private func lerSemana() {
         var eventos: [EventoCalendario] = []
         if case .eventos(let lidos) = CalendarioDisco.carregar() { eventos = lidos }
         let lidas = notas.map {
@@ -19,7 +30,100 @@ struct PadroesView: View {
                                     gatilhoEm: $0.gatilhoEm, titulo: $0.tituloNaLista, campos: $0.campos,
                                     sentido: $0.sentido, queimadaOuSeladaEm: $0.queimadaEm ?? $0.editadaEm)
         }
-        return RevisaoSemanal.ler(notas: lidas, eventos: eventos)
+        semana = RevisaoSemanal.ler(notas: lidas, eventos: eventos)
+        trajetoria = Trajetoria.ler(notas: notas.map {
+            Trajetoria.NotaLida(uuid: $0.uuid, gesto: $0.gesto, fechada: $0.fechada, criadaEm: $0.criadaEm,
+                                editadaEm: $0.queimadaEm ?? $0.editadaEm, campos: $0.campos, sentido: $0.sentido)
+        }, sinais: Sinais.todos())
+    }
+
+    // MARK: - A trajetória (ADR 04q)
+
+    @ViewBuilder private var cartaoTrajetoria: some View {
+        if let t = trajetoria, !t.vazia {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("TRAJETÓRIA")
+                    .font(Tema.label)
+                    .tracking(Tema.trackingLabel)
+                    .foregroundStyle(Tema.tintaSuave)
+                Text("Dois períodos, lado a lado. Sem nota, sem seta: quem lê é você.")
+                    .font(.footnote)
+                    .foregroundStyle(Tema.tintaFraca)
+                HStack(alignment: .top, spacing: 12) {
+                    periodo(t.recente)
+                    Rectangle().fill(Tema.linha).frame(width: 0.5)
+                    periodo(t.anterior)
+                }
+            }
+            .padding(16)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .superficieElevada()
+            .padding(.bottom, 8)
+            .accessibilityIdentifier("trajetoria")
+        }
+    }
+
+    private func periodo(_ p: Trajetoria.Periodo) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(p.rotulo)
+                .font(Tema.label)
+                .tracking(Tema.trackingLabel)
+                .foregroundStyle(Tema.tintaFraca)
+            Text("\(p.notas) \(p.notas == 1 ? "nota" : "notas")")
+                .font(Tema.meta)
+                .foregroundStyle(Tema.tintaSuave)
+            if !p.porForma.isEmpty {
+                Text(p.porForma.joined(separator: " · "))
+                    .font(Tema.meta)
+                    .foregroundStyle(Tema.tintaSuave)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            if !p.obstaculos.isEmpty { linhas("Obstáculos", p.obstaculos) }
+            if !p.recordar.isEmpty { miuda("Recordar", p.recordar) }
+            if !p.calibragem.isEmpty { miuda("Decisões", p.calibragem) }
+            if !p.palavras.isEmpty { linhas("Palavras", p.palavras) }
+            if !p.sentidos.isEmpty {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("O que ficou claro").font(Tema.meta.weight(.semibold)).foregroundStyle(Tema.tinta)
+                    ForEach(p.sentidos, id: \.self) { Text("— " + $0).font(Tema.meta).foregroundStyle(Tema.tintaSuave).fixedSize(horizontal: false, vertical: true) }
+                }
+            }
+            if p.vazio {
+                Text("nada neste período.")
+                    .font(Tema.meta)
+                    .foregroundStyle(Tema.tintaFraca)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .topLeading)
+    }
+
+    private func miuda(_ titulo: String, _ texto: String) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(titulo).font(Tema.meta.weight(.semibold)).foregroundStyle(Tema.tinta)
+            Text(texto).font(Tema.meta).foregroundStyle(Tema.tintaSuave).fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    private func linhas(_ titulo: String, _ xs: [Trajetoria.Linha]) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(titulo).font(Tema.meta.weight(.semibold)).foregroundStyle(Tema.tinta)
+            ForEach(xs) { l in
+                Button {
+                    guard let nota = Sessao.buscar(uuid: l.id, no: context) else { return }
+                    sessao.abrir(nota)
+                    sessao.irPara(.escrever, no: context)
+                } label: {
+                    Text("“" + l.texto + "”")
+                        .font(Tema.meta)
+                        .foregroundStyle(Tema.tintaSuave)
+                        .multilineTextAlignment(.leading)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(maxWidth: .infinity, minHeight: 24, alignment: .leading)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(PressaoDiscreta())
+            }
+        }
     }
 
     private var abertas: [Nota] {
@@ -42,6 +146,36 @@ struct PadroesView: View {
         carregou = true
     }
 
+    /// A única leitura do app que olha para o AUTOR e não para um texto.
+    /// Só entra com dois pares ou mais: um caso não é padrão.
+    private func lerCalibragem() async {
+        guard let c = semana?.calibragem, c.count >= 2, Sabia.disponivel else { return }
+        let pares = c.map { "escolha: \($0.escolha)\nesperava: \($0.esperava)\naconteceu: \($0.aconteceu)" }
+        let r = await Sabia.lerCalibragem(pares: pares)
+        withAnimation(.easeOut(duration: 0.3)) { sobreOJuizo = r ?? [] }
+    }
+
+    /// Perguntas sobre o próprio juízo — nunca nota, nunca placar (§12). O que
+    /// a memória apaga é a expectativa de ANTES; só o papel guarda.
+    @ViewBuilder private var juizo: some View {
+        if !sobreOJuizo.isEmpty {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Sobre o seu juízo")
+                    .font(Tema.meta.weight(.semibold))
+                    .foregroundStyle(Tema.tinta)
+                ForEach(sobreOJuizo, id: \.self) { p in
+                    Text("— " + p)
+                        .font(Tema.meta)
+                        .foregroundStyle(Tema.tintaSuave)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .accessibilityIdentifier("sobre-o-juizo")
+            .transition(.opacity.combined(with: .offset(y: 8)))
+        }
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             // §20: voltar é da barra inferior. Aqui fica o nome da tela, e só.
@@ -50,6 +184,7 @@ struct PadroesView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
                     revisaoDaSemana
+                    cartaoTrajetoria
                     if !carregou {
                         Text("lendo as suas notas…")
                             .font(Tema.corpo)
@@ -106,7 +241,9 @@ struct PadroesView: View {
         }
         .background(Tema.fundo.ignoresSafeArea())
         .task {
+            lerSemana()
             await carregarPerguntas()
+            await lerCalibragem()
             guard !reduceMotion else {
                 visiveis = perguntas.count
                 return
@@ -122,8 +259,7 @@ struct PadroesView: View {
 
     @ViewBuilder
     private var revisaoDaSemana: some View {
-        let r = semana
-        if !r.vazia {
+        if let r = semana, !r.vazia {
             VStack(alignment: .leading, spacing: 12) {
                 Text("ESTA SEMANA")
                     .font(Tema.label)
@@ -195,6 +331,7 @@ struct PadroesView: View {
                             .buttonStyle(PressaoDiscreta())
                             .accessibilityIdentifier("calibragem")
                         }
+                        juizo
                     }
                 }
                 if !r.sentidos.isEmpty {

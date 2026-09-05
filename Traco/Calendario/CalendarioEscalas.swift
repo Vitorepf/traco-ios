@@ -87,7 +87,7 @@ struct CalendarioDiaView: View {
                         .padding(.horizontal, 12)
                         .frame(height: 32)
                         .background(CalendarioTema.fundo(de: evento), in: Capsule())
-                        .overlay { if evento.eDeixa { Capsule().strokeBorder(CalendarioTema.contornoDeixa, lineWidth: 1) } }
+                        .overlay { if CalendarioTema.temContorno(evento) { Capsule().strokeBorder(CalendarioTema.contorno(de: evento), lineWidth: 1) } }
                         .frame(minHeight: Tema.alvo)
                         .contentShape(Capsule())
                     }
@@ -188,9 +188,18 @@ struct CalendarioDiaView: View {
                         }
                     }
                     if !compacto {
-                        Text(Calendario.intervalo(evento, agenda.cal))
-                            .font(CalendarioTema.meta.monospacedDigit())
-                            .opacity(0.85)
+                        HStack(spacing: 5) {
+                            Text(Calendario.intervalo(evento, agenda.cal))
+                                .font(CalendarioTema.meta.monospacedDigit())
+                            // ADR 04a: o autor vê na GRADE que aquilo vai
+                            // cobrá-lo. Sino é ícone (≥3:1), não texto.
+                            if evento.editavel, evento.avisoMinutos != nil {
+                                Image(systemName: "bell.fill")
+                                    .font(.system(size: 9, weight: .semibold))
+                                    .accessibilityLabel("com aviso")
+                            }
+                        }
+                        .opacity(0.85)
                     }
                 }
                 .foregroundStyle(CalendarioTema.tinta(de: evento))
@@ -339,7 +348,12 @@ struct CalendarioSemanaView: View {
                 }
             }
             .accessibilityElement(children: .contain)
-            .accessibilityLabel(Calendario.diaPorExtenso(dia, agenda.cal))
+            // F4: o risco é invisível a quem não vê — o nome do feriado tem de sair no rótulo
+        .accessibilityLabel(
+            Feriados.de(dia, agenda.cal).map {
+                "\(Calendario.diaPorExtenso(dia, agenda.cal)), feriado, \($0.nome)"
+            } ?? Calendario.diaPorExtenso(dia, agenda.cal)
+        )
             .accessibilityHint("Toque para abrir o dia")
         }
     }
@@ -404,7 +418,7 @@ struct CalendarioSemanaView: View {
                 .desvanece(12)
                 .background(CalendarioTema.fundo(de: evento))
                 .clipShape(Capsule())
-                .overlay { if evento.eDeixa { Capsule().strokeBorder(CalendarioTema.contornoDeixa, lineWidth: 1) } }
+                .overlay { if CalendarioTema.temContorno(evento) { Capsule().strokeBorder(CalendarioTema.contorno(de: evento), lineWidth: 1) } }
                 .frame(height: Tema.alvo)
                 .contentShape(Capsule())
         }
@@ -504,6 +518,10 @@ struct CalendarioMesView: View {
                 Text(Calendario.formatar(dia, "d", agenda.cal))
                     .font(CalendarioTema.dia)
                     .foregroundStyle(activo ? .white : (noMes ? CalendarioTema.tinta : CalendarioTema.tintaMorta))
+                    .riscoDeFeriado(
+                        Feriados.eFeriado(dia, agenda.cal),
+                        largura: 15,
+                        cor: activo ? .white : (noMes ? CalendarioTema.tinta : CalendarioTema.tintaMorta))
                     .frame(width: 28, height: 28)
                     .background {
                         if activo {
@@ -556,7 +574,12 @@ struct CalendarioMesView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(PressaoClara())
-        .accessibilityLabel(Calendario.diaPorExtenso(dia, agenda.cal))
+        // F4: o risco é invisível a quem não vê — o nome do feriado tem de sair no rótulo
+        .accessibilityLabel(
+            Feriados.de(dia, agenda.cal).map {
+                "\(Calendario.diaPorExtenso(dia, agenda.cal)), feriado, \($0.nome)"
+            } ?? Calendario.diaPorExtenso(dia, agenda.cal)
+        )
         .accessibilityValue(eventos.isEmpty ? "" : (eventos.count == 1 ? "1 compromisso" : "\(eventos.count) compromissos"))
         .accessibilityAddTraits(activo ? [.isButton, .isSelected] : .isButton)
         .accessibilityIdentifier("mes-dia-\(Calendario.formatar(dia, "yyyy-MM-dd", agenda.cal))")
@@ -645,6 +668,12 @@ struct CalendarioAnoView: View {
             .font(.system(size: tamDia, weight: ancora || hoje ? .bold : .medium))
             .monospacedDigit()
             .foregroundStyle(ancora ? .white : (noMes ? CalendarioTema.tinta : CalendarioTema.tintaMorta))
+            // o ano também recebe o risco (dono, 03/set: "em qualquer tipo de
+            // visualização"). Menor e mais fino, na proporção do número de 8pt.
+            .riscoDeFeriado(
+                noMes && Feriados.eFeriado(dia, agenda.cal),
+                largura: tamDia, espessura: 0.7,
+                cor: ancora ? .white : CalendarioTema.tinta)
             .frame(maxWidth: .infinity, minHeight: 13)
             .background {
                 if ancora {

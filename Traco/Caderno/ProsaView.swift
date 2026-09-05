@@ -134,10 +134,26 @@ struct ProsaView: View {
             .background(cabeca ? Tema.superficieAlta : Tema.superficie)
     }
 
-    private func atributos(_ bruto: String) -> AttributedString {
+    private func atributos(_ bruto: String) -> AttributedString { Self.textoInline(bruto) }
+
+    /// O inline do caderno: ligação, código, forte, riscado, itálico, link.
+    /// `static` para o teste alcançar — é função pura sobre a linha.
+    static func textoInline(_ bruto: String) -> AttributedString {
         var saida = AttributedString()
         var resto = bruto[...]
         while !resto.isEmpty {
+            // ADR 2026-09-03b: [[outra nota]] é ligação, e ligação se LÊ —
+            // os colchetes são sintaxe e somem na leitura
+            if resto.hasPrefix("[["),
+               let fim = resto.dropFirst(2).range(of: "]]") {
+                let meio = resto[resto.index(resto.startIndex, offsetBy: 2)..<fim.lowerBound]
+                var t = AttributedString(String(meio))
+                t.foregroundColor = Tema.ambarTinta
+                t.underlineStyle = .single
+                saida += t
+                resto = resto[fim.upperBound...]
+                continue
+            }
             if resto.hasPrefix("`"),
                let fim = resto.dropFirst().firstIndex(of: "`") {
                 let meio = resto[resto.index(after: resto.startIndex)..<fim]
@@ -168,7 +184,7 @@ struct ProsaView: View {
                 resto = resto[fim.upperBound...]
                 continue
             }
-            if resto.hasPrefix("*"),
+            if resto.hasPrefix("*"), !resto.hasPrefix("**"),
                let fim = resto.dropFirst().firstIndex(of: "*") {
                 let meio = resto[resto.index(after: resto.startIndex)..<fim]
                 var t = AttributedString(String(meio))
@@ -189,11 +205,14 @@ struct ProsaView: View {
                 resto = resto[resto.index(after: urlFim)...]
                 continue
             }
-            let next = resto.firstIndex(of: "`")
-                ?? resto.firstIndex(of: "*")
-                ?? resto.firstIndex(of: "~")
-                ?? resto.firstIndex(of: "[")
-                ?? resto.endIndex
+            // o MENOR índice, não o primeiro não-nulo: com `??` em cadeia, uma
+            // crase adiante ganhava de um asterisco atrás dela e todo o trecho
+            // entre os dois saía cru na tela — markdown na cara do autor
+            let next = ["`", "*", "~", "["]
+                // Um marcador sem fecho é texto literal: consuma ao menos um
+                // caractere, inclusive quando o próprio início é um marcador.
+                .compactMap { resto.dropFirst().firstIndex(of: Character($0)) }
+                .min() ?? resto.endIndex
             saida += AttributedString(String(resto[..<next]))
             resto = resto[next...]
         }

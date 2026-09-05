@@ -1,5 +1,7 @@
 Lê e obedece, nesta ordem: .cursor/rules/traco-meta.mdc · .cursor/skills/traco-meta/SKILL.md · portoes.md · anti.md · SPEC.md · SISTEMA.md · META.md.
 
+**Prompt arquivado — não executar como contrato atual.** Registra a fatia histórica do menu de formas. A tese e a frase “IA nunca escreve” abaixo pertencem à preservação dos campos da nota nessa fatia; não definem a finalidade atual nem proíbem produção delegada. Consultar [VISAO-PRODUTO](../../VISAO-PRODUTO.md) e [SPEC](../../SPEC.md). As instruções originais permanecem para rastrear o trabalho realizado, sem reativar seus portões ou escopo.
+
 TESIS: mente × IA que recusa × Markdown só como arquivo.
 
 FATIA (só esta): menu das 136 formas (SPEC §12). A régua fica ≤12. O autor cria qualquer forma do catálogo sem ver Markdown. Campos nascem vazios. IA nunca escreve.

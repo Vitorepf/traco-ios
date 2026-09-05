@@ -11,14 +11,27 @@ final class CalendarioAgenda {
     /// As deixas das notas ("Se" com hora), lidas do modelo pela view. Não
     /// vão ao disco do calendário: a nota é a dona.
     var deixas: [EventoCalendario] = []
+    /// Ações confirmadas no Trabalho, somente para leitura nesta agenda.
+    var acoesDosTrabalhos: [EventoCalendario] = []
+    var aoAbrirTrabalho: ((UUID, UUID) -> Void)?
     /// Tocar numa deixa abre a nota; a raiz liga isto à Sessao.
     var aoAbrirNota: ((UUID) -> Void)?
+    /// A3: os compromissos do iPhone, só leitura. A view os alimenta.
+    var doSistema: [EventoCalendario] = []
+    /// O que se abre quando se toca num compromisso que não é nosso.
+    var fichaDoSistema: EventoCalendario?
     var prosa = ""
     var ficha: EventoCalendario?
     var menuMais = false
-    var ajustes = false
     /// O que o disco recusou ou o arquivo que não abriu. Some sozinho.
     var toast: String?
+    /// ADR 04a: o estado dos avisos do iPhone, lido quando a ficha abre. A
+    /// tela não promete o que o sistema não vai cumprir.
+    var estadoDosAvisos: Avisos.Estado = .concedido
+    /// O que aconteceu no último agendamento — a ficha conta, não engole.
+    var ultimoAviso: ResultadoDoAviso?
+    /// O toast em cena tem volta pelos Ajustes (permissão negada).
+    var toastComAjustes = false
     /// A escala anterior decide a direção do desdobramento.
     private(set) var escalaAnterior: EscalaCalendario = .dia
 
@@ -60,9 +73,43 @@ final class CalendarioAgenda {
     var semana: [Date] { Calendario.semana(da: ancora, cal) }
     var grelha: [Date] { Calendario.grelhaDoMes(da: ancora, cal) }
     var meses: [Date] { Calendario.mesesDoAno(da: ancora, cal) }
-    /// Compromissos e deixas, juntos, para todas as escalas.
-    var todos: [EventoCalendario] { eventos + deixas }
-    var porDia: [Date: [EventoCalendario]] { Calendario.porDia(todos, cal) }
+    /// As SÉRIES e as deixas, como estão guardadas. Quem desenha usa `porDia`
+    /// ou `eventos(no:)`, que expandem as repetições.
+    var todos: [EventoCalendario] { eventos + deixas + doSistema + acoesDosTrabalhos }
+
+    /// O intervalo que a escala atual mostra — é dentro dele que as séries
+    /// viram ocorrências. O mês usa a grelha de 42 células (as sobras contam).
+    private var faixaVisivel: (Date, Date) {
+        switch escala {
+        case .dia:
+            let d = Calendario.inicioDoDia(ancora, cal)
+            return (d, d)
+        case .semana:
+            let dias = semana
+            return (dias.first ?? ancora, dias.last ?? ancora)
+        case .mes:
+            let g = grelha
+            return (g.first ?? ancora, g.last ?? ancora)
+        case .ano:
+            let ano = cal.component(.year, from: ancora)
+            let jan = cal.date(from: DateComponents(year: ano, month: 1, day: 1)) ?? ancora
+            let dez = cal.date(from: DateComponents(year: ano, month: 12, day: 31)) ?? ancora
+            return (jan, dez)
+        }
+    }
+
+    /// A faixa que o leitor do sistema deve carregar. É a visível — com um dia
+    /// de folga em cada ponta, porque a grade do mês mostra sobras.
+    var faixaParaOSistema: (Date, Date) {
+        let (de, a) = faixaVisivel
+        return (cal.date(byAdding: .day, value: -1, to: de) ?? de,
+                cal.date(byAdding: .day, value: 1, to: a) ?? a)
+    }
+
+    var porDia: [Date: [EventoCalendario]] {
+        let (de, a) = faixaVisivel
+        return Calendario.porDia(Calendario.ocorrencias(todos, de: de, a: a, cal), cal)
+    }
 
     func ancoraEHoje(_ agora: Date) -> Bool { Calendario.eHoje(ancora, agora: agora, cal) }
 
@@ -104,28 +151,41 @@ final class CalendarioAgenda {
     }
 
     func eventos(no dia: Date) -> [EventoCalendario] {
-        Calendario.eventos(todos, noDia: dia, cal)
+        Calendario.eventos(Calendario.ocorrencias(todos, de: dia, a: dia, cal), noDia: dia, cal)
     }
 
     func eventosDaEscala() -> [EventoCalendario] {
+        let (de, a) = faixaVisivel
+        let vivos = Calendario.ocorrencias(todos, de: de, a: a, cal)
         switch escala {
-        case .dia: Calendario.eventos(todos, noDia: ancora, cal)
-        case .semana: Calendario.eventos(todos, naSemanaDe: ancora, cal)
-        case .mes: Calendario.eventos(todos, noMesDe: ancora, cal)
+        case .dia: return Calendario.eventos(vivos, noDia: ancora, cal)
+        case .semana: return Calendario.eventos(vivos, naSemanaDe: ancora, cal)
+        case .mes: return Calendario.eventos(vivos, noMesDe: ancora, cal)
         case .ano:
-            todos
+            return vivos
                 .filter { cal.component(.year, from: $0.inicio) == cal.component(.year, from: ancora) }
                 .sorted { $0.inicio < $1.inicio }
         }
     }
 
-    /// Compromisso abre a ficha; deixa abre a nota que a criou.
+    /// Compromisso abre a ficha; deixa abre a nota que a criou; o que veio do
+    /// iPhone abre uma ficha só de leitura — não é nosso para editar.
     func abrir(_ evento: EventoCalendario) {
+        if let trabalhoID = evento.origemTrabalho {
+            aoAbrirTrabalho?(trabalhoID, evento.id)
+            return
+        }
         if let origem = evento.origem {
             aoAbrirNota?(origem)
-        } else {
-            ficha = evento
+            return
         }
+        if evento.doSistema {
+            fichaDoSistema = evento
+            return
+        }
+        // ocorrência de uma série: a ficha edita a SÉRIE, não a cópia do dia —
+        // guardar a cópia moveria o início da série para o dia em que se tocou
+        ficha = eventos.first { $0.id == evento.id } ?? evento
     }
 
     // MARK: escrever — o gesto não mente se o disco recusa
@@ -159,6 +219,7 @@ final class CalendarioAgenda {
         prosa = ""
         Teclado.recolher()
         Toque.suave()
+        avisar(evento, anunciar: false) // a ficha abre em seguida e diz melhor
         ancora = Calendario.inicioDoDia(evento.inicio, cal)
         ficha = evento
     }
@@ -174,7 +235,7 @@ final class CalendarioAgenda {
 
     /// Guarda a ficha. Título vazio não entra: um compromisso sem nome não é nada.
     func guardar(_ evento: EventoCalendario) {
-        guard evento.origem == nil else { return }
+        guard evento.editavel else { return }
         var e = evento
         e.titulo = e.titulo.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !e.titulo.isEmpty else {
@@ -191,6 +252,7 @@ final class CalendarioAgenda {
             eventos = antes
             return
         }
+        avisar(e)
         ancora = Calendario.inicioDoDia(e.inicio, cal)
     }
 
@@ -201,6 +263,10 @@ final class CalendarioAgenda {
             eventos = antes
             return
         }
+        // o aviso morre com o compromisso: alarme de coisa apagada é o pior
+        // tipo de mentira que um calendário pode contar
+        Revisoes.cancelarCompromisso(id: id)
+        publicarProximo()
         if ficha?.id == id { ficha = nil }
     }
 
@@ -211,6 +277,8 @@ final class CalendarioAgenda {
             eventos = antes
             return
         }
+        for e in antes { Revisoes.cancelarCompromisso(id: e.id) }
+        publicarProximo()
         ficha = nil
     }
 
@@ -219,6 +287,55 @@ final class CalendarioAgenda {
             prosa = texto
             Toque.leve()
         }
+    }
+
+    /// ADR 2026-09-03d: o que se marca, avisa. Deixa de nota não passa por
+    /// aqui — a nota é a dona dela e já tem o seu próprio gatilho.
+    ///
+    /// ADR 04a: o resultado VOLTA. Agendar e não contar foi o defeito.
+    private func avisar(_ e: EventoCalendario, anunciar: Bool = true) {
+        // O widget e a Ilha vêm PRIMEIRO, e síncronos. Publicar depois do
+        // `await` do agendamento deixava a tela bloqueada refém do diálogo de
+        // permissão: se ninguém responde ao prompt do iOS, a continuação não
+        // volta e o "próximo" nunca era escrito (visto no simulador, 04/set —
+        // o App Group tinha só o Destaque). Superfície não espera diálogo.
+        publicarProximo()
+        guard e.editavel else { return }
+        Task {
+            let r = await Revisoes.agendarCompromisso(e, cal: cal)
+            ultimoAviso = r
+            estadoDosAvisos = await Avisos.estado()
+            switch r {
+            case .semPermissao:
+                mostrar("marquei — mas os avisos do Traço estão desligados no iPhone.",
+                        comAjustes: true)
+            case .semEspaco:
+                mostrar("o iPhone guarda \(Avisos.teto) avisos e já estão todos. este ficou sem alarme.")
+            case .passou:
+                mostrar("marquei. a hora do aviso já passou, então não vai tocar.")
+            case .agendado:
+                // peak-end: o fim do percurso devolve a promessa, não silêncio.
+                // Só quando não há ficha em cena para dizê-la melhor.
+                if anunciar, let promessa = Aviso.promessa(de: e, cal, manha: Ancora.hora(.manha)) {
+                    mostrar("marcado · o aviso toca \(promessa)")
+                }
+            case .semAviso:
+                if anunciar { mostrar("marcado · sem aviso, como você pediu") }
+            }
+            // e a superfície conta a verdade: alarme recusado não vira sino
+            publicarProximo(mudo: r.vaiTocar ? nil : e.id)
+        }
+    }
+
+    /// ADR 04a: o compromisso existe FORA do app — widget, tela bloqueada e
+    /// Ilha. Toda escrita no calendário republica o próximo.
+    func publicarProximo(agora: Date = .now, mudo: UUID? = nil) {
+        ProximoCompromisso.publicar(eventos + doSistema, cal: cal, agora: agora, mudo: mudo)
+    }
+
+    /// Lido quando a ficha abre: o estado do sistema muda fora do app.
+    func lerEstadoDosAvisos() {
+        Task { estadoDosAvisos = await Avisos.estado() }
     }
 
     @discardableResult
@@ -233,13 +350,17 @@ final class CalendarioAgenda {
         }
     }
 
-    func mostrar(_ msg: String) {
+    func mostrar(_ msg: String, comAjustes: Bool = false) {
         toast = msg
+        toastComAjustes = comAjustes
         AccessibilityNotification.Announcement(msg).post()
         toastTask?.cancel()
         toastTask = Task { [weak self] in
             try? await Task.sleep(for: .seconds(3))
-            if !Task.isCancelled { self?.toast = nil }
+            if !Task.isCancelled {
+                self?.toast = nil
+                self?.toastComAjustes = false
+            }
         }
     }
 }

@@ -5,6 +5,31 @@ struct CartaoAnaliseView: View {
     let sessao: Sessao
     var aoAbrirCampos: (() -> Void)?
     @Environment(\.modelContext) private var context
+    /// ADR 04h: já disse se serviu — as duas saídas somem depois do toque.
+    @State private var avaliou = false
+
+    /// As duas saídas discretas de todo texto de modelo: serviu / não serviu.
+    /// É a entrada da segunda volta do ciclo (a IA aprendendo esta mente).
+    @ViewBuilder private func avaliacao(_ texto: String, resposta: Bool = false) -> some View {
+        if !avaliou {
+            HStack(spacing: 14) {
+                Button("serviu") {
+                    if resposta { sessao.avaliarResposta(texto, serviu: true) } else { sessao.avaliarPergunta(texto, serviu: true) }
+                    avaliou = true
+                }
+                .accessibilityIdentifier("serviu")
+                Button("não serviu") {
+                    if resposta { sessao.avaliarResposta(texto, serviu: false) } else { sessao.avaliarPergunta(texto, serviu: false) }
+                    avaliou = true
+                }
+                .accessibilityIdentifier("nao-serviu")
+            }
+            .font(Tema.label)
+            .foregroundStyle(Tema.tintaFraca)
+            .buttonStyle(CompactoStyle())
+            .accessibilityHint("Diz ao Traço se esta pergunta valeu — ele aprende com você")
+        }
+    }
 
     var body: some View {
         // AX: em Dynamic Type grande o texto cresce — o cartão rola por dentro
@@ -40,6 +65,23 @@ struct CartaoAnaliseView: View {
         .accessibilityIdentifier("cartao-analise")
     }
 
+    /// ADR o, e a lei do dono é incondicional: "se eu deixar uma pergunta
+    /// clara na nota, ela responde". Mover o "?" para o ramo do silêncio
+    /// (03/set) fez a forma tomar o rodapé e a pergunta ficar INALCANÇÁVEL —
+    /// a varredura pegou. A precedência absoluta do "?" também era errada
+    /// (bloqueava a forma para sempre): as duas coisas cabem no mesmo cartão.
+    /// A forma manda no cartão; a pergunta fica aqui embaixo, discreta e
+    /// sempre a um toque.
+    @ViewBuilder private var botaoPergunta: some View {
+        if sessao.perguntaNaNota != nil {
+            Button("Perguntar à sábia") { sessao.perguntarASabia(no: context) }
+                .buttonStyle(CompactoStyle())
+                .foregroundStyle(Tema.tintaSuave)
+                .accessibilityIdentifier("perguntar-sabia")
+                .accessibilityHint("A resposta vem aqui, nunca na nota")
+        }
+    }
+
     private var conteudo: some View {
         VStack(alignment: .leading, spacing: 10) {
             switch cartao {
@@ -63,8 +105,9 @@ struct CartaoAnaliseView: View {
                     }
                     .buttonStyle(CartaoBotaoStyle())
                     .accessibilityHint("Campos vazios nascem abaixo do seu texto")
+                    botaoPergunta
                 }
-            case .vestida(let gesto, _):
+            case .vestida(let gesto, let perguntaTemplate):
                 corpoCartao(trilho: Tema.ambar) {
                     // Auditoria de UX: o âmbar estava no botão que JOGA FORA a
                     // classificação, e o caminho positivo era um chevron sem rótulo.
@@ -72,28 +115,28 @@ struct CartaoAnaliseView: View {
                     // von-restorff-effect). E "soltar" é ambíguo em pt-BR entre
                     // largar e aplicar — metade tocaria achando que confirma.
                     chip(gesto.nome, aviso: false)
-                    if let d = sessao.dominio {
-                        Button {
-                            sessao.desfazerDominio()
-                        } label: {
-                            Text(d.nome.uppercased())
-                                .font(Tema.label)
-                                .tracking(Tema.trackingLabel)
-                                .foregroundStyle(Tema.tintaSuave)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(Tema.chip, in: Capsule())
-                        }
-                        .buttonStyle(PressaoDiscreta())
-                        .accessibilityLabel(d.nome)
-                        .accessibilityHint("Um toque tira o domínio")
+                    if sessao.dominio != nil || sessao.dominioTravado {
+                        // ADR 05d: menu, não apagar
+                        ChipDominio(atual: sessao.dominio, travado: sessao.dominioTravado,
+                                    aoEscolher: { sessao.escolherDominioNaPagina($0) })
                     }
                     Text(gesto.reconhecimento)
                         .font(Tema.corpo)
                         .foregroundStyle(Tema.tinta)
                         .fixedSize(horizontal: false, vertical: true)
+                    // ADR 03h: a pergunta viajava no cartão e era DESCARTADA
+                    // aqui — o caminho automático (§17.3) é o comum, e nele o
+                    // autor abria a forma sem ouvir pergunta nenhuma. Agora a
+                    // da sábia entra quando chega; a do template segura o lugar.
+                    Text(sessao.perguntaDaSabia ?? perguntaTemplate)
+                        .font(Tema.corpo)
+                        .foregroundStyle(Tema.tintaSuave)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .accessibilityIdentifier("pergunta-da-forma")
+                    if let q = sessao.perguntaDaSabia { avaliacao(q) }
                     HStack(spacing: 10) {
-                        Button("Abrir os campos") { aoAbrirCampos?() }
+                        // ADR 04r: abrir os campos é ATO — é aqui que a sábia instiga
+                        Button("Abrir os campos") { sessao.instigarSePreciso(); aoAbrirCampos?() }
                             .buttonStyle(CartaoBotaoStyle())
                             .accessibilityIdentifier("abrir-campos")
                             .accessibilityHint("Os campos da forma abrem numa folha; o seu texto fica intacto")
@@ -103,6 +146,7 @@ struct CartaoAnaliseView: View {
                             .accessibilityIdentifier("soltar-forma")
                             .accessibilityHint("Desfaz a forma; o seu texto fica intacto")
                     }
+                    botaoPergunta
                 }
             case .pergunta(let q):
                 corpoCartao(trilho: Tema.ambar) {
@@ -111,7 +155,7 @@ struct CartaoAnaliseView: View {
                         .font(Tema.corpo)
                         .foregroundStyle(Tema.tinta)
                         .fixedSize(horizontal: false, vertical: true)
-                    Button("Perguntar à sábia") { sessao.perguntarASabia() }
+                    Button("Perguntar à sábia") { sessao.perguntarASabia(no: context) }
                         .buttonStyle(CartaoBotaoStyle())
                         .accessibilityIdentifier("perguntar-sabia")
                         .accessibilityHint("A resposta vem aqui, nunca na nota")
@@ -135,6 +179,19 @@ struct CartaoAnaliseView: View {
                         .fixedSize(horizontal: false, vertical: true)
                         .textSelection(.enabled)
                         .accessibilityIdentifier("resposta-sabia")
+                    if !sessao.notasNaPergunta.isEmpty || sessao.notasLidasNaPergunta > 0 {
+                        // honestidade sobre a rede, como o Perfil faz: o autor
+                        // vê QUAIS notas foram junto INTEIRAS — e quantas do
+                        // caderno foram lidas para achar os ecos. Dizer só as
+                        // três que voltaram, com quarenta viajando, é meia
+                        // verdade (varredura 04/set).
+                        Text(sessao.divulgacaoDaPergunta)
+                            .font(Tema.label)
+                            .foregroundStyle(Tema.tintaFraca)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .accessibilityIdentifier("notas-na-pergunta")
+                    }
+                    avaliacao(texto, resposta: true)
                     HStack(spacing: 10) {
                         Button("Copiar") {
                             UIPasteboard.general.string = texto
@@ -172,7 +229,7 @@ struct CartaoAnaliseView: View {
             case .semConta:
                 corpoCartao(trilho: Tema.aviso) {
                     chip("Sem conta", aviso: true)
-                    avisoTexto("a sábia precisa da sua conta Grok, em Perfil. Sem ela, tudo o mais continua.")
+                    avisoTexto("a sábia " + Sabia.porOndeEmPalavras + ". Sem ela, tudo o mais continua.")
                     Button("Fechar") {
                         var t = Transaction(); t.disablesAnimations = true
                         withTransaction(t) { sessao.cartao = nil }

@@ -14,4 +14,6 @@ appId: app.traco
 - tapOn:
     id: busca-notas
 - inputText: "coracao"
-- assertVisible: "coração partido"
+- extendedWaitUntil:
+    visible: "coração partido"
+    timeout: 5000

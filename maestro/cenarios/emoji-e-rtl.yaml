@@ -18,10 +18,14 @@ appId: app.traco
           direction: LEFT
 - tapOn:
     id: regua-citacao
-- assertVisible: "saudade 😀 coração"
+- extendedWaitUntil:
+    visible: "saudade 😀 coração"
+    timeout: 5000
 - tapOn:
     id: concluir
 - swipe:
     start: 1%, 50%
     end: 85%, 50%
-- assertVisible: "saudade 😀 coração"
+- extendedWaitUntil:
+    visible: "saudade 😀 coração"
+    timeout: 5000

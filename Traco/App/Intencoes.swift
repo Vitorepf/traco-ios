@@ -17,6 +17,27 @@ struct NovaNotaIntent: AppIntent {
     }
 }
 
+/// ADR 05a: anotar sem abrir o app — a frase cai na entrada e vira nota
+/// quando o Traço volta à cena.
+struct AnotarIntent: AppIntent {
+    static let title: LocalizedStringResource = "Anotar"
+    static let description = IntentDescription("Guarda uma frase no Traço sem abrir o app. Vira nota na próxima vez que ele abrir.")
+    static let openAppWhenRun = false
+
+    @Parameter(title: "Texto", requestValueDialog: "O que anotar?")
+    var texto: String
+
+    static var parameterSummary: some ParameterSummary { Summary("Anotar \(\.$texto)") }
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        guard Entrada.depositar(texto, raiz: Entrada.raizDoApp) else {
+            return .result(dialog: "nada a anotar.")
+        }
+        return .result(dialog: "anotado.")
+    }
+}
+
 struct AbrirNotasIntent: AppIntent {
     static let title: LocalizedStringResource = "Abrir notas"
     static let description = IntentDescription("Abre a lista de notas do Traço.")
@@ -37,6 +58,12 @@ struct TracoAtalhos: AppShortcutsProvider {
             phrases: ["Nova nota no \(.applicationName)", "Escrever no \(.applicationName)"],
             shortTitle: "Nova nota",
             systemImageName: "square.and.pencil"
+        )
+        AppShortcut(
+            intent: AnotarIntent(),
+            phrases: ["Anotar no \(.applicationName)", "Anota no \(.applicationName)"],
+            shortTitle: "Anotar",
+            systemImageName: "text.append"
         )
         AppShortcut(
             intent: AbrirNotasIntent(),
@@ -67,6 +94,18 @@ struct TracoAtalhos: AppShortcutsProvider {
             phrases: ["Minha semana no \(.applicationName)", "Esta semana no \(.applicationName)"],
             shortTitle: "Esta semana",
             systemImageName: "calendar.badge.clock"
+        )
+        AppShortcut(
+            intent: TrajetoriaIntent(),
+            phrases: ["Minha trajetória no \(.applicationName)"],
+            shortTitle: "Trajetória",
+            systemImageName: "point.topleft.down.to.point.bottomright.curvepath"
+        )
+        AppShortcut(
+            intent: MarcarCompromissoIntent(),
+            phrases: ["Marcar no \(.applicationName)", "Marcar compromisso no \(.applicationName)"],
+            shortTitle: "Marcar",
+            systemImageName: "calendar.badge.plus"
         )
         AppShortcut(
             intent: CorpusComoContextoIntent(),
@@ -190,6 +229,72 @@ struct EstaSemanaIntent: AppIntent {
     }
 }
 
+/// ADR 04q: a trajetória em texto — o mesmo que o cartão dos Padrões diz.
+struct TrajetoriaIntent: AppIntent {
+    static let title: LocalizedStringResource = "Trajetória"
+    static let description = IntentDescription("Dois períodos lado a lado, nas suas palavras: formas, obstáculos, o que não voltou no Recordar, decisões conferidas, palavras, o que ficou claro.")
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ReturnsValue<String> & ProvidesDialog {
+        let lidas = notasDoDisco().map {
+            Trajetoria.NotaLida(uuid: $0.uuid, gesto: $0.gesto, fechada: $0.fechada, criadaEm: $0.criadaEm,
+                                editadaEm: $0.queimadaEm ?? $0.editadaEm, campos: $0.campos, sentido: $0.sentido)
+        }
+        let t = Trajetoria.ler(notas: lidas, sinais: Sinais.todos())
+        let texto = t.vazia ? "" : Trajetoria.texto(t)
+        return .result(value: texto, dialog: IntentDialog(stringLiteral: texto.isEmpty ? "Ainda não há trajetória: escreva primeiro." : texto))
+    }
+}
+
+/// F1: o primeiro intent que ESCREVE. Os outros sete só leem — não havia como
+/// marcar um compromisso sem abrir o app, e o parser que faz isso já estava
+/// pronto e testado. "Ei Siri, marcar dentista sexta às 14h no Traço."
+///
+/// Continua sendo algoritmo: `CalendarioFrase` é regex e relógio, sem rede e
+/// sem modelo. A IA não entra aqui.
+struct MarcarCompromissoIntent: AppIntent {
+    static let title: LocalizedStringResource = "Marcar compromisso"
+    static let description = IntentDescription("Escreva ou fale o compromisso — “dentista sexta às 14:30”. O Traço entende o dia e a hora sozinho, no aparelho.")
+
+    @Parameter(title: "O quê", requestValueDialog: "O que você quer marcar?")
+    var frase: String
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        let cal = Calendario.gregoriano()
+        let agora = Date()
+        guard let evento = CalendarioFrase.ler(
+            frase, ancora: agora, agora: agora, cal,
+            manha: Ancora.hora(.manha), tarde: Ancora.hora(.tarde), noite: Ancora.hora(.noite)
+        ) else {
+            return .result(dialog: "Não entendi o quê. Tente “dentista sexta às 14h”.")
+        }
+        var eventos: [EventoCalendario] = []
+        if case .eventos(let lidos) = CalendarioDisco.carregar() { eventos = lidos }
+        eventos.append(evento)
+        do {
+            try CalendarioDisco.gravar(eventos)
+        } catch {
+            return .result(dialog: "Não consegui gravar. O compromisso não entrou.")
+        }
+        let aviso = await Revisoes.agendarCompromisso(evento, cal: cal)
+        ProximoCompromisso.publicar(eventos, cal: cal)
+        let quando = evento.diaInteiro
+            ? Calendario.diaPorExtenso(evento.inicio, cal)
+            : "\(Calendario.diaPorExtenso(evento.inicio, cal)) às \(Calendario.horaCurta(evento.inicio, cal))"
+        let repete = evento.repete ? ", toda \(Calendario.diasEmLetras(evento.repeteEm, cal))" : ""
+        // ADR 04a: quem marca tem de ouvir a promessa, também por voz
+        let promessa = switch aviso {
+        case .agendado: " Eu te aviso."
+        case .semPermissao: " Os avisos estão desligados no iPhone."
+        case .semEspaco: " O iPhone já tem avisos demais; este ficou sem alarme."
+        case .passou: " A hora do aviso já passou."
+        case .semAviso: ""
+        }
+        return .result(dialog: "\(evento.titulo), \(quando)\(repete).\(promessa)")
+    }
+}
+
 /// As formas do §6 como enum de Atalhos.
 enum GestoEscolha: String, AppEnum {
     case woop, seEntao, spec, notaPermanente, destaque, destilar, palavra, decisao, premortem
@@ -219,7 +324,7 @@ enum GestoEscolha: String, AppEnum {
 /// Rota de entrada única: intents e traco:// convergem aqui; a PaginaView consome.
 @MainActor
 enum Rota {
-    enum Destino { case novaPagina, notas, calendario, recordar }
+    enum Destino: Equatable { case novaPagina, notas, calendario, recordar, anotar(String) }
     static var pendente: Destino?
     /// Só o deep link das escalas — a aba sozinha abre no dia.
     static var escalaCalendario: EscalaCalendario?
@@ -241,6 +346,11 @@ enum Rota {
             }
             return .calendario
         case "recordar": return .recordar
+        case "anotar":
+            // ADR 05a: traco://anotar?texto=… — a frase cai na entrada
+            let texto = URLComponents(url: url, resolvingAgainstBaseURL: false)?
+                .queryItems?.first { $0.name == "texto" }?.value ?? ""
+            return texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : .anotar(texto)
         default: return nil
         }
     }

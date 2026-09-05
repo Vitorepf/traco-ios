@@ -1,42 +1,33 @@
-# META — Traço: rumo ao estado final
+# Meta de qualidade — Traço
 
-Cola no início de toda sessão longa. Lê nesta ordem: SPEC.md → SISTEMA.md → isto.
-SPEC é lei. Conflito código×spec → emenda a SPEC com ADR de 5 linhas ANTES de codar.
-git commit atômico ao fim de CADA fatia. Se o repo tiver trabalho sem commit: commita AGORA, antes de tocar em qualquer coisa.
+Revisado em 05/09/2026 para a tese de [VISAO-PRODUTO.md](VISAO-PRODUTO.md). O nome deste arquivo é legado; não define um estado final fixo nem declara o produto concluído.
 
-## ESTADO FINAL (o produto de 2 anos — o alvo de todas as filas)
-iOS nativo impecável: o bloco mais simples do mercado, com IA que recusa escrever e multiplica a mente do autor.
-**A BARRA (palavra do dono, 31/ago): instalar no iPhone e sentir um produto
-ultra-profissional com ANOS de polimento — visual, movimento, experiência,
-features. "Funciona e tem teste" NÃO é a barra; é o piso. Todo crítico julga
-contra apps lapidados por anos (Apple Notes, Things, Craft). Motion se julga
-em VÍDEO do app real, nunca só em screenshot.**
-- IA real (xAI, chave no Keychain, JSON estrito, silêncio em erro) no lugar da heurística local; mesma lista fechada de permissões.
-- Análise de padrões sobre anos de notas: perguntas citando frases literais do autor, nunca conclusões.
-- Revisões agendadas: repetição espaçada sobre as notas do próprio autor, no dia certo.
-- Escrita expressiva selada de ponta a ponta — nenhuma rota expõe (busca, revisão, padrões, índice, restauro).
-- Corpus: export/backup .md legível, notas como arquivos versionáveis, import de MDs externos.
-- Caderno maduro: Markdown invisível ao autor, portais (código/imagem/áudio/PDF), régua enxuta (≤12 formas — 136 é menu: podar e emendar a SPEC).
-- Excelência de plataforma: Dynamic Type, VoiceOver, nota de 10k palavras fluida (parser incremental), swipe-back, háptica sóbria, pt/en, pronto para App Store.
+## Resultado a perseguir
 
-## REFORMA DA LINGUAGEM — ✅ EXECUTADA 31/ago (ADR na SPEC): Notas · Analisar/Análise · Recordar · Padrões · Confirmação · Aviso
-A nomenclatura atual (Porteiro, Puxar, Pilha, Códice, Véu, Trava) é amadora.
-Loop: (1) propõe 3 sistemas COMPLETOS de nomes; critérios: usuário de primeira viagem entende sem manual, tom Apple/iOS (ação = verbo claro, tela = substantivo comum), zero metáfora interna, consistência total UI+código+SPEC+testes. (2) escolhe 1 por critério, não por apego. (3) rename ATÔMICO num commit só — UI, tipos, arquivos, testes, SPEC, SISTEMA. Renomear pela metade é pior que não renomear.
-Direções (não imposições): Pilha→Notas · Puxar→De memória / Recordar · Porteiro→Análise / Orientar · Códice→Padrões · Trava→Limite.
+Traço transforma intenções em realizações com mente, IA e ambiente compartilhado; desenvolve capacidades que importam para próximas realizações. Caderno, calendário, métodos, escrita e recordação são instrumentos dessa finalidade. A IA pode produzir trabalho delegado com autoria/proveniência preservadas. Delegar código ou redação é compatível com autonomia; prática escolhida merece apoio que não a substitua silenciosamente.
 
-## OS TRÊS LOOPS (nesta ordem, em toda fatia)
-1. QUALIDADE — 3 críticos independentes (hierarquia/simplicidade · motion/fluidez · UX/coerência com a tese) julgam o resultado RENDERIZADO no simulador. Reprovam sem piedade, citando a lei violada + correção concreta com arquivo:linha. Implementa → rejulga. Só avança com aprovação tripla.
-2. REPARO — varredura de bug e código ruim: todo caminho que grava, tranca, expõe ou apaga escrita do autor TEM teste unitário (hoje faltam: concluir ≥10/<10min, rotas de saída durante o timer, códice sem obstáculo); código morto deleta; duplicação unifica; força-bruta corrige ou documenta o teto + item na fila; teste que valida caminho que o app não corre é mentira — apaga ou liga ao caminho real.
-3. COMPLETUDE — um crítico pergunta "o que falta?" contra SPEC §13 + ESTADO FINAL + dívidas abaixo. Cada lacuna vira item ranqueado da fila. A sessão só encerra quando duas varreduras seguidas voltam vazias.
+Qualidade inclui realização, compreensão, controle, integridade, continuidade, acesso e acabamento. Um plano convincente não prova ação; ação não garante resultado; contagem de uso ou satisfação não prova aprendizagem. Hipóteses sobre a pessoa precisam de origem, contexto e correção efetiva.
 
-## PORTÕES (nenhuma fatia fecha sem os 5)
-build verde · xcodebuild test verde (suíte inteira) · screenshot NOVO do simulador como evidência · zero violação das regras de ferro · commit com mensagem que nomeia a fatia.
+## Contratos e estado
 
-## REGRAS DE FERRO (nunca caem, nem por pedido)
-IA nunca insere texto na nota · escrita trancada nunca se expõe por rota nenhuma · um gesto por sessão · silêncio é resposta válida · sem chat, streaks, XP, ouvinte, elogio, resumo.
+Leia visão → ADRs vigentes da [SPEC](SPEC.md) → [EVOLUCAO](EVOLUCAO.md) → [SISTEMA-CLARO](SISTEMA-CLARO.md), sistema visual vigente. SISTEMA.md é histórico. A matriz conserva requisitos integrais, capacidade atual e evidência faltante; não substitua esse conjunto pelo próximo incremento fácil de testar. Mudança de contrato entra na SPEC antes da implementação dependente.
 
-## DÍVIDAS P0 (auditoria 31/ago — antes de qualquer feature nova)
-1 porteiro comenta expressiva reaberta (guarda só na UI; mover ao motor) · 2 vazamento: texto do Puxar capturado antes do véu e nunca limpo · 3 códice repete fragmento ("X e X") sem obstáculo · 4 fecho da expressiva sem teste · 5 régua 136→≤12 + emenda da SPEC · 6 ciclo de vida de anexos (apagar nota apaga arquivo) · 7 migração de schema SwiftData versionada.
+Não prometer colaboração MD/HTML, sincronização, execução externa ou aprendizagem porque um documento descreve a direção. Confirme no código, nas rotas e nas provas atuais. Notas antigas conservam identidade e proteção; não se tornam automaticamente objetivos ou evidências de capacidade.
 
-## ANTI
-Melhorar tudo de uma vez · feature nova com P0 aberto · rename parcial · screenshot velho como prova · "depois eu testo".
+## Verificar o que a pessoa usa
+
+- Integridade: gravação confirmada antes de anúncio/efeito, retorno e importação recuperáveis, selo por todas as rotas, origem visível sem falsificar voz humana.
+- Experiência: percurso completo, começo encontrável, erro e retomada; conteúdo amplo, Dynamic Type, VoiceOver e movimento reduzido nos estados pertinentes. Fontes e tokens vêm do sistema vigente, não da paleta de uma campanha antiga.
+- Implementação: reprodução, testes afetados, build/integração quando aplicáveis; fontes e providers reais. Uma fixture prova contrato e falha, não disponibilidade do modelo.
+- Acabamento: render atual e vídeo quando movimento importa. Referência só conta se inspecionada e pertinente; lei de UX ou nota numérica não substituem ocorrência demonstrada.
+- Completude: comparar o resultado ao pedido integral e registrar lacunas. Parecer de outro agente precisa ser independente; a quantidade de críticos ou rodadas vazias não garante conclusão.
+
+Use o ciclo já coordenado; não instalar um segundo processo. A correção material é revalidada por evidência e revisão pertinente. Mesma falha repetida exige investigar a hipótese, não declarar bloqueio por um contador.
+
+## Continuidade e autorização
+
+Preserve WIP e divisão de arquivos. Não faça commit de trabalho alheio nem commit/push/publicação por automatismo. Respeite o simulador compartilhado e as preferências do usuário; restaure configurações temporárias após teste. A autorização para produzir um artefato não autoriza enviar, gastar ou assumir compromisso fora da delegação.
+
+Expressiva, selo e privacidade permanecem. Silêncio é resposta válida no contrato da Análise; no trabalho delegado, erro/indisponibilidade precisa preservar entrada e explicar recuperação. “Um gesto por sessão” pertence às notas/métodos que o exigem, não limita a jornada de realização inteira.
+
+Concluir exige requisitos contratados provados no candidato atual. Registre checkpoint incompleto quando houver interrupção ou dependência real; continue frentes úteis. [FILA.md](FILA.md) e [PLAN.md](PLAN.md) são históricos, não uma ordem para refazer renomes, ativar features antigas ou impor o português/inglês de uma época anterior.

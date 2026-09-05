@@ -9,37 +9,51 @@ struct LenteView: View {
     var notaUUID: UUID?
     var gesto: Gesto? = nil
     @Environment(\.dismiss) private var dismiss
+    /// ADR 04i: o retrato viaja com a instigação e o contrapor.
+    var retrato: String = ""
     @State private var perguntasDaSabia: [String] = []
     @State private var instigando = false
+    /// ADR 04m: o que o autor não considerou. Nil = nada pedido ou nada honesto.
+    @State private var contraparte: Sabia.Contraparte?
+    @State private var contrapondo = false
+    @State private var avaliouContraparte = false
     @State private var semConta = false
     @State private var apontados: [Apontamento] = []
     @State private var trechoNovo = ""
     @State private var recusado = false
 
     private var prosa: String { Caderno.prosa(de: texto) }
-    private var lente: Lente { Lente.ler(prosa) }
+    /// O `NLTagger` e cinco regex sobre a nota inteira: pesado demais para o
+    /// `body`, que é justamente o instante em que a folha sobe.
+    @State private var lente = Lente.vazio
 
     var body: some View {
         let l = lente
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
-                HStack {
+                // o cabeçalho da casa: título nos tokens, Pronto como texto — a
+                // cápsula cinza pesava mais que o título (von-restorff invertido)
+                HStack(alignment: .firstTextBaseline) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Lente")
-                            .font(.title2.weight(.bold))
-                            .tracking(-0.4)
-                        Text(resumo(l))
+                            .font(Tema.tituloTela)
+                            .tracking(Tema.trackingTitulo)
+                            .foregroundStyle(Tema.tinta)
+                            .accessibilityAddTraits(.isHeader)
+                        // "nada a apontar" vive aqui, na linha de metadados: um
+                        // parágrafo solto para dizer pouco era ruído
+                        Text(resumo(l) + (l.vazia ? " · nada a apontar" : ""))
                             .font(Tema.meta)
                             .foregroundStyle(Tema.tintaSuave)
                             .monospacedDigit()
+                            .accessibilityIdentifier(l.vazia ? "lente-vazia" : "lente-resumo")
                     }
-                    Spacer()
+                    Spacer(minLength: 8)
                     Button("Pronto") { dismiss() }
                         .font(Tema.barra)
                         .foregroundStyle(Tema.tinta)
-                        .padding(.horizontal, 14)
-                        .frame(height: 36)
-                        .background(Tema.chip, in: Capsule())
+                        .frame(minHeight: Tema.alvo)
+                        .buttonStyle(PressaoDiscreta())
                         .accessibilityIdentifier("lente-pronto")
                 }
 
@@ -60,12 +74,7 @@ struct LenteView: View {
                     }
                 }
 
-                if l.vazia {
-                    Text("Nada a apontar.")
-                        .font(Tema.corpo)
-                        .foregroundStyle(Tema.tintaSuave)
-                        .accessibilityIdentifier("lente-vazia")
-                } else {
+                if !l.vazia {
                     if !l.muletas.isEmpty {
                         secao("Muletas", "o que se diz para ganhar tempo") {
                             ForEach(l.muletas) { achado($0.termo, $0.vezes, sugerido: .muleta) }
@@ -95,13 +104,13 @@ struct LenteView: View {
 
                 // ADR o: instigar — a sábia devolve perguntas, nunca respostas
                 if notaUUID != nil, gesto != .expressiva {
-                    secao("Instigar", "a sábia lê e devolve perguntas: buracos, dependências, o que falta decidir") {
+                    secao("Instigar", "perguntas sobre o que falta — nunca respostas") {
                         VStack(alignment: .leading, spacing: 0) {
                             ForEach(perguntasDaSabia, id: \.self) { q in
                                 linha(q, nil, rotulo: nil)
                             }
                             if semConta {
-                                Text("precisa da sua conta Grok, em Perfil.")
+                                Text("a sábia " + Sabia.porOndeEmPalavras + ".")
                                     .font(Tema.meta)
                                     .foregroundStyle(Tema.aviso)
                                     .padding(.horizontal, 14)
@@ -123,6 +132,63 @@ struct LenteView: View {
                             .buttonStyle(PressaoDiscreta())
                             .disabled(instigando)
                             .accessibilityIdentifier("instigar")
+                        }
+                    }
+                }
+
+                // ADR 04m: contrapor — a posição contrária, a opção fora da
+                // lista, o exemplo de outro campo. Informação, nunca instrução.
+                if notaUUID != nil, gesto != .expressiva {
+                    secao("Contrapor", "o outro lado, a opção que faltou, o exemplo de outro campo") {
+                        VStack(alignment: .leading, spacing: 0) {
+                            if let c = contraparte {
+                                if !c.contra.isEmpty { paragrafo("O OUTRO LADO", c.contra) }
+                                if !c.foraDaLista.isEmpty { paragrafo("FORA DA LISTA", c.foraDaLista) }
+                                if !c.outroCampo.isEmpty { paragrafo("EM OUTRO CAMPO", c.outroCampo) }
+                                HStack(spacing: 14) {
+                                    Button("Copiar") {
+                                        UIPasteboard.general.string = [c.contra, c.foraDaLista, c.outroCampo].filter { !$0.isEmpty }.joined(separator: "\n\n")
+                                        Toque.leve()
+                                    }
+                                    .font(Tema.barra)
+                                    .foregroundStyle(Tema.ambarTinta)
+                                    if !avaliouContraparte {
+                                        Button("serviu") { Sinais.resposta(c.contra, forma: gesto, serviu: true); avaliouContraparte = true; Toque.leve() }
+                                            .accessibilityIdentifier("serviu")
+                                        Button("não serviu") { Sinais.resposta(c.contra, forma: gesto, serviu: false); avaliouContraparte = true; Toque.leve() }
+                                            .accessibilityIdentifier("nao-serviu")
+                                    }
+                                }
+                                .font(Tema.label)
+                                .foregroundStyle(Tema.tintaFraca)
+                                .buttonStyle(PressaoDiscreta())
+                                .frame(minHeight: Tema.alvo)
+                                .padding(.horizontal, 14)
+                            }
+                            if semConta {
+                                Text("a sábia " + Sabia.porOndeEmPalavras + ".")
+                                    .font(Tema.meta)
+                                    .foregroundStyle(Tema.aviso)
+                                    .padding(.horizontal, 14)
+                                    .padding(.vertical, 10)
+                            }
+                            Button {
+                                contrapor()
+                            } label: {
+                                HStack(spacing: 8) {
+                                    if contrapondo { ProgressView().tint(Tema.tintaSuave) }
+                                    Text(contraparte == nil ? "Contrapor" : "Outro ângulo")
+                                        .font(Tema.barra)
+                                }
+                                .foregroundStyle(Tema.ambarTinta)
+                                .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .leading)
+                                .padding(.horizontal, 14)
+                                .contentShape(Rectangle())
+                            }
+                            .buttonStyle(PressaoDiscreta())
+                            .disabled(contrapondo)
+                            .accessibilityIdentifier("contrapor")
+                            .accessibilityHint("Vai à sábia; a resposta fica aqui, nunca na nota")
                         }
                     }
                 }
@@ -167,23 +233,63 @@ struct LenteView: View {
         .scrollDismissesKeyboard(.interactively)
         .background(Tema.fundo.ignoresSafeArea())
         .foregroundStyle(Tema.tinta)
-        .presentationDetents([.medium, .large])
+        // ADR 04a, de novo: `[.medium, .large]` nascia no médio com as
+        // perguntas cortadas pela borda (report do dono, 04/set). A Lente é
+        // leitura; abre inteira.
+        .presentationDetents([.large])
         .presentationDragIndicator(.visible)
         .presentationBackground(Tema.fundo)
         .onAppear { if let notaUUID { apontados = Apontar.listar(notaUUID) } }
+        .task { lente = Lente.ler(prosa) }
     }
 
     private func instigar() {
-        guard ContaGrok.ligada else { semConta = true; return }
+        guard Sabia.disponivel else { semConta = true; return }
         semConta = false
         instigando = true
         let t = prosa
         let g = gesto
+        let r0 = retrato
+        // ADR 04j: o degrau da instigação sobe com a prática nesta forma
+        let degrau = g.map { Degraus.instigar($0, sinais: Sinais.todos()) } ?? 0
         Task {
-            let r = await Sabia.instigar(texto: t, gesto: g)
+            let r = await Sabia.instigar(texto: t, gesto: g, degrau: degrau, retrato: r0)
             instigando = false
             if let r { perguntasDaSabia = r; Toque.suave() } else { Toque.aviso() }
         }
+    }
+
+    private func contrapor() {
+        guard Sabia.disponivel else { semConta = true; return }
+        semConta = false
+        contrapondo = true
+        avaliouContraparte = false
+        let t = prosa
+        let g = gesto
+        let r0 = retrato
+        Task {
+            let r = await Sabia.contrapor(texto: t, gesto: g, retrato: r0)
+            contrapondo = false
+            if let r { contraparte = r; Toque.suave() } else { Toque.aviso() }
+        }
+    }
+
+    private func paragrafo(_ rotulo: String, _ texto: String) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(rotulo)
+                .font(Tema.label)
+                .tracking(Tema.trackingLabel)
+                .foregroundStyle(Tema.tintaFraca)
+            Text(texto)
+                .font(Tema.corpo)
+                .foregroundStyle(Tema.tinta)
+                .fixedSize(horizontal: false, vertical: true)
+                .textSelection(.enabled)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
+        .accessibilityIdentifier("contraparte")
     }
 
     private func marcar(_ trecho: String, _ rotulo: RotuloApontar) {

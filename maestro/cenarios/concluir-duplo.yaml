@@ -15,4 +15,13 @@ appId: app.traco
 - swipe:
     start: 1%, 50%
     end: 85%, 50%
-- assertVisible: "so uma nota"
+# com espera: a lista chega depois da animação, e `assertVisible` corre na hora
+# (passava sozinho e caía na varredura — licoes-swiftui 17)
+- extendedWaitUntil:
+    visible: "so uma nota"
+    timeout: 5000
+# e o que o fluxo PROMETE: uma nota, não duas. Sem isto ele só provava que a
+# primeira não sumiu, e o "nao pode criar duas" nunca foi testado.
+- assertNotVisible:
+    text: "so uma nota"
+    index: 1

@@ -21,6 +21,10 @@ struct CadernoView: View {
     var aoTocarRegua: ((Bool) -> Void)? = nil
     /// ADR o: "Vestir tudo" no menu de formas.
     var aoVestirTudo: (() -> Void)? = nil
+    /// Q2: os títulos das outras notas, para completar `[[assim]]` ao digitar.
+    /// Sem isto, ligar duas notas exigia decorar o título — e a lei do dono é
+    /// que ele nunca deve ter de lembrar de nada.
+    var titulosParaLigar: [String] = []
     var aoMudar: () -> Void
 
     @State private var editando: String?
@@ -127,7 +131,18 @@ struct CadernoView: View {
                         .accessibilityIdentifier("a-gravar")
                         .accessibilityLabel("Parar gravação")
                 }
-                if foco.wrappedValue, !esconderRegua {
+                if foco.wrappedValue, let trecho = Rede.ligacaoEmVoo(texto),
+                   !sugestoesDeLigacao(trecho).isEmpty {
+                    barraDeLigacao(trecho)
+                        .padding(.horizontal, Tema.margem)
+                        .padding(.vertical, 4)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Tema.fundo)
+                        .overlay(alignment: .top) {
+                            Rectangle().fill(Tema.linha).frame(height: 0.5)
+                        }
+                        .transition(.move(edge: .bottom))
+                } else if foco.wrappedValue, !esconderRegua {
                     regua
                         .padding(.horizontal, Tema.margem)
                         .padding(.vertical, 4)
@@ -224,6 +239,43 @@ struct CadernoView: View {
         }) {
             MenuFormasView(aoEscolher: { papel in formaDoMenu = papel }, aoVestirTudo: aoVestirTudo)
         }
+    }
+
+    private func sugestoesDeLigacao(_ trecho: String) -> [String] {
+        Rede.sugestoes(para: trecho, entre: titulosParaLigar)
+    }
+
+    /// A régua cede o lugar: enquanto se escreve uma ligação, o rodapé mostra
+    /// os títulos que casam. Um toque fecha o `]]` — o autor nunca digita o
+    /// título inteiro nem precisa lembrar dele.
+    private func barraDeLigacao(_ trecho: String) -> some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(sugestoesDeLigacao(trecho), id: \.self) { titulo in
+                    Button {
+                        Toque.selecao()
+                        texto = Rede.completar(texto, com: titulo)
+                        aoMudar()
+                    } label: {
+                        Text(titulo)
+                            .font(Tema.meta)
+                            .foregroundStyle(Tema.tinta)
+                            .lineLimit(1)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                            .background(Tema.chip, in: Capsule())
+                            .frame(minHeight: Tema.alvo)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(PressaoDiscreta())
+                    .accessibilityIdentifier("ligar-\(titulo)")
+                }
+                Color.clear.frame(width: 4)
+            }
+        }
+        .frame(height: Tema.alvo)
+        .accessibilityLabel("Notas para ligar")
+        .accessibilityIdentifier("barra-ligacao")
     }
 
     private var regua: some View {
@@ -460,7 +512,7 @@ struct CadernoView: View {
             PortalCodigoView(lingua: lingua, fonte: fonte)
                 .onTapGesture { editar(fatia) }
         case .imagem, .audio, .video, .arquivo:
-            PortalArquivoView(bloco: fatia.bloco)
+            PortalArquivoView(bloco: fatia.bloco, aoApagar: { apagarAnexo(fatia) })
         case .tarefas:
             ProsaView(bloco: fatia.bloco, aoAlternarTarefa: { i in alternarTarefa(fatia, i) })
                 .onTapGesture { editar(fatia) }
@@ -676,6 +728,15 @@ struct CadernoView: View {
         default:
             editando = f.last { !$0.aberto }?.id
         }
+    }
+
+    /// Tira o bloco do anexo do documento. O arquivo em disco morre sozinho na
+    /// próxima varredura de órfãos — ela já apaga o que nenhuma nota referencia.
+    private func apagarAnexo(_ fatia: FatiaCaderno) {
+        texto = Caderno.aplicar(fatias, id: fatia.id, novo: "")
+        editando = nil
+        Toque.fechou()
+        aoMudar()
     }
 
     private func alternarTarefa(_ fatia: FatiaCaderno, _ indice: Int) {

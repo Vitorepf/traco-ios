@@ -1,0 +1,20 @@
+# ADR 05a: anotar de qualquer lugar. A rota traco://anotar deposita a frase
+# na entrada e o app a recolhe na hora: "1 nota veio de fora." e a nota na lista.
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: {id: pagina}
+    timeout: 8000
+- openLink: "traco://anotar?texto=ligar%20para%20o%20dentista%20antes%20de%20sexta"
+- extendedWaitUntil:
+    visible: "1 nota veio de fora."
+    timeout: 10000
+- takeScreenshot: /tmp/traco-verify/ciclo/39-anotar-toast
+- swipe:
+    start: 1%, 50%
+    end: 85%, 50%
+- tapOn: {id: aba-notas}
+- assertVisible: "ligar para o dentista antes de sexta"
+- takeScreenshot: /tmp/traco-verify/ciclo/40-anotar-na-lista

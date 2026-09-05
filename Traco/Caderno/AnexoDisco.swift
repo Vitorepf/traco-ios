@@ -2,14 +2,14 @@ import Foundation
 import UniformTypeIdentifiers
 
 enum AnexoDisco {
-    static func pasta() -> URL {
+    nonisolated static func pasta() -> URL {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("Traco/Anexos", isDirectory: true)
         try? FileManager.default.createDirectory(at: base, withIntermediateDirectories: true)
         return base
     }
 
-    static func url(_ id: String, nome: String? = nil) -> URL {
+    nonisolated static func url(_ id: String, nome: String? = nil) -> URL {
         if let nome, !nome.isEmpty {
             let ext = (nome as NSString).pathExtension
             if !ext.isEmpty {

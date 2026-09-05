@@ -22,4 +22,20 @@ appId: app.traco
 - inputText: "correr 5km"
 - takeScreenshot: /tmp/traco-verify/folha-preenchida
 - assertVisible: "correr 5km"
-- assertVisible: "Deixar como nota"
+# ADR 2026-09-03a: preencher um campo TIRA o cartão — ele cobria os campos de
+# baixo. O "um toque desfaz" vale enquanto o autor escreve na página, não aqui.
+#
+# Por ID, não por texto: "Deixar como nota" existe DUAS vezes — no cartão e no
+# cabeçalho da folha (`soltar-na-folha`, que deve continuar ali). A asserção por
+# texto casava com o da folha e só passava por sorte de timing.
+#
+# E com ESPERA: `assertNotVisible` corre na hora e perde a corrida com o ciclo
+# de render sob carga (passava sozinho, caía na varredura). Sumiço se prova
+# com `extendedWaitUntil: notVisible`, que insiste.
+- extendedWaitUntil:
+    notVisible: {id: "cartao-analise"}
+    timeout: 4000
+- extendedWaitUntil:
+    notVisible: {id: "soltar-forma"}
+    timeout: 4000
+- assertVisible: {id: "soltar-na-folha"}

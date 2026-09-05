@@ -1,0 +1,34 @@
+# ADR 2026-09-03e: o Recordar ganhou as duas saídas que faltavam.
+# "hoje não" empurra para amanhã sem mexer na escada; "pular" passa à próxima
+# sem revelar — porque revelar sobe o degrau.
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: {id: "pagina"}
+    timeout: 6000
+- tapOn: {id: "pagina"}
+- inputText: "quero acordar mais cedo para escrever antes do trabalho"
+- waitForAnimationToEnd: {timeout: 3000}
+- tapOn: {id: "concluir"}
+- waitForAnimationToEnd: {timeout: 2500}
+
+# a nota volta e o Recordar abre
+- swipe: {direction: DOWN}
+- waitForAnimationToEnd: {timeout: 1500}
+- tapOn: {id: "aba-arquivo"}
+- extendedWaitUntil:
+    visible: {id: "nota-notas"}
+    timeout: 5000
+- longPressOn: {id: "nota-notas"}
+- waitForAnimationToEnd: {timeout: 1500}
+- tapOn: "Recordar"
+- extendedWaitUntil:
+    visible: {id: "recordar-adiar"}
+    timeout: 8000
+
+# "hoje não" fecha sem cobrar e sem subir degrau
+- tapOn: {id: "recordar-adiar"}
+- waitForAnimationToEnd: {timeout: 2500}
+- assertNotVisible: {id: "recordar-adiar"}

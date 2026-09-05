@@ -15,8 +15,14 @@ enum Tema {
     static let tinta = Color(hex: 0x1C1C1E)            // 15,5:1
     /// 5,7:1 sobre o papel, 5,2:1 sobre o chip.
     static let tintaSuave = Color(hex: 0x5F5F64)
-    /// Ícones e letras grandes: 3,3:1.
-    static let tintaFraca = Color(hex: 0x86868B)
+    /// Terceiro nível de tinta. Era #86868B (3,3:1 no papel, 2,95:1 no chip) e
+    /// carregava TEXTO em 58 lugares — o trecho da busca, a contagem de
+    /// resultados, o rótulo da aba inativa a 11pt. A ADR 02h promete ≥4,5:1
+    /// para todo texto, e a varredura de 04/set mediu a promessa quebrada.
+    /// #68686C mede 5,04:1 no papel, 4,65:1 no campo e 4,52:1 no chip.
+    /// Custo assumido: ficou perto do `tintaSuave` — dois cinzas que quase se
+    /// encostam. Um deles deve morrer (FILA); ler vem antes de escalonar.
+    static let tintaFraca = Color(hex: 0x68686C)
     /// Só para DESABILITADO real — nunca para texto que deve ser lido.
     static let tintaMorta = Color(hex: 0xC7C7CC)
     /// Hairline: ninguém vê a linha, vê a ordem.

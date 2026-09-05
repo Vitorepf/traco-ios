@@ -18,8 +18,22 @@ struct SinalTipo: View {
 struct PortalArquivoView: View {
     let bloco: BlocoCaderno
     var aoEditar: () -> Void = {}
+    /// Q1: sem isto o anexo era eterno — o marcador `traco://` vive no
+    /// markdown, e a §17 proíbe o autor de ver markdown fora de prosa e lista.
+    /// A única saída era apagar a nota inteira.
+    var aoApagar: (() -> Void)?
 
     var body: some View {
+        corpo
+            .contextMenu {
+                if let aoApagar {
+                    Button("Apagar anexo", role: .destructive, action: aoApagar)
+                }
+            }
+    }
+
+    @ViewBuilder
+    private var corpo: some View {
         switch bloco {
         case .imagem(let id, let alt):
             portalImagem(id, alt)

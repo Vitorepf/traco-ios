@@ -1,20 +1,20 @@
 ---
-description: Tese do Traço — mente × IA que recusa × Markdown-arquivo. Sempre ler antes de mudar o app.
+description: Traço — intenção, realização e desenvolvimento com mente, IA e ambiente compartilhado. Ler a visão vigente antes de mudar o app.
 alwaysApply: true
 ---
 
 # Traço
 
-Produto da vida. iOS puro. Página preta. Cursor. Sem placeholder.
+Produto iOS para transformar intenções em realizações e desenvolver capacidades relevantes. Notas, calendário, métodos e escrita são meios; não definem sozinhos sua finalidade.
 
-**Tese:** a IA multiplica o gesto (escrever sob regra, ver a forma, lembrar). Nunca o atalho (texto pronto, língua de arquivo, dívida cognitiva).
+**Autoridade:** [VISAO-PRODUTO.md](../../VISAO-PRODUTO.md) fixa a tese; [SPEC.md](../../SPEC.md), com precedência das ADRs vigentes, fixa contratos. [EVOLUCAO.md](../../EVOLUCAO.md) distingue capacidades e provas pendentes; [SISTEMA-CLARO.md](../../SISTEMA-CLARO.md) orienta o visual. A existência desta regra não certifica implementação.
 
-Três eixos — os três, sempre. Falta um = o trabalho é lixo:
+Três participantes cooperam no objetivo:
 
-1. **Mente** — vocabulário visual (régua de palavras). O autor escolhe a forma; a mente entra no sítio. Multiplicar visualização, escrita, leitura.
-2. **IA** — lista fechada: rotar, travar, uma pergunta, Puxar, Códice, calar. **Nunca escreve na nota.** Porteiro só no botão. v1 local. Proibido `api.x.ai`, Keychain de API, `URLSession` para modelo.
-3. **Markdown-arquivo** — a nota é Markdown no disco. A página **nunca** é Markdown. Autor não escreve `#`, ` ``` `, `:::`, `|---|`, `- [ ]`. Toque edita o conteúdo dentro da figura.
+1. **Pessoa:** traz intenção, valores, contexto e escolhas; participa conforme o propósito, sem precisar dominar tudo que delega.
+2. **IA:** pode pesquisar, redigir, programar, representar e revisar trabalho delegado nos contratos que o suportam. Preserva origem; não substitui silenciosamente relato pessoal ou prática escolhida. Regras de lista fechada da Análise de notas continuam locais, não veto global à produção.
+3. **Ambiente:** conserva documentos, versões, ações, evidências e relações. Markdown é base preferida de intercâmbio; representação legível não exige aprender sintaxe. HTML pode servir a artefatos interativos, mas requer contrato e prova próprios.
 
-Antes de uma sessão longa, leia `.cursor/skills/traco-meta/SKILL.md` e corra o loop. SPEC.md e SISTEMA.md vencem o palpite.
+Antes de sessão longa, use [traco-meta](../skills/traco-meta/SKILL.md). Preserve WIP; não faça commit, push ou instalação por consequência. Não dispute o simulador de outra frente. Se houver coordenador de trabalho, integre-se ao ciclo existente.
 
-Um âmbar vivo por vista. Sem Chat, streak, resumo, nuvem, ouvinte. Sem copiar o Expo `/Users/vitorepf/develop/traco`.
+Expressiva, selo e privacidade permanecem em toda rota, inclusive trabalhos derivados, contexto, exportação e recuperação. Produzir não autoriza enviar, publicar, gastar ou assumir compromissos fora da delegação concedida. Agendar não executa; artefato pronto não comprova resultado no mundo; satisfação ou uso não comprovam aprendizagem. Hipóteses sobre a pessoa devem ser corrigíveis. Delegação não é dívida cognitiva por definição.

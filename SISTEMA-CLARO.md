@@ -1,12 +1,20 @@
 # Traço — o mundo claro (sistema visual, rev. 1)
 
+**Escopo operativo — linguagem visual, subordinada ao propósito vigente.** A finalidade e a divisão de trabalho vigentes estão em [VISAO-PRODUTO.md](VISAO-PRODUTO.md); contratos aceitos, proteções e capacidades implementadas devem ser conferidos na [SPEC.md](SPEC.md) e no [README.md](README.md). As medições abaixo conservam suas datas; este alinhamento não mediu novamente contrastes nem certificou todas as telas. Citações do clone explicam a referência visual, não limitam o produto a notas ou calendário.
+
 > Nasce do calendário que o Cursor clonou do vídeo de @rsuyoy (MovinDesign,
 > 01/set/2026) e da palavra do dono em 02/set: "essa mistura de preto e branco
 > ficou incrível, muito melhor que a versão normal do Traço". Este arquivo é a
 > Fase 2 do roteador: tokens travados ANTES de tocar em qualquer tela. Ele
 > substitui a paleta do `SISTEMA.md` e pede a ADR do fim. Medições: capturas do
 > app real (`simctl`), `tastemaker/scripts/extract_palette.py` e
-> `check_contrast.py` em 02/set/2026. Nada aqui é gosto: cada valor tem número.
+> `check_contrast.py` em 02/set/2026. São registros de medição e escolhas de projeto; números de contraste não demonstram sozinhos qualidade da experiência.
+
+## Aplicação à finalidade vigente
+
+A mesma linguagem visual serve a intenção, artefato, ação e evidência. Apresente o conteúdo de modo legível e indique sua origem: voz pessoal, produção de IA ou arquivo externo não viram autoria humana pela aparência. Distinguir “versão preparada”, “ação agendada”, “execução registrada” e “resultado observado”; não dar o mesmo sinal de sucesso a estados diferentes. Prática tem esforço quando faz parte do objetivo; operar os controles não deve exigir treinamento.
+
+Preserve proteção de notas seladas e expressivas também em prévias, histórico e superfícies derivadas. Um estado restrito explica o acesso sem expor conteúdo. Erro de gravação mantém o candidato recuperável e não anuncia conclusão. Em dúvida sobre comportamento, prevalece o contrato específico da SPEC; os tokens não concedem permissão para geração, envio ou exposição.
 
 ## 1. O DNA do clone (o que faz ele parecer caro)
 
@@ -60,7 +68,7 @@ de mundo (escuro → claro) acontece SÓ na camada semântica.
 | `nevoa` | `#EBEBEA` | campo de prosa |
 | `cinza-200` | `#E8E8E6` | chip inativo |
 | `cinza-300` | `#C7C7CC` | dias fora do mês, desabilitado |
-| `cinza-400` | `#86868B` | **corrigido**: ícones e letras grandes (3,3:1) |
+| `cinza-400` | `#68686C` | **ADR 04d**: era `#86868B` (3,29:1 no papel, 2,95:1 no chip) e carregava TEXTO em 58 lugares. Agora 5,04:1 no papel · 4,65:1 no campo · 4,52:1 no chip |
 | `cinza-600` | `#5F5F64` | **corrigido**: texto secundário; 5,7:1 no papel, 5,2:1 no chip (o `#6E6E73` media 4,1 sobre o chip) |
 | `carvao` | `#2C2C2E` | pílula selecionada |
 | `tinta` | `#1C1C1E` | texto |
@@ -153,7 +161,7 @@ SF, sempre. Todos os tokens passam a escalar com Dynamic Type
 |---|---|---|---|---|
 | título de tela | 32 | bold | −0,6 | `.largeTitle` |
 | título de ficha | 34 | bold, centrado | −0,6 | `.largeTitle` |
-| corpo (voz do autor) | 20 | regular | 0 | `.body` |
+| corpo (conteúdo legível, com origem indicada) | 20 | regular | 0 | `.body` |
 | chrome / botão | 17 | regular / semibold | 0 | `.body` |
 | cartão | 16 | semibold | 0 | `.callout` |
 | meta / hora | 13 | medium, numerais tabulares | 0 | `.footnote` |
@@ -223,7 +231,9 @@ depois, e o veredito do dono em vídeo antes de dar por bom.
    confirmação): `.regularMaterial` claro com hairline, nunca blur de tela
    inteira em transição.
 
-## ADR 2026-09-02h — O mundo claro (proposta, para o dono assinar)
+## Registro da proposta ADR 2026-09-02h — O mundo claro
+
+A aceitação e as emendas são registradas na SPEC. O texto abaixo conserva a justificativa da proposta; não abre nova aprovação nem substitui decisões posteriores.
 
 §11 dizia "tema escuro único, a página preta é o produto". Em 02/set o dono
 viu o calendário claro e decidiu: o Traço inteiro passa a viver no mundo

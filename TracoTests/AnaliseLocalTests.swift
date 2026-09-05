@@ -1,24 +1,19 @@
 import Testing
 
-// Aviso é recusa na cara do autor — o erro mais caro. "Gostaria de começar a
-// ler" tomou um textoPronto do motor remoto no iPhone do dono (01/set).
-// Recusa remota sem o local de acordo vira silêncio; gesto remoto passa.
-@Suite struct ModeracaoRemotaTests {
-    @Test @MainActor func avisoRemotoSoComOLocalDeAcordo() {
-        let injusto = AnaliseRemota.moderar(
-            .aviso(AnaliseLocal.avisoFrasePronta),
-            texto: "Gostaria de começar a ler", gestoAtual: nil
-        )
-        #expect(injusto == .silencio)
-        let justo = AnaliseRemota.moderar(
-            .aviso(AnaliseLocal.avisoFrasePronta),
-            texto: "escreva por mim um poema sobre o mar", gestoAtual: nil
-        )
-        #expect(justo == .aviso(AnaliseLocal.avisoFrasePronta))
-        let gesto = AnaliseRemota.moderar(
-            .gesto(.woop, pergunta: "p"), texto: "qualquer coisa", gestoAtual: nil
-        )
-        #expect(gesto == .gesto(.woop, pergunta: "p"))
+// ADR 04r: o aviso é do algoritmo, sempre. O contrato remoto só roteia; um
+// `aviso` que ainda chegue de um modelo velho é ignorado — e no `escolher`
+// da sessão, o aviso local vence qualquer gesto remoto.
+@Suite struct AvisoEDoAlgoritmoTests {
+    @Test func avisoRemotoEIgnorado() {
+        #expect(AnaliseRemota.parseVeredito(#"{"gesto":null,"aviso":"textoPronto"}"#) == .silencio)
+        #expect(AnaliseRemota.parseVeredito(#"{"gesto":"woop","aviso":"textoPronto"}"#)
+                == .gesto(.woop, pergunta: AnaliseLocal.pergunta(.woop)))
+    }
+
+    @Test func avisoLocalVenceGestoRemoto() {
+        let aviso = AnaliseLocal.Veredito.aviso(AnaliseLocal.avisoWood)
+        #expect(Sessao.escolher(remoto: .gesto(.woop, pergunta: "p"), local: aviso) == aviso)
+        #expect(Sessao.escolher(remoto: .gesto(.woop, pergunta: "p"), local: .silencio) == .gesto(.woop, pergunta: "p"))
     }
 }
 @testable import Traco

@@ -1,3 +1,14 @@
+# FILA — registros históricos de investigação e entrega
+
+**Todo o registro abaixo é histórico, datado por seção; não é a fila obrigatória atual.** “Aberto”, “fechado”, “garantido”, “lei”, “hoje” e contagens de testes referem-se à respectiva sessão, não certificam o candidato presente. Revalide ocorrência, autorização, prioridade e prova antes de reutilizar qualquer item. Falas e conclusões antigas são preservadas como evidência de evolução, não como instruções vigentes.
+
+A autoridade de propósito é [VISAO-PRODUTO.md](VISAO-PRODUTO.md): intenção→realização→desenvolvimento, com IA autorizada a produzir trabalho delegado e origem preservada. Proibições antigas de toda geração, resposta/resumo, rede, busca semântica, tema claro ou VoiceOver não podem ser extraídas deste histórico como veto global. Regras locais de prática, Expressiva e selo continuam conforme [SPEC](SPEC.md) e ADRs vigentes.
+
+O estado operativo e a distância entre visão e implementação ficam em [EVOLUCAO.md](EVOLUCAO.md), confrontados com código e prova atuais. O processo vigente está em [META.md](META.md). Este arquivo não manda instalar CLI, autenticar conta, executar chamadas pagas, comitar WIP ou retomar campanhas antigas. Evidência científica, disponibilidade e comportamento de serviços citados abaixo não foram reverificados nesta revisão documental.
+
+<details>
+<summary>Registro integral das sessões anteriores — histórico, não instruções atuais</summary>
+
 # FILA — varredura nº 2 (31/ago, pós-arrancada 2)
 
 Saída do loop de COMPLETUDE (META-FINAL). Próxima varredura marca o que fechou.
@@ -266,3 +277,410 @@ geral ainda fraca.
   3× em curso (varredura nº1 do ensaio: 53 flows, FALHAS: nenhuma); iPhone
   REAL: INSTALADO E LANÇADO (11h51 — devicectl launch app.traco no iPhone
   16 Pro Max do dono, team W28WF9A5A2).
+
+
+## Varredura 04/set — o aviso invisível (ADR 04a/b/c/d)
+
+**A lei nova, que vale para tudo:** função que o autor não vê, não confirma e
+não controla NÃO FOI ENTREGUE. Motor sem superfície é dívida. A varredura passa
+a procurar CHAMADA SEM TELA — foi assim que "o que se marca, avisa" (ADR 03d)
+viveu cinco dias como promessa que só o código conhecia.
+
+### Fechado nesta rodada
+- **Aviso do compromisso com superfície** (ADR 04a): `avisoMinutos` em lista
+  fechada (não avisa · na hora · 5/10/15/30 min · 1 h · 2 h · 1 dia), seção
+  AVISO na ficha, a promessa dita na HORA REAL ("Toca hoje às 14:00"), sino na
+  grade, estado honesto quando o iPhone está com avisos desligados + saída para
+  os Ajustes, e o intent falando a promessa por voz.
+- **A ficha nascia cortada** — `.presentationDetents([.large, .medium])` NÃO
+  escolhe pela ordem; a captura mostrou o médio, com Notas, Apagar e o aviso
+  inteiro fora da tela. Só `selection:` decide.
+- **O compromisso fora do app** (ADR 04a): widget `TracoProximo` (casa e tela
+  bloqueada) e Live Activity `CompromissoVivo` com contagem na Ilha, publicados
+  a cada escrita no calendário e ao voltar à cena.
+- **Orçamento de avisos** (ADR 04b): o teto de 64 do iOS deixou de ser silêncio
+  — `Avisos.cabem` recusa antes, a ficha diz, e o Perfil mostra "n de 64".
+- **A escada engolia o aviso** (ADR 04c): `remoto ?? local` matava as quinze
+  regex num iPhone com Apple Intelligence e sem conta — os cinco avisos do §5
+  eram inalcançáveis e o aceite do §13 falhava na configuração padrão.
+  `Sessao.escolher` agora devolve a palavra ao algoritmo quando o modelo cala.
+- **Contraste do terceiro cinza** (ADR 04d): `tintaFraca` 3,3:1 → 5,04:1.
+- **Backup duplicado** em `trancarExpressivasVencidas` (escrevia o corpus
+  inteiro duas vezes por selagem).
+- **Divulgação da sábia**: o cartão dizia as 3 notas que voltaram enquanto o
+  índice de até 40 viajava; agora conta as duas coisas.
+- **Spotlight capado em 200** sem comentário nem fila → 5.000.
+- **Teste dependente do relógio**: `conferenciaDevida` lia `.now` por dentro e
+  reprovava no minuto das 9h da máquina. O relógio virou parâmetro.
+- README: a regra de ferro nº 1 ainda dizia que TODA palavra da tela é do app,
+  o que a ADR o revogou (a resposta da sábia é texto do modelo, num cartão).
+
+### Aberto, com a medida que prova
+- **Corpus inteiro na main thread** (P1, M): `Corpus.escrever` regrava um .md
+  por nota + LEIA-ME + corpus + INDICE a cada conclusão, ×2 pastas, síncrono.
+  Medido: 0,19 ms/arquivo no SSD do Mac → **190 ms a 1.000 notas**, e a pasta
+  do autor (iCloud) é bem pior. Só a nota que mudou precisa ser reescrita. Não
+  foi feito nesta rodada de propósito: é a rota do SELO, e refatorar a rota do
+  selo com pressa é como se perde uma garantia.
+- **Dois cinzas encostados** (P2, S): `tintaSuave` 5,77:1 e `tintaFraca` 5,04:1
+  fazem quase o mesmo papel. Um deve morrer — trabalho de olho.
+- **Schema V2 é alvo móvel** (P2, S): `TracoSchemaV2.models = [Nota.self]` e a
+  `Nota` já ganhou cinco propriedades desde a versão. Hoje passa (todas com
+  default); congelar V2 e bumpar antes do primeiro build de loja.
+- **`slow_down` do device-code** ignorado (RFC 8628 §3.5) — FEITO nesta rodada.
+
+### Modo férias (ADR 04e) — fechado nesta rodada
+- Interruptor no Perfil com data de volta, "sem data", e "e nos feriados"
+  (desligado por padrão). Expira sozinho no arranque e ao voltar à cena.
+- Cala a fila do Recordar, a revisão de domingo e a série da expressiva; NÃO
+  cala compromisso nem aviso do "Se" — férias não desmarca dentista.
+- A fila vira enumerada (14 dias) só quando há silêncio no caminho; sem
+  silêncio continua sendo uma repetente, um slot do orçamento.
+- Achado do próprio fluxo: os ajustes de liga/desliga do Perfil só respondiam
+  no interruptor de 51×31pt. A LINHA inteira passa a alternar (`fitts-law`) —
+  e foi isso que deixou a varredura conseguir exercer um ajuste.
+- Achado da captura: ligar mostrava "Até 11/09" (fallback do seletor) enquanto
+  o estado dizia "sem data" — a tela exibia valor que não valia.
+- O compromisso e o aviso do "Se" saem `timeSensitive` (atravessam o Foco);
+  a fila, a revisão e a série ficam no nível normal. Mesma linha das férias.
+- A fila enumerada também consulta o orçamento de 64 antes de agendar.
+- Tocar no aviso do compromisso abre o calendário no dia (o `userInfo` não
+  batia com rota nenhuma: o banner era um beco).
+- O toast de falha ganhou a volta pelos Ajustes (ADR 03e no calendário).
+
+### Tela bloqueada interativa (ADR 04f) — fechado nesta rodada
+- Destaque: círculo que marca a única coisa de hoje na tela bloqueada e na
+  Ilha (era botão só no widget da casa).
+- Compromisso: "Lembrar em 10 min", com retorno na própria tela ("lembro às
+  11:07") e recado honesto quando os avisos estão desligados.
+- Os dois intents entram TAMBÉM no alvo do app: `LiveActivityIntent` roda no
+  processo do app, e sem o tipo lá o toque falharia calado.
+- Desenho refeito depois de "muito fraco" do dono: papel por baixo do material
+  do sistema dava cinza sujo e âmbar ocre. Agora tinta semântica + acento
+  âmbar, e a hierarquia com o compromisso maior que o relógio.
+
+### Achados de design com lei, ainda abertos (não mexi sem poder julgar na tela)
+- **Cabeçalho da ficha do compromisso** (P2, S): ✕ · chip de domínio · Pronto,
+  três pesos disputando a mesma linha. O chip é ATRIBUTO e tem peso de AÇÃO
+  (`critique-visual-hierarchy`); no editor de evento do iOS o cabeçalho tem só
+  sair e concluir, e a taxonomia é uma linha do formulário (`jakobs-law`).
+  Proposta: chip desce para uma linha própria acima de NOTAS.
+- **Topo das Notas** (P2, S): "Mais recentes" e "Como contexto" são texto puro
+  no canto superior — sem affordance (`critique-affordance`), na zona morta do
+  polegar (`fitts-law`), e vestidos igual à navegação (`law-of-similarity`).
+  Foi o mesmo defeito que o §20 corrigiu no rodapé e não corrigiu no topo.
+- **Régua de chips da busca** corta no lado direito sem nenhum sinal de que
+  rola (`law-of-continuity`).
+- **Densidade do Perfil** (P2, S): o cartão CONTA gasta 60% da primeira tela
+  com um parágrafo que se lê uma vez (`critique-information-density`); o
+  primeiro AJUSTE só aparece rolando. Não mexi na cópia do dono sem ele.
+
+
+## Report do dono (05/set, tarde) — "aparece tudo do placeholder" (ADR 05c)
+- O campo do calendário copiava a recomendação para dentro ao tocar, e a
+  primeira tecla devia substituí-la; na mão, autocorreção, ditado e cursor
+  deixavam a frase, e o autor apagava tudo para escrever. Agora o campo
+  nunca se preenche sozinho: a recomendação fica no cinza, como exemplo.
+  Saíram o preenchimento no foco, a substituição pela primeira tecla e o
+  estado `sugestaoNoCampo` (`jakobs-law`, `critique-affordance`).
+- Prova: o simulador não tem calendário do sistema, então nenhum fluxo
+  exercitava o preenchimento; a prova é a remoção do caminho (não existe
+  mais escrita em `agenda.prosa` fora do teclado e do ditado) e os fluxos do
+  calendário verdes. O dono confere no aparelho.
+
+ (04/set, noite) — a volta que cobra (ADR 04v)
+
+## Report do dono (05/set, tarde) — "clicar no chip remove? não faz sentido" (ADR 05d)
+- Avaliação pedida: "chegar em casa … vou ler" era Casa por EMPATE
+  desempatado pela ordem da lista (Casa e Estudo, um ponto cada). Agora
+  empate é silêncio, como a ADR 02c já mandava.
+- O domínio passa à IA do aparelho (FoundationModels, lista fechada de sete
+  mais "nenhum", nunca a rede): o léxico responde na hora e o modelo corrige
+  ao salvar, se o autor não travou. Motores desligados = só léxico.
+- O chip não apaga mais: abre o menu (os sete, "Sem domínio", e "Devolver
+  ao app" quando travado), na lista e no cartão da página. O menu longo da
+  nota ganhou o mesmo submenu "Domínio". `ChipDominio` é um só para os dois
+  lugares.
+- Prova: `CalendarioTests` (empate → nil; `doModelo`), `ColheitaEixosTests`
+  (escolher no menu trava e vale na página); `maestro/dominio-no-menu.yaml`
+  (TRABALHO → menu → Estudo → ESTUDO); capturas 42 e 43. Suíte inteira 457
+  verde.
+- O que só o aparelho do dono prova: o modelo de bordo classificando de
+  verdade (o simulador corre com os motores desligados).
+
+## Meta do dono (05/set) — "acabamento ultra premium, anos de polimento" (ADR 05f)
+### Rodada 1 — o que ele viu e o que a auditoria achou
+- Fotografadas 28 telas pelos fluxos de auditoria (folhas de contato no
+  scratchpad). Achados com lei e correção: a caixa cinza atrás dos menus
+  (rótulo retangular de 44 pt realçado pelo iOS → rótulo é a cápsula, alvo
+  no Menu); "Mais recentes"/"Como contexto" sem affordance → cápsula com
+  seta e ícone de compartilhar; ficha do compromisso com três pesos no
+  cabeçalho → domínio na seção própria; exemplo do campo cortado a meio
+  → teto de 30 caracteres; cartão da sábia sem animação em dois estados.
+- Prova: fluxos das Notas, do domínio, do calendário e da barra verdes;
+  capturas 42, 43 (chip e topo novos) e nav/81 (ficha).
+### Visto e não tocado (desenho do dono; decidir no olho)
+- Calendário: três barras empilhadas no pé (escalas + Hoje, prosa,
+  navegação) — `critique-information-density`. A barra é campanha do dono.
+- Escrever: régua de formatação + quatro ações de peso igual + teclado —
+  `hicks-law`, `von-restorff-effect`. "Sinto a página" é mandato dele.
+- Perfil: o cartão CONTA gasta a primeira tela com um parágrafo que se lê
+  uma vez — cópia do dono.
+- A régua de chips das Notas cresceu para 29 itens (21 formas + 7 domínios
+  + trancadas); a máscara de esmaecimento existe, mas a fila é longa.
+  Proposta: formas e domínios em duas linhas, ou um menu "Filtrar".
+
+## Report do dono (05/set, manhã) — "a busca no topo é design pobre; devia estar embaixo e perguntar" (ADR 05e)
+- A busca desceu ao pé da tela (`safeAreaInset`), acima da navegação e do
+  teclado, e virou "Buscar ou perguntar": escrever filtra (letras e sentido,
+  como antes); enviar (seta ou Return) pergunta à sábia, e um cartão sobe
+  sobre a barra só enquanto há conversa. As trocas seguintes levam a
+  conversa junto. "Fechar" apaga.
+- O que viaja: catálogo (nome e definição de cada forma, para dizer qual
+  serve), vizinhas da pergunta pelo índice (inteiras até 1.200 caracteres,
+  nunca fechada nem expressiva), retrato, últimas quatro trocas. Sistema
+  próprio `sistemaResponderNasNotas`.
+- Achados na primeira chamada real com o modelo de bordo: (1) ele REPETIA o
+  contexto em vez de responder — a pergunta passou a ir primeiro e o pedido
+  diz para não citar os blocos; (2) a resposta de 900 caracteres tomava a
+  tela inteira — o cartão ganhou teto de 220 pt com rolagem por dentro;
+  (3) a falha da sábia ia a um toast que sumia — fica no cartão, onde o
+  autor olha.
+- Lição do maestro: o `accessibilityIdentifier` num contêiner engole o id
+  dos botões filhos na árvore; tocar o botão pelo texto.
+- Prova: `PerguntarNasNotasTests` (catálogo, vizinhas, conversa, selo);
+  `maestro/barra-de-baixo.yaml` com os motores desligados (filtra, envia,
+  cartão diz por onde a sábia responderia, fecha); os nove fluxos de busca
+  verdes; suíte 458 verde; capturas 44 e 45.
+- Ao vivo, no modelo de bordo (captura 46): "que método uso para criar o
+  hábito de correr de manhã?" → "Se–então. Sempre que acordar, quero correr
+  de manhã antes do trabalho." — nomeia a forma e dá o exemplo, não escreve
+  a nota. Uma palavra solta ("correr") ainda o faz repetir contexto: quem
+  envia uma palavra quer buscar, e a busca já respondeu na lista.
+- Aberto: "Mais recentes" e "Como contexto" seguem como texto no topo
+  (achado antigo com lei); os chips de filtro no topo cortam à direita sem
+  sinal de rolagem.
+
+## Laço "Traço 2036" — volta 1 (04/set, noite) — a volta que cobra (ADR 04v)
+
+### Imaginado
+O app de 2036 abre o dia já sabendo o que a mente deixou marcado para
+conferir: a decisão de há duas semanas, o dia de ontem, a crença de há sete
+dias. A cobrança vem antes de ser pedida. As três maiores distâncias vistas:
+(1) a volta dos campos `soDepois` só existia com a nota aberta; (2) nada
+antecipa o dia pelo calendário + caderno; (3) o limiar de vestir e o teto de
+notas que viajam continuam constantes. Escolhida a (1): é a segunda volta do
+ciclo com o menor código.
+
+### Fechado
+- `Volta` (Modelo): a regra da conferência sai da Sessão e vira uma só para
+  a página e para a lista (`devida`, `campoDevido`, `cobranca`).
+- Notas abrem com a seção **A VOLTA** quando há campo devido e vazio; a
+  linha é a cobrança ("O que roubou o dia?") e o título; um toque abre a
+  nota com o campo à espera. Some ao responder. Selo: fechada e expressiva
+  nunca entram.
+- Prova: `VoltaTests` (Dia à noite/dia seguinte, Atualização aos 7 dias,
+  Decisão pela data, selo, cobrança vira pergunta); `maestro/a-volta.sh`
+  planta um Dia de ONTEM pela entrada (ADR 04p) e por isso passa em qualquer
+  hora do dia; capturas 31 e 32.
+- Achado da captura 31: a mesma nota aparecia na volta e no mês com o mesmo
+  id dentro do `LazyVStack`, e o SwiftUI descartava a linha do mês. Id
+  distinto resolve. Lição: seção que repete nota precisa de id próprio.
+- Frase de prova: hoje o autor abre as Notas e vê o que ficou por conferir;
+  ontem só via se lembrasse de reabrir a nota certa.
+
+### Volta 2 — o caderno chega antes do compromisso (ADR 04w)
+- `DoCadernoView`: a ficha do compromisso (do Traço e do iPhone) ganha
+  DO CADERNO — até três notas vizinhas pelo índice de sentido, um toque abre
+  a nota. Sem vizinha, sem seção. A ficha do iPhone sobe ao detente grande
+  (regra da 04u: deixou de ser folha de uma linha).
+- Prova: `DoCadernoTests` (a reunião de orçamento acha a nota do orçamento e
+  não a da corrida); `maestro/do-caderno.yaml`; capturas 33 e 34.
+- Achado da varredura: `a-volta` e `entrada-do-mac` falhavam a seco na
+  varredura inteira porque dependem do `.sh` que planta arquivos. O
+  `varrer.sh` passa a correr pelo `.sh` irmão (`entrada.sh` virou
+  `entrada-do-mac.sh`), e os `.sh` devolvem o código do maestro.
+- Achado do maestro: `centerElement: true` falha em folha curta (não há
+  rolagem sobrando para centrar) mesmo com o elemento à vista.
+- Frase de prova: hoje o autor abre a reunião e vê o que já pensou sobre
+  ela; ontem entrava sem, a não ser que lembrasse e buscasse.
+
+### Volta 3 — o degrau ouve o sinal (ADR 04x)
+- `Degraus.instigar(_:sinais:)`: prática mais o ajuste dos dois últimos
+  sinais de pergunta da forma (dois "não serviu" descem um, dois "serviu"
+  sobem um, 0…4). A Sessão e a Lente passam por ele.
+- Perfil, A SÁBIA E VOCÊ: "O que a sábia cobra, por forma: WOOP no degrau
+  1 …" — o autor vê o que a IA vai cobrar dele.
+- Prova: `DegrausTests.oDegrauOuveOSinal`; `maestro/degrau-no-perfil.yaml`;
+  captura 35.
+- Achado da varredura inteira (segunda desta noite): quatro fluxos de
+  título/caderno falharam por teclas caídas na digitação — o simulador
+  degrada depois de hora e meia de varredura; reiniciá-lo resolveu sem tocar
+  em código. Lição: falha só em digitação, no fim de varredura longa, pede
+  reinício do simulador antes de qualquer diagnóstico.
+- Frase de prova: hoje duas "não serviu" mudam a próxima pergunta; ontem a
+  sábia cobrava o mesmo degrau até o autor completar a contagem.
+
+### Volta 4 — o anexo entra no sentido (ADR 04y)
+- `Indice.expandirAnexos`: o marcador de PDF vira o texto das três
+  primeiras páginas (PDFKit, no aparelho, teto 3.000) só para o vetor; a voz
+  do autor vem primeiro. `AnexoDisco.pasta/url` viraram `nonisolated` para
+  correr fora da main thread.
+- Achado: a nota que vinha pela entrada (04p) só entrava no índice de
+  sentido no arranque SEGUINTE (`sincronizarIndice` corria antes de
+  `recolherEntrada` no `PaginaView`). Agora a entrada sincroniza na hora.
+- Prova: `AnexoNoSentidoTests` (PDF gerado no teste; a nota que só diz "o
+  relatório está no anexo" é achada por "reunião de orçamento com
+  finanças" e a da corrida não); `maestro/anexo-no-sentido.sh` (cupsfilter
+  planta o PDF; a busca por sentido acha a nota); captura 36.
+- Lição do teste: `draw(at:)` corta a linha na borda da página e o PDFKit
+  devolve o texto cortado; `draw(in:)` quebra linha.
+- Frase de prova: hoje o autor acha o relatório pelo assunto do relatório;
+  ontem só se tivesse escrito o assunto na nota.
+
+### Volta 5 — as ilhas novas se encadeiam (ADR 04z)
+- Oito encadeamentos só no `Metodos.json`: Feynman e Analogia → Nota
+  permanente; Inversão → Pré-mortem e → Se–então; Steelman → Argumento;
+  Divergência → Decisão; Primeiros princípios → Especificação; Prática
+  deliberada → Se–então e → compromisso em 7 dias; Atualização → Decisão.
+  Zero linhas de Swift: o mecanismo da 04k serviu inteiro.
+- Prova: `CatalogoTests.nenhumMetodoEIlhaEOMapaFecha` (nenhum método fora
+  das sete folhas terminais é ilha; todo mapa aponta para campos que existem
+  dos dois lados); `maestro/ilhas-encadeadas.yaml` (Inversão → Pré-mortem
+  com as palavras copiadas e a origem ligada); capturas 37 e 38.
+- Frase de prova: hoje o autor leva a inversão ao pré-mortem num toque;
+  ontem reescrevia à mão.
+
+### Volta 6 — anotar de qualquer lugar (ADR 05a)
+- `Entrada.depositar`: a frase cai em `entrada/` com a hora, pelo caminho
+  do Mac. `AnotarIntent` (Siri, Atalhos, botão de Ação; não abre o app; frase
+  "Anotar no Traço") e a rota `traco://anotar?texto=…` (recolhe na hora).
+- Prova: `AnotarTests` (depósito vira item da entrada e some depois de lido;
+  a rota lê o texto e recusa vazio); `maestro/anotar-de-fora.yaml`
+  (a rota → "1 nota veio de fora." → a nota na lista); capturas 39 e 40.
+  Fluxos da entrada e das rotas do widget repetidos, verdes.
+- Frase de prova: hoje o autor diz "Anota no Traço: ligar para o dentista"
+  fora do app e a frase vira nota; ontem esperava abrir o app e a página.
+- Fora: extensão de compartilhamento (pede app group e provisionamento).
+
+### Volta 7 — o dia diz o que espera (ADR 05b)
+- `LinhaDaVolta` sob a data da página em branco: "1 volta a conferir", só
+  quando há; um toque abre as Notas na seção A VOLTA. Some ao primeiro
+  caractere, como a data.
+- Prova: `VoltaTests` (a linha em palavras); `maestro/a-volta.sh` estendido
+  (a página em branco mostra a linha, o toque leva a A VOLTA); captura 41.
+- Varredura inteira (quarta desta noite, antes desta volta): uma falha,
+  `ilhas-encadeadas`, que passou sozinha e passou de novo pelo `varrer.sh`
+  junto de `a-volta` e `encadear` no build final. Teclas ou espera no
+  simulador a meio da varredura; nenhum código mudou entre as duas.
+- Frase de prova: hoje o autor abre o app e a data diz que há uma volta a
+  conferir; ontem tinha de ir às Notas para saber.
+
+### Aberto
+- Teto de notas que viajam com a pergunta continua constante (40).
+- `ilhas-encadeadas` falhou uma vez em varredura inteira e passou três vezes
+  fora dela: vigiar; se repetir, subir o `extendedWaitUntil` do `abrir-campos`.
+- Simplificação da volta 2: a busca de DO CADERNO subiu para as fichas e a
+  seção só existe com vizinha (a versão anterior carregava um `Color.clear`
+  que custava 24 pt de espaçamento quando vazia). A ficha do iPhone nasce
+  no médio sem vizinha e no grande com (04u respeitada nos dois casos).
+- DO CADERNO só olha o título e as notas do compromisso; o domínio do
+  compromisso poderia filtrar (o autor liga domínio a compromisso na ficha).
+
+## Varredura 04/set (tarde) — o ciclo da mente (ADRs 04g–04s)
+
+**Palavra do dono:** *"multiplicar a mente do usuário de uma forma
+extraordinária, e depois melhorar essa mente, e esse ciclo. Quanto mais a
+mente se multiplica, mais a IA multiplica o poder da mente."* A auditoria
+mediu o app contra isso e achou catorze buracos; todos fechados nesta rodada,
+cada um com ADR, superfície (ADR 04a), teste e fluxo.
+
+### Fechado
+- **O sinal** (04h): `Sinais` no disco; "serviu / não serviu" em todo cartão
+  com texto de modelo, no Recordar e no Contrapor; Soltar e concluir viram
+  sinal; Perfil › "O que o Traço aprendeu de você" + "Esquecer tudo".
+- **O retrato** (04i): `Retrato.ler` — formas, obstáculos, o que não voltou,
+  calibragem em contagem, palavras, perguntas que não serviram; viaja em
+  instigar, responder, contrapor e prova; Perfil mostra o texto EXATO e o
+  interruptor. Selo: expressiva/fechada nunca entram.
+- **Degraus** (04j): instigar sobe com as notas concluídas da forma (0..4);
+  três Soltar seguidos viram SUGERIR em vez de vestir (Perfil diz; abrir uma
+  devolve); o caderno que viaja vem do índice.
+- **Encadeamentos** (04k): linha DEPOIS DISTO ao pé dos campos; WOOP→Se–então,
+  Se–então→compromisso, Decisão→Pré-mortem, Pré-mortem→Se–então/compromisso,
+  Spec→Pré-mortem, Argumento→Decisão, Leitura→Nota permanente, Dia→Destaque.
+  Palavras copiadas, `[[origem]]` no destino, agenda com aviso.
+- **Catálogo como dado** (04l): `Gesto` virou id sobre `Metodos.json`; 21
+  métodos (11 novos: Argumento, Leitura, Feynman, Dia, Analogia, Inversão,
+  Steelman, Divergência, Primeiros princípios, Prática deliberada,
+  Atualização); `Documents/Traço/metodos/*.json` do autor entra ao abrir;
+  inválido é dito no Perfil. Roteamento por regex do JSON; Recordar por spec.
+- **Contrapor** (04m): `Sabia.contrapor` → {contra, foraDaLista, outroCampo},
+  informação nunca instrução (parser recusa imperativo); botão na Lente.
+- **Índice de sentido** (04n): `Indice` com NLEmbedding de PALAVRAS pt (a de
+  frases não separa nada — medido); Notas › PELO SENTIDO; ecos pelas 40 mais
+  próximas; a linha "?" leva as 6 mais próximas da pergunta; Perfil conta e
+  refaz.
+- **Corpus incremental** (04o): concluir grava só a nota + agregados, fora da
+  main thread; as rotas do selo continuam síncronas e inteiras.
+- **Entrada do Mac** (04p): `entrada/` lida no arranque e ao voltar à cena
+  (Documents e pasta espelhada); MCP `traco_escrever` e
+  `traco_metodo_escrever`; toast "n notas vieram de fora"; Perfil explica.
+- **Trajetória** (04q): cartão nos Padrões, dois períodos lado a lado, sem
+  seta; intent "Trajetória".
+- **Doutrina** (04r): instigar só no ATO (primeiro caractere num campo, "Abrir
+  os campos", cartão), nunca na pausa; aviso local vence gesto remoto; `aviso`
+  saiu do contrato remoto; teto 900 no prompt e no parser.
+- **Selo reafirmado** (04s) com teste por rota nova.
+
+Suíte: 444 testes em 102 suítes, verde. Varredura completa (`varrer.sh`, 96
+fluxos, os dois vivos incluídos): FALHAS: nenhuma. Fluxos novos: encadear,
+metodos-novos, pelo-sentido, trajetoria, perfil-sabia, sinal-solto, e
+`maestro/entrada-do-mac.sh` (planta `entrada/do-mac.md` e `metodos/cornell.json` no
+contêiner e prova o toast, a nota na lista e "21 do app · 1 seu"). Capturas em
+`/tmp/traco-verify/ciclo/`.
+
+### Lições da varredura (para o maestro)
+- Um swipe (ou `hideKeyboard`) que comece sobre um botão da folha VIRA TOQUE:
+  o encadeamento disparou quatro vezes antes de o teste o ver. Quando o
+  elemento já está na tela, não se rola.
+- `repeat` parou na primeira volta; os fluxos desenrolam à mão.
+- No pé da tela, `scrollUntilVisible` sem `centerElement` deixa a linha atrás
+  da barra e o toque cai na barra.
+- Perfil cresceu: `scrollUntilVisible` precisa de 25 s, não 8.
+- **Defeito real achado pelo fluxo vivo** (`lente-instigar`): Soltar não
+  cancelava o veredito em voo, e a forma voltava sozinha um segundo depois.
+  `soltarForma` cancela as duas tarefas e o veredito automático respeita
+  `autoSuprimidaNaNota` ao chegar.
+
+### Fechado depois da primeira rodada (ADR 04t)
+- O modelo do aparelho roteia o catálogo INTEIRO: esquema dinâmico gerado do
+  `Metodos.json`, instruções do mesmo arquivo que o prompt remoto.
+- A sábia desce ao aparelho sem conta: mesmo prompt, mesmo parser, janela
+  menor. As sete superfícies deixam de calar; o cartão diz por onde respondeu.
+- A calibragem lê o campo "saldo" (aquém · igual · além) que o autor responde
+  na volta da Decisão; a leitura por palavras fica só para as decisões antigas.
+
+### Report do dono ao vivo (04/set, noite) — "o card nasce cortado"
+- A Lente abria no detente médio com as perguntas da sábia atrás da borda.
+  ADR 04u: folha que se lê ou se preenche nasce no detente grande (Lente,
+  Ligações, Versões, série da expressiva, folha dos campos). Lente sem ruído:
+  Pronto em texto, título nos tokens, "nada a apontar" na linha de metadados.
+  Captura `ciclo/15-lente-depois.png`; fluxos da Lente, Rede, Versões,
+  expressiva e forma-folha verdes.
+
+### Última rodada (04/set, noite)
+- PDF/epub anexado com prosa ao lado roteia para Leitura (teste
+  `pdfAnexadoComProsaViraLeitura`).
+- Fluxo `formas-novas`: Argumento, Dia, Divergência, Steelman, Atualização e
+  Leitura-com-PDF vestindo na tela, um por um (capturas 16–21).
+- Fluxo `cadeia-completa`: WOOP → Se–então → "Conferir o hábito em 7 dias"
+  → compromisso no calendário, num só percurso (capturas 22–23).
+- Suíte: 446 testes em 103 suítes, verde.
+
+### Aberto
+- **O selo, sob prova, nas rotas novas**: cada rota tem teste, e a varredura
+  passou; o passe manual de VoiceOver das superfícies novas segue pendente,
+  como o das antigas (requer humano com o aparelho).
+
+</details>

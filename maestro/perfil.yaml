@@ -21,8 +21,34 @@ appId: app.traco
 - assertVisible: "Grok"
 - assertVisible:
     id: entrar-conta
-- assertVisible:
-    id: ajuste-auto-analise
+# o Perfil é um formulário longo: o aceite é que o ajuste EXISTE e se alcança,
+# não que ele caiba na primeira tela (04/set — a densidade do cartão CONTA está
+# na FILA como achado de `critique-information-density`)
+- scrollUntilVisible:
+    element: {id: "ajuste-auto-analise"}
+    direction: DOWN
+    timeout: 25000
+# ADR 04e: o modo férias existe, e a tela diz o que ele cala
+# o Perfil cresceu (ADR 04h–04p): a rolagem até as férias leva mais passos
+- scrollUntilVisible:
+    element: {id: "ajuste-ferias"}
+    direction: DOWN
+    timeout: 25000
+- assertVisible: "Modo férias"
+- assertVisible: {id: "estado-ferias"}
+- tapOn: {id: "ajuste-ferias"}
+- waitForAnimationToEnd: {timeout: 1500}
+# ligado, aparece a data e o estado muda de frase
+- assertVisible: {id: "ferias-ate"}
+# ligar assume uma semana, e o estado DIZ a data que o seletor mostra
+- assertVisible: "ligado até .*"
+- tapOn: {id: "ferias-sem-data"}
+- waitForAnimationToEnd: {timeout: 1200}
+- assertVisible: "ligado, sem data.*"
+- takeScreenshot: /tmp/traco-verify/perfil-ferias
+- tapOn: {id: "ajuste-ferias"}
+- waitForAnimationToEnd: {timeout: 1500}
+- assertNotVisible: {id: "ferias-ate"}
 # a lei do dono: nenhuma palavra de chave, token ou preço nesta tela
 - assertNotVisible: "xai-"
 - assertNotVisible: "Keychain"

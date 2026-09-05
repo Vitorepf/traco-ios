@@ -27,8 +27,10 @@ struct ConfirmacaoView: View {
                         botaoMudo("Fechar a escrita", id: "confirmacao-trancar") {
                             Task {
                                 try? await Task.sleep(for: .milliseconds(220))
-                                // §8: sair não tranca sozinho — abre a escolha
-                                sessao.abrirFecho(no: context)
+                                // §8: sair não tranca sozinho — abre a escolha.
+                                // §15: e o DESTINO se preserva — quem tocou em
+                                // Notas com o timer de pé ia parar na página.
+                                sessao.abrirFecho(no: context, destino: destino)
                             }
                         }
                     case .trancada(let destino):

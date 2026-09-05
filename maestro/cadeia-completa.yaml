@@ -1,0 +1,36 @@
+# ADR 04k, a cadeia inteira num só percurso: o desejo vira hábito, o hábito
+# marca a conferência no calendário. Nada disto é escrito pela IA.
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn: {id: pagina}
+- inputText: "quero correr de manhã"
+- extendedWaitUntil: {visible: {id: "abrir-campos"}, timeout: 8000}
+- tapOn: {id: "abrir-campos"}
+- extendedWaitUntil: {visible: {id: "forma-woop"}, timeout: 5000}
+- tapOn: {id: "campo-obstaculo"}
+- inputText: "o celular na cama"
+- tapOn: {id: "campo-plano"}
+- inputText: "deixo o celular na cozinha"
+- extendedWaitUntil: {visible: "Virar Se–então", timeout: 8000}
+- tapOn: "Virar Se–então"
+- extendedWaitUntil: {visible: {id: "forma-seEntao"}, timeout: 8000}
+- assertVisible: "o celular na cama"
+# o teclado subiu com a página nova e cobre o pé dos campos: recolhe pelo
+# botão da régua (um toque cego "hideKeyboard" já disparou botão em 04/set)
+- tapOn: "Esconder teclado"
+- waitForAnimationToEnd: {timeout: 1500}
+# o segundo elo: o hábito marca a própria conferência
+- extendedWaitUntil: {visible: "Conferir o hábito em 7 dias", timeout: 8000}
+- tapOn: "Conferir o hábito em 7 dias"
+- extendedWaitUntil: {visible: ".*marcado para.*", timeout: 8000}
+- takeScreenshot: /tmp/traco-verify/ciclo/22-cadeia-marcada
+- tapOn: {id: "concluir"}
+- swipe:
+    start: 1%, 50%
+    end: 85%, 50%
+- tapOn: {id: aba-notas}
+- tapOn: {id: aba-calendario}
+- extendedWaitUntil: {visible: "Calendário", timeout: 5000}
+- takeScreenshot: /tmp/traco-verify/ciclo/23-calendario-com-a-conferencia

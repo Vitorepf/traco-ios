@@ -373,7 +373,7 @@ struct SabiaTests {
     }
 
     @Test func formasDeEstrategiaEntramNaLista() {
-        #expect(Gesto.decisao.campos.map(\.id) == ["escolha", "opcoes", "criterio", "decidido", "espero", "aconteceu"])
+        #expect(Gesto.decisao.campos.map(\.id) == ["escolha", "opcoes", "criterio", "decidido", "espero", "aconteceu", "saldo"])
         #expect(Gesto.premortem.campos.count == 4)
         #expect(Gesto.doNome("Decisão") == .decisao)
         #expect(Gesto.doNome("Pré-mortem") == .premortem)
@@ -533,9 +533,12 @@ struct CampoDaVoltaTests {
     @Test func oCampoDaConferenciaSoApareceQuandoEDevido() {
         let campo = try! #require(Gesto.decisao.campos.first { $0.id == "aconteceu" })
         #expect(campo.soDepois)
-        #expect(Gesto.decisao.campos.filter(\.soDepois).count == 1)
-        // nenhuma outra forma tem campo de volta
-        for g in Gesto.allCases where g != .decisao {
+        // ADR 04t: a volta tem DOIS campos — o que aconteceu, e o saldo que o autor dá
+        #expect(Gesto.decisao.campos.filter(\.soDepois).map(\.id) == ["aconteceu", "saldo"])
+        // só as formas com VOLTA declarada têm campo de depois (ADR 04l):
+        // a decisão, o dia (o que roubou, à noite) e a atualização (quanto agora)
+        let comVolta: Set<String> = ["decisao", "dia", "atualizacao"]
+        for g in Gesto.allCases where !comVolta.contains(g.rawValue) {
             #expect(g.campos.allSatisfy { !$0.soDepois })
         }
     }
@@ -543,14 +546,18 @@ struct CampoDaVoltaTests {
 
 struct ConferenciaDevidaTests {
     @Test func semDataOCampoFicaComDataEleEspera() {
+        // o relógio é PARÂMETRO: com `.now` este teste reprovava no minuto das
+        // 9h da máquina, e passava o resto do dia (varredura 04/set)
+        let agora = Calendario.gregoriano()
+            .date(from: DateComponents(year: 2026, month: 9, day: 5, hour: 8))!
         let s = Sessao()
         s.gesto = .decisao
         s.campos = ["espero": "mais calma"]              // sem data: o campo fica
-        #expect(s.conferenciaDevida)
+        #expect(s.conferenciaDevida(agora: agora))
         s.campos = ["espero": "mais calma; confiro às 9h"] // data futura: espera
-        #expect(!s.conferenciaDevida)
+        #expect(!s.conferenciaDevida(agora: agora))
         s.gesto = .woop
-        #expect(!s.conferenciaDevida)                     // só a Decisão tem volta
+        #expect(!s.conferenciaDevida(agora: agora))       // só a Decisão tem volta
     }
 }
 
@@ -581,5 +588,73 @@ struct VestirNaoContaComoPreencherTests {
         #expect(!s.camposComResposta)   // espaço não é resposta
         s.campos["escolha"] = "ficar ou sair"
         #expect(s.camposComResposta)
+    }
+}
+
+struct RedeTests {
+    private func n(_ titulo: String, texto: String = "", liga: String = "", gesto: Gesto? = nil,
+                   fechada: Bool = false, emCurso: Bool = false) -> Rede.NotaLida {
+        Rede.NotaLida(uuid: UUID(), titulo: titulo, texto: texto.isEmpty ? titulo : texto,
+                      campos: liga.isEmpty ? [:] : ["liga": liga], gesto: gesto,
+                      fechada: fechada, expressivaEmCurso: emCurso)
+    }
+
+    @Test func aMencaoLigaEOReversoAparece() {
+        let alvo = n("nota permanente sobre foco")
+        let origem = n("o dia rendeu", texto: "o dia rendeu porque li [[nota permanente sobre foco]] de manhã")
+        let ls = Rede.ligacoes([alvo, origem])
+        #expect(ls.count == 1)
+        #expect(Rede.daqui(origem.uuid, ls).first?.para == alvo.uuid)
+        #expect(Rede.paraCa(alvo.uuid, ls).first?.de == origem.uuid)
+        #expect(Rede.daqui(alvo.uuid, ls).isEmpty)   // a ligação tem direção
+    }
+
+    @Test func oCampoLigaAContaEAcentoNaoAtrapalha() {
+        let alvo = n("Memória e atenção")
+        let origem = n("plano do mês", liga: "memoria e atencao")
+        let ls = Rede.ligacoes([alvo, origem])
+        #expect(ls.count == 1)
+        #expect(ls[0].para == alvo.uuid)
+    }
+
+    @Test func oSeloValeNaRede() {
+        let selada = n("expressiva selada", fechada: true, emCurso: false)
+        let emCurso = n("desabafo", gesto: .expressiva, emCurso: true)
+        let normal = n("uma nota", texto: "cito [[expressiva selada]] e [[desabafo]]")
+        let ls = Rede.ligacoes([selada, emCurso, normal])
+        #expect(ls.isEmpty)  // nem como destino
+        // e uma expressiva jamais é origem
+        let ex = n("desabafo dois", texto: "cito [[uma nota]]", gesto: .expressiva, emCurso: true)
+        #expect(Rede.ligacoes([normal, ex]).isEmpty)
+    }
+
+    @Test func mencoesSaoUnicasENaoInventamNota() {
+        #expect(Rede.mencoes("a [[x]] e de novo [[X]] e [[outra]]") == ["x", "outra"])
+        #expect(Rede.mencoes("sem menção nenhuma").isEmpty)
+        #expect(Rede.mencoes("[[]]").isEmpty)
+        // menção sem nota correspondente não vira ligação
+        let so = n("sozinha", texto: "cito [[que não existe]]")
+        #expect(Rede.ligacoes([so]).isEmpty)
+    }
+
+    @Test func asIlhasSaoAsQueNinguemCita() {
+        let a = n("alfa"), b = n("beta", texto: "liga em [[alfa]]"), c = n("ilha")
+        let ls = Rede.ligacoes([a, b, c])
+        #expect(Rede.ilhas([a, b, c], ls) == [c.uuid])
+    }
+
+    @Test func aNotaNaoSeLigaASiMesma() {
+        let so = n("recursiva", texto: "eu cito [[recursiva]] aqui")
+        #expect(Rede.ligacoes([so]).isEmpty)
+    }
+}
+
+struct MencaoNaLeituraTests {
+    @Test func osColchetesNaoAparecemNoTitulo() {
+        let t = VozDoAutor.titulo("o dia rendeu porque li [[atenção é um músculo]] de manhã")
+        #expect(t == "o dia rendeu porque li atenção é um músculo de manhã")
+        #expect(VozDoAutor.semColchetes("sem nenhum") == "sem nenhum")
+        // e a menção continua encontrável para a rede (o texto cru não muda)
+        #expect(Rede.mencoes("li [[atenção é um músculo]]") == ["atenção é um músculo"])
     }
 }

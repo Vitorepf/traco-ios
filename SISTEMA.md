@@ -1,5 +1,7 @@
 # Traço — sistema visual (Fase 2)
 
+**Registro histórico do sistema escuro, sem autoridade operativa atual.** A finalidade e a divisão de trabalho vigentes estão em [VISAO-PRODUTO.md](VISAO-PRODUTO.md); contratos aceitos, proteções e capacidades implementadas devem ser conferidos na [SPEC.md](SPEC.md) e no [README.md](README.md). As regras de paleta, hierarquia e fluxo abaixo pertencem à fase registrada. Não restaurá-las como requisitos; para o sistema claro consulte [SISTEMA-CLARO.md](SISTEMA-CLARO.md). Nenhuma restrição visual histórica limita a produção de artefatos delegados.
+
 > **02/set/2026 — substituído.** O Traço vive no mundo claro (ADR 2026-09-02h): os tokens, medidas e componentes vigentes estão em `SISTEMA-CLARO.md`. Este arquivo fica como registro do sistema escuro.
 
 

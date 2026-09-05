@@ -24,8 +24,9 @@ appId: app.traco
     direction: UP
     duration: 2500
 # a régua NÃO sumiu (o vestir foi segurado) e nenhum cartão cobriu a nota
-- assertVisible:
-    id: regua-seccao
+- extendedWaitUntil:
+    visible: {id: regua-seccao}
+    timeout: 5000
 - assertNotVisible: "Deixar como nota"
 - assertVisible: "quero correr de manhã"
 # e o chip ACERTA: um toque veste a SEÇÃO — o rótulo "seção" prova que a forma

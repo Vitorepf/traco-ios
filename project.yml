@@ -1,6 +1,10 @@
 name: Traco
 options:
+  # ADR 2026-09-03f: um idioma só, e é o português. Todo motor do app é
+  # pt-BR — a análise, o parser do calendário, a lente, o domínio, o ditado
+  # e os feriados. Interface em inglês sobre isso seria uma promessa falsa.
   developmentLanguage: pt
+  knownRegions: [pt]
   bundleIdPrefix: app
   deploymentTarget:
     iOS: "26.0"
@@ -19,6 +23,11 @@ targets:
     platform: iOS
     sources:
       - path: Traco
+      # ADR 04f: `LiveActivityIntent` roda no processo do APP. Sem o tipo
+      # também aqui, o botão da tela bloqueada falharia calado — que é
+      # exatamente o defeito que a ADR 04a proíbe.
+      - path: TracoWidget/DestaqueFeitoIntent.swift
+      - path: TracoWidget/LembrarDepoisIntent.swift
     dependencies:
       - target: TracoWidget
       - sdk: WidgetKit.framework
@@ -33,6 +42,10 @@ targets:
       properties:
         com.apple.security.application-groups:
           - group.app.traco
+        # ADR 04a/04e: o que o AUTOR marcou atravessa o Foco; o que o app
+        # inventou de cobrar, não. Um alarme de dentista que o modo Foco
+        # engole é exatamente "está marcado e não adianta nada".
+        com.apple.developer.usernotifications.time-sensitive: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: app.traco
@@ -56,6 +69,10 @@ targets:
         INFOPLIST_KEY_NSAppTransportSecurity_NSAllowsArbitraryLoads: NO
         INFOPLIST_KEY_NSPhotoLibraryUsageDescription: "Traço guarda nesta nota a foto que você escolheu."
         INFOPLIST_KEY_NSMicrophoneUsageDescription: "Traço guarda nesta nota o áudio que você gravou."
+        INFOPLIST_KEY_NSFaceIDUsageDescription: "Reabrir uma escrita selada pede o seu rosto — foi você que pediu para ela ficar fechada."
+        INFOPLIST_KEY_NSSpeechRecognitionUsageDescription: "Ditar o compromisso. O reconhecimento acontece no aparelho."
+        INFOPLIST_KEY_NSCalendarsUsageDescription: "Ler os seus calendários para já sugerir o próximo compromisso. O Traço só lê — nunca escreve na sua agenda."
+        INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription: "Ler os seus calendários para já sugerir o próximo compromisso. O Traço só lê — nunca escreve na sua agenda."
   TracoTests:
     type: bundle.unit-test
     platform: iOS
@@ -77,6 +94,7 @@ targets:
       - path: Traco/Tema.swift
       - path: Traco/Modelo/DestaqueDoDia.swift
       - path: Traco/Modelo/DestaqueAtividade.swift
+      - path: Traco/Modelo/ProximoCompromisso.swift
     entitlements:
       path: TracoWidget/TracoWidget.entitlements
       properties:
@@ -86,6 +104,10 @@ targets:
       path: TracoWidget/Info.plist
       properties:
         CFBundleDisplayName: Traço
+        # a versão vem do target, não de texto fixo: extensão com versão
+        # diferente do app é recusa na validação do App Store Connect
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         NSExtension:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension
     settings:

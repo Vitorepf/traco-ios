@@ -14,8 +14,9 @@ appId: app.traco
 - tapOn:
     id: busca-notas
 - inputText: "zzzznaoexiste"
-- assertVisible:
-    id: limpar-busca
+- extendedWaitUntil:
+    visible: {id: limpar-busca}
+    timeout: 5000
 - tapOn:
     id: limpar-busca
 - assertVisible: "uma nota qualquer"

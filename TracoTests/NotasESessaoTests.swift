@@ -545,8 +545,8 @@ struct AnaliseRemotaTests {
         // §19.4: a IA devolve RÓTULO; a pergunta e a frase são do app
         #expect(AnaliseRemota.parseVeredito(#"{"gesto":"woop","aviso":null}"#)
                 == .gesto(.woop, pergunta: AnaliseLocal.pergunta(.woop)))
-        #expect(AnaliseRemota.parseVeredito(#"{"gesto":null,"aviso":"doisGestos"}"#)
-                == .aviso(AnaliseLocal.avisoDoisGestos))
+        // ADR 04r: `aviso` saiu do contrato remoto
+        #expect(AnaliseRemota.parseVeredito(#"{"gesto":null,"aviso":"doisGestos"}"#) == .silencio)
         #expect(AnaliseRemota.parseVeredito(#"{"gesto":"expressiva","aviso":null}"#) == .expressiva)
         #expect(AnaliseRemota.parseVeredito(#"{"gesto":null,"aviso":null}"#) == .silencio)
         #expect(AnaliseRemota.parseVeredito("claro! aqui está: nada de json") == nil) // fora do formato → silêncio/local
@@ -673,9 +673,10 @@ struct CorrecoesVarredura3Tests {
         // texto livre no lugar do rótulo = rótulo desconhecido = silêncio
         #expect(AnaliseRemota.parseVeredito("{\"gesto\":null,\"aviso\":\"\(gigante)\"}") == .silencio)
         #expect(AnaliseRemota.parseVeredito(#"{"gesto":null,"aviso":"você é incrível!"}"#) == .silencio)
-        // rótulo válido só pode virar UMA das nossas frases
-        for (rotulo, frase) in AnaliseLocal.avisos {
-            #expect(AnaliseRemota.parseVeredito("{\"gesto\":null,\"aviso\":\"\(rotulo)\"}") == .aviso(frase))
+        // ADR 04r: o aviso é do algoritmo, sempre — o modelo nem esse rótulo
+        // consegue acender. Um `aviso` que ainda chegue é ignorado.
+        for (rotulo, _) in AnaliseLocal.avisos {
+            #expect(AnaliseRemota.parseVeredito("{\"gesto\":null,\"aviso\":\"\(rotulo)\"}") == .silencio)
         }
         // pergunta inventada pelo modelo é ignorada: a do template vence
         #expect(AnaliseRemota.parseVeredito(#"{"gesto":"spec","aviso":null,"pergunta":"eu inventei isto"}"#)
@@ -986,5 +987,79 @@ struct RotaDoWidgetTests {
         #expect(Rota.escalaCalendario == .mes)
         #expect(destino("https://exemplo.com") == nil)   // esquema alheio, sem rota
         #expect(destino("traco://inexistente") == nil)    // host desconhecido, sem rota
+    }
+}
+
+/// Achados 07, 09 e 22 da varredura de 03/set.
+@Suite struct FurosDaVarreduraTests {
+    private func contexto() throws -> ModelContext {
+        ModelContext(try ModelContainer.traco(emMemoria: true))
+    }
+
+    /// O "?" não pode mais bloquear a forma: a especificação vem primeiro.
+    @Test func aPerguntaNaoEngoleAForma() async throws {
+        let s = Sessao()
+        s.autoAnalise = false
+        s.texto = "preciso construir a tela de login do app\n? qual banco de dados?"
+        s.analisar()
+        try await Task.sleep(for: .milliseconds(120))
+        // a classificação roda: "tela"/"app" roteiam Especificação
+        if case .forma(let g, _)? = s.cartao {
+            #expect(g == .spec)
+        } else {
+            Issue.record("esperava a forma, veio \(String(describing: s.cartao))")
+        }
+    }
+
+    /// Sem gesto a vestir, o "?" ocupa o rodapé — a ADR o continua valendo.
+    @Test func noSilencioAPerguntaAparece() async throws {
+        let s = Sessao()
+        s.autoAnalise = false
+        s.texto = "bom dia\n? quanto custa tirar passaporte"
+        s.analisar()
+        try await Task.sleep(for: .milliseconds(120))
+        if case .pergunta(let q)? = s.cartao {
+            #expect(q == "quanto custa tirar passaporte")
+        } else {
+            Issue.record("esperava o cartão da pergunta, veio \(String(describing: s.cartao))")
+        }
+    }
+
+    /// §15: o destino sobrevive à tranca.
+    @Test func oFechoLevaOAutorAoDestinoQueOTimerBarrou() throws {
+        let context = try contexto()
+        let s = Sessao()
+        s.texto = "desabafo longo o suficiente para valer"
+        s.comecarExpressiva(no: context)
+        s.irNotas(no: context)                  // o timer barra e pede confirmação
+        #expect(s.confirmacao == .sairTranca(destino: .notas))
+        s.abrirFecho(no: context, destino: .notas)
+        #expect(s.fechoExpressiva != nil)
+        #expect(s.aba == .escrever)             // ainda no fecho
+        s.guardarSentidoDoFecho("ficou claro", no: context)
+        #expect(s.aba == .notas)                // e agora chegou onde ia
+    }
+
+    @Test func queimarTambemLevaAoDestino() throws {
+        let context = try contexto()
+        let s = Sessao()
+        s.texto = "desabafo"
+        s.comecarExpressiva(no: context)
+        s.abrirFecho(no: context, destino: .notas)
+        #expect(s.queimar(no: context, sentido: "pronto"))
+        #expect(s.aba == .notas)
+    }
+
+    /// Achado 07: com uma crase adiante, o `*itálico*` vazava cru na tela.
+    @Test func oItalicoNaoVazaQuandoHaCraseDepois() {
+        let bloco = BlocoCaderno.paragrafo("a *forte* e `codigo`")
+        // `visivel` passa pelo mesmo caminho de texto do portal
+        let visto = Caderno.textoVisivel(bloco)
+        #expect(visto == "a *forte* e `codigo`") // a fonte não muda
+        // o que importa é o parse do inline: nenhum marcador sobra na saída
+        let atribuido = ProsaView.textoInline("a *forte* e `codigo`")
+        #expect(!String(atribuido.characters).contains("*"))
+        #expect(!String(atribuido.characters).contains("`"))
+        #expect(String(atribuido.characters) == "a forte e codigo")
     }
 }

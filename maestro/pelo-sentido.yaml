@@ -1,0 +1,27 @@
+# ADR 04n: a busca por letras é a primeira; o índice de sentido responde
+# atrás, com o que ela não achou.
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn: {id: pagina}
+- inputText: "quero correr de manhã antes do trabalho"
+- extendedWaitUntil:
+    visible: {id: "abrir-campos"}
+    timeout: 8000
+- tapOn: {id: "concluir"}
+- tapOn: {id: pagina}
+- inputText: "a tabela de rotas do aplicativo precisa de uma coluna de destino"
+- waitForAnimationToEnd: {timeout: 2500}
+- tapOn: {id: "concluir"}
+- swipe:
+    start: 1%, 50%
+    end: 85%, 50%
+- tapOn: {id: "aba-notas"}
+- tapOn: {id: "busca-notas"}
+- inputText: "fazer exercício todos os dias"
+- extendedWaitUntil:
+    visible: "PELO SENTIDO"
+    timeout: 8000
+- assertVisible: "quero correr de manhã antes do trabalho"
+- takeScreenshot: /tmp/traco-verify/ciclo/05-pelo-sentido

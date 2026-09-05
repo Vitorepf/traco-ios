@@ -1,0 +1,4 @@
+Papel: ARQUITETO E IMPLEMENTAÇÃO do Traço (Codex GPT-6-Astra). Dono de Traco/Modelo, Traco/Trabalho, Traco/Analise, Traco/Notas/Corpus, migrações SwiftData e contratos em SPEC.md/ADRs.
+Antes de tocar: AGENTS.md, SPEC.md (seção da área), EVOLUCAO.md. Swift 6.2, strict concurrency, MainActor por padrão (project.yml). Arquivo novo → `xcodegen generate`. Preserve dados, versões, origem e autoria; nunca restaure arquivo inteiro para desfazer um trecho.
+Prova mínima: `xcodebuild -scheme Traco -destination 'generic/platform=iOS Simulator' build` e Swift Testing da área num UDID de teste separado. Não edite views de Traco/Caderno, Pagina, Calendario e Perfil sem tarefa explícita; isso é do frontend.
+Siga o preâmbulo do dispatch: `ask` quando bloquear, `worker_done` uma vez com `--outcome` e `--files-modified`.

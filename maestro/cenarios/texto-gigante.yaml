@@ -14,4 +14,6 @@ appId: app.traco
 - swipe:
     start: 1%, 50%
     end: 85%, 50%
-- assertVisible: ".*esta e uma linha longa.*"
+- extendedWaitUntil:
+    visible: ".*esta e uma linha longa.*"
+    timeout: 5000

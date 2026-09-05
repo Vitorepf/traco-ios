@@ -1,0 +1,26 @@
+# Corre pelo ./maestro/a-volta.sh, que planta um Dia de ontem ANTES deste
+# arranque. Sem clearState. ADR 04v: as Notas abrem com A VOLTA cobrando
+# "O que roubou o dia?", e o toque abre a nota com o campo à espera.
+appId: app.traco
+---
+- launchApp
+- extendedWaitUntil:
+    visible: "1 nota veio de fora."
+    timeout: 10000
+# ADR 05b: a data da página em branco diz o que o dia espera
+- extendedWaitUntil:
+    visible: {id: "linha-da-volta"}
+    timeout: 8000
+- assertVisible: "1 volta a conferir"
+- takeScreenshot: /tmp/traco-verify/ciclo/41-linha-da-volta
+- tapOn: {id: "linha-da-volta"}
+- extendedWaitUntil:
+    visible: {id: "secao-volta"}
+    timeout: 8000
+- assertVisible: "O que roubou o dia?"
+- takeScreenshot: /tmp/traco-verify/ciclo/31-a-volta
+- tapOn: {id: "volta-notas"}
+- extendedWaitUntil:
+    visible: {id: "campo-roubou"}
+    timeout: 8000
+- takeScreenshot: /tmp/traco-verify/ciclo/32-a-volta-campo

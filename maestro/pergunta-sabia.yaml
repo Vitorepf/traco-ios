@@ -10,4 +10,11 @@ appId: app.traco
     timeout: 15000
 - tapOn: {id: "perguntar-sabia"}
 - waitForAnimationToEnd: {timeout: 2000}
-- assertVisible: "a sábia precisa da sua conta Grok.*"
+# Com a conta ligada (03/set) o cartão de recusa não existe mais: o toque
+# dispara a sábia de verdade, e este fluxo virou teste de integração VIVO —
+# é o único lugar que prova a ADR o ponta a ponta com modelo real.
+- extendedWaitUntil:
+    visible: {id: "resposta-sabia"}
+    timeout: 25000
+# §17: a resposta tem até 900 caracteres. O teclado não pode cobrir a leitura.
+- assertNotVisible: "Q"

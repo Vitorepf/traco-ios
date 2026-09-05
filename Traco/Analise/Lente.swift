@@ -23,6 +23,10 @@ nonisolated struct Lente: Sendable, Equatable {
         muletas.isEmpty && adverbios.isEmpty && adjetivos.isEmpty && passivas.isEmpty && frasesFeitas.isEmpty
     }
 
+    /// O estado antes de ler: a folha abre e a leitura chega no `.task`.
+    nonisolated static let vazio = Lente(palavras: 0, frases: 0, muletas: [], adverbios: [],
+                                         adjetivos: [], passivas: [], frasesFeitas: [])
+
     // MARK: léxicos (pt-BR)
 
     /// O que se diz para ganhar tempo. Contadas por palavra inteira.
@@ -135,12 +139,5 @@ nonisolated struct Lente: Sendable, Equatable {
         let ns = NSMutableString(string: texto)
         let n = re.replaceMatches(in: ns, range: NSRange(location: 0, length: ns.length), withTemplate: " ")
         return (n, String(ns))
-    }
-
-    nonisolated private static func contar(_ termo: String, em texto: String) -> Int {
-        guard let re = try? NSRegularExpression(
-            pattern: "\\b" + NSRegularExpression.escapedPattern(for: termo) + "\\b",
-            options: [.caseInsensitive]) else { return 0 }
-        return re.numberOfMatches(in: texto, range: NSRange(texto.startIndex..., in: texto))
     }
 }

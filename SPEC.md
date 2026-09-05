@@ -1,6 +1,15 @@
 # Traço — spec do produto
 
-> iOS puro (Swift/SwiftUI). Este documento é a fonte da verdade.
+> **Tese vigente — ADR 2026-09-05g:** leia [VISAO-PRODUTO.md](VISAO-PRODUTO.md).
+> Traço realiza intenções no mundo e desenvolve capacidades pertinentes,
+> combinando mente, IA e ambiente compartilhado. “Nunca escreve pelo usuário”
+> e “texto pronto = dívida cognitiva” abaixo são formulações históricas
+> substituídas pela fronteira contextual de autoria e delegação da ADR 05g.
+> Esta decisão não declara implementadas as novas capacidades nem revoga o selo.
+
+> iOS puro (Swift/SwiftUI). Contratos atuais seguem a visão vigente; ADRs datadas
+> preservam decisões e evidências de seu período. Estado comprovado: [EVOLUCAO.md](EVOLUCAO.md).
+> Uma regra histórica de superfície não limita a finalidade inteira do produto.
 > ADR 2026-08-31 — Reforma da linguagem: Pilha→Notas · Porteiro→Análise (botão: Analisar) ·
 > Puxar→Recordar · Códice→Padrões · Véu→Confirmação · Trava→Aviso. Critérios: usuário de
 > primeira viagem entende sem manual; verbo para ação, substantivo comum para tela; zero
@@ -22,41 +31,44 @@
 > "eu nunca devo lembrar os códigos Markdown".
 > O protótipo-espelho (HTML) demonstra os fluxos; o código real vem depois da spec aprovada.
 
-## 1. Visão
+## 1. Visão vigente
 
-O bloco de notas mais simples do mercado, com uma IA multiplicadora que **nunca escreve
-pelo usuário**. A tese: a IA multiplica o que a mente faz — então o app garante que o que
-ela multiplica é o gesto certo (escrever sob regra), nunca o atalho (texto pronto, dívida
-cognitiva — Kosmyna/MIT 2025).
+Traço transforma intenção em realização no mundo e desenvolve as capacidades
+pertinentes para realizar mais depois, combinando mente humana, IA e ambiente
+compartilhado. A definição completa está em [VISAO-PRODUTO.md](VISAO-PRODUTO.md).
+Notas, escrita, calendário, métodos, MD/HTML e segundo cérebro são meios.
 
-**Frase do produto:** a IA do ChatGPT escreve; esta recusa — para você ter de escrever,
-e depois cobra que você lembre.
+**Frase do produto:** transformar o que a pessoa pensa em algo que ela consegue
+realizar, com a IA produzindo e ajudando a desenvolver o que esse objetivo pede.
+Não promete realizar condições externas nem desenvolver habilidades sem evidência.
 
-## 2. Regra de ferro
+## 2. Autoria, delegação e prática
 
-A IA **nunca insere texto na nota**. Nunca completa, resume, melhora, consola ou elogia.
-Toda estrutura que aparece na página é template determinístico do app (labels de campos),
-disparado por classificação — nunca prosa do modelo.
+A IA pode escrever, resumir, traduzir, programar e revisar trabalho delegado.
+A fronteira é a origem e a participação escolhida: texto gerado não se torna
+voz pessoal, relato íntimo ou tentativa do usuário apenas por estar no documento.
+Na escrita pessoal e na prática de recuperação, preservar a atividade do autor.
+No Trabalho, produzir artefatos úteis com histórico e autoria; não impor uma
+prova de programação a quem quer delegar a criação de um produto.
 
-### Lista fechada do que a IA pode fazer
-1. **Rotear** — nomear o gesto que o texto do usuário já começou
-2. **Avisar** — recusar o atalho, numa frase curta
-3. **Perguntar** — no máximo UMA pergunta: o próximo campo vazio
-4. **Recordar** — cobrar memória (ver §7)
-5. **Padrões** — devolver perguntas sobre padrões das próprias notas (ver §9)
-6. **Calar** — silêncio é resposta válida e frequente
+A Análise de notas continua classificando formas sem reescrever silenciosamente
+a nota. Essa restrição local não é um veto à produção pela IA em outras rotas.
+A lista de classificar, perguntar, recordar e calar descreve esse contrato local;
+ela não é a lista completa de capacidades permitidas ao Traço.
 
-Fora da lista = bug de produto, não feature.
+Persistência, privacidade, permissões e transições de estado têm validação em
+código. Método, representação e divisão de trabalho servem à intenção vigente.
+Selo e origem continuam protegidos inclusive em busca, exportação e contexto.
 
-## 3. Porta de entrada
+## 3. Porta de entrada da escrita (fluxo existente)
 
-O app **abre direto na página em branco**, escura, cursor pronto. Sem placeholder,
+O app **abre direto na página de escrita**, no sistema claro vigente, cursor pronto. Sem placeholder,
 sem dica, sem chip. O vazio é intencional (o "ainda-não" do gesto).
 
 - As **notas** anteriores ficam atrás de um gesto: botão discreto no topo-esquerdo.
 - A home não é a lista. As notas não são o altar — reler cartões à noite é o anti-padrão.
 
-## 4. Fluxo central
+## 4. Fluxo de notas (não encerra o ciclo do produto)
 
 ```
 abrir app ──► página em branco ──► usuário escreve (traço livre)
@@ -89,11 +101,11 @@ abrir app ──► página em branco ──► usuário escreve (traço livre)
   do formato, sem rede, timeout: cai no motor local, nunca inventa.
 - **Motor local é o fallback permanente:** sem conta, offline ou erro → as mesmas
   heurísticas de hoje. Sem conta ligada, o app é 100% local e gratuito.
-- **Conta e custo: ZERO.** Não existe chave de API neste app. O autor entra com
-  a PRÓPRIA conta Grok (OAuth 2.0 device-code em `auth.x.ai`; access+refresh no
-  Keychain, nunca em texto plano) e as chamadas a `api.x.ai` debitam o **pool
-  semanal da assinatura**. Provado na conta do dono em 31/ago: HTTP 200 com
-  crédito de console em US$ 0,00 — logo, não é medidor de token.
+- **Contrato de custo:** usar a assinatura autorizada, sem habilitar cobrança
+  adicional por token. O cliente atual usa a conta Grok e guarda credenciais no
+  Keychain. Um HTTP200 observado no passado não certifica quota, termos ou custo
+  atuais do provedor; verificar a integração antes de prometer gratuidade ou
+  consumo de um pool específico. Não há autorização inferida para cobrança extra.
 - **Proibido:** chamada de rede SEM conta ligada pelo dono; qualquer cobrança por
   token (não existe caminho de chave de API no código); conteúdo de nota TRANCADA
   em qualquer chamada de rede (o selo vale para a rede).
@@ -108,11 +120,11 @@ abrir app ──► página em branco ──► usuário escreve (traço livre)
   constante. Superfície sem doc pública → **fallback local obrigatório** em
   401/403/429. Sem conta, o app é 100% local.
 
-### Avisos obrigatórios (no system prompt)
+### Avisos da Análise de notas (contrato local a migrar)
 | Detecta | Aviso (essência) |
 |---|---|
 | Afirmação vazia ("eu sou rico/vencedor") | Piora quem se estima pouco (Wood 2009). Escreva POR QUE um valor seu importa. |
-| Pedido de texto pronto | A frase aqui é sua. O Traço não escreve. |
+| Pedido de texto pronto | A recusa global foi revogada. Preservar a nota e encaminhar a produção ao Trabalho; não atribuir texto gerado ao autor. A migração das mensagens antigas ainda precisa de código e testes. |
 | Pedido de ouvinte/consolo | Quem é a pessoa de verdade que deveria receber isto? |
 | Plano sem obstáculo | Sem obstáculo interno, é fantasia — e fantasia reduz esforço (Oettingen). |
 | Dois métodos na mesma nota | Um gesto por sessão. |
@@ -178,10 +190,16 @@ Ao abrir a forma Expressiva:
    de peso é atrito na hora errada. Ela vive FORA do fecho: entra na busca, nos
    Padrões, no Recordar e no export. **É a única coisa que sai daqui** — a dor
    fecha, o sentido se multiplica.
-6. **Queimar tem de ser verdade em todas as rotas**, senão é mentira: o texto é
-   sobrescrito antes de esvaziar, o backup no Arquivos é regravado na hora, o
-   índice do Spotlight é refeito, a revisão é cancelada e **não há janela de
-   desfazer** — não ter volta é o método. Teste por rota.
+6. **Queimar tem de ser verdade em todas as rotas**, senão é mentira: o texto
+   sai da nota, o backup no Arquivos é regravado na hora, o índice do Spotlight
+   é refeito, as versões e os apontamentos são apagados, a revisão é cancelada e
+   **não há janela de desfazer** — não ter volta é o método. Teste por rota.
+   Limite declarado (varredura 03/set): apagar é do MODELO, não da mídia. Zerar
+   a string em Swift aloca outra, e o SwiftData grava em SQLite — o texto
+   anterior pode sobreviver no WAL e em páginas livres até um vacuum. Nenhuma
+   rota do app o alcança, e é isso que a promessa cobre. Garantia FÍSICA pediria
+   chave por nota (queimar destrói a chave); fica na FILA, e até lá a frase é
+   esta, não "sobrescrito".
 7. Queimada NÃO abre: o app diz que não há o que abrir, em vez de calar.
    Na lista ela aparece como "Expressiva — queimada", com a linha de sentido e os
    minutos. Selada aparece com cadeado e título oculto.
@@ -227,29 +245,39 @@ Import ignora `id`. Trancada e queimada saem só como metadado + sentido.
 
 ## 11. Design
 
-- **Âncora:** Apple Notes dark + iOS HIG. Deve parecer o bloco que a pessoa já conhece.
-- **Cor:** fundo `#0B0B0D` · texto `#ECECEA` · secundário `#9A9A96` · linha `#26262A`
-  · acento âmbar `#D9A542` · aviso `#C4614D`. Tema escuro único (a página preta é o produto).
+- **Âncora de interação:** convenções nativas do iOS e familiaridade da escrita.
+  Apple Notes é referência local, não fronteira de capacidades nem definição do Traço.
+- **Cor (ADR 2026-09-02h — o mundo claro):** papel `#F4F4F2` · tinta `#1C1C1E`
+  · secundário `#5F5F64` · linha `#1C1C1E` a 8% · acento âmbar `#D9A542` (como fill;
+  como texto, `#7A5A16`) · aviso `#B5432F`. Um mundo só. Os hex do escuro ficam
+  em `SISTEMA.md` como registro.
 - **Tipo:** SF (sistema). Corpo 17/26. Labels 13 uppercase c/ tracking.
 - **Espaço:** escala de 4. Raio 12.
 - **Motion:** mínimo. A forma nasce com um fade curto (~250ms). Nada anima enquanto
   o usuário digita. `prefers-reduced-motion` respeitado.
-- A UI inteira do editor: topo com [Notas] e [Concluída], página, e UMA barra inferior
-  discreta [Analisar · Recordar · Anexar]. Nada mais. (ADR 31/ago: Anexar entrou com o Caderno.)
+- O editor mantém foco no documento, acesso a Notas e conclusão, com a régua
+  de formas e ações pertinentes. A composição antiga de três botões não é uma
+  proibição de controles necessários aos fluxos atuais; conferir implementação
+  e estados reais contra SISTEMA-CLARO, sem reintroduzir um layout histórico.
 
-## 12. Não-objetivos (v1)
+## 12. Fronteiras atuais e decisões que não podem ser inferidas
 
-Chat/conversa. Streaks, XP, gamificação. Ouvinte emocional. Resumos. Busca semântica.
-Sync/nuvem/conta do Traço. Templates em menu (a forma nasce da palavra).
-Android/web.
+Não construir recursos apenas porque um concorrente os oferece ou porque constam
+num catálogo de pesquisa. Cada proposta precisa ligar-se à intenção, a um
+obstáculo observado e a uma prova de realização ou desenvolvimento pertinente.
+Não usar streaks, XP, elogio ou volume de notas como substitutos dessas provas;
+não conduzir valores ou objetivos da pessoa de forma oculta.
 
-**Exceções (ADR 2026-09-02a, 2026-09-02e):** "Compartilhar como contexto" é
-export pela folha do sistema — entrega a nota do autor à IA do autor; não é
-compartilhar com pessoas. O aviso do "Se" com hora é uma notificação com o
-título da nota, não um evento de calendário. Três âncoras (manhã, tarde, noite)
-substituem streak.
+A conversa contextual, resumo delegado e geração de artefatos não são proibidos.
+Compartilhar/publicar ou executar externamente depende da delegação aplicável;
+autorização de produzir um rascunho não autoriza automaticamente enviá-lo.
 
-## 13. Pronto quando (critérios de aceite)
+O cliente atual é iOS com interface pt-BR. Isso não proíbe um artefato em outro
+idioma quando o objetivo o pede. HTML é formato de artefato previsto, não promessa
+de cliente web pronto. Nuvem, sincronização contínua e execução geral externa
+são capacidades ainda não demonstradas; decidir contratos antes de implementá-las.
+
+## 13. Aceite da base de notas (insuficiente para concluir a visão)
 
 - [ ] Abrir o app → página em branco com cursor em <1s
 - [ ] "quero correr de manhã" + Analisar → chip WOOP + pergunta do obstáculo;
@@ -259,7 +287,12 @@ substituem streak.
 - [ ] Expressiva: timer 15 min → tranca → reabrir exige dupla confirmação
 - [ ] Recordar: esconde, escrevo de memória, revela comparação lado a lado
 - [ ] Padrões: 2–3 perguntas citando minhas frases; toque abre nota-resposta
-- [ ] Em nenhum fluxo a IA insere prosa na minha nota
+- [ ] Escrita pessoal e prática preservadas; artefato delegado guarda origem,
+      contexto e versão, sem se passar pelo autor
+- [ ] "Dentista sexta às 14:30" → a ficha diz A QUE HORAS o aviso toca, e um
+      toque muda a antecedência ou cala (ADR 04a)
+- [ ] O próximo compromisso aparece no widget, na tela bloqueada e na Ilha —
+      e sem sino quando o iPhone recusou o alarme
 
 ## 14. Casos-limite
 
@@ -324,30 +357,33 @@ com realce; nota trancada não aparece; filtro WOOP mostra só WOOPs; limpar res
 > que cobrir todas as minhas incapacidades. Dificuldade no uso, ou exigir lembrar de
 > alguma coisa para deixar bonito, quebra totalmente o meu uso."
 
-**Princípio.** Fricção é bug. O autor nunca precisa saber o nome de uma forma nem de
-um método. Quem conhece o catálogo é a IA; quem escreve é o autor. Ponto.
+**Princípio.** Reduzir esforço desnecessário de operação. O autor não precisa saber o nome de uma forma nem de
+um método. O app organiza o apoio; quem escreve ou produz depende da divisão
+de trabalho, e a origem permanece clara.
 
-**A distinção que preserva a regra de ferro:**
+**A distinção de autoria no editor pessoal:**
 - **Auto-FORMA: SIM.** A IA aplica forma automaticamente às palavras do autor —
   detecta lista e veste lista, detecta desabafo e veste o modo certo, detecta verso
-  e veste verso. A página fica visualmente impecável sozinha. Nenhuma palavra é
+  e veste verso. A representação precisa ser verificada na tarefa real. Nenhuma palavra é
   escrita, movida, resumida ou corrigida: a IA **veste** o texto, nunca o toca.
-- **Auto-PROSA: NUNCA.** A regra de ferro (§2) permanece intacta.
+- **Prosa pessoal não se altera silenciosamente.** Produção delegada entra como
+  artefato com origem própria; esta regra do editor não veta a IA no Trabalho.
 
 **Consequências:**
-1. O catálogo de formas cresce sem teto (136 → 300+): ele serve à IA, não à memória
-   do humano. A régua de 12 vira atalho manual opcional — não o caminho principal.
-2. O catálogo de MÉTODOS também é vasto (WOOP, se–então, spec, expressiva, e todos
-   os que o inventário conhece): a IA roteia automaticamente o melhor para o momento,
-   sem o autor pedir. Revoga-se o "só quando chamado" do §5 (ADR 2026-08-31c):
-   o gatilho passa a ser automático na pausa da escrita, com:
+1. O catálogo cresce quando uma representação resolve uma necessidade real;
+   tamanho não é objetivo. A régua é atalho opcional, não uma lista a memorizar.
+2. Métodos precisam de pertinência, origem e evidência de aplicação. O inventário
+   de pesquisa não é fila automática de implementação. O roteamento pode propor
+   apoio na pausa da escrita (ADR 2026-08-31c), com:
    - **um toque desfaz** qualquer aplicação automática (Soltar forma);
    - **silêncio continua válido** — na dúvida, a IA não veste nada;
    - opt-out por nota e global.
-3. Toda sugestão de método aparece pronta (campos vazios já abertos quando a
-   confiança é alta), não como pergunta que exige decisão. Decidir também é fricção.
-4. Acessibilidade cognitiva é critério de aceite: nenhum fluxo pode exigir memória
-   de recurso, nome de feature ou mais de um passo para o caminho principal.
+3. Automatizar organização reversível quando o contexto basta; preservar decisões
+   que mudam intenção, divisão de trabalho ou consequência. Não abrir campos
+   apenas porque um método existe, nem tratar a escolha da pessoa como defeito.
+4. Acessibilidade cognitiva é critério de aceite: tornar o próximo passo
+   reconhecível, explicar consequência e permitir recuperação. Não há teto
+   universal de um passo; uma prévia útil antes de importar pode evitar erro.
 
 **Fila que isto abre (P1):** motor de auto-forma local (heurística por bloco) →
 auto-forma com IA real → roteador automático de métodos → confiança calibrada
@@ -359,78 +395,53 @@ honesto da conta Grok em uma linha (conectada / expirada / sem rede / limite),
 entrar e sair, e os ajustes que hoje só existiam em toque longo (análise
 automática). Nada de chave, nada de preço, nada de medidor.
 
-## 19. Divisão de responsabilidades: IA × algoritmo
+## 19. Divisão de responsabilidades: IA e código
 
-A lei que decide quem faz o quê. **Se um item da coluna do algoritmo passar a
-depender de IA, é bug de arquitetura** — o app tem de continuar inteiro sem rede,
-sem conta e sem modelo. A IA é multiplicador; nunca alicerce.
+A IA participa da compreensão da intenção, pesquisa, criação, planejamento,
+produção e revisão delegados. O código preserva dados, referências, acesso,
+permissões e transições válidas. Nenhum dos dois é infalível: os contratos exigem
+verificação proporcional. Indisponibilidade do modelo deve preservar o trabalho
+e informar a limitação; não simular equivalência entre heurística e produção.
 
-### 19.1 Responsabilidade da IA (só isto, nada além)
-A IA só existe em cima do texto do autor, e o resultado dela é sempre uma
-ESCOLHA dentro de uma lista fechada — nunca prosa que entra na nota (§2).
+### 19.1 Contratos da IA por superfície
 
-| # | Papel | O que ela devolve | Se falhar |
-|---|---|---|---|
-| 1 | **Rotear o gesto** | um nome de forma da lista fixa (WOOP, Se–então, Especificação, Nota permanente, Destaque, Expressiva) ou nada | heurística local roteia |
-| 2 | **Avisar** | uma frase curta de recusa, dentro dos casos da tabela do §5 | heurística local avisa |
-| 3 | **Perguntar** | UMA pergunta sobre o próximo campo vazio | pergunta fixa do template |
-| 4 | **Perguntas de Padrões** | perguntas sobre padrões entre notas, citando fragmento literal do autor | perguntas locais |
-| 5 | **Calar** | silêncio (resposta válida e frequente) | silêncio |
+| Superfície | Papel e fronteira | Verificação |
+|---|---|---|
+| Análise de notas | Classificar forma sem substituir a escrita pessoal | Enum e parser locais; preservar conteúdo e selo |
+| Sábia / conversa em Notas | Informação, alternativas e perguntas no contexto permitido | Relevância, fonte e restrições; não fingir execução |
+| Recordar / prática escolhida | Preparar apoio sem fabricar a tentativa da pessoa | Comparação ou demonstração pertinente ao objetivo |
+| Padrões / Retrato | Observações e hipóteses corrigíveis | Atribuição, contexto, contestação; uso não prova capacidade |
+| Trabalho | Produzir e revisar artefatos delegados, inclusive prosa/código/tradução | Critérios do pedido, material utilizável, origem, versões e salvamento |
 
-**Regras que valem para todos os cinco:** temperatura 0 · JSON estrito
-`{gesto, aviso|null, pergunta|null}` · sem histórico (não é chat) · resposta fora
-do formato = silêncio, nunca improviso · nota **trancada** e **expressiva** jamais
-saem do aparelho · só a VOZ do autor viaja (`Caderno.prosa` tira mobiliário e
-anexos) · sem conta ligada, nenhuma chamada acontece.
+A antiga proibição universal de escrever/resumir/traduzir foi revogada pela
+ADR05g. Guardas de uma superfície específica não podem virar essa proibição
+global, nem ser removidas em massa sem migrar seus contratos e consumidores.
 
-**Proibido à IA, para sempre:** escrever, completar, reescrever, resumir,
-traduzir ou "melhorar" o texto · elogiar, consolar, bajular, fazer companhia ·
-gerar título, tag ou resumo da nota · pontuar, dar nota, medir progresso ·
-decidir o que é apagado ou trancado · qualquer texto que entre na nota.
+### 19.2 Responsabilidade do código
 
-### 19.2 Responsabilidade do algoritmo (fechado, determinístico, offline)
-Tudo abaixo é código nosso, testado, sem rede. É o corpo do produto — a IA some e
-o Traço continua um bloco de notas inteiro.
+Persistência e recuperação; parser/renderização; calendário e projeções;
+referências entre intenção, artefato, ação e evidência; autorização e selo;
+cancelamento e respostas obsoletas; importação/exportação; estados de UI.
+Manter essas garantias operantes independentemente da resposta do modelo.
+Algoritmos determinísticos também podem conter bugs e precisam de provas.
 
-| Domínio | O que o algoritmo faz sozinho |
-|---|---|
-| **Escrita** | parser Markdown ao vivo, digitação viva da lista (Enter herda marcador, double-Enter sai), vestir a forma ao soltar o teclado, régua de 12 formas, tabela que cresce por toque, código com sintaxe local, anexos |
-| **Formas** | os templates e seus campos (labels são NOSSOS, não do modelo), abrir/soltar preservando resposta, um gesto por sessão |
-| **Roteamento de reserva** | heurísticas locais: verbo de intenção, afirmação vazia (Wood), plano sem obstáculo (Oettingen), pedido de texto pronto, pedido de ouvinte, desabafo longo |
-| **Memória** | Recordar (esconder → escrever de memória → revelar → comparar), escada de revisão 3→7→21, notificação sem conteúdo da nota |
-| **Selo** | expressiva com timer, trancar ao fim, e o bloqueio em TODAS as rotas de saída (busca, Padrões, export, Spotlight, rede, notificação) |
-| **Arquivo** | SwiftData, export/import Markdown, backup automático, busca sem acento, filtros, seções por mês |
-| **Sistema** | Atalhos/Siri, `traco://`, Spotlight, hápticos, movimento, acessibilidade, Dynamic Type |
-| **Conta** | OAuth device-code, Keychain, renovação de sessão, queda para local em 401/403/429 |
+### 19.4 Escolha do mecanismo e evidência
 
-### 19.4 Doutrina: algoritmo primeiro (lei do dono, 31/ago)
+Use código quando a regra é fechada; use IA onde interpretação, criação ou
+adaptação forem necessárias. Não reduzir um requisito criativo a um rótulo fácil
+de testar apenas para obter um passe. JSON válido, resposta não vazia e HTTP200
+provam aspectos de transporte/formato, não qualidade do resultado.
 
-**Tudo que fecha em algoritmo TEM de ser algoritmo.** Algoritmo não erra: ou faz o
-planejado, ou é bug — e bug se conserta. Uma IA dá N respostas para a mesma
-entrada; isso é inaceitável no núcleo de um produto que existe para multiplicar
-pensamento sem introduzir erro. A IA fica só com o que não fecha, e ali ela vale
-como **algoritmo dinâmico** — poderosa justamente por não ser fixa.
+Antes de aprovar uma produção, confronte as restrições explícitas e o resultado
+utilizável. Uma revisão precisa mudar o que foi pedido sem copiar instruções
+internas nem perpetuar erros da base. Limites do provedor entram como lacuna
+real; não declare toda resposta gerada como realização ou aprendizagem.
 
-Três regras que decorrem disso, e que valem como aceite:
+### 19.3 Fronteira durável
 
-1. **Antes de perguntar à IA, tente a regra.** Se fecha, escreve-se a regra.
-   A IA nunca é o caminho mais curto; é o último.
-2. **A IA só devolve o que o algoritmo sabe VERIFICAR.** Nada de texto livre para
-   a tela ou para a nota: ela devolve RÓTULO de lista fechada, e o app supõe as
-   palavras. Rótulo desconhecido = silêncio.
-3. **Onde texto livre é inevitável, a verificação é dura.** Em Padrões, a IA
-   escreve perguntas — então o algoritmo exige: tem "?" (pergunta, não conclusão)
-   e cada trecho entre aspas existe LITERALMENTE nas notas. Falhou a prova,
-   a pergunta é descartada sem aparecer.
-
-**Consequência já aplicada:** o contrato remoto virou
-`{gesto: <enum|null>, aviso: <enum|null>}`. A pergunta saiu do contrato — é sempre
-a do template, porque o algoritmo já sabe qual é o próximo campo vazio.
-**Nenhuma palavra do modelo chega à tela do autor.**
-
-### 19.3 A fronteira, em uma frase
-**O algoritmo garante; a IA sugere.** Nada que o autor perca se a IA sumir pode
-morar do lado da IA — e nada que a IA escreva pode entrar na nota.
+O código protege o estado; a IA pode produzir e agir no escopo delegado;
+a pessoa conserva direção, autoria da própria participação e correção do modelo
+que a aplicação mantém sobre ela.
 
 ## 20. Navegação (sistema, ago/2026)
 
@@ -552,32 +563,29 @@ investigar** — não depois de três hipóteses erradas.
 modal). Elas desaceleram monotonicamente, com cauda longa. Se a do app não se
 parece com aquilo, é a do app que está errada.
 
-## 22. Corpo de texto e Dynamic Type — DEFEITO ABERTO (set/2026)
+## 22. Corpo de texto e Dynamic Type — FECHADO (02/set)
 
-Medido no simulador, mesma tela, corpo do sistema em `medium` e em
-`accessibility-extra-extra-extra-large`:
+Era defeito aberto: a entrelinha do editor crescia com o corpo do sistema e a
+LETRA não, porque todo o `Tema` era `.system(size:)` — ponto fixo. Quem precisa
+de letra grande recebia a mesma letra pequena com vãos enormes.
 
-- a ENTRELINHA do editor cresce (`@ScaledMetric(relativeTo: .body) corpoFolga`,
-  em `PaginaView`, vai de 9 para ~28)
-- o TAMANHO DA LETRA não cresce: todo o `Tema` é `.system(size:)`, que é ponto
-  fixo e ignora o corpo do sistema
-- o cartão de análise — WOOP, o reconhecimento, as duas saídas — fica idêntico,
-  pixel a pixel, nos dois tamanhos
+Decisão tomada: a **saída 2** — escalar o CONTEÚDO e travar o CHROME, que é o que
+Notes e Bear fazem. Todo token do `Tema` passou a estilo de texto (`.title`,
+`.title3`, `.body`, `.subheadline`, `.caption2`), que escala. Sobraram três
+tamanhos fixos, todos em chrome de navegação (a barra inferior e uma etiqueta de
+9pt nos Padrões): a régua de 12 chips e a barra não podem virar outra coisa em
+corpos grandes.
 
-Quem precisa de letra grande recebe a MESMA letra pequena com vãos enormes: o
-layout estica e o texto continua ilegível. É Dynamic Type pela metade, e o meio
-que funciona é justamente o que não ajuda a ler.
+Medida de aceite: o cartão da análise, os campos da forma, a lista de notas e o
+texto do autor crescem de `medium` a `accessibility-extra-extra-extra-large`.
 
-O conserto é de sistema: cada token do `Tema` passa de `.system(size:)` para
-fonte que escala (`.custom(_, size:, relativeTo:)` ou `Font.system(.body)` com
-ajuste). Isso REFLUI TODA TELA — a régua de 12 chips, os cartões, a barra
-inferior, a folha de 124 formas. Não é mudança para entrar sem o dono ver: a
-régua já perde chips a 15pt, e a XXXL ela não cabe de jeito nenhum.
+## Como ler o histórico de ADRs
 
-Decisão do dono, com duas saídas plausíveis:
-1. escalar tudo e aceitar que a régua vire outra coisa em corpos grandes
-2. escalar o CONTEÚDO (texto do autor, cartões, notas) e travar o CHROME
-   (régua, barra), que é o que Notes e Bear fazem
+As ADRs abaixo registram a decisão de sua data. Afirmações históricas de veto
+universal à geração, chat, resumo ou tradução foram substituídas pela ADR05g
+e pelas seções 1, 2, 12 e 19 atuais. Restrições de privacidade, escrita pessoal
+e prática continuam no escopo próprio. Datas, passes e capturas antigos não
+comprovam o candidato atual. Consulte EVOLUCAO para provas e pendências.
 
 ## ADR 2026-09-01a — "Spec" vira "Especificação" na UI
 
@@ -700,3 +708,1406 @@ Emenda ao §9 (Padrões). Organização é ofício da mente (dono, 02/set): no t
 ## ADR 2026-09-03a — Calibração: o que eu esperava, e o que aconteceu
 
 Emenda à ADR p. O diário de decisão só vale se a previsão sobreviver ao resultado: depois de saber o fim, a memória reescreve o que se esperava (hindsight). Por isso a Decisão ganha um campo de VOLTA, "O que aconteceu", que só aparece quando é devido — se o autor marcou quando confere, o campo espera essa hora; sem data marcada, ele fica desde o início, porque o app não adivinha. Na revisão da semana, "Decisões conferidas" mostra escolha, esperava e aconteceu, lado a lado, e cada linha abre a nota. Não há nota, placar, acerto nem comparação entre semanas: só a evidência que o papel guardou. O mesmo texto sai no intent "Esta semana" e no MCP.
+
+## ADR 2026-09-03b — A rede das notas
+
+O valor de um caderno não está nas notas, está nas ligações entre elas (Luhmann). Até aqui o campo "Liga a" era texto morto e uma nota que citava outra não sabia disso. Agora: `[[assim]]` no texto e cada linha do campo "Liga a" viram ligação quando casam com o título de outra nota (sem acento, sem caixa; o começo do título basta a partir de quatro letras). "Ligações", no menu da nota, mostra quem ela cita e — o que ninguém vê sem isto — quem cita ela; cada linha abre a nota. Na leitura os colchetes somem e a menção fica sublinhada: sintaxe não se lê. Algoritmo puro, offline: a IA não sugere ligação nenhuma, porque ligar é ato de pensamento. O selo vale inteiro — expressiva (em curso ou fechada) e trancada não entram na rede, nem como origem nem como destino. Nota que ninguém cita e que não cita ninguém é ilha, e ilha não é defeito.
+
+## ADR 2026-09-03c — Ler os calendários do aparelho, e o campo que sugere
+
+Palavra do dono (03/set): *"isso aqui tem que ser dinâmico… a gente comprou
+ingressos de algum show de stand-up, marcou alguma coisa, ele tenta de alguma
+forma entender: já aparecia a recomendação ali"* — e, em seguida: *"conectar os
+meus calendários do Google e da Apple… podem trazer algumas informações
+importantes"*.
+
+**O que muda.** A ADR g dizia "sem nuvem, sem EventKit"; o §12 lista sync como
+não-objetivo. O "sem nuvem" fica de pé inteiro. O "sem EventKit" cai: ler o
+calendário do sistema é local, no aparelho, sem servidor, sem conta do Traço e
+sem uma linha de rede. É a mesma natureza do Spotlight e dos Atalhos, que já
+entraram sem ferir nada.
+
+**Uma integração cobre as duas contas.** O EventKit lê TODOS os calendários
+configurados no iPhone — Apple, Google, iCloud, Exchange, qualquer assinado.
+Não há OAuth, não há cliente no Google Cloud, não há segunda conta. Se um dia
+o Google do autor não estiver no aparelho, a resposta é configurá-lo lá, não
+construir um segundo sistema de login aqui.
+
+**Só leitura, sempre.** O Traço nunca escreve na agenda do autor, nunca
+sincroniza, nunca apaga. `calendario.json` continua sendo o dono do que se
+marca AQUI; o que vem do sistema é contexto, não conteúdo.
+
+**O que eles fazem.** Alimentam a RECOMENDAÇÃO do campo (janela de sete dias)
+e aparecem na GRADE (janela da escala visível). Não viram deixa, não vão ao
+`calendario.json`, não saem no export nem no corpus, não se editam e não se
+apagam: `EventoCalendario.doSistema` os marca, e `editavel` é o portão que
+`guardar`, `apagar` e `avisar` consultam. Tocar num deles abre uma ficha só de
+leitura, com uma saída para o app Calendário — que é o dono.
+
+**A recomendação, e por que ela não mente.** A sugestão é escrita na LÍNGUA DO
+CAMPO — a mesma frase que o autor teclaria ("Stand-up do Rafinha depois de
+amanhã 21h"). Tocar o campo a preenche e daí em diante quem lê é
+`CalendarioFrase`, como sempre: nenhum caminho novo de dados, nenhum parser
+novo. E ela só aparece se sobreviver à IDA E VOLTA — montamos a frase, o parser
+a lê, e o dia, a hora e o título têm de voltar iguais. Título com dia da semana
+ou hora solta dentro ("Corrida 5h da manhã") faz o parser comer a palavra
+errada; aí a sugestão é descartada em silêncio em vez de marcar errado. Janela
+de sete dias: dica apontando para três meses adiante é ruído.
+
+**Isto não é IA.** É §19.2 inteiro: tabela, regex e relógio. Nada vai à rede,
+nada depende de conta, e o app segue igual se o autor negar o acesso — o campo
+volta ao exemplo. A permissão é pedida uma vez, com o autor olhando um
+calendário, nunca no arranque (§3).
+
+## ADR 2026-09-03d — O que se marca, avisa
+
+Varredura funcional de 03/set: o maior buraco do app era que marcar "dentista
+sexta às 14h" no calendário do Traço **não fazia nada na sexta às 14h**. Só o
+"Se" de uma nota disparava alarme; o calendário, que é onde se marca
+compromisso, era mudo — o que derruba o propósito de marcar.
+
+Agora todo compromisso do Traço agenda o próprio aviso, na hora dele. Série
+vira uma notificação semanal por dia da semana, repetindo: o sistema cobra
+sozinho, sem o app reagendar toda semana. Dia inteiro avisa na âncora da manhã
+do autor, não à meia-noite. Apagar o compromisso mata o aviso — alarme de coisa
+apagada é a pior mentira que um calendário conta.
+
+Namespace próprio (`compromisso-<id>`): o id de um evento e o uuid de uma nota
+são os dois UUID, e um cancelar não pode alcançar o aviso do outro.
+
+Deixa de nota não passa por aqui: a nota é a dona dela e já tem o seu gatilho.
+
+## ADR 2026-09-03e — Nenhuma permissão negada é um beco
+
+Três lugares decidiam para sempre num toque, e a lei do dono é que atrito é
+bug — beco sem saída é pior que atrito:
+
+1. **Permissão.** `pedirAcesso` só agia em `notDetermined`: quem negasse o
+   calendário nunca mais via a sugestão e o app não dizia por quê. O Perfil
+   ganha ESTADO (calendários e avisos, em uma linha honesta cada) e a única
+   volta que o iOS permite, que é abrir os Ajustes do app.
+2. **Domínio.** A ADR c dizia "um toque desfaz e trava" e não previu que não
+   havia segundo toque. `devolverDominio` destrava e roda o léxico na hora.
+3. **Série da expressiva.** Só o fecho agendava o dia seguinte; quem ignorasse
+   a notificação do dia 2 nunca mais ouvia falar dela. No arranque, toda série
+   viva que perdeu o aviso reagenda. O método é de quatro sessões.
+
+E no Recordar, duas saídas que faltavam: **"hoje não"** empurra para amanhã sem
+mexer na escada (adiar não é falhar nem acertar — é a hora errada), e **"pular"**
+passa à próxima da fila sem revelar, porque revelar sobe o degrau e não havia
+como pular sem mentir para a própria escada.
+
+## ADR 2026-09-03f — Um idioma só, e é o português
+
+A varredura funcional achou o maior item da lista: o String Catalog tinha 77
+chaves traduzidas para inglês, e o app tinha **177 literais de interface**. Com
+o iPhone em inglês via-se "Notes" ao lado de "Buscar nas notas" — uma tela
+costurada, que é pior do que uma tela só em português.
+
+A saída não é traduzir as outras 151. É reconhecer o que o app é: **todo motor
+dele fala português e só português.**
+
+- a Análise roteia por quinze regex em pt ("escreva por mim", "eu sou rico")
+- o calendário lê "dentista sexta às 14h" — e nada em inglês
+- a Lente conta muletas de um léxico pt ("basicamente", "na verdade")
+- o Domínio infere por palavras pt ("reunião", "boleto")
+- o Ditado é `pt_BR`, no aparelho
+- os Feriados são nacionais, de Goiás e de Goiânia
+
+Interface em inglês sobre esses motores é promessa falsa: quem escrevesse
+"dentist friday 2pm" não marcaria nada, "I want to run" não abriria WOOP, e a
+Lente não acharia uma muleta sequer. O `en` sai do catálogo e o
+`developmentLanguage` fica `pt`, sozinho.
+
+Isto não fecha a porta: internacionalizar o Traço de verdade é traduzir os
+MOTORES, não os rótulos — e aí é outro projeto, com outra spec.
+
+## ADR 2026-09-03g — A pergunta e a forma cabem no mesmo cartão
+
+A palavra do dono sobre a sábia (§ADR o) é incondicional: *"se eu deixar uma
+pergunta clara na nota, ela responde."* Hoje isso foi quebrado duas vezes, em
+direções opostas, e a varredura pegou a segunda.
+
+**Como estava (precedência absoluta do "?").** A linha "?" vencia antes da
+classificação. Uma pergunta no meio de uma especificação bloqueava a forma
+**para sempre**: o autor não tinha como perguntar e ainda receber o gesto.
+
+**Como ficou de manhã (o "?" no ramo do silêncio).** A forma passou a vir
+primeiro, e o "?" só ocupava o rodapé quando não havia gesto a vestir. O
+fluxo `pergunta-sabia` caiu: a nota classificou como Especificação, o cartão
+da forma tomou o rodapé, e a pergunta do autor ficou **inalcançável** — sem
+sequer um sinal de que estava lá.
+
+**A decisão.** Nenhum dos dois manda. As duas coisas cabem no mesmo cartão:
+
+- a **forma** manda na identidade do cartão (chip, trilho, texto, ação alta) —
+  é o que a análise achou, e é o funil principal;
+- a **pergunta** vive embaixo, discreta (`CompactoStyle`, tinta suave), e está
+  sempre a um toque enquanto existir uma linha "?" na nota.
+
+Custo: um `@ViewBuilder` de seis linhas em `CartaoAnaliseView`, reusando o
+botão e o `perguntarASabia()` que já existiam. Nenhum caminho de dados novo.
+
+E não vira beco (ADR 03e): perguntar troca o cartão pela resposta, "Fechar"
+devolve o rodapé, e a próxima análise traz a forma de volta.
+
+## ADR 2026-09-03h — A sábia estava subaproveitada
+
+Auditoria das cinco superfícies de IA (`AnaliseRemota.classificar`,
+`Sabia.vestir`, `Sabia.responder`, `Sabia.instigar`, `PadroesRemoto`). A
+**arquitetura** está certa e é rara: contrato fechado em todas, verificação
+dura em todas (rótulo fora da lista, chave extra ou texto livre invalidam a
+resposta inteira), silêncio em falha, selo cortando expressiva e trancada
+antes da rede. A IA nunca escreve na nota porque o código não tem caminho
+para isso — não porque o prompt pede.
+
+O **uso** estava tímido em três pontos. Os três fechados:
+
+**1. A sábia lia só a página aberta.** `responder` recebia
+`Caderno.prosa(de: texto)` e nada mais, enquanto o caderno tinha a Rede
+inteira calculada ao lado. Agora vão junto as notas que o autor **ligou de
+próprio punho** com `[[…]]` — no máximo três, 1200 caracteres cada.
+
+O que decide o limite não é privacidade abstrata, é o ato do autor: ligar é
+explícito, e perguntar também. O selo continua absoluto — o filtro é o
+`Rede.podeLigar` que já existia (expressiva em curso ou fechada, trancada,
+queimada), reusado, nunca reescrito. E o cartão da resposta **diz quais notas
+foram junto**: quem manda texto à rede tem de ver o quê.
+
+**2. A instigação, que é a tese, tinha um único ponto de chamada** — um botão
+dentro da Lente. O orçamento automático ia todo para roteamento de gesto, que
+a heurística local já faz bem o bastante para ser o fallback, e zero para
+*"instiga, pergunta, e eu construo enquanto aprendo"*. Agora `instigar`
+dispara ao **abrir a forma**: ato explícito, uma vez por nota (não a cada
+pausa), e é onde a pergunta vale.
+
+**3. A pergunta da forma era uma de nove strings fixas — e no caminho comum
+nem aparecia.** `parseVeredito` devolvia sempre `AnaliseLocal.pergunta(gesto)`,
+e `CartaoAnaliseView` fazia `case .vestida(let gesto, _)`: **descartava** o
+valor. No caminho §17.3 (gatilho explícito → forma já vestida), que é o comum,
+o autor abria a forma sem ouvir pergunta nenhuma. Agora o cartão mostra a da
+sábia quando ela chega, e a do template segura o lugar até lá.
+
+Custo: nenhum motor novo, nenhum prompt novo, nenhuma chamada nova — as três
+reusam `Sabia.instigar`, `Sabia.responder` e `Rede.ligacoes` como estavam.
+
+## ADR 2026-09-03i — A sábia toma a prova
+
+O Recordar é a superfície mais repetida do Traço: toda nota volta, muitas
+vezes, para sempre. Era também a **única sem IA nenhuma** — a pergunta era uma
+de cinco frases fixas ("O que estava escrito?"), a mesma para toda nota do
+caderno até o fim dos tempos.
+
+E "O que estava escrito?" é o pior prompt de recuperação possível: pede
+transcrição, não reconstrução. A prática de recuperação (Roediger & Karpicke)
+funciona quando a pista obriga a reconstruir o miolo — e miolo é coisa que só
+quem entende o conteúdo sabe apontar.
+
+**A decisão.** A sábia toma a prova, em duas partes, cada uma com a
+verificação que a torna segura:
+
+**A pergunta.** Uma só, sobre ESTA nota, com no máximo 120 caracteres. O
+contrato exige que termine em "?", e o algoritmo recusa a que VAZAR:
+`Prova.vaza` reprova qualquer pergunta que repita quatro palavras seguidas do
+alvo (e, para alvo curto — a Palavra, um Então de uma linha —, que contenha o
+alvo). Recusada, o ritual segue com a frase fixa; o autor nunca sabe que houve
+tentativa. A rede não segura o ritmo: a pergunta vem numa `task` própria, e se
+chegar tarde o autor já está escrevendo.
+
+**A conferência.** É o contrato mais fechado do app: a resposta é uma lista de
+**NÚMEROS**. Os pontos são extraídos do alvo pelo algoritmo — as frases do
+autor, na ordem dele — e o modelo só diz quais voltaram na memória escrita.
+Índice fora do intervalo, valor não-inteiro ou chave extra derrubam a
+conferência **inteira**: meia conferência mentiria sobre o que faltou. Nenhuma
+palavra do modelo chega à tela: o autor lê as frases dele.
+
+O que se mostra é só **o que não voltou**, porque é a única parte com
+serventia — reler. Sem placar, sem porcentagem, sem "quase lá" (§12):
+recuperação parcial é o caso NORMAL da prática, não um fracasso a medir.
+
+**A mesma nota cobra mais fundo a cada volta.** O degrau da escada vai no
+pedido, e ele diz o quanto cobrar: na primeira volta, um pedaço concreto (o
+quê, onde, qual); depois a relação entre duas coisas; depois o porquê, o
+mecanismo; depois a consequência; do quarto em diante, o limite — onde isto
+deixa de valer, o que a contradiz.
+
+Isto é o miolo, não enfeite. Recuperação sem dificuldade não fixa: a décima
+revisão sendo idêntica à primeira é o que faz repetição espaçada virar
+releitura. O app já tinha a escada e nunca a tinha contado a ninguém — custou
+uma linha no pedido e um parâmetro na view.
+
+**O que o modelo NÃO decide, de propósito.** A escada. Seria a jogada óbvia —
+recuperação fraca, intervalo mais curto — e é justamente onde o modelo passaria
+a decidir pelo autor. A R1 já diz que adiar não é falhar nem acertar; a escada
+é do autor, e cobrar antes continua sendo um botão que ele aperta. Se um dia a
+escada se adaptar, quem adapta é o algoritmo com o sinal, não o julgamento de
+um modelo.
+
+## ADR 2026-09-03j — O eco: a rede que o autor não desenhou
+
+O estado vazio da Rede dizia a coisa exata: *"A ligação é sua; o app só a
+segue."* Ele **segue** e nunca **acha**. `Rede.ligacoes` casa por TÍTULO — o
+grafo do caderno é só tão bom quanto a disciplina do autor em digitar `[[…]]`.
+
+O custo disso é invisível e enorme: duas notas sobre a mesma ideia, escritas
+com palavras diferentes com meses de distância, **nunca se encontram**. E
+achar isso é exatamente o que um algoritmo léxico não faz e um modelo faz.
+
+**A decisão.** Na folha de Ligações, uma terceira seção — *TALVEZ SE LIGUEM* —
+com até três notas que falam da mesma coisa que esta sem que nenhuma cite a
+outra. Cada uma vem **com a prova na cara**: um trecho LITERAL da outra nota.
+
+A verificação é a mesma do `PadroesRemoto`, que é a mais dura do app: o índice
+tem de existir e o trecho tem de aparecer literalmente no texto que viajou.
+Citação inventada é descartada — nunca mostrada com ressalva. Sem prova, sem
+eco; e "nenhum eco" é resposta válida.
+
+**O que NÃO acontece:** a sábia não escreve `[[…]]` em lugar nenhum. *"A
+ligação é sua"* continua verdade ao pé da letra. O app passou a **mostrar um
+candidato com a evidência**; quem liga é o autor, com o gesto dele.
+
+**O que viaja:** título mais 240 caracteres de prosa por candidata, no máximo
+40 — um ÍNDICE do caderno, não o caderno. É menos do que o `PadroesRemoto` já
+manda hoje (9.000 caracteres de prosa por visita). O selo corta antes:
+expressiva, trancada e queimada não entram na lista, e nota já ligada também
+não — o valor está justamente no que a rede ainda não sabe.
+
+## ADR 2026-09-03k — A análise no aparelho, e o cérebro deixa de ser condicional
+
+Até hoje o cérebro do Traço era **condicional**: dependia de o autor ter ligado
+a conta Grok e de haver sinal. No avião, no metrô, ou sem assinatura, a análise
+caía direto nas quinze regex do motor local — que acertam o caso óbvio e calam
+no resto.
+
+O `FoundationModels` está no SDK e o app já mira iOS 26.0. Então existe um
+degrau no meio que não custa nada: **o modelo do sistema, no aparelho.**
+
+**A escada, agora com três degraus.** Grok primeiro quando há conta (é o maior);
+o modelo do aparelho quando não há conta ou quando a rede falhou; as regex por
+último. Nenhum caso fica pior do que estava, e o caso sem conta fica muito
+melhor.
+
+**O contrato fechado deixa de ser instrução e vira TIPO.** No `AnaliseRemota` a
+lista fechada é um pedido no prompt, e `parseVeredito` existe porque um modelo
+por HTTP pode devolver o que quiser — rótulo inventado, chave extra, texto livre
+no lugar do JSON. Com `@Generable`, a geração é guiada pelo schema: o modelo
+**não pode** emitir um caso que não existe. A classe inteira de falha some, não
+por confiança, mas por construção.
+
+**O que não muda.** A §2 continua de pé: isto classifica, e só. Nenhuma palavra
+deste modelo chega à tela — o que o autor lê é sempre do app ou dele. As
+definições são as MESMAS do motor remoto, palavra por palavra: ligar a conta não
+pode mudar como o app roteia.
+
+**O que isto abre.** Se o roteamento provar-se bom no aparelho, o mesmo caminho
+serve para `vestir` e para a `conferir` da prova (ADR 03i) — os dois são
+contrato fechado puro, que é o feitio deste modelo. As tarefas ABERTAS (responder
+a pergunta do autor, instigar, os ecos) continuam melhores no Grok, e é por isso
+que a escada tem degraus em vez de uma troca.
+
+## ADR 2026-09-03l — Um cliente xAI, não três
+
+A mesma requisição a `api.x.ai/v1/chat/completions` estava escrita TRÊS vezes —
+`AnaliseRemota`, `Sabia` e `PadroesRemoto` — cada uma com o seu timeout, o seu
+tratamento de erro e a sua memoização. Ou a falta dela: o `Sabia` não tinha
+nenhuma, e as seis chamadas dele batiam na rede sempre. Abrir o Recordar da
+mesma nota dez vezes eram **dez perguntas pagas** por uma nota que não mudou.
+
+`Grok.responder(sistema:usuario:temperatura:timeout:memoPor:)` é o único
+caminho. Um lugar significa: uma política de custo, um timeout, um ponto para
+medir, e nenhuma chance de as três divergirem em silêncio.
+
+**A regra do memo**, que agora existe porque há onde escrevê-la: contrato
+determinístico (temperatura 0 — vestir, conferir) memoiza porque repetir é
+desperdício puro. A pergunta da prova memoiza por `(alvo, degrau)`: dentro do
+mesmo degrau ela não deve mudar, e quando o degrau sobe a chave muda sozinha.
+Onde o autor pede DE NOVO esperando algo novo — instigar, Padrões — não
+memoiza. E sair da conta esvazia tudo: o que ele perguntou não fica.
+
+## ADR 2026-09-03m — O segundo cérebro entra na resposta
+
+A ADR 03h deu à sábia as notas que o autor LIGOU com `[[…]]`. A 03j provou que
+o modelo acha as que ele **não** ligou — e que a prova literal segura a
+invenção. Faltava juntar as duas.
+
+Agora a pergunta "?" viaja com o que ele ligou **mais o que ele esqueceu que
+escreveu**. A ligação explícita é o que ele sabe que se conecta; o eco é o que
+o segundo cérebro sabe e ele não lembra. É aí que mora a diferença entre ter um
+caderno e ter uma página.
+
+O cartão continua dizendo QUAIS notas foram junto, e o selo corta antes nos dois
+caminhos: `Rede.podeLigar` nas ligadas, `fechada`/expressiva nas candidatas.
+
+## ADR 2026-09-03n — Cada forma carrega o movimento do próprio método
+
+A sábia instigava com `"Forma: Decisão"` e o rascunho. Ela improvisava boas
+perguntas genéricas — e genérico é justamente o que não serve, porque cada
+forma do §6 é um método validado e **cada método tem um movimento que a pessoa
+pula quando está sozinha**:
+
+- o obstáculo é INTERNO no WOOP, e todo mundo escreve obstáculo externo;
+- o gatilho do Se–Então tem de ser observável, e a resposta um comportamento
+  SUBSTITUTO, nunca "não fazer X";
+- a spec sem não-escopo é desejo;
+- o pré-mortem exige o enquadramento "já falhou", não "o que pode dar errado" —
+  é o enquadramento que faz o método funcionar (Klein, 2007);
+- a decisão pede o critério que separa as opções, a evidência que faria mudar
+  de ideia, e se dá para desfazer.
+
+`Gesto.metodo` é esse instrumento, escrito. A IA não decide nem preenche (§2):
+ela **aplica o método melhor do que a memória do autor aplicaria às 23h**. É a
+definição mais literal possível de multiplicar a mente — o método é dele, a
+disciplina de cobrá-lo passa a ser da máquina.
+
+## ADR 2026-09-03o — A leitura da calibragem, e o ciclo fecha
+
+A revisão da semana (ADR q) é algoritmo puro: conta, agrupa e cobra, nunca
+comenta. Ela põe lado a lado o que o autor **esperava** e o que **aconteceu** —
+e depois deixa os pares ali, sem ninguém lendo.
+
+Ler UM par é fácil, e ele já lê. O que nenhum algoritmo faz e nenhuma pessoa
+faz sozinha é ver o **padrão ENTRE os pares**: o tipo de situação em que a
+expectativa erra sempre para o mesmo lado, o prazo que sempre estica, a
+variável que nunca entra na conta. A memória não ajuda porque ela reescreve a
+expectativa depois de saber o fim — só o papel guarda a versão de antes.
+
+`Sabia.lerCalibragem` é o único lugar do app onde a IA olha para o **autor** e
+não para um texto. Por isso a prova literal pesa mais aqui do que em qualquer
+outro lugar: um espelho que inventa é pior que nenhum. Citação que não aparece
+nos pares é descartada, veredito não passa, e com menos de dois pares não há
+leitura — um caso não é padrão.
+
+E continua sendo PERGUNTA. Nota, placar e diagnóstico estão proibidos no prompt
+e barrados no parser: quem conclui sobre o próprio juízo é ele.
+
+**Isto fecha o ciclo.** O app já multiplicava o trabalho da mente; agora devolve
+à mente a única coisa que ela não consegue ver sozinha. E a mente melhor volta a
+escrever — que é onde o ciclo recomeça.
+
+## ADR 2026-09-03p — O portão dos modelos
+
+Duas coisas morderam de verdade no dia em que a conta foi ligada:
+
+**A suíte.** O token do OAuth vive no chaveiro do SIMULADOR, e vale também para
+o processo de teste. As 82 suítes descrevem o motor local, que é
+determinístico; com a conta ligada, a análise remota passou a responder por
+baixo delas e **oito testes sem nenhuma relação com IA começaram a falhar**.
+
+**A varredura.** 86 fluxos × uma chamada por pausa de análise = a suíte de
+teste gastando a assinatura do autor e levando o dobro do tempo. Suíte de teste
+que custa dinheiro é defeito de projeto, não detalhe.
+
+`Motores.desligados` é um portão só, e ele fica onde ninguém pode esquecê-lo:
+dentro do `Grok.responder` (que é agora o único caminho à rede, ADR 03l) e do
+`AnaliseDeBordo.classificar`. Ele liga por ambiente de teste ou pela bandeira
+`motorSoLocal`, que os fluxos passam no `launchApp`.
+
+**E dois fluxos não levantam a bandeira, de propósito:** `pergunta-sabia` e
+`lente-instigar` são testes de integração VIVOS — o único lugar do projeto que
+prova a ADR o ponta a ponta com modelo de verdade. Um motor que nunca roda é um
+motor que ninguém sabe se funciona; por isso `classificarSemPortao` existe, e
+por isso o app nunca a chama.
+
+## ADR 2026-09-04a — O aviso que ninguém vê não existe (e essa é a lei)
+
+**Palavra do dono (04/set):** *"Ao adicionar um compromisso o app nem opção de
+me notificar ou fazer algo do tipo para o evento marcado. Está marcado não
+adianta nada se eu não sei. E principalmente não tem uso no dynamic island ou
+widget ou até mesmo aquelas funções vivas na tela de bloqueio."*
+
+**O erro, com nome.** A ADR 03d fechou "o que se marca, avisa" — e fechou de
+verdade no MOTOR: `Revisoes.agendarCompromisso` tem namespace próprio, série
+semanal repetindo, dia inteiro na âncora da manhã, e o aviso morre com o
+compromisso. Nada disso era mentira. Mentira era o que a tela contava: a ficha
+do compromisso tinha QUANDO, REPETE, NOTAS e APAGAR, e **nem uma palavra sobre
+aviso**. Nenhuma tela prometia, nenhuma confirmava, nenhuma deixava escolher a
+antecedência, nenhuma dizia quando o iPhone tinha os avisos desligados — o
+`requestAuthorization` acontecia dentro de uma `Task` e o "não" do sistema
+voltava `false` para ninguém.
+
+O app avisava e o autor não sabia. Para ele, isso é idêntico a não avisar. E
+pior que idêntico: sem antecedência, o aviso "na hora" de um dentista às 14h
+chega quando já era — um alarme que só serve para o arrependimento.
+
+**A lei que fica, e que vale para TODA função daqui em diante:**
+
+> Função que o autor não vê, não confirma e não controla **não foi entregue**.
+> Motor sem superfície é dívida, não feature. A varredura mede a SUPERFÍCIE,
+> nunca a chamada: `grep` que acha a função e não acha a tela é achado.
+
+Três perguntas viram aceite obrigatório para qualquer coisa que o app passe a
+fazer sozinho — nesta ordem, e as três antes de dar por pronto:
+
+1. **Onde ele vê que vai acontecer?** (a promessa, ANTES do fato)
+2. **Como ele sabe que aconteceu — ou por que não?** (estado honesto, ADR 03e)
+3. **Onde ele ajusta ou desliga?** (controle, a um toque)
+
+É a mesma raiz da ADR 03e (permissão negada é beco) e do §17 (fricção é bug),
+agora escrita como critério de varredura em vez de intenção.
+
+**O que muda no produto:**
+
+- `EventoCalendario.avisoMinutos` — lista fechada: não avisa · na hora · 5 · 10
+  · 15 · 30 min · 1 h · 2 h · 1 dia antes. Padrão "na hora" (o comportamento da
+  ADR 03d fica de pé para tudo que já está no disco), e a ficha mostra a **hora
+  real** do aviso ("sexta, 13h30"), nunca só o rótulo abstrato: o autor confere
+  a promessa em unidades do mundo dele.
+- A ficha ganha a seção AVISO com estado honesto de permissão e a única volta
+  que o iOS permite quando está negado — abrir os Ajustes do app.
+- Marcar pela prosa devolve a promessa em uma linha ("sexta, 14h · aviso 30 min
+  antes"): o fim do percurso tem de devolver alguma coisa (peak-end-rule).
+- O compromisso passa a existir **fora do app**: widget na tela de início e na
+  tela bloqueada com o próximo, e Live Activity com contagem regressiva na Ilha
+  no dia dele. Compromisso que só existe dentro do app é compromisso que o
+  autor descobre tarde — e a tela que ele mais olha não é a do Traço.
+
+## ADR 2026-09-04b — O orçamento de avisos
+
+O iOS guarda **64 notificações pendentes por app** e descarta o resto **em
+silêncio**. O Traço agenda: a fila diária (1), a revisão da semana (1), o
+gatilho do "Se" de cada nota (1 por nota), a série da expressiva (1) e o
+compromisso — que numa série semanal vira **uma por dia da semana** (até 7 por
+compromisso, porque é assim que o sistema cobra sozinho sem o app reagendar).
+
+Dez compromissos semanais em três dias já são 30; com trinta notas com hora, o
+teto estoura e a ADR 03d volta a ser mentira sem um único erro na tela — que é
+exatamente o defeito da ADR 04a, repetido numa camada mais fundo.
+
+**Decisão.** O orçamento é explícito e o que não cabe é DITO, nunca engolido:
+`Avisos.cabem` conta os pendentes antes de agendar; o que não cabe não é
+agendado, a ficha diz na hora ("o iPhone guarda 64 avisos e já estão todos —
+este ficou sem alarme"), o widget não desenha sino para ele, e o Perfil mostra
+"n de 64 avisos ativos".
+
+**O que NÃO está construído, e por isso não se promete aqui:** fila de
+prioridade (derrubar o aviso distante para caber o de hoje). Recusar o novo e
+contar é honesto e cabe em uma linha; escolher qual aviso morre é uma decisão
+sobre a agenda do autor, e essa não se toma por conta própria. Se o teto passar
+a bater de verdade, isto volta como ADR — com o autor escolhendo a regra.
+
+## ADR 2026-09-04c — A escada não engole o aviso
+
+A ADR 03k pôs o modelo do aparelho no meio da escada. O `Escolha` do
+`FoundationModels` só tem `gesto` — ele **não pode** emitir aviso. E
+`Sessao.analisar` fazia `remoto ?? AnaliseLocal.classificar(...)`: como o
+degrau do aparelho devolve `.silencio` (não `nil`) quando não é forma nenhuma,
+a regex **nunca rodava** num iPhone com Apple Intelligence e sem conta. Os
+cinco avisos obrigatórios do §5 ficavam inalcançáveis, e o critério de aceite
+do §13 ("eu sou um vencedor" → aviso Wood) falhava justamente na configuração
+que a ADR 03k tornou padrão.
+
+Ninguém viu porque a suíte e a varredura rodam com `Motores.desligados` — os
+390 testes provam o degrau que, em produção, não roda.
+
+**Decisão.** O modelo roteia FORMA; o aviso é do algoritmo, sempre. Silêncio do
+modelo não é veredito: quando o degrau de cima cala, o local decide. É a §19.4
+ao pé da letra — *o algoritmo garante; a IA sugere* — e custa uma linha.
+
+## ADR 2026-09-04d — O terceiro cinza tinha de ser lido
+
+A ADR 02h fechou: *"todo texto ≥4,5:1 sobre o papel, ícone ≥3:1"*. A varredura
+de 04/set mediu: `tintaFraca` (#86868B) dá **3,29:1 no papel e 2,95:1 no chip**,
+e carregava **texto** em 58 lugares — o trecho da busca, a contagem de
+resultados ("1 nota com 'celular'"), o metadado da lista, e o rótulo da aba
+inativa a 11pt, que o §20 manda pintar exatamente assim.
+
+Duas regras da própria spec se contradiziam, e o código implementava a fraca.
+
+**Decisão.** `tintaFraca` passa a #68686C — 5,04:1 no papel, 4,65:1 no campo,
+4,52:1 no chip. O §20 fica como está (inativo = `tintaFraca`); o que muda é o
+valor do token, não a regra de uso.
+
+**Custo assumido, escrito para não ser esquecido:** #68686C encostou no
+`tintaSuave` (#5F5F64). São dois cinzas separados por 0,7 de razão — uma
+hierarquia fina demais para justificar dois tokens. Um dos dois deve morrer, e
+isso é trabalho de olho, não de régua: fica na FILA. Até lá vale a ordem certa —
+**um texto que se lê mal não é hierarquia, é defeito.**
+
+## ADR 2026-09-04e — O modo férias, e a linha entre cobrar e mandar
+
+**Palavra do dono (04/set):** *"e o modo férias? Vc tem que pensar em tudo."*
+
+O Traço é um app que COBRA: a fila do Recordar toca todo dia na hora do autor,
+a revisão da semana toca domingo à noite, e a série da expressiva cobra quatro
+dias seguidos. Isso não é enfeite — é o método (§7, §8.9, ADR 02d/02f/02q).
+
+E não havia como dizer **"estou fora"**. Quem viajasse levava o ritual junto.
+O custo real não é o incômodo de uma semana: é que o autor **aprende a ignorar
+a notificação** — e uma cobrança que ele aprendeu a ignorar está morta quando
+ele voltar. Um ritual que não se pode pausar não é ritual, é sino.
+
+**A linha, e ela é a mesma da ADR 04a vista do outro lado:** o Traço cala o que
+**ele** inventou de cobrar — memória, revisão, série. O que o **autor** marcou
+continua tocando: compromisso e aviso do "Se". **Férias não desmarca dentista.**
+
+**Como funciona:**
+- Interruptor no Perfil com data de volta. Ligar assume **uma semana** (é o que
+  se pede quando se viaja) e "sem data" é escolha explícita logo abaixo.
+- **Expira sozinho** no arranque e ao voltar à cena (§17: lembrar de desligar um
+  recurso é fricção, e fricção é bug). Ao expirar, o que estava calado reagenda.
+- Uma linha honesta diz o estado inteiro: o que cala, o que continua, até quando.
+- **Feriado é opção à parte, desligada por padrão.** Um feriado é dia em casa, e
+  dia em casa é bom dia para recordar. Quem discordar liga — mas a decisão é
+  dele, não do app.
+- A **série da expressiva não morre**: ela espera o primeiro dia que cobra. O
+  método Pennebaker é de quatro SESSÕES, não de quatro datas.
+
+**A mesma linha, aplicada ao silêncio do sistema:** o compromisso e o aviso do
+"Se" saem como `timeSensitive` — atravessam o modo Foco, porque o autor os
+marcou. A fila do Recordar, a revisão de domingo e a série ficam no nível
+normal: o que o app inventou de cobrar espera o Foco acabar. Um alarme de
+dentista que o Foco engole é a mesma frase do dono, dita de outro jeito.
+
+**O custo técnico, escrito porque ele tem um teto:** o iOS não sabe pular um dia
+num gatilho repetente. Sem silêncio no caminho, a fila continua sendo UMA
+notificação repetente (um slot do orçamento da ADR 04b). Com férias ou feriado
+no caminho, ela é enumerada dia a dia numa janela de **catorze dias** (≤14
+slots), e o arranque do app a re-arma. Quem ficar duas semanas sem abrir o app
+durante as férias volta sem fila agendada — e a fila volta no primeiro arranque.
+
+## ADR 2026-09-04f — A tela bloqueada deixa de ser cartaz
+
+**Palavra do dono (04/set):** *"e modo interativo na tela de bloqueio?"* — e,
+sobre a primeira versão do cartão: *"muito fraco"*.
+
+A ADR 04a pôs o compromisso na tela bloqueada. Mas **ver não é agir**: o cartão
+mostrava e a única saída era abrir o app — e abrir o app é justamente o que
+ninguém faz na fila do banco. Pior, havia uma incoerência de dedo: o Destaque
+era BOTÃO no widget da casa e CARTAZ na tela bloqueada. A mesma coisa com duas
+leis é o que faz a mão errar.
+
+**O que ficou interativo, e por quê:**
+
+- **Destaque** — o círculo marca a única coisa de hoje, na tela bloqueada e na
+  Ilha, com o mesmo `DestaqueFeitoIntent` do widget da casa. Nenhum conceito
+  novo; a mesma lei em todo lugar. (Marcar encerra a atividade: a coisa está
+  feita, o cartão sai.)
+- **Compromisso** — *"Lembrar em 10 min"*. Um botão, um significado, e vale
+  antes ("me lembra de sair") e depois do aviso ("agora não dá"). É a frase do
+  "hoje não" do Recordar (ADR 03e): adiar não é falhar nem acertar, é a hora
+  errada. Namespace `soneca-<id>`: a soneca nunca alcança o aviso do
+  compromisso.
+
+**A regra que o botão herda da 04a:** o toque tem de VIRAR alguma coisa na
+tela. Se agendou, o cartão passa a dizer "lembro às 11:07"; se o iPhone está
+com os avisos desligados, ele diz isso, em vermelho, no lugar do botão. Botão
+que não faz nada e não explica é a ADR 04a repetida do tamanho de um dedo.
+
+**Detalhe de engenharia que quase virou defeito:** `LiveActivityIntent` roda no
+processo do APP. Os dois intents moram na pasta do widget mas são compilados
+TAMBÉM no alvo do app — sem isso o toque falharia calado.
+
+**E o desenho, depois do "muito fraco".** A primeira versão pintava papel
+(`Tema.fundo`) por baixo do material do sistema: saiu um cinza sujo, com o
+âmbar virando ocre. A correção não é insistir na cor da casa numa tela que não
+é da casa — é **entrar pela tipografia e pelo acento**: o material fica o do
+iOS, a tinta é semântica (`.primary`/`.secondary`), e o Traço aparece no ponto
+âmbar, no rótulo com tracking, no título de 21pt com tracking negativo, e no
+contorno âmbar da ação. A hierarquia também virou: o assunto é o COMPROMISSO,
+não o relógio (a versão anterior dava 20pt para a hora e 16 para o que importa
+— `critique-visual-hierarchy`).
+
+## ADR 2026-09-04g — O objetivo, escrito: o ciclo da mente
+
+**Palavra do dono (04/set):** *"Bloco de notas eu acho que muito pequeno. Ele
+tem um calendário completo para organizar e também é para montar uma espécie
+de segundo cérebro, e usar o poder da mente junto com técnicas extremamente
+poderosas e multiplicar o indivíduo ao máximo, além de tentar evoluir o
+indivíduo. Multiplicar a mente do usuário de uma forma extraordinária. E
+depois passar por outra etapa, de melhorar essa mente de forma extraordinária,
+e esse ciclo. Quanto mais a mente se multiplica, mais a IA multiplica o poder
+da mente."*
+
+O §1 dizia "o bloco de notas mais simples do mercado". Era a frase de abertura,
+não o objetivo. O objetivo tem **duas voltas e um eixo**:
+
+1. **Multiplicar.** A IA amplifica o que a mente produz agora: pensamento,
+   estratégia, criação, memória, linguagem. Dá forma, informação e pergunta
+   (ADR o); nunca a resposta do autor.
+2. **Melhorar.** O método muda a mente: recuperação com dificuldade que sobe,
+   calibragem contra o que aconteceu, obstáculo interno nomeado, pré-mortem,
+   quatro sessões de escrita expressiva.
+3. **O eixo.** As duas voltas só se realimentam se a IA souber em que ponto a
+   mente está. Sem memória do autor, cada chamada parte do zero e "quanto mais
+   a mente se multiplica, mais a IA multiplica" é frase, não mecanismo.
+
+A auditoria de 04/set mediu o app contra isso e achou: a volta de melhorar bem
+servida (quase toda algoritmo, como manda o §19.4); a volta de multiplicar
+tímida (sete superfícies que não sabem quem é o autor); o eixo inexistente.
+As ADRs 04h a 04r fecham os catorze pontos, nesta ordem: o eixo (sinal,
+retrato, degraus), a transferência entre formas, o catálogo como dado e as
+faculdades que faltavam, a IA na criação, o índice de sentido, o corpus que
+escala, a entrada do Mac, a trajetória, e a doutrina que decide onde a IA é
+abundante e onde cala.
+
+**O aceite que passa a valer para toda função de IA**, além das três
+perguntas da ADR 04a: (a) em qual volta ela entra, e (b) o que ela SABE da
+mente do autor para entrar ali. A regra de ferro fica intacta: forma,
+informação e pergunta; nunca a resposta do autor; nada da IA entra na nota
+por conta própria.
+
+## ADR 2026-09-04h — O sinal: o autor diz o que serviu
+
+Nenhum sinal voltava para a IA. Uma pergunta inútil do instigar, uma forma
+vestida errada, uma resposta que não serviu: o autor não tinha como dizer, e
+Soltar a forma, o único gesto, não era guardado nem lido por prompt nenhum. A
+segunda volta do ciclo, a da IA aprendendo esta mente, não tinha entrada.
+
+**Decisão.** `Sinais` é um diário no disco (`Documents/Traço/sinais.json`),
+algoritmo puro, que registra o que o autor fez com o que a IA e o app lhe
+deram: `solto(forma)` quando ele desfaz uma forma vestida; `ficou(forma)`
+quando conclui uma nota com pelo menos um campo respondido; `pergunta(origem,
+serviu)` quando toca "serviu" ou "não serviu" numa pergunta do instigar, da
+forma ou da prova; `resposta(serviu)` no cartão da sábia; `naoVoltou(forma,
+quantos)` na conferência do Recordar. Guarda no máximo 500 sinais, os mais
+recentes.
+
+**A superfície (ADR 04a):** todo cartão com texto de modelo ganha duas saídas
+discretas, "serviu" e "não serviu", que somem depois do toque. O Perfil mostra
+"O que o Traço aprendeu de você": quantos sinais, desde quando, e "esquecer
+tudo". Sem conta ligada o sinal continua sendo guardado: ele serve ao
+algoritmo (ADR 04j) tanto quanto à sábia.
+
+**O que o sinal não é.** Não é nota, não é placar, não mede o autor. É a
+resposta dele ao que o app fez, e é dele: sair da conta não apaga (o sinal é
+do aparelho, não da rede); "esquecer tudo" apaga.
+
+## ADR 2026-09-04i — O retrato da mente: o eixo do ciclo
+
+A sábia lia só a página aberta, três ligadas e uma fatia do caderno. Não
+sabia que o autor já respondeu vinte vezes aquele tipo de buraco, qual
+obstáculo volta nos WOOPs dele, o que a memória dele solta, para que lado a
+expectativa dele erra. Cada chamada esquecia o autor no fim.
+
+**Decisão.** `Retrato.ler(notas:sinais:)` monta, por algoritmo e só com as
+palavras do autor, o bloco SOBRE QUEM ESCREVE que viaja em `instigar`,
+`responder`, `contrapor` e na pergunta da prova:
+
+- as formas que ele usou nos últimos 30 dias, com contagem;
+- os obstáculos internos que ele nomeou (os cinco últimos, literais);
+- o que NÃO voltou nas últimas provas do Recordar (três pontos, literais);
+- a calibragem: em quantas decisões conferidas o que aconteceu ficou aquém,
+  igual ou além do esperado (contagem, nunca juízo);
+- as palavras que ele conquistou (Palavra › nas minhas palavras, cinco últimas);
+- as perguntas que ele marcou como "não serviu" (três últimas, literais), para
+  a sábia não repetir a classe.
+
+Teto de 1.500 caracteres. Sai só o que existe: retrato vazio não viaja.
+
+**A superfície.** O Perfil mostra o retrato **exatamente como viaja**, sob "O
+que a sábia sabe de você", com um interruptor "a sábia conhece você" (ligado
+por padrão) que corta o bloco de todo pedido. O selo vale: nada de expressiva,
+trancada ou queimada entra no retrato, nem como contagem.
+
+**O que o retrato não faz.** Não conclui, não diagnostica, não pontua. É a
+evidência que o papel guarda, posta na frente da IA para ela perguntar melhor.
+Quem conclui sobre a própria mente continua sendo o autor.
+
+## ADR 2026-09-04j — Degraus para tudo
+
+Só a escada do Recordar era adaptativa. Limiar de confiança para vestir,
+escolha da forma, dificuldade das perguntas, quantas notas viajam: constantes.
+Uma mente que melhora e recebe o mesmo estímulo para de melhorar.
+
+**Decisão.** Três degraus novos, os três por algoritmo:
+
+1. **Instigar sobe com a prática.** O degrau da instigação é quantas notas
+   daquela forma o autor já concluiu (0 · 1–2 · 3–5 · 6–10 · 11+ → 0..4), e o
+   prompt diz o que cobrar em cada um: no 0, o movimento básico do método; no
+   1, a relação entre dois campos; no 2, a evidência; no 3, o custo de errar;
+   no 4, o limite do próprio método. Mesmo mecanismo da prova (ADR 03i).
+2. **Vestir aprende com o Soltar.** Se os três últimos sinais de uma forma
+   foram `solto`, ela passa a ser SUGERIDA (cartão com "Abrir a forma") em vez
+   de vestida sozinha, até o autor abrir uma por vontade própria. O Perfil
+   lista as formas nesse estado, e um toque as devolve ao vestir.
+3. **O caderno que viaja cresce com o caderno.** Quantas notas vão junto de
+   uma pergunta deixa de ser 3 + 40 arbitrárias e passa a vir do índice de
+   sentido (ADR 04n): as mais próximas, e tantas quanto couberem no teto de
+   caracteres.
+
+Nenhum degrau é decidido pelo modelo (ADR 03i, "o que o modelo não decide").
+
+## ADR 2026-09-04k — As formas se encadeiam
+
+As formas eram ilhas. WOOP não virava Se–então, Decisão não virava Pré-mortem
+sem gesto manual, Pré-mortem não gerava sinal a vigiar. A transferência entre
+faculdades, que é onde o poder se multiplica, tinha um elo só (o plano sem
+falha abrindo pré-mortem, ADR p × q).
+
+**Decisão.** Cada método do catálogo declara os seus **encadeamentos**: para
+qual forma ele leva, com que mapa de campos. Ao pé dos campos de uma forma
+nasce a linha DEPOIS DISTO, com um botão por encadeamento, ativo quando os
+campos de origem têm resposta. O toque grava a nota, abre uma página nova com
+a forma de destino e os campos de origem COPIADOS nas palavras do autor, e
+escreve `[[título da origem]]` no destino: a rede (ADR 03b) passa a ter o elo.
+
+Os encadeamentos de partida:
+
+| De | Para | O que copia |
+|---|---|---|
+| WOOP | Se–então | obstáculo → Se · plano → Então |
+| Se–então | Compromisso "conferir o hábito" em 7 dias | o Se, com aviso |
+| Decisão | Pré-mortem | decidido → plano |
+| Pré-mortem | Se–então | sinal → Se · mudo → Então |
+| Pré-mortem | Compromisso "vigiar o sinal" em 14 dias | o sinal, com aviso |
+| Especificação | Pré-mortem | problema → plano |
+| Argumento | Decisão | tese → o que estou decidindo |
+| Leitura | Nota permanente | tese → ideia · fonte → fonte |
+| Dia | Destaque do dia | a única → a tela bloqueada |
+
+A IA não escreve nada aqui: é cópia das palavras dele, por algoritmo.
+Encadeamento é dado do catálogo (ADR 04l): um método novo traz os seus.
+
+## ADR 2026-09-04l — O catálogo de métodos como dado
+
+Adicionar um método exigia ADR, enum, campos, regex, prompt e teste. A
+potência do app crescia na velocidade de uma sessão de código.
+
+**Decisão.** `Gesto` deixa de ser enum e passa a ser um id sobre um
+**catálogo**: `Metodos.json` no bundle, com os dez métodos de hoje (ids
+inalterados, o corpus antigo importa), mais os que esta ADR traz, mais o que o
+autor puser em `Documents/Traço/metodos/*.json` (do Mac, pela pasta espelhada,
+ou por qualquer editor). Cada método declara: id, nome, origem, o
+reconhecimento, o movimento (ADR 03n), a pergunta do template, os campos, o
+roteamento (regex sobre a voz do autor), o modo de Recordar (o que esconde e o
+que mostra) e os encadeamentos (ADR 04k). O app lê o catálogo no arranque e ao
+voltar à cena; entrada inválida (sem id, sem campo, id repetido) é ignorada e
+dita no Perfil.
+
+**Os métodos que entram agora**, todos com origem nomeada:
+
+| Método | Faculdade | Campos |
+|---|---|---|
+| **Argumento** (Toulmin) | raciocínio | Tese · Evidência · A melhor objeção · Minha resposta · O que me faria mudar de ideia |
+| **Leitura** (Adler) | aprender de fora | Fonte · A tese, nas minhas palavras · O que me surpreendeu · Onde discordo · A pergunta que ficou |
+| **Feynman** | compreensão | O que estou explicando · Como para uma criança de 12 · Onde travei · O que fui ver |
+| **Dia** (Ivy Lee) | foco | A única · As três seguintes · O que vai roubar o dia · Se roubar, então eu · O que roubou (à noite) |
+| **Analogia** (Gentner) | criação | O problema · Onde isto já foi resolvido, em outro campo · O que trago de lá · O que não se transfere |
+| **Inversão** (Munger) | criação, estratégia | O que quero · Como garantir que falhe · Logo, o que evito |
+| **Steelman** | raciocínio | A posição contrária, no melhor · O que ela acerta · O que eu respondo |
+| **Divergência** (Osborn) | criação | Dez opções cruas · A mais estranha · O que ela ensina |
+| **Primeiros princípios** | estratégia | O que acho que sei · O que é verdade de fato · O que construo do zero |
+| **Prática deliberada** (Ericsson) | habilidade | A habilidade · O pedaço que falha · O exercício · Como sei que melhorou |
+| **Atualização** (Tetlock) | calibragem | O que acredito · Quanto (0–100) · O que me faria subir · O que me faria descer · Depois: quanto agora |
+
+Vinte e um métodos. Os três degraus roteiam o catálogo inteiro: a regex do
+JSON, o Grok (cujo prompt lista o catálogo) e o modelo do aparelho, cujo
+esquema é gerado do mesmo arquivo (ADR 04t). Cada método traz a sua
+`definicao` para o roteador; um método do autor entra nos três sem código.
+
+**O material de fora.** Um arquivo de leitura anexado (pdf, epub) com uma
+palavra do autor ao lado roteia para a Leitura antes das regex de prosa: o
+arquivo continua arquivo, e o conhecimento é o que ele escreve nas próprias
+palavras — com a prova no Recordar.
+
+**O que não muda.** Campos nascem vazios; a IA só roteia o rótulo; a expressiva
+continua fora do catálogo aberto (o selo não é dado configurável).
+
+## ADR 2026-09-04m — Contrapor: a IA na criação
+
+A criação não tinha método (agora tem quatro, ADR 04l) e a IA, autorizada a
+dar informação, nunca dava o que o autor não considerou: a posição contrária,
+a opção fora da lista, o exemplo de outro campo.
+
+**Decisão.** `Sabia.contrapor` é a quarta chamada da sábia: recebe a nota e a
+forma, e devolve JSON `{contra, foraDaLista, outroCampo}`, três parágrafos
+de até 280 caracteres, cada um informação e nunca instrução (parser recusa
+o que começa por "você deve", "faça", "escreva"). Aparece num cartão com os
+três rótulos; "Copiar" leva à área de transferência; nada entra na nota.
+Botão "Contrapor" na Lente, ao lado de "Instigar"; só a pedido, nunca na
+pausa (ADR 04r). O retrato (ADR 04i) vai junto: contrapor quem se conhece é
+mais preciso do que contrapor um texto.
+
+É a fronteira da ADR o ao pé da letra: informação e pergunta. A resposta,
+a opção escolhida e a analogia que fica são do autor.
+
+## ADR 2026-09-04n — O índice de sentido
+
+§12 proibia busca semântica: "a busca acha, não interpreta". Foi escrito
+quando o app era bloco de notas. Com centenas de notas, achar pelo
+significado é a função central de um segundo cérebro, e o aparelho tem
+embeddings de palavras em português (`NLEmbedding`, 200 dimensões) sem uma
+linha de rede. Medido em 04/set: o modelo de FRASES do sistema não separa
+nada em português ("banco de dados" fica tão perto de "quero correr de manhã"
+quanto "treinar ao acordar"); a média dos vetores das palavras de conteúdo
+separa (0,3 a 0,4 para o parecido, 0,0 a 0,2 para o resto). O índice guarda
+essa média por nota, e a vizinhança começa em 0,3.
+
+**Decisão.** `Indice` guarda um vetor por nota aberta em
+`Application Support/indice-sentido.json`, refeito só para a nota que mudou.
+O selo corta antes: expressiva, selada e queimada nunca entram, e selar tira
+do índice na hora. Três superfícies:
+
+1. **Notas › PELO SENTIDO.** Abaixo dos resultados léxicos, até cinco notas
+   próximas da busca que a busca por letras não achou. A seção diz o que é.
+2. **Ecos por proximidade** (ADR 03j). As 40 candidatas deixam de ser as 40
+   primeiras de um fetch sem ordem e passam a ser as 40 mais próximas.
+3. **A sábia vê o caderno** (ADR 03m). A linha "?" viaja com as ligadas, os
+   ecos e as seis notas mais próximas da pergunta. O cartão continua dizendo
+   quais.
+
+O Perfil mostra "índice de sentido: n notas" e "refazer". Sem o modelo no
+aparelho (sistema antigo), as três superfícies simplesmente não aparecem, e o
+Perfil diz.
+
+**O que não muda.** A busca por letras continua sendo a primeira; o índice
+não interpreta, aproxima. A ligação continua sendo do autor (ADR 03b).
+
+## ADR 2026-09-04o — O corpus só regrava o que mudou
+
+`Corpus.escrever` regravava um `.md` por nota a cada conclusão, na main
+thread, em duas pastas: 190 ms a mil notas no SSD, muito pior no iCloud. O
+segundo cérebro tinha teto de dezenas.
+
+**Decisão.** Concluir uma nota escreve **só o `.md` dela** e os três arquivos
+agregados, numa tarefa fora da main thread. A varredura completa (apagar o
+que não existe mais, reescrever tudo) fica para as rotas do selo, que
+continuam síncronas e inteiras: selar, queimar, apagar, importar, e uma vez
+no arranque. É onde a promessa de "regravado na hora" mora, e ela não muda.
+
+## ADR 2026-09-04p — A entrada do Mac
+
+Escrevia-se só no iPhone; o Mac só lia pelo MCP. Segundo cérebro que não
+aceita entrada de onde a pessoa está pensando perde o que foi pensado lá.
+
+**Decisão.** A pasta ganha `entrada/`. O servidor MCP ganha
+`traco_escrever(titulo, texto, forma?)`, que grava um `.md` ali com o
+cabeçalho do corpus. O app, no arranque e ao voltar à cena, lê `entrada/` em
+Documents e na pasta espelhada, cria as notas (abertas, sempre: import jamais
+tranca) e apaga o arquivo lido, que agora é nota e vai aparecer em `notas/`.
+Um toast diz "n notas vieram de fora"; o Perfil explica a pasta e mostra a
+última entrada. O mesmo caminho lê `metodos/` (ADR 04l).
+
+A pasta espelhada continua "só escrita" para tudo o mais: o app lê UMA
+subpasta, com um contrato, e nada além.
+
+## ADR 2026-09-04q — A trajetória
+
+§12 proíbe medir, e está certo contra placar e streak. Mas "melhorar a mente"
+é afirmação sobre uma trajetória, e nada no app deixava o autor ver a dele.
+
+**Decisão.** Nos Padrões, abaixo da semana, o cartão TRAJETÓRIA: dois
+períodos lado a lado (os últimos 30 dias e os 30 anteriores), só evidência nas
+palavras do autor: as formas usadas; os obstáculos nomeados (literais); o que
+não voltou no Recordar (literal); as decisões conferidas (aquém · igual ·
+além, contagem); as palavras conquistadas; as linhas de sentido. Sem seta,
+sem melhor/pior, sem porcentagem, sem comparação escrita: os dois lados ficam
+ali e quem lê é ele, como na calibragem (ADR 03o). Cada linha abre a nota.
+O mesmo texto sai no intent "Trajetória".
+
+## ADR 2026-09-04r — Abundante no ato, calada na pausa
+
+A spec inteira pendia para o silêncio ("na dúvida, cala"; "nunca sozinha na
+pausa", ADR o) e o objetivo pende para o máximo. As duas eram defensáveis, e
+nenhuma ADR escolhia; o código escolheu sozinho: a ADR 03h pôs o instigar em
+`usarForma`, que o caminho automático chama a cada pausa de 1,6 s.
+
+**A linha.** A **pausa** só roteia e veste: uma chamada de classificação,
+memoizada, e nada mais. O **ato** é onde a IA é abundante: abrir os campos
+de uma forma, escrever o primeiro caractere num campo, a linha "?", Instigar,
+Contrapor, abrir o Recordar, visitar os Padrões. Ato é o autor dizendo "estou
+aqui, pensando nisto"; pausa é ele respirando.
+
+**O que muda no código:**
+- `instigar` dispara na primeira resposta num campo ou em "Abrir os campos",
+  nunca no vestir automático;
+- **o aviso é do algoritmo, sempre** (ADR 04c, agora inteira): aviso local
+  vence gesto remoto; o campo `aviso` sai do contrato remoto, que só roteia;
+- a resposta da sábia tem UM teto, 900 caracteres, no prompt e no parser;
+- o modelo nunca é chamado duas vezes pela mesma pausa.
+
+## ADR 2026-09-04s — O selo, reafirmado sobre tudo isto
+
+Cada ADR acima passa a mesma prova, escrita aqui uma vez: expressiva (em
+curso ou fechada), selada e queimada não entram no retrato, no índice, nos
+sinais que citam texto, na trajetória (só a linha de sentido, como sempre),
+na entrada do Mac (import jamais tranca) nem em encadeamento nenhum. Teste
+por rota, como no §8.6.
+
+## ADR 2026-09-04t — A sábia desce ao aparelho, e o catálogo inteiro sobe ao modelo de bordo
+
+Duas frases ficaram na FILA como "limite declarado" e não precisavam ficar:
+
+**1. "O modelo do aparelho só roteia os dez de origem."** O esquema do
+`FoundationModels` era um enum escrito à mão. Agora é gerado do catálogo em
+tempo de execução (`DynamicGenerationSchema` com `anyOf` sobre os ids do
+`Metodos.json`): a lista fechada continua sendo TIPO — o modelo não pode
+emitir um id que não existe —, e o tipo nasce do mesmo arquivo que o prompt
+remoto. Um método do autor entra nos três degraus sem uma linha de código.
+
+**2. "Sem conta Grok, sete das nove superfícies calam."** A escada da ADR 03k
+valia só para o roteamento. Passa a valer para a sábia inteira: `Sabia.chamar`
+tenta o Grok e, sem conta ou sem rede, pede ao modelo do aparelho com o MESMO
+prompt e o MESMO parser. A verificação dura não muda de lugar: JSON fora do
+formato é silêncio, venha de onde vier. A janela do aparelho é menor (3.500
+caracteres de pedido), então viajam menos candidatas — nunca menos prova. O
+cartão "sem conta" passa a dizer por onde a sábia responde hoje; o Perfil
+também.
+
+**3. A calibragem deixa de adivinhar.** A Decisão ganha o campo de volta
+"Ficou aquém, igual ou além do que eu esperava?", respondido pelo autor. O
+retrato e a trajetória contam por ele; a leitura por palavras de sinal no
+"aconteceu" fica só para as decisões antigas, sem o campo.
+
+O que não muda: a expressiva não entra em degrau nenhum; o portão dos modelos
+(ADR 03p) fecha os dois degraus na suíte e na varredura.
+
+## ADR 2026-09-04u — Folha nasce inteira
+
+**Palavra do dono (04/set):** *"layout totalmente quebrado, o card nasce
+cortado, em vez de subir até o teto da tela."* Era a Lente: cinco perguntas
+da sábia atrás da borda de um detente médio.
+
+A ADR 04a já tinha pegado o mesmo defeito na ficha do compromisso e o
+consertou só lá. A regra agora é geral: **folha que se lê ou se preenche
+nasce no detente grande.** `[.medium, .large]` não escolhe pela ordem e
+nasce no médio; o médio só serve a uma folha de uma linha (a ficha do
+sistema, só leitura, continua nele). Mudaram: Lente, Ligações, Versões, a
+série da expressiva e a folha dos campos.
+
+E a Lente perdeu ruído: o "Pronto" em cápsula pesava mais que o título
+(`von-restorff-effect` invertido) e virou texto, como nas outras folhas; o
+título usa os tokens da casa; "nada a apontar" entrou na linha de metadados
+em vez de ser um parágrafo solto (`critique-information-density`); as
+descrições das seções cabem numa linha.
+
+## ADR 2026-09-04v — A volta que cobra
+
+**A distância.** A segunda volta do ciclo (ADR 04g) é o autor confrontando o
+que escreveu com o que aconteceu: o "aconteceu" da Decisão, o "roubou" do
+Dia, o "quanto agora" da Atualização, e qualquer campo `soDepois` de método
+do autor. A hora de cada um já estava escrita na Sessão (`conferenciaDevida`)
+— e só valia com a nota aberta. Sem lembrar de reabrir, a volta não vinha. A
+Decisão com data avisa (ADR 03d); as outras morriam caladas. Motor sem
+superfície (ADR 04a): não existia.
+
+**A decisão.** A regra sai da Sessão para `Volta`, pura, uma só para a página
+e para a lista. As Notas abrem com a seção **A VOLTA** quando há nota com
+campo de volta devido e vazio: a linha diz o rótulo do campo em forma de
+cobrança ("O que roubou o dia?") e o título da nota; um toque abre a página,
+onde o campo já espera (ADR 03a). Sem nada devido, a seção não existe.
+
+**Em qual volta entra:** na segunda, melhorar. **O que a IA sabe:** nada —
+é algoritmo e relógio; a IA nunca lê nem escreve aqui. O que o autor
+responde na volta é o que alimenta a calibragem (ADR 03o) e o retrato.
+
+**Fora:** aviso novo (a fila de Recordar e o gatilho da Decisão já cobrem
+os que avisam; a volta é o que se vê ao abrir o app), contagem na aba,
+degrau. O selo: trancada, queimada e expressiva nunca têm volta.
+
+## ADR 2026-09-04w — O caderno chega antes do compromisso
+
+**A distância.** O app de 2036 lê o calendário e o caderno e põe na frente
+do autor, antes de ele pedir, o que a própria mente já pensou sobre o que
+vem. Hoje o compromisso e as notas não se conhecem: o autor entra na
+reunião de orçamento sem a nota em que decidiu o orçamento — a não ser que
+lembre e busque.
+
+**A decisão.** A ficha do compromisso (a do Traço e a do iPhone) ganha a
+seção **DO CADERNO**: até três notas cujo sentido é vizinho do título e das
+notas do compromisso, pelo índice de sentido (ADR 04n), no aparelho, sem
+rede. Um toque abre a nota. Sem vizinha, a seção não existe. A ficha do
+iPhone deixa de ser folha de uma linha e passa ao detente grande (ADR 04u).
+
+**Em qual volta entra:** na primeira, multiplicar — a memória chega antes
+do ato. **O que a IA sabe:** nada além do vetor do título; não escreve, não
+resume, não liga por conta própria (ADR 03b: quem liga é o autor). Selo:
+trancada, queimada e expressiva nunca aparecem.
+
+**Fora:** aviso com a nota dentro, ligação gravada, sugestão na hora de
+marcar.
+
+## ADR 2026-09-04x — O degrau ouve o sinal
+
+**A distância.** O degrau da instigação (ADR 04j) subia só com a prática:
+quantas notas da forma o autor concluiu. O sinal "não serviu" (ADR 04h) ia
+ao retrato como classe a evitar, mas não mexia na dificuldade. Uma mente
+que diz duas vezes "isto não serviu" e recebe o mesmo degrau não está sendo
+ouvida; e quem diz "serviu" duas vezes seguidas está pronto para o degrau de
+cima antes de completar a contagem.
+
+**A decisão.** O degrau de uma forma é a prática **mais o ajuste dos dois
+últimos sinais de pergunta dessa forma**: dois "não serviu" descem um; dois
+"serviu" sobem um; misto ou menos de dois, nada. Fica entre 0 e 4. É
+algoritmo, nunca o modelo (ADR 03i). O Perfil, em A SÁBIA E VOCÊ, mostra o
+degrau por forma em que há sinal — o autor vê o que a IA vai cobrar dele.
+
+**Em qual volta entra:** na segunda, melhorar: o estímulo muda com a
+resposta. **O que a IA sabe:** o número do degrau na instrução, como já
+sabia. **Fora:** degrau por pessoa (é por forma), degrau na prova do
+Recordar (a escada dela já é adaptativa), qualquer palavra da IA no ajuste.
+
+## ADR 2026-09-04y — O anexo entra no sentido
+
+**A distância.** "Compreensão e aprendizado de fora não entram" tinha sido
+respondida só na forma (Leitura, ADR 04l). O PDF anexado continuava arquivo:
+o índice de sentido (04n) via a voz do autor e nada do que ele leu. Um
+segundo cérebro que não acha o relatório pelo assunto do relatório não o
+guardou.
+
+**A decisão.** No índice, o vetor de uma nota com PDF anexado nasce da voz
+do autor **mais o texto das três primeiras páginas do PDF**, lido pelo
+PDFKit no aparelho, cortado. Só o vetor: o texto do PDF não vai à nota, ao
+retrato, à rede nem ao corpus — nunca sai do aparelho. A voz vem primeiro:
+o que o autor escreveu pesa mais do que o que leu. A entrada do Mac (04p)
+passa a sincronizar o índice na hora (era só no arranque seguinte: achado).
+
+**Superfície:** PELO SENTIDO nas Notas, DO CADERNO na ficha (04w) e a linha
+"?" (04n) passam a achar a nota pelo assunto do anexo. **Em qual volta
+entra:** na primeira, multiplicar. **O que a IA sabe:** um vetor a mais. O
+selo corta antes, como sempre: trancada e queimada saem do índice, e o
+anexo com elas. **Fora:** epub, imagem com OCR, resumo do PDF (a IA não
+escreve), texto do PDF na busca por letras.
+
+## ADR 2026-09-04z — As ilhas novas se encadeiam
+
+**A distância.** A ADR 04k fez as formas se encadearem e a 04l trouxe oito
+métodos novos como dado; mas os oito nasceram sem encadeamento nenhum. A
+transferência entre faculdades, onde o poder se multiplica (ADR 04g), parava
+exatamente nas faculdades que faltavam: criação, compreensão, estratégia,
+calibragem.
+
+**A decisão.** Oito encadeamentos, só no `Metodos.json`, com as palavras do
+autor copiadas pelo mapa e o `[[origem]]` no destino (mecanismo da 04k, sem
+uma linha de código): Feynman e Analogia → Nota permanente (o que expliquei
+ou trouxe, nas minhas palavras); Inversão → Pré-mortem (como garantir que
+falhe é a falha nomeada) e → Se–então (o que evito, vigiado); Steelman →
+Argumento (a posição contrária vira a objeção, a resposta vira a resposta);
+Divergência → Decisão (as dez opções cruas são as opções); Primeiros
+princípios → Especificação (o que construo do zero é o problema);
+Prática deliberada → Se–então (o pedaço que falha dispara o exercício) e
+→ compromisso em 7 dias para medir; Atualização → Decisão (o que acredito
+é o que decido). Cada um exige o campo de origem respondido.
+
+**Superfície:** a linha DEPOIS DISTO já existente, agora também nas oito
+formas. **Volta:** a primeira, multiplicar. **A IA:** nada; é cópia. **Fora:**
+encadeamento automático (o gesto é do autor), cadeias de três.
+
+## ADR 2026-09-05a — Anotar de qualquer lugar
+
+**A distância.** A entrada (ADR 04p) aceita o que o Mac deixa em `entrada/`.
+No próprio iPhone, fora do app, a mente não tinha por onde entrar: uma
+frase na rua, no carro, no meio de outro app, tinha de esperar abrir o
+Traço e a página. O que espera se perde.
+
+**A decisão.** O intent **Anotar** (Siri, Atalhos, botão de Ação, sem
+abrir o app) e a rota `traco://anotar?texto=…` depositam a frase em
+`entrada/` com a hora, pelo mesmo caminho do Mac; o app a recolhe ao voltar
+à cena (o intent) ou na hora (a rota), e diz "1 nota veio de fora." A nota
+entra aberta, como toda entrada. Zero código novo de importação.
+
+**Volta:** a primeira, multiplicar — o segundo cérebro recebe de onde a
+pessoa está pensando. **A IA:** nada. **Selo:** import jamais tranca.
+**Fora:** extensão de compartilhamento (pede app group e provisionamento do
+dono), ditado próprio (o de Siri serve), anexos pela rota.
+
+## ADR 2026-09-05b — O dia diz o que espera
+
+**A distância.** A VOLTA (ADR 04v) vive nas Notas. O autor abre o app na
+página em branco, onde a única companhia do cursor é a data — e a data não
+sabe que há uma decisão a conferir ou um dia de ontem por fechar. Quem não
+vai às Notas não vê.
+
+**A decisão.** Sob a data da página em branco, uma linha quieta, só quando
+há o que conferir: "1 volta a conferir". Um toque leva às Notas, onde A
+VOLTA já espera. Some ao primeiro caractere, como a data, e não existe
+quando não há volta devida: não é cartaz (ADR 04f), é a data dizendo o que
+o dia espera. Não é pausa: é a porta do ato (ADR 04r).
+
+**Volta:** a segunda, melhorar — a conferência chega antes de ser lembrada.
+**A IA:** nada; relógio e algoritmo. **Fora:** o próximo compromisso na
+mesma linha (a tela bloqueada já o tem), contagem na aba, aviso.
+
+## ADR 2026-09-05c — O campo do calendário nunca se preenche sozinho
+
+**Palavra do dono (05/set):** *"isso aqui é uma ideia boa, mas o uso está
+deplorável: muitas vezes eu quero digitar e ao clicar aparece tudo do
+placeholder."*
+
+**O defeito.** A ADR 03c fez o toque no campo ACEITAR a recomendação: a
+frase cinza virava texto, e a primeira tecla devia substituí-la. Na mão, a
+substituição depende de o iOS entregar a tecla como o código espera;
+autocorreção, ditado, colar e o cursor no meio deixam a frase no campo, e o
+autor apaga tudo antes de escrever. Em todo campo do iPhone o texto cinza é
+fantasma: some ao digitar e nunca vira conteúdo (`jakobs-law`,
+`critique-affordance`).
+
+**A decisão.** O campo nunca se preenche sozinho. A recomendação fica onde a
+ideia era boa: no cinza, como exemplo da língua do campo ("Stand-up do
+Rafinha depois de amanhã 21h"), com a ida e volta do parser garantindo que
+a frase funcionaria. Tocar o campo é tocar um campo: cursor, teclado, nada
+dentro. Sai o mecanismo de substituição pela primeira tecla e o estado
+`sugestaoNoCampo`. Quem quiser marcar exatamente a sugestão a digita ou a
+dita; ela já está no calendário do sistema de qualquer jeito, e marcar de
+novo no Traço só a duplicava na grade.
+
+**Fora:** botão para aceitar a sugestão (duplicaria um compromisso que já
+existe), sugestão de compromisso novo por IA.
+
+## ADR 2026-09-05d — O domínio pela IA, e o chip que não apaga
+
+**Palavra do dono (05/set):** *"Não seria interessante utilizar a IA para
+classificar em vez de algoritmo?"* e *"Não faz o menor sentido clicar [no
+chip] ser uma forma de remover. Eu posso clicar sem querer. Se eu quiser
+tirar o domínio é só ir nas configurações dessa nota."*
+
+**O que estava errado.** (1) O léxico desempatava pela ordem da lista:
+"chegar em casa … vou ler" batia Casa e Estudo com um ponto cada, e Casa
+ganhava por posição, contra a própria ADR 02c ("sem confiança = silêncio").
+(2) O toque no chip apagava o domínio e travava a nota: um alvo de 44 pt
+que destrói sem confirmar e sem cara de botão (`critique-affordance`);
+quem tocava para ver, perdia.
+
+**A decisão.**
+1. **O domínio é da IA do aparelho.** O léxico continua como primeira
+   resposta, imediata e sem modelo, mas empate é silêncio. Ao salvar, se o
+   autor não travou, o modelo de bordo (FoundationModels, sem rede, sem
+   conta) classifica a voz numa lista fechada de sete mais "nenhum" e
+   corrige o rótulo. Nunca a rede: a rede é para o que o aparelho não
+   resolve (ADR 04t), e sete rótulos ele resolve. Com os motores desligados
+   (ADR 03p), fica o léxico.
+2. **O chip não apaga.** Tocar o chip abre o menu do domínio: os sete e "Sem
+   domínio"; a escolha trava a nota. "Devolver ao app" destrava e a IA volta
+   a decidir. O mesmo menu no cartão da página e na lista. Nada destrói num
+   toque.
+
+**Volta:** a primeira, multiplicar (a ordem sem bibliotecário fica certa
+mais vezes). **O que a IA sabe:** a voz da nota, no aparelho; a expressiva
+nunca. **Fora:** domínio pela rede, domínios novos, cor por domínio.
+
+## ADR 2026-09-05e — A barra de baixo: buscar ou perguntar
+
+**Palavra do dono (05/set):** *"Essa barra de pesquisa no topo deveria estar
+embaixo. Um dos maiores poderes desse aplicativo é IA. Se eu quiser
+perguntar alguma coisa, se eu nem sei quais fórmulas usar, a caixa desce,
+tem um botão, ao escrever manda uma pergunta e sobe um card simples onde eu
+converso rapidamente no contexto do Traço. O ambiente se forma a partir do
+que é necessário."*
+
+**O que estava errado.** A busca vivia no topo, zona morta do polegar
+(`fitts-law`), e só buscava por letras e sentido. A sábia só respondia
+dentro de uma nota, à linha "?": para perguntar "que método uso para
+isto?" o autor tinha de abrir uma página e escrever a pergunta nela.
+
+**A decisão.** Nas Notas, uma barra no pé da tela, acima da navegação e
+acima do teclado: "Buscar ou perguntar". Escrever filtra a lista como
+antes (letras primeiro, sentido atrás). Enviar pergunta à sábia, e um
+cartão sobe sobre a barra com a resposta; a barra continua ali para a
+pergunta seguinte, e a conversa curta (as últimas trocas) viaja junto. O
+cartão só existe enquanto há conversa; "Fechar" a apaga. Sem conta, o
+cartão diz por onde a sábia responde.
+
+**O que a sábia vê.** As notas vizinhas da pergunta pelo índice de sentido
+(ADR 04n), inteiras até um teto; o catálogo de métodos, nome e definição,
+para poder dizer qual forma serve; o retrato (ADR 04i); e as trocas
+anteriores desta conversa. Nunca a expressiva, a trancada, a queimada. A
+resposta é informação, opções e critérios (ADR 02o): a sábia pode dizer
+"isto pede um Pré-mortem" e por quê; nunca escreve a nota.
+
+**Fora:** histórico de conversas (o cartão morre ao fechar), a barra em
+outras abas, a sábia escrevendo na página a partir daqui.
+
+## ADR 2026-09-05f — Polimento: o que o dono viu, e o que a auditoria achou
+
+**Palavra do dono (05/set):** *"layout, experiência, design, componentes e
+animações mais porcas que eu já vi… quero acabamento ultra premium, anos de
+polimento."* Com três capturas: a caixa cinza atrás de "Mais recentes", a
+mesma atrás do chip ESTUDO, e o cursor sobre o exemplo do campo.
+
+**Auditoria com lei, tela a tela, sobre as capturas dos fluxos de auditoria.**
+Achados corrigidos nesta rodada:
+1. **A caixa atrás dos menus.** O rótulo de um `Menu` tinha um frame
+   retangular de 44 pt, e o iOS realça o retângulo inteiro ao abrir. O
+   rótulo passa a ser só a cápsula; o alvo de 44 pt vive no `Menu`
+   (`critique-affordance`). Vale para o chip do domínio e a ordem das Notas.
+2. **O topo das Notas.** "Mais recentes" e "Como contexto" eram texto solto
+   no canto, sem cara de botão e vestidos como navegação
+   (`law-of-similarity`, `critique-affordance`). A ordem vira cápsula com
+   seta; o contexto vira o ícone de compartilhar que todo iPhone conhece
+   (`jakobs-law`).
+3. **A ficha do compromisso.** Três pesos na mesma linha do cabeçalho: ✕,
+   chip de domínio e Pronto. O domínio é atributo, não ação
+   (`critique-visual-hierarchy`); desce para a seção DOMÍNIO, entre AVISO e
+   NOTAS, como no editor do iOS (`jakobs-law`). O cabeçalho fica sair e
+   concluir.
+4. **O exemplo do campo do calendário** cortava a meio da palavra. Acima de
+   30 caracteres, volta o exemplo fixo.
+5. **O cartão da sábia nas Notas** nascia sem animação em dois estados;
+   todos os estados entram e saem com a mesma curva.
+
+**O que a auditoria viu e NÃO tocou, por ser desenho do dono:** a barra do
+calendário (escalas, Hoje, prosa) e o pé da página de escrever (régua e
+ações). Estão listados na FILA com a lei, para o olho dele decidir.
+
+
+## ADR 2026-09-05g — Realização no mundo, ambiente compartilhado e delegação
+
+**Fonte:** esclarecimento direto do criador nesta data. A definição completa
+está em [VISAO-PRODUTO.md](VISAO-PRODUTO.md); esta ADR fixa sua precedência.
+
+**Objetivo:** transformar intenção em realização verificável e desenvolver
+capacidades que limitam realizações futuras. A tríade é mente humana, IA e
+ambiente compartilhado, principalmente Markdown. HTML é uma possibilidade
+para representações e artefatos interativos, não uma capacidade declarada pronta.
+Notas, calendário, métodos e segundo cérebro são meios para os dois ciclos.
+
+**Substitui, no âmbito da visão:** a equivalência geral entre texto gerado e
+dívida cognitiva; a recusa universal de produção pela IA; a definição do app
+como escrita sob método e cobrança de memória por finalidade. Delegar código,
+redação ou outras entregas pode ser a escolha correta para realizar. Se o
+objetivo é desenvolver aquela capacidade, a intervenção deve preservar prática
+pertinente, sem impor trabalho manual que não contribui para o objetivo.
+
+**Fronteira preservada:** a IA não se passa pela pessoa, não muda silenciosamente
+sua autoria e não substitui a atividade que ela escolheu praticar. Conteúdo
+humano, gerado, importado e misto precisa conservar origem. A proteção de
+expressivas e notas seladas/queimadas permanece em todas as rotas. Autorização
+para ações externas é dada pelo escopo real de delegação, não por um documento
+importado nem pela simples existência de um plano.
+
+**Unidade de avaliação:** intenção, artefato utilizável, ação, evidência do
+resultado e ajuste. Aprendizagem requer evidência contextual de capacidade;
+contagem de uso ou satisfação não a prova. Agendar não é executar; executar
+não garante o resultado externo. O segundo cérebro deve apoiar hipóteses
+corrigíveis sobre contexto e capacidades, sem se declarar réplica do cérebro.
+
+**Estado e migração:** esta rodada consolida documentação. As restrições
+atuais de Corpus/MCP/Sábia não devem ser removidas isoladamente sem contratos
+de proveniência, persistência e validação. Não reinterpretar notas antigas
+como objetivos concluídos, nem inferir capacidade de seus metadados. Preservar
+UUIDs, conteúdo e privacidade. A primeira evolução recomendada é uma jornada
+completa de realização e retorno, junto da integridade da base; o caso de uso
+e o schema ainda exigem projeto e validação próprios.
+
+**Consequência para decisões futuras:** em conflitos de tese, esta ADR e a
+visão ligada acima prevalecem sobre as formulações históricas. Regras de
+implementação não revogadas continuam aplicáveis. Não inferir que todo método
+ou ato de delegação garante desenvolvimento, nem que a ambição do produto
+comprova eficácia científica universal.
+
+## ADR 2026-09-05h — Integridade antes de avançar
+
+Concluir ou navegar após salvar exige confirmação do commit; em recusa,
+a escrita permanece, sem sinal de conclusão ou sucesso. “Guardada” refere-se
+à gravação no aparelho; backup assíncrono não pode ser anunciado como confirmado.
+
+Entrada passa a ler sem destruir. Um recibo de importação e as notas são
+persistidos juntos (schema V3 aditivo, Nota preservada); somente depois se
+retira a mesma versão do arquivo. Repetir coleta após commit/queda não duplica
+notas, inclusive se a nota importada já foi apagada. Arquivo alterado depois
+da leitura permanece para a próxima coleta. Entradas recusadas pelo selo
+permanecem como fonte, sem serem convertidas nem destruídas silenciosamente.
+
+Campos exportados usam bloco identificado `<!-- traco-campos:json-v1 -->`,
+com cada valor como string JSON após seu identificador. Quebras, vazios e
+espaços significativos devem sobreviver; import aceita id/rótulo legado.
+Proteção selada/queimada vem do cabeçalho, não de uma frase do corpo.
+Bookmark inválido limpa o estado sem tentar resolver novamente o mesmo dado.
+
+Critérios: injeção de recusa, replay após commit, edição antes de retirada,
+round-trip de campos hostis, migração V2→V3 preservando notas e recuperação
+de bookmark inválido. Esta etapa não certifica corridas de outras projeções
+nem encerra os demais requisitos da visão de produto.
+
+## ADR 2026-09-05i — Trabalho persistente, produção delegada e retorno
+
+A primeira jornada da visão05g usa um agregado Trabalho independente da nota
+pessoal: intenção/revisões, resultado desejado, versões de artefatos com origem,
+ações e evidências atribuídas, e hipóteses de capacidade corrigíveis. Schema V4
+adiciona esse agregado; V1–V3 e notas existentes permanecem preservados.
+
+Cada revisão guarda conteúdo e identidade. Artefato tem versão/UUID, origem,
+formato e vínculo à revisão da intenção. Ação referencia material específico;
+agendar não executa e executar não demonstra resultado. Relato é relato do
+autor, não observação independente nem prova de aprendizagem. Hipótese registra
+fontes/contexto e quem a confirmou ou contestou; contestação participa do
+próximo pedido. Delegar/praticar/combinar é escolha contextual sem penalidade.
+
+A IA pode produzir Markdown quando delegada no Trabalho, por provider real,
+com origem visível; indisponibilidade mantém pedido e versões, sem geração
+simulada. HTML permanece representação adicional a implementar conforme a
+matriz EVOLUCAO.md. Notas expressivas/seladas não são elegíveis como origem
+implícita nem fonte automática. A nota de origem não é sobrescrita.
+
+Pedido de geração tem identidade e revisão do material. Cancelamento/edição
+invalida respostas antigas; callback válido aplica ao agregado vigente e não
+substitui evidências adicionadas durante a espera. Reabertura reconhece pedido
+sem executor como interrompido. Commit precede anúncio/export/navegação; erro
+preserva rascunho e história. O contrato detalhado deve ser implementado e
+verificado em jornada real, sem equivaler aprovação desta fatia à conclusão
+integral da visão.
+
+### ADR05j — Proteção da origem acompanha o trabalho derivado
+
+Selar, tornar expressiva, queimar ou remover a nota de origem restringe o
+Trabalho derivado inteiro. A cópia não volta a ser pública por desaparecer a
+fonte. Conteúdo e referência permanecem guardados; não se apagam versões ou
+rascunhos como efeito do bloqueio. A lista usa identificação neutra e a busca
+não examina títulos restritos. Abertura, geração, retorno assíncrono e cópia
+revalidam a origem. A interface retira material visível quando o acesso muda,
+incluindo rascunhos e cópias de recuperação. Metadados inválidos restringem a
+abertura em vez de presumir autorização. Trabalho criado sem nota de origem
+continua independente. Recuperação/desvinculação exige uma rota explícita;
+não liberar silenciosamente o conteúdo nem apagar a referência para contornar
+a proteção.
+
+### ADR05k — Ação do Trabalho aparece no calendário sem cópia autônoma
+
+O horário pertence à ação no agregado Trabalho. O calendário projeta apenas
+ações pendentes elegíveis, identificadas pelo UUID da ação e do trabalho. Um
+horário sem duração informada é um marco, exibido com uma única hora; não
+inventa término, aviso, execução ou resultado. Encerrar o Trabalho não cancela
+implicitamente suas ações. Executar/cancelar retira a projeção pendente e
+conserva o horário histórico; retirar horário não apaga ação ou relato.
+
+Commit precede confirmação e navegação. A edição recusada fica identificada
+como pendente; o calendário mantém o último valor confirmado. Ver no calendário
+abre o dia confirmado e só fecha o editor após navegação efetiva. Tocar a
+projeção revalida a origem e abre o Trabalho na ação correspondente. Proteção,
+exclusão e retorno de cena revalidam as projeções.
+
+A projeção não pode virar compromisso autônomo por export/import, edição
+genérica, widget ou aviso. Barreiras de codificação, disco e publicação
+preservam essa distinção. Alertas de ação ainda não estão implementados e a
+interface informa isso. As rotas reais de marcar/ver/abrir/retirar foram
+exercitadas no simulador; isso não prova execução da ação no mundo.
+
+### ADR05l — Markdown editável fora do Traço, com retorno ao histórico
+
+A versão Markdown do Trabalho pode sair como arquivo UTF-8 `.md`, com corpo
+legível e comentário de protocolo v1 contendo trabalho, artefato e intenção
+de origem e SHA-256 do conteúdo original. O hash confere a base local; não
+autentica autoria nem exige que o corpo editado permaneça igual. Importar
+não executa HTML, anexos ou instruções contidas no texto.
+
+O seletor de arquivos leva a uma prévia antes de qualquer aplicação. Ela
+distingue base atual, base antiga, material sem vínculo e arquivo incompatível.
+Base antiga exige confirmação explícita e identifica a versão vigente; mudança
+de intenção é avisada antes de aplicar. A nova versão mantém ancestral e
+intenção da base. Material sem envelope entra como externo, sem ancestral
+presumido, no contexto escolhido pelo autor. Envelope inválido, base/hash
+incompatíveis ou outro trabalho não se tornam material sem vínculo
+silenciosamente. A atribuição é “Arquivo importado · autoria não verificada”.
+
+Aplicar acrescenta uma versão, preserva história, ações e evidências e invalida
+geração precedente. Versão e intenção vigentes são revalidadas após a prévia;
+mudança exige nova revisão. Commit precede confirmação: recusa conserva o
+candidato, e retry confirma a mesma versão sem duplicá-la. O limite de 2 MiB
+recusa arquivos maiores sem truncar; UTF-8 inválido é recusado, e corpo,
+quebras e BOM sem envelope são preservados. Prévia parcial é identificada e
+não corta o conteúdo importado.
+
+Acesso à origem é revalidado antes da exportação, após leitura e ao aplicar.
+Uma cópia já entregue ao Files ou a outra ferramenta não pode ser recolhida
+por proteção posterior do Trabalho. Revogação com seletor/exportador aberto
+ainda precisa de validação visual; não se declara essa rota comprovada.
+
+Evidência desta integração: suite integral com 536 testes e zero falhas;
+exportador Files salvou `traco-versao.md`, sem acrescentar `.txt`; uma cópia
+sintética editada externamente, preservando o cabeçalho, voltou pelo importador
+com prévia da base v3 e autoria não verificada. Confirmar criou v4, com quatro
+versões no histórico. Leitura do banco confirmou corpo importado byte a byte,
+base v3 intacta e ancestral v4→v3, mantendo ação pendente ligada à v1 e relato.
+A captura `markdown-historico-preservado.png` registra a lista das quatro versões.
+HTML interativo, sincronização
+contínua e conclusão integral da visão permanecem fora dessa evidência.

@@ -215,6 +215,12 @@ struct CalendarioDominioTests {
         #expect(Dominio.inferir(voz: "preciso encontrar o computador") == nil)
         #expect(Dominio.inferir(voz: "o país inteiro") == nil)
         #expect(Dominio.inferir(voz: "pagar a conta") == .dinheiro)
+        // ADR 05d: empate é silêncio, e o modelo devolve pela lista fechada
+        #expect(Dominio.inferir(voz: "toda vez que eu chegar em casa deixo o celular na gaveta e vou ler") == nil)
+        #expect(Dominio.inferir(voz: "reunião com o cliente sobre o aluguel da casa nova e a reforma") == .casa)
+        #expect(Dominio.doModelo("estudo") == .some(.estudo))
+        #expect(Dominio.doModelo("nenhum") == .some(nil))
+        #expect(Dominio.doModelo("cozinha") == nil)
     }
 }
 
@@ -329,5 +335,108 @@ struct CalendarioAgendaTests {
         #expect(agenda.eventos.count == 1)
         agenda.apagar(e.id)
         #expect(agenda.eventos.isEmpty)
+    }
+}
+
+/// ADR: a série, a âncora e a ordem da frase (achados 01 e 02 da varredura).
+@Suite struct RepeticaoEAncoraTests {
+    let cal = Calendario.gregoriano()
+
+    private func dia(_ ano: Int, _ mes: Int, _ d: Int, _ h: Int = 10) -> Date {
+        cal.date(from: DateComponents(year: ano, month: mes, day: d, hour: h))!
+    }
+
+    /// O bug de julho: a tela em 13/jul, o autor em setembro.
+    @Test func oDiaDaSemanaSaiDeHojeNaoDaTela() throws {
+        let setembro = dia(2026, 9, 3)          // quinta
+        let julho = dia(2026, 7, 13)            // segunda — a tela ficou aqui
+        let e = try #require(CalendarioFrase.ler("dentista sexta 14h", ancora: julho, agora: setembro, cal))
+        #expect(cal.component(.month, from: e.inicio) == 9)
+        #expect(cal.component(.day, from: e.inicio) == 4)   // a próxima sexta de VERDADE
+    }
+
+    /// Dois dias na frase, sem "toda": manda a ordem da FRASE.
+    @Test func aOrdemDaFraseVenceAOrdemDaLista() throws {
+        let quinta = dia(2026, 9, 3)
+        let e = try #require(CalendarioFrase.ler("treino sexta e segunda", ancora: quinta, agora: quinta, cal))
+        #expect(cal.component(.weekday, from: e.inicio) == 6) // sexta, a primeira na frase
+        #expect(!e.titulo.lowercased().contains("sexta"))     // e ela SAIU do título
+    }
+
+    @Test func todaSextaESegundaViraSerie() throws {
+        let quinta = dia(2026, 9, 3)
+        let e = try #require(CalendarioFrase.ler("academia toda sexta e segunda às 8:30", ancora: quinta, agora: quinta, cal))
+        #expect(e.repeteEm == [2, 6])
+        #expect(e.titulo == "Academia")
+        #expect(cal.component(.hour, from: e.inicio) == 8)
+        #expect(cal.component(.minute, from: e.inicio) == 30)
+        // a primeira ocorrência é a próxima sexta (4/9), não hoje
+        #expect(cal.component(.day, from: e.inicio) == 4)
+    }
+
+    @Test func oPluralTambemConta() throws {
+        let quinta = dia(2026, 9, 3)
+        let e = try #require(CalendarioFrase.ler("pilates todas as terças", ancora: quinta, agora: quinta, cal))
+        #expect(e.repeteEm == [3])
+    }
+
+    @Test func semTodaNaoRepete() throws {
+        let quinta = dia(2026, 9, 3)
+        let e = try #require(CalendarioFrase.ler("dentista sexta 14:30", ancora: quinta, agora: quinta, cal))
+        #expect(e.repeteEm.isEmpty)
+        #expect(!e.repete)
+    }
+
+    /// A série é UMA linha no disco; a tela é que multiplica.
+    @Test func aSerieViraUmaOcorrenciaPorDiaQueCasa() {
+        let serie = EventoCalendario(
+            titulo: "Academia", inicio: dia(2026, 9, 4, 8), fim: dia(2026, 9, 4, 9),
+            repeteEm: [2, 6])
+        let ocorrencias = Calendario.ocorrencias(
+            [serie], de: dia(2026, 9, 1), a: dia(2026, 9, 30), cal)
+        // setembro/2026: sextas 4,11,18,25 · segundas 7,14,21,28 — mas só a
+        // partir do início da série (4/9), então a segunda 31/8 não entra
+        #expect(ocorrencias.count == 8)
+        #expect(ocorrencias.allSatisfy { [2, 6].contains(cal.component(.weekday, from: $0.inicio)) })
+        // a hora do dia sobrevive a cada cópia
+        #expect(ocorrencias.allSatisfy { cal.component(.hour, from: $0.inicio) == 8 })
+        // e a cópia carrega o id da SÉRIE: tocar nela abre a série
+        #expect(ocorrencias.allSatisfy { $0.id == serie.id })
+    }
+
+    /// Antes do início da série não existe ocorrência.
+    @Test func aSerieNaoRetroage() {
+        let serie = EventoCalendario(
+            titulo: "Academia", inicio: dia(2026, 9, 18, 8), fim: dia(2026, 9, 18, 9),
+            repeteEm: [6])
+        let antes = Calendario.ocorrencias([serie], de: dia(2026, 9, 1), a: dia(2026, 9, 17), cal)
+        #expect(antes.isEmpty)
+    }
+
+    @Test func eventoSemRepeticaoSaiUmaVez() {
+        let uma = EventoCalendario(titulo: "Prova", inicio: dia(2026, 9, 15, 9), fim: dia(2026, 9, 15, 11))
+        let xs = Calendario.ocorrencias([uma], de: dia(2026, 9, 1), a: dia(2026, 9, 30), cal)
+        #expect(xs.count == 1)
+        #expect(xs.first?.inicio == uma.inicio)
+    }
+
+    /// O arquivo do autor: a série vai e volta inteira, e o antigo sem a chave
+    /// continua abrindo como uma vez só.
+    @Test func aSerieSobreviveAoDisco() throws {
+        let serie = EventoCalendario(titulo: "Academia", inicio: dia(2026, 9, 4, 8),
+                                     fim: dia(2026, 9, 4, 9), repeteEm: [2, 6])
+        let enc = JSONEncoder(); enc.dateEncodingStrategy = .iso8601
+        let dec = JSONDecoder(); dec.dateDecodingStrategy = .iso8601
+        let volta = try dec.decode([EventoCalendario].self, from: try enc.encode([serie]))
+        #expect(volta.first?.repeteEm == [2, 6])
+
+        let antigo = #"[{"id":"\#(UUID().uuidString)","titulo":"Velho","inicio":"2026-09-04T08:00:00Z","fim":"2026-09-04T09:00:00Z","notas":"","diaInteiro":false}]"#
+        let lido = try dec.decode([EventoCalendario].self, from: Data(antigo.utf8))
+        #expect(lido.first?.repeteEm.isEmpty == true)
+    }
+
+    @Test func osDiasSaemEmLetras() {
+        #expect(Calendario.diasEmLetras([2, 6], cal) == "seg · sex")
+        #expect(Calendario.diasEmLetras([], cal) == "")
     }
 }

@@ -1,0 +1,32 @@
+# ADR 04z: os métodos novos se encadeiam. A Inversão ("como garantir que
+# falhe") vira Pré-mortem com as palavras do autor copiadas e a origem ligada.
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn: {id: pagina}
+- inputText: "como garantir que falhe o lançamento do curso"
+- extendedWaitUntil:
+    visible: {id: "abrir-campos"}
+    timeout: 25000
+- tapOn: {id: "abrir-campos"}
+- extendedWaitUntil:
+    visible: {id: "forma-inversao"}
+    timeout: 5000
+- tapOn: {id: "campo-quero"}
+- inputText: "lançar o curso em outubro"
+- tapOn: {id: "campo-falhe"}
+- inputText: "não avisar ninguém até a véspera"
+- extendedWaitUntil:
+    visible: "Virar Pré-mortem"
+    timeout: 8000
+- assertVisible: "DEPOIS DISTO"
+- takeScreenshot: /tmp/traco-verify/ciclo/37-inversao-depois-disto
+- tapOn: "Virar Pré-mortem"
+- extendedWaitUntil:
+    visible: {id: "forma-premortem"}
+    timeout: 25000
+- assertVisible: "lançar o curso em outubro"
+- assertVisible: "não avisar ninguém até a véspera"
+- assertVisible: ".*como garantir que falhe.*"
+- takeScreenshot: /tmp/traco-verify/ciclo/38-premortem-encadeado

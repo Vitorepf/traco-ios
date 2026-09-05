@@ -1,8 +1,10 @@
 # Vizinhança do Traço — os 41 semelhantes
 
-> Mapa de concorrência por EIXO da spec. Nenhum app do mercado tem a proposta do
-> Traço, porque a proposta é um cruzamento: o que existe são apps fortes em UM
-> dos cinco eixos e cegos nos outros quatro.
+**Classificação — mapa histórico de concorrência por eixos da spec de setembro de 2026.** A finalidade e a divisão de trabalho vigentes estão em [VISAO-PRODUTO.md](VISAO-PRODUTO.md); contratos aceitos, proteções e capacidades implementadas devem ser conferidos na [SPEC.md](SPEC.md) e no [README.md](README.md). O levantamento conserva fontes e comparações; não foi atualizado nem prova ausência de concorrentes. “Diverge” e “polo invertido” indicam relação com os eixos históricos, não recusa vigente de toda IA que produz texto.
+
+> Mapa de concorrência pelos eixos usados na pesquisa original. A comparação
+> destacou combinações de capacidades na amostra consultada; não demonstra
+> exclusividade do Traço nem cobertura exaustiva do mercado.
 > A leitura útil não é quem está perto no geral — é quem já resolveu o eixo que
 > ainda vai ser construído aqui.
 > Eixos derivados de SPEC.md (§2, §3, §6, §7, §8, §9, §12, §17, §19).
@@ -22,7 +24,9 @@ executando bem a tese oposta. Não são concorrentes fracos — são o contraexe
 mais útil da lista. A Notion é um terceiro caso, mais ambíguo: o produto ocupa o
 eixo do método, e só a IA dele inverte o eixo da recusa.
 
-## Os cinco eixos
+## Os cinco eixos históricos
+
+O eixo “IA que recusa” descreve o contrato antigo da nota pessoal. Hoje a IA também produz trabalho delegado, com origem explícita, sem preencher silenciosamente relato íntimo ou substituir prática escolhida. O objetivo é realização e desenvolvimento; recuperar informação por máquina não é falha por definição. A classificação abaixo fica como registro para comparação, não taxonomia normativa atual.
 
 | Eixo | Spec | Definição |
 |---|---|---|
@@ -262,7 +266,9 @@ nuvem, colaboração e planner diário são não-objetivos do §12.
 
 ---
 
-## Eixo 3 · IA que recusa (§2 · §19.4)
+## Eixo histórico 3 · IA que recusa (§2 · §19.4 da pesquisa)
+
+Neste eixo, “nunca insere texto” era uma restrição global usada na comparação. A regra atual preserva autoria e prática escolhida, permitindo produção delegada em Trabalho. Os verbetes abaixo não aprovam nem proíbem capacidades atuais.
 
 > A IA nunca insere texto. Algoritmo antes de modelo.
 
@@ -482,7 +488,9 @@ nomeia reler cartões à noite como anti-padrão.
 
 ---
 
-## O vão
+## O vão — hipóteses competitivas da pesquisa original
+
+As afirmações de exclusividade e superioridade abaixo não foram demonstradas nesta revisão. A falta de geração não é hoje um diferencial obrigatório: avaliar se o apoio atende à intenção com autoria, controle e evidência.
 
 Quatro coisas que ninguém nesta lista faz, e que valem mais que a soma das
 semelhanças.
@@ -517,7 +525,9 @@ recuperar informação é trabalho de máquina, formar mente não é. O Traço �
 único que trata o esquecimento como o exercício, e não como o defeito a ser
 patrocinado — e essa é a aposta que decide se ele tem razão de existir.
 
-## A ameaça não é quem se parece
+## A ameaça não é quem se parece — juízo histórico
+
+A recusa global de IA escrevendo não é a posição atual. Geração silenciosa na voz pessoal e geração explicitamente delegada são contratos diferentes. Preserve essa distinção ao usar a leitura histórica abaixo.
 
 Nenhum app parecido aqui vai virar o Traço. O risco é o **Apple Notes**, que já é
 a âncora de design do §11, já está instalado em todo iPhone, e cujo Apple

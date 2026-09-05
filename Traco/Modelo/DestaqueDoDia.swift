@@ -36,6 +36,7 @@ enum DestaqueDoDia: Sendable {
         d.removeObject(forKey: chaveLinha)
         d.removeObject(forKey: chaveDia)
         d.removeObject(forKey: chaveId)
+        d.removeObject(forKey: chaveFeito)
         recarregar()
         FilaDeAtividade.compartilhada.enfileirar { await encerrarAtividades() }
     }
@@ -70,6 +71,28 @@ enum DestaqueDoDia: Sendable {
             await a.end(nil, dismissalPolicy: .immediate)
         }
         #endif
+    }
+
+    /// F2: o Destaque marcado como feito, direto do widget. Guarda o DIA, não
+    /// um booleano: amanhã o Destaque é outro e a marca de ontem não vale.
+    nonisolated static let chaveFeito = "destaqueFeitoEm"
+
+    nonisolated static func marcarFeito(em data: Date = .now) {
+        let d = UserDefaults(suiteName: suite) ?? .standard
+        d.set(diaISO(data), forKey: chaveFeito)
+        recarregar()
+        FilaDeAtividade.compartilhada.enfileirar { await encerrarAtividades() }
+    }
+
+    nonisolated static func desmarcarFeito() {
+        let d = UserDefaults(suiteName: suite) ?? .standard
+        d.removeObject(forKey: chaveFeito)
+        recarregar()
+    }
+
+    nonisolated static func feitoHoje(agora: Date = .now) -> Bool {
+        let d = UserDefaults(suiteName: suite) ?? .standard
+        return d.string(forKey: chaveFeito) == diaISO(agora)
     }
 
     nonisolated static func linhaDeHoje(agora: Date = .now) -> String? {

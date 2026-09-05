@@ -19,26 +19,36 @@ enum Holofote {
         })
     }
 
+    /// Os itens são montados ANTES do salto: a versão com closure lia
+    /// `dominio` (isolado no MainActor) e capturava o `CSSearchableIndex`
+    /// (não-Sendable) dentro de uma closure `@Sendable`.
     static func indexar(notas: [(uuid: UUID, voz: String, trancada: Bool)]) {
-        let indice = CSSearchableIndex.default()
-        // reconstrução simples: apaga o domínio e regrava as abertas
-        indice.deleteSearchableItems(withDomainIdentifiers: [dominio]) { _ in
-            let itens = notas
-                .filter { !$0.trancada && !$0.voz.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
-                .prefix(200)
-                .map { nota -> CSSearchableItem in
-                    let attr = CSSearchableItemAttributeSet(contentType: .text)
-                    let linhas = nota.voz.split(separator: "\n", maxSplits: 1, omittingEmptySubsequences: true)
-                    attr.title = String(linhas.first ?? "nota")
-                    attr.contentDescription = linhas.count > 1 ? String(linhas[1].prefix(120)) : nil
-                    return CSSearchableItem(
-                        uniqueIdentifier: nota.uuid.uuidString,
-                        domainIdentifier: dominio,
-                        attributeSet: attr
-                    )
-                }
+        let alvo = dominio
+        let itens = notas
+            .filter { !$0.trancada && !$0.voz.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+            // era 200, sem comentário e sem fila: da nota 201 em diante o
+            // arquivo simplesmente não existia para a busca do iPhone, e nada
+            // no app dizia isso (varredura 04/set)
+            .prefix(5000)
+            .map { nota -> CSSearchableItem in
+                let attr = CSSearchableItemAttributeSet(contentType: .text)
+                let linhas = nota.voz.split(separator: "\n", maxSplits: 1, omittingEmptySubsequences: true)
+                attr.title = String(linhas.first ?? "nota")
+                attr.contentDescription = linhas.count > 1 ? String(linhas[1].prefix(120)) : nil
+                return CSSearchableItem(
+                    uniqueIdentifier: nota.uuid.uuidString,
+                    domainIdentifier: alvo,
+                    attributeSet: attr
+                )
+            }
+        Task {
+            let indice = CSSearchableIndex.default()
+            // reconstrução simples: apaga o domínio e regrava as abertas.
+            // A ordem importa — apagar DEPOIS de indexar limparia o que acabou
+            // de entrar, e o selo depende deste apagar acontecer.
+            try? await indice.deleteSearchableItems(withDomainIdentifiers: [alvo])
             guard !itens.isEmpty else { return }
-            indice.indexSearchableItems(Array(itens))
+            try? await indice.indexSearchableItems(Array(itens))
         }
     }
 }

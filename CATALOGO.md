@@ -1,9 +1,10 @@
-# Catálogo de funções — os 71 apps, tudo o que cada um faz
+# Catálogo de funções — capacidades levantadas em 71 apps
 
-> Inventário de capacidade, não de juízo. O `DOSSIE.md` diz o que roubar e o
-> que recusar; a `VIZINHANCA.md` diz onde cada app fica em relação à spec; este
-> arquivo diz o que cada app É CAPAZ de fazer, por inteiro, para que nenhuma
-> decisão do Traço seja tomada sem saber o que o mercado já oferece.
+**Classificação — pesquisa de mercado registrada em 02/09/2026.** A finalidade e a divisão de trabalho vigentes estão em [VISAO-PRODUTO.md](VISAO-PRODUTO.md); contratos aceitos, proteções e capacidades implementadas devem ser conferidos na [SPEC.md](SPEC.md) e no [README.md](README.md). As fontes, preços, contagens e alegações abaixo conservam a data do levantamento; não foram reconsultados nesta revisão documental. Inventariar uma função não a aprova para o Traço nem demonstra sua eficácia. A cobertura é a das fontes consultadas, não uma investigação exaustiva de todos os produtos ou saberes humanos.
+
+> Inventário das capacidades encontradas nas fontes, não de adoção. O `DOSSIE.md` registra avaliações históricas; a `VIZINHANCA.md` compara com a spec daquela pesquisa; este
+> arquivo registra capacidades para informar decisões do Traço com exemplos
+> do que foi encontrado no mercado.
 > Fontes: site oficial, central de ajuda, guia do usuário e descrição na App
 > Store (via API pública da loja), verificados em 2026-09-02. Onde uma função só
 > apareceu em fonte de terceiros, está marcado. "Não encontrado" significa que a

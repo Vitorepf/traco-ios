@@ -13,4 +13,6 @@ appId: app.traco
 - swipe:
     start: 1%, 50%
     end: 85%, 50%
-- assertVisible: "nota que precisa sobreviver"
+- extendedWaitUntil:
+    visible: "nota que precisa sobreviver"
+    timeout: 5000

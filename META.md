@@ -1,33 +1,31 @@
-# Prompt de meta — Traço
+# Prompt de continuidade — Traço
 
-Cola isto no início de uma sessão que vai durar. Não improvises outra tese.
+Use para uma sessão longa com objetivo identificável. A visão vigente define o produto; um prompt de processo não pode substituí-la.
 
+```text
+Leia VISAO-PRODUTO.md e as ADRs vigentes de SPEC.md.
+Consulte EVOLUCAO.md para capacidades e provas pendentes, e SISTEMA-CLARO.md para o visual.
+Use .cursor/skills/traco-meta/SKILL.md e os portões pertinentes.
+
+Objetivo integral: <resultado autorizado que a pessoa conseguirá usar>.
+Próximo incremento: <percurso verificável e requisitos que atende>.
+Preserve os requisitos restantes; um incremento verde não reduz a visão.
+
+Traço transforma intenção em realização com mente, IA e ambiente compartilhado,
+e desenvolve capacidades relevantes. A IA pode produzir trabalho delegado,
+com origem preservada. Prática escolhida e relato pessoal não são substituídos
+silenciosamente. Delegação não é dívida cognitiva por definição.
+
+Preserve selo, privacidade, versões, recuperação e WIP. Não confunda artefato,
+ação executada, resultado observado e capacidade demonstrada.
+
+Implemente, verifique estados reais e revise de forma independente quando
+pertinente. Vincule prova ao candidato atual. Continue enquanto houver trabalho
+útil autorizado; se faltar capacidade para uma prova, registre a lacuna e avance
+no que for independente. Não simule conclusão ou resposta de modelo.
+
+Sem commit, push, publicação, instalação ou execução de fila histórica por
+consequência. Coordene o simulador e restaure configurações temporárias de teste.
 ```
-Lê e obedece, nesta ordem:
-1. .cursor/rules/traco-meta.mdc
-2. .cursor/skills/traco-meta/SKILL.md
-3. .cursor/skills/traco-meta/portoes.md
-4. .cursor/skills/traco-meta/anti.md
-5. SPEC.md
-6. SISTEMA.md
 
-Corre o loop de SKILL.md. Horas = muitas fatias P0→P1, não um plano de 40 features.
-
-TESIS: multiplicar absurdamente a mente + IA que recusa escrever + Markdown só como arquivo.
-
-FATIA desta arrancada (apaga se quiseres que o loop escolha):
-<uma frase: um gesto do autor e o que ele vê>
-
-Não pares enquanto houver P0 na superfície em que estás e puderes agir.
-Não ensines Markdown. Não escrevas na nota. Não copies o ChatGPT.
-Cada fatia termina com a tabela de portões e paths de evidência.
-Evidência visual em /tmp/traco-verify/. Testes: xcodebuild test no Simulator.
-```
-
-## O que isto impede
-
-O modelo "melhorar tudo". O modelo "adicionar IA de verdade". O modelo "o autor já sabia Markdown". O fecho sem screenshot. O arco-íris de formas. A cerca `:::` na cara.
-
-## O que isto exige
-
-Uma fatia. Um gesto. Uma figura. Zero marcas. Portões verdes. Depois a seguinte.
+Formas, notas, Markdown e calendário são meios. Não tornar toda intenção um exercício nem remover esforço relevante só para reduzir cliques. As filas históricas ajudam a investigar; confirme ocorrência, autorização e prioridade antes de executá-las.

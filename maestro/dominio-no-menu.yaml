@@ -1,0 +1,28 @@
+# ADR 05d: o chip do domínio abre um menu; nada apaga num toque. O autor
+# troca Trabalho por Estudo pelo menu, e o chip mostra ESTUDO.
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn: {id: pagina}
+- inputText: "reunião com o cliente sobre o prazo do sprint"
+- waitForAnimationToEnd: {timeout: 2500}
+- tapOn: {id: "concluir"}
+- swipe:
+    start: 1%, 50%
+    end: 85%, 50%
+- tapOn: {id: "aba-notas"}
+- extendedWaitUntil:
+    visible: "TRABALHO"
+    timeout: 8000
+- tapOn: {id: "chip-dominio"}
+- extendedWaitUntil:
+    visible: "Sem domínio"
+    timeout: 5000
+- takeScreenshot: /tmp/traco-verify/ciclo/42-menu-do-dominio
+- tapOn: "Estudo"
+- extendedWaitUntil:
+    visible: "ESTUDO"
+    timeout: 5000
+- assertNotVisible: "TRABALHO"
+- takeScreenshot: /tmp/traco-verify/ciclo/43-dominio-trocado

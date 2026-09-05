@@ -34,22 +34,40 @@ struct FatiaCaderno: Identifiable, Equatable, Sendable {
 }
 
 enum Caderno: Sendable {
-    // ponytail: memo de último valor — o body do SwiftUI avalia `fatias` 2+ vezes por
-    // tecla sobre o MESMO texto; isto corta o reparse redundante. Teto conhecido:
-    // ainda é O(n) por mudança real; parser incremental por bloco fica na FILA (P1.2).
-    nonisolated(unsafe) private static let memoLock = NSLock()
-    nonisolated(unsafe) private static var memo: (fonte: String, fatias: [FatiaCaderno])?
+    // ponytail: memo por texto. O parse é puro (só depende de `fonte`), então
+    // guardar é sempre seguro.
+    //
+    // Era memo de UM valor, e isso é perfeito no editor — todas as chamadas de
+    // um `body` usam a mesma nota — e o pior caso possível na LISTA de notas,
+    // onde cada nota tem texto diferente e cada chamada invalidava a anterior.
+    // A lista pede `vozDoAutor`, `tituloNaLista` e o trecho da busca: três
+    // parses por nota, por avaliação de body, e nenhum acerto. Digitar na busca
+    // reparseava o arquivo inteiro a cada caractere, na main thread.
+    //
+    // Teto conhecido: FIFO de 128 entradas. Digitar 128 teclas seguidas expulsa
+    // as notas da lista, que voltam ao cache na próxima visita — barato. Parser
+    // incremental por bloco continua na FILA (P1.2).
+    nonisolated static let memoTeto = 128
+    nonisolated private static let memoLock = NSLock()
+    nonisolated(unsafe) private static var memo: [String: [FatiaCaderno]] = [:]
+    nonisolated(unsafe) private static var memoOrdem: [String] = []
 
     nonisolated static func fatias(_ fonte: String) -> [FatiaCaderno] {
         memoLock.lock()
-        if let m = memo, m.fonte == fonte {
+        if let hit = memo[fonte] {
             memoLock.unlock()
-            return m.fatias
+            return hit
         }
         memoLock.unlock()
         let f = fatiasSemMemo(fonte)
         memoLock.lock()
-        memo = (fonte, f)
+        if memo[fonte] == nil {
+            memo[fonte] = f
+            memoOrdem.append(fonte)
+            if memoOrdem.count > memoTeto {
+                memo.removeValue(forKey: memoOrdem.removeFirst())
+            }
+        }
         memoLock.unlock()
         return f
     }
@@ -839,7 +857,7 @@ enum Caderno: Sendable {
     // regex compiladas UMA vez (antes: uma compilação por linha por padrão — o
     // custo dominante do parse em nota longa)
     nonisolated(unsafe) private static var regexCache: [String: NSRegularExpression] = [:]
-    nonisolated(unsafe) private static let regexLock = NSLock()
+    nonisolated private static let regexLock = NSLock()
 
     nonisolated private static func captura(_ texto: String, _ padrao: String) -> [String]? {
         regexLock.lock()

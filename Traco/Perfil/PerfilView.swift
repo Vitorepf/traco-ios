@@ -1,11 +1,16 @@
 import SwiftData
 import SwiftUI
+import UIKit
 
 /// Meu perfil (SPEC §18): conta e ajustes num lugar só.
 /// Não existe chave de API nem cobrança por token — a análise com Grok anda
 /// pela ASSINATURA do autor (ADR 2026-08-31k).
 struct PerfilView: View {
     var sessao: Sessao
+    /// O calendário do Traço é ajuste, e ajuste mora aqui (§20). A engrenagem
+    /// e o "⋯" ocupavam a cabeça do calendário permanentemente para coisas que
+    /// se mexem uma vez na vida — e o "⋯" ainda era duplicata do "+" do campo.
+    var agenda: CalendarioAgenda
     @Environment(\.openURL) private var abrir
 
     @State private var ligada = ContaGrok.ligada
@@ -16,6 +21,26 @@ struct PerfilView: View {
     @State private var corpusURL: URL?
     @State private var importarMd = false
     @State private var escolherPasta = false
+    @State private var sistema = CalendarioSistema()
+    @State private var avisosLigados = false
+    /// ADR 04b: quanto do teto de 64 do iOS já está gasto.
+    @State private var orcamentoDosAvisos = ""
+    /// ADR 04e: o modo férias, em estado local para a tela responder no toque.
+    @State private var feriasLigado = Ferias.ligado
+    @State private var feriasAte: Date? = Ferias.ate
+    @State private var feriasNosFeriados = Ferias.incluiFeriados
+    @State private var estadoDasFerias = Ferias.emPalavras()
+    @State private var confirmarApagarCalendario = false
+    /// ADR 04h/04i: o que o Traço aprendeu, e o retrato exatamente como viaja.
+    @State private var retratoLigado = Retrato.ligado
+    @State private var retratoTexto = ""
+    @State private var sinaisEmPalavras = Sinais.emPalavras()
+    @State private var formasSugeridas: [Gesto] = []
+    @State private var degrausEmPalavras = ""
+    @State private var confirmarEsquecer = false
+    /// ADR 04n: o índice de sentido, em número.
+    @State private var indiceQuantas = Indice.quantas
+    @State private var mostrarMetodos = false
     @Environment(\.modelContext) private var context
     @Query(sort: \Nota.criadaEm, order: .reverse) private var notas: [Nota]
 
@@ -27,7 +52,16 @@ struct PerfilView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: Tema.entreSecoes) {
                     conta.emCartao()
+                    permissoes.emCartao()
+                    calendario.emCartao()
                     ajustes.emCartao()
+                    sabiaEVoce.emCartao()
+                    metodos.emCartao()
+                    // as férias vêm DEPOIS dos ajustes de todo dia: primeiro o
+                    // que vale sempre, depois a exceção (serial-position, e o
+                    // fluxo do Perfil provou que o contrário empurra a análise
+                    // automática para fora da primeira tela)
+                    ferias.emCartao()
                     dados.emCartao()
                     Spacer(minLength: 8)
                 }
@@ -64,7 +98,165 @@ struct PerfilView: View {
             }
         }
         .onDisappear { tarefa?.cancel() }
-        .task { estado = await ContaGrok.estado() }
+        .task {
+            estado = await ContaGrok.estado()
+            lerRetrato()
+        }
+        .confirmationDialog("Esquecer tudo o que o Traço aprendeu de você?",
+                            isPresented: $confirmarEsquecer, titleVisibility: .visible) {
+            Button("Esquecer", role: .destructive) {
+                Sinais.esquecerTudo()
+                lerRetrato()
+                Toque.fechou()
+            }
+            Button("Cancelar", role: .cancel) {}
+        } message: {
+            Text("Os sinais somem do aparelho. As notas ficam.")
+        }
+        .sheet(isPresented: $mostrarMetodos) { listaDeMetodos }
+    }
+
+    // MARK: - A sábia e você (ADR 04h, 04i, 04j)
+
+    private func lerRetrato() {
+        let sinais = Sinais.todos()
+        sinaisEmPalavras = Sinais.emPalavras()
+        let lidas = notas.map {
+            Retrato.NotaLida(gesto: $0.gesto, fechada: $0.fechada, expressiva: $0.gesto == .expressiva,
+                             criadaEm: $0.criadaEm, campos: $0.campos)
+        }
+        retratoTexto = Retrato.ler(notas: lidas, sinais: sinais)
+        formasSugeridas = Gesto.allCases.filter { $0 != .expressiva && Sinais.sugerirEmVezDeVestir($0, sinais: sinais) }
+        degrausEmPalavras = Degraus.emPalavras(sinais: sinais)
+        indiceQuantas = Indice.quantas
+    }
+
+    private var sabiaEVoce: some View {
+        VStack(alignment: .leading, spacing: Tema.entreItens) {
+            rotulo("A SÁBIA E VOCÊ")
+            chave("A sábia conhece você",
+                  "Um retrato feito só com as suas palavras e contagens viaja junto de cada pergunta: as formas que usa, os obstáculos que nomeou, o que não voltou no Recordar. Nunca conclui, nunca pontua.",
+                  id: "ajuste-retrato",
+                  ligado: Binding(
+                    get: { retratoLigado },
+                    set: { novo in
+                        retratoLigado = novo
+                        Retrato.ligado = novo
+                        Toque.leve()
+                    }))
+            if retratoLigado {
+                Text(retratoTexto.isEmpty ? "ainda não há retrato — ele nasce das suas notas e dos sinais." : retratoTexto)
+                    .font(.footnote)
+                    .foregroundStyle(retratoTexto.isEmpty ? Tema.tintaFraca : Tema.tintaSuave)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityIdentifier("retrato")
+                    .accessibilityLabel("O retrato, exatamente como viaja")
+            }
+            VStack(alignment: .leading, spacing: 4) {
+                Text("O que o Traço aprendeu de você")
+                    .font(Tema.chrome)
+                    .foregroundStyle(Tema.tinta)
+                Text(sinaisEmPalavras)
+                    .font(.footnote)
+                    .foregroundStyle(Tema.tintaFraca)
+                    .accessibilityIdentifier("sinais")
+                if !degrausEmPalavras.isEmpty {
+                    // ADR 04x: o autor vê o que a sábia vai cobrar dele
+                    Text("O que a sábia cobra, por forma: " + degrausEmPalavras)
+                        .font(.footnote)
+                        .foregroundStyle(Tema.tintaSuave)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .accessibilityIdentifier("degraus")
+                }
+                if !formasSugeridas.isEmpty {
+                    Text("Você soltou três vezes seguidas: " + formasSugeridas.map(\.nome).joined(separator: ", ")
+                         + ". Por isso o Traço passou a sugerir em vez de vestir. Abrir uma por vontade própria devolve o vestir.")
+                        .font(.footnote)
+                        .foregroundStyle(Tema.tintaSuave)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .accessibilityIdentifier("formas-sugeridas")
+                }
+            }
+            .padding(.top, 4)
+            linhaAcao("Esquecer tudo") { confirmarEsquecer = true }
+                .accessibilityIdentifier("esquecer-sinais")
+        }
+    }
+
+    // MARK: - Métodos (ADR 04l)
+
+    private var metodos: some View {
+        let doApp = Catalogo.doApp.count
+        let doAutor = Catalogo.doAutor.count
+        let problemas = Catalogo.problemas
+        return VStack(alignment: .leading, spacing: Tema.entreItens) {
+            rotulo("MÉTODOS")
+            linhaAcao("\(doApp) do app" + (doAutor > 0 ? " · \(doAutor) seu\(doAutor == 1 ? "" : "s")" : "")) {
+                mostrarMetodos = true
+            }
+            .accessibilityIdentifier("metodos")
+            if !problemas.isEmpty {
+                ForEach(problemas, id: \.self) { p in
+                    Text("não entrou — " + p)
+                        .font(.footnote)
+                        .foregroundStyle(Tema.aviso)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            Text("Cada método é um arquivo. Os seus vivem em Arquivos › Traço › metodos, ou em metodos/ na pasta espelhada: um JSON com id, nome, campos e o movimento que a sábia cobra. O app lê ao abrir.")
+                .font(.footnote)
+                .foregroundStyle(Tema.tintaFraca)
+        }
+    }
+
+    private var listaDeMetodos: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(alignment: .firstTextBaseline) {
+                Text("Métodos")
+                    .font(Tema.tituloTela)
+                    .tracking(Tema.trackingTitulo)
+                    .foregroundStyle(Tema.tinta)
+                Spacer()
+                Button("Pronto") { mostrarMetodos = false }
+                    .font(Tema.barra)
+                    .foregroundStyle(Tema.tinta)
+            }
+            .padding(.horizontal, Tema.margem)
+            .padding(.top, 20)
+            .padding(.bottom, 12)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 14) {
+                    ForEach(Catalogo.todos) { m in
+                        VStack(alignment: .leading, spacing: 3) {
+                            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                                Text(m.nome)
+                                    .font(Tema.corpo.weight(.semibold))
+                                    .foregroundStyle(Tema.tinta)
+                                if m.doAutor {
+                                    Text("SEU")
+                                        .font(.system(size: 9, weight: .semibold))
+                                        .tracking(0.8)
+                                        .foregroundStyle(Tema.ambarTinta)
+                                }
+                                Spacer(minLength: 0)
+                                Text(m.origem)
+                                    .font(Tema.label)
+                                    .foregroundStyle(Tema.tintaFraca)
+                            }
+                            Text(m.campos.map(\.rotulo).joined(separator: " · "))
+                                .font(.footnote)
+                                .foregroundStyle(Tema.tintaSuave)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                    }
+                }
+                .padding(.horizontal, Tema.margem)
+                .padding(.bottom, 24)
+            }
+        }
+        .presentationDetents([.large])
+        .presentationDragIndicator(.visible)
+        .presentationBackground(Tema.superficie)
     }
 
     // MARK: - Conta
@@ -140,7 +332,21 @@ struct PerfilView: View {
                 .accessibilityIdentifier("entrar-conta")
             }
 
-            Text("A análise e a sábia usam a sua assinatura do Grok — sem chave de API, sem cobrança por uso. Com a conta: a linha “?” responde num cartão, “Vestir tudo” refina a forma, e “Instigar” devolve perguntas. Notas trancadas e expressivas jamais vão à rede.")
+            if #available(iOS 26.0, *) {
+                Rectangle().fill(Tema.linha).frame(height: 0.5)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("No aparelho")
+                        .font(Tema.corpo)
+                        .foregroundStyle(Tema.tinta)
+                    Text(AnaliseDeBordo.estadoEmPalavras)
+                        .font(.footnote)
+                        .foregroundStyle(Tema.tintaFraca)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .accessibilityElement(children: .combine)
+                .accessibilityIdentifier("estado-de-bordo")
+            }
+            Text("A análise e a sábia usam a sua assinatura do Grok — sem chave de API, sem cobrança por uso. Sem a conta, a sábia responde pelo modelo do aparelho (Apple Intelligence), sem rede, com uma janela menor. Hoje: " + Sabia.porOndeEmPalavras + ". Notas trancadas e expressivas jamais vão à rede.")
                 .font(Tema.meta)
                 .foregroundStyle(Tema.tintaFraca)
                 .frame(maxWidth: 280, alignment: .leading)
@@ -170,26 +376,203 @@ struct PerfilView: View {
 
     // MARK: - Ajustes
 
-    private var ajustes: some View {
+    /// ADR 2026-09-03c/d: o calendário do sistema e as notificações têm de ter
+    /// ESTADO e VOLTA aqui. Sem isto, quem tocou "Não Permitir" uma vez ficava
+    /// num beco: o app parava de sugerir e nunca dizia por quê.
+    private var permissoes: some View {
         VStack(alignment: .leading, spacing: Tema.entreItens) {
-            rotulo("AJUSTES")
-            Toggle(isOn: Binding(
-                get: { sessao.autoAnalise },
-                set: { novo in
-                    if novo != sessao.autoAnalise { sessao.alternarAutoAnalise() }
+            rotulo("PERMISSÕES")
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Calendários do aparelho")
+                    .font(Tema.chrome.weight(.semibold))
+                    .foregroundStyle(Tema.tinta)
+                Text(sistema.estadoEmPalavras)
+                    .font(Tema.meta)
+                    .foregroundStyle(Tema.tintaSuave)
+                    .accessibilityIdentifier("estado-calendario")
+            }
+            Text("Apple, Google, iCloud — o Traço lê todos os que estão em Ajustes › Apps › Calendário › Contas, e nunca escreve em nenhum. Serve para o campo do calendário já sugerir o seu próximo compromisso.")
+                .font(.footnote)
+                .foregroundStyle(Tema.tintaFraca)
+            if sistema.negado || !avisosLigados {
+                Button("Abrir os Ajustes do Traço") {
+                    if let url = URL(string: UIApplication.openSettingsURLString) { abrir(url) }
                 }
+                .font(Tema.chrome.weight(.semibold))
+                .foregroundStyle(Tema.ambarTinta)
+                .frame(minHeight: Tema.alvo)
+                .buttonStyle(PressaoDiscreta())
+                .accessibilityIdentifier("abrir-ajustes")
+                .accessibilityHint("O iOS só deixa mudar uma permissão negada por lá")
+            }
+            Rectangle().fill(Tema.linha).frame(height: 0.5)
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Avisos")
+                    .font(Tema.chrome.weight(.semibold))
+                    .foregroundStyle(Tema.tinta)
+                Text(avisosLigados
+                     ? "ligados — o Recordar, a revisão de domingo e os seus compromissos cobram na hora."
+                     : "desligados. Sem eles, nada te cobra: nem o Recordar, nem os compromissos.")
+                    .font(Tema.meta)
+                    .foregroundStyle(Tema.tintaSuave)
+                    .accessibilityIdentifier("estado-avisos")
+                // ADR 04b: o iPhone guarda 64 pendentes e descarta o resto em
+                // SILÊNCIO. Um app que promete cobrar tem de mostrar quanto já
+                // prometeu — senão o teto vira a mesma mentira da ADR 04a.
+                if !orcamentoDosAvisos.isEmpty {
+                    Text(orcamentoDosAvisos)
+                        .font(.footnote)
+                        .foregroundStyle(Tema.tintaSuave)
+                        .accessibilityIdentifier("orcamento-avisos")
+                }
+            }
+        }
+        .task {
+            await sistema.pedirAcesso()
+            avisosLigados = await Revisoes.autorizadaParaAvisar()
+            orcamentoDosAvisos = await Avisos.emPalavras()
+        }
+    }
+
+    /// O calendário do Traço — o do aparelho é a seção de cima, e a diferença
+    /// entre os dois é a linha que explica: este vive aqui e não sincroniza.
+    private var calendario: some View {
+        VStack(alignment: .leading, spacing: Tema.entreItens) {
+            rotulo("CALENDÁRIO")
+            Toggle(isOn: Binding(
+                get: { agenda.segundaPrimeiro },
+                set: { agenda.segundaPrimeiro = $0 }
             )) {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Análise automática")
+                    Text("Semana começa na segunda")
                         .font(Tema.corpo)
                         .foregroundStyle(Tema.tinta)
-                    Text("A análise chega sozinha na pausa da escrita. Você nunca precisa lembrar do botão.")
+                    Text("O calendário do Traço vive no aparelho. Não sincroniza, e nunca escreve numa nota.")
                         .font(.footnote)
                         .foregroundStyle(Tema.tintaFraca)
                 }
             }
             .tint(Tema.ambar)
-            .accessibilityIdentifier("ajuste-auto-analise")
+            .accessibilityIdentifier("ajustes-segunda")
+            Rectangle().fill(Tema.linha).frame(height: 0.5)
+            HStack {
+                Text(agenda.eventos.count == 1 ? "1 compromisso" : "\(agenda.eventos.count) compromissos")
+                    .font(Tema.corpo)
+                    .foregroundStyle(Tema.tintaSuave)
+                Spacer()
+                Button("Apagar tudo", role: .destructive) { confirmarApagarCalendario = true }
+                    .font(Tema.meta)
+                    .foregroundStyle(Tema.aviso)
+                    .disabled(agenda.eventos.isEmpty)
+                    .accessibilityIdentifier("ajustes-apagar-tudo")
+            }
+            .frame(minHeight: Tema.alvo)
+        }
+        .confirmationDialog("Apagar todos os compromissos?",
+                            isPresented: $confirmarApagarCalendario, titleVisibility: .visible) {
+            Button("Apagar tudo", role: .destructive) { agenda.apagarTudo() }
+            Button("Cancelar", role: .cancel) {}
+        } message: {
+            Text("Não volta.")
+        }
+    }
+
+    /// ADR 2026-09-04e — o modo férias. O Traço cala o que ELE inventou de
+    /// cobrar; o que o autor marcou continua tocando.
+    private var ferias: some View {
+        VStack(alignment: .leading, spacing: Tema.entreItens) {
+            rotulo("FÉRIAS")
+            chave("Modo férias",
+                  "O Traço para de cobrar memória: a fila do Recordar, a revisão de domingo e a série da expressiva esperam. Os seus compromissos continuam avisando — férias não desmarca dentista.",
+                  id: "ajuste-ferias",
+                  ligado: Binding(
+                    get: { feriasLigado },
+                    set: { novo in
+                        feriasLigado = novo
+                        Ferias.ligado = novo
+                        // ligar sem data mostrava "Até 11/09" (só o fallback do
+                        // seletor) enquanto o estado dizia "sem data": a tela
+                        // exibia um valor que não valia. Ligar assume UMA
+                        // semana, que é o que se pede quando se viaja; "sem
+                        // data" continua sendo escolha explícita logo abaixo.
+                        if !novo {
+                            feriasAte = nil
+                        } else if feriasAte == nil {
+                            feriasAte = Calendar.current.date(byAdding: .day, value: 7, to: .now)
+                        }
+                        Ferias.ate = feriasAte
+                        reagendarCobranças()
+                    }))
+
+            if feriasLigado {
+                DatePicker(
+                    "Até",
+                    selection: Binding(
+                        get: { feriasAte ?? Calendar.current.date(byAdding: .day, value: 7, to: .now) ?? .now },
+                        set: { nova in
+                            feriasAte = nova
+                            Ferias.ate = nova
+                            reagendarCobranças()
+                        }
+                    ),
+                    in: Date()...,
+                    displayedComponents: .date
+                )
+                .font(Tema.corpo)
+                .tint(Tema.ambarTinta)
+                .accessibilityIdentifier("ferias-ate")
+
+                Button("Sem data — desligo eu mesmo") {
+                    feriasAte = nil
+                    Ferias.ate = nil
+                    reagendarCobranças()
+                }
+                .font(Tema.meta)
+                .foregroundStyle(Tema.tintaSuave)
+                .frame(minHeight: Tema.alvo, alignment: .leading)
+                .buttonStyle(PressaoDiscreta())
+                .accessibilityIdentifier("ferias-sem-data")
+            }
+
+            chave("E nos feriados",
+                  "Desligado, o Traço cobra no feriado também — dia em casa é bom dia para recordar.",
+                  id: "ajuste-ferias-feriados",
+                  ligado: Binding(
+                    get: { feriasNosFeriados },
+                    set: { novo in
+                        feriasNosFeriados = novo
+                        Ferias.incluiFeriados = novo
+                        reagendarCobranças()
+                    }))
+
+            Text(estadoDasFerias)
+                .font(Tema.meta)
+                .foregroundStyle(Tema.tintaSuave)
+                .accessibilityIdentifier("estado-ferias")
+        }
+    }
+
+    /// Toda mudança do modo reescreve o que está agendado: sem isto, a fila
+    /// repetente continuaria tocando na praia (ADR 04a — o estado tem de ser
+    /// verdade, não intenção).
+    private func reagendarCobranças() {
+        estadoDasFerias = Ferias.emPalavras()
+        Revisoes.agendarFilaDiaria()
+        Revisoes.agendarRevisaoSemanal()
+        Toque.leve()
+    }
+
+    private var ajustes: some View {
+        VStack(alignment: .leading, spacing: Tema.entreItens) {
+            rotulo("AJUSTES")
+            chave("Análise automática",
+                  "A análise chega sozinha na pausa da escrita. Você nunca precisa lembrar do botão.",
+                  id: "ajuste-auto-analise",
+                  ligado: Binding(
+                    get: { sessao.autoAnalise },
+                    set: { novo in
+                        if novo != sessao.autoAnalise { sessao.alternarAutoAnalise() }
+                    }))
             hora("Recordar às", valor: Binding(
                 get: { Revisoes.hora },
                 set: { Revisoes.hora = $0 }
@@ -204,9 +587,39 @@ struct PerfilView: View {
             ))
             hora("noite", valor: Binding(
                 get: { Ancora.hora(.noite) },
-                set: { Ancora.gravar(.noite, hora: $0) }
+                set: {
+                    Ancora.gravar(.noite, hora: $0)
+                    // a revisão de domingo é agendada na hora da NOITE: sem
+                    // reagendar, o aviso ficava na hora antiga até o próximo
+                    // arranque do app
+                    Revisoes.agendarRevisaoSemanal()
+                }
             ))
         }
+    }
+
+    /// Um ajuste de liga/desliga. A LINHA inteira alterna, não só o
+    /// interruptor de 51×31pt no canto (`fitts-law`): o rótulo e a explicação
+    /// leem como parte do controle, e o dedo do autor acerta um alvo de 350pt.
+    /// O gesto vive no RÓTULO — o interruptor continua consumindo o toque dele,
+    /// então nada alterna duas vezes.
+    private func chave(_ titulo: String, _ explicacao: String, id: String,
+                       ligado: Binding<Bool>) -> some View {
+        Toggle(isOn: ligado) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(titulo)
+                    .font(Tema.corpo)
+                    .foregroundStyle(Tema.tinta)
+                Text(explicacao)
+                    .font(.footnote)
+                    .foregroundStyle(Tema.tintaFraca)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(Rectangle())
+            .onTapGesture { ligado.wrappedValue.toggle() }
+        }
+        .tint(Tema.ambar)
+        .accessibilityIdentifier(id)
     }
 
     private func hora(_ titulo: String, valor: Binding<Int>) -> some View {
@@ -271,9 +684,47 @@ struct PerfilView: View {
                     .accessibilityIdentifier("espelho-pasta")
                     .accessibilityHint("Escolhe uma pasta sua; o Traço grava lá uma cópia da pasta do segundo cérebro a cada nota concluída")
             }
-            Text("O backup automático grava no app Arquivos a cada nota concluída — nada disso depende de nuvem nem de conta. Se escolher uma pasta, a mesma cópia vai para lá; o Traço só escreve, nunca lê de volta.")
+            Text("O backup automático grava no app Arquivos a cada nota concluída — nada disso depende de nuvem nem de conta. Se escolher uma pasta, a mesma cópia vai para lá; o Traço só escreve, nunca lê de volta — exceto a subpasta entrada/.")
                 .font(.footnote)
                 .foregroundStyle(Tema.tintaFraca)
+            // ADR 04p: a entrada do Mac
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Entrada")
+                    .font(Tema.chrome)
+                    .foregroundStyle(Tema.tinta)
+                Text("O que o Mac deixa em Traço/entrada (um .md por nota, pelo companheiro MCP ou por qualquer editor) vira nota aberta ao abrir o app. " + Entrada.ultimaEmPalavras)
+                    .font(.footnote)
+                    .foregroundStyle(Tema.tintaFraca)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityIdentifier("entrada")
+            }
+            .padding(.top, 4)
+            // ADR 04n: o índice de sentido
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Índice de sentido")
+                    .font(Tema.chrome)
+                    .foregroundStyle(Tema.tinta)
+                Text(Indice.disponivel
+                     ? "\(indiceQuantas) \(indiceQuantas == 1 ? "nota" : "notas") no índice. Feito no aparelho: a busca acha pelo sentido, os ecos vêm das mais próximas, e a sábia lê o que se parece com a sua pergunta. Trancadas nunca entram."
+                     : "este aparelho não tem o modelo de frases em português — a busca pelo sentido e os ecos por proximidade ficam desligados.")
+                    .font(.footnote)
+                    .foregroundStyle(Tema.tintaFraca)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityIdentifier("indice-sentido")
+            }
+            .padding(.top, 4)
+            if Indice.disponivel {
+                linhaAcao("Refazer o índice de sentido") {
+                    Indice.apagarTudo()
+                    sessao.sincronizarIndice(no: context)
+                    Toque.leve()
+                    Task {
+                        try? await Task.sleep(for: .seconds(1))
+                        indiceQuantas = Indice.quantas
+                    }
+                }
+                .accessibilityIdentifier("refazer-indice")
+            }
         }
     }
 

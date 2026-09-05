@@ -1,0 +1,33 @@
+# ADR 2026-09-03b: a rede das notas. Quem esta nota cita, e quem cita ela.
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- tapOn: {id: pagina}
+- inputText: "atencao é um musculo"
+- waitForAnimationToEnd: {timeout: 2500}
+- tapOn: {id: "soltar-forma", optional: true}
+- tapOn: "Concluir"
+- waitForAnimationToEnd: {timeout: 2000}
+- tapOn: {id: pagina}
+- inputText: "o dia rendeu porque li [[atencao é um musculo]] de manha"
+- waitForAnimationToEnd: {timeout: 2500}
+- tapOn: {id: "soltar-forma", optional: true}
+- tapOn: "Concluir"
+- waitForAnimationToEnd: {timeout: 2000}
+- openLink: traco://notas
+- extendedWaitUntil:
+    visible: "atencao é um musculo"
+    timeout: 6000
+# regex do maestro é casamento COMPLETO (licoes-swiftui 7): a nota que cita
+# aparece como "o dia rendeu porque li ... de manha" e NÃO casa inteira.
+# Sem índice, isto é a nota citada — a que tem de saber quem a cita.
+- longPressOn: "atencao é um musculo"
+- waitForAnimationToEnd: {timeout: 1500}
+- tapOn: "Ligações"
+- extendedWaitUntil:
+    visible: {id: "rede-pronto"}
+    timeout: 5000
+- assertVisible: "CITAM ESTA NOTA"
+- assertVisible: "o dia rendeu.*"
+- takeScreenshot: /tmp/traco-verify/nav/91-rede

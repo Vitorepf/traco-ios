@@ -1,0 +1,45 @@
+# ADR 04h/04i/04l/04n/04p: cada motor novo tem a sua superfície no Perfil.
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- swipe:
+    start: 1%, 50%
+    end: 85%, 50%
+- tapOn: {id: aba-notas}
+- tapOn: {id: aba-perfil}
+- extendedWaitUntil:
+    visible: "Perfil"
+    timeout: 5000
+- scrollUntilVisible:
+    element: {text: "A SÁBIA E VOCÊ"}
+    direction: DOWN
+    timeout: 25000
+- assertVisible: "A sábia conhece você"
+- assertVisible: "O que o Traço aprendeu de você"
+- assertVisible: "Esquecer tudo"
+- takeScreenshot: /tmp/traco-verify/ciclo/07-perfil-sabia
+# centrado: no pé da tela a linha fica atrás da barra, e o toque cai na barra
+- scrollUntilVisible:
+    element: {text: "21 do app"}
+    direction: DOWN
+    timeout: 25000
+    centerElement: true
+- tapOn: "21 do app"
+- extendedWaitUntil:
+    visible: "WOOP"
+    timeout: 5000
+- assertVisible: "Se–então"
+- scrollUntilVisible:
+    element: {text: "Steelman"}
+    direction: DOWN
+    timeout: 25000
+- takeScreenshot: /tmp/traco-verify/ciclo/08-metodos
+- tapOn: "Pronto"
+- scrollUntilVisible:
+    element: {text: "Índice de sentido"}
+    direction: DOWN
+    timeout: 25000
+    centerElement: true
+- assertVisible: "Entrada"
+- takeScreenshot: /tmp/traco-verify/ciclo/09-indice-e-entrada

@@ -13,6 +13,10 @@ struct TracoApp: App {
         container = try! DiscoTraco.abrir(emTeste: emTeste)
         DiscoTraco.compartilhado = container
         UNUserNotificationCenter.current().delegate = Revisoes.Delegate.compartilhado
+        // ADR 04e: as férias expiram sozinhas — o autor não tem de lembrar de
+        // desligar. O arranque é onde a volta acontece, e é por isso que ele
+        // vem ANTES de agendar: reagendar com o modo velho seria calar de novo.
+        Ferias.expirarSePassou()
         Revisoes.agendarFilaDiaria()
         Revisoes.agendarRevisaoSemanal()
     }
