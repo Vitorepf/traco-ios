@@ -9,73 +9,272 @@ import SwiftUI
 // horizonte) e o app recarrega os kinds afetados depois de cada escrita.
 // Tipografia pelos degraus de `Tema` (D3): escala com o sistema.
 
+/// A ponte entre o instantâneo e o `Relogio` (que é só aritmética de datas).
+extension Relogio {
+    static func inicios(_ leitura: SuperficieDisco.Leitura, agora: Date) -> [Date] {
+        guard case .disponivel(let s) = leitura else { return [] }
+        return s.proximos.filter { $0.fim > agora }.map(\.inicio)
+    }
+}
+
 struct EntradaTraco: TimelineEntry {
     let date: Date
     let leitura: SuperficieDisco.Leitura
+    var relevance: TimelineEntryRelevance?
 
     var indisponivel: Bool { leitura == .indisponivel }
     var destaque: Superficie.Destaque? {
         guard case .disponivel(let s) = leitura else { return nil }
         return s.destaqueDeHoje(agora: date)
     }
-    var geradoEm: Date? {
-        guard case .disponivel(let s) = leitura else { return nil }
-        return s.geradoEm
+    /// F4: o widget do Destaque também mostra o que vem — quando não há a
+    /// única coisa de hoje, ele traz algo do app em vez de morrer vazio.
+    var proximos: [Superficie.Proximo] {
+        guard case .disponivel(let s) = leitura, !s.desatualizada(agora: date) else { return [] }
+        return s.proximos.filter { $0.fim > date }
+    }
+    /// Estado honesto (F2), dito só quando é verdade: passou o horizonte, a
+    /// lista deixou de ser a verdade inteira.
+    var velha: Bool {
+        guard case .disponivel(let s) = leitura else { return false }
+        return s.desatualizada(agora: date)
     }
 }
 
 struct ProvedorTraco: TimelineProvider {
-    private func entrada(_ agora: Date = .now) -> EntradaTraco {
-        EntradaTraco(date: agora, leitura: SuperficieDisco.ler())
+    private func entrada(_ agora: Date, _ leitura: SuperficieDisco.Leitura) -> EntradaTraco {
+        var e = EntradaTraco(date: agora, leitura: leitura)
+        // Relevância declarada (ADR 05x): a Pilha Inteligente sobe o widget
+        // quando há uma coisa por fazer, e o esquece quando ela foi feita.
+        let peso: Float = if e.indisponivel { 0 }
+            else if let d = e.destaque { d.feito ? 5 : 60 }
+            else if e.proximos.isEmpty { 0 } else { 20 }
+        e.relevance = TimelineEntryRelevance(score: peso)
+        return e
     }
-    func placeholder(in context: Context) -> EntradaTraco { entrada() }
+    func placeholder(in context: Context) -> EntradaTraco { entrada(.now, SuperficieDisco.ler()) }
     func getSnapshot(in context: Context, completion: @escaping (EntradaTraco) -> Void) {
-        completion(entrada())
+        completion(entrada(.now, SuperficieDisco.ler()))
     }
     func getTimeline(in context: Context, completion: @escaping (Timeline<EntradaTraco>) -> Void) {
         let agora = Date()
-        let e = entrada(agora)
-        var entradas = [e]
-        if e.destaque != nil {
-            // o Destaque acaba com o dia: à meia-noite a mesma leitura vira ausência
-            let meiaNoite = Calendar.current.startOfDay(
-                for: Calendar.current.date(byAdding: .day, value: 1, to: agora) ?? agora)
-            entradas.append(EntradaTraco(date: meiaNoite, leitura: e.leitura))
-        }
-        completion(Timeline(entries: entradas, policy: entradas.count > 1 ? .atEnd : .never))
+        let leitura = SuperficieDisco.ler()
+        let entradas = Relogio.datas(base: Superficie.transicoes(leitura, agora: agora),
+                                     inicios: Relogio.inicios(leitura, agora: agora),
+                                     agora: agora).map { entrada($0, leitura) }
+        completion(Timeline(entries: entradas.isEmpty ? [entrada(agora, leitura)] : entradas,
+                            policy: .after(Relogio.voltar(agora: agora, ultima: entradas.last?.date))))
     }
 }
 
-/// Um alvo de toque: a palavra, a área inteira. Sem ícone — o vocabulário é o gesto.
+// MARK: - O vocabulário da casa (ADR 05x)
+//
+// O G0 da F4: "nenhuma cor, nenhum ícone, nenhuma hierarquia que diga Traço".
+// O que o app já tem e a casa não usava: o PONTO ÂMBAR — a marca que a tela
+// bloqueada carrega desde a 05u (`DestaqueVivo`, `CompromissoVivo`). Trazê-lo
+// para o widget é o que faz as quatro superfícies pertencerem ao mesmo app,
+// sem inventar cor nem token: `Tema.ambar`, `Tema.label`, nada mais.
+
+/// O cabeçalho: a marca, o nome da seção e — SÓ quando é verdade — o estado.
+/// A F2 gastava uma linha inteira dizendo "atualizado às HH:MM" mesmo com o
+/// dado fresco (um terço do widget pequeno). Um widget mostra CONTEÚDO; a
+/// idade só interessa quando a informação está velha, e aí ela cabe aqui.
+private struct Selo: View {
+    let rotulo: String
+    var estado: String? = nil
+
+    var body: some View {
+        HStack(spacing: 5) {
+            Circle()
+                .fill(Tema.ambar)
+                .frame(width: 5, height: 5)
+            Text(rotulo)
+                .font(Tema.label)
+                .tracking(Tema.trackingLabel)
+                .foregroundStyle(Tema.tintaFraca)
+            if let estado {
+                Text("· \(estado)")
+                    .font(Tema.label)
+                    .tracking(Tema.trackingLabel)
+                    .foregroundStyle(Tema.aviso)
+                    .lineLimit(1)
+            }
+            Spacer(minLength: 0)
+        }
+        .accessibilityElement(children: .combine)
+    }
+}
+
+/// Um atalho compacto: glifo âmbar e palavra. Antes eram duas linhas de texto
+/// de largura inteira com um filete entre elas — "parece menu de sistema, não
+/// widget" (G0 da F4). Aqui ocupam uma linha só, e sobra espaço para conteúdo.
 private struct AtalhoTraco: View {
     let rota: String
     let rotulo: String
-    let destaque: Bool
+    let glifo: String
+    var primario: Bool = false
 
     var body: some View {
         Link(destination: URL(string: rota)!) {
-            Text(rotulo)
-                .font(Tema.meta.weight(.medium))
-                .foregroundStyle(destaque ? Tema.ambarTinta : Tema.tinta)
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .contentShape(Rectangle())
+            corpo
         }
         .accessibilityLabel(rotulo)
     }
+
+    /// No pequeno o sistema só honra um destino (`widgetURL`): ali o atalho é
+    /// desenho, não `Link` — quem leva o toque é o widget inteiro.
+    var corpo: some View {
+        HStack(spacing: 5) {
+            Image(systemName: glifo)
+                .font(Tema.miudo.weight(.semibold))
+            Text(rotulo)
+                .font(Tema.miudo.weight(.semibold))
+                .lineLimit(1)
+                .minimumScaleFactor(0.85)
+        }
+        .foregroundStyle(primario ? Tema.ambarTinta : Tema.tintaSuave)
+        .contentShape(Rectangle())
+    }
 }
 
-/// A idade do que está na tela, dita (ADR 05u) — em hora absoluta: "há 1 min
-/// e 58 seg" mudava a cada segundo numa superfície que o conselho quis calma.
-private struct RodapeAtualizado: View {
-    let gerado: Date
+/// Uma linha de compromisso: hora à esquerda, assunto no meio, sino à direita.
+/// É a unidade que faltava — o médio gastava a área inteira numa frase.
+private struct LinhaProximo: View {
+    let proximo: Superficie.Proximo
+    let agora: Date
+    var primeiro: Bool = false
+
+    private var hoje: Bool { Calendar.current.isDate(proximo.inicio, inSameDayAs: agora) }
+    private var iminente: Bool {
+        primeiro && proximo.inicio.timeIntervalSince(agora) <= Relogio.vespera && proximo.fim > agora
+    }
 
     var body: some View {
-        Text("atualizado às \(Superficie.horaCurta(gerado))")
-            .font(Tema.miudo)
-            .foregroundStyle(Tema.tintaFraca)
-            .lineLimit(1)
+        HStack(alignment: .firstTextBaseline, spacing: 8) {
+            VStack(alignment: .leading, spacing: 0) {
+                Text(proximo.diaInteiro ? "dia" : Superficie.horaCurta(proximo.inicio))
+                    .font((primeiro ? Tema.meta : Tema.miudo).weight(.semibold).monospacedDigit())
+                    .foregroundStyle(iminente ? Tema.ambarTinta : (primeiro ? Tema.tinta : Tema.tintaSuave))
+                if !hoje {
+                    Text(Superficie.diaEmPalavras(proximo.inicio, agora: agora))
+                        .font(Tema.label)
+                        .foregroundStyle(Tema.tintaFraca)
+                        .lineLimit(1)
+                }
+            }
+            .frame(width: 46, alignment: .leading)
+            Text(proximo.titulo)
+                .font((primeiro ? Tema.meta : Tema.miudo).weight(primeiro ? .semibold : .medium))
+                .foregroundStyle(primeiro ? Tema.tinta : Tema.tintaSuave)
+                .lineLimit(1)
+            Spacer(minLength: 0)
+            sino
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(
+            "\(Superficie.quando(proximo.inicio, diaInteiro: proximo.diaInteiro, agora: agora)), \(proximo.titulo)")
+    }
+
+    /// A promessa do alarme, também aqui (ADR 04a: ele tem de VER que vai ser
+    /// cobrado). A soneca pedida na tela bloqueada ganha o âmbar.
+    @ViewBuilder private var sino: some View {
+        if let quando = proximo.lembrarEm, quando > agora {
+            Label(Superficie.horaCurta(quando), systemImage: "bell.badge")
+                .font(Tema.label.monospacedDigit())
+                .foregroundStyle(Tema.ambarTinta)
+                .labelStyle(.titleAndIcon)
+        } else if let aviso = proximo.aviso, aviso > agora {
+            Label(Superficie.horaCurta(aviso), systemImage: "bell.fill")
+                .font(Tema.label.monospacedDigit())
+                .foregroundStyle(Tema.tintaFraca)
+                .labelStyle(.titleAndIcon)
+        }
+    }
+}
+
+/// O compromisso em BLOCO: a hora como manchete, o assunto embaixo. É o que
+/// cabe em 155pt de largura — a linha de agenda (hora | assunto | sino) só
+/// serve onde há largura inteira.
+private struct BlocoProximo: View {
+    let proximo: Superficie.Proximo
+    let agora: Date
+    var restantes: Int = 0
+    var grande: Bool = false
+
+    private var iminente: Bool { proximo.inicio.timeIntervalSince(agora) <= Relogio.vespera }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            if !proximo.diaInteiro {
+                Text(Superficie.horaCurta(proximo.inicio))
+                    .font((grande ? Tema.tituloTela : Tema.corpo).weight(.semibold).monospacedDigit())
+                    .tracking(Tema.trackingTitulo)
+                    .foregroundStyle(iminente ? Tema.ambarTinta : Tema.tinta)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+            }
+            Text(proximo.titulo)
+                .font(Tema.meta.weight(.semibold))
+                .foregroundStyle(Tema.tinta)
+                .lineLimit(2)
+                .minimumScaleFactor(0.85)
+                .padding(.top, proximo.diaInteiro ? 0 : 1)
+            if !Calendar.current.isDate(proximo.inicio, inSameDayAs: agora) {
+                Text(Superficie.diaEmPalavras(proximo.inicio, agora: agora))
+                    .font(Tema.miudo.weight(.medium))
+                    .foregroundStyle(Tema.tintaSuave)
+                    .padding(.top, 2)
+            }
+            // a promessa também aqui: o autor confere o alarme sem abrir o app
+            // (ADR 04a — ele tem de VER que vai ser cobrado)
+            if let quando = proximo.lembrarEm, quando > agora {
+                Label("lembro às \(Superficie.horaCurta(quando))", systemImage: "bell.badge")
+                    .font(Tema.miudo.weight(.medium))
+                    .foregroundStyle(Tema.ambarTinta)
+                    .padding(.top, 6)
+            } else if let aviso = proximo.aviso, aviso > agora {
+                Label(Superficie.horaCurta(aviso), systemImage: "bell.fill")
+                    .font(Tema.miudo.weight(.medium))
+                    .foregroundStyle(Tema.tintaFraca)
+                    .padding(.top, 6)
+            }
+            if restantes > 0 {
+                Text("+\(restantes) depois")
+                    .font(Tema.label)
+                    .tracking(Tema.trackingLabel)
+                    .foregroundStyle(Tema.tintaFraca)
+                    .padding(.top, 6)
+            }
+        }
+    }
+}
+
+/// Vazio não é widget morto (`curva-zero`): a superfície diz o estado numa
+/// linha e OFERECE a próxima ação, com o alvo do widget inteiro por trás.
+private struct Oferta: View {
+    let estado: String
+    /// `nil` quando a ação já está dita ali perto (o médio a tem no cabeçalho):
+    /// oferecer "Nova nota" duas vezes na mesma face é ruído, não convite.
+    var rotulo: String? = nil
+    var glifo: String = "square.and.pencil"
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(estado)
+                .font(Tema.meta.weight(.medium))
+                .foregroundStyle(Tema.tintaSuave)
+                .lineLimit(2)
+                .minimumScaleFactor(0.85)
+            if let rotulo {
+                HStack(spacing: 5) {
+                    Image(systemName: glifo).font(Tema.miudo.weight(.semibold))
+                    Text(rotulo).font(Tema.miudo.weight(.semibold)).lineLimit(1).minimumScaleFactor(0.85)
+                }
+                .foregroundStyle(Tema.ambarTinta)
+            }
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(rotulo.map { "\(estado). \($0)" } ?? estado)
     }
 }
 
@@ -141,78 +340,126 @@ struct TracoWidgetView: View {
         .containerBackground(Tema.fundo, for: .widget)
     }
 
-    private var regua: some View {
-        Rectangle().fill(Tema.linha).frame(height: 0.5).padding(.vertical, 10)
+    /// O estado, dito só quando é verdade (F4, item 2).
+    private var estado: String? {
+        if entrada.indisponivel { return "sem dados" }
+        return entrada.velha ? "desatualizado" : nil
     }
 
-    /// No pequeno, a linha do Destaque (ou o "sem dados") ocupa o lugar do
-    /// segundo atalho: o widget existe para mostrar a única coisa de hoje
-    /// INTEIRA, e "Correr antes…" não a mostrava (A3 do G3). Recordar segue
-    /// no médio e no app.
-    private var soNovaNota: Bool {
-        familia == .systemSmall && (entrada.indisponivel || entrada.destaque != nil)
+    /// Quantas linhas a única coisa de hoje pode ocupar. Em tamanho de
+    /// acessibilidade o pequeno abre mão do atalho: a linha vem primeiro.
+    private var linhasDoDestaque: Int {
+        if familia == .systemSmall { return tipo.isAccessibilitySize ? 4 : 3 }
+        return 2
+    }
+    private var soALinha: Bool { familia == .systemSmall && tipo.isAccessibilitySize }
+    /// O miolo já traz a ação: repeti-la no rodapé mostrava "Nova nota" duas
+    /// vezes no mesmo widget (visto no simulador, 06/09).
+    private var ofertando: Bool {
+        entrada.indisponivel || (entrada.destaque == nil && entrada.proximos.isEmpty)
     }
 
-    /// Em tamanho de acessibilidade o pequeno não cabe linha, atalho e
-    /// rodapé: fica só a única coisa de hoje, em até três linhas (visto no
-    /// Air em AX5: "Correr a…" e "atualizado às 0…"). O médio segue inteiro.
-    private var soALinha: Bool { soNovaNota && tipo.isAccessibilitySize }
+    /// A única coisa de hoje, e um toque que a fecha sem abrir o app (F2).
+    /// Agora ela é o ASSUNTO do widget: 17pt, não 15, e o círculo âmbar.
+    @ViewBuilder private func linhaDoDestaque(_ d: Superficie.Destaque) -> some View {
+        BotaoFeito(destaque: d) {
+            HStack(alignment: .top, spacing: 8) {
+                Image(systemName: d.feito ? "checkmark.circle.fill" : "circle")
+                    .font(Tema.chrome.weight(.light))
+                    .foregroundStyle(d.feito ? Tema.tintaFraca : Tema.ambar)
+                Text(d.linha)
+                    .font(Tema.chrome.weight(.semibold))
+                    .foregroundStyle(d.feito ? Tema.tintaFraca : Tema.tinta)
+                    .strikethrough(d.feito, color: Tema.tintaFraca)
+                    .lineLimit(linhasDoDestaque)
+                    .minimumScaleFactor(0.85)
+                    .multilineTextAlignment(.leading)
+                Spacer(minLength: 0)
+            }
+            .contentShape(Rectangle())
+        }
+    }
 
-    private var casa: some View {
+    /// O miolo do pequeno, por ordem de valor: a única coisa de hoje; sem
+    /// ela, o que vem a seguir (é o mesmo instantâneo — nada de dado novo);
+    /// sem nada, a oferta. Nunca um vazio de um terço de widget.
+    @ViewBuilder private var miolo: some View {
+        if entrada.indisponivel {
+            Oferta(estado: "Não consegui ler o Traço.", rotulo: "Abrir o Traço",
+                   glifo: "arrow.up.forward.app")
+        } else if let d = entrada.destaque {
+            linhaDoDestaque(d)
+        } else if let p = entrada.proximos.first {
+            // sem a única coisa de hoje, o pequeno traz o que vem — em bloco,
+            // porque a LINHA de agenda (hora | assunto | sino) não cabe em 155pt
+            BlocoProximo(proximo: p, agora: entrada.date, restantes: entrada.proximos.count - 1)
+        } else {
+            Oferta(estado: "Nada em destaque hoje.", rotulo: "Nova nota")
+        }
+    }
+
+    /// PEQUENO: o widget inteiro é um alvo só (`widgetURL`), então os atalhos
+    /// aqui são desenho — e só um deles, o primário. "Recordar" continua
+    /// encontrável no médio e no app (curva-zero: o poder não some, muda de
+    /// lugar).
+    private var pequeno: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("TRAÇO")
-                .font(Tema.label)
-                .tracking(Tema.trackingLabel)
-                .foregroundStyle(Tema.tintaFraca)
+            Selo(rotulo: "TRAÇO", estado: estado)
             Spacer(minLength: 8)
-            if entrada.indisponivel {
-                // App Group indisponível ou arquivo corrompido: dito, nunca fingido
-                Text("sem dados · abra o Traço")
-                    .font(Tema.meta.weight(.medium))
-                    .foregroundStyle(Tema.tintaFraca)
-                    .lineLimit(soALinha ? 3 : 2)
-                if !soALinha { regua }
-            } else if let d = entrada.destaque {
-                // F2: a única coisa de hoje, e um toque que a fecha sem abrir
-                // o app. Não é streak nem contagem — vale só para hoje.
-                BotaoFeito(destaque: d) {
-                    HStack(alignment: .top, spacing: 8) {
-                        Image(systemName: d.feito ? "checkmark.circle.fill" : "circle")
-                            .font(Tema.meta)
-                            .foregroundStyle(d.feito ? Tema.tintaSuave : Tema.tintaFraca)
-                        Text(d.linha)
-                            .font(Tema.meta.weight(.medium))
-                            .foregroundStyle(d.feito ? Tema.tintaFraca : Tema.tinta)
-                            .strikethrough(d.feito, color: Tema.tintaFraca)
-                            .lineLimit(soALinha ? 3 : 2)
-                            .multilineTextAlignment(.leading)
-                        Spacer(minLength: 0)
-                    }
-                    .contentShape(Rectangle())
-                }
-                if !soALinha { regua }
-            }
-            if soALinha {
-                EmptyView()
-            } else if soNovaNota {
-                AtalhoTraco(rota: "traco://nova", rotulo: "Nova nota", destaque: true)
-            } else if familia == .systemSmall {
-                AtalhoTraco(rota: "traco://nova", rotulo: "Nova nota", destaque: true)
-                Rectangle().fill(Tema.linha).frame(height: 0.5).padding(.vertical, 12)
-                AtalhoTraco(rota: "traco://recordar", rotulo: "Recordar", destaque: false)
-            } else {
-                HStack(spacing: 16) {
-                    AtalhoTraco(rota: "traco://nova", rotulo: "Nova nota", destaque: true)
-                    Rectangle().fill(Tema.linha).frame(width: 0.5)
-                    AtalhoTraco(rota: "traco://recordar", rotulo: "Recordar", destaque: false)
-                }
-            }
-            Spacer(minLength: 0)
-            if let gerado = entrada.geradoEm, !soALinha {
-                RodapeAtualizado(gerado: gerado)
+            miolo
+            Spacer(minLength: 4)
+            if !soALinha, !ofertando {
+                AtalhoTraco(rota: "traco://nova", rotulo: "Nova nota",
+                            glifo: "square.and.pencil", primario: true).corpo
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .widgetURL(URL(string: "traco://nova"))
+    }
+
+    /// MÉDIO: em faixas de largura inteira, não em duas colunas — a coluna
+    /// estreita cortava "Dentista" em "De…" (visto no simulador, 06/09).
+    /// Em cima o dia do autor (marca, atalhos, a única coisa); embaixo o que
+    /// vem. O médio tinha lugar para três compromissos e usava tudo numa
+    /// frase (G0 da F4, item 5).
+    private var medio: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(alignment: .firstTextBaseline, spacing: 12) {
+                Selo(rotulo: "TRAÇO", estado: estado)
+                if !tipo.isAccessibilitySize {
+                    AtalhoTraco(rota: "traco://nova", rotulo: "Nova nota",
+                                glifo: "square.and.pencil", primario: true)
+                    AtalhoTraco(rota: "traco://recordar", rotulo: "Recordar",
+                                glifo: "arrow.counterclockwise")
+                }
+            }
+            Spacer(minLength: 8)
+            if entrada.indisponivel {
+                Oferta(estado: "Não consegui ler o Traço.")
+            } else if let d = entrada.destaque {
+                linhaDoDestaque(d)
+            } else if entrada.proximos.isEmpty {
+                Oferta(estado: "Nada em destaque hoje.")
+            }
+            if !entrada.proximos.isEmpty, !tipo.isAccessibilitySize {
+                Spacer(minLength: 10)
+                Rectangle().fill(Tema.linha).frame(height: 0.5)
+                    .padding(.bottom, 8)
+                ForEach(Array(entrada.proximos.prefix(entrada.destaque == nil ? 3 : 2).enumerated()),
+                        id: \.element.ocorrencia) { i, p in
+                    LinhaProximo(proximo: p, agora: entrada.date, primeiro: i == 0)
+                        .padding(.bottom, 6)
+                }
+            }
+            Spacer(minLength: 0)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    }
+
+    private var casa: some View {
+        Group {
+            if familia == .systemMedium { medio } else { pequeno }
+        }
     }
 }
 
@@ -222,7 +469,7 @@ struct TracoWidget: Widget {
             TracoWidgetView(entrada: entrada)
         }
         .configurationDisplayName("Traço")
-        .description("O Destaque do dia na tela bloqueada. Na casa: uma página ou Recordar.")
+        .description("A única coisa de hoje, o que vem a seguir e um toque para começar.")
         .supportedFamilies([.systemSmall, .systemMedium, .accessoryRectangular, .accessoryInline])
     }
 }
@@ -316,6 +563,7 @@ struct DestaqueVivo: Widget {
 struct EntradaProximo: TimelineEntry {
     let date: Date
     let leitura: SuperficieDisco.Leitura
+    var relevance: TimelineEntryRelevance?
 
     /// Um estado só por entrada, decidido pela DATA da entrada: a mesma
     /// leitura vira "nada marcado" quando o último acaba e "desatualizado"
@@ -325,37 +573,77 @@ struct EntradaProximo: TimelineEntry {
         return s.estadoDoProximo(agora: date)
     }
 
-    var geradoEm: Date? {
+    /// A agenda que ainda vale, para o médio: até três, na ordem.
+    var proximos: [Superficie.Proximo] {
+        guard case .disponivel(let s) = leitura, !s.desatualizada(agora: date) else { return [] }
+        return s.proximos.filter { $0.fim > date }.map { p in
+            var p = p
+            if let l = p.lembrarEm, l <= date { p.lembrarEm = nil }
+            return p
+        }
+    }
+
+    /// F4: quando não há compromisso, o widget traz o que o app tem —
+    /// a única coisa de hoje — em vez de um vazio de quatro por dois.
+    var destaque: Superficie.Destaque? {
         guard case .disponivel(let s) = leitura else { return nil }
-        return s.geradoEm
+        return s.destaqueDeHoje(agora: date)
     }
 }
 
 struct ProvedorProximo: TimelineProvider {
-    private func entrada(_ agora: Date = .now) -> EntradaProximo {
-        EntradaProximo(date: agora, leitura: SuperficieDisco.ler())
+    private func entrada(_ agora: Date, _ leitura: SuperficieDisco.Leitura) -> EntradaProximo {
+        var e = EntradaProximo(date: agora, leitura: leitura)
+        // Relevância declarada (ADR 05x): quanto mais perto o compromisso,
+        // mais alto o widget sobe na Pilha Inteligente.
+        let peso: Float
+        if case .proximo(let p) = e.estado {
+            let falta = p.inicio.timeIntervalSince(agora)
+            peso = falta <= Relogio.vespera ? 90 : (falta <= 6 * 3600 ? 50 : 20)
+        } else if e.destaque != nil {
+            peso = 15
+        } else {
+            peso = 0
+        }
+        e.relevance = TimelineEntryRelevance(score: peso)
+        return e
     }
-    func placeholder(in context: Context) -> EntradaProximo { entrada() }
+    func placeholder(in context: Context) -> EntradaProximo { entrada(.now, SuperficieDisco.ler()) }
     func getSnapshot(in context: Context, completion: @escaping (EntradaProximo) -> Void) {
-        completion(entrada())
+        completion(entrada(.now, SuperficieDisco.ler()))
     }
     func getTimeline(in context: Context, completion: @escaping (Timeline<EntradaProximo>) -> Void) {
         let agora = Date()
         let leitura = SuperficieDisco.ler()
-        // as transições REAIS: cada fim (o seguinte entra, ou "nada marcado"),
-        // a soneca que passa, e o horizonte (depois dele, "desatualizado").
-        // Poucas entradas, nenhuma inventada, e nenhum reload por minuto.
-        let entradas = Superficie.transicoes(leitura, agora: agora).map { EntradaProximo(date: $0, leitura: leitura) }
-        completion(Timeline(entries: entradas, policy: .never))
+        // As transições reais do dia (fim de cada próximo, véspera, soneca,
+        // meia-noite, horizonte) — e uma POLÍTICA de volta. `.never`, que
+        // estava aqui, deixou os dois widgets nove horas parados no iPhone do
+        // dono (06/09, 13:04): sem o app abrir, nada nunca mais era relido.
+        let entradas = Relogio.datas(base: Superficie.transicoes(leitura, agora: agora),
+                                     inicios: Relogio.inicios(leitura, agora: agora),
+                                     agora: agora).map { entrada($0, leitura) }
+        completion(Timeline(entries: entradas.isEmpty ? [entrada(agora, leitura)] : entradas,
+                            policy: .after(Relogio.voltar(agora: agora, ultima: entradas.last?.date))))
     }
 }
 
 struct ProximoWidgetView: View {
     @Environment(\.widgetFamily) private var familia
+    @Environment(\.dynamicTypeSize) private var tipo
     var entrada: EntradaProximo
 
     private func quando(_ p: Superficie.Proximo) -> String {
         Superficie.quando(p.inicio, diaInteiro: p.diaInteiro, agora: entrada.date)
+    }
+
+    /// O estado, dito só quando é verdade (F4, item 2): nunca mais uma linha
+    /// gasta com "atualizado às HH:MM" enquanto o dado está fresco.
+    private var estadoDito: String? {
+        switch entrada.estado {
+        case .indisponivel: "sem dados"
+        case .desatualizado: "desatualizado"
+        default: nil
+        }
     }
 
     /// O que a superfície diz quando não há compromisso para mostrar.
@@ -405,52 +693,75 @@ struct ProximoWidgetView: View {
 
     private var casa: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("PRÓXIMO")
-                .font(Tema.label)
-                .tracking(Tema.trackingLabel)
-                .foregroundStyle(Tema.tintaFraca)
+            Selo(rotulo: "PRÓXIMO", estado: estadoDito)
             Spacer(minLength: 10)
             if case .proximo(let p) = entrada.estado {
-                Text(p.titulo)
-                    .font(Tema.chrome.weight(.semibold))
-                    .foregroundStyle(Tema.tinta)
-                    .lineLimit(2)
-                Text(quando(p))
-                    .font(Tema.miudo.weight(.medium))
-                    .foregroundStyle(Tema.tintaSuave)
-                    .padding(.top, 2)
-                // a promessa também aqui: o autor confere o alarme sem abrir
-                // o app (ADR 04a — ele tem de VER que vai ser cobrado)
-                if let quando = p.lembrarEm {
-                    HStack(spacing: 4) {
-                        Image(systemName: "bell.badge")
-                            .font(Tema.label)
-                        Text("lembro às \(Superficie.horaCurta(quando))")
-                            .font(Tema.miudo.weight(.medium))
-                    }
-                    .foregroundStyle(Tema.ambarTinta)
-                    .padding(.top, 6)
-                } else if let aviso = p.aviso {
-                    HStack(spacing: 4) {
-                        Image(systemName: "bell.fill")
-                            .font(Tema.label)
-                        Text(Superficie.horaCurta(aviso))
-                            .font(Tema.miudo.weight(.medium))
-                    }
-                    .foregroundStyle(Tema.tintaSuave)
-                    .padding(.top, 6)
+                // um compromisso só não vira "lista de um": o bloco preenche o
+                // médio; a agenda entra quando há de fato uma agenda.
+                if familia == .systemMedium, !tipo.isAccessibilitySize, entrada.proximos.count > 1 {
+                    agenda
+                } else {
+                    aquele(p)
                 }
             } else {
-                Text(ausencia)
-                    .font(Tema.meta.weight(.medium))
-                    .foregroundStyle(Tema.tintaSuave)
+                vazio
             }
             Spacer(minLength: 0)
-            if let gerado = entrada.geradoEm {
-                RodapeAtualizado(gerado: gerado)
-            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    }
+
+    /// PEQUENO (e o médio de um só): o compromisso em bloco, com a hora como
+    /// manchete — é o que se lê de relance. E, quando há mais no dia, o autor
+    /// sabe que há mais.
+    private func aquele(_ p: Superficie.Proximo) -> some View {
+        BlocoProximo(proximo: p, agora: entrada.date,
+                     restantes: tipo.isAccessibilitySize ? 0 : entrada.proximos.count - 1,
+                     grande: true)
+    }
+
+    /// MÉDIO: a agenda. Três compromissos com hora, assunto e alarme —
+    /// o espaço que a F2 gastava numa frase (G0 da F4, item 5).
+    private var agenda: some View {
+        VStack(alignment: .leading, spacing: 9) {
+            ForEach(Array(entrada.proximos.prefix(3).enumerated()), id: \.element.ocorrencia) { i, p in
+                if i > 0 { Rectangle().fill(Tema.linha).frame(height: 0.5) }
+                LinhaProximo(proximo: p, agora: entrada.date, primeiro: i == 0)
+            }
+        }
+    }
+
+    /// Vazio é oportunidade (`curva-zero`): sem compromisso, o widget traz a
+    /// única coisa de hoje — que já está no mesmo instantâneo — e só quando
+    /// não há nem isso é que ele oferece a ação.
+    @ViewBuilder private var vazio: some View {
+        if case .vazio = entrada.estado, let d = entrada.destaque {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Nada marcado hoje.")
+                    .font(Tema.miudo.weight(.medium))
+                    .foregroundStyle(Tema.tintaFraca)
+                BotaoFeito(destaque: d) {
+                    HStack(alignment: .top, spacing: 8) {
+                        Image(systemName: d.feito ? "checkmark.circle.fill" : "circle")
+                            .font(Tema.chrome.weight(.light))
+                            .foregroundStyle(d.feito ? Tema.tintaFraca : Tema.ambar)
+                        Text(d.linha)
+                            .font(Tema.chrome.weight(.semibold))
+                            .foregroundStyle(d.feito ? Tema.tintaFraca : Tema.tinta)
+                            .strikethrough(d.feito, color: Tema.tintaFraca)
+                            .lineLimit(familia == .systemSmall ? 3 : 2)
+                            .minimumScaleFactor(0.85)
+                            .multilineTextAlignment(.leading)
+                        Spacer(minLength: 0)
+                    }
+                    .contentShape(Rectangle())
+                }
+            }
+        } else if case .vazio = entrada.estado {
+            Oferta(estado: "Nada marcado.", rotulo: "Marcar um compromisso", glifo: "calendar.badge.plus")
+        } else {
+            Oferta(estado: ausencia, rotulo: "Abrir o Traço", glifo: "arrow.up.forward.app")
+        }
     }
 }
 
@@ -460,7 +771,7 @@ struct TracoProximoWidget: Widget {
             ProximoWidgetView(entrada: entrada)
         }
         .configurationDisplayName("Próximo compromisso")
-        .description("O que vem a seguir, e a que horas o Traço te avisa.")
+        .description("A agenda do dia: hora, assunto e a que horas o Traço te avisa.")
         .supportedFamilies([.systemSmall, .systemMedium, .accessoryRectangular, .accessoryInline])
     }
 }
@@ -689,8 +1000,16 @@ private enum Amostra {
     }
     static func proximo(lembrar: Bool = false) -> Superficie.Proximo {
         .init(titulo: "Dentista", inicio: agora.addingTimeInterval(2700), fim: agora.addingTimeInterval(6300),
-              diaInteiro: false, aviso: agora.addingTimeInterval(2700),
+              diaInteiro: false, aviso: agora.addingTimeInterval(2100),
               lembrarEm: lembrar ? agora.addingTimeInterval(600) : nil)
+    }
+    /// A agenda cheia: o médio tem lugar para três (F4, item 5).
+    static var tres: [Superficie.Proximo] {
+        [proximo(),
+         .init(titulo: "Revisão com o time", inicio: agora.addingTimeInterval(3 * 3600),
+               fim: agora.addingTimeInterval(4 * 3600), diaInteiro: false),
+         .init(titulo: "Jantar com a Ana", inicio: agora.addingTimeInterval(7 * 3600),
+               fim: agora.addingTimeInterval(9 * 3600), diaInteiro: false)]
     }
 
     static var comDestaque: EntradaTraco { .init(date: agora, leitura: superficie(destaque: destaque(feito: false))) }
@@ -698,7 +1017,19 @@ private enum Amostra {
     static var vazio: EntradaTraco { .init(date: agora, leitura: superficie()) }
     static var indisponivel: EntradaTraco { .init(date: agora, leitura: .indisponivel) }
 
+    /// F4: a única coisa de hoje E o que vem — o mesmo instantâneo.
+    static var oDia: EntradaTraco {
+        .init(date: agora, leitura: superficie(destaque: destaque(feito: false), proximos: tres))
+    }
+    /// F4: sem Destaque, o widget traz o que vem em vez de morrer vazio.
+    static var semDestaqueComAgenda: EntradaTraco { .init(date: agora, leitura: superficie(proximos: tres)) }
+
     static var comProximo: EntradaProximo { .init(date: agora, leitura: superficie(proximos: [proximo()])) }
+    static var agendaCheia: EntradaProximo { .init(date: agora, leitura: superficie(proximos: tres)) }
+    /// F4: agenda vazia mostra a única coisa de hoje (curva-zero).
+    static var vazioComDestaque: EntradaProximo {
+        .init(date: agora, leitura: superficie(destaque: destaque(feito: false)))
+    }
     static var comSoneca: EntradaProximo { .init(date: agora, leitura: superficie(proximos: [proximo(lembrar: true)])) }
     static var nadaMarcado: EntradaProximo { .init(date: agora, leitura: superficie()) }
     static var desatualizado: EntradaProximo {
@@ -710,8 +1041,9 @@ private enum Amostra {
 #Preview("Traço · pequeno", as: .systemSmall) {
     TracoWidget()
 } timeline: {
-    Amostra.comDestaque
+    Amostra.oDia
     Amostra.feito
+    Amostra.semDestaqueComAgenda
     Amostra.vazio
     Amostra.indisponivel
 }
@@ -719,8 +1051,9 @@ private enum Amostra {
 #Preview("Traço · médio", as: .systemMedium) {
     TracoWidget()
 } timeline: {
-    Amostra.comDestaque
+    Amostra.oDia
     Amostra.feito
+    Amostra.semDestaqueComAgenda
     Amostra.vazio
     Amostra.indisponivel
 }
@@ -735,7 +1068,7 @@ private enum Amostra {
 }
 
 #Preview("Traço · AX5", traits: .fixedLayout(width: 170, height: 170)) {
-    TracoWidgetView(entrada: Amostra.comDestaque)
+    TracoWidgetView(entrada: Amostra.oDia)
         .padding(16)
         .environment(\.dynamicTypeSize, .accessibility5)
 }
@@ -743,8 +1076,10 @@ private enum Amostra {
 #Preview("Próximo · pequeno", as: .systemSmall) {
     TracoProximoWidget()
 } timeline: {
+    Amostra.agendaCheia
     Amostra.comProximo
     Amostra.comSoneca
+    Amostra.vazioComDestaque
     Amostra.nadaMarcado
     Amostra.desatualizado
     Amostra.semDados
@@ -753,8 +1088,10 @@ private enum Amostra {
 #Preview("Próximo · médio", as: .systemMedium) {
     TracoProximoWidget()
 } timeline: {
+    Amostra.agendaCheia
     Amostra.comProximo
     Amostra.comSoneca
+    Amostra.vazioComDestaque
     Amostra.nadaMarcado
     Amostra.desatualizado
     Amostra.semDados
@@ -770,7 +1107,7 @@ private enum Amostra {
 }
 
 #Preview("Próximo · AX5", traits: .fixedLayout(width: 170, height: 170)) {
-    ProximoWidgetView(entrada: Amostra.comProximo)
+    ProximoWidgetView(entrada: Amostra.agendaCheia)
         .padding(16)
         .environment(\.dynamicTypeSize, .accessibility5)
 }

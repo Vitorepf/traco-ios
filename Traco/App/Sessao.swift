@@ -735,13 +735,19 @@ final class Sessao {
             let evento = EventoCalendario(titulo: c.titulo + String(frase.prefix(80)), inicio: inicio,
                                           fim: inicio.addingTimeInterval(1800),
                                           notas: origemTitulo.isEmpty ? "" : "[[\(origemTitulo)]]")
+            // ADR 05x: onde o dado que o widget mostra muda, o widget é
+            // recarregado. `agenda.guardar` já republica; sem agenda em cena
+            // (encadeamento a partir da página) o compromisso ia ao disco e o
+            // widget só o via na volta seguinte ao app.
             if let agenda {
                 agenda.guardar(evento)
             } else if case .eventos(var lista) = CalendarioDisco.carregar() {
                 lista.append(evento)
                 try? CalendarioDisco.gravar(lista)
+                ProximoCompromisso.publicar(lista, cal: cal)
             } else {
                 try? CalendarioDisco.gravar([evento])
+                ProximoCompromisso.publicar([evento], cal: cal)
             }
             let f = DateFormatter()
             f.locale = Locale(identifier: "pt_BR")

@@ -2815,3 +2815,65 @@ em `ForaDoAppTests` (rota guardada sem ninguém ouvir e consumida uma vez; alvo
 errado recusa sem rota; falha do Anotar não deposita); suíte 715/125 sobre a V10; dois alvos
 sem aviso; capturas no iPhone Air. **Fora (F3b):** ditado próprio — áudio
 salvo primeiro, transcrito depois, falha preserva o áudio — por `.captura`.
+
+---
+
+## ADR 2026-09-05x — Os widgets da casa prestam (volta F4)
+
+**Contexto.** Às 13:04 de 06/09 o dono mandou um print do iPhone dele com um
+veredito de quatro palavras. Os dois widgets diziam "atualizado às 04:14" —
+nove horas parados. E o que eles diziam, além disso, era pouco: o pequeno era
+uma lista de dois links com um filete no meio, o médio inteiro servia para
+"nada marcado", e nada ali dizia Traço.
+
+**Decisão.**
+
+1. **A linha do tempo não congela.** `TracoWidget/Relogio.swift`: as ENTRADAS
+   desenham o dia (elas não custam orçamento — recarga custa) e a POLÍTICA
+   garante a releitura. `policy: .never` sai das duas linhas; entra
+   `.after(voltar(agora:ultima:))`, que é a última entrada limitada a três
+   horas e nunca abaixo de quinze minutos: no máximo oito releituras por dia,
+   e "abra o Traço" deixa de ser a única saída quando o `reloadTimelines` do
+   app é recusado (ChronoCore 27, A1 da 05u). As entradas passam a incluir a
+   VÉSPERA de cada compromisso (uma hora antes, quando a hora vira âmbar), o
+   início, o fim, a soneca, a meia-noite e o horizonte. Relevância declarada
+   (`TimelineEntryRelevance`): a Pilha Inteligente sobe o widget quando há uma
+   coisa por fazer e o esquece quando ela foi feita.
+2. **O widget não fala de si.** `RodapeAtualizado` ("atualizado às HH:MM", um
+   terço do widget pequeno) morre. O estado honesto da 05u fica, dito só
+   quando é VERDADE, e no cabeçalho: `PRÓXIMO · DESATUALIZADO` /
+   `TRAÇO · SEM DADOS`, em `Tema.aviso`, sem gastar linha quando o dado está
+   fresco.
+3. **Vazio é oferta, não vácuo** (`curva-zero`). Sem a única coisa de hoje, o
+   widget do Traço traz o que vem — do MESMO instantâneo, sem dado novo. Sem
+   compromisso, o widget do Próximo traz a única coisa de hoje, com o círculo
+   que a marca. Sem nada, uma linha de estado e UMA ação ("Nova nota",
+   "Marcar um compromisso"); nunca a mesma ação duas vezes na mesma face.
+4. **Identidade.** O PONTO ÂMBAR que a tela bloqueada carrega desde a 05u
+   entra na casa: `Selo` (ponto + rótulo). Os atalhos deixam de ser duas
+   linhas de largura inteira com filete e viram glifo + palavra em `Tema.miudo`
+   — cabem numa linha e sobra espaço para conteúdo. Nenhum token novo:
+   `Tema.ambar`, `ambarTinta`, `label`, `miudo`, `meta`, `chrome`, `tituloTela`,
+   `linha`, `aviso`.
+5. **Densidade.** O médio do Próximo mostra TRÊS compromissos com hora,
+   assunto e a hora do alarme (`LinhaProximo`); um só vira bloco com a hora
+   como manchete (`BlocoProximo`), que é também o pequeno. O médio do Traço é
+   em faixas de largura inteira, não em duas colunas — a coluna estreita
+   cortava "Dentista" em "De…" (medido no simulador, 06/09).
+
+**Custo assumido.** O pequeno tem um destino só (`widgetURL` para
+`traco://nova`): "Recordar" continua no médio e no app, não no pequeno — o
+sistema não honra `Link` no `systemSmall`. Em tamanho de acessibilidade o
+médio abre mão dos atalhos e da agenda: a única coisa de hoje vem primeiro.
+`Relogio.swift` compila também no alvo de testes (`project.yml`), porque a lei
+que faltou à 05u tinha de caber numa suíte.
+
+**Volta:** multiplicar. **A IA:** nada. **Prova:** 11 testes em
+`LinhaDoTempoWidgetTests` (a política sempre devolve volta, com teto, piso e
+orçamento; véspera/início/fim/meia-noite/soneca na linha; nada no passado,
+nada repetido, linha curta); suíte 726/126 e dois alvos sem aviso; capturas
+antes/depois por estado (`ferramentas/orca/f4-*.png`), prova do refresh com
+compromisso criado no app aparecendo no widget, e o `chronod` registrando a
+releitura agendada para +3 h (`f4-chronod-releitura.txt`) onde antes não havia
+nenhuma. **Fora:** StandBy e accessory na tela bloqueada trancada seguem sem
+render no simulador (F1 §7) — prova no aparelho do dono.
