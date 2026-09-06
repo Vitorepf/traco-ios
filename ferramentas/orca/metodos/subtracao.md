@@ -1,7 +1,7 @@
 # Subtração — ficha do candidato
 
-Volta M1 da trilha Métodos · 06/09/2026 · **proposto**, não colado (a volta 16
-está com o `Metodos.json` aberto; a colagem é a volta seguinte).
+Volta M1 da trilha Métodos · 06/09/2026 · **APROVADO pelo dono (06/09)**,
+aguardando a colagem na volta M3 — ver o contrato em `achados-catalogo.md`.
 
 Faculdade: **simplificação** (hoje vazia no catálogo).
 Ciclo: **MELHORAR** — a capacidade de tirar é a que falta quando tudo o que se

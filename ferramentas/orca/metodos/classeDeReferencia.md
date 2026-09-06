@@ -1,6 +1,7 @@
 # Classe de referência — ficha do candidato
 
-Volta M1 da trilha Métodos · 06/09/2026 · **proposto**, não colado.
+Volta M1 da trilha Métodos · 06/09/2026 · **APROVADO pelo dono (06/09)**,
+aguardando a colagem na volta M3.
 
 Faculdade: **previsão** (hoje vazia; a Atualização cobre calibragem de crença,
 não estimativa de prazo).

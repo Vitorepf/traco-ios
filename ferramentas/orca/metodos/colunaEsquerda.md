@@ -1,6 +1,8 @@
 # Coluna da esquerda — ficha do candidato
 
-Volta M1 da trilha Métodos · 06/09/2026 · **proposto**, não colado.
+Volta M1 da trilha Métodos · 06/09/2026 · **APROVADO pelo dono (06/09)**,
+aguardando a colagem na volta M3. **Este é o método da restrição de ordem:**
+ver o contrato em `achados-catalogo.md`.
 
 Faculdade: **relação** (hoje vazia no catálogo — nenhum dos 21 trata de outra
 pessoa).

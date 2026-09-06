@@ -252,7 +252,18 @@ frase longa de desabafo continua indo para a Expressiva mesmo com o Exame da
 noite e a Coluna da esquerda no catálogo — porque os dois entram no fim. É o
 achado do arquivo `achados-catalogo.md`, reconfirmado nesta rodada.
 
-## 6. Estado da trilha
+## 6. Decisão do dono sobre a M1 (06/09, depois desta rodada)
+
+Os quatro da M1 foram **aprovados**, com os Cinco porquês **condicionados** ao
+fecho da citação de Ohno — **condição cumprida no item 1 desta rodada**. O
+conserto da regex do Se–então foi aprovado para a M3. O achado da ordem virou
+**contrato da M3**, escrito em [`achados-catalogo.md`](achados-catalogo.md) para
+o worker que vai executar a colagem.
+
+Os três candidatos desta rodada (Hamming, Bastiat, Sêneca) continuam propostos:
+gosto não decidido, e a M3 **não** os cola.
+
+## 7. Estado da trilha
 
 Sete candidatos propostos em duas rodadas (Subtração, Coluna da esquerda, Classe
 de referência, Cinco porquês, Pergunta de Hamming, O que se vê e o que não se

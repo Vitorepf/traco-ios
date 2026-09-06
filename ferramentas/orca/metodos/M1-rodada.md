@@ -2,6 +2,14 @@
 
 06/09/2026 · worktree `metodos-m1` · pesquisador de métodos.
 
+> **DECISÃO DO DONO (06/09):** os quatro candidatos desta rodada estão
+> **APROVADOS**. Os Cinco porquês entram **condicionados** ao fecho da citação
+> de Ohno — condição **cumprida na volta M2**, com a citação trocada por uma
+> fonte lida na íntegra (ver [`cincoPorques.md`](cincoPorques.md) e
+> [`M2-rodada.md`](M2-rodada.md)). A colagem é a **volta M3**, que só abre
+> depois de a volta 16 mesclar, e cujo contrato está em
+> [`achados-catalogo.md`](achados-catalogo.md).
+
 **Nada foi colado no catálogo.** A volta 16 está com o `Traco/Modelo/Metodos.json`
 aberto e mescla em main antes desta trilha; editar agora era conflito garantido.
 A entrega desta rodada é a proposta pronta e defendida, no esquema NOVO (com
@@ -15,10 +23,10 @@ livre.
 
 | candidato | faculdade | ciclo | estado |
 |---|---|---|---|
-| [Subtração](subtracao.md) | simplificação (vazia) | melhorar | proposto |
-| [Coluna da esquerda](colunaEsquerda.md) | relação (vazia) | melhorar | proposto |
-| [Classe de referência](classeDeReferencia.md) | previsão (vazia) | multiplicar + melhorar | proposto |
-| [Cinco porquês](cincoPorques.md) | causa (vazia) | multiplicar + melhorar | proposto **com pendência de citação de primeira mão** |
+| [Subtração](subtracao.md) | simplificação (vazia) | melhorar | **aprovado**, aguarda a M3 |
+| [Coluna da esquerda](colunaEsquerda.md) | relação (vazia) | melhorar | **aprovado**, aguarda a M3 |
+| [Classe de referência](classeDeReferencia.md) | previsão (vazia) | multiplicar + melhorar | **aprovado**, aguarda a M3 |
+| [Cinco porquês](cincoPorques.md) | causa (vazia) | multiplicar + melhorar | **aprovado**, condição da citação cumprida na M2 |
 | [Matriz de Eisenhower](rejeitado-matrizEisenhower.md) | (foco) | — | **REJEITADO — barra 3, duplica o Destaque e o Dia** |
 
 As quatro faculdades propostas estão vazias hoje. Nenhuma delas foi escolhida

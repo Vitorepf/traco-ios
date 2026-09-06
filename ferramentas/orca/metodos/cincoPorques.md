@@ -1,7 +1,13 @@
 # Cinco porquês — ficha do candidato
 
-Volta M1 da trilha Métodos · 06/09/2026 · **proposto**. Não colado.
-Pendência de citação **fechada na volta M2** (06/09) — ver "Fonte" abaixo.
+Volta M1 da trilha Métodos · 06/09/2026 · **APROVADO pelo dono (06/09),
+CONDICIONADO ao fecho da citação de Ohno — e a condição está CUMPRIDA.**
+
+O dono aprovou este método com uma condição: fechar a citação na fonte primária
+ou trocá-la por uma verificável. Foi trocada, na volta M2, por uma fonte lida na
+íntegra — Toyota Motor Corporation, *Toyota Traditions*, março de 2006. A
+substituição está detalhada em "Fonte", com o registro do que se tentou antes.
+**Condição cumprida: o método entra.** Aguarda a colagem na M3.
 
 Faculdade: **causa** (hoje vazia; o catálogo tem três métodos para o que ainda
 vai acontecer — Pré-mortem, Inversão, Especificação — e nenhum para o que já
