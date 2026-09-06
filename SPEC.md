@@ -2412,6 +2412,18 @@ recusa da observação diz o que o código detecta ("repete o exemplo ou passa d
 teto"), não "reescrita"; e a queda do Grok para o aparelho, quando ele existe,
 respeita o teto do aparelho.
 
+Re-revisão (06/09/2026): tirar o bloco antigo tinha levado junto o único
+caminho de `delegar` (o padrão) para propor, confirmar ou contestar uma
+dificuldade, e as hipóteses já gravadas ficavam invisíveis. Em `delegar` a
+seção vira "Dificuldade": o mesmo `dificuldade(o)`, logo abaixo do objetivo e
+antes do pedido, porque a contestada muda o próximo pedido (05i); e as
+tentativas escritas antes de mudar o apoio continuam na tela, só leitura, com
+a linha "Escritas quando o apoio era praticar" (P2-H, P3-K). Com exercício
+preparado e a conta desligada depois, a linha da conta entra no lugar de
+"Conferir minha tentativa" em vez de o botão sumir mudo (P3-I). A linha da
+preparação que não validou só aparece com conta ligada, então culpa a
+resposta ("A IA não devolveu um exercício válido"), não o aparelho (P3-J).
+
 **Custo assumido, nomeado:** a validação lê FORMA. Ela não pega um exemplo que
 satisfaz o próprio enunciado quando o enunciado é genérico, nem um critério
 que cobra o que a conferência textual não pode ler ("pronunciar corretamente",
@@ -2421,16 +2433,20 @@ ninguém recebe exercício nem feedback, e o pedido de prática sem conta fica
 de que o aparelho não serve valem mais que a promessa. Tentativa sem
 exercício não tem feedback — não há critérios contra os quais ler. E o
 feedback continua sendo o mesmo tipo de provedor lendo: não é avaliação
-independente, e o rodapé diz isso.
+independente, e o rodapé diz isso. Em `delegar` o campo "O que está
+dificultando isso?" está na tela padrão de todo Trabalho, mesmo sem hipótese
+nenhuma: um campo e um botão a mais, assumidos para que a hipótese continue
+corrigível sem trocar o apoio.
 
 **Volta:** melhorar — gargalo, prática, tentativa, feedback, recalibrar. **O
 que a IA sabe:** para preparar, o objetivo, o resultado, a dificuldade
 declarada e o pedido; nunca a tentativa. Para conferir, o exercício, o apoio e
-a tentativa, sem saber quem escreveu. **Prova:** 42 testes
-(`PraticaTrabalhoTests`), suíte integral em 05/09/2026 (número em EVOLUCAO), a
+a tentativa, sem saber quem escreveu. **Prova:** 43 testes
+(`PraticaTrabalhoTests`), suíte integral em 06/09/2026 (número em EVOLUCAO), a
 jornada pela tela (`ferramentas/orca/v6-*.png`, aparelho do dono; `v6-fix-*.png`,
 simulador de teste, estados sem conta, prática indisponível, tentativa guardada
-e Dynamic Type grande) e o caso real de prova/6.md em quatro amostras: a preparação e o feedback estruturados SAÍRAM
+e Dynamic Type grande; `v6-fix2-*.png`, delegar com hipóteses e tentativas,
+exercício com a conta desligada depois) e o caso real de prova/6.md em quatro amostras: a preparação e o feedback estruturados SAÍRAM
 do modelo de bordo por geração guiada — o que a V5 não conseguiu com JSON
 livre —, mas o exercício reduziu 15 minutos a uma frase e o feedback não
 conferiu um único critério, porque nas 12 citações não copiou a tentativa
@@ -2440,7 +2456,10 @@ Retrato e Trajetória (nada é alimentado por isto); qualquer streak, medalha,
 contagem ou promoção; prática e feedback pelo Grok (sem conta em nenhum
 simulador: o único provedor oferecido está sem prova real); origem externa da
 tentativa (`Tentativa.origem` só aceita `.pessoa`; texto copiado ou importado
-não tem caminho para entrar como tentativa com a sua origem); aprendizagem
+não tem caminho para entrar como tentativa com a sua origem); escrever
+tentativa nova em `delegar` (a lista é só leitura; mudar o apoio devolve o
+campo); hipótese proposta pela IA em `delegar` (só a pessoa propõe ali; a IA
+propõe apenas dentro da preparação, com `hipoteseID`); aprendizagem
 duradoura, pronúncia e transferência.
 
 ## ADR 2026-09-05s — O commit antes do anúncio, em toda rota

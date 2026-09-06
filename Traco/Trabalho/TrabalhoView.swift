@@ -197,9 +197,12 @@ struct TrabalhoView: View {
     /// "praticar"; em "combinar" só depois que a pessoa delimita o trecho que
     /// ela mesma vai exercitar — sem delimitação, combinar é entrega delegada.
     /// A tentativa existe SEM exercício e SEM conta: a prática é da pessoa.
+    /// Em "delegar" a seção vira só a dificuldade (05i: a hipótese continua
+    /// corrigível e a contestada muda o próximo pedido) e, se houver, as
+    /// tentativas já escritas — o apoio é escolha contextual, não penalidade.
     @ViewBuilder private func praticar(_ o: OficinaTrabalho) -> some View {
-        if o.documento.apoio != .delegar {
-            VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 16) {
+            if o.documento.apoio != .delegar {
                 titulo("Praticar")
                 Text("O que você quer conseguir fazer: \(o.documento.intencaoAtual.texto)")
                     .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
@@ -224,7 +227,25 @@ struct TrabalhoView: View {
                     }
                     tentativas(artefatoID: pratica == nil ? nil : versao?.id, pratica: pratica, oficina: o)
                 }
-                dificuldade(o)
+            } else {
+                titulo("Dificuldade")
+            }
+            dificuldade(o)
+            if o.documento.apoio == .delegar { tentativasGuardadas(o) }
+        }
+    }
+
+    /// P3-K: quem praticou e depois mudou o apoio para delegar não perde de
+    /// vista o que escreveu. Só leitura: escrever outra pede apoio praticar.
+    @ViewBuilder private func tentativasGuardadas(_ o: OficinaTrabalho) -> some View {
+        let guardadas = o.documento.evidencias.filter { $0.tentativa != nil }
+        if !guardadas.isEmpty {
+            Text("Tentativas (\(guardadas.count))").font(Tema.barra)
+            Text("Escritas quando o apoio era praticar. Para escrever outra, volte o apoio para praticar.")
+                .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+            ForEach(guardadas) { e in
+                tentativa(e, pratica: o.documento.artefatos.first { $0.id == e.artefatoID }?.pratica,
+                          ultima: false, oficina: o)
             }
         }
     }
@@ -368,11 +389,16 @@ struct TrabalhoView: View {
     }
 
     /// Decisão (b), como em 05q: "Conferir minha tentativa" só com conta Grok.
-    /// Sem conta ou sem exercício a linha de recusa já está no material acima;
-    /// aqui não se repete. "Nova tentativa" é da pessoa e fica sempre.
+    /// Sem exercício a linha de recusa já está no material acima. Com exercício
+    /// e a conta desligada depois, o cartão ocupa o lugar dela: a linha entra
+    /// aqui, no lugar do botão (P3-I). "Nova tentativa" é da pessoa e fica sempre.
     @ViewBuilder private func botaoDoFeedback(_ e: DocumentoTrabalho.Evidencia, comExercicio: Bool,
                                               oficina o: OficinaTrabalho) -> some View {
-        if !comExercicio || PraticaTrabalho.oferta(contaLigada: ContaGrok.ligada) != nil {
+        if !comExercicio {
+            botaoNovaTentativa
+        } else if let linha = PraticaTrabalho.oferta(contaLigada: ContaGrok.ligada) {
+            Text(linha).font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+                .accessibilityIdentifier("pratica-sem-provedor")
             botaoNovaTentativa
         } else if o.conferindoTentativa {
             ProgressView("A IA está conferindo sua tentativa…").font(Tema.meta)

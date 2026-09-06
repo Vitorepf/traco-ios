@@ -37,8 +37,10 @@ nonisolated enum PraticaTrabalho {
     }
     static let foraDoContrato = "A resposta não veio no formato exigido (chave fora do contrato, situação desconhecida, critério inventado ou JSON inválido). Não interpretei uma resposta que não valida."
     /// P1 da volta 6: a preparação que não valida NÃO cai na produção
-    /// delegada. O pedido fica guardado e a tentativa continua possível.
-    static let preparacaoIndisponivel = "A preparação da prática não ficou disponível neste aparelho; o pedido foi guardado. Você pode escrever sua tentativa mesmo assim."
+    /// delegada. O pedido fica guardado e a tentativa continua possível. A tela
+    /// só mostra isto com conta ligada (sem conta, `oferta` fala antes), por
+    /// isso o texto culpa a resposta, não o aparelho (P3-J).
+    static let preparacaoIndisponivel = "A IA não devolveu um exercício válido; o pedido foi guardado. Você pode escrever sua tentativa mesmo assim."
 
     // MARK: - Limites declarados
 

@@ -296,6 +296,27 @@ struct PraticaTrabalhoTests {
         #expect(PraticaTrabalho.estado(try #require(d.hipoteses.first).estado) == "faz sentido neste contexto")
     }
 
+    /// P2-H da volta 6: em `delegar` (o padrão) a dificuldade continua o
+    /// caminho da 05i. A hipótese nasce pela tela com autoria, a contestação
+    /// sobrevive ao disco e entra no próximo pedido delegado — e o que foi
+    /// praticado antes de mudar o apoio continua no documento.
+    @Test func emDelegarAHipoteseTemAutoriaEAContestadaEntraNoProximoPedido() throws {
+        var (d, _, tentativaID) = try comTentativa()
+        d.apoio = .delegar
+        let h = try d.proporHipotese("Faltou o vocabulário da apresentação", propostaPor: "Você")
+        try d.avaliarHipotese(h.id, estado: .contestada, motivo: "Eu sabia as palavras; faltou coragem.")
+        let lido = try Trabalho(documento: d).ler()
+        #expect(lido.apoio == .delegar)
+        #expect(lido.hipoteses.map(\.propostaPor) == ["Você"])
+        #expect(lido.hipoteses.first?.estado == .contestada)
+        #expect(lido.hipoteses.first?.motivoAvaliacao == "Eu sabia as palavras; faltou coragem.")
+        #expect(lido.evidencias.contains { $0.id == tentativaID && $0.tentativa != nil })
+        var seguinte = lido
+        let pedido = try seguinte.iniciarPedido("Escreva a apresentação por mim.")
+        let texto = MotorTrabalho.pedido(seguinte, pedido, teto: 18_000)
+        #expect(texto.contains(h.texto) && texto.contains("contestada"))
+    }
+
     /// O estado "prática indisponível" sobrevive ao disco e não é pedido ativo.
     @Test func praticaIndisponivelSobreviveAoDiscoENaoBloqueiaNovoPedido() throws {
         var d = DocumentoTrabalho(intencao: "Praticar espanhol")
