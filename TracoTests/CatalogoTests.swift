@@ -163,6 +163,70 @@ import Testing
         #expect(Catalogo.metodo("inversao")?.encadeamentos.first?.para == "premortem")
     }
 
+    /// ADR 05x: os 21 dizem de onde vêm, com função válida (prática, lente
+    /// ou evidência) e sem campo vazio — "sem evidência específica conhecida"
+    /// é resposta; silêncio não é.
+    @Test func osVinteEUmTemProveniencia() throws {
+        for m in Catalogo.doApp {
+            let p = try #require(m.proveniencia, Comment(rawValue: m.id))
+            #expect(p.funcao != nil, Comment(rawValue: m.id))
+            #expect(!p.fonte.isEmpty && !p.adaptacao.isEmpty && !p.evidencia.isEmpty && !p.aplicabilidade.isEmpty, Comment(rawValue: m.id))
+            #expect(p.linhas.count == 5, Comment(rawValue: m.id))
+        }
+        #expect(Set(Catalogo.doApp.compactMap { $0.proveniencia?.funcao }).count == 3)
+    }
+
+    /// ADR 05x: a proveniência é aditiva — JSON antigo decodifica sem ela,
+    /// função desconhecida vira "não informada" sem derrubar o método, e o
+    /// que entra volta igual.
+    @Test func aProvenienciaEOpcionalNoArquivo() throws {
+        let sem = try JSONDecoder().decode(Metodo.self, from: Data(#"{"id":"x","nome":"X","campos":[]}"#.utf8))
+        #expect(sem.proveniencia == nil)
+        let com = try JSONDecoder().decode(Metodo.self, from: Data(#"""
+            {"id":"x","nome":"X","campos":[],"proveniencia":{"fonte":"Alguém, 2001","funcao":"lente","evidencia":"sem evidência específica conhecida"}}
+            """#.utf8))
+        let p = try #require(com.proveniencia)
+        #expect(p.funcao == .lente)
+        #expect(p.funcaoEmPalavras == "lente")
+        #expect(p.linhas.map(\.rotulo) == ["FONTE", "FUNÇÃO", "EVIDÊNCIA"])
+        let invalida = try JSONDecoder().decode(Metodo.self, from: Data(#"""
+            {"id":"x","nome":"X","campos":[],"proveniencia":{"fonte":"Alguém","funcao":"milagre"}}
+            """#.utf8))
+        #expect(invalida.proveniencia?.funcao == nil)
+        #expect(invalida.proveniencia?.funcaoEmPalavras == "não informada")
+        #expect(invalida.proveniencia?.linhas.map(\.rotulo) == ["FONTE"])
+        let volta = try JSONDecoder().decode(Metodo.self, from: JSONEncoder().encode(com))
+        #expect(volta.proveniencia == p)
+    }
+
+    /// ADR 05x: método do autor sem o campo entra e a tela diz "não
+    /// informada"; com o campo, é a dele.
+    @Test func oMetodoDoAutorEntraComOuSemProveniencia() throws {
+        let pasta = FileManager.default.temporaryDirectory.appendingPathComponent("metodos-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: pasta, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: pasta); Catalogo.pastaDoAutor = pasta.deletingLastPathComponent().appendingPathComponent("nada"); Catalogo.recarregar() }
+        try #"{"id":"cornell","nome":"Cornell","campos":[{"id":"pistas","rotulo":"Pistas"}]}"#
+            .write(to: pasta.appendingPathComponent("cornell.json"), atomically: true, encoding: .utf8)
+        try #"{"id":"pomodoro","nome":"Pomodoro","campos":[{"id":"tarefa","rotulo":"Tarefa"}],"proveniencia":{"fonte":"Francesco Cirillo, anos 1980","funcao":"pratica"}}"#
+            .write(to: pasta.appendingPathComponent("pomodoro.json"), atomically: true, encoding: .utf8)
+        Catalogo.pastaDoAutor = pasta
+        Catalogo.recarregar()
+        #expect(Catalogo.doAutor.map(\.id) == ["cornell", "pomodoro"])
+        #expect(Catalogo.metodo("cornell")?.proveniencia == nil)
+        #expect(Catalogo.metodo("pomodoro")?.proveniencia?.fonte == "Francesco Cirillo, anos 1980")
+        #expect(Catalogo.metodo("pomodoro")?.doAutor == true)
+    }
+
+    /// ADR 05x: o método que saiu da pasta é DITO, não escondido — e o do
+    /// catálogo não diz nada.
+    @Test func oMetodoAusenteTemEstadoParaATela() throws {
+        let sumiu = try #require(Gesto(rawValue: "metodoQueSumiu"))
+        #expect(sumiu.estadoDoMetodo == "o método “metodoQueSumiu” saiu da sua pasta; os campos continuam na nota.")
+        #expect(sumiu.campos.isEmpty)
+        #expect(Gesto.woop.estadoDoMetodo == nil)
+        #expect(Gesto.woop.metodoDef.proveniencia?.funcao == .evidencia)
+    }
+
     @Test func aPastaDoAutorEntraEOInvalidoEDito() throws {
         let pasta = FileManager.default.temporaryDirectory.appendingPathComponent("metodos-\(UUID().uuidString)")
         try FileManager.default.createDirectory(at: pasta, withIntermediateDirectories: true)

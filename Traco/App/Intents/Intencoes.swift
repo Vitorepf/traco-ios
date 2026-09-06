@@ -154,12 +154,12 @@ struct CorpusComoContextoIntent: AppIntent {
     static let description = IntentDescription("O corpus inteiro em Markdown, com o contrato do app no topo: pronto para a sua IA ler.")
 
     @Parameter(title: "Só a forma", default: nil)
-    var forma: GestoEscolha?
+    var forma: FormaEntity?
 
     @MainActor
     func perform() async throws -> some IntentResult & ReturnsValue<String> {
         var fatias = fatiasDoDisco()
-        if let forma { fatias = fatias.filter { $0.gesto == forma.gesto } }
+        if let g = forma?.gesto { fatias = fatias.filter { $0.gesto == g } }
         return .result(value: Corpus.corpoDoCorpus(fatias: fatias))
     }
 }
@@ -249,30 +249,35 @@ struct MarcarCompromissoIntent: AppIntent {
     }
 }
 
-/// As formas do §6 como enum de Atalhos.
-enum GestoEscolha: String, AppEnum {
-    case woop, seEntao, spec, notaPermanente, destaque, destilar, palavra, decisao, premortem
+/// ADR 06g: as formas dos Atalhos nascem do CATÁLOGO.
+///
+/// Era um `AppEnum` com nove casos escritos à mão: quem filtrava o corpus pela
+/// Siri alcançava 9 das 21 formas de hoje (32% das 28 depois da colagem), e
+/// nada falhava para avisar — a mesma doença do enum morto da análise de bordo.
+/// `AppEnum` exige `caseDisplayRepresentations` estático e por isso não pode
+/// nascer de arquivo; a entidade com consulta pode, e ainda traz o método que
+/// o autor escreveu na pasta dele, sem código. O id é o do catálogo, o mesmo
+/// que o disco guarda.
+struct FormaEntity: AppEntity {
+    let id: String
+    let nome: String
 
     static let typeDisplayRepresentation = TypeDisplayRepresentation(name: "Forma")
-    static let caseDisplayRepresentations: [GestoEscolha: DisplayRepresentation] = [
-        .woop: "WOOP", .seEntao: "Se–então", .spec: "Especificação",
-        .notaPermanente: "Nota permanente", .destaque: "Destaque",
-        .destilar: "Destilar", .palavra: "Palavra", .decisao: "Decisão", .premortem: "Pré-mortem",
-    ]
+    static let defaultQuery = FormaQuery()
+    var displayRepresentation: DisplayRepresentation { DisplayRepresentation(title: "\(nome)") }
 
-    var gesto: Gesto {
-        switch self {
-        case .woop: .woop
-        case .seEntao: .seEntao
-        case .spec: .spec
-        case .notaPermanente: .notaPermanente
-        case .destaque: .destaque
-        case .destilar: .destilar
-        case .palavra: .palavra
-        case .decisao: .decisao
-        case .premortem: .premortem
-        }
+    /// Nil quando o método saiu da pasta entre montar o atalho e rodá-lo.
+    var gesto: Gesto? { Catalogo.metodo(id) == nil ? nil : Gesto(rawValue: id) }
+
+    static var todas: [FormaEntity] { Catalogo.todos.map { FormaEntity(id: $0.id, nome: $0.nome) } }
+}
+
+struct FormaQuery: EntityQuery {
+    func entities(for identifiers: [String]) async throws -> [FormaEntity] {
+        FormaEntity.todas.filter { identifiers.contains($0.id) }
     }
+
+    func suggestedEntities() async throws -> [FormaEntity] { FormaEntity.todas }
 }
 
 /// Rota de entrada única: intents e traco:// convergem aqui; a PaginaView consome.
@@ -304,6 +309,30 @@ enum Rota {
         defer { pendente = nil }
         return pendente
     }
+    /// ADR 06c: o ditado NÃO é um `Destino`. Quem o consome é a raiz, não a
+    /// Página — e o teclado da `.captura` não pode subir por trás da gravação.
+    /// Fica num canal próprio, anunciado pela mesma notificação e devolvido
+    /// UMA vez, como a rota.
+    static var ditadoPendente = false
+
+    #if DEBUG
+    /// Instrumento de evidência, só em Debug: `traco://ditar?ensaio=transcrito`
+    /// troca o RECONHECEDOR por uma letra fixa — o microfone, a gravação e a
+    /// nota continuam reais. Existe porque o simulador não tem o modelo de
+    /// fala no aparelho: sem isto o estado "transcrito" não se fotografa.
+    static var ensaioDoDitado: String?
+    #endif
+
+    static func ditar() {
+        ditadoPendente = true
+        anunciar()
+    }
+
+    static func consumirDitado() -> Bool {
+        defer { ditadoPendente = false }
+        return ditadoPendente
+    }
+
     /// Só o deep link das escalas — a aba sozinha abre no dia.
     static var escalaCalendario: EscalaCalendario?
     static let mudou = Notification.Name("traco.rotaMudou")
@@ -324,6 +353,15 @@ enum Rota {
             }
             return .calendario
         case "recordar": return .recordar
+        case "ditar":
+            // ADR 06c: anuncia o ditado e devolve nil — a Página, que só
+            // entende `Destino`, corretamente não faz nada.
+            #if DEBUG
+            ensaioDoDitado = URLComponents(url: url, resolvingAgainstBaseURL: false)?
+                .queryItems?.first { $0.name == "ensaio" }?.value
+            #endif
+            ditar()
+            return nil
         case "anotar":
             // ADR 05a: traco://anotar?texto=… — a frase cai na entrada
             let texto = URLComponents(url: url, resolvingAgainstBaseURL: false)?

@@ -35,6 +35,18 @@ enum AnaliseRemota {
 
     static func classificar(texto: String, gestoAtual: Gesto?) async -> AnaliseLocal.Veredito? {
         guard gestoAtual != .expressiva else { return nil } // selo: nunca à rede
+        #if DEBUG
+        // ADR 06h (volta A-B): o simulador não tem conta nem Apple Intelligence,
+        // então a precedência do modelo era INVERIFICÁVEL na tela — e ela é
+        // exatamente onde a guarda da escrita pessoal era nula. Um modelo de
+        // mentira, ligado pelo ambiente do simulador, torna o degrau de cima
+        // observável:
+        //   xcrun simctl spawn <udid> launchctl setenv TRACO_MODELO_FALSO exameDaNoite
+        if let id = ProcessInfo.processInfo.environment["TRACO_MODELO_FALSO"],
+           let g = Gesto(rawValue: id), g.conhecido {
+            return .gesto(g, pergunta: AnaliseLocal.pergunta(g))
+        }
+        #endif
         // memo pelo texto: dispensar o cartão e pausar de novo não repaga token
         guard let msg = await Grok.responder(sistema: sistema, usuario: String(texto.prefix(6000)),
                                              temperatura: 0, timeout: 10,

@@ -1,0 +1,20 @@
+# ADR 06h (volta A-B) — CONTROLE: com o modelo LIGADO (TRACO_MODELO_FALSO=woop,
+# só em DEBUG), uma nota comum é VESTIDA pelo modelo. Esta é a prova de que o
+# degrau de cima está mesmo ativo — sem ela a outra captura não mede nada.
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+# clearState zera as permissões: o alerta de notificações rouba o primeiro toque
+- tapOn:
+    text: "Não Permitir"
+    optional: true
+- extendedWaitUntil:
+    visible: {id: pagina}
+    timeout: 8000
+- tapOn: {id: pagina}
+- inputText: "Amanhã eu arrumo a estante da sala."
+- extendedWaitUntil:
+    visible: "Deixar como nota"
+    timeout: 8000
+- assertVisible: {id: "abrir-campos"}

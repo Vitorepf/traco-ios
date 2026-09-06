@@ -25,6 +25,34 @@ import Testing
         #expect(AnaliseRemota.sistema.contains("argumento ="))
     }
 
+    /// ADR 06g: a divergência não pode voltar em silêncio. Não basta cada id
+    /// aparecer: a CONTA tem de bater, senão alguém troca `Catalogo.todos` por
+    /// uma lista fixa que por acaso contém os ids e ninguém percebe.
+    @Test func oEsquemaTemUMAOpcaoPorMETODOMaisNenhum() throws {
+        guard #available(iOS 26.0, *) else { return }
+        let descricao = String(describing: try AnaliseDeBordo.esquema())
+        // "nenhum" é a única opção que não é método
+        let ids = Catalogo.todos.map(\.id)
+        for id in ids { #expect(descricao.contains("\"\(id)\""), Comment(rawValue: id)) }
+        #expect(descricao.contains("\"nenhum\""))
+        // e as instruções listam TODOS, não só o primeiro que alguém conferiu
+        let instrucoes = AnaliseDeBordo.instrucoesDoCatalogo
+        for id in ids { #expect(instrucoes.contains("\(id) ="), Comment(rawValue: id)) }
+    }
+
+    /// ADR 06g: a lista que a Siri e os Atalhos oferecem é a mesma do catálogo.
+    /// Era um `AppEnum` de nove casos — 9 de 21 formas alcançáveis por voz.
+    @MainActor @Test func osAtalhosOferecemOCatalogoInteiro() async throws {
+        let oferecidas = try await FormaQuery().suggestedEntities()
+        #expect(oferecidas.map(\.id) == Catalogo.todos.map(\.id))
+        #expect(oferecidas.count == Catalogo.todos.count)
+        let woop = try #require(oferecidas.first { $0.id == "woop" })
+        #expect(woop.gesto == .woop)
+        #expect(woop.nome == Gesto.woop.nome)
+        // e um id que saiu da pasta não vira gesto de mentira
+        #expect(FormaEntity(id: "metodoQueSumiu", nome: "x").gesto == nil)
+    }
+
     @Test func oEstadoTemSempreUmaFrase() throws {
         guard #available(iOS 26.0, *) else { return }
         #expect(!AnaliseDeBordo.estadoEmPalavras.isEmpty)

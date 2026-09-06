@@ -21,6 +21,9 @@ struct LenteView: View {
     @State private var apontados: [Apontamento] = []
     @State private var trechoNovo = ""
     @State private var recusado = false
+    /// ADR 05x: a proveniência da forma, recolhida por padrão.
+    @State private var deOndeVem = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private var prosa: String { Caderno.prosa(de: texto) }
     /// O `NLTagger` e cinco regex sobre a nota inteira: pesado demais para o
@@ -57,6 +60,54 @@ struct LenteView: View {
                         .accessibilityIdentifier("lente-pronto")
                 }
 
+                // ADR 05x: a forma desta nota e de onde ela vem. Informação,
+                // nunca selo: fonte, função, o que o Traço adaptou, evidência.
+                if let gesto {
+                    secao(gesto.nome, "a forma desta nota") {
+                        if let estado = gesto.estadoDoMetodo {
+                            Text(estado)
+                                .font(Tema.meta)
+                                .foregroundStyle(Tema.tintaSuave)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 10)
+                                .accessibilityIdentifier("metodo-ausente")
+                        } else {
+                            Button {
+                                withAnimation(Tema.animacao(.easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion)) {
+                                    deOndeVem.toggle()
+                                }
+                            } label: {
+                                HStack(spacing: 10) {
+                                    Text("De onde vem")
+                                        .font(Tema.barra)
+                                        .foregroundStyle(Tema.tinta)
+                                    Spacer()
+                                    Image(systemName: "chevron.down")
+                                        .font(.caption2.weight(.semibold))
+                                        .foregroundStyle(Tema.tintaSuave)
+                                        .rotationEffect(.degrees(deOndeVem ? 180 : 0))
+                                        .accessibilityHidden(true)
+                                }
+                                .frame(maxWidth: .infinity, minHeight: Tema.alvo)
+                                .padding(.horizontal, 14)
+                                .contentShape(Rectangle())
+                            }
+                            .buttonStyle(PressaoDiscreta())
+                            .accessibilityIdentifier("de-onde-vem")
+                            .accessibilityHint(deOndeVem ? "Recolhe" : "Fonte, função, o que o Traço adaptou e a evidência")
+                            .accessibilityValue(deOndeVem ? "aberto" : "recolhido")
+                            if deOndeVem {
+                                LinhasDeProveniencia(gesto.metodoDef)
+                                    .padding(.horizontal, 14)
+                                    .padding(.vertical, 10)
+                                    .transition(Tema.transicao(.opacity, reduzido: reduceMotion))
+                            }
+                        }
+                    }
+                }
+
                 if !apontados.isEmpty {
                     secao("Apontados por você", "um toque tira a marca") {
                         ForEach(apontados) { a in
@@ -76,7 +127,10 @@ struct LenteView: View {
 
                 if !l.vazia {
                     if !l.muletas.isEmpty {
-                        secao("Muletas", "o que se diz para ganhar tempo") {
+                        // ADR 06h: "acho que", "um pouco" e "na verdade" são os
+                        // hedges que o próprio catálogo ensina (a Inversão diz
+                        // "costuma ser"). A contagem é verdade; a função, não.
+                        secao("Palavras de apoio", "contadas por palavra inteira") {
                             ForEach(l.muletas) { achado($0.termo, $0.vezes, sugerido: .muleta) }
                         }
                     }

@@ -10,6 +10,8 @@ struct RaizView: View {
     @State private var sessao = Sessao()
     @State private var tecladoAberto = false
     @State private var agenda = CalendarioAgenda()
+    // ADR 06c: o ditado próprio cobre a página — é a tarefa inteira
+    @State private var ditado: DitadoProprio?
 
     private var arquivoAberto: Binding<Bool> {
         Binding(
@@ -95,6 +97,21 @@ struct RaizView: View {
             ? .easeOut(duration: Tema.Duracao.media)
             : .easeIn(duration: Tema.Duracao.curta), reduzido: reduceMotion),
             value: sessao.confirmacao != nil)
+        // ADR 06c: acima de tudo o que a Página pode estar mostrando — a
+        // gravação não divide a tela com nada, nem com o teclado.
+        .overlay {
+            if let ditado {
+                DitadoProprioView(ditado: ditado) {
+                    self.ditado = nil
+                } aoEscrever: {
+                    self.ditado = nil
+                    Rota.ir(.captura(ditado: false))
+                }
+                .transition(.opacity)
+            }
+        }
+        .animation(Tema.movimento(.opacidade, .easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion),
+                   value: ditado == nil)
         .overlay {
             if let minutos = sessao.fechoExpressiva {
                 FechoExpressivaView(sessao: sessao, minutos: minutos)
@@ -166,7 +183,19 @@ struct RaizView: View {
             }
         }
         // ADR 04k: os encadeamentos que marcam compromisso passam pela agenda
-        .onAppear { sessao.agenda = agenda }
+        .onAppear {
+            sessao.agenda = agenda
+            // ADR 06c: no arranque frio o intent corre antes desta cena existir
+            if Rota.consumirDitado() { abrirDitado() }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: Rota.mudou)) { _ in
+            if Rota.consumirDitado() { abrirDitado() }
+        }
+        // gravação interrompida (o autor saiu do app) conclui e DEPOSITA: a
+        // frase falada não se perde por a cena ir embora
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
+            if let d = ditado, d.estado == .gravando { Task { await d.concluir() } }
+        }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
             sessao.salvar(no: context)
         }
@@ -175,9 +204,48 @@ struct RaizView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
             tecladoAberto = true
+            // ADR 06c: o foco da página continua armado por baixo; enquanto a
+            // gravação está na tela, o teclado não sobe por cima dela
+            if ditado != nil {
+                UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
+                                                to: nil, from: nil, for: nil)
+            }
         }
         .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
             tecladoAberto = false
         }
+    }
+
+    /// A superfície nasce gravando: um toque fora do app faz UMA coisa.
+    /// A closure é o depósito — a primeira chamada cria a nota (antes de
+    /// qualquer letra), as seguintes reescrevem a mesma.
+    private func abrirDitado() {
+        // um ditado EM CURSO não é interrompido por outro toque no controle;
+        // um já terminado na tela é substituído — senão o segundo toque não
+        // faz nada e o autor fica falando para uma tela parada
+        if let atual = ditado, atual.estado == .gravando || atual.estado == .transcrevendo { return }
+        // a gravação não divide a tela: o teclado que a página tenha deixado
+        // de pé sai agora (a defesa durável é o `keyboardWillShow` acima)
+        Teclado.recolher()
+        let novo = DitadoProprio()
+        // A2 do G3: quem liga o ditado ao disco é a Sessão, e a nota que ele
+        // deposita é DELE — dois ditados sobrepostos não dividem mais uma só.
+        sessao.armarDitado(novo, no: context)
+        #if DEBUG
+        // evidência do estado "transcrito", que o simulador não produz sozinho
+        if Rota.ensaioDoDitado == "transcrito" {
+            // a espera é de propósito: no aparelho a transcrição demora, e sem
+            // ela o estado "transcrevendo" passa rápido demais para se ver
+            novo.transcritor = { _ in
+                try? await Task.sleep(for: .seconds(6))
+                return .veio("comprar pão e ligar para a Ana amanhã cedo")
+            }
+        }
+        // o disco recusando o depósito: o estado que a tela mentia (G3, A1)
+        if Rota.ensaioDoDitado == "disco-recusa" { novo.gravarNota = { _ in false } }
+        Rota.ensaioDoDitado = nil
+        #endif
+        ditado = novo
+        Task { await novo.comecar() }
     }
 }

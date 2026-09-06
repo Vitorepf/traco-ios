@@ -1,0 +1,24 @@
+# ADR 06h (volta A-B) — com o MESMO modelo ligado (TRACO_MODELO_FALSO=woop), o
+# desabafo NÃO recebe cartão nenhum: a guarda da escrita pessoal cala o modelo
+# em `Sessao.escolher`. Antes desta volta a nota vinha vestida de WOOP.
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+# clearState zera as permissões: o alerta de notificações rouba o primeiro toque
+- tapOn:
+    text: "Não Permitir"
+    optional: true
+- extendedWaitUntil:
+    visible: {id: pagina}
+    timeout: 8000
+- tapOn: {id: pagina}
+- inputText: "Perdi a paciência com ela hoje. Me arrependi e chorei."
+# o controle (escrita-pessoal-modelo-veste) mostra o cartão do modelo dentro
+# deste mesmo tempo, com o mesmo TRACO_MODELO_FALSO ligado
+- waitForAnimationToEnd:
+    timeout: 8000
+- waitForAnimationToEnd:
+    timeout: 8000
+- assertNotVisible: "Deixar como nota"
+- assertNotVisible: {id: "abrir-campos"}

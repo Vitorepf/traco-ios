@@ -34,8 +34,62 @@ nonisolated struct Metodo: Codable, Sendable, Equatable, Identifiable {
     var encadeamentos: [Encadeamento] = []
     /// O chip na busca. Nil = sem chip.
     var filtro: String?
+    /// ADR 05x: de onde o método vem, o que o Traço mudou e que evidência há.
+    /// Informação, nunca selo de eficácia. Nil = não informada.
+    var proveniencia: Proveniencia?
     /// Marcado em tempo de execução: veio da pasta do autor, não do bundle.
     var doAutor: Bool = false
+
+    nonisolated struct Proveniencia: Codable, Sendable, Equatable {
+        /// O que o método é para o autor (VISAO-PRODUTO, "Formas, escrita e
+        /// referências"): uma prática, uma lente ou um estudo com evidência
+        /// delimitada.
+        enum Funcao: String, Codable, Sendable { case pratica, lente, evidencia }
+        /// Obra, autor e ano, ou a tradição.
+        var fonte: String = ""
+        /// Nil = a chave veio com um valor que não existe, ou não veio.
+        var funcao: Funcao?
+        /// O que o Traço mudou em relação à fonte.
+        var adaptacao: String = ""
+        /// O que se sabe do uso proposto. "sem evidência específica conhecida"
+        /// é resposta válida.
+        var evidencia: String = ""
+        /// Para que serve, e para que não serve.
+        var aplicabilidade: String = ""
+
+        enum CodingKeys: String, CodingKey { case fonte, funcao, adaptacao, evidencia, aplicabilidade }
+
+        init(fonte: String = "", funcao: Funcao? = nil, adaptacao: String = "", evidencia: String = "", aplicabilidade: String = "") {
+            self.fonte = fonte; self.funcao = funcao; self.adaptacao = adaptacao
+            self.evidencia = evidencia; self.aplicabilidade = aplicabilidade
+        }
+
+        init(from decoder: Decoder) throws {
+            let c = try decoder.container(keyedBy: CodingKeys.self)
+            fonte = try c.decodeIfPresent(String.self, forKey: .fonte) ?? ""
+            funcao = (try? c.decodeIfPresent(String.self, forKey: .funcao)).flatMap { Funcao(rawValue: $0) }
+            adaptacao = try c.decodeIfPresent(String.self, forKey: .adaptacao) ?? ""
+            evidencia = try c.decodeIfPresent(String.self, forKey: .evidencia) ?? ""
+            aplicabilidade = try c.decodeIfPresent(String.self, forKey: .aplicabilidade) ?? ""
+        }
+
+        var funcaoEmPalavras: String {
+            switch funcao {
+            case .pratica: "prática"
+            case .lente: "lente"
+            case .evidencia: "estudo com evidência delimitada"
+            case nil: "não informada"
+            }
+        }
+
+        /// As linhas que a Lente e o Perfil mostram, na mesma ordem. Vazio some.
+        var linhas: [(rotulo: String, texto: String)] {
+            [("FONTE", fonte), ("FUNÇÃO", funcao == nil ? "" : funcaoEmPalavras),
+             ("O QUE O TRAÇO ADAPTOU", adaptacao), ("EVIDÊNCIA", evidencia), ("SERVE PARA", aplicabilidade)]
+                .filter { !$0.1.isEmpty }
+                .map { (rotulo: $0.0, texto: $0.1) }
+        }
+    }
 
     nonisolated struct RecordarSpec: Codable, Sendable, Equatable {
         /// Os campos que somem e que o autor tem de puxar da memória.
@@ -106,16 +160,17 @@ nonisolated struct Metodo: Codable, Sendable, Equatable, Identifiable {
     }
 
     enum CodingKeys: String, CodingKey {
-        case id, nome, origem, faculdade, reconhecimento, definicao, movimento, pergunta, roteamento, campos, recordar, encadeamentos, filtro
+        case id, nome, origem, faculdade, reconhecimento, definicao, movimento, pergunta, roteamento, campos, recordar, encadeamentos, filtro, proveniencia
     }
 
     init(id: String, nome: String, origem: String = "", faculdade: String = "", reconhecimento: String = "",
          movimento: String = "", pergunta: String = "", roteamento: [String] = [], campos: [CampoForma] = [],
-         recordar: RecordarSpec? = nil, encadeamentos: [Encadeamento] = [], filtro: String? = nil) {
+         recordar: RecordarSpec? = nil, encadeamentos: [Encadeamento] = [], filtro: String? = nil,
+         proveniencia: Proveniencia? = nil) {
         self.id = id; self.nome = nome; self.origem = origem; self.faculdade = faculdade
         self.reconhecimento = reconhecimento; self.movimento = movimento; self.pergunta = pergunta
         self.roteamento = roteamento; self.campos = campos; self.recordar = recordar
-        self.encadeamentos = encadeamentos; self.filtro = filtro
+        self.encadeamentos = encadeamentos; self.filtro = filtro; self.proveniencia = proveniencia
     }
 
     /// Toda chave além de `id`, `nome` e `campos` é opcional no arquivo: um
@@ -135,6 +190,7 @@ nonisolated struct Metodo: Codable, Sendable, Equatable, Identifiable {
         recordar = try c.decodeIfPresent(RecordarSpec.self, forKey: .recordar)
         encadeamentos = try c.decodeIfPresent([Encadeamento].self, forKey: .encadeamentos) ?? []
         filtro = try c.decodeIfPresent(String.self, forKey: .filtro)
+        proveniencia = try c.decodeIfPresent(Proveniencia.self, forKey: .proveniencia)
     }
 
     /// Um método que o catálogo não conhece mais (arquivo apagado, id

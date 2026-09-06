@@ -187,18 +187,33 @@ final class Sessao {
             // ("eu sou um vencedor" → aviso Wood) falhava justamente na
             // configuração padrão. Silêncio do modelo não é veredito.
             let local = AnaliseLocal.classificar(texto: textoAtual, gestoAtual: gestoAtual, campos: camposAtuais)
-            let veredito = Self.escolher(remoto: remoto, local: local)
+            // ADR 06h (volta A-B): a guarda da escrita pessoal devolvia
+            // `.silencio`, e silêncio tem precedência ZERO aqui — com conta Grok
+            // ou Apple Intelligence a proteção era NULA, no caso exato que ela
+            // existe para impedir. Quem reconhece a escrita pessoal é o
+            // algoritmo, e o algoritmo cala o modelo.
+            let veredito = Self.escolher(
+                remoto: remoto, local: local,
+                pessoal: AnaliseLocal.escritaPessoal(texto: textoAtual, campos: camposAtuais))
             self.aplicar(veredito, automatica: automatica)
         }
     }
 
-    /// ADR 2026-09-04c — quem decide entre o degrau de cima e a regex.
-    /// Silêncio do modelo devolve a palavra ao algoritmo; forma do modelo
-    /// manda. É a §19.4 em três linhas: o algoritmo garante, a IA sugere.
+    /// ADR 2026-09-04c/04r/06h — quem decide entre o degrau de cima e a regex,
+    /// em QUATRO linhas, nesta ordem: aviso local vence sempre; escrita pessoal
+    /// reconhecida pelo algoritmo cala o modelo; silêncio do modelo devolve a
+    /// palavra ao algoritmo; forma do modelo manda. É a §19.4: o algoritmo
+    /// garante, a IA sugere — e o que o algoritmo garante inclui a fronteira da
+    /// escrita pessoal, que não é sugestão nenhuma.
     nonisolated static func escolher(remoto: AnaliseLocal.Veredito?,
-                                     local: AnaliseLocal.Veredito) -> AnaliseLocal.Veredito {
+                                     local: AnaliseLocal.Veredito,
+                                     pessoal: Bool = false) -> AnaliseLocal.Veredito {
         // ADR 04r: aviso local vence gesto remoto — o aviso é do algoritmo, sempre
         if case .aviso = local { return local }
+        // ADR 06h: desabafo protegido pelo algoritmo não pode ser vestido pelo
+        // modelo. O modelo recebe `instrucoesDoCatalogo` e foi ensinado a
+        // classificar exatamente estas frases; aqui ele não tem voz.
+        if pessoal { return local }
         switch remoto {
         case .none, .some(.silencio): return local
         case .some(let v): return v
@@ -1323,6 +1338,58 @@ final class Sessao {
         if !falhou { mostrarToast(total == 1 ? "1 nota veio de fora." : "\(total) notas vieram de fora.") }
         if let todas = try? context.fetch(FetchDescriptor<Nota>()) {
             projetarTudo(todas)
+        }
+    }
+
+    /// A nota do ditado em curso. Chaveada pela hora em que a gravação
+    /// começou: um ditado novo nunca reescreve a nota do anterior.
+    /// ADR 06c: a nota do ditado. A PRIMEIRA chamada de um ditado CRIA — e é o
+    /// DEPÓSITO, feito antes de existir uma letra; as seguintes reescrevem a
+    /// MESMA nota quando a transcrição chega ou falha. `nil` = o disco recusou.
+    ///
+    /// **A nota volta para quem a pediu.** Ela era uma variável da Sessão, e
+    /// dois ditados sobrepostos dividiam a mesma: quando o segundo depositava,
+    /// a transcrição do primeiro não achava mais "a sua" nota e criava uma
+    /// SEGUNDA (G3, A2). Agora cada ditado carrega a sua identidade até o fim.
+    ///
+    /// O áudio não entra aqui: ele mora no cofre de anexos e é referido pelo
+    /// marcador dentro do texto — nunca um blob no SwiftData.
+    func gravarDitado(texto: String, criadaEm: Date, nota anterior: Nota?, no context: ModelContext) -> Nota? {
+        let nota: Nota
+        let ehNova: Bool
+        if let anterior, !anterior.isDeleted {
+            nota = anterior
+            nota.texto = texto
+            nota.editadaEm = .now
+            ehNova = false
+        } else {
+            nota = Nota(texto: texto, criadaEm: criadaEm, editadaEm: criadaEm)
+            context.insert(nota)
+            ehNova = true
+        }
+        guard persistir(context) else {
+            if ehNova { context.delete(nota) }
+            return nil
+        }
+        if let todas = try? context.fetch(FetchDescriptor<Nota>()) { projetarTudo(todas) }
+        return nota
+    }
+
+    /// ADR 06c: liga um ditado ao disco. Fica aqui, e não na raiz, porque é o
+    /// que o teste da corrida de dois ditados precisa exercitar — a caixa
+    /// `minha` é a identidade DESTE ditado, e as duas closures a dividem.
+    func armarDitado(_ ditado: DitadoProprio, no context: ModelContext) {
+        let quando = ditado.comecouEm
+        var minha: Nota?
+        ditado.gravarNota = { [weak self] texto in
+            guard let self, let n = gravarDitado(texto: texto, criadaEm: quando, nota: minha, no: context) else { return false }
+            minha = n
+            return true
+        }
+        ditado.abrirANota = { [weak self] in
+            guard let self, let n = minha, salvar(no: context) else { return }
+            abrir(n)
+            irPara(.escrever, no: context)
         }
     }
 

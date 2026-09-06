@@ -72,7 +72,7 @@ nonisolated enum RotuloApontar: String, CaseIterable, Codable, Sendable {
         case .fraseFeita: "Frase feita"
         case .vago: "Vago"
         case .passiva: "Passiva"
-        case .muleta: "Muleta"
+        case .muleta: "Palavra de apoio" // ADR 06h, o mesmo rótulo da Lente
         }
     }
 }

@@ -4,6 +4,13 @@
     "nome": "WOOP",
     "origem": "Gabriele Oettingen",
     "faculdade": "desejo",
+    "proveniencia": {
+      "fonte": "Gabriele Oettingen, Rethinking Positive Thinking (2014); contraste mental com intenções de implementação",
+      "funcao": "evidencia",
+      "adaptacao": "O Traço junta o desejo ao texto livre e cobra só três campos: resultado, obstáculo INTERNO e o se–então. O obstáculo externo, que o método original deixa passar, é recusado pela sábia.",
+      "evidencia": "Estudos de Oettingen e colegas relatam efeitos sobre a realização de metas em saúde, estudo e relações, em geral modestos e dependentes de a meta ser viável. Não há estudo do uso dentro do Traço.",
+      "aplicabilidade": "Serve para um desejo concreto com obstáculo próprio pela frente. Não serve para meta que depende só dos outros, nem para desabafo."
+    },
     "filtro": "WOOP",
     "reconhecimento": "isto é um desejo com obstáculo pela frente.",
     "movimento": "WOOP (Oettingen): desejo, resultado, OBSTÁCULO, plano. O obstáculo é INTERNO — o que o próprio autor faz ou sente que o atrapalha —, e é o passo que todo mundo pula escrevendo obstáculo externo. Cobre o obstáculo interno, e o \"se … então …\" que responde a ele.",
@@ -45,6 +52,13 @@
     "nome": "Se–então",
     "origem": "Peter Gollwitzer",
     "faculdade": "hábito",
+    "proveniencia": {
+      "fonte": "Peter Gollwitzer, implementation intentions (1999); meta-análise Gollwitzer e Sheeran (2006)",
+      "funcao": "evidencia",
+      "adaptacao": "Só dois campos, e o Então é um substituto, não uma negação; o Se ganha aviso no aparelho quando tem hora ou lugar (ADR 02e).",
+      "evidencia": "A meta-análise de 2006 (94 estudos) relata efeito médio sobre a realização de metas. O efeito de um aviso no telefone não foi medido aqui.",
+      "aplicabilidade": "Serve para um hábito que trava sempre no mesmo gatilho. Não serve para decisão aberta nem para intenção vaga."
+    },
     "filtro": "Se–então",
     "reconhecimento": "isto é um hábito que trava num gatilho.",
     "movimento": "Intenção de implementação (Gollwitzer). O gatilho tem de ser CONCRETO e observável (hora, lugar, coisa que acontece), nunca um estado de espírito. E a resposta tem de ser um comportamento SUBSTITUTO, não \"não fazer X\". Cobre os dois onde estiverem vagos.",
@@ -82,6 +96,13 @@
     "nome": "Especificação",
     "origem": "engenharia",
     "faculdade": "construção",
+    "proveniencia": {
+      "fonte": "Prática de engenharia de software: especificação antes de construir (tradição, sem autor único)",
+      "funcao": "pratica",
+      "adaptacao": "Cinco campos curtos em vez de um documento: problema, pronto quando, o que NÃO faço, restrições, o que pode dar errado.",
+      "evidencia": "Sem evidência específica conhecida; é uso corrente da profissão, não um estudo.",
+      "aplicabilidade": "Serve para algo a construir com fim reconhecível. Não serve para ideia ainda sem forma."
+    },
     "filtro": "Especificação",
     "reconhecimento": "isto tem problema e critério de pronto.",
     "movimento": "Especificação. Cobre o que fica EXPLICITAMENTE de fora, qual é a menor coisa que prova que funciona, e o que quebraria isto. Escopo sem não-escopo é desejo.",
@@ -130,6 +151,13 @@
     "nome": "Nota permanente",
     "origem": "Niklas Luhmann",
     "faculdade": "ideia",
+    "proveniencia": {
+      "fonte": "Niklas Luhmann, o Zettelkasten (décadas de 1950 a 1990); divulgado por Sönke Ahrens, How to Take Smart Notes (2017)",
+      "funcao": "pratica",
+      "adaptacao": "Uma ideia nas próprias palavras, um vínculo e a fonte. O Traço não pede numeração nem caixa; a rede vem dos vínculos e dos ecos.",
+      "evidencia": "Sem estudo controlado conhecido; a prática é atestada pela obra de Luhmann. Reescrever nas próprias palavras aproxima-se de efeitos de elaboração estudados à parte.",
+      "aplicabilidade": "Serve para uma ideia que vale guardar por si. Não serve para tarefa nem para citação copiada."
+    },
     "filtro": "Permanente",
     "reconhecimento": "isto é uma ideia que vale guardar inteira.",
     "movimento": "Nota permanente (Zettelkasten). Uma ideia só, nas palavras do autor, e ligada a alguma coisa. Cobre qual é a UMA ideia se houver mais de uma, e a que ela se opõe.",
@@ -158,6 +186,13 @@
     "nome": "Destaque",
     "origem": "Gary Keller",
     "faculdade": "foco",
+    "proveniencia": {
+      "fonte": "Gary Keller e Jay Papasan, The ONE Thing (2013)",
+      "funcao": "pratica",
+      "adaptacao": "Uma única coisa por dia, primeiro, até acabar; o Traço a leva à tela bloqueada e ao widget, e nada mais da lista.",
+      "evidencia": "Sem evidência específica conhecida; é livro de prática, não estudo.",
+      "aplicabilidade": "Serve para um dia com uma prioridade clara. Não serve para planejar a semana."
+    },
     "filtro": "Destaque",
     "reconhecimento": "isto parece a lista do seu dia.",
     "movimento": "A única do dia. Cobre qual é A única se houver mais de uma, e o que cai se o dia encolher pela metade.",
@@ -176,6 +211,13 @@
     "nome": "Expressiva",
     "origem": "James Pennebaker",
     "faculdade": "sentir",
+    "proveniencia": {
+      "fonte": "James Pennebaker e Sandra Beall (1986); Pennebaker, Opening Up (1990)",
+      "funcao": "evidencia",
+      "adaptacao": "Quinze minutos, fato e sentimento, quatro dias em série, e a nota sela ao fim. O fecho oferece selar ou queimar (Briñol e colegas, 2013); a linha de sentido é do autor.",
+      "evidencia": "Meta-análises (Frattaroli, 2006) relatam efeitos pequenos e heterogêneos sobre saúde e bem-estar. O paradigma não inclui reler. Não há prova de melhora clínica pelo Traço.",
+      "aplicabilidade": "Serve para um evento com peso que ainda não foi posto em palavras. Não serve como diário diário nem substitui acompanhamento profissional."
+    },
     "reconhecimento": "isto é desabafo — pede tempo e porta fechada.",
     "movimento": "",
     "pergunta": "",
@@ -190,6 +232,13 @@
     "nome": "Destilar",
     "origem": "escrita",
     "faculdade": "linguagem",
+    "proveniencia": {
+      "fonte": "Prática de escrita: cortar até o essencial (tradição editorial, sem autor único)",
+      "funcao": "pratica",
+      "adaptacao": "Quatro tetos em cascata, 200, 100, 50 e uma frase, com aviso quando estoura; o Recordar cobra a frase final.",
+      "evidencia": "Sem evidência específica conhecida.",
+      "aplicabilidade": "Serve para um texto seu que precisa caber. Não serve para texto de outro."
+    },
     "filtro": "Destilar",
     "reconhecimento": "isto pede ser cortado até sobrar uma frase.",
     "movimento": "Destilar. Cobre o que sobrevive se ficar UMA frase, e qual palavra está carregando peso que ela não aguenta.",
@@ -226,6 +275,13 @@
     "nome": "Palavra",
     "origem": "vocabulário",
     "faculdade": "linguagem",
+    "proveniencia": {
+      "fonte": "Prática de vocabulário: definir nas próprias palavras e usar numa frase (tradição escolar, sem autor único)",
+      "funcao": "pratica",
+      "adaptacao": "Três campos e o Recordar ao contrário: mostra a definição e esconde a palavra.",
+      "evidencia": "Sem evidência específica conhecida para o formato; a cobrança pela memória aproxima-se do efeito de teste estudado à parte.",
+      "aplicabilidade": "Serve para uma palavra que se quer poder usar. Não serve para lista de vocabulário."
+    },
     "filtro": "Palavras",
     "reconhecimento": "isto é uma palavra que você quer poder usar.",
     "movimento": "A palavra. Cobre onde ela NÃO se aplica — o limite é o que separa saber a palavra de saber usá-la.",
@@ -254,6 +310,13 @@
     "nome": "Decisão",
     "origem": "Kahneman e Klein",
     "faculdade": "decidir",
+    "proveniencia": {
+      "fonte": "Diário de decisão, prática divulgada por Daniel Kahneman; derivado de Kahneman e Gary Klein, Conditions for Intuitive Expertise (2009)",
+      "funcao": "pratica",
+      "adaptacao": "Opções, critério, o decidido e o que se espera COM DATA; a data vira aviso e, na volta, o autor diz se ficou aquém, igual ou além (ADR 03a, 04t).",
+      "evidencia": "Sem estudo específico do diário de decisão conhecido. A calibragem por retorno tem base em estudos de julgamento, não medida aqui.",
+      "aplicabilidade": "Serve para uma escolha entre caminhos com data de conferir. Não serve para decisão já tomada e sem volta."
+    },
     "filtro": "Decisões",
     "reconhecimento": "isto é uma escolha entre caminhos.",
     "movimento": "Diário de decisão. Cobre: quais são as opções de verdade (duas não são opções se uma é palha), qual CRITÉRIO separa uma da outra, que evidência faria mudar de ideia, quanto custa errar para cada lado, e se dá para desfazer. Decisão reversível e barata não merece o mesmo cuidado que uma que não volta.",
@@ -312,6 +375,13 @@
     "nome": "Pré-mortem",
     "origem": "Gary Klein, 2007",
     "faculdade": "estratégia",
+    "proveniencia": {
+      "fonte": "Gary Klein, Performing a Project Premortem, Harvard Business Review (2007); base em Mitchell, Russo e Pennington (1989)",
+      "funcao": "evidencia",
+      "adaptacao": "Individual, não em grupo: o plano, a falha imaginada um ano depois, o primeiro sinal e o que muda agora; o sinal pode virar compromisso em 14 dias.",
+      "evidencia": "O estudo de 1989 relata que imaginar o resultado como já ocorrido aumenta as razões geradas; o uso em equipe é relato de prática. Não medido para uma pessoa só.",
+      "aplicabilidade": "Serve para um plano antes de começar. Não serve para plano já em curso há muito."
+    },
     "filtro": "Pré-mortem",
     "reconhecimento": "isto é um plano que ainda não imaginou a própria falha.",
     "movimento": "Pré-mortem (Klein, 2007). O enquadramento é obrigatório: é um ano depois e o plano JÁ FALHOU — nunca \"o que pode dar errado\". Cobre as causas dessa falha, qual é a mais provável, e que sinal PRECOCE apareceria primeiro.",
@@ -368,6 +438,13 @@
     "nome": "Argumento",
     "origem": "Stephen Toulmin",
     "faculdade": "raciocínio",
+    "proveniencia": {
+      "fonte": "Stephen Toulmin, The Uses of Argument (1958)",
+      "funcao": "lente",
+      "adaptacao": "Das seis partes de Toulmin ficam tese, evidência e a melhor objeção; garantia, base e qualificador não são cobrados. A resposta e o que faria mudar de ideia são do Traço.",
+      "evidencia": "Sem evidência de eficácia conhecida; é uma estrutura de análise, usada no ensino de argumentação.",
+      "aplicabilidade": "Serve para uma posição que se quer defender ou testar. Não serve para relato."
+    },
     "filtro": "Argumento",
     "reconhecimento": "isto é uma tese que pede evidência e objeção.",
     "movimento": "Argumento (Toulmin). Tese, evidência, a MELHOR objeção e a resposta a ela. O passo que se pula é a objeção forte: todo mundo responde à fraca. Cobre se a evidência sustenta a tese ou só a ilustra, e se a objeção escolhida é a que um adversário competente faria.",
@@ -428,6 +505,13 @@
     "nome": "Leitura",
     "origem": "Mortimer Adler",
     "faculdade": "aprender de fora",
+    "proveniencia": {
+      "fonte": "Mortimer Adler e Charles Van Doren, How to Read a Book (1940, 1972)",
+      "funcao": "pratica",
+      "adaptacao": "A leitura analítica reduzida a cinco campos nas próprias palavras; o arquivo anexado fica arquivo e o Recordar cobra a tese.",
+      "evidencia": "Sem evidência específica conhecida; é livro de método.",
+      "aplicabilidade": "Serve para uma obra que se quer entender de verdade. Não serve para leitura de passagem."
+    },
     "filtro": "Leitura",
     "reconhecimento": "isto é algo que você leu e quer que fique.",
     "movimento": "Leitura ativa (Adler). A tese do autor NAS PALAVRAS DE QUEM LÊ, o que surpreendeu, onde discorda, a pergunta que ficou. O passo que se pula é discordar: quem só concorda não leu, copiou. Cobre se a tese está nas palavras do leitor ou nas do livro, e onde ele discorda de verdade.",
@@ -490,6 +574,13 @@
     "nome": "Feynman",
     "origem": "Richard Feynman",
     "faculdade": "compreensão",
+    "proveniencia": {
+      "fonte": "Técnica atribuída a Richard Feynman; sem texto do próprio autor que a descreva",
+      "funcao": "pratica",
+      "adaptacao": "Explicar como para uma criança de doze anos, marcar onde travou e o que foi ver.",
+      "evidencia": "Sem estudo da técnica conhecido. Aproxima-se do efeito de autoexplicação (Chi e colegas, 1989), estudado em outro formato.",
+      "aplicabilidade": "Serve para um assunto que se acha que entende. Não serve para decorar."
+    },
     "filtro": "Feynman",
     "reconhecimento": "isto é algo que você quer entender de verdade.",
     "movimento": "Técnica de Feynman. Explicar como para uma criança de doze anos, achar onde TRAVA, voltar à fonte só nesse ponto. O passo que se pula é o travar: quem explica sem travar usou jargão no lugar da compreensão. Cobre qual palavra da explicação esconde o que não se entende.",
@@ -546,6 +637,13 @@
     "nome": "Dia",
     "origem": "Ivy Lee",
     "faculdade": "foco",
+    "proveniencia": {
+      "fonte": "Método atribuído a Ivy Lee (1918), relato de Charles Schwab; sem fonte primária",
+      "funcao": "pratica",
+      "adaptacao": "Uma única e três seguintes, mais o que vai roubar o dia com um se–então, e à noite a volta: o que roubou.",
+      "evidencia": "Sem evidência específica conhecida; a origem é anedota.",
+      "aplicabilidade": "Serve para começar um dia. Não serve para projeto."
+    },
     "filtro": "Dia",
     "reconhecimento": "isto é o seu dia pedindo ordem.",
     "movimento": "O dia (Ivy Lee). A única, as três seguintes em ordem, o que vai ROUBAR o dia e o que se faz quando roubar. O passo que se pula é nomear o ladrão antes: todo mundo planeja como se o dia fosse obedecer. À noite, o que roubou de fato. Cobre se a única é uma só, e se o ladrão nomeado é o de verdade.",
@@ -583,6 +681,13 @@
     "nome": "Analogia",
     "origem": "Dedre Gentner",
     "faculdade": "criação",
+    "proveniencia": {
+      "fonte": "Dedre Gentner, structure-mapping (1983); Gentner, Loewenstein e Thompson (2003)",
+      "funcao": "evidencia",
+      "adaptacao": "Quatro campos: o problema, onde já foi resolvido em outro campo, o que trago e o que não se transfere.",
+      "evidencia": "Estudos de Gentner e colegas relatam que comparar dois casos melhora a transferência de um princípio; o formato de nota não foi medido.",
+      "aplicabilidade": "Serve para um problema travado. Não serve quando o campo de origem é desconhecido."
+    },
     "filtro": "Analogia",
     "reconhecimento": "isto é um problema que já foi resolvido em outro campo.",
     "movimento": "Analogia estrutural (Gentner). O problema, ONDE ele já foi resolvido em outro campo, o que se traz de lá e o que NÃO se transfere. O passo que se pula é o último: analogia sem limite vira engano. Cobre se a semelhança é de estrutura ou só de superfície, e o que quebra ao trazer.",
@@ -640,6 +745,13 @@
     "nome": "Inversão",
     "origem": "Charlie Munger",
     "faculdade": "estratégia",
+    "proveniencia": {
+      "fonte": "Charlie Munger, discursos (1986 em diante), citando Carl Jacobi: inverta, sempre inverta",
+      "funcao": "lente",
+      "adaptacao": "O que quero, como garantir que falhe, logo o que evito; leva ao Pré-mortem.",
+      "evidencia": "Sem evidência específica conhecida; é heurística de prática.",
+      "aplicabilidade": "Serve para um objetivo em que o erro é mais visível que o acerto. Não serve para explorar opções."
+    },
     "filtro": "Inversão",
     "reconhecimento": "isto pede ser pensado ao contrário.",
     "movimento": "Inversão (Munger, de Jacobi). Em vez de \"como consigo X\", \"como GARANTO que X falhe\" — e depois evitar exatamente isso. O passo que se pula é levar a sério a lista de falhas: ela costuma ser mais concreta que a de sucessos. Cobre se cada modo de falha nomeado é algo que o autor faz, e o que ele passa a evitar.",
@@ -704,6 +816,13 @@
     "nome": "Steelman",
     "origem": "Daniel Dennett",
     "faculdade": "raciocínio",
+    "proveniencia": {
+      "fonte": "Daniel Dennett, Intuition Pumps (2013), as regras de Anatol Rapoport",
+      "funcao": "lente",
+      "adaptacao": "A posição contrária no melhor, o que ela acerta e o que eu respondo; a sábia pode contrapor, nunca responder pelo autor.",
+      "evidencia": "Sem evidência específica conhecida.",
+      "aplicabilidade": "Serve para uma discordância que importa. Não serve para posição que ninguém defende."
+    },
     "filtro": "Steelman",
     "reconhecimento": "isto é uma posição que merece o outro lado, no melhor.",
     "movimento": "Steelman (Dennett, regras de Rapoport). Reescrever a posição CONTRÁRIA tão bem que quem a defende diria \"eu não teria dito melhor\", dizer o que ela acerta, e só então responder. O passo que se pula é o segundo: admitir o que o outro lado acerta. Cobre se a versão contrária é a melhor ou a mais fácil de derrubar.",
@@ -754,6 +873,13 @@
     "nome": "Divergência",
     "origem": "Alex Osborn",
     "faculdade": "criação",
+    "proveniencia": {
+      "fonte": "Alex Osborn, Applied Imagination (1953)",
+      "funcao": "pratica",
+      "adaptacao": "Individual, dez opções cruas antes de julgar, a mais estranha e o que ela ensina.",
+      "evidencia": "Estudos sobre brainstorming em grupo relatam perda de produção (Diehl e Stroebe, 1987); a geração individual, que o Traço usa, não sofre dela. Sobre adiar o julgamento a evidência é mista.",
+      "aplicabilidade": "Serve para abrir opções. Não serve para escolher entre elas."
+    },
     "filtro": "Divergência",
     "reconhecimento": "isto pede muitas opções antes de escolher.",
     "movimento": "Divergência (Osborn, brainstorming individual). Dez opções cruas SEM julgar, a mais estranha, e o que a estranha ensina. O passo que se pula é chegar a dez: a maioria para na terceira, que é a óbvia. Cobre se há dez de verdade, e o que a mais estranha revela sobre o problema.",
@@ -803,6 +929,13 @@
     "nome": "Primeiros princípios",
     "origem": "Aristóteles",
     "faculdade": "estratégia",
+    "proveniencia": {
+      "fonte": "Aristóteles, Física e Metafísica; divulgado como prática de engenharia",
+      "funcao": "lente",
+      "adaptacao": "O que acho que sei, o que é verdade de fato, o que construo do zero.",
+      "evidencia": "Sem evidência específica conhecida.",
+      "aplicabilidade": "Serve para uma suposição herdada que se quer desmontar. Não serve para decisão rápida."
+    },
     "filtro": "Princípios",
     "reconhecimento": "isto pede separar o que se sabe do que se supõe.",
     "movimento": "Primeiros princípios. O que o autor ACHA que sabe, o que é verdade de fato (e como sabe), e o que se constrói do zero a partir só disso. O passo que se pula é o do meio: distinguir o que foi verificado do que foi herdado. Cobre, para cada suposição, de onde ela veio.",
@@ -856,6 +989,13 @@
     "nome": "Prática deliberada",
     "origem": "Anders Ericsson",
     "faculdade": "habilidade",
+    "proveniencia": {
+      "fonte": "Anders Ericsson, Krampe e Tesch-Römer (1993); Ericsson e Pool, Peak (2016)",
+      "funcao": "evidencia",
+      "adaptacao": "A habilidade, o pedaço que falha, o exercício e como sei que melhorou; a tentativa fica como evidência, não como prova de aprendizagem.",
+      "evidencia": "A meta-análise de Macnamara e colegas (2014) relata que a prática deliberada explica parte limitada da diferença de desempenho, maior em jogos e música, menor em profissões. Não medido no Traço.",
+      "aplicabilidade": "Serve para uma habilidade com pedaço nomeável que falha. Não serve para aprender sem retorno."
+    },
     "filtro": "Prática",
     "reconhecimento": "isto é uma habilidade que pede treino com alvo.",
     "movimento": "Prática deliberada (Ericsson). A habilidade, o PEDAÇO que falha, o exercício que ataca só esse pedaço, e como se sabe que melhorou. O passo que se pula é isolar o pedaço: treinar a habilidade inteira é repetir o que já se faz bem. Cobre se o exercício é menor que a habilidade e se a medida de melhora é observável.",
@@ -924,6 +1064,13 @@
     "nome": "Atualização",
     "origem": "Philip Tetlock",
     "faculdade": "calibragem",
+    "proveniencia": {
+      "fonte": "Philip Tetlock e Dan Gardner, Superforecasting (2015); Good Judgment Project",
+      "funcao": "evidencia",
+      "adaptacao": "Uma crença com número de 0 a 100, o que faria subir ou descer e, depois, o número novo.",
+      "evidencia": "O projeto relata que atualizações pequenas e frequentes acompanham maior acurácia nos melhores previsores; um só número numa nota não foi medido.",
+      "aplicabilidade": "Serve para uma crença que o tempo vai confirmar ou não. Não serve para gosto ou valor."
+    },
     "filtro": "Atualização",
     "reconhecimento": "isto é uma crença que pede um número.",
     "movimento": "Atualização (Tetlock, superforecasting). O que o autor acredita, QUANTO (0 a 100), o que o faria subir, o que o faria descer — e depois, quanto agora. O passo que se pula é o número: sem ele não há como saber se mudou de ideia. Cobre se o número é honesto (nem 50 por preguiça, nem 95 por orgulho) e se as evidências nomeadas são observáveis.",
