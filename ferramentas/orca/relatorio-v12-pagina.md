@@ -127,9 +127,11 @@ leitura, não para subtração.
 `v12-pe-quadros.png` mostra, a 30 fps, o pé sumindo em main e permanecendo no
 branch, com e sem RM.
 
-**Complexidade.** Swift do app **+157 −212 = −55 linhas líquidas** (regra da ADR
-05v: cada volta por tela apaga mais do que o componente cresce). Testes +33
-(uma guarda nova). Nenhum arquivo novo de código.
+**Complexidade.** Swift do app **+158 −213 = −55 linhas líquidas** medidas em
+`git diff 0d0d007..5937943 -- 'Traco/*.swift'` (regra da ADR 05v: cada volta por
+tela apaga mais do que o componente cresce). Testes +33 (uma guarda nova).
+Nenhum arquivo novo de código. Contra o HEAD do merge o balanço bruto vira +18,
+porque a F3 entrou junto: o número da volta é o do commit `5937943`.
 
 ## Autoavaliação (declaração, não veredito — o G3/G4 julga)
 
