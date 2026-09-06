@@ -2815,3 +2815,91 @@ em `ForaDoAppTests` (rota guardada sem ninguém ouvir e consumida uma vez; alvo
 errado recusa sem rota; falha do Anotar não deposita); suíte 715/125 sobre a V10; dois alvos
 sem aviso; capturas no iPhone Air. **Fora (F3b):** ditado próprio — áudio
 salvo primeiro, transcrito depois, falha preserva o áudio — por `.captura`.
+
+## ADR 2026-09-06x — O Trabalho entra na família (volta 18)
+
+**A distância.** O Trabalho tirou 6,0 na auditoria V9 (`auditoria-frontend.md`
+§6), a pior nota do app: Design 5, Simplicidade 5, Componentes 4. Ao lado da
+ficha do calendário ele parecia outro aplicativo — formulário cru do sistema,
+chips e chevrons do UIKit, sem papel, sem cartão, sem rótulo de seção; e a
+MESMA ação, "Preparar com IA", vestia duas roupas: cápsula cinza antes da
+primeira versão, cápsula marrom escura depois (`v9-trabalho-versao-1.png`),
+nenhuma das duas do sistema (`law-of-similarity`). Cinco telas de rolagem,
+oito `DisclosureGroup`, e o botão principal desabilitado sem parecer
+(`critique-affordance`). Pela curva-zero, intenção → versão preparada custava
+6 toques e 2 digitações, e a decisão que muda tudo — delegar, praticar ou
+combinar — morava dentro de um disclosure e nunca era oferecida no caminho.
+
+**A decisão.** Três mudanças, nesta ordem.
+
+*Ordem de leitura.* O documento passou a ler o ciclo (VISAO-PRODUTO): intenção
+→ apoio → preparar → versão → intercâmbio → próximo ato → o que aconteceu →
+dificuldade → histórico → estado. "Dificuldade" estava ANTES do caminho
+principal e empurrava a ação primária para fora da primeira tela; é o trabalho
+que revela o obstáculo, não o contrário. "Praticar" desceu para depois de
+"Preparar": era o exercício aparecendo acima do campo que o pediu.
+
+*A decisão no caminho.* O `Picker` "Neste trabalho, prefiro" saiu do disclosure
+e virou um trilho de três pílulas, com `delegar` já marcado — a decisão fica
+visível e reversível sem custar um toque a quem só quer começar. Em tamanho de
+acessibilidade o trilho empilha: três cápsulas lado a lado estouravam a largura
+da folha e sangravam o documento pelos dois lados (defeito que a V9 já tinha e
+a captura AX5 desta volta reproduz).
+
+*A família.* `CabecalhoDeFolha` no lugar do `NavigationStack` com barra do
+sistema (nas duas telas); rótulo de seção em caixa alta como na ficha;
+`campo` em `Cartao.campo` (névoa); versão, ato, tentativa e relato em
+`Cartao.papel`; "Quando" do agendamento em cartão de névoa com hairlines e
+`LinhaQueAbre`, igual ao calendário; `AcaoTrabalhoStyle` apagado. A lei de cor:
+**carvão avança, âmbar salva** — a cápsula carvão (`Pilula.larga` selecionada)
+é a ação que produz algo na seção; o âmbar aparece só como saída de um problema
+(Ajustes, recuperar, retomar); todo o resto é `Pilula.filtro`, porque texto
+solto sobre papel não se lê como controle e não tem estado desabilitado.
+
+*Desabilitado honesto.* A ação principal não vira fantasma por campo vazio:
+tocar leva o foco ao campo que falta e a linha diz o motivo. Só bloqueio que a
+pessoa não resolve dali ("guarde a intenção que está editando", "alterações não
+guardadas") desabilita, sempre com o motivo escrito ao lado.
+
+*A promessa do aviso (defeito 6, o mesmo 2 da ficha).* `AgendamentoAcaoView`
+prometia "Toca hoje às 20:22 · na hora" com os avisos do Traço desligados
+porque o `Bool permissaoNegada` juntava dois estados diferentes — *negado* e
+*ainda não perguntado* — e só o primeiro calava a promessa. A frase agora sai
+de `PromessaDoAviso.para(minutos:estado:hora:)`, pura e testada, sobre os três
+estados de `Avisos.Estado` mais o "ainda lendo": concedido diz "Toca …";
+não perguntado e leitura pendente dizem "Toca …, se você permitir os avisos
+quando o iPhone perguntar"; negado não promete, avisa e leva aos Ajustes. A
+view lê a permissão sozinha (`.task` e volta à cena), o que fecha também a
+janela em que a frase prometia antes de a leitura voltar. Depois do commit, a
+linha continua vindo do motor (`ResultadoDoAviso`), nunca do que se pediu.
+
+**Custo assumido.** A volta NÃO é líquido-negativa: +592/−364 em 4 arquivos
+(código sem comentário, 1119 → 1247 linhas). Foram apagados
+`AcaoTrabalhoStyle`, dois `NavigationStack` com toolbar, três
+`DisclosureGroup` (oito → cinco, e nenhum aninhado), o `Picker` de apoio e um
+`@State`; foram acrescentados o trilho de apoio, o tri-estado da promessa, as
+linhas de motivo do desabilitado, o ramo de acessibilidade do trilho e o
+cabeçalho fixo — cada um fechando um defeito nomeado da §6. Encolher além disso
+seria apagar correção. **Dívida para a volta dos Componentes:** `Pilula`
+desabilitada perde a cápsula (fundo `.clear`), e em AX5 o texto de
+`Pilula.larga` encosta na borda (sem recuo horizontal); faltam em
+`Traco/Componentes` uma `Secao` (rótulo + conteúdo, hoje copiada da ficha) e a
+linha que abre um BLOCO — os cinco `DisclosureGroup` restantes ainda são do
+sistema, com `tint` do tema por fora. `OficinaTrabalho.permissaoNegada` ficou
+sem leitor externo. **Volta:** multiplicar. **A IA:** nada mudou no que ela
+produz, lê ou pode enviar.
+
+**Prova.** Suíte 720/126 verde e build sem aviso no iPhone 17 Pro (teste 2);
+5 testes novos em `PromessaDoAvisoTests`. Capturas `simctl` antes e depois em
+large e AX5 (`ferramentas/orca/v18-*.png`), vídeo do movimento com e sem
+Reduzir Movimento (`v18-movimento-normal.mp4`, `v18-movimento-reduzido.mp4`).
+Curva-zero: intenção → versão preparada cai de 6 toques e 2 digitações para 5
+e 2, e a decisão de apoio passa de escondida a visível com 0 toques a mais.
+**Não provado:** o estado *negado* da promessa (a permissão do simulador de
+teste estava `naoPerguntado` e, depois de concedida, o iOS não deixa voltar
+atrás sem Ajustes — o caso vive no teste, não na captura); a chegada da versão
+da IA em vídeo (o modelo do aparelho leva ~90 s, acima do teto de 20 s, então o
+vídeo usa a versão escrita pela pessoa, que dispara a MESMA animação); e o
+alerta de permissão do iOS, que ao aparecer uma única vez recolhe a gaveta do
+horário e rola a folha ao topo — reproduzido, e não acontece em nenhum
+salvamento seguinte (`v18-reguardado.png`).
