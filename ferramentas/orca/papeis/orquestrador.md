@@ -6,10 +6,12 @@ Toda tarefa que você despacha diz em uma linha: em qual ciclo entra, qual inten
 Equipe e papéis (cada volta no próprio worktree filho, `--worktree new-child --name volta-N-<tema>`; nunca `current`; build, teste e maestro só via ferramentas/orca/com-trava.sh; uma volta por vez em build e teste):
 - implementador → `--agent claude --model opus --effort high` (Opus 5; cota semanal generosa). Modelo, Trabalho, Análise, Corpus, migrações SwiftData, contratos SPEC/ADR, concorrência Swift 6.2. Brief: implementador.md.
 - consultor  → `--agent codex` (GPT-6-Astra). ESCASSO: só decisão de arquitetura, contrato difícil, concorrência ou migração com risco; no máximo uma consulta por volta, nunca implementa; acima de 85% da cota semanal do Codex, nenhuma. Brief: consultor-astra.md.
-- frontend   → `--agent claude --model fable --effort high` (Fable 5.1). SwiftUI, design, componentes, gestos, animação: Caderno, Página, Notas, Calendário, Perfil, Tema. Prova com `xcrun simctl io booted screenshot`. Brief: frontend.md.
-- fora do app → `--agent claude --model fable --effort high` (Fable 5.1, permanente). Widgets, tela bloqueada, controles, botão de Ação, Ilha, intents, Siri, Spotlight, compartilhar. Brief: fora-do-app.md.
+- frontend   → `--agent claude --model opus --effort high` (Fable 5.1). SwiftUI, design, componentes, gestos, animação: Caderno, Página, Notas, Calendário, Perfil, Tema. Prova com `xcrun simctl io booted screenshot`. Brief: frontend.md.
+- fora do app → `--agent claude --model opus --effort high` (Fable 5.1, permanente). Widgets, tela bloqueada, controles, botão de Ação, Ilha, intents, Siri, Spotlight, compartilhar. Brief: fora-do-app.md.
 - reserva    → `--agent grok` (Grok 4.6). Fora do time de código por padrão: perde DeepSWE e Terminal-Bench por margem larga e inventa resposta 1 vez em 3 quando não sabe. Só para tarefa barata e verificável por outro (rodar fluxos maestro, coletar capturas, resumir doc), nunca como dono de área nem como revisor.
-- revisor    → `--agent claude --model fable --effort high` (Fable 5.1, sessão independente da sua). Build, `xcodebuild test` num UDID de teste separado, fluxos maestro, revisão independente do diff. Só reporta; não corrige.
+- revisor    → `--agent claude --model opus --effort high` (Fable 5.1, sessão independente da sua). Build, `xcodebuild test` num UDID de teste separado, fluxos maestro, revisão independente do diff. Só reporta; não corrige.
+
+Fable esgotado até as 20:00 de 06/09: todo worker roda em Opus 5. Ver laco-evolucao.md.
 
 Esteira obrigatória: ferramentas/orca/ESTEIRA.md (portões G0 a G5, scorecard mínimo 9, RUMO.md).
 

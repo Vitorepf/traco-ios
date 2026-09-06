@@ -2777,6 +2777,45 @@ das fases do Recordar com corte seco na saída. Relatórios:
 `ferramentas/orca/relatorio-v10-b.md`, `v10a-tokens-movimento.md` e a
 revisão `revisao-v10-fundacao.md`.
 
+## ADR 2026-09-05w — Captar pensamento em um toque
+
+**A distância.** A entrada (05a) já recebia a frase por Siri, Atalhos e
+`traco://anotar` — cada uma pedindo falar com a Siri ou digitar a URL. Na rua,
+no meio de outro app, com o aparelho bloqueado, não havia UM toque que levasse
+a mente ao papel: nem controle na Central ou na tela bloqueada, nem botão de
+Ação. O que espera se perde.
+
+**A decisão.** Um controle **Anotar** (`ControlWidget`, no alvo do widget)
+para a Central, a tela bloqueada e o botão de Ação. Ele executa
+`CapturarIntent`, o intent de ABERTURA compartilhado (declarado nos dois alvos
+em `Compartilhado/`; só o app executa, `TRACO_APP`; fora dele `ForaDoAlvo`
+recusa): `openAppWhenRun` e `Rota.ir(.captura(ditado: true))`. A rota é tipada
+e fica pendente: `Rota.consumir()` a devolve UMA vez a quem a cena pronta chama
+(`PaginaView`, no `onAppear` do arranque frio e no anúncio); a Página vai para
+Escrever, salva o que estava em voo, abre em branco e pede o foco só com a
+página livre (`restaurarFoco` guarda cobertura e confirmação; teclado
+recolhido por arrasto deixa o `FocusState` em true, e a rota força false →
+true): o app abre com o **teclado pronto e o microfone a um toque** — não
+"já em ditado". O recado "Toque no microfone do teclado para ditar." diz o limite: o
+iOS não expõe API para disparar o ditado do teclado — o app o deixa a um
+toque; a extensão não toca em microfone. O controle não lê a superfície: só
+"Anotar", desenhado pelo sistema, `tint` de `Tema.ambar`, rótulo ao VoiceOver.
+Botão de Ação: iOS 18+ associa o controle direto (Ajustes › Botão de Ação ›
+Controles) e o Atalhos expõe "Abrir para anotar"; sem frase de Siri — o iOS
+aceita dez App Shortcuts e o Traço já tem dez. `AnotarIntent` (Siri, sem
+abrir) segue em `entrada/`: "anotado" só após depósito confirmado; vazio não é
+falha; na falha nada é depositado (teste).
+
+**Custo assumido:** o ditado é o do teclado (um toque a mais que o ideal); a
+tela bloqueada do simulador mostra o controle só no editor — trancada não
+renderiza controle algum, nem a Lanterna (prova no aparelho). **Volta:**
+multiplicar. **A IA:** nada. **Prova:** contexto de execução no log do App
+Intents (`Traco[pid]` invoca `perform()` quente e no arranque frio); 3 testes
+em `ForaDoAppTests` (rota guardada sem ninguém ouvir e consumida uma vez; alvo
+errado recusa sem rota; falha do Anotar não deposita); suíte 715/125 sobre a V10; dois alvos
+sem aviso; capturas no iPhone Air. **Fora (F3b):** ditado próprio — áudio
+salvo primeiro, transcrito depois, falha preserva o áudio — por `.captura`.
+
 ## ADR 2026-09-05y — A página não perde o pé
 
 **A distância.** A auditoria da volta 9 deu 6,7 à Página+Caderno, a porta de

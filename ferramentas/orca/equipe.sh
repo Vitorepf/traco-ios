@@ -4,7 +4,7 @@
 set -eu
 cd "$(dirname "$0")/../.."
 P=ferramentas/orca/papeis
-H=$(orca terminal create --worktree active --title "Orquestrador · Fable 5.1" --command "claude --model fable --dangerously-skip-permissions" --json | node -pe 'JSON.parse(require("fs").readFileSync(0)).result.terminal.handle')
+H=$(orca terminal create --worktree active --title "Orquestrador · Opus 5" --command "claude --model opus --dangerously-skip-permissions" --json | node -pe 'JSON.parse(require("fs").readFileSync(0)).result.terminal.handle')
 orca terminal wait --terminal "$H" --for tui-idle --timeout-ms 90000 --json >/dev/null
 orca terminal send --terminal "$H" --text "$(cat $P/orquestrador.md)
 

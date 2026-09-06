@@ -215,12 +215,12 @@ struct PaginaView: View {
             if let destino = Rota.daURL(url) { seguirRota(destino) }
         }
         .onReceive(NotificationCenter.default.publisher(for: Rota.mudou)) { _ in
-            if let destino = Rota.pendente { Rota.pendente = nil; seguirRota(destino) }
+            if let destino = Rota.consumir() { seguirRota(destino) }
         }
         // ADR 05u: no arranque frio o intent corre antes de esta view escutar;
         // a rota fica pendente e é consumida quando a cena está pronta
         .onAppear {
-            if let destino = Rota.pendente { Rota.pendente = nil; seguirRota(destino) }
+            if let destino = Rota.consumir() { seguirRota(destino) }
         }
         .onReceive(NotificationCenter.default.publisher(for: Revisoes.abrirRevisao)) { aviso in
             // §17: um passo — a notificação abre direto o Recordar da nota
@@ -597,6 +597,20 @@ struct PaginaView: View {
             sessao.novaPagina()
             sessao.mostrarNotas = false
             sessao.mostrarPadroes = false
+        // ADR 05w: um toque fora do app → página em branco com o teclado pronto.
+        // O foco só entra com a página livre (`restaurarFoco` guarda cobertura
+        // e confirmação); coberta, entra quando a cobertura sai.
+        case .captura(let ditado):
+            sessao.irPara(.escrever, no: context)
+            guard sessao.aba == .escrever, sessao.salvar(no: context) else { return }
+            sessao.novaPagina()
+            sessao.mostrarNotas = false
+            sessao.mostrarPadroes = false
+            // o teclado recolhido por arrasto deixa `focoPagina` em true (a
+            // régua segue o foco): só a transição false → true o levanta
+            focoPagina = false
+            DispatchQueue.main.async { restaurarFoco() }
+            if ditado { sessao.mostrarToast("Toque no microfone do teclado para ditar.") }
         case .notas:
             // `mostrarNotas = true` só mudava `aba`; a camada do arquivo lê
             // `abaArquivo`, e do calendário o link ficava no calendário

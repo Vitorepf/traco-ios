@@ -81,6 +81,7 @@
 		7955B1999142FE2CCC93DDD9 /* TituloTela.swift in Sources */ = {isa = PBXBuildFile; fileRef = 813C9D0A44A4071EBACC0EFD /* TituloTela.swift */; };
 		7C1C6E4F04DB0F87F10AE130 /* Pilula.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9622B1F0FCBD585B72089CD2 /* Pilula.swift */; };
 		7F26309223D4872E96CFEA82 /* ContaGrok.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DBB3255C8D14DB1494C3558 /* ContaGrok.swift */; };
+		7F6EB1BC7BAFE1E2083BCFB3 /* CapturarIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3387F830FCA497BB6F9A71F /* CapturarIntent.swift */; };
 		80ADF1AB86E85FB378787A92 /* Camadas.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACC5FB2B7162F211E437D280 /* Camadas.swift */; };
 		810CC40FDE779309217667CD /* AnaliseLocalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AECFB44B4FF4BE148A31BF05 /* AnaliseLocalTests.swift */; };
 		81E975420DBEB751048DCF3B /* Queima.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B0F9BB5E377CB48CE727C3F /* Queima.swift */; };
@@ -141,6 +142,7 @@
 		D77B8A3D52C6B31EEA682D6D /* CalendarioFichaSistema.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6F33D1E8600B265FCB8F62B /* CalendarioFichaSistema.swift */; };
 		D8077BAEB36715E625DCE1A6 /* ArquivoMarkdownTrabalho.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29368EC04AD6536FE9C979DD /* ArquivoMarkdownTrabalho.swift */; };
 		D81B0DF879EB72D8F232BE3B /* IntercambioTrabalhoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35F9676C1446FB02DB1223BC /* IntercambioTrabalhoView.swift */; };
+		D87EE6AC18787F6BBDA68D8C /* CapturarIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3387F830FCA497BB6F9A71F /* CapturarIntent.swift */; };
 		D940A2173637305E5D140A72 /* IntercambioTrabalho.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3C04A315E242E28949A4C24 /* IntercambioTrabalho.swift */; };
 		DA6C18AAF7BE831A53CC6306 /* TemaTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B04DABEDFD9C86D45507C64 /* TemaTests.swift */; };
 		DD01525E60FAF30B4BE9678B /* CatalogoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4779123F03E7ECFA8CAEB9B9 /* CatalogoTests.swift */; };
@@ -303,6 +305,7 @@
 		B0BBA6436049FAFFC6A04D00 /* IntegridadeCorpusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegridadeCorpusTests.swift; sourceTree = "<group>"; };
 		B1E9A224786DC6173B194387 /* DestaqueFeitoIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DestaqueFeitoIntent.swift; sourceTree = "<group>"; };
 		B2C82A29BB5E74DA79ECDBAE /* ProximoCompromisso.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProximoCompromisso.swift; sourceTree = "<group>"; };
+		B3387F830FCA497BB6F9A71F /* CapturarIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapturarIntent.swift; sourceTree = "<group>"; };
 		B34FA98F79085411C8C75034 /* CalendarioTrabalhoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarioTrabalhoTests.swift; sourceTree = "<group>"; };
 		B496594B9155DDF9FAE0B85C /* CamposFormaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CamposFormaView.swift; sourceTree = "<group>"; };
 		B544C7CB0EEA5F5D2DAFB30C /* NotasESessaoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotasESessaoTests.swift; sourceTree = "<group>"; };
@@ -445,6 +448,7 @@
 			isa = PBXGroup;
 			children = (
 				2DD0DC7A5E06584B2E182AB2 /* Atividades.swift */,
+				B3387F830FCA497BB6F9A71F /* CapturarIntent.swift */,
 				B1E9A224786DC6173B194387 /* DestaqueFeitoIntent.swift */,
 				80F88073410C6E7EE55833B2 /* LembrarDepoisIntent.swift */,
 				BD30107ACE35F098EB5AACE5 /* SuperficieFora.swift */,
@@ -879,6 +883,7 @@
 				A12EC39DE749ED01C731FA65 /* CalendarioView.swift in Sources */,
 				80ADF1AB86E85FB378787A92 /* Camadas.swift in Sources */,
 				05008721B50DE83B33C36004 /* CamposFormaView.swift in Sources */,
+				D87EE6AC18787F6BBDA68D8C /* CapturarIntent.swift in Sources */,
 				F03FD5D013927175A85189D8 /* Cartao.swift in Sources */,
 				921E42407F002A0F679BA76F /* CartaoAnaliseView.swift in Sources */,
 				C06225CD2EB5F792CA28B484 /* ChipDominio.swift in Sources */,
@@ -976,6 +981,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				577191B28C8A36DC14007C81 /* Atividades.swift in Sources */,
+				7F6EB1BC7BAFE1E2083BCFB3 /* CapturarIntent.swift in Sources */,
 				D58DD2A3D70771AE4E52029C /* DestaqueFeitoIntent.swift in Sources */,
 				FBE29A470752635241DE99B1 /* LembrarDepoisIntent.swift in Sources */,
 				A8FC554E9192ED2DB78D01C1 /* SuperficieFora.swift in Sources */,

@@ -87,6 +87,17 @@ permissão de calendário concedida (o app publicou `superficie.json`, que o tes
 lê). Apagado o arquivo, a suíte passa inteira. Não é regressão do diff — nenhum
 arquivo de `Intents/`, `Widget` ou `ForaDoApp` foi tocado.
 
+**Merge com main.** Enquanto a volta corria, a trilha Fora do app mesclou a F3
+(ADR 05w) em main, que tocou `PaginaView.seguirRota`. Mesclei main aqui: o único
+conflito foi o fim da SPEC (duas ADRs novas), resolvido mantendo as duas em ordem
+cronológica — 05w e depois 05y; `PaginaView` casou sozinha. Na árvore mesclada:
+
+```
+✔ Test run with 716 tests in 125 suites passed after 9.349 seconds.
+```
+
+O worktree fica pronto para o G5, sem conflito pendente.
+
 **Capturas** (`ferramentas/orca/v12-<build>-<tamanho>-<estado>.png`, 27 PNG,
 maior 328 KB): antes (main) e depois, em `large` e AX5, nos estados **vazia,
 escrevendo, forma vestida, campos abertos, cartão da sábia e arquivo aberto pela

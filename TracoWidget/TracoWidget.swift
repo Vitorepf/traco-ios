@@ -644,6 +644,25 @@ struct CompromissoVivo: Widget {
     }
 }
 
+/// ADR 05w: o controle "Anotar" da Central de Controle, da tela bloqueada e
+/// do botão de Ação. Um toque faz uma coisa: abre o Traço numa página em
+/// branco com o teclado pronto. Não lê a superfície, não conta, não mostra
+/// conteúdo — só o rótulo. O sistema desenha o botão; o âmbar é o do Tema.
+struct AnotarControle: ControlWidget {
+    static let kind = "app.traco.controle.anotar"
+
+    var body: some ControlWidgetConfiguration {
+        StaticControlConfiguration(kind: Self.kind) {
+            ControlWidgetButton(action: CapturarIntent()) {
+                Label("Anotar", systemImage: "text.append")
+            }
+            .tint(Tema.ambar)
+        }
+        .displayName("Anotar")
+        .description("Abre o Traço numa página em branco, pronta para ditar ou escrever.")
+    }
+}
+
 @main
 struct TracoWidgetBundle: WidgetBundle {
     var body: some Widget {
@@ -651,6 +670,7 @@ struct TracoWidgetBundle: WidgetBundle {
         TracoProximoWidget()
         DestaqueVivo()
         CompromissoVivo()
+        AnotarControle()
     }
 }
 

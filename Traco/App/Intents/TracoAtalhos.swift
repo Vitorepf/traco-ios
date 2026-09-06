@@ -3,6 +3,11 @@ import AppIntents
 /// As frases de Siri e os atalhos sugeridos (ADR 05u: o catálogo mora em
 /// `Traco/App/Intents/`; nomes de tipos e parâmetros preservados para que
 /// atalho salvo no aparelho do autor continue a funcionar).
+///
+/// O iOS aceita no máximo DEZ, e são estes. `CapturarIntent` (ADR 05w) fica
+/// de fora de propósito: o botão de Ação o alcança pelo controle "Anotar"
+/// (Ajustes › Botão de Ação › Controles) e o Atalhos pela ação "Abrir para
+/// anotar" do Traço — sem gastar a vaga de uma frase de Siri.
 struct TracoAtalhos: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
         AppShortcut(

@@ -1,0 +1,42 @@
+2026-09-06 04:22:24.809 Df chronod[67532:aad36c] [com.apple.chrono:controls] [<extensionIdentity: app.traco::app.traco.widget; kind: app.traco.controle.anotar>]: Performing control action with the intent
+2026-09-06 04:22:24.814 Df chronod[67532:aad36c] [com.apple.chrono:interactions] Starting to run action: <LNAction: 0x108c82b80, identifier: CapturarIntent, mangledTypeName: 5Traco14CapturarIntentV, openAppWhenRun: YES, 
+2026-09-06 04:22:24.887 Df Traco[78325:aad4fe] [com.apple.appintents:Execution] [InitializeAction <<N:DAC6E51EE331>>] Found CapturarIntent matching CapturarIntent registered with AppManager
+2026-09-06 04:22:24.940 Df Traco[78325:aab6af] [com.apple.appintents:Execution] [PerformAction <<N:063CE2583630>>] Invoking CapturarIntent.perform()
+2026-09-06 04:22:24.944 Df Traco[78325:aab6af] [com.apple.appintents:Execution] [PerformAction <<N:063CE2583630>>] CapturarIntent.perform() finished
+2026-09-06 04:22:24.965 Df chronod[67532:aad272] [com.apple.chrono:controls] [<extensionIdentity: app.traco::app.traco.widget; kind: app.traco.controle.anotar>]: Action success
+2026-09-06 04:32:03.805 Df chronod[67532:ac2a69] [com.apple.chrono:controls] [<extensionIdentity: app.traco::app.traco.widget; kind: app.traco.controle.anotar>]: Performing control action with the intent
+2026-09-06 04:32:03.807 Df chronod[67532:ac2a69] [com.apple.chrono:interactions] Starting to run action: <LNAction: 0x108c830c0, identifier: CapturarIntent, mangledTypeName: 5Traco14CapturarIntentV, openAppWhenRun: YES, 
+2026-09-06 04:32:03.859 Df Traco[22110:ac26ad] [com.apple.appintents:Execution] [InitializeAction <<N:40FA3AB81926>>] Found CapturarIntent matching CapturarIntent registered with AppManager
+2026-09-06 04:32:03.907 Df Traco[22110:ac26ad] [com.apple.appintents:Execution] [PerformAction <<N:FF726E014BA2>>] Invoking CapturarIntent.perform()
+2026-09-06 04:32:03.907 Df Traco[22110:ac26ad] [com.apple.appintents:Execution] [PerformAction <<N:FF726E014BA2>>] CapturarIntent.perform() finished
+2026-09-06 04:32:03.918 Df chronod[67532:ac2a6b] [com.apple.chrono:controls] [<extensionIdentity: app.traco::app.traco.widget; kind: app.traco.controle.anotar>]: Action success
+2026-09-06 04:33:40.145 Df chronod[67532:ad22ac] [com.apple.chrono:controls] [<extensionIdentity: app.traco::app.traco.widget; kind: app.traco.controle.anotar>]: Performing control action with the intent
+2026-09-06 04:33:40.147 Df chronod[67532:ad22ac] [com.apple.chrono:interactions] Starting to run action: <LNAction: 0x108c81f80, identifier: CapturarIntent, mangledTypeName: 5Traco14CapturarIntentV, openAppWhenRun: YES, 
+2026-09-06 04:33:40.155 Df Traco[22110:ad190a] [com.apple.appintents:Execution] [InitializeAction <<N:3212309CD28E>>] Found CapturarIntent matching CapturarIntent registered with AppManager
+2026-09-06 04:33:40.167 Df Traco[22110:ad22b6] [com.apple.appintents:Execution] [PerformAction <<N:561A4DFEAAB4>>] Invoking CapturarIntent.perform()
+2026-09-06 04:33:40.167 Df Traco[22110:ad22b6] [com.apple.appintents:Execution] [PerformAction <<N:561A4DFEAAB4>>] CapturarIntent.perform() finished
+2026-09-06 04:33:40.169 Df chronod[67532:ad22ac] [com.apple.chrono:controls] [<extensionIdentity: app.traco::app.traco.widget; kind: app.traco.controle.anotar>]: Action success
+2026-09-06 04:34:11.973 Df chronod[67532:ad37c6] [com.apple.chrono:controls] [<extensionIdentity: app.traco::app.traco.widget; kind: app.traco.controle.anotar>]: Performing control action with the intent
+2026-09-06 04:34:11.974 Df chronod[67532:ad37c6] [com.apple.chrono:interactions] Starting to run action: <LNAction: 0x108c82220, identifier: CapturarIntent, mangledTypeName: 5Traco14CapturarIntentV, openAppWhenRun: YES, 
+2026-09-06 04:34:12.847 Df Traco[30032:ad3a45] [com.apple.appintents:Execution] [InitializeAction <<N:B831C44E8740>>] Found CapturarIntent matching CapturarIntent registered with AppManager
+2026-09-06 04:34:13.140 Df Traco[30032:ad3a45] [com.apple.appintents:Execution] [PerformAction <<N:FE73FB585BC9>>] Invoking CapturarIntent.perform()
+2026-09-06 04:34:13.141 Df Traco[30032:ad3a45] [com.apple.appintents:Execution] [PerformAction <<N:FE73FB585BC9>>] CapturarIntent.perform() finished
+2026-09-06 04:34:13.148 Df chronod[67532:ad37c5] [com.apple.chrono:controls] [<extensionIdentity: app.traco::app.traco.widget; kind: app.traco.controle.anotar>]: Action success
+2026-09-06 04:34:52.003 Df chronod[67532:ad7457] [com.apple.chrono:controls] [<extensionIdentity: app.traco::app.traco.widget; kind: app.traco.controle.anotar>]: Performing control action with the intent
+2026-09-06 04:34:52.004 Df chronod[67532:ad7457] [com.apple.chrono:interactions] Starting to run action: <LNAction: 0x108c82d00, identifier: CapturarIntent, mangledTypeName: 5Traco14CapturarIntentV, openAppWhenRun: YES, 
+2026-09-06 04:34:52.030 Df Traco[30032:ad69bc] [com.apple.appintents:Execution] [InitializeAction <<N:0226CBC51841>>] Found CapturarIntent matching CapturarIntent registered with AppManager
+2026-09-06 04:34:52.072 Df Traco[30032:ad69bc] [com.apple.appintents:Execution] [PerformAction <<N:F49E1E2F0C00>>] Invoking CapturarIntent.perform()
+2026-09-06 04:34:52.072 Df Traco[30032:ad69bc] [com.apple.appintents:Execution] [PerformAction <<N:F49E1E2F0C00>>] CapturarIntent.perform() finished
+2026-09-06 04:34:52.080 Df chronod[67532:ad3d0d] [com.apple.chrono:controls] [<extensionIdentity: app.traco::app.traco.widget; kind: app.traco.controle.anotar>]: Action success
+2026-09-06 04:35:04.402 Df chronod[67532:ad7457] [com.apple.chrono:controls] [<extensionIdentity: app.traco::app.traco.widget; kind: app.traco.controle.anotar>]: Performing control action with the intent
+2026-09-06 04:35:04.402 Df chronod[67532:ad7457] [com.apple.chrono:interactions] Starting to run action: <LNAction: 0x108c832a0, identifier: CapturarIntent, mangledTypeName: 5Traco14CapturarIntentV, openAppWhenRun: YES, 
+2026-09-06 04:35:04.407 Df Traco[30032:ad7481] [com.apple.appintents:Execution] [InitializeAction <<N:0A11C00897FC>>] Found CapturarIntent matching CapturarIntent registered with AppManager
+2026-09-06 04:35:04.415 Df Traco[30032:ad7481] [com.apple.appintents:Execution] [PerformAction <<N:BC7F3972DAF6>>] Invoking CapturarIntent.perform()
+2026-09-06 04:35:04.415 Df Traco[30032:ad7481] [com.apple.appintents:Execution] [PerformAction <<N:BC7F3972DAF6>>] CapturarIntent.perform() finished
+2026-09-06 04:35:04.416 Df chronod[67532:ad7bb1] [com.apple.chrono:controls] [<extensionIdentity: app.traco::app.traco.widget; kind: app.traco.controle.anotar>]: Action success
+2026-09-06 04:35:16.681 Df chronod[67532:ad7bb3] [com.apple.chrono:controls] [<extensionIdentity: app.traco::app.traco.widget; kind: app.traco.controle.anotar>]: Performing control action with the intent
+2026-09-06 04:35:16.682 Df chronod[67532:ad7bb3] [com.apple.chrono:interactions] Starting to run action: <LNAction: 0x108c832a0, identifier: CapturarIntent, mangledTypeName: 5Traco14CapturarIntentV, openAppWhenRun: YES, 
+2026-09-06 04:35:16.687 Df Traco[30032:ad7481] [com.apple.appintents:Execution] [InitializeAction <<N:8FE344690F7C>>] Found CapturarIntent matching CapturarIntent registered with AppManager
+2026-09-06 04:35:16.697 Df Traco[30032:ad7481] [com.apple.appintents:Execution] [PerformAction <<N:FDAD2026B540>>] Invoking CapturarIntent.perform()
+2026-09-06 04:35:16.697 Df Traco[30032:ad7481] [com.apple.appintents:Execution] [PerformAction <<N:FDAD2026B540>>] CapturarIntent.perform() finished
+2026-09-06 04:35:16.698 Df chronod[67532:ad7bcc] [com.apple.chrono:controls] [<extensionIdentity: app.traco::app.traco.widget; kind: app.traco.controle.anotar>]: Action success

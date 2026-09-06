@@ -329,9 +329,10 @@ struct ForaDoAppTests {
                     #expect(ProximoCompromisso.sonecaAtiva(ocorrencia: f.ocorrencia) == nil)
                     #expect(ProximoCompromisso.lido()?.lembrarEm == nil)
                 }
-                // e pelo intent, sem centro de mentira: no processo de teste a
-                // permissão é `notDetermined` — recusa, sem hora
-                Revisoes.centro = .real
+                // e pelo intent, com o centro real e só a permissão injetada
+                // (`naoPerguntado`): recusa, sem hora — em qualquer simulador
+                Revisoes.centro = .init(estado: { .naoPerguntado }, livres: Revisoes.CentroDeAvisos.real.livres,
+                                        adicionar: Revisoes.CentroDeAvisos.real.adicionar)
                 _ = try await LembrarDepoisIntent(ocorrencia: f.ocorrencia).perform()
                 #expect(ProximoCompromisso.lido()?.lembrarEm == nil)
             }
@@ -458,6 +459,43 @@ struct ForaDoAppTests {
         }
     }
 
+
+    // MARK: - Captação em um toque (ADR 05w)
+
+    @Test("arranque frio: a rota fica guardada sem ninguém ouvindo e é consumida UMA vez")
+    func rotaPendenteUmaVez() async throws {
+        Rota.pendente = nil
+        // ninguém ouve: é o intent correndo antes da cena (a suíte roda dentro
+        // do app vivo, então o anúncio real seria consumido na hora pela Página)
+        let anunciarAntes = Rota.anunciar
+        Rota.anunciar = {}
+        defer { Rota.anunciar = anunciarAntes }
+        Rota.ir(.captura(ditado: true))
+        #expect(Rota.pendente == .captura(ditado: true))
+        #expect(Rota.consumir() == .captura(ditado: true))
+        #expect(Rota.consumir() == nil)
+        #expect(Rota.pendente == nil)
+        // a última vence: duas aberturas seguidas não enfileiram
+        Rota.ir(.notas)
+        Rota.ir(.captura(ditado: false))
+        #expect(Rota.consumir() == .captura(ditado: false))
+        #expect(Rota.consumir() == nil)
+    }
+
+    @Test("o intent de abertura só executa no app; na extensão recusa e não deixa rota")
+    func capturarSoNoApp() async throws {
+        Rota.pendente = nil
+        let anunciarAntes = Rota.anunciar
+        Rota.anunciar = {}
+        defer { Rota.anunciar = anunciarAntes }
+        #expect(throws: ForaDoAlvo.self) { try CapturarIntent.executar(noApp: false) }
+        #expect(Rota.pendente == nil)
+        #expect(CapturarIntent.noApp)
+        _ = try await CapturarIntent().perform()
+        #expect(Rota.consumir() == .captura(ditado: true))
+        #expect(CapturarIntent.openAppWhenRun)
+    }
+
     // MARK: - Captação
 
     @Test("anotar distingue vazio de falha de gravação; 'anotado' é depósito confirmado")
@@ -476,6 +514,11 @@ struct ForaDoAppTests {
         // um ARQUIVO no lugar da pasta do app: nada consegue ser escrito
         try Data("x".utf8).write(to: raiz.appendingPathComponent("Traço"))
         #expect(AnotarIntent.anotar("ligar para o dentista") == .falhou)
+        let falha = AnotarIntent()
+        falha.texto = "ligar para o dentista"
+        // o perform() na falha não deposita nada: "anotado" nunca sai daqui
+        _ = try await falha.perform()
+        #expect(Entrada.recolher(raizes: [Entrada.raizDoApp]).isEmpty)
         try FileManager.default.removeItem(at: raiz.appendingPathComponent("Traço"))
 
         #expect(AnotarIntent.anotar("ligar para o dentista") == .anotado)

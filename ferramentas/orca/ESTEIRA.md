@@ -15,6 +15,18 @@ Vale para toda volta do laço. Nota por dimensão de 0 a 10, dada pelo revisor i
 
 Duas recusas seguidas na mesma volta abrem consulta ao conselho (Astra) antes da terceira tentativa.
 
+## Skills obrigatórias por portão
+
+Ordem do dono (06/09): usar cada vez mais `design-router`, `curva-zero` e `gate-loop`. Não é sugestão; é parte do portão. O worker carrega a skill ANTES de escrever qualquer código e cita no relato a fase em que estava.
+
+| skill | quem carrega | quando | o que o relato tem de citar |
+|---|---|---|---|
+| `gate-loop` | orquestrador, em toda volta | no G0, para fixar resultado, escopo, critérios e provas; e a cada recusa, para decidir a próxima ação | contrato da volta e o critério que falhou |
+| `design-router` | todo worker que toca view, Tema, componente, movimento ou copy | antes da primeira linha de SwiftUI; redesenho começa na fase de auditar antes de tocar | as seis fases: Ancorar, Sistema, Construir, Mover, Julgar, Portão |
+| `curva-zero` | worker de jornada, formulário, onboarding, folha, primeiro uso, ou tela com nota de Simplicidade abaixo de 9 | ao desenhar o roteiro, antes do layout | jornada, resultado verificável, atrito observado, recuperação |
+
+Volta visual sem as fases do `design-router` citadas no relato é recusada no G4, mesmo que o código esteja certo. Volta de jornada sem `curva-zero` é recusada na dimensão Simplicidade. O revisor confere a citação contra o que está na tela, não aceita a menção sozinha.
+
 ## Scorecard
 
 | dimensão | mínimo 9 significa | evidência |
