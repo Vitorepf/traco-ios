@@ -65,7 +65,6 @@
 		5C1790A9FFB5B806B351CA85 /* LenteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84222ED2C50DC930433527F8 /* LenteView.swift */; };
 		5DCE4A68B37975A8776F1BEA /* CalendarioEscalas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F1A0C028CE98D7512FD39AB /* CalendarioEscalas.swift */; };
 		5F0999C9FAE51419644AA628 /* Trabalho.swift in Sources */ = {isa = PBXBuildFile; fileRef = 208C4D2D6B7CDE3139AB46D9 /* Trabalho.swift */; };
-		5F579B89EF7E842C1696A2C4 /* Toast.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24BE4A8DAABAE6EE621E0EC9 /* Toast.swift */; };
 		6265D7FE86179B2527DC9E2F /* ForaDoAppTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC8485E4A18F46DC7AEC2352 /* ForaDoAppTests.swift */; };
 		62F244DD1EE82BE8E45B1831 /* CadernoDiagnostico.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BE14BD28362A74300FD085A /* CadernoDiagnostico.swift */; };
 		6316127746D5DEF2A9900FB9 /* RevisaoTrabalho.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80097AC5D039C24E7A2B7E04 /* RevisaoTrabalho.swift */; };
@@ -223,7 +222,6 @@
 		1F1A0C028CE98D7512FD39AB /* CalendarioEscalas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarioEscalas.swift; sourceTree = "<group>"; };
 		208C4D2D6B7CDE3139AB46D9 /* Trabalho.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Trabalho.swift; sourceTree = "<group>"; };
 		22994458C412FA63E4DEE64D /* Indice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Indice.swift; sourceTree = "<group>"; };
-		24BE4A8DAABAE6EE621E0EC9 /* Toast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Toast.swift; sourceTree = "<group>"; };
 		26D439FE100A61693F59D02A /* BuracosFuncionaisTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuracosFuncionaisTests.swift; sourceTree = "<group>"; };
 		29368EC04AD6536FE9C979DD /* ArquivoMarkdownTrabalho.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArquivoMarkdownTrabalho.swift; sourceTree = "<group>"; };
 		2BCF75841A504A0DB56F81BB /* CabecalhoDeFolha.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CabecalhoDeFolha.swift; sourceTree = "<group>"; };
@@ -407,7 +405,6 @@
 				63779AF022C1F93A0C3E8385 /* LinhaQueAbre.swift */,
 				9622B1F0FCBD585B72089CD2 /* Pilula.swift */,
 				021C8E770A726E850C84515E /* Rotulo.swift */,
-				24BE4A8DAABAE6EE621E0EC9 /* Toast.swift */,
 				E22B84151D11BBFF7BDAFB6F /* Vazio.swift */,
 			);
 			path = Componentes;
@@ -959,7 +956,6 @@
 				044F8E891B30FDC832EC1B3B /* SuperficieFora.swift in Sources */,
 				D37ABADE9FFCD8F825DC5E8B /* Tema.swift in Sources */,
 				7955B1999142FE2CCC93DDD9 /* TituloTela.swift in Sources */,
-				5F579B89EF7E842C1696A2C4 /* Toast.swift in Sources */,
 				41477564BC9389B7A7982A6C /* Toque.swift in Sources */,
 				5F0999C9FAE51419644AA628 /* Trabalho.swift in Sources */,
 				C9D53DA9D5383AF659552D95 /* TrabalhoView.swift in Sources */,

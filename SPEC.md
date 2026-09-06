@@ -2691,12 +2691,17 @@ controle, ação, larga, etiqueta — para que a volta por tela escolha qual
 sobrevive), `ChipDominio` único (etiqueta nas Notas; tingido com ícone e seta
 na ficha; um menu só, com ícone e marca no atual, "Sem domínio" e "Devolver ao
 app"), `.rotulo(_:)` (caixa alta, 11 semibold, tracking +1,2), `LinhaDeEstado`
-(pensando, lendo, falhou, sem conta), `LinhaQueAbre` (menu ou bloco abaixo),
+(pensando, lendo, falhou, sem conta), `LinhaQueAbre` (menu; a variante que
+abre um bloco abaixo entra na V12 com as Versões, que é quem a chama),
 `.cartao(_:)` (papel, campo, flutuante, tingido; sombra só no que flutua),
-três estilos de botão (`.discreto` é a `PressaoDiscreta` de Tema; `.primario`
-recua sozinho quando desabilitado; `.compacto`), `CabecalhoDeFolha` (✕ ou
-"voltar", título, Pronto), `Toast` por `safeAreaInset` (nunca cobre a barra) e
-`Vazio(frase:acao:)`. O alvo de 44 vive no botão ou no menu que envolve a
+três estilos de botão em Componentes (`.discreto` é a `PressaoDiscreta` de
+Tema; `.primario` recua sozinho quando desabilitado; `.compacto` é o antigo
+`CompactoStyle` do cartão da análise, que passou a citá-lo) — no repositório
+são SETE, não três: os quatro por tela seguem abaixo no custo assumido —,
+`CabecalhoDeFolha` (✕ ou "voltar", título, Pronto) e `Vazio(frase:acao:)`.
+O `Toast` por `safeAreaInset` foi escrito e apagado nesta mesma volta: sem
+tela que o prove não é componente; entra na V15 com o calendário, cujo
+`CalendarioToast` já cita os mesmos tokens. O alvo de 44 vive no botão ou no menu que envolve a
 cápsula (ADR 05f), nunca nela. (2) Três telas migradas sem mudar pixel: Notas,
 ficha do calendário (a própria e a do iPhone) e Recordar. No Recordar, ler e
 esconder viram UM objeto cujos modificadores animam; a fase que sai corta seco
@@ -2718,15 +2723,45 @@ Dezesseis literais viram três durações; Δ por chamada em
 é a régua para a volta por tela reduzir a duas (SISTEMA-CLARO §2.3). O menu
 do domínio ficou um só, e por isso o que abre mudou nas duas telas (ícones nas
 Notas, marca no atual na ficha). Seguem onde estão até a volta de cada tela:
-`PressaoClara`, `CompactoStyle`, `CartaoBotaoStyle`, `BarraBotaoStyle`,
-`AcaoTrabalhoStyle`, os rótulos de 11 arquivos e os toasts da página, do
-perfil e do calendário. Linhas líquidas da volta: +640 (B) e +159 (A) —
-a fundação cresce; o abatimento vem das voltas por tela.
+`PressaoClara`, `CartaoBotaoStyle`, `BarraBotaoStyle`, `AcaoTrabalhoStyle`,
+os rótulos de 11 arquivos e os toasts da página, do perfil e do calendário.
+Dois Δ de movimento que a lei por classe trouxe e que ficam: (1) sob Reduzir
+Movimento a queima da expressiva (`FechoExpressivaView`, classe
+`.deslocamento`) deixa de levar 3,0 s e vira um fade de 0,15 s seguido de
+3,15 s de espera parada antes de a página amanhecer — o fogo não anda, mas o
+relógio da cena segue o mesmo; a volta da Página (V18) decide se a espera
+encurta ou se a cena passa à classe `.opacidade`; (2) a célula nova da tabela
+(`EditorBlocoView`) trocou a mola própria 0,35/0,80 por `Mola.escala`
+0,55/0,86: assenta em ≈ 0,70 s em vez de ≈ 0,45 s (+0,25 s), perceptível só
+lado a lado, numa ação rara.
+
+**Complexidade, decisão do orquestrador.** O critério do G0 desta volta,
+"linhas líquidas ≤ 0", era inadequado para uma fundação: nenhuma fundação
+fecha ≤ 0 no dia em que nasce. O crescimento real é CUSTO ASSUMIDO desta ADR:
+Swift do app **+679** (`Traco/*.swift`, +1149 −470), sendo `Componentes/`
++848 (278 linhas de preview a partir do primeiro `#Preview`, ~200 de
+comentário de contrato, ~370 de código) e as telas **−169**. Depois da
+correção do G3 (apagados `Toast`, `LinhaQueAbre.abaixo`,
+`Tema.confirmacaoEntra` e o `CompactoStyle` duplicado: −109) e o rebase sobre
+main 59e5833 (V6 e F2), o app fica em **+570** (+1058 −488; `Componentes/`
++758, telas −188).
+A regra de compensação, que o RUMO carrega: **cada volta por tela (V12, V13,
+V15, V18…) tem de ser líquido-negativa ao migrar para Componentes** — a tela
+apaga mais do que o componente cresce, ou a volta não fecha.
 
 **Prova.** Build sem aviso novo; suíte integral 650/0 em 123 suítes no iPhone 17e em
-06/09/2026. Capturas antes (main) e depois em `large` e AX5, diff de pixels
-fora da barra de status: Notas lista, vazio, filtro vazio, busca e AX5 0 %;
-ficha 0,008 % (caret) e AX5 0 %; ficha do iPhone 0 %; Recordar revelar e
-conferido 0 % em `large` e AX5; ler 0 %; escrever difere só pela pergunta
-que a sábia do aparelho inventa a cada abertura. Vídeo das fases do Recordar
-com corte seco na saída. Relatório: `ferramentas/orca/relatorio-v10-b.md`.
+06/09/2026, refeita no iPhone 17 Pro do revisor (650/0) e depois da correção
+do G3. Capturas antes (main) e depois em `large` e AX5, diff de pixels fora
+da barra de status, em pixels reais e não "0 %": Notas vazio, calendário mês,
+ficha topo em AX5 e Recordar ler/escrever/revelar 0 px nos dois tamanhos;
+ficha topo e rodapé em `large` 235 px = 0,008 % (o caret do título); ficha
+rodapé em AX5 1 922 px = 0,07 % (rolagem clampada a ±1 pt); Recordar
+escrever 2 186 px = 0,08 % (caret) em `large` e 3,7 % em AX5 porque a
+pergunta da sábia do aparelho muda a cada abertura; Notas lista 218–636 px de
+anti-aliasing de texto no campo de busca e no chip "Saúde" (o `.shadow` de
+raio 0 do `Cartao` e o rótulo do `Menu` por `.discreto` rasterizam o mesmo
+texto com outra borda) — e, na recontagem do revisor, 1,2 % e 5,1 % que são só
+a ORDEM de duas notas criadas no mesmo segundo, linha a linha idênticas. Vídeo
+das fases do Recordar com corte seco na saída. Relatórios:
+`ferramentas/orca/relatorio-v10-b.md`, `v10a-tokens-movimento.md` e a
+revisão `revisao-v10-fundacao.md`.

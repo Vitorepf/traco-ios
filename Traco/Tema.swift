@@ -155,10 +155,6 @@ enum Tema {
         static let queimaCena: Double = 3.0
     }
 
-    /// Ponte para `Traco/Componentes/Toast.swift` (V10-B), que cita o nome
-    /// antigo; some quando o Toast citar `Duracao.media`.
-    static let confirmacaoEntra: Double = Duracao.media
-
     enum Mola {
         /// o soltar do botão: volta com vida
         static let toque: Animation = .spring(response: 0.32, dampingFraction: 0.65)

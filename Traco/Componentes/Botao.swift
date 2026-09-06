@@ -1,18 +1,22 @@
 import SwiftUI
 
-/// Três estilos de botão para os sete que a auditoria V9 contou. Todos
-/// pressionam com `Tema.pressaoAnim` e escala `Tema.pressao`; sob Reduzir
-/// Movimento a pressão não anima (é escala: o estado vira).
+/// Os três estilos de botão que vivem em Componentes. Todos pressionam com
+/// `Tema.pressaoAnim` e escala `Tema.pressao`; sob Reduzir Movimento a
+/// pressão não anima (é escala: o estado vira).
 ///
 /// - `.discreto`: o rótulo como está; só escala (é a `PressaoDiscreta` de
 ///   `Tema`, que segue lá porque a página, o caderno e o perfil a usam).
 /// - `.primario`: a ação principal em âmbar-tinta, largura inteira, alvo 44;
 ///   recua para `tintaFraca` quando desabilitado.
-/// - `.compacto`: ação secundária em linha, alvo 44, sem cor própria.
+/// - `.compacto`: ação secundária em linha, alvo 44, sem cor própria — a
+///   secundária NÃO é âmbar: duas saídas em âmbar empatam em peso e o olho não
+///   sabe qual é o caminho (von-restorff-effect). É o antigo `CompactoStyle`
+///   do cartão da análise, que passou a citar este.
 ///
-/// Ainda fora (arquivos de outras voltas): `PressaoClara` (CalendarioTema),
-/// `CompactoStyle` e `CartaoBotaoStyle` (CartaoAnaliseView), `BarraBotaoStyle`
-/// (PaginaView, desenho do dono) e `AcaoTrabalhoStyle` (TrabalhoView).
+/// Ainda por tela, até a volta de cada uma (sete estilos no repositório, não
+/// três): `PressaoClara` (CalendarioTema), `CartaoBotaoStyle`
+/// (CartaoAnaliseView), `BarraBotaoStyle` (PaginaView, desenho do dono) e
+/// `AcaoTrabalhoStyle` (TrabalhoView).
 struct BotaoPrimario: ButtonStyle {
     var alinhamento: Alignment = .center
     @Environment(\.isEnabled) private var ativo

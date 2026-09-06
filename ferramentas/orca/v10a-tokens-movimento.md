@@ -4,7 +4,7 @@ Fable A, 06/09/2026, branch `Vitorepf/volta-10-fundacao`, mesmo worktree que B. 
 
 ## O que mudou
 
-**Tokens em `Tema`.** `Duracao.{curta 0,15 · media 0,25 · longa 0,4}` mais os que ficam fora do vocabulário com nome e motivo: `toque 0,08` (o press), `passo 0,05` (delay entre campos), `pulso 0,7` (laço do "lendo…"), `fecho 0,9` (a página amanhece depois do fecho expressivo), `relogio 1,0` (a barra do timer anda um segundo por segundo), `queimaCena 3,0` (a cena do fogo). `Mola.{toque 0,32/0,65 · camada 0,55/0,82 · escala 0,55/0,86 · teclado interpolatingSpring 420/34}`. `Raio.{controle 10 · campo 14 · cartao 18}` (o `raio` 12 do caderno fica; unificar é volta por tela). `Sombra.{flutuante 8 %/16/6 · campo 6 %/12/4}` com `View.sombra(_:)`. `pressaoLeve 0,96` (a pressão do calendário). Apagados: `formaNasce`, `cartaoEntra`, `cartaoSai` (órfãos), `push`, `queima` (órfão), `queimaCena`, `confirmacaoEntra` — este último fica como ponte enquanto `Componentes/Toast.swift` (B) o cita.
+**Tokens em `Tema`.** `Duracao.{curta 0,15 · media 0,25 · longa 0,4}` mais os que ficam fora do vocabulário com nome e motivo: `toque 0,08` (o press), `passo 0,05` (delay entre campos), `pulso 0,7` (laço do "lendo…"), `fecho 0,9` (a página amanhece depois do fecho expressivo), `relogio 1,0` (a barra do timer anda um segundo por segundo), `queimaCena 3,0` (a cena do fogo). `Mola.{toque 0,32/0,65 · camada 0,55/0,82 · escala 0,55/0,86 · teclado interpolatingSpring 420/34}`. `Raio.{controle 10 · campo 14 · cartao 18}` (o `raio` 12 do caderno fica; unificar é volta por tela). `Sombra.{flutuante 8 %/16/6 · campo 6 %/12/4}` com `View.sombra(_:)`. `pressaoLeve 0,96` (a pressão do calendário). Apagados: `formaNasce`, `cartaoEntra`, `cartaoSai` (órfãos), `push`, `queima` (órfão), `queimaCena`, `confirmacaoEntra` — este último ficou como ponte para um `Toast` que nunca o citou (a frase original deste relatório dizia o contrário; achado do G3); apagado na correção da volta.
 
 **`CalendarioTema` cita `Tema`.** Treze cores, duas sombras, três raios e a mola do morph deixam de repetir hex e número; `PressaoClara` usa `Tema.pressaoLeve` e `Tema.pressaoAnim(_:reduzido:)`; o toast usa `.sombra(Tema.Sombra.flutuante)`.
 
@@ -27,11 +27,11 @@ Fable A, 06/09/2026, branch `Vitorepf/volta-10-fundacao`, mesmo worktree que B. 
 | confirmação entra / sai (`:95-97`) | 0,22 / easeIn 0,15 | `media` / `curta` | +0,03 / 0 |
 | fecho entra / página amanhece (`:108-110`) | 0,22 / 0,9 | `media` / `fecho` | +0,03 / 0 |
 | transformar bloco (`CadernoView:231,290`) | easeOut 0,18 | `curta` | −0,03 |
-| célula nova (`EditorBlocoView:242`) | spring 0,35/0,8 | `Mola.escala` | resposta +0,2 |
+| célula nova (`EditorBlocoView:242`) | spring 0,35/0,8 | `Mola.escala` 0,55/0,86 | assenta em ≈ 0,70 s em vez de ≈ 0,45 s (+0,25 s); declarado na ADR |
 | ecos da Rede (`RedeView:51`) | easeOut 0,3 | `media` | −0,05 |
 | juízo dos Padrões (`PadroesView:155`) | easeOut 0,3 | `media` | −0,05 |
 | confirmação materializa (`ConfirmacaoView:82,89`) | 0,22 | `media`, classe escala | +0,03 · RM: nada |
-| queima / recuo (`FechoExpressivaView:134-137`) | 3,0 / 0,2 | `queimaCena` / `media` | 0 / +0,05 |
+| queima / recuo (`FechoExpressivaView:134-137`) | 3,0 / 0,2 | `queimaCena` / `media`, classe deslocamento | 0 / +0,05 · RM: a cena vira fade de 0,15 s e o app espera 3,15 s parado (antes: 3,0 s sem tratamento); declarado na ADR |
 | toast do calendário (`CalendarioView:143`) | easeOut 0,22 | `media` | +0,03 |
 | campo de prosa (`:433,434`) | easeOut 0,15 | `curta` | 0 |
 | morph (`CalendarioTema:137`) | spring 0,55/0,86 | `Mola.escala` | 0 |
@@ -55,4 +55,4 @@ Os Δ são o custo assumido da fundação: dezesseis durações viram três mais
 
 ## Limites
 
-Digitação por `cliclick` engoliu teclas numa rodada (memória: simulador sob carga); refiz com digitação em pedaços e conferi o texto na captura. Os vídeos de `simctl` não têm cadência fixa: a comparação é por quadros alinhados e contagem, não por igualdade byte a byte. O crossfade do título no morph com RM ("Sete/embro" por 2 quadros) é o defeito 10 da auditoria, anterior e fora deste escopo. A ponte `Tema.confirmacaoEntra` sai quando B trocar o Toast.
+Digitação por `cliclick` engoliu teclas numa rodada (memória: simulador sob carga); refiz com digitação em pedaços e conferi o texto na captura. Os vídeos de `simctl` não têm cadência fixa: a comparação é por quadros alinhados e contagem, não por igualdade byte a byte. O crossfade do título no morph com RM ("Sete/embro" por 2 quadros) é o defeito 10 da auditoria, anterior e fora deste escopo. A ponte `Tema.confirmacaoEntra` saiu na correção do G3: o Toast nunca a citou.

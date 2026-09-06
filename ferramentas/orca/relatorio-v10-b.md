@@ -12,11 +12,11 @@ Fable B, 06/09/2026, branch `Vitorepf/volta-10-fundacao`, mesmo worktree que A. 
 | `ChipDominio` | um só: etiqueta (Notas) ou tingido com ícone e seta (ficha); menu com ícone + marca no atual, "Sem domínio", "Devolver ao app" quando travado; sem `aoEscolher`, só mostra | Notas, ficha |
 | `.rotulo(_:)` | caixa alta, 11 semibold, tracking +1,2, cor por tela | Notas (5), ficha (1 + `secao`), ficha do iPhone (1), Recordar (3), ChipDominio |
 | `LinhaDeEstado` | pensando / lendo / falhou / semConta em `meta` | Notas (3 linhas do cartão da sábia) |
-| `LinhaQueAbre` | título, valor, seta de menu ou seta que gira; alvo 44 | ficha ("Avisar") |
+| `LinhaQueAbre` | título, valor, seta de menu; alvo 44 (a seta que gira, `.abaixo`, saiu na correção do G3: entra na V12 com as Versões) | ficha ("Avisar") |
 | `.cartao(_:)` | papel, campo, flutuante (`Tema.Sombra.flutuante`), tingido; raios de `Tema.Raio` | Notas (cartão da sábia, campo de busca), ficha (3 campos), ficha do iPhone (QUANDO) |
-| `.discreto` / `.primario` / `.compacto` | os três estilos de botão; `.discreto` é a `PressaoDiscreta` de Tema; `.primario` recua sozinho quando desabilitado; todos passam `reduzido:` a `Tema.pressaoAnim` | Recordar (Revelar, próxima, Voltar à página), todas as três telas (`.discreto`) |
+| `.discreto` / `.primario` / `.compacto` | os três estilos de Componentes (sete no repositório: os quatro por tela seguem); `.compacto` é o antigo `CompactoStyle` do cartão da análise, migrado na correção do G3; `.discreto` é a `PressaoDiscreta` de Tema; `.primario` recua sozinho quando desabilitado; todos passam `reduzido:` a `Tema.pressaoAnim` | Recordar (Revelar, próxima, Voltar à página), todas as três telas (`.discreto`) |
 | `CabecalhoDeFolha` | ✕ ou "voltar" + título + Pronto; vão da largura da saída quando não há Pronto; ids `<prefixo>-fechar/-pronto` | ficha, ficha do iPhone, Recordar |
-| `Toast` + `.toast(_:reduzido:)` | cápsula carvão, ação âmbar opcional; entra por `safeAreaInset` e nunca cobre a barra | ninguém ainda (calendário, página e perfil desenham o seu; voltas por tela) |
+| ~~`Toast` + `.toast(_:reduzido:)`~~ | apagado na correção do G3: sem chamador não é componente; entra na V15 com o calendário | ninguém |
 | `Vazio(frase:acao:)` | frase em `corpo` no eixo do conteúdo + a saída do buraco | Notas (vazio e vazio da busca) |
 
 **Sete ButtonStyles → três.** `PrimarioStyle` (Recordar) apagado, virou `.primario`; `PressaoClara` das duas fichas virou `.discreto`. Ficam, em arquivos de outras voltas: `PressaoClara` (CalendarioTema; hoje cita `Tema.pressaoLeve`), `CompactoStyle` e `CartaoBotaoStyle` (CartaoAnaliseView), `BarraBotaoStyle` (PaginaView, desenho do dono), `AcaoTrabalhoStyle` (TrabalhoView).

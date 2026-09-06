@@ -31,7 +31,7 @@ struct CartaoAnaliseView: View {
             }
             .font(Tema.label)
             .foregroundStyle(Tema.tintaFraca)
-            .buttonStyle(CompactoStyle())
+            .buttonStyle(.compacto)
             .accessibilityHint("Diz ao Traço se esta pergunta valeu — ele aprende com você")
         }
     }
@@ -91,7 +91,7 @@ struct CartaoAnaliseView: View {
     @ViewBuilder private var botaoPergunta: some View {
         if sessao.perguntaNaNota != nil {
             Button("Perguntar à sábia") { sessao.perguntarASabia(no: context) }
-                .buttonStyle(CompactoStyle())
+                .buttonStyle(.compacto)
                 .foregroundStyle(Tema.tintaSuave)
                 .accessibilityIdentifier("perguntar-sabia")
                 .accessibilityHint("A resposta vem aqui, nunca na nota")
@@ -238,7 +238,7 @@ struct CartaoAnaliseView: View {
                     .accessibilityIdentifier("abrir-campos")
                     .accessibilityHint("Os campos da forma abrem numa folha; o seu texto fica intacto")
                 Button("Deixar como nota") { sessao.soltarForma() }
-                    .buttonStyle(CompactoStyle())
+                    .buttonStyle(.compacto)
                     .foregroundStyle(Tema.tintaSuave)
                     .accessibilityIdentifier("soltar-forma")
                     .accessibilityHint("Desfaz a forma; o seu texto fica intacto")
@@ -258,7 +258,7 @@ struct CartaoAnaliseView: View {
                 .buttonStyle(CartaoBotaoStyle())
                 .accessibilityHint("Vai para a área de transferência; colar é gesto seu")
                 Button("Fechar", action: fechar)
-                    .buttonStyle(CompactoStyle())
+                    .buttonStyle(.compacto)
                     .foregroundStyle(Tema.tintaSuave)
             }
         case .vestido(let antes):
@@ -267,12 +267,12 @@ struct CartaoAnaliseView: View {
                     .buttonStyle(CartaoBotaoStyle())
                     .accessibilityIdentifier("desfazer-vestir")
                 Button("Ficar assim", action: fechar)
-                    .buttonStyle(CompactoStyle())
+                    .buttonStyle(.compacto)
                     .foregroundStyle(Tema.tintaSuave)
             }
         case .semConta:
             Button("Fechar", action: fechar)
-                .buttonStyle(CompactoStyle())
+                .buttonStyle(.compacto)
                 .foregroundStyle(Tema.tintaSuave)
         case .expressiva:
             Button("Começar o timer") {
@@ -320,21 +320,6 @@ struct CartaoAnaliseView: View {
             .font(Tema.label)
             .tracking(Tema.trackingLabel)
             .foregroundStyle(aviso ? Tema.aviso : Tema.tintaFraca)
-    }
-}
-
-/// A secundária NÃO é âmbar: duas saídas em âmbar empatam em peso e o olho não
-/// sabe qual é o caminho (von-restorff-effect).
-private struct CompactoStyle: ButtonStyle {
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(Tema.barra)
-            .alvo()
-            .scaleEffect(configuration.isPressed ? Tema.pressao : 1)
-            .opacity(configuration.isPressed ? 0.7 : 1)
-            .animation(Tema.pressaoAnim(configuration.isPressed, reduzido: reduceMotion), value: configuration.isPressed)
     }
 }
 
