@@ -6,9 +6,13 @@ Mantido pelo orquestrador a cada fecho (ESTEIRA.md). Volta que não está aqui n
 
 | volta | tema | área | estado |
 |---|---|---|---|
-| V6 | prática no Trabalho (ADR 05r) | Traco/Trabalho | G3 em curso (revisor Fable); G4 depois |
+| V6 | prática no Trabalho (ADR 05r) | Traco/Trabalho | MESCLADA em main (G3, re-G3, G4) |
 | V7 | integridade e selo nas rotas restantes (ADR 05s) | Sessao, Corpus/Indice/Holofote, Modelo | MESCLADA em main |
 | V8 | acessibilidade real: VoiceOver, movimento reduzido, AX5 (ADR 05t) | views de Pagina/Notas/Caderno/Calendario/App, Tema | MESCLADA em main (G3, re-G3, G4, re-G4) |
+
+**V16 — Métodos com proveniência.** Ciclo: melhorar. Intenção: o autor sabe de onde vem cada método, o que o Traço adaptou e que evidência existe, e vê quando um método sumiu da pasta. Obstáculo: o catálogo (Metodos.json) traz só origem nominal; a eficácia é presumida; método ausente é silêncio (ADR 05o, Fora); VISAO exige distinguir fonte, adaptação e evidência. Evidência: campos fonte/adaptação/evidência/aplicabilidade no catálogo (aditivos), a Lente/Perfil mostrando isso por método sem certificar eficácia, linha "o método X saiu da pasta; a nota conserva os campos" na nota afetada, testes; sem tela nova. Escopo: Traco/Modelo/{Metodo,Metodos.json,Gesto}.swift, Traco/Pagina/LenteView.swift, Traco/Perfil/PerfilView.swift (seção métodos), TracoTests/CatalogoTests.swift. Disjunta de V10 (Tema/Componentes/Notas/Calendário/Recordar) e da trilha.
+
+**F3 — Captar pensamento em um toque.** Ciclo: multiplicar. Intenção: uma frase na rua entra no Traço em um toque, sem abrir o app, ou abrindo já em ditado. Obstáculo: hoje só Siri/Atalhos (n/c no simulador) e traco://anotar exigem abrir/digitar; não há controle na tela bloqueada nem botão de Ação. Evidência: ControlWidget "Anotar" na Central/bloqueada que abre o app em rota tipada de captura com ditado solicitado (05a: entrada/ como fila), botão de Ação pelo mesmo intent, AnotarIntent com "anotado" só após depósito confirmado; capturas da Central/bloqueada e do app já em ditado; testes do intent; áudio preservado antes da transcrição (brief).
 
 ## Trilha própria: Fora do app (Fable permanente; brief em papeis/fora-do-app.md)
 
@@ -17,8 +21,8 @@ Sempre uma volta desta trilha em edição, em paralelo às voltas comuns, no pr�
 | # | volta | superfície / entrega | estado |
 |---|---|---|---|
 | F1 | Auditoria fora do app | inventário com 24 capturas reais, nota base por superfície, lacunas F2-F11, conselho gravado (ferramentas/orca/auditoria-fora-do-app.md, consulta-fora-intents.md) | MESCLADA em main |
-| F2 | Fundação | conforme o conselho: sem framework; Traco/App/Intents/ nos dois alvos; app como único escritor de domínio; snapshot público versionado no App Group com generatedAt/validUntil e "desatualizado"; entidades mínimas com selo; DestaqueFeito/LembrarDepois com identidade do item e confirmação real; reload só dos kinds afetados; stale neutraliza ação | abrindo |
-| F3 | Captar pensamento em um toque | controle na tela bloqueada + botão de Ação que abre o app já em ditado, ou anota por Siri sem abrir | |
+| F2 | Fundação | MESCLADA em main (ADR 05u); gate ao dono: confirmar no iPhone que instalar por cima preserva os dados (o simulador provou que sim) |
+| F3 | Captar pensamento em um toque | controle na tela bloqueada + botão de Ação que abre o app já em ditado, ou anota por Siri sem abrir | EM EDIÇÃO |
 | F4 | Widget "próxima volta" interativo | botão de feito na própria superfície | |
 | F5 | Ilha do compromisso vivo | estados completos (compacta, expandida, mínima, fim) | |
 | F6 | Widgets da tela bloqueada | accessoryCircular e accessoryInline do dia | |
@@ -49,9 +53,9 @@ Retomada 06/09 02:55 (janela nova). Em edição: V10 fundação de design (Fable
 | 5 | V13 Telas até 9: Notas e barra de baixo | alto | M | multiplicar | nota base da V9 |
 | 6 | V14 Calendário: duração explícita e estados de navegação/acessibilidade | médio | M | multiplicar | "Calendário ligado à realização" |
 | 7 | V15 Telas até 9: Calendário e ficha | médio | M | multiplicar | nota base da V9 |
-| 8 | V16 Métodos com proveniência: fonte, adaptação, evidência; método ausente dito na tela | médio | M | melhorar | "Métodos e pesquisa com proveniência" |
+| 8 | V16 Métodos com proveniência: fonte, adaptação, evidência; método ausente dito na tela | EM EDIÇÃO | M | melhorar | "Métodos e pesquisa com proveniência" |
 | 9 | V17 HTML útil e interativo (consulta ao conselho antes) | alto, incerto | G | multiplicar | "HTML útil e interativo" |
-| 10 | V18 Telas até 9: Trabalho (versão, conferência, prática num cartão só) | alto | M | multiplicar | nota base da V9; Simplicidade |
+| 10 | V18 Telas até 9: Trabalho (versão, conferência, prática num cartão só); do G4 da V6: porta da prática escondida, Dificuldade antes de Preparar em delegar, AcaoTrabalhoStyle sem estado desabilitado visível | alto | M | multiplicar | nota base da V9 (Trabalho 6,0); Simplicidade |
 | 11 | V19 Retrato/Trajetória recebem a prática (só se V6 provar prática real) | médio | M | melhorar | "Modelo revisável do autor" |
 | 12 | V20 Domínios amplos: segundo caso real (criação ou organização) | alto, depende do dono | G | ambos | "Domínios amplos de realização" |
 
