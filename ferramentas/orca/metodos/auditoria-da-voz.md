@@ -198,3 +198,117 @@ mais concreta e mais útil.
    li linha a linha — e o Trabalho está em obra agora.
 3. **As frases do `design-router` e da ESTEIRA**, que o autor lê como dono do
    processo e não como usuário. A régua vale para elas também.
+
+---
+---
+
+# Segunda varredura (M12): pelo padrão, não pela tela
+
+A primeira passada foi por tela e achou duas frases. Esta foi **pelo padrão que a
+primeira revelou**: toda frase em que o Traço descreve a própria capacidade —
+rótulo de seção, texto de ajuda, estado vazio, nome de botão, descrição de
+Atalho, galeria do widget, notificação.
+
+**O que varri:** as cadeias que chegam ao autor nos 149 arquivos do app e do
+widget, filtradas por *o app como sujeito* (o Traço, o app, ele) ou por verbo de
+capacidade (aprende, entende, guarda, protege, sugere, calcula, decide,
+reconhece, analisa, garante, sincroniza, ajuda, adapta…). Vinte e seis frases
+casaram. **Fui ao código conferir cada uma que faz promessa verificável.**
+
+Não há **onboarding** nem **texto de loja** no repositório. Se existirem fora
+dele, são a superfície em que um app mais promete de si, e ninguém auditou.
+
+## Achado 5 — a frase que promete MENOS do que o app faz
+
+**Onde:** `Traco/Perfil/PerfilView.swift:209`, no texto de ajuda da seção
+Métodos. **É o achado raro que o dono pediu para eu procurar.**
+
+**Hoje:**
+> "Cada método é um arquivo. Os seus vivem em Arquivos › Traço › metodos […] **O
+> app lê ao abrir.**"
+
+**O que o código faz:** `Sessao.recolherEntrada` chama `Catalogo.recarregar()`
+sempre que aparece método novo na pasta — e ela é chamada em **três** lugares
+(`PaginaView.swift:118, 198, 636`): no arranque, **a cada volta à cena ativa**
+(`scenePhase == .active`) e na rota `anotar`. O comentário do próprio método diz:
+*"Chamado no arranque e ao voltar à cena."*
+
+**Por que é achado:** o autor que largar um método novo na pasta com o app aberto
+lê "lê ao abrir" e conclui que precisa fechar e reabrir o Traço. Não precisa:
+basta sair do app e voltar. **A frase custa ao autor um passo que o app não pede.**
+
+**Corrigido:**
+> "O app lê ao abrir — e toda vez que você volta para ele."
+
+## Achado 6 — o app fala em primeira pessoa, contra a própria regra
+
+**Onde:** `Traco/Analise/../Calendario/CalendarioSistema.swift:77`, em
+`estadoEmPalavras`, que o Perfil mostra na linha do calendário.
+
+**Hoje:**
+> "ainda não **perguntei**. Abra o Calendário e **eu peço**."
+
+**Por que cai:** o app vira interlocutor com um EU — e a regra contra isso está
+escrita no próprio código, em `PadroesView.swift`:
+
+> "'Li' dava um EU à IA — e o app não é interlocutor."
+
+Não é preciosismo: um app que diz "eu peço" convida o autor a responder a
+alguém, e não há ninguém. As outras três linhas da mesma função estão certas e
+mostram o padrão — *"o iOS deu só escrita, e o Traço não escreve."*
+
+**Corrigido:**
+> "o Traço ainda não pediu acesso. Abra o Calendário e ele pede."
+
+## Achado 7 — a galeria do widget promete o aviso sem a condição
+
+**Onde:** `TracoWidget/TracoWidget.swift:463`, descrição do widget "Próximo
+compromisso" na galeria. **Arquivo em obra pela volta dos widgets.**
+
+**Hoje:**
+> "O que vem a seguir, e a que horas o Traço **te avisa**."
+
+**O que o código faz:** o aviso depende de duas coisas que o próprio app sabe
+dizer quando falham — as notificações autorizadas (`CalendarioFicha.swift:145`:
+*"Os avisos do Traço estão desligados no iPhone — nada vai tocar."*) e o teto de
+64 pendentes do iOS (`CalendarioFicha.swift:164`). A galeria promete sem
+condição o que a ficha do compromisso já sabe condicionar.
+
+**E o tratamento:** "te avisa". O app trata o autor por **você** em todo o resto.
+
+**Corrigido:**
+> "O que vem a seguir, e a hora do aviso — quando os avisos estão ligados."
+
+---
+
+## Sete promessas que fui conferir no código, e são verdadeiras
+
+Metade do valor desta varredura está aqui: **o app descreve a si mesmo com
+precisão quase sempre**, e cada uma destas frases sobreviveu a uma leitura do
+código que a implementa.
+
+| frase | onde | o que o código faz |
+|---|---|---|
+| "o Traço nunca o edita nem o apaga" (compromisso do sistema) | `CalendarioFichaSistema:50` | **verdadeiro**: não há `.save(` nem `.remove(` sobre o `EKEventStore` em lugar nenhum; `CalendarioSistema` só tem `ler` |
+| "o Traço lê todos […] e nunca escreve em nenhum" | `PerfilView:427` | **verdadeiro**, mesma verificação |
+| "O iPhone guarda 64 avisos e já estão todos ocupados" | `CalendarioFicha:164` | **verdadeiro**, e melhor que isso: `Revisoes.teto = 64` é o teto **do iOS**, e a frase diz de quem é o limite |
+| "essa você queimou. ficou a data e o que você entendeu." | `Sessao:1372` | **verdadeiro, linha por linha**: `queimar` sobrescreve o texto com espaços, esvazia, limpa os campos, e apaga versões, marcas, índice, avisos e ações derivadas. Sobrevivem `sentido` e `queimadaEm` — a linha e a data |
+| "A ligação é sua; o app só a segue." | `RedeView:93` | **verdadeiro**: `Rede.ligacoes` lê `[[…]]` e o campo "Liga a". As sugestões completam título; quem liga é o autor |
+| "Guarda uma frase no Traço sem abrir o app. Vira nota na próxima vez que ele abrir." | `Intencoes:28` | **verdadeiro**, e é a mesma rota do achado 5 — aqui a frase acertou |
+| "Classifica o que você escreveu. Não escreve na nota." | `PaginaView:462` | **verdadeiro** por contrato: os dois motores devolvem rótulo de lista fixa |
+
+Estas sete são o material da régua da voz — não porque sejam bonitas, mas porque
+**cada uma sobrevive a alguém abrir o arquivo.**
+
+## O que a segunda varredura confirma
+
+O ponto cego é estreito e tem forma: **o app erra quando descreve a própria
+capacidade em abstrato** ("aprende com você", "aprendeu de você") ou **quando
+descreve o que faz sem a condição em que deixa de fazer** (o widget). Acerta
+sempre que descreve uma operação concreta — o que grava, o que lê, o que apaga,
+de quem é o limite.
+
+A regra prática que sai daí está na régua: **se a frase tem o app como sujeito de
+um verbo, abra a função antes de escrevê-la.** Foi o que transformou o achado 1
+da M11 (o contador com memória de dois) e o achado 5 desta (as três chamadas de
+`recolherEntrada`) de opinião em achado.

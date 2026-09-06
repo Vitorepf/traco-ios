@@ -1,6 +1,6 @@
 # Achados do catálogo — contrato de colagem e pedidos de app
 
-Trilha Métodos · M1 a M11 · reorganizado em 06/09/2026.
+Trilha Métodos · M1 a M12 · reorganizado em 06/09/2026.
 
 > **Reorganizado na volta M5.** Nada do contrato mudou de conteúdo: a regra de
 > ordem, o conserto do Se–então e as provas exigidas continuam com as mesmas
@@ -21,6 +21,7 @@ Trilha Métodos · M1 a M11 · reorganizado em 06/09/2026.
 | entender o critério da trilha inteira | [`o-que-a-trilha-aprendeu.md`](o-que-a-trilha-aprendeu.md) |
 | decidir o que a trilha caça a seguir | [`o-que-falta-no-catalogo.md`](o-que-falta-no-catalogo.md) |
 | consertar uma frase que o app diz ao autor | [`auditoria-da-voz.md`](auditoria-da-voz.md) |
+| **escrever** uma frase de tela nova | [`a-voz-do-traco.md`](a-voz-do-traco.md) |
 | saber o que as provas da trilha garantem | **Parte IV** |
 
 ## Estado da trilha (fonte única — se divergir de outro arquivo, vale este)
@@ -213,7 +214,21 @@ com o risco de cada uma:
    reconferida inteira.
 
 
-## II.2b Duas frases em que o app alega aprender — **ABERTO** (M11)
+## II.2c Três frases novas sobre a própria capacidade — **ABERTO** (M12)
+
+A segunda varredura, feita pelo padrão em vez de por tela, achou mais três:
+`PerfilView.swift:209` ("O app lê ao abrir" — **promete MENOS do que o app faz**:
+`recolherEntrada` roda também a cada volta à cena), `CalendarioSistema.swift:77`
+("ainda não perguntei… eu peço" — o app fala em primeira pessoa, contra a regra
+escrita no próprio código) e `TracoWidget.swift:463` ("a que horas o Traço te
+avisa" — promete o aviso sem a condição, e trata o autor por "te"; **arquivo em
+obra pela volta dos widgets**). Frase de hoje e corrigida em
+[`auditoria-da-voz.md`](auditoria-da-voz.md).
+
+A régua que sai das duas varreduras está em
+[`a-voz-do-traco.md`](a-voz-do-traco.md).
+
+## II.2b Duas frases em que o app alega aprender — **ENCAMINHADAS** (M11)
 
 A auditoria da voz achou os dois lugares em que o Traço alega uma capacidade que
 não tem: `CartaoAnaliseView.swift:35` ("ele aprende com você", numa dica de
