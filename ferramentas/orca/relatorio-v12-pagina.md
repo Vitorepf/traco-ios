@@ -72,8 +72,11 @@ julga — a autoavaliação abaixo é declaração, não veredito.
   **não cobre mais a barra de ações**, porque vive no fluxo, acima do pé.
 - **Passos e decisões, antes e depois.** Escrever e concluir: 2 toques, 0
   decisões — inalterado. Vestir: automático. Abrir os campos: +1 toque. Em AX o
-  pé passou de duas linhas (uma delas truncada em "Mais ações d…") para **um**
-  menu que abre cinco ações: menos ruído na tela, mesmo poder a um toque.
+  pé tem **"Trabalhar nisto" como botão** e as outras quatro ações no menu "Mais
+  ações da nota". *(Esta linha descrevia o desenho de um menu só, com as cinco
+  ações dentro; a V12-B o REVERTEU — as cinco não cabiam, o menu passava da tela
+  e a quinta só existia depois de rolar, sem afordância (G3 da V12, M3). Corrigida
+  na V12-C: são duas linhas de pé, e é o texto do cartão que rola por elas.)*
 
 ## Evidência
 
@@ -142,10 +145,10 @@ porque a F3 entrou junto: o número da volta é o do commit `5937943`.
 |---|---|---|
 | Visão | ciclo multiplicar, a porta de entrada da escrita; fecha a lacuna "Direção visual e uso simples" | linha G0 do RUMO + diff do EVOLUCAO |
 | Contrato | ADR 05y em 40 linhas, SPEC e EVOLUCAO coerentes com o código | diff dos três |
-| Correção | 714/0 em 125 suítes; guarda nova impede o retorno do desenho à mão e da opacidade no press | linha literal acima |
+| Correção | 714/0 em 125 suítes NESTE commit; a volta fechou em 718/0 com os dois testes que o G3 pediu (V12-B) | linha literal acima |
 | Jornada real | seis estados vistos na tela nos dois builds, em `large` e AX5, conteúdo conferido | 27 capturas |
 | Design | tudo cita `Tema`/`Componentes`; nenhum literal de cor, raio ou duração novo | diff + teste `paginaECadernoCitam…` |
-| Simplicidade | o pé não muda de conteúdo sob o dedo; em AX, cinco ações num menu em vez de duas linhas truncadas | curva-zero acima |
+| Simplicidade | o pé não muda de conteúdo sob o dedo; em AX, "Trabalhar nisto" como botão e as outras quatro no menu, todas com o rótulo inteiro (a autoavaliação dizia "cinco ações num menu": era o desenho revertido pela V12-B, corrigido aqui na V12-C) | curva-zero acima |
 | Movimento | altura do container anima; classe = curva; RM filmado nos dois modos | 4 vídeos + tira de quadros |
 | Componentes | seis estilos no repositório, não sete; `CartaoBotaoStyle` apagado; nenhum componente novo | diff |
 | Acessibilidade | ações alcançáveis em AX5 sem rolar; degradê diz que o texto rola; aba do arquivo com 44 pt de alvo | capturas AX5 |

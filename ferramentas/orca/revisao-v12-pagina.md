@@ -237,3 +237,216 @@ neste arquivo. Os itens 2 e 5 são de uma linha cada.
 | `v12-rev-quadros-ultima.png` | **A1**: última coluna de `v12-pe-quadros.png` a 4× — régua em duas posições, cartão velho sobre o novo, linhas 2 e 3 (sem e com RM) |
 | `v12-rev-ax5-menu.png` | **M3**: menu único em AX5, quatro ações desenhadas |
 | `v12-rev-ax5-menu-rolado.png` | **M3**: depois de rolar aparece `Lente` e sai `Trabalhar nisto` |
+
+---
+
+# Re-G3 — a correção (topo `69bec69`)
+
+Mesmo revisor, sessão nova, 06/09/2026. Julguei **só** os cinco itens da lista
+mínima, o item da voz e as regressões que a correção possa ter causado; o resto
+do scorecard acima continua valendo. Simulador C2416CBC, restaurado ao fim
+(`content_size large`, RM desligado, `TRACO_SEM_MODELO` limpo, privacidade
+reposta, app desinstalado); o iPhone 17 do dono não estava sequer ligado. Todo
+`xcodebuild` e todo maestro por `com-trava.sh`, maestro preso ao meu UDID.
+Worktree temporário em `337a22e` criado e **removido**. Não editei nem commitei
+código.
+
+**Veredito: CORRIGIR ANTES — mas pequeno.** Quatro dos seis itens estão
+fechados e provados por mim. Restam três coisas: um resíduo do A1 que eu filmei,
+e duas linhas de documento que ficaram no desenho velho.
+
+## Instrumento, reproduzido por mim
+
+| declaração | conferência |
+|---|---|
+| suíte **718/0 em 125 suítes** | **reproduzida**: `✔ Test run with 718 tests in 125 suites passed after 7.132 seconds.` no C2416CBC |
+| build sem aviso novo | confirmado — **zero** avisos no log desta passada |
+| correção **+124 −16** no Swift do app, **63 de comentário** | confirmado ao número: `git diff --shortstat 337a22e..69bec69 -- 'Traco/*.swift'` = 124/16; das 124 adicionadas, 63 casam `^\s*(//\|///)` |
+| a volta inteira vira **+53** | confirmado: −55 (V12) + 108 (V12-B) = +53 |
+| os comentários são mecanismo, não prosa | **confirmado**: li as 63. Cada bloco nomeia a armadilha, o porquê e o achado (`_ConditionalContent` que troca de ramo; `.move(edge:.bottom)` que desliza por cima do rodapé; `.clipped()` que é do VStack e não separa irmãos; identidade do cartão por caso). Nenhuma linha é elogio ou narrativa |
+
+Precisão que o número redondo esconde, sem reabrir a decisão do orquestrador: o
+código **sozinho** da correção é **+61 −10 = +51**, e o da volta inteira é
+**+217 −189 = +28**. Não é empate; é crescimento declarado de 28 linhas de
+código sobre a base tocada. A decisão de aceitar é do orquestrador e está
+tomada — fica só o número certo no papel.
+
+## Item a item
+
+**1 — A1, o cross-fade. PARCIALMENTE corrigido.**
+
+O que eu apontei **está corrigido, e eu filmei**. Gravei os meus próprios
+vídeos no 69bec69 e extraí a 30 fps a faixa do pé, nos dois modos: em nenhum
+quadro a régua aparece em duas posições, nem sobre a linha de base de
+"Trabalhar nisto". A régua sai por corte, não deslizando. A tira dele
+(`v12b-pe-quadros.png`, linhas 3 e 4) diz a mesma coisa que a minha, e o
+diagnóstico do `_ConditionalContent` é trabalho real, não conserto de sintoma.
+
+**Mas a classe não morreu.** No instante em que os campos nascem, o pé do cartão
+("Abrir os campos" / "Deixar como nota") e o pé da página ("Trabalhar nisto",
+"Analisar Recordar Anexar Lente") **dissolvem por cima do texto do cartão**, nas
+mesmas linhas, por ≈5 quadros (≈165 ms). Vale **com e sem** Reduzir Movimento.
+
+- `v12reg3-cruzamento-cartao-rm.png` — recorte a 3× nativos, **Reduzir Movimento
+  LIGADO**: lê-se "Abrir os campos" desenhado **sobre** o kicker "WOOP", logo
+  acima de "isto é um desejo com obstáculo".
+- `v12reg3-tira-sem-rm.png` e `v12reg3-tira-com-rm.png` — a mesma passagem,
+  quadro a quadro, nos dois modos.
+
+Não reconstruí a V12 para datar este par, então chamo de **resíduo da classe**,
+não de regressão nova. Mas é a lei da própria 05y ("o CONTEÚDO corta") e é o
+caminho principal: acontece toda vez que uma forma veste.
+
+**2 — M2, a aresta. CORRIGIDO, e medido por mim.**
+
+`Cartao` devolve o fio de `Tema.linha` 0,5 a `.papel` e `.flutuante` e a sombra
+de contato a `.flutuante` — no MATERIAL, não no chamador, que é a correção
+certa. Medido nas minhas capturas, coluna x=1120:
+
+- **aviso** (`.papel`, onde mora a linha de gravação recusada da 05s): topo
+  244 → **233** → 241 → 255; base 255 → **241** → **233** → 244. Fio dos dois
+  lados, sem rampa de sombra — exatamente o que `.papel` deve fazer.
+- **cartão** (`.flutuante`): base 255 → **241** → **208** → 219 → 222 → … → 230.
+  Fio mais a rampa da sombra de contato. Bate com o que ele declarou (252 → 238 →
+  205 → 217 → … → 229), a menos de ±3 de compressão.
+
+A sombra de contato **voltou**, não ficou de fora, e a ADR a declara. O alcance
+do fio a quem mais usa `.cartao(.papel)` está declarado na ADR ("restauração no
+caderno, refinamento nas Notas") e eu conferi as Notas na tela
+(`v12reg3-notas-fio.png`): o campo de busca ganha a aresta, nada quebra.
+
+Ressalva baixa, não bloqueia: em main os três portais do caderno tinham
+`strokeBorder(Tema.linha, lineWidth: 1)`, desenhado para DENTRO; o que voltou é
+`stroke(…, lineWidth: 0.5)`, centrado no traçado. É metade do peso e meio ponto
+para fora. A ADR chama de "restauração"; é restauração mais leve.
+
+**3 — M1, os dois testes. CORRIGIDO.**
+
+`Trilho.posicaoAposRecusa` e `PaginaView.esconderRegua` saíram de dentro do gesto
+e do `body` para poderem ser provados, e os testes cobrem os RAMOS, não só o
+caminho feliz: recusa nos dois sentidos, aceitação nos dois sentidos (`nil`,
+para não re-cravar a mola), AX1 e AX5 verdadeiros, xSmall/large/xxxLarge falsos,
+e cartão `nil` falso mesmo em AX5. É o que faltava.
+
+**4 — M3, a quinta ação. CORRIGIDO, e visto na tela.**
+
+`v12reg3-ax5-pe.png` (AX5, cartão em cena): "Trabalhar nisto" é botão, inteiro;
+"Mais ações da nota" quebra em duas linhas mas **não trunca** — o defeito que o
+menu único existia para resolver não voltou. `v12reg3-ax5-menu.png`: menu aberto
+com **Lente, Anexar, Recordar, Analisar**, as quatro desenhadas, sem rolagem e
+sem afordância escondida. O pé agora tem duas linhas e é o texto do cartão que
+rola por elas — declarado na ADR como custo.
+
+Ressalva baixa: a frase "cinco ações a um toque" continua não sendo o que a tela
+faz — quatro delas seguem a dois toques (abrir o menu, tocar). O relato da V12-B
+diz que a frase "fica de pé porque a tela passou a fazê-la"; não fica. A **ADR**
+não repete a frase, então o contrato está certo; é o relato que exagera.
+
+**5 — B2/B3. CORRIGIDO.**
+
+"maior 397 KB — `v12-antes-large-sabia.png`" (o arquivo tem 406 310 bytes =
+396,8 KiB ✓). A afirmação "nenhum cross-fade entre irmãos" foi requalificada no
+lugar onde estava, marcada como intenção e não tela, com ponteiro — e não
+apagada, que é a escolha certa. `Tema.Duracao.pulso` apagada; `Movimento.laco`
+fica com comentário dizendo que não tem consumidor e por quê, e `lacoPara`
+passou a escrever 0,7 na própria linha.
+
+**6 — A voz. CORRIGIDO, e o mecanismo confere.**
+
+Fui ler `Degraus.ajuste`: pega os **dois últimos** sinais de pergunta **desta
+forma** (`suffix(2)`, `$0.forma == forma.rawValue`), e só mexe se os dois
+concordarem (`allSatisfy`) — ±1, preso a 0–4 por `instigar`; o degrau escolhe
+`instrucaoDeInstigar`, que é literalmente **o que o modelo é mandado cobrar**. A
+frase nova — "duas respostas iguais seguidas mudam o que ele cobra nesta forma"
+— descreve isso com fidelidade e é conferível. A antiga ("ele aprende com você")
+era alegação de eficácia sem dono. Trocou promessa por mecanismo: é a direção
+certa da voz do app.
+
+Sobre "não corta em large e AX5": a frase é `accessibilityHint` (linha 43,
+pendurada no `HStack` das duas saídas) e o iOS **não desenha hint** — não existe
+superfície de corte em tamanho nenhum. O que é desenhado ali continua sendo
+"serviu" e "não serviu", que a volta não tocou. O limite declarado (sem prova
+falada) é limite de verdade: exige VoiceOver com humano.
+
+## Os três fatos que o orquestrador pediu para confirmar
+
+1. **A contagem.** Confirmada ao número: +124 −16, 63 de comentário, volta em
+   +53; os comentários são mecanismo com referência ao achado, não prosa. O
+   número exato do código sozinho está acima.
+2. **`barra-de-baixo`: CONFIRMADO como pré-existente.** Construí o `337a22e`
+   num worktree separado (build limpo, `derivedDataPath` próprio) e rodei o mesmo
+   conjunto de fluxos, com o mesmo roteiro e o mesmo aparelho, nos dois builds.
+   O conjunto de falhas saiu **idêntico, fluxo a fluxo**: `aba-arquivo
+   auto-analise ax5 barra-de-baixo busca caderno-pdf caderno-regua forma-folha
+   gesto-camadas` nos dois. Nenhum fluxo se comporta diferente entre `337a22e` e
+   `69bec69` — a correção não mexeu na varredura. **FILA para `barra-de-baixo`.**
+   Honestidade sobre o instrumento: hoje o meu roteiro preso ao UDID não passa do
+   diálogo de notificação que volta depois de todo `clearState` neste aparelho
+   (na revisão anterior os mesmos 7 fluxos correram verdes), então a varredura
+   **não serve hoje como portão de aprovação** — serve, e serve bem, como
+   comparação A/B, que era a pergunta.
+3. **O par "serviu / não serviu" fora da tela.** Aceito e confirmado pela via
+   estrutural: é `accessibilityHint`, e hint não se desenha. Não há captura a
+   cobrar.
+
+## Regressões que a correção causou
+
+**R1 — Contrato: `EVOLUCAO.md` não foi tocado (0 linhas no commit).** A linha da
+ADR05y continua dizendo três coisas que deixaram de ser verdade:
+
+- "em AX o pé vira um menu só com **'Trabalhar nisto' dentro**" — é exatamente o
+  desenho que o M3 recusou e que a V12-B reverteu;
+- "suíte **714/0** em 125 suítes" — são 718/0;
+- "shortstat **líquido-negativo**" — a volta é +53, e essa é justamente a
+  afirmação que o orquestrador acabou de aceitar como não mais verdadeira.
+
+A SPEC e a ADR foram reescritas com honestidade exemplar; a matriz ficou para
+trás. A ESTEIRA pede os dois coerentes. É uma linha de conserto.
+
+**R2 — Relato: `relatorio-v12-pagina.md` ficou no desenho velho em dois pontos.**
+A curva-zero (linhas 75–76) ainda diz "para **um** menu que abre cinco ações:
+menos ruído na tela, mesmo poder a um toque", e a autoavaliação (linha 148)
+"em AX, cinco ações num menu em vez de duas linhas truncadas". Ele requalificou
+a afirmação do movimento nesse mesmo arquivo (linha 44) e não fez o mesmo com a
+de AX.
+
+## Notas revistas
+
+| dimensão | G3 | Re-G3 | por quê |
+|---|---|---|---|
+| Movimento | 6 | **8** | o par que eu filmei (régua em duas posições, régua sobre "Trabalhar nisto") **está morto** nos meus vídeos, nos dois modos; sobra um par da mesma classe — o pé sobre o texto do cartão quando os campos nascem, ≈165 ms, com e sem RM (`v12reg3-cruzamento-cartao-rm.png`). Muito mais estreito, mas ainda é a lei da 05y sendo quebrada no caminho principal |
+| Correção | 7 | **9** | dois testes com cobertura de ramo, não de caminho feliz; suíte 718/0 reproduzida por mim; zero avisos; varredura sem diferença entre os dois builds |
+| Design | 8 | **9** | fio e sombra de contato de volta **no material**, medidos por mim nas duas superfícies; alcance às Notas declarado na ADR e conferido na tela. −1 pelo `stroke` 0,5 onde main tinha `strokeBorder` 1 |
+| Acessibilidade | 8 | **9** | "Trabalhar nisto" fora do menu, quatro ações desenhadas sem rolagem, rótulos inteiros — visto em AX5. A dica da voz passou de promessa a mecanismo, o que também é acessibilidade de texto |
+| Estado honesto | 8 | **9** | a superfície da falha tem aresta de novo, medida na minha captura: 255 → 241 → 233 → 244 |
+| Contrato | 9 | **8** | R1: EVOLUCAO com três afirmações vencidas, uma delas o "líquido-negativo" |
+| Relato | 9 | **8** | R2: curva-zero e autoavaliação da V12 descrevem o desenho revertido; e "a frase 'cinco ações a um toque' fica de pé" exagera o que a tela faz |
+
+Componentes 10, Complexidade 10, Visão 10, Privacidade 10, Jornada real 9,
+Simplicidade 9 e Performance n/a seguem como estavam, por decisão do
+orquestrador e porque nada na correção os toca.
+
+## Lista mínima para o portão
+
+1. **Movimento** — matar o par que sobrou: o pé do cartão e o pé da página não
+   podem dissolver sobre o texto do cartão quando os campos nascem. Prova: a
+   mesma tira de 30 fps, nos dois modos, sem dois textos legíveis na mesma linha.
+   É o único item de código, e é um par, provavelmente um modificador.
+2. **Contrato (R1)** — a linha da ADR05y no `EVOLUCAO.md`: o pé em AX, 718/0, e
+   o balanço que deixou de ser negativo. Uma linha.
+3. **Relato (R2)** — as duas frases de AX no `relatorio-v12-pagina.md`, e tirar
+   o "fica de pé" do relato da V12-B. Duas linhas.
+
+Os itens 2 e 3 são documento. O item 1 é o que separa a volta do merge.
+
+## Capturas do revisor (Re-G3)
+
+| arquivo | o que mostra |
+|---|---|
+| `v12reg3-cruzamento-cartao-rm.png` | **o resíduo do A1**, a 3× nativos, **com** Reduzir Movimento: "Abrir os campos" desenhado sobre o kicker "WOOP" |
+| `v12reg3-tira-sem-rm.png` | a mesma passagem quadro a quadro, sem RM — a régua nunca duplica; o pé sobre o texto do cartão, sim |
+| `v12reg3-tira-com-rm.png` | idem, com RM |
+| `v12reg3-ax5-pe.png` | **M3 fechado**: AX5 com o cartão, "Trabalhar nisto" botão e "Mais ações da nota" inteiros |
+| `v12reg3-ax5-menu.png` | **M3 fechado**: as quatro ações do menu desenhadas, sem rolagem |
+| `v12reg3-aviso-aresta.png` | **M2 fechado**: o aviso com o fio de volta (perfil medido na coluna x=1120) |
+| `v12reg3-notas-fio.png` | o alcance declarado do fio nas Notas: refinamento, não quebra |

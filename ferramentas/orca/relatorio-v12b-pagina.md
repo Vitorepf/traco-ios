@@ -147,8 +147,10 @@ recusa fechando, aceita nos dois sentidos) e `reguaSoCedeAoCartaoEmTamanhoAX`
 
 Escolhi a primeira opção do revisor. Em AX o pé volta a ter **"Trabalhar nisto"
 como botão visível**, como era antes da volta, e o menu "Mais ações da nota"
-carrega as **quatro** restantes. Quatro cabem sem rolagem; cinco não cabiam. A
-frase "cinco ações a um toque" fica de pé porque a tela passou a fazê-la.
+carrega as **quatro** restantes. Quatro cabem sem rolagem; cinco não cabiam.
+*(Corrigido na V12-C, Re-G3: a frase "cinco ações a um toque" NÃO fica de pé —
+em AX só "Trabalhar nisto" está a um toque; as outras quatro seguem a dois,
+abrir o menu e tocar. A ADR não repete a frase; era este relato que exagerava.)*
 
 O que o menu único resolvia — o rótulo espremido a "Mais ações d…" — continua
 resolvido: o problema era as quatro ações LADO A LADO, não duas linhas

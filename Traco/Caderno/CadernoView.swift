@@ -74,23 +74,32 @@ struct CadernoView: View {
         }
     }
 
-    @ViewBuilder
+    /// UM ramo só, e é isso que importa aqui. Antes havia dois — com e sem
+    /// `abaixo` —, e vestir a forma cria os campos: o ramo trocava, o SwiftUI
+    /// recriava o EDITOR, o foco caía, o teclado descia e o encaixe inteiro era
+    /// redesenhado noutra geometria. O que se via era o pé do cartão e o pé da
+    /// página dissolvidos sobre o texto do cartão, ~165 ms (Re-G3 da V12,
+    /// `v12reg3-cruzamento-cartao-rm.png`). Com um ramo só o editor mantém
+    /// identidade e FOCO: o teclado não desce, e o encaixe só cresce.
+    /// A diferença entre os dois casos virou VALOR, não estrutura: sem campos o
+    /// editor ocupa a altura toda (o papel inteiro é alvo do cursor, como era);
+    /// com campos ele cede o que não usa e os campos entram por baixo.
     private func paginaUna(_ una: FatiaCaderno) -> some View {
-        if abaixo != nil {
+        GeometryReader { geo in
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     editorUna(una)
                         .padding(.horizontal, Tema.margem)
-                        .frame(maxWidth: .infinity, minHeight: 160, alignment: .topLeading)
-                    abaixo
+                        .frame(maxWidth: .infinity, minHeight: abaixo == nil ? geo.size.height : 160,
+                               alignment: .topLeading)
+                    // os campos nascem CORTANDO, como a régua e o cartão: sob
+                    // Reduzir Movimento nada dissolve, e o fade padrão do
+                    // Optional aparecia como um véu sobre o papel (Re-G3)
+                    abaixo?.transition(.identity)
                 }
-                .padding(.bottom, 28)
+                .padding(.bottom, abaixo == nil ? 0 : 28)
             }
             .scrollDismissesKeyboard(.interactively)
-        } else {
-            editorUna(una)
-                .padding(.horizontal, Tema.margem)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         }
     }
 
@@ -101,7 +110,7 @@ struct CadernoView: View {
                     fatiaNaPagina(fatia)
                         .padding(.horizontal, Tema.margem)
                 }
-                abaixo
+                abaixo?.transition(.identity) // mesma lei da página una
             }
             .padding(.bottom, 28)
         }

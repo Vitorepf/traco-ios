@@ -2857,6 +2857,28 @@ inteiro, não separa irmão de irmão; (c) o cartão tem identidade por CASO, se
 o texto de `.forma` dissolve sobre o de `.vestida` nas mesmas linhas. Vale com e
 sem Reduzir Movimento (`v12b-pe-quadros.png`, quatro linhas).
 
+**O resíduo da mesma classe, e a última peça (correção do Re-G3, V12-C).** A
+(a) acima consertou o encaixe, não a CAUSA de ele ser redesenhado. `paginaUna`
+tinha DOIS ramos — com e sem `abaixo` —, e vestir a forma cria os campos: o ramo
+trocava, o SwiftUI recriava o EDITOR, o foco caía, o teclado descia e o encaixe
+inteiro era desenhado em duas geometrias ao mesmo tempo. O que se via era o pé do
+cartão ("Abrir os campos" / "Deixar como nota") e o pé da página ("Trabalhar
+nisto" e as ações) dissolvidos SOBRE o texto do cartão, por ≈15 quadros, com E
+sem Reduzir Movimento — o Re-G3 filmou (`v12reg3-cruzamento-cartao-rm.png`).
+Bissectado por experimento, como o A1: matar as duas `Tema.gaveta` apagava o
+fantasma (prova de que a animação era o veículo), mas matar cada uma sozinha
+não; `.transaction { $0.animation = nil }` no corpo também não. O que apaga é
+tirar o RAMO: `paginaUna` passa a ter um só, e a diferença entre os dois casos
+vira VALOR — sem campos o editor ocupa a altura do container (o papel inteiro
+segue alvo do cursor), com campos ele cede o que não usa e os campos entram por
+baixo. O editor mantém identidade e FOCO: o teclado não desce mais quando a
+forma veste, que é a lei do dono (§3 — o cursor não se perde) e de quebra apaga
+o cruzamento. No mesmo lugar, os campos passam a NASCER cortando
+(`abaixo?.transition(.identity)`): o fade padrão do Optional era um véu sobre o
+papel, e sob Reduzir Movimento nada dissolve. A página vazia é **0 px** de
+diferença contra `69bec69` fora da faixa de sugestão do teclado do iOS. Prova: `v12c-pe-quadros-sem-rm.png` e `v12c-pe-quadros-com-rm.png`,
+sete quadros a 30 fps por linha, antes (`69bec69`) e depois em cada modo.
+
 **A aresta é do material, não do chamador (correção do G3, V12-B).** `Cartao`
 devolve o fio de `Tema.linha` 0,5 a todo branco sobre o papel (`.papel` e
 `.flutuante`) e a segunda sombra, a de CONTATO (r2 y1, SISTEMA-CLARO §1.5), ao
