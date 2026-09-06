@@ -41,7 +41,10 @@ mesmo `safeAreaInset` (`CadernoView.acima`); o rodapé deixou de ter "um ocupant
 por vez".
 
 **5. Mover.** Quem anima é a **altura do container** (§21): `Tema.gaveta` no
-encaixe, nenhum cross-fade entre irmãos. Célula nova da tabela passou de
+encaixe. *(Corrigido na V12-B: a afirmação "nenhum cross-fade entre irmãos" era
+INTENÇÃO, não tela — o G3 filmou a régua legível em duas posições e o cartão
+velho dissolvendo no novo, com e sem Reduzir Movimento. O que a tela faz agora
+está em `relatorio-v12b-pagina.md` e na tira `v12b-pe-quadros.png`.)* Célula nova da tabela passou de
 `Mola.escala` sob `.deslocamento` para `Duracao.media` easeOut — a classe que
 declara (G4 V10). Pressão só por escala em `.primario` e `.compacto`, e a
 `.animation` foi para **depois** do `scaleEffect` (a pressão do primário não
@@ -99,7 +102,7 @@ cronológica — 05w e depois 05y; `PaginaView` casou sozinha. Na árvore mescla
 O worktree fica pronto para o G5, sem conflito pendente.
 
 **Capturas** (`ferramentas/orca/v12-<build>-<tamanho>-<estado>.png`, 27 PNG,
-maior 328 KB): antes (main) e depois, em `large` e AX5, nos estados **vazia,
+maior 397 KB — `v12-antes-large-sabia.png`): antes (main) e depois, em `large` e AX5, nos estados **vazia,
 escrevendo, forma vestida, campos abertos, cartão da sábia e arquivo aberto pela
 borda**. O roteiro é o mesmo nos dois builds, com o app reinstalado do zero antes
 de cada travessia.

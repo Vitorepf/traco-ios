@@ -52,7 +52,7 @@ struct TemaTests {
     }
 
     @Test func lacoPara() {
-        let pulso = Animation.easeInOut(duration: Tema.Duracao.pulso).repeatForever(autoreverses: true)
+        let pulso = Animation.easeInOut(duration: 0.7).repeatForever(autoreverses: true)
         #expect(Tema.movimento(.laco, pulso, reduzido: true) == nil)
         #expect(Tema.movimento(.laco, pulso, reduzido: false) == pulso)
     }
@@ -125,5 +125,38 @@ struct TemaTests {
             }
         }
         #expect(achados.isEmpty, "desenho por conta própria:\n\(achados.joined(separator: "\n"))")
+    }
+
+    // MARK: - Os dois comportamentos da 05y que não tinham teste (G3 da V12, M1)
+
+    /// Re-G3 da volta 7: soltar a camada pede o alvo, mas o binding pode
+    /// RECUSAR (o timer da expressiva de pé abre confirmação e `Sessao.irPara`
+    /// recusa de forma síncrona). Quando recusa, a posição volta ao estado real
+    /// — senão a camada fica à mostra e não recebe toque. Quando aceita, nada é
+    /// re-cravado: a mola já parou no lugar, e um segundo alvo re-acelera.
+    @Test func camadaDevolveAPosicaoQuandoOBindingRecusa() {
+        let w: CGFloat = 393
+        // pediu abrir e o binding recusou: volta para fora da tela
+        #expect(Trilho.posicaoAposRecusa(alvoPedido: true, arquivoAberto: false, largura: w) == -w)
+        // pediu fechar e o binding recusou: volta para o arquivo à mostra
+        #expect(Trilho.posicaoAposRecusa(alvoPedido: false, arquivoAberto: true, largura: w) == 0)
+        // aceitou nos dois sentidos: nada a corrigir
+        #expect(Trilho.posicaoAposRecusa(alvoPedido: true, arquivoAberto: true, largura: w) == nil)
+        #expect(Trilho.posicaoAposRecusa(alvoPedido: false, arquivoAberto: false, largura: w) == nil)
+    }
+
+    /// Custo assumido da 05y: a régua cede ao cartão SÓ em tamanho de
+    /// acessibilidade. Em `large` ela fica, com cartão ou sem — o G3 mediu isso
+    /// na tela e a suíte passa a segurar.
+    @Test func reguaSoCedeAoCartaoEmTamanhoAX() {
+        let cartao = CartaoAnalisar.forma(.woop, pergunta: "?")
+        #expect(PaginaView.esconderRegua(cartao: cartao, tamanho: .accessibility1))
+        #expect(PaginaView.esconderRegua(cartao: cartao, tamanho: .accessibility5))
+        // tamanhos não-AX: a régua fica, cartão ou não
+        for tamanho in [DynamicTypeSize.xSmall, .large, .xxxLarge] {
+            #expect(!PaginaView.esconderRegua(cartao: cartao, tamanho: tamanho))
+        }
+        // sem cartão nada esconde, nem em AX5
+        #expect(!PaginaView.esconderRegua(cartao: nil, tamanho: .accessibility5))
     }
 }

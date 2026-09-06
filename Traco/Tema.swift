@@ -145,8 +145,6 @@ enum Tema {
         static let toque: Double = 0.08
         /// o respiro entre os campos da forma que nasce (é delay, não duração)
         static let passo: Double = 0.05
-        /// o laço do ponto "lendo…": mais lento que qualquer entrada, porque não termina
-        static let pulso: Double = 0.7
         /// a página nova amanhece depois do fecho expressivo (dono, 01/set)
         static let fecho: Double = 0.9
         /// a barra do timer da expressiva anda um segundo real por segundo
@@ -176,6 +174,11 @@ enum Tema {
     //   escala       → nada: o estado vira sem quadro intermediário
     //   opacidade    → mantém: opacidade não enjoa
     //   laço         → para: o que repete sem fim fica no estado final
+    //
+    // `laco` não tem consumidor no app desde a volta 12: o ponto pulsante do
+    // "lendo…" saiu e a `Duracao.pulso` que o media foi apagada com ele. A
+    // classe fica porque é a LEI de quem tentar repetir sem fim outra vez, e
+    // `TemaTests.lacoPara` a mantém honesta.
     enum Movimento { case deslocamento, escala, opacidade, laco }
 
     static let fadeReduzido: Animation = .easeOut(duration: Duracao.curta)

@@ -2833,26 +2833,78 @@ aviso e "lendo…" passam a viver ACIMA da régua e das ações, no mesmo encaix
 deixa de ter "um ocupante por vez" e a linha de gravação recusada (05s) não
 cobre mais a barra. (2) As saídas do cartão moram no pé DELE em todo tamanho,
 e o texto que passa da dobra ganha degradê enquanto há mais para ler. (3) Em
-AX o pé vira UM menu, "Mais ações da nota", com "Trabalhar nisto" dentro (duas
-linhas espremiam o rótulo a "Mais ações d…"), e a régua cede ao cartão. (4)
+AX o pé tem "Trabalhar nisto" como BOTÃO e o resto num menu, "Mais ações da
+nota" (lado a lado as quatro ações espremiam o rótulo a "Mais ações d…"; com as
+cinco dentro do menu, o menu ficava mais alto que a tela e a quinta só existia
+depois de rolar — G3 da V12, M3), e a régua cede ao cartão. (4)
 `BotaoPrimario`/`BotaoCompacto` pressionam só por escala; `CartaoBotaoStyle`
 morre e o cartão cita `.primario`. (5) A célula nova entra com `Duracao.media`
 easeOut, a classe que declara. (6) `Camadas.onEnded` devolve a posição quando
-o binding recusa. (7) Página e Caderno migram para `.rotulo`, `.cartao`,
+o binding recusa — a aritmética mora em `Trilho.posicaoAposRecusa`, fora do
+gesto, para ter teste. (7) Página e Caderno migram para `.rotulo`, `.cartao`,
 `Pilula`, `CabecalhoDeFolha` e `.discreto`; a folha dos campos troca o "Voltar
 à página" em âmbar sobre branco (2,0:1) pelo cabeçalho da casa.
 
+**A lei do movimento, escrita como a tela a cumpre (correção do G3, V12-B).**
+Quem anima é a ALTURA do encaixe; o CONTEÚDO corta. Três coisas fazem isso ser
+verdade e não intenção: (a) o `.safeAreaInset` pendura numa identidade ESTÁVEL —
+`paginaCaderno` troca de ramo quando os campos nascem, e com o encaixe pendurado
+no ramo o SwiftUI trocava a árvore inteira e dissolvia o pé velho sobre o novo
+(régua legível em duas posições, uma na linha de base de "Trabalhar nisto");
+(b) régua, aviso, cartão e "lendo…" entram e saem por `.identity` — `.move(edge:
+.bottom)` desliza a régua POR CIMA do rodapé, e o `.clipped()` é do VStack
+inteiro, não separa irmão de irmão; (c) o cartão tem identidade por CASO, senão
+o texto de `.forma` dissolve sobre o de `.vestida` nas mesmas linhas. Vale com e
+sem Reduzir Movimento (`v12b-pe-quadros.png`, quatro linhas).
+
+**A aresta é do material, não do chamador (correção do G3, V12-B).** `Cartao`
+devolve o fio de `Tema.linha` 0,5 a todo branco sobre o papel (`.papel` e
+`.flutuante`) e a segunda sombra, a de CONTATO (r2 y1, SISTEMA-CLARO §1.5), ao
+`.flutuante`. A migração da volta havia apagado as duas sem declarar: o aviso
+— a superfície onde mora a linha de gravação recusada da 05s — virou branco sem
+aresta sobre #F4F4F2, e os três portais do caderno perderam o `strokeBorder` que
+tinham em main. `luzBorda` FICA fora: é branco sobre branco no mundo claro.
+
 **Custo assumido.** Em AX, com o cartão em cena, a régua não está à vista: as
-formas voltam a um toque quando ele sai; uma terceira barra não cabe. O alvo
+formas voltam a um toque quando ele sai; uma terceira barra não cabe. Em AX o pé
+passa a ter DUAS linhas (botão + menu), e é o texto do cartão que rola por elas
+— o pé não cede (V12-B). O fio de `.papel` alcança quem mais usa o estilo: o
+cartão da sábia e o campo de busca das Notas e os três portais do caderno ganham
+a mesma aresta de 0,5 — restauração no caderno, refinamento nas Notas. O alvo
 da aba do arquivo foi de 23 a 44 pt sem mover um pixel (a cápsula segue 4×64).
 A aba na página vazia oscila com a corrida do teclado (1 de 3 em main, 2 de 3 no branch, mesma faixa y): anterior à volta, fica na FILA.
 
-**Prova.** Build sem aviso novo; suíte **714/0 em 125 suítes** no iPhone 17
-Pro C2416CBC (`✔ Test run with 714 tests in 125 suites passed`), 06/09/2026.
+**Prova.** Build sem aviso novo; suíte **718/0 em 125 suítes** no iPhone 17
+Pro C2416CBC (`✔ Test run with 718 tests in 125 suites passed after 7.695
+seconds.`), 06/09/2026 — as 716 do G3 mais as duas que faltavam: `Camadas`
+devolvendo a posição quando o binding recusa e `esconderRegua` só em tamanho AX.
+Movimento filmado nos dois modos nos DOIS builds (`v12b-pe-quadros.png`,
+`v12b-vestir.mp4`, `v12b-rm-vestir.mp4`). Aresta MEDIDA na coluna x=600 do mesmo
+estado: no topo do cartão o papel (242) ia direto ao branco (252) e agora passa
+por 238; na base, 252 → 230 virou 252 → 238 → 205 → 217 → … → 229 — o fio mais a
+sombra de contato (`v12b-aresta-cartao.png`, `v12b-aviso-aresta.png`). AX5 com o
+cartão: `v12b-ax5-pe.png` e `v12b-ax5-menu.png`, quatro ações desenhadas, sem
+rolagem.
+
+**A voz do cartão (06/09, auditoria da trilha Métodos).** A dica das duas saídas
+prometia "ele aprende com você" — alegação de eficácia sem dono. `Degraus.ajuste`
+é um contador com memória de dois: as duas últimas respostas DESTA forma, e só se
+concordarem, movem o degrau ±1 entre 0 e 4. A dica passa a dizer o mecanismo —
+"duas respostas iguais seguidas mudam o que ele cobra nesta forma" —, que também
+é a razão de apertar o botão. É `accessibilityHint`: o iOS não o desenha, então
+não há o que cortar em tamanho nenhum.
 Capturas antes (main 0d0d007) e depois em `large` e AX5 nos seis estados do G2
 (`ferramentas/orca/v12-*.png`), diff fora da barra de status: arquivo pela
 borda **0 px** nos dois tamanhos, página vazia **0 px** com a aba presente nos
 dois, escrevendo 484 px = 0,016 % (caret). Intencionais: forma vestida 15,8 %
 (`large`) e 27,8 % (AX5) — o cartão sai do pé e as ações reaparecem; campos
-3,6 % e 9,8 % (cabeçalho da folha); escrevendo AX5 7,6 % (menu único). O
-cartão da sábia não compara por pixel: a resposta muda a cada abertura. Vídeos de vestir/soltar e da borda com e sem Reduzir Movimento. Líquido-negativo.
+3,6 % e 9,8 % (cabeçalho da folha); escrevendo AX5 7,6 % (o pé em AX). O
+cartão da sábia não compara por pixel: a resposta muda a cada abertura. Vídeos de vestir/soltar e da borda com e sem Reduzir Movimento. O commit da V12
+era líquido-negativo (−55 linhas de Swift do app); com a correção do G3 (+124
+−16, das quais 63 somadas são comentário) a volta INTEIRA vira **+53 líquidas** —
+a regra da 05v não se cumpre aqui, e o custo está declarado, não escondido: os
+dois testes que faltavam exigiram tirar uma decisão de dentro de um gesto e outra
+de dentro de um `body`.
+Estes números de pixel são do build da V12 (`5937943`): o V12-B mexe neles de
+propósito — o pé em AX ganhou a linha de "Trabalhar nisto" e todo branco sobre o
+papel ganhou 0,5 de aresta. O que o V12-B mede está no parágrafo acima.

@@ -293,7 +293,23 @@ struct PaginaView: View {
     /// dentro do mesmo encaixe da régua e das ações, que são desenho do dono
     /// (ADR 05f) e não saem do lugar: o V9 viu o cartão tomar o pé e o toque
     /// mirado em "Todas" cair no texto do cartão (fitts-law). Um sai, o outro
-    /// entra, e quem anima é a altura do container (§21).
+    /// entra — CORTANDO, nunca em fade sobre as mesmas linhas —, e quem anima é
+    /// a altura do container (§21).
+    /// A identidade do cartão é o CASO, não a carga: ver `acimaDoPe`.
+    private func casoDoCartao(_ c: CartaoAnalisar) -> String {
+        switch c {
+        case .aviso: "aviso"
+        case .forma: "forma"
+        case .vestida: "vestida"
+        case .expressiva: "expressiva"
+        case .pergunta: "pergunta"
+        case .resposta: "resposta"
+        case .sabiaPensando: "sabiaPensando"
+        case .vestido: "vestido"
+        case .semConta: "semConta"
+        }
+    }
+
     @ViewBuilder
     private var acimaDoPe: some View {
         if let toast = sessao.toast {
@@ -318,6 +334,13 @@ struct PaginaView: View {
             CartaoAnaliseView(cartao: cartao, sessao: sessao, aoAbrirCampos: { mostrarCampos = true })
                 .padding(.horizontal, Tema.margem)
                 .padding(.bottom, 12)
+                // a troca de CASO do cartão é troca de VIEW, e ela CORTA: sem
+                // isto o SwiftUI dissolvia o texto velho sobre o novo, nas mesmas
+                // linhas — foi o que o G3 da V12 filmou entre `.forma` e
+                // `.vestida` (A1). Dentro do mesmo caso a identidade fica: a
+                // resposta da sábia chega sem reiniciar o "serviu / não serviu".
+                .transition(.identity)
+                .id(casoDoCartao(cartao))
         } else if sessao.analisando, !sessao.paginaVazia {
             // o sinal de que ALGO está acontecendo — sem ele a tela fica muda
             LinhaDeEstado("lendo…", .lendo)
@@ -325,6 +348,9 @@ struct PaginaView: View {
                 .padding(.horizontal, Tema.margem)
                 .padding(.vertical, 8)
                 .accessibilityIdentifier("analisando")
+                // "lendo…" e o cartão ocupam a MESMA linha do encaixe: um fade
+                // entre eles é o cross-fade entre irmãos legíveis que a 05y proíbe
+                .transition(.identity)
         }
     }
 
@@ -356,6 +382,13 @@ struct PaginaView: View {
         .animation(Tema.movimento(.deslocamento, .easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion), value: sessao.temVoz)
     }
 
+    /// Custo assumido da 05y: em tamanho AX, com o cartão em cena, uma terceira
+    /// barra não cabe — a régua cede. Em `large` ela FICA, cartão ou não; foi
+    /// isso que o G3 da V12 pediu para provar (M1).
+    static func esconderRegua(cartao: CartaoAnalisar?, tamanho: DynamicTypeSize) -> Bool {
+        cartao != nil && tamanho.isAccessibilitySize
+    }
+
     /// SPEC §4: os campos nascem abaixo do texto. Reabrir a nota não os esconde.
     private var camposAbaixo: AnyView? {
         guard sessao.temCamposDaForma, let gesto = sessao.gesto else { return nil }
@@ -372,7 +405,7 @@ struct PaginaView: View {
             rodape: !sessao.paginaVazia || sessao.podeRecordar ? AnyView(bottomBar) : nil,
             abaixo: camposAbaixo,
             acima: AnyView(acimaDoPe),
-            esconderRegua: sessao.cartao != nil && tamanhoTexto.isAccessibilitySize,
+            esconderRegua: Self.esconderRegua(cartao: sessao.cartao, tamanho: tamanhoTexto),
             texto: $sessao.texto,
             foco: $focoPagina,
             folga: corpoFolga,
@@ -483,14 +516,18 @@ struct PaginaView: View {
     private var bottomBar: some View {
         VStack(alignment: .leading, spacing: 8) {
             if tamanhoTexto.isAccessibilitySize {
-                // em AX o pé tem UMA linha ao lado do cartão (duas espremiam
-                // "Mais ações da nota" a "Mais ações d…", visto em AX5, 06/09):
-                // todas as ações no menu, "Trabalhar nisto" primeiro
+                // em AX cada ação ocupa a LARGURA inteira — lado a lado, as
+                // quatro espremiam "Mais ações da nota" a "Mais ações d…" (AX5,
+                // 06/09). "Trabalhar nisto" fica FORA do menu, como era antes
+                // desta volta: com as cinco dentro, o menu ficava mais alto que a
+                // tela e a quinta só existia depois de rolar, sem afordância
+                // nenhuma (G3 da V12, M3 — `v12-rev-ax5-menu.png`). Quatro cabem.
+                trabalharNistoBotao
                 Menu("Mais ações da nota") {
-                    trabalharNistoBotao
                     acoesDaPagina
                 }
                 .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .leading)
+                .accessibilityIdentifier("mais-acoes-da-nota")
             } else {
                 trabalharNistoBotao
                 HStack(spacing: 8) { acoesDaPagina }

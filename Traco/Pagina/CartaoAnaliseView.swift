@@ -34,7 +34,13 @@ struct CartaoAnaliseView: View {
             .font(Tema.label)
             .foregroundStyle(Tema.tintaFraca)
             .buttonStyle(.compacto)
-            .accessibilityHint("Diz ao Traço se esta pergunta valeu — ele aprende com você")
+            // A frase antiga ("ele aprende com você") era alegação de eficácia sem
+            // dono na tela. `Degraus.ajuste` é um contador com memória de DOIS: as
+            // duas últimas respostas DESTA forma, e só se concordarem, movem o
+            // degrau ±1 (preso a 0–4). Dizer o mecanismo dá ao autor a razão de
+            // apertar o botão, que a promessa vaga não dava (auditoria da voz do
+            // app, trilha Métodos, 06/09).
+            .accessibilityHint("Diz ao Traço se esta pergunta valeu — duas respostas iguais seguidas mudam o que ele cobra nesta forma")
         }
     }
 

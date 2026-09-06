@@ -22,8 +22,38 @@ struct Cartao: ViewModifier {
     func body(content: Content) -> some View {
         content
             .padding(recuo, 14)
-            .background(fundo, in: RoundedRectangle(cornerRadius: raio, style: .continuous))
-            .sombra(sombra)
+            .background {
+                forma
+                    .fill(fundo)
+                    .sombra(sombra)
+                    // SISTEMA-CLARO §1.5: duas sombras, nenhuma dura. A segunda
+                    // é a de CONTATO — sem ela o cartão paira sem tocar o papel.
+                    .shadow(color: contato, radius: 2, y: 1)
+            }
+            // "um retângulo mais claro SEM borda lê como buraco, não como objeto
+            // acima do plano" (comentário do próprio Tema, law-of-figure-ground):
+            // o branco sobre o papel leva SEMPRE o fio de 0,5. Foi este fio que a
+            // migração da volta 12 apagou, sem declarar, do aviso da página e dos
+            // três portais do caderno (G3 da V12, M2).
+            .overlay { if fio { forma.stroke(Tema.linha, lineWidth: 0.5) } }
+    }
+
+    private var forma: RoundedRectangle {
+        RoundedRectangle(cornerRadius: raio, style: .continuous)
+    }
+
+    /// O que é branco sobre o papel precisa de aresta; a névoa e a tinta do
+    /// domínio já se separam pela cor.
+    private var fio: Bool {
+        switch estilo {
+        case .papel, .flutuante: true
+        case .campo, .tingido: false
+        }
+    }
+
+    private var contato: Color {
+        if case .flutuante = estilo { return Tema.sombraContato }
+        return .clear
     }
 
     private var fundo: Color {

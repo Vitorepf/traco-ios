@@ -118,7 +118,14 @@ struct CadernoView: View {
     }
 
     var body: some View {
-        paginaCaderno
+        // O ZStack existe para dar ao ENCAIXE uma identidade que não troca.
+        // `paginaCaderno` escolhe entre página una e fatias, e `paginaUna` entre
+        // ter ou não ter `abaixo` — vestir a forma cria os campos e vira esse
+        // ramo. Com o `.safeAreaInset` pendurado direto no ramo, o SwiftUI
+        // trocava a ÁRVORE INTEIRA e dissolvia o pé velho sobre o novo: régua em
+        // duas posições, cartão velho sobre o novo (G3 da V12, A1). O texto não
+        // ghostava porque é igual nos dois; o pé, que muda de altura, sim.
+        ZStack(alignment: .top) { paginaCaderno }
         // o encaixe ancora no FIM desta view: sem preencher a altura, a régua
         // ficava pendurada no meio da tela, com um vão até a barra de ações
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -149,7 +156,7 @@ struct CadernoView: View {
                         .overlay(alignment: .top) {
                             Rectangle().fill(Tema.linha).frame(height: 0.5)
                         }
-                        .transition(Tema.transicao(.move(edge: .bottom), reduzido: reduceMotion))
+                        .transition(.identity)
                 } else if foco.wrappedValue, !esconderRegua {
                     regua
                         .padding(.horizontal, Tema.margem)
@@ -159,7 +166,7 @@ struct CadernoView: View {
                         .overlay(alignment: .top) {
                             Rectangle().fill(Tema.linha).frame(height: 0.5)
                         }
-                        .transition(Tema.transicao(.move(edge: .bottom), reduzido: reduceMotion))
+                        .transition(.identity)
                 }
                 // a barra de ações da página mora AQUI: um container, uma lei.
                 // A altura mínima impede o quadro VAZIO entre um ocupante sair
@@ -169,7 +176,13 @@ struct CadernoView: View {
             }
             // uma animação para a superfície inteira: os filhos trocam DENTRO
             // dela — quem anima é a ALTURA do container, não a opacidade de
-            // dois irmãos que ocupam as mesmas linhas
+            // dois irmãos que ocupam as mesmas linhas. Por isso os ocupantes
+            // entram e saem por `.identity`: com `.move(edge: .bottom)` a régua
+            // DESLIZAVA por cima do rodapé e ficava legível em duas posições, uma
+            // delas na linha de base de "Trabalhar nisto" (G3 da V12, A1 —
+            // `v12-rev-cruzamento-regua-pe.png`); o `.clipped()` é do VStack
+            // inteiro e não separa irmão de irmão. Cortar aqui não perde
+            // movimento: o encaixe cresce e revela, que é a lei da gaveta.
             .animation(Tema.gaveta(reduzido: reduceMotion), value: foco.wrappedValue)
             .animation(Tema.gaveta(reduzido: reduceMotion), value: esconderRegua)
             .clipped()
