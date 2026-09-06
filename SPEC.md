@@ -2816,7 +2816,7 @@ errado recusa sem rota; falha do Anotar não deposita); suíte 715/125 sobre a V
 sem aviso; capturas no iPhone Air. **Fora (F3b):** ditado próprio — áudio
 salvo primeiro, transcrito depois, falha preserva o áudio — por `.captura`.
 
-## ADR 2026-09-06x — O Trabalho entra na família (volta 18)
+## ADR 2026-09-06b — O Trabalho entra na família (voltas 18 e 18-B)
 
 **A distância.** O Trabalho tirou 6,0 na auditoria V9 (`auditoria-frontend.md`
 §6), a pior nota do app: Design 5, Simplicidade 5, Componentes 4. Ao lado da
@@ -2856,10 +2856,38 @@ sistema (nas duas telas); rótulo de seção em caixa alta como na ficha;
 (Ajustes, recuperar, retomar); todo o resto é `Pilula.filtro`, porque texto
 solto sobre papel não se lê como controle e não tem estado desabilitado.
 
-*Desabilitado honesto.* A ação principal não vira fantasma por campo vazio:
-tocar leva o foco ao campo que falta e a linha diz o motivo. Só bloqueio que a
-pessoa não resolve dali ("guarde a intenção que está editando", "alterações não
-guardadas") desabilita, sempre com o motivo escrito ao lado.
+*Desabilitado honesto (refeito na 18-B).* A volta 18 aplicou a regra a DOIS
+botões de sete e manteve `.disabled()` no resto — e a revisão mostrou o preço:
+`Pilula` desabilitada devolve fundo `.clear` com `tintaMorta`, **1,53:1 sobre o
+papel**, sem cápsula e sem forma de botão; a ação PRIMÁRIA da tela virava
+legenda cinza num estado alcançável em quatro toques
+(`v18-rev-gerar-travado-sem-capsula.png`). Meia regra é pior que nenhuma.
+
+A 18-B fecha a regra numa lei só, e ela vale para os sete: **nenhuma ação desta
+folha some**. Não há mais um `.disabled()` em `TrabalhoView` nem em
+`AgendamentoAcaoView`. A ação bloqueada continua a mesma cápsula, com o mesmo
+alvo de 44 e o mesmo contraste; o motivo continua escrito na linha de baixo (e
+agora também no `accessibilityHint`, para quem ouve a tela); e **tocar leva ao
+que falta**: campo vazio recebe o foco (`faltaCampo`), edição não guardada
+recebe o foco (`campoEmEdicao`), salvamento falho leva à saída no alto da folha
+(`levouAoObstaculo`, dentro de `aplicar`, por onde todas as escritas passam),
+preparação em curso leva ao próprio progresso (`preparacaoEmCurso`). Prova:
+`v18b-gerar-vazio-continua-capsula.png` e `v18b-gerar-edicao-pendente.png` — o
+mesmo estado que a revisão fotografou, agora cápsula carvão inteira com o motivo
+ao lado — e `maestro/trabalho-bloqueio.yaml`.
+
+**O que se perde, dito:** o VoiceOver não anuncia mais "indisponível" nessas
+ações; anuncia o motivo pelo `accessibilityHint`, e o toque leva ao obstáculo em
+vez de não fazer nada. `Traco/Componentes` não foi tocado — a cápsula do
+desabilitado continua dívida da volta dos Componentes, e ainda vale para
+`IntercambioTrabalhoView`, que ficou fora do escopo e desabilita três ações.
+
+*O trilho fala com quem ouve (18-B).* As três pílulas do apoio saíam iguais no
+`maestro hierarchy` (`selected: false` nas três): a decisão que muda o que
+"Preparar" faz era comunicada só por cor, e isso era regressão contra o `Picker`
+da V9, que anunciava o valor de graça. `.accessibilityAddTraits(.isSelected)` na
+pílula marcada, guardado por `maestro/trabalho-bloqueio.yaml`, que assere
+`selected: true` na escolhida e `false` nas outras duas.
 
 *A promessa do aviso (defeito 6, o mesmo 2 da ficha).* `AgendamentoAcaoView`
 prometia "Toca hoje às 20:22 · na hora" com os avisos do Traço desligados
@@ -2873,8 +2901,27 @@ view lê a permissão sozinha (`.task` e volta à cena), o que fecha também a
 janela em que a frase prometia antes de a leitura voltar. Depois do commit, a
 linha continua vindo do motor (`ResultadoDoAviso`), nunca do que se pediu.
 
-**Custo assumido.** A volta NÃO é líquido-negativa: +592/−364 em 4 arquivos
-(código sem comentário, 1119 → 1247 linhas). Foram apagados
+*A outra metade, e ela é do relógio (18-B).* A revisão pegou a folha prometendo
+"Toca hoje às **14:37** · 30 min antes" às **15:08** — hora já passada — na
+captura dela e na do próprio implementador (`v18-agendar.png`). Quem sabia a
+verdade era só o motor, e só DEPOIS do commit (`ResultadoDoAviso.passou`).
+`PromessaDoAviso` ganhou o quinto caso, `jaPassou`, e `para(...)` ganhou
+`instante:` (quando o alarme tocaria, de `Aviso.instante`) e `agora:`. O caso não
+carrega valor associado porque a frase não usa a hora; quem decide é o `agora:`.
+A ordem é a do motor (`Avisos.agendar`): sem permissão primeiro — beco com saída
+nos Ajustes —, depois o relógio, que cala qualquer promessa, só então a promessa.
+E a folha parou de propor um horário que já nasce atrás do relógio: um ato sem
+horário abre em meia hora à frente, arredondada nos 5 minutos, em vez de `.now`
+cru, cujo alarme "na hora" o motor recusaria. Prova:
+`v18b-promessa-hora-passada.png` (relógio 17:13, ato 17:45, "2 h antes", a linha
+em âmbar), `v18b-promessa-toca.png` e 10 testes em `PromessaDoAvisoTests`. O tipo
+fica completo para a volta que liga a ficha do Calendário, onde este é o defeito
+2 da revisão da V9.
+
+**Custo assumido.** A volta NÃO é líquido-negativa: +742/−396 nos três arquivos
+de view (código sem comentário, 1119 → 1296 linhas), somando 18 e 18-B. Só a
+volta 18 foi +599/−371 e 1119 → 1247 — o "+592/−364" da primeira redação era
+contagem errada, apontada pela revisão. Foram apagados
 `AcaoTrabalhoStyle`, dois `NavigationStack` com toolbar, três
 `DisclosureGroup` (oito → cinco, e nenhum aninhado), o `Picker` de apoio e um
 `@State`; foram acrescentados o trilho de apoio, o tri-estado da promessa, as
@@ -2889,12 +2936,26 @@ sistema, com `tint` do tema por fora. `OficinaTrabalho.permissaoNegada` ficou
 sem leitor externo. **Volta:** multiplicar. **A IA:** nada mudou no que ela
 produz, lê ou pode enviar.
 
-**Prova.** Suíte 720/126 verde e build sem aviso no iPhone 17 Pro (teste 2);
-5 testes novos em `PromessaDoAvisoTests`. Capturas `simctl` antes e depois em
+**Prova.** Suíte 725/126 verde e build sem aviso no iPhone 17 Pro (teste 2);
+10 testes em `PromessaDoAvisoTests`. Três fluxos maestro no aparelho:
+`trabalho-curva-zero.yaml` (a medição da jornada), `trabalho-bloqueio.yaml` (a
+lei do bloqueio e o `selected` do trilho) e `trabalho-acao-aviso.yaml` — este
+falhava 2/2 no branch porque os quatro `swipe` de posição fixa passavam do alvo
+com a ordem nova das seções; viraram `scrollUntilVisible`. Capturas `simctl` antes e depois em
 large e AX5 (`ferramentas/orca/v18-*.png`), vídeo do movimento com e sem
 Reduzir Movimento (`v18-movimento-normal.mp4`, `v18-movimento-reduzido.mp4`).
-Curva-zero: intenção → versão preparada cai de 6 toques e 2 digitações para 5
-e 2, e a decisão de apoio passa de escondida a visível com 0 toques a mais.
+Curva-zero, medida comando a comando no aparelho (`maestro/trabalho-curva-zero.yaml`,
+que é a medição e falha se alguém acrescentar um toque): intenção → versão
+preparada **cai de 6 toques e 2 digitações para 5 e 2**. O toque que saiu é o
+do campo do pedido, que só existia para revelar o passo seguinte — a folha
+recém-criada abre com o cursor lá. A volta 18 sozinha NÃO tinha derrubado o
+número: a revisão remediu e achou 6, porque o toque que a volta dizia ter
+economizado ("abrir o disclosure para chegar ao apoio") nunca esteve na conta
+da auditoria, que já media o caminho de quem não decide o apoio. O que a volta
+18 melhorou sem mexer na contagem, e é real: a decisão de apoio passou de
+escondida a visível a 0 toques, o caminho principal cabe numa tela só (com o
+teclado aberto, `v18b-curva-zero-abre-no-pedido.png`) e a ação primária saiu de
+trás de "Dificuldade".
 **Não provado:** o estado *negado* da promessa (a permissão do simulador de
 teste estava `naoPerguntado` e, depois de concedida, o iOS não deixa voltar
 atrás sem Ajustes — o caso vive no teste, não na captura); a chegada da versão

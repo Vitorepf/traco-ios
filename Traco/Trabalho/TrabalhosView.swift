@@ -12,6 +12,8 @@ struct TrabalhosView: View {
     @Query private var notas: [Nota]
     @Query(sort: \Trabalho.atualizadoEm, order: .reverse) private var trabalhos: [Trabalho]
     @State private var aberto: Trabalho?
+    /// Qual trabalho nasceu agora: só ele abre com o cursor no pedido.
+    @State private var criadoAgora: UUID?
     @State private var busca = ""
     @AppStorage("trabalho.nova-intencao") private var intencao = ""
     @State private var erro: String?
@@ -61,7 +63,9 @@ struct TrabalhosView: View {
             // armazenamento. Mantê-lo aberto mostra por que o acesso mudou.
             erro = nil
         }
-        .sheet(item: $aberto) { trabalho in TrabalhoView(trabalho: trabalho) }
+        .sheet(item: $aberto) { trabalho in
+            TrabalhoView(trabalho: trabalho, pedidoEmFoco: trabalho.uuid == criadoAgora)
+        }
     }
 
     /// A intenção primeiro: o campo e a única ação cheia da tela.
@@ -124,6 +128,8 @@ struct TrabalhosView: View {
                 if acesso.permitido {
                     Button {
                         guard AcessoTrabalho.permitido(trabalho, no: context) else { return }
+                        // reabrir um trabalho não é começar um: sem teclado
+                        criadoAgora = nil
                         aberto = trabalho
                     } label: {
                         VStack(alignment: .leading, spacing: 6) {
@@ -159,6 +165,7 @@ struct TrabalhosView: View {
             try context.save()
             intencao = ""
             erro = nil
+            criadoAgora = trabalho.uuid
             aberto = trabalho
         } catch {
             context.rollback()

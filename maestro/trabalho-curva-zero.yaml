@@ -1,0 +1,67 @@
+# Curva-zero do Trabalho: intenção → versão preparada, contada em toques.
+# A auditoria V9 mediu 6 toques e 2 digitações; a revisão da volta 18 remediu e
+# achou 6 de novo, porque o campo do pedido ainda pedia um toque só para revelar
+# o passo seguinte. Este fluxo é a medição, com os toques numerados: quem
+# acrescentar um toque aqui quebra o número que está na ADR 2026-09-06b.
+# Capturas de prova: xcrun simctl io <UDID> screenshot (a do maestro é do build velho).
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- openLink: traco://notas
+# aparelho novo pergunta "Abrir com Traço?"; não é passo da jornada
+- runFlow:
+    when:
+      visible: "Abrir"
+    commands:
+      - tapOn: "Abrir"
+      - waitForAnimationToEnd: {timeout: 1500}
+# TOQUE 1 (o toque em "Notas" que a auditoria conta vem antes deste, na barra)
+- extendedWaitUntil:
+    visible: {id: "abrir-trabalhos"}
+    timeout: 15000
+- tapOn: {id: "abrir-trabalhos"}
+- extendedWaitUntil:
+    visible: {id: "trabalho-nova-intencao"}
+    timeout: 15000
+# TOQUE 2 — o campo da intenção
+- tapOn: {id: "trabalho-nova-intencao"}
+# DIGITAÇÃO 1
+- inputText: "Apresentar a ideia ao cliente"
+- waitForAnimationToEnd: {timeout: 1000}
+# TOQUE 3 — começar
+- tapOn: {id: "trabalho-criar"}
+- extendedWaitUntil:
+    visible: {id: "trabalho-pedido"}
+    timeout: 15000
+- waitForAnimationToEnd: {timeout: 2500}
+# SEM TOQUE AQUI: a folha abre com o cursor no pedido. Se o foco não vier, o
+# inputText abaixo não entra em campo nenhum e o assert derruba a medição.
+# DIGITAÇÃO 2
+- inputText: "Prepare uma apresentação curta"
+- extendedWaitUntil:
+    visible: "Prepare uma apresentação curta"
+    timeout: 10000
+- takeScreenshot: /tmp/traco-verify/curva-zero-pedido
+# O teclado cobre a ação primária — nesta volta e na anterior, e a rolagem que
+# o recolhe é a mesma das duas. Arrastar não é toque; a contagem é de toques em
+# controle, como a da auditoria.
+- swipe:
+    start: 50%, 30%
+    end: 50%, 85%
+    duration: 900
+- waitForAnimationToEnd: {timeout: 1500}
+- scrollUntilVisible:
+    element: {id: "trabalho-gerar"}
+    direction: DOWN
+    centerElement: true
+    timeout: 10000
+# TOQUE 4 — preparar
+- tapOn: {id: "trabalho-gerar"}
+# o fim da jornada é a VERSÃO, não o botão: a ação correu, não foi bloqueada
+# nem virou fantasma. O modelo do aparelho leva de segundos a ~90 s.
+- extendedWaitUntil:
+    visible: {id: "trabalho-artefato"}
+    timeout: 180000
+- takeScreenshot: /tmp/traco-verify/curva-zero-versao
+# TOTAL: 4 toques aqui + 1 toque em "Notas" = 5 toques e 2 digitações.

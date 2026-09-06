@@ -1,0 +1,86 @@
+# A lei do bloqueio da folha do Trabalho (ADR 2026-09-06b): nenhuma ação some.
+# Campo vazio não apaga a ação primária — ela continua cápsula, diz o motivo e
+# o toque leva o foco ao campo que falta. E o trilho do apoio diz ao VoiceOver
+# qual está escolhido (`selected`), que o Picker da V9 dizia de graça e o
+# trilho da volta 18 tinha perdido.
+# Capturas de prova: xcrun simctl io <UDID> screenshot.
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- openLink: traco://notas
+- runFlow:
+    when:
+      visible: "Abrir"
+    commands:
+      - tapOn: "Abrir"
+      - waitForAnimationToEnd: {timeout: 1500}
+- extendedWaitUntil:
+    visible: {id: "abrir-trabalhos"}
+    timeout: 15000
+- tapOn: {id: "abrir-trabalhos"}
+- extendedWaitUntil:
+    visible: {id: "trabalho-nova-intencao"}
+    timeout: 15000
+- tapOn: {id: "trabalho-nova-intencao"}
+- inputText: "Apresentar a ideia ao cliente"
+- waitForAnimationToEnd: {timeout: 1000}
+- tapOn: {id: "trabalho-criar"}
+- extendedWaitUntil:
+    visible: {id: "trabalho-pedido"}
+    timeout: 15000
+- waitForAnimationToEnd: {timeout: 2000}
+# a folha abre com o teclado no pedido; recolher para trabalhar no trilho
+- swipe:
+    start: 50%, 30%
+    end: 50%, 85%
+    duration: 900
+- waitForAnimationToEnd: {timeout: 1500}
+# --- o trilho diz qual está escolhido, e não só por cor ---
+- scrollUntilVisible:
+    element: {id: "trabalho-apoio-delegar"}
+    direction: UP
+    centerElement: true
+    timeout: 10000
+- assertVisible:
+    id: "trabalho-apoio-delegar"
+    selected: true
+- assertVisible:
+    id: "trabalho-apoio-praticar"
+    selected: false
+- assertVisible:
+    id: "trabalho-apoio-combinar"
+    selected: false
+- takeScreenshot: /tmp/traco-verify/bloqueio-trilho-delegar
+- tapOn: {id: "trabalho-apoio-combinar"}
+- waitForAnimationToEnd: {timeout: 1500}
+- assertVisible:
+    id: "trabalho-apoio-combinar"
+    selected: true
+- assertVisible:
+    id: "trabalho-apoio-delegar"
+    selected: false
+- tapOn: {id: "trabalho-apoio-delegar"}
+- waitForAnimationToEnd: {timeout: 1500}
+- assertVisible:
+    id: "trabalho-apoio-delegar"
+    selected: true
+# --- a ação primária com o campo vazio: continua na tela e diz por quê ---
+- scrollUntilVisible:
+    element: {id: "trabalho-gerar"}
+    direction: DOWN
+    centerElement: true
+    timeout: 10000
+- assertVisible: {id: "trabalho-gerar"}
+- assertVisible: {id: "trabalho-gerar-travado"}
+- assertVisible: "Escreva acima o que a IA deve preparar."
+- takeScreenshot: /tmp/traco-verify/bloqueio-gerar-com-campo-vazio
+# tocar não apaga nada: leva o foco ao campo que falta — e a prova do foco é
+# que o texto seguinte entra nele sem nenhum toque no campo
+- tapOn: {id: "trabalho-gerar"}
+- waitForAnimationToEnd: {timeout: 2000}
+- inputText: "o foco veio para ca"
+- extendedWaitUntil:
+    visible: "o foco veio para ca"
+    timeout: 10000
+- takeScreenshot: /tmp/traco-verify/bloqueio-foco-no-campo

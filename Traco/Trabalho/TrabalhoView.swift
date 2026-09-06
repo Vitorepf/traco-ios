@@ -20,6 +20,9 @@ import UIKit
 struct TrabalhoView: View {
     let trabalho: Trabalho
     var acaoEmFoco: UUID? = nil
+    /// O trabalho acabou de nascer da intenção que a pessoa escreveu na tela
+    /// anterior: a folha abre com o cursor no pedido (curva-zero, abaixo).
+    var pedidoEmFoco = false
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
     @Environment(\.abrirCalendarioDoTrabalho) private var abrirCalendario
@@ -92,9 +95,17 @@ struct TrabalhoView: View {
             }
             .background(Tema.fundo)
             .task(id: oficina != nil) {
-                if oficina != nil, acesso.permitido, let acaoEmFoco {
+                guard oficina != nil, acesso.permitido else { return }
+                if let acaoEmFoco {
                     await Task.yield()
                     rolagem.scrollTo(acaoEmFoco, anchor: .top)
+                } else if pedidoEmFoco, vazio("pedido") {
+                    // Curva-zero: o toque no campo do pedido só existia para
+                    // revelar o passo seguinte. Quem acabou de escrever a
+                    // intenção e tocar "Começar este trabalho" vem dizer o que
+                    // quer preparado — a folha já abre com o cursor lá, e a
+                    // jornada intenção → versão preparada perde um toque.
+                    campoEmFoco = "pedido"
                 }
             }
             // O texto que o autor não escreveu começa no alto: sem isto o foco
@@ -153,6 +164,7 @@ struct TrabalhoView: View {
                 }
             }
             .cartao(.campo)
+            .id("trabalho-erro")
         }
         intencao(o)
         apoio(o)
@@ -188,7 +200,6 @@ struct TrabalhoView: View {
                     aplicar(o, limpar: ["intencao", "resultado"]) { try $0.reverIntencao(texto, resultado: resultado) }
                     gaveta { editandoIntencao = false }
                 }
-                .disabled(!o.salvo)
                 .accessibilityIdentifier("trabalho-guardar-intencao")
             } else {
                 acaoSecundaria("Rever a intenção") { gaveta { editandoIntencao = true } }
@@ -223,7 +234,11 @@ struct TrabalhoView: View {
             Pilula(nomeDoApoio(a), forma: .filtro, selecionada: o.documento.apoio == a) {
                 aplicar(o) { $0.cancelarPedido(); $0.apoio = a }
             }
-            .disabled(!o.salvo)
+            // O `Picker` da V9 anunciava o valor escolhido de graça; o trilho
+            // dizia a escolha só por cor, e para o VoiceOver as três pílulas
+            // saíam idênticas (`selected:false` nas três). A decisão que muda
+            // o que "Preparar" faz não pode ser invisível a quem ouve a tela.
+            .accessibilityAddTraits(o.documento.apoio == a ? [.isSelected] : [])
             .accessibilityIdentifier("trabalho-apoio-\(a.rawValue)")
         }
         if tamanhoTexto.isAccessibilitySize {
@@ -247,10 +262,11 @@ struct TrabalhoView: View {
                   padrao: o.documento.trechoExercitado ?? "", exemplo: "As frases em espanhol")
                 .accessibilityIdentifier("pratica-trecho")
             acaoSecundaria("Guardar o trecho") {
+                guard !faltaCampo("trecho") else { return }
                 let texto = rascunhos["trecho"] ?? ""
                 aplicar(o, limpar: ["trecho"]) { $0.trechoExercitado = texto }
             }
-            .disabled(!o.salvo || vazio("trecho"))
+            .accessibilityHint(vazio("trecho") ? "Escreva o trecho primeiro" : "")
             if !o.documento.praticaPedida {
                 Text("Sem esse trecho, combinar entrega o trabalho inteiro: nada aqui vira exercício.")
                     .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
@@ -278,20 +294,23 @@ struct TrabalhoView: View {
             if o.documento.pedidoAtivo != nil {
                 ProgressView("A IA está preparando…")
                     .font(Tema.meta)
+                    .id("trabalho-preparando")
                     .accessibilityIdentifier("trabalho-preparando")
                 acaoSecundaria("Cancelar preparação") { o.cancelar() }
             } else {
-                // Só o que a pessoa não resolve daqui desabilita. Pedido vazio
-                // leva o foco ao campo em vez de apagar a ação principal
-                // (curva-zero §3); o botão cinza mudo é o defeito 2 da V9.
+                // Nada desabilita aqui: a ação principal desabilitada perdia a
+                // cápsula inteira e virava legenda a 1,53:1 (revisão da volta
+                // 18). Tocar leva ao que falta — o campo vazio, a edição
+                // pendente, a saída do erro —, e o motivo continua escrito
+                // abaixo (curva-zero §3).
                 let travado = !o.salvo || edicaoPendente(o)
                 Pilula(o.documento.praticaPedida ? "Preparar exercício com IA" : o.documento.versaoAtual == nil ? "Preparar com IA" : "Preparar nova versão com IA",
                        forma: .larga, selecionada: true) {
-                    guard !vazio("pedido") else { campoEmFoco = "pedido"; return }
+                    guard !levouAoObstaculo(o), !faltaCampo("pedido") else { return }
                     o.gerar(rascunhos["pedido"] ?? "")
                 }
-                    .disabled(travado)
                     .accessibilityIdentifier("trabalho-gerar")
+                    .accessibilityHint(travado || vazio("pedido") ? motivoDoTravamento(o) : "")
                 if travado || vazio("pedido") {
                     Text(motivoDoTravamento(o))
                         .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
@@ -311,7 +330,7 @@ struct TrabalhoView: View {
                 if editandoVersao {
                     campo("Sua versão", chave: "versao")
                     acaoSecundaria("Guardar minha versão") { guardarVersao(o) }
-                        .disabled(!o.salvo || vazio("versao"))
+                        .accessibilityHint(vazio("versao") ? "Escreva a versão primeiro" : "")
                 } else {
                     acaoSecundaria("Escrever minha própria versão") { gaveta { editandoVersao = true } }
                 }
@@ -384,10 +403,11 @@ struct TrabalhoView: View {
                   exemplo: "Pode ser contexto, recursos, acesso ou divisão do trabalho")
                 .accessibilityIdentifier("pratica-dificuldade")
             acaoSecundaria("Guardar esta dificuldade") {
+                guard !faltaCampo("dificuldade") else { return }
                 let texto = rascunhos["dificuldade"] ?? ""
                 aplicar(o, limpar: ["dificuldade"]) { try $0.proporHipotese(texto, propostaPor: "Você") }
             }
-            .disabled(!o.salvo || vazio("dificuldade"))
+            .accessibilityHint(vazio("dificuldade") ? "Escreva a dificuldade primeiro" : "")
             .accessibilityIdentifier("pratica-guardar-dificuldade")
             ForEach(o.documento.hipoteses) { h in
                 VStack(alignment: .leading, spacing: 6) {
@@ -404,7 +424,6 @@ struct TrabalhoView: View {
                     acaoSecundaria("Não é essa a dificuldade") { avaliar(h, .contestada, chave: chave, oficina: o) }
                         .accessibilityIdentifier("pratica-contestar-hipotese")
                 }
-                .disabled(!o.salvo)
                 .cartao(.campo)
             }
             if !o.documento.hipoteses.isEmpty {
@@ -465,6 +484,7 @@ struct TrabalhoView: View {
                 .accessibilityIdentifier("pratica-apoio-usado")
             Pilula(guardadas.isEmpty ? "Guardar minha tentativa" : "Guardar esta nova tentativa",
                    forma: .larga, selecionada: true) {
+                guard !levouAoObstaculo(o), !faltaCampo("tentativa", "apoio-usado") else { return }
                 let texto = rascunhos["tentativa"] ?? "", apoio = rascunhos["apoio-usado"] ?? ""
                 guard acesso.permitido, o.verificarAcesso() else { revalidar(); return }
                 if o.guardarTentativa(texto, apoioUtilizado: apoio, artefatoID: artefatoID,
@@ -472,7 +492,7 @@ struct TrabalhoView: View {
                     limpar(["tentativa", "apoio-usado"])
                 }
             }
-            .disabled(!o.salvo || vazio("tentativa") || vazio("apoio-usado"))
+            .accessibilityHint(vazio("tentativa") || vazio("apoio-usado") ? "Escreva a tentativa e o apoio que usou" : "")
             .accessibilityIdentifier("pratica-guardar-tentativa")
             Text("Guardar preserva a sua resposta como sua. Não marca a ação como realizada nem declara capacidade adquirida.")
                 .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
@@ -518,10 +538,9 @@ struct TrabalhoView: View {
                 .accessibilityIdentifier("pratica-conferindo")
         } else {
             acaoSecundaria("Conferir minha tentativa") {
-                guard acesso.permitido, o.verificarAcesso(), o.salvo else { revalidar(); return }
+                guard !levouAoObstaculo(o), acesso.permitido, o.verificarAcesso() else { revalidar(); return }
                 o.conferirTentativa(e.id)
             }
-            .disabled(!o.salvo)
             .accessibilityIdentifier("pratica-conferir-tentativa")
             botaoNovaTentativa
         }
@@ -600,7 +619,7 @@ struct TrabalhoView: View {
                 campo("Editar a versão", chave: "versao", padrao: a.conteudo)
                     .accessibilityIdentifier("trabalho-editar-versao")
                 acaoSecundaria("Guardar como nova versão") { guardarVersao(o) }
-                    .disabled(!o.salvo || vazio("versao"))
+                    .accessibilityHint(vazio("versao") ? "Escreva a versão primeiro" : "")
             } else {
                 acaoSecundaria("Editar esta versão") {
                     definir("versao", a.conteudo)
@@ -674,7 +693,6 @@ struct TrabalhoView: View {
                     }
                     if !daIA(c) {
                         acaoSecundaria("Conferir de novo") { conferir(a, pedido: c.pedidoID, oficina: o) }
-                            .disabled(!o.salvo)
                             .accessibilityIdentifier("trabalho-conferir")
                     }
                     if c.id == ondeIA { botaoDaIA(a, pedido: c.pedidoID, oficina: o) }
@@ -704,16 +722,15 @@ struct TrabalhoView: View {
                 .accessibilityIdentifier("trabalho-revisando")
         } else {
             acaoSecundaria("Conferir com IA") {
-                guard acesso.permitido, o.verificarAcesso(), o.salvo else { revalidar(); return }
+                guard !levouAoObstaculo(o), acesso.permitido, o.verificarAcesso() else { revalidar(); return }
                 o.revisarComIA(a.id, pedidoID: pedido)
             }
-            .disabled(!o.salvo)
             .accessibilityIdentifier("trabalho-conferir-ia")
         }
     }
 
     private func conferir(_ a: DocumentoTrabalho.Artefato, pedido: UUID, oficina o: OficinaTrabalho) {
-        guard acesso.permitido, o.verificarAcesso(), o.salvo else { revalidar(); return }
+        guard !levouAoObstaculo(o), acesso.permitido, o.verificarAcesso() else { revalidar(); return }
         o.conferir(a.id, pedidoID: pedido)
     }
 
@@ -762,11 +779,11 @@ struct TrabalhoView: View {
             campo("O que você vai fazer com este trabalho?", chave: "acao", exemplo: "Ensaiar a apresentação")
                 .accessibilityIdentifier("trabalho-acao")
             Pilula("Preparar este ato", forma: .larga, selecionada: true) {
-                guard !vazio("acao") else { campoEmFoco = "acao"; return }
+                guard !levouAoObstaculo(o), !faltaCampo("acao") else { return }
                 aplicar(o, limpar: ["acao"]) { try $0.prepararAcao(rascunhos["acao"] ?? "") }
             }
-            .disabled(!o.salvo)
             .accessibilityIdentifier("trabalho-preparar-acao")
+            .accessibilityHint(vazio("acao") ? "Escreva o ato primeiro" : "")
             Text(vazio("acao")
                  ? "Escreva acima o ato. Preparar não marca como realizado; você pode escolher um horário para cada ação."
                  : "Preparar não marca como realizado. Você pode escolher um horário para cada ação.")
@@ -793,16 +810,16 @@ struct TrabalhoView: View {
                     if acao.estado != .cancelada {
                         if acao.estado == .pendente {
                             acaoSecundaria("Realizei esta ação") { aplicar(o) { try $0.marcarExecutada(acao.id) } }
-                                .disabled(!o.salvo)
                                 .accessibilityIdentifier("trabalho-marcar-realizada")
                         }
                         let chave = "relato-\(acao.id.uuidString)"
                         campo("O que aconteceu?", chave: chave, exemplo: "O que funcionou ou faltou")
                         acaoSecundaria("Registrar meu relato") {
+                            guard !faltaCampo(chave) else { return }
                             let texto = rascunhos[chave] ?? ""
                             aplicar(o, limpar: [chave]) { try $0.registrarRelato(texto, acaoID: acao.id) }
                         }
-                        .disabled(!o.salvo || vazio(chave))
+                        .accessibilityHint(vazio(chave) ? "Escreva o relato primeiro" : "")
                         .accessibilityIdentifier("trabalho-registrar-relato")
                     }
                 }
@@ -832,10 +849,11 @@ struct TrabalhoView: View {
                 }
                 if !o.documento.praticaPedida || PraticaTrabalho.oferta(contaLigada: ContaGrok.ligada) == nil {
                     acaoSecundaria("Revisar com estes relatos") {
+                        guard !levouAoObstaculo(o), !preparacaoEmCurso(o) else { return }
+                        if let chave = campoEmEdicao(o) { campoEmFoco = chave; rolarPara = chave; return }
                         definir("pedido", "Revise a versão à luz dos relatos registrados e do resultado desejado. Diferencie o que foi observado do que ainda é incerto e proponha um ajuste concreto.")
                         o.gerar(rascunhos["pedido"] ?? "")
                     }
-                    .disabled(!o.salvo || o.documento.pedidoAtivo != nil || edicaoPendente(o))
                     .accessibilityIdentifier("trabalho-revisar")
                 }
             }
@@ -876,8 +894,10 @@ struct TrabalhoView: View {
             if !rascunhos.isEmpty {
                 Text("Os campos em edição voltam ao reabrir este trabalho; só entram no documento quando você os guarda.")
                     .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
-                acaoSecundaria("Descartar rascunhos dos campos") { confirmarDescarte = true }
-                    .disabled(!o.salvo || o.documento.pedidoAtivo != nil)
+                acaoSecundaria("Descartar rascunhos dos campos") {
+                    guard !levouAoObstaculo(o), !preparacaoEmCurso(o) else { return }
+                    confirmarDescarte = true
+                }
             }
             if let recuperacao {
                 Text("Uma cópia das alterações anteriores foi preservada neste aparelho, separada da versão atual.")
@@ -943,10 +963,49 @@ struct TrabalhoView: View {
         (rascunhos[chave] ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
-    private func edicaoPendente(_ o: OficinaTrabalho) -> Bool {
-        (rascunhos["intencao"].map { $0 != o.documento.intencaoAtual.texto } ?? false)
-        || (rascunhos["resultado"].map { $0 != o.documento.intencaoAtual.resultado } ?? false)
-        || !vazio("versao")
+    private func edicaoPendente(_ o: OficinaTrabalho) -> Bool { campoEmEdicao(o) != nil }
+
+    /// Qual campo está em edição não guardada — o destino do toque bloqueado.
+    private func campoEmEdicao(_ o: OficinaTrabalho) -> String? {
+        if rascunhos["intencao"].map({ $0 != o.documento.intencaoAtual.texto }) == true { return "intencao" }
+        if rascunhos["resultado"].map({ $0 != o.documento.intencaoAtual.resultado }) == true { return "resultado" }
+        if !vazio("versao") { return "versao" }
+        return nil
+    }
+
+    // MARK: - Bloqueio: nenhuma ação desta folha some
+
+    /// A lei do bloqueio desta folha: **nada desaparece**. `.disabled()` sobre
+    /// `Pilula` devolve fundo `.clear` com `tintaMorta` — 1,53:1 sobre o papel,
+    /// sem cápsula e sem forma de botão —, e foi assim que a ação PRIMÁRIA da
+    /// tela virou legenda cinza (revisão da volta 18). No lugar disso a ação
+    /// continua inteira, com o alvo de 44 e o contraste que tinha, e **tocar
+    /// leva ao que falta**: o campo vazio recebe o foco, a edição pendente
+    /// recebe o foco, o salvamento falho leva à saída no alto da folha, a
+    /// preparação em curso leva ao próprio progresso. O motivo continua
+    /// escrito ao lado — era o que a ADR pedia ao desabilitado — e agora
+    /// também no `accessibilityHint`, para quem ouve a tela.
+    ///
+    /// - Returns: `true` quando levou a pessoa ao obstáculo; a ação não corre.
+    private func levouAoObstaculo(_ o: OficinaTrabalho) -> Bool {
+        guard !o.salvo else { return false }
+        rolarPara = "trabalho-erro"
+        return true
+    }
+
+    /// Campo vazio não apaga a ação: leva o foco ao primeiro campo que falta.
+    private func faltaCampo(_ chaves: String...) -> Bool {
+        guard let falta = chaves.first(where: vazio) else { return false }
+        campoEmFoco = falta
+        rolarPara = falta
+        return true
+    }
+
+    /// Enquanto a IA prepara, o que competiria com ela leva ao progresso dela.
+    private func preparacaoEmCurso(_ o: OficinaTrabalho) -> Bool {
+        guard o.documento.pedidoAtivo != nil else { return false }
+        rolarPara = "trabalho-preparando"
+        return true
     }
 
     private func numero(_ id: UUID, em d: DocumentoTrabalho) -> Int {
@@ -969,12 +1028,13 @@ struct TrabalhoView: View {
     private func aplicar(_ o: OficinaTrabalho, limpar chaves: [String] = [],
                          _ mudanca: (inout DocumentoTrabalho) throws -> Void) {
         guard acesso.permitido, o.verificarAcesso() else { revalidar(); return }
-        guard o.salvo else { return }
+        guard !levouAoObstaculo(o) else { return }
         if o.alterar(mudanca) { limpar(chaves) }
         else if !o.salvo { limparAposCommit = chaves }
     }
 
     private func guardarVersao(_ o: OficinaTrabalho) {
+        guard !faltaCampo("versao") else { return }
         let texto = rascunhos["versao"] ?? ""
         aplicar(o, limpar: ["versao"]) { try $0.guardarVersaoHumana(texto) }
         if o.salvo { editandoVersao = false }

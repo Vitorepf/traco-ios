@@ -18,6 +18,13 @@ extension EnvironmentValues {
 /// *negado* e *ainda não perguntado* — e só o primeiro calava a promessa.
 /// Aqui os três estados de `Avisos.Estado` (mais o "ainda lendo") são
 /// distintos, e nenhum deles afirma que o iPhone vai tocar sem saber que vai.
+///
+/// A revisão da volta 18 achou a OUTRA metade da mesma mentira, e ela é a do
+/// relógio: com o ato às 15:07 e o aviso "30 min antes", a folha prometia
+/// "Toca hoje às 14:37" às 15:08 — hora já passada. Quem sabia a verdade era
+/// só o motor, DEPOIS do commit (`ResultadoDoAviso.passou`). `jaPassou` traz
+/// essa verdade para antes de guardar. É o mesmo defeito 2 da ficha do
+/// calendário (revisão da V9): o tipo fica pronto para as duas telas.
 enum PromessaDoAviso: Equatable {
     /// Não pediu aviso: o ato só aparece no calendário do Traço.
     case semAviso
@@ -28,13 +35,28 @@ enum PromessaDoAviso: Equatable {
     case seDeixarem(String)
     /// Os avisos do Traço estão desligados: não é promessa, é beco com saída.
     case desligados
+    /// A hora do alarme já passou: permissão nenhuma faz o iPhone tocar atrás.
+    /// Sem valor associado — a frase não usa a hora; quem decide é o `agora:`
+    /// de `para(...)`.
+    case jaPassou
 
-    static func para(minutos: Int?, estado: Avisos.Estado?, hora: String) -> PromessaDoAviso {
+    /// - Parameters:
+    ///   - hora: a promessa já escrita ("hoje às 14:37 · 30 min antes").
+    ///   - instante: quando o alarme tocaria (`Aviso.instante`); `nil` quando
+    ///     não há alarme a situar no tempo.
+    ///   - agora: o relógio de quem lê a frase.
+    static func para(minutos: Int?, estado: Avisos.Estado?, hora: String,
+                     instante: Date? = nil, agora: Date = .now) -> PromessaDoAviso {
         guard minutos != nil else { return .semAviso }
+        // A ordem é a do motor (`Avisos.agendar`): sem permissão não há alarme
+        // e a saída é os Ajustes; depois o relógio, que cala qualquer promessa
+        // — nenhuma permissão faz o iPhone tocar para trás.
         switch estado {
-        case .negado: return .desligados
-        case .concedido: return .toca(hora)
-        case .naoPerguntado, nil: return .seDeixarem(hora)
+        case .negado:
+            return .desligados
+        case .concedido, .naoPerguntado, nil:
+            if let instante, instante <= agora { return .jaPassou }
+            return estado == .concedido ? .toca(hora) : .seDeixarem(hora)
         }
     }
 
@@ -44,6 +66,7 @@ enum PromessaDoAviso: Equatable {
         case .toca(let quando): "Toca \(quando)."
         case .seDeixarem(let quando): "Toca \(quando), se você permitir os avisos quando o iPhone perguntar."
         case .desligados: "O iPhone está com os avisos do Traço desligados — nada vai tocar."
+        case .jaPassou: "A hora do aviso já passou — esta ação ficou sem alarme."
         }
     }
 }
@@ -82,7 +105,7 @@ struct AgendamentoAcaoView: View {
                 if acao.estado == .pendente { quando }
                 if acao.agendadaEm != nil {
                     Pilula("Retirar o horário", forma: .filtro) { guardar(nil, nil) }
-                        .disabled(!podeGuardar)
+                        .accessibilityHint(podeGuardar ? "" : "Guarde as alterações do trabalho primeiro")
                         .accessibilityIdentifier("trabalho-retirar-horario")
                 }
                 if podeGuardar, acao.estado == .pendente, let atual = acao.agendadaEm {
@@ -98,7 +121,7 @@ struct AgendamentoAcaoView: View {
         .font(Tema.chrome)
         .tint(Tema.tintaSuave)
         .onAppear {
-            data = acao.agendadaEm ?? .now
+            data = acao.agendadaEm ?? proximoHorario()
             // ação antiga com horário e sem a chave fica "não avisa", como foi
             // prometido a ela; ação nova nasce "na hora"
             avisoMinutos = acao.agendadaEm == nil ? 0 : acao.avisoMinutos
@@ -132,7 +155,7 @@ struct AgendamentoAcaoView: View {
             .cartao(.campo, recuo: .horizontal)
             Pilula(acao.agendadaEm == nil ? "Marcar no calendário" : "Guardar novo horário",
                    forma: .larga, selecionada: true) { guardar(data, avisoMinutos) }
-                .disabled(!podeGuardar)
+                .accessibilityHint(podeGuardar ? "" : "Guarde as alterações do trabalho primeiro")
                 .accessibilityIdentifier("trabalho-agendar")
             Text("Marcar um horário não confirma a realização.")
                 .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
@@ -179,18 +202,46 @@ struct AgendamentoAcaoView: View {
 
     /// A promessa em unidade do mundo do autor, antes de guardar.
     @ViewBuilder private var promessa: some View {
-        let p = PromessaDoAviso.para(minutos: avisoMinutos, estado: permissao, hora: horaDaPromessa)
-        if p == .desligados {
-            desligados(p.texto, "trabalho-aviso-promessa")
-        } else {
-            linha(p.texto, "trabalho-aviso-promessa")
+        let p = PromessaDoAviso.para(minutos: avisoMinutos, estado: permissao,
+                                     hora: horaDaPromessa, instante: instanteDoAviso)
+        switch p {
+        case .desligados: desligados(p.texto, "trabalho-aviso-promessa")
+        // hora já passada é o mesmo âmbar do `.passou` do motor: não é
+        // promessa, é o que NÃO vai acontecer
+        case .jaPassou: linha(p.texto, "trabalho-aviso-promessa", Tema.aviso)
+        default: linha(p.texto, "trabalho-aviso-promessa")
         }
     }
 
+    /// O horário que a folha propõe para um ato sem horário. `.now` cru nasce
+    /// atrás do relógio: o alarme "na hora" dele já passou no instante em que
+    /// o dedo chega no botão, e a folha abria prometendo o que o motor ia
+    /// recusar. A proposta é meia hora à frente, arredondada nos 5 minutos —
+    /// um horário que dá para cumprir, e legível no seletor. Quem quer outro
+    /// mexe no seletor, que é o passo seguinte de qualquer jeito.
+    private func proximoHorario(_ agora: Date = .now) -> Date {
+        let passo = 5.0 * 60
+        let t = agora.addingTimeInterval(30 * 60).timeIntervalSinceReferenceDate
+        return Date(timeIntervalSinceReferenceDate: (t / passo).rounded(.up) * passo)
+    }
+
+    /// O evento que o "Guardar" desta folha vai agendar. Uma fonte só para a
+    /// frase e para o instante: eram duas contas do mesmo alarme.
+    private var eventoDaPromessa: EventoCalendario? {
+        guard let m = avisoMinutos else { return nil }
+        return EventoCalendario(titulo: acao.texto, inicio: data, fim: data, avisoMinutos: m)
+    }
+
+    /// Quando o alarme tocaria. É o que o motor compara com o relógio depois do
+    /// commit (`ResultadoDoAviso.passou`); a promessa passou a comparar antes.
+    private var instanteDoAviso: Date? {
+        guard let evento = eventoDaPromessa else { return nil }
+        return Aviso.instante(de: evento, cal, manha: Ancora.hora(.manha))
+    }
+
     private var horaDaPromessa: String {
-        guard let m = avisoMinutos else { return "" }
-        let evento = EventoCalendario(titulo: acao.texto, inicio: data, fim: data, avisoMinutos: m)
-        guard let quando = Aviso.promessa(de: evento, cal, manha: Ancora.hora(.manha)) else { return "" }
+        guard let m = avisoMinutos, let evento = eventoDaPromessa,
+              let quando = Aviso.promessa(de: evento, cal, manha: Ancora.hora(.manha)) else { return "" }
         return "\(quando) · \(Aviso.nome(m).lowercased())"
     }
 

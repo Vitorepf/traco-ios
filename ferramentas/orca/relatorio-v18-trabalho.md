@@ -41,8 +41,8 @@ desabilitado com motivo; `PromessaDoAviso`. Detalhe por defeito abaixo.
 trilho de apoio (`.escala`, `Mola.escala` → sob Reduzir Movimento o estado vira
 sem quadro) e a gaveta de "Rever a intenção" / "Escrever minha própria versão"
 (`Tema.gaveta`). Vídeo com e sem Reduzir Movimento: `v18-movimento-normal.mp4`
-(97 quadros distintos em 14,7 s) e `v18-movimento-reduzido.mp4` (28 quadros em
-12,2 s) — a diferença de quadros É a assinatura da lei funcionando.
+(97 quadros distintos em 16,5 s) e `v18-movimento-reduzido.mp4` (28 quadros em
+14,3 s — `ffprobe`; a primeira redação escreveu 14,7 e 12,2, corrigido na 18-B) — a diferença de quadros É a assinatura da lei funcionando.
 
 **6. Julgar e Portão.** Julguei contra as capturas e corrigi três coisas na
 própria volta: (a) rótulo de campo em caixa alta empilhado com o rótulo de
@@ -63,10 +63,16 @@ declarados no fim deste arquivo.
 - **Resultado verificável.** Versão 1 guardada no documento com produtor
   declarado (`v18-versao.png`), ato com horário e o estado do aviso vindo do
   motor (`v18-agendado.png`).
-- **Atrito observado (antes → depois).** Intenção → versão preparada: **6
-  toques e 2 digitações → 5 toques e 2 digitações** (o toque que sobrava era
-  abrir o disclosure para chegar ao apoio; hoje o apoio está no caminho e o
-  padrão já vem marcado, custando 0 toques a quem não quer decidir). Telas de
+- **Atrito observado (antes → depois).** Intenção → versão preparada:
+  **6 toques e 2 digitações → 6 toques e 2 digitações na volta 18** — a
+  medição desta redação estava errada, e a revisão a derrubou remedindo comando
+  a comando: o toque que a volta dizia ter economizado (abrir o disclosure para
+  chegar ao apoio) nunca esteve na conta da auditoria, que já media o caminho
+  de quem não decide o apoio. A jornada só caiu na **volta 18-B**, para
+  **5 toques e 2 digitações**, tirando o toque no campo do pedido
+  (`ferramentas/orca/relatorio-v18b-correcao-g3.md`). O que a volta 18 ganhou
+  sem mexer na contagem: o apoio está no caminho e o padrão já vem marcado,
+  custando 0 toques a quem não quer decidir. Telas de
   rolagem do documento com versão e ato: **5 → 3**. `DisclosureGroup`:
   **8 → 5**, e nenhum aninhado. A decisão de apoio: **escondida → visível**.
   O caminho principal cabe numa tela só (`v18-trabalho-novo.png`), onde antes
@@ -85,7 +91,7 @@ declarados no fim deste arquivo.
 |---|---|---|---|
 | D1 Design 5 | formulário do sistema, chips e chevrons, "Preparar com IA" cinza antes e cápsula marrom escura depois | `CabecalhoDeFolha`, rótulo de seção, campo em névoa, cartão de papel; a MESMA cápsula carvão antes e depois da primeira versão | `v18-trabalho-novo.png` × `v18-versao.png` |
 | D2 Simplicidade 5 | 5 telas, 8 disclosures, botão desabilitado que não parecia | 3 telas, 5 disclosures; campo vazio foca o campo, bloqueio real desabilita COM motivo | `v18-preparando.png`, `v18-foco-em-vez-de-fantasma.png` |
-| D3 curva-zero | 6 toques; apoio escondido; "Dificuldade" antes de "Preparar" | 5 toques; trilho de apoio no caminho; dificuldade no fim | `v18-trabalho-novo.png` |
+| D3 curva-zero | 6 toques; apoio escondido; "Dificuldade" antes de "Preparar" | 6 toques na volta 18 (o número NÃO caiu; ver acima) e 5 na 18-B; trilho de apoio no caminho; dificuldade no fim | `v18-trabalho-novo.png`, `maestro/trabalho-curva-zero.yaml` |
 | D4 Componentes 4 | `AcaoTrabalhoStyle` próprio, "Voltar" em cápsula de 30 pt só aqui, cabeçalho centrado só aqui | estilo apagado; `CabecalhoDeFolha`, `Pilula`, `Cartao`, `Rotulo`, `LinhaQueAbre` | diff |
 | D5 Acessibilidade 7 | alvo por reserva, sem `contentShape` | alvo dos componentes (`View.alvo()`); AX5 sem clipe, trilho empilhado | `v18-ax5-trabalho.png`, `v18-ax5-preparar.png` × `v18-antes-ax5-trabalho.png` |
 | D6 Estado honesto 8 | promessa de alarme com avisos desligados | `PromessaDoAviso` sobre `Avisos.Estado`: concedido / não perguntado / negado / leitura pendente | `v18-agendar.png`, `v18-agendado.png`, 5 testes |
@@ -94,8 +100,9 @@ declarados no fim deste arquivo.
 
 - Build sem aviso: `xcodebuild build` limpo, 0 linhas `warning:`.
 - Suíte integral: `✔ Test run with 720 tests in 126 suites passed after 7.188 seconds.` → `** TEST SUCCEEDED **`
-- `git diff --shortstat` do código: **4 arquivos, +592/−364** (com evidência e
-  documentos, 36 arquivos, +736/−372). Código sem comentário: 1119 → 1247.
+- `git diff --shortstat` do código: **3 arquivos de view, +599/−371** (o
+  "+592/−364" desta redação era contagem errada, apontada pela revisão).
+  Código sem comentário: 1119 → 1247.
   **A volta NÃO é líquido-negativa**, e o motivo está na ADR: as correções
   acrescentam controle (trilho), estado (tri-estado da promessa) e texto de
   recuperação (motivo do desabilitado). Apagados: `AcaoTrabalhoStyle`, dois
