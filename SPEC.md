@@ -2818,7 +2818,7 @@ salvo primeiro, transcrito depois, falha preserva o áudio — por `.captura`.
 
 ---
 
-## ADR 2026-09-05x — Os widgets da casa prestam (volta F4)
+## ADR 2026-09-06d — Os widgets da casa prestam (volta F4)
 
 **Contexto.** Às 13:04 de 06/09 o dono mandou um print do iPhone dele com um
 veredito de quatro palavras. Os dois widgets diziam "atualizado às 04:14" —
@@ -2841,14 +2841,20 @@ uma lista de dois links com um filete no meio, o médio inteiro servia para
    coisa por fazer e o esquece quando ela foi feita.
 2. **O widget não fala de si.** `RodapeAtualizado` ("atualizado às HH:MM", um
    terço do widget pequeno) morre. O estado honesto da 05u fica, dito só
-   quando é VERDADE, e no cabeçalho: `PRÓXIMO · DESATUALIZADO` /
-   `TRAÇO · SEM DADOS`, em `Tema.aviso`, sem gastar linha quando o dado está
-   fresco.
+   quando é VERDADE — e **na linha do conteúdo, não no cabeçalho**. A F4
+   pôs um selo de estado ao lado da marca e em 155 pt ele saía
+   `TRAÇO · desatua…`, com `PRÓXIMO` hifenizado no meio da palavra (G3, A1).
+   A causa não era a fonte, era o lugar: o estado é sobre o CONTEÚDO, e o
+   cabeçalho não é do conteúdo. Agora `Selo` carrega só a marca, e o corpo
+   diz a frase inteira com a recuperação junto — `Desatualizado.` /
+   `Não consegui ler o Traço.`, mais `Abrir o Traço`.
 3. **Vazio é oferta, não vácuo** (`curva-zero`). Sem a única coisa de hoje, o
    widget do Traço traz o que vem — do MESMO instantâneo, sem dado novo. Sem
    compromisso, o widget do Próximo traz a única coisa de hoje, com o círculo
    que a marca. Sem nada, uma linha de estado e UMA ação ("Nova nota",
-   "Marcar um compromisso"); nunca a mesma ação duas vezes na mesma face.
+   "Marcar compromisso"); nunca a mesma ação duas vezes na mesma face. A
+   oferta cabe INTEIRA: quebra a linha, nunca a palavra, e em tamanho de
+   acessibilidade o glifo cede a coluna às palavras (G3, A3).
 4. **Identidade.** O PONTO ÂMBAR que a tela bloqueada carrega desde a 05u
    entra na casa: `Selo` (ponto + rótulo). Os atalhos deixam de ser duas
    linhas de largura inteira com filete e viram glifo + palavra em `Tema.miudo`
@@ -2861,19 +2867,40 @@ uma lista de dois links com um filete no meio, o médio inteiro servia para
    em faixas de largura inteira, não em duas colunas — a coluna estreita
    cortava "Dentista" em "De…" (medido no simulador, 06/09).
 
-**Custo assumido.** O pequeno tem um destino só (`widgetURL` para
-`traco://nova`): "Recordar" continua no médio e no app, não no pequeno — o
-sistema não honra `Link` no `systemSmall`. Em tamanho de acessibilidade o
-médio abre mão dos atalhos e da agenda: a única coisa de hoje vem primeiro.
-`Relogio.swift` compila também no alvo de testes (`project.yml`), porque a lei
-que faltou à 05u tinha de caber numa suíte.
+6. **O sino é promessa, não enfeite** (G3, A2). Nenhum ponto da publicação
+   consultava a autorização: `mudo:` calava UM evento e a revogação global
+   não calava nada — avisos negados às 15:20 e seis sinos desenhados às
+   15:21. `Avisos.estado()` passa a gravar a resposta do iOS num espelho no
+   App Group (`avisosPermitidos`), lido SEM `await` por
+   `ProximoCompromisso.proximasFatias`; a volta à cena relê e republica,
+   porque a permissão muda nos Ajustes. E `Sessao.encadear` sem agenda em
+   cena — o ramo que a F4 criou — publicava com sino e dizia "com aviso" sem
+   NUNCA agendar: agora publica mudo, pede o alarme de verdade e a frase que
+   fica na tela é a que o sistema respondeu.
+7. **Um toque faz o que a face mostra** (G3, A6). O pequeno do Traço abria
+   página em branco mesmo exibindo "16:40 Dentista"; o destino e o rodapé
+   passam a sair da mesma decisão — compromisso na face leva ao Calendário.
 
-**Volta:** multiplicar. **A IA:** nada. **Prova:** 11 testes em
-`LinhaDoTempoWidgetTests` (a política sempre devolve volta, com teto, piso e
+**Custo assumido.** O pequeno tem um destino só (`widgetURL`): "Recordar"
+continua no médio e no app, não no pequeno — o sistema não honra `Link` no
+`systemSmall`. Em tamanho de acessibilidade o médio abre mão dos atalhos e da
+agenda: a única coisa de hoje vem primeiro — mas **"+N depois" não some mais**
+(G3, A8), porque esconder informação para limpar a tela é o que o AGENTS.md
+proíbe. `Relogio.swift` compila também no alvo de testes (`project.yml`),
+porque a lei que faltou à 05u tinha de caber numa suíte. O espelho da
+permissão é o mínimo honesto dentro desta volta: a unificação com
+`PromessaDoAviso` (volta 18, ainda não mesclada) é a volta seguinte.
+
+**Volta:** multiplicar. **A IA:** nada. **Prova:** 13 testes (11 em
+`LinhaDoTempoWidgetTests` — a política sempre devolve volta, com teto, piso e
 orçamento; véspera/início/fim/meia-noite/soneca na linha; nada no passado,
-nada repetido, linha curta); suíte 726/126 e dois alvos sem aviso; capturas
-antes/depois por estado (`ferramentas/orca/f4-*.png`), prova do refresh com
-compromisso criado no app aparecendo no widget, e o `chronod` registrando a
-releitura agendada para +3 h (`f4-chronod-releitura.txt`) onde antes não havia
-nenhuma. **Fora:** StandBy e accessory na tela bloqueada trancada seguem sem
-render no simulador (F1 §7) — prova no aparelho do dono.
+nada repetido, linha curta — e 2 em `SinoHonestoTests`: sem permissão no
+último olhar a superfície sai sem sino nenhum, e com permissão o sino volta);
+suíte **728/127** e dois alvos sem aviso; capturas por estado nos dois temas
+de verdade (`ferramentas/orca/f4b-*.png`, brilho médio 187,5 claro × 140,1
+escuro), as QUATRO famílias plantadas na casa, o horizonte virando sozinho
+para `Desatualizado.` inteiro, a oferta inteira em AX5, os sinos com e sem
+permissão, e `sem dados` na tela. O `chronod` registrando a releitura
+agendada para +3 h (`f4-rev-releitura.txt`) segue valendo. **Fora:** StandBy
+e accessory na tela bloqueada trancada seguem sem render no simulador
+(F1 §7) — prova no aparelho do dono.

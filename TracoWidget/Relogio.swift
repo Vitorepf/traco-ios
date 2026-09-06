@@ -1,6 +1,6 @@
 import Foundation
 
-/// ADR 05x (F4) — a linha do tempo que NÃO congela.
+/// ADR 06d (F4) — a linha do tempo que NÃO congela.
 ///
 /// A F2 fechou as duas linhas com `policy: .never` (`.atEnd` só quando havia
 /// mais de uma entrada). O efeito no iPhone do dono, 06/09 às 13:04: os dois

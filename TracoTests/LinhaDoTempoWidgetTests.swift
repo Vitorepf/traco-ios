@@ -2,7 +2,7 @@ import Foundation
 import Testing
 @testable import Traco
 
-/// ADR 2026-09-05x — a linha do tempo dos widgets da casa.
+/// ADR 2026-09-06d — a linha do tempo dos widgets da casa.
 ///
 /// O defeito que abriu a volta F4 não estava em nenhuma suíte: `policy:
 /// .never` nas duas linhas do tempo. Sem o app abrir, o WidgetKit nunca mais
@@ -129,5 +129,62 @@ struct LinhaDoTempoWidgetTests {
         let soneca = agora.addingTimeInterval(600)
         let p = proximo("Dentista", daqui: 45, lembrar: soneca)
         #expect(datas(superficie([p])).contains(soneca))
+    }
+}
+
+/// ADR 2026-09-06d, revisão G3 — A2: o sino é uma promessa, não um enfeite.
+///
+/// O revisor negou os avisos às 15:20 e às 15:21 os quatro widgets da casa
+/// mostravam `🔔 16:00` e `🔔 17:15`. Nenhum ponto do caminho de publicação
+/// perguntava pela autorização: `mudo:` silenciava UM evento (o que acabara de
+/// ser gravado) e a revogação global não silenciava nada. Aqui a lei fica
+/// escrita: sem permissão no último olhar, a superfície sai sem sino nenhum.
+@Suite("O sino só sai quando há alarme (F4-B)")
+struct SinoHonestoTests {
+    private var cal: Calendar { Calendario.gregoriano(fuso: TimeZone(identifier: "America/Sao_Paulo")!) }
+
+    private func comEspelho(_ permitido: Bool, _ corpo: () -> Void) {
+        let antes = SuperficieDisco.defaults.bool(forKey: Avisos.chaveEspelho)
+        SuperficieDisco.defaults.set(permitido, forKey: Avisos.chaveEspelho)
+        corpo()
+        SuperficieDisco.defaults.set(antes, forKey: Avisos.chaveEspelho)
+    }
+
+    @Test("avisos negados no iPhone: nenhum sino na superfície")
+    func negadoNaoPromete() {
+        let agora = cal.date(from: DateComponents(year: 2026, month: 9, day: 6, hour: 15, minute: 21))!
+        let dentista = EventoCalendario(titulo: "Dentista", inicio: agora.addingTimeInterval(2340),
+                                        fim: agora.addingTimeInterval(5940))
+        let revisao = EventoCalendario(titulo: "Revisão com o time", inicio: agora.addingTimeInterval(6540),
+                                       fim: agora.addingTimeInterval(10140))
+
+        comEspelho(false) {
+            let fatias = ProximoCompromisso.proximasFatias([dentista, revisao], cal: cal, manha: 8, agora: agora)
+            #expect(fatias.count == 2)
+            #expect(fatias.allSatisfy { $0.aviso == nil })
+        }
+
+        // e com permissão o sino volta — a correção não apagou a promessa,
+        // só passou a exigir que ela seja verdade
+        comEspelho(true) {
+            let fatias = ProximoCompromisso.proximasFatias([dentista, revisao], cal: cal, manha: 8, agora: agora)
+            #expect(fatias.allSatisfy { $0.aviso != nil })
+        }
+    }
+
+    @Test("permissão negada vence o caminho de publicação inteiro")
+    func negadoAtravessaAPublicacao() {
+        let agora = cal.date(from: DateComponents(year: 2026, month: 9, day: 6, hour: 15, minute: 21))!
+        let e = EventoCalendario(titulo: "Dentista", inicio: agora.addingTimeInterval(2340),
+                                 fim: agora.addingTimeInterval(5940))
+        comEspelho(false) {
+            ProximoCompromisso.publicar([e], cal: cal, manha: 8, agora: agora)
+            #expect(ProximoCompromisso.lido(agora: agora)?.aviso == nil)
+        }
+        comEspelho(true) {
+            ProximoCompromisso.publicar([e], cal: cal, manha: 8, agora: agora)
+            #expect(ProximoCompromisso.lido(agora: agora)?.aviso != nil)
+        }
+        ProximoCompromisso.gravar(nil)
     }
 }

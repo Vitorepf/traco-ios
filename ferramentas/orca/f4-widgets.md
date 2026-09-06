@@ -1,4 +1,4 @@
-# F4 — Os widgets da tela de início prestam (ADR 2026-09-05x)
+# F4 — Os widgets da tela de início prestam (ADR 2026-09-06d)
 
 Worker: Claude Opus 5 (trilha Fora do app), 06/09/2026, worktree `f4-widgets`
 sobre main `d1248ce`. Simulador desta volta: **iPhone 17 Pro (teste 3)**
@@ -116,7 +116,7 @@ antes e depois; prova do refresh; limites do instrumento declarados abaixo.
 | estado | antes | depois |
 |---|---|---|
 | casa com dado, claro | `f4-antes-inicio-claro.png` — relógio 13:30, "atualizado às 13:23" nos três; Destaque truncado no pequeno; médio do Próximo com quatro linhas curtas | `f4-depois-inicio-claro.png` — Destaque inteiro; médio do Traço com a linha + dois compromissos; médio do Próximo com **três** (hora, assunto, hora do alarme); hora do iminente em âmbar; nenhum rodapé |
-| casa com dado, escuro | `f4-antes-inicio-escuro.png` | `f4-depois-inicio-escuro.png` (papel, como o app — D11 declarado, não esquecido) |
+| casa com dado, escuro | **as três capturas `-escuro` da F4 NÃO estavam em modo escuro** (G3, A4: brilho médio idêntico ao do claro na primeira decimal). Refeitas na F4-B: `f4b-casa-escuro.png`, brilho médio **140,1** contra **187,5** de `f4b-casa-claro.png` | `f4b-casa-escuro.png` — papel branco sobre casa escura, D11 provado |
 | casa vazia | `f4-antes-inicio-vazio.png` — "nada marcado" + "atualizado às 13:31"; pequeno = dois links e um filete | `f4-depois-inicio-vazio.png` — "Nada em destaque hoje." + uma ação; "Nada marcado." + "Marcar um compromisso" |
 | só Destaque (agenda vazia) | n/a (não existia esse desenho) | `f4-depois-inicio-so-destaque.png` — o widget do Próximo traz a única coisa de hoje, com o círculo |
 | só compromissos (sem Destaque) | n/a | `f4-depois-inicio-so-proximos.png` — o widget do Traço traz o que vem, em bloco |
@@ -153,12 +153,12 @@ antes e depois; prova do refresh; limites do instrumento declarados abaixo.
 - O relógio do meu simulador anda ~44 min atrás do relógio do Mac; por isso as
   horas dos compromissos (semeados pelo relógio do Mac) e o relógio da barra
   não batem entre si nas capturas. Não afeta nenhuma das provas.
-- Não consegui pôr o **pequeno do Próximo** na casa: a galeria de widgets do
-  iOS 26 mostra a página do app com as quatro famílias do primeiro widget e a
-  busca só casa nome de APP, não de widget. O pequeno do Próximo está provado
-  pelo `#Preview` e pelo desenho compartilhado com o pequeno do Traço sem
-  Destaque (`f4-depois-inicio-so-proximos.png`, widget do meio), não por
-  captura própria. Fica declarado.
+- **RETIRADO (F4-B).** Eu havia escrito que não consegui pôr o pequeno do
+  Próximo na casa por limite da galeria do iOS 26. Era falso: a página do app
+  é um carrossel de quatro, e o pequeno do Próximo é a terceira. O revisor
+  plantou-o em três minutos; eu plantei os quatro de novo na F4-B. Um limite
+  que não existe é desculpa, não fato — e sai do relato.
+  Prova: `f4b-casa-claro.png`, `f4b-casa-escuro.png`.
 
 ## Dívida nomeada
 
@@ -168,6 +168,5 @@ antes e depois; prova do refresh; limites do instrumento declarados abaixo.
 - O médio do Traço com um compromisso só ainda usa `LinhaProximo` e sobra
   espaço; com dois ou três ele fica cheio. Nada quebrado, só menos denso do
   que poderia.
-- O `Selo` diz "TRAÇO · SEM DADOS" em `Tema.aviso`, e `aviso` (#B5432F) nunca
-  tinha sido usado fora do app. Se a F5 achar que o vermelho é forte demais
-  para a casa, o token a trocar é um só.
+- **RESOLVIDO (F4-B).** O `Selo` não diz mais o estado, e `Tema.aviso` saiu
+  do widget: o estado desceu para a linha do conteúdo, onde cabe inteiro.

@@ -944,7 +944,9 @@ extension ProximoCompromisso {
     /// quem avisa por ele é o app Calendário, que é o dono.
     /// `mudo` é o compromisso cujo alarme o sistema RECUSOU (sem permissão,
     /// sem espaço, hora passada): ele aparece, mas sem sino — a tela não
-    /// promete o que não vai acontecer.
+    /// promete o que não vai acontecer. E quando os avisos do Traço estão
+    /// desligados no iPhone, NENHUM sino sai: `mudo` valia para um evento só,
+    /// e a revogação global não silenciava nada (revisão G3, A2).
     static func publicar(_ eventos: [EventoCalendario], cal: Calendar,
                          manha: Int = Ancora.hora(.manha), agora: Date = .now,
                          mudo: UUID? = nil) {
@@ -974,7 +976,7 @@ extension ProximoCompromisso {
             .map { e in
                 Fatia(id: e.id, titulo: e.titulo, inicio: e.inicio, fim: e.fim,
                       diaInteiro: e.diaInteiro,
-                      aviso: (e.editavel && e.id != mudo)
+                      aviso: (e.editavel && e.id != mudo && Avisos.permitidosNoUltimoOlhar)
                           ? Aviso.instante(de: e, cal, manha: manha) : nil,
                       lembrarEm: nil, doSistema: e.doSistema)
             }
