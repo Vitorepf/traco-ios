@@ -89,8 +89,11 @@ nonisolated enum ProximoCompromisso: Sendable {
             if f.lembrarEm == nil { f.lembrarEm = sonecaAtiva(ocorrencia: f.ocorrencia, agora: agora) }
             return f
         }
+        // horizonte no início do dia: estável dentro do dia, senão cada
+        // republicação idêntica viraria escrita nova (e o WidgetKit recusa
+        // reload em rajada — visto no Air, 05/09: ChronoCoreErrorDomain 27)
         let validoAte = comSoneca.count < candidatas
-            ? agora.addingTimeInterval(horizonte)
+            ? Calendar.current.startOfDay(for: agora.addingTimeInterval(horizonte))
             : (comSoneca.last?.fim ?? agora)
         return SuperficieDisco.publicar(agora: agora) {
             $0.proximos = comSoneca.map(\.projecao)

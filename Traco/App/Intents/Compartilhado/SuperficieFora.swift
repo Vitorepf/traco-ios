@@ -55,7 +55,8 @@ nonisolated struct Superficie: Codable, Equatable, Sendable {
     }
 
     var desatualizada: Bool { desatualizada(agora: .now) }
-    func desatualizada(agora: Date) -> Bool { agora > validoAte }
+    /// `>=`: a entrada da linha do tempo cai EXATAMENTE em `validoAte`.
+    func desatualizada(agora: Date) -> Bool { agora >= validoAte }
 
     /// O Destaque, se ainda é o de hoje.
     func destaqueDeHoje(agora: Date = .now) -> Destaque? {

@@ -135,7 +135,8 @@ struct ForaDoAppTests {
         #expect(valida.estadoDoProximo(agora: agora) == .proximo(p))
         // depois do fim, e ainda no horizonte: nada marcado — não inventa o seguinte
         #expect(valida.estadoDoProximo(agora: agora.addingTimeInterval(7300)) == .vazio)
-        #expect(valida.estadoDoProximo(agora: agora.addingTimeInterval(86401)) == .desatualizado)
+        // no instante exato do horizonte (a entrada da linha do tempo) já é velho
+        #expect(valida.estadoDoProximo(agora: agora.addingTimeInterval(86400)) == .desatualizado)
         let vazia = Superficie(geradoEm: agora, validoAte: agora.addingTimeInterval(86400))
         #expect(vazia.estadoDoProximo(agora: agora) == .vazio)
     }
@@ -152,6 +153,10 @@ struct ForaDoAppTests {
             #expect(s.proximos.isEmpty)
             #expect(s.estadoDoProximo(agora: agora) == .vazio)
             #expect(s.validoAte > agora.addingTimeInterval(13 * 86400))
+            // e republicar o mesmo estado minutos depois não regrava (o widget
+            // não é acordado à toa)
+            ProximoCompromisso.gravar(nil, agora: agora.addingTimeInterval(300))
+            #expect(lida()?.revisao == s.revisao)
             #expect(ProximoCompromisso.lido(agora: agora) == nil)
         }
     }
