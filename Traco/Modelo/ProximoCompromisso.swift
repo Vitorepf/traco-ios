@@ -2,9 +2,6 @@ import Foundation
 #if canImport(ActivityKit)
 import ActivityKit
 #endif
-#if canImport(WidgetKit)
-import WidgetKit
-#endif
 
 /// ADR 2026-09-04a — o próximo compromisso, FORA do app.
 ///
@@ -17,110 +14,163 @@ import WidgetKit
 /// Só o que ele MESMO marcou e o que o iPhone dele já mostra. Nota, expressiva
 /// e trancada não passam por aqui: o selo vale para a tela bloqueada como vale
 /// para a rede.
+///
+/// ADR 05u: o app publica os próximos (até três, quinze dias) em `Superficie`
+/// e a soneca vive aqui, com a ocorrência a que pertence. O snapshot é
+/// projeção: quem age (a tela bloqueada) devolve a ocorrência e o app relê o
+/// disco antes de agendar qualquer coisa.
 nonisolated enum ProximoCompromisso: Sendable {
-    nonisolated static let suite = "group.app.traco"
-    private static let chaveTitulo = "proximoTitulo"
-    private static let chaveInicio = "proximoInicio"
-    private static let chaveFim = "proximoFim"
-    private static let chaveDiaInteiro = "proximoDiaInteiro"
-    private static let chaveAviso = "proximoAviso"
-    private static let chaveId = "proximoId"
-    private static let chaveLembrete = "proximoLembrete"
+    nonisolated static let chaveSoneca = "sonecaOcorrencia"
+    nonisolated static let chaveSonecaEm = "sonecaEm"
+    /// Quantos próximos a superfície conhece de antemão: o widget vira
+    /// sozinho de um para o outro sem acordar o app.
+    nonisolated static let candidatas = 3
+    nonisolated static let horizonte: TimeInterval = 14 * 86400
 
-    /// O que a tela mostra. `aviso` é o instante em que vai tocar — nil quando
-    /// o autor desligou; a superfície diz as duas coisas, nunca finge.
-    nonisolated struct Fatia: Equatable, Sendable {
-        /// O id do compromisso: a tela bloqueada precisa dele para AGIR
-        /// (ADR 04f), não só para mostrar.
-        var id: UUID = UUID()
-        var titulo: String
-        var inicio: Date
-        var fim: Date
-        var diaInteiro: Bool
-        var aviso: Date?
-        /// A soneca que o autor pediu da própria tela bloqueada.
-        var lembrarEm: Date?
+    /// O que a tela mostra é o próprio `Superficie.Proximo` (um tipo só):
+    /// `aviso` é o instante em que vai tocar — nil quando o autor desligou;
+    /// `id` é o do compromisso, que a tela bloqueada devolve para AGIR (04f).
+    typealias Fatia = Superficie.Proximo
 
-        func comLembrete(_ quando: Date) -> Fatia {
-            var f = self
-            f.lembrarEm = quando
+    /// O fim do horizonte, no INÍCIO do dia: estável dentro do dia (senão cada
+    /// republicação idêntica virava escrita nova e o WidgetKit recusava o
+    /// reload em rajada — visto no Air, 05/09) e o mesmo para a colheita das
+    /// candidatas e para `validoAte` (B3 do G3: candidata fora do horizonte
+    /// virava "desatualizado" com compromisso ainda existente).
+    nonisolated static func fimDoHorizonte(agora: Date, cal: Calendar = .current) -> Date {
+        cal.startOfDay(for: agora.addingTimeInterval(horizonte))
+    }
+
+    nonisolated private static var defaults: UserDefaults { SuperficieDisco.defaults }
+
+    // MARK: - Publicação
+
+    /// Grava a lista de candidatas na superfície. `validoAte`: quando a lista
+    /// é a verdade inteira (menos que `candidatas` no horizonte), vale até o
+    /// fim do horizonte; senão só até a última acabar — depois disso o widget
+    /// não inventa o seguinte, diz "desatualizado".
+    @discardableResult
+    nonisolated static func publicar(_ fatias: [Fatia], agora: Date = .now) -> Bool {
+        let comSoneca = fatias.map { f -> Fatia in
+            var f = f
+            if f.lembrarEm == nil { f.lembrarEm = sonecaAtiva(ocorrencia: f.ocorrencia, agora: agora) }
             return f
         }
-    }
-
-    private static var defaults: UserDefaults { UserDefaults(suiteName: suite) ?? .standard }
-
-    nonisolated static func gravar(_ f: Fatia?) {
-        let d = defaults
-        guard let f else {
-            for c in [chaveTitulo, chaveInicio, chaveFim, chaveDiaInteiro, chaveAviso,
-                      chaveId, chaveLembrete] {
-                d.removeObject(forKey: c)
-            }
-            recarregar()
-            return
+        let validoAte = comSoneca.count < candidatas
+            ? fimDoHorizonte(agora: agora)
+            : (comSoneca.last?.fim ?? agora)
+        return SuperficieDisco.publicar(agora: agora) {
+            $0.proximos = comSoneca
+            $0.validoAte = validoAte
         }
-        d.set(f.id.uuidString, forKey: chaveId)
-        d.set(f.lembrarEm?.timeIntervalSince1970 ?? 0, forKey: chaveLembrete)
-        d.set(f.titulo, forKey: chaveTitulo)
-        d.set(f.inicio.timeIntervalSince1970, forKey: chaveInicio)
-        d.set(f.fim.timeIntervalSince1970, forKey: chaveFim)
-        d.set(f.diaInteiro, forKey: chaveDiaInteiro)
-        d.set(f.aviso?.timeIntervalSince1970 ?? 0, forKey: chaveAviso)
-        recarregar()
     }
 
-    /// O que está guardado, se ainda não acabou. Compromisso que terminou não
+    /// Uma só, ou nada (testes e o intent). `nil` esvazia.
+    nonisolated static func gravar(_ f: Fatia?, agora: Date = .now) {
+        publicar(f.map { [$0] } ?? [], agora: agora)
+    }
+
+    /// O que está publicado, se ainda não acabou. Compromisso que terminou não
     /// é "o próximo" — deixar o de ontem na tela bloqueada é mentira barata.
     nonisolated static func lido(agora: Date = .now) -> Fatia? {
-        let d = defaults
-        let titulo = d.string(forKey: chaveTitulo)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        let inicio = d.double(forKey: chaveInicio)
-        guard !titulo.isEmpty, inicio > 0 else { return nil }
-        let fimBruto = d.double(forKey: chaveFim)
-        let comeco = Date(timeIntervalSince1970: inicio)
-        let fim = fimBruto > 0 ? Date(timeIntervalSince1970: fimBruto) : comeco.addingTimeInterval(3600)
-        guard fim > agora else { return nil }
-        let aviso = d.double(forKey: chaveAviso)
-        let lembrete = d.double(forKey: chaveLembrete)
-        return Fatia(
-            id: (d.string(forKey: chaveId)).flatMap(UUID.init(uuidString:)) ?? UUID(),
-            titulo: titulo, inicio: comeco, fim: fim,
-            diaInteiro: d.bool(forKey: chaveDiaInteiro),
-            aviso: aviso > 0 ? Date(timeIntervalSince1970: aviso) : nil,
-            lembrarEm: lembrete > agora.timeIntervalSince1970
-                ? Date(timeIntervalSince1970: lembrete) : nil)
+        guard case .disponivel(let s) = SuperficieDisco.ler(), let p = s.proximo(agora: agora) else { return nil }
+        var f = p
+        if let l = f.lembrarEm, l <= agora { f.lembrarEm = nil }
+        return f
     }
 
     /// A linha de uma face só (`accessoryInline`): hora e título, nada mais.
     nonisolated static func naTelaBloqueada(agora: Date = .now) -> String {
-        guard let f = lido(agora: agora) else { return "Traço" }
-        return f.diaInteiro ? f.titulo : "\(horaCurta(f.inicio)) · \(f.titulo)"
+        Superficie.linhaDoProximo(lido(agora: agora))
     }
 
-    nonisolated static func horaCurta(_ data: Date) -> String {
-        let f = DateFormatter()
-        f.locale = Locale(identifier: "pt_BR")
-        f.dateFormat = "HH:mm"
-        return f.string(from: data)
+    // MARK: - Soneca (ADR 04f, com identidade e orçamento — ADR 05u)
+
+    nonisolated static func sonecaAtiva(ocorrencia: String, agora: Date = .now) -> Date? {
+        let d = defaults
+        guard d.string(forKey: chaveSoneca) == ocorrencia else { return nil }
+        let em = d.double(forKey: chaveSonecaEm)
+        return em > agora.timeIntervalSince1970 ? Date(timeIntervalSince1970: em) : nil
     }
 
-    /// "hoje", "amanhã" ou o dia da semana — o autor pensa assim, não em datas.
-    nonisolated static func diaEmPalavras(_ data: Date, agora: Date = .now) -> String {
-        let cal = Calendar(identifier: .gregorian)
-        if cal.isDate(data, inSameDayAs: agora) { return "hoje" }
-        let amanha = cal.date(byAdding: .day, value: 1, to: agora) ?? agora
-        if cal.isDate(data, inSameDayAs: amanha) { return "amanhã" }
-        let f = DateFormatter()
-        f.locale = Locale(identifier: "pt_BR")
-        f.dateFormat = "EEEE, d 'de' MMM"
-        return f.string(from: data)
+    nonisolated static func registrarSoneca(ocorrencia: String, em quando: Date) {
+        let d = defaults
+        d.set(ocorrencia, forKey: chaveSoneca)
+        d.set(quando.timeIntervalSince1970, forKey: chaveSonecaEm)
     }
 
-    nonisolated private static func recarregar() {
-        #if canImport(WidgetKit)
-        WidgetCenter.shared.reloadTimelines(ofKind: "TracoProximo")
-        #endif
+    nonisolated static func esquecerSoneca() {
+        defaults.removeObject(forKey: chaveSoneca)
+        defaults.removeObject(forKey: chaveSonecaEm)
+    }
+
+    /// Relê o compromisso ANTES de agir: o disco do calendário é a verdade;
+    /// o que veio do iPhone só existe na projeção e vale se ainda é o mesmo.
+    /// Fora disso a ocorrência é velha — e cartão velho não altera nada.
+    @MainActor
+    static func revalidar(ocorrencia: String, agora: Date = .now) -> Fatia? {
+        if case .eventos(let eventos) = CalendarioDisco.carregar() {
+            let cal = Calendario.gregoriano()
+            let ate = cal.date(byAdding: .day, value: 15, to: agora) ?? agora
+            if let e = Calendario.ocorrencias(eventos.filter { !$0.eDeixa && $0.origemTrabalho == nil },
+                                              de: agora.addingTimeInterval(-86400), a: ate, cal)
+                .first(where: { Superficie.ocorrencia($0.id, $0.inicio) == ocorrencia && $0.fim > agora }) {
+                return Fatia(id: e.id, titulo: e.titulo, inicio: e.inicio, fim: e.fim, diaInteiro: e.diaInteiro,
+                             aviso: lido(agora: agora)?.aviso)
+            }
+        }
+        if let f = lido(agora: agora), f.doSistema, f.ocorrencia == ocorrencia { return f }
+        return nil
+    }
+
+    /// O intent da tela bloqueada, inteiro: revalida, pede pelo orçamento,
+    /// persiste, publica e SÓ ENTÃO conta na atividade. Erro vira recado.
+    @MainActor
+    static func lembrarDepois(ocorrencia: String, minutos: Int, agora: Date = .now) async {
+        guard let f = revalidar(ocorrencia: ocorrencia, agora: agora) else {
+            await encerrarAtividade(ocorrencia: ocorrencia)
+            return
+        }
+        let r = await Revisoes.soneca(titulo: f.titulo, compromisso: f.id, ocorrencia: ocorrencia,
+                                      minutos: minutos, agora: agora)
+        switch r {
+        case .agendado(let quando):
+            // o `await` deixou a porta aberta: um editor pode ter apagado ou
+            // movido o compromisso enquanto o centro pensava. Relê antes de
+            // guardar — soneca de ocorrência que não existe mais é ruído
+            guard revalidar(ocorrencia: ocorrencia, agora: agora) != nil else {
+                Revisoes.cancelarSoneca(ocorrencia: ocorrencia)
+                await encerrarAtividade(ocorrencia: ocorrencia)
+                return
+            }
+            registrarSoneca(ocorrencia: ocorrencia, em: quando)
+            guard republicar(agora: agora) else {
+                // sem superfície não há confirmação: desfaz o que prometeu
+                esquecerSoneca()
+                Revisoes.cancelarSoneca(ocorrencia: ocorrencia)
+                await contar("não consegui guardar o lembrete", de: f)
+                return
+            }
+            await contar(nil, de: f.comLembrete(quando))
+        case .semPermissao:
+            await contar("avisos desligados no iPhone", de: f)
+        case .semEspaco:
+            await contar("o iPhone já tem \(Avisos.teto) avisos; este ficou sem", de: f)
+        case .falhou:
+            await contar("não consegui marcar o lembrete", de: f)
+        }
+    }
+
+    /// Republica a projeção a partir do que está publicado + soneca guardada.
+    nonisolated private static func republicar(agora: Date) -> Bool {
+        guard case .disponivel(let s) = SuperficieDisco.ler() else { return false }
+        return SuperficieDisco.publicar(agora: agora) {
+            $0.proximos = s.proximos.map { p in
+                var p = p
+                p.lembrarEm = sonecaAtiva(ocorrencia: p.ocorrencia, agora: agora)
+                return p
+            }
+        }
     }
 
     // MARK: - A Ilha (só quando é hoje e está perto)
@@ -129,27 +179,38 @@ nonisolated enum ProximoCompromisso: Sendable {
     /// olhar o relógio resolve. Seis horas é a janela de "o resto do meu dia".
     nonisolated static let janelaViva: TimeInterval = 6 * 3600
 
+    /// Uma atividade só, da ocorrência publicada; encerra o resto. Chamada
+    /// no arranque, no retorno à cena, em cada publicação e após comando.
+    nonisolated static func reconciliar(agora: Date = .now) async {
+        await atualizarAtividade(lido(agora: agora), agora: agora)
+    }
+
     nonisolated static func atualizarAtividade(_ f: Fatia?, agora: Date = .now) async {
         #if canImport(ActivityKit)
-        guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
         guard let f, f.inicio.timeIntervalSince(agora) <= janelaViva, f.fim > agora else {
             await encerrarAtividades()
             return
         }
+        guard SuperficieDisco.atividades() else { return }
         let estado = CompromissoAtividade.ContentState(
             titulo: f.titulo, inicio: f.inicio, fim: f.fim, diaInteiro: f.diaInteiro,
             lembrarEm: f.lembrarEm, recado: nil)
         let conteudo = ActivityContent(state: estado, staleDate: f.fim)
-        let chave = String(Int(f.inicio.timeIntervalSince1970))
-        if let viva = Activity<CompromissoAtividade>.activities.first(where: { $0.attributes.chave == chave }) {
-            await viva.update(conteudo)
-            for outra in Activity<CompromissoAtividade>.activities where outra.id != viva.id {
-                await outra.end(nil, dismissalPolicy: .immediate)
+        var viva: Activity<CompromissoAtividade>?
+        for a in Activity<CompromissoAtividade>.activities {
+            if viva == nil, a.attributes.chave == f.ocorrencia, a.activityState == .active {
+                viva = a
+            } else {
+                await a.end(nil, dismissalPolicy: .immediate)
             }
+        }
+        if let viva {
+            var atual = viva.content.state
+            atual.recado = nil
+            if atual != estado { await viva.update(conteudo) }
             return
         }
-        await encerrarAtividades()
-        _ = try? Activity.request(attributes: CompromissoAtividade(chave: chave), content: conteudo)
+        _ = try? Activity.request(attributes: CompromissoAtividade(chave: f.ocorrencia), content: conteudo)
         #endif
     }
 
@@ -160,25 +221,25 @@ nonisolated enum ProximoCompromisso: Sendable {
         }
         #endif
     }
-}
 
-/// A Live Activity do compromisso: título e a conta que corre até a hora.
-/// O sistema desenha o tempo (`Text(style:)`), então ela anda sozinha sem o
-/// app acordar — que é o único jeito honesto de uma contagem na Ilha.
-nonisolated struct CompromissoAtividade: ActivityAttributes {
-    nonisolated struct ContentState: Codable, Hashable {
-        var titulo: String
-        var inicio: Date
-        var fim: Date
-        var diaInteiro: Bool
-        /// ADR 04f: a soneca pedida na tela bloqueada. `nil` = ninguém pediu.
-        var lembrarEm: Date?
-        /// O que impediu o toque de virar alarme. Botão que não faz nada e não
-        /// diz nada é o defeito da ADR 04a de novo, agora do tamanho de um dedo.
-        var recado: String?
+    nonisolated static func encerrarAtividade(ocorrencia: String) async {
+        #if canImport(ActivityKit)
+        for a in Activity<CompromissoAtividade>.activities where a.attributes.chave == ocorrencia {
+            await a.end(nil, dismissalPolicy: .immediate)
+        }
+        #endif
     }
 
-    /// O compromisso a que esta atividade pertence. Trocar de compromisso
-    /// encerra a anterior: uma por vez, como a do Destaque.
-    var chave: String
+    /// O retorno na tela: ou a hora em que vai cobrar, ou a razão de não ir.
+    /// Aguardado, não enfileirado: o intent só devolve depois de a tela mudar.
+    nonisolated private static func contar(_ recado: String?, de f: Fatia) async {
+        #if canImport(ActivityKit)
+        for a in Activity<CompromissoAtividade>.activities where a.attributes.chave == f.ocorrencia {
+            var estado = a.content.state
+            estado.lembrarEm = f.lembrarEm
+            estado.recado = recado
+            await a.update(ActivityContent(state: estado, staleDate: f.fim))
+        }
+        #endif
+    }
 }

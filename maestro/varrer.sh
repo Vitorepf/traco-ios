@@ -20,7 +20,7 @@ if [ "$BOOTED" -ne 1 ]; then
     exit 2
 fi
 
-APP=build/Build/Products/Debug-iphonesimulator/Traço.app
+APP=build/Build/Products/Debug-iphonesimulator/Traco.app
 if [ ! -d "$APP" ]; then
     echo "PARADO: não há build em $APP"
     exit 2

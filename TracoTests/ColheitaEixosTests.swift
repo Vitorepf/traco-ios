@@ -294,7 +294,7 @@ struct GatilhoTests {
 
 struct DestaqueDoDiaTests {
     private func limpar() {
-        let suite = UserDefaults(suiteName: DestaqueDoDia.suite) ?? .standard
+        let suite = SuperficieDisco.defaults
         suite.removeObject(forKey: DestaqueDoDia.chaveLinha)
         suite.removeObject(forKey: DestaqueDoDia.chaveDia)
         suite.removeObject(forKey: DestaqueDoDia.chaveId)
@@ -305,7 +305,7 @@ struct DestaqueDoDiaTests {
         let id = UUID()
         DestaqueDoDia.gravar("a única de hoje", id: id)
         #expect(DestaqueDoDia.linhaDeHoje() == "a única de hoje")
-        let suite = UserDefaults(suiteName: DestaqueDoDia.suite) ?? .standard
+        let suite = SuperficieDisco.defaults
         suite.set("1999-01-01", forKey: DestaqueDoDia.chaveDia)
         #expect(DestaqueDoDia.linhaDeHoje() == nil)
         limpar()
@@ -374,7 +374,7 @@ struct DestaqueNaSessaoTests {
     }
 
     @Test func esvaziarTiraDaTelaBloqueada() throws {
-        let suite = UserDefaults(suiteName: DestaqueDoDia.suite) ?? .standard
+        let suite = SuperficieDisco.defaults
         suite.removeObject(forKey: DestaqueDoDia.chaveLinha)
         suite.removeObject(forKey: DestaqueDoDia.chaveDia)
         suite.removeObject(forKey: DestaqueDoDia.chaveId)

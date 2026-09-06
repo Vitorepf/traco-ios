@@ -22,12 +22,11 @@ targets:
     type: application
     platform: iOS
     sources:
+      # ADR 05u: `Traco/App/Intents/` é o catálogo; `Compartilhado/` também
+      # compila no widget (declarações que o `Button(intent:)` precisa).
+      # ADR 04f: `LiveActivityIntent` roda no processo do APP — só o app
+      # executa (`TRACO_APP`); a extensão só declara.
       - path: Traco
-      # ADR 04f: `LiveActivityIntent` roda no processo do APP. Sem o tipo
-      # também aqui, o botão da tela bloqueada falharia calado — que é
-      # exatamente o defeito que a ADR 04a proíbe.
-      - path: TracoWidget/DestaqueFeitoIntent.swift
-      - path: TracoWidget/LembrarDepoisIntent.swift
     dependencies:
       - target: TracoWidget
       - sdk: WidgetKit.framework
@@ -49,7 +48,13 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: app.traco
-        PRODUCT_NAME: Traço
+        # ASCII de propósito (06/09): com "Traço" o executável ia ao disco em
+        # NFD (c + cedilha combinante) e o CFBundleExecutable em NFC; o chronod
+        # comparava os dois, não reconhecia o app como dono do widget e
+        # recusava TODO `reloadTimelines` (ChronoCoreErrorDomain 27, "Resolved
+        # bundle path …/Traço.app does not match executable Traço"). O nome
+        # que o autor vê é o CFBundleDisplayName, que segue "Traço".
+        PRODUCT_NAME: Traco
         PRODUCT_MODULE_NAME: Traco
         MARKETING_VERSION: "0.1.0"
         CURRENT_PROJECT_VERSION: "1"
@@ -66,6 +71,7 @@ targets:
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         DEVELOPMENT_TEAM: "W28WF9A5A2"
         CODE_SIGN_STYLE: Automatic
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) TRACO_APP"
         INFOPLIST_KEY_NSAppTransportSecurity_NSAllowsArbitraryLoads: NO
         INFOPLIST_KEY_NSPhotoLibraryUsageDescription: "Traço guarda nesta nota a foto que você escolheu."
         INFOPLIST_KEY_NSMicrophoneUsageDescription: "Traço guarda nesta nota o áudio que você gravou."
@@ -85,16 +91,17 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: app.traco.tests
         GENERATE_INFOPLIST_FILE: YES
         BUNDLE_LOADER: $(TEST_HOST)
-        TEST_HOST: $(BUILT_PRODUCTS_DIR)/Traço.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Traço
+        TEST_HOST: $(BUILT_PRODUCTS_DIR)/Traco.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Traco
   TracoWidget:
     type: app-extension
     platform: iOS
     sources:
       - path: TracoWidget
       - path: Traco/Tema.swift
-      - path: Traco/Modelo/DestaqueDoDia.swift
-      - path: Traco/Modelo/DestaqueAtividade.swift
-      - path: Traco/Modelo/ProximoCompromisso.swift
+      # ADR 05u: só a superfície (snapshot), os atributos das atividades e
+      # as declarações dos dois LiveActivityIntent. Nada de SwiftData, Rota
+      # ou domínio na extensão: o app é o único escritor.
+      - path: Traco/App/Intents/Compartilhado
     entitlements:
       path: TracoWidget/TracoWidget.entitlements
       properties:

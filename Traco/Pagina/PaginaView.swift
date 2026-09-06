@@ -219,6 +219,11 @@ struct PaginaView: View {
         .onReceive(NotificationCenter.default.publisher(for: Rota.mudou)) { _ in
             if let destino = Rota.pendente { Rota.pendente = nil; seguirRota(destino) }
         }
+        // ADR 05u: no arranque frio o intent corre antes de esta view escutar;
+        // a rota fica pendente e é consumida quando a cena está pronta
+        .onAppear {
+            if let destino = Rota.pendente { Rota.pendente = nil; seguirRota(destino) }
+        }
         .onReceive(NotificationCenter.default.publisher(for: Revisoes.abrirRevisao)) { aviso in
             // §17: um passo — a notificação abre direto o Recordar da nota
             guard let uuid = aviso.object as? UUID,
@@ -614,6 +619,31 @@ struct PaginaView: View {
             // ADR 05a: pela rota, a entrada é recolhida na hora
             Entrada.depositar(texto, raiz: Entrada.raizDoApp)
             sessao.recolherEntrada(no: context)
+        // ADR 05u: entidade chega por id; o selo e o acesso são revalidados
+        // AQUI, não só na consulta — a proteção pode ter vindo depois
+        case .nota(let id):
+            guard let nota = Sessao.buscar(uuid: id, no: context), !nota.fechada,
+                  nota.gesto != .expressiva else {
+                sessao.mostrarToast("Essa nota não está disponível.")
+                return
+            }
+            guard sessao.salvar(no: context) else { return }
+            sessao.abrir(nota)
+            sessao.mostrarNotas = false
+            sessao.mostrarPadroes = false
+        case .trabalho(let id):
+            guard let trabalho = (try? context.fetch(FetchDescriptor<Trabalho>()))?.first(where: { $0.uuid == id }),
+                  AcessoTrabalho.permitido(trabalho, no: context) else {
+                sessao.mostrarToast("Esse trabalho não está disponível.")
+                return
+            }
+            guard sessao.salvar(no: context) else { return }
+            trabalhoAberto = trabalho
+        case .compromisso(_, let inicio):
+            Rota.escalaCalendario = .dia
+            sessao.agenda?.ancora = Calendario.inicioDoDia(inicio, sessao.agenda?.cal ?? Calendario.gregoriano())
+            sessao.irPara(.calendario, no: context)
+            NotificationCenter.default.post(name: Rota.mudou, object: nil)
         }
     }
 

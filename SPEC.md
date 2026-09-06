@@ -2595,3 +2595,80 @@ iPhone do dono estava em uso por outra volta e não foi tocado além de uma
 instalação e três rotas, sem mudar tamanho nem dados.
 **Fora:** passe manual com VoiceOver ligado em aparelho real (requer humano);
 a data da página segue oculta ao VoiceOver por decisão anterior.
+
+## ADR 2026-09-05u — A fundação fora do app
+
+**A distância.** A auditoria F1 achou doze intents soltos, chaves soltas no
+App Group, dois botões da tela bloqueada que confirmavam sem persistir (a
+soneca com `try?` e sem orçamento; o Feito alternando "o próximo atual" sem
+saber de quem era), o widget do Próximo pedindo reload por minuto e servindo
+compromisso apagado (D6), 39 tamanhos de fonte fixos (D3). O mesmo comando,
+por entradas diferentes, não produzia o mesmo estado — e às vezes nenhum.
+
+**A decisão, conforme o conselho (`consulta-fora-intents.md`).** Sem
+framework nem package. `Traco/App/Intents/` é o catálogo: `Intencoes`,
+`TracoAtalhos`, `Entidades` só no app; `Compartilhado/` (o snapshot, os
+atributos das atividades e as declarações de `DestaqueFeitoIntent`,
+`DestaqueDesfazerIntent`, `LembrarDepoisIntent`) compilado também no widget,
+que só declara — `TRACO_APP` recusa executar fora do app. Nomes de tipos e
+parâmetros preservados. Toda entrada (Siri, Atalhos, URL, widget, Ilha)
+converge em `Rota.ir` ou numa função concreta (`Entrada`, `CalendarioDisco`,
+`Revisoes`, `AcessoTrabalho`); a rota pendente é consumida quando a cena está
+pronta, também no arranque frio.
+
+`Superficie` é UM documento Codable versionado (`revisao`, `geradoEm`,
+`validoAte`, Destaque com id+dia+feito, até três próximos com id+início), no
+App Group, escrito atomicamente pelo app após cada commit relevante;
+idêntico não regrava, revogação nunca espera; `reloadTimelines` só dos kinds
+cuja seção mudou. O pedido de reload não devolve erro; no Air TODO pedido
+era recusado (ChronoCoreErrorDomain 27) e a causa, lida no chronod, era o
+nome do produto: com `PRODUCT_NAME: Traço` o executável ia ao disco em NFD
+(c + cedilha combinante) e o `CFBundleExecutable` em NFC, o chronod não
+reconhecia o processo como dono do widget ("Resolved bundle path
+…/Traço.app does not match executable Traço") e nenhum reload entrava — o
+que os widgets mostravam vinha só do toque nos botões. O produto passou a
+`Traco` (ASCII; o nome exibido segue "Traço"). Como rede: o app guarda o
+par revisão publicada / revisão recarregada e a volta à cena repete, dois
+segundos depois, o pedido do que ainda não foi confirmado (em primeiro
+plano o reload não conta no orçamento; no arranque nada está confirmado).
+Falha, corrupção ou App Group ausente é "sem dados", nunca `.standard`. A linha do tempo do widget tem só transições reais (meia-noite,
+fim de cada próximo, soneca, horizonte) e política `.never`: "desatualizado"
+depois do horizonte, "nada marcado" dentro dele, e os dois widgets dizem a
+hora do que mostram ("atualizado às 21:30", absoluta: segundos correndo eram
+ruído). No pequeno, o Destaque (ou o "sem dados") toma o lugar do atalho
+Recordar: a linha inteira vale mais que o segundo atalho; em tamanho de
+acessibilidade o pequeno mostra só a linha, em até três linhas. Widget readicionado
+nunca mostra o apagado. A suíte de testes roda dentro do app do simulador e
+por isso é desviada num ponto só do arranque (`isolarParaTestes`: pasta
+temporária, reload mudo, suíte própria de `UserDefaults`, sem atividades) —
+nenhum teste toca a superfície real do aparelho.
+
+Os dois botões carregam a IDENTIDADE do que mostram (nota+dia; id+início da
+ocorrência) e o app relê antes de agir: feito é `true` com desfazer
+explícito, nunca toggle; a soneca passa por `Revisoes.soneca` (permissão,
+orçamento 04b, `add` que pode falhar) e só anuncia a hora depois do centro
+aceitar — negada, lotada ou falhada vira recado no cartão. Persistido e
+publicado ANTES de o cartão mudar; superfície recusada desfaz. Atividades
+são reconciliadas com o estado guardado no arranque, no retorno à cena e
+após cada comando; `isStale` neutraliza texto e ações em todos os estados
+(cartão, Ilha compacta e expandida) e o app encerra ao executar.
+
+Entidades mínimas: `NotaEntity` (uuid + título público, só aberta e não
+expressiva), `TrabalhoEntity` (só `AcessoTrabalho.permitido`),
+`CompromissoEntity` (só o que o autor marcou; deixa e projeção do Trabalho
+ficam com os donos, 05k) — o selo entra na consulta E no `perform()` de
+`AbrirNota/Trabalho/Compromisso`. `AnotarIntent` distingue vazio de falha de
+gravação: "anotado" é depósito confirmado. Tipografia dos widgets e das Live
+Activities pelos degraus de `Tema` (`miudo` e `acaoViva` novos, só fora do
+app), zero tamanhos fixos.
+
+**Custo assumido:** o `recado` da soneca vive só na atividade (some ao
+republicar — F5); cache já renderizado pelo iOS não tem revogação instantânea
+garantida; o widget de casa segue papel claro no escuro (D11, G0 de F4/F5).
+**Volta:** multiplicar. **A IA:** nada. **Prova:** 20 testes em
+`ForaDoAppTests` (recusa não confirma, repetição não inverte, cartão velho,
+soneca negada/lotada/falha/corrida com editor, snapshot truncado/expirado,
+D6, linha do tempo curta, reload por kind, reload repetido na volta à cena,
+suíte isolada do App Group real, selo nas entidades e depois da consulta,
+anotar honesto), build dos dois alvos sem aviso, capturas da bloqueada no
+iPhone 17e e da casa e da Ilha no iPhone Air. **Fora:** Ilha (F5), controles e ditado (F3), Spotlight (F9).

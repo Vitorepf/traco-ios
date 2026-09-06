@@ -935,8 +935,8 @@ nonisolated enum CalendarioDisco {
 // MARK: - ADR 2026-09-04a: o próximo compromisso sai do app
 
 extension ProximoCompromisso {
-    /// Publica o próximo compromisso das duas semanas seguintes no App Group,
-    /// para o widget e para a Ilha.
+    /// Publica os próximos compromissos das duas semanas seguintes no App
+    /// Group, para o widget e para a Ilha.
     ///
     /// Deixa de nota não entra: a nota é a dona dela, já tem o próprio gatilho,
     /// e o selo vale para a tela bloqueada como vale para a rede. O que veio do
@@ -948,28 +948,35 @@ extension ProximoCompromisso {
     static func publicar(_ eventos: [EventoCalendario], cal: Calendar,
                          manha: Int = Ancora.hora(.manha), agora: Date = .now,
                          mudo: UUID? = nil) {
-        let fatia = proximaFatia(eventos, cal: cal, manha: manha, agora: agora, mudo: mudo)
-        gravar(fatia)
+        let fatias = proximasFatias(eventos, cal: cal, manha: manha, agora: agora, mudo: mudo)
+        publicar(fatias, agora: agora)
         FilaDeAtividade.compartilhada.enfileirar {
-            await atualizarAtividade(fatia, agora: agora)
+            await atualizarAtividade(fatias.first, agora: agora)
         }
     }
 
     /// Seleção sem efeitos externos, compartilhada pela publicação e seus testes.
     static func proximaFatia(_ eventos: [EventoCalendario], cal: Calendar,
                              manha: Int, agora: Date, mudo: UUID? = nil) -> Fatia? {
-        let ate = cal.date(byAdding: .day, value: 14, to: agora) ?? agora
+        proximasFatias(eventos, cal: cal, manha: manha, agora: agora, mudo: mudo).first
+    }
+
+    /// As `candidatas` seguintes, em ordem: o widget vira de uma para a outra
+    /// sem acordar o app (ADR 05u).
+    static func proximasFatias(_ eventos: [EventoCalendario], cal: Calendar,
+                               manha: Int, agora: Date, mudo: UUID? = nil) -> [Fatia] {
+        let ate = fimDoHorizonte(agora: agora, cal: cal)
         let vivos = eventos.filter { !$0.eDeixa && $0.origemTrabalho == nil }
-        let proximo = Calendario.ocorrencias(vivos, de: agora, a: ate, cal)
+        return Calendario.ocorrencias(vivos, de: agora, a: ate, cal)
             .filter { $0.fim > agora }
-            .min { $0.inicio < $1.inicio }
-        let fatia = proximo.map { e in
-            Fatia(id: e.id, titulo: e.titulo, inicio: e.inicio, fim: e.fim,
-                  diaInteiro: e.diaInteiro,
-                  aviso: (e.editavel && e.id != mudo)
-                      ? Aviso.instante(de: e, cal, manha: manha) : nil,
-                  lembrarEm: nil)
-        }
-        return fatia
+            .sorted { $0.inicio < $1.inicio }
+            .prefix(candidatas)
+            .map { e in
+                Fatia(id: e.id, titulo: e.titulo, inicio: e.inicio, fim: e.fim,
+                      diaInteiro: e.diaInteiro,
+                      aviso: (e.editavel && e.id != mudo)
+                          ? Aviso.instante(de: e, cal, manha: manha) : nil,
+                      lembrarEm: nil, doSistema: e.doSistema)
+            }
     }
 }

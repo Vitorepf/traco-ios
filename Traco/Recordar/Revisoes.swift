@@ -303,6 +303,59 @@ enum Revisoes {
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ids)
     }
 
+    // MARK: - Soneca da tela bloqueada (ADR 04f; orçamento e identidade, ADR 05u)
+
+    nonisolated enum ResultadoDaSoneca: Equatable, Sendable {
+        case agendado(Date), semPermissao, semEspaco, falhou
+    }
+
+    /// O centro de avisos, trocável nos testes: permissão, orçamento e o
+    /// `add` que pode falhar. O padrão é o centro real.
+    nonisolated struct CentroDeAvisos: Sendable {
+        var estado: @Sendable () async -> Avisos.Estado
+        var livres: @Sendable (Set<String>) async -> Int
+        var adicionar: @Sendable (UNNotificationRequest) async throws -> Void
+
+        static let real = CentroDeAvisos(
+            estado: { await Avisos.estado() },
+            livres: { await Avisos.livres(reusando: $0) },
+            adicionar: { try await UNUserNotificationCenter.current().add($0) })
+    }
+    nonisolated(unsafe) static var centro = CentroDeAvisos.real
+
+    nonisolated static func idDaSoneca(_ ocorrencia: String) -> String { "soneca-\(ocorrencia)" }
+
+    /// Cobra de novo daqui a `minutos`. Namespace `soneca-<ocorrência>`: a
+    /// soneca nunca alcança o aviso do compromisso, e cancelar um não mata o
+    /// outro. Só devolve `.agendado` depois de o centro ACEITAR: sem permissão,
+    /// sem espaço (04b) ou erro do `add` voltam com nome — a tela conta.
+    static func soneca(titulo: String, compromisso: UUID, ocorrencia: String,
+                       minutos: Int, agora: Date = .now) async -> ResultadoDaSoneca {
+        guard await centro.estado() == .concedido else { return .semPermissao }
+        let id = idDaSoneca(ocorrencia)
+        guard await centro.livres([id]) >= 1 else { return .semEspaco }
+        let quando = agora.addingTimeInterval(TimeInterval(minutos * 60))
+        let conteudo = UNMutableNotificationContent()
+        conteudo.title = titulo
+        conteudo.body = ""
+        conteudo.sound = .default
+        conteudo.interruptionLevel = .timeSensitive
+        conteudo.userInfo = ["compromisso": compromisso.uuidString]
+        let comps = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: quando)
+        do {
+            try await centro.adicionar(UNNotificationRequest(
+                identifier: id, content: conteudo,
+                trigger: UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)))
+        } catch {
+            return .falhou
+        }
+        return .agendado(quando)
+    }
+
+    static func cancelarSoneca(ocorrencia: String) {
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [idDaSoneca(ocorrencia)])
+    }
+
     // MARK: - Aviso da ação do Trabalho (ADR 2026-09-05n)
 
     /// Namespace próprio, nunca o do compromisso: a projeção da ação no
