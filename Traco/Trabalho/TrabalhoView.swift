@@ -39,6 +39,13 @@ struct TrabalhoView: View {
                         Text("Trabalho protegido").font(Tema.secaoNota)
                         Text(acesso.mensagem).foregroundStyle(Tema.tintaSuave)
                             .accessibilityIdentifier("trabalho-protegido")
+                        // ADR 05x: o selo recolhe o intercâmbio em curso e a
+                        // tela DIZ o que recolheu. Silêncio aqui é o autor sem
+                        // saber se o arquivo entrou ou a cópia saiu.
+                        if let recolhido = oficina?.intercambioRecolhido.recolhimento {
+                            Text(recolhido).font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+                                .accessibilityIdentifier("trabalho-intercambio-recolhido")
+                        }
                     } else if let oficina {
                         documento(oficina).buttonStyle(AcaoTrabalhoStyle())
                     } else if let erroDeLeitura {

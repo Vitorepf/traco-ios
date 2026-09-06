@@ -26,6 +26,11 @@ final class OficinaTrabalho {
     /// ADR 05n: o iPhone está com os avisos do Traço desligados? A folha
     /// pergunta antes de prometer que alguma coisa vai tocar.
     private(set) var permissaoNegada = false
+    /// ADR 05x: o que a tela de intercâmbio tem em mãos agora — seletor aberto,
+    /// cópia preparada ou arquivo em revisão. A tela escreve; o selo recolhe.
+    var intercambioAberto: IntercambioTrabalho.Material = .nenhum
+    /// O que o selo recolheu. A tela protegida diz isto e depois cala.
+    private(set) var intercambioRecolhido: IntercambioTrabalho.Material = .nenhum
     @ObservationIgnored private var avisosArmados: [UUID: DocumentoTrabalho.Acao]
     @ObservationIgnored var armarAviso: (DocumentoTrabalho.Acao, UUID) async -> ResultadoDoAviso = {
         await Revisoes.agendarAcao($0, trabalho: $1)
@@ -310,11 +315,17 @@ final class OficinaTrabalho {
             erro = acesso.mensagem
             // ADR 05n: o selo da origem cala o alarme que diria o texto da ação
             if estavaPermitido { Revisoes.cancelarAcoes(doTrabalho: trabalho.uuid) }
+            // ADR 05x: e recolhe o intercâmbio em curso, dizendo o que recolheu.
+            if intercambioAberto != .nenhum {
+                intercambioRecolhido = intercambioAberto
+                intercambioAberto = .nenhum
+            }
             return false
         }
         if !estavaPermitido {
             erro = erroAntesDaRestricao
             erroAntesDaRestricao = nil
+            intercambioRecolhido = .nenhum
         }
         return true
     }

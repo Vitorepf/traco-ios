@@ -141,3 +141,91 @@ extension DocumentoTrabalho {
         return true
     }
 }
+
+// MARK: - O que a tela decide (ADR 2026-09-06x)
+//
+// A View não guarda regra: pergunta aqui e desenha. Assim conflito, recusa de
+// commit e selo da origem têm teste sem renderizar SwiftUI.
+extension IntercambioTrabalho {
+    /// O que a tela de intercâmbio tinha em mãos quando o selo caiu. Selar a
+    /// origem recolhe o material e a tela diz qual era.
+    enum Material: Equatable, Sendable {
+        case nenhum, seletor, exportacao, revisao
+
+        var recolhimento: String? {
+            switch self {
+            case .nenhum: nil
+            case .seletor: "A origem foi protegida: fechei o seletor de arquivo. Nada foi importado."
+            case .exportacao: "A origem foi protegida: recolhi a cópia preparada antes de entregá-la. Nada saiu do Traço."
+            case .revisao: "A origem foi protegida: recolhi o arquivo que estava em revisão. Nada foi importado."
+            }
+        }
+    }
+
+    /// Desfecho de uma tentativa de guardar a versão externa. `mudou` é o que a
+    /// mutação disse; `guardou`, o que o commit disse. Os dois são distintos:
+    /// a versão pode existir na memória e o disco ter recusado.
+    enum Desfecho: Equatable, Sendable {
+        case guardada, confirmada, semNovidade, aguardandoCommit, recusada, semAcesso
+
+        static func de(mudou: Bool, guardou: Bool, acesso: Bool) -> Desfecho {
+            guard acesso else { return .semAcesso }
+            if guardou { return mudou ? .guardada : .semNovidade }
+            return mudou ? .aguardandoCommit : .recusada
+        }
+
+        var linha: String {
+            switch self {
+            case .guardada: "Nova versão externa guardada. As versões anteriores foram preservadas."
+            case .confirmada: "A mesma versão externa foi confirmada na nova tentativa. Nenhuma cópia a mais foi criada."
+            case .semNovidade: "Este conteúdo já está guardado; nenhuma versão duplicada foi criada."
+            case .aguardandoCommit: "A versão externa está aqui, mas não consegui guardá-la agora. Nada foi perdido; tente guardar de novo."
+            case .recusada: "Não foi possível aplicar o arquivo. Confira o salvamento e importe novamente se a versão ou a intenção mudou."
+            case .semAcesso: "A origem foi protegida durante a importação. Nada foi importado."
+            }
+        }
+
+        /// Só a espera do commit oferece nova tentativa: a versão já está aqui e
+        /// guardar de novo confirma a MESMA, sem outra importação.
+        var ofereceTentarGuardar: Bool { self == .aguardandoCommit }
+        /// A revisão fica de pé só quando o arquivo ainda pode servir.
+        var mantemRevisao: Bool { self == .recusada }
+    }
+
+    /// As duas versões de um conflito, lado a lado. Escolher nunca sobrescreve:
+    /// as duas continuam no histórico, e a escolhida entra como versão nova.
+    struct Conflito: Equatable, Sendable {
+        let tituloAtual: String, textoAtual: String
+        let tituloArquivo: String, textoArquivo: String
+        let consequencia: String
+    }
+
+    /// Só a base antiga é conflito: as duas pontas mudaram desde o export.
+    static func conflito(_ p: Preview, em documento: DocumentoTrabalho) -> Conflito? {
+        guard p.estado == .baseAntiga else { return nil }
+        return Conflito(
+            tituloAtual: "No Traço agora · \(ordem(p.versaoVigenteID, em: documento))",
+            textoAtual: documento.versaoAtual?.conteudo ?? "",
+            tituloArquivo: "No arquivo recebido · saiu da \(ordem(p.baseID, em: documento))",
+            textoArquivo: p.texto,
+            consequencia: "Nenhuma escolha apaga nada: a \(ordem(p.versaoVigenteID, em: documento)) continua no histórico e o arquivo, se você o guardar, entra como versão nova.")
+    }
+
+    static func descricaoDaBase(_ p: Preview, em documento: DocumentoTrabalho) -> String {
+        switch p.estado {
+        case .baseAtual:
+            "Base do arquivo: \(ordem(p.baseID, em: documento)), a versão atual. O conteúdo recebido será uma nova versão."
+        case .baseAntiga:
+            "O trabalho mudou dos dois lados desde a exportação. Compare e escolha."
+        case .semVinculo:
+            "Arquivo sem vínculo de origem. Será acrescentado como material externo, ligado à intenção atual."
+        case .incompativel:
+            "Este arquivo não pode ser aplicado a este trabalho."
+        }
+    }
+
+    private static func ordem(_ id: UUID?, em documento: DocumentoTrabalho) -> String {
+        guard let id, let i = documento.artefatos.firstIndex(where: { $0.id == id }) else { return "nenhuma versão" }
+        return "versão \(i + 1)"
+    }
+}

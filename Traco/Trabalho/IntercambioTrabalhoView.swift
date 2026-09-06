@@ -13,9 +13,20 @@ struct IntercambioTrabalhoView: View {
     @State private var recado: String?
     @State private var lendo = false
     @State private var operacao = UUID()
+    @State private var tentarGuardar = false
     @State private var importacaoPendenteID: UUID?
 
+    private static let limitePrevia = 12000
+    /// O começo de cada lado do conflito: as duas têm de caber no mesmo olhar.
+    private static let linhasDoConflito = 12
+
     private var permitido: Bool { AcessoTrabalho.permitido(oficina.trabalho, no: context) }
+
+    /// O que esta tela tem em mãos. O selo da origem recolhe pelo caminho da
+    /// Oficina, que é onde toda rota do Trabalho revalida o acesso.
+    private var material: IntercambioTrabalho.Material {
+        if preview != nil { .revisao } else if arquivo != nil { .exportacao } else if importar { .seletor } else { .nenhum }
+    }
 
     var body: some View {
         DisclosureGroup("Editar com outras ferramentas") {
@@ -33,7 +44,17 @@ struct IntercambioTrabalhoView: View {
                         .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
                 }
                 if lendo { ProgressView("Lendo arquivo…") }
-                if let recado { Text(recado).font(Tema.meta).foregroundStyle(Tema.tintaSuave) }
+                if let recado {
+                    Text(recado).font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+                        .accessibilityIdentifier("trabalho-intercambio-recado")
+                }
+                // A versão já está aqui; guardar de novo confirma a MESMA, sem
+                // pedir outro arquivo e sem criar uma segunda cópia.
+                if tentarGuardar {
+                    Button("Tentar guardar de novo") { retentar() }
+                        .disabled(!permitido)
+                        .accessibilityIdentifier("trabalho-intercambio-tentar-guardar")
+                }
                 if permitido, let preview { revisao(preview) }
             }.padding(.top, 8)
         }
@@ -52,13 +73,18 @@ struct IntercambioTrabalhoView: View {
             }
             arquivo = nil
         }
-        .onDisappear { operacao = UUID() }
+        .onChange(of: material, initial: true) { _, novo in oficina.intercambioAberto = novo }
+        .onDisappear {
+            operacao = UUID()
+            oficina.intercambioAberto = .nenhum
+        }
         .onChange(of: oficina.salvo) { _, salvo in
             if salvo, let id = importacaoPendenteID,
                oficina.documento.artefatos.contains(where: { $0.id == id }) {
                 preview = nil
                 importacaoPendenteID = nil
-                recado = "A versão externa foi guardada na nova tentativa. O histórico foi preservado."
+                tentarGuardar = false
+                recado = IntercambioTrabalho.Desfecho.confirmada.linha
             }
         }
     }
@@ -66,30 +92,64 @@ struct IntercambioTrabalhoView: View {
     private func revisao(_ p: IntercambioTrabalho.Preview) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Revisar arquivo recebido").font(Tema.secaoNota)
-            Text(descreverBase(p)).font(Tema.meta)
+            Text(IntercambioTrabalho.descricaoDaBase(p, em: oficina.documento)).font(Tema.meta)
             if let intencao = p.intencaoDaBaseID, intencao != p.intencaoVigenteID {
                 Text("A intenção mudou desde essa base. A nova versão continuará ligada à intenção anterior; as ações e versões atuais serão preservadas.")
                     .font(Tema.meta).foregroundStyle(Tema.aviso)
             }
-            Text(p.motivo ?? "Arquivo externo; a autoria não foi verificada.")
-                .font(Tema.meta)
-            Text(verbatim: String(p.texto.prefix(12000)))
-                .font(Tema.corpo).textSelection(.enabled)
-            if p.texto.count > 12000 {
-                Text("Prévia parcial. A importação preserva o texto completo do arquivo.")
-                    .font(Tema.meta).foregroundStyle(Tema.aviso)
-            }
-            if p.estado != .incompativel {
-                Button(p.estado == .baseAntiga ? "Criar versão a partir dessa base antiga" : "Guardar como nova versão externa") {
-                    aplicar(p)
+            if let conflito = IntercambioTrabalho.conflito(p, em: oficina.documento) {
+                asDuasVersoes(conflito, p)
+            } else {
+                Text(p.motivo ?? "Arquivo externo; a autoria não foi verificada.")
+                    .font(Tema.meta)
+                trecho(p.texto)
+                if p.estado != .incompativel {
+                    Button("Guardar como nova versão externa") { aplicar(p) }
+                        .disabled(!permiteImportar || !oficina.salvo)
+                        .accessibilityIdentifier("trabalho-confirmar-importacao")
                 }
-                .disabled(!permiteImportar || !oficina.salvo)
-                .accessibilityIdentifier("trabalho-confirmar-importacao")
+                Button("Fechar revisão") { preview = nil }
             }
-            Button("Fechar revisão") { preview = nil }
         }
         .padding(12)
         .background(Tema.superficie, in: RoundedRectangle(cornerRadius: Tema.raio))
+    }
+
+    /// As duas pontas mudaram: o autor lê as duas e escolhe. Nenhuma escolha
+    /// sobrescreve — guardar o arquivo é criar versão nova sobre a base dele.
+    @ViewBuilder
+    private func asDuasVersoes(_ c: IntercambioTrabalho.Conflito,
+                               _ p: IntercambioTrabalho.Preview) -> some View {
+        Text(c.tituloAtual).rotulo(Tema.tintaSuave)
+        Text(verbatim: String(c.textoAtual.prefix(Self.limitePrevia)))
+            .font(Tema.corpo).lineLimit(Self.linhasDoConflito)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .cartao(.campo)
+            .accessibilityIdentifier("trabalho-conflito-atual")
+        Text(c.tituloArquivo).rotulo(Tema.tintaSuave)
+        Text(verbatim: String(c.textoArquivo.prefix(Self.limitePrevia)))
+            .font(Tema.corpo).lineLimit(Self.linhasDoConflito)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .cartao(.campo)
+            .accessibilityIdentifier("trabalho-conflito-arquivo")
+        Text("Mostro o começo de cada uma. \(c.consequencia)")
+            .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+        Button("Guardar o arquivo como nova versão") { aplicar(p) }
+            .disabled(!permiteImportar || !oficina.salvo)
+            .accessibilityIdentifier("trabalho-confirmar-importacao")
+        Button("Manter só a versão atual") { preview = nil }
+            .accessibilityIdentifier("trabalho-conflito-manter")
+    }
+
+    private func trecho(_ texto: String) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(verbatim: String(texto.prefix(Self.limitePrevia)))
+                .font(Tema.corpo).textSelection(.enabled)
+            if texto.count > Self.limitePrevia {
+                Text("Prévia parcial. A importação preserva o texto completo do arquivo.")
+                    .font(Tema.meta).foregroundStyle(Tema.aviso)
+            }
+        }
     }
 
     private func prepararExportacao() {
@@ -116,6 +176,7 @@ struct IntercambioTrabalhoView: View {
             do {
                 preview = try IntercambioTrabalho.preparar(resultado.get(), para: oficina.documento)
                 recado = nil
+                tentarGuardar = false
             } catch { recado = erroDescricao(error) }
         }
     }
@@ -123,26 +184,27 @@ struct IntercambioTrabalhoView: View {
     private func aplicar(_ p: IntercambioTrabalho.Preview) {
         guard oficina.verificarAcesso(), oficina.salvo, permiteImportar else { return }
         var mudou = false
-        if oficina.alterar({ mudou = try $0.aplicarVersaoExterna(p, confirmarBaseAntiga: p.estado == .baseAntiga) }) {
-            preview = nil
-            recado = mudou ? "Nova versão externa guardada. As versões anteriores foram preservadas." : "Este conteúdo já está guardado; nenhuma versão duplicada foi criada."
-        } else {
-            if mudou { importacaoPendenteID = oficina.documento.versaoAtual?.id }
-            recado = "Não foi possível aplicar o arquivo. Confira o salvamento e importe novamente se a versão ou a intenção mudou."
+        let guardou = oficina.alterar {
+            mudou = try $0.aplicarVersaoExterna(p, confirmarBaseAntiga: p.estado == .baseAntiga)
         }
+        let desfecho = IntercambioTrabalho.Desfecho.de(
+            mudou: mudou, guardou: guardou, acesso: oficina.acesso.permitido)
+        recado = desfecho.linha
+        tentarGuardar = desfecho.ofereceTentarGuardar
+        // A versão candidata já está na memória da Oficina: o pendente é o
+        // commit, não outra importação.
+        importacaoPendenteID = desfecho.ofereceTentarGuardar ? oficina.documento.versaoAtual?.id : nil
+        if !desfecho.mantemRevisao { preview = nil }
     }
 
-    private func descreverBase(_ p: IntercambioTrabalho.Preview) -> String {
-        func numero(_ id: UUID?) -> String {
-            guard let id, let i = oficina.documento.artefatos.firstIndex(where: { $0.id == id }) else { return "nenhuma" }
-            return String(i + 1)
-        }
-        switch p.estado {
-        case .baseAtual: return "Base do arquivo: versão \(numero(p.baseID)), a versão atual. O conteúdo recebido será uma nova versão."
-        case .baseAntiga: return "Base do arquivo: versão \(numero(p.baseID)). Versão atual: \(numero(p.versaoVigenteID)). A nova versão partirá dessa base antiga, sem apagar a atual."
-        case .semVinculo: return "Arquivo sem vínculo de origem. Será acrescentado como material externo, ligado à intenção atual."
-        case .incompativel: return "Este arquivo não pode ser aplicado a este trabalho."
-        }
+    private func retentar() {
+        guard oficina.verificarAcesso() else { return }
+        let guardou = oficina.guardar()
+        recado = guardou ? IntercambioTrabalho.Desfecho.confirmada.linha
+            : IntercambioTrabalho.Desfecho.de(mudou: true, guardou: false,
+                                              acesso: oficina.acesso.permitido).linha
+        tentarGuardar = !guardou && oficina.acesso.permitido
+        if guardou { importacaoPendenteID = nil }
     }
 
     private func erroDescricao(_ erro: Error) -> String {

@@ -195,4 +195,112 @@ struct IntercambioTrabalhoTests {
         #expect(volta.artefatos.count == 2 && volta.versaoAtual?.id == idCandidato)
         #expect(volta.versaoAtual?.origem == .externa)
     }
+
+    // MARK: - Volta 11: conflito, retry e selo com a tela aberta (ADR 05x)
+
+    @Test func conflitoMostraAsDuasVersoesEEscolherNuncaSobrescreve() throws {
+        var documento = try exemplo("Versão A, a que saiu no arquivo")
+        let a = try #require(documento.versaoAtual)
+        let arquivo = try editar(IntercambioTrabalho.exportar(documento), corpo: "Versão A editada fora")
+        try documento.guardarVersaoHumana("Versão B, escrita aqui enquanto o arquivo estava fora")
+        let antes = documento
+        let preview = try IntercambioTrabalho.preparar(arquivo, para: documento)
+        #expect(preview.estado == .baseAntiga)
+
+        // As DUAS versões, com a consequência dita antes da escolha.
+        let conflito = try #require(IntercambioTrabalho.conflito(preview, em: documento))
+        #expect(conflito.textoAtual == "Versão B, escrita aqui enquanto o arquivo estava fora")
+        #expect(conflito.textoArquivo == "Versão A editada fora")
+        #expect(conflito.tituloAtual.contains("versão 2") && conflito.tituloArquivo.contains("versão 1"))
+        #expect(conflito.consequencia.contains("versão 2") && conflito.consequencia.contains("histórico"))
+        // Só a base antiga é conflito: o retorno feliz não abre as duas.
+        var comBaseAtual = try exemplo()
+        let feliz = try IntercambioTrabalho.preparar(
+            try editar(IntercambioTrabalho.exportar(comBaseAtual), corpo: "editado"), para: comBaseAtual)
+        #expect(IntercambioTrabalho.conflito(feliz, em: comBaseAtual) == nil)
+        _ = comBaseAtual
+
+        // "Manter só a versão atual" não toca em nada.
+        #expect(documento == antes)
+        // "Guardar o arquivo como nova versão" acrescenta, nunca sobrescreve.
+        #expect(try documento.aplicarVersaoExterna(preview, confirmarBaseAntiga: true))
+        #expect(documento.artefatos.dropLast() == antes.artefatos[...])
+        #expect(documento.artefatos.count == 3)
+        #expect(documento.versaoAtual?.conteudo == "Versão A editada fora")
+        #expect(documento.versaoAtual?.anteriorID == a.id && documento.versaoAtual?.origem == .externa)
+        #expect(documento.acoes == antes.acoes && documento.evidencias == antes.evidencias)
+    }
+
+    @Test func recusaDeCommitOfereceRetryQueConfirmaAMesmaVersaoSemDuplicar() throws {
+        enum Falha: Error { case disco }
+        let container = try ModelContainer.traco(emMemoria: true)
+        let trabalho = try Trabalho(documento: exemplo())
+        container.mainContext.insert(trabalho)
+        try container.mainContext.save()
+        let oficina = try OficinaTrabalho(trabalho: trabalho, context: container.mainContext)
+        let preview = try IntercambioTrabalho.preparar(Data("Versão vinda de fora".utf8), para: oficina.documento)
+
+        // A tela aplica: a mutação passou, o commit recusou.
+        oficina.persistir = { _ in throw Falha.disco }
+        var mudou = false
+        let guardou = oficina.alterar { mudou = try $0.aplicarVersaoExterna(preview) }
+        let recusa = IntercambioTrabalho.Desfecho.de(mudou: mudou, guardou: guardou, acesso: oficina.acesso.permitido)
+        #expect(recusa == .aguardandoCommit && recusa.ofereceTentarGuardar && !recusa.mantemRevisao)
+        #expect(recusa.linha.contains("Nada foi perdido"))
+        let candidato = oficina.documento.versaoAtual?.id
+        #expect(oficina.documento.artefatos.count == 2 && !oficina.salvo)
+
+        // "Tentar guardar de novo" não reimporta: confirma a MESMA versão.
+        oficina.persistir = { try $0.save() }
+        #expect(oficina.guardar())
+        #expect(!IntercambioTrabalho.Desfecho.confirmada.ofereceTentarGuardar)
+        let volta = try trabalho.ler()
+        #expect(volta.artefatos.count == 2 && volta.versaoAtual?.id == candidato)
+        #expect(volta.versaoAtual?.origem == .externa)
+
+        // Uma segunda passada pela mesma prévia não fabrica outra cópia.
+        let repetida = try IntercambioTrabalho.preparar(Data("Versão vinda de fora".utf8), para: oficina.documento)
+        var mudouDeNovo = false
+        let guardouDeNovo = oficina.alterar { mudouDeNovo = try $0.aplicarVersaoExterna(repetida) }
+        #expect(IntercambioTrabalho.Desfecho.de(mudou: mudouDeNovo, guardou: guardouDeNovo,
+                                                acesso: oficina.acesso.permitido) == .semNovidade)
+        #expect(try trabalho.ler().artefatos.count == 2)
+    }
+
+    @Test func selarAOrigemComOSeletorAbertoRecolheOMaterialEDizOQueRecolheu() throws {
+        for material in [IntercambioTrabalho.Material.seletor, .exportacao, .revisao] {
+            let container = try ModelContainer.traco(emMemoria: true)
+            let nota = Nota(texto: "A origem deste trabalho")
+            container.mainContext.insert(nota)
+            var documento = try exemplo()
+            documento.notaOrigemID = nota.uuid
+            let trabalho = try Trabalho(documento: documento)
+            container.mainContext.insert(trabalho)
+            try container.mainContext.save()
+            let oficina = try OficinaTrabalho(trabalho: trabalho, context: container.mainContext)
+
+            // A tela declara o que tem em mãos; nada foi recolhido ainda.
+            oficina.intercambioAberto = material
+            #expect(oficina.verificarAcesso())
+            #expect(oficina.intercambioRecolhido == .nenhum)
+
+            nota.trancada = true
+            try container.mainContext.save()
+            #expect(!oficina.verificarAcesso())
+            #expect(oficina.intercambioAberto == .nenhum)
+            #expect(oficina.intercambioRecolhido == material)
+            let linha = try #require(oficina.intercambioRecolhido.recolhimento)
+            #expect(linha.contains("A origem foi protegida"))
+            #expect(linha.contains(material == .exportacao ? "Nada saiu do Traço" : "Nada foi importado"))
+            // Nada foi apagado do trabalho por causa do selo.
+            #expect(try trabalho.ler().artefatos.count == 1)
+
+            // Liberada a origem, a linha cala: ela fala do que acabou de acontecer.
+            nota.trancada = false
+            try container.mainContext.save()
+            #expect(oficina.verificarAcesso())
+            #expect(oficina.intercambioRecolhido == .nenhum)
+            #expect(IntercambioTrabalho.Material.nenhum.recolhimento == nil)
+        }
+    }
 }

@@ -2815,3 +2815,57 @@ em `ForaDoAppTests` (rota guardada sem ninguém ouvir e consumida uma vez; alvo
 errado recusa sem rota; falha do Anotar não deposita); suíte 715/125 sobre a V10; dois alvos
 sem aviso; capturas no iPhone Air. **Fora (F3b):** ditado próprio — áudio
 salvo primeiro, transcrito depois, falha preserva o áudio — por `.captura`.
+
+## ADR 2026-09-06x — O conflito na tela: as duas versões, o retry e o selo que recolhe
+
+**O que estava provado.** A ADR 05l provou o retorno FELIZ: o `.md` sai com
+envelope, volta, e o corpo editado fora vira versão nova com autoria externa.
+Nada além disso tinha tela. Quando as duas pontas mudam, quando o disco recusa
+o commit, e quando a origem é selada com o seletor aberto, o autor via — ou uma
+prévia de um lado só, ou uma frase que mandava importar de novo, ou nada.
+
+**A decisão.** Três coisas, nenhuma delas nova no modelo: a lei do arquivo já
+acrescentava e nunca sobrescrevia. O que faltava era a tela dizer isso.
+
+1. **Conflito com as duas versões.** `IntercambioTrabalho.conflito(_:em:)`
+   devolve, e só para `.baseAntiga`, os dois lados com título e a
+   consequência escrita antes da escolha ("Nenhuma escolha apaga nada: a versão
+   N continua no histórico e o arquivo, se você o guardar, entra como versão
+   nova"). A tela mostra os dois em `cartao(.campo)`, cada um com o começo em
+   doze linhas — as duas têm de caber no mesmo olhar (`curva-zero`: comparar
+   antes de confirmar exige visão simultânea) —, e a escolha é explícita e
+   nomeada pelas duas saídas: **Guardar o arquivo como nova versão** e
+   **Manter só a versão atual**. Nenhuma delas apaga: guardar acrescenta sobre
+   a base do arquivo (`anteriorID`), manter não toca em nada.
+2. **Retry depois da recusa.** `Desfecho.de(mudou:guardou:acesso:)` separa o
+   que a mutação disse do que o commit disse — os dois são estados distintos.
+   `.aguardandoCommit` (a versão está na memória, o disco recusou) é o único
+   caso que oferece **Tentar guardar de novo**, e esse botão chama
+   `guardar()`, não outra importação: confirma a MESMA versão. `.semNovidade`
+   é a linha honesta de quem trouxe conteúdo já guardado — nenhuma cópia a
+   mais. `.semAcesso` cala a rota sem inventar sucesso.
+3. **O selo recolhe.** A tela declara em `oficina.intercambioAberto` o que tem
+   em mãos (`.seletor`, `.exportacao`, `.revisao`); `verificarAcesso()` — o
+   ponto por onde toda rota do Trabalho revalida — move isso para
+   `intercambioRecolhido` no instante da restrição, e a tela protegida diz o
+   que recolheu ("A origem foi protegida: recolhi o arquivo que estava em
+   revisão. Nada foi importado."). Liberada a origem, a linha cala.
+
+**Custo assumido.** A linha do recolhimento só aparece se o selo cair enquanto
+a MESMA `Oficina` está viva. Hoje nenhuma rota do app sela a origem com a folha
+do Trabalho aberta (o seletor de Arquivos é modal e a nota está atrás dela), e
+o simulador não põe duas superfícies na tela ao mesmo tempo: o recolhimento e a
+linha ficam provados por teste, não por captura. O mesmo vale para o retry: só
+o disco recusando um commit o produz, e não há rota de tela que force isso.
+
+**Volta:** multiplicar — a continuidade entre ferramentas é a tese.
+**A IA:** nada. **Prova:** 3 testes novos em `IntercambioTrabalhoTests` (as
+duas versões e a escolha que não sobrescreve; recusa → retry que confirma a
+mesma versão e uma segunda passada que não duplica; selo com `.seletor`,
+`.exportacao` e `.revisao` recolhendo e a linha certa em cada um), suíte
+**718/0 em 125 suítes** em 06/09/2026, build sem aviso;
+`maestro/intercambio-conflito.yaml` e as capturas `ferramentas/orca/v11-*.png`
+(painel, exportador aberto, seletor aberto, conflito com as duas versões,
+conflito em AX5, as duas escolhas, guardado com o histórico maior, conteúdo já
+guardado sem duplicata, arquivo de outro trabalho recusado). O `.md` foi
+editado FORA do app, no disco do simulador, entre a exportação e o retorno.
