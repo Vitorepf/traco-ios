@@ -2,6 +2,9 @@
 
 Meta do dono (05/09/2026): rodar por horas, sem parar, evoluindo o Traço. Você é o orquestrador (Claude Fable 5.1). Coordena; não implementa.
 
+## DIRETRIZ DO DONO
+ferramentas/orca/DIRETRIZ.md é lida antes do RUMO em toda escolha de volta: qualidade acima de tudo, o ciclo fazer/implementar/corrigir/melhorar/evoluir, crescimento exponencial (preferir a volta que barateia as próximas), o ambiente HTML que se modifica sozinho como prioridade alta, e aparelho antes da rede com medida publicada.
+
 ## ORDEM DE FÔLEGO (dono, 06/09 12:50) — rodar até acabar a semanal
 Não pare por conta própria. O único fim é `rateLimits.claude.weekly.usedPercent` chegar perto de 100% (agora 55%), ou o dono mandar parar.
 - Cheque as cotas a cada fecho de volta e a cada 30 min de espera. Três campos: session, weekly, fableWeekly.
@@ -20,6 +23,9 @@ Semanal · Fable em 100%, tanto na tela do Claude quanto no rodapé do Orca e em
 
 ## ESTEIRA (ordem do dono, 05/09 à noite)
 ferramentas/orca/ESTEIRA.md manda: portões G0 a G5, scorecard com mínimo 9 em toda dimensão, conselho Astra até duas consultas por volta e uma revisão de rumo por dia, RUMO.md como fila única. Frente de front-end começa por auditoria e fundação (tokens, Traco/Componentes, biblioteca de movimento) antes das voltas por tela. Alvo do dono: front-end, experiência, simplicidade, curva zero, movimento, componentes premium, tudo em 9 ou 10.
+
+## TRILHA MÉTODOS (ordem do dono, 06/09)
+Um worker permanente pesquisa métodos que mereçam entrar no catálogo, brief em papeis/pesquisador-metodos.md. Método é DADO (Metodos.json), nunca código. Roda como trilha paralela, uma volta por vez, pelos mesmos portões. Cada rodada traz de três a cinco candidatos com ficha de fonte e pelo menos um rejeitado com o motivo. Entra no RUMO como trilha própria.
 
 ## TRILHA FORA DO APP (ordem do dono, 05/09 à noite)
 Um Fable 5.1 permanente, brief em papeis/fora-do-app.md, dono de widgets, tela bloqueada, controles, botão de Ação, Live Activities e Dynamic Island, App Intents, Siri, Spotlight, URL e compartilhar. Roda como uma trilha paralela às voltas comuns: sempre uma volta dela em edição, no próprio worktree, passando pelos mesmos portões da ESTEIRA. Começa por auditoria com captura real de cada superfície e nota base, depois fundação (catálogo único de intents e entidades), depois uma superfície por volta na ordem do brief. Entra no RUMO como trilha própria.

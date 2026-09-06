@@ -26,7 +26,7 @@ Sempre uma volta desta trilha em edição, em paralelo às voltas comuns, no pr�
 | F2 | Fundação | MESCLADA em main (ADR 05u); gate ao dono: confirmar no iPhone que instalar por cima preserva os dados (o simulador provou que sim) |
 | F3 | Captar pensamento em um toque | MESCLADA (ADR 05w): controle Anotar na Central/bloqueada/botão de Ação abre o app com teclado pronto e microfone a um toque; F3b = ditado próprio com áudio preservado |
 | F3b | Ditado próprio | áudio salvo antes de transcrever; falha preserva o áudio | EM EDIÇÃO (worktree f3b-ditado, 06/09 12:55) |
-| F4 | Widget "próxima volta" interativo | botão de feito na própria superfície | |
+| F4 | **Os widgets da tela de início prestam** (era "widget próxima volta interativo") | refresh que funciona, identidade do Traço, vazio que oferece ação, densidade do médio, botão de feito na própria superfície | **EM EDIÇÃO, PRIORIDADE MÁXIMA** (worktree f4-widgets; ordem do dono 06/09 13:04, com print do iPhone) |
 | F5 | Ilha do compromisso vivo | estados completos (compacta, expandida, mínima, fim) | |
 | F6 | Widgets da tela bloqueada | accessoryCircular e accessoryInline do dia | |
 | F7 | Controle da Central de Controle | Recordar | |
@@ -37,6 +37,17 @@ Sempre uma volta desta trilha em edição, em paralelo às voltas comuns, no pr�
 
 **G0 de F1.** Ciclo: multiplicar (o Traço presente onde a pessoa está, sem abrir o app). Intenção: saber, com captura real, o que cada superfície fora do app entrega hoje e quanto vale. Obstáculo: há widgets, Live Activities, 12 atalhos e 10 intents sem inventário nem nota; captura só no preview do Xcode não conta. Evidência: ferramentas/orca/auditoria-fora-do-app.md com capturas simctl por superfície e estado, nota 0-10 nas dimensões Fora do app, Design, Simplicidade, Movimento, Acessibilidade, Privacidade e Estado honesto, lista do que falta, e a consulta ao conselho gravada em consulta-fora-intents.md. Escopo: nenhum arquivo de código.
 
+## Trilha própria: Métodos (worker permanente; brief em papeis/pesquisador-metodos.md)
+
+Ordem do dono de 06/09 13:10. Um pesquisador dedicado procura métodos que MEREÇAM entrar no catálogo dos 21, com `pesquisa-web` e fontes primárias. Método é DADO, não código: nada de Swift nesta trilha. Barra de entrada de seis itens no brief; o nervo é a barra 5, o passo que as pessoas pulam e que o método existe para cobrar. Cada rodada entrega três a cinco candidatos com o JSON completo no esquema do catálogo (roteamento em regex pt-BR testadas sem falso positivo nos outros 20) e a ficha em `ferramentas/orca/metodos/<id>.md` com fonte, citação literal, o que a fonte não afirma e as seis barras — mais pelo menos UM rejeitado com o motivo escrito, para o critério ficar visível. Nunca alegar eficácia comprovada.
+
+| # | rodada | estado |
+|---|---|---|
+| M1 | primeira rodada de candidatos | EM EDIÇÃO (worktree metodos-m1) |
+| M2 | colagem no catálogo dos aprovados pelo dono (só depois da V16 mesclar) | espera M1 e V16 |
+
+**G0 de M1.** Ciclo: melhorar (o catálogo é o repertório de instrumentos de pensamento do autor). Intenção: o autor encontra o instrumento certo para o movimento que está tentando fazer, e sabe de onde ele vem. Obstáculo: 21 métodos e nenhuma rotina de entrada; sem critério escrito, catálogo vira lista de produtividade. Evidência: três a cinco fichas com JSON completo e fonte primária citada literalmente, um rejeitado com a barra em que caiu, e a saída do teste das regex contra os outros 20. Escopo: só `ferramentas/orca/metodos/`; `Traco/Modelo/Metodos.json` fica fechado até a V16 mesclar.
+
 ## Política de peso das evidências
 
 PNG de captura ≤ 400 KB (reduzir com `sips -Z 1000` antes de commitar), vídeo ≤ 3 MB (≤ 20 s, `-crf 30`), hierarquias em texto. F1 somou 52 MB e V9 82 MB: a partir da V10 o G5 recusa evidência acima disso.
@@ -45,7 +56,7 @@ PNG de captura ≤ 400 KB (reduzir com `sips -Z 1000` antes de commitar), vídeo
 
 Retomada 06/09 12:48 (queda por cota do Fable às 5:40; ver LACO). Fable semanal em 100% até as 20:00: TODO worker em Opus 5, nenhum `--model fable`. Pote que vale: semanal de todos os modelos, 55% usado. Ordem do dono: rodar até acabar essa cota; prioridade para as telas abaixo de 9 da auditoria V9, Trabalho (6,0) e Recordar (6,2) na frente, depois as superfícies fora do app, depois o resto desta lista. Skills viraram portão (ESTEIRA, "Skills obrigatórias por portão").
 
-Quatro frentes: **V12** Página e Caderno (front-end, worktree volta-12-pagina, evidências do G2); **V16** métodos com proveniência (worktree volta-16-metodos, G3 INTEGRAR, G4 em curso); **V18** Trabalho até 9 (front-end, worktree volta-18-trabalho, abrindo); **V11** ambiente Markdown (implementador, worktree volta-11-markdown, abrindo); trilha fora do app: **F3b** ditado próprio (worktree f3b-ditado, abrindo). Próxima a abrir quando uma fechar: Recordar até 9 (6,2), a segunda pior da auditoria.
+Sete frentes: **V12** Página e Caderno até 9 (FECHADA no worktree, topo 337a22e, −55 linhas líquidas, suíte 716/0 — em G3); **V16** métodos com proveniência (G3 INTEGRAR, G4 CORRIGIR ANTES por Movimento 8 — V16-C corrige a abertura do Perfil); **V18** Trabalho até 9 (front-end); **V11** ambiente Markdown (implementador); trilha fora do app: **F4** os widgets da tela de início (PRIORIDADE MÁXIMA do dono) e **F3b** ditado próprio; trilha métodos: **M1** primeira rodada. Próxima a abrir quando uma fechar: Recordar até 9 (6,2), a segunda pior da auditoria.
 
 **F3b — Ditado próprio: o áudio antes da letra.** Ciclo: multiplicar. Intenção: falar uma frase na rua e ela entrar no Traço mesmo que a transcrição falhe. Obstáculo: a F3 entregou o controle Anotar com o teclado pronto e o microfone a um toque, mas quem transcreve é o ditado do teclado do iOS — falha, morte do app ou falta de rede não deixam nada; a ADR 05a manda o contrário: áudio depositado primeiro, letra depois, falha preserva o áudio. Evidência: gravação depositada antes de qualquer transcrição; nota com a transcrição marcada com origem "ditado" e o áudio localizável a partir dela; falha encenada mostrando a nota com o áudio e uma linha honesta; microfone/reconhecimento negados ditos na tela; capturas de cada estado em large e AX5, vídeo com e sem Reduzir Movimento, testes do depósito e do caminho de falha. Escopo: Traco/App/Intents/*, ponto de entrada da captura, áudio no App Group, TracoTests; campo de modelo só o mínimo aditivo (referência ao arquivo, nunca blob).
 
