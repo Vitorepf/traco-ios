@@ -653,7 +653,7 @@ mais fácil de achar, não porque o mundo só tivesse grau C.
   "pergunta": "Se valesse para todos, inclusive contra você, a regra ainda funciona?",
   "roteamento": [
     "\\bs[óo] (desta|dessa) vez\\b|\\btodo mundo faz\\b|\\bningu[ée]m vai (saber|notar|ver)\\b|\\bn[ãa]o faz mal a ningu[ée]m\\b",
-    "\\be se (todos|todo mundo) fizesse\\b|\\bimperativo categ[óo]rico\\b|\\bque regra eu estou (fazendo|criando)\\b",
+    "\\be se (todos|todo mundo) fizesse(m|mos)?\\b|\\bimperativo categ[óo]rico\\b|\\bque regra eu estou (fazendo|criando)\\b",
     "\\bposso fazer isso\\b|\\bseria errado\\b|\\b(é|e) errado (fazer )?isso\\b|\\bisso (é|e) [ée]tico\\b"
   ],
   "campos": [

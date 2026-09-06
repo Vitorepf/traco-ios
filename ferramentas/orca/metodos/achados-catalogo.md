@@ -1,6 +1,6 @@
 # Achados do catálogo — contrato de colagem e pedidos de app
 
-Trilha Métodos · M1 a M8 · reorganizado em 06/09/2026.
+Trilha Métodos · M1 a M9 · reorganizado em 06/09/2026.
 
 > **Reorganizado na volta M5.** Nada do contrato mudou de conteúdo: a regra de
 > ordem, o conserto do Se–então e as provas exigidas continuam com as mesmas
@@ -19,6 +19,7 @@ Trilha Métodos · M1 a M8 · reorganizado em 06/09/2026.
 | escrever a proveniência de um método | [`regua-da-proveniencia.md`](regua-da-proveniencia.md) |
 | colar a leva 2 | [`leva-2.md`](leva-2.md), que basta sozinho |
 | entender o critério da trilha inteira | [`o-que-a-trilha-aprendeu.md`](o-que-a-trilha-aprendeu.md) |
+| decidir o que a trilha caça a seguir | [`o-que-falta-no-catalogo.md`](o-que-falta-no-catalogo.md) |
 | saber o que as provas da trilha garantem | **Parte IV** |
 
 ## Estado da trilha (fonte única — se divergir de outro arquivo, vale este)
@@ -31,10 +32,16 @@ Trilha Métodos · M1 a M8 · reorganizado em 06/09/2026.
 | O combinado, O ponto que decide | M5 | **aceitos** (leva 2) |
 | O que se repetiu | M6 | **aceito** (leva 2) |
 | A regra que eu faço, A reparação | M7 | **aceitos** (leva 2) |
-| Matriz de Eisenhower, Cerca de Chesterton, Considerar o oposto, Critérios de parada, Sanduíche de feedback, Afirmações positivas, Revisão anual, Carta ao eu do futuro, Teste do jornal de amanhã, Regra de ouro | M1–M7 | **rejeitados**, com ficha e motivo |
+| Ver antes de nomear, O que não está lá | M9 | **propostos**, gosto não decidido — os dois de **grau A** |
+| Matriz de Eisenhower, Cerca de Chesterton, Considerar o oposto, Critérios de parada, Sanduíche de feedback, Afirmações positivas, Revisão anual, Carta ao eu do futuro, Teste do jornal de amanhã, Regra de ouro, Escada de inferência, Observação sem avaliação | M1–M9 | **rejeitados**, com ficha e motivo |
 
-Quinze propostos, **dez rejeitados**, sete na leva 1 (com a M3) e oito na
-[leva 2](leva-2.md).
+Dezessete propostos, **doze rejeitados**, sete na leva 1 (com a M3), oito na
+[leva 2](leva-2.md) e dois esperando gosto.
+
+**O mapa das faculdades está em
+[`o-que-falta-no-catalogo.md`](o-que-falta-no-catalogo.md)** — o que a coleção
+cobre bem, o que cobre por acidente, onde o autor fica na mão, e os três tetos de
+crescimento (o primeiro deles já estourado, no código).
 
 **Os oito da leva 2 estão empacotados para colar em [`leva-2.md`](leva-2.md)** —
 JSON final, grau declarado, encadeamentos e frases de teste. Quem colar não
@@ -235,6 +242,31 @@ sem risco de roteamento — **as três estão escritas, prontas para colar**, em
 [`regua-da-proveniencia.md`](regua-da-proveniencia.md). Cabe em qualquer volta de
 colagem, e só fica mais cara com o tempo, porque cada método novo herda o padrão
 do que já está lá.
+
+## II.4 A análise de bordo só conhece DEZ métodos — **ABERTO, e é teto de crescimento** (M9)
+
+`AnaliseDeBordo.GestoDeBordo` é uma enum `@Generable` escrita à mão com dez
+métodos mais `nenhum`. O modelo de bordo — o que roda sem conta e sem rede — não
+sabe devolver nenhum dos onze outros já colados, nem nenhum dos propostos. E em
+`Sessao.escolher` **o veredito do modelo vence a regex**, então o bordo pode
+sobrescrever um roteamento correto do catálogo por um rótulo mais grosso.
+
+O comentário do próprio arquivo diz que os dois motores "têm de rotear igual,
+senão ligar a conta mudaria o comportamento do app". **Hoje ligar a conta muda.**
+Não é descuido — a geração guiada de bordo precisa de esquema estático, e o
+remoto monta o prompt do `Catalogo.todos` porque pode. É volta de app, e é a que
+mais rende: enquanto isto existir, **cada método novo é meio método**.
+
+Análise completa, com os outros dois tetos, em
+[`o-que-falta-no-catalogo.md`](o-que-falta-no-catalogo.md).
+
+## II.5 A regex larga da Especificação — **ABERTO** (M9)
+
+`\b(feature|sistema|api|tela|site|função|app|módulo|construir)\b` vence qualquer
+método cujo objeto seja uma tela, um app ou um sistema. Medido nesta rodada com o
+"Ver antes de nomear": a frase "o que eu vi foi a tela travada por seis segundos"
+vai para a Especificação. É a mesma classe dos cinco desvios de II.1 e o conserto
+é o mesmo — estreitar a lista de palavras. Não aprovado; a colagem não deve tocar.
 
 ---
 
