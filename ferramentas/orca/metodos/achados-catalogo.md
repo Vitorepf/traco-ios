@@ -1,6 +1,6 @@
 # Achados do catálogo — contrato de colagem e pedidos de app
 
-Trilha Métodos · M1 a M5 · reorganizado em 06/09/2026.
+Trilha Métodos · M1 a M6 · reorganizado em 06/09/2026.
 
 > **Reorganizado na volta M5.** Nada do contrato mudou de conteúdo: a regra de
 > ordem, o conserto do Se–então e as provas exigidas continuam com as mesmas
@@ -16,6 +16,7 @@ Trilha Métodos · M1 a M5 · reorganizado em 06/09/2026.
 | colar métodos no `Metodos.json` | **Parte I** inteira, antes de abrir o arquivo |
 | abrir uma volta de app a partir da trilha | **Parte III** |
 | entender por que um roteamento erra hoje | **Parte II** |
+| escrever a proveniência de um método | [`regua-da-proveniencia.md`](regua-da-proveniencia.md) |
 | saber o que as provas da trilha garantem | **Parte IV** |
 
 ## Estado da trilha (fonte única — se divergir de outro arquivo, vale este)
@@ -25,10 +26,16 @@ Trilha Métodos · M1 a M5 · reorganizado em 06/09/2026.
 | Subtração, Coluna da esquerda, Classe de referência, Cinco porquês | M1 | **aprovados; a M3 está colando** |
 | A pergunta de Hamming, O que se vê e o que não se vê, Exame da noite | M2 | **aprovados; a M3 está colando** |
 | A nota do fato contrário, Ordem de grandeza, Começaria hoje? | M4 | **aceitos por ora**, entram na leva seguinte |
-| O combinado, O ponto que decide | M5 | **propostos**, gosto não decidido |
-| Matriz de Eisenhower, Cerca de Chesterton, Considerar o oposto, Critérios de parada, Sanduíche de feedback, Afirmações positivas | M1–M5 | **rejeitados**, com ficha e motivo |
+| O combinado, O ponto que decide | M5 | **aceitos**, entram numa leva seguinte |
+| O que se repetiu | M6 | **proposto**, gosto não decidido |
+| Matriz de Eisenhower, Cerca de Chesterton, Considerar o oposto, Critérios de parada, Sanduíche de feedback, Afirmações positivas, Revisão anual, Carta ao eu do futuro | M1–M6 | **rejeitados**, com ficha e motivo |
 
-Doze propostos, seis rejeitados, sete em colagem.
+Treze propostos, oito rejeitados, sete colados pela M3.
+
+**Antes de escrever ou colar qualquer ficha, leia a
+[régua da proveniência](regua-da-proveniencia.md)** — os cinco graus de origem, o
+que cada um obriga a dizer na tela, e a auditoria dos 21 que já estão no
+catálogo (três não passariam hoje, e o conserto é de três frases).
 
 ## A regra do roteador (o que torna a ordem um contrato)
 
@@ -193,6 +200,22 @@ sustenta. Ficha completa, com a citação literal, o que o estudo não afirma e 
 **texto exato proposto**, em [`aviso-wood.md`](aviso-wood.md). É volta de app,
 não de catálogo.
 
+## II.3 Três fichas com proveniência inflada — **ABERTO, conserto de três frases**
+
+A auditoria da M6 achou três métodos dos 21 cujo **grau declarado está acima do
+real**: **Decisão** (cita Kahneman e Klein 2009, artigo que não contém diário de
+decisão nenhum), **Primeiros princípios** (obra de Aristóteles colada a um
+procedimento moderno que não está nela) e **Inversão** ("discursos (1986 em
+diante)", que não localiza nada, mais uma frase atribuída a Jacobi sem essa
+palavra).
+
+Nenhum é motivo de retirar método. O conserto são três frases no campo `fonte` /
+`adaptacao`, sem tocar em código, sem mexer em ordem, sem risco de roteamento —
+**as três estão escritas, prontas para colar**, em
+[`regua-da-proveniencia.md`](regua-da-proveniencia.md). Cabe em qualquer volta de
+colagem, e só fica mais cara com o tempo, porque cada método novo herda o padrão
+do que já está lá.
+
 ---
 
 # PARTE III — O QUE A FORMA LIVRE ESTÁ PEDINDO DO APP
@@ -318,6 +341,13 @@ IA, porque o texto tem de ser do autor, não um resumo gerado. O caminho barato
 que eu apostaria: **só as notas da mesma forma que têm o campo de volta
 preenchido**, listadas por data, sem ranking e sem resumo. Isso é busca, não
 inteligência, e já entregaria quase tudo.
+
+**Reforço da M6:** agora são TRÊS métodos pedindo a mesma leitura, por três
+motivos diferentes — a Classe de referência quer o corpus para **prever**, a
+revisão anual de Drucker (rejeitada como método justamente por isso) queria para
+**julgar o passado**, e "O que se repetiu" quer para **contar**. Para servir aos
+três não é preciso inteligência nenhuma: basta listar, por forma e por período, as
+notas com campo de volta preenchido.
 
 **Onde isto conversa com o resto:** o Recordar já sabe esconder e cobrar campos;
 o corpus já sabe ler mil notas depressa (há medida na suíte). A peça que falta é
