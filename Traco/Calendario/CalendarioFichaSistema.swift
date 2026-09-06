@@ -16,30 +16,8 @@ struct CalendarioFichaSistemaView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
-            HStack {
-                Button {
-                    dismiss()
-                } label: {
-                    Image(systemName: "xmark")
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(CalendarioTema.tinta)
-                        .frame(width: CalendarioTema.controle, height: CalendarioTema.controle)
-                        .background(CalendarioTema.chip, in: Circle())
-                        .frame(width: Tema.alvo, height: Tema.alvo)
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(PressaoClara())
-                .accessibilityLabel("Fechar")
-                .accessibilityIdentifier("sistema-fechar")
-                Spacer()
-                Text(calendario.isEmpty ? "Do seu iPhone" : calendario)
-                    .font(CalendarioTema.dia)
-                    .foregroundStyle(CalendarioTema.tintaSuave)
-                    .padding(.horizontal, 12)
-                    .frame(height: CalendarioTema.controle)
-                    .background(CalendarioTema.chip, in: Capsule())
-                Spacer()
-                Color.clear.frame(width: Tema.alvo, height: Tema.alvo)
+            CabecalhoDeFolha(aoSair: { dismiss() }, prefixo: "sistema") {
+                Pilula(calendario.isEmpty ? "Do seu iPhone" : calendario, forma: .controle)
             }
 
             Text(evento.titulo)
@@ -50,10 +28,8 @@ struct CalendarioFichaSistemaView: View {
                 .accessibilityIdentifier("sistema-titulo")
 
             VStack(alignment: .leading, spacing: 8) {
-                Text("QUANDO")
-                    .font(.caption2.weight(.semibold))
-                    .tracking(1.2)
-                    .foregroundStyle(CalendarioTema.tintaSuave)
+                Text("Quando")
+                    .rotulo(Tema.tintaSuave)
                 Text(Calendario.diaPorExtenso(evento.inicio, agenda.cal))
                     .font(.callout)
                 Text(Calendario.intervalo(evento, agenda.cal))
@@ -62,8 +38,7 @@ struct CalendarioFichaSistemaView: View {
                     .monospacedDigit()
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(14)
-            .background(CalendarioTema.campo, in: RoundedRectangle(cornerRadius: CalendarioTema.raioCampo, style: .continuous))
+            .cartao(.campo)
 
             if !doCaderno.isEmpty {
                 DoCadernoView(vizinhas: doCaderno) { uuid in
@@ -76,16 +51,11 @@ struct CalendarioFichaSistemaView: View {
                 .font(.footnote)
                 .foregroundStyle(CalendarioTema.tintaSuave)
 
-            Button("Abrir no Calendário") {
+            Pilula("Abrir no Calendário", forma: .larga) {
                 // `calshow:` com o instante em segundos desde 2001 abre o dia
                 let quando = evento.inicio.timeIntervalSinceReferenceDate
                 if let url = URL(string: "calshow:\(Int(quando))") { abrir(url) }
             }
-            .font(CalendarioTema.chrome)
-            .foregroundStyle(CalendarioTema.tinta)
-            .frame(maxWidth: .infinity, minHeight: Tema.alvo)
-            .background(CalendarioTema.chip, in: Capsule())
-            .buttonStyle(PressaoClara())
             .accessibilityIdentifier("sistema-abrir-calendario")
 
             Spacer(minLength: 0)

@@ -188,9 +188,7 @@ struct RecordarView: View {
             if !faltando.isEmpty {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("O QUE NÃO VOLTOU")
-                        .font(Tema.label)
-                        .tracking(Tema.trackingLabel)
-                        .foregroundStyle(Tema.tintaFraca)
+                        .rotulo()
                     ForEach(Array(faltando.enumerated()), id: \.offset) { _, ponto in
                         Text(ponto)
                             .font(Tema.corpo)
@@ -222,7 +220,7 @@ struct RecordarView: View {
         let g = gesto
         Task {
             let r = await Sabia.conferir(pontos: pontos, memoria: escrito, gesto: g)
-            withAnimation(.easeOut(duration: 0.3)) { voltaram = r }
+            withAnimation(Tema.animacao(.easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion)) { voltaram = r }
             // ADR 04h: o que não voltou é sinal — entra no retrato e na trajetória
             if let r { Sinais.naoVoltou(g, faltaram: pontos.count - r.count, de: pontos.count) }
         }
@@ -234,26 +232,8 @@ struct RecordarView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            HStack {
-                Button { dismiss() } label: {
-                    HStack(spacing: 5) {
-                        Image(systemName: "chevron.backward")
-                            .font(.subheadline.weight(.semibold))
-                        Text("voltar")
-                            .font(Tema.chrome)
-                    }
-                }
-                    .foregroundStyle(Tema.tinta)
-                    .alvo()
-                    .buttonStyle(PressaoDiscreta())
-                    .accessibilityLabel("Voltar")
-                Spacer()
-                Text("RECORDAR")
-                    .font(Tema.label)
-                    .tracking(Tema.trackingLabel)
-                    .foregroundStyle(Tema.tintaFraca)
-                Spacer()
-                Color.clear.frame(width: 64, height: Tema.alvo)
+            CabecalhoDeFolha(saida: .voltar, aoSair: { dismiss() }) {
+                Text("RECORDAR").rotulo()
             }
             .padding(.horizontal, Tema.margem)
             // cabeçalho é chrome: como a barra do sistema, não cresce em AX
@@ -267,10 +247,15 @@ struct RecordarView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, Tema.margem)
                     .padding(.bottom, 16)
+                    // sai em corte: em fade ela cruzava com a pergunta na mesma linha
+                    .transition(entraFase)
             }
 
             switch fase {
-            case .ler:
+            case .ler, .esconder:
+                // §21: a nota que se esconde é UM objeto — o mesmo texto embaça
+                // e apaga; antes eram duas views cruzando em fade
+                let escondendo = fase == .esconder
                 ScrollView {
                     if modo == .palavra || modo == .seEntao, !pista.isEmpty {
                         Text(pista)
@@ -285,31 +270,16 @@ struct RecordarView: View {
                             .font(Tema.corpo)
                             .foregroundStyle(Tema.tinta)
                             .frame(maxWidth: .infinity, alignment: .leading)
+                            .blur(radius: escondendo && !reduceMotion ? 14 : 0)
+                            .scaleEffect(escondendo && !reduceMotion ? 0.985 : 1)
+                            .opacity(escondendo ? 0.25 : 1)
                             .padding(.horizontal, Tema.margem)
+                            .accessibilityHidden(escondendo)
                     }
                 }
-            case .esconder:
-                ScrollView {
-                    if modo == .palavra || modo == .seEntao, !pista.isEmpty {
-                        Text(pista)
-                            .font(Tema.corpo)
-                            .foregroundStyle(Tema.tintaSuave)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.horizontal, Tema.margem)
-                            .padding(.bottom, 16)
-                    }
-                    if modo.mostraAlvoAntesDeEscrever {
-                        Text(alvo)
-                            .font(Tema.corpo)
-                            .foregroundStyle(Tema.tinta)
-                            .blur(radius: reduceMotion ? 0 : 14)
-                            .scaleEffect(reduceMotion ? 1 : 0.985)
-                            .opacity(0.25)
-                            .padding(.horizontal, Tema.margem)
-                            .accessibilityHidden(true)
-                    }
-                }
+                .transition(entraFase)
             case .escrever:
+                Group {
                 if modo == .palavra || modo == .seEntao, !pista.isEmpty {
                     Text(pista)
                         .font(Tema.corpo)
@@ -342,7 +312,7 @@ struct RecordarView: View {
                     }
                     .font(Tema.label)
                     .foregroundStyle(Tema.tintaFraca)
-                    .buttonStyle(PressaoDiscreta())
+                    .buttonStyle(.discreto)
                     .frame(minHeight: 32)
                     .padding(.horizontal, Tema.margem)
                     .padding(.bottom, 4)
@@ -360,10 +330,10 @@ struct RecordarView: View {
                     foco = false
                     aoRevelar()
                     conferir()
-                    withAnimation(.easeOut(duration: 0.35)) { fase = .revelar }
+                    withAnimation(Tema.animacao(.easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion)) { fase = .revelar }
                 }
                 .disabled(memoriaVazia)
-                .buttonStyle(PrimarioStyle(recede: memoriaVazia))
+                .buttonStyle(.primario)
                 .padding(.horizontal, Tema.margem)
                 .padding(.bottom, 24)
                 .accessibilityHint(memoriaVazia ? "Escreva de memória primeiro" : "Mostra memória e nota lado a lado")
@@ -386,9 +356,13 @@ struct RecordarView: View {
                 .font(Tema.meta)
                 .foregroundStyle(Tema.tintaSuave)
                 .frame(maxWidth: .infinity, minHeight: Tema.alvo)
-                .buttonStyle(PressaoDiscreta())
+                .buttonStyle(.discreto)
                 .padding(.bottom, 8)
+                }
+                // um Group: cada irmão da fase corta ao sair e amanhece ao entrar
+                .transition(entraFase)
             case .revelar:
+                Group {
                 GeometryReader { geo in
                     let ladoALado = geo.size.width >= 360
                     let colunas = ladoALado
@@ -400,7 +374,7 @@ struct RecordarView: View {
                                 .transition(Tema.transicao(.opacity.combined(with: .offset(y: 10)), reduzido: reduceMotion))
                             bloco(rotuloAlvo, alvo)
                                 .transition(Tema.transicao(.opacity.combined(with: .offset(y: 10)), reduzido: reduceMotion))
-                                .animation(.easeOut(duration: 0.35).delay(0.08), value: fase)
+                                .animation(Tema.animacao(.easeOut(duration: Tema.Duracao.media).delay(Tema.Duracao.toque), reduzido: reduceMotion), value: fase)
                         }
                         .padding(Tema.margem)
                         .overlay {
@@ -417,24 +391,26 @@ struct RecordarView: View {
                 VStack(spacing: 4) {
                     if let aoProxima {
                         Button("próxima") { aoProxima() }
-                            .buttonStyle(PrimarioStyle())
+                            .buttonStyle(.primario)
                             .accessibilityLabel("Próxima")
                             .accessibilityHint("Abre a seguinte. Sem contagem.")
                     } else {
                         Button("Voltar à página") { dismiss() }
-                            .buttonStyle(PrimarioStyle())
+                            .buttonStyle(.primario)
                     }
                     if let aoCobrarAntes {
                         Button("cobrar antes") { aoCobrarAntes() }
                             .font(Tema.meta)
                             .foregroundStyle(Tema.tintaSuave)
                             .frame(maxWidth: .infinity, minHeight: Tema.alvo)
-                            .buttonStyle(PressaoDiscreta())
+                            .buttonStyle(.discreto)
                             .accessibilityHint("A escada volta a 3 dias")
                     }
                 }
                 .padding(.horizontal, Tema.margem)
                 .padding(.bottom, 24)
+                }
+                .transition(entraFase)
             }
         }
         .background(Tema.fundo.ignoresSafeArea())
@@ -446,9 +422,9 @@ struct RecordarView: View {
             let esperaLeitura: Duration = reduceMotion ? .milliseconds(200) : .milliseconds(1500)
             let esperaBlur: Duration = reduceMotion ? .milliseconds(250) : .milliseconds(900)
             try? await Task.sleep(for: esperaLeitura)
-            withAnimation(Tema.animacao(.easeOut(duration: 0.4), reduzido: reduceMotion)) { fase = .esconder }
+            withAnimation(Tema.animacao(.easeOut(duration: Tema.Duracao.longa), reduzido: reduceMotion)) { fase = .esconder }
             try? await Task.sleep(for: esperaBlur)
-            withAnimation(.easeOut(duration: 0.3)) { fase = .escrever }
+            withAnimation(Tema.animacao(.easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion)) { fase = .escrever }
             foco = true
         }
         // task separada: a pergunta vem pela rede e o ritmo do ritual NÃO pode
@@ -457,32 +433,23 @@ struct RecordarView: View {
         .task { await pedirPergunta() }
     }
 
+    /// §21, "nada de cross-fade entre irmãos": a fase que sai corta seco e a
+    /// que entra amanhece — nunca há um quadro com dois textos na mesma linha.
+    private var entraFase: AnyTransition {
+        .asymmetric(
+            insertion: Tema.transicao(.opacity.combined(with: .offset(y: 8)), reduzido: reduceMotion),
+            removal: .identity)
+    }
+
     private func bloco(_ titulo: String, _ corpo: String) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(titulo)
-                .font(Tema.label)
-                .tracking(Tema.trackingLabel)
-                .foregroundStyle(Tema.tintaSuave)
+                .rotulo(Tema.tintaSuave)
             Text(corpo)
                 .font(Tema.corpo)
                 .foregroundStyle(Tema.tinta)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
         .accessibilityElement(children: .combine)
-    }
-}
-
-private struct PrimarioStyle: ButtonStyle {
-    var recede: Bool = false
-
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .animation(Tema.pressaoAnim(configuration.isPressed), value: configuration.isPressed)
-            .font(Tema.barra)
-            .foregroundStyle(recede ? Tema.tintaFraca : Tema.ambarTinta)
-            .frame(maxWidth: .infinity, minHeight: Tema.alvo)
-            .contentShape(Rectangle())
-            .scaleEffect(configuration.isPressed ? Tema.pressao : 1)
-            .opacity(configuration.isPressed ? 0.7 : 1)
     }
 }

@@ -2672,3 +2672,61 @@ D6, linha do tempo curta, reload por kind, reload repetido na volta à cena,
 suíte isolada do App Group real, selo nas entidades e depois da consulta,
 anotar honesto), build dos dois alvos sem aviso, capturas da bloqueada no
 iPhone 17e e da casa e da Ilha no iPhone Air. **Fora:** Ilha (F5), controles e ditado (F3), Spotlight (F9).
+
+## ADR 2026-09-05v — A fundação: componentes, tokens e um vocabulário de movimento
+
+**A distância.** A auditoria da volta 9 contou o que cada tela desenhava por
+conta própria: a cápsula de controle em nove arquivos com seis desenhos, o
+rótulo de seção copiado em 32 lugares de 14 arquivos, sete `ButtonStyle`,
+cinco cabeçalhos de folha, dois toasts, cinco vazios; dezesseis durações e
+quatro molas para quatro verbos (entrar, sair, trocar, pressionar); Reduzir
+Movimento tratado em quinze arquivos e ignorado em cinco. Nenhuma tela chegou
+a 9 em Componentes (média 6,2). A fundação é a Fase Construir e Mover do
+`design-router`; Ancorar e Sistema já estavam fechadas em SISTEMA-CLARO.
+
+**A decisão, metade B (componentes).** (1) `Traco/Componentes`, um arquivo por
+componente, `#Preview` por estado, nome em português, acessibilidade dentro:
+`Pilula` (as seis formas que as telas têm HOJE, nomeadas — filtro, menu,
+controle, ação, larga, etiqueta — para que a volta por tela escolha qual
+sobrevive), `ChipDominio` único (etiqueta nas Notas; tingido com ícone e seta
+na ficha; um menu só, com ícone e marca no atual, "Sem domínio" e "Devolver ao
+app"), `.rotulo(_:)` (caixa alta, 11 semibold, tracking +1,2), `LinhaDeEstado`
+(pensando, lendo, falhou, sem conta), `LinhaQueAbre` (menu ou bloco abaixo),
+`.cartao(_:)` (papel, campo, flutuante, tingido; sombra só no que flutua),
+três estilos de botão (`.discreto` é a `PressaoDiscreta` de Tema; `.primario`
+recua sozinho quando desabilitado; `.compacto`), `CabecalhoDeFolha` (✕ ou
+"voltar", título, Pronto), `Toast` por `safeAreaInset` (nunca cobre a barra) e
+`Vazio(frase:acao:)`. O alvo de 44 vive no botão ou no menu que envolve a
+cápsula (ADR 05f), nunca nela. (2) Três telas migradas sem mudar pixel: Notas,
+ficha do calendário (a própria e a do iPhone) e Recordar. No Recordar, ler e
+esconder viram UM objeto cujos modificadores animam; a fase que sai corta seco
+e a que entra amanhece (§21: nenhum quadro com dois textos na mesma linha); e
+toda animação passa pela lei de `Tema`.
+
+**Tokens e movimento, metade A.** `Tema.Duracao.{curta 0,15 · media 0,25 ·
+longa 0,4}` mais seis fora do vocabulário com nome e motivo (toque, passo,
+pulso, fecho, relogio, queimaCena); `Tema.Mola.{toque, camada, escala,
+teclado}`; `Tema.Raio.{controle 10, campo 14, cartao 18}`; `Tema.Sombra.
+{flutuante, campo}` com `View.sombra(_:)`. `Tema.movimento(classe, animação,
+reduzido:)` decide sozinho sob Reduzir Movimento: deslocamento vira fade
+curta ou corte, escala e laço não animam, opacidade fica; `pressaoAnim` ganha
+`reduzido:`. `CalendarioTema` cita `Tema` em vez de repetir hex e número.
+Dezesseis literais viram três durações; Δ por chamada em
+`ferramentas/orca/v10a-tokens-movimento.md`.
+
+**Custo assumido.** `Pilula` carrega seis formas porque zero pixel era lei:
+é a régua para a volta por tela reduzir a duas (SISTEMA-CLARO §2.3). O menu
+do domínio ficou um só, e por isso o que abre mudou nas duas telas (ícones nas
+Notas, marca no atual na ficha). Seguem onde estão até a volta de cada tela:
+`PressaoClara`, `CompactoStyle`, `CartaoBotaoStyle`, `BarraBotaoStyle`,
+`AcaoTrabalhoStyle`, os rótulos de 11 arquivos e os toasts da página, do
+perfil e do calendário. Linhas líquidas da volta: +640 (B) e +159 (A) —
+a fundação cresce; o abatimento vem das voltas por tela.
+
+**Prova.** Build sem aviso novo; suíte integral 650/0 em 123 suítes no iPhone 17e em
+06/09/2026. Capturas antes (main) e depois em `large` e AX5, diff de pixels
+fora da barra de status: Notas lista, vazio, filtro vazio, busca e AX5 0 %;
+ficha 0,008 % (caret) e AX5 0 %; ficha do iPhone 0 %; Recordar revelar e
+conferido 0 % em `large` e AX5; ler 0 %; escrever difere só pela pergunta
+que a sábia do aparelho inventa a cada abertura. Vídeo das fases do Recordar
+com corte seco na saída. Relatório: `ferramentas/orca/relatorio-v10-b.md`.

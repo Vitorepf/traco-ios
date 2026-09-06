@@ -17,36 +17,10 @@ struct CalendarioFichaView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
-                HStack {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Image(systemName: "xmark")
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(CalendarioTema.tinta)
-                            .frame(width: CalendarioTema.controle, height: CalendarioTema.controle)
-                            .background(CalendarioTema.chip, in: Circle())
-                            .frame(width: Tema.alvo, height: Tema.alvo)
-                            .contentShape(Rectangle())
-                    }
-                    .buttonStyle(PressaoClara())
-                    .accessibilityLabel("Fechar")
-                    .accessibilityIdentifier("ficha-fechar")
-
-                    Spacer()
-
-                    Button("Pronto") {
-                        agenda.guardar(evento)
-                        dismiss()
-                    }
-                    .font(CalendarioTema.chrome)
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 14)
-                    .frame(height: CalendarioTema.controle)
-                    .background(CalendarioTema.chipActivo, in: Capsule())
-                    .frame(height: Tema.alvo)
-                    .accessibilityIdentifier("ficha-pronto")
-                }
+                CabecalhoDeFolha(aoSair: { dismiss() }, concluir: {
+                    agenda.guardar(evento)
+                    dismiss()
+                }, prefixo: "ficha")
 
                 TextField("Título", text: $evento.titulo, axis: .vertical)
                     .font(.system(.largeTitle, weight: .bold))
@@ -117,8 +91,7 @@ struct CalendarioFichaView: View {
                     }
                     .font(.callout)
                     .tint(CalendarioTema.tinta)
-                    .padding(.horizontal, 14)
-                    .background(CalendarioTema.campo, in: RoundedRectangle(cornerRadius: CalendarioTema.raioCampo, style: .continuous))
+                    .cartao(.campo, recuo: .horizontal)
                 }
 
                 // ADR 2026-09-04a: a seção que faltava. O motor avisava desde
@@ -141,20 +114,12 @@ struct CalendarioFichaView: View {
                                 }
                             }
                         } label: {
-                            HStack(spacing: 8) {
+                            LinhaQueAbre("Avisar", valor: Aviso.nome(evento.avisoMinutos, diaInteiro: evento.diaInteiro)) {
                                 Image(systemName: evento.avisoMinutos == nil ? "bell.slash" : "bell.fill")
                                     .font(.footnote)
                                     .foregroundStyle(evento.avisoMinutos == nil
                                                      ? CalendarioTema.tintaSuave : CalendarioTema.tinta)
-                                Text("Avisar")
-                                Spacer()
-                                Text(Aviso.nome(evento.avisoMinutos, diaInteiro: evento.diaInteiro))
-                                    .foregroundStyle(CalendarioTema.tintaSuave)
-                                Image(systemName: "chevron.up.chevron.down")
-                                    .font(.caption2.weight(.semibold))
-                                    .foregroundStyle(CalendarioTema.tintaSuave)
                             }
-                            .alvo()
                         }
                         .accessibilityIdentifier("ficha-aviso")
                         .accessibilityLabel("Avisar: \(Aviso.nome(evento.avisoMinutos, diaInteiro: evento.diaInteiro))")
@@ -204,55 +169,22 @@ struct CalendarioFichaView: View {
                         }
                     }
                     .font(.callout)
-                    .padding(.horizontal, 14)
-                    .background(CalendarioTema.campo, in: RoundedRectangle(cornerRadius: CalendarioTema.raioCampo, style: .continuous))
+                    .cartao(.campo, recuo: .horizontal)
                 }
 
                 // ADR 04a/05f: o domínio é ATRIBUTO do compromisso, não ação do
                 // cabeçalho (critique-visual-hierarchy); no editor do iOS o
                 // cabeçalho tem só sair e concluir (jakobs-law)
                 secao("Domínio") {
-                Menu {
-                    ForEach(Dominio.allCases) { dom in
-                        Button {
-                            evento.dominio = dom
-                        } label: {
-                            Label(dom.nome, systemImage: CalendarioTema.icone(de: dom))
-                        }
-                    }
-                    Button {
-                        evento.dominio = nil
-                    } label: {
-                        Label("Sem domínio", systemImage: "circle.dashed")
-                    }
-                } label: {
-                    HStack(spacing: 6) {
-                        Image(systemName: CalendarioTema.icone(de: evento.dominio))
-                            .font(.caption.weight(.semibold))
-                            .foregroundStyle(CalendarioTema.tinta(de: evento.dominio))
-                        Text(evento.dominio?.nome ?? "Domínio")
-                            .font(CalendarioTema.dia)
-                        Image(systemName: "chevron.down")
-                            .font(.caption2.weight(.semibold))
-                            .foregroundStyle(CalendarioTema.tintaSuave)
-                    }
-                    .foregroundStyle(CalendarioTema.tinta)
-                    .padding(.horizontal, 12)
-                    .frame(height: CalendarioTema.controle)
-                    .background(CalendarioTema.fundo(de: evento.dominio), in: Capsule())
-                    .frame(height: Tema.alvo)
-                }
-                .accessibilityIdentifier("ficha-dominio")
-                .accessibilityLabel("Domínio: \(evento.dominio?.nome ?? "sem domínio")")
-                .accessibilityHint("Abre o menu para trocar ou tirar o domínio")
+                    ChipDominio(atual: evento.dominio, tingido: true) { evento.dominio = $0 }
+                        .accessibilityIdentifier("ficha-dominio")
                 }
 
                 secao("Notas") {
                     TextField("Algo a lembrar", text: $evento.notas, axis: .vertical)
                         .font(.callout)
                         .lineLimit(2...6)
-                        .padding(14)
-                        .background(CalendarioTema.campo, in: RoundedRectangle(cornerRadius: CalendarioTema.raioCampo, style: .continuous))
+                        .cartao(.campo)
                         .accessibilityIdentifier("ficha-notas")
                 }
 
@@ -274,7 +206,7 @@ struct CalendarioFichaView: View {
                             .foregroundStyle(CalendarioTema.aviso)
                             .frame(maxWidth: .infinity, minHeight: Tema.alvo)
                     }
-                    .buttonStyle(PressaoClara())
+                    .buttonStyle(.discreto)
                     .accessibilityIdentifier("ficha-apagar")
                 }
             }
@@ -331,7 +263,7 @@ struct CalendarioFichaView: View {
                             .frame(height: Tema.alvo)
                             .contentShape(Rectangle())
                     }
-                    .buttonStyle(PressaoClara())
+                    .buttonStyle(.discreto)
                     .accessibilityLabel(dia.nome)
                     .accessibilityAddTraits(ligado ? [.isButton, .isSelected] : .isButton)
                     .accessibilityIdentifier("ficha-repete-\(dia.numero)")
@@ -357,10 +289,8 @@ struct CalendarioFichaView: View {
 
     private func secao<Conteudo: View>(_ titulo: String, @ViewBuilder _ conteudo: () -> Conteudo) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(titulo.uppercased())
-                .font(.caption2.weight(.semibold))
-                .tracking(1.2)
-                .foregroundStyle(CalendarioTema.tintaSuave)
+            Text(titulo)
+                .rotulo(Tema.tintaSuave)
                 .padding(.leading, 4)
             conteudo()
         }

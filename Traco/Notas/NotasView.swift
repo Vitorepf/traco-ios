@@ -68,8 +68,8 @@ struct NotasView: View {
                 cartaoDaSabia
                 campoBusca
             }
-            .animation(reduceMotion ? nil : .easeOut(duration: 0.25), value: conversaNotas.estado)
-            .animation(reduceMotion ? nil : .easeOut(duration: 0.25), value: conversaNotas.semModelo)
+            .animation(Tema.corte(.easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion), value: conversaNotas.estado)
+            .animation(Tema.corte(.easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion), value: conversaNotas.semModelo)
             .transaction { if reduceMotion { $0.disablesAnimations = true } }
             .onChange(of: conversaNotas.trocas.count) { antes, depois in
                 if depois > antes {
@@ -117,10 +117,8 @@ struct NotasView: View {
         if conversaNotas.temCartao {
             VStack(alignment: .leading, spacing: 10) {
                 if let ultima = conversa.last, conversaNotas.perguntaParaRepetir == nil {
-                    Text("A SÁBIA, SOBRE: \(ultima.pergunta)".uppercased())
-                        .font(Tema.label)
-                        .tracking(Tema.trackingLabel)
-                        .foregroundStyle(Tema.tintaFraca)
+                    Text("A SÁBIA, SOBRE: \(ultima.pergunta)")
+                        .rotulo()
                         .lineLimit(2)
                     // teto de altura: a resposta tem até 900 caracteres e a
                     // lista tem de continuar visível atrás (critique-information-density)
@@ -148,13 +146,11 @@ struct NotasView: View {
                         }
                         .font(Tema.meta)
                         .foregroundStyle(Tema.tintaSuave)
-                        .buttonStyle(PressaoDiscreta())
+                        .buttonStyle(.discreto)
                     }
                 }
                 if pensando {
-                    Text("a sábia pensa…")
-                        .font(Tema.meta)
-                        .foregroundStyle(Tema.tintaFraca)
+                    LinhaDeEstado("a sábia pensa…", .pensando)
                         .accessibilityIdentifier("sabia-pensando-notas")
                 }
                 if let pergunta = conversaNotas.perguntaParaRepetir {
@@ -168,24 +164,19 @@ struct NotasView: View {
                             .accessibilityIdentifier("pergunta-pendente-notas")
                     }
                     .frame(maxHeight: 120)
-                    Text(conversaNotas.estado == .interrompida(pergunta)
-                         ? "a pergunta foi interrompida."
-                         : "a sábia não respondeu.")
-                        .font(Tema.meta)
-                        .foregroundStyle(Tema.tintaSuave)
+                    LinhaDeEstado(conversaNotas.estado == .interrompida(pergunta)
+                                  ? "a pergunta foi interrompida."
+                                  : "a sábia não respondeu.", .falhou)
                         .accessibilityIdentifier("sabia-falhou-notas")
                     Button("Repetir pergunta") { repetirPergunta() }
                         .font(Tema.meta)
                         .foregroundStyle(Tema.ambarTinta)
                         .alvo()
-                        .buttonStyle(PressaoDiscreta())
+                        .buttonStyle(.discreto)
                         .accessibilityIdentifier("repetir-pergunta-notas")
                 }
                 if conversaNotas.semModelo {
-                    Text("a sábia " + Sabia.porOndeEmPalavras + ". Sem ela, a busca continua.")
-                        .font(Tema.meta)
-                        .foregroundStyle(Tema.tintaSuave)
-                        .fixedSize(horizontal: false, vertical: true)
+                    LinhaDeEstado("a sábia " + Sabia.porOndeEmPalavras + ". Sem ela, a busca continua.", .semConta)
                         .accessibilityIdentifier("sem-conta-notas")
                 }
                 HStack {
@@ -201,13 +192,12 @@ struct NotasView: View {
                     }
                     .font(Tema.meta)
                     .foregroundStyle(Tema.tintaSuave)
-                    .buttonStyle(PressaoDiscreta())
+                    .buttonStyle(.discreto)
                     .accessibilityIdentifier("fechar-sabia-notas")
                 }
             }
-            .padding(14)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Tema.superficie, in: RoundedRectangle(cornerRadius: Tema.raio, style: .continuous))
+            .cartao(.papel)
             .padding(.horizontal, Tema.margem)
             .transition(Tema.transicao(.move(edge: .bottom).combined(with: .opacity), reduzido: reduceMotion))
             // um cartão, lido inteiro na ordem: rótulo, resposta, quem foi junto, avaliação
@@ -240,7 +230,7 @@ struct NotasView: View {
                     }
                     .frame(width: Tema.alvo, height: Tema.alvo)
                     .contentShape(Rectangle())
-                    .buttonStyle(PressaoDiscreta())
+                    .buttonStyle(.discreto)
                     .accessibilityLabel("Como contexto")
                     .accessibilityHint("Entrega estas notas à sua IA, sem servidor")
                 }
@@ -264,25 +254,20 @@ struct NotasView: View {
                 }
             }
         } label: {
-            HStack(spacing: 4) {
-                if tamanhoTexto.isAccessibilitySize {
-                    // AX5: o nome não cabe ao lado do título e virava "…"
-                    Image(systemName: "arrow.up.arrow.down")
-                        .font(Tema.meta.weight(.medium))
-                } else {
-                    Text(ordem.nome)
-                        .font(Tema.meta.weight(.medium))
+            Pilula(forma: .menu) {
+                HStack(spacing: 4) {
+                    if tamanhoTexto.isAccessibilitySize {
+                        // AX5: o nome não cabe ao lado do título e virava "…"
+                        Image(systemName: "arrow.up.arrow.down")
+                    } else {
+                        Text(ordem.nome)
+                    }
+                    SetaDeMenu()
                 }
-                Image(systemName: "chevron.down")
-                    .font(.caption2.weight(.semibold))
             }
-            .foregroundStyle(Tema.tintaSuave)
-            .padding(.horizontal, 12)
-            .frame(height: 34)
-            .background(Tema.chip, in: Capsule())
         }
         .menuStyle(.button)
-        .buttonStyle(PressaoDiscreta())
+        .buttonStyle(.discreto)
         .alvo()
         .accessibilityLabel("Ordenar por \(ordem.nome)")
         .accessibilityIdentifier("ordem-notas")
@@ -309,7 +294,7 @@ struct NotasView: View {
                 .accessibilityIdentifier("lote-pronto")
         }
         .alvo()
-        .buttonStyle(PressaoDiscreta())
+        .buttonStyle(.discreto)
     }
 
     private var campoBusca: some View {
@@ -347,7 +332,7 @@ struct NotasView: View {
                         .frame(width: Tema.alvo, height: Tema.alvo)
                         .contentShape(Rectangle())
                 }
-                .buttonStyle(PressaoDiscreta())
+                .buttonStyle(.discreto)
                 .disabled(pensando)
                 .accessibilityLabel("Perguntar à sábia")
                 .accessibilityIdentifier("perguntar-notas")
@@ -363,7 +348,7 @@ struct NotasView: View {
                         .frame(width: Tema.alvo, height: Tema.alvo)
                         .contentShape(Rectangle())
                 }
-                .buttonStyle(PressaoDiscreta())
+                .buttonStyle(.discreto)
                 .transition(Tema.transicao(.opacity.combined(with: .scale(scale: 0.8)), reduzido: reduceMotion))
                 .accessibilityIdentifier("limpar-busca")
                 .accessibilityLabel("Limpar busca")
@@ -371,7 +356,7 @@ struct NotasView: View {
         }
         .padding(.horizontal, 12)
         .alvo()
-        .background(Tema.superficie, in: RoundedRectangle(cornerRadius: Tema.raio, style: .continuous))
+        .cartao(.papel, recuo: [])
         .padding(.horizontal, Tema.margem)
         .padding(.bottom, 8)
         .opacity(filtro == .trancadas ? 0.4 : 1)
@@ -383,25 +368,10 @@ struct NotasView: View {
             HStack(spacing: 8) {
                 // "Todas" é a saída: sem ela, filtrar era um caminho sem volta
                 // óbvio (critique-affordance)
-                Button {
-                    Toque.selecao()
-                    withAnimation(.easeOut(duration: 0.25)) {
-                        filtro = nil
-                        filtroDominio = nil
-                    }
-                } label: {
-                    Text("Todas")
-                        .font(Tema.meta.weight(.medium))
-                        .foregroundStyle(filtro == nil ? .white : Tema.tintaSuave)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 8)
-                        .frame(minHeight: 34)
-                        .background(Capsule().fill(filtro == nil ? Tema.chipAtivo : Tema.chip))
+                chipFiltro(titulo: "Todas", ligado: filtro == nil, id: "filtro-todas") {
+                    filtro = nil
+                    filtroDominio = nil
                 }
-                .alvo()
-                .buttonStyle(PressaoDiscreta())
-                .accessibilityIdentifier("filtro-todas")
-                .accessibilityAddTraits(filtro == nil ? [.isSelected] : [])
                 ForEach(FiltroNotas.allCases) { item in
                     chipFiltro(
                         titulo: item.rawValue,
@@ -469,20 +439,10 @@ struct NotasView: View {
 
     private func chipFiltro(titulo: String, ligado: Bool, id: String,
                             acao: @escaping () -> Void) -> some View {
-        Button {
+        Pilula(titulo, forma: .filtro, selecionada: ligado) {
             Toque.selecao()
-            withAnimation(.easeOut(duration: 0.25)) { acao() }
-        } label: {
-            Text(titulo)
-                .font(Tema.meta.weight(.medium))
-                .foregroundStyle(ligado ? .white : Tema.tintaSuave)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 8)
-                .frame(minHeight: 34)
-                .background(Capsule().fill(ligado ? Tema.chipAtivo : Tema.chip))
+            withAnimation(Tema.animacao(.easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion)) { acao() }
         }
-        .alvo()
-        .buttonStyle(PressaoDiscreta())
         .accessibilityAddTraits(ligado ? [.isSelected] : [])
         .accessibilityIdentifier(id)
         .accessibilityLabel(titulo)
@@ -510,9 +470,7 @@ struct NotasView: View {
     @ViewBuilder private var secaoPeloSentido: some View {
         if !busca.isEmpty, !peloSentido.isEmpty {
             Text("PELO SENTIDO")
-                .font(Tema.label)
-                .tracking(Tema.trackingLabel)
-                .foregroundStyle(Tema.tintaFraca)
+                .rotulo()
                 .padding(.top, 20)
                 .padding(.bottom, 2)
                 .accessibilityAddTraits(.isHeader)
@@ -543,9 +501,7 @@ struct NotasView: View {
         let devidas = voltas
         if !devidas.isEmpty {
             Text("A VOLTA")
-                .font(Tema.label)
-                .tracking(Tema.trackingLabel)
-                .foregroundStyle(Tema.tintaFraca)
+                .rotulo()
                 .padding(.top, 20)
                 .padding(.bottom, 6)
                 .accessibilityAddTraits(.isHeader)
@@ -571,7 +527,7 @@ struct NotasView: View {
                     .padding(.vertical, 12)
                     .alvo()
                 }
-                .buttonStyle(PressaoDiscreta())
+                .buttonStyle(.discreto)
                 .accessibilityLabel("\(Volta.cobranca(par.campo)) \(titulo(par.nota))")
                 .accessibilityHint("Abre a nota com o campo da volta")
                 .accessibilityIdentifier("volta-notas")
@@ -591,38 +547,19 @@ struct NotasView: View {
                 // conserto do Recordar em 9eb6124). O glifo decorativo saiu:
                 // era o elemento mais chamativo do ecrã carregando zero
                 // conteúdo (critique-visual-hierarchy).
-                VStack(alignment: .leading, spacing: 12) {
-                    Text(vazioTitulo)
-                        .font(Tema.corpo)
-                        .foregroundStyle(Tema.tintaSuave)
-                    // a saída tem que ser do BURACO em que o autor caiu: quando
-                    // o vazio é da busca, "escrever na página" joga fora o que
-                    // ele estava procurando em vez de devolver o arquivo
-                    if busca.isEmpty, filtro == nil, filtroDominio == nil {
-                        Button("escrever na página") {
-                            sessao.novaPagina()
-                            sessao.mostrarNotas = false
-                        }
-                        .font(Tema.chrome.weight(.semibold))
-                        .foregroundStyle(Tema.ambarTinta)
-                        .alvo()
-                        .buttonStyle(PressaoDiscreta())
-                    } else {
-                        Button("ver todas as notas") {
-                            busca = ""
-                            filtro = nil
-                            filtroDominio = nil
-                        }
-                        .font(Tema.chrome.weight(.semibold))
-                        .foregroundStyle(Tema.ambarTinta)
-                        .alvo()
-                        .buttonStyle(PressaoDiscreta())
-                        .accessibilityIdentifier("limpar-busca")
-                    }
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, Tema.margem)
-                .padding(.top, 12)
+                // a saída tem que ser do BURACO em que o autor caiu: quando
+                // o vazio é da busca, "escrever na página" joga fora o que
+                // ele estava procurando em vez de devolver o arquivo
+                Vazio(frase: vazioTitulo, acao: busca.isEmpty && filtro == nil && filtroDominio == nil
+                      ? .init("escrever na página") {
+                          sessao.novaPagina()
+                          sessao.mostrarNotas = false
+                      }
+                      : .init("ver todas as notas", id: "limpar-busca") {
+                          busca = ""
+                          filtro = nil
+                          filtroDominio = nil
+                      })
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             } else {
                 ScrollView {
@@ -645,9 +582,7 @@ struct NotasView: View {
                         secaoDaVolta
                         ForEach(meses(visiveis), id: \.titulo) { secao in
                             Text(secao.titulo)
-                                .font(Tema.label)
-                                .tracking(Tema.trackingLabel)
-                                .foregroundStyle(Tema.tintaFraca)
+                                .rotulo()
                                 .padding(.top, 20)
                                 .padding(.bottom, 6)
                                 .accessibilityAddTraits(.isHeader)
@@ -767,13 +702,7 @@ struct NotasView: View {
                             .lineLimit(2)
                         HStack(spacing: 8) {
                             if let g = nota.gesto {
-                                Text(g.nome.uppercased())
-                                    .font(Tema.label)
-                                    .tracking(Tema.trackingLabel)
-                                    .foregroundStyle(Tema.tintaSuave)
-                                    .padding(.horizontal, 6)
-                                    .padding(.vertical, 2)
-                                    .background(Tema.chip, in: Capsule())
+                                Pilula(g.nome, forma: .etiqueta)
                             }
                             let sub = subtitulo(nota)
                             if !(sub == "hoje" && busca.isEmpty) {
@@ -787,7 +716,7 @@ struct NotasView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .contentShape(Rectangle())
             }
-            .buttonStyle(PressaoDiscreta())
+            .buttonStyle(.discreto)
             // a linha de um título só mede 24; o alvo pega 10 do vão de cada lado
             .alvo(folgaV: 10)
             .tint(Tema.tinta)
@@ -800,6 +729,7 @@ struct NotasView: View {
                 ChipDominio(atual: nota.dominio, travado: nota.dominioTravado,
                             aoEscolher: { sessao.escolherDominio($0, na: nota, no: context) },
                             aoDevolver: { sessao.devolverDominio(nota, no: context) })
+                    .accessibilityIdentifier("chip-dominio")
             }
         }
         .padding(.vertical, 12)
@@ -808,7 +738,7 @@ struct NotasView: View {
         .background(
             escolhidas.contains(nota.uuid) ? Tema.chip : .clear,
             in: RoundedRectangle(cornerRadius: 10, style: .continuous))
-        .animation(.easeOut(duration: 0.15), value: escolhidas.contains(nota.uuid))
+        .animation(Tema.animacao(.easeOut(duration: Tema.Duracao.curta), reduzido: reduceMotion), value: escolhidas.contains(nota.uuid))
         .contextMenu {
             if !nota.trancada {
                 Button("Recordar") { sessao.recordarDaNotas(nota) }

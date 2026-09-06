@@ -1,0 +1,158 @@
+import SwiftUI
+
+/// Cápsula de controle (SISTEMA-CLARO §2.3). Um desenho para o que hoje são
+/// seis: o rótulo é a cápsula; o alvo de 44 vive no botão ou no menu que a
+/// envolve (ADR 05f), ou nasce aqui quando há `acao`.
+///
+/// As formas registram as medidas que cada tela tem HOJE, sem mudar pixel:
+/// a volta por tela decide qual sobrevive (o sistema pede `controle`).
+struct Pilula<Conteudo: View>: View {
+    enum Forma {
+        /// Notas, filtros: meta médio, 12×8, mínimo 34 (mede 36).
+        case filtro
+        /// Notas, ordem: meta médio, 12, 34 cravados, com seta.
+        case menu
+        /// SISTEMA-CLARO: 36 de altura num trilho de 44.
+        case controle
+        /// "Pronto": chrome, 14, 36, sempre carvão.
+        case acao
+        /// Ação de largura inteira: chrome, alvo 44, chip.
+        case larga
+        /// Rótulo em cápsula (o gesto na lista das Notas): 6×2.
+        case etiqueta
+    }
+
+    var forma: Forma = .controle
+    var selecionada = false
+    var acao: (() -> Void)?
+    @ViewBuilder var conteudo: () -> Conteudo
+    @Environment(\.isEnabled) private var ativa
+
+    init(forma: Forma = .controle, selecionada: Bool = false,
+         acao: (() -> Void)? = nil, @ViewBuilder conteudo: @escaping () -> Conteudo) {
+        self.forma = forma
+        self.selecionada = selecionada
+        self.acao = acao
+        self.conteudo = conteudo
+    }
+
+    var body: some View {
+        if let acao {
+            Button(action: acao) { capsula }
+                .alvo()
+                .buttonStyle(.discreto)
+        } else {
+            capsula
+        }
+    }
+
+    private var cheia: Bool { forma == .acao || selecionada }
+
+    private var tinta: Color {
+        if !ativa { return Tema.tintaMorta }
+        if cheia { return .white }
+        return forma == .larga ? Tema.tinta : Tema.tintaSuave
+    }
+
+    private var fundo: Color {
+        if !ativa { return .clear }
+        return cheia ? Tema.chipAtivo : Tema.chip
+    }
+
+    private var fonte: Font {
+        switch forma {
+        case .filtro, .menu: Tema.meta.weight(.medium)
+        case .controle: CalendarioTema.dia
+        case .acao, .larga: CalendarioTema.chrome
+        case .etiqueta: Tema.label
+        }
+    }
+
+    @ViewBuilder private var capsula: some View {
+        let base = conteudo()
+            .font(fonte)
+            .foregroundStyle(tinta)
+        switch forma {
+        case .filtro:
+            base.padding(.horizontal, 12).padding(.vertical, 8).frame(minHeight: 34)
+                .background(fundo, in: Capsule())
+        case .menu:
+            base.padding(.horizontal, 12).frame(height: 34)
+                .background(fundo, in: Capsule())
+        case .controle:
+            base.padding(.horizontal, 12).frame(height: CalendarioTema.controle)
+                .background(fundo, in: Capsule())
+        case .acao:
+            base.padding(.horizontal, 14).frame(height: CalendarioTema.controle)
+                .background(fundo, in: Capsule())
+        case .larga:
+            base.frame(maxWidth: .infinity, minHeight: Tema.alvo)
+                .background(fundo, in: Capsule())
+        case .etiqueta:
+            base.textCase(.uppercase).tracking(Tema.trackingLabel)
+                .padding(.horizontal, 6).padding(.vertical, 2)
+                .background(fundo, in: Capsule())
+        }
+    }
+}
+
+extension Pilula where Conteudo == Text {
+    init(_ texto: String, forma: Forma = .controle, selecionada: Bool = false,
+         acao: (() -> Void)? = nil) {
+        self.init(forma: forma, selecionada: selecionada, acao: acao) { Text(texto) }
+    }
+}
+
+/// A seta de quem abre um menu, no corpo da cápsula.
+struct SetaDeMenu: View {
+    var body: some View {
+        Image(systemName: "chevron.down")
+            .font(.caption2.weight(.semibold))
+    }
+}
+
+#Preview("normal e selecionada") {
+    VStack(alignment: .leading, spacing: 12) {
+        HStack(spacing: 8) {
+            Pilula("Todas", forma: .filtro, selecionada: true) {}
+            Pilula("WOOP", forma: .filtro) {}
+            Pilula("Trabalho", forma: .filtro) {}
+        }
+        Pilula(forma: .menu) { HStack(spacing: 4) { Text("Mais recentes"); SetaDeMenu() } }
+        HStack(spacing: 8) {
+            Pilula("Do seu iPhone", forma: .controle)
+            Pilula("Pronto", forma: .acao)
+            Pilula("Woop", forma: .etiqueta)
+        }
+        Pilula("Abrir no Calendário", forma: .larga) {}
+    }
+    .padding()
+    .background(Tema.fundo)
+}
+
+#Preview("pressionada") {
+    // o que o dedo vê: a escala de `Tema.pressao` que o estilo `.discreto` aplica
+    Pilula("Todas", forma: .filtro, selecionada: true)
+        .scaleEffect(Tema.pressao)
+        .padding()
+        .background(Tema.fundo)
+}
+
+#Preview("desabilitada") {
+    HStack(spacing: 8) {
+        Pilula("Trancadas", forma: .filtro) {}.disabled(true)
+        Pilula("Pronto", forma: .acao) {}.disabled(true)
+    }
+    .padding()
+    .background(Tema.fundo)
+}
+
+#Preview("AX5") {
+    HStack(spacing: 8) {
+        Pilula("Todas", forma: .filtro, selecionada: true) {}
+        Pilula("Pronto", forma: .acao) {}
+    }
+    .padding()
+    .background(Tema.fundo)
+    .environment(\.dynamicTypeSize, .accessibility5)
+}
