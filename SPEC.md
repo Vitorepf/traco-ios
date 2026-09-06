@@ -2868,7 +2868,7 @@ sob Reduzir Movimento, os mesmos números da Lente. **Fora:** proveniência
 no prompt da sábia, aviso ao autor quando um método some, edição da
 proveniência pela tela.
 
-## ADR 2026-09-06e — Sete métodos novos, e a ordem do arquivo como proteção
+## ADR 2026-09-06e — Sete métodos novos, e o que protege a escrita pessoal
 
 **A distância.** O catálogo tinha 21 métodos e três faculdades vazias
 (simplificação, direção, consequência). A trilha Métodos levantou doze
@@ -2885,17 +2885,37 @@ Colados **antes da Especificação**, a Coluna da esquerda passa a roubar o
 desabafo da Expressiva — medido nesta volta com o catálogo inteiro montado:
 
 ```
-os 7 no FIM               -> 0 desvio em 74 frases
+os 7 no FIM                 -> 0 desvio nas 74 frases desta AMOSTRA
 os 7 antes da Especificação -> colunaEsquerda «na reunião com o chefe eu senti
                                uma raiva enorme, doeu ficar ali, fiquei calado
                                o tempo todo e chorei depois no corredor…»
 ```
 
-A escrita pessoal é protegida **pela ordem do arquivo**, e por nada mais: não há
-guarda em código que salve se a ordem mudar. Daí a regra permanente: **nenhum
-método cuja regex mencione conversa, silêncio, arrependimento ou sentimento
-entra antes da Expressiva.** `oDesabafoLongoContinuaExpressivo` cai se alguém
-mover um dos sete para cima dela.
+**74 frases é uma amostra, não uma propriedade do catálogo**: 74 frases escritas
+pelo autor desta volta, roteadas contra o catálogo montado. O G3 escreveu 58
+próprias e achou **22 desvios** — todos de escrita pessoal.
+
+**O que protege a escrita pessoal, medido pelo G3:** é a ordem do arquivo
+**mais** o teto de 120 caracteres em `AnaliseLocal.detectarGesto`
+(`if g == .expressiva, x.count <= 120 { continue }`). O teto pula a Expressiva
+em texto curto e promove `colunaEsquerda` e `exameDaNoite` a primeiro-a-casar:
+14 de 14 linhas curtas com palavra de sentimento chegam vestidas de método
+(`m3-rev-03`). E acima do teto a ordem também não basta, porque o léxico de dez
+palavras da Expressiva não cobre o desabafo **factual**: 8 de 8 chegam vestidos
+(`m3-rev-02`).
+
+Daí a regra permanente, **corrigida**: nenhum método cuja regex mencione
+conversa, silêncio, arrependimento ou sentimento entra antes da Expressiva —
+**e essa regra sozinha não protege ninguém enquanto o teto de 120 existir**. Os
+sete a obedecem e o roubo acontece assim mesmo. `oDesabafoLongoContinuaExpressivo`
+prova só o caso fácil (desabafo longo e carregado de vocabulário da Expressiva);
+`aEscritaPessoalNaoChegaVestidaDeMetodo` cobra as 22 frases do G3 e **falha
+nesta volta, de propósito** — o conserto mora em `Traco/Analise`, fora daqui.
+
+Alargar a Expressiva por dado não é saída: as palavras que cobririam o desabafo
+factual (`engoli`, `fiquei calado`, `me arrependi`, `perdi a paciência`) são as
+regex dos dois métodos novos, e o alargamento os deixaria inalcançáveis.
+Medido com `todoRamoDeRegexAlcancaOSeuMetodo`, não suposto.
 
 **No mesmo passo, o conserto do Se–então.** `sempre que|toda vez|não consigo
 parar` sem `\b` casava DENTRO de "sempre quebra", "sempre queria", "sempre
@@ -2913,6 +2933,17 @@ jeito: destino inexistente = botão que acende e não faz nada. Nenhum
 encadeamento colado aponta para id inexistente, e
 `nenhumEncadeamentoApontaParaMetodoInexistente` trava sobre `Catalogo.todos`.
 A correção da tela (não acender) é outra volta.
+
+**O tom do cartão vestido.** Três frases de `reconhecimento` julgavam o autor em
+vez de nomear o material — a voz das outras 25 (`isto é…`, `isto pede…`).
+`m3-rev-03` mostra a pior servida a quem escreveu que chorou. Corrigidas para a
+voz da casa, e a da Coluna da esquerda passa a repetir a própria `definicao`:
+"você calou o principal" → "o principal ficou por dizer"; "trabalho sem direção
+— falta perguntar se importa" → "trabalho que ainda não nomeou o problema
+importante"; "o seu dia pedindo julgamento — dos seus atos" → "o seu dia em
+revista — e uma regra para amanhã" (o próprio `movimento` diz que julgamento sem
+prescrição é remorso, e remorso não é método). É mitigação, não cura: a cura é a
+nota pessoal não chegar vestida.
 
 **Três frases de honestidade nos 21 antigos.** A régua da proveniência
 (trilha Métodos) achou três fichas com grau de origem declarado acima do real —
@@ -2932,9 +2963,20 @@ deliberada; `ideia` da Nota permanente engole Destilar. Um sexto, achado aqui:
 — a mesma família (regex larga e cedo comendo regex específica e tarde), sem
 efeito novo, porque a frase já ia para o Dia antes.
 
-**A prova.** Suíte integral verde no iPhone 17 Pro Max (723 testes, 125 suítes),
-build sem aviso, e no app o Perfil diz "28 do app" com a proveniência dos novos
-abrindo (`maestro/metodos-m3.yaml`). **Fora:** os três da M4, a correção da UI
+**Alcance de ramo, guarda nova.** Nenhum teste garantia que uma frase de gatilho
+**chega** ao método que a declara — todo método futuro podia nascer com ramos
+mortos sem ninguém saber. `todoRamoDeRegexAlcancaOSeuMetodo` gera uma frase por
+ramo de regex de `Catalogo.todos` (287 sondas nos 28) e cobra a chegada. Quatro
+desvios conhecidos ficam nomeados no teste: `melhor argumento contra` (steelman
+→ argumento), `dez ideias` e `todas as ideias` (divergência → nota permanente) e
+`olhando o dia de hoje` (exame da noite → dia). Desvio novo derruba o teste.
+
+**A prova.** Suíte integral verde no iPhone 17 Pro Max (723 testes, 125 suítes)
+no fecho da primeira volta, e no app o Perfil diz "28 do app" com a proveniência
+dos novos abrindo (`maestro/metodos-m3.yaml`). O target do app compila limpo; o
+de teste traz **4 avisos (2 únicos) em `ConferenciaTrabalhoTests.swift:381`,
+pré-existentes de `73b1ebc`** — não são desta volta, e "build sem aviso" era
+falso. **Fora:** os três da M4, a correção da UI
 do botão sem destino, os cinco desvios do WOOP e da Nota permanente, e os
 pedidos de app que a forma livre levantou (campo repetível, compromisso
 recorrente, campo emparelhado, Classe de referência lendo o corpus).

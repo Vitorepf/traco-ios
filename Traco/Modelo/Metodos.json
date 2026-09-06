@@ -1210,7 +1210,7 @@
       "aplicabilidade": "Serve para uma conversa específica em que o principal ficou por dizer. Não serve para reclamar de alguém em geral, nem para desabafo — desabafo é a Expressiva, e ela não é comentada."
     },
     "filtro": "Coluna da esquerda",
-    "reconhecimento": "isto é uma conversa em que você calou o principal.",
+    "reconhecimento": "isto é uma conversa em que o principal ficou por dizer.",
     "movimento": "Coluna da esquerda (Argyris). À direita, o que foi dito; à esquerda, o que se pensou e sentiu e não se disse. O que governa a conversa é a coluna da esquerda, e ela é a que ninguém escreve. Cobre se a esquerda tem mesmo o que doeu, o que impediu de dizer, e se a frase nova é dizível na frente da pessoa.",
     "pergunta": "O que você pensou e não disse — a frase inteira?",
     "roteamento": [
@@ -1489,7 +1489,7 @@
       "aplicabilidade": "Serve para quem tem alguma escolha sobre no que trabalha. Não serve para quem não tem nenhuma — o próprio Hamming reconhece que no começo não se tem."
     },
     "filtro": "Hamming",
-    "reconhecimento": "isto é trabalho sem direção — falta perguntar se importa.",
+    "reconhecimento": "isto é trabalho que ainda não nomeou o problema importante.",
     "movimento": "A pergunta de Hamming. Listar os problemas IMPORTANTES do próprio campo, dizer em qual deles se está trabalhando e, se não for nenhum, por quê. Importante, para Hamming, não é o de maior consequência: é aquele para o qual você tem um ATAQUE. Cobre o ataque de cada problema listado, e o fecho: mudar a meta ou mudar o que se faz.",
     "pergunta": "Se você acredita que a ação está lá, por que você marcha para cá?",
     "roteamento": [
@@ -1675,7 +1675,7 @@
       "aplicabilidade": "Serve para o fim de um dia em que o autor fez algo que não quer repetir. Não serve para julgar os outros, nem para ruminar — se o texto vira desabafo, a forma é a Expressiva."
     },
     "filtro": "Exame",
-    "reconhecimento": "isto é o seu dia pedindo julgamento — dos seus atos.",
+    "reconhecimento": "isto é o seu dia em revista — e uma regra para amanhã.",
     "movimento": "Exame da noite (Sêneca, De Ira III.36, da prática de Sêxtio). À noite, o dia inteiro em revista, sem esconder nada, e o julgamento só dos PRÓPRIOS atos: o que eu fiz que não quero repetir, o que eu contive hoje, e a regra concreta para a próxima vez. Cobre a regra: julgamento sem prescrição é remorso, e remorso não é método.",
     "pergunta": "Que hábito ruim você curou hoje? Que defeito você conteve?",
     "roteamento": [

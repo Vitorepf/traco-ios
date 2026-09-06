@@ -1,0 +1,147 @@
+subtracao	simplificar
+subtracao	enxugar
+subtracao	cortar pela metade
+subtracao	menos é mais
+subtracao	o que tiro
+subtracao	o que corto
+subtracao	o que removo
+subtracao	o que tirar
+subtracao	o que remover
+subtracao	o que cortar
+subtracao	tirar uma coisa
+subtracao	tirar uma coisas
+subtracao	tirar uma peça
+subtracao	tirar uma parte
+subtracao	tirar uma etapa
+subtracao	tirar umas coisa
+subtracao	tirar umas coisas
+subtracao	tirar umas peça
+subtracao	tirar umas parte
+subtracao	tirar umas etapa
+subtracao	tirar algumas coisa
+subtracao	tirar algumas coisas
+subtracao	tirar algumas peça
+subtracao	tirar algumas parte
+subtracao	tirar algumas etapa
+subtracao	tirar as coisa
+subtracao	tirar as coisas
+subtracao	tirar as peça
+subtracao	tirar as parte
+subtracao	tirar as etapa
+subtracao	cheio de passos
+subtracao	cheio de etapas
+subtracao	cheio de opções
+subtracao	cheio de regras
+subtracao	cheio de coisas
+subtracao	cheio de botões
+subtracao	cheia de passos
+subtracao	cheia de etapas
+subtracao	cheia de opções
+subtracao	cheia de regras
+subtracao	cheia de coisas
+subtracao	cheia de botões
+subtracao	lotado de passos
+subtracao	lotado de etapas
+subtracao	lotado de opções
+subtracao	lotado de regras
+subtracao	lotado de coisas
+subtracao	lotado de botões
+subtracao	complicado demais
+subtracao	virou um monstro
+colunaEsquerda	não disse
+colunaEsquerda	não falei
+colunaEsquerda	não consegui dizer
+colunaEsquerda	engoli
+colunaEsquerda	fiquei calado
+colunaEsquerda	deixei passar
+colunaEsquerda	devia ter dito
+colunaEsquerda	devia ter falado
+colunaEsquerda	devia ter respondido
+colunaEsquerda	queria ter dito
+colunaEsquerda	o que eu queria ter falado
+colunaEsquerda	essa conversa com
+colunaEsquerda	essa conversa foi
+colunaEsquerda	aquela conversa com
+colunaEsquerda	aquela conversa foi
+colunaEsquerda	a conversa com o
+colunaEsquerda	a conversa com a
+colunaEsquerda	a conversa com ele
+colunaEsquerda	a conversa com ela
+colunaEsquerda	na reunião com
+classeDeReferencia	quanto tempo vai levar
+classeDeReferencia	quanto tempo leva
+classeDeReferencia	quanto tempo vai demorar
+classeDeReferencia	quanto tempo demora
+classeDeReferencia	em quanto tempo
+classeDeReferencia	estimativa
+classeDeReferencia	estimo
+classeDeReferencia	chute de prazo
+classeDeReferencia	chute de tempo
+classeDeReferencia	dá para fazer isso em
+classeDeReferencia	dá para fazer isto em
+classeDeReferencia	dá para terminar isso em
+classeDeReferencia	dá para terminar isto em
+classeDeReferencia	dá para entregar isso em
+classeDeReferencia	dá para entregar isto em
+classeDeReferencia	acho que levo
+classeDeReferencia	acho que leva
+classeDeReferencia	acho que demora
+classeDeReferencia	acho que dá para fazer em
+classeDeReferencia	acho que termino em
+classeDeReferencia	fica pronto em
+classeDeReferencia	entrego em
+classeDeReferencia	entrego até
+cincoPorques	deu errado de novo
+cincoPorques	aconteceu de novo
+cincoPorques	de novo o mesmo
+cincoPorques	sempre quebra
+cincoPorques	sempre estoura
+cincoPorques	sempre dá errado
+cincoPorques	por que isso aconteceu
+cincoPorques	por que isso deu errado
+cincoPorques	por que isso quebrou
+cincoPorques	causa raiz
+cincoPorques	cinco porquês
+cincoPorques	5 porquês
+cincoPorques	qual foi a causa
+cincoPorques	qual é a causa
+cincoPorques	falhou de novo
+perguntaHamming	problema importante
+perguntaHamming	o que é importante no meu campo
+perguntaHamming	grandes problemas
+perguntaHamming	no que eu deveria estar trabalhando
+perguntaHamming	no que eu devia estar trabalhando
+perguntaHamming	estou trabalhando errado
+perguntaHamming	trabalhando em coisa pequena
+perguntaHamming	vale a pena trabalhar nisso
+perguntaHamming	isso me leva a algum lugar
+perguntaHamming	para onde isso me leva
+vistoNaoVisto	custo de oportunidade
+vistoNaoVisto	o que eu deixo de fazer
+vistoNaoVisto	o que eu deixo de ganhar
+vistoNaoVisto	o que eu deixo de ter
+vistoNaoVisto	deixo de fazer
+vistoNaoVisto	compensa mesmo
+vistoNaoVisto	sai mais barato
+vistoNaoVisto	tá de graça
+vistoNaoVisto	não custa nada
+vistoNaoVisto	em troca de quê
+vistoNaoVisto	o que isso me custa
+vistoNaoVisto	o preço disso
+exameDaNoite	exame da noite
+exameDaNoite	passei o dia em revista
+exameDaNoite	olhando o dia de hoje
+exameDaNoite	não devia ter feito
+exameDaNoite	não devia ter reagido
+exameDaNoite	não devia ter agido
+exameDaNoite	não devia ter tratado
+exameDaNoite	me arrependi
+exameDaNoite	fui injusto
+exameDaNoite	fui grosso
+exameDaNoite	fui duro demais
+exameDaNoite	fui ríspido
+exameDaNoite	perdi a paciência
+exameDaNoite	perdi a cabeça
+exameDaNoite	hoje eu fiz
+exameDaNoite	hoje eu reagi
+exameDaNoite	hoje eu tratei
