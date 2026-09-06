@@ -123,7 +123,7 @@ abrir app ──► página em branco ──► usuário escreve (traço livre)
 ### Avisos da Análise de notas (contrato local a migrar)
 | Detecta | Aviso (essência) |
 |---|---|
-| Afirmação vazia ("eu sou rico/vencedor") | Piora quem se estima pouco (Wood 2009). Escreva POR QUE um valor seu importa. |
+| Afirmação vazia ("eu sou rico/vencedor") | O que Wood, Perunovic e Lee (2009) mediram — humor depois de repetir uma frase dada, pior em quem estava com a autoestima baixa — e a pergunta pelo fato. Nunca uma sentença sobre o mundo (ADR 2026-09-06f). |
 | Pedido de texto pronto | A recusa global foi revogada. Preservar a nota e encaminhar a produção ao Trabalho; não atribuir texto gerado ao autor. A migração das mensagens antigas ainda precisa de código e testes. |
 | Pedido de ouvinte/consolo | Quem é a pessoa de verdade que deveria receber isto? |
 | Plano sem obstáculo | Sem obstáculo interno, é fantasia — e fantasia reduz esforço (Oettingen). |
@@ -2867,6 +2867,252 @@ de `g4-v16-perfil-quadros-depois.png` — 8 quadros (267 ms) normal, 5 (167 ms)
 sob Reduzir Movimento, os mesmos números da Lente. **Fora:** proveniência
 no prompt da sábia, aviso ao autor quando um método some, edição da
 proveniência pela tela.
+
+## ADR 2026-09-06f — O aviso diz o que a fonte sustenta
+
+**A distância.** O `avisoWood` interrompia a escrita com "Afirmação sem prova
+não gruda" — sentença do app sobre o mundo, sem origem na tela e **falsa em
+relação à própria fonte**: Wood, Perunovic e Lee (2009) não mediram fixação nem
+memória; mediram humor logo depois de repetir uma frase dada, pior em quem
+estava com a autoestima baixa e um pouco melhor em quem estava com ela alta. A
+ADR 05x acabara de ensinar o app a dizer de onde vem cada método; os cinco
+avisos que interrompem o autor continuavam sem isso, e um deles alegava mais do
+que o estudo permite.
+
+**A decisão.** O aviso passa a ser informação e pergunta: "Um estudo de 2009
+mediu isto: repetir uma frase dessas fez quem estava com a autoestima baixa se
+sentir pior, e quem estava com ela alta, um pouco melhor. O que aconteceu que
+fez você escrever isso?" — o resultado nos dois sentidos, inclusive o
+favorável; nenhum diagnóstico de em qual grupo o autor está, porque o app não
+sabe; a pergunta do texto antigo preservada palavra por palavra, porque é a
+parte que pede o FATO. Nada bloqueia: o aviso continua cartão, não porta. A
+proveniência entra no formato da 05x (`Metodo.Proveniencia`, reutilizada):
+`AnaliseLocal.proveniencia(doAviso:)` devolve FONTE, FUNÇÃO e EVIDÊNCIA — esta
+com o limite junto do achado ("não mede escrever a própria frase, não mede
+efeito duradouro, e não diz nada sobre você"). O aviso do plano sem obstáculo
+aponta para a proveniência do WOOP no catálogo, não para uma segunda cópia que
+possa divergir dela. Aviso sem fonte devolve `nil`: os três que são regra do
+Traço, e não estudo, não ganham origem inventada. A regra fica travada por
+teste: nenhum aviso pode conter "não gruda", "comprovad", "cientificamente",
+"estudos mostram", "eficácia", "funciona" e afins.
+
+**Custo assumido:** o dado existe e a tela ainda não o mostra — a linha "De onde
+vem" no cartão de Aviso é a próxima volta, porque `CartaoAnaliseView` está
+aberta na volta 12. O aviso ficou de 79 para 214 caracteres num cartão que
+interrompe. O gatilho não mudou: a regex continua estreita
+(`eu sou (rico|um vencedor|incrível|o melhor|imparável)`) e a rota da IA
+(`afirmacaoVazia`) continua imprevisível — mexer nela antes de ter frases reais
+do autor troca um aviso que não dispara por um que dispara errado.
+**Volta:** multiplicar. **O que a IA sabe:** nada — o aviso é do algoritmo (ADR
+04r) e a proveniência não viaja no prompt. **Prova:** 5 testes novos em
+`AvisoSemAlegacaoTests`, provados contra o texto antigo (a guarda acusa
+`não gruda` e a ausência de "2009"/"autoestima" — 4 issues); build sem aviso;
+suíte integral 724 testes em 126 suítes, 0 falhas, no iPhone 17 Pro (teste 4)
+em 06/09/2026. **Fora:** a linha na tela do cartão (volta seguinte), a
+proveniência dos avisos que são regra do app, e o gatilho.
+
+## ADR 2026-09-06g — A lista de formas nasce do catálogo, em todas as portas
+
+**A distância.** Duas listas fechadas escritas à mão sobreviviam num app cujo
+catálogo tem 21 métodos (28 com a colagem da M3, 36 com a leva 2). A primeira,
+`@Generable enum GestoDeBordo` com dez casos mais `instrucoes` com dez
+definições, em `AnaliseDeBordo`: **morta desde a ADR 04l**, que passou o esquema
+e o prompt para `Catalogo.todos` — e viva o bastante para fazer três leitores
+(um deles o orquestrador desta rodada) concluírem que a análise no aparelho só
+conhecia dez formas. A segunda, `enum GestoEscolha: AppEnum` com NOVE casos, em
+`Intencoes.swift`: essa estava viva. É a lista que a Siri e os Atalhos oferecem
+ao autor no filtro "Só a forma" do corpus — 9 de 21 formas alcançáveis por voz
+hoje (32% das 28 depois da colagem), e nada falhava para avisar.
+
+**A decisão.** O enum morto e as instruções mortas SAEM: código morto que
+descreve um contrato falso é pior que código morto. Ficam `esquema()` e
+`instrucoesDoCatalogo`, que já nasciam de `Catalogo.todos`. O `AppEnum` dos
+Atalhos vira `FormaEntity: AppEntity` com `FormaQuery: EntityQuery` —
+`suggestedEntities()` devolve `Catalogo.todos`, então a Siri passa a oferecer o
+catálogo inteiro, inclusive o método que o autor escreveu na pasta dele, sem
+código. `AppEnum` exige `caseDisplayRepresentations` estático e por isso não
+podia nascer de arquivo; entidade com consulta pode, e essa é a razão da troca.
+Três testes travam o invariante: o esquema tem uma opção por método do catálogo
+mais `nenhum`; as instruções listam TODOS os ids, não só o primeiro que alguém
+conferiu; e os Atalhos oferecem exatamente `Catalogo.todos`, na mesma ordem.
+
+**O custo do catálogo inteiro no `@Generable`, medido, não suposto** (iPhone 17
+Pro de teste, Apple Intelligence disponível, 7 frases, esquema de 10 ids contra
+o de 21): **5,38 s contra 5,56 s no total — 0,77 s contra 0,79 s por chamada,
++3,3%**, dentro do ruído de uma amostra deste tamanho (a primeira chamada, fria,
+levou 2,15 s sozinha). Qualidade: com dez, 5 das 7 frases foram para a forma
+errada — e as cinco que convocavam método fora dos dez **não tinham como**
+acertar; com o catálogo, `argumento` e `steelman` passam a ser alcançáveis e a
+frase do Argumento chega no Argumento. **Não há custo proibitivo a pagar, e a
+lista curta nunca foi mais barata: era só mais surda.**
+
+**Custo assumido:** um atalho já montado com o `AppEnum` antigo perde o
+parâmetro (o app não foi publicado); a Siri e os Atalhos NÃO foram exercitados
+de fora — o build de simulador não tem team-identifier (D1 do EVOLUCAO), então a
+prova é de compilação e de teste, e a lista na tela dos Atalhos continua
+pendente de aparelho. A medição é de 7 frases num aparelho, não uma bancada.
+**Volta:** multiplicar. **O que a IA sabe:** as definições do catálogo, como já
+sabia. **Prova:** `Test run with 730 tests in 127 suites passed` no iPhone 17
+Pro (teste 4) em 06/09/2026, build sem aviso; números da medição acima.
+**Fora:** a lista de Atalhos vista na tela de um aparelho real; bancada de
+roteamento com mais frases.
+
+## ADR 2026-09-06h — A escrita pessoal fica do autor: não vira método nenhum
+
+**A distância.** O revisor da volta M3 mediu, com 58 frases dele e prova de
+tela: **22 desabafos chegavam VESTIDOS de método de exercício.** A causa era
+`AnaliseLocal.detectarGesto`, que pulava a Expressiva abaixo de 120 caracteres
+e promovia a primeiro-a-casar quem viesse depois dela no catálogo. Com a
+colagem, quem vem depois inclui dois métodos cuja regex é feita do vocabulário
+do arrependimento e do silêncio em conversa. "Perdi a paciência com ela hoje. Me
+arrependi e chorei." chegava como **EXAME DA NOITE**, perguntando "que hábito
+ruim você curou hoje? que defeito você conteve?" a quem tinha acabado de
+escrever que chorou (`ferramentas/orca/a3-antes-exame-da-noite.png`). E não é
+sugestão: a `Sessao` VESTE a nota sozinha no caminho automático, enquanto a
+Expressiva, quando ganha, só sugere — os dois caminhos não são simétricos, e o
+que rouba é o que veste. O defeito tem duas metades: 14 linhas curtas com
+palavra de sentimento, que o teto explica, e 8 desabafos LONGOS e FACTUAIS, que
+passam do teto e são roubados assim mesmo, porque o léxico de dez palavras da
+Expressiva não cobre o dia ruim contado sem adjetivo.
+
+**A decisão.** `AnaliseLocal.eEscritaPessoal` — uma guarda, não um método —
+decide antes do laço, e **nenhum método leva a nota, venha ele antes ou depois
+da Expressiva no catálogo**. A guarda é de CINCO famílias, não de uma lista de
+frases (o revisor da volta A-B mostrou o defeito de lista: `me odiando` pegava e
+`me odiei` não):
+
+1. **o estado, por RADICAL** — `senti|sinto`, `dói|doeu`, `chor…`, `trist…`,
+   `raiva`, `medo`, `pesa…`, `desmoron…`, `arrepend…`, `vergonh…`, `mago…`,
+   `remoend…`, `travei|eu travo`, `angusti…`, `ansios…`, `exaust…`, `vazio|a`,
+   `sozinh…`, `cansad…`, `desanimad…`, `humilhad…`, `culpad…`, `nó na garganta`.
+   O radical é o que faz a família não ser lista: pega a flexão que ninguém
+   escreveu ainda;
+2. **o juízo sobre si** — `me odi|culp|detest|despre`, `não sirvo|presto|valho`,
+   `sou o|um|uma problema|lixo|fracasso|idiota|péssimo`, `a culpa é minha`,
+   `estraguei`, `me sentindo um|uma`. Em qualquer tamanho: "eu sou o problema"
+   não fica menos pessoal em oitenta caracteres;
+3. **o funcionamento básico negado** — `não durmo|consigo dormir|como mais|rio|
+   aguento|tenho vontade|saio da cama|consigo mais`. É o desabafo que não usa
+   nenhuma palavra de sentimento e mesmo assim só fala de si;
+4. **o que eu fiz A ALGUÉM**, em qualquer tamanho — `fui injust|gross|duro
+   demais|ríspid`, `perdi a paciência|cabeça`, `tratei mal`, `briguei`,
+   `discuti com`, `gritei com`, `xinguei`, `explodi com`, `descontei com|no|na`.
+   O teto de 120 era a régua errada aqui: contar que se foi grosso com o irmão é
+   desabafo com noventa caracteres tanto quanto com quatrocentos;
+5. **o que eu DEIXEI de fazer** (`engoli`, `fiquei calad`, `deixei passar`, `não
+   devia ter`) — e este sim **só acima do teto de 120**: curta, "fiquei calada
+   quando perguntaram" é a nota que nomeia uma conversa, e o método que pergunta
+   serve; longa, é o dia sendo despejado.
+
+E o **rodapé do Destaque** (três linhas curtas sem regex nenhuma) obedece o
+mesmo cálculo: ele computava `pessoal` e nunca usava. "Briguei com ela. / Não
+pedi desculpa. / Dormi no sofá." não é uma lista para destacar.
+
+A guarda vive em CÓDIGO e não no `Metodos.json` por duas razões medidas: a pasta
+do autor reescreve o catálogo, e uma fronteira do produto não pode morar num
+arquivo editável; e alargar a Expressiva por DADO deixaria os dois métodos novos
+inalcançáveis (medido pelo implementador da M3-B com 287 sondas). A guarda não
+depende mais da POSIÇÃO no catálogo — a primeira versão só valia para a cauda, e
+o revisor da volta A-B mediu **15 de 20 desabafos novos ainda vestidos** pelos
+cinco métodos que vêm ANTES da Expressiva (`woop`, `seEntao`, `spec`,
+`notaPermanente`) e pelo rodapé do Destaque. O teto de 120 continua sobre a
+Expressiva: nota curta não vira desabafo, e as 14 curtas voltam ao SILÊNCIO que
+tinham antes da colagem, não a uma sugestão nova. **O título honesto é este:**
+8 dos 22 desabafos protegidos não vão para a Expressiva, vão para o silêncio —
+o que a guarda garante é que a escrita pessoal fica do autor, não que ela vira
+Expressiva.
+
+**Custo assumido, medido com as 287 sondas do M3-B (remedido na volta A-B, com o
+`Metodos.json` das 28 formas da M3, DEPOIS do conserto):** a guarda fecha **14 de
+287 ramos (4,9%) para TEXTO LONGO** — 3 da Coluna da esquerda (`engoli`, `fiquei
+calado`, `deixei passar`) e **11** do Exame da noite (`me arrependi`, `não devia
+ter feito|reagido|agido|tratado`, `fui injusto|grosso|duro demais|ríspido`,
+`perdi a paciência|cabeça`). Eram 14, não 15: `hoje eu tratei` continua chegando
+ao Exame, porque a sonda é "tratei" e não "tratei mal". **Nenhum método fica sem porta:** a Coluna continua sendo
+chamada por "não disse", "não consegui dizer", "devia ter dito", "queria ter
+dito", "a conversa com", "na reunião com"; o Exame por "exame da noite", "passei
+o dia em revista", "hoje eu fiz|reagi|tratei" — provado na tela com o Exame
+chegando normalmente depois da guarda
+(`ferramentas/orca/a3-o-exame-continua-alcancavel.png`). Duas frases legítimas
+do revisor mudam de dono e vão para o silêncio: "Tenho medo de estar trabalhando
+na coisa errada há dois anos" e "sinto que o esforço não está indo pro lugar
+certo" — as duas com palavra de sentimento, as duas que iam para a pergunta de
+Hamming. **É o lado certo do erro:** silêncio devolve a nota ao autor; vestir
+carimba quatro campos de exercício sobre o que ele acabou de sentir. E é dito
+aqui porque o `todoRamoDeRegexAlcancaOSeuMetodo` da volta M3 vai ficar VERMELHO
+quando esta guarda entrar: os 14 ramos precisam entrar no `conhecidos` dele, com
+esta ADR como motivo. **As catorze entradas, medidas e literais:**
+`colunaEsquerda|deixei passar|silencio`, `colunaEsquerda|engoli|silencio`,
+`colunaEsquerda|fiquei calado|silencio`, `exameDaNoite|fui duro demais|silencio`,
+`exameDaNoite|fui grosso|silencio`, `exameDaNoite|fui injusto|silencio`,
+`exameDaNoite|fui ríspido|silencio`, `exameDaNoite|me arrependi|silencio`,
+`exameDaNoite|não devia ter agido|silencio`,
+`exameDaNoite|não devia ter feito|silencio`,
+`exameDaNoite|não devia ter reagido|silencio`,
+`exameDaNoite|não devia ter tratado|silencio`,
+`exameDaNoite|perdi a cabeça|silencio`, `exameDaNoite|perdi a paciência|silencio`.
+
+**A regra escrita, agora em QUATRO linhas, nesta ordem** (`Sessao.escolher`):
+
+1. **aviso local vence sempre** — o aviso é do algoritmo (ADR 04r);
+2. **escrita pessoal reconhecida pelo algoritmo CALA o modelo** (nova);
+3. **silêncio do modelo devolve a palavra ao algoritmo** (ADR 04c);
+4. **forma do modelo manda.**
+
+A linha 2 é a mais forte de todas, e ela fecha um buraco que a versão anterior
+desta ADR chamou de "pode contradizer" quando o certo era "vence sempre": a
+guarda devolvia `.silencio`, e `.silencio` tem precedência ZERO — com conta Grok
+ou com Apple Intelligence ligada bastava o modelo devolver uma forma para a nota
+protegida ser VESTIDA (e no caminho automático `aplicar` veste, não sugere). Ou
+seja: a proteção era nula exatamente na configuração padrão de um iPhone
+moderno, o caso que ela existe para impedir. O modelo recebe
+`instrucoesDoCatalogo`, que descreve o Exame da noite inteiro; "Me arrependi e
+chorei" é a frase que ele foi ensinado a classificar. `Sessao` calcula
+`AnaliseLocal.escritaPessoal(texto:campos:)` do texto cru, com o mobiliário
+fora, e passa o resultado para `escolher`.
+
+**E foi provado NA TELA, com o modelo ligado.** O simulador não tem conta xAI
+nem Apple Intelligence — foi por isso que o buraco nasceu invisível. Um modelo
+de mentira, só em DEBUG e ligado pelo AMBIENTE do simulador
+(`TRACO_MODELO_FALSO`, no mesmo canal do `TRACO_SEM_MODELO` da 03p), torna o
+degrau de cima observável. `maestro/escrita-pessoal.sh` roda dois fluxos, e o
+**primeiro é o controle**: com `TRACO_MODELO_FALSO=woop`, "Amanhã eu arrumo a
+estante da sala" — que regex nenhuma alcança — chega VESTIDA de WOOP, com os
+três campos abertos (`ferramentas/orca/ab-modelo-veste.png`). Sem esse controle
+o segundo fluxo não mede nada, porque "nenhum cartão" também é o que se vê com o
+modelo desligado. No segundo, com o MESMO modelo ligado, "Perdi a paciência com
+ela hoje. Me arrependi e chorei." fica na página sem cartão nenhum
+(`ferramentas/orca/ab-cala-o-modelo.png`).
+
+**Volta:** multiplicar. **O que a IA sabe:** nada de novo. **Prova:**
+`EscritaPessoalTests` com os SETE métodos da M3 carregados pela pasta do autor
+(o `Metodos.json` é da M3 e não foi tocado) e **três réguas somadas, 57 frases**:
+as 22 do revisor da M3, as 15 que o revisor da volta A-B mediu chegando vestidas
+pelos métodos ANTES da Expressiva, e **20 minhas, escritas depois do conserto,
+uma por PORTA do catálogo** — `cadaUmaDasMinhasBateNumaPortaDiferente` cobra que
+cada uma bata mesmo na regex do método que ela declara, senão a régua não mede
+nada. Sem a guarda o mesmo arquivo acusa as 22 uma a uma; a régua é a do M3-B
+(escrita pessoal não vira `.gesto` NENHUM, não só os dois novos). Os 14 ramos
+foram REMEDIDOS depois do conserto, com o `Metodos.json` das 28 formas da M3 e o
+expansor `Sondas` da M3: `sondas totais: 287`, `ramos novos: 14`, a lista acima
+palavra por palavra. Tela em `a3-antes-exame-da-noite.png`,
+`a3-depois-a-nota-fica-do-autor.png` e `a3-o-exame-continua-alcancavel.png`, os
+três no iPhone 17 Pro (teste 4) com os sete métodos semeados e
+`TRACO_SEM_MODELO=1`. **Fora:** a assimetria vestir/sugerir, e o `conhecidos` da
+M3 (a lista está aqui; quem mesclar a M3 a cola).
+
+**Junto nesta ADR, a voz do app sobre si mesmo** (auditoria da trilha Métodos:
+as doenças da voz se concentram onde o app fala de si). Três trocas de palavra:
+o Perfil dizia "O que o Traço aprendeu de você" em cima de uma CONTAGEM ("12
+sinais desde 3 de setembro") — passa a "O que o Traço registrou — contagem, não
+conclusão"; a Lente chamava de "Muletas" uma lista que inclui "acho que", "um
+pouco" e "na verdade", que são os hedges que o próprio catálogo ENSINA a usar (a
+Inversão diz "costuma ser") — passa a "Palavras de apoio", com a nota
+"contadas por palavra inteira", e o mesmo rótulo no apontamento de versão
+(`RotuloApontar.muleta`, que a auditoria não viu e é a mesma palavra); e o aviso
+do plano sem obstáculo dizia "o que, em você, COSTUMA atrapalhar isto",
+atribuindo ao autor um hábito que o app não observou — passa a "pode".
+
 ## ADR 2026-09-06c — O áudio antes da letra
 
 **A distância.** A F3 (05w) trouxe o autor de fora do app até a página em
