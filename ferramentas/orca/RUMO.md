@@ -44,9 +44,12 @@ Ordem do dono de 06/09 13:10. Um pesquisador dedicado procura métodos que MERE�
 | # | rodada | estado |
 |---|---|---|
 | M1 | primeira rodada de candidatos | EM EDIÇÃO (worktree metodos-m1) |
-| M2 | colagem no catálogo dos aprovados pelo dono (só depois da V16 mesclar) | espera M1 e V16 |
+| M2 | segunda rodada + fonte primária de Ohno + achados para a colagem | EM EDIÇÃO (mesmo worktree metodos-m1) |
+| M3 | colagem no catálogo dos quatro aprovados + conserto do roteamento | espera M2 e a V16 mesclada |
 
 **G0 de M1.** Ciclo: melhorar (o catálogo é o repertório de instrumentos de pensamento do autor). Intenção: o autor encontra o instrumento certo para o movimento que está tentando fazer, e sabe de onde ele vem. Obstáculo: 21 métodos e nenhuma rotina de entrada; sem critério escrito, catálogo vira lista de produtividade. Evidência: três a cinco fichas com JSON completo e fonte primária citada literalmente, um rejeitado com a barra em que caiu, e a saída do teste das regex contra os outros 20. Quando a forma proposta pedir algo que o app ainda não faz, a ficha nomeia isso e eu abro a volta. Escopo: só `ferramentas/orca/metodos/`; `Traco/Modelo/Metodos.json` fica fechado até a V16 mesclar.
+
+**G0 de M3 (colagem).** Ciclo: melhorar. Intenção: os quatro métodos novos entram no catálogo sem quebrar o roteamento nem a proteção da escrita pessoal. Decisão do dono, 06/09 13:40: **os quatro aprovados** — Subtração (simplificação), Coluna da esquerda (relação), Classe de referência (previsão) e Cinco porquês (causa), este último condicionado a a M2 fechar a citação de Ohno na fonte primária ou trocá-la por uma verificável; método do catálogo não carrega frase que ninguém do Traço leu no original. Colar no FIM do catálogo: a M1 mediu que colar antes da Especificação faz a Coluna da esquerda roubar o desabafo da Expressiva — a proteção da escrita pessoal depende da ordem. No mesmo passo, e por decisão do dono na mesma data, consertar o roteamento do Se–então (`sempre que|toda vez|não consigo parar` sem `\b`, que casa dentro de "sempre quebra" e "sempre queria") com teste que fixe a correção. Os cinco desvios pré-existentes que a M1 mediu ficam nomeados para uma volta de roteamento própria, se o dono quiser. Escopo: Traco/Modelo/Metodos.json, TracoTests/CatalogoTests.swift, ferramentas/orca/metodos/; só abre depois de a V16 mesclar em main.
 
 ## Política de peso das evidências
 
