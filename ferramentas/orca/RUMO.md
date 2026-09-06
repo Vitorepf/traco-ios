@@ -36,14 +36,14 @@ PNG de captura ≤ 400 KB (reduzir com `sips -Z 1000` antes de commitar), vídeo
 
 ## Estado do laço
 
-Sessão do Claude passou de 85% às 21h de 05/09: nenhuma volta nova até o reset (22:50); V6 e F2 seguem até o fecho. V10 (fundação de design, 2 Fables) abre no reset, com o escopo da seção 7 de auditoria-frontend.md.
+Retomada 06/09 02:55 (janela nova). Em edição: V10 fundação de design (Fable A tokens+movimento, Fable B componentes+migração, worktree volta-10-fundacao); F2 correções + rebase; V6 re-G3. Próxima a abrir quando um simulador de teste liberar: V16 métodos com proveniência (Modelo + Perfil + LenteView, disjunta de V10 e V6).
 
 ## Próximas, em ordem
 
 | # | volta | valor | esforço | ciclo | lacuna (EVOLUCAO) |
 |---|---|---|---|---|---|
 | 1 | V9 Auditoria de front-end: nota base por tela | MESCLADA (ferramentas/orca/auditoria-frontend.md) — médias: Página 6,7 · Notas 7,0 · Calendário 7,2 · Recordar 6,2 · Perfil 7,7 · Trabalho 6,0 · Padrões 7,5 · Camadas 7,5 | — | multiplicar | "Direção visual e uso simples" |
-| 2 | V10 Fundação de design: tokens, Traco/Componentes com previews, biblioteca de movimento | alto: cada tela depois sobe sobre isto | G (2 Fable: tokens+movimento / componentes) | multiplicar + eixo 4 | idem; Componentes e Movimento do scorecard |
+| 2 | V10 Fundação de design: tokens, Traco/Componentes com previews, biblioteca de movimento | EM EDIÇÃO (2 Fables, worktree volta-10-fundacao) | G | multiplicar + eixo 4 | idem; Componentes e Movimento do scorecard |
 | 3 | V11 Ambiente Markdown: conflitos e retry na UI real, revogação com seletor aberto | alto: continuidade entre ferramentas é a tese | M (1 Fable) | multiplicar | "Ambiente Markdown compartilhado" |
 | 4 | V12 Telas até 9: Página e Caderno (a porta de entrada); inclui: indicador de rolagem do cartão em AX (G4 V8); crossfade de aba com quadro cinza (pré-existente); 'pular'/aba do arquivo estreitos; o achado do re-G3 da V7: Camadas anima a camada Notas antes do binding (fix de 2 linhas no onEnded do trilho) | alto | M | multiplicar | nota base da V9 |
 | 5 | V13 Telas até 9: Notas e barra de baixo | alto | M | multiplicar | nota base da V9 |
