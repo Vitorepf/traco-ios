@@ -25,7 +25,7 @@ Sempre uma volta desta trilha em edição, em paralelo às voltas comuns, no pr�
 | F1 | Auditoria fora do app | inventário com 24 capturas reais, nota base por superfície, lacunas F2-F11, conselho gravado (ferramentas/orca/auditoria-fora-do-app.md, consulta-fora-intents.md) | MESCLADA em main |
 | F2 | Fundação | MESCLADA em main (ADR 05u); gate ao dono: confirmar no iPhone que instalar por cima preserva os dados (o simulador provou que sim) |
 | F3 | Captar pensamento em um toque | MESCLADA (ADR 05w): controle Anotar na Central/bloqueada/botão de Ação abre o app com teclado pronto e microfone a um toque; F3b = ditado próprio com áudio preservado |
-| F3b | Ditado próprio | áudio salvo antes de transcrever; falha preserva o áudio | EM EDIÇÃO (worktree f3b-ditado, 06/09 12:55) |
+| F3b | Ditado próprio | áudio salvo antes de transcrever; falha preserva o áudio | MESCLADA (ADR 06c; G3, correção, re-G3 aprovado) |
 | F4 | **Os widgets da tela de início prestam** (era "widget próxima volta interativo") | refresh que funciona, identidade do Traço, vazio que oferece ação, densidade do médio, botão de feito na própria superfície | **EM EDIÇÃO, PRIORIDADE MÁXIMA** (worktree f4-widgets; ordem do dono 06/09 13:04, com print do iPhone) |
 | F5 | Ilha do compromisso vivo | estados completos (compacta, expandida, mínima, fim) | |
 | F6 | Widgets da tela bloqueada | accessoryCircular e accessoryInline do dia | |
