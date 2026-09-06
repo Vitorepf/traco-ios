@@ -496,3 +496,160 @@ são três problemas independentes.
 
 Nada disto reabre radical nenhum, e nada disto muda a ADR na sua decisão — só na
 frase sobre a arbitragem, que passa a não precisar existir.
+
+---
+---
+
+# RE-G3 (2ª) — volta A-5-C (`04ea9e8`), mesmo revisor, quinta passada
+
+06/09/2026 20:55–21:20. `iPhone 17 Pro (teste 4) A1DF082C` ligado e desligado por
+mim. `com-trava.sh` de main. Binário verbatim reconstruído sobre as linhas
+113–240 do `AnaliseLocal.swift` de `04ea9e8`. Nada editado no código.
+
+## Veredito: CORRIGIR ANTES — última, e é mecânica
+
+**Os três itens da lista mínima estão feitos e verificados. O meu portão sobre
+eles está levantado.** O que segura agora são **duas linhas grátis** (medidas,
+sem troca nenhuma, custo zero contra as 122 frases das réguas) e **duas frases
+da ADR**. Nenhuma decisão de projeto sobrou.
+
+E o motivo de não ser um "passa" é o que você mesmo apontou: **a classe NÃO está
+fechada**, e essa frase ia para o LACO.
+
+## Confirmado (medido por mim, não aceito por afirmação)
+
+| o quê | resultado |
+|---|---|
+| suíte | `752 tests in 128 suites passed` / `TEST SUCCEEDED`; só os 2 avisos pré-existentes de `ConferenciaTrabalhoTests:381` |
+| 122 frases das três réguas no meu binário | **0 problemas** |
+| ALTO-3 (intensificador transparente) | fechado. "Estou cansado demais desse módulo…" volta a `spec`; "…demais pra isso" continua desabafo |
+| ALTO-4 (`\b` nas listas de verbos) | fechado. "**Trabalhando cansado demais** eu deixo bug passar" volta a `spec` |
+| MÉDIO-5 / MÉDIO-6 | `bate` no ramo dos substantivos e `por dentro pesa` funcionam |
+| os 5 achados da varredura dele | **os 5 conferem**: "Ele **pensou** o problema todo" → `spec`; "filme **odiado** pela crítica" → `notaPermanente`; "Fui **desculpado** pelo atraso" → `spec`; "**Abriguei** o worker atrás de um proxy" → `spec`; "O time está **descansado** e a fila está vazia" → livre |
+| as 3 suspeitas que ele mediu limpas | **limpas mesmo**: "busca exaustiva", "esvaziar a fila… worker cansado", "a carga pesa demais" — e acrescento "o **exaustor** da sala", também limpo |
+| desabafo (minhas 16 novas) | **13 de 16 protegidas**, incluindo todos os braços novos: "me dá um medo bobo", "bate uma ansiedade", "por dentro pesa demais", "acordar cansado ultimamente", "sozinha faz meses", "meu cansaço", "exausto pra caramba", "vazio por dentro desde ontem" |
+
+A varredura de borda é trabalho de verdade e a trajetória é clara: dos meus 20
+com gancho, **18 vestidos → 8 → 5**, e 4 dos 5 que sobram eu já havia concedido
+como WOOP/Se–então legítimos.
+
+## O que ainda está aberto
+
+### A classe não está fechada — `tratei mal` dentro de "contratei mal"
+
+Fiz a varredura por conta própria: separei as **62 alternativas de topo** dos oito
+léxicos, e **38 continuam sem borda à esquerda**. Percorri as 38 contra a
+morfologia do português. Trinta e sete são inalcançáveis ou alcançáveis só com
+acerto (`envergonh` dentro de "envergonhado" é match **correto**; `vazi` dentro
+de "esvazia" é deliberado e é o que faz a densidade colapsar as flexões). **Uma
+não é:**
+
+```
+FALHA  «Contratei mal esse fornecedor e agora o módulo atrasou duas semanas.»  → perde spec
+FALHA  «Contratei mal e o app ficou pela metade; preciso decidir se troco…»     → perde spec
+FALHA  «Me retratei mal na ata da reunião e preciso corrigir o texto do módulo.» → perde spec
+```
+
+`tratei mal` (família 4) casa dentro de **"contratei mal"** e **"retratei mal"**,
+duas palavras comuns de nota de trabalho. Com `\btratei mal`: **as 3 voltam, e
+0 mudanças nas 122 réguas.** Grátis.
+
+Isto não desmerece a varredura — 5 achados dele, 1 meu, e o método está certo.
+Mas a frase é "a classe está fechada" e ela **não está**. Duas notas sobre isso,
+porque a frase vai para o LACO:
+
+1. Com `\btratei mal` a classe fica fechada **contra todos os candidatos que os
+   dois conseguimos nomear**. Isso é o que dá para afirmar. "Fechada" no sentido
+   absoluto não é demonstrável sem um léxico do português — o método aqui é
+   enumerar candidatos, e ele só prova o que enumera. **A frase honesta é: "a
+   classe foi varrida, 62 alternativas uma a uma, e as que sobram sem borda
+   foram medidas contra os candidatos que soubemos nomear."**
+2. É a segunda vez que uma passada nova acha uma borda que a anterior não achou.
+   Isso é evidência a favor do método e contra a palavra "fechada".
+
+### O braço `de <infinitivo>` come Pré-mortem — e eu estava errado na rodada passada
+
+Julgo a correção dele: **narrar o meu `d[áa] medo de` largo estava certo** — o
+meu comia "o que dá medo de verdade nesse plano", ele mediu e consertou. Mas
+`de \w+r` **também não discrimina**, e a ADR o apresenta como se discriminasse
+("PREDICAR … pede infinitivo"):
+
+```
+FALHA  «Pré-mortem: dá medo de perder o cliente se o deploy de sexta falhar.»   → perde premortem
+FALHA  «Imagina que deu errado: dá medo de quebrar a produção na hora do pico.» → perde premortem
+```
+
+"Dá medo de perder o cliente" não predica nada pessoal — é exatamente a forma
+que o Pré-mortem existe para receber. Medi as três saídas no mesmo corpus de 8:
+
+| braço | desabafo vestido (4 campos) | trabalho calado (1 toque) |
+|---|---|---|
+| **hoje**, `de \w+r` | **0** | 2 |
+| sem o braço | 3 | **0** |
+| `me d[áa] medo de \w+r` | 2 | **0** |
+
+**Pela assimetria da ADR, hoje é a melhor das três** — zero carimbos contra dois
+silêncios. O código fica. O que muda é a frase: **isto é uma arbitragem, não um
+discriminador**, e o lado escolhido é o certo pelo motivo certo.
+
+**E isso corrige o que eu escrevi na rodada passada.** Eu disse "a ADR não tem
+nenhum caso de arbitragem, e é melhor assim". Estava errado: tem um, é mais
+estreito do que o `dá medo` inteiro (é só o braço do infinitivo), e ele merece o
+parágrafo no "Fora" com a medida acima. O erro foi meu e é meu o conserto da
+frase.
+
+### `d[áa]|deu` no ramo dos substantivos foi longe demais — e a sugestão era minha
+
+Meu MÉDIO-5 pediu `bate|bateu|dá|deu` no ramo de `ansiedade|cansaço`. `bate` era
+o caso; `dá` eu não medi, e ele entrou:
+
+```
+FALHA  «A fila dá ansiedade no usuário e é isso que precisa entrar na tela.» → perde spec
+FALHA  «Esse fluxo dá cansaço só de olhar; preciso construir uma tela…»      → perde spec
+```
+
+"Dá ansiedade" é vocabulário corrente de UX. Com **`me d[áa]|me deu`** em vez de
+`d[áa]|deu` — o autor no meio, que é o critério da própria ADR — medi **4 de 4**:
+as duas de trabalho voltam, "Sempre que ele some **me dá uma ansiedade** que não
+passa" continua calada, e **0 mudanças nas 122 réguas**. Grátis também.
+
+**Dois dos três defeitos desta rodada saíram da minha lista, implementados mais
+largos do que eu medi.** Registro isso porque muda a leitura: não é o
+implementador deixando passar coisa — é a minha prescrição sem medida.
+
+### A dívida que continua (nomeada, sem conserto grátis)
+
+O que ainda veste desabafo é **uma família só**: o adjetivo **sem cópula**
+("Quero desaparecer um pouco, **cansado de tentar**") e o **adjunto entre o
+adjetivo e a cauda** ("fico ansioso **à toa** ultimamente"). Não tem conserto de
+graça — alargar para particípio solto arrasta "cansado de esperar o fornecedor"
+junto. É dívida honesta e o lugar dela é o "Fora", ao lado da densidade.
+
+## Scorecard revisto
+
+| dimensão | re-G3 | agora | por quê |
+|---|---|---|---|
+| Correção | 8 | **8** | os três itens fechados e verificados em frases novas; 752/752; 122 réguas limpas. Não sobe porque **três notas de trabalho perdem a porta** por dois buracos com conserto grátis medido (`tratei mal`, `d[áa] ansiedade`) e duas Pré-mortem por um braço que a ADR descreve errado. |
+| Contrato | 8 | **8** | a ADR afirma um **discriminador** que é uma **arbitragem** (medido, 3 saídas) e afirma a **classe fechada** com um contraexemplo medido. Duas frases. |
+| **Estado honesto** | 9 | **8** | é aqui que "a classe está fechada" pesa: a frase ia para o LACO e para a ADR, e ela não se sustenta. Baixo esta dimensão de propósito, porque é exatamente o que ela existe para pegar. |
+| Privacidade e autoria | 8 | **9** | 13 de 16 no corpus mais novo, todos os braços novos funcionando, e o resíduo é **uma família estrutural nomeada** (adjetivo sem cópula), não vazamento novo. Sobe. |
+| Visão / Jornada / Design / Simplicidade / Acessibilidade / Performance / Complexidade / Relato | 9 | **9** | inalteradas. A varredura de 62 alternativas é, por si, trabalho de Complexidade e de Relato bem feito. |
+| Movimento / Componentes / Fora do app | n/a | **n/a** | |
+
+**Três dimensões em 8, e as três saem de duas linhas e duas frases.**
+
+## Lista mínima (a última)
+
+1. `\btratei mal` — 3 notas de trabalho recuperadas, 0 custo nas 122. **Grátis.**
+2. `me d[áa]|me deu` no ramo de `ansiedade|cansaço` — 2 recuperadas, 0 custo nas
+   122. **Grátis.**
+3. ADR: o braço `d[áa] medo de \w+r` passa de "discriminador" para **arbitragem
+   declarada no "Fora"**, com a tabela das três saídas e a assimetria como razão.
+   O lado escolhido está certo; só a descrição está errada.
+4. ADR/LACO: "a classe está fechada" → **"a classe foi varrida, 62 alternativas
+   uma a uma; as 38 sem borda foram medidas contra os candidatos que soubemos
+   nomear, e `tratei mal` saiu na quinta passada."** Mais a família do adjetivo
+   sem cópula no "Fora".
+
+Feitos estes quatro, eu não tenho mais nada: as duas direções estão medidas em
+cinco passadas, 200 frases minhas, e o que sobra está escrito onde deve estar.
