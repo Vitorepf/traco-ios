@@ -67,7 +67,7 @@ struct LenteView: View {
                         if let estado = gesto.estadoDoMetodo {
                             Text(estado)
                                 .font(Tema.meta)
-                                .foregroundStyle(Tema.aviso)
+                                .foregroundStyle(Tema.tintaSuave)
                                 .fixedSize(horizontal: false, vertical: true)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.horizontal, 14)
@@ -75,7 +75,7 @@ struct LenteView: View {
                                 .accessibilityIdentifier("metodo-ausente")
                         } else {
                             Button {
-                                withAnimation(Tema.animacao(.easeOut(duration: Tema.cartaoEntra), reduzido: reduceMotion)) {
+                                withAnimation(Tema.animacao(.easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion)) {
                                     deOndeVem.toggle()
                                 }
                             } label: {
@@ -88,6 +88,7 @@ struct LenteView: View {
                                         .font(.footnote.weight(.semibold))
                                         .foregroundStyle(Tema.tintaFraca)
                                         .rotationEffect(.degrees(deOndeVem ? 180 : 0))
+                                        .accessibilityHidden(true)
                                 }
                                 .frame(maxWidth: .infinity, minHeight: Tema.alvo)
                                 .padding(.horizontal, 14)
@@ -98,7 +99,9 @@ struct LenteView: View {
                             .accessibilityHint(deOndeVem ? "Recolhe" : "Fonte, função, o que o Traço adaptou e a evidência")
                             .accessibilityValue(deOndeVem ? "aberto" : "recolhido")
                             if deOndeVem {
-                                proveniencia(gesto.metodoDef)
+                                LinhasDeProveniencia(gesto.metodoDef)
+                                    .padding(.horizontal, 14)
+                                    .padding(.vertical, 10)
                                     .transition(Tema.transicao(.opacity, reduzido: reduceMotion))
                             }
                         }
@@ -322,34 +325,7 @@ struct LenteView: View {
         }
     }
 
-    /// As linhas da proveniência (ADR 05x). Método do autor sem o campo:
-    /// "não informada" — o arquivo é dele, a lacuna também.
-    @ViewBuilder
-    private func proveniencia(_ m: Metodo) -> some View {
-        if let p = m.proveniencia, !p.linhas.isEmpty {
-            VStack(alignment: .leading, spacing: 0) {
-                if m.doAutor {
-                    Text("proveniência: a que você escreveu")
-                        .font(Tema.meta)
-                        .foregroundStyle(Tema.tintaSuave)
-                        .padding(.horizontal, 14)
-                        .padding(.top, 10)
-                }
-                ForEach(p.linhas, id: \.rotulo) { paragrafo($0.rotulo, $0.texto, id: "proveniencia") }
-            }
-        } else {
-            Text(m.doAutor ? "proveniência: não informada — o arquivo do método não tem o campo." : "proveniência não informada.")
-                .font(Tema.meta)
-                .foregroundStyle(Tema.tintaSuave)
-                .fixedSize(horizontal: false, vertical: true)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 10)
-                .accessibilityIdentifier("proveniencia")
-        }
-    }
-
-    private func paragrafo(_ rotulo: String, _ texto: String, id: String = "contraparte") -> some View {
+    private func paragrafo(_ rotulo: String, _ texto: String) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(rotulo)
                 .font(Tema.label)
@@ -364,7 +340,7 @@ struct LenteView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 14)
         .padding(.vertical, 10)
-        .accessibilityIdentifier(id)
+        .accessibilityIdentifier("contraparte")
     }
 
     private func marcar(_ trecho: String, _ rotulo: RotuloApontar) {

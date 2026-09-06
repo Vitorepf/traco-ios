@@ -229,39 +229,50 @@ struct PerfilView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
                     ForEach(Catalogo.todos) { m in
+                        let aberta = provenienciaAberta == m.id
                         VStack(alignment: .leading, spacing: 3) {
-                            HStack(alignment: .firstTextBaseline, spacing: 8) {
-                                Text(m.nome)
-                                    .font(Tema.corpo.weight(.semibold))
-                                    .foregroundStyle(Tema.tinta)
-                                if m.doAutor {
-                                    Text("SEU")
-                                        .font(.system(size: 9, weight: .semibold))
-                                        .tracking(0.8)
-                                        .foregroundStyle(Tema.ambarTinta)
+                            // ADR 05x: a linha inteira abre "de onde vem"; o alvo
+                            // de 44 vive no toque, não numa linha a mais (G3, B7).
+                            Button {
+                                provenienciaAberta = aberta ? nil : m.id
+                            } label: {
+                                VStack(alignment: .leading, spacing: 3) {
+                                    HStack(alignment: .firstTextBaseline, spacing: 8) {
+                                        Text(m.nome)
+                                            .font(Tema.corpo.weight(.semibold))
+                                            .foregroundStyle(Tema.tinta)
+                                            .layoutPriority(1)
+                                        if m.doAutor {
+                                            Text("SEU")
+                                                .font(.system(size: 9, weight: .semibold))
+                                                .tracking(0.8)
+                                                .foregroundStyle(Tema.ambarTinta)
+                                        }
+                                        Spacer(minLength: 0)
+                                        Text(m.origem)
+                                            .font(Tema.label)
+                                            .foregroundStyle(Tema.tintaFraca)
+                                        Image(systemName: "chevron.down")
+                                            .font(.caption2.weight(.semibold))
+                                            .foregroundStyle(Tema.tintaSuave)
+                                            .rotationEffect(.degrees(aberta ? 180 : 0))
+                                            .accessibilityHidden(true)
+                                    }
+                                    Text(m.campos.map(\.rotulo).joined(separator: " · "))
+                                        .font(.footnote)
+                                        .foregroundStyle(Tema.tintaSuave)
+                                        .fixedSize(horizontal: false, vertical: true)
                                 }
-                                Spacer(minLength: 0)
-                                Text(m.origem)
-                                    .font(Tema.label)
-                                    .foregroundStyle(Tema.tintaFraca)
+                                .alvo()
                             }
-                            Text(m.campos.map(\.rotulo).joined(separator: " · "))
-                                .font(.footnote)
-                                .foregroundStyle(Tema.tintaSuave)
-                                .fixedSize(horizontal: false, vertical: true)
-                            // ADR 05x: de onde vem — informação, nunca selo
-                            Button(provenienciaAberta == m.id ? "recolher" : "de onde vem") {
-                                provenienciaAberta = provenienciaAberta == m.id ? nil : m.id
-                            }
-                            .font(Tema.meta)
-                            .foregroundStyle(Tema.ambarTinta)
-                            .frame(minHeight: Tema.alvo, alignment: .leading)
-                            .contentShape(Rectangle())
-                            .buttonStyle(PressaoDiscreta())
+                            .buttonStyle(.discreto)
                             .accessibilityIdentifier("de-onde-vem-\(m.id)")
-                            .accessibilityValue(provenienciaAberta == m.id ? "aberto" : "recolhido")
-                            if provenienciaAberta == m.id {
-                                proveniencia(m)
+                            .accessibilityHint(aberta ? "Recolhe" : "De onde vem: fonte, função, o que o Traço adaptou e a evidência")
+                            .accessibilityValue(aberta ? "aberto" : "recolhido")
+                            if aberta {
+                                LinhasDeProveniencia(m, identificador: "proveniencia-\(m.id)")
+                                    .padding(.top, 8)
+                                    .padding(.bottom, 6)
                             }
                         }
                     }
@@ -273,41 +284,6 @@ struct PerfilView: View {
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
         .presentationBackground(Tema.superficie)
-    }
-
-    /// As mesmas linhas da Lente (ADR 05x). Método do autor: "a que você
-    /// escreveu" ou "não informada".
-    @ViewBuilder
-    private func proveniencia(_ m: Metodo) -> some View {
-        if let p = m.proveniencia, !p.linhas.isEmpty {
-            VStack(alignment: .leading, spacing: 8) {
-                if m.doAutor {
-                    Text("proveniência: a que você escreveu")
-                        .font(Tema.meta)
-                        .foregroundStyle(Tema.tintaSuave)
-                }
-                ForEach(p.linhas, id: \.rotulo) { linha in
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(linha.rotulo)
-                            .font(Tema.label)
-                            .tracking(Tema.trackingLabel)
-                            .foregroundStyle(Tema.tintaFraca)
-                        Text(linha.texto)
-                            .font(.footnote)
-                            .foregroundStyle(Tema.tinta)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                }
-            }
-            .padding(.bottom, 6)
-            .accessibilityIdentifier("proveniencia-\(m.id)")
-        } else {
-            Text(m.doAutor ? "proveniência: não informada — o arquivo do método não tem o campo." : "proveniência não informada.")
-                .font(.footnote)
-                .foregroundStyle(Tema.tintaSuave)
-                .fixedSize(horizontal: false, vertical: true)
-                .accessibilityIdentifier("proveniencia-\(m.id)")
-        }
     }
 
     // MARK: - Conta

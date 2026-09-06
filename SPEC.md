@@ -2794,20 +2794,28 @@ serve). Tudo opcional: JSON antigo e método do autor sem o campo decodificam;
 função desconhecida vira "não informada" sem derrubar o método. A Lente abre
 com a seção da forma da nota e a linha "De onde vem", recolhida; um toque
 mostra as cinco linhas. A lista de métodos do Perfil traz a mesma proveniência
-por método; método do autor diz "a que você escreveu" ou "não informada". Nota
-cujo método saiu da pasta mostra na Lente "o método X saiu da sua pasta; os
-campos continuam na nota" — estado, não bloqueio (ADR 04a). Nenhum selo, cor
-ou nota de eficácia: informação onde havia silêncio. Os 21 foram preenchidos
+por método: a linha do método é o toque (alvo 44 no toque, não numa linha a
+mais; seta que gira), um aberto por vez; método do autor diz "a que você
+escreveu" ou "não informada". As cinco linhas são um componente só,
+`LinhasDeProveniencia` (Traco/Componentes), nas duas telas. Nota cujo método
+saiu da pasta mostra na Lente "o método X saiu da sua pasta; os campos
+continuam na nota" em `tintaSuave` — estado, não erro nem bloqueio (ADR 04a);
+`aviso` fica para o que falhou. Nenhum selo, cor ou nota de eficácia:
+informação onde havia silêncio. Os 21 foram preenchidos
 com o que a literatura citada sustenta, delimitado ("não medido no Traço");
 onde não há estudo do formato, está escrito.
 
-**Custo assumido:** a lista do Perfil cresce uma linha por método; a
-proveniência é texto do catálogo, não verificação — quem lê julga.
+**Custo assumido:** a proveniência é texto do catálogo, não verificação —
+quem lê julga; a bibliografia dos 21 vive só em `Metodos.json`.
 **Volta:** melhorar. **O que a IA sabe:** nada — a proveniência não viaja no
 prompt. **Prova:** 4 testes novos em `CatalogoTests` (os 21 com função válida
 e sem campo vazio; decode com, sem e com função inválida, e roundtrip; método
-do autor com e sem o campo; estado do método ausente), suíte integral 712/0 no
-iPhone 17 Pro Max de teste em 06/09/2026; capturas da Lente recolhida e
-expandida, do Perfil, da nota com método ausente e AX5. **Fora:** proveniência
+do autor com e sem o campo; estado do método ausente), suíte integral 717
+testes em 125 suítes, 716 passam, 1 falha alheia (`ForaDoAppTests.sonecaRecusada`,
+permissão do simulador, trilha F2) no iPhone 17 Pro Max de teste em 06/09/2026
+sobre main 0d0d007; G3 em `ferramentas/orca/revisao-v16-metodos.md` (INTEGRAR,
+três reparos de texto feitos: expressiva, argumento, decisão); capturas
+`ferramentas/orca/v16-fix-*.png` da Lente recolhida, aberta, com método ausente
+e AX5, e do Perfil compacto, aberto e AX5. **Fora:** proveniência
 no prompt da sábia, aviso ao autor quando um método some, edição da
 proveniência pela tela.

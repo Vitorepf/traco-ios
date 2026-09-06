@@ -79,6 +79,7 @@
 		790B6E9A5A75BFDBB00BFF9F /* PapelForma.swift in Sources */ = {isa = PBXBuildFile; fileRef = 665F2C234F3966C3C528A729 /* PapelForma.swift */; };
 		793BE3AE186B9D29159CC21E /* IntegridadeRotasTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEE5A0BF90A8A66D87A0B64C /* IntegridadeRotasTests.swift */; };
 		7955B1999142FE2CCC93DDD9 /* TituloTela.swift in Sources */ = {isa = PBXBuildFile; fileRef = 813C9D0A44A4071EBACC0EFD /* TituloTela.swift */; };
+		7A40D574819B61176C09C344 /* LinhasDeProveniencia.swift in Sources */ = {isa = PBXBuildFile; fileRef = 948CA481153CAE57BEF667E4 /* LinhasDeProveniencia.swift */; };
 		7C1C6E4F04DB0F87F10AE130 /* Pilula.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9622B1F0FCBD585B72089CD2 /* Pilula.swift */; };
 		7F26309223D4872E96CFEA82 /* ContaGrok.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DBB3255C8D14DB1494C3558 /* ContaGrok.swift */; };
 		80ADF1AB86E85FB378787A92 /* Camadas.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACC5FB2B7162F211E437D280 /* Camadas.swift */; };
@@ -286,6 +287,7 @@
 		8C37AE5D202E97779C84A745 /* TracoWidget.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = TracoWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		8C539D876F7FEE65C40EA9E2 /* Volta.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Volta.swift; sourceTree = "<group>"; };
 		8F27C76D6940C416F3957AA3 /* VersoesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VersoesView.swift; sourceTree = "<group>"; };
+		948CA481153CAE57BEF667E4 /* LinhasDeProveniencia.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinhasDeProveniencia.swift; sourceTree = "<group>"; };
 		9494F4BA0893E2C27972D8DE /* ConferenciaTrabalho.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConferenciaTrabalho.swift; sourceTree = "<group>"; };
 		94B43AB5381093C2B583B6C8 /* Trajetoria.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Trajetoria.swift; sourceTree = "<group>"; };
 		9622B1F0FCBD585B72089CD2 /* Pilula.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pilula.swift; sourceTree = "<group>"; };
@@ -403,6 +405,7 @@
 				7DF4DB2A8B1FE3987EEA5C93 /* ChipDominio.swift */,
 				9E3647BCEC3CE110E057EBC1 /* LinhaDeEstado.swift */,
 				63779AF022C1F93A0C3E8385 /* LinhaQueAbre.swift */,
+				948CA481153CAE57BEF667E4 /* LinhasDeProveniencia.swift */,
 				9622B1F0FCBD585B72089CD2 /* Pilula.swift */,
 				021C8E770A726E850C84515E /* Rotulo.swift */,
 				E22B84151D11BBFF7BDAFB6F /* Vazio.swift */,
@@ -913,6 +916,7 @@
 				5C1790A9FFB5B806B351CA85 /* LenteView.swift in Sources */,
 				BE46729BBCE0AD92597BF6F2 /* LinhaDeEstado.swift in Sources */,
 				FF1D01A881B48F3A79C1F4DA /* LinhaQueAbre.swift in Sources */,
+				7A40D574819B61176C09C344 /* LinhasDeProveniencia.swift in Sources */,
 				95A4CF4E0115E6A253620E90 /* MenuFormasView.swift in Sources */,
 				A0486FAC7D0CE9DEEED3F113 /* Metodo.swift in Sources */,
 				03A483C4387E081D6204D93A /* Migracao.swift in Sources */,
