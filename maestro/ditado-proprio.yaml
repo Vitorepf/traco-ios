@@ -1,0 +1,50 @@
+# ADR 05x: o áudio antes da letra. Percorre os cinco estados do ditado próprio.
+#
+# As CAPTURAS de prova são do simctl (lei do instrumento nº 2): este fluxo
+# existe para DIRIGIR os toques por id — com seis simuladores abertos, toque
+# por coordenada cai na janela de outro worker.
+#
+# `?ensaio=transcrito` é instrumento de Debug: troca só o RECONHECEDOR (o
+# microfone, a gravação e a nota continuam reais), porque o simulador não tem
+# o modelo de fala no aparelho e sem isso o estado "transcrito" não existe.
+appId: app.traco
+---
+- launchApp
+- extendedWaitUntil: {visible: {id: pagina}, timeout: 15000}
+
+# 1. gravando → transcrevendo → transcrito
+- openLink: "traco://ditar?ensaio=transcrito"
+- extendedWaitUntil: {visible: "Gravando.", timeout: 10000}
+- assertVisible: {id: ditado-relogio}
+- tapOn: {id: ditado-pronto}
+- extendedWaitUntil: {visible: "Áudio guardado.", timeout: 8000}
+- extendedWaitUntil: {visible: "Guardado nas Notas.", timeout: 25000}
+- assertVisible: {id: ditado-transcricao}
+- tapOn: {id: ditado-pronto}
+
+# 2. a nota existe, com a transcrição e o ÁUDIO dentro
+- openLink: "traco://notas"
+- extendedWaitUntil: {visible: "comprar pão e ligar para a Ana amanhã cedo", timeout: 10000}
+- tapOn: "comprar pão e ligar para a Ana amanhã cedo"
+- extendedWaitUntil: {visible: "ÁUDIO", timeout: 10000}
+- assertVisible: ".*transcrito no aparelho. Confira.*"
+
+# 3. caminho real: no simulador não há modelo de fala no aparelho, então a
+#    transcrição FALHA de verdade — e o áudio fica
+- openLink: "traco://ditar"
+- extendedWaitUntil: {visible: "Gravando.", timeout: 10000}
+- tapOn: {id: ditado-pronto}
+- extendedWaitUntil: {visible: "O áudio ficou.", timeout: 20000}
+- assertVisible: {id: ditado-tentar}
+- tapOn: {id: ditado-pronto}
+
+# 4. sem microfone: nada é gravado e a tela diz por quê (o maestro CONCEDE
+#    permissões no launchApp por padrão — a recusa aqui é explícita)
+- launchApp:
+    permissions: {microphone: deny}
+- extendedWaitUntil: {visible: {id: pagina}, timeout: 15000}
+- openLink: "traco://ditar"
+- extendedWaitUntil: {visible: "Sem microfone.", timeout: 10000}
+- assertVisible: ".*Nada foi gravado.*"
+- tapOn: {id: ditado-escrever}
+- extendedWaitUntil: {visible: {id: pagina}, timeout: 10000}

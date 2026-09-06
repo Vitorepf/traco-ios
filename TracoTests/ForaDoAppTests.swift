@@ -488,11 +488,17 @@ struct ForaDoAppTests {
         let anunciarAntes = Rota.anunciar
         Rota.anunciar = {}
         defer { Rota.anunciar = anunciarAntes }
+        Rota.ditadoPendente = false
         #expect(throws: ForaDoAlvo.self) { try CapturarIntent.executar(noApp: false) }
         #expect(Rota.pendente == nil)
+        #expect(!Rota.ditadoPendente)
         #expect(CapturarIntent.noApp)
         _ = try await CapturarIntent().perform()
-        #expect(Rota.consumir() == .captura(ditado: true))
+        // ADR 05x: o controle abre GRAVANDO, não com o teclado pronto — e o
+        // ditado corre por canal próprio, que a Página (só `Destino`) ignora
+        #expect(Rota.consumir() == nil)
+        #expect(Rota.consumirDitado())
+        #expect(!Rota.consumirDitado())
         #expect(CapturarIntent.openAppWhenRun)
     }
 

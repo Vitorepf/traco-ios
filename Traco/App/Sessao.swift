@@ -1285,6 +1285,37 @@ final class Sessao {
         }
     }
 
+    /// A nota do ditado em curso. Chaveada pela hora em que a gravação
+    /// começou: um ditado novo nunca reescreve a nota do anterior.
+    private var notaDoDitado: Nota?
+
+    /// ADR 05x: a nota do ditado. A PRIMEIRA chamada de um ditado CRIA — e é o
+    /// DEPÓSITO, feito antes de existir uma letra; as seguintes reescrevem a
+    /// MESMA nota quando a transcrição chega ou falha. `false` = o disco
+    /// recusou, e aí nada se confirma na tela.
+    ///
+    /// O áudio não entra aqui: ele mora no cofre de anexos e é referido pelo
+    /// marcador dentro do texto — nunca um blob no SwiftData.
+    func gravarDitado(texto: String, criadaEm: Date, no context: ModelContext) -> Bool {
+        let mesma = notaDoDitado.map { $0.criadaEm == criadaEm && !$0.isDeleted } ?? false
+        let nota: Nota
+        if mesma, let atual = notaDoDitado {
+            nota = atual
+            nota.texto = texto
+            nota.editadaEm = .now
+        } else {
+            nota = Nota(texto: texto, criadaEm: criadaEm, editadaEm: criadaEm)
+            context.insert(nota)
+        }
+        guard persistir(context) else {
+            if !mesma { context.delete(nota) }
+            return false
+        }
+        notaDoDitado = nota
+        if let todas = try? context.fetch(FetchDescriptor<Nota>()) { projetarTudo(todas) }
+        return true
+    }
+
     /// ADR 05s: a varredura inteira das três projeções, sempre DEPOIS do
     /// commit — importar, entrada do Mac e as rotas do selo passam por aqui.
     private func projetarTudo(_ todas: [Nota]) {
