@@ -2898,6 +2898,90 @@ captura dele. Em corpo de acessibilidade (AX5) o começo de cada lado cai de doz
 para quatro linhas; ainda assim os dois cartões não cabem inteiros no mesmo
 olhar — cabe o primeiro completo e o começo do segundo.
 
+### Volta 11-C — a comparação mostra ONDE as duas versões diferem
+
+O G4 derrubou a premissa das duas voltas anteriores, e tinha razão. Em AX5 os
+dois cartões exibiam a MESMA cadeia de caracteres, e não por falta de espaço:
+**a truncagem mostra o COMEÇO e a edição de ida-e-volta acontece no FIM**. Não é
+defeito de AX5 — reaparece nas doze linhas do corpo normal assim que o documento
+passa de doze linhas, e o protocolo aceita 2 MiB. A tela que existe para comparar
+devolvia dois blocos idênticos no caso comum. Quatro correções:
+
+1. **O recorte ancora na primeira divergência.**
+   `IntercambioTrabalho.recorteDaDiferenca(atual:arquivo:contexto:)` mede o
+   prefixo comum; quando ele passa do contexto que cabe na janela, os dois
+   cartões deixam de mostrar o começo e passam a mostrar o mesmo ponto — um fio
+   de contexto antes da divergência, recuado até a fronteira legível (linha
+   inteira quando há uma perto, senão palavra, com `…`). A tela diz onde
+   começou: "As duas começam iguais até a linha N. Mostro daí em diante, onde
+   elas mudam." (ou, em parágrafo único, "nos primeiros N caracteres"). O
+   contexto é parâmetro porque a janela muda: 48 no corpo normal, 12 em corpo de
+   acessibilidade — com 48 as quatro linhas do AX5 são preenchidas pelo contexto
+   sozinho, que é exatamente o defeito. Cálculo de string ao lado de
+   `conflito(_:em:)`, testável sem renderizar SwiftUI.
+   A ressalva de truncagem saiu de dentro da garantia de não-perda: eram duas
+   informações de naturezas diferentes numa frase cinza só, e agora são duas
+   linhas, a consequência em tinta cheia.
+2. **Sair da revisão é desfecho.** `Desfecho.mantida` — "Nada foi importado. O
+   arquivo continua no seu aparelho e pode ser importado depois." — atende as
+   DUAS saídas que fechavam a revisão em silêncio ("Manter só a versão atual" e
+   "Fechar revisão"). Escolha sem retorno visível deixa o autor sem saber se o
+   app entendeu.
+3. **A chegada e o desfecho são vistos e falados.** O cartão de revisão nascia
+   abaixo da dobra: um `ScrollViewReader` dentro do painel (o proxy é da rolagem
+   da folha, que já envolve esta tela) traz a âncora `trabalho-intercambio-revisao`
+   ao topo quando a prévia chega, e o VoiceOver ouve "Arquivo recebido. A revisão
+   está abaixo.". A entrada e o recolhimento do cartão passam por
+   `Tema.movimento(.deslocamento, Tema.Mola.camada, reduzido:)` com transição de
+   deslocamento + opacidade, e a linha de desfecho por
+   `Tema.movimento(.opacidade, …)`. A linha de desfecho deixou de ser a terceira
+   frase cinza igual às instruções fixas: ganhou `cartao(.campo)` e `Tema.tinta`,
+   e TODO desfecho é anunciado por `AccessibilityNotification.Announcement`.
+4. **Nenhuma ação desta tela some (o movimento da volta 18).** `AcaoTrabalhoStyle`
+   nunca leu `@Environment(\.isEnabled)`, e por isso o "Importar" desabilitado
+   era pixel-idêntico ao habilitado. O estilo deixa de existir na volta 18, que
+   resolveu a doença na raiz: no lugar do `.disabled()`, a ação continua cápsula
+   (`Pilula`, `.filtro` nas secundárias e `.larga` cheia na principal), o motivo
+   fica escrito ao lado E no `accessibilityHint`, e tocar diz o que falta em vez
+   de não fazer nada. As três ações do intercâmbio seguem o mesmo padrão, para as
+   duas voltas chegarem em main falando a mesma língua. Efeito colateral bem-vindo:
+   a principal em cápsula cheia (carvão sobre papel) desfaz a inversão de peso
+   que o G4 mediu entre ela e o `.compacto`, sem tocar no `.compacto`.
+
+**A passada de design da 11-C (`design-router`, seis fases).** *Ancorar*: o autor
+volta do editor externo e precisa DECIDIR; se a tela não mostra a diferença, o
+intercâmbio vira gerador de versões que ninguém escolheu. *Sistema*: nada novo —
+`Pilula`, `cartao(.campo)`, `rotulo()`, `Tema.movimento`/`Mola.camada`,
+`Tema.tinta`. *Construir*: o recorte é string pura no modelo, com teste; a View
+só desenha e pergunta. *Mover*: as duas coisas que a tela tinha a dizer e não
+dizia — a decisão chegando e o efeito acontecendo — entram pela lei de
+`Tema.swift`, medidas no vídeo cru (recolhimento em nove quadros consecutivos com
+subida e cauda, contra o quadro único que o G4 mediu; sob Reduzir Movimento, a
+fade curta). *Julgar*, lendo a própria tela no aparelho: em AX5 o contexto de 48
+preenchia sozinho as quatro linhas e os dois cartões voltavam a ser idênticos —
+achado da captura, não do código, e é por isso que o contexto virou parâmetro.
+*Portão*: os quatro itens do mínimo provados por captura no iPhone 17e.
+
+**Custo assumido da 11-C.** O obstáculo das ações bloqueadas mora na folha do
+Trabalho, acima desta tela (território da volta 18): aqui tocar NOMEIA o que
+falta e anuncia, não rola até ele. O `recado` continua não sendo zerado por atos
+não relacionados (dívida do RUMO). A inversão de contraste do `.compacto` como
+regra da casa segue para o RUMO: esta volta não mexeu nele.
+
+**Prova da 11-C:** suíte **722/0 em 125 suítes** em 06/09/2026; 2 testes novos
+(`aComparacaoMostraOndeAsDuasVersoesDiferem` com documento de 41 linhas e a
+diferença na última, mais o recorte de janela pequena e o de parágrafo único;
+`manterAVersaoAtualDizOQueAconteceuComOArquivo`). Jornada real de ponta a ponta
+no iPhone 17e `C7341E64…`, dirigida à mão e conferida por
+`xcrun simctl io <UDID> screenshot` (maestro NÃO isola com vários simuladores
+ligados — `--device` diz um aparelho e o driver XCTest atende outro, provado por
+dimensão de pixel): versão 1 escrita, exportada, o `.md` reescrito FORA do app
+com dez linhas, importado, editado no fim dos dois lados, conflito.
+Capturas `ferramentas/orca/g4c-v11-*.png` — a chegada já na tela, os dois cartões
+começando no ponto de divergência, as duas saídas com pesos distintos, o "Manter"
+falando, o AX5 com os dois cartões DIFERENTES, o importar bloqueado ainda cápsula
+com o motivo ao lado — e vídeos `g4c-v11-normal.mp4` / `g4c-v11-reduzido.mp4`.
+
 **Volta:** multiplicar — a continuidade entre ferramentas é a tese.
 **A IA:** nada. **Prova:** 5 testes em `IntercambioTrabalhoTests` (as duas
 versões e a escolha que não sobrescreve; recusa de disco → retry que confirma a

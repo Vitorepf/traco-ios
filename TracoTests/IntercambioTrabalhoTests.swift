@@ -373,4 +373,60 @@ struct IntercambioTrabalhoTests {
                                                       acesso: true, recusa: .disco)
         #expect(doDisco == .aguardandoCommit && doDisco.ofereceTentarGuardar)
     }
+
+    /// O achado do G4: a truncagem mostra o COMEÇO e a edição de ida-e-volta
+    /// acontece no FIM. Com prefixo comum longo os dois cartões exibiam a mesma
+    /// cadeia — em AX5 com três frases, e no corpo normal em documento longo.
+    @Test func aComparacaoMostraOndeAsDuasVersoesDiferem() throws {
+        // Documento LONGO de verdade: 40 linhas iguais e a diferença na última.
+        let comum = (1...40).map { "Linha \($0) do plano, igual nos dois lados." }.joined(separator: "\n")
+        var documento = try exemplo(comum + "\nConfirmem até quarta, o buffet fecha na quinta.")
+        let arquivoOriginal = try IntercambioTrabalho.exportar(documento)
+        let saiu = try editar(arquivoOriginal, corpo: comum + "\nConfirmem até terça, o buffet fecha na quarta.")
+        try documento.guardarVersaoHumana(comum + "\nConfirmem até quarta, o buffet fecha na quinta de manhã.")
+        let preview = try IntercambioTrabalho.preparar(saiu, para: documento)
+        let conflito = try #require(IntercambioTrabalho.conflito(preview, em: documento))
+
+        // A prova do G4: os dois cartões deixam de exibir a mesma cadeia.
+        #expect(conflito.textoAtual != conflito.textoArquivo)
+        // E o que se vê nas PRIMEIRAS linhas de cada cartão já difere — não é
+        // preciso rolar 40 linhas iguais para achar a divergência.
+        #expect(conflito.textoAtual.prefix(60) != conflito.textoArquivo.prefix(60))
+        #expect(conflito.textoAtual.contains("quinta de manhã"))
+        #expect(conflito.textoArquivo.contains("até terça"))
+        // Nenhum dos dois recortes carrega as quarenta linhas comuns.
+        #expect(!conflito.textoAtual.contains("Linha 1 do plano"))
+        // E a tela diz onde começou a mostrar, em vez de "o começo de cada uma".
+        #expect(conflito.ressalva.contains("começam iguais") && conflito.ressalva.contains("linha 41"))
+        #expect(conflito.consequencia.contains("Nenhuma escolha apaga nada"))
+
+        // A janela de AX5 leva bem menos texto: com o contexto do corpo normal
+        // ele sozinho preencheria as quatro linhas e os dois cartões voltariam
+        // a exibir a mesma cadeia. Com a janela menor a diferença entra nela.
+        let ax5 = try #require(IntercambioTrabalho.conflito(preview, em: documento, contexto: 12))
+        #expect(ax5.textoAtual.prefix(20) != ax5.textoArquivo.prefix(20))
+
+        // Quando a diferença está logo no começo, o recorte não se mexe.
+        let curto = IntercambioTrabalho.recorteDaDiferenca(atual: "Versão A", arquivo: "Versão B")
+        #expect(curto.atual == "Versão A" && curto.arquivo == "Versão B")
+        #expect(curto.ressalva == "Mostro o começo de cada uma.")
+
+        // Parágrafo único, sem quebra de linha: a ressalva conta caracteres.
+        let prosa = String(repeating: "palavra ", count: 30)
+        let umaLinha = IntercambioTrabalho.recorteDaDiferenca(atual: prosa + "quarta", arquivo: prosa + "terça")
+        #expect(umaLinha.atual != umaLinha.arquivo)
+        #expect(umaLinha.atual.hasSuffix("quarta") && umaLinha.arquivo.hasSuffix("terça"))
+        #expect(umaLinha.ressalva.contains("primeiros") && umaLinha.ressalva.contains("caracteres"))
+    }
+
+    /// Escolha sem retorno visível deixa o autor sem saber se o app entendeu.
+    /// As duas saídas que fecham a revisão dizem o mesmo fato.
+    @Test func manterAVersaoAtualDizOQueAconteceuComOArquivo() {
+        let linha = IntercambioTrabalho.Desfecho.mantida.linha
+        #expect(linha.contains("Nada foi importado"))
+        #expect(linha.contains("continua no seu aparelho e pode ser importado depois"))
+        // Não oferece nova tentativa nem segura a revisão: a revisão fechou.
+        #expect(!IntercambioTrabalho.Desfecho.mantida.ofereceTentarGuardar)
+        #expect(!IntercambioTrabalho.Desfecho.mantida.mantemRevisao)
+    }
 }

@@ -5,6 +5,9 @@ import Foundation
 /// As superfícies verificam AcessoTrabalho antes de fornecer o documento.
 nonisolated enum IntercambioTrabalho {
     static let limiteBytes = 2_097_152
+    /// Quanto de texto a prévia carrega. O arquivo inteiro é importado; o que
+    /// se lê na tela é isto.
+    static let limitePrevia = 12_000
     private static let marcador = "<!-- traco-trabalho"
     private static let abertura = "<!-- traco-trabalho:v1 "
     private static let fecho = " -->"
@@ -162,7 +165,7 @@ extension IntercambioTrabalho {
     /// mutação disse; `guardou`, o que o commit disse. Os dois são distintos:
     /// a versão pode existir na memória e o disco ter recusado.
     enum Desfecho: Equatable, Sendable {
-        case guardada, confirmada, semNovidade, aguardandoCommit, precisaReabrir, recusada, semAcesso
+        case guardada, confirmada, semNovidade, aguardandoCommit, precisaReabrir, recusada, semAcesso, mantida
 
         /// As duas recusas de `guardar()` não são a mesma coisa para o autor: o
         /// disco pode aceitar numa nova tentativa; a base divergente, nunca —
@@ -183,6 +186,9 @@ extension IntercambioTrabalho {
             case .precisaReabrir: "Este trabalho mudou em outra abertura, então não posso guardar por cima. Tentar de novo daqui não resolve: volte e abra o trabalho outra vez para ver a versão atual. O arquivo continua no seu aparelho e pode ser importado depois."
             case .recusada: "Não foi possível aplicar o arquivo. Confira o salvamento e importe novamente se a versão ou a intenção mudou."
             case .semAcesso: "A origem foi protegida durante a importação. Nada foi importado."
+            // Sair da revisão é desfecho como qualquer outro: escolher sem
+            // retorno visível deixa o autor sem saber se o app entendeu.
+            case .mantida: "Nada foi importado. O arquivo continua no seu aparelho e pode ser importado depois."
             }
         }
 
@@ -198,6 +204,10 @@ extension IntercambioTrabalho {
     struct Conflito: Equatable, Sendable {
         let tituloAtual: String, textoAtual: String
         let tituloArquivo: String, textoArquivo: String
+        /// Onde a prévia começou e por quê. Fica separada da `consequencia`
+        /// porque são duas coisas: uma ressalva de truncagem e a garantia de
+        /// que nada se perde.
+        let ressalva: String
         let consequencia: String
     }
 
@@ -225,15 +235,70 @@ extension IntercambioTrabalho {
     /// Sem as duas condições a tela afirmaria uma mudança que não houve — a
     /// intenção revista sozinha muda o estado para `.baseAntiga` e não move
     /// versão nenhuma.
-    static func conflito(_ p: Preview, em documento: DocumentoTrabalho) -> Conflito? {
+    static func conflito(_ p: Preview, em documento: DocumentoTrabalho,
+                         contexto: Int = contextoDaDiferenca) -> Conflito? {
         guard p.estado == .baseAntiga, p.baseID != p.versaoVigenteID,
               !jaGuardado(p, em: documento) else { return nil }
+        let recorte = recorteDaDiferenca(atual: documento.versaoAtual?.conteudo ?? "",
+                                        arquivo: p.texto, contexto: contexto)
         return Conflito(
             tituloAtual: "No Traço agora · \(ordem(p.versaoVigenteID, em: documento))",
-            textoAtual: documento.versaoAtual?.conteudo ?? "",
+            textoAtual: recorte.atual,
             tituloArquivo: "No arquivo recebido · saiu da \(ordem(p.baseID, em: documento))",
-            textoArquivo: p.texto,
+            textoArquivo: recorte.arquivo,
+            ressalva: recorte.ressalva,
             consequencia: "Nenhuma escolha apaga nada: a \(ordem(p.versaoVigenteID, em: documento)) continua no histórico e o arquivo, se você o guardar, entra como versão nova.")
+    }
+
+    /// Quanto do trecho comum fica à vista ANTES da divergência, para o autor
+    /// reconhecer o lugar. Cabe nas doze linhas do corpo normal; a tela passa
+    /// um contexto menor quando a janela encolhe — em AX5 quatro linhas levam
+    /// menos de 48 caracteres e o contexto sozinho comeria a janela inteira,
+    /// que é exatamente o defeito que este recorte existe para matar.
+    static let contextoDaDiferenca = 48
+
+    /// O que cada cartão do conflito mostra.
+    ///
+    /// Mostrar o começo dos dois mostra DUAS VEZES O MESMO TEXTO sempre que a
+    /// diferença está depois do corte — e é o caso comum do ida-e-volta, porque
+    /// a truncagem mostra o começo e o autor edita o fim. O recorte ancora na
+    /// PRIMEIRA divergência, com um fio de contexto antes dela, e a tela diz
+    /// onde começou. Vale para os dois tamanhos de corpo: em documento longo o
+    /// mesmo defeito aparece nas doze linhas do corpo normal.
+    static func recorteDaDiferenca(atual: String, arquivo: String,
+                                   contexto: Int = contextoDaDiferenca)
+        -> (atual: String, arquivo: String, ressalva: String) {
+        let comum = atual.commonPrefix(with: arquivo)
+        let iguais = comum.count
+        guard iguais > contexto else {
+            return (String(atual.prefix(limitePrevia)), String(arquivo.prefix(limitePrevia)),
+                    "Mostro o começo de cada uma.")
+        }
+        var corte = iguais - contexto
+        var cortouNaPalavra = true
+        // O recuo até a fronteira legível nunca passa do próprio contexto: com
+        // uma janela pequena ele devolveria o trecho comum que acabou de sair.
+        let recuo = max(0, corte - min(16, contexto))
+        let janela = comum[indice(comum, recuo)..<indice(comum, corte)]
+        if let quebra = janela.lastIndex(of: "\n") {
+            corte = recuo + janela.distance(from: janela.startIndex, to: quebra) + 1
+            cortouNaPalavra = false
+        } else if let espaco = janela.lastIndex(of: " ") {
+            corte = recuo + janela.distance(from: janela.startIndex, to: espaco) + 1
+        }
+        let elipse = cortouNaPalavra ? "…" : ""
+        let linha = 1 + comum.reduce(0) { $1 == "\n" ? $0 + 1 : $0 }
+        let ressalva = linha > 1
+            ? "As duas começam iguais até a linha \(linha). Mostro daí em diante, onde elas mudam."
+            : "As duas começam iguais nos primeiros \(iguais) caracteres. Mostro daí em diante, onde elas mudam."
+        func daDivergencia(_ texto: String) -> String {
+            elipse + String(texto[indice(texto, corte)...].prefix(limitePrevia))
+        }
+        return (daDivergencia(atual), daDivergencia(arquivo), ressalva)
+    }
+
+    private static func indice(_ texto: String, _ n: Int) -> String.Index {
+        texto.index(texto.startIndex, offsetBy: n)
     }
 
     static func descricaoDaBase(_ p: Preview, em documento: DocumentoTrabalho) -> String {
