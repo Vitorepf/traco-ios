@@ -51,3 +51,32 @@ nonisolated enum Relogio {
         return datas.sorted().filter { $0 >= agora }
     }
 }
+
+/// Onde o estado honesto aparece na face (R1 da revisão Re-G3).
+///
+/// A F4-B tirou o estado do cabeçalho, onde ele saía truncado, e o desceu para
+/// a linha do conteúdo. Só que na view ele virou o ÚLTIMO ramo de um `if/else`
+/// — e bastava haver Destaque posto para ele nunca ser alcançado: passado o
+/// horizonte, o widget do Traço largava a agenda inteira e ficava CALADO.
+/// Verdade truncada trocada por silêncio, no defeito que abriu a volta.
+///
+/// A lei é uma só e não é da view: **passada a validade, toda face diz**. O
+/// que muda é o LUGAR — havendo conteúdo em cima, o estado desce ao rodapé;
+/// não havendo, ele é o próprio miolo e carrega a ação. Mora aqui, fora do
+/// SwiftUI, para caber numa suíte: um `if/else` de view não tem teste, e foi
+/// exatamente um `if/else` de view que regrediu.
+nonisolated enum EstadoNaFace: Equatable {
+    /// Instantâneo fresco: não há estado a dizer.
+    case nenhum
+    /// Não há conteúdo: o estado É o miolo, com a ação de recuperação.
+    case miolo
+    /// Há conteúdo velho em cima: o estado desce ao rodapé, sem sumir.
+    case rodape
+
+    static func de(velha: Bool, temConteudo: Bool) -> EstadoNaFace {
+        guard velha else { return .nenhum }
+        return temConteudo ? .rodape : .miolo
+    }
+
+    var diz: Bool { self != .nenhum }
+}

@@ -387,3 +387,304 @@ some de vez no tamanho grande (A8). 7.
   ligado e havia seis. Usei `maestro --device 34CC3F94…` para os gestos e
   `cliclick` com `AXRaise` da minha janela antes de cada toque.
 - Restaurei o simulador ao fim: `appearance light`, `content_size medium`.
+
+---
+---
+
+# Re-G3 — a correção F4-B (ADR 2026-09-06d), commit `de85760`
+
+Mesmo revisor, sessão nova, 06/09/2026. Simulador **iPhone 17 Pro (teste 3)**
+`34CC3F94-FDB5-4575-A4F5-80271829A18B` — ligado, usado e desligado por mim.
+Não editei nem commitei nada. O iPhone 17 `1A46B6D3` do dono **não foi ligado**.
+
+Instrumento desta volta, conforme a lei nova da ESTEIRA ("o maestro não isola"):
+**todas as provas de estado saíram de `xcrun simctl io … screenshot` e do
+conteúdo do App Group**, nunca da hierarquia do `maestro`. Onde o instrumento
+me travou, digo qual estado ficou pendente e não desconto nota por isso.
+
+## Veredito
+
+**CORRIGIR ANTES — mas por uma coisa só, e pequena.**
+
+Os cinco altos estão fechados e os médios também; a A2 eu refiz inteira e ela
+se sustenta no caminho mais difícil (revogação feita nos Ajustes, fora do app).
+O que segura a volta é **uma regressão que a própria correção do A1 criou**: ao
+tirar o estado do cabeçalho, o widget do Traço deixou de dizer que está velho
+**quando há Destaque** — e aí ele simplesmente apaga a agenda e não fala nada.
+Trocou verdade truncada por silêncio. Está na captura DELE.
+
+## Notas revistas
+
+| dimensão | G3 | Re-G3 | por quê |
+|---|---|---|---|
+| Visão | 10 | **10** | inalterada |
+| Contrato | 7 | **9** | A9 feito (05x → 06d), A10 declarado, colisão com a F3b desfeita; sobra `05x` num comentário de `project.yml:87` |
+| Correção | 8 | **9** | **728 testes / 127 suítes verdes, rodados por mim**; +2 travando a lei do sino nos dois sentidos |
+| Jornada real | 6 | **9** | `sem dados` e `sem permissão` fotografados; escuro real e medido; AX5 dos estados novos |
+| Design | 6 | **7** | A1 e A3 resolvidos por subtração, texto inteiro em toda parte — mas **R1** |
+| Simplicidade | 7 | **8** | a oferta cabe inteira até em AX5; mas **M1**: em AX5 o médio do Traço vazio fica sem ação nenhuma |
+| Movimento | 9 | **9** | intocado |
+| Componentes | 7 | **8** | 12 previews (eram 8), os quatro novos são exatamente os estados que cortavam; falta o par que teria pegado R1 |
+| Acessibilidade | 8 | **9** | "+N depois" volta em AX5, `BlocoProximo` fala; AX5 conferido por mim, no escuro |
+| Performance | 10 | **10** | o espelho é um `bool` de `UserDefaults`, sem `await` |
+| Privacidade e autoria | 10 | **10** | o widget continua lendo **só** `SuperficieDisco.ler()`; `SuperficieFora.swift` e `Tema.swift` intocados |
+| Estado honesto | 5 | **7** | **A2 fechada por mim ponta a ponta**; mas **R1** |
+| Complexidade | 9 | **9** | +273 / −68 em Swift, boa parte subtração |
+| Fora do app | 6 | **9** | quatro famílias plantadas e fotografadas em todo estado, A5 corrigido, A6 corrigido, orçamento intacto |
+| Relato | 7 | **9** | declara o próprio erro de instrumento e o que deixou; três imprecisões pequenas, nenhuma me enganou |
+
+Abaixo de 9: **Design 7, Estado honesto 7, Simplicidade 8, Componentes 8** —
+e três das quatro caem pela mesma R1.
+
+---
+
+## O que refiz, e o que achei
+
+### A1 — fechado, mas abriu R1
+
+O raciocínio dele está certo e é o melhor da correção: a causa não era a fonte,
+era o **lugar**. O estado é sobre o conteúdo, não sobre o widget, então desceu
+para a linha do conteúdo, onde tem largura inteira. `Selo` perdeu o parâmetro
+`estado`, ganhou `lineLimit(1).allowsTightening(true)`, e as quatro famílias
+leem `Desatualizado.` e `Não consegui ler o Traço.` **inteiros**, com a ação
+uma vez só. Conferi contra a tela em `f4b-desatualizado-sem-destaque.png`
+(17:26) e `f4b-sem-dados.png` (17:28): `PRÓXIMO` e `TRAÇO` sem hífen, sem
+reticências, nas quatro. Em AX5, `f4b-vazio-ax5.png` (17:14). No escuro e em
+AX5, o meu `f4-reg3-escuro.png` e `f4-reg3-escuro-ax5.png`.
+
+### ALTO — R1 (novo). Com Destaque na tela, o widget do Traço fica velho **calado**
+
+`TracoWidget.swift`, `miolo` e `medio`, testam nesta ordem:
+
+```
+indisponível → destaque → próximos → velha → vazio
+                  ↑ ganha sempre que existe Destaque
+```
+
+E `EntradaTraco.proximos` devolve `[]` quando a superfície está velha. Então,
+passado o horizonte **com Destaque posto**, o médio do Traço deixa cair a
+agenda inteira e **não diz uma palavra**; o pequeno idem. Antes da correção ele
+dizia `· desatua…` — truncado, mas dizia.
+
+Está na captura dele, sem eu precisar montar nada:
+
+- `f4b-horizonte-antes.png`: médio do Traço = Destaque + `16:30 Dentista` +
+  `16:35 Revisão com o time`.
+- `f4b-horizonte-depois.png`: mesmo widget, **só o Destaque**. Os dois
+  `PRÓXIMO` dizem `Desatualizado.`; os dois `TRAÇO`, nada.
+
+E reproduzi no meu aparelho: `f4-reg3-velho-com-destaque-cala.png` (18:36,
+`validoAte` 18:35) — o pequeno do Traço passado o horizonte, idêntico ao de
+antes dele, sem nenhum sinal.
+
+Por que conta: a galeria deste widget promete, com as palavras dele,
+"A única coisa de hoje, **o que vem a seguir** e um toque para começar". O que
+vem a seguir some sem aviso. E é o defeito que abriu a volta — o dono olhando
+para um widget que não conta que parou — voltando com outra roupa. Quem só tem
+o widget do Traço não recebe sinal nenhum.
+
+Conserto pequeno: dizer o estado junto do Destaque (uma linha abaixo dele, ou
+no rodapé onde hoje mora o atalho), em vez de deixá-lo depender de não haver
+Destaque.
+
+### A2 — fechado, e eu refiz o passo mais difícil
+
+O desenho está certo: `Avisos.estado()` é o único ponto que pergunta ao iOS e
+agora grava um espelho no App Group (`avisosPermitidos`), que
+`proximasFatias` lê **sem `await`** — a publicação continua síncrona, como a
+04/set exigiu. `RaizView` relê e republica na volta à cena, porque a permissão
+muda nos Ajustes. E o ramo que esta volta criou em `Sessao.encadear` publica
+**mudo**, chama `Revisoes.agendarCompromisso` de verdade e só então promete, com
+a frase que o sistema respondeu.
+
+Refeito por mim, pelo conteúdo do App Group (`f4-reg3-sino-honesto.txt`):
+
+1. permissão concedida → `avisosPermitidos => true`, superfície revisão 6 com
+   `aviso 19:00 / 20:15 / 21:00`;
+2. desliguei **"Permitir Notificações" nos Ajustes**
+   (`f4-reg3-avisos-desligados-ajustes.png`) — antes de voltar ao app a
+   superfície ainda dizia revisão 6 com os três sinos;
+3. abri o Traço e saí, **sem marcar nada** → `avisosPermitidos => false`,
+   revisão 7, **`aviso: None` nos três**.
+
+Era o defeito 4 da auditoria F1 e o meu A2. Fechado.
+
+**Lacuna de teste, nomeada:** `SinoHonestoTests` trava a lei no caminho de
+publicação, nos dois sentidos — mas o ramo que esta volta escreveu
+(`Sessao.agendarEContar`) continua sem teste. É o ramo que já errou uma vez.
+
+### A pergunta do orquestrador: a lógica do sino sofre do mal da volta 18?
+
+**Não. E a prova é do aparelho, não da leitura.**
+
+Semeei uma série semanal cuja **cabeça está três domingos atrás**
+(`inicio 2026-08-16T21:00`, `repeteEm [1]`, `avisoMinutos 60`) e li o que o app
+publicou (`f4-reg3-serie-que-repete.txt`):
+
+```
+Padel de domingo  inicio 06/09 21:00 | aviso 06/09 20:00
+Padel de domingo  inicio 13/09 21:00 | aviso 13/09 20:00
+```
+
+Cada **ocorrência** carrega o próprio aviso. Nenhuma herda 16/08. São três
+razões independentes:
+
+1. `ProximoCompromisso.proximasFatias` chama `Calendario.ocorrencias(...)`
+   **antes** de `Aviso.instante` — e `ocorrencias` expande a série por
+   `e.movido(paraODiaDe: dia, cal)`. `Aviso.instante` nunca vê a cabeça.
+2. `Revisoes.agendarCompromisso` **já tem** a guarda que a volta 18 está
+   acrescentando: `guard !e.repete else { … return .agendado(quando) }` vem
+   **antes** de `guard quando > agora else { return .passou }`. Compromisso que
+   repete não alcança o `.passou`.
+3. O evento que a F4-B cria em `Sessao.encadear` nasce sem `repeteEm`, então o
+   caso nem existe nesse caminho.
+
+O achado da volta 18 é da volta 18. Nada a corrigir aqui — e, quando
+`PromessaDoAviso` unificar os dois caminhos, é ela que precisa preservar estas
+três propriedades, não o contrário.
+
+### A3 — fechado
+
+`Oferta` deixou de encolher e passou a quebrar linha; em tamanho de
+acessibilidade o glifo cede a coluna à palavra. `f4b-vazio-ax5.png`:
+`Marcar / compromisso` inteiro em duas linhas, `Nada em destaque hoje.`
+inteiro. A segunda correção nasceu dele olhando o próprio AX5 — é a fase
+Julgar acontecendo, não sendo citada.
+
+### A4 — fechado, e a medida confere
+
+Medi as capturas dele com o meu método:
+
+```
+f4b-casa-claro.png  190,6   |   f4b-casa-escuro.png  144,1
+```
+
+Ele declarou 187,5 e 140,1 — a diferença é de reamostragem (ele mediu antes de
+reduzir); **a separação é real e é de ~46 pontos**, contra **0,0** dos pares da
+F4. E `f4b-casa-escuro.png` mostra papel de parede escuro, dock escuro e os
+quatro widgets em papel: D11 provado. O meu par independente dá 166,7 contra
+82,3 (`f4-reg3-escuro.png`).
+
+### A5 — fechado
+
+A frase do limite falso saiu de `f4-widgets.md` e os quatro widgets estão
+plantados. Confirmei na galeria do meu aparelho que a página do app é um
+carrossel de quatro e que o pequeno do Próximo é a terceira.
+
+### A6, A7, A8, A9, A12 — fechados
+
+- **A6.** `destino` decide o `widgetURL` **e** o rodapé pelo que a face mostra.
+  `f4b-um-toque-destino.png` (17:23): o pequeno do Traço com `16:52 Dentista`
+  na face e **"Calendário"** no rodapé. No meu aparelho, com Destaque posto, o
+  mesmo widget diz "Nova nota" — os dois ramos conferidos.
+- **A7.** 12 previews (eram 8): `Amostra.velho` nas duas linhas do Traço e
+  quatro previews AX5 nas larguras onde o texto cortava.
+- **A8.** `+N depois` **não some mais** em AX5 (`f4b-dia-ax5.png`, no pequeno e
+  no médio), e `BlocoProximo` ganhou `accessibilityElement(children: .combine)`
+  com uma frase única.
+- **A9.** `2026-09-05x` → `2026-09-06d` no SPEC, no EVOLUCAO e no código. A
+  colisão com a F3b acabou.
+- **A12.** `sem dados` (`f4b-sem-dados.png`) e `sem permissão`
+  (`f4b-sino-sem-permissao.png`) fotografados.
+
+### MÉDIO — M1 (novo). Em AX5 o médio do Traço vazio não oferece nada
+
+`f4b-vazio-ax5.png`, widget de baixo: `TRAÇO` e `Nada em destaque hoje.` — e
+mais nada. O médio esconde os atalhos em tamanho de acessibilidade
+(`if !tipo.isAccessibilitySize`) e a `Oferta` desse ramo vai **sem rótulo**, com
+o comentário "a ação já está dita ali perto (o médio a tem no cabeçalho)". Em
+AX5 não tem: o cabeçalho está vazio. A recuperação da `curva-zero` desaparece
+exatamente no tamanho que a correção varreu. Conserto: dar rótulo à `Oferta` do
+médio quando `tipo.isAccessibilitySize`.
+
+## A11, que ele deixou: metade honesta, metade não
+
+**A primeira metade é adiamento honesto.** O Destaque aparecendo em dois
+widgets é consequência de o widget não saber quais irmãos estão plantados, e o
+vazio do Próximo trazer o Destaque é justamente o que serve a quem **não** tem
+o widget do Traço. A saída real é configuração por widget
+(`AppIntentConfiguration`), que já é item nomeado da trilha. Adiar está certo.
+Registro o custo que ele não escreve: na casa **do dono** a duplicação é
+garantida, porque ele tem os dois — quem abriu a volta é quem paga o adiamento.
+
+**A segunda metade não é.** "O vazio dos médios ainda tem muita área livre" não
+se resolve com widget configurável: calendário vazio continua vazio com pasta
+escolhida ou sem. Em `f4b-vazio-oferta.png` (16:54) os dois médios são 4×2 com
+uma frase, uma ação e ~70% de área morta — e é literalmente o item 3 do G0 do
+dono ("médio inteiro para 'nada marcado'") e o defeito 5 dele ("densidade
+errada"). Isso é decisão de layout que cabe hoje, e amarrá-la à volta da
+configuração é o defeito voltando pela porta dos fundos. **Não derruba a volta
+agora** — a nota de Simplicidade cai por M1, não por isto —, mas tem de estar
+no RUMO com nome próprio, não dissolvido em "widget configurável".
+
+## O erro de instrumento dele: efeito nenhum nas provas que consigo checar
+
+Ele declara ter removido `/tmp/traco-instrumento.lock` duas vezes, entre 16:05
+e 16:15, sem perceber que havia fila. Julgamento:
+
+- **As capturas que dá para datar estão todas fora da janela.** Li o relógio na
+  barra de status de cada uma: 16:54, 17:14, 17:23, 17:26, 17:28. As que não dá
+  para datar são as que têm a Live Activity cobrindo o relógio, e o conteúdo
+  delas (compromissos às 16:30/16:40) é coerente com a mesma sessão.
+- **Os dois números mais expostos eu reproduzi sozinho**, depois, sob a trava:
+  `BUILD SUCCEEDED` e `Test run with 728 tests in 127 suites passed`.
+- Ele não usou `maestro` para toque — usou `cliclick` com `AXRaise` da janela
+  dele —, então o risco de a hierarquia do vizinho contaminar um gesto não se
+  aplica ao que ele fez.
+
+**Conclusão:** o dano do lock removido, se houve, foi para os OUTROS workers da
+fila, não para as provas desta volta. Declarar o erro no relato é exatamente o
+que a ESTEIRA pede; não desconto nota por isso, e recomendo que o orquestrador
+verifique quem estava na fila entre 16:05 e 16:15.
+
+## Imprecisões do relato (nenhuma me enganou)
+
+1. "`Tema.aviso` saiu do widget" — saiu do `Selo`, que era o que importava, mas
+   o token continua em `TracoWidget.swift:878`, na linha de recusa da Live
+   Activity (`bell.slash`), que é da 04f e não desta volta.
+2. "Nenhum `05x` sobra no código" — sobra em `project.yml:87`, num comentário
+   que a própria F4 escreveu.
+3. A prova em três passos da A2 usa, para o passo 1 (nunca perguntado) e para o
+   passo 3 (revogado nos Ajustes), duas capturas **indistinguíveis** — mesma
+   cena, diferença máxima de 1 nível por canal, e o relógio coberto pela Live
+   Activity nas duas. Os dois estados de fato desenham igual (sem sino), então
+   não é invenção; mas a foto sozinha não prova a sequência. O que prova é o
+   conteúdo do App Group — e é por isso que refiz o passo 3 eu mesmo.
+
+## Instrumento desta revisão
+
+- `xcodebuild` sob `com-trava.sh`. Build limpo do app e do widget; os dois
+  únicos `warning:` da suíte estão em `TracoTests/ConferenciaTrabalhoTests.swift:381`,
+  arquivo que nem a F4 nem a F4-B tocaram.
+- Provas de estado por `xcrun simctl io … screenshot` e pelo conteúdo do
+  App Group, como manda a lei nova. Nada de decisivo saiu do `maestro`.
+- **Pendente de instrumento, sem desconto de nota:** consegui replantar **uma**
+  das quatro famílias no meu aparelho. O carrossel da galeria de widgets parou
+  de paginar depois da quinta tentativa (`cliclick` lento e rápido, `maestro`
+  por porcentagem), com a SpringBoard travando em quadro parado duas vezes;
+  reiniciei a SpringBoard e reiniciei o simulador uma vez cada. Descobri a causa
+  de parte disso e registro para quem vier: **a Live Activity do Destaque ocupa
+  a Ilha Dinâmica e engole o toque no botão "Editar" da tela de início** —
+  apagar o Destaque antes de plantar widget resolve. As três famílias que não
+  replantei estão fotografadas nas capturas dele, que conferi por conteúdo e
+  por relógio.
+- Restaurei ao fim: `appearance light`, `content_size medium`, e desliguei o
+  `34CC3F94`. Não desliguei simulador de ninguém.
+
+## Minhas capturas
+
+| arquivo | o que mostra |
+|---|---|
+| `f4-reg3-velho-com-destaque-cala.png` | 18:36, horizonte vencido às 18:35: o widget do Traço com Destaque **não diz que está velho** (R1) |
+| `f4-reg3-avisos-desligados-ajustes.png` | "Permitir Notificações" desligado nos Ajustes |
+| `f4-reg3-sino-honesto.txt` | os três passos da A2 pelo App Group: `true` + três sinos → Ajustes off → `false` + `aviso: None` nos três |
+| `f4-reg3-serie-que-repete.txt` | série semanal com cabeça de 16/08 publicando aviso 06/09 20:00 e 13/09 20:00 — sem o mal da volta 18 |
+| `f4-reg3-escuro.png` | escuro de verdade no meu aparelho (166,7 → 82,3 de brilho médio) |
+| `f4-reg3-escuro-ax5.png` | AX5 no escuro: `TRAÇO` inteiro, Destaque em quatro linhas, sem clipe |
+
+## Para o G4
+
+Se o dono mandar seguir, o G4 de design entra com duas perguntas prontas: o
+peso de quatro lajes de papel branco numa casa escura (decisão D11 declarada,
+mas ele ainda não a viu), e a densidade dos médios vazios (A11, segunda
+metade). R1 e M1 têm de estar corrigidos antes.

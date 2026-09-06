@@ -114,6 +114,9 @@ private struct AtalhoTraco: View {
     let rotulo: String
     let glifo: String
     var primario: Bool = false
+    /// No quadro de ofertas o alvo é a linha inteira (Fitts); no cabeçalho,
+    /// não — lá ele divide a faixa com a marca e com o irmão.
+    var largo: Bool = false
 
     var body: some View {
         Link(destination: URL(string: rota)!) {
@@ -128,12 +131,19 @@ private struct AtalhoTraco: View {
         HStack(spacing: 5) {
             Image(systemName: glifo)
                 .font(Tema.miudo.weight(.semibold))
+            // A3, de novo: encolher a 85% não salva "Marcar compromisso" em
+            // tamanho de acessibilidade — e oferta cortada não é oferta. A
+            // linha quebra; a palavra, nunca.
             Text(rotulo)
                 .font(Tema.miudo.weight(.semibold))
-                .lineLimit(1)
-                .minimumScaleFactor(0.85)
+                .lineLimit(2)
+                .allowsTightening(true)
+                .fixedSize(horizontal: false, vertical: true)
+                .multilineTextAlignment(.leading)
+            if largo { Spacer(minLength: 0) }
         }
         .foregroundStyle(primario ? Tema.ambarTinta : Tema.tintaSuave)
+        .frame(maxWidth: largo ? .infinity : nil, alignment: .leading)
         .contentShape(Rectangle())
     }
 }
@@ -311,6 +321,38 @@ private struct Oferta: View {
     }
 }
 
+/// O estado honesto quando há conteúdo em cima dele (R1 da revisão Re-G3).
+///
+/// A frase é a mesma da `Oferta` (`Desatualizado.`), no mesmo vocabulário; o
+/// que muda é o degrau. Havendo Destaque posto, o miolo é do Destaque — e o
+/// estado, que é do INSTANTÂNEO inteiro e não do ramo que sobrou, desce para
+/// o rodapé. Nunca some: `EstadoNaFace` decide, e a lei tem teste.
+private struct Velho: View {
+    @Environment(\.dynamicTypeSize) private var tipo
+
+    var body: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 5) {
+            // Como na `Oferta` (A3): no tamanho de acessibilidade o glifo
+            // cede a coluna à palavra — a frase inteira vale mais que o desenho.
+            if !tipo.isAccessibilitySize {
+                Image(systemName: "clock.badge.exclamationmark")
+                    .font(Tema.label)
+            }
+            Text("Desatualizado.")
+                .font(Tema.miudo.weight(.semibold))
+                .lineLimit(1)
+                .allowsTightening(true)
+                // 155 pt em AX5 não cabem 14 letras: aqui a palavra ENCOLHE
+                // inteira, nunca vira reticências nem hífen no meio (A1).
+                .minimumScaleFactor(0.6)
+            Spacer(minLength: 0)
+        }
+        .foregroundStyle(Tema.tintaFraca)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Desatualizado. Abra o Traço para atualizar.")
+    }
+}
+
 /// O botão do feito, com identidade (ADR 05u): marca ou desfaz — dois
 /// intents, nunca um toggle. O mesmo gesto na casa e na tela bloqueada (04f).
 private struct BotaoFeito<Rotulo: View>: View {
@@ -340,7 +382,11 @@ struct TracoWidgetView: View {
         Group {
             switch familia {
             case .accessoryInline:
-                Text(entrada.destaque?.linha ?? "Traço")
+                // R1: uma linha só — e quando o instantâneo é velho, o que
+                // ela tem a dizer é isso. Mostrar a linha de ontem como se
+                // fosse a de hoje é a mentira que a volta veio matar.
+                Text(entrada.velha ? "Traço · desatualizado"
+                                   : (entrada.destaque?.linha ?? "Traço"))
             case .accessoryRectangular:
                 if let d = entrada.destaque {
                     // ADR 04f: na tela bloqueada o Destaque também se marca.
@@ -349,10 +395,15 @@ struct TracoWidgetView: View {
                             Image(systemName: d.feito ? "checkmark.circle.fill" : "circle")
                                 .font(Tema.miudo)
                             VStack(alignment: .leading, spacing: 2) {
-                                Text("DESTAQUE")
+                                // R1: na bloqueada não sobra linha para um
+                                // rodapé — então o estado ocupa a etiqueta,
+                                // que é o único lugar que já era de estado.
+                                Text(entrada.velha ? "DESATUALIZADO" : "DESTAQUE")
                                     .font(Tema.label)
                                     .tracking(Tema.trackingLabel)
                                     .foregroundStyle(.secondary)
+                                    .lineLimit(1)
+                                    .allowsTightening(true)
                                 Text(d.linha)
                                     .font(Tema.meta.weight(.medium))
                                     .lineLimit(2)
@@ -363,8 +414,10 @@ struct TracoWidgetView: View {
                         .contentShape(Rectangle())
                     }
                 } else {
-                    Text(entrada.indisponivel ? "Traço · sem dados" : "Traço")
+                    Text(entrada.indisponivel ? "Traço · sem dados"
+                         : (entrada.velha ? "Traço · desatualizado" : "Traço"))
                         .font(Tema.meta.weight(.medium))
+                        .lineLimit(2)
                 }
             default:
                 casa
@@ -376,14 +429,31 @@ struct TracoWidgetView: View {
     /// Quantas linhas a única coisa de hoje pode ocupar. Em tamanho de
     /// acessibilidade o pequeno abre mão do atalho: a linha vem primeiro.
     private var linhasDoDestaque: Int {
-        if familia == .systemSmall { return tipo.isAccessibilitySize ? 4 : 3 }
-        return 2
+        let teto = familia == .systemSmall ? (tipo.isAccessibilitySize ? 4 : 3) : 2
+        // Passado o horizonte entra o rodapé do estado. No tamanho normal
+        // cabem os dois; em tamanho de acessibilidade não, e aí a QUARTA
+        // linha da frase cede — saber que está velho vale mais. Tirar uma
+        // linha no tamanho normal só trocava o silêncio da R1 por um
+        // "capítulo do…" no Destaque, que é o defeito A1 outra vez.
+        return estadoNaFace == .rodape && tipo.isAccessibilitySize ? max(1, teto - 1) : teto
     }
     private var soALinha: Bool { familia == .systemSmall && tipo.isAccessibilitySize }
     /// O miolo já traz a ação: repeti-la no rodapé mostrava "Nova nota" duas
     /// vezes no mesmo widget (visto no simulador, 06/09).
     private var ofertando: Bool {
         entrada.indisponivel || (entrada.destaque == nil && entrada.proximos.isEmpty)
+    }
+    /// R1: onde o estado honesto sai nesta face. Havendo Destaque (ou agenda),
+    /// há conteúdo — e o estado vira rodapé em vez de desaparecer.
+    private var estadoNaFace: EstadoNaFace {
+        .de(velha: entrada.velha,
+            temConteudo: !entrada.indisponivel && entrada.destaque != nil)
+    }
+    /// Sem Destaque, sem agenda e com o instantâneo fresco não há conteúdo
+    /// nenhum: aí a face inteira vira oferta (A11, segunda metade).
+    private var vazioTotal: Bool {
+        !entrada.indisponivel && !entrada.velha
+            && entrada.destaque == nil && entrada.proximos.isEmpty
     }
 
     /// A única coisa de hoje, e um toque que a fecha sem abrir o app (F2).
@@ -420,7 +490,7 @@ struct TracoWidgetView: View {
             // sem a única coisa de hoje, o pequeno traz o que vem — em bloco,
             // porque a LINHA de agenda (hora | assunto | sino) não cabe em 155pt
             BlocoProximo(proximo: p, agora: entrada.date, restantes: entrada.proximos.count - 1)
-        } else if entrada.velha {
+        } else if estadoNaFace == .miolo {
             // A1: o estado honesto por extenso, na linha do conteúdo. Passado o
             // horizonte o instantâneo é velho — e sobre um instantâneo velho o
             // widget NÃO afirma "nada em destaque hoje": ele não sabe.
@@ -451,7 +521,12 @@ struct TracoWidgetView: View {
             Spacer(minLength: 8)
             miolo
             Spacer(minLength: 4)
-            if !soALinha, !ofertando {
+            if estadoNaFace == .rodape {
+                // R1: o Destaque fica, e o rodapé conta que ele é velho —
+                // o atalho cede a linha, porque a promessa da face vem antes
+                // de mais um caminho para dentro do app.
+                Velho()
+            } else if !soALinha, !ofertando {
                 AtalhoTraco(rota: destino.rota, rotulo: destino.rotulo,
                             glifo: destino.glifo, primario: true).corpo
             }
@@ -469,7 +544,9 @@ struct TracoWidgetView: View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .firstTextBaseline, spacing: 12) {
                 Selo(rotulo: "TRAÇO")
-                if !tipo.isAccessibilitySize {
+                // Com a face vazia os atalhos descem para o corpo (A11/M1):
+                // repeti-los aqui seria a mesma ação duas vezes.
+                if !tipo.isAccessibilitySize, !vazioTotal {
                     AtalhoTraco(rota: "traco://nova", rotulo: "Nova nota",
                                 glifo: "square.and.pencil", primario: true)
                     AtalhoTraco(rota: "traco://recordar", rotulo: "Recordar",
@@ -482,11 +559,11 @@ struct TracoWidgetView: View {
                        glifo: "arrow.up.forward.app")
             } else if let d = entrada.destaque {
                 linhaDoDestaque(d)
-            } else if entrada.velha {
+            } else if estadoNaFace == .miolo {
                 Oferta(estado: "Desatualizado.", rotulo: "Abrir o Traço",
                        glifo: "arrow.up.forward.app")
-            } else if entrada.proximos.isEmpty {
-                Oferta(estado: "Nada em destaque hoje.")
+            } else if vazioTotal {
+                quadroVazio
             }
             if !entrada.proximos.isEmpty, !tipo.isAccessibilitySize {
                 Spacer(minLength: 10)
@@ -498,7 +575,51 @@ struct TracoWidgetView: View {
                         .padding(.bottom, 6)
                 }
             }
-            Spacer(minLength: 0)
+            if !vazioTotal { Spacer(minLength: 0) }
+            if estadoNaFace == .rodape {
+                // R1: com Destaque posto, o médio largava a agenda inteira e
+                // não dizia nada. Agora diz — no rodapé, embaixo do conteúdo
+                // que ele está pondo em dúvida, como no pequeno.
+                Velho()
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    }
+
+    /// O médio vazio como QUADRO DE OFERTAS (A11, segunda metade; M1).
+    ///
+    /// Quatro por dois para uma frase e ~70% de área morta é o defeito 5 do
+    /// dono — "densidade errada" — voltando pela porta dos fundos, e widget
+    /// configurável não resolve: calendário vazio continua vazio com pasta
+    /// escolhida ou sem. Sem Destaque e sem agenda não existe conteúdo a
+    /// mostrar; o que existe é o que o autor PODE fazer daqui. Então a face
+    /// inteira vira isso: três ações reais, uma por linha, alvo na linha toda.
+    ///
+    /// E elas moram no CORPO, não no cabeçalho — por isso continuam existindo
+    /// em tamanho de acessibilidade, onde o cabeçalho se cala e o vazio ficava
+    /// mudo (M1). A recuperação da `curva-zero` não desaparece no tamanho que
+    /// mais precisa dela.
+    private var quadroVazio: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text("Nada em destaque hoje.")
+                .font(Tema.meta.weight(.medium))
+                .foregroundStyle(Tema.tintaSuave)
+                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
+            Spacer(minLength: 8)
+            AtalhoTraco(rota: "traco://nova", rotulo: "Nova nota",
+                        glifo: "square.and.pencil", primario: true, largo: true)
+            Spacer(minLength: 8)
+            AtalhoTraco(rota: "traco://calendario", rotulo: "Marcar compromisso",
+                        glifo: "calendar.badge.plus", largo: true)
+            // Em AX5 duas ações já tomam a face inteira; a terceira continua
+            // no cabeçalho do tamanho normal e no app (curva-zero: o poder
+            // muda de lugar, não some).
+            if !tipo.isAccessibilitySize {
+                Spacer(minLength: 8)
+                AtalhoTraco(rota: "traco://recordar", rotulo: "Recordar",
+                            glifo: "arrow.counterclockwise", largo: true)
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
@@ -1072,6 +1193,14 @@ private enum Amostra {
     static var velho: EntradaTraco {
         .init(date: agora, leitura: superficie(proximos: tres, validoAte: agora.addingTimeInterval(-60)))
     }
+    /// R1: o estado que faltava — velho COM Destaque posto. É a casa do dono
+    /// (ele tem os dois widgets e põe Destaque todo dia), e era a única
+    /// combinação que nenhum preview olhava: por isso o widget do Traço pôde
+    /// ficar mudo por uma volta inteira.
+    static var velhoComDestaque: EntradaTraco {
+        .init(date: agora, leitura: superficie(destaque: destaque(feito: false), proximos: tres,
+                                               validoAte: agora.addingTimeInterval(-60)))
+    }
 
     static var comProximo: EntradaProximo { .init(date: agora, leitura: superficie(proximos: [proximo()])) }
     static var agendaCheia: EntradaProximo { .init(date: agora, leitura: superficie(proximos: tres)) }
@@ -1095,6 +1224,7 @@ private enum Amostra {
     Amostra.semDestaqueComAgenda
     Amostra.vazio
     Amostra.velho
+    Amostra.velhoComDestaque
     Amostra.indisponivel
 }
 
@@ -1106,6 +1236,7 @@ private enum Amostra {
     Amostra.semDestaqueComAgenda
     Amostra.vazio
     Amostra.velho
+    Amostra.velhoComDestaque
     Amostra.indisponivel
 }
 
@@ -1114,6 +1245,7 @@ private enum Amostra {
 } timeline: {
     Amostra.comDestaque
     Amostra.feito
+    Amostra.velhoComDestaque
     Amostra.vazio
     Amostra.indisponivel
 }
@@ -1134,6 +1266,22 @@ private enum Amostra {
 
 #Preview("Traço · médio AX5", traits: .fixedLayout(width: 364, height: 170)) {
     TracoWidgetView(entrada: Amostra.semDestaqueComAgenda)
+        .padding(16)
+        .environment(\.dynamicTypeSize, .accessibility5)
+}
+
+/// R1: a combinação que regrediu — Destaque posto e horizonte vencido — nas
+/// duas larguras da casa e no tamanho grande. Um preview por defeito conhecido.
+#Preview("Traço · velho com Destaque AX5", traits: .fixedLayout(width: 170, height: 170)) {
+    TracoWidgetView(entrada: Amostra.velhoComDestaque)
+        .padding(16)
+        .environment(\.dynamicTypeSize, .accessibility5)
+}
+
+/// A11/M1: o médio vazio virou quadro de ofertas — e em AX5 ele continua
+/// tendo ação, que era exatamente o que sumia.
+#Preview("Traço · médio vazio AX5", traits: .fixedLayout(width: 364, height: 170)) {
+    TracoWidgetView(entrada: Amostra.vazio)
         .padding(16)
         .environment(\.dynamicTypeSize, .accessibility5)
 }

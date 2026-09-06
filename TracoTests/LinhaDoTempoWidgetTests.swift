@@ -188,3 +188,43 @@ struct SinoHonestoTests {
         ProximoCompromisso.gravar(nil)
     }
 }
+
+/// ADR 2026-09-06d, revisão Re-G3 — R1: o estado honesto não depende do ramo.
+///
+/// A correção do A1 desceu "Desatualizado." do cabeçalho (onde saía `desatua…`)
+/// para a linha do conteúdo — e ali, na view, ele virou o ÚLTIMO `else if` de
+/// uma cadeia que começa no Destaque. Com Destaque posto e o horizonte vencido,
+/// o widget do Traço largava a agenda inteira e ficava CALADO: verdade truncada
+/// trocada por silêncio, no defeito que abriu a volta.
+///
+/// A lei, agora fora do SwiftUI e com teste: **passada a validade, toda face
+/// diz**. Só o LUGAR muda — com conteúdo em cima, o estado vira rodapé; sem
+/// conteúdo, ele é o miolo e carrega a ação. Um `if/else` de view não tem
+/// suíte, e foi um `if/else` de view que regrediu.
+@Suite("O estado honesto sai em qualquer combinação (F4-C)")
+struct EstadoNaFaceTests {
+    @Test("instantâneo fresco não inventa estado, com ou sem conteúdo")
+    func frescoCala() {
+        #expect(EstadoNaFace.de(velha: false, temConteudo: true) == .nenhum)
+        #expect(EstadoNaFace.de(velha: false, temConteudo: false) == .nenhum)
+    }
+
+    @Test("velho SEM conteúdo: o estado é o próprio miolo, com a recuperação")
+    func velhoSemConteudoViraMiolo() {
+        #expect(EstadoNaFace.de(velha: true, temConteudo: false) == .miolo)
+    }
+
+    @Test("velho COM Destaque posto: o estado desce ao rodapé — nunca some (R1)")
+    func velhoComConteudoViraRodape() {
+        #expect(EstadoNaFace.de(velha: true, temConteudo: true) == .rodape)
+    }
+
+    @Test("a lei, nas quatro combinações: velho é sempre dito")
+    func velhoSempreDiz() {
+        for conteudo in [true, false] {
+            #expect(EstadoNaFace.de(velha: true, temConteudo: conteudo).diz,
+                    "com conteúdo=\(conteudo) o widget ficou mudo — é a R1 de volta")
+            #expect(!EstadoNaFace.de(velha: false, temConteudo: conteudo).diz)
+        }
+    }
+}

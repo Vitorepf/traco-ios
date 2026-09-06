@@ -1,0 +1,30 @@
+# Re-G3 — A2 refeita pelo revisor, pelo conteudo do App Group
+# iPhone 17 Pro (teste 3) 34CC3F94, 06/09/2026, ~18:45.
+# ESTEIRA, 'o maestro nao isola': prova por simctl + App Group, nunca por hierarquia do maestro.
+
+## 1. Com permissao concedida (toquei Permitir as 18:14)
+   plist do App Group: avisosPermitidos => true
+   superficie.json revisao 6:
+     Dentista               | aviso 19:00
+     Revisao com o time     | aviso 20:15
+     Jantar com a Ana       | aviso 21:00
+
+## 2. Desliguei 'Permitir Notificacoes' nos Ajustes
+   (f4-reg3-avisos-desligados-ajustes.png). NAO marquei nada no Traco.
+   Antes de voltar ao app a superficie ainda dizia revisao 6, avisosPermitidos => true.
+
+## 3. Abri o Traco e sai. Sem marcar nada.
+   {
+     "avisosPermitidos" => false
+     "destaqueDia" => "2026-09-06"
+     "destaqueId" => "19AAD8DF-FBA9-44DD-B519-EAB431D87478"
+     "destaqueLinha" => "Terminar o capítulo do meio"
+   }
+   superficie.json revisao 7 :
+     Dentista               | aviso None
+     Revisão com o time     | aviso None
+     Jantar com a Ana       | aviso None
+
+## Veredito
+A revogacao feita FORA do app apaga os tres sinos na volta a cena, sem nenhum gesto do
+autor. Era o defeito 4 da auditoria F1 e o A2 do G3: fechado.

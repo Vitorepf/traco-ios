@@ -2881,6 +2881,36 @@ uma lista de dois links com um filete no meio, o médio inteiro servia para
    página em branco mesmo exibindo "16:40 Dentista"; o destino e o rodapé
    passam a sair da mesma decisão — compromisso na face leva ao Calendário.
 
+8. **O estado honesto não depende do ramo** (Re-G3, R1). A correção do
+   item 2 desceu o estado para a linha do conteúdo — e ali, na view, ele
+   virou o ÚLTIMO `else if` de uma cadeia que começa no Destaque. Com
+   Destaque posto e o horizonte vencido, o widget do Traço largava a agenda
+   inteira e ficava **calado**: verdade truncada trocada por silêncio, no
+   defeito que abriu a volta. A decisão sai do SwiftUI e vira lei com teste
+   (`EstadoNaFace`, em `Relogio.swift`): **passada a validade, toda face
+   diz**; só o LUGAR muda. Sem conteúdo em cima, o estado é o miolo e carrega
+   a recuperação; com conteúdo, desce ao rodapé (`Velho`), onde o atalho cede
+   a linha — a promessa da face vem antes de mais um caminho para dentro do
+   app. Nas duas famílias da tela bloqueada, que não têm rodapé: a etiqueta
+   `DESTAQUE` vira `DESATUALIZADO` e a linha do `accessoryInline` diz
+   `Traço · desatualizado` em vez de exibir a frase de ontem como se fosse a
+   de hoje. Um `if/else` de view não tem suíte, e foi um `if/else` de view que
+   regrediu — por isso `Amostra.velhoComDestaque` entra nos previews das
+   quatro famílias.
+9. **O médio vazio é um quadro de ofertas** (Re-G3, M1 e A11). Quatro por dois
+   para uma frase e ~70% de área morta é o defeito 5 do dono ("densidade
+   errada") voltando pela porta dos fundos, e widget configurável não resolve:
+   calendário vazio continua vazio com pasta escolhida ou sem. Sem Destaque e
+   sem agenda não existe conteúdo a mostrar — o que existe é o que o autor
+   PODE fazer daqui. A face inteira passa a ser isso: três ações reais, uma
+   por linha, com o alvo na linha toda (`Nova nota`, `Marcar compromisso`,
+   `Recordar`), e o cabeçalho abre mão das miniaturas, que seriam a mesma
+   ação duas vezes. E elas moram no CORPO: por isso continuam existindo em
+   tamanho de acessibilidade, onde o cabeçalho se cala e o vazio ficava mudo
+   (M1) — a recuperação da `curva-zero` não desaparece no tamanho que mais
+   precisa dela. Em AX5 são duas; "Recordar" continua no tamanho normal e no
+   app.
+
 **Custo assumido.** O pequeno tem um destino só (`widgetURL`): "Recordar"
 continua no médio e no app, não no pequeno — o sistema não honra `Link` no
 `systemSmall`. Em tamanho de acessibilidade o médio abre mão dos atalhos e da
@@ -2891,12 +2921,14 @@ porque a lei que faltou à 05u tinha de caber numa suíte. O espelho da
 permissão é o mínimo honesto dentro desta volta: a unificação com
 `PromessaDoAviso` (volta 18, ainda não mesclada) é a volta seguinte.
 
-**Volta:** multiplicar. **A IA:** nada. **Prova:** 13 testes (11 em
+**Volta:** multiplicar. **A IA:** nada. **Prova:** 17 testes (11 em
 `LinhaDoTempoWidgetTests` — a política sempre devolve volta, com teto, piso e
 orçamento; véspera/início/fim/meia-noite/soneca na linha; nada no passado,
 nada repetido, linha curta — e 2 em `SinoHonestoTests`: sem permissão no
-último olhar a superfície sai sem sino nenhum, e com permissão o sino volta);
-suíte **728/127** e dois alvos sem aviso; capturas por estado nos dois temas
+último olhar a superfície sai sem sino nenhum, e com permissão o sino volta;
+e 4 em `EstadoNaFaceTests`: nas quatro combinações de velha × conteúdo, velho
+é SEMPRE dito — a lei que a R1 quebrou);
+suíte **732/128** e dois alvos sem aviso; capturas por estado nos dois temas
 de verdade (`ferramentas/orca/f4b-*.png`, brilho médio 187,5 claro × 140,1
 escuro), as QUATRO famílias plantadas na casa, o horizonte virando sozinho
 para `Desatualizado.` inteiro, a oferta inteira em AX5, os sinos com e sem
