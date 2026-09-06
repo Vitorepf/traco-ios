@@ -8,7 +8,7 @@ Mantido pelo orquestrador a cada fecho (ESTEIRA.md). Volta que não está aqui n
 |---|---|---|---|
 | V6 | prática no Trabalho (ADR 05r) | Traco/Trabalho | G3 em curso (revisor Fable); G4 depois |
 | V7 | integridade e selo nas rotas restantes (ADR 05s) | Sessao, Corpus/Indice/Holofote, Modelo | MESCLADA em main |
-| V8 | acessibilidade real: VoiceOver, movimento reduzido, AX5 (ADR 05t) | views de Pagina/Notas/Caderno/Calendario/App, Tema | editando; G4 obrigatório |
+| V8 | acessibilidade real: VoiceOver, movimento reduzido, AX5 (ADR 05t) | views de Pagina/Notas/Caderno/Calendario/App, Tema | MESCLADA em main (G3, re-G3, G4, re-G4) |
 
 ## Trilha própria: Fora do app (Fable permanente; brief em papeis/fora-do-app.md)
 
@@ -30,6 +30,10 @@ Sempre uma volta desta trilha em edição, em paralelo às voltas comuns, no pr�
 
 **G0 de F1.** Ciclo: multiplicar (o Traço presente onde a pessoa está, sem abrir o app). Intenção: saber, com captura real, o que cada superfície fora do app entrega hoje e quanto vale. Obstáculo: há widgets, Live Activities, 12 atalhos e 10 intents sem inventário nem nota; captura só no preview do Xcode não conta. Evidência: ferramentas/orca/auditoria-fora-do-app.md com capturas simctl por superfície e estado, nota 0-10 nas dimensões Fora do app, Design, Simplicidade, Movimento, Acessibilidade, Privacidade e Estado honesto, lista do que falta, e a consulta ao conselho gravada em consulta-fora-intents.md. Escopo: nenhum arquivo de código.
 
+## Política de peso das evidências
+
+PNG de captura ≤ 400 KB (reduzir com `sips -Z 1000` antes de commitar), vídeo ≤ 3 MB (≤ 20 s, `-crf 30`), hierarquias em texto. F1 somou 52 MB e V9 82 MB: a partir da V10 o G5 recusa evidência acima disso.
+
 ## Próximas, em ordem
 
 | # | volta | valor | esforço | ciclo | lacuna (EVOLUCAO) |
@@ -37,7 +41,7 @@ Sempre uma volta desta trilha em edição, em paralelo às voltas comuns, no pr�
 | 1 | V9 Auditoria de front-end: nota base por tela | alto: sem ela toda volta visual é palpite | M (1 Fable, sem código) | multiplicar (uso simples) | "Direção visual e uso simples"; linha design-router |
 | 2 | V10 Fundação de design: tokens, Traco/Componentes com previews, biblioteca de movimento | alto: cada tela depois sobe sobre isto | G (2 Fable: tokens+movimento / componentes) | multiplicar + eixo 4 | idem; Componentes e Movimento do scorecard |
 | 3 | V11 Ambiente Markdown: conflitos e retry na UI real, revogação com seletor aberto | alto: continuidade entre ferramentas é a tese | M (1 Fable) | multiplicar | "Ambiente Markdown compartilhado" |
-| 4 | V12 Telas até 9: Página e Caderno (a porta de entrada); inclui o achado do re-G3 da V7: Camadas anima a camada Notas antes do binding (fix de 2 linhas no onEnded do trilho) | alto | M | multiplicar | nota base da V9 |
+| 4 | V12 Telas até 9: Página e Caderno (a porta de entrada); inclui: indicador de rolagem do cartão em AX (G4 V8); crossfade de aba com quadro cinza (pré-existente); 'pular'/aba do arquivo estreitos; o achado do re-G3 da V7: Camadas anima a camada Notas antes do binding (fix de 2 linhas no onEnded do trilho) | alto | M | multiplicar | nota base da V9 |
 | 5 | V13 Telas até 9: Notas e barra de baixo | alto | M | multiplicar | nota base da V9 |
 | 6 | V14 Calendário: duração explícita e estados de navegação/acessibilidade | médio | M | multiplicar | "Calendário ligado à realização" |
 | 7 | V15 Telas até 9: Calendário e ficha | médio | M | multiplicar | nota base da V9 |
