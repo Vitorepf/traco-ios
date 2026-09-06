@@ -309,6 +309,30 @@ enum Rota {
         defer { pendente = nil }
         return pendente
     }
+    /// ADR 06c: o ditado NÃO é um `Destino`. Quem o consome é a raiz, não a
+    /// Página — e o teclado da `.captura` não pode subir por trás da gravação.
+    /// Fica num canal próprio, anunciado pela mesma notificação e devolvido
+    /// UMA vez, como a rota.
+    static var ditadoPendente = false
+
+    #if DEBUG
+    /// Instrumento de evidência, só em Debug: `traco://ditar?ensaio=transcrito`
+    /// troca o RECONHECEDOR por uma letra fixa — o microfone, a gravação e a
+    /// nota continuam reais. Existe porque o simulador não tem o modelo de
+    /// fala no aparelho: sem isto o estado "transcrito" não se fotografa.
+    static var ensaioDoDitado: String?
+    #endif
+
+    static func ditar() {
+        ditadoPendente = true
+        anunciar()
+    }
+
+    static func consumirDitado() -> Bool {
+        defer { ditadoPendente = false }
+        return ditadoPendente
+    }
+
     /// Só o deep link das escalas — a aba sozinha abre no dia.
     static var escalaCalendario: EscalaCalendario?
     static let mudou = Notification.Name("traco.rotaMudou")
@@ -329,6 +353,15 @@ enum Rota {
             }
             return .calendario
         case "recordar": return .recordar
+        case "ditar":
+            // ADR 06c: anuncia o ditado e devolve nil — a Página, que só
+            // entende `Destino`, corretamente não faz nada.
+            #if DEBUG
+            ensaioDoDitado = URLComponents(url: url, resolvingAgainstBaseURL: false)?
+                .queryItems?.first { $0.name == "ensaio" }?.value
+            #endif
+            ditar()
+            return nil
         case "anotar":
             // ADR 05a: traco://anotar?texto=… — a frase cai na entrada
             let texto = URLComponents(url: url, resolvingAgainstBaseURL: false)?

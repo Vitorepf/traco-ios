@@ -1300,6 +1300,58 @@ final class Sessao {
         }
     }
 
+    /// A nota do ditado em curso. Chaveada pela hora em que a gravação
+    /// começou: um ditado novo nunca reescreve a nota do anterior.
+    /// ADR 06c: a nota do ditado. A PRIMEIRA chamada de um ditado CRIA — e é o
+    /// DEPÓSITO, feito antes de existir uma letra; as seguintes reescrevem a
+    /// MESMA nota quando a transcrição chega ou falha. `nil` = o disco recusou.
+    ///
+    /// **A nota volta para quem a pediu.** Ela era uma variável da Sessão, e
+    /// dois ditados sobrepostos dividiam a mesma: quando o segundo depositava,
+    /// a transcrição do primeiro não achava mais "a sua" nota e criava uma
+    /// SEGUNDA (G3, A2). Agora cada ditado carrega a sua identidade até o fim.
+    ///
+    /// O áudio não entra aqui: ele mora no cofre de anexos e é referido pelo
+    /// marcador dentro do texto — nunca um blob no SwiftData.
+    func gravarDitado(texto: String, criadaEm: Date, nota anterior: Nota?, no context: ModelContext) -> Nota? {
+        let nota: Nota
+        let ehNova: Bool
+        if let anterior, !anterior.isDeleted {
+            nota = anterior
+            nota.texto = texto
+            nota.editadaEm = .now
+            ehNova = false
+        } else {
+            nota = Nota(texto: texto, criadaEm: criadaEm, editadaEm: criadaEm)
+            context.insert(nota)
+            ehNova = true
+        }
+        guard persistir(context) else {
+            if ehNova { context.delete(nota) }
+            return nil
+        }
+        if let todas = try? context.fetch(FetchDescriptor<Nota>()) { projetarTudo(todas) }
+        return nota
+    }
+
+    /// ADR 06c: liga um ditado ao disco. Fica aqui, e não na raiz, porque é o
+    /// que o teste da corrida de dois ditados precisa exercitar — a caixa
+    /// `minha` é a identidade DESTE ditado, e as duas closures a dividem.
+    func armarDitado(_ ditado: DitadoProprio, no context: ModelContext) {
+        let quando = ditado.comecouEm
+        var minha: Nota?
+        ditado.gravarNota = { [weak self] texto in
+            guard let self, let n = gravarDitado(texto: texto, criadaEm: quando, nota: minha, no: context) else { return false }
+            minha = n
+            return true
+        }
+        ditado.abrirANota = { [weak self] in
+            guard let self, let n = minha, salvar(no: context) else { return }
+            abrir(n)
+            irPara(.escrever, no: context)
+        }
+    }
+
     /// ADR 05s: a varredura inteira das três projeções, sempre DEPOIS do
     /// commit — importar, entrada do Mac e as rotas do selo passam por aqui.
     private func projetarTudo(_ todas: [Nota]) {

@@ -5,92 +5,64 @@ struct ConfirmacaoView: View {
     let estado: ConfirmacaoEstado
     let sessao: Sessao
     let context: ModelContext
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var materializado = false
 
     var body: some View {
-        ZStack {
-            // material de verdade, não tinta chapada: o fundo recua com profundidade
-            Rectangle()
-                .fill(.ultraThinMaterial)
-                .ignoresSafeArea()
-            Tema.fundo
-                .opacity(0.55)
-                .ignoresSafeArea()
-            ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    switch estado {
-                    case .sairTranca(let destino):
-                        titulo("Sair agora tranca.")
-                        texto("A escrita expressiva fecha a porta de qualquer jeito — dentro ou fora do tempo. Você escolhe qual: selar ou queimar.")
-                        botao("Continuar escrevendo", id: "confirmacao-continuar") { sessao.confirmacao = nil }
-                        botaoMudo("Fechar a escrita", id: "confirmacao-trancar") {
-                            Task {
-                                try? await Task.sleep(for: .milliseconds(220))
-                                // §8: sair não tranca sozinho — abre a escolha.
-                                // §15: e o DESTINO se preserva — quem tocou em
-                                // Notas com o timer de pé ia parar na página.
-                                sessao.abrirFecho(no: context, destino: destino)
-                            }
-                        }
-                    case .trancada(let destino):
-                        titulo("Trancada.")
-                        texto("A escrita expressiva não se relê. A porta fechou — e é isso que faz o método funcionar.")
-                        botao(rotuloDestino(destino), id: "confirmacao-seguir") {
-                            fecharTrancada(destino)
-                        }
-                    case .naoSeRele(let uuid):
-                        titulo("Não se relê.")
-                        texto("Reler o desabafo reacende o que a escrita encerrou.")
-                        botao("Deixar fechada", id: "confirmacao-deixar") { sessao.confirmacao = nil }
-                        botaoMudo("Abrir mesmo assim", id: "confirmacao-abrir") { sessao.confirmacao = .insistirReabrir(uuid) }
-                    case .insistirReabrir(let uuid):
-                        titulo("Ela foi escrita para ficar fechada.")
-                        botao("Deixar fechada", id: "confirmacao-deixar") { sessao.confirmacao = nil }
-                        botaoMudo(Biometria.disponivel ? "Abrir com Face ID" : "Abrir assim mesmo",
-                                  id: "confirmacao-insistir") {
-                            // SPEC §8: o último degrau do atrito é o seu rosto —
-                            // ninguém com o telefone destravado na mão passa daqui
-                            Task {
-                                guard await Biometria.pedir("Abrir uma escrita selada") else { return }
-                                sessao.confirmacao = nil
-                                if let nota = Sessao.buscar(uuid: uuid, no: context) {
-                                    sessao.abrir(nota, mesmoTrancada: true)
-                                }
-                            }
-                        }
-                    case .apagar(let uuid):
-                        titulo("Apagar esta nota?")
-                        texto("O traço some do aparelho — e a revisão marcada some com ele.")
-                        botao("Manter", id: "confirmacao-manter") { sessao.confirmacao = nil }
-                        botaoDestrutivo("Apagar", id: "confirmacao-apagar") { sessao.apagar(uuid: uuid, no: context) }
-                    case .apagarTrancada(let uuid):
-                        titulo("Apagar a trancada?")
-                        texto("Ela foi escrita para ficar fechada. Apagar apaga para sempre — sem reler.")
-                        botao("Manter", id: "confirmacao-manter") { sessao.confirmacao = nil }
-                        botaoDestrutivo("Apagar para sempre", id: "confirmacao-apagar-trancada") { sessao.apagar(uuid: uuid, no: context) }
+        // ADR 06c: a casca é uma só — `FolhaDeConfirmacao`. Aqui a folha
+        // RENASCE a cada assunto (`refazerEm: estado`): a confirmação encadeia
+        // perguntas, e a escala marca que a pergunta é outra.
+        FolhaDeConfirmacao(refazerEm: estado, aoEscapar: escapar) {
+            switch estado {
+            case .sairTranca(let destino):
+                Folha.titulo("Sair agora tranca.")
+                Folha.texto("A escrita expressiva fecha a porta de qualquer jeito — dentro ou fora do tempo. Você escolhe qual: selar ou queimar.")
+                Folha.botao("Continuar escrevendo", id: "confirmacao-continuar") { sessao.confirmacao = nil }
+                Folha.botaoMudo("Fechar a escrita", id: "confirmacao-trancar") {
+                    Task {
+                        try? await Task.sleep(for: .milliseconds(220))
+                        // §8: sair não tranca sozinho — abre a escolha.
+                        // §15: e o DESTINO se preserva — quem tocou em
+                        // Notas com o timer de pé ia parar na página.
+                        sessao.abrirFecho(no: context, destino: destino)
                     }
                 }
-                .padding(28)
-                .frame(maxWidth: 360, alignment: .leading)
+            case .trancada(let destino):
+                Folha.titulo("Trancada.")
+                Folha.texto("A escrita expressiva não se relê. A porta fechou — e é isso que faz o método funcionar.")
+                Folha.botao(rotuloDestino(destino), id: "confirmacao-seguir") {
+                    fecharTrancada(destino)
+                }
+            case .naoSeRele(let uuid):
+                Folha.titulo("Não se relê.")
+                Folha.texto("Reler o desabafo reacende o que a escrita encerrou.")
+                Folha.botao("Deixar fechada", id: "confirmacao-deixar") { sessao.confirmacao = nil }
+                Folha.botaoMudo("Abrir mesmo assim", id: "confirmacao-abrir") { sessao.confirmacao = .insistirReabrir(uuid) }
+            case .insistirReabrir(let uuid):
+                Folha.titulo("Ela foi escrita para ficar fechada.")
+                Folha.botao("Deixar fechada", id: "confirmacao-deixar") { sessao.confirmacao = nil }
+                Folha.botaoMudo(Biometria.disponivel ? "Abrir com Face ID" : "Abrir assim mesmo",
+                          id: "confirmacao-insistir") {
+                    // SPEC §8: o último degrau do atrito é o seu rosto —
+                    // ninguém com o telefone destravado na mão passa daqui
+                    Task {
+                        guard await Biometria.pedir("Abrir uma escrita selada") else { return }
+                        sessao.confirmacao = nil
+                        if let nota = Sessao.buscar(uuid: uuid, no: context) {
+                            sessao.abrir(nota, mesmoTrancada: true)
+                        }
+                    }
+                }
+            case .apagar(let uuid):
+                Folha.titulo("Apagar esta nota?")
+                Folha.texto("O traço some do aparelho — e a revisão marcada some com ele.")
+                Folha.botao("Manter", id: "confirmacao-manter") { sessao.confirmacao = nil }
+                Folha.botaoDestrutivo("Apagar", id: "confirmacao-apagar") { sessao.apagar(uuid: uuid, no: context) }
+            case .apagarTrancada(let uuid):
+                Folha.titulo("Apagar a trancada?")
+                Folha.texto("Ela foi escrita para ficar fechada. Apagar apaga para sempre — sem reler.")
+                Folha.botao("Manter", id: "confirmacao-manter") { sessao.confirmacao = nil }
+                Folha.botaoDestrutivo("Apagar para sempre", id: "confirmacao-apagar-trancada") { sessao.apagar(uuid: uuid, no: context) }
             }
-            .scaleEffect(materializado || reduceMotion ? 1 : 1.04)
-            .blur(radius: materializado || reduceMotion ? 0 : 6)
-            .opacity(materializado || reduceMotion ? 1 : 0)
         }
-        .onAppear {
-            // escala e blur: sob reduzido o estado já nasce pronto (acima), nada anima
-            withAnimation(Tema.movimento(.escala, .easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion)) {
-                materializado = true
-            }
-        }
-        .onChange(of: estado) { _, _ in
-            if reduceMotion { return }
-            materializado = false
-            withAnimation(Tema.movimento(.escala, .easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion)) { materializado = true }
-        }
-        .accessibilityAddTraits(.isModal)
-        .accessibilityAction(.escape) { escapar() }
     }
 
     private func fecharTrancada(_ destino: DestinoConfirmacao) {
@@ -120,45 +92,5 @@ struct ConfirmacaoView: View {
         case .notas: "Ir às notas"
         case .recordar: "Recordar o que ficou"
         }
-    }
-
-    private func titulo(_ t: String) -> some View {
-        Text(t)
-            .font(Tema.confirmacaoTitulo)
-            .foregroundStyle(Tema.tinta)
-            .accessibilityAddTraits(.isHeader)
-    }
-
-    private func texto(_ t: String) -> some View {
-        Text(t)
-            .font(Tema.confirmacaoCorpo)
-            .foregroundStyle(Tema.tintaSuave)
-    }
-
-    private func botao(_ t: String, id: String, acao: @escaping () -> Void) -> some View {
-        Button(t, action: acao)
-            .font(Tema.barra)
-            .foregroundStyle(Tema.ambarTinta)
-            .frame(minHeight: Tema.alvo)
-            .buttonStyle(PressaoDiscreta())
-            .accessibilityIdentifier(id)
-    }
-
-    private func botaoMudo(_ t: String, id: String, acao: @escaping () -> Void) -> some View {
-        Button(t, action: acao)
-            .font(Tema.chrome)
-            .foregroundStyle(Tema.tintaSuave)
-            .frame(minHeight: Tema.alvo)
-            .buttonStyle(PressaoDiscreta())
-            .accessibilityIdentifier(id)
-    }
-
-    private func botaoDestrutivo(_ t: String, id: String, acao: @escaping () -> Void) -> some View {
-        Button(t, action: acao)
-            .font(Tema.chrome)
-            .foregroundStyle(Tema.aviso)
-            .frame(minHeight: Tema.alvo)
-            .buttonStyle(PressaoDiscreta())
-            .accessibilityIdentifier(id)
     }
 }

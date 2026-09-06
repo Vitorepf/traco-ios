@@ -13,7 +13,7 @@ Vale para toda volta do laço. Nota por dimensão de 0 a 10, dada pelo revisor i
 | G4 design | só volta visual, após G3 | segundo Fable, papel de julgar do design-router | fases Mover, Julgar e Portão; compara captura antes e depois; recusa acabamento que compensa fluxo confuso |
 | G5 merge | tudo ≥ 9 | orquestrador | merge sem conflito, ADR, EVOLUCAO, LACO, RUMO atualizados, worktree removido |
 
-Duas recusas seguidas na mesma volta abrem consulta ao conselho (Astra) antes da terceira tentativa.
+Duas recusas seguidas na mesma volta abrem consulta ao conselho (Astra) antes da terceira tentativa. O conselho é para você decidir, não para o dono decidir: o parecer é insumo, a decisão é do orquestrador (DIRETRIZ §6).
 
 ## Skills obrigatórias por portão
 
@@ -26,6 +26,14 @@ Ordem do dono (06/09): usar cada vez mais `design-router`, `curva-zero` e `gate-
 | `curva-zero` | worker de jornada, formulário, onboarding, folha, primeiro uso, ou tela com nota de Simplicidade abaixo de 9 | ao desenhar o roteiro, antes do layout | jornada, resultado verificável, atrito observado, recuperação |
 
 Volta visual sem as fases do `design-router` citadas no relato é recusada no G4, mesmo que o código esteja certo. Volta de jornada sem `curva-zero` é recusada na dimensão Simplicidade. O revisor confere a citação contra o que está na tela, não aceita a menção sozinha.
+
+## Lei do instrumento — o maestro não isola (achado de 06/09, com prova)
+
+`maestro --device` / `--udid` **NÃO isola**: o driver residente de outro simulador segura a porta 7001 e o maestro passa a ler a **hierarquia do vizinho**. Provado às 16h54 de 06/09 pelo revisor da F3b, que teve o maestro jurando que "Gravando." não estava na tela enquanto o `simctl` do próprio UDID mostrava "Gravando." no mesmo instante.
+
+Consequência, e é dura: **com mais de um simulador ligado na máquina, nenhuma nota, achado ou veredito pode se apoiar em evidência do maestro** — nem `assertVisible`, nem `assertNotVisible`, nem `hierarchy`. Prova de tela é `xcrun simctl io booted screenshot` e o conteúdo do contêiner do próprio UDID. Quem precisar mesmo de maestro garante ser o único simulador ligado naquele instante, e escreve no relato que garantiu. Fluxo que falha de um jeito que não faz sentido é **instrumento**, e não desconta nota.
+
+A mesma máquina, com seis ou sete simuladores, derruba simulador sozinha por pressão de memória — o iPhone 17 do dono caiu assim, sem ninguém o tocar. Ligue só o seu, desligue ao terminar.
 
 ## Scorecard
 

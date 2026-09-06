@@ -644,22 +644,27 @@ struct CompromissoVivo: Widget {
     }
 }
 
-/// ADR 05w: o controle "Anotar" da Central de Controle, da tela bloqueada e
-/// do botão de Ação. Um toque faz uma coisa: abre o Traço numa página em
-/// branco com o teclado pronto. Não lê a superfície, não conta, não mostra
-/// conteúdo — só o rótulo. O sistema desenha o botão; o âmbar é o do Tema.
+/// ADR 05w + 06c: o controle da Central de Controle, da tela bloqueada e do
+/// botão de Ação. Um toque faz uma coisa: abre o Traço JÁ GRAVANDO — o áudio
+/// é guardado primeiro e transcrito depois. Não lê a superfície, não conta,
+/// não mostra conteúdo — só o rótulo. O sistema desenha o botão; o âmbar é o
+/// do Tema.
+///
+/// M2 do G3: a placa dizia "Anotar" com ícone de escrever depois de a porta
+/// passar a abrir o microfone. O `kind` NÃO muda — é a chave do controle que
+/// o autor já instalou; trocá-la apagaria o controle da Central dele.
 struct AnotarControle: ControlWidget {
     static let kind = "app.traco.controle.anotar"
 
     var body: some ControlWidgetConfiguration {
         StaticControlConfiguration(kind: Self.kind) {
             ControlWidgetButton(action: CapturarIntent()) {
-                Label("Anotar", systemImage: "text.append")
+                Label("Ditar", systemImage: "mic.fill")
             }
             .tint(Tema.ambar)
         }
-        .displayName("Anotar")
-        .description("Abre o Traço numa página em branco, pronta para ditar ou escrever.")
+        .displayName("Ditar")
+        .description("Abre o Traço gravando: fale, e o áudio é guardado antes de qualquer letra.")
     }
 }
 
