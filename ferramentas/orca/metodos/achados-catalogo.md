@@ -1,6 +1,6 @@
 # Achados do catálogo — contrato de colagem e pedidos de app
 
-Trilha Métodos · M1 a M6 · reorganizado em 06/09/2026.
+Trilha Métodos · M1 a M7 · reorganizado em 06/09/2026.
 
 > **Reorganizado na volta M5.** Nada do contrato mudou de conteúdo: a regra de
 > ordem, o conserto do Se–então e as provas exigidas continuam com as mesmas
@@ -27,13 +27,15 @@ Trilha Métodos · M1 a M6 · reorganizado em 06/09/2026.
 | A pergunta de Hamming, O que se vê e o que não se vê, Exame da noite | M2 | **aprovados; a M3 está colando** |
 | A nota do fato contrário, Ordem de grandeza, Começaria hoje? | M4 | **aceitos por ora**, entram na leva seguinte |
 | O combinado, O ponto que decide | M5 | **aceitos**, entram numa leva seguinte |
-| O que se repetiu | M6 | **proposto**, gosto não decidido |
-| Matriz de Eisenhower, Cerca de Chesterton, Considerar o oposto, Critérios de parada, Sanduíche de feedback, Afirmações positivas, Revisão anual, Carta ao eu do futuro | M1–M6 | **rejeitados**, com ficha e motivo |
+| O que se repetiu | M6 | **aceito**, entra na leva seguinte |
+| A regra que eu faço, A reparação | M7 | **propostos**, gosto não decidido — os dois de **grau A** |
+| Matriz de Eisenhower, Cerca de Chesterton, Considerar o oposto, Critérios de parada, Sanduíche de feedback, Afirmações positivas, Revisão anual, Carta ao eu do futuro, Teste do jornal de amanhã, Regra de ouro | M1–M7 | **rejeitados**, com ficha e motivo |
 
-Treze propostos, oito rejeitados, sete colados pela M3.
+Quinze propostos, dez rejeitados, sete colados pela M3.
 
 **Antes de escrever ou colar qualquer ficha, leia a
-[régua da proveniência](regua-da-proveniencia.md)** — os cinco graus de origem, o
+[régua da proveniência](regua-da-proveniencia.md)** — resumida no brief do papel
+(`ferramentas/orca/papeis/pesquisador-metodos.md`) desde a M7, e completa aqui — os cinco graus de origem, o
 que cada um obriga a dizer na tela, e a auditoria dos 21 que já estão no
 catálogo (três não passariam hoje, e o conserto é de três frases).
 
@@ -200,7 +202,7 @@ sustenta. Ficha completa, com a citação literal, o que o estudo não afirma e 
 **texto exato proposto**, em [`aviso-wood.md`](aviso-wood.md). É volta de app,
 não de catálogo.
 
-## II.3 Três fichas com proveniência inflada — **ABERTO, conserto de três frases**
+## II.3 Três fichas com proveniência inflada — **NA M3** (conserto de três frases)
 
 A auditoria da M6 achou três métodos dos 21 cujo **grau declarado está acima do
 real**: **Decisão** (cita Kahneman e Klein 2009, artigo que não contém diário de
@@ -209,9 +211,10 @@ procedimento moderno que não está nela) e **Inversão** ("discursos (1986 em
 diante)", que não localiza nada, mais uma frase atribuída a Jacobi sem essa
 palavra).
 
-Nenhum é motivo de retirar método. O conserto são três frases no campo `fonte` /
-`adaptacao`, sem tocar em código, sem mexer em ordem, sem risco de roteamento —
-**as três estão escritas, prontas para colar**, em
+**Estado (M7):** o dono mandou as três correções para a M3, que é quem está com
+o `Metodos.json` aberto. Nenhum é motivo de retirar método. O conserto são três
+frases no campo `fonte` / `adaptacao`, sem tocar em código, sem mexer em ordem,
+sem risco de roteamento — **as três estão escritas, prontas para colar**, em
 [`regua-da-proveniencia.md`](regua-da-proveniencia.md). Cabe em qualquer volta de
 colagem, e só fica mais cara com o tempo, porque cada método novo herda o padrão
 do que já está lá.

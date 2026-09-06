@@ -1,6 +1,6 @@
 # Encadeamentos entre os métodos propostos
 
-Trilha Métodos · escrito na M4, atualizado na M5 · 06/09/2026.
+Trilha Métodos · escrito na M4, atualizado até a M7 · 06/09/2026.
 
 Um método sozinho é uma folha. O que faz do catálogo uma coleção é um método
 levar ao outro com as palavras do autor já dentro. Até a M2, cada candidato
@@ -38,6 +38,7 @@ autor com um método faltando não gere botão morto. Está em
 | **depois, se o dono aprovar a M2** | os 3 da M2 | os deles para os 21 e para os 4 da M1 (que já estarão lá): Hamming → Subtração, O que não se vê → Subtração, Exame da noite → Coluna da esquerda |
 | **depois, se aprovar a M4** | os 3 da M4 | os deles para os 21 e para a M1: Ordem de grandeza → Classe de referência, Começaria hoje? → Subtração |
 | **depois, se aprovar a M5** | os 2 da M5 | os deles para os 21 e para a M1: O combinado → Coluna da esquerda; O ponto que decide → Steelman e Atualização |
+| **depois, M6 e M7** | O que se repetiu; A regra que eu faço, A reparação | O que se repetiu → Se–então; A regra que eu faço → Decisão e **O que se vê e o que não se vê** (M2, já colada); A reparação → Se–então |
 
 Cada leva só aponta para trás. **Nenhum encadeamento escrito hoje aponta para
 um método que ainda não foi colado** — conferido por teste, em três cenários,
@@ -81,6 +82,12 @@ copiadas; a IA não escreve nada aqui.
 | O combinado | M5 | colunaEsquerda | **entre os novos** | `quem`→`comQuem`, `resposta`→`disse` |
 | O ponto que decide | M5 | steelman | para os 21 | `dele`→`contraria` |
 | O ponto que decide | M5 | atualizacao | para os 21 | `minha`→`acredito`, `meuCrux`→`descer` |
+| O que se repetiu | M6 | seEntao | para os 21 | `sigo`→`entao` |
+| O que se repetiu | M6 | compromisso em 90 dias | volta | — |
+| A regra que eu faço | M7 | decisao | para os 21 | `ato`→`escolha`, `sobrevive`→`criterio` |
+| A regra que eu faço | M7 | vistoNaoVisto | **entre os novos** | `ato`→`ato` |
+| A reparação | M7 | seEntao | para os 21 | `teste`→`se` |
+| A reparação | M7 | compromisso em 3 dias | volta | — |
 
 ## Por que cada ligação entre os novos existe
 
@@ -121,6 +128,11 @@ primeiro o prazo estoura, depois a conversa azeda. O `quem` e a `resposta` entra
 na Coluna, que abre para o que ficou por dizer. Os dois métodos são de rodadas
 diferentes e do mesmo problema, visto antes e depois.
 
+**A regra que eu faço → O que se vê e o que não se vê.** O ato passou no teste
+da regra e ainda assim tem um custo que não aparece — e ele costuma cair em
+terceiros. A ponte entre ética e consequência é o `ato`, que entra inteiro na
+outra forma.
+
 ## O que eu NÃO liguei, e por quê
 
 Encadeamento inventado é pior que encadeamento faltando: vira botão que ninguém
@@ -139,6 +151,10 @@ toca, e ensina o autor a ignorar a linha "DEPOIS DISTO".
 - **O ponto que decide → O combinado.** Um desacordo resolvido às vezes vira
   combinado, mas às vezes vira só entendimento — e forçar o botão empurraria o
   autor a fechar acordo onde ele só queria entender. Fica de fora.
+- **A reparação → A regra que eu faço.** Tentador ("que regra eu estava usando
+  quando fiz isso?"), mas empurra quem acabou de causar dano para uma discussão
+  abstrata, quando o que falta é telefonar. O caminho certo é o contrário, e ele
+  já existe: o Exame da noite acha o ato, a Reparação repara.
 - **Qualquer um dos 21 → um dos novos.** Não toquei em método antigo. Se o dono
   quiser (por exemplo, Decisão → Classe de referência antes de escrever o que
   espera), é uma volta de edição do catálogo, com o mesmo cuidado de ordem.
