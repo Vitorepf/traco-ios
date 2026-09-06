@@ -2982,6 +2982,61 @@ começando no ponto de divergência, as duas saídas com pesos distintos, o "Man
 falando, o AX5 com os dois cartões DIFERENTES, o importar bloqueado ainda cápsula
 com o motivo ao lado — e vídeos `g4c-v11-normal.mp4` / `g4c-v11-reduzido.mp4`.
 
+### Volta 11-D — tocar uma ação bloqueada responde na tela
+
+O Re-G4 fechou três dos quatro itens e deixou meia regra da volta 18 de fora. A
+lei dela tem duas metades — o motivo escrito ao lado E **tocar leva ao que
+falta** — e a própria V18 declara o limite: `Announcement` é canal do VoiceOver,
+e "para quem usa Controle Assistivo **sem** VoiceOver o que resta é o desvio
+visível". A 11-C adotou a cápsula e o anúncio e parou aí: o juiz mediu **0,032 %**
+de pixels alterados ao tocar "Importar versão de arquivo" bloqueado — o dígito do
+relógio virando. E era regressão, não lacuna herdada: antes desta trilha o
+controle tinha `.disabled()` e o varredor o PULAVA; sem o `.disabled()` ele agora
+pousa num controle que aceita ativação e não fazia nada observável.
+
+**A correção, uma linha.** Em `IntercambioTrabalhoView.acao(...)` o impedimento
+deixa de sair só por `AccessibilityNotification.Announcement` e passa por
+`anunciar(_:)` — que já existia nesta tela, já põe a linha em `cartao(.campo)`
+com `Tema.tinta` sob `Tema.movimento(.opacidade, …, reduzido:)` e já fala. As
+duas pessoas recebem a mesma resposta: quem ouve, pelo anúncio; quem varre a
+tela sem VoiceOver, pelo cartão que aparece. As três ações do painel passam pelo
+mesmo `acao(...)`, então a regra vale para todas de uma vez.
+
+O cartão repete a frase que já está cinza ao lado da cápsula, e isso é
+deliberado: a linha cinza é a **condição** (vale enquanto o impedimento existir),
+o cartão é o **evento** (você acabou de tentar), e ele diz QUAL das ações
+bloqueadas foi tocada — tocar "Exportar" troca a linha pela do export
+(`g4-v11d-bloqueado-outra-acao.png`). Duas naturezas, dois pesos, e a segunda
+chega por movimento.
+
+**Nada em `TrabalhoView`.** O desvio ao obstáculo (foco e rolagem) mora na folha
+do Trabalho, que é território da volta 18. Quando as duas mesclarem, estas ações
+passam a rotear pelo desvio dela e esta linha compõe com ele; a ausência dela é
+que atrapalharia.
+
+**Prova da 11-D:** suíte **722/0 em 125 suítes** em 06/09/2026 (`TEST SUCCEEDED`,
+iPhone 17e `C7341E64…`); nenhum teste novo — a mudança é o corpo de um closure de
+`Pilula`, que Swift Testing não alcança sem renderizar SwiftUI, e a prova é a
+tela. Jornada à mão no iPhone 17e, conferida por `xcrun simctl io <UDID>
+screenshot`: intenção guardada → versão em edição (rascunho pendente) →
+"Importar versão de arquivo" bloqueado → toque. **27,52 % dos pixels da tela
+mudam** (28,89 % ignorando a barra de status), contra os 0,032 % medidos pelo
+juiz no build anterior. No vídeo cru a 30 fps a resposta é uma corrida de **8
+quadros com subida e cauda** — `6,54 8,78 9,05 8,52 8,35 7,16 5,64 3,07` — e zero
+nos vizinhos. Capturas `ferramentas/orca/g4-v11d-bloqueado-antes.png`,
+`-resposta.png`, `-outra-acao.png`; vídeo `g4-v11d-toque-bloqueado.mp4`.
+
+**Custo assumido da 11-D.** O caminho de movimento é o de `anunciar`, que o
+Re-G4 já mediu nos dois modos (a lei de `Tema` mantém opacidade sob Reduzir
+Movimento); não o remedi. Quando a linha nasce de uma ação bloqueada DENTRO do
+cartão de revisão, o cartão de desfecho aparece no alto do painel, acima da
+revisão — é o lugar único do `recado`, e esse estado só existe se o trabalho
+deixar de estar salvo depois que a prévia chegou. E as dívidas do RUMO seguem
+abertas de propósito: `recorteDaDiferenca` é O(n) e roda duas vezes por `body`
+(28,9 ms a 100 KB, 608 ms no teto de 2 MiB), o `min(16, contexto)` é a segunda
+constante fora da conta do 48/12, e o `recado` não é zerado por atos não
+relacionados.
+
 **Volta:** multiplicar — a continuidade entre ferramentas é a tese.
 **A IA:** nada. **Prova:** 5 testes em `IntercambioTrabalhoTests` (as duas
 versões e a escolha que não sobrescreve; recusa de disco → retry que confirma a

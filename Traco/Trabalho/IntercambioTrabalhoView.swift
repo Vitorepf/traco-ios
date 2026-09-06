@@ -118,15 +118,19 @@ struct IntercambioTrabalhoView: View {
     /// a mesma doença na raiz: no lugar do desabilitado, o motivo fica ao lado
     /// e no `accessibilityHint`, e tocar diz o que falta em vez de não fazer
     /// nada. O obstáculo destas três mora na folha do Trabalho, acima desta
-    /// tela: aqui ele é dito e anunciado, não engolido.
+    /// tela: aqui ele é dito ao lado, MOSTRADO na linha de desfecho ao
+    /// toque e anunciado — não engolido.
     private func acao(_ titulo: String, id: String, impedimento: String?,
                       principal: Bool = false, _ fazer: @escaping () -> Void) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Pilula(titulo, forma: principal ? .larga : .filtro, selecionada: principal) {
-                // O motivo já está escrito ao lado, colado na cápsula. Para quem
-                // ouve a tela ele não estava em lugar nenhum: tocar fala o que
-                // falta, em vez de o toque não fazer nada.
-                if let impedimento { AccessibilityNotification.Announcement(impedimento).post() }
+                // O motivo já está escrito ao lado, colado na cápsula. Tocar
+                // tem de RESPONDER, não só anunciar: `Announcement` é canal do
+                // VoiceOver, e quem varre a tela com Controle Assistivo sem
+                // VoiceOver pousaria num controle que aceita ativação e não
+                // muda um pixel. `anunciar` põe o impedimento na linha de
+                // desfecho e fala — as duas pessoas recebem a resposta.
+                if let impedimento { anunciar(impedimento) }
                 else { fazer() }
             }
             .accessibilityIdentifier(id)
