@@ -8,9 +8,11 @@ struct CartaoAnaliseView: View {
     @Environment(\.dynamicTypeSize) private var tamanhoTexto
     /// ADR 04h: já disse se serviu — as duas saídas somem depois do toque.
     @State private var avaliou = false
-    /// Em tamanhos AX o texto rola e as ações NÃO rolam junto: ficam no pé do
-    /// cartão, sempre à vista. A revisão da volta 8 mediu, em AX5, "Deixar
-    /// como nota" três páginas abaixo, dentro do teto de 380.
+    /// O texto do cartão ainda tem linhas abaixo da dobra (o degradê do pé).
+    @State private var textoRola = false
+    /// Em tamanhos AX as duas saídas ficam uma por linha e o teto sobe. As
+    /// ações vivem no pé do cartão em TODO tamanho (a V8 fazia só em AX; em
+    /// `large` uma resposta longa da sábia escondia Copiar e Fechar).
     private var acoesNoPe: Bool { tamanhoTexto.isAccessibilitySize }
 
     /// As duas saídas discretas de todo texto de modelo: serviu / não serviu.
@@ -37,13 +39,23 @@ struct CartaoAnaliseView: View {
     }
 
     var body: some View {
-        // AX: em Dynamic Type grande o texto cresce — o cartão rola por dentro
-        // e nunca cobre a topbar (o resto da UI continua alcançável).
+        // o TEXTO rola quando cresce (Dynamic Type, resposta longa) e nunca
+        // cobre a topbar; as ações não rolam: ficam no pé, sempre à vista
         VStack(alignment: .leading, spacing: 10) {
-            ScrollView {
-                conteudo
-            }
-            if acoesNoPe {
+            ScrollView { conteudo }
+                .onScrollGeometryChange(for: Bool.self) { g in
+                    g.contentOffset.y + g.containerSize.height < g.contentSize.height - 1
+                } action: { _, rola in textoRola = rola }
+                // o sinal de que há mais texto: um degradê no pé, só enquanto há
+                // (G4 da V8: o corte seco a meio glifo não dizia nada)
+                .overlay(alignment: .bottom) {
+                    if textoRola {
+                        LinearGradient(colors: [.clear, Tema.superficie], startPoint: .top, endPoint: .bottom)
+                            .frame(height: 24)
+                            .allowsHitTesting(false)
+                    }
+                }
+            if temAcoes {
                 VStack(alignment: .leading, spacing: 0) { acoes }
                     .padding(.leading, 15) // alinha com o texto: trilho 3 + vão 12
                     // o pé não cede: sem isto o VStack o comprimia e "Abrir os
@@ -51,32 +63,14 @@ struct CartaoAnaliseView: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
-        // em AX o teto sobe: duas ações de duas linhas (≈256 pt) mais três
-        // linhas de texto que rolam; em tamanhos normais o cartão é o que era
-        .frame(maxHeight: acoesNoPe ? 480 : 380)
+        // em AX o teto sobe: duas ações de duas linhas (≈232 pt) mais três
+        // linhas de texto que rolam — e para aí, porque o pé da página (um
+        // menu em AX) fica embaixo do cartão, não no lugar dele
+        .frame(maxHeight: acoesNoPe ? 440 : 380)
         .fixedSize(horizontal: false, vertical: true)
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background {
-            RoundedRectangle(cornerRadius: Tema.raioCartao, style: .continuous)
-                .fill(Tema.superficieAlta)
-                // material de verdade: sombra ambiente + sombra de contato
-                .sombra(Tema.Sombra.flutuante)
-                .shadow(color: Tema.sombraContato, radius: 2, y: 1)
-        }
-        .overlay {
-            // em OLED escuro quem constrói presença é a luz na aresta superior
-            RoundedRectangle(cornerRadius: Tema.raioCartao, style: .continuous)
-                .strokeBorder(
-                    LinearGradient(colors: [Tema.luzBorda, .clear],
-                                   startPoint: .top, endPoint: .bottom),
-                    lineWidth: 1
-                )
-        }
-        .overlay {
-            RoundedRectangle(cornerRadius: Tema.raioCartao, style: .continuous)
-                .stroke(Tema.linha, lineWidth: 0.5)
-        }
+        .cartao(.flutuante, recuo: [])
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("cartao-analise")
     }
@@ -217,8 +211,14 @@ struct CartaoAnaliseView: View {
         withTransaction(t) { sessao.cartao = nil }
     }
 
-    /// As saídas de cada cartão, num lugar só: no corpo em tamanhos normais
-    /// (dentro do trilho, como sempre), no pé em AX (`acoesNoPe`).
+    private var temAcoes: Bool {
+        switch cartao {
+        case .aviso, .sabiaPensando: false
+        default: true
+        }
+    }
+
+    /// As saídas de cada cartão, num lugar só: o pé.
     @ViewBuilder private var acoes: some View {
         switch cartao {
         case .aviso, .sabiaPensando:
@@ -227,14 +227,14 @@ struct CartaoAnaliseView: View {
             Button("Abrir a forma \(gesto.nome)") {
                 sessao.usarForma(gesto)
             }
-            .buttonStyle(CartaoBotaoStyle())
+            .buttonStyle(.primario(alinhamento: .leading))
             .accessibilityHint("Campos vazios nascem abaixo do seu texto")
             botaoPergunta
         case .vestida:
             ladoALado {
                 // ADR 04r: abrir os campos é ATO — é aqui que a sábia instiga
                 Button("Abrir os campos") { sessao.instigarSePreciso(); aoAbrirCampos?() }
-                    .buttonStyle(CartaoBotaoStyle())
+                    .buttonStyle(.primario(alinhamento: .leading))
                     .accessibilityIdentifier("abrir-campos")
                     .accessibilityHint("Os campos da forma abrem numa folha; o seu texto fica intacto")
                 Button("Deixar como nota") { sessao.soltarForma() }
@@ -246,7 +246,7 @@ struct CartaoAnaliseView: View {
             botaoPergunta
         case .pergunta:
             Button("Perguntar à sábia") { sessao.perguntarASabia(no: context) }
-                .buttonStyle(CartaoBotaoStyle())
+                .buttonStyle(.primario(alinhamento: .leading))
                 .accessibilityIdentifier("perguntar-sabia")
                 .accessibilityHint("A resposta vem aqui, nunca na nota")
         case .resposta(_, let texto):
@@ -255,7 +255,7 @@ struct CartaoAnaliseView: View {
                     UIPasteboard.general.string = texto
                     Toque.leve()
                 }
-                .buttonStyle(CartaoBotaoStyle())
+                .buttonStyle(.primario(alinhamento: .leading))
                 .accessibilityHint("Vai para a área de transferência; colar é gesto seu")
                 Button("Fechar", action: fechar)
                     .buttonStyle(.compacto)
@@ -264,7 +264,7 @@ struct CartaoAnaliseView: View {
         case .vestido(let antes):
             ladoALado {
                 Button("Desfazer") { sessao.desfazerVestir(antes) }
-                    .buttonStyle(CartaoBotaoStyle())
+                    .buttonStyle(.primario(alinhamento: .leading))
                     .accessibilityIdentifier("desfazer-vestir")
                 Button("Ficar assim", action: fechar)
                     .buttonStyle(.compacto)
@@ -278,7 +278,7 @@ struct CartaoAnaliseView: View {
             Button("Começar o timer") {
                 sessao.comecarExpressiva(no: context)
             }
-            .buttonStyle(CartaoBotaoStyle())
+            .buttonStyle(.primario(alinhamento: .leading))
         }
     }
 
@@ -308,32 +308,11 @@ struct CartaoAnaliseView: View {
             UnevenRoundedRectangle(topLeadingRadius: 2, bottomLeadingRadius: 2)
                 .fill(trilho)
                 .frame(width: 3)
-            VStack(alignment: .leading, spacing: 10) {
-                conteudo()
-                if !acoesNoPe { acoes }
-            }
+            VStack(alignment: .leading, spacing: 10) { conteudo() }
         }
     }
 
     private func chip(_ titulo: String, aviso: Bool) -> some View {
-        Text(titulo.uppercased())
-            .font(Tema.label)
-            .tracking(Tema.trackingLabel)
-            .foregroundStyle(aviso ? Tema.aviso : Tema.tintaFraca)
-    }
-}
-
-private struct CartaoBotaoStyle: ButtonStyle {
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .animation(Tema.pressaoAnim(configuration.isPressed, reduzido: reduceMotion), value: configuration.isPressed)
-            .font(Tema.barra)
-            .foregroundStyle(Tema.ambarTinta)
-            .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .leading)
-            .contentShape(Rectangle())
-            .scaleEffect(configuration.isPressed ? Tema.pressao : 1)
-            .opacity(configuration.isPressed ? 0.7 : 1)
+        Text(titulo).rotulo(aviso ? Tema.aviso : Tema.tintaFraca)
     }
 }

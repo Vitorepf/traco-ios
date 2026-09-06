@@ -93,4 +93,37 @@ struct TemaTests {
         }
         #expect(achados.isEmpty, "literais soltos:\n\(achados.joined(separator: "\n"))")
     }
+
+    // MARK: - Página e Caderno até 9 (V12)
+
+    /// A Página e o Caderno não desenham por conta própria o que Componentes
+    /// já tem: rótulo de seção (`.rotulo`), estilo de botão (`.discreto`,
+    /// `.primario`, `.compacto`) e a lei de movimento por classe (nenhuma
+    /// mola emprestada sob `.deslocamento`); e nenhum estilo de Componentes
+    /// pressiona por opacidade (ADR 02h).
+    @Test func paginaECadernoCitamComponentesENaoPressionamPorOpacidade() throws {
+        let raiz = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent().deletingLastPathComponent()
+        let arquivos = [
+            "Traco/Pagina/PaginaView.swift",
+            "Traco/Pagina/CamposFormaView.swift",
+            "Traco/Pagina/CartaoAnaliseView.swift",
+            "Traco/Caderno/CadernoView.swift",
+            "Traco/Caderno/EditorBlocoView.swift",
+            "Traco/Caderno/PortalArquivoView.swift",
+            "Traco/Caderno/PortalCodigoView.swift",
+            "Traco/Caderno/MenuFormasView.swift",
+            "Traco/Componentes/Botao.swift",
+        ]
+        let solto = try Regex(#"tracking\(Tema\.trackingLabel\)|buttonStyle\(PressaoDiscreta\(\)\)|movimento\(\.deslocamento, Tema\.Mola|^\s*\.opacity\(configuration\.isPressed"#)
+        var achados: [String] = []
+        for caminho in arquivos {
+            let texto = try String(contentsOf: raiz.appending(path: caminho), encoding: .utf8)
+            for (n, linha) in texto.split(separator: "\n", omittingEmptySubsequences: false).enumerated()
+            where linha.contains(solto) && !linha.trimmingCharacters(in: .whitespaces).hasPrefix("//") {
+                achados.append("\(caminho):\(n + 1): \(linha.trimmingCharacters(in: .whitespaces))")
+            }
+        }
+        #expect(achados.isEmpty, "desenho por conta própria:\n\(achados.joined(separator: "\n"))")
+    }
 }

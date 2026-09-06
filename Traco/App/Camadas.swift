@@ -144,6 +144,10 @@ struct Camadas<Arquivo: View, Escrita: View>: View {
                     // instante, e isso matava a mola (a volta saía em 1 quadro)
                     try? await Task.sleep(for: .milliseconds(16))
                     if mudou { arquivoAberto = alvo }
+                    // o binding pode recusar (timer da expressiva de pé pede
+                    // confirmação, re-G3 V7): a posição volta ao estado real,
+                    // senão a camada fica à mostra sem receber toque
+                    if arquivoAberto != alvo { withAnimation(mola) { pos = arquivoAberto ? 0 : -w } }
                     try? await Task.sleep(for: .milliseconds(700))
                     animandoPeloGesto = false
                 }
@@ -169,10 +173,10 @@ struct AbaArquivo: View {
                 .frame(width: 4, height: 64)
                 .padding(.leading, 3)
                 .padding(.vertical, 20)
-                .padding(.trailing, 16)   // alvo largo sem chrome largo
+                .padding(.trailing, Tema.alvo - 7)   // 3 + 4 + 37 = 44 de alvo, sem chrome largo
                 .contentShape(Rectangle())
         }
-        .buttonStyle(PressaoDiscreta())
+        .buttonStyle(.discreto)
         .frame(maxHeight: .infinity, alignment: .center)
         .accessibilityIdentifier("aba-arquivo")
         .accessibilityLabel("Abrir as notas")

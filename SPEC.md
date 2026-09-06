@@ -2776,3 +2776,44 @@ a ORDEM de duas notas criadas no mesmo segundo, linha a linha idênticas. Vídeo
 das fases do Recordar com corte seco na saída. Relatórios:
 `ferramentas/orca/relatorio-v10-b.md`, `v10a-tokens-movimento.md` e a
 revisão `revisao-v10-fundacao.md`.
+
+## ADR 2026-09-05y — A página não perde o pé
+
+**A distância.** A auditoria da volta 9 deu 6,7 à Página+Caderno, a porta de
+entrada da escrita. O cartão da forma vestida tomava o rodapé: régua e ações
+SUMIAM sob o dedo — o toque mirado em "Todas" caiu no texto do cartão
+(`v9-caderno-menu-todas.png`, reproduzido no 17e); em AX as ações da página
+ficavam fora da vista e o texto rolável cortava a meio glifo (G4 da volta 8);
+`.primario` e `.compacto` pressionavam por opacidade contra a ADR 02h e a
+célula nova usava `Mola.escala` sob a classe `.deslocamento` (G4 da volta 10);
+`Camadas` não devolvia a posição quando o binding recusava (re-G3 da volta 7); e as telas desenhavam rótulo, cápsula, cartão e botão à mão.
+
+**A decisão.** (1) O pé é desenho do dono (05f) e não sai do lugar: cartão,
+aviso e "lendo…" passam a viver ACIMA da régua e das ações, no mesmo encaixe
+(`CadernoView.acima`), e quem anima é a ALTURA do container (§21); o rodapé
+deixa de ter "um ocupante por vez" e a linha de gravação recusada (05s) não
+cobre mais a barra. (2) As saídas do cartão moram no pé DELE em todo tamanho,
+e o texto que passa da dobra ganha degradê enquanto há mais para ler. (3) Em
+AX o pé vira UM menu, "Mais ações da nota", com "Trabalhar nisto" dentro (duas
+linhas espremiam o rótulo a "Mais ações d…"), e a régua cede ao cartão. (4)
+`BotaoPrimario`/`BotaoCompacto` pressionam só por escala; `CartaoBotaoStyle`
+morre e o cartão cita `.primario`. (5) A célula nova entra com `Duracao.media`
+easeOut, a classe que declara. (6) `Camadas.onEnded` devolve a posição quando
+o binding recusa. (7) Página e Caderno migram para `.rotulo`, `.cartao`,
+`Pilula`, `CabecalhoDeFolha` e `.discreto`; a folha dos campos troca o "Voltar
+à página" em âmbar sobre branco (2,0:1) pelo cabeçalho da casa.
+
+**Custo assumido.** Em AX, com o cartão em cena, a régua não está à vista: as
+formas voltam a um toque quando ele sai; uma terceira barra não cabe. O alvo
+da aba do arquivo foi de 23 a 44 pt sem mover um pixel (a cápsula segue 4×64).
+A aba na página vazia oscila com a corrida do teclado (1 de 3 em main, 2 de 3 no branch, mesma faixa y): anterior à volta, fica na FILA.
+
+**Prova.** Build sem aviso novo; suíte **714/0 em 125 suítes** no iPhone 17
+Pro C2416CBC (`✔ Test run with 714 tests in 125 suites passed`), 06/09/2026.
+Capturas antes (main 0d0d007) e depois em `large` e AX5 nos seis estados do G2
+(`ferramentas/orca/v12-*.png`), diff fora da barra de status: arquivo pela
+borda **0 px** nos dois tamanhos, página vazia **0 px** com a aba presente nos
+dois, escrevendo 484 px = 0,016 % (caret). Intencionais: forma vestida 15,8 %
+(`large`) e 27,8 % (AX5) — o cartão sai do pé e as ações reaparecem; campos
+3,6 % e 9,8 % (cabeçalho da folha); escrevendo AX5 7,6 % (menu único). O
+cartão da sábia não compara por pixel: a resposta muda a cada abertura. Vídeos de vestir/soltar e da borda com e sem Reduzir Movimento. Líquido-negativo.

@@ -59,19 +59,15 @@ struct PortalCodigoView: View {
             Button {
                 aoLingua?()
             } label: {
-                Text(nomeLingua.uppercased())
-                    .font(Tema.label)
-                    .tracking(Tema.trackingLabel)
-                    .foregroundStyle(Tema.tinta)
+                Text(nomeLingua)
+                    .rotulo(Tema.tinta)
             }
             .buttonStyle(.plain)
             .disabled(aoLingua == nil)
             .accessibilityLabel("Língua, \(nomeLingua)")
             Spacer(minLength: 8)
             Text(nomePapel)
-                .font(Tema.label)
-                .tracking(Tema.trackingLabel)
-                .foregroundStyle(Tema.tintaFraca)
+                .rotulo()
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)

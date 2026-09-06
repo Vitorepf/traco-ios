@@ -10,7 +10,13 @@ struct CadernoView: View {
     var rodape: AnyView?
     /// Campos da forma — abaixo do texto, não numa folha que some ao reabrir.
     var abaixo: AnyView? = nil
-    /// Com o cartão em cena, a régua sai: o rodapé tem UM ocupante por vez.
+    /// Acima da régua: o aviso, o cartão da análise, a linha "lendo…". Entra e
+    /// sai sem mover a régua nem as ações — o pé é desenho do dono (ADR 05f) e
+    /// não some sob o dedo (V9: o toque em "Todas" caía no cartão).
+    var acima: AnyView? = nil
+    /// Só em tamanhos AX: o cartão e a régua não cabem juntos na mesma tela
+    /// (AX5 + régua + cartão com três saídas deixava uma letra do autor à
+    /// vista); a régua, que já segue o foco, cede ao cartão.
     var esconderRegua: Bool = false
     @Binding var texto: String
     var foco: FocusState<Bool>.Binding
@@ -124,6 +130,7 @@ struct CadernoView: View {
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
             VStack(spacing: 0) {
+                acima
                 if gravando {
                     Button("A gravar") { pararGravacao() }
                         .font(Tema.label)
@@ -166,6 +173,9 @@ struct CadernoView: View {
             .animation(Tema.gaveta(reduzido: reduceMotion), value: foco.wrappedValue)
             .animation(Tema.gaveta(reduzido: reduceMotion), value: esconderRegua)
             .clipped()
+            // o papel desce até a borda: sem isto o texto rolado aparecia por
+            // baixo do pé, na faixa do indicador de casa (AX5, 06/09)
+            .background(Tema.fundo.ignoresSafeArea(edges: .bottom))
         }
         .onAppear {
             unaCrua = Caderno.paginaUna(texto) != nil
@@ -253,21 +263,11 @@ struct CadernoView: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
                 ForEach(sugestoesDeLigacao(trecho), id: \.self) { titulo in
-                    Button {
+                    Pilula(forma: .filtro, acao: {
                         Toque.selecao()
                         texto = Rede.completar(texto, com: titulo)
                         aoMudar()
-                    } label: {
-                        Text(titulo)
-                            .font(Tema.meta)
-                            .foregroundStyle(Tema.tinta)
-                            .lineLimit(1)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 8)
-                            .background(Tema.chip, in: Capsule())
-                            .alvo()
-                    }
-                    .buttonStyle(PressaoDiscreta())
+                    }) { Text(titulo).lineLimit(1) }
                     .accessibilityIdentifier("ligar-\(titulo)")
                 }
                 Color.clear.frame(width: 4)
@@ -289,7 +289,7 @@ struct CadernoView: View {
                             Toque.selecao()
                             withAnimation(Tema.movimento(.deslocamento, .easeOut(duration: Tema.Duracao.curta), reduzido: reduceMotion)) { transformar(papel) }
                         }
-                        .buttonStyle(PressaoDiscreta())
+                        .buttonStyle(.discreto)
                         // 44 de alvo num chip de 26–57 pt de texto: a folga
                         // cresce 9 para cada lado e o layout fica onde estava
                         .alvo(folgaH: 9)
@@ -327,7 +327,7 @@ struct CadernoView: View {
                 Toque.selecao()
                 menuFormas = true
             }
-            .buttonStyle(PressaoDiscreta())
+            .buttonStyle(.discreto)
             .alvo(folgaH: 9)
             .padding(.leading, 12)
             .accessibilityIdentifier("regua-todas")

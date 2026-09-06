@@ -50,9 +50,7 @@ struct CamposFormaView: View {
         if let aoEncadear, !gesto.encadeamentos.isEmpty {
             VStack(alignment: .leading, spacing: 4) {
                 Text("DEPOIS DISTO")
-                    .font(Tema.label)
-                    .tracking(Tema.trackingLabel)
-                    .foregroundStyle(Tema.tintaFraca)
+                    .rotulo()
                     .padding(.top, 8)
                 ForEach(gesto.encadeamentos) { e in
                     let pronto = e.exige.allSatisfy { !(campos[$0] ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
@@ -70,7 +68,7 @@ struct CamposFormaView: View {
                         .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .leading)
                         .contentShape(Rectangle())
                     }
-                    .buttonStyle(PressaoDiscreta())
+                    .buttonStyle(.discreto)
                     .disabled(!pronto)
                     .accessibilityIdentifier("encadear-\(e.para ?? "compromisso")")
                     .accessibilityHint(pronto
@@ -117,10 +115,8 @@ private struct LinhaCampo: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .firstTextBaseline) {
-                Text(rotulo.uppercased())
-                    .font(Tema.label)
-                    .tracking(Tema.trackingLabel)
-                    .foregroundStyle(Tema.tintaSuave)
+                Text(rotulo)
+                    .rotulo(Tema.tintaSuave)
                 if let teto {
                     Spacer(minLength: 8)
                     Text("\(texto.count)/\(teto)")
