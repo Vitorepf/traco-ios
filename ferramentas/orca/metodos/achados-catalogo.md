@@ -36,16 +36,28 @@ Trilha Métodos · M1 a M13 · reorganizado em 06/09/2026.
 | A regra que eu faço, A reparação | M7 | **aceitos** (leva 2) |
 | Ver antes de nomear, O que não está lá | M9 | **aceitos**, entram numa leva seguinte |
 | Está bom? | M10 | **aceito**, entra numa leva seguinte |
-| Porta, Transferência, Sobrevivente | M13 | **propostos** (pedido do dono) — os três de **grau A** |
+| Porta, Transferência, Sobrevivente | M13 | **aceitos**, no pacote da M15 — os três de **grau A** |
+| Inversão (já no catálogo) | M14/M15 | **SAI** — funde com o Pré-mortem, decidido pelo dono; a receita está em [`leva-3-e-fusao.md`](leva-3-e-fusao.md) |
 | Matriz de Eisenhower, Cerca de Chesterton, Considerar o oposto, Critérios de parada, Sanduíche de feedback, Afirmações positivas, Revisão anual, Carta ao eu do futuro, Teste do jornal de amanhã, Regra de ouro, Escada de inferência, Observação sem avaliação, Matar os queridinhos, ESTEIRA como método | M1–M10 | **rejeitados**, com ficha e motivo |
 
-Vinte e um propostos, **doze rejeitados**, sete na leva 1 (com a M3), oito na
-[leva 2](leva-2.md) e seis esperando leva (Ver antes de nomear, O que não está lá,
-Está bom?, Porta, Transferência, Sobrevivente).
+**Trinta e seis estudados: 21 aceitos, 15 rejeitados** com ficha e motivo. Sete
+estão na leva 1 (com a M3) e os **catorze restantes** estão empacotados juntos em
+[`leva-3-e-fusao.md`](leva-3-e-fusao.md), com a fusão da Inversão no mesmo
+arquivo. Catálogo final: **41 métodos** (28 da base, menos a Inversão, mais 14).
 
-**Com todos colados o catálogo fica com 42 métodos — acima do teto de trabalho de
-~40 medido na M9**, e o primeiro dos três tetos (a enum de dez da análise de
-bordo) continua de pé. A régua daqui em diante é **trocar**, não acrescentar.
+**Com tudo colado o catálogo fica com 41 métodos**, e o teto de ~40 deixou de ser
+o assunto: a M14 mostrou que ele mede MANUTENÇÃO, não a escolha do autor (o
+roteamento escolhe por ele). O primeiro dos três tetos — a enum de dez da análise
+de bordo — continua de pé, e é o que importa. A régua daqui em diante é
+**trocar**, não acrescentar.
+
+**A M15 empacotou tudo que falta num arquivo só:
+[`leva-3-e-fusao.md`](leva-3-e-fusao.md)** — a fusão da Inversão no Pré-mortem
+(decidida pelo dono na M15), a higiene II.0, as duas frases de origem da M6, as
+seis frases de voz da M8, os **catorze** métodos da leva 2 + leva 3 num array
+pronto para colar, e as provas. **Quem for colar abre esse arquivo e mais
+nenhum.** A [`leva-2.md`](leva-2.md) continua valendo como ficha detalhada dos
+oito, mas o pacote de execução é o outro.
 
 **A M14 auditou os 42 um por um: [`a-curadoria.md`](a-curadoria.md).** Núcleo de
 **32**, seis em observação, **três saem** (Destaque funde com o Dia, Inversão
@@ -199,7 +211,7 @@ própria; ver III.5.
 
 # PARTE II — ACHADOS ABERTOS
 
-## II.0 Higiene que vem com a Porta — **ABERTO** (M13)
+## II.0 Higiene que vem com a Porta — **ABERTO, empacotado na M15** (M13)
 
 Se a **Porta** entrar, a frase da reversibilidade sai do `movimento` da
 **Decisão** (*"quanto custa errar para cada lado, e se dá para desfazer. Decisão
