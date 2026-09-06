@@ -140,7 +140,7 @@ Sete frentes: **V12** Página e Caderno até 9 (FECHADA no worktree, topo 337a22
 |---|---|---|---|---|---|
 | 1 | V9 Auditoria de front-end: nota base por tela | MESCLADA (ferramentas/orca/auditoria-frontend.md) — médias: Página 6,7 · Notas 7,0 · Calendário 7,2 · Recordar 6,2 · Perfil 7,7 · Trabalho 6,0 · Padrões 7,5 · Camadas 7,5 | — | multiplicar | "Direção visual e uso simples" |
 | 2 | V10 Fundação de design: tokens, Traco/Componentes com previews, biblioteca de movimento | MESCLADA (ADR 05v). Regra vigente: cada volta por tela é líquido-negativa ao migrar para Componentes | — | multiplicar + eixo 4 | idem |
-| 3 | V11 Ambiente Markdown: conflitos e retry na UI real, revogação com seletor aberto | EM EDIÇÃO (worktree volta-11-markdown) | M | multiplicar | "Ambiente Markdown compartilhado" |
+| 3 | V11 Ambiente Markdown: conflitos e retry na UI real, revogação com seletor aberto | MESCLADA (ADR 06a; G3, G4, correções e re-portões) | M | multiplicar | "Ambiente Markdown compartilhado" |
 | 4 | V12 Telas até 9: Página e Caderno (a porta de entrada) — EM EDIÇÃO; inclui: cartão da forma cobre régua/ações e em AX esconde ações (V9 alto); indicador de rolagem do cartão em AX (G4 V8); .primario/.compacto com opacidade no press (ADR 02h) e célula nova com mola de classe errada (G4 V10); crossfade de aba com quadro cinza; 'pular'/aba do arquivo estreitos; Camadas anima antes do binding (re-G3 V7); migrar Página/Caderno para Componentes líquido-negativo | alto | M | multiplicar | nota base 6,7 |
 | 5 | V13 Telas até 9: Notas e barra de baixo | alto | M | multiplicar | nota base da V9 |
 | 6 | V14 Calendário: duração explícita e estados de navegação/acessibilidade | médio | M | multiplicar | "Calendário ligado à realização" |
