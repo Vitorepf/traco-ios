@@ -1,72 +1,65 @@
-# Contrato da volta M3 (colagem) e achados do catálogo
+# Achados do catálogo — contrato de colagem e pedidos de app
 
-Trilha Métodos · escrito na M2, atualizado na M4 · 06/09/2026.
+Trilha Métodos · M1 a M5 · reorganizado em 06/09/2026.
 
-Índice: **1 a 3** o contrato da colagem (onde colar, por que no fim, o conserto
-aprovado) · **4** o que a M3 tem de provar · **5 e 6** achados abertos e limites
-das provas · **7** o que a forma livre está pedindo do app.
+> **Reorganizado na volta M5.** Nada do contrato mudou de conteúdo: a regra de
+> ordem, o conserto do Se–então e as provas exigidas continuam com as mesmas
+> palavras. O que mudou é a arrumação — o que se repetia entre as rodadas foi
+> juntado, e cada item ganhou **estado**: resolvido, em curso ou aberto. Quem
+> está executando a M3 e já leu a versão anterior: o que você leu continua
+> valendo.
 
-**Quem executa a M3 lê as seções 1 a 6 antes de abrir
-`Traco/Modelo/Metodos.json`.** A seção 7, escrita na M4, é outra coisa: o que a
-forma livre dos métodos está pedindo do app, para o dono abrir voltas do laço.
+## Como usar este arquivo
 
-O que está aqui foi medido, não deduzido, e um
-dos itens protege a escrita pessoal do dono: errar nele não quebra teste nenhum
-— aparece no dia em que um desabafo cai numa forma que faz perguntas.
-
-## Estado, para não haver dúvida
-
-| o que | estado |
+| se você vai… | leia |
 |---|---|
-| Subtração, Coluna da esquerda, Classe de referência, Cinco porquês (M1) | **APROVADOS pelo dono, 06/09.** Entram na M3 |
-| Cinco porquês, especificamente | aprovado **condicionado** ao fecho da citação de Ohno. **Condição cumprida na M2** (citação trocada por fonte lida na íntegra). Entra |
-| Conserto da regex do Se–então | **aprovado pelo dono para a M3** (item 3 abaixo) |
-| Pergunta de Hamming, O que se vê e o que não se vê, Exame da noite (M2) | propostos, **gosto ainda não decidido. NÃO colar na M3** |
-| Matriz de Eisenhower, Cerca de Chesterton, Considerar o oposto | rejeitados. Não entram |
+| colar métodos no `Metodos.json` | **Parte I** inteira, antes de abrir o arquivo |
+| abrir uma volta de app a partir da trilha | **Parte III** |
+| entender por que um roteamento erra hoje | **Parte II** |
+| saber o que as provas da trilha garantem | **Parte IV** |
 
-## Como o roteador funciona (a regra que torna a ordem um contrato)
+## Estado da trilha (fonte única — se divergir de outro arquivo, vale este)
 
-`Traco/Analise/AnaliseLocal.swift`, `detectarGesto`: o catálogo é percorrido
-**na ordem do arquivo** e vence o **primeiro** método cuja regex casa no texto
-em minúsculas. A Expressiva só é considerada acima de 120 caracteres. O Destaque
-não tem regex — é reconhecido pela forma (três ou mais linhas curtas), em
-código.
+| método | rodada | estado |
+|---|---|---|
+| Subtração, Coluna da esquerda, Classe de referência, Cinco porquês | M1 | **aprovados; a M3 está colando** |
+| A pergunta de Hamming, O que se vê e o que não se vê, Exame da noite | M2 | **aprovados; a M3 está colando** |
+| A nota do fato contrário, Ordem de grandeza, Começaria hoje? | M4 | **aceitos por ora**, entram na leva seguinte |
+| O combinado, O ponto que decide | M5 | **propostos**, gosto não decidido |
+| Matriz de Eisenhower, Cerca de Chesterton, Considerar o oposto, Critérios de parada, Sanduíche de feedback, Afirmações positivas | M1–M5 | **rejeitados**, com ficha e motivo |
+
+Doze propostos, seis rejeitados, sete em colagem.
+
+## A regra do roteador (o que torna a ordem um contrato)
+
+`Traco/Analise/AnaliseLocal.swift`, `detectarGesto`: o catálogo é percorrido **na
+ordem do arquivo** e vence o **primeiro** método cuja regex casa no texto em
+minúsculas. A Expressiva só é considerada acima de 120 caracteres. O Destaque não
+tem regex: é reconhecido pela forma (três ou mais linhas curtas), em código.
 
 **Ordem no arquivo é comportamento.** Não é estilo, não é organização.
 
 ---
 
-# 1. CONTRATO: onde colar
+# PARTE I — CONTRATO DE COLAGEM
 
-Os quatro objetos aprovados entram **no FIM do array**, depois de `atualizacao`,
-nesta ordem:
+Vale para toda leva, não só para a M3.
 
-```
-… , atualizacao,
-    subtracao,
-    colunaEsquerda,
-    classeDeReferencia,
-    cincoPorques ]
-```
+## I.1 Onde colar — **regra permanente**
 
-Cada objeto está pronto para colar, no bloco ```json da sua ficha:
+Métodos novos entram **no FIM do array**, na ordem em que a ficha os lista. Os
+objetos estão prontos, no bloco ```json de cada ficha em
+`ferramentas/orca/metodos/<id>.md`.
 
-- `ferramentas/orca/metodos/subtracao.md`
-- `ferramentas/orca/metodos/colunaEsquerda.md`
-- `ferramentas/orca/metodos/classeDeReferencia.md`
-- `ferramentas/orca/metodos/cincoPorques.md`
+Copie o bloco inteiro, sem reescrever. As regex têm `\b` e acentos já testados;
+retocar à mão é a maneira mais fácil de estragar a prova.
 
-Copie o bloco inteiro, sem reescrever. As regex têm `\b` e acentos que já foram
-testados; retocar à mão é a maneira mais fácil de estragar a prova.
+**Encadeamentos entre métodos da mesma leva** (por exemplo, Classe de referência
+→ Cinco porquês e Cinco porquês → Subtração, entre os quatro da M1) só nascem
+vivos se a leva inteira for colada. Colar menos métodos do que a ficha prevê
+exige tirar os encadeamentos que apontam para quem ficou de fora — ver I.4.
 
-**Atenção, mudou na M4:** dois desses objetos ganharam encadeamentos ENTRE si —
-Classe de referência → Cinco porquês, e Cinco porquês → Subtração. Como os
-quatro entram na mesma leva, os dois botões nascem vivos. Se o dono decidir
-colar menos de quatro, esses encadeamentos têm de sair junto, senão viram botão
-morto (a razão está em [`encadeamentos.md`](encadeamentos.md), e é a mesma do
-item 4 abaixo).
-
-## 2. CONTRATO: por que no fim, e o que NUNCA fazer
+## I.2 Por que no fim, e o que NUNCA fazer — **regra permanente**
 
 **Nenhum destes quatro pode ser colado antes da Expressiva.** Está medido, na
 M1 e reconferido na M2:
@@ -96,7 +89,7 @@ Se algum dia for necessário mexer na ordem, a prova a rodar antes é a do bloco
 de falso positivo do script da rodada, e o critério de aprovação é único:
 **nenhuma frase longa com palavras de sentimento pode sair da Expressiva.**
 
-## 3. CONTRATO: o conserto da regex do Se–então (aprovado pelo dono)
+## I.3 O conserto da regex do Se–então — **EM CURSO NA M3** (aprovado pelo dono)
 
 Hoje, no `Metodos.json`:
 
@@ -128,25 +121,40 @@ consigo parar…") e devolve o que nunca foi. Em todo o corpus de frases das dua
 rodadas, a correção **não muda mais nenhum roteamento**. Compila — que é o que o
 teste `todaRegexDoCatalogoCompila` cobra.
 
-## 4. O que a M3 tem de provar antes de mesclar
 
-1. **Suíte integral verde** no simulador de teste, via `com-trava.sh`. Nada
-   disto foi rodado nas voltas M1 e M2: elas não abrem simulador nem
-   `xcodebuild`, por ordem da tarefa. **O portão G1 é da M3.**
-2. `todaRegexDoCatalogoCompila` passando com as regex novas e com a do Se–então
-   corrigida.
-3. As frases de teste das fichas roteando para o método certo, no app e não só
-   no script — em especial a frase de desabafo do item 2, que tem de continuar
+## I.4 Encadeamento sem destino — **regra permanente**
+
+`Sessao.encadear` sai em silêncio quando o método de destino não está no
+catálogo (`guard let destino = Gesto(rawValue: para), destino.conhecido`), mas a
+UI desenha um botão para **cada** encadeamento e só o apaga por `exige`. Destino
+inexistente = **botão que acende e não faz nada**.
+
+> **Um encadeamento só entra na mesma leva do destino, ou depois dele.**
+
+O mapa de quem aponta para quem, e o que espera a leva seguinte, está em
+[`encadeamentos.md`](encadeamentos.md). **Estado:** a M3 levou isto para o nível
+do dado (nenhum encadeamento colado aponta para id inexistente, com teste que
+trava). No nível da tela — filtrar o botão por destino conhecido — virou volta
+própria; ver III.5.
+
+## I.5 O que provar antes de mesclar, em qualquer leva
+
+1. **Suíte integral verde** no simulador de teste, via `com-trava.sh`. Nenhuma
+   volta desta trilha rodou suíte: as rodadas de pesquisa não abrem simulador
+   nem `xcodebuild`. **O G1 é da volta de colagem.**
+2. `todaRegexDoCatalogoCompila` passando com as regex novas.
+3. As frases de teste das fichas roteando para o método certo **no app**, e não
+   só no script — em especial a frase de desabafo de I.2, que tem de continuar
    caindo na Expressiva.
-4. Os quatro métodos aparecendo no Perfil com a proveniência (é o que a volta 16
-   entregou: fonte, função, adaptação, evidência, aplicabilidade).
-5. **Nenhum botão morto na linha "DEPOIS DISTO".** Todo `para` de todo
-   encadeamento colado tem de existir no catálogo depois da colagem. O app
-   ignora em silêncio um destino inexistente, mas desenha o botão do mesmo
-   jeito — ver [`encadeamentos.md`](encadeamentos.md). Conferido por teste nesta
-   trilha: zero botões mortos nos três cenários de colagem.
+4. Os métodos aparecendo no Perfil com a proveniência (fonte, função, adaptação,
+   evidência, aplicabilidade), que é o que a volta 16 entregou.
+5. **Nenhum botão morto na linha "DEPOIS DISTO"** (I.4).
 
-## 5. Achado aberto: cinco desvios que já existem hoje
+---
+
+# PARTE II — ACHADOS ABERTOS
+
+## II.1 Cinco desvios que já existem hoje — **ABERTO, e a colagem não deve tocar**
 
 Medidos contra os 21 do branch da volta 16, **sem nenhum candidato no
 catálogo**. Não são causados por esta trilha, e a diferença com e sem os
@@ -173,38 +181,34 @@ com o risco de cada uma:
    inesperada deixa de abrir o WOOP. **É a recomendação**, porque não mexe na
    ordem e o efeito é local.
 2. **Mover o WOOP para depois** dos métodos com regex específica. Risco: mexe na
-   ordem, que é comportamento — e a regra do item 2 passa a ter de ser
+   ordem, que é comportamento — e a regra de I.2 passa a ter de ser
    reconferida inteira.
 
-## 6. O que as provas das rodadas cobrem e o que não cobrem
 
-**Cobrem** (script Python que imita a regra do app, nas duas rodadas): falso
-positivo, colisão de ordem, linha de base sem candidatos, esquema da volta 16
-(chaves, `funcao` da proveniência, campos, encadeamentos apontando para método e
-campo existentes, `recordar`, `compromisso`, id não repetido) e compilação das
-regex.
+## II.2 O aviso que interrompe sem dizer de onde vem — **ABERTO**
 
-**Não cobrem:** o app rodando. Nenhuma volta desta trilha abriu simulador,
-build ou suíte. Isso é da M3.
+`AnaliseLocal.avisoWood` ("Afirmação sem prova não gruda") cita um estudo no nome
+da constante e não o diz a ninguém — e a frase vai um passo além do que a fonte
+sustenta. Ficha completa, com a citação literal, o que o estudo não afirma e o
+**texto exato proposto**, em [`aviso-wood.md`](aviso-wood.md). É volta de app,
+não de catálogo.
 
 ---
 
-# 7. O que a forma livre está pedindo do app
+# PARTE III — O QUE A FORMA LIVRE ESTÁ PEDINDO DO APP
 
-Escrito na M4, para quem vai implementar — não para quem já sabe.
+Escrito na M4, atualizado na M5, para quem vai implementar — não para quem já
+sabe.
 
 O dono soltou a barra da forma na M1 ("a forma é livre; se ela exigir algo que o
-app ainda não faz, diga na ficha"). Dez métodos propostos depois, os pedidos se
-repetem, e repetição é o sinal: **não é um método querendo um enfeite, são
-vários querendo a mesma peça.** Aqui estão todos num lugar só, do mais pedido ao
-menos, com o custo que eu imagino e o que o autor ganha.
+app ainda não faz, diga na ficha"). Doze métodos propostos depois, os pedidos se
+repetem, e repetição é o sinal: **não é um método querendo um enfeite, são vários
+querendo a mesma peça.**
 
 Sou pesquisador, não implementador: o custo abaixo é estimativa de fora, para
 ajudar a ordenar, não promessa. Onde eu li o código, digo o arquivo.
 
----
-
-## 7.1 Campo repetível — pedido por QUATRO métodos
+## III.1 Campo repetível — pedido por QUATRO métodos
 
 **O que é.** Um tipo de campo que o autor pode repetir: uma linha, um botão
 "mais um", e o rótulo numerado. Hoje `CampoForma` é uma lista fixa declarada no
@@ -237,7 +241,7 @@ por gesto. Uma linha, um "mais um", e pronto.
 
 ---
 
-## 7.2 Compromisso recorrente — pedido por DOIS métodos
+## III.2 Compromisso recorrente — pedido por DOIS métodos
 
 **O que é.** Hoje `Encadeamento.Compromisso` tem `titulo`, `campo` e `dias`:
 marca UM evento, uma vez, dali a N dias (`Sessao.encadear`, que grava no
@@ -252,6 +256,11 @@ noite, que é a prática de Sêneca literalmente.
 de renovar. Hoje ele marca sete dias, e na sétima noite o Traço pergunta uma vez
 e cala para sempre.
 
+**Pedido pequeno que veio junto (M5):** o compromisso leva para a agenda só a
+frase de UM campo. O combinado (M5) queria levar dois — o pedido e a condição de
+pronto —, para a cobrança ser utilizável sem abrir a nota. É uma chave a mais no
+`Compromisso`, não uma volta.
+
 **Custo, de fora.** Média. Depende de o `EventoCalendario` do Traço saber
 recorrência (não sei se sabe; quem for implementar confere em
 `Traco/Modelo`/`Calendario`). Se não souber, existe o caminho pobre e honesto:
@@ -260,7 +269,7 @@ tocar no modelo de calendário. Eu começaria por aí.
 
 ---
 
-## 7.3 Campo emparelhado (duas colunas) — pedido por UM método, mas é o método inteiro
+## III.3 Campo emparelhado (duas colunas) — pedido por UM método, mas é o método inteiro
 
 **O que é.** N linhas com dois lados: à direita o que foi dito, à esquerda o que
 se pensou e não se disse. O alinhamento linha a linha É o método de Argyris —
@@ -284,7 +293,7 @@ elegância. Faça 7.1 primeiro e reavalie.
 
 ---
 
-## 7.4 A Classe de referência lendo o corpus — o pedido grande
+## III.4 A Classe de referência lendo o corpus — o pedido grande
 
 **O que é.** Quando o autor abre a Classe de referência para estimar, o Traço
 oferece os **casos parecidos que ele mesmo já escreveu**: notas antigas do mesmo
@@ -316,7 +325,7 @@ a consulta, não o armazenamento.
 
 ---
 
-## 7.5 Botão de encadeamento sem destino — defeito pequeno, conserto barato
+## III.5 Botão de encadeamento sem destino — **volta própria; o dado já é da M3**
 
 **O que é.** Lendo o código para escrever `encadeamentos.md`, achei isto:
 `Sessao.encadear` sai em silêncio quando o destino não está no catálogo
@@ -334,9 +343,15 @@ da view, do mesmo jeito que o `exige` já filtra. Custo: pequeno. **Ganho:** o
 Perfil já diz quais arquivos do autor foram recusados; um botão morto é a mesma
 categoria de honestidade.
 
+**Estado (M5):** no nível do DADO isto já é item da M3 — nenhum encadeamento
+colado aponta para id inexistente, com teste que trava. No nível da TELA (o
+filtro na view, que protege a pasta de métodos do autor) o dono abriu volta
+própria. Continua valendo o que está escrito acima; o que mudou é que agora tem
+dono.
+
 ---
 
-## 7.6 Captura direta para uma forma — pequeno, e casa com o que já existe
+## III.6 Captura direta para uma forma — pequeno, e casa com o que já existe
 
 **O que é.** A trilha Fora do app já entregou a captura de um toque (controle
 Anotar, `CapturarIntent`, `Rota.captura(ditado:)`). A Nota do fato contrário
@@ -355,15 +370,32 @@ isso.
 
 ## Se eu tivesse de ordenar
 
-1. **7.1 campo repetível** — quatro métodos, um deles já no catálogo, custo
+1. **III.1 campo repetível** — quatro métodos, um deles já no catálogo, custo
    baixo, nada de tela nova.
-2. **7.5 botão sem destino** — defeito real, conserto de minutos.
-3. **7.2 compromisso recorrente** — dois métodos de ritmo, e o caminho pobre
+2. **III.5 botão sem destino** — defeito real, conserto de minutos; a tela já é
+   volta do dono.
+3. **II.2 o texto do `avisoWood`** — trocar a frase corrige uma sentença sem
+   origem, e o texto pronto está em [`aviso-wood.md`](aviso-wood.md). Menor que
+   todo o resto desta lista.
+4. **III.2 compromisso recorrente** — dois métodos de ritmo, e o caminho pobre
    (oferecer a próxima) já resolve.
-4. **7.4 Classe de referência lendo o corpus** — o maior ganho e o maior custo;
-   vale abrir como volta própria, com o corte barato descrito acima.
-5. **7.6 captura direta** — pequeno, oportunista.
-6. **7.3 duas colunas** — esperar 7.1 e reavaliar.
+5. **III.4 Classe de referência lendo o corpus** — o maior ganho e o maior
+   custo; vale abrir como volta própria, com o corte barato descrito acima.
+6. **III.6 captura direta** — pequeno, oportunista.
+7. **III.3 duas colunas** — esperar III.1 e reavaliar.
 
-Nenhum destes é bloqueio para a M3: os dez métodos propostos entram e funcionam
-no app de hoje, achatados onde precisam ser.
+Nenhum destes é bloqueio para colagem nenhuma: os doze métodos propostos entram e
+funcionam no app de hoje, achatados onde precisam ser.
+
+---
+
+# PARTE IV — O QUE AS PROVAS DA TRILHA COBREM
+
+**Cobrem** (script Python que imita a regra do app, refeito a cada rodada):
+falso positivo, colisão de ordem, linha de base sem candidatos, encadeamento sem
+destino em cada cenário de colagem, esquema da volta 16 (chaves, `funcao` da
+proveniência, campos, encadeamentos apontando para método e campo existentes,
+`recordar`, `compromisso`, id não repetido) e compilação das regex.
+
+**Não cobrem:** o app rodando. Nenhuma volta de pesquisa abriu simulador, build
+ou suíte — isso é da volta de colagem (I.5).

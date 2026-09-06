@@ -1,6 +1,6 @@
 # Encadeamentos entre os métodos propostos
 
-Trilha Métodos · escrito na volta M4 · 06/09/2026.
+Trilha Métodos · escrito na M4, atualizado na M5 · 06/09/2026.
 
 Um método sozinho é uma folha. O que faz do catálogo uma coleção é um método
 levar ao outro com as palavras do autor já dentro. Até a M2, cada candidato
@@ -37,6 +37,7 @@ autor com um método faltando não gere botão morto. Está em
 | **M3** (aprovada) | os 4 da M1 | os deles para os 21, mais os 2 **entre eles**: Classe de referência → Cinco porquês, e Cinco porquês → Subtração |
 | **depois, se o dono aprovar a M2** | os 3 da M2 | os deles para os 21 e para os 4 da M1 (que já estarão lá): Hamming → Subtração, O que não se vê → Subtração, Exame da noite → Coluna da esquerda |
 | **depois, se aprovar a M4** | os 3 da M4 | os deles para os 21 e para a M1: Ordem de grandeza → Classe de referência, Começaria hoje? → Subtração |
+| **depois, se aprovar a M5** | os 2 da M5 | os deles para os 21 e para a M1: O combinado → Coluna da esquerda; O ponto que decide → Steelman e Atualização |
 
 Cada leva só aponta para trás. **Nenhum encadeamento escrito hoje aponta para
 um método que ainda não foi colado** — conferido por teste, em três cenários,
@@ -76,6 +77,10 @@ copiadas; a IA não escreve nada aqui.
 | Começaria hoje? | M4 | decisao | para os 21 | `oQue`→`escolha`, `porque`→`criterio` |
 | Começaria hoje? | M4 | subtracao | **entre os novos** | `oQue`→`melhorar`, `oQue`→`sai` |
 | Começaria hoje? | M4 | compromisso em 30 dias | volta | — |
+| O combinado | M5 | compromisso em 7 dias | volta | — |
+| O combinado | M5 | colunaEsquerda | **entre os novos** | `quem`→`comQuem`, `resposta`→`disse` |
+| O ponto que decide | M5 | steelman | para os 21 | `dele`→`contraria` |
+| O ponto que decide | M5 | atualizacao | para os 21 | `minha`→`acredito`, `meuCrux`→`descer` |
 
 ## Por que cada ligação entre os novos existe
 
@@ -111,6 +116,11 @@ método, e o botão diz isso.
 inteira, e a Subtração cobra o que se perde tirando — que é o que impede a
 parada de virar arrependimento no mês seguinte.
 
+**O combinado → Coluna da esquerda.** É a rota real de um combinado mal feito:
+primeiro o prazo estoura, depois a conversa azeda. O `quem` e a `resposta` entram
+na Coluna, que abre para o que ficou por dizer. Os dois métodos são de rodadas
+diferentes e do mesmo problema, visto antes e depois.
+
 ## O que eu NÃO liguei, e por quê
 
 Encadeamento inventado é pior que encadeamento faltando: vira botão que ninguém
@@ -126,6 +136,9 @@ toca, e ensina o autor a ignorar a linha "DEPOIS DISTO".
 - **A nota do fato contrário → qualquer um dos novos.** Ela alimenta a
   Atualização e o Argumento, que são dos 21. Entre os novos não achei destino
   que não fosse forçado.
+- **O ponto que decide → O combinado.** Um desacordo resolvido às vezes vira
+  combinado, mas às vezes vira só entendimento — e forçar o botão empurraria o
+  autor a fechar acordo onde ele só queria entender. Fica de fora.
 - **Qualquer um dos 21 → um dos novos.** Não toquei em método antigo. Se o dono
   quiser (por exemplo, Decisão → Classe de referência antes de escrever o que
   espera), é uma volta de edição do catálogo, com o mesmo cuidado de ordem.
@@ -141,6 +154,7 @@ existe. Ficam aqui para a volta que colar a leva correspondente:
 | Classe de referência (M1) | Ordem de grandeza (M4) | quando a M4 entrar | `estimo`→`quantidade`: sem casos parecidos, decompor em fatores |
 | Subtração (M1) | Começaria hoje? (M4) | quando a M4 entrar | `melhorar`→`oQue`: quando o corte é grande demais para ser corte |
 | O que se vê e o que não se vê (M2) | Começaria hoje? (M4) | quando a M4 entrar | `ato`→`oQue`: o custo invisível de continuar |
+| Coluna da esquerda (M1) | O combinado (M5) | quando a M5 entrar | `comQuem`→`quem`: a conversa que azedou porque nada foi combinado |
 
 Cada um deles é uma linha no array `encadeamentos` do método de origem, que já
 estará no `Metodos.json`. **Editar método já colado exige o mesmo teste de
