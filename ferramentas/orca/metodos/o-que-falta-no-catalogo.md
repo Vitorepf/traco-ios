@@ -337,3 +337,36 @@ roteamento, e a de bordo é a que tem valor de função.
 some se for junto da volta de bordo. **Risco se feito sozinho e com pressa:** o
 maior do catálogo inteiro — a proteção da escrita pessoal depende de a Expressiva
 ser encontrada primeiro.
+
+### A frase que ficou pela metade na M10: quais seriam as outras proteções
+
+Escrevi na M10 que trocar `if gesto == .expressiva` por "é uma proteção?" abriria
+a porta para "a segunda proteção que um dia venha" — e não disse quais. Fechando:
+
+**São proteções (entrariam na lista):**
+
+1. **A Expressiva** — a que existe. Roteada por palavras de sentimento, com
+   tempo, porta fechada e o fecho de selar ou queimar.
+2. **A nota trancada** — hoje ela não é um gesto, é um atributo (`trancada`), e
+   por isso não precisa da lista. Mas é a mesma família: nunca vai à rede, nunca
+   é comentada. Se um dia o roteamento precisar reconhecer "isto quer nascer
+   trancado" pelo texto, é aqui que entra.
+3. **Conteúdo de outra pessoa** — o caso que o `VISAO-PRODUTO` nomeia e o app
+   ainda não trata: um trecho colado de alguém, uma mensagem recebida, um relato
+   de terceiro. Não é escrita do autor, não deveria virar forma, não deveria ser
+   cobrada pelo Recordar, e a autoria dele não é do autor. Hoje isso entra como
+   texto comum e a análise oferece uma forma.
+
+**Não são proteções, e é por isso que a lista precisa de critério:** um método
+difícil não é proteção; uma nota longa não é proteção; um assunto delicado não é
+proteção. **O que define uma proteção é o app deixar de fazer alguma coisa** —
+não comentar, não rotear para forma, não mandar à rede, não cobrar depois. Se a
+entrada nova não desliga nada, ela é método.
+
+Os campos da lista seriam, então, o par mínimo do reconhecimento (`id`,
+`roteamento`, `reconhecimento`, `definicao`) mais **o que ela desliga** — uma
+lista curta e explícita: `naoComenta`, `naoVaiARede`, `naoRecorda`, `naoEncadeia`.
+Hoje esses quatro comportamentos estão espalhados como `if` pelo código, cada um
+sabendo o nome "expressiva" de cor. Escrevê-los como dado é o que transforma a
+exceção numa categoria — e é o que faz a terceira proteção custar uma linha em
+vez de uma volta.

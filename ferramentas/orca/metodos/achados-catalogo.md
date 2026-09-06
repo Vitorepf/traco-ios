@@ -1,6 +1,6 @@
 # Achados do catálogo — contrato de colagem e pedidos de app
 
-Trilha Métodos · M1 a M10 · reorganizado em 06/09/2026.
+Trilha Métodos · M1 a M11 · reorganizado em 06/09/2026.
 
 > **Reorganizado na volta M5.** Nada do contrato mudou de conteúdo: a regra de
 > ordem, o conserto do Se–então e as provas exigidas continuam com as mesmas
@@ -20,6 +20,7 @@ Trilha Métodos · M1 a M10 · reorganizado em 06/09/2026.
 | colar a leva 2 | [`leva-2.md`](leva-2.md), que basta sozinho |
 | entender o critério da trilha inteira | [`o-que-a-trilha-aprendeu.md`](o-que-a-trilha-aprendeu.md) |
 | decidir o que a trilha caça a seguir | [`o-que-falta-no-catalogo.md`](o-que-falta-no-catalogo.md) |
+| consertar uma frase que o app diz ao autor | [`auditoria-da-voz.md`](auditoria-da-voz.md) |
 | saber o que as provas da trilha garantem | **Parte IV** |
 
 ## Estado da trilha (fonte única — se divergir de outro arquivo, vale este)
@@ -33,7 +34,7 @@ Trilha Métodos · M1 a M10 · reorganizado em 06/09/2026.
 | O que se repetiu | M6 | **aceito** (leva 2) |
 | A regra que eu faço, A reparação | M7 | **aceitos** (leva 2) |
 | Ver antes de nomear, O que não está lá | M9 | **aceitos**, entram numa leva seguinte |
-| Está bom? | M10 | **proposto**, gosto não decidido — **grau A** |
+| Está bom? | M10 | **aceito**, entra numa leva seguinte |
 | Matriz de Eisenhower, Cerca de Chesterton, Considerar o oposto, Critérios de parada, Sanduíche de feedback, Afirmações positivas, Revisão anual, Carta ao eu do futuro, Teste do jornal de amanhã, Regra de ouro, Escada de inferência, Observação sem avaliação, Matar os queridinhos, ESTEIRA como método | M1–M10 | **rejeitados**, com ficha e motivo |
 
 Dezoito propostos, **doze rejeitados**, sete na leva 1 (com a M3), oito na
@@ -211,6 +212,17 @@ com o risco de cada uma:
    ordem, que é comportamento — e a regra de I.2 passa a ter de ser
    reconferida inteira.
 
+
+## II.2b Duas frases em que o app alega aprender — **ABERTO** (M11)
+
+A auditoria da voz achou os dois lugares em que o Traço alega uma capacidade que
+não tem: `CartaoAnaliseView.swift:35` ("ele aprende com você", numa dica de
+acessibilidade — **arquivo em obra pela volta da Página**) e
+`PerfilView.swift:159` ("O que o Traço aprendeu de você", título de seção cujo
+conteúdo é uma contagem de sinais). Frase de hoje e frase corrigida em
+[`auditoria-da-voz.md`](auditoria-da-voz.md), com mais dois achados de confiança
+menor. O resto da voz do app foi varrido e está limpo — inclusive quatro
+contratos em código que barram a violação mais grave.
 
 ## II.2 O aviso que interrompe sem dizer de onde vem — **ABERTO**
 
