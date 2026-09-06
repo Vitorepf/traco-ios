@@ -12,14 +12,13 @@ import ActivityKit
 /// depois de cada mudança. Feito guarda a dona e o dia: amanhã o Destaque é
 /// outro, e marcar um cartão velho não altera o novo.
 enum DestaqueDoDia: Sendable {
-    nonisolated static let suite = "group.app.traco"
     nonisolated static let chaveLinha = "destaqueLinha"
     nonisolated static let chaveDia = "destaqueDia"
     nonisolated static let chaveId = "destaqueId"
     nonisolated static let chaveFeito = "destaqueFeitoEm"
     nonisolated static let chaveFeitoId = "destaqueFeitoId"
 
-    nonisolated private static var defaults: UserDefaults { UserDefaults(suiteName: suite) ?? .standard }
+    nonisolated private static var defaults: UserDefaults { SuperficieDisco.defaults }
 
     nonisolated static func gravar(_ linha: String, id: UUID, em data: Date = .now) {
         let corte = linha.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -122,8 +121,6 @@ enum DestaqueDoDia: Sendable {
         SuperficieDisco.publicar(agora: agora) { $0.destaque = projecao(agora: agora) }
     }
 
-    nonisolated static func diaISO(_ data: Date) -> String { Superficie.diaISO(data) }
-
     // MARK: - Live Activity (a Ilha e a tela bloqueada, enquanto o dia dura)
 
     /// Reconcilia o que está vivo com o estado guardado: uma atividade só,
@@ -136,7 +133,7 @@ enum DestaqueDoDia: Sendable {
             await encerrarAtividades()
             return
         }
-        guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
+        guard SuperficieDisco.atividades() else { return }
         let estado = DestaqueAtividade.ContentState(linha: p.linha)
         let meiaNoite = Calendar.current.startOfDay(
             for: Calendar.current.date(byAdding: .day, value: 1, to: agora) ?? agora)

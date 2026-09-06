@@ -48,7 +48,13 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: app.traco
-        PRODUCT_NAME: Traço
+        # ASCII de propósito (06/09): com "Traço" o executável ia ao disco em
+        # NFD (c + cedilha combinante) e o CFBundleExecutable em NFC; o chronod
+        # comparava os dois, não reconhecia o app como dono do widget e
+        # recusava TODO `reloadTimelines` (ChronoCoreErrorDomain 27, "Resolved
+        # bundle path …/Traço.app does not match executable Traço"). O nome
+        # que o autor vê é o CFBundleDisplayName, que segue "Traço".
+        PRODUCT_NAME: Traco
         PRODUCT_MODULE_NAME: Traco
         MARKETING_VERSION: "0.1.0"
         CURRENT_PROJECT_VERSION: "1"
@@ -85,7 +91,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: app.traco.tests
         GENERATE_INFOPLIST_FILE: YES
         BUNDLE_LOADER: $(TEST_HOST)
-        TEST_HOST: $(BUILT_PRODUCTS_DIR)/Traço.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Traço
+        TEST_HOST: $(BUILT_PRODUCTS_DIR)/Traco.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Traco
   TracoWidget:
     type: app-extension
     platform: iOS

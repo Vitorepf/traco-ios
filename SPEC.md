@@ -2492,11 +2492,28 @@ pronta, também no arranque frio.
 `validoAte`, Destaque com id+dia+feito, até três próximos com id+início), no
 App Group, escrito atomicamente pelo app após cada commit relevante;
 idêntico não regrava, revogação nunca espera; `reloadTimelines` só dos kinds
-cuja seção mudou. Falha, corrupção ou App Group ausente é "sem dados", nunca
-`.standard`. A linha do tempo do widget tem só transições reais (meia-noite,
+cuja seção mudou. O pedido de reload não devolve erro; no Air TODO pedido
+era recusado (ChronoCoreErrorDomain 27) e a causa, lida no chronod, era o
+nome do produto: com `PRODUCT_NAME: Traço` o executável ia ao disco em NFD
+(c + cedilha combinante) e o `CFBundleExecutable` em NFC, o chronod não
+reconhecia o processo como dono do widget ("Resolved bundle path
+…/Traço.app does not match executable Traço") e nenhum reload entrava — o
+que os widgets mostravam vinha só do toque nos botões. O produto passou a
+`Traco` (ASCII; o nome exibido segue "Traço"). Como rede: o app guarda o
+par revisão publicada / revisão recarregada e a volta à cena repete, dois
+segundos depois, o pedido do que ainda não foi confirmado (em primeiro
+plano o reload não conta no orçamento; no arranque nada está confirmado).
+Falha, corrupção ou App Group ausente é "sem dados", nunca `.standard`. A linha do tempo do widget tem só transições reais (meia-noite,
 fim de cada próximo, soneca, horizonte) e política `.never`: "desatualizado"
-depois do horizonte, "nada marcado" dentro dele, "atualizado há…" pelo
-sistema. Widget readicionado nunca mostra o apagado.
+depois do horizonte, "nada marcado" dentro dele, e os dois widgets dizem a
+hora do que mostram ("atualizado às 21:30", absoluta: segundos correndo eram
+ruído). No pequeno, o Destaque (ou o "sem dados") toma o lugar do atalho
+Recordar: a linha inteira vale mais que o segundo atalho; em tamanho de
+acessibilidade o pequeno mostra só a linha, em até três linhas. Widget readicionado
+nunca mostra o apagado. A suíte de testes roda dentro do app do simulador e
+por isso é desviada num ponto só do arranque (`isolarParaTestes`: pasta
+temporária, reload mudo, suíte própria de `UserDefaults`, sem atividades) —
+nenhum teste toca a superfície real do aparelho.
 
 Os dois botões carregam a IDENTIDADE do que mostram (nota+dia; id+início da
 ocorrência) e o app relê antes de agir: feito é `true` com desfazer
@@ -2520,9 +2537,10 @@ app), zero tamanhos fixos.
 **Custo assumido:** o `recado` da soneca vive só na atividade (some ao
 republicar — F5); cache já renderizado pelo iOS não tem revogação instantânea
 garantida; o widget de casa segue papel claro no escuro (D11, G0 de F4/F5).
-**Volta:** multiplicar. **A IA:** nada. **Prova:** 18 testes em
+**Volta:** multiplicar. **A IA:** nada. **Prova:** 20 testes em
 `ForaDoAppTests` (recusa não confirma, repetição não inverte, cartão velho,
 soneca negada/lotada/falha/corrida com editor, snapshot truncado/expirado,
-D6, linha do tempo curta, reload por kind, selo nas entidades e depois da
-consulta, anotar honesto), build dos dois alvos sem aviso, capturas no
-iPhone 17e. **Fora:** Ilha (F5), controles e ditado (F3), Spotlight (F9).
+D6, linha do tempo curta, reload por kind, reload repetido na volta à cena,
+suíte isolada do App Group real, selo nas entidades e depois da consulta,
+anotar honesto), build dos dois alvos sem aviso, capturas da bloqueada no
+iPhone 17e e da casa e da Ilha no iPhone Air. **Fora:** Ilha (F5), controles e ditado (F3), Spotlight (F9).

@@ -144,6 +144,13 @@ struct RaizView: View {
             // o Traço dorme, então quem republica o próximo é o voltar à cena —
             // sem isto, o widget e a Ilha mostravam o de ontem.
             agenda.publicarProximo()
+            // ADR 05u: o reload pedido na escrita pode ter sido recusado em
+            // rajada e a API não conta; a volta à cena repete, fora da rajada,
+            // o que ainda não foi confirmado ("abra o Traço" tem de se cumprir)
+            Task {
+                try? await Task.sleep(for: .seconds(2))
+                SuperficieDisco.recarregarPendente()
+            }
             // volta das férias sem o app ser morto: reagenda o que estava calado
             if Ferias.expirarSePassou() {
                 Revisoes.agendarFilaDiaria()

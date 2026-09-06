@@ -986,7 +986,7 @@
 				MARKETING_VERSION = 0.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = app.traco;
 				PRODUCT_MODULE_NAME = Traco;
-				PRODUCT_NAME = "Traço";
+				PRODUCT_NAME = Traco;
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) TRACO_APP";
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1028,7 +1028,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = app.traco.tests;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Traço.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Traço";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Traco.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Traco";
 			};
 			name = Debug;
 		};
@@ -1132,7 +1132,7 @@
 				MARKETING_VERSION = 0.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = app.traco;
 				PRODUCT_MODULE_NAME = Traco;
-				PRODUCT_NAME = "Traço";
+				PRODUCT_NAME = Traco;
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) TRACO_APP";
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1233,7 +1233,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = app.traco.tests;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Traço.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Traço";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Traco.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Traco";
 			};
 			name = Release;
 		};

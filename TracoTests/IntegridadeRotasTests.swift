@@ -40,7 +40,7 @@ struct IntegridadeRotasTests {
     }
 
     private func limparDestaque() {
-        let suite = UserDefaults(suiteName: DestaqueDoDia.suite) ?? .standard
+        let suite = SuperficieDisco.defaults
         for chave in [DestaqueDoDia.chaveLinha, DestaqueDoDia.chaveDia, DestaqueDoDia.chaveId] {
             suite.removeObject(forKey: chave)
         }

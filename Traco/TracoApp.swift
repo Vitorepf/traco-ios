@@ -12,6 +12,9 @@ struct TracoApp: App {
         let emTeste = ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
         container = try! DiscoTraco.abrir(emTeste: emTeste)
         DiscoTraco.compartilhado = container
+        // ADR 05u: a suíte roda dentro deste processo; a superfície do App
+        // Group real (widget, orçamento, atividades) não é dela
+        if emTeste { SuperficieDisco.isolarParaTestes() }
         UNUserNotificationCenter.current().delegate = Revisoes.Delegate.compartilhado
         // ADR 04e: as férias expiram sozinhas — o autor não tem de lembrar de
         // desligar. O arranque é onde a volta acontece, e é por isso que ele

@@ -164,10 +164,7 @@ struct CompromissoEntity: AppEntity {
     var diaInteiro: Bool
 
     var displayRepresentation: DisplayRepresentation {
-        let quando = diaInteiro
-            ? Superficie.diaEmPalavras(inicio)
-            : "\(Superficie.diaEmPalavras(inicio)) às \(Superficie.horaCurta(inicio))"
-        return DisplayRepresentation(title: "\(titulo)", subtitle: "\(quando)")
+        DisplayRepresentation(title: "\(titulo)", subtitle: "\(Superficie.quando(inicio, diaInteiro: diaInteiro))")
     }
 
     /// Só o que o autor marcou, nas duas semanas seguintes. Deixa de nota e

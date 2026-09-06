@@ -1,4 +1,7 @@
 import Foundation
+#if canImport(ActivityKit)
+import ActivityKit
+#endif
 #if canImport(WidgetKit)
 import WidgetKit
 #endif
@@ -48,6 +51,24 @@ nonisolated struct Superficie: Codable, Equatable, Sendable {
         /// A identidade que a tela bloqueada devolve ao app: série repetida
         /// tem o mesmo `id` em cada dia — a ocorrência é `id` + início.
         var ocorrencia: String { Superficie.ocorrencia(id, inicio) }
+
+        init(id: UUID = UUID(), titulo: String, inicio: Date, fim: Date, diaInteiro: Bool,
+             aviso: Date? = nil, lembrarEm: Date? = nil, doSistema: Bool = false) {
+            self.id = id
+            self.titulo = titulo
+            self.inicio = inicio
+            self.fim = fim
+            self.diaInteiro = diaInteiro
+            self.aviso = aviso
+            self.lembrarEm = lembrarEm
+            self.doSistema = doSistema
+        }
+
+        func comLembrete(_ quando: Date) -> Proximo {
+            var p = self
+            p.lembrarEm = quando
+            return p
+        }
     }
 
     nonisolated static func ocorrencia(_ id: UUID, _ inicio: Date) -> String {
@@ -129,6 +150,12 @@ nonisolated struct Superficie: Codable, Equatable, Sendable {
         return f.string(from: data)
     }
 
+    /// "hoje às 21:45" / "amanhã" — o widget e a entidade dizem o mesmo.
+    nonisolated static func quando(_ inicio: Date, diaInteiro: Bool, agora: Date = .now) -> String {
+        let dia = diaEmPalavras(inicio, agora: agora)
+        return diaInteiro ? dia : "\(dia) às \(horaCurta(inicio))"
+    }
+
     /// A linha de uma face só (`accessoryInline`): hora e título, nada mais.
     nonisolated static func linhaDoProximo(_ p: Proximo?) -> String {
         guard let p else { return "Traço" }
@@ -156,6 +183,50 @@ nonisolated enum SuperficieDisco {
         #if canImport(WidgetKit)
         for kind in kinds.sorted() { WidgetCenter.shared.reloadTimelines(ofKind: kind) }
         #endif
+    }
+
+    /// O ESTADO que autoriza a projeção (linha, dona, feito, soneca) — no
+    /// App Group, trocável por uma suíte própria nos testes.
+    nonisolated(unsafe) static var defaults: UserDefaults = UserDefaults(suiteName: grupo) ?? .standard
+
+    /// Se o app pode pedir Live Activities; os testes dizem que não.
+    nonisolated(unsafe) static var atividades: @Sendable () -> Bool = {
+        #if canImport(ActivityKit)
+        ActivityAuthorizationInfo().areActivitiesEnabled
+        #else
+        false
+        #endif
+    }
+
+    /// `reloadTimelines` não devolve erro. No Air todo pedido era recusado
+    /// (ChronoCoreErrorDomain 27) e a causa era o nome do produto (ver
+    /// `project.yml`: "Traço" em NFD no disco × NFC no Info.plist). Corrigido
+    /// lá; isto é a rede: o par guarda a revisão publicada e a última cuja
+    /// recarga foi pedida de novo, e `recarregarPendente` (volta à cena)
+    /// repete o pedido. No arranque nada está confirmado: o processo anterior
+    /// pode ter morrido com o pedido recusado.
+    nonisolated(unsafe) static var revisaoPublicada = 0
+    nonisolated(unsafe) static var revisaoRecarregada = -1
+
+    /// Repete o reload dos dois kinds se há publicação sem recarga confirmada
+    /// (em primeiro plano o reload não conta no orçamento). Devolve se pediu.
+    @discardableResult
+    nonisolated static func recarregarPendente() -> Bool {
+        guard revisaoRecarregada < revisaoPublicada else { return false }
+        recarregar([kindDestaque, kindProximo])
+        revisaoRecarregada = revisaoPublicada
+        return true
+    }
+
+    /// A suíte roda DENTRO do app do simulador: sem isto cada teste escrevia
+    /// na superfície real, queimava o orçamento do WidgetKit e deixava
+    /// atividade órfã na tela bloqueada. Um ponto só, no arranque em teste.
+    nonisolated static func isolarParaTestes() {
+        let raiz = FileManager.default.temporaryDirectory.appendingPathComponent("superficie-testes")
+        url = raiz.appendingPathComponent("superficie.json")
+        recarregar = { _ in }
+        defaults = UserDefaults(suiteName: "app.traco.testes") ?? .standard
+        atividades = { false }
     }
 
     nonisolated enum Leitura: Equatable, Sendable {
@@ -203,6 +274,7 @@ nonisolated enum SuperficieDisco {
         if antes?.destaque != nova.destaque { kinds.insert(kindDestaque) }
         if antes?.proximos != nova.proximos || antes?.validoAte != nova.validoAte { kinds.insert(kindProximo) }
         if antes == nil { kinds = [kindDestaque, kindProximo] }
+        revisaoPublicada = nova.revisao
         recarregar(kinds)
         return true
     }

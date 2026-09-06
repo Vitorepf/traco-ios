@@ -19,6 +19,7 @@ struct ForaDoAppTests {
         let urlAntes = SuperficieDisco.url
         let recarregarAntes = SuperficieDisco.recarregar
         let centroAntes = Revisoes.centro
+        let revisoesAntes = (SuperficieDisco.revisaoPublicada, SuperficieDisco.revisaoRecarregada)
         let contador = Contador()
         SuperficieDisco.url = raiz.appendingPathComponent("superficie.json")
         SuperficieDisco.recarregar = { contador.registrar($0) }
@@ -28,13 +29,14 @@ struct ForaDoAppTests {
             SuperficieDisco.url = urlAntes
             SuperficieDisco.recarregar = recarregarAntes
             Revisoes.centro = centroAntes
+            (SuperficieDisco.revisaoPublicada, SuperficieDisco.revisaoRecarregada) = revisoesAntes
             try? FileManager.default.removeItem(at: raiz)
         }
         try await corpo(raiz, contador)
     }
 
     private func limpar() {
-        let d = UserDefaults(suiteName: DestaqueDoDia.suite) ?? .standard
+        let d = SuperficieDisco.defaults
         for c in [DestaqueDoDia.chaveLinha, DestaqueDoDia.chaveDia, DestaqueDoDia.chaveId,
                   DestaqueDoDia.chaveFeito, DestaqueDoDia.chaveFeitoId,
                   ProximoCompromisso.chaveSoneca, ProximoCompromisso.chaveSonecaEm] {
@@ -181,6 +183,58 @@ struct ForaDoAppTests {
             #expect(Superficie.transicoes(.disponivel(uma), agora: agora) == [agora, tres[0].fim, uma.validoAte])
             #expect(Superficie.transicoes(.indisponivel, agora: agora) == [agora])
         }
+    }
+
+    @Test("A1: reload recusado não some — a volta à cena repete o que não foi confirmado")
+    func recargaNaVolta() async throws {
+        try await isolado { _, contador in
+            // arranque: nada confirmado (o processo anterior pode ter morrido
+            // com o pedido recusado) — a primeira volta à cena pede os dois
+            SuperficieDisco.revisaoPublicada = 0
+            SuperficieDisco.revisaoRecarregada = -1
+            #expect(SuperficieDisco.recarregarPendente())
+            #expect(contador.chamadas == [[SuperficieDisco.kindDestaque, SuperficieDisco.kindProximo]])
+            #expect(!SuperficieDisco.recarregarPendente())
+            contador.zerar()
+            // a escrita pede (e o WidgetKit pode recusar sem dizer); o autosave
+            // idêntico não pede de novo — e é a volta à cena que repete
+            let id = UUID()
+            DestaqueDoDia.gravar("a única", id: id)
+            DestaqueDoDia.gravar("a única", id: id)
+            #expect(contador.chamadas.count == 1)
+            #expect(SuperficieDisco.revisaoPublicada == 1)
+            contador.zerar()
+            #expect(SuperficieDisco.recarregarPendente())
+            #expect(contador.chamadas == [[SuperficieDisco.kindDestaque, SuperficieDisco.kindProximo]])
+            // confirmada: a próxima volta sem publicação nova não acorda ninguém
+            #expect(!SuperficieDisco.recarregarPendente())
+            #expect(contador.chamadas.count == 1)
+        }
+    }
+
+    @Test("A2: a suíte não escreve no App Group real (arquivo, chaves, reload)")
+    func suiteIsolada() throws {
+        let real = try #require(FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: SuperficieDisco.grupo))
+        let arquivo = real.appendingPathComponent("superficie.json")
+        let grupo = try #require(UserDefaults(suiteName: SuperficieDisco.grupo))
+        let arquivoAntes = try? Data(contentsOf: arquivo)
+        let chavesAntes = [DestaqueDoDia.chaveLinha, DestaqueDoDia.chaveId, ProximoCompromisso.chaveSoneca]
+            .map { grupo.string(forKey: $0) }
+        // o ponto único do arranque (`TracoApp`) já desviou tudo
+        #expect(SuperficieDisco.url?.path.hasPrefix(real.path) == false)
+        #expect(!SuperficieDisco.atividades())
+        let id = UUID()
+        DestaqueDoDia.gravar("de teste", id: id)
+        ProximoCompromisso.gravar(.init(titulo: "de teste", inicio: Date().addingTimeInterval(3600),
+                                        fim: Date().addingTimeInterval(7200), diaInteiro: false))
+        ProximoCompromisso.registrarSoneca(ocorrencia: "x", em: Date().addingTimeInterval(600))
+        #expect(DestaqueDoDia.linhaDeHoje() == "de teste")
+        #expect((try? Data(contentsOf: arquivo)) == arquivoAntes)
+        #expect([DestaqueDoDia.chaveLinha, DestaqueDoDia.chaveId, ProximoCompromisso.chaveSoneca]
+            .map { grupo.string(forKey: $0) } == chavesAntes)
+        DestaqueDoDia.apagar(id: id)
+        ProximoCompromisso.gravar(nil)
+        ProximoCompromisso.esquecerSoneca()
     }
 
     // MARK: - Feito, com identidade

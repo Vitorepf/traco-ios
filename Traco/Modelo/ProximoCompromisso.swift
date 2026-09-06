@@ -20,7 +20,6 @@ import ActivityKit
 /// projeção: quem age (a tela bloqueada) devolve a ocorrência e o app relê o
 /// disco antes de agendar qualquer coisa.
 nonisolated enum ProximoCompromisso: Sendable {
-    nonisolated static let suite = "group.app.traco"
     nonisolated static let chaveSoneca = "sonecaOcorrencia"
     nonisolated static let chaveSonecaEm = "sonecaEm"
     /// Quantos próximos a superfície conhece de antemão: o widget vira
@@ -28,53 +27,21 @@ nonisolated enum ProximoCompromisso: Sendable {
     nonisolated static let candidatas = 3
     nonisolated static let horizonte: TimeInterval = 14 * 86400
 
-    /// O que a tela mostra. `aviso` é o instante em que vai tocar — nil quando
-    /// o autor desligou; a superfície diz as duas coisas, nunca finge.
-    nonisolated struct Fatia: Equatable, Sendable {
-        /// O id do compromisso: a tela bloqueada precisa dele para AGIR
-        /// (ADR 04f), não só para mostrar.
-        var id: UUID = UUID()
-        var titulo: String
-        var inicio: Date
-        var fim: Date
-        var diaInteiro: Bool
-        var aviso: Date?
-        /// A soneca que o autor pediu da própria tela bloqueada.
-        var lembrarEm: Date?
-        var doSistema: Bool = false
+    /// O que a tela mostra é o próprio `Superficie.Proximo` (um tipo só):
+    /// `aviso` é o instante em que vai tocar — nil quando o autor desligou;
+    /// `id` é o do compromisso, que a tela bloqueada devolve para AGIR (04f).
+    typealias Fatia = Superficie.Proximo
 
-        var ocorrencia: String { Superficie.ocorrencia(id, inicio) }
-
-        func comLembrete(_ quando: Date) -> Fatia {
-            var f = self
-            f.lembrarEm = quando
-            return f
-        }
-
-        var projecao: Superficie.Proximo {
-            .init(id: id, titulo: titulo, inicio: inicio, fim: fim, diaInteiro: diaInteiro,
-                  aviso: aviso, lembrarEm: lembrarEm, doSistema: doSistema)
-        }
-
-        init(id: UUID = UUID(), titulo: String, inicio: Date, fim: Date, diaInteiro: Bool,
-             aviso: Date? = nil, lembrarEm: Date? = nil, doSistema: Bool = false) {
-            self.id = id
-            self.titulo = titulo
-            self.inicio = inicio
-            self.fim = fim
-            self.diaInteiro = diaInteiro
-            self.aviso = aviso
-            self.lembrarEm = lembrarEm
-            self.doSistema = doSistema
-        }
-
-        init(_ p: Superficie.Proximo) {
-            self.init(id: p.id, titulo: p.titulo, inicio: p.inicio, fim: p.fim, diaInteiro: p.diaInteiro,
-                      aviso: p.aviso, lembrarEm: p.lembrarEm, doSistema: p.doSistema)
-        }
+    /// O fim do horizonte, no INÍCIO do dia: estável dentro do dia (senão cada
+    /// republicação idêntica virava escrita nova e o WidgetKit recusava o
+    /// reload em rajada — visto no Air, 05/09) e o mesmo para a colheita das
+    /// candidatas e para `validoAte` (B3 do G3: candidata fora do horizonte
+    /// virava "desatualizado" com compromisso ainda existente).
+    nonisolated static func fimDoHorizonte(agora: Date, cal: Calendar = .current) -> Date {
+        cal.startOfDay(for: agora.addingTimeInterval(horizonte))
     }
 
-    nonisolated private static var defaults: UserDefaults { UserDefaults(suiteName: suite) ?? .standard }
+    nonisolated private static var defaults: UserDefaults { SuperficieDisco.defaults }
 
     // MARK: - Publicação
 
@@ -89,14 +56,11 @@ nonisolated enum ProximoCompromisso: Sendable {
             if f.lembrarEm == nil { f.lembrarEm = sonecaAtiva(ocorrencia: f.ocorrencia, agora: agora) }
             return f
         }
-        // horizonte no início do dia: estável dentro do dia, senão cada
-        // republicação idêntica viraria escrita nova (e o WidgetKit recusa
-        // reload em rajada — visto no Air, 05/09: ChronoCoreErrorDomain 27)
         let validoAte = comSoneca.count < candidatas
-            ? Calendar.current.startOfDay(for: agora.addingTimeInterval(horizonte))
+            ? fimDoHorizonte(agora: agora)
             : (comSoneca.last?.fim ?? agora)
         return SuperficieDisco.publicar(agora: agora) {
-            $0.proximos = comSoneca.map(\.projecao)
+            $0.proximos = comSoneca
             $0.validoAte = validoAte
         }
     }
@@ -110,19 +74,14 @@ nonisolated enum ProximoCompromisso: Sendable {
     /// é "o próximo" — deixar o de ontem na tela bloqueada é mentira barata.
     nonisolated static func lido(agora: Date = .now) -> Fatia? {
         guard case .disponivel(let s) = SuperficieDisco.ler(), let p = s.proximo(agora: agora) else { return nil }
-        var f = Fatia(p)
+        var f = p
         if let l = f.lembrarEm, l <= agora { f.lembrarEm = nil }
         return f
     }
 
     /// A linha de uma face só (`accessoryInline`): hora e título, nada mais.
     nonisolated static func naTelaBloqueada(agora: Date = .now) -> String {
-        Superficie.linhaDoProximo(lido(agora: agora)?.projecao)
-    }
-
-    nonisolated static func horaCurta(_ data: Date) -> String { Superficie.horaCurta(data) }
-    nonisolated static func diaEmPalavras(_ data: Date, agora: Date = .now) -> String {
-        Superficie.diaEmPalavras(data, agora: agora)
+        Superficie.linhaDoProximo(lido(agora: agora))
     }
 
     // MARK: - Soneca (ADR 04f, com identidade e orçamento — ADR 05u)
@@ -232,7 +191,7 @@ nonisolated enum ProximoCompromisso: Sendable {
             await encerrarAtividades()
             return
         }
-        guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
+        guard SuperficieDisco.atividades() else { return }
         let estado = CompromissoAtividade.ContentState(
             titulo: f.titulo, inicio: f.inicio, fim: f.fim, diaInteiro: f.diaInteiro,
             lembrarEm: f.lembrarEm, recado: nil)

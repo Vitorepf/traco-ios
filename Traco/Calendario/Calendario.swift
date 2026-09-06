@@ -965,7 +965,7 @@ extension ProximoCompromisso {
     /// sem acordar o app (ADR 05u).
     static func proximasFatias(_ eventos: [EventoCalendario], cal: Calendar,
                                manha: Int, agora: Date, mudo: UUID? = nil) -> [Fatia] {
-        let ate = cal.date(byAdding: .day, value: 14, to: agora) ?? agora
+        let ate = fimDoHorizonte(agora: agora, cal: cal)
         let vivos = eventos.filter { !$0.eDeixa && $0.origemTrabalho == nil }
         return Calendario.ocorrencias(vivos, de: agora, a: ate, cal)
             .filter { $0.fim > agora }

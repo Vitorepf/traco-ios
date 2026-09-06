@@ -18,6 +18,10 @@ struct EntradaTraco: TimelineEntry {
         guard case .disponivel(let s) = leitura else { return nil }
         return s.destaqueDeHoje(agora: date)
     }
+    var geradoEm: Date? {
+        guard case .disponivel(let s) = leitura else { return nil }
+        return s.geradoEm
+    }
 }
 
 struct ProvedorTraco: TimelineProvider {
@@ -62,6 +66,19 @@ private struct AtalhoTraco: View {
     }
 }
 
+/// A idade do que está na tela, dita (ADR 05u) — em hora absoluta: "há 1 min
+/// e 58 seg" mudava a cada segundo numa superfície que o conselho quis calma.
+private struct RodapeAtualizado: View {
+    let gerado: Date
+
+    var body: some View {
+        Text("atualizado às \(Superficie.horaCurta(gerado))")
+            .font(Tema.miudo)
+            .foregroundStyle(Tema.tintaFraca)
+            .lineLimit(1)
+    }
+}
+
 /// O botão do feito, com identidade (ADR 05u): marca ou desfaz — dois
 /// intents, nunca um toggle. O mesmo gesto na casa e na tela bloqueada (04f).
 private struct BotaoFeito<Rotulo: View>: View {
@@ -84,6 +101,7 @@ private struct BotaoFeito<Rotulo: View>: View {
 
 struct TracoWidgetView: View {
     @Environment(\.widgetFamily) private var familia
+    @Environment(\.dynamicTypeSize) private var tipo
     var entrada: EntradaTraco
 
     var body: some View {
@@ -123,19 +141,37 @@ struct TracoWidgetView: View {
         .containerBackground(Tema.fundo, for: .widget)
     }
 
+    private var regua: some View {
+        Rectangle().fill(Tema.linha).frame(height: 0.5).padding(.vertical, 10)
+    }
+
+    /// No pequeno, a linha do Destaque (ou o "sem dados") ocupa o lugar do
+    /// segundo atalho: o widget existe para mostrar a única coisa de hoje
+    /// INTEIRA, e "Correr antes…" não a mostrava (A3 do G3). Recordar segue
+    /// no médio e no app.
+    private var soNovaNota: Bool {
+        familia == .systemSmall && (entrada.indisponivel || entrada.destaque != nil)
+    }
+
+    /// Em tamanho de acessibilidade o pequeno não cabe linha, atalho e
+    /// rodapé: fica só a única coisa de hoje, em até três linhas (visto no
+    /// Air em AX5: "Correr a…" e "atualizado às 0…"). O médio segue inteiro.
+    private var soALinha: Bool { soNovaNota && tipo.isAccessibilitySize }
+
     private var casa: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text("TRAÇO")
                 .font(Tema.label)
                 .tracking(Tema.trackingLabel)
                 .foregroundStyle(Tema.tintaFraca)
-            Spacer(minLength: 12)
+            Spacer(minLength: 8)
             if entrada.indisponivel {
                 // App Group indisponível ou arquivo corrompido: dito, nunca fingido
                 Text("sem dados · abra o Traço")
                     .font(Tema.meta.weight(.medium))
                     .foregroundStyle(Tema.tintaFraca)
-                Rectangle().fill(Tema.linha).frame(height: 0.5).padding(.vertical, 10)
+                    .lineLimit(soALinha ? 3 : 2)
+                if !soALinha { regua }
             } else if let d = entrada.destaque {
                 // F2: a única coisa de hoje, e um toque que a fecha sem abrir
                 // o app. Não é streak nem contagem — vale só para hoje.
@@ -148,15 +184,19 @@ struct TracoWidgetView: View {
                             .font(Tema.meta.weight(.medium))
                             .foregroundStyle(d.feito ? Tema.tintaFraca : Tema.tinta)
                             .strikethrough(d.feito, color: Tema.tintaFraca)
-                            .lineLimit(2)
+                            .lineLimit(soALinha ? 3 : 2)
                             .multilineTextAlignment(.leading)
                         Spacer(minLength: 0)
                     }
                     .contentShape(Rectangle())
                 }
-                Rectangle().fill(Tema.linha).frame(height: 0.5).padding(.vertical, 10)
+                if !soALinha { regua }
             }
-            if familia == .systemSmall {
+            if soALinha {
+                EmptyView()
+            } else if soNovaNota {
+                AtalhoTraco(rota: "traco://nova", rotulo: "Nova nota", destaque: true)
+            } else if familia == .systemSmall {
                 AtalhoTraco(rota: "traco://nova", rotulo: "Nova nota", destaque: true)
                 Rectangle().fill(Tema.linha).frame(height: 0.5).padding(.vertical, 12)
                 AtalhoTraco(rota: "traco://recordar", rotulo: "Recordar", destaque: false)
@@ -168,6 +208,9 @@ struct TracoWidgetView: View {
                 }
             }
             Spacer(minLength: 0)
+            if let gerado = entrada.geradoEm, !soALinha {
+                RodapeAtualizado(gerado: gerado)
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
@@ -224,7 +267,7 @@ struct DestaqueVivo: Widget {
                         .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel("Marcar como feito")
+                    .accessibilityLabel("Marcar como feito: \(contexto.state.linha)")
                 }
             }
             .padding(16)
@@ -243,7 +286,7 @@ struct DestaqueVivo: Widget {
                                     .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
-                            .accessibilityLabel("Marcar como feito")
+                            .accessibilityLabel("Marcar como feito: \(contexto.state.linha)")
                         }
                         Text(contexto.isStale ? "Traço" : contexto.state.linha)
                             .font(Tema.meta.weight(.medium))
@@ -312,8 +355,7 @@ struct ProximoWidgetView: View {
     var entrada: EntradaProximo
 
     private func quando(_ p: Superficie.Proximo) -> String {
-        let dia = Superficie.diaEmPalavras(p.inicio, agora: entrada.date)
-        return p.diaInteiro ? dia : "\(dia) às \(Superficie.horaCurta(p.inicio))"
+        Superficie.quando(p.inicio, diaInteiro: p.diaInteiro, agora: entrada.date)
     }
 
     /// O que a superfície diz quando não há compromisso para mostrar.
@@ -404,13 +446,8 @@ struct ProximoWidgetView: View {
                     .foregroundStyle(Tema.tintaSuave)
             }
             Spacer(minLength: 0)
-            // ADR 05u: a idade do que está na tela, dita — o sistema conta o
-            // tempo sozinho, sem o widget acordar
             if let gerado = entrada.geradoEm {
-                Text("atualizado há \(Text(gerado, style: .relative))")
-                    .font(Tema.miudo)
-                    .foregroundStyle(Tema.tintaFraca)
-                    .lineLimit(1)
+                RodapeAtualizado(gerado: gerado)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -615,4 +652,105 @@ struct TracoWidgetBundle: WidgetBundle {
         DestaqueVivo()
         CompromissoVivo()
     }
+}
+
+// MARK: - Previews (B5 do G3): um estado por entrada, uma família por preview.
+// A prova segue sendo a captura no simulador; aqui o G4 compara famílias.
+
+private enum Amostra {
+    static let agora = Date()
+    static func superficie(destaque: Superficie.Destaque? = nil, proximos: [Superficie.Proximo] = [],
+                           validoAte: Date = agora.addingTimeInterval(86400)) -> SuperficieDisco.Leitura {
+        .disponivel(Superficie(revisao: 7, geradoEm: agora.addingTimeInterval(-1500), validoAte: validoAte,
+                               destaque: destaque, proximos: proximos))
+    }
+    static func destaque(feito: Bool) -> Superficie.Destaque {
+        .init(id: UUID(), dia: Superficie.diaISO(agora), linha: "Correr antes do café", feito: feito)
+    }
+    static func proximo(lembrar: Bool = false) -> Superficie.Proximo {
+        .init(titulo: "Dentista", inicio: agora.addingTimeInterval(2700), fim: agora.addingTimeInterval(6300),
+              diaInteiro: false, aviso: agora.addingTimeInterval(2700),
+              lembrarEm: lembrar ? agora.addingTimeInterval(600) : nil)
+    }
+
+    static var comDestaque: EntradaTraco { .init(date: agora, leitura: superficie(destaque: destaque(feito: false))) }
+    static var feito: EntradaTraco { .init(date: agora, leitura: superficie(destaque: destaque(feito: true))) }
+    static var vazio: EntradaTraco { .init(date: agora, leitura: superficie()) }
+    static var indisponivel: EntradaTraco { .init(date: agora, leitura: .indisponivel) }
+
+    static var comProximo: EntradaProximo { .init(date: agora, leitura: superficie(proximos: [proximo()])) }
+    static var comSoneca: EntradaProximo { .init(date: agora, leitura: superficie(proximos: [proximo(lembrar: true)])) }
+    static var nadaMarcado: EntradaProximo { .init(date: agora, leitura: superficie()) }
+    static var desatualizado: EntradaProximo {
+        .init(date: agora, leitura: superficie(proximos: [proximo()], validoAte: agora.addingTimeInterval(-60)))
+    }
+    static var semDados: EntradaProximo { .init(date: agora, leitura: .indisponivel) }
+}
+
+#Preview("Traço · pequeno", as: .systemSmall) {
+    TracoWidget()
+} timeline: {
+    Amostra.comDestaque
+    Amostra.feito
+    Amostra.vazio
+    Amostra.indisponivel
+}
+
+#Preview("Traço · médio", as: .systemMedium) {
+    TracoWidget()
+} timeline: {
+    Amostra.comDestaque
+    Amostra.feito
+    Amostra.vazio
+    Amostra.indisponivel
+}
+
+#Preview("Traço · bloqueada", as: .accessoryRectangular) {
+    TracoWidget()
+} timeline: {
+    Amostra.comDestaque
+    Amostra.feito
+    Amostra.vazio
+    Amostra.indisponivel
+}
+
+#Preview("Traço · AX5", traits: .fixedLayout(width: 170, height: 170)) {
+    TracoWidgetView(entrada: Amostra.comDestaque)
+        .padding(16)
+        .environment(\.dynamicTypeSize, .accessibility5)
+}
+
+#Preview("Próximo · pequeno", as: .systemSmall) {
+    TracoProximoWidget()
+} timeline: {
+    Amostra.comProximo
+    Amostra.comSoneca
+    Amostra.nadaMarcado
+    Amostra.desatualizado
+    Amostra.semDados
+}
+
+#Preview("Próximo · médio", as: .systemMedium) {
+    TracoProximoWidget()
+} timeline: {
+    Amostra.comProximo
+    Amostra.comSoneca
+    Amostra.nadaMarcado
+    Amostra.desatualizado
+    Amostra.semDados
+}
+
+#Preview("Próximo · bloqueada", as: .accessoryRectangular) {
+    TracoProximoWidget()
+} timeline: {
+    Amostra.comProximo
+    Amostra.nadaMarcado
+    Amostra.desatualizado
+    Amostra.semDados
+}
+
+#Preview("Próximo · AX5", traits: .fixedLayout(width: 170, height: 170)) {
+    ProximoWidgetView(entrada: Amostra.comProximo)
+        .padding(16)
+        .environment(\.dynamicTypeSize, .accessibility5)
 }

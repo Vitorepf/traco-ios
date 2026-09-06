@@ -15,7 +15,7 @@ nonisolated struct DestaqueAtividade: ActivityAttributes {
     /// ADR 05u: a atividade sabe DE QUEM é. O botão devolve `id` e `dia` ao
     /// app, que revalida antes de marcar — "o próximo atual" não existe mais.
     var dia: String
-    var id: UUID = UUID()
+    var id: UUID
 }
 
 /// O compromisso vivo: título e a conta que corre até a hora.
