@@ -63,6 +63,18 @@ Ordem do dono de 06/09 13:10. Um pesquisador dedicado procura métodos que MERE�
 
 **G0 de M3 (colagem).** Ciclo: melhorar. Intenção: os quatro métodos novos entram no catálogo sem quebrar o roteamento nem a proteção da escrita pessoal. Decisão do dono, 06/09 13:40: **os quatro aprovados** — Subtração (simplificação), Coluna da esquerda (relação), Classe de referência (previsão) e Cinco porquês (causa), este último condicionado a a M2 fechar a citação de Ohno na fonte primária ou trocá-la por uma verificável; método do catálogo não carrega frase que ninguém do Traço leu no original. Colar no FIM do catálogo: a M1 mediu que colar antes da Especificação faz a Coluna da esquerda roubar o desabafo da Expressiva — a proteção da escrita pessoal depende da ordem. No mesmo passo, e por decisão do dono na mesma data, consertar o roteamento do Se–então (`sempre que|toda vez|não consigo parar` sem `\b`, que casa dentro de "sempre quebra" e "sempre queria") com teste que fixe a correção. Os cinco desvios pré-existentes que a M1 mediu ficam nomeados para uma volta de roteamento própria, se o dono quiser. Escopo: Traco/Modelo/Metodos.json, TracoTests/CatalogoTests.swift, ferramentas/orca/metodos/; só abre depois de a V16 mesclar em main.
 
+### A ficha do Calendário herda a PromessaDoAviso (abre quando a V18 mesclar)
+
+A V9 achou o mesmo defeito em dois lugares: a ficha do Calendário e o agendamento do Trabalho prometiam "Toca…" com avisos não autorizados (ADR 04a). A V18 resolveu o lado do Trabalho com `PromessaDoAviso`, um tipo puro e testado que distingue concedido, não perguntado, negado e hora já passada — e os dois revisores confirmaram que ele serve à ficha. **Três pré-requisitos foram achados enquanto a V18 fechava, e todos já estão feitos ou nomeados:** (1) `jaPassou` guardado por `!evento.repete`, senão "Correr toda terça 6:30" receberia "ficou sem alarme" enquanto o alarme toca — FEITO na 18-C; (2) `instante:` e `repete:` sem valor padrão, para ninguém consumir o tipo sem passar o instante certo — FEITO; (3) **`CalendarioAgenda.estadoDosAvisos` é não-opcional e nasce `.concedido`**, então a ficha nunca consegue expressar "leitura pendente" e afirmaria "Toca…" na janela antes de a leitura voltar — TORNAR OPCIONAL (ou `.naoPerguntado`) antes de consumir o tipo. Escopo: `Traco/Calendario/{CalendarioFicha,CalendarioAgenda}.swift` e TracoTests. Evidência: a ficha deixa de mostrar "Toca…" e "nada vai tocar" juntas, os quatro estados na tela, e o caso do compromisso que repete.
+
+### Dívida vinda dos portões de hoje
+
+- **AX5 sangra pelos dois lados** num documento COM versão da IA (`ConteudoTrabalhoView`), enquanto documento novo fica impecável. Pré-existente, achado no re-G3 da V18 — e o revisor assumiu que o próprio G3 dele validou AX5 num trabalho sem versão.
+- **O teclado cobre a ação primária** depois do pedido, no Trabalho. Atrito igual antes e depois da V18.
+- **O `.compacto` secundário com 17,0:1 contra 6,36:1 da primária** (achado do G4 da V11): a secundária tem mais contraste que a primária.
+- **`IntercambioTrabalhoView` tem três ações que perdem a cápsula** quando bloqueadas — a V11-C está alinhando com o padrão da V18.
+- **Prova de fala do VoiceOver não fechada** em duas voltas (o `Announcement` da V18 e o estado negado da promessa): exige simulador com VoiceOver ligado, que ninguém teve neste turno. Não é desculpa, é pendência de instrumento — e a única saída é um turno em que alguém rode VoiceOver de verdade.
+
 ### A curadoria dos 42 métodos — decisão do orquestrador (DIRETRIZ §6)
 
 A trilha julgou os 41 (a Expressiva não conta: é superfície de proteção, campos vazios, movimento vazio) contra as nove capacidades e propôs núcleo de 32, três saindo e seis em observação. **Decido: sai UM, não três.**
