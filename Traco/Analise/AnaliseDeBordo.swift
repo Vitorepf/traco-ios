@@ -20,56 +20,14 @@ import Foundation
 /// deste modelo chega à tela; o que o autor lê é sempre do app ou dele.
 @available(iOS 26.0, *)
 nonisolated enum AnaliseDeBordo {
-    /// A lista fechada, agora como tipo. `nenhum` é o silêncio — e silêncio é
-    /// resposta válida (§19.4), não falha.
-    @Generable
-    enum GestoDeBordo: String, Sendable, CaseIterable {
-        case woop, seEntao, spec, notaPermanente, destaque
-        case destilar, palavra, decisao, premortem, expressiva, nenhum
-
-        var gesto: Gesto? {
-            switch self {
-            case .woop: .woop
-            case .seEntao: .seEntao
-            case .spec: .spec
-            case .notaPermanente: .notaPermanente
-            case .destaque: .destaque
-            case .destilar: .destilar
-            case .palavra: .palavra
-            case .decisao: .decisao
-            case .premortem: .premortem
-            case .expressiva: .expressiva
-            case .nenhum: nil
-            }
-        }
-    }
-
-    @Generable
-    struct Escolha {
-        @Guide(description: "A forma que o texto pede. 'nenhum' quando não é nenhuma delas.")
-        var gesto: GestoDeBordo
-    }
-
-    /// As mesmas definições do motor remoto, palavra por palavra: os dois têm
-    /// de rotear igual, senão ligar a conta mudaria o comportamento do app.
-    static let instrucoes = """
-    Você é a Análise de um bloco de notas em português. Você NUNCA escreve texto:
-    você apenas CLASSIFICA em uma das formas abaixo.
-
-    woop = desejo ou meta pessoal ("quero…", "gostaria de…", "preciso começar…")
-    seEntao = hábito que emperra num gatilho
-    spec = algo a construir (software, projeto)
-    notaPermanente = ideia ou insight curto
-    destaque = lista de tarefas do dia
-    destilar = texto que pede corte até uma frase
-    palavra = o autor quer poder usar uma palavra
-    decisao = escolha entre caminhos ("decidir", "escolher entre")
-    premortem = plano que quer imaginar a própria falha
-    expressiva = desabafo emocional longo
-    nenhum = nada disso
-
-    Na dúvida, nenhum. Silêncio é resposta válida.
-    """
+    /// ADR 06g: NÃO existe mais uma lista de formas escrita à mão aqui.
+    /// Até esta volta conviviam neste arquivo um `@Generable enum GestoDeBordo`
+    /// com dez casos e um `instrucoes` com dez definições — mortos desde a ADR
+    /// 04l, que passou o esquema e o prompt para `Catalogo.todos`, e vivos o
+    /// bastante para fazer três leitores (um deles o orquestrador) concluírem
+    /// que o modelo de bordo só conhecia dez formas. Código morto que descreve
+    /// um contrato falso é pior que código morto. O que vale é `esquema()` e
+    /// `instrucoesDoCatalogo`, logo abaixo, e o teste que trava a divergência.
 
     /// Existe modelo neste aparelho? Falso no simulador sem Apple Intelligence,
     /// em aparelho antigo, e enquanto o modelo ainda está baixando.

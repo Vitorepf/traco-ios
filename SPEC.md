@@ -2910,3 +2910,139 @@ do autor troca um aviso que não dispara por um que dispara errado.
 suíte integral 724 testes em 126 suítes, 0 falhas, no iPhone 17 Pro (teste 4)
 em 06/09/2026. **Fora:** a linha na tela do cartão (volta seguinte), a
 proveniência dos avisos que são regra do app, e o gatilho.
+
+## ADR 2026-09-06g — A lista de formas nasce do catálogo, em todas as portas
+
+**A distância.** Duas listas fechadas escritas à mão sobreviviam num app cujo
+catálogo tem 21 métodos (28 com a colagem da M3, 36 com a leva 2). A primeira,
+`@Generable enum GestoDeBordo` com dez casos mais `instrucoes` com dez
+definições, em `AnaliseDeBordo`: **morta desde a ADR 04l**, que passou o esquema
+e o prompt para `Catalogo.todos` — e viva o bastante para fazer três leitores
+(um deles o orquestrador desta rodada) concluírem que a análise no aparelho só
+conhecia dez formas. A segunda, `enum GestoEscolha: AppEnum` com NOVE casos, em
+`Intencoes.swift`: essa estava viva. É a lista que a Siri e os Atalhos oferecem
+ao autor no filtro "Só a forma" do corpus — 9 de 21 formas alcançáveis por voz
+hoje (32% das 28 depois da colagem), e nada falhava para avisar.
+
+**A decisão.** O enum morto e as instruções mortas SAEM: código morto que
+descreve um contrato falso é pior que código morto. Ficam `esquema()` e
+`instrucoesDoCatalogo`, que já nasciam de `Catalogo.todos`. O `AppEnum` dos
+Atalhos vira `FormaEntity: AppEntity` com `FormaQuery: EntityQuery` —
+`suggestedEntities()` devolve `Catalogo.todos`, então a Siri passa a oferecer o
+catálogo inteiro, inclusive o método que o autor escreveu na pasta dele, sem
+código. `AppEnum` exige `caseDisplayRepresentations` estático e por isso não
+podia nascer de arquivo; entidade com consulta pode, e essa é a razão da troca.
+Três testes travam o invariante: o esquema tem uma opção por método do catálogo
+mais `nenhum`; as instruções listam TODOS os ids, não só o primeiro que alguém
+conferiu; e os Atalhos oferecem exatamente `Catalogo.todos`, na mesma ordem.
+
+**O custo do catálogo inteiro no `@Generable`, medido, não suposto** (iPhone 17
+Pro de teste, Apple Intelligence disponível, 7 frases, esquema de 10 ids contra
+o de 21): **5,38 s contra 5,56 s no total — 0,77 s contra 0,79 s por chamada,
++3,3%**, dentro do ruído de uma amostra deste tamanho (a primeira chamada, fria,
+levou 2,15 s sozinha). Qualidade: com dez, 5 das 7 frases foram para a forma
+errada — e as cinco que convocavam método fora dos dez **não tinham como**
+acertar; com o catálogo, `argumento` e `steelman` passam a ser alcançáveis e a
+frase do Argumento chega no Argumento. **Não há custo proibitivo a pagar, e a
+lista curta nunca foi mais barata: era só mais surda.**
+
+**Custo assumido:** um atalho já montado com o `AppEnum` antigo perde o
+parâmetro (o app não foi publicado); a Siri e os Atalhos NÃO foram exercitados
+de fora — o build de simulador não tem team-identifier (D1 do EVOLUCAO), então a
+prova é de compilação e de teste, e a lista na tela dos Atalhos continua
+pendente de aparelho. A medição é de 7 frases num aparelho, não uma bancada.
+**Volta:** multiplicar. **O que a IA sabe:** as definições do catálogo, como já
+sabia. **Prova:** `Test run with 730 tests in 127 suites passed` no iPhone 17
+Pro (teste 4) em 06/09/2026, build sem aviso; números da medição acima.
+**Fora:** a lista de Atalhos vista na tela de um aparelho real; bancada de
+roteamento com mais frases.
+
+## ADR 2026-09-06h — A escrita pessoal é da Expressiva, e de mais ninguém
+
+**A distância.** O revisor da volta M3 mediu, com 58 frases dele e prova de
+tela: **22 desabafos chegavam VESTIDOS de método de exercício.** A causa era
+`AnaliseLocal.detectarGesto`, que pulava a Expressiva abaixo de 120 caracteres
+e promovia a primeiro-a-casar quem viesse depois dela no catálogo. Com a
+colagem, quem vem depois inclui dois métodos cuja regex é feita do vocabulário
+do arrependimento e do silêncio em conversa. "Perdi a paciência com ela hoje. Me
+arrependi e chorei." chegava como **EXAME DA NOITE**, perguntando "que hábito
+ruim você curou hoje? que defeito você conteve?" a quem tinha acabado de
+escrever que chorou (`ferramentas/orca/a3-antes-exame-da-noite.png`). E não é
+sugestão: a `Sessao` VESTE a nota sozinha no caminho automático, enquanto a
+Expressiva, quando ganha, só sugere — os dois caminhos não são simétricos, e o
+que rouba é o que veste. O defeito tem duas metades: 14 linhas curtas com
+palavra de sentimento, que o teto explica, e 8 desabafos LONGOS e FACTUAIS, que
+passam do teto e são roubados assim mesmo, porque o léxico de dez palavras da
+Expressiva não cobre o dia ruim contado sem adjetivo.
+
+**A decisão.** `AnaliseLocal.eEscritaPessoal` — uma guarda, não um método —
+decide antes do laço, e passada a Expressiva nenhum método leva a nota:
+
+- **léxico do SENTIMENTO**, em qualquer tamanho: os dez do catálogo mais
+  `arrepend`, `vergonha`, `magoad`, `me odiando`, `remoendo`, `nó na garganta`,
+  `não aguento`, `chorar`, `chorando`;
+- **léxico do ATO ARREPENDIDO** (`engoli`, `fiquei calad`, `deixei passar`,
+  `perdi a paciência|cabeça`, `tratei mal`, `fui injust|gross|duro demais|
+  ríspid`, `não devia ter`) **só acima do teto de 120**: curta, "fiquei calada
+  quando perguntaram" é a nota que nomeia uma conversa, e o método que pergunta
+  serve; longa, é o dia sendo despejado.
+
+A guarda vive em CÓDIGO e não no `Metodos.json` por duas razões medidas: a pasta
+do autor reescreve o catálogo, e uma fronteira do produto não pode morar num
+arquivo editável; e alargar a Expressiva por DADO deixaria os dois métodos novos
+inalcançáveis (medido pelo implementador da M3-B com 287 sondas). Sem Expressiva
+no catálogo a guarda vale para todos — falha fechada. O teto de 120 continua
+sobre a Expressiva: nota curta não vira desabafo, e as 14 curtas voltam ao
+SILÊNCIO que tinham antes da colagem, não a uma sugestão nova.
+
+**Custo assumido, medido com as 287 sondas do M3-B:** a guarda fecha **15 de 287
+ramos (5,2%) para TEXTO LONGO** — 3 da Coluna da esquerda (`engoli`, `fiquei
+calado`, `deixei passar`) e 12 do Exame da noite (`me arrependi` em qualquer
+tamanho, `não devia ter …`, `fui injusto|grosso|duro demais|ríspido`, `perdi a
+paciência|cabeça`). **Nenhum método fica sem porta:** a Coluna continua sendo
+chamada por "não disse", "não consegui dizer", "devia ter dito", "queria ter
+dito", "a conversa com", "na reunião com"; o Exame por "exame da noite", "passei
+o dia em revista", "hoje eu fiz|reagi|tratei" — provado na tela com o Exame
+chegando normalmente depois da guarda
+(`ferramentas/orca/a3-o-exame-continua-alcancavel.png`). Duas frases legítimas
+do revisor mudam de dono e vão para o silêncio: "Tenho medo de estar trabalhando
+na coisa errada há dois anos" e "sinto que o esforço não está indo pro lugar
+certo" — as duas com palavra de sentimento, as duas que iam para a pergunta de
+Hamming. **É o lado certo do erro:** silêncio devolve a nota ao autor; vestir
+carimba quatro campos de exercício sobre o que ele acabou de sentir. E é dito
+aqui porque o `todoRamoDeRegexAlcancaOSeuMetodo` da volta M3 vai ficar VERMELHO
+quando esta guarda entrar: os 15 ramos precisam entrar no `conhecidos` dele, com
+esta ADR como motivo.
+
+**A regra escrita, que faltava:** quando o modelo de bordo e a regex discordam,
+a ADR 04c/04r continua valendo e agora está dita — **aviso local vence gesto
+remoto sempre; silêncio do modelo devolve a palavra ao algoritmo; forma do
+modelo manda.** A guarda da escrita pessoal é do algoritmo local, então o degrau
+do aparelho pode contradizê-la: `Sessao.escolher` mantém a forma remota. **Isto
+é um buraco declarado, não resolvido aqui** — `Sessao.swift` está com a volta 12
+e o conserto (a guarda valendo também sobre o veredito do modelo) é a volta
+seguinte.
+
+**Volta:** multiplicar. **O que a IA sabe:** nada de novo. **Prova:**
+`EscritaPessoalTests` com as 58 frases do revisor e os SETE métodos da M3
+carregados pela pasta do autor (o `Metodos.json` é da M3 e não foi tocado) — 4
+testes, e sem a guarda o mesmo arquivo acusa as 22 uma a uma; a régua é a do
+M3-B (escrita pessoal não vira `.gesto` NENHUM, não só os dois novos); suíte
+integral `Test run with 730 tests in 127 suites passed` em 06/09/2026; tela em
+`a3-antes-exame-da-noite.png`, `a3-depois-a-nota-fica-do-autor.png` e
+`a3-o-exame-continua-alcancavel.png`, os três no iPhone 17 Pro (teste 4) com os
+sete métodos semeados e `TRACO_SEM_MODELO=1`. **Fora:** a guarda sobre o
+veredito do modelo de bordo (pede `Sessao.swift`), a assimetria vestir/sugerir,
+e o `conhecidos` da M3.
+
+**Junto nesta ADR, a voz do app sobre si mesmo** (auditoria da trilha Métodos:
+as doenças da voz se concentram onde o app fala de si). Três trocas de palavra:
+o Perfil dizia "O que o Traço aprendeu de você" em cima de uma CONTAGEM ("12
+sinais desde 3 de setembro") — passa a "O que o Traço registrou — contagem, não
+conclusão"; a Lente chamava de "Muletas" uma lista que inclui "acho que", "um
+pouco" e "na verdade", que são os hedges que o próprio catálogo ENSINA a usar (a
+Inversão diz "costuma ser") — passa a "Palavras de apoio", com a nota
+"contadas por palavra inteira", e o mesmo rótulo no apontamento de versão
+(`RotuloApontar.muleta`, que a auditoria não viu e é a mesma palavra); e o aviso
+do plano sem obstáculo dizia "o que, em você, COSTUMA atrapalhar isto",
+atribuindo ao autor um hábito que o app não observou — passa a "pode".

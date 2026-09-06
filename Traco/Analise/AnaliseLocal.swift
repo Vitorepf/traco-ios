@@ -16,7 +16,7 @@ enum AnaliseLocal: Sendable {
     /// pergunta ficam; a sentença sobre o mundo, não.
     nonisolated static let avisoWood = "Um estudo de 2009 mediu isto: repetir uma frase dessas fez quem estava com a autoestima baixa se sentir pior, e quem estava com ela alta, um pouco melhor. O que aconteceu que fez você escrever isso?"
     nonisolated static let avisoOuvinte = "Quem é a pessoa de verdade que deveria ouvir isto?"
-    nonisolated static let avisoOettingen = "Falta o obstáculo. O que, em você, costuma atrapalhar isto?"
+    nonisolated static let avisoOettingen = "Falta o obstáculo. O que, em você, pode atrapalhar isto?"
     nonisolated static let avisoDoisGestos = "Um gesto por sessão. O segundo método vai para outra página."
 
     /// A ÚNICA porta entre um rótulo da IA e uma frase na tela (§19.4).
@@ -108,14 +108,42 @@ enum AnaliseLocal: Sendable {
         return temPlano && !temObstaculo && !temWOOP
     }
 
-    /// Roteia pela regex do CATÁLOGO (ADR 04l), na ordem do catálogo. Duas
+    /// O teto que separa a nota curta do desabafo: abaixo dele um "senti"
+    /// solto não abre a Expressiva, e o Destaque continua Destaque.
+    static let tetoDoDesabafo = 120
+
+    /// ADR 06h: sentimento em primeira pessoa, em qualquer tamanho. É o léxico
+    /// da Expressiva no catálogo MAIS o que ele não alcançava e é a mesma coisa
+    /// — o revisor da M3 mediu 22 desabafos roubados por causa dessa lacuna.
+    static let lexicoDoSentimento = #"senti|sinto|dói|doeu|chorei|chorando|chorar|triste|raiva|medo|pesado|desmoronar|arrepend|vergonha|magoad|me odiando|remoendo|nó na garganta|não aguento"#
+
+    /// ADR 06h: o próprio ato, contado depois. Só conta ACIMA do teto: curta,
+    /// "fiquei calada quando perguntaram" é a nota que nomeia uma conversa, e o
+    /// método que pergunta serve; longa, é o dia sendo despejado.
+    static let lexicoDoAtoArrependido = #"engoli|fiquei calad|deixei passar|perdi a (paciência|cabeça)|tratei mal|fui (injust|gross|duro demais|ríspid)|não devia ter"#
+
+    /// ADR 06h — a fronteira do produto, em código e não no `Metodos.json`: a
+    /// pasta do autor reescreve o catálogo, e uma guarda que protege a escrita
+    /// pessoal não pode morar num arquivo editável.
+    static func eEscritaPessoal(_ x: String, _ lower: String) -> Bool {
+        lower.contains(regex: lexicoDoSentimento)
+            || (x.count > tetoDoDesabafo && lower.contains(regex: lexicoDoAtoArrependido))
+    }
+
+    /// Roteia pela regex do CATÁLOGO (ADR 04l), na ordem do catálogo. Três
     /// regras continuam em código porque não são regex: a expressiva pede
-    /// texto longo além das palavras de sentimento, e o Destaque é uma lista
-    /// de linhas curtas sem palavra nenhuma.
+    /// texto longo além das palavras de sentimento, o Destaque é uma lista de
+    /// linhas curtas sem palavra nenhuma, e a escrita pessoal não é matéria de
+    /// exercício (ADR 06h) — passada a Expressiva, nenhum método leva um texto
+    /// em que o autor está falando do que sentiu ou do que fez e lamenta.
     private static func detectarGesto(_ x: String, _ lower: String, estrito: Bool) -> Gesto? {
-        for m in Catalogo.todos where !m.roteamento.isEmpty {
+        let pessoal = eEscritaPessoal(x, lower)
+        // sem Expressiva no catálogo a guarda vale para todos: falha fechada.
+        let iExpressiva = Catalogo.todos.firstIndex { $0.id == Gesto.expressiva.rawValue } ?? -1
+        for (i, m) in Catalogo.todos.enumerated() where !m.roteamento.isEmpty {
             guard let g = Gesto(rawValue: m.id) else { continue }
-            if g == .expressiva, x.count <= 120 { continue }
+            if g == .expressiva, x.count <= tetoDoDesabafo { continue }
+            if pessoal, i > iExpressiva { continue }
             if m.roteamento.contains(where: { lower.contains(regex: $0) }) { return g }
         }
         if estrito { return nil }
