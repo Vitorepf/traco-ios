@@ -357,3 +357,263 @@ xcrun simctl io 64F7B8B4… screenshot   # toda prova de tela é simctl, nunca c
 simulador ligado, e há sete na máquina. Dirigi por `maestro --udid` sob a trava,
 como manda o aviso do dia. O simulador do dono (**iPhone 17 1A46B6D3**) não foi
 tocado. O iPhone Air já estava ligado antes de mim; deixei ligado.
+
+---
+
+# Re-G3 — a correção (topo `487a009`)
+
+Mesmo revisor, 06/09/2026, worktree `f3b-ditado`, HEAD **`487a009`**. Simulador:
+iPhone Air **64F7B8B4** (já estava ligado quando cheguei; **desligado por mim ao
+fim**, conforme a ordem desta rodada). O do dono (**1A46B6D3**) aparece
+desligado e **não foi religado nem tocado**. Nada foi editado nem commitado.
+Capturas desta rodada: `f3b-reg3-*.png`.
+
+## Veredito
+
+**APROVADO.** Os três altos estão fechados, e eu refiz na tela a corrida que
+tinha achado. As duas dimensões que estavam em 6 subiram. Nenhuma regressão
+encontrada. **As 15 dimensões ficam em 9 ou mais.** Fica um único pendente de
+merge, sem decisão de conteúdo: SPEC.md e EVOLUCAO.md conflitam textualmente
+com a F4 (duas ADRs diferentes no mesmo ponto) — guardar as duas, em ordem.
+
+## Aviso de instrumento — leia antes das notas
+
+A máquina está com **sete simuladores ligados** e vários workers rodando maestro
+ao mesmo tempo. Achei o mecanismo, e ele **não é do worker**:
+
+- `~/.maestro/tests/2026-09-06_16*/maestro.log` mostra cinco workers escolhendo
+  cinco aparelhos diferentes entre 16h37 e 16h39, **todos "using port 7001"**.
+- Às 16h48 e às 16h54 o meu maestro registrou `Selected device 64F7B8B4…` e
+  ainda assim **falhou** dizendo que "Gravando." não estava visível — enquanto
+  `xcrun simctl io 64F7B8B4 screenshot`, tirado no mesmo minuto, mostra
+  **"Gravando." na tela** (`f3b-reg3-04-instrumento-maestro-cego.png`). Numa das
+  falhas o maestro me devolveu a captura de uma folha de Trabalho com o texto
+  "o foco veio para ca", que ninguém deste worktree digitou.
+- Ou seja: **`maestro --udid` não isola.** O driver residente de outro
+  simulador segura a porta 7001, e o maestro lê a hierarquia do vizinho. O
+  `com-trava.sh` serializa comandos, mas **não mata driver deixado para trás**.
+- Três comandos meus morreram com `exit 144` sem saída, sempre dentro de uma
+  invocação de maestro.
+
+**Consequência metodológica:** nesta rodada eu **não** dei nota com base em
+nenhuma evidência do maestro. Toda prova abaixo é `xcrun simctl io … screenshot`
+do MEU UDID, arquivo em disco lido por `afinfo`, ou o corpus `.md` do contêiner
+do meu simulador. Onde o instrumento me impediu de refazer algo, eu digo — e não
+desconto por isso. **Nenhuma nota abaixo caiu por causa da máquina.**
+
+## Os três altos
+
+### A1 — a tela mentia na recusa do disco → **FECHADO**
+
+Cheguei ao estado no meu aparelho por `traco://ditar?ensaio=disco-recusa` e
+concluí a gravação **sem maestro**, mandando o app para segundo plano (o que
+também reexercita o depósito por `willResignActive`).
+
+`f3b-reg3-02-disco-recusa.png` mostra, na build da árvore atual:
+
+- **"O áudio ficou no aparelho."**
+- "Gravei, mas a nota não entrou: o disco recusou."
+- "Sem uma nota que o cite, o áudio é apagado em um dia."
+- **Tentar de novo** · **Descartar a gravação**
+
+Sumiram "Sem microfone.", "Nada foi gravado" e o "Abrir os Ajustes" que não
+consertava nada. E a frase é **verificável**: no mesmo instante, no cofre de
+anexos, `32A85405….m4a`, 2 479 882 B, `afinfo` → `estimated duration: 312.31
+sec`. Arquivo válido, tocável — o áudio existe, como a tela diz.
+
+O teste virou de lado, como pedido: `discoRecusa` agora exige
+`#expect(d.estado == .semDeposito("o disco recusou."))` **e**
+`#expect(d.estado != .semMicrofone(...))`. Passa (`✔` no log). `discoVolta` é
+novo e prova que a recuperação é o MESMO depósito, com a letra só depois dele.
+`descartar()` no estado novo apaga o m4a (`notaCriada == false`), e sair pelo
+gesto de escape deixa o arquivo — que é exatamente o que a tela avisa.
+
+### A2 — duas notas para uma fala → **FECHADO, refeito por mim**
+
+Refiz a minha corrida: estado limpo, ditado com `?ensaio=transcrito`, **Pronto**,
+**Fechar durante a transcrição**, controle outra vez, **Pronto**. Os mesmos dois
+toques.
+
+- Tela: `f3b-reg3-01-corrida-duas-notas.png` — **duas** linhas em Notas, uma por
+  fala. Antes eram três.
+- E a prova que não depende de pixel: o corpus `.md` do contêiner do meu
+  simulador tem **uma nota por ditado**, cada uma com o SEU áudio
+  (`39AC843E…` e `44978D86…`, arquivos diferentes) e a sua linha final.
+  **Nenhuma** nota dizendo "O áudio ficou guardado, sem transcrição." sobrou.
+- No código a causa foi mesmo removida: `Sessao.notaDoDitado` não existe mais;
+  `gravarDitado` recebe e devolve a `Nota`, e `armarDitado` fecha um `var minha`
+  por ditado que as duas closures dividem. Não há mais chaveamento por `criadaEm`.
+- `doisDitadosSobrepostos` roda o segundo ditado inteiro **dentro** da
+  transcrição do primeiro e exige `notas.count == 2` — passa.
+
+### A3 — número da ADR → **FECHADO, conferido por mim**
+
+`## ADR 2026-09-06c` no SPEC. Conferi o número contra **todos** os branches
+vivos: `06c` não aparece em nenhum outro. `git merge-tree` com a F4, rodado por
+mim:
+
+```
+Auto-merging Traco/App/Sessao.swift
+Auto-merging TracoWidget/TracoWidget.swift
+Auto-merging project.yml
+Auto-merging Traco.xcodeproj/project.pbxproj
+CONFLICT (content): SPEC.md
+CONFLICT (content): EVOLUCAO.md
+```
+
+Bate com o que ele afirmou. O que sobra é textual (duas ADRs diferentes logo
+depois da 05w; a mesma célula "Fora do app" ganhando duas linhas) e resolve-se
+guardando as duas. **De passagem, para o orquestrador:** `volta-11-markdown` e
+`volta-18-trabalho` declaram **as duas** `ADR 2026-09-06x`. Essa colisão
+continua aberta e não é desta volta.
+
+## As duas dimensões que estavam em 6
+
+### Componentes 6 → **9**
+
+`FolhaDeConfirmacao<Chave, Conteudo>` + `enum Folha` carregam a casca (material,
+`Tema.fundo` 0,55, `ScrollView`, `VStack(spacing: 16)`, `padding(28)`,
+`maxWidth 360`, entrada com escala/desfoque, `isModal`, ação de escape) e as seis
+peças. Li o diff da `ConfirmacaoView` linha a linha: é **movimentação fiel** —
+nenhum texto, id, ação ou ramo mudou; só saíram os quatro auxiliares
+duplicados. `ConfirmacaoView` 119→51, `DitadoProprioView` 98→62, arquivo novo
+118 → a duplicata que eu nomeei sumiu.
+
+A tela vizinha não quebrou: `f3bb-06` mostra "Sair agora tranca." inteira na
+casca nova, a máquina de estados da confirmação tem cobertura em teste (8
+referências, suítes `FechoExpressivaTests`/`QuartoFechoTests` verdes na minha
+rodada) e o diff não toca comportamento. **Não pude reexecutar
+`maestro/expressiva-trancar.yaml` eu mesmo** pela interferência descrita acima;
+digo isso em vez de fingir que rodei.
+
+O `Seca` preserva a troca seca do ditado (`refazerEm` nunca muda → o `onChange`
+não dispara), e a `ConfirmacaoView` continua renascendo por assunto. Detalhe
+bem resolvido.
+
+**Dois residuais, nomeados, que não bloqueiam:**
+
+- **R1** — o arquivo mora em `Traco/Ditado/`, não em `Traco/Componentes/`. O
+  motivo escrito ("a volta 12 está lá dentro") **não se sustenta**: a volta 12
+  edita `Botao.swift` e `Cartao.swift`; um arquivo NOVO em `Traco/Componentes/`
+  não conflitaria com nada. É mudança de casa da volta seguinte — mas por
+  arrumação, não por impedimento.
+- **R2** — segue um `#Preview` para seis estados. A justificativa dele ("a regra
+  do dono diz que preview não conta") **lê a regra errada**: `RUMO.md:38` diz que
+  *captura só no preview do Xcode não conta como prova* — não que preview não
+  deva existir; e o critério da própria V10 (`RUMO.md:69`) pede "preview por
+  estado". O argumento técnico dele é bom (`estado` é `private(set)`, e abrir o
+  tipo só para o Xcode desenhar seria máquina), então isto vai junto com R1 para
+  a volta que mudar a casa — mas com a regra citada certa.
+
+### Estado honesto 6 → **9**
+
+Os dois pontos que derrubaram a nota estão fechados e provados acima (A1 e A2).
+O terceiro — o app morto **durante** a gravação — ele escolheu corrigir o
+contrato. **Julgo a escolha correta, e não é baixar a barra**, por três razões
+verificáveis:
+
+1. O texto novo **nomeia o mecanismo**, não o esconde: só o `stop()` fecha o
+   átomo final do m4a, e sem ele o arquivo não é áudio. Isso é exatamente o que
+   eu medi no G3 (`afinfo` → `AudioFileOpenURL failed`). O contrato passou a
+   descrever o que a máquina faz.
+2. **Distingue os dois casos** em SPEC e em EVOLUCAO: "depois do depósito"
+   preserva; "durante a gravação" não vira nota. A promessa larga que eu tinha
+   apontado sumiu das duas fontes.
+3. **Diz o preço da alternativa** (gravação em segmentos) e por que não a paga,
+   com o caminho real já coberto pelo `willResignActive` — que eu reexercitei
+   nesta rodada sem querer, ao concluir dois ditados mandando o app para o
+   fundo.
+
+Contrato que descreve o limite é melhor que código que finge não ter limite.
+
+## Regressões — procurei, não achei
+
+- **Suíte:** `727 testes em 126 suítes, PASSOU`, rodada por mim no 64F7B8B4. Os
+  quatro testes novos/mudados aparecem verdes por nome no log.
+- **Avisos:** os mesmos **dois** de sempre, pré-existentes, em
+  `TracoTests/ConferenciaTrabalhoTests.swift` (arquivo que o diff não toca).
+  Nenhum aviso novo veio da extração da casca. **Release: 0 avisos.**
+- **Ensaio fora do Release, com o ramo novo:** `ensaioDoDitado` 0, `disco-recusa`
+  0, a frase do ensaio 0 no binário Release; 2, 1 e 1 no `Traco.debug.dylib`.
+  Controle positivo funcionando, ausência real.
+- **`xcodegen generate`** não move o pbxproj commitado.
+- **Origem/autoria não se perdeu no caminho novo.** `f3bb-03` (a nota aberta por
+  "Abrir a nota") não mostra a linha de origem, e isso me preocupou. Fui ao dado:
+  os três `.md` do corpus no meu simulador terminam todos com
+  `Ditado de 6 de setembro, 16h54, transcrito no aparelho. Confira.` — a linha
+  **está na nota**. `Sessao.abrir` faz `texto = nota.texto`, verbatim. Era a
+  captura, não o dado. Cheguei ao estado transcrito com "Abrir a nota" na tela
+  pelo meu próprio caminho: `f3b-reg3-03-transcrito-abrir-nota.png`.
+- **`.mask` nova na casca:** aplicada ao `ScrollView` das DUAS telas. Em repouso
+  o esmaecido cai dentro do respiro de 28 pt e não se lê (confirmado em
+  `f3bb-06` e nas minhas capturas). Fica a observação de que máscara afeta hit
+  testing em SwiftUI: a faixa de 3 % no topo é área de respiro nas duas telas
+  hoje, mas quem puser ação ali no futuro vai encontrá-la surda.
+
+## Scorecard revisto
+
+| dimensão | G3 | Re-G3 | o que mudou |
+|---|---|---|---|
+| Visão | 10 | **10** | inalterada |
+| Contrato | 8 | **9** | A3 fechado (06c único, merge-tree conferido por mim); M4 corrigido com o mecanismo escrito. Resta a atribuição errada do par de títulos na captura do fade — ver R3. |
+| Correção | 8 | **9** | 727/126 verde na minha máquina; `discoRecusa` passou a **proteger a verdade**; `doisDitadosSobrepostos` reproduz a corrida; o caminho do "segundo toque" agora tem a minha prova de tela. |
+| Jornada real | 9 | **9** | oito capturas novas, conteúdo conferido; `f3bb-01` está **desatualizada** (copy de iteração anterior) — reposta pela minha `f3b-reg3-02`. Ver R4. |
+| Design | 8 | **9** | L5 resolvido e provado; a "correção 2" de Julgar agora tem evidência de tela (a minha corrida). |
+| Simplicidade | 8 | **9** | M3 entregue e visto por mim; M5 deixado com motivo honesto (é roteamento da raiz, não do ditado). Segue aberta a observação da lista de Notas com linhas de máquina iguais — é a fila de transcrição que já está em "Fora (F3b+)". |
+| Movimento | 8 | **9** | M1 fechado nas quatro trocas de resultado (`Toque.fechou()` no transcrito, `Toque.aviso()` em toda falha); troca seca preservada pelo `Seca`. |
+| Componentes | **6** | **9** | duplicata apagada, uma casca para duas telas, vizinha intacta. R1 e R2 seguem, nomeados. |
+| Acessibilidade | 8 | **9** | L5 fechado com máscara no topo e provado em AX5 (`f3bb-05`, copy atual, as duas ações alcançáveis, nada sob a Ilha); a linha falsa "AX5 sem clipe" corrigida no relato. |
+| Performance | 9 | **9** | inalterada; nada novo em lista, editor ou parser. |
+| Privacidade e autoria | 9 | **9** | contrato intacto; ensaio (com o ramo novo) ausente do Release com controle positivo; L2 corrigido — a permissão de fala agora fala do ditado e diz que o áudio não sai. Origem preservada, verificada no corpus. |
+| Estado honesto | **6** | **9** | A1 e A2 fechados e provados na tela e no dado; o contrato do app morto passou a dizer a verdade. |
+| Complexidade | 8 | **9** | −55 linhas de duplicata; a defesa do teclado escrita duas vezes virou `Teclado.recolher()` (que já existia); líquido +92 numa rodada que acrescentou um estado, uma costura de teste, três testes, háptico e uma ação. |
+| Fora do app | 8 | **9** | M2 fechado: "Ditar" com `mic.fill`, `kind` preservado — decisão certa, trocá-lo apagaria o controle que o autor já instalou. |
+| Relato | 9 | **9** | o relato da correção é honesto e lista o que não fez e por quê. Ver R4. |
+
+**Todas em 9 ou mais.** Nenhuma dimensão bloqueia.
+
+## Residuais (nenhum bloqueia o merge)
+
+- **R1** — `FolhaDeConfirmacao` mora em `Traco/Ditado/`; a casa é
+  `Traco/Componentes/`, e o motivo escrito não se sustenta para arquivo novo.
+- **R2** — um `#Preview` para seis estados; a regra citada (`RUMO.md:38`) fala de
+  prova, não de existir preview, e a V10 pede preview por estado.
+- **R3** — a ADR ainda diz que o fade sobrepunha "Gravando." e "Áudio guardado."
+  citando `f3b-02-transcrevendo-sobreposto.png`; a captura mostra "Áudio
+  guardado." sobre "O áudio ficou.". Erro de citação, não de contrato.
+- **R4** — `f3bb-01-disco-recusa.png` traz copy de iteração anterior ("não
+  consegui criar a nota: o disco recusou a nota"), diferente da build final. A
+  atual é `f3b-reg3-02-disco-recusa.png`; vale trocar no índice da ADR.
+- **R5** — a máscara do topo da folha afeta hit testing: hoje a faixa é respiro
+  nas duas telas, mas ação colocada ali no futuro fica surda.
+- Seguem abertos, com motivo aceito: **M5** (o ditado engole `traco://notas`),
+  **L1**, **L3**, **L6**, **L7**.
+
+## Para o G5
+
+Único pendente: o conflito textual com a F4 em SPEC.md e EVOLUCAO.md — guardar
+as duas ADRs (06c e 05x), em ordem, e as duas linhas na célula "Fora do app".
+Não há decisão de conteúdo pendente. Código e `project.yml` fazem auto-merge.
+
+## Como rodei
+
+```
+xcodegen generate                                          # sem drift
+com-trava.sh xcodebuild test  -destination id=64F7B8B4…     → 727 testes / 126 suítes, PASSOU
+com-trava.sh xcodebuild build -configuration Release        → BUILD SUCCEEDED, 0 avisos
+git merge-tree --write-tree f3b-ditado f4-widgets           → só SPEC/EVOLUCAO conflitam
+xcrun simctl io 64F7B8B4… screenshot                        # TODA prova de tela
+xcrun simctl openurl / launch                               # navegação, por causa do maestro cego
+afinfo <cofre>/*.m4a                                        # o áudio que a tela diz existir
+cat <contêiner>/Documents/notas/*.md                        # uma nota por ditado, com a origem
+```
+
+Tamanho de texto do meu simulador: `large`, não mexi nesta rodada. **Simulador
+iPhone Air desligado ao terminar**, como a ordem pediu; nenhum outro tocado.
+
+**Nota de fecho sobre a máquina:** ao desligar o meu iPhone Air, contei os
+ligados. O **iPhone 17 Pro Max (6033B043)**, que estava ligado no começo desta
+rodada, **também sumiu da lista sem que eu o tocasse** — mesmo padrão do
+simulador da F3b e do aparelho do dono. Confirma o aviso: há algo externo
+desligando simuladores nesta máquina. Nenhuma nota deste relatório depende de
+evidência perdida por isso.
