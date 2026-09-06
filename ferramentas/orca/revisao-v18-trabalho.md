@@ -299,3 +299,297 @@ duas telas, e cinco testes que já existem viram sete.
 | 5 — `trabalho-acao-aviso.yaml` passa do alvo | implementador do Trabalho | trocar 4 `swipe` por `scrollUntilVisible` |
 | 6 — forma do `acaoDeSaida` | implementador do Trabalho, ou dívida declarada da V12 | decisão de sistema |
 | 7 — números e comentário do `Botao.swift` | implementador do Trabalho | texto |
+
+---
+
+# Re-G3 — volta 18-B (mesmo revisor, 06/09, topo `52097b7`)
+
+Simulador **meu**: iPhone 17 Pro (teste 2) `B91C8DEF-B0A7-454A-95DE-5D7BA7B040A9`,
+ligado e desligado por esta revisão; o iPhone 17 do dono já estava desligado e
+**não foi religado**. Havia mais quatro simuladores de outros ligados o tempo
+todo, e eu não desliguei nenhum.
+
+**Método, por causa da lei nova do instrumento.** A contagem de toques e todos
+os estados foram medidos **à mão**: janela do meu simulador trazida à frente,
+toque por `cliclick`, e `xcrun simctl io <MEU-UDID> screenshot` **depois de cada
+toque**. A captura é a prova de que o toque caiu no meu aparelho: se tivesse
+caído no vizinho, a minha tela não teria mudado. Nenhuma nota depende de fluxo
+maestro.
+
+**E a lei nova se confirmou no meu turno.** Tentei uma leitura de árvore com
+`maestro --device <MEU-UDID>` guardada por uma marca: a intenção do meu aparelho
+era a frase única "Apresentar a ideia agoraao cliente". O resultado veio
+`MARCA DO MEU APARELHO presente: False`, com `trabalho-preparar-acao` numa tela
+que o meu aparelho não estava mostrando — o `lsof` confirma um `maestro-d` de
+outro simulador segurando `[::1]:7001`. **A leitura veio do vizinho.** Registro
+como prova pendente de instrumento o que só o maestro provaria, e não desconto
+nota por isso (ordem do orquestrador).
+
+## Os seis achados, um a um
+
+### 1. Curva-zero — **FECHADO, e melhor do que eu pedi**
+
+Eu tinha dito para corrigir o número na ADR. Ele preferiu fazer a jornada cair.
+Medi do zero, sem olhar o número dele, pelo MESMO método da auditoria V9:
+
+| # | toque | prova |
+|---|---|---|
+| 1 | "Notas" na página | `c1.png` — abriu Notas |
+| 2 | "Trabalhos" | `c2.png` — lista vazia, **sem teclado, sem foco** |
+| 3 | campo da intenção + digitação 1 | `c3b.png` |
+| 4 | "Começar este trabalho" | `c4.png` — **a folha abre com o cursor JÁ no campo do pedido** |
+| — | digitação 2, **sem nenhum toque** | `c5.png` — o texto entrou no pedido |
+| 5 | "Preparar com IA" | `c6.png` — "A IA está preparando…" |
+| — | resultado | `c7.png` — **VERSÃO 1, produtor "Apple Intelligence no aparelho"** |
+
+**5 toques e 2 digitações** (eram 6 e 2). Folha de contato:
+`v18-reg3-curva-zero-5-toques.png`. O toque que sumiu é justamente o que só
+existia para revelar o passo seguinte, e ele sai sem esconder nada: o campo
+continua visível, rotulado e editável. `maestro/trabalho-curva-zero.yaml` guarda
+a medição (4 `tapOn` dentro da folha, mais a navegação por `openLink`) e falha se
+alguém devolver o toque — a estrutura do fluxo confere com a minha contagem à
+mão, mesmo que eu não possa rodá-lo com o instrumento de hoje.
+
+### 2. `PromessaDoAviso.jaPassou` — **FECHADO na tela, nos dois sentidos**
+
+`v18-reg3-promessa-nao-mente-mais.png`:
+
+- **17:43**, ato sem horário: a folha propõe **18:15** — `agora + 30 min`
+  arredondado nos 5 — e diz "Toca hoje às 18:15 · na hora, se você permitir os
+  avisos quando o iPhone perguntar". Hora **à frente**. O `.now` cru acabou.
+- Mudei o aviso para **"2 h antes"** (alarme às 16:15, atrás do relógio das
+  17:44) e a linha virou, em âmbar:
+  **"A hora do aviso já passou — esta ação ficou sem alarme."**
+
+É a mesma frase do motor depois do commit, agora dita antes. A mentira que eu
+fotografei às 15:08 ("Toca hoje às 14:37") não se reproduz mais. 10 testes, e os
+três que importam são os certos: `horaExataDoAlarmeJaPassou` (a borda `<=`),
+`negadoVemAntesDoRelogio` (a ordem) e `semInstanteMantemOsQuatroCasos`.
+
+### 3+4. A lei do bloqueio e o `.isSelected` — **FECHADO no que dá para ver**
+
+Não sobrou um `.disabled()` em `TrabalhoView` nem em `AgendamentoAcaoView`
+(conferido no arquivo, não só no diff). Na tela, nos estados em que eu tinha
+fotografado fantasmas:
+
+- `v18-reg3-nada-some-com-campo-vazio.png` — com "O que está dificultando isso?"
+  e "O que aconteceu?" **vazios**, "Guardar esta dificuldade", "Registrar meu
+  relato" e "Descartar rascunhos dos campos" são **cápsulas inteiras e
+  legíveis**. Compare com `v18-rev-fluxo-passa-do-alvo.png`, onde as mesmas três
+  eram legenda cinza. O 1,53:1 saiu da folha.
+- `v18-reg3-toque-leva-ao-campo.png` — toquei "Preparar este ato" com o campo
+  vazio: o ato **não** foi preparado e o cursor foi para "Ensaiar a
+  apresentação". "Leva ao que falta" é real.
+
+Tracei **todas** as remoções de `.disabled()` contra as escritas: cada uma passa
+por `aplicar`, que agora guarda `levouAoObstaculo`, ou pelo guarda explícito.
+Conferi também o invariante de que isso depende: `salvo = false` só é atribuído
+em `OficinaTrabalho:91` e `:112`, e **as duas linhas seguintes atribuem `erro`**
+— logo `!salvo ⟹ erro != nil`, e o alvo `"trabalho-erro"` da rolagem sempre
+existe quando o desvio dispara. Não há caminho novo de escrita sem guarda.
+
+O `.isSelected` está no código (`.accessibilityAddTraits(o.documento.apoio == a ?
+[.isSelected] : [])`) e compila. **A prova de árvore ficou pendente de
+instrumento**, pelo motivo do cabeçalho.
+
+### 5. `trabalho-acao-aviso.yaml` — **corrigido no arquivo, prova pendente**
+
+Os quatro `swipe` de posição fixa viraram `scrollUntilVisible`, que é a correção
+certa (foi o que eu usei para chegar ao mesmo alvo quando o fluxo dele falhava).
+Rodar o fluxo hoje provaria o vizinho, não este branch: **pendente de
+instrumento**, sem desconto.
+
+### 6. Números e comentário — **corrigidos e conferidos**
+
+Recontei tudo: `+742/−396` nos três arquivos de view somando 18 e 18-B (179+438+
+125 / 75+249+72) e **1119 → 1296** linhas sem comentário; só a volta 18 é
+`+599/−371` e 1119 → 1247. **Batem com a ADR.** O comentário de `Botao.swift`
+sobre `AcaoTrabalhoStyle` continua desatualizado — `Traco/Componentes` está fora
+do escopo dele, e a recusa é legítima; vira uma linha da volta dos Componentes.
+
+## Dois achados NOVOS
+
+### A. ALTO — a folha enuncia uma regra que não cumpre mais
+
+A ADR 2026-09-06b descreve a lei do bloqueio incluindo *"edição não guardada
+recebe o foco (`campoEmEdicao`)"*. Em `trabalho-gerar` isso **não acontece**: o
+guarda do toque é `guard !levouAoObstaculo(o), !faltaCampo("pedido")`, e
+`edicaoPendente` só entra no cálculo da **mensagem** (`travado`), nunca na ação.
+A volta 18 e a V9 bloqueavam esse caso pelo `.disabled(travado)`; a 18-B removeu
+o `.disabled` e portou só a metade `!o.salvo` do guarda.
+
+Provado na tela (`v18-reg3-edicao-pendente-nao-bloqueia.png`):
+
+1. Abri "Rever a intenção", mudei o texto e **não guardei**. A folha escreveu,
+   embaixo da cápsula carvão: *"Guarde a intenção ou a versão que está editando
+   antes de pedir uma nova preparação."*
+2. Toquei "Preparar nova versão com IA". **"A IA está preparando…" começou.**
+3. Noventa segundos depois havia uma VERSÃO 2, e a própria folha a marcou em
+   vermelho: *"Esta versão foi preparada para uma intenção anterior. Confira o
+   que ainda serve."*
+
+O resultado não é mentiroso — o app confessa depois. O que mente é a **regra**: a
+tela diz "guarde antes de pedir" e não exige nada. O custo é uma corrida de IA de
+~90 s gasta exatamente no caso que a regra existia para evitar. Nenhum teste e
+nenhum fluxo cobrem este caso: `trabalho-bloqueio.yaml` só cobre o campo vazio e
+o trilho.
+
+**Correção: uma linha, e ela já existe três centenas de linhas abaixo.**
+`trabalho-revisar` faz certo:
+`if let chave = campoEmEdicao(o) { campoEmFoco = chave; rolarPara = chave; return }`.
+Basta a mesma no `trabalho-gerar`.
+
+### B. MÉDIO — em AX5, documento **com versão** volta a sangrar pelos dois lados
+
+`v18-reg3-ax5-sangra-com-versao.png`, o mesmo aparelho e o mesmo AX5, lado a lado:
+
+- **Trabalho novo, sem versão:** margens corretas, trilho empilhado, nada
+  cortado. É o que a volta 18 provou e o que eu confirmei no re-teste.
+- **O mesmo trabalho depois da versão da IA:** todo o documento desloca ~30 pt
+  para a esquerda — "voltar" perde o chevron, "Apresentar" vira "presentar",
+  "NESTE TRABALHO, PREFIRO" vira "ESTE TRABALHO, REFIRO", as três pílulas do
+  trilho ficam cortadas em x=0 e o cartão de papel passa da borda direita.
+
+**Não é regressão da 18-B**, e digo por quê: o diff `ece2b27..52097b7` não toca
+`ConteudoTrabalhoView` nem nada que proponha largura, e a lista dos Trabalhos em
+AX5 continua impecável (`ax3.png`). A causa está no conteúdo do documento
+propondo largura ideal maior que a tela — `ConteudoTrabalhoView` é a única view
+do documento que a prova de AX5 da volta 18 nunca exercitou. **A falha é minha
+também:** no G3 eu validei o AX5 num trabalho recém-criado, sem versão, e dei o
+sétimo defeito por fechado. Ele está fechado para o cabeçalho e aberto para o
+conteúdo.
+
+Registro como achado desta revisão, não como culpa da 18-B: é dívida nomeada com
+dono a definir (Trabalho ou a volta do renderizador).
+
+## Os três itens que ele declara em aberto — meu julgamento
+
+| item | limite ou dívida? |
+|---|---|
+| **teclado cobre a ação primária depois do pedido** | **limite, não dívida desta volta.** O atrito é idêntico antes e depois, e a jornada que eu medi não esbarra nele (o teclado físico do simulador reproduz o caso do teclado recolhido). Nomeado para outra volta: certo. |
+| **`IntercambioTrabalhoView` com três ações sem cápsula** | **dívida do RUMO, e NÃO é grave** (`v18-reg3-intercambio-texto-solto.png`). Elas nunca tiveram cápsula para perder: são `Button` do sistema em `Tema.tinta` cheio, não `Pilula`, então **não caem para 1,53:1 nem somem** — desabilitadas, esmaecem como qualquer botão de texto do iOS. Ficam dentro de uma gaveta fechada, fora do caminho principal, e são rotas de perito (exportar/importar). O custo visível é outro: elas ficam três linhas abaixo de "Editar esta versão", que **é** cápsula — duas gramáticas para duas ações secundárias na mesma tela. Vale uma linha no RUMO para a volta do Intercâmbio; não bloqueia nada. |
+| **comentário de `Botao.swift`** | **recusa legítima.** `Traco/Componentes` está fora do escopo declarado, e mexer lá para consertar um comentário abriria escopo. Uma linha da volta dos Componentes. |
+
+## A pergunta do dono, respondida com evidência: VoiceOver ganhou ou perdeu?
+
+**Ganhou, no todo, com uma perda estreita e nomeável.** Não é gosto; são quatro
+fatos:
+
+1. **O que se ganhou é grande e mensurável.** O estado bloqueado saiu de
+   `tintaMorta` sobre papel — **1,53:1**, sem cápsula e sem forma de botão — para
+   a cápsula carvão com **13,94:1**. Quem mais sofria com aquilo era baixa visão,
+   que é um público maior que o de leitor de tela e o que a forma anterior
+   punia mais.
+2. **O motivo nunca dependeu só da dica.** O `Text` do motivo continua renderizado
+   ao lado do botão (eu o li na tela em três estados). Para o VoiceOver ele está a
+   **um deslize** do botão, antes e depois. A dica é canal a mais, não o único.
+3. **O toque deixou de ser nada e virou rota.** `faltaCampo` põe o campo em
+   primeiro respondedor, e o foco do VoiceOver acompanha — provado em
+   `v18-reg3-toque-leva-ao-campo.png`. Com `.disabled()` isso era impossível: o
+   botão não recebia toque nenhum.
+4. **A perda, dita com precisão.** `.disabled(true)` marca `isEnabled = false`, e
+   isso é mais que a palavra "indisponível": **Controle Assistivo e Acesso
+   Total por Teclado pulam controles desabilitados**. Agora esses usuários pousam
+   num controle que aceita ativação e não faz o que o rótulo promete. E a dica é
+   canal fraco: só é falada se "Falar dicas" estiver ligada, e só depois de uma
+   pausa.
+
+**Recomendação (não bloqueante):** postar
+`AccessibilityNotification.Announcement(motivoDoTravamento(o))` no ramo
+bloqueado. Aí o motivo é falado independentemente da configuração de dicas, o
+controle continua visível, com contraste e alcançável, e a perda do item 4 fecha
+sem trazer de volta o 1,53:1.
+
+## A outra pergunta: `PromessaDoAviso` está pronto para a ficha do Calendário?
+
+**Quase — e falta um guarda que eu não tinha visto no G3. Não ligue as pontas
+sem ele.**
+
+O que já está pronto, e é mais do que eu disse antes: o tipo resolve a metade da
+permissão, resolve a metade do relógio, e por ser `enum` de caso único impede
+estruturalmente a contradição que a ficha exibe hoje (`CalendarioFicha.swift:127`
+imprime "Toca hoje às 09:00." e `:142` acrescenta "nada vai tocar" **na mesma
+tela**). Os insumos todos existem na ficha: `agenda.estadoDosAvisos`,
+`Aviso.nome(_:diaInteiro:)`, `Aviso.promessa(...)`, `Aviso.instante(...)`.
+
+**O que falta: compromisso que se repete.** `Aviso.instante(de:)` calcula o
+alarme a partir de `evento.inicio` — a **origem da série**. Para "Correr toda
+terça 6:30", `inicio` está no passado, então `instante <= agora` e
+`PromessaDoAviso` devolveria **`jaPassou`: "esta ação ficou sem alarme"**. É
+falso: `Revisoes.agendarCompromisso` arma, para `e.repete`, **um id por dia da
+semana** (`idDoCompromisso(e.id, weekday:)`) e o alarme toca toda semana. O tipo
+trocaria uma mentira por outra, no sentido contrário.
+
+No Trabalho isso não acontece hoje: o ato monta
+`EventoCalendario(titulo:inicio:fim:avisoMinutos:)` sem `repeteEm`, e
+`repete` é `!repeteEm.isEmpty` — sempre `false`. **Por isso não é defeito desta
+volta**; é o pré-requisito da próxima.
+
+**O que a volta seguinte precisa fazer, na ordem:**
+
+1. `jaPassou` só quando **não** repete: ou um guarda `!evento.repete` dentro de
+   `para(...)`, ou o chamador passa `instante: nil` para série. Com teste.
+2. Tornar `instante:` **obrigatório**, não `= nil`. Hoje um chamador que esqueça o
+   parâmetro perde a correção **em silêncio** — e `semInstanteMantemOsQuatroCasos`
+   canoniza esse silêncio em vez de impedi-lo.
+3. Mover o tipo de `AgendamentoAcaoView.swift` para junto de `Avisos`/`Aviso`: ele
+   não tem nada de view, e a ficha não deveria importar a folha do Trabalho.
+
+Feito isso, uma volta fecha o defeito 2 da ficha e a contradição das duas frases,
+e os 10 testes viram uns 14.
+
+## Scorecard revisto
+
+| dimensão | G3 | Re-G3 | por quê |
+|---|---|---|---|
+| Visão | 9 | **9** | inalterada |
+| Contrato | 8 | **8** | os três números errados foram corrigidos e eu reconferi todos (742/396, 1119→1296, 599/371, 1247). **Mas** a ADR descreve a lei do bloqueio incluindo o desvio por `campoEmEdicao`, e o `trabalho-gerar` não o tem (achado A); e "o tipo fica completo para a ficha do Calendário" não é exato enquanto `jaPassou` não guardar série que se repete |
+| Correção | 8 | **8** | `clean build` do zero (185 ações de compilação, **0** `warning:`) e **725 testes / 126 suítes verdes**, reproduzidos por mim; os 5 testes novos acertam as bordas. **Mas** o achado A é regressão de comportamento contra a volta 18, sem teste nem fluxo que a cubra |
+| Jornada real | 9 | **9** | os estados do G2 revistos por mim no aparelho: lista vazia, lista, trabalho novo, pedido escrito, preparando, versão, bloqueado, ato preparado, agendamento, ato com alarme passado, AX5 com e sem versão |
+| Design | 8 | **9** | o fantasma saiu da folha inteira, provado em quatro estados de campo vazio e no estado bloqueado; a cápsula e o contraste voltaram. O âmbar solto de `acaoDeSaida` continua, mas é dívida declarada de sistema e o julgamento dela é do G4 |
+| Simplicidade | 8 | **9** | **5 toques e 2 digitações**, medidos à mão com captura por toque; 8→5 gavetas, decisão a 0 toques, caminho numa tela, e uma guarda que falha se o toque voltar |
+| Movimento | 9 | **9** | inalterada; a 18-B não mexe em animação |
+| Componentes | 8 | **9** | a folha deixou de depender do estado quebrado da `Pilula` (não há mais `.disabled()` nela); o recuo de `Pilula.larga` em AX5 e a `Secao` que falta seguem como dívida nomeada da V12, sem tocar `Traco/Componentes` |
+| Acessibilidade | 8 | **8** | `.isSelected` está no código e a prova de árvore ficou **pendente de instrumento** (sem desconto, ordem do orquestrador). O desconto é o achado **B**: em AX5, documento **com versão** sangra pelos dois lados — o sétimo defeito está fechado para o cabeçalho e aberto para o conteúdo, e eu não tinha exercitado esse caso no G3 |
+| Performance | n/a | **n/a** | mesmo motivo |
+| Privacidade e autoria | 9 | **9** | reconferi por causa da remoção em massa de `.disabled()`: toda escrita continua passando por `aplicar` (acesso + `verificarAcesso` + `levouAoObstaculo`), o ramo de trabalho protegido está intacto, a cópia de recuperação revalida, e o produtor continua ao lado da versão (`c7.png`, "Apple Intelligence no aparelho") |
+| Estado honesto | 8 | **8** | `jaPassou` provado nos dois sentidos na tela e o `.now` cru eliminado — era o meu achado 2 e está fechado. **Mas** o achado A é uma tela que enuncia uma regra e não a cumpre, que é a definição desta dimensão |
+| Complexidade | 9 | **9** | +177 linhas na 18-B, e elas fecham seis achados nomeados; a única entrada sem defeito de origem é o `.id()` de rolagem, que é o alvo do desvio |
+| Fora do app | n/a | **n/a** | mesmo motivo |
+| Relato | 9 | **9** | a ADR e o relatório dizem o que perderam, corrigem os números errados da primeira redação e nomeiam as dívidas com dono. O achado A é omissão de código, não de relato honesto |
+
+**Veredito: CORRIGIR ANTES — por UMA linha.** Cinco dos seis achados do G3 estão
+fechados e verificados na tela, e três dimensões subiram (Design, Simplicidade,
+Componentes). O que segura é o achado A, e ele é a mesma linha que
+`trabalho-revisar` já tem. O achado B não segura o merge por si só, mas segura a
+Acessibilidade em 8 até alguém decidir o dono.
+
+## Para o orquestrador
+
+| achado | dono | tamanho |
+|---|---|---|
+| **A** — `campoEmEdicao` no `trabalho-gerar` (+ um caso em `trabalho-bloqueio.yaml`) | implementador do Trabalho | **uma linha** e um assert |
+| **B** — AX5 sangra com versão no documento | a definir: Trabalho ou renderizador | investigação de largura em `ConteudoTrabalhoView` |
+| ADR: "o tipo fica completo para a ficha" | implementador do Trabalho | uma frase, com o guarda de série |
+| `jaPassou` com série que se repete; `instante:` obrigatório; mover o tipo | volta da ficha do Calendário | pré-requisito, não desta volta |
+| `AccessibilityNotification.Announcement` no ramo bloqueado | implementador do Trabalho | melhoria, não bloqueia |
+| `IntercambioTrabalhoView` sem cápsula; comentário de `Botao.swift` | RUMO (Intercâmbio; Componentes) | dívida leve |
+
+## Instrumento
+
+- `xcodegen generate` → `.pbxproj` sem diferença.
+- `xcodebuild clean build` no meu UDID sob `com-trava.sh`: `** BUILD SUCCEEDED **`,
+  185 ações de compilação, **0** linhas `warning:`.
+- `xcodebuild test`: `✔ Test run with 725 tests in 126 suites passed after
+  8.216 seconds.` → `** TEST SUCCEEDED **`.
+- Toques à mão (`cliclick` na janela trazida à frente) + `xcrun simctl io
+  <UDID> screenshot` a cada toque. Nenhum fluxo maestro rodado para efeito de
+  nota; a única tentativa de leitura de árvore devolveu o vizinho e está
+  registrada acima como confirmação da lei.
+- Texto restaurado a `large` (foi a `accessibility-extra-extra-extra-large` e
+  voltou); aparência `light` inalterada. Nada editado no código, nada commitado.
+- Capturas minhas: `v18-reg3-curva-zero-5-toques.png`,
+  `v18-reg3-promessa-nao-mente-mais.png`,
+  `v18-reg3-nada-some-com-campo-vazio.png`, `v18-reg3-toque-leva-ao-campo.png`,
+  `v18-reg3-edicao-pendente-nao-bloqueia.png`,
+  `v18-reg3-ax5-sangra-com-versao.png`, `v18-reg3-intercambio-texto-solto.png`.

@@ -2914,9 +2914,10 @@ E a folha parou de propor um horário que já nasce atrás do relógio: um ato s
 horário abre em meia hora à frente, arredondada nos 5 minutos, em vez de `.now`
 cru, cujo alarme "na hora" o motor recusaria. Prova:
 `v18b-promessa-hora-passada.png` (relógio 17:13, ato 17:45, "2 h antes", a linha
-em âmbar), `v18b-promessa-toca.png` e 10 testes em `PromessaDoAvisoTests`. O tipo
-fica completo para a volta que liga a ficha do Calendário, onde este é o defeito
-2 da revisão da V9.
+em âmbar), `v18b-promessa-toca.png` e os testes em `PromessaDoAvisoTests`. O tipo
+serve à volta que liga a ficha do Calendário, onde este é o defeito 2 da revisão
+da V9 — **mas não estava completo para ela até a 18-C**, que fecha o compromisso
+que se repete; a primeira redação dizia "completo" e a re-G3 mostrou que não era.
 
 **Custo assumido.** A volta NÃO é líquido-negativa: +742/−396 nos três arquivos
 de view (código sem comentário, 1119 → 1296 linhas), somando 18 e 18-B. Só a
@@ -2936,8 +2937,8 @@ sistema, com `tint` do tema por fora. `OficinaTrabalho.permissaoNegada` ficou
 sem leitor externo. **Volta:** multiplicar. **A IA:** nada mudou no que ela
 produz, lê ou pode enviar.
 
-**Prova.** Suíte 725/126 verde e build sem aviso no iPhone 17 Pro (teste 2);
-10 testes em `PromessaDoAvisoTests`. Três fluxos maestro no aparelho:
+**Prova.** Suíte 728/126 verde e build sem aviso no iPhone 17 Pro (teste 2);
+13 testes em `PromessaDoAvisoTests`. Três fluxos maestro no aparelho:
 `trabalho-curva-zero.yaml` (a medição da jornada), `trabalho-bloqueio.yaml` (a
 lei do bloqueio e o `selected` do trilho) e `trabalho-acao-aviso.yaml` — este
 falhava 2/2 no branch porque os quatro `swipe` de posição fixa passavam do alvo
@@ -2964,3 +2965,99 @@ vídeo usa a versão escrita pela pessoa, que dispara a MESMA animação); e o
 alerta de permissão do iOS, que ao aparecer uma única vez recolhe a gaveta do
 horário e rola a folha ao topo — reproduzido, e não acontece em nenhum
 salvamento seguinte (`v18-reguardado.png`).
+
+### Volta 18-C — uma linha, e duas guardas
+
+**A recusa.** O re-G3 fechou cinco dos seis achados na tela e subiu Design,
+Simplicidade e Componentes para 9 (a jornada caiu mesmo: 5 toques e 2
+digitações, remedidos à mão pelo revisor). Segurou por **uma linha**: a folha
+enunciava uma regra que não cumpria.
+
+*A regra que não se cumpria (achado A).* A lei do bloqueio acima descreve
+"edição não guardada recebe o foco (`campoEmEdicao`)". Em `trabalho-gerar` isso
+**não acontecia**: ao remover o `.disabled(travado)`, a 18-B portou só a metade
+`!o.salvo` do guarda, e `edicaoPendente` continuou entrando apenas no cálculo da
+**mensagem**. Com a intenção editada e não guardada, a folha escrevia "Guarde a
+intenção ou a versão que está editando antes de pedir uma nova preparação" e
+**disparava a IA assim mesmo** — ~90 s de preparação gastos no caso exato que a
+regra existia para evitar, e uma versão que a própria folha depois marcava em
+vermelho como preparada para uma intenção anterior. É a doença da volta pelo
+lado avesso: antes o botão bloqueava sem dizer; agora dizia e não bloqueava.
+
+A causa não é a linha que faltava, é que **havia duas listas de guardas
+copiadas** — `trabalho-gerar` e `trabalho-revisar` — e elas divergiram. A 18-C
+não copia a linha de volta: funde as duas em `levouAoQueFalta(_:campoObrigatorio:)`,
+o guarda único das duas rotas que chamam a IA. Não há mais onde divergir. E a
+ordem do guarda passou a ser a ordem em que `motivoDoTravamento` fala —
+salvamento, preparação em curso, edição pendente, campo vazio —, porque com
+`!salvo` **e** edição pendente juntos a folha nomeava um obstáculo e levava a
+outro. Prova na tela (`v18c-regra-cumprida.png`, cinco estados): a regra
+escrita; o toque que não prepara nada; o texto seguinte entrando no campo em
+edição **sem nenhum toque nele**, que é a prova do foco; o guardar; e o MESMO
+toque preparando de verdade em seguida. Guarda contra a volta do defeito:
+`maestro/trabalho-bloqueio.yaml` ganhou o caso, com `assertNotVisible` em
+`trabalho-preparando`.
+
+*A perda estreita do VoiceOver, fechada.* Trocar `.disabled()` por "tocar leva
+ao que falta" é ganho líquido — 1,53:1 virou 13,94:1, o motivo continua a um
+deslize e o toque virou rota em vez de nada. A perda nomeada pelo revisor:
+`.disabled(true)` marca `isEnabled = false`, e **Controle Assistivo e Acesso
+Total por Teclado pulam controles desabilitados**; sem ele, quem varre pousa num
+controle que aceita ativação e não conclui. A 18-C posta
+`AccessibilityNotification.Announcement` com o motivo nos ramos que antes só
+rolavam a tela — salvamento falho (`o.erro`) e preparação em curso — e no ramo
+da edição pendente, onde o campo que recebe o cursor fica em OUTRA seção da
+folha e ouvir só "O que quero realizar" não explica por que a preparação não
+começou. **Não** foi posto em `faltaCampo`: ali o campo focado É o obstáculo
+nomeado, o foco já é falado (provado em `v18-reg3-toque-leva-ao-campo.png`), e
+uma segunda fala correria com a do foco. **Limite honesto:** `Announcement` é
+canal do VoiceOver; quem usa Controle Assistivo **sem** VoiceOver continua sem a
+fala, e para essa pessoa o que resta é o desvio visível — o foco e a rolagem até
+o obstáculo. A perda não foi eliminada, foi reduzida ao caso sem VoiceOver.
+
+*`PromessaDoAviso` pronto para a ficha do Calendário.* O revisor achou o que
+faltava, e é pré-requisito da volta seguinte, não defeito desta: `Aviso.instante`
+calcula a partir do **início da série**. Para "Correr toda terça 6:30" esse
+início está no passado, então `instante <= agora` e o tipo devolveria `jaPassou`
+("esta ação ficou sem alarme") enquanto `Revisoes.agendarCompromisso` arma um id
+por dia da semana e o alarme toca toda semana — a mesma mentira ao contrário,
+justamente sobre o compromisso que mais toca. Duas guardas:
+
+1. `jaPassou` só quando **não** repete: `para(...)` recebe `repete:` e o caso
+   passa a ser `if let instante, !repete, instante <= agora`.
+2. `instante:` e `repete:` **sem valor padrão**. Era `instante: Date? = nil`, e
+   um chamador que esquecesse o parâmetro perdia a correção do relógio inteira,
+   em silêncio; `false` é o lado que mente em `repete`. Agora não se ligam as
+   duas pontas sem passar os dois.
+
+No Trabalho nada muda na tela — o ato monta `EventoCalendario` sem `repeteEm`,
+então `repete` é sempre `false` —, e é isso que a prova mostra:
+`v18c-promessa-repete.png`, os dois lados do corte com a assinatura nova
+("Toca hoje às 18:45 · na hora" e, com "2 h antes" de 18:45 às 18:11, a linha
+em âmbar "A hora do aviso já passou"). Os 10 testes viraram 13: série que
+repete não fica sem alarme (e o mesmo instante, sem série, continua `jaPassou`),
+série não atropela o beco de quem desligou os avisos, série sem aviso pedido
+continua sem aviso. **Fica para a volta da ficha:** mover o tipo de
+`AgendamentoAcaoView.swift` para junto de `Avisos`/`Aviso` — ele não tem nada de
+view, e a ficha não deveria importar a folha do Trabalho.
+
+**Custo.** +73/−11 nos dois arquivos de view (1296 → 1313 linhas sem
+comentário), +58/−13 em `PromessaDoAvisoTests` e 48 linhas de fluxo. Cada
+entrada fecha um achado nomeado; a única linha nova sem defeito de origem é a
+fusão dos dois guardas, e ela apaga a classe do achado A.
+
+**Prova.** `xcodebuild` sem aviso (`grep -c warning:` = 0) e **728 testes em 126
+suítes verdes** no iPhone 17 Pro (teste 2) `B91C8DEF`, sob `com-trava.sh`.
+Estados na tela por `xcrun simctl io <UDID> screenshot`, toque a toque com a
+janela do meu simulador trazida à frente — não por maestro, cuja leitura hoje
+volta do vizinho: `v18c-regra-cumprida.png` e `v18c-promessa-repete.png`.
+**Não provado:** o fluxo `maestro/trabalho-bloqueio.yaml` com o caso novo, que
+ficou **pendente de instrumento** (a estrutura confere com a medição à mão, mas
+rodá-lo hoje fotografaria outro aparelho); e o anúncio de acessibilidade sendo
+de fato FALADO — `Announcement` não aparece em captura, e o simulador com
+VoiceOver não estava disponível neste turno: o que está provado é o desvio
+(nenhuma preparação, foco no campo em edição), não a fala.
+**Fora do escopo, para o RUMO:** em AX5 um documento **com** versão da IA volta
+a sangrar pelos dois lados (achado B do re-G3) — não é regressão desta volta, o
+diff não toca `ConteudoTrabalhoView`, e o dono está por definir.
+

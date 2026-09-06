@@ -306,7 +306,7 @@ struct TrabalhoView: View {
                 let travado = !o.salvo || edicaoPendente(o)
                 Pilula(o.documento.praticaPedida ? "Preparar exercício com IA" : o.documento.versaoAtual == nil ? "Preparar com IA" : "Preparar nova versão com IA",
                        forma: .larga, selecionada: true) {
-                    guard !levouAoObstaculo(o), !faltaCampo("pedido") else { return }
+                    guard !levouAoQueFalta(o, campoObrigatorio: "pedido") else { return }
                     o.gerar(rascunhos["pedido"] ?? "")
                 }
                     .accessibilityIdentifier("trabalho-gerar")
@@ -338,10 +338,14 @@ struct TrabalhoView: View {
         }
     }
 
+    /// O motivo é lido na MESMA ordem em que o guarda desvia
+    /// (`levouAoQueFalta`). Antes a frase começava pela edição pendente e o
+    /// toque ia para o erro de salvamento: com os dois estados juntos, a folha
+    /// nomeava um obstáculo e levava a outro.
     private func motivoDoTravamento(_ o: OficinaTrabalho) -> String {
-        if edicaoPendente(o) { "Guarde a intenção ou a versão que está editando antes de pedir uma nova preparação." }
-        else if vazio("pedido") { "Escreva acima o que a IA deve preparar." }
-        else { "Guarde as alterações deste trabalho antes de pedir uma preparação." }
+        if !o.salvo { "Guarde as alterações deste trabalho antes de pedir uma preparação." }
+        else if edicaoPendente(o) { "Guarde a intenção ou a versão que está editando antes de pedir uma nova preparação." }
+        else { "Escreva acima o que a IA deve preparar." }
     }
 
     // MARK: - ADR 05r: praticar
@@ -849,8 +853,7 @@ struct TrabalhoView: View {
                 }
                 if !o.documento.praticaPedida || PraticaTrabalho.oferta(contaLigada: ContaGrok.ligada) == nil {
                     acaoSecundaria("Revisar com estes relatos") {
-                        guard !levouAoObstaculo(o), !preparacaoEmCurso(o) else { return }
-                        if let chave = campoEmEdicao(o) { campoEmFoco = chave; rolarPara = chave; return }
+                        guard !levouAoQueFalta(o, campoObrigatorio: nil) else { return }
                         definir("pedido", "Revise a versão à luz dos relatos registrados e do resultado desejado. Diferencie o que foi observado do que ainda é incerto e proponha um ajuste concreto.")
                         o.gerar(rascunhos["pedido"] ?? "")
                     }
@@ -990,7 +993,51 @@ struct TrabalhoView: View {
     private func levouAoObstaculo(_ o: OficinaTrabalho) -> Bool {
         guard !o.salvo else { return false }
         rolarPara = "trabalho-erro"
+        anunciar(o.erro ?? "As alterações deste trabalho ainda não foram guardadas.")
         return true
+    }
+
+    /// O guarda ÚNICO das duas rotas que chamam a IA: `trabalho-gerar` e
+    /// `trabalho-revisar`. Eram duas listas de guardas copiadas e **elas
+    /// divergiram**: ao tirar o `.disabled(travado)` de `trabalho-gerar`, a
+    /// volta 18-B portou só a metade `!o.salvo`, e a folha passou a escrever
+    /// "Guarde a intenção ou a versão que está editando antes de pedir uma
+    /// nova preparação" e a disparar a IA assim mesmo — uma corrida de ~90 s
+    /// gasta no caso exato que a regra existia para evitar (re-G3, achado A).
+    /// Agora é uma função só: não há mais onde divergir. A ordem é a mesma que
+    /// `motivoDoTravamento` fala — salvamento, preparação em curso, edição
+    /// pendente, campo vazio —, porque a folha não pode nomear um obstáculo e
+    /// levar a outro.
+    ///
+    /// - Returns: `true` quando levou a pessoa ao que falta; a IA não corre.
+    private func levouAoQueFalta(_ o: OficinaTrabalho, campoObrigatorio: String?) -> Bool {
+        if levouAoObstaculo(o) || preparacaoEmCurso(o) { return true }
+        if let chave = campoEmEdicao(o) {
+            // Aqui o motivo é dito antes do foco: o campo que recebe o cursor
+            // fica em OUTRA seção da folha, e ouvir só "O que quero realizar"
+            // não explica por que a preparação não começou.
+            anunciar(motivoDoTravamento(o))
+            campoEmFoco = chave
+            rolarPara = chave
+            return true
+        }
+        if let campoObrigatorio { return faltaCampo(campoObrigatorio) }
+        return false
+    }
+
+    /// O motivo dito em voz, não só escrito. Tirar o `.disabled()` devolveu
+    /// cápsula, contraste (1,53:1 → 13,94:1) e alcance ao botão, mas custou o
+    /// `isEnabled = false` que fazia o Controle Assistivo e o Acesso Total por
+    /// Teclado **pularem** o controle: quem varre agora pousa num botão que
+    /// aceita ativação e não conclui. O anúncio diz por que parou ali sem
+    /// depender de "Falar dicas" estar ligada nem da pausa que ela exige.
+    ///
+    /// Limite honesto: `Announcement` é canal do VoiceOver. Quem usa Controle
+    /// Assistivo **sem** VoiceOver continua sem a fala; para essa pessoa o que
+    /// resta é o desvio visível — o foco e a rolagem até o obstáculo.
+    private func anunciar(_ motivo: String) {
+        guard !motivo.isEmpty else { return }
+        AccessibilityNotification.Announcement(motivo).post()
     }
 
     /// Campo vazio não apaga a ação: leva o foco ao primeiro campo que falta.
@@ -1005,6 +1052,7 @@ struct TrabalhoView: View {
     private func preparacaoEmCurso(_ o: OficinaTrabalho) -> Bool {
         guard o.documento.pedidoAtivo != nil else { return false }
         rolarPara = "trabalho-preparando"
+        anunciar("A IA já está preparando. Espere ou cancele a preparação em curso.")
         return true
     }
 

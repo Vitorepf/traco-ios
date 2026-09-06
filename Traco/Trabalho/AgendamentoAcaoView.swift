@@ -24,7 +24,11 @@ extension EnvironmentValues {
 /// "Toca hoje às 14:37" às 15:08 — hora já passada. Quem sabia a verdade era
 /// só o motor, DEPOIS do commit (`ResultadoDoAviso.passou`). `jaPassou` traz
 /// essa verdade para antes de guardar. É o mesmo defeito 2 da ficha do
-/// calendário (revisão da V9): o tipo fica pronto para as duas telas.
+/// calendário (revisão da V9): o tipo serve às duas telas.
+///
+/// O que faltava para a ficha, e a re-G3 achou: o compromisso que **repete**.
+/// `jaPassou` só vale quando não há série, e `instante:` deixou de ter valor
+/// padrão para que ninguém ligue as duas pontas sem passar o instante certo.
 enum PromessaDoAviso: Equatable {
     /// Não pediu aviso: o ato só aparece no calendário do Traço.
     case semAviso
@@ -43,10 +47,19 @@ enum PromessaDoAviso: Equatable {
     /// - Parameters:
     ///   - hora: a promessa já escrita ("hoje às 14:37 · 30 min antes").
     ///   - instante: quando o alarme tocaria (`Aviso.instante`); `nil` quando
-    ///     não há alarme a situar no tempo.
+    ///     não há alarme a situar no tempo. **Sem valor padrão de propósito**:
+    ///     era `= nil`, e um chamador que esquecesse o parâmetro perdia a
+    ///     correção do relógio inteira, em silêncio (re-G3).
+    ///   - repete: o evento se repete? `Aviso.instante` conta a partir do
+    ///     **início da série**, e para "Correr toda terça 6:30" esse início
+    ///     está no passado — mas `Revisoes.agendarCompromisso` arma um id por
+    ///     dia da semana (`idDoCompromisso(_:weekday:)`) e o alarme toca toda
+    ///     semana. Sem este guarda o tipo diria "ficou sem alarme" justamente
+    ///     do compromisso que mais toca: a mesma mentira ao contrário. Também
+    ///     sem valor padrão, porque `false` é o lado que mente.
     ///   - agora: o relógio de quem lê a frase.
     static func para(minutos: Int?, estado: Avisos.Estado?, hora: String,
-                     instante: Date? = nil, agora: Date = .now) -> PromessaDoAviso {
+                     instante: Date?, repete: Bool, agora: Date = .now) -> PromessaDoAviso {
         guard minutos != nil else { return .semAviso }
         // A ordem é a do motor (`Avisos.agendar`): sem permissão não há alarme
         // e a saída é os Ajustes; depois o relógio, que cala qualquer promessa
@@ -55,7 +68,7 @@ enum PromessaDoAviso: Equatable {
         case .negado:
             return .desligados
         case .concedido, .naoPerguntado, nil:
-            if let instante, instante <= agora { return .jaPassou }
+            if let instante, !repete, instante <= agora { return .jaPassou }
             return estado == .concedido ? .toca(hora) : .seDeixarem(hora)
         }
     }
@@ -203,7 +216,8 @@ struct AgendamentoAcaoView: View {
     /// A promessa em unidade do mundo do autor, antes de guardar.
     @ViewBuilder private var promessa: some View {
         let p = PromessaDoAviso.para(minutos: avisoMinutos, estado: permissao,
-                                     hora: horaDaPromessa, instante: instanteDoAviso)
+                                     hora: horaDaPromessa, instante: instanteDoAviso,
+                                     repete: eventoDaPromessa?.repete ?? false)
         switch p {
         case .desligados: desligados(p.texto, "trabalho-aviso-promessa")
         // hora já passada é o mesmo âmbar do `.passou` do motor: não é
