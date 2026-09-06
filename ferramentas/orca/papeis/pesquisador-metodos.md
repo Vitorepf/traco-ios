@@ -42,6 +42,15 @@ Grau baixo não reprova. **Fragilidade dita é honestidade; fragilidade escondid
 é motivo de corte.** No catálogo, Feynman (grau E) e Dia (grau E) passam porque
 declaram exatamente o que são.
 
+**Emenda da M9 — ficção.** Um romance, um conto ou uma peça é **grau A de forma**
+(obra, autor, ano, lida na íntegra) e **o grau mais fraco que existe de
+conteúdo**: não é experimento, não é relato de prática, nem sequer é testemunho —
+é uma personagem inventada fazendo o que a autora escreveu que ela fizesse. Por
+isso a ficção **obriga uma linha a mais**, com estas palavras ou equivalentes:
+*"é ficção; dá o critério e o nome, e não estabelece nada"*. Sem ela, "Doyle,
+1892" parece evidência. A ficção é fonte legítima de **critério e de nome** — e
+de nada além disso.
+
 ### As três regras acima de todos os graus
 
 1. **Nenhum grau autoriza alegar eficácia — nem A.** Um estudo no campo `fonte`

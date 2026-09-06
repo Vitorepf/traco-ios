@@ -218,3 +218,122 @@ proveniência honesta e roteamento limpo, vale mais que sessenta.
 4. **Pedir ajuda a quem sabe mais.**
 5. **Agir com medo** e **esperar** — os dois com a ressalva de que talvez não haja
    fonte que mereça, e aí a resposta é "não há", que também é resultado.
+
+---
+
+# A dívida escondida: o que fazer com as três coberturas por acidente
+
+Escrito na M10, para quem for executar. As três estão descritas acima; aqui está
+**o que fazer com cada uma, e o que custa.** Nenhuma é urgente; duas são baratas
+e uma é decisão de arquitetura que o dono precisa tomar antes de o catálogo
+crescer mais.
+
+## 1. Destilar e Palavra estão na prateleira errada — **barato, e é só rótulo**
+
+**Hoje:** as duas têm `faculdade: "linguagem"`, e no mapa isso cai em *Aprender*.
+Não são de aprendizado: são de **ofício** — cortar um texto até uma frase e saber
+usar uma palavra são artes de quem escreve, e pertencem a *Criar*, a prateleira
+que o mapa mostra torta (dois métodos, os dois de gerar opções).
+
+**O que fazer:** trocar o valor do campo `faculdade` das duas de `"linguagem"`
+para `"criação"` — ou para um rótulo novo, se o dono preferir separar *gerar* de
+*fazer*. **Duas palavras no `Metodos.json`.**
+
+**O que muda na tela:** o Perfil e a Lente mostram a faculdade; um autor que abrir
+"de onde vem" vai ler "criação" no lugar de "linguagem". Nada de roteamento, nada
+de regex, nada de encadeamento.
+
+**O que NÃO fazer:** inventar a faculdade "ofício" só para essas duas. A M9
+mostrou que rótulo novo por método é como a taxonomia entortou; se `criação` já
+existe e é onde elas pertencem, use `criação`.
+
+**Custo:** minutos. **Risco:** nenhum. **Ganho:** a conta de cobertura fica
+verdadeira — *Aprender* cai de 6 para 4 e *Criar* sobe de 2 para 4, que é o que
+de fato existe.
+
+## 2. Dia e Destaque cobrem o mesmo movimento — **não mexer, só documentar**
+
+**Hoje:** o Dia contém o Destaque. Os dois pedem a única coisa do dia; o Dia
+acrescenta as três seguintes, o ladrão e a volta da noite.
+
+**Por que isso não é erro:** o Destaque tem **superfície própria** — ele vai para
+a tela bloqueada e para o widget, e é o único método que sai do app. Se ele
+sumisse, sumiria a superfície, não só o método.
+
+**O que fazer:** nada no catálogo. Uma linha na ficha de cada um dizendo que o
+outro existe e qual é a diferença (superfície, não movimento), para o autor não
+escolher entre os dois achando que são coisas diferentes de pensar.
+
+**O que NÃO fazer:** fundir os dois. Fundir custaria a superfície da tela
+bloqueada, que é a coisa mais usada do app inteiro.
+
+**Custo:** duas frases. **Ganho:** o mapa para de contar cinco onde há quatro
+movimentos, e o autor para de hesitar entre dois chips que fazem a mesma
+pergunta.
+
+## 3. A Expressiva não é um método — **e esta é a decisão de arquitetura**
+
+O dono pediu para eu responder duas coisas: **o que aconteceria se ela saísse do
+catálogo, e o que teria de existir antes.**
+
+### O que ela é, hoje
+
+A Expressiva está no `Metodos.json` com `campos: []`, `movimento: ""` e
+`pergunta: ""`. **Ela não tem forma, não tem movimento e não faz pergunta.** O
+que ela tem é `roteamento` (as palavras de sentimento), `reconhecimento` e
+`definicao` — ou seja: **ela está no catálogo porque o roteador mora no catálogo,
+e não porque seja um instrumento de pensamento.**
+
+E ela é tratada como exceção em todo lugar do código: a análise nunca comenta uma
+expressiva; ela não vai para a rede (o selo); tem timer, porta fechada e o fecho
+que oferece selar ou queimar; o `encadear` recusa; o Recordar não a cobra.
+
+### O que aconteceria se ela saísse
+
+**Quebraria a proteção, não a organização.** Se o objeto sair do array, o
+roteamento por palavras de sentimento some junto — e um desabafo passa a ser
+classificado pelo próximo método cuja regex casar. Um texto longo sobre uma
+conversa dolorosa cairia na Coluna da esquerda (leva 1) ou no Exame da noite
+(leva 2), que **fazem perguntas**. É exatamente o dano que a ordem de colagem
+existe para evitar, e chegaria por outra porta.
+
+Ou seja: **a Expressiva não pode simplesmente sair.** O que ela ocupa no catálogo
+não é uma vaga de método; é o gancho do roteamento da proteção.
+
+### O que teria de existir antes
+
+Três coisas, e nenhuma é grande:
+
+1. **Um lugar para reconhecedores que não são métodos.** Uma segunda lista no
+   mesmo arquivo (`protecoes`, digamos) com id, roteamento, reconhecimento e
+   definição — sem campos, sem movimento, sem pergunta —, lida pelo mesmo
+   `AnaliseLocal.detectarGesto` **antes** da lista de métodos. A Expressiva vira
+   a primeira entrada. Custo: um decodificador e um laço a mais; nenhum
+   comportamento muda no dia da mudança, porque a ordem se mantém.
+2. **A garantia de que o `Gesto` continua existindo.** Notas antigas gravaram
+   `gestoRaw: "expressiva"` no disco e no corpus. O `Gesto` já é uma `struct` sobre
+   uma `String` e já sobrevive a método apagado (ADR 05o); a proteção teria de
+   entrar em `Gesto.doNome` e em `Catalogo.metodo` como fonte válida, senão notas
+   antigas viram prosa.
+3. **A conferência das exceções em código.** Cada `if gesto == .expressiva` passa
+   a perguntar "é uma proteção?" em vez de "é a expressiva?" — o que, de quebra,
+   deixa a porta aberta para a segunda proteção que um dia venha (nota selada de
+   terceiro, conteúdo de outra pessoa).
+
+### O que o dono ganha com isso
+
+**Uma conta honesta e uma porta.** A conta: o catálogo passa a ter 38 métodos e
+uma proteção, em vez de 39 métodos dos quais um não é método — e o Perfil, os
+chips e o mapa param de contar a proteção como instrumento. A porta: quando
+aparecer a segunda proteção, ela tem onde entrar sem virar método fantasma.
+
+**O que eu NÃO recomendo:** fazer isso agora. É mexer no arquivo que a colagem
+está usando, para ganhar clareza e nenhuma função. **Recomendo fazer junto da
+volta que conserta a análise de bordo** (Parte II.4 do `achados-catalogo.md`) —
+as duas abrem os mesmos arquivos, as duas mexem na fronteira entre catálogo e
+roteamento, e a de bordo é a que tem valor de função.
+
+**Custo, de fora:** pequeno para o modelo, médio para as exceções em código, e
+some se for junto da volta de bordo. **Risco se feito sozinho e com pressa:** o
+maior do catálogo inteiro — a proteção da escrita pessoal depende de a Expressiva
+ser encontrada primeiro.

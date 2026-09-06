@@ -14,6 +14,13 @@ original.
 | **E** | atribuição sem texto: a técnica leva o nome de quem não a escreveu, ou vem de anedota | que é **atribuição**, e que não há texto do autor que a descreva |
 | **F** | sem origem localizável | **não entra**: não há ficha honesta possível |
 
+**Emenda da M9 — ficção.** Um romance, um conto ou uma peça é **grau A de forma**
+(obra, autor, ano, lida na íntegra) e **o grau mais fraco que existe de
+conteúdo**: é uma personagem inventada fazendo o que a autora escreveu que ela
+fizesse. A ficção **obriga uma linha a mais** — *"é ficção; dá o critério e o
+nome, e não estabelece nada"*. É fonte legítima de critério e de nome, e de nada
+além disso.
+
 Grau baixo não reprova. **Fragilidade dita é honestidade; fragilidade escondida
 é motivo de corte.** No catálogo, Feynman (grau E) e Dia (grau E) passam porque
 declaram exatamente o que são.

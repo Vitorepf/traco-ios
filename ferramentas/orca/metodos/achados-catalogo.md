@@ -1,6 +1,6 @@
 # Achados do catálogo — contrato de colagem e pedidos de app
 
-Trilha Métodos · M1 a M9 · reorganizado em 06/09/2026.
+Trilha Métodos · M1 a M10 · reorganizado em 06/09/2026.
 
 > **Reorganizado na volta M5.** Nada do contrato mudou de conteúdo: a regra de
 > ordem, o conserto do Se–então e as provas exigidas continuam com as mesmas
@@ -32,16 +32,20 @@ Trilha Métodos · M1 a M9 · reorganizado em 06/09/2026.
 | O combinado, O ponto que decide | M5 | **aceitos** (leva 2) |
 | O que se repetiu | M6 | **aceito** (leva 2) |
 | A regra que eu faço, A reparação | M7 | **aceitos** (leva 2) |
-| Ver antes de nomear, O que não está lá | M9 | **propostos**, gosto não decidido — os dois de **grau A** |
-| Matriz de Eisenhower, Cerca de Chesterton, Considerar o oposto, Critérios de parada, Sanduíche de feedback, Afirmações positivas, Revisão anual, Carta ao eu do futuro, Teste do jornal de amanhã, Regra de ouro, Escada de inferência, Observação sem avaliação | M1–M9 | **rejeitados**, com ficha e motivo |
+| Ver antes de nomear, O que não está lá | M9 | **aceitos**, entram numa leva seguinte |
+| Está bom? | M10 | **proposto**, gosto não decidido — **grau A** |
+| Matriz de Eisenhower, Cerca de Chesterton, Considerar o oposto, Critérios de parada, Sanduíche de feedback, Afirmações positivas, Revisão anual, Carta ao eu do futuro, Teste do jornal de amanhã, Regra de ouro, Escada de inferência, Observação sem avaliação, Matar os queridinhos, ESTEIRA como método | M1–M10 | **rejeitados**, com ficha e motivo |
 
-Dezessete propostos, **doze rejeitados**, sete na leva 1 (com a M3), oito na
-[leva 2](leva-2.md) e dois esperando gosto.
+Dezoito propostos, **doze rejeitados**, sete na leva 1 (com a M3), oito na
+[leva 2](leva-2.md) e três esperando leva (Ver antes de nomear, O que não está lá,
+Está bom?).
 
 **O mapa das faculdades está em
 [`o-que-falta-no-catalogo.md`](o-que-falta-no-catalogo.md)** — o que a coleção
-cobre bem, o que cobre por acidente, onde o autor fica na mão, e os três tetos de
-crescimento (o primeiro deles já estourado, no código).
+cobre bem, o que cobre por acidente, onde o autor fica na mão, os três tetos de
+crescimento (o primeiro deles já estourado, no código) e, desde a M10, **o que
+fazer com as três coberturas por acidente**, incluindo o que teria de existir
+antes de a Expressiva sair do catálogo.
 
 **Os oito da leva 2 estão empacotados para colar em [`leva-2.md`](leva-2.md)** —
 JSON final, grau declarado, encadeamentos e frases de teste. Quem colar não
