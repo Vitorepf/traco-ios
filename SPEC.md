@@ -2867,3 +2867,74 @@ de `g4-v16-perfil-quadros-depois.png` — 8 quadros (267 ms) normal, 5 (167 ms)
 sob Reduzir Movimento, os mesmos números da Lente. **Fora:** proveniência
 no prompt da sábia, aviso ao autor quando um método some, edição da
 proveniência pela tela.
+
+## ADR 2026-09-06e — Sete métodos novos, e a ordem do arquivo como proteção
+
+**A distância.** O catálogo tinha 21 métodos e três faculdades vazias
+(simplificação, direção, consequência). A trilha Métodos levantou doze
+candidatos com fonte primária, rejeitou seis por duplicação, e mediu uma coisa
+que não é intuitiva: **onde um método é colado muda o que o autor recebe.**
+`AnaliseLocal.detectarGesto` percorre o catálogo **na ordem do arquivo** e vence
+o primeiro cuja regex casa. Ordem é comportamento, não arrumação.
+
+**A decisão.** Os sete aprovados entram **no FIM** do `Metodos.json`, nesta
+ordem: Subtração, Coluna da esquerda, Classe de referência, Cinco porquês (M1),
+A pergunta de Hamming, O que se vê e o que não se vê, Exame da noite (M2).
+
+Colados **antes da Especificação**, a Coluna da esquerda passa a roubar o
+desabafo da Expressiva — medido nesta volta com o catálogo inteiro montado:
+
+```
+os 7 no FIM               -> 0 desvio em 74 frases
+os 7 antes da Especificação -> colunaEsquerda «na reunião com o chefe eu senti
+                               uma raiva enorme, doeu ficar ali, fiquei calado
+                               o tempo todo e chorei depois no corredor…»
+```
+
+A escrita pessoal é protegida **pela ordem do arquivo**, e por nada mais: não há
+guarda em código que salve se a ordem mudar. Daí a regra permanente: **nenhum
+método cuja regex mencione conversa, silêncio, arrependimento ou sentimento
+entra antes da Expressiva.** `oDesabafoLongoContinuaExpressivo` cai se alguém
+mover um dos sete para cima dela.
+
+**No mesmo passo, o conserto do Se–então.** `sempre que|toda vez|não consigo
+parar` sem `\b` casava DENTRO de "sempre quebra", "sempre queria", "sempre
+quero" — e o Se–então levava a frase de quem ela era. Com `\b`:
+
+```
+seEntao -> cincoPorques    «sempre quebra no mesmo ponto, qual é a causa»
+seEntao -> colunaEsquerda  «sempre queria ter dito o que pensei»
+seEntao -> seEntao         «sempre que abro o telefone na cama eu perco uma hora»
+```
+
+**Guarda de dado contra botão morto.** `Sessao.encadear` sai em silêncio quando
+o destino não está no catálogo, mas `CamposFormaView` desenha o botão do mesmo
+jeito: destino inexistente = botão que acende e não faz nada. Nenhum
+encadeamento colado aponta para id inexistente, e
+`nenhumEncadeamentoApontaParaMetodoInexistente` trava sobre `Catalogo.todos`.
+A correção da tela (não acender) é outra volta.
+
+**Três frases de honestidade nos 21 antigos.** A régua da proveniência
+(trilha Métodos) achou três fichas com grau de origem declarado acima do real —
+obra real citada ao lado de procedimento que não está nela. Nenhuma sai; as três
+passam a dizer o que a fonte não contém: a **Decisão** ("prática atribuída a
+Daniel Kahneman, sem texto dele que a descreva"; o artigo de 2009 é evidência
+vizinha, não a origem), os **Primeiros princípios** ("Aristóteles não propõe
+este exercício; o Traço toma dele a noção de princípio e monta o resto") e a
+**Inversão** ("sem transcrição de referência localizada", e a frase de Jacobi
+marcada como atribuição). Fragilidade dita é honestidade.
+
+**O que fica de fora, e é dito.** Cinco desvios de roteamento que já existiam
+antes desta volta continuam de pé, e são de uma volta de roteamento própria:
+`(?m)^quero` do WOOP engole Pré-mortem, Feynman, Primeiros princípios e Prática
+deliberada; `ideia` da Nota permanente engole Destilar. Um sexto, achado aqui:
+`\bo dia de hoje\b` do Dia engole `\bolhando o dia de hoje\b` do Exame da noite
+— a mesma família (regex larga e cedo comendo regex específica e tarde), sem
+efeito novo, porque a frase já ia para o Dia antes.
+
+**A prova.** Suíte integral verde no iPhone 17 Pro Max (723 testes, 125 suítes),
+build sem aviso, e no app o Perfil diz "28 do app" com a proveniência dos novos
+abrindo (`maestro/metodos-m3.yaml`). **Fora:** os três da M4, a correção da UI
+do botão sem destino, os cinco desvios do WOOP e da Nota permanente, e os
+pedidos de app que a forma livre levantou (campo repetível, compromisso
+recorrente, campo emparelhado, Classe de referência lendo o corpus).

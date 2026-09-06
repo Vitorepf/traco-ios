@@ -5,15 +5,19 @@ import Testing
 /// ADR 2026-09-04l: o catálogo é dado. Se o JSON do bundle quebrar, TODA nota
 /// perde os campos — este é o teste que grita antes do autor.
 @Suite(.serialized) struct CatalogoTests {
-    @Test func oBundleTemOsVinteEUmMetodos() {
+    @Test func oBundleTemOsVinteEOitoMetodos() {
         let ids = Catalogo.doApp.map(\.id)
-        #expect(ids.count == 21)
+        #expect(ids.count == 28)
         for esperado in ["woop", "seEntao", "spec", "notaPermanente", "destaque", "expressiva", "destilar",
                          "palavra", "decisao", "premortem", "argumento", "leitura", "feynman", "dia",
                          "analogia", "inversao", "steelman", "divergencia", "primeirosPrincipios",
                          "praticaDeliberada", "atualizacao"] {
             #expect(ids.contains(esperado), "falta \(esperado)")
         }
+        // ADR 2026-09-06e: os sete da trilha Métodos entram no FIM, e a POSIÇÃO é
+        // comportamento — o roteador para no primeiro que casa.
+        #expect(Array(ids.suffix(7)) == ["subtracao", "colunaEsquerda", "classeDeReferencia", "cincoPorques",
+                                         "perguntaHamming", "vistoNaoVisto", "exameDaNoite"])
     }
 
     @Test func osDezDeOrigemMantemOsCampos() {
@@ -163,10 +167,10 @@ import Testing
         #expect(Catalogo.metodo("inversao")?.encadeamentos.first?.para == "premortem")
     }
 
-    /// ADR 05x: os 21 dizem de onde vêm, com função válida (prática, lente
+    /// ADR 05x: todo método do app diz de onde vem, com função válida (prática, lente
     /// ou evidência) e sem campo vazio — "sem evidência específica conhecida"
     /// é resposta; silêncio não é.
-    @Test func osVinteEUmTemProveniencia() throws {
+    @Test func todoMetodoDoAppTemProveniencia() throws {
         for m in Catalogo.doApp {
             let p = try #require(m.proveniencia, Comment(rawValue: m.id))
             #expect(p.funcao != nil, Comment(rawValue: m.id))
@@ -225,6 +229,96 @@ import Testing
         #expect(sumiu.campos.isEmpty)
         #expect(Gesto.woop.estadoDoMetodo == nil)
         #expect(Gesto.woop.metodoDef.proveniencia?.funcao == .evidencia)
+    }
+
+    /// ADR 2026-09-06e: "sempre que" sem `\b` casava DENTRO de "sempre quebra",
+    /// "sempre queria", "sempre quero" — e o Se–então roubava a frase de quem
+    /// ela era. Estas três casavam errado antes do `\b`; agora não casam.
+    @Test func oSeEntaoNaoCasaDentroDeOutraPalavra() {
+        func id(_ t: String) -> String? {
+            if case let .gesto(g, _) = AnaliseLocal.classificar(texto: t, gestoAtual: nil, campos: [:]) { return g.rawValue }
+            return nil
+        }
+        #expect(id("sempre quebra no mesmo ponto, qual é a causa") == "cincoPorques")
+        #expect(id("sempre queria ter dito o que pensei") == "colunaEsquerda")
+        // e o Se–então continua pegando o que sempre foi dele
+        #expect(id("sempre que abro o telefone na cama eu perco uma hora") == "seEntao")
+        #expect(id("toda vez que sento para escrever eu abro o navegador") == "seEntao")
+        #expect(id("não consigo parar de conferir o e-mail no meio da escrita") == "seEntao")
+    }
+
+    /// ADR 2026-09-06e: os sete novos roteiam para si mesmos com a frase do autor.
+    @Test func osSeteNovosRoteiamParaSiMesmos() {
+        func id(_ t: String) -> String? {
+            if case let .gesto(g, _) = AnaliseLocal.classificar(texto: t, gestoAtual: nil, campos: [:]) { return g.rawValue }
+            return nil
+        }
+        let casos: [(String, String)] = [
+            ("subtracao", "preciso simplificar o fecho da volta, virou um monstro"),
+            ("subtracao", "o roteiro está complicado demais, o que eu tiro dele"),
+            ("colunaEsquerda", "fiquei calado e devia ter falado sobre o prazo"),
+            ("colunaEsquerda", "não disse o que pensei na conversa de ontem"),
+            ("classeDeReferencia", "quanto tempo vai levar para eu terminar isso"),
+            ("classeDeReferencia", "acho que termino em três dias, mas nunca acerto"),
+            ("cincoPorques", "por que isso aconteceu, quero a causa raiz"),
+            ("cincoPorques", "o build quebrou de novo, qual foi a causa"),
+            ("perguntaHamming", "quais são os problemas importantes do meu campo"),
+            ("perguntaHamming", "no que eu deveria estar trabalhando este ano"),
+            ("vistoNaoVisto", "qual é o custo de oportunidade de tocar esta frente agora"),
+            ("vistoNaoVisto", "em troca de quê eu estou fazendo isso"),
+            ("exameDaNoite", "perdi a paciência na reunião e me arrependi"),
+            ("exameDaNoite", "fui injusto com o time hoje de manhã"),
+        ]
+        for (esperado, frase) in casos {
+            #expect(id(frase) == esperado, Comment(rawValue: "«\(frase)» foi para \(id(frase) ?? "nada")"))
+        }
+        // e nenhum deles rouba os 21 antigos
+        #expect(id("vou construir uma função para simplificar o cadastro") == "spec")
+        #expect(id("hoje eu preciso fechar a volta e responder o dono") == "dia")
+        #expect(id("preciso decidir entre ficar no emprego e abrir a empresa") == "decisao")
+        #expect(id("como garantir que falhe: eu deixaria o método sem origem") == "inversao")
+        #expect(id("quais são as suposições que eu herdei sobre notas") == "primeirosPrincipios")
+    }
+
+    /// A PROTEÇÃO da escrita pessoal, e ela é a ORDEM DO ARQUIVO — não há
+    /// guarda em código. A Coluna da esquerda casa neste desabafo por duas
+    /// regex (`fiquei calad[oa]`, `na reunião com`) e só não o rouba porque a
+    /// Expressiva vem antes. O Exame da noite casa por "me arrependi". Se
+    /// alguém mover um dos sete para cima da Expressiva, este teste cai.
+    @Test func oDesabafoLongoContinuaExpressivo() {
+        let desabafo = """
+            na reunião com o chefe eu senti uma raiva enorme, doeu ficar ali, fiquei calado o tempo todo \
+            e chorei depois no corredor, foi pesado demais para mim
+            """
+        #expect(desabafo.count > 120)
+        #expect(AnaliseLocal.classificar(texto: desabafo, gestoAtual: nil, campos: [:]) == .expressiva)
+
+        let arrependido = """
+            perdi a paciência com o time hoje e me arrependi na hora, senti uma raiva que não passou o dia \
+            inteiro, doeu ver a cara deles e chorei sozinho depois
+            """
+        #expect(AnaliseLocal.classificar(texto: arrependido, gestoAtual: nil, campos: [:]) == .expressiva)
+
+        // a posição no arquivo é o que segura: os sete estão DEPOIS da Expressiva
+        let ids = Catalogo.doApp.map(\.id)
+        let expressiva = ids.firstIndex(of: "expressiva") ?? .max
+        for novo in ["subtracao", "colunaEsquerda", "classeDeReferencia", "cincoPorques",
+                     "perguntaHamming", "vistoNaoVisto", "exameDaNoite"] {
+            #expect((ids.firstIndex(of: novo) ?? -1) > expressiva, Comment(rawValue: "\(novo) subiu acima da Expressiva"))
+        }
+    }
+
+    /// `Sessao.encadear` sai em silêncio quando o destino não está no catálogo,
+    /// mas a view desenha o botão do mesmo jeito: destino inexistente = botão
+    /// que acende e não faz nada. Guarda de dado — a correção da view é outra
+    /// volta.
+    @Test func nenhumEncadeamentoApontaParaMetodoInexistente() {
+        for m in Catalogo.todos {
+            for e in m.encadeamentos {
+                guard let para = e.para else { continue }
+                #expect(Catalogo.metodo(para) != nil, Comment(rawValue: "\(m.id) → \(para): botão morto"))
+            }
+        }
     }
 
     @Test func aPastaDoAutorEntraEOInvalidoEDito() throws {
