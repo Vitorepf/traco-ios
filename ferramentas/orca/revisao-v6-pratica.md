@@ -254,3 +254,100 @@ antes de guardar), `v6-feedback.png` (estado do feedback — ver nota ao fim),
 | Instalação no aparelho do dono | Reinstalada duas vezes: entre a minha primeira instalação (18:28) e a primeira captura, OUTRO processo instalou um build sem a V6 (container mudou, `Traço.debug.dylib` sem `pratica-objetivo`). Reinstalei e conferi md5 `155a4f78…` antes de cada captura |
 | Simulador de teste ao fim | Desliguei o 6033B043 às 18:28 depois da minha suíte; às 18:43 outro worker o religou e rodou `xcodebuild test` nele. Não desligo simulador que não liguei: fica como o outro worker deixou |
 | Estado deixado no aparelho do dono | Um Trabalho de teste "Praticar espanhol sozinho, do zero" com 2 versões, 1 hipótese (texto com resíduo de digitação do fluxo) e 1 tentativa. Sem `clearState`; nada apagado. O dono pode descartá-lo |
+
+---
+
+# Re-G3 — depois das correções (ad99974), 06/09/2026
+
+Revisor: Claude Fable 5.1, sessão independente, 02:55–03:20 de 06/09/2026.
+Diff conferido: `f1d167a..ad99974` (29 arquivos; código 5 arquivos,
++334/−117). Base main 41b2605; main hoje **2229031** (o G0 dizia 7c8a2e4; o
+2229031 é só o LACO em cima dele). Nada editado além desta seção e das
+capturas `v6-reg3-*.png`; nada commitado.
+
+## Veredito: CORRIGIR ANTES — lista mínima de 1 item (cabe na rebase), depois INTEGRAR → rebase → G4
+
+Os três itens do G3 anterior estão fechados com teste e captura (P1, P2-B,
+P2-C), o painel encolheu de verdade e a ADR passou a dizer o que o código
+faz. O que fica abaixo de 9 é UM contrato anterior que a limpeza do P2-B
+levou junto sem nomear:
+
+1. **P2-H — Em `delegar`, a hipótese sumiu da tela.** O bloco antigo "Apoio
+   para a próxima tentativa" era o ÚNICO caminho para propor, confirmar ou
+   contestar uma dificuldade num Trabalho com apoio `delegar` (o padrão). Ele
+   saiu (correto, P2-B) e o substituto `dificuldade(o)` só é chamado dentro de
+   `praticar(o)`, que exige `apoio != .delegar` (`TrabalhoView.swift:200-227`).
+   Resultado: Trabalho delegado não registra dificuldade, e as hipóteses que
+   já existem nele (V4/V5, ADR 05i "hipóteses de capacidade corrigíveis";
+   "contestação participa do próximo pedido"; "delegar/praticar/combinar é
+   escolha contextual sem penalidade") ficam invisíveis e incorrigíveis —
+   `MotorTrabalhoContextoTests` prova que a contestada muda o pedido, mas em
+   delegar ninguém consegue contestar. A ADR 05r não nomeia essa perda no
+   **Fora**. Correção mínima (uma das duas): (a) chamar `dificuldade(o)` também
+   em delegar (tirar a chamada de dentro do `if apoio != .delegar`, ~3 linhas,
+   1 teste de tela ou captura em delegar); ou (b) decidir que dificuldade é só
+   de prática e escrever isso no Fora da 05r, com o que acontece às hipóteses
+   já gravadas em Trabalhos delegados. Recomendo (a): é menor que a prosa e
+   não regride a 05i.
+
+## Confirmações item a item (o que o G0 pediu)
+
+| Pedido | Resultado | Evidência |
+|---|---|---|
+| P1: preparação recusada → nenhum artefato `.ia`, pedido `praticaIndisponivel`, campo de tentativa disponível | ✅ `MotorTrabalho.produzir` lança `praticaIndisponivel` quando `prepararPratica` devolve nil; nunca chega ao `pedido(d, p, teto:)` da delegação; `gerar` marca o pedido, `erro` fica nil | teste `preparacaoRecusadaNaoCaiNaProducaoDelegadaETentativaContinuaPossivel` (artefatos vazios, `pedidos.last?.estado == .praticaIndisponivel`, tentativa com `artefatoID == nil`, ação "Praticar por conta própria" pendente, `conferirTentativa == nil`); captura `v6-fix-preparacao-indisponivel.png` (linha vermelha + campo "Minha tentativa"); `praticaIndisponivelSobreviveAoDiscoENaoBloqueiaNovoPedido` |
+| P2-B: hipóteses uma vez, sempre com `propostaPor` | ✅ bloco antigo removido de `retorno(o)`; único caminho `proporHipotese(texto, propostaPor: "Você")`; `estado(_:)` em palavras | teste `dificuldadePropostaPelaTelaTemAutoriaESemEvidenciasInventadas`; captura `v6-fix-tentativa-guardada-2.png` ("Proposta por Você · ainda não avaliada", uma lista só). Ver P2-H para o efeito colateral |
+| P2-C: sem conta nenhum botão de IA e UMA linha; com conta, ambos | ✅ no motor (`prepararPratica`/`conferirTentativa` com `contaLigada`) e na tela (`oferta(contaLigada:)`; `producao(o)` e "Revisar com estes relatos" somem em prática sem conta) | testes `semContaGrokAPreparacaoDePraticaNaoUsaOAparelho`, `semContaGrokOFeedbackFicaIndisponivelSemLerATentativa`; capturas `v6-fix-sem-conta*.png` (uma linha, sem "Preparar", Praticar → Editar com outras ferramentas → Próximo ato), `v6-fix-tentativa-com-conta-2.png` ("Conferir minha tentativa" + "Nova tentativa"); minha `v6-reg3-sem-conta.png` |
+| Painel: exercício/tentativa/hipóteses uma vez; ordem objetivo→material→tentativa→feedback→dificuldade | ✅ `praticar(o)`: objetivo, (delimitação), material ou linha, `tentativas(...)` (feedback dentro), `dificuldade(o)`; versão com prática mostra "O exercício está na seção Praticar, acima."; "O que aconteceu" filtra `tentativa == nil` | contagem por `grep` em TrabalhoView: `campo(` 14→13, `Button(` 36→34 (o relato diz 13→12: conta sem a definição da função; a variação é a mesma); capturas `v6-fix-tentativa-guardada-3.png` (Versão 1 sem Markdown) |
+| P3-D teto no fallback | ✅ `naoCoube(Sabia.tetoNoAparelho)` depois do Grok falhar | leitura; sem teste (declarado no relato; caminho exige Grok ligado e falhando) |
+| P3-E mensagem | ✅ "repete o exemplo ou passa do teto" | teste ajustado `observacaoQueTrazSolucao…` |
+| P3-F origem externa | ✅ no Fora da 05r | diff SPEC |
+| P3-G warnings | ✅ zerados; restam 3 pré-existentes (EditorBlocoView:270 no app; ConferenciaTrabalhoTests:381 ×2 no alvo de teste) | log da minha suíte |
+| P3 rawValue, "Preparado por", situação repetida, autocorreção | ✅ | diff da tela; captura `v6-fix-tentativa-guardada.png` ("Preparado por Fake controlado…"); na minha `v6-reg3-tentativa-guardada.png` o texto em espanhol não é sublinhado pelo corretor |
+| ADR 05r diz a verdade | ✅ "material bruto" saiu; parágrafo "A decisão da volta 6" nomeia (b), P1, o que foi provado na tela e o que o aparelho fez em 3/3; Custo e Fora coerentes. ⚠️ falta o P2-H no Fora (ou a correção) | diff SPEC |
+| EVOLUCAO 14 honesta | ✅ mantém "**NÃO estão demonstrados**", diz "o único provedor oferecido está sem prova real", 664/0 literal | diff EVOLUCAO |
+| Privacidade: tentativa/feedback/rascunho com origem protegida | ✅ `alterar` e `conferirTentativa` revalidam; `abrir()` só carrega os rascunhos do UserDefaults com `acesso.permitido`; o corpo inteiro vira "Trabalho protegido" | teste `acessoNegadoNaoLeENaoChamaOProvedor` (guardar recusado, provedor 0 chamadas, JSON intacto); `TrabalhoView.swift:39`, `:828-831` |
+
+## Prova (meu instrumento: iPhone 17 Pro Max 6033B043, ligado por mim às 02:56, desligado ao fim; Dynamic Type restaurado para `large`)
+
+| Item | Resultado |
+|---|---|
+| `xcodebuild clean build` (com-trava) | `** BUILD SUCCEEDED **`; **1 warning**, pré-existente: `Traco/Caderno/EditorBlocoView.swift:270` |
+| `xcodebuild test` integral (com-trava) | **`✔ Test run with 664 tests in 122 suites passed after 6.857 seconds.`** / `** TEST SUCCEEDED **`; 2 warnings no alvo de teste, pré-existentes (`ConferenciaTrabalhoTests.swift:381`) |
+| `xcodegen generate` | pbxproj idêntico ao commitado |
+| Maestro | `varrer.sh` não roda (2 simuladores ligados: o do dono e o meu; não desligo o do dono). Nenhum flow do repositório toca a seção Praticar (`grep pratica- maestro/` vazio); o único de Trabalho, `trabalho-acao-aviso.yaml`, usa "Próximo ato", não alterado. Rodei 3 flows próprios com `--device` no meu UDID, `clearState`, dados de teste: criar Trabalho → apoio "Praticar com apoio" → seção sem conta; escrever e guardar tentativa; matar e reabrir o app até o Trabalho |
+| Capturas minhas | `v6-reg3-sem-conta.png` (uma linha, campos, dificuldade, sem botão de IA); `v6-reg3-tentativa-guardada.png` ("Tentativas (1)", texto íntegro, "Apoio usado: nenhum, escrevi de cabeça", só "Nova tentativa"); `v6-reg3-reaberto.png` (após stop/launch, a tentativa continua); `v6-reg3-ax3.png` e `v6-reg3-ax3-2.png` (accessibility-extra-large, sem clipe, tentativa legível) |
+| Capturas do implementador (conteúdo lido, 14) | batem com o relato. Dois reparos: `v6-fix-tentativa-com-conta.png` é o MESMO arquivo de `v6-fix-tentativa-guardada.png` (md5 `2a5c68e9…`, cartão do exercício; a prova do "com conta" está só na `-2`); `v6-fix-preparacao-indisponivel-2.png` mostra o campo "O que você quer que a IA prepare ou ajuste?" com placeholder "Prepare uma apresentação curta" sob o título "Preparar um exercício" — o código commitado diz "O que você quer praticar?" / "Quero praticar me apresentar em espanhol": captura de build intermediário, anterior ao último P3 |
+| `git merge-tree --write-tree main HEAD` | **CONFLITO em `EVOLUCAO.md` e `SPEC.md`**; `project.pbxproj` auto-mescla; nenhum arquivo de código em conflito (main não tocou `Traco/Trabalho/*` desde 41b2605). EVOLUCAO: um hunk de 3 linhas da tabela — a linha "Desenvolvimento de capacidades" é da V6, "Direção visual" ganhou ADR05t em main; manter as duas versões linha a linha. SPEC: um hunk no fim — main anexou 05s/05t/05u onde a V6 anexa 05r; manter 05r **e** 05s/05t/05u em ordem. A rebase precede o G4 |
+
+## Scorecard (ESTEIRA.md, mínimo 9)
+
+| dimensão | nota | evidência |
+|---|---|---|
+| Visão | 9 | ciclo melhorar; fecha parte da lacuna "Desenvolvimento de capacidades relevantes" e deixa o "NÃO demonstrado" onde ainda é verdade (diff EVOLUCAO linha 14) |
+| Contrato | **8** | ADR 05r, SPEC e EVOLUCAO coerentes com o código para P1, (b), P3-F; **P2-H**: perda da hipótese em `delegar` (05i) sem nome no Fora nem decisão |
+| Correção | 9 | 664/122/0 literal; 6 testes novos por efeito observável; P3-D só por leitura (declarado); nenhum flow maestro tocado |
+| Jornada real | 9 | sem conta, prática indisponível, tentativa (sem/com exercício), guardada, reaberta, AX3 vistos e lidos; feedback n/a com motivo (sem conta em simulador); dois reparos de captura acima, nenhum muda o veredito |
+| Design | n/a | G4 é portão próprio e ainda não rodou (segue a rebase). Do que dá para julgar no G3: só tokens de `Tema`, "Preparado por <produtor>" no cartão, situação duplicada omitida, `AcaoTrabalhoStyle`; o rodapé com N recusas iguais continua (P3, herdado) |
+| Simplicidade | 9 | `campo(` 14→13, `Button(` 36→34, 3 duplicatas fora, 0 botões de IA sem conta, 1 linha de recusa; a tela lê de cima para baixo; "Retomar esse pedido" e "Escrever minha própria versão" continuam encontráveis |
+| Movimento | n/a | 0 ocorrências de animação/transição no diff da volta (grep) |
+| Componentes | n/a | não há `Traco/Componentes` no repositório ainda (fundação prevista na ESTEIRA); a volta não cria componente reutilizável, só funções privadas da tela |
+| Acessibilidade | 9 | ids `pratica-*` mantidos + `pratica-preparacao-indisponivel`; AX3 sem clipe em 5 capturas (3 do implementador, 2 minhas); alvos são botões de texto do sistema; VoiceOver real não passado (humano) |
+| Performance | n/a | nenhuma lista, editor ou parser novo; a seção entra na `ScrollView` existente; nada mede pior por leitura |
+| Privacidade e autoria | 9 | `alterar`/`conferirTentativa`/`abrir()` revalidam; rascunhos não carregam sem acesso; hipótese sempre com `propostaPor`; tentativa `.pessoa`; sem conta o motor não lê nada (teste); nada envia sem toque |
+| Estado honesto | 9 | `praticaIndisponivel` persistente no pedido (não linha transiente), sobrevive ao disco; "Preparado por"; P3-I abaixo (botão some sem linha) não esconde falha, só omite o porquê |
+| Complexidade | 9 | correções: +334/−117 em 5 arquivos, líquido +217, dos quais +141 são testes; volta inteira vs base: código +988/−49 em 4 arquivos (PraticaTrabalho.swift +350 novo), testes +764, docs +110/−1 — proporcional a modelo + motor + parser + tela novos; nenhuma dependência nova; `TrabalhoView` 687→931 linhas é o ponto a vigiar no G4 |
+| Fora do app | n/a | a volta não toca widget, Ilha, StandBy nem intents (`git diff --stat` só em Traco/Trabalho) |
+| Relato | 9 | `relatorio-v6-fix-pratica.md` com linhas literais, hash, contagem antes/depois e limites declarados; único desvio: 13→12 campos (grep dá 14→13, mesma variação) |
+
+## Achados por severidade
+
+- **P2-H** (Contrato) — hipótese invisível e incorrigível em `delegar`; ver lista mínima.
+- **P3-I** (Estado honesto/Design) — exercício preparado e conta desligada depois: "Conferir minha tentativa" some sem linha nenhuma (`botaoDoFeedback` cai em `botaoNovaTentativa`), enquanto o cartão da versão (V5) mostra "Revisão pela IA precisa da conta Grok…". Uma linha `oferta(...)` ali fecha.
+- **P3-J** (texto) — `preparacaoIndisponivel` diz "não ficou disponível neste aparelho" também quando a conta existe e o Grok não validou/não respondeu.
+- **P3-K** (dados na tela) — tentativas guardadas em `praticar` ficam invisíveis se a pessoa muda o apoio para `delegar` (antes apareciam em "O que aconteceu"); os dados persistem.
+- **P3-L** (evidência) — as duas capturas apontadas acima (arquivo duplicado; build intermediário).
+- **P3** herdado — rodapé com N recusas iguais não condensado (declarado no relato).
+
+## Instrumento
+
+Tudo via `com-trava.sh`. Simulador 6033B043 ligado por mim às 02:56, Dynamic Type `large` → `accessibility-extra-large` → `large` (conferido), desligado às 03:20. iPhone 17 do dono (1A46B6D3, Booted) não tocado. Nenhum arquivo de código editado; nada commitado; esta seção e `v6-reg3-*.png` ficam untracked/modificado para o orquestrador.
