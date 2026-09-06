@@ -2815,3 +2815,55 @@ em `ForaDoAppTests` (rota guardada sem ninguém ouvir e consumida uma vez; alvo
 errado recusa sem rota; falha do Anotar não deposita); suíte 715/125 sobre a V10; dois alvos
 sem aviso; capturas no iPhone Air. **Fora (F3b):** ditado próprio — áudio
 salvo primeiro, transcrito depois, falha preserva o áudio — por `.captura`.
+
+## ADR 2026-09-05x — De onde vem cada método
+
+**A distância.** O catálogo trazia só a origem nominal ("Gabriele Oettingen",
+"engenharia"), e a VISAO pede que se distinga prática, lente e estudo com
+evidência delimitada — beleza, tradição, nome técnico ou citação não certificam
+eficácia. A eficácia era presumida pelo nome. E o método que saiu da pasta do
+autor (ADR 05o) conservava a nota, mas em silêncio: a tela não dizia nada.
+
+**A decisão.** Cada método ganha o campo aditivo `proveniencia` no
+`Metodos.json`: `fonte` (obra, autor, ano ou tradição), `funcao` (`pratica` |
+`lente` | `evidencia`), `adaptacao` (o que o Traço mudou), `evidencia` (o que
+se sabe do uso proposto — "sem evidência específica conhecida" é resposta
+válida e aparece onde não há estudo) e `aplicabilidade` (para quê serve e não
+serve). Tudo opcional: JSON antigo e método do autor sem o campo decodificam;
+função desconhecida vira "não informada" sem derrubar o método. A Lente abre
+com a seção da forma da nota e a linha "De onde vem", recolhida; um toque
+mostra as cinco linhas. A lista de métodos do Perfil traz a mesma proveniência
+por método: a linha do método é o toque (alvo 44 no toque, não numa linha a
+mais; seta que gira), um aberto por vez; abrir e fechar nas duas telas passam
+pela lei única da ADR 05v — `Tema.animacao(.easeOut(duration: .media), reduzido:)`
+e `Tema.transicao(.opacity, reduzido:)` no bloco. Na Lente a lei entra por
+`withAnimation` no toque; no Perfil, por `.animation(_:value:)` na folha, porque
+`withAnimation` disparado na tela que apresenta não atravessa a fronteira do
+`.sheet` (medido: 1 quadro contra 8); a seta é a mesma nas duas telas
+(`caption2` + `tintaSuave`); método do autor diz "a que você
+escreveu" ou "não informada". As cinco linhas são um componente só,
+`LinhasDeProveniencia` (Traco/Componentes), nas duas telas. Nota cujo método
+saiu da pasta mostra na Lente "o método X saiu da sua pasta; os campos
+continuam na nota" em `tintaSuave` — estado, não erro nem bloqueio (ADR 04a);
+`aviso` fica para o que falhou. Nenhum selo, cor ou nota de eficácia:
+informação onde havia silêncio. Os 21 foram preenchidos
+com o que a literatura citada sustenta, delimitado ("não medido no Traço");
+onde não há estudo do formato, está escrito.
+
+**Custo assumido:** a proveniência é texto do catálogo, não verificação —
+quem lê julga; a bibliografia dos 21 vive só em `Metodos.json`.
+**Volta:** melhorar. **O que a IA sabe:** nada — a proveniência não viaja no
+prompt. **Prova:** 4 testes novos em `CatalogoTests` (os 21 com função válida
+e sem campo vazio; decode com, sem e com função inválida, e roundtrip; método
+do autor com e sem o campo; estado do método ausente), suíte integral 717
+testes em 125 suítes, 716 passam, 1 falha alheia (`ForaDoAppTests.sonecaRecusada`,
+permissão do simulador, trilha F2) no iPhone 17 Pro Max de teste em 06/09/2026
+sobre main 0d0d007; G3 em `ferramentas/orca/revisao-v16-metodos.md` (INTEGRAR,
+três reparos de texto feitos: expressiva, argumento, decisão); capturas
+`ferramentas/orca/v16-fix-*.png` da Lente recolhida, aberta, com método ausente
+e AX5, e do Perfil compacto, aberto e AX5; movimento do Perfil em
+`ferramentas/orca/g4-v16-perfil.mp4` (normal e Reduzir Movimento) e nos quadros
+de `g4-v16-perfil-quadros-depois.png` — 8 quadros (267 ms) normal, 5 (167 ms)
+sob Reduzir Movimento, os mesmos números da Lente. **Fora:** proveniência
+no prompt da sábia, aviso ao autor quando um método some, edição da
+proveniência pela tela.
