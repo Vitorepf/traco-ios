@@ -428,3 +428,491 @@ errado com 6 ligados — provado por pixel, não conta contra a volta.
 | `g4-v11-ax5-cartao-1.png` / `-2.png` | AX5: os dois cartões com a MESMA cadeia visível |
 | `g4-v11-ax5-duas-saidas.png` | AX5: as duas saídas encostadas, inversão gritante |
 | `g4-v11-importar-livre.png` / `-bloqueado.png` | par no mesmo ponto de rolagem: desabilitado idêntico a habilitado |
+
+---
+
+# Re-G4 — segunda passada sobre `fd43cc8`
+
+Mesmo juiz. Julguei **só** os quatro itens da lista mínima e o que eles mexeram;
+o resto do G4 continua valendo. Nenhuma linha de código alterada, nada commitado.
+
+## O que eu mesmo rodei
+
+| | |
+|---|---|
+| Build | `com-trava.sh xcodebuild … id=C7341E64…` → **BUILD SUCCEEDED**, instalado limpo (uninstall + install) |
+| Instrumento | mão + `xcrun simctl io <MEU UDID> screenshot`. Maestro não entrou em prova nenhuma: cinco simuladores ligados, e a lei que eu mesmo provei no G4 (por dimensão de pixel) continua valendo |
+| Função pura | copiei `recorteDaDiferenca` para um arquivo Swift e rodei sondagens minhas (`swift recorte.swift`) — o mesmo código, fora do SwiftUI |
+| Jornada | **documento LONGO de dez linhas com a diferença na ÚLTIMA**, montado sem digitar prosa à mão: v1 curta → exportada → o `.md` reescrito FORA com as dez linhas → importado (v2) → só a última linha do `.md` trocada no disco → importado outra vez = conflito com **513 caracteres e 9 linhas idênticas** |
+| Modos | movimento normal e Reduzir Movimento, vídeo nos dois; Dynamic Type em AX5 e de volta |
+| Ajustes | restaurados e conferidos ao fim: `content_size large`, `increase_contrast disabled`, `ReduceMotionEnabled 0`. Simulador **desligado**. iPhone 17 `1A46B6D3` do dono: nunca ligado |
+
+O fixture é exatamente o caso que derrubou a volta anterior. Confirmei o prefixo
+comum antes de importar:
+
+```
+prefixo comum: 513 caracteres; linhas iguais: 9
+divergem em: 'quinta, que eu fecho a lista c' vs 'terca, porque a lista do buffe'
+```
+
+Na volta anterior, com `lineLimit(12)` sobre um documento que ocupa ~18 linhas
+visuais, os dois cartões teriam parado na altura de "Vai ter mesa de bolo às 22h"
+— **antes** da linha 10. Dois blocos idênticos. Era o achado.
+
+---
+
+## Item 1 — a comparação ancora na divergência: **RESOLVIDO**
+
+### Na tela, no caso que quebrou
+
+`g4-v11-reg4-conflito-na-divergencia.png` e `g4-v11-reg4-conflito-uma-tela.png`:
+
+```
+NO TRAÇO AGORA · VERSÃO 2
+┌───────────────────────────────────┐
+│ …e depois das 23h                 │
+│ esfria bastante.                  │
+│ Confirmem ate quinta, que eu      │
+│ fecho a lista com o buffet na     │
+│ sexta.                            │
+└───────────────────────────────────┘
+NO ARQUIVO RECEBIDO · SAIU DA VERSÃO 1
+┌───────────────────────────────────┐
+│ …e depois das 23h                 │
+│ esfria bastante.                  │
+│ Confirmem ate terca, porque a     │
+│ lista do buffet fecha na quarta   │
+│ cedo.                             │
+└───────────────────────────────────┘
+As duas começam iguais até a linha 10. Mostro daí em diante, onde elas mudam.
+```
+
+**513 caracteres de prefixo comum viraram duas linhas de contexto**, e a
+divergência aparece na terceira linha visível de cada cartão. O achado do G4 está
+morto no caso em que ele nasceu.
+
+E há um ganho que ninguém pediu: **a decisão inteira agora cabe em uma tela** —
+os dois cartões, a ressalva, a consequência e as duas saídas
+(`g4-v11-reg4-conflito-uma-tela.png`). Antes eram três telas de rolagem.
+
+### Em AX5 (`contexto: 12`)
+
+`g4-v11-reg4-ax5-cartao-1.png` e `-2.png`, capturadas em sequência na mesma rolagem:
+
+```
+NO TRAÇO AGORA · VERSÃO 4      →  "Confirmem ate segunda, que eu passo a list…"
+NO ARQUIVO RECEBIDO · VERSÃO 1 →  "Confirmem ate domingo, que a lista vai para o b…"
+```
+
+Os dois cartões **diferem na terceira palavra**. A minha evidência do G4
+(`g4-v11-ax5-cartao-1.png` / `-2.png`) mostrava a MESMA cadeia, ponto de corte
+incluído. E o conserto não é um caso especial de AX5: é o mesmo mecanismo com
+outra janela.
+
+### A calibragem: 48 e 12 é **calibragem**, e eu verifiquei a regra
+
+Sondei a função real com um documento de dez linhas e com parágrafo único:
+
+| caso | contexto | prefixo comum **no que a tela mostra** | janela visível (aprox.) |
+|---|---|---|---|
+| 10 linhas, diferença na última | 48 | **53 caracteres** | 12 linhas × ~30 ≈ 360 |
+| 10 linhas, diferença na última | 12 | **15 caracteres** | 4 linhas × ~11 ≈ 45 |
+| parágrafo único (486 comuns) | 48 | 55 | 360 |
+| parágrafo único | 12 | 15 | 45 |
+| palavra sólida sem espaço | 48 / 12 | 49 / 13 | — |
+
+A regra por trás dos dois números é uma só e é verificável: **o prefixo comum
+visível tem de ficar bem abaixo da janela**. Com 48 dá ~1:6,8; com 12, ~1:3.
+Os dois vêm da mesma conta aplicada a duas janelas — 48 é cerca de uma linha e
+meia do corpo normal, 12 é cerca de uma linha do corpo AX5. Não é número mágico:
+é o mesmo critério, e a derivação que ele conta (a captura em AX5 mostrando 48
+preenchendo as quatro linhas) é a derivação certa — saiu da tela, não do teclado.
+
+**O que eu registro como calibragem ainda não amarrada:** o recuo até a fronteira
+legível, `min(16, contexto)`, é uma segunda constante que não veio da mesma conta.
+Com `contexto: 12` ela pode dobrar o prefixo visível (12 + 12 = 24 de uma janela
+de ~45, mais da metade) no pior caso, quando há quebra de linha logo no início da
+busca. Medi 15 no caso real, então há folga; mas é o número que aperta primeiro
+se alguém encolher a janela de novo. Vai para o RUMO, não para o mínimo.
+
+### Um conserto silencioso que veio junto
+
+`limitePrevia` (12 000) passou a ser aplicado **depois** da âncora
+(`daDivergencia` corta e só então limita). Antes ele era aplicado a partir do
+começo: uma divergência além do caractere 12 000 era invisível **por construção**,
+mesmo com espaço de sobra. Com 2 MiB de teto no protocolo, isso importava. Não
+estava na minha lista e está certo.
+
+### Os testes
+
+`aComparacaoMostraOndeAsDuasVersoesDiferem` usa 40 linhas iguais com a diferença
+na última e afirma o negativo (`!textoAtual.contains("Linha 1 do plano")`), que é
+o que separa um teste que prova de um teste que passa. Cobre também prefixo curto
+e parágrafo único.
+
+---
+
+## Item 2 — sair da revisão tem desfecho: **RESOLVIDO**
+
+`g4-v11-reg4-manter-fala.png`: toquei "Manter só a versão atual" e a tela diz,
+em `cartao(.campo)` com tinta cheia:
+
+> Nada foi importado. O arquivo continua no seu aparelho e pode ser importado depois.
+
+O histórico ficou em (2): nada foi criado. Na volta anterior essa saída era
+**muda** (`g4-v11-desfecho-manter-mudo.png`). E o conserto foi na causa certa: as
+duas saídas que fechavam a revisão chamavam `preview = nil`, e as duas passaram a
+chamar `manter()`.
+
+---
+
+## Item 3 — a chegada e o desfecho se veem: **RESOLVIDO, e eu medi**
+
+### Chegada
+
+`g4-v11-reg4-chegada-na-tela.png`: o arquivo volta do seletor e o cartão de
+revisão está **no alto da tela**, não abaixo da dobra. Compare com
+`g4-v11-chegada-abaixo-da-dobra.png`, onde nada acima da dobra mudava. O
+`ScrollViewReader` usa o proxy da rolagem que já envolve a tela — não criou
+rolagem nova — e o anúncio "Arquivo recebido. A revisão está abaixo." fala da
+ordem de leitura, que é o que interessa a quem ouve.
+
+### Recolhimento, quadro a quadro, nos dois modos
+
+Diferença de luminância entre quadros consecutivos, amostrada a 30 fps sobre o
+vídeo cru, agrupada em corridas:
+
+**Movimento normal** — corrida de **9 quadros**:
+```
+48.38  27.65  26.10  16.64  16.46  16.91  14.38  7.76  2.08
+```
+
+**Reduzir Movimento** — corrida de **9 quadros**:
+```
+51.49  23.73  26.40  11.09  12.61  8.04  8.84  6.75  2.44
+```
+
+**No build anterior (`aa61951`) eu medi `0.0 / 20.0 / 0.0`** — um quadro, zeros
+nos vizinhos, corte seco. A afirmação do implementador ("nove quadros com subida
+e cauda") **confere**, e eu reproduzi sem usar o número dele.
+
+Os dois modos duram o mesmo (~0,3 s) e isso está **certo**, não errado: sob
+Reduzir Movimento a classe muda (`.move(edge:).combined(with:.opacity)` vira
+`.opacity`; `Mola.camada` vira `fadeReduzido` de 0,15 s), mas quem manda na
+duração nos dois casos é a linha de desfecho, que é `.opacidade` — e a lei de
+`Tema.swift:170-190` diz, com todas as letras, que opacidade **se mantém** sob
+movimento reduzido ("opacidade não enjoa"). O que muda é o tipo de movimento, não
+o relógio. É a lei cumprida.
+
+### Desfecho
+
+`g4-v11-reg4-desfecho-em-cartao.png`: a linha saiu de `Tema.meta`+`tintaSuave`
+solta (6,35:1, igual às duas frases fixas do painel) e virou `cartao(.campo)` com
+`Tema.tinta` (**14,26:1**, sobre um degrau de superfície). Na tela ela é
+inconfundível: as instruções continuam cinza soltas, o desfecho tem cartão. E
+todo desfecho é anunciado. Meu achado (c) do G4 está resolvido.
+
+### A consequência ganhou tinta
+
+`c.consequencia` passou a `Tema.tinta` e a ressalva de truncagem virou linha
+separada. Era o meu achado de hierarquia: "a frase que autoriza o autor a decidir
+é o texto mais fraco do cartão". Agora a garantia de não-perda está em tinta cheia
+e a ressalva, que é de outra natureza, em `tintaSuave`. Duas coisas, duas linhas.
+
+---
+
+## Item 4 — a língua da V18: **METADE ADOTADA. É o meu único achado.**
+
+### O vocabulário bate, e eu conferi contra a V18
+
+Fui ao ramo `Vitorepf/volta-18-trabalho` ler o que a V18 faz, em vez de aceitar a
+descrição:
+
+| | V18 (`TrabalhoView.swift:931-935`) | V11-C (`IntercambioTrabalhoView.swift:122-139`) |
+|---|---|---|
+| ação secundária | `Pilula(titulo, forma: .filtro)` | `Pilula(titulo, forma: .filtro)` |
+| ação principal | `Pilula(…, forma: .larga, selecionada: true)` | `Pilula(…, forma: .larga, selecionada: true)` |
+| desabilitado | não usa `.disabled()` | não usa `.disabled()` |
+| motivo | escrito ao lado **e** no `accessibilityHint` | escrito ao lado **e** no `accessibilityHint` |
+
+`AcaoTrabalhoStyle` **não existe mais** na V18 — conferi por `grep` no arquivo
+dela. E nesta tela nada mais o herda: as três ações são `Pilula` (que aplica
+`.discreto` por dentro) e as duas saídas restantes citam `.compacto`. **Não vai
+haver colisão nem duas gramáticas de componente em main.** A decisão de não
+consertar o estilo estava certa.
+
+### O que NÃO bate, e a V18 é quem escreve a regra
+
+A lei da V18, no comentário dela, tem três partes:
+
+> "…a ação continua inteira, com o alvo de 44 e o contraste que tinha, e **tocar
+> leva ao que falta**: o campo vazio recebe o foco, a edição pendente recebe o
+> foco, o salvamento falho leva à saída no alto da folha… O motivo continua
+> escrito ao lado — e agora também no `accessibilityHint`."
+
+E o limite que ela declara, sozinha, sem ninguém perguntar:
+
+> "`Announcement` é canal do VoiceOver. Quem usa Controle Assistivo **sem**
+> VoiceOver continua sem a fala; **para essa pessoa o que resta é o desvio
+> visível** — o foco e a rolagem até o obstáculo."
+
+A V11-C adotou a cápsula e o anúncio. **Não adotou o desvio visível** — e o
+desvio visível é, pela própria V18, a única coisa que sobra para essa pessoa.
+
+Provei na tela. Com uma edição de versão pendente, toquei "Importar versão de
+arquivo" e comparei os dois quadros pixel a pixel:
+
+```
+pixels diferentes entre antes e depois do toque: 0,032 %
+```
+
+Zero-vírgula-zero-três-por-cento é o dígito do relógio virando.
+`g4-v11-reg4-importar-bloqueado.png` × `g4-v11-reg4-toque-bloqueado-sem-resposta.png`:
+**tocar uma ação bloqueada não muda nada na tela.**
+
+Por que isso é regressão e não só uma lacuna herdada: antes desta volta o controle
+tinha `isEnabled = false`, e o Controle Assistivo e o Acesso Total por Teclado
+**pulavam** o botão. A volta tirou o `.disabled()` — corretamente, porque
+`Pilula` desabilitada mede 1,53:1 — e o varredor agora **pousa** num controle que
+aceita ativação e não faz nada observável. Quem não usa VoiceOver perdeu o único
+sinal que tinha e não ganhou nenhum. Não é gosto meu: é a frase da V18 aplicada à
+tela da V11.
+
+**Não estou pedindo o desvio da V18.** Ele mora em `TrabalhoView` e o dono mandou
+não tocar. Estou pedindo **uma resposta visível ao toque, dentro deste painel** —
+e ela já existe aqui: `anunciar(_:)` põe a linha no `cartao(.campo)` sob
+`Tema.movimento(.opacidade, …)` e anuncia. Uma linha em `acao(...)`: o impedimento
+passa por `anunciar` em vez de só por `Announcement`. Sem tocar na V18, e compõe
+com o desvio dela quando as duas mesclarem.
+
+### Observação que NÃO é achado
+
+A cápsula bloqueada é **visualmente idêntica** à livre — só a frase abaixo as
+separa. É deliberado na V18 ("nada desaparece", o alvo e o contraste que tinha) e
+já passou no G3 dela. Não reabro: consistência entre as duas voltas vale mais que
+a minha preferência, e era exatamente isso que o dono mandou proteger.
+
+### E a inversão do `.compacto`
+
+Sem tocar no `.compacto`, ela sumiu desta tela. A primária virou cápsula **cheia**
+de largura inteira (branco sobre `chipAtivo`, 13,94:1, com área de tinta em vez de
+uma linha de texto) e a secundária continua texto. Em
+`g4-v11-reg4-conflito-uma-tela.png` o olho cai na cápsula, não no "Manter". A
+minha medição do G4 (17,01 contra 6,36) foi superada pela forma, não pela razão de
+contraste. A regra da casa segue como estava e vai para o RUMO, como o dono mandou.
+
+---
+
+## O custo novo que eu medi, e que ninguém levantou
+
+`recorteDaDiferenca` é O(n) sobre o texto inteiro (`commonPrefix` em `Character`,
+mais `comum.count`, mais `comum.reduce` para contar linhas, mais `offsetBy`), e
+roda **duas vezes por avaliação do corpo** do cartão: `descricaoDaBase` chama
+`conflito(p, em:)` no seu `case .baseAntiga where …`, e a View chama
+`conflito(p, em:, contexto:)` cinco linhas abaixo. Nenhuma memoização.
+
+Medi a função real, compilada com `-O`, neste Mac:
+
+| documento | por chamada |
+|---|---|
+| 1 KB | 0,5 ms |
+| 100 KB | **28,9 ms** |
+| 1 MB | 295 ms |
+| 2 MiB (teto do protocolo) | **608 ms** |
+
+Dobre para as duas chamadas; no aparelho é mais lento, não mais rápido. Antes
+desta volta o custo era trivial (`conflito` copiava as strings e a View fazia
+`prefix(12 000)`). **A volta introduziu um custo que escala até o teto do
+protocolo, na thread principal, dentro de `body`.**
+
+Não seguro a volta por isso: um Markdown de trabalho de 100 KB já é longo, e o
+que ele custa (~58 ms por avaliação) incomoda sem quebrar; acima disso é
+território que o produto ainda não tem. Mas é dívida nomeada, e tem dois consertos
+baratos: **não calcular duas vezes** (passar o `Conflito` já computado para
+`descricaoDaBase`, que é onde está metade do custo de graça) e **comparar em
+`utf8` em vez de `Character`**.
+
+---
+
+## Portão do Re-G4
+
+| eixo | G4 | agora | por quê |
+|---|---|---|---|
+| **Design** | 7 | **9** | A comparação faz o que a tela promete, provado no caso que a derrubou e em AX5; a decisão inteira cabe numa tela; as duas saídas têm desfecho; a consequência ganhou tinta e a ressalva virou linha própria. Desconto de 1: tocar ação bloqueada não responde na tela. |
+| **Simplicidade** | 9 | **9** | Nenhuma tela nova, nenhum componente novo, nenhum token novo. `recorteDaDiferenca` é string pura no modelo, com teste, e a View só desenha. O `contexto` como parâmetro é a coisa certa: uma função, duas janelas. |
+| **Movimento** | 7 | **9** | Os dois instantes que eram mudos falam: a chegada vem à tela e é anunciada; o recolhimento é uma corrida de 9 quadros com cauda, contra o quadro único que eu medi antes. Sob Reduzir Movimento a classe muda e a lei de `Tema` é cumprida. |
+| **Componentes** | 8 | **9** | `Pilula`, `cartao(.campo)`, `rotulo()`, `Tema.movimento`/`Mola.camada`, `Tema.tinta` — tudo reusado. E o vocabulário bate com a V18 arquivo a arquivo: `.filtro` para secundária, `.larga`+`selecionada` para principal, nada de `.disabled()`. `AcaoTrabalhoStyle` some na V18 e nada aqui o herda mais. |
+
+### Veredito: **CORRIGIR ANTES** — um item, e é pequeno
+
+Três dos quatro itens do mínimo estão resolvidos com folga, e o primeiro — o que
+importava — está resolvido na causa, no caso exato que eu usei para derrubar a
+volta. O que falta é meia regra da V18, e o conserto cabe em uma linha desta tela.
+
+### Lista mínima (um item)
+
+1. **Tocar uma ação bloqueada tem de responder na tela, não só no VoiceOver.**
+   O impedimento passa por `anunciar(_:)` — que já existe aqui, já põe a linha no
+   `cartao(.campo)` sob `Tema.movimento(.opacidade, …)` e já anuncia — em vez de
+   só por `AccessibilityNotification.Announcement`. Sem tocar em `TrabalhoView`.
+   *Prova de que está feito:* tocar "Importar" com edição pendente muda a tela
+   (hoje: 0,032 %, que é o relógio).
+   *Quando a V18 mesclar,* estas três ações passam a rotear por
+   `levouAoQueFalta` / `levouAoObstaculo`, e aí a resposta vira o desvio ao
+   obstáculo. A linha de agora não atrapalha isso; a ausência dela, sim.
+
+### Dívida nomeada para o RUMO
+
+- **`recorteDaDiferenca` roda duas vezes por `body` e é O(n) até 2 MiB** (medido:
+  28,9 ms a 100 KB, 608 ms no teto). Computar uma vez e comparar em `utf8`.
+- **`min(16, contexto)`**, o recuo até a fronteira legível, é a segunda constante e
+  não saiu da mesma conta que o 48/12. Com janela pequena pode dobrar o prefixo
+  visível. É o número que aperta primeiro se a janela encolher de novo.
+- **`.compacto` contra a primária**: a cápsula cheia desfez a inversão *nesta*
+  tela; a regra da casa segue como estava. Continua de fora do mínimo, por ordem
+  do dono.
+- **O `recado` não é zerado por atos não relacionados** (segue do G4).
+- **Tocar ação bloqueada NOMEIA em vez de LEVAR**: o desvio mora em `TrabalhoView`.
+  É a mesclagem da V11 com a V18 que fecha isso — e não pode se perder no caminho.
+- **"As duas começam iguais até a linha N"**: quando a divergência é *dentro* da
+  linha N, "até a linha N" se lê como "a linha N é igual". A tela se corrige
+  sozinha (o cartão mostra a linha divergindo), mas a frase é ambígua. Cosmético.
+- **Em AX5 os dois cartões ainda não cabem inteiros no mesmo olhar.** Continua
+  verdade, e agora custa pouco: o que o autor precisa levar na memória deixou de
+  ser um parágrafo e virou uma palavra ("ate segunda" contra "ate domingo").
+
+### Três linhas para o LACO
+
+```
+RE-G4 V11 CORRIGIR ANTES por UM item: Design 9, Simplicidade 9, Movimento 9,
+Componentes 9. O achado principal morreu na causa — refiz o teste com documento
+de 10 linhas, 513 caracteres e 9 linhas comuns, e os dois cartões agora divergem
+na terceira linha visível (na terceira PALAVRA em AX5); medi 9 quadros de
+recolhimento contra o quadro único de antes, nos dois modos. Falta meia regra da
+V18: tocar ação bloqueada anuncia mas não muda nada na tela (0,032%), e a própria
+V18 diz que o desvio visível é o que resta a quem não usa VoiceOver — uma linha
+por `anunciar`. Dívida: `recorteDaDiferenca` O(n) duas vezes por body (608 ms no
+teto de 2 MiB) e o `min(16, contexto)`.
+```
+
+## Índice das evidências do Re-G4
+
+| arquivo | o que prova |
+|---|---|
+| `g4-v11-reg4-normal.mp4` (12 s) | decisão e recolhimento, movimento normal |
+| `g4-v11-reg4-reduzido.mp4` (12 s) | o mesmo sob Reduzir Movimento |
+| `g4-v11-reg4-chegada-na-tela.png` | o cartão de revisão no alto, não abaixo da dobra |
+| `g4-v11-reg4-conflito-na-divergencia.png` | os dois cartões ancorados no ponto que muda |
+| `g4-v11-reg4-conflito-uma-tela.png` | a decisão inteira numa tela só |
+| `g4-v11-reg4-conflito-reduzido.png` | o mesmo sob Reduzir Movimento |
+| `g4-v11-reg4-ax5-cartao-1.png` / `-2.png` | AX5: cartões diferentes na terceira palavra |
+| `g4-v11-reg4-manter-fala.png` | "Manter só a versão atual" com desfecho |
+| `g4-v11-reg4-desfecho-em-cartao.png` | o desfecho em `cartao(.campo)` com tinta cheia |
+| `g4-v11-reg4-importar-bloqueado.png` | ação bloqueada em cápsula, motivo ao lado |
+| `g4-v11-reg4-toque-bloqueado-sem-resposta.png` | o toque na ação bloqueada: 0,032 % da tela |
+
+---
+
+## Re-G4, segunda passada — `ffa3b25`: **PASSA**
+
+Julguei só o item que eu tinha deixado aberto. Build limpo no iPhone 17e
+`C7341E64…` (uninstall + install), jornada à mão, toda captura por
+`xcrun simctl io <MEU UDID> screenshot`. Ajustes conferidos ao fim
+(`content_size large`, `increase_contrast disabled`, `ReduceMotionEnabled 0`);
+simulador **desligado**; iPhone 17 `1A46B6D3` do dono nunca ligado.
+
+### O conserto é a linha que eu pedi, e no lugar certo
+
+```diff
+-                if let impedimento { AccessibilityNotification.Announcement(impedimento).post() }
++                if let impedimento { anunciar(impedimento) }
+```
+
+Uma linha, dentro do `acao(...)` compartilhado — logo vale para as três ações do
+painel —, nada em `TrabalhoView`. `anunciar` põe o impedimento na linha de
+desfecho sob `Tema.movimento(.opacidade, …)` **e** posta o `Announcement`: as
+duas pessoas recebem a resposta, a que vê e a que ouve.
+
+### Confirmado na tela, com as minhas medidas
+
+Estado: trabalho com uma versão guardada e uma **edição pendente**, que é o que
+bloqueia o `Importar`. Par antes/depois no MESMO ponto de rolagem, de uma folha
+recém-aberta (`g4-v11-reg4b-antes-do-toque.png` × `g4-v11-reg4b-toque-responde.png`):
+
+| | `fd43cc8` (o que eu recusei) | `ffa3b25` (agora) |
+|---|---|---|
+| pixels alterados pelo toque | **0,032 %** (era o dígito do relógio) | **6,75 %** da tela; **7,12 %** fora da barra de status |
+| o que aparece | nada | `cartao(.campo)` com "Guarde a intenção ou a versão em edição antes de importar.", em tinta cheia, e o conteúdo abaixo desce |
+| corrida de quadros (30 fps, vídeo cru) | — | **7 quadros**, `13,24 12,16 11,42 9,93 8,16 6,48 4,43`, zeros nos vizinhos |
+
+**211 vezes** o número que eu tinha medido, e não é um pulo: é a curva de
+`.opacidade` da lei de `Tema.swift`, com subida e cauda, igual à dos outros
+desfechos desta tela.
+
+Sobre os números do implementador (27,52 % e 8 quadros): a diferença é **posição
+de rolagem**, não comportamento. O cartão empurra o que está abaixo dele; quanto
+mais conteúdo houver embaixo no momento do toque, maior a área que muda e mais
+espalhada a curva. A minha medida é o piso — folha recém-aberta, cartão nascendo
+num vão quase vazio — e mesmo assim confirma a afirmação. As duas medidas
+descrevem a mesma coisa.
+
+**Limite declarado:** não re-rodei a suíte. O 722/125 é declaração dele; o meu
+mandato aqui era a tela, e é a tela que eu confirmei.
+
+### Portão
+
+| eixo | nota |
+|---|---|
+| Design | **9** |
+| Simplicidade | **9** |
+| Movimento | **9** |
+| Componentes | **9** |
+
+**Veredito: PASSA.** Os quatro itens do mínimo do G4 estão fechados, cada um
+provado por evidência que eu mesmo levantei, e o último com um conserto de uma
+linha que não invadiu a volta 18.
+
+### As três linhas para o LACO
+
+```
+ENTREGOU — A tela do conflito virou decisão informada: os dois cartões deixaram
+de mostrar o começo (que é igual) e passaram a ancorar na primeira divergência,
+com a linha "as duas começam iguais até a linha N"; a decisão inteira cabe em uma
+tela; as duas saídas têm desfecho; a chegada é trazida à tela e anunciada; o
+recolhimento virou movimento com cauda; e nenhuma ação do painel some ou fica
+muda ao toque. A lei do produto se cumpriu em toda jornada que eu rodei:
+guardei e mantive várias vezes, nada foi sobrescrito, o histórico só cresceu.
+
+CUSTOU — Três voltas de portão (G4, Re-G4, este) sobre a mesma tela, porque o
+achado central só apareceu quando alguém montou o caso REAL do ida-e-volta —
+documento longo com a diferença no fim — em vez do fixture curto. Custou também
+um O(n) novo na thread principal: `recorteDaDiferenca` roda duas vezes por
+avaliação do corpo e mede 28,9 ms a 100 KB e 608 ms no teto de 2 MiB. E custou
+instrumento: com vários simuladores ligados o maestro atende o aparelho errado
+(provado por dimensão de pixel), então toda prova destas três passadas saiu de
+`simctl io <UDID> screenshot` e de condução à mão.
+
+FICOU — Dívida nomeada, nenhuma bloqueante: memoizar o `recorteDaDiferenca` e
+comparar em `utf8` (não foi feito, por acordo); o `min(16, contexto)`, segunda
+constante do recuo, que não saiu da mesma conta que o 48/12; o `recado` que não é
+zerado por atos não relacionados; a inversão do `.compacto` contra a primária,
+que a cápsula cheia desfez NESTA tela sem tocar na regra da casa; e a metade da
+lei da V18 que só a mesclagem fecha — tocar ação bloqueada NOMEIA e agora
+RESPONDE, mas ainda não LEVA ao obstáculo, porque o desvio mora em
+`TrabalhoView`. Em AX5 os dois cartões seguem sem caber inteiros no mesmo olhar,
+e agora isso custa uma palavra de memória, não um parágrafo.
+```
+
+### Evidências desta passada
+
+| arquivo | o que prova |
+|---|---|
+| `g4-v11-reg4b-antes-do-toque.png` | ação bloqueada, folha recém-aberta, sem linha de desfecho |
+| `g4-v11-reg4b-toque-responde.png` | depois do toque: o impedimento em `cartao(.campo)`, 6,75 % da tela |
+| `g4-v11-reg4b-toque.mp4` | a corrida de 7 quadros da chegada do cartão |
+
+**Instrumento, para o RUMO:** encontrei "Connect Hardware Keyboard" **desligado**
+no Simulator (é ajuste do app, compartilhado entre os aparelhos) e precisei
+ligá-lo para digitar. Tentei devolvê-lo ao estado em que achei, mas com o meu
+aparelho já desligado o menu passa a refletir a janela de outro trabalhador —
+parei em vez de mexer no estado alheio. **Fica ligado, e fica dito.**
