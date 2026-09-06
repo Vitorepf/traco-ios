@@ -47,6 +47,17 @@ Está bom?, Porta, Transferência, Sobrevivente).
 ~40 medido na M9**, e o primeiro dos três tetos (a enum de dez da análise de
 bordo) continua de pé. A régua daqui em diante é **trocar**, não acrescentar.
 
+**A M14 auditou os 42 um por um: [`a-curadoria.md`](a-curadoria.md).** Núcleo de
+**32**, seis em observação, **três saem** (Destaque funde com o Dia, Inversão
+funde com o Pré-mortem, Palavra sai por orçamento) — o que devolve o array a **39
+entradas, abaixo do teto, sem cortar nada de bom**. Quatro dos seis em observação
+são métodos meus. Nenhuma remoção acontece por conta desta trilha: a curadoria
+propõe, o dono decide, uma volta de app executa — e o arquivo lista o que essa
+volta tem de tocar (`GestoEscolha` em `Intencoes.swift:253` tem Destaque e Palavra
+escritos à mão). **Correção de mim mesmo:** eu disse na M9 e na M10 que fundir o
+Destaque custaria a tela bloqueada; `Sessao.aplicarDestaque` mostra que não custa —
+o Destaque do dia é publicado por qualquer método com campo `unica`, e o Dia tem.
+
 **O mapa das faculdades está em
 [`o-que-falta-no-catalogo.md`](o-que-falta-no-catalogo.md)** — o que a coleção
 cobre bem, o que cobre por acidente, onde o autor fica na mão, os três tetos de
