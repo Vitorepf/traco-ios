@@ -45,7 +45,7 @@ Ordem do dono de 06/09 13:10. Um pesquisador dedicado procura métodos que MERE�
 |---|---|---|
 | M1 | primeira rodada de candidatos | EM EDIÇÃO (worktree metodos-m1) |
 | M2 | segunda rodada + fonte primária de Ohno + achados para a colagem | EM EDIÇÃO (mesmo worktree metodos-m1) |
-| M3 | colagem no catálogo dos quatro aprovados + conserto do roteamento | espera M2 e a V16 mesclada |
+| M3 | colagem no catálogo dos SETE + conserto do roteamento | EM EDIÇÃO (a V16 mesclou em 968ba34) |
 
 **G0 de M1.** Ciclo: melhorar (o catálogo é o repertório de instrumentos de pensamento do autor). Intenção: o autor encontra o instrumento certo para o movimento que está tentando fazer, e sabe de onde ele vem. Obstáculo: 21 métodos e nenhuma rotina de entrada; sem critério escrito, catálogo vira lista de produtividade. Evidência: três a cinco fichas com JSON completo e fonte primária citada literalmente, um rejeitado com a barra em que caiu, e a saída do teste das regex contra os outros 20. Quando a forma proposta pedir algo que o app ainda não faz, a ficha nomeia isso e eu abro a volta. Escopo: só `ferramentas/orca/metodos/`; `Traco/Modelo/Metodos.json` fica fechado até a V16 mesclar.
 
@@ -76,7 +76,7 @@ Sete frentes: **V12** Página e Caderno até 9 (FECHADA no worktree, topo 337a22
 | 5 | V13 Telas até 9: Notas e barra de baixo | alto | M | multiplicar | nota base da V9 |
 | 6 | V14 Calendário: duração explícita e estados de navegação/acessibilidade | médio | M | multiplicar | "Calendário ligado à realização" |
 | 7 | V15 Telas até 9: Calendário e ficha | médio | M | multiplicar | nota base da V9 |
-| 8 | V16 Métodos com proveniência: fonte, adaptação, evidência; método ausente dito na tela | EM EDIÇÃO | M | melhorar | "Métodos e pesquisa com proveniência" |
+| 8 | V16 Métodos com proveniência: fonte, adaptação, evidência; método ausente dito na tela | MESCLADA (ADR 05x; G3, G4, V16-C, re-G4) | M | melhorar | "Métodos e pesquisa com proveniência" |
 | 9 | V17 HTML útil e interativo (consulta ao conselho antes) | alto, incerto | G | multiplicar | "HTML útil e interativo" |
 | 10 | V18 Telas até 9: Trabalho (versão, conferência, prática num cartão só); do G4 da V6: porta da prática escondida, Dificuldade antes de Preparar em delegar, AcaoTrabalhoStyle sem estado desabilitado visível | EM EDIÇÃO (worktree volta-18-trabalho) — subiu ao topo pela ordem do dono de 06/09: telas abaixo de 9 primeiro, Trabalho (6,0) na frente | M | multiplicar | nota base da V9 (Trabalho 6,0); Simplicidade |
 | 11 | V19 Retrato/Trajetória recebem a prática (só se V6 provar prática real) | médio | M | melhorar | "Modelo revisável do autor" |
