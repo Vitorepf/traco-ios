@@ -1,7 +1,7 @@
 # V16-C — correção do G4: o Perfil abre com a lei da casa
 
 Implementador: Claude Opus 5 (front-end e design SwiftUI), 06/09/2026.
-Branch `Vitorepf/volta-16-metodos`, topo `425e112` sobre `ab5c052`.
+Branch `Vitorepf/volta-16-metodos`, topo `122277f` sobre `ab5c052`.
 Instrumento: iPhone 17 Pro Max de teste `6033B043-F436-41F9-B4F8-2D9E67761980`
 — ligado por mim, build do branch instalado, Dynamic Type `large`, Reduzir
 Movimento ligado e depois removido, aparelho desligado ao fim. Nenhum outro
