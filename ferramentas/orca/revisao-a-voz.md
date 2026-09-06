@@ -368,3 +368,216 @@ não vão para a Expressiva, vão para o SILÊNCIO** (os longos e factuais, que 
 têm nenhuma das dez palavras dela). O título "a escrita pessoal é da Expressiva"
 descreve a intenção; o comportamento é "a escrita pessoal fica do autor". O
 segundo é melhor. É só dizê-lo assim.
+
+---
+
+# Re-G3 — volta A-B (correção do G3)
+
+Topo `8f7c988`, com `git merge main` já feito · 06/09/2026 · mesmo revisor ·
+iPhone 17 Pro (teste 4) `A1DF082C…`, tudo sob `com-trava.sh`. Nada editado nem
+commitado.
+
+**Veredito: MESCLAR, com quatro itens de acabamento nomeados.** Os quatro
+achados ALTOS estão fechados — dois deles com conserto estrutural, não paliativo.
+Um defeito NOVO entrou pela porta do conserto do A-1, e eu o classifico como
+custo a declarar, não como bloqueio; a razão está no §R-5.
+
+## R-1 · Os quatro ALTOS, um a um
+
+**A-1 — FECHADO no que eu apontei.** A guarda deixou de depender da posição:
+`if pessoal, g != .expressiva { continue }`, e o rodapé do Destaque ganhou
+`guard !pessoal else { return nil }` — o cálculo que ele jogava fora. Portei o
+`AnaliseLocal` novo literalmente e rodei a régua inteira dele: **as 22 do M3-B,
+as 15 minhas do G3 e as 20 dele — 57 frases, 0 fora do esperado** — e as 6
+legítimas continuam chegando aos dois métodos da M3. As 15 que eu tinha feito
+escapar não escapam mais. O teste `cadaUmaDasMinhasBateNumaPortaDiferente` é a
+peça certa: cobra que cada frase da régua bata mesmo na regex que declara, senão
+a régua mede o próprio otimismo.
+
+**A-2 — FECHADO, e era o mais grave do dia.** `escolher` ganhou a linha 2
+(`if pessoal { return local }`) e `Sessao` calcula
+`AnaliseLocal.escritaPessoal(texto:campos:)` do texto cru. Lido o código: com
+`pessoal` verdadeiro, nenhum caminho devolve o veredito remoto. O teste cobre as
+quatro linhas na ordem, inclusive que o aviso local ainda vence.
+
+**O instrumento de mentira NÃO vaza para produção — medido, não suposto.**
+Método da F3b, contagem de ocorrências:
+
+| string | binário Release | `Traco.debug.dylib` |
+|---|---:|---:|
+| `TRACO_MODELO_FALSO` (sob `#if DEBUG`) | **0** | **1** |
+| `TRACO_SEM_MODELO` (sem guarda, controle) | 2 | 1 |
+
+A linha de controle é o que dá valor à primeira: uma string NÃO guardada aparece
+no Release, então a contagem enxerga. O `#if DEBUG` corta de verdade.
+
+**A-3 — FECHADO.** `maestro/perfil-sabia.yaml:19` agora afirma o rótulo inteiro
+"O que o Traço registrou — contagem, não conclusão", que é a string que a tela
+tem. **Não confirmo que o fluxo corre inteiro**, e não por dúvida: há quatro
+simuladores ligados nesta máquina, incluindo o iPhone 17 do dono, e a lei do
+instrumento que a própria equipe escreveu hoje (ESTEIRA, "o maestro não isola")
+diz que nessa condição nenhuma nota se apoia em evidência de maestro. Fica
+**pendente de instrumento**, não pendente de conserto — a asserção está certa
+por leitura.
+
+**A-4 — FECHADO e melhor do que eu pedi.** Remedido depois do conserto, com o
+`Metodos.json` das 28 formas: 287 sondas, 14 ramos, e as **catorze entradas
+literais dentro da ADR**, para quem mesclar a M3 colar sem remedir. Bati com a
+minha medição, linha por linha, inclusive o motivo do 15º que não existe
+(`hoje eu tratei` ≠ `tratei mal`).
+
+## R-2 · O texto novo contra o código: afirma o que faz?
+
+Quase exatamente, e a mudança é grande. O título virou "A escrita pessoal fica
+do autor: não vira método nenhum"; a ADR diz sozinha que **8 dos 22 protegidos
+vão para o silêncio e não para a Expressiva** ("o que a guarda garante é que a
+escrita pessoal fica do autor, não que ela vira Expressiva"), corrige o próprio
+"pode contradizer" para "vence sempre", e lista as cinco famílias com os radicais
+que estão no código. Conferi família por família contra `AnaliseLocal.swift`: o
+texto da ADR e as cinco regex batem.
+
+**Falta uma frase, e é a do §R-3:** o "Fora" declara só a assimetria
+vestir/sugerir e o `conhecidos` da M3. O preço do conserto do A-1 não está
+declarado em lugar nenhum.
+
+## R-3 · O ACHADO NOVO: a guarda passou a comer método legítimo
+
+Testei o outro lado, que é onde uma guarda alargada erra. Dez notas comuns, do
+tipo que o app existe para receber. **Nove mudam de destino; oito são regressão
+limpa** (a `decisao` não muda, e a `premortem` já ia para o aviso antes):
+
+```
+antes → agora     nota                                                    família que dispara
+spec  → silêncio  "Preciso construir a tela de estado VAZIO do app…"       1 (vazi[oa])
+spec  → silêncio  "O módulo roda SOZINHO depois do deploy…"                1 (sozinh)
+spec  → silêncio  "Estou CANSADO desse módulo cheio de casos especiais…"   1 (cansad)
+woop  → silêncio  "Quero correr de manhã, mas o MEDO de me machucar…"      1 (medo)
+spec  → silêncio  "A carga PESA demais nesse endpoint…"                    1 (\bpesa)
+nota… → silêncio  "Percebi que sistemas ANSIOSOS por resposta imediata…"   1 (ansios)
+spec  → silêncio  "Estado VAZIO, carregando e falha: as três telas…"       1 (vazi[oa])
+seEnt.→ silêncio  "Sempre que fico SOZINHO em casa eu abro a geladeira…"   1 (sozinh)
+```
+
+Rodei as mesmas dez contra o binário do código ANTERIOR: as dez chegavam ao seu
+método. **É regressão desta volta**, e nasce do conserto que eu exigi: antes,
+`woop`, `seEntao`, `spec` e `notaPermanente` vinham antes da Expressiva e a
+guarda não os alcançava — o defeito que eu apontei era exatamente esse. Agora
+alcança todos, e a família 1 ficou larga: `vazio`, `sozinho`, `cansado`, `pesa`,
+`ansioso` e `medo` são palavras de trabalho tanto quanto de desabafo.
+
+Duas delas doem em particular:
+
+- **`medo` fecha a porta do WOOP.** O campo do WOOP chama-se "OBSTÁCULO INTERNO
+  (O SEU HÁBITO/MEDO)" e `perguntaWOOP` pergunta "qual é o hábito ou o **medo**
+  seu que vai impedir". O app pede o medo pelo nome e agora cala quando o autor
+  o escreve na primeira frase. (Dentro da forma aberta não há dano: com
+  `gestoAtual` setado o modelo nem é consultado.)
+- **`vazio` cala uma nota de especificação** — e "estado vazio, carregando,
+  falha" é o vocabulário do próprio G2 da ESTEIRA.
+
+Nenhum teste cobre esta direção: `oQueOsDoisMetodosLevamComRazaoContinuaDeles`
+protege 6 frases dos DOIS métodos da M3, e mais nada. As outras 19 portas não
+têm régua de alcance.
+
+**Prova de tela: pendente de instrumento.** Com quatro simuladores ligados o
+maestro não sustenta nota, e sem maestro não há como digitar: `simctl openurl`
+com `traco://anotar?texto=…` pára no diálogo "Abrir com Traço?" do sistema, que
+pede um toque (`ferramentas/orca/a-reg3-instrumento-openurl-pede-toque.png`).
+A medição acima é do port literal do `AnaliseLocal` novo, validado contra 63
+frases das réguas dele antes de eu confiar nele.
+
+## R-4 · O que continua aberto do G3 (médios não tocados)
+
+- **M-1** `CorpusComoContextoIntent` ainda devolve o CADERNO INTEIRO quando
+  `forma?.gesto` é nil (`Intencoes.swift:161`). Inalterado.
+- **M-2** `PerfilView.swift:108` ainda diz "Esquecer tudo o que o Traço
+  **aprendeu de você**?" — a frase que a A4 condenou, num diálogo destrutivo.
+- **M-3** `PaginaView.swift:488` ainda diz "**Muletas**, frases feitas…" na dica
+  de VoiceOver do botão que abre a tela chamada "Palavras de apoio".
+- **M-5** as seis fases do `design-router` continuam sem citação em nenhum
+  relato. A A-B não é volta visual (nenhum SwiftUI, nenhuma copy), mas as
+  mudanças de copy da A4 seguem neste branch e o portão vale para elas.
+- **M-4** segue como estava e segue declarado.
+
+## R-5 · Por que MESCLAR e não recusar de novo
+
+Recusar custaria manter o A-2 aberto em `main` — a proteção anulada pelo modelo
+na configuração padrão de um iPhone moderno — em troca de um parágrafo de ADR e
+duas linhas de copy. E o defeito novo é o **espelho benigno** do que ele
+substituiu: antes o app carimbava quatro campos de exercício sobre um desabafo;
+agora ele fica calado diante de uma nota de trabalho. Silêncio é resposta válida
+(§19.4) e custa um toque para desfazer — é a mesma assimetria que me fez aprovar
+a perda das duas perguntas de Hamming, e ela vale nos dois sentidos ou não vale
+em nenhum.
+
+**Os quatro itens de acabamento, nenhum deles risco de código:**
+
+1. declarar no "Fora" da 06h que a família 1 come nota de trabalho com `vazio`,
+   `sozinho`, `cansado`, `pesa`, `ansioso` e `medo`, com o caso do WOOP dito por
+   extenso — e abrir a volta que estreita a família 1 (exigir primeira pessoa,
+   ou tirar as seis palavras de dupla vida do radical solto);
+2. uma régua de alcance para as outras 19 portas, do tamanho da que existe para
+   as duas da M3;
+3. M-2 e M-3 (duas strings);
+4. o parágrafo do `design-router` cobrindo a copy da A4.
+
+## R-6 · Instrumento
+
+- `xcodebuild clean`/`build` **Release** e **Debug** e `xcodebuild test`, todos
+  no teste 4 sob `com-trava.sh`: `** BUILD SUCCEEDED **` nos dois,
+  `✔ Test run with 747 tests in 128 suites passed after 7.416 seconds`,
+  **0 avisos nas três corridas**. Os 747/128 dele conferem.
+- Quatro simuladores ligados, incluindo o do dono: **liguei nenhum e desliguei
+  nenhum**, e por isso nenhuma evidência de maestro entra neste veredito.
+- **Correção de um achado meu do G3.** Eu escrevi que o `default.store`
+  sobrevive ao `simctl uninstall`. **Está errado**: o contêiner do App Group foi
+  recriado com id novo depois do meu ciclo de hoje. O que eu vi como "o app
+  abrindo num Trabalho de outro fluxo" é a lei que a equipe descobriu em
+  paralelo — o maestro lendo a hierarquia do vizinho pela porta 7001. Retiro a
+  parte da conclusão que não se sustenta e fico com a lei, que é melhor.
+
+## R-7 · Scorecard revisto
+
+| dimensão | G3 | Re-G3 | o que mudou |
+|---|---:|---:|---|
+| Visão | 9 | **9** | — |
+| Contrato | 6 | **8** | 14 no lugar de 15 com a lista literal, título honesto, "vence sempre" corrigido, as 5 famílias batem com o código; falta declarar o preço do §R-3 |
+| Correção | 7 | **7** | 747/128 verdes, A-3 corrigido, régua de 57 com teste que cobra a porta de cada frase; mas 8 regressões limpas no outro sentido, e 19 portas sem régua de alcance |
+| Jornada real | 8 | **9** | o modelo de mentira com CONTROLE primeiro é o método certo — sem ele "nenhum cartão" não prova nada; capturas com conteúdo real |
+| Design | 6 | **6** | fases do `design-router` continuam sem citação |
+| Simplicidade | 9 | **9** | — |
+| Movimento | 9 | **9** | — |
+| Componentes | 9 | **9** | — |
+| Acessibilidade | 7 | **7** | `PaginaView:488` inalterado |
+| Performance | 9 | **9** | cinco regex no lugar de duas, no mesmo laço |
+| Privacidade e autoria | 7 | **9** | o A-2 era esta dimensão e está fechado, com o instrumento provado ausente do Release; desconta só M-1 |
+| Estado honesto | 8 | **8** | ADR honesta; M-2 e o silêncio novo sem explicação seguram |
+| Complexidade | 9 | **9** | cinco famílias nomeadas valem mais que uma lista |
+| Fora do app | 8 | **8** | M-1 inalterado |
+| Relato | 9 | **10** | a ADR corrige a si mesma citando o revisor e diz o que a guarda NÃO garante |
+
+## R-8 · Ordem de mescla recomendada: **A-B → F4 → M3**
+
+`git merge-tree` no topo de hoje:
+
+| par | conflito |
+|---|---|
+| A-B × M3 | só `SPEC.md`, `EVOLUCAO.md` |
+| A-B × F4 | `SPEC.md`, `EVOLUCAO.md`, `project.pbxproj` |
+| F4 × M3 | `SPEC.md`, `project.pbxproj` |
+
+Nenhum conflito em Swift em nenhum dos três pares. A F4 mexe em `Sessao.swift`
+(+49) e este branch também, e ainda assim o git mescla limpo: `encadear` e
+`escolher` não se tocam — a afirmação dele confere.
+
+**A-B primeiro, e a razão é só uma:** o `todoRamoDeRegexAlcancaOSeuMetodo` vive
+no branch da M3, e fica vermelho quando esta guarda entrar. Com a A-B primeiro,
+`main` fica verde em todo instante — o teste só existe quando a M3 chega, e quem
+a mesclar cola as 14 entradas que já estão escritas na ADR 06h. Na ordem
+inversa, `main` passa vermelha entre as duas mesclas.
+
+**F4 no meio** por economia mecânica: ela é a única que conflita em `pbxproj`
+com os dois, e resolver esse arquivo duas vezes seguidas contra um `main` que já
+tem a A-B é mais barato que intercalar. **M3 por último** porque é ela que traz
+o teste que precisa da lista, e porque ela reescreve o `Metodos.json` inteiro —
+melhor que chegue a um `main` já estável.
