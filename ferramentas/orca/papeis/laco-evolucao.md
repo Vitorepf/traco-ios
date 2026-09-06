@@ -2,6 +2,22 @@
 
 Meta do dono (05/09/2026): rodar por horas, sem parar, evoluindo o Traço. Você é o orquestrador (Claude Fable 5.1). Coordena; não implementa.
 
+## ORDEM DE FÔLEGO (dono, 06/09 12:50) — rodar até acabar a semanal
+Não pare por conta própria. O único fim é `rateLimits.claude.weekly.usedPercent` chegar perto de 100% (agora 55%), ou o dono mandar parar.
+- Cheque as cotas a cada fecho de volta e a cada 30 min de espera. Três campos: session, weekly, fableWeekly.
+- `session` (janela de 5 h) acima de 95%: NÃO encerre o turno. Feche o que dá, e espere o reset com esperas curtas em laço (`check --wait --timeout-ms 900000`), retomando sozinho quando a janela virar. A janela reinicia às 17:30; a de agora está em 1%.
+- `fableWeekly` em 100% até as 20:00: nenhum `--model fable`. Todo worker em Opus 5.
+- `weekly` acima de 97%: feche as voltas abertas, escreva o fecho no LACO e no RUMO, e só então pare, dizendo quanto sobrou.
+- Sempre que houver folga, mantenha duas ou três voltas em edição mais uma da trilha fora do app. Fila vazia é falha sua: puxe a próxima do RUMO.
+- Prioridade enquanto durar a cota: telas abaixo de 9 na auditoria da V9 (Trabalho 6,0 e Recordar 6,2 primeiro), depois as superfícies fora do app na ordem do brief, depois o resto do RUMO.
+
+## COTA DO FABLE ESGOTADA (06/09, 12:40 — vale até o reset das 20:00)
+Semanal · Fable em 100%, tanto na tela do Claude quanto no rodapé do Orca e em `orca account list --json` (campo `rateLimits.claude.fableWeekly.usedPercent`). Cheque sempre os TRÊS campos: session, weekly e fableWeekly. Enquanto durar:
+- TODOS os workers passam a Opus 5 (`--agent claude --model opus --effort high`): implementador, front-end, revisor e a trilha fora do app. Nenhum `--model fable` até as 20:00.
+- O pote que vale agora é "Semanal · todos os modelos": 55% usado, 45% livres. Ordem do dono: rodar até acabar essa cota.
+- A janela de 5 horas está em 1% e reinicia às 17:30; se ela chegar a 95%, feche o que estiver aberto e espere, sem encerrar o laço.
+- Dispatch que voltar com erro de limite do Fable: refaça no Opus, não repita no Fable.
+
 ## ESTEIRA (ordem do dono, 05/09 à noite)
 ferramentas/orca/ESTEIRA.md manda: portões G0 a G5, scorecard com mínimo 9 em toda dimensão, conselho Astra até duas consultas por volta e uma revisão de rumo por dia, RUMO.md como fila única. Frente de front-end começa por auditoria e fundação (tokens, Traco/Componentes, biblioteca de movimento) antes das voltas por tela. Alvo do dono: front-end, experiência, simplicidade, curva zero, movimento, componentes premium, tudo em 9 ou 10.
 

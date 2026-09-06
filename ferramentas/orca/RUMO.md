@@ -25,7 +25,7 @@ Sempre uma volta desta trilha em edição, em paralelo às voltas comuns, no pr�
 | F1 | Auditoria fora do app | inventário com 24 capturas reais, nota base por superfície, lacunas F2-F11, conselho gravado (ferramentas/orca/auditoria-fora-do-app.md, consulta-fora-intents.md) | MESCLADA em main |
 | F2 | Fundação | MESCLADA em main (ADR 05u); gate ao dono: confirmar no iPhone que instalar por cima preserva os dados (o simulador provou que sim) |
 | F3 | Captar pensamento em um toque | MESCLADA (ADR 05w): controle Anotar na Central/bloqueada/botão de Ação abre o app com teclado pronto e microfone a um toque; F3b = ditado próprio com áudio preservado |
-| F3b | Ditado próprio | áudio salvo antes de transcrever; falha preserva o áudio | próxima da trilha (abre no reset da sessão) |
+| F3b | Ditado próprio | áudio salvo antes de transcrever; falha preserva o áudio | EM EDIÇÃO (worktree f3b-ditado, 06/09 12:55) |
 | F4 | Widget "próxima volta" interativo | botão de feito na própria superfície | |
 | F5 | Ilha do compromisso vivo | estados completos (compacta, expandida, mínima, fim) | |
 | F6 | Widgets da tela bloqueada | accessoryCircular e accessoryInline do dia | |
@@ -43,7 +43,13 @@ PNG de captura ≤ 400 KB (reduzir com `sips -Z 1000` antes de commitar), vídeo
 
 ## Estado do laço
 
-Retomada 06/09 02:55 (janela nova). Em edição: V10 fundação de design (Fable A tokens+movimento, Fable B componentes+migração, worktree volta-10-fundacao); F2 correções + rebase; V6 re-G3. Próxima a abrir quando um simulador de teste liberar: V16 métodos com proveniência (Modelo + Perfil + LenteView, disjunta de V10 e V6).
+Retomada 06/09 12:48 (queda por cota do Fable às 5:40; ver LACO). Fable semanal em 100% até as 20:00: TODO worker em Opus 5, nenhum `--model fable`. Pote que vale: semanal de todos os modelos, 55% usado. Ordem do dono: rodar até acabar essa cota; prioridade para as telas abaixo de 9 da auditoria V9, Trabalho (6,0) e Recordar (6,2) na frente, depois as superfícies fora do app, depois o resto desta lista. Skills viraram portão (ESTEIRA, "Skills obrigatórias por portão").
+
+Quatro frentes: **V12** Página e Caderno (front-end, worktree volta-12-pagina, evidências do G2); **V16** métodos com proveniência (worktree volta-16-metodos, G3 INTEGRAR, G4 em curso); **V18** Trabalho até 9 (front-end, worktree volta-18-trabalho, abrindo); **V11** ambiente Markdown (implementador, worktree volta-11-markdown, abrindo); trilha fora do app: **F3b** ditado próprio (worktree f3b-ditado, abrindo). Próxima a abrir quando uma fechar: Recordar até 9 (6,2), a segunda pior da auditoria.
+
+**F3b — Ditado próprio: o áudio antes da letra.** Ciclo: multiplicar. Intenção: falar uma frase na rua e ela entrar no Traço mesmo que a transcrição falhe. Obstáculo: a F3 entregou o controle Anotar com o teclado pronto e o microfone a um toque, mas quem transcreve é o ditado do teclado do iOS — falha, morte do app ou falta de rede não deixam nada; a ADR 05a manda o contrário: áudio depositado primeiro, letra depois, falha preserva o áudio. Evidência: gravação depositada antes de qualquer transcrição; nota com a transcrição marcada com origem "ditado" e o áudio localizável a partir dela; falha encenada mostrando a nota com o áudio e uma linha honesta; microfone/reconhecimento negados ditos na tela; capturas de cada estado em large e AX5, vídeo com e sem Reduzir Movimento, testes do depósito e do caminho de falha. Escopo: Traco/App/Intents/*, ponto de entrada da captura, áudio no App Group, TracoTests; campo de modelo só o mínimo aditivo (referência ao arquivo, nunca blob).
+
+**V18 — Trabalho até 9.** Ciclo: multiplicar (é onde a intenção vira artefato e ação). Intenção: pedir, acompanhar, conferir e praticar num caminho só, sem decisões antes da hora e sem parecer outro aplicativo. Obstáculo: 6,0, a pior da auditoria V9 (§6) — Design 5 (formulário cru, o mesmo botão com duas roupas), Simplicidade 5 (cinco telas, oito DisclosureGroup, "Preparar com IA" desabilitado sem parecer), Componentes 4 (AcaoTrabalhoStyle próprio, zero tokens), Acessibilidade 7 (alvo por reserva), Estado honesto 8 (promessa de aviso não autorizada, ADR 04a); curva-zero: 6 toques e 2 digitações até a versão, com a decisão de apoio escondida num disclosure. Evidência: capturas antes/depois em large e AX5 de todos os estados do G2, vídeo com e sem RM, contagem de toques antes/depois, shortstat líquido-negativo, suíte verde. Escopo: as views de Traco/Trabalho (sem Intercambio*, que é da V11) e TracoTests; consome Traco/Componentes e Tema sem editá-los (V12 está dentro deles).
 
 ## Próximas, em ordem
 
@@ -51,14 +57,14 @@ Retomada 06/09 02:55 (janela nova). Em edição: V10 fundação de design (Fable
 |---|---|---|---|---|---|
 | 1 | V9 Auditoria de front-end: nota base por tela | MESCLADA (ferramentas/orca/auditoria-frontend.md) — médias: Página 6,7 · Notas 7,0 · Calendário 7,2 · Recordar 6,2 · Perfil 7,7 · Trabalho 6,0 · Padrões 7,5 · Camadas 7,5 | — | multiplicar | "Direção visual e uso simples" |
 | 2 | V10 Fundação de design: tokens, Traco/Componentes com previews, biblioteca de movimento | MESCLADA (ADR 05v). Regra vigente: cada volta por tela é líquido-negativa ao migrar para Componentes | — | multiplicar + eixo 4 | idem |
-| 3 | V11 Ambiente Markdown: conflitos e retry na UI real, revogação com seletor aberto | alto: continuidade entre ferramentas é a tese | M (1 Fable) | multiplicar | "Ambiente Markdown compartilhado" |
+| 3 | V11 Ambiente Markdown: conflitos e retry na UI real, revogação com seletor aberto | EM EDIÇÃO (worktree volta-11-markdown) | M | multiplicar | "Ambiente Markdown compartilhado" |
 | 4 | V12 Telas até 9: Página e Caderno (a porta de entrada) — EM EDIÇÃO; inclui: cartão da forma cobre régua/ações e em AX esconde ações (V9 alto); indicador de rolagem do cartão em AX (G4 V8); .primario/.compacto com opacidade no press (ADR 02h) e célula nova com mola de classe errada (G4 V10); crossfade de aba com quadro cinza; 'pular'/aba do arquivo estreitos; Camadas anima antes do binding (re-G3 V7); migrar Página/Caderno para Componentes líquido-negativo | alto | M | multiplicar | nota base 6,7 |
 | 5 | V13 Telas até 9: Notas e barra de baixo | alto | M | multiplicar | nota base da V9 |
 | 6 | V14 Calendário: duração explícita e estados de navegação/acessibilidade | médio | M | multiplicar | "Calendário ligado à realização" |
 | 7 | V15 Telas até 9: Calendário e ficha | médio | M | multiplicar | nota base da V9 |
 | 8 | V16 Métodos com proveniência: fonte, adaptação, evidência; método ausente dito na tela | EM EDIÇÃO | M | melhorar | "Métodos e pesquisa com proveniência" |
 | 9 | V17 HTML útil e interativo (consulta ao conselho antes) | alto, incerto | G | multiplicar | "HTML útil e interativo" |
-| 10 | V18 Telas até 9: Trabalho (versão, conferência, prática num cartão só); do G4 da V6: porta da prática escondida, Dificuldade antes de Preparar em delegar, AcaoTrabalhoStyle sem estado desabilitado visível | alto | M | multiplicar | nota base da V9 (Trabalho 6,0); Simplicidade |
+| 10 | V18 Telas até 9: Trabalho (versão, conferência, prática num cartão só); do G4 da V6: porta da prática escondida, Dificuldade antes de Preparar em delegar, AcaoTrabalhoStyle sem estado desabilitado visível | EM EDIÇÃO (worktree volta-18-trabalho) — subiu ao topo pela ordem do dono de 06/09: telas abaixo de 9 primeiro, Trabalho (6,0) na frente | M | multiplicar | nota base da V9 (Trabalho 6,0); Simplicidade |
 | 11 | V19 Retrato/Trajetória recebem a prática (só se V6 provar prática real) | médio | M | melhorar | "Modelo revisável do autor" |
 | 12 | V20 Domínios amplos: segundo caso real (criação ou organização) | alto, depende do dono | G | ambos | "Domínios amplos de realização" |
 

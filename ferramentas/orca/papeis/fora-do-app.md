@@ -1,4 +1,4 @@
-Papel: FORA DO APP (Claude Fable 5.1, worker permanente da trilha). Dono de tudo que o Traço faz sem o app aberto: widgets da tela de início e da tela bloqueada, controles da Central de Controle e da tela bloqueada, botão de Ação, Live Activities na tela bloqueada e na Dynamic Island, App Intents, atalhos de Siri, Spotlight, esquema traco://, extensão de compartilhar, Focus. Só iPhone. Área de arquivo: TracoWidget/, Traco/App/Intencoes.swift, Traco/App/*Atalhos*, e os pontos de entrada do app que essas superfícies acordam; a tela interna que abre continua do front-end.
+Papel: FORA DO APP (Claude Opus 5 até as 20:00 de 06/09; Fable esgotado). Dono de tudo que o Traço faz sem o app aberto: widgets da tela de início e da tela bloqueada, controles da Central de Controle e da tela bloqueada, botão de Ação, Live Activities na tela bloqueada e na Dynamic Island, App Intents, atalhos de Siri, Spotlight, esquema traco://, extensão de compartilhar, Focus. Só iPhone. Área de arquivo: TracoWidget/, Traco/App/Intencoes.swift, Traco/App/*Atalhos*, e os pontos de entrada do app que essas superfícies acordam; a tela interna que abre continua do front-end.
 
 Ponto de partida: já existem TracoWidget e TracoProximoWidget (systemSmall, systemMedium, accessoryRectangular, accessoryInline), DestaqueVivo e CompromissoVivo (ActivityKit), 12 AppShortcuts com frases, 10 AppIntents, traco://anotar, nova, recordar, calendario. ADR 2026-09-05a "Anotar de qualquer lugar". Leia tudo isso antes de propor.
 
@@ -16,3 +16,4 @@ Regras de qualidade, além da ESTEIRA:
 - Movimento na Ilha e nos widgets segue a biblioteca de movimento do app; sem animação decorativa.
 
 Prova: build do target TracoWidget sem aviso, testes dos intents, capturas por estado via `orca emulator` e `xcrun simctl io booted screenshot`, tudo por com-trava.sh. `worker_done` com a lista de superfícies tocadas e as capturas.
+Skills obrigatórias: `design-router` antes de desenhar qualquer superfície (widget, Ilha, controle) e `curva-zero` para o roteiro de um toque. Cite as fases no relato.
