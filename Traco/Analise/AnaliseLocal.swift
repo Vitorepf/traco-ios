@@ -179,7 +179,10 @@ enum AnaliseLocal: Sendable {
         // me dá medo é ninguém avisar" — não faz nenhum dos três, e continua
         // sendo obstáculo dentro de uma intenção.
         + #"|\bd[áa] (um |uma )medo|\bd[áa] medo de \w+r\b|(^|[.!?]\s*)d[áa] medo"#
-        + #"|\b(estou|tô|ando|vivo|fiquei|fico|bate|bateu|d[áa]|deu) (com |numa |num |de )?(muita |tanta |uma |um )?(ansiedade|cansaço)\b"#
+        // ADR 06i-D — `me dá|me deu`, não `dá|deu`: o largo comia "a fila dá
+        // ansiedade no usuário" e "esse fluxo dá cansaço", onde a ansiedade é
+        // do usuário e não do autor.
+        + #"|\b(estou|tô|ando|vivo|fiquei|fico|bate|bateu|me d[áa]|me deu) (com |numa |num |de )?(muita |tanta |uma |um )?(ansiedade|cansaço)\b"#
         + #"|\b(minha|meu) (ansiedade|cansaço)\b"#
         + #"|\b(o|um|esse|aquele|num|no|meu) vazio\b"#
         + #"|\b(isso|isto|tudo|a vida|o dia|cada dia|essa semana|por dentro) pesa\b"#
@@ -199,7 +202,9 @@ enum AnaliseLocal: Sendable {
     /// 4. o que eu fiz A ALGUÉM, em QUALQUER tamanho. O teto de 120 era a
     /// régua errada aqui: contar que se foi grosso com o irmão é desabafo com
     /// noventa caracteres tanto quanto com quatrocentos.
-    static let lexicoDoAtoContraAlguem = #"fui (injust|gross|duro demais|ríspid)|perdi a (paciência|cabeça)|tratei mal|\bbriguei|discuti com|gritei com|xinguei|explodi com|descontei (com|n[oa]|nel[ae]|em)"#
+    /// ADR 06i-D: `\b` em `tratei mal` — sem ela "contratei mal" e "retratei
+    /// mal" calavam uma nota de trabalho. Mesma classe de borda da 06i-C.
+    static let lexicoDoAtoContraAlguem = #"fui (injust|gross|duro demais|ríspid)|perdi a (paciência|cabeça)|\btratei mal|\bbriguei|discuti com|gritei com|xinguei|explodi com|descontei (com|n[oa]|nel[ae]|em)"#
 
     /// 5. o que eu DEIXEI de fazer — e este sim só ACIMA do teto: curta,
     /// "fiquei calada quando perguntaram" é a nota que nomeia uma conversa, e o

@@ -3476,8 +3476,10 @@ frase real antes e depois:
 pareciam ter foram medidas e estão limpas: `exaust` em "busca exaustiva" (não
 dispara sozinho, precisa de companhia), `vazi` em "es**vazi**a" (colapsa com
 "vazio" na mesma chave da densidade, que é o conserto da 06i-B funcionando) e
-`\bpesa` em "pesa demais" (o objeto ainda é testado). **A classe está fechada**:
-nenhum radical da guarda casa hoje dentro de outra palavra.
+`\bpesa` em "pesa demais" (o objeto ainda é testado). **A classe foi VARRIDA —
+não está fechada** (frase corrigida na 06i-D, que achou mais dois pontos da
+mesma classe): as alternativas foram lidas uma a uma e as que não têm borda à
+esquerda foram medidas contra os candidatos que soubemos nomear.
 
 **PREDICAR vs NOMEAR, escrito.** A linha que a 06i-B nomeou na frase da recusa
 agora existe em código, e é a que o revisor propôs, com uma correção medida:
@@ -3494,9 +3496,10 @@ agora existe em código, e é a que o revisor propôs, com uma correção medida
 A correção sobre a proposta do revisor: `d[áa] medo de` largo comia "o que **dá
 medo de** verdade nesse plano", que é trabalho. Com `de` + **infinitivo**
 (`\w+r\b`) os dois lados ficam de pé — que é a própria definição que ele
-escreveu ("nunca vem com `de` + infinitivo" é a marca do NOMEAR). **Com isso a
-06i volta a não ter nenhum caso de arbitragem**, e é melhor assim: arbitragem é
-dívida, não troféu.
+escreveu ("nunca vem com `de` + infinitivo" é a marca do NOMEAR). **Esta frase
+está errada e a 06i-D a corrige:** o braço `de` + infinitivo NÃO é
+discriminador, é ARBITRAGEM — ele come Pré-mortem que usa a mesma forma. A ADR
+TEM um caso de arbitragem, e é este.
 
 **Mais dois buracos do mesmo ramo.** `bate|bateu|dá|deu` entram no ramo de
 `ansiedade|cansaço` (a 06i-B pôs `bate` só no ramo do `medo` — assimetria da
@@ -3518,3 +3521,61 @@ continua sem medida em nota real; a dívida da densidade em nota de sistema segu
 no RUMO; e a régua inversa continua sendo escrita por mim e pelo revisor, não
 por uso real.
 
+
+
+### 06i-D — As duas bordas que faltavam, e duas frases de honestidade (volta A-5-D)
+
+**O revisor reconstruiu o binário verbatim sobre a A-5-C e mediu: 122 frases das
+réguas, 0 problemas.** Sobraram duas linhas de código — a mesma classe de borda
+da 06i-C, em dois pontos que a varredura não alcançou — e duas frases desta ADR
+que estavam otimistas demais. Ele baixou **Estado honesto de 9 para 8** por
+causa das duas frases, e tem razão nas duas.
+
+**As duas linhas.** Nenhuma decisão nova de critério; as duas são a borda
+esquerda que a 06i-C já tinha varrido em outros onze pontos:
+
+| linha | a palavra que entrava pela porta errada | a nota que era calada |
+|---|---|---|
+| `\btratei mal` | "**contratei mal**", "**retratei mal**" | "Contratei mal o fornecedor e vou construir um processo de seleção" |
+| `me d[áa]\|me deu` (era `d[áa]\|deu`) | a ansiedade **do usuário**, não a do autor | "A fila dá ansiedade no usuário e vou construir um indicador" |
+
+O segundo é correção sobre a MINHA implementação, não sobre a proposta: a
+sugestão do `dá|deu` no ramo de `ansiedade|cansaço` foi do revisor e eu a
+implementei mais larga do que ele mediu. Com `me`, o sujeito volta a ser o autor
+— que é o critério inteiro desta ADR.
+
+**Fora — a ARBITRAGEM declarada.** O braço `\bd[áa] medo de \w+r\b` da 06i-C
+não é discriminador: ele come Pré-mortem que usa a mesma forma ("dá medo de
+perder o cliente se o deploy falhar" perde a forma). Mantê-lo é ESCOLHA, não
+acerto, e as três saídas foram medidas:
+
+| saída | custo |
+|---|---|
+| **manter o braço** (a escolhida) | **0 carimbos** em desabafo, **2 silêncios** em Pré-mortem |
+| tirar o braço | o desabafo predicado com infinitivo ("dá medo de encarar segunda") volta a virar exercício — carimbar nota pessoal é o erro caro desta guarda |
+| afinar por outro sinal | as duas formas admitem o mesmo sujeito e o mesmo verbo; não achamos sinal que separe |
+
+A escolha é pela ASSIMETRIA: calar é reversível pelo autor, carimbar não. Fica
+declarado como o **único caso de arbitragem da 06i** — a frase da 06i-C que diz
+o contrário está corrigida acima.
+
+**A classe NÃO está fechada.** A frase "a classe está fechada" da 06i-C ia para
+o LAÇO como se varrer fosse provar. Não é: a varredura leu os 8 léxicos e as 82
+alternativas uma a uma, e as que não tinham borda à esquerda foram medidas
+**contra os candidatos que soubemos nomear** — e esta volta achou mais dois
+exatamente aí. O resíduo conhecido e sem conserto grátis é a **família do
+adjetivo sem cópula** ("dia vazio", "gente cansada" dentro de nota de sistema),
+que a densidade ainda pode calar: consertá-la exige análise sintática, não
+borda.
+
+**Volta:** melhorar. **O que a IA sabe:** nada de novo — a guarda continua sem
+modelo, no aparelho. **Prova:** as três réguas com **6 frases novas** na régua
+inversa (58 de trabalho; 57 protegidas + 13 com gancho + 6 legítimas), e as seis
+medidas VERMELHAS antes do conserto — `silencio ← «Contratei mal o fornecedor e
+vou construir um processo de seleção com três etapas.» (esperado spec)` e as
+outras cinco. Depois, no iPhone 17 Pro (teste 4) `A1DF082C`: `✔ Test run with
+14 tests in 1 suite passed after 0.297 seconds.` na `EscritaPessoalTests` e
+`✔ Test run with 752 tests in 128 suites passed after 8.910 seconds.` /
+`** TEST SUCCEEDED **` na suíte inteira. **Fora:** a arbitragem do `dá medo de` acima; a família do adjetivo
+sem cópula; a dívida da densidade em nota de sistema segue no RUMO; e a régua
+inversa continua sendo escrita por mim e pelo revisor, não por uso real.

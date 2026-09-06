@@ -203,6 +203,15 @@ import Testing
         ("Meu argumento é que o sentimento do cliente não substitui o dado da pesquisa.", "argumento"),
         ("Aposto que o novo fluxo reduz o abandono, mas dou 60% de chance, não mais que isso.", "atualizacao"),
         ("Qual a probabilidade real de entregar em março? Quanto eu acredito nisso hoje?", "atualizacao"),
+        // ADR 06i-D: a mesma classe de borda da 06i-C, dois pontos que a
+        // varredura não tinha alcançado — `tratei mal` dentro de "contratei" e
+        // "retratei", e o `dá|deu` largo comendo a ansiedade do usuário.
+        ("Contratei mal o fornecedor e vou construir um processo de seleção com três etapas.", "spec"),
+        ("Retratei mal o problema no relatório e preciso destilar tudo em um parágrafo.", "destilar"),
+        ("Percebi que contratei mal por pressa: urgência não é critério de escolha.", "notaPermanente"),
+        ("A fila dá ansiedade no usuário e vou construir um indicador de progresso na tela.", "spec"),
+        ("Esse fluxo dá cansaço em quem usa, e preciso destilar as dez etapas em três.", "destilar"),
+        ("Percebi que a espera longa dá ansiedade em quem espera, e isso muda o desenho.", "notaPermanente"),
     ]
 
     static func comOsNovos<T>(_ corpo: () throws -> T) rethrows -> T {
