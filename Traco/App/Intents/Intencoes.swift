@@ -280,6 +280,9 @@ enum GestoEscolha: String, AppEnum {
 enum Rota {
     enum Destino: Equatable {
         case novaPagina, notas, calendario, recordar, anotar(String)
+        /// ADR 05w: página em branco com o teclado pronto; `ditado` é onde o
+        /// ditado próprio (próxima superfície) vai entrar.
+        case captura(ditado: Bool)
         /// ADR 05u: entidades chegam por aqui (Atalhos, Spotlight, avisos);
         /// a tela revalida o selo/acesso antes de abrir.
         case nota(UUID), trabalho(UUID), compromisso(id: UUID, inicio: Date)
@@ -290,7 +293,16 @@ enum Rota {
 
     static func ir(_ destino: Destino) {
         pendente = destino
-        NotificationCenter.default.post(name: mudou, object: nil)
+        anunciar()
+    }
+    /// O anúncio à cena. A suíte roda DENTRO do app do simulador, com a
+    /// `PaginaView` viva ouvindo; o teste de arranque frio troca isto por
+    /// silêncio para provar que a rota espera a cena.
+    static var anunciar: () -> Void = { NotificationCenter.default.post(name: mudou, object: nil) }
+    /// Devolve a pendente UMA vez. Quem chama é a cena pronta (`PaginaView`).
+    static func consumir() -> Destino? {
+        defer { pendente = nil }
+        return pendente
     }
     /// Só o deep link das escalas — a aba sozinha abre no dia.
     static var escalaCalendario: EscalaCalendario?
