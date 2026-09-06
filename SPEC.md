@@ -3071,6 +3071,19 @@ chorei" é a frase que ele foi ensinado a classificar. `Sessao` calcula
 `AnaliseLocal.escritaPessoal(texto:campos:)` do texto cru, com o mobiliário
 fora, e passa o resultado para `escolher`.
 
+**E foi provado NA TELA, com o modelo ligado.** O simulador não tem conta xAI
+nem Apple Intelligence — foi por isso que o buraco nasceu invisível. Um modelo
+de mentira, só em DEBUG e ligado pelo AMBIENTE do simulador
+(`TRACO_MODELO_FALSO`, no mesmo canal do `TRACO_SEM_MODELO` da 03p), torna o
+degrau de cima observável. `maestro/escrita-pessoal.sh` roda dois fluxos, e o
+**primeiro é o controle**: com `TRACO_MODELO_FALSO=woop`, "Amanhã eu arrumo a
+estante da sala" — que regex nenhuma alcança — chega VESTIDA de WOOP, com os
+três campos abertos (`ferramentas/orca/ab-modelo-veste.png`). Sem esse controle
+o segundo fluxo não mede nada, porque "nenhum cartão" também é o que se vê com o
+modelo desligado. No segundo, com o MESMO modelo ligado, "Perdi a paciência com
+ela hoje. Me arrependi e chorei." fica na página sem cartão nenhum
+(`ferramentas/orca/ab-cala-o-modelo.png`).
+
 **Volta:** multiplicar. **O que a IA sabe:** nada de novo. **Prova:**
 `EscritaPessoalTests` com os SETE métodos da M3 carregados pela pasta do autor
 (o `Metodos.json` é da M3 e não foi tocado) e **três réguas somadas, 57 frases**:

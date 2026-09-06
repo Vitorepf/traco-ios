@@ -217,7 +217,7 @@ import Testing
                 #expect(linhas.count >= 3 && linhas.allSatisfy { $0.count < 60 })
                 continue
             }
-            let m = try? #require(Catalogo.metodo(esperado))
+            let m = Catalogo.metodo(esperado)
             #expect(m?.roteamento.contains { lower.contains(regex: $0) } == true,
                     Comment(rawValue: "não bate em \(esperado): «\(frase)»"))
         }
