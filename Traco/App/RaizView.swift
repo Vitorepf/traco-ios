@@ -10,7 +10,7 @@ struct RaizView: View {
     @State private var sessao = Sessao()
     @State private var tecladoAberto = false
     @State private var agenda = CalendarioAgenda()
-    // ADR 05x: o ditado próprio cobre a página — é a tarefa inteira
+    // ADR 06c: o ditado próprio cobre a página — é a tarefa inteira
     @State private var ditado: DitadoProprio?
 
     private var arquivoAberto: Binding<Bool> {
@@ -97,7 +97,7 @@ struct RaizView: View {
             ? .easeOut(duration: Tema.Duracao.media)
             : .easeIn(duration: Tema.Duracao.curta), reduzido: reduceMotion),
             value: sessao.confirmacao != nil)
-        // ADR 05x: acima de tudo o que a Página pode estar mostrando — a
+        // ADR 06c: acima de tudo o que a Página pode estar mostrando — a
         // gravação não divide a tela com nada, nem com o teclado.
         .overlay {
             if let ditado {
@@ -176,7 +176,7 @@ struct RaizView: View {
         // ADR 04k: os encadeamentos que marcam compromisso passam pela agenda
         .onAppear {
             sessao.agenda = agenda
-            // ADR 05x: no arranque frio o intent corre antes desta cena existir
+            // ADR 06c: no arranque frio o intent corre antes desta cena existir
             if Rota.consumirDitado() { abrirDitado() }
         }
         .onReceive(NotificationCenter.default.publisher(for: Rota.mudou)) { _ in
@@ -195,7 +195,7 @@ struct RaizView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
             tecladoAberto = true
-            // ADR 05x: o foco da página continua armado por baixo; enquanto a
+            // ADR 06c: o foco da página continua armado por baixo; enquanto a
             // gravação está na tela, o teclado não sobe por cima dela
             if ditado != nil {
                 UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
@@ -215,9 +215,13 @@ struct RaizView: View {
         // um já terminado na tela é substituído — senão o segundo toque não
         // faz nada e o autor fica falando para uma tela parada
         if let atual = ditado, atual.estado == .gravando || atual.estado == .transcrevendo { return }
+        // a gravação não divide a tela: o teclado que a página tenha deixado
+        // de pé sai agora (a defesa durável é o `keyboardWillShow` acima)
+        Teclado.recolher()
         let novo = DitadoProprio()
-        let sessao = sessao, context = context
-        novo.gravarNota = { sessao.gravarDitado(texto: $0, criadaEm: novo.comecouEm, no: context) }
+        // A2 do G3: quem liga o ditado ao disco é a Sessão, e a nota que ele
+        // deposita é DELE — dois ditados sobrepostos não dividem mais uma só.
+        sessao.armarDitado(novo, no: context)
         #if DEBUG
         // evidência do estado "transcrito", que o simulador não produz sozinho
         if Rota.ensaioDoDitado == "transcrito" {
@@ -228,6 +232,8 @@ struct RaizView: View {
                 return .veio("comprar pão e ligar para a Ana amanhã cedo")
             }
         }
+        // o disco recusando o depósito: o estado que a tela mentia (G3, A1)
+        if Rota.ensaioDoDitado == "disco-recusa" { novo.gravarNota = { _ in false } }
         Rota.ensaioDoDitado = nil
         #endif
         ditado = novo

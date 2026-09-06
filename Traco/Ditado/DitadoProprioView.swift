@@ -1,77 +1,55 @@
 import SwiftUI
 
-/// ADR 2026-09-05x — a superfície do ditado próprio.
+/// ADR 2026-09-06c — a superfície do ditado próprio.
 ///
 /// Cobre a página porque a gravação é a tarefa inteira: um toque fora do app
-/// faz UMA coisa, e essa coisa é falar. O idioma visual é o da confirmação
-/// (material, tinta, um título e no máximo duas ações) — nada novo em tokens.
+/// faz UMA coisa, e essa coisa é falar. O idioma visual é o da confirmação —
+/// e agora é literalmente o MESMO: `FolhaDeConfirmacao` (G3, M6).
 ///
-/// Os três estados que o autor precisa distinguir têm títulos diferentes:
-/// **Gravando** (nada guardado ainda), **Áudio guardado** (no disco, sem
-/// letra) e **Guardado nas Notas** (com a letra, ainda por conferir).
+/// Os quatro estados que o autor precisa distinguir têm títulos diferentes, e
+/// cada um diz a verdade sobre onde o áudio está: **Gravando.** (nada
+/// guardado), **Áudio guardado.** (no disco, sem letra), **Guardado nas
+/// Notas.** (com a letra) e **O áudio ficou no aparelho.** (gravado, mas a
+/// nota não entrou).
 struct DitadoProprioView: View {
     @Bindable var ditado: DitadoProprio
     let aoFechar: () -> Void
     let aoEscrever: () -> Void
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var materializado = false
     /// o ponto é o único sinal não textual: cresce com o texto
     @ScaledMetric(relativeTo: .body) private var ladoDoPonto: CGFloat = 12
 
     var body: some View {
-        ZStack {
-            Rectangle().fill(.ultraThinMaterial).ignoresSafeArea()
-            Tema.fundo.opacity(0.55).ignoresSafeArea()
-            ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    conteudo
-                }
-                .padding(28)
-                .frame(maxWidth: 360, alignment: .leading)
-            }
-            .scaleEffect(materializado || reduceMotion ? 1 : 1.04)
-            .blur(radius: materializado || reduceMotion ? 0 : 6)
-            .opacity(materializado || reduceMotion ? 1 : 0)
-        }
-        // A TROCA DE ESTADO É SECA, de propósito. Em fade, "Gravando." e
-        // "Áudio guardado." aparecem SOBREPOSTOS por um quarto de segundo e
-        // nenhum dos dois se lê (capturado: f3b-02-transcrevendo-sobreposto).
-        // É a mesma decisão da troca de aba na raiz: sem direção espacial, a
-        // troca seca não tem vão. Quem marca a mudança é o háptico e o anúncio.
-        .transaction { t in t.animation = nil }
-        .onAppear {
-            // a gravação não divide a tela: o teclado que a página tenha
-            // deixado de pé sai, senão ele cobre a superfície pelo topo
-            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
-                                            to: nil, from: nil, for: nil)
-            withAnimation(Tema.movimento(.escala, .easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion)) {
-                materializado = true
-            }
-        }
-        .onChange(of: ditado.estado) { _, novo in anunciar(novo) }
-        .accessibilityAddTraits(.isModal)
-        .accessibilityAction(.escape) { escapar() }
+        FolhaDeConfirmacao(aoEscapar: escapar) { conteudo }
+            // A TROCA DE ESTADO É SECA, de propósito. Em fade, "Gravando." e
+            // "Áudio guardado." aparecem SOBREPOSTOS por um quarto de segundo
+            // e nenhum dos dois se lê (capturado: f3b-02-transcrevendo-sobreposto).
+            // É a mesma decisão da troca de aba na raiz: sem direção espacial,
+            // a troca seca não tem vão. Quem marca a mudança é o háptico
+            // (`Toque` em cada troca de resultado) e o anúncio.
+            .transaction { t in t.animation = nil }
+            .onChange(of: ditado.estado) { _, novo in anunciar(novo) }
     }
 
     @ViewBuilder
     private var conteudo: some View {
         switch ditado.estado {
         case .gravando:
-            titulo("Gravando.")
+            Folha.titulo("Gravando.", id: "ditado-titulo")
             relogio
-            texto("Fale. O áudio é guardado primeiro; a letra vem depois.")
-            botao("Pronto", id: "ditado-pronto") { Task { await ditado.concluir() } }
-            botaoMudo("Descartar", id: "ditado-descartar") {
+            Folha.texto("Fale. O áudio é guardado primeiro; a letra vem depois.")
+            Folha.botao("Pronto", id: "ditado-pronto") { Task { await ditado.concluir() } }
+            Folha.botaoMudo("Descartar", id: "ditado-descartar") {
                 ditado.descartar()
                 aoFechar()
             }
         case .transcrevendo:
-            titulo("Áudio guardado.")
-            texto("Transcrevendo no aparelho…")
-            meta("A nota já existe, com o áudio dentro. Nada depende do que vem agora.")
-            botaoMudo("Fechar", id: "ditado-fechar") { aoFechar() }
+            Folha.titulo("Áudio guardado.", id: "ditado-titulo")
+            Folha.texto("Transcrevendo no aparelho…")
+            Folha.meta("A nota já existe, com o áudio dentro. Nada depende do que vem agora.")
+            Folha.botaoMudo("Fechar", id: "ditado-fechar") { aoFechar() }
         case .transcrito(let letra):
-            titulo("Guardado nas Notas.")
+            Folha.titulo("Guardado nas Notas.", id: "ditado-titulo")
             Text(letra)
                 .font(Tema.corpo)
                 .foregroundStyle(Tema.tinta)
@@ -79,22 +57,42 @@ struct DitadoProprioView: View {
                 .padding(Tema.entreItens)
                 .background(Tema.superficieBaixa, in: RoundedRectangle(cornerRadius: Tema.Raio.campo, style: .continuous))
                 .accessibilityIdentifier("ditado-transcricao")
-            meta("Transcrito no aparelho. Confira quando puder — máquina não é o mesmo que conferido.")
-            botao("Pronto", id: "ditado-pronto") { aoFechar() }
+            Folha.meta("Transcrito no aparelho. Confira quando puder — máquina não é o mesmo que conferido.")
+            Folha.botao("Pronto", id: "ditado-pronto") { aoFechar() }
+            // M3 do G3: pedir a conferência sem dar o caminho era mandar o
+            // autor caçar a nota na lista. A conferência começa aqui.
+            if ditado.abrirANota != nil {
+                Folha.botaoMudo("Abrir a nota", id: "ditado-abrir-nota") {
+                    ditado.abrirANota?()
+                    aoFechar()
+                }
+            }
         case .semLetra(let motivo):
-            titulo("O áudio ficou.")
-            texto("Não consegui transcrever: \(motivo)")
-            meta("A nota está nas Notas com o áudio dentro; é só tocar para ouvir.")
-            botao("Tentar de novo", id: "ditado-tentar") { Task { await ditado.tentarDeNovo() } }
-            botaoMudo("Pronto", id: "ditado-pronto") { aoFechar() }
+            Folha.titulo("O áudio ficou.", id: "ditado-titulo")
+            Folha.texto("Não consegui transcrever: \(motivo)")
+            Folha.meta("A nota está nas Notas com o áudio dentro; é só tocar para ouvir.")
+            Folha.botao("Tentar de novo", id: "ditado-tentar") { Task { await ditado.tentarDeNovo() } }
+            Folha.botaoMudo("Pronto", id: "ditado-pronto") { aoFechar() }
+        case .semDeposito(let motivo):
+            // A1 do G3: aqui a tela dizia "Sem microfone." e "Nada foi gravado"
+            // com o microfone funcionando e o m4a no disco. Agora diz os três
+            // fatos: o que existe, o que falhou, e o que o autor pode fazer.
+            Folha.titulo("O áudio ficou no aparelho.", id: "ditado-titulo")
+            Folha.texto("Gravei, mas a nota não entrou: \(motivo)")
+            Folha.meta("Sem uma nota que o cite, o áudio é apagado em um dia.")
+            Folha.botao("Tentar de novo", id: "ditado-tentar") { Task { await ditado.depositarDeNovo() } }
+            Folha.botaoMudo("Descartar a gravação", id: "ditado-descartar") {
+                ditado.descartar()
+                aoFechar()
+            }
         case .semMicrofone(let motivo):
-            titulo("Sem microfone.")
-            texto(primeiraMaiuscula(motivo))
-            meta("Nada foi gravado — não há áudio guardado desta vez.")
-            botao("Abrir os Ajustes", id: "ditado-ajustes") {
+            Folha.titulo("Sem microfone.", id: "ditado-titulo")
+            Folha.texto(primeiraMaiuscula(motivo))
+            Folha.meta("Nada foi gravado — não há áudio guardado desta vez.")
+            Folha.botao("Abrir os Ajustes", id: "ditado-ajustes") {
                 if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
             }
-            botaoMudo("Escrever em vez disso", id: "ditado-escrever") { aoEscrever() }
+            Folha.botaoMudo("Escrever em vez disso", id: "ditado-escrever") { aoEscrever() }
         }
     }
 
@@ -133,52 +131,18 @@ struct DitadoProprioView: View {
     }
 
     private func anunciar(_ estado: DitadoProprio.Estado) {
-        let frase: String? = switch estado {
+        let frase = switch estado {
         case .gravando: "Gravando."
         case .transcrevendo: "Áudio guardado. Transcrevendo."
         case .transcrito: "Transcrito e guardado nas Notas."
         case .semLetra(let m): "Não consegui transcrever: \(m) O áudio ficou guardado."
+        case .semDeposito(let m): "O áudio ficou no aparelho. A nota não entrou: \(m)"
         case .semMicrofone(let m): "Sem microfone. \(m)"
         }
-        if let frase { AccessibilityNotification.Announcement(frase).post() }
-    }
-
-    private func titulo(_ t: String) -> some View {
-        Text(t)
-            .font(Tema.confirmacaoTitulo)
-            .foregroundStyle(Tema.tinta)
-            .accessibilityAddTraits(.isHeader)
-            .accessibilityIdentifier("ditado-titulo")
-    }
-
-    private func texto(_ t: String) -> some View {
-        Text(t).font(Tema.confirmacaoCorpo).foregroundStyle(Tema.tintaSuave)
-    }
-
-    private func meta(_ t: String) -> some View {
-        Text(t).font(Tema.meta).foregroundStyle(Tema.tintaFraca)
-    }
-
-    private func botao(_ t: String, id: String, acao: @escaping () -> Void) -> some View {
-        Button(t, action: acao)
-            .font(Tema.barra)
-            .foregroundStyle(Tema.ambarTinta)
-            .frame(minHeight: Tema.alvo)
-            .buttonStyle(PressaoDiscreta())
-            .accessibilityIdentifier(id)
-    }
-
-    private func botaoMudo(_ t: String, id: String, acao: @escaping () -> Void) -> some View {
-        Button(t, action: acao)
-            .font(Tema.chrome)
-            .foregroundStyle(Tema.tintaSuave)
-            .frame(minHeight: Tema.alvo)
-            .buttonStyle(PressaoDiscreta())
-            .accessibilityIdentifier(id)
+        AccessibilityNotification.Announcement(frase).post()
     }
 }
 
 #Preview("gravando") {
-    let d = DitadoProprio()
-    return DitadoProprioView(ditado: d, aoFechar: {}, aoEscrever: {})
+    DitadoProprioView(ditado: DitadoProprio(), aoFechar: {}, aoEscrever: {})
 }

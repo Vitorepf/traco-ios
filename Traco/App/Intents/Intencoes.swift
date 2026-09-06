@@ -304,7 +304,7 @@ enum Rota {
         defer { pendente = nil }
         return pendente
     }
-    /// ADR 05x: o ditado NÃO é um `Destino`. Quem o consome é a raiz, não a
+    /// ADR 06c: o ditado NÃO é um `Destino`. Quem o consome é a raiz, não a
     /// Página — e o teclado da `.captura` não pode subir por trás da gravação.
     /// Fica num canal próprio, anunciado pela mesma notificação e devolvido
     /// UMA vez, como a rota.
@@ -349,7 +349,7 @@ enum Rota {
             return .calendario
         case "recordar": return .recordar
         case "ditar":
-            // ADR 05x: anuncia o ditado e devolve nil — a Página, que só
+            // ADR 06c: anuncia o ditado e devolve nil — a Página, que só
             // entende `Destino`, corretamente não faz nada.
             #if DEBUG
             ensaioDoDitado = URLComponents(url: url, resolvingAgainstBaseURL: false)?

@@ -494,7 +494,7 @@ struct ForaDoAppTests {
         #expect(!Rota.ditadoPendente)
         #expect(CapturarIntent.noApp)
         _ = try await CapturarIntent().perform()
-        // ADR 05x: o controle abre GRAVANDO, não com o teclado pronto — e o
+        // ADR 06c: o controle abre GRAVANDO, não com o teclado pronto — e o
         // ditado corre por canal próprio, que a Página (só `Destino`) ignora
         #expect(Rota.consumir() == nil)
         #expect(Rota.consumirDitado())

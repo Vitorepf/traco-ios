@@ -1,8 +1,9 @@
 import Foundation
+import SwiftData
 import Testing
 @testable import Traco
 
-/// ADR 2026-09-05x — o áudio antes da letra.
+/// ADR 2026-09-06c — o áudio antes da letra.
 ///
 /// Nada aqui abre microfone: o que se prova é a ORDEM (o depósito acontece
 /// antes de a transcrição ser sequer pedida) e o CAMINHO DE FALHA (a nota fica,
@@ -93,7 +94,7 @@ struct DitadoProprioTests {
         #expect(ultimo.contains("traco://audio/\(d.id.uuidString)"))
     }
 
-    @Test("disco recusa o depósito: nada se confirma na tela e a letra nem é pedida")
+    @Test("disco recusa o depósito: a tela NÃO diz sem microfone — o áudio existe, a nota é que não entrou")
     func discoRecusa() async throws {
         let d = DitadoProprio()
         nonisolated(unsafe) var pediuALetra = false
@@ -105,7 +106,37 @@ struct DitadoProprioTests {
         await d.concluir()
         #expect(!pediuALetra)
         #expect(!d.notaCriada)
-        #expect(d.estado == .semMicrofone("não consegui guardar o áudio."))
+        // A1 do G3: o estado tem NOME PRÓPRIO. O microfone funcionou e o m4a
+        // está no disco — dizer "sem microfone" aqui era mentira na tela.
+        #expect(d.estado == .semDeposito("o disco recusou."))
+        #expect(d.estado != .semMicrofone("o disco recusou."))
+    }
+
+    @Test("disco volta: tentar de novo é o MESMO depósito, e a letra vem depois dele")
+    func discoVolta() async throws {
+        let d = DitadoProprio()
+        nonisolated(unsafe) var recusar = true
+        nonisolated(unsafe) var diario: [String] = []
+        d.abrirMicrofone = { _ in nil }
+        d.fecharMicrofone = {}
+        d.gravarNota = { texto in
+            if recusar { return false }
+            diario.append(texto)
+            return true
+        }
+        d.transcritor = { _ in diario.append("PEDIU A LETRA"); return .veio("a frase") }
+        await d.comecar()
+        await d.concluir()
+        #expect(d.estado == .semDeposito("o disco recusou."))
+        #expect(diario.isEmpty)
+        recusar = false
+        await d.depositarDeNovo()
+        // a segunda tentativa não regrava: deposita o MESMO áudio e só então pede a letra
+        #expect(diario.count == 3)
+        #expect(diario[0].contains("O áudio ficou guardado, sem transcrição."))
+        #expect(diario[1] == "PEDIU A LETRA")
+        #expect(d.estado == .transcrito("a frase"))
+        #expect(d.notaCriada)
     }
 
     @Test("microfone negado: nada é gravado e a tela diz por quê")
@@ -160,5 +191,61 @@ struct DitadoProprioTests {
         #expect(Rota.pendente == nil)
         #expect(Rota.consumirDitado())
         #expect(!Rota.consumirDitado())
+    }
+
+    /// A2 do G3, reproduzido: fechar durante a transcrição e disparar o
+    /// controle outra vez fazia a nota do PRIMEIRO ditado ficar dizendo "sem
+    /// transcrição" para sempre, enquanto a letra dele virava uma SEGUNDA
+    /// nota — duas entradas para uma fala, com o mesmo áudio dentro.
+    @Test("dois ditados sobrepostos: cada um escreve na SUA nota, e não nasce nota órfã")
+    func doisDitadosSobrepostos() async throws {
+        let context = ModelContext(try ModelContainer.traco(emMemoria: true))
+        let sessao = Sessao()
+        let primeiro = DitadoProprio(comecouEm: Date(timeIntervalSince1970: 1_757_170_320))
+        let segundo = DitadoProprio(comecouEm: Date(timeIntervalSince1970: 1_757_170_500))
+        for d in [primeiro, segundo] {
+            sessao.armarDitado(d, no: context)
+            d.abrirMicrofone = { _ in nil }
+            d.fecharMicrofone = {}
+        }
+        // o segundo ditado inteiro acontece DENTRO da transcrição do primeiro:
+        // é exatamente a corrida dos dois toques no controle
+        segundo.transcritor = { _ in .veio("a segunda fala") }
+        primeiro.transcritor = { _ in
+            await segundo.comecar()
+            await segundo.concluir()
+            return .veio("a primeira fala")
+        }
+        await primeiro.comecar()
+        await primeiro.concluir()
+
+        let notas = try context.fetch(FetchDescriptor<Nota>())
+        #expect(notas.count == 2)  // uma fala, uma nota — nunca três
+        // cada nota carrega o SEU áudio e a SUA letra; nenhuma ficou órfã
+        let daPrimeira = try #require(notas.first { $0.texto.contains(primeiro.id.uuidString) })
+        let daSegunda = try #require(notas.first { $0.texto.contains(segundo.id.uuidString) })
+        #expect(daPrimeira.texto.hasPrefix("a primeira fala"))
+        #expect(daSegunda.texto.hasPrefix("a segunda fala"))
+        // e ninguém ficou afirmando por escrito que não há transcrição
+        #expect(!notas.contains { $0.texto.contains("O áudio ficou guardado, sem transcrição.") })
+    }
+
+    @Test("a nota do ditado volta para quem a pediu: o caminho de conferir existe")
+    func abrirANota() async throws {
+        let context = ModelContext(try ModelContainer.traco(emMemoria: true))
+        let sessao = Sessao()
+        let d = DitadoProprio(comecouEm: Date(timeIntervalSince1970: 1_757_170_320))
+        sessao.armarDitado(d, no: context)
+        d.abrirMicrofone = { _ in nil }
+        d.fecharMicrofone = {}
+        d.transcritor = { _ in .veio("conferir isto") }
+        await d.comecar()
+        await d.concluir()
+        #expect(d.estado == .transcrito("conferir isto"))
+        let abrir = try #require(d.abrirANota)
+        abrir()
+        // a página abre COM a nota do ditado, não com uma em branco
+        #expect(sessao.texto.hasPrefix("conferir isto"))
+        #expect(sessao.aba == .escrever)
     }
 }

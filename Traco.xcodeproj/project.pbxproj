@@ -134,6 +134,7 @@
 		C50148780B8DC1A48C2EE0E2 /* Dominio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FB4D87DCC6F49ABB1CBA6A8 /* Dominio.swift */; };
 		C6C32FF3D2FE034D30B4ECBA /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C8368BD8FD67D026089BF81E /* WidgetKit.framework */; };
 		C73A648441762DCB1763D083 /* Versoes.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5E62A0F1DA399D86F076645 /* Versoes.swift */; };
+		C7844C14573D412E1CDF5606 /* FolhaDeConfirmacao.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB1F2AF6F038EB8787E7F2A2 /* FolhaDeConfirmacao.swift */; };
 		C9D53DA9D5383AF659552D95 /* TrabalhoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43C245F482C5E68ABE6C0BD1 /* TrabalhoView.swift */; };
 		CAB6D2E08C5F9C9171C9ECB8 /* Metodos.json in Resources */ = {isa = PBXBuildFile; fileRef = 4349401ACAFEEF5811D2D889 /* Metodos.json */; };
 		CD648041F9CCEDA0F0DDD4F7 /* PraticaTrabalho.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E514D1B05A813B7A669ED3 /* PraticaTrabalho.swift */; };
@@ -347,6 +348,7 @@
 		D559A524E20BFCB3DD3265B3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		D78CA40BB6261B7ED51A389D /* ConversaNotas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversaNotas.swift; sourceTree = "<group>"; };
 		D83996006ACA17F6C0CCA1E9 /* AnaliseDeBordoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnaliseDeBordoTests.swift; sourceTree = "<group>"; };
+		DB1F2AF6F038EB8787E7F2A2 /* FolhaDeConfirmacao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolhaDeConfirmacao.swift; sourceTree = "<group>"; };
 		DBE905DFA3CEA272597F706D /* OficinaTrabalho.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OficinaTrabalho.swift; sourceTree = "<group>"; };
 		DEC88C57426827914E30265B /* SabiaOrcamentoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SabiaOrcamentoTests.swift; sourceTree = "<group>"; };
 		DFE52AE87EF1BA2A3B863362 /* TrabalhoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrabalhoTests.swift; sourceTree = "<group>"; };
@@ -669,6 +671,7 @@
 			children = (
 				F097B670D2780F7796A2E211 /* DitadoProprio.swift */,
 				3060282F33EBDE09D447B171 /* DitadoProprioView.swift */,
+				DB1F2AF6F038EB8787E7F2A2 /* FolhaDeConfirmacao.swift */,
 				7E9F0ACA7A53E97C35A529A1 /* TextoDoDitado.swift */,
 			);
 			path = Ditado;
@@ -929,6 +932,7 @@
 				5B9AE29312A3CD5A78A518FC /* FechoExpressivaView.swift in Sources */,
 				29E846B28D6E71A4ADD8401A /* Feriados.swift in Sources */,
 				1E26BA58FB55F45BEA707EF6 /* Ferias.swift in Sources */,
+				C7844C14573D412E1CDF5606 /* FolhaDeConfirmacao.swift in Sources */,
 				9AE336A415F4A83195416BE2 /* Gesto.swift in Sources */,
 				C18D04088FF363CD7B9FECF8 /* Grok.swift in Sources */,
 				BFBA450F8798775C427206AB /* Holofote.swift in Sources */,
@@ -1051,7 +1055,7 @@
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "Reabrir uma escrita selada pede o seu rosto — foi você que pediu para ela ficar fechada.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Traço guarda nesta nota o áudio que você gravou.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Traço guarda nesta nota a foto que você escolheu.";
-				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Ditar o compromisso. O reconhecimento acontece no aparelho.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Transformar em letra o que você ditou. O reconhecimento acontece no aparelho — o áudio não sai daqui.";
 				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIFileSharingEnabled = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -1197,7 +1201,7 @@
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "Reabrir uma escrita selada pede o seu rosto — foi você que pediu para ela ficar fechada.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Traço guarda nesta nota o áudio que você gravou.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Traço guarda nesta nota a foto que você escolheu.";
-				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Ditar o compromisso. O reconhecimento acontece no aparelho.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Transformar em letra o que você ditou. O reconhecimento acontece no aparelho — o áudio não sai daqui.";
 				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIFileSharingEnabled = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

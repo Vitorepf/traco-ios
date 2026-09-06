@@ -72,8 +72,8 @@ microfone a tela oferece escrever. **Poder preservado:** `traco://anotar`, o
 | `f3b-09-escrever-em-vez-disso.png` | a saída: página em branco com o teclado (05w) |
 | `f3b-05-notas-lista.png` | as notas do ditado na lista |
 | `f3b-06-nota-transcrita.png` | a nota com a transcrição, o portal de ÁUDIO (95 KB) e a origem |
-| `f3b-07-nota-falha.png` | a nota da FALHA: o áudio de 99 KB e a linha honesta |
-| `f3b-10-ax5-gravando.png`, `f3b-11-ax5-falha.png` | AX5 sem clipe |
+| `f3b-07-nota-falha.png` | a nota da FALHA: o áudio de 87 KB e a linha honesta |
+| `f3b-10-ax5-gravando.png`, `f3b-11-ax5-falha.png` | AX5 gravando limpo; AX5 na falha CORTA no rodapé — as ações só aparecem rolando (corrigido na F3b-B: o texto rolado esmaece antes da Ilha) |
 | `f3b-movimento.mp4` | normal × Reduzir Movimento, lado a lado |
 | `f3b-02-transcrevendo-sobreposto.png` | o defeito que motivou a troca seca |
 

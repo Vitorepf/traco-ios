@@ -2816,7 +2816,7 @@ errado recusa sem rota; falha do Anotar não deposita); suíte 715/125 sobre a V
 sem aviso; capturas no iPhone Air. **Fora (F3b):** ditado próprio — áudio
 salvo primeiro, transcrito depois, falha preserva o áudio — por `.captura`.
 
-## ADR 2026-09-05x — O áudio antes da letra
+## ADR 2026-09-06c — O áudio antes da letra
 
 **A distância.** A F3 (05w) trouxe o autor de fora do app até a página em
 branco com o teclado pronto e o microfone a um toque, mas quem transcrevia era
@@ -2825,20 +2825,36 @@ ficava nada. A frase falada na rua dependia de a letra dar certo — e a 05a
 tinha decidido o contrário: o áudio é depositado primeiro, a letra vem depois,
 e falha de transcrição PRESERVA o áudio.
 
-**A decisão.** O controle "Anotar" passa a abrir **gravando**
+**A decisão.** O controle da Central de Controle (agora **"Ditar"**, com
+ícone de microfone: a placa tem de dizer o que a porta abre) passa a abrir
+**gravando**
 (`Rota.ditar()`, não `Rota.ir(.captura(ditado:))` — teclado por trás da
 gravação é ruído; o ditado corre num canal próprio que a Página, que só
 entende `Destino`, ignora). `AVAudioRecorder` escreve o m4a **direto no
 destino final do anexo**: o áudio nasce depositado, não é copiado no fim. Ao
 tocar "Pronto" a NOTA ENTRA NO DISCO SEM UMA LETRA
-(`Sessao.gravarDitado`, chaveada pela hora de início) e só então a transcrição
-é pedida: se o app morrer aqui, o autor acha a frase gravada e a linha diz a
-verdade. `SFSpeechURLRecognitionRequest` com `requiresOnDeviceRecognition` —
+(`Sessao.gravarDitado`) e só então a transcrição é pedida: se o app morrer
+aqui, o autor acha a frase gravada e a linha diz a verdade. **A nota volta
+para quem a pediu** — `Sessao.armarDitado` dá a cada ditado a SUA identidade.
+Era uma variável só da Sessão, e dois ditados sobrepostos a dividiam: quando o
+segundo depositava, a letra do primeiro não achava mais "a sua" nota e criava
+uma SEGUNDA, deixando a do depósito afirmando "sem transcrição" para sempre
+(G3, A2). `SFSpeechURLRecognitionRequest` com `requiresOnDeviceRecognition` —
 contrato de privacidade, o mesmo do `Ditado` do calendário: sem modelo local a
 letra é RECUSADA e o motivo aparece, nunca cai no reconhecimento remoto em
 silêncio. Microfone e fala são permissões separadas de propósito: fala negada
 ainda grava; só microfone negado impede o depósito, e aí a tela diz "Nada foi
 gravado" e oferece "Escrever em vez disso" (que é a 05w intacta).
+
+**O que o app morto deixa, dito sem exagero.** Depois do depósito, morrer não
+tira nada: a nota está no disco com o áudio tocável dentro e a linha honesta
+(provado no G3, com o m4a de 2,06 s dentro da nota). **Durante a gravação, não
+há nota** — o `AVAudioRecorder` só fecha o átomo final do m4a no `stop()`, e um
+arquivo sem ele não é áudio, é lixo; a varredura de órfãos o apaga depois da
+carência. Escolhemos dizer isso em vez de persegui-lo: o caminho real de sair
+do app já deposita (`willResignActive`), e cobrir uma morte violenta em
+primeiro plano exigiria gravação em segmentos — muito código para um caso que
+o autor não produz. Contrato antes de conforto (G3, M4).
 
 **Sem campo novo no modelo.** O áudio entra pelo marcador de anexo que o
 Caderno já lê e TOCA — `[audio:ditado 6 set. 13h37.m4a](traco://audio/<id>)`
@@ -2857,15 +2873,30 @@ estado que uma morte do app deixa para trás, e é verdade) e **"Guardado nas
 Notas."** com "Confira quando puder — máquina não é o mesmo que conferido". Na
 falha, **"O áudio ficou."** com o motivo e "Tentar de novo", que re-transcreve
 o MESMO arquivo. Silêncio não é sucesso: transcrição vazia vira "não ouvi
-palavra nenhuma." e a nota fica com a linha do depósito.
+palavra nenhuma." e a nota fica com a linha do depósito. E quando quem recusa é
+o DISCO, o estado tem nome próprio — **"O áudio ficou no aparelho."**, com o
+que falhou, o que ficou guardado e "Tentar de novo", que redeposita o mesmo
+arquivo. A tela dizia "Sem microfone. / Nada foi gravado" com o microfone
+funcionando e o m4a no disco, e um teste fixava essa mentira (G3, A1).
+"Guardado nas Notas." passou a oferecer **"Abrir a nota"**: pedir conferência
+sem dar o caminho era mandar o autor caçar a nota na lista (G3, M3).
 
 **Movimento.** A troca de estado é SECA. Em fade, "Gravando." e "Áudio
 guardado." ficam sobrepostos por um quarto de segundo e nenhum dos dois se lê
 (`f3b-02-transcrevendo-sobreposto.png`) — é a mesma decisão da troca de aba na
 raiz: sem direção espacial, a troca seca não tem vão. Quem marca a mudança é o
-háptico e o anúncio de VoiceOver. A entrada da superfície segue a lei do
+háptico — que agora existe nas DUAS trocas de resultado, `Toque.fechou()` no
+transcrito e `Toque.aviso()` em toda falha (G3, M1) — e o anúncio de
+VoiceOver. A entrada da superfície segue a lei do
 `Tema`: escala e desfoque sob movimento normal, só opacidade sob Reduzir
 Movimento (`f3b-entrada-normal-quadros.png` × `f3b-entrada-reduzida-quadros.png`).
+
+**Uma casca só.** A superfície do ditado copiava byte a byte a casca e quatro
+auxiliares da `ConfirmacaoView` (G3, M6). O idioma de confirmação — material,
+tinta rebaixada, um título, um corpo, até duas ações — passa a ser
+`FolhaDeConfirmacao` + `Folha`, usado pelas duas telas. Mora em
+`Traco/Ditado/` por ora: a casa certa é `Traco/Componentes/`, e a mudança fica
+para a volta que estiver lá.
 
 **Custo assumido:** o simulador não tem o modelo de fala no aparelho, então o
 estado "transcrito" só existe ali pelo instrumento `traco://ditar?ensaio=`
@@ -2873,12 +2904,14 @@ estado "transcrito" só existe ali pelo instrumento `traco://ditar?ensaio=`
 reais; a falha, essa, é real e é o caminho comum do simulador. **Volta:**
 multiplicar. **A IA:** nenhuma; reconhecedor do sistema, no aparelho. **Selo:**
 o áudio é do autor — não sai do aparelho, não entra em prompt, não aparece em
-superfície fora do app. **Prova:** 9 testes em `DitadoProprioTests` (o depósito
+superfície fora do app. **Prova:** 12 testes em `DitadoProprioTests` (o depósito
 acontece ANTES de a letra ser pedida, contado num diário de gravações; falha
-preserva o áudio; silêncio não é sucesso; tentar de novo recupera; disco que
-recusa não pede letra nenhuma; microfone negado não grava; o marcador é uma
-linha só em todos os corpos; o áudio está no cofre com a extensão que a nota
-procura; `traco://ditar` não é `Destino`), suíte 724/126; dois alvos sem aviso;
-`maestro/ditado-proprio.yaml` percorre os cinco estados por id.
+preserva o áudio; silêncio não é sucesso; tentar de novo recupera; o disco que
+recusa dá `semDeposito`, NUNCA `semMicrofone`, e volta pelo mesmo depósito;
+**dois ditados sobrepostos escrevem cada um na SUA nota**; a nota volta para
+quem a pediu; microfone negado não grava; o marcador é uma linha só em todos os
+corpos; o áudio está no cofre com a extensão que a nota procura; `traco://ditar`
+não é `Destino`), suíte 727/126; dois alvos sem aviso;
+`maestro/ditado-proprio.yaml` percorre os estados por id.
 **Fora (F3b+):** ouvir o áudio de dentro do Recordar, ditado que continua com
 o app fechado, transcrição em fila para os áudios que ficaram sem letra.

@@ -1,4 +1,4 @@
-# ADR 05x: o áudio antes da letra. Percorre os cinco estados do ditado próprio.
+# ADR 06c: o áudio antes da letra. Percorre os seis estados do ditado próprio.
 #
 # As CAPTURAS de prova são do simctl (lei do instrumento nº 2): este fluxo
 # existe para DIRIGIR os toques por id — com seis simuladores abertos, toque
@@ -20,7 +20,10 @@ appId: app.traco
 - extendedWaitUntil: {visible: "Áudio guardado.", timeout: 8000}
 - extendedWaitUntil: {visible: "Guardado nas Notas.", timeout: 25000}
 - assertVisible: {id: ditado-transcricao}
-- tapOn: {id: ditado-pronto}
+# M3 do G3: a conferência que a tela pede começa aqui, não na caça pela lista
+- assertVisible: {id: ditado-abrir-nota}
+- tapOn: {id: ditado-abrir-nota}
+- extendedWaitUntil: {visible: ".*comprar pão e ligar para a Ana.*", timeout: 10000}
 
 # 2. a nota existe, com a transcrição e o ÁUDIO dentro
 - openLink: "traco://notas"
@@ -37,6 +40,18 @@ appId: app.traco
 - extendedWaitUntil: {visible: "O áudio ficou.", timeout: 20000}
 - assertVisible: {id: ditado-tentar}
 - tapOn: {id: ditado-pronto}
+
+# 3b. A1 do G3: o disco recusa o DEPÓSITO. O microfone funcionou e o m4a está
+#     no disco — a tela dizia "Sem microfone. / Nada foi gravado", e agora diz
+#     o que existe, o que falhou e o que dá para fazer.
+- openLink: "traco://ditar?ensaio=disco-recusa"
+- extendedWaitUntil: {visible: "Gravando.", timeout: 10000}
+- tapOn: {id: ditado-pronto}
+- extendedWaitUntil: {visible: "O áudio ficou no aparelho.", timeout: 10000}
+- assertVisible: ".*a nota não entrou.*"
+- assertVisible: {id: ditado-tentar}
+- assertNotVisible: "Sem microfone."
+- tapOn: {id: ditado-descartar}
 
 # 4. sem microfone: nada é gravado e a tela diz por quê (o maestro CONCEDE
 #    permissões no launchApp por padrão — a recusa aqui é explícita)

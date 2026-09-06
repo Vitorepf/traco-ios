@@ -2,7 +2,7 @@ import AVFoundation
 import Foundation
 import Speech
 
-/// ADR 2026-09-05x — o áudio antes da letra.
+/// ADR 2026-09-06c — o áudio antes da letra.
 ///
 /// A F3 (ADR 05w) trouxe o autor de fora do app até a página em branco com o
 /// teclado pronto, mas quem transcrevia era o ditado do teclado do iOS: se a
@@ -33,6 +33,10 @@ final class DitadoProprio {
         case semLetra(String)
         /// Nem gravar deu: sem microfone não há depósito nenhum.
         case semMicrofone(String)
+        /// O microfone OUVIU e o m4a está no disco — quem recusou foi a nota.
+        /// Tem nome próprio porque a tela dizia "Sem microfone./Nada foi
+        /// gravado" com o áudio gravado ao lado (G3, A1): mentira na recusa.
+        case semDeposito(String)
     }
 
     private(set) var estado: Estado = .gravando
@@ -48,6 +52,10 @@ final class DitadoProprio {
     /// Grava a nota do ditado: a PRIMEIRA chamada cria, as seguintes reescrevem
     /// a mesma. `false` = o disco recusou — e aí nada se confirma na tela.
     @ObservationIgnored var gravarNota: (String) -> Bool = { _ in false }
+
+    /// Leva o autor à nota que acabou de nascer. `nil` = ninguém ligou o
+    /// ditado ao disco (testes), e a tela não oferece o caminho.
+    @ObservationIgnored var abrirANota: (() -> Void)?
 
     // MARK: injeções (testes e ensaio de estado; produção deixa nil)
 
@@ -148,19 +156,29 @@ final class DitadoProprio {
         guard estado == .gravando else { return }
         relogio?.cancel()
         fechar()
+        await depositar()
+    }
 
-        // 1. O DEPÓSITO. A nota entra no disco agora, sem uma letra: se o app
-        //    morrer no passo seguinte, o autor acha a frase gravada e a linha
-        //    diz a verdade — nunca finge que transcreveu.
+    /// A recuperação do disco recusado: o m4a continua no aparelho, então a
+    /// segunda tentativa é o MESMO depósito, não uma gravação nova.
+    func depositarDeNovo() async {
+        guard case .semDeposito = estado else { return }
+        await depositar()
+    }
+
+    /// 1. O DEPÓSITO. A nota entra no disco agora, sem uma letra: se o app
+    ///    morrer no passo seguinte, o autor acha a frase gravada e a linha
+    ///    diz a verdade — nunca finge que transcreveu.
+    /// 2. A LETRA, depois. Falha aqui não desfaz nada.
+    private func depositar() async {
         guard gravarNota(TextoDoDitado.corpo(id: id, quando: comecouEm)) else {
-            estado = .semMicrofone("não consegui guardar o áudio.")
+            estado = .semDeposito("o disco recusou.")
+            Toque.aviso()
             return
         }
         notaCriada = true
         estado = .transcrevendo
         Toque.leve()
-
-        // 2. A LETRA, depois. Falha aqui não desfaz nada.
         await pedirALetra()
     }
 
@@ -183,17 +201,24 @@ final class DitadoProprio {
     private func pedirALetra() async {
         switch await (transcritor ?? Self.transcreverNoAparelho)(urlDoAudio) {
         case .veio(let texto) where !texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty:
+            // M1 do G3: a troca de estado é seca de propósito, e a ADR diz que
+            // quem marca a mudança é o háptico — então ele tem de existir nas
+            // DUAS trocas em que o autor está esperando um resultado.
             if gravarNota(TextoDoDitado.corpo(id: id, quando: comecouEm, transcricao: texto)) {
                 estado = .transcrito(texto)
+                Toque.fechou()
             } else {
                 estado = .semLetra("não consegui guardar a transcrição.")
+                Toque.aviso()
             }
         case .veio:
             estado = .semLetra("não ouvi palavra nenhuma.")
+            Toque.aviso()
         case .naoVeio(let motivo):
             // a nota fica com o áudio e a linha honesta; nada some, nada finge
             _ = gravarNota(TextoDoDitado.corpo(id: id, quando: comecouEm, motivo: motivo))
             estado = .semLetra(motivo)
+            Toque.aviso()
         }
     }
 

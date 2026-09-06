@@ -1,6 +1,6 @@
 import Foundation
 
-/// ADR 2026-09-05x — o que a nota do ditado diz, em cada um dos três estados.
+/// ADR 2026-09-06c — o que a nota do ditado diz, em cada um dos três estados.
 ///
 /// Nenhum campo novo no modelo: o áudio entra pelo marcador de anexo que o
 /// Caderno já lê e TOCA (`[audio:nome](traco://audio/<id>)`, ADR 04t). Quem

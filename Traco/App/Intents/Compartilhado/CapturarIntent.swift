@@ -4,11 +4,11 @@ import AppIntents
 ///
 /// O intent de ABERTURA compartilhado: o controle da Central de Controle e
 /// da tela bloqueada, o botão de Ação e o atalho chegam por aqui e o app
-/// abre já gravando (`Rota.ditar`, ADR 05x). É
+/// abre já gravando (`Rota.ditar`, ADR 06c). É
 /// declarado nos dois alvos porque o `ControlWidgetButton` precisa do tipo;
 /// só o app executa (`TRACO_APP`), como os intents da tela bloqueada.
 ///
-/// Nada de microfone aqui: a extensão não grava. ADR 05x: o que o app abre
+/// Nada de microfone aqui: a extensão não grava. ADR 06c: o que o app abre
 /// agora é o DITADO PRÓPRIO — grava o áudio e o deposita antes de qualquer
 /// letra. `Rota.ditar()` e não `Rota.ir(.captura(ditado:))`: a `.captura`
 /// levanta o teclado, e teclado por trás da gravação é ruído. A página em
