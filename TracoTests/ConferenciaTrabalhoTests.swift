@@ -378,7 +378,7 @@ struct ConferenciaTrabalhoTests {
 
     @Test func falhaAoGravarAConferenciaPreservaOArtefatoJaCommitado() throws {
         let container = try ModelContainer.traco(emMemoria: true)
-        var (d, p) = try recebido(intencao: "Praticar espanhol",
+        let (d, p) = try recebido(intencao: "Praticar espanhol",
                                   pedido: "Frases em espanhol com tradução em português.",
                                   artefato: bilingue)
         let trabalho = try Trabalho(documento: d)

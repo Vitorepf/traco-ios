@@ -2868,6 +2868,243 @@ sob Reduzir Movimento, os mesmos números da Lente. **Fora:** proveniência
 no prompt da sábia, aviso ao autor quando um método some, edição da
 proveniência pela tela.
 
+## ADR 2026-09-06a — O conflito na tela: as duas versões, o retry e o selo que recolhe
+
+**O que estava provado.** A ADR 05l provou o retorno FELIZ: o `.md` sai com
+envelope, volta, e o corpo editado fora vira versão nova com autoria externa.
+Nada além disso tinha tela. Quando as duas pontas mudam, quando o commit é
+recusado, e quando a origem é selada com o seletor aberto, o autor via — ou uma
+prévia de um lado só, ou uma frase que mandava importar de novo, ou nada.
+
+**A decisão.** Quatro coisas, nenhuma delas nova no modelo: a lei do arquivo já
+acrescentava e nunca sobrescrevia. O que faltava era a tela dizer a verdade.
+
+1. **Conflito com as duas versões — e só quando existem duas.** Conflito é
+   `.baseAntiga` **mais** duas condições que a primeira volta não pedia: a
+   versão local ANDOU desde a base do arquivo (`baseID != versaoVigenteID`) e o
+   que voltou ainda não está guardado. Sem elas a tela mentia numa rota de três
+   toques — exportar, "Guardar intenção", importar o mesmo arquivo —, porque
+   rever a intenção já muda o estado para `.baseAntiga` sem mover versão
+   nenhuma: os dois cartões traziam o MESMO número e o MESMO texto, e qualquer
+   escolha caía em `.semNovidade`. Havendo conflito, os dois lados vêm com
+   título e a consequência escrita antes da escolha ("Nenhuma escolha apaga
+   nada: a versão N continua no histórico e o arquivo, se você o guardar, entra
+   como versão nova"), em `cartao(.campo)`, e as duas saídas são nomeadas —
+   **Guardar o arquivo como nova versão** (âmbar) e **Manter só a versão
+   atual** (`.compacto`, sem cor própria: duas saídas âmbar empatariam em peso).
+2. **A pergunta que a mutação faria, a tela faz antes.**
+   `IntercambioTrabalho.jaGuardado` é a regra única de "este conteúdo já está
+   aqui": `aplicarVersaoExterna` a usa para não fabricar versão, e a tela a usa
+   para não OFERECER decisão. Quando ela responde sim — o mesmo arquivo de
+   volta, ou um export intocado depois que a versão andou — a linha é "Este
+   arquivo traz o mesmo conteúdo que já está guardado aqui. Não há nada para
+   decidir: nenhuma versão será criada.", sem botão de guardar. Uma decisão sem
+   efeito é estado desonesto, mesmo quando o texto do botão não mente.
+3. **As duas recusas de `guardar()` são duas.** `RecusaDoCommit` (`.disco`,
+   `.baseDivergente`) sai da Oficina e entra em
+   `Desfecho.de(mudou:guardou:acesso:recusa:)`. `.aguardandoCommit` (o disco
+   recusou; a versão está na memória) é o único caso que oferece **Tentar
+   guardar de novo**, e esse botão chama `guardar()`, não outra importação:
+   confirma a MESMA versão. `.precisaReabrir` (o trabalho mudou em outra
+   abertura) NÃO oferece botão nenhum, porque repetir bate na mesma guarda:
+   `basePersistida` só muda num commit bem-sucedido. A tela diz o que houve e o
+   que fazer — voltar, reabrir o trabalho, e o arquivo continua no aparelho.
+4. **O selo recolhe.** A tela declara em `oficina.intercambioAberto` o que tem
+   em mãos (`.seletor`, `.exportacao`, `.revisao` — inclusive durante a
+   leitura); `verificarAcesso()` — o ponto por onde toda rota do Trabalho
+   revalida — move isso para `intercambioRecolhido` no instante da restrição, e
+   a tela protegida diz o que recolheu ("A origem foi protegida: recolhi o
+   arquivo que estava em revisão. Nada foi importado."). Liberada a origem, a
+   linha cala.
+
+**A passada de design (`design-router`, seis fases).** *Ancorar*: autor no meio
+de um trabalho, decidindo sob pressão o que fazer com um arquivo que voltou;
+resultado observável é uma versão a mais no histórico ou nenhuma, nunca uma a
+menos. *Sistema*: nada novo — `cartao(.campo)` (o único degrau que separa do
+`Tema.superficie` do bloco), `rotulo()`, `Tema.meta/corpo`, `.compacto` de
+`Botao.swift`. *Construir*: a regra fora da View (`conflito`, `jaGuardado`,
+`Desfecho`), a View só desenha. *Mover*: nenhuma animação nova; nada a
+interromper. *Julgar*, lendo a própria tela: as duas saídas estavam ambas em
+âmbar, empatadas — `Botao.swift` já dizia que a secundária não é âmbar, e a
+tela desobedecia; e as doze linhas fixas do começo de cada lado eram magia que
+não sobrevivia ao corpo de acessibilidade. *Portão*: os dois consertados aqui.
+
+**A passada de jornada (`curva-zero`).** *Jornada*: "editei fora e voltei" —
+exportar, editar noutra ferramenta, importar, decidir. *Resultado verificável*:
+o histórico cresce em um e nenhuma versão anterior some (a captura mostra o
+contador). *Atrito observado*: a tela chamava para uma decisão inventada em três
+toques sem editor nenhum, e oferecia uma nova tentativa que não podia dar certo
+— os dois foram medidos lendo o código contra a tela, não supostos.
+*Recuperação*: recusa de disco → o mesmo botão confirma a mesma versão; base
+divergente → reabrir, com o arquivo preservado; conteúdo repetido → fechar a
+revisão, nada criado; origem selada → o material recolhido, dito por nome.
+
+**Custo assumido.** A linha do recolhimento só aparece se o selo cair enquanto a
+MESMA `Oficina` está viva, e nenhuma rota do app sela a origem com a folha do
+Trabalho aberta: fica provada por teste, não por captura. `.precisaReabrir`
+também: exige duas `Oficina`s do mesmo `Trabalho` vivas ao mesmo tempo — o teste
+as cria e prova que a guarda dispara e que repetir não resolve; a tela não tem
+rota para duas folhas. O `ProgressView("Lendo arquivo…")` existe e está no
+caminho, mas com um `.md` de 400 bytes a leitura não dura um quadro: não há
+captura dele. Em corpo de acessibilidade (AX5) o começo de cada lado cai de doze
+para quatro linhas; ainda assim os dois cartões não cabem inteiros no mesmo
+olhar — cabe o primeiro completo e o começo do segundo.
+
+### Volta 11-C — a comparação mostra ONDE as duas versões diferem
+
+O G4 derrubou a premissa das duas voltas anteriores, e tinha razão. Em AX5 os
+dois cartões exibiam a MESMA cadeia de caracteres, e não por falta de espaço:
+**a truncagem mostra o COMEÇO e a edição de ida-e-volta acontece no FIM**. Não é
+defeito de AX5 — reaparece nas doze linhas do corpo normal assim que o documento
+passa de doze linhas, e o protocolo aceita 2 MiB. A tela que existe para comparar
+devolvia dois blocos idênticos no caso comum. Quatro correções:
+
+1. **O recorte ancora na primeira divergência.**
+   `IntercambioTrabalho.recorteDaDiferenca(atual:arquivo:contexto:)` mede o
+   prefixo comum; quando ele passa do contexto que cabe na janela, os dois
+   cartões deixam de mostrar o começo e passam a mostrar o mesmo ponto — um fio
+   de contexto antes da divergência, recuado até a fronteira legível (linha
+   inteira quando há uma perto, senão palavra, com `…`). A tela diz onde
+   começou: "As duas começam iguais até a linha N. Mostro daí em diante, onde
+   elas mudam." (ou, em parágrafo único, "nos primeiros N caracteres"). O
+   contexto é parâmetro porque a janela muda: 48 no corpo normal, 12 em corpo de
+   acessibilidade — com 48 as quatro linhas do AX5 são preenchidas pelo contexto
+   sozinho, que é exatamente o defeito. Cálculo de string ao lado de
+   `conflito(_:em:)`, testável sem renderizar SwiftUI.
+   A ressalva de truncagem saiu de dentro da garantia de não-perda: eram duas
+   informações de naturezas diferentes numa frase cinza só, e agora são duas
+   linhas, a consequência em tinta cheia.
+2. **Sair da revisão é desfecho.** `Desfecho.mantida` — "Nada foi importado. O
+   arquivo continua no seu aparelho e pode ser importado depois." — atende as
+   DUAS saídas que fechavam a revisão em silêncio ("Manter só a versão atual" e
+   "Fechar revisão"). Escolha sem retorno visível deixa o autor sem saber se o
+   app entendeu.
+3. **A chegada e o desfecho são vistos e falados.** O cartão de revisão nascia
+   abaixo da dobra: um `ScrollViewReader` dentro do painel (o proxy é da rolagem
+   da folha, que já envolve esta tela) traz a âncora `trabalho-intercambio-revisao`
+   ao topo quando a prévia chega, e o VoiceOver ouve "Arquivo recebido. A revisão
+   está abaixo.". A entrada e o recolhimento do cartão passam por
+   `Tema.movimento(.deslocamento, Tema.Mola.camada, reduzido:)` com transição de
+   deslocamento + opacidade, e a linha de desfecho por
+   `Tema.movimento(.opacidade, …)`. A linha de desfecho deixou de ser a terceira
+   frase cinza igual às instruções fixas: ganhou `cartao(.campo)` e `Tema.tinta`,
+   e TODO desfecho é anunciado por `AccessibilityNotification.Announcement`.
+4. **Nenhuma ação desta tela some (o movimento da volta 18).** `AcaoTrabalhoStyle`
+   nunca leu `@Environment(\.isEnabled)`, e por isso o "Importar" desabilitado
+   era pixel-idêntico ao habilitado. O estilo deixa de existir na volta 18, que
+   resolveu a doença na raiz: no lugar do `.disabled()`, a ação continua cápsula
+   (`Pilula`, `.filtro` nas secundárias e `.larga` cheia na principal), o motivo
+   fica escrito ao lado E no `accessibilityHint`, e tocar diz o que falta em vez
+   de não fazer nada. As três ações do intercâmbio seguem o mesmo padrão, para as
+   duas voltas chegarem em main falando a mesma língua. Efeito colateral bem-vindo:
+   a principal em cápsula cheia (carvão sobre papel) desfaz a inversão de peso
+   que o G4 mediu entre ela e o `.compacto`, sem tocar no `.compacto`.
+
+**A passada de design da 11-C (`design-router`, seis fases).** *Ancorar*: o autor
+volta do editor externo e precisa DECIDIR; se a tela não mostra a diferença, o
+intercâmbio vira gerador de versões que ninguém escolheu. *Sistema*: nada novo —
+`Pilula`, `cartao(.campo)`, `rotulo()`, `Tema.movimento`/`Mola.camada`,
+`Tema.tinta`. *Construir*: o recorte é string pura no modelo, com teste; a View
+só desenha e pergunta. *Mover*: as duas coisas que a tela tinha a dizer e não
+dizia — a decisão chegando e o efeito acontecendo — entram pela lei de
+`Tema.swift`, medidas no vídeo cru (recolhimento em nove quadros consecutivos com
+subida e cauda, contra o quadro único que o G4 mediu; sob Reduzir Movimento, a
+fade curta). *Julgar*, lendo a própria tela no aparelho: em AX5 o contexto de 48
+preenchia sozinho as quatro linhas e os dois cartões voltavam a ser idênticos —
+achado da captura, não do código, e é por isso que o contexto virou parâmetro.
+*Portão*: os quatro itens do mínimo provados por captura no iPhone 17e.
+
+**Custo assumido da 11-C.** O obstáculo das ações bloqueadas mora na folha do
+Trabalho, acima desta tela (território da volta 18): aqui tocar NOMEIA o que
+falta e anuncia, não rola até ele. O `recado` continua não sendo zerado por atos
+não relacionados (dívida do RUMO). A inversão de contraste do `.compacto` como
+regra da casa segue para o RUMO: esta volta não mexeu nele.
+
+**Prova da 11-C:** suíte **722/0 em 125 suítes** em 06/09/2026; 2 testes novos
+(`aComparacaoMostraOndeAsDuasVersoesDiferem` com documento de 41 linhas e a
+diferença na última, mais o recorte de janela pequena e o de parágrafo único;
+`manterAVersaoAtualDizOQueAconteceuComOArquivo`). Jornada real de ponta a ponta
+no iPhone 17e `C7341E64…`, dirigida à mão e conferida por
+`xcrun simctl io <UDID> screenshot` (maestro NÃO isola com vários simuladores
+ligados — `--device` diz um aparelho e o driver XCTest atende outro, provado por
+dimensão de pixel): versão 1 escrita, exportada, o `.md` reescrito FORA do app
+com dez linhas, importado, editado no fim dos dois lados, conflito.
+Capturas `ferramentas/orca/g4c-v11-*.png` — a chegada já na tela, os dois cartões
+começando no ponto de divergência, as duas saídas com pesos distintos, o "Manter"
+falando, o AX5 com os dois cartões DIFERENTES, o importar bloqueado ainda cápsula
+com o motivo ao lado — e vídeos `g4c-v11-normal.mp4` / `g4c-v11-reduzido.mp4`.
+
+### Volta 11-D — tocar uma ação bloqueada responde na tela
+
+O Re-G4 fechou três dos quatro itens e deixou meia regra da volta 18 de fora. A
+lei dela tem duas metades — o motivo escrito ao lado E **tocar leva ao que
+falta** — e a própria V18 declara o limite: `Announcement` é canal do VoiceOver,
+e "para quem usa Controle Assistivo **sem** VoiceOver o que resta é o desvio
+visível". A 11-C adotou a cápsula e o anúncio e parou aí: o juiz mediu **0,032 %**
+de pixels alterados ao tocar "Importar versão de arquivo" bloqueado — o dígito do
+relógio virando. E era regressão, não lacuna herdada: antes desta trilha o
+controle tinha `.disabled()` e o varredor o PULAVA; sem o `.disabled()` ele agora
+pousa num controle que aceita ativação e não fazia nada observável.
+
+**A correção, uma linha.** Em `IntercambioTrabalhoView.acao(...)` o impedimento
+deixa de sair só por `AccessibilityNotification.Announcement` e passa por
+`anunciar(_:)` — que já existia nesta tela, já põe a linha em `cartao(.campo)`
+com `Tema.tinta` sob `Tema.movimento(.opacidade, …, reduzido:)` e já fala. As
+duas pessoas recebem a mesma resposta: quem ouve, pelo anúncio; quem varre a
+tela sem VoiceOver, pelo cartão que aparece. As três ações do painel passam pelo
+mesmo `acao(...)`, então a regra vale para todas de uma vez.
+
+O cartão repete a frase que já está cinza ao lado da cápsula, e isso é
+deliberado: a linha cinza é a **condição** (vale enquanto o impedimento existir),
+o cartão é o **evento** (você acabou de tentar), e ele diz QUAL das ações
+bloqueadas foi tocada — tocar "Exportar" troca a linha pela do export
+(`g4-v11d-bloqueado-outra-acao.png`). Duas naturezas, dois pesos, e a segunda
+chega por movimento.
+
+**Nada em `TrabalhoView`.** O desvio ao obstáculo (foco e rolagem) mora na folha
+do Trabalho, que é território da volta 18. Quando as duas mesclarem, estas ações
+passam a rotear pelo desvio dela e esta linha compõe com ele; a ausência dela é
+que atrapalharia.
+
+**Prova da 11-D:** suíte **722/0 em 125 suítes** em 06/09/2026 (`TEST SUCCEEDED`,
+iPhone 17e `C7341E64…`); nenhum teste novo — a mudança é o corpo de um closure de
+`Pilula`, que Swift Testing não alcança sem renderizar SwiftUI, e a prova é a
+tela. Jornada à mão no iPhone 17e, conferida por `xcrun simctl io <UDID>
+screenshot`: intenção guardada → versão em edição (rascunho pendente) →
+"Importar versão de arquivo" bloqueado → toque. **27,52 % dos pixels da tela
+mudam** (28,89 % ignorando a barra de status), contra os 0,032 % medidos pelo
+juiz no build anterior. No vídeo cru a 30 fps a resposta é uma corrida de **8
+quadros com subida e cauda** — `6,54 8,78 9,05 8,52 8,35 7,16 5,64 3,07` — e zero
+nos vizinhos. Capturas `ferramentas/orca/g4-v11d-bloqueado-antes.png`,
+`-resposta.png`, `-outra-acao.png`; vídeo `g4-v11d-toque-bloqueado.mp4`.
+
+**Custo assumido da 11-D.** O caminho de movimento é o de `anunciar`, que o
+Re-G4 já mediu nos dois modos (a lei de `Tema` mantém opacidade sob Reduzir
+Movimento); não o remedi. Quando a linha nasce de uma ação bloqueada DENTRO do
+cartão de revisão, o cartão de desfecho aparece no alto do painel, acima da
+revisão — é o lugar único do `recado`, e esse estado só existe se o trabalho
+deixar de estar salvo depois que a prévia chegou. E as dívidas do RUMO seguem
+abertas de propósito: `recorteDaDiferenca` é O(n) e roda duas vezes por `body`
+(28,9 ms a 100 KB, 608 ms no teto de 2 MiB), o `min(16, contexto)` é a segunda
+constante fora da conta do 48/12, e o `recado` não é zerado por atos não
+relacionados.
+
+**Volta:** multiplicar — a continuidade entre ferramentas é a tese.
+**A IA:** nada. **Prova:** 5 testes em `IntercambioTrabalhoTests` (as duas
+versões e a escolha que não sobrescreve; recusa de disco → retry que confirma a
+mesma versão e uma segunda passada que não duplica; selo com `.seletor`,
+`.exportacao` e `.revisao`; o arquivo sem novidade que não vira conflito nem
+decisão, nas três formas — intenção revista, export intocado, e o conflito de
+verdade que continua de pé; a recusa por base divergente que não oferece nova
+tentativa), suíte **720/0 em 125 suítes** em 06/09/2026, build limpo sem UM
+aviso (conferido em recompilação integral dos dois alvos).
+`maestro/intercambio-conflito.sh` roda a jornada inteira SOZINHO — parte 1 no
+app, a edição do `.md` no disco do simulador feita pelo próprio roteiro, parte 2
+em `maestro/partes/` — e passou 2 de 2 seguidas no iPhone 17e; capturas
+`ferramentas/orca/v11b-*.png` (conflito com as duas versões, as duas escolhas
+com pesos distintos, o mesmo em AX5, o arquivo sem novidade sem botão de
+decisão, o importar bloqueado por edição pendente).
+
 ## ADR 2026-09-06c — O áudio antes da letra
 
 **A distância.** A F3 (05w) trouxe o autor de fora do app até a página em
@@ -3212,4 +3449,3 @@ Inversão diz "costuma ser") — passa a "Palavras de apoio", com a nota
 (`RotuloApontar.muleta`, que a auditoria não viu e é a mesma palavra); e o aviso
 do plano sem obstáculo dizia "o que, em você, COSTUMA atrapalhar isto",
 atribuindo ao autor um hábito que o app não observou — passa a "pode".
-

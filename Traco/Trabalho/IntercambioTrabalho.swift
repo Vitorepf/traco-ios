@@ -5,6 +5,9 @@ import Foundation
 /// As superfícies verificam AcessoTrabalho antes de fornecer o documento.
 nonisolated enum IntercambioTrabalho {
     static let limiteBytes = 2_097_152
+    /// Quanto de texto a prévia carrega. O arquivo inteiro é importado; o que
+    /// se lê na tela é isto.
+    static let limitePrevia = 12_000
     private static let marcador = "<!-- traco-trabalho"
     private static let abertura = "<!-- traco-trabalho:v1 "
     private static let fecho = " -->"
@@ -128,16 +131,195 @@ extension DocumentoTrabalho {
         }
         let intencaoID = conferida.intencaoDaBaseID ?? intencaoAtual.id
         // Um retorno sem alteração ou repetido não fabrica outra versão.
-        if versaoAtual.map({ $0.conteudo.utf8.elementsEqual(texto.utf8) }) == true
-            || artefatos.contains(where: { $0.id == conferida.baseID && $0.conteudo.utf8.elementsEqual(texto.utf8) })
-            || artefatos.contains(where: {
-                $0.origem == .externa && $0.anteriorID == conferida.baseID
-                    && $0.intencaoID == intencaoID && $0.conteudo.utf8.elementsEqual(texto.utf8)
-            }) { return false }
+        if IntercambioTrabalho.jaGuardado(texto: texto, base: conferida.baseID,
+                                          intencao: intencaoID, em: self) { return false }
         cancelarPedido()
         artefatos.append(.init(conteudo: texto, origem: .externa,
             produtor: "Arquivo importado · autoria não verificada", intencaoID: intencaoID,
             anteriorID: conferida.baseID))
         return true
+    }
+}
+
+// MARK: - O que a tela decide (ADR 2026-09-06a)
+//
+// A View não guarda regra: pergunta aqui e desenha. Assim conflito, recusa de
+// commit e selo da origem têm teste sem renderizar SwiftUI.
+extension IntercambioTrabalho {
+    /// O que a tela de intercâmbio tinha em mãos quando o selo caiu. Selar a
+    /// origem recolhe o material e a tela diz qual era.
+    enum Material: Equatable, Sendable {
+        case nenhum, seletor, exportacao, revisao
+
+        var recolhimento: String? {
+            switch self {
+            case .nenhum: nil
+            case .seletor: "A origem foi protegida: fechei o seletor de arquivo. Nada foi importado."
+            case .exportacao: "A origem foi protegida: recolhi a cópia preparada antes de entregá-la. Nada saiu do Traço."
+            case .revisao: "A origem foi protegida: recolhi o arquivo que estava em revisão. Nada foi importado."
+            }
+        }
+    }
+
+    /// Desfecho de uma tentativa de guardar a versão externa. `mudou` é o que a
+    /// mutação disse; `guardou`, o que o commit disse. Os dois são distintos:
+    /// a versão pode existir na memória e o disco ter recusado.
+    enum Desfecho: Equatable, Sendable {
+        case guardada, confirmada, semNovidade, aguardandoCommit, precisaReabrir, recusada, semAcesso, mantida
+
+        /// As duas recusas de `guardar()` não são a mesma coisa para o autor: o
+        /// disco pode aceitar numa nova tentativa; a base divergente, nunca —
+        /// repetir bate na mesma guarda. Por isso `recusa` entra aqui.
+        static func de(mudou: Bool, guardou: Bool, acesso: Bool, recusa: RecusaDoCommit) -> Desfecho {
+            guard acesso else { return .semAcesso }
+            if guardou { return mudou ? .guardada : .semNovidade }
+            if recusa == .baseDivergente { return .precisaReabrir }
+            return mudou ? .aguardandoCommit : .recusada
+        }
+
+        var linha: String {
+            switch self {
+            case .guardada: "Nova versão externa guardada. As versões anteriores foram preservadas."
+            case .confirmada: "A mesma versão externa foi confirmada. Nenhuma cópia a mais foi criada."
+            case .semNovidade: "Este conteúdo já está guardado; nenhuma versão duplicada foi criada."
+            case .aguardandoCommit: "A versão externa está aqui, mas não consegui guardá-la agora. Nada foi perdido; tente guardar de novo."
+            case .precisaReabrir: "Este trabalho mudou em outra abertura, então não posso guardar por cima. Tentar de novo daqui não resolve: volte e abra o trabalho outra vez para ver a versão atual. O arquivo continua no seu aparelho e pode ser importado depois."
+            case .recusada: "Não foi possível aplicar o arquivo. Confira o salvamento e importe novamente se a versão ou a intenção mudou."
+            case .semAcesso: "A origem foi protegida durante a importação. Nada foi importado."
+            // Sair da revisão é desfecho como qualquer outro: escolher sem
+            // retorno visível deixa o autor sem saber se o app entendeu.
+            case .mantida: "Nada foi importado. O arquivo continua no seu aparelho e pode ser importado depois."
+            }
+        }
+
+        /// Só a espera do commit oferece nova tentativa: a versão já está aqui e
+        /// guardar de novo confirma a MESMA, sem outra importação.
+        var ofereceTentarGuardar: Bool { self == .aguardandoCommit }
+        /// A revisão fica de pé só quando o arquivo ainda pode servir.
+        var mantemRevisao: Bool { self == .recusada }
+    }
+
+    /// As duas versões de um conflito, lado a lado. Escolher nunca sobrescreve:
+    /// as duas continuam no histórico, e a escolhida entra como versão nova.
+    struct Conflito: Equatable, Sendable {
+        let tituloAtual: String, textoAtual: String
+        let tituloArquivo: String, textoArquivo: String
+        /// Onde a prévia começou e por quê. Fica separada da `consequencia`
+        /// porque são duas coisas: uma ressalva de truncagem e a garantia de
+        /// que nada se perde.
+        let ressalva: String
+        let consequencia: String
+    }
+
+    /// A pergunta que `aplicarVersaoExterna` faz antes de criar versão: este
+    /// conteúdo já está guardado? A tela pergunta o MESMO, para nunca oferecer
+    /// uma escolha que não teria efeito.
+    static func jaGuardado(texto: String, base: UUID?, intencao: UUID,
+                           em documento: DocumentoTrabalho) -> Bool {
+        documento.versaoAtual.map { $0.conteudo.utf8.elementsEqual(texto.utf8) } == true
+            || documento.artefatos.contains { $0.id == base && $0.conteudo.utf8.elementsEqual(texto.utf8) }
+            || documento.artefatos.contains {
+                $0.origem == .externa && $0.anteriorID == base
+                    && $0.intencaoID == intencao && $0.conteudo.utf8.elementsEqual(texto.utf8)
+            }
+    }
+
+    static func jaGuardado(_ p: Preview, em documento: DocumentoTrabalho) -> Bool {
+        p.estado != .incompativel
+            && jaGuardado(texto: p.texto, base: p.baseID,
+                          intencao: p.intencaoDaBaseID ?? documento.intencaoAtual.id, em: documento)
+    }
+
+    /// Conflito é só quando há mesmo DOIS lados: a versão local andou desde a
+    /// base do arquivo E o que voltou é diferente do que já está guardado.
+    /// Sem as duas condições a tela afirmaria uma mudança que não houve — a
+    /// intenção revista sozinha muda o estado para `.baseAntiga` e não move
+    /// versão nenhuma.
+    static func conflito(_ p: Preview, em documento: DocumentoTrabalho,
+                         contexto: Int = contextoDaDiferenca) -> Conflito? {
+        guard p.estado == .baseAntiga, p.baseID != p.versaoVigenteID,
+              !jaGuardado(p, em: documento) else { return nil }
+        let recorte = recorteDaDiferenca(atual: documento.versaoAtual?.conteudo ?? "",
+                                        arquivo: p.texto, contexto: contexto)
+        return Conflito(
+            tituloAtual: "No Traço agora · \(ordem(p.versaoVigenteID, em: documento))",
+            textoAtual: recorte.atual,
+            tituloArquivo: "No arquivo recebido · saiu da \(ordem(p.baseID, em: documento))",
+            textoArquivo: recorte.arquivo,
+            ressalva: recorte.ressalva,
+            consequencia: "Nenhuma escolha apaga nada: a \(ordem(p.versaoVigenteID, em: documento)) continua no histórico e o arquivo, se você o guardar, entra como versão nova.")
+    }
+
+    /// Quanto do trecho comum fica à vista ANTES da divergência, para o autor
+    /// reconhecer o lugar. Cabe nas doze linhas do corpo normal; a tela passa
+    /// um contexto menor quando a janela encolhe — em AX5 quatro linhas levam
+    /// menos de 48 caracteres e o contexto sozinho comeria a janela inteira,
+    /// que é exatamente o defeito que este recorte existe para matar.
+    static let contextoDaDiferenca = 48
+
+    /// O que cada cartão do conflito mostra.
+    ///
+    /// Mostrar o começo dos dois mostra DUAS VEZES O MESMO TEXTO sempre que a
+    /// diferença está depois do corte — e é o caso comum do ida-e-volta, porque
+    /// a truncagem mostra o começo e o autor edita o fim. O recorte ancora na
+    /// PRIMEIRA divergência, com um fio de contexto antes dela, e a tela diz
+    /// onde começou. Vale para os dois tamanhos de corpo: em documento longo o
+    /// mesmo defeito aparece nas doze linhas do corpo normal.
+    static func recorteDaDiferenca(atual: String, arquivo: String,
+                                   contexto: Int = contextoDaDiferenca)
+        -> (atual: String, arquivo: String, ressalva: String) {
+        let comum = atual.commonPrefix(with: arquivo)
+        let iguais = comum.count
+        guard iguais > contexto else {
+            return (String(atual.prefix(limitePrevia)), String(arquivo.prefix(limitePrevia)),
+                    "Mostro o começo de cada uma.")
+        }
+        var corte = iguais - contexto
+        var cortouNaPalavra = true
+        // O recuo até a fronteira legível nunca passa do próprio contexto: com
+        // uma janela pequena ele devolveria o trecho comum que acabou de sair.
+        let recuo = max(0, corte - min(16, contexto))
+        let janela = comum[indice(comum, recuo)..<indice(comum, corte)]
+        if let quebra = janela.lastIndex(of: "\n") {
+            corte = recuo + janela.distance(from: janela.startIndex, to: quebra) + 1
+            cortouNaPalavra = false
+        } else if let espaco = janela.lastIndex(of: " ") {
+            corte = recuo + janela.distance(from: janela.startIndex, to: espaco) + 1
+        }
+        let elipse = cortouNaPalavra ? "…" : ""
+        let linha = 1 + comum.reduce(0) { $1 == "\n" ? $0 + 1 : $0 }
+        let ressalva = linha > 1
+            ? "As duas começam iguais até a linha \(linha). Mostro daí em diante, onde elas mudam."
+            : "As duas começam iguais nos primeiros \(iguais) caracteres. Mostro daí em diante, onde elas mudam."
+        func daDivergencia(_ texto: String) -> String {
+            elipse + String(texto[indice(texto, corte)...].prefix(limitePrevia))
+        }
+        return (daDivergencia(atual), daDivergencia(arquivo), ressalva)
+    }
+
+    private static func indice(_ texto: String, _ n: Int) -> String.Index {
+        texto.index(texto.startIndex, offsetBy: n)
+    }
+
+    static func descricaoDaBase(_ p: Preview, em documento: DocumentoTrabalho) -> String {
+        switch p.estado {
+        case .incompativel:
+            "Este arquivo não pode ser aplicado a este trabalho."
+        case _ where jaGuardado(p, em: documento):
+            "Este arquivo traz o mesmo conteúdo que já está guardado aqui. Não há nada para decidir: nenhuma versão será criada."
+        case .baseAntiga where conflito(p, em: documento) != nil:
+            "O trabalho mudou dos dois lados desde a exportação. Compare e escolha."
+        case .baseAtual, .baseAntiga:
+            // A versão local não andou: a base do arquivo AINDA é a atual. Diga
+            // os números e o que vai acontecer, sem afirmar o que não mudou.
+            "Base do arquivo: \(ordem(p.baseID, em: documento)), a versão atual. O conteúdo recebido será uma nova versão."
+        case .semVinculo:
+            "Arquivo sem vínculo de origem. Será acrescentado como material externo, ligado à intenção atual."
+        }
+    }
+
+    private static func ordem(_ id: UUID?, em documento: DocumentoTrabalho) -> String {
+        guard let id, let i = documento.artefatos.firstIndex(where: { $0.id == id }) else { return "nenhuma versão" }
+        return "versão \(i + 1)"
     }
 }
