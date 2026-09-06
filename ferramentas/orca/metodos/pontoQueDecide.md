@@ -109,7 +109,7 @@ Nada. Sete campos, um deles de volta.
   "origem": "Duncan Sabien, 2017 (double crux)",
   "faculdade": "desacordo",
   "proveniencia": {
-    "fonte": "Duncan Sabien, \"Double Crux — A Strategy for Mutual Understanding\", LessWrong, 2 de janeiro de 2017; o algoritmo é do manual do CFAR. Texto integral lido.",
+    "fonte": "GRAU C: material assinado e datado fora da edição formal (post de comunidade, manual de oficina), lido na íntegra; não passou por editora nem revisão de pares. Duncan Sabien, \"Double Crux — A Strategy for Mutual Understanding\", LessWrong, 2 de janeiro de 2017; o algoritmo é do manual do CFAR. Texto integral lido.",
     "funcao": "pratica",
     "adaptacao": "O duplo crux é uma conversa entre duas pessoas. No Traço vira PREPARO: o autor escreve sozinho o próprio crux e o melhor palpite do crux do outro, antes de conversar — e, depois, o campo de volta guarda qual era o crux de verdade. A nota não substitui a conversa; ela é o que se leva para ela.",
     "evidencia": "Não há estudo nenhum: é material de oficina, e o próprio texto diz que o algoritmo \"tem alguns buracos e esquisitices\" e foi escrito para ser lido junto com uma aula de uma hora. É a proveniência mais recente e mais frágil do catálogo, e a ficha prefere dizer isso a inflá-la. Em compensação, é origem datada, assinada e legível na íntegra — o que dois métodos já colados (Feynman, atribuído sem texto do autor; Dia, anedota sem fonte primária) não têm.",
@@ -117,7 +117,7 @@ Nada. Sete campos, um deles de volta.
   },
   "filtro": "Crux",
   "reconhecimento": "isto é um desacordo sem o fato que o decide.",
-  "movimento": "Duplo crux (Sabien, 2017, do manual do CFAR). Em vez de defender a posição, achar o FATO que decide: aquele que, se fosse falso, faria VOCÊ mudar de ideia. Cobre duas coisas que quase todo mundo pula: que o fato seja observável — dito como o mundo é, não como a coisa parece —, e a segunda metade, o crux do OUTRO, no melhor palpite de quem escreve. Sem as duas, não é desacordo localizado: é discussão.",
+  "movimento": "Duplo crux (Sabien, 2017, do manual do CFAR). Em vez de defender a posição, achar o FATO que decide: aquele que, se fosse falso, faria VOCÊ mudar de ideia. Cobre duas coisas que o método existe para não deixar passar: que o fato seja observável — dito como o mundo é, não como a coisa parece —, e a segunda metade, o crux do OUTRO, no melhor palpite de quem escreve. Sem as duas, não é desacordo localizado: é discussão.",
   "pergunta": "Que fato, se fosse falso, faria VOCÊ mudar de ideia?",
   "roteamento": [
     "\\bduplo crux\\b|\\bdouble crux\\b|\\bponto que decide\\b|\\bonde exatamente (a gente|n[óo]s|eu e ele|eu e ela) discord\\w+\\b",

@@ -102,7 +102,7 @@ Nada. Seis campos de texto.
   "origem": "Immanuel Kant, 1785",
   "faculdade": "ética",
   "proveniencia": {
-    "fonte": "Immanuel Kant, Fundamentação da Metafísica dos Costumes (1785); tradução inglesa de Thomas Kingsmill Abbott, Fundamental Principles of the Metaphysic of Morals, lida no texto integral no Project Gutenberg (eBook 5682). GRAU A: obra publicada, lida no original traduzido. Kant não propõe um formulário; o Traço toma dele o teste e a distinção entre prudente e certo.",
+    "fonte": "GRAU A: obra publicada, lida no texto integral em tradução identificada. Immanuel Kant, Fundamentação da Metafísica dos Costumes (1785); tradução inglesa de Thomas Kingsmill Abbott, Fundamental Principles of the Metaphysic of Morals, lida no texto integral no Project Gutenberg (eBook 5682). Kant não propõe um formulário; o Traço toma dele o teste e a distinção entre prudente e certo.",
     "funcao": "lente",
     "adaptacao": "O imperativo categórico vira seis campos. O que o Traço acrescenta é a ordem — escrever a regra ANTES de julgá-la, porque a regra escrita como desculpa (\"só desta vez\") já é a resposta — e o campo final, que é a distinção que Kant faz e o resto do catálogo não faz: isto é prudente, ou é certo?",
     "evidencia": "É filosofia de 1785, uma lente: não há estudo, não há medida, e não pode haver. E a objeção contra o teste tem a mesma idade que ele — desde Constant, discute-se que a universalização produz resultados absurdos em casos-limite (o clássico é mentir ao assassino que pergunta onde está a vítima). O Traço usa o teste como PERGUNTA que obriga a escrever a regra, não como máquina de decidir; quem espera dele uma resposta automática vai se decepcionar, e é isso mesmo.",

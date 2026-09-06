@@ -113,7 +113,7 @@ motivo de rejeição; é a próxima volta.
   },
   "filtro": "Coluna da esquerda",
   "reconhecimento": "isto é uma conversa em que você calou o principal.",
-  "movimento": "Coluna da esquerda (Argyris). À direita, o que foi dito; à esquerda, o que se pensou e sentiu e não se disse. O que governa a conversa é a coluna da esquerda, e ela é a que ninguém escreve. Cobre se a esquerda tem mesmo o que doeu, o que impediu de dizer, e se a frase nova é dizível na frente da pessoa.",
+  "movimento": "Coluna da esquerda (Argyris). À direita, o que foi dito; à esquerda, o que se pensou e sentiu e não se disse. O que governa a conversa é a coluna da esquerda, e é ela que o método cobra: sem ela, a nota é só o diálogo recontado. Cobre se a esquerda tem mesmo o que doeu, o que impediu de dizer, e se a frase nova é dizível na frente da pessoa.",
   "pergunta": "O que você pensou e não disse — a frase inteira?",
   "roteamento": [
     "\\bn[ãa]o (disse|falei|consegui dizer)\\b|\\bengoli\\b|\\bfiquei calad[oa]\\b|\\bdeixei passar\\b",

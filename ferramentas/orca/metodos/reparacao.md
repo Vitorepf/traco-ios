@@ -107,7 +107,7 @@ campos em vez de um, para a cobrança ser utilizável sem abrir a nota.
   "origem": "Maimônides, Mishneh Torá (c. 1180)",
   "faculdade": "reparação",
   "proveniencia": {
-    "fonte": "Maimônides (Moshe ben Maimon), Mishneh Torá, Hilchot Teshuvá, capítulo 2, seções 1, 2 e 9 (c. 1180); tradução inglesa de Eliyahu Touger (Moznaim), lida no texto integral no Sefaria. GRAU A: obra publicada, lida em tradução identificada — não li o hebraico, e isto está dito.",
+    "fonte": "GRAU A: obra publicada, lida no texto integral em tradução identificada — NÃO li o hebraico, e isto está dito. Maimônides (Moshe ben Maimon), Mishneh Torá, Hilchot Teshuvá, capítulo 2, seções 1, 2 e 9 (c. 1180); tradução inglesa de Eliyahu Touger (Moznaim), lida no texto integral no Sefaria.",
     "funcao": "pratica",
     "adaptacao": "Maimônides escreve um código religioso sobre pecado e perdão. O Traço toma duas coisas e deixa a teologia de fora: a ORDEM da reparação entre pessoas — devolver o que se deve, depois pedir, e pedir de novo — e o critério operacional de que acabou, que não é sentimento e sim a mesma situação com a mesma oportunidade sem repetir.",
     "evidencia": "É código legal do século XII, não estudo: não há medida de nada, e as afirmações de Maimônides sobre perdão divino não são avaliáveis aqui e não entram na ficha. O que o Traço usa é o critério e a ordem, que são verificáveis pelo próprio autor. Não há evidência de que escrever isto repare relação alguma; quem repara é o que se faz depois de escrever.",

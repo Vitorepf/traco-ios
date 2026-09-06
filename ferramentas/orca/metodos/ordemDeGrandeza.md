@@ -93,7 +93,7 @@ Duas coisas, nenhuma bloqueante:
   "origem": "Enrico Fermi, 1945",
   "faculdade": "quantidade",
   "proveniencia": {
-    "fonte": "Enrico Fermi, \"My Observations During the Explosion at Trinity on July 16, 1945\"; relatório curto, lido na íntegra. A prática de estimar por decomposição ficou conhecida como problema de Fermi e é tradição de ensino de física, sem autor único.",
+    "fonte": "GRAU A para o relatório de Fermi, lido na íntegra; GRAU D para a prática (problema de Fermi, tradição de ensino de física, sem autor único). Enrico Fermi, \"My Observations During the Explosion at Trinity on July 16, 1945\"; relatório curto, lido na íntegra. A prática de estimar por decomposição ficou conhecida como problema de Fermi e é tradição de ensino de física, sem autor único.",
     "funcao": "pratica",
     "adaptacao": "Fermi estimou uma grandeza com o que tinha na mão, em segundos. O Traço faz disso cinco campos: a pergunta, os fatores em que ela se quebra com o palpite de cada um, a conta, a CASA — e o campo que separa número de opinião: o que teria de ser verdade para o resultado mudar de casa.",
     "evidencia": "O relatório de Fermi é observação de campo, não artigo de método: ele não propõe técnica nenhuma. E o número dele estava errado — estimou dez mil toneladas de TNT, e o cálculo final deu vinte e uma mil. Errado por mais do dobro, e ainda assim mais perto do que a maior parte das previsões de Los Alamos. A promessa do método é a casa e a velocidade, não a precisão. Não há estudo de eficácia.",

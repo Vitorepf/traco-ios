@@ -95,7 +95,7 @@ transformaria a contagem de memória em contagem de fato.
   "origem": "Aristóteles (Ética a Nicômaco)",
   "faculdade": "balanço",
   "proveniencia": {
-    "fonte": "Aristóteles, Ética a Nicômaco, livro I, capítulo 7, e livro II, capítulo 1; tradução inglesa de D. P. Chase, lida no texto integral do Project Gutenberg (eBook 8438). Aristóteles NÃO propõe este exercício: o Traço toma dele o critério — uma vez não estabelece disposição — e monta o resto.",
+    "fonte": "GRAU A: obra publicada, lida no texto integral em tradução identificada. Aristóteles, Ética a Nicômaco, livro I, capítulo 7, e livro II, capítulo 1; tradução inglesa de D. P. Chase, lida no texto integral do Project Gutenberg (eBook 8438). Aristóteles NÃO propõe este exercício: o Traço toma dele o critério — uma vez não estabelece disposição — e monta o resto.",
     "funcao": "lente",
     "adaptacao": "O critério de Aristóteles vira contagem: o autor escreve o que DIZ que faz, depois o que fez mais de uma vez com quantas, e o que fez uma vez só e conta como se fosse hábito. O fecho é do Traço: parar de dizer, ou marcar a próxima data.",
     "evidencia": "É argumento filosófico do século IV a.C., não medida: Aristóteles discute felicidade e virtude ao longo de uma vida inteira, e não faz balanço de ano nem propõe procedimento. Não há estudo de eficácia de nada disto, e a contagem que o método pede é a do próprio autor, sujeita à mesma memória seletiva que ele quer corrigir — por isso o método vale mais com as notas do período à mão.",
@@ -103,7 +103,7 @@ transformaria a contagem de memória em contagem de fato.
   },
   "filtro": "O que se repetiu",
   "reconhecimento": "isto é um período inteiro pedindo contagem, não lembrança.",
-  "movimento": "O critério de Aristóteles: \"não é uma andorinha nem um dia bonito que fazem a primavera\". Uma vez não estabelece disposição — disposição é o que se repete. Cobre a contagem: o que o autor DIZ que faz, o que ele fez mais de uma vez e QUANTAS, e o que fez uma vez só e conta como hábito. A história que a pessoa conta de si é feita de casos únicos; o balanço é feito de repetições.",
+  "movimento": "O critério de Aristóteles: \"não é uma andorinha nem um dia bonito que fazem a primavera\". Uma vez não estabelece disposição — disposição é o que se repete. Cobre a contagem: o que o autor DIZ que faz, o que ele fez mais de uma vez e QUANTAS, e o que fez uma vez só e conta como hábito. É a contagem, não a lembrança, que separa uma coisa da outra.",
   "pergunta": "Quantas vezes, de verdade? Uma vez não conta.",
   "roteamento": [
     "\\bbalan[çc]o do (ano|semestre|trimestre)\\b|\\bo que ficou (do|desse|deste) ano\\b|\\bfechando o ano\\b",

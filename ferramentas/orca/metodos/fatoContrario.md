@@ -94,7 +94,7 @@ bloqueio.
   "origem": "Charles Darwin",
   "faculdade": "honestidade",
   "proveniencia": {
-    "fonte": "Charles Darwin, The Autobiography of Charles Darwin (escrita em 1876, publicada em 1887 por Francis Darwin); texto integral lido no Project Gutenberg, eBook 2010",
+    "fonte": "GRAU A: obra publicada, lida no texto integral. Charles Darwin, The Autobiography of Charles Darwin (escrita em 1876, publicada em 1887 por Francis Darwin); texto integral lido no Project Gutenberg, eBook 2010",
     "funcao": "pratica",
     "adaptacao": "Darwin descreve um hábito de captura, não um formulário. O Traço faz quatro campos e cobra a única coisa que a regra exige — escrever AGORA, com o fato do jeito que ele veio. O campo da resposta nasce vazio de propósito e só aparece depois: a regra é sobre capturar, não sobre vencer a objeção.",
     "evidencia": "Darwin relata o hábito e o resultado que atribui a ele: quase nenhuma objeção o pegou desprevenido. É testemunho de um cientista sobre a própria prática — sem controle, sem medida, e contado por quem já sabia que tinha dado certo. Não há evidência de que anotar o fato contrário faça diferença em quem não seja Darwin.",

@@ -1,6 +1,6 @@
 # Achados do catálogo — contrato de colagem e pedidos de app
 
-Trilha Métodos · M1 a M7 · reorganizado em 06/09/2026.
+Trilha Métodos · M1 a M8 · reorganizado em 06/09/2026.
 
 > **Reorganizado na volta M5.** Nada do contrato mudou de conteúdo: a regra de
 > ordem, o conserto do Se–então e as provas exigidas continuam com as mesmas
@@ -17,6 +17,8 @@ Trilha Métodos · M1 a M7 · reorganizado em 06/09/2026.
 | abrir uma volta de app a partir da trilha | **Parte III** |
 | entender por que um roteamento erra hoje | **Parte II** |
 | escrever a proveniência de um método | [`regua-da-proveniencia.md`](regua-da-proveniencia.md) |
+| colar a leva 2 | [`leva-2.md`](leva-2.md), que basta sozinho |
+| entender o critério da trilha inteira | [`o-que-a-trilha-aprendeu.md`](o-que-a-trilha-aprendeu.md) |
 | saber o que as provas da trilha garantem | **Parte IV** |
 
 ## Estado da trilha (fonte única — se divergir de outro arquivo, vale este)
@@ -25,13 +27,18 @@ Trilha Métodos · M1 a M7 · reorganizado em 06/09/2026.
 |---|---|---|
 | Subtração, Coluna da esquerda, Classe de referência, Cinco porquês | M1 | **aprovados; a M3 está colando** |
 | A pergunta de Hamming, O que se vê e o que não se vê, Exame da noite | M2 | **aprovados; a M3 está colando** |
-| A nota do fato contrário, Ordem de grandeza, Começaria hoje? | M4 | **aceitos por ora**, entram na leva seguinte |
-| O combinado, O ponto que decide | M5 | **aceitos**, entram numa leva seguinte |
-| O que se repetiu | M6 | **aceito**, entra na leva seguinte |
-| A regra que eu faço, A reparação | M7 | **propostos**, gosto não decidido — os dois de **grau A** |
+| A nota do fato contrário, Ordem de grandeza, Começaria hoje? | M4 | **aceitos** (leva 2) |
+| O combinado, O ponto que decide | M5 | **aceitos** (leva 2) |
+| O que se repetiu | M6 | **aceito** (leva 2) |
+| A regra que eu faço, A reparação | M7 | **aceitos** (leva 2) |
 | Matriz de Eisenhower, Cerca de Chesterton, Considerar o oposto, Critérios de parada, Sanduíche de feedback, Afirmações positivas, Revisão anual, Carta ao eu do futuro, Teste do jornal de amanhã, Regra de ouro | M1–M7 | **rejeitados**, com ficha e motivo |
 
-Quinze propostos, dez rejeitados, sete colados pela M3.
+Quinze propostos, **dez rejeitados**, sete na leva 1 (com a M3) e oito na
+[leva 2](leva-2.md).
+
+**Os oito da leva 2 estão empacotados para colar em [`leva-2.md`](leva-2.md)** —
+JSON final, grau declarado, encadeamentos e frases de teste. Quem colar não
+precisa abrir as fichas.
 
 **Antes de escrever ou colar qualquer ficha, leia a
 [régua da proveniência](regua-da-proveniencia.md)** — resumida no brief do papel
@@ -201,6 +208,16 @@ da constante e não o diz a ninguém — e a frase vai um passo além do que a f
 sustenta. Ficha completa, com a citação literal, o que o estudo não afirma e o
 **texto exato proposto**, em [`aviso-wood.md`](aviso-wood.md). É volta de app,
 não de catálogo.
+
+## II.2b Seis frases que afirmam sobre as pessoas — **ABERTO** (M8)
+
+A segunda auditoria (eixo da alegação de eficácia) achou seis frases de
+`movimento` em que o app afirma um fato sobre as pessoas na própria voz e sem
+fonte — todas da forma *"o passo que todo mundo pula"*. Não é promessa de
+resultado (o catálogo é limpo nesse eixo); é a mesma espécie do `avisoWood`.
+Frase de hoje e frase corrigida, prontas para colar, em
+[`auditoria-eficacia.md`](auditoria-eficacia.md). Duas eram minhas e já foram
+corrigidas nas fichas.
 
 ## II.3 Três fichas com proveniência inflada — **NA M3** (conserto de três frases)
 
