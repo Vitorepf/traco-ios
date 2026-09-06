@@ -1,7 +1,7 @@
 # Cinco porquês — ficha do candidato
 
-Volta M1 da trilha Métodos · 06/09/2026 · **proposto com uma pendência de
-citação** (explicada abaixo). Não colado.
+Volta M1 da trilha Métodos · 06/09/2026 · **proposto**. Não colado.
+Pendência de citação **fechada na volta M2** (06/09) — ver "Fonte" abaixo.
 
 Faculdade: **causa** (hoje vazia; o catálogo tem três métodos para o que ainda
 vai acontecer — Pré-mortem, Inversão, Especificação — e nenhum para o que já
@@ -11,21 +11,62 @@ causa devolve o tempo. E MELHORAR, porque descer a cadeia é uma capacidade.
 
 ## Fonte
 
-Taiichi Ohno, *Toyota Production System: Beyond Large-Scale Production*,
-Productivity Press, 1988 (original japonês, 1978). ISBN 0-915299-14-3.
+**A obra de origem**, conferida no registro de catálogo (autor, título, editora,
+ano, ISBN): Taiichi Ohno, *Toyota Production System: Beyond Large-Scale
+Production*, Productivity Press, 1988 (original japonês, 1978),
+ISBN 0-915299-14-3.
 
-Citação, tal como reproduzida na enciclopédia que a atribui a essa edição:
+**A citação que sustenta o método**, esta lida na íntegra: Toyota Motor
+Corporation, "Ask 'why' five times about every matter", *Toyota Traditions*,
+março de 2006 — a própria empresa onde o método nasceu, publicando o método e
+atribuindo-o a Ohno.
 
-> "the basis of Toyota's scientific approach […] by repeating why five times
-> the nature of the problem as well as its solution becomes clear."
+> "Whenever one cropped up, he encouraged his staff to explore problems
+> first-hand until the root causes were found. 'Observe the production floor
+> without preconceptions,' he would advise. 'Ask "why" five times about every
+> matter.'"
 
-**Pendência, e é honesto dizer:** não abri o livro. Autor, obra, editora, ano e
-ISBN estão conferidos; a frase exata é de segunda mão. Antes de colar no
-catálogo, conferir a citação na página (edição inglesa, capítulo 1) — ou trocar
-a citação por uma que eu tenha lido inteira. A barra 2 pede a citação que
-sustenta, e esta ainda está a um passo da fonte.
+E o exemplo, com a cadeia inteira, como a Toyota o publica:
 
-A crítica publicada, essa sim lida na fonte primária:
+> "Why did the robot stop?" The circuit has overloaded, causing a fuse to blow.
+> "Why is the circuit overloaded?" There was insufficient lubrication on the
+> bearings, so they locked up. "Why was there insufficient lubrication on the
+> bearings?" The oil pump on the robot is not circulating sufficient oil.
+> "Why is the pump not circulating sufficient oil?" The pump intake is clogged
+> with metal shavings. "Why is the intake clogged with metal shavings?" Because
+> there is no filter on the pump.
+
+E, sobre o critério de parada, que é o que o Traço adapta:
+
+> "The root cause of any problem is the key to a lasting solution," Ohno used to
+> say.
+
+### Como a pendência foi fechada (M2)
+
+A M1 registrou que a citação de Ohno era de segunda mão. Na M2 fui atrás do
+livro e **não consegui a fonte primária**. O que aconteceu, para o registro:
+
+- A edição inglesa de 1988 está no Internet Archive
+  (`toyotaproduction0000onot`), mas o item é de **acesso restrito**
+  (empréstimo, `printdisabled`). Não contorno restrição de acesso.
+- Os endpoints públicos de busca-dentro-do-livro do Internet Archive não
+  responderam (sem rota, do lado de cá).
+- Baixei e li o texto integral de *Workplace Management* (Ohno, Productivity
+  Press, tradução de Andrew P. Dillon), que está aberto no Internet Archive,
+  **procurando a passagem dos cinco porquês: ela não está lá.**
+
+Então **troquei a citação** por uma que eu li inteira, da Toyota Motor
+Corporation, acima. É a solução que a própria tarefa autorizava: um método do
+catálogo não carrega frase que ninguém do Traço leu no original. A obra de Ohno
+continua sendo a origem — e o `movimento` do método não depende de nenhuma
+frase que eu não tenha lido.
+
+**O que fica em aberto, e é pequeno:** a frase exata de Ohno no livro, com
+página. Se o dono tiver o livro na estante, são cinco minutos: capítulo 1, a
+seção "Ask 'Why' Five Times About Every Matter". Isso melhora a ficha; não é
+mais bloqueio.
+
+### A crítica publicada, lida na fonte
 
 Alan J. Card, **"The problem with '5 whys'"**, *BMJ Quality & Safety* 26(8),
 p. 671–677, 2017 (doi:10.1136/bmjqs-2016-005849 — metadados conferidos no
@@ -49,8 +90,9 @@ notas. A ficha não alega eficácia nenhuma.
 
 1. **Ciclo** — os dois, dito acima.
 2. **Origem verificável** — obra, autor, ano, editora e ISBN conferidos; a
-   citação literal está pendente de leitura na fonte (ver acima). A crítica que
-   a ficha usa para adaptar o método está conferida no Crossref.
+   citação que sustenta está agora numa publicação da Toyota Motor Corporation
+   lida na íntegra (M2), não mais de segunda mão. A crítica que a ficha usa para
+   adaptar o método está conferida no Crossref.
 3. **Não duplica** — o **Pré-mortem** imagina uma falha que ainda não houve; a
    **Inversão** pergunta como garantir que falhe; a **Decisão** confere o que
    se esperava. Nenhum dos três desce a cadeia causal de um evento que JÁ
@@ -107,10 +149,10 @@ já é sinal.
   "origem": "Taiichi Ohno",
   "faculdade": "causa",
   "proveniencia": {
-    "fonte": "Taiichi Ohno, Toyota Production System: Beyond Large-Scale Production (Productivity Press, 1988; original japonês de 1978)",
+    "fonte": "Taiichi Ohno, Toyota Production System: Beyond Large-Scale Production (Productivity Press, 1988; original japonês de 1978), ISBN 0915299143 — obra conferida no registro de catálogo. A citação que sustenta o método é da Toyota Motor Corporation, \"Ask 'why' five times about every matter\", Toyota Traditions, março de 2006, lida na íntegra.",
     "funcao": "pratica",
     "adaptacao": "Cinco porquês encadeados, e mais dois campos que a crítica publicada pede: a causa só vale se for algo que o AUTOR controla (não uma pessoa), e uma segunda cadeia possível que ele não seguiu. A forma verdadeira é uma cadeia que para quando a causa é controlável, não uma lista de cinco — ver a ficha.",
-    "evidencia": "Ohno apresenta a repetição do porquê como base do método científico da Toyota, com o caso da máquina parada; é relato de prática, não estudo. Teruyuki Minoura, ex-diretor da Toyota, chama a ferramenta de básica demais para achar a causa raiz. Alan J. Card (BMJ Quality & Safety 26:671–677, 2017) argumenta que a profundidade do quinto porquê é arbitrária e que investigadores diferentes chegam a causas diferentes. Nada aqui mede o uso por uma pessoa nas próprias notas.",
+    "evidencia": "A Toyota publica o método como de Ohno e dá o exemplo do robô de solda, descendo do fusível queimado até a falta de filtro na bomba. É relato de prática industrial, não estudo. Teruyuki Minoura, ex-diretor da Toyota, chama a ferramenta de básica demais para achar a causa raiz. Alan J. Card (BMJ Quality & Safety 26:671–677, 2017) argumenta que a profundidade do quinto porquê é arbitrária e que investigadores diferentes chegam a causas diferentes. Nada aqui mede o uso por uma pessoa nas próprias notas.",
     "aplicabilidade": "Serve para algo que já deu errado e se repete, num sistema que o autor controla. Não serve para plano futuro — isso é o Pré-mortem — nem para culpar alguém."
   },
   "filtro": "Cinco porquês",

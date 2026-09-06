@@ -47,6 +47,10 @@ método **tem de ficar no fim do catálogo**, nunca antes dela.
 
 ## Achados para a volta de colagem
 
+> **Estes achados foram consolidados em [`achados-catalogo.md`](achados-catalogo.md)**
+> na volta M2, com a regra do roteador escrita por extenso e a correção sugerida
+> para o WOOP. A volta de colagem lê aquele arquivo ANTES de abrir o `Metodos.json`.
+
 1. **Ordem: colar os quatro no FIM do catálogo.** Testei a alternativa (os
    quatro antes da Especificação) e ela é PIOR: a Coluna da esquerda passa a
    roubar o desabafo da Expressiva e a Subtração rouba uma frase de construção
