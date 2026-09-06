@@ -593,3 +593,160 @@ Acessibilidade em 8 até alguém decidir o dono.
   `v18-reg3-nada-some-com-campo-vazio.png`, `v18-reg3-toque-leva-ao-campo.png`,
   `v18-reg3-edicao-pendente-nao-bloqueia.png`,
   `v18-reg3-ax5-sangra-com-versao.png`, `v18-reg3-intercambio-texto-solto.png`.
+
+## Re-G3, segunda passada — volta 18-C (topo `120af64`)
+
+Mesmo revisor, mesmo aparelho: iPhone 17 Pro (teste 2) `B91C8DEF`, ligado e
+desligado por mim; havia quatro simuladores de outros ligados e não desliguei
+nenhum. Mesmo método da passada anterior: toque à mão com a janela do meu
+simulador trazida à frente e `xcrun simctl io <MEU-UDID> screenshot` depois de
+cada toque. Nenhuma nota depende de maestro.
+
+### O achado A está fechado — e a causa era mais funda do que eu disse
+
+Eu tinha escrito "uma linha, a mesma que `trabalho-revisar` já tem". Estava certo
+no sintoma e **curto no diagnóstico**: o problema não era a linha faltando, eram
+**duas listas de guardas copiadas** que divergiram quando a 18-B tirou o
+`.disabled(travado)` de uma delas. Copiar a linha de volta teria deixado a classe
+do defeito viva. A 18-C funde as duas rotas que chamam a IA em
+`levouAoQueFalta(_:campoObrigatorio:)` e alinha `motivoDoTravamento` à mesma
+ordem — salvamento, preparação em curso, edição pendente, campo vazio. Correção
+melhor que a minha.
+
+**Reproduzi o caso dos DOIS obstáculos juntos**, que é onde a 18-B nomeava um e
+levava a outro (`v18-reg3b-dois-obstaculos.png`):
+
+1. Intenção editada e **não guardada** (`edicaoPendente`) **e** campo do pedido
+   **vazio** (`faltaCampo`) na mesma tela. A folha escreve *"Guarde a intenção ou
+   a versão que está editando antes de pedir uma nova preparação."* — nomeia a
+   **intenção**, não o campo vazio.
+2. Toquei "Preparar com IA": **nenhuma preparação** começou e a folha rolou até a
+   intenção.
+3. Digitei em seguida, sem tocar em campo nenhum: o texto entrou **na intenção**.
+   Nomeou um obstáculo e levou **a ele**.
+
+Na 18-B esses mesmos passos diziam "guarde a intenção" e levavam o cursor ao
+**pedido** — a divergência que eu derrubei. Está fechada.
+
+E confirmei que o guarda desce a escada na mesma ordem em que a frase fala
+(`v18-reg3b-motivo-e-guarda-na-mesma-ordem.png`): guardei a intenção, o motivo
+**desceu um degrau** para *"Escreva acima o que a IA deve preparar."*, e o mesmo
+toque passou a pôr o cursor **no pedido**. Frase e guarda no mesmo degrau, nos
+dois degraus alcançáveis.
+
+O degrau `!salvo` não é forçável neste instrumento (`salvo = false` só vem de
+conflito de escrita ou de falha de gravação, `OficinaTrabalho:91` e `:112`). Mas
+ele deixou de depender de teste: **há um guarda só**, e a ordem dele é
+literalmente a ordem da frase — não sobrou onde divergir. Isso é mais forte que
+uma captura.
+
+`maestro/trabalho-bloqueio.yaml` ganhou o caso com `assertNotVisible` em
+`trabalho-preparando` e a prova do foco por digitação; li o fluxo e ele guarda o
+degrau da edição pendente com o pedido **preenchido** — o meu teste de tela
+cobriu o outro degrau, com o pedido vazio. Rodá-lo hoje fotografaria o vizinho:
+**pendente de instrumento, sem desconto**.
+
+### As duas guardas
+
+**`AccessibilityNotification.Announcement` — o mapeamento está certo.** Não é
+gosto; é onde há e onde não há outra fala:
+
+- `levouAoObstaculo` (salvamento falho) e `preparacaoEmCurso` **só rolavam a
+  tela**. Sem mudança de foco não há nada que o VoiceOver leia sozinho: sem o
+  anúncio, silêncio. Precisavam.
+- `campoEmEdicao` move o foco para um campo em **outra seção**; ouvir "O que
+  quero realizar" não explica por que a preparação não começou. Precisava.
+- **`faltaCampo` não anuncia, e está certo.** Ali o destino **é** o obstáculo: o
+  campo que recebe o cursor é o campo vazio, e o VoiceOver já lê o rótulo dele ao
+  virar primeiro respondedor — o motivo é falado, nas palavras do próprio campo.
+  Um `Announcement` por cima disputaria com a fala da mudança de foco e poderia
+  cortá-la. Acrescentar ali pioraria.
+
+**Os dois limites declarados são honestos, e eu subscrevo os dois.**
+
+1. *"`Announcement` é canal do VoiceOver; Controle Assistivo sem VoiceOver
+   continua sem a fala."* Verdadeiro e dito com precisão — é uma notificação de
+   acessibilidade consumida pelo VoiceOver. E a ADR não finge que resolveu: diz
+   que a perda "foi reduzida ao caso sem VoiceOver", e nomeia o que resta para
+   essa pessoa (o desvio visível: foco e rolagem até o obstáculo). É a leitura
+   correta do que eu tinha apontado.
+2. *"o anúncio ser de fato FALADO não está provado."* Honesto, e **eu também não
+   consegui fechar**: não havia simulador com VoiceOver ligado neste turno e o
+   canal do maestro devolve o vizinho. O que está provado é o desvio — nenhuma
+   preparação, foco no campo certo —, e a ADR diz exatamente isso, sem inflar.
+   Fica como o limite do `negado` da volta 18: vive no código e na intenção, não
+   na captura.
+
+Uma observação de baixa severidade, para o G4 e não para aqui: `trabalho-revisar`
+passou a compartilhar o guarda, mas **não tem linha de motivo escrita nem
+`accessibilityHint`** como `trabalho-gerar` tem. Quem enxerga e toca ali recebe
+só o desvio (rolagem e foco). Não é desonestidade — a tela não enuncia regra
+nenhuma nesse ponto e o destino carrega o próprio texto —, é acabamento.
+
+### `PromessaDoAviso`: **sim, está pronto para a ficha do Calendário**
+
+Os dois pré-requisitos que eu levantei estão fechados, e conferi os dois no
+código e nos testes:
+
+1. **`jaPassou` guardado por `!repete`** — `if let instante, !repete, instante <= agora`.
+   Sem ele, "Correr toda terça 6:30" receberia "esta ação ficou sem alarme"
+   enquanto `Revisoes.agendarCompromisso` arma um id por dia da semana e o alarme
+   toca toda semana. Três testes novos cobrem o corte pelos três lados: série que
+   repete não fica sem alarme (e o mesmo instante **sem** série continua
+   `jaPassou`), série não atropela o beco de quem desligou os avisos, série sem
+   aviso pedido continua sem aviso. 10 → 13 testes.
+2. **`instante:` e `repete:` sem valor padrão.** Era o silêncio que eu tinha
+   apontado: um chamador que esquecesse `instante:` perdia a correção do relógio
+   inteira sem erro de compilação. Agora a ficha não se liga sem decidir os dois,
+   e a justificativa está escrita ("`false` é o lado que mente").
+
+O terceiro item da minha lista — mover o tipo de `AgendamentoAcaoView.swift` para
+junto de `Avisos`/`Aviso` — ficou declarado como primeiro passo da volta da
+ficha. Concordo: é higiene estrutural, não pré-requisito de correção.
+
+**E acrescento um terceiro pré-requisito que só aparece do lado da ficha**, achado
+nesta passada: `CalendarioAgenda.estadoDosAvisos` é `Avisos.Estado` **não
+opcional, com valor inicial `.concedido`** (`CalendarioAgenda.swift:30`), e só
+depois `Avisos.estado()` responde. `PromessaDoAviso` tem o caso `nil` justamente
+para "leitura pendente" (`.seDeixarem`, "se você permitir…"), mas a ficha **nunca
+consegue expressá-lo**: na janela antes da leitura voltar ela afirmaria "Toca …"
+por padrão otimista. A folha do Trabalho acertou a forma — `@State private var
+permissao: Avisos.Estado?` começando em `nil`. A volta da ficha precisa tornar
+`estadoDosAvisos` opcional (ou nascer em `.naoPerguntado`) antes de consumir o
+tipo, senão importa a correção e mantém a janela de promessa não autorizada.
+
+### Instrumento
+
+- `xcodegen generate` → `.pbxproj` sem diferença.
+- `xcodebuild clean build` no meu UDID sob `com-trava.sh`: **185 ações de
+  compilação, 0 linhas `warning:`**, `** BUILD SUCCEEDED **`.
+- `xcodebuild test`: `✔ Test run with 728 tests in 126 suites passed after
+  8.118 seconds.` → `** TEST SUCCEEDED **`. 13 testes em `PromessaDoAvisoTests`.
+- Números da ADR reconferidos e **corretos**: `+73/−11` nos dois arquivos de view
+  (19+54 / 5+6), **1296 → 1313** linhas sem comentário, `+58/−13` nos testes,
+  48 linhas de fluxo.
+- Texto `large` e aparência `light` inalterados. Nada editado no código, nada
+  commitado.
+- Capturas minhas: `v18-reg3b-dois-obstaculos.png`,
+  `v18-reg3b-motivo-e-guarda-na-mesma-ordem.png`.
+
+### Notas revistas e veredito
+
+| dimensão | 1ª passada | agora | por quê |
+|---|---|---|---|
+| **Contrato** | 8 | **9** | a ADR corrige por escrito a própria frase que eu tinha derrubado ("a primeira redação dizia 'completo' e a re-G3 mostrou que não era"), a lei do bloqueio que ela enuncia é a que o código executa, e os quatro números que reconferi batem. Os limites não provados estão declarados no lugar certo |
+| **Correção** | 8 | **9** | `clean build` do zero com 0 aviso e **728/126 verdes**, reproduzidos por mim; a regressão foi fechada na raiz (um guarda só, não uma linha copiada) e reproduzi o fecho na tela nos dois degraus alcançáveis; o caso entrou no fluxo de regressão |
+| **Estado honesto** | 8 | **9** | a folha cumpre a regra que enuncia, provado com os dois obstáculos juntos, que era o caso exato que a 18-B errava; e a frase desce o degrau junto com o guarda |
+| Visão · Jornada real · Design · Simplicidade · Movimento · Componentes · Privacidade · Complexidade · Relato | 9 | **9** | inalteradas |
+| Acessibilidade | 8 | **9** | o `.isSelected` e o anúncio seguem **pendentes de instrumento**, e por ordem do orquestrador isso não desconta. O que me fazia descontar era o achado **B** (AX5 sangra com versão), e ele saiu do escopo desta volta: é pré-existente, não está no diff, e vai para o RUMO |
+| Performance · Fora do app | n/a | **n/a** | mesmos motivos |
+
+**Veredito: APROVADO no G3.** Nenhuma dimensão abaixo de 9. Sobe para o **G4 de
+design**, que é onde a tela redesenhada será julgada de verdade.
+
+**O que segue aberto, e não bloqueia:** o achado B (AX5 com versão) no RUMO, com
+dono a definir; `trabalho-revisar` sem motivo escrito, para o G4; mover
+`PromessaDoAviso` e destravar `estadoDosAvisos` como primeiros passos da volta da
+ficha do Calendário; e duas provas pendentes de instrumento (o caso novo do
+`trabalho-bloqueio.yaml` e a fala do anúncio) para quando houver um simulador
+sozinho e um com VoiceOver.

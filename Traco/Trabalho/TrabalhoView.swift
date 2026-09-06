@@ -45,7 +45,11 @@ struct TrabalhoView: View {
     @FocusState private var campoEmFoco: String?
     @State private var rolarPara: String?
 
-    private var chaveRascunho: String { "trabalho.rascunhos.\(trabalho.uuid.uuidString)" }
+    /// A chave dos rascunhos em `UserDefaults` — `static` para que fechar e
+    /// reabrir a folha seja provável em teste com a chave que o app usa, e
+    /// não com uma cópia da string.
+    static func chaveRascunho(_ trabalho: UUID) -> String { "trabalho.rascunhos.\(trabalho.uuidString)" }
+    private var chaveRascunho: String { Self.chaveRascunho(trabalho.uuid) }
     private var selos: [SeloOrigemTrabalho] { notas.map(SeloOrigemTrabalho.init) }
     private var acesso: AcessoTrabalho.Estado { AcessoTrabalho.estado(trabalho, no: context) }
 
@@ -223,8 +227,13 @@ struct TrabalhoView: View {
             trilhoDoApoio(o)
             .animation(Tema.movimento(.escala, Tema.Mola.escala, reduzido: reduceMotion),
                        value: o.documento.apoio)
-            Text("Delegar não exige aprender a executar tudo. Você pode mudar quando quiser.")
+            // A frase fala da opção SELECIONADA. Estática, ela dizia
+            // "Delegar não exige…" com Praticar e com Combinar marcados: a
+            // única ajuda da decisão que muda o resto da tela descrevia a
+            // escolha que o autor não fez, encostada nela (G4, achado 2).
+            Text(explicacaoDoApoio(o.documento.apoio))
                 .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+                .accessibilityIdentifier("trabalho-apoio-explicacao")
             if o.documento.apoio == .combinar { delimitacao(o) }
         }
     }
@@ -253,6 +262,17 @@ struct TrabalhoView: View {
         case .delegar: "Delegar"
         case .praticar: "Praticar"
         case .combinar: "Combinar"
+        }
+    }
+
+    /// O que a escolha marcada muda, na voz do autor, mais a saída que vale
+    /// para as três ("você pode mudar quando quiser" — a única parte da frase
+    /// antiga que era verdade nas três).
+    private func explicacaoDoApoio(_ a: DocumentoTrabalho.Apoio) -> String {
+        switch a {
+        case .delegar: "Delegar: a IA prepara a versão inteira; você não precisa aprender a executar tudo. Você pode mudar quando quiser."
+        case .praticar: "Praticar: você escreve a tentativa; a IA prepara o exercício e o retorno, nunca a resposta. Você pode mudar quando quiser."
+        case .combinar: "Combinar: você exercita o trecho que delimitar abaixo; o resto continua com a IA. Você pode mudar quando quiser."
         }
     }
 
@@ -619,7 +639,10 @@ struct TrabalhoView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .accessibilityIdentifier("trabalho-artefato")
             }
-            if editandoVersao || !vazio("versao") {
+            // A mesma regra do bloqueio, e pelo mesmo motivo: o campo só
+            // reabre por edição de verdade. Julgado por não-vazio, o cartão
+            // imprimia o parágrafo da versão duas vezes para sempre.
+            if editandoVersao || Self.alterado(rascunhos, "versao", em: o.documento) {
                 campo("Editar a versão", chave: "versao", padrao: a.conteudo)
                     .accessibilityIdentifier("trabalho-editar-versao")
                 acaoSecundaria("Guardar como nova versão") { guardarVersao(o) }
@@ -894,7 +917,7 @@ struct TrabalhoView: View {
             Text(o.salvo ? "Versões e atos guardados neste aparelho." : "Alterações ainda não guardadas.")
                 .font(Tema.meta).foregroundStyle(o.salvo ? Tema.tintaSuave : Tema.aviso)
                 .accessibilityIdentifier("trabalho-salvamento")
-            if !rascunhos.isEmpty {
+            if rascunhos.keys.contains(where: { Self.alterado(rascunhos, $0, em: o.documento) }) {
                 Text("Os campos em edição voltam ao reabrir este trabalho; só entram no documento quando você os guarda.")
                     .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
                 acaoSecundaria("Descartar rascunhos dos campos") {
@@ -946,8 +969,19 @@ struct TrabalhoView: View {
             // Rótulo de campo em caixa normal: a caixa alta é da SEÇÃO, e
             // duas caixas altas empilhadas gritam sem hierarquia.
             Text(titulo).font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+            // O `set` só grava o que MUDA. Um `TextField` que sai da tela
+            // devolve o texto ao binding, e como o salvamento acabou de
+            // `limpar` o rascunho, o que ele devolvia era o `padrao` — em
+            // "Sua versão", a string vazia. Um rascunho vazio gravado depois
+            // de guardar a versão é diferente da versão: a folha voltava a
+            // afirmar uma edição pendente que ninguém fez. Escrever nada não
+            // é editar, e agora não vira rascunho (a mesma origem enchia
+            // "pedido" de "" e ligava o "Descartar rascunhos" do rodapé).
             TextField(exemplo, text: Binding(get: { rascunhos[chave] ?? padrao },
-                                           set: { definir(chave, $0) }), axis: .vertical)
+                                           set: { novo in
+                                               guard novo != (rascunhos[chave] ?? padrao) else { return }
+                                               definir(chave, novo)
+                                           }), axis: .vertical)
                 .font(Tema.corpo)
                 .lineLimit(2...12)
                 .id(chave)
@@ -970,10 +1004,62 @@ struct TrabalhoView: View {
 
     /// Qual campo está em edição não guardada — o destino do toque bloqueado.
     private func campoEmEdicao(_ o: OficinaTrabalho) -> String? {
-        if rascunhos["intencao"].map({ $0 != o.documento.intencaoAtual.texto }) == true { return "intencao" }
-        if rascunhos["resultado"].map({ $0 != o.documento.intencaoAtual.resultado }) == true { return "resultado" }
-        if !vazio("versao") { return "versao" }
-        return nil
+        Self.campoEmEdicao(rascunhos, em: o.documento)
+    }
+
+    // MARK: - A regra do rascunho
+
+    /// O que o documento já guarda para um campo que **nasce preenchido**.
+    /// `nil` é o campo livre (pedido, ato, relato, dificuldade): ali qualquer
+    /// texto é edição, porque não há nada de onde diferir.
+    static func guardado(_ chave: String, em d: DocumentoTrabalho) -> String? {
+        switch chave {
+        case "intencao": d.intencaoAtual.texto
+        case "resultado": d.intencaoAtual.resultado
+        case "versao": d.versaoAtual?.conteudo ?? ""
+        default: nil
+        }
+    }
+
+    /// **Edição pendente é rascunho DIFERENTE do guardado, não rascunho que
+    /// existe.** É a regra inteira desta folha, e ela é `static` porque foi
+    /// aqui que a folha passou a mentir sobre si mesma (G4 da volta 18).
+    ///
+    /// "versao" era julgada por não-vazio. E o rascunho de "versao" não é
+    /// escrito só por quem digita: o `TextField` devolve o texto ao binding
+    /// quando SAI da tela, depois do `limpar` que o salvamento acabou de
+    /// fazer — então **guardar a própria versão gravava, como rascunho, o
+    /// texto idêntico ao que tinha acabado de virar versão**. A partir dali a
+    /// folha afirmava para sempre uma edição que ninguém fez: imprimia a
+    /// versão duas vezes (o cartão reabria o campo "Editar a versão"),
+    /// travava "Preparar nova versão com IA" e a importação com um obstáculo
+    /// inexistente, e o rodapé oferecia descartar um rascunho que não havia.
+    /// `UserDefaults` guarda o rascunho, então sobrevivia a fechar a folha,
+    /// reabrir, descartar e reiniciar o aparelho.
+    ///
+    /// Julgar por diferença apaga a classe: um rascunho igual ao guardado é
+    /// invisível para a pessoa, e agora é invisível para a folha também — e
+    /// o estado já preso nos aparelhos se desfaz sozinho na primeira leitura.
+    static func alterado(_ rascunhos: [String: String], _ chave: String, em d: DocumentoTrabalho) -> Bool {
+        // Rascunho em branco não é edição em lugar nenhum: nenhum destes
+        // campos pode ser guardado vazio (`reverIntencao` e
+        // `guardarVersaoHumana` recusam), então um vazio nunca é trabalho à
+        // espera de commit — e travar a folha por ele seria de novo nomear um
+        // obstáculo que a pessoa não tem como resolver guardando. É também o
+        // que desfaz o estado já preso nos aparelhos: medido no simulador
+        // depois de guardar a própria versão, o `plist` do app tinha
+        // `"versao" => ""`, escrito pelo `TextField` ao sair da tela.
+        guard let rascunho = rascunhos[chave],
+              !rascunho.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return false }
+        guard let guardado = guardado(chave, em: d) else { return true }
+        return rascunho != guardado
+    }
+
+    /// O primeiro campo do documento em edição não guardada, na ordem em que
+    /// a folha os lê. Os campos livres não entram: eles não bloqueiam nada,
+    /// o guarda deles é `faltaCampo`.
+    static func campoEmEdicao(_ rascunhos: [String: String], em d: DocumentoTrabalho) -> String? {
+        ["intencao", "resultado", "versao"].first { alterado(rascunhos, $0, em: d) }
     }
 
     // MARK: - Bloqueio: nenhuma ação desta folha some

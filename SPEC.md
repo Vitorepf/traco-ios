@@ -3061,3 +3061,158 @@ VoiceOver não estava disponível neste turno: o que está provado é o desvio
 a sangrar pelos dois lados (achado B do re-G3) — não é regressão desta volta, o
 diff não toca `ConteudoTrabalhoView`, e o dono está por definir.
 
+
+### Volta 18-D — o rascunho que ninguém escreveu
+
+**A recusa.** O G4 passou **Movimento 9** e provou a família (`Pilula`,
+`CabecalhoDeFolha`, `.cartao`, `.rotulo` compartilhados com a ficha do
+Calendário; `AcaoTrabalhoStyle` apagado; oito `DisclosureGroup` em cinco; folha
+vazia em duas telas; e sob Reduzir Movimento as mesmas três trocas do trilho em
+16 quadros contra 253, **todos em estado resolvido**). Segurou por um estado
+preso: **depois de o autor guardar a PRÓPRIA versão, a folha afirmava para
+sempre uma edição pendente que não existia** — imprimia a versão duas vezes,
+travava "Preparar nova versão com IA" e a importação, e sobrevivia a fechar,
+reabrir, descartar rascunhos e reiniciar o aparelho. É o avesso exato da 18-C:
+ela consertou "diz que bloqueia e não bloqueia", e sobrou "bloqueia para sempre
+sem motivo".
+
+*A causa, e ela tem duas metades.* A primeira o juiz nomeou: `campoEmEdicao`
+julgava a intenção e o resultado por **diferença** e a versão por
+**não-vazio**. A segunda eu medi no aparelho, e sem ela a primeira não bastava:
+**o rascunho de "versao" não é escrito só por quem digita.** Um `TextField` que
+sai da tela devolve o texto ao binding, e o `limpar` do salvamento já apagou o
+rascunho — então o que voltava era o `padrao`. Depois de "Guardar minha
+versão", o `plist` do app tinha literalmente `"versao" => ""` (lido em
+`Library/Preferences/app.traco.plist` no simulador de teste), e `"pedido" =>
+""` numa folha em que ninguém escreveu pedido. Julgado por não-vazio, o
+rascunho igual à versão travava; julgado só por diferença, o rascunho vazio
+travava. Nas duas leituras a folha nomeava um obstáculo que a pessoa não tinha
+como resolver guardando.
+
+*O conserto, na causa.* **Edição pendente é rascunho DIFERENTE do guardado, e
+rascunho em branco não é edição em campo nenhum.** A regra vira três funções
+`static` em `TrabalhoView` — `guardado(_:em:)` (o que o documento tem para um
+campo que nasce preenchido; `nil` é campo livre), `alterado(_:_:em:)` e
+`campoEmEdicao(_:em:)` — e passa a ser lida nos **três** lugares que antes
+divergiam: o guarda do bloqueio, a condição que reabre o campo "Editar a
+versão" dentro do cartão (era `!vazio("versao")`, e era a origem do parágrafo
+impresso duas vezes) e o rodapé que oferece "Descartar rascunhos dos campos".
+Nenhum campo destes pode ser guardado vazio (`reverIntencao` e
+`guardarVersaoHumana` recusam), então em branco nunca é trabalho à espera de
+commit. E o `set` de `campo(_:chave:padrao:)` deixa de gravar o que não mudou:
+escrever nada não vira rascunho. As duas metades juntas fazem o aparelho **já
+preso sair do estado sozinho, na primeira leitura** — provado abrindo o
+trabalho que estava travado antes da correção.
+
+Prova: `RascunhoTrabalhoTests` (7 casos), com
+`guardarAPropriaVersaoNaoDeixaEdicaoPendenteAoReabrir` fechando o caminho
+inteiro — guardar a própria versão, o rascunho fantasma indo e voltando pelo
+`UserDefaults` com a chave do app (`TrabalhoView.chaveRascunho`, extraída para
+isso), e a folha continuando destravada — e
+`rascunhoVazioNaoEEdicaoPendente`, `versaoDiferenteDaGuardadaContinuaPendente`
+e `aOrdemDoDesvioEADaLeitura` guardando os dois lados da regra.
+
+**A linha do trilho passa a falar da opção selecionada.** Era
+`Text("Delegar não exige aprender a executar tudo…")` fixo, e continuava
+dizendo isso com Praticar e com Combinar marcados: a única frase que explica a
+decisão que muda o resto da tela descrevia a escolha que o autor **não** fez,
+encostada nela. Agora `explicacaoDoApoio(_:)` diz o que a marcada muda —
+"Delegar: a IA prepara a versão inteira…", "Praticar: você escreve a
+tentativa; a IA prepara o exercício e o retorno, nunca a resposta.",
+"Combinar: você exercita o trecho que delimitar abaixo; o resto continua com a
+IA." — e mantém "Você pode mudar quando quiser", a única parte da frase antiga
+que valia para as três. Em Combinar a frase aponta para o campo que aparece
+logo abaixo dela.
+
+**O achado 3 não é desta volta.** O bloco "Editar com outras ferramentas"
+continua `Button` cru com `.disabled()` neste branch, e o juiz mediu certo
+(habilitado e desabilitado em `#1C1C1E`). O conserto já existe na volta 11, que
+aplicou nesse arquivo exatamente o padrão desta folha; consertar aqui daria
+dois consertos do mesmo bloco para reconciliar. Confirmação no G5, depois das
+duas mescladas.
+
+**Custo.** +95/−9 em `TrabalhoView.swift` (nenhuma linha de movimento: as cinco
+chamadas pela lei continuam cinco, `grep "withAnimation\|.animation(\|.transition("`
+em `Traco/Trabalho/` devolve 5), +113 em `RascunhoTrabalhoTests`.
+
+**Prova.** `xcodebuild` sem aviso (`grep -c warning:` = 0) e **735 testes em
+127 suítes verdes** no iPhone 17 Pro (teste 2) `B91C8DEF`, sob `com-trava.sh`.
+Estados na tela por `xcrun simctl io <UDID> screenshot`, toque a toque com a
+janela do meu simulador à frente — não por maestro, que hoje não isola (havia
+driver de outro worker em `[::1]:7001`) e cuja captura fotografa build velho:
+
+- `v18d-estado-preso-desfeito.png`, quatro estados do mesmo trabalho: (1)
+  editando de verdade, a folha TRAVA e diz por quê — o positivo verdadeiro da
+  18-C, intacto; (2) logo depois de "Guardar minha versão", DESTRAVADA, versão
+  impressa **uma** vez e o campo fechado em "Editar esta versão"; (3) depois de
+  fechar a folha, reabrir, **desligar e religar o aparelho** e reabrir, segue
+  destravada; (4) editando a versão de novo, TRAVA de novo, e a importação
+  volta a dizer "Guarde a intenção ou a versão em edição antes de importar".
+- `v18d-trilho-fala-do-selecionado.png`: as três frases nas três seleções.
+- `v18d-rodape-sem-rascunho-fantasma.png`: o rodapé de uma folha sem rascunho
+  nenhum — só "Versões e atos guardados neste aparelho", sem oferecer descartar
+  o que não existe. O `plist` do trabalho novo confirma: dicionário vazio,
+  contra `"pedido" => ""` e `"versao" => ""` nos criados antes da correção.
+
+**Não provado nesta volta:** nada que envolva conta Grok (não há conta neste
+aparelho) — versão preparada pela IA, exercício, feedback e conferência
+assistida seguem sem prova minha, como no G4; e o anúncio de acessibilidade
+sendo FALADO, pelo mesmo motivo da 18-C.
+
+**Fora do escopo, para o RUMO** (nomeado pelo juiz, e concordo): o `.disabled()`
+de `Pilula` continua quebrado **no componente**; tocar uma pílula do trilho
+cancela em silêncio uma preparação em curso (`trilhoDoApoio` chama
+`cancelarPedido()` sem passar pelo guarda `preparacaoEmCurso`); o instante de
+~0,2 s em que nenhuma pílula lê como selecionada na troca; duas ou três
+cápsulas carvão de largura inteira por rolagem; o `confirmationDialog` que
+chega sem o título; e `Pilula` morando em `Componentes/` mas dependendo de
+`CalendarioTema`.
+
+#### O que falta para o ciclo aparecer como ciclo
+
+O juiz respondeu a pergunta central da volta: em **identidade** sim — a folha
+abre com a frase do próprio autor como título em 28 pt e a ordem de leitura é a
+do ciclo; em **estrutura** ainda não — "o ciclo nunca se mostra como ciclo, e a
+forma repetida rótulo/pergunta/campo/botão ainda é a de um formulário bem
+vestido". Não é conserto de portão, é redesenho, e fica para a próxima volta.
+Minha leitura, para quem a pegar:
+
+O problema não é decoração, é que **as quatro seções são independentes na
+tela e dependentes na vida.** Intenção, preparar, ato e dificuldade têm todas o
+mesmo peso, o mesmo papel e a mesma forma, e nada diz que a versão nasce do
+pedido, que o ato nasce da versão e que a dificuldade volta para o pedido. O
+autor lê quatro perguntas; ele vive uma volta.
+
+Três mudanças que eu tentaria, em ordem de retorno:
+
+1. **A folha muda de forma conforme o ciclo anda, em vez de mostrar tudo
+   sempre.** Hoje uma folha em branco já exibe quatro perguntas com campo e
+   botão, e quatro linhas de apoio. O estado do documento já sabe onde a pessoa
+   está — sem versão, com versão sem ato, com ato sem relato, com relato — e
+   esse é o dado que falta na tela. A seção da vez ganha o campo aberto e a
+   cápsula carvão; as já passadas viram **uma linha de resultado** ("Versão 1,
+   sua, sem conferência") que se abre ao toque; as ainda não alcançadas ficam
+   como rótulo sem campo. Isso resolve de uma vez as duas ou três cápsulas
+   carvão por rolagem (sobra uma) e a voz de manual numa tela vazia, e é o que
+   `curva-zero` chama de divulgação progressiva sem esconder poder: nada some,
+   tudo continua a um toque.
+2. **O elo, não a etapa.** Um indicador de progresso seria um wizard, e o
+   trabalho não é sequencial — o autor volta ao pedido depois do relato, e é
+   justamente aí que a volta se fecha. O que falta é dizer **de onde veio** cada
+   coisa: a versão já sabe o pedido que a produziu (`pedidoDe`), o ato sabe a
+   versão (`Acao.artefatoID`), a evidência sabe o ato. Uma linha de proveniência
+   no alto de cada bloco — "desta versão", "do pedido de 19:48" — e a
+   dificuldade oferecendo em uma ação **voltar ao pedido com o obstáculo
+   dentro** (a rota de "Pedir ajuste" já existe na conferência; falta a mesma
+   saída na Dificuldade) fecham o desenho da volta sem desenhar um círculo.
+3. **Contenção, para o olho ver quatro coisas e não dezesseis.** Os rótulos de
+   seção são 11 pt de peso igual sobre o mesmo papel; `law-of-common-region`
+   pede que cada etapa seja uma região. O cartão de papel já existe e já é da
+   casa (é o da versão) — estendê-lo às demais etapas, com o rótulo dentro da
+   borda, dá a região sem inventar componente novo. Falta em `Componentes` uma
+   `Secao`/`Bloco` que faça isso, e é a mesma peça que substituiria os cinco
+   `DisclosureGroup` do sistema que sobraram.
+
+O que eu **não** faria: linha do tempo, círculo desenhado, numeração de passos
+ou barra de progresso. Nenhum descreve um trabalho que volta, e todos
+transformam uma oficina em formulário — a mesma doença, com outra roupa.
