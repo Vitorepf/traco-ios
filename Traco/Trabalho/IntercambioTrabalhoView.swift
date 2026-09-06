@@ -6,6 +6,7 @@ struct IntercambioTrabalhoView: View {
     let oficina: OficinaTrabalho
     let permiteImportar: Bool
     @Environment(\.modelContext) private var context
+    @Environment(\.dynamicTypeSize) private var corpo
     @State private var importar = false
     @State private var exportar = false
     @State private var arquivo: ArquivoMarkdownTrabalho?
@@ -18,14 +19,19 @@ struct IntercambioTrabalhoView: View {
 
     private static let limitePrevia = 12000
     /// O começo de cada lado do conflito: as duas têm de caber no mesmo olhar.
-    private static let linhasDoConflito = 12
+    /// Em corpo de acessibilidade cada linha ocupa muito mais altura e um
+    /// cartão sozinho toma a tela — então o começo encurta para que a
+    /// comparação, que é a razão do desenho, sobreviva ao tamanho grande.
+    private var linhasDoConflito: Int { corpo.isAccessibilitySize ? 4 : 12 }
 
     private var permitido: Bool { AcessoTrabalho.permitido(oficina.trabalho, no: context) }
 
     /// O que esta tela tem em mãos. O selo da origem recolhe pelo caminho da
     /// Oficina, que é onde toda rota do Trabalho revalida o acesso.
     private var material: IntercambioTrabalho.Material {
-        if preview != nil { .revisao } else if arquivo != nil { .exportacao } else if importar { .seletor } else { .nenhum }
+        // `lendo` também é material em mãos: o arquivo já foi escolhido e está
+        // sendo lido. Sem isto o selo caindo nessa janela não registra nada.
+        if preview != nil || lendo { .revisao } else if arquivo != nil { .exportacao } else if importar { .seletor } else { .nenhum }
     }
 
     var body: some View {
@@ -103,7 +109,9 @@ struct IntercambioTrabalhoView: View {
                 Text(p.motivo ?? "Arquivo externo; a autoria não foi verificada.")
                     .font(Tema.meta)
                 trecho(p.texto)
-                if p.estado != .incompativel {
+                // Sem conteúdo novo não há decisão: a mutação recusaria e a
+                // tela teria pedido uma escolha sem efeito.
+                if p.estado != .incompativel, !IntercambioTrabalho.jaGuardado(p, em: oficina.documento) {
                     Button("Guardar como nova versão externa") { aplicar(p) }
                         .disabled(!permiteImportar || !oficina.salvo)
                         .accessibilityIdentifier("trabalho-confirmar-importacao")
@@ -122,13 +130,13 @@ struct IntercambioTrabalhoView: View {
                                _ p: IntercambioTrabalho.Preview) -> some View {
         Text(c.tituloAtual).rotulo(Tema.tintaSuave)
         Text(verbatim: String(c.textoAtual.prefix(Self.limitePrevia)))
-            .font(Tema.corpo).lineLimit(Self.linhasDoConflito)
+            .font(Tema.corpo).lineLimit(linhasDoConflito).textSelection(.enabled)
             .frame(maxWidth: .infinity, alignment: .leading)
             .cartao(.campo)
             .accessibilityIdentifier("trabalho-conflito-atual")
         Text(c.tituloArquivo).rotulo(Tema.tintaSuave)
         Text(verbatim: String(c.textoArquivo.prefix(Self.limitePrevia)))
-            .font(Tema.corpo).lineLimit(Self.linhasDoConflito)
+            .font(Tema.corpo).lineLimit(linhasDoConflito).textSelection(.enabled)
             .frame(maxWidth: .infinity, alignment: .leading)
             .cartao(.campo)
             .accessibilityIdentifier("trabalho-conflito-arquivo")
@@ -137,7 +145,10 @@ struct IntercambioTrabalhoView: View {
         Button("Guardar o arquivo como nova versão") { aplicar(p) }
             .disabled(!permiteImportar || !oficina.salvo)
             .accessibilityIdentifier("trabalho-confirmar-importacao")
+        // Botao.swift: a secundária NÃO é âmbar — duas saídas âmbar empatam em
+        // peso e o olho não sabe qual é o caminho.
         Button("Manter só a versão atual") { preview = nil }
+            .buttonStyle(.compacto)
             .accessibilityIdentifier("trabalho-conflito-manter")
     }
 
@@ -188,7 +199,8 @@ struct IntercambioTrabalhoView: View {
             mudou = try $0.aplicarVersaoExterna(p, confirmarBaseAntiga: p.estado == .baseAntiga)
         }
         let desfecho = IntercambioTrabalho.Desfecho.de(
-            mudou: mudou, guardou: guardou, acesso: oficina.acesso.permitido)
+            mudou: mudou, guardou: guardou, acesso: oficina.acesso.permitido,
+            recusa: oficina.recusaDoCommit)
         recado = desfecho.linha
         tentarGuardar = desfecho.ofereceTentarGuardar
         // A versão candidata já está na memória da Oficina: o pendente é o
@@ -200,10 +212,13 @@ struct IntercambioTrabalhoView: View {
     private func retentar() {
         guard oficina.verificarAcesso() else { return }
         let guardou = oficina.guardar()
-        recado = guardou ? IntercambioTrabalho.Desfecho.confirmada.linha
-            : IntercambioTrabalho.Desfecho.de(mudou: true, guardou: false,
-                                              acesso: oficina.acesso.permitido).linha
-        tentarGuardar = !guardou && oficina.acesso.permitido
+        let desfecho: IntercambioTrabalho.Desfecho = guardou ? .confirmada
+            : .de(mudou: true, guardou: false, acesso: oficina.acesso.permitido,
+                  recusa: oficina.recusaDoCommit)
+        recado = desfecho.linha
+        // Só o disco merece outra tentativa. Base divergente recusaria de novo:
+        // o botão sai e a linha diz o que fazer.
+        tentarGuardar = desfecho.ofereceTentarGuardar
         if guardou { importacaoPendenteID = nil }
     }
 

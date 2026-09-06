@@ -2816,56 +2816,100 @@ errado recusa sem rota; falha do Anotar não deposita); suíte 715/125 sobre a V
 sem aviso; capturas no iPhone Air. **Fora (F3b):** ditado próprio — áudio
 salvo primeiro, transcrito depois, falha preserva o áudio — por `.captura`.
 
-## ADR 2026-09-06x — O conflito na tela: as duas versões, o retry e o selo que recolhe
+## ADR 2026-09-06a — O conflito na tela: as duas versões, o retry e o selo que recolhe
 
 **O que estava provado.** A ADR 05l provou o retorno FELIZ: o `.md` sai com
 envelope, volta, e o corpo editado fora vira versão nova com autoria externa.
-Nada além disso tinha tela. Quando as duas pontas mudam, quando o disco recusa
-o commit, e quando a origem é selada com o seletor aberto, o autor via — ou uma
+Nada além disso tinha tela. Quando as duas pontas mudam, quando o commit é
+recusado, e quando a origem é selada com o seletor aberto, o autor via — ou uma
 prévia de um lado só, ou uma frase que mandava importar de novo, ou nada.
 
-**A decisão.** Três coisas, nenhuma delas nova no modelo: a lei do arquivo já
-acrescentava e nunca sobrescrevia. O que faltava era a tela dizer isso.
+**A decisão.** Quatro coisas, nenhuma delas nova no modelo: a lei do arquivo já
+acrescentava e nunca sobrescrevia. O que faltava era a tela dizer a verdade.
 
-1. **Conflito com as duas versões.** `IntercambioTrabalho.conflito(_:em:)`
-   devolve, e só para `.baseAntiga`, os dois lados com título e a
-   consequência escrita antes da escolha ("Nenhuma escolha apaga nada: a versão
-   N continua no histórico e o arquivo, se você o guardar, entra como versão
-   nova"). A tela mostra os dois em `cartao(.campo)`, cada um com o começo em
-   doze linhas — as duas têm de caber no mesmo olhar (`curva-zero`: comparar
-   antes de confirmar exige visão simultânea) —, e a escolha é explícita e
-   nomeada pelas duas saídas: **Guardar o arquivo como nova versão** e
-   **Manter só a versão atual**. Nenhuma delas apaga: guardar acrescenta sobre
-   a base do arquivo (`anteriorID`), manter não toca em nada.
-2. **Retry depois da recusa.** `Desfecho.de(mudou:guardou:acesso:)` separa o
-   que a mutação disse do que o commit disse — os dois são estados distintos.
-   `.aguardandoCommit` (a versão está na memória, o disco recusou) é o único
-   caso que oferece **Tentar guardar de novo**, e esse botão chama
-   `guardar()`, não outra importação: confirma a MESMA versão. `.semNovidade`
-   é a linha honesta de quem trouxe conteúdo já guardado — nenhuma cópia a
-   mais. `.semAcesso` cala a rota sem inventar sucesso.
-3. **O selo recolhe.** A tela declara em `oficina.intercambioAberto` o que tem
-   em mãos (`.seletor`, `.exportacao`, `.revisao`); `verificarAcesso()` — o
-   ponto por onde toda rota do Trabalho revalida — move isso para
-   `intercambioRecolhido` no instante da restrição, e a tela protegida diz o
-   que recolheu ("A origem foi protegida: recolhi o arquivo que estava em
-   revisão. Nada foi importado."). Liberada a origem, a linha cala.
+1. **Conflito com as duas versões — e só quando existem duas.** Conflito é
+   `.baseAntiga` **mais** duas condições que a primeira volta não pedia: a
+   versão local ANDOU desde a base do arquivo (`baseID != versaoVigenteID`) e o
+   que voltou ainda não está guardado. Sem elas a tela mentia numa rota de três
+   toques — exportar, "Guardar intenção", importar o mesmo arquivo —, porque
+   rever a intenção já muda o estado para `.baseAntiga` sem mover versão
+   nenhuma: os dois cartões traziam o MESMO número e o MESMO texto, e qualquer
+   escolha caía em `.semNovidade`. Havendo conflito, os dois lados vêm com
+   título e a consequência escrita antes da escolha ("Nenhuma escolha apaga
+   nada: a versão N continua no histórico e o arquivo, se você o guardar, entra
+   como versão nova"), em `cartao(.campo)`, e as duas saídas são nomeadas —
+   **Guardar o arquivo como nova versão** (âmbar) e **Manter só a versão
+   atual** (`.compacto`, sem cor própria: duas saídas âmbar empatariam em peso).
+2. **A pergunta que a mutação faria, a tela faz antes.**
+   `IntercambioTrabalho.jaGuardado` é a regra única de "este conteúdo já está
+   aqui": `aplicarVersaoExterna` a usa para não fabricar versão, e a tela a usa
+   para não OFERECER decisão. Quando ela responde sim — o mesmo arquivo de
+   volta, ou um export intocado depois que a versão andou — a linha é "Este
+   arquivo traz o mesmo conteúdo que já está guardado aqui. Não há nada para
+   decidir: nenhuma versão será criada.", sem botão de guardar. Uma decisão sem
+   efeito é estado desonesto, mesmo quando o texto do botão não mente.
+3. **As duas recusas de `guardar()` são duas.** `RecusaDoCommit` (`.disco`,
+   `.baseDivergente`) sai da Oficina e entra em
+   `Desfecho.de(mudou:guardou:acesso:recusa:)`. `.aguardandoCommit` (o disco
+   recusou; a versão está na memória) é o único caso que oferece **Tentar
+   guardar de novo**, e esse botão chama `guardar()`, não outra importação:
+   confirma a MESMA versão. `.precisaReabrir` (o trabalho mudou em outra
+   abertura) NÃO oferece botão nenhum, porque repetir bate na mesma guarda:
+   `basePersistida` só muda num commit bem-sucedido. A tela diz o que houve e o
+   que fazer — voltar, reabrir o trabalho, e o arquivo continua no aparelho.
+4. **O selo recolhe.** A tela declara em `oficina.intercambioAberto` o que tem
+   em mãos (`.seletor`, `.exportacao`, `.revisao` — inclusive durante a
+   leitura); `verificarAcesso()` — o ponto por onde toda rota do Trabalho
+   revalida — move isso para `intercambioRecolhido` no instante da restrição, e
+   a tela protegida diz o que recolheu ("A origem foi protegida: recolhi o
+   arquivo que estava em revisão. Nada foi importado."). Liberada a origem, a
+   linha cala.
 
-**Custo assumido.** A linha do recolhimento só aparece se o selo cair enquanto
-a MESMA `Oficina` está viva. Hoje nenhuma rota do app sela a origem com a folha
-do Trabalho aberta (o seletor de Arquivos é modal e a nota está atrás dela), e
-o simulador não põe duas superfícies na tela ao mesmo tempo: o recolhimento e a
-linha ficam provados por teste, não por captura. O mesmo vale para o retry: só
-o disco recusando um commit o produz, e não há rota de tela que force isso.
+**A passada de design (`design-router`, seis fases).** *Ancorar*: autor no meio
+de um trabalho, decidindo sob pressão o que fazer com um arquivo que voltou;
+resultado observável é uma versão a mais no histórico ou nenhuma, nunca uma a
+menos. *Sistema*: nada novo — `cartao(.campo)` (o único degrau que separa do
+`Tema.superficie` do bloco), `rotulo()`, `Tema.meta/corpo`, `.compacto` de
+`Botao.swift`. *Construir*: a regra fora da View (`conflito`, `jaGuardado`,
+`Desfecho`), a View só desenha. *Mover*: nenhuma animação nova; nada a
+interromper. *Julgar*, lendo a própria tela: as duas saídas estavam ambas em
+âmbar, empatadas — `Botao.swift` já dizia que a secundária não é âmbar, e a
+tela desobedecia; e as doze linhas fixas do começo de cada lado eram magia que
+não sobrevivia ao corpo de acessibilidade. *Portão*: os dois consertados aqui.
+
+**A passada de jornada (`curva-zero`).** *Jornada*: "editei fora e voltei" —
+exportar, editar noutra ferramenta, importar, decidir. *Resultado verificável*:
+o histórico cresce em um e nenhuma versão anterior some (a captura mostra o
+contador). *Atrito observado*: a tela chamava para uma decisão inventada em três
+toques sem editor nenhum, e oferecia uma nova tentativa que não podia dar certo
+— os dois foram medidos lendo o código contra a tela, não supostos.
+*Recuperação*: recusa de disco → o mesmo botão confirma a mesma versão; base
+divergente → reabrir, com o arquivo preservado; conteúdo repetido → fechar a
+revisão, nada criado; origem selada → o material recolhido, dito por nome.
+
+**Custo assumido.** A linha do recolhimento só aparece se o selo cair enquanto a
+MESMA `Oficina` está viva, e nenhuma rota do app sela a origem com a folha do
+Trabalho aberta: fica provada por teste, não por captura. `.precisaReabrir`
+também: exige duas `Oficina`s do mesmo `Trabalho` vivas ao mesmo tempo — o teste
+as cria e prova que a guarda dispara e que repetir não resolve; a tela não tem
+rota para duas folhas. O `ProgressView("Lendo arquivo…")` existe e está no
+caminho, mas com um `.md` de 400 bytes a leitura não dura um quadro: não há
+captura dele. Em corpo de acessibilidade (AX5) o começo de cada lado cai de doze
+para quatro linhas; ainda assim os dois cartões não cabem inteiros no mesmo
+olhar — cabe o primeiro completo e o começo do segundo.
 
 **Volta:** multiplicar — a continuidade entre ferramentas é a tese.
-**A IA:** nada. **Prova:** 3 testes novos em `IntercambioTrabalhoTests` (as
-duas versões e a escolha que não sobrescreve; recusa → retry que confirma a
+**A IA:** nada. **Prova:** 5 testes em `IntercambioTrabalhoTests` (as duas
+versões e a escolha que não sobrescreve; recusa de disco → retry que confirma a
 mesma versão e uma segunda passada que não duplica; selo com `.seletor`,
-`.exportacao` e `.revisao` recolhendo e a linha certa em cada um), suíte
-**718/0 em 125 suítes** em 06/09/2026, build sem aviso;
-`maestro/intercambio-conflito.yaml` e as capturas `ferramentas/orca/v11-*.png`
-(painel, exportador aberto, seletor aberto, conflito com as duas versões,
-conflito em AX5, as duas escolhas, guardado com o histórico maior, conteúdo já
-guardado sem duplicata, arquivo de outro trabalho recusado). O `.md` foi
-editado FORA do app, no disco do simulador, entre a exportação e o retorno.
+`.exportacao` e `.revisao`; o arquivo sem novidade que não vira conflito nem
+decisão, nas três formas — intenção revista, export intocado, e o conflito de
+verdade que continua de pé; a recusa por base divergente que não oferece nova
+tentativa), suíte **720/0 em 125 suítes** em 06/09/2026, build limpo sem UM
+aviso (conferido em recompilação integral dos dois alvos).
+`maestro/intercambio-conflito.sh` roda a jornada inteira SOZINHO — parte 1 no
+app, a edição do `.md` no disco do simulador feita pelo próprio roteiro, parte 2
+em `maestro/partes/` — e passou 2 de 2 seguidas no iPhone 17e; capturas
+`ferramentas/orca/v11b-*.png` (conflito com as duas versões, as duas escolhas
+com pesos distintos, o mesmo em AX5, o arquivo sem novidade sem botão de
+decisão, o importar bloqueado por edição pendente).

@@ -196,7 +196,7 @@ struct IntercambioTrabalhoTests {
         #expect(volta.versaoAtual?.origem == .externa)
     }
 
-    // MARK: - Volta 11: conflito, retry e selo com a tela aberta (ADR 05x)
+    // MARK: - Volta 11: conflito, retry e selo com a tela aberta (ADR 06a)
 
     @Test func conflitoMostraAsDuasVersoesEEscolherNuncaSobrescreve() throws {
         var documento = try exemplo("Versão A, a que saiu no arquivo")
@@ -214,11 +214,10 @@ struct IntercambioTrabalhoTests {
         #expect(conflito.tituloAtual.contains("versão 2") && conflito.tituloArquivo.contains("versão 1"))
         #expect(conflito.consequencia.contains("versão 2") && conflito.consequencia.contains("histórico"))
         // Só a base antiga é conflito: o retorno feliz não abre as duas.
-        var comBaseAtual = try exemplo()
+        let comBaseAtual = try exemplo()
         let feliz = try IntercambioTrabalho.preparar(
             try editar(IntercambioTrabalho.exportar(comBaseAtual), corpo: "editado"), para: comBaseAtual)
         #expect(IntercambioTrabalho.conflito(feliz, em: comBaseAtual) == nil)
-        _ = comBaseAtual
 
         // "Manter só a versão atual" não toca em nada.
         #expect(documento == antes)
@@ -244,7 +243,10 @@ struct IntercambioTrabalhoTests {
         oficina.persistir = { _ in throw Falha.disco }
         var mudou = false
         let guardou = oficina.alterar { mudou = try $0.aplicarVersaoExterna(preview) }
-        let recusa = IntercambioTrabalho.Desfecho.de(mudou: mudou, guardou: guardou, acesso: oficina.acesso.permitido)
+        let recusa = IntercambioTrabalho.Desfecho.de(mudou: mudou, guardou: guardou,
+                                                     acesso: oficina.acesso.permitido,
+                                                     recusa: oficina.recusaDoCommit)
+        #expect(oficina.recusaDoCommit == .disco)
         #expect(recusa == .aguardandoCommit && recusa.ofereceTentarGuardar && !recusa.mantemRevisao)
         #expect(recusa.linha.contains("Nada foi perdido"))
         let candidato = oficina.documento.versaoAtual?.id
@@ -263,7 +265,8 @@ struct IntercambioTrabalhoTests {
         var mudouDeNovo = false
         let guardouDeNovo = oficina.alterar { mudouDeNovo = try $0.aplicarVersaoExterna(repetida) }
         #expect(IntercambioTrabalho.Desfecho.de(mudou: mudouDeNovo, guardou: guardouDeNovo,
-                                                acesso: oficina.acesso.permitido) == .semNovidade)
+                                                acesso: oficina.acesso.permitido,
+                                                recusa: oficina.recusaDoCommit) == .semNovidade)
         #expect(try trabalho.ler().artefatos.count == 2)
     }
 
@@ -302,5 +305,72 @@ struct IntercambioTrabalhoTests {
             #expect(oficina.intercambioRecolhido == .nenhum)
             #expect(IntercambioTrabalho.Material.nenhum.recolhimento == nil)
         }
+    }
+
+    // MARK: - Volta 11-B: o conflito que não existe e a recusa que não se repete
+
+    @Test func arquivoSemNovidadeNaoInventaConflitoNemPedeDecisao() throws {
+        // A rota de três toques do G3: exportar, guardar OUTRA intenção e
+        // importar o MESMO arquivo. A intenção revista basta para `.baseAntiga`
+        // e não move versão nenhuma: não há dois lados a comparar.
+        var documento = try exemplo("A única versão")
+        let arquivo = try IntercambioTrabalho.exportar(documento)
+        try documento.reverIntencao("Preparar uma conversa difícil", resultado: "Ela me ouve")
+        let antes = documento
+        let preview = try IntercambioTrabalho.preparar(arquivo, para: documento)
+        #expect(preview.estado == .baseAntiga && preview.baseID == preview.versaoVigenteID)
+        #expect(IntercambioTrabalho.conflito(preview, em: documento) == nil)
+        #expect(IntercambioTrabalho.jaGuardado(preview, em: documento))
+        let linha = IntercambioTrabalho.descricaoDaBase(preview, em: documento)
+        #expect(!linha.contains("mudou dos dois lados"))
+        #expect(linha.contains("mesmo conteúdo") && linha.contains("nada para decidir"))
+        // E a escolha não teria efeito nenhum: a mutação recusa e nada muda.
+        #expect(!(try documento.aplicarVersaoExterna(preview, confirmarBaseAntiga: true)))
+        #expect(documento == antes)
+
+        // A versão local andou, mas o arquivo voltou intocado: também não são
+        // dois lados — o que ele traz já está no histórico.
+        var voltou = try exemplo("Versão A")
+        let intocado = try IntercambioTrabalho.exportar(voltou)
+        try voltou.guardarVersaoHumana("Versão B, escrita aqui")
+        let previaIntocada = try IntercambioTrabalho.preparar(intocado, para: voltou)
+        #expect(previaIntocada.estado == .baseAntiga && previaIntocada.baseID != previaIntocada.versaoVigenteID)
+        #expect(IntercambioTrabalho.conflito(previaIntocada, em: voltou) == nil)
+        #expect(IntercambioTrabalho.descricaoDaBase(previaIntocada, em: voltou).contains("mesmo conteúdo"))
+
+        // O conflito de verdade continua de pé: as duas pontas com texto diferente.
+        var real = try exemplo("Versão A")
+        let saiu = try editar(IntercambioTrabalho.exportar(real), corpo: "Versão A editada fora")
+        try real.guardarVersaoHumana("Versão B, escrita aqui")
+        let comConflito = try IntercambioTrabalho.preparar(saiu, para: real)
+        #expect(IntercambioTrabalho.conflito(comConflito, em: real) != nil)
+        #expect(IntercambioTrabalho.descricaoDaBase(comConflito, em: real).contains("mudou dos dois lados"))
+    }
+
+    @Test func recusaPorBaseDivergenteNaoOfereceNovaTentativaQueNaoPodeDarCerto() throws {
+        let container = try ModelContainer.traco(emMemoria: true)
+        let trabalho = try Trabalho(documento: exemplo())
+        container.mainContext.insert(trabalho)
+        try container.mainContext.save()
+        let oficina = try OficinaTrabalho(trabalho: trabalho, context: container.mainContext)
+        let preview = try IntercambioTrabalho.preparar(Data("Versão vinda de fora".utf8), para: oficina.documento)
+
+        // Outra abertura do MESMO trabalho escreve enquanto esta Oficina vive.
+        let outraAbertura = try OficinaTrabalho(trabalho: trabalho, context: container.mainContext)
+        #expect(outraAbertura.alterar { try $0.prepararAcao("Escrito na outra abertura") })
+        var mudou = false
+        let guardou = oficina.alterar { mudou = try $0.aplicarVersaoExterna(preview) }
+        #expect(mudou && !guardou && oficina.recusaDoCommit == .baseDivergente)
+        let desfecho = IntercambioTrabalho.Desfecho.de(mudou: mudou, guardou: guardou,
+                                                       acesso: oficina.acesso.permitido,
+                                                       recusa: oficina.recusaDoCommit)
+        #expect(desfecho == .precisaReabrir && !desfecho.ofereceTentarGuardar)
+        #expect(desfecho.linha.contains("abra o trabalho outra vez"))
+        // Repetir daqui bateria na MESMA guarda: por isso o botão não aparece.
+        #expect(!oficina.guardar() && oficina.recusaDoCommit == .baseDivergente)
+        // A outra recusa, a do disco, continua sendo a que oferece nova tentativa.
+        let doDisco = IntercambioTrabalho.Desfecho.de(mudou: true, guardou: false,
+                                                      acesso: true, recusa: .disco)
+        #expect(doDisco == .aguardandoCommit && doDisco.ofereceTentarGuardar)
     }
 }

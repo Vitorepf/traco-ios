@@ -1,23 +1,29 @@
-# ADR 2026-09-06x — volta 11. O conflito na tela: exporta a versão para Arquivos,
-# escreve outra versão aqui, o .md é editado FORA (no Mac, sobre o arquivo do
-# simulador) e volta. A prévia mostra AS DUAS versões e a escolha é explícita;
-# guardar cria versão nova e não apaga a atual.
+# ADR 2026-09-06a — volta 11-B, parte 1 de 2. RODE POR `maestro/intercambio-conflito.sh`.
 #
-# Passo manual, entre a exportação e a importação (o editor externo é o ponto):
-#   F="$HOME/Library/Developer/CoreSimulator/Devices/<UDID>/data/Containers/\
-# Shared/AppGroup/<ID>/File Provider Storage/traco-versao.md"
-#   head -1 "$F" > /tmp/novo.md; printf 'Editado FORA do Traco.\n' >> /tmp/novo.md
-#   cp /tmp/novo.md "$F"
-# A linha 1 é o envelope e precisa sair intacta: sem ela o retorno é `semVinculo`.
+# Prepara as DUAS pontas do conflito: escreve a versão 1, exporta esse arquivo
+# para Arquivos e depois escreve a versão 2 AQUI. Falta a outra ponta — o
+# arquivo editado fora —, e é o .sh irmão que a faz: ele reescreve o corpo do
+# .md no disco do simulador (o envelope da linha 1 fica intacto) e chama a
+# parte 2, `maestro/partes/intercambio-conflito-volta.yaml`. Nenhuma mão no
+# meio: o "editor externo" é o próprio .sh.
 #
-# O seletor de Arquivos roda fora do processo: maestro não enxerga "Salvar" nem
-# o ícone do arquivo por texto. Os toques neles são por ponto.
+# Um retorno INTOCADO nunca é conflito — o corpo é idêntico à versão de onde
+# saiu e o Traço diz "já está guardado" (é o que a parte 2 confere no fim).
+# O seletor de Arquivos roda fora do processo: maestro não vê "Salvar" nem o
+# ícone do arquivo por texto, então esses dois toques são por ponto.
 # Capturas de prova: xcrun simctl io booted screenshot (a do maestro fotografa
-# build velho). Restaurar o tamanho do texto ao fim: simctl ui <udid> content_size large.
+# build velho).
 appId: app.traco
 ---
 - launchApp:
     clearState: true
+# o alerta de avisos do iOS pode cobrir a primeira tela depois do clearState
+- runFlow:
+    when:
+      visible: "Não Permitir"
+    commands:
+      - tapOn: "Não Permitir"
+      - waitForAnimationToEnd: {timeout: 1000}
 - openLink: traco://notas
 - runFlow:
     when:
@@ -43,25 +49,46 @@ appId: app.traco
 - waitForAnimationToEnd: {timeout: 1500}
 - tapOn: "Escreva aqui"
 - inputText: "Versao 1 - a que sai no arquivo"
-- waitForAnimationToEnd: {timeout: 1200}
-- tapOn: "Guardar minha versão"
-- waitForAnimationToEnd: {timeout: 2500}
+# `hideKeyboard` não fecha este teclado; o arrasto fecha (a folha usa
+# `scrollDismissesKeyboard(.interactively)`). E é preciso fechar: com ele
+# aberto a rolagem chega ao fim antes do botão sair de baixo da barra.
+- swipe:
+    start: 50%, 30%
+    end: 50%, 88%
+    duration: 800
+- waitForAnimationToEnd: {timeout: 1500}
+# Rolar até a ÂNCORA DE BAIXO, não até o botão: parar no próprio botão o deixa
+# encostado no topo, sob a barra de navegação, e o toque cai nela — foi assim
+# que a jornada desandou na revisão do G3. Centrando o painel seguinte, o botão
+# fica logo acima do meio da tela.
 - scrollUntilVisible:
     element: "Editar com outras ferramentas"
     direction: DOWN
     centerElement: true
     timeout: 10000
+- tapOn: "Guardar minha versão"
+- waitForAnimationToEnd: {timeout: 2500}
+# sem versão guardada não há o que exportar: pare aqui, não três telas adiante
+- assertVisible: "Versão 1"
 - tapOn: "Editar com outras ferramentas"
 - waitForAnimationToEnd: {timeout: 1500}
 - takeScreenshot: /tmp/traco-verify/v11-painel-normal
 - tapOn: {id: "trabalho-exportar-md"}
-- waitForAnimationToEnd: {timeout: 3500}
-# "Salvar" do exportador: fora do processo, só por ponto
+# a folha do exportador é outro processo: sem esta espera longa o toque em
+# "Salvar" cai na tela de trás e a jornada segue sem arquivo nenhum
+- waitForAnimationToEnd: {timeout: 6000}
 - tapOn:
     point: "85%,11%"
-- waitForAnimationToEnd: {timeout: 3500}
-# ---- edite o .md fora do Traço aqui (bloco de comando no cabeçalho) ----
-# a versão local avança enquanto o arquivo está fora: as duas pontas mudam
+- waitForAnimationToEnd: {timeout: 5000}
+# a prova de que o arquivo saiu: sem ela a parte 2 falharia sem dizer por quê
+# (a linha nasce abaixo da dobra: rolar até ela, não só afirmar — e o texto
+# tem de vir INTEIRO, que é como o maestro casa)
+- scrollUntilVisible:
+    element: "Arquivo exportado. Esta cópia externa não será alterada se você proteger o trabalho depois."
+    direction: DOWN
+    centerElement: true
+    timeout: 10000
+# a versão local avança enquanto o arquivo está fora: a primeira das duas pontas
 - scrollUntilVisible:
     element: "Editar esta versão"
     direction: UP
@@ -74,12 +101,12 @@ appId: app.traco
     index: 1
 - waitForAnimationToEnd: {timeout: 1500}
 - eraseText: 60
-- inputText: "Versao 2 no Traco - o arquivo nao tem esta"
-- waitForAnimationToEnd: {timeout: 1500}
+- inputText: "Versao 2 no Traco"
 - swipe:
     start: 50%, 30%
     end: 50%, 88%
     duration: 800
+- waitForAnimationToEnd: {timeout: 1500}
 - scrollUntilVisible:
     element: "Guardar como nova versão"
     direction: DOWN
@@ -87,36 +114,4 @@ appId: app.traco
     timeout: 10000
 - tapOn: "Guardar como nova versão"
 - waitForAnimationToEnd: {timeout: 2500}
-- scrollUntilVisible:
-    element: {id: "trabalho-importar-md"}
-    direction: DOWN
-    centerElement: true
-    timeout: 10000
-- tapOn: {id: "trabalho-importar-md"}
-- waitForAnimationToEnd: {timeout: 3500}
-# Explorar > No Meu iPhone > traco-versao.md — todos por ponto
-- tapOn:
-    point: "77%,94%"
-- waitForAnimationToEnd: {timeout: 2500}
-- tapOn:
-    point: "18%,29%"
-- waitForAnimationToEnd: {timeout: 4000}
-- extendedWaitUntil:
-    visible: "Revisar arquivo recebido"
-    timeout: 15000
-# as DUAS versões e a consequência, antes da escolha
-- assertVisible: "O trabalho mudou dos dois lados desde a exportação. Compare e escolha."
-- assertVisible: {id: "trabalho-conflito-atual"}
-- assertVisible: {id: "trabalho-conflito-arquivo"}
-- assertVisible: {id: "trabalho-conflito-manter"}
-- takeScreenshot: /tmp/traco-verify/v11-conflito
-- scrollUntilVisible:
-    element: {id: "trabalho-confirmar-importacao"}
-    direction: DOWN
-    centerElement: true
-    timeout: 10000
-- tapOn: {id: "trabalho-confirmar-importacao"}
-- waitForAnimationToEnd: {timeout: 2500}
-# guardar acrescenta: a versão anterior continua no histórico
-- assertVisible: "Nova versão externa guardada. As versões anteriores foram preservadas."
-- takeScreenshot: /tmp/traco-verify/v11-guardado
+- assertVisible: "Versão 2"

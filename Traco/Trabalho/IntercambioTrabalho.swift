@@ -128,12 +128,8 @@ extension DocumentoTrabalho {
         }
         let intencaoID = conferida.intencaoDaBaseID ?? intencaoAtual.id
         // Um retorno sem alteração ou repetido não fabrica outra versão.
-        if versaoAtual.map({ $0.conteudo.utf8.elementsEqual(texto.utf8) }) == true
-            || artefatos.contains(where: { $0.id == conferida.baseID && $0.conteudo.utf8.elementsEqual(texto.utf8) })
-            || artefatos.contains(where: {
-                $0.origem == .externa && $0.anteriorID == conferida.baseID
-                    && $0.intencaoID == intencaoID && $0.conteudo.utf8.elementsEqual(texto.utf8)
-            }) { return false }
+        if IntercambioTrabalho.jaGuardado(texto: texto, base: conferida.baseID,
+                                          intencao: intencaoID, em: self) { return false }
         cancelarPedido()
         artefatos.append(.init(conteudo: texto, origem: .externa,
             produtor: "Arquivo importado · autoria não verificada", intencaoID: intencaoID,
@@ -142,7 +138,7 @@ extension DocumentoTrabalho {
     }
 }
 
-// MARK: - O que a tela decide (ADR 2026-09-06x)
+// MARK: - O que a tela decide (ADR 2026-09-06a)
 //
 // A View não guarda regra: pergunta aqui e desenha. Assim conflito, recusa de
 // commit e selo da origem têm teste sem renderizar SwiftUI.
@@ -166,20 +162,25 @@ extension IntercambioTrabalho {
     /// mutação disse; `guardou`, o que o commit disse. Os dois são distintos:
     /// a versão pode existir na memória e o disco ter recusado.
     enum Desfecho: Equatable, Sendable {
-        case guardada, confirmada, semNovidade, aguardandoCommit, recusada, semAcesso
+        case guardada, confirmada, semNovidade, aguardandoCommit, precisaReabrir, recusada, semAcesso
 
-        static func de(mudou: Bool, guardou: Bool, acesso: Bool) -> Desfecho {
+        /// As duas recusas de `guardar()` não são a mesma coisa para o autor: o
+        /// disco pode aceitar numa nova tentativa; a base divergente, nunca —
+        /// repetir bate na mesma guarda. Por isso `recusa` entra aqui.
+        static func de(mudou: Bool, guardou: Bool, acesso: Bool, recusa: RecusaDoCommit) -> Desfecho {
             guard acesso else { return .semAcesso }
             if guardou { return mudou ? .guardada : .semNovidade }
+            if recusa == .baseDivergente { return .precisaReabrir }
             return mudou ? .aguardandoCommit : .recusada
         }
 
         var linha: String {
             switch self {
             case .guardada: "Nova versão externa guardada. As versões anteriores foram preservadas."
-            case .confirmada: "A mesma versão externa foi confirmada na nova tentativa. Nenhuma cópia a mais foi criada."
+            case .confirmada: "A mesma versão externa foi confirmada. Nenhuma cópia a mais foi criada."
             case .semNovidade: "Este conteúdo já está guardado; nenhuma versão duplicada foi criada."
             case .aguardandoCommit: "A versão externa está aqui, mas não consegui guardá-la agora. Nada foi perdido; tente guardar de novo."
+            case .precisaReabrir: "Este trabalho mudou em outra abertura, então não posso guardar por cima. Tentar de novo daqui não resolve: volte e abra o trabalho outra vez para ver a versão atual. O arquivo continua no seu aparelho e pode ser importado depois."
             case .recusada: "Não foi possível aplicar o arquivo. Confira o salvamento e importe novamente se a versão ou a intenção mudou."
             case .semAcesso: "A origem foi protegida durante a importação. Nada foi importado."
             }
@@ -200,9 +201,33 @@ extension IntercambioTrabalho {
         let consequencia: String
     }
 
-    /// Só a base antiga é conflito: as duas pontas mudaram desde o export.
+    /// A pergunta que `aplicarVersaoExterna` faz antes de criar versão: este
+    /// conteúdo já está guardado? A tela pergunta o MESMO, para nunca oferecer
+    /// uma escolha que não teria efeito.
+    static func jaGuardado(texto: String, base: UUID?, intencao: UUID,
+                           em documento: DocumentoTrabalho) -> Bool {
+        documento.versaoAtual.map { $0.conteudo.utf8.elementsEqual(texto.utf8) } == true
+            || documento.artefatos.contains { $0.id == base && $0.conteudo.utf8.elementsEqual(texto.utf8) }
+            || documento.artefatos.contains {
+                $0.origem == .externa && $0.anteriorID == base
+                    && $0.intencaoID == intencao && $0.conteudo.utf8.elementsEqual(texto.utf8)
+            }
+    }
+
+    static func jaGuardado(_ p: Preview, em documento: DocumentoTrabalho) -> Bool {
+        p.estado != .incompativel
+            && jaGuardado(texto: p.texto, base: p.baseID,
+                          intencao: p.intencaoDaBaseID ?? documento.intencaoAtual.id, em: documento)
+    }
+
+    /// Conflito é só quando há mesmo DOIS lados: a versão local andou desde a
+    /// base do arquivo E o que voltou é diferente do que já está guardado.
+    /// Sem as duas condições a tela afirmaria uma mudança que não houve — a
+    /// intenção revista sozinha muda o estado para `.baseAntiga` e não move
+    /// versão nenhuma.
     static func conflito(_ p: Preview, em documento: DocumentoTrabalho) -> Conflito? {
-        guard p.estado == .baseAntiga else { return nil }
+        guard p.estado == .baseAntiga, p.baseID != p.versaoVigenteID,
+              !jaGuardado(p, em: documento) else { return nil }
         return Conflito(
             tituloAtual: "No Traço agora · \(ordem(p.versaoVigenteID, em: documento))",
             textoAtual: documento.versaoAtual?.conteudo ?? "",
@@ -213,14 +238,18 @@ extension IntercambioTrabalho {
 
     static func descricaoDaBase(_ p: Preview, em documento: DocumentoTrabalho) -> String {
         switch p.estado {
-        case .baseAtual:
-            "Base do arquivo: \(ordem(p.baseID, em: documento)), a versão atual. O conteúdo recebido será uma nova versão."
-        case .baseAntiga:
-            "O trabalho mudou dos dois lados desde a exportação. Compare e escolha."
-        case .semVinculo:
-            "Arquivo sem vínculo de origem. Será acrescentado como material externo, ligado à intenção atual."
         case .incompativel:
             "Este arquivo não pode ser aplicado a este trabalho."
+        case _ where jaGuardado(p, em: documento):
+            "Este arquivo traz o mesmo conteúdo que já está guardado aqui. Não há nada para decidir: nenhuma versão será criada."
+        case .baseAntiga where conflito(p, em: documento) != nil:
+            "O trabalho mudou dos dois lados desde a exportação. Compare e escolha."
+        case .baseAtual, .baseAntiga:
+            // A versão local não andou: a base do arquivo AINDA é a atual. Diga
+            // os números e o que vai acontecer, sem afirmar o que não mudou.
+            "Base do arquivo: \(ordem(p.baseID, em: documento)), a versão atual. O conteúdo recebido será uma nova versão."
+        case .semVinculo:
+            "Arquivo sem vínculo de origem. Será acrescentado como material externo, ligado à intenção atual."
         }
     }
 
