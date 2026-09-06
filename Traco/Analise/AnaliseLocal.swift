@@ -115,8 +115,30 @@ enum AnaliseLocal: Sendable {
     /// ADR 06h (volta A-B): CINCO FAMÍLIAS, não uma lista de frases. O revisor
     /// mostrou o defeito de lista: `me odiando` pegava e `me odiei` não.
     ///
-    /// 1. o estado, por RADICAL — qualquer flexão da mesma palavra.
-    static let lexicoDoSentimento = #"senti|sinto|dói|doeu|chor(ei|ar|ando|o)|trist|raiva|medo|\bpesa|desmoron|arrepend|vergonh|mago[aeiou]|remoend|\btravei\b|\beu travo\b|angusti|ansios|exaust|vazi[oa]|sozinh|cansad|desanimad|humilhad|culpad|nó na garganta"#
+    /// 1a. o estado, por RADICAL — qualquer flexão da mesma palavra, e só o
+    /// sentimento que NÃO tem segunda vida no trabalho. `senti` ganhou borda de
+    /// palavra na volta A-5: sem ela "o sentido dele" e "o sentimento do
+    /// cliente" calavam a nota inteira.
+    static let lexicoDoSentimento = #"\bsenti\b|\bsinto\b|\bsentia\b|\bme sentindo\b|dói|doeu|chor(ei|ar|ando|o)|trist|raiva|desmoron|arrepend|vergonh|mago[aeiou]|remoend|\btravei\b|\beu travo\b|angusti|desanimad|humilhad|culpad|nó na garganta"#
+
+    /// 1b (ADR 06i). A PALAVRA DE DUPLA VIDA: `medo`, `pesa`, `ansioso`,
+    /// `exausto`, `vazio`, `sozinho` e `cansado` são vocabulário de trabalho
+    /// tanto quanto de desabafo — "o medo de me machucar me trava" é o
+    /// OBSTÁCULO de um WOOP, "estado vazio, carregando e falha" é uma tela.
+    /// Sozinha ela não decide nada; precisa do autor no meio (`lexicoDoSentimentoNoAutor`),
+    /// de uma segunda palavra da mesma família, ou da omissão ao lado.
+    static let lexicoDeDuplaVida = #"medo|\bpesa|ansios|exaust|vazi[oa]|sozinh|cansad"#
+
+    /// ADR 06i — o critério: o SENTIMENTO COMO ASSUNTO, não a palavra solta.
+    /// Primeira pessoa + verbo de estado, e o complemento é pronome ou nada
+    /// ("estou sozinho nisso", "cansado de mim") — não um objeto de trabalho
+    /// ("estou cansado desse módulo", "fico sozinho em casa"). Para `medo` a
+    /// linha é entre PREDICAR ("estou com medo", "tenho medo") e NOMEAR ("o
+    /// medo de errar"), que é o obstáculo dentro de uma intenção; `vazio` conta
+    /// como SUBSTANTIVO ("esse vazio"), não como adjetivo de tela; e `pesa`
+    /// conta quando o que pesa não tem nome ("isso pesa", "cada dia pesa"),
+    /// porque a nota de trabalho nomeia a carga.
+    static let lexicoDoSentimentoNoAutor = #"(estou|tô|estava|ando|fiquei|fico|vivo|acordei|me sinto|me sentia|sinto-me) (muito |tão |meio |um pouco |completamente |bem |só )?(sozinh[oa]|cansad[oa]|vazi[oa]|exaust[oa]|ansios[oa])\b\s*([.,;!?]|$|e |nisso|disso|de mim|comigo|por dentro|aqui|hoje|ainda|de novo|de tudo)|(estou|tô|estava|fiquei|tenho|tinha|senti|sinto|ando) (com |muito |tanto |um pouco de )*medo|\b(o|um|esse|aquele|num|no|meu) vazio\b|\b(isso|isto|tudo|a vida|o dia|cada dia|essa semana) pesa\b"#
 
     /// 2. o juízo sobre si — o autor dizendo o que ELE é, ou o que ELE
     /// estragou. Vale em qualquer tamanho: "eu sou o problema" não fica menos
@@ -131,7 +153,7 @@ enum AnaliseLocal: Sendable {
     /// 4. o que eu fiz A ALGUÉM, em QUALQUER tamanho. O teto de 120 era a
     /// régua errada aqui: contar que se foi grosso com o irmão é desabafo com
     /// noventa caracteres tanto quanto com quatrocentos.
-    static let lexicoDoAtoContraAlguem = #"fui (injust|gross|duro demais|ríspid)|perdi a (paciência|cabeça)|tratei mal|briguei|discuti com|gritei com|xinguei|explodi com|descontei (com|n[oa])"#
+    static let lexicoDoAtoContraAlguem = #"fui (injust|gross|duro demais|ríspid)|perdi a (paciência|cabeça)|tratei mal|briguei|discuti com|gritei com|xinguei|explodi com|descontei (com|n[oa]|nel[ae]|em)"#
 
     /// 5. o que eu DEIXEI de fazer — e este sim só ACIMA do teto: curta,
     /// "fiquei calada quando perguntaram" é a nota que nomeia uma conversa, e o
@@ -146,7 +168,27 @@ enum AnaliseLocal: Sendable {
         if lower.contains(regex: lexicoDoJuizoSobreSi) { return true }
         if lower.contains(regex: lexicoDoNaoAguento) { return true }
         if lower.contains(regex: lexicoDoAtoContraAlguem) { return true }
-        return x.count > tetoDoDesabafo && lower.contains(regex: lexicoDaOmissao)
+        if x.count > tetoDoDesabafo, lower.contains(regex: lexicoDaOmissao) { return true }
+        // ADR 06i: a família 1b só decide com companhia. A omissão vale aqui em
+        // QUALQUER tamanho ("Foi pesado e eu fiquei calada." tem 29 caracteres),
+        // porque as duas marcas juntas já são o autor falando de si.
+        guard lower.contains(regex: lexicoDeDuplaVida) else { return false }
+        if lower.contains(regex: lexicoDaOmissao) { return true }
+        if lower.contains(regex: lexicoDoSentimentoNoAutor) { return true }
+        return duasDeDuplaVida(lower)
+    }
+
+    /// Densidade: duas palavras DIFERENTES de dupla vida na mesma nota
+    /// ("estou exausto e vazio") são o assunto; uma só é vocabulário.
+    private static func duasDeDuplaVida(_ lower: String) -> Bool {
+        var vistas: Set<Substring> = []
+        var resto = lower[...]
+        while let r = resto.range(of: lexicoDeDuplaVida, options: .regularExpression) {
+            vistas.insert(resto[r])
+            if vistas.count >= 2 { return true }
+            resto = resto[r.upperBound...]
+        }
+        return false
     }
 
     /// ADR 06h (volta A-B): a mesma guarda vista de FORA do laço. `Sessao`

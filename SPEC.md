@@ -3201,6 +3201,22 @@ três no iPhone 17 Pro (teste 4) com os sete métodos semeados e
 `TRACO_SEM_MODELO=1`. **Fora:** a assimetria vestir/sugerir, e o `conhecidos` da
 M3 (a lista está aqui; quem mesclar a M3 a cola).
 
+**O PREÇO DESTA GUARDA, declarado (acrescentado na volta A-5).** Esta ADR mediu
+um lado só. O revisor do re-G3 mediu o outro e achou o custo: com a guarda
+alcançando todo o catálogo, **a família 1 passou a comer nota comum de
+trabalho.** `vazio`, `sozinho`, `cansado`, `pesa`, `ansioso` e `medo` são
+palavras de trabalho tanto quanto de desabafo — de dez notas comuns que ele
+escreveu, NOVE mudaram de destino e OITO eram regressão limpa. O caso mais caro,
+dito por extenso: **"Quero correr de manhã, mas o medo de me machucar me trava"
+deixou de receber WOOP**, num app cujo campo do WOOP se chama "OBSTÁCULO INTERNO
+(O SEU HÁBITO/MEDO)" e cuja `perguntaWOOP` pergunta "qual é o hábito ou o MEDO
+seu que vai impedir"; o app pedia o medo pelo nome e calava quando o autor o
+escrevia. E "estado vazio, carregando e falha" — o vocabulário do próprio G2 da
+ESTEIRA — calava também. **Nenhum teste cobria essa direção**, e foi por isso
+que passou: `oQueOsDoisMetodosLevamComRazaoContinuaDeles` protegia 6 frases dos
+DOIS métodos da M3, e as outras 19 portas não tinham régua de alcance. A volta
+A-5 estreita a família 1 e escreve a régua que faltava — **ADR 2026-09-06i**.
+
 **Junto nesta ADR, a voz do app sobre si mesmo** (auditoria da trilha Métodos:
 as doenças da voz se concentram onde o app fala de si). Três trocas de palavra:
 o Perfil dizia "O que o Traço aprendeu de você" em cima de uma CONTAGEM ("12
@@ -3213,3 +3229,132 @@ Inversão diz "costuma ser") — passa a "Palavras de apoio", com a nota
 do plano sem obstáculo dizia "o que, em você, COSTUMA atrapalhar isto",
 atribuindo ao autor um hábito que o app não observou — passa a "pode".
 
+
+## ADR 2026-09-06i — A família 1 reconhece o SENTIMENTO COMO ASSUNTO, não a palavra solta
+
+**A distância.** A 06h fechou a guarda pelo catálogo inteiro e, na mesma linha,
+alargou o dano: a família 1 é uma lista de RADICAIS soltos, e seis deles têm
+dupla vida. O revisor do re-G3 mediu dez notas comuns de trabalho — **nove mudam
+de destino, oito são regressão limpa** contra o código anterior:
+
+| antes → agora | a nota | o radical que dispara |
+|---|---|---|
+| woop → silêncio | "Quero correr de manhã, mas o MEDO de me machucar me trava" | `medo` |
+| spec → silêncio | "Preciso construir a tela de estado VAZIO do app…" | `vazi[oa]` |
+| spec → silêncio | "Estado VAZIO, carregando e falha: as três telas…" | `vazi[oa]` |
+| spec → silêncio | "Estou CANSADO desse módulo cheio de casos especiais…" | `cansad` |
+| spec → silêncio | "A carga PESA demais nesse endpoint…" | `\bpesa` |
+| spec → silêncio | "O módulo roda SOZINHO depois do deploy…" | `sozinh` |
+| seEntão → silêncio | "Sempre que fico SOZINHO em casa eu abro a geladeira…" | `sozinh` |
+| notaPermanente → silêncio | "Percebi que sistemas ANSIOSOS por resposta imediata…" | `ansios` |
+
+O caso que dói é o primeiro, e é constrangedor: o campo do WOOP chama-se
+"OBSTÁCULO INTERNO (O SEU HÁBITO/MEDO)" e `perguntaWOOP` pergunta pelo "hábito
+ou o medo seu que vai impedir". **O app pede o medo pelo nome e cala quando o
+autor o escreve.** Um sétimo radical entra pela mesma porta sem ninguém ter
+medido: `senti` sem borda de palavra casa dentro de "o SENTIdo dele" e "o
+SENTImento do cliente" — duas expressões que não têm nada de desabafo.
+
+**A decisão.** A família 1 se parte em duas, e o critério é o SENTIMENTO COMO
+ASSUNTO.
+
+- **1a, `lexicoDoSentimento`** — o sentimento que só tem uma vida: `senti`,
+  `sinto`, `sentia`, `me sentindo` (agora com **borda de palavra**, que é o
+  conserto do `sentido`/`sentimento`), `dói|doeu`, `chor…`, `trist…`, `raiva`,
+  `desmoron…`, `arrepend…`, `vergonh…`, `mago…`, `remoend…`, `travei|eu travo`,
+  `angusti…`, `desanimad…`, `humilhad…`, `culpad…`, `nó na garganta`. Dispara
+  sozinho, como antes.
+- **1b, `lexicoDeDuplaVida`** — `medo`, `pesa`, `ansios`, `exaust`, `vazi[oa]`,
+  `sozinh`, `cansad`. **Sozinha não decide nada.** Ela só vale com uma destas
+  três companhias:
+  1. **o autor no meio** (`lexicoDoSentimentoNoAutor`): primeira pessoa + verbo
+     de estado, e o complemento é PRONOME ou nada — "estou sozinho nisso",
+     "estou cansado de mim", "fico vazio." —, nunca objeto de trabalho ("estou
+     cansado **desse módulo**", "fico sozinho **em casa**"). Para `medo` a linha
+     é entre **predicar** ("estou com medo", "tenho medo", "senti medo") e
+     **nomear** ("o medo de errar"), que é o obstáculo DENTRO de uma intenção —
+     exatamente o que o WOOP existe para receber. `vazio` conta como
+     SUBSTANTIVO ("esse vazio", "um vazio"), não como adjetivo de tela ("estado
+     vazio"). `pesa` conta quando o que pesa não tem nome ("isso pesa", "cada
+     dia pesa"), porque a nota de trabalho nomeia a carga ("a carga pesa");
+  2. **densidade** — duas palavras DIFERENTES de dupla vida na mesma nota
+     ("Estou exausto e vazio."). Uma é vocabulário; duas são o assunto;
+  3. **a omissão ao lado** (família 5) em QUALQUER tamanho — "Foi pesado e eu
+     fiquei calada." tem 29 caracteres e é a nota mais frágil das 57. A omissão
+     continua sem disparar sozinha abaixo do teto de 120: aqui ela é companhia,
+     não gatilho.
+
+`descontei` também ganhou os pronomes que faltavam (`descontei nela|nele|em`):
+a família 4 casava "descontei com" e "descontei no", e deixava "descontei nela"
+passar — a nota ficava presa só à família 1 e caía junto com ela.
+
+**A régua NOVA, que é o coração desta volta: a direção inversa.** Havia 57
+frases provando que desabafo não vira método e **nenhuma** provando que nota
+comum continua achando a forma — por isso a regressão passou.
+`EscritaPessoalTests.trabalho` tem **47 frases, no mínimo duas por PORTA das 21
+formas de main**, as dez do revisor incluídas e marcadas `[R]`, com as que
+citam sentimento de propósito: WOOP com `medo`, Se–então com `cansado`,
+Especificação com "estado vazio", Pré-mortem com `medo`, Leitura com "times
+cansados", Decisão com "o medo de errar", e duas sondas do conserto do `senti`
+("o sentimento do time", "busca exaustiva").
+`todaPortaDeMainTemPeloMenosDuasFrases` cobra a cobertura contra
+`Catalogo.doApp`, para a régua não encolher sem ninguém ver. **E ela mede:**
+portada a mesma régua para a família 1 de `2d33d63`, **15 das 47 são caladas**
+(as 8 do revisor, mais Decisão, Pré-mortem, Leitura, Palavra e as duas sondas
+do `senti`, mais a segunda do Se–então); com a família partida em duas, **0**.
+
+**As duas réguas correm JUNTAS** em `asDuasReguasValemAoMesmoTempo`, no mesmo
+catálogo e na mesma corrida: as 57 continuam protegidas E as 47 continuam
+roteando. **Nenhum caso precisou de arbitragem** — o critério satisfaz as duas
+ao mesmo tempo, e nenhuma frase foi retirada de nenhuma das réguas para isso.
+Se um dia as duas se contradisserem num caso, o lado é o da guarda, e a razão é
+a assimetria que o revisor usou nos dois sentidos: **silêncio numa nota de
+trabalho custa um toque para escolher a forma à mão; vestir um desabafo carimba
+quatro campos de exercício sobre o que o autor acabou de sentir.** O caso vai
+para esta ADR com o lado escolhido e o motivo, não para dentro do teste.
+
+**O que esta guarda continua sem fazer.** Ela é regex, não compreensão: "estou
+cansado de escrever documentação" não é reconhecido como desabafo (não chega a
+método nenhum, então cai no silêncio de sempre), e um desabafo escrito só com
+palavra de dupla vida sem primeira pessoa — "que vazio hoje" — também não. O
+critério é sintático de propósito: ele mede quem é o sujeito da frase, não o que
+o autor sente.
+
+**Volta:** multiplicar. **O que a IA sabe:** nada de novo — a guarda continua
+sem modelo, no aparelho. **Prova:** `EscritaPessoalTests` com as duas réguas na
+mesma suíte — **57 protegidas + 6 legítimas da M3 + 47 de trabalho** — e
+`aPalavraDeDuplaVidaSozinhaNaoDecide` fixando o critério nos dois sentidos com
+13 asserções. **Fora:** o `\bpesa` continua casando "pesado" pela esquerda (é o
+que protege "Foi pesado"); `exaust` entrou na 1b sem que ninguém tenha medido
+"busca exaustiva" em nota real, só por leitura; e as 47 frases da régua inversa
+são minhas, não de uso real — elas provam alcance, não representatividade.
+
+**Junto nesta volta, os acabamentos que o re-G3 nomeou**
+(`ferramentas/orca/revisao-a-voz.md`, §R-5). **M-2:** o diálogo destrutivo do
+Perfil dizia "Esquecer tudo o que o Traço **aprendeu de você**?" — a frase que a
+A4 condenou e trocou no rótulo logo acima ("O que o Traço registrou — contagem,
+não conclusão"), mas não no diálogo; passa a "Esquecer tudo o que o Traço
+**registrou**?", a mesma palavra do rótulo e do corpo da mensagem ("Os sinais
+somem do aparelho. As notas ficam."). **M-3:** a dica de VoiceOver do botão da
+Lente dizia "**Muletas**, frases feitas…" para abrir uma tela cujas seções se
+chamam "Palavras de apoio" e "Frases de outro"; passa a "Palavras de apoio,
+frases de outro, passivas e adjetivos repetidos. Só aponta." — a dica volta a
+nomear o que a tela mostra, que é o que uma dica de VoiceOver existe para fazer.
+O quarto acabamento, o preço da guarda, está escrito no "Fora" da 06h.
+
+**As seis fases do `design-router` nas duas strings** (M-5 do re-G3, que valia
+para a copy da A4 e vale para esta). **Ancorar:** rota "ajuste local de
+componente/copy" — nenhum moodboard, nenhum token novo, nenhum crítico; a
+pessoa é o autor lendo um diálogo destrutivo e o autor ouvindo o VoiceOver.
+**Sistema:** as duas frases já tinham dona na tela — `PerfilView:161` diz
+"registrou" e `LenteView:133/138` dizem "Palavras de apoio"/"Frases de outro";
+o conserto é reusar o vocabulário que existe, não inventar um terceiro.
+**Construir:** duas strings, zero mudança de layout, de Tema ou de estado.
+**Mover:** nada — copy não anima. **Julgar:** o teste contra design genérico não
+se aplica a duas frases, mas o teste da 06f se aplica e é o que pega o defeito:
+o app não diz o que não mediu, e "aprendeu de você" alegava aprendizado sobre uma
+contagem de sinais. **Portão:** a mudança do Perfil é visível na tela (diálogo de
+confirmação) e a da Página só pelo VoiceOver; **a captura das duas fica pendente
+de instrumento** — com seis simuladores ligados o maestro não isola, e a lei da
+ESTEIRA proíbe apoiar nota nessa condição. As duas são verdadeiras por leitura do
+código, e é isso que está afirmado aqui.

@@ -485,7 +485,7 @@ struct PaginaView: View {
                 .foregroundStyle(Tema.tintaSuave)
                 .disabled(sessao.paginaVazia)
                 .accessibilityLabel("Lente da língua")
-                .accessibilityHint("Muletas, frases feitas, passivas e adjetivos repetidos. Só aponta.")
+                .accessibilityHint("Palavras de apoio, frases de outro, passivas e adjetivos repetidos. Só aponta.")
                 .accessibilityIdentifier("abrir-lente")
         }
     }
