@@ -41,6 +41,9 @@ struct PerfilView: View {
     /// ADR 04n: o índice de sentido, em número.
     @State private var indiceQuantas = Indice.quantas
     @State private var mostrarMetodos = false
+    /// ADR 05x: o método cuja proveniência está aberta na lista. Um por vez.
+    @State private var provenienciaAberta: String?
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.modelContext) private var context
     @Query(sort: \Nota.criadaEm, order: .reverse) private var notas: [Nota]
 
@@ -153,7 +156,9 @@ struct PerfilView: View {
                     .accessibilityLabel("O retrato, exatamente como viaja")
             }
             VStack(alignment: .leading, spacing: 4) {
-                Text("O que o Traço aprendeu de você")
+                // ADR 06h: o que está embaixo é contagem (12 sinais desde…),
+                // e a VISAO manda distinguir observação de conclusão.
+                Text("O que o Traço registrou — contagem, não conclusão")
                     .font(Tema.chrome)
                     .foregroundStyle(Tema.tinta)
                 Text(sinaisEmPalavras)
@@ -227,29 +232,59 @@ struct PerfilView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
                     ForEach(Catalogo.todos) { m in
+                        let aberta = provenienciaAberta == m.id
                         VStack(alignment: .leading, spacing: 3) {
-                            HStack(alignment: .firstTextBaseline, spacing: 8) {
-                                Text(m.nome)
-                                    .font(Tema.corpo.weight(.semibold))
-                                    .foregroundStyle(Tema.tinta)
-                                if m.doAutor {
-                                    Text("SEU")
-                                        .font(.system(size: 9, weight: .semibold))
-                                        .tracking(0.8)
-                                        .foregroundStyle(Tema.ambarTinta)
+                            // ADR 05x: a linha inteira abre "de onde vem"; o alvo
+                            // de 44 vive no toque, não numa linha a mais (G3, B7).
+                            Button {
+                                provenienciaAberta = aberta ? nil : m.id
+                            } label: {
+                                VStack(alignment: .leading, spacing: 3) {
+                                    HStack(alignment: .firstTextBaseline, spacing: 8) {
+                                        Text(m.nome)
+                                            .font(Tema.corpo.weight(.semibold))
+                                            .foregroundStyle(Tema.tinta)
+                                            .layoutPriority(1)
+                                        if m.doAutor {
+                                            Text("SEU")
+                                                .font(.system(size: 9, weight: .semibold))
+                                                .tracking(0.8)
+                                                .foregroundStyle(Tema.ambarTinta)
+                                        }
+                                        Spacer(minLength: 0)
+                                        Text(m.origem)
+                                            .font(Tema.label)
+                                            .foregroundStyle(Tema.tintaFraca)
+                                        Image(systemName: "chevron.down")
+                                            .font(.caption2.weight(.semibold))
+                                            .foregroundStyle(Tema.tintaSuave)
+                                            .rotationEffect(.degrees(aberta ? 180 : 0))
+                                            .accessibilityHidden(true)
+                                    }
+                                    Text(m.campos.map(\.rotulo).joined(separator: " · "))
+                                        .font(.footnote)
+                                        .foregroundStyle(Tema.tintaSuave)
+                                        .fixedSize(horizontal: false, vertical: true)
                                 }
-                                Spacer(minLength: 0)
-                                Text(m.origem)
-                                    .font(Tema.label)
-                                    .foregroundStyle(Tema.tintaFraca)
+                                .alvo()
                             }
-                            Text(m.campos.map(\.rotulo).joined(separator: " · "))
-                                .font(.footnote)
-                                .foregroundStyle(Tema.tintaSuave)
-                                .fixedSize(horizontal: false, vertical: true)
+                            .buttonStyle(.discreto)
+                            .accessibilityIdentifier("de-onde-vem-\(m.id)")
+                            .accessibilityHint(aberta ? "Recolhe" : "De onde vem: fonte, função, o que o Traço adaptou e a evidência")
+                            .accessibilityValue(aberta ? "aberto" : "recolhido")
+                            if aberta {
+                                LinhasDeProveniencia(m, identificador: "proveniencia-\(m.id)")
+                                    .padding(.top, 8)
+                                    .padding(.bottom, 6)
+                                    .transition(Tema.transicao(.opacity, reduzido: reduceMotion))
+                            }
                         }
                     }
                 }
+                // A lei da casa (ADR 05v), como na Lente. Aqui a animação mora na
+                // folha e não no toque: `withAnimation` do PerfilView não atravessa
+                // a fronteira da apresentação do `.sheet` — medido, 1 quadro.
+                .animation(Tema.animacao(.easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion), value: provenienciaAberta)
                 .padding(.horizontal, Tema.margem)
                 .padding(.bottom, 24)
             }

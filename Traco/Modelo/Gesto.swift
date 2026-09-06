@@ -63,6 +63,11 @@ nonisolated struct Gesto: Hashable, Codable, Identifiable, Sendable, CaseIterabl
     var encadeamentos: [Metodo.Encadeamento] { metodoDef.encadeamentos }
     /// O catálogo conhece este id? Falso = método que sumiu da pasta.
     var conhecido: Bool { Catalogo.metodo(rawValue) != nil }
+    /// ADR 05x: o que a tela diz quando o método saiu da pasta (05o). Nil =
+    /// o catálogo conhece. Estado honesto, não bloqueio: os campos ficam.
+    var estadoDoMetodo: String? {
+        conhecido ? nil : "o método “\(rawValue)” saiu da sua pasta; os campos continuam na nota."
+    }
 
     // MARK: Codable como texto (o que o disco e o corpus sempre guardaram)
 

@@ -1,0 +1,103 @@
+# ADR 2026-09-06a — volta 11-B, parte 2 de 2. NÃO rode sozinha: ela conta com o
+# trabalho e o .md que `maestro/intercambio-conflito.sh` deixou prontos (por
+# isso mora fora do alcance do `varrer.sh`, que corre `maestro/*.yaml`).
+#
+# As duas pontas já divergiram: a versão 2 está no Traço e o corpo do .md foi
+# reescrito fora. Aqui o autor importa e DECIDE — e depois importa o MESMO
+# arquivo outra vez, para provar que o Traço não inventa um segundo conflito
+# entre duas cópias iguais.
+appId: app.traco
+---
+- launchApp
+- openLink: traco://notas
+- runFlow:
+    when:
+      visible: "Abrir"
+    commands:
+      - tapOn: "Abrir"
+      - waitForAnimationToEnd: {timeout: 1500}
+- extendedWaitUntil:
+    visible: {id: "abrir-trabalhos"}
+    timeout: 15000
+- tapOn: {id: "abrir-trabalhos"}
+- extendedWaitUntil:
+    visible: {id: "trabalho-na-lista"}
+    timeout: 15000
+- tapOn: {id: "trabalho-na-lista"}
+# a folha demora a abrir ("Abrindo trabalho…") e o painel nasce abaixo da
+# dobra: rolar até ele é a espera e a afirmação ao mesmo tempo
+- waitForAnimationToEnd: {timeout: 3000}
+- scrollUntilVisible:
+    element: "Editar com outras ferramentas"
+    direction: DOWN
+    centerElement: true
+    timeout: 20000
+- tapOn: "Editar com outras ferramentas"
+- waitForAnimationToEnd: {timeout: 1500}
+- scrollUntilVisible:
+    element: {id: "trabalho-importar-md"}
+    direction: DOWN
+    centerElement: true
+    timeout: 10000
+- tapOn: {id: "trabalho-importar-md"}
+- waitForAnimationToEnd: {timeout: 5000}
+# O seletor de Arquivos roda fora do processo: nenhum texto dele chega ao
+# maestro, então tudo aqui é por ponto. BUSCAR e não navegar: "Explorar" abre na
+# última pasta visitada (num teste, o iCloud Drive vazio) e "Recentes" veio
+# vazia depois do relançamento. A busca não depende de nenhum dos dois, e o .sh
+# apagou as cópias velhas: o resultado é UM.
+- tapOn:
+    point: "50%,18%"
+- waitForAnimationToEnd: {timeout: 2000}
+- inputText: "traco-versao"
+- waitForAnimationToEnd: {timeout: 3500}
+- tapOn:
+    point: "18%,35%"
+- waitForAnimationToEnd: {timeout: 4000}
+- extendedWaitUntil:
+    visible: "Revisar arquivo recebido"
+    timeout: 15000
+# as DUAS versões e a consequência, antes da escolha
+- assertVisible: "O trabalho mudou dos dois lados desde a exportação. Compare e escolha."
+- assertVisible: {id: "trabalho-conflito-atual"}
+- assertVisible: {id: "trabalho-conflito-arquivo"}
+- takeScreenshot: /tmp/traco-verify/v11-conflito
+# as duas saídas nomeadas nascem abaixo da dobra: rolar até a última é afirmar
+# que ela existe e trazer as duas para o mesmo olhar
+- scrollUntilVisible:
+    element: {id: "trabalho-conflito-manter"}
+    direction: DOWN
+    centerElement: true
+    timeout: 10000
+- takeScreenshot: /tmp/traco-verify/v11-conflito-escolha
+- tapOn: {id: "trabalho-confirmar-importacao"}
+- waitForAnimationToEnd: {timeout: 2500}
+# guardar acrescenta: a versão anterior continua no histórico
+- assertVisible: "Nova versão externa guardada. As versões anteriores foram preservadas."
+- takeScreenshot: /tmp/traco-verify/v11-guardado
+# o MESMO arquivo outra vez: agora o conteúdo já está guardado. Sem conflito
+# inventado entre duas cópias iguais e sem escolha sem efeito.
+- scrollUntilVisible:
+    element: {id: "trabalho-importar-md"}
+    direction: DOWN
+    centerElement: true
+    timeout: 10000
+- tapOn: {id: "trabalho-importar-md"}
+- waitForAnimationToEnd: {timeout: 5000}
+- tapOn:
+    point: "50%,18%"
+- waitForAnimationToEnd: {timeout: 2000}
+- inputText: "traco-versao"
+- waitForAnimationToEnd: {timeout: 3500}
+- tapOn:
+    point: "18%,35%"
+- waitForAnimationToEnd: {timeout: 4000}
+- extendedWaitUntil:
+    visible: "Revisar arquivo recebido"
+    timeout: 15000
+- assertVisible: "Este arquivo traz o mesmo conteúdo que já está guardado aqui. Não há nada para decidir: nenhuma versão será criada."
+- assertNotVisible: "O trabalho mudou dos dois lados desde a exportação. Compare e escolha."
+- assertNotVisible: {id: "trabalho-conflito-atual"}
+- assertNotVisible: {id: "trabalho-confirmar-importacao"}
+- assertVisible: "Fechar revisão"
+- takeScreenshot: /tmp/traco-verify/v11-sem-decisao

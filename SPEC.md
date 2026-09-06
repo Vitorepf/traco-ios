@@ -123,7 +123,7 @@ abrir app ──► página em branco ──► usuário escreve (traço livre)
 ### Avisos da Análise de notas (contrato local a migrar)
 | Detecta | Aviso (essência) |
 |---|---|
-| Afirmação vazia ("eu sou rico/vencedor") | Piora quem se estima pouco (Wood 2009). Escreva POR QUE um valor seu importa. |
+| Afirmação vazia ("eu sou rico/vencedor") | O que Wood, Perunovic e Lee (2009) mediram — humor depois de repetir uma frase dada, pior em quem estava com a autoestima baixa — e a pergunta pelo fato. Nunca uma sentença sobre o mundo (ADR 2026-09-06f). |
 | Pedido de texto pronto | A recusa global foi revogada. Preservar a nota e encaminhar a produção ao Trabalho; não atribuir texto gerado ao autor. A migração das mensagens antigas ainda precisa de código e testes. |
 | Pedido de ouvinte/consolo | Quem é a pessoa de verdade que deveria receber isto? |
 | Plano sem obstáculo | Sem obstáculo interno, é fantasia — e fantasia reduz esforço (Oettingen). |
@@ -2816,6 +2816,58 @@ errado recusa sem rota; falha do Anotar não deposita); suíte 715/125 sobre a V
 sem aviso; capturas no iPhone Air. **Fora (F3b):** ditado próprio — áudio
 salvo primeiro, transcrito depois, falha preserva o áudio — por `.captura`.
 
+## ADR 2026-09-05x — De onde vem cada método
+
+**A distância.** O catálogo trazia só a origem nominal ("Gabriele Oettingen",
+"engenharia"), e a VISAO pede que se distinga prática, lente e estudo com
+evidência delimitada — beleza, tradição, nome técnico ou citação não certificam
+eficácia. A eficácia era presumida pelo nome. E o método que saiu da pasta do
+autor (ADR 05o) conservava a nota, mas em silêncio: a tela não dizia nada.
+
+**A decisão.** Cada método ganha o campo aditivo `proveniencia` no
+`Metodos.json`: `fonte` (obra, autor, ano ou tradição), `funcao` (`pratica` |
+`lente` | `evidencia`), `adaptacao` (o que o Traço mudou), `evidencia` (o que
+se sabe do uso proposto — "sem evidência específica conhecida" é resposta
+válida e aparece onde não há estudo) e `aplicabilidade` (para quê serve e não
+serve). Tudo opcional: JSON antigo e método do autor sem o campo decodificam;
+função desconhecida vira "não informada" sem derrubar o método. A Lente abre
+com a seção da forma da nota e a linha "De onde vem", recolhida; um toque
+mostra as cinco linhas. A lista de métodos do Perfil traz a mesma proveniência
+por método: a linha do método é o toque (alvo 44 no toque, não numa linha a
+mais; seta que gira), um aberto por vez; abrir e fechar nas duas telas passam
+pela lei única da ADR 05v — `Tema.animacao(.easeOut(duration: .media), reduzido:)`
+e `Tema.transicao(.opacity, reduzido:)` no bloco. Na Lente a lei entra por
+`withAnimation` no toque; no Perfil, por `.animation(_:value:)` na folha, porque
+`withAnimation` disparado na tela que apresenta não atravessa a fronteira do
+`.sheet` (medido: 1 quadro contra 8); a seta é a mesma nas duas telas
+(`caption2` + `tintaSuave`); método do autor diz "a que você
+escreveu" ou "não informada". As cinco linhas são um componente só,
+`LinhasDeProveniencia` (Traco/Componentes), nas duas telas. Nota cujo método
+saiu da pasta mostra na Lente "o método X saiu da sua pasta; os campos
+continuam na nota" em `tintaSuave` — estado, não erro nem bloqueio (ADR 04a);
+`aviso` fica para o que falhou. Nenhum selo, cor ou nota de eficácia:
+informação onde havia silêncio. Os 21 foram preenchidos
+com o que a literatura citada sustenta, delimitado ("não medido no Traço");
+onde não há estudo do formato, está escrito.
+
+**Custo assumido:** a proveniência é texto do catálogo, não verificação —
+quem lê julga; a bibliografia dos 21 vive só em `Metodos.json`.
+**Volta:** melhorar. **O que a IA sabe:** nada — a proveniência não viaja no
+prompt. **Prova:** 4 testes novos em `CatalogoTests` (os 21 com função válida
+e sem campo vazio; decode com, sem e com função inválida, e roundtrip; método
+do autor com e sem o campo; estado do método ausente), suíte integral 717
+testes em 125 suítes, 716 passam, 1 falha alheia (`ForaDoAppTests.sonecaRecusada`,
+permissão do simulador, trilha F2) no iPhone 17 Pro Max de teste em 06/09/2026
+sobre main 0d0d007; G3 em `ferramentas/orca/revisao-v16-metodos.md` (INTEGRAR,
+três reparos de texto feitos: expressiva, argumento, decisão); capturas
+`ferramentas/orca/v16-fix-*.png` da Lente recolhida, aberta, com método ausente
+e AX5, e do Perfil compacto, aberto e AX5; movimento do Perfil em
+`ferramentas/orca/g4-v16-perfil.mp4` (normal e Reduzir Movimento) e nos quadros
+de `g4-v16-perfil-quadros-depois.png` — 8 quadros (267 ms) normal, 5 (167 ms)
+sob Reduzir Movimento, os mesmos números da Lente. **Fora:** proveniência
+no prompt da sábia, aviso ao autor quando um método some, edição da
+proveniência pela tela.
+
 ## ADR 2026-09-05y — A página não perde o pé
 
 **A distância.** A auditoria da volta 9 deu 6,7 à Página+Caderno, a porta de
@@ -2930,3 +2982,584 @@ de dentro de um `body`.
 Estes números de pixel são do build da V12 (`5937943`): o V12-B mexe neles de
 propósito — o pé em AX ganhou a linha de "Trabalhar nisto" e todo branco sobre o
 papel ganhou 0,5 de aresta. O que o V12-B mede está no parágrafo acima.
+## ADR 2026-09-06a — O conflito na tela: as duas versões, o retry e o selo que recolhe
+
+**O que estava provado.** A ADR 05l provou o retorno FELIZ: o `.md` sai com
+envelope, volta, e o corpo editado fora vira versão nova com autoria externa.
+Nada além disso tinha tela. Quando as duas pontas mudam, quando o commit é
+recusado, e quando a origem é selada com o seletor aberto, o autor via — ou uma
+prévia de um lado só, ou uma frase que mandava importar de novo, ou nada.
+
+**A decisão.** Quatro coisas, nenhuma delas nova no modelo: a lei do arquivo já
+acrescentava e nunca sobrescrevia. O que faltava era a tela dizer a verdade.
+
+1. **Conflito com as duas versões — e só quando existem duas.** Conflito é
+   `.baseAntiga` **mais** duas condições que a primeira volta não pedia: a
+   versão local ANDOU desde a base do arquivo (`baseID != versaoVigenteID`) e o
+   que voltou ainda não está guardado. Sem elas a tela mentia numa rota de três
+   toques — exportar, "Guardar intenção", importar o mesmo arquivo —, porque
+   rever a intenção já muda o estado para `.baseAntiga` sem mover versão
+   nenhuma: os dois cartões traziam o MESMO número e o MESMO texto, e qualquer
+   escolha caía em `.semNovidade`. Havendo conflito, os dois lados vêm com
+   título e a consequência escrita antes da escolha ("Nenhuma escolha apaga
+   nada: a versão N continua no histórico e o arquivo, se você o guardar, entra
+   como versão nova"), em `cartao(.campo)`, e as duas saídas são nomeadas —
+   **Guardar o arquivo como nova versão** (âmbar) e **Manter só a versão
+   atual** (`.compacto`, sem cor própria: duas saídas âmbar empatariam em peso).
+2. **A pergunta que a mutação faria, a tela faz antes.**
+   `IntercambioTrabalho.jaGuardado` é a regra única de "este conteúdo já está
+   aqui": `aplicarVersaoExterna` a usa para não fabricar versão, e a tela a usa
+   para não OFERECER decisão. Quando ela responde sim — o mesmo arquivo de
+   volta, ou um export intocado depois que a versão andou — a linha é "Este
+   arquivo traz o mesmo conteúdo que já está guardado aqui. Não há nada para
+   decidir: nenhuma versão será criada.", sem botão de guardar. Uma decisão sem
+   efeito é estado desonesto, mesmo quando o texto do botão não mente.
+3. **As duas recusas de `guardar()` são duas.** `RecusaDoCommit` (`.disco`,
+   `.baseDivergente`) sai da Oficina e entra em
+   `Desfecho.de(mudou:guardou:acesso:recusa:)`. `.aguardandoCommit` (o disco
+   recusou; a versão está na memória) é o único caso que oferece **Tentar
+   guardar de novo**, e esse botão chama `guardar()`, não outra importação:
+   confirma a MESMA versão. `.precisaReabrir` (o trabalho mudou em outra
+   abertura) NÃO oferece botão nenhum, porque repetir bate na mesma guarda:
+   `basePersistida` só muda num commit bem-sucedido. A tela diz o que houve e o
+   que fazer — voltar, reabrir o trabalho, e o arquivo continua no aparelho.
+4. **O selo recolhe.** A tela declara em `oficina.intercambioAberto` o que tem
+   em mãos (`.seletor`, `.exportacao`, `.revisao` — inclusive durante a
+   leitura); `verificarAcesso()` — o ponto por onde toda rota do Trabalho
+   revalida — move isso para `intercambioRecolhido` no instante da restrição, e
+   a tela protegida diz o que recolheu ("A origem foi protegida: recolhi o
+   arquivo que estava em revisão. Nada foi importado."). Liberada a origem, a
+   linha cala.
+
+**A passada de design (`design-router`, seis fases).** *Ancorar*: autor no meio
+de um trabalho, decidindo sob pressão o que fazer com um arquivo que voltou;
+resultado observável é uma versão a mais no histórico ou nenhuma, nunca uma a
+menos. *Sistema*: nada novo — `cartao(.campo)` (o único degrau que separa do
+`Tema.superficie` do bloco), `rotulo()`, `Tema.meta/corpo`, `.compacto` de
+`Botao.swift`. *Construir*: a regra fora da View (`conflito`, `jaGuardado`,
+`Desfecho`), a View só desenha. *Mover*: nenhuma animação nova; nada a
+interromper. *Julgar*, lendo a própria tela: as duas saídas estavam ambas em
+âmbar, empatadas — `Botao.swift` já dizia que a secundária não é âmbar, e a
+tela desobedecia; e as doze linhas fixas do começo de cada lado eram magia que
+não sobrevivia ao corpo de acessibilidade. *Portão*: os dois consertados aqui.
+
+**A passada de jornada (`curva-zero`).** *Jornada*: "editei fora e voltei" —
+exportar, editar noutra ferramenta, importar, decidir. *Resultado verificável*:
+o histórico cresce em um e nenhuma versão anterior some (a captura mostra o
+contador). *Atrito observado*: a tela chamava para uma decisão inventada em três
+toques sem editor nenhum, e oferecia uma nova tentativa que não podia dar certo
+— os dois foram medidos lendo o código contra a tela, não supostos.
+*Recuperação*: recusa de disco → o mesmo botão confirma a mesma versão; base
+divergente → reabrir, com o arquivo preservado; conteúdo repetido → fechar a
+revisão, nada criado; origem selada → o material recolhido, dito por nome.
+
+**Custo assumido.** A linha do recolhimento só aparece se o selo cair enquanto a
+MESMA `Oficina` está viva, e nenhuma rota do app sela a origem com a folha do
+Trabalho aberta: fica provada por teste, não por captura. `.precisaReabrir`
+também: exige duas `Oficina`s do mesmo `Trabalho` vivas ao mesmo tempo — o teste
+as cria e prova que a guarda dispara e que repetir não resolve; a tela não tem
+rota para duas folhas. O `ProgressView("Lendo arquivo…")` existe e está no
+caminho, mas com um `.md` de 400 bytes a leitura não dura um quadro: não há
+captura dele. Em corpo de acessibilidade (AX5) o começo de cada lado cai de doze
+para quatro linhas; ainda assim os dois cartões não cabem inteiros no mesmo
+olhar — cabe o primeiro completo e o começo do segundo.
+
+### Volta 11-C — a comparação mostra ONDE as duas versões diferem
+
+O G4 derrubou a premissa das duas voltas anteriores, e tinha razão. Em AX5 os
+dois cartões exibiam a MESMA cadeia de caracteres, e não por falta de espaço:
+**a truncagem mostra o COMEÇO e a edição de ida-e-volta acontece no FIM**. Não é
+defeito de AX5 — reaparece nas doze linhas do corpo normal assim que o documento
+passa de doze linhas, e o protocolo aceita 2 MiB. A tela que existe para comparar
+devolvia dois blocos idênticos no caso comum. Quatro correções:
+
+1. **O recorte ancora na primeira divergência.**
+   `IntercambioTrabalho.recorteDaDiferenca(atual:arquivo:contexto:)` mede o
+   prefixo comum; quando ele passa do contexto que cabe na janela, os dois
+   cartões deixam de mostrar o começo e passam a mostrar o mesmo ponto — um fio
+   de contexto antes da divergência, recuado até a fronteira legível (linha
+   inteira quando há uma perto, senão palavra, com `…`). A tela diz onde
+   começou: "As duas começam iguais até a linha N. Mostro daí em diante, onde
+   elas mudam." (ou, em parágrafo único, "nos primeiros N caracteres"). O
+   contexto é parâmetro porque a janela muda: 48 no corpo normal, 12 em corpo de
+   acessibilidade — com 48 as quatro linhas do AX5 são preenchidas pelo contexto
+   sozinho, que é exatamente o defeito. Cálculo de string ao lado de
+   `conflito(_:em:)`, testável sem renderizar SwiftUI.
+   A ressalva de truncagem saiu de dentro da garantia de não-perda: eram duas
+   informações de naturezas diferentes numa frase cinza só, e agora são duas
+   linhas, a consequência em tinta cheia.
+2. **Sair da revisão é desfecho.** `Desfecho.mantida` — "Nada foi importado. O
+   arquivo continua no seu aparelho e pode ser importado depois." — atende as
+   DUAS saídas que fechavam a revisão em silêncio ("Manter só a versão atual" e
+   "Fechar revisão"). Escolha sem retorno visível deixa o autor sem saber se o
+   app entendeu.
+3. **A chegada e o desfecho são vistos e falados.** O cartão de revisão nascia
+   abaixo da dobra: um `ScrollViewReader` dentro do painel (o proxy é da rolagem
+   da folha, que já envolve esta tela) traz a âncora `trabalho-intercambio-revisao`
+   ao topo quando a prévia chega, e o VoiceOver ouve "Arquivo recebido. A revisão
+   está abaixo.". A entrada e o recolhimento do cartão passam por
+   `Tema.movimento(.deslocamento, Tema.Mola.camada, reduzido:)` com transição de
+   deslocamento + opacidade, e a linha de desfecho por
+   `Tema.movimento(.opacidade, …)`. A linha de desfecho deixou de ser a terceira
+   frase cinza igual às instruções fixas: ganhou `cartao(.campo)` e `Tema.tinta`,
+   e TODO desfecho é anunciado por `AccessibilityNotification.Announcement`.
+4. **Nenhuma ação desta tela some (o movimento da volta 18).** `AcaoTrabalhoStyle`
+   nunca leu `@Environment(\.isEnabled)`, e por isso o "Importar" desabilitado
+   era pixel-idêntico ao habilitado. O estilo deixa de existir na volta 18, que
+   resolveu a doença na raiz: no lugar do `.disabled()`, a ação continua cápsula
+   (`Pilula`, `.filtro` nas secundárias e `.larga` cheia na principal), o motivo
+   fica escrito ao lado E no `accessibilityHint`, e tocar diz o que falta em vez
+   de não fazer nada. As três ações do intercâmbio seguem o mesmo padrão, para as
+   duas voltas chegarem em main falando a mesma língua. Efeito colateral bem-vindo:
+   a principal em cápsula cheia (carvão sobre papel) desfaz a inversão de peso
+   que o G4 mediu entre ela e o `.compacto`, sem tocar no `.compacto`.
+
+**A passada de design da 11-C (`design-router`, seis fases).** *Ancorar*: o autor
+volta do editor externo e precisa DECIDIR; se a tela não mostra a diferença, o
+intercâmbio vira gerador de versões que ninguém escolheu. *Sistema*: nada novo —
+`Pilula`, `cartao(.campo)`, `rotulo()`, `Tema.movimento`/`Mola.camada`,
+`Tema.tinta`. *Construir*: o recorte é string pura no modelo, com teste; a View
+só desenha e pergunta. *Mover*: as duas coisas que a tela tinha a dizer e não
+dizia — a decisão chegando e o efeito acontecendo — entram pela lei de
+`Tema.swift`, medidas no vídeo cru (recolhimento em nove quadros consecutivos com
+subida e cauda, contra o quadro único que o G4 mediu; sob Reduzir Movimento, a
+fade curta). *Julgar*, lendo a própria tela no aparelho: em AX5 o contexto de 48
+preenchia sozinho as quatro linhas e os dois cartões voltavam a ser idênticos —
+achado da captura, não do código, e é por isso que o contexto virou parâmetro.
+*Portão*: os quatro itens do mínimo provados por captura no iPhone 17e.
+
+**Custo assumido da 11-C.** O obstáculo das ações bloqueadas mora na folha do
+Trabalho, acima desta tela (território da volta 18): aqui tocar NOMEIA o que
+falta e anuncia, não rola até ele. O `recado` continua não sendo zerado por atos
+não relacionados (dívida do RUMO). A inversão de contraste do `.compacto` como
+regra da casa segue para o RUMO: esta volta não mexeu nele.
+
+**Prova da 11-C:** suíte **722/0 em 125 suítes** em 06/09/2026; 2 testes novos
+(`aComparacaoMostraOndeAsDuasVersoesDiferem` com documento de 41 linhas e a
+diferença na última, mais o recorte de janela pequena e o de parágrafo único;
+`manterAVersaoAtualDizOQueAconteceuComOArquivo`). Jornada real de ponta a ponta
+no iPhone 17e `C7341E64…`, dirigida à mão e conferida por
+`xcrun simctl io <UDID> screenshot` (maestro NÃO isola com vários simuladores
+ligados — `--device` diz um aparelho e o driver XCTest atende outro, provado por
+dimensão de pixel): versão 1 escrita, exportada, o `.md` reescrito FORA do app
+com dez linhas, importado, editado no fim dos dois lados, conflito.
+Capturas `ferramentas/orca/g4c-v11-*.png` — a chegada já na tela, os dois cartões
+começando no ponto de divergência, as duas saídas com pesos distintos, o "Manter"
+falando, o AX5 com os dois cartões DIFERENTES, o importar bloqueado ainda cápsula
+com o motivo ao lado — e vídeos `g4c-v11-normal.mp4` / `g4c-v11-reduzido.mp4`.
+
+### Volta 11-D — tocar uma ação bloqueada responde na tela
+
+O Re-G4 fechou três dos quatro itens e deixou meia regra da volta 18 de fora. A
+lei dela tem duas metades — o motivo escrito ao lado E **tocar leva ao que
+falta** — e a própria V18 declara o limite: `Announcement` é canal do VoiceOver,
+e "para quem usa Controle Assistivo **sem** VoiceOver o que resta é o desvio
+visível". A 11-C adotou a cápsula e o anúncio e parou aí: o juiz mediu **0,032 %**
+de pixels alterados ao tocar "Importar versão de arquivo" bloqueado — o dígito do
+relógio virando. E era regressão, não lacuna herdada: antes desta trilha o
+controle tinha `.disabled()` e o varredor o PULAVA; sem o `.disabled()` ele agora
+pousa num controle que aceita ativação e não fazia nada observável.
+
+**A correção, uma linha.** Em `IntercambioTrabalhoView.acao(...)` o impedimento
+deixa de sair só por `AccessibilityNotification.Announcement` e passa por
+`anunciar(_:)` — que já existia nesta tela, já põe a linha em `cartao(.campo)`
+com `Tema.tinta` sob `Tema.movimento(.opacidade, …, reduzido:)` e já fala. As
+duas pessoas recebem a mesma resposta: quem ouve, pelo anúncio; quem varre a
+tela sem VoiceOver, pelo cartão que aparece. As três ações do painel passam pelo
+mesmo `acao(...)`, então a regra vale para todas de uma vez.
+
+O cartão repete a frase que já está cinza ao lado da cápsula, e isso é
+deliberado: a linha cinza é a **condição** (vale enquanto o impedimento existir),
+o cartão é o **evento** (você acabou de tentar), e ele diz QUAL das ações
+bloqueadas foi tocada — tocar "Exportar" troca a linha pela do export
+(`g4-v11d-bloqueado-outra-acao.png`). Duas naturezas, dois pesos, e a segunda
+chega por movimento.
+
+**Nada em `TrabalhoView`.** O desvio ao obstáculo (foco e rolagem) mora na folha
+do Trabalho, que é território da volta 18. Quando as duas mesclarem, estas ações
+passam a rotear pelo desvio dela e esta linha compõe com ele; a ausência dela é
+que atrapalharia.
+
+**Prova da 11-D:** suíte **722/0 em 125 suítes** em 06/09/2026 (`TEST SUCCEEDED`,
+iPhone 17e `C7341E64…`); nenhum teste novo — a mudança é o corpo de um closure de
+`Pilula`, que Swift Testing não alcança sem renderizar SwiftUI, e a prova é a
+tela. Jornada à mão no iPhone 17e, conferida por `xcrun simctl io <UDID>
+screenshot`: intenção guardada → versão em edição (rascunho pendente) →
+"Importar versão de arquivo" bloqueado → toque. **27,52 % dos pixels da tela
+mudam** (28,89 % ignorando a barra de status), contra os 0,032 % medidos pelo
+juiz no build anterior. No vídeo cru a 30 fps a resposta é uma corrida de **8
+quadros com subida e cauda** — `6,54 8,78 9,05 8,52 8,35 7,16 5,64 3,07` — e zero
+nos vizinhos. Capturas `ferramentas/orca/g4-v11d-bloqueado-antes.png`,
+`-resposta.png`, `-outra-acao.png`; vídeo `g4-v11d-toque-bloqueado.mp4`.
+
+**Custo assumido da 11-D.** O caminho de movimento é o de `anunciar`, que o
+Re-G4 já mediu nos dois modos (a lei de `Tema` mantém opacidade sob Reduzir
+Movimento); não o remedi. Quando a linha nasce de uma ação bloqueada DENTRO do
+cartão de revisão, o cartão de desfecho aparece no alto do painel, acima da
+revisão — é o lugar único do `recado`, e esse estado só existe se o trabalho
+deixar de estar salvo depois que a prévia chegou. E as dívidas do RUMO seguem
+abertas de propósito: `recorteDaDiferenca` é O(n) e roda duas vezes por `body`
+(28,9 ms a 100 KB, 608 ms no teto de 2 MiB), o `min(16, contexto)` é a segunda
+constante fora da conta do 48/12, e o `recado` não é zerado por atos não
+relacionados.
+
+**Volta:** multiplicar — a continuidade entre ferramentas é a tese.
+**A IA:** nada. **Prova:** 5 testes em `IntercambioTrabalhoTests` (as duas
+versões e a escolha que não sobrescreve; recusa de disco → retry que confirma a
+mesma versão e uma segunda passada que não duplica; selo com `.seletor`,
+`.exportacao` e `.revisao`; o arquivo sem novidade que não vira conflito nem
+decisão, nas três formas — intenção revista, export intocado, e o conflito de
+verdade que continua de pé; a recusa por base divergente que não oferece nova
+tentativa), suíte **720/0 em 125 suítes** em 06/09/2026, build limpo sem UM
+aviso (conferido em recompilação integral dos dois alvos).
+`maestro/intercambio-conflito.sh` roda a jornada inteira SOZINHO — parte 1 no
+app, a edição do `.md` no disco do simulador feita pelo próprio roteiro, parte 2
+em `maestro/partes/` — e passou 2 de 2 seguidas no iPhone 17e; capturas
+`ferramentas/orca/v11b-*.png` (conflito com as duas versões, as duas escolhas
+com pesos distintos, o mesmo em AX5, o arquivo sem novidade sem botão de
+decisão, o importar bloqueado por edição pendente).
+
+## ADR 2026-09-06c — O áudio antes da letra
+
+**A distância.** A F3 (05w) trouxe o autor de fora do app até a página em
+branco com o teclado pronto e o microfone a um toque, mas quem transcrevia era
+o ditado do TECLADO do iOS: sem rede, sem modelo, com o app morto no meio, não
+ficava nada. A frase falada na rua dependia de a letra dar certo — e a 05a
+tinha decidido o contrário: o áudio é depositado primeiro, a letra vem depois,
+e falha de transcrição PRESERVA o áudio.
+
+**A decisão.** O controle da Central de Controle (agora **"Ditar"**, com
+ícone de microfone: a placa tem de dizer o que a porta abre) passa a abrir
+**gravando**
+(`Rota.ditar()`, não `Rota.ir(.captura(ditado:))` — teclado por trás da
+gravação é ruído; o ditado corre num canal próprio que a Página, que só
+entende `Destino`, ignora). `AVAudioRecorder` escreve o m4a **direto no
+destino final do anexo**: o áudio nasce depositado, não é copiado no fim. Ao
+tocar "Pronto" a NOTA ENTRA NO DISCO SEM UMA LETRA
+(`Sessao.gravarDitado`) e só então a transcrição é pedida: se o app morrer
+aqui, o autor acha a frase gravada e a linha diz a verdade. **A nota volta
+para quem a pediu** — `Sessao.armarDitado` dá a cada ditado a SUA identidade.
+Era uma variável só da Sessão, e dois ditados sobrepostos a dividiam: quando o
+segundo depositava, a letra do primeiro não achava mais "a sua" nota e criava
+uma SEGUNDA, deixando a do depósito afirmando "sem transcrição" para sempre
+(G3, A2). `SFSpeechURLRecognitionRequest` com `requiresOnDeviceRecognition` —
+contrato de privacidade, o mesmo do `Ditado` do calendário: sem modelo local a
+letra é RECUSADA e o motivo aparece, nunca cai no reconhecimento remoto em
+silêncio. Microfone e fala são permissões separadas de propósito: fala negada
+ainda grava; só microfone negado impede o depósito, e aí a tela diz "Nada foi
+gravado" e oferece "Escrever em vez disso" (que é a 05w intacta).
+
+**O que o app morto deixa, dito sem exagero.** Depois do depósito, morrer não
+tira nada: a nota está no disco com o áudio tocável dentro e a linha honesta
+(provado no G3, com o m4a de 2,06 s dentro da nota). **Durante a gravação, não
+há nota** — o `AVAudioRecorder` só fecha o átomo final do m4a no `stop()`, e um
+arquivo sem ele não é áudio, é lixo; a varredura de órfãos o apaga depois da
+carência. Escolhemos dizer isso em vez de persegui-lo: o caminho real de sair
+do app já deposita (`willResignActive`), e cobrir uma morte violenta em
+primeiro plano exigiria gravação em segmentos — muito código para um caso que
+o autor não produz. Contrato antes de conforto (G3, M4).
+
+**Sem campo novo no modelo.** O áudio entra pelo marcador de anexo que o
+Caderno já lê e TOCA — `[audio:ditado 6 set. 13h37.m4a](traco://audio/<id>)`
+— e o arquivo mora no cofre de anexos (`AnexoDisco`), nunca como blob no
+SwiftData. O áudio é localizável a partir da nota porque está DENTRO dela, com
+o mesmo portal de toda mídia do Traço: zero código de renderização novo, zero
+migração. Por isso o áudio NÃO foi para o App Group: o snapshot público é da
+F4, o gravador roda no processo do app, e um segundo cofre para a mesma coisa
+seria duplicata com o áudio invisível na nota.
+
+**Três estados, três nomes.** Gravado, transcrito e conferido são coisas
+diferentes e a tela as diz por títulos diferentes: **"Gravando."** (nada
+guardado ainda; relógio e ponto de nível — sem nível o autor não sabe se falou
+para um microfone mudo), **"Áudio guardado."** (no disco, sem letra — é o
+estado que uma morte do app deixa para trás, e é verdade) e **"Guardado nas
+Notas."** com "Confira quando puder — máquina não é o mesmo que conferido". Na
+falha, **"O áudio ficou."** com o motivo e "Tentar de novo", que re-transcreve
+o MESMO arquivo. Silêncio não é sucesso: transcrição vazia vira "não ouvi
+palavra nenhuma." e a nota fica com a linha do depósito. E quando quem recusa é
+o DISCO, o estado tem nome próprio — **"O áudio ficou no aparelho."**, com o
+que falhou, o que ficou guardado e "Tentar de novo", que redeposita o mesmo
+arquivo. A tela dizia "Sem microfone. / Nada foi gravado" com o microfone
+funcionando e o m4a no disco, e um teste fixava essa mentira (G3, A1).
+"Guardado nas Notas." passou a oferecer **"Abrir a nota"**: pedir conferência
+sem dar o caminho era mandar o autor caçar a nota na lista (G3, M3).
+
+**Movimento.** A troca de estado é SECA. Em fade, "Gravando." e "Áudio
+guardado." ficam sobrepostos por um quarto de segundo e nenhum dos dois se lê
+(`f3b-02-transcrevendo-sobreposto.png`) — é a mesma decisão da troca de aba na
+raiz: sem direção espacial, a troca seca não tem vão. Quem marca a mudança é o
+háptico — que agora existe nas DUAS trocas de resultado, `Toque.fechou()` no
+transcrito e `Toque.aviso()` em toda falha (G3, M1) — e o anúncio de
+VoiceOver. A entrada da superfície segue a lei do
+`Tema`: escala e desfoque sob movimento normal, só opacidade sob Reduzir
+Movimento (`f3b-entrada-normal-quadros.png` × `f3b-entrada-reduzida-quadros.png`).
+
+**Uma casca só.** A superfície do ditado copiava byte a byte a casca e quatro
+auxiliares da `ConfirmacaoView` (G3, M6). O idioma de confirmação — material,
+tinta rebaixada, um título, um corpo, até duas ações — passa a ser
+`FolhaDeConfirmacao` + `Folha`, usado pelas duas telas. Mora em
+`Traco/Ditado/` por ora: a casa certa é `Traco/Componentes/`, e a mudança fica
+para a volta que estiver lá.
+
+**Custo assumido:** o simulador não tem o modelo de fala no aparelho, então o
+estado "transcrito" só existe ali pelo instrumento `traco://ditar?ensaio=`
+(Debug), que troca SÓ o reconhecedor — microfone, gravação e nota continuam
+reais; a falha, essa, é real e é o caminho comum do simulador. **Volta:**
+multiplicar. **A IA:** nenhuma; reconhecedor do sistema, no aparelho. **Selo:**
+o áudio é do autor — não sai do aparelho, não entra em prompt, não aparece em
+superfície fora do app. **Prova:** 12 testes em `DitadoProprioTests` (o depósito
+acontece ANTES de a letra ser pedida, contado num diário de gravações; falha
+preserva o áudio; silêncio não é sucesso; tentar de novo recupera; o disco que
+recusa dá `semDeposito`, NUNCA `semMicrofone`, e volta pelo mesmo depósito;
+**dois ditados sobrepostos escrevem cada um na SUA nota**; a nota volta para
+quem a pediu; microfone negado não grava; o marcador é uma linha só em todos os
+corpos; o áudio está no cofre com a extensão que a nota procura; `traco://ditar`
+não é `Destino`), suíte 727/126; dois alvos sem aviso;
+`maestro/ditado-proprio.yaml` percorre os estados por id.
+**Fora (F3b+):** ouvir o áudio de dentro do Recordar, ditado que continua com
+o app fechado, transcrição em fila para os áudios que ficaram sem letra.
+
+## ADR 2026-09-06f — O aviso diz o que a fonte sustenta
+
+**A distância.** O `avisoWood` interrompia a escrita com "Afirmação sem prova
+não gruda" — sentença do app sobre o mundo, sem origem na tela e **falsa em
+relação à própria fonte**: Wood, Perunovic e Lee (2009) não mediram fixação nem
+memória; mediram humor logo depois de repetir uma frase dada, pior em quem
+estava com a autoestima baixa e um pouco melhor em quem estava com ela alta. A
+ADR 05x acabara de ensinar o app a dizer de onde vem cada método; os cinco
+avisos que interrompem o autor continuavam sem isso, e um deles alegava mais do
+que o estudo permite.
+
+**A decisão.** O aviso passa a ser informação e pergunta: "Um estudo de 2009
+mediu isto: repetir uma frase dessas fez quem estava com a autoestima baixa se
+sentir pior, e quem estava com ela alta, um pouco melhor. O que aconteceu que
+fez você escrever isso?" — o resultado nos dois sentidos, inclusive o
+favorável; nenhum diagnóstico de em qual grupo o autor está, porque o app não
+sabe; a pergunta do texto antigo preservada palavra por palavra, porque é a
+parte que pede o FATO. Nada bloqueia: o aviso continua cartão, não porta. A
+proveniência entra no formato da 05x (`Metodo.Proveniencia`, reutilizada):
+`AnaliseLocal.proveniencia(doAviso:)` devolve FONTE, FUNÇÃO e EVIDÊNCIA — esta
+com o limite junto do achado ("não mede escrever a própria frase, não mede
+efeito duradouro, e não diz nada sobre você"). O aviso do plano sem obstáculo
+aponta para a proveniência do WOOP no catálogo, não para uma segunda cópia que
+possa divergir dela. Aviso sem fonte devolve `nil`: os três que são regra do
+Traço, e não estudo, não ganham origem inventada. A regra fica travada por
+teste: nenhum aviso pode conter "não gruda", "comprovad", "cientificamente",
+"estudos mostram", "eficácia", "funciona" e afins.
+
+**Custo assumido:** o dado existe e a tela ainda não o mostra — a linha "De onde
+vem" no cartão de Aviso é a próxima volta, porque `CartaoAnaliseView` está
+aberta na volta 12. O aviso ficou de 79 para 214 caracteres num cartão que
+interrompe. O gatilho não mudou: a regex continua estreita
+(`eu sou (rico|um vencedor|incrível|o melhor|imparável)`) e a rota da IA
+(`afirmacaoVazia`) continua imprevisível — mexer nela antes de ter frases reais
+do autor troca um aviso que não dispara por um que dispara errado.
+**Volta:** multiplicar. **O que a IA sabe:** nada — o aviso é do algoritmo (ADR
+04r) e a proveniência não viaja no prompt. **Prova:** 5 testes novos em
+`AvisoSemAlegacaoTests`, provados contra o texto antigo (a guarda acusa
+`não gruda` e a ausência de "2009"/"autoestima" — 4 issues); build sem aviso;
+suíte integral 724 testes em 126 suítes, 0 falhas, no iPhone 17 Pro (teste 4)
+em 06/09/2026. **Fora:** a linha na tela do cartão (volta seguinte), a
+proveniência dos avisos que são regra do app, e o gatilho.
+
+## ADR 2026-09-06g — A lista de formas nasce do catálogo, em todas as portas
+
+**A distância.** Duas listas fechadas escritas à mão sobreviviam num app cujo
+catálogo tem 21 métodos (28 com a colagem da M3, 36 com a leva 2). A primeira,
+`@Generable enum GestoDeBordo` com dez casos mais `instrucoes` com dez
+definições, em `AnaliseDeBordo`: **morta desde a ADR 04l**, que passou o esquema
+e o prompt para `Catalogo.todos` — e viva o bastante para fazer três leitores
+(um deles o orquestrador desta rodada) concluírem que a análise no aparelho só
+conhecia dez formas. A segunda, `enum GestoEscolha: AppEnum` com NOVE casos, em
+`Intencoes.swift`: essa estava viva. É a lista que a Siri e os Atalhos oferecem
+ao autor no filtro "Só a forma" do corpus — 9 de 21 formas alcançáveis por voz
+hoje (32% das 28 depois da colagem), e nada falhava para avisar.
+
+**A decisão.** O enum morto e as instruções mortas SAEM: código morto que
+descreve um contrato falso é pior que código morto. Ficam `esquema()` e
+`instrucoesDoCatalogo`, que já nasciam de `Catalogo.todos`. O `AppEnum` dos
+Atalhos vira `FormaEntity: AppEntity` com `FormaQuery: EntityQuery` —
+`suggestedEntities()` devolve `Catalogo.todos`, então a Siri passa a oferecer o
+catálogo inteiro, inclusive o método que o autor escreveu na pasta dele, sem
+código. `AppEnum` exige `caseDisplayRepresentations` estático e por isso não
+podia nascer de arquivo; entidade com consulta pode, e essa é a razão da troca.
+Três testes travam o invariante: o esquema tem uma opção por método do catálogo
+mais `nenhum`; as instruções listam TODOS os ids, não só o primeiro que alguém
+conferiu; e os Atalhos oferecem exatamente `Catalogo.todos`, na mesma ordem.
+
+**O custo do catálogo inteiro no `@Generable`, medido, não suposto** (iPhone 17
+Pro de teste, Apple Intelligence disponível, 7 frases, esquema de 10 ids contra
+o de 21): **5,38 s contra 5,56 s no total — 0,77 s contra 0,79 s por chamada,
++3,3%**, dentro do ruído de uma amostra deste tamanho (a primeira chamada, fria,
+levou 2,15 s sozinha). Qualidade: com dez, 5 das 7 frases foram para a forma
+errada — e as cinco que convocavam método fora dos dez **não tinham como**
+acertar; com o catálogo, `argumento` e `steelman` passam a ser alcançáveis e a
+frase do Argumento chega no Argumento. **Não há custo proibitivo a pagar, e a
+lista curta nunca foi mais barata: era só mais surda.**
+
+**Custo assumido:** um atalho já montado com o `AppEnum` antigo perde o
+parâmetro (o app não foi publicado); a Siri e os Atalhos NÃO foram exercitados
+de fora — o build de simulador não tem team-identifier (D1 do EVOLUCAO), então a
+prova é de compilação e de teste, e a lista na tela dos Atalhos continua
+pendente de aparelho. A medição é de 7 frases num aparelho, não uma bancada.
+**Volta:** multiplicar. **O que a IA sabe:** as definições do catálogo, como já
+sabia. **Prova:** `Test run with 730 tests in 127 suites passed` no iPhone 17
+Pro (teste 4) em 06/09/2026, build sem aviso; números da medição acima.
+**Fora:** a lista de Atalhos vista na tela de um aparelho real; bancada de
+roteamento com mais frases.
+
+## ADR 2026-09-06h — A escrita pessoal fica do autor: não vira método nenhum
+
+**A distância.** O revisor da volta M3 mediu, com 58 frases dele e prova de
+tela: **22 desabafos chegavam VESTIDOS de método de exercício.** A causa era
+`AnaliseLocal.detectarGesto`, que pulava a Expressiva abaixo de 120 caracteres
+e promovia a primeiro-a-casar quem viesse depois dela no catálogo. Com a
+colagem, quem vem depois inclui dois métodos cuja regex é feita do vocabulário
+do arrependimento e do silêncio em conversa. "Perdi a paciência com ela hoje. Me
+arrependi e chorei." chegava como **EXAME DA NOITE**, perguntando "que hábito
+ruim você curou hoje? que defeito você conteve?" a quem tinha acabado de
+escrever que chorou (`ferramentas/orca/a3-antes-exame-da-noite.png`). E não é
+sugestão: a `Sessao` VESTE a nota sozinha no caminho automático, enquanto a
+Expressiva, quando ganha, só sugere — os dois caminhos não são simétricos, e o
+que rouba é o que veste. O defeito tem duas metades: 14 linhas curtas com
+palavra de sentimento, que o teto explica, e 8 desabafos LONGOS e FACTUAIS, que
+passam do teto e são roubados assim mesmo, porque o léxico de dez palavras da
+Expressiva não cobre o dia ruim contado sem adjetivo.
+
+**A decisão.** `AnaliseLocal.eEscritaPessoal` — uma guarda, não um método —
+decide antes do laço, e **nenhum método leva a nota, venha ele antes ou depois
+da Expressiva no catálogo**. A guarda é de CINCO famílias, não de uma lista de
+frases (o revisor da volta A-B mostrou o defeito de lista: `me odiando` pegava e
+`me odiei` não):
+
+1. **o estado, por RADICAL** — `senti|sinto`, `dói|doeu`, `chor…`, `trist…`,
+   `raiva`, `medo`, `pesa…`, `desmoron…`, `arrepend…`, `vergonh…`, `mago…`,
+   `remoend…`, `travei|eu travo`, `angusti…`, `ansios…`, `exaust…`, `vazio|a`,
+   `sozinh…`, `cansad…`, `desanimad…`, `humilhad…`, `culpad…`, `nó na garganta`.
+   O radical é o que faz a família não ser lista: pega a flexão que ninguém
+   escreveu ainda;
+2. **o juízo sobre si** — `me odi|culp|detest|despre`, `não sirvo|presto|valho`,
+   `sou o|um|uma problema|lixo|fracasso|idiota|péssimo`, `a culpa é minha`,
+   `estraguei`, `me sentindo um|uma`. Em qualquer tamanho: "eu sou o problema"
+   não fica menos pessoal em oitenta caracteres;
+3. **o funcionamento básico negado** — `não durmo|consigo dormir|como mais|rio|
+   aguento|tenho vontade|saio da cama|consigo mais`. É o desabafo que não usa
+   nenhuma palavra de sentimento e mesmo assim só fala de si;
+4. **o que eu fiz A ALGUÉM**, em qualquer tamanho — `fui injust|gross|duro
+   demais|ríspid`, `perdi a paciência|cabeça`, `tratei mal`, `briguei`,
+   `discuti com`, `gritei com`, `xinguei`, `explodi com`, `descontei com|no|na`.
+   O teto de 120 era a régua errada aqui: contar que se foi grosso com o irmão é
+   desabafo com noventa caracteres tanto quanto com quatrocentos;
+5. **o que eu DEIXEI de fazer** (`engoli`, `fiquei calad`, `deixei passar`, `não
+   devia ter`) — e este sim **só acima do teto de 120**: curta, "fiquei calada
+   quando perguntaram" é a nota que nomeia uma conversa, e o método que pergunta
+   serve; longa, é o dia sendo despejado.
+
+E o **rodapé do Destaque** (três linhas curtas sem regex nenhuma) obedece o
+mesmo cálculo: ele computava `pessoal` e nunca usava. "Briguei com ela. / Não
+pedi desculpa. / Dormi no sofá." não é uma lista para destacar.
+
+A guarda vive em CÓDIGO e não no `Metodos.json` por duas razões medidas: a pasta
+do autor reescreve o catálogo, e uma fronteira do produto não pode morar num
+arquivo editável; e alargar a Expressiva por DADO deixaria os dois métodos novos
+inalcançáveis (medido pelo implementador da M3-B com 287 sondas). A guarda não
+depende mais da POSIÇÃO no catálogo — a primeira versão só valia para a cauda, e
+o revisor da volta A-B mediu **15 de 20 desabafos novos ainda vestidos** pelos
+cinco métodos que vêm ANTES da Expressiva (`woop`, `seEntao`, `spec`,
+`notaPermanente`) e pelo rodapé do Destaque. O teto de 120 continua sobre a
+Expressiva: nota curta não vira desabafo, e as 14 curtas voltam ao SILÊNCIO que
+tinham antes da colagem, não a uma sugestão nova. **O título honesto é este:**
+8 dos 22 desabafos protegidos não vão para a Expressiva, vão para o silêncio —
+o que a guarda garante é que a escrita pessoal fica do autor, não que ela vira
+Expressiva.
+
+**Custo assumido, medido com as 287 sondas do M3-B (remedido na volta A-B, com o
+`Metodos.json` das 28 formas da M3, DEPOIS do conserto):** a guarda fecha **14 de
+287 ramos (4,9%) para TEXTO LONGO** — 3 da Coluna da esquerda (`engoli`, `fiquei
+calado`, `deixei passar`) e **11** do Exame da noite (`me arrependi`, `não devia
+ter feito|reagido|agido|tratado`, `fui injusto|grosso|duro demais|ríspido`,
+`perdi a paciência|cabeça`). Eram 14, não 15: `hoje eu tratei` continua chegando
+ao Exame, porque a sonda é "tratei" e não "tratei mal". **Nenhum método fica sem porta:** a Coluna continua sendo
+chamada por "não disse", "não consegui dizer", "devia ter dito", "queria ter
+dito", "a conversa com", "na reunião com"; o Exame por "exame da noite", "passei
+o dia em revista", "hoje eu fiz|reagi|tratei" — provado na tela com o Exame
+chegando normalmente depois da guarda
+(`ferramentas/orca/a3-o-exame-continua-alcancavel.png`). Duas frases legítimas
+do revisor mudam de dono e vão para o silêncio: "Tenho medo de estar trabalhando
+na coisa errada há dois anos" e "sinto que o esforço não está indo pro lugar
+certo" — as duas com palavra de sentimento, as duas que iam para a pergunta de
+Hamming. **É o lado certo do erro:** silêncio devolve a nota ao autor; vestir
+carimba quatro campos de exercício sobre o que ele acabou de sentir. E é dito
+aqui porque o `todoRamoDeRegexAlcancaOSeuMetodo` da volta M3 vai ficar VERMELHO
+quando esta guarda entrar: os 14 ramos precisam entrar no `conhecidos` dele, com
+esta ADR como motivo. **As catorze entradas, medidas e literais:**
+`colunaEsquerda|deixei passar|silencio`, `colunaEsquerda|engoli|silencio`,
+`colunaEsquerda|fiquei calado|silencio`, `exameDaNoite|fui duro demais|silencio`,
+`exameDaNoite|fui grosso|silencio`, `exameDaNoite|fui injusto|silencio`,
+`exameDaNoite|fui ríspido|silencio`, `exameDaNoite|me arrependi|silencio`,
+`exameDaNoite|não devia ter agido|silencio`,
+`exameDaNoite|não devia ter feito|silencio`,
+`exameDaNoite|não devia ter reagido|silencio`,
+`exameDaNoite|não devia ter tratado|silencio`,
+`exameDaNoite|perdi a cabeça|silencio`, `exameDaNoite|perdi a paciência|silencio`.
+
+**A regra escrita, agora em QUATRO linhas, nesta ordem** (`Sessao.escolher`):
+
+1. **aviso local vence sempre** — o aviso é do algoritmo (ADR 04r);
+2. **escrita pessoal reconhecida pelo algoritmo CALA o modelo** (nova);
+3. **silêncio do modelo devolve a palavra ao algoritmo** (ADR 04c);
+4. **forma do modelo manda.**
+
+A linha 2 é a mais forte de todas, e ela fecha um buraco que a versão anterior
+desta ADR chamou de "pode contradizer" quando o certo era "vence sempre": a
+guarda devolvia `.silencio`, e `.silencio` tem precedência ZERO — com conta Grok
+ou com Apple Intelligence ligada bastava o modelo devolver uma forma para a nota
+protegida ser VESTIDA (e no caminho automático `aplicar` veste, não sugere). Ou
+seja: a proteção era nula exatamente na configuração padrão de um iPhone
+moderno, o caso que ela existe para impedir. O modelo recebe
+`instrucoesDoCatalogo`, que descreve o Exame da noite inteiro; "Me arrependi e
+chorei" é a frase que ele foi ensinado a classificar. `Sessao` calcula
+`AnaliseLocal.escritaPessoal(texto:campos:)` do texto cru, com o mobiliário
+fora, e passa o resultado para `escolher`.
+
+**E foi provado NA TELA, com o modelo ligado.** O simulador não tem conta xAI
+nem Apple Intelligence — foi por isso que o buraco nasceu invisível. Um modelo
+de mentira, só em DEBUG e ligado pelo AMBIENTE do simulador
+(`TRACO_MODELO_FALSO`, no mesmo canal do `TRACO_SEM_MODELO` da 03p), torna o
+degrau de cima observável. `maestro/escrita-pessoal.sh` roda dois fluxos, e o
+**primeiro é o controle**: com `TRACO_MODELO_FALSO=woop`, "Amanhã eu arrumo a
+estante da sala" — que regex nenhuma alcança — chega VESTIDA de WOOP, com os
+três campos abertos (`ferramentas/orca/ab-modelo-veste.png`). Sem esse controle
+o segundo fluxo não mede nada, porque "nenhum cartão" também é o que se vê com o
+modelo desligado. No segundo, com o MESMO modelo ligado, "Perdi a paciência com
+ela hoje. Me arrependi e chorei." fica na página sem cartão nenhum
+(`ferramentas/orca/ab-cala-o-modelo.png`).
+
+**Volta:** multiplicar. **O que a IA sabe:** nada de novo. **Prova:**
+`EscritaPessoalTests` com os SETE métodos da M3 carregados pela pasta do autor
+(o `Metodos.json` é da M3 e não foi tocado) e **três réguas somadas, 57 frases**:
+as 22 do revisor da M3, as 15 que o revisor da volta A-B mediu chegando vestidas
+pelos métodos ANTES da Expressiva, e **20 minhas, escritas depois do conserto,
+uma por PORTA do catálogo** — `cadaUmaDasMinhasBateNumaPortaDiferente` cobra que
+cada uma bata mesmo na regex do método que ela declara, senão a régua não mede
+nada. Sem a guarda o mesmo arquivo acusa as 22 uma a uma; a régua é a do M3-B
+(escrita pessoal não vira `.gesto` NENHUM, não só os dois novos). Os 14 ramos
+foram REMEDIDOS depois do conserto, com o `Metodos.json` das 28 formas da M3 e o
+expansor `Sondas` da M3: `sondas totais: 287`, `ramos novos: 14`, a lista acima
+palavra por palavra. Tela em `a3-antes-exame-da-noite.png`,
+`a3-depois-a-nota-fica-do-autor.png` e `a3-o-exame-continua-alcancavel.png`, os
+três no iPhone 17 Pro (teste 4) com os sete métodos semeados e
+`TRACO_SEM_MODELO=1`. **Fora:** a assimetria vestir/sugerir, e o `conhecidos` da
+M3 (a lista está aqui; quem mesclar a M3 a cola).
+
+**Junto nesta ADR, a voz do app sobre si mesmo** (auditoria da trilha Métodos:
+as doenças da voz se concentram onde o app fala de si). Três trocas de palavra:
+o Perfil dizia "O que o Traço aprendeu de você" em cima de uma CONTAGEM ("12
+sinais desde 3 de setembro") — passa a "O que o Traço registrou — contagem, não
+conclusão"; a Lente chamava de "Muletas" uma lista que inclui "acho que", "um
+pouco" e "na verdade", que são os hedges que o próprio catálogo ENSINA a usar (a
+Inversão diz "costuma ser") — passa a "Palavras de apoio", com a nota
+"contadas por palavra inteira", e o mesmo rótulo no apontamento de versão
+(`RotuloApontar.muleta`, que a auditoria não viu e é a mesma palavra); e o aviso
+do plano sem obstáculo dizia "o que, em você, COSTUMA atrapalhar isto",
+atribuindo ao autor um hábito que o app não observou — passa a "pode".

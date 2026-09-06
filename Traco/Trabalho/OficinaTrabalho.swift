@@ -11,6 +11,11 @@ nonisolated struct ProducaoTrabalho: Sendable {
     var pratica: DocumentoTrabalho.Pratica?
 }
 
+/// Por que o último commit recusou. `guardar()` tem duas saídas falsas e elas
+/// pedem coisas diferentes do autor: o disco pode aceitar numa nova tentativa;
+/// a base divergente não — só reabrir o trabalho resolve.
+nonisolated enum RecusaDoCommit: Equatable, Sendable { case nenhuma, disco, baseDivergente }
+
 /// Uma instância acompanha o trabalho aberto. Respostas aplicam somente ao
 /// pedido vigente; o agregado pode receber evidências enquanto a IA prepara.
 @Observable
@@ -26,6 +31,14 @@ final class OficinaTrabalho {
     /// ADR 05n: o iPhone está com os avisos do Traço desligados? A folha
     /// pergunta antes de prometer que alguma coisa vai tocar.
     private(set) var permissaoNegada = false
+    /// ADR 06a: o que a tela de intercâmbio tem em mãos agora — seletor aberto,
+    /// cópia preparada ou arquivo em revisão. A tela escreve; o selo recolhe.
+    var intercambioAberto: IntercambioTrabalho.Material = .nenhum
+    /// O que o selo recolheu. A tela protegida diz isto e depois cala.
+    private(set) var intercambioRecolhido: IntercambioTrabalho.Material = .nenhum
+    /// ADR 06a: qual das duas recusas de `guardar()` foi a última. A tela lê
+    /// isto para não oferecer uma nova tentativa que não pode dar certo.
+    private(set) var recusaDoCommit: RecusaDoCommit = .nenhuma
     @ObservationIgnored private var avisosArmados: [UUID: DocumentoTrabalho.Acao]
     @ObservationIgnored var armarAviso: (DocumentoTrabalho.Acao, UUID) async -> ResultadoDoAviso = {
         await Revisoes.agendarAcao($0, trabalho: $1)
@@ -89,6 +102,7 @@ final class OficinaTrabalho {
         guard verificarAcesso() else { return false }
         guard trabalho.conteudoJSON == basePersistida else {
             salvo = false
+            recusaDoCommit = .baseDivergente
             erro = "Este trabalho mudou em outra abertura. Suas alterações continuam aqui; reabra a versão atual antes de substituir conteúdo."
             return false
         }
@@ -100,6 +114,7 @@ final class OficinaTrabalho {
             basePersistida = trabalho.conteudoJSON
             salvo = true
             erro = nil
+            recusaDoCommit = .nenhuma
             sincronizarAvisos()
             return true
         } catch {
@@ -110,6 +125,7 @@ final class OficinaTrabalho {
             trabalho.atualizadoEm = anterior.2
             context.processPendingChanges()
             salvo = false
+            recusaDoCommit = .disco
             erro = "Não consegui guardar. Suas alterações continuam aqui; tente guardar novamente."
             return false
         }
@@ -310,11 +326,17 @@ final class OficinaTrabalho {
             erro = acesso.mensagem
             // ADR 05n: o selo da origem cala o alarme que diria o texto da ação
             if estavaPermitido { Revisoes.cancelarAcoes(doTrabalho: trabalho.uuid) }
+            // ADR 06a: e recolhe o intercâmbio em curso, dizendo o que recolheu.
+            if intercambioAberto != .nenhum {
+                intercambioRecolhido = intercambioAberto
+                intercambioAberto = .nenhum
+            }
             return false
         }
         if !estavaPermitido {
             erro = erroAntesDaRestricao
             erroAntesDaRestricao = nil
+            intercambioRecolhido = .nenhum
         }
         return true
     }

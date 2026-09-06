@@ -76,7 +76,7 @@ targets:
         INFOPLIST_KEY_NSPhotoLibraryUsageDescription: "Traço guarda nesta nota a foto que você escolheu."
         INFOPLIST_KEY_NSMicrophoneUsageDescription: "Traço guarda nesta nota o áudio que você gravou."
         INFOPLIST_KEY_NSFaceIDUsageDescription: "Reabrir uma escrita selada pede o seu rosto — foi você que pediu para ela ficar fechada."
-        INFOPLIST_KEY_NSSpeechRecognitionUsageDescription: "Ditar o compromisso. O reconhecimento acontece no aparelho."
+        INFOPLIST_KEY_NSSpeechRecognitionUsageDescription: "Transformar em letra o que você ditou. O reconhecimento acontece no aparelho — o áudio não sai daqui."
         INFOPLIST_KEY_NSCalendarsUsageDescription: "Ler os seus calendários para já sugerir o próximo compromisso. O Traço só lê — nunca escreve na sua agenda."
         INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription: "Ler os seus calendários para já sugerir o próximo compromisso. O Traço só lê — nunca escreve na sua agenda."
   TracoTests:

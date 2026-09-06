@@ -99,6 +99,58 @@ struct AnaliseLocalTests {
     }
 }
 
+/// ADR 06f: o aviso interrompe o autor com forma, informação e pergunta —
+/// nunca com uma sentença sobre o mundo que a fonte não sustenta.
+@Suite("O aviso não alega eficácia")
+struct AvisoSemAlegacaoTests {
+    /// A frase de 2009 ("Afirmação sem prova NÃO GRUDA") é o caso que motivou a
+    /// regra: o estudo mede humor, não fixação.
+    static let proibidas = [
+        "não gruda", "nao gruda", "gruda", "comprovad", "cientificamente",
+        "estudos mostram", "está provado", "esta provado", "prova que",
+        "funciona", "não funciona", "garante", "eficaz", "eficácia",
+        "está errado", "esta errado", "não adianta", "nao adianta",
+    ]
+
+    @Test func nenhumAvisoAlegaEficacia() {
+        for frase in Set(AnaliseLocal.avisos.values).union([AnaliseLocal.perguntaWOOP]) {
+            let lower = frase.lowercased()
+            for palavra in Self.proibidas {
+                #expect(!lower.contains(palavra), "\(frase) — contém \"\(palavra)\"")
+            }
+        }
+    }
+
+    @Test func oAvisoDaAfirmacaoDizOQueOEstudoMediu() {
+        let a = AnaliseLocal.avisoWood
+        #expect(a.contains("2009"))
+        #expect(a.contains("autoestima"))
+        // a pergunta é a melhor parte do aviso, e ela fica
+        #expect(a.hasSuffix("O que aconteceu que fez você escrever isso?"))
+    }
+
+    @Test func oAvisoTemProveniencia() throws {
+        let p = try #require(AnaliseLocal.proveniencia(doAviso: AnaliseLocal.avisoWood))
+        #expect(p.fonte.contains("Wood") && p.fonte.contains("2009"))
+        #expect(p.funcao == .evidencia)
+        #expect(p.evidencia.contains("humor"))
+        // o limite do estudo é dito junto com o achado
+        #expect(p.evidencia.contains("não diz nada sobre você"))
+        #expect(p.linhas.map(\.rotulo) == ["FONTE", "FUNÇÃO", "EVIDÊNCIA"])
+    }
+
+    @Test func oAvisoDoPlanoUsaAProvenienciaDoCatalogo() {
+        #expect(AnaliseLocal.proveniencia(doAviso: AnaliseLocal.avisoOettingen)
+                == Catalogo.metodo("woop")?.proveniencia)
+    }
+
+    @Test func avisoSemFonteNaoInventaUma() {
+        #expect(AnaliseLocal.proveniencia(doAviso: AnaliseLocal.avisoFrasePronta) == nil)
+        #expect(AnaliseLocal.proveniencia(doAviso: AnaliseLocal.avisoDoisGestos) == nil)
+        #expect(AnaliseLocal.proveniencia(doAviso: AnaliseLocal.avisoOuvinte) == nil)
+    }
+}
+
 struct PadroesLocalTests {
     @Test func vazioNaoInventa() {
         #expect(PadroesLocal.perguntas(vozes: []).isEmpty)

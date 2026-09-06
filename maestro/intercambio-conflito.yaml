@@ -1,0 +1,117 @@
+# ADR 2026-09-06a — volta 11-B, parte 1 de 2. RODE POR `maestro/intercambio-conflito.sh`.
+#
+# Prepara as DUAS pontas do conflito: escreve a versão 1, exporta esse arquivo
+# para Arquivos e depois escreve a versão 2 AQUI. Falta a outra ponta — o
+# arquivo editado fora —, e é o .sh irmão que a faz: ele reescreve o corpo do
+# .md no disco do simulador (o envelope da linha 1 fica intacto) e chama a
+# parte 2, `maestro/partes/intercambio-conflito-volta.yaml`. Nenhuma mão no
+# meio: o "editor externo" é o próprio .sh.
+#
+# Um retorno INTOCADO nunca é conflito — o corpo é idêntico à versão de onde
+# saiu e o Traço diz "já está guardado" (é o que a parte 2 confere no fim).
+# O seletor de Arquivos roda fora do processo: maestro não vê "Salvar" nem o
+# ícone do arquivo por texto, então esses dois toques são por ponto.
+# Capturas de prova: xcrun simctl io booted screenshot (a do maestro fotografa
+# build velho).
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+# o alerta de avisos do iOS pode cobrir a primeira tela depois do clearState
+- runFlow:
+    when:
+      visible: "Não Permitir"
+    commands:
+      - tapOn: "Não Permitir"
+      - waitForAnimationToEnd: {timeout: 1000}
+- openLink: traco://notas
+- runFlow:
+    when:
+      visible: "Abrir"
+    commands:
+      - tapOn: "Abrir"
+      - waitForAnimationToEnd: {timeout: 1500}
+- extendedWaitUntil:
+    visible: {id: "abrir-trabalhos"}
+    timeout: 15000
+- tapOn: {id: "abrir-trabalhos"}
+- extendedWaitUntil:
+    visible: {id: "trabalho-nova-intencao"}
+    timeout: 15000
+- tapOn: {id: "trabalho-nova-intencao"}
+- inputText: "Escrever o convite do encontro"
+- waitForAnimationToEnd: {timeout: 1000}
+- tapOn: {id: "trabalho-criar"}
+- extendedWaitUntil:
+    visible: "Escrever minha própria versão"
+    timeout: 15000
+- tapOn: "Escrever minha própria versão"
+- waitForAnimationToEnd: {timeout: 1500}
+- tapOn: "Escreva aqui"
+- inputText: "Versao 1 - a que sai no arquivo"
+# `hideKeyboard` não fecha este teclado; o arrasto fecha (a folha usa
+# `scrollDismissesKeyboard(.interactively)`). E é preciso fechar: com ele
+# aberto a rolagem chega ao fim antes do botão sair de baixo da barra.
+- swipe:
+    start: 50%, 30%
+    end: 50%, 88%
+    duration: 800
+- waitForAnimationToEnd: {timeout: 1500}
+# Rolar até a ÂNCORA DE BAIXO, não até o botão: parar no próprio botão o deixa
+# encostado no topo, sob a barra de navegação, e o toque cai nela — foi assim
+# que a jornada desandou na revisão do G3. Centrando o painel seguinte, o botão
+# fica logo acima do meio da tela.
+- scrollUntilVisible:
+    element: "Editar com outras ferramentas"
+    direction: DOWN
+    centerElement: true
+    timeout: 10000
+- tapOn: "Guardar minha versão"
+- waitForAnimationToEnd: {timeout: 2500}
+# sem versão guardada não há o que exportar: pare aqui, não três telas adiante
+- assertVisible: "Versão 1"
+- tapOn: "Editar com outras ferramentas"
+- waitForAnimationToEnd: {timeout: 1500}
+- takeScreenshot: /tmp/traco-verify/v11-painel-normal
+- tapOn: {id: "trabalho-exportar-md"}
+# a folha do exportador é outro processo: sem esta espera longa o toque em
+# "Salvar" cai na tela de trás e a jornada segue sem arquivo nenhum
+- waitForAnimationToEnd: {timeout: 6000}
+- tapOn:
+    point: "85%,11%"
+- waitForAnimationToEnd: {timeout: 5000}
+# a prova de que o arquivo saiu: sem ela a parte 2 falharia sem dizer por quê
+# (a linha nasce abaixo da dobra: rolar até ela, não só afirmar — e o texto
+# tem de vir INTEIRO, que é como o maestro casa)
+- scrollUntilVisible:
+    element: "Arquivo exportado. Esta cópia externa não será alterada se você proteger o trabalho depois."
+    direction: DOWN
+    centerElement: true
+    timeout: 10000
+# a versão local avança enquanto o arquivo está fora: a primeira das duas pontas
+- scrollUntilVisible:
+    element: "Editar esta versão"
+    direction: UP
+    centerElement: true
+    timeout: 15000
+- tapOn: "Editar esta versão"
+- waitForAnimationToEnd: {timeout: 1800}
+- tapOn:
+    text: "Versao 1 - a que sai no arquivo"
+    index: 1
+- waitForAnimationToEnd: {timeout: 1500}
+- eraseText: 60
+- inputText: "Versao 2 no Traco"
+- swipe:
+    start: 50%, 30%
+    end: 50%, 88%
+    duration: 800
+- waitForAnimationToEnd: {timeout: 1500}
+- scrollUntilVisible:
+    element: "Guardar como nova versão"
+    direction: DOWN
+    centerElement: true
+    timeout: 10000
+- tapOn: "Guardar como nova versão"
+- waitForAnimationToEnd: {timeout: 2500}
+- assertVisible: "Versão 2"

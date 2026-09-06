@@ -450,3 +450,160 @@ Os itens 2 e 3 são documento. O item 1 é o que separa a volta do merge.
 | `v12reg3-ax5-menu.png` | **M3 fechado**: as quatro ações do menu desenhadas, sem rolagem |
 | `v12reg3-aviso-aresta.png` | **M2 fechado**: o aviso com o fio de volta (perfil medido na coluna x=1120) |
 | `v12reg3-notas-fio.png` | o alcance declarado do fio nas Notas: refinamento, não quebra |
+
+---
+
+## Re-G3, segunda passada (topo `6e80ace`) — fecho
+
+Mesmo revisor, 06/09/2026. Julguei os três itens que eu tinha derrubado e a
+pergunta que o orquestrador acrescentou: **a classe está fechada?** Simulador
+C2416CBC, restaurado ao fim. Todas as minhas provas de tela vêm de
+`simctl io` preso ao meu UDID — nunca de `takeScreenshot` do maestro, que não
+isola com sete simuladores ligados. Não editei nem commitei código.
+
+**Veredito: INTEGRAR — segue para o G4**, com uma condição de contrato de duas
+linhas (abaixo). Os três itens estão fechados e provados por mim. A classe do A1
+**não está fechada**: achei a terceira ocorrência, filmei, e ela é dívida do
+RUMO, não desta volta.
+
+### Instrumento
+
+| declaração | conferência |
+|---|---|
+| suíte 718/125 verde | **reproduzida**: `✔ Test run with 718 tests in 125 suites passed after 8.694 seconds.` |
+| build sem aviso | confirmado: **zero** avisos no log |
+| Swift do app +19 −10, 13 de comentário, código −4 | confirmado ao número: 19 adicionadas, 13 casam `^\s*(//\|///)`; das 10 removidas, **nenhuma** é comentário → código **+6 −10 = −4** |
+| a volta fecha em +62 | confirmado: −55 (V12) + 108 (V12-B) + 9 (V12-C) = **+62** |
+
+### Item de código — a causa era o ramo, e o conserto vale
+
+Confirmado na minha filmagem, nos dois modos. Na chegada do cartão
+(`v12reg3b-vestir-limpo.png`, quadros nativos a 30 fps, sem RM): "lendo…" vira
+cartão por **corte**, o pé fica em todos os quadros, nada dissolve sobre o texto
+do cartão — e o **teclado não desce**, que é o ganho a mais que ele prometeu e
+que é lei do dono (§3). No mesmo ponto, em `69bec69`, eu tinha lido "Abrir os
+campos" desenhado sobre o kicker "WOOP". Está morto.
+
+A página vazia não regrediu de comportamento, que era o risco real de embrulhar
+o editor num `ScrollView`: com o teclado de pé, arrastar o papel para baixo
+**não** recolhe o teclado nem rola — 486 px de diferença em 2,9 M, e são o
+caret piscando. O `minHeight: geo.size.height` faz o conteúdo caber exato, então
+o ScrollView fica inerte. Nota de higiene, não achado: o `v12c-vazia.png`
+commitado está reamostrado para 460×1000, então **a prova de "0 px" não é
+re-derivável do arquivo no repositório** — só dos originais dele.
+
+### A pergunta do orquestrador: a classe NÃO está fechada
+
+Procurei os outros `_ConditionalContent` do caminho e achei a terceira
+ocorrência **no mesmo arquivo, um nível acima**:
+
+```swift
+// CadernoView.paginaCaderno — a mesma forma de dois ramos que a V12-C acabou
+// de matar dentro de paginaUna
+if let una = Caderno.paginaUna(texto) ?? (unaCrua && foco.wrappedValue && …) {
+    paginaUna(una)
+} else {
+    paginaFatias
+}
+```
+
+Ele troca de ramo quando o texto deixa de ser "uma página" **e quando o foco
+muda** (`unaCrua && foco.wrappedValue`). Gatilho trivial: escrever um título e
+apertar Enter — `paginaUna` devolve `nil` para título com `\n`.
+
+Filmei, **com Reduzir Movimento LIGADO**, `# Plano do dia` + Enter + corpo:
+
+- `v12reg3b-ramo-pe-some.png` — dezesseis quadros nativos consecutivos a 30 fps.
+  Nos quadros 2140–2145 a régua e a barra inteira ("Trabalhar nisto · Analisar ·
+  Recordar · Anexar · Lente") **somem do papel** e voltam noutra altura. Medido,
+  não olhado: bandas de texto na faixa 30–62 % da tela = 6, 6, 6, 6, 6, **0, 0,
+  0, 0, 0, 0**, 3, 4, 4, 5, 5.
+- `v12reg3b-ramo-duas-geometrias.png` — no meio da troca o encaixe é desenhado
+  em **duas geometrias ao mesmo tempo**: régua e "Trabalhar nisto" legíveis em
+  duas posições no mesmo quadro. É a assinatura exata do A1.
+
+Ou seja: o defeito que dá nome à volta — **o pé some sob o dedo** — ainda
+acontece, por ~150 ms, quando o autor escreve um título e desce para o corpo.
+
+Achei também uma quarta, mais barata: a **chegada** do pé. `rodape:
+!paginaVazia || podeRecordar ? AnyView(bottomBar) : nil` entra sem `.identity`,
+e nos primeiros caracteres "Trabalhar nisto" fica legível **em cima** de
+"Numerada"/"Tarefa" da régua, com e sem RM
+(`v12reg3b-pe-chega-sobre-regua.png`, RM ligado).
+
+**Por que isso não derruba a volta.** Nenhuma das duas é regressão desta
+correção nem das anteriores: `paginaCaderno` já tinha dois ramos antes de
+`0d0d007`, e o pé sempre apareceu ao primeiro caractere. Estão fora do G0 desta
+volta, e uma quarta rodada sobre a divisão una/fatias — que é questão de
+estrutura, não de acabamento — custa mais ao dono do que entregar agora o que já
+está provado. O autor bissectou por experimento duas vezes e acertou a causa das
+duas; isso é o oposto de conserto de sintoma.
+
+**Por que precisa de duas linhas antes do merge.** A ADR hoje diz "**Três
+coisas** fazem isso ser verdade e não intenção" e o parágrafo da V12-C fecha
+como se a classe estivesse resolvida. Está resolvida **nos dois lugares
+tocados**, não na classe. Deixar isso implícito é exatamente o que a dimensão
+Estado honesto proíbe.
+
+### Os dois de texto
+
+**`EVOLUCAO.md` — corrigido nos três pontos, e bem.** "em AX o pé tem
+'Trabalhar nisto' como BOTÃO e as outras quatro no menu" (com o motivo e o
+achado M3 ao lado); "suíte 718/0 em 125 suítes"; e o balanço deixou de dizer
+"líquido-negativo" para dizer **"+62 linhas líquidas … portanto NÃO cumpre a
+regra de shortstat líquido-negativo da 05v — a exceção foi aceita pelo
+orquestrador e o motivo está declarado"**. Nomear a regra que se quebra é melhor
+do que eu pedi.
+
+**Os dois relatos — requalificados no lugar, não apagados.** `relatorio-v12`:
+a curva-zero e a autoavaliação passaram a descrever o pé de duas linhas, cada
+uma com a nota de que a frase anterior era o desenho revertido pela V12-B.
+`relatorio-v12b`: a frase "cinco ações a um toque" está explicitamente derrubada
+("em AX só 'Trabalhar nisto' está a um toque; as outras quatro seguem a dois"),
+com a observação de que a ADR nunca repetiu a frase. Li os três documentos
+contra o branch de hoje e não achei outra afirmação vencida.
+
+### Notas revistas
+
+| dimensão | Re-G3 | agora | por quê |
+|---|---|---|---|
+| Movimento | 8 | **9** | a chegada do cartão corta nos dois modos e o teclado não desce mais (`v12reg3b-vestir-limpo.png`); a causa foi achada, não mascarada. Nota **condicionada** à declaração abaixo: com a classe aberta e não declarada, cai para 8 |
+| Contrato | 8 | **9** | EVOLUCAO corrigido nos três pontos, e o +62 nomeia a regra da 05v que quebra em vez de esconder |
+| Relato | 8 | **9** | as três frases do desenho revertido requalificadas no lugar, com o motivo; nenhuma outra afirmação vencida nos três documentos |
+| Correção | 9 | **9** | 718/0 reproduzida, zero avisos, código líquido −4 |
+| Design | 9 | **9** | nada tocado desde a V12-B; a página vazia não regrediu de comportamento |
+| Acessibilidade | 9 | **9** | nada tocado desde a V12-B |
+| Estado honesto | 9 | **9** | condicionada à mesma declaração: a superfície da falha está certa, mas o contrato não pode dizer fechado o que está aberto |
+
+Visão 10, Componentes 10, Privacidade 10, Complexidade 10, Jornada real 9,
+Simplicidade 9, Performance n/a e Fora do app n/a seguem como estavam.
+
+### Condição de contrato (duas linhas, para o G5)
+
+1. **ADR 05y** — o parágrafo da V12-C fecha dizendo que a classe está tratada
+   nos dois lugares tocados e **continua aberta em `CadernoView.paginaCaderno`**
+   (troca de ramo una/fatias, dispara por título+Enter e por mudança de foco: a
+   régua e a barra somem por ~150 ms e o encaixe é desenhado em duas geometrias,
+   com e sem Reduzir Movimento — `v12reg3b-ramo-pe-some.png`), e no `rodape`
+   opcional da `PaginaView`.
+2. **RUMO** — uma volta nomeada para essa dívida, com o gatilho e as capturas
+   acima. É a mesma correção de sempre: a diferença entre os ramos vira valor.
+
+Sem essas duas linhas o merge afirma uma coisa que a tela não faz; com elas, a
+volta entrega o que prometeu e diz onde ainda não chegou. **Passa ao G4.**
+
+### Nota de instrumento
+
+O `com-trava.sh` **deste worktree ainda é o antigo** (`until mkdir; trap rmdir`):
+não retoma trava presa nem escreve o dono dentro dela. A melhoria que o
+orquestrador descreveu não está neste branch — vale conferir antes do G5, para
+que a volta não leve para main a versão que travou seis workers.
+
+### Capturas desta passada
+
+| arquivo | o que mostra |
+|---|---|
+| `v12reg3b-vestir-limpo.png` | **item de código fechado**: "lendo…" → cartão por corte, pé em todos os quadros, teclado de pé |
+| `v12reg3b-ramo-pe-some.png` | **a classe aberta**: 16 quadros nativos, RM ligado — a régua e a barra somem por ~150 ms na troca de ramo una/fatias |
+| `v12reg3b-ramo-duas-geometrias.png` | o encaixe desenhado em duas geometrias no mesmo quadro: régua e "Trabalhar nisto" em duas posições |
+| `v12reg3b-pe-chega-sobre-regua.png` | a quarta ocorrência, barata: "Trabalhar nisto" legível sobre "Numerada"/"Tarefa" na chegada do pé, RM ligado |
