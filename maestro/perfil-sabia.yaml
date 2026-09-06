@@ -17,7 +17,7 @@ appId: app.traco
     timeout: 25000
 - assertVisible: "A sábia conhece você"
 # ADR 06h (volta A4): o Perfil diz contagem, não conclusão
-- assertVisible: "O que o Traço registrou"
+- assertVisible: "O que o Traço registrou — contagem, não conclusão"
 - assertVisible: "Esquecer tudo"
 - takeScreenshot: /tmp/traco-verify/ciclo/07-perfil-sabia
 # centrado: no pé da tela a linha fica atrás da barra, e o toque cai na barra
