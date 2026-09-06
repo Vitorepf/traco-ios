@@ -43,6 +43,7 @@ struct PerfilView: View {
     @State private var mostrarMetodos = false
     /// ADR 05x: o método cuja proveniência está aberta na lista. Um por vez.
     @State private var provenienciaAberta: String?
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.modelContext) private var context
     @Query(sort: \Nota.criadaEm, order: .reverse) private var notas: [Nota]
 
@@ -273,10 +274,15 @@ struct PerfilView: View {
                                 LinhasDeProveniencia(m, identificador: "proveniencia-\(m.id)")
                                     .padding(.top, 8)
                                     .padding(.bottom, 6)
+                                    .transition(Tema.transicao(.opacity, reduzido: reduceMotion))
                             }
                         }
                     }
                 }
+                // A lei da casa (ADR 05v), como na Lente. Aqui a animação mora na
+                // folha e não no toque: `withAnimation` do PerfilView não atravessa
+                // a fronteira da apresentação do `.sheet` — medido, 1 quadro.
+                .animation(Tema.animacao(.easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion), value: provenienciaAberta)
                 .padding(.horizontal, Tema.margem)
                 .padding(.bottom, 24)
             }

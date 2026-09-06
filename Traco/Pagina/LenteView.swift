@@ -85,8 +85,8 @@ struct LenteView: View {
                                         .foregroundStyle(Tema.tinta)
                                     Spacer()
                                     Image(systemName: "chevron.down")
-                                        .font(.footnote.weight(.semibold))
-                                        .foregroundStyle(Tema.tintaFraca)
+                                        .font(.caption2.weight(.semibold))
+                                        .foregroundStyle(Tema.tintaSuave)
                                         .rotationEffect(.degrees(deOndeVem ? 180 : 0))
                                         .accessibilityHidden(true)
                                 }

@@ -6,7 +6,7 @@ import SwiftUI
 /// a lacuna também).
 struct LinhasDeProveniencia: View {
     let metodo: Metodo
-    var identificador = "proveniencia"
+    let identificador: String
 
     init(_ metodo: Metodo, identificador: String = "proveniencia") {
         self.metodo = metodo

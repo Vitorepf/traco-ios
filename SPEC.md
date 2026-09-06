@@ -2795,7 +2795,13 @@ função desconhecida vira "não informada" sem derrubar o método. A Lente abre
 com a seção da forma da nota e a linha "De onde vem", recolhida; um toque
 mostra as cinco linhas. A lista de métodos do Perfil traz a mesma proveniência
 por método: a linha do método é o toque (alvo 44 no toque, não numa linha a
-mais; seta que gira), um aberto por vez; método do autor diz "a que você
+mais; seta que gira), um aberto por vez; abrir e fechar nas duas telas passam
+pela lei única da ADR 05v — `Tema.animacao(.easeOut(duration: .media), reduzido:)`
+e `Tema.transicao(.opacity, reduzido:)` no bloco. Na Lente a lei entra por
+`withAnimation` no toque; no Perfil, por `.animation(_:value:)` na folha, porque
+`withAnimation` disparado na tela que apresenta não atravessa a fronteira do
+`.sheet` (medido: 1 quadro contra 8); a seta é a mesma nas duas telas
+(`caption2` + `tintaSuave`); método do autor diz "a que você
 escreveu" ou "não informada". As cinco linhas são um componente só,
 `LinhasDeProveniencia` (Traco/Componentes), nas duas telas. Nota cujo método
 saiu da pasta mostra na Lente "o método X saiu da sua pasta; os campos
@@ -2816,6 +2822,9 @@ permissão do simulador, trilha F2) no iPhone 17 Pro Max de teste em 06/09/2026
 sobre main 0d0d007; G3 em `ferramentas/orca/revisao-v16-metodos.md` (INTEGRAR,
 três reparos de texto feitos: expressiva, argumento, decisão); capturas
 `ferramentas/orca/v16-fix-*.png` da Lente recolhida, aberta, com método ausente
-e AX5, e do Perfil compacto, aberto e AX5. **Fora:** proveniência
+e AX5, e do Perfil compacto, aberto e AX5; movimento do Perfil em
+`ferramentas/orca/g4-v16-perfil.mp4` (normal e Reduzir Movimento) e nos quadros
+de `g4-v16-perfil-quadros-depois.png` — 8 quadros (267 ms) normal, 5 (167 ms)
+sob Reduzir Movimento, os mesmos números da Lente. **Fora:** proveniência
 no prompt da sábia, aviso ao autor quando um método some, edição da
 proveniência pela tela.
