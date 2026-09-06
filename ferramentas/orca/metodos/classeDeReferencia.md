@@ -182,8 +182,25 @@ Duas coisas, nenhuma bloqueante:
       "exige": [
         "agora"
       ]
+    },
+    {
+      "rotulo": "Por que os parecidos terminaram assim",
+      "para": "cincoPorques",
+      "mapa": {
+        "aconteceu": "parecidos"
+      },
+      "exige": [
+        "parecidos"
+      ]
     }
   ],
   "definicao": "uma estimativa de prazo, custo ou resultado que ainda não olhou para os casos parecidos"
 }
 ```
+
+## Encadeamento acrescentado na volta M4
+
+**Por que os parecidos terminaram assim — a classe vira a pergunta dos Cinco porquês.**
+
+O mapa inteiro entre os dez propostos, com a regra de quando cada
+encadeamento pode entrar, está em [`encadeamentos.md`](encadeamentos.md).

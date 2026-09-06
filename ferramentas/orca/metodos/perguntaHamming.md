@@ -176,8 +176,26 @@ compromisso de 7 dias funciona, e o autor renova.
       "exige": [
         "importantes"
       ]
+    },
+    {
+      "rotulo": "O que sai para caber o ataque",
+      "para": "subtracao",
+      "mapa": {
+        "melhorar": "trabalhando",
+        "ia": "ataque"
+      },
+      "exige": [
+        "ataque"
+      ]
     }
   ],
   "definicao": "trabalho sem direção: quais são os problemas importantes do campo, e por que você não está num deles"
 }
 ```
+
+## Encadeamento acrescentado na volta M4
+
+**O que sai para caber o ataque — escolher o problema importante sem tirar nada é fantasia.**
+
+O mapa inteiro entre os dez propostos, com a regra de quando cada
+encadeamento pode entrar, está em [`encadeamentos.md`](encadeamentos.md).

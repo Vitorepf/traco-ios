@@ -65,6 +65,10 @@ As duas caem na mesma barra por motivos diferentes, e vale ler as duas fichas:
   **Evidência não compra entrada**; a barra é sobre o que o método faz no
   catálogo.
 
+> Os encadeamentos ENTRE os métodos propostos foram escritos na volta M4:
+> ver [`encadeamentos.md`](encadeamentos.md). O que a forma livre pede do app
+> está consolidado na seção 7 de [`achados-catalogo.md`](achados-catalogo.md).
+
 ## 3. O que a forma livre pediu, de novo
 
 Dois métodos desta rodada pedem a mesma coisa que um da M1 já pedia:

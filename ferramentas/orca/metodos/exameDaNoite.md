@@ -179,8 +179,25 @@ Duas coisas, e a segunda é a interessante:
       "exige": [
         "regra"
       ]
+    },
+    {
+      "rotulo": "Abrir a conversa (Coluna da esquerda)",
+      "para": "colunaEsquerda",
+      "mapa": {
+        "comQuem": "naoRepito"
+      },
+      "exige": [
+        "naoRepito"
+      ]
     }
   ],
   "definicao": "o dia julgado à noite pelos próprios atos, com uma regra concreta para a próxima vez"
 }
 ```
+
+## Encadeamento acrescentado na volta M4
+
+**Abrir a conversa (Coluna da esquerda) — o ato de que você se arrepende costuma ser uma conversa.**
+
+O mapa inteiro entre os dez propostos, com a regra de quando cada
+encadeamento pode entrar, está em [`encadeamentos.md`](encadeamentos.md).

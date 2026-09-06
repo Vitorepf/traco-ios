@@ -242,6 +242,17 @@ já é sinal.
       "exige": [
         "controlo"
       ]
+    },
+    {
+      "rotulo": "Tirar a peça (Subtração)",
+      "para": "subtracao",
+      "mapa": {
+        "melhorar": "aconteceu",
+        "sai": "controlo"
+      },
+      "exige": [
+        "controlo"
+      ]
     }
   ],
   "definicao": "algo que já deu errado e se repete, e pede a causa que o autor controla (\"por que isso aconteceu\", \"deu errado de novo\")"
@@ -267,3 +278,10 @@ regex do Se–então é `sempre que|toda vez|...`, sem `\b`, e "sempre que" casa
 dentro de "sempre **que**bra". É defeito antigo do catálogo, não deste
 candidato — a mesma regex captura "sempre queria", "sempre quero", "sempre
 quebrou". Correção sugerida para a volta de colagem: `\bsempre que\b`.
+
+## Encadeamento acrescentado na volta M4
+
+**Tirar a peça (Subtração) — a causa que você controla costuma ser uma peça a menos.**
+
+O mapa inteiro entre os dez propostos, com a regra de quando cada
+encadeamento pode entrar, está em [`encadeamentos.md`](encadeamentos.md).

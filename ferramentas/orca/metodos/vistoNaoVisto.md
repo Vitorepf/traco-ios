@@ -170,8 +170,25 @@ Nada. Cinco campos de texto no esquema da volta 16.
       "exige": [
         "quando"
       ]
+    },
+    {
+      "rotulo": "Tirar isto (Subtração)",
+      "para": "subtracao",
+      "mapa": {
+        "melhorar": "ato"
+      },
+      "exige": [
+        "naoVejo"
+      ]
     }
   ],
   "definicao": "um ato cujo efeito visível é claro e cujo custo não aparece (\"custo de oportunidade\", \"o que eu deixo de fazer\")"
 }
 ```
+
+## Encadeamento acrescentado na volta M4
+
+**Tirar isto (Subtração) — quando o não visto é caro, o passo seguinte é o corte.**
+
+O mapa inteiro entre os dez propostos, com a regra de quando cada
+encadeamento pode entrar, está em [`encadeamentos.md`](encadeamentos.md).

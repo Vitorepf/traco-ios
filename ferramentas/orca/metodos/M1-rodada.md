@@ -32,6 +32,10 @@ livre.
 As quatro faculdades propostas estão vazias hoje. Nenhuma delas foi escolhida
 por estar vazia: o buraco só decidiu a ordem de procurar.
 
+> Os encadeamentos ENTRE os métodos propostos foram escritos na volta M4:
+> ver [`encadeamentos.md`](encadeamentos.md). O que a forma livre pede do app
+> está consolidado na seção 7 de [`achados-catalogo.md`](achados-catalogo.md).
+
 ## O que a forma livre trouxe
 
 A correção das 13:25 mudou duas propostas de verdade, e isso está escrito nas
