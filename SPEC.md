@@ -3213,3 +3213,95 @@ Inversão diz "costuma ser") — passa a "Palavras de apoio", com a nota
 do plano sem obstáculo dizia "o que, em você, COSTUMA atrapalhar isto",
 atribuindo ao autor um hábito que o app não observou — passa a "pode".
 
+
+## ADR 2026-09-06j — A latência da descoberta: quanto tempo entre afirmar e saber
+
+**A distância.** O Traço já media e não sabia que media. `Hipotese` guarda
+`data` (quando foi proposta) e `avaliadaEm` (quando foi avaliada, ADR 05r); a
+Decisão guarda "o que espero que aconteça, e quando eu confiro" e "o que
+aconteceu" (03a/04t); `Versoes` carimba cada gravação desde a 04. Nada disso
+virava grandeza: o único leitor de `avaliadaEm` em todo o app era
+`TrabalhoView.avaliacao`, que imprime a data absoluta ao lado de UMA hipótese
+("· por você em 3 de jul de 2026, 10:00"). Distância entre os dois carimbos,
+nenhuma; série ao longo dos meses, nenhuma. Motor sem superfície: função que o
+autor não vê não foi entregue.
+
+**Primeiro medir, depois inventar campo.** A ordem foi essa, e o resultado é
+que **nenhum campo novo foi criado**. Do que já estava gravado saiu tudo:
+
+- Hipótese: `data` → `avaliadaEm` dá a latência inteira, sem nada a mais.
+- Hipótese avaliada ANTES da 05r: `estado` diz que foi avaliada e `avaliadaEm`
+  é `nil`. Isso não é buraco a preencher, é a informação real — a tela diz
+  "tempo desconhecido" e ninguém reconstrói a data por dedução.
+- Decisão: `criadaEm` é a afirmação; a data do "espero", lida por `Gatilho`, é
+  a hora de conferir; "o que aconteceu" preenchido é a descoberta.
+- **A descoberta da decisão tem data porque `Versoes` já a tinha.** `editadaEm`
+  seria a mentira fácil: é a última edição de qualquer coisa e desliza a cada
+  retoque. O histórico guarda o estado ANTERIOR carimbado com a hora da
+  gravação, então a versão mais recente que ainda tinha "o que aconteceu" vazio
+  é a hora em que ele deixou de estar vazio. Sem histórico (nota importada, ou
+  as 30 versões passaram por cima), fica `nil` — tempo desconhecido, de novo
+  sem inventar. Foi esse achado que dispensou o campo novo.
+
+**A decisão.** `Traco/Modelo/Latencia.swift`, motor puro (`nonisolated enum`, no
+molde de `Retrato`): lê hipóteses e decisões, devolve `Registro` com quatro
+estados **distintos na tela** — AFIRMADO (dito, ainda não é hora), DEVIDO (a
+hora chegou e continua sem resposta), DESCOBERTO (soube, com ou sem a data) e
+ABANDONADO (fechou sem conferir). Nenhum deles é falha. Abandonar é resultado
+legítimo e aparece com essa palavra. Hipótese não tem data de conferir e por
+isso **nunca fica DEVIDA**: cobrar prazo que o autor não marcou seria inventar.
+
+**A série é o produto, não o número.** Uma latência sozinha não diz nada. A
+tela mostra o mês, o tempo do MEIO daquele mês (mediana, não média — uma
+hipótese esquecida por um ano deslocaria a média do mês inteiro) e quantas
+descobertas houve. E **os abertos viajam junto dos fechados**: série só do que
+fechou é o viés de sobrevivência, que é justamente o que a conversa de origem
+desta volta (`ferramentas/orca/IDEIAS.md` §A) veio combater. A palavra
+"mediana" fica no código; na tela é "a do meio", que se lê sem glossário.
+
+**Não é placar, e o desenho é que garante isso.** Sem meta, sem sequência, sem
+XP, sem seta, sem verde e vermelho: a barra do mês é a mesma tinta em todos os
+meses e mede só o tamanho do número. Nenhuma ação na seção — o autor lê e sai.
+A cobrança de conferir já existe na lista de Notas (`Volta.campoDevido`) e não
+foi duplicada aqui; se esta tela tivesse um botão "conferir agora", a medida
+viraria lista de tarefas e destruiria o que mede. A pergunta da `curva-zero`
+tem resposta literal na tela: "não há nada a preencher aqui".
+
+**Onde mora.** `Traco/Perfil/PerfilView.swift`, logo depois de "A SÁBIA E VOCÊ".
+É a mesma família da linha que a 06h acabou de corrigir — "O que o Traço
+registrou, contagem, não conclusão" —, e herda essa vizinhança e essa voz. Não
+foi para a Análise nem para o Trabalho: a série é do AUTOR e atravessa todos os
+trabalhos, então não pertence a um deles.
+
+**Custo assumido.** `Versoes.listar` roda uma vez por decisão ao abrir o Perfil,
+síncrono na main — são JSONs pequenos e dezenas de notas; se um dia doer, o
+caminho é gravar a data no instante em que "o que aconteceu" enche (aí sim um
+campo). `Gatilho` prefere uma hora escrita ("às 9h") à data do mesmo texto e
+devolve a próxima manhã: limite herdado, que atinge igualmente a cobrança da
+lista, não corrigido aqui. E o estado DEVIDO desta leitura ancora a data do
+"espero" em `criadaEm`, enquanto `Volta.devida` a relê a partir de HOJE — em
+texto relativo ("em duas semanas") a lista adia a cobrança para sempre e esta
+tela não; a divergência é deliberada e está declarada, não resolvida.
+
+**Selo:** nota trancada ou queimada entra pela CONTAGEM e nunca pelo conteúdo
+(05s) — a latência não abre rota nova para o que o selo fechou.
+**Volta:** melhorar — é a lacuna "modelo revisável do autor" do EVOLUCAO.
+**O que a IA sabe:** nada. A leitura é do algoritmo, não viaja no prompt e não
+entra no retrato.
+**Prova:** 11 testes em `LatenciaTests`; suíte integral **758 testes em 129
+suítes, 0 falhas**, no iPhone 17 Pro Max de teste em 06/09/2026. A série na
+tela, com os quatro estados na mesma captura, uma hipótese fechada, uma aberta
+e o registro antigo em "tempo desconhecido": `ferramentas/orca/l1-serie-large.png`,
+`l1-tempo-desconhecido-large.png`, `l1-serie-ax5.png` e
+`l1-tempo-desconhecido-ax5.png` (`xcrun simctl io screenshot`, não a captura do
+maestro). Fluxo `maestro/latencia.yaml`, que rola até cada um dos quatro
+estados — em AX5 a seção não cabe numa tela e "está visível agora" seria
+asserção sobre o tamanho do texto. As barras foram MEDIDAS na captura: julho
+42,6 % da largura (21/49 = 42,9 %) e agosto 7,8 % (4/49 = 8,2 %).
+**Semeadura declarada:** o simulador não viaja no tempo, então os registros com
+datas de junho a setembro foram escritos no formato que o próprio app grava —
+mesma tabela SwiftData, mesmo JSON do `DocumentoTrabalho`, mesmo histórico
+`Versoes` (`ferramentas/orca/semear-latencia.py`). **Não é a série do aparelho
+do dono**, que continua sem captura.
+**Fora:** a decisão respondida antes de existir histórico continua sem data; o
+`Gatilho`; e não há rota `traco://` para o Perfil (a captura pede maestro).

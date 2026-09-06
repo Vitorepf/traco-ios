@@ -1,0 +1,62 @@
+appId: app.traco
+---
+# ADR 2026-09-06j. SEM clearState de propósito: o que esta volta prova são os
+# registros já gravados, com datas de meses atrás. Limpar o estado apagaria
+# exatamente a prova.
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: pagina
+    timeout: 8000
+# §20: da escrita, a borda esquerda traz o arquivo
+- swipe:
+    start: 1%, 50%
+    end: 85%, 50%
+- tapOn:
+    id: aba-notas
+- tapOn:
+    id: aba-perfil
+- extendedWaitUntil:
+    visible: "Perfil"
+    timeout: 5000
+# 90 s porque em AX5 o Perfil inteiro é muito mais longo: em 25 s a rolagem
+# parava nos Avisos, bem antes da seção
+- scrollUntilVisible:
+    element: {id: "latencia-resumo"}
+    direction: DOWN
+    timeout: 90000
+- assertVisible: {id: "latencia-meses"}
+- scrollUntilVisible:
+    element: {id: "latencia-registros"}
+    direction: DOWN
+    timeout: 90000
+# os quatro estados são distintos na tela, e nenhum deles é falha. Rolando até
+# cada um: em AX5 a seção não cabe numa tela só, e "está visível agora" seria
+# uma asserção sobre o tamanho do texto, não sobre a tela.
+- scrollUntilVisible:
+    element: {text: "devido .*"}
+    direction: DOWN
+    timeout: 90000
+- scrollUntilVisible:
+    element: {text: "afirmado .*"}
+    direction: DOWN
+    timeout: 90000
+- scrollUntilVisible:
+    element: {text: "descoberto .*"}
+    direction: DOWN
+    timeout: 90000
+- scrollUntilVisible:
+    element: {text: "abandonado .*"}
+    direction: DOWN
+    timeout: 90000
+# nada de placar: nenhuma palavra de meta, sequência ou nota
+- assertNotVisible: "meta"
+- assertNotVisible: "sequência"
+- assertNotVisible: "streak"
+# o registro antigo sem `avaliadaEm`: descobriu, e QUANDO não está gravado.
+# Fica por último para a captura parar nele.
+- scrollUntilVisible:
+    element: {text: ".*tempo desconhecido.*"}
+    direction: UP
+    timeout: 90000
+- takeScreenshot: /tmp/traco-verify/latencia
