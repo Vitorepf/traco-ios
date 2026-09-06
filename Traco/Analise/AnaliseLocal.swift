@@ -127,18 +127,39 @@ enum AnaliseLocal: Sendable {
     /// OBSTÁCULO de um WOOP, "estado vazio, carregando e falha" é uma tela.
     /// Sozinha ela não decide nada; precisa do autor no meio (`lexicoDoSentimentoNoAutor`),
     /// de uma segunda palavra da mesma família, ou da omissão ao lado.
-    static let lexicoDeDuplaVida = #"medo|\bpesa|ansios|exaust|vazi[oa]|sozinh|cansad"#
+    /// ADR 06i-B: `vazi`, não `vazi[oa]` — era o único radical desta lista que
+    /// capturava a própria flexão, e por isso "a lista vazia e o estado vazio"
+    /// contava como DUAS palavras na densidade. Os substantivos `ansiedade` e
+    /// `cansaço` entram porque `ansios`/`cansad` não os alcançam.
+    static let lexicoDeDuplaVida = #"medo|\bpesa|ansios|ansiedade|exaust|vazi|sozinh|cansad|cansaço"#
+
+    /// ADR 06i-B — A CAUDA DO IDIOMA. O revisor mediu 18 de 20 desabafos novos
+    /// vestidos pela A-5: a causa não era o radical, era esta lista curta. O que
+    /// vem depois do adjetivo num desabafo real não é só pronome e pontuação —
+    /// é intensificador posposto ("cansado demais") e advérbio de tempo
+    /// ("sozinha faz meses", "vazio ultimamente", "exausto por dois dias").
+    static let caudaDoSentimento = #"([.,;!?]|$|e |nisso|disso|de mim|comigo|por dentro|aqui|hoje|ainda|de novo|de tudo|demais|pra caramba|ultimamente|desde |faz (tempo|dias|semanas|meses|anos)|o (dia|tempo) (todo|inteiro)|há (dias|semanas|meses)|por (\w+ )?(dias?|semanas?|horas?|m[êe]s|meses))"#
 
     /// ADR 06i — o critério: o SENTIMENTO COMO ASSUNTO, não a palavra solta.
-    /// Primeira pessoa + verbo de estado, e o complemento é pronome ou nada
-    /// ("estou sozinho nisso", "cansado de mim") — não um objeto de trabalho
-    /// ("estou cansado desse módulo", "fico sozinho em casa"). Para `medo` a
-    /// linha é entre PREDICAR ("estou com medo", "tenho medo") e NOMEAR ("o
-    /// medo de errar"), que é o obstáculo dentro de uma intenção; `vazio` conta
-    /// como SUBSTANTIVO ("esse vazio"), não como adjetivo de tela; e `pesa`
-    /// conta quando o que pesa não tem nome ("isso pesa", "cada dia pesa"),
-    /// porque a nota de trabalho nomeia a carga.
-    static let lexicoDoSentimentoNoAutor = #"(estou|tô|estava|ando|fiquei|fico|vivo|acordei|me sinto|me sentia|sinto-me) (muito |tão |meio |um pouco |completamente |bem |só )?(sozinh[oa]|cansad[oa]|vazi[oa]|exaust[oa]|ansios[oa])\b\s*([.,;!?]|$|e |nisso|disso|de mim|comigo|por dentro|aqui|hoje|ainda|de novo|de tudo)|(estou|tô|estava|fiquei|tenho|tinha|senti|sinto|ando) (com |muito |tanto |um pouco de )*medo|\b(o|um|esse|aquele|num|no|meu) vazio\b|\b(isso|isto|tudo|a vida|o dia|cada dia|essa semana) pesa\b"#
+    /// Primeira pessoa + verbo de estado, e o complemento é pronome, nada, ou
+    /// uma cauda do idioma ("estou sozinho nisso", "cansado demais") — não um
+    /// objeto de trabalho ("estou cansado desse módulo", "fico sozinho em
+    /// casa"). Para `medo` a linha é entre PREDICAR ("estou com medo", "fico
+    /// com um medo") e NOMEAR ("o medo de errar"), que é o obstáculo dentro de
+    /// uma intenção; `vazio` conta como SUBSTANTIVO ("esse vazio"), não como
+    /// adjetivo de tela; e `pesa` conta quando o que pesa não tem nome ("isso
+    /// pesa", "cada dia pesa"), porque a nota de trabalho nomeia a carga.
+    /// O RADICAL não foi tocado na 06i-B: alargá-lo é o que causou a regressão
+    /// da 06h. Só a cauda, os verbos de estado e os dois substantivos.
+    static let lexicoDoSentimentoNoAutor =
+        #"(estou|tô|estava|ando|fiquei|fico|vivo|acordei|acordo|me sinto|me sentia|sinto-me) (muito |tão |meio |um pouco |completamente |bem |só )?(sozinh[oa]|cansad[oa]|vazi[oa]|exaust[oa]|ansios[oa])\b\s*"#
+        + caudaDoSentimento
+        + #"|(estou|tô|estava|fiquei|fico|tenho|tinha|senti|sinto|ando|bate|bateu) (com |muito |tanto |um pouco de )*(um |uma )?medo"#
+        + #"|morrendo de medo"#
+        + #"|(estou|tô|ando|vivo|fiquei|fico) (com |numa |num |de )?(muita |tanta |uma |um )?(ansiedade|cansaço)\b"#
+        + #"|\b(minha|meu) (ansiedade|cansaço)\b"#
+        + #"|\b(o|um|esse|aquele|num|no|meu) vazio\b"#
+        + #"|\b(isso|isto|tudo|a vida|o dia|cada dia|essa semana) pesa\b"#
 
     /// 2. o juízo sobre si — o autor dizendo o que ELE é, ou o que ELE
     /// estragou. Vale em qualquer tamanho: "eu sou o problema" não fica menos

@@ -3321,13 +3321,14 @@ critério é sintático de propósito: ele mede quem é o sujeito da frase, não
 o autor sente.
 
 **Volta:** multiplicar. **O que a IA sabe:** nada de novo — a guarda continua
-sem modelo, no aparelho. **Prova:** `EscritaPessoalTests` com as duas réguas na
-mesma suíte — **57 protegidas + 6 legítimas da M3 + 47 de trabalho** — e
-`aPalavraDeDuplaVidaSozinhaNaoDecide` fixando o critério nos dois sentidos com
-13 asserções. **Fora:** o `\bpesa` continua casando "pesado" pela esquerda (é o
-que protege "Foi pesado"); `exaust` entrou na 1b sem que ninguém tenha medido
-"busca exaustiva" em nota real, só por leitura; e as 47 frases da régua inversa
-são minhas, não de uso real — elas provam alcance, não representatividade.
+sem modelo, no aparelho. **Prova:** `EscritaPessoalTests` com as TRÊS réguas na
+mesma suíte — **57 protegidas + 10 com gancho + 6 legítimas da M3 + 48 de
+trabalho** — e `aPalavraDeDuplaVidaSozinhaNaoDecide` fixando o critério nos dois
+sentidos com 23 asserções. **Fora:** o `\bpesa` continua casando "pesado" pela
+esquerda (é o que protege "Foi pesado"); `exaust` entrou na 1b sem que ninguém
+tenha medido "busca exaustiva" em nota real, só por leitura; e as 48 frases da
+régua inversa são minhas, não de uso real — elas provam alcance, não
+representatividade.
 
 **Junto nesta volta, os acabamentos que o re-G3 nomeou**
 (`ferramentas/orca/revisao-a-voz.md`, §R-5). **M-2:** o diálogo destrutivo do
@@ -3354,7 +3355,82 @@ o conserto é reusar o vocabulário que existe, não inventar um terceiro.
 se aplica a duas frases, mas o teste da 06f se aplica e é o que pega o defeito:
 o app não diz o que não mediu, e "aprendeu de você" alegava aprendizado sobre uma
 contagem de sinais. **Portão:** a mudança do Perfil é visível na tela (diálogo de
-confirmação) e a da Página só pelo VoiceOver; **a captura das duas fica pendente
-de instrumento** — com seis simuladores ligados o maestro não isola, e a lei da
-ESTEIRA proíbe apoiar nota nessa condição. As duas são verdadeiras por leitura do
-código, e é isso que está afirmado aqui.
+confirmação) e a da Página só pelo VoiceOver. **A captura do M-2 está feita**
+(`ferramentas/orca/a5b-m2-esquecer-dialogo.png`): o diálogo diz "Esquecer tudo o
+que o Traço registrou?" sobre "Os sinais somem do aparelho. As notas ficam.", e
+o rótulo logo acima na mesma tela diz "O que o Traço registrou — contagem, não
+conclusão" — a mesma palavra, que era o ponto. A leitura anterior desta ADR
+estava errada e o revisor a derrubou com razão: a lei do instrumento da ESTEIRA
+tira o **maestro** quando há vários simuladores ligados, e no mesmo parágrafo
+nomeia o substituto — `xcrun simctl io <UDID> screenshot`, que é por-UDID e não
+sofre do problema. A lei tira o maestro, não a captura. A da Página continua sem
+foto porque VoiceOver não fotografa; é verdadeira por leitura do código.
+
+### 06i-B — A CAUDA, e o preço que o estreitamento cobrou (volta A-5-B)
+
+**O que o revisor do G3 achou, e ele estava certo.** O critério "sentimento como
+assunto" é o critério certo, mas ele foi aplicado com uma lista de caudas tirada
+da amostra e não do idioma. O revisor replicou a guarda em Swift lendo os
+literais direto do `AnaliseLocal.swift`, escreveu **20 desabafos novos que usam
+só vocabulário 1b MAIS um gancho de roteamento**, e mediu as duas versões:
+**em `main` 19 dos 20 caíam no silêncio; na A-5, 18 dos 20 passaram a ser
+VESTIDOS** em quatro campos de exercício. "Quero sumir uns dias, ando muito
+cansado ultimamente" virava WOOP; "Percebi que estou sozinha faz meses" virava
+Nota permanente; "Não entendi por que ando tão vazio ultimamente" virava
+Feynman. Na moeda que esta ADR escolheu — vestir custa mais que calar — o saldo
+da A-5 era **negativo**, e as 57 não pegaram porque **só 7 delas exercitam a
+família 1b e nenhuma tem gancho**.
+
+**A causa é a CAUDA, não o radical.** Alargar o radical foi o que causou a
+regressão da 06h; reabri-lo desfaria esta volta. O que faltava era a lista do
+que vem DEPOIS do adjetivo num desabafo real:
+
+- **intensificador posposto** — "cansado **demais**", "sozinha **demais**"
+- **advérbio de tempo** — "cansado **ultimamente**", "sozinha **faz meses**",
+  "exausto **por dois dias**", "ansioso **desde** que ela foi embora"
+- **verbo de estado que ficou de fora** — `acordo cansado` (só `acordei`
+  entrara), `fico com um medo`, `bate um medo`, `morrendo de medo`
+- **os substantivos** `ansiedade` e `cansaço`, que `ansios`/`cansad` não
+  alcançam
+
+A cauda virou constante própria (`caudaDoSentimento`), reusada pelo ramo do
+adjetivo. Os **dez casos que o revisor citou por extenso passam a ser calados,
+10 de 10** — medido no simulador, na suíte, antes e depois.
+
+**`dá medo` foi recusado, e o motivo é a régua inversa.** O revisor pediu
+`fico|dá|bate` no ramo do `medo`. `fico` e `bate` entraram; **`dá` não**, porque
+a régua inversa dele mesmo contém "Pré-mortem: imagino o lançamento no chão e o
+que me **dá medo** é ninguém avisar a tempo" esperando `premortem`. As duas
+réguas se contradizem neste caso, e é o primeiro caso de arbitragem desta ADR: o
+lado escolhido é o do **trabalho**, porque "me dá medo" com sujeito nomeado ("o
+que me dá medo é ninguém avisar") é obstáculo dentro de uma intenção — a mesma
+linha PREDICAR/NOMEAR que a ADR já traça. Fica dito aqui, não dentro do teste.
+
+**Um caractere, e ele contradizia esta ADR.** `vazi[oa]` era o único radical de
+`lexicoDeDuplaVida` que capturava a própria flexão, então "A lista **vazia** e o
+estado **vazio** da tela" contava como duas palavras diferentes e disparava a
+densidade sozinha — contra o comentário do próprio código ("duas palavras
+DIFERENTES") e contra o exemplo canônico desta ADR. Agora é `vazi`, e
+"Preciso construir a lista vazia e o estado vazio da tela" está na régua inversa
+como `spec`.
+
+**A RÉGUA GANHA UM BLOCO, e é a lição da rodada.** Duas réguas não bastavam
+porque nenhuma das duas exercitava **o cruzamento**: desabafo que TAMBÉM tem
+palavra que roteia — o caso mais comum na vida real e o ponto cego das duas.
+`EscritaPessoalTests.comGancho` tem **dez desabafos, um por gancho de
+roteamento** (`^quero`, `sempre que`, `toda vez`, `percebi`, `hoje eu preciso`,
+`não entendi`, `^preciso começar`, `^preciso parar`, `meu objetivo`, `\bapp\b`),
+oito deles medidos VESTIDOS pelo revisor. O teste cobra as duas metades: a nota
+é calada **e** o gancho da porta declarada casa mesmo — sem isso a régua não
+mede nada. As **três** réguas correm juntas em `asDuasReguasValemAoMesmoTempo`.
+
+**Fora (a dívida que sobra, nomeada e não consertada).** A densidade ainda cala
+nota de sistema que usa duas palavras de dupla vida ("estado vazio" + "fila
+vazia" já não, mas "o medo é o servidor cair" + "equipe cansada" sim): o revisor
+mediu 15 de 20 notas de trabalho novas caladas na A-5 — **e as mesmas 20 eram
+caladas em `main` também**. É dívida residual, não regressão, e vai para o RUMO,
+não para esta volta. Os dois substantivos novos (`ansiedade`, `cansaço`) entram
+em `lexicoDeDuplaVida` e portanto alargam essa mesma densidade em dois termos.
+E o critério continua sintático: ele mede quem é o sujeito da frase, não o que o
+autor sente.
+

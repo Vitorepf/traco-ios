@@ -104,6 +104,27 @@ import Testing
         ("Numa frase: eu estraguei o que era bom. Levei anos pra construir e uma noite pra pôr abaixo.", "destilar"),
     ]
 
+    /// ADR 06i-B — O CRUZAMENTO, o bloco que faltava às duas réguas: desabafo
+    /// que TAMBÉM carrega palavra de roteamento. É o caso comum na vida real e
+    /// era o ponto cego das duas — as 57 protegidas quase não exercitam a
+    /// família 1b (7 de 57) e nenhuma delas tem gancho. Oito destas o revisor
+    /// do re-G3 mediu VESTIDAS pela A-5 e caladas em main. Um por gancho:
+    /// `^quero`, `sempre que`, `toda vez`, `percebi`, `hoje eu preciso`,
+    /// `não entendi`, `^preciso começar`, `^preciso parar`, `meu objetivo`,
+    /// `\bapp\b`. Ao lado, a porta que levaria a nota se a guarda não existisse.
+    static let comGancho: [(String, String)] = [
+        ("Quero sumir uns dias, ando muito cansado ultimamente.", "woop"),
+        ("Sempre que meu pai liga eu fico exausto por dois dias.", "seEntao"),
+        ("Toda vez que ela não responde eu fico com um medo besta de ter feito algo errado.", "seEntao"),
+        ("Percebi que estou sozinha faz meses e ninguém notou.", "notaPermanente"),
+        ("Hoje eu preciso aguentar o dia, mas estou cansado demais pra isso.", "dia"),
+        ("Não entendi por que ando tão vazio ultimamente.", "feynman"),
+        ("Preciso começar a dormir, ando ansioso desde que ela foi embora.", "woop"),
+        ("Preciso parar de me cobrar tanto, ando cansado demais pra isso.", "woop"),
+        ("Meu objetivo era aguentar até sexta e estou exausto demais pra isso.", "woop"),
+        ("Faz três semanas que eu acordo cansado, olho pro app que eu preciso construir e não consigo encostar nele, e isso me deixa pior a cada dia que passa.", "spec"),
+    ]
+
     /// O outro lado: as frases do revisor que os dois métodos levam com razão.
     /// Se a guarda comer estas, ela é larga demais.
     static let legitimas: [(String, String)] = [
@@ -166,6 +187,7 @@ import Testing
         ("Preciso treinar escrita técnica: um exercício de trinta minutos por dia.", "praticaDeliberada"),
         ("A habilidade que falta pro time é revisar código em voz alta; dá pra treinar toda semana.", "praticaDeliberada"),
         ("Preciso construir uma busca exaustiva no módulo de relatórios antes de otimizar.", "spec"),
+        ("Preciso construir a lista vazia e o estado vazio da tela.", "spec"),  // ADR 06i-B / ALTO-2
         ("Meu argumento é que o sentimento do cliente não substitui o dado da pesquisa.", "argumento"),
         ("Aposto que o novo fluxo reduz o abandono, mas dou 60% de chance, não mais que isso.", "atualizacao"),
         ("Qual a probabilidade real de entregar em março? Quanto eu acredito nisso hoje?", "atualizacao"),
@@ -343,7 +365,8 @@ import Testing
     /// o caso vai para a ADR com o lado escolhido, não para este teste.
     @MainActor @Test func asDuasReguasValemAoMesmoTempo() {
         Self.comOsNovos {
-            for frase in Self.curtas + Self.longas + Self.doRevisorG3 + Self.minhas.map(\.0) {
+            for frase in Self.curtas + Self.longas + Self.doRevisorG3
+                + Self.minhas.map(\.0) + Self.comGancho.map(\.0) {
                 let r = Self.rota(frase)
                 #expect(r == "silencio" || r == "expressiva",
                         Comment(rawValue: "escrita pessoal vestida de \(r): «\(frase)»"))
@@ -351,6 +374,24 @@ import Testing
             for (frase, esperado) in Self.legitimas + Self.trabalho {
                 #expect(Self.rota(frase) == esperado,
                         Comment(rawValue: "\(Self.rota(frase)) ← «\(frase)» (esperado \(esperado))"))
+            }
+        }
+    }
+
+    /// ADR 06i-B: desabafo COM gancho continua desabafo. Cada uma bate no
+    /// roteamento da porta declarada — sem a guarda a nota chega lá vestida,
+    /// que é exatamente o que o revisor mediu (18 de 20) na A-5.
+    @MainActor @Test func oDesabafoComGanchoDeRoteamentoNaoViraExercicio() {
+        Self.comOsNovos {
+            for (frase, porta) in Self.comGancho {
+                let r = Self.rota(frase)
+                #expect(r == "silencio" || r == "expressiva",
+                        Comment(rawValue: "desabafo com gancho vestido de \(r): «\(frase)»"))
+                let lower = frase.lowercased()
+                #expect(AnaliseLocal.eEscritaPessoal(frase, lower),
+                        Comment(rawValue: "a guarda não reconhece: «\(frase)»"))
+                #expect(Catalogo.metodo(porta)?.roteamento.contains { lower.contains(regex: $0) } == true,
+                        Comment(rawValue: "sem gancho de \(porta), a frase não mede nada: «\(frase)»"))
             }
         }
     }
@@ -372,6 +413,19 @@ import Testing
         #expect(!p("A tela de estado vazio precisa de um botão."))
         #expect(!p("O módulo roda sozinho depois do deploy."))
         // e a borda de palavra do `senti`: "sentido" e "sentimento" não são desabafo
+        // ADR 06i-B: a cauda do idioma — intensificador posposto e tempo
+        #expect(p("Estou cansado demais pra isso."))
+        #expect(p("Ando sozinha faz meses."))
+        #expect(p("Fico com um medo besta de ter feito algo errado."))
+        #expect(p("Acordo cansado, olho pro dia e não encosto em nada."))
+        #expect(p("Estou com uma ansiedade que não passa."))
+        #expect(p("Meu cansaço não é de trabalho."))
+        // e o mesmo vocabulário dito de uma COISA continua trabalho
+        #expect(!p("A ansiedade do usuário na fila é o sintoma, não a causa."))
+        #expect(!p("O cansaço do time depois do deploy é real."))
+        // ADR 06i-B / ALTO-2: `vazia` e `vazio` são a MESMA palavra na densidade
+        #expect(!p("A lista vazia e o estado vazio da tela."))
+        #expect(!p("O que me dá medo é ninguém avisar a tempo."))
         #expect(!p("Faz sentido separar o módulo em dois? O sentimento do time é que sim."))
         #expect(!p("Preciso de uma busca exaustiva no índice antes de otimizar."))
     }
