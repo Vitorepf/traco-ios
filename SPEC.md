@@ -3438,6 +3438,22 @@ três no iPhone 17 Pro (teste 4) com os sete métodos semeados e
 `TRACO_SEM_MODELO=1`. **Fora:** a assimetria vestir/sugerir, e o `conhecidos` da
 M3 (a lista está aqui; quem mesclar a M3 a cola).
 
+**O PREÇO DESTA GUARDA, declarado (acrescentado na volta A-5).** Esta ADR mediu
+um lado só. O revisor do re-G3 mediu o outro e achou o custo: com a guarda
+alcançando todo o catálogo, **a família 1 passou a comer nota comum de
+trabalho.** `vazio`, `sozinho`, `cansado`, `pesa`, `ansioso` e `medo` são
+palavras de trabalho tanto quanto de desabafo — de dez notas comuns que ele
+escreveu, NOVE mudaram de destino e OITO eram regressão limpa. O caso mais caro,
+dito por extenso: **"Quero correr de manhã, mas o medo de me machucar me trava"
+deixou de receber WOOP**, num app cujo campo do WOOP se chama "OBSTÁCULO INTERNO
+(O SEU HÁBITO/MEDO)" e cuja `perguntaWOOP` pergunta "qual é o hábito ou o MEDO
+seu que vai impedir"; o app pedia o medo pelo nome e calava quando o autor o
+escrevia. E "estado vazio, carregando e falha" — o vocabulário do próprio G2 da
+ESTEIRA — calava também. **Nenhum teste cobria essa direção**, e foi por isso
+que passou: `oQueOsDoisMetodosLevamComRazaoContinuaDeles` protegia 6 frases dos
+DOIS métodos da M3, e as outras 19 portas não tinham régua de alcance. A volta
+A-5 estreita a família 1 e escreve a régua que faltava — **ADR 2026-09-06i**.
+
 **Junto nesta ADR, a voz do app sobre si mesmo** (auditoria da trilha Métodos:
 as doenças da voz se concentram onde o app fala de si). Três trocas de palavra:
 o Perfil dizia "O que o Traço aprendeu de você" em cima de uma CONTAGEM ("12
@@ -3449,3 +3465,354 @@ Inversão diz "costuma ser") — passa a "Palavras de apoio", com a nota
 (`RotuloApontar.muleta`, que a auditoria não viu e é a mesma palavra); e o aviso
 do plano sem obstáculo dizia "o que, em você, COSTUMA atrapalhar isto",
 atribuindo ao autor um hábito que o app não observou — passa a "pode".
+
+
+## ADR 2026-09-06i — A família 1 reconhece o SENTIMENTO COMO ASSUNTO, não a palavra solta
+
+**A distância.** A 06h fechou a guarda pelo catálogo inteiro e, na mesma linha,
+alargou o dano: a família 1 é uma lista de RADICAIS soltos, e seis deles têm
+dupla vida. O revisor do re-G3 mediu dez notas comuns de trabalho — **nove mudam
+de destino, oito são regressão limpa** contra o código anterior:
+
+| antes → agora | a nota | o radical que dispara |
+|---|---|---|
+| woop → silêncio | "Quero correr de manhã, mas o MEDO de me machucar me trava" | `medo` |
+| spec → silêncio | "Preciso construir a tela de estado VAZIO do app…" | `vazi[oa]` |
+| spec → silêncio | "Estado VAZIO, carregando e falha: as três telas…" | `vazi[oa]` |
+| spec → silêncio | "Estou CANSADO desse módulo cheio de casos especiais…" | `cansad` |
+| spec → silêncio | "A carga PESA demais nesse endpoint…" | `\bpesa` |
+| spec → silêncio | "O módulo roda SOZINHO depois do deploy…" | `sozinh` |
+| seEntão → silêncio | "Sempre que fico SOZINHO em casa eu abro a geladeira…" | `sozinh` |
+| notaPermanente → silêncio | "Percebi que sistemas ANSIOSOS por resposta imediata…" | `ansios` |
+
+O caso que dói é o primeiro, e é constrangedor: o campo do WOOP chama-se
+"OBSTÁCULO INTERNO (O SEU HÁBITO/MEDO)" e `perguntaWOOP` pergunta pelo "hábito
+ou o medo seu que vai impedir". **O app pede o medo pelo nome e cala quando o
+autor o escreve.** Um sétimo radical entra pela mesma porta sem ninguém ter
+medido: `senti` sem borda de palavra casa dentro de "o SENTIdo dele" e "o
+SENTImento do cliente" — duas expressões que não têm nada de desabafo.
+
+**A decisão.** A família 1 se parte em duas, e o critério é o SENTIMENTO COMO
+ASSUNTO.
+
+- **1a, `lexicoDoSentimento`** — o sentimento que só tem uma vida: `senti`,
+  `sinto`, `sentia`, `me sentindo` (agora com **borda de palavra**, que é o
+  conserto do `sentido`/`sentimento`), `dói|doeu`, `chor…`, `trist…`, `raiva`,
+  `desmoron…`, `arrepend…`, `vergonh…`, `mago…`, `remoend…`, `travei|eu travo`,
+  `angusti…`, `desanimad…`, `humilhad…`, `culpad…`, `nó na garganta`. Dispara
+  sozinho, como antes.
+- **1b, `lexicoDeDuplaVida`** — `medo`, `pesa`, `ansios`, `exaust`, `vazi[oa]`,
+  `sozinh`, `cansad`. **Sozinha não decide nada.** Ela só vale com uma destas
+  três companhias:
+  1. **o autor no meio** (`lexicoDoSentimentoNoAutor`): primeira pessoa + verbo
+     de estado, e o complemento é PRONOME ou nada — "estou sozinho nisso",
+     "estou cansado de mim", "fico vazio." —, nunca objeto de trabalho ("estou
+     cansado **desse módulo**", "fico sozinho **em casa**"). Para `medo` a linha
+     é entre **predicar** ("estou com medo", "tenho medo", "senti medo") e
+     **nomear** ("o medo de errar"), que é o obstáculo DENTRO de uma intenção —
+     exatamente o que o WOOP existe para receber. `vazio` conta como
+     SUBSTANTIVO ("esse vazio", "um vazio"), não como adjetivo de tela ("estado
+     vazio"). `pesa` conta quando o que pesa não tem nome ("isso pesa", "cada
+     dia pesa"), porque a nota de trabalho nomeia a carga ("a carga pesa");
+  2. **densidade** — duas palavras DIFERENTES de dupla vida na mesma nota
+     ("Estou exausto e vazio."). Uma é vocabulário; duas são o assunto;
+  3. **a omissão ao lado** (família 5) em QUALQUER tamanho — "Foi pesado e eu
+     fiquei calada." tem 29 caracteres e é a nota mais frágil das 57. A omissão
+     continua sem disparar sozinha abaixo do teto de 120: aqui ela é companhia,
+     não gatilho.
+
+`descontei` também ganhou os pronomes que faltavam (`descontei nela|nele|em`):
+a família 4 casava "descontei com" e "descontei no", e deixava "descontei nela"
+passar — a nota ficava presa só à família 1 e caía junto com ela.
+
+**A régua NOVA, que é o coração desta volta: a direção inversa.** Havia 57
+frases provando que desabafo não vira método e **nenhuma** provando que nota
+comum continua achando a forma — por isso a regressão passou.
+`EscritaPessoalTests.trabalho` tem **47 frases, no mínimo duas por PORTA das 21
+formas de main**, as dez do revisor incluídas e marcadas `[R]`, com as que
+citam sentimento de propósito: WOOP com `medo`, Se–então com `cansado`,
+Especificação com "estado vazio", Pré-mortem com `medo`, Leitura com "times
+cansados", Decisão com "o medo de errar", e duas sondas do conserto do `senti`
+("o sentimento do time", "busca exaustiva").
+`todaPortaDeMainTemPeloMenosDuasFrases` cobra a cobertura contra
+`Catalogo.doApp`, para a régua não encolher sem ninguém ver. **E ela mede:**
+portada a mesma régua para a família 1 de `2d33d63`, **15 das 47 são caladas**
+(as 8 do revisor, mais Decisão, Pré-mortem, Leitura, Palavra e as duas sondas
+do `senti`, mais a segunda do Se–então); com a família partida em duas, **0**.
+
+**As duas réguas correm JUNTAS** em `asDuasReguasValemAoMesmoTempo`, no mesmo
+catálogo e na mesma corrida: as 57 continuam protegidas E as 47 continuam
+roteando. **Nenhum caso precisou de arbitragem** — o critério satisfaz as duas
+ao mesmo tempo, e nenhuma frase foi retirada de nenhuma das réguas para isso.
+Se um dia as duas se contradisserem num caso, o lado é o da guarda, e a razão é
+a assimetria que o revisor usou nos dois sentidos: **silêncio numa nota de
+trabalho custa um toque para escolher a forma à mão; vestir um desabafo carimba
+quatro campos de exercício sobre o que o autor acabou de sentir.** O caso vai
+para esta ADR com o lado escolhido e o motivo, não para dentro do teste.
+
+**O que esta guarda continua sem fazer.** Ela é regex, não compreensão: "estou
+cansado de escrever documentação" não é reconhecido como desabafo (não chega a
+método nenhum, então cai no silêncio de sempre), e um desabafo escrito só com
+palavra de dupla vida sem primeira pessoa — "que vazio hoje" — também não. O
+critério é sintático de propósito: ele mede quem é o sujeito da frase, não o que
+o autor sente.
+
+**Volta:** multiplicar. **O que a IA sabe:** nada de novo — a guarda continua
+sem modelo, no aparelho. **Prova:** `EscritaPessoalTests` com as TRÊS réguas na
+mesma suíte — **57 protegidas + 10 com gancho + 6 legítimas da M3 + 48 de
+trabalho** — e `aPalavraDeDuplaVidaSozinhaNaoDecide` fixando o critério nos dois
+sentidos com 23 asserções. **Fora:** o `\bpesa` continua casando "pesado" pela
+esquerda (é o que protege "Foi pesado"); `exaust` entrou na 1b sem que ninguém
+tenha medido "busca exaustiva" em nota real, só por leitura; e as 48 frases da
+régua inversa são minhas, não de uso real — elas provam alcance, não
+representatividade.
+
+**Junto nesta volta, os acabamentos que o re-G3 nomeou**
+(`ferramentas/orca/revisao-a-voz.md`, §R-5). **M-2:** o diálogo destrutivo do
+Perfil dizia "Esquecer tudo o que o Traço **aprendeu de você**?" — a frase que a
+A4 condenou e trocou no rótulo logo acima ("O que o Traço registrou — contagem,
+não conclusão"), mas não no diálogo; passa a "Esquecer tudo o que o Traço
+**registrou**?", a mesma palavra do rótulo e do corpo da mensagem ("Os sinais
+somem do aparelho. As notas ficam."). **M-3:** a dica de VoiceOver do botão da
+Lente dizia "**Muletas**, frases feitas…" para abrir uma tela cujas seções se
+chamam "Palavras de apoio" e "Frases de outro"; passa a "Palavras de apoio,
+frases de outro, passivas e adjetivos repetidos. Só aponta." — a dica volta a
+nomear o que a tela mostra, que é o que uma dica de VoiceOver existe para fazer.
+O quarto acabamento, o preço da guarda, está escrito no "Fora" da 06h.
+
+**As seis fases do `design-router` nas duas strings** (M-5 do re-G3, que valia
+para a copy da A4 e vale para esta). **Ancorar:** rota "ajuste local de
+componente/copy" — nenhum moodboard, nenhum token novo, nenhum crítico; a
+pessoa é o autor lendo um diálogo destrutivo e o autor ouvindo o VoiceOver.
+**Sistema:** as duas frases já tinham dona na tela — `PerfilView:161` diz
+"registrou" e `LenteView:133/138` dizem "Palavras de apoio"/"Frases de outro";
+o conserto é reusar o vocabulário que existe, não inventar um terceiro.
+**Construir:** duas strings, zero mudança de layout, de Tema ou de estado.
+**Mover:** nada — copy não anima. **Julgar:** o teste contra design genérico não
+se aplica a duas frases, mas o teste da 06f se aplica e é o que pega o defeito:
+o app não diz o que não mediu, e "aprendeu de você" alegava aprendizado sobre uma
+contagem de sinais. **Portão:** a mudança do Perfil é visível na tela (diálogo de
+confirmação) e a da Página só pelo VoiceOver. **A captura do M-2 está feita**
+(`ferramentas/orca/a5b-m2-esquecer-dialogo.png`): o diálogo diz "Esquecer tudo o
+que o Traço registrou?" sobre "Os sinais somem do aparelho. As notas ficam.", e
+o rótulo logo acima na mesma tela diz "O que o Traço registrou — contagem, não
+conclusão" — a mesma palavra, que era o ponto. A leitura anterior desta ADR
+estava errada e o revisor a derrubou com razão: a lei do instrumento da ESTEIRA
+tira o **maestro** quando há vários simuladores ligados, e no mesmo parágrafo
+nomeia o substituto — `xcrun simctl io <UDID> screenshot`, que é por-UDID e não
+sofre do problema. A lei tira o maestro, não a captura. A da Página continua sem
+foto porque VoiceOver não fotografa; é verdadeira por leitura do código.
+
+### 06i-B — A CAUDA, e o preço que o estreitamento cobrou (volta A-5-B)
+
+**O que o revisor do G3 achou, e ele estava certo.** O critério "sentimento como
+assunto" é o critério certo, mas ele foi aplicado com uma lista de caudas tirada
+da amostra e não do idioma. O revisor replicou a guarda em Swift lendo os
+literais direto do `AnaliseLocal.swift`, escreveu **20 desabafos novos que usam
+só vocabulário 1b MAIS um gancho de roteamento**, e mediu as duas versões:
+**em `main` 19 dos 20 caíam no silêncio; na A-5, 18 dos 20 passaram a ser
+VESTIDOS** em quatro campos de exercício. "Quero sumir uns dias, ando muito
+cansado ultimamente" virava WOOP; "Percebi que estou sozinha faz meses" virava
+Nota permanente; "Não entendi por que ando tão vazio ultimamente" virava
+Feynman. Na moeda que esta ADR escolheu — vestir custa mais que calar — o saldo
+da A-5 era **negativo**, e as 57 não pegaram porque **só 7 delas exercitam a
+família 1b e nenhuma tem gancho**.
+
+**A causa é a CAUDA, não o radical.** Alargar o radical foi o que causou a
+regressão da 06h; reabri-lo desfaria esta volta. O que faltava era a lista do
+que vem DEPOIS do adjetivo num desabafo real:
+
+- **intensificador posposto** — "cansado **demais**", "sozinha **demais**"
+- **advérbio de tempo** — "cansado **ultimamente**", "sozinha **faz meses**",
+  "exausto **por dois dias**", "ansioso **desde** que ela foi embora"
+- **verbo de estado que ficou de fora** — `acordo cansado` (só `acordei`
+  entrara), `fico com um medo`, `bate um medo`, `morrendo de medo`
+- **os substantivos** `ansiedade` e `cansaço`, que `ansios`/`cansad` não
+  alcançam
+
+A cauda virou constante própria (`caudaDoSentimento`), reusada pelo ramo do
+adjetivo. Os **dez casos que o revisor citou por extenso passam a ser calados,
+10 de 10** — medido no simulador, na suíte, antes e depois.
+
+**`dá medo` foi recusado na 06i-B, e a recusa era metade certa.** O revisor
+pediu `fico|dá|bate` no ramo do `medo`. `fico` e `bate` entraram; **`dá` não**,
+porque a régua inversa dele mesmo contém "Pré-mortem: imagino o lançamento no
+chão e o que me **dá medo** é ninguém avisar a tempo" esperando `premortem` — o
+`dá medo` largo custa uma forma real, e isso foi medido antes de recusar. O que
+estava errado era o enquadramento: a 06i-B declarou o caso "primeiro caso de
+arbitragem desta ADR" e, na mesma frase, **nomeou o discriminador sem
+implementá-lo**. A 06i-C o implementa e a arbitragem some (ver abaixo).
+
+**Um caractere, e ele contradizia esta ADR.** `vazi[oa]` era o único radical de
+`lexicoDeDuplaVida` que capturava a própria flexão, então "A lista **vazia** e o
+estado **vazio** da tela" contava como duas palavras diferentes e disparava a
+densidade sozinha — contra o comentário do próprio código ("duas palavras
+DIFERENTES") e contra o exemplo canônico desta ADR. Agora é `vazi`, e
+"Preciso construir a lista vazia e o estado vazio da tela" está na régua inversa
+como `spec`.
+
+**A RÉGUA GANHA UM BLOCO, e é a lição da rodada.** Duas réguas não bastavam
+porque nenhuma das duas exercitava **o cruzamento**: desabafo que TAMBÉM tem
+palavra que roteia — o caso mais comum na vida real e o ponto cego das duas.
+`EscritaPessoalTests.comGancho` tem **dez desabafos, um por gancho de
+roteamento** (`^quero`, `sempre que`, `toda vez`, `percebi`, `hoje eu preciso`,
+`não entendi`, `^preciso começar`, `^preciso parar`, `meu objetivo`, `\bapp\b`),
+oito deles medidos VESTIDOS pelo revisor. O teste cobra as duas metades: a nota
+é calada **e** o gancho da porta declarada casa mesmo — sem isso a régua não
+mede nada. As **três** réguas correm juntas em `asDuasReguasValemAoMesmoTempo`.
+
+**Fora (a dívida que sobra, nomeada e não consertada).** A densidade ainda cala
+nota de sistema que usa duas palavras de dupla vida ("estado vazio" + "fila
+vazia" já não, mas "o medo é o servidor cair" + "equipe cansada" sim): o revisor
+mediu 15 de 20 notas de trabalho novas caladas na A-5 — **e as mesmas 20 eram
+caladas em `main` também**. É dívida residual, não regressão, e vai para o RUMO,
+não para esta volta. Os dois substantivos novos (`ansiedade`, `cansaço`) entram
+em `lexicoDeDuplaVida` e portanto alargam essa mesma densidade em dois termos.
+E o critério continua sintático: ele mede quem é o sujeito da frase, não o que o
+autor sente.
+
+### 06i-C — A FORMA DA CAUDA, e a borda de palavra varrida até o fim (volta A-5-C)
+
+**Três dimensões em 8 no re-G3, e uma raiz só.** Correção, Contrato e
+Privacidade desceram pelo mesmo defeito: a cauda da 06i-B foi escrita como
+**terminador** e o intensificador posposto entrou nela. Como terminador, ele
+curto-circuita o teste que o critério inteiro usa para separar trabalho de
+desabafo — o do OBJETO —, porque a regex para de olhar assim que casa `demais`:
+
+```
+não casa  «estou cansado desse módulo cheio de casos especiais.»          ← TRABALHO ✔
+CASAVA    «estou cansado demais desse módulo para reescrever a função.»   ← virava PESSOAL ✘
+```
+
+A segunda é a primeira com uma palavra a mais, e é o exemplo canônico do lado
+trabalho **desta própria ADR**. O conserto não é tirar o intensificador: é
+torná-lo **transparente** — `intensificadorPosposto` entra ENTRE o adjetivo e a
+cauda, opcional, e a cauda continua sendo cobrada depois dele. `pra isso` entra
+na cauda porque é complemento pronominal, não objeto. Com isso "cansado demais
+**pra isso**" é desabafo e "cansado demais **desse módulo**" é trabalho, que é a
+linha que a ADR sempre disse traçar.
+
+**A BORDA DE PALAVRA, varrida até o fim.** O padrão da volta inteira era um só e
+apareceu três vezes (`senti` na 06i, `vazi[oa]` na 06i-B, `ando ` agora):
+radical sem `\b` casando dentro de outra palavra. Desta vez a guarda foi varrida
+por completo — **os 8 léxicos, 82 alternativas, uma por uma** — e **11 pontos
+precisaram de `\b`** (as três listas de verbos contam três), a maioria medida com
+frase real antes e depois:
+
+| lugar | a palavra que entrava pela porta errada | a nota que era calada |
+|---|---|---|
+| `\b` nas 3 listas de verbos de `lexicoDoSentimentoNoAutor` | `ando ` dentro do gerúndio; `bate ` dentro de "combate" | "trabalhando cansado demais, vou revisar o módulo" |
+| `\bcansad` | "des**cansad**o" | "O time está descansado e a fila vazia depois do deploy" |
+| `\bmedo`, `\bcansaço` | "**medo**nho", "des**cansaço**" | — sem caso medido; entram pela mesma classe, junto com `\bcansad`, que tem |
+| `\bsou (o\|um\|uma)` | "pen**sou o** problema" | "Ele pensou o problema todo e devolveu a spec revisada" |
+| `\bme (odi\|culp\|…)` | "fil**me odi**ado" | "O filme odiado pela crítica virou tema da spec" |
+| `\bculpad` | "des**culpad**o" | "O erro foi desculpado pelo time e a fila voltou a rodar" |
+| `\bbriguei` | "a**briguei**" | "Me abriguei da chuva e cheguei atrasado na reunião" |
+
+**As outras alternativas foram conferidas e não têm o defeito**, e três que
+pareciam ter foram medidas e estão limpas: `exaust` em "busca exaustiva" (não
+dispara sozinho, precisa de companhia), `vazi` em "es**vazi**a" (colapsa com
+"vazio" na mesma chave da densidade, que é o conserto da 06i-B funcionando) e
+`\bpesa` em "pesa demais" (o objeto ainda é testado). **A classe foi VARRIDA —
+não está fechada** (frase corrigida na 06i-D, que achou mais dois pontos da
+mesma classe): as alternativas foram lidas uma a uma e as que não têm borda à
+esquerda foram medidas contra os candidatos que soubemos nomear.
+
+**PREDICAR vs NOMEAR, escrito.** A linha que a 06i-B nomeou na frase da recusa
+agora existe em código, e é a que o revisor propôs, com uma correção medida:
+
+```
+\bd[áa] (um |uma )medo  |  \bd[áa] medo de \w+r\b  |  (^|[.!?]\s*)d[áa] medo
+```
+
+- **PREDICAR** — leva artigo ("me **dá um** medo"), pede **infinitivo** ("dá
+  medo **de encarar**") ou abre a frase ("**Dá medo.**"). É desabafo.
+- **NOMEAR** — "o que me dá medo é ninguém avisar" não faz nenhum dos três: é
+  obstáculo dentro de uma intenção, e continua indo ao Pré-mortem.
+
+A correção sobre a proposta do revisor: `d[áa] medo de` largo comia "o que **dá
+medo de** verdade nesse plano", que é trabalho. Com `de` + **infinitivo**
+(`\w+r\b`) os dois lados ficam de pé — que é a própria definição que ele
+escreveu ("nunca vem com `de` + infinitivo" é a marca do NOMEAR). **Esta frase
+está errada e a 06i-D a corrige:** o braço `de` + infinitivo NÃO é
+discriminador, é ARBITRAGEM — ele come Pré-mortem que usa a mesma forma. A ADR
+TEM um caso de arbitragem, e é este.
+
+**Mais dois buracos do mesmo ramo.** `bate|bateu|dá|deu` entram no ramo de
+`ansiedade|cansaço` (a 06i-B pôs `bate` só no ramo do `medo` — assimetria da
+própria correção), e `por dentro` entra na lista de sujeitos do `pesa`. Fecham
+"toda vez que eu abro o computador **bate um cansaço**" e "hoje eu preciso
+fingir que está tudo bem, mas **por dentro pesa**".
+
+**Volta:** melhorar. **O que a IA sabe:** nada de novo — a guarda continua sem
+modelo, no aparelho. **Prova:** as TRÊS réguas na mesma suíte, agora
+**57 protegidas + 13 com gancho + 6 legítimas da M3 + 52 de trabalho**, mais
+`aPalavraDeDuplaVidaSozinhaNaoDecide` com 40 asserções. As 121 frases das réguas
+existentes foram medidas antes e depois num binário que copia as linhas 111–238
+do `AnaliseLocal.swift` **verbatim** (o método do revisor): **0 mudanças** — os
+12 casos que mudaram de lado são exatamente os 12 alvo. `xcodebuild test` no
+iPhone 17 Pro (teste 4) `A1DF082C`: `✔ Test run with 752 tests in 128 suites
+passed after 7.379 seconds.` / `** TEST SUCCEEDED **`. **Fora:** o `\bpesa`
+continua casando "pesado" pela esquerda (é o que protege "Foi pesado"); `exaust`
+continua sem medida em nota real; a dívida da densidade em nota de sistema segue
+no RUMO; e a régua inversa continua sendo escrita por mim e pelo revisor, não
+por uso real.
+
+
+
+### 06i-D — As duas bordas que faltavam, e duas frases de honestidade (volta A-5-D)
+
+**O revisor reconstruiu o binário verbatim sobre a A-5-C e mediu: 122 frases das
+réguas, 0 problemas.** Sobraram duas linhas de código — a mesma classe de borda
+da 06i-C, em dois pontos que a varredura não alcançou — e duas frases desta ADR
+que estavam otimistas demais. Ele baixou **Estado honesto de 9 para 8** por
+causa das duas frases, e tem razão nas duas.
+
+**As duas linhas.** Nenhuma decisão nova de critério; as duas são a borda
+esquerda que a 06i-C já tinha varrido em outros onze pontos:
+
+| linha | a palavra que entrava pela porta errada | a nota que era calada |
+|---|---|---|
+| `\btratei mal` | "**contratei mal**", "**retratei mal**" | "Contratei mal o fornecedor e vou construir um processo de seleção" |
+| `me d[áa]\|me deu` (era `d[áa]\|deu`) | a ansiedade **do usuário**, não a do autor | "A fila dá ansiedade no usuário e vou construir um indicador" |
+
+O segundo é correção sobre a MINHA implementação, não sobre a proposta: a
+sugestão do `dá|deu` no ramo de `ansiedade|cansaço` foi do revisor e eu a
+implementei mais larga do que ele mediu. Com `me`, o sujeito volta a ser o autor
+— que é o critério inteiro desta ADR.
+
+**Fora — a ARBITRAGEM declarada.** O braço `\bd[áa] medo de \w+r\b` da 06i-C
+não é discriminador: ele come Pré-mortem que usa a mesma forma ("dá medo de
+perder o cliente se o deploy falhar" perde a forma). Mantê-lo é ESCOLHA, não
+acerto, e as três saídas foram medidas:
+
+| saída | custo |
+|---|---|
+| **manter o braço** (a escolhida) | **0 carimbos** em desabafo, **2 silêncios** em Pré-mortem |
+| tirar o braço | o desabafo predicado com infinitivo ("dá medo de encarar segunda") volta a virar exercício — carimbar nota pessoal é o erro caro desta guarda |
+| afinar por outro sinal | as duas formas admitem o mesmo sujeito e o mesmo verbo; não achamos sinal que separe |
+
+A escolha é pela ASSIMETRIA: calar é reversível pelo autor, carimbar não. Fica
+declarado como o **único caso de arbitragem da 06i** — a frase da 06i-C que diz
+o contrário está corrigida acima.
+
+**A classe NÃO está fechada.** A frase "a classe está fechada" da 06i-C ia para
+o LAÇO como se varrer fosse provar. Não é: a varredura leu os 8 léxicos e as 82
+alternativas uma a uma, e as que não tinham borda à esquerda foram medidas
+**contra os candidatos que soubemos nomear** — e esta volta achou mais dois
+exatamente aí. O resíduo conhecido e sem conserto grátis é a **família do
+adjetivo sem cópula** ("dia vazio", "gente cansada" dentro de nota de sistema),
+que a densidade ainda pode calar: consertá-la exige análise sintática, não
+borda.
+
+**Volta:** melhorar. **O que a IA sabe:** nada de novo — a guarda continua sem
+modelo, no aparelho. **Prova:** as três réguas com **6 frases novas** na régua
+inversa (58 de trabalho; 57 protegidas + 13 com gancho + 6 legítimas), e as seis
+medidas VERMELHAS antes do conserto — `silencio ← «Contratei mal o fornecedor e
+vou construir um processo de seleção com três etapas.» (esperado spec)` e as
+outras cinco. Depois, no iPhone 17 Pro (teste 4) `A1DF082C`: `✔ Test run with
+14 tests in 1 suite passed after 0.297 seconds.` na `EscritaPessoalTests` e
+`✔ Test run with 752 tests in 128 suites passed after 8.910 seconds.` /
+`** TEST SUCCEEDED **` na suíte inteira. **Fora:** a arbitragem do `dá medo de` acima; a família do adjetivo
+sem cópula; a dívida da densidade em nota de sistema segue no RUMO; e a régua
+inversa continua sendo escrita por mim e pelo revisor, não por uso real.

@@ -105,7 +105,7 @@ struct PerfilView: View {
             estado = await ContaGrok.estado()
             lerRetrato()
         }
-        .confirmationDialog("Esquecer tudo o que o Traço aprendeu de você?",
+        .confirmationDialog("Esquecer tudo o que o Traço registrou?",
                             isPresented: $confirmarEsquecer, titleVisibility: .visible) {
             Button("Esquecer", role: .destructive) {
                 Sinais.esquecerTudo()

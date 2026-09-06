@@ -104,6 +104,32 @@ import Testing
         ("Numa frase: eu estraguei o que era bom. Levei anos pra construir e uma noite pra pôr abaixo.", "destilar"),
     ]
 
+    /// ADR 06i-B — O CRUZAMENTO, o bloco que faltava às duas réguas: desabafo
+    /// que TAMBÉM carrega palavra de roteamento. É o caso comum na vida real e
+    /// era o ponto cego das duas — as 57 protegidas quase não exercitam a
+    /// família 1b (7 de 57) e nenhuma delas tem gancho. Oito destas o revisor
+    /// do re-G3 mediu VESTIDAS pela A-5 e caladas em main. Um por gancho:
+    /// `^quero`, `sempre que`, `toda vez`, `percebi`, `hoje eu preciso`,
+    /// `não entendi`, `^preciso começar`, `^preciso parar`, `meu objetivo`,
+    /// `\bapp\b`. Ao lado, a porta que levaria a nota se a guarda não existisse.
+    static let comGancho: [(String, String)] = [
+        ("Quero sumir uns dias, ando muito cansado ultimamente.", "woop"),
+        ("Sempre que meu pai liga eu fico exausto por dois dias.", "seEntao"),
+        ("Toda vez que ela não responde eu fico com um medo besta de ter feito algo errado.", "seEntao"),
+        ("Percebi que estou sozinha faz meses e ninguém notou.", "notaPermanente"),
+        ("Hoje eu preciso aguentar o dia, mas estou cansado demais pra isso.", "dia"),
+        ("Não entendi por que ando tão vazio ultimamente.", "feynman"),
+        ("Preciso começar a dormir, ando ansioso desde que ela foi embora.", "woop"),
+        ("Preciso parar de me cobrar tanto, ando cansado demais pra isso.", "woop"),
+        ("Meu objetivo era aguentar até sexta e estou exausto demais pra isso.", "woop"),
+        ("Faz três semanas que eu acordo cansado, olho pro app que eu preciso construir e não consigo encostar nele, e isso me deixa pior a cada dia que passa.", "spec"),
+        // ADR 06i-C — um por buraco fechado: `dá medo` predicado, `bate um
+        // cansaço` e `por dentro pesa`. Os três tinham gancho e escapavam.
+        ("Me dá um medo que trava tudo, e sempre que penso nisso eu adio.", "seEntao"),
+        ("Toda vez que eu abro o computador bate um cansaço que não é do corpo.", "seEntao"),
+        ("Hoje eu preciso fingir que está tudo bem, mas por dentro pesa.", "dia"),
+    ]
+
     /// O outro lado: as frases do revisor que os dois métodos levam com razão.
     /// Se a guarda comer estas, ela é larga demais.
     static let legitimas: [(String, String)] = [
@@ -113,6 +139,79 @@ import Testing
         ("Na reunião com o cliente eu deixei passar um erro grave só pra não criar atrito.", "colunaEsquerda"),
         ("Fiquei calada quando perguntaram quem tinha feito. Era eu. Não levantei a mão.", "colunaEsquerda"),
         ("Não consegui dizer que aquilo me machucou, e agora parece tarde demais pra dizer.", "colunaEsquerda"),
+    ]
+
+    /// ADR 06i — A RÉGUA INVERSA, a que faltava: a nota comum de trabalho
+    /// continua achando a sua forma. As 57 acima provam que desabafo não vira
+    /// método; NENHUMA provava a outra direção, e foi por isso que a família 1
+    /// larga da 06h passou. **Duas frases por PORTA** das 21 formas de main.
+    /// As dez marcadas `[R]` são as do revisor do re-G3 — oito delas eram
+    /// regressão limpa em `main` no commit `2d33d63`.
+    static let trabalho: [(String, String)] = [
+        ("Quero correr de manhã, mas o medo de me machucar me trava.", "woop"),  // [R]
+        ("Meu objetivo é entregar o módulo até sexta, e o hábito de deixar pro fim atrapalha.", "woop"),
+        ("Sempre que fico sozinho em casa eu abro a geladeira e como tudo.", "seEntao"),  // [R]
+        ("Toda vez que eu chego cansado do trabalho eu deixo o treino pra amanhã.", "seEntao"),
+        ("Preciso construir a tela de estado vazio do app, com mensagem e botão de recomeçar.", "spec"),  // [R]
+        ("Estado vazio, carregando e falha: as três telas que faltam no app.", "spec"),  // [R]
+        ("A carga pesa demais nesse endpoint e o módulo trava com dez mil linhas.", "spec"),  // [R]
+        ("Estou cansado desse módulo cheio de casos especiais e vou reescrever a função.", "spec"),  // [R]
+        ("O módulo roda sozinho depois do deploy, sem ninguém apertar nada.", "spec"),  // [R]
+        ("Percebi que sistemas ansiosos por resposta imediata acabam derrubando a fila.", "notaPermanente"),  // [R]
+        ("Entendi que a ideia central do artigo é separar decisão de execução.", "notaPermanente"),
+        ("Comprar café\nRenovar o domínio\nMandar a nota fiscal", "destaque"),
+        ("Ligar pro dentista\nPagar o IPTU\nTrocar o pneu do carro", "destaque"),
+        ("Hoje foi um daqueles dias em que tudo dói e eu não consigo nomear o motivo, só sei que sentei no chão do banheiro e chorei sem barulho nenhum.", "expressiva"),
+        ("Sinto uma tristeza sem endereço desde ontem à noite, e quanto mais eu tento explicar pra mim mesmo, menos sentido faz o que eu escrevo aqui.", "expressiva"),
+        ("Numa frase: o produto existe pra devolver ao autor o que ele escreveu.", "destilar"),
+        ("Preciso destilar esse relatório de vinte páginas em um parágrafo pro conselho.", "destilar"),
+        ("O que significa idempotente no contexto de uma fila de mensagens?", "palavra"),
+        ("Não conhecia o termo antifrágil até hoje, e vale fixar o sentido dele.", "palavra"),
+        ("Tenho que escolher entre os dois fornecedores, e o medo de errar trava a decisão.", "decisao"),  // [R]
+        ("A decisão de mudar de cidade não é reversível e não dá pra adiar mais.", "decisao"),
+        ("Pré-mortem: imagino o lançamento no chão e o que me dá medo é ninguém avisar a tempo.", "premortem"),  // [R]
+        ("Imagina que deu errado a migração: qual foi a primeira peça a ceder?", "premortem"),
+        ("Meu argumento é que a fila deve ser síncrona, e a objeção mais forte é o custo.", "argumento"),
+        ("Defendo que a revisão por pares vale o atraso de dois dias na entrega.", "argumento"),
+        ("Li um estudo que diz que times cansados erram três vezes mais no fim do dia.", "leitura"),
+        ("O livro que terminei ontem defende que o problema importante escolhe o pesquisador.", "leitura"),
+        ("Preciso explicar pra minha irmã como funciona o juro composto sem fórmula.", "feynman"),
+        ("Não entendi como o compilador resolve genéricos e quero entender de verdade.", "feynman"),
+        ("Hoje eu preciso fechar o orçamento, responder o cliente e revisar o contrato.", "dia"),
+        ("Vou planejar o dia em três blocos: escrita de manhã, reuniões à tarde, leitura à noite.", "dia"),
+        ("Que analogia explica cache pra quem nunca programou? Talvez a despensa de casa.", "analogia"),
+        ("Onde isso já foi resolvido em outro campo? Logística deve ter resposta pronta.", "analogia"),
+        ("Qual é o pior jeito de conduzir essa reunião? Começo listando o que evitar.", "inversao"),
+        ("Inversão: como garantir que o lançamento dê errado de propósito?", "inversao"),
+        ("Quem discorda de mim aqui tem um ponto: o plano grátis traz metade dos usuários.", "steelman"),
+        ("Steelman da posição contrária: manter o servidor próprio sai mais barato em três anos.", "steelman"),
+        ("Dez jeitos de reduzir o tempo de resposta sem trocar o banco.", "divergencia"),
+        ("Brainstorm de todas as opções de nome antes de bater o martelo.", "divergencia"),
+        ("Do zero: por que essa reunião semanal existe? Quais pressupostos ninguém checou?", "primeirosPrincipios"),
+        ("Primeiros princípios do preço: o que é verdade de fato sobre o custo por usuário?", "primeirosPrincipios"),
+        ("Preciso treinar escrita técnica: um exercício de trinta minutos por dia.", "praticaDeliberada"),
+        ("A habilidade que falta pro time é revisar código em voz alta; dá pra treinar toda semana.", "praticaDeliberada"),
+        ("Preciso construir uma busca exaustiva no módulo de relatórios antes de otimizar.", "spec"),
+        ("Preciso construir a lista vazia e o estado vazio da tela.", "spec"),  // ADR 06i-B / ALTO-2
+        // ADR 06i-C: a cauda da 06i-B tinha calado estas quatro. O intensificador
+        // posposto curto-circuitava o teste do objeto, e `ando `/`bate ` sem
+        // borda casavam dentro do gerúndio e de "combate".
+        ("Estou cansado demais desse módulo cheio de casos especiais e vou reescrever a função.", "spec"),  // [R] ALTO-3
+        ("Terminei de escrever o parser trabalhando cansado demais, vou revisar o módulo amanhã.", "spec"),  // [R] ALTO-4
+        ("Estou trabalhando com medo de quebrar a produção, então vou construir um teste antes.", "spec"),
+        ("O time está descansado e a fila vazia depois do deploy, e o módulo aguenta.", "spec"),
+        ("Meu argumento é que o sentimento do cliente não substitui o dado da pesquisa.", "argumento"),
+        ("Aposto que o novo fluxo reduz o abandono, mas dou 60% de chance, não mais que isso.", "atualizacao"),
+        ("Qual a probabilidade real de entregar em março? Quanto eu acredito nisso hoje?", "atualizacao"),
+        // ADR 06i-D: a mesma classe de borda da 06i-C, dois pontos que a
+        // varredura não tinha alcançado — `tratei mal` dentro de "contratei" e
+        // "retratei", e o `dá|deu` largo comendo a ansiedade do usuário.
+        ("Contratei mal o fornecedor e vou construir um processo de seleção com três etapas.", "spec"),
+        ("Retratei mal o problema no relatório e preciso destilar tudo em um parágrafo.", "destilar"),
+        ("Percebi que contratei mal por pressa: urgência não é critério de escolha.", "notaPermanente"),
+        ("A fila dá ansiedade no usuário e vou construir um indicador de progresso na tela.", "spec"),
+        ("Esse fluxo dá cansaço em quem usa, e preciso destilar as dez etapas em três.", "destilar"),
+        ("Percebi que a espera longa dá ansiedade em quem espera, e isso muda o desenho.", "notaPermanente"),
     ]
 
     static func comOsNovos<T>(_ corpo: () throws -> T) rethrows -> T {
@@ -259,5 +358,120 @@ import Testing
         #expect(!AnaliseLocal.eEscritaPessoal(curto, curto.lowercased()))
         let longo = String(repeating: "a conversa seguiu e eu fiquei calada. ", count: 5)
         #expect(AnaliseLocal.eEscritaPessoal(longo, longo))
+    }
+    /// A régua inversa correndo: cada nota de trabalho chega à SUA porta.
+    /// Falha se qualquer uma parar de chegar — é o teste que não existia.
+    @MainActor @Test func aNotaComumDeTrabalhoContinuaAchandoAForma() {
+        for (frase, esperado) in Self.trabalho {
+            #expect(Self.rota(frase) == esperado,
+                    Comment(rawValue: "\(Self.rota(frase)) ← «\(frase)» (esperado \(esperado))"))
+        }
+    }
+
+    /// E o catálogo de main não tem porta sem régua: 21 formas, no mínimo duas
+    /// frases cada. Sem isto a régua acima encolhe sem ninguém ver.
+    @MainActor @Test func todaPortaDeMainTemPeloMenosDuasFrases() {
+        var porPorta: [String: Int] = [:]
+        for (_, p) in Self.trabalho { porPorta[p, default: 0] += 1 }
+        for m in Catalogo.doApp {
+            #expect(porPorta[m.id, default: 0] >= 2,
+                    Comment(rawValue: "porta sem régua de alcance: \(m.id)"))
+        }
+        #expect(porPorta.count == Catalogo.doApp.count)
+    }
+
+    /// AS DUAS RÉGUAS JUNTAS, no mesmo catálogo e na mesma corrida — é a
+    /// condição que a ADR 06i cobra: a guarda que protege as 57 não pode calar
+    /// as 47, e vice-versa. Se um dia as duas não puderem valer ao mesmo tempo,
+    /// o caso vai para a ADR com o lado escolhido, não para este teste.
+    @MainActor @Test func asDuasReguasValemAoMesmoTempo() {
+        Self.comOsNovos {
+            for frase in Self.curtas + Self.longas + Self.doRevisorG3
+                + Self.minhas.map(\.0) + Self.comGancho.map(\.0) {
+                let r = Self.rota(frase)
+                #expect(r == "silencio" || r == "expressiva",
+                        Comment(rawValue: "escrita pessoal vestida de \(r): «\(frase)»"))
+            }
+            for (frase, esperado) in Self.legitimas + Self.trabalho {
+                #expect(Self.rota(frase) == esperado,
+                        Comment(rawValue: "\(Self.rota(frase)) ← «\(frase)» (esperado \(esperado))"))
+            }
+        }
+    }
+
+    /// ADR 06i-B: desabafo COM gancho continua desabafo. Cada uma bate no
+    /// roteamento da porta declarada — sem a guarda a nota chega lá vestida,
+    /// que é exatamente o que o revisor mediu (18 de 20) na A-5.
+    @MainActor @Test func oDesabafoComGanchoDeRoteamentoNaoViraExercicio() {
+        Self.comOsNovos {
+            for (frase, porta) in Self.comGancho {
+                let r = Self.rota(frase)
+                #expect(r == "silencio" || r == "expressiva",
+                        Comment(rawValue: "desabafo com gancho vestido de \(r): «\(frase)»"))
+                let lower = frase.lowercased()
+                #expect(AnaliseLocal.eEscritaPessoal(frase, lower),
+                        Comment(rawValue: "a guarda não reconhece: «\(frase)»"))
+                #expect(Catalogo.metodo(porta)?.roteamento.contains { lower.contains(regex: $0) } == true,
+                        Comment(rawValue: "sem gancho de \(porta), a frase não mede nada: «\(frase)»"))
+            }
+        }
+    }
+
+    /// ADR 06i, o critério em si: a palavra de dupla vida sozinha não decide.
+    @MainActor @Test func aPalavraDeDuplaVidaSozinhaNaoDecide() {
+        func p(_ t: String) -> Bool { AnaliseLocal.eEscritaPessoal(t, t.lowercased()) }
+        // o sentimento como ASSUNTO — primeira pessoa, complemento pronome ou nada
+        #expect(p("Estou sozinho nisso."))
+        #expect(p("Estou cansado de mim."))
+        #expect(p("Estou com medo de perder ela."))
+        #expect(p("Não conhecia esse vazio de agora."))
+        #expect(p("Estou exausto e vazio."))          // duas de dupla vida
+        #expect(p("Foi pesado e eu fiquei calada."))  // dupla vida + omissão, 29 caracteres
+        // a mesma palavra dita de uma COISA, ou como obstáculo de uma intenção
+        #expect(!p("Estou cansado desse módulo cheio de casos especiais."))
+        #expect(!p("Sempre que fico sozinho em casa eu abro a geladeira."))
+        #expect(!p("O medo de me machucar me trava."))
+        #expect(!p("A tela de estado vazio precisa de um botão."))
+        #expect(!p("O módulo roda sozinho depois do deploy."))
+        // e a borda de palavra do `senti`: "sentido" e "sentimento" não são desabafo
+        // ADR 06i-B: a cauda do idioma — intensificador posposto e tempo
+        #expect(p("Estou cansado demais pra isso."))
+        #expect(p("Ando sozinha faz meses."))
+        #expect(p("Fico com um medo besta de ter feito algo errado."))
+        #expect(p("Acordo cansado, olho pro dia e não encosto em nada."))
+        #expect(p("Estou com uma ansiedade que não passa."))
+        #expect(p("Meu cansaço não é de trabalho."))
+        // e o mesmo vocabulário dito de uma COISA continua trabalho
+        #expect(!p("A ansiedade do usuário na fila é o sintoma, não a causa."))
+        #expect(!p("O cansaço do time depois do deploy é real."))
+        // ADR 06i-B / ALTO-2: `vazia` e `vazio` são a MESMA palavra na densidade
+        #expect(!p("A lista vazia e o estado vazio da tela."))
+        #expect(!p("O que me dá medo é ninguém avisar a tempo."))
+        #expect(!p("Faz sentido separar o módulo em dois? O sentimento do time é que sim."))
+        #expect(!p("Preciso de uma busca exaustiva no índice antes de otimizar."))
+        // ADR 06i-C: o intensificador é TRANSPARENTE — o objeto continua sendo
+        // testado depois dele, e uma palavra a mais não troca o lado da frase.
+        #expect(!p("Estou cansado demais desse módulo cheio de casos especiais."))
+        #expect(p("Estou cansado demais pra isso."))
+        // e a borda de palavra dos verbos: gerúndio não é primeira pessoa
+        #expect(!p("Terminei o parser trabalhando cansado demais, vou revisar o módulo."))
+        #expect(!p("Fiquei pensando ansioso demais no resultado do deploy."))
+        #expect(!p("Estou trabalhando com medo de quebrar a produção."))
+        #expect(!p("O combate um medo de cada vez é a tática do time de suporte."))
+        // ...e dos radicais que moram dentro de outra palavra
+        #expect(!p("O time está descansado e a fila vazia depois do deploy."))
+        #expect(!p("Ele pensou o problema todo e devolveu a spec revisada."))
+        #expect(!p("O filme odiado pela crítica virou tema da spec da semana."))
+        #expect(!p("Me abriguei da chuva e cheguei atrasado na reunião do módulo."))
+        #expect(!p("O erro foi desculpado pelo time e a fila voltou a rodar."))
+        // ADR 06i-C: PREDICAR leva artigo, pede infinitivo ou abre a frase;
+        // NOMEAR é o obstáculo dentro de uma intenção e continua trabalho
+        #expect(p("Me dá um medo que trava tudo."))
+        #expect(p("Dá medo de encarar amanhã."))
+        #expect(!p("O que dá medo de verdade nesse plano é o custo do banco."))
+        // e o mesmo verbo no ramo dos substantivos, que tinha ficado de fora
+        #expect(p("Toda vez que eu abro o computador bate um cansaço que não é do corpo."))
+        #expect(p("Percebi que bate uma ansiedade toda vez que ele chega em casa."))
+        #expect(p("Hoje eu preciso fingir que está tudo bem, mas por dentro pesa."))
     }
 }
