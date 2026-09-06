@@ -2364,8 +2364,12 @@ com os IDs reais dos critérios (a escada da ADR 04t) e a resposta volta como
 JSON pelo MESMO parser estrito do Grok. A validação é pura e igual para os
 dois: exemplo dentro do enunciado recusa; critério que repete quatro palavras
 seguidas do exemplo recusa, pela mesma prova do Recordar (`Prova.vaza`).
-Falha mantém o material bruto e a tela diz que a prática estruturada não ficou
-disponível.
+Preparação que não sai — sem conta Grok ou sem validar — deixa o pedido guardado
+como `praticaIndisponivel` e NUNCA cai na produção delegada: quem escolheu
+praticar não recebe a resposta pronta (P1 da volta 6). A tela diz isso numa
+linha, com o campo "Minha tentativa" disponível: a tentativa sem exercício é
+evidência da ação "Praticar por conta própria", sem `artefatoID` e sem
+feedback — a prática não depende da IA para existir.
 
 "Conferir minha tentativa" é operação PRÓPRIA, uma chamada por toque: lê
 enunciado, critérios, apoio e tentativa INTEIROS (05m: cabe ou fica
@@ -2386,29 +2390,58 @@ revalidado antes de enviar, depois do await e dentro de `alterar`; retorno
 atrasado é descartado se mudou a tentativa vigente, o material, o apoio ou uma
 hipótese.
 
+**A decisão da volta 6 (revisão independente de 05/09/2026).** Como na 05q,
+a condição é o PROVEDOR: exercício e "Conferir minha tentativa" pela IA só são
+oferecidos com `ContaGrok.ligada`. Em 3/3 preparações e 3/3 feedbacks o modelo
+de bordo saiu no formato e não serviu (prova/6.md e as capturas
+`ferramentas/orca/v6-*.png`); uma preparação nem validou e o app entregou o
+roteiro completo com as frases prontas — a jornada pela tela provou o P1. Sem
+conta, a seção Praticar continua inteira (objetivo, "Minha tentativa", apoio,
+Guardar, histórico, dificuldade) e UMA linha diz "Exercício e feedback pela IA
+precisam da conta Grok; o modelo do aparelho não os produziu com qualidade";
+a seção "Preparar" e "Revisar com estes relatos" não aparecem, porque não há
+botão de IA a oferecer. O caminho do aparelho fica no código atrás do Grok,
+para quando servir. Junto: a hipótese só nasce por `proporHipotese`, com
+`propostaPor` e evidências só as selecionadas (o bloco antigo "Apoio para a
+próxima tentativa" saiu); exercício, tentativa e hipóteses aparecem UMA vez na
+tela (a versão com prática não repete o Markdown, "O que aconteceu" só lista
+relatos); o cartão diz "Preparado por <produtor>" e omite a situação quando o
+modelo a copiou da capacidade; o campo da tentativa desliga o corretor do
+sistema, porque reescrever a tentativa é o que se proíbe à IA; a mensagem de
+recusa da observação diz o que o código detecta ("repete o exemplo ou passa do
+teto"), não "reescrita"; e a queda do Grok para o aparelho, quando ele existe,
+respeita o teto do aparelho.
+
 **Custo assumido, nomeado:** a validação lê FORMA. Ela não pega um exemplo que
 satisfaz o próprio enunciado quando o enunciado é genérico, nem um critério
 que cobra o que a conferência textual não pode ler ("pronunciar corretamente",
-"praticar várias vezes") — os dois aconteceram no caso real. Preparação que
-não valida gasta uma segunda chamada, a da produção de sempre, para o material
-bruto não se perder. E o feedback continua sendo o mesmo tipo de provedor
-lendo: não é avaliação independente, e o rodapé diz isso.
+"praticar várias vezes") — os dois aconteceram no caso real. Sem conta Grok
+ninguém recebe exercício nem feedback, e o pedido de prática sem conta fica
+`praticaIndisponivel` sem gastar chamada; assumido, como na 05q: três provas
+de que o aparelho não serve valem mais que a promessa. Tentativa sem
+exercício não tem feedback — não há critérios contra os quais ler. E o
+feedback continua sendo o mesmo tipo de provedor lendo: não é avaliação
+independente, e o rodapé diz isso.
 
 **Volta:** melhorar — gargalo, prática, tentativa, feedback, recalibrar. **O
 que a IA sabe:** para preparar, o objetivo, o resultado, a dificuldade
 declarada e o pedido; nunca a tentativa. Para conferir, o exercício, o apoio e
-a tentativa, sem saber quem escreveu. **Prova:** 36 testes
-(`PraticaTrabalhoTests`), suíte integral 658/0 em 05/09/2026, e o caso real de
-prova/6.md em quatro amostras: a preparação e o feedback estruturados SAÍRAM
+a tentativa, sem saber quem escreveu. **Prova:** 42 testes
+(`PraticaTrabalhoTests`), suíte integral em 05/09/2026 (número em EVOLUCAO), a
+jornada pela tela (`ferramentas/orca/v6-*.png`, aparelho do dono; `v6-fix-*.png`,
+simulador de teste, estados sem conta, prática indisponível, tentativa guardada
+e Dynamic Type grande) e o caso real de prova/6.md em quatro amostras: a preparação e o feedback estruturados SAÍRAM
 do modelo de bordo por geração guiada — o que a V5 não conseguiu com JSON
 livre —, mas o exercício reduziu 15 minutos a uma frase e o feedback não
 conferiu um único critério, porque nas 12 citações não copiou a tentativa
 literalmente. Sem essa regra, a amostra 2 teria mostrado seis critérios
 "atendidos" sobre um texto transcrito errado. **Fora:** Degraus, Sinais,
 Retrato e Trajetória (nada é alimentado por isto); qualquer streak, medalha,
-contagem ou promoção; prática pelo Grok (sem conta neste simulador); a jornada
-pela tela (o portão 03p desliga o modelo no XCTest); aprendizagem duradoura,
-pronúncia e transferência.
+contagem ou promoção; prática e feedback pelo Grok (sem conta em nenhum
+simulador: o único provedor oferecido está sem prova real); origem externa da
+tentativa (`Tentativa.origem` só aceita `.pessoa`; texto copiado ou importado
+não tem caminho para entrar como tentativa com a sua origem); aprendizagem
+duradoura, pronúncia e transferência.
 
 ## ADR 2026-09-05s — O commit antes do anúncio, em toda rota
 

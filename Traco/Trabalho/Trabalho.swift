@@ -42,7 +42,10 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
     /// releitura. Continua sendo evidência de uma AÇÃO, nunca versão.
     enum TipoEvidencia: String, Codable { case relato, arquivo, verificacao, tentativa }
     enum EstadoHipotese: String, Codable { case proposta, confirmada, contestada }
-    enum EstadoPedido: String, Codable { case preparando, interrompido, falhou, cancelado, pronto }
+    /// ADR 05r (volta 6): `praticaIndisponivel` é o pedido de PRÁTICA cuja
+    /// preparação não validou. Fica guardado assim — nunca cai na produção
+    /// delegada, que entregaria a resposta a quem escolheu praticar.
+    enum EstadoPedido: String, Codable { case preparando, interrompido, falhou, cancelado, pronto, praticaIndisponivel }
     enum FonteCriterio: String, Codable { case intencao, resultado, instrucao }
     enum SituacaoCriterio: String, Codable, CaseIterable { case atendidoNoEscopo, divergencia, inconclusivo, naoAvaliado }
     enum EstadoConferencia: String, Codable { case concluida, indisponivel }
@@ -205,6 +208,7 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
         self.intencoes = [.init(texto: intencao, resultado: resultado)]
         self.notaOrigemID = notaOrigemID
     }
+    static let acaoDaPraticaLivre = "Praticar por conta própria"
     var intencaoAtual: Intencao { intencoes.last ?? .init(texto: "", resultado: "") }
     var versaoAtual: Artefato? { artefatos.last }
     /// ADR 05r: este pedido prepara PRÁTICA? Em `praticar`, sempre. Em
@@ -221,9 +225,14 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
     var dificuldadeVigente: Hipotese? { hipoteses.last { $0.estado != .contestada } }
     /// A última tentativa guardada. As anteriores continuam na lista.
     var tentativaAtual: Evidencia? { evidencias.last { $0.tentativa != nil } }
-    func tentativas(doArtefato id: UUID) -> [Evidencia] {
+    /// `nil` lista as tentativas feitas SEM exercício preparado: a prática
+    /// não depende da IA para existir.
+    func tentativas(doArtefato id: UUID?) -> [Evidencia] {
         evidencias.filter { $0.tentativa != nil && $0.artefatoID == id }
     }
+    /// O último pedido de prática ficou sem exercício? Só o último conta: a
+    /// tela mostra uma linha de recusa, não uma pilha.
+    var praticaIndisponivel: Bool { pedidos.last?.estado == .praticaIndisponivel }
     var pedidoAtivo: Pedido? { pedidos.last(where: { $0.estado == .preparando }) }
     /// O pedido que produziu esta versão, quando houve um: a rota para conferir
     /// uma versão que ficou sem conferência (ADR 05q). Versão escrita à mão ou
@@ -259,6 +268,10 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
         guard let i = pedidos.firstIndex(where: { $0.id == id && $0.estado == .preparando }) else { return }
         pedidos[i].estado = .falhou
     }
+    mutating func marcarPraticaIndisponivel(_ id: UUID) {
+        guard let i = pedidos.firstIndex(where: { $0.id == id && $0.estado == .preparando }) else { return }
+        pedidos[i].estado = .praticaIndisponivel
+    }
     mutating func receber(_ texto: String, produtor: String, pedidoID: UUID,
                           pratica: Pratica? = nil) throws {
         guard let i = pedidos.firstIndex(where: { $0.id == pedidoID && $0.estado == .preparando }),
@@ -276,23 +289,32 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
     /// mista e trocaria a versão vigente pela resposta de um exercício.
     /// A primeira tentativa nunca é sobrescrita: cada guardar acrescenta.
     /// Guardar não marca ação executada nem capacidade adquirida.
+    /// `artefatoID` nil é tentativa SEM exercício preparado (a IA não o
+    /// produziu ou não há conta): a prática da pessoa não depende disso.
     @discardableResult
     mutating func guardarTentativa(_ texto: String, apoioUtilizado: String,
-                                   artefatoID: UUID, anteriorID: UUID? = nil) throws -> Evidencia {
+                                   artefatoID: UUID?, anteriorID: UUID? = nil) throws -> Evidencia {
         guard !texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
               !apoioUtilizado.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw Erro.vazio }
-        guard let artefato = artefatos.first(where: { $0.id == artefatoID }),
-              artefato.pratica != nil else { throw Erro.referencia }
+        if let artefatoID {
+            guard let artefato = artefatos.first(where: { $0.id == artefatoID }),
+                  artefato.pratica != nil else { throw Erro.referencia }
+        }
         if let anteriorID {
             guard evidencias.contains(where: { $0.id == anteriorID && $0.tentativa != nil }) else { throw Erro.referencia }
         }
         // A tentativa é um ATO sobre este material. Reusa a ação que já existe
         // para ele; só cria uma quando não há nenhuma, e ela nasce pendente.
+        // Sem material, só a ação própria da prática serve: um ato que a
+        // pessoa preparou ("Ensaiar") não recebe tentativa alheia.
+        let textoDaAcao = artefatoID == nil ? Self.acaoDaPraticaLivre : "Fazer o exercício preparado"
         let acaoID: UUID
-        if let existente = acoes.first(where: { $0.artefatoID == artefatoID && $0.estado != .cancelada }) {
+        if let existente = acoes.first(where: {
+            $0.artefatoID == artefatoID && $0.estado != .cancelada && (artefatoID != nil || $0.texto == textoDaAcao)
+        }) {
             acaoID = existente.id
         } else {
-            let nova = Acao(texto: "Fazer o exercício preparado", artefatoID: artefatoID)
+            let nova = Acao(texto: textoDaAcao, artefatoID: artefatoID)
             acoes.append(nova)
             acaoID = nova.id
         }
@@ -401,13 +423,17 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
         for e in evidencias {
             guard let a = acoes.first(where: { $0.id == e.acaoID }), a.artefatoID == e.artefatoID else { throw Erro.referencia }
             guard let t = e.tentativa else { continue }
-            // Tentativa é resposta a um exercício: sem ação ligada ao material
-            // de prática, não há a que ela responda (ADR 05r).
             guard e.tipo == .tentativa, t.origem == .pessoa,
-                  let artefatoID = e.artefatoID,
-                  let pratica = artefatos.first(where: { $0.id == artefatoID })?.pratica,
                   t.anteriorID.map({ id in id != e.id && evidencias.contains { $0.id == id && $0.tentativa != nil } }) ?? true
             else { throw Erro.referencia }
+            // Tentativa ligada a material responde a um exercício: o material
+            // precisa ter prática (ADR 05r). Sem material é prática por conta
+            // própria — e sem critérios não há feedback a carregar.
+            guard let artefatoID = e.artefatoID else {
+                guard t.conferencias?.isEmpty ?? true else { throw Erro.referencia }
+                continue
+            }
+            guard let pratica = artefatos.first(where: { $0.id == artefatoID })?.pratica else { throw Erro.referencia }
             guard let cs = t.conferencias else { continue }
             let criterioIDs = Set(pratica.criterios.map(\.id))
             guard Set(cs.map(\.id)).count == cs.count,

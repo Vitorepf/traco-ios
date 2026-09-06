@@ -132,7 +132,7 @@ struct PraticaTrabalhoTests {
     }
 
     @Test func tentativaSemAcaoOuSemPraticaNoMaterialERecusada() throws {
-        var (d, _, evidenciaID) = try comTentativa()
+        let (d, _, evidenciaID) = try comTentativa()
         // Sem a ação ligada ao material, a tentativa não responde a nada.
         var semAcao = d
         semAcao.acoes = []
@@ -181,6 +181,133 @@ struct PraticaTrabalhoTests {
         #expect(h.propostaPor == "Você")
         #expect(h.evidencias == [evidenciaID])
         try d.validar()
+    }
+
+    // MARK: - Volta 6: a prática não depende da IA para existir
+
+    /// P1: a preparação que não sai não vira produção delegada. Nenhum
+    /// artefato de origem `.ia` nasce; o pedido fica "prática indisponível";
+    /// e a tentativa da pessoa continua possível, sem exercício.
+    @Test func preparacaoRecusadaNaoCaiNaProducaoDelegadaETentativaContinuaPossivel() async throws {
+        var d = DocumentoTrabalho(intencao: "Praticar espanhol sozinho, do zero")
+        d.apoio = .praticar
+        let container = try container()
+        let trabalho = try Trabalho(documento: d)
+        container.mainContext.insert(trabalho)
+        try container.mainContext.save()
+        var chamadas = 0
+        let o = try OficinaTrabalho(trabalho: trabalho, context: container.mainContext,
+                                    produzir: { _, _ in chamadas += 1; throw MotorTrabalho.Erro.praticaIndisponivel })
+        o.estaDisponivel = { false } // sem Apple Intelligence: em prática isso não decide
+        let tarefa = try #require(o.gerar("Quero praticar me apresentar em espanhol."))
+        await tarefa.value
+
+        #expect(chamadas == 1)
+        #expect(o.documento.artefatos.isEmpty)
+        #expect(!o.documento.artefatos.contains { $0.origem == .ia })
+        #expect(o.documento.pedidos.last?.estado == .praticaIndisponivel)
+        #expect(o.documento.praticaIndisponivel)
+        #expect(o.documento.pedidoAtivo == nil)
+        #expect(o.erro == nil) // o estado mora no pedido, não numa linha transiente
+        #expect(try trabalho.ler().pedidos.last?.estado == .praticaIndisponivel)
+
+        #expect(o.guardarTentativa("Hola, soy Vitor.", apoioUtilizado: "nenhum", artefatoID: nil))
+        let e = try #require(o.documento.tentativaAtual)
+        #expect(e.artefatoID == nil)
+        #expect(e.tentativa?.origem == .pessoa)
+        #expect(o.documento.tentativas(doArtefato: nil).count == 1)
+        #expect(o.documento.acoes.first?.texto == DocumentoTrabalho.acaoDaPraticaLivre)
+        #expect(o.documento.acoes.first?.estado == .pendente)
+        // Sem exercício não há critérios: "Conferir minha tentativa" não existe.
+        #expect(o.conferirTentativa(e.id) == nil)
+        #expect(try trabalho.ler().tentativas(doArtefato: nil).count == 1)
+    }
+
+    /// Decisão (b) no motor: sem conta Grok a preparação de prática não chama
+    /// provedor nenhum e lança `praticaIndisponivel`; em delegar o portão de
+    /// sempre continua (`indisponivel`, porque o XCTest desliga o modelo).
+    @Test func semContaGrokAPreparacaoDePraticaNaoUsaOAparelho() async throws {
+        var d = DocumentoTrabalho(intencao: "Praticar espanhol")
+        d.apoio = .praticar
+        let p = try d.iniciarPedido("Quero praticar.")
+        await #expect(throws: MotorTrabalho.Erro.praticaIndisponivel) {
+            _ = try await MotorTrabalho.produzir(d, p, contaLigada: false)
+        }
+        #expect(await MotorTrabalho.prepararPratica(d, p, contaLigada: false) == nil)
+        #expect(PraticaTrabalho.oferta(contaLigada: false) == PraticaTrabalho.semProvedor)
+        #expect(PraticaTrabalho.oferta(contaLigada: true) == nil)
+    }
+
+    /// Decisão (b) no feedback: sem conta, nada é lido — nem pelo aparelho.
+    @Test func semContaGrokOFeedbackFicaIndisponivelSemLerATentativa() async throws {
+        let pratica = try pratica()
+        let r = await MotorTrabalho.conferirTentativa(pratica: pratica, tentativa: tentativaEscrita,
+                                                      apoioUtilizado: "olhei", contaLigada: false)
+        #expect(r.estado == .indisponivel)
+        #expect(r.executor == PraticaTrabalho.naoExecutada)
+        #expect(r.motivo == PraticaTrabalho.semProvedor)
+        #expect(r.resultados.isEmpty)
+    }
+
+    /// A tentativa sem exercício é prática por conta própria: não toma
+    /// emprestado um ato que a pessoa preparou, não carrega feedback, e
+    /// não se mistura com as tentativas de um exercício que venha depois.
+    @Test func tentativaSemExercicioTemAcaoPropriaESemFeedback() throws {
+        var d = DocumentoTrabalho(intencao: "Praticar espanhol")
+        d.apoio = .praticar
+        try d.prepararAcao("Ensaiar em voz alta")
+        let primeira = try d.guardarTentativa("Hola.", apoioUtilizado: "nenhum", artefatoID: nil)
+        #expect(d.acoes.count == 2)
+        #expect(d.acoes.first { $0.id == primeira.acaoID }?.texto == DocumentoTrabalho.acaoDaPraticaLivre)
+        let segunda = try d.guardarTentativa("Hola, ¿qué tal?", apoioUtilizado: "nenhum",
+                                             artefatoID: nil, anteriorID: primeira.id)
+        #expect(segunda.acaoID == primeira.acaoID)
+        try d.validar()
+
+        var comFeedback = d
+        let i = try #require(comFeedback.evidencias.firstIndex { $0.id == primeira.id })
+        comFeedback.evidencias[i].tentativa?.conferencias = [
+            .init(executor: "Fake", versaoDoMetodo: 1, estado: .concluida, resultados: []),
+        ]
+        #expect(throws: DocumentoTrabalho.Erro.self) { try comFeedback.validar() }
+
+        let pedido = try d.iniciarPedido("Quero praticar me apresentar.")
+        let pratica = try pratica()
+        try d.receber(PraticaTrabalho.emMarkdown(pratica), produtor: "Fake", pedidoID: pedido.id, pratica: pratica)
+        let versaoID = try #require(d.versaoAtual).id
+        #expect(d.tentativas(doArtefato: versaoID).isEmpty)
+        #expect(d.tentativas(doArtefato: nil).count == 2)
+        try d.guardarTentativa("Me llamo Vitor.", apoioUtilizado: "olhei o exemplo", artefatoID: versaoID)
+        #expect(d.tentativas(doArtefato: versaoID).count == 1)
+        #expect(d.tentativas(doArtefato: nil).count == 2)
+        try d.validar()
+    }
+
+    /// P2-B: só há UM caminho para propor dificuldade, e ele exige autoria;
+    /// sem seleção, nenhuma evidência é apontada como pertinente.
+    @Test func dificuldadePropostaPelaTelaTemAutoriaESemEvidenciasInventadas() throws {
+        var (d, _, _) = try comTentativa()
+        let h = try d.proporHipotese("Falta vocabulário", propostaPor: "Você")
+        #expect(h.propostaPor == "Você")
+        #expect(h.evidencias.isEmpty)
+        #expect(d.hipoteses.count == 1)
+        #expect(PraticaTrabalho.estado(h.estado) == "ainda não avaliada")
+        try d.avaliarHipotese(h.id, estado: .confirmada)
+        #expect(PraticaTrabalho.estado(try #require(d.hipoteses.first).estado) == "faz sentido neste contexto")
+    }
+
+    /// O estado "prática indisponível" sobrevive ao disco e não é pedido ativo.
+    @Test func praticaIndisponivelSobreviveAoDiscoENaoBloqueiaNovoPedido() throws {
+        var d = DocumentoTrabalho(intencao: "Praticar espanhol")
+        d.apoio = .praticar
+        let p = try d.iniciarPedido("Quero praticar.")
+        d.marcarPraticaIndisponivel(p.id)
+        #expect(d.pedidoAtivo == nil)
+        let lido = try Trabalho(documento: d).ler()
+        #expect(lido.praticaIndisponivel)
+        var seguinte = lido
+        _ = try seguinte.iniciarPedido("De novo.")
+        #expect(!seguinte.praticaIndisponivel) // só o último pedido conta
     }
 
     // MARK: - Origem preservada
@@ -327,7 +454,9 @@ struct PraticaTrabalhoTests {
         let alvo = try #require(rs.first { $0.criterioID == p.criterios[0].id })
         #expect(alvo.situacao == .inconclusivo)
         #expect(!alvo.observacao.contains(solucao))
-        #expect(alvo.observacao.contains("solução"))
+        // A mensagem diz o que o código detecta (repetir o exemplo, teto), não
+        // "reescrita", que a validação de forma não vê (P3-E).
+        #expect(alvo.observacao.contains("repete o exemplo"))
     }
 
     @Test func criterioNaoCobertoVoltaNaoAvaliadoENuncaAcertoImplicito() throws {
@@ -355,11 +484,13 @@ struct PraticaTrabalhoTests {
         #expect(PraticaTrabalho.linha(indisponivel).hasPrefix("Feedback indisponível:"))
     }
 
-    @Test func tetoDoAparelhoRecusaConferenciaEmVezDeCortar() async throws {
+    /// ADR 05m: acima do teto do provedor nada é cortado — fica indisponível
+    /// antes de qualquer chamada (com conta, o teto é o remoto).
+    @Test func tetoDoProvedorRecusaConferenciaEmVezDeCortar() async throws {
         var p = try pratica()
-        p.enunciado = String(repeating: "a", count: 5_000)
+        p.enunciado = String(repeating: "a", count: MotorTrabalho.tetoRemoto + 1)
         let c = await MotorTrabalho.conferirTentativa(pratica: p, tentativa: tentativaEscrita,
-                                                      apoioUtilizado: "olhei o exemplo")
+                                                      apoioUtilizado: "olhei o exemplo", contaLigada: true)
         #expect(c.estado == .indisponivel)
         #expect(c.executor == PraticaTrabalho.naoExecutada)
         #expect(c.resultados.isEmpty)

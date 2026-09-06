@@ -26,11 +26,19 @@ nonisolated enum PraticaTrabalho {
     static let sufixoDoExecutor = "· feedback da tentativa"
     static let naoExecutada = "feedback da tentativa · não executada"
 
-    /// Sem provedor nenhum não há preparação estruturada nem feedback. A tela
-    /// diz esta linha em vez de calar ou de fingir que o exercício saiu.
-    static let semProvedor = "Nenhum provedor disponível: conecte Grok em Perfil ou ative a Apple Intelligence."
+    /// Volta 6, decisão (b) como na 05q: exercício e feedback pela IA só são
+    /// OFERECIDOS com conta Grok. Em 3/3 preparações e 3/3 feedbacks o modelo
+    /// do aparelho saiu no formato e não serviu (prova/6.md e a revisão pela
+    /// tela). A seção Praticar continua sem conta: a prática é da pessoa.
+    static let semProvedor = "Exercício e feedback pela IA precisam da conta Grok; o modelo do aparelho não os produziu com qualidade."
+    /// `nil` = ofereça preparação e "Conferir minha tentativa". Texto = a linha no lugar deles.
+    static func oferta(contaLigada: Bool) -> String? {
+        contaLigada ? nil : semProvedor
+    }
     static let foraDoContrato = "A resposta não veio no formato exigido (chave fora do contrato, situação desconhecida, critério inventado ou JSON inválido). Não interpretei uma resposta que não valida."
-    static let preparacaoIndisponivel = "A prática estruturada não ficou disponível: o material bruto foi preservado como está, sem enunciado, exemplo nem critérios."
+    /// P1 da volta 6: a preparação que não valida NÃO cai na produção
+    /// delegada. O pedido fica guardado e a tentativa continua possível.
+    static let preparacaoIndisponivel = "A preparação da prática não ficou disponível neste aparelho; o pedido foi guardado. Você pode escrever sua tentativa mesmo assim."
 
     // MARK: - Limites declarados
 
@@ -253,7 +261,7 @@ nonisolated enum PraticaTrabalho {
                 continue
             }
             guard observacao.count <= Limite.observacao, !Prova.vaza(observacao, alvo: p.exemplo) else {
-                saida.append(recusa("A observação trouxe solução, reescrita ou texto longo demais; não a mostrei. Este critério não foi conferido."))
+                saida.append(recusa("A observação repete o exemplo ou passa do teto; não a mostrei. Este critério não foi conferido."))
                 continue
             }
             saida.append(.init(criterioID: criterioID, situacao: situacao,
@@ -283,6 +291,15 @@ nonisolated enum PraticaTrabalho {
             .init(name: "avaliacoes", description: "Uma avaliação por critério, no máximo.", schema: lista),
         ])
         return try GenerationSchema(root: raiz, dependencies: [criterio, situacao, item])
+    }
+
+    /// O estado da hipótese em palavras da tela, não em nome de enum.
+    static func estado(_ e: DocumentoTrabalho.EstadoHipotese) -> String {
+        switch e {
+        case .proposta: "ainda não avaliada"
+        case .confirmada: "faz sentido neste contexto"
+        case .contestada: "não é essa a dificuldade"
+        }
     }
 
     /// A linha do feedback. Nunca diz "correto", "aprovado" ou "você aprendeu".

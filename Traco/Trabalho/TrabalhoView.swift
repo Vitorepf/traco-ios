@@ -192,9 +192,11 @@ struct TrabalhoView: View {
 
     // MARK: - ADR 05r: praticar
 
-    /// A seção da prática. Aparece com apoio "praticar"; em "combinar" só
-    /// depois que a pessoa delimita o trecho que ela mesma vai exercitar —
-    /// sem delimitação, combinar é entrega delegada e não prática.
+    /// A seção da prática, numa leitura de cima para baixo: objetivo →
+    /// material → tentativa → feedback → dificuldade. Aparece com apoio
+    /// "praticar"; em "combinar" só depois que a pessoa delimita o trecho que
+    /// ela mesma vai exercitar — sem delimitação, combinar é entrega delegada.
+    /// A tentativa existe SEM exercício e SEM conta: a prática é da pessoa.
     @ViewBuilder private func praticar(_ o: OficinaTrabalho) -> some View {
         if o.documento.apoio != .delegar {
             VStack(alignment: .leading, spacing: 16) {
@@ -203,17 +205,26 @@ struct TrabalhoView: View {
                     .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
                     .accessibilityIdentifier("pratica-objetivo")
                 if o.documento.apoio == .combinar { delimitacao(o) }
-                dificuldade(o)
                 if o.documento.praticaPedida {
-                    if let versao = o.documento.versaoAtual, let pratica = versao.pratica {
-                        exercicio(pratica)
-                        tentativas(versao, pratica: pratica, oficina: o)
+                    let versao = o.documento.versaoAtual
+                    let pratica = versao?.pratica
+                    if let versao, let pratica {
+                        exercicio(pratica, produtor: versao.produtor)
+                    } else if let linha = PraticaTrabalho.oferta(contaLigada: ContaGrok.ligada) {
+                        // Uma linha só: a última recusa, nunca uma pilha.
+                        Text(linha).font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+                            .accessibilityIdentifier("pratica-sem-provedor")
+                    } else if o.documento.praticaIndisponivel {
+                        Text(PraticaTrabalho.preparacaoIndisponivel).font(Tema.meta).foregroundStyle(Tema.aviso)
+                            .accessibilityIdentifier("pratica-preparacao-indisponivel")
                     } else {
                         Text("Nenhum exercício preparado ainda. Escreva abaixo o que você quer praticar e toque em preparar: a IA prepara enunciado, exemplo e critérios; a tentativa é sua.")
                             .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
                             .accessibilityIdentifier("pratica-sem-exercicio")
                     }
+                    tentativas(artefatoID: pratica == nil ? nil : versao?.id, pratica: pratica, oficina: o)
                 }
+                dificuldade(o)
             }
         }
     }
@@ -252,7 +263,7 @@ struct TrabalhoView: View {
             ForEach(o.documento.hipoteses) { h in
                 VStack(alignment: .leading, spacing: 6) {
                     Text(h.texto)
-                    Text("Proposta por \(h.propostaPor ?? "autoria desconhecida") · \(h.estado.rawValue)\(avaliacao(h))")
+                    Text("Proposta por \(h.propostaPor ?? "autoria desconhecida") · \(PraticaTrabalho.estado(h.estado))\(avaliacao(h))")
                         .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
                     if let motivo = h.motivoAvaliacao {
                         Text("Seu motivo: \(motivo)").font(Tema.meta).foregroundStyle(Tema.tintaSuave)
@@ -281,10 +292,14 @@ struct TrabalhoView: View {
         aplicar(o, limpar: [chave]) { try $0.avaliarHipotese(h.id, estado: estado, motivo: motivo) }
     }
 
-    private func exercicio(_ p: DocumentoTrabalho.Pratica) -> some View {
+    private func exercicio(_ p: DocumentoTrabalho.Pratica, produtor: String) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Exercício: \(p.capacidade)").font(Tema.barra)
-            Text("Situação: \(p.situacao)").font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+            Text("Preparado por \(produtor)").font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+            // O modelo às vezes repete a capacidade na situação: não mostrar duas vezes.
+            if p.situacao != p.capacidade {
+                Text("Situação: \(p.situacao)").font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+            }
             Text("O que fazer").font(Tema.barra)
             Text(p.enunciado).textSelection(.enabled)
                 .accessibilityIdentifier("pratica-enunciado")
@@ -301,19 +316,23 @@ struct TrabalhoView: View {
 
     /// O campo começa VAZIO e a IA nunca o preenche. Guardar acrescenta uma
     /// tentativa ligada à anterior; a primeira nunca é sobrescrita, e guardar
-    /// não marca ação executada nem capacidade adquirida.
-    private func tentativas(_ versao: DocumentoTrabalho.Artefato, pratica p: DocumentoTrabalho.Pratica,
+    /// não marca ação executada nem capacidade adquirida. Sem exercício
+    /// (`artefatoID` nil) a tentativa é prática por conta própria, sem feedback.
+    private func tentativas(artefatoID: UUID?, pratica p: DocumentoTrabalho.Pratica?,
                             oficina o: OficinaTrabalho) -> some View {
-        let guardadas = o.documento.tentativas(doArtefato: versao.id)
+        let guardadas = o.documento.tentativas(doArtefato: artefatoID)
         return VStack(alignment: .leading, spacing: 16) {
             campo("Minha tentativa", chave: "tentativa", exemplo: "Escreva aqui a sua resposta")
+                // A tentativa é o texto da pessoa, no idioma que ela pratica: o
+                // corretor do sistema reescrevendo-a é o que a ADR proíbe à IA.
+                .autocorrectionDisabled()
                 .accessibilityIdentifier("pratica-tentativa")
             campo("Que apoio você usou?", chave: "apoio-usado", exemplo: "Ex.: olhei o exemplo")
                 .accessibilityIdentifier("pratica-apoio-usado")
             Button(guardadas.isEmpty ? "Guardar minha tentativa" : "Guardar esta nova tentativa") {
                 let texto = rascunhos["tentativa"] ?? "", apoio = rascunhos["apoio-usado"] ?? ""
                 guard acesso.permitido, o.verificarAcesso() else { revalidar(); return }
-                if o.guardarTentativa(texto, apoioUtilizado: apoio, artefatoID: versao.id,
+                if o.guardarTentativa(texto, apoioUtilizado: apoio, artefatoID: artefatoID,
                                      anteriorID: guardadas.last?.id) {
                     limpar(["tentativa", "apoio-usado"])
                 }
@@ -329,7 +348,7 @@ struct TrabalhoView: View {
         }
     }
 
-    @ViewBuilder private func tentativa(_ e: DocumentoTrabalho.Evidencia, pratica p: DocumentoTrabalho.Pratica,
+    @ViewBuilder private func tentativa(_ e: DocumentoTrabalho.Evidencia, pratica p: DocumentoTrabalho.Pratica?,
                                         ultima: Bool, oficina o: OficinaTrabalho) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Sua tentativa · \(e.data.formatted(date: .abbreviated, time: .shortened))")
@@ -338,18 +357,23 @@ struct TrabalhoView: View {
                 .accessibilityIdentifier("pratica-tentativa-guardada")
             Text("Apoio usado: \(e.tentativa?.apoioUtilizado ?? "não registrado")")
                 .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
-            ForEach(e.tentativa?.conferencias ?? []) { c in feedback(c, pratica: p) }
-            if ultima { botaoDoFeedback(e, oficina: o) }
+            if let p {
+                ForEach(e.tentativa?.conferencias ?? []) { c in feedback(c, pratica: p) }
+            }
+            if ultima { botaoDoFeedback(e, comExercicio: p != nil, oficina: o) }
         }
         .padding(.vertical, 12)
         .frame(maxWidth: .infinity, alignment: .leading)
         .overlay(alignment: .top) { Rectangle().fill(Tema.linha).frame(height: 1) }
     }
 
-    @ViewBuilder private func botaoDoFeedback(_ e: DocumentoTrabalho.Evidencia, oficina o: OficinaTrabalho) -> some View {
-        if !MotorTrabalho.disponivel {
-            Text(PraticaTrabalho.semProvedor).font(Tema.meta).foregroundStyle(Tema.tintaSuave)
-                .accessibilityIdentifier("pratica-sem-provedor")
+    /// Decisão (b), como em 05q: "Conferir minha tentativa" só com conta Grok.
+    /// Sem conta ou sem exercício a linha de recusa já está no material acima;
+    /// aqui não se repete. "Nova tentativa" é da pessoa e fica sempre.
+    @ViewBuilder private func botaoDoFeedback(_ e: DocumentoTrabalho.Evidencia, comExercicio: Bool,
+                                              oficina o: OficinaTrabalho) -> some View {
+        if !comExercicio || PraticaTrabalho.oferta(contaLigada: ContaGrok.ligada) != nil {
+            botaoNovaTentativa
         } else if o.conferindoTentativa {
             ProgressView("A IA está conferindo sua tentativa…").font(Tema.meta)
                 .accessibilityIdentifier("pratica-conferindo")
@@ -360,14 +384,18 @@ struct TrabalhoView: View {
             }
             .disabled(!o.salvo)
             .accessibilityIdentifier("pratica-conferir-tentativa")
-            Button("Nova tentativa") {
-                definir("tentativa", "")
-                definir("apoio-usado", "")
-                campoEmFoco = "tentativa"
-                rolarPara = "tentativa"
-            }
-            .accessibilityIdentifier("pratica-nova-tentativa")
+            botaoNovaTentativa
         }
+    }
+
+    private var botaoNovaTentativa: some View {
+        Button("Nova tentativa") {
+            definir("tentativa", "")
+            definir("apoio-usado", "")
+            campoEmFoco = "tentativa"
+            rolarPara = "tentativa"
+        }
+        .accessibilityIdentifier("pratica-nova-tentativa")
     }
 
     private func feedback(_ c: DocumentoTrabalho.ConferenciaTentativa, pratica p: DocumentoTrabalho.Pratica) -> some View {
@@ -405,10 +433,19 @@ struct TrabalhoView: View {
         .accessibilityIdentifier("pratica-feedback")
     }
 
-    private func producao(_ o: OficinaTrabalho) -> some View {
+    /// Em prática sem conta Grok (decisão b) a seção some: não há botão de IA
+    /// a oferecer, e a linha que diz por quê já está em Praticar.
+    @ViewBuilder private func producao(_ o: OficinaTrabalho) -> some View {
+        if !o.documento.praticaPedida || PraticaTrabalho.oferta(contaLigada: ContaGrok.ligada) == nil {
+            producaoComIA(o)
+        }
+    }
+
+    private func producaoComIA(_ o: OficinaTrabalho) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            titulo("Preparar uma versão")
-            campo("O que você quer que a IA prepare ou ajuste?", chave: "pedido", exemplo: "Prepare uma apresentação curta")
+            titulo(o.documento.praticaPedida ? "Preparar um exercício" : "Preparar uma versão")
+            campo(o.documento.praticaPedida ? "O que você quer praticar?" : "O que você quer que a IA prepare ou ajuste?",
+                  chave: "pedido", exemplo: o.documento.praticaPedida ? "Quero praticar me apresentar em espanhol" : "Prepare uma apresentação curta")
                 .accessibilityIdentifier("trabalho-pedido")
             if edicaoPendente(o) {
                 Text("Guarde a intenção ou a versão que está editando antes de pedir uma nova preparação.")
@@ -419,7 +456,7 @@ struct TrabalhoView: View {
                     .accessibilityIdentifier("trabalho-preparando")
                 Button("Cancelar preparação") { o.cancelar() }
             } else {
-                Button(o.documento.versaoAtual == nil ? "Preparar com IA" : "Preparar nova versão com IA") {
+                Button(o.documento.praticaPedida ? "Preparar exercício com IA" : o.documento.versaoAtual == nil ? "Preparar com IA" : "Preparar nova versão com IA") {
                     o.gerar(rascunhos["pedido"] ?? "")
                 }
                 .buttonStyle(.borderedProminent)
@@ -429,6 +466,9 @@ struct TrabalhoView: View {
                    pedido.estado == .interrompido || pedido.estado == .falhou || pedido.estado == .cancelado {
                     Text("A preparação anterior foi \(pedido.estado == .interrompido ? "interrompida" : pedido.estado == .falhou ? "malsucedida" : "cancelada"). O pedido continua disponível.")
                         .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+                    Button("Retomar esse pedido") { definir("pedido", pedido.instrucao) }
+                } else if let pedido = o.documento.pedidos.last, pedido.estado == .praticaIndisponivel {
+                    // O porquê já está na seção Praticar; aqui só a saída.
                     Button("Retomar esse pedido") { definir("pedido", pedido.instrucao) }
                 }
             }
@@ -453,10 +493,15 @@ struct TrabalhoView: View {
                 Text("Esta versão foi preparada para uma intenção anterior. Confira o que ainda serve.")
                     .font(Tema.meta).foregroundStyle(Tema.aviso)
             }
-            ConteudoTrabalhoView(fonte: a.conteudo)
-                .id(a.id)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .accessibilityIdentifier("trabalho-artefato")
+            if a.pratica != nil {
+                Text("O exercício está na seção Praticar, acima.")
+                    .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+            } else {
+                ConteudoTrabalhoView(fonte: a.conteudo)
+                    .id(a.id)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .accessibilityIdentifier("trabalho-artefato")
+            }
             if editandoVersao || !vazio("versao") {
                 campo("Editar a versão", chave: "versao", padrao: a.conteudo)
                     .accessibilityIdentifier("trabalho-editar-versao")
@@ -665,45 +710,28 @@ struct TrabalhoView: View {
         }
     }
 
+    /// Só relatos: a tentativa já está em Praticar, e a dificuldade (hipótese,
+    /// com autoria) também — o bloco antigo, que criava hipótese sem autor e
+    /// apontava todas as evidências como pertinentes, saiu (volta 6, P2-B).
     @ViewBuilder private func retorno(_ o: OficinaTrabalho) -> some View {
-        if !o.documento.evidencias.isEmpty {
+        let relatos = o.documento.evidencias.filter { $0.tentativa == nil }
+        if !relatos.isEmpty {
             VStack(alignment: .leading, spacing: 12) {
                 titulo("O que aconteceu")
-                ForEach(o.documento.evidencias) { e in
+                ForEach(relatos) { e in
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("\(e.tipo == .tentativa ? "Tentativa de" : "Relato de") \(e.atribuidaA) · \(e.data.formatted(date: .abbreviated, time: .shortened))")
+                        Text("Relato de \(e.atribuidaA) · \(e.data.formatted(date: .abbreviated, time: .shortened))")
                             .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
                         Text(e.texto).textSelection(.enabled)
                     }
                 }
-                Button("Revisar com estes relatos") {
-                    definir("pedido", "Revise a versão à luz dos relatos registrados e do resultado desejado. Diferencie o que foi observado do que ainda é incerto e proponha um ajuste concreto.")
-                    o.gerar(rascunhos["pedido"] ?? "")
-                }
-                .disabled(!o.salvo || o.documento.pedidoAtivo != nil || edicaoPendente(o))
-                .accessibilityIdentifier("trabalho-revisar")
-                DisclosureGroup("Apoio para a próxima tentativa") {
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("Se percebeu uma dificuldade, registre uma hipótese. Pode ser contexto, recursos ou uma capacidade a praticar — não é um diagnóstico.")
-                            .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
-                        campo("O que pode ajudar na próxima vez?", chave: "hipotese", exemplo: "Ensaiar só a abertura")
-                        Button("Guardar hipótese minha") {
-                            let texto = rascunhos["hipotese"] ?? ""
-                            aplicar(o, limpar: ["hipotese"]) { d in
-                                d.hipoteses.append(.init(texto: texto, contexto: d.intencaoAtual.texto,
-                                    evidencias: d.evidencias.map(\.id)))
-                            }
-                        }
-                        .disabled(!o.salvo || vazio("hipotese"))
-                        ForEach(o.documento.hipoteses) { h in
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text(h.texto)
-                                Text("Hipótese \(h.estado.rawValue)").font(Tema.meta)
-                                Button("Faz sentido neste contexto") { aplicar(o) { try $0.avaliarHipotese(h.id, estado: .confirmada) } }
-                                Button("Não é essa a dificuldade") { aplicar(o) { try $0.avaliarHipotese(h.id, estado: .contestada) } }
-                            }.disabled(!o.salvo)
-                        }
-                    }.padding(.top, 8)
+                if !o.documento.praticaPedida || PraticaTrabalho.oferta(contaLigada: ContaGrok.ligada) == nil {
+                    Button("Revisar com estes relatos") {
+                        definir("pedido", "Revise a versão à luz dos relatos registrados e do resultado desejado. Diferencie o que foi observado do que ainda é incerto e proponha um ajuste concreto.")
+                        o.gerar(rascunhos["pedido"] ?? "")
+                    }
+                    .disabled(!o.salvo || o.documento.pedidoAtivo != nil || edicaoPendente(o))
+                    .accessibilityIdentifier("trabalho-revisar")
                 }
             }
         }

@@ -6,8 +6,8 @@ import SwiftData
 nonisolated struct ProducaoTrabalho: Sendable {
     var texto: String
     var produtor: String
-    /// ADR 05r: a preparação estruturada, quando ela validou. `nil` com apoio
-    /// de prática significa material bruto — a tela diz isso com essas palavras.
+    /// ADR 05r: a preparação estruturada. Com apoio de prática ela é
+    /// obrigatória: o motor lança `praticaIndisponivel` em vez de entregar.
     var pratica: DocumentoTrabalho.Pratica?
 }
 
@@ -45,7 +45,7 @@ final class OficinaTrabalho {
     @ObservationIgnored var produzir: (DocumentoTrabalho, DocumentoTrabalho.Pedido) async throws -> ProducaoTrabalho
 
     init(trabalho: Trabalho, context: ModelContext,
-         produzir: @escaping (DocumentoTrabalho, DocumentoTrabalho.Pedido) async throws -> ProducaoTrabalho = MotorTrabalho.produzir) throws {
+         produzir: @escaping (DocumentoTrabalho, DocumentoTrabalho.Pedido) async throws -> ProducaoTrabalho = { try await MotorTrabalho.produzir($0, $1) }) throws {
         guard AcessoTrabalho.permitido(trabalho, no: context) else { throw ErroAbertura.acessoRestrito }
         self.trabalho = trabalho
         self.context = context
@@ -166,7 +166,9 @@ final class OficinaTrabalho {
             if let pedido { documento.falharPedido(pedido.id) }
             return nil
         }
-        guard estaDisponivel() else {
+        // Em prática o motor decide (decisão b): sem conta o pedido fica
+        // "prática indisponível", nunca "conecte a Apple Intelligence".
+        guard documento.praticaPedida || estaDisponivel() else {
             alterar { $0.falharPedido(pedido.id) }
             if salvo { erro = "Para preparar uma versão com IA, conecte Grok em Perfil ou ative Apple Intelligence. O pedido foi guardado; você também pode escrever sua versão." }
             return nil
@@ -186,12 +188,11 @@ final class OficinaTrabalho {
                                                pedidoID: pedido.id, pratica: resultado.pratica) }),
                       let versao = documento.versaoAtual else { return }
                 conferir(versao.id, pedidoID: pedido.id)
-                // ADR 05r: pedir prática e receber material bruto não pode
-                // passar calado — a tela diz que o exercício não saiu. Depois
-                // do commit da conferência, que limpa `erro` ao dar certo.
-                if entrada.praticaPedida, resultado.pratica == nil, salvo {
-                    erro = PraticaTrabalho.preparacaoIndisponivel
-                }
+            } catch MotorTrabalho.Erro.praticaIndisponivel {
+                // P1 (volta 6): quem escolheu praticar não recebe a produção
+                // delegada. O estado fica no pedido; a seção Praticar o lê.
+                guard verificarAcesso(), !Task.isCancelled, documento.pedidoAtivo?.id == pedido.id else { return }
+                alterar { $0.marcarPraticaIndisponivel(pedido.id) }
             } catch {
                 guard verificarAcesso(), !Task.isCancelled, documento.pedidoAtivo?.id == pedido.id else { return }
                 alterar { $0.falharPedido(pedido.id) }
@@ -254,7 +255,7 @@ final class OficinaTrabalho {
     /// versão. Guardar não marca ação executada nem capacidade adquirida.
     @discardableResult
     func guardarTentativa(_ texto: String, apoioUtilizado: String,
-                          artefatoID: UUID, anteriorID: UUID? = nil) -> Bool {
+                          artefatoID: UUID?, anteriorID: UUID? = nil) -> Bool {
         alterar { try $0.guardarTentativa(texto, apoioUtilizado: apoioUtilizado,
                                           artefatoID: artefatoID, anteriorID: anteriorID) }
     }
@@ -327,7 +328,7 @@ final class OficinaTrabalho {
 
 @MainActor
 enum MotorTrabalho {
-    enum Erro: Error { case indisponivel, respostaVazia }
+    enum Erro: Error { case indisponivel, respostaVazia, praticaIndisponivel }
     static var disponivel: Bool { Sabia.disponivel }
     /// A janela do provedor remoto. Acima disso a montagem desce ao aparelho.
     static let tetoRemoto = 18_000
@@ -396,15 +397,19 @@ enum MotorTrabalho {
         return cabeca + abertura + String(material.prefix(disponivel)) + fecho + aviso + final
     }
 
-    static func produzir(_ d: DocumentoTrabalho, _ p: DocumentoTrabalho.Pedido) async throws -> ProducaoTrabalho {
-        guard disponivel else { throw Erro.indisponivel }
-        // ADR 05r: quem escolheu praticar recebe EXERCÍCIO, não entrega. A
-        // preparação estruturada é a primeira tentativa; se ela não validar,
-        // cai na produção de sempre e o material bruto fica preservado.
-        if d.praticaPedida, let preparada = await prepararPratica(d, p) {
+    static func produzir(_ d: DocumentoTrabalho, _ p: DocumentoTrabalho.Pedido,
+                         contaLigada: Bool = ContaGrok.ligada) async throws -> ProducaoTrabalho {
+        // ADR 05r: quem escolheu praticar recebe EXERCÍCIO, não entrega. Se a
+        // preparação estruturada não sai (sem conta ou sem validar), o pedido
+        // fica indisponível — NUNCA cai na produção delegada (P1, volta 6).
+        if d.praticaPedida {
+            guard let preparada = await prepararPratica(d, p, contaLigada: contaLigada) else {
+                throw Erro.praticaIndisponivel
+            }
             return .init(texto: PraticaTrabalho.emMarkdown(preparada.pratica),
                          produtor: preparada.produtor, pratica: preparada.pratica)
         }
+        guard disponivel else { throw Erro.indisponivel }
         try Task.checkCancellation()
         let remoto = pedido(d, p, teto: tetoRemoto)
         if remoto.count <= tetoRemoto,
@@ -429,10 +434,13 @@ enum MotorTrabalho {
 extension MotorTrabalho {
     /// A preparação ESTRUTURADA. No Grok, JSON estrito; no aparelho, geração
     /// guiada por schema tipado (ADR 04t) cuja resposta volta como JSON e
-    /// passa pelo MESMO parser. `nil` = não validou: o chamador cai na
-    /// produção de sempre e o material bruto fica preservado.
-    static func prepararPratica(_ d: DocumentoTrabalho, _ p: DocumentoTrabalho.Pedido)
+    /// passa pelo MESMO parser. `nil` = não saiu: o chamador marca o pedido
+    /// como prática indisponível. Decisão (b): só com conta Grok; o caminho
+    /// do aparelho fica no código, atrás do Grok, para quando servir.
+    static func prepararPratica(_ d: DocumentoTrabalho, _ p: DocumentoTrabalho.Pedido,
+                                contaLigada: Bool = ContaGrok.ligada)
         async -> (pratica: DocumentoTrabalho.Pratica, produtor: String)? {
+        guard contaLigada else { return nil }
         let mensagem = PraticaTrabalho.montarPreparacao(d, p)
         let dificuldade = d.dificuldadeVigente
         if mensagem.count <= tetoRemoto,
@@ -456,22 +464,27 @@ extension MotorTrabalho {
     /// tentativa cabem inteiros ou fica `indisponivel` — nada é cortado.
     static func conferirTentativa(pratica: DocumentoTrabalho.Pratica,
                                   tentativa: String,
-                                  apoioUtilizado: String) async -> DocumentoTrabalho.ConferenciaTentativa {
+                                  apoioUtilizado: String,
+                                  contaLigada: Bool = ContaGrok.ligada) async -> DocumentoTrabalho.ConferenciaTentativa {
         func registro(_ estado: DocumentoTrabalho.EstadoConferencia, executor: String,
                       motivo: String? = nil,
                       resultados: [DocumentoTrabalho.ResultadoDaTentativa] = []) -> DocumentoTrabalho.ConferenciaTentativa {
             .init(executor: executor, versaoDoMetodo: PraticaTrabalho.versaoDoMetodo,
                   estado: estado, motivo: motivo, resultados: resultados)
         }
+        // Decisão (b): sem conta Grok nada é lido — nem pelo aparelho.
+        guard contaLigada else {
+            return registro(.indisponivel, executor: PraticaTrabalho.naoExecutada,
+                            motivo: PraticaTrabalho.semProvedor)
+        }
         let mensagem = PraticaTrabalho.montarConferencia(pratica, tentativa: tentativa,
                                                          apoioUtilizado: apoioUtilizado)
-        let teto = ContaGrok.ligada ? tetoRemoto : Sabia.tetoNoAparelho
-        guard mensagem.count <= teto else {
-            return registro(.indisponivel, executor: PraticaTrabalho.naoExecutada,
-                motivo: "Limite do aparelho: o enunciado, os critérios, o apoio e a sua tentativa somam \(mensagem.count) caracteres e a janela é de \(teto). Não mandei um pedaço deles.")
+        func naoCoube(_ teto: Int) -> DocumentoTrabalho.ConferenciaTentativa {
+            registro(.indisponivel, executor: PraticaTrabalho.naoExecutada,
+                motivo: "Limite do provedor: o enunciado, os critérios, o apoio e a sua tentativa somam \(mensagem.count) caracteres e a janela é de \(teto). Não mandei um pedaço deles.")
         }
-        if ContaGrok.ligada,
-           let cru = await Grok.responder(sistema: PraticaTrabalho.sistemaConferir,
+        guard mensagem.count <= tetoRemoto else { return naoCoube(tetoRemoto) }
+        if let cru = await Grok.responder(sistema: PraticaTrabalho.sistemaConferir,
                                           usuario: mensagem, temperatura: 0.2) {
             let executor = "Grok \(PraticaTrabalho.sufixoDoExecutor)"
             guard let resultados = PraticaTrabalho.parseConferencia(cru, pratica: pratica, tentativa: tentativa) else {
@@ -479,10 +492,12 @@ extension MotorTrabalho {
             }
             return registro(.concluida, executor: executor, resultados: resultados)
         }
+        // O Grok não respondeu: o aparelho tem o SEU teto (P3-D), não o remoto.
         guard Sabia.noAparelho, let esquema = try? PraticaTrabalho.esquemaConferencia(pratica) else {
             return registro(.indisponivel, executor: PraticaTrabalho.naoExecutada,
-                            motivo: PraticaTrabalho.semProvedor)
+                motivo: "Nenhum provedor respondeu a esta conferência. Nada da sua tentativa foi lido.")
         }
+        guard mensagem.count <= Sabia.tetoNoAparelho else { return naoCoube(Sabia.tetoNoAparelho) }
         let sessao = LanguageModelSession(instructions: PraticaTrabalho.sistemaConferir)
         let executor = "Apple Intelligence no aparelho \(PraticaTrabalho.sufixoDoExecutor)"
         guard let r = try? await sessao.respond(to: mensagem, schema: esquema,
