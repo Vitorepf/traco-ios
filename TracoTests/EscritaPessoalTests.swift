@@ -123,6 +123,11 @@ import Testing
         ("Preciso parar de me cobrar tanto, ando cansado demais pra isso.", "woop"),
         ("Meu objetivo era aguentar até sexta e estou exausto demais pra isso.", "woop"),
         ("Faz três semanas que eu acordo cansado, olho pro app que eu preciso construir e não consigo encostar nele, e isso me deixa pior a cada dia que passa.", "spec"),
+        // ADR 06i-C — um por buraco fechado: `dá medo` predicado, `bate um
+        // cansaço` e `por dentro pesa`. Os três tinham gancho e escapavam.
+        ("Me dá um medo que trava tudo, e sempre que penso nisso eu adio.", "seEntao"),
+        ("Toda vez que eu abro o computador bate um cansaço que não é do corpo.", "seEntao"),
+        ("Hoje eu preciso fingir que está tudo bem, mas por dentro pesa.", "dia"),
     ]
 
     /// O outro lado: as frases do revisor que os dois métodos levam com razão.
@@ -188,6 +193,13 @@ import Testing
         ("A habilidade que falta pro time é revisar código em voz alta; dá pra treinar toda semana.", "praticaDeliberada"),
         ("Preciso construir uma busca exaustiva no módulo de relatórios antes de otimizar.", "spec"),
         ("Preciso construir a lista vazia e o estado vazio da tela.", "spec"),  // ADR 06i-B / ALTO-2
+        // ADR 06i-C: a cauda da 06i-B tinha calado estas quatro. O intensificador
+        // posposto curto-circuitava o teste do objeto, e `ando `/`bate ` sem
+        // borda casavam dentro do gerúndio e de "combate".
+        ("Estou cansado demais desse módulo cheio de casos especiais e vou reescrever a função.", "spec"),  // [R] ALTO-3
+        ("Terminei de escrever o parser trabalhando cansado demais, vou revisar o módulo amanhã.", "spec"),  // [R] ALTO-4
+        ("Estou trabalhando com medo de quebrar a produção, então vou construir um teste antes.", "spec"),
+        ("O time está descansado e a fila vazia depois do deploy, e o módulo aguenta.", "spec"),
         ("Meu argumento é que o sentimento do cliente não substitui o dado da pesquisa.", "argumento"),
         ("Aposto que o novo fluxo reduz o abandono, mas dou 60% de chance, não mais que isso.", "atualizacao"),
         ("Qual a probabilidade real de entregar em março? Quanto eu acredito nisso hoje?", "atualizacao"),
@@ -428,5 +440,29 @@ import Testing
         #expect(!p("O que me dá medo é ninguém avisar a tempo."))
         #expect(!p("Faz sentido separar o módulo em dois? O sentimento do time é que sim."))
         #expect(!p("Preciso de uma busca exaustiva no índice antes de otimizar."))
+        // ADR 06i-C: o intensificador é TRANSPARENTE — o objeto continua sendo
+        // testado depois dele, e uma palavra a mais não troca o lado da frase.
+        #expect(!p("Estou cansado demais desse módulo cheio de casos especiais."))
+        #expect(p("Estou cansado demais pra isso."))
+        // e a borda de palavra dos verbos: gerúndio não é primeira pessoa
+        #expect(!p("Terminei o parser trabalhando cansado demais, vou revisar o módulo."))
+        #expect(!p("Fiquei pensando ansioso demais no resultado do deploy."))
+        #expect(!p("Estou trabalhando com medo de quebrar a produção."))
+        #expect(!p("O combate um medo de cada vez é a tática do time de suporte."))
+        // ...e dos radicais que moram dentro de outra palavra
+        #expect(!p("O time está descansado e a fila vazia depois do deploy."))
+        #expect(!p("Ele pensou o problema todo e devolveu a spec revisada."))
+        #expect(!p("O filme odiado pela crítica virou tema da spec da semana."))
+        #expect(!p("Me abriguei da chuva e cheguei atrasado na reunião do módulo."))
+        #expect(!p("O erro foi desculpado pelo time e a fila voltou a rodar."))
+        // ADR 06i-C: PREDICAR leva artigo, pede infinitivo ou abre a frase;
+        // NOMEAR é o obstáculo dentro de uma intenção e continua trabalho
+        #expect(p("Me dá um medo que trava tudo."))
+        #expect(p("Dá medo de encarar amanhã."))
+        #expect(!p("O que dá medo de verdade nesse plano é o custo do banco."))
+        // e o mesmo verbo no ramo dos substantivos, que tinha ficado de fora
+        #expect(p("Toda vez que eu abro o computador bate um cansaço que não é do corpo."))
+        #expect(p("Percebi que bate uma ansiedade toda vez que ele chega em casa."))
+        #expect(p("Hoje eu preciso fingir que está tudo bem, mas por dentro pesa."))
     }
 }

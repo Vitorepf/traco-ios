@@ -119,7 +119,7 @@ enum AnaliseLocal: Sendable {
     /// sentimento que NÃO tem segunda vida no trabalho. `senti` ganhou borda de
     /// palavra na volta A-5: sem ela "o sentido dele" e "o sentimento do
     /// cliente" calavam a nota inteira.
-    static let lexicoDoSentimento = #"\bsenti\b|\bsinto\b|\bsentia\b|\bme sentindo\b|dói|doeu|chor(ei|ar|ando|o)|trist|raiva|desmoron|arrepend|vergonh|mago[aeiou]|remoend|\btravei\b|\beu travo\b|angusti|desanimad|humilhad|culpad|nó na garganta"#
+    static let lexicoDoSentimento = #"\bsenti\b|\bsinto\b|\bsentia\b|\bme sentindo\b|dói|doeu|chor(ei|ar|ando|o)|trist|raiva|desmoron|arrepend|vergonh|mago[aeiou]|remoend|\btravei\b|\beu travo\b|angusti|desanimad|humilhad|\bculpad|nó na garganta"#
 
     /// 1b (ADR 06i). A PALAVRA DE DUPLA VIDA: `medo`, `pesa`, `ansioso`,
     /// `exausto`, `vazio`, `sozinho` e `cansado` são vocabulário de trabalho
@@ -131,14 +131,26 @@ enum AnaliseLocal: Sendable {
     /// capturava a própria flexão, e por isso "a lista vazia e o estado vazio"
     /// contava como DUAS palavras na densidade. Os substantivos `ansiedade` e
     /// `cansaço` entram porque `ansios`/`cansad` não os alcançam.
-    static let lexicoDeDuplaVida = #"medo|\bpesa|ansios|ansiedade|exaust|vazi|sozinh|cansad|cansaço"#
+    /// ADR 06i-C: `\b` em `medo` e `cansad` — sem ela "o time está descansado e
+    /// a fila vazia" contava duas palavras e calava uma nota de sistema.
+    static let lexicoDeDuplaVida = #"\bmedo|\bpesa|ansios|ansiedade|exaust|vazi|sozinh|\bcansad|\bcansaço"#
 
     /// ADR 06i-B — A CAUDA DO IDIOMA. O revisor mediu 18 de 20 desabafos novos
     /// vestidos pela A-5: a causa não era o radical, era esta lista curta. O que
     /// vem depois do adjetivo num desabafo real não é só pronome e pontuação —
     /// é intensificador posposto ("cansado demais") e advérbio de tempo
     /// ("sozinha faz meses", "vazio ultimamente", "exausto por dois dias").
-    static let caudaDoSentimento = #"([.,;!?]|$|e |nisso|disso|de mim|comigo|por dentro|aqui|hoje|ainda|de novo|de tudo|demais|pra caramba|ultimamente|desde |faz (tempo|dias|semanas|meses|anos)|o (dia|tempo) (todo|inteiro)|há (dias|semanas|meses)|por (\w+ )?(dias?|semanas?|horas?|m[êe]s|meses))"#
+    /// ADR 06i-C: o intensificador saiu daqui e virou TRANSPARENTE
+    /// (`intensificadorPosposto`). Como terminador ele curto-circuitava o teste
+    /// do objeto: "estou cansado demais desse módulo" — o exemplo canônico do
+    /// lado trabalho — casava na palavra `demais` e nunca chegava a olhar o
+    /// objeto. `pra isso` entra porque é complemento pronominal, não objeto.
+    static let caudaDoSentimento = #"([.,;!?]|$|e |nisso|disso|pra isso|de mim|comigo|por dentro|aqui|hoje|ainda|de novo|de tudo|desde |faz (tempo|dias|semanas|meses|anos)|o (dia|tempo) (todo|inteiro)|há (dias|semanas|meses)|por (\w+ )?(dias?|semanas?|horas?|m[êe]s|meses))"#
+
+    /// O intensificador vem ENTRE o adjetivo e a cauda, e não no lugar dela: com
+    /// ele "cansado demais pra isso" é desabafo e "cansado demais desse módulo"
+    /// continua trabalho, porque o objeto ainda é testado.
+    static let intensificadorPosposto = #"(demais|pra caramba|ultimamente)?\s*"#
 
     /// ADR 06i — o critério: o SENTIMENTO COMO ASSUNTO, não a palavra solta.
     /// Primeira pessoa + verbo de estado, e o complemento é pronome, nada, ou
@@ -151,20 +163,33 @@ enum AnaliseLocal: Sendable {
     /// pesa", "cada dia pesa"), porque a nota de trabalho nomeia a carga.
     /// O RADICAL não foi tocado na 06i-B: alargá-lo é o que causou a regressão
     /// da 06h. Só a cauda, os verbos de estado e os dois substantivos.
+    /// ADR 06i-C: `\b` na frente de TODA lista de verbos. Sem ela `ando ` casava
+    /// dentro do gerúndio ("trabalhando cansado demais"), `bate ` dentro de
+    /// "combate um medo", e uma nota de trabalho perdia a porta. É o mesmo
+    /// defeito de borda que a 06i consertou no `senti`.
     static let lexicoDoSentimentoNoAutor =
-        #"(estou|tô|estava|ando|fiquei|fico|vivo|acordei|acordo|me sinto|me sentia|sinto-me) (muito |tão |meio |um pouco |completamente |bem |só )?(sozinh[oa]|cansad[oa]|vazi[oa]|exaust[oa]|ansios[oa])\b\s*"#
+        #"\b(estou|tô|estava|ando|fiquei|fico|vivo|acordei|acordo|me sinto|me sentia|sinto-me) (muito |tão |meio |um pouco |completamente |bem |só )?(sozinh[oa]|cansad[oa]|vazi[oa]|exaust[oa]|ansios[oa])\b\s*"#
+        + intensificadorPosposto
         + caudaDoSentimento
-        + #"|(estou|tô|estava|fiquei|fico|tenho|tinha|senti|sinto|ando|bate|bateu) (com |muito |tanto |um pouco de )*(um |uma )?medo"#
+        + #"|\b(estou|tô|estava|fiquei|fico|tenho|tinha|senti|sinto|ando|bate|bateu) (com |muito |tanto |um pouco de )*(um |uma )?medo"#
         + #"|morrendo de medo"#
-        + #"|(estou|tô|ando|vivo|fiquei|fico) (com |numa |num |de )?(muita |tanta |uma |um )?(ansiedade|cansaço)\b"#
+        // ADR 06i-C — PREDICAR vs NOMEAR, a linha que a 06i-B nomeou e não
+        // escreveu. PREDICAR leva artigo ("me dá um medo"), pede infinitivo
+        // ("dá medo de encarar") ou abre a frase ("Dá medo."). NOMEAR — "o que
+        // me dá medo é ninguém avisar" — não faz nenhum dos três, e continua
+        // sendo obstáculo dentro de uma intenção.
+        + #"|\bd[áa] (um |uma )medo|\bd[áa] medo de \w+r\b|(^|[.!?]\s*)d[áa] medo"#
+        + #"|\b(estou|tô|ando|vivo|fiquei|fico|bate|bateu|d[áa]|deu) (com |numa |num |de )?(muita |tanta |uma |um )?(ansiedade|cansaço)\b"#
         + #"|\b(minha|meu) (ansiedade|cansaço)\b"#
         + #"|\b(o|um|esse|aquele|num|no|meu) vazio\b"#
-        + #"|\b(isso|isto|tudo|a vida|o dia|cada dia|essa semana) pesa\b"#
+        + #"|\b(isso|isto|tudo|a vida|o dia|cada dia|essa semana|por dentro) pesa\b"#
 
     /// 2. o juízo sobre si — o autor dizendo o que ELE é, ou o que ELE
     /// estragou. Vale em qualquer tamanho: "eu sou o problema" não fica menos
     /// pessoal em oitenta caracteres.
-    static let lexicoDoJuizoSobreSi = #"me (odi|culp|detest|despre)|n[ãa]o (sirvo|presto|valho)|sou (o|um|uma) (problema|lixo|fracasso|idiota|péssim|merda)|a culpa (é|foi) minha|estraguei|me sentindo (um|uma)"#
+    /// ADR 06i-C: `\b` em `me ` e `sou ` — "ele pensou o problema todo" carrega
+    /// `sou o problema` no meio de "pensou".
+    static let lexicoDoJuizoSobreSi = #"\bme (odi|culp|detest|despre)|n[ãa]o (sirvo|presto|valho)|\bsou (o|um|uma) (problema|lixo|fracasso|idiota|péssim|merda)|a culpa (é|foi) minha|estraguei|\bme sentindo (um|uma)"#
 
     /// 3. o funcionamento básico negado — dormir, comer, rir, aguentar. É o
     /// desabafo que não usa nenhuma palavra de sentimento e mesmo assim só
@@ -174,7 +199,7 @@ enum AnaliseLocal: Sendable {
     /// 4. o que eu fiz A ALGUÉM, em QUALQUER tamanho. O teto de 120 era a
     /// régua errada aqui: contar que se foi grosso com o irmão é desabafo com
     /// noventa caracteres tanto quanto com quatrocentos.
-    static let lexicoDoAtoContraAlguem = #"fui (injust|gross|duro demais|ríspid)|perdi a (paciência|cabeça)|tratei mal|briguei|discuti com|gritei com|xinguei|explodi com|descontei (com|n[oa]|nel[ae]|em)"#
+    static let lexicoDoAtoContraAlguem = #"fui (injust|gross|duro demais|ríspid)|perdi a (paciência|cabeça)|tratei mal|\bbriguei|discuti com|gritei com|xinguei|explodi com|descontei (com|n[oa]|nel[ae]|em)"#
 
     /// 5. o que eu DEIXEI de fazer — e este sim só ACIMA do teto: curta,
     /// "fiquei calada quando perguntaram" é a nota que nomeia uma conversa, e o

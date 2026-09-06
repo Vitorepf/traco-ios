@@ -3397,14 +3397,14 @@ A cauda virou constante própria (`caudaDoSentimento`), reusada pelo ramo do
 adjetivo. Os **dez casos que o revisor citou por extenso passam a ser calados,
 10 de 10** — medido no simulador, na suíte, antes e depois.
 
-**`dá medo` foi recusado, e o motivo é a régua inversa.** O revisor pediu
-`fico|dá|bate` no ramo do `medo`. `fico` e `bate` entraram; **`dá` não**, porque
-a régua inversa dele mesmo contém "Pré-mortem: imagino o lançamento no chão e o
-que me **dá medo** é ninguém avisar a tempo" esperando `premortem`. As duas
-réguas se contradizem neste caso, e é o primeiro caso de arbitragem desta ADR: o
-lado escolhido é o do **trabalho**, porque "me dá medo" com sujeito nomeado ("o
-que me dá medo é ninguém avisar") é obstáculo dentro de uma intenção — a mesma
-linha PREDICAR/NOMEAR que a ADR já traça. Fica dito aqui, não dentro do teste.
+**`dá medo` foi recusado na 06i-B, e a recusa era metade certa.** O revisor
+pediu `fico|dá|bate` no ramo do `medo`. `fico` e `bate` entraram; **`dá` não**,
+porque a régua inversa dele mesmo contém "Pré-mortem: imagino o lançamento no
+chão e o que me **dá medo** é ninguém avisar a tempo" esperando `premortem` — o
+`dá medo` largo custa uma forma real, e isso foi medido antes de recusar. O que
+estava errado era o enquadramento: a 06i-B declarou o caso "primeiro caso de
+arbitragem desta ADR" e, na mesma frase, **nomeou o discriminador sem
+implementá-lo**. A 06i-C o implementa e a arbitragem some (ver abaixo).
 
 **Um caractere, e ele contradizia esta ADR.** `vazi[oa]` era o único radical de
 `lexicoDeDuplaVida` que capturava a própria flexão, então "A lista **vazia** e o
@@ -3433,4 +3433,88 @@ não para esta volta. Os dois substantivos novos (`ansiedade`, `cansaço`) entra
 em `lexicoDeDuplaVida` e portanto alargam essa mesma densidade em dois termos.
 E o critério continua sintático: ele mede quem é o sujeito da frase, não o que o
 autor sente.
+
+### 06i-C — A FORMA DA CAUDA, e a borda de palavra varrida até o fim (volta A-5-C)
+
+**Três dimensões em 8 no re-G3, e uma raiz só.** Correção, Contrato e
+Privacidade desceram pelo mesmo defeito: a cauda da 06i-B foi escrita como
+**terminador** e o intensificador posposto entrou nela. Como terminador, ele
+curto-circuita o teste que o critério inteiro usa para separar trabalho de
+desabafo — o do OBJETO —, porque a regex para de olhar assim que casa `demais`:
+
+```
+não casa  «estou cansado desse módulo cheio de casos especiais.»          ← TRABALHO ✔
+CASAVA    «estou cansado demais desse módulo para reescrever a função.»   ← virava PESSOAL ✘
+```
+
+A segunda é a primeira com uma palavra a mais, e é o exemplo canônico do lado
+trabalho **desta própria ADR**. O conserto não é tirar o intensificador: é
+torná-lo **transparente** — `intensificadorPosposto` entra ENTRE o adjetivo e a
+cauda, opcional, e a cauda continua sendo cobrada depois dele. `pra isso` entra
+na cauda porque é complemento pronominal, não objeto. Com isso "cansado demais
+**pra isso**" é desabafo e "cansado demais **desse módulo**" é trabalho, que é a
+linha que a ADR sempre disse traçar.
+
+**A BORDA DE PALAVRA, varrida até o fim.** O padrão da volta inteira era um só e
+apareceu três vezes (`senti` na 06i, `vazi[oa]` na 06i-B, `ando ` agora):
+radical sem `\b` casando dentro de outra palavra. Desta vez a guarda foi varrida
+por completo — **os 8 léxicos, 82 alternativas, uma por uma** — e **11 pontos
+precisaram de `\b`** (as três listas de verbos contam três), a maioria medida com
+frase real antes e depois:
+
+| lugar | a palavra que entrava pela porta errada | a nota que era calada |
+|---|---|---|
+| `\b` nas 3 listas de verbos de `lexicoDoSentimentoNoAutor` | `ando ` dentro do gerúndio; `bate ` dentro de "combate" | "trabalhando cansado demais, vou revisar o módulo" |
+| `\bcansad` | "des**cansad**o" | "O time está descansado e a fila vazia depois do deploy" |
+| `\bmedo`, `\bcansaço` | "**medo**nho", "des**cansaço**" | — sem caso medido; entram pela mesma classe, junto com `\bcansad`, que tem |
+| `\bsou (o\|um\|uma)` | "pen**sou o** problema" | "Ele pensou o problema todo e devolveu a spec revisada" |
+| `\bme (odi\|culp\|…)` | "fil**me odi**ado" | "O filme odiado pela crítica virou tema da spec" |
+| `\bculpad` | "des**culpad**o" | "O erro foi desculpado pelo time e a fila voltou a rodar" |
+| `\bbriguei` | "a**briguei**" | "Me abriguei da chuva e cheguei atrasado na reunião" |
+
+**As outras alternativas foram conferidas e não têm o defeito**, e três que
+pareciam ter foram medidas e estão limpas: `exaust` em "busca exaustiva" (não
+dispara sozinho, precisa de companhia), `vazi` em "es**vazi**a" (colapsa com
+"vazio" na mesma chave da densidade, que é o conserto da 06i-B funcionando) e
+`\bpesa` em "pesa demais" (o objeto ainda é testado). **A classe está fechada**:
+nenhum radical da guarda casa hoje dentro de outra palavra.
+
+**PREDICAR vs NOMEAR, escrito.** A linha que a 06i-B nomeou na frase da recusa
+agora existe em código, e é a que o revisor propôs, com uma correção medida:
+
+```
+\bd[áa] (um |uma )medo  |  \bd[áa] medo de \w+r\b  |  (^|[.!?]\s*)d[áa] medo
+```
+
+- **PREDICAR** — leva artigo ("me **dá um** medo"), pede **infinitivo** ("dá
+  medo **de encarar**") ou abre a frase ("**Dá medo.**"). É desabafo.
+- **NOMEAR** — "o que me dá medo é ninguém avisar" não faz nenhum dos três: é
+  obstáculo dentro de uma intenção, e continua indo ao Pré-mortem.
+
+A correção sobre a proposta do revisor: `d[áa] medo de` largo comia "o que **dá
+medo de** verdade nesse plano", que é trabalho. Com `de` + **infinitivo**
+(`\w+r\b`) os dois lados ficam de pé — que é a própria definição que ele
+escreveu ("nunca vem com `de` + infinitivo" é a marca do NOMEAR). **Com isso a
+06i volta a não ter nenhum caso de arbitragem**, e é melhor assim: arbitragem é
+dívida, não troféu.
+
+**Mais dois buracos do mesmo ramo.** `bate|bateu|dá|deu` entram no ramo de
+`ansiedade|cansaço` (a 06i-B pôs `bate` só no ramo do `medo` — assimetria da
+própria correção), e `por dentro` entra na lista de sujeitos do `pesa`. Fecham
+"toda vez que eu abro o computador **bate um cansaço**" e "hoje eu preciso
+fingir que está tudo bem, mas **por dentro pesa**".
+
+**Volta:** melhorar. **O que a IA sabe:** nada de novo — a guarda continua sem
+modelo, no aparelho. **Prova:** as TRÊS réguas na mesma suíte, agora
+**57 protegidas + 13 com gancho + 6 legítimas da M3 + 52 de trabalho**, mais
+`aPalavraDeDuplaVidaSozinhaNaoDecide` com 40 asserções. As 121 frases das réguas
+existentes foram medidas antes e depois num binário que copia as linhas 111–238
+do `AnaliseLocal.swift` **verbatim** (o método do revisor): **0 mudanças** — os
+12 casos que mudaram de lado são exatamente os 12 alvo. `xcodebuild test` no
+iPhone 17 Pro (teste 4) `A1DF082C`: `✔ Test run with 752 tests in 128 suites
+passed after 7.379 seconds.` / `** TEST SUCCEEDED **`. **Fora:** o `\bpesa`
+continua casando "pesado" pela esquerda (é o que protege "Foi pesado"); `exaust`
+continua sem medida em nota real; a dívida da densidade em nota de sistema segue
+no RUMO; e a régua inversa continua sendo escrita por mim e pelo revisor, não
+por uso real.
 
