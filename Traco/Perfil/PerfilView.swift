@@ -41,6 +41,8 @@ struct PerfilView: View {
     /// ADR 04n: o índice de sentido, em número.
     @State private var indiceQuantas = Indice.quantas
     @State private var mostrarMetodos = false
+    /// ADR 05x: o método cuja proveniência está aberta na lista. Um por vez.
+    @State private var provenienciaAberta: String?
     @Environment(\.modelContext) private var context
     @Query(sort: \Nota.criadaEm, order: .reverse) private var notas: [Nota]
 
@@ -247,6 +249,20 @@ struct PerfilView: View {
                                 .font(.footnote)
                                 .foregroundStyle(Tema.tintaSuave)
                                 .fixedSize(horizontal: false, vertical: true)
+                            // ADR 05x: de onde vem — informação, nunca selo
+                            Button(provenienciaAberta == m.id ? "recolher" : "de onde vem") {
+                                provenienciaAberta = provenienciaAberta == m.id ? nil : m.id
+                            }
+                            .font(Tema.meta)
+                            .foregroundStyle(Tema.ambarTinta)
+                            .frame(minHeight: Tema.alvo, alignment: .leading)
+                            .contentShape(Rectangle())
+                            .buttonStyle(PressaoDiscreta())
+                            .accessibilityIdentifier("de-onde-vem-\(m.id)")
+                            .accessibilityValue(provenienciaAberta == m.id ? "aberto" : "recolhido")
+                            if provenienciaAberta == m.id {
+                                proveniencia(m)
+                            }
                         }
                     }
                 }
@@ -257,6 +273,41 @@ struct PerfilView: View {
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
         .presentationBackground(Tema.superficie)
+    }
+
+    /// As mesmas linhas da Lente (ADR 05x). Método do autor: "a que você
+    /// escreveu" ou "não informada".
+    @ViewBuilder
+    private func proveniencia(_ m: Metodo) -> some View {
+        if let p = m.proveniencia, !p.linhas.isEmpty {
+            VStack(alignment: .leading, spacing: 8) {
+                if m.doAutor {
+                    Text("proveniência: a que você escreveu")
+                        .font(Tema.meta)
+                        .foregroundStyle(Tema.tintaSuave)
+                }
+                ForEach(p.linhas, id: \.rotulo) { linha in
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(linha.rotulo)
+                            .font(Tema.label)
+                            .tracking(Tema.trackingLabel)
+                            .foregroundStyle(Tema.tintaFraca)
+                        Text(linha.texto)
+                            .font(.footnote)
+                            .foregroundStyle(Tema.tinta)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+            }
+            .padding(.bottom, 6)
+            .accessibilityIdentifier("proveniencia-\(m.id)")
+        } else {
+            Text(m.doAutor ? "proveniência: não informada — o arquivo do método não tem o campo." : "proveniência não informada.")
+                .font(.footnote)
+                .foregroundStyle(Tema.tintaSuave)
+                .fixedSize(horizontal: false, vertical: true)
+                .accessibilityIdentifier("proveniencia-\(m.id)")
+        }
     }
 
     // MARK: - Conta

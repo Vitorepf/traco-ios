@@ -21,6 +21,9 @@ struct LenteView: View {
     @State private var apontados: [Apontamento] = []
     @State private var trechoNovo = ""
     @State private var recusado = false
+    /// ADR 05x: a proveniência da forma, recolhida por padrão.
+    @State private var deOndeVem = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private var prosa: String { Caderno.prosa(de: texto) }
     /// O `NLTagger` e cinco regex sobre a nota inteira: pesado demais para o
@@ -55,6 +58,51 @@ struct LenteView: View {
                         .alvo()
                         .buttonStyle(PressaoDiscreta())
                         .accessibilityIdentifier("lente-pronto")
+                }
+
+                // ADR 05x: a forma desta nota e de onde ela vem. Informação,
+                // nunca selo: fonte, função, o que o Traço adaptou, evidência.
+                if let gesto {
+                    secao(gesto.nome, "a forma desta nota") {
+                        if let estado = gesto.estadoDoMetodo {
+                            Text(estado)
+                                .font(Tema.meta)
+                                .foregroundStyle(Tema.aviso)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 10)
+                                .accessibilityIdentifier("metodo-ausente")
+                        } else {
+                            Button {
+                                withAnimation(Tema.animacao(.easeOut(duration: Tema.cartaoEntra), reduzido: reduceMotion)) {
+                                    deOndeVem.toggle()
+                                }
+                            } label: {
+                                HStack(spacing: 10) {
+                                    Text("De onde vem")
+                                        .font(Tema.barra)
+                                        .foregroundStyle(Tema.tinta)
+                                    Spacer()
+                                    Image(systemName: "chevron.down")
+                                        .font(.footnote.weight(.semibold))
+                                        .foregroundStyle(Tema.tintaFraca)
+                                        .rotationEffect(.degrees(deOndeVem ? 180 : 0))
+                                }
+                                .frame(maxWidth: .infinity, minHeight: Tema.alvo)
+                                .padding(.horizontal, 14)
+                                .contentShape(Rectangle())
+                            }
+                            .buttonStyle(PressaoDiscreta())
+                            .accessibilityIdentifier("de-onde-vem")
+                            .accessibilityHint(deOndeVem ? "Recolhe" : "Fonte, função, o que o Traço adaptou e a evidência")
+                            .accessibilityValue(deOndeVem ? "aberto" : "recolhido")
+                            if deOndeVem {
+                                proveniencia(gesto.metodoDef)
+                                    .transition(Tema.transicao(.opacity, reduzido: reduceMotion))
+                            }
+                        }
+                    }
                 }
 
                 if !apontados.isEmpty {
@@ -274,7 +322,34 @@ struct LenteView: View {
         }
     }
 
-    private func paragrafo(_ rotulo: String, _ texto: String) -> some View {
+    /// As linhas da proveniência (ADR 05x). Método do autor sem o campo:
+    /// "não informada" — o arquivo é dele, a lacuna também.
+    @ViewBuilder
+    private func proveniencia(_ m: Metodo) -> some View {
+        if let p = m.proveniencia, !p.linhas.isEmpty {
+            VStack(alignment: .leading, spacing: 0) {
+                if m.doAutor {
+                    Text("proveniência: a que você escreveu")
+                        .font(Tema.meta)
+                        .foregroundStyle(Tema.tintaSuave)
+                        .padding(.horizontal, 14)
+                        .padding(.top, 10)
+                }
+                ForEach(p.linhas, id: \.rotulo) { paragrafo($0.rotulo, $0.texto, id: "proveniencia") }
+            }
+        } else {
+            Text(m.doAutor ? "proveniência: não informada — o arquivo do método não tem o campo." : "proveniência não informada.")
+                .font(Tema.meta)
+                .foregroundStyle(Tema.tintaSuave)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 10)
+                .accessibilityIdentifier("proveniencia")
+        }
+    }
+
+    private func paragrafo(_ rotulo: String, _ texto: String, id: String = "contraparte") -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(rotulo)
                 .font(Tema.label)
@@ -289,7 +364,7 @@ struct LenteView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 14)
         .padding(.vertical, 10)
-        .accessibilityIdentifier("contraparte")
+        .accessibilityIdentifier(id)
     }
 
     private func marcar(_ trecho: String, _ rotulo: RotuloApontar) {
