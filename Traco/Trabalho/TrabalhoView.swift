@@ -192,8 +192,8 @@ struct TrabalhoView: View {
 
     // MARK: - ADR 05r: praticar
 
-    /// A seção da prática, numa leitura de cima para baixo: objetivo →
-    /// material → tentativa → feedback → dificuldade. Aparece com apoio
+    /// A seção da prática, numa leitura de cima para baixo: material →
+    /// tentativa → feedback → dificuldade (o objetivo é o título da tela). Aparece com apoio
     /// "praticar"; em "combinar" só depois que a pessoa delimita o trecho que
     /// ela mesma vai exercitar — sem delimitação, combinar é entrega delegada.
     /// A tentativa existe SEM exercício e SEM conta: a prática é da pessoa.
@@ -204,9 +204,6 @@ struct TrabalhoView: View {
         VStack(alignment: .leading, spacing: 16) {
             if o.documento.apoio != .delegar {
                 titulo("Praticar")
-                Text("O que você quer conseguir fazer: \(o.documento.intencaoAtual.texto)")
-                    .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
-                    .accessibilityIdentifier("pratica-objetivo")
                 if o.documento.apoio == .combinar { delimitacao(o) }
                 if o.documento.praticaPedida {
                     let versao = o.documento.versaoAtual
@@ -295,9 +292,11 @@ struct TrabalhoView: View {
                         .accessibilityIdentifier("pratica-confirmar-hipotese")
                     Button("Não é essa a dificuldade") { avaliar(h, .contestada, chave: chave, oficina: o) }
                         .accessibilityIdentifier("pratica-contestar-hipotese")
-                    Text("Concordar aqui é concordar neste contexto. Não é o app avaliando você, nem prova de que você aprendeu.")
-                        .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
                 }.disabled(!o.salvo)
+            }
+            if !o.documento.hipoteses.isEmpty {
+                Text("Concordar aqui é concordar neste contexto. Não é o app avaliando você, nem prova de que você aprendeu.")
+                    .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
             }
         }
     }
@@ -332,7 +331,8 @@ struct TrabalhoView: View {
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Tema.superficie, in: RoundedRectangle(cornerRadius: Tema.raio))
+        // Névoa: material da IA em superfície baixa; a entrada da pessoa fica em branco.
+        .background(Tema.superficieBaixa, in: RoundedRectangle(cornerRadius: Tema.raio))
     }
 
     /// O campo começa VAZIO e a IA nunca o preenche. Guardar acrescenta uma
