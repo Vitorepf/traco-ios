@@ -123,7 +123,7 @@ abrir app ──► página em branco ──► usuário escreve (traço livre)
 ### Avisos da Análise de notas (contrato local a migrar)
 | Detecta | Aviso (essência) |
 |---|---|
-| Afirmação vazia ("eu sou rico/vencedor") | Piora quem se estima pouco (Wood 2009). Escreva POR QUE um valor seu importa. |
+| Afirmação vazia ("eu sou rico/vencedor") | O que Wood, Perunovic e Lee (2009) mediram — humor depois de repetir uma frase dada, pior em quem estava com a autoestima baixa — e a pergunta pelo fato. Nunca uma sentença sobre o mundo (ADR 2026-09-06f). |
 | Pedido de texto pronto | A recusa global foi revogada. Preservar a nota e encaminhar a produção ao Trabalho; não atribuir texto gerado ao autor. A migração das mensagens antigas ainda precisa de código e testes. |
 | Pedido de ouvinte/consolo | Quem é a pessoa de verdade que deveria receber isto? |
 | Plano sem obstáculo | Sem obstáculo interno, é fantasia — e fantasia reduz esforço (Oettingen). |
@@ -2867,3 +2867,46 @@ de `g4-v16-perfil-quadros-depois.png` — 8 quadros (267 ms) normal, 5 (167 ms)
 sob Reduzir Movimento, os mesmos números da Lente. **Fora:** proveniência
 no prompt da sábia, aviso ao autor quando um método some, edição da
 proveniência pela tela.
+
+## ADR 2026-09-06f — O aviso diz o que a fonte sustenta
+
+**A distância.** O `avisoWood` interrompia a escrita com "Afirmação sem prova
+não gruda" — sentença do app sobre o mundo, sem origem na tela e **falsa em
+relação à própria fonte**: Wood, Perunovic e Lee (2009) não mediram fixação nem
+memória; mediram humor logo depois de repetir uma frase dada, pior em quem
+estava com a autoestima baixa e um pouco melhor em quem estava com ela alta. A
+ADR 05x acabara de ensinar o app a dizer de onde vem cada método; os cinco
+avisos que interrompem o autor continuavam sem isso, e um deles alegava mais do
+que o estudo permite.
+
+**A decisão.** O aviso passa a ser informação e pergunta: "Um estudo de 2009
+mediu isto: repetir uma frase dessas fez quem estava com a autoestima baixa se
+sentir pior, e quem estava com ela alta, um pouco melhor. O que aconteceu que
+fez você escrever isso?" — o resultado nos dois sentidos, inclusive o
+favorável; nenhum diagnóstico de em qual grupo o autor está, porque o app não
+sabe; a pergunta do texto antigo preservada palavra por palavra, porque é a
+parte que pede o FATO. Nada bloqueia: o aviso continua cartão, não porta. A
+proveniência entra no formato da 05x (`Metodo.Proveniencia`, reutilizada):
+`AnaliseLocal.proveniencia(doAviso:)` devolve FONTE, FUNÇÃO e EVIDÊNCIA — esta
+com o limite junto do achado ("não mede escrever a própria frase, não mede
+efeito duradouro, e não diz nada sobre você"). O aviso do plano sem obstáculo
+aponta para a proveniência do WOOP no catálogo, não para uma segunda cópia que
+possa divergir dela. Aviso sem fonte devolve `nil`: os três que são regra do
+Traço, e não estudo, não ganham origem inventada. A regra fica travada por
+teste: nenhum aviso pode conter "não gruda", "comprovad", "cientificamente",
+"estudos mostram", "eficácia", "funciona" e afins.
+
+**Custo assumido:** o dado existe e a tela ainda não o mostra — a linha "De onde
+vem" no cartão de Aviso é a próxima volta, porque `CartaoAnaliseView` está
+aberta na volta 12. O aviso ficou de 79 para 214 caracteres num cartão que
+interrompe. O gatilho não mudou: a regex continua estreita
+(`eu sou (rico|um vencedor|incrível|o melhor|imparável)`) e a rota da IA
+(`afirmacaoVazia`) continua imprevisível — mexer nela antes de ter frases reais
+do autor troca um aviso que não dispara por um que dispara errado.
+**Volta:** multiplicar. **O que a IA sabe:** nada — o aviso é do algoritmo (ADR
+04r) e a proveniência não viaja no prompt. **Prova:** 5 testes novos em
+`AvisoSemAlegacaoTests`, provados contra o texto antigo (a guarda acusa
+`não gruda` e a ausência de "2009"/"autoestima" — 4 issues); build sem aviso;
+suíte integral 724 testes em 126 suítes, 0 falhas, no iPhone 17 Pro (teste 4)
+em 06/09/2026. **Fora:** a linha na tela do cartão (volta seguinte), a
+proveniência dos avisos que são regra do app, e o gatilho.

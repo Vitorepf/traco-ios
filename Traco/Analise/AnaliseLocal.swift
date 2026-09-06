@@ -11,7 +11,10 @@ enum AnaliseLocal: Sendable {
     }
 
     nonisolated static let avisoFrasePronta = "A frase aqui é sua. O Traço não escreve."
-    nonisolated static let avisoWood = "Afirmação sem prova não gruda. O que aconteceu que fez você escrever isso?"
+    /// ADR 06f: o app não diz o que a fonte não mediu. Wood 2009 mediu HUMOR
+    /// logo depois de repetir uma frase dada, não fixação — a informação e a
+    /// pergunta ficam; a sentença sobre o mundo, não.
+    nonisolated static let avisoWood = "Um estudo de 2009 mediu isto: repetir uma frase dessas fez quem estava com a autoestima baixa se sentir pior, e quem estava com ela alta, um pouco melhor. O que aconteceu que fez você escrever isso?"
     nonisolated static let avisoOuvinte = "Quem é a pessoa de verdade que deveria ouvir isto?"
     nonisolated static let avisoOettingen = "Falta o obstáculo. O que, em você, costuma atrapalhar isto?"
     nonisolated static let avisoDoisGestos = "Um gesto por sessão. O segundo método vai para outra página."
@@ -25,6 +28,22 @@ enum AnaliseLocal: Sendable {
         "semObstaculo": avisoOettingen,
         "doisGestos": avisoDoisGestos,
     ]
+    /// ADR 06f: de onde vem o aviso, no formato da ADR 05x. Aviso fora deste
+    /// dicionário não tem fonte a mostrar, e a tela não inventa uma.
+    nonisolated static let provenienciaDosAvisos: [String: Metodo.Proveniencia] = [
+        avisoWood: .init(
+            fonte: "Joanne V. Wood, W. Q. Elaine Perunovic e John W. Lee, \"Positive self-statements: power for some, peril for others\", Psychological Science 20(7), 2009",
+            funcao: .evidencia,
+            evidencia: "Dois experimentos com estudantes, medindo humor logo depois de repetir uma frase dada. Quem tinha autoestima baixa se sentiu pior; quem tinha alta, um pouco melhor. Não mede escrever a própria frase, não mede efeito duradouro, e não diz nada sobre você."),
+    ]
+
+    /// O aviso do plano sem obstáculo é o mesmo estudo do WOOP: a proveniência
+    /// é a do catálogo, não uma segunda cópia que possa divergir dela.
+    nonisolated static func proveniencia(doAviso aviso: String) -> Metodo.Proveniencia? {
+        if aviso == avisoOettingen { return Catalogo.metodo("woop")?.proveniencia }
+        return provenienciaDosAvisos[aviso]
+    }
+
     nonisolated static let perguntaWOOP = "Qual é o hábito ou o medo seu que vai impedir — não o relógio, não os outros?"
 
     static func classificar(texto: String, gestoAtual: Gesto?, campos: [String: String]) -> Veredito {
