@@ -2725,12 +2725,21 @@ do domínio ficou um só, e por isso o que abre mudou nas duas telas (ícones na
 Notas, marca no atual na ficha). Seguem onde estão até a volta de cada tela:
 `PressaoClara`, `CartaoBotaoStyle`, `BarraBotaoStyle`, `AcaoTrabalhoStyle`,
 os rótulos de 11 arquivos e os toasts da página, do perfil e do calendário.
-Dois Δ de movimento que a lei por classe trouxe e que ficam: (1) sob Reduzir
-Movimento a queima da expressiva (`FechoExpressivaView`, classe
-`.deslocamento`) deixa de levar 3,0 s e vira um fade de 0,15 s seguido de
-3,15 s de espera parada antes de a página amanhecer — o fogo não anda, mas o
-relógio da cena segue o mesmo; a volta da Página (V18) decide se a espera
-encurta ou se a cena passa à classe `.opacidade`; (2) a célula nova da tabela
+Três estados de componente que só os previews exercem hoje:
+`Cartao.flutuante` e `.tingido` (a barra que flutua e a ficha tingida do
+calendário, V15) e `LinhaDeEstado.lendo` (a Lente e as Notas, V13); ficam
+porque são o inventário da auditoria com dona no RUMO, e a volta que não os
+chamar os apaga. Dois Δ de movimento que a lei por classe trouxe: (1) a
+queima da expressiva (`FechoExpressivaView`) entrou na lei como
+`.deslocamento`, e esta ADR assumiu, sem ninguém ter filmado, que sob Reduzir
+Movimento ela viraria um fade de 0,15 s mais 3,15 s de espera parada. O G4
+pediu a classe `.opacidade`, que é o que a cena é (a frente de fogo é máscara
+que revela, `Queima.swift`), e assim ficou; filmada com Reduzir Movimento, a
+queima nem chega à lei: `queimar()` corta antes da cena (guarda anterior à
+volta, igual em main) e a página amanhece sem espera; sem Reduzir Movimento,
+os mesmos 3,0 s. Δ zero nos dois modos
+(`ferramentas/orca/v10-g4fix-rm-queima.mp4`, quadros em
+`v10-g4fix-rm-queima-quadros.png`); (2) a célula nova da tabela
 (`EditorBlocoView`) trocou a mola própria 0,35/0,80 por `Mola.escala`
 0,55/0,86: assenta em ≈ 0,70 s em vez de ≈ 0,45 s (+0,25 s), perceptível só
 lado a lado, numa ação rara.
@@ -2750,8 +2759,10 @@ V15, V18…) tem de ser líquido-negativa ao migrar para Componentes** — a tel
 apaga mais do que o componente cresce, ou a volta não fecha.
 
 **Prova.** Build sem aviso novo; suíte integral 650/0 em 123 suítes no iPhone 17e em
-06/09/2026, refeita no iPhone 17 Pro do revisor (650/0) e depois da correção
-do G3. Capturas antes (main) e depois em `large` e AX5, diff de pixels fora
+06/09/2026, refeita no iPhone 17 Pro do revisor (650/0), depois da correção
+do G3 e, na árvore final (rebase sobre main 59e5833 e correção do G4),
+**713/0 em 125 suítes** no iPhone 17 Pro (`✔ Test run with 713 tests in 125
+suites passed after 8.392 seconds.`). Capturas antes (main) e depois em `large` e AX5, diff de pixels fora
 da barra de status, em pixels reais e não "0 %": Notas vazio, calendário mês,
 ficha topo em AX5 e Recordar ler/escrever/revelar 0 px nos dois tamanhos;
 ficha topo e rodapé em `large` 235 px = 0,008 % (o caret do título); ficha

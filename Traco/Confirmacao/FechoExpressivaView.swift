@@ -131,10 +131,10 @@ struct FechoExpressivaView: View {
             // o teclado desce ANTES da cena: com ele de pé, o fogo nascia
             // atrás das teclas e a queima acontecia fora do palco
             try? await Task.sleep(for: .milliseconds(320))
-            withAnimation(Tema.movimento(.deslocamento, .easeIn(duration: Tema.Duracao.queimaCena), reduzido: reduceMotion)) { progressoQueima = 1 }
+            withAnimation(Tema.movimento(.opacidade, .easeIn(duration: Tema.Duracao.queimaCena), reduzido: reduceMotion)) { progressoQueima = 1 }
             try? await Task.sleep(for: .seconds(Tema.Duracao.queimaCena + Tema.Duracao.curta))
             if !sessao.queimar(no: context, sentido: linha) {
-                withAnimation(Tema.movimento(.deslocamento, .easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion)) { progressoQueima = 0 }
+                withAnimation(Tema.movimento(.opacidade, .easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion)) { progressoQueima = 0 }
             }
         }
     }
