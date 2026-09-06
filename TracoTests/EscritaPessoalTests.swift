@@ -53,6 +53,57 @@ import Testing
         "Fui injusto com o time inteiro na retrospectiva. Falei que o problema era falta de cuidado quando o problema era o prazo que eu mesmo aceitei sem discutir.",
     ]
 
+    /// Volta A-B: os 15 desabafos que o REVISOR G3 inventou e mediu chegando
+    /// VESTIDOS (de 20 que ele escreveu) — cinco pelos métodos que vêm
+    /// ANTES da Expressiva no catálogo (`woop`, `seEntao`, `spec`,
+    /// `notaPermanente`) e dois pelo rodapé do Destaque, que calculava
+    /// `pessoal` e nunca usava o cálculo.
+    static let doRevisorG3 = [
+        "Chorei muito hoje. Sempre que ele fala assim eu me calo e depois passo a noite inteira remoendo.",
+        "Não consigo parar de pensar no que eu disse pra ela. Doeu ver a cara dela quando eu falei aquilo.",
+        "Percebi hoje que eu magoei a minha filha e estou me odiando por isso desde a hora do almoço.",
+        "Toda vez que a minha mãe liga eu fico com raiva e depois com culpa, e hoje não foi diferente.",
+        "Quero parar de ser assim. Hoje eu perdi a paciência de novo e senti vergonha na frente de todo mundo.",
+        "Meu objetivo era não chorar hoje e eu chorei antes das dez da manhã, sozinho no carro.",
+        "Chorei.\nFui grosso com ela.\nEstou pesado.",
+        "Doeu muito.\nNao falei nada.\nHoje foi horrivel.",
+        "Hoje eu não sirvo pra nada. Passei o dia olhando a TELA sem conseguir fazer nada, e à noite a conversa com o meu pai só piorou tudo.",
+        "Estou exausto e vazio. Não durmo há três dias e hoje na reunião com o time eu simplesmente desliguei.",
+        "A IDEIA de que eu estraguei aquela amizade não sai da minha cabeça, chorei no banho de novo.",
+        "Entendi que eu sou o problema. Fui grosso com ela sem motivo nenhum e agora ela nem responde.",
+        "Sempre que eu penso naquela conversa eu travo. Engoli tudo de novo.",
+        "Preciso parar de fazer isso comigo. Hoje eu me odiei o dia inteiro.",
+        "Estou sozinho nisso. Sempre que eu preciso de alguém não tem ninguém.",
+    ]
+
+    /// Volta A-B: os meus 20, escritos DEPOIS do conserto e contra a régua do
+    /// dono — "se a sua guarda só passa nas frases que alguém já escreveu, ela
+    /// não é guarda, é lista". Cada um bate numa porta DIFERENTE do catálogo
+    /// (o `esperadoSemGuarda` é o método que levaria a nota se a guarda não
+    /// existisse), varrendo os 21 métodos antes e depois da Expressiva.
+    static let minhas: [(String, String)] = [
+        ("Quero parar de me anular perto dele. Hoje foi de novo e eu voltei pra casa me sentindo um lixo.", "woop"),
+        ("Toda vez que a gente discute eu acabo pedindo desculpa por algo que eu nem fiz. Estou cansado de mim.", "seEntao"),
+        ("Passei o dia inteiro na frente da tela e não produzi nada. Me sinto um fracasso e não sei mais o que fazer.", "spec"),
+        ("Percebi que faz meses que eu não rio de verdade. Fui ver as fotos de janeiro e nem reconheci aquela pessoa.", "notaPermanente"),
+        ("Briguei com ela.\nNão pedi desculpa.\nDormi no sofá.", "destaque"),
+        ("Hoje eu preciso fingir que está tudo bem outra vez, e cada dia isso pesa um pouco mais.", "dia"),
+        ("Preciso decidir se eu conto pra ela o que aconteceu. Estou com medo das duas saídas.", "decisao"),
+        ("Não entendi o que eu fiz de errado. Ela só parou de falar comigo e eu fiquei três dias remoendo.", "feynman"),
+        ("Queria melhorar em ser gente. Fui grosso com o meu irmão hoje sem nenhum motivo e ele nem revidou.", "praticaDeliberada"),
+        ("Estou lendo umas coisas sobre luto e chorei na terceira página. Acho que não é sobre o livro.", "leitura"),
+        ("Não conhecia esse vazio de agora. É como se eu tivesse desligado por dentro e ninguém notasse.", "palavra"),
+        ("O pior jeito de criar um filho é o que eu fiz hoje, e eu gritei com ele por causa de um copo derrubado.", "inversao"),
+        ("O outro lado é que ela tem razão. Eu sumi, eu não liguei, e agora quero que ela entenda a minha tristeza.", "steelman"),
+        ("Pensei em dez jeitos de sair dessa e todos terminam comigo sozinho num apartamento vazio.", "divergencia"),
+        ("É como quando eu tinha doze anos e ninguém veio na minha festa. A mesma vergonha, trinta anos depois.", "analogia"),
+        ("Do zero: eu não presto pra relacionamento nenhum. Hoje ficou claro na cara dela quando eu falei aquilo.", "primeirosPrincipios"),
+        ("Aposto que ela nem vai responder. E eu não devia ter mandado aquela mensagem às duas da manhã, sabendo que ela ia ler de manhã cedo antes do trabalho.", "atualizacao"),
+        ("Meu argumento hoje foi que eu estava cansado. É mentira, eu só descontei nela porque dava.", "argumento"),
+        ("Imagina que deu errado: a gente se separa e eu fico com dois dias por semana com a minha filha. Não durmo pensando nisso.", "premortem"),
+        ("Numa frase: eu estraguei o que era bom. Levei anos pra construir e uma noite pra pôr abaixo.", "destilar"),
+    ]
+
     /// O outro lado: as frases do revisor que os dois métodos levam com razão.
     /// Se a guarda comer estas, ela é larga demais.
     static let legitimas: [(String, String)] = [
@@ -122,6 +173,79 @@ import Testing
                 #expect(Self.rota(frase) == esperado, Comment(rawValue: "\(Self.rota(frase)) ← \(frase.prefix(60))"))
             }
         }
+    }
+
+    /// Volta A-B / achado A-1 do G3: a guarda deixou de depender da POSIÇÃO no
+    /// catálogo. Os cinco métodos antes da Expressiva e o rodapé do Destaque
+    /// estão cobertos pelo mesmo cálculo.
+    @MainActor @Test func osVinteDoRevisorG3NaoViramExercicio() {
+        Self.comOsNovos {
+            for frase in Self.doRevisorG3 {
+                let r = Self.rota(frase)
+                #expect(r == "silencio" || r == "expressiva",
+                        Comment(rawValue: "escrita pessoal vestida de \(r): «\(frase)»"))
+            }
+        }
+    }
+
+    /// A régua do dono: frases que NINGUÉM tinha escrito quando a guarda foi
+    /// feita, uma por porta do catálogo. Sem a guarda cada uma vira o método
+    /// declarado ao lado — é o que faz delas régua e não enfeite.
+    @MainActor @Test func osMeusVinteNaoViramExercicio() {
+        Self.comOsNovos {
+            for (frase, _) in Self.minhas {
+                let r = Self.rota(frase)
+                #expect(r == "silencio" || r == "expressiva",
+                        Comment(rawValue: "escrita pessoal vestida de \(r): «\(frase)»"))
+            }
+        }
+    }
+
+    /// E cada uma delas bate mesmo na porta que diz bater: sem `eEscritaPessoal`
+    /// a nota chegaria ao método do lado. Se este teste ficar verde com a
+    /// guarda desligada, a régua acima não mede nada.
+    @MainActor @Test func cadaUmaDasMinhasBateNumaPortaDiferente() {
+        let portas = Set(Self.minhas.map(\.1))
+        #expect(portas.count == Self.minhas.count)
+        for (frase, esperado) in Self.minhas {
+            let voz = frase
+            let lower = voz.lowercased()
+            #expect(AnaliseLocal.eEscritaPessoal(voz, lower),
+                    Comment(rawValue: "a guarda não reconhece: «\(frase)»"))
+            guard esperado != "destaque" else {
+                let linhas = voz.split(separator: "\n")
+                #expect(linhas.count >= 3 && linhas.allSatisfy { $0.count < 60 })
+                continue
+            }
+            let m = try? #require(Catalogo.metodo(esperado))
+            #expect(m?.roteamento.contains { lower.contains(regex: $0) } == true,
+                    Comment(rawValue: "não bate em \(esperado): «\(frase)»"))
+        }
+    }
+
+    /// Volta A-B / achado A-2 do G3: `.silencio` tem precedência ZERO em
+    /// `Sessao.escolher`, então a guarda era NULA com Grok ou Apple
+    /// Intelligence ligados. A quarta linha da regra: escrita pessoal
+    /// reconhecida pelo algoritmo cala o modelo.
+    @MainActor @Test func aEscritaPessoalCalaOModelo() {
+        let doModelo = AnaliseLocal.Veredito.gesto(.expressiva, pergunta: "p")
+        let exame = AnaliseLocal.Veredito.gesto(.destaque, pergunta: "p")
+        // sem a guarda, a forma do modelo continua mandando (ADR 04c)
+        #expect(Sessao.escolher(remoto: exame, local: .silencio) == exame)
+        // com a guarda, o veredito local vence qualquer forma do modelo
+        #expect(Sessao.escolher(remoto: exame, local: .silencio, pessoal: true) == .silencio)
+        #expect(Sessao.escolher(remoto: doModelo, local: .expressiva, pessoal: true) == .expressiva)
+        // e o aviso local continua acima de tudo
+        let aviso = AnaliseLocal.Veredito.aviso(AnaliseLocal.avisoWood)
+        #expect(Sessao.escolher(remoto: exame, local: aviso, pessoal: true) == aviso)
+    }
+
+    /// E o caminho de verdade: `Sessao` calcula `pessoal` do texto cru, com o
+    /// mobiliário fora, como `classificar` faz.
+    @MainActor @Test func aSessaoReconheceAEscritaPessoalDoTextoCru() {
+        #expect(AnaliseLocal.escritaPessoal(texto: "Me arrependi e chorei.", campos: [:]))
+        #expect(!AnaliseLocal.escritaPessoal(texto: "", campos: [:]))
+        #expect(!AnaliseLocal.escritaPessoal(texto: "Preciso construir um app de notas.", campos: [:]))
     }
 
     /// A guarda é do texto, não da lista de métodos: vale para qualquer método

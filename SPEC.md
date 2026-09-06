@@ -2957,7 +2957,7 @@ Pro (teste 4) em 06/09/2026, build sem aviso; números da medição acima.
 **Fora:** a lista de Atalhos vista na tela de um aparelho real; bancada de
 roteamento com mais frases.
 
-## ADR 2026-09-06h — A escrita pessoal é da Expressiva, e de mais ninguém
+## ADR 2026-09-06h — A escrita pessoal fica do autor: não vira método nenhum
 
 **A distância.** O revisor da volta M3 mediu, com 58 frases dele e prova de
 tela: **22 desabafos chegavam VESTIDOS de método de exercício.** A causa era
@@ -2976,30 +2976,59 @@ passam do teto e são roubados assim mesmo, porque o léxico de dez palavras da
 Expressiva não cobre o dia ruim contado sem adjetivo.
 
 **A decisão.** `AnaliseLocal.eEscritaPessoal` — uma guarda, não um método —
-decide antes do laço, e passada a Expressiva nenhum método leva a nota:
+decide antes do laço, e **nenhum método leva a nota, venha ele antes ou depois
+da Expressiva no catálogo**. A guarda é de CINCO famílias, não de uma lista de
+frases (o revisor da volta A-B mostrou o defeito de lista: `me odiando` pegava e
+`me odiei` não):
 
-- **léxico do SENTIMENTO**, em qualquer tamanho: os dez do catálogo mais
-  `arrepend`, `vergonha`, `magoad`, `me odiando`, `remoendo`, `nó na garganta`,
-  `não aguento`, `chorar`, `chorando`;
-- **léxico do ATO ARREPENDIDO** (`engoli`, `fiquei calad`, `deixei passar`,
-  `perdi a paciência|cabeça`, `tratei mal`, `fui injust|gross|duro demais|
-  ríspid`, `não devia ter`) **só acima do teto de 120**: curta, "fiquei calada
-  quando perguntaram" é a nota que nomeia uma conversa, e o método que pergunta
-  serve; longa, é o dia sendo despejado.
+1. **o estado, por RADICAL** — `senti|sinto`, `dói|doeu`, `chor…`, `trist…`,
+   `raiva`, `medo`, `pesa…`, `desmoron…`, `arrepend…`, `vergonh…`, `mago…`,
+   `remoend…`, `travei|eu travo`, `angusti…`, `ansios…`, `exaust…`, `vazio|a`,
+   `sozinh…`, `cansad…`, `desanimad…`, `humilhad…`, `culpad…`, `nó na garganta`.
+   O radical é o que faz a família não ser lista: pega a flexão que ninguém
+   escreveu ainda;
+2. **o juízo sobre si** — `me odi|culp|detest|despre`, `não sirvo|presto|valho`,
+   `sou o|um|uma problema|lixo|fracasso|idiota|péssimo`, `a culpa é minha`,
+   `estraguei`, `me sentindo um|uma`. Em qualquer tamanho: "eu sou o problema"
+   não fica menos pessoal em oitenta caracteres;
+3. **o funcionamento básico negado** — `não durmo|consigo dormir|como mais|rio|
+   aguento|tenho vontade|saio da cama|consigo mais`. É o desabafo que não usa
+   nenhuma palavra de sentimento e mesmo assim só fala de si;
+4. **o que eu fiz A ALGUÉM**, em qualquer tamanho — `fui injust|gross|duro
+   demais|ríspid`, `perdi a paciência|cabeça`, `tratei mal`, `briguei`,
+   `discuti com`, `gritei com`, `xinguei`, `explodi com`, `descontei com|no|na`.
+   O teto de 120 era a régua errada aqui: contar que se foi grosso com o irmão é
+   desabafo com noventa caracteres tanto quanto com quatrocentos;
+5. **o que eu DEIXEI de fazer** (`engoli`, `fiquei calad`, `deixei passar`, `não
+   devia ter`) — e este sim **só acima do teto de 120**: curta, "fiquei calada
+   quando perguntaram" é a nota que nomeia uma conversa, e o método que pergunta
+   serve; longa, é o dia sendo despejado.
+
+E o **rodapé do Destaque** (três linhas curtas sem regex nenhuma) obedece o
+mesmo cálculo: ele computava `pessoal` e nunca usava. "Briguei com ela. / Não
+pedi desculpa. / Dormi no sofá." não é uma lista para destacar.
 
 A guarda vive em CÓDIGO e não no `Metodos.json` por duas razões medidas: a pasta
 do autor reescreve o catálogo, e uma fronteira do produto não pode morar num
 arquivo editável; e alargar a Expressiva por DADO deixaria os dois métodos novos
-inalcançáveis (medido pelo implementador da M3-B com 287 sondas). Sem Expressiva
-no catálogo a guarda vale para todos — falha fechada. O teto de 120 continua
-sobre a Expressiva: nota curta não vira desabafo, e as 14 curtas voltam ao
-SILÊNCIO que tinham antes da colagem, não a uma sugestão nova.
+inalcançáveis (medido pelo implementador da M3-B com 287 sondas). A guarda não
+depende mais da POSIÇÃO no catálogo — a primeira versão só valia para a cauda, e
+o revisor da volta A-B mediu **15 de 20 desabafos novos ainda vestidos** pelos
+cinco métodos que vêm ANTES da Expressiva (`woop`, `seEntao`, `spec`,
+`notaPermanente`) e pelo rodapé do Destaque. O teto de 120 continua sobre a
+Expressiva: nota curta não vira desabafo, e as 14 curtas voltam ao SILÊNCIO que
+tinham antes da colagem, não a uma sugestão nova. **O título honesto é este:**
+8 dos 22 desabafos protegidos não vão para a Expressiva, vão para o silêncio —
+o que a guarda garante é que a escrita pessoal fica do autor, não que ela vira
+Expressiva.
 
-**Custo assumido, medido com as 287 sondas do M3-B:** a guarda fecha **15 de 287
-ramos (5,2%) para TEXTO LONGO** — 3 da Coluna da esquerda (`engoli`, `fiquei
-calado`, `deixei passar`) e 12 do Exame da noite (`me arrependi` em qualquer
-tamanho, `não devia ter …`, `fui injusto|grosso|duro demais|ríspido`, `perdi a
-paciência|cabeça`). **Nenhum método fica sem porta:** a Coluna continua sendo
+**Custo assumido, medido com as 287 sondas do M3-B (remedido na volta A-B, com o
+`Metodos.json` das 28 formas da M3, DEPOIS do conserto):** a guarda fecha **14 de
+287 ramos (4,9%) para TEXTO LONGO** — 3 da Coluna da esquerda (`engoli`, `fiquei
+calado`, `deixei passar`) e **11** do Exame da noite (`me arrependi`, `não devia
+ter feito|reagido|agido|tratado`, `fui injusto|grosso|duro demais|ríspido`,
+`perdi a paciência|cabeça`). Eram 14, não 15: `hoje eu tratei` continua chegando
+ao Exame, porque a sonda é "tratei" e não "tratei mal". **Nenhum método fica sem porta:** a Coluna continua sendo
 chamada por "não disse", "não consegui dizer", "devia ter dito", "queria ter
 dito", "a conversa com", "na reunião com"; o Exame por "exame da noite", "passei
 o dia em revista", "hoje eu fiz|reagi|tratei" — provado na tela com o Exame
@@ -3011,29 +3040,53 @@ certo" — as duas com palavra de sentimento, as duas que iam para a pergunta de
 Hamming. **É o lado certo do erro:** silêncio devolve a nota ao autor; vestir
 carimba quatro campos de exercício sobre o que ele acabou de sentir. E é dito
 aqui porque o `todoRamoDeRegexAlcancaOSeuMetodo` da volta M3 vai ficar VERMELHO
-quando esta guarda entrar: os 15 ramos precisam entrar no `conhecidos` dele, com
-esta ADR como motivo.
+quando esta guarda entrar: os 14 ramos precisam entrar no `conhecidos` dele, com
+esta ADR como motivo. **As catorze entradas, medidas e literais:**
+`colunaEsquerda|deixei passar|silencio`, `colunaEsquerda|engoli|silencio`,
+`colunaEsquerda|fiquei calado|silencio`, `exameDaNoite|fui duro demais|silencio`,
+`exameDaNoite|fui grosso|silencio`, `exameDaNoite|fui injusto|silencio`,
+`exameDaNoite|fui ríspido|silencio`, `exameDaNoite|me arrependi|silencio`,
+`exameDaNoite|não devia ter agido|silencio`,
+`exameDaNoite|não devia ter feito|silencio`,
+`exameDaNoite|não devia ter reagido|silencio`,
+`exameDaNoite|não devia ter tratado|silencio`,
+`exameDaNoite|perdi a cabeça|silencio`, `exameDaNoite|perdi a paciência|silencio`.
 
-**A regra escrita, que faltava:** quando o modelo de bordo e a regex discordam,
-a ADR 04c/04r continua valendo e agora está dita — **aviso local vence gesto
-remoto sempre; silêncio do modelo devolve a palavra ao algoritmo; forma do
-modelo manda.** A guarda da escrita pessoal é do algoritmo local, então o degrau
-do aparelho pode contradizê-la: `Sessao.escolher` mantém a forma remota. **Isto
-é um buraco declarado, não resolvido aqui** — `Sessao.swift` está com a volta 12
-e o conserto (a guarda valendo também sobre o veredito do modelo) é a volta
-seguinte.
+**A regra escrita, agora em QUATRO linhas, nesta ordem** (`Sessao.escolher`):
+
+1. **aviso local vence sempre** — o aviso é do algoritmo (ADR 04r);
+2. **escrita pessoal reconhecida pelo algoritmo CALA o modelo** (nova);
+3. **silêncio do modelo devolve a palavra ao algoritmo** (ADR 04c);
+4. **forma do modelo manda.**
+
+A linha 2 é a mais forte de todas, e ela fecha um buraco que a versão anterior
+desta ADR chamou de "pode contradizer" quando o certo era "vence sempre": a
+guarda devolvia `.silencio`, e `.silencio` tem precedência ZERO — com conta Grok
+ou com Apple Intelligence ligada bastava o modelo devolver uma forma para a nota
+protegida ser VESTIDA (e no caminho automático `aplicar` veste, não sugere). Ou
+seja: a proteção era nula exatamente na configuração padrão de um iPhone
+moderno, o caso que ela existe para impedir. O modelo recebe
+`instrucoesDoCatalogo`, que descreve o Exame da noite inteiro; "Me arrependi e
+chorei" é a frase que ele foi ensinado a classificar. `Sessao` calcula
+`AnaliseLocal.escritaPessoal(texto:campos:)` do texto cru, com o mobiliário
+fora, e passa o resultado para `escolher`.
 
 **Volta:** multiplicar. **O que a IA sabe:** nada de novo. **Prova:**
-`EscritaPessoalTests` com as 58 frases do revisor e os SETE métodos da M3
-carregados pela pasta do autor (o `Metodos.json` é da M3 e não foi tocado) — 4
-testes, e sem a guarda o mesmo arquivo acusa as 22 uma a uma; a régua é a do
-M3-B (escrita pessoal não vira `.gesto` NENHUM, não só os dois novos); suíte
-integral `Test run with 730 tests in 127 suites passed` em 06/09/2026; tela em
-`a3-antes-exame-da-noite.png`, `a3-depois-a-nota-fica-do-autor.png` e
-`a3-o-exame-continua-alcancavel.png`, os três no iPhone 17 Pro (teste 4) com os
-sete métodos semeados e `TRACO_SEM_MODELO=1`. **Fora:** a guarda sobre o
-veredito do modelo de bordo (pede `Sessao.swift`), a assimetria vestir/sugerir,
-e o `conhecidos` da M3.
+`EscritaPessoalTests` com os SETE métodos da M3 carregados pela pasta do autor
+(o `Metodos.json` é da M3 e não foi tocado) e **três réguas somadas, 57 frases**:
+as 22 do revisor da M3, as 15 que o revisor da volta A-B mediu chegando vestidas
+pelos métodos ANTES da Expressiva, e **20 minhas, escritas depois do conserto,
+uma por PORTA do catálogo** — `cadaUmaDasMinhasBateNumaPortaDiferente` cobra que
+cada uma bata mesmo na regex do método que ela declara, senão a régua não mede
+nada. Sem a guarda o mesmo arquivo acusa as 22 uma a uma; a régua é a do M3-B
+(escrita pessoal não vira `.gesto` NENHUM, não só os dois novos). Os 14 ramos
+foram REMEDIDOS depois do conserto, com o `Metodos.json` das 28 formas da M3 e o
+expansor `Sondas` da M3: `sondas totais: 287`, `ramos novos: 14`, a lista acima
+palavra por palavra. Tela em `a3-antes-exame-da-noite.png`,
+`a3-depois-a-nota-fica-do-autor.png` e `a3-o-exame-continua-alcancavel.png`, os
+três no iPhone 17 Pro (teste 4) com os sete métodos semeados e
+`TRACO_SEM_MODELO=1`. **Fora:** a assimetria vestir/sugerir, e o `conhecidos` da
+M3 (a lista está aqui; quem mesclar a M3 a cola).
 
 **Junto nesta ADR, a voz do app sobre si mesmo** (auditoria da trilha Métodos:
 as doenças da voz se concentram onde o app fala de si). Três trocas de palavra:

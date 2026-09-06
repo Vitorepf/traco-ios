@@ -187,18 +187,33 @@ final class Sessao {
             // ("eu sou um vencedor" → aviso Wood) falhava justamente na
             // configuração padrão. Silêncio do modelo não é veredito.
             let local = AnaliseLocal.classificar(texto: textoAtual, gestoAtual: gestoAtual, campos: camposAtuais)
-            let veredito = Self.escolher(remoto: remoto, local: local)
+            // ADR 06h (volta A-B): a guarda da escrita pessoal devolvia
+            // `.silencio`, e silêncio tem precedência ZERO aqui — com conta Grok
+            // ou Apple Intelligence a proteção era NULA, no caso exato que ela
+            // existe para impedir. Quem reconhece a escrita pessoal é o
+            // algoritmo, e o algoritmo cala o modelo.
+            let veredito = Self.escolher(
+                remoto: remoto, local: local,
+                pessoal: AnaliseLocal.escritaPessoal(texto: textoAtual, campos: camposAtuais))
             self.aplicar(veredito, automatica: automatica)
         }
     }
 
-    /// ADR 2026-09-04c — quem decide entre o degrau de cima e a regex.
-    /// Silêncio do modelo devolve a palavra ao algoritmo; forma do modelo
-    /// manda. É a §19.4 em três linhas: o algoritmo garante, a IA sugere.
+    /// ADR 2026-09-04c/04r/06h — quem decide entre o degrau de cima e a regex,
+    /// em QUATRO linhas, nesta ordem: aviso local vence sempre; escrita pessoal
+    /// reconhecida pelo algoritmo cala o modelo; silêncio do modelo devolve a
+    /// palavra ao algoritmo; forma do modelo manda. É a §19.4: o algoritmo
+    /// garante, a IA sugere — e o que o algoritmo garante inclui a fronteira da
+    /// escrita pessoal, que não é sugestão nenhuma.
     nonisolated static func escolher(remoto: AnaliseLocal.Veredito?,
-                                     local: AnaliseLocal.Veredito) -> AnaliseLocal.Veredito {
+                                     local: AnaliseLocal.Veredito,
+                                     pessoal: Bool = false) -> AnaliseLocal.Veredito {
         // ADR 04r: aviso local vence gesto remoto — o aviso é do algoritmo, sempre
         if case .aviso = local { return local }
+        // ADR 06h: desabafo protegido pelo algoritmo não pode ser vestido pelo
+        // modelo. O modelo recebe `instrucoesDoCatalogo` e foi ensinado a
+        // classificar exatamente estas frases; aqui ele não tem voz.
+        if pessoal { return local }
         switch remoto {
         case .none, .some(.silencio): return local
         case .some(let v): return v
