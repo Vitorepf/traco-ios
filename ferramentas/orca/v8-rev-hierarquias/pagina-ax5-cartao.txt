@@ -1,0 +1,30 @@
+            resource-id='jindo-container-view:1' [157,14][282,50] 125x36 
+    resource-id='SBSwitcherWindow:Main' [0,0][440,956] 440x956 
+              resource-id='AppSwitcherContentView' [0,0][440,956] 440x956 
+                accessibilityText='Traço' | resource-id='card:app.traco:sceneID:app.traco-default' [0,0][440,956] 440x956 
+                                                      accessibilityText='18:59' [59,22][107,43] 48x21 
+                                                      accessibilityText='Celular' | text='intensidade do sinal, 4 de 4 barras' | value='intensidade do sinal, 4 de 4 barras' [312,25][334,39] 22x14 
+                                                      text='SSID, 3 de 3 barras Wi-Fi' | value='SSID, 3 de 3 barras Wi-Fi' | resource-id='3 de 3 barras Wi-Fi' [341,25][361,39] 20x14 
+                                                      accessibilityText='carga da bateria, 100%' [368,25][399,39] 31x14 
+  accessibilityText='Traço' [0,0][440,956] 440x956 
+              accessibilityText='Notas' | resource-id='notas-da-pagina' [20,66][153,129] 133x63 
+              accessibilityText='Concluir' | resource-id='concluir' [232,66][420,129] 188x63 
+                  accessibilityText='Página' | text='quero correr de manhã' | value='quero correr de manhã' | resource-id='pagina' [15,137][425,309] 410x172 
+                    accessibilityText='Barra de rolagem vertical, 1 página' | text='0%' | value='0%' [392,137][422,309] 30x172 
+                  resource-id='forma-woop' [20,337][420,1268] 400x931 
+                    accessibilityText='RESULTADO (O MELHOR DESFECHO)' [20,337][323,481] 303x144 
+                    accessibilityText='Resultado (o melhor desfecho)' | resource-id='campo-resultado' [32,499][408,565] 376x66 
+                      accessibilityText='Barra de rolagem horizontal, 1 página' | text='0%' | value='0%' [32,532][408,562] 376x30 
+                    accessibilityText='OBSTÁCULO INTERNO (O SEU HÁBITO/MEDO)' [20,603][355,747] 335x144 
+                    accessibilityText='Obstáculo interno (o SEU hábito/medo)' | resource-id='campo-obstaculo' [32,765][408,831] 376x66 
+                      accessibilityText='Barra de rolagem horizontal, 1 página' | text='0%' | value='0%' [32,798][408,828] 376x30 
+                    accessibilityText='SE [OBSTÁCULO], ENTÃO EU' [20,869][375,965] 355x96 
+                accessibilityText='Barra de rolagem vertical, 4 páginas' | text='0%' | value='0%' [407,165][437,498] 30x333 
+                accessibilityText='Barra de rolagem vertical, 4 páginas' | text='0%' | value='0%' [407,165][437,498] 30x333 
+              resource-id='cartao-analise' [36,514][404,894] 368x380 
+                  accessibilityText='WOOP' [51,514][178,562] 127x48 
+                  accessibilityText='isto é um desejo com obstáculo pela frente.' [51,572][401,832] 350x260 
+                  accessibilityText='Qual é o hábito ou o medo seu que vai impedir — não o relógio, não os outros?' | resource-id='pergunta-da-forma' [51,842][404,1233] 353x391 
+                accessibilityText='Barra de rolagem vertical, 3 páginas' | text='0%' | value='0%' [371,514][401,894] 30x380 
+                accessibilityText='Barra de rolagem vertical, 3 páginas' | text='0%' | value='0%' [371,514][401,894] 30x380 
+              accessibilityText='Abrir as notas' | resource-id='aba-arquivo' [0,440][23,544] 23x104 

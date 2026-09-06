@@ -1,0 +1,69 @@
+            resource-id='jindo-container-view:1' [157,14][282,50] 125x36 
+    resource-id='SBSwitcherWindow:Main' [0,0][440,956] 440x956 
+              resource-id='AppSwitcherContentView' [0,0][440,956] 440x956 
+                accessibilityText='Traço' | resource-id='card:app.traco:sceneID:app.traco-default' [0,0][440,956] 440x956 
+                                                      accessibilityText='18:55' [59,22][107,43] 48x21 
+                                                      accessibilityText='Celular' | text='intensidade do sinal, 4 de 4 barras' | value='intensidade do sinal, 4 de 4 barras' [312,25][334,39] 22x14 
+                                                      text='SSID, 3 de 3 barras Wi-Fi' | value='SSID, 3 de 3 barras Wi-Fi' | resource-id='3 de 3 barras Wi-Fi' [341,25][361,39] 20x14 
+                                                      accessibilityText='carga da bateria, 100%' [368,25][399,39] 31x14 
+          resource-id='inputView' [0,611][440,956] 440x345 
+          resource-id='inputView' [0,611][440,956] 440x345 
+          resource-id='inputView' [0,611][440,956] 440x345 
+          resource-id='inputView' [0,611][440,956] 440x345 
+  accessibilityText='Traço' [0,0][440,956] 440x956 
+          accessibilityText='Capturador de Folhas' | text='Expandido' | value='Expandido' [182,57][258,82] 76x25 
+                  accessibilityText='Voltar' [21,74][79,94] 58x20 
+                    accessibilityText='Voltar' | resource-id='chevron.backward' [21,77][28,90] 7x13 
+                    accessibilityText='voltar' [36,74][79,94] 43x20 
+                  accessibilityText='RECORDAR' [181,77][253,90] 72x13 
+                  accessibilityText='O que estava escrito?' | resource-id='recordar-pergunta' [20,106][208,130] 188x24 
+                  accessibilityText='Memória' [15,138][425,491] 410x353 
+                    resource-id='_UITextSelectionRangeAdjustmentContainerView' [15,138][15,138] 0x0 
+                      resource-id='com.apple.text.grabber.leading' [15,138][15,138] 0x0 
+                      resource-id='com.apple.text.grabber.leading' [15,138][15,138] 0x0 
+                    accessibilityText='Barra de rolagem vertical, 1 página' | text='0%' | value='0%' [392,138][422,491] 30x353 
+                  accessibilityText='Revelar' [190,502][249,523] 59x21 DIS
+                  accessibilityText='hoje não' | resource-id='recordar-adiar' [191,572][249,590] 58x18 
+          resource-id='inputView' [0,611][440,956] 440x345 
+          resource-id='SystemInputAssistantView' [0,611][440,655] 440x44 
+              resource-id='CenterPageView' [0,611][440,655] 440x44 
+                  accessibilityText='Previsões de Digitação' [0,611][440,655] 440x44 
+                        accessibilityText='Não' [0,611][146,655] 146x44 
+                        accessibilityText='O' [146,611][293,655] 147x44 
+                        accessibilityText='E' [293,611][440,655] 147x44 
+                resource-id='UIKeyboardLayoutStar Preview' [0,655][440,898] 440x243 
+                  accessibilityText='Q' [4,662][47,718] 43x56 
+                  accessibilityText='W' [47,662][91,718] 44x56 
+                  accessibilityText='E' [91,662][134,718] 43x56 
+                  accessibilityText='R' [134,662][177,718] 43x56 
+                  accessibilityText='T' [177,662][221,718] 44x56 
+                  accessibilityText='Y' [221,662][264,718] 43x56 
+                  accessibilityText='U' [264,662][307,718] 43x56 
+                  accessibilityText='I' [307,662][351,718] 44x56 
+                  accessibilityText='O' [351,662][394,718] 43x56 
+                  accessibilityText='P' [394,662][437,718] 43x56 
+                  accessibilityText='A' [26,718][69,774] 43x56 
+                  accessibilityText='S' [69,718][112,774] 43x56 
+                  accessibilityText='D' [112,718][156,774] 44x56 
+                  accessibilityText='F' [156,718][199,774] 43x56 
+                  accessibilityText='G' [199,718][242,774] 43x56 
+                  accessibilityText='H' [242,718][286,774] 44x56 
+                  accessibilityText='J' [286,718][329,774] 43x56 
+                  accessibilityText='K' [329,718][372,774] 43x56 
+                  accessibilityText='L' [372,718][416,774] 44x56 
+                  accessibilityText='maiúsculas' | resource-id='shift' [4,774][60,830] 56x56 SEL
+                  accessibilityText='Z' [69,774][112,830] 43x56 
+                  accessibilityText='X' [112,774][156,830] 44x56 
+                  accessibilityText='C' [156,774][199,830] 43x56 
+                  accessibilityText='V' [199,774][242,830] 43x56 
+                  accessibilityText='B' [242,774][286,830] 44x56 
+                  accessibilityText='N' [286,774][329,830] 43x56 
+                  accessibilityText='M' [329,774][372,830] 43x56 
+                  accessibilityText='apagar' | resource-id='delete' [381,774][437,830] 56x56 
+                  accessibilityText='números' | resource-id='more' [4,830][58,886] 54x56 
+                  accessibilityText='Emoji' | resource-id='emoji' [58,830][112,886] 54x56 
+                  resource-id='space' [112,830][329,886] 217x56 
+                  accessibilityText='retorno' | resource-id='Return' [329,830][437,886] 108x56 
+            accessibilityText='Próximo teclado' | text='Português e English' | value='Português e English' [2,887][82,956] 80x69 
+            accessibilityText='Ditado' | resource-id='dictation' [357,887][437,956] 80x69 
+            accessibilityText='Ditado' | resource-id='dictation' [357,887][437,956] 80x69 

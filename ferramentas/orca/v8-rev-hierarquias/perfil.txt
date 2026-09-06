@@ -1,0 +1,59 @@
+            resource-id='jindo-container-view:1' [157,14][282,50] 125x36 
+    resource-id='SBSwitcherWindow:Main' [0,0][440,956] 440x956 
+              resource-id='AppSwitcherContentView' [0,0][440,956] 440x956 
+                accessibilityText='Traço' | resource-id='card:app.traco:sceneID:app.traco-default' [0,0][440,956] 440x956 
+                                                      accessibilityText='18:58' [59,22][107,43] 48x21 
+                                                      accessibilityText='Celular' | text='intensidade do sinal, 4 de 4 barras' | value='intensidade do sinal, 4 de 4 barras' [312,25][334,39] 22x14 
+                                                      text='SSID, 3 de 3 barras Wi-Fi' | value='SSID, 3 de 3 barras Wi-Fi' | resource-id='3 de 3 barras Wi-Fi' [341,25][361,39] 20x14 
+                                                      accessibilityText='carga da bateria, 100%' [368,25][399,39] 31x14 
+  accessibilityText='Traço' [0,0][440,956] 440x956 
+              accessibilityText='Notas' | resource-id='notas-da-pagina' [29,96][71,115] 42x19 
+              accessibilityText='Concluir' | resource-id='concluir' [350,96][411,115] 61x19 
+              accessibilityText='TABELA' | resource-id='pagina' [29,128][77,141] 48x13 
+              accessibilityText='Por fazer' | resource-id='pagina' [21,147][37,164] 16x17 
+              accessibilityText='Página' | text='quero correr de manhã antes do trabalho' | value='quero correr de manhã antes do trabalho' | resource-id='pagina' [24,134][415,902] 391x768 
+                resource-id='_UITextSelectionRangeAdjustmentContainerView' [24,134][24,134] 0x0 
+                  resource-id='com.apple.text.grabber.leading' [24,134][24,134] 0x0 
+                  resource-id='com.apple.text.grabber.leading' [24,134][24,134] 0x0 
+                accessibilityText='Barra de rolagem vertical, 1 página' | text='0%' | value='0%' [384,134][412,801] 28x667 
+                accessibilityText='Barra de rolagem vertical, 1 página' | text='0%' | value='0%' [384,134][412,801] 28x667 
+              accessibilityText='Trabalhar nisto' | resource-id='trabalhar-nisto' [29,811][411,848] 382x37 
+              accessibilityText='Analisar' [29,858][118,895] 89x37 
+              accessibilityText='Recordar' [126,858][216,895] 90x37 
+              accessibilityText='Anexar arquivo' | resource-id='abrir-arquivo' [223,858][313,895] 90x37 
+              accessibilityText='Lente da língua' | resource-id='abrir-lente' [321,858][411,895] 90x37 
+              accessibilityText='Abrir as notas' | resource-id='aba-arquivo' [9,442][31,541] 22x99 
+              accessibilityText='Perfil' [20,70][85,103] 65x33 
+                  accessibilityText='CONTA' [36,135][81,149] 45x14 
+                  accessibilityText='Grok' [36,161][74,181] 38x20 
+                  accessibilityText='sem conta — tudo funciona aqui no aparelho.' | resource-id='estado-conta' [36,183][344,201] 308x18 
+                  accessibilityText='Entrar com a conta Grok' | resource-id='entrar-conta' [36,219][221,239] 185x20 
+                  accessibilityText='No aparelho, pronto — a análise não precisa de conta nem de sinal.' | resource-id='estado-de-bordo' [36,251][360,293] 324x42 
+                    accessibilityText='No aparelho' [36,251][142,275] 106x24 
+                    accessibilityText='pronto — a análise não precisa de conta nem de sinal.' [36,277][360,293] 324x16 
+                  accessibilityText='A análise e a sábia usam a sua assinatura do Grok — sem chave de API, sem cobrança por uso. Sem a conta, a sábia responde pelo modelo do aparelho (Apple Intelligence), sem rede, com uma janela menor. Hoje: precisa da sua conta Grok (em Perfil) ou da Apple Intelligence ligada. Notas trancadas e expressivas jamais vão à rede.' [36,305][316,483] 280x178 
+                  accessibilityText='PERMISSÕES' [36,547][120,560] 84x13 
+                  accessibilityText='Calendários do aparelho' [36,572][228,593] 192x21 
+                  accessibilityText='lendo os seus calendários — 1 compromisso nos próximos sete dias.' | resource-id='estado-calendario' [36,597][370,635] 334x38 
+                  accessibilityText='Apple, Google, iCloud — o Traço lê todos os que estão em Ajustes › Apps › Calendário › Contas, e nunca escreve em nenhum. Serve para o campo do calendário já sugerir o seu próximo compromisso.' [36,647][398,716] 362x69 
+                  accessibilityText='Abrir os Ajustes do Traço' | resource-id='abrir-ajustes' [36,740][235,761] 199x21 
+                  accessibilityText='Avisos' [36,797][88,817] 52x20 
+                  accessibilityText='desligados. Sem eles, nada te cobra: nem o Recordar, nem os compromissos.' | resource-id='estado-avisos' [36,821][404,859] 368x38 
+                  accessibilityText='ainda não pedi — marco um compromisso e o iPhone pergunta.' | resource-id='orcamento-avisos' [36,863][314,897] 278x34 
+                accessibilityText='Barra de rolagem vertical, 4 páginas' | text='0%' | value='0%' [407,147][437,870] 30x723 
+                accessibilityText='Barra de rolagem vertical, 4 páginas' | text='0%' | value='0%' [407,147][437,870] 30x723 
+              accessibilityText='Escrever uma nota nova' | resource-id='nova-nota' [0,876][88,920] 88x44 
+                accessibilityText='Redigir' | resource-id='square.and.pencil' [36,880][55,899] 19x19 
+                accessibilityText='Escrever' [19,904][68,918] 49x14 
+              accessibilityText='Notas' | resource-id='aba-notas' [88,876][176,920] 88x44 
+                accessibilityText='rectangle.stack' | resource-id='rectangle.stack' [119,877][144,902] 25x25 
+                accessibilityText='Notas' [115,904][148,918] 33x14 
+              accessibilityText='Calendário' | resource-id='aba-calendario' [176,876][264,920] 88x44 
+                accessibilityText='Calendário' | resource-id='calendar' [209,880][230,899] 21x19 
+                accessibilityText='Calendário' [189,904][250,918] 61x14 
+              accessibilityText='Padrões' | resource-id='aba-padroes' [264,876][352,920] 88x44 
+                accessibilityText='circle.hexagongrid' | resource-id='circle.hexagongrid' [297,879][319,900] 22x21 
+                accessibilityText='Padrões' [285,904][330,918] 45x14 
+              accessibilityText='Perfil' | resource-id='aba-perfil' [352,876][440,920] 88x44 SEL
+                accessibilityText='Conta' | resource-id='person.crop.circle' [385,879][407,900] 22x21 
+                accessibilityText='Perfil' [380,904][411,918] 31x14 
