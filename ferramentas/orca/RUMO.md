@@ -45,11 +45,20 @@ Ordem do dono de 06/09 13:10. Um pesquisador dedicado procura métodos que MERE�
 |---|---|---|
 | M1 | primeira rodada de candidatos | EM EDIÇÃO (worktree metodos-m1) |
 | M2 | segunda rodada + fonte primária de Ohno + achados para a colagem | EM EDIÇÃO (mesmo worktree metodos-m1) |
-| M3 | colagem no catálogo dos SETE + conserto do roteamento | EM EDIÇÃO (a V16 mesclou em 968ba34) |
+| M3 | colagem no catálogo dos SETE + conserto do roteamento + guarda de encadeamento morto | EM EDIÇÃO (a V16 mesclou em 968ba34) |
+| M4 | terceira rodada: fato contrário (Darwin), ordem de grandeza (Fermi), começaria hoje? (Jevons); 2 rejeitados, um deles na barra 4 | ENTREGUE, aceitos, entram na leva seguinte |
+| M5 | quarta rodada + proveniência do avisoWood + limpeza dos achados | EM EDIÇÃO |
 
 **G0 de M1.** Ciclo: melhorar (o catálogo é o repertório de instrumentos de pensamento do autor). Intenção: o autor encontra o instrumento certo para o movimento que está tentando fazer, e sabe de onde ele vem. Obstáculo: 21 métodos e nenhuma rotina de entrada; sem critério escrito, catálogo vira lista de produtividade. Evidência: três a cinco fichas com JSON completo e fonte primária citada literalmente, um rejeitado com a barra em que caiu, e a saída do teste das regex contra os outros 20. Quando a forma proposta pedir algo que o app ainda não faz, a ficha nomeia isso e eu abro a volta. Escopo: só `ferramentas/orca/metodos/`; `Traco/Modelo/Metodos.json` fica fechado até a V16 mesclar.
 
 **G0 de M3 (colagem).** Ciclo: melhorar. Intenção: os quatro métodos novos entram no catálogo sem quebrar o roteamento nem a proteção da escrita pessoal. Decisão do dono, 06/09 13:40: **os quatro aprovados** — Subtração (simplificação), Coluna da esquerda (relação), Classe de referência (previsão) e Cinco porquês (causa), este último condicionado a a M2 fechar a citação de Ohno na fonte primária ou trocá-la por uma verificável; método do catálogo não carrega frase que ninguém do Traço leu no original. Colar no FIM do catálogo: a M1 mediu que colar antes da Especificação faz a Coluna da esquerda roubar o desabafo da Expressiva — a proteção da escrita pessoal depende da ordem. No mesmo passo, e por decisão do dono na mesma data, consertar o roteamento do Se–então (`sempre que|toda vez|não consigo parar` sem `\b`, que casa dentro de "sempre quebra" e "sempre queria") com teste que fixe a correção. Os cinco desvios pré-existentes que a M1 mediu ficam nomeados para uma volta de roteamento própria, se o dono quiser. Escopo: Traco/Modelo/Metodos.json, TracoTests/CatalogoTests.swift, ferramentas/orca/metodos/; só abre depois de a V16 mesclar em main.
+
+### Voltas que a trilha Métodos revelou (abrem depois que F4, F3b e V11 mesclarem, por causa de Sessao.swift)
+
+- **Botão de encadeamento que acende e não faz nada.** Encadeamento cujo destino não está no catálogo desenha o botão do mesmo jeito; `Sessao.encadear` sai em silêncio. Estado desonesto na tela: o autor toca e nada acontece. Ciclo: multiplicar. Evidência: o botão não nasce quando o destino não existe, teste, e captura do estado. Escopo: `Traco/App/Sessao.swift` e a view que desenha o botão. A guarda de DADO (nenhum encadeamento apontando para id inexistente + teste) já entrou na M3; falta a tela.
+- **A proveniência do aviso do app.** `AnaliseLocal.swift` interrompe o autor com `avisoWood` ("Afirmação sem prova não gruda") por regex, sem dizer de onde vem. A M5 escreve a ficha com a fonte primária e o texto que o aviso deveria mostrar; a volta troca o texto. É a fronteira da IA aplicada a um aviso: forma, informação e pergunta, nunca a sentença.
+- **Volta de roteamento.** Os cinco desvios pré-existentes que a trilha mediu: o `(?m)^quero` do WOOP engolindo Pré-mortem, Feynman, Primeiros princípios e Prática deliberada; "ideia" da Nota permanente engolindo Destilar. Escopo: `Metodos.json` e `CatalogoTests`.
+- **O que a forma livre pede do app** (seção 7 de `ferramentas/orca/metodos/achados-catalogo.md`, seis pedidos): duas colunas emparelhadas, cadeia de profundidade variável, campo repetível (serve a Cinco porquês, Divergência e Classe de referência), e o maior deles — a Classe de referência pedindo que o Traço leia o corpus e ofereça os casos parecidos que o autor já escreveu.
 
 ## Política de peso das evidências
 
