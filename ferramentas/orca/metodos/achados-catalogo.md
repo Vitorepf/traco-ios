@@ -1,6 +1,6 @@
 # Achados do catálogo — contrato de colagem e pedidos de app
 
-Trilha Métodos · M1 a M12 · reorganizado em 06/09/2026.
+Trilha Métodos · M1 a M13 · reorganizado em 06/09/2026.
 
 > **Reorganizado na volta M5.** Nada do contrato mudou de conteúdo: a regra de
 > ordem, o conserto do Se–então e as provas exigidas continuam com as mesmas
@@ -36,11 +36,16 @@ Trilha Métodos · M1 a M12 · reorganizado em 06/09/2026.
 | A regra que eu faço, A reparação | M7 | **aceitos** (leva 2) |
 | Ver antes de nomear, O que não está lá | M9 | **aceitos**, entram numa leva seguinte |
 | Está bom? | M10 | **aceito**, entra numa leva seguinte |
+| Porta, Transferência, Sobrevivente | M13 | **propostos** (pedido do dono) — os três de **grau A** |
 | Matriz de Eisenhower, Cerca de Chesterton, Considerar o oposto, Critérios de parada, Sanduíche de feedback, Afirmações positivas, Revisão anual, Carta ao eu do futuro, Teste do jornal de amanhã, Regra de ouro, Escada de inferência, Observação sem avaliação, Matar os queridinhos, ESTEIRA como método | M1–M10 | **rejeitados**, com ficha e motivo |
 
-Dezoito propostos, **doze rejeitados**, sete na leva 1 (com a M3), oito na
-[leva 2](leva-2.md) e três esperando leva (Ver antes de nomear, O que não está lá,
-Está bom?).
+Vinte e um propostos, **doze rejeitados**, sete na leva 1 (com a M3), oito na
+[leva 2](leva-2.md) e seis esperando leva (Ver antes de nomear, O que não está lá,
+Está bom?, Porta, Transferência, Sobrevivente).
+
+**Com todos colados o catálogo fica com 42 métodos — acima do teto de trabalho de
+~40 medido na M9**, e o primeiro dos três tetos (a enum de dez da análise de
+bordo) continua de pé. A régua daqui em diante é **trocar**, não acrescentar.
 
 **O mapa das faculdades está em
 [`o-que-falta-no-catalogo.md`](o-que-falta-no-catalogo.md)** — o que a coleção
@@ -182,6 +187,15 @@ própria; ver III.5.
 ---
 
 # PARTE II — ACHADOS ABERTOS
+
+## II.0 Higiene que vem com a Porta — **ABERTO** (M13)
+
+Se a **Porta** entrar, a frase da reversibilidade sai do `movimento` da
+**Decisão** (*"quanto custa errar para cada lado, e se dá para desfazer. Decisão
+reversível e barata não merece o mesmo cuidado que uma que não volta."*): o
+catálogo não deve dizer a mesma coisa em dois lugares, e o novo lugar é uma forma
+com campo, não uma frase de prosa. Uma frase, na volta que abrir o arquivo. Ver
+[`porta.md`](porta.md).
 
 ## II.1 Cinco desvios que já existem hoje — **ABERTO, e a colagem não deve tocar**
 
