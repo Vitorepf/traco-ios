@@ -134,8 +134,7 @@ struct BarraNavegacao: View {
         // movimento reduzido: a barra não desce — só apaga
         .offset(y: escondida && !reduceMotion ? 130 : 0)
         .opacity(escondida ? 0 : 1)
-        .animation(Tema.animacao(.interpolatingSpring(stiffness: 420, damping: 34), reduzido: reduceMotion),
-                   value: escondida)
+        .animation(Tema.movimento(.deslocamento, Tema.Mola.teclado, reduzido: reduceMotion), value: escondida)
         .accessibilityHidden(escondida)
     }
 }

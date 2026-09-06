@@ -61,7 +61,7 @@ struct CartaoAnaliseView: View {
             RoundedRectangle(cornerRadius: Tema.raioCartao, style: .continuous)
                 .fill(Tema.superficieAlta)
                 // material de verdade: sombra ambiente + sombra de contato
-                .shadow(color: Tema.sombraFlutuante, radius: 16, y: 6)
+                .sombra(Tema.Sombra.flutuante)
                 .shadow(color: Tema.sombraContato, radius: 2, y: 1)
         }
         .overlay {
@@ -326,20 +326,24 @@ struct CartaoAnaliseView: View {
 /// A secundária NÃO é âmbar: duas saídas em âmbar empatam em peso e o olho não
 /// sabe qual é o caminho (von-restorff-effect).
 private struct CompactoStyle: ButtonStyle {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(Tema.barra)
             .alvo()
             .scaleEffect(configuration.isPressed ? Tema.pressao : 1)
             .opacity(configuration.isPressed ? 0.7 : 1)
-            .animation(Tema.pressaoAnim(configuration.isPressed), value: configuration.isPressed)
+            .animation(Tema.pressaoAnim(configuration.isPressed, reduzido: reduceMotion), value: configuration.isPressed)
     }
 }
 
 private struct CartaoBotaoStyle: ButtonStyle {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .animation(Tema.pressaoAnim(configuration.isPressed), value: configuration.isPressed)
+            .animation(Tema.pressaoAnim(configuration.isPressed, reduzido: reduceMotion), value: configuration.isPressed)
             .font(Tema.barra)
             .foregroundStyle(Tema.ambarTinta)
             .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .leading)

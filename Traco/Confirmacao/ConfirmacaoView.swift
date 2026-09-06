@@ -79,14 +79,15 @@ struct ConfirmacaoView: View {
             .opacity(materializado || reduceMotion ? 1 : 0)
         }
         .onAppear {
-            withAnimation(Tema.animacao(.easeOut(duration: Tema.confirmacaoEntra), reduzido: reduceMotion)) {
+            // escala e blur: sob reduzido o estado já nasce pronto (acima), nada anima
+            withAnimation(Tema.movimento(.escala, .easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion)) {
                 materializado = true
             }
         }
         .onChange(of: estado) { _, _ in
             if reduceMotion { return }
             materializado = false
-            withAnimation(.easeOut(duration: Tema.confirmacaoEntra)) { materializado = true }
+            withAnimation(Tema.movimento(.escala, .easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion)) { materializado = true }
         }
         .accessibilityAddTraits(.isModal)
         .accessibilityAction(.escape) { escapar() }

@@ -99,7 +99,7 @@ struct Camadas<Arquivo: View, Escrita: View>: View {
 
     /// Reduzido: nil — a posição CORTA, sem deslizar nem fade (Tema.corte).
     private var mola: Animation? {
-        Tema.corte(.spring(response: 0.55, dampingFraction: 0.82), reduzido: reduceMotion)
+        Tema.corte(Tema.Mola.camada, reduzido: reduceMotion)
     }
 
     private func trilho(_ w: CGFloat) -> some Gesture {

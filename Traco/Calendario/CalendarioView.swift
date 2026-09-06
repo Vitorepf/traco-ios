@@ -140,7 +140,7 @@ struct CalendarioView: View {
                     .transition(Tema.transicao(.move(edge: .top).combined(with: .opacity), reduzido: reduceMotion))
             }
         }
-        .animation(.easeOut(duration: 0.22), value: agenda.toast)
+        .animation(Tema.movimento(.deslocamento, .easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion), value: agenda.toast)
         .animation(CalendarioTema.morph(reduceMotion), value: agenda.modo)
     }
 
@@ -343,7 +343,7 @@ struct CalendarioView: View {
                 .fill(CalendarioTema.cartao)
                 // vidro sobre alumínio, não cartão: o fio de luz no topo
                 .overlay(Capsule().strokeBorder(CalendarioTema.luzBorda, lineWidth: 1))
-                .shadow(color: CalendarioTema.sombraFlutuante, radius: 16, y: 6)
+                .sombra(Tema.Sombra.flutuante)
         }
     }
 
@@ -430,8 +430,8 @@ struct CalendarioView: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(PressaoClara())
-            .animation(.easeOut(duration: 0.15), value: temTexto)
-            .animation(.easeOut(duration: 0.15), value: ditado.gravando)
+            .animation(Tema.movimento(.opacidade, .easeOut(duration: Tema.Duracao.curta), reduzido: reduceMotion), value: temTexto)
+            .animation(Tema.movimento(.opacidade, .easeOut(duration: Tema.Duracao.curta), reduzido: reduceMotion), value: ditado.gravando)
             .accessibilityLabel(temTexto ? "Marcar o compromisso"
                 : ditado.gravando ? "Parar de gravar" : "Ditar o compromisso")
             .accessibilityIdentifier("calendario-marcar")
@@ -440,7 +440,7 @@ struct CalendarioView: View {
         .padding(.trailing, 4)
         .padding(.vertical, 2)
         .background(Capsule().fill(CalendarioTema.trilho))
-        .shadow(color: CalendarioTema.sombraCampo, radius: 12, y: 4)
+        .sombra(Tema.Sombra.campo)
     }
 }
 

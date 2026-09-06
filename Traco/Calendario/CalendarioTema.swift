@@ -5,29 +5,29 @@ import UIKit
 /// hairline a 8%, sombra só no que flutua. Componente cita token, nunca hex.
 enum CalendarioTema {
     // MARK: primitivos → semânticos
-    static let fundo = Color(hex: 0xF4F4F2)            // papel
-    static let cartao = Color.white                    // só o que flutua
-    static let campo = Color(hex: 0xEBEBEA)            // névoa
-    static let chip = Color(hex: 0xE8E8E6)
-    static let chipActivo = Color(hex: 0x2C2C2E)       // carvão
-    static let tinta = Color(hex: 0x1C1C1E)
+    // Os nomes do calendário citam o Tema (ADR 05v): um hex, um lugar.
+    static let fundo = Tema.fundo                      // papel
+    static let cartao = Tema.superficie                // só o que flutua
+    static let campo = Tema.superficieBaixa            // névoa
+    static let chip = Tema.chip
+    static let chipActivo = Tema.chipAtivo             // carvão
+    static let tinta = Tema.tinta
     /// 5,2:1 sobre o chip e 5,7:1 sobre o papel. O #8E8E93 do clone media 2,96.
-    static let tintaSuave = Color(hex: 0x5F5F64)
-    /// O mesmo passo do `Tema.tintaFraca` (ADR 02h × varredura 04/set): 5,04:1
-    /// no papel. As horas da grade e os dias de outro mês são TEXTO.
-    static let tintaFraca = Color(hex: 0x68686C)
+    static let tintaSuave = Tema.tintaSuave
+    /// As horas da grade e os dias de outro mês são TEXTO: 5,04:1 no papel.
+    static let tintaFraca = Tema.tintaFraca
     /// Só para dias fora do mês e desabilitado real.
-    static let tintaMorta = Color(hex: 0xC7C7CC)
-    static let linha = Color(hex: 0x1C1C1E).opacity(0.08)
-    static let luzBorda = Color.white.opacity(0.6)
+    static let tintaMorta = Tema.tintaMorta
+    static let linha = Tema.linha
+    static let luzBorda = Tema.luzBorda
     /// A assinatura do Traço, uma vez por tela: o "agora". Fill, nunca texto.
     static let agora = Tema.ambar
-    static let agoraTinta = Color(hex: 0x7A5A16)
-    static let aviso = Color(hex: 0xB5432F)
+    static let agoraTinta = Tema.ambarTinta
+    static let aviso = Tema.aviso
 
     /// Sombra com tinta, não preto puro: cinza-quente.
-    static let sombraFlutuante = Color(hex: 0x1C1C1E).opacity(0.08)
-    static let sombraCampo = Color(hex: 0x1C1C1E).opacity(0.06)
+    static let sombraFlutuante = Tema.Sombra.flutuante.cor
+    static let sombraCampo = Tema.Sombra.campo.cor
     /// A semana da âncora no ano e no mês: azul de papel, o "onde estou" do clone.
     static let semanaAncora = Color(hex: 0xD6E2F8)
     /// A luz do papel: o centro um fio mais claro que a borda, como folha sob luz.
@@ -53,9 +53,9 @@ enum CalendarioTema {
     static let tituloTracking: CGFloat = -0.6
 
     // MARK: forma e espaço
-    static let raio: CGFloat = 18
-    static let raioCampo: CGFloat = 14
-    static let raioAcao: CGFloat = 10
+    static let raio = Tema.Raio.cartao
+    static let raioCampo = Tema.Raio.campo
+    static let raioAcao = Tema.Raio.controle
     static let horaAltura: CGFloat = 64
     static let semanaBarra: CGFloat = 52
     static let controle: CGFloat = 36
@@ -134,7 +134,7 @@ enum CalendarioTema {
     // MARK: movimento
     /// Mola com massa e sem pressa, para a troca de escala e de dia.
     static func morph(_ reduce: Bool) -> Animation {
-        Tema.animacao(.spring(response: 0.55, dampingFraction: 0.86), reduzido: reduce)
+        Tema.animacao(Tema.Mola.escala, reduzido: reduce)
     }
 
     /// O desdobramento: a escala nova cresce do lugar do dia âncora e a antiga
@@ -179,10 +179,12 @@ struct Desdobra: ViewModifier, Animatable {
 /// Pressão no mundo claro: só escala. Baixar a opacidade (o estilo da casa
 /// no escuro) sobre papel lê como piscar.
 struct PressaoClara: ButtonStyle {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .scaleEffect(configuration.isPressed ? 0.96 : 1)
-            .animation(Tema.pressaoAnim(configuration.isPressed), value: configuration.isPressed)
+            .scaleEffect(configuration.isPressed ? Tema.pressaoLeve : 1)
+            .animation(Tema.pressaoAnim(configuration.isPressed, reduzido: reduceMotion), value: configuration.isPressed)
     }
 }
 
@@ -231,7 +233,7 @@ struct CalendarioToast: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
         .background(CalendarioTema.chipActivo, in: Capsule())
-        .shadow(color: CalendarioTema.sombraFlutuante, radius: 16, y: 6)
+        .sombra(Tema.Sombra.flutuante)
         .accessibilityIdentifier("calendario-toast")
     }
 }

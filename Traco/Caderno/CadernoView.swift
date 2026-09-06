@@ -228,7 +228,7 @@ struct CadernoView: View {
         .sheet(isPresented: $menuFormas, onDismiss: {
             guard let papel = formaDoMenu else { return }
             formaDoMenu = nil
-            withAnimation(.easeOut(duration: 0.18)) { transformar(papel) }
+            withAnimation(Tema.movimento(.deslocamento, .easeOut(duration: Tema.Duracao.curta), reduzido: reduceMotion)) { transformar(papel) }
             // escolher na folha também NÃO expulsa quem escreve. O foco que
             // `transformar` repõe é apagado logo depois pela folha ao sair de
             // cena, então ele é reposto de novo quando ela já saiu — senão o
@@ -287,7 +287,7 @@ struct CadernoView: View {
                     ForEach(PapelForma.regua) { papel in
                         Button(papel.nome) {
                             Toque.selecao()
-                            withAnimation(.easeOut(duration: 0.18)) { transformar(papel) }
+                            withAnimation(Tema.movimento(.deslocamento, .easeOut(duration: Tema.Duracao.curta), reduzido: reduceMotion)) { transformar(papel) }
                         }
                         .buttonStyle(PressaoDiscreta())
                         // 44 de alvo num chip de 26–57 pt de texto: a folga

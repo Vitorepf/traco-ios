@@ -48,7 +48,7 @@ struct RedeView: View {
         candidatas = cs
         let achados = await Sabia.ecos(nota: Caderno.prosa(de: nota.texto),
                                        candidatas: cs.map(linha), gesto: nota.gesto)
-        withAnimation(.easeOut(duration: 0.3)) { ecos = achados ?? [] }
+        withAnimation(Tema.movimento(.deslocamento, .easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion)) { ecos = achados ?? [] }
     }
 
     private func lerLigacoes() {
@@ -171,7 +171,7 @@ struct RedeView: View {
                         }
                     }
                 }
-                .background(Tema.superficieBaixa, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .background(Tema.superficieBaixa, in: RoundedRectangle(cornerRadius: Tema.Raio.campo, style: .continuous))
             }
             .accessibilityIdentifier("rede-ecos")
             .transition(Tema.transicao(.opacity.combined(with: .offset(y: 8)), reduzido: reduceMotion))
@@ -218,7 +218,7 @@ struct RedeView: View {
                     }
                 }
             }
-            .background(Tema.superficieBaixa, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .background(Tema.superficieBaixa, in: RoundedRectangle(cornerRadius: Tema.Raio.campo, style: .continuous))
         }
     }
 }

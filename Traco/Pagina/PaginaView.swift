@@ -102,7 +102,7 @@ struct PaginaView: View {
         }
         .onAppear {
             // a chegada assenta em vez de piscar pronta
-            withAnimation(.easeOut(duration: 0.25)) { chegou = true }
+            withAnimation(Tema.movimento(.opacidade, .easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion)) { chegou = true }
             sessao.trancarExpressivasVencidas(no: context)
             sessao.varrerAnexosOrfaos(no: context)
             sessao.rearmarSeries(no: context)
@@ -296,8 +296,8 @@ struct PaginaView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 12)
-                    .background(Tema.superficieAlta, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-                    .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(Tema.linha, lineWidth: 0.5))
+                    .background(Tema.superficieAlta, in: RoundedRectangle(cornerRadius: Tema.raio, style: .continuous))
+                    .overlay(RoundedRectangle(cornerRadius: Tema.raio, style: .continuous).strokeBorder(Tema.linha, lineWidth: 0.5))
                     .shadow(color: Tema.sombraContato, radius: 2, y: 1)
                     .padding(.horizontal, Tema.margem)
                     .padding(.bottom, 88)
@@ -307,8 +307,8 @@ struct PaginaView: View {
             }
 
         }
-        .animation(.easeOut(duration: 0.2), value: sessao.paginaVazia)
-        .animation(.easeOut(duration: 0.2), value: sessao.toast)
+        .animation(Tema.movimento(.deslocamento, .easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion), value: sessao.paginaVazia)
+        .animation(Tema.movimento(.deslocamento, .easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion), value: sessao.toast)
     }
 
     /// Auditoria de movimento: UMA superfície no rodapé.
@@ -335,8 +335,8 @@ struct PaginaView: View {
                     .fill(Tema.ambar)
                     .frame(width: 5, height: 5)
                     .opacity(pulso ? 1 : 0.25)
-                    // movimento reduzido: sem laço — o ponto fica aceso, e o "lendo…" já diz
-                    .animation(reduceMotion ? nil : .easeInOut(duration: 0.7).repeatForever(autoreverses: true), value: pulso)
+                    // laço: sob movimento reduzido para — o ponto fica aceso, e o "lendo…" já diz
+                    .animation(Tema.movimento(.laco, .easeInOut(duration: Tema.Duracao.pulso).repeatForever(autoreverses: true), reduzido: reduceMotion), value: pulso)
                 Text("lendo…")
                     .font(Tema.meta)
                     .foregroundStyle(Tema.tintaSuave)
@@ -374,7 +374,7 @@ struct PaginaView: View {
         .padding(.horizontal, Tema.margem)
         .padding(.top, 4)
         .padding(.bottom, 8)
-        .animation(.easeOut(duration: 0.2), value: sessao.temVoz)
+        .animation(Tema.movimento(.deslocamento, .easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion), value: sessao.temVoz)
     }
 
     /// SPEC §4: os campos nascem abaixo do texto. Reabrir a nota não os esconde.
@@ -527,7 +527,7 @@ struct PaginaView: View {
                 .font(.system(.title3, design: .rounded).weight(.semibold).monospacedDigit())
                 .foregroundStyle(Tema.tinta)
                 .contentTransition(.numericText(countsDown: true))
-                .animation(.linear(duration: 0.3), value: sessao.segundosRestantes)
+                .animation(Tema.movimento(.deslocamento, .linear(duration: Tema.Duracao.media), reduzido: reduceMotion), value: sessao.segundosRestantes)
                 .accessibilityLabel("Tempo da escrita expressiva")
                 .accessibilityValue(tempoFormatado)
                 .accessibilityIdentifier("timer-expressiva")
@@ -541,7 +541,8 @@ struct PaginaView: View {
                         Capsule()
                             .fill(sessao.segundosRestantes <= 60 ? Tema.aviso : Tema.ambar)
                             .frame(width: geo.size.width * progresso)
-                            .animation(.linear(duration: 1), value: progresso)
+                            // o relógio move a barra: sob reduzido, corta a cada segundo
+                            .animation(Tema.corte(.linear(duration: Tema.Duracao.relogio), reduzido: reduceMotion), value: progresso)
                     }
             }
             .frame(height: 3)
@@ -663,16 +664,17 @@ struct PaginaView: View {
 /// borda, sem fundo — nada dizia que eram tocáveis (critique-affordance).
 private struct BarraBotaoStyle: ButtonStyle {
     @Environment(\.isEnabled) private var ativo
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .frame(maxWidth: .infinity, minHeight: 38)
             .background(
                 Tema.superficieAlta.opacity(configuration.isPressed ? 1 : 0.85),
-                in: RoundedRectangle(cornerRadius: 10, style: .continuous)
+                in: RoundedRectangle(cornerRadius: Tema.Raio.controle, style: .continuous)
             )
             .overlay {
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                RoundedRectangle(cornerRadius: Tema.Raio.controle, style: .continuous)
                     .strokeBorder(Tema.luzBorda, lineWidth: 0.5)
             }
             // a pílula mede 38; o alvo mede 44 (3 para cada lado, no vão da barra)
@@ -680,7 +682,7 @@ private struct BarraBotaoStyle: ButtonStyle {
             // desabilitado é OPACIDADE da cor ativa, nunca uma cor diferente
             .opacity(ativo ? 1 : 0.38)
             .scaleEffect(configuration.isPressed ? Tema.pressao : 1)
-            .animation(Tema.pressaoAnim(configuration.isPressed), value: configuration.isPressed)
+            .animation(Tema.pressaoAnim(configuration.isPressed, reduzido: reduceMotion), value: configuration.isPressed)
     }
 }
 

@@ -152,7 +152,7 @@ struct PadroesView: View {
         guard let c = semana?.calibragem, c.count >= 2, Sabia.disponivel else { return }
         let pares = c.map { "escolha: \($0.escolha)\nesperava: \($0.esperava)\naconteceu: \($0.aconteceu)" }
         let r = await Sabia.lerCalibragem(pares: pares)
-        withAnimation(.easeOut(duration: 0.3)) { sobreOJuizo = r ?? [] }
+        withAnimation(Tema.movimento(.deslocamento, .easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion)) { sobreOJuizo = r ?? [] }
     }
 
     /// Perguntas sobre o próprio juízo — nunca nota, nunca placar (§12). O que
@@ -172,7 +172,7 @@ struct PadroesView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .accessibilityIdentifier("sobre-o-juizo")
-            .transition(.opacity.combined(with: .offset(y: 8)))
+            .transition(Tema.transicao(.opacity.combined(with: .offset(y: 8)), reduzido: reduceMotion))
         }
     }
 

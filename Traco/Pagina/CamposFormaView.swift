@@ -28,14 +28,14 @@ struct CamposFormaView: View {
                     // onAppear — dispara garantido)
                     .opacity(nascida || reduceMotion ? 1 : 0)
                     .offset(y: nascida || reduceMotion ? 0 : 6)
-                    .animation(.easeOut(duration: 0.35).delay(min(Double(indice), 5) * 0.05), value: nascida)
+                    .animation(Tema.movimento(.deslocamento, .easeOut(duration: Tema.Duracao.longa).delay(min(Double(indice), 5) * Tema.Duracao.passo), reduzido: reduceMotion), value: nascida)
 
             }
             depoisDisto
         }
         .padding(.horizontal, Tema.margem)
         .onAppear {
-            withAnimation(Tema.animacao(.easeOut(duration: Tema.formaNasce), reduzido: reduceMotion)) {
+            withAnimation(Tema.movimento(.deslocamento, .easeOut(duration: Tema.Duracao.longa), reduzido: reduceMotion)) {
                 nascida = true
             }
         }
@@ -143,9 +143,9 @@ private struct LinhaCampo: View {
                 .padding(.horizontal, 12)
                 .padding(.vertical, 10)
                 .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .topLeading)
-                .background(Tema.superficieAlta, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                .background(Tema.superficieAlta, in: RoundedRectangle(cornerRadius: Tema.Raio.controle, style: .continuous))
                 .overlay {
-                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    RoundedRectangle(cornerRadius: Tema.Raio.controle, style: .continuous)
                         .strokeBorder(preenchido ? Tema.ambar.opacity(0.28) : Tema.linha, lineWidth: 0.5)
                 }
                 .accessibilityLabel(rotulo)

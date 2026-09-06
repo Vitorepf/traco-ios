@@ -137,9 +137,8 @@ struct CalendarioDiaView: View {
             alvo = Calendario.hora(8, 0, no: agenda.ancora, agenda.cal)
         }
         let y = max(0, offset(de: alvo) - altura * 1.25)
-        if animado, !reduceMotion {
-            withAnimation(CalendarioTema.morph(false)) { posicao.scrollTo(y: y) }
-        } else {
+        // rolar até a hora é deslocamento que o relógio pede: sob reduzido, corta
+        withAnimation(animado ? Tema.corte(Tema.Mola.escala, reduzido: reduceMotion) : nil) {
             posicao.scrollTo(y: y)
         }
     }

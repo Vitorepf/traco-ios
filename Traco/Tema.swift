@@ -83,23 +83,28 @@ enum Tema {
     // concordava com outra (critique-composition).
     static let raio: CGFloat = 12
     static let raioCartao: CGFloat = 12
+    /// SISTEMA-CLARO §4, o mundo claro: controle 10, campo 14, cartão 18.
+    /// `raio` (12) segue sendo o do caderno e das superfícies elevadas;
+    /// juntar os dois vocabulários é trabalho de volta por tela, não desta.
+    enum Raio {
+        static let controle: CGFloat = 10
+        static let campo: CGFloat = 14
+        static let cartao: CGFloat = 18
+    }
     /// Ritmo vertical: tudo múltiplo de 4. Dentro de seção 12, entre seções 32.
     static let entreItens: CGFloat = 12
     static let entreSecoes: CGFloat = 32
     static let alvo: CGFloat = 44
     /// SPEC §20: altura da barra inferior — o encaixe que mantém TODA tela acima dela.
     static let barraNav: CGFloat = 52
-    /// A queima acontece em cena: rara, e por isso pode ter peso (SPEC §8).
-    static let queima: Double = 0.55
-    /// A cena inteira do fogo consumindo a folha (pedido do dono, 01/set).
-    /// easeIn: a ignição é lenta, o fogo acelera.
-    static let queimaCena: Double = 3.0
     static let margem: CGFloat = 20
     /// O TextEditor traz ~5pt de recuo interno: sem compensar, a linha editada
     /// nasce num degrau à direita do portal vizinho (medido: 26pt vs 21pt na
     /// mesma nota — law-of-continuity). O Recordar já usa margem − 5.
     static let sangriaEditor: CGFloat = 5
     static let pressao: CGFloat = 0.94
+    /// A pressão do calendário: controles pequenos em trilho afundam menos.
+    static let pressaoLeve: CGFloat = 0.96
 
     // MARK: - Material de superfície elevada
     //
@@ -111,47 +116,109 @@ enum Tema {
     /// Sombra com tinta, não preto: cinza-quente, só no que flutua.
     static let sombraContato = Color(hex: 0x1C1C1E, opacity: 0.10)
     static let sombraFlutuante = Color(hex: 0x1C1C1E, opacity: 0.08)
+    /// Sombra é cor, raio e deslocamento, sempre os três juntos (SISTEMA-CLARO
+    /// §1.5: duas sombras, nenhuma dura). Aplica-se com `.sombra(_:)`.
+    struct Sombra {
+        let cor: Color
+        let raio: CGFloat
+        let y: CGFloat
+        /// barra flutuante, toast, cartão da análise
+        static let flutuante = Sombra(cor: sombraFlutuante, raio: 16, y: 6)
+        /// o campo de prosa do calendário
+        static let campo = Sombra(cor: Color(hex: 0x1C1C1E, opacity: 0.06), raio: 12, y: 4)
+    }
 
-    static let formaNasce: Double = 0.48
-    static let cartaoEntra: Double = 0.26
-    /// Saída existe: o cartão sumia em ZERO quadros e lia como erro de render.
-    /// Mais rápida que a entrada — o autor já decidiu.
-    static let cartaoSai: Double = 0.18
-    static let confirmacaoEntra: Double = 0.22
-    static let push: Double = 0.40
-
-    // MARK: - Movimento reduzido (ADR 2026-09-05t)
+    // MARK: - Duração e mola (ADR 2026-09-05v)
     //
-    // Uma lei para o app inteiro: com "Reduzir movimento" ligado, nada
-    // desliza nem cresce — o que entra, entra por opacidade curta ou em corte
-    // seco. Toda animação e transição custom passa por aqui; a view só diz
-    // qual seria o movimento normal.
-    static let fadeReduzido: Animation = .easeOut(duration: 0.15)
+    // A auditoria da volta 9 contou dezesseis durações e quatro molas para um
+    // vocabulário de quatro verbos: entrar, sair, trocar, pressionar. Ficam
+    // três durações e três molas; o que está fora tem nome e motivo.
+    enum Duracao {
+        /// fade, corte, chrome que acompanha o dedo; e o fade de Reduzir Movimento
+        static let curta: Double = 0.15
+        /// entra e sai de estado: toast, cartão, vazio, confirmação
+        static let media: Double = 0.25
+        /// o que tem massa: gaveta, forma que nasce
+        static let longa: Double = 0.4
+        // Fora do vocabulário, cada um com o seu motivo:
+        /// o press: abaixo de curta de propósito, quase instantâneo; o soltar é `Mola.toque`
+        static let toque: Double = 0.08
+        /// o respiro entre os campos da forma que nasce (é delay, não duração)
+        static let passo: Double = 0.05
+        /// o laço do ponto "lendo…": mais lento que qualquer entrada, porque não termina
+        static let pulso: Double = 0.7
+        /// a página nova amanhece depois do fecho expressivo (dono, 01/set)
+        static let fecho: Double = 0.9
+        /// a barra do timer da expressiva anda um segundo real por segundo
+        static let relogio: Double = 1.0
+        /// a cena do fogo consumindo a folha (dono, 01/set); easeIn: a ignição é lenta
+        static let queimaCena: Double = 3.0
+    }
 
+    /// Ponte para `Traco/Componentes/Toast.swift` (V10-B), que cita o nome
+    /// antigo; some quando o Toast citar `Duracao.media`.
+    static let confirmacaoEntra: Double = Duracao.media
+
+    enum Mola {
+        /// o soltar do botão: volta com vida
+        static let toque: Animation = .spring(response: 0.32, dampingFraction: 0.65)
+        /// a camada do arquivo: pousa em vez de bater (cauda longa)
+        static let camada: Animation = .spring(response: 0.55, dampingFraction: 0.82)
+        /// troca de escala e de estado (SISTEMA-CLARO §5): massa e sem pressa
+        static let escala: Animation = .spring(response: 0.55, dampingFraction: 0.86)
+        /// a barra que recolhe com o teclado: segue a curva do teclado do sistema
+        static let teclado: Animation = .interpolatingSpring(stiffness: 420, damping: 34)
+    }
+
+    // MARK: - Movimento reduzido (ADR 2026-09-05t, estendida pela 05v)
+    //
+    // Uma lei para o app inteiro, num lugar só. A view diz qual seria o
+    // movimento normal e de que CLASSE ele é; quem decide sob "Reduzir
+    // movimento" é `movimento(_:_:reduzido:)`:
+    //   deslocamento → fade curta; ou corte seco (`corte`) no que o dedo
+    //                  ou o relógio movem, porque um fade ali pisca
+    //   escala       → nada: o estado vira sem quadro intermediário
+    //   opacidade    → mantém: opacidade não enjoa
+    //   laço         → para: o que repete sem fim fica no estado final
+    enum Movimento { case deslocamento, escala, opacidade, laco }
+
+    static let fadeReduzido: Animation = .easeOut(duration: Duracao.curta)
+
+    static func movimento(_ classe: Movimento, _ normal: Animation, reduzido: Bool) -> Animation? {
+        guard reduzido else { return normal }
+        switch classe {
+        case .deslocamento: return fadeReduzido
+        case .opacidade: return normal
+        case .escala, .laco: return nil
+        }
+    }
+
+    /// Deslocamento, o caso mais comum — o nome da V8, para quem já chama.
     static func animacao(_ normal: Animation, reduzido: Bool) -> Animation {
         reduzido ? fadeReduzido : normal
     }
 
+    /// Toda transição custom do app carrega opacidade; sob reduzido só ela fica.
     static func transicao(_ normal: AnyTransition, reduzido: Bool) -> AnyTransition {
         reduzido ? .opacity : normal
     }
 
     /// O outro lado permitido da lei: nil = corte seco, sem quadro intermediário.
-    /// Para o que a pessoa arrasta com o dedo (Camadas): um fade sobre a posição
-    /// cortada pisca, porque o estado vira um quadro depois de soltar.
+    /// Para o que a pessoa arrasta com o dedo (Camadas) e o que o relógio move
+    /// (timer): um fade sobre a posição cortada pisca, porque o estado vira um
+    /// quadro depois.
     static func corte(_ normal: Animation, reduzido: Bool) -> Animation? {
         reduzido ? nil : normal
     }
 
     static func gaveta(reduzido: Bool) -> Animation {
-        animacao(.timingCurve(0.32, 0.72, 0, 1, duration: push), reduzido: reduzido)
+        animacao(.timingCurve(0.32, 0.72, 0, 1, duration: Duracao.longa), reduzido: reduzido)
     }
 
     /// A curva de pressão da casa: press quase instantâneo, release com vida.
-    static func pressaoAnim(_ isPressed: Bool) -> Animation {
-        isPressed
-            ? .easeOut(duration: 0.08)
-            : .spring(response: 0.32, dampingFraction: 0.65)
+    /// Pressão é escala: sob reduzido nada anima, o estado vira.
+    static func pressaoAnim(_ isPressed: Bool, reduzido: Bool = false) -> Animation? {
+        movimento(.escala, isPressed ? .easeOut(duration: Duracao.toque) : Mola.toque, reduzido: reduzido)
     }
 }
 
@@ -167,6 +234,8 @@ extension Color {
 }
 
 struct PressaoDiscreta: ButtonStyle {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             // o rótulo inteiro recebe o dedo, não só o glifo
@@ -174,11 +243,15 @@ struct PressaoDiscreta: ButtonStyle {
             .scaleEffect(configuration.isPressed ? Tema.pressao : 1)
             // só escala: baixar a opacidade sobre papel lê como piscar
             // press quase instantâneo; o soltar volta com vida (spring leve)
-            .animation(Tema.pressaoAnim(configuration.isPressed), value: configuration.isPressed)
+            .animation(Tema.pressaoAnim(configuration.isPressed, reduzido: reduceMotion), value: configuration.isPressed)
     }
 }
 
 extension View {
+    func sombra(_ s: Tema.Sombra) -> some View {
+        shadow(color: s.cor, radius: s.raio, y: s.y)
+    }
+
     /// SISTEMA-CLARO: "36 é o desenho, 44 é o alvo". Um `.frame(minHeight: 44)`
     /// por fora do Button só RESERVA espaço — o dedo e o VoiceOver medem o
     /// `contentShape`. A revisão da volta 8 mediu: "Notas" 45×20 com frame de

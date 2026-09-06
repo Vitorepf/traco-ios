@@ -239,7 +239,7 @@ struct EditorBlocoView: View {
                         acao: @escaping () -> Void) -> some View {
         Button {
             Toque.selecao()
-            withAnimation(Tema.animacao(.spring(response: 0.35, dampingFraction: 0.8), reduzido: reduceMotion)) {
+            withAnimation(Tema.movimento(.deslocamento, Tema.Mola.escala, reduzido: reduceMotion)) {
                 acao()
             }
         } label: {

@@ -79,22 +79,21 @@ struct RaizView: View {
                         .transition(.opacity)
                 }
             }
-            .animation(.easeOut(duration: 0.2), value: tecladoAberto)
+            .animation(Tema.movimento(.opacidade, .easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion), value: tecladoAberto)
         }
         .overlay {
             if let confirmacao = sessao.confirmacao {
                 ConfirmacaoView(estado: confirmacao, sessao: sessao, context: context)
-                    .transition(reduceMotion
-                        ? .opacity
-                        : .asymmetric(
-                            insertion: .opacity.combined(with: .scale(scale: 1.03)),
-                            removal: .opacity.combined(with: .scale(scale: 1.02))
-                        ))
+                    .transition(Tema.transicao(.asymmetric(
+                        insertion: .opacity.combined(with: .scale(scale: 1.03)),
+                        removal: .opacity.combined(with: .scale(scale: 1.02))
+                    ), reduzido: reduceMotion))
             }
         }
-        .animation(sessao.confirmacao != nil
-            ? .easeOut(duration: Tema.confirmacaoEntra)
-            : .easeIn(duration: 0.15),
+        // sob reduzido a transição já é só opacidade: a duração fica
+        .animation(Tema.movimento(.opacidade, sessao.confirmacao != nil
+            ? .easeOut(duration: Tema.Duracao.media)
+            : .easeIn(duration: Tema.Duracao.curta), reduzido: reduceMotion),
             value: sessao.confirmacao != nil)
         .overlay {
             if let minutos = sessao.fechoExpressiva {
@@ -105,9 +104,9 @@ struct RaizView: View {
         // a ENTRADA do fecho é rápida (o autor decidiu); a SAÍDA é o fim do
         // ritual — da cinza escura, a página nova amanhece devagar (dono,
         // 01/set: "o fim de um ciclo e o começo de uma nova era")
-        .animation(sessao.fechoExpressiva != nil
-            ? .easeOut(duration: 0.22)
-            : .easeOut(duration: 0.9),
+        .animation(Tema.movimento(.opacidade, sessao.fechoExpressiva != nil
+            ? .easeOut(duration: Tema.Duracao.media)
+            : .easeOut(duration: Tema.Duracao.fecho), reduzido: reduceMotion),
             value: sessao.fechoExpressiva)
         .overlay {
             if let aviso = DiscoTraco.aviso {
