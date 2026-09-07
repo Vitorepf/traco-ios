@@ -19,6 +19,10 @@ import WidgetKit
 /// compromisso seguinte.
 nonisolated struct Superficie: Codable, Equatable, Sendable {
     static let versaoAtual = 1
+    /// Quantos próximos o documento carrega. Mora aqui, e não no app: o
+    /// widget precisa do número para saber se a lista dele está cortada, e o
+    /// alvo do widget não compila `ProximoCompromisso`.
+    static let candidatas = 3
 
     var versao = versaoAtual
     var revisao = 0
@@ -26,6 +30,14 @@ nonisolated struct Superficie: Codable, Equatable, Sendable {
     var validoAte: Date
     var destaque: Destaque?
     var proximos: [Proximo] = []
+    /// Quantos compromissos do horizonte NÃO couberam em `proximos` (G4 da
+    /// F4, achado A). Sem isto a face contava "+2 depois" sobre uma lista que
+    /// ela mesma sabia cortada: um número fechado, e falso, num dia de cinco.
+    ///
+    /// Opcional de propósito: instantâneo gravado antes desta conta decodifica
+    /// com `nil`, que quer dizer **não sei** — e a face que não sabe não
+    /// publica número (`Restantes.algunsMais`).
+    var alemDaLista: Int?
 
     nonisolated struct Destaque: Codable, Equatable, Sendable {
         var id: UUID
@@ -83,6 +95,13 @@ nonisolated struct Superficie: Codable, Equatable, Sendable {
     func destaqueDeHoje(agora: Date = .now) -> Destaque? {
         guard let destaque, destaque.dia == Self.diaISO(agora) else { return nil }
         return destaque
+    }
+
+    /// Quantos ficaram de fora da lista publicada. `nil` só quando o
+    /// instantâneo é anterior a esta conta E a lista está cheia: lista curta
+    /// é, por construção (`publicar`), a verdade inteira do horizonte.
+    func alem() -> Int? {
+        alemDaLista ?? (proximos.count < Self.candidatas ? 0 : nil)
     }
 
     /// O primeiro que ainda não acabou. O que terminou não é "o próximo".
@@ -255,8 +274,11 @@ nonisolated enum SuperficieDisco {
         let antes: Superficie? = if case .disponivel(let s) = ler() { s } else { nil }
         var nova = antes ?? Superficie(geradoEm: agora, validoAte: agora)
         mudar(&nova)
+        // `alemDaLista` entra na comparação: o sexto compromisso do dia não
+        // muda os três publicados, muda quantos faltam — e sem isto a escrita
+        // era descartada como "idêntica" e a face seguia contando errado.
         if let antes, antes.destaque == nova.destaque, antes.proximos == nova.proximos,
-           antes.validoAte == nova.validoAte {
+           antes.validoAte == nova.validoAte, antes.alemDaLista == nova.alemDaLista {
             return true
         }
         nova.versao = Superficie.versaoAtual
@@ -270,12 +292,15 @@ nonisolated enum SuperficieDisco {
         } catch {
             return false
         }
-        var kinds = Set<String>()
-        if antes?.destaque != nova.destaque { kinds.insert(kindDestaque) }
-        if antes?.proximos != nova.proximos || antes?.validoAte != nova.validoAte { kinds.insert(kindProximo) }
-        if antes == nil { kinds = [kindDestaque, kindProximo] }
+        // Os dois kinds, sempre. O mapa "kind afetado" é da F2, quando cada
+        // face lia METADE do documento; desde a F4 o widget do Traço mostra a
+        // agenda e o do Próximo mostra o Destaque — as duas faces leem o
+        // documento INTEIRO. Recarregar só quem "mudou" deixava a agenda de
+        // ontem embaixo do Destaque de hoje, que é a mentira que esta volta
+        // veio matar. Não custa orçamento extra: quem economiza é a guarda do
+        // idêntico, logo acima, e ela continua onde estava.
         revisaoPublicada = nova.revisao
-        recarregar(kinds)
+        recarregar([kindDestaque, kindProximo])
         return true
     }
 }

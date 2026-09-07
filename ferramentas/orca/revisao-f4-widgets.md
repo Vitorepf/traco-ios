@@ -872,3 +872,138 @@ honesto em toda combinação e o vazio resolvido. As duas perguntas de design
 continuam de pé para o julgador: o peso de quatro lajes de papel branco numa
 casa escura (D11, decisão declarada que o dono ainda não viu), e se três ações
 empilhadas são a melhor forma do médio vazio ou só a mais óbvia.
+
+---
+
+## Re-G3, terceira passada — F4-D (`0aca3f3`)
+
+Mesmo revisor, 06/09/2026, ~21h. Simulador **iPhone 17 Pro (teste 3)**
+`34CC3F94`, ligado e desligado por mim. Não editei nem commitei código. Não
+liguei o iPhone 17 `1A46B6D3` do dono. Quatro simuladores de outros ligados
+durante a sessão: **nenhuma evidência de maestro** (lei do instrumento).
+
+### Veredito
+
+**APROVADO no G3.** Nenhuma dimensão abaixo de 9. Os três cortes de AX5 estão
+fechados, o custo está declarado inteiro na ADR, e a suíte **767/132 eu
+confirmei**. A volta pode ir ao G4.
+
+### Notas revistas
+
+| dimensão | 2ª passada | agora | por quê |
+|---|---|---|---|
+| Acessibilidade | 8 | **9** | N1, N2 e N3 fechados; nenhuma reticência e nenhum hífen no meio de palavra em nenhuma das quatro famílias, nos dois temas, em AX5 |
+| Relato | 8 | **9** | a ADR 06d agora carrega o custo INTEIRO (item 10 e "Custo assumido"), nomeia os três achados e explica o mecanismo — inclusive a parte em que a minha prescrição não bastava |
+| Correção | 10 | **10** | **767 testes / 132 suítes verdes rodados por mim**; +3 em `LinhasDoEstadoTests` |
+| Contrato | 10 | **10** | — |
+| Visão · Jornada real · Design · Simplicidade · Movimento · Componentes · Performance · Privacidade · Estado honesto · Complexidade · Fora do app | 10/9/9/9/9/9/10/10/9/9/9 | **mantidas** | nada nesta passada as toca |
+
+### O mecanismo: a minha prescrição estava certa na direção e curta no meio
+
+Eu prescrevi `minimumScaleFactor(0.6)` e `allowsTightening(true)` nos dois
+`Text`, apontando `Velho()` como a receita que já existia no arquivo. Nos dois
+lugares onde a frase é do **Destaque** isso bastou — N1 e N3 morreram.
+
+Em `Oferta`, não. E ele mediu, fotografou e explicou:
+`f4d-ax5-hifen-persiste.png` é o estado **depois** de aplicar exatamente o que
+eu pedi, e ali o pequeno do Traço já mostra `Terminar / o capítulo / do meio`
+inteiro (N1 fechado) enquanto o pequeno do Próximo **ainda** mostra
+`Desatualiza-/do.`. Com teto de linhas maior que 1, o SwiftUI prefere
+**hifenizar a encolher** e nunca chega ao `minimumScaleFactor`.
+
+Confiro a explicação e assumo o erro: `Velho()`, que citei como receita, tem
+**três** propriedades — e a operativa era a que eu não transcrevi,
+`lineLimit(1)`. Prescrevi duas de três. Numa palavra sem espaço não existe
+quebra honesta, e é o teto de linhas, não a escala, que decide se a palavra
+parte.
+
+O conserto é a mesma solução estrutural da R1: o teto saiu da view e virou
+`LinhasDoEstado` em `Relogio.swift`, com três testes — **palavra sem espaço
+recebe uma linha e encolhe inteira; frase com espaço usa o teto e quebra na
+linha**. Um `if` de view não tem suíte, e é a terceira vez nesta volta que um
+`if` de view é a causa.
+
+**Auditei a lei contra o domínio real**, que é a parte que me cabe: enumerei
+todas as strings que a face pode passar a `Oferta(estado:)` e a `ausencia` —
+`Desatualizado.`, `Não consegui ler o Traço.`, `Nada em destaque hoje.`,
+`Nada marcado.`, `Nada marcado hoje.` Uma sem espaço, quatro com. A regra
+cobre as cinco, e o teste dele enumera exatamente essas cinco. A lei é
+completa sobre o que a face escreve hoje, e o teste quebra quando alguém
+acrescentar um estado sem atualizar a lista — que é o acoplamento certo.
+
+### O que confirmei
+
+- **`Test run with 767 tests in 132 suites passed`**, `** TEST SUCCEEDED **`,
+  no meu simulador, sob `com-trava.sh`. Os únicos 4 `warning:` continuam sendo
+  `TracoTests/ConferenciaTrabalhoTests.swift:381`, que veio de main.
+- **As quatro famílias na casa, em AX5, nos dois temas, com Destaque longo e
+  horizonte vencido, sem reticências e sem hífen**: `f4d-ax5-claro.png` e
+  `f4d-ax5-escuro.png`. Medi o par: brilho 190,0 contra 144,4 — escuro de
+  verdade, não rótulo.
+- **O ramo "o vazio traz o Destaque" com superfície fresca**, que era o N3:
+  `f4d-ax5-vazio-destaque-claro.png` / `-escuro.png` (189,2 contra 143,6). A
+  frase sai inteira, encolhida, onde antes saía `Terminar / o capít…`.
+- **O médio do Próximo está plantado** — a família que a galeria não deixava
+  paginar aparece nas quatro capturas, em cima, dizendo `Desatualizado.` em
+  largura inteira. Ele conseguiu o que travou a mim em três sessões.
+- **O custo declarado inteiro.** A ADR 06d passou a dizer, com todas as
+  letras, que em AX5 no pequeno com Destaque longo e horizonte vencido a frase
+  tem três linhas em vez de quatro e encolhe até 60% — "este é o custo
+  inteiro, medido na tela" —, e que as três coisas que eu achei não eram
+  troca, eram propriedades que ficaram para trás. Era a razão do Relato 8.
+
+### O BAIXO que ele deixou: a decisão está certa, e por uma razão melhor
+
+O `accessoryInline` do widget do **Próximo** continua dizendo só `"Traço"`
+quando o instantâneo é velho, sem distinguir "nada hoje" de "não sei".
+
+A razão dele — família que o simulador não renderiza (F1 §7), e ele não
+entrega diff sem prova de tela — é boa e é a disciplina que esta volta inteira
+cobrou. **Mas há uma razão mais forte, e é de desenho:** o widget do Traço
+acabou de ganhar `"Traço · desatualizado"` nessa mesma família. Se o autor
+tiver os dois `accessoryInline` na tela bloqueada, os dois passariam a dizer a
+mesma frase, na única família onde existe uma linha e nada mais — é a
+duplicação da A11 outra vez, num lugar sem espaço para resolvê-la. O que a
+linha do Próximo deve dizer quando o instantâneo é velho **é uma escolha, não
+uma transcrição do ternário do irmão**.
+
+Portanto: **adiar está certo**, e quem pegar isto no G4 ou na trilha não deve
+copiar o ternário — deve decidir a frase com o dono olhando.
+
+### Observação que nasce do achado dele (BAIXO, para a lista)
+
+A lei nova protege as frases de **estado**, que o app escreve. A frase do
+**Destaque** é do autor, é ilimitada, e continua com `lineLimit` maior que 1
+(3 no pequeno, 2 no médio) — pelo mecanismo que ele acabou de medir, uma
+palavra única mais larga que a face ainda hifenizaria ali. Não vi acontecer e
+não é defeito enquanto não se vir: o Destaque é uma frase, e frase quebra no
+espaço. Fica anotado porque decorre diretamente do que ele descobriu.
+
+### Instrumento
+
+- `xcodebuild` sob `com-trava.sh` (trava livre; não precisei da retomada nova).
+- **A primeira execução da suíte morreu em `The test runner hung before
+  establishing connection.`** — build completo, runner sem conectar. É
+  instrumento, não código: repeti e deu 767/132. Registro porque a máquina
+  passou a noite matando simulador por memória.
+- **Não consegui replantar os widgets no meu aparelho nesta rodada.** A folha
+  "Adicionar Widget" trava com a linha realçada e a folha nunca abre — mesmo
+  sintoma das duas sessões anteriores, agora sem Live Activity na Ilha, e
+  reiniciar a SpringBoard só embaralhou o layout. **É instrumento e não
+  desconta nota** (ESTEIRA), mas já custou três sessões de revisão: vale uma
+  linha na lei do instrumento, ao lado da do maestro. O que confirmei nesta
+  passada veio da suíte que rodei, do diff que li linha a linha, da auditoria
+  estática da lei contra todas as strings da face, e do conteúdo das capturas
+  dele — conferidas por brilho medido e por leitura do que está escrito nelas.
+- Restaurei ao fim: `content_size medium`, `appearance light`, e desliguei o
+  `34CC3F94`.
+
+### Para o G4
+
+A volta chega ao portão de design com o motor provado (releitura agendada,
+orçamento curto), o estado honesto dito em toda combinação e com lei testada,
+o sino que só promete o que vai tocar, o vazio que oferece, e nenhum texto
+cortado em nenhuma família, tema ou tamanho. As perguntas de design que sobram
+são as duas que já anotei: o peso de quatro lajes de papel branco numa casa
+escura (D11, decisão declarada que o dono ainda não viu), e se três ações
+empilhadas são a melhor forma do médio vazio ou apenas a mais óbvia.

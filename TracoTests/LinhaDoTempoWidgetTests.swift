@@ -257,3 +257,68 @@ struct LinhasDoEstadoTests {
         for e in comEspaco { #expect(LinhasDoEstado.de(e) == 3) }
     }
 }
+
+/// O achado A do G4, que é da dimensão *Fora do app*: num dia de CINCO
+/// compromissos a superfície carrega três e o pequeno imprimia **"+2 depois"**
+/// — uma contagem exata, derivada de uma lista que a face sabia cortada. O
+/// dono lia "+2" e acreditava que o dia dele tinha três.
+///
+/// A correção é das duas metades ao mesmo tempo, como o juiz exigiu: o
+/// instantâneo passou a carregar quantos ficaram de fora, e a face só publica
+/// número quando ele existe. Aqui está a lei; a prova de ponta a ponta (cinco
+/// eventos → documento com três e `alemDaLista == 2`) está em `ForaDoAppTests`.
+@Suite("A face não fecha número sobre lista cortada (F4-E)")
+struct RestantesTests {
+    @Test("dia inteiro na face: nada a dizer, e nenhuma linha gasta dizendo")
+    func nadaSobrando() {
+        #expect(Restantes.de(naFace: 3, publicados: 3, alem: 0) == .nenhum)
+        #expect(Restantes.de(naFace: 1, publicados: 1, alem: 0) == .nenhum)
+        #expect(Restantes.de(naFace: 3, publicados: 3, alem: 0).frase == nil)
+    }
+
+    @Test("cinco no dia, um na face: quatro depois — não dois")
+    func oNumeroDoDiaInteiro() {
+        // o instantâneo carrega três dos cinco; a face mostra um
+        #expect(Restantes.de(naFace: 1, publicados: 3, alem: 2) == .exato(4))
+        #expect(Restantes.de(naFace: 1, publicados: 3, alem: 2).frase == "+4 depois")
+        // e o médio, mostrando os três: os dois que ficaram fora do documento
+        #expect(Restantes.de(naFace: 3, publicados: 3, alem: 2).frase == "+2 depois")
+        // era este o número falso: contar só a lista de dentro
+        #expect(Restantes.de(naFace: 1, publicados: 3, alem: 2) != .exato(2))
+    }
+
+    @Test("instantâneo que não sabe não inventa: 'mais depois', sem número")
+    func semSaberNaoPublicaNumero() {
+        #expect(Restantes.de(naFace: 1, publicados: 3, alem: nil) == .algunsMais)
+        #expect(Restantes.de(naFace: 1, publicados: 3, alem: nil).frase == "mais depois")
+        #expect(Restantes.de(naFace: 3, publicados: 3, alem: nil).frase == "mais depois")
+    }
+
+    @Test("a voz diz a mesma coisa que a tela")
+    func aVozAcompanha() {
+        #expect(Restantes.de(naFace: 1, publicados: 3, alem: 2).emVoz == "mais 4 depois")
+        #expect(Restantes.de(naFace: 1, publicados: 3, alem: nil).emVoz == "e mais depois")
+        #expect(Restantes.de(naFace: 2, publicados: 2, alem: 0).emVoz == nil)
+    }
+
+    @Test("lista curta é a verdade inteira: o documento sabe sem carregar conta")
+    func listaCurtaSabeSozinha() {
+        let curta = Superficie(geradoEm: .now, validoAte: .now.addingTimeInterval(3600),
+                               proximos: fatias(2))
+        #expect(curta.alem() == 0)
+        let cheia = Superficie(geradoEm: .now, validoAte: .now.addingTimeInterval(3600),
+                               proximos: fatias(Superficie.candidatas))
+        // cheia e sem a conta = instantâneo velho: não sabe, e a face não chuta
+        #expect(cheia.alem() == nil)
+        var contada = cheia
+        contada.alemDaLista = 2
+        #expect(contada.alem() == 2)
+    }
+
+    private func fatias(_ n: Int) -> [Superficie.Proximo] {
+        (0..<n).map { i in
+            Superficie.Proximo(titulo: "c\(i)", inicio: .now.addingTimeInterval(Double(i + 1) * 3600),
+                               fim: .now.addingTimeInterval(Double(i + 1) * 3600 + 600), diaInteiro: false)
+        }
+    }
+}

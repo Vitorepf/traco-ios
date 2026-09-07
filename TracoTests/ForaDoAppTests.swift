@@ -79,21 +79,61 @@ struct ForaDoAppTests {
         }
     }
 
-    @Test("reload só dos kinds afetados")
-    func reloadPorKind() async throws {
+    /// F4-E: o mapa "kind afetado" era da F2, quando cada face lia METADE do
+    /// documento. Desde a F4 o widget do Traço mostra a agenda e o do Próximo
+    /// mostra o Destaque — as duas leem o documento inteiro, e recarregar só
+    /// "quem mudou" deixava a agenda de ontem embaixo do Destaque de hoje.
+    @Test("escrita real acorda as DUAS faces — as duas leem o documento inteiro")
+    func reloadDasDuasFaces() async throws {
         try await isolado { _, contador in
+            let ambas: [Set<String>] = [[SuperficieDisco.kindDestaque, SuperficieDisco.kindProximo]]
             DestaqueDoDia.gravar("a única", id: UUID())
-            // o primeiro documento acorda os dois; daí em diante só quem mudou
             contador.zerar()
             DestaqueDoDia.gravar("a única, editada", id: DestaqueDoDia.idDeHoje()!)
-            #expect(contador.chamadas == [[SuperficieDisco.kindDestaque]])
+            #expect(contador.chamadas == ambas)
             contador.zerar()
             ProximoCompromisso.gravar(.init(titulo: "Dentista", inicio: Date().addingTimeInterval(3600),
                                             fim: Date().addingTimeInterval(7200), diaInteiro: false))
-            #expect(contador.chamadas == [[SuperficieDisco.kindProximo]])
+            #expect(contador.chamadas == ambas)
             contador.zerar()
             ProximoCompromisso.gravar(nil)
-            #expect(contador.chamadas == [[SuperficieDisco.kindProximo]])
+            #expect(contador.chamadas == ambas)
+            // e o que NÃO mudou continua não acordando ninguém: quem economiza
+            // orçamento é a guarda do idêntico, e ela ficou onde estava
+            contador.zerar()
+            ProximoCompromisso.gravar(nil)
+            #expect(contador.chamadas.isEmpty)
+        }
+    }
+
+    /// O achado A do G4, de ponta a ponta: cinco compromissos no dia, três no
+    /// documento e a conta dos dois que ficaram de fora. Sem ela a face fechava
+    /// "+2 depois" num dia de cinco.
+    @Test("cinco no dia: o documento carrega três E diz que faltam dois")
+    func cincoDeCinco() async throws {
+        try await isolado { _, contador in
+            let agora = Date(timeIntervalSince1970: floor(Date().timeIntervalSince1970))
+            let cinco = (0..<5).map { i in
+                ProximoCompromisso.Fatia(titulo: "c\(i)", inicio: agora.addingTimeInterval(Double(i + 1) * 3600),
+                                         fim: agora.addingTimeInterval(Double(i + 1) * 3600 + 1800),
+                                         diaInteiro: false)
+            }
+            ProximoCompromisso.publicar(cinco, agora: agora)
+            let s = try #require(lida())
+            #expect(s.proximos.count == Superficie.candidatas)
+            #expect(s.alemDaLista == 2)
+            #expect(s.alem() == 2)
+            // a face que mostra UM diz que vêm QUATRO — não dois
+            #expect(Restantes.de(naFace: 1, publicados: s.proximos.count, alem: s.alem()).frase == "+4 depois")
+
+            // o sexto compromisso não muda os três publicados, muda quantos
+            // faltam — e a escrita NÃO pode ser descartada como "idêntica"
+            contador.zerar()
+            let seis = cinco + [ProximoCompromisso.Fatia(titulo: "c5", inicio: agora.addingTimeInterval(21600),
+                                                         fim: agora.addingTimeInterval(23400), diaInteiro: false)]
+            ProximoCompromisso.publicar(seis, agora: agora)
+            #expect(lida()?.alemDaLista == 3)
+            #expect(!contador.chamadas.isEmpty, "a face seguiria contando errado até a próxima escrita")
         }
     }
 

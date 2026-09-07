@@ -98,3 +98,57 @@ nonisolated enum LinhasDoEstado {
         frase.contains(" ") ? teto : 1
     }
 }
+
+/// O que a face pode dizer sobre o que NÃO está nela (G4 da F4, achado A).
+///
+/// Num dia de cinco compromissos a superfície carrega três e o pequeno
+/// imprimia **"+2 depois"**: uma contagem exata sobre uma lista que ele mesmo
+/// sabia cortada. O dono lia "+2" e acreditava que o dia tinha três. Tinha
+/// cinco. Número errado é pior que nenhum, porque encerra a dúvida.
+///
+/// A correção é das duas metades ao mesmo tempo: o instantâneo passou a
+/// carregar quantos ficaram de fora (`Superficie.alemDaLista`) e a face só
+/// publica número quando ele existe. Instantâneo velho, gravado antes desta
+/// conta, não sabe — e aí a face diz "mais depois", que é verdade, em vez de
+/// um número que não é.
+///
+/// Mora aqui, fora do SwiftUI, pela mesma razão de `EstadoNaFace`: um `if` de
+/// view não tem suíte, e foi um `if` de view que derrubou esta volta.
+nonisolated enum Restantes: Equatable {
+    /// A face mostra o dia inteiro.
+    case nenhum
+    /// Faltam exatamente estes.
+    case exato(Int)
+    /// Há mais, e a face não sabe quantos: então não inventa número.
+    case algunsMais
+
+    /// - Parameters:
+    ///   - naFace: quantos dos publicados a face está mostrando.
+    ///   - publicados: quantos o instantâneo carrega (já sem os que acabaram).
+    ///   - alem: quantos ficaram de fora do instantâneo; `nil` = não sabe.
+    static func de(naFace: Int, publicados: Int, alem: Int?) -> Restantes {
+        let naLista = max(0, publicados - max(0, naFace))
+        guard let alem else { return .algunsMais }
+        let total = naLista + max(0, alem)
+        return total > 0 ? .exato(total) : .nenhum
+    }
+
+    /// A linha da face. `nil` quando não há o que dizer — e a face não gasta
+    /// altura dizendo que não há nada.
+    var frase: String? {
+        switch self {
+        case .nenhum: nil
+        case .exato(let n): "+\(n) depois"
+        case .algunsMais: "mais depois"
+        }
+    }
+
+    /// A mesma coisa, na ordem em que o autor ouve.
+    var emVoz: String? {
+        switch self {
+        case .nenhum: nil
+        case .exato(let n): "mais \(n) depois"
+        case .algunsMais: "e mais depois"
+        }
+    }
+}

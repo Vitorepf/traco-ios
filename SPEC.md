@@ -2944,6 +2944,97 @@ porque a lei que faltou à 05u tinha de caber numa suíte. O espelho da
 permissão é o mínimo honesto dentro desta volta: a unificação com
 `PromessaDoAviso` (volta 18, ainda não mesclada) é a volta seguinte.
 
+### F4-E — a face não fecha um número que ela não sabe (correção do G4)
+
+O G4 recusou por um degrau em cinco eixos e o achado mais pesado era da
+dimensão *Fora do app*: com **cinco** compromissos no calendário a superfície
+carrega três e o pequeno imprimia **"+2 depois"** — uma contagem exata,
+derivada de uma lista que a própria face sabia cortada. O dono lia "+2" e
+acreditava que o dia dele tinha três. Número errado é pior que nenhum, porque
+encerra a dúvida.
+
+1. **O instantâneo passa a carregar quantos há** (mudança de contrato da 05u,
+   declarada): `Superficie.alemDaLista: Int?` guarda quantos compromissos do
+   horizonte NÃO couberam. É opcional de propósito — documento gravado antes
+   desta conta decodifica com `nil`, que quer dizer *não sei*, e a face que não
+   sabe diz "mais depois", sem número (`Restantes` em `Relogio.swift`, com
+   suíte). O CORTE mudou de lugar: `proximasFatias` devolve o horizonte
+   inteiro e quem corta é `publicar`, junto de `candidatas` e de `validoAte` —
+   quem corta conta. `Superficie.candidatas` desceu para o documento porque o
+   alvo do widget não compila `ProximoCompromisso` e precisa do número para
+   saber se a lista que tem na mão está cortada.
+2. **A guarda do idêntico e o mapa de reload passaram a ver o documento
+   inteiro.** O sexto compromisso do dia não muda os três publicados, muda
+   quantos faltam: sem `alemDaLista` na comparação a escrita era descartada
+   como "idêntica" e a face seguia contando errado. E o mapa "kind afetado" era
+   da F2, quando cada face lia METADE do documento — desde a F4 o widget do
+   Traço mostra a agenda e o do Próximo mostra o Destaque, então **os dois
+   kinds recarregam sempre**; recarregar só "quem mudou" deixava a agenda de
+   ontem embaixo do Destaque de hoje. Quem economiza orçamento é a guarda do
+   idêntico, e ela ficou onde estava.
+3. **Quem decide quantas linhas cabem é o layout, não um `if`.**
+   `AgendaQueCabe` (`ViewThatFits`) prova três, duas, uma — e cada candidata
+   leva junto a conta do que ela mesma deixou de fora, então o número nunca
+   descreve outra lista. A guarda `!tipo.isAccessibilitySize` que escondia a
+   agenda inteira caiu: em AX5 a face mostra o que cabe e, quando não cabe nem
+   uma linha, diz quantos vêm. Espaçador flexível DISPUTA altura com o
+   `ViewThatFits` e com o texto — por isso os espaçadores dessas faces viraram
+   padding, o conteúdo ganhou `frame(maxHeight: .infinity)` e a linha do
+   Destaque ganhou `layoutPriority(1)`: sem ela o VStack repartia a altura em
+   fatias iguais, a frase recebia menos do que o teto de linhas pedia e saía
+   com reticências — a família da C causada pela REPARTIÇÃO, não pela
+   propriedade.
+4. **`BlocoProximo` no mesmo degrau dos irmãos** (achado C): `0,85` não chega
+   em 155 pt e o pequeno saía "Café com o Pe…" — o nome do compromisso, que é
+   a informação. Fechada a classe com uma varredura: **os 24 `lineLimit` e os 8
+   `minimumScaleFactor` do alvo, conferidos um a um** face por face (o arquivo
+   terminou com 31 e 24), com seis divergências corrigidas: o rótulo do `Selo`;
+   a hora e o assunto da
+   `LinhaProximo`, que passou a sair em AX5; a hora e o título do
+   `BlocoProximo`; `DESATUALIZADO` e a linha do Destaque na tela bloqueada; e
+   o `PRÓXIMO` da bloqueada, que não tinha teto de linha NENHUM — é o
+   `PRÓXI-/MO` original, vivo na superfície que o dono mais olha.
+5. **O quadro de ofertas é um só** (`QuadroVazio`), e agora o do Próximo vazio
+   também — calendário vazio é o estado mais comum num app de escrita. Com o
+   alvo de 44 pt do achado G, **três ofertas não cabem num médio** (medido na
+   tela): são duas, uma em AX5, e elas PREENCHEM a altura que sobra, então não
+   há mais cartão morto embaixo. A terceira continua no cabeçalho e no app.
+6. **O risco do feito aparece** (achado F) e **o toque tem eco** (achado H).
+   `.strikethrough` como modificador não chegava à tela ao conviver com
+   `minimumScaleFactor`; como atributo de run, chega. Só que
+   `Text(AttributedString)` ignora `minimumScaleFactor` e `allowsTightening` —
+   então cada estado leva o caminho que serve a ele: a linha POR FAZER é texto
+   simples e encolhe inteira; a linha FEITA, que já é recibo e não leitura,
+   vira atributo e ganha o traço. `.invalidatableContent()` nos dois botões do
+   feito, e `.contentTransition(.numericText())` na hora do bloco.
+7. **A promessa e o destino, a mesma frase** (achado J): com o instantâneo
+   velho a face dizia "Abrir o Traço para atualizar" e o toque abria uma
+   PÁGINA EM BRANCO; passa a abrir o app (`traco://notas`), que é o que
+   republica.
+
+**Custo assumido:** o alvo de 44 pt do cabeçalho custa uma linha de agenda no
+médio do Traço — as duas coisas que o juiz pediu não cabem juntas, e entre um
+alvo de 16 pt e uma linha a mais fica o alvo; a face diz o que não mostrou, e
+por isso nada fica escondido. O achado I (o quadro lê como lista de Ajustes)
+não foi tratado: as ofertas agora preenchem a altura e têm primária em âmbar,
+mas a forma continua glifo + palavra.
+
+**Prova:** 6 testes novos (`RestantesTests`: dia inteiro na face, cinco no dia
+com um na face = "+4 depois" e não "+2", instantâneo que não sabe não publica
+número, a voz acompanha a tela, lista curta sabe sozinha; `ForaDoAppTests`:
+cinco publicados de ponta a ponta com `alemDaLista == 2` e o sexto compromisso
+acordando a escrita que a guarda do idêntico descartaria, e as duas faces
+recarregando juntas), suíte **773/133**, dois alvos sem aviso. Capturas do
+build desta volta, plantadas na casa pelo `IconState.plist` (a galeria não é
+preciso): `ferramentas/orca/f4e-casa-claro.png`, `-escuro`, `-ax5-claro`,
+`-ax5-escuro`, `f4e-ax5-nome-inteiro.png` (o recorte onde o juiz leu "Café com
+o Pe…" e agora se lê o nome inteiro com "+4 depois"), `f4e-vazio.png`,
+`f4e-feito.png`, `f4e-feito-risco.png` e `f4e-desatualizado.png` (o horizonte
+vencendo sozinho pela linha do tempo, não por remendo no arquivo).
+**Fora:** tela bloqueada e StandBy seguem sem render no simulador; o toque
+(e portanto o vídeo do eco do feito) exige janela, que este instrumento não
+tem.
+
 **Volta:** multiplicar. **A IA:** nada. **Prova:** 17 testes (11 em
 `LinhaDoTempoWidgetTests` — a política sempre devolve volta, com teto, piso e
 orçamento; véspera/início/fim/meia-noite/soneca na linha; nada no passado,

@@ -963,8 +963,11 @@ extension ProximoCompromisso {
         proximasFatias(eventos, cal: cal, manha: manha, agora: agora, mudo: mudo).first
     }
 
-    /// As `candidatas` seguintes, em ordem: o widget vira de uma para a outra
-    /// sem acordar o app (ADR 05u).
+    /// Todas as ocorrências do horizonte, em ordem. Quem corta em `candidatas`
+    /// é `publicar` — e corta CONTANDO (ADR 06d, achado A do G4): a face
+    /// precisa saber quantos ficaram de fora para não fechar um número falso.
+    /// O widget continua virando de uma candidata para a outra sem acordar o
+    /// app (ADR 05u); o que mudou foi só onde a tesoura mora.
     static func proximasFatias(_ eventos: [EventoCalendario], cal: Calendar,
                                manha: Int, agora: Date, mudo: UUID? = nil) -> [Fatia] {
         let ate = fimDoHorizonte(agora: agora, cal: cal)
@@ -972,7 +975,6 @@ extension ProximoCompromisso {
         return Calendario.ocorrencias(vivos, de: agora, a: ate, cal)
             .filter { $0.fim > agora }
             .sorted { $0.inicio < $1.inicio }
-            .prefix(candidatas)
             .map { e in
                 Fatia(id: e.id, titulo: e.titulo, inicio: e.inicio, fim: e.fim,
                       diaInteiro: e.diaInteiro,

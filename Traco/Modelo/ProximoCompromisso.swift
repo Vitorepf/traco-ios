@@ -23,8 +23,10 @@ nonisolated enum ProximoCompromisso: Sendable {
     nonisolated static let chaveSoneca = "sonecaOcorrencia"
     nonisolated static let chaveSonecaEm = "sonecaEm"
     /// Quantos próximos a superfície conhece de antemão: o widget vira
-    /// sozinho de um para o outro sem acordar o app.
-    nonisolated static let candidatas = 3
+    /// sozinho de um para o outro sem acordar o app. O número é do documento
+    /// (`Superficie`) porque o widget também precisa dele — para saber se a
+    /// lista que ele tem na mão está cortada.
+    nonisolated static var candidatas: Int { Superficie.candidatas }
     nonisolated static let horizonte: TimeInterval = 14 * 86400
 
     /// O que a tela mostra é o próprio `Superficie.Proximo` (um tipo só):
@@ -51,7 +53,13 @@ nonisolated enum ProximoCompromisso: Sendable {
     /// não inventa o seguinte, diz "desatualizado".
     @discardableResult
     nonisolated static func publicar(_ fatias: [Fatia], agora: Date = .now) -> Bool {
-        let comSoneca = fatias.map { f -> Fatia in
+        // O CORTE mora aqui, junto de `candidatas` e de `validoAte` — e quem
+        // corta conta quantos ficaram de fora (G4 da F4, achado A). A face
+        // dizia "+2 depois" num dia de cinco porque só o número de dentro da
+        // lista chegava a ela; agora chega também o de fora.
+        let cortadas = Array(fatias.prefix(candidatas))
+        let alem = fatias.count - cortadas.count
+        let comSoneca = cortadas.map { f -> Fatia in
             var f = f
             if f.lembrarEm == nil { f.lembrarEm = sonecaAtiva(ocorrencia: f.ocorrencia, agora: agora) }
             return f
@@ -61,6 +69,7 @@ nonisolated enum ProximoCompromisso: Sendable {
             : (comSoneca.last?.fim ?? agora)
         return SuperficieDisco.publicar(agora: agora) {
             $0.proximos = comSoneca
+            $0.alemDaLista = alem
             $0.validoAte = validoAte
         }
     }
