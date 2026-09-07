@@ -130,6 +130,35 @@ import Testing
         ("Hoje eu preciso fingir que está tudo bem, mas por dentro pesa.", "dia"),
     ]
 
+    /// ADR 06i-E — A AMOSTRA CURTA: uma sonda por família ABAIXO do teto. O
+    /// buraco da A-5 não foi de léxico, foi de amostra — o rabo de 140
+    /// caracteres das sondas punha TODA frase acima do teto, e por isso
+    /// `não devia ter` na família errada sobreviveu a quatro voltas de régua.
+    /// Cada linha: a frase, a família que a reconhece, e a porta que a levaria
+    /// VESTIDA se a guarda não existisse. Sem a porta, a sonda não mede nada.
+    static let curtasPorFamilia: [(String, String, String)] = [
+        ("Hoje eu fiz besteira e chorei escondido no carro.", "1a", "exameDaNoite"),
+        ("Toda vez que abro o chat eu fico ansioso pra caramba.", "1b", "seEntao"),
+        ("Percebi que eu não presto pra ninguém.", "2", "notaPermanente"),
+        ("Hoje eu preciso trabalhar e não durmo desde terça.", "3", "dia"),
+        // a frase do revisor da M3, a que abriu esta volta, e o par dela: mesmo
+        // ato de fala, mesmo tamanho, lados opostos até a 06i-E
+        ("Não devia ter reagido assim com ele.", "4", "exameDaNoite"),
+        ("Fui grosso com o meu irmão hoje.", "4", "exameDaNoite"),
+        // a família 5 abaixo do teto só vale com companhia (aqui `pesado`, da
+        // 1b) — é a regra da 06i, não um furo desta régua
+        ("Foi pesado e eu fiquei calada.", "5", "colunaEsquerda"),
+    ]
+
+    static let lexicoPorFamilia: [String: String] = [
+        "1a": AnaliseLocal.lexicoDoSentimento,
+        "1b": AnaliseLocal.lexicoDeDuplaVida,
+        "2": AnaliseLocal.lexicoDoJuizoSobreSi,
+        "3": AnaliseLocal.lexicoDoNaoAguento,
+        "4": AnaliseLocal.lexicoDoAtoContraAlguem,
+        "5": AnaliseLocal.lexicoDaOmissao,
+    ]
+
     /// O outro lado: as frases do revisor que os dois métodos levam com razão.
     /// Se a guarda comer estas, ela é larga demais.
     static let legitimas: [(String, String)] = [
@@ -387,7 +416,8 @@ import Testing
     @MainActor @Test func asDuasReguasValemAoMesmoTempo() {
         Self.comOsNovos {
             for frase in Self.curtas + Self.longas + Self.doRevisorG3
-                + Self.minhas.map(\.0) + Self.comGancho.map(\.0) {
+                + Self.minhas.map(\.0) + Self.comGancho.map(\.0)
+                + Self.curtasPorFamilia.map(\.0) {
                 let r = Self.rota(frase)
                 #expect(r == "silencio" || r == "expressiva",
                         Comment(rawValue: "escrita pessoal vestida de \(r): «\(frase)»"))
@@ -414,6 +444,31 @@ import Testing
                 #expect(Catalogo.metodo(porta)?.roteamento.contains { lower.contains(regex: $0) } == true,
                         Comment(rawValue: "sem gancho de \(porta), a frase não mede nada: «\(frase)»"))
             }
+        }
+    }
+
+    /// ADR 06i-E: nenhuma família fica sem sonda ABAIXO do teto. É a régua que
+    /// impede a próxima cegueira de amostra — não a de léxico.
+    @MainActor @Test func cadaFamiliaTemUmaSondaAbaixoDoTeto() throws {
+        try Self.comOsNovos {
+            for (frase, familia, porta) in Self.curtasPorFamilia {
+                #expect(frase.count < AnaliseLocal.tetoDoDesabafo,
+                        Comment(rawValue: "sonda com rabo, não mede o caso curto [\(frase.count)]: «\(frase)»"))
+                let lower = frase.lowercased()
+                let lexico = try #require(Self.lexicoPorFamilia[familia])
+                #expect(lower.contains(regex: lexico),
+                        Comment(rawValue: "não é da família \(familia): «\(frase)»"))
+                #expect(AnaliseLocal.eEscritaPessoal(frase, lower),
+                        Comment(rawValue: "a guarda não reconhece: «\(frase)»"))
+                // abaixo do teto a Expressiva nem abre: o destino certo é o silêncio
+                #expect(Self.rota(frase) == "silencio",
+                        Comment(rawValue: "confissão curta vestida de \(Self.rota(frase)): «\(frase)»"))
+                let m = try #require(Catalogo.metodo(porta))
+                #expect(m.roteamento.contains { lower.contains(regex: $0) },
+                        Comment(rawValue: "sem gancho de \(porta), a sonda não mede nada: «\(frase)»"))
+            }
+            #expect(Set(Self.curtasPorFamilia.map(\.1)) == Set(Self.lexicoPorFamilia.keys),
+                    "família sem sonda curta")
         }
     }
 
