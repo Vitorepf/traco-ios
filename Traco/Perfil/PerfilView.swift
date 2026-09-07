@@ -203,13 +203,16 @@ struct PerfilView: View {
     /// descoberta vira campo gravado na hora em que "o que aconteceu" enche.
     private func lerLatencia() {
         var registros: [Latencia.Registro] = []
-        for t in trabalhos {
+        for t in trabalhos where AcessoTrabalho.permitido(t, no: context) {
             guard let doc = try? t.ler() else { continue }
             registros += Latencia.registros(hipoteses: doc.hipoteses, encerrado: doc.encerrado)
         }
         for n in notas where n.gesto == .decisao {
-            registros.append(Latencia.registro(decisao: n.uuid, campos: n.campos,
-                                               criadaEm: n.criadaEm, fechada: n.fechada))
+            // `registro` devolve nil para nota selada: o selo fecha a rota
+            if let r = Latencia.registro(decisao: n.uuid, campos: n.campos,
+                                         criadaEm: n.criadaEm, fechada: n.fechada) {
+                registros.append(r)
+            }
         }
         serieDaLatencia = Latencia.serie(registros)
     }
@@ -218,7 +221,7 @@ struct PerfilView: View {
         let s = serieDaLatencia
         return VStack(alignment: .leading, spacing: Tema.entreItens) {
             rotulo("LATÊNCIA DA DESCOBERTA")
-            Text("Quanto tempo passa entre você afirmar uma coisa e saber se estava certa. Sai do que já está escrito — as hipóteses do Trabalho e as decisões com data de conferir —, não há nada a preencher aqui. Hipótese sem resposta é informação, e abandonar é resultado.")
+            Text("Quanto tempo passa entre afirmar uma coisa e saber se estava certa. Sai do que já está escrito — as hipóteses do Trabalho e as decisões com data de conferir —, não há nada a preencher aqui. Hipótese sem resposta é informação, e abandonar é resultado.")
                 .font(.footnote)
                 .foregroundStyle(Tema.tintaFraca)
                 .fixedSize(horizontal: false, vertical: true)
@@ -278,13 +281,14 @@ struct PerfilView: View {
     }
 
     /// Os abertos viajam junto dos fechados: uma série só do que fechou
-    /// esconderia justamente o que nunca voltou.
+    /// esconderia justamente o que nunca voltou. O corte é POR ESTADO
+    /// (`Latencia.paraTela`) para que os quatro sobrevivam a ele.
     private func registrosDaLatencia(_ s: Latencia.Serie) -> some View {
-        let lista = s.abertos + s.semData + s.descobertos.reversed().prefix(4) + s.abandonados
         return VStack(alignment: .leading, spacing: 10) {
-            ForEach(Array(lista.prefix(12))) { r in
+            ForEach(Latencia.paraTela(s)) { r in
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(Latencia.rotulo(r.estado) + " · " + medidaDe(r))
+                    Text(Latencia.rotulo(r.estado) + " · " + medidaDe(r)
+                         + (r.autoria.map { " · " + $0 } ?? ""))
                         .font(Tema.miudo)
                         .foregroundStyle(Tema.tintaFraca)
                     if !r.texto.isEmpty {

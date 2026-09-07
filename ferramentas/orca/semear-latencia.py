@@ -43,18 +43,21 @@ def blob(u):
     return uuid.UUID(u).bytes
 
 
-def hip(texto, data, avaliadaEm=None, estado="proposta", por="você"):
+def hip(texto, data, avaliadaEm=None, estado="proposta", por="Você"):
     h = {"id": U(), "data": data, "texto": texto, "contexto": "", "evidencias": [],
-         "estado": estado, "propostaPor": por}
+         "estado": estado}
+    if por is not None:
+        h["propostaPor"] = por
     if avaliadaEm is not None:
         h["avaliadaEm"] = avaliadaEm
         h["avaliadaPor"] = por
     return h
 
 
-def doc(intencao, hipoteses, encerrado=False):
+def doc(intencao, hipoteses, encerrado=False, notaOrigemID=None):
     i = U()
     return {"formato": 1, "id": i, "apoio": "delegar", "encerrado": encerrado,
+            "notaOrigemID": notaOrigemID,
             "intencoes": [{"id": U(), "data": hipoteses[0]["data"], "texto": intencao,
                            "resultado": ""}],
             "artefatos": [], "acoes": [], "evidencias": [], "hipoteses": hipoteses,
@@ -116,13 +119,56 @@ NOTAS = [
 ]
 
 
+# MODO B — o estado que a revisão G3 usou para derrubar três dimensões:
+# origem selada, dezessete abertos e autoria perdida, tudo na mesma tela.
+NOTA_SELADA = U()          # a origem trancada do trabalho protegido
+NOTA_DECISAO_SELADA = U()  # decisão trancada e respondida: não entra nem na contagem
+
+TRABALHOS_B = [
+    doc("Trabalho nascido de nota trancada", [
+        hip("SEGREDO SELADO: a hipotese do trabalho protegido", t(2026, 5, 1)),
+    ], notaOrigemID=NOTA_SELADA),
+    doc("A rotina que acumula hipóteses", [
+        hip("registro antigo: propostaPor AUSENTE", t(2026, 5, 10), por=None),
+        hip("hipotese proposta por Grok, nao pelo autor", t(2026, 5, 11), por="Grok"),
+    ] + [hip(f"aberta numero {i}", t(2026, 5, 12) + i * 86400) for i in range(15)]),
+    doc("O que já fechou", [
+        hip("descoberta de julho", t(2026, 6, 12), t(2026, 7, 3), "confirmada"),
+        hip("outra de julho", t(2026, 6, 20), t(2026, 7, 11), "contestada"),
+        hip("descoberta de agosto", t(2026, 8, 14), t(2026, 8, 19), "confirmada"),
+        hip("descoberta de setembro", t(2026, 9, 3), t(2026, 9, 5), "confirmada"),
+        hip("avaliada antes da 05r, sem data", t(2026, 6, 1), None, "contestada"),
+        hip("outra avaliada sem data", t(2026, 6, 2), None, "confirmada"),
+    ]),
+    doc("Trabalho encerrado sem conferir", [
+        hip("largada quando o trabalho fechou", t(2026, 5, 30)),
+        hip("outra largada", t(2026, 6, 2)),
+    ], encerrado=True),
+]
+
+NOTAS_B = [
+    (NOTA_SELADA, {"escolha": "a nota de origem, trancada"}, t(2026, 5, 1), t(2026, 5, 1), [], 1),
+    (NOTA_DECISAO_SELADA,
+     {"escolha": "SEGREDO SELADO: a decisao trancada", "decidido": "selado",
+      "espero": "confiro em 30/06/2026", "aconteceu": "respondi e depois tranquei"},
+     t(2026, 6, 5), t(2026, 7, 2), [], 1),
+    (U(), {"escolha": "publicar o vídeo ou refazer o roteiro", "decidido": "publicar e medir",
+           "espero": "20 respostas na primeira semana; confiro em 05/09/2026"},
+     t(2026, 8, 20), t(2026, 8, 20), [], 0),
+]
+
+
 def main():
     con = sqlite3.connect(STORE)
     c = con.cursor()
     c.execute("delete from ZNOTA")
     c.execute("delete from ZTRABALHO")
+    modo = os.environ.get("MODO", "a").lower()
+    trabalhos = TRABALHOS_B if modo == "b" else TRABALHOS
+    # (uuid, campos, criadaEm, editadaEm, versões, trancada)
+    notas = NOTAS_B if modo == "b" else [(n + (0,)) for n in NOTAS]
     pk = 0
-    for d in TRABALHOS:
+    for d in trabalhos:
         pk += 1
         c.execute("insert into ZTRABALHO (Z_PK,Z_ENT,Z_OPT,ZATUALIZADOEM,ZTITULO,ZUUID,ZCONTEUDOJSON)"
                   " values (?,3,1,?,?,?,?)",
@@ -131,13 +177,14 @@ def main():
     c.execute("update Z_PRIMARYKEY set Z_MAX=? where Z_ENT=3", (pk,))
 
     npk = 0
-    for u, campos, criada, editada, versoes in NOTAS:
+    for u, campos, criada, editada, versoes, trancada in notas:
         npk += 1
         c.execute("insert into ZNOTA (Z_PK,Z_ENT,Z_OPT,ZDIADASERIE,ZDOMINIOTRAVADO,"
                   "ZMINUTOSESCRITOS,ZQUEIMADA,ZTRANCADA,ZCRIADAEM,ZEDITADAEM,ZCAMPOSJSON,"
                   "ZDOMINIORAW,ZGESTORAW,ZSENTIDO,ZSERIERAW,ZTEXTO,ZUUID)"
-                  " values (?,1,1,0,0,0,0,0,?,?,?,'','decisao','','','',?)",
-                  (npk, criada, editada, json.dumps(campos, ensure_ascii=False), blob(u)))
+                  " values (?,1,1,0,0,0,0,?,?,?,?,'','decisao','','','',?)",
+                  (npk, trancada, criada, editada,
+                   json.dumps(campos, ensure_ascii=False), blob(u)))
         if versoes:
             d = os.path.join(DOCS, "Traço", "versoes")
             os.makedirs(d, exist_ok=True)

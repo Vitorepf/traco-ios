@@ -4287,8 +4287,17 @@ lista, não corrigido aqui. E o estado DEVIDO desta leitura ancora a data do
 texto relativo ("em duas semanas") a lista adia a cobrança para sempre e esta
 tela não; a divergência é deliberada e está declarada, não resolvida.
 
-**Selo:** nota trancada ou queimada entra pela CONTAGEM e nunca pelo conteúdo
-(05s) — a latência não abre rota nova para o que o selo fechou.
+**Selo:** nota trancada ou queimada **não entra na latência, nem como
+contagem** — a mesma regra do retrato, que é o cartão imediatamente acima nesta
+tela ("nada de expressiva, trancada ou queimada entra no retrato, nem como
+contagem"). A primeira escrita desta ADR dizia "entra pela contagem" e citava a
+05s por uma regra que a 05s não tem; a citação estava errada e a política era
+mais frouxa que a do vizinho de cima. Uma DURAÇÃO medida a partir do que o selo
+fechou é mais do que contar. A guarda mora em `Latencia.registro(decisao:)`,
+que devolve `nil` — no funil por onde toda leitura de decisão passa, não em
+cada chamador. Consequência aceita: a decisão selada deixa de ser o único
+caminho de uma decisão para ABANDONADO, que agora é só do Trabalho encerrado —
+e isso é mais honesto, porque trancar uma nota nunca foi abandonar a decisão.
 **Volta:** melhorar — é a lacuna "modelo revisável do autor" do EVOLUCAO.
 **O que a IA sabe:** nada. A leitura é do algoritmo, não viaja no prompt e não
 entra no retrato.
@@ -4309,3 +4318,69 @@ mesma tabela SwiftData, mesmo JSON do `DocumentoTrabalho`, mesmo histórico
 do dono**, que continua sem captura.
 **Fora:** a decisão respondida antes de existir histórico continua sem data; o
 `Gatilho`; e não há rota `traco://` para o Perfil (a captura pede maestro).
+
+### A volta L1-B — o portão que a seção não tinha atravessado
+
+A revisão G3 derrubou três dimensões e todas as três pela mesma raiz: uma
+superfície nova de LEITURA foi aberta sem passar pelos funis que o resto do app
+já tinha. Nenhuma delas era erro de conta.
+
+**1. O selo do Trabalho vale aqui.** `PerfilView.lerLatencia` lia `t.ler()` de
+todo `Trabalho` sem `AcessoTrabalho.permitido` — sozinha entre onze superfícies
+que gateiam. Um Trabalho nascido de nota trancada, queimada ou expressiva some
+da lista, do calendário, da página e dos Atalhos, e continuava imprimindo o
+texto literal da hipótese no Perfil. Agora passa pelo mesmo funil. A causa é de
+FORMA, e fica escrita: o gate é chamado por cada leitor, então esquecer é
+sempre possível; fechar a classe é barato: `trabalho.ler()`
+tem TRÊS chamadores no app inteiro, e uma versão única que recebe o
+`ModelContext` e devolve `nil` no restrito tira o gate da lembrança de quem
+escreve a próxima superfície. Não foi feito aqui para a volta não inchar — está
+nomeado, com o tamanho medido.
+
+**2. O corte da lista é POR ESTADO.** `prefix(12)` sobre a lista com os abertos
+na frente apagava todos os fechados assim que os abertos passavam de doze: com
+dezessete, a tela virava doze contadores de dívida, sem uma descoberta e sem um
+abandono. É o modo de falha que o dono nomeou com as próprias palavras ("se a
+tela fizer o autor se sentir devendo, a volta não passa"), chegando por um
+limite de lista. `Latencia.paraTela` dá cota a cada estado: **2 devidos, o resto
+de 4 em afirmados** (na ordem do tempo, o mais velho primeiro), **2 sem data,
+4 descobertos** (os mais recentes) **e 2 abandonados** — teto de doze linhas, e
+cada estado que existe sobrevive ao corte. A linha de resumo continua contando
+TUDO: a lista é amostra, o número é inteiro.
+
+**3. A autoria viaja junto (05r).** `Latencia.registros` descartava
+`propostaPor`, então o registro anterior à 05r e a hipótese proposta pela IA
+apareciam como do autor — sob uma frase que dizia "entre **você** afirmar". A
+latência de uma hipótese que a IA propôs não é a latência do autor. `Registro`
+leva `propostaPor` e a linha ganha a marca quando ela NÃO é do autor: "proposta
+por Grok", "autoria desconhecida" para o registro antigo — as mesmas palavras
+que a `TrabalhoView` já imprime. Sem marca significa do autor, e a decisão nunca
+tem marca porque decisão é escrita do autor e não tem proponente. A frase de
+abertura perdeu o "você": "quanto tempo passa entre afirmar uma coisa e saber
+se estava certa".
+
+**Prova da L1-B.** Suíte integral no iPhone 17 Pro Max de teste, 06/09/2026:
+`✔ Test run with 792 tests in 131 suites passed after 6.525 seconds.` /
+`** TEST SUCCEEDED **`. `LatenciaTests`: 13 testes. Na tela, com o estado que a
+revisão usou para derrubar (origem selada + dezessete abertos + autoria perdida,
+`MODO=b python3 ferramentas/orca/semear-latencia.py`):
+`ferramentas/orca/l1b-selo-nao-vaza.png` — a hipótese do trabalho de origem
+trancada é a MAIS VELHA de todas e não aparece em lugar nenhum; e
+`l1b-quatro-estados-e-autoria.png` — com dezoito em aberto, as doze linhas
+trazem afirmado, devido, descoberto (com data e sem data) e abandonado, e as
+duas primeiras dizem "autoria desconhecida" e "proposta por Grok". A decisão
+trancada e respondida não entra na contagem: o resumo diz 4 descobertas, não 5.
+`maestro/latencia.yaml` ganhou `assertNotVisible: "SEGREDO SELADO.*"`.
+
+**O ida-e-volta pelo app**, que a revisão pediu e tinha razão:
+`maestro/latencia-ida-e-volta.yaml` cria a hipótese PELA TELA do Trabalho,
+avalia PELA TELA e a encontra no Perfil como "descoberto · levou menos de um
+dia", sem nenhuma marca de autoria alheia
+(`ferramentas/orca/l1b-ida-e-volta-pelo-app.png`). Isso fecha a circularidade de
+o semeador e o leitor terem sido escritos pela mesma mão: o ciclo está provado
+pelo app. A SÉRIE de meses continua dependendo da semeadura, e a série real do
+dono só existe no aparelho dele.
+
+**Ainda fora:** a barra do mês continua normalizada pelo pior mês da série, sem
+escala fixa — duas capturas de meses diferentes não são comparáveis entre si.
+É decisão do dono (pista fixa ou nenhuma barra) e não foi tomada aqui.

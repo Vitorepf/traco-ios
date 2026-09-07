@@ -32,6 +32,20 @@ nonisolated enum Latencia {
         var devidoEm: Date?
         var descobertoEm: Date?
         var estado: Estado
+        /// ADR 05r: quem PROPÔS a hipótese. Só a hipótese tem proponente — a
+        /// decisão é escrita do autor —, e `nil` na hipótese é o registro
+        /// anterior à 05r, que a tela diz não saber em vez de deduzir.
+        var propostaPor: String?
+
+        /// A marca de autoria, ou `nil` quando é o próprio autor. A latência de
+        /// uma hipótese que a IA propôs não é a latência do autor, então ela vem
+        /// escrita — no molde de `TrabalhoView`, que já imprime essa linha.
+        var autoria: String? {
+            guard fonte == .hipotese else { return nil }
+            guard let quem = propostaPor?.trimmingCharacters(in: .whitespacesAndNewlines),
+                  !quem.isEmpty else { return "autoria desconhecida" }
+            return quem.caseInsensitiveCompare("Você") == .orderedSame ? nil : "proposta por " + quem
+        }
 
         /// Dias entre afirmar e descobrir. `nil` quando não descobriu ainda ou
         /// quando a data da descoberta não foi gravada.
@@ -63,7 +77,8 @@ nonisolated enum Latencia {
                 texto: h.texto.trimmingCharacters(in: .whitespacesAndNewlines),
                 afirmadoEm: h.data, devidoEm: nil,
                 descobertoEm: avaliada ? h.avaliadaEm : nil,
-                estado: avaliada ? .descoberto : (encerrado ? .abandonado : .afirmado))
+                estado: avaliada ? .descoberto : (encerrado ? .abandonado : .afirmado),
+                propostaPor: h.propostaPor)
         }
     }
 
@@ -76,17 +91,18 @@ nonisolated enum Latencia {
     /// desconhecido, sem inventar.
     static func registro(decisao uuid: UUID, campos: [String: String], criadaEm: Date,
                          fechada: Bool, agora: Date = .now,
-                         versoes: (UUID) -> [VersaoNota] = Versoes.listar) -> Registro {
-        // ADR 05s: nota trancada ou queimada entra pela CONTAGEM e nunca pelo
-        // conteúdo — a latência não é rota nova para o que o selo fechou.
-        let texto = fechada ? "" : primeiroPreenchido(campos, ["escolha", "decidido", "espero"])
+                         versoes: (UUID) -> [VersaoNota] = Versoes.listar) -> Registro? {
+        // O selo, na regra do vizinho de cima na mesma tela (o retrato): nota
+        // trancada ou queimada não entra na latência, NEM COMO CONTAGEM. Uma
+        // duração medida a partir do que o selo fechou é mais do que contar, e
+        // a guarda fica aqui — no funil por onde toda leitura de decisão passa.
+        guard !fechada else { return nil }
+        let texto = primeiroPreenchido(campos, ["escolha", "decidido", "espero"])
         let devidoEm = Gatilho.data(em: campos["espero"] ?? "", agora: criadaEm)
         let respondeu = !vazio(campos["aconteceu"])
         var estado: Estado = .afirmado
         if respondeu {
             estado = .descoberto
-        } else if fechada {
-            estado = .abandonado
         } else if (devidoEm ?? criadaEm) <= agora {
             estado = .devido
         }
@@ -166,6 +182,20 @@ nonisolated enum Latencia {
             Mes(inicio: $0, quantas: porMes[$0]?.count ?? 0, mediana: mediana(porMes[$0] ?? []) ?? 0)
         }
         return s
+    }
+
+    /// O que cabe na tela, com cota POR ESTADO. Cortar no total apaga os
+    /// fechados assim que os abertos passam de doze — a tela viraria doze
+    /// contadores de dívida, que é o contrário do que a série promete. A cota
+    /// garante que cada estado sobrevive ao corte quando existe: 2 devidos e o
+    /// resto de 4 em afirmados (os mais velhos, na ordem do tempo), 2 sem data,
+    /// 4 descobertos (os mais recentes) e 2 abandonados. Teto de doze linhas.
+    static func paraTela(_ s: Serie) -> [Registro] {
+        let devidos = s.abertos.filter { $0.estado == .devido }.prefix(2)
+        let afirmados = s.abertos.filter { $0.estado == .afirmado }.prefix(4 - devidos.count)
+        let abertos = (devidos + afirmados).sorted { $0.afirmadoEm < $1.afirmadoEm }
+        return abertos + s.semData.prefix(2)
+            + s.descobertos.reversed().prefix(4) + s.abandonados.prefix(2)
     }
 
     static func mediana(_ v: [Int]) -> Int? {

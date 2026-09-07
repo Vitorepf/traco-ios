@@ -53,6 +53,9 @@ appId: app.traco
 - assertNotVisible: "meta"
 - assertNotVisible: "sequência"
 - assertNotVisible: "streak"
+# o selo do Trabalho vale aqui: hipótese de trabalho com origem trancada ou
+# queimada não chega ao Perfil (ADR 06j, volta L1-B)
+- assertNotVisible: "SEGREDO SELADO.*"
 # o registro antigo sem `avaliadaEm`: descobriu, e QUANDO não está gravado.
 # Fica por último para a captura parar nele.
 - scrollUntilVisible:

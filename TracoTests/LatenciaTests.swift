@@ -11,12 +11,14 @@ import Testing
         cal.date(from: DateComponents(year: a, month: m, day: d, hour: 10))!
     }
     private func hipotese(_ texto: String, data: Date, avaliadaEm: Date? = nil,
-                          estado: DocumentoTrabalho.EstadoHipotese = .proposta)
+                          estado: DocumentoTrabalho.EstadoHipotese = .proposta,
+                          propostaPor: String? = "Você")
     -> DocumentoTrabalho.Hipotese {
         var h = DocumentoTrabalho.Hipotese(texto: texto, contexto: "", evidencias: [])
         h.data = data
         h.avaliadaEm = avaliadaEm
         h.estado = estado
+        h.propostaPor = propostaPor
         return h
     }
 
@@ -57,12 +59,12 @@ import Testing
     // MARK: - Decisão
 
     private func decisao(_ campos: [String: String], criadaEm: Date, fechada: Bool = false,
-                         agora: Date, versoes: [VersaoNota] = []) -> Latencia.Registro {
+                         agora: Date, versoes: [VersaoNota] = []) -> Latencia.Registro? {
         Latencia.registro(decisao: UUID(), campos: campos, criadaEm: criadaEm,
                           fechada: fechada, agora: agora, versoes: { _ in versoes })
     }
 
-    @Test func aDecisaoRespondidaDataADescobertaPeloHistoricoDeVersoes() {
+    @Test func aDecisaoRespondidaDataADescobertaPeloHistoricoDeVersoes() throws {
         let campos = ["escolha": "trocar de fornecedor", "espero": "queda de 20% até 20/03/2026",
                       "aconteceu": "caiu 8%"]
         let versoes = [
@@ -71,7 +73,7 @@ import Testing
                                                          "espero": "queda de 20% até 20/03/2026",
                                                          "aconteceu": ""]),
         ]
-        let r = decisao(campos, criadaEm: dia(1), agora: dia(25), versoes: versoes)
+        let r = try #require(decisao(campos, criadaEm: dia(1), agora: dia(25), versoes: versoes))
         #expect(r.estado == .descoberto)
         #expect(r.descobertoEm == dia(18))
         #expect(r.dias == 17)
@@ -79,9 +81,9 @@ import Testing
 
     /// Sem histórico (nota importada, ou o teto de 30 versões passou por cima)
     /// a descoberta existe e a data não. `editadaEm` mentiria a cada retoque.
-    @Test func decisaoRespondidaSemHistoricoNaoInventaData() {
-        let r = decisao(["escolha": "ir de trem", "aconteceu": "atrasou"],
-                        criadaEm: dia(1), agora: dia(25))
+    @Test func decisaoRespondidaSemHistoricoNaoInventaData() throws {
+        let r = try #require(decisao(["escolha": "ir de trem", "aconteceu": "atrasou"],
+                                     criadaEm: dia(1), agora: dia(25)))
         #expect(r.estado == .descoberto)
         #expect(r.descobertoEm == nil)
         #expect(r.dias == nil)
@@ -91,18 +93,16 @@ import Testing
         // o texto não traz hora de propósito: `Gatilho` lê "9h" antes da data
         // e devolveria a próxima manhã (limite herdado, não corrigido aqui)
         let campos = ["escolha": "ir de trem", "espero": "confiro em 20/03/2026"]
-        #expect(decisao(campos, criadaEm: dia(1), agora: dia(10)).estado == .afirmado)
-        #expect(decisao(campos, criadaEm: dia(1), agora: dia(22)).estado == .devido)
-        // fechar sem responder é abandonar, e abandonar é resultado, não falha
-        #expect(decisao(campos, criadaEm: dia(1), fechada: true, agora: dia(22)).estado == .abandonado)
+        #expect(decisao(campos, criadaEm: dia(1), agora: dia(10))?.estado == .afirmado)
+        #expect(decisao(campos, criadaEm: dia(1), agora: dia(22))?.estado == .devido)
     }
 
     /// A data do "espero" é lida a partir de QUANDO foi escrita. Lida a partir
     /// de hoje, "em duas semanas" adiaria a cobrança para sempre.
-    @Test func aDataDoEsperoAncoraNaEscrita() {
-        let r = decisao(["espero": "confiro em 20/03/2026"], criadaEm: dia(1), agora: dia(2))
-        #expect(r.devidoEm != nil)
-        #expect(cal.isDate(r.devidoEm!, inSameDayAs: dia(20)))
+    @Test func aDataDoEsperoAncoraNaEscrita() throws {
+        let r = try #require(decisao(["espero": "confiro em 20/03/2026"], criadaEm: dia(1), agora: dia(2)))
+        let devidoEm = try #require(r.devidoEm)
+        #expect(cal.isDate(devidoEm, inSameDayAs: dia(20)))
     }
 
     // MARK: - A série
@@ -129,13 +129,60 @@ import Testing
         #expect(Latencia.emPalavras(s, agora: dia(10, 5)).contains("1 em aberto"))
     }
 
-    /// ADR 05s: o selo não abre por causa de uma medida. Fechada conta, e o
-    /// que ela dizia não aparece.
-    @Test func notaFechadaEntraPelaContagemENaoPeloConteudo() {
-        let r = decisao(["escolha": "segredo do autor", "aconteceu": "deu certo"],
-                        criadaEm: dia(1), fechada: true, agora: dia(25))
-        #expect(r.texto.isEmpty)
-        #expect(r.estado == .descoberto)
+    /// O selo, na regra do retrato (o cartão de cima na mesma tela): nota
+    /// trancada ou queimada não entra NEM COMO CONTAGEM. Medir a duração de
+    /// uma coisa selada é mais do que contá-la.
+    @Test func notaSeladaNaoEntraNaLatenciaNemComoContagem() {
+        #expect(decisao(["escolha": "segredo do autor", "aconteceu": "deu certo"],
+                        criadaEm: dia(1), fechada: true, agora: dia(25)) == nil)
+        #expect(decisao(["escolha": "segredo do autor"],
+                        criadaEm: dia(1), fechada: true, agora: dia(25)) == nil)
+    }
+
+    // MARK: - Autoria (ADR 05r) e o corte da tela
+
+    /// A latência de uma hipótese que a IA propôs não é a latência do autor, e
+    /// o registro anterior à 05r não ganha autor por dedução.
+    @Test func aAutoriaDaHipoteseVemJuntoENaoViraDoAutor() {
+        let rs = Latencia.registros(hipoteses: [
+            hipotese("minha", data: dia(1)),
+            hipotese("do Grok", data: dia(2), propostaPor: "Grok"),
+            hipotese("antiga", data: dia(3), propostaPor: nil),
+        ], encerrado: false)
+        #expect(rs[0].autoria == nil)                        // do autor: sem marca
+        #expect(rs[1].autoria == "proposta por Grok")
+        #expect(rs[2].autoria == "autoria desconhecida")
+        // a decisão é escrita do autor e não tem proponente
+        let d = decisao(["escolha": "ir de trem"], criadaEm: dia(1), agora: dia(2))
+        #expect(d?.autoria == nil)
+    }
+
+    /// O corte por estado: com 17 abertos, a tela ainda mostra descoberto e
+    /// abandonado. Cortar no total deixaria só a fila de dívidas.
+    @Test func oCorteDaTelaGuardaOsQuatroEstados() throws {
+        var rs: [Latencia.Registro] = []
+        for i in 1...17 { rs += Latencia.registros(hipoteses: [hipotese("aberta \(i)", data: dia(i))],
+                                                   encerrado: false) }
+        rs += Latencia.registros(hipoteses: [hipotese("descoberta", data: dia(1),
+                                                      avaliadaEm: dia(5), estado: .confirmada)],
+                                 encerrado: false)
+        rs += Latencia.registros(hipoteses: [hipotese("sem data", data: dia(1), estado: .contestada)],
+                                 encerrado: false)
+        rs += Latencia.registros(hipoteses: [hipotese("largada", data: dia(1))], encerrado: true)
+        // a decisão vencida: o estado que os dezessete afirmados empurrariam
+        // para fora se a cota dos abertos não o reservasse
+        rs.append(try #require(decisao(["escolha": "vencida", "espero": "confiro em 05/03/2026"],
+                                       criadaEm: dia(1), agora: dia(20))))
+        let tela = Latencia.paraTela(Latencia.serie(rs, agora: dia(20), cal: cal))
+        #expect(tela.count <= 12)
+        #expect(tela.contains { $0.estado == .devido })
+        #expect(tela.filter { $0.estado == .afirmado }.count == 3)
+        // os abertos continuam na ordem do tempo, o mais velho primeiro
+        let abertos = tela.filter { $0.estado == .afirmado || $0.estado == .devido }
+        #expect(abertos == abertos.sorted { $0.afirmadoEm < $1.afirmadoEm })
+        #expect(tela.contains { $0.estado == .descoberto && $0.dias != nil })
+        #expect(tela.contains { $0.estado == .descoberto && $0.dias == nil })
+        #expect(tela.contains { $0.estado == .abandonado })
     }
 
     @Test func serieVaziaNaoDizNada() {
