@@ -80,3 +80,21 @@ nonisolated enum EstadoNaFace: Equatable {
 
     var diz: Bool { self != .nenhum }
 }
+
+/// Quantas linhas a frase de estado pode ocupar antes de o SwiftUI partir a
+/// palavra ao meio (re-G3 N2).
+///
+/// Com teto maior que 1 o SwiftUI prefere HIFENIZAR a encolher, e
+/// "Desatualizado." saía `Desatualiza-/do.` no pequeno em AX5 — a mesma
+/// família do `PRÓXI-/MO` que derrubou a F4, agora na própria palavra que diz
+/// a verdade. Numa palavra só não há quebra honesta: uma linha, e o
+/// `minimumScaleFactor` encolhe a palavra inteira, como em `Velho()`. Havendo
+/// espaço, quebrar linha é melhor que encolher — a frase sai no corpo cheio.
+///
+/// Está aqui, e não na view, pela mesma razão de `EstadoNaFace`: um `if` de
+/// view não tem suíte, e foi um corte de view que derrubou esta volta.
+nonisolated enum LinhasDoEstado {
+    static func de(_ frase: String, teto: Int = 3) -> Int {
+        frase.contains(" ") ? teto : 1
+    }
+}

@@ -688,3 +688,187 @@ Se o dono mandar seguir, o G4 de design entra com duas perguntas prontas: o
 peso de quatro lajes de papel branco numa casa escura (decisão D11 declarada,
 mas ele ainda não a viu), e a densidade dos médios vazios (A11, segunda
 metade). R1 e M1 têm de estar corrigidos antes.
+
+---
+
+## Re-G3, segunda passada — F4-C (`c79da9e`) já com `git merge main` (`af10375`)
+
+Mesmo revisor, sessão nova, 06/09/2026, ~20h. Simulador **iPhone 17 Pro (teste 3)**
+`34CC3F94`, ligado e desligado por mim. Não editei nem commitei código. Não
+liguei o iPhone 17 `1A46B6D3` do dono. Prova de tela por `xcrun simctl io
+screenshot` e pelo conteúdo do App Group; nada decisivo saiu do maestro (havia
+quatro simuladores ligados — lei do instrumento da ESTEIRA).
+
+### Veredito
+
+**CORRIGIR ANTES, e é a última milha.** Tudo pelo que a volta caiu está
+fechado: R1 virou lei com teste e eu a refiz na combinação exata; M1 e a metade
+da A11 que eu recusei adiar viraram um quadro de ofertas que usa o espaço; e a
+suíte **764/131 eu confirmei**. O que sobra é **AX5**: em tamanho de
+acessibilidade a frase do Destaque termina em reticências e a palavra
+`Desatualizado.` quebra com hífen no meio — `Desatualiza-/do.` —, que é
+exatamente o defeito A1 pelo qual recusei da primeira vez, agora só no tamanho
+grande. É uma propriedade de `Text` em dois lugares, e o próprio código já tem
+a receita três linhas ao lado.
+
+### Notas revistas
+
+| dimensão | Re-G3 (1ª) | agora | por quê |
+|---|---|---|---|
+| Visão | 10 | **10** | — |
+| Contrato | 9 | **10** | `05x` sumiu de `project.yml:87`; e o merge provou que a renumeração era necessária — `ADR 2026-09-05x` chegou de main como "De onde vem cada método" (volta 16) |
+| Correção | 9 | **10** | **764 testes / 131 suítes verdes rodados por mim** na árvore mesclada; +4 testes de `EstadoNaFace` |
+| Jornada real | 9 | **9** | a combinação que regrediu está fotografada nos dois tamanhos |
+| Design | 7 | **9** | R1 fechada, e a correção é melhor que o defeito: a decisão saiu da view e virou lei |
+| Simplicidade | 8 | **9** | o médio vazio virou três ações reais no corpo; a recuperação sobrevive em AX5 |
+| Movimento | 9 | **9** | intocado |
+| Componentes | 8 | **9** | 14 previews; `velhoComDestaque` é a combinação que regrediu, com preview próprio |
+| Acessibilidade | 9 | **8** | **N1/N2/N3**: em AX5 a frase do Destaque corta e o estado hifeniza |
+| Performance | 10 | **10** | — |
+| Privacidade e autoria | 10 | **10** | o widget continua lendo só `SuperficieDisco.ler()`; `SuperficieFora.swift` e `Tema.swift` intocados |
+| Estado honesto | 7 | **9** | passada a validade, toda face diz — provei nas duas famílias da casa |
+| Complexidade | 9 | **9** | +231 / −14 em Swift |
+| Fora do app | 9 | **9** | as duas famílias da casa provadas; as duas de acessório mudam por um ternário e o simulador não as renderiza (F1 §7) |
+| Relato | 9 | **8** | declarou o custo de AX5 — mas pela metade, e a outra metade está na captura que ele anexou |
+
+Abaixo de 9: **Acessibilidade 8** e **Relato 8**.
+
+### R1 — fechada, e do jeito certo
+
+A decisão saiu do `if/else` da view e virou `EstadoNaFace` em `Relogio.swift`,
+com quatro testes (`EstadoNaFaceTests`), inclusive um que percorre as quatro
+combinações e falha com a mensagem "é a R1 de volta". Era a crítica de fundo:
+um `if/else` de view não tem suíte, e foi um `if/else` de view que regrediu.
+
+Refiz a combinação exata no meu aparelho, **sem tocar em nada**:
+
+- `f4-reg3b-horizonte-antes.png` — 19:47, `validoAte` 19:52, Destaque posto e
+  agenda nos dois widgets do Traço.
+- `f4-reg3b-horizonte-depois.png` — **19:53**, sozinho: o pequeno do Traço
+  mantém o Destaque e ganha o rodapé `🕐 Desatualizado.`; o médio mantém o
+  Destaque, larga a agenda **e diz o rodapé**. Onde antes havia silêncio.
+
+As outras duas famílias do mesmo widget mudam por um ternário
+(`DESATUALIZADO` na etiqueta do `accessoryRectangular`, `Traço · desatualizado`
+no `accessoryInline`); li as duas e o simulador não renderiza acessório na
+bloqueada trancada (F1 §7) — **pendente de instrumento, sem desconto**.
+
+O médio do Próximo ele não replantou porque o carrossel da galeria trava; é o
+mesmo instrumento que me travou. E a R1 de fato **não é defeito dessa família**:
+`ProximoWidgetView` decide por `estadoDoProximo`, que devolve `.desatualizado`
+antes de `.vazio`, então ela sempre disse. Conferi no código e na tela
+(`f4-reg3b-horizonte-depois.png`, widget de cima à esquerda).
+
+### M1 e a metade da A11 — fechadas, e o médio agora usa o espaço
+
+`quadroVazio`: sem Destaque e sem agenda, a face inteira vira três ações reais,
+uma por linha, com o alvo na linha toda, e os atalhos saem do cabeçalho para
+não aparecerem duas vezes. Como moram no **corpo**, sobrevivem ao tamanho de
+acessibilidade — que era exatamente onde o vazio ficava mudo.
+
+- `f4-reg3b-vazio-quadro.png` (normal): "Nada em destaque hoje." + Nova nota +
+  Marcar compromisso + Recordar.
+- `f4-reg3b-vazio-quadro-ax5.png` (**AX5, meu**, 19:59): a frase e **duas ações
+  inteiras** no corpo. Antes: uma frase e nada.
+
+Julgamento sobre o defeito 5 do dono ("densidade errada"): **sim, o médio
+passou a usar o espaço que tem.** Um 4×2 com uma frase e ~70% de área morta
+virou um 4×2 com uma frase e três caminhos. E a resposta que eu recusei na
+primeira passada — "isso é a volta do widget configurável" — caiu por terra
+sozinha: deu para resolver hoje, sem configuração nenhuma.
+
+### A troca de AX5, que você mandou julgar
+
+**A troca é a certa: o estado tem de ganhar.** Um widget que mostra a frase de
+ontem como se fosse a de hoje é a mentira que abriu a volta; perder uma linha
+da frase é perda menor que um silêncio. Se fosse escolher, escolheria igual.
+
+**Mas o custo que ele assumiu não precisa ser pago, e é maior do que ele
+escreveu.** Três coisas, todas em AX5 e todas na mesma captura que ele anexou
+(`f4c-horizonte-depois-ax5.png`, e idênticas às minhas em outro minuto):
+
+- **N1 — a frase não "cede uma linha": ela termina em reticências.**
+  `Terminar / o / capítul…` no pequeno do Traço. Reticências no Destaque é o
+  item 6 da auditoria dele mesmo ("o widget existe para mostrá-la inteira") e é
+  o A1 pelo qual recusei. `linhaDoDestaque` usa `minimumScaleFactor(0.85)`;
+  `Velho()`, três linhas ao lado, usa **0,6** justamente para encolher inteiro
+  em vez de cortar. A receita está no arquivo e não foi aplicada à frase.
+- **N2 — `Desatualiza-/do.`** O estado quebra **com hífen no meio da palavra**
+  no pequeno do Próximo (`f4-reg3b-ax5-corte.png`). É a mesma família de
+  defeito do `PRÓXI-/MO` que derrubou a F4, agora na própria palavra que diz a
+  verdade. Causa: o `Text(estado)` da `Oferta` é o único texto da família **sem
+  `allowsTightening` e sem `minimumScaleFactor`** — `AtalhoTraco` tem, `Velho`
+  tem, e por isso "Marcar compromisso" quebra em duas linhas inteiras ao lado,
+  sem hífen. **Não declarado.**
+- **N3 — e parte do corte não é culpa do rodapé.** No pequeno do Próximo, no
+  ramo "o vazio traz o Destaque" (que a F4 criou), a frase corta em AX5
+  **sem rodapé nenhum na face**: `Terminar / o capít…`
+  (`f4-reg3b-ax5-destaque-corta.png`, 19:55, superfície fresca). Mesmo 0,85,
+  outro lugar. Ou seja: ele atribuiu ao rodapé um corte que já existia.
+
+Conserto: `minimumScaleFactor(0.6)` e `allowsTightening(true)` nos dois `Text`
+(a frase do Destaque e o `estado` da `Oferta`). Com isso a troca deixa de ser
+troca — cabem os dois.
+
+### O que confirmei da prova dele
+
+- **`Test run with 764 tests in 131 suites passed`** e `** TEST SUCCEEDED **`,
+  na árvore mesclada, no meu simulador, sob `com-trava.sh`. Bate com o
+  declarado.
+- **Os quatro avisos são de main.** Todos em
+  `TracoTests/ConferenciaTrabalhoTests.swift:381` (`d` e `p` que podiam ser
+  `let`), arquivo cujo último commit é da volta 5 e que nem a F4 nem a F4-C
+  tocaram. Nenhum aviso sai do código da volta.
+- **A renumeração era obrigatória, não cosmética.** Depois do merge, `ADR
+  2026-09-05x` existe em `SPEC.md:2942` como "De onde vem cada método" (volta
+  16). Se a F4 tivesse ficado com `05x`, o SPEC teria dois ADR com o mesmo
+  número — o achado A9 do primeiro G3 se pagou aqui.
+- Invariantes: `Tema.swift` e `SuperficieFora.swift` **não estão no diff** da
+  F4-C; o widget continua sem `UserDefaults`, `SwiftData`, `FileManager` ou
+  `Corpus` — só `SuperficieDisco.ler()`.
+
+### Achado menor, para a lista e não para o portão
+
+- **BAIXO.** O `accessoryInline` do widget do **Próximo** continua dizendo só
+  `"Traço"` quando o instantâneo está velho, do mesmo jeito que quando não há
+  nada marcado — o autor não distingue "nada hoje" de "não sei". O widget do
+  Traço acabou de ganhar `"Traço · desatualizado"` para exatamente isso. Uma
+  linha, e o `accessoryRectangular` da mesma família já diz certo.
+
+### Instrumento
+
+- `xcodebuild` sob `com-trava.sh`, que agora retoma trava presa e escreve o
+  dono — não precisei da retomada, a trava estava livre.
+- Quatro simuladores de outros ligados durante toda a sessão: **nenhuma
+  evidência de maestro**, conforme a lei nova.
+- **Lição de instrumento, para quem vier:** o `cfprefsd` do simulador serve o
+  plist do App Group de memória e ignora edição feita por fora — apaguei o
+  Destaque do plist e o app continuou publicando a linha por quatro lançamentos
+  seguidos. Só **reiniciar o simulador** fez o app ler o disco. E
+  `xcrun simctl spawn <D> defaults write group.app.traco …` escreve num domínio
+  diferente do que o app sandboxed lê; não serve para semear.
+- A galeria de widgets travou de novo no botão "Editar" (mesmo sintoma do
+  re-G3 anterior, agora sem Live Activity na Ilha): não replantei nada, e não
+  precisei — as duas famílias da casa que a R1 quebrou já estavam plantadas.
+- Restaurei ao fim: `content_size medium`, `appearance light`, e desliguei o
+  `34CC3F94`. Não desliguei simulador de ninguém.
+
+### Minhas capturas
+
+| arquivo | o que mostra |
+|---|---|
+| `f4-reg3b-horizonte-antes.png` | 19:47, Destaque + agenda, `validoAte` 19:52 |
+| `f4-reg3b-horizonte-depois.png` | **19:53, sozinho**: Destaque mantido e `Desatualizado.` no rodapé do pequeno E do médio — R1 fechada |
+| `f4-reg3b-horizonte-depois-ax5.png` | a mesma combinação em AX5 |
+| `f4-reg3b-ax5-corte.png` | recorte: `Terminar / o / capítul…` e `Desatualiza-/do.` lado a lado (N1 e N2) |
+| `f4-reg3b-ax5-destaque-corta.png` | 19:55, superfície fresca: a frase corta em AX5 **sem rodapé** (N3) |
+| `f4-reg3b-vazio-quadro.png` | o médio vazio como quadro de ofertas, três ações |
+| `f4-reg3b-vazio-quadro-ax5.png` | 19:59, o mesmo em AX5: duas ações inteiras onde antes não havia nenhuma (M1) |
+
+### Para o G4
+
+Com N1 e N2 corrigidos, esta volta chega ao G4 com o motor provado, o estado
+honesto em toda combinação e o vazio resolvido. As duas perguntas de design
+continuam de pé para o julgador: o peso de quatro lajes de papel branco numa
+casa escura (D11, decisão declarada que o dono ainda não viu), e se três ações
+empilhadas são a melhor forma do médio vazio ou só a mais óbvia.

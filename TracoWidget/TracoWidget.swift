@@ -289,10 +289,14 @@ private struct Oferta: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
+            // As duas propriedades que faltavam aqui e existem em `Velho()`
+            // três telas ao lado: sem elas a palavra do estado partia ao meio.
             Text(estado)
                 .font(Tema.meta.weight(.medium))
                 .foregroundStyle(Tema.tintaSuave)
-                .lineLimit(3)
+                .lineLimit(LinhasDoEstado.de(estado))
+                .allowsTightening(true)
+                .minimumScaleFactor(0.6)
                 .fixedSize(horizontal: false, vertical: true)
             if let rotulo {
                 HStack(alignment: .firstTextBaseline, spacing: 5) {
@@ -432,9 +436,9 @@ struct TracoWidgetView: View {
         let teto = familia == .systemSmall ? (tipo.isAccessibilitySize ? 4 : 3) : 2
         // Passado o horizonte entra o rodapé do estado. No tamanho normal
         // cabem os dois; em tamanho de acessibilidade não, e aí a QUARTA
-        // linha da frase cede — saber que está velho vale mais. Tirar uma
-        // linha no tamanho normal só trocava o silêncio da R1 por um
-        // "capítulo do…" no Destaque, que é o defeito A1 outra vez.
+        // linha da frase cede — saber que está velho vale mais. O custo é
+        // só esse: com `minimumScaleFactor(0.6)` a frase encolhe para caber
+        // nas três linhas que sobram, e NUNCA termina em reticências.
         return estadoNaFace == .rodape && tipo.isAccessibilitySize ? max(1, teto - 1) : teto
     }
     private var soALinha: Bool { familia == .systemSmall && tipo.isAccessibilitySize }
@@ -469,7 +473,12 @@ struct TracoWidgetView: View {
                     .foregroundStyle(d.feito ? Tema.tintaFraca : Tema.tinta)
                     .strikethrough(d.feito, color: Tema.tintaFraca)
                     .lineLimit(linhasDoDestaque)
-                    .minimumScaleFactor(0.85)
+                    // 0,85 não chega em 155 pt no AX5 e a frase terminava em
+                    // reticências (`capítul…`, re-G3 N1) — reticências no
+                    // Destaque é o defeito que abriu a volta. Como em
+                    // `Velho()`: a frase ENCOLHE inteira, nunca corta.
+                    .allowsTightening(true)
+                    .minimumScaleFactor(0.6)
                     .multilineTextAlignment(.leading)
                 Spacer(minLength: 0)
             }
@@ -915,7 +924,10 @@ struct ProximoWidgetView: View {
                             .foregroundStyle(d.feito ? Tema.tintaFraca : Tema.tinta)
                             .strikethrough(d.feito, color: Tema.tintaFraca)
                             .lineLimit(familia == .systemSmall ? 3 : 2)
-                            .minimumScaleFactor(0.85)
+                            // re-G3 N3: aqui a frase já cortava em AX5 com a
+                            // superfície FRESCA — o corte não era do rodapé.
+                            .allowsTightening(true)
+                            .minimumScaleFactor(0.6)
                             .multilineTextAlignment(.leading)
                         Spacer(minLength: 0)
                     }

@@ -228,3 +228,32 @@ struct EstadoNaFaceTests {
         }
     }
 }
+
+/// A palavra do estado nunca se parte ao meio. `Desatualiza-/do.` é a mesma
+/// família do `PRÓXI-/MO` que derrubou a F4 — e, como aquele, só aparecia na
+/// tela. Um teto de linhas decidido na view não tem suíte; este tem.
+@Suite("A palavra do estado não quebra com hífen (F4-D)")
+struct LinhasDoEstadoTests {
+    @Test("palavra só: uma linha — sem onde quebrar, ela encolhe inteira")
+    func palavraSoCabeEmUmaLinha() {
+        #expect(LinhasDoEstado.de("Desatualizado.") == 1)
+    }
+
+    @Test("com espaço: o teto inteiro — quebrar linha vale mais que encolher")
+    func fraseUsaOTeto() {
+        #expect(LinhasDoEstado.de("Não consegui ler o Traço.") == 3)
+        #expect(LinhasDoEstado.de("Nada em destaque hoje.") == 3)
+        #expect(LinhasDoEstado.de("Nada marcado.") == 3)
+    }
+
+    @Test("os quatro estados que a face escreve hoje, um por um")
+    func osEstadosDaFace() {
+        let umaPalavra = ["Desatualizado."]
+        let comEspaco = ["Não consegui ler o Traço.", "Nada em destaque hoje.",
+                         "Nada marcado.", "Nada marcado hoje."]
+        for e in umaPalavra {
+            #expect(LinhasDoEstado.de(e) == 1, "\(e) pode hifenizar — é o N2 de volta")
+        }
+        for e in comEspaco { #expect(LinhasDoEstado.de(e) == 3) }
+    }
+}

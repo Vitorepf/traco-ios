@@ -2911,12 +2911,35 @@ uma lista de dois links com um filete no meio, o médio inteiro servia para
    precisa dela. Em AX5 são duas; "Recordar" continua no tamanho normal e no
    app.
 
+10. **A palavra do estado não se parte ao meio** (Re-G3, N1/N2/N3). A F4-C
+   declarou o custo de AX5 pela metade — escreveu que a frase do Destaque
+   "cede uma linha", quando na tela ela terminava em RETICÊNCIAS
+   (`Terminar / o / capítul…`); não declarou que `Desatualizado.` quebrava com
+   HÍFEN NO MEIO (`Desatualiza-/do.`) no pequeno do Próximo, que é a mesma
+   família do `PRÓXI-/MO` do item 2; e atribuiu ao rodapé um corte que já
+   existia sem ele, no ramo "o vazio traz o Destaque". Nenhuma das três é
+   troca: são propriedades que ficaram para trás. A frase do Destaque passa a
+   `minimumScaleFactor(0.6)` com `allowsTightening`, nos dois lugares onde
+   ela é desenhada — a receita que `Velho()` já usava três linhas ao lado, e
+   que faz a frase ENCOLHER inteira em vez de cortar. E o teto de linhas da
+   frase de estado sai da view e vira `LinhasDoEstado`, em `Relogio.swift`,
+   com suíte: **palavra sem espaço não tem quebra honesta**, então recebe uma
+   linha só e encolhe; com espaço, quebra a linha e sai no corpo cheio. Com
+   teto maior que 1 o SwiftUI prefere hifenizar a encolher, e era isso que
+   partia a palavra que diz a verdade. A troca do item 8 continua de pé — o
+   estado ganha do comprimento da frase —, mas o custo dela deixa de ser
+   pago: cabem os dois.
+
 **Custo assumido.** O pequeno tem um destino só (`widgetURL`): "Recordar"
 continua no médio e no app, não no pequeno — o sistema não honra `Link` no
 `systemSmall`. Em tamanho de acessibilidade o médio abre mão dos atalhos e da
 agenda: a única coisa de hoje vem primeiro — mas **"+N depois" não some mais**
 (G3, A8), porque esconder informação para limpar a tela é o que o AGENTS.md
-proíbe. `Relogio.swift` compila também no alvo de testes (`project.yml`),
+proíbe. **Em AX5, no pequeno, com Destaque longo e horizonte vencido, a frase
+do Destaque tem três linhas em vez de quatro e ENCOLHE até 60% para caber
+nelas** — este é o custo inteiro, medido na tela: não há reticências em lugar
+nenhum, nem hífen no meio de palavra, em nenhuma das quatro famílias, em
+nenhum dos dois temas. `Relogio.swift` compila também no alvo de testes (`project.yml`),
 porque a lei que faltou à 05u tinha de caber numa suíte. O espelho da
 permissão é o mínimo honesto dentro desta volta: a unificação com
 `PromessaDoAviso` (volta 18, ainda não mesclada) é a volta seguinte.
@@ -2927,12 +2950,19 @@ orçamento; véspera/início/fim/meia-noite/soneca na linha; nada no passado,
 nada repetido, linha curta — e 2 em `SinoHonestoTests`: sem permissão no
 último olhar a superfície sai sem sino nenhum, e com permissão o sino volta;
 e 4 em `EstadoNaFaceTests`: nas quatro combinações de velha × conteúdo, velho
-é SEMPRE dito — a lei que a R1 quebrou);
-suíte **732/128** na volta e **764/131** depois do `merge main`, dois alvos sem aviso (os únicos 4 `warning:` da suíte estão em `TracoTests/ConferenciaTrabalhoTests.swift:381`, que veio da main); capturas por estado nos dois temas
+é SEMPRE dito — a lei que a R1 quebrou; e 3 em `LinhasDoEstadoTests`: palavra
+sem espaço ganha uma linha e encolhe, frase com espaço usa o teto — o corte
+que se via na tela e em suíte nenhuma);
+suíte **732/128** na volta, **764/131** depois do `merge main` e **767/132**
+com a correção do corte em AX5, dois alvos sem aviso (os únicos 4 `warning:` da suíte estão em `TracoTests/ConferenciaTrabalhoTests.swift:381`, que veio da main); capturas por estado nos dois temas
 de verdade (`ferramentas/orca/f4b-*.png`, brilho médio 187,5 claro × 140,1
 escuro), as QUATRO famílias plantadas na casa, o horizonte virando sozinho
 para `Desatualizado.` inteiro, a oferta inteira em AX5, os sinos com e sem
-permissão, e `sem dados` na tela. O `chronod` registrando a releitura
+permissão, e `sem dados` na tela. As QUATRO famílias em AX5, nos dois temas,
+com Destaque longo e horizonte vencido, sem reticências e sem hífen no meio
+da palavra do estado: `ferramentas/orca/f4d-ax5-claro.png`,
+`f4d-ax5-escuro.png`, e o ramo "o vazio traz o Destaque" com a superfície
+fresca em `f4d-ax5-vazio-destaque-claro.png` e `-escuro.png`. O `chronod` registrando a releitura
 agendada para +3 h (`f4-rev-releitura.txt`) segue valendo. **Fora:** StandBy
 e accessory na tela bloqueada trancada seguem sem render no simulador
 (F1 §7) — prova no aparelho do dono.
