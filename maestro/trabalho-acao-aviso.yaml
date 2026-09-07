@@ -24,10 +24,22 @@ appId: app.traco
 - inputText: "Apresentar a ideia ao cliente"
 - waitForAnimationToEnd: {timeout: 1000}
 - tapOn: {id: "trabalho-criar"}
+# volta 18-B: a folha nasce com o cursor no PEDIDO (curva-zero). Recolher o
+# teclado antes de procurar o campo do ato, que fica mais abaixo.
 - extendedWaitUntil:
-    visible: {id: "trabalho-acao"}
+    visible: {id: "trabalho-pedido"}
     timeout: 15000
 - waitForAnimationToEnd: {timeout: 2000}
+- swipe:
+    start: 50%, 30%
+    end: 50%, 85%
+    duration: 900
+- waitForAnimationToEnd: {timeout: 1500}
+- scrollUntilVisible:
+    element: "Ensaiar a apresentação"
+    direction: DOWN
+    centerElement: true
+    timeout: 10000
 # o id fica no contêiner; o toque certo é no campo, pelo exemplo dele
 - tapOn: "Ensaiar a apresentação"
 - waitForAnimationToEnd: {timeout: 1500}
@@ -36,31 +48,31 @@ appId: app.traco
     visible: "Ligar para o cliente"
     timeout: 5000
 - waitForAnimationToEnd: {timeout: 2000}
-# o teclado cobre o botão; rolar o conteúdo o traz para cima (hideKeyboard é inerte)
-- swipe:
-    start: 50%, 40%
-    end: 50%, 12%
-    duration: 700
-- waitForAnimationToEnd: {timeout: 1500}
-- swipe:
-    start: 50%, 40%
-    end: 50%, 12%
-    duration: 700
+# o teclado cobre o botão. Rolar por posição fixa passava do alvo desde que a
+# volta 18 mudou a ordem das seções: quem procura o alvo é scrollUntilVisible.
+- scrollUntilVisible:
+    element: {id: "trabalho-preparar-acao"}
+    direction: DOWN
+    centerElement: true
+    timeout: 10000
 - waitForAnimationToEnd: {timeout: 1500}
 - tapOn: {id: "trabalho-preparar-acao"}
 - extendedWaitUntil:
     visible: "Realização ainda não confirmada"
     timeout: 15000
 - waitForAnimationToEnd: {timeout: 1500}
+# o campo do ato continua com o foco depois de preparar; sem recolher o teclado
+# o toque seguinte cai numa tecla (arrastar recolhe: scrollDismissesKeyboard)
 - swipe:
-    start: 50%, 40%
-    end: 50%, 12%
-    duration: 700
+    start: 50%, 30%
+    end: 50%, 85%
+    duration: 900
 - waitForAnimationToEnd: {timeout: 1500}
-- swipe:
-    start: 50%, 40%
-    end: 50%, 12%
-    duration: 700
+- scrollUntilVisible:
+    element: "Escolher um horário"
+    direction: DOWN
+    centerElement: true
+    timeout: 10000
 - waitForAnimationToEnd: {timeout: 1500}
 - tapOn: "Escolher um horário"
 - extendedWaitUntil:
@@ -69,9 +81,9 @@ appId: app.traco
 - waitForAnimationToEnd: {timeout: 1500}
 - tapOn: {id: "trabalho-aviso"}
 - extendedWaitUntil:
-    visible: "30 min antes"
+    visible: "2 h antes"
     timeout: 5000
-- tapOn: "30 min antes"
+- tapOn: "2 h antes"
 - waitForAnimationToEnd: {timeout: 1500}
 # arrastar até o teclado o recolhe (scrollDismissesKeyboard interactively)
 - swipe:
@@ -85,9 +97,27 @@ appId: app.traco
     centerElement: true
     timeout: 10000
 - waitForAnimationToEnd: {timeout: 1500}
-# a promessa é do horário de hoje: nada de data literal, que quebra amanhã
-- assertVisible: "Toca hoje às.*"
+# Revisão da volta 18: o ato nasce meia hora à frente, e "2 h antes" coloca o
+# alarme ATRÁS do relógio. A folha dizia "Toca hoje às 14:37" às 15:08; agora
+# diz o que o motor diria depois do commit (`PromessaDoAviso.jaPassou`).
+- assertVisible: "A hora do aviso já passou.*"
+- assertNotVisible: "Toca hoje às.*"
 - takeScreenshot: /tmp/traco-verify/acao-aviso-antes
+# e a promessa POSITIVA, na mesma folha: "na hora" cai na meia hora à frente
+- tapOn: {id: "trabalho-aviso"}
+- extendedWaitUntil:
+    visible: "Na hora"
+    timeout: 5000
+- tapOn: "Na hora"
+- waitForAnimationToEnd: {timeout: 1500}
+- scrollUntilVisible:
+    element: {id: "trabalho-aviso-promessa"}
+    direction: DOWN
+    centerElement: true
+    timeout: 10000
+# nada de data literal, que quebra amanhã
+- assertVisible: "Toca hoje às.*"
+- takeScreenshot: /tmp/traco-verify/acao-aviso-promessa
 - tapOn: {id: "trabalho-agendar"}
 - waitForAnimationToEnd: {timeout: 2500}
 # o iOS pergunta UMA vez; conceder é o caminho principal
@@ -97,6 +127,20 @@ appId: app.traco
     commands:
       - tapOn: "Permitir"
       - waitForAnimationToEnd: {timeout: 2500}
+# defeito conhecido e declarado (ADR 2026-09-06b): o alerta do iOS, na única vez
+# em que aparece, cicla o scenePhase, recolhe a gaveta do horário e rola a folha
+# ao topo. Reabrir a gaveta é o caminho — e não acontece nos salvamentos seguintes.
+- runFlow:
+    when:
+      notVisible: {id: "trabalho-aviso-estado"}
+    commands:
+      - scrollUntilVisible:
+          element: "Horário no calendário"
+          direction: DOWN
+          centerElement: true
+          timeout: 10000
+      - tapOn: "Horário no calendário"
+      - waitForAnimationToEnd: {timeout: 2000}
 - extendedWaitUntil:
     visible: {id: "trabalho-aviso-estado"}
     timeout: 15000

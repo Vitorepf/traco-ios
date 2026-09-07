@@ -3,19 +3,40 @@ import SwiftUI
 import UIKit
 
 /// O trabalho permanece um documento: versões, ato e retorno, sem um wizard.
+///
+/// Volta 18 (redesenho): a folha entrou na família do mundo claro — cabeçalho
+/// de folha, rótulos de seção, campos em névoa, cartão de papel para a versão.
+/// A ordem de leitura passou a ser a do ciclo (VISAO-PRODUTO): intenção →
+/// apoio → preparar → versão → ato → o que aconteceu → dificuldade. A
+/// dificuldade estava ANTES do caminho principal e empurrava a ação primária
+/// para fora da primeira tela; o trabalho é que revela o obstáculo, não o
+/// contrário. E a decisão de apoio, que morava num disclosure e nunca era
+/// oferecida, virou um trilho de três pílulas no caminho.
+///
+/// A lei de cor desta folha: **carvão avança, âmbar salva**. A cápsula carvão
+/// é a ação que produz alguma coisa na seção (preparar, marcar, guardar a
+/// tentativa); o âmbar aparece só como saída de um problema (Ajustes,
+/// recuperar, tentar de novo); todo o resto é ação compacta em tinta.
 struct TrabalhoView: View {
     let trabalho: Trabalho
     var acaoEmFoco: UUID? = nil
+    /// O trabalho acabou de nascer da intenção que a pessoa escreveu na tela
+    /// anterior: a folha abre com o cursor no pedido (curva-zero, abaixo).
+    var pedidoEmFoco = false
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
     @Environment(\.abrirCalendarioDoTrabalho) private var abrirCalendario
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.dynamicTypeSize) private var tamanhoTexto
     @Query private var notas: [Nota]
     @State private var oficina: OficinaTrabalho?
     @State private var erroDeLeitura: String?
     @State private var rascunhos: [String: String] = [:]
     @State private var limparAposCommit: [String] = []
+    /// A gaveta da versão: escrever a primeira e editar a atual nunca convivem.
     @State private var editandoVersao = false
+    @State private var editandoIntencao = false
     @State private var confirmarDescarte = false
     @State private var recuperacao: String?
     @State private var confirmarApagarCopia = false
@@ -24,19 +45,22 @@ struct TrabalhoView: View {
     @FocusState private var campoEmFoco: String?
     @State private var rolarPara: String?
 
-    private var chaveRascunho: String { "trabalho.rascunhos.\(trabalho.uuid.uuidString)" }
+    /// A chave dos rascunhos em `UserDefaults` — `static` para que fechar e
+    /// reabrir a folha seja provável em teste com a chave que o app usa, e
+    /// não com uma cópia da string.
+    static func chaveRascunho(_ trabalho: UUID) -> String { "trabalho.rascunhos.\(trabalho.uuidString)" }
+    private var chaveRascunho: String { Self.chaveRascunho(trabalho.uuid) }
     private var selos: [SeloOrigemTrabalho] { notas.map(SeloOrigemTrabalho.init) }
     private var acesso: AcessoTrabalho.Estado { AcessoTrabalho.estado(trabalho, no: context) }
 
     var body: some View {
-        NavigationStack {
-            ScrollViewReader { rolagem in
+        ScrollViewReader { rolagem in
             ScrollView {
                 VStack(alignment: .leading, spacing: Tema.entreSecoes) {
                     if scenePhase != .active {
-                        Text("Trabalho").font(Tema.secaoNota)
+                        Text("Trabalho").font(Tema.tituloTela).tracking(Tema.trackingTitulo)
                     } else if !acesso.permitido {
-                        Text("Trabalho protegido").font(Tema.secaoNota)
+                        Text("Trabalho protegido").font(Tema.tituloTela).tracking(Tema.trackingTitulo)
                         Text(acesso.mensagem).foregroundStyle(Tema.tintaSuave)
                             .accessibilityIdentifier("trabalho-protegido")
                         // ADR 06a: o selo recolhe o intercâmbio em curso e a
@@ -47,26 +71,52 @@ struct TrabalhoView: View {
                                 .accessibilityIdentifier("trabalho-intercambio-recolhido")
                         }
                     } else if let oficina {
-                        documento(oficina).buttonStyle(AcaoTrabalhoStyle())
+                        documento(oficina)
+                            // a versão que a IA acabou de preparar CHEGA: é a
+                            // única entrada com massa desta folha
+                            .animation(Tema.movimento(.deslocamento, Tema.Mola.camada, reduzido: reduceMotion),
+                                       value: oficina.documento.artefatos.count)
                     } else if let erroDeLeitura {
-                        Text(erroDeLeitura).foregroundStyle(Tema.aviso)
-                        Button("Tentar abrir novamente") { abrir() }
+                        Text(erroDeLeitura).font(Tema.meta).foregroundStyle(Tema.aviso)
+                        acaoDeSaida("Tentar abrir novamente") { abrir() }
                     } else {
                         ProgressView("Abrindo trabalho…")
                     }
                 }
                 .font(Tema.corpo)
                 .foregroundStyle(Tema.tinta)
-                .padding(Tema.margem)
+                .padding(.horizontal, Tema.margem)
+                .padding(.top, Tema.entreItens)
+                .padding(.bottom, Tema.margem)
                 .frame(maxWidth: 760, alignment: .leading)
                 .frame(maxWidth: .infinity)
             }
             .scrollDismissesKeyboard(.interactively)
+            // O cabeçalho fica FORA da rolagem: o documento tem três telas e a
+            // saída não pode viajar com ele — a folha recusa o arrasto para
+            // baixo (`interactiveDismissDisabled`), então "voltar" é a única
+            // porta. Por `safeAreaInset`, e não por um VStack irmão: irmão faz
+            // a rolagem propor a largura IDEAL do conteúdo, e em AX5 o
+            // documento nasce mais largo que a tela e sangra pelos dois lados.
+            .safeAreaInset(edge: .top, spacing: 0) {
+                CabecalhoDeFolha(saida: .voltar, aoSair: { voltar() }, prefixo: "trabalho")
+                    .padding(.horizontal, Tema.margem)
+                    .frame(maxWidth: .infinity)
+                    .background(Tema.fundo)
+            }
             .background(Tema.fundo)
             .task(id: oficina != nil) {
-                if oficina != nil, acesso.permitido, let acaoEmFoco {
+                guard oficina != nil, acesso.permitido else { return }
+                if let acaoEmFoco {
                     await Task.yield()
                     rolagem.scrollTo(acaoEmFoco, anchor: .top)
+                } else if pedidoEmFoco, vazio("pedido") {
+                    // Curva-zero: o toque no campo do pedido só existia para
+                    // revelar o passo seguinte. Quem acabou de escrever a
+                    // intenção e tocar "Começar este trabalho" vem dizer o que
+                    // quer preparado — a folha já abre com o cursor lá, e a
+                    // jornada intenção → versão preparada perde um toque.
+                    campoEmFoco = "pedido"
                 }
             }
             // O texto que o autor não escreveu começa no alto: sem isto o foco
@@ -77,17 +127,10 @@ struct TrabalhoView: View {
                     // ponytail: espera o teclado subir; a rolagem do foco vem
                     // depois da nossa. Se o tempo mudar, é aqui que se calibra.
                     try? await Task.sleep(for: .milliseconds(400))
-                    withAnimation { rolagem.scrollTo(alvo, anchor: .top) }
+                    withAnimation(Tema.animacao(Tema.Mola.escala, reduzido: reduceMotion)) {
+                        rolagem.scrollTo(alvo, anchor: .top)
+                    }
                     rolarPara = nil
-                }
-            }
-            }
-            .navigationTitle("Trabalho")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Voltar") { voltar() }
-                        .accessibilityIdentifier("trabalho-voltar")
                 }
             }
         }
@@ -119,99 +162,229 @@ struct TrabalhoView: View {
         }
     }
 
+    /// A ordem do ciclo. O que a pessoa veio fazer primeiro, o obstáculo depois.
     @ViewBuilder private func documento(_ o: OficinaTrabalho) -> some View {
         if let erro = o.erro {
             VStack(alignment: .leading, spacing: 8) {
-                Text(erro).foregroundStyle(Tema.aviso)
+                Text(erro).font(Tema.meta).foregroundStyle(Tema.aviso)
                     .accessibilityIdentifier("trabalho-erro")
                 if !o.salvo {
-                    Button("Tentar guardar novamente") { guardar(o) }
+                    acaoDeSaida("Tentar guardar novamente") { guardar(o) }
                         .accessibilityIdentifier("trabalho-tentar-guardar")
-                    Button("Preservar cópia e reabrir a versão atual") { preservarEReabrir(o) }
+                    acaoDeSaida("Preservar cópia e reabrir a versão atual") { preservarEReabrir(o) }
                 }
             }
+            .cartao(.campo)
+            .id("trabalho-erro")
         }
         intencao(o)
-        praticar(o)
+        apoio(o)
         producao(o)
+        praticar(o)
         if let versao = o.documento.versaoAtual { artefato(versao, oficina: o) }
         IntercambioTrabalhoView(oficina: o, permiteImportar: !edicaoPendente(o))
         atos(o)
         retorno(o)
+        dificuldade(o)
         historico(o)
-        Text(o.salvo ? "Versões e atos guardados neste aparelho." : "Alterações ainda não guardadas.")
-            .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
-            .accessibilityIdentifier("trabalho-salvamento")
-        if !rascunhos.isEmpty {
-            Text("Os campos em edição, incluindo seu pedido, ficam como rascunhos neste aparelho e voltam ao reabrir este trabalho. Eles só entram no documento quando você os guarda.")
-                .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
-            Button("Descartar rascunhos dos campos") { confirmarDescarte = true }
-                .disabled(!o.salvo || o.documento.pedidoAtivo != nil)
-        }
-        if let recuperacao {
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Uma cópia das alterações anteriores foi preservada neste aparelho, separada da versão atual.")
+        rodape(o)
+    }
+
+    // MARK: - Intenção
+
+    private func intencao(_ o: OficinaTrabalho) -> some View {
+        VStack(alignment: .leading, spacing: Tema.entreItens) {
+            Text(o.documento.intencaoAtual.texto)
+                .font(Tema.tituloTela)
+                .tracking(Tema.trackingTitulo)
+                .accessibilityAddTraits(.isHeader)
+            if !o.documento.intencaoAtual.resultado.isEmpty {
+                Text(o.documento.intencaoAtual.resultado)
                     .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
-                Button("Copiar dados de recuperação") {
-                    guard acesso.permitido, o.verificarAcesso() else { revalidar(); return }
-                    UIPasteboard.general.string = recuperacao
-                    copiaCopiada = true
+            }
+            if editandoIntencao {
+                campo("O que quero realizar", chave: "intencao", padrao: o.documento.intencaoAtual.texto, exemplo: "Apresentar minha ideia")
+                campo("Como reconhecerei o resultado", chave: "resultado", padrao: o.documento.intencaoAtual.resultado, exemplo: "Explicar em um minuto")
+                Pilula("Guardar intenção", forma: .larga, selecionada: true) {
+                    let texto = rascunhos["intencao"] ?? o.documento.intencaoAtual.texto
+                    let resultado = rascunhos["resultado"] ?? o.documento.intencaoAtual.resultado
+                    aplicar(o, limpar: ["intencao", "resultado"]) { try $0.reverIntencao(texto, resultado: resultado) }
+                    gaveta { editandoIntencao = false }
                 }
-                if copiaCopiada { Text("Cópia na área de transferência.").font(Tema.meta) }
-                Button("Apagar cópia de recuperação") { confirmarApagarCopia = true }
+                .accessibilityIdentifier("trabalho-guardar-intencao")
+            } else {
+                acaoSecundaria("Rever a intenção") { gaveta { editandoIntencao = true } }
+                    .accessibilityIdentifier("trabalho-rever-intencao")
             }
         }
     }
 
-    private func intencao(_ o: OficinaTrabalho) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(o.documento.intencaoAtual.texto).font(Tema.tituloTela)
-                .accessibilityAddTraits(.isHeader)
-            if !o.documento.intencaoAtual.resultado.isEmpty {
-                Text(o.documento.intencaoAtual.resultado).foregroundStyle(Tema.tintaSuave)
+    // MARK: - Apoio: a decisão que morava num disclosure
+
+    /// A divisão de trabalho é escolha contextual e reversível (VISAO-PRODUTO),
+    /// e é a decisão que muda o que "Preparar" faz. Fica no caminho, com o
+    /// padrão já marcado: ninguém precisa decidir para começar.
+    private func apoio(_ o: OficinaTrabalho) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            secao("Neste trabalho, prefiro")
+            // Em tamanho de acessibilidade três cápsulas não cabem lado a
+            // lado e a linha empurrava a folha inteira para fora da tela pelos
+            // dois lados (visto em AX5, na V9 e aqui). Empilhar preserva as
+            // três escolhas visíveis, que é o que a decisão precisa.
+            trilhoDoApoio(o)
+            .animation(Tema.movimento(.escala, Tema.Mola.escala, reduzido: reduceMotion),
+                       value: o.documento.apoio)
+            // A frase fala da opção SELECIONADA. Estática, ela dizia
+            // "Delegar não exige…" com Praticar e com Combinar marcados: a
+            // única ajuda da decisão que muda o resto da tela descrevia a
+            // escolha que o autor não fez, encostada nela (G4, achado 2).
+            Text(explicacaoDoApoio(o.documento.apoio))
+                .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+                .accessibilityIdentifier("trabalho-apoio-explicacao")
+            if o.documento.apoio == .combinar { delimitacao(o) }
+        }
+    }
+
+    @ViewBuilder private func trilhoDoApoio(_ o: OficinaTrabalho) -> some View {
+        let pilulas = ForEach(DocumentoTrabalho.Apoio.allCases, id: \.self) { a in
+            Pilula(nomeDoApoio(a), forma: .filtro, selecionada: o.documento.apoio == a) {
+                aplicar(o) { $0.cancelarPedido(); $0.apoio = a }
             }
-            DisclosureGroup("Intenção, resultado e apoio") {
-                VStack(alignment: .leading, spacing: 12) {
-                    campo("O que quero realizar", chave: "intencao", padrao: o.documento.intencaoAtual.texto, exemplo: "Apresentar minha ideia")
-                    campo("Como reconhecerei o resultado", chave: "resultado", padrao: o.documento.intencaoAtual.resultado, exemplo: "Explicar em um minuto")
-                    Button("Guardar intenção") {
-                        let texto = rascunhos["intencao"] ?? o.documento.intencaoAtual.texto
-                        let resultado = rascunhos["resultado"] ?? o.documento.intencaoAtual.resultado
-                        aplicar(o, limpar: ["intencao", "resultado"]) { try $0.reverIntencao(texto, resultado: resultado) }
-                    }
-                    .disabled(!o.salvo)
-                    Picker("Neste trabalho, prefiro", selection: Binding(
-                        get: { o.documento.apoio },
-                        set: { apoio in aplicar(o) { $0.cancelarPedido(); $0.apoio = apoio } }
-                    )) {
-                        Text("Delegar a produção").tag(DocumentoTrabalho.Apoio.delegar)
-                        Text("Praticar com apoio").tag(DocumentoTrabalho.Apoio.praticar)
-                        Text("Combinar os dois").tag(DocumentoTrabalho.Apoio.combinar)
-                    }
-                    .pickerStyle(.menu)
-                    .disabled(!o.salvo)
-                    Text("Você pode mudar o apoio conforme o que quer fazer. Delegar não exige aprender a executar tudo.")
-                        .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
-                }.padding(.top, 8)
+            // O `Picker` da V9 anunciava o valor escolhido de graça; o trilho
+            // dizia a escolha só por cor, e para o VoiceOver as três pílulas
+            // saíam idênticas (`selected:false` nas três). A decisão que muda
+            // o que "Preparar" faz não pode ser invisível a quem ouve a tela.
+            .accessibilityAddTraits(o.documento.apoio == a ? [.isSelected] : [])
+            .accessibilityIdentifier("trabalho-apoio-\(a.rawValue)")
+        }
+        if tamanhoTexto.isAccessibilitySize {
+            VStack(alignment: .leading, spacing: 8) { pilulas }
+        } else {
+            HStack(spacing: 8) { pilulas }
+        }
+    }
+
+    private func nomeDoApoio(_ a: DocumentoTrabalho.Apoio) -> String {
+        switch a {
+        case .delegar: "Delegar"
+        case .praticar: "Praticar"
+        case .combinar: "Combinar"
+        }
+    }
+
+    /// O que a escolha marcada muda, na voz do autor, mais a saída que vale
+    /// para as três ("você pode mudar quando quiser" — a única parte da frase
+    /// antiga que era verdade nas três).
+    private func explicacaoDoApoio(_ a: DocumentoTrabalho.Apoio) -> String {
+        switch a {
+        case .delegar: "Delegar: a IA prepara a versão inteira; você não precisa aprender a executar tudo. Você pode mudar quando quiser."
+        case .praticar: "Praticar: você escreve a tentativa; a IA prepara o exercício e o retorno, nunca a resposta. Você pode mudar quando quiser."
+        case .combinar: "Combinar: você exercita o trecho que delimitar abaixo; o resto continua com a IA. Você pode mudar quando quiser."
+        }
+    }
+
+    private func delimitacao(_ o: OficinaTrabalho) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            campo("O trecho que eu mesmo vou exercitar", chave: "trecho",
+                  padrao: o.documento.trechoExercitado ?? "", exemplo: "As frases em espanhol")
+                .accessibilityIdentifier("pratica-trecho")
+            acaoSecundaria("Guardar o trecho") {
+                guard !faltaCampo("trecho") else { return }
+                let texto = rascunhos["trecho"] ?? ""
+                aplicar(o, limpar: ["trecho"]) { $0.trechoExercitado = texto }
+            }
+            .accessibilityHint(vazio("trecho") ? "Escreva o trecho primeiro" : "")
+            if !o.documento.praticaPedida {
+                Text("Sem esse trecho, combinar entrega o trabalho inteiro: nada aqui vira exercício.")
+                    .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
             }
         }
+        .padding(.top, 4)
+    }
+
+    // MARK: - Preparar
+
+    /// Em prática sem conta Grok (decisão b) a seção some: não há botão de IA
+    /// a oferecer, e a linha que diz por quê já está em Praticar.
+    @ViewBuilder private func producao(_ o: OficinaTrabalho) -> some View {
+        if !o.documento.praticaPedida || PraticaTrabalho.oferta(contaLigada: ContaGrok.ligada) == nil {
+            producaoComIA(o)
+        }
+    }
+
+    private func producaoComIA(_ o: OficinaTrabalho) -> some View {
+        VStack(alignment: .leading, spacing: Tema.entreItens) {
+            secao(o.documento.praticaPedida ? "Preparar um exercício" : "Preparar uma versão")
+            campo(o.documento.praticaPedida ? "O que você quer praticar?" : "O que você quer que a IA prepare ou ajuste?",
+                  chave: "pedido", exemplo: o.documento.praticaPedida ? "Quero praticar me apresentar em espanhol" : "Prepare uma apresentação curta")
+                .accessibilityIdentifier("trabalho-pedido")
+            if o.documento.pedidoAtivo != nil {
+                ProgressView("A IA está preparando…")
+                    .font(Tema.meta)
+                    .id("trabalho-preparando")
+                    .accessibilityIdentifier("trabalho-preparando")
+                acaoSecundaria("Cancelar preparação") { o.cancelar() }
+            } else {
+                // Nada desabilita aqui: a ação principal desabilitada perdia a
+                // cápsula inteira e virava legenda a 1,53:1 (revisão da volta
+                // 18). Tocar leva ao que falta — o campo vazio, a edição
+                // pendente, a saída do erro —, e o motivo continua escrito
+                // abaixo (curva-zero §3).
+                let travado = !o.salvo || edicaoPendente(o)
+                Pilula(o.documento.praticaPedida ? "Preparar exercício com IA" : o.documento.versaoAtual == nil ? "Preparar com IA" : "Preparar nova versão com IA",
+                       forma: .larga, selecionada: true) {
+                    guard !levouAoQueFalta(o, campoObrigatorio: "pedido") else { return }
+                    o.gerar(rascunhos["pedido"] ?? "")
+                }
+                    .accessibilityIdentifier("trabalho-gerar")
+                    .accessibilityHint(travado || vazio("pedido") ? motivoDoTravamento(o) : "")
+                if travado || vazio("pedido") {
+                    Text(motivoDoTravamento(o))
+                        .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+                        .accessibilityIdentifier("trabalho-gerar-travado")
+                }
+                if let pedido = o.documento.pedidos.last,
+                   pedido.estado == .interrompido || pedido.estado == .falhou || pedido.estado == .cancelado {
+                    Text("A preparação anterior foi \(pedido.estado == .interrompido ? "interrompida" : pedido.estado == .falhou ? "malsucedida" : "cancelada"). O pedido continua disponível.")
+                        .font(Tema.meta).foregroundStyle(Tema.aviso)
+                    acaoDeSaida("Retomar esse pedido") { definir("pedido", pedido.instrucao) }
+                } else if let pedido = o.documento.pedidos.last, pedido.estado == .praticaIndisponivel {
+                    // O porquê já está na seção Praticar; aqui só a saída.
+                    acaoDeSaida("Retomar esse pedido") { definir("pedido", pedido.instrucao) }
+                }
+            }
+            if o.documento.versaoAtual == nil {
+                if editandoVersao {
+                    campo("Sua versão", chave: "versao")
+                    acaoSecundaria("Guardar minha versão") { guardarVersao(o) }
+                        .accessibilityHint(vazio("versao") ? "Escreva a versão primeiro" : "")
+                } else {
+                    acaoSecundaria("Escrever minha própria versão") { gaveta { editandoVersao = true } }
+                }
+            }
+        }
+    }
+
+    /// O motivo é lido na MESMA ordem em que o guarda desvia
+    /// (`levouAoQueFalta`). Antes a frase começava pela edição pendente e o
+    /// toque ia para o erro de salvamento: com os dois estados juntos, a folha
+    /// nomeava um obstáculo e levava a outro.
+    private func motivoDoTravamento(_ o: OficinaTrabalho) -> String {
+        if !o.salvo { "Guarde as alterações deste trabalho antes de pedir uma preparação." }
+        else if edicaoPendente(o) { "Guarde a intenção ou a versão que está editando antes de pedir uma nova preparação." }
+        else { "Escreva acima o que a IA deve preparar." }
     }
 
     // MARK: - ADR 05r: praticar
 
-    /// A seção da prática, numa leitura de cima para baixo: material →
-    /// tentativa → feedback → dificuldade (o objetivo é o título da tela). Aparece com apoio
-    /// "praticar"; em "combinar" só depois que a pessoa delimita o trecho que
-    /// ela mesma vai exercitar — sem delimitação, combinar é entrega delegada.
+    /// A prática, na leitura de cima para baixo: pedido → material → tentativa
+    /// → feedback. Ela mora DEPOIS de "Preparar" porque é o pedido que a
+    /// produz; na V9 o exercício aparecia acima do campo que o pediu.
     /// A tentativa existe SEM exercício e SEM conta: a prática é da pessoa.
-    /// Em "delegar" a seção vira só a dificuldade (05i: a hipótese continua
-    /// corrigível e a contestada muda o próximo pedido) e, se houver, as
-    /// tentativas já escritas — o apoio é escolha contextual, não penalidade.
     @ViewBuilder private func praticar(_ o: OficinaTrabalho) -> some View {
-        VStack(alignment: .leading, spacing: 16) {
-            if o.documento.apoio != .delegar {
-                titulo("Praticar")
-                if o.documento.apoio == .combinar { delimitacao(o) }
+        if o.documento.apoio != .delegar {
+            VStack(alignment: .leading, spacing: Tema.entreItens) {
+                secao("Praticar")
                 if o.documento.praticaPedida {
                     let versao = o.documento.versaoAtual
                     let pratica = versao?.pratica
@@ -225,17 +398,13 @@ struct TrabalhoView: View {
                         Text(PraticaTrabalho.preparacaoIndisponivel).font(Tema.meta).foregroundStyle(Tema.aviso)
                             .accessibilityIdentifier("pratica-preparacao-indisponivel")
                     } else {
-                        Text("Nenhum exercício preparado ainda. Escreva abaixo o que você quer praticar e toque em preparar: a IA prepara enunciado, exemplo e critérios; a tentativa é sua.")
+                        Text("Nenhum exercício preparado ainda. Escreva acima o que você quer praticar e toque em preparar: a IA prepara enunciado, exemplo e critérios; a tentativa é sua.")
                             .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
                             .accessibilityIdentifier("pratica-sem-exercicio")
                     }
                     tentativas(artefatoID: pratica == nil ? nil : versao?.id, pratica: pratica, oficina: o)
                 }
-            } else {
-                titulo("Dificuldade")
             }
-            dificuldade(o)
-            if o.documento.apoio == .delegar { tentativasGuardadas(o) }
         }
     }
 
@@ -244,7 +413,7 @@ struct TrabalhoView: View {
     @ViewBuilder private func tentativasGuardadas(_ o: OficinaTrabalho) -> some View {
         let guardadas = o.documento.evidencias.filter { $0.tentativa != nil }
         if !guardadas.isEmpty {
-            Text("Tentativas (\(guardadas.count))").font(Tema.barra)
+            Text("Tentativas (\(guardadas.count))").font(Tema.chrome.weight(.semibold))
             Text("Escritas quando o apoio era praticar. Para escrever outra, volte o apoio para praticar.")
                 .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
             ForEach(guardadas) { e in
@@ -254,36 +423,22 @@ struct TrabalhoView: View {
         }
     }
 
-    private func delimitacao(_ o: OficinaTrabalho) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            campo("O trecho que eu mesmo vou exercitar", chave: "trecho",
-                  padrao: o.documento.trechoExercitado ?? "", exemplo: "As frases em espanhol")
-                .accessibilityIdentifier("pratica-trecho")
-            Button("Guardar o trecho") {
-                let texto = rascunhos["trecho"] ?? ""
-                aplicar(o, limpar: ["trecho"]) { $0.trechoExercitado = texto }
-            }
-            .disabled(!o.salvo || vazio("trecho"))
-            if !o.documento.praticaPedida {
-                Text("Sem esse trecho, combinar entrega o trabalho inteiro: nada aqui vira exercício.")
-                    .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
-            }
-        }
-    }
-
     /// O gargalo, corrigível. A pergunta aceita contexto, recursos, acesso ou
     /// divisão do trabalho — não só habilidade. Só a pessoa confirma ou
     /// contesta, e confirmar é concordar neste contexto, não ser avaliada.
+    /// Mora no fim: é o trabalho que revela o obstáculo (VISAO-PRODUTO).
     private func dificuldade(_ o: OficinaTrabalho) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: Tema.entreItens) {
+            secao("Dificuldade")
             campo("O que está dificultando isso?", chave: "dificuldade",
                   exemplo: "Pode ser contexto, recursos, acesso ou divisão do trabalho")
                 .accessibilityIdentifier("pratica-dificuldade")
-            Button("Guardar esta dificuldade") {
+            acaoSecundaria("Guardar esta dificuldade") {
+                guard !faltaCampo("dificuldade") else { return }
                 let texto = rascunhos["dificuldade"] ?? ""
                 aplicar(o, limpar: ["dificuldade"]) { try $0.proporHipotese(texto, propostaPor: "Você") }
             }
-            .disabled(!o.salvo || vazio("dificuldade"))
+            .accessibilityHint(vazio("dificuldade") ? "Escreva a dificuldade primeiro" : "")
             .accessibilityIdentifier("pratica-guardar-dificuldade")
             ForEach(o.documento.hipoteses) { h in
                 VStack(alignment: .leading, spacing: 6) {
@@ -295,16 +450,18 @@ struct TrabalhoView: View {
                     }
                     let chave = "motivo-\(h.id.uuidString)"
                     campo("Por quê? (opcional)", chave: chave, exemplo: "O que te faz dizer isso")
-                    Button("Faz sentido neste contexto") { avaliar(h, .confirmada, chave: chave, oficina: o) }
+                    acaoSecundaria("Faz sentido neste contexto") { avaliar(h, .confirmada, chave: chave, oficina: o) }
                         .accessibilityIdentifier("pratica-confirmar-hipotese")
-                    Button("Não é essa a dificuldade") { avaliar(h, .contestada, chave: chave, oficina: o) }
+                    acaoSecundaria("Não é essa a dificuldade") { avaliar(h, .contestada, chave: chave, oficina: o) }
                         .accessibilityIdentifier("pratica-contestar-hipotese")
-                }.disabled(!o.salvo)
+                }
+                .cartao(.campo)
             }
             if !o.documento.hipoteses.isEmpty {
                 Text("Concordar aqui é concordar neste contexto. Não é o app avaliando você, nem prova de que você aprendeu.")
                     .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
             }
+            if o.documento.apoio == .delegar { tentativasGuardadas(o) }
         }
     }
 
@@ -320,26 +477,25 @@ struct TrabalhoView: View {
     }
 
     private func exercicio(_ p: DocumentoTrabalho.Pratica, produtor: String) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Exercício: \(p.capacidade)").font(Tema.barra)
+        VStack(alignment: .leading, spacing: Tema.entreItens) {
+            Text("Exercício: \(p.capacidade)").font(Tema.chrome.weight(.semibold))
             Text("Preparado por \(produtor)").font(Tema.meta).foregroundStyle(Tema.tintaSuave)
             // O modelo às vezes repete a capacidade na situação: não mostrar duas vezes.
             if p.situacao != p.capacidade {
                 Text("Situação: \(p.situacao)").font(Tema.meta).foregroundStyle(Tema.tintaSuave)
             }
-            Text("O que fazer").font(Tema.barra)
+            Text("O que fazer").rotulo(Tema.tintaSuave)
             Text(p.enunciado).textSelection(.enabled)
                 .accessibilityIdentifier("pratica-enunciado")
-            Text("Exemplo resolvido, de outro caso — não é a sua resposta").font(Tema.barra)
+            Text("Exemplo resolvido, de outro caso — não é a sua resposta").rotulo(Tema.tintaSuave)
             Text(p.exemplo).textSelection(.enabled)
                 .accessibilityIdentifier("pratica-exemplo")
-            Text("Como conferir o seu desempenho").font(Tema.barra)
+            Text("Como conferir o seu desempenho").rotulo(Tema.tintaSuave)
             ForEach(p.criterios) { c in Text("• \(c.texto)").font(Tema.meta) }
         }
-        .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         // Névoa: material da IA em superfície baixa; a entrada da pessoa fica em branco.
-        .background(Tema.superficieBaixa, in: RoundedRectangle(cornerRadius: Tema.raio))
+        .cartao(.campo)
     }
 
     /// O campo começa VAZIO e a IA nunca o preenche. Guardar acrescenta uma
@@ -349,7 +505,7 @@ struct TrabalhoView: View {
     private func tentativas(artefatoID: UUID?, pratica p: DocumentoTrabalho.Pratica?,
                             oficina o: OficinaTrabalho) -> some View {
         let guardadas = o.documento.tentativas(doArtefato: artefatoID)
-        return VStack(alignment: .leading, spacing: 16) {
+        return VStack(alignment: .leading, spacing: Tema.entreItens) {
             campo("Minha tentativa", chave: "tentativa", exemplo: "Escreva aqui a sua resposta")
                 // A tentativa é o texto da pessoa, no idioma que ela pratica: o
                 // corretor do sistema reescrevendo-a é o que a ADR proíbe à IA.
@@ -357,7 +513,9 @@ struct TrabalhoView: View {
                 .accessibilityIdentifier("pratica-tentativa")
             campo("Que apoio você usou?", chave: "apoio-usado", exemplo: "Ex.: olhei o exemplo")
                 .accessibilityIdentifier("pratica-apoio-usado")
-            Button(guardadas.isEmpty ? "Guardar minha tentativa" : "Guardar esta nova tentativa") {
+            Pilula(guardadas.isEmpty ? "Guardar minha tentativa" : "Guardar esta nova tentativa",
+                   forma: .larga, selecionada: true) {
+                guard !levouAoObstaculo(o), !faltaCampo("tentativa", "apoio-usado") else { return }
                 let texto = rascunhos["tentativa"] ?? "", apoio = rascunhos["apoio-usado"] ?? ""
                 guard acesso.permitido, o.verificarAcesso() else { revalidar(); return }
                 if o.guardarTentativa(texto, apoioUtilizado: apoio, artefatoID: artefatoID,
@@ -365,12 +523,12 @@ struct TrabalhoView: View {
                     limpar(["tentativa", "apoio-usado"])
                 }
             }
-            .disabled(!o.salvo || vazio("tentativa") || vazio("apoio-usado"))
+            .accessibilityHint(vazio("tentativa") || vazio("apoio-usado") ? "Escreva a tentativa e o apoio que usou" : "")
             .accessibilityIdentifier("pratica-guardar-tentativa")
             Text("Guardar preserva a sua resposta como sua. Não marca a ação como realizada nem declara capacidade adquirida.")
                 .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
             if !guardadas.isEmpty {
-                Text("Tentativas (\(guardadas.count))").font(Tema.barra)
+                Text("Tentativas (\(guardadas.count))").font(Tema.chrome.weight(.semibold))
                 ForEach(guardadas) { e in tentativa(e, pratica: p, ultima: e.id == o.documento.tentativaAtual?.id, oficina: o) }
             }
         }
@@ -390,9 +548,8 @@ struct TrabalhoView: View {
             }
             if ultima { botaoDoFeedback(e, comExercicio: p != nil, oficina: o) }
         }
-        .padding(.vertical, 12)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .overlay(alignment: .top) { Rectangle().fill(Tema.linha).frame(height: 1) }
+        .cartao(.papel)
     }
 
     /// Decisão (b), como em 05q: "Conferir minha tentativa" só com conta Grok.
@@ -411,18 +568,17 @@ struct TrabalhoView: View {
             ProgressView("A IA está conferindo sua tentativa…").font(Tema.meta)
                 .accessibilityIdentifier("pratica-conferindo")
         } else {
-            Button("Conferir minha tentativa") {
-                guard acesso.permitido, o.verificarAcesso(), o.salvo else { revalidar(); return }
+            acaoSecundaria("Conferir minha tentativa") {
+                guard !levouAoObstaculo(o), acesso.permitido, o.verificarAcesso() else { revalidar(); return }
                 o.conferirTentativa(e.id)
             }
-            .disabled(!o.salvo)
             .accessibilityIdentifier("pratica-conferir-tentativa")
             botaoNovaTentativa
         }
     }
 
     private var botaoNovaTentativa: some View {
-        Button("Nova tentativa") {
+        acaoSecundaria("Nova tentativa") {
             definir("tentativa", "")
             definir("apoio-usado", "")
             campoEmFoco = "tentativa"
@@ -433,14 +589,14 @@ struct TrabalhoView: View {
 
     private func feedback(_ c: DocumentoTrabalho.ConferenciaTentativa, pratica p: DocumentoTrabalho.Pratica) -> some View {
         DisclosureGroup {
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: Tema.entreItens) {
                 if let motivo = c.motivo {
                     Text(motivo).font(Tema.meta).foregroundStyle(Tema.aviso)
                 }
                 ForEach(c.resultados) { r in
                     VStack(alignment: .leading, spacing: 4) {
                         Text(p.criterios.first { $0.id == r.criterioID }?.texto ?? "Critério removido")
-                            .font(Tema.barra)
+                            .font(Tema.chrome.weight(.semibold))
                         Text(situacao(r.situacao)).font(Tema.meta)
                             .foregroundStyle(r.situacao == .divergencia ? Tema.aviso : Tema.tintaSuave)
                         if !r.trechoDaTentativa.isEmpty {
@@ -463,64 +619,19 @@ struct TrabalhoView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
         .font(Tema.meta)
+        .tint(Tema.tintaSuave)
         .accessibilityIdentifier("pratica-feedback")
     }
 
-    /// Em prática sem conta Grok (decisão b) a seção some: não há botão de IA
-    /// a oferecer, e a linha que diz por quê já está em Praticar.
-    @ViewBuilder private func producao(_ o: OficinaTrabalho) -> some View {
-        if !o.documento.praticaPedida || PraticaTrabalho.oferta(contaLigada: ContaGrok.ligada) == nil {
-            producaoComIA(o)
-        }
-    }
-
-    private func producaoComIA(_ o: OficinaTrabalho) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            titulo(o.documento.praticaPedida ? "Preparar um exercício" : "Preparar uma versão")
-            campo(o.documento.praticaPedida ? "O que você quer praticar?" : "O que você quer que a IA prepare ou ajuste?",
-                  chave: "pedido", exemplo: o.documento.praticaPedida ? "Quero praticar me apresentar em espanhol" : "Prepare uma apresentação curta")
-                .accessibilityIdentifier("trabalho-pedido")
-            if edicaoPendente(o) {
-                Text("Guarde a intenção ou a versão que está editando antes de pedir uma nova preparação.")
-                    .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
-            }
-            if o.documento.pedidoAtivo != nil {
-                ProgressView("A IA está preparando…")
-                    .accessibilityIdentifier("trabalho-preparando")
-                Button("Cancelar preparação") { o.cancelar() }
-            } else {
-                Button(o.documento.praticaPedida ? "Preparar exercício com IA" : o.documento.versaoAtual == nil ? "Preparar com IA" : "Preparar nova versão com IA") {
-                    o.gerar(rascunhos["pedido"] ?? "")
-                }
-                .buttonStyle(.borderedProminent)
-                .disabled(!o.salvo || vazio("pedido") || edicaoPendente(o))
-                .accessibilityIdentifier("trabalho-gerar")
-                if let pedido = o.documento.pedidos.last,
-                   pedido.estado == .interrompido || pedido.estado == .falhou || pedido.estado == .cancelado {
-                    Text("A preparação anterior foi \(pedido.estado == .interrompido ? "interrompida" : pedido.estado == .falhou ? "malsucedida" : "cancelada"). O pedido continua disponível.")
-                        .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
-                    Button("Retomar esse pedido") { definir("pedido", pedido.instrucao) }
-                } else if let pedido = o.documento.pedidos.last, pedido.estado == .praticaIndisponivel {
-                    // O porquê já está na seção Praticar; aqui só a saída.
-                    Button("Retomar esse pedido") { definir("pedido", pedido.instrucao) }
-                }
-            }
-            if o.documento.versaoAtual == nil {
-                DisclosureGroup("Escrever minha própria versão") {
-                    VStack(alignment: .leading, spacing: 12) {
-                        campo("Sua versão", chave: "versao")
-                        Button("Guardar minha versão") { guardarVersao(o) }
-                            .disabled(!o.salvo || vazio("versao"))
-                    }.padding(.top, 8)
-                }
-            }
-        }
-    }
+    // MARK: - Versão
 
     private func artefato(_ a: DocumentoTrabalho.Artefato, oficina o: OficinaTrabalho) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            titulo("Versão \(numero(a.id, em: o.documento))")
-            Text(a.produtor).font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+        VStack(alignment: .leading, spacing: Tema.entreItens) {
+            HStack(alignment: .firstTextBaseline) {
+                secao("Versão \(numero(a.id, em: o.documento))")
+                Spacer()
+                Text(a.produtor).font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+            }
             conferencia(a, oficina: o)
             if a.intencaoID != o.documento.intencaoAtual.id {
                 Text("Esta versão foi preparada para uma intenção anterior. Confira o que ainda serve.")
@@ -535,17 +646,25 @@ struct TrabalhoView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .accessibilityIdentifier("trabalho-artefato")
             }
-            if editandoVersao || !vazio("versao") {
+            // A mesma regra do bloqueio, e pelo mesmo motivo: o campo só
+            // reabre por edição de verdade. Julgado por não-vazio, o cartão
+            // imprimia o parágrafo da versão duas vezes para sempre.
+            if editandoVersao || Self.alterado(rascunhos, "versao", em: o.documento) {
                 campo("Editar a versão", chave: "versao", padrao: a.conteudo)
                     .accessibilityIdentifier("trabalho-editar-versao")
-                Button("Guardar como nova versão") { guardarVersao(o) }
-                    .disabled(!o.salvo || vazio("versao"))
+                acaoSecundaria("Guardar como nova versão") { guardarVersao(o) }
+                    .accessibilityHint(vazio("versao") ? "Escreva a versão primeiro" : "")
             } else {
-                Button("Editar esta versão") { definir("versao", a.conteudo); editandoVersao = true }
+                acaoSecundaria("Editar esta versão") {
+                    definir("versao", a.conteudo)
+                    gaveta { editandoVersao = true }
+                }
             }
         }
-        .padding(16)
-        .background(Tema.superficie, in: RoundedRectangle(cornerRadius: Tema.raio))
+        .cartao(.papel)
+        .transition(Tema.transicao(.asymmetric(
+            insertion: .move(edge: .bottom).combined(with: .opacity), removal: .opacity
+        ), reduzido: reduceMotion))
     }
 
     /// ADR 05p/05q: a checagem local ao lado do produtor e, quando o autor
@@ -566,7 +685,7 @@ struct TrabalhoView: View {
                 Text(pedido == nil ? "Conferência: não feita · sem pedido a conferir" : "Conferência: não feita")
                     .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
                 if let pedido {
-                    Button("Conferir") { conferir(a, pedido: pedido.id, oficina: o) }
+                    acaoSecundaria("Conferir") { conferir(a, pedido: pedido.id, oficina: o) }
                         .accessibilityIdentifier("trabalho-conferir-primeira")
                     botaoDaIA(a, pedido: pedido.id, oficina: o)
                 }
@@ -575,14 +694,14 @@ struct TrabalhoView: View {
         }
         ForEach(registros) { c in
             DisclosureGroup {
-                VStack(alignment: .leading, spacing: 12) {
+                VStack(alignment: .leading, spacing: Tema.entreItens) {
                     if let motivo = c.motivo {
                         Text(motivo).font(Tema.meta).foregroundStyle(Tema.aviso)
                     }
                     let comTrecho = primeiraPorFonte(c.resultados)
                     ForEach(c.resultados) { r in
                         VStack(alignment: .leading, spacing: 4) {
-                            Text(r.criterio).font(Tema.barra)
+                            Text(r.criterio).font(Tema.chrome.weight(.semibold))
                             Text(situacao(r.situacao)).font(Tema.meta)
                                 .foregroundStyle(r.situacao == .divergencia ? Tema.aviso : Tema.tintaSuave)
                             if comTrecho.contains(r.id) {
@@ -596,9 +715,9 @@ struct TrabalhoView: View {
                             Text(r.justificativa).font(Tema.meta)
                         }
                     }
-                    Text(rodape(c)).font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+                    Text(rodapeDaConferencia(c)).font(Tema.meta).foregroundStyle(Tema.tintaSuave)
                     if let ajuste = ConferenciaTrabalho.pedidoDeAjuste(c) {
-                        Button("Pedir ajuste") {
+                        acaoDeSaida("Pedir ajuste") {
                             guard acesso.permitido, o.verificarAcesso() else { revalidar(); return }
                             definir("pedido", ajuste)
                             campoEmFoco = "pedido"
@@ -607,8 +726,7 @@ struct TrabalhoView: View {
                         .accessibilityIdentifier("trabalho-pedir-ajuste")
                     }
                     if !daIA(c) {
-                        Button("Conferir de novo") { conferir(a, pedido: c.pedidoID, oficina: o) }
-                            .disabled(!o.salvo)
+                        acaoSecundaria("Conferir de novo") { conferir(a, pedido: c.pedidoID, oficina: o) }
                             .accessibilityIdentifier("trabalho-conferir")
                     }
                     if c.id == ondeIA { botaoDaIA(a, pedido: c.pedidoID, oficina: o) }
@@ -619,6 +737,7 @@ struct TrabalhoView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
             .font(Tema.meta)
+            .tint(Tema.tintaSuave)
             .accessibilityIdentifier(daIA(c) ? "trabalho-revisao-ia" : "trabalho-conferencia")
         }
     }
@@ -636,17 +755,16 @@ struct TrabalhoView: View {
                 .font(Tema.meta)
                 .accessibilityIdentifier("trabalho-revisando")
         } else {
-            Button("Conferir com IA") {
-                guard acesso.permitido, o.verificarAcesso(), o.salvo else { revalidar(); return }
+            acaoSecundaria("Conferir com IA") {
+                guard !levouAoObstaculo(o), acesso.permitido, o.verificarAcesso() else { revalidar(); return }
                 o.revisarComIA(a.id, pedidoID: pedido)
             }
-            .disabled(!o.salvo)
             .accessibilityIdentifier("trabalho-conferir-ia")
         }
     }
 
     private func conferir(_ a: DocumentoTrabalho.Artefato, pedido: UUID, oficina o: OficinaTrabalho) {
-        guard acesso.permitido, o.verificarAcesso(), o.salvo else { revalidar(); return }
+        guard !levouAoObstaculo(o), acesso.permitido, o.verificarAcesso() else { revalidar(); return }
         o.conferir(a.id, pedidoID: pedido)
     }
 
@@ -654,7 +772,7 @@ struct TrabalhoView: View {
         c.executor.hasSuffix(RevisaoTrabalho.sufixoDoExecutor) || c.executor == RevisaoTrabalho.naoExecutada
     }
 
-    private func rodape(_ c: DocumentoTrabalho.Conferencia) -> String {
+    private func rodapeDaConferencia(_ c: DocumentoTrabalho.Conferencia) -> String {
         let quando = "\(c.executor) em \(c.data.formatted(date: .abbreviated, time: .shortened))"
         return daIA(c)
             ? "Lido por \(quando). É uma segunda leitura do mesmo tipo de provedor, não uma revisão independente: nada aqui aprova o artefato."
@@ -687,22 +805,26 @@ struct TrabalhoView: View {
         }
     }
 
+    // MARK: - Próximo ato
+
     private func atos(_ o: OficinaTrabalho) -> some View {
-        VStack(alignment: .leading, spacing: 16) {
-            titulo("Próximo ato")
+        VStack(alignment: .leading, spacing: Tema.entreItens) {
+            secao("Próximo ato")
             campo("O que você vai fazer com este trabalho?", chave: "acao", exemplo: "Ensaiar a apresentação")
                 .accessibilityIdentifier("trabalho-acao")
-            Button("Preparar este ato") {
-                let texto = rascunhos["acao"] ?? ""
-                aplicar(o, limpar: ["acao"]) { try $0.prepararAcao(texto) }
+            Pilula("Preparar este ato", forma: .larga, selecionada: true) {
+                guard !levouAoObstaculo(o), !faltaCampo("acao") else { return }
+                aplicar(o, limpar: ["acao"]) { try $0.prepararAcao(rascunhos["acao"] ?? "") }
             }
-            .disabled(!o.salvo || vazio("acao"))
             .accessibilityIdentifier("trabalho-preparar-acao")
-            Text("Preparar não marca como realizado. Você pode escolher um horário para cada ação.")
+            .accessibilityHint(vazio("acao") ? "Escreva o ato primeiro" : "")
+            Text(vazio("acao")
+                 ? "Escreva acima o ato. Preparar não marca como realizado; você pode escolher um horário para cada ação."
+                 : "Preparar não marca como realizado. Você pode escolher um horário para cada ação.")
                 .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
             ForEach(o.documento.acoes) { acao in
-                VStack(alignment: .leading, spacing: 12) {
-                    Text(acao.texto).font(Tema.barra)
+                VStack(alignment: .leading, spacing: Tema.entreItens) {
+                    Text(acao.texto).font(Tema.chrome.weight(.semibold))
                     Text(acao.estado == .executada ? "Você marcou como realizada" : acao.estado == .cancelada ? "Cancelado" : "Realização ainda não confirmada")
                         .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
                     if let id = acao.artefatoID {
@@ -710,7 +832,7 @@ struct TrabalhoView: View {
                             .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
                     }
                     AgendamentoAcaoView(acao: acao, podeGuardar: o.salvo, aviso: o.avisos[acao.id],
-                                        permissaoNegada: o.permissaoNegada, guardar: { data, aviso in
+                                        guardar: { data, aviso in
                         aplicar(o) { try $0.agendar(acao.id, para: data, aviso: aviso) }
                     }, verNoCalendario: { data in
                         guard o.verificarAcesso(), o.salvo else { revalidar(); return false }
@@ -721,23 +843,22 @@ struct TrabalhoView: View {
                     })
                     if acao.estado != .cancelada {
                         if acao.estado == .pendente {
-                            Button("Realizei esta ação") { aplicar(o) { try $0.marcarExecutada(acao.id) } }
-                                .disabled(!o.salvo)
+                            acaoSecundaria("Realizei esta ação") { aplicar(o) { try $0.marcarExecutada(acao.id) } }
                                 .accessibilityIdentifier("trabalho-marcar-realizada")
                         }
                         let chave = "relato-\(acao.id.uuidString)"
                         campo("O que aconteceu?", chave: chave, exemplo: "O que funcionou ou faltou")
-                        Button("Registrar meu relato") {
+                        acaoSecundaria("Registrar meu relato") {
+                            guard !faltaCampo(chave) else { return }
                             let texto = rascunhos[chave] ?? ""
                             aplicar(o, limpar: [chave]) { try $0.registrarRelato(texto, acaoID: acao.id) }
                         }
-                        .disabled(!o.salvo || vazio(chave))
+                        .accessibilityHint(vazio(chave) ? "Escreva o relato primeiro" : "")
                         .accessibilityIdentifier("trabalho-registrar-relato")
                     }
                 }
-                .padding(.vertical, 12)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .overlay(alignment: .top) { Rectangle().fill(Tema.linha).frame(height: 1) }
+                .cartao(.papel)
                 .id(acao.id)
             }
         }
@@ -749,73 +870,283 @@ struct TrabalhoView: View {
     @ViewBuilder private func retorno(_ o: OficinaTrabalho) -> some View {
         let relatos = o.documento.evidencias.filter { $0.tentativa == nil }
         if !relatos.isEmpty {
-            VStack(alignment: .leading, spacing: 12) {
-                titulo("O que aconteceu")
+            VStack(alignment: .leading, spacing: Tema.entreItens) {
+                secao("O que aconteceu")
                 ForEach(relatos) { e in
                     VStack(alignment: .leading, spacing: 6) {
                         Text("Relato de \(e.atribuidaA) · \(e.data.formatted(date: .abbreviated, time: .shortened))")
                             .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
                         Text(e.texto).textSelection(.enabled)
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .cartao(.papel)
                 }
                 if !o.documento.praticaPedida || PraticaTrabalho.oferta(contaLigada: ContaGrok.ligada) == nil {
-                    Button("Revisar com estes relatos") {
+                    acaoSecundaria("Revisar com estes relatos") {
+                        guard !levouAoQueFalta(o, campoObrigatorio: nil) else { return }
                         definir("pedido", "Revise a versão à luz dos relatos registrados e do resultado desejado. Diferencie o que foi observado do que ainda é incerto e proponha um ajuste concreto.")
                         o.gerar(rascunhos["pedido"] ?? "")
                     }
-                    .disabled(!o.salvo || o.documento.pedidoAtivo != nil || edicaoPendente(o))
                     .accessibilityIdentifier("trabalho-revisar")
                 }
             }
         }
     }
 
+    /// Uma gaveta só, e sem gaveta dentro de gaveta: cada versão é um cartão.
     private func historico(_ o: OficinaTrabalho) -> some View {
         DisclosureGroup("Histórico de versões (\(o.documento.artefatos.count))") {
-            VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: Tema.entreItens) {
                 ForEach(o.documento.artefatos.reversed()) { a in
-                    DisclosureGroup("Versão \(numero(a.id, em: o.documento)) · \(a.produtor)") {
-                        VStack(alignment: .leading, spacing: 8) {
-                            ForEach(a.conferencias ?? []) { c in
-                                Text(daIA(c) ? RevisaoTrabalho.linha(c) : ConferenciaTrabalho.linha(c))
-                                    .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
-                            }
-                            ConteudoTrabalhoView(fonte: a.conteudo)
-                                .id(a.id)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                        }.padding(.top, 8)
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Versão \(numero(a.id, em: o.documento)) · \(a.produtor)")
+                            .font(Tema.chrome.weight(.semibold))
+                        ForEach(a.conferencias ?? []) { c in
+                            Text(daIA(c) ? RevisaoTrabalho.linha(c) : ConferenciaTrabalho.linha(c))
+                                .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+                        }
+                        ConteudoTrabalhoView(fonte: a.conteudo)
+                            .id(a.id)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .cartao(.papel)
                 }
             }.padding(.top, 8)
         }
+        .font(Tema.chrome)
+        .tint(Tema.tintaSuave)
     }
 
-    private func titulo(_ texto: String) -> some View {
-        Text(texto).font(Tema.secaoNota).accessibilityAddTraits(.isHeader)
+    /// O rodapé de estado: salvamento, rascunhos e a cópia de recuperação.
+    @ViewBuilder private func rodape(_ o: OficinaTrabalho) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(o.salvo ? "Versões e atos guardados neste aparelho." : "Alterações ainda não guardadas.")
+                .font(Tema.meta).foregroundStyle(o.salvo ? Tema.tintaSuave : Tema.aviso)
+                .accessibilityIdentifier("trabalho-salvamento")
+            if rascunhos.keys.contains(where: { Self.alterado(rascunhos, $0, em: o.documento) }) {
+                Text("Os campos em edição voltam ao reabrir este trabalho; só entram no documento quando você os guarda.")
+                    .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+                acaoSecundaria("Descartar rascunhos dos campos") {
+                    guard !levouAoObstaculo(o), !preparacaoEmCurso(o) else { return }
+                    confirmarDescarte = true
+                }
+            }
+            if let recuperacao {
+                Text("Uma cópia das alterações anteriores foi preservada neste aparelho, separada da versão atual.")
+                    .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+                acaoDeSaida("Copiar dados de recuperação") {
+                    guard acesso.permitido, o.verificarAcesso() else { revalidar(); return }
+                    UIPasteboard.general.string = recuperacao
+                    copiaCopiada = true
+                }
+                if copiaCopiada {
+                    Text("Cópia na área de transferência.").font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+                }
+                acaoSecundaria("Apagar cópia de recuperação") { confirmarApagarCopia = true }
+            }
+        }
+    }
+
+    // MARK: - Vocabulário da folha
+
+    /// Rótulo de seção (SISTEMA-CLARO §3), o mesmo da ficha do calendário.
+    private func secao(_ texto: String) -> some View {
+        Text(texto).rotulo(Tema.tintaSuave).accessibilityAddTraits(.isHeader)
+    }
+
+    /// Ação secundária: cápsula de chip, o vocabulário de forma da casa
+    /// ("tudo é cápsula", SISTEMA-CLARO §1.3). Texto solto sobre papel não se
+    /// lê como controle (critique-affordance) e não tem estado desabilitado;
+    /// a cápsula tem os dois, mais o alvo de 44 que a `Pilula` já embrulha.
+    /// Sem âmbar: duas saídas em âmbar empatam em peso e o olho não sabe qual
+    /// é o caminho (von-restorff-effect).
+    private func acaoSecundaria(_ titulo: String, _ fazer: @escaping () -> Void) -> some View {
+        Pilula(titulo, forma: .filtro, acao: fazer)
+    }
+
+    /// A saída de um problema: o único emprego do âmbar nesta folha.
+    private func acaoDeSaida(_ titulo: String, _ fazer: @escaping () -> Void) -> some View {
+        Button(titulo, action: fazer)
+            .buttonStyle(.primario(alinhamento: .leading))
     }
 
     private func campo(_ titulo: String, chave: String, padrao: String = "", exemplo: String = "Escreva aqui") -> some View {
         VStack(alignment: .leading, spacing: 6) {
+            // Rótulo de campo em caixa normal: a caixa alta é da SEÇÃO, e
+            // duas caixas altas empilhadas gritam sem hierarquia.
             Text(titulo).font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+            // O `set` só grava o que MUDA. Um `TextField` que sai da tela
+            // devolve o texto ao binding, e como o salvamento acabou de
+            // `limpar` o rascunho, o que ele devolvia era o `padrao` — em
+            // "Sua versão", a string vazia. Um rascunho vazio gravado depois
+            // de guardar a versão é diferente da versão: a folha voltava a
+            // afirmar uma edição pendente que ninguém fez. Escrever nada não
+            // é editar, e agora não vira rascunho (a mesma origem enchia
+            // "pedido" de "" e ligava o "Descartar rascunhos" do rodapé).
             TextField(exemplo, text: Binding(get: { rascunhos[chave] ?? padrao },
-                                           set: { definir(chave, $0) }), axis: .vertical)
+                                           set: { novo in
+                                               guard novo != (rascunhos[chave] ?? padrao) else { return }
+                                               definir(chave, novo)
+                                           }), axis: .vertical)
+                .font(Tema.corpo)
                 .lineLimit(2...12)
                 .id(chave)
                 .focused($campoEmFoco, equals: chave)
-                .padding(12)
-                .background(Tema.superficie, in: RoundedRectangle(cornerRadius: Tema.raio))
+                .cartao(.campo)
                 .accessibilityLabel(titulo)
         }
+    }
+
+    /// A gaveta que abre no lugar (§21: altura animada, um driver só).
+    private func gaveta(_ mudar: @escaping () -> Void) {
+        withAnimation(Tema.gaveta(reduzido: reduceMotion), mudar)
     }
 
     private func vazio(_ chave: String) -> Bool {
         (rascunhos[chave] ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
-    private func edicaoPendente(_ o: OficinaTrabalho) -> Bool {
-        (rascunhos["intencao"].map { $0 != o.documento.intencaoAtual.texto } ?? false)
-        || (rascunhos["resultado"].map { $0 != o.documento.intencaoAtual.resultado } ?? false)
-        || !vazio("versao")
+    private func edicaoPendente(_ o: OficinaTrabalho) -> Bool { campoEmEdicao(o) != nil }
+
+    /// Qual campo está em edição não guardada — o destino do toque bloqueado.
+    private func campoEmEdicao(_ o: OficinaTrabalho) -> String? {
+        Self.campoEmEdicao(rascunhos, em: o.documento)
+    }
+
+    // MARK: - A regra do rascunho
+
+    /// O que o documento já guarda para um campo que **nasce preenchido**.
+    /// `nil` é o campo livre (pedido, ato, relato, dificuldade): ali qualquer
+    /// texto é edição, porque não há nada de onde diferir.
+    static func guardado(_ chave: String, em d: DocumentoTrabalho) -> String? {
+        switch chave {
+        case "intencao": d.intencaoAtual.texto
+        case "resultado": d.intencaoAtual.resultado
+        case "versao": d.versaoAtual?.conteudo ?? ""
+        default: nil
+        }
+    }
+
+    /// **Edição pendente é rascunho DIFERENTE do guardado, não rascunho que
+    /// existe.** É a regra inteira desta folha, e ela é `static` porque foi
+    /// aqui que a folha passou a mentir sobre si mesma (G4 da volta 18).
+    ///
+    /// "versao" era julgada por não-vazio. E o rascunho de "versao" não é
+    /// escrito só por quem digita: o `TextField` devolve o texto ao binding
+    /// quando SAI da tela, depois do `limpar` que o salvamento acabou de
+    /// fazer — então **guardar a própria versão gravava, como rascunho, o
+    /// texto idêntico ao que tinha acabado de virar versão**. A partir dali a
+    /// folha afirmava para sempre uma edição que ninguém fez: imprimia a
+    /// versão duas vezes (o cartão reabria o campo "Editar a versão"),
+    /// travava "Preparar nova versão com IA" e a importação com um obstáculo
+    /// inexistente, e o rodapé oferecia descartar um rascunho que não havia.
+    /// `UserDefaults` guarda o rascunho, então sobrevivia a fechar a folha,
+    /// reabrir, descartar e reiniciar o aparelho.
+    ///
+    /// Julgar por diferença apaga a classe: um rascunho igual ao guardado é
+    /// invisível para a pessoa, e agora é invisível para a folha também — e
+    /// o estado já preso nos aparelhos se desfaz sozinho na primeira leitura.
+    static func alterado(_ rascunhos: [String: String], _ chave: String, em d: DocumentoTrabalho) -> Bool {
+        // Rascunho em branco não é edição em lugar nenhum: nenhum destes
+        // campos pode ser guardado vazio (`reverIntencao` e
+        // `guardarVersaoHumana` recusam), então um vazio nunca é trabalho à
+        // espera de commit — e travar a folha por ele seria de novo nomear um
+        // obstáculo que a pessoa não tem como resolver guardando. É também o
+        // que desfaz o estado já preso nos aparelhos: medido no simulador
+        // depois de guardar a própria versão, o `plist` do app tinha
+        // `"versao" => ""`, escrito pelo `TextField` ao sair da tela.
+        guard let rascunho = rascunhos[chave],
+              !rascunho.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return false }
+        guard let guardado = guardado(chave, em: d) else { return true }
+        return rascunho != guardado
+    }
+
+    /// O primeiro campo do documento em edição não guardada, na ordem em que
+    /// a folha os lê. Os campos livres não entram: eles não bloqueiam nada,
+    /// o guarda deles é `faltaCampo`.
+    static func campoEmEdicao(_ rascunhos: [String: String], em d: DocumentoTrabalho) -> String? {
+        ["intencao", "resultado", "versao"].first { alterado(rascunhos, $0, em: d) }
+    }
+
+    // MARK: - Bloqueio: nenhuma ação desta folha some
+
+    /// A lei do bloqueio desta folha: **nada desaparece**. `.disabled()` sobre
+    /// `Pilula` devolve fundo `.clear` com `tintaMorta` — 1,53:1 sobre o papel,
+    /// sem cápsula e sem forma de botão —, e foi assim que a ação PRIMÁRIA da
+    /// tela virou legenda cinza (revisão da volta 18). No lugar disso a ação
+    /// continua inteira, com o alvo de 44 e o contraste que tinha, e **tocar
+    /// leva ao que falta**: o campo vazio recebe o foco, a edição pendente
+    /// recebe o foco, o salvamento falho leva à saída no alto da folha, a
+    /// preparação em curso leva ao próprio progresso. O motivo continua
+    /// escrito ao lado — era o que a ADR pedia ao desabilitado — e agora
+    /// também no `accessibilityHint`, para quem ouve a tela.
+    ///
+    /// - Returns: `true` quando levou a pessoa ao obstáculo; a ação não corre.
+    private func levouAoObstaculo(_ o: OficinaTrabalho) -> Bool {
+        guard !o.salvo else { return false }
+        rolarPara = "trabalho-erro"
+        anunciar(o.erro ?? "As alterações deste trabalho ainda não foram guardadas.")
+        return true
+    }
+
+    /// O guarda ÚNICO das duas rotas que chamam a IA: `trabalho-gerar` e
+    /// `trabalho-revisar`. Eram duas listas de guardas copiadas e **elas
+    /// divergiram**: ao tirar o `.disabled(travado)` de `trabalho-gerar`, a
+    /// volta 18-B portou só a metade `!o.salvo`, e a folha passou a escrever
+    /// "Guarde a intenção ou a versão que está editando antes de pedir uma
+    /// nova preparação" e a disparar a IA assim mesmo — uma corrida de ~90 s
+    /// gasta no caso exato que a regra existia para evitar (re-G3, achado A).
+    /// Agora é uma função só: não há mais onde divergir. A ordem é a mesma que
+    /// `motivoDoTravamento` fala — salvamento, preparação em curso, edição
+    /// pendente, campo vazio —, porque a folha não pode nomear um obstáculo e
+    /// levar a outro.
+    ///
+    /// - Returns: `true` quando levou a pessoa ao que falta; a IA não corre.
+    private func levouAoQueFalta(_ o: OficinaTrabalho, campoObrigatorio: String?) -> Bool {
+        if levouAoObstaculo(o) || preparacaoEmCurso(o) { return true }
+        if let chave = campoEmEdicao(o) {
+            // Aqui o motivo é dito antes do foco: o campo que recebe o cursor
+            // fica em OUTRA seção da folha, e ouvir só "O que quero realizar"
+            // não explica por que a preparação não começou.
+            anunciar(motivoDoTravamento(o))
+            campoEmFoco = chave
+            rolarPara = chave
+            return true
+        }
+        if let campoObrigatorio { return faltaCampo(campoObrigatorio) }
+        return false
+    }
+
+    /// O motivo dito em voz, não só escrito. Tirar o `.disabled()` devolveu
+    /// cápsula, contraste (1,53:1 → 13,94:1) e alcance ao botão, mas custou o
+    /// `isEnabled = false` que fazia o Controle Assistivo e o Acesso Total por
+    /// Teclado **pularem** o controle: quem varre agora pousa num botão que
+    /// aceita ativação e não conclui. O anúncio diz por que parou ali sem
+    /// depender de "Falar dicas" estar ligada nem da pausa que ela exige.
+    ///
+    /// Limite honesto: `Announcement` é canal do VoiceOver. Quem usa Controle
+    /// Assistivo **sem** VoiceOver continua sem a fala; para essa pessoa o que
+    /// resta é o desvio visível — o foco e a rolagem até o obstáculo.
+    private func anunciar(_ motivo: String) {
+        guard !motivo.isEmpty else { return }
+        AccessibilityNotification.Announcement(motivo).post()
+    }
+
+    /// Campo vazio não apaga a ação: leva o foco ao primeiro campo que falta.
+    private func faltaCampo(_ chaves: String...) -> Bool {
+        guard let falta = chaves.first(where: vazio) else { return false }
+        campoEmFoco = falta
+        rolarPara = falta
+        return true
+    }
+
+    /// Enquanto a IA prepara, o que competiria com ela leva ao progresso dela.
+    private func preparacaoEmCurso(_ o: OficinaTrabalho) -> Bool {
+        guard o.documento.pedidoAtivo != nil else { return false }
+        rolarPara = "trabalho-preparando"
+        anunciar("A IA já está preparando. Espere ou cancele a preparação em curso.")
+        return true
     }
 
     private func numero(_ id: UUID, em d: DocumentoTrabalho) -> Int {
@@ -838,12 +1169,13 @@ struct TrabalhoView: View {
     private func aplicar(_ o: OficinaTrabalho, limpar chaves: [String] = [],
                          _ mudanca: (inout DocumentoTrabalho) throws -> Void) {
         guard acesso.permitido, o.verificarAcesso() else { revalidar(); return }
-        guard o.salvo else { return }
+        guard !levouAoObstaculo(o) else { return }
         if o.alterar(mudanca) { limpar(chaves) }
         else if !o.salvo { limparAposCommit = chaves }
     }
 
     private func guardarVersao(_ o: OficinaTrabalho) {
+        guard !faltaCampo("versao") else { return }
         let texto = rascunhos["versao"] ?? ""
         aplicar(o, limpar: ["versao"]) { try $0.guardarVersaoHumana(texto) }
         if o.salvo { editandoVersao = false }
@@ -934,6 +1266,8 @@ struct TrabalhoView: View {
         erroDeLeitura = nil
         confirmarDescarte = false
         confirmarApagarCopia = false
+        editandoIntencao = false
+        editandoVersao = false
         Teclado.recolher()
     }
 }
@@ -949,16 +1283,5 @@ struct SeloOrigemTrabalho: Equatable {
         trancada = nota.trancada
         queimada = nota.queimada
         gesto = nota.gestoRaw
-    }
-}
-
-private struct AcaoTrabalhoStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(Tema.chrome)
-            .foregroundStyle(Tema.ambarTinta)
-            .frame(minHeight: Tema.alvo, alignment: .leading)
-            .contentShape(Rectangle())
-            .opacity(configuration.isPressed ? 0.7 : 1)
     }
 }
