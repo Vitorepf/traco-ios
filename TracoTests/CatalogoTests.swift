@@ -248,6 +248,14 @@ import Testing
     }
 
     /// ADR 2026-09-06e: os sete novos roteiam para si mesmos com a frase do autor.
+    ///
+    /// As duas frases do Exame da noite desta volta eram "perdi a paciência na
+    /// reunião e me arrependi" e "fui injusto com o time hoje de manhã", e as
+    /// duas MORRERAM na colagem com main: a guarda da ADR 2026-09-06h as lê
+    /// como escrita pessoal e as cala, que é o que ela existe para fazer — as
+    /// duas são confissão de conduta, indistinguíveis das 22 do revisor. O
+    /// teste estava errado, não a guarda: pedia que uma confissão virasse
+    /// exercício. As três frases abaixo convocam o método sem confessar nada.
     @Test func osSeteNovosRoteiamParaSiMesmos() {
         func id(_ t: String) -> String? {
             if case let .gesto(g, _) = AnaliseLocal.classificar(texto: t, gestoAtual: nil, campos: [:]) { return g.rawValue }
@@ -266,8 +274,9 @@ import Testing
             ("perguntaHamming", "no que eu deveria estar trabalhando este ano"),
             ("vistoNaoVisto", "qual é o custo de oportunidade de tocar esta frente agora"),
             ("vistoNaoVisto", "em troca de quê eu estou fazendo isso"),
-            ("exameDaNoite", "perdi a paciência na reunião e me arrependi"),
-            ("exameDaNoite", "fui injusto com o time hoje de manhã"),
+            ("exameDaNoite", "exame da noite: o que eu não quero repetir amanhã"),
+            ("exameDaNoite", "passei o dia em revista antes de deitar"),
+            ("exameDaNoite", "passei o dia em revista e anotei o que muda amanhã"),
         ]
         for (esperado, frase) in casos {
             #expect(id(frase) == esperado, Comment(rawValue: "«\(frase)» foi para \(id(frase) ?? "nada")"))
@@ -290,7 +299,9 @@ import Testing
     /// A proteção NÃO é só a ordem: é a ordem MAIS o teto de 120 caracteres em
     /// `AnaliseLocal.detectarGesto`, que pula a Expressiva em texto curto. O
     /// caso difícil — linha curta e desabafo factual — está em
-    /// `aEscritaPessoalNaoChegaVestidaDeMetodo`, e hoje ele FALHA.
+    /// `aEscritaPessoalNaoChegaVestidaDeMetodo`, que FALHAVA de propósito
+    /// nesta volta e passou a VERDE na colagem com main, quando a guarda das
+    /// voltas A1–A5 (ADRs 2026-09-06h e 06i) entrou.
     @Test func oDesabafoLongoContinuaExpressivo() {
         let desabafo = """
             na reunião com o chefe eu senti uma raiva enorme, doeu ficar ali, fiquei calado o tempo todo \
@@ -314,7 +325,10 @@ import Testing
         }
     }
 
-    /// O CASO DIFÍCIL da proteção da escrita pessoal, e ele FALHA hoje.
+    /// O CASO DIFÍCIL da proteção da escrita pessoal. Escrito VERMELHO nesta
+    /// volta, ele passou a VERDE na colagem com main: as 22 do revisor são
+    /// caladas pela guarda das voltas A1–A5 (ADRs 2026-09-06h e 06i), sem uma
+    /// linha de `Traco/Analise` tocada aqui. Nenhuma das 22 sobrou.
     ///
     /// As 22 frases são do revisor do G3 (`ferramentas/orca/m3-rev-provas/`),
     /// não do autor desta volta: 14 linhas curtas com palavra de sentimento e
@@ -326,7 +340,8 @@ import Testing
     /// tela em `m3-rev-02` e `m3-rev-03`. A Expressiva, quando ganha, só
     /// SUGERE. Os dois caminhos não são simétricos, e o que rouba é o que veste.
     ///
-    /// Por que falha, e o que cada metade cobra:
+    /// Por que falhava, e o que cada metade cobrava — a medição do G3, mantida
+    /// porque é ela que explica de onde a guarda veio:
     /// - as 14 curtas caem no teto de 120 de `AnaliseLocal.detectarGesto`, que
     ///   pula a Expressiva e promove `colunaEsquerda` e `exameDaNoite` a
     ///   primeiro-a-casar. É conserto de `Traco/Analise`, fora desta volta.
@@ -335,7 +350,8 @@ import Testing
     ///   o cobririam (`engoli`, `fiquei calado`, `me arrependi`, `perdi a
     ///   paciência`) são as regex dos dois métodos novos. Alargar a Expressiva
     ///   por dado deixaria os dois inalcançáveis — medido, não suposto.
-    ///   Esta metade cobra guarda em código, não regex.
+    ///   Esta metade cobrava guarda em código, não regex — e foi guarda em
+    ///   código que chegou.
     @Test func aEscritaPessoalNaoChegaVestidaDeMetodo() {
         let curtas = [
             "Senti raiva e me arrependi na hora.",
@@ -383,15 +399,52 @@ import Testing
     /// nenhuma, então o resultado não depende de qual lado do teto está o
     /// conserto da Expressiva.
     ///
-    /// Os quatro desvios abaixo são conhecidos e aceitos — regex larga e cedo
-    /// comendo regex específica e tarde. Nenhum dos quatro métodos fica sem
-    /// porta: todos têm outros ramos vivos. Desvio NOVO derruba o teste.
+    /// DEZOITO desvios conhecidos e aceitos, de DUAS naturezas — e o número foi
+    /// remedido na colagem com main, não herdado da ADR 2026-09-06h.
+    ///
+    /// Os QUATRO primeiros são regex larga e cedo comendo regex específica e
+    /// tarde. Nenhum dos três métodos fica sem porta: todos têm ramos vivos.
+    ///
+    /// Os QUATORZE seguintes são a GUARDA da escrita pessoal (ADR 2026-09-06h,
+    /// estreitada pela 06i e pelas 06i-B/C/D) chegando antes do roteamento e
+    /// calando a sonda: 3 ramos da Coluna da esquerda e 11 do Exame da noite.
+    /// Não é regex morta — é regex que o app se recusa a usar, de propósito,
+    /// porque a frase é confissão de conduta e a nota fica do autor. Medido
+    /// com `conhecidos` vazio depois da colagem: 18 desvios, os 4 antigos
+    /// ainda vivos (nenhuma entrada morta) e 14 novos, o mesmo número que a
+    /// 06h previu — o estreitamento da A5 e das A-5-B/C/D não mudou a conta.
+    ///
+    /// O que a conta COBRA, e está aqui para ninguém descobrir sozinho: o
+    /// SEGUNDO ramo do Exame da noite (`não devia ter …`, `me arrependi`,
+    /// `fui injusto|grosso|duro demais|ríspido`) está INTEIRO fechado — 9 de 9
+    /// sondas caladas. O método continua alcançável só pelo primeiro ramo
+    /// (`exame da noite`, `passei o dia em revista`) e por `hoje eu
+    /// (fiz|reagi|tratei)`. É a proteção funcionando, e é o preço dela.
+    ///
+    /// Desvio NOVO, fora destes 18, derruba o teste.
     @Test func todoRamoDeRegexAlcancaOSeuMetodo() {
         let conhecidos: Set<String> = [
+            // regex larga comendo regex específica (pré-existentes)
             "steelman|melhor argumento contra|argumento",
             "divergencia|dez ideias|notaPermanente",
             "divergencia|todas as ideias|notaPermanente",
             "exameDaNoite|olhando o dia de hoje|dia", // ADR 2026-09-06e
+            // a guarda da escrita pessoal cala a sonda — Coluna da esquerda (3)
+            "colunaEsquerda|engoli|silencio",          // ADR 2026-09-06h
+            "colunaEsquerda|fiquei calado|silencio",   // ADR 2026-09-06h
+            "colunaEsquerda|deixei passar|silencio",   // ADR 2026-09-06h
+            // a guarda da escrita pessoal cala a sonda — Exame da noite (11)
+            "exameDaNoite|não devia ter feito|silencio",    // ADR 2026-09-06h
+            "exameDaNoite|não devia ter reagido|silencio",  // ADR 2026-09-06h
+            "exameDaNoite|não devia ter agido|silencio",    // ADR 2026-09-06h
+            "exameDaNoite|não devia ter tratado|silencio",  // ADR 2026-09-06h
+            "exameDaNoite|me arrependi|silencio",           // ADR 2026-09-06h
+            "exameDaNoite|fui injusto|silencio",            // ADR 2026-09-06h
+            "exameDaNoite|fui grosso|silencio",             // ADR 2026-09-06h
+            "exameDaNoite|fui duro demais|silencio",        // ADR 2026-09-06h
+            "exameDaNoite|fui ríspido|silencio",            // ADR 2026-09-06h
+            "exameDaNoite|perdi a paciência|silencio",      // ADR 2026-09-06h
+            "exameDaNoite|perdi a cabeça|silencio",         // ADR 2026-09-06h
         ]
         let rabo = " " + String(repeating: ".", count: 140)
         var total = 0

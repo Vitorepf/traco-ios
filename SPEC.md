@@ -3647,8 +3647,14 @@ conversa, silêncio, arrependimento ou sentimento entra antes da Expressiva —
 **e essa regra sozinha não protege ninguém enquanto o teto de 120 existir**. Os
 sete a obedecem e o roubo acontece assim mesmo. `oDesabafoLongoContinuaExpressivo`
 prova só o caso fácil (desabafo longo e carregado de vocabulário da Expressiva);
-`aEscritaPessoalNaoChegaVestidaDeMetodo` cobra as 22 frases do G3 e **falha
-nesta volta, de propósito** — o conserto mora em `Traco/Analise`, fora daqui.
+`aEscritaPessoalNaoChegaVestidaDeMetodo` cobra as 22 frases do G3 e **falhava
+nesta volta, de propósito** — o conserto morava em `Traco/Analise`, fora daqui.
+
+**A colagem (volta M3-C, 06/09).** O conserto chegou pelas voltas A1–A5 (ADRs
+2026-09-06h e 06i, com as passadas 06i-B/C/D) e entrou em main antes desta.
+Depois do `git merge main`, **as 22 passaram sem uma linha de `Traco/Analise`
+tocada aqui**: `aEscritaPessoalNaoChegaVestidaDeMetodo` está verde, e nenhuma
+das 22 sobrou. A guarda cobriu tudo o que esta volta criava.
 
 Alargar a Expressiva por dado não é saída: as palavras que cobririam o desabafo
 factual (`engoli`, `fiquei calado`, `me arrependi`, `perdi a paciência`) são as
@@ -3704,13 +3710,44 @@ efeito novo, porque a frase já ia para o Dia antes.
 **Alcance de ramo, guarda nova.** Nenhum teste garantia que uma frase de gatilho
 **chega** ao método que a declara — todo método futuro podia nascer com ramos
 mortos sem ninguém saber. `todoRamoDeRegexAlcancaOSeuMetodo` gera uma frase por
-ramo de regex de `Catalogo.todos` (287 sondas nos 28) e cobra a chegada. Quatro
-desvios conhecidos ficam nomeados no teste: `melhor argumento contra` (steelman
-→ argumento), `dez ideias` e `todas as ideias` (divergência → nota permanente) e
-`olhando o dia de hoje` (exame da noite → dia). Desvio novo derruba o teste.
+ramo de regex de `Catalogo.todos` (287 sondas nos 28) e cobra a chegada.
 
-**A prova.** Suíte integral verde no iPhone 17 Pro Max (723 testes, 125 suítes)
-no fecho da primeira volta, e no app o Perfil diz "28 do app" com a proveniência
+Os desvios conhecidos são **dezoito**, remedidos na colagem com `conhecidos`
+vazio — não herdados da lista de catorze da ADR 06h, e o estreitamento da A5 e
+das 06i-B/C/D **não mudou a conta**. Quatro são regex larga e cedo comendo regex
+específica e tarde: `melhor argumento contra` (steelman → argumento), `dez
+ideias` e `todas as ideias` (divergência → nota permanente) e `olhando o dia de
+hoje` (exame da noite → dia); os quatro seguem vivos, nenhuma entrada morta. Os
+outros **catorze** são a guarda da escrita pessoal chegando antes do roteamento
+e calando a sonda: **3 ramos da Coluna da esquerda** (`engoli`, `fiquei calado`,
+`deixei passar`) e **11 do Exame da noite**. Não é regex morta — é regex que o
+app se recusa a usar, de propósito. Desvio novo, fora dos dezoito, derruba o
+teste.
+
+**O preço, dito por inteiro.** O **segundo ramo do Exame da noite** (`não devia
+ter …`, `me arrependi`, `fui injusto|grosso|duro demais|ríspido`) está
+**inteiro fechado**: 9 de 9 sondas caladas. O método continua alcançável pelo
+primeiro ramo (`exame da noite`, `passei o dia em revista`) e por `hoje eu
+(fiz|reagi|tratei)`, mas a sua porta mais natural sumiu. É a proteção
+funcionando, e é o que ela custa — está no teste para ninguém redescobrir
+sozinho.
+
+**Duas frases desta volta morreram, e estavam erradas.** `osSeteNovosRoteiamParaSiMesmos` afirmava que "perdi a paciência na reunião e me arrependi" e "fui
+injusto com o time hoje de manhã" chegavam ao Exame da noite. As duas são
+confissão de conduta, indistinguíveis das 22 do revisor: **o teste pedia
+exatamente o roubo que a 06h proíbe**. Foram trocadas por três frases que
+convocam o método sem confessar nada. O teste estava errado, não a guarda.
+
+**As sete portas ganharam régua.** `todaPortaDeMainTemPeloMenosDuasFrases` cobra
+duas notas de trabalho por porta de `Catalogo.doApp`, e o catálogo passou de 21
+para 28: as sete novas — justamente as que roubavam — entraram com **catorze
+frases de trabalho** em `EscritaPessoalTests.trabalho` (58 → 72). As três réguas
+de main (57 protegidas, 13 com gancho, 6 legítimas, agora 72 de trabalho) valem
+com os sete colados, sem um caractere de guarda enfraquecido.
+
+**A prova.** Suíte integral verde no iPhone 17 Pro (teste 2) na colagem — **785
+testes em 130 suítes, 0 falhas** — e 723 testes em 125 suítes no fecho da
+primeira volta; no app o Perfil diz "28 do app" com a proveniência
 dos novos abrindo (`maestro/metodos-m3.yaml`). O target do app compila limpo; o
 de teste traz **4 avisos (2 únicos) em `ConferenciaTrabalhoTests.swift:381`,
 pré-existentes de `73b1ebc`** — não são desta volta, e "build sem aviso" era

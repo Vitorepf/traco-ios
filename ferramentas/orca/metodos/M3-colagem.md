@@ -41,8 +41,17 @@ A Expressiva é desabafo sem forma, sem campo e sem pergunta; o Exame é
 julgamento com quatro campos e uma regra concreta no fim. Medido: o desabafo
 longo com "me arrependi" dentro continua caindo na Expressiva, porque ela vem
 antes e só ela é considerada acima de 120 caracteres. Uma frase CURTA de
-julgamento ("perdi a paciência com o time hoje") não é desabafo e vai para o
-Exame — que é o certo.
+julgamento ("perdi a paciência com o time hoje") ia para o Exame, e esta volta
+dizia que isso "é o certo".
+
+**Estava errado, e a colagem com main corrigiu.** Essa frase é confissão de
+conduta, e a guarda das ADRs 2026-09-06h/06i a cala: ela fica do autor e não
+vira exercício nenhum. O Exame da noite continua existindo, mas quem chega nele
+é quem convoca o método ("exame da noite", "passei o dia em revista") ou quem
+escreve "hoje eu (fiz|reagi|tratei)" fora de contexto de confissão — o segundo
+ramo inteiro dele (`não devia ter …`, `me arrependi`, `fui …`) está fechado, 9
+de 9 sondas caladas. É o preço da proteção, e está medido em
+`todoRamoDeRegexAlcancaOSeuMetodo`.
 
 **O que se vê e o que não se vê × Inversão e Pré-mortem.** Não duplica. A
 Inversão e o Pré-mortem imaginam a FALHA de um plano (como garanto que falhe /
@@ -169,3 +178,28 @@ nasce de `Catalogo.todos` em tempo de execução, então os sete já estão na l
 fechada dele e nas instruções, sem código. O que a volta fixa por teste é o
 degrau determinístico, que é o piso — e o piso é o que garante a proteção da
 Expressiva quando o modelo cala.
+
+
+## A colagem com main (volta M3-C, 06/09/2026)
+
+- `git merge main` com as voltas V16, F3b, a voz, V11, A5 e V18 dentro;
+  conflito só em SPEC.md e EVOLUCAO.md, resolvido mantendo tudo (a ADR 06e
+  entrou entre a 06c e a 06f).
+- `aEscritaPessoalNaoChegaVestidaDeMetodo`, o vermelho de propósito desta
+  volta, **passou** — nenhuma das 22 sobrou, sem uma linha de `Traco/Analise`
+  tocada aqui.
+- `conhecidos` remedido do zero: **18 desvios**, não 14 nem 4. Os 4 antigos
+  seguem vivos e os 14 da guarda são exatamente os que a 06h previu — a A5 e as
+  06i-B/C/D não mudaram a conta.
+- Duas frases desta volta morreram e **estavam erradas**: `osSeteNovosRoteiamParaSiMesmos` pedia que "perdi a paciência na reunião e me arrependi" e "fui
+injusto com o time hoje de manhã" virassem exercício. Trocadas por três que
+convocam o Exame sem confessar nada.
+- As sete portas ganharam régua: 14 frases de trabalho novas em
+  `EscritaPessoalTests.trabalho` (58 → 72), para `todaPortaDeMainTemPeloMenosDuasFrases` cobrir 28 portas em vez de 21.
+- Suíte integral **785/0 em 130 suítes**, build do app limpo.
+- `maestro/metodos-m3-tom.yaml` reapontado: a entrada era "Perdi a paciencia
+  com ela hoje. Me arrependi e chorei.", hoje calada pela guarda. Trocada por
+  "Exame da noite: o que do dia de trabalho eu nao repito amanha." Fluxo verde
+  (saída 0) no iPhone 17 Pro (teste 2), com controle negativo provando que a
+  asserção roda (saída 1 com a frase trocada por uma inexistente); tela em
+  `ferramentas/orca/m3c-01-tom-do-cartao-exame.png`.

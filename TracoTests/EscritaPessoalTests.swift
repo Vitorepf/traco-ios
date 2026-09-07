@@ -212,6 +212,24 @@ import Testing
         ("A fila dá ansiedade no usuário e vou construir um indicador de progresso na tela.", "spec"),
         ("Esse fluxo dá cansaço em quem usa, e preciso destilar as dez etapas em três.", "destilar"),
         ("Percebi que a espera longa dá ansiedade em quem espera, e isso muda o desenho.", "notaPermanente"),
+        // ADR 2026-09-06e: as SETE portas que a volta M3 abre. A régua de
+        // `todaPortaDeMainTemPeloMenosDuasFrases` cobra duas frases por porta,
+        // e as sete novas são justamente as que roubavam escrita pessoal — não
+        // há frase aqui que confesse conduta; toda uma é nota de trabalho.
+        ("O cadastro ficou complicado demais e dá para simplificar antes de lançar.", "subtracao"),
+        ("O painel está cheio de botões e eu vou cortar pela metade nesta versão.", "subtracao"),
+        ("Aquela conversa com o fornecedor foi confusa e preciso reconstruir os dois lados.", "colunaEsquerda"),
+        ("Na reunião com o jurídico faltou registrar o que cada lado defendeu.", "colunaEsquerda"),
+        ("Quanto tempo vai levar a migração do banco? Já fiz três parecidas.", "classeDeReferencia"),
+        ("Minha estimativa é de duas semanas, e vale comparar com as vezes anteriores.", "classeDeReferencia"),
+        ("O build quebrou de novo na mesma etapa e eu preciso da causa raiz.", "cincoPorques"),
+        ("Por que isso aconteceu no deploy de sexta pela terceira vez seguida?", "cincoPorques"),
+        ("Quais são os problemas importantes do meu campo que eu venho adiando?", "perguntaHamming"),
+        ("No que eu deveria estar trabalhando neste trimestre para o resultado importar?", "perguntaHamming"),
+        ("Qual é o custo de oportunidade de manter o servidor próprio mais um ano?", "vistoNaoVisto"),
+        ("O plano anual sai mais barato na fatura, mas em troca de quê?", "vistoNaoVisto"),
+        ("Exame da noite: o que do dia de trabalho eu não repito amanhã.", "exameDaNoite"),
+        ("Passei o dia em revista e vou fixar uma regra para a semana.", "exameDaNoite"),
     ]
 
     static func comOsNovos<T>(_ corpo: () throws -> T) rethrows -> T {

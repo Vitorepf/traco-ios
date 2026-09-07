@@ -21,7 +21,10 @@ appId: app.traco
     commands:
       - tapOn: "Não Permitir"
 - tapOn: {id: pagina}
-- inputText: "Perdi a paciencia com ela hoje. Me arrependi e chorei."
+# ADR 2026-09-06h: a frase original desta prova ("Perdi a paciencia com ela
+# hoje. Me arrependi e chorei.") e confissao de conduta e a guarda a CALA, que e
+# o certo. O tom do Exame se prova com quem convoca o metodo.
+- inputText: "Exame da noite: o que do dia de trabalho eu nao repito amanha."
 - extendedWaitUntil:
     visible: "Deixar como nota"
     timeout: 8000
