@@ -105,7 +105,7 @@ struct PerfilView: View {
             estado = await ContaGrok.estado()
             lerRetrato()
         }
-        .confirmationDialog("Esquecer tudo o que o Traço aprendeu de você?",
+        .confirmationDialog("Esquecer tudo o que o Traço registrou?",
                             isPresented: $confirmarEsquecer, titleVisibility: .visible) {
             Button("Esquecer", role: .destructive) {
                 Sinais.esquecerTudo()
@@ -156,7 +156,9 @@ struct PerfilView: View {
                     .accessibilityLabel("O retrato, exatamente como viaja")
             }
             VStack(alignment: .leading, spacing: 4) {
-                Text("O que o Traço aprendeu de você")
+                // ADR 06h: o que está embaixo é contagem (12 sinais desde…),
+                // e a VISAO manda distinguir observação de conclusão.
+                Text("O que o Traço registrou — contagem, não conclusão")
                     .font(Tema.chrome)
                     .foregroundStyle(Tema.tinta)
                 Text(sinaisEmPalavras)

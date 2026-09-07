@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0110F9852FCC1ED6D9E0C3E9 /* DitadoProprio.swift in Sources */ = {isa = PBXBuildFile; fileRef = F097B670D2780F7796A2E211 /* DitadoProprio.swift */; };
 		01A1C7D0250C97038CF7CB30 /* CalendarioFicha.swift in Sources */ = {isa = PBXBuildFile; fileRef = D50C2B948E98337ABC4CE64A /* CalendarioFicha.swift */; };
 		03A483C4387E081D6204D93A /* Migracao.swift in Sources */ = {isa = PBXBuildFile; fileRef = F903485BBAA804C94399C747 /* Migracao.swift */; };
 		044F8E891B30FDC832EC1B3B /* SuperficieFora.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD30107ACE35F098EB5AACE5 /* SuperficieFora.swift */; };
@@ -23,8 +24,10 @@
 		18E59F465C2E5F093AD7040E /* TracoWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 8C37AE5D202E97779C84A745 /* TracoWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		1D509E13759CEE0DEB1ADEC9 /* LembrarDepoisIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80F88073410C6E7EE55833B2 /* LembrarDepoisIntent.swift */; };
 		1E26BA58FB55F45BEA707EF6 /* Ferias.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD168914C5D50E4178D21DF /* Ferias.swift */; };
+		1F7313151EE976F673930D7D /* DitadoProprioTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FB0133656BED71FB700CDD /* DitadoProprioTests.swift */; };
 		206C9E23B411F0F28E1162E0 /* Nota.swift in Sources */ = {isa = PBXBuildFile; fileRef = 752E5B8AEE11066FE1493A3D /* Nota.swift */; };
 		207C686843759571A4FD1DC5 /* PortalFormulaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 497B071C1D5EF6487614814F /* PortalFormulaView.swift */; };
+		20B2485C29B483DC03277AB8 /* TextoDoDitado.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E9F0ACA7A53E97C35A529A1 /* TextoDoDitado.swift */; };
 		21C607B41ECFAE7A1BAE87B9 /* ConfirmacaoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD2B3195498A124686B86F4 /* ConfirmacaoView.swift */; };
 		295A215EC19C2F11945E6734 /* CadernoFuzzTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1757D3DFD4D2B96B4136FB92 /* CadernoFuzzTests.swift */; };
 		295D346A7E6C9F7301423C6C /* Indice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22994458C412FA63E4DEE64D /* Indice.swift */; };
@@ -111,6 +114,7 @@
 		A12EC39DE749ED01C731FA65 /* CalendarioView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C84F5A9736B63E8169395C4D /* CalendarioView.swift */; };
 		A254904CBD2AA48CD2F7F030 /* TracoAtalhos.swift in Sources */ = {isa = PBXBuildFile; fileRef = 526ECA6F1D04E3BF27B6DAE1 /* TracoAtalhos.swift */; };
 		A730B9AC03A66E91B4194C3E /* DestaqueDoDia.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BB175F2F50DED6365BFB989 /* DestaqueDoDia.swift */; };
+		A8654DD9F2748A61B1418D85 /* EscritaPessoalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40458D2BAE5A41F6214ED074 /* EscritaPessoalTests.swift */; };
 		A8FC554E9192ED2DB78D01C1 /* SuperficieFora.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD30107ACE35F098EB5AACE5 /* SuperficieFora.swift */; };
 		A97C8A6DB88F62888FC65D44 /* ConferenciaTrabalho.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9494F4BA0893E2C27972D8DE /* ConferenciaTrabalho.swift */; };
 		AAC0CE44B9DDC600F55E2BCF /* CalendarioAgenda.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4B0FC29FDAE2DA9A9B41BC2 /* CalendarioAgenda.swift */; };
@@ -132,8 +136,11 @@
 		C50148780B8DC1A48C2EE0E2 /* Dominio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FB4D87DCC6F49ABB1CBA6A8 /* Dominio.swift */; };
 		C6C32FF3D2FE034D30B4ECBA /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C8368BD8FD67D026089BF81E /* WidgetKit.framework */; };
 		C73A648441762DCB1763D083 /* Versoes.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5E62A0F1DA399D86F076645 /* Versoes.swift */; };
+		C7844C14573D412E1CDF5606 /* FolhaDeConfirmacao.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB1F2AF6F038EB8787E7F2A2 /* FolhaDeConfirmacao.swift */; };
 		C9D53DA9D5383AF659552D95 /* TrabalhoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43C245F482C5E68ABE6C0BD1 /* TrabalhoView.swift */; };
 		CAB6D2E08C5F9C9171C9ECB8 /* Metodos.json in Resources */ = {isa = PBXBuildFile; fileRef = 4349401ACAFEEF5811D2D889 /* Metodos.json */; };
+		CD2D139C66A11ACB0ECE3765 /* PromessaDoAvisoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE42683E3E5F989A0E75E4AB /* PromessaDoAvisoTests.swift */; };
+		A1B2C3D4E5F60718293A4B5D /* RascunhoTrabalhoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B5C /* RascunhoTrabalhoTests.swift */; };
 		CD648041F9CCEDA0F0DDD4F7 /* PraticaTrabalho.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E514D1B05A813B7A669ED3 /* PraticaTrabalho.swift */; };
 		CDA10F50D594EAF0498466C7 /* Prova.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C4B36BBB45C9AFFA532185A /* Prova.swift */; };
 		D09B0D63B27C76243977D354 /* Lente.swift in Sources */ = {isa = PBXBuildFile; fileRef = B95713C947DED6A38489925D /* Lente.swift */; };
@@ -166,6 +173,7 @@
 		FBE29A470752635241DE99B1 /* LembrarDepoisIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80F88073410C6E7EE55833B2 /* LembrarDepoisIntent.swift */; };
 		FC215869D96D8E84425E1A13 /* Sabia.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1E81A79D8761CC40208921 /* Sabia.swift */; };
 		FCC9FDE2F1DE401A5F60C4E0 /* IntegridadeCorpusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0BBA6436049FAFFC6A04D00 /* IntegridadeCorpusTests.swift */; };
+		FD701A5CEA9D1D7F0F5F50CE /* DitadoProprioView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3060282F33EBDE09D447B171 /* DitadoProprioView.swift */; };
 		FDF6943470D0F01ECA7F985D /* Entrada.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36D661ED8381DB37D5C4481F /* Entrada.swift */; };
 		FF1D01A881B48F3A79C1F4DA /* LinhaQueAbre.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63779AF022C1F93A0C3E8385 /* LinhaQueAbre.swift */; };
 /* End PBXBuildFile section */
@@ -234,12 +242,14 @@
 		2CD2B3195498A124686B86F4 /* ConfirmacaoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfirmacaoView.swift; sourceTree = "<group>"; };
 		2DD0DC7A5E06584B2E182AB2 /* Atividades.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Atividades.swift; sourceTree = "<group>"; };
 		3012217369C9A480FC336A64 /* Corpus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Corpus.swift; sourceTree = "<group>"; };
+		3060282F33EBDE09D447B171 /* DitadoProprioView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DitadoProprioView.swift; sourceTree = "<group>"; };
 		321D01689589D22A24681F9F /* PastaEspelho.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PastaEspelho.swift; sourceTree = "<group>"; };
 		35F9676C1446FB02DB1223BC /* IntercambioTrabalhoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntercambioTrabalhoView.swift; sourceTree = "<group>"; };
 		367F3174E855EB2A8DFD93A4 /* Grok.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Grok.swift; sourceTree = "<group>"; };
 		36D661ED8381DB37D5C4481F /* Entrada.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Entrada.swift; sourceTree = "<group>"; };
 		39E5B1F01B36DA923CEA022B /* Sessao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sessao.swift; sourceTree = "<group>"; };
 		3BD1932583F37382718A680D /* PerfilView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PerfilView.swift; sourceTree = "<group>"; };
+		40458D2BAE5A41F6214ED074 /* EscritaPessoalTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EscritaPessoalTests.swift; sourceTree = "<group>"; };
 		40493CD4A16FE11067FED441 /* PrivacidadeTrabalhoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacidadeTrabalhoTests.swift; sourceTree = "<group>"; };
 		4207F1ADDB6DE919995145D4 /* ProsaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProsaView.swift; sourceTree = "<group>"; };
 		4349401ACAFEEF5811D2D889 /* Metodos.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Metodos.json; sourceTree = "<group>"; };
@@ -277,6 +287,7 @@
 		7AADD8085337A3F3C82395E8 /* AgendamentoAcaoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgendamentoAcaoView.swift; sourceTree = "<group>"; };
 		7BB175F2F50DED6365BFB989 /* DestaqueDoDia.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DestaqueDoDia.swift; sourceTree = "<group>"; };
 		7DF4DB2A8B1FE3987EEA5C93 /* ChipDominio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChipDominio.swift; sourceTree = "<group>"; };
+		7E9F0ACA7A53E97C35A529A1 /* TextoDoDitado.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextoDoDitado.swift; sourceTree = "<group>"; };
 		80097AC5D039C24E7A2B7E04 /* RevisaoTrabalho.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RevisaoTrabalho.swift; sourceTree = "<group>"; };
 		80F88073410C6E7EE55833B2 /* LembrarDepoisIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LembrarDepoisIntent.swift; sourceTree = "<group>"; };
 		813C9D0A44A4071EBACC0EFD /* TituloTela.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TituloTela.swift; sourceTree = "<group>"; };
@@ -285,6 +296,7 @@
 		83FFA57EFEC5C5DEDA186EAF /* FeriadosTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeriadosTests.swift; sourceTree = "<group>"; };
 		84222ED2C50DC930433527F8 /* LenteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LenteView.swift; sourceTree = "<group>"; };
 		854249702104D325072DC8FA /* Gesto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gesto.swift; sourceTree = "<group>"; };
+		87FB0133656BED71FB700CDD /* DitadoProprioTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DitadoProprioTests.swift; sourceTree = "<group>"; };
 		8A31CF16DDDD850E4008ED6A /* VozDoAutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VozDoAutor.swift; sourceTree = "<group>"; };
 		8C37AE5D202E97779C84A745 /* TracoWidget.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = TracoWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		8C539D876F7FEE65C40EA9E2 /* Volta.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Volta.swift; sourceTree = "<group>"; };
@@ -342,6 +354,7 @@
 		D559A524E20BFCB3DD3265B3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		D78CA40BB6261B7ED51A389D /* ConversaNotas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversaNotas.swift; sourceTree = "<group>"; };
 		D83996006ACA17F6C0CCA1E9 /* AnaliseDeBordoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnaliseDeBordoTests.swift; sourceTree = "<group>"; };
+		DB1F2AF6F038EB8787E7F2A2 /* FolhaDeConfirmacao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolhaDeConfirmacao.swift; sourceTree = "<group>"; };
 		DBE905DFA3CEA272597F706D /* OficinaTrabalho.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OficinaTrabalho.swift; sourceTree = "<group>"; };
 		DEC88C57426827914E30265B /* SabiaOrcamentoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SabiaOrcamentoTests.swift; sourceTree = "<group>"; };
 		DFE52AE87EF1BA2A3B863362 /* TrabalhoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrabalhoTests.swift; sourceTree = "<group>"; };
@@ -355,6 +368,7 @@
 		E6A126EE0A969827F3AF54EB /* ColheitaRestanteTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColheitaRestanteTests.swift; sourceTree = "<group>"; };
 		E8BDEC05ABCA7C2EAE27733D /* Retrato.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Retrato.swift; sourceTree = "<group>"; };
 		EFD168914C5D50E4178D21DF /* Ferias.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ferias.swift; sourceTree = "<group>"; };
+		F097B670D2780F7796A2E211 /* DitadoProprio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DitadoProprio.swift; sourceTree = "<group>"; };
 		F39FDF5D127D1C7D7B719758 /* DoCadernoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoCadernoView.swift; sourceTree = "<group>"; };
 		F5C891E43910EF91FDBE00CB /* Intencoes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Intencoes.swift; sourceTree = "<group>"; };
 		F6F33D1E8600B265FCB8F62B /* CalendarioFichaSistema.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarioFichaSistema.swift; sourceTree = "<group>"; };
@@ -362,6 +376,8 @@
 		F8A3AE8285B42EB802930300 /* TracoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TracoApp.swift; sourceTree = "<group>"; };
 		F903485BBAA804C94399C747 /* Migracao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Migracao.swift; sourceTree = "<group>"; };
 		FC8485E4A18F46DC7AEC2352 /* ForaDoAppTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForaDoAppTests.swift; sourceTree = "<group>"; };
+		FE42683E3E5F989A0E75E4AB /* PromessaDoAvisoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromessaDoAvisoTests.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F60718293A4B5C /* RascunhoTrabalhoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RascunhoTrabalhoTests.swift; sourceTree = "<group>"; };
 		FE5E37AF9BC96722920E0256 /* PadroesRemoto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PadroesRemoto.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -546,6 +562,8 @@
 				E6A126EE0A969827F3AF54EB /* ColheitaRestanteTests.swift */,
 				AAD1B67DFB05E314DF1EEA2C /* ConferenciaTrabalhoTests.swift */,
 				D4E42136E3E9C7EFF19C16BF /* ConversaNotasTests.swift */,
+				87FB0133656BED71FB700CDD /* DitadoProprioTests.swift */,
+				40458D2BAE5A41F6214ED074 /* EscritaPessoalTests.swift */,
 				83FFA57EFEC5C5DEDA186EAF /* FeriadosTests.swift */,
 				FC8485E4A18F46DC7AEC2352 /* ForaDoAppTests.swift */,
 				B0BBA6436049FAFFC6A04D00 /* IntegridadeCorpusTests.swift */,
@@ -557,6 +575,8 @@
 				B544C7CB0EEA5F5D2DAFB30C /* NotasESessaoTests.swift */,
 				C68F1BAA39BE524BD2FC78D7 /* PraticaTrabalhoTests.swift */,
 				40493CD4A16FE11067FED441 /* PrivacidadeTrabalhoTests.swift */,
+				FE42683E3E5F989A0E75E4AB /* PromessaDoAvisoTests.swift */,
+				A1B2C3D4E5F60718293A4B5C /* RascunhoTrabalhoTests.swift */,
 				AC80765D4B74C62577A5363A /* ProsaLiteralTests.swift */,
 				04AD4822CC87D350BD7C56E1 /* ProvaTests.swift */,
 				D05129456F4C8040D487DA0D /* RecomendacaoTests.swift */,
@@ -658,6 +678,17 @@
 			path = Analise;
 			sourceTree = "<group>";
 		};
+		E206B690068BE5F648F8761D /* Ditado */ = {
+			isa = PBXGroup;
+			children = (
+				F097B670D2780F7796A2E211 /* DitadoProprio.swift */,
+				3060282F33EBDE09D447B171 /* DitadoProprioView.swift */,
+				DB1F2AF6F038EB8787E7F2A2 /* FolhaDeConfirmacao.swift */,
+				7E9F0ACA7A53E97C35A529A1 /* TextoDoDitado.swift */,
+			);
+			path = Ditado;
+			sourceTree = "<group>";
+		};
 		E75D0E3079EF955B92C02FBE /* TracoWidget */ = {
 			isa = PBXGroup;
 			children = (
@@ -685,6 +716,7 @@
 				432EDF6D036BCF0A652A26D3 /* Calendario */,
 				11FBF83D13CF0C80EE8F14EA /* Componentes */,
 				8FAD282C36528CE1432292DD /* Confirmacao */,
+				E206B690068BE5F648F8761D /* Ditado */,
 				69C58EBBB2BA6B088529BBAA /* Modelo */,
 				C338321710072474EE95E8D4 /* Notas */,
 				8B9F7698624C86B182959289 /* Padroes */,
@@ -837,6 +869,8 @@
 				33E7048C7B524548344C17B3 /* ColheitaRestanteTests.swift in Sources */,
 				6D43C242414B765A5F777549 /* ConferenciaTrabalhoTests.swift in Sources */,
 				12BB3542B2F7018C8D12F2F3 /* ConversaNotasTests.swift in Sources */,
+				1F7313151EE976F673930D7D /* DitadoProprioTests.swift in Sources */,
+				A8654DD9F2748A61B1418D85 /* EscritaPessoalTests.swift in Sources */,
 				91CB62279EB8A12ADECD379D /* FeriadosTests.swift in Sources */,
 				6265D7FE86179B2527DC9E2F /* ForaDoAppTests.swift in Sources */,
 				FCC9FDE2F1DE401A5F60C4E0 /* IntegridadeCorpusTests.swift in Sources */,
@@ -848,6 +882,8 @@
 				56A38C95EE9713A63A475FC8 /* NotasESessaoTests.swift in Sources */,
 				EE11CA7A0F68FE32B0AEFBF9 /* PraticaTrabalhoTests.swift in Sources */,
 				91E15F303FB313BA849D33A8 /* PrivacidadeTrabalhoTests.swift in Sources */,
+				CD2D139C66A11ACB0ECE3765 /* PromessaDoAvisoTests.swift in Sources */,
+				A1B2C3D4E5F60718293A4B5D /* RascunhoTrabalhoTests.swift in Sources */,
 				ADF9B0BFF4FA39DAA48A8CB6 /* ProsaLiteralTests.swift in Sources */,
 				777C8C51585D01D784313A3D /* ProvaTests.swift in Sources */,
 				9214DED5EAB4B1258A51E34E /* RecomendacaoTests.swift in Sources */,
@@ -901,6 +937,8 @@
 				A730B9AC03A66E91B4194C3E /* DestaqueDoDia.swift in Sources */,
 				1425C8343284780C8896D088 /* DestaqueFeitoIntent.swift in Sources */,
 				3E9C38ACB5C95C91C6618836 /* Ditado.swift in Sources */,
+				0110F9852FCC1ED6D9E0C3E9 /* DitadoProprio.swift in Sources */,
+				FD701A5CEA9D1D7F0F5F50CE /* DitadoProprioView.swift in Sources */,
 				9BC040C354342C4A9337EAB9 /* DoCadernoView.swift in Sources */,
 				C50148780B8DC1A48C2EE0E2 /* Dominio.swift in Sources */,
 				F27B18C71280288BE9473182 /* EditorBlocoView.swift in Sources */,
@@ -909,6 +947,7 @@
 				5B9AE29312A3CD5A78A518FC /* FechoExpressivaView.swift in Sources */,
 				29E846B28D6E71A4ADD8401A /* Feriados.swift in Sources */,
 				1E26BA58FB55F45BEA707EF6 /* Ferias.swift in Sources */,
+				C7844C14573D412E1CDF5606 /* FolhaDeConfirmacao.swift in Sources */,
 				9AE336A415F4A83195416BE2 /* Gesto.swift in Sources */,
 				C18D04088FF363CD7B9FECF8 /* Grok.swift in Sources */,
 				BFBA450F8798775C427206AB /* Holofote.swift in Sources */,
@@ -964,6 +1003,7 @@
 				F28182FA5448CBF7FD5242E7 /* Superficie.swift in Sources */,
 				044F8E891B30FDC832EC1B3B /* SuperficieFora.swift in Sources */,
 				D37ABADE9FFCD8F825DC5E8B /* Tema.swift in Sources */,
+				20B2485C29B483DC03277AB8 /* TextoDoDitado.swift in Sources */,
 				7955B1999142FE2CCC93DDD9 /* TituloTela.swift in Sources */,
 				41477564BC9389B7A7982A6C /* Toque.swift in Sources */,
 				5F0999C9FAE51419644AA628 /* Trabalho.swift in Sources */,
@@ -1031,7 +1071,7 @@
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "Reabrir uma escrita selada pede o seu rosto — foi você que pediu para ela ficar fechada.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Traço guarda nesta nota o áudio que você gravou.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Traço guarda nesta nota a foto que você escolheu.";
-				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Ditar o compromisso. O reconhecimento acontece no aparelho.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Transformar em letra o que você ditou. O reconhecimento acontece no aparelho — o áudio não sai daqui.";
 				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIFileSharingEnabled = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -1177,7 +1217,7 @@
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "Reabrir uma escrita selada pede o seu rosto — foi você que pediu para ela ficar fechada.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Traço guarda nesta nota o áudio que você gravou.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Traço guarda nesta nota a foto que você escolheu.";
-				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Ditar o compromisso. O reconhecimento acontece no aparelho.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Transformar em letra o que você ditou. O reconhecimento acontece no aparelho — o áudio não sai daqui.";
 				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIFileSharingEnabled = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
