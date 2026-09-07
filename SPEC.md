@@ -2868,6 +2868,644 @@ sob Reduzir Movimento, os mesmos números da Lente. **Fora:** proveniência
 no prompt da sábia, aviso ao autor quando um método some, edição da
 proveniência pela tela.
 
+## ADR 2026-09-06a — O conflito na tela: as duas versões, o retry e o selo que recolhe
+
+**O que estava provado.** A ADR 05l provou o retorno FELIZ: o `.md` sai com
+envelope, volta, e o corpo editado fora vira versão nova com autoria externa.
+Nada além disso tinha tela. Quando as duas pontas mudam, quando o commit é
+recusado, e quando a origem é selada com o seletor aberto, o autor via — ou uma
+prévia de um lado só, ou uma frase que mandava importar de novo, ou nada.
+
+**A decisão.** Quatro coisas, nenhuma delas nova no modelo: a lei do arquivo já
+acrescentava e nunca sobrescrevia. O que faltava era a tela dizer a verdade.
+
+1. **Conflito com as duas versões — e só quando existem duas.** Conflito é
+   `.baseAntiga` **mais** duas condições que a primeira volta não pedia: a
+   versão local ANDOU desde a base do arquivo (`baseID != versaoVigenteID`) e o
+   que voltou ainda não está guardado. Sem elas a tela mentia numa rota de três
+   toques — exportar, "Guardar intenção", importar o mesmo arquivo —, porque
+   rever a intenção já muda o estado para `.baseAntiga` sem mover versão
+   nenhuma: os dois cartões traziam o MESMO número e o MESMO texto, e qualquer
+   escolha caía em `.semNovidade`. Havendo conflito, os dois lados vêm com
+   título e a consequência escrita antes da escolha ("Nenhuma escolha apaga
+   nada: a versão N continua no histórico e o arquivo, se você o guardar, entra
+   como versão nova"), em `cartao(.campo)`, e as duas saídas são nomeadas —
+   **Guardar o arquivo como nova versão** (âmbar) e **Manter só a versão
+   atual** (`.compacto`, sem cor própria: duas saídas âmbar empatariam em peso).
+2. **A pergunta que a mutação faria, a tela faz antes.**
+   `IntercambioTrabalho.jaGuardado` é a regra única de "este conteúdo já está
+   aqui": `aplicarVersaoExterna` a usa para não fabricar versão, e a tela a usa
+   para não OFERECER decisão. Quando ela responde sim — o mesmo arquivo de
+   volta, ou um export intocado depois que a versão andou — a linha é "Este
+   arquivo traz o mesmo conteúdo que já está guardado aqui. Não há nada para
+   decidir: nenhuma versão será criada.", sem botão de guardar. Uma decisão sem
+   efeito é estado desonesto, mesmo quando o texto do botão não mente.
+3. **As duas recusas de `guardar()` são duas.** `RecusaDoCommit` (`.disco`,
+   `.baseDivergente`) sai da Oficina e entra em
+   `Desfecho.de(mudou:guardou:acesso:recusa:)`. `.aguardandoCommit` (o disco
+   recusou; a versão está na memória) é o único caso que oferece **Tentar
+   guardar de novo**, e esse botão chama `guardar()`, não outra importação:
+   confirma a MESMA versão. `.precisaReabrir` (o trabalho mudou em outra
+   abertura) NÃO oferece botão nenhum, porque repetir bate na mesma guarda:
+   `basePersistida` só muda num commit bem-sucedido. A tela diz o que houve e o
+   que fazer — voltar, reabrir o trabalho, e o arquivo continua no aparelho.
+4. **O selo recolhe.** A tela declara em `oficina.intercambioAberto` o que tem
+   em mãos (`.seletor`, `.exportacao`, `.revisao` — inclusive durante a
+   leitura); `verificarAcesso()` — o ponto por onde toda rota do Trabalho
+   revalida — move isso para `intercambioRecolhido` no instante da restrição, e
+   a tela protegida diz o que recolheu ("A origem foi protegida: recolhi o
+   arquivo que estava em revisão. Nada foi importado."). Liberada a origem, a
+   linha cala.
+
+**A passada de design (`design-router`, seis fases).** *Ancorar*: autor no meio
+de um trabalho, decidindo sob pressão o que fazer com um arquivo que voltou;
+resultado observável é uma versão a mais no histórico ou nenhuma, nunca uma a
+menos. *Sistema*: nada novo — `cartao(.campo)` (o único degrau que separa do
+`Tema.superficie` do bloco), `rotulo()`, `Tema.meta/corpo`, `.compacto` de
+`Botao.swift`. *Construir*: a regra fora da View (`conflito`, `jaGuardado`,
+`Desfecho`), a View só desenha. *Mover*: nenhuma animação nova; nada a
+interromper. *Julgar*, lendo a própria tela: as duas saídas estavam ambas em
+âmbar, empatadas — `Botao.swift` já dizia que a secundária não é âmbar, e a
+tela desobedecia; e as doze linhas fixas do começo de cada lado eram magia que
+não sobrevivia ao corpo de acessibilidade. *Portão*: os dois consertados aqui.
+
+**A passada de jornada (`curva-zero`).** *Jornada*: "editei fora e voltei" —
+exportar, editar noutra ferramenta, importar, decidir. *Resultado verificável*:
+o histórico cresce em um e nenhuma versão anterior some (a captura mostra o
+contador). *Atrito observado*: a tela chamava para uma decisão inventada em três
+toques sem editor nenhum, e oferecia uma nova tentativa que não podia dar certo
+— os dois foram medidos lendo o código contra a tela, não supostos.
+*Recuperação*: recusa de disco → o mesmo botão confirma a mesma versão; base
+divergente → reabrir, com o arquivo preservado; conteúdo repetido → fechar a
+revisão, nada criado; origem selada → o material recolhido, dito por nome.
+
+**Custo assumido.** A linha do recolhimento só aparece se o selo cair enquanto a
+MESMA `Oficina` está viva, e nenhuma rota do app sela a origem com a folha do
+Trabalho aberta: fica provada por teste, não por captura. `.precisaReabrir`
+também: exige duas `Oficina`s do mesmo `Trabalho` vivas ao mesmo tempo — o teste
+as cria e prova que a guarda dispara e que repetir não resolve; a tela não tem
+rota para duas folhas. O `ProgressView("Lendo arquivo…")` existe e está no
+caminho, mas com um `.md` de 400 bytes a leitura não dura um quadro: não há
+captura dele. Em corpo de acessibilidade (AX5) o começo de cada lado cai de doze
+para quatro linhas; ainda assim os dois cartões não cabem inteiros no mesmo
+olhar — cabe o primeiro completo e o começo do segundo.
+
+### Volta 11-C — a comparação mostra ONDE as duas versões diferem
+
+O G4 derrubou a premissa das duas voltas anteriores, e tinha razão. Em AX5 os
+dois cartões exibiam a MESMA cadeia de caracteres, e não por falta de espaço:
+**a truncagem mostra o COMEÇO e a edição de ida-e-volta acontece no FIM**. Não é
+defeito de AX5 — reaparece nas doze linhas do corpo normal assim que o documento
+passa de doze linhas, e o protocolo aceita 2 MiB. A tela que existe para comparar
+devolvia dois blocos idênticos no caso comum. Quatro correções:
+
+1. **O recorte ancora na primeira divergência.**
+   `IntercambioTrabalho.recorteDaDiferenca(atual:arquivo:contexto:)` mede o
+   prefixo comum; quando ele passa do contexto que cabe na janela, os dois
+   cartões deixam de mostrar o começo e passam a mostrar o mesmo ponto — um fio
+   de contexto antes da divergência, recuado até a fronteira legível (linha
+   inteira quando há uma perto, senão palavra, com `…`). A tela diz onde
+   começou: "As duas começam iguais até a linha N. Mostro daí em diante, onde
+   elas mudam." (ou, em parágrafo único, "nos primeiros N caracteres"). O
+   contexto é parâmetro porque a janela muda: 48 no corpo normal, 12 em corpo de
+   acessibilidade — com 48 as quatro linhas do AX5 são preenchidas pelo contexto
+   sozinho, que é exatamente o defeito. Cálculo de string ao lado de
+   `conflito(_:em:)`, testável sem renderizar SwiftUI.
+   A ressalva de truncagem saiu de dentro da garantia de não-perda: eram duas
+   informações de naturezas diferentes numa frase cinza só, e agora são duas
+   linhas, a consequência em tinta cheia.
+2. **Sair da revisão é desfecho.** `Desfecho.mantida` — "Nada foi importado. O
+   arquivo continua no seu aparelho e pode ser importado depois." — atende as
+   DUAS saídas que fechavam a revisão em silêncio ("Manter só a versão atual" e
+   "Fechar revisão"). Escolha sem retorno visível deixa o autor sem saber se o
+   app entendeu.
+3. **A chegada e o desfecho são vistos e falados.** O cartão de revisão nascia
+   abaixo da dobra: um `ScrollViewReader` dentro do painel (o proxy é da rolagem
+   da folha, que já envolve esta tela) traz a âncora `trabalho-intercambio-revisao`
+   ao topo quando a prévia chega, e o VoiceOver ouve "Arquivo recebido. A revisão
+   está abaixo.". A entrada e o recolhimento do cartão passam por
+   `Tema.movimento(.deslocamento, Tema.Mola.camada, reduzido:)` com transição de
+   deslocamento + opacidade, e a linha de desfecho por
+   `Tema.movimento(.opacidade, …)`. A linha de desfecho deixou de ser a terceira
+   frase cinza igual às instruções fixas: ganhou `cartao(.campo)` e `Tema.tinta`,
+   e TODO desfecho é anunciado por `AccessibilityNotification.Announcement`.
+4. **Nenhuma ação desta tela some (o movimento da volta 18).** `AcaoTrabalhoStyle`
+   nunca leu `@Environment(\.isEnabled)`, e por isso o "Importar" desabilitado
+   era pixel-idêntico ao habilitado. O estilo deixa de existir na volta 18, que
+   resolveu a doença na raiz: no lugar do `.disabled()`, a ação continua cápsula
+   (`Pilula`, `.filtro` nas secundárias e `.larga` cheia na principal), o motivo
+   fica escrito ao lado E no `accessibilityHint`, e tocar diz o que falta em vez
+   de não fazer nada. As três ações do intercâmbio seguem o mesmo padrão, para as
+   duas voltas chegarem em main falando a mesma língua. Efeito colateral bem-vindo:
+   a principal em cápsula cheia (carvão sobre papel) desfaz a inversão de peso
+   que o G4 mediu entre ela e o `.compacto`, sem tocar no `.compacto`.
+
+**A passada de design da 11-C (`design-router`, seis fases).** *Ancorar*: o autor
+volta do editor externo e precisa DECIDIR; se a tela não mostra a diferença, o
+intercâmbio vira gerador de versões que ninguém escolheu. *Sistema*: nada novo —
+`Pilula`, `cartao(.campo)`, `rotulo()`, `Tema.movimento`/`Mola.camada`,
+`Tema.tinta`. *Construir*: o recorte é string pura no modelo, com teste; a View
+só desenha e pergunta. *Mover*: as duas coisas que a tela tinha a dizer e não
+dizia — a decisão chegando e o efeito acontecendo — entram pela lei de
+`Tema.swift`, medidas no vídeo cru (recolhimento em nove quadros consecutivos com
+subida e cauda, contra o quadro único que o G4 mediu; sob Reduzir Movimento, a
+fade curta). *Julgar*, lendo a própria tela no aparelho: em AX5 o contexto de 48
+preenchia sozinho as quatro linhas e os dois cartões voltavam a ser idênticos —
+achado da captura, não do código, e é por isso que o contexto virou parâmetro.
+*Portão*: os quatro itens do mínimo provados por captura no iPhone 17e.
+
+**Custo assumido da 11-C.** O obstáculo das ações bloqueadas mora na folha do
+Trabalho, acima desta tela (território da volta 18): aqui tocar NOMEIA o que
+falta e anuncia, não rola até ele. O `recado` continua não sendo zerado por atos
+não relacionados (dívida do RUMO). A inversão de contraste do `.compacto` como
+regra da casa segue para o RUMO: esta volta não mexeu nele.
+
+**Prova da 11-C:** suíte **722/0 em 125 suítes** em 06/09/2026; 2 testes novos
+(`aComparacaoMostraOndeAsDuasVersoesDiferem` com documento de 41 linhas e a
+diferença na última, mais o recorte de janela pequena e o de parágrafo único;
+`manterAVersaoAtualDizOQueAconteceuComOArquivo`). Jornada real de ponta a ponta
+no iPhone 17e `C7341E64…`, dirigida à mão e conferida por
+`xcrun simctl io <UDID> screenshot` (maestro NÃO isola com vários simuladores
+ligados — `--device` diz um aparelho e o driver XCTest atende outro, provado por
+dimensão de pixel): versão 1 escrita, exportada, o `.md` reescrito FORA do app
+com dez linhas, importado, editado no fim dos dois lados, conflito.
+Capturas `ferramentas/orca/g4c-v11-*.png` — a chegada já na tela, os dois cartões
+começando no ponto de divergência, as duas saídas com pesos distintos, o "Manter"
+falando, o AX5 com os dois cartões DIFERENTES, o importar bloqueado ainda cápsula
+com o motivo ao lado — e vídeos `g4c-v11-normal.mp4` / `g4c-v11-reduzido.mp4`.
+
+### Volta 11-D — tocar uma ação bloqueada responde na tela
+
+O Re-G4 fechou três dos quatro itens e deixou meia regra da volta 18 de fora. A
+lei dela tem duas metades — o motivo escrito ao lado E **tocar leva ao que
+falta** — e a própria V18 declara o limite: `Announcement` é canal do VoiceOver,
+e "para quem usa Controle Assistivo **sem** VoiceOver o que resta é o desvio
+visível". A 11-C adotou a cápsula e o anúncio e parou aí: o juiz mediu **0,032 %**
+de pixels alterados ao tocar "Importar versão de arquivo" bloqueado — o dígito do
+relógio virando. E era regressão, não lacuna herdada: antes desta trilha o
+controle tinha `.disabled()` e o varredor o PULAVA; sem o `.disabled()` ele agora
+pousa num controle que aceita ativação e não fazia nada observável.
+
+**A correção, uma linha.** Em `IntercambioTrabalhoView.acao(...)` o impedimento
+deixa de sair só por `AccessibilityNotification.Announcement` e passa por
+`anunciar(_:)` — que já existia nesta tela, já põe a linha em `cartao(.campo)`
+com `Tema.tinta` sob `Tema.movimento(.opacidade, …, reduzido:)` e já fala. As
+duas pessoas recebem a mesma resposta: quem ouve, pelo anúncio; quem varre a
+tela sem VoiceOver, pelo cartão que aparece. As três ações do painel passam pelo
+mesmo `acao(...)`, então a regra vale para todas de uma vez.
+
+O cartão repete a frase que já está cinza ao lado da cápsula, e isso é
+deliberado: a linha cinza é a **condição** (vale enquanto o impedimento existir),
+o cartão é o **evento** (você acabou de tentar), e ele diz QUAL das ações
+bloqueadas foi tocada — tocar "Exportar" troca a linha pela do export
+(`g4-v11d-bloqueado-outra-acao.png`). Duas naturezas, dois pesos, e a segunda
+chega por movimento.
+
+**Nada em `TrabalhoView`.** O desvio ao obstáculo (foco e rolagem) mora na folha
+do Trabalho, que é território da volta 18. Quando as duas mesclarem, estas ações
+passam a rotear pelo desvio dela e esta linha compõe com ele; a ausência dela é
+que atrapalharia.
+
+**Prova da 11-D:** suíte **722/0 em 125 suítes** em 06/09/2026 (`TEST SUCCEEDED`,
+iPhone 17e `C7341E64…`); nenhum teste novo — a mudança é o corpo de um closure de
+`Pilula`, que Swift Testing não alcança sem renderizar SwiftUI, e a prova é a
+tela. Jornada à mão no iPhone 17e, conferida por `xcrun simctl io <UDID>
+screenshot`: intenção guardada → versão em edição (rascunho pendente) →
+"Importar versão de arquivo" bloqueado → toque. **27,52 % dos pixels da tela
+mudam** (28,89 % ignorando a barra de status), contra os 0,032 % medidos pelo
+juiz no build anterior. No vídeo cru a 30 fps a resposta é uma corrida de **8
+quadros com subida e cauda** — `6,54 8,78 9,05 8,52 8,35 7,16 5,64 3,07` — e zero
+nos vizinhos. Capturas `ferramentas/orca/g4-v11d-bloqueado-antes.png`,
+`-resposta.png`, `-outra-acao.png`; vídeo `g4-v11d-toque-bloqueado.mp4`.
+
+**Custo assumido da 11-D.** O caminho de movimento é o de `anunciar`, que o
+Re-G4 já mediu nos dois modos (a lei de `Tema` mantém opacidade sob Reduzir
+Movimento); não o remedi. Quando a linha nasce de uma ação bloqueada DENTRO do
+cartão de revisão, o cartão de desfecho aparece no alto do painel, acima da
+revisão — é o lugar único do `recado`, e esse estado só existe se o trabalho
+deixar de estar salvo depois que a prévia chegou. E as dívidas do RUMO seguem
+abertas de propósito: `recorteDaDiferenca` é O(n) e roda duas vezes por `body`
+(28,9 ms a 100 KB, 608 ms no teto de 2 MiB), o `min(16, contexto)` é a segunda
+constante fora da conta do 48/12, e o `recado` não é zerado por atos não
+relacionados.
+
+**Volta:** multiplicar — a continuidade entre ferramentas é a tese.
+**A IA:** nada. **Prova:** 5 testes em `IntercambioTrabalhoTests` (as duas
+versões e a escolha que não sobrescreve; recusa de disco → retry que confirma a
+mesma versão e uma segunda passada que não duplica; selo com `.seletor`,
+`.exportacao` e `.revisao`; o arquivo sem novidade que não vira conflito nem
+decisão, nas três formas — intenção revista, export intocado, e o conflito de
+verdade que continua de pé; a recusa por base divergente que não oferece nova
+tentativa), suíte **720/0 em 125 suítes** em 06/09/2026, build limpo sem UM
+aviso (conferido em recompilação integral dos dois alvos).
+`maestro/intercambio-conflito.sh` roda a jornada inteira SOZINHO — parte 1 no
+app, a edição do `.md` no disco do simulador feita pelo próprio roteiro, parte 2
+em `maestro/partes/` — e passou 2 de 2 seguidas no iPhone 17e; capturas
+`ferramentas/orca/v11b-*.png` (conflito com as duas versões, as duas escolhas
+com pesos distintos, o mesmo em AX5, o arquivo sem novidade sem botão de
+decisão, o importar bloqueado por edição pendente).
+
+## ADR 2026-09-06b — O Trabalho entra na família (voltas 18 e 18-B)
+
+**A distância.** O Trabalho tirou 6,0 na auditoria V9 (`auditoria-frontend.md`
+§6), a pior nota do app: Design 5, Simplicidade 5, Componentes 4. Ao lado da
+ficha do calendário ele parecia outro aplicativo — formulário cru do sistema,
+chips e chevrons do UIKit, sem papel, sem cartão, sem rótulo de seção; e a
+MESMA ação, "Preparar com IA", vestia duas roupas: cápsula cinza antes da
+primeira versão, cápsula marrom escura depois (`v9-trabalho-versao-1.png`),
+nenhuma das duas do sistema (`law-of-similarity`). Cinco telas de rolagem,
+oito `DisclosureGroup`, e o botão principal desabilitado sem parecer
+(`critique-affordance`). Pela curva-zero, intenção → versão preparada custava
+6 toques e 2 digitações, e a decisão que muda tudo — delegar, praticar ou
+combinar — morava dentro de um disclosure e nunca era oferecida no caminho.
+
+**A decisão.** Três mudanças, nesta ordem.
+
+*Ordem de leitura.* O documento passou a ler o ciclo (VISAO-PRODUTO): intenção
+→ apoio → preparar → versão → intercâmbio → próximo ato → o que aconteceu →
+dificuldade → histórico → estado. "Dificuldade" estava ANTES do caminho
+principal e empurrava a ação primária para fora da primeira tela; é o trabalho
+que revela o obstáculo, não o contrário. "Praticar" desceu para depois de
+"Preparar": era o exercício aparecendo acima do campo que o pediu.
+
+*A decisão no caminho.* O `Picker` "Neste trabalho, prefiro" saiu do disclosure
+e virou um trilho de três pílulas, com `delegar` já marcado — a decisão fica
+visível e reversível sem custar um toque a quem só quer começar. Em tamanho de
+acessibilidade o trilho empilha: três cápsulas lado a lado estouravam a largura
+da folha e sangravam o documento pelos dois lados (defeito que a V9 já tinha e
+a captura AX5 desta volta reproduz).
+
+*A família.* `CabecalhoDeFolha` no lugar do `NavigationStack` com barra do
+sistema (nas duas telas); rótulo de seção em caixa alta como na ficha;
+`campo` em `Cartao.campo` (névoa); versão, ato, tentativa e relato em
+`Cartao.papel`; "Quando" do agendamento em cartão de névoa com hairlines e
+`LinhaQueAbre`, igual ao calendário; `AcaoTrabalhoStyle` apagado. A lei de cor:
+**carvão avança, âmbar salva** — a cápsula carvão (`Pilula.larga` selecionada)
+é a ação que produz algo na seção; o âmbar aparece só como saída de um problema
+(Ajustes, recuperar, retomar); todo o resto é `Pilula.filtro`, porque texto
+solto sobre papel não se lê como controle e não tem estado desabilitado.
+
+*Desabilitado honesto (refeito na 18-B).* A volta 18 aplicou a regra a DOIS
+botões de sete e manteve `.disabled()` no resto — e a revisão mostrou o preço:
+`Pilula` desabilitada devolve fundo `.clear` com `tintaMorta`, **1,53:1 sobre o
+papel**, sem cápsula e sem forma de botão; a ação PRIMÁRIA da tela virava
+legenda cinza num estado alcançável em quatro toques
+(`v18-rev-gerar-travado-sem-capsula.png`). Meia regra é pior que nenhuma.
+
+A 18-B fecha a regra numa lei só, e ela vale para os sete: **nenhuma ação desta
+folha some**. Não há mais um `.disabled()` em `TrabalhoView` nem em
+`AgendamentoAcaoView`. A ação bloqueada continua a mesma cápsula, com o mesmo
+alvo de 44 e o mesmo contraste; o motivo continua escrito na linha de baixo (e
+agora também no `accessibilityHint`, para quem ouve a tela); e **tocar leva ao
+que falta**: campo vazio recebe o foco (`faltaCampo`), edição não guardada
+recebe o foco (`campoEmEdicao`), salvamento falho leva à saída no alto da folha
+(`levouAoObstaculo`, dentro de `aplicar`, por onde todas as escritas passam),
+preparação em curso leva ao próprio progresso (`preparacaoEmCurso`). Prova:
+`v18b-gerar-vazio-continua-capsula.png` e `v18b-gerar-edicao-pendente.png` — o
+mesmo estado que a revisão fotografou, agora cápsula carvão inteira com o motivo
+ao lado — e `maestro/trabalho-bloqueio.yaml`.
+
+**O que se perde, dito:** o VoiceOver não anuncia mais "indisponível" nessas
+ações; anuncia o motivo pelo `accessibilityHint`, e o toque leva ao obstáculo em
+vez de não fazer nada. `Traco/Componentes` não foi tocado — a cápsula do
+desabilitado continua dívida da volta dos Componentes, e ainda vale para
+`IntercambioTrabalhoView`, que ficou fora do escopo e desabilita três ações.
+
+*O trilho fala com quem ouve (18-B).* As três pílulas do apoio saíam iguais no
+`maestro hierarchy` (`selected: false` nas três): a decisão que muda o que
+"Preparar" faz era comunicada só por cor, e isso era regressão contra o `Picker`
+da V9, que anunciava o valor de graça. `.accessibilityAddTraits(.isSelected)` na
+pílula marcada, guardado por `maestro/trabalho-bloqueio.yaml`, que assere
+`selected: true` na escolhida e `false` nas outras duas.
+
+*A promessa do aviso (defeito 6, o mesmo 2 da ficha).* `AgendamentoAcaoView`
+prometia "Toca hoje às 20:22 · na hora" com os avisos do Traço desligados
+porque o `Bool permissaoNegada` juntava dois estados diferentes — *negado* e
+*ainda não perguntado* — e só o primeiro calava a promessa. A frase agora sai
+de `PromessaDoAviso.para(minutos:estado:hora:)`, pura e testada, sobre os três
+estados de `Avisos.Estado` mais o "ainda lendo": concedido diz "Toca …";
+não perguntado e leitura pendente dizem "Toca …, se você permitir os avisos
+quando o iPhone perguntar"; negado não promete, avisa e leva aos Ajustes. A
+view lê a permissão sozinha (`.task` e volta à cena), o que fecha também a
+janela em que a frase prometia antes de a leitura voltar. Depois do commit, a
+linha continua vindo do motor (`ResultadoDoAviso`), nunca do que se pediu.
+
+*A outra metade, e ela é do relógio (18-B).* A revisão pegou a folha prometendo
+"Toca hoje às **14:37** · 30 min antes" às **15:08** — hora já passada — na
+captura dela e na do próprio implementador (`v18-agendar.png`). Quem sabia a
+verdade era só o motor, e só DEPOIS do commit (`ResultadoDoAviso.passou`).
+`PromessaDoAviso` ganhou o quinto caso, `jaPassou`, e `para(...)` ganhou
+`instante:` (quando o alarme tocaria, de `Aviso.instante`) e `agora:`. O caso não
+carrega valor associado porque a frase não usa a hora; quem decide é o `agora:`.
+A ordem é a do motor (`Avisos.agendar`): sem permissão primeiro — beco com saída
+nos Ajustes —, depois o relógio, que cala qualquer promessa, só então a promessa.
+E a folha parou de propor um horário que já nasce atrás do relógio: um ato sem
+horário abre em meia hora à frente, arredondada nos 5 minutos, em vez de `.now`
+cru, cujo alarme "na hora" o motor recusaria. Prova:
+`v18b-promessa-hora-passada.png` (relógio 17:13, ato 17:45, "2 h antes", a linha
+em âmbar), `v18b-promessa-toca.png` e os testes em `PromessaDoAvisoTests`. O tipo
+serve à volta que liga a ficha do Calendário, onde este é o defeito 2 da revisão
+da V9 — **mas não estava completo para ela até a 18-C**, que fecha o compromisso
+que se repete; a primeira redação dizia "completo" e a re-G3 mostrou que não era.
+
+**Custo assumido.** A volta NÃO é líquido-negativa: +742/−396 nos três arquivos
+de view (código sem comentário, 1119 → 1296 linhas), somando 18 e 18-B. Só a
+volta 18 foi +599/−371 e 1119 → 1247 — o "+592/−364" da primeira redação era
+contagem errada, apontada pela revisão. Foram apagados
+`AcaoTrabalhoStyle`, dois `NavigationStack` com toolbar, três
+`DisclosureGroup` (oito → cinco, e nenhum aninhado), o `Picker` de apoio e um
+`@State`; foram acrescentados o trilho de apoio, o tri-estado da promessa, as
+linhas de motivo do desabilitado, o ramo de acessibilidade do trilho e o
+cabeçalho fixo — cada um fechando um defeito nomeado da §6. Encolher além disso
+seria apagar correção. **Dívida para a volta dos Componentes:** `Pilula`
+desabilitada perde a cápsula (fundo `.clear`), e em AX5 o texto de
+`Pilula.larga` encosta na borda (sem recuo horizontal); faltam em
+`Traco/Componentes` uma `Secao` (rótulo + conteúdo, hoje copiada da ficha) e a
+linha que abre um BLOCO — os cinco `DisclosureGroup` restantes ainda são do
+sistema, com `tint` do tema por fora. `OficinaTrabalho.permissaoNegada` ficou
+sem leitor externo. **Volta:** multiplicar. **A IA:** nada mudou no que ela
+produz, lê ou pode enviar.
+
+**Prova.** Suíte 728/126 verde e build sem aviso no iPhone 17 Pro (teste 2);
+13 testes em `PromessaDoAvisoTests`. Três fluxos maestro no aparelho:
+`trabalho-curva-zero.yaml` (a medição da jornada), `trabalho-bloqueio.yaml` (a
+lei do bloqueio e o `selected` do trilho) e `trabalho-acao-aviso.yaml` — este
+falhava 2/2 no branch porque os quatro `swipe` de posição fixa passavam do alvo
+com a ordem nova das seções; viraram `scrollUntilVisible`. Capturas `simctl` antes e depois em
+large e AX5 (`ferramentas/orca/v18-*.png`), vídeo do movimento com e sem
+Reduzir Movimento (`v18-movimento-normal.mp4`, `v18-movimento-reduzido.mp4`).
+Curva-zero, medida comando a comando no aparelho (`maestro/trabalho-curva-zero.yaml`,
+que é a medição e falha se alguém acrescentar um toque): intenção → versão
+preparada **cai de 6 toques e 2 digitações para 5 e 2**. O toque que saiu é o
+do campo do pedido, que só existia para revelar o passo seguinte — a folha
+recém-criada abre com o cursor lá. A volta 18 sozinha NÃO tinha derrubado o
+número: a revisão remediu e achou 6, porque o toque que a volta dizia ter
+economizado ("abrir o disclosure para chegar ao apoio") nunca esteve na conta
+da auditoria, que já media o caminho de quem não decide o apoio. O que a volta
+18 melhorou sem mexer na contagem, e é real: a decisão de apoio passou de
+escondida a visível a 0 toques, o caminho principal cabe numa tela só (com o
+teclado aberto, `v18b-curva-zero-abre-no-pedido.png`) e a ação primária saiu de
+trás de "Dificuldade".
+**Não provado:** o estado *negado* da promessa (a permissão do simulador de
+teste estava `naoPerguntado` e, depois de concedida, o iOS não deixa voltar
+atrás sem Ajustes — o caso vive no teste, não na captura); a chegada da versão
+da IA em vídeo (o modelo do aparelho leva ~90 s, acima do teto de 20 s, então o
+vídeo usa a versão escrita pela pessoa, que dispara a MESMA animação); e o
+alerta de permissão do iOS, que ao aparecer uma única vez recolhe a gaveta do
+horário e rola a folha ao topo — reproduzido, e não acontece em nenhum
+salvamento seguinte (`v18-reguardado.png`).
+
+### Volta 18-C — uma linha, e duas guardas
+
+**A recusa.** O re-G3 fechou cinco dos seis achados na tela e subiu Design,
+Simplicidade e Componentes para 9 (a jornada caiu mesmo: 5 toques e 2
+digitações, remedidos à mão pelo revisor). Segurou por **uma linha**: a folha
+enunciava uma regra que não cumpria.
+
+*A regra que não se cumpria (achado A).* A lei do bloqueio acima descreve
+"edição não guardada recebe o foco (`campoEmEdicao`)". Em `trabalho-gerar` isso
+**não acontecia**: ao remover o `.disabled(travado)`, a 18-B portou só a metade
+`!o.salvo` do guarda, e `edicaoPendente` continuou entrando apenas no cálculo da
+**mensagem**. Com a intenção editada e não guardada, a folha escrevia "Guarde a
+intenção ou a versão que está editando antes de pedir uma nova preparação" e
+**disparava a IA assim mesmo** — ~90 s de preparação gastos no caso exato que a
+regra existia para evitar, e uma versão que a própria folha depois marcava em
+vermelho como preparada para uma intenção anterior. É a doença da volta pelo
+lado avesso: antes o botão bloqueava sem dizer; agora dizia e não bloqueava.
+
+A causa não é a linha que faltava, é que **havia duas listas de guardas
+copiadas** — `trabalho-gerar` e `trabalho-revisar` — e elas divergiram. A 18-C
+não copia a linha de volta: funde as duas em `levouAoQueFalta(_:campoObrigatorio:)`,
+o guarda único das duas rotas que chamam a IA. Não há mais onde divergir. E a
+ordem do guarda passou a ser a ordem em que `motivoDoTravamento` fala —
+salvamento, preparação em curso, edição pendente, campo vazio —, porque com
+`!salvo` **e** edição pendente juntos a folha nomeava um obstáculo e levava a
+outro. Prova na tela (`v18c-regra-cumprida.png`, cinco estados): a regra
+escrita; o toque que não prepara nada; o texto seguinte entrando no campo em
+edição **sem nenhum toque nele**, que é a prova do foco; o guardar; e o MESMO
+toque preparando de verdade em seguida. Guarda contra a volta do defeito:
+`maestro/trabalho-bloqueio.yaml` ganhou o caso, com `assertNotVisible` em
+`trabalho-preparando`.
+
+*A perda estreita do VoiceOver, fechada.* Trocar `.disabled()` por "tocar leva
+ao que falta" é ganho líquido — 1,53:1 virou 13,94:1, o motivo continua a um
+deslize e o toque virou rota em vez de nada. A perda nomeada pelo revisor:
+`.disabled(true)` marca `isEnabled = false`, e **Controle Assistivo e Acesso
+Total por Teclado pulam controles desabilitados**; sem ele, quem varre pousa num
+controle que aceita ativação e não conclui. A 18-C posta
+`AccessibilityNotification.Announcement` com o motivo nos ramos que antes só
+rolavam a tela — salvamento falho (`o.erro`) e preparação em curso — e no ramo
+da edição pendente, onde o campo que recebe o cursor fica em OUTRA seção da
+folha e ouvir só "O que quero realizar" não explica por que a preparação não
+começou. **Não** foi posto em `faltaCampo`: ali o campo focado É o obstáculo
+nomeado, o foco já é falado (provado em `v18-reg3-toque-leva-ao-campo.png`), e
+uma segunda fala correria com a do foco. **Limite honesto:** `Announcement` é
+canal do VoiceOver; quem usa Controle Assistivo **sem** VoiceOver continua sem a
+fala, e para essa pessoa o que resta é o desvio visível — o foco e a rolagem até
+o obstáculo. A perda não foi eliminada, foi reduzida ao caso sem VoiceOver.
+
+*`PromessaDoAviso` pronto para a ficha do Calendário.* O revisor achou o que
+faltava, e é pré-requisito da volta seguinte, não defeito desta: `Aviso.instante`
+calcula a partir do **início da série**. Para "Correr toda terça 6:30" esse
+início está no passado, então `instante <= agora` e o tipo devolveria `jaPassou`
+("esta ação ficou sem alarme") enquanto `Revisoes.agendarCompromisso` arma um id
+por dia da semana e o alarme toca toda semana — a mesma mentira ao contrário,
+justamente sobre o compromisso que mais toca. Duas guardas:
+
+1. `jaPassou` só quando **não** repete: `para(...)` recebe `repete:` e o caso
+   passa a ser `if let instante, !repete, instante <= agora`.
+2. `instante:` e `repete:` **sem valor padrão**. Era `instante: Date? = nil`, e
+   um chamador que esquecesse o parâmetro perdia a correção do relógio inteira,
+   em silêncio; `false` é o lado que mente em `repete`. Agora não se ligam as
+   duas pontas sem passar os dois.
+
+No Trabalho nada muda na tela — o ato monta `EventoCalendario` sem `repeteEm`,
+então `repete` é sempre `false` —, e é isso que a prova mostra:
+`v18c-promessa-repete.png`, os dois lados do corte com a assinatura nova
+("Toca hoje às 18:45 · na hora" e, com "2 h antes" de 18:45 às 18:11, a linha
+em âmbar "A hora do aviso já passou"). Os 10 testes viraram 13: série que
+repete não fica sem alarme (e o mesmo instante, sem série, continua `jaPassou`),
+série não atropela o beco de quem desligou os avisos, série sem aviso pedido
+continua sem aviso. **Fica para a volta da ficha:** mover o tipo de
+`AgendamentoAcaoView.swift` para junto de `Avisos`/`Aviso` — ele não tem nada de
+view, e a ficha não deveria importar a folha do Trabalho.
+
+**Custo.** +73/−11 nos dois arquivos de view (1296 → 1313 linhas sem
+comentário), +58/−13 em `PromessaDoAvisoTests` e 48 linhas de fluxo. Cada
+entrada fecha um achado nomeado; a única linha nova sem defeito de origem é a
+fusão dos dois guardas, e ela apaga a classe do achado A.
+
+**Prova.** `xcodebuild` sem aviso (`grep -c warning:` = 0) e **728 testes em 126
+suítes verdes** no iPhone 17 Pro (teste 2) `B91C8DEF`, sob `com-trava.sh`.
+Estados na tela por `xcrun simctl io <UDID> screenshot`, toque a toque com a
+janela do meu simulador trazida à frente — não por maestro, cuja leitura hoje
+volta do vizinho: `v18c-regra-cumprida.png` e `v18c-promessa-repete.png`.
+**Não provado:** o fluxo `maestro/trabalho-bloqueio.yaml` com o caso novo, que
+ficou **pendente de instrumento** (a estrutura confere com a medição à mão, mas
+rodá-lo hoje fotografaria outro aparelho); e o anúncio de acessibilidade sendo
+de fato FALADO — `Announcement` não aparece em captura, e o simulador com
+VoiceOver não estava disponível neste turno: o que está provado é o desvio
+(nenhuma preparação, foco no campo em edição), não a fala.
+**Fora do escopo, para o RUMO:** em AX5 um documento **com** versão da IA volta
+a sangrar pelos dois lados (achado B do re-G3) — não é regressão desta volta, o
+diff não toca `ConteudoTrabalhoView`, e o dono está por definir.
+
+
+### Volta 18-D — o rascunho que ninguém escreveu
+
+**A recusa.** O G4 passou **Movimento 9** e provou a família (`Pilula`,
+`CabecalhoDeFolha`, `.cartao`, `.rotulo` compartilhados com a ficha do
+Calendário; `AcaoTrabalhoStyle` apagado; oito `DisclosureGroup` em cinco; folha
+vazia em duas telas; e sob Reduzir Movimento as mesmas três trocas do trilho em
+16 quadros contra 253, **todos em estado resolvido**). Segurou por um estado
+preso: **depois de o autor guardar a PRÓPRIA versão, a folha afirmava para
+sempre uma edição pendente que não existia** — imprimia a versão duas vezes,
+travava "Preparar nova versão com IA" e a importação, e sobrevivia a fechar,
+reabrir, descartar rascunhos e reiniciar o aparelho. É o avesso exato da 18-C:
+ela consertou "diz que bloqueia e não bloqueia", e sobrou "bloqueia para sempre
+sem motivo".
+
+*A causa, e ela tem duas metades.* A primeira o juiz nomeou: `campoEmEdicao`
+julgava a intenção e o resultado por **diferença** e a versão por
+**não-vazio**. A segunda eu medi no aparelho, e sem ela a primeira não bastava:
+**o rascunho de "versao" não é escrito só por quem digita.** Um `TextField` que
+sai da tela devolve o texto ao binding, e o `limpar` do salvamento já apagou o
+rascunho — então o que voltava era o `padrao`. Depois de "Guardar minha
+versão", o `plist` do app tinha literalmente `"versao" => ""` (lido em
+`Library/Preferences/app.traco.plist` no simulador de teste), e `"pedido" =>
+""` numa folha em que ninguém escreveu pedido. Julgado por não-vazio, o
+rascunho igual à versão travava; julgado só por diferença, o rascunho vazio
+travava. Nas duas leituras a folha nomeava um obstáculo que a pessoa não tinha
+como resolver guardando.
+
+*O conserto, na causa.* **Edição pendente é rascunho DIFERENTE do guardado, e
+rascunho em branco não é edição em campo nenhum.** A regra vira três funções
+`static` em `TrabalhoView` — `guardado(_:em:)` (o que o documento tem para um
+campo que nasce preenchido; `nil` é campo livre), `alterado(_:_:em:)` e
+`campoEmEdicao(_:em:)` — e passa a ser lida nos **três** lugares que antes
+divergiam: o guarda do bloqueio, a condição que reabre o campo "Editar a
+versão" dentro do cartão (era `!vazio("versao")`, e era a origem do parágrafo
+impresso duas vezes) e o rodapé que oferece "Descartar rascunhos dos campos".
+Nenhum campo destes pode ser guardado vazio (`reverIntencao` e
+`guardarVersaoHumana` recusam), então em branco nunca é trabalho à espera de
+commit. E o `set` de `campo(_:chave:padrao:)` deixa de gravar o que não mudou:
+escrever nada não vira rascunho. As duas metades juntas fazem o aparelho **já
+preso sair do estado sozinho, na primeira leitura** — provado abrindo o
+trabalho que estava travado antes da correção.
+
+Prova: `RascunhoTrabalhoTests` (7 casos), com
+`guardarAPropriaVersaoNaoDeixaEdicaoPendenteAoReabrir` fechando o caminho
+inteiro — guardar a própria versão, o rascunho fantasma indo e voltando pelo
+`UserDefaults` com a chave do app (`TrabalhoView.chaveRascunho`, extraída para
+isso), e a folha continuando destravada — e
+`rascunhoVazioNaoEEdicaoPendente`, `versaoDiferenteDaGuardadaContinuaPendente`
+e `aOrdemDoDesvioEADaLeitura` guardando os dois lados da regra.
+
+**A linha do trilho passa a falar da opção selecionada.** Era
+`Text("Delegar não exige aprender a executar tudo…")` fixo, e continuava
+dizendo isso com Praticar e com Combinar marcados: a única frase que explica a
+decisão que muda o resto da tela descrevia a escolha que o autor **não** fez,
+encostada nela. Agora `explicacaoDoApoio(_:)` diz o que a marcada muda —
+"Delegar: a IA prepara a versão inteira…", "Praticar: você escreve a
+tentativa; a IA prepara o exercício e o retorno, nunca a resposta.",
+"Combinar: você exercita o trecho que delimitar abaixo; o resto continua com a
+IA." — e mantém "Você pode mudar quando quiser", a única parte da frase antiga
+que valia para as três. Em Combinar a frase aponta para o campo que aparece
+logo abaixo dela.
+
+**O achado 3 não é desta volta.** O bloco "Editar com outras ferramentas"
+continua `Button` cru com `.disabled()` neste branch, e o juiz mediu certo
+(habilitado e desabilitado em `#1C1C1E`). O conserto já existe na volta 11, que
+aplicou nesse arquivo exatamente o padrão desta folha; consertar aqui daria
+dois consertos do mesmo bloco para reconciliar. Confirmação no G5, depois das
+duas mescladas.
+
+**Custo.** +95/−9 em `TrabalhoView.swift` (nenhuma linha de movimento: as cinco
+chamadas pela lei continuam cinco, `grep "withAnimation\|.animation(\|.transition("`
+em `Traco/Trabalho/` devolve 5), +113 em `RascunhoTrabalhoTests`.
+
+**Prova.** `xcodebuild` sem aviso (`grep -c warning:` = 0) e **735 testes em
+127 suítes verdes** no iPhone 17 Pro (teste 2) `B91C8DEF`, sob `com-trava.sh`.
+Estados na tela por `xcrun simctl io <UDID> screenshot`, toque a toque com a
+janela do meu simulador à frente — não por maestro, que hoje não isola (havia
+driver de outro worker em `[::1]:7001`) e cuja captura fotografa build velho:
+
+- `v18d-estado-preso-desfeito.png`, quatro estados do mesmo trabalho: (1)
+  editando de verdade, a folha TRAVA e diz por quê — o positivo verdadeiro da
+  18-C, intacto; (2) logo depois de "Guardar minha versão", DESTRAVADA, versão
+  impressa **uma** vez e o campo fechado em "Editar esta versão"; (3) depois de
+  fechar a folha, reabrir, **desligar e religar o aparelho** e reabrir, segue
+  destravada; (4) editando a versão de novo, TRAVA de novo, e a importação
+  volta a dizer "Guarde a intenção ou a versão em edição antes de importar".
+- `v18d-trilho-fala-do-selecionado.png`: as três frases nas três seleções.
+- `v18d-rodape-sem-rascunho-fantasma.png`: o rodapé de uma folha sem rascunho
+  nenhum — só "Versões e atos guardados neste aparelho", sem oferecer descartar
+  o que não existe. O `plist` do trabalho novo confirma: dicionário vazio,
+  contra `"pedido" => ""` e `"versao" => ""` nos criados antes da correção.
+
+**Não provado nesta volta:** nada que envolva conta Grok (não há conta neste
+aparelho) — versão preparada pela IA, exercício, feedback e conferência
+assistida seguem sem prova minha, como no G4; e o anúncio de acessibilidade
+sendo FALADO, pelo mesmo motivo da 18-C.
+
+**Fora do escopo, para o RUMO** (nomeado pelo juiz, e concordo): o `.disabled()`
+de `Pilula` continua quebrado **no componente**; tocar uma pílula do trilho
+cancela em silêncio uma preparação em curso (`trilhoDoApoio` chama
+`cancelarPedido()` sem passar pelo guarda `preparacaoEmCurso`); o instante de
+~0,2 s em que nenhuma pílula lê como selecionada na troca; duas ou três
+cápsulas carvão de largura inteira por rolagem; o `confirmationDialog` que
+chega sem o título; e `Pilula` morando em `Componentes/` mas dependendo de
+`CalendarioTema`.
+
+#### O que falta para o ciclo aparecer como ciclo
+
+O juiz respondeu a pergunta central da volta: em **identidade** sim — a folha
+abre com a frase do próprio autor como título em 28 pt e a ordem de leitura é a
+do ciclo; em **estrutura** ainda não — "o ciclo nunca se mostra como ciclo, e a
+forma repetida rótulo/pergunta/campo/botão ainda é a de um formulário bem
+vestido". Não é conserto de portão, é redesenho, e fica para a próxima volta.
+Minha leitura, para quem a pegar:
+
+O problema não é decoração, é que **as quatro seções são independentes na
+tela e dependentes na vida.** Intenção, preparar, ato e dificuldade têm todas o
+mesmo peso, o mesmo papel e a mesma forma, e nada diz que a versão nasce do
+pedido, que o ato nasce da versão e que a dificuldade volta para o pedido. O
+autor lê quatro perguntas; ele vive uma volta.
+
+Três mudanças que eu tentaria, em ordem de retorno:
+
+1. **A folha muda de forma conforme o ciclo anda, em vez de mostrar tudo
+   sempre.** Hoje uma folha em branco já exibe quatro perguntas com campo e
+   botão, e quatro linhas de apoio. O estado do documento já sabe onde a pessoa
+   está — sem versão, com versão sem ato, com ato sem relato, com relato — e
+   esse é o dado que falta na tela. A seção da vez ganha o campo aberto e a
+   cápsula carvão; as já passadas viram **uma linha de resultado** ("Versão 1,
+   sua, sem conferência") que se abre ao toque; as ainda não alcançadas ficam
+   como rótulo sem campo. Isso resolve de uma vez as duas ou três cápsulas
+   carvão por rolagem (sobra uma) e a voz de manual numa tela vazia, e é o que
+   `curva-zero` chama de divulgação progressiva sem esconder poder: nada some,
+   tudo continua a um toque.
+2. **O elo, não a etapa.** Um indicador de progresso seria um wizard, e o
+   trabalho não é sequencial — o autor volta ao pedido depois do relato, e é
+   justamente aí que a volta se fecha. O que falta é dizer **de onde veio** cada
+   coisa: a versão já sabe o pedido que a produziu (`pedidoDe`), o ato sabe a
+   versão (`Acao.artefatoID`), a evidência sabe o ato. Uma linha de proveniência
+   no alto de cada bloco — "desta versão", "do pedido de 19:48" — e a
+   dificuldade oferecendo em uma ação **voltar ao pedido com o obstáculo
+   dentro** (a rota de "Pedir ajuste" já existe na conferência; falta a mesma
+   saída na Dificuldade) fecham o desenho da volta sem desenhar um círculo.
+3. **Contenção, para o olho ver quatro coisas e não dezesseis.** Os rótulos de
+   seção são 11 pt de peso igual sobre o mesmo papel; `law-of-common-region`
+   pede que cada etapa seja uma região. O cartão de papel já existe e já é da
+   casa (é o da versão) — estendê-lo às demais etapas, com o rótulo dentro da
+   borda, dá a região sem inventar componente novo. Falta em `Componentes` uma
+   `Secao`/`Bloco` que faça isso, e é a mesma peça que substituiria os cinco
+   `DisclosureGroup` do sistema que sobraram.
+
+O que eu **não** faria: linha do tempo, círculo desenhado, numeração de passos
+ou barra de progresso. Nenhum descreve um trabalho que volta, e todos
+transformam uma oficina em formulário — a mesma doença, com outra roupa.
+
 ## ADR 2026-09-06c — O áudio antes da letra
 
 **A distância.** A F3 (05w) trouxe o autor de fora do app até a página em
@@ -3201,6 +3839,22 @@ três no iPhone 17 Pro (teste 4) com os sete métodos semeados e
 `TRACO_SEM_MODELO=1`. **Fora:** a assimetria vestir/sugerir, e o `conhecidos` da
 M3 (a lista está aqui; quem mesclar a M3 a cola).
 
+**O PREÇO DESTA GUARDA, declarado (acrescentado na volta A-5).** Esta ADR mediu
+um lado só. O revisor do re-G3 mediu o outro e achou o custo: com a guarda
+alcançando todo o catálogo, **a família 1 passou a comer nota comum de
+trabalho.** `vazio`, `sozinho`, `cansado`, `pesa`, `ansioso` e `medo` são
+palavras de trabalho tanto quanto de desabafo — de dez notas comuns que ele
+escreveu, NOVE mudaram de destino e OITO eram regressão limpa. O caso mais caro,
+dito por extenso: **"Quero correr de manhã, mas o medo de me machucar me trava"
+deixou de receber WOOP**, num app cujo campo do WOOP se chama "OBSTÁCULO INTERNO
+(O SEU HÁBITO/MEDO)" e cuja `perguntaWOOP` pergunta "qual é o hábito ou o MEDO
+seu que vai impedir"; o app pedia o medo pelo nome e calava quando o autor o
+escrevia. E "estado vazio, carregando e falha" — o vocabulário do próprio G2 da
+ESTEIRA — calava também. **Nenhum teste cobria essa direção**, e foi por isso
+que passou: `oQueOsDoisMetodosLevamComRazaoContinuaDeles` protegia 6 frases dos
+DOIS métodos da M3, e as outras 19 portas não tinham régua de alcance. A volta
+A-5 estreita a família 1 e escreve a régua que faltava — **ADR 2026-09-06i**.
+
 **Junto nesta ADR, a voz do app sobre si mesmo** (auditoria da trilha Métodos:
 as doenças da voz se concentram onde o app fala de si). Três trocas de palavra:
 o Perfil dizia "O que o Traço aprendeu de você" em cima de uma CONTAGEM ("12
@@ -3213,6 +3867,356 @@ Inversão diz "costuma ser") — passa a "Palavras de apoio", com a nota
 do plano sem obstáculo dizia "o que, em você, COSTUMA atrapalhar isto",
 atribuindo ao autor um hábito que o app não observou — passa a "pode".
 
+
+## ADR 2026-09-06i — A família 1 reconhece o SENTIMENTO COMO ASSUNTO, não a palavra solta
+
+**A distância.** A 06h fechou a guarda pelo catálogo inteiro e, na mesma linha,
+alargou o dano: a família 1 é uma lista de RADICAIS soltos, e seis deles têm
+dupla vida. O revisor do re-G3 mediu dez notas comuns de trabalho — **nove mudam
+de destino, oito são regressão limpa** contra o código anterior:
+
+| antes → agora | a nota | o radical que dispara |
+|---|---|---|
+| woop → silêncio | "Quero correr de manhã, mas o MEDO de me machucar me trava" | `medo` |
+| spec → silêncio | "Preciso construir a tela de estado VAZIO do app…" | `vazi[oa]` |
+| spec → silêncio | "Estado VAZIO, carregando e falha: as três telas…" | `vazi[oa]` |
+| spec → silêncio | "Estou CANSADO desse módulo cheio de casos especiais…" | `cansad` |
+| spec → silêncio | "A carga PESA demais nesse endpoint…" | `\bpesa` |
+| spec → silêncio | "O módulo roda SOZINHO depois do deploy…" | `sozinh` |
+| seEntão → silêncio | "Sempre que fico SOZINHO em casa eu abro a geladeira…" | `sozinh` |
+| notaPermanente → silêncio | "Percebi que sistemas ANSIOSOS por resposta imediata…" | `ansios` |
+
+O caso que dói é o primeiro, e é constrangedor: o campo do WOOP chama-se
+"OBSTÁCULO INTERNO (O SEU HÁBITO/MEDO)" e `perguntaWOOP` pergunta pelo "hábito
+ou o medo seu que vai impedir". **O app pede o medo pelo nome e cala quando o
+autor o escreve.** Um sétimo radical entra pela mesma porta sem ninguém ter
+medido: `senti` sem borda de palavra casa dentro de "o SENTIdo dele" e "o
+SENTImento do cliente" — duas expressões que não têm nada de desabafo.
+
+**A decisão.** A família 1 se parte em duas, e o critério é o SENTIMENTO COMO
+ASSUNTO.
+
+- **1a, `lexicoDoSentimento`** — o sentimento que só tem uma vida: `senti`,
+  `sinto`, `sentia`, `me sentindo` (agora com **borda de palavra**, que é o
+  conserto do `sentido`/`sentimento`), `dói|doeu`, `chor…`, `trist…`, `raiva`,
+  `desmoron…`, `arrepend…`, `vergonh…`, `mago…`, `remoend…`, `travei|eu travo`,
+  `angusti…`, `desanimad…`, `humilhad…`, `culpad…`, `nó na garganta`. Dispara
+  sozinho, como antes.
+- **1b, `lexicoDeDuplaVida`** — `medo`, `pesa`, `ansios`, `exaust`, `vazi[oa]`,
+  `sozinh`, `cansad`. **Sozinha não decide nada.** Ela só vale com uma destas
+  três companhias:
+  1. **o autor no meio** (`lexicoDoSentimentoNoAutor`): primeira pessoa + verbo
+     de estado, e o complemento é PRONOME ou nada — "estou sozinho nisso",
+     "estou cansado de mim", "fico vazio." —, nunca objeto de trabalho ("estou
+     cansado **desse módulo**", "fico sozinho **em casa**"). Para `medo` a linha
+     é entre **predicar** ("estou com medo", "tenho medo", "senti medo") e
+     **nomear** ("o medo de errar"), que é o obstáculo DENTRO de uma intenção —
+     exatamente o que o WOOP existe para receber. `vazio` conta como
+     SUBSTANTIVO ("esse vazio", "um vazio"), não como adjetivo de tela ("estado
+     vazio"). `pesa` conta quando o que pesa não tem nome ("isso pesa", "cada
+     dia pesa"), porque a nota de trabalho nomeia a carga ("a carga pesa");
+  2. **densidade** — duas palavras DIFERENTES de dupla vida na mesma nota
+     ("Estou exausto e vazio."). Uma é vocabulário; duas são o assunto;
+  3. **a omissão ao lado** (família 5) em QUALQUER tamanho — "Foi pesado e eu
+     fiquei calada." tem 29 caracteres e é a nota mais frágil das 57. A omissão
+     continua sem disparar sozinha abaixo do teto de 120: aqui ela é companhia,
+     não gatilho.
+
+`descontei` também ganhou os pronomes que faltavam (`descontei nela|nele|em`):
+a família 4 casava "descontei com" e "descontei no", e deixava "descontei nela"
+passar — a nota ficava presa só à família 1 e caía junto com ela.
+
+**A régua NOVA, que é o coração desta volta: a direção inversa.** Havia 57
+frases provando que desabafo não vira método e **nenhuma** provando que nota
+comum continua achando a forma — por isso a regressão passou.
+`EscritaPessoalTests.trabalho` tem **47 frases, no mínimo duas por PORTA das 21
+formas de main**, as dez do revisor incluídas e marcadas `[R]`, com as que
+citam sentimento de propósito: WOOP com `medo`, Se–então com `cansado`,
+Especificação com "estado vazio", Pré-mortem com `medo`, Leitura com "times
+cansados", Decisão com "o medo de errar", e duas sondas do conserto do `senti`
+("o sentimento do time", "busca exaustiva").
+`todaPortaDeMainTemPeloMenosDuasFrases` cobra a cobertura contra
+`Catalogo.doApp`, para a régua não encolher sem ninguém ver. **E ela mede:**
+portada a mesma régua para a família 1 de `2d33d63`, **15 das 47 são caladas**
+(as 8 do revisor, mais Decisão, Pré-mortem, Leitura, Palavra e as duas sondas
+do `senti`, mais a segunda do Se–então); com a família partida em duas, **0**.
+
+**As duas réguas correm JUNTAS** em `asDuasReguasValemAoMesmoTempo`, no mesmo
+catálogo e na mesma corrida: as 57 continuam protegidas E as 47 continuam
+roteando. **Nenhum caso precisou de arbitragem** — o critério satisfaz as duas
+ao mesmo tempo, e nenhuma frase foi retirada de nenhuma das réguas para isso.
+Se um dia as duas se contradisserem num caso, o lado é o da guarda, e a razão é
+a assimetria que o revisor usou nos dois sentidos: **silêncio numa nota de
+trabalho custa um toque para escolher a forma à mão; vestir um desabafo carimba
+quatro campos de exercício sobre o que o autor acabou de sentir.** O caso vai
+para esta ADR com o lado escolhido e o motivo, não para dentro do teste.
+
+**O que esta guarda continua sem fazer.** Ela é regex, não compreensão: "estou
+cansado de escrever documentação" não é reconhecido como desabafo (não chega a
+método nenhum, então cai no silêncio de sempre), e um desabafo escrito só com
+palavra de dupla vida sem primeira pessoa — "que vazio hoje" — também não. O
+critério é sintático de propósito: ele mede quem é o sujeito da frase, não o que
+o autor sente.
+
+**Volta:** multiplicar. **O que a IA sabe:** nada de novo — a guarda continua
+sem modelo, no aparelho. **Prova:** `EscritaPessoalTests` com as TRÊS réguas na
+mesma suíte — **57 protegidas + 10 com gancho + 6 legítimas da M3 + 48 de
+trabalho** — e `aPalavraDeDuplaVidaSozinhaNaoDecide` fixando o critério nos dois
+sentidos com 23 asserções. **Fora:** o `\bpesa` continua casando "pesado" pela
+esquerda (é o que protege "Foi pesado"); `exaust` entrou na 1b sem que ninguém
+tenha medido "busca exaustiva" em nota real, só por leitura; e as 48 frases da
+régua inversa são minhas, não de uso real — elas provam alcance, não
+representatividade.
+
+**Junto nesta volta, os acabamentos que o re-G3 nomeou**
+(`ferramentas/orca/revisao-a-voz.md`, §R-5). **M-2:** o diálogo destrutivo do
+Perfil dizia "Esquecer tudo o que o Traço **aprendeu de você**?" — a frase que a
+A4 condenou e trocou no rótulo logo acima ("O que o Traço registrou — contagem,
+não conclusão"), mas não no diálogo; passa a "Esquecer tudo o que o Traço
+**registrou**?", a mesma palavra do rótulo e do corpo da mensagem ("Os sinais
+somem do aparelho. As notas ficam."). **M-3:** a dica de VoiceOver do botão da
+Lente dizia "**Muletas**, frases feitas…" para abrir uma tela cujas seções se
+chamam "Palavras de apoio" e "Frases de outro"; passa a "Palavras de apoio,
+frases de outro, passivas e adjetivos repetidos. Só aponta." — a dica volta a
+nomear o que a tela mostra, que é o que uma dica de VoiceOver existe para fazer.
+O quarto acabamento, o preço da guarda, está escrito no "Fora" da 06h.
+
+**As seis fases do `design-router` nas duas strings** (M-5 do re-G3, que valia
+para a copy da A4 e vale para esta). **Ancorar:** rota "ajuste local de
+componente/copy" — nenhum moodboard, nenhum token novo, nenhum crítico; a
+pessoa é o autor lendo um diálogo destrutivo e o autor ouvindo o VoiceOver.
+**Sistema:** as duas frases já tinham dona na tela — `PerfilView:161` diz
+"registrou" e `LenteView:133/138` dizem "Palavras de apoio"/"Frases de outro";
+o conserto é reusar o vocabulário que existe, não inventar um terceiro.
+**Construir:** duas strings, zero mudança de layout, de Tema ou de estado.
+**Mover:** nada — copy não anima. **Julgar:** o teste contra design genérico não
+se aplica a duas frases, mas o teste da 06f se aplica e é o que pega o defeito:
+o app não diz o que não mediu, e "aprendeu de você" alegava aprendizado sobre uma
+contagem de sinais. **Portão:** a mudança do Perfil é visível na tela (diálogo de
+confirmação) e a da Página só pelo VoiceOver. **A captura do M-2 está feita**
+(`ferramentas/orca/a5b-m2-esquecer-dialogo.png`): o diálogo diz "Esquecer tudo o
+que o Traço registrou?" sobre "Os sinais somem do aparelho. As notas ficam.", e
+o rótulo logo acima na mesma tela diz "O que o Traço registrou — contagem, não
+conclusão" — a mesma palavra, que era o ponto. A leitura anterior desta ADR
+estava errada e o revisor a derrubou com razão: a lei do instrumento da ESTEIRA
+tira o **maestro** quando há vários simuladores ligados, e no mesmo parágrafo
+nomeia o substituto — `xcrun simctl io <UDID> screenshot`, que é por-UDID e não
+sofre do problema. A lei tira o maestro, não a captura. A da Página continua sem
+foto porque VoiceOver não fotografa; é verdadeira por leitura do código.
+
+### 06i-B — A CAUDA, e o preço que o estreitamento cobrou (volta A-5-B)
+
+**O que o revisor do G3 achou, e ele estava certo.** O critério "sentimento como
+assunto" é o critério certo, mas ele foi aplicado com uma lista de caudas tirada
+da amostra e não do idioma. O revisor replicou a guarda em Swift lendo os
+literais direto do `AnaliseLocal.swift`, escreveu **20 desabafos novos que usam
+só vocabulário 1b MAIS um gancho de roteamento**, e mediu as duas versões:
+**em `main` 19 dos 20 caíam no silêncio; na A-5, 18 dos 20 passaram a ser
+VESTIDOS** em quatro campos de exercício. "Quero sumir uns dias, ando muito
+cansado ultimamente" virava WOOP; "Percebi que estou sozinha faz meses" virava
+Nota permanente; "Não entendi por que ando tão vazio ultimamente" virava
+Feynman. Na moeda que esta ADR escolheu — vestir custa mais que calar — o saldo
+da A-5 era **negativo**, e as 57 não pegaram porque **só 7 delas exercitam a
+família 1b e nenhuma tem gancho**.
+
+**A causa é a CAUDA, não o radical.** Alargar o radical foi o que causou a
+regressão da 06h; reabri-lo desfaria esta volta. O que faltava era a lista do
+que vem DEPOIS do adjetivo num desabafo real:
+
+- **intensificador posposto** — "cansado **demais**", "sozinha **demais**"
+- **advérbio de tempo** — "cansado **ultimamente**", "sozinha **faz meses**",
+  "exausto **por dois dias**", "ansioso **desde** que ela foi embora"
+- **verbo de estado que ficou de fora** — `acordo cansado` (só `acordei`
+  entrara), `fico com um medo`, `bate um medo`, `morrendo de medo`
+- **os substantivos** `ansiedade` e `cansaço`, que `ansios`/`cansad` não
+  alcançam
+
+A cauda virou constante própria (`caudaDoSentimento`), reusada pelo ramo do
+adjetivo. Os **dez casos que o revisor citou por extenso passam a ser calados,
+10 de 10** — medido no simulador, na suíte, antes e depois.
+
+**`dá medo` foi recusado na 06i-B, e a recusa era metade certa.** O revisor
+pediu `fico|dá|bate` no ramo do `medo`. `fico` e `bate` entraram; **`dá` não**,
+porque a régua inversa dele mesmo contém "Pré-mortem: imagino o lançamento no
+chão e o que me **dá medo** é ninguém avisar a tempo" esperando `premortem` — o
+`dá medo` largo custa uma forma real, e isso foi medido antes de recusar. O que
+estava errado era o enquadramento: a 06i-B declarou o caso "primeiro caso de
+arbitragem desta ADR" e, na mesma frase, **nomeou o discriminador sem
+implementá-lo**. A 06i-C o implementa e a arbitragem some (ver abaixo).
+
+**Um caractere, e ele contradizia esta ADR.** `vazi[oa]` era o único radical de
+`lexicoDeDuplaVida` que capturava a própria flexão, então "A lista **vazia** e o
+estado **vazio** da tela" contava como duas palavras diferentes e disparava a
+densidade sozinha — contra o comentário do próprio código ("duas palavras
+DIFERENTES") e contra o exemplo canônico desta ADR. Agora é `vazi`, e
+"Preciso construir a lista vazia e o estado vazio da tela" está na régua inversa
+como `spec`.
+
+**A RÉGUA GANHA UM BLOCO, e é a lição da rodada.** Duas réguas não bastavam
+porque nenhuma das duas exercitava **o cruzamento**: desabafo que TAMBÉM tem
+palavra que roteia — o caso mais comum na vida real e o ponto cego das duas.
+`EscritaPessoalTests.comGancho` tem **dez desabafos, um por gancho de
+roteamento** (`^quero`, `sempre que`, `toda vez`, `percebi`, `hoje eu preciso`,
+`não entendi`, `^preciso começar`, `^preciso parar`, `meu objetivo`, `\bapp\b`),
+oito deles medidos VESTIDOS pelo revisor. O teste cobra as duas metades: a nota
+é calada **e** o gancho da porta declarada casa mesmo — sem isso a régua não
+mede nada. As **três** réguas correm juntas em `asDuasReguasValemAoMesmoTempo`.
+
+**Fora (a dívida que sobra, nomeada e não consertada).** A densidade ainda cala
+nota de sistema que usa duas palavras de dupla vida ("estado vazio" + "fila
+vazia" já não, mas "o medo é o servidor cair" + "equipe cansada" sim): o revisor
+mediu 15 de 20 notas de trabalho novas caladas na A-5 — **e as mesmas 20 eram
+caladas em `main` também**. É dívida residual, não regressão, e vai para o RUMO,
+não para esta volta. Os dois substantivos novos (`ansiedade`, `cansaço`) entram
+em `lexicoDeDuplaVida` e portanto alargam essa mesma densidade em dois termos.
+E o critério continua sintático: ele mede quem é o sujeito da frase, não o que o
+autor sente.
+
+### 06i-C — A FORMA DA CAUDA, e a borda de palavra varrida até o fim (volta A-5-C)
+
+**Três dimensões em 8 no re-G3, e uma raiz só.** Correção, Contrato e
+Privacidade desceram pelo mesmo defeito: a cauda da 06i-B foi escrita como
+**terminador** e o intensificador posposto entrou nela. Como terminador, ele
+curto-circuita o teste que o critério inteiro usa para separar trabalho de
+desabafo — o do OBJETO —, porque a regex para de olhar assim que casa `demais`:
+
+```
+não casa  «estou cansado desse módulo cheio de casos especiais.»          ← TRABALHO ✔
+CASAVA    «estou cansado demais desse módulo para reescrever a função.»   ← virava PESSOAL ✘
+```
+
+A segunda é a primeira com uma palavra a mais, e é o exemplo canônico do lado
+trabalho **desta própria ADR**. O conserto não é tirar o intensificador: é
+torná-lo **transparente** — `intensificadorPosposto` entra ENTRE o adjetivo e a
+cauda, opcional, e a cauda continua sendo cobrada depois dele. `pra isso` entra
+na cauda porque é complemento pronominal, não objeto. Com isso "cansado demais
+**pra isso**" é desabafo e "cansado demais **desse módulo**" é trabalho, que é a
+linha que a ADR sempre disse traçar.
+
+**A BORDA DE PALAVRA, varrida até o fim.** O padrão da volta inteira era um só e
+apareceu três vezes (`senti` na 06i, `vazi[oa]` na 06i-B, `ando ` agora):
+radical sem `\b` casando dentro de outra palavra. Desta vez a guarda foi varrida
+por completo — **os 8 léxicos, 82 alternativas, uma por uma** — e **11 pontos
+precisaram de `\b`** (as três listas de verbos contam três), a maioria medida com
+frase real antes e depois:
+
+| lugar | a palavra que entrava pela porta errada | a nota que era calada |
+|---|---|---|
+| `\b` nas 3 listas de verbos de `lexicoDoSentimentoNoAutor` | `ando ` dentro do gerúndio; `bate ` dentro de "combate" | "trabalhando cansado demais, vou revisar o módulo" |
+| `\bcansad` | "des**cansad**o" | "O time está descansado e a fila vazia depois do deploy" |
+| `\bmedo`, `\bcansaço` | "**medo**nho", "des**cansaço**" | — sem caso medido; entram pela mesma classe, junto com `\bcansad`, que tem |
+| `\bsou (o\|um\|uma)` | "pen**sou o** problema" | "Ele pensou o problema todo e devolveu a spec revisada" |
+| `\bme (odi\|culp\|…)` | "fil**me odi**ado" | "O filme odiado pela crítica virou tema da spec" |
+| `\bculpad` | "des**culpad**o" | "O erro foi desculpado pelo time e a fila voltou a rodar" |
+| `\bbriguei` | "a**briguei**" | "Me abriguei da chuva e cheguei atrasado na reunião" |
+
+**As outras alternativas foram conferidas e não têm o defeito**, e três que
+pareciam ter foram medidas e estão limpas: `exaust` em "busca exaustiva" (não
+dispara sozinho, precisa de companhia), `vazi` em "es**vazi**a" (colapsa com
+"vazio" na mesma chave da densidade, que é o conserto da 06i-B funcionando) e
+`\bpesa` em "pesa demais" (o objeto ainda é testado). **A classe foi VARRIDA —
+não está fechada** (frase corrigida na 06i-D, que achou mais dois pontos da
+mesma classe): as alternativas foram lidas uma a uma e as que não têm borda à
+esquerda foram medidas contra os candidatos que soubemos nomear.
+
+**PREDICAR vs NOMEAR, escrito.** A linha que a 06i-B nomeou na frase da recusa
+agora existe em código, e é a que o revisor propôs, com uma correção medida:
+
+```
+\bd[áa] (um |uma )medo  |  \bd[áa] medo de \w+r\b  |  (^|[.!?]\s*)d[áa] medo
+```
+
+- **PREDICAR** — leva artigo ("me **dá um** medo"), pede **infinitivo** ("dá
+  medo **de encarar**") ou abre a frase ("**Dá medo.**"). É desabafo.
+- **NOMEAR** — "o que me dá medo é ninguém avisar" não faz nenhum dos três: é
+  obstáculo dentro de uma intenção, e continua indo ao Pré-mortem.
+
+A correção sobre a proposta do revisor: `d[áa] medo de` largo comia "o que **dá
+medo de** verdade nesse plano", que é trabalho. Com `de` + **infinitivo**
+(`\w+r\b`) os dois lados ficam de pé — que é a própria definição que ele
+escreveu ("nunca vem com `de` + infinitivo" é a marca do NOMEAR). **Esta frase
+está errada e a 06i-D a corrige:** o braço `de` + infinitivo NÃO é
+discriminador, é ARBITRAGEM — ele come Pré-mortem que usa a mesma forma. A ADR
+TEM um caso de arbitragem, e é este.
+
+**Mais dois buracos do mesmo ramo.** `bate|bateu|dá|deu` entram no ramo de
+`ansiedade|cansaço` (a 06i-B pôs `bate` só no ramo do `medo` — assimetria da
+própria correção), e `por dentro` entra na lista de sujeitos do `pesa`. Fecham
+"toda vez que eu abro o computador **bate um cansaço**" e "hoje eu preciso
+fingir que está tudo bem, mas **por dentro pesa**".
+
+**Volta:** melhorar. **O que a IA sabe:** nada de novo — a guarda continua sem
+modelo, no aparelho. **Prova:** as TRÊS réguas na mesma suíte, agora
+**57 protegidas + 13 com gancho + 6 legítimas da M3 + 52 de trabalho**, mais
+`aPalavraDeDuplaVidaSozinhaNaoDecide` com 40 asserções. As 121 frases das réguas
+existentes foram medidas antes e depois num binário que copia as linhas 111–238
+do `AnaliseLocal.swift` **verbatim** (o método do revisor): **0 mudanças** — os
+12 casos que mudaram de lado são exatamente os 12 alvo. `xcodebuild test` no
+iPhone 17 Pro (teste 4) `A1DF082C`: `✔ Test run with 752 tests in 128 suites
+passed after 7.379 seconds.` / `** TEST SUCCEEDED **`. **Fora:** o `\bpesa`
+continua casando "pesado" pela esquerda (é o que protege "Foi pesado"); `exaust`
+continua sem medida em nota real; a dívida da densidade em nota de sistema segue
+no RUMO; e a régua inversa continua sendo escrita por mim e pelo revisor, não
+por uso real.
+
+
+
+### 06i-D — As duas bordas que faltavam, e duas frases de honestidade (volta A-5-D)
+
+**O revisor reconstruiu o binário verbatim sobre a A-5-C e mediu: 122 frases das
+réguas, 0 problemas.** Sobraram duas linhas de código — a mesma classe de borda
+da 06i-C, em dois pontos que a varredura não alcançou — e duas frases desta ADR
+que estavam otimistas demais. Ele baixou **Estado honesto de 9 para 8** por
+causa das duas frases, e tem razão nas duas.
+
+**As duas linhas.** Nenhuma decisão nova de critério; as duas são a borda
+esquerda que a 06i-C já tinha varrido em outros onze pontos:
+
+| linha | a palavra que entrava pela porta errada | a nota que era calada |
+|---|---|---|
+| `\btratei mal` | "**contratei mal**", "**retratei mal**" | "Contratei mal o fornecedor e vou construir um processo de seleção" |
+| `me d[áa]\|me deu` (era `d[áa]\|deu`) | a ansiedade **do usuário**, não a do autor | "A fila dá ansiedade no usuário e vou construir um indicador" |
+
+O segundo é correção sobre a MINHA implementação, não sobre a proposta: a
+sugestão do `dá|deu` no ramo de `ansiedade|cansaço` foi do revisor e eu a
+implementei mais larga do que ele mediu. Com `me`, o sujeito volta a ser o autor
+— que é o critério inteiro desta ADR.
+
+**Fora — a ARBITRAGEM declarada.** O braço `\bd[áa] medo de \w+r\b` da 06i-C
+não é discriminador: ele come Pré-mortem que usa a mesma forma ("dá medo de
+perder o cliente se o deploy falhar" perde a forma). Mantê-lo é ESCOLHA, não
+acerto, e as três saídas foram medidas:
+
+| saída | custo |
+|---|---|
+| **manter o braço** (a escolhida) | **0 carimbos** em desabafo, **2 silêncios** em Pré-mortem |
+| tirar o braço | o desabafo predicado com infinitivo ("dá medo de encarar segunda") volta a virar exercício — carimbar nota pessoal é o erro caro desta guarda |
+| afinar por outro sinal | as duas formas admitem o mesmo sujeito e o mesmo verbo; não achamos sinal que separe |
+
+A escolha é pela ASSIMETRIA: calar é reversível pelo autor, carimbar não. Fica
+declarado como o **único caso de arbitragem da 06i** — a frase da 06i-C que diz
+o contrário está corrigida acima.
+
+**A classe NÃO está fechada.** A frase "a classe está fechada" da 06i-C ia para
+o LAÇO como se varrer fosse provar. Não é: a varredura leu os 8 léxicos e as 82
+alternativas uma a uma, e as que não tinham borda à esquerda foram medidas
+**contra os candidatos que soubemos nomear** — e esta volta achou mais dois
+exatamente aí. O resíduo conhecido e sem conserto grátis é a **família do
+adjetivo sem cópula** ("dia vazio", "gente cansada" dentro de nota de sistema),
+que a densidade ainda pode calar: consertá-la exige análise sintática, não
+borda.
+
+**Volta:** melhorar. **O que a IA sabe:** nada de novo — a guarda continua sem
+modelo, no aparelho. **Prova:** as três réguas com **6 frases novas** na régua
+inversa (58 de trabalho; 57 protegidas + 13 com gancho + 6 legítimas), e as seis
+medidas VERMELHAS antes do conserto — `silencio ← «Contratei mal o fornecedor e
+vou construir um processo de seleção com três etapas.» (esperado spec)` e as
+outras cinco. Depois, no iPhone 17 Pro (teste 4) `A1DF082C`: `✔ Test run with
+14 tests in 1 suite passed after 0.297 seconds.` na `EscritaPessoalTests` e
+`✔ Test run with 752 tests in 128 suites passed after 8.910 seconds.` /
+`** TEST SUCCEEDED **` na suíte inteira. **Fora:** a arbitragem do `dá medo de` acima; a família do adjetivo
+sem cópula; a dívida da densidade em nota de sistema segue no RUMO; e a régua
+inversa continua sendo escrita por mim e pelo revisor, não por uso real.
 
 ## ADR 2026-09-06j — A latência da descoberta: quanto tempo entre afirmar e saber
 

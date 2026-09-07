@@ -140,6 +140,8 @@
 		C7844C14573D412E1CDF5606 /* FolhaDeConfirmacao.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB1F2AF6F038EB8787E7F2A2 /* FolhaDeConfirmacao.swift */; };
 		C9D53DA9D5383AF659552D95 /* TrabalhoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43C245F482C5E68ABE6C0BD1 /* TrabalhoView.swift */; };
 		CAB6D2E08C5F9C9171C9ECB8 /* Metodos.json in Resources */ = {isa = PBXBuildFile; fileRef = 4349401ACAFEEF5811D2D889 /* Metodos.json */; };
+		CD2D139C66A11ACB0ECE3765 /* PromessaDoAvisoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE42683E3E5F989A0E75E4AB /* PromessaDoAvisoTests.swift */; };
+		A1B2C3D4E5F60718293A4B5D /* RascunhoTrabalhoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B5C /* RascunhoTrabalhoTests.swift */; };
 		CD648041F9CCEDA0F0DDD4F7 /* PraticaTrabalho.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E514D1B05A813B7A669ED3 /* PraticaTrabalho.swift */; };
 		CDA10F50D594EAF0498466C7 /* Prova.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C4B36BBB45C9AFFA532185A /* Prova.swift */; };
 		D09B0D63B27C76243977D354 /* Lente.swift in Sources */ = {isa = PBXBuildFile; fileRef = B95713C947DED6A38489925D /* Lente.swift */; };
@@ -378,6 +380,8 @@
 		F8A3AE8285B42EB802930300 /* TracoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TracoApp.swift; sourceTree = "<group>"; };
 		F903485BBAA804C94399C747 /* Migracao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Migracao.swift; sourceTree = "<group>"; };
 		FC8485E4A18F46DC7AEC2352 /* ForaDoAppTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForaDoAppTests.swift; sourceTree = "<group>"; };
+		FE42683E3E5F989A0E75E4AB /* PromessaDoAvisoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromessaDoAvisoTests.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F60718293A4B5C /* RascunhoTrabalhoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RascunhoTrabalhoTests.swift; sourceTree = "<group>"; };
 		FE5E37AF9BC96722920E0256 /* PadroesRemoto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PadroesRemoto.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -576,6 +580,8 @@
 				B544C7CB0EEA5F5D2DAFB30C /* NotasESessaoTests.swift */,
 				C68F1BAA39BE524BD2FC78D7 /* PraticaTrabalhoTests.swift */,
 				40493CD4A16FE11067FED441 /* PrivacidadeTrabalhoTests.swift */,
+				FE42683E3E5F989A0E75E4AB /* PromessaDoAvisoTests.swift */,
+				A1B2C3D4E5F60718293A4B5C /* RascunhoTrabalhoTests.swift */,
 				AC80765D4B74C62577A5363A /* ProsaLiteralTests.swift */,
 				04AD4822CC87D350BD7C56E1 /* ProvaTests.swift */,
 				D05129456F4C8040D487DA0D /* RecomendacaoTests.swift */,
@@ -883,6 +889,8 @@
 				56A38C95EE9713A63A475FC8 /* NotasESessaoTests.swift in Sources */,
 				EE11CA7A0F68FE32B0AEFBF9 /* PraticaTrabalhoTests.swift in Sources */,
 				91E15F303FB313BA849D33A8 /* PrivacidadeTrabalhoTests.swift in Sources */,
+				CD2D139C66A11ACB0ECE3765 /* PromessaDoAvisoTests.swift in Sources */,
+				A1B2C3D4E5F60718293A4B5D /* RascunhoTrabalhoTests.swift in Sources */,
 				ADF9B0BFF4FA39DAA48A8CB6 /* ProsaLiteralTests.swift in Sources */,
 				777C8C51585D01D784313A3D /* ProvaTests.swift in Sources */,
 				9214DED5EAB4B1258A51E34E /* RecomendacaoTests.swift in Sources */,
