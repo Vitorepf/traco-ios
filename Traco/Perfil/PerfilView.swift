@@ -386,6 +386,18 @@ struct PerfilView: View {
                 .foregroundStyle(Tema.tintaFraca)
                 .frame(maxWidth: 280, alignment: .leading)
                 .padding(.top, Tema.entreItens)
+            // ADR 07b: a tabela de quem responde, na única tela que fala de
+            // provedor. Função que o autor não vê não foi entregue.
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Pelo aparelho, sem conta: " + Politica.peloAparelho.map(Politica.nome).joined(separator: ", ") + ".")
+                Text("Só com a conta Grok: " + Politica.pelaConta.map(Politica.nome).joined(separator: ", ") + ". Medido em 07/09: nessas, o modelo do aparelho não serviu.")
+            }
+            .font(Tema.meta)
+            .foregroundStyle(Tema.tintaFraca)
+            .frame(maxWidth: 280, alignment: .leading)
+            .padding(.top, Tema.entreItens)
+            .accessibilityElement(children: .combine)
+            .accessibilityIdentifier("quem-responde")
         }
     }
 

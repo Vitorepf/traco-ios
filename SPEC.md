@@ -4267,3 +4267,25 @@ com modelos desligados pela suíte. Esse resultado cobre aquele candidato e
 não os incrementos posteriores nem a semântica dos provedores. Validação
 remota aguarda conta Grok nesse simulador; não se presume acesso nem se copiam
 credenciais. O Perfil deixa explícita a dependência.
+
+## ADR 2026-09-07b — Quem responde cada operação: a tabela, medida
+
+**A distância.** Não existia um lugar que decidisse provedor por operação. Eram cinco políticas soltas: a escada Grok → aparelho da sábia (`Sabia.chamarComProveniencia`), a escada própria do Trabalho com duas montagens (`MotorTrabalho.produzirEntrega`), três `contaLigada` (preparar exercício, conferir tentativa, revisar), os três degraus da classificação escritos na `Sessao`, e o domínio só de bordo. E o modelo do aparelho seguia em OITO rotas onde a medição de 07/09 (`prova/qualidade-ia-avaliacao-base.md`, `prova/qualidade-ia-q5-avaliacao-base.md`, provas 4 a 6) diz que ele não serve: produzir reprovado 3 de 3; conferir do Recordar confirmando 3 de 3 um ponto explicitamente contradito, e o veredito vira sinal gravado; ecos sem retorno 6 de 6; calibragem vazia 6 de 6 com o positivo perdido; Padrões 3 de 3 e 2 de 3; a pergunta do Recordar revelando a resposta. Em todas, a falha era SILÊNCIO na tela: o autor não distinguia "não há ecos" de "ninguém respondeu".
+
+O dono pediu, em 07/09: implementar e sobretudo ENTENDER quando usar Apple Intelligence e quando usar o Grok, porque "tem muita coisa que o Apple Intelligence não é bom e não tem capacidade". O modelo do aparelho tem 3 bilhões de parâmetros e uma janela de 4.096 tokens compartilhada entre instruções, pedido e resposta; a Apple o descreve para resumir, extrair e classificar, e diz que não serve a conhecimento de mundo nem a raciocínio avançado. O modelo de nuvem privada (32K, raciocínio, sem conta) é do iOS 27 e não existe no SDK 26.5 deste projeto.
+
+**A decisão.** `Traco/Analise/Politica.swift` é a tabela única: para cada uma das 16 operações da sonda `AvaliacaoIA`, uma regra (`soGrok`, `grokDepoisBordo`, `soBordo`) e o PORQUÊ, datado, com o arquivo da prova. A regra nasce da medição (DIRETRIZ §5: medir, não torcer), e mudar de provedor é mudar a tabela e a prova junto.
+
+- **Só Grok** (o aparelho foi medido e não serviu): produzir, preparar exercício, conferir tentativa, revisar, conferir o que voltou, ecos, calibragem, Padrões, a pergunta do Recordar. Sem conta, NINGUÉM responde e a tela diz — `Politica.semProvedor` — em vez de descer calada a um resultado pior. A falha de rede do Grok também não desce.
+- **Grok, depois o aparelho** (provou ou ainda não reprovou; pergunta e resposta curtas cabem na janela): responder, instigar, contrapor, responder nas Notas (fatos certos 3 de 3, fonte em revisão pela 07a), vestir (a forma local decide antes) e classificar (3 de 3 com esquema tipado; as regex arbitram por último, 04c/06h).
+- **Só o aparelho**: o domínio da nota, rótulo fechado com esquema tipado.
+
+A classe que o aparelho serve é uma: escolher entre rótulos fechados com esquema tipado sobre entrada curta. A classe que ele não serve são duas: gerar texto longo fiel a restrições, e julgar com citação literal. É esse o entendimento, e é ele que a tabela codifica.
+
+A escada da sábia, o `conferir`, o `responderNasNotas`, o `produzirEntrega` e o `PadroesRemoto` passam a consultar a tabela: `Politica.provedor(op)` diz quem pode responder agora e `Politica.desceAoAparelho(op)` diz se a falha do Grok desce. O caminho do aparelho nessas rotas continua no código, GUARDADO pela tabela, para o dia em que uma medição o reabrir — não é código morto descrevendo contrato falso (a lição da A2), é ramo fechado por dado.
+
+**A superfície** (a lei do motor sem superfície): o Perfil ganha, no cartão da conta, duas linhas — o que o aparelho faz sem conta e o que só faz com a conta Grok, com "medido em 07/09: nessas, o modelo do aparelho não serviu". As três seções que calavam ganham a linha do estado (`LinhaDeEstado`, `.semConta`) no lugar da seção ausente: "O QUE NÃO VOLTOU" no Recordar, "TALVEZ SE LIGUEM" na Rede, "Sobre o seu juízo" nos Padrões. A mensagem do Trabalho sem provedor vem da tabela.
+
+**O teto passa a ser medido.** Desde o iOS 26.4 o modelo conta tokens (`SystemLanguageModel.tokenCount(for:)`, `contextSize`). `Sabia.noAparelho` mantém os 3.500 caracteres como pré-corte da montagem, mas o portão real é pedido + instruções + 1.024 tokens de resposta reservados ≤ `contextSize`; sem espaço para a resposta, cala. `maximumResponseTokens` fixa a reserva.
+
+**O que esta ADR não prova.** Nenhuma operação tem medição com Grok: a conta não existe em nenhum simulador (login iniciado no iPhone 17 Pro de teste em 07/09, à espera do dono). A tabela decide onde o aparelho NÃO entra; se o Grok serve, é a próxima medição pela mesma sonda. `responder`, `instigar` e `contrapor` seguem sem medição em nenhum provedor. 5 testes em `PoliticaTests`; suíte 826/134 em 07/09/2026.

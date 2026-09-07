@@ -103,7 +103,8 @@ enum Sabia {
         let cru: String?
         if let gerarLocal { cru = await gerarLocal(pacote) }
         else {
-            guard noAparelho, let esquema = try? esquemaRespostaNotas(pacote) else { return nil }
+            guard Politica.desceAoAparelho(.responderNasNotas), noAparelho,
+                  let esquema = try? esquemaRespostaNotas(pacote) else { return nil }
             let sessao = LanguageModelSession(instructions: sistemaResponderNasNotas)
             cru = try? await sessao.respond(to: pacote.mensagem, schema: esquema,
                                              options: GenerationOptions(temperature: 0.3)).content.jsonString
@@ -229,7 +230,7 @@ enum Sabia {
 
     static func vestir(blocos: [String], gesto: Gesto?,
                        gerar: (String) async -> String? = { usuario in
-                           await chamar(sistema: sistemaVestir, usuario: usuario, temperatura: 0,
+                           await chamar(.vestir, sistema: sistemaVestir, usuario: usuario, temperatura: 0,
                                         memoPor: "vestir\u{1}\(usuario.hashValue)")
                        }) async -> [Rotulo]? {
         guard gesto != .expressiva, !blocos.isEmpty else { return nil }
@@ -363,7 +364,7 @@ enum Sabia {
         guard gesto != .expressiva else { return nil }
         let usuario = "\(rotuloContextoDaNota)\n\(contexto.prefix(5000))"
             + blocoDoRetrato(retrato) + "\n\nPergunta: \(pergunta)"
-        guard let cru = await chamar(sistema: sistemaResponder, usuario: usuario, temperatura: 0.3,
+        guard let cru = await chamar(.responder, sistema: sistemaResponder, usuario: usuario, temperatura: 0.3,
                                      mensagemLocal: { montarResponder(pergunta: pergunta, contexto: contexto,
                                                                       retrato: retrato, rotulo: rotuloContextoDaNota) })
         else { return nil }
@@ -382,7 +383,7 @@ enum Sabia {
         usuario += "\n\n" + Degraus.instrucaoDeInstigar(degrau)
         usuario += blocoDoRetrato(retrato)
         usuario += "\n\nO RASCUNHO:\n\(texto.prefix(6000))"
-        guard let cru = await chamar(sistema: sistemaInstigar, usuario: usuario, temperatura: 0.4,
+        guard let cru = await chamar(.instigar, sistema: sistemaInstigar, usuario: usuario, temperatura: 0.4,
                                      mensagemLocal: {
             montarInstigar(texto: texto, gesto: gesto, degrau: degrau, retrato: retrato)
         }) else { return nil }
@@ -398,7 +399,7 @@ enum Sabia {
         if !metodo.isEmpty { usuario += "\n\nO MÉTODO desta forma:\n\(metodo)" }
         usuario += blocoDoRetrato(retrato)
         usuario += "\n\nA NOTA:\n\(texto.prefix(6000))"
-        guard let cru = await chamar(sistema: sistemaContrapor, usuario: usuario, temperatura: 0.5,
+        guard let cru = await chamar(.contrapor, sistema: sistemaContrapor, usuario: usuario, temperatura: 0.5,
                                      mensagemLocal: {
             montarContrapor(texto: texto, gesto: gesto, retrato: retrato)
         }) else { return nil }
@@ -437,7 +438,7 @@ enum Sabia {
         // memo por (alvo, degrau): dentro do mesmo degrau a pergunta não deve
         // mudar, e sem isto abrir o Recordar dez vezes eram dez chamadas pagas
         // por uma nota que não mudou. Sobe o degrau, muda a chave, vem outra.
-        guard let cru = await chamar(sistema: sistemaRecordar, usuario: usuario, temperatura: 0.5,
+        guard let cru = await chamar(.recordar, sistema: sistemaRecordar, usuario: usuario, temperatura: 0.5,
                                      memoPor: "prova\u{1}\(max(0, degrau))\u{1}\(alvoLimpo.hashValue)",
                                      mensagemLocal: {
             montarRecordar(alvo: alvoLimpo, pista: p, degrau: degrau, retrato: retrato)
@@ -455,12 +456,14 @@ enum Sabia {
         // ponto não cabe inteiro nos limites da montagem, cala — em qualquer caminho.
         guard escrito.count <= 4000,
               pontos.allSatisfy({ $0.count <= 400 && !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }) else { return nil }
-        if let usuario = montarConferir(pontos: pontos, memoria: escrito, teto: 16_000),
+        // ADR 07b: o veredito vira sinal gravado; só quem a tabela deixa.
+        guard let quem = Politica.provedor(.conferir) else { return nil }
+        if quem == .grok, let usuario = montarConferir(pontos: pontos, memoria: escrito, teto: 16_000),
            let esquema = esquemaRemotoConferir(pontos: pontos.count),
            let cru = await Grok.responder(sistema: sistemaConferir, usuario: usuario, temperatura: 0,
                                          memoPor: "conferir-proposicoes\u{1}\(usuario.hashValue)", esquema: esquema),
            !Task.isCancelled, let resultado = parseVoltaram(cru, pontos: pontos.count) { return resultado }
-        guard !Task.isCancelled, noAparelho,
+        guard !Task.isCancelled, Politica.desceAoAparelho(.conferir), noAparelho,
               let usuario = montarConferir(pontos: pontos, memoria: escrito),
               let esquema = try? esquemaConferir(pontos: pontos.count) else { return nil }
         let sessao = LanguageModelSession(instructions: sistemaConferir)
@@ -499,7 +502,7 @@ enum Sabia {
             .map { "[\($0.offset)] \($0.element)" }
             .joined(separator: "\n\n")
         let usuario = "NOTA:\n\(nota.prefix(3000))\n\nOUTRAS NOTAS:\n\(corpo.prefix(9000))"
-        guard let cru = await chamar(sistema: sistemaEcos, usuario: usuario, temperatura: 0.2,
+        guard let cru = await chamar(.ecos, sistema: sistemaEcos, usuario: usuario, temperatura: 0.2,
                                      memoPor: "ecos\u{1}\(usuario.hashValue)",
                                      mensagemLocal: { montarEcos(nota: nota, candidatas: candidatas) })
         else { return nil }
@@ -536,9 +539,9 @@ enum Sabia {
     /// chamador escolhe o contexto descartável; carga grande demais é silêncio.
     /// Vestir, calibragem e Padrões não cortam mais aqui: sem montagem própria,
     /// só seguem no aparelho se a mensagem inteira couber.
-    static func chamar(sistema: String, usuario: String, temperatura: Double,
+    static func chamar(_ operacao: Politica.Operacao, sistema: String, usuario: String, temperatura: Double,
                        memoPor chave: String? = nil, mensagemLocal: (() -> String?)? = nil) async -> String? {
-        await chamarComProveniencia(sistema: sistema, usuario: usuario, temperatura: temperatura,
+        await chamarComProveniencia(operacao, sistema: sistema, usuario: usuario, temperatura: temperatura,
                                     memoPor: chave, mensagemLocal: mensagemLocal)?.texto
     }
 
@@ -546,29 +549,48 @@ enum Sabia {
     /// configuração não prova executor: quem precisa registrar proveniência —
     /// a revisão assistida do Trabalho (ADR 05q) — chama por aqui e grava o
     /// provedor efetivo, não o que estava ligado quando o toque começou.
-    static func chamarComProveniencia(sistema: String, usuario: String, temperatura: Double,
+    ///
+    /// ADR 07b: a tabela `Politica` decide QUEM pode responder esta operação.
+    /// Onde o aparelho foi medido e não serviu, a falha do Grok não desce a
+    /// ele — devolve nil, e a tela diz (nunca um resultado pior, calado).
+    static func chamarComProveniencia(_ operacao: Politica.Operacao,
+                                      sistema: String, usuario: String, temperatura: Double,
                                       memoPor chave: String? = nil,
                                       mensagemLocal: (() -> String?)? = nil) async -> (texto: String, provedor: String)? {
-        if let r = await Grok.responder(sistema: sistema, usuario: usuario,
-                                        temperatura: temperatura, memoPor: chave) {
-            return (r, "Grok")
+        guard let quem = Politica.provedor(operacao) else { return nil }
+        if quem == .grok, let r = await Grok.responder(sistema: sistema, usuario: usuario,
+                                                       temperatura: temperatura, memoPor: chave) {
+            return (r, Politica.Provedor.grok.rawValue)
         }
+        guard Politica.desceAoAparelho(operacao) else { return nil }
         // A recusa de orçamento não é resposta e nunca passa pelo memo do Grok.
         let pedido: String?
         if let mensagemLocal { pedido = mensagemLocal() }
         else { pedido = mensagemDoAparelho(carga: usuario) }
         guard let pedido else { return nil }
         guard let r = await noAparelho(sistema: sistema, usuario: pedido, temperatura: temperatura) else { return nil }
-        return (r, "Apple Intelligence no aparelho")
+        return (r, Politica.Provedor.bordo.rawValue)
     }
 
     nonisolated static let tetoNoAparelho = 3500
 
+    /// Tokens que a resposta precisa ter livres na janela de 4.096 do aparelho.
+    nonisolated static let reservaDeResposta = 1024
+
     static func noAparelho(sistema: String, usuario: String, temperatura: Double) async -> String? {
         guard noAparelho, !usuario.isEmpty, usuario.count <= tetoNoAparelho else { return nil }
         if #available(iOS 26.0, *) {
+            // ADR 07b: 3.500 caracteres era chute; desde o iOS 26.4 o modelo
+            // conta os tokens de verdade. Pedido + instruções + resposta
+            // dividem a mesma janela — sem espaço para a resposta, cala.
+            if #available(iOS 26.4, *) {
+                let modelo = SystemLanguageModel.default
+                if let pedido = try? await modelo.tokenCount(for: Prompt(usuario)),
+                   let instrucoes = try? await modelo.tokenCount(for: Instructions(sistema)),
+                   pedido + instrucoes + reservaDeResposta > modelo.contextSize { return nil }
+            }
             let sessao = LanguageModelSession(instructions: sistema)
-            let opcoes = GenerationOptions(temperature: temperatura)
+            let opcoes = GenerationOptions(temperature: temperatura, maximumResponseTokens: reservaDeResposta)
             guard let r = try? await sessao.respond(to: usuario, options: opcoes) else { return nil }
             return r.content
         }
@@ -608,7 +630,7 @@ enum Sabia {
         let corpo = pares.enumerated()
             .map { "DECISÃO \($0.offset + 1):\n\($0.element)" }
             .joined(separator: "\n\n")
-        guard let cru = await chamar(sistema: sistemaCalibrar, usuario: String(corpo.prefix(9000)),
+        guard let cru = await chamar(.calibragem, sistema: sistemaCalibrar, usuario: String(corpo.prefix(9000)),
                                      temperatura: 0.3,
                                      memoPor: "calibrar\u{1}\(corpo.hashValue)")
         else { return nil }

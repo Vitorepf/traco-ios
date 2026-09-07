@@ -203,18 +203,24 @@ struct RecordarView: View {
                 // estalo assusta quem está lendo (§21)
                 .transition(Tema.transicao(.opacity.combined(with: .offset(y: 8)), reduzido: reduceMotion))
             }
+        } else if fase == .revelar, Politica.provedor(.conferir) == nil {
+            // ADR 07b: a seção que não veio diz por quê, em vez de calar
+            LinhaDeEstado(Politica.semProvedor(.conferir), .semConta)
+                .padding(.horizontal, Tema.margem)
+                .padding(.bottom, Tema.margem)
+                .accessibilityIdentifier("recordar-sem-provedor")
         }
     }
 
     /// A pergunta da prova, uma vez por abertura. Silêncio em qualquer falha.
     private func pedirPergunta() async {
-        guard perguntaDaSabia == nil, Sabia.disponivel else { return }
+        guard perguntaDaSabia == nil, Politica.provedor(.recordar) != nil else { return }
         perguntaDaSabia = await Sabia.perguntaDeRecordar(alvo: alvo, pista: pista,
                                                          gesto: gesto, degrau: degrau, retrato: retrato)
     }
 
     private func conferir() {
-        guard Sabia.disponivel else { return }
+        guard Politica.provedor(.conferir) != nil else { return }
         let pontos = Prova.pontos(alvo)
         let escrito = memoria
         let g = gesto

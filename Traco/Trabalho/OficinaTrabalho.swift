@@ -193,7 +193,7 @@ final class OficinaTrabalho {
         // "prática indisponível", nunca "conecte a Apple Intelligence".
         guard documento.praticaPedida || estaDisponivel() else {
             alterar { $0.falharPedido(pedido.id) }
-            if salvo { erro = "Para preparar uma versão com IA, conecte Grok em Perfil ou ative Apple Intelligence. O pedido foi guardado; você também pode escrever sua versão." }
+            if salvo { erro = Politica.semProvedor(.produzir) + " O pedido foi guardado; você também pode escrever sua versão." }
             return nil
         }
         let entrada = documento
@@ -359,7 +359,8 @@ final class OficinaTrabalho {
 @MainActor
 enum MotorTrabalho {
     enum Erro: Error { case indisponivel, respostaVazia, praticaIndisponivel }
-    static var disponivel: Bool { Sabia.disponivel }
+    /// ADR 07b: produzir é só Grok — o aparelho reprovou 3 de 3 (Politica).
+    static var disponivel: Bool { Politica.provedor(.produzir) != nil }
     /// A janela do provedor remoto. Acima disso a montagem desce ao aparelho.
     static let tetoRemoto = 18_000
 
@@ -476,6 +477,9 @@ enum MotorTrabalho {
             return .init(texto: texto, produtor: remoto.contains("[CONTEXTO PARCIAL:") ? "Grok · parte do histórico" : "Grok")
         }
         try Task.checkCancellation()
+        // ADR 07b: sem a tabela deixar, a falha do Grok é indisponibilidade
+        // dita na tela — nunca uma versão pior produzida calada pelo aparelho.
+        guard Politica.desceAoAparelho(.produzir) else { throw Erro.indisponivel }
         let local = pedido(d, p, teto: Sabia.tetoNoAparelho, praticaPreservada: praticaPreservada)
         guard local.count <= Sabia.tetoNoAparelho else { throw Erro.indisponivel }
         if let texto = await Sabia.noAparelho(sistema: sistema, usuario: local, temperatura: 0.3),

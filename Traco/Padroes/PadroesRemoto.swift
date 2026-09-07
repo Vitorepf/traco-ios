@@ -30,7 +30,7 @@ enum PadroesRemoto {
     static func esquecerMemo() { memo = nil }
 
     static func perguntas(vozes: [String]) async -> [String]? {
-        guard !vozes.isEmpty, Sabia.disponivel else { return nil }
+        guard !vozes.isEmpty, Politica.provedor(.padroes) != nil else { return nil }
         let assinatura = vozes.joined(separator: "\u{1}")
         if let m = memo, m.chave == assinatura { return m.perguntas }
         let saida = await pedir(vozes: vozes)
@@ -45,7 +45,7 @@ enum PadroesRemoto {
         // sem memo aqui: o memo dos Padrões é o desta enum (por vozes lidas), e
         // quem volta à tela QUER perguntas novas — `ineditas` cuida do resto
         // ADR 04t: pela escada da sábia — Grok, depois o modelo do aparelho
-        guard let msg = await Sabia.chamar(sistema: sistema, usuario: String(notas.prefix(9000)),
+        guard let msg = await Sabia.chamar(.padroes, sistema: sistema, usuario: String(notas.prefix(9000)),
                                            temperatura: 0.4)
         else { return nil }
         return parsePerguntas(msg, vozes: vozes)

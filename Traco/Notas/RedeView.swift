@@ -40,7 +40,7 @@ struct RedeView: View {
     }
 
     private func procurarEcos() async {
-        guard Sabia.disponivel, ecos.isEmpty else { return }
+        guard Politica.provedor(.ecos) != nil, ecos.isEmpty else { return }
         let jaLigadas = Set(ligacoes.filter { $0.de == nota.uuid || $0.para == nota.uuid }
             .flatMap { [$0.de, $0.para] })
         let cs = montarCandidatas(jaLigadas)
@@ -175,6 +175,11 @@ struct RedeView: View {
             }
             .accessibilityIdentifier("rede-ecos")
             .transition(Tema.transicao(.opacity.combined(with: .offset(y: 8)), reduzido: reduceMotion))
+        } else if Politica.provedor(.ecos) == nil {
+            // ADR 07b: a seção que não veio diz por quê, em vez de calar
+            LinhaDeEstado(Politica.semProvedor(.ecos), .semConta)
+                .padding(.leading, 4)
+                .accessibilityIdentifier("rede-sem-provedor")
         }
     }
 
