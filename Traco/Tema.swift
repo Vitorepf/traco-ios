@@ -164,16 +164,25 @@ enum Tema {
         static let teclado: Animation = .interpolatingSpring(stiffness: 420, damping: 34)
     }
 
-    // MARK: - Movimento reduzido (ADR 2026-09-05t, estendida pela 05v)
+    // MARK: - Movimento reduzido (ADR 2026-09-05t, 05v; desambiguada pela 05y)
     //
     // Uma lei para o app inteiro, num lugar só. A view diz qual seria o
     // movimento normal e de que CLASSE ele é; quem decide sob "Reduzir
     // movimento" é `movimento(_:_:reduzido:)`:
-    //   deslocamento → fade curta; ou corte seco (`corte`) no que o dedo
-    //                  ou o relógio movem, porque um fade ali pisca
-    //   escala       → nada: o estado vira sem quadro intermediário
+    //   deslocamento → CORTA. Sem quadro intermediário nenhum.
+    //   escala       → corta: o estado vira sem quadro intermediário
     //   opacidade    → mantém: opacidade não enjoa
     //   laço         → para: o que repete sem fim fica no estado final
+    //
+    // Ou seja: sob reduzido só a OPACIDADE anima. A 05v dizia "deslocamento →
+    // fade curta OU corte", e a implementação escolhia a fade — que é uma
+    // DURAÇÃO menor, não um corte: a geometria continuava a ser interpolada,
+    // só que em 0,15 s. Quando os filhos do container são texto legível, essa
+    // interpolação é um cross-dissolve de duas geometrias — a classe de defeito
+    // que voltou cinco vezes na volta 12, a última no toque em "Abrir os
+    // campos" (~370 ms COM Reduzir Movimento, contra ~215 ms sem: mais lento
+    // com RM do que sem, o contrário do que RM promete). O "ou" era a
+    // ambiguidade; a 05y escolhe o corte, para o app inteiro.
     //
     // `laco` não tem consumidor no app desde a volta 12: o ponto pulsante do
     // "lendo…" saiu e a `Duracao.pulso` que o media foi apagada com ele. A
@@ -181,20 +190,15 @@ enum Tema {
     // `TemaTests.lacoPara` a mantém honesta.
     enum Movimento { case deslocamento, escala, opacidade, laco }
 
-    static let fadeReduzido: Animation = .easeOut(duration: Duracao.curta)
-
     static func movimento(_ classe: Movimento, _ normal: Animation, reduzido: Bool) -> Animation? {
         guard reduzido else { return normal }
-        switch classe {
-        case .deslocamento: return fadeReduzido
-        case .opacidade: return normal
-        case .escala, .laco: return nil
-        }
+        return classe == .opacidade ? normal : nil
     }
 
     /// Deslocamento, o caso mais comum — o nome da V8, para quem já chama.
-    static func animacao(_ normal: Animation, reduzido: Bool) -> Animation {
-        reduzido ? fadeReduzido : normal
+    /// Devolve `nil` sob reduzido, como toda a classe: corte, não fade.
+    static func animacao(_ normal: Animation, reduzido: Bool) -> Animation? {
+        movimento(.deslocamento, normal, reduzido: reduzido)
     }
 
     /// Toda transição custom do app carrega opacidade; sob reduzido só ela fica.
@@ -202,15 +206,15 @@ enum Tema {
         reduzido ? .opacity : normal
     }
 
-    /// O outro lado permitido da lei: nil = corte seco, sem quadro intermediário.
-    /// Para o que a pessoa arrasta com o dedo (Camadas) e o que o relógio move
-    /// (timer): um fade sobre a posição cortada pisca, porque o estado vira um
-    /// quadro depois.
+    /// O mesmo corte, com o nome à vista de quem move com o DEDO (Camadas) ou
+    /// com o RELÓGIO (timer): ali um fade sobre a posição cortada pisca, porque
+    /// o estado vira um quadro depois. Desde a 05y é a mesma lei de
+    /// `.deslocamento` — o nome fica porque diz a intenção no ponto de uso.
     static func corte(_ normal: Animation, reduzido: Bool) -> Animation? {
-        reduzido ? nil : normal
+        movimento(.deslocamento, normal, reduzido: reduzido)
     }
 
-    static func gaveta(reduzido: Bool) -> Animation {
+    static func gaveta(reduzido: Bool) -> Animation? {
         animacao(.timingCurve(0.32, 0.72, 0, 1, duration: Duracao.longa), reduzido: reduzido)
     }
 

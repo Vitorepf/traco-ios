@@ -4,10 +4,18 @@ struct CartaoAnaliseView: View {
     let cartao: CartaoAnalisar
     let sessao: Sessao
     var aoAbrirCampos: (() -> Void)?
+    /// O autor está a ESCREVER (teclado de pé). Aí a página é dele: o cartão
+    /// vale uma linha, e a prosa abre a um toque (ADR 05y, correção do G4).
+    var recolhido = false
     @Environment(\.modelContext) private var context
     @Environment(\.dynamicTypeSize) private var tamanhoTexto
+    /// O que sobra da tela para o encaixe, medido pelo Caderno (ADR 05y).
+    @Environment(\.tetoDoEncaixe) private var tetoDoEncaixe
     /// ADR 04h: já disse se serviu — as duas saídas somem depois do toque.
     @State private var avaliou = false
+    /// O autor pediu a prosa com o teclado de pé. Nasce falso a cada CASO novo
+    /// de cartão, porque a identidade do cartão é o caso (`casoDoCartao`).
+    @State private var abertoNoTeclado = false
     /// O texto do cartão ainda tem linhas abaixo da dobra (o degradê do pé).
     @State private var textoRola = false
     /// Em tamanhos AX as duas saídas ficam uma por linha e o teto sobe. As
@@ -44,7 +52,122 @@ struct CartaoAnaliseView: View {
         }
     }
 
+    /// O cartão que traz PROSA recolhe-se enquanto o autor escreve. Quatro não:
+    /// o AVISO e o "sem conta" (esconder falha para limpar a tela é o que o
+    /// contrato proíbe), o "pensando…" (esconder a espera é a mesma coisa, e já
+    /// é uma linha) e a RESPOSTA DA SÁBIA — essa o autor PEDIU, e entregá-la
+    /// recolhida seria esconder o resultado de quem o mandou vir (curva-zero
+    /// §2). O teto do encaixe é que a segura: o texto dela rola lá dentro.
+    /// Fora do `body` para ter teste.
+    static func podeRecolher(_ cartao: CartaoAnalisar) -> Bool {
+        switch cartao {
+        case .aviso, .semConta, .sabiaPensando, .resposta: false
+        default: true
+        }
+    }
+
+    private var podeRecolher: Bool { Self.podeRecolher(cartao) }
+
+    /// A linha: o mesmo trilho âmbar do cartão inteiro e a frase que importa,
+    /// cortada numa linha. Sem rótulo em cima — a frase já diz qual é a forma,
+    /// e cada linha a mais aqui é uma linha a menos de papel.
+    private func linhaRecolhida<Rotulo: View>(@ViewBuilder _ envolve: (AnyView) -> Rotulo) -> some View {
+        envolve(AnyView(
+            // só o âmbar chega aqui: aviso e "sem conta" não recolhem
+            corpoCartao(trilho: Tema.ambar) {
+                HStack(spacing: 8) {
+                    Text(resumo)
+                        .font(Tema.corpo)
+                        .foregroundStyle(Tema.tinta)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                    Spacer(minLength: 8)
+                    Image(systemName: acoesNoPe ? "ellipsis" : "chevron.up")
+                        .font(Tema.label)
+                        .foregroundStyle(Tema.tintaFraca)
+                        .accessibilityHidden(true)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(.rect)
+        ))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(kicker). \(resumo)")
+        .accessibilityIdentifier("cartao-recolhido")
+    }
+
+    /// Fora de AX, a linha ABRE A PROSA no lugar: o teclado não se mexe e o pé
+    /// não sai do sítio — o encaixe só cresce até o teto que o papel lhe deixa,
+    /// e o texto do cartão rola lá dentro, como já rolava. Derrubar o teclado
+    /// aqui foi tentado e filmado: a barra do pé viaja 334 pt enquanto o cartão
+    /// cresce, e os dois ficam legíveis na mesma faixa por ~165 ms — a classe A1
+    /// outra vez. Não se mexe no teclado.
+    @ViewBuilder private var portaDaProsa: some View {
+        if acoesNoPe {
+            // em AX as duas saídas não cabem ao lado da linha e a prosa não cabe
+            // no que sobra: a linha vira MENU, o mesmo desenho que o pé da
+            // página já usa em AX ("Mais ações da nota"). A prosa inteira fica
+            // para quando o teclado descer — arrastar o papel já o desce.
+            Menu {
+                acoes
+            } label: {
+                linhaRecolhida { $0 }
+            }
+            .accessibilityHint("Abre as saídas desta forma")
+        } else {
+            Button { abertoNoTeclado = true } label: {
+                linhaRecolhida { $0 }
+            }
+            .buttonStyle(.discreto)
+            .accessibilityHint("Mostra o texto inteiro do cartão; o seu texto fica intacto")
+        }
+    }
+
     var body: some View {
+        // recolher e abrir é troca de VIEW no mesmo encaixe: CORTA. Sem isto o
+        // SwiftUI dissolvia a linha sobre o corpo do cartão nas mesmas linhas —
+        // a classe A1 outra vez, agora no gatilho novo (05y).
+        if recolhido, podeRecolher, !abertoNoTeclado {
+            cartaoRecolhido.transition(.identity)
+        } else {
+            cartaoInteiro.transition(.identity)
+        }
+    }
+
+    /// Recolhido: a linha, e as saídas logo abaixo dela. Em tamanho AX as
+    /// saídas ficam uma por linha e não cabem com o teclado de pé — ali elas
+    /// vivem no menu da própria linha (custo declarado na 05y, o mesmo desenho
+    /// do pé da página em AX). Fora de AX nada se esconde: só a PROSA é que
+    /// fica atrás do toque.
+    private var cartaoRecolhido: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            portaDaProsa
+            if temAcoes, !acoesNoPe {
+                VStack(alignment: .leading, spacing: 0) { acoes }
+                    .padding(.leading, 15) // alinha com o texto: trilho 3 + vão 12
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        // recolhido o cartão vale a sua altura ideal e nada mais: sem isto o
+        // trilho (uma Shape, que aceita toda a altura oferecida) esticava a
+        // linha e abria um vão de ~58 pt entre ela e as saídas
+        .fixedSize(horizontal: false, vertical: true)
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .cartao(.flutuante, recuo: [])
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("cartao-analise")
+    }
+
+    /// O teto do ambiente menos o que o próprio cartão gasta em volta do
+    /// texto: 16+16 de recheio mais os 12 que a Página põe embaixo dele. Nunca
+    /// abaixo de 96 — um cartão de 40 pt não é um cartão, é um risco.
+    private var tetoParaOTexto: CGFloat {
+        guard let teto = tetoDoEncaixe else { return .infinity }
+        return max(96, teto - 44)
+    }
+
+    private var cartaoInteiro: some View {
         // o TEXTO rola quando cresce (Dynamic Type, resposta longa) e nunca
         // cobre a topbar; as ações não rolam: ficam no pé, sempre à vista
         VStack(alignment: .leading, spacing: 10) {
@@ -71,8 +194,10 @@ struct CartaoAnaliseView: View {
         }
         // em AX o teto sobe: duas ações de duas linhas (≈232 pt) mais três
         // linhas de texto que rolam — e para aí, porque o pé da página (um
-        // menu em AX) fica embaixo do cartão, não no lugar dele
-        .frame(maxHeight: acoesNoPe ? 440 : 380)
+        // menu em AX) fica embaixo do cartão, não no lugar dele. E acima de
+        // tudo manda o que SOBRA da tela (05y): sem isto o teto era absoluto e
+        // quem pagava era o papel; com ele, é o texto do cartão que rola.
+        .frame(maxHeight: min(acoesNoPe ? 440 : 380, tetoParaOTexto))
         .fixedSize(horizontal: false, vertical: true)
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -98,6 +223,39 @@ struct CartaoAnaliseView: View {
         }
     }
 
+    /// O rótulo do cartão, num lugar só: a linha recolhida e o cartão inteiro
+    /// dizem a MESMA coisa (law-of-similarity — e uma fonte, não duas).
+    private var kicker: String {
+        switch cartao {
+        case .aviso: "Aviso"
+        case .forma(let gesto, _): gesto.nome
+        case .vestida(let gesto, _): gesto.nome
+        case .pergunta: "Sua pergunta"
+        case .sabiaPensando: "A sábia"
+        case .resposta(let q, _): "A sábia, sobre: \(q)"
+        case .vestido: "Vestido"
+        case .semConta: "Sem conta"
+        case .expressiva: "Escrita expressiva"
+        }
+    }
+
+    /// O que a linha recolhida mostra do corpo: a frase que importa em cada
+    /// caso, cortada numa linha. Nada de resumo inventado — é o texto do
+    /// cartão, o mesmo que abre embaixo.
+    private var resumo: String {
+        switch cartao {
+        case .aviso(let frase): frase
+        case .forma(_, let pergunta): pergunta
+        case .vestida(let gesto, _): gesto.reconhecimento
+        case .pergunta(let q): q
+        case .sabiaPensando: "pensando…"
+        case .resposta(_, let texto): texto
+        case .vestido: "As suas palavras, com forma. Nenhuma mudou."
+        case .semConta: "a sábia " + Sabia.porOndeEmPalavras + "."
+        case .expressiva: "Isto pede 15 minutos — fato E sentimento, sobre o mesmo evento."
+        }
+    }
+
     private var conteudo: some View {
         VStack(alignment: .leading, spacing: 10) {
             switch cartao {
@@ -106,12 +264,12 @@ struct CartaoAnaliseView: View {
                     // o cartão de recusa dizia "Pergunta" no kicker — papel
                     // errado com trilho vermelho (visto no iPhone do dono,
                     // 01/set). Aviso se chama Aviso (reforma da linguagem).
-                    chip("Aviso", aviso: true)
+                    chip(kicker, aviso: true)
                     avisoTexto(frase)
                 }
-            case .forma(let gesto, let pergunta):
+            case .forma(_, let pergunta):
                 corpoCartao(trilho: Tema.ambar) {
-                    chip(gesto.nome, aviso: false)
+                    chip(kicker, aviso: false)
                     Text(pergunta)
                         .font(Tema.corpo)
                         .foregroundStyle(Tema.tinta)
@@ -124,7 +282,7 @@ struct CartaoAnaliseView: View {
                     // O funil principal apontava ao contrário (fitts-law +
                     // von-restorff-effect). E "soltar" é ambíguo em pt-BR entre
                     // largar e aplicar — metade tocaria achando que confirma.
-                    chip(gesto.nome, aviso: false)
+                    chip(kicker, aviso: false)
                     if sessao.dominio != nil || sessao.dominioTravado {
                         // ADR 05d: menu, não apagar
                         ChipDominio(atual: sessao.dominio, travado: sessao.dominioTravado,
@@ -147,7 +305,7 @@ struct CartaoAnaliseView: View {
                 }
             case .pergunta(let q):
                 corpoCartao(trilho: Tema.ambar) {
-                    chip("Sua pergunta", aviso: false)
+                    chip(kicker, aviso: false)
                     Text(q)
                         .font(Tema.corpo)
                         .foregroundStyle(Tema.tinta)
@@ -155,7 +313,7 @@ struct CartaoAnaliseView: View {
                 }
             case .sabiaPensando:
                 corpoCartao(trilho: Tema.ambar) {
-                    chip("A sábia", aviso: false)
+                    chip(kicker, aviso: false)
                     HStack(spacing: 10) {
                         ProgressView().tint(Tema.tintaSuave)
                         Text("pensando…")
@@ -163,9 +321,9 @@ struct CartaoAnaliseView: View {
                             .foregroundStyle(Tema.tintaSuave)
                     }
                 }
-            case .resposta(let q, let texto):
+            case .resposta(_, let texto):
                 corpoCartao(trilho: Tema.ambar) {
-                    chip("A sábia, sobre: \(q)", aviso: false)
+                    chip(kicker, aviso: false)
                     Text(texto)
                         .font(Tema.corpo)
                         .foregroundStyle(Tema.tinta)
@@ -188,7 +346,7 @@ struct CartaoAnaliseView: View {
                 }
             case .vestido:
                 corpoCartao(trilho: Tema.ambar) {
-                    chip("Vestido", aviso: false)
+                    chip(kicker, aviso: false)
                     Text("As suas palavras, com forma. Nenhuma mudou.")
                         .font(Tema.corpo)
                         .foregroundStyle(Tema.tinta)
@@ -196,12 +354,12 @@ struct CartaoAnaliseView: View {
                 }
             case .semConta:
                 corpoCartao(trilho: Tema.aviso) {
-                    chip("Sem conta", aviso: true)
+                    chip(kicker, aviso: true)
                     avisoTexto("a sábia " + Sabia.porOndeEmPalavras + ". Sem ela, tudo o mais continua.")
                 }
             case .expressiva:
                 corpoCartao(trilho: Tema.ambar) {
-                    chip("Escrita expressiva", aviso: false)
+                    chip(kicker, aviso: false)
                     Text("Isto pede 15 minutos — fato E sentimento, sobre o mesmo evento. Ao fim, a nota tranca e não se relê.")
                         .font(Tema.corpo)
                         .foregroundStyle(Tema.tinta)
@@ -239,7 +397,23 @@ struct CartaoAnaliseView: View {
         case .vestida:
             ladoALado {
                 // ADR 04r: abrir os campos é ATO — é aqui que a sábia instiga
-                Button("Abrir os campos") { sessao.instigarSePreciso(); aoAbrirCampos?() }
+                // A QUINTA da classe A1 (G4 da V12): este toque muda o cartão
+                // (`instigarSePreciso`) E apresenta a folha no MESMO quadro; a
+                // altura do encaixe interpolava enquanto o teclado descia, e o
+                // pé do cartão ficava legível sobre o corpo do cartão por ~215
+                // ms sem RM. A troca de estado do cartão corta, como o `fechar()`
+                // e o `onChange(of: camposComResposta)` já cortam.
+                Button("Abrir os campos") {
+                    var t = Transaction(); t.disablesAnimations = true
+                    withTransaction(t) {
+                        // volta à linha antes de a folha subir: o teclado
+                        // desce com ela, e um cartão ALTO por baixo de um pé
+                        // que viaja 334 pt é o par legível outra vez
+                        abertoNoTeclado = false
+                        sessao.instigarSePreciso()
+                    }
+                    aoAbrirCampos?()
+                }
                     .buttonStyle(.primario(alinhamento: .leading))
                     .accessibilityIdentifier("abrir-campos")
                     .accessibilityHint("Os campos da forma abrem numa folha; o seu texto fica intacto")

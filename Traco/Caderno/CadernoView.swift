@@ -52,6 +52,11 @@ struct CadernoView: View {
     @State private var formaDoMenu: PapelForma?
     @State private var gravando = false
     @State private var gravador: AVAudioRecorder?
+    /// Altura desta view — com o teclado de pé, a tela menos o teclado.
+    @State private var alturaDisponivel: CGFloat = 0
+    @State private var alturaDoPe: CGFloat = 0
+    /// Três linhas de corpo: o piso declarado do papel (ADR 05y).
+    @ScaledMetric(relativeTo: .body) private var pisoDoPapel: CGFloat = 92
 
     private var fatias: [FatiaCaderno] { Caderno.fatias(texto) }
 
@@ -126,6 +131,73 @@ struct CadernoView: View {
         }
     }
 
+    /// O pé do encaixe: régua (ou barra de ligação), linha de gravação e a
+    /// barra de ações. Não depende do cartão — por isso a sua altura pode ser
+    /// medida sem laço de layout e descontada do que sobra para o papel.
+    private var peDoEncaixe: some View {
+        // VStack EXPLÍCITO: um `@ViewBuilder` com vários filhos devolve um
+        // TupleView, e um TupleView com modificador (aqui o `onGeometryChange`)
+        // deixa de ser achatado pelo VStack de fora — a régua ia parar EM CIMA
+        // da barra de ações, que é exatamente a sobreposição que a 05y proíbe.
+        VStack(spacing: 0) { conteudoDoPe }
+    }
+
+    @ViewBuilder private var conteudoDoPe: some View {
+        if gravando {
+            Button("A gravar") { pararGravacao() }
+                .font(Tema.label)
+                .foregroundStyle(Tema.tintaSuave)
+                .frame(maxWidth: .infinity, minHeight: Tema.alvo)
+                .accessibilityIdentifier("a-gravar")
+                .accessibilityLabel("Parar gravação")
+        }
+        if foco.wrappedValue, let trecho = Rede.ligacaoEmVoo(texto),
+           !sugestoesDeLigacao(trecho).isEmpty {
+            barraDeLigacao(trecho)
+                .padding(.horizontal, Tema.margem)
+                .padding(.vertical, 4)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Tema.fundo)
+                .overlay(alignment: .top) {
+                    Rectangle().fill(Tema.linha).frame(height: 0.5)
+                }
+                .transition(.identity)
+        } else if foco.wrappedValue, !esconderRegua {
+            regua
+                .padding(.horizontal, Tema.margem)
+                .padding(.vertical, 4)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Tema.fundo)
+                .overlay(alignment: .top) {
+                    Rectangle().fill(Tema.linha).frame(height: 0.5)
+                }
+                .transition(.identity)
+        }
+        // a barra de ações da página mora AQUI: um container, uma lei.
+        // A altura mínima impede o quadro VAZIO entre um ocupante sair
+        // e o outro entrar (k175) — sem voltar à sobreposição.
+        rodape
+            .frame(minHeight: rodape == nil ? 0 : 54)
+    }
+
+    /// Quanto o encaixe pode tomar: tudo menos o pé e o piso do papel. `nil`
+    /// enquanto ainda não há medida (primeiro quadro), para não achatar nada.
+    /// O piso é `pisoDoPapel` — três linhas de corpo —, mas nunca mais de
+    /// metade do que sobra depois do pé: em tamanhos AX três linhas de corpo
+    /// não cabem com o cartão, e um piso maior que o teto deixaria o autor sem
+    /// as duas saídas em vez de sem texto.
+    /// Fora do `body` para ter teste (`CadernoTetoTests`).
+    static func tetoDoEncaixe(altura: CGFloat, pe: CGFloat, piso: CGFloat) -> CGFloat? {
+        guard altura > 0 else { return nil }
+        let sobra = altura - pe
+        guard sobra > 0 else { return nil }
+        return max(0, sobra - min(piso, sobra / 2))
+    }
+
+    private var tetoDoEncaixe: CGFloat? {
+        Self.tetoDoEncaixe(altura: alturaDisponivel, pe: alturaDoPe, piso: pisoDoPapel)
+    }
+
     var body: some View {
         // O ZStack existe para dar ao ENCAIXE uma identidade que não troca.
         // `paginaCaderno` escolhe entre página una e fatias, e `paginaUna` entre
@@ -147,41 +219,15 @@ struct CadernoView: View {
         .safeAreaInset(edge: .bottom, spacing: 0) {
             VStack(spacing: 0) {
                 acima
-                if gravando {
-                    Button("A gravar") { pararGravacao() }
-                        .font(Tema.label)
-                        .foregroundStyle(Tema.tintaSuave)
-                        .frame(maxWidth: .infinity, minHeight: Tema.alvo)
-                        .accessibilityIdentifier("a-gravar")
-                        .accessibilityLabel("Parar gravação")
-                }
-                if foco.wrappedValue, let trecho = Rede.ligacaoEmVoo(texto),
-                   !sugestoesDeLigacao(trecho).isEmpty {
-                    barraDeLigacao(trecho)
-                        .padding(.horizontal, Tema.margem)
-                        .padding(.vertical, 4)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Tema.fundo)
-                        .overlay(alignment: .top) {
-                            Rectangle().fill(Tema.linha).frame(height: 0.5)
-                        }
-                        .transition(.identity)
-                } else if foco.wrappedValue, !esconderRegua {
-                    regua
-                        .padding(.horizontal, Tema.margem)
-                        .padding(.vertical, 4)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Tema.fundo)
-                        .overlay(alignment: .top) {
-                            Rectangle().fill(Tema.linha).frame(height: 0.5)
-                        }
-                        .transition(.identity)
-                }
-                // a barra de ações da página mora AQUI: um container, uma lei.
-                // A altura mínima impede o quadro VAZIO entre um ocupante sair
-                // e o outro entrar (k175) — sem voltar à sobreposição.
-                rodape
-                    .frame(minHeight: rodape == nil ? 0 : 54)
+                    // o cartão nunca come a página: se o que sobra não chega,
+                    // é o TEXTO DO CARTÃO que rola dentro do teto, nunca a
+                    // linha que o autor está a escrever que sai da tela. O teto
+                    // viaja pelo ambiente para o cartão o usar POR DENTRO (é lá
+                    // que a rolagem dele mora); o `.frame` aqui é a rede.
+                    .environment(\.tetoDoEncaixe, tetoDoEncaixe)
+                    .frame(maxHeight: tetoDoEncaixe)
+                peDoEncaixe
+                    .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { alturaDoPe = $0 }
             }
             // uma animação para a superfície inteira: os filhos trocam DENTRO
             // dela — quem anima é a ALTURA do container, não a opacidade de
@@ -192,13 +238,26 @@ struct CadernoView: View {
             // `v12-rev-cruzamento-regua-pe.png`); o `.clipped()` é do VStack
             // inteiro e não separa irmão de irmão. Cortar aqui não perde
             // movimento: o encaixe cresce e revela, que é a lei da gaveta.
-            .animation(Tema.gaveta(reduzido: reduceMotion), value: foco.wrappedValue)
+            // A régua entra e sai com o TECLADO, e o teclado já tem a sua curva:
+            // uma gaveta de 0,4 s por cima de uma descida de 0,25 s são dois
+            // relógios no mesmo evento, e o que se vê é o pé numa geometria e o
+            // cartão noutra, os dois legíveis (A3 do G4 da V12, ~215 ms sem RM
+            // no toque em "Abrir os campos"). Aqui a régua CORTA e quem carrega
+            // o movimento é o teclado. A gaveta fica onde a altura muda sozinha:
+            // `esconderRegua` (o cartão a chegar em AX).
             .animation(Tema.gaveta(reduzido: reduceMotion), value: esconderRegua)
             .clipped()
             // o papel desce até a borda: sem isto o texto rolado aparecia por
             // baixo do pé, na faixa do indicador de casa (AX5, 06/09)
             .background(Tema.fundo.ignoresSafeArea(edges: .bottom))
         }
+        // O PISO DO PAPEL (ADR 05y, correção do G4): o que sobra da tela depois
+        // do encaixe é o trabalho do autor. A medida vem DEPOIS do
+        // `.safeAreaInset` de propósito — medida por dentro dele, ela já vinha
+        // descontada do próprio encaixe e o teto realimentava a si mesmo. Aqui
+        // é a altura inteira desta view, que com o teclado de pé já é a tela
+        // menos o teclado. O pé mede-se sozinho e não depende do cartão.
+        .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { alturaDisponivel = $0 }
         .onAppear {
             unaCrua = Caderno.paginaUna(texto) != nil
         }
@@ -859,5 +918,19 @@ struct CadernoView: View {
               data.count > 200
         else { return }
         gravar(dados: data, nome: "voz.m4a", tipo: .mpeg4Audio)
+    }
+}
+
+/// Quanto o encaixe (aviso, cartão, "lendo…") pode tomar da tela — o que sobra
+/// depois do pé e do piso do papel (ADR 05y). Viaja pelo ambiente porque quem
+/// mede é o Caderno e quem precisa rolar por dentro é o cartão da Página.
+private struct TetoDoEncaixeChave: EnvironmentKey {
+    static let defaultValue: CGFloat? = nil
+}
+
+extension EnvironmentValues {
+    var tetoDoEncaixe: CGFloat? {
+        get { self[TetoDoEncaixeChave.self] }
+        set { self[TetoDoEncaixeChave.self] = newValue }
     }
 }

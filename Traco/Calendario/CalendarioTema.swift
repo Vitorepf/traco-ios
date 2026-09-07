@@ -133,7 +133,9 @@ enum CalendarioTema {
 
     // MARK: movimento
     /// Mola com massa e sem pressa, para a troca de escala e de dia.
-    static func morph(_ reduce: Bool) -> Animation {
+    /// Sob Reduzir Movimento devolve `nil`: a escala nova aparece, não cresce
+    /// (a lei única da 05y — só a opacidade anima).
+    static func morph(_ reduce: Bool) -> Animation? {
         Tema.animacao(Tema.Mola.escala, reduzido: reduce)
     }
 

@@ -2715,7 +2715,9 @@ teclado}`; `Tema.Raio.{controle 10, campo 14, cartao 18}`; `Tema.Sombra.
 {flutuante, campo}` com `View.sombra(_:)`. `Tema.movimento(classe, animação,
 reduzido:)` decide sozinho sob Reduzir Movimento: deslocamento vira fade
 curta ou corte, escala e laço não animam, opacidade fica; `pressaoAnim` ganha
-`reduzido:`. `CalendarioTema` cita `Tema` em vez de repetir hex e número.
+`reduzido:`. (**O "ou" desta frase foi a ambiguidade que trouxe a classe A1 de
+volta cinco vezes: a 05y, V12-D, escolhe o CORTE, e sob reduzido só a opacidade
+anima.**) `CalendarioTema` cita `Tema` em vez de repetir hex e número.
 Dezesseis literais viram três durações; Δ por chamada em
 `ferramentas/orca/v10a-tokens-movimento.md`.
 
@@ -2930,6 +2932,101 @@ o cruzamento. No mesmo lugar, os campos passam a NASCER cortando
 papel, e sob Reduzir Movimento nada dissolve. A página vazia é **0 px** de
 diferença contra `69bec69` fora da faixa de sugestão do teclado do iOS. Prova: `v12c-pe-quadros-sem-rm.png` e `v12c-pe-quadros-com-rm.png`,
 sete quadros a 30 fps por linha, antes (`69bec69`) e depois em cada modo.
+
+**O papel tem piso, e o cartão vale uma linha enquanto se escreve (correção do
+G4, V12-D).** O G4 mediu o preço que ninguém tinha medido: com o TECLADO DE PÉ —
+o único estado em que se escreve — o cartão da forma vestida ocupava 413 pt, 47%
+da tela, e deixava **33 pt de papel**; o juiz digitou 37 caracteres depois de o
+cartão chegar e NENHUM apareceu. O defeito da V9 não tinha acabado: o cartão
+saiu de cima da régua e das ações e foi para cima **do papel**, que é pior,
+porque o que ele cobre é o trabalho do autor. Duas decisões, e a régua é uma só:
+*o texto que o autor está digitando fica na tela*. (1) **Piso do papel.** O teto
+do cartão deixa de ser absoluto (440/380): o encaixe leva o que SOBRA —
+`CadernoView.tetoDoEncaixe(altura:pe:piso:)`, altura desta view (com teclado, a
+tela menos o teclado) menos o pé medido menos o piso, e o piso é três linhas de
+corpo (`@ScaledMetric` 92) mas nunca mais de METADE do que sobra, porque em
+tamanho AX três linhas de corpo não cabem com o cartão e um piso maior deixaria
+o autor sem as saídas em vez de sem texto. É a mesma medida que conserta o
+transbordo em AX5 (A4): a pilha passa a caber, "Mais ações da nota" — a ÚNICA
+porta das quatro ações em AX — fica acima do teclado, "Deixar como nota" deixa
+de ser cortado em "Deixar" e a topbar sai de cima da barra de estado. (2) **Com
+o teclado de pé o cartão é UMA LINHA**: o trilho âmbar e a frase que importa,
+cortada numa linha; fora de AX as duas saídas ficam logo abaixo dela, à vista;
+em AX elas não cabem ao lado e a linha vira MENU — o mesmo desenho que o pé da
+página já usa em AX. Um toque na linha abre a prosa NO LUGAR, sem mexer no
+teclado: derrubar o teclado aqui foi tentado e filmado, e a barra do pé viaja
+334 pt enquanto o cartão cresce, com os dois legíveis na mesma faixa por ~165 ms
+— a classe A1 outra vez. Quatro cartões NÃO recolhem: o aviso e o "sem conta"
+(esconder falha para limpar a tela é o que o contrato proíbe), o "pensando…" e a
+RESPOSTA DA SÁBIA — essa o autor pediu, e entregá-la recolhida seria esconder o
+resultado de quem o mandou vir (`curva-zero` §2). No mesmo lugar, a régua deixa
+de ter gaveta ao seguir o FOCO: ela entra e sai com o teclado, e o teclado já
+tem a sua curva — uma gaveta de 0,4 s por cima de uma descida de 0,25 s são dois
+relógios no mesmo evento, e o que se via era o pé numa geometria e o cartão
+noutra. **Custo assumido:** com o teclado de pé, a prosa do cartão fica atrás de
+um toque; em AX, as saídas também — declarado, como a régua que já cede ao
+cartão em AX. **Limite conhecido, não corrigido aqui:** nota MAIS ALTA que o
+papel visível continua a mostrar as PRIMEIRAS linhas enquanto se escreve no fim
+— o `TextEditor` desta página não rola sozinho e quem rola é o `ScrollView` de
+fora, que não segue caret. É anterior a esta volta (só aparecia agora que há
+papel para ver), foi medido, e a correção mexe na estrutura de `paginaUna` que a
+V12-C acabou de estabilizar: vai para o RUMO com a prova.
+
+**A lei do movimento reduzido escolhe o corte, e é do app inteiro (correção do
+G4, V12-D).** A 05v dizia "deslocamento → fade curta OU corte", e a
+implementação escolhia a fade: `Tema.movimento(.deslocamento, …, reduzido:)`
+devolvia `fadeReduzido`, que é `.easeOut(0,15)` — uma DURAÇÃO menor, não um
+corte. A geometria continuava a ser interpolada, só que depressa; e quando os
+filhos do container são texto legível, essa interpolação é um cross-dissolve de
+duas geometrias. Foi o que produziu a QUINTA ocorrência da classe A1, no toque
+em "Abrir os campos": ~215 ms sem Reduzir Movimento e **~370 ms COM** — mais
+lento com RM do que sem, o contrário do que RM promete. O "ou" era a
+ambiguidade. **Esta ADR escolhe o corte**, e a lei fica de uma linha só: sob
+Reduzir Movimento **só a opacidade anima**; deslocamento, escala e laço cortam.
+`fadeReduzido` deixa de existir — não sobrou caso para ele: quem quer uma fade
+declara a classe `.opacidade`, que mantém a animação que a view pediu.
+`Tema.animacao` (o nome curto do deslocamento) e `Tema.gaveta` passam a devolver
+`Animation?`; `Tema.corte` fica como o mesmo corte com o nome à vista de quem
+move com o dedo ou com o relógio. **Vale para as 12 chamadas de `.deslocamento`,
+as 8 de `animacao`/`morph` e as 4 de `gaveta` do app**, não só para a Página:
+`CalendarioTema.morph` também devolve `nil` sob RM. Prova nos dois lugares, em
+quadros nativos: na Página, a linha que abre a prosa e o toque em "Abrir os campos", sete quadros
+nativos por linha, SEM Reduzir Movimento (`v12d-sem-rm-quadros.png`) e COM
+(`v12d-com-rm-quadros.png`): o cartão está num quadro e não está no seguinte, e
+em nenhum há par legível na mesma faixa; no **Calendário**, tela de outra volta,
+Dia→Semana e Semana→Mês sob RM em UM quadro cada
+(`v12d-calendario-rm-corta.png`), onde a fade de 0,15 s dava uma interpolação de
+quatro a cinco. A chegada do cartão sob RM também virou um quadro
+(`v12d-com-rm.mp4`). **Custo assumido:** sob Reduzir Movimento a
+chegada do cartão deixa de crescer de baixo para cima — ela aparece. O G4 tinha
+gostado desse crescimento (M2), mas é a mesma regra que trazia o fantasma de
+volta em cada gatilho novo; a lei não pode dizer duas coisas. **Resíduo medido,
+não corrigido:** ao apresentar a folha dos campos, o rótulo "Todas" (a porta da
+régua) fica no lugar por alguns quadros enquanto o pé desce — sobre o fundo da
+barra, nunca sobre texto. É a fotografia que o `.sheet` tira da tela que
+apresenta, não uma animação nossa.
+
+**Prova da V12-D.** Suíte **760/0 em 128 suítes** no iPhone 17 Pro C2416CBC
+(`✔ Test run with 760 tests in 128 suites passed after 7.982 seconds.`),
+06/09/2026, com dois testes novos: `oPapelTemPiso` (a aritmética do teto, com os
+números do G4 — 446 pt disponíveis, pé de 90, piso de 92 → 264 de encaixe e 92
+de papel; e o caso apertado onde o piso cede a metade) e `oAvisoEARespostaNaoRecolhem`.
+Medido na tela, no mesmo estado do G4 (`large`, teclado de pé, forma vestida,
+captura `simctl` 1206×2622): base da topbar **94 pt** (o mesmo ponto que o G4
+mediu), topo do cartão **235**, teclado em **540** — **papel 141 pt** contra os
+33 do G4, encaixe **305 pt = 35% da tela** contra 413 = 47%, e a frase inteira
+"quero correr de manhã e nadar à noite quando der, sem falta" na tela com o
+caret (`v12d-large-vestida-teclado.png`). AX5 no mesmo estado
+(`v12d-ax5-vestida-teclado.png`): topbar fora da barra de estado, uma linha de
+papel, cartão numa linha e "Mais ações da nota" INTEIRO acima do teclado; as
+duas saídas no menu da linha, sem corte (`v12d-ax5-menu-do-cartao.png`). O par
+antes/depois do estado que decide (M1 do G4) é este contra as capturas do
+próprio G4, que são o "antes" com o teclado de pé:
+`g4-v12-cartao-come-o-papel.png` e `g4-v12-ax5-cartao.png`. Swift do app
+**+261 líquidas** (+337 −76; 123 das linhas somadas são comentário), portanto a
+V12-D também NÃO cumpre a regra de shortstat líquido-negativo da 05v — pelo
+mesmo motivo declarado na V12-B: tirar duas decisões de dentro de `body` para
+elas terem teste, e escrever no código a bissecção que custou três voltas.
 
 **A aresta é do material, não do chamador (correção do G3, V12-B).** `Cartao`
 devolve o fio de `Tema.linha` 0,5 a todo branco sobre o papel (`.papel` e

@@ -331,7 +331,15 @@ struct PaginaView: View {
                 .accessibilityAddTraits(.isStaticText)
         }
         if let cartao = sessao.cartao {
-            CartaoAnaliseView(cartao: cartao, sessao: sessao, aoAbrirCampos: { mostrarCampos = true })
+            // enquanto o autor ESCREVE (teclado de pé) o cartão vale uma
+            // linha: a página é do texto dele. As saídas ficam à vista; a
+            // prosa abre a um toque, no lugar, sem mexer no teclado.
+            CartaoAnaliseView(cartao: cartao, sessao: sessao,
+                              aoAbrirCampos: { mostrarCampos = true },
+                              // com a folha dos campos em cena o cartão fica
+                              // como está: mudar de forma por trás dela é
+                              // desenhar o encaixe em duas geometrias
+                              recolhido: focoPagina || mostrarCampos)
                 .padding(.horizontal, Tema.margem)
                 .padding(.bottom, 12)
                 // a troca de CASO do cartão é troca de VIEW, e ela CORTA: sem

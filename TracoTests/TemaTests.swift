@@ -3,21 +3,33 @@ import SwiftUI
 import Testing
 @testable import Traco
 
-/// ADR 2026-09-05t e 05v: com "Reduzir movimento", quem decide é `Tema`, num
-/// lugar só, por classe de movimento. A gaveta do Caderno e o morph do
-/// Calendário têm nome próprio, mas devolvem o MESMO fade.
+/// ADR 2026-09-05t, 05v e 05y: com "Reduzir movimento", quem decide é `Tema`,
+/// num lugar só, por classe de movimento. A gaveta do Caderno e o morph do
+/// Calendário têm nome próprio, mas seguem a MESMA lei — e a lei é o corte.
 struct TemaTests {
-    @Test func movimentoReduzidoViraFadeCurto() {
+    /// A desambiguação da 05y: `.deslocamento` sob reduzido CORTA. Antes
+    /// devolvia `fadeReduzido` (0,15 s), que é uma duração menor e não um
+    /// corte: a geometria seguia interpolada e dois textos legíveis podiam
+    /// ocupar as mesmas linhas — mais lento COM Reduzir Movimento do que sem.
+    @Test func movimentoReduzidoCorta() {
         let mola = Tema.Mola.camada
-        #expect(Tema.animacao(mola, reduzido: true) == Tema.fadeReduzido)
+        #expect(Tema.animacao(mola, reduzido: true) == nil)
         #expect(Tema.animacao(mola, reduzido: false) == mola)
-        #expect(Tema.fadeReduzido == .easeOut(duration: Tema.Duracao.curta))
+    }
+
+    /// Sob reduzido só a opacidade sobrevive; todo o resto devolve nil.
+    @Test func soAOpacidadeAnimaSobReduzido() {
+        let normal = Animation.easeOut(duration: Tema.Duracao.media)
+        for classe: Tema.Movimento in [.deslocamento, .escala, .laco] {
+            #expect(Tema.movimento(classe, normal, reduzido: true) == nil)
+        }
+        #expect(Tema.movimento(.opacidade, normal, reduzido: true) == normal)
     }
 
     @Test func gavetaECalendarioSeguemAMesmaLei() {
-        #expect(Tema.gaveta(reduzido: true) == Tema.fadeReduzido)
-        #expect(Tema.gaveta(reduzido: false) != Tema.fadeReduzido)
-        #expect(CalendarioTema.morph(true) == Tema.fadeReduzido)
+        #expect(Tema.gaveta(reduzido: true) == nil)
+        #expect(Tema.gaveta(reduzido: false) != nil)
+        #expect(CalendarioTema.morph(true) == nil)
         #expect(CalendarioTema.morph(false) == Tema.Mola.escala)
     }
 
@@ -31,8 +43,8 @@ struct TemaTests {
 
     // MARK: - A lei por classe (05v)
 
-    @Test func deslocamentoViraFadeCurta() {
-        #expect(Tema.movimento(.deslocamento, Tema.Mola.teclado, reduzido: true) == Tema.fadeReduzido)
+    @Test func deslocamentoCorta() {
+        #expect(Tema.movimento(.deslocamento, Tema.Mola.teclado, reduzido: true) == nil)
         #expect(Tema.movimento(.deslocamento, Tema.Mola.teclado, reduzido: false) == Tema.Mola.teclado)
     }
 
@@ -158,5 +170,37 @@ struct TemaTests {
         }
         // sem cartão nada esconde, nem em AX5
         #expect(!PaginaView.esconderRegua(cartao: nil, tamanho: .accessibility5))
+    }
+
+    // MARK: - O piso do papel (05y, correção do G4)
+
+    /// A regra do dono: com o teclado de pé, o texto que o autor escreve fica
+    /// à vista. O G4 mediu 413 pt de encaixe para 33 pt de papel — o teto do
+    /// cartão era absoluto (440/380) e quem pagava era a única parte elástica.
+    /// Agora o encaixe leva o que SOBRA depois do pé e do piso.
+    @Test func oPapelTemPiso() {
+        // `large`, teclado de pé: 446 pt disponíveis, pé de 90, piso de 92
+        #expect(CadernoView.tetoDoEncaixe(altura: 446, pe: 90, piso: 92) == 264)
+        // o papel fica com o piso inteiro: 446 − 90 − 264 = 92
+        // apertado (AX5): três linhas de corpo não cabem, o piso cede até
+        // metade do que sobra — mas o encaixe nunca leva tudo
+        let apertado = CadernoView.tetoDoEncaixe(altura: 446, pe: 300, piso: 280)
+        #expect(apertado == 73)
+        // sem medida ainda, ou pé maior que a tela: nada de teto, nada achatado
+        #expect(CadernoView.tetoDoEncaixe(altura: 0, pe: 0, piso: 92) == nil)
+        #expect(CadernoView.tetoDoEncaixe(altura: 400, pe: 400, piso: 92) == nil)
+    }
+
+    /// O cartão recolhe-se enquanto o autor escreve, mas o AVISO não — esconder
+    /// falha para limpar a tela é o que o contrato proíbe (AGENTS, Fronteiras)
+    /// — e a resposta da sábia também não, porque o autor a pediu.
+    @Test func oAvisoEARespostaNaoRecolhem() {
+        #expect(!CartaoAnaliseView.podeRecolher(.aviso("não consegui guardar")))
+        #expect(!CartaoAnaliseView.podeRecolher(.semConta))
+        #expect(!CartaoAnaliseView.podeRecolher(.sabiaPensando))
+        // a resposta da sábia o autor PEDIU: chega aberta
+        #expect(!CartaoAnaliseView.podeRecolher(.resposta(pergunta: "q", texto: "texto longo")))
+        #expect(CartaoAnaliseView.podeRecolher(.vestida(.woop, pergunta: "?")))
+        #expect(CartaoAnaliseView.podeRecolher(.forma(.woop, pergunta: "?")))
     }
 }
