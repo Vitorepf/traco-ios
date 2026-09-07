@@ -12,6 +12,9 @@ struct PerfilView: View {
     /// se mexem uma vez na vida — e o "⋯" ainda era duplicata do "+" do campo.
     var agenda: CalendarioAgenda
     @Environment(\.openURL) private var abrir
+    /// Sem a barra, o que separa um mês do outro é só o espaço: em AX5 a linha
+    /// do mês quebra em três e um vão fixo some dentro da própria entrelinha.
+    @ScaledMetric(relativeTo: .footnote) private var entreMeses: CGFloat = 8
 
     @State private var ligada = ContaGrok.ligada
     @State private var estado: String?
@@ -243,41 +246,31 @@ struct PerfilView: View {
         }
     }
 
-    /// A série: um mês por linha, na ordem do tempo. A barra é a mesma medida
-    /// da linha, para o olho — sem cor de bom ou ruim, sem meta, sem seta.
+    /// A série: um mês por linha, na ordem do tempo, só em palavras. Não há
+    /// barra: normalizada pela série, o pior mês enchia a pista sempre — 300
+    /// dias e 1 dia desenhariam igual —, e a única escala honesta seria
+    /// absoluta, que em dias não cabe na largura nem informa (ADR 06j, L1-C).
     private func meses(_ lista: [Latencia.Mes]) -> some View {
-        let maior = max(1, lista.map(\.mediana).max() ?? 1)
-        return VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 10) {
             Text("Por mês, o tempo do meio entre as descobertas daquele mês.")
                 .font(Tema.miudo)
                 .foregroundStyle(Tema.tintaFraca)
-            ForEach(lista) { m in
-                VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: entreMeses) {
+                ForEach(lista) { m in
                     Text(m.inicio.formatted(.dateTime.month(.wide).year())
                          + " · " + Latencia.emDias(m.mediana)
                          + " · \(m.quantas) descoberta\(m.quantas == 1 ? "" : "s")")
                         .font(.footnote)
                         .foregroundStyle(Tema.tintaSuave)
                         .fixedSize(horizontal: false, vertical: true)
-                    barraDoMes(Double(m.mediana) / Double(maior))
                 }
-                .accessibilityElement(children: .combine)
             }
         }
         .padding(.top, 4)
+        // o vão até os registros tem de ser MAIOR que o vão entre os meses,
+        // senão em AX5 a primeira linha de registro entra no grupo dos meses
+        .padding(.bottom, entreMeses)
         .accessibilityIdentifier("latencia-meses")
-    }
-
-    private func barraDoMes(_ fracao: Double) -> some View {
-        GeometryReader { g in
-            ZStack(alignment: .leading) {
-                Capsule().fill(Tema.superficieBaixa)
-                Capsule().fill(Tema.tinta.opacity(0.45))
-                    .frame(width: max(3, g.size.width * min(1, max(0, fracao))))
-            }
-        }
-        .frame(height: 4)
-        .accessibilityHidden(true)
     }
 
     /// Os abertos viajam junto dos fechados: uma série só do que fechou

@@ -4264,8 +4264,8 @@ desta volta (`ferramentas/orca/IDEIAS.md` §A) veio combater. A palavra
 "mediana" fica no código; na tela é "a do meio", que se lê sem glossário.
 
 **Não é placar, e o desenho é que garante isso.** Sem meta, sem sequência, sem
-XP, sem seta, sem verde e vermelho: a barra do mês é a mesma tinta em todos os
-meses e mede só o tamanho do número. Nenhuma ação na seção — o autor lê e sai.
+XP, sem seta, sem verde e vermelho — e, desde a L1-C, **sem barra nenhuma**: o
+mês é uma linha de palavras. Nenhuma ação na seção — o autor lê e sai.
 A cobrança de conferir já existe na lista de Notas (`Volta.campoDevido`) e não
 foi duplicada aqui; se esta tela tivesse um botão "conferir agora", a medida
 viraria lista de tarefas e destruiria o que mede. A pergunta da `curva-zero`
@@ -4310,7 +4310,8 @@ e o registro antigo em "tempo desconhecido": `ferramentas/orca/l1-serie-large.pn
 maestro). Fluxo `maestro/latencia.yaml`, que rola até cada um dos quatro
 estados — em AX5 a seção não cabe numa tela e "está visível agora" seria
 asserção sobre o tamanho do texto. As barras foram MEDIDAS na captura: julho
-42,6 % da largura (21/49 = 42,9 %) e agosto 7,8 % (4/49 = 8,2 %).
+42,6 % da largura (21/49 = 42,9 %) e agosto 7,8 % (4/49 = 8,2 %) — e foi essa
+medida, repetida pela revisão, que tirou a barra da tela na L1-C.
 **Semeadura declarada:** o simulador não viaja no tempo, então os registros com
 datas de junho a setembro foram escritos no formato que o próprio app grava —
 mesma tabela SwiftData, mesmo JSON do `DocumentoTrabalho`, mesmo histórico
@@ -4381,6 +4382,53 @@ o semeador e o leitor terem sido escritos pela mesma mão: o ciclo está provado
 pelo app. A SÉRIE de meses continua dependendo da semeadura, e a série real do
 dono só existe no aparelho dele.
 
-**Ainda fora:** a barra do mês continua normalizada pelo pior mês da série, sem
-escala fixa — duas capturas de meses diferentes não são comparáveis entre si.
-É decisão do dono (pista fixa ou nenhuma barra) e não foi tomada aqui.
+**Ainda fora na L1-B:** a barra do mês continua normalizada pelo pior mês da
+série, sem escala fixa — duas capturas de meses diferentes não são comparáveis
+entre si. É decisão do dono (pista fixa ou nenhuma barra) e não foi tomada aqui.
+
+### A volta L1-C — a barra sai, ficam as palavras
+
+**Por que não há barra.** Ela não mentia: o número em dias estava escrito ao
+lado, e não havia meta, cor nem seta. Mas a escala era a série, não a duração —
+**o pior mês da série é sempre 100 %**. Um mês com mediana de 300 dias enchia
+97,6 % da pista e um mês com mediana de 1 dia encheria igual, porque a barra
+codificava POSIÇÃO NA SÉRIE ao lado de um número ABSOLUTO. O relance e a leitura
+discordavam, e num painel cujo contrato inteiro é "nunca vira placar" a barra era
+o elemento mais parecido com um placar da tela. **A única escala honesta seria
+absoluta, e uma escala absoluta de dias não cabe na largura nem informa**: a
+latência real vai de horas a anos, então ou a pista tem um teto arbitrário (que
+é meta disfarçada) ou os meses curtos viram fios de 1 px. As palavras já eram
+honestas e já estavam lá — "julho de 2026 · 21 dias · 3 descobertas" —, então
+tirar foi entrega, não recusa. Decisão do dono (DIRETRIZ §6), não do
+implementador.
+
+**O que ficou no lugar: o espaço.** Sem barra, o que separa um mês do outro é o
+vão, e vão fixo quebra em AX5 — a linha do mês passa a ocupar três linhas e um
+espaço de 8 pt some dentro da própria entrelinha, colando os três meses num
+bloco só. O vão entre meses vira `@ScaledMetric(relativeTo: .footnote)`, e o vão
+do grupo até os registros carrega o mesmo valor **somado** ao ritmo da seção,
+para que a fronteira do grupo seja sempre maior que a distância interna (a
+inversão de proximidade que a barra escondia).
+
+**Prova da L1-C.** Suíte integral no iPhone 17 Pro Max de teste (6033B043),
+06/09/2026: `✔ Test run with 792 tests in 131 suites passed after 9.267
+seconds.` / `** TEST SUCCEEDED **`. Na tela, com a semeadura de três meses
+(`MODO=a`): `ferramentas/orca/l1c-sem-barra-large.png` — julho 21 dias, agosto
+4 dias e setembro 49 dias em três linhas de palavras, sem barra, e a série ainda
+lida como série; `l1c-sem-barra-ax5.png` — em AX5 cada mês quebra em três linhas
+e continua separado do vizinho e do primeiro registro. `xcrun simctl io
+screenshot`, não a captura do maestro.
+
+**Fora — e é volta própria, não conserto desta.** A L1-B fechou a rota da nota
+selada para ABANDONADO ("trancar uma nota nunca foi abandonar a decisão") e com
+isso deixou a Decisão **sem nenhuma porta para `abandonado`**: hipótese chega lá
+pelo Trabalho encerrado, decisão não chega de jeito nenhum. A consequência é a
+conflação INVERTIDA — a decisão que o autor nunca vai conferir fica DEVIDA para
+sempre, e o único jeito de tirá-la da tela é trancar a nota, que é exatamente o
+gesto que a L1-B declarou não ser abandono. Falta o gesto de "não vou conferir
+esta": um ato explícito do autor sobre a decisão (não sobre a nota), que a
+levasse a ABANDONADO e a tirasse da dívida sem selar nada. Não foi implementado
+aqui de propósito — inventar o gesto pede campo novo ou releitura do "espero", e
+esta volta é de subtração. Fica nomeado, com o modo de falha medido: uma tela
+que existe para não fazer o autor se sentir devendo tem hoje um estado que só
+sai pela porta errada.
