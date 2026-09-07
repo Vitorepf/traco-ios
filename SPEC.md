@@ -4217,3 +4217,104 @@ outras cinco. Depois, no iPhone 17 Pro (teste 4) `A1DF082C`: `✔ Test run with
 `** TEST SUCCEEDED **` na suíte inteira. **Fora:** a arbitragem do `dá medo de` acima; a família do adjetivo
 sem cópula; a dívida da densidade em nota de sistema segue no RUMO; e a régua
 inversa continua sendo escrita por mim e pelo revisor, não por uso real.
+
+## ADR 2026-09-06k — O Recordar tem um pé, um eixo e uma coluna quando a letra cresce (volta 19)
+
+**A distância.** A auditoria V9 deu **6,2** ao Recordar (Design 5 · Movimento 5 ·
+Acessibilidade 5 · Componentes 6 · Estado honesto 8 · Simplicidade 8) e disse
+que a curva-zero era o que estava certo: "1 toque + escrever + 1 toque; adiar é
+1 toque; curta e certa". Essa curva **não muda nesta volta**.
+
+Metade dos defeitos que a V9 listou já tinha caído entre 05 e 06/09 e foi
+**conferida na tela viva antes de tocar em qualquer linha**, não relida do
+relatório:
+
+| defeito V9 | onde caiu | como se conferiu hoje |
+|---|---|---|
+| `PrimarioStyle` próprio, "voltar" e RECORDAR à mão | V10-B (`1f0c8f3`) | a tela consome `CabecalhoDeFolha`, `.rotulo()`, `.buttonStyle(.primario/.discreto)`; nenhum estilo local |
+| cross-fade entre irmãos (§21), durações 0,3/0,35/0,4 sem token | V8 + V10-B | tira de quadros a 30 fps de `v19-antes-movimento.mp4`: nenhum quadro com dois textos legíveis; todas as durações vêm de `Tema.Duracao` |
+| "vol-tar"/"RECOR-DAR" hifenizados e pergunta cortada em AX5 | V8 (`dynamicTypeSize(...xxxLarge)`, `fixedSize`) | `v19-antes-06-ax5-escrever.png` |
+| toast tapa "Trabalhar nisto" e as quatro ações | `PaginaView` (`padding(.bottom, 88)`) | `v19-antes-05-hoje-nao.png`: a mensagem fica acima da barra |
+
+O que a V9 apontou e **continuava de pé**, mais três defeitos que só a tela viva
+mostrou:
+
+1. **Nenhuma ação tinha cara de ação.** "Revelar" era texto âmbar centrado no
+   meio de ~1 100 px de papel vazio, com "hoje não" logo abaixo, do mesmo
+   naipe; no revelar, "Voltar à página" e "cobrar antes" repetiam o par
+   (`critique-affordance`; a principal não se destacava, `von-restorff-effect`).
+2. **Três eixos numa tela só.** O `VStack` raiz era `.center`: conteúdo na
+   margem esquerda, "serviu / não serviu" e as ações flutuando no centro
+   (`law-of-continuity`).
+3. **O julgamento da pergunta ocupava o segundo lugar mais visível da tela**,
+   entre a pergunta e o lugar de escrever — é o ato menos importante do ritual.
+4. **"DE MEMÓRIA" e "A NOTA" não partilhavam linha de base** (57 pt em `large`,
+   ~280 pt em AX5): a `LazyVGrid` centra verticalmente a célula mais curta.
+5. **Em AX5 o revelar insistia em duas colunas**, porque o teste era só
+   `largura >= 360` — medida em pontos, cega ao corpo do texto. Com ~150 pt por
+   coluna o SwiftUI **hifeniza em vez de encolher**: "obstá-culo", "MEMÓ-RIA",
+   "per-gunta", a nota cortada no meio de uma letra e a ação por cima do corte
+   (`v19-antes-07-ax5-revelar.png`).
+6. **Em AX5 o campo do autor ficava com linha e meia**: a pergunta, com
+   `fixedSize`, tomava sete linhas e a prática não cabia na tela onde ela
+   acontece (`v19-antes-06-ax5-escrever.png`).
+7. **§21, um objeto um driver:** a frase "Leia uma última vez — a nota vai se
+   esconder." ficava ~1,2 s em opacidade cheia DEPOIS de a nota ter sumido,
+   prometendo o que já tinha acontecido, e a tela ficava um quadro em branco
+   antes da pergunta.
+8. **A pergunta da sábia trocava embaixo do autor.** O comentário no código já
+   dizia "chegou tarde… nada muda embaixo dele"; o código não fazia isso — o
+   vídeo pegou o enunciado sendo substituído ~4 s depois, com o autor escrevendo.
+
+### Decisão
+
+- **Um pé, um só, para escrever e para revelar** (`rodape`): fio no topo — daí
+  para baixo é controle, não texto (`law-of-common-region`) —, a ação principal
+  como `Pilula(forma: .larga, selecionada:)`, o único objeto escuro da folha, e
+  as saídas honestas ("hoje não" / "pular"; "cobrar antes") em meta abaixo dela.
+  Centrar DENTRO do pé é decisão; centrar no meio do papel era eixo quebrado.
+  **Nada de componente novo:** a cápsula larga já existia em `Traco/Componentes`.
+- Desabilitada, a `Pilula` fica sem fundo; o pé desenha um contorno de 0,5 para
+  a ação bloqueada não voltar a ser texto solto. É a única dívida local, e é uma
+  linha.
+- **`VStack(alignment: .leading)` na raiz.** Um eixo.
+- **"serviu / não serviu" desce para depois do campo**, e continua em TODO corpo
+  de texto: esconder o julgamento de quem usa letra grande seria tirar poder de
+  quem já tem menos.
+- **A pergunta cede altura, nunca legibilidade.** `ViewThatFits` com teto de
+  metade do vão: cabe inteira, encosta e o campo começa logo abaixo; não cabe, a
+  MESMA pergunta rola, com a última linha desmaiando em vez de cortada no meio
+  de uma letra. O campo tem piso de três alvos. `fixedSize` fica nos dois ramos
+  — é o que impede o SwiftUI de hifenizar em vez de encolher.
+- **`RecordarView.comparaLadoALado(largura:tamanho:)`**: lado a lado exige folha
+  larga E corpo de texto normal. Regra nomeada e testada fora da tela (lição da
+  F4), não um `if` no meio do `body`. `GridItem(alignment: .topLeading)` põe os
+  dois rótulos na mesma linha de base.
+- **A instrução sai no MESMO driver da nota** (`opacity(escondendo ? 0 : 1)`).
+- **A pergunta da sábia que chega depois da primeira letra não entra.** Trocar o
+  enunciado no meio da prova é mudar a prova.
+
+### O que isto NÃO muda
+
+A curva-zero: 1 toque para abrir + escrever + 1 toque em Revelar; "hoje não" e
+"pular" seguem em 1 toque; "serviu/não serviu" segue opcional e em 1 toque. A
+escada, o silêncio do §12 (sem placar) e o "O QUE NÃO VOLTOU" ficam como estão.
+
+### Evidência
+
+`ferramentas/orca/v19-antes-*.png` e `v19-depois-*.png` (sete estados cada, em
+`large` e AX5, percorridos pelo MESMO roteiro); `v19-antes-movimento.mp4`,
+`v19-depois-movimento.mp4` e `v19-depois-movimento-reduzido.mp4`. A prova do §21
+é a tira de quadros a 30 fps: a instrução e a nota apagam juntas, o papel fica
+limpo e só então a pergunta amanhece — **nenhum quadro com dois textos
+legíveis**, com e sem Reduzir Movimento. Build sem aviso e suíte verde
+(782 testes, 131 suítes) em 06/09/2026, no iPhone 17 Pro (teste 4)
+A1DF082C; `content_size`, `appearance` e `ReduceMotionEnabled` conferidos de
+volta em `large` / `light` / `0`.
+
+**Limites.** Sem VoiceOver ligado (exige humano) e sem aparelho real. "O QUE NÃO
+VOLTOU" não foi capturado: exige conta da sábia, que este simulador não tem —
+segue provado por `ProvaTests`, não por foto. A pergunta da sábia muda a cada
+abertura, então as capturas de `escrever` não são comparáveis palavra a palavra;
+o que se compara nelas é o layout. A `Pilula` desabilitada continua em
+`tintaMorta`: legível como bloqueada, discreta em AX5.

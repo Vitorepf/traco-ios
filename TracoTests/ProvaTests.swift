@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 import Testing
 
 @testable import Traco
@@ -174,5 +175,31 @@ import Testing
     @Test func aCitacaoDeOutraParteAcrescenta() {
         let titulo = "Foco e um recurso que acaba"
         #expect(!Prova.normal(titulo).contains(Prova.normal("cobra um pedaco que nao volta")))
+    }
+}
+
+/// Volta 19 — a regra de layout do revelar, testada fora da tela.
+///
+/// A auditoria V9 deu 5 em Acessibilidade ao Recordar. A causa era uma medida
+/// em pontos decidindo sozinha se a comparação cabe em duas colunas: em AX5
+/// cada coluna ficava com ~150 pt, o SwiftUI hifenizava em vez de encolher e a
+/// nota saía cortada no meio de uma letra. A lição da F4 é esta: o teto vira
+/// regra nomeada e testada, não um `if` escondido no meio do `body`.
+@Suite struct RecordarLadoALadoTests {
+    @Test func aFolhaLargaEmCorpoNormalComparaLadoALado() {
+        #expect(RecordarView.comparaLadoALado(largura: 393, tamanho: .large))
+        #expect(RecordarView.comparaLadoALado(largura: 360, tamanho: .xxxLarge))
+    }
+
+    @Test func aFolhaEstreitaEmpilha() {
+        #expect(!RecordarView.comparaLadoALado(largura: 359, tamanho: .large))
+    }
+
+    @Test func corpoDeAcessibilidadeEmpilhaEmQualquerLargura() {
+        // é o defeito que esta volta fecha: duas colunas de ~150 pt em AX5
+        // hifenizam "obstá-culo" e cortam a nota
+        for tamanho in [DynamicTypeSize.accessibility1, .accessibility3, .accessibility5] {
+            #expect(!RecordarView.comparaLadoALado(largura: 440, tamanho: tamanho))
+        }
     }
 }

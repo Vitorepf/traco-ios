@@ -87,6 +87,7 @@ struct RecordarView: View {
     @State private var avaliou = false
     @Environment(\.dismiss) private var dismiss
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.dynamicTypeSize) private var tamanho
     @State private var fase: Fase
     @State private var memoria = ""
     /// ADR 03i: a pergunta que a sábia fez sobre ESTA nota. nil = a fixa.
@@ -122,6 +123,17 @@ struct RecordarView: View {
     }
 
     private var modo: RitualRecordar { RitualRecordar.de(gesto) }
+
+    /// Quando o revelar compara em DUAS colunas.
+    ///
+    /// Era só `largura >= 360` — uma medida em pontos, cega ao corpo do texto.
+    /// Em AX5 as colunas ficavam com ~150 pt cada e o SwiftUI, sem espaço,
+    /// prefere hifenizar a encolher: "obstá-culo", "MEMÓ-RIA", "per-gunta", e a
+    /// nota ainda cortada no meio de uma letra. Regra, não modificador solto,
+    /// para poder ser testada fora da tela (lição da F4, §22).
+    nonisolated static func comparaLadoALado(largura: CGFloat, tamanho: DynamicTypeSize) -> Bool {
+        largura >= 360 && !tamanho.isAccessibilitySize
+    }
 
     private var notaInteira: String {
         VozDoAutor.juntar(texto: texto, campos: campos)
@@ -209,8 +221,14 @@ struct RecordarView: View {
     /// A pergunta da prova, uma vez por abertura. Silêncio em qualquer falha.
     private func pedirPergunta() async {
         guard perguntaDaSabia == nil, Sabia.disponivel else { return }
-        perguntaDaSabia = await Sabia.perguntaDeRecordar(alvo: alvo, pista: pista,
-                                                         gesto: gesto, degrau: degrau, retrato: retrato)
+        let vinda = await Sabia.perguntaDeRecordar(alvo: alvo, pista: pista,
+                                                  gesto: gesto, degrau: degrau, retrato: retrato)
+        // O vídeo da volta 19 pegou a pergunta da sábia entrando no lugar da
+        // fixa ~4 s depois, com o autor já escrevendo: o enunciado trocava no
+        // meio da prova. Chegou antes da primeira letra, entra; chegou depois,
+        // o autor termina com a pergunta que leu.
+        guard memoriaVazia else { return }
+        perguntaDaSabia = vinda
     }
 
     private func conferir() {
@@ -230,8 +248,104 @@ struct RecordarView: View {
         memoria.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
+    private var escondendo: Bool { fase == .esconder }
+
+    /// A pista (quando o método deixa uma) e a pergunta que o autor responde.
+    private var perguntaDaProva: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            if modo == .palavra || modo == .seEntao, !pista.isEmpty {
+                Text(pista)
+                    .font(Tema.corpo)
+                    .foregroundStyle(Tema.tintaSuave)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.bottom, 12)
+            }
+            // ADR 03i: a pergunta era uma de cinco frases fixas — a mesma para
+            // toda nota, para sempre, no ritual mais repetido do app. A da
+            // sábia entra quando passa na prova de não vazar; a fixa segura o
+            // lugar sempre (sem conta, sem rede, ou recusada).
+            //
+            // `tintaSuave` é a voz do app; `tinta` cheia é a voz do autor. A
+            // pergunta e o que ele escreve ficam a 20 pt uma do outro, no mesmo
+            // corpo e na mesma margem: se a pergunta subisse para `tinta`, os
+            // dois parágrafos viravam um só (`law-of-similarity`).
+            Text(perguntaDaSabia ?? pergunta)
+                .font(Tema.corpo)
+                .foregroundStyle(Tema.tintaSuave)
+                // AX5: comprimida pelo editor abaixo, a pergunta virava "O que estava…"
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .accessibilityIdentifier("recordar-pergunta")
+        }
+        .padding(.horizontal, Tema.margem)
+        .padding(.bottom, 16)
+    }
+
+    /// Uma saída honesta do ritual: rótulo, o que ela faz com a escada, e o ato.
+    private struct Saida: Identifiable {
+        let id: String
+        let rotulo: String
+        let dica: String
+        let acao: () -> Void
+    }
+
+    /// O pé do Recordar, um só para escrever e para revelar.
+    ///
+    /// A auditoria V9 achou "Revelar" e "hoje não" como dois textos centrados
+    /// soltos no papel, sem cara de botão (`critique-affordance`) e sem peso
+    /// diferente entre o caminho e a saída (`von-restorff-effect`). O pé
+    /// resolve os dois: um fio o separa da superfície de escrita
+    /// (`law-of-common-region` — daí em diante é controle, não texto), a ação
+    /// principal é a `Pilula(.larga)` cheia — o único objeto escuro da folha —
+    /// e as saídas ficam abaixo dela, em meta. Centrar DENTRO do pé é decisão;
+    /// centrar no meio do papel era o eixo esquerdo quebrado.
+    private func rodape(_ principal: String, ativa: Bool = true,
+                        dica: String? = nil, acao: @escaping () -> Void,
+                        saidas: [Saida] = []) -> some View {
+        VStack(spacing: 4) {
+            Button(action: acao) {
+                Pilula(principal, forma: .larga, selecionada: ativa)
+                    // desabilitada a `Pilula` fica sem fundo: sem o contorno
+                    // ela volta a ser o texto solto que esta volta veio tirar
+                    .overlay {
+                        if !ativa {
+                            Capsule().strokeBorder(Tema.linha, lineWidth: 0.5)
+                        }
+                    }
+            }
+            .buttonStyle(.discreto)
+            .disabled(!ativa)
+            .accessibilityHint(dica ?? "")
+            .accessibilityIdentifier("recordar-principal")
+
+            if !saidas.isEmpty {
+                HStack(spacing: 20) {
+                    ForEach(saidas) { saida in
+                        Button(saida.rotulo, action: saida.acao)
+                            .alvo()
+                            .accessibilityHint(saida.dica)
+                            .accessibilityIdentifier("recordar-\(saida.id)")
+                    }
+                }
+                .font(Tema.meta)
+                .foregroundStyle(Tema.tintaSuave)
+                .buttonStyle(.discreto)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, Tema.margem)
+        .padding(.top, 12)
+        .padding(.bottom, 16)
+        .overlay(alignment: .top) { Rectangle().fill(Tema.linha).frame(height: 0.5) }
+    }
+
     var body: some View {
-        VStack(spacing: 0) {
+        // .leading: tudo nasce na margem esquerda. Em `.center` (o default) a
+        // linha "serviu / não serviu" e as ações flutuavam centradas contra um
+        // conteúdo todo alinhado à esquerda — três eixos numa tela só
+        // (`law-of-continuity`). Quem quer largura inteira ainda pede.
+        VStack(alignment: .leading, spacing: 0) {
             CabecalhoDeFolha(saida: .voltar, aoSair: { dismiss() }) {
                 Text("RECORDAR").rotulo()
             }
@@ -247,6 +361,11 @@ struct RecordarView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, Tema.margem)
                     .padding(.bottom, 16)
+                    // §21, um objeto um driver: a frase promete que a nota vai
+                    // se esconder — ela sai NO MESMO driver da nota, não 0,9 s
+                    // depois. No vídeo da V9 ela ficava sozinha e legível numa
+                    // tela já vazia, prometendo o que já tinha acontecido.
+                    .opacity(escondendo ? 0 : 1)
                     // sai em corte: em fade ela cruzava com a pergunta na mesma linha
                     .transition(entraFase)
             }
@@ -255,7 +374,6 @@ struct RecordarView: View {
             case .ler, .esconder:
                 // §21: a nota que se esconde é UM objeto — o mesmo texto embaça
                 // e apaga; antes eram duas views cruzando em fade
-                let escondendo = fase == .esconder
                 ScrollView {
                     if modo == .palavra || modo == .seEntao, !pista.isEmpty {
                         Text(pista)
@@ -280,30 +398,49 @@ struct RecordarView: View {
                 .transition(entraFase)
             case .escrever:
                 Group {
-                if modo == .palavra || modo == .seEntao, !pista.isEmpty {
-                    Text(pista)
-                        .font(Tema.corpo)
-                        .foregroundStyle(Tema.tintaSuave)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, Tema.margem)
-                        .padding(.bottom, 12)
+                // A pergunta cede ALTURA, nunca legibilidade. Em AX5 ela ocupava
+                // sete linhas e deixava ao autor um campo de linha e meia — a
+                // prática não cabia na tela onde ela acontece. `ViewThatFits`
+                // resolve sem medir nada: cabe inteira, ela encosta na pergunta
+                // e o campo começa logo abaixo; não cabe, a MESMA pergunta rola
+                // dentro do que sobra. O `fixedSize` fica nos dois ramos — é o
+                // que impede o SwiftUI de hifenizar em vez de encolher (F4).
+                GeometryReader { geo in
+                VStack(alignment: .leading, spacing: 0) {
+                // A pergunta nunca passa de metade do vão. `layoutPriority` não
+                // servia: com prioridade a `ScrollView` recebe a proposta
+                // inteira e fica com ela, e numa pergunta longa da sábia em AX5
+                // o cabeçalho, o "serviu" e o rodapé se sobrepuseram na tela.
+                // Um teto explícito reparte sem adivinhar quem cede.
+                ViewThatFits(in: .vertical) {
+                    perguntaDaProva
+                    ScrollView { perguntaDaProva }
+                        // rolar não pode LER como texto quebrado: a última
+                        // linha do que sobrou desmaia em vez de ser cortada
+                        // no meio de uma letra
+                        .mask(LinearGradient(stops: [.init(color: .black, location: 0.88),
+                                                     .init(color: .clear, location: 1)],
+                                             startPoint: .top, endPoint: .bottom))
                 }
-                // ADR 03i: a pergunta era uma de cinco frases fixas — a mesma
-                // para toda nota, para sempre, no ritual mais repetido do app.
-                // A da sábia entra quando passa na prova de não vazar; a fixa
-                // segura o lugar sempre (sem conta, sem rede, ou recusada).
-                Text(perguntaDaSabia ?? pergunta)
+                .frame(maxHeight: geo.size.height / 2, alignment: .top)
+                TextEditor(text: $memoria)
                     .font(Tema.corpo)
-                    .foregroundStyle(Tema.tintaSuave)
-                    // AX5: comprimida pelo editor abaixo, a pergunta virava "O que estava…"
-                    .fixedSize(horizontal: false, vertical: true)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, Tema.margem)
-                    .padding(.bottom, 8)
-                    .accessibilityIdentifier("recordar-pergunta")
+                    .foregroundStyle(Tema.tinta)
+                    .scrollContentBackground(.hidden)
+                    .focused($foco)
+                    .tint(Tema.ambar)
+                    // o piso do campo: três alvos. Sem ele o VStack dava tudo à
+                    // pergunta em corpos grandes e o autor escrevia numa fresta
+                    .frame(minHeight: Tema.alvo * 3)
+                    .padding(.horizontal, Tema.margem - 5)
+                    .accessibilityLabel("Memória")
                 if let q = perguntaDaSabia, !avaliou {
-                    // ADR 04h: a pergunta da prova também recebe o sinal
+                    // ADR 04h: a pergunta da prova também recebe o sinal.
+                    // Fica DEPOIS do campo: julgar a pergunta da sábia é o ato
+                    // menos importante da tela e estava no segundo lugar mais
+                    // visível dela, entre a pergunta e o lugar de escrever.
+                    // Continua em TODO corpo de texto: esconder o julgamento de
+                    // quem usa letra grande seria tirar poder de quem já tem menos.
                     HStack(spacing: 14) {
                         Button("serviu") { Sinais.pergunta(q, forma: gesto, serviu: true); avaliou = true; Toque.leve() }
                             .accessibilityIdentifier("serviu")
@@ -315,59 +452,40 @@ struct RecordarView: View {
                     .buttonStyle(.discreto)
                     .frame(minHeight: 32)
                     .padding(.horizontal, Tema.margem)
-                    .padding(.bottom, 4)
+                    .accessibilityLabel("A pergunta serviu?")
                 }
-                TextEditor(text: $memoria)
-                    .font(Tema.corpo)
-                    .foregroundStyle(Tema.tinta)
-                    .scrollContentBackground(.hidden)
-                    .focused($foco)
-                    .tint(Tema.ambar)
-                    .padding(.horizontal, Tema.margem - 5)
-                    .accessibilityLabel("Memória")
-                Button("Revelar") {
-                    Toque.suave()
-                    foco = false
-                    aoRevelar()
-                    conferir()
-                    withAnimation(Tema.animacao(.easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion)) { fase = .revelar }
                 }
-                .disabled(memoriaVazia)
-                .buttonStyle(.primario)
-                .padding(.horizontal, Tema.margem)
-                .padding(.bottom, 24)
-                .accessibilityHint(memoriaVazia ? "Escreva de memória primeiro" : "Mostra memória e nota lado a lado")
+                }
                 // as duas saídas honestas: adiar não é falhar, e pular não
                 // pode custar um degrau da escada
-                HStack(spacing: 20) {
-                    if let aoAdiar {
-                        Button("hoje não") { aoAdiar() }
-                            .alvo()
-                            .accessibilityHint("Volta amanhã. A escada não muda.")
-                            .accessibilityIdentifier("recordar-adiar")
-                    }
-                    if let aoPular {
-                        Button("pular") { aoPular() }
-                            .alvo()
-                            .accessibilityHint("Vai à próxima sem revelar esta")
-                            .accessibilityIdentifier("recordar-pular")
-                    }
-                }
-                .font(Tema.meta)
-                .foregroundStyle(Tema.tintaSuave)
-                .frame(maxWidth: .infinity, minHeight: Tema.alvo)
-                .buttonStyle(.discreto)
-                .padding(.bottom, 8)
+                rodape("Revelar", ativa: !memoriaVazia,
+                       dica: memoriaVazia ? "Escreva de memória primeiro" : "Mostra memória e nota lado a lado",
+                       acao: {
+                           Toque.suave()
+                           foco = false
+                           aoRevelar()
+                           conferir()
+                           withAnimation(Tema.animacao(.easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion)) { fase = .revelar }
+                       },
+                       saidas: [
+                        aoAdiar.map { Saida(id: "adiar", rotulo: "hoje não", dica: "Volta amanhã. A escada não muda.", acao: $0) },
+                        aoPular.map { Saida(id: "pular", rotulo: "pular", dica: "Vai à próxima sem revelar esta", acao: $0) },
+                       ].compactMap { $0 })
                 }
                 // um Group: cada irmão da fase corta ao sair e amanhece ao entrar
                 .transition(entraFase)
             case .revelar:
                 Group {
                 GeometryReader { geo in
-                    let ladoALado = geo.size.width >= 360
+                    let ladoALado = Self.comparaLadoALado(largura: geo.size.width, tamanho: tamanho)
+                    // `.topLeading`: sem isto a grade centra verticalmente a
+                    // célula mais curta, e "DE MEMÓRIA" descia 57 pt abaixo de
+                    // "A NOTA" — dois rótulos do mesmo posto em alturas
+                    // diferentes (`law-of-continuity`)
                     let colunas = ladoALado
-                        ? [GridItem(.flexible(), spacing: 16), GridItem(.flexible(), spacing: 16)]
-                        : [GridItem(.flexible())]
+                        ? [GridItem(.flexible(), spacing: 16, alignment: .topLeading),
+                           GridItem(.flexible(), spacing: 16, alignment: .topLeading)]
+                        : [GridItem(.flexible(), alignment: .topLeading)]
                     ScrollView {
                         LazyVGrid(columns: colunas, alignment: .leading, spacing: 22) {
                             bloco("DE MEMÓRIA", memoria)
@@ -388,27 +506,12 @@ struct RecordarView: View {
                         naoVoltou
                     }
                 }
-                VStack(spacing: 4) {
-                    if let aoProxima {
-                        Button("próxima") { aoProxima() }
-                            .buttonStyle(.primario)
-                            .accessibilityLabel("Próxima")
-                            .accessibilityHint("Abre a seguinte. Sem contagem.")
-                    } else {
-                        Button("Voltar à página") { dismiss() }
-                            .buttonStyle(.primario)
-                    }
-                    if let aoCobrarAntes {
-                        Button("cobrar antes") { aoCobrarAntes() }
-                            .font(Tema.meta)
-                            .foregroundStyle(Tema.tintaSuave)
-                            .frame(maxWidth: .infinity, minHeight: Tema.alvo)
-                            .buttonStyle(.discreto)
-                            .accessibilityHint("A escada volta a 3 dias")
-                    }
-                }
-                .padding(.horizontal, Tema.margem)
-                .padding(.bottom, 24)
+                rodape(aoProxima == nil ? "Voltar à página" : "próxima",
+                       dica: aoProxima == nil ? "" : "Abre a seguinte. Sem contagem.",
+                       acao: { if let aoProxima { aoProxima() } else { dismiss() } },
+                       saidas: [
+                        aoCobrarAntes.map { Saida(id: "cobrar", rotulo: "cobrar antes", dica: "A escada volta a 3 dias", acao: $0) },
+                       ].compactMap { $0 })
                 }
                 .transition(entraFase)
             }
