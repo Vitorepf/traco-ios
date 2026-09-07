@@ -355,3 +355,235 @@ Movimento já está lá.
   depois de reiniciar o aparelho), a linha do trilho explica a opção que o autor
   não escolheu, e o bloco "Editar com outras ferramentas" continua sendo
   formulário cru do sistema com um botão morto pintado igual a um vivo.
+
+---
+
+# Re-G4 — volta 18 no topo `21d0644` (V18-D)
+
+Mesmo juiz, mesma lente. Julguei os **itens 1 e 2** da lista mínima acima; o
+item 3 saiu do escopo por decisão do coordenador, e eu o verifiquei por conta
+própria (abaixo). Movimento e a família de componente já estavam dados por
+provados no G4, e reconferi que a 18-D não os tocou.
+
+## Instrumento desta rodada
+
+Simulador **iPhone Air `64F7B8B4-CBBD-4449-A51E-19E1A1A077B4`**, ligado só ele
+por mim, build do branch compilado nesta worktree sob `com-trava.sh`
+(BUILD SUCCEEDED, `grep -c warning:` = **0**). Toque e leitura pela árvore de
+acessibilidade que o Simulator publica na AX do macOS — por
+`accessibilityIdentifier`, e quando precisei focar um campo, pelo **frame que a
+própria AX reporta** (`position`+`size` do elemento → `cliclick` no centro),
+que dispensa fórmula de escala. Digitação pelo teclado da tela, tecla a tecla,
+também por AX. **Toda prova de tela é `xcrun simctl io <UDID> screenshot`.**
+Não usei maestro. Restaurei Dynamic Type e Reduzir Movimento e desliguei o
+aparelho ao fim; a trava saiu comigo e já está com outro worker.
+
+Rodei também, no meu aparelho e sob a trava,
+`xcodebuild test -only-testing:TracoTests/RascunhoTrabalhoTests`:
+**✔ 7 testes em 1 suíte, TEST SUCCEEDED.** Os 735 em 127 suítes são prova dele,
+no `B91C8DEF`; não repeti a suíte integral.
+
+Capturas: `g4-v18-reg4-01…07`.
+
+## Item 1 — o estado preso: **fechado**, e a causa dupla se confirma
+
+Refiz o meu caminho do zero, no aparelho novo, e depois ataquei o ponto que a
+correção precisava provar e que o G4 tinha achado: **o aparelho que já estava
+preso.**
+
+**O caminho, os quatro estados.**
+
+1. *Editando de verdade* (`reg4-03`): escrevi a minha própria versão e, com o
+   texto no campo, a folha **trava e diz por quê** — "Guarde a intenção ou a
+   versão que está editando antes de pedir uma nova preparação." O positivo
+   verdadeiro da 18-C está intacto.
+2. *Logo depois de "Guardar minha versão"* (`reg4-04`): **destravada.** A linha
+   sob a cápsula volta a ser a honesta — "Escreva acima o que a IA deve
+   preparar." — o cartão imprime a versão **uma** vez e o editor está fechado
+   atrás de "Editar esta versão". Era exatamente aqui que a folha travava para
+   sempre.
+3. *Depois de fechar, reabrir, **desligar e religar o aparelho** e reabrir*
+   (`reg4-05`): segue destravada, versão uma vez, editor fechado.
+4. *Editando de novo* (`reg4-07`): **trava de novo**, e os três leitores que
+   antes divergiam viram juntos — o guarda nomeia a edição, o rodapé volta a
+   dizer "Os campos em edição voltam ao reabrir este trabalho" e "Descartar
+   rascunhos dos campos" reaparece.
+
+**A segunda metade da causa, medida por mim no dado.** Li
+`Library/Preferences/app.traco.plist` no container do app:
+
+- num trabalho recém-criado, depois de digitar a intenção e trocar o trilho
+  três vezes, o dicionário de rascunhos está **vazio** — onde a build anterior
+  já escrevia `"pedido" => ""`;
+- **depois de "Guardar minha versão", continua vazio** — onde a build anterior
+  deixava `"versao"`. O `set` que só grava o que muda apaga a classe na origem.
+
+**O aparelho já preso se solta** (`reg4-06`) — e esta é a prova que eu quis
+fazer sozinho, porque o estado preso que eu achei vivia no `UserDefaults` e não
+no código. Com o app fechado, escrevi no plist do app exatamente o que a build
+velha deixava — `{"versao": "<texto idêntico à versão guardada>", "pedido":
+""}` — matei o `cfprefsd` do simulador para o app não ler cache, relancei e
+abri o trabalho. A folha lê aquilo como **nenhuma edição**: ação primária
+livre, versão impressa uma vez, editor fechado. E a árvore de acessibilidade
+confirma os três leitores de uma vez, com os dois rascunhos ainda no disco:
+
+| leitor | antes (G4) | agora, com o plist preso semeado |
+|---|---|---|
+| guarda | "Guarde a intenção ou a versão que está editando…" | `trabalho-gerar-travado` = "Escreva acima o que a IA deve preparar." |
+| cartão da versão | campo "Editar a versão" aberto, parágrafo duplicado | só `Editar esta versão`; sem `trabalho-editar-versao` |
+| rodapé | "Descartar rascunhos dos campos" | só "Versões e atos guardados neste aparelho." |
+
+A regra virou uma coisa só (`alterado`/`campoEmEdicao` `static`) lida nos três
+lugares, e é a leitura certa: **edição pendente é rascunho diferente do
+guardado; escrever nada não é editar.** Também some, de graça, o achado de
+densidade que eu tinha aberto: o cartão só mostra dois textos quando eles
+**são** dois (`reg4-07`, o editado ao lado do guardado).
+
+Uma consequência que registro sem cobrar: um rascunho **esvaziado** passa a ser
+invisível ao reabrir (o campo volta a mostrar o guardado). Como nenhum destes
+campos pode ser guardado vazio, nada do autor se perde — é troca deliberada e
+está escrita no código.
+
+## Item 2 — a linha do trilho: **fechada**
+
+`reg4-02`, as três seleções no meu aparelho, uma embaixo da outra: "Delegar: a
+IA prepara a versão inteira…", "Praticar: você escreve a tentativa; a IA
+prepara o exercício e o retorno, nunca a resposta.", "Combinar: você exercita o
+trecho que delimitar abaixo; o resto continua com a IA." — cada uma fecha com
+"Você pode mudar quando quiser", a única parte da frase antiga que valia para
+as três. Em Combinar a frase **aponta para o campo que nasce logo abaixo dela**:
+a copy passou a fazer trabalho de hierarquia, não só de explicação.
+
+Custo: a linha passou de duas para três linhas nas três seleções. Numa folha
+que eu já critiquei por voz de manual em tela vazia, é uma linha a mais — mas
+agora é informação onde havia contrainformação, e a troca vale. Fica no RUMO,
+e a proposta 1 da ADR (a folha mudando de forma) é o que paga isso de volta.
+
+## Item 3 — verificado por mim, e não é mais risco
+
+O coordenador tirou do escopo dizendo que o conserto está na volta 11. **Não
+aceitei de palavra; conferi no repositório**, e confirma, com margem melhor do
+que a alegada:
+
+- `git show main:Traco/Trabalho/IntercambioTrabalhoView.swift` — main está em
+  `09b36a4` ("LACO: volta 11 mesclada") — tem **`Pilula` em uso** e **uma única
+  ocorrência de `.disabled(`, dentro de um comentário** que explica por que
+  `.disabled()` estava errado ali. Neste branch são **três** `.disabled(` reais
+  e **zero** `Pilula(`.
+- E o ponto que fecha: `git diff $(git merge-base main HEAD)..HEAD --
+  Traco/Trabalho/IntercambioTrabalhoView.swift` é **vazio** — a volta 18 nunca
+  tocou nesse arquivo —, enquanto main o reescreveu (+256/−57). Não há duas
+  correções para reconciliar nem conflito possível: a mescla leva a versão de
+  main. O achado 3 desaparece por construção, não por promessa.
+
+Fica para o **G5**, na árvore mesclada, só a confirmação visual de que o bloco
+chega falando a língua da casa.
+
+## Portão
+
+| eixo | G4 | Re-G4 | o que mudou |
+|---|---|---|---|
+| **Design** | 7 | **9** | a folha não afirma mais uma regra falsa, e a única frase de ajuda do trilho passou a descrever a escolha marcada; o bolso de sistema cru é de outro arquivo, já corrigido em main e sem conflito possível |
+| **Simplicidade** | 7 | **9** | a versão deixa de ser impressa duas vezes, o rodapé não oferece descartar o que não existe, e o rascunho fantasma some do disco na origem |
+| **Movimento** | 9 | **9** | reconferido por mim: `grep` em `Traco/Trabalho/` devolve as mesmas **cinco** chamadas, todas pela lei; a 18-D não tocou nenhuma |
+| **Componentes** | 7 | **9** | a 18-D não acrescenta componente nem dívida de componente (só uma regra `static` pura e uma função de texto); o que segurava o 7 era o arquivo da volta 11 e as dívidas que eu mesmo mandei para o RUMO |
+
+### Veredito: **PASSA**
+
+Os dois itens da minha lista mínima estão fechados com prova minha, incluindo o
+único que eu não podia aceitar de palavra — o aparelho já preso saindo do
+estado sozinho, que eu semeei no plist e vi se desfazer. O terceiro não é desta
+volta e não pode voltar na mescla.
+
+Uma coisa a olhar no G5, e não é ressalva de portão: `IntercambioTrabalhoView`
+na árvore mesclada, com uma captura do bloco habilitado e desabilitado — foi
+onde eu medi habilitado e desabilitado idênticos em `#1C1C1E`.
+
+### Dívida para o RUMO (a de antes, atualizada)
+
+Continuam abertas, todas fora do escopo desta volta e todas já aceitas:
+`.disabled()` de `Pilula` quebrado **no componente**; tocar uma pílula do trilho
+cancelando em silêncio uma preparação em curso; o instante de ~0,2 s em que
+nenhuma pílula lê como selecionada; duas ou três cápsulas carvão de largura
+inteira por rolagem; o `confirmationDialog` sem título; `Pilula` dependendo de
+`CalendarioTema`. **Acrescento uma:** a linha do trilho agora ocupa três linhas
+nas três seleções — some junto com a voz de manual quando a folha passar a
+mudar de forma.
+
+Segue sem prova minha tudo que exige conta Grok: versão preparada pela IA,
+exercício, feedback, conferência assistida, e a dívida de AX5 com documento da
+IA (a minha versão é prosa corrida, sem bloco de código nem tabela). E o
+teclado cobrindo a ação primária continua não exercitado.
+
+---
+
+## G0 da próxima volta — resposta à leitura da ADR 06b, §18-D
+
+Perguntaram se eu compro a leitura de estrutura. **Compro, e ela está melhor
+formulada que a minha crítica.** "As quatro seções são independentes na tela e
+dependentes na vida" é exatamente o defeito: o autor **lê quatro perguntas e
+vive uma volta**. E a recusa é a parte mais importante do texto — sem linha do
+tempo, sem círculo desenhado, sem numeração de passos, sem barra de progresso.
+Um indicador de etapa mentiria sobre o objeto: o Trabalho não é um funil, é um
+laço, e o autor volta ao pedido depois do relato. Quem pegar a volta, guarde
+essa recusa antes de guardar as três propostas.
+
+Compro as três, com **duas emendas de ordem e uma adição**, e é isto que levo
+como G0:
+
+**1. Inverter a ordem: o elo (proposta 2) vem antes da mudança de forma
+(proposta 1).** A proveniência é aditiva, reversível e barata — a versão já
+sabe o pedido (`pedidoDe`), o ato já sabe a versão (`Acao.artefatoID`), a
+evidência já sabe o ato: o dado existe, falta dizê-lo. E é a única das três que
+ataca a pergunta central diretamente, porque **mudar de forma altera quanto o
+autor vê; dizer de onde veio altera o que ele entende.** Fazer a forma primeiro
+é gastar o redesenho antes de ter evidência de que o laço passou a ser legível.
+Dentro dela, a peça mais valiosa é a que fecha a volta: a Dificuldade
+oferecendo, em uma ação, **voltar ao pedido com o obstáculo dentro**. Hoje o
+ciclo tem quatro paradas e nenhuma volta visível; essa ação é a volta.
+
+**2. A mudança de forma (proposta 1) é a maior, e por isso precisa de uma regra
+para o estado ambíguo — decidida no desenho, não descoberta na tela.** O
+documento não é linear: dá para ter versão, nenhum ato e uma dificuldade já
+anotada. Se a folha eleger sozinha "a seção da vez" a partir de um estado
+ambíguo, ela vai errar, e o autor vai brigar com ela — que é pior do que ver
+tudo. Minha condição, e ela é testável: o estado recolhido tem de ser um
+**resumo operável no lugar** — abrir devolve a mesma seção, nunca outra tela —
+e nada pode ficar inalcançável. A ADR diz isso como intenção; que vire teste.
+
+**3. A adição, e é a que falta nas três: a ENTRADA.** As três propostas
+melhoram um trabalho que já andou. A leitura de "formulário" nasce no primeiro
+minuto, num trabalho que **não tem nada para resumir** — todas as seções são
+"ainda não alcançadas", e é justamente o momento sobre o qual a pergunta
+central foi feita. `reg4-01` é essa tela: quatro perguntas com campo e botão
+antes de o autor ter feito qualquer coisa. Na folha sem versão nenhuma eu
+tentaria **uma pergunta e uma ação** — o pedido —, com as outras etapas como
+rótulo nomeado e sem campo logo abaixo, para que se saiba que existem sem que
+peçam nada. Isso é o que transforma a primeira tela de "cadastro a preencher"
+em "oficina em que se começa por aqui".
+
+**4. Contenção (proposta 3): compro sem emenda,** inclusive o argumento de
+economia — a mesma `Secao`/`Bloco` de papel que dá a região por
+`law-of-common-region` é a peça que aposenta os cinco `DisclosureGroup` do
+sistema que sobraram, e ela reaproveita o cartão que já é da casa. Só peço que
+ela nasça em `Componentes/` sem depender de `CalendarioTema`, para não repetir
+o que o `Pilula` fez.
+
+Em uma frase, o G0 que eu levaria: **a próxima volta do Trabalho não é sobre
+mostrar o ciclo, é sobre mostrar as ligações — e a primeira tela é onde ela se
+ganha ou se perde.**
+
+### Três linhas para o LACO
+
+- Os dois itens que seguraram o portão caíram com prova minha no iPhone Air:
+  guardar a própria versão já não deixa edição pendente nenhuma (sobrevive a
+  fechar, reabrir e reiniciar o aparelho), e a linha do trilho passou a falar da
+  opção marcada nas três seleções.
+- O que eu não podia aceitar de palavra eu semeei e vi se desfazer: escrevi no
+  `UserDefaults` do app exatamente o rascunho fantasma da build velha, e a folha
+  nova o lê como nenhuma edição — guarda, cartão e rodapé concordando pela
+  primeira vez, nos dois sentidos.
+- O terceiro achado não é desta volta e não volta na mescla: a volta 18 nunca
+  tocou `IntercambioTrabalhoView.swift`, e main já tem ali `Pilula` e nenhum
+  `.disabled()` fora de comentário. **PASSA**, com Design, Simplicidade,
+  Movimento e Componentes em 9.
