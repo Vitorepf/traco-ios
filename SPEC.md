@@ -4217,3 +4217,53 @@ outras cinco. Depois, no iPhone 17 Pro (teste 4) `A1DF082C`: `✔ Test run with
 `** TEST SUCCEEDED **` na suíte inteira. **Fora:** a arbitragem do `dá medo de` acima; a família do adjetivo
 sem cópula; a dívida da densidade em nota de sistema segue no RUMO; e a régua
 inversa continua sendo escrita por mim e pelo revisor, não por uso real.
+
+
+## ADR 2026-09-07a — Qualidade efetiva da IA: contratos e prova em curso
+
+O pedido vigente exige ajuda utilizável, fiel às restrições e fundamentada,
+com avaliação >=9 por caso e dimensão. O contrato e a matriz integral estão
+em [QUALIDADE-IA.md](QUALIDADE-IA.md). Testes de tipos, transporte, guardas e
+persistência não certificam a utilidade semântica. O objetivo permanece aberto.
+
+**Produção e prática.** Combinar com trecho delimitado prepara o exercício e
+produz o restante delegado; o enunciado e a divisão entram inteiros no pedido
+da entrega, que deve reservar a contribuição da pessoa. Só o sucesso das duas
+partes retorna uma versão. `Artefato.parteDelegada?` preserva a parte mostrada
+separadamente quando o exercício está em Praticar; `conteudo` contém ambas
+para leitura integral e Markdown. Campos ausentes em documentos antigos
+continuam `nil`. Mudar apoio, hipótese ou trecho cancela a preparação em voo,
+inclusive antes de uma segunda chamada. Trocar o apoio para Delegar não
+esconde o exercício já guardado. A qualidade dessa divisão ainda precisa ser
+medida em saídas reais, inclusive para impedir resposta-alvo na parte delegada.
+
+**Provedor e feedback.** Preparação, conferência de tentativa e revisão usam
+JSON Schema no protocolo Grok, além da validação de domínio. Essas operações
+não descem silenciosamente ao modelo do aparelho: as provas históricas 5–6
+não demonstraram capacidade suficiente dele. Feedback v2 seleciona IDs de
+linhas em um array JSON compacto; o app resolve o texto original, preservando
+CRLF e recusando referências inventadas, repetidas, fora de ordem ou com lacunas.
+O formato persistido das citações continua o mesmo. Revisão assistida v2 não
+confirma atendimento sem citar conteúdo do artefato. Resposta incompleta não
+vira entrega, e a falha não afirma que o provedor deixou de ler algo enviado.
+Estas regras não provam que um critério é observável nem que o julgamento é
+correto; esses casos continuam obrigatórios na avaliação semântica.
+
+**Regras locais.** Conferência v2 exige cada duração pedida, além da soma e
+quantidade; números fora de capacidade não derrubam o app nem desaparecem da
+soma. A gramática continua limitada e não é aprovação de qualidade. Vestir
+preserva cercas e separadores originais e reaproveita estrutura local útil
+antes de pedir rótulos para prosa pendente. Citações de calibragem e Padrões
+não são cortadas após validação. Recordar preserva decimais e abreviaturas ao
+segmentar as frases. O aviso de texto pronto distingue pedido direto nesta
+página de relato/citação, sem reinstalar a proibição global de delegar.
+
+**Evidência.** A base viva de 07/09 teve três falhas de conteúdo/duração no
+roteiro espanhol e três respostas sobre notas sem fonte. Reforçar o prompt
+da consulta não corrigiu a atribuição em outras três execuções: o contrato de
+fontes está em revisão. Relatórios e JSONL completos ficam em `prova/qualidade-ia-*`.
+A bateria selecionada de 14:16 UTC passou 137 testes no iPhone 17 Pro (teste 2),
+com modelos desligados pela suíte. Esse resultado cobre aquele candidato e
+não os incrementos posteriores nem a semântica dos provedores. Validação
+remota aguarda conta Grok nesse simulador; não se presume acesso nem se copiam
+credenciais. O Perfil deixa explícita a dependência.

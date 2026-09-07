@@ -67,17 +67,11 @@ nonisolated enum Retrato {
             blocos.append("Palavras que conquistou, nas palavras dele: " + palavras.map { "“\($0)”" }.joined(separator: "; ") + ".")
         }
 
-        let naoServiram = sinais.filter { $0.tipo == .pergunta && $0.serviu == false }
-            .compactMap(\.texto).suffix(3)
-        if !naoServiram.isEmpty {
-            blocos.append("Perguntas que ele marcou como “não serviu” (não repita a classe): " + naoServiram.map { "“\($0)”" }.joined(separator: "; ") + ".")
-        }
-
-        let serviram = sinais.filter { $0.tipo == .pergunta && $0.serviu == true }
-            .compactMap(\.texto).suffix(2)
-        if !serviram.isEmpty {
-            blocos.append("Perguntas que serviram: " + serviram.map { "“\($0)”" }.joined(separator: "; ") + ".")
-        }
+        // Perguntas da IA podem repetir conteúdo privado de qualquer nota
+        // usada na geração. Sinais antigos não registram essas dependências:
+        // não atribua a origem por palpite nem reenvie o texto após um selo.
+        // O histórico local permanece; citações só poderão voltar ao retrato
+        // quando a geração registrar todas as fontes e seu acesso for revalidado.
 
         guard !blocos.isEmpty else { return "" }
         var texto = blocos.joined(separator: "\n")

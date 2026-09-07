@@ -475,50 +475,74 @@ enum Caderno: Sendable {
     /// curtas paralelas = lista; linha curta sozinha = título, depois seção). A
     /// IA não passa daqui: é heurística de forma, nunca de conteúdo. Idempotente
     /// (bloco que já tem forma fica intocado) e reversível (editar volta ao cru).
-    nonisolated static func estruturar(_ texto: String) -> String {
-        let normal = texto.contains("\r")
-            ? texto.replacingOccurrences(of: "\r\n", with: "\n").replacingOccurrences(of: "\r", with: "\n")
-            : texto
-        let linhas = normal.split(separator: "\n", omittingEmptySubsequences: false).map(String.init)
-        // blocos separados por linha em branco: o autor agrupa o que é junto
-        var blocos: [[String]] = []
-        var atual: [String] = []
-        for l in linhas {
-            if l.trimmingCharacters(in: .whitespaces).isEmpty {
-                if !atual.isEmpty { blocos.append(atual); atual = [] }
+    /// Recortes da fonte para vestir, sem normalizar nem reconstruir código.
+    /// Uma cerca aberta protege até o fim; só a mesma marca, com comprimento
+    /// suficiente e sem texto depois, a fecha. Não interpreta a linguagem.
+    nonisolated static func intervalosParaVestir(_ texto: String) -> [Range<String.Index>] {
+        var intervalos: [Range<String.Index>] = []
+        var inicio: String.Index?
+        var fim = texto.startIndex
+        var cerca: (marca: Character, tamanho: Int)?
+        func fecharBloco() {
+            if let inicio { intervalos.append(inicio..<fim) }
+            inicio = nil
+        }
+        texto.enumerateSubstrings(in: texto.startIndex..<texto.endIndex, options: .byLines) { linha, faixa, _, _ in
+            let limpa = (linha ?? "").trimmingCharacters(in: .whitespaces)
+            if let aberta = cerca {
+                fim = faixa.upperBound
+                let marcas = limpa.prefix { $0 == aberta.marca }
+                if marcas.count >= aberta.tamanho,
+                   limpa.dropFirst(marcas.count).trimmingCharacters(in: .whitespaces).isEmpty {
+                    cerca = nil
+                    fecharBloco()
+                }
+            } else if let marca = limpa.first, marca == "`" || marca == "~",
+                      limpa.prefix(while: { $0 == marca }).count >= 3 {
+                fecharBloco()
+                inicio = faixa.lowerBound
+                fim = faixa.upperBound
+                cerca = (marca, limpa.prefix { $0 == marca }.count)
+            } else if limpa.isEmpty {
+                fecharBloco()
             } else {
-                atual.append(l)
+                if inicio == nil { inicio = faixa.lowerBound }
+                fim = faixa.upperBound
             }
         }
-        if !atual.isEmpty { blocos.append(atual) }
-        guard !blocos.isEmpty else { return texto }
+        if cerca != nil { fim = texto.endIndex }
+        fecharBloco()
+        return intervalos
+    }
 
+    nonisolated static func estruturar(_ texto: String) -> String {
         var temTitulo = false
-        var vestidos: [String] = []
-        for bloco in blocos {
+        var mudancas: [(Range<String.Index>, String)] = []
+        for intervalo in intervalosParaVestir(texto) {
+            let bloco = texto[intervalo].split(whereSeparator: \.isNewline).map(String.init)
             // bloco que já carrega forma/marca é escolha do autor — não se toca
             if bloco.contains(where: jaVestida) {
                 if bloco.count == 1, bloco[0].trimmingCharacters(in: .whitespaces).hasPrefix("#") {
                     temTitulo = true
                 }
-                vestidos.append(bloco.joined(separator: "\n"))
                 continue
             }
             if bloco.count >= 2, bloco.allSatisfy(curtaSemPonto) {
                 // linhas curtas paralelas = lista: cada uma vira item
-                vestidos.append(bloco.map { "- " + $0.trimmingCharacters(in: .whitespaces) }.joined(separator: "\n"))
+                mudancas.append((intervalo, bloco.map { "- " + $0.trimmingCharacters(in: .whitespaces) }.joined(separator: "\n")))
                 continue
             }
             if bloco.count == 1, curtaSemPonto(bloco[0]) {
                 // linha curta sozinha = título (a primeira) ou seção (as demais)
                 let t = bloco[0].trimmingCharacters(in: .whitespaces)
-                vestidos.append(temTitulo ? "## " + t : "# " + t)
+                mudancas.append((intervalo, temTitulo ? "## " + t : "# " + t))
                 temTitulo = true
                 continue
             }
-            vestidos.append(bloco.joined(separator: "\n")) // prosa: fica prosa
         }
-        return vestidos.joined(separator: "\n\n")
+        var saida = texto
+        for (intervalo, vestido) in mudancas.reversed() { saida.replaceSubrange(intervalo, with: vestido) }
+        return saida
     }
 
     /// Linha curta e sem pontuação de fim de frase: candidata a título ou item.
@@ -534,7 +558,7 @@ enum Caderno: Sendable {
         let t = linha.trimmingCharacters(in: .whitespaces)
         guard !t.isEmpty else { return false }
         if temMarca(t) { return true }
-        for p in ["#", "- ", "* ", "> ", "|", "```", ":::", "- [", "* ["] where t.hasPrefix(p) {
+        for p in ["#", "- ", "* ", "> ", "|", "```", "~~~", ":::", "- [", "* ["] where t.hasPrefix(p) {
             return true
         }
         if t == "-" || t == "*" { return true }

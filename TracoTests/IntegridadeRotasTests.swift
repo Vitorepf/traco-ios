@@ -358,8 +358,9 @@ struct IntegridadeRotasTests {
             Indice.sincronizar([n.aberta, n.emCurso, n.selada, n.queimada].map {
                 .init(uuid: $0.uuid, editadaEm: $0.editadaEm, voz: $0.texto, podeEntrar: true)
             })
-            let (texto, titulos) = Sessao().contextoDasNotas(pergunta: "como treinar ao acordar?", conversa: [], no: c.mainContext)
-            #expect(titulos == [n.aberta.tituloNaLista])
+            let fontes = Sessao().contextoDasNotas(pergunta: "como treinar ao acordar?", no: c.mainContext)
+            let texto = fontes.map(\.texto).joined(separator: "\n")
+            #expect(fontes.map(\.titulo) == [n.aberta.tituloNaLista])
             #expect(!texto.contains("choro") && !texto.contains("fuga") && !texto.contains("vi o medo"))
         }
     }

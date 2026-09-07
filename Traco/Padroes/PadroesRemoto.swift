@@ -10,7 +10,7 @@ enum PadroesRemoto {
     {"perguntas": ["...", "...", "..."]}
 
     Regras absolutas:
-    - No máximo 3 perguntas, cada uma com até 2 frases.
+    - No máximo 3 perguntas, cada uma com até 2 frases e 280 caracteres, terminando em "?".
     - Cada pergunta CITA um fragmento literal de uma nota, entre aspas “…”.
     - Perguntas, nunca conclusões. Proibido diagnosticar, aconselhar, elogiar,
       resumir ou interpretar por ele. Quem conclui é o autor.
@@ -58,17 +58,16 @@ enum PadroesRemoto {
               let lista = j["perguntas"] as? [String]
         else { return nil }
         return Array(lista
-            .map { $0.trimmingCharacters(in: .whitespaces) }
-            .filter { !$0.isEmpty }
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             // §19.4: texto livre da IA só passa se o ALGORITMO conseguir verificar.
             // Aqui a prova é dura: a citação tem de existir literalmente nas notas.
-            .filter { vozes.isEmpty || ehPergunta($0) && citaOAutor($0, em: vozes) }
-            .map { AnaliseRemota.umaFrase($0, teto: 280) }
+            .filter { ehPergunta($0) && (vozes.isEmpty || citaOAutor($0, em: vozes)) }
             .prefix(3))
     }
 
-    /// Pergunta é pergunta: sem "?", é conclusão disfarçada — e conclusão é do autor.
-    nonisolated static func ehPergunta(_ p: String) -> Bool { p.contains("?") }
+    /// Valida o texto que chega à tela. Cortar depois da validação pode apagar
+    /// a pergunta ou sua citação; texto fora do teto precisa ser refeito.
+    nonisolated static func ehPergunta(_ p: String) -> Bool { p.hasSuffix("?") && p.count <= 280 }
 
     /// Todo fragmento entre aspas tem de aparecer LITERALMENTE em alguma nota.
     /// Sem citação, ou com citação inventada, a pergunta é descartada.

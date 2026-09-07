@@ -110,6 +110,9 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
         var anteriorID: UUID?
         var conferencias: [Conferencia]?
         var pratica: Pratica?
+        /// Em Combinar, a entrega fica legível separadamente do exercício.
+        /// `conteudo` mantém ambos para intercâmbio e versões anteriores.
+        var parteDelegada: String?
     }
     struct Acao: Codable, Sendable, Equatable, Identifiable {
         var id = UUID()
@@ -273,14 +276,18 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
         pedidos[i].estado = .praticaIndisponivel
     }
     mutating func receber(_ texto: String, produtor: String, pedidoID: UUID,
-                          pratica: Pratica? = nil) throws {
+                          pratica: Pratica? = nil, parteDelegada: String? = nil) throws {
         guard let i = pedidos.firstIndex(where: { $0.id == pedidoID && $0.estado == .preparando }),
               pedidos[i].intencaoID == intencaoAtual.id,
               pedidos[i].artefatoID == versaoAtual?.id else { throw Erro.pedidoAntigo }
         guard !texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw Erro.vazio }
+        if let parteDelegada {
+            guard pratica != nil, !parteDelegada.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                  texto.contains(parteDelegada) else { throw Erro.vazio }
+        }
         artefatos.append(.init(conteudo: texto, origem: .ia, produtor: produtor,
                               intencaoID: intencaoAtual.id, anteriorID: pedidos[i].artefatoID,
-                              pratica: pratica))
+                              pratica: pratica, parteDelegada: parteDelegada))
         pedidos[i].estado = .pronto
     }
 
@@ -408,6 +415,10 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
         for a in artefatos {
             guard intencaoIDs.contains(a.intencaoID),
                   a.anteriorID.map({ artefatoIDs.contains($0) && $0 != a.id }) ?? true else { throw Erro.referencia }
+            if let parteDelegada = a.parteDelegada {
+                guard a.pratica != nil, !parteDelegada.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                      a.conteudo.contains(parteDelegada) else { throw Erro.referencia }
+            }
             if let p = a.pratica {
                 let criterioIDs = Set(p.criterios.map(\.id))
                 guard !p.criterios.isEmpty, criterioIDs.count == p.criterios.count,

@@ -1,0 +1,46 @@
+{
+  "repeticoes": 3,
+  "casos": [
+    {
+      "id": "espanhol-solo-3x5",
+      "operacao": "produzir",
+      "entrada": {
+        "intencao": "Quero conseguir me apresentar em espanhol numa viagem.",
+        "resultado": "Ter um roteiro utilizável hoje, para iniciante, sem ajuda externa.",
+        "instrucao": "Prepare um treino solo de espanhol para iniciante, em três blocos de cinco minutos, total de quinze minutos. Não tenho instrutor, parceiro nem câmera. Traga as frases em espanhol com a tradução de cada uma em português. Distribua explicitamente o tempo de cada bloco e forneça o material necessário para começar agora. Não invente pessoas disponíveis nem diga que já pratiquei ou aprendi.",
+        "apoio": "delegar"
+      },
+      "requisitos": [
+        "Três blocos de cinco minutos; duração total de quinze minutos sem dupla contagem.",
+        "Cada frase em espanhol tem sua tradução correta em português.",
+        "Executável sozinho, por iniciante, sem câmera, parceiro ou instrutor.",
+        "Material completo e utilizável, sem inventar execução ou aprendizagem."
+      ]
+    },
+    {
+      "id": "analise-decisao-custo",
+      "operacao": "classificar",
+      "entrada": {
+        "texto": "Preciso decidir entre alugar uma sala por R$ 900 por mês ou atender de casa, sem aluguel adicional. A sala dá privacidade, mas eu ainda não tenho clientes suficientes. Em casa economizo, mas a família ocupa o espaço. Meu limite de despesa mensal é R$ 1.000."
+      },
+      "requisitos": [
+        "Reconhece uma decisão entre alternativas e restrições; não trata como escrita expressiva nem inventa fatos.",
+        "O método ou pergunta retornados ajudam a examinar a decisão concreta."
+      ]
+    },
+    {
+      "id": "contexto-correcao-prazo",
+      "operacao": "responderNasNotas",
+      "entrada": {
+        "pergunta": "Quando preciso entregar a proposta e qual restrição devo respeitar?",
+        "contexto": "NOTA: Proposta da oficina — atualização de 07/09/2026. Corrigi o prazo: a proposta deve estar pronta em 12/09, não em 10/09 como escrevi antes. O orçamento máximo é R$ 800; nenhum fornecedor foi contratado. NOTA: Rascunho antigo, 01/09/2026. Pensei em entregar no dia 10/09 e gastar R$ 1.200.",
+        "retrato": "Prefere respostas curtas em português e está preparando a oficina sozinho."
+      },
+      "requisitos": [
+        "Responde 12/09 e teto de R$ 800, priorizando a correção atual.",
+        "Atribui a informação à nota pertinente, sem afirmar contratação ou execução.",
+        "Não transforma o rascunho antigo em compromisso vigente."
+      ]
+    }
+  ]
+}

@@ -9,8 +9,8 @@ import NaturalLanguage
 /// significa qualidade. Sem rede, sem modelo gerativo: regras e o
 /// `NLLanguageRecognizer` do aparelho.
 nonisolated enum ConferenciaTrabalho {
-    static let versaoDoMetodo = 1
-    static let executor = "aparelho · regras v1"
+    static let versaoDoMetodo = 2
+    static let executor = "aparelho · regras v2"
     /// Prosa curta demais para o reconhecedor decidir (o parecer do consultor).
     static let minimoDeProsa = 40
     /// Acima disso a conferência recusa veredito em vez de ler um pedaço (05m).
@@ -180,12 +180,14 @@ nonisolated enum ConferenciaTrabalho {
     }
 
     private static func tempo(em texto: String, fonte: DocumentoTrabalho.FonteCriterio) -> Criterio? {
-        if let m = texto.firstMatch(of: regex(blocosDeTempo)),
-           let n = m.output[1].substring.flatMap(valor),
-           let cada = m.output[2].substring.flatMap(minutos), n > 0, cada > 0 {
-            return .init(rotulo: "Tempo pedido: \(n) blocos de \(cada) minutos (\(n * cada) no total)",
+        if let m = texto.firstMatch(of: regex(blocosDeTempo)) {
+            guard let n = m.output[1].substring.flatMap(valor),
+                  let cada = m.output[2].substring.flatMap(minutos), n > 0, cada > 0 else { return nil }
+            let (total, excedeu) = n.multipliedReportingOverflow(by: cada)
+            guard !excedeu else { return nil }
+            return .init(rotulo: "Tempo pedido: \(n) blocos de \(cada) minutos (\(total) no total)",
                          trecho: frase(em: texto, contendo: m.range), fonte: fonte,
-                         alvo: .tempo(blocos: n, cada: cada, total: n * cada))
+                         alvo: .tempo(blocos: n, cada: cada, total: total))
         }
         if let m = texto.firstMatch(of: regex(marcaDeTempo)), let x = minutos(texto[m.range]), x > 0 {
             return .init(rotulo: "Tempo pedido: \(x) minutos", trecho: frase(em: texto, contendo: m.range),
@@ -251,23 +253,28 @@ nonisolated enum ConferenciaTrabalho {
         _ blocos: Int?, _ cada: Int?, _ total: Int, _ artefato: String,
         _ resultado: (DocumentoTrabalho.SituacaoCriterio, [String], String) -> DocumentoTrabalho.Resultado
     ) -> DocumentoTrabalho.Resultado {
-        let marcas = artefato.matches(of: regex(marcaDeTempo)).compactMap { minutos(artefato[$0.range]) }
+        let lidasNoTexto = artefato.matches(of: regex(marcaDeTempo))
+        let marcas = lidasNoTexto.compactMap { minutos(artefato[$0.range]) }
+        guard marcas.count == lidasNoTexto.count, let somaBruta = somar(marcas) else {
+            return resultado(.inconclusivo, [], "As marcas de tempo excedem o limite numérico desta checagem. Não descartei valores para apresentar uma soma menor.")
+        }
         guard !marcas.isEmpty else {
             return resultado(.divergencia, [],
                 "Não encontrei distribuição: nenhuma marca de minutos no artefato, nem em dígitos nem por extenso. Isso não é o mesmo que dizer que os tempos somam errado — é dizer que não há tempo escrito para conferir.")
         }
         // Um total anunciado no cabeçalho não conta duas vezes.
         var contadas = marcas
-        if contadas.count > 1, contadas.reduce(0, +) != total, let i = contadas.firstIndex(of: total) {
+        if contadas.count > 1, somaBruta != total, let i = contadas.firstIndex(of: total) {
             contadas.remove(at: i)
         }
-        let soma = contadas.reduce(0, +)
+        // Remover um valor não negativo de uma soma válida não pode exceder Int.
+        let soma = somar(contadas) ?? somaBruta
         let lidas = contadas.map { "\($0) min" }.joined(separator: ", ")
         let achadas = "\(contadas.count) \(contadas.count == 1 ? "marca" : "marcas")"
         if let blocos, let cada {
-            guard contadas.count == blocos, soma == total else {
+            guard contadas.count == blocos, contadas.allSatisfy({ $0 == cada }), soma == total else {
                 return resultado(.divergencia, [lidas],
-                    "O pedido pede \(blocos) blocos de \(cada) minutos (\(total) no total); encontrei \(achadas) somando \(soma).")
+                    "O pedido pede \(blocos) blocos de \(cada) minutos (\(total) no total); encontrei \(achadas): \(lidas), somando \(soma). Cada bloco também precisa ter a duração pedida.")
             }
             return resultado(.atendidoNoEscopo, [lidas],
                 "Encontrei \(achadas) de minutos somando \(soma), como o pedido pede. O tempo escrito não prova a duração da prática.")
@@ -281,6 +288,16 @@ nonisolated enum ConferenciaTrabalho {
     }
 
     // MARK: - Texto
+
+    private static func somar(_ valores: [Int]) -> Int? {
+        var total = 0
+        for valor in valores {
+            let (soma, excedeu) = total.addingReportingOverflow(valor)
+            guard !excedeu else { return nil }
+            total = soma
+        }
+        return total
+    }
 
     /// Linhas com prosa suficiente. Cabeçalho, tabela, código e item curto
     /// ficam de fora: o reconhecedor erra neles e o erro viraria alarme falso.

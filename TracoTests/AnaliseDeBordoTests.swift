@@ -140,6 +140,20 @@ import Testing
             pares: pares)?.isEmpty == true)
     }
 
+    @Test func perguntaECitacaoChegamInteirasOuSaoRecusadas() throws {
+        let valida = "Você escreveu “duas semanas de trabalho” — o que sustentava esse prazo?"
+        let longa = String(repeating: "Contexto adicional. ", count: 18) + valida
+        let conclusaoDepois = valida + " Você sempre ignora o prazo."
+        for pergunta in [longa, conclusaoDepois] {
+            let json = String(data: try JSONSerialization.data(withJSONObject: ["perguntas": [pergunta]]), encoding: .utf8)!
+            #expect(Sabia.parseCalibragem(json, pares: pares)?.isEmpty == true)
+            #expect(PadroesRemoto.parsePerguntas(json, vozes: pares)?.isEmpty == true)
+        }
+        let json = String(data: try JSONSerialization.data(withJSONObject: ["perguntas": [valida]]), encoding: .utf8)!
+        #expect(Sabia.parseCalibragem(json, pares: pares) == [valida])
+        #expect(PadroesRemoto.parsePerguntas(json, vozes: pares) == [valida])
+    }
+
     /// Veredito não passa: nem sem "?", nem como elogio, nem como diagnóstico.
     @Test func vereditoNaoPassa() {
         #expect(Sabia.parseCalibragem(

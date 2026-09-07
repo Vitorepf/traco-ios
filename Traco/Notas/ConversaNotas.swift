@@ -11,9 +11,17 @@ final class ConversaNotas {
         case pensando(String)
         case falhou(String)
         case interrompida(String)
+        case recolhida(String)
     }
 
-    typealias Resultado = (resposta: String?, titulos: [String])
+    struct Resultado {
+        var resposta: String?
+        var titulos: [String]
+        var dependencias: [FonteNotas] = []
+        var fontesCitadas: [FonteNotas] = []
+        var conversaValida: [Sessao.TrocaNasNotas]? = nil
+        var fontesMudaram = false
+    }
     typealias Responder = @MainActor (String, [Sessao.TrocaNasNotas]) async -> Resultado
 
     var entrada = ""
@@ -31,7 +39,7 @@ final class ConversaNotas {
 
     var perguntaParaRepetir: String? {
         switch estado {
-        case .falhou(let pergunta), .interrompida(let pergunta): pergunta
+        case .falhou(let pergunta), .interrompida(let pergunta), .recolhida(let pergunta): pergunta
         default: nil
         }
     }
@@ -68,12 +76,16 @@ final class ConversaNotas {
             guard !Task.isCancelled, let self, self.tentativa == id else { return }
             self.tentativa = nil
             self.tarefa = nil
+            if let validas = resultado.conversaValida {
+                self.trocas = validas
+                self.titulos = []
+            }
             if let resposta = resultado.resposta {
-                self.trocas.append(.init(pergunta: pergunta, resposta: resposta))
+                self.trocas.append(.init(pergunta: pergunta, resposta: resposta, dependencias: resultado.dependencias))
                 self.titulos = resultado.titulos
                 self.estado = .ociosa
             } else {
-                self.estado = .falhou(pergunta)
+                self.estado = resultado.fontesMudaram ? .recolhida(pergunta) : .falhou(pergunta)
             }
         }
         tarefa = nova
@@ -86,6 +98,25 @@ final class ConversaNotas {
             invalidarTentativa()
             estado = .interrompida(pergunta)
         }
+    }
+
+    /// O cartão já exibido também é derivação: revogar a fonte recolhe a
+    /// resposta, não apenas impede a próxima chamada. A pergunta fica para retry.
+    @discardableResult
+    func revalidarFontes(_ permitidas: ([FonteNotas]) -> Bool) -> Bool {
+        let ultima = trocas.last
+        let validas = trocas.filter { permitidas($0.dependencias) }
+        guard validas.count != trocas.count else { return false }
+        trocas = validas
+        if case .pensando(let pergunta) = estado {
+            invalidarTentativa()
+            titulos = []
+            estado = .recolhida(pergunta)
+        } else if let ultima, !permitidas(ultima.dependencias) {
+            titulos = []
+            estado = .recolhida(perguntaParaRepetir ?? ultima.pergunta)
+        }
+        return true
     }
 
     /// ADR 05e: Fechar descarta a conversa, mas não a busca em edição.

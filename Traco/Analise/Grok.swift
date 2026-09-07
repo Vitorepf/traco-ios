@@ -85,30 +85,67 @@ nonisolated enum Grok {
     /// mesma coisa (a pergunta da prova num degrau, por exemplo). Onde o autor
     /// pede de novo esperando algo novo — instigar, padrões — não memoiza.
     static func responder(sistema: String, usuario: String, temperatura: Double,
-                          timeout: TimeInterval = 20, memoPor chave: String? = nil) async -> String? {
-        guard !Motores.desligados else { return nil }
+                          timeout: TimeInterval = 20, memoPor chave: String? = nil,
+                          esquema: String? = nil) async -> String? {
+        guard !Motores.desligados, !Task.isCancelled else { return nil }
+        // Uma chave do chamador não pode reutilizar uma resposta de outro
+        // pedido/schema. A validação continua depois da geração estruturada.
+        let chave = chave.map { "\($0)\u{1}\(sistema)\u{1}\(usuario)\u{1}\(temperatura)\u{1}\(esquema ?? "")" }
         if let chave, let guardada = memoLido(chave) { return guardada }
         guard let token = await ContaGrok.token() else { return nil }
+        guard !Task.isCancelled,
+              let corpo = corpo(sistema: sistema, usuario: usuario,
+                                temperatura: temperatura, esquema: esquema) else { return nil }
         var pedido = URLRequest(url: endereco)
         pedido.httpMethod = "POST"
         pedido.timeoutInterval = timeout
         pedido.setValue("application/json", forHTTPHeaderField: "Content-Type")
         pedido.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        pedido.httpBody = try? JSONSerialization.data(withJSONObject: [
+        pedido.httpBody = corpo
+        guard let (dados, resposta) = try? await URLSession.shared.data(for: pedido),
+              !Task.isCancelled,
+              (resposta as? HTTPURLResponse)?.statusCode == 200,
+              let msg = textoCompleto(dados) else { return nil }
+        if let chave { memoGrava(chave, msg) }
+        return msg
+    }
+
+    /// O schema vai no protocolo da API, não apenas numa promessa no prompt.
+    /// JSON válido ainda precisa das verificações de domínio e de conteúdo.
+    static func corpo(sistema: String, usuario: String, temperatura: Double,
+                      esquema: String?) -> Data? {
+        var corpo: [String: Any] = [
             "model": modelo,
             "temperature": temperatura,
             "messages": [
                 ["role": "system", "content": sistema],
                 ["role": "user", "content": usuario],
             ],
-        ] as [String: Any])
-        guard let (dados, resposta) = try? await URLSession.shared.data(for: pedido),
-              (resposta as? HTTPURLResponse)?.statusCode == 200,
-              let raiz = try? JSONSerialization.jsonObject(with: dados) as? [String: Any],
+        ]
+        if let esquema {
+            guard let dados = esquema.data(using: .utf8),
+                  let schema = try? JSONSerialization.jsonObject(with: dados) as? [String: Any],
+                  schema["type"] as? String == "object" else { return nil }
+            corpo["response_format"] = [
+                "type": "json_schema",
+                "json_schema": ["name": "resposta_traco", "strict": true, "schema": schema],
+            ]
+        }
+        return try? JSONSerialization.data(withJSONObject: corpo)
+    }
+
+    /// HTTP 200 também pode conter resposta cortada por limite ou recusa.
+    /// Nenhuma delas vira versão pronta ou entra no cache.
+    static func textoCompleto(_ dados: Data) -> String? {
+        guard let raiz = try? JSONSerialization.jsonObject(with: dados) as? [String: Any],
               let escolhas = raiz["choices"] as? [[String: Any]],
-              let msg = (escolhas.first?["message"] as? [String: Any])?["content"] as? String
+              let escolha = escolhas.first,
+              escolha["finish_reason"] as? String == "stop",
+              let mensagem = escolha["message"] as? [String: Any],
+              (mensagem["refusal"] as? String ?? "").isEmpty,
+              let msg = mensagem["content"] as? String,
+              !msg.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         else { return nil }
-        if let chave { memoGrava(chave, msg) }
         return msg
     }
 }
