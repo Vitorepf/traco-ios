@@ -16,22 +16,26 @@ Antes de escolher, responda em uma linha: que interação do autor com o Traço 
 
 Prefira a volta que faz as próximas ficarem mais baratas. Fundação, vocabulário, componente reutilizável e contrato bem posto valem mais que uma tela isolada. Uma volta que resolve uma classe inteira de problema vence três que resolvem um caso cada. Quando duas voltas têm o mesmo valor, escolha a que desbloqueia mais itens do RUMO.
 
-## 4. O ambiente que se modifica sozinho — prioridade alta
+## 4. O ambiente que se modifica sozinho — em Markdown, prioridade alta
 
-É a terceira participante da visão, hoje a lacuna mais aberta do EVOLUCAO ("HTML útil e interativo: possibilidade de produto, não implementada"). Não existe WKWebView nem HTML no app.
+**Decisão do dono, 07/09/2026, depois da verificação rigorosa do estado do app: o artefato que se transforma nasce em Markdown, não em HTML.** O que ele quer não mudou: um artefato que o autor abre, usa, e que se transforma a pedido dele ou por necessidade percebida. O exemplo dele continua o mesmo: a lição de espanhol que o autor pratica, erra em conjugação, e que se reescreve para atacar aquilo, guardando as versões e a origem de cada mudança.
 
-O que o dono quer: um artefato que o autor abre, usa, e que se transforma a pedido dele ou por necessidade percebida. Exemplo dele: aprender espanhol. O artefato começa como uma lição, o autor pratica, erra em conjugação, e o próprio artefato se reescreve para atacar aquilo, guardando as versões e a origem de cada mudança.
+Por que Markdown vence para este caso, e é o caso que importa:
+- O laço que falta é de OBSERVAÇÃO e VERSÃO, não de renderização. O Trabalho já tem versões com origem, tentativa do autor como evidência separada (ADR 05r), pedido de ajuste e ida e volta pelo arquivo (ADRs 05l e 06a). O que não existe é a volta em que a observação da tentativa gera a versão seguinte e diz por quê.
+- O Caderno já renderiza blocos próprios — campos, tarefas, áudio, recipientes `:::slug` — com Tema, VoiceOver, Dynamic Type e movimento reduzido. Um bloco de exercício é mais um tipo nessa lista, e a régua de 9 em toda dimensão alcança o conteúdo. Dentro de um WKWebView nada disso vale.
+- Selo, expressiva, corpus, índice, MCP, exportação e a comparação ancorada na divergência já cobrem `.md`. HTML exigiria refazer o contrato de privacidade para um formato que carrega script e link.
+- O modelo de bordo produz Markdown com muito mais confiança do que HTML com script. As provas 4, 5 e 6 mostram que ele já falha em JSON estrito; pedir uma página interativa correta a ele é pedir o que não vem, e o dono quer depender menos do Grok (§5).
 
-HTML e não Markdown, pela razão que o dono deu: representação visual e interação. Markdown continua sendo a base de documento e intercâmbio; HTML é a camada de artefato interativo. Um não substitui o outro.
+Onde o HTML continua tendo lugar, e só ali: protótipo de experiência, mock de oferta ou de app que se testa com outra pessoa, simulação, visualização com interação própria — o caso "criar e testar uma oferta ou um protótipo" da visão. Faixa estreita, sandbox sem rede e sem acesso a notas, capacidades declaradas na tela, e só quando um caso real pedir. **Nenhuma volta de HTML abre antes de o artefato em Markdown provar o laço inteiro.** `FormatoArtefato.html` fica como está, sem código.
 
-Contratos que essa frente tem de respeitar, e que valem uma consulta ao conselho antes da primeira linha:
+Contratos que esta frente tem de respeitar, em qualquer formato:
 - Capacidades delimitadas: o artefato não busca rede, não gasta, não envia, não lê nota protegida. O que ele pode fazer é declarado e visível.
 - Toda modificação é uma versão nova com origem: pedido do autor ou necessidade percebida, e qual foi. O autor pode voltar atrás.
-- A modificação por necessidade nunca é silenciosa: o artefato diz o que mudou e por quê.
+- A modificação por necessidade nunca é silenciosa: o artefato diz, no próprio documento, o que mudou e por quê.
 - Praticar dentro do artefato é o segundo ciclo: a tentativa é do autor, a IA não preenche a resposta.
-- Estado honesto: exercício gerado, praticado e demonstrado são estados distintos.
+- Estado honesto: exercício gerado, praticado e demonstrado são estados distintos; "reescrito" não é "aprendido".
 
-Ordem: uma volta de contrato e prova de conceito (um artefato, uma modificação, versões e origem), depois a jornada real de uma matéria de ponta a ponta.
+Ordem: a V17 do RUMO — uma volta de contrato e prova (um artefato com bloco de exercício, uma tentativa do autor, uma modificação nascida da observação com origem e motivo ditos no documento, versão anterior a um toque) —, depois a jornada real de uma matéria de ponta a ponta. A qualidade da geração é pré-requisito medido, não presumido: a frente `codex/qualidade-ia` mede a base e o candidato, e a V17 usa a sonda dela para provar o caso real.
 
 ## 5. Aparelho antes da rede, com medida
 
