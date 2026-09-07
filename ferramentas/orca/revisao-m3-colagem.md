@@ -375,3 +375,375 @@ swift ferramentas/orca/m3-rev-provas/rota.swift Traco/Modelo/Metodos.json \
 
 O gerador de sondas está pronto para virar o teste de alcance que proponho
 no §2.
+
+---
+---
+
+# re-G3 — a colagem com main (commit `25d8234`)
+
+Mesmo revisor, 06/09/2026, 22h. Simulador **iPhone 17 Pro (teste 2)
+`B91C8DEF`**. Nada editado, nada commitado.
+
+**Veredito: CORRIGIR ANTES — com lista mínima de TRÊS linhas, todas de uma
+edição só.** O achado ALTO do G3 está **FECHADO e conferido por mim na tela**.
+O que segura são três itens pequenos, um deles um resíduo da mesma família que
+eu achei agora e que ninguém tinha medido.
+
+---
+
+## A. O meu ALTO: reproduzi as 22 eu mesmo — **todas caladas**
+
+Não aceitei o relato. Construí uma segunda réplica do roteador
+(`rota2`) sobre o topo `25d8234`, e os léxicos da guarda **não foram
+retranscritos**: são extraídos linha a linha do fonte real
+(`AnaliseLocal.swift`, linhas 113/122/136/148/153/170-188/195/200/207/212), de
+modo que o que eu testo são os padrões do app, não a minha cópia deles.
+
+**A réplica foi validada contra o Swift dele antes de eu confiar nela:** rodei
+as 147 sondas com o mesmo rabo de 140 pontos que o teste usa, e ela reproduz
+**as 15 entradas de `conhecidos` que tocam os sete métodos, uma a uma, na mesma
+ordem e com o mesmo destino**. Réplica que acerta 15/15 contra a implementação
+real mede a implementação real.
+
+Resultado das 22, contra o `Metodos.json` de **28 métodos desta volta** (não a
+injeção pela pasta do autor que o teste dele usa):
+
+```
+14 curtas  (frases2.txt) -> 14 silêncio,   0 exercício
+ 8 longas  (frases.txt)  ->  8 silêncio,   0 exercício
+                            ---------------------------
+                            22 de 22 caladas
+```
+
+**Nenhuma das 22 sobra.** A afirmação dele está certa.
+
+### Na tela, o controle que fecha o achado
+
+`m3-reg3-02-controle-desabafo-livre.png` — a frase EXATA do `m3-rev-03`, a que
+no G3 chegava vestida de EXAME DA NOITE com o cartão "isto é o seu dia pedindo
+julgamento — dos seus atos": **"Perdi a paciência com ela hoje. Me arrependi e
+chorei."** Agora fica na tela como nota livre, sem cartão, sem forma, sem chip
+de domínio. Só as palavras do autor. É o par exato da captura que abriu o
+achado, e é a prova de que ele fechou.
+
+### O que a guarda ainda não faz, e não é defeito
+
+As 8 longas vão para **silêncio**, não para a Expressiva. É o certo: a guarda
+CALA (conservadora), e a Expressiva SUGERE (afirmação mais forte, e o léxico
+dela é mais estreito que o da guarda). O app não inventa uma porta. Registro
+para ninguém ler "silêncio" como meia-correção.
+
+---
+
+## B. Achado NOVO — o resíduo da mesma família, e ele é ARBITRÁRIO
+
+**Severidade: MÉDIO. Provado na tela.**
+
+`m3-reg3-01-confissao-curta-vestida.png`: **"Não devia ter reagido assim com
+ele."** — 36 caracteres, confissão de conduta contra outra pessoa — chega
+**vestida de EXAME DA NOITE**, com os quatro campos de exercício sobre o texto
+do autor.
+
+O defeito não é a guarda ser fraca. É ela ser **arbitrária dentro de um mesmo
+ato de fala**:
+
+| frase | tamanho | destino |
+|---|---|---|
+| "Fui grosso com ele hoje." | 24 | silêncio ✅ |
+| "Fui injusto com ela hoje." | 25 | silêncio ✅ |
+| "Perdi a paciência com ele hoje." | 31 | silêncio ✅ |
+| "Briguei com ele hoje." | 21 | silêncio ✅ |
+| "Não devia ter agido assim hoje." | 31 | **exameDaNoite** ❌ |
+| "Não devia ter reagido assim com ele." | 36 | **exameDaNoite** ❌ |
+| "Não devia ter tratado ela daquele jeito." | 40 | **exameDaNoite** ❌ |
+| "Não devia ter feito o que eu fiz com ele." | 41 | **exameDaNoite** ❌ |
+
+**A causa, em um token:** `não devia ter` está em `lexicoDaOmissao` (família 5),
+que só vale **acima** do teto de 120; e não em `lexicoDoAtoContraAlguem`
+(família 4), que vale em qualquer tamanho. Mas `não devia ter (feito|reagido|
+agido|tratado)` **não é omissão** — é confissão de conduta, a mesma coisa que
+`fui injusto` e `perdi a paciência`. A taxonomia da própria 06h a classifica
+errado.
+
+E a prova de que a casa concorda comigo está **nesta volta**: ela removeu
+"perdi a paciência na reunião e me arrependi" e "fui injusto com o time hoje de
+manhã" de `osSeteNovosRoteiamParaSiMesmos` justamente porque *"é confissão de
+conduta, exatamente o roubo que a 06h proíbe"*. "Não devia ter reagido assim
+com ele" é o mesmo ato de fala, e passa.
+
+### Por que a régua dele não vê
+
+`todoRamoDeRegexAlcancaOSeuMetodo` cola em toda sonda
+`let rabo = " " + String(repeating: ".", count: 140)`. **Todo o teste vive acima
+do teto.** O comentário declara isso e dá a razão (independer do lado do teto),
+o que é honesto — mas a consequência não está dita em lugar nenhum: abaixo do
+teto, **4 dos 9 ramos do segundo bloco voltam a viver**, e voltam carregando a
+confissão. Medi os dois regimes:
+
+```
+com rabo (>120)  -> 12 dos 17 ramos do Exame calados   (é o que o teste registra)
+sem rabo (curto) ->  8 dos 17 calados; os 4 `não devia ter …` acordam
+```
+
+Por isso a frase da ADR *"O método continua alcançável só pelo primeiro ramo
+(`exame da noite`, `passei o dia em revista`) e por `hoje eu (fiz|reagi|
+tratei)`"* **é falsa abaixo do teto**. É a mesma classe de defeito que eu
+bloqueei no G3: uma afirmação de contrato que dá confiança que o código não
+sustenta. Menor em alcance, idêntica em natureza.
+
+---
+
+## C. O preço do segundo ramo — a minha leitura
+
+Confirmo o número dele com a régua dele: **9 de 9 sondas do segundo ramo
+caladas**, e 12 dos 17 ramos do Exame ao todo. A conta está certa e está dita.
+
+**Julgamento: não é "o Exame entrando pela metade". É o Exame da noite sendo o
+único dos sete cuja MATÉRIA é escrita protegida — e isso não é um preço, é uma
+contradição que a volta não nomeia.**
+
+A ficha do próprio método diz: *"Serve para o fim de um dia em que o autor fez
+algo que não quer repetir."* A ADR 06h diz: confissão de conduta não vira
+exercício. **As duas não podem valer ao mesmo tempo.** A volta resolveu de
+fato — calando 12 dos 17 ramos — mas resolveu sem dizer, e deixou 4 ramos vivos
+por acidente do teto, não por princípio.
+
+A prova de que a contradição é real está nos dados do próprio implementador: as
+duas frases de trabalho que ele teve de escrever para a porta do Exame são
+*"**Exame da noite:** o que do dia de trabalho eu não repito amanhã"* e
+*"**Passei o dia em revista** e vou fixar uma regra para a semana"* — as duas
+são **encantação**: dizem o nome do método ou a frase-gatilho literal. Ele não
+conseguiu escrever uma nota de trabalho natural que convocasse o Exame, porque
+não existe. É a mesma coisa que a captura dele (`m3c-01`) mostra: para provar o
+tom do cartão, foi preciso digitar o nome do método.
+
+**O que eu recomendo:** aceitar o Exame como **método que se abre pelo nome**,
+e DIZER isso na tela. Um exame de consciência convocado deliberadamente é
+defensável — talvez melhor que um convocado por reconhecimento. Mas hoje o
+autor tem, na lista de 28 do Perfil, um método que nunca aparece sozinho e
+nenhuma pista do porquê. É a regra do motor sem superfície: função que o autor
+não vê não foi entregue. Uma linha na Lente/Perfil ("este método você abre pelo
+nome — o Traço não o oferece sobre a sua escrita pessoal") fecha isso.
+
+---
+
+## D. As 14 frases de trabalho novas — conferidas uma a uma
+
+O modo de falha que me pediram para caçar é frase escrita para passar no teste.
+Julguei as 14 (`EscritaPessoalTests.trabalho`, linhas 219–232):
+
+**12 são nota de trabalho de verdade**, com objeto de trabalho real e nenhuma
+confissão de conduta: o cadastro complicado, o painel com botões demais, a
+conversa com o fornecedor, a reunião com o jurídico, a migração do banco, a
+estimativa de duas semanas, o build que quebrou na mesma etapa, o deploy de
+sexta pela terceira vez, os problemas importantes do campo, o trimestre, o
+custo de oportunidade do servidor próprio, o plano anual. Nenhuma delas nomeia
+o método; todas nomeiam a coisa. ✅
+
+**2 são encantação, e as duas são do Exame da noite:**
+
+- *"Exame da noite: o que do dia de trabalho eu não repito amanhã."* — abre
+  dizendo o nome próprio do método. Nenhum autor escreve assim.
+- *"Passei o dia em revista e vou fixar uma regra para a semana."* — a frase-
+  gatilho literal, com um rabo de trabalho colado.
+
+Não são desonestidade: são o **sintoma** do §C. As portas do Exame que sobraram
+vivas são justamente o nome e a frase ritual, então não havia como escrever
+outra coisa. Registro como evidência do §C, não como achado próprio.
+
+---
+
+## E. O que refiz do instrumento
+
+| prova | conferida por mim |
+|---|---|
+| build do app | `** BUILD SUCCEEDED **`, **0 avisos** no log inteiro (o achado B1 do G3 caiu: o `ConferenciaTrabalhoTests` foi consertado em main) |
+| suíte integral | `✔ Test run with 785 tests in 130 suites passed after 7.472 seconds` + `** TEST SUCCEEDED **`, no meu UDID `B91C8DEF`, sob `com-trava.sh` |
+| os sete testes da guarda | todos `✔` no meu log: `aEscritaPessoalNaoChegaVestidaDeMetodo`, `nenhumaDas22ViraExercicio`, `osVinteDoRevisorG3NaoViramExercicio`, `todaPortaDeMainTemPeloMenosDuasFrases`, `todoRamoDeRegexAlcancaOSeuMetodo`, `osSeteNovosRoteiamParaSiMesmos`, `oSeEntaoNaoCasaDentroDeOutraPalavra` |
+| `maestro/metodos-m3-tom.yaml` | rodei eu: **saída 0** |
+| controle negativo | escrevi o meu (troquei a asserção pela frase velha do cartão): **saída 1**. O fluxo sabe falhar |
+| captura dele `m3c-01` | aberta e lida: cartão real dizendo "isto é o seu dia em revista — e uma regra para amanhã" |
+| ADR 06e no SPEC | `SPEC.md:3609`, entre a 06c (3509) e a 06f (3759), como declarado; ocorrência única |
+| as três correções de tom no `Metodos.json` | vieram de main (não deste commit) e fecham o meu achado de Design: `colunaEsquerda`, `perguntaHamming` e `exameDaNoite` perderam o reconhecimento acusatório |
+| o texto da ADR 06e | carrega hoje, palavra por palavra, as minhas duas correções do G3: "74 frases é uma amostra, não uma propriedade" e a regra permanente **corrigida** com o teto de 120 nomeado |
+
+---
+
+## F. Dois defeitos pequenos que eu achei conferindo
+
+**BAIXO-1 — `comOsNovos` virou no-op nesta árvore.** `EscritaPessoalTests`
+escreve os sete na pasta do autor para injetá-los, mas nesta volta o
+`Metodos.json` do bundle **já tem os 28**, e `Catalogo.recarregar` recusa id
+repetido (`"o id já existe"`). Os arquivos são rejeitados em silêncio. As
+asserções continuam certas — o catálogo real tem os sete, na ordem certa —, mas
+`osDoisMetodosEntramMesmoPelaPastaDoAutor` **passa pelo motivo errado** e o
+comentário do topo ("Os dois entram aqui pela pasta do autor — o `Metodos.json`
+é da volta M3 e não se toca") ficou falso na colagem. Pior: as regex congeladas
+no `static let novos` são cópias da era M3 e agora podem divergir do bundle sem
+que nada acuse.
+
+**BAIXO-2 — comentário morto no `metodos-m3-tom.yaml`.** O cabeçalho ainda diz
+*"O roteamento ainda a veste de Exame da noite — esse é o achado alto, e o
+conserto mora em `Traco/Analise`"*, que era verdade na M3-B e não é mais. O
+bloco de baixo, da 06h, diz o contrário. Duas frases contraditórias no mesmo
+arquivo de prova.
+
+---
+
+## Scorecard revisto
+
+| dimensão | G3 | re-G3 | o que mudou a nota |
+|---|---|---|---|
+| **Visão** | 9 | **9** | inalterado: as três faculdades vazias, fechadas |
+| **Contrato** | 7 | **8** | ↑ a ADR 06e carrega hoje as minhas duas correções palavra por palavra, e a amostra virou amostra. ↓ não chega a 9 porque a frase "o método continua alcançável só pelo primeiro ramo e por `hoje eu (fiz\|reagi\|tratei)`" é **falsa abaixo do teto** — mesma classe de afirmação falsa que eu bloqueei no G3, menor em alcance |
+| **Correção** | 6 | **9** | ↑ 785/130 verde e 0 aviso no meu UDID; o teste vermelho-de-propósito virou verde sem tocar `Traco/Analise`; a régua de alcance é instrumento de verdade (reproduzi 15/15) e o fluxo maestro tem controle negativo que eu mesmo refiz. Os dois BAIXOS do §F não derrubam a dimensão |
+| **Jornada real** | 8 | **9** | ↑ o estado que faltava no G3 — a nota pessoal na tela — agora está capturado dos dois lados: o controle que ficou livre (`m3-reg3-02`) e o resíduo que ainda veste (`m3-reg3-01`) |
+| **Design** | 7 | **9** | ↑ os três reconhecimentos acusatórios foram reescritos e eu confirmei na tela: o cartão que servia "julgamento — dos seus atos" a quem chorou agora diz "o seu dia em revista — e uma regra para amanhã". O defeito concreto que sustentava a nota 7 não existe mais |
+| **Simplicidade** | 7 | **8** | ↑ a jornada da escrita ficou mais quieta, não mais barulhenta: a guarda tira forma de cima de nota pessoal. ↓ não chega a 9 porque o Perfil lista 28 métodos e um deles (Exame da noite) só se abre digitando o próprio nome, sem uma linha na tela que diga isso — poder avançado deixou de ser encontrável (§C) |
+| **Movimento** | n/a | **n/a** | nenhuma animação tocada |
+| **Componentes** | n/a | **n/a** | nenhum componente criado ou alterado |
+| **Acessibilidade** | n/a | **n/a** | zero código de view neste commit |
+| **Performance** | 9 | **9** | a guarda acrescenta 6 regex antes do laço; o laço continua debounced em 1,6 s (`Sessao.swift:382`). Sem medida nova porque nada na ordem de grandeza mudou |
+| **Privacidade e autoria** | **5** | **8** | ↑↑ o meu ALTO está fechado: 22 de 22 caladas, réplica validada 15/15 contra o Swift real, e o controle na tela (`m3-reg3-02`) é a frase exata que abriu o achado, agora livre. A guarda mora em código (não no JSON editável), cobre o caminho do modelo e não depende da posição no catálogo. ↓ não chega a 9 pelo resíduo do §B: quatro confissões de conduta ainda viram exercício abaixo do teto, e a assimetria com `fui grosso` não tem princípio que a explique |
+| **Estado honesto** | 8 | **9** | ↑ "build sem aviso" agora é verdade (0 avisos, medido); "0 desvio em 74 frases" virou "amostra, não propriedade" na ADR; o preço do segundo ramo está dito por extenso no teste e na ADR. A casa diz o que fez |
+| **Complexidade** | 9 | **9** | o commit é teste + doc + um fluxo; nenhuma linha de produção |
+| **Fora do app** | n/a | **n/a** | nada tocado |
+| **Relato** | 8 | **9** | ↑ commit e ADR dizem o que foi medido, com o número remedido do zero e o preço declarado antes de alguém perguntar |
+
+**Três dimensões em 8: Contrato, Simplicidade, Privacidade e autoria.**
+Nenhuma abaixo disso. Nenhuma delas pede medir de novo.
+
+---
+
+## Lista mínima — três linhas, e a volta passa
+
+1. **Mover `não devia ter` de `lexicoDaOmissao` para `lexicoDoAtoContraAlguem`**
+   (um token de lugar), OU, se a decisão for manter, **dizer o resíduo** na ADR
+   e no `conhecidos` com uma sonda curta. Sem uma das duas, uma confissão de
+   conduta vira exercício e ninguém sabe. → fecha Privacidade (8→9) e a parte
+   falsa do Contrato (8→9).
+2. **Uma linha na Lente/Perfil do Exame da noite** dizendo que ele se abre pelo
+   nome, porque o Traço não o oferece sobre escrita pessoal. → fecha
+   Simplicidade (8→9) e resolve a contradição do §C dizendo-a.
+3. **Os dois BAIXOS do §F**: o comentário morto do `metodos-m3-tom.yaml` e a
+   nota de que `comOsNovos` não injeta mais nada nesta árvore.
+
+Os itens 2 e 3 são documentação e cabem no próprio commit de merge. O item 1 é
+o único que toca `Traco/Analise` — fora do escopo declarado desta volta —, e por
+isso a variante "dizer em vez de consertar" existe: ela fecha a dimensão pela
+regra da casa (*fragilidade dita é honestidade*) sem abrir código de outra ADR.
+
+---
+
+## Instrumento do re-G3
+
+Build, `xcodebuild test` e maestro no **iPhone 17 Pro (teste 2) `B91C8DEF`**,
+tudo por `ferramentas/orca/com-trava.sh`, maestro com `--device` do mesmo UDID.
+Nenhum simulador desligado, nenhum toque por coordenada, o iPhone 17 `1A46B6D3`
+do dono intocado. PNGs em `sips -Z 1000`, abaixo de 400 KB. Nada editado, nada
+commitado.
+
+Segunda réplica (`rota2`) com os léxicos extraídos do fonte e validada 15/15
+contra `conhecidos`, mais as frases novas deste re-G3, em
+`/tmp/…/scratchpad/{lexicos.swift,main.swift,asymm.txt,curtas2.txt,hedge.txt}` —
+entrego se o orquestrador quiser fixá-la ao lado de `m3-rev-provas/`.
+
+---
+
+# Fecho — a palavra final sobre as duas linhas que sobraram
+
+Mesmo revisor, 06/09/2026, 23h30, depois de rever a volta A-6 no meu simulador
+`B91C8DEF` (scorecard em `ferramentas/orca/revisao-a6-familia.md`, no branch
+`Vitorepf/volta-a6-familia`). O item 1 da minha lista mínima — mover
+`não devia ter` para a família 4 — **saiu desta volta e está feito na A-6**,
+como o dono decidiu, porque `Traco/Analise` é lei fechada. Ficam os itens 2 e 3.
+
+## Item 2 — a linha na tela dizendo que o Exame se abre pelo nome: **QUERO, e agora quero MAIS**
+
+A A-6 **não enfraquece** a minha leitura do §C; ela a agrava, e eu remedi para ter
+certeza. Os 17 ramos do Exame da noite, medidos um a um nos dois regimes de
+tamanho, com a réplica validada 141/141 contra a suíte verde:
+
+| | antes (`main`) | depois da A-6 |
+|---|---|---|
+| ramos que chegam ao Exame, frase CURTA | 9 de 17 | **5 de 17** |
+| ramos que chegam ao Exame, frase LONGA | 5 de 17 | **5 de 17** |
+
+Os 9 de 9 do segundo ramo continuam fechados — e agora fecham **abaixo do teto
+também**, que era o buraco. Traduzido: das 17 portas do Exame, **12 estão
+caladas em qualquer tamanho**, e as 5 que sobram são o nome do método, a frase
+ritual, e `hoje eu (fiz|reagi|tratei)` quando o que vem depois não é confissão.
+E uma das três do primeiro ramo — `olhando o dia de hoje` — **nem existe**: o
+Meu dia tem `\bo dia de hoje\b` e vem antes no catálogo, então ela cai no Meu
+dia, em qualquer tamanho. Sobram, de fato, **o nome, a frase ritual e um verbo**.
+
+**O preço mudou para pior, e é o que confirma a leitura:** o Exame da noite é o
+único dos sete cuja MATÉRIA é escrita protegida, e a A-6 tornou isso quase
+total. Um método que o Perfil lista entre 28 e que o Traço praticamente nunca
+oferece sobre a escrita do autor precisa dizer isso na tela — senão é a regra do
+motor sem superfície: função que o autor não vê não foi entregue.
+
+**E há mais do que uma linha faltando: há uma frase ERRADA na tela.** A
+proveniência do Exame no `Metodos.json` diz hoje, no campo que o app rotula
+**SERVE PARA** (`Metodo.swift:88`, já renderizado — é o bloco da minha captura
+`m3-rev-01-hamming-proveniencia.png`):
+
+> "Serve para o fim de um dia em que o autor fez algo que não quer repetir."
+
+É exatamente a matéria que a guarda recusa a levar até ele. A ficha promete ao
+autor o que o app não faz. Corrigir isso não é acrescentar um aviso: é fazer a
+tela parar de mentir.
+
+**Cabe no commit de merge? CABE.** É uma string de `aplicabilidade` no
+`Metodos.json`, num campo que uma view existente já desenha — sem código de
+view, sem fase de `design-router`, sem componente novo. A prova é uma captura do
+cartão de proveniência do Exame no Perfil, que eu já sei que renderiza.
+Redação que eu proporia, para a decisão do dono:
+
+> "Serve para o fim de um dia em que o autor fez algo que não quer repetir — e
+> você o abre pelo nome. O Traço não oferece esta forma sobre a sua escrita
+> pessoal: quando o texto é confissão, a nota fica sua."
+
+## Item 3 — os dois comentários mortos: **QUERO os dois, e cabem no commit de merge**
+
+Ambos são comentário, nenhum é código.
+
+- **`metodos-m3-tom.yaml`** — o cabeçalho ainda diz que o roteamento veste a nota
+  de Exame da noite e que "o conserto mora em `Traco/Analise`". O conserto já
+  mora lá, feito, duas vezes (06h e agora 06i-E). O bloco de baixo diz o
+  contrário no mesmo arquivo. Duas frases contraditórias num arquivo de prova é
+  pior que nenhuma.
+- **`EscritaPessoalTests`, cabeçalho do `comOsNovos`** — *"Os dois entram aqui
+  pela pasta do autor — o `Metodos.json` é da volta M3 e não se toca"*. Na árvore
+  da A-6 isso é **verdade** (o bundle tem 21 e a injeção funciona); no instante
+  em que a M3 mescla, o bundle passa a ter os 28, `Catalogo.recarregar` recusa id
+  repetido e a injeção vira no-op silencioso. Duas linhas dizendo isso bastam.
+  **Conferi que a divergência que eu temia ainda é latente:** as regex congeladas
+  no `static let novos` são hoje **idênticas**, ramo a ramo, às sete do
+  `Metodos.json` da M3. Não há defeito atual; há uma armadilha para a próxima
+  edição — e ela agora carrega também a régua nova da A-6.
+
+## Ordem de mescla: **A-6 antes da M3. Concordo, e a medida dá uma razão mais forte**
+
+Não é só que a A-6 mexe na guarda que a M3 exercita. É que **o defeito só existe
+depois da M3**: na árvore da A-6 o Exame não está no catálogo de 21, então a
+confissão curta cai no silêncio com ou sem o conserto. Se a M3 entrar primeiro,
+`main` passa a vestir "Não devia ter reagido assim com ele." de Exame da noite
+durante toda a janela entre as duas mesclas — o defeito da minha captura
+`m3-reg3-01` entra em main de propósito. Na ordem A-6 → M3 ele nunca existe.
+
+O contrapeso, dito: a A-6 sozinha em `main` **cala 3 de 7** notas curtas de
+trabalho com `não devia ter` (contra o catálogo de 21; 6 de 7 contra o de 28) e
+não paga nada até a M3 entrar. Não é motivo para inverter — é motivo para as
+duas entrarem em sequência, sem dias de intervalo.
+
+## O que muda no scorecard do re-G3, se os itens 2 e 3 forem feitos
+
+| dimensão | re-G3 | com os itens 2 e 3 | por quê |
+|---|---|---|---|
+| Contrato | 8 | **9** | a parte falsa era o `não devia ter`, e a A-6 a fechou (0 ramos mudam de lado com o teto) |
+| Privacidade e autoria | 8 | **9** | o resíduo do §B está fechado e provado dos dois lados do teto |
+| Simplicidade | 8 | **9** | com o item 2, o poder avançado volta a ser encontrável — e a ficha para de prometer o que o app não faz |
+
+Nenhuma outra dimensão muda. **A M3 passa** assim que os itens 2 e 3 entrarem no
+commit de merge e a A-6 estiver em `main` antes dela.
