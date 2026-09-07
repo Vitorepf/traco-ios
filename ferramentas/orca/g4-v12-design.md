@@ -353,3 +353,168 @@ contagem. Cai porque o caminho comum passou a esconder o trabalho do autor.
 - Um simulador, um UDID, toda prova por `simctl io`. Nenhum arquivo do branch foi
   editado; este relatório e as capturas `g4-v12-*` ficam untracked em
   `ferramentas/orca/`.
+
+---
+
+# Re-G4 da V12-D — o mesmo juiz, o mesmo simulador, o mesmo método
+
+Claude Opus 5, 06/09/2026, 22h48–23h05. Worktree `volta-12-pagina`, topo
+`e927d88` (código em `1ed1a73`). Simulador **iPhone 17 Pro C2416CBC**, o meu,
+ligado por mim e desligado no fim; nenhum outro foi tocado. Estado inicial e
+final restaurados: Dynamic Type `large`, Reduzir Movimento **0**. Todo
+`xcodebuild` e todo `maestro` sob `com-trava.sh`; **direção** por
+`maestro --device` (toque por id), **prova** sempre por `xcrun simctl io` preso
+ao meu UDID — nenhuma asserção do maestro entra em veredito (havia três
+simuladores de outros workers ligados).
+
+**Interrompido por ordem do dono** antes dos itens 2 e 4. O que está julgado
+abaixo está medido; o que não está, está declarado como não julgado.
+
+## Veredito
+
+**PASSA nos itens 1 e 3, que eram os meus.** Itens 2 (AX5) e 4 (o par
+antes/depois) **não julgados** — parei antes. **Um achado novo, meu, de causa
+NOVA**, e a resposta à pergunta do dono sobre a classe A1: **ela não está
+fechada.**
+
+## Item 1 — o papel tem piso. PASSA, e a digitação é a prova
+
+Refiz a digitação que recusou a volta, no mesmo estado (`large`, RM 0, teclado
+de pé, **forma vestida** — o cartão traz `gesto.reconhecimento`, "isto é um
+desejo com obstáculo…", o mesmo WOOP do G4), e com o mesmo método de medida
+(base da tinta de "Notas", topo do cartão, topo do teclado), sobre captura
+nativa 1206×2622.
+
+| faixa | G4 (`g4-v12-cartao-come-o-papel.png`) | re-G4 (`g4-v12-reg4-papel-141.png`) |
+|---|---|---|
+| base da tinta de "Notas" | **94,0 pt** | **94,0 pt** (mesmo pixel) |
+| topo do cartão | 127 | **235** |
+| **papel visível** | **33 pt** | **141 pt** |
+| topo do teclado | 540 | 539 |
+| **encaixe inteiro** | 413 pt = **47%** | **304 pt = 34,8%** |
+
+Os números do relato dele conferem, medidos por mim, com um script sobre a
+imagem e não a olho.
+
+**A digitação:** escrevi "quero correr de manhã", esperei o cartão, e digitei os
+**37 caracteres** " e nadar à noite quando der, sem falta". **Todos aparecem.** A
+frase inteira está na tela em duas linhas, com o caret âmbar depois de "falta"
+(`g4-v12-reg4-papel-141.png`). No G4 nenhum aparecia. O aceite que eu mesmo
+escrevi — *"no mesmo fluxo, com teclado de pé em `large`, a linha escrita
+continua na tela"* — está cumprido.
+
+O cartão recolhido é honesto: trilho âmbar, a frase cortada numa linha, chevron
+para cima, e **as duas saídas à vista logo abaixo** ("Abrir os campos", "Deixar
+como nota"). Nada de saída escondida em `large`.
+
+## Item 3 — a lei do movimento. PASSA nos dois lugares, e a ADR já escolhe
+
+**No código, a lei está certa e é uma só.** `Tema.movimento` reduziu-se a
+`classe == .opacidade ? normal : nil`; `animacao`, `corte` e `gaveta` todas
+delegam nela; `fadeReduzido` não existe; `CalendarioTema.morph` devolve
+`Animation?`. Varri o app inteiro atrás de quem anima sem passar pela lei:
+`withAnimation(.literal)` — **zero**; `.animation(.literal)` — **zero**;
+`.transition` fora de `Tema.transicao` — só `.opacity` e `.identity`, ambos
+permitidos; `matchedGeometryEffect` e `contentTransition` — todos sob uma
+`.animation` que devolve `nil` sob RM. **Um único bypass**, e é o achado abaixo.
+
+**Na tela, a penalidade de RM acabou.** O gatilho que eu nomeei ("Abrir os
+campos"), filmado por mim nos dois modos, quadros nativos por `ffmpeg`, com
+carimbo de tempo do `ffprobe`:
+
+| | G4 | re-G4 |
+|---|---|---|
+| sem Reduzir Movimento | ~215 ms | **110 ms** (quadros 85→94) |
+| **com** Reduzir Movimento | **~370 ms** | **124 ms** (quadros 83→93) |
+
+O absurdo que eu tinha achado — *mais lento com RM do que sem* — sumiu: os dois
+modos são agora iguais dentro do erro de um quadro.
+
+**E o gatilho novo dele corta mesmo.** O toque na linha recolhida para abrir a
+prosa, sob RM, tela inteira (`g4-v12-reg4-linha-corta-com-rm.png`): quadro 79 o
+cartão é uma linha, quadro 81 é o cartão inteiro. **Um quadro.** Sem par
+legível, e — o que ele prometeu — o teclado não se mexe, o papel não se mexe, o
+caret fica onde estava.
+
+**A ADR escolhe sem ambiguidade.** A 05y diz, em uma frase: *"sob Reduzir
+Movimento só a opacidade anima; deslocamento, escala e laço cortam"*, e — o que
+mais importa — ela **volta atrás na 05v** e marca no texto velho que o "ou" foi
+a ambiguidade. Quem ler a 05v não é mais mandado para o caminho errado. Custo
+assumido (o cartão deixa de crescer sob RM, que eu tinha elogiado como M2) está
+declarado e é a troca certa: a lei não pode dizer duas coisas.
+
+## Achado novo — A5, MÉDIO. O fantasma sobreviveu ao `.sheet`, e não é a lei
+
+`g4-v12-reg4-sheet-fantasma-com-rm.png` e `-sem-rm.png`, quadros nativos, faixa
+de 70 a 195 pt — a faixa que as tiras dele **não mostram**, porque
+`v12d-com-rm-quadros.png` corta o topo da tela exatamente acima do papel.
+
+Ao tocar em "Abrir os campos", por ~110 ms (sem RM) e ~124 ms (com RM), a tela
+mostra, **de cima para baixo**: a topbar, a **linha do cartão**, o texto do autor
+"quero correr de manhã", e as **saídas do cartão** — o papel intercalado no meio
+do cartão, o que nenhum layout único pode desenhar. São duas geometrias
+compostas. Em dois quadros (90 e 91 com RM, 92 sem) as duas cadeias de texto
+ficam **literalmente sobrepostas, ambas legíveis**.
+
+**Mas a causa não é a lei**, e é justo dizê-lo: o defeito é **idêntico nos dois
+modos**, e o que a lei governa desaparece sob RM. É a fotografia que o `.sheet`
+tira da view que apresenta, composta com a view já reorganizada porque o teclado
+está a descer. Ele **declarou** este resíduo — e a declaração é **estreita demais**:
+diz *"o rótulo 'Todas' … é sobre o fundo da barra, **nunca sobre texto**"*. É
+sobre o texto do autor, e o cartão inteiro vai junto. A frase da ADR precisa ser
+corrigida com o que está filmado. Não recuso a volta por isto: é anterior a esta
+volta, dura o mesmo nos dois modos, e a volta reduziu-o pela metade.
+
+## A pergunta do dono — a classe A1 **NÃO está fechada**, e vira volta própria
+
+Achei a **sexta**, e a causa é a **terceira** distinta:
+
+`Traco/Trabalho/TrabalhoView.swift:80` — `withAnimation { rolagem.scrollTo(alvo,
+anchor: .top) }`. **Sem argumento**, portanto a animação padrão do SwiftUI; e a
+palavra `reduceMotion` **não aparece uma vez** no arquivo. É um deslocamento de
+texto legível que **nunca pergunta à lei**. Sob Reduzir Movimento, a folha do
+Trabalho rola o texto do autor com mola, e a lei nova de `Tema.swift` não tem
+como saber.
+
+As três causas, em ordem:
+1. **troca de ramo** (SwiftUI dissolvendo irmãos legíveis) → resolvida por `.transition(.identity)` e `.id`;
+2. **a lei devolvia uma fade curta** em vez de um corte → resolvida pela 05y, hoje;
+3. **o chamador não chama a lei** → `TrabalhoView.swift:80`, aberta.
+
+A causa 3 é de outra natureza: as duas primeiras se consertam mudando o código;
+esta só se conserta mudando o que é **possível escrever**. Enquanto `withAnimation`
+sem argumento compilar, a sexta vira sétima no próximo arquivo novo. **Recomendo
+volta própria**, e a correção que eu proporia não é o conserto da linha 80 (isso
+é um minuto) e sim a **guarda**: um teste, ou uma regra de lint, que falhe o
+build quando um arquivo de `Traco/` usa `withAnimation`/`.animation` sem passar
+por `Tema`. A lei precisa de um portão, não de disciplina.
+
+## Dívida para o RUMO
+
+1. **A guarda da lei do movimento** (acima). Fecha a classe A1 de verdade. Inclui consertar `TrabalhoView.swift:80`.
+2. **O resíduo do `.sheet`** medido em ~110 ms sobre o texto do autor: ou some, ou a frase da ADR passa a dizer a verdade ("sobre o texto, ~110 ms, nos dois modos").
+3. **A crítica ao acervo:** `v12d-*-quadros.png` corta o topo da tela. Tira de quadros que julga sobreposição mostra a **tela inteira**, senão prova o que não viu.
+4. **`maestro/ax5.yaml` afrouxou:** deixou de esperar "Deixar como nota" e passa a esperar `id: cartao-analise`. É consequência legítima do desenho (em AX as saídas vão para o menu), mas o fluxo deixou de guardar que a saída é alcançável. Precisa de um passo que abra o menu e veja as duas.
+5. **O diálogo de notificação engole a digitação** em toda corrida com `clearState` (reproduzi: `g4-v12-reg4-01-apos-digitar.png`). Os flows do repositório precisam da guarda `runFlow when visible "Permitir"`, não só o roteiro de teste dele.
+
+## Limites honestos deste re-G4
+
+- **Itens 2 (AX5) e 4 (o par antes/depois) NÃO foram julgados.** Parei por ordem do dono antes de trocar o `content_size`. As capturas dele (`v12d-ax5-*`) continuam por conferir na tela.
+- Suíte confirmada por mim: `✔ Test run with 760 tests in 128 suites passed after 7.797 seconds.`, no meu UDID, sob a trava. **760/0 é verdade.**
+- Só a Página foi filmada. A prova do **Calendário** cortando sob RM é a dele; eu confirmei a lei do Calendário **no código** (`CalendarioTema.morph → Animation?`, e as 14 chamadas que a consomem), não na tela.
+- A sábia não foi exercitada; VoiceOver e Instruments não foram medidos.
+- Nenhum arquivo do app foi editado. Este bloco e as capturas `g4-v12-reg4-*` são o único acréscimo.
+
+## Três linhas para o LACO
+
+- O piso do papel funciona onde eu tinha recusado: **33 pt de papel viraram 141**, o encaixe caiu de 47% para 35% da tela, e os **37 caracteres que eu digitei às cegas no G4 aparecem todos**, com o caret.
+- A lei do movimento reduzido escolheu o corte e a ADR já não diz "ou": a penalidade absurda de Reduzir Movimento (370 ms COM contra 215 SEM) **acabou** — hoje são 124 e 110 ms —, e o gatilho novo troca o cartão em **um quadro**.
+- Achei a **sexta** ocorrência da classe A1 e ela tem causa nova: `TrabalhoView.swift:80` anima um deslocamento **sem nunca perguntar à lei**. A classe **não está fechada** — o que falta não é mais um conserto, é um **portão que impeça escrever `withAnimation` sem `Tema`**.
+
+| arquivo | o que prova |
+|---|---|
+| `g4-v12-reg4-papel-141.png` | item 1: papel 141 pt e os 37 caracteres na tela, com caret |
+| `g4-v12-reg4-linha-corta-com-rm.png` | item 3: a linha abre a prosa em UM quadro sob RM, teclado e papel parados |
+| `g4-v12-reg4-sheet-fantasma-com-rm.png` | A5: o fantasma do `.sheet` sobre o texto do autor, COM RM |
+| `g4-v12-reg4-sheet-fantasma-sem-rm.png` | A5: o mesmo, SEM RM — idêntico, logo não é a lei |
+| `g4-v12-reg4-01-apos-digitar.png` | o diálogo de notificação engolindo a digitação (instrumento) |
