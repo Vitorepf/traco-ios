@@ -148,7 +148,7 @@ Sete frentes: **V12** Página e Caderno até 9 (FECHADA no worktree, topo 337a22
 | 7 | V15 Telas até 9: Calendário e ficha | médio | M | multiplicar | nota base da V9 |
 | 8 | V16 Métodos com proveniência: fonte, adaptação, evidência; método ausente dito na tela | MESCLADA (ADR 05x; G3, G4, V16-C, re-G4) | M | melhorar | "Métodos e pesquisa com proveniência" |
 | 9 | V17 HTML útil e interativo (consulta ao conselho antes) | alto, incerto | G | multiplicar | "HTML útil e interativo" |
-| 10 | V18 Telas até 9: Trabalho (versão, conferência, prática num cartão só); do G4 da V6: porta da prática escondida, Dificuldade antes de Preparar em delegar, AcaoTrabalhoStyle sem estado desabilitado visível | EM EDIÇÃO (worktree volta-18-trabalho) — subiu ao topo pela ordem do dono de 06/09: telas abaixo de 9 primeiro, Trabalho (6,0) na frente | M | multiplicar | nota base da V9 (Trabalho 6,0); Simplicidade |
+| 10 | V18 Telas até 9: Trabalho | MESCLADA (ADR 06b; G3, re-G3, G4, re-G4 — a curva-zero caiu de 6 toques para 5, medida à mão por dois revisores) | EM EDIÇÃO (worktree volta-18-trabalho) — subiu ao topo pela ordem do dono de 06/09: telas abaixo de 9 primeiro, Trabalho (6,0) na frente | M | multiplicar | nota base da V9 (Trabalho 6,0); Simplicidade |
 | 11 | V19 Retrato/Trajetória recebem a prática (só se V6 provar prática real) | médio | M | melhorar | "Modelo revisável do autor" |
 | 12 | V20 Domínios amplos: segundo caso real (criação ou organização) | alto, depende do dono | G | ambos | "Domínios amplos de realização" |
 
