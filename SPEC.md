@@ -4234,7 +4234,26 @@ relatório:
 | `PrimarioStyle` próprio, "voltar" e RECORDAR à mão | V10-B (`1f0c8f3`) | a tela consome `CabecalhoDeFolha`, `.rotulo()`, `.buttonStyle(.primario/.discreto)`; nenhum estilo local |
 | cross-fade entre irmãos (§21), durações 0,3/0,35/0,4 sem token | V8 + V10-B | tira de quadros a 30 fps de `v19-antes-movimento.mp4`: nenhum quadro com dois textos legíveis; todas as durações vêm de `Tema.Duracao` |
 | "vol-tar"/"RECOR-DAR" hifenizados e pergunta cortada em AX5 | V8 (`dynamicTypeSize(...xxxLarge)`, `fixedSize`) | `v19-antes-06-ax5-escrever.png` |
-| toast tapa "Trabalhar nisto" e as quatro ações | `PaginaView` (`padding(.bottom, 88)`) | `v19-antes-05-hoje-nao.png`: a mensagem fica acima da barra |
+
+**Correção da volta 19-B: esta tabela tinha uma quarta linha, e ela era falsa.**
+A volta 19 escreveu que o defeito 15 da V9 — "o toast do 'hoje não' nasce em cima
+de 'Trabalhar nisto' e das quatro ações" — já tinha caído em `PaginaView`
+(`padding(.bottom, 88)`), e deu por prova `v19-antes-05-hoje-nao.png`. **A prova
+não provava nada:** aquela captura é de uma página VAZIA, onde "Trabalhar nisto"
+e a régua Analisar · Recordar · Anexar · Lente nem existem na tela. O estado que a
+auditoria acusou não estava na foto. O revisor do G3 reproduziu o defeito duas
+vezes com a nota escrita (`v19-rev-01-toast-tapa-a-barra.png`), e o
+`padding(.bottom, 88)` está em `PaginaView.swift:303` desde `eae9a8f` (31/08),
+**antes** da auditoria: nada mudou ali, nada podia ter caído.
+
+**O defeito 15 da V9 continua ABERTO.** Dono: quem toca `Traco/Pagina/PaginaView.swift`
+— o toast tem de medir a altura real da barra de ações em vez de chutar 88. A
+volta 19-B parou na fronteira em vez de invadir o arquivo de outra volta.
+
+Regra que fica para as próximas voltas por tela: **quando o defeito é "A tapa B",
+a prova tem de mostrar B na tela.** Conferir a auditoria na tela viva antes de
+tocar continua certo e poupou esta volta de reconsertar três coisas — mas só vale
+quando a tela viva reproduz o estado que a auditoria acusou.
 
 O que a V9 apontou e **continuava de pé**, mais três defeitos que só a tela viva
 mostrou:
@@ -4281,18 +4300,37 @@ mostrou:
 - **"serviu / não serviu" desce para depois do campo**, e continua em TODO corpo
   de texto: esconder o julgamento de quem usa letra grande seria tirar poder de
   quem já tem menos.
-- **A pergunta cede altura, nunca legibilidade.** `ViewThatFits` com teto de
-  metade do vão: cabe inteira, encosta e o campo começa logo abaixo; não cabe, a
-  MESMA pergunta rola, com a última linha desmaiando em vez de cortada no meio
-  de uma letra. O campo tem piso de três alvos. `fixedSize` fica nos dois ramos
+- **A pergunta cede altura, nunca legibilidade.** `ViewThatFits`: cabe inteira,
+  encosta e o campo começa logo abaixo; não cabe, a MESMA pergunta rola dentro de
+  metade do vão. O campo tem piso de três alvos. `fixedSize` fica nos dois ramos
   — é o que impede o SwiftUI de hifenizar em vez de encolher.
+  **Corrigido na volta 19-B (M1 do G3):** a metade era TETO e virou COTA. O
+  `.frame(maxHeight: geo.size.height / 2)` estava do lado de FORA do
+  `ViewThatFits` e cobrava a metade inteira mesmo com a pergunta em duas linhas —
+  em `large`, o caso comum, abriam ~198 pt de papel morto e o autor passava a
+  escrever no meio da folha (caret a 46,2 % da altura, contra 23,6 % antes da
+  volta: a volta comprou AX5 e vendeu `large`). O teto desceu para dentro do ramo
+  que rola, que é o único que precisa dele. Medido de novo na tela viva em
+  `large`: **caret a 22,0 %** — o vão morto sumiu e ficou abaixo do original
+  (`ferramentas/orca/v19b-01-escrever-sem-vao-morto.png`).
+  A máscara de gradiente do ramo que rola **saiu** (B1): ela apagava a última
+  linha também depois de já se ter rolado até o fim, então quem chegava ao fim da
+  pergunta via a última linha desmaiada para sempre. Nenhuma outra `ScrollView`
+  desta base mascara a borda; a do `ler`, na mesma tela, não mascara.
 - **`RecordarView.comparaLadoALado(largura:tamanho:)`**: lado a lado exige folha
   larga E corpo de texto normal. Regra nomeada e testada fora da tela (lição da
   F4), não um `if` no meio do `body`. `GridItem(alignment: .topLeading)` põe os
   dois rótulos na mesma linha de base.
 - **A instrução sai no MESMO driver da nota** (`opacity(escondendo ? 0 : 1)`).
 - **A pergunta da sábia que chega depois da primeira letra não entra.** Trocar o
-  enunciado no meio da prova é mudar a prova.
+  enunciado no meio da prova é mudar a prova. Na volta 19-B a regra vira
+  `RecordarView.aceitaPergunta(jaTem:memoria:)`, nomeada e testada fora da tela
+  como o `comparaLadoALado` (M4 do G3: era o comportamento novo mais importante
+  da volta e o único sem teste). Espaço em branco não conta como escrita — um
+  toque no campo não pode fechar a porta da pergunta. E a guarda passou a valer
+  também ANTES de pedir: com `.task(id: memoriaVazia)` a primeira letra cancela a
+  chamada em voo em vez de só descartar a resposta quando ela chega, senão, com
+  conta da sábia, a pergunta tardia era paga e jogada fora (B3 do G3).
 
 ### O que isto NÃO muda
 
@@ -4310,11 +4348,51 @@ limpo e só então a pergunta amanhece — **nenhum quadro com dois textos
 legíveis**, com e sem Reduzir Movimento. Build sem aviso e suíte verde
 (782 testes, 131 suítes) em 06/09/2026, no iPhone 17 Pro (teste 4)
 A1DF082C; `content_size`, `appearance` e `ReduceMotionEnabled` conferidos de
-volta em `large` / `light` / `0`.
+volta em `large` / `light` / `0`. **Volta 19-B:** build sem aviso e
+`✔ Test run with 786 tests in 132 suites passed after 7.506 seconds` /
+`** TEST SUCCEEDED **` no mesmo A1DF082C (os +4 testes e a +1 suíte são a regra
+da pergunta tardia, M4).
 
-**Limites.** Sem VoiceOver ligado (exige humano) e sem aparelho real. "O QUE NÃO
-VOLTOU" não foi capturado: exige conta da sábia, que este simulador não tem —
-segue provado por `ProvaTests`, não por foto. A pergunta da sábia muda a cada
-abertura, então as capturas de `escrever` não são comparáveis palavra a palavra;
-o que se compara nelas é o layout. A `Pilula` desabilitada continua em
-`tintaMorta`: legível como bloqueada, discreta em AX5.
+**As seis fases do `design-router` e os quatro itens da `curva-zero`** estão em
+`ferramentas/orca/relatorio-v19b-recordar.md`, escritas contra a tela — A2 e M5
+do G3. A volta 19 as cumpriu e não as escreveu; a ESTEIRA recusa no G4 a volta
+visual sem as fases citadas no relato, mesmo com o código certo.
+
+**Limites.** Sem VoiceOver ligado (exige humano) e sem aparelho real. A pergunta
+da sábia muda a cada abertura, então as capturas de `escrever` não são
+comparáveis palavra a palavra; o que se compara nelas é o layout.
+
+**Limite retirado (M2 do G3).** Esta ADR dizia que "O QUE NÃO VOLTOU" não podia
+ser capturado porque "exige conta da sábia, que este simulador não tem". **Era
+desculpa, não limite, e o motivo dado era falso:** `Sabia.disponivel` é
+`ContaGrok.ligada || noAparelho`, e a sábia de bordo está de pé no simulador — é
+ela que gerou as perguntas visíveis em `v19-antes-02` e `v19-depois-02`, na mesma
+página desta ADR. A própria evidência da volta contradizia o limite declarado ao
+lado dela. O revisor capturou o estado em quatro minutos, sem conta nenhuma:
+`ferramentas/orca/v19-rev-03-revelar-large-nao-voltou.png`.
+
+**Afirmação retirada (A3 do G3).** Esta ADR dizia que a `Pilula` desabilitada
+"continua em `tintaMorta`: legível como bloqueada". **1,53:1 não sustenta a
+palavra "legível".** Medido: `Tema.tintaMorta` #C7C7CC sobre `Tema.fundo` #F4F4F2
+dá **1,53:1** — a ação principal caiu de 6,32:1 para pior que 1:6 do mínimo, e a
+saída "hoje não" (6,73:1) ficou quatro vezes mais legível que o caminho. É o
+`von-restorff-effect` invertido, e no estado em que o Recordar SEMPRE abre: a
+memória vazia é o primeiro que o autor vê, todo dia, no ritual mais repetido do
+app. **Continua ABERTO**, e a causa não é do Recordar: `Pilula.swift:52`
+(`if !ativa { return Tema.tintaMorta }`) mais o fundo `.clear` da linha 57 valem
+para TODOS os chamadores — a `Pilula` não tem estado desabilitado para ninguém.
+O contorno de 0,5 que esta volta acrescentou é remendo num chamador só. Dono:
+quem toca `Traco/Componentes`. A volta 19-B parou na fronteira em vez de forkar
+o desenho do componente dentro de uma tela.
+
+**A exceção de líquido-positivo (M3 do G3).** A ADR 05v pede que cada volta por
+tela seja líquido-negativa, e esta fechou em +218/−88. O motivo, escrito porque a
+regra não pode ficar calada: o que entrou de caro foi **regra nomeada e testada
+fora da tela** — `comparaLadoALado(largura:tamanho:)` e, na 19-B,
+`aceitaPergunta(jaTem:memoria:)` — que é a lição da F4 cumprida, e o `rodape(...)`
+é troca, não adição: substitui dois pés duplicados por um, e a duplicação era
+metade do defeito de affordance. A parte que o revisor recusou como ainda não
+paga era o `GeometryReader`/`ViewThatFits`, porque cobrava 198 pt de papel morto
+em `large`; com o M1 fechado e medido na tela, ela entrega os dois corpos em vez
+de trocar um pelo outro. A 19-B ainda devolveu linhas: a máscara de gradiente
+saiu inteira (B1).

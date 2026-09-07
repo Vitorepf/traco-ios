@@ -218,16 +218,30 @@ struct RecordarView: View {
         }
     }
 
+    /// A pergunta que chega da sábia só entra se ela ainda não veio E se o autor
+    /// ainda não escreveu nada.
+    ///
+    /// O vídeo da volta 19 pegou o enunciado sendo trocado ~4 s depois, com o
+    /// autor já escrevendo: trocar a pergunta no meio da prova é mudar a prova.
+    /// Regra nomeada e testada fora da tela (lição da F4, §22) — o espaço em
+    /// branco não conta como escrita, senão um toque no campo já fecharia a porta.
+    nonisolated static func aceitaPergunta(jaTem: Bool, memoria: String) -> Bool {
+        !jaTem && memoria.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
     /// A pergunta da prova, uma vez por abertura. Silêncio em qualquer falha.
     private func pedirPergunta() async {
-        guard perguntaDaSabia == nil, Sabia.disponivel else { return }
+        // a mesma regra ANTES de pedir: com a primeira letra a `.task(id:)`
+        // cancela esta chamada e reentra aqui — sem a guarda de cima, reentrar
+        // pagaria uma segunda pergunta para jogar fora (dinheiro no lixo)
+        guard Self.aceitaPergunta(jaTem: perguntaDaSabia != nil, memoria: memoria),
+              Sabia.disponivel else { return }
         let vinda = await Sabia.perguntaDeRecordar(alvo: alvo, pista: pista,
                                                   gesto: gesto, degrau: degrau, retrato: retrato)
-        // O vídeo da volta 19 pegou a pergunta da sábia entrando no lugar da
-        // fixa ~4 s depois, com o autor já escrevendo: o enunciado trocava no
-        // meio da prova. Chegou antes da primeira letra, entra; chegou depois,
-        // o autor termina com a pergunta que leu.
-        guard memoriaVazia else { return }
+        // e DEPOIS de voltar: a resposta pode chegar com o autor já escrevendo.
+        // Chegou antes da primeira letra, entra; chegou depois, o autor termina
+        // com a pergunta que leu.
+        guard Self.aceitaPergunta(jaTem: perguntaDaSabia != nil, memoria: memoria) else { return }
         perguntaDaSabia = vinda
     }
 
@@ -301,7 +315,8 @@ struct RecordarView: View {
     /// e as saídas ficam abaixo dela, em meta. Centrar DENTRO do pé é decisão;
     /// centrar no meio do papel era o eixo esquerdo quebrado.
     private func rodape(_ principal: String, ativa: Bool = true,
-                        dica: String? = nil, acao: @escaping () -> Void,
+                        dica: String? = nil, ax: String? = nil,
+                        acao: @escaping () -> Void,
                         saidas: [Saida] = []) -> some View {
         VStack(spacing: 4) {
             Button(action: acao) {
@@ -317,6 +332,9 @@ struct RecordarView: View {
             .buttonStyle(.discreto)
             .disabled(!ativa)
             .accessibilityHint(dica ?? "")
+            // o rótulo da cápsula é minúsculo por desenho; o VoiceOver lê o nome
+            // da ação, que a volta 19 tinha perdido ao trocar o botão pelo pé
+            .accessibilityLabel(ax ?? principal)
             .accessibilityIdentifier("recordar-principal")
 
             if !saidas.isEmpty {
@@ -411,18 +429,17 @@ struct RecordarView: View {
                 // servia: com prioridade a `ScrollView` recebe a proposta
                 // inteira e fica com ela, e numa pergunta longa da sábia em AX5
                 // o cabeçalho, o "serviu" e o rodapé se sobrepuseram na tela.
-                // Um teto explícito reparte sem adivinhar quem cede.
+                //
+                // A metade é TETO, não cota. O `.frame(maxHeight:)` do lado de
+                // fora do `ViewThatFits` cobrava a metade inteira mesmo quando a
+                // pergunta tinha duas linhas: em `large` abriam ~198 pt de papel
+                // morto e o autor escrevia no meio da folha. O teto desceu para
+                // dentro do ramo que rola — o único que precisa dele.
                 ViewThatFits(in: .vertical) {
                     perguntaDaProva
                     ScrollView { perguntaDaProva }
-                        // rolar não pode LER como texto quebrado: a última
-                        // linha do que sobrou desmaia em vez de ser cortada
-                        // no meio de uma letra
-                        .mask(LinearGradient(stops: [.init(color: .black, location: 0.88),
-                                                     .init(color: .clear, location: 1)],
-                                             startPoint: .top, endPoint: .bottom))
+                        .frame(height: geo.size.height / 2)
                 }
-                .frame(maxHeight: geo.size.height / 2, alignment: .top)
                 TextEditor(text: $memoria)
                     .font(Tema.corpo)
                     .foregroundStyle(Tema.tinta)
@@ -508,6 +525,7 @@ struct RecordarView: View {
                 }
                 rodape(aoProxima == nil ? "Voltar à página" : "próxima",
                        dica: aoProxima == nil ? "" : "Abre a seguinte. Sem contagem.",
+                       ax: aoProxima == nil ? nil : "Próxima",
                        acao: { if let aoProxima { aoProxima() } else { dismiss() } },
                        saidas: [
                         aoCobrarAntes.map { Saida(id: "cobrar", rotulo: "cobrar antes", dica: "A escada volta a 3 dias", acao: $0) },
@@ -533,7 +551,11 @@ struct RecordarView: View {
         // task separada: a pergunta vem pela rede e o ritmo do ritual NÃO pode
         // esperar por ela. Chegou a tempo, entra; chegou tarde, o autor já está
         // escrevendo com a frase fixa e nada muda embaixo dele.
-        .task { await pedirPergunta() }
+        //
+        // `id: memoriaVazia`: a primeira letra CANCELA a chamada em voo em vez
+        // de só descartar a resposta quando ela chega — com conta da sábia, uma
+        // pergunta tardia era paga e jogada fora.
+        .task(id: memoriaVazia) { await pedirPergunta() }
     }
 
     /// §21, "nada de cross-fade entre irmãos": a fase que sai corta seco e a

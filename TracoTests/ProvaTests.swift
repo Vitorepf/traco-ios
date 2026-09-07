@@ -203,3 +203,32 @@ import Testing
         }
     }
 }
+
+/// O app não troca o enunciado embaixo de quem está escrevendo.
+///
+/// O vídeo da volta 19 pegou a pergunta da sábia entrando ~4 s depois da fixa,
+/// com o autor já no meio da resposta: trocar a pergunta no meio da prova é
+/// mudar a prova. A guarda era o comportamento novo mais importante da volta e
+/// era o único sem teste (M4 do G3).
+@Suite struct RecordarPerguntaTardiaTests {
+    @Test func aPerguntaChegaAntesDaPrimeiraLetraEEntra() {
+        #expect(RecordarView.aceitaPergunta(jaTem: false, memoria: ""))
+    }
+
+    @Test func aPerguntaQueChegaDepoisDaPrimeiraLetraNaoEntra() {
+        #expect(!RecordarView.aceitaPergunta(jaTem: false, memoria: "e"))
+        #expect(!RecordarView.aceitaPergunta(jaTem: false, memoria: "era um obstáculo"))
+    }
+
+    @Test func espacoEmBrancoNaoEEscrita() {
+        // tocar no campo e o teclado inserir um espaço não pode fechar a porta
+        // da pergunta: o autor ainda não escreveu nada
+        #expect(RecordarView.aceitaPergunta(jaTem: false, memoria: "   "))
+        #expect(RecordarView.aceitaPergunta(jaTem: false, memoria: "\n \n"))
+    }
+
+    @Test func aSegundaPerguntaNaoSubstituiAPrimeira() {
+        // com a pergunta já na tela, nenhuma outra entra — nem com o campo vazio
+        #expect(!RecordarView.aceitaPergunta(jaTem: true, memoria: ""))
+    }
+}
