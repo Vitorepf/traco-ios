@@ -1554,6 +1554,20 @@ private enum Amostra {
     static func destaque(feito: Bool) -> Superficie.Destaque {
         .init(id: UUID(), dia: Superficie.diaISO(agora), linha: "Correr antes do café", feito: feito)
     }
+    /// F4-I: as três integridades da ADR 08i, com frases do tamanho das do
+    /// re-G4 (uma de duas orações, ~100; um parágrafo, ~210). O trecho sai do
+    /// MESMO `trecho()` do publicador — o preview não inventa o corte.
+    static let longa = "Terminar o capítulo do meio antes de dormir e mandar a versão nova para a Ana revisar na segunda-feira"
+    static let paragrafo = "Acordei pensando que o capítulo do meio precisa de uma promessa que fique de pé sozinha para manter quem lê até o fim, e se não der tempo pelo menos anotar o que a Ana disse sobre o ritmo naquela cena do jantar"
+    static func destaque(_ linha: String, inteira: Bool?, feito: Bool = false) -> Superficie.Destaque {
+        .init(id: UUID(), dia: Superficie.diaISO(agora), linha: linha, feito: feito, inteira: inteira)
+    }
+    static var inteira: Superficie.Destaque { destaque(longa, inteira: true) }
+    static var trecho: Superficie.Destaque {
+        let t = Superficie.Destaque.trecho(paragrafo)
+        return destaque(t.linha, inteira: t.inteira)
+    }
+    static var desconhecida: Superficie.Destaque { destaque("Correr antes do café", inteira: nil) }
     static func proximo(lembrar: Bool = false) -> Superficie.Proximo {
         .init(titulo: "Dentista", inicio: agora.addingTimeInterval(2700), fim: agora.addingTimeInterval(6300),
               diaInteiro: false, aviso: agora.addingTimeInterval(2100),
@@ -1728,4 +1742,98 @@ private enum Amostra {
     ProximoWidgetView(entrada: Amostra.desatualizado)
         .padding(16)
         .environment(\.dynamicTypeSize, .accessibility5)
+}
+
+// MARK: - Previews dos componentes (F4-I): `FraseDoAutor` e `CapsulaViva`, um estado por face.
+// Os dois têm lei com suíte e vivem num lugar só; faltava a vista. A prova segue
+// sendo a captura no simulador — aqui se compara integridade, corte e categoria.
+
+/// A coluna que a face dá à frase: 123 pt ao lado do círculo no pequeno; 138
+/// com o círculo em cima (AX); o cartão do pequeno tem 138 de altura útil.
+private struct Palco<Conteudo: View>: View {
+    var largura: CGFloat = 123
+    var altura: CGFloat = 138
+    var papel = true
+    @ViewBuilder let conteudo: () -> Conteudo
+
+    var body: some View {
+        conteudo()
+            .frame(width: largura, height: altura, alignment: .topLeading)
+            .padding(16)
+            .background(papel ? Tema.fundo : Color.black)
+    }
+}
+
+/// Inteira, trecho do publicador (termina no "…" dele) e integridade
+/// desconhecida (instantâneo anterior à conta) — os três estados do ponto 2.
+#Preview("FraseDoAutor · inteira, trecho, desconhecida", traits: .fixedLayout(width: 170, height: 460)) {
+    VStack(alignment: .leading, spacing: 24) {
+        FraseDoAutor(destaque: Amostra.destaque(feito: false), fonte: Tema.chrome.weight(.semibold))
+        FraseDoAutor(destaque: Amostra.trecho, fonte: Tema.chrome.weight(.semibold))
+        FraseDoAutor(destaque: Amostra.desconhecida, fonte: Tema.chrome.weight(.semibold))
+    }
+    .frame(width: 123, alignment: .topLeading)
+    .padding(16)
+    .background(Tema.fundo)
+}
+
+/// A projeção é inteira e a FACE corta: ~100 caracteres em 123 × 138 — cinco
+/// linhas no corpo cheio e "…" no que sobrou, sem encolher (ponto 4).
+#Preview("FraseDoAutor · a face corta em corpo cheio", traits: .fixedLayout(width: 170, height: 170)) {
+    Palco { FraseDoAutor(destaque: Amostra.inteira, fonte: Tema.chrome.weight(.semibold)) }
+}
+
+/// Com "Desatualizado." embaixo: o rodapé nunca cede, a frase cede quantidade.
+#Preview("FraseDoAutor · com Desatualizado.", traits: .fixedLayout(width: 170, height: 170)) {
+    Palco {
+        VStack(alignment: .leading, spacing: 4) {
+            FraseDoAutor(destaque: Amostra.trecho, fonte: Tema.chrome.weight(.semibold))
+            Velho().layoutPriority(-1)
+        }
+    }
+}
+
+/// AX5: o corpo cresce com a categoria (~23 pt) e a frase cede linhas, não
+/// tamanho — o fato 1 do G4, na vista.
+#Preview("FraseDoAutor · AX5", traits: .fixedLayout(width: 170, height: 170)) {
+    Palco(largura: 138) { FraseDoAutor(destaque: Amostra.inteira, fonte: Tema.chrome.weight(.semibold)) }
+        .environment(\.dynamicTypeSize, .accessibility5)
+}
+
+/// Tela bloqueada (`acessorio`): quem tinge é o sistema — `.primary` e, feito,
+/// `.secondary` — sobre o material escuro, em `Tema.meta`.
+#Preview("FraseDoAutor · bloqueada", traits: .fixedLayout(width: 190, height: 150)) {
+    VStack(alignment: .leading, spacing: 12) {
+        FraseDoAutor(destaque: Amostra.trecho, fonte: Tema.meta.weight(.medium), maximo: 2, acessorio: true)
+        FraseDoAutor(destaque: Amostra.destaque(feito: true), fonte: Tema.meta.weight(.medium), maximo: 2, acessorio: true)
+    }
+    .frame(width: 158, alignment: .topLeading)
+    .padding(16)
+    .background(Color.black)
+    .environment(\.colorScheme, .dark)
+}
+
+/// Uma cápsula só (18/38; 14/32 na Ilha), a tinta de quem veste: `ambarTinta`
+/// sobre o papel da casa, `ambar` sobre o material da bloqueada e da Ilha.
+#Preview("CapsulaViva · casa, bloqueada, Ilha", traits: .fixedLayout(width: 260, height: 220)) {
+    VStack(alignment: .leading, spacing: 12) {
+        Text("Nova nota").font(Tema.acaoViva).foregroundStyle(Tema.ambarTinta).capsulaViva()
+            .padding(12).background(Tema.fundo)
+        Text("Lembrar em 10 min").font(Tema.acaoViva).foregroundStyle(Tema.ambar).capsulaViva()
+            .padding(12).background(Color.black)
+        Text("Lembrar em 10 min").font(Tema.miudo.weight(.semibold)).foregroundStyle(Tema.ambar).capsulaViva(compacta: true)
+            .padding(12).background(Color.black)
+    }
+    .environment(\.colorScheme, .dark)
+}
+
+/// AX5: a cápsula cresce com a letra e mantém o traço e a tinta.
+#Preview("CapsulaViva · AX5", traits: .fixedLayout(width: 300, height: 180)) {
+    VStack(alignment: .leading, spacing: 12) {
+        Text("Nova nota").font(Tema.acaoViva).foregroundStyle(Tema.ambarTinta).capsulaViva()
+            .padding(12).background(Tema.fundo)
+        Text("Lembrar em 10 min").font(Tema.miudo.weight(.semibold)).foregroundStyle(Tema.ambar).capsulaViva(compacta: true)
+            .padding(12).background(Color.black)
+    }
+    .environment(\.dynamicTypeSize, .accessibility5)
 }

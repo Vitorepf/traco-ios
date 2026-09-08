@@ -373,5 +373,24 @@ struct SacrificioTests {
         #expect(Sacrificio.candidatos(rotulo: false).allSatisfy { !$0.rotulo })
         #expect(Sacrificio.candidatos(rotulo: false).map(\.linhas) == Array((1...Sacrificio.maximo).reversed()))
     }
+
+    /// O critério medível da ADR 08i (F4-I): "corte é evitável quando cabe uma
+    /// linha inteira do corpo do papel no espaço livre ao lado do marcador".
+    /// A suíte não mede altura — a captura mede. O que ela garante é a
+    /// PREMISSA que faz o `ViewThatFits` cumprir o critério: os candidatos
+    /// descem de um em um, sem lacuna, e o primeiro que cabe é o MAIOR que
+    /// cabe — se n + 1 não coube, o que sobra ao lado do "…" é menos de uma
+    /// linha. Uma lista com buraco (8, 6, 4…) reabriria o corte evitável.
+    @Test("o critério medível: os candidatos descem de um em um, sem lacuna")
+    func semLacunaEntreCandidatos() {
+        for rotulo in [true, false] {
+            let linhas = Sacrificio.candidatos(rotulo: rotulo).map(\.linhas)
+            #expect(linhas.first == Sacrificio.maximo)
+            #expect(linhas.last == 1)
+            for (maior, menor) in zip(linhas, linhas.dropFirst()) {
+                #expect(maior - menor == 0 || maior - menor == 1)
+            }
+        }
+    }
 }
 

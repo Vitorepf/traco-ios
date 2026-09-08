@@ -58,4 +58,9 @@ Não há autorização inferida para publicar, gastar ou enviar mensagens extern
   nota do Destaque, e o VoiceOver distingue trecho de integral. Prova:
   `ferramentas/orca/f4h-*.png` no iPhone 17 Pro (teste 4), 103 e 247
   caracteres, normal/AX5, claro/escuro, com "Desatualizado.".
+  **F4-I (08/09, emenda da 08i):** o que faltava em Componentes — a ADR diz
+  as duas gramáticas do marcador (palavra no publicador, grafema na face) e
+  ganha o critério medível de corte evitável ("cabe uma linha inteira do
+  corpo do papel no espaço livre ao lado do marcador"), com a premissa na
+  suíte; `FraseDoAutor` e `CapsulaViva` com preview por estado.
 
