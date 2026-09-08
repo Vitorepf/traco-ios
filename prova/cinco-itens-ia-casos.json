@@ -1,0 +1,265 @@
+{
+  "repeticoes": 3,
+  "casos": [
+    {
+      "id": "espanhol-solo-3x5",
+      "operacao": "produzir",
+      "entrada": {
+        "intencao": "Quero conseguir me apresentar em espanhol numa viagem.",
+        "resultado": "Ter um roteiro utilizável hoje, para iniciante, sem ajuda externa.",
+        "instrucao": "Prepare um treino solo de espanhol para iniciante, em três blocos de cinco minutos, total de quinze minutos. Não tenho instrutor, parceiro nem câmera. Traga as frases em espanhol com a tradução de cada uma em português. Distribua explicitamente o tempo de cada bloco e forneça o material necessário para começar agora. Não invente pessoas disponíveis nem diga que já pratiquei ou aprendi.",
+        "apoio": "delegar"
+      },
+      "requisitos": [
+        "Três blocos de cinco minutos; duração total de quinze minutos sem dupla contagem.",
+        "Cada frase em espanhol tem sua tradução correta em português.",
+        "Executável sozinho, por iniciante, sem câmera, parceiro ou instrutor.",
+        "Material completo e utilizável, sem inventar execução ou aprendizagem."
+      ]
+    },
+    {
+      "id": "analise-decisao-custo",
+      "operacao": "classificar",
+      "entrada": {
+        "texto": "Preciso decidir entre alugar uma sala por R$ 900 por mês ou atender de casa, sem aluguel adicional. A sala dá privacidade, mas eu ainda não tenho clientes suficientes. Em casa economizo, mas a família ocupa o espaço. Meu limite de despesa mensal é R$ 1.000."
+      },
+      "requisitos": [
+        "Reconhece uma decisão entre alternativas e restrições; não trata como escrita expressiva nem inventa fatos.",
+        "O método ou pergunta retornados ajudam a examinar a decisão concreta."
+      ]
+    },
+    {
+      "id": "contexto-correcao-prazo",
+      "operacao": "responderNasNotas",
+      "entrada": {
+        "pergunta": "Quando preciso entregar a proposta e qual restrição devo respeitar?",
+        "contexto": "NOTA: Proposta da oficina — atualização de 07/09/2026. Corrigi o prazo: a proposta deve estar pronta em 12/09, não em 10/09 como escrevi antes. O orçamento máximo é R$ 800; nenhum fornecedor foi contratado. NOTA: Rascunho antigo, 01/09/2026. Pensei em entregar no dia 10/09 e gastar R$ 1.200.",
+        "retrato": "Prefere respostas curtas em português e está preparando a oficina sozinho."
+      },
+      "requisitos": [
+        "Responde 12/09 e teto de R$ 800, priorizando a correção atual.",
+        "Atribui a informação à nota pertinente, sem afirmar contratação ou execução.",
+        "Não transforma o rascunho antigo em compromisso vigente."
+      ]
+    },
+    {
+      "id": "q2-conhecido-preparar-espanhol-solo",
+      "operacao": "prepararPratica",
+      "entrada": {
+        "intencao": "Quero conseguir me apresentar em espanhol numa viagem, começando do zero.",
+        "resultado": "Conseguir iniciar uma apresentação curta; hoje tenho quinze minutos sozinho.",
+        "instrucao": "Prepare um exercício solo para iniciante em três blocos de cinco minutos, total de quinze minutos. Não tenho instrutor, parceiro nem câmera. Quero escrever e depois falar minha apresentação: nome, cidade e profissão. Inclua apoio em espanhol com tradução correta em português para cada frase do exemplo. O exemplo resolvido deve usar uma situação diferente, como pedir uma informação na rua, sem escrever minha apresentação. Os critérios de feedback precisam ser verificáveis pela tentativa escrita; não haverá áudio.",
+        "apoio": "praticar"
+      },
+      "requisitos": [
+        "Caso conhecido derivado da prova 6; não é avaliação cega nem held-out.",
+        "Enunciado define uma produção escrita concreta de apresentação e uma prática oral executável sozinho por iniciante.",
+        "Há três blocos explicitamente de cinco minutos; as atividades não somam menos nem mais de quinze minutos e não dependem de instrutor, parceiro ou câmera.",
+        "O exemplo resolve outro caso de fato; cada frase em espanhol tem tradução correta em português, sem fornecer a apresentação-alvo.",
+        "De dois a seis critérios verificáveis no texto, sem julgar pronúncia, fluência oral, gestos, tempo realmente praticado ou aprendizagem.",
+        "Explicita o limite: a tentativa escrita não permite verificar desempenho oral. Nenhuma recusa ou indisponibilidade conta como entrega utilizável."
+      ]
+    },
+    {
+      "id": "q2-conhecido-feedback-espanhol-correto",
+      "operacao": "conferirTentativa",
+      "entrada": {
+        "pratica": {
+          "capacidade": "Escrever uma apresentação básica em espanhol",
+          "situacao": "Ensaio escrito de apresentação de uma personagem fictícia",
+          "dificuldade": null,
+          "hipoteseID": null,
+          "enunciado": "Apresente a personagem Ana, que mora em Recife e trabalha como designer. Escreva três frases em espanhol: uma para o nome, outra para a cidade e outra para a profissão. Ao lado de cada frase, escreva sua tradução em português. Não há áudio; só o texto será conferido.",
+          "exemplo": "Outro caso, pedir informação: ¿Dónde está la estación? — Onde fica a estação?",
+          "criterios": [
+            {
+              "id": "21000000-0000-4000-8000-000000000001",
+              "texto": "Contém três frases de apresentação em espanhol, com verbo e sentido completo."
+            },
+            {
+              "id": "21000000-0000-4000-8000-000000000002",
+              "texto": "A tradução em português de cada frase escrita corresponde ao seu significado em espanhol."
+            },
+            {
+              "id": "21000000-0000-4000-8000-000000000003",
+              "texto": "O texto em espanhol informa nome Ana, cidade Recife e profissão designer, conforme o perfil fictício."
+            }
+          ]
+        },
+        "tentativa": "Me llamo Ana. — Eu me chamo Ana.\nVivo en Recife. — Eu moro em Recife.\nSoy diseñadora. — Sou designer.",
+        "apoioUtilizado": "Li o exemplo e os critérios."
+      },
+      "requisitos": [
+        "Caso conhecido e sintético; não é held-out. Cada ID abaixo refere-se ao último grupo numérico do critério da prática fornecida.",
+        "Uma leitura útil por critério, sem inventar evidência, solução-alvo, reescrita, elogio, nota ou aprendizagem. Citações devem ser trechos literais reais e pertinentes da tentativa.",
+        "Recusa, timeout, retorno indisponível ou todos os critérios inconclusivos não contam como atendimento quando os critérios são verificáveis.",
+        "Critérios 1, 2 e 3: atendidoNoEscopo; não inventa erro nas frases ou nas traduções.",
+        "Reconhecer designer como tradução válida de diseñadora; não exige tradução artificial nem infere pronúncia."
+      ]
+    },
+    {
+      "id": "q5-recordar-capital-lisboa",
+      "operacao": "recordar",
+      "entrada": {
+        "texto": "A capital de Portugal é Lisboa.",
+        "pista": "Geografia: capitais europeias.",
+        "degrau": 0
+      },
+      "requisitos": [
+        "Retorna uma pergunta utilizável que cobre recuperar qual é a capital de Portugal.",
+        "Não revela Lisboa, a resposta correta por sinônimo, dica identificadora ou alternativa já marcada; o tamanho pequeno do alvo não autoriza vazamento.",
+        "Não substitui a pergunta específica por pergunta genérica sobre a experiência de lembrar.",
+        "Não inventa outra informação geográfica; nil ou erro falham atendimento neste caso legítimo.",
+        "Este caso conhecido avalia a pergunta retornada; não prova retenção ou aprendizagem."
+      ]
+    },
+    {
+      "id": "q5-conferir-parafrase-completa",
+      "operacao": "conferir",
+      "entrada": {
+        "itens": [
+          "A capital de Portugal é Lisboa.",
+          "O comboio parte às oito horas.",
+          "O bilhete custa vinte euros."
+        ],
+        "texto": "Lisboa é a cidade que funciona como capital portuguesa. O trem sai às 8h e a passagem custa €20."
+      },
+      "requisitos": [
+        "Conjunto retornado exatamente [0,1,2], independentemente da ordem interna.",
+        "Reconhece equivalência de sentido entre comboio/trem, bilhete/passagem, vinte euros/€20 e oito horas/8h.",
+        "Não exige cópia literal para reconhecer uma recuperação correta; ausência de retorno reprova atendimento.",
+        "Os horários e preços são dados sintéticos deste caso, não fatos a pesquisar ou corrigir com conhecimento externo."
+      ]
+    },
+    {
+      "id": "q5-ecos-sentido-e-contradicao",
+      "operacao": "ecos",
+      "entrada": {
+        "texto": "Decidi cancelar a assinatura do editor de textos e usar uma alternativa gratuita para reduzir minha despesa mensal.",
+        "itens": [
+          "Troquei o programa pago de escrever por um gratuito para economizar a mensalidade.",
+          "O editor do jornal pediu uma fotografia da praça para a edição de domingo.",
+          "Mudei de ideia: vou manter a assinatura do editor de textos e não usar a alternativa gratuita.",
+          "A assinatura na procuração precisa ser reconhecida pelo cartório."
+        ]
+      },
+      "requisitos": [
+        "Retorna exatamente as candidatas de índices 0 e 2: paráfrase da decisão e mudança explícita sobre a mesma decisão.",
+        "Não retorna 1 ou 3 apenas porque contêm editor ou assinatura.",
+        "Cada trecho é literal e pertence à candidata indicada, tem sentido no contexto e respeita o contrato de 8 a 120 caracteres.",
+        "Não cria vínculo factual além do que os textos sustentam; notas não citam umas às outras por referência explícita.",
+        "Retornar menos por incapacidade de reconhecer esses vínculos claros não cumpre o requisito positivo."
+      ]
+    },
+    {
+      "id": "q5-calibragem-dependencia-externa",
+      "operacao": "calibragem",
+      "entrada": {
+        "itens": [
+          "ANTES: Previ terminar a proposta na terça; considerei apenas o tempo de escrita. DEPOIS: Terminei na sexta porque esperei três dias pela aprovação do cliente.",
+          "ANTES: Previ concluir o orçamento na segunda; não reservei prazo para receber preços do fornecedor. DEPOIS: Concluí na quinta, depois que o fornecedor respondeu.",
+          "ANTES: Previ fechar o contrato na quarta contando apenas minhas horas de revisão. DEPOIS: Ficou pronto na segunda seguinte após a revisão jurídica externa."
+        ]
+      },
+      "requisitos": [
+        "Retorna de uma a três perguntas pertinentes sobre a dependência de resposta/aprovação externa omitida nas previsões.",
+        "A pergunta ajuda a comparar previsões e resultados entre casos, sem se limitar a repetir uma frase isolada.",
+        "Cada pergunta cita fragmento literal de um dos pares, termina em ? e tem até 280 caracteres e duas frases.",
+        "Não atribui o atraso a incapacidade, preguiça, personalidade ou intenção do autor; o texto só sustenta omissão de dependências nessas previsões.",
+        "Não oferece nota, diagnóstico, elogio, conclusão fechada, regra universal ou afirmação de aprendizagem."
+      ]
+    },
+    {
+      "id": "q5-padroes-sobrecarga-compromissos",
+      "operacao": "padroes",
+      "entrada": {
+        "itens": [
+          "Na segunda aceitei revisar mais um relatório mesmo sabendo que minha semana já estava cheia. A entrega que eu tinha prometido ficou para depois.",
+          "Na quinta concordei em ajudar outro colega antes de terminar meu projeto. O prazo do projeto passou e eu ainda estava atendendo ao pedido dele.",
+          "Neste mês quero entender o que muda quando aparece um pedido novo enquanto já tenho compromissos assumidos."
+        ]
+      },
+      "requisitos": [
+        "Retorna de uma a três perguntas pertinentes à relação entre aceitar pedidos novos e adiar compromissos já assumidos, sustentada pelas notas.",
+        "Perguntas fazem comparar episódios ou examinar critério de decisão; uma reformulação genérica sobre organização não basta.",
+        "Cada pergunta cita um trecho literal de uma nota, termina em ? e tem até 280 caracteres e duas frases.",
+        "Não diagnostica submissão, TDAH, ansiedade ou personalidade; não afirma motivo emocional que as notas não fornecem.",
+        "Não decide valores/prioridades pelo autor, não o elogia e não transforma uso do app em evidência de melhora."
+      ]
+    },
+    {
+      "id": "vestir-codigo-crlf",
+      "operacao": "vestir",
+      "entrada": {
+        "texto": "\r\n  \r\nPlano do app\r\n\r\n```swift\r\nlet marca = \"``` e ~~~\"  \r\n\r\n  \r\nlet intermediario = 2\r\n\r\n\tprint(marca)\r\n```\r\n\r\nprimeira etapa\r\nsegunda etapa\r\n\r\n"
+      },
+      "requisitos": [
+        "A ajuda de formatação é útil: reconhece Plano do app como título e as duas etapas como itens, sem reescrever palavras.",
+        "O recorte de ```swift até o fechamento ``` deve permanecer idêntico byte a byte: CRLF, linha vazia, linha com dois espaços, tabulação e espaços finais inclusos.",
+        "O conteúdo dentro da string que contém ``` e ~~~ não fecha a cerca nem recebe formatação.",
+        "As linhas vazias e com espaços antes do título, entre blocos e ao final permanecem idênticas.",
+        "Nenhuma palavra, linha de código ou delimitador é acrescentado, removido, reordenado ou colapsado."
+      ]
+    },
+    {
+      "id": "continuidade-responder",
+      "operacao": "responder",
+      "entrada": {
+        "pergunta": "Tenho quinze minutos por dia para praticar espanhol sozinho. Como dividir esse tempo em três blocos de cinco minutos?",
+        "contexto": "Sou iniciante, sem instrutor, parceiro ou câmera."
+      },
+      "requisitos": [
+        "Divisão de 5+5+5 minutos, sem depender de outra pessoa.",
+        "Não afirma prática ou aprendizagem já ocorrida."
+      ]
+    },
+    {
+      "id": "continuidade-instigar",
+      "operacao": "instigar",
+      "entrada": {
+        "texto": "Quero começar a praticar espanhol, mas sempre espero ter uma hora livre. Hoje tenho quinze minutos e estou sozinho.",
+        "degrau": 0
+      },
+      "requisitos": [
+        "Uma pergunta pertinente que ajude a começar com os quinze minutos existentes.",
+        "Sem inventar diagnóstico, professor ou recursos."
+      ]
+    },
+    {
+      "id": "continuidade-contrapor",
+      "operacao": "contrapor",
+      "entrada": {
+        "texto": "Só vale estudar espanhol se eu puder praticar uma hora inteira com um professor. Tenho quinze minutos por dia e não posso contratar ninguém."
+      },
+      "requisitos": [
+        "Contraponto pertinente à premissa de tudo ou nada.",
+        "Alternativa executável em quinze minutos, sozinho."
+      ]
+    },
+    {
+      "id": "continuidade-dominio",
+      "operacao": "dominio",
+      "entrada": {
+        "texto": "Preciso corrigir um bug no aplicativo SwiftUI antes de publicar a versão."
+      },
+      "requisitos": [
+        "Rótulo de domínio pertinente a trabalho técnico, sem prosa inventada."
+      ]
+    },
+    {
+      "id": "espanhol-revisao-duracao",
+      "operacao": "revisar",
+      "entrada": {
+        "intencao": "Praticar espanhol sozinho",
+        "resultado": "Um treino utilizável de quinze minutos",
+        "instrucao": "Prepare três blocos de cinco minutos, com frases em espanhol e traduções em português. Sem parceiro, câmera ou instrutor.",
+        "artefato": "# Treino\nBloco 1: 5 minutos. Diga Hola (Olá).\nBloco 2: 10 minutos. Peça ao seu professor para corrigir a pronúncia.\nBloco 3: 5 minutos. Diga Gracias (Obrigado)."
+      },
+      "requisitos": [
+        "Identifica duração total de vinte minutos e bloco de dez em conflito com o pedido.",
+        "Identifica dependência de professor contrariando prática solo.",
+        "Citações são literais do artefato; não inventa problemas."
+      ]
+    }
+  ]
+}

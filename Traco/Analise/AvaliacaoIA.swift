@@ -11,7 +11,7 @@ enum AvaliacaoIA {
     private static var iniciou = false
     private static let operacoes = ["produzir", "prepararPratica", "conferirTentativa", "revisar",
         "responderNasNotas", "responder", "instigar", "contrapor", "vestir", "recordar",
-        "conferir", "ecos", "calibragem", "padroes", "classificar", "dominio"]
+        "conferir", "ecos", "calibragem", "padroes", "classificar", "dominio", "modelosGrok"]
 
     private struct Lote: Codable {
         var repeticoes: Int?
@@ -103,10 +103,12 @@ enum AvaliacaoIA {
                 for repeticao in 1...(caso.repeticoes ?? lote.repeticoes ?? 1) {
                     try Task.checkCancellation()
                     Grok.esquecerMemo()
+                    _ = Grok.retirarDiagnosticos()
                     PadroesRemoto.esquecerMemo()
                     var registro: [String: Any] = ["id": caso.id, "operacao": caso.operacao,
                         "repeticao": repeticao, "entrada": try objeto(caso.entrada),
-                        "modeloConfigurado": Grok.modelo, "contaGrokLigada": ContaGrok.ligada,
+                        "modeloConfigurado": Grok.modelo, "modeloTrabalhoConfigurado": Grok.modeloTrabalho,
+                        "contaGrokLigada": ContaGrok.ligada,
                         "modeloDoAparelhoDisponivel": AnaliseDeBordo.disponivel,
                         "motoresDesligados": Motores.desligados]
                     registro["evento"] = "casoIniciado"
@@ -117,6 +119,7 @@ enum AvaliacaoIA {
                     } catch {
                         registro["erro"] = String(reflecting: error)
                     }
+                    registro["chamadasGrok"] = try objeto(Grok.retirarDiagnosticos())
                     let duracao = inicio.duration(to: .now).components
                     registro["duracaoSegundos"] = Double(duracao.seconds) + Double(duracao.attoseconds) / 1e18
                     registro["evento"] = "casoConcluido"
@@ -149,6 +152,8 @@ enum AvaliacaoIA {
         let itens = e.itens ?? []
         let gesto = e.gesto.flatMap { Gesto(rawValue: $0) }
         switch caso.operacao {
+        case "modelosGrok":
+            return ["modelosDisponiveis": try exigir(await Grok.modelosDisponiveis())]
         case "produzir", "prepararPratica", "revisar":
             var documento: DocumentoTrabalho
             if let anterior = e.documento {
@@ -174,9 +179,10 @@ enum AvaliacaoIA {
                 return ["pratica": try objeto(r.pratica), "produtor": r.produtor]
             }
             let artefato = try exigir(e.artefato, "artefato")
-            let local = ConferenciaTrabalho.conferir(pedido: pedido, intencao: documento.intencaoAtual, artefato: artefato)
+            let anteriores = documento.instrucoesAnteriores(ao: pedido)
+            let local = ConferenciaTrabalho.conferir(pedido: pedido, intencao: documento.intencaoAtual, artefato: artefato, instrucoesAnteriores: anteriores)
             return try objeto(await RevisaoTrabalho.revisar(pedido: pedido, intencao: documento.intencaoAtual,
-                                                           artefato: artefato, criterios: local.resultados))
+                                                           artefato: artefato, criterios: local.resultados, instrucoesAnteriores: anteriores))
         case "conferirTentativa":
             return try objeto(await MotorTrabalho.conferirTentativa(pratica: exigir(e.pratica, "pratica"),
                 tentativa: exigir(e.tentativa, "tentativa"), apoioUtilizado: exigir(e.apoioUtilizado, "apoioUtilizado")))

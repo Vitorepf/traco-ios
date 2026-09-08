@@ -5244,10 +5244,18 @@ decisão:** ele muda para a família 4, e a família 4 passa a se chamar pelo qu
 sempre foi — **confissão de conduta**, não só "o que eu fiz A ALGUÉM".
 
 **O buraco maior era de AMOSTRA, não de léxico** — e é o item que impede a
-próxima cegueira desta classe. As 57 protegidas até aqui carregavam um rabo de
-~140 caracteres: quase toda sonda ficava ACIMA do teto, e o caso curto de cada
-família nunca era exercitado. Foi por isso que quatro voltas de régua
-(06i, 06i-B, 06i-C, 06i-D) passaram por cima da assimetria sem vê-la.
+próxima cegueira desta classe. *(Corrigido pela volta P1 em 08/09: a causa
+escrita aqui era falsa. Dizia-se que "as 57 protegidas carregavam um rabo de
+~140 caracteres e quase toda sonda ficava ACIMA do teto". Medido contra a
+implementação real: **46 das 57 já estavam ABAIXO do teto**. O rabo de 140 é da
+régua de ALCANCE — `todoRamoDeRegexAlcancaOSeuMetodo` —, não das protegidas.)*
+A causa verdadeira é **CONTAMINAÇÃO**: das 57, 17 tocam a família 4 e 11 dessas
+são curtas, mas a única curta que carregava o token do defeito —
+"Não devia ter feito isso, senti muito." (38 caracteres) — é presa pela família
+**1a** por causa de `senti`, antes de a 4 ou a 5 opinarem. Toda sonda curta com
+o token trazia junto uma palavra de outra família, e foi por isso que quatro
+voltas de régua (06i, 06i-B, 06i-C, 06i-D) passaram por cima da assimetria sem
+vê-la. O conserto que isso pede não é sonda curta: é sonda curta **exclusiva**.
 `EscritaPessoalTests.curtasPorFamilia` fecha isso com **uma sonda por família
 ABAIXO do teto**, cada uma com a porta que a levaria vestida — sem a porta a
 sonda não mede nada:
@@ -5263,9 +5271,13 @@ sonda não mede nada:
 | 5 omissão + companhia | "Foi pesado e eu fiquei calada." (30) | Coluna da esquerda |
 
 `cadaFamiliaTemUmaSondaAbaixoDoTeto` cobra as cinco famílias contra o mapa de
-léxicos: **família sem sonda curta é teste vermelho**. A da família 5 é a
-companhia por definição (a omissão sozinha continua sem disparar abaixo do
-teto, ADR 06i) — está declarado na régua, não escondido nela.
+léxicos: **família sem sonda curta é teste vermelho**. Desde a volta P1 ela
+cobra também a **EXCLUSIVIDADE** — nenhuma outra família pode reconhecer a
+sonda —, que é a propriedade que teria pego este defeito e que até então existia
+por sorte do texto (seis das sete sondas saíram exclusivas sem que nada o
+exigisse). A da família 5 é a companhia por definição (a omissão sozinha
+continua sem disparar abaixo do teto, ADR 06i): a 1b entra DECLARADA na própria
+linha da sonda, à vista da régua, não escondida nela.
 
 **A frase da 06h que era falsa abaixo do teto, corrigida.** A 06h escreveu o
 custo como "a guarda fecha 14 de 287 ramos (4,9%) **para TEXTO LONGO**" e a
@@ -5278,11 +5290,23 @@ abertos abaixo de 120 — que é exatamente o defeito. **Como fica, medido:**
 | ramos | fechados |
 |---|---|
 | 3 da Coluna da esquerda (`engoli`, `fiquei calado`, `deixei passar`) | só ACIMA do teto |
-| 11 do Exame da noite | em QUALQUER tamanho (era 7 de 11) |
+| 11 dos 17 ramos do Exame da noite — os de confissão | em QUALQUER tamanho (era 7 desses 11) |
 
 E o Exame **continua alcançável abaixo do teto** pelo primeiro ramo ("exame da
-noite", "passei o dia em revista", "olhando o dia de hoje") e por "hoje eu
-fiz|reagi|tratei" — que é a frase verdadeira, agora dos dois lados do teto.
+noite", "passei o dia em revista") e por "hoje eu fiz|reagi|tratei" — que é a
+frase verdadeira, agora dos dois lados do teto.
+
+*(Corrigido pela volta P1: esta lista trazia também "olhando o dia de hoje", e a
+porta era MORTA em qualquer tamanho. `Meu dia` tem `\bo dia de hoje\b` no
+roteamento e vem antes no catálogo, então toda nota com essa frase cai no Meu
+dia e nunca no Exame — o desvio estava registrado desde a ADR 06e em
+`todoRamoDeRegexAlcancaOSeuMetodo`, e a versão anterior desta ADR listava só os
+dois primeiros, certos. A P1 apagou o ramo do `Metodos.json` em vez de o
+descrever: ramo que nunca roteia é promessa que a ficha do método não cumpre, e
+apagá-lo tirou um desvio congelado da régua de alcance, que passou de 18 para
+17. O Exame fica com 16 ramos: 11 calados pela guarda, 5 vivos. Também se
+corrigiu o rótulo "os 11 ramos do Exame": pela mesma expansão, o método tinha
+17 ramos e 11 é o subconjunto de confissão.)*
 
 **Volta:** melhorar. **O que a IA sabe:** nada de novo — a guarda continua sem
 modelo, no aparelho. **Prova:** a régua nova medida VERMELHA antes do conserto,
@@ -5295,8 +5319,17 @@ tests in 1 suite passed after 0.209 seconds.` nas quatro réguas
 (**64 protegidas + 13 com gancho + 6 legítimas + 58 de trabalho**) e
 `✔ Test run with 780 tests in 130 suites passed after 7.102 seconds.` /
 `** TEST SUCCEEDED **` na suíte inteira. **Fora:** `não devia ter` agora cala
-também a confissão de conduta sobre coisa ("não devia ter aceitado esse prazo"),
-e isso é assumido pela assimetria de sempre — calar custa um toque, vestir
+também a confissão de conduta sobre coisa ("não devia ter aceitado esse prazo").
+**O preço, medido pela volta P1 no catálogo de 28 e com controle negativo** (o
+token de volta na família 5, nada mais trocado): das seis notas de trabalho que
+o revisor escreveu com o token, **6 de 6 perdem a forma** — `classeDeReferencia`,
+`primeirosPrincipios`, `cincoPorques`, `argumento`, `vistoNaoVisto` e `destilar`
+viram silêncio. Na mesma medida, os ramos do Exame que chegam ao método abaixo
+do teto caem de **9 de 17 para 5 de 17**, e nenhum muda de lado com o teto (eram
+4 que mudavam). Foi testada a saída estreita — cobrar só os quatro verbos do
+próprio Exame — e ela é PIOR: devolve as notas de trabalho e abre três buracos
+novos pela Coluna da esquerda (`não devia ter dito|falado|respondido`). O token
+largo é escolha, não descuido. Isso é assumido pela assimetria de sempre — calar custa um toque, vestir
 carimba quatro campos; o literal continua sendo `não devia ter` com acento, e
 quem escreve "nao devia ter" não é alcançado (o mesmo resíduo de `fiquei calad`
 e companhia); e as sondas curtas são minhas e do revisor, não de uso real —
@@ -5389,6 +5422,163 @@ A escada da sábia, o `conferir`, o `responderNasNotas`, o `produzirEntrega` e o
 **O teto passa a ser medido.** Desde o iOS 26.4 o modelo conta tokens (`SystemLanguageModel.tokenCount(for:)`, `contextSize`). `Sabia.noAparelho` mantém os 3.500 caracteres como pré-corte da montagem, mas o portão real é pedido + instruções + 1.024 tokens de resposta reservados ≤ `contextSize`; sem espaço para a resposta, cala. `maximumResponseTokens` fixa a reserva.
 
 **O que esta ADR não prova.** Nenhuma operação tem medição com Grok: a conta não existe em nenhum simulador (login iniciado no iPhone 17 Pro de teste em 07/09, à espera do dono). A tabela decide onde o aparelho NÃO entra; se o Grok serve, é a próxima medição pela mesma sonda. `responder`, `instigar` e `contrapor` seguem sem medição em nenhum provedor. 5 testes em `PoliticaTests`; suíte 826/134 em 07/09/2026.
+
+## ADR 2026-09-08b — Raciocínio explícito e medição do provedor
+
+A base viva de 08/09 (`prova/cinco-itens.md`) encontrou falhas semânticas no
+Grok em prática e revisão apesar do schema válido. Produção, preparação de
+prática, feedback e revisão passam a solicitar raciocínio `medium`; demais
+chamadas preservam `none`. O modelo explícito é `grok-4.3`, em lugar do alias
+aposentado `grok-4-fast-non-reasoning`. A [migração oficial da xAI](https://docs.x.ai/developers/migration/may-15-retirement)
+descreve o redirecionamento do alias para 4.3 sem raciocínio. A aceitação pela
+conta e a qualidade são medidas no app, não inferidas dessa documentação.
+
+A sonda Debug registra modelo solicitado/respondido, esforço, status HTTP e
+desfecho de transporte/conteúdo, sem credenciais ou corpos de erro. As saídas
+semânticas continuam completas no JSONL. Não existe aprovação automática por
+raciocínio ativado; a revisão independente e a jornada continuam obrigatórias.
+Mudança de ações ou evidências cancela preparação em voo, pois ela ainda não
+leu o novo retorno. O pedido cancelado permanece disponível para retomada.
+
+### ADR08c — conferência conserva restrições ao adaptar (08/09/2026)
+
+A jornada com conta conectada expôs dois falsos alarmes locais: a apresentação
+“três blocos de cinco minutos” contava como um quarto bloco, e o pedido genérico
+“adapte aos relatos” perdia tempo/idiomas anteriormente pedidos. Regras v3 excluem
+resumos compatíveis anteriores à distribuição, sem excluir blocos adicionais
+posteriores. É uma gramática limitada, não medição da duração praticada.
+
+Produção, prática, conferência local e revisão assistida compartilham a seleção
+de instruções anteriores concluídas da mesma intenção, somente antes do pedido
+lido, recentes primeiro. A restrição explícita vigente prevalece. As conferências
+preservam o trecho literal como instrução, incluindo histórico; revisão que não
+cabe inteira na janela fica indisponível. Registros v2 anteriores permanecem
+históricos, sem reescrita. A sonda usa o mesmo contexto da interface.
+
+Na preparação de prática, o candidato passa a raciocínio `high`, limite de 90 s,
+pois `medium` ainda omitiu fala pedida e gerou tradução incorreta nas variantes.
+Sem gravação limita avaliação, não elimina uma prática oral solicitada. Adaptação
+precisa mudar apoio ou atividade diante da dificuldade; repetir o enunciado não
+prova ajuste útil. Este registro descreve o candidato, não aprovação semântica.
+
+### ADR08d — modelo por rota de Trabalho e limites da prova (08/09/2026)
+
+As medições de `grok-4.3` com raciocínio, prompt curto e segunda leitura continuaram
+falhando em preparação e adaptação. A segunda leitura foi só experimento da sonda;
+não foi acrescentada ao produto. A listagem autenticada `/v1/models` confirmou
+`grok-4.6` disponível na conta. O candidato o usa explicitamente em produzir,
+preparar exercício, conferir tentativa e revisão assistida. As demais rotas
+mantêm o modelo configurado anterior. O cache distingue modelo, esforço e pedido.
+
+A observação de feedback e revisão é em português. Reconhecer um critério textual
+atendido não é aprovação global nem certificação da pessoa. `inconclusivo` exige
+lacuna de evidência real; incompletude não torna errada uma tradução presente que
+está correta. A preparação usa um contrato mais curto de tarefa, apoio, exemplo e
+critérios; o pedido explícito governa assunto do exemplo e atividades obrigatórias.
+
+A sonda Debug também pode listar apenas IDs de modelos e registrar a contagem de
+tokens de raciocínio devolvida pela API. Não guarda credenciais nem raciocínio.
+Troca de modelo não é prova de qualidade: matrizes, denominadores e retornos
+anteriores permanecem em `prova/cinco-itens*`, e o novo candidato exige leitura
+integral das respostas e jornada com persistência antes de ser considerado pronto.
+
+## ADR 2026-09-08e — O portão do movimento, e três dívidas de documento pagas (volta P1)
+
+**A dívida 7 da limpeza de 07/09, e por que ela é a mais estrutural.** Na volta
+12 a classe do cross-fade voltou SEIS vezes, com TRÊS causas distintas. O juiz
+do re-G4 nomeou a causa comum: **não existe portão** que impeça escrever uma
+curva do SwiftUI em literal sem passar por `Tema`.
+Quem escreve a curva no ponto de uso escolhe sozinho a CLASSE de movimento, e é
+a classe que decide o comportamento sob "Reduzir movimento" (ADR 05y), lei que
+mora em `Tema` num lugar só. Sem portão, cada tela recomeça a decisão.
+
+**A decisão: um teste de varredura com a dívida CONGELADA, não um lint.**
+`TracoTests/PortaoDoMovimentoTests` lê o TEXTO dos fontes de `Traco/` e
+`TracoWidget/`, tira comentário e miolo de string, e conta por arquivo quantas
+vezes ele escreve **curva ou duração LITERAL fora de `Tema`** (curva nomeada do
+SwiftUI, `Animation.`, `repeatForever`, duração/atraso/mola em número cru).
+`Traco/Tema.swift` é o único isento.
+
+**O que o portão NÃO conta, e por quê (correção do G3, 08/09).** A primeira
+versão contava também `withAnimation(` e a curva passada DENTRO de uma chamada a
+`Tema.…(…)` / `CalendarioTema.…(…)`. Isso congelou 76 ocorrências em 19
+arquivos — e o revisor do G3 mediu o que elas eram: **69 das 76 estavam em linha
+que já cita `Tema.`**, e as outras 7 idem por variável. Era a **forma que esta
+ADR manda escrever**: `Tema.movimento(_ classe:, _ normal: Animation, reduzido:)`
+exige uma `Animation` no ponto de chamada. O portão ficava vermelho para quem
+fizesse a coisa certa, e a lista congelada era inalcançável por construção.
+A varredura passa a apagar o miolo das chamadas a `Tema.`/`CalendarioTema.`
+antes de contar a curva — mas NÃO apaga número cru lá dentro, porque
+`Tema.movimento(.opacidade, .easeOut(duration: 0.25), reduzido:)` continua sendo
+a duração decidida na view, e `Tema.Duracao.*` existe para isso.
+
+**Medido depois do conserto: a dívida é ZERO.** Nenhum fonte de `Traco/` ou
+`TracoWidget/` escreve curva ou duração literal fora de `Tema` hoje; as 38
+chamadas de `withAnimation(` do repositório passam todas por `Tema.*` ou
+`CalendarioTema.morph`. A lista congelada `faltosos` nasce **vazia**, e é uma
+notícia boa: o produto já roteia o movimento por `Tema`, e o portão existe para
+que a PRÓXIMA curva literal não entre. Não há nada a migrar.
+
+**Descer nunca é vermelho.** A guarda é `hoje > congelado`, não `hoje !=
+congelado`: quem migrar uma tela um dia não pode precisar editar este teste para
+não ficar vermelho. Se um arquivo entrar na lista por uma volta, o número desce
+no commit da migração e a linha sai quando zera.
+
+**Prova de que ele falha de verdade.** Verde no repositório de hoje; vermelho
+com três plantas ao mesmo tempo — um arquivo NOVO fora do `project.pbxproj`
+(`Traco/Componentes/ProvaPortaoG3.swift: 2 hoje, 0 congelado ← SUBIU`) e uma
+curva literal num arquivo existente
+(`Traco/Padroes/PadroesView.swift: 2 hoje, 0 congelado ← SUBIU`) — enquanto a
+forma PRESCRITA (`Tema.movimento(.opacidade, .easeOut(duration: Tema.Duracao.media),
+reduzido:)`, em uma e em várias linhas), um comentário e uma string com curva
+dentro ficaram de fora da conta. E com a dívida congelada em 2 num arquivo já
+migrado, `hoje 0 / congelado 2` fica **verde**. As plantas foram removidas.
+Como a lista nasce vazia, o teste ficaria verde se a varredura parasse de
+enxergar: `aVarreduraAindaEnxerga` é o contra-veneno — quatro sondas sintéticas,
+duas que TÊM de acusar e duas que NÃO podem.
+
+**Fora, dito:** a varredura é sobre texto, não sobre a árvore do compilador.
+Vale para o que se lê num fonte; não persegue a curva que atravessa uma
+`Animation` guardada numa variável, nem string de várias linhas, nem parêntese
+desbalanceado dentro de string dentro de chamada a `Tema.` — os três erram para
+o lado de NÃO acusar. Congelar número por arquivo é grosso de propósito: obriga
+a olhar a linha nova, e não julga se a linha existente está certa.
+
+**As três dívidas de documento (itens 5 e 6 do RUMO)** foram pagas nas ADRs
+onde elas moram — 06i-E corrigida em quatro pontos (a causa, que era
+contaminação e não rabo; a régua que passa a cobrar exclusividade; a porta morta
+`olhando o dia de hoje`; e os dois números medidos), e a `aplicabilidade` do
+`exameDaNoite` no `Metodos.json` reescrita. A ficha dizia ao autor "serve para o
+fim de um dia em que você fez algo que não quer repetir" — exatamente a matéria
+que a guarda da 06h se recusa a levar ao método. Passa a dizer a verdade: o
+método se abre pelo nome, e quando o texto é confissão a nota fica do autor.
+*(Copy revista no G3, 08/09, depois de fotografada: saiu o `(ADR 2026-09-06h)`,
+que era a única citação de ADR nas 28 fichas; a frase volta a uma pessoa só — o
+autor, como as outras 27 —, e as aspas passam a ser as tipográficas do app.
+De 385 para 282 caracteres.)*
+
+**A porta morta: apagada, não descrita.** `olhando o dia de hoje` sai do
+roteamento do `exameDaNoite`. `Meu dia` tem `\bo dia de hoje\b` e vem antes no
+catálogo: a frase nunca chegava ao Exame, em nenhum tamanho — o desvio estava
+congelado em `todoRamoDeRegexAlcancaOSeuMetodo` desde a ADR 06e. Descrever a
+porta morta a manteria como promessa que a ficha não cumpre; apagá-la tirou um
+desvio da lista de conhecidos (18 → 17) e não muda roteamento nenhum. O Exame
+fica com 16 ramos: 11 calados pela guarda, 5 vivos.
+
+**Uma armadilha fechada de lambuja.** `EscritaPessoalTests.novos` é uma cópia
+congelada das sete regex da M3, e desde a colagem de 07/09 é o bundle que manda
+(o `comOsNovos` virou no-op: `Catalogo.recarregar` recusa id repetido). Cópia
+que envelhece em silêncio faz a régua medir a M3 e não o app —
+`osSeteCongeladosBatemComOBundle` compara ramo a ramo. Ela acusou esta própria
+volta na primeira corrida, que é a prova de que precisava existir.
+
+**Volta:** melhorar para multiplicar mais depois (eixo 4, diminuir
+complexidade). **O que a IA sabe:** nada de novo. **Prova:**
+`✔ Test run with 889 tests in 144 suites passed after 11.769 seconds.` +
+`** TEST SUCCEEDED **` e `** BUILD SUCCEEDED **` com 0 aviso, no iPhone 17 Pro
+(teste 4) `A1DF082C`, sob `com-trava.sh`. As quatro réguas protegidas (64
+protegidas, 13 com gancho, 6 legítimas, 72 de trabalho) verdes, nenhuma mudou de
+lado. Sem maestro: com três simuladores ligados ele lê a hierarquia do vizinho.
 
 ## ADR 2026-09-08f — O encaixe cola no pé: o fantasma do `.sheet`, o aviso e a cápsula desligada (volta V12-B)
 
@@ -5711,3 +5901,297 @@ a folha cobre a partir de q46. `large` continua 0 pares: sem RM q26 último com
 encaixe, q27 sem, folha q35; com RM q26/q27/q34 — os mesmos números da V12-F.
 Suíte integral 891/892 (1 pulado, 0 falhas) em `B91C8DEF`. Relato:
 `ferramentas/orca/v12g-pe-ax5.md`.
+
+## ADR 2026-09-08g — A frase do autor não termina em reticências (volta F4-F)
+
+**A distância.** A F4 foi mesclada em `main` sem o último portão, com quatro dívidas escritas no RUMO. A primeira, e a que abriu a volta original, é a mais dura: **em AX5, no widget pequeno e no médio, a linha do Destaque terminava em reticências** quando o rodapé "Desatualizado." entrava — `terminar o capítulo do meio antes…` no pequeno, `terminar o capítulo do meio antes de do…` no médio, com metade do cartão vazia embaixo. Fotografado de novo em 08/09 na tela viva, antes de tocar em Swift: `ferramentas/orca/f5-antes-ax5-desatualizado.png`.
+
+**Por que três voltas não fecharam isto.** Porque a causa nunca foi a propriedade. A F4-D já tinha `minimumScaleFactor(0.6)` e `allowsTightening` nos dois lugares, e mesmo assim cortava. A causa é o **teto de linhas**: com `lineLimit(n)` a altura de que a `Text` precisa fica presa em n linhas, ela nunca excede a proposta, o SwiftUI conclui que já cabe e **corta em vez de encolher**. É literalmente a lei que a F4-D descobriu na palavra do estado ("com teto o SwiftUI prefere hifenizar a encolher") — só que ninguém a levou da palavra para a frase. Em tamanho normal o defeito não aparece porque n linhas no corpo cheio cabem na altura dada; em AX5 não cabem, e aí ele aparece. Foi por isso que a F4 fechou o caso olhando o tamanho normal.
+
+**A decisão, em três leis.**
+
+1. **A frase do autor não tem teto de linhas.** `FraseDoAutor` recebe a ALTURA que a face de fato lhe deu — no pequeno, tudo que sobra; no médio, um teto em pontos — e o encolhimento decide quantas linhas cabem. Quem mede é o layout. As quatro `Text` que desenhavam a linha do Destaque (casa pequena, casa média, o ramo "o vazio traz o Destaque" do Próximo e a tela bloqueada) passam a ser a mesma view: a correção mora num lugar só.
+2. **O piso do encolhimento é do PAPEL, não da face** (`Encolhe`). A frase do autor desce até 35%; o rótulo — marca, estado, oferta, texto NOSSO e reescrevível — para em 60%. A 60% de um corpo de acessibilidade a frase ainda não cabe em 123 pt, e o que não cabe o SwiftUI corta. **Letra pequena é letra pequena; frase cortada é mentira.** Custo declarado: num pequeno em AX5 com frase longa, a linha do autor sai em corpo bem menor que o do sistema. É o preço de dizê-la inteira, e é o lado certo da troca.
+3. **Em tamanho de acessibilidade o pequeno larga a MARCA.** O selo "TRAÇO" custa quase um quarto de um cartão de 123 pt, e a casa já escreve "Traço" na etiqueta embaixo do widget. Gastar a altura do autor para repetir o nome do app é a falta que a F4 tirou do cabeçalho ("o widget não gasta linha falando de si mesmo"), um degrau acima. Onde a frase aperta, quem sai é a marca.
+
+**O médio, decidido e defendido (dívida 4 do RUMO).** O juiz da F4 pediu duas coisas que não cabem juntas num 4×2: três linhas de agenda e a frase do autor inteira. A conta, medida na tela e não estimada: cabeçalho com dois atalhos de 44 pt + frase de duas linhas + filete + linha de conta = a `AgendaQueCabe` não achava altura nem para UMA linha e caía em "3 compromissos por vir" — o dia do autor reduzido a um número (`f5-antes-inicio-claro.png`). A escolha não é quantas linhas, é **quem paga**: a agenda, que na tela de início só existe ali, ou dois caminhos para dentro do app, que existem no ícone, no controle Ditar, na Siri, no toque do widget pequeno e no quadro do estado vazio. **Pagam os atalhos.** O cabeçalho do médio passa a ser a marca e só ela; a agenda passa de ZERO para DUAS linhas com "+1 depois" (`f5-depois-inicio-claro.png`). Três só sem Destaque posto — e isso é aritmética de 158 pt, não escolha. A face nunca esconde o resto: o que não coube é contado (`Restantes`).
+
+Junto, a lei do teto sai da view e ganha suíte (`LinhasDoDestaque`), como `EstadoNaFace` e `LinhasDoEstado` antes dela: a F4 escrevia `max(1, teto - 1)` dentro da view, e no médio isso dava **uma linha** para a frase do autor — era esse `if` que imprimia `…antes de do…`.
+
+**O quadro de ofertas deixa de ler como lista de Ajustes (achado I da revisão da F4).** E lia mesmo: duas linhas de largura inteira, mesmo peso, glifo à esquerda, mesmo passo, esticadas para dividir o cartão em fatias iguais — isso é uma lista de sistema, seja qual for a tinta; e uma lista não tem ação principal. O quadro vira **frase de estado + uma ação, com uma alternativa ao lado**: a primeira em cápsula âmbar (a mesma que o autor já toca na tela bloqueada, `CapsulaLembrar` — a assinatura da casa fora do app), a segunda em texto discreto, sem glifo, no fim da mesma linha. Linha de ações, não pilha de linhas iguais; hierarquia por forma, não por ordem. Quando a linha não cabe (acessibilidade), `ViewThatFits` fica com a cápsula — sem `if` de tamanho de tipo escrito à mão. Antes e depois: `f5-antes-vazio-claro.png` e `f5-depois-vazio-claro.png`.
+
+**O que esta ADR NÃO prova.** O modo escuro do widget não existe: `Tema.fundo` é uma cor de papel única e `Tema.swift` é da volta L2 — as capturas escuras mostram parede e dock escuros com o cartão em papel, que é o desenho vigente, não um defeito desta volta. A **Ilha mínima** não foi produzida: ela só aparece quando duas atividades disputam a Ilha, e neste simulador não há um segundo app com Live Activity (o Relógio não está instalado); o código desenha em `minimal` exatamente a mesma view de `compactLeading`, que está fotografada. **StandBy não renderiza no simulador** — trancado e girado, o aparelho segue na tela bloqueada comum, como a F4 já registrara.
+
+Suíte 893 testes em 145 suítes, verde; build dos dois alvos sem aviso.
+
+## ADR 2026-09-08h — A latência lê-se em dois degraus, e a lista de meses para de crescer (volta L2)
+
+**A distância.** A volta L1 foi mesclada em main por ordem do dono com o G4
+REPROVADO (`ferramentas/orca/g4-l1-design.md`: Design 8, Simplicidade 7). O juiz
+confirmou o conceito — paleta silenciosa, nenhum placar, quatro estados no mesmo
+cinza, nada tocável — e fechou com quatro correções pequenas, nenhuma delas
+mexendo no modelo, em teste, ou no que a seção mede. Esta volta faz as quatro.
+
+**1. Teto de doze meses, com o horizonte dito.** A lista de registros já tinha
+corte por estado; a de meses era `ForEach(lista)` sem corte nenhum. Com três
+meses semeados não se via; no aparelho de quem escreve há dois anos são 24
+linhas, e era justamente o pedaço de onde a barra saiu na L1-C. Agora
+`lista.suffix(12)`, e a copy diz o horizonte ("nos 12 últimos"), senão o corte
+mentiria por omissão. Medido: com vinte meses semeados o cartão passa de
+6.148 pt para 5.340 pt em AX5 (−13%).
+
+**2. `Tema.miudo` sai de dentro do app.** O degrau de 12 pt está documentado em
+`Tema.swift:75` como reservado a FORA do app (ADR 05u — a faixa compacta da Ilha
+e o rodapé do widget não têm 15 pt), e a L1 foi o primeiro uso dele dentro do
+app em todo o produto — logo na linha que carrega a medida. A varredura
+`grep -rn "Tema.miudo" Traco` agora não devolve nada: o token voltou a existir
+só para `TracoWidget`.
+
+**3. Dois degraus, sempre no mesmo sentido.** O par da L1 era 12 pt/`tintaFraca`
+em cima e 13 pt/`tintaSuave` embaixo: a linha da MEDIDA era ao mesmo tempo a
+menor e a mais clara, e o registro lia-se como uma massa só em tamanho padrão.
+A regra do cartão passa a ser uma só: **linha que carrega medida é
+`Tema.meta` + `tintaSuave`; prosa de apoio é `.footnote` + `tintaFraca`**. Vale
+para o registro, para a linha do mês e para a segunda linha do resumo; a
+manchete continua `Tema.chrome` + `tinta` e o rótulo continua `Tema.label`.
+Nenhuma cor nova, nenhum token novo, e os quatro estados seguem no mesmo cinza.
+
+**4. A frase-resumo em duas linhas.** Cinco fatos colados por "·" faziam o olho
+parar no que destoa — no MODO B, o "18 em aberto" — e não na duração que a seção
+existe para mostrar. A medida vira manchete sozinha; a composição (sem data · em
+aberto · abandonadas) desce uma linha e fica mais quieta. **Nenhum número sai**,
+e a copy da série não nasce de novo na view: são duas leituras da MESMA
+`Latencia.emPalavras`, uma com só os descobertos e outra com só o resto. O
+identificador `latencia-resumo` fica no grupo, então os fluxos que o usam de
+âncora continuam achando a seção mesmo quando um dos dois lados está vazio.
+
+**5. `quantas == 1` não tem "tempo do meio".** Um mês com uma descoberta só
+imprimia "agosto de 2026 · 5 dias · 1 descoberta" sob a legenda "o tempo do meio
+entre as descobertas". Agora diz "agosto de 2026 · 1 descoberta · levou 5 dias":
+mesmo número, sem estatística falsa.
+
+**6. Copy encurtada (declarado, não pedido pelo juiz).** O parágrafo de abertura
+perdeu 12 das 49 palavras e a legenda dos meses 10 das 16, sem perder nenhuma
+das três promessas que o juiz creditou ("nada a preencher aqui", "hipótese sem
+resposta é informação", "abandonar é resultado") nem a proveniência (hipóteses do
+Trabalho, decisões com data de conferir). É o que paga parte da altura que o
+degrau maior custa.
+
+**O que a decisão custa, medido e não escondido.** Pôr a medida num degrau
+legível engorda o cartão onde a série é curta: em AX5, com o estado semeado de
+três meses, o cartão vai de 5.200 pt para 5.541 pt (+6,6%); no MODO B, de
+5.758 pt para 6.115 pt (+6,2%). São +345 pt só da linha da medida em nove
+registros. Onde a série é de verdade — vinte meses — o teto inverte o sinal:
+6.148 pt → 5.340 pt (−13%). A troca é essa, e é deliberada: a linha que carrega
+o número deixa de ser o menor texto do produto, e o pedaço que crescia sem fim
+para de crescer.
+
+**O que esta volta NÃO faz.** Não muda o modelo, `Decisao`, `abandonado`, nem o
+que a seção mede; não extrai os nove cartões inline do `PerfilView` (dívida do
+RUMO); não devolve a barra; não cria alvo, cor de juízo, meta, sequência ou
+ordem que pareça ranking. Movimento: nenhum — a seção segue sendo superfície de
+leitura, e a ausência é deliberada (o juiz já a aceitou no G4 da L1).
+
+**Prova.** Suíte integral 887 testes em 143 suítes, verde no iPhone 17 Pro
+`C2416CBC` em 08/09/2026; build sem aviso. Altura medida pela árvore de
+acessibilidade (`orca emulator ax`), que devolve o frame de todo elemento dentro
+e fora da tela — do rótulo "LATÊNCIA DA DESCOBERTA" ao rótulo "MÉTODOS" —, com o
+número conferido de forma independente por varredura de capturas com OCR
+(5.198 pt contra 5.200 pt no mesmo estado). Capturas antes/depois em
+`ferramentas/orca/l2-*.png`; relatório em `ferramentas/orca/l2-latencia-g4.md`.
+
+**Volta L2-B (a correção do G3, 08/09/2026).** Três coisas. (1) Esta ADR nasceu
+com a letra `08b`, que é de `main`; a letra reservada à volta é `08h`, e SPEC e
+EVOLUCAO passam a usá-la. (2) As capturas "depois" da primeira passada tinham a
+copy de um binário intermediário ("Sai do que já está escrito…", "nos últimos 12
+meses com descobertas.") — as três medidas de altura eram do binário certo (a
+árvore de AX conferiu: 5.541, 6.115), mas a foto não era. Todas as capturas
+`l2-depois-*.png`, as árvores `l2-ax-*-ax5.json` e as medidas foram refeitas
+com o binário deste commit, nos quatro estados (A, B, vazio, vinte meses),
+inclusive o vazio DEPOIS que faltava: 241 pt em `large`, 1.485 pt em AX5.
+O estado de vinte meses foi semeado de novo com script próprio (duas
+descobertas por mês, jan/2025→ago/2026) e por isso o número mudou: 4.992 pt em
+AX5, não 5.340 — é outra semente, não outra altura; o teto de doze e a copy do
+horizonte estão na captura. (3) O G3 pediu que os +341 pt da série curta em AX5
+caíssem por "uma apresentação de fato compacta dos detalhes dos registros". Foi
+tentado, medido e RECUSADO, e a razão está na tabela: a única apresentação mais
+compacta que não esconde texto nem devolve `Tema.miudo` é o registro num fluxo
+só — a medida abre a linha em `Tema.meta`/`tintaSuave` e a hipótese segue em
+`.footnote`/`tintaFraca` na mesma linha. Ela recupera 180 pt dos 341 em AX5
+(5.541→5.361, −3,2%) e 36 pt em `large` (886→850), porque em AX5 quase todo
+registro já embrulha em quatro a seis linhas e a hipótese começa numa linha nova
+de qualquer jeito (`l2-alternativa-inline-ax5-registros.png`); e em `large` ela
+troca a linha "título · legenda" — a medida sozinha, a hipótese embaixo — por
+uma linha de dois corpos que quebra no meio da hipótese
+(`l2-alternativa-inline-large-fim.png`). Onde a altura mora em AX5, pela árvore:
+o parágrafo de abertura tem 833 pt, os nove registros 3.000 pt em linhas
+embrulhadas, e nenhum arranjo dos detalhes muda a conta sem cortar palavras.
+Decisão: o registro fica em duas linhas; o custo de +341 pt em AX5 na série
+curta é o preço de a medida ser legível, e fica declarado, não escondido. A
+nota de Simplicidade que isso vale é do revisor.
+
+**Achado que fica aberto (não é desta volta).** Em AX5, a camada do arquivo do
+Perfil transborda na horizontal em algumas sessões — o cartão e a barra de abas
+saem cortados dos dois lados. Reproduz igual no build de HEAD, sem esta mudança
+(`l2-achado-ax5-transbordo-head.png`), e o app Ajustes no mesmo aparelho e no
+mesmo tamanho de letra não transborda. É acessibilidade real e é do `Camadas` /
+`RaizView`, não do cartão: fica para a volta do Perfil.
+
+## ADR 2026-09-08i — O corte honesto: o publicador limita a projeção, a face limita a apresentação (volta F4-H)
+
+**A distância.** A 08g prometeu "a frase do autor inteira, sempre" e comprou a promessa com encolhimento até 35%. O G4 da F4-F mediu o preço em dois fatos: com 103 caracteres em AX5 a frase saía no mesmo corpo de ~11 pt de quem não ligou acessibilidade, enquanto tudo à volta crescia 1,4× — o encolhimento comia o aumento que a pessoa pediu; e com a primeira linha de uma nota real (247 caracteres; `VozDoAutor.titulo` não tem teto) o pequeno desenhava onze linhas a ~7 pt no normal e **voltava a terminar em reticências** em AX5. O "pior caso real" de 43 caracteres da 08g não era o que o app publica. Segunda recusa da volta; o conselho (`ferramentas/orca/consulta-f4f-corte-honesto.md`) foi ouvido e esta é a decisão.
+
+**A regra, que vale para TODA face:** *reticência é honestidade quando indica continuação realmente omitida por um limite público declarado ou pelo espaço restante depois de retirar o dispensável, preservando leitura no tamanho escolhido e acesso ao original; é falha quando encobre corte evitável, texto ilegível ou uma promessa de integralidade.* A promessa da 08g muda de "inteira, sempre" para **"trecho fiel e legível, com omissão reconhecível"** — e isso não absolve a regressão original: cortar 43 caracteres com metade do cartão vazia continua sendo corte evitável.
+
+**As decisões.**
+
+1. **O teto do que se publica é do PUBLICADOR, e mora na projeção.** `Superficie.Destaque.teto` (140 grafemas, marcador incluído) é aplicado em `DestaqueDoDia.projecao`, uma vez, antes da distribuição — porque `publicar` (o `superficie.json` do widget e da tela bloqueada) e `reconciliar` (o `ContentState` da Live Activity) leem a MESMA projeção. Limitar só a escrita do arquivo deixaria a Ilha com outro contrato; achado do conselho. O estado (`chaveLinha`) guarda o texto do autor inteiro; só a projeção corta. Nenhum número garante que o texto caiba — a face ainda corta o que sobrar; o teto reduz o que viaja e declara a omissão.
+2. **A projeção distingue três estados** (`Destaque.inteira: Bool?` → `integridade`): trecho integral, trecho abreviado, integralidade desconhecida (instantâneo anterior a esta conta decodifica `nil`, e a face não afirma nada). A pontuação literal do autor não é metadado: uma frase que já termina em "…" dentro do teto é inteira.
+3. **O teto é em grafemas** (`Character`), prefere fronteira de palavra dentro do orçamento e corta por grafema quando a palavra não cabe — sempre sinalizado. "Primeira frase" não é limite; contagem de palavras também não. Testado com bandeiras (um grafema, dois escalares), palavra de 300 letras e reticência do autor.
+4. **O piso é o corpo do papel, não uma fração.** A frase mantém `Tema.chrome` (casa) e `Tema.meta` (bloqueada) na categoria corrente e reduz a QUANTIDADE de texto: `FraseDoAutor` prova `n` linhas, `n − 1`… até uma (`ViewThatFits`) no corpo cheio, sem `minimumScaleFactor`, e o que não coube termina em "…" — o corte da face, somado ao do publicador, que já vem na linha. `Encolhe.frase` (0,35) deixa de existir; `Encolhe.rotulo` (0,6) continua sendo só de rótulo. Custo declarado: em AX5 o pequeno mostra menos palavras e, com a coluna de 90 pt ao lado do círculo, o SwiftUI pode partir uma palavra em sílaba (`pen-/sando…`) — quebra tipográfica, não corte; o corte é o "…".
+5. **A ordem de sacrifício, declarada como dado com suíte** (`Sacrificio.candidatos`): acima da disputa ficam legibilidade, o rodapé "Desatualizado.", a identificação do objeto, o entendimento do toque, o alvo e a recuperação. Depois cede o rótulo de caminho "Nova nota" do pequeno — que é desenho, não alvo (o G4 provou) — e só então a quantidade de frase. Para cada `n`, o candidato com rótulo vem antes do sem: o rótulo só entra quando não custa uma linha. No vazio "Nova nota" é a oferta principal e não cede (`Oferta`/`QuadroVazio`, intocados). O médio sem agenda deixa de ter teto de duas linhas (`LinhasDoDestaque.noMedio(comAgenda:)`): com o rodapé ele deixava três linhas de cartão vazias entre a frase cortada e o rodapé — corte evitável.
+6. **A promessa de continuação passou a ser verdadeira.** O pequeno com Destaque abria "Nova nota" (G4). Agora o `widgetURL` dele é `traco://nota/<id>` — a rota de entidade da 05u (`Destino.nota`), que a tela já revalida por selo e acesso; o que esta ADR acrescenta é só a grafia da URL. O rótulo decorativo diz "Abrir a nota". Nota apagada ou selada cai no recado existente ("Essa nota não está disponível."), nunca numa página em branco.
+7. **VoiceOver distingue trecho de integral** (`Destaque.emVoz`, também na Live Activity): um trecho é anunciado como "Trecho: … Continua no Traço."; a projeção inteira, como está; a desconhecida não afirma nada.
+
+**As duas dívidas menores do G4.** "Recordar" saiu da casa na F4-F sem ser dito: a terceira oferta dos dois quadros nunca era desenhada e o comentário do pequeno afirmava o contrário — saiu do código e fica dito aqui: continua no app, na Siri e em `traco://recordar`. A cápsula "a mesma da tela bloqueada" não era a mesma (16/9 contra 18/38): agora as duas vestem `CapsulaViva` (18 pt de lado, 38 de altura mínima; 14/32 na Ilha); a tinta é de quem veste, por contraste (`Tema.ambar` sobre o material, `Tema.ambarTinta` sobre o papel).
+
+**Emenda da F4-I (08/09, depois do re-G4) — as duas coisas de Componentes que o juiz nomeou.**
+
+*As duas gramáticas do marcador: são duas, e ficam duas.* O publicador corta em fronteira de palavra (`trecho`: o último espaço que ainda guarde metade do orçamento; senão, por grafema) porque corta ANTES de qualquer layout, uma vez, para três destinos de larguras diferentes — não há linha a respeitar, só um orçamento de grafemas, e sem linha a palavra inteira é a única fronteira honesta que existe. A face corta onde o SwiftUI cortar (`para man…`, `promes…`) porque ela conhece a linha real, no corpo real, na largura real: o `lineLimit(n)` termina a n-ésima linha no último grafema que cabe e põe o marcador ali. Unificar exigiria medir o texto por fora do layout para achar a última palavra inteira da n-ésima linha e devolver ao SwiftUI um texto já cortado — reproduzir o motor de texto na face e errar onde ele acerta (hífen, `allowsTightening`, categoria de tamanho). Não se unifica. O que as duas têm em comum é o que a regra pede: o "…" é sempre o último grafema do que se vê, a omissão é reconhecível, e o omitido está a um toque (ponto 6). O que muda é só ONDE a frase para: numa palavra inteira quando quem corta não vê a linha, numa fração de palavra quando quem corta vê. A regra do corte honesto não pede fronteira de palavra; pede omissão reconhecível.
+
+*O critério medível de "corte evitável".* "Dispensável" é classificação por face; a lista do que está acima da disputa (ponto 5) vale para o Destaque, e para a PRÓXIMA face "evitável" precisa de medida ou vira opinião. Fica esta, com as palavras do juiz do re-G4: **corte é evitável quando cabe uma linha inteira do corpo do papel no espaço livre ao lado do marcador.** Com ela o critério é teste de captura — mede-se o espaço livre abaixo da última linha e compara-se com o passo de linha do corpo — e não um adjetivo. A suíte não renderiza layout; o que ela garante é a premissa que faz o `ViewThatFits` cumprir o critério: os candidatos de `Sacrificio` descem de um em um, sem lacuna, e o primeiro que cabe é o maior que cabe — se n + 1 não coube, sobra menos de uma linha (`SacrificioTests.semLacunaEntreCandidatos`). O resto de ~26 pt do pequeno velho (re-G4, 2.2) é o exemplo: menos de um passo de 27 pt, não evitável.
+
+*Previews por estado.* `FraseDoAutor` e `CapsulaViva` ganham preview por estado (inteira, trecho e desconhecida; a face cortando em corpo cheio; com "Desatualizado."; AX5; tela bloqueada; casa e Ilha), e o trecho do preview sai do mesmo `trecho()` do publicador. Ficam no arquivo do widget, não em `Traco/Componentes`: o alvo `TracoWidget` compila só `TracoWidget/`, `Tema.swift` e `Intents/Compartilhado` (ADR 05u), e nada no app usa as duas — mudá-las de pasta as poria a compilar no app para ninguém e abriria à extensão uma pasta que é do app. A casa de um componente é onde ele é usado.
+
+**O que esta ADR NÃO prova.** StandBy e Ilha mínima seguem limites do instrumento (08g). O toque no widget que abre a nota foi provado na rota e no aparelho com uma nota real; o alvo do círculo do feito no pequeno continua dividido com o `widgetURL`, como antes. Modo escuro do widget continua sendo o papel único de `Tema.fundo` (volta L2).
+
+## ADR 2026-09-08j — A causa do ajuste é dado, não inferência (volta V17)
+
+O laço que faltava ao artefato era de **observação e versão**, não de
+renderização: o Trabalho já tinha versão com origem (05i, 05s), tentativa do
+autor como evidência separada (05r), ida e volta pelo arquivo com conflito e
+retry (05l, 06a) e preparação que lê tentativas anteriores (08a). O que não
+existia era a **causa do ajuste como dado vinculante**: `pedidoDe` a inferia por
+base e intenção, e inferência não pode ser a autoridade que explica ao autor por
+que o exercício dele mudou.
+
+**Dono único: o Trabalho.** O exercício continua sendo
+`DocumentoTrabalho.Artefato.pratica` e a versão seguinte nasce pela rota que já
+existe — `OficinaTrabalho.gerar` → `MotorTrabalho.produzir` →
+`DocumentoTrabalho.receber`. Nenhuma versão, corpus ou índice paralelo; nenhuma
+tela nova; a representação segue na seção Praticar da folha do Trabalho.
+
+**Contrato mínimo.** `Pedido.ajuste?` guarda gatilho **fechado**
+(`pedidoDoAutor` ou `necessidadePercebida`), motivo escrito pelo app e
+referência à evidência — mais a conferência e os critérios quando foram eles que
+o sustentaram. `Artefato.pedidoID?` liga a versão à causa. `validarAjuste`
+recusa vínculo quebrado, `necessidadePercebida` sem tentativa E sem leitura,
+motivo vazio e critério que não pertence ao exercício daquela tentativa.
+Ausência nos registros antigos significa **vínculo não registrado**: `ajuste(de:)`
+devolve `nil` e ninguém reconstrói causalidade histórica. A inferência antiga
+sobrevive só dentro de `pedidoDe`, e só para achar a rota de conferência da 05q.
+
+**Nenhum estado de exercício persistido.** Produzido vem da versão guardada;
+tentativa registrada vem da evidência do autor; desempenho demonstrado continua
+exigindo leitura sustentada com avaliador visível. Sem `aprendido`, sem
+pontuação global, sem contador de domínio, sem promoção automática de hipótese.
+Reescrever o exercício não é dizer que a pessoa aprendeu, e a seção que anuncia
+a mudança escreve isso na tela.
+
+**A causa não cabe no trecho descartável.** Num ajuste, a tentativa que o
+sustenta, a leitura atribuída dela, os critérios vigentes e as restrições ainda
+aplicáveis sobem para a cabeça do contexto, fora do bloco que o orçamento corta.
+Não cabendo na janela do provedor, o pedido fica `ajusteIndisponivel` e a folha
+diz isso — nunca sai um pedaço da evidência que explica a mudança.
+
+**A fronteira da IA está no tipo.** A saída da adaptação aceita a preparação e
+`mudanca` — o que mudou — e nada mais: `additionalProperties: false`, chave a
+mais derruba a resposta inteira, e não existe campo de resposta nem comando que
+toque em `Evidencia`. `guardarTentativa` continua operação do autor e o campo de
+tentativa da versão nova nasce vazio. `mudanca` passa pelo mesmo teto e pela
+mesma prova de vazamento dos critérios. **Limite reconhecido:** validação
+estrutural impede escrita na evidência, mas **não prova ausência de solução
+disfarçada no enunciado** — isso é leitura semântica, como a 05r já admite.
+
+**O ato visível é "Conferir e adaptar o exercício"**, novo e explícito, porque
+"Conferir minha tentativa" já promete uma operação e uma chamada por toque
+(05r). Ele lê a tentativa, guarda a leitura **antes** de pedir a versão (05s), e
+só reescreve quando a leitura sustenta: conferência indisponível ou sem
+divergência não gera versão e a folha diz por quê. A mesma leitura não gera duas
+versões; reabrir o documento não dispara nada; não há laço em segundo plano.
+
+**O anúncio é UMA seção no próprio documento**, escrita pelo app: a descrição da
+mudança é do modelo, a origem, o motivo e os vínculos são do código — o modelo
+não inventa ID nem decide qual pedido o produziu. Não repete o histórico e não
+declara aprendizagem.
+
+**A correção do dono sobre a leitura.** `ConferenciaTentativa.contestadaEm` e
+`motivoDaContestacao`, pela ação "Não foi isso que eu errei". A leitura **fica**
+no registro, com todos os seus resultados, e sai do `contextoDeRetorno` e do
+núcleo do ajuste: a interpretação que o autor contestou não orienta mais os
+ajustes seguintes.
+
+**Defeito de superfície achado na tela viva e corrigido nesta volta:** a lista de
+tentativas é filtrada pela versão vigente, então a tentativa que causou a versão
+sumia da folha no instante em que passava a importar, levando junto a leitura e a
+rota de contestá-la. A seção "A tentativa que gerou esta versão" a devolve, em
+leitura, com o feedback e a contestação.
+
+**Limite de instrumento, declarado.** O simulador de teste não tem conta Grok — o
+aparelho que tem é de outra volta e não podia ser tocado. Os dois atos gatilhados
+pela conta foram fotografados com `-ensaio-oferta-da-pratica`, um argumento de
+lançamento **só em Debug** que abre a OFERTA e nada mais: não fabrica token, não
+chama rede, e o que a tela mostra depois do toque continua sendo a
+indisponibilidade real. É o mesmo instrumento que a 06c criou para o ditado. A
+jornada foi observada num documento plantado no aparelho, não gerado pelo
+provedor: esta ADR descreve o contrato e a superfície, e **não** certifica a
+qualidade semântica do exercício adaptado, que continua sendo prova da frente Q.
+
+## ADR 2026-09-08k — A garantia sai da tela e vira invariante do documento (volta V17-B)
+
+A revisão independente da V17 passou nos sete pontos do contrato e **reprovou por
+dois P1 com a mesma doença**: a garantia existia **na tela** e não no agregado. A
+lição do dia é essa: **a lei tem de morar onde ninguém pode contorná-la** — outra
+rota, uma importação ou uma regressão de chamador passam por cima de um `guard`
+de View.
+
+**A unicidade e a semântica da leitura passam a ser do documento.**
+`OficinaTrabalho.conferirEAdaptar` impedia a repetição; `validarAjuste` só conferia
+que o `conferenciaID` existia. Agora, no agregado: `necessidadePercebida` exige
+critério apontado; a leitura citada tem de estar **concluída** e cada critério
+citado tem de ser **divergência nela** — critério que a leitura deu por atendido
+não sustenta reescrita; e o mesmo `conferenciaID` **não aparece em dois**
+`Pedido.ajuste`, de modo que a N+2 da mesma leitura é recusada em `iniciarPedido`
+e um documento que a trouxesse é recusado em `validar()`.
+
+**A leitura contestada é checada no nascimento do pedido, não em `validar`.** Uma
+contestação vem DEPOIS da versão que ela explica; recusar o documento inteiro por
+isso apagaria a história. `iniciarPedido` recusa o ajuste novo apoiado numa
+leitura contestada; a versão que já nasceu dela continua guardada e explicada.
+
+**A troca de documento durante a edição.** Enquanto a IA prepara ou adapta, a
+folha **não deixa entrar em edição** — tocar leva ao progresso em curso, como toda
+ação que compete com ele (e `adaptando` entra nessa conta: entre a leitura e a
+versão seguinte não existe `pedidoAtivo`, e era por essa fresta que a edição
+começava). E porque guarda de tela não é invariante, `guardarVersaoHumana` passa a
+aceitar a **base** que estava na tela e a recusar guardar por cima de outra: um
+texto escrito sobre a versão N não é guardado como resposta à N+1. `nil` = base
+não declarada (importação e registro antigo), e ninguém reconstrói o que a pessoa
+estava lendo.
+
+**A causa do pedido escrito pelo autor.** "Adaptar o próximo exercício" era o
+único chamador de UI que criava `Pedido.ajuste(gatilho: .pedidoDoAutor)` — cortar
+a cápsula sem mais apagaria a via do pedido explícito. Então, na ordem: primeiro
+**o que o autor escreve no campo vira a causa registrada** (`pedidoDoAutor`, com o
+texto dele como motivo, dentro da prática e com exercício vigente — preparar não é
+ajustar), e só então a cápsula enlatada saiu. A seção Praticar volta de quatro
+para três cápsulas e o anúncio da versão diz "A pedido seu." seguido do que ele
+escreveu. **Nenhuma evidência é apontada**: ele escreveu um pedido, não disse a
+qual tentativa responde, e deduzir isso seria inventar causalidade.
+
+**Limite de instrumento, declarado.** O bloqueio da entrada em edição **não se
+fotografa** neste aparelho: sem conta Grok, `adaptando` dura milissegundos e um
+pedido ativo é interrompido na abertura do documento. Ele está provado por teste
+(`editarDuranteAAdaptacaoNaoTrocaODocumentoDebaixoDaPessoa`) e por código, não por
+captura. A lacuna da jornada com provedor real continua exatamente como a 08j a
+declarou — é prova da frente Q.

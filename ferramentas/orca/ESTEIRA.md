@@ -35,7 +35,44 @@ Consequência, e é dura: **com mais de um simulador ligado na máquina, nenhuma
 
 A mesma máquina, com seis ou sete simuladores, derruba simulador sozinha por pressão de memória — o iPhone 17 do dono caiu assim, sem ninguém o tocar. Ligue só o seu, desligue ao terminar.
 
+**`booted` é ambíguo e outra sessão instala por cima de você** (achado de 08/09, 11h04, com prova). O worker da F4-F viu o contêiner do app trocar de bundle sozinho no simulador dele (`17814799` → `A6548AD8`) e o dylib instalado voltar a ser o código de `main` — sem que ele instalasse nada. Perdeu ~25 min perseguindo um "cache do `chronod`" que não existia: a casa mostrava o código velho porque **outra sessão reinstalou por cima**, usando `booted` com vários simuladores ligados.
+
+Lei: **nunca `booted` e nunca `-destination generic` para instalar**. Sempre `xcodebuild -destination id=<UDID>` e `xcrun simctl install <UDID>`; captura sempre `xcrun simctl io <UDID> screenshot`. E a defesa que o próprio worker inventou, que vale para todos: **quando a tela mostrar comportamento antigo que você jura ter consertado, confira os símbolos do dylib instalado (`nm` no binário do contêiner) antes de caçar cache** — pode ser outra sessão em cima do seu aparelho, não um bug seu. Simulador que outra sessão declarou como dela é dela: leia o que as sessões vizinhas escreveram antes de escolher o seu.
+
+**Ninguém toca no mouse do dono (lei de 08/09, ordem do dono).** Nenhum worker controla o mouse ou o teclado do Mac — nem `cliclick`, nem computer-use, nem `AXRaise`, nem AppleScript de clique. O dono trabalha na mesma máquina e em 08/09 viu vários agentes disputando o cursor ao mesmo tempo; além disso o clique por coordenada cai na janela do simulador vizinho. O instrumento é o controle de simulador do Orca, que toca o aparelho pelo UDID sem passar pelo cursor: `orca emulator attach <UDID> --json` uma vez; `orca emulator ax --device <UDID> --json` para achar o elemento (frames normalizados 0..1, origem no canto superior esquerdo; tocar no centro, x+w/2 e y+h/2); `orca emulator tap <x> <y> --device <UDID> --json`; `orca emulator type "texto" --device <UDID>` (só ASCII); `orca emulator button home --device <UDID>`; `orca emulator kill --device <UDID>` ao terminar. Evidência continua sendo `xcrun simctl io <UDID> screenshot`. Quem muda orientação, tamanho de letra ou aparência do simulador restaura ao fim da passada e confere por captura. Esta lei vai no spec de todo worker.
+
+**O helper do `orca emulator` é UM SÓ na máquina** (três achados independentes em 08/09, e é o limite do instrumento novo). O revisor da P1 viu o `ax` perder a árvore de acessibilidade **assim que o Traço abre** (`ERR_CONNECTION_REFUSED` / `ERR_EMPTY_RESPONSE`), recuperando-a na tela inicial e perdendo-a de novo ao abrir o app. A volta L2 perdeu duas capturas porque o helper é global. E o revisor da L2, **depois de anexar explicitamente o seu UDID, viu o helper voltar a apontar para o aparelho de OUTRA volta** e as chamadas seguintes perderem o aparelho — o que o impediu de repetir uma medição de geometria de forma independente.
+
+O juiz do G4 da F4-F acrescentou o quarto dado, e é o mais claro: **`orca emulator attach` é por worktree**, e cada reatamento dele pode ter tirado o aparelho do revisor que trabalhava em paralelo.
+
+**E o pior deles, achado pelo juiz do G4 da V12 em 08/09:** `tap --device` **recusa** quando o helper está noutro aparelho, mas **`ax --device` lê a árvore do VIZINHO sem avisar**. Quer dizer: uma medida de geometria feita pela árvore de acessibilidade pode ser do aparelho errado e **parecer certa**. Regra: toda medida pela árvore de AX é conferida contra uma captura `simctl io` do mesmo UDID no mesmo instante (texto e estado batendo), ou não vale; duas medidas independentes que concordam valem mais que uma sozinha.
+
+Consequências, enquanto o instrumento for assim: **toda sessão de `orca emulator` passa por `ferramentas/orca/com-trava.sh`**, como build e teste, porque o helper é recurso único da máquina; quem for medir geometria ou dirigir tela **declara no relato que segurou a trava**; e medição que o revisor não conseguiu repetir por causa do helper é **limite de instrumento, não confirmação** — não se vende como segunda prova. Prova de tela continua sendo `xcrun simctl io <UDID> screenshot`, que não depende do helper.
+
+**Com quatro simuladores ligados, `xcodebuild test` pendura** em `test runner hung before establishing connection` (achado da F4-I, duas vezes seguidas em 08/09). **A clonagem do teste paralelo é o que pendura:** `-parallel-testing-enabled NO` resolve de primeira. Use-o sempre que houver mais de dois simuladores de pé.
+
 **A galeria de widgets trava.** A folha "Adicionar Widget" para de paginar e depois trava de vez — três sessões seguidas de revisão da F4 esbarraram nisso, e já custou replantio de widget em três revisões. Some com o Simulator reiniciado, às vezes. Quando travar: é instrumento, não desconta nota, e a saída é usar as capturas de quem conseguiu plantar, conferindo o conteúdo e o relógio delas. A Live Activity do Destaque também engole o toque no botão "Editar" da galeria.
+
+## Medir a rota certa — lei de 08/09, achada pela volta Q
+
+**Hash de fixture e JSONL completo NÃO impedem medir a rota errada.** Na volta Q, três dos seis casos de `responderNasNotas` exercitaram `Sabia.responderNasNotas(pergunta:contexto:)`, que **não tem nenhum chamador de produção**: existe só para a sonda, e embrulha a string de contexto numa fonte sintética com o título literal "Contexto fornecido". A atribuição genérica que ia ser registrada como **defeito do provedor** era um título **fabricado pelo próprio app** — o modelo citou corretamente a única fonte que recebeu.
+
+Lei, para toda volta que medir comportamento de IA ou de qualquer motor: **antes de dar nota, leia os chamadores e diga, operação por operação, com arquivo e linha, qual rota a produção usa e se o caso mediu ESSA rota.** Rota exercitada só pela medição é armadilha, não conveniência: apague-a ou exija o caminho real. Medição feita por rota fantasma é **inválida por defeito do instrumento** — registre assim, com essas palavras, mesmo quando a conclusão anterior era favorável a nós. E medição inválida **não vira boa por ser antiga**: as bases anteriores que usaram a rota morta ficam marcadas como tal, sem reescrever prova alheia.
+
+Isto é irmão do achado da V12-D (o quadro longo era o `fotografar()` do próprio teste) e do `ax --device` que lê o vizinho: **em três medições do mesmo dia, o instrumento foi o réu.**
+
+## Verde que não visitou o lugar do defeito — o padrão de 08/09
+
+**Quatro vezes num dia** um instrumento nosso provou menos do que parecia, e sempre pelo mesmo mecanismo: **passou verde sem visitar o lugar onde o defeito mora.**
+
+1. **V12-D:** o quadro longo na rolagem não era do app — era o `fotografar()` do próprio teste (`drawHierarchy` + PNG de 1,3 MB, 127–162 ms na main thread).
+2. **`ax --device`:** lê a árvore do aparelho VIZINHO sem avisar, então a medida de geometria pode ser do aparelho errado e parecer certa.
+3. **Volta Q:** três casos mediram uma sobrecarga **sem chamador de produção**, que fabricava o título "Contexto fornecido" — a "atribuição genérica do provedor" era um título do próprio app.
+4. **V12-E:** o teste que devia provar que o fantasma acabou **aceitava o estado sem cartão e passava verde** — não percorria "Abrir os campos", que é onde o fantasma vivia.
+
+Regra, para todo portão novo: **o teste declara o estado que exige como PRÉ-CONDIÇÃO QUE FALHA**, nunca como estado aceitável — se o cenário não foi montado, ele fica vermelho dizendo isso. E **todo portão nasce com a prova do vermelho**: plante a violação, mostre a falha, remova. Verde sozinho não é portão; é confiança falsa, que é pior que nenhuma.
+
+**Dois becos de plantio de estado, achados pela V12-F em 08/09**, que fazem um teste passar verde sem o estado que ele exige: **`'1'` e `'YES'` chegam como String ao domínio de argumentos**, e o `object(forKey:) as? Bool` os ignora — plante `<true/>`/`<false/>` de verdade e confira lendo o valor de dentro do app; e **`xcodebuild test-without-building` troca o contêiner**, então plantar por plist antes dele não chega ao app que roda.
 
 ## Scorecard
 

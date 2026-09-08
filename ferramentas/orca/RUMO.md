@@ -8,13 +8,17 @@ Três voltas abertas ao mesmo tempo, cada uma no próprio worktree filho nascido
 
 | volta | dívida que fecha | área | simulador | estado |
 |---|---|---|---|---|
-| P1 | item 7 (o portão que impede `withAnimation` fora de `Tema`) + item 5 (A-6, quatro linhas de documento) + item 6 (M3, a `aplicabilidade` do exameDaNoite) | TracoTests, Metodos.json, Analise (sem Grok/AvaliacaoIA), SPEC | teste 4 `A1DF082C` | EM EDIÇÃO |
-| F4-F | item 2 (F4: o Destaque longo cortado pelo rodapé, o quadro de ofertas, tela bloqueada/StandBy/Ilha sem captura, o médio de uma linha) | TracoWidget, App/Intents | teste 3 `34CC3F94` | EM EDIÇÃO |
-| L2 | item 4 (L1: o G4 reprovado — Design 8, Simplicidade 7: teto de 12 meses, `Tema.miudo` dentro do app, frase-resumo em duas linhas, `quantas == 1`; falta escuro, B×AX5 e VoiceOver) | Traco/Perfil, Tema.swift | iPhone 17 Pro `C2416CBC` | EM EDIÇÃO |
+| P1 | item 7 (o portão que impede `withAnimation` fora de `Tema`) + item 5 (A-6) + item 6 (M3) | TracoTests, Metodos.json, Analise, SPEC | teste 4 → 17e | **MESCLADA** em `29cc2ce` (ADR 08e; G3 corrigir antes → correção → re-G3 APROVADO por outro fornecedor; dívida real de curva literal = ZERO; 894 testes na árvore mesclada) |
+| F4-F | item 2 (F4: o Destaque cortado, o quadro de ofertas, as superfícies sem captura, o médio de uma linha) | TracoWidget, App/Intents | Air → teste 4 | **MESCLADA** em `494c0c6` (ADRs 08g e 08i; sete passadas, duas recusas, uma consulta obrigatória; a causa era o `lineLimit`, não o `minimumScaleFactor`; 910 testes) |
+| L2 | item 4 (L1: o G4 reprovado) | Traco/Perfil, Tema.swift | iPhone 17 Pro | **MESCLADA** em `9a711eb` (ADR 08h; G3 corrigir antes → prova refeita no binário → G4 PASSA com Design 9 e Simplicidade 8 declarada teto honesto) |
+
+**Dívidas que a rodada de 08/09 destapou, e viram volta própria:**
+- **Um arquivo de teste viveu em `main` sem nunca rodar.** `TracoTests/ContinuidadeTrabalhoTests.swift` existia e estava fora do alvo de teste; nada acusou, e só apareceu porque o `xcodegen` da P1 o ligou de carona. Falta um portão que exija que todo `TracoTests/*.swift` esteja no alvo. Ciclo: melhorar (barateia toda volta seguinte, como o portão do movimento). Evidência: o teste falha quando alguém acrescenta um arquivo de teste fora do alvo.
+- **A ficha de método tem três defeitos de copy que só a foto mostra** (achado do revisor da P1, `ferramentas/orca/revisao-p1-provas/`): a `aplicabilidade` do exameDaNoite mostra `(ADR 2026-09-06h)` ao autor, mistura "o autor" com "você" na mesma frase e usa aspas retas. A P1-B corrige esta; **as outras fichas do catálogo não foram olhadas** — vale uma varredura de copy nas 7.
 
 **Dois fatos do dia que mudam o mapa:**
 - **O simulador teste 2 `B91C8DEF` tem a conta Grok do dono conectada** (confirmada no Perfil em 08/09). É proibido a todo worker: `xcodebuild test` reinstala o app e apaga o contêiner. Cai a linha "nenhuma operação tem medição com Grok" — a base existe.
-- **Outra sessão (Codex) trabalha AGORA no checkout principal**: os "cinco itens" (`prova/cinco-itens*`), com raciocínio explícito nas operações de Trabalho e o modelo `grok-4.3` no lugar do alias aposentado, ADR 2026-09-08b escrita em `SPEC.md`. Está sem commit, o build da árvore passa sem aviso, e **não se toca**: quem fecha é aquela sessão. Dívida que já se vê: a jornada visual persistida, retorno → ajuste com provedor real e a revisão final continuam pendentes (`prova/cinco-itens.md`, seção "Limites e trabalho restante").
+- ~~Outra sessão (Codex) trabalha no checkout principal~~ — **VENCIDO às 12h25**: o dono comitou os cinco itens (`f22a588`) e desistiu de pôr o Astra a implementar. O checkout está limpo, e o único Codex vivo é revisor. Da leitura dos cinco itens fica de pé a dívida: a jornada visual persistida, retorno → ajuste com provedor real e a revisão final continuam pendentes (`prova/cinco-itens.md`, "Limites e trabalho restante") — e a **volta Q** as paga.
 
 ## Em curso (05/09 à noite, modo Fable máximo)
 
@@ -41,7 +45,7 @@ Sempre uma volta desta trilha em edição, em paralelo às voltas comuns, no pr�
 | F3 | Captar pensamento em um toque | MESCLADA (ADR 05w): controle Anotar na Central/bloqueada/botão de Ação abre o app com teclado pronto e microfone a um toque; F3b = ditado próprio com áudio preservado |
 | F3b | Ditado próprio | áudio salvo antes de transcrever; falha preserva o áudio | MESCLADA (ADR 06c; G3, correção, re-G3 aprovado) |
 | F4 | **Os widgets da tela de início prestam** (era "widget próxima volta interativo") | refresh que funciona, identidade do Traço, vazio que oferece ação, densidade do médio, botão de feito na própria superfície | **EM EDIÇÃO, PRIORIDADE MÁXIMA** (worktree f4-widgets; ordem do dono 06/09 13:04, com print do iPhone) |
-| F5 | Ilha do compromisso vivo | estados completos (compacta, expandida, mínima, fim) | |
+| F6 | Ilha do compromisso vivo (era F5; a sigla F5 foi gasta pelos arquivos `f5-*` da volta F4-F em 08/09) | estados completos (compacta, expandida, mínima, fim). A mínima só aparece com DUAS atividades disputando a Ilha, e o StandBy não renderiza no simulador — as duas lacunas ficaram declaradas na F4-F | |
 | F6 | Widgets da tela bloqueada | accessoryCircular e accessoryInline do dia | |
 | F7 | Controle da Central de Controle | Recordar | |
 | F8 | Widget configurável | por pasta ou método | |
@@ -161,10 +165,79 @@ Ordem do dono de 07/09 à noite: limpeza geral do git, sem perder nada, só `mai
 4. **L1** — G4 NÃO PASSOU (Design 8, Simplicidade 7): `Tema.miudo` reservado a fora do app pela ADR 05u e usado duas vezes dentro; o cartão ocupa 6 a 7 telas em AX5 num Perfil com Simplicidade 6; a lista de meses sem teto. Depois: modo escuro, modo B cruzado com AX5, VoiceOver.
 5. **A-6** — as quatro linhas de documento do G3 (a causa contada na ADR era falsa: contaminação, não rabo; a régua nova não cobra a exclusividade que a ADR lhe atribui; `olhando o dia de hoje` é porta morta; faltam dois números).
 6. **M3** — a string `aplicabilidade` do `exameDaNoite` promete ao autor a matéria que a guarda recusa levar ao método; dois comentários mortos.
-7. **O portão que falta, e é o achado mais estrutural do dia 06:** a classe do cross-fade apareceu SEIS vezes na volta 12, com TRÊS causas distintas. O juiz do re-G4 concluiu, e eu assino: **falta um portão que impeça escrever `withAnimation` sem passar por `Tema`.** Um teste que varra o repositório, ou uma regra de lint.
+7. ~~**O portão que falta**~~ — **PAGA em 08/09** pela volta P1 (ADR 08e, `29cc2ce`): o teste existe, a dívida real de curva literal era ZERO, e o portão está em zero contra a árvore mesclada. Fica em pé o registro do porquê: a classe do cross-fade apareceu SEIS vezes na volta 12, com TRÊS causas distintas. O juiz do re-G4 concluiu, e eu assino: **falta um portão que impeça escrever `withAnimation` sem passar por `Tema`.** Um teste que varra o repositório, ou uma regra de lint.
 8. Depois: **V13 Notas**, **V15 Calendário** (as duas começam conferindo a auditoria V9 na tela viva) e **V17 em Markdown** (G0 acima).
 
 **Branches guardados como tag, não mescláveis:** `arquivo/feat-traco-folha` (03–05/09: a nota como folha sobre o tampo, share de entrada, arrasto na lista — 4 commits) e `arquivo/fix-furos-radiografia` (02/09: selo desde o primeiro caractere, arranque honesto com banco que não abre, uma porta só para o disco, apagar com desfazer, 70 fluxos com asserção — 12 commits). Os dois nasceram em `c1e1bbe`, 184 commits atrás; `main` reimplementou parte por outro caminho (ADRs 05h/05s). O que ainda vale deles é ideia a reler, não código a colar — o `try!` de `DiscoTraco.abrir` no arranque (`TracoApp.swift:13`), que a radiografia tratava, continua vivo em `main`.
+
+### Vindas do fecho da L2 (08/09), para a volta do Perfil
+
+- **A decisão que levaria a tela a 9 não é a extração dos cartões** — o juiz do G4 mediu e disse: extrair não muda um pixel (é dívida de Complexidade). O que muda a Simplicidade é **decidir o que o Perfil mostra por padrão**. Essa é a linha G0 da volta do Perfil.
+- **A copy do horizonte está imprecisa:** os "12 últimos" são meses **com descobertas**, não os doze últimos meses do calendário.
+- **VoiceOver do Perfil continua por ouvir** — ligar o leitor exige reiniciar o aparelho, o que é proibido no meio de uma rodada; precisa de uma janela própria.
+- **O transbordo horizontal do Perfil em AX5** reproduz em `HEAD` sem o diff da volta, e o app Ajustes no mesmo aparelho não transborda: é de `Camadas`/`RaizView`.
+
+### Vindas do fecho da F4-F (08/09): o que só o aparelho real fecha
+
+O simulador não prova, e as quatro ficam para uma passada no iPhone do dono (item 12 da fila): **StandBy noturno** (não renderiza no simulador), **Ilha mínima** (só aparece com duas atividades disputando a Ilha, e não há segundo app com Live Activity), **VoiceOver ouvido** (o `ax` recusa e ligar o leitor exige reiniciar o aparelho) e **a Ilha compacta com duas atividades em AX5**, onde o juiz viu um quadro isolado com o "t" cortado. As três primeiras foram confirmadas como limite por dois revisores independentes — não são desculpa de implementador.
+
+### Quatro P3 do G4 da V17 (não bloqueiam, ficam para a próxima volta do Trabalho)
+
+O juiz listou e não descontou: `isHeader` faltando nas duas seções novas; o `id` do `DisclosureGroup` sombreando os filhos; as aspas de "A pedido seu."; e um `spacing` literal onde a convenção manda token. Nenhum é de tela quebrada — são acabamento de acessibilidade e de convenção, e entram na volta que tocar `TrabalhoView` de novo.
+
+### O achado da Q-B que fica aberto: o nosso parser recusa o que o provedor entregou
+
+**3 das 15 execuções de `prepararPratica` não entregam — e não é teto nem provedor.** HTTP 200, conteúdo completo, `grok-4.6` confirmado, 3.777 a 6.865 tokens de raciocínio, e **recusadas pelo NOSSO contrato** (`PraticaTrabalho.parsePreparacao`/`validar`). Por entrega, a operação sai de 1/6 para **4/6**.
+
+A Q-B **não** moveu isso para a tabela de indisponibilidade, e o argumento é bom: recusa ocasional já tem superfície por pedido (`EstadoPedido.praticaIndisponivel`), enquanto **a tabela não sabe dizer "às vezes"**. Fica a pergunta que decide de quem é o defeito: **o parser está certo em recusar, ou está estreito demais?** Volta própria, e ela é do tipo que pode devolver uma operação inteira ao autor sem tocar no provedor.
+
+### O que o conselho da Q fixou sobre a fila do dono (08/09)
+
+- **Item 2 fecha com o MAPA**, não com dezesseis células preenchidas de Grok: atendimento, falhas, condições e a política correspondente, **declarando qualquer executor inacessível**.
+- **Item 3 fica na Q-B** enquanto a ajuda não atender tentativas variadas. Corte honesto não o paga.
+- **Item 9 exige jornada atual com IA real** — resposta ruim, interrupção, nova tentativa, estados e conteúdo preservados na UI. **A sonda isolada não o fecha.**
+- **Indisponibilidade por qualidade não existe hoje na tabela:** as três regras da `Politica` não a distinguem de falta de conta, e por isso a tela manda conectar Grok quando a conta já existe. É contrato a criar, não texto a trocar.
+
+### Vinda do conselho da V12 (08/09): o oráculo de pixels
+
+**Volta própria, e cara.** O conselho respondeu que a prova geométrica da escrita visível cabe numa suíte hospedada (entra na V12-E), mas **a prova TEMPORAL do fantasma exige um oráculo de pixels sobre quadros nativos capturados**: detecta texto do papel na região exclusiva do cartão, perda de cobertura ou duas geometrias concorrentes, com e sem Reduzir Movimento, analisando **depois** da captura, sem juiz assistindo a vídeo. Custa instrumentação de renderização, é **amostrada** e **não certifica "nenhum quadro possível"** — captura externa ao caminho medido, localização das superfícies, tolerâncias calibradas e controle de quadros ausentes; lacuna de captura torna o intervalo inconclusivo. Ciclo: melhorar (barateia todo julgamento de movimento). **Avisos do conselho, para quem abrir:** `CADisplayLink` é temporizador sincronizado à tela, **não captura de pixels**; `presentation()` é aproximação da camada exibida; e **fotografar no callback altera o fenômeno** — a V12-D provou isso por outro caminho, ao descobrir que o quadro longo era o `fotografar()` do próprio teste.
+
+## A fila do dono, 08/09 — as doze prioridades do Astra, mapeadas nas voltas
+
+O dono pediu ao Astra uma leitura de prioridades e depois decidiu que o laço do Orca as resolve, todas, com mais qualidade por token. A tabela abaixo é a dele; a coluna da direita é a volta que a paga. Ordem de fila: a do Astra, exceto onde uma volta já em curso paga um item mais abaixo de graça. "Resolvido" é o critério da terceira coluna dele, provado na tela, não a volta mesclada.
+
+| # | prioridade do Astra | resolvido quando | volta que paga |
+|---|---|---|---|
+| 1 | Completar uma jornada real, começando pelo espanhol: intenção, ajuda, tentativa, resultado e ajuste | o dono usa o Traço para avançar numa situação concreta e continua a partir do que aconteceu | **V17** (o artefato que se reescreve em Markdown) mais a jornada real de ponta a ponta com o caso do espanhol; depende do 2 e do 3 para a IA servir |
+| 2 | Avaliar a IA nos provedores disponíveis, incluindo Grok, com pedidos reais e restrições explícitas | sabemos quais operações funcionam, onde falham e em que condições, com respostas completas examinadas | **volta Q** — a sonda `AvaliacaoIA` nas dezesseis operações com Grok (conta confirmada por `ContaGrok.ligada` no simulador de teste), lida contra `QUALIDADE-IA.md`; a tabela `Politica` (ADR 07b) ajustada pelo resultado |
+| 3 | Corrigir as falhas de IA que impedem essa jornada: contexto, instruções, modelo, tratamento da resposta | a ajuda atende ao pedido, respeita as restrições e produz algo utilizável em tentativas variadas | **volta Q-B**, nascida do que a Q medir; Astra no G0 |
+| 4 | Melhorar a continuidade do trabalho: retomar objetivo, versões, decisões e próximo passo sem reconstruir o contexto | o dono volta depois e continua com pouca explicação | **volta de retomada do Trabalho** — a folha abre no ponto certo com o resumo do que houve (ADR 06b §18-D já descreve a estrutura que falta) |
+| 5 | Trazer o resultado da ação de volta ao trabalho, inclusive tentativas parciais e fracassos | o resultado informado muda a próxima orientação; agendado, feito e funcionou continuam distintos | **volta dos estados** — `EstadoAcao` ganha o observado, `cancelada` deixa de ser inalcançável, o relato muda a próxima orientação (a auditoria de 07/09 achou os três estados mortos em `Trabalho.swift:39-44`) |
+| 6 | Tornar a revisão pela IA útil: identificar o que não serviu e revisar o artefato preservando origem e versões | uma correção do dono gera mudança pertinente sem apagar conteúdo nem repetir o erro | paga pela **V17** (a versão N+1 nasce da observação, com origem e motivo no documento) e pela **Q** (revisar medida com Grok) |
+| 7 | Reduzir o esforço da jornada principal: navegação, controles ambíguos, excesso de decisões, recuperação de erros | iniciar, agir, corrigir e retomar sem entender a estrutura interna do app | **V12-B, V13, V15** com `curva-zero` medida em toques antes e depois |
+| 8 | Verificar os riscos de estabilidade e dados, incluindo o `try!` do arranque | falhas previsíveis permitem recuperação e preservam o conteúdo | **volta do arranque honesto** — `TracoApp.swift:13` e os outros cinco `try!` de produção; a radiografia de 02/09 (tag `arquivo/fix-furos-radiografia`) já tratava disso e serve de leitura |
+| 9 | Testar o percurso integrado com IA real, além dos testes isolados | provas atuais do percurso completo, com resposta ruim, interrupção e nova tentativa | **Q** mais um fluxo maestro do percurso com a sonda ligada; `prova/7.md` |
+| 10 | Fazer o desenvolvimento de capacidades se apoiar em evidências: distinguir uso, satisfação e desempenho | o Traço ajusta a ajuda por uma dificuldade demonstrada e permite corrigir as hipóteses sobre o dono | **L2** (latência da descoberta, em curso) e a prática dentro da V17 |
+| 11 | Fechar a dívida visual e de acessibilidade nas telas alteradas | hierarquia, animações, tamanho de texto, VoiceOver e controles funcionam na jornada real | **a dívida da limpeza de 07/09** (P1 já mesclada, V12-B e L2 em curso, V19 e F4 restantes) |
+| 12 | Comprovar as entradas externas no aparelho: Siri, widgets, ditado | cada entrada inicia ou retoma a ação esperada, com contexto certo e falhas compreensíveis | **F5** (em curso) mais uma passada no iPhone do dono, porque o simulador não prova Siri nem tela bloqueada trancada |
+
+### G0 da V17 — o artefato que se reescreve, em Markdown (decidido em 08/09, depois do conselho do Astra)
+
+**Ciclo:** os dois, e é por isso que ela é a próxima. Multiplicar (o autor avança numa situação concreta) e melhorar (a versão seguinte ataca o que ele errou).
+**Intenção que serve:** o autor pratica no artefato, erra, e o artefato **se reescreve para atacar aquilo** — guardando as versões, a origem e o motivo de cada mudança.
+**Obstáculo que reduz:** o laço que falta é de **observação e versão, não de renderização** (DIRETRIZ §4). O Trabalho já tem versão com origem (05i, 05s), a tentativa do autor como evidência separada (05r), ida e volta pelo arquivo com conflito e retry (05l, 06a) e, desde a ADR 08a, a preparação já lê tentativas anteriores. **O que não existe é a causa do ajuste como dado vinculante**: hoje `pedidoDe` a INFERE por base e intenção, e inferência não pode ser a autoridade que explica ao autor por que o exercício dele mudou.
+**Evidência que prova:** no caso concreto do espanhol — uma tentativa com erro gera atividade **diferente e pertinente**, preserva as restrições e **deixa a próxima resposta em branco**; uma correção do dono remove a interpretação equivocada do ajuste seguinte; fechar e reabrir conserva N, tentativa, causa e N+1, inclusive depois de falha de gravação, retry, conflito ou revogação.
+
+**A decisão, minha, sobre o parecer do Astra (`ferramentas/orca/consulta-v17-markdown.md`) — aceito, e é a versão curta:**
+1. **Dono único: o Trabalho.** O exercício é `DocumentoTrabalho.Artefato.pratica`; o bloco do Caderno (`BlocoCaderno.recipiente`) é **representação e porta de interação**, não um segundo agregado. A N+1 nasce pela rota que já existe (`OficinaTrabalho.gerar` → `MotorTrabalho.produzir` → `DocumentoTrabalho.receber`). **Nada de versões, corpus ou índice paralelos, e nenhuma tela nova.**
+2. **Contrato mínimo, e só ele:** `Pedido.ajuste?` (gatilho **fechado**: `pedidoDoAutor` ou `necessidadePercebida`, mais motivo e referência à evidência que o sustenta) e `Artefato.pedidoID?` (o vínculo direto da versão à causa, no lugar da inferência). Ausência nos registros antigos significa **vínculo não registrado** — não se reconstrói causalidade histórica.
+3. **Nenhum `EstadoExercicio` persistido.** Produzido vem da versão guardada; tentativa registrada vem da evidência do autor; desempenho demonstrado exige leitura sustentada com avaliador visível. **Sem `aprendido`, sem pontuação global, sem contador de domínio, sem promoção automática de hipótese.** "Reescrito" não é "aprendido".
+4. **A causa não cabe no trecho descartável.** Hoje o histórico pode ser omitido por orçamento; a evidência causal, os critérios e as restrições vigentes são **núcleo obrigatório** — se não couber, **o ajuste fica indisponível** e diz isso.
+5. **A fronteira da IA, no tipo e não no prompt:** a saída da adaptação aceita preparação e descrição da mudança, e **não tem campo de resposta nem comando que altere `Evidencia`**; `guardarTentativa` continua operação do autor; o campo de tentativa nasce vazio. Reconhecido e escrito: validação estrutural **não prova ausência de solução disfarçada no enunciado** — isso é leitura semântica, e a 05r já admite o limite.
+6. **O ato visível é "Conferir e adaptar o exercício"**, novo e explícito, porque "Conferir minha tentativa" já promete uma operação e uma chamada por toque (05r). Conferência inconclusiva, ausência de resposta ou reabrir o documento **não disparam reescrita**; a mesma conferência não gera duas versões; nada em segundo plano, e o documento não troca enquanto a pessoa digita.
+7. **O anúncio é uma seção só, no próprio documento**, escrita pelo app com os vínculos que ele conhece (o modelo não inventa ID nem decide qual pedido o produziu), dizendo o que mudou e por quê, sem repetir o histórico e sem declarar que a pessoa aprendeu.
+
+**O que esta volta NÃO fecha, e eu prefiro dizer agora:** o item 1 da fila do dono só se resolve quando **o dono efetivamente usa e continua a situação real** — a demonstração técnica não o fecha. A V17 entrega o mecanismo e a jornada provada; o item 1 fecha no uso.
 
 ## Próximas, em ordem
 

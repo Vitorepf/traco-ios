@@ -10,9 +10,13 @@ import Foundation
 nonisolated struct DestaqueAtividade: ActivityAttributes {
     nonisolated struct ContentState: Codable, Hashable {
         var linha: String
+        /// ADR 08i: o MESMO contrato do widget — a linha aqui é a mesma
+        /// projeção, cortada pelo mesmo teto, e a Ilha diz se é trecho.
+        var inteira: Bool? = nil
     }
 
     /// ADR 05u: a atividade sabe DE QUEM é. O botão devolve `id` e `dia` ao
+
     /// app, que revalida antes de marcar — "o próximo atual" não existe mais.
     var dia: String
     var id: UUID

@@ -1672,14 +1672,14 @@
       "funcao": "pratica",
       "adaptacao": "Quatro campos e uma regra: o Traço separa o que o autor FEZ do que lhe aconteceu, e exige a prescrição concreta para a próxima vez — Sêneca perdoa e prescreve na mesma frase, e é a prescrição que o Traço cobra. Nada disto é desabafo: a Expressiva continua sendo o lugar do desabafo, e não é comentada.",
       "evidencia": "Sem estudo: é prática filosófica antiga, relatada por quem a fazia. Sêneca afirma que o exame diário torna a ira mais branda; não há medida disso, nem nada que o Traço possa alegar. A literatura moderna de escrita reflexiva é outra coisa e não se transfere para cá.",
-      "aplicabilidade": "Serve para o fim de um dia em que o autor fez algo que não quer repetir. Não serve para julgar os outros, nem para ruminar — se o texto vira desabafo, a forma é a Expressiva."
+      "aplicabilidade": "Serve para o fim de um dia em que o autor fez algo que não quer repetir, e se abre pelo nome ou escrevendo “passei o dia em revista”. Quando o texto é confissão, a nota fica do autor e não vira exercício. Não serve para julgar os outros nem para ruminar — aí a forma é a Expressiva."
     },
     "filtro": "Exame",
     "reconhecimento": "isto é o seu dia em revista — e uma regra para amanhã.",
     "movimento": "Exame da noite (Sêneca, De Ira III.36, da prática de Sêxtio). À noite, o dia inteiro em revista, sem esconder nada, e o julgamento só dos PRÓPRIOS atos: o que eu fiz que não quero repetir, o que eu contive hoje, e a regra concreta para a próxima vez. Cobre a regra: julgamento sem prescrição é remorso, e remorso não é método.",
     "pergunta": "Que hábito ruim você curou hoje? Que defeito você conteve?",
     "roteamento": [
-      "\\bexame da noite\\b|\\bpassei o dia em revista\\b|\\bolhando o dia de hoje\\b",
+      "\\bexame da noite\\b|\\bpassei o dia em revista\\b",
       "\\bn[ãa]o devia ter (feito|reagido|agido|tratado)\\b|\\bme arrependi\\b|\\bfui (injust[oa]|gross[oa]|duro demais|ríspid[oa])\\b",
       "\\bperdi a (paci[êe]ncia|cabe[çc]a)\\b|\\bhoje eu (fiz|reagi|tratei)\\b"
     ],

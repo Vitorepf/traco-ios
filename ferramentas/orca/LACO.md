@@ -93,3 +93,105 @@ E a lição de método, que vale mais: **a auditoria V9 está parcialmente desat
 | L2 | `volta-l2-latencia-g4` | o **G4 reprovado** da L1 (Design 8, Simplicidade 7): teto de 12 meses, `Tema.miudo` dentro do app contra a ADR 05u, frase-resumo em duas linhas, `quantas == 1`; mais escuro, B×AX5 e VoiceOver | iPhone 17 Pro `C2416CBC` |
 
 **Lei de instrumento acrescentada nesta rodada:** com três simuladores ligados, `booted` é ambíguo e maestro não vale nada — todo worker recebeu ordem de usar `xcrun simctl io <UDID>` explícito e nenhum maestro. Primeiro achado devolvido, às 10h33, pela F4-F: a causa do corte do Destaque é **`lineLimit` impedindo o `minimumScaleFactor` em tamanho normal** — repartição de altura, como a F4-E suspeitava, agora nomeada.
+
+### 08/09 11h16 — EQUIPE NOVA, por ordem do dono (vale da próxima task em diante)
+
+O dono leu as duas sessões anteriores de orquestração (`ferramentas/orca/ORCA-LICOES.md`, `8e3a1a5`) e trocou o time (briefs em `f22a588`): **o revisor do G3 passa a ser outro fornecedor** — `codex --model gpt-5.6-terra` (quem escreveu foi Claude, quem revisa não é), com o re-G3 no mesmo terminal; **o juiz de design do G4 é Fable 5.1** em sessão própria; **o Astra (`gpt-6-astra`) entra em três momentos e só neles** — G0 de toda volta que toca IA, a SEGUNDA recusa na mesma volta, e arquitetura ou contrato difícil, no máximo duas consultas por volta; **front-end e fora do app voltam a Fable** (Opus só acima de 90% da semanal do Fable); **teto de TRÊS voltas em edição ao mesmo tempo**; **nenhum Grok como agente**. Ordem de fila depois da dívida: **V17** (o artefato que se reescreve em Markdown) e depois **a qualidade da IA pela sonda `AvaliacaoIA` com Grok**, esta só depois de confirmar `ContaGrok.ligada` no simulador de teste.
+
+No mesmo commit o dono fechou o trabalho dos "cinco itens" que estava sem commit no checkout principal (55 arquivos, +4.955), então **`main` está com a árvore limpa** e as voltas voltam a poder mesclar. Um segundo orquestrador subiu por engano às 11h00 e foi fechado — e ele é o suspeito mais provável da instalação por cima que custou 25 min à F4-F, porque quem builda do checkout principal instala o código de `main`.
+
+Estava com **quatro voltas em edição** quando a ordem chegou (P1-B em correção de G3, L2, F4-F, V12-B); não interrompi nenhuma, não abri a quinta, e volto a três no próximo fecho.
+
+### 08/09 12h20 — MESCLADA a volta P1: o portão do movimento
+
+Primeira volta fechada pelos portões completos desde a limpeza de 07/09, e a primeira revisada por **outro fornecedor** (GPT 5.6 Terra), como a equipe nova manda.
+
+- **O que mudou:** `TracoTests/PortaoDoMovimentoTests` varre os 126 fontes de `Traco/` e `TracoWidget/`, apaga comentário, string e o **miolo das chamadas a `Tema.`**, e fica vermelho quando alguém escreve curva ou duração **literal** fora da casa. Mais as três dívidas de documento da limpeza: as quatro linhas da A-6 refeitas com número medido (a causa era contaminação, não rabo; a porta morta `olhando o dia de hoje` apagada, desvios de 18 para 17) e a `aplicabilidade` do `exameDaNoite`, que parou de prometer ao autor a matéria que a guarda recusa levar ao método.
+- **O ciclo do portão, que é a lição:** a primeira versão contava como dívida **a forma que a própria ADR manda escrever** — 69 das 76 ocorrências congeladas já citavam `Tema.` — e por isso ficava vermelha até quando alguém migrava uma tela. O G3 recusou; medida a violação certa, **a dívida real é ZERO**: as 38 chamadas de `withAnimation(` já passam todas por `Tema`. Um portão que fica vermelho quando se faz a coisa certa é pior que portão nenhum.
+- **Lista vazia é o estado perigoso de um portão**, e o implementador viu isso sozinho: `aVarreduraAindaEnxerga` impede que vazio vire verde falso. O revisor confirmou apontando a varredura para um diretório inexistente — **ficou vermelha**.
+- **Evidência:** re-G3 APROVADO, nenhuma dimensão abaixo de 9, com seis ataques ao portão (curva literal, arquivo novo fora do `pbxproj`, forma prescrita, migração para baixo, comentário e string). Árvore **mesclada** provada no iPhone 17e: `894 tests in 144 suites passed`, 0 aviso, e o portão em **zero** contra o código novo que veio de `main` (a única curva em `Traco/Trabalho` é a forma prescrita).
+- **Commit:** `29cc2ce`. Cotas no fecho: janela 30%, semanal 14%, Fable 6%, Codex 2%.
+- **Duas quebras declaradas, nenhuma escondida:** o implementador e a volta F4-F dirigiram tela por `cliclick` antes de a ordem do dono das 11h35 existir; o re-G3 julgou o que importava — nenhuma evidência ficou contaminada.
+- **Limite novo do instrumento, achado pelo primeiro revisor a usar `orca emulator`:** o `ax` perde a árvore de acessibilidade assim que o Traço abre (`ERR_CONNECTION_REFUSED` / `ERR_EMPTY_RESPONSE`); reiniciar o helper recupera a AX da tela inicial e a perde de novo ao abrir o app. Ele não fez a segunda captura e **não apresentou a alheia como sua**.
+- **Colisão de letra de ADR, resolvida por reserva:** a sessão dos cinco itens ocupou `08a`–`08d` em `main` e três voltas escreveram por cima. Reserva vigente: **P1 = 08e (mesclada), V12 = 08f, F4-F = 08g, L2 = 08h**.
+
+### 08/09 12h25 — A FILA DO DONO entra, e o Astra deixa de implementar
+
+O dono pediu ao Astra uma leitura de prioridades, pôs o Astra a resolver as cinco primeiras sozinho e **desistiu disso**: o laço do Orca resolve as doze, com mais qualidade por token. A tabela está no RUMO (`7778687`, seção "A fila do dono, 08/09"), com o critério de "resolvido" do Astra em cada linha — e resolvido é **provado na tela**, não a volta mesclada.
+
+**O que muda para mim, em uma linha cada:**
+- **Não há sessão do Astra editando o checkout.** O checkout principal está limpo em `7778687`; o único Codex vivo é o revisor GPT 5.6 Terra da F4-F, já usando `orca emulator`. Cai o aviso que eu tinha escrito às 10h25 sobre uma sessão paralela no checkout — ele valia e deixou de valer.
+- **Toda volta nasce com a linha G0 E o critério de resolvido do Astra colado no spec.**
+- **Ordem de fila:** a do Astra, exceto onde uma volta em curso paga um item mais abaixo de graça. Do que está aberto agora: **L2 paga o item 10** (capacidades apoiadas em evidência), **V12-B e F4-F pagam parte dos itens 7, 11 e 12**.
+- **Depois das voltas em curso, nesta ordem:** **V17** (itens 1 e 6 — o artefato que se reescreve em Markdown e a jornada real do espanhol), **Q com Grok** (2, 3 e 9 — a sonda `AvaliacaoIA` nas dezesseis operações; confirmar `ContaGrok.ligada` antes de gastar), **estados da ação** (5 — `EstadoAcao` ganha o observado e `cancelada` deixa de ser inalcançável; os três estados mortos estão em `Trabalho.swift:39-44`), **retomada do Trabalho** (4 — a folha abre no ponto certo, ADR 06b §18-D descreve a estrutura que falta), **arranque honesto** (8 — o `try!` de `TracoApp.swift:13` e os outros cinco).
+- **Pré-condição da Q já conferida por mim, para não gastar volta à toa:** `ContaGrok.ligada` existe (`Traco/Analise/ContaGrok.swift:55`, verdadeiro quando há token de renovação ou de acesso guardado) e a sonda `AvaliacaoIA` já registra `contaGrokLigada` em cada medição. A confirmação é leitura barata.
+
+### 08/09 13h55 — MESCLADA a volta L2: a latência da descoberta paga o G4 reprovado
+
+Segunda volta fechada pelos portões completos desde a limpeza, e a primeira que passou por **G3 de outro fornecedor + G4 de juiz próprio**.
+
+- **O que mudou:** as quatro correções do juiz da L1 — teto de doze meses com o horizonte na copy; `Tema.miudo` fora de dentro do app (a ADR 05u o reserva a fora do app, e a L1 tinha trazido os dois únicos usos internos do produto); a frase-resumo em duas linhas **sem perder um número**, feita com duas leituras da mesma `Latencia.emPalavras` para não tocar no modelo; e `quantas == 1` sem chamar de "tempo do meio" o único valor que existe.
+- **A lição não é o conserto, é a prova.** As capturas "depois" da primeira passada mostravam **copy anterior à do commit julgado** — o revisor de outro fornecedor pegou lendo o `HEAD` contra a imagem. A volta refez tudo no binário final, com `uninstall` antes de cada `install` e o dylib conferido por string, e os números de modo A e B saíram **idênticos**: *a foto estava errada, o número não*. O de vinte meses mudou porque a semente era outra, não a altura.
+- **A compactação foi implementada, medida e recusada**, com capturas lado a lado: recupera 180 dos 341 pt em AX5 e **piora a leitura em `large`**, porque em AX5 a altura mora no parágrafo (833 pt) e no embrulho de cada registro. O G4 confirmou a recusa.
+- **Simplicidade 8 é o teto honesto desta tela, e o juiz corrigiu a minha hipótese:** não é a extração dos nove cartões inline (isso não muda um pixel, é dívida de Complexidade) — é uma decisão da **volta do Perfil sobre o que ele mostra por padrão**. Mesclei com a lacuna nomeada: prefiro um 8 defendido por dois modelos independentes a um 9 comprado piorando o tamanho comum.
+- **Evidência:** G4 PASSA com Design 9; árvore **mesclada** provada no iPhone 17 Pro: `894 tests in 144 suites`, 0 aviso, e `PortaoDoMovimentoTests` verde contra o diff de `PerfilView` com a lista congelada **vazia**. Capturas do G4 reduzidas de 9,8 MB para 2,8 MB pela política de peso da ESTEIRA.
+- **Commit:** `9a711eb`. Cotas no fecho: janela 67%, semanal 22%, Fable 6%, Codex 2%.
+- **Fica para a fila:** a copy do horizonte (os "12 últimos" são meses **com** descobertas), o VoiceOver que o juiz não pôde ouvir (ligar exige reiniciar o aparelho, proibido), o transbordo horizontal do Perfil em AX5 (pré-existente, reproduz em HEAD, é de `Camadas`/`RaizView`) e a decisão do que o Perfil mostra por padrão.
+- **O incidente do login continua preservado no `C2416CBC`:** as abas do Safari estão intactas e o Perfil segue "sem conta — recursos locais disponíveis" (`ferramentas/orca/l2c-merge-perfil-sem-conta.png`). A revogação do lado da x.ai é do dono.
+
+### 08/09 14h35 — MESCLADA a volta F4-F: a frase do autor, e o corte honesto como lei
+
+Terceira volta fechada pelos portões completos, e a que mais andou: **G3 → F4-G → re-G3 → G4 recusou → conselho → F4-H → re-G4 PASSA → F4-I**. Sete passadas, duas recusas, uma consulta obrigatória.
+
+- **A causa que três passadas anteriores erraram:** não era `minimumScaleFactor`, era o **`lineLimit`** — com teto de linhas a `Text` nunca excede a proposta, o SwiftUI conclui que já cabe e **corta em vez de encolher**. Por isso só aparecia em AX5, e por isso a F4 declarou o defeito fechado olhando o tamanho normal.
+- **O G4 recusou a primeira correção com dois fatos medidos**, e eram o certo a medir: com 103 caracteres em AX5 a frase saía **no mesmo corpo de quem não ligou acessibilidade**, e com 247 (porque `VozDoAutor.titulo` não tinha teto) o pequeno desenhava **onze linhas a ~7 pt** e voltava a cortar. O "pior caso real" de 43 caracteres que a ADR declarava não era o que o app publicava.
+- **O conselho achou o que ninguém tinha visto:** `reconciliar` usa a **mesma** `projecao` para o `ContentState` da Live Activity — limitar só a escrita do `superficie.json` deixaria Ilha e tela bloqueada com **outro contrato**. O teto de 140 grafemas entra uma vez, antes da distribuição.
+- **A lei nova, que vale para toda face:** *reticência é honestidade quando indica continuação realmente omitida por um limite público declarado ou pelo espaço restante depois de retirar o dispensável, preservando leitura no tamanho escolhido e acesso ao original; é falha quando encobre corte evitável, texto ilegível ou promessa de integralidade.* E "evitável" ganhou número, proposto pelo juiz: **cabe uma linha inteira do corpo no espaço ao lado do marcador**.
+- **A frase deixou de encolher e passou a ceder QUANTIDADE**, com `Sacrificio` declarando por teste que "Nova nota" cede antes de uma linha e que "Desatualizado." nunca cede. E o toque no pequeno passou a **abrir a nota certa** — provado com nota real e com a **mesma nota selada**, que diz "Essa nota não está disponível." e some da superfície.
+- **Evidência:** re-G4 PASSA (Design 9, Simplicidade 9, Movimento 9, Fora do app 9 com lacuna dita); árvore mesclada com **910 testes em 148 suítes**, dois alvos sem aviso, portão do movimento verde.
+- **Commit:** `494c0c6`. **Fica para o aparelho real:** StandBy noturno, Ilha mínima, VoiceOver ouvido, e a Ilha compacta com duas atividades em AX5 com o "t" cortado.
+- **Duas escolhas de método que valem registro:** o worker **decidiu não mover** os componentes para `Traco/Componentes` porque o alvo do widget não compila o app (ADR 05u) — e disse por quê em vez de mover e quebrar; e, sobre as **duas gramáticas do "…"** (palavra no publicador, grafema na face), escolheu **descrevê-las com honestidade na ADR** em vez de unificar, com o argumento de que unificar seria "reproduzir o motor de texto e errar onde ele acerta".
+
+### 08/09 14h36 — A CONTA GROK EXISTE, e o foco vira a IA
+
+Ordem do dono: **foque na IA**. A volta **Q (qualidade da IA)** abre como frente prioritária ao lado da V17; V12-E e F4-I terminam a passada em curso e só reabrem quando Q e V17 fecharem. O teto de três voltas continua.
+
+**Onde a conta está, e como ela apareceu — porque isto merece ser dito inteiro.** O dono autorizou o dispositivo, e o Perfil do **iPhone 17 Pro de teste `C2416CBC`** mostra "Grok — conectada: o Grok é o motor, pago pela sua assinatura". **É o mesmo aparelho do incidente das 11h21**, quando toques em coordenada fixa, com o layout do Perfil transbordando em AX5, caíram sobre "Entrar com a conta Grok" e abriram o fluxo *device-code* da x.ai várias vezes. Na hora eu tratei aquilo como risco e mandei preservar a evidência sem desfazer nada; o dono olhou e **autorizou**. A evidência preservada (`ferramentas/orca/l2-incidente-grok-perfil-sem-conta.png` e as abas do Safari) é o que permitiu ele decidir com o quadro na mão em vez de adivinhar.
+
+**Correção do meu registro anterior:** eu tinha escrito às 10h25, lendo `prova/cinco-itens.md`, que a conta estava no `teste 2 B91C8DEF`. **A conta que vale agora é a do `C2416CBC`**, e é a única. O `teste 2` e o `teste 3` deixam de ser proibidos (a sessão que os usava foi fechada pelo dono).
+
+**LEI DO SIMULADOR DO GROK, no spec de todo worker daqui em diante:** o `C2416CBC` é o único aparelho com a conta. **Ninguém roda `erase`, `clearState`, `uninstall` ou `xcodebuild test` nele.** Workers de outras voltas usam outros UDIDs. A volta Q **instala por cima** e confere `ContaGrok.ligada` **antes de cada corrida**. Se a conta cair, **o dono tem de reautorizar — diga em vez de contornar**.
+
+### 08/09 16h40 — A V17 pronta e o merge SEGURADO: outra sessão escreve em `main` ao vivo
+
+A volta V17 passou em todos os portões (G3 → V17-B → re-G3 PASSA → G4 PASSA) e a V17-C fechou a parte dela do G5: prova dos portões comitada (capturas de 3,7 MB para 1,8 MB, nenhuma acima do teto do RUMO), `main` trazida em ordem cronológica (21 commits, conflito só de lugar no SPEC) e **árvore mesclada provada: 928 testes em 149 suítes, 0 aviso, portão do movimento com a lista de divergências vazia**.
+
+**Não mesclei, e a razão é a segunda colisão do dia com uma sessão externa.** Às 16h39 o checkout principal estava sujo, escrito naquele minuto: `Traco/Trabalho/ConferenciaTrabalho.swift`, `OficinaTrabalho.swift`, `TrabalhoView.swift`, `TracoTests/ConferenciaTrabalhoTests.swift` e `prova/cinco-itens-grok46-validacao.jsonl` — pelo nome, a continuação dos cinco itens. **`OficinaTrabalho.swift` e `TrabalhoView.swift` são exatamente os arquivos que a V17 reescreveu.**
+
+Não toquei em nada — nem `stash`, nem commit, nem reset —, como na primeira vez, de manhã. Perguntei ao dono e a volta espera no branch, sem risco de perder nada.
+
+**A lição, que já é padrão e vai para a ESTEIRA quando eu tiver a resposta:** worktree isola a EDIÇÃO, não o MERGE. Uma sessão que trabalha direto no checkout principal bloqueia o G5 de qualquer volta que toque os mesmos arquivos, e o orquestrador não pode resolver isso sozinho sem passar por cima de trabalho vivo. Da primeira vez (10h25) o dono comitou e destravou; desta vez ele decide de novo.
+
+### 08/09 17h10 — MESCLADA a volta V17, e `main` volta a ter dono no origin
+
+**A árvore suja era WIP parado, não escrita ao vivo.** Eu tinha lido os cinco arquivos como sessão viva porque a hora de modificação era do minuto anterior; o dono conferiu e mostrou que a thread do Astra no app do Codex não escrevia desde 11h14 e que os arquivos não mudavam desde 16h39:32. O conteúdo ficou inteiro no branch `wip/cinco-itens-grok46-16h39` (`d26310e`) e os cinco arquivos voltaram ao estado de `main`. **Segurar o merge foi certo; o que eu errei foi a leitura da causa** — mtime recente não prova sessão ativa, e eu deveria ter comparado duas leituras separadas por alguns minutos antes de chamar de "escrita ao vivo".
+
+**V17 mesclada em `67974dc`.** O laço que faltava era de observação e versão, não de renderização: a causa do ajuste virou dado vinculante (`Pedido.ajuste` com gatilho fechado e `Artefato.pedidoID`), no lugar de uma inferência que não podia ser a autoridade que explica ao autor por que o exercício dele mudou. Nenhum estado de exercício persistido, a causa como núcleo obrigatório, a fronteira da IA no tipo, e o anúncio escrito pelo app sem dizer que a pessoa aprendeu. G3 reprovou duas garantias que viviam só na UI; a V17-B moveu as duas para invariante do agregado. G4 PASSA. Árvore mesclada: **928 testes em 149 suítes**, 0 aviso.
+
+**E `main` foi para o `origin`**: estava **35 commits atrás** porque ninguém deu push no dia inteiro. Ordem nova do dono, em vigor: **todo fecho termina com `git push origin main`**.
+
+**Lacuna declarada da V17, que não se esconde:** a jornada com provedor real é da frente Q; o item 1 da fila do dono só fecha quando ele **usar e continuar** a situação real.
+
+### 08/09 18h10 — o estado das três voltas vivas, e o que a tarde ensinou
+
+Nada mesclado desde a V17 (`67974dc`); as três voltas estão em ciclo de portão, e é onde elas devem estar. `main` limpa e sincronizada com o `origin` a cada fecho, como o dono ordenou às 17h05.
+
+**Q — a qualidade da IA, medida com a conta ligada.** 297 execuções de rota, 96 casos, três lançamentos. **Das dezesseis operações, só três atenderam 6 de 6**: `conferir`, `padroes` e `conferirTentativa`. **Sete saíram da execução** pela regra nova `indisponivelPorQualidade`, em dois grupos — sem substituto medido (ecos, calibragem, recordar, instigar, contrapor) e com conserto nomeado (`responder`, `responderNasNotas`). A terceira linha do Perfil diz isso ao autor em linguagem de gente, sem número e sem caminho de prova, e **nunca manda conectar conta que já existe**. A Q-B corrigiu o candidato (`acdfcb4`, provado por símbolo no dylib), reconciliou 20 contra 12 nos quatro documentos, e **subiu o teto de 90 s para 240 s** com prova: 30 chamadas, zero falhas de transporte, contra 20 de 72 antes.
+
+**A lição da Q, que vale mais que a tabela:** três casos mediram uma **rota sem chamador de produção** — a "atribuição genérica do provedor" era um título que o **nosso app** fabricava. E a Q-B achou o irmão disso: **3 de 15 preparações são recusadas pelo NOSSO parser**, com HTTP 200 e conteúdo completo do outro lado. Duas vezes seguidas, o que parecia defeito do provedor era nosso.
+
+**V12 — a escrita visível.** O conselho ditou a invariante (*a linha ativa e o caret pertencem à área livre do papel, em todo quadro*), a V12-E a pôs **no contêiner** e achou a causa raiz que cinco passadas erraram: o `.safeAreaInset` deixava o papel correr sob o encaixe. **Duas refilmagens independentes** fecharam o A1 e o A2 — zero quadros com par legível, caret 343/295/431/313 pt acima do encaixe contra **zero pixels em 11 amostras** antes. Falta o pé em AX5 acima do teclado.
+
+**E1 — o resultado da ação.** `ResultadoObservado` virou eixo próprio, `cancelada` ganhou gesto, e a orientação seguinte muda pelo relato **reusando o mecanismo da V17** em vez de um segundo paralelo. O G3 achou o de sempre: **a invariante olhava um eixo e o mundo tem dois** — dava para cancelar o que a pessoa já disse que aconteceu.
+
+**O padrão do dia, agora com seis casos:** o quadro longo que era o `fotografar()` do teste; o `ax --device` lendo o aparelho vizinho; a rota sem chamador; o teste que passava sem visitar o defeito; a `String` que não vira `Bool` no plantio de estado; e o `test-without-building` que troca o contêiner. **Em todos, o instrumento dizia mais do que mostrava.** Está na ESTEIRA como lei: o teste declara o estado que exige como **pré-condição que falha**, e todo portão nasce com a prova do vermelho.
