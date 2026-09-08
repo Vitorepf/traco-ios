@@ -5790,11 +5790,15 @@ O corte tem DOIS grupos, e a tela precisa distingui-los: **cinco sem substituto 
 
 **A superfície.** As telas que já liam a tabela (`RecordarView`, `RedeView`, `PadroesView`, `OficinaTrabalho`) passam a mostrar a frase nova sem mudança de view. O **Perfil** precisa de uma TERCEIRA linha — hoje ele imprime só `pelaConta` e `peloAparelho`, e uma operação cortada sumiria das duas; `Politica.indisponiveis` existe para ela. Frente de front-end aberta pelo orquestrador; enquanto ela não fecha, o corte está no motor e **não** está dito no Perfil. Suíte: 911 testes em 148 suítes, zero falhas.
 
-## ADR 2026-09-08n — Por que o NOSSO parser recusou, dito por ele mesmo (volta Q-C)
+## ADR 2026-09-08p — Por que o NOSSO parser recusou, dito por ele mesmo (volta Q-C)
 
 **A distância.** A 08m mediu que **3 de 15** execuções de `prepararPratica` não entregavam nada ao autor **depois** de o provedor ter entregue inteiro — HTTP 200, `finish_reason: stop`, `grok-4.6` confirmado, 3.777 a 6.865 tokens de raciocínio — e escreveu, honestamente, que quem recusou foi o nosso contrato de domínio. Mas parou aí. O re-G3 reprovou por isso e tem razão: `parsePreparacao` e `validar` são **onze guardas** e o JSONL guardava um `nil`. "O provedor devolveu conteúdo inválido" e "uma regra nossa é estreita" continuavam sendo inferências concorrentes, e ninguém pode decidir sobre uma régua que não consegue ler. **É a mesma lei que esta volta inteira aplicou ao provedor: falha sem motivo legível não é medida.** Nós a aplicávamos a ele e não a nós.
 
-**A decisão: a recusa tem nome, e o nome não custa o bruto.** `PraticaTrabalho.Recusa` é um enum com doze casos; `lerPreparacao` e `provar` devolvem `Result<_, Recusa>` e são a ÚNICA cópia das regras — `parsePreparacao` e `validar` viram `try? …get()`, para que a régua e o motivo nunca divirjam em silêncio. Cada caso redige **uma linha**: a categoria (`forma`, `limite`, `repetição`, `exemplo`, `vazamento`), o campo e uma **medida** — contagem, tamanho, índice do critério, nome de chave truncado em 32. Não vai o texto do exercício, que é a prática da pessoa, nem credencial, nem o bruto: exatamente a categoria que o revisor recomendou, mais o campo que ela sozinha não dá. No caso do vazamento, e só nele, vai o **quadrigrama normalizado** que casou — quatro palavras sem acento e sem pontuação, do EXEMPLO, que por contrato é outro caso e nunca a resposta-alvo. Sem ele a recusa diz "vazou" e não diz o quê, e continuaríamos sem poder julgar a régua. `Prova.vazamento` devolve esse trecho e `Prova.vaza` passa a ser `vazamento(…) != nil` — uma implementação, dois usos, para não haver duas contas de quatro palavras.
+**A decisão: a recusa tem nome, e o nome não custa o bruto.** `PraticaTrabalho.Recusa` é um enum com doze casos; `lerPreparacao` e `provar` devolvem `Result<_, Recusa>` e são a ÚNICA cópia das regras — `parsePreparacao` e `validar` viram `try? …get()`, para que a régua e o motivo nunca divirjam em silêncio. Cada caso redige **uma linha**: a categoria (`forma`, `limite`, `repetição`, `exemplo`, `vazamento`), o campo e uma **medida** — contagem, tamanho, índice do critério, nome de chave truncado em 32. Não vai o texto do exercício, que é a prática da pessoa, nem credencial, nem o bruto: exatamente a categoria que o revisor recomendou, mais o campo que ela sozinha não dá. No caso do vazamento o motivo precisa dizer mais que "vazou" — e é aí que a primeira redação desta ADR errou. Ela gravava o **quadrigrama normalizado** que casou, e o re-G3 reprovou com razão: tirar acento e pontuação não tira o conteúdo. O trecho é, por definição, texto do EXEMPLO; um exemplo com dado pessoal, texto selado ou credencial em quatro palavras seria publicado pela sonda. E o pedido que gerou o furo foi meu: pedi o trecho para provar o diagnóstico.
+
+**A correção: posição e contagem, nunca o trecho.** A recusa por vazamento registra (a) qual critério, (b) a partir de qual palavra do exemplo, de quantas, e (c) **quantas das palavras do trecho o AUTOR já tinha escrito neste pedido** — objetivo, resultado e instrução vigente, os três campos que a sonda já grava em `entrada` e que o leitor pode conferir sozinho. O trecho existe dentro de `provar` e morre lá. `Prova.vazamento` devolve `(trecho, palavra, de)` e `Prova.vaza` continua sendo `vazamento(…) != nil` — uma implementação, dois usos, para não haver duas contas de quatro palavras. O pedido do autor **não entra na régua**: nada passa nem cai por causa dele, e sem ele a recusa diz "origem não conferida" em vez de supor zero.
+
+**Por que contagem por palavra, e o que ela não garante.** Exigir as quatro palavras SEGUIDAS no pedido seria quase sempre falso — o autor escreve "separando o que foi concluído, a dependência e o próximo passo", não a frase do exemplo — e não distinguiria nada. Contar palavra a palavra distingue, mas palavra funcional ("a", "de") infla a conta: por isso **só o valor cheio** (todas as palavras do trecho já escritas pelo autor) sustenta sozinho "isto é vocabulário do pedido"; qualquer valor menor é indício e está escrito como indício. O hash do quadrigrama foi considerado e recusado: continua sendo oráculo de confirmação para quem tenha um palpite do texto, e não responde a pergunta que a ADR faz. O teste de privacidade agora procura a forma NORMALIZADA — o furo que o re-G3 achou era procurar só "¿dónde está la estación?" quando a saída seria "donde esta la estacion" — e varre palavra a palavra do exemplo em cada uma das doze linhas redigidas.
 
 Em DEBUG, `MotorTrabalho.prepararPratica` guarda a linha e a sonda a retira com `retirarRecusasDaPreparacao()`, do mesmo jeito que retira os diagnósticos do Grok; a chave `recusasDaPreparacao` só aparece no JSONL quando houve recusa.
 
@@ -5808,17 +5812,56 @@ Em DEBUG, `MotorTrabalho.prepararPratica` guarda a linha e a sonda a retira com 
 | 2DFC05C3 | q2-conhecido-preparar-apresentacao-proposta | 3 | vazamento · o critério 4 repete quatro palavras seguidas do exemplo |
 | 0065BE4A | revisor-sintetico-resumo-projeto-2x5 | 4 | vazamento · o critério 3 repete do exemplo as quatro palavras seguidas **“a dependencia ainda aberta”** |
 
+(Esta última linha é a redação ANTIGA, que carregava o trecho. Fica registrada porque o caso é **sintético e autorizado** — a régua da volta permite JSONL completo dessas entradas — e porque apagar a história para parecer limpo seria pior que declará-la. O mecanismo mudou: nenhuma recusa produz mais trecho.)
+
 **Cinco de cinco na MESMA guarda.** Nenhuma recusa foi de forma, de chave, de limite, de critério repetido ou de exemplo contido no enunciado: as onze outras guardas não dispararam uma vez. A recusa é **uma** — `Prova.vaza(criterio, alvo: exemplo)`, a última linha de `provar`.
 
-**De quem é o defeito: NOSSO, e o quadrigrama diz por quê.** O pedido de `revisor-sintetico-resumo-projeto-2x5` é escrever três frases "separando o que foi concluído, **a dependência** e o próximo passo". O critério que verifica isso precisa nomear a dependência; o exemplo resolvido, que por contrato é **outro projeto com fatos diferentes**, ensina a mesma estrutura com as mesmas palavras. As quatro que casaram — **“a dependencia ainda aberta”** — são o **vocabulário estrutural da tarefa**, não a resposta do caso-alvo: elas estão na instrução do autor antes de estarem no exemplo. O modelo cumpriu o que pedimos; a guarda recusou por semelhança de forma.
+**A segunda remedição (volta Q-D): a causalidade medida caso a caso, sem o trecho.**
+O re-G3 disse, com razão, que a conclusão "o defeito é nosso" estava provada em UMA das
+cinco recusas — só a quinta tinha quadrigrama. As outras quatro não têm como ser
+recuperadas: o bruto foi corretamente descartado e as corridas passaram. Então em vez de
+inferir, **remedi com o instrumento novo**. `C2416CBC`, install por cima, sem `uninstall`,
+`erase`, `clearState` nem `xcodebuild test`; conta conferida por listagem **autenticada** de
+12 modelos na abertura e no fecho (`qd-fumaca-abertura`/`qd-fumaca-fecho`) e
+`contaGrokLigada: true` em cada registro. Corrida `1B7E0E63`, os mesmos dois casos,
+6 repetições: **12 execuções de `prepararPratica`, 12 HTTP 200 completos de `grok-4.6`,
+4 recusas nossas.** Fixture `prova/qd-origem-casos.json` (`6e38dfbe…`), saídas inteiras em
+`prova/qd-origem-avaliacoes.jsonl` (`fd60c7c8…`).
 
-A raiz é uma importação com o `alvo` errado. Em Recordar, `Prova.vaza(pergunta, alvo:)` protege uma coisa exata: **o alvo É a resposta**, e quatro palavras dele na pergunta entregam o jogo. Em `provar` o `alvo` é o **exemplo**, que o nosso próprio prompt manda ser de outro caso e nunca a resposta-alvo. Repetir quatro palavras do exemplo num critério não entrega a tentativa da pessoa — entrega, no máximo, a estrutura que o exercício existe para ensinar. Herdamos a régua sem herdar a premissa.
+| caso | exec. | guarda | posição | origem |
+|---|---:|---|---|---|
+| revisor-sintetico-resumo-projeto-2x5 | 3 | **limite** | enunciado com 1582 caracteres, teto 1500 | — |
+| revisor-sintetico-resumo-projeto-2x5 | 4 | vazamento | critério 3, palavra 19 de 95 | **4 das 4** já escritas pelo autor |
+| q2-conhecido-preparar-apresentacao-proposta | 4 | vazamento | critério 5, palavra 80 de 85 | **4 das 4** já escritas pelo autor |
+| q2-conhecido-preparar-apresentacao-proposta | 5 | vazamento | critério 4, palavra 73 de 78 | **4 das 4** já escritas pelo autor |
 
-**E mesmo assim o parser NÃO muda nesta volta.** Alargar contrato de validação é volta própria, com régua antes do conserto, e por três razões que valem mais que a pressa: (1) a guarda protege de verdade contra o caso em que o exemplo É o caso-alvo disfarçado, e desligá-la sem uma régua nova reabre isso; (2) trocar o `alvo` de `exemplo` para "o que a pessoa deve produzir" exige nomear esse alvo, que hoje o contrato não tem campo para dizer; (3) o revisor tem de ver a régua antes, e não depois. **Vai para o RUMO, nomeado: `Prova.vaza` em `PraticaTrabalho.provar` usa o EXEMPLO como alvo e reprova vocabulário estrutural da tarefa — 5 de 18 preparações completas em 08/09/2026, quadrigrama medido “a dependencia ainda aberta”. Decidir o alvo certo, escrever a régua nos dois sentidos (o que deve passar e o que deve continuar sendo recusado) e só então mexer.** Até lá `EstadoPedido.praticaIndisponivel` continua contando a falha pedido a pedido na `TrabalhoView`, como a 08m decidiu, e a tabela `Politica` continua sem mudança.
+**O veredito, caso a caso, e ele não é arredondado para o nosso lado.** Nas **três** recusas
+por vazamento desta corrida, **as quatro palavras do trecho já estavam no pedido do autor —
+3 de 3 no valor cheio**. Com a quinta recusa da 08p (`“a dependencia ainda aberta”`, cujo
+vocabulário está na instrução), são **4 ocorrências com evidência exposta, 4 apontando para
+NÓS**. As **quatro recusas da corrida `2DFC05C3` continuam sem evidência individual** e
+assim ficam escritas: não foram contadas a favor.
+
+**O que isso NÃO prova.** A conta é por palavra, não por sequência; o pedido do autor tem
+93 palavras distintas num caso e 70 no outro, e palavra funcional ("a", "de", "o") entra na
+conta. Um trecho de quatro palavras funcionais daria 4 de 4 sem dizer nada. O que sustenta a
+leitura aqui é o valor CHEIO em três de três, num alvo de 70–93 palavras distintas — indício
+forte, não teorema. E a leitura de fundo continua a mesma: em `provar` o `alvo` de
+`Prova.vaza` é o EXEMPLO, que o nosso próprio prompt manda ser de outro caso e nunca a
+resposta-alvo; em Recordar o `alvo` É a resposta. Herdamos a régua sem herdar a premissa.
+
+**Uma correção de fato contra a 08p original: as outras guardas DISPARAM.** A redação
+anterior dizia "as onze outras guardas não dispararam uma vez", e isso valia para 18
+execuções. Em 12 novas, `limite · enunciado tem 1582 caracteres e o teto é 1500` disparou uma
+vez — guarda de tamanho, não de vazamento, e nada a ver com a régua importada. Somando as
+duas remedições: **30 execuções, 9 recusas (30 %), 8 por vazamento e 1 por limite.** A
+recusa por vazamento é DOMINANTE, não exclusiva, e a ADR passa a dizer isso.
+
+**E mesmo assim o parser NÃO muda nesta volta.** Alargar contrato de validação é volta própria, com régua antes do conserto, e por três razões que valem mais que a pressa: (1) a guarda protege de verdade contra o caso em que o exemplo É o caso-alvo disfarçado, e desligá-la sem uma régua nova reabre isso; (2) trocar o `alvo` de `exemplo` para "o que a pessoa deve produzir" exige nomear esse alvo, que hoje o contrato não tem campo para dizer; (3) o revisor tem de ver a régua antes, e não depois. **Vai para o RUMO, nomeado: `Prova.vaza` em `PraticaTrabalho.provar` usa o EXEMPLO como alvo e reprova vocabulário estrutural da tarefa — 8 recusas por essa guarda em 30 preparações completas em 08/09/2026, e nas quatro com origem exposta o quadrigrama era, palavra por palavra, vocabulário que o autor já tinha escrito no pedido. Decidir o alvo certo, escrever a régua nos dois sentidos (o que deve passar e o que deve continuar sendo recusado) e só então mexer.** Até lá `EstadoPedido.praticaIndisponivel` continua contando a falha pedido a pedido na `TrabalhoView`, como a 08m decidiu, e a tabela `Politica` continua sem mudança.
 
 **O teto: o teste passa a guardar o valor decidido, e são duas guardas, não uma.** `oTetoDeTrabalhoCobreAPiorLatenciaMedida` só exigia `>= 180` e `> 90` — passava com `181` e deixava cair os 240 s que a 08m decidiu, que é a folga, não o piso. Agora são três expectativas com papéis separados: o **piso observado** (`>= 179`, porque a pior execução inteira medida é 178,144 s), a lápide dos 90 s, e a **decisão** (`== 240`), com a mensagem dizendo que mudar o número é mudar a ADR e trazer medida nova ao lado. O comentário que chamava 141 s de "pior latência" foi corrigido: 141,058 s é a chamada isolada mais lenta; 178,144 s é a pior execução de ponta a ponta, com duas chamadas.
 
-**O que esta ADR não prova.** 18 execuções não são a distribuição: 5 de 18 (28 %) é consistente com os 3 de 15 (20 %) da 08m, e nada mais. Não medimos se as outras dez guardas recusam alguma vez — elas não dispararam nestas 18, o que é ausência de evidência. O quadrigrama vem de **uma** recusa (as quatro primeiras rodaram no binário anterior, sem o trecho); as cinco concordam na regra, não em qual quadrigrama. E esta volta **não julgou a qualidade** dos treze exercícios que passaram — mediu quem recusou e por quê, não se o que entrou serve.
+**O que esta ADR não prova.** 30 execuções não são a distribuição: 5 de 18 (28 %) e 4 de 12 (33 %) são consistentes com os 3 de 15 (20 %) da 08m, e nada mais. Das doze guardas, DUAS foram vistas recusar (vazamento e limite); das outras dez continua sendo ausência de evidência, não evidência de ausência. A causalidade tem evidência exposta em **quatro** ocorrências (três da `1B7E0E63` mais a quinta da `2DFC05C3`), não em todas as nove: as quatro recusas iniciais rodaram no binário anterior, sem posição nem origem, e não foram contadas. A origem é contagem por palavra num alvo de 70–93 palavras distintas, não prova de sequência. E esta volta **não julgou a qualidade** dos treze exercícios que passaram — mediu quem recusou e por quê, não se o que entrou serve.
 
 ## ADR 2026-09-08m — O teto das rotas de Trabalho é medido, não suposto (volta Q-B)
 

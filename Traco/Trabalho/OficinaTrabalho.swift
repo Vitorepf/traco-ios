@@ -507,11 +507,17 @@ extension MotorTrabalho {
                                              usuario: mensagem, temperatura: 0.3, timeout: Grok.tetoTrabalho,
                                              esquema: PraticaTrabalho.esquemaRemotoPreparacao, esforco: "high", modelo: Grok.modeloTrabalho)
         else { return nil }
-        switch PraticaTrabalho.lerPreparacao(cru).flatMap({ PraticaTrabalho.provar($0, dificuldade: d.dificuldadeVigente) }) {
+        // O que o AUTOR escreveu neste pedido — os três campos que a sonda já
+        // grava em `entrada`, para a origem do quadrigrama ser conferível sem
+        // o trecho (ADR 08p). Não entra na régua.
+        let doAutor = [p.instrucao, d.intencaoAtual.texto, d.intencaoAtual.resultado].joined(separator: " ")
+        switch PraticaTrabalho.lerPreparacao(cru).flatMap({
+            PraticaTrabalho.provar($0, dificuldade: d.dificuldadeVigente, pedidoDoAutor: doAutor)
+        }) {
         case let .success(pratica):
             return (pratica, "Grok · exercício preparado")
         case let .failure(recusa):
-            // ADR 08n: o provedor entregou e NÓS recusamos. Sem o motivo
+            // ADR 08p: o provedor entregou e NÓS recusamos. Sem o motivo
             // redigido ninguém decide se a regra está certa ou estreita.
             #if DEBUG
             recusasDaPreparacao.append(recusa.redigida)

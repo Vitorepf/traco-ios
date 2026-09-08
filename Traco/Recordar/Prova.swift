@@ -49,17 +49,23 @@ nonisolated enum Prova {
     ///   na pergunta — quatro palavras seguidas já é citação, não é apontar.
     static func vaza(_ pergunta: String, alvo: String) -> Bool { vazamento(pergunta, alvo: alvo) != nil }
 
-    /// O trecho normalizado que casou, para quem precisa AUDITAR a recusa
-    /// (ADR 08n) e não só sofrê-la. `nil` = não vaza.
-    static func vazamento(_ pergunta: String, alvo: String) -> String? {
+    /// O trecho normalizado que casou e ONDE ele começa no alvo, para quem
+    /// precisa AUDITAR a recusa (ADR 08p) e não só sofrê-la. `nil` = não vaza.
+    ///
+    /// O trecho é conteúdo do alvo: serve para decidir dentro do processo e
+    /// morre com ele. Quem REGISTRA a recusa guarda a posição e a origem, não
+    /// o texto — ver `PraticaTrabalho.Recusa.criterioVazaOExemplo`.
+    static func vazamento(_ pergunta: String, alvo: String) -> (trecho: String, palavra: Int, de: Int)? {
         let p = " " + normal(pergunta) + " "
         let a = normal(alvo)
         guard !a.isEmpty else { return nil }
         let termos = a.split(separator: " ").map(String.init)
-        guard termos.count > 3 else { return p.contains(" " + a + " ") ? a : nil }
+        guard termos.count > 3 else {
+            return p.contains(" " + a + " ") ? (a, 1, termos.count) : nil
+        }
         for i in 0...(termos.count - 4) {
             let gram = termos[i..<(i + 4)].joined(separator: " ")
-            if p.contains(" " + gram + " ") { return gram }
+            if p.contains(" " + gram + " ") { return (gram, i + 1, termos.count) }
         }
         return nil
     }

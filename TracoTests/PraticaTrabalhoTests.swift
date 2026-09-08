@@ -406,9 +406,10 @@ struct PraticaTrabalhoTests {
         #expect(PraticaTrabalho.validar(semCapacidade) == nil)
     }
 
-    /// ADR 08n: cada guarda tem um motivo próprio, e nenhum motivo carrega o
-    /// texto do exercício. Sem isto, "o parser é estreito" e "o provedor errou"
-    /// continuam sendo inferências concorrentes em vez de fatos.
+    /// ADR 08p: cada guarda tem um motivo próprio, e nenhum motivo carrega o
+    /// texto do exercício — nem na forma NORMALIZADA, que é como o quadrigrama
+    /// sairia. Sem isto, "o parser é estreito" e "o provedor errou" continuam
+    /// sendo inferências concorrentes em vez de fatos.
     @Test func cadaRecusaDaPreparacaoDizQualGuardaFoiSemVazarOConteudo() {
         let segredo = "¿dónde está la estación?"
         var longa = preparada()
@@ -427,16 +428,67 @@ struct PraticaTrabalhoTests {
                                                   "Diz \(segredo) como no exemplo."])), "vazamento"),
         ]
         #expect(Set(casos.map(\.0)).count == casos.count) // motivos distintos, não um genérico
+        // O furo que o re-G3 achou: procurar só a forma acentuada deixa passar
+        // "donde esta la estacion". A busca é na forma normalizada, palavra a
+        // palavra do exemplo — que é o que a guarda do vazamento manipula.
+        let doExemplo = Prova.normal(preparada().exemplo)
+            .split(separator: " ").map(String.init).filter { $0.count >= 5 }
+        #expect(doExemplo.contains("estacion") && doExemplo.contains("informacao"))
         for (recusa, categoria) in casos {
-            #expect(recusa.redigida.hasPrefix(categoria + " · "), "\(recusa)")
-            #expect(!recusa.redigida.contains(segredo), "\(recusa)")
-            #expect(!recusa.redigida.lowercased().contains("frases"), "\(recusa)")
+            let linha = recusa.redigida
+            #expect(linha.hasPrefix(categoria + " · "), "\(recusa)")
+            #expect(!linha.contains(segredo), "\(recusa)")
+            #expect(!linha.lowercased().contains("frases"), "\(recusa)")
+            #expect(!Prova.normal(linha).contains(Prova.normal(segredo)), "\(recusa)")
+            for palavra in doExemplo {
+                #expect(!Prova.normal(linha).contains(palavra), "\(palavra) em \(recusa)")
+            }
         }
         let exemploNoEnunciado = PraticaTrabalho.Preparada(
             capacidade: "Escrever", situacao: "Apresentação",
             enunciado: "Escreva sobre você. Um outro caso resolvido.",
             exemplo: "Um outro caso resolvido.", criterios: ["Tem sujeito.", "Usa verbo."])
         #expect(recusaAoProvar(exemploNoEnunciado).redigida.hasPrefix("exemplo · "))
+    }
+
+    /// ADR 08p: a recusa por vazamento tem de sustentar o diagnóstico — de
+    /// quem é o vocabulário — SEM carregar o vocabulário. Posição e contagem
+    /// fazem as duas coisas; o trecho fazia só a primeira, vazando.
+    @Test func aRecusaPorVazamentoContaAOrigemDoQuadrigramaSemOTrecho() {
+        let vazando = preparada(criterios: ["Escreve três frases completas.",
+                                            "Diz ¿dónde está la estación? como no exemplo."])
+        let palavrasDoExemplo = Prova.normal(vazando.exemplo).split(separator: " ").count
+
+        // 1. O autor não escreveu nenhuma dessas palavras: a guarda acertou.
+        guard case let .failure(soDoExemplo) = PraticaTrabalho.provar(
+            vazando, pedidoDoAutor: "Quero me apresentar a um vizinho novo."),
+              case let .criterioVazaOExemplo(indice, palavra, de, quantas, nenhuma) = soDoExemplo else {
+            Issue.record("outra guarda recusou, ou aceitou: \(#function)"); return
+        }
+        #expect(indice == 1)
+        #expect(de == palavrasDoExemplo)
+        #expect((1...de).contains(palavra))
+        #expect(quantas == 4)
+        #expect(nenhuma == 0)
+        #expect(soDoExemplo.redigida.contains("nenhuma dessas palavras está no pedido do autor"))
+
+        // 2. O autor JÁ tinha escrito as quatro: o defeito é da régua.
+        guard case let .failure(doPedido) = PraticaTrabalho.provar(
+            vazando, pedidoDoAutor: "Me ensine a dizer ¿dónde está la estación? na rua."),
+              case .criterioVazaOExemplo(_, _, _, 4, 4) = doPedido else {
+            Issue.record("não contou o vocabulário do próprio pedido"); return
+        }
+        #expect(doPedido.redigida.contains("4 dessas 4 palavras o autor já tinha escrito"))
+
+        // 3. Sem o pedido, a recusa diz que não conferiu — não supõe zero.
+        guard case let .failure(semPedido) = PraticaTrabalho.provar(vazando),
+              case .criterioVazaOExemplo(_, _, _, _, nil) = semPedido else {
+            Issue.record("supôs origem sem o pedido do autor"); return
+        }
+        #expect(semPedido.redigida.contains("origem não conferida"))
+
+        // A origem NÃO altera a régua: os três recusam pela mesma guarda.
+        #expect(PraticaTrabalho.validar(vazando) == nil)
     }
 
     private func recusaAoLer(_ cru: String) -> PraticaTrabalho.Recusa {

@@ -121,7 +121,7 @@ enum AvaliacaoIA {
                         registro["erro"] = String(reflecting: error)
                     }
                     registro["chamadasGrok"] = try objeto(Grok.retirarDiagnosticos())
-                    // ADR 08n: quando o provedor entrega e o nosso contrato
+                    // ADR 08p: quando o provedor entrega e o nosso contrato
                     // recusa, a linha redigida diz qual guarda foi.
                     let recusas = MotorTrabalho.retirarRecusasDaPreparacao()
                     if !recusas.isEmpty { registro["recusasDaPreparacao"] = recusas }

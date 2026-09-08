@@ -122,11 +122,24 @@ nonisolated enum PraticaTrabalho {
         "capacidade", "situacao", "enunciado", "exemplo", "criterios",
     ]
 
-    /// ADR 2026-09-08n: falha sem motivo legível não é medida. Cada guarda de
+    /// ADR 2026-09-08p: falha sem motivo legível não é medida. Cada guarda de
     /// `lerPreparacao` e `provar` tem nome. A recusa devolve a REGRA, o CAMPO
     /// e uma MEDIDA — contagem, tamanho, nome de chave. Nunca o texto do
     /// exercício, que é a prática da pessoa, nem credencial: a recusa vai para
     /// a sonda de DEBUG e para a ADR, e o bruto continua descartado.
+    ///
+    /// Inclusive no vazamento: o quadrigrama que casou É conteúdo do exemplo, e
+    /// registrá-lo — normalizado ou não — o publicaria. O que se registra é
+    /// POSIÇÃO (qual critério, qual palavra do exemplo, de quantas) e ORIGEM
+    /// (QUANTAS das palavras do trecho o AUTOR já tinha escrito neste pedido).
+    /// A origem é a evidência que decide de quem é o defeito, e é conferível
+    /// pela `entrada` que a sonda já grava, sem o trecho.
+    ///
+    /// A conta é por palavra, não por sequência: exigir as quatro SEGUIDAS no
+    /// pedido seria quase sempre falso e diria pouco. Em troca, palavra
+    /// funcional ("a", "de") infla a conta — por isso só o valor CHEIO
+    /// (todas as palavras do trecho já escritas pelo autor) sustenta sozinho
+    /// "isto é vocabulário do pedido"; qualquer valor menor é indício.
     nonisolated enum Recusa: Error, Hashable, Sendable {
         case jsonInvalido(bytes: Int)
         case chavesForaDoContrato(faltando: [String], sobrando: [String])
@@ -139,7 +152,8 @@ nonisolated enum PraticaTrabalho {
         case criteriosRepetidos(distintos: Int, de: Int)
         case exemploIgualAoEnunciado(palavras: Int)
         case exemploContidoNoEnunciado(exemplo: Int, enunciado: Int)
-        case criterioVazaOExemplo(indice: Int, trecho: String)
+        case criterioVazaOExemplo(indice: Int, palavra: Int, de: Int,
+                                  trechoPalavras: Int, noPedidoDoAutor: Int?)
 
         /// Uma linha, começando pela categoria — é o que a sonda grava.
         var redigida: String {
@@ -166,9 +180,20 @@ nonisolated enum PraticaTrabalho {
                 "exemplo · exemplo e enunciado são o mesmo texto normalizado (\(palavras) palavras)"
             case let .exemploContidoNoEnunciado(exemplo, enunciado):
                 "exemplo · o exemplo (\(exemplo) palavras) está contido no enunciado (\(enunciado) palavras)"
-            case let .criterioVazaOExemplo(indice, trecho):
-                "vazamento · o critério \(indice + 1) repete do exemplo as quatro palavras seguidas “\(trecho)”"
+            case let .criterioVazaOExemplo(indice, palavra, de, trechoPalavras, noPedido):
+                "vazamento · o critério \(indice + 1) repete \(trechoPalavras) palavras seguidas do exemplo (a partir da palavra \(palavra) de \(de)) · \(Self.origem(noPedido, de: trechoPalavras))"
             }
+        }
+
+        /// De quem é o vocabulário: a linha que sustenta a causalidade sem
+        /// carregar o conteúdo. `nil` só quando o pedido não foi passado.
+        private static func origem(_ noPedidoDoAutor: Int?, de trechoPalavras: Int) -> String {
+            guard let n = noPedidoDoAutor else {
+                return "origem não conferida (o pedido do autor não foi passado à prova)"
+            }
+            return n == 0
+                ? "nenhuma dessas palavras está no pedido do autor"
+                : "\(n) dessas \(trechoPalavras) palavras o autor já tinha escrito no pedido"
         }
     }
 
@@ -207,7 +232,15 @@ nonisolated enum PraticaTrabalho {
     }
 
     /// A mesma prova, dizendo qual guarda recusou.
-    static func provar(_ p: Preparada, dificuldade: DocumentoTrabalho.Hipotese? = nil) -> Result<DocumentoTrabalho.Pratica, Recusa> {
+    ///
+    /// `pedidoDoAutor` são as palavras que a PESSOA escreveu neste pedido —
+    /// objetivo, resultado e instrução vigente. Não entra na régua: nada passa
+    /// nem cai por causa dele. Serve só para a recusa por vazamento CONTAR
+    /// quantas palavras do trecho já eram vocabulário do próprio pedido
+    /// (defeito NOSSO) e quantas só existem no exemplo (a guarda acertou).
+    /// Ausente = não conferido, e a recusa diz isso em vez de supor (ADR 08p).
+    static func provar(_ p: Preparada, dificuldade: DocumentoTrabalho.Hipotese? = nil,
+                       pedidoDoAutor: String? = nil) -> Result<DocumentoTrabalho.Pratica, Recusa> {
         for (nome, valor, teto) in [("capacidade", p.capacidade, Limite.capacidade),
                                     ("situacao", p.situacao, Limite.situacao),
                                     ("enunciado", p.enunciado, Limite.enunciado),
@@ -239,8 +272,16 @@ nonisolated enum PraticaTrabalho {
             return .failure(.exemploContidoNoEnunciado(exemplo: palavras(normalExemplo), enunciado: palavras(normalEnunciado)))
         }
         for (i, c) in criterios.enumerated() {
-            if let trecho = Prova.vazamento(c, alvo: p.exemplo) {
-                return .failure(.criterioVazaOExemplo(indice: i, trecho: trecho))
+            if let casado = Prova.vazamento(c, alvo: p.exemplo) {
+                // O trecho morre aqui: só a posição e a contagem seguem viagem.
+                let termos = casado.trecho.split(separator: " ").map(String.init)
+                let doAutor = pedidoDoAutor.map { " " + Prova.normal($0) + " " }
+                return .failure(.criterioVazaOExemplo(
+                    indice: i, palavra: casado.palavra, de: casado.de,
+                    trechoPalavras: termos.count,
+                    noPedidoDoAutor: doAutor.map { pedido in
+                        termos.filter { pedido.contains(" " + $0 + " ") }.count
+                    }))
             }
         }
         return .success(.init(capacidade: p.capacidade, situacao: p.situacao,

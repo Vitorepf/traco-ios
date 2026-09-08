@@ -1,6 +1,11 @@
 # Q-C — por que o nosso parser recusou, dito por ele mesmo
 
-Implementador, worktree `volta-q-qualidade`, 08/09/2026. ADR **2026-09-08n** em `SPEC.md`.
+Implementador, worktree `volta-q-qualidade`, 08/09/2026. ADR **2026-09-08p** em `SPEC.md`.
+
+> **Corrigido pela volta Q-D (08/09, mesmo dia).** Três coisas deste relatório não valem mais:
+> a letra da ADR era `08n` e colidia (virou `08p`); a recusa por vazamento **não emite mais o
+> quadrigrama**, e sim posição e contagem de origem; e "as onze outras guardas não dispararam
+> uma vez" caiu numa corrida nova. Leia `ferramentas/orca/q-d-origem-sem-vazamento.md`.
 
 ## O que o re-G3 pediu, e o que saiu
 

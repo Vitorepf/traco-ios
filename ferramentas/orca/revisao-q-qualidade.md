@@ -206,3 +206,83 @@ o comentário/relato para não prometer uma proteção que o teste não fornece.
 | Privacidade e autoria | 9 | não recomendo salvar bruto; a categoria de recusa basta para investigar sem expor prática |
 | Simplicidade | 9 | um teto para quatro chamadas; sem passo novo para o autor |
 | Demais dimensões | n/a | volta de motor, sem mudança de view, componente, movimento ou fora do app |
+
+# re-G3 (segundo)
+
+## Veredito: CORRIGIR ANTES
+
+O teto agora está realmente protegido e a leitura/validação produtiva converge
+numa única régua, mas não aprovo este candidato: a ADR usa `08n`, já ocupada em
+`main` e na volta A1, e a instrumentação ainda serializa quatro palavras do
+exemplo — conteúdo que pode ser protegido — no JSONL de DEBUG.
+
+Não alterei Swift nem toquei no `C2416CBC`: ele permaneceu ligado, sem
+`erase`, `clearState`, `uninstall`, Safari ou `xcodebuild test`. A revisão
+leu o código, as cinco linhas de recusa, a ADR e as provas já registradas;
+build e testes foram só no `34CC3F94`, sempre por `com-trava.sh` e sem paralelo.
+
+## Achados
+
+### [P1] A ADR 08n colide com `main` e com a volta A1 viva
+
+Esta branch escreve `## ADR 2026-09-08n — Por que o NOSSO parser...`
+(`SPEC.md:5793`). `git show main:SPEC.md` já contém `08n — Cancelar não apaga
+o que já foi observado` e `git show Vitorepf/volta-a1-arranque:SPEC.md` contém
+`08n — O arranque que não abre...`. Portanto a letra usada foi **08n**, não
+uma letra livre; a colisão impede levar a ADR adiante como está. Renumerar para
+a próxima letra desocupada e conferir de novo as voltas vivas antes do merge.
+
+### [P1] O quadrigrama é conteúdo do exemplo, não só uma medida segura
+
+`Recusa.criterioVazaOExemplo(indice:trecho:)` conserva `trecho` e
+`redigida` o emite literalmente; `MotorTrabalho` o põe em
+`recusasDaPreparacao` e `AvaliacaoIA` o persiste no JSONL. A normalização tira
+acento e pontuação, não retira o conteúdo: um exemplo que contivesse dado
+pessoal, texto selado ou credencial em quatro palavras o publicaria na sonda.
+O teste de privacidade não fecha esse furo: usa `segredo = "¿dónde está la
+estación?"`, mas a saída seria `donde esta la estacion`, e só procura a forma
+com acento/pontuação. A exigência de motivo auditável é válida; a medida deve
+ser não reversível/estrutural ou a captura precisa estar sob a mesma proteção
+do exemplo, com teste que prove o caso normalizado.
+
+### [P2] A conclusão causal é correta para a regra, mas excede a prova das cinco saídas
+
+As cinco linhas em `prova/qc-recusa-avaliacoes.jsonl` confirmam a **mesma
+guarda** `vazamento`; só a quinta (`0065BE4A`, caso do revisor, repetição 4)
+expõe `“a dependencia ainda aberta”`. Esse vocabulário descreve a estrutura
+que o pedido manda separar (concluído, dependência, próximo passo), não entrega
+o fato-alvo — concordo que essa ocorrência não deveria ser recusada pela régua
+herdada de Recordar, cujo alvo é a própria resposta. Porém as quatro recusas
+anteriores registram apenas categoria e índice, sem quadrigrama; como o bruto
+foi corretamente descartado, elas não permitem afirmar que **as cinco** têm o
+mesmo conteúdo estrutural. A ADR já reconhece esse limite no final; a conclusão
+deve conservar essa qualificação.
+
+## Conferências que passam
+
+- **Uma cópia produtiva das regras:** `MotorTrabalho.prepararPratica` é o único
+  caminho produtivo encontrado e compõe `lerPreparacao(...).flatMap(provar)`.
+  `parsePreparacao` e `validar` são wrappers `try? ...get()`, sem validação
+  paralela divergente; não encontrei outro chamador que aceite preparação.
+- **Teto:** `GrokContratoTests` separa piso `>= 179`, marco histórico `> 90` e
+  decisão `== 240`. Em worktree temporário isolado, baixar
+  `Grok.tetoTrabalho` para 239 deixou vermelho exatamente o `== 240`; subir o
+  piso a 241 deixou vermelho exatamente o `>= 241`. Os dois vermelhos também
+  acusaram um `PortaoDoMovimentoTests` pré-existente do snapshot isolado
+  (`privateAnalise/AnaliseDeBordo.swift` ausente), não atribuído a esta mutação.
+- **Candidato atual:** build passou no `34CC3F94`; a suíte integral
+  passou **916 testes, 0 falhas** no mesmo UDID (`xcresult`, iOS 26.5), com
+  `-parallel-testing-enabled NO`.
+
+## Scorecard re-G3 (segundo)
+
+| dimensão | nota | evidência |
+|---|---:|---|
+| Contrato | 7 | a ADR 08n colide com main e A1 viva |
+| Correção | 9 | 916/0; piso e decisão ficam vermelhos nas mutações certas |
+| Privacidade e autoria | 7 | quadrigrama normalizado de exemplo pode sair no JSONL |
+| Estado honesto | 8 | a guarda é auditável; quatro das cinco não têm trecho para sustentar a causalidade individual |
+| Simplicidade | 9 | uma leitura/prova produtiva, sem cópia divergente |
+| Performance | 9 | teto central continua 240 e a suíte não regrediu |
+| Jornada real | 8 | li a remedição real preservada; não reexecutei a conta do dono |
+| Demais dimensões | n/a | sem mudança de view, componente, movimento ou fora do app |
