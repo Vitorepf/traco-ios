@@ -1,0 +1,34 @@
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild test -scheme Traco -destination id=C7341E64-3A33-4ADD-AF6C-9296215FAD09 "-only-testing:TracoTests/PortaoDoMovimentoTests" -derivedDataPath /private/tmp/claude-501/-Users-vitorepf-orca-workspaces-traco-ios-volta-p1-portao-movimento/eecc6d38-ee5e-46df-8133-26e2711a046e/scratchpad/dd
+    Target 'TracoTests' in project 'Traco'
+        ➜ Explicit dependency on target 'Traco' in project 'Traco'
+    Target 'Traco' in project 'Traco'
+        ➜ Explicit dependency on target 'TracoWidget' in project 'Traco'
+    Target 'TracoWidget' in project 'Traco' (no dependencies)
+    cd /Users/vitorepf/orca/workspaces/traco-ios/volta-p1-portao-movimento/Traco.xcodeproj
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -o /tmp/claude-501/-Users-vitorepf-orca-workspaces-traco-ios-volta-p1-portao-movimento/eecc6d38-ee5e-46df-8133-26e2711a046e/scratchpad/dd/SDKStatCaches.noindex/iphonesimulator26.5-23F81a-6cfe768891a92b912361537c460fe42b.sdkstatcache
+◇ Test run started.
+↳ Testing Library Version: 1902
+↳ Target Platform: arm64-apple-ios13.0-simulator
+◇ Suite PortaoDoMovimentoTests started.
+◇ Test aVarreduraAindaEnxerga() started.
+✔ Test aVarreduraAindaEnxerga() passed after 0.008 seconds.
+◇ Test nenhumMovimentoNovoForaDeTema() started.
+✘ Test nenhumMovimentoNovoForaDeTema() recorded an issue at PortaoDoMovimentoTests.swift:188:9: Expectation failed: (divergencias → ["Traco/Componentes/ProvaPortaoG3.swift: 2 hoje, 0 congelado  ← SUBIU", "Traco/Padroes/PadroesView.swift: 2 hoje, 0 congelado  ← SUBIU"]).isEmpty → false
+↳ curva ou duração LITERAL nova fora de Tema:
+  Traco/Componentes/ProvaPortaoG3.swift: 2 hoje, 0 congelado  ← SUBIU
+  Traco/Padroes/PadroesView.swift: 2 hoje, 0 congelado  ← SUBIU
+  
+  A classe de movimento é quem decide o comportamento sob Reduzir
+  Movimento (ADR 05y), e ela mora em `Tema`, num lugar só. Escreva
+  `.animation(Tema.movimento(.classe, curva, reduzido: reduceMotion), value: x)`
+  com a curva vinda de `Tema.Mola.*` / `Tema.Duracao.*` — passar a
+  curva DENTRO da chamada a `Tema` é a forma certa e não conta aqui.
+  O que conta é a curva solta na view e o número cru de tempo.
+  
+  o que a varredura viu:
+  Traco/Componentes/ProvaPortaoG3.swift:8: .onTapGesture { withAnimation(.spring(response: 0.4)) { x.toggle() } }
+  Traco/Padroes/PadroesView.swift:150: private let curvaDaPlantaG3: Animation = .easeInOut(duration: 0.42)
+✘ Test nenhumMovimentoNovoForaDeTema() failed after 0.990 seconds with 1 issue.
+✘ Suite PortaoDoMovimentoTests failed after 1.000 seconds with 1 issue.
+✘ Test run with 2 tests in 1 suite failed after 1.000 seconds with 1 issue.
+** TEST FAILED **
