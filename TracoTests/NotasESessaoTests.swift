@@ -78,6 +78,21 @@ struct NotasFiltroTests {
         #expect(!fantasma.temVoz)
         #expect(campo.temVoz)
     }
+
+    /// ADR 08p: a nota que nasce só com um bloco "Seção" vazio tem texto cru
+    /// ("## ") e nenhum nome — a lista não pode mostrar uma linha em branco.
+    /// Código sozinho é voz e tem nome: continua entrando.
+    @Test func paginaSemNomeNaoViraLinhaEmBranco() {
+        let soSecao = Nota(texto: "## ")
+        let soCodigo = Nota(texto: "```swift\nlet x = 1\n```")
+        let comNome = Nota(texto: "## Ideias")
+        let v = NotasFiltro.visiveis([soSecao, soCodigo, comNome], busca: "", filtro: nil)
+        #expect(soSecao.temVoz, "a raiz: o texto cru conta como voz")
+        #expect(soSecao.tituloNaLista.isEmpty)
+        #expect(!v.contains { $0.texto == "## " })
+        #expect(v.contains { $0.texto.hasPrefix("```") })
+        #expect(v.contains { $0.tituloNaLista == "Ideias" })
+    }
 }
 
 @MainActor

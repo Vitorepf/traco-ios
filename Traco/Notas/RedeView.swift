@@ -74,12 +74,7 @@ struct RedeView: View {
                         .lineLimit(1)
                 }
                 Spacer()
-                Button("Pronto") { dismiss() }
-                    .font(Tema.barra)
-                    .foregroundStyle(Tema.tinta)
-                    .padding(.horizontal, 14)
-                    .frame(height: 36)
-                    .background(Tema.chip, in: Capsule())
+                Pilula("Pronto", forma: .acao) { dismiss() }
                     .accessibilityIdentifier("rede-pronto")
             }
 

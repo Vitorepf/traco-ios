@@ -9,6 +9,7 @@ struct NotasView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.dynamicTypeSize) private var tamanhoTexto
     @Query(sort: \Nota.criadaEm, order: .reverse) private var notas: [Nota]
+    @Query private var trabalhos: [Trabalho]
     @State private var conversaNotas = ConversaNotas()
     private var busca: String {
         get { conversaNotas.entrada }
@@ -28,6 +29,9 @@ struct NotasView: View {
     @State private var escolhidas: Set<UUID> = []
     @State private var confirmarLote = false
     @State private var mostrarTrabalhos = false
+    /// ADR 08p: há chip fora da régua, à direita? Nasce verdadeiro: 29 chips
+    /// nunca cabem num iPhone; a geometria do scroll corrige no primeiro layout.
+    @State private var haMaisChips = true
 
     var body: some View {
         telaNotas
@@ -53,15 +57,6 @@ struct NotasView: View {
             Tema.fundo.ignoresSafeArea()
             VStack(alignment: .leading, spacing: 0) {
                 topbar
-                Button { mostrarTrabalhos = true } label: {
-                    Label("Trabalhos", systemImage: "doc.text")
-                        .font(Tema.meta)
-                        .foregroundStyle(Tema.ambarTinta)
-                        .alvo()
-                }
-                .padding(.horizontal, Tema.margem)
-                .accessibilityHint("Retoma intenções, versões e próximos atos")
-                .accessibilityIdentifier("abrir-trabalhos")
                 chips
                 lista
             }
@@ -152,6 +147,7 @@ struct NotasView: View {
                             .accessibilityIdentifier("resposta-sabia-notas")
                     }
                     .frame(maxHeight: 220)
+                    .fixedSize(horizontal: false, vertical: true)
                     if !titulosNaPergunta.isEmpty {
                         Text("Foram junto: " + titulosNaPergunta.prefix(4).joined(separator: " · ")
                              + (titulosNaPergunta.count > 4 ? " · e mais \(titulosNaPergunta.count - 4)" : ""))
@@ -183,7 +179,10 @@ struct NotasView: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .accessibilityIdentifier("pergunta-pendente-notas")
                     }
+                    // ADR 08p: o teto é teto, não altura — sem isto a pergunta de
+                    // uma linha guardava ~100 pt de vão até "a sábia não respondeu."
                     .frame(maxHeight: 120)
+                    .fixedSize(horizontal: false, vertical: true)
                     LinhaDeEstado(conversaNotas.estado == .recolhida(pergunta)
                                   ? "A resposta foi recolhida porque uma fonte mudou ou deixou de estar acessível."
                                   : conversaNotas.estado == .interrompida(pergunta)
@@ -195,6 +194,10 @@ struct NotasView: View {
                         .foregroundStyle(Tema.ambarTinta)
                         .alvo()
                         .buttonStyle(.discreto)
+                        // AX5 cortava em "Repetir pergu…" (e, com o fixedSize no
+                        // rótulo, o botão media uma linha e desenhava duas por
+                        // cima das vizinhas): o botão inteiro toma a altura do texto
+                        .fixedSize(horizontal: false, vertical: true)
                         .accessibilityIdentifier("repetir-pergunta-notas")
                 }
                 if conversaNotas.semModelo {
@@ -422,13 +425,31 @@ struct NotasView: View {
         // 128pt até a lista, três ilhas soltas onde devia haver uma coluna
         // (law-of-proximity).
         .frame(height: Tema.alvo)
-        .mask(
-            HStack(spacing: 0) {
-                Rectangle()
-                LinearGradient(colors: [.black, .clear], startPoint: .leading, endPoint: .trailing)
-                    .frame(width: 28)
+        // ADR 08p: o esfumado de 28 pt apagava o chip seguinte inteiro e a
+        // régua parecia acabar em "Especificação"; e o chip cortado na borda
+        // não é sinal confiável — no 17e a borda cai no vão entre dois chips.
+        // A seta só existe enquanto há chip omitido à direita, e some no fim.
+        .onScrollGeometryChange(for: Bool.self) { g in
+            g.contentOffset.x + g.containerSize.width < g.contentSize.width - 1
+        } action: { _, novo in haMaisChips = novo }
+        .overlay(alignment: .trailing) {
+            if haMaisChips {
+                HStack(spacing: 0) {
+                    LinearGradient(colors: [Tema.fundo.opacity(0), Tema.fundo],
+                                   startPoint: .leading, endPoint: .trailing)
+                        .frame(width: 28)
+                    Image(systemName: "chevron.forward")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(Tema.tintaFraca)
+                        .frame(width: Tema.margem, height: Tema.alvo)
+                        .background(Tema.fundo)
+                }
+                .allowsHitTesting(false)
+                .accessibilityHidden(true)
+                .transition(Tema.transicao(.opacity, reduzido: reduceMotion))
             }
-        )
+        }
+        .animation(Tema.animacao(.easeOut(duration: Tema.Duracao.curta), reduzido: reduceMotion), value: haMaisChips)
         .padding(.bottom, 8)
         .accessibilityHint("Um filtro por vez")
         .sheet(isPresented: Binding(get: { contextoURL != nil },
@@ -542,7 +563,7 @@ struct NotasView: View {
                         Text(titulo(par.nota))
                             .font(Tema.meta)
                             .foregroundStyle(Tema.tintaFraca)
-                            .lineLimit(1)
+                            .lineLimit(tamanhoTexto.isAccessibilitySize ? nil : 1)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .contentShape(Rectangle())
@@ -560,6 +581,41 @@ struct NotasView: View {
         }
     }
 
+    /// ADR 08p: Trabalhos é destino, não ação — e destino vestido de link âmbar
+    /// no chrome era o defeito que o §20 tirou do rodapé e a 05f do topo. Aqui
+    /// é uma linha da lista com a seta que todo iPhone lê como "abre"
+    /// (jakobs-law); rola com o arquivo e some quando o autor está buscando.
+    @ViewBuilder private var linhaTrabalhos: some View {
+        if busca.isEmpty, filtro == nil, filtroDominio == nil {
+            Button { mostrarTrabalhos = true } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: "doc.text")
+                        .font(Tema.meta)
+                        .foregroundStyle(Tema.tintaSuave)
+                    Text("Trabalhos")
+                        .font(Tema.chrome)
+                        .foregroundStyle(Tema.tinta)
+                    Spacer()
+                    if !trabalhos.isEmpty {
+                        Text("\(trabalhos.count)")
+                            .font(Tema.meta)
+                            .foregroundStyle(Tema.tintaSuave)
+                    }
+                    Image(systemName: "chevron.forward")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(Tema.tintaFraca)
+                }
+                .padding(.top, 8)
+                .alvo()
+            }
+            .buttonStyle(.discreto)
+            .accessibilityLabel(trabalhos.isEmpty ? "Trabalhos" : "Trabalhos, \(trabalhos.count)")
+            .accessibilityHint("Retoma intenções, versões e próximos atos")
+            .accessibilityIdentifier("abrir-trabalhos")
+            Rectangle().fill(Tema.linha).frame(height: 0.5)
+        }
+    }
+
     private var lista: some View {
         let visiveis = filtradas
         return Group {
@@ -572,16 +628,20 @@ struct NotasView: View {
                 // a saída tem que ser do BURACO em que o autor caiu: quando
                 // o vazio é da busca, "escrever na página" joga fora o que
                 // ele estava procurando em vez de devolver o arquivo
-                Vazio(frase: vazioTitulo, acao: busca.isEmpty && filtro == nil && filtroDominio == nil
-                      ? .init("escrever na página") {
-                          sessao.novaPagina()
-                          sessao.mostrarNotas = false
-                      }
-                      : .init("ver todas as notas", id: "limpar-busca") {
-                          busca = ""
-                          filtro = nil
-                          filtroDominio = nil
-                      })
+                VStack(alignment: .leading, spacing: 0) {
+                    // a porta dos Trabalhos existe mesmo com o arquivo vazio
+                    linhaTrabalhos.padding(.horizontal, Tema.margem)
+                    Vazio(frase: vazioTitulo, acao: busca.isEmpty && filtro == nil && filtroDominio == nil
+                          ? .init("escrever na página") {
+                              sessao.novaPagina()
+                              sessao.mostrarNotas = false
+                          }
+                          : .init("ver todas as notas", id: "limpar-busca") {
+                              busca = ""
+                              filtro = nil
+                              filtroDominio = nil
+                          })
+                }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             } else {
                 ScrollView {
@@ -601,6 +661,7 @@ struct NotasView: View {
                                 .foregroundStyle(Tema.tintaSuave)
                                 .padding(.top, 12)
                         }
+                        linhaTrabalhos
                         secaoDaVolta
                         ForEach(meses(visiveis), id: \.titulo) { secao in
                             Text(secao.titulo)
@@ -665,10 +726,12 @@ struct NotasView: View {
     /// A busca não dizia quantas achou: o autor não sabia se tinha terminado
     /// (zeigarnik-effect).
     private func contagem(_ n: Int) -> String {
-        if !busca.isEmpty {
-            return n == 1 ? "1 nota com “\(busca)”" : "\(n) notas com “\(busca)”"
-        }
-        return n == 1 ? "1 nota" : "\(n) notas"
+        let notas = n == 1 ? "1 nota" : "\(n) notas"
+        if !busca.isEmpty { return "\(notas) com “\(busca)”" }
+        // o chip aceso pode ter rolado para fora da régua: a contagem diz por quê
+        if let filtro { return "\(notas) · \(filtro.rawValue)" }
+        if let filtroDominio { return "\(notas) · \(filtroDominio.nome)" }
+        return notas
     }
 
     private func abrirDaLista(_ nota: Nota) {
@@ -721,7 +784,8 @@ struct NotasView: View {
                     } else {
                         DestaqueBusca.texto(titulo(nota), termo: busca, base: Tema.tinta)
                             .font(Tema.chrome.weight(.semibold))
-                            .lineLimit(2)
+                            // em AX o teto de duas linhas cortava "Quero dormir mais cedo est…"
+                            .lineLimit(tamanhoTexto.isAccessibilitySize ? nil : 2)
                         HStack(spacing: 8) {
                             if let g = nota.gesto {
                                 Pilula(g.nome, forma: .etiqueta)
