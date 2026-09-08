@@ -336,3 +336,26 @@ ninguém toca) e o `A1DF082C` (revisor da V13, vivo). A Q-F liga o `34CC3F94` e 
 A1-D religa o `6033B043` — **um por worker**, como o dono mandou. Caçador de
 fala rodado antes deste ciclo: **zero processos**.
 
+## 08/09, 20h30 — o G3 da V13: tudo confirmado na tela, e ainda assim NÃO PASSA
+
+O revisor de outro fornecedor conferiu a V13 no aparelho dele e **viu com os
+próprios olhos** o que a volta afirmou: a linha `Trabalhos` deixou de parecer
+link, some no filtro e na busca, a seta aparece com chip omitido e **some no
+fim da régua** — ele inclusive fechou, na revisão, a captura que a volta tinha
+declarado em aberto. Build verde, 7/7 no focado, caret igual no candidato e no
+pai. Onze dimensões em 9.
+
+Mesmo assim: **NÃO PASSA**, por duas provas que faltam, não por defeito.
+**Acessibilidade 8** — o conserto de `Repetir pergunta` em AX5 só tem PNG, e a
+imagem mostra que nada se sobrepõe mas não prova o rótulo inteiro nem a ordem de
+leitura; a ESTEIRA pede árvore de AX **e** captura do mesmo instante.
+**Movimento 8** — a seta é animação nova com `.opacity` e não tem vídeo, nem
+normal nem sob Movimento Reduzido.
+
+Duas frases do revisor que ficam: *"não desconto pela voz, que era proibida"* —
+a lei do dono entrou na régua sem virar prejuízo para quem obedece; e *"não
+capturar a seta no fim seria lacuna, mas foi fechada nesta revisão"* — revisor
+que fecha lacuna em vez de só apontá-la.
+
+Despachei a **V13-B** (`task_32591f5f21cd`, Opus 5, no 17e `C7341E64`): só as
+duas provas, nada de conserto novo. Caçador de fala antes do ciclo: zero.
