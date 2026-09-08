@@ -189,6 +189,24 @@ O dono pediu ao Astra uma leitura de prioridades e depois decidiu que o laço do
 | 11 | Fechar a dívida visual e de acessibilidade nas telas alteradas | hierarquia, animações, tamanho de texto, VoiceOver e controles funcionam na jornada real | **a dívida da limpeza de 07/09** (P1 já mesclada, V12-B e L2 em curso, V19 e F4 restantes) |
 | 12 | Comprovar as entradas externas no aparelho: Siri, widgets, ditado | cada entrada inicia ou retoma a ação esperada, com contexto certo e falhas compreensíveis | **F5** (em curso) mais uma passada no iPhone do dono, porque o simulador não prova Siri nem tela bloqueada trancada |
 
+### G0 da V17 — o artefato que se reescreve, em Markdown (decidido em 08/09, depois do conselho do Astra)
+
+**Ciclo:** os dois, e é por isso que ela é a próxima. Multiplicar (o autor avança numa situação concreta) e melhorar (a versão seguinte ataca o que ele errou).
+**Intenção que serve:** o autor pratica no artefato, erra, e o artefato **se reescreve para atacar aquilo** — guardando as versões, a origem e o motivo de cada mudança.
+**Obstáculo que reduz:** o laço que falta é de **observação e versão, não de renderização** (DIRETRIZ §4). O Trabalho já tem versão com origem (05i, 05s), a tentativa do autor como evidência separada (05r), ida e volta pelo arquivo com conflito e retry (05l, 06a) e, desde a ADR 08a, a preparação já lê tentativas anteriores. **O que não existe é a causa do ajuste como dado vinculante**: hoje `pedidoDe` a INFERE por base e intenção, e inferência não pode ser a autoridade que explica ao autor por que o exercício dele mudou.
+**Evidência que prova:** no caso concreto do espanhol — uma tentativa com erro gera atividade **diferente e pertinente**, preserva as restrições e **deixa a próxima resposta em branco**; uma correção do dono remove a interpretação equivocada do ajuste seguinte; fechar e reabrir conserva N, tentativa, causa e N+1, inclusive depois de falha de gravação, retry, conflito ou revogação.
+
+**A decisão, minha, sobre o parecer do Astra (`ferramentas/orca/consulta-v17-markdown.md`) — aceito, e é a versão curta:**
+1. **Dono único: o Trabalho.** O exercício é `DocumentoTrabalho.Artefato.pratica`; o bloco do Caderno (`BlocoCaderno.recipiente`) é **representação e porta de interação**, não um segundo agregado. A N+1 nasce pela rota que já existe (`OficinaTrabalho.gerar` → `MotorTrabalho.produzir` → `DocumentoTrabalho.receber`). **Nada de versões, corpus ou índice paralelos, e nenhuma tela nova.**
+2. **Contrato mínimo, e só ele:** `Pedido.ajuste?` (gatilho **fechado**: `pedidoDoAutor` ou `necessidadePercebida`, mais motivo e referência à evidência que o sustenta) e `Artefato.pedidoID?` (o vínculo direto da versão à causa, no lugar da inferência). Ausência nos registros antigos significa **vínculo não registrado** — não se reconstrói causalidade histórica.
+3. **Nenhum `EstadoExercicio` persistido.** Produzido vem da versão guardada; tentativa registrada vem da evidência do autor; desempenho demonstrado exige leitura sustentada com avaliador visível. **Sem `aprendido`, sem pontuação global, sem contador de domínio, sem promoção automática de hipótese.** "Reescrito" não é "aprendido".
+4. **A causa não cabe no trecho descartável.** Hoje o histórico pode ser omitido por orçamento; a evidência causal, os critérios e as restrições vigentes são **núcleo obrigatório** — se não couber, **o ajuste fica indisponível** e diz isso.
+5. **A fronteira da IA, no tipo e não no prompt:** a saída da adaptação aceita preparação e descrição da mudança, e **não tem campo de resposta nem comando que altere `Evidencia`**; `guardarTentativa` continua operação do autor; o campo de tentativa nasce vazio. Reconhecido e escrito: validação estrutural **não prova ausência de solução disfarçada no enunciado** — isso é leitura semântica, e a 05r já admite o limite.
+6. **O ato visível é "Conferir e adaptar o exercício"**, novo e explícito, porque "Conferir minha tentativa" já promete uma operação e uma chamada por toque (05r). Conferência inconclusiva, ausência de resposta ou reabrir o documento **não disparam reescrita**; a mesma conferência não gera duas versões; nada em segundo plano, e o documento não troca enquanto a pessoa digita.
+7. **O anúncio é uma seção só, no próprio documento**, escrita pelo app com os vínculos que ele conhece (o modelo não inventa ID nem decide qual pedido o produziu), dizendo o que mudou e por quê, sem repetir o histórico e sem declarar que a pessoa aprendeu.
+
+**O que esta volta NÃO fecha, e eu prefiro dizer agora:** o item 1 da fila do dono só se resolve quando **o dono efetivamente usa e continua a situação real** — a demonstração técnica não o fecha. A V17 entrega o mecanismo e a jornada provada; o item 1 fecha no uso.
+
 ## Próximas, em ordem
 
 | # | volta | valor | esforço | ciclo | lacuna (EVOLUCAO) |
