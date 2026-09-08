@@ -5387,3 +5387,86 @@ A escada da sábia, o `conferir`, o `responderNasNotas`, o `produzirEntrega` e o
 **O teto passa a ser medido.** Desde o iOS 26.4 o modelo conta tokens (`SystemLanguageModel.tokenCount(for:)`, `contextSize`). `Sabia.noAparelho` mantém os 3.500 caracteres como pré-corte da montagem, mas o portão real é pedido + instruções + 1.024 tokens de resposta reservados ≤ `contextSize`; sem espaço para a resposta, cala. `maximumResponseTokens` fixa a reserva.
 
 **O que esta ADR não prova.** Nenhuma operação tem medição com Grok: a conta não existe em nenhum simulador (login iniciado no iPhone 17 Pro de teste em 07/09, à espera do dono). A tabela decide onde o aparelho NÃO entra; se o Grok serve, é a próxima medição pela mesma sonda. `responder`, `instigar` e `contrapor` seguem sem medição em nenhum provedor. 5 testes em `PoliticaTests`; suíte 826/134 em 07/09/2026.
+
+## ADR 2026-09-08b — A latência lê-se em dois degraus, e a lista de meses para de crescer (volta L2)
+
+**A distância.** A volta L1 foi mesclada em main por ordem do dono com o G4
+REPROVADO (`ferramentas/orca/g4-l1-design.md`: Design 8, Simplicidade 7). O juiz
+confirmou o conceito — paleta silenciosa, nenhum placar, quatro estados no mesmo
+cinza, nada tocável — e fechou com quatro correções pequenas, nenhuma delas
+mexendo no modelo, em teste, ou no que a seção mede. Esta volta faz as quatro.
+
+**1. Teto de doze meses, com o horizonte dito.** A lista de registros já tinha
+corte por estado; a de meses era `ForEach(lista)` sem corte nenhum. Com três
+meses semeados não se via; no aparelho de quem escreve há dois anos são 24
+linhas, e era justamente o pedaço de onde a barra saiu na L1-C. Agora
+`lista.suffix(12)`, e a copy diz o horizonte ("nos 12 últimos"), senão o corte
+mentiria por omissão. Medido: com vinte meses semeados o cartão passa de
+6.148 pt para 5.340 pt em AX5 (−13%).
+
+**2. `Tema.miudo` sai de dentro do app.** O degrau de 12 pt está documentado em
+`Tema.swift:75` como reservado a FORA do app (ADR 05u — a faixa compacta da Ilha
+e o rodapé do widget não têm 15 pt), e a L1 foi o primeiro uso dele dentro do
+app em todo o produto — logo na linha que carrega a medida. A varredura
+`grep -rn "Tema.miudo" Traco` agora não devolve nada: o token voltou a existir
+só para `TracoWidget`.
+
+**3. Dois degraus, sempre no mesmo sentido.** O par da L1 era 12 pt/`tintaFraca`
+em cima e 13 pt/`tintaSuave` embaixo: a linha da MEDIDA era ao mesmo tempo a
+menor e a mais clara, e o registro lia-se como uma massa só em tamanho padrão.
+A regra do cartão passa a ser uma só: **linha que carrega medida é
+`Tema.meta` + `tintaSuave`; prosa de apoio é `.footnote` + `tintaFraca`**. Vale
+para o registro, para a linha do mês e para a segunda linha do resumo; a
+manchete continua `Tema.chrome` + `tinta` e o rótulo continua `Tema.label`.
+Nenhuma cor nova, nenhum token novo, e os quatro estados seguem no mesmo cinza.
+
+**4. A frase-resumo em duas linhas.** Cinco fatos colados por "·" faziam o olho
+parar no que destoa — no MODO B, o "18 em aberto" — e não na duração que a seção
+existe para mostrar. A medida vira manchete sozinha; a composição (sem data · em
+aberto · abandonadas) desce uma linha e fica mais quieta. **Nenhum número sai**,
+e a copy da série não nasce de novo na view: são duas leituras da MESMA
+`Latencia.emPalavras`, uma com só os descobertos e outra com só o resto. O
+identificador `latencia-resumo` fica no grupo, então os fluxos que o usam de
+âncora continuam achando a seção mesmo quando um dos dois lados está vazio.
+
+**5. `quantas == 1` não tem "tempo do meio".** Um mês com uma descoberta só
+imprimia "agosto de 2026 · 5 dias · 1 descoberta" sob a legenda "o tempo do meio
+entre as descobertas". Agora diz "agosto de 2026 · 1 descoberta · levou 5 dias":
+mesmo número, sem estatística falsa.
+
+**6. Copy encurtada (declarado, não pedido pelo juiz).** O parágrafo de abertura
+perdeu 12 das 49 palavras e a legenda dos meses 10 das 16, sem perder nenhuma
+das três promessas que o juiz creditou ("nada a preencher aqui", "hipótese sem
+resposta é informação", "abandonar é resultado") nem a proveniência (hipóteses do
+Trabalho, decisões com data de conferir). É o que paga parte da altura que o
+degrau maior custa.
+
+**O que a decisão custa, medido e não escondido.** Pôr a medida num degrau
+legível engorda o cartão onde a série é curta: em AX5, com o estado semeado de
+três meses, o cartão vai de 5.200 pt para 5.541 pt (+6,6%); no MODO B, de
+5.758 pt para 6.115 pt (+6,2%). São +345 pt só da linha da medida em nove
+registros. Onde a série é de verdade — vinte meses — o teto inverte o sinal:
+6.148 pt → 5.340 pt (−13%). A troca é essa, e é deliberada: a linha que carrega
+o número deixa de ser o menor texto do produto, e o pedaço que crescia sem fim
+para de crescer.
+
+**O que esta volta NÃO faz.** Não muda o modelo, `Decisao`, `abandonado`, nem o
+que a seção mede; não extrai os nove cartões inline do `PerfilView` (dívida do
+RUMO); não devolve a barra; não cria alvo, cor de juízo, meta, sequência ou
+ordem que pareça ranking. Movimento: nenhum — a seção segue sendo superfície de
+leitura, e a ausência é deliberada (o juiz já a aceitou no G4 da L1).
+
+**Prova.** Suíte integral 887 testes em 143 suítes, verde no iPhone 17 Pro
+`C2416CBC` em 08/09/2026; build sem aviso. Altura medida pela árvore de
+acessibilidade (`orca emulator ax`), que devolve o frame de todo elemento dentro
+e fora da tela — do rótulo "LATÊNCIA DA DESCOBERTA" ao rótulo "MÉTODOS" —, com o
+número conferido de forma independente por varredura de capturas com OCR
+(5.198 pt contra 5.200 pt no mesmo estado). Capturas antes/depois em
+`ferramentas/orca/l2-*.png`; relatório em `ferramentas/orca/l2-latencia-g4.md`.
+
+**Achado que fica aberto (não é desta volta).** Em AX5, a camada do arquivo do
+Perfil transborda na horizontal em algumas sessões — o cartão e a barra de abas
+saem cortados dos dois lados. Reproduz igual no build de HEAD, sem esta mudança
+(`l2-achado-ax5-transbordo-head.png`), e o app Ajustes no mesmo aparelho e no
+mesmo tamanho de letra não transborda. É acessibilidade real e é do `Camadas` /
+`RaizView`, não do cartão: fica para a volta do Perfil.

@@ -14,7 +14,7 @@ struct PerfilView: View {
     @Environment(\.openURL) private var abrir
     /// Sem a barra, o que separa um mês do outro é só o espaço: em AX5 a linha
     /// do mês quebra em três e um vão fixo some dentro da própria entrelinha.
-    @ScaledMetric(relativeTo: .footnote) private var entreMeses: CGFloat = 8
+    @ScaledMetric(relativeTo: .subheadline) private var entreMeses: CGFloat = 8
 
     @State private var ligada = ContaGrok.ligada
     @State private var estado: String?
@@ -224,7 +224,7 @@ struct PerfilView: View {
         let s = serieDaLatencia
         return VStack(alignment: .leading, spacing: Tema.entreItens) {
             rotulo("LATÊNCIA DA DESCOBERTA")
-            Text("Quanto tempo passa entre afirmar uma coisa e saber se estava certa. Sai do que já está escrito — as hipóteses do Trabalho e as decisões com data de conferir —, não há nada a preencher aqui. Hipótese sem resposta é informação, e abandonar é resultado.")
+            Text("Quanto tempo passa entre afirmar uma coisa e saber se estava certa. Sai das hipóteses do Trabalho e das decisões com data de conferir — nada a preencher aqui. Hipótese sem resposta é informação; abandonar é resultado.")
                 .font(.footnote)
                 .foregroundStyle(Tema.tintaFraca)
                 .fixedSize(horizontal: false, vertical: true)
@@ -235,15 +235,37 @@ struct PerfilView: View {
                     .fixedSize(horizontal: false, vertical: true)
                     .accessibilityIdentifier("latencia-vazia")
             } else {
-                Text(Latencia.emPalavras(s))
-                    .font(Tema.chrome)
-                    .foregroundStyle(Tema.tinta)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .accessibilityIdentifier("latencia-resumo")
+                resumo(s)
                 if !s.meses.isEmpty { meses(s.meses) }
                 registrosDaLatencia(s)
             }
         }
+    }
+
+    /// A medida é a manchete e vem sozinha; a composição — sem data, em aberto,
+    /// abandonadas — desce uma linha e fica mais quieta. Nenhum número sai:
+    /// cinco fatos colados por "·" faziam o olho parar no que destoa (o "18"
+    /// em aberto) e não na duração (G4 da L1). São duas leituras da MESMA
+    /// `emPalavras`, para a copy da série não nascer de novo aqui.
+    private func resumo(_ s: Latencia.Serie) -> some View {
+        let medida = Latencia.emPalavras(.init(descobertos: s.descobertos))
+        let composicao = Latencia.emPalavras(
+            .init(abertos: s.abertos, abandonados: s.abandonados, semData: s.semData))
+        return VStack(alignment: .leading, spacing: 4) {
+            if !medida.isEmpty {
+                Text(medida)
+                    .font(Tema.chrome)
+                    .foregroundStyle(Tema.tinta)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            if !composicao.isEmpty {
+                Text(composicao)
+                    .font(Tema.meta)
+                    .foregroundStyle(Tema.tintaSuave)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .accessibilityIdentifier("latencia-resumo")
     }
 
     /// A série: um mês por linha, na ordem do tempo, só em palavras. Não há
@@ -252,15 +274,21 @@ struct PerfilView: View {
     /// absoluta, que em dias não cabe na largura nem informa (ADR 06j, L1-C).
     private func meses(_ lista: [Latencia.Mes]) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Por mês, o tempo do meio entre as descobertas daquele mês.")
-                .font(Tema.miudo)
+            // Teto de doze, e o horizonte dito: a lista de registros já tinha
+            // corte e esta não tinha nenhum — no aparelho de quem escreve há
+            // anos era o pedaço que crescia sem fim, e é de onde a barra saiu.
+            Text("O tempo do meio entre as descobertas de cada mês, nos 12 últimos.")
+                .font(.footnote)
                 .foregroundStyle(Tema.tintaFraca)
+                .fixedSize(horizontal: false, vertical: true)
             VStack(alignment: .leading, spacing: entreMeses) {
-                ForEach(lista) { m in
-                    Text(m.inicio.formatted(.dateTime.month(.wide).year())
-                         + " · " + Latencia.emDias(m.mediana)
-                         + " · \(m.quantas) descoberta\(m.quantas == 1 ? "" : "s")")
-                        .font(.footnote)
+                ForEach(lista.suffix(12)) { m in
+                    // um valor só não tem "tempo do meio": diz a contagem e a duração
+                    Text(m.inicio.formatted(.dateTime.month(.wide).year()) + " · "
+                         + (m.quantas == 1
+                            ? "1 descoberta · levou " + Latencia.emDias(m.mediana)
+                            : Latencia.emDias(m.mediana) + " · \(m.quantas) descobertas"))
+                        .font(Tema.meta)
                         .foregroundStyle(Tema.tintaSuave)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -280,14 +308,22 @@ struct PerfilView: View {
         return VStack(alignment: .leading, spacing: 10) {
             ForEach(Latencia.paraTela(s)) { r in
                 VStack(alignment: .leading, spacing: 2) {
+                    // Dois degraus no mesmo sentido: a linha da MEDIDA é a
+                    // maior e a mais escura, a frase da hipótese recua. Era o
+                    // contrário — 12pt (degrau que a ADR 05u reserva a fora do
+                    // app) e o cinza mais fraco justo no número (G4 da L1).
                     Text(Latencia.rotulo(r.estado) + " · " + medidaDe(r)
                          + (r.autoria.map { " · " + $0 } ?? ""))
-                        .font(Tema.miudo)
-                        .foregroundStyle(Tema.tintaFraca)
+                        .font(Tema.meta)
+                        .foregroundStyle(Tema.tintaSuave)
+                        // era o único Text da seção sem isto: em AX5, no degrau
+                        // maior, a linha passou a pedir a largura ideal e
+                        // empurrou a CAMADA inteira para fora da tela
+                        .fixedSize(horizontal: false, vertical: true)
                     if !r.texto.isEmpty {
                         Text(r.texto)
                             .font(.footnote)
-                            .foregroundStyle(Tema.tintaSuave)
+                            .foregroundStyle(Tema.tintaFraca)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                 }
