@@ -171,3 +171,13 @@ A volta V17 passou em todos os portões (G3 → V17-B → re-G3 PASSA → G4 PAS
 Não toquei em nada — nem `stash`, nem commit, nem reset —, como na primeira vez, de manhã. Perguntei ao dono e a volta espera no branch, sem risco de perder nada.
 
 **A lição, que já é padrão e vai para a ESTEIRA quando eu tiver a resposta:** worktree isola a EDIÇÃO, não o MERGE. Uma sessão que trabalha direto no checkout principal bloqueia o G5 de qualquer volta que toque os mesmos arquivos, e o orquestrador não pode resolver isso sozinho sem passar por cima de trabalho vivo. Da primeira vez (10h25) o dono comitou e destravou; desta vez ele decide de novo.
+
+### 08/09 17h10 — MESCLADA a volta V17, e `main` volta a ter dono no origin
+
+**A árvore suja era WIP parado, não escrita ao vivo.** Eu tinha lido os cinco arquivos como sessão viva porque a hora de modificação era do minuto anterior; o dono conferiu e mostrou que a thread do Astra no app do Codex não escrevia desde 11h14 e que os arquivos não mudavam desde 16h39:32. O conteúdo ficou inteiro no branch `wip/cinco-itens-grok46-16h39` (`d26310e`) e os cinco arquivos voltaram ao estado de `main`. **Segurar o merge foi certo; o que eu errei foi a leitura da causa** — mtime recente não prova sessão ativa, e eu deveria ter comparado duas leituras separadas por alguns minutos antes de chamar de "escrita ao vivo".
+
+**V17 mesclada em `67974dc`.** O laço que faltava era de observação e versão, não de renderização: a causa do ajuste virou dado vinculante (`Pedido.ajuste` com gatilho fechado e `Artefato.pedidoID`), no lugar de uma inferência que não podia ser a autoridade que explica ao autor por que o exercício dele mudou. Nenhum estado de exercício persistido, a causa como núcleo obrigatório, a fronteira da IA no tipo, e o anúncio escrito pelo app sem dizer que a pessoa aprendeu. G3 reprovou duas garantias que viviam só na UI; a V17-B moveu as duas para invariante do agregado. G4 PASSA. Árvore mesclada: **928 testes em 149 suítes**, 0 aviso.
+
+**E `main` foi para o `origin`**: estava **35 commits atrás** porque ninguém deu push no dia inteiro. Ordem nova do dono, em vigor: **todo fecho termina com `git push origin main`**.
+
+**Lacuna declarada da V17, que não se esconde:** a jornada com provedor real é da frente Q; o item 1 da fila do dono só fecha quando ele **usar e continuar** a situação real.
