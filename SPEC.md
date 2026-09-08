@@ -5690,3 +5690,85 @@ saem cortados dos dois lados. Reproduz igual no build de HEAD, sem esta mudança
 (`l2-achado-ax5-transbordo-head.png`), e o app Ajustes no mesmo aparelho e no
 mesmo tamanho de letra não transborda. É acessibilidade real e é do `Camadas` /
 `RaizView`, não do cartão: fica para a volta do Perfil.
+
+## ADR 2026-09-08j — A causa do ajuste é dado, não inferência (volta V17)
+
+O laço que faltava ao artefato era de **observação e versão**, não de
+renderização: o Trabalho já tinha versão com origem (05i, 05s), tentativa do
+autor como evidência separada (05r), ida e volta pelo arquivo com conflito e
+retry (05l, 06a) e preparação que lê tentativas anteriores (08a). O que não
+existia era a **causa do ajuste como dado vinculante**: `pedidoDe` a inferia por
+base e intenção, e inferência não pode ser a autoridade que explica ao autor por
+que o exercício dele mudou.
+
+**Dono único: o Trabalho.** O exercício continua sendo
+`DocumentoTrabalho.Artefato.pratica` e a versão seguinte nasce pela rota que já
+existe — `OficinaTrabalho.gerar` → `MotorTrabalho.produzir` →
+`DocumentoTrabalho.receber`. Nenhuma versão, corpus ou índice paralelo; nenhuma
+tela nova; a representação segue na seção Praticar da folha do Trabalho.
+
+**Contrato mínimo.** `Pedido.ajuste?` guarda gatilho **fechado**
+(`pedidoDoAutor` ou `necessidadePercebida`), motivo escrito pelo app e
+referência à evidência — mais a conferência e os critérios quando foram eles que
+o sustentaram. `Artefato.pedidoID?` liga a versão à causa. `validarAjuste`
+recusa vínculo quebrado, `necessidadePercebida` sem tentativa E sem leitura,
+motivo vazio e critério que não pertence ao exercício daquela tentativa.
+Ausência nos registros antigos significa **vínculo não registrado**: `ajuste(de:)`
+devolve `nil` e ninguém reconstrói causalidade histórica. A inferência antiga
+sobrevive só dentro de `pedidoDe`, e só para achar a rota de conferência da 05q.
+
+**Nenhum estado de exercício persistido.** Produzido vem da versão guardada;
+tentativa registrada vem da evidência do autor; desempenho demonstrado continua
+exigindo leitura sustentada com avaliador visível. Sem `aprendido`, sem
+pontuação global, sem contador de domínio, sem promoção automática de hipótese.
+Reescrever o exercício não é dizer que a pessoa aprendeu, e a seção que anuncia
+a mudança escreve isso na tela.
+
+**A causa não cabe no trecho descartável.** Num ajuste, a tentativa que o
+sustenta, a leitura atribuída dela, os critérios vigentes e as restrições ainda
+aplicáveis sobem para a cabeça do contexto, fora do bloco que o orçamento corta.
+Não cabendo na janela do provedor, o pedido fica `ajusteIndisponivel` e a folha
+diz isso — nunca sai um pedaço da evidência que explica a mudança.
+
+**A fronteira da IA está no tipo.** A saída da adaptação aceita a preparação e
+`mudanca` — o que mudou — e nada mais: `additionalProperties: false`, chave a
+mais derruba a resposta inteira, e não existe campo de resposta nem comando que
+toque em `Evidencia`. `guardarTentativa` continua operação do autor e o campo de
+tentativa da versão nova nasce vazio. `mudanca` passa pelo mesmo teto e pela
+mesma prova de vazamento dos critérios. **Limite reconhecido:** validação
+estrutural impede escrita na evidência, mas **não prova ausência de solução
+disfarçada no enunciado** — isso é leitura semântica, como a 05r já admite.
+
+**O ato visível é "Conferir e adaptar o exercício"**, novo e explícito, porque
+"Conferir minha tentativa" já promete uma operação e uma chamada por toque
+(05r). Ele lê a tentativa, guarda a leitura **antes** de pedir a versão (05s), e
+só reescreve quando a leitura sustenta: conferência indisponível ou sem
+divergência não gera versão e a folha diz por quê. A mesma leitura não gera duas
+versões; reabrir o documento não dispara nada; não há laço em segundo plano.
+
+**O anúncio é UMA seção no próprio documento**, escrita pelo app: a descrição da
+mudança é do modelo, a origem, o motivo e os vínculos são do código — o modelo
+não inventa ID nem decide qual pedido o produziu. Não repete o histórico e não
+declara aprendizagem.
+
+**A correção do dono sobre a leitura.** `ConferenciaTentativa.contestadaEm` e
+`motivoDaContestacao`, pela ação "Não foi isso que eu errei". A leitura **fica**
+no registro, com todos os seus resultados, e sai do `contextoDeRetorno` e do
+núcleo do ajuste: a interpretação que o autor contestou não orienta mais os
+ajustes seguintes.
+
+**Defeito de superfície achado na tela viva e corrigido nesta volta:** a lista de
+tentativas é filtrada pela versão vigente, então a tentativa que causou a versão
+sumia da folha no instante em que passava a importar, levando junto a leitura e a
+rota de contestá-la. A seção "A tentativa que gerou esta versão" a devolve, em
+leitura, com o feedback e a contestação.
+
+**Limite de instrumento, declarado.** O simulador de teste não tem conta Grok — o
+aparelho que tem é de outra volta e não podia ser tocado. Os dois atos gatilhados
+pela conta foram fotografados com `-ensaio-oferta-da-pratica`, um argumento de
+lançamento **só em Debug** que abre a OFERTA e nada mais: não fabrica token, não
+chama rede, e o que a tela mostra depois do toque continua sendo a
+indisponibilidade real. É o mesmo instrumento que a 06c criou para o ditado. A
+jornada foi observada num documento plantado no aparelho, não gerado pelo
+provedor: esta ADR descreve o contrato e a superfície, e **não** certifica a
+qualidade semântica do exercício adaptado, que continua sendo prova da frente Q.

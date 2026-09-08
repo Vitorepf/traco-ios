@@ -181,11 +181,11 @@ final class OficinaTrabalho {
     }
 
     @discardableResult
-    func gerar(_ instrucao: String) -> Task<Void, Never>? {
+    func gerar(_ instrucao: String, ajuste: DocumentoTrabalho.Ajuste? = nil) -> Task<Void, Never>? {
         guard verificarAcesso() else { return nil }
         guard documento.pedidoAtivo == nil else { return nil }
         var pedido: DocumentoTrabalho.Pedido?
-        let confirmou = alterar { pedido = try $0.iniciarPedido(instrucao) }
+        let confirmou = alterar { pedido = try $0.iniciarPedido(instrucao, ajuste: ajuste) }
         guard confirmou, let pedido else {
             if let pedido { documento.falharPedido(pedido.id) }
             return nil
@@ -213,6 +213,11 @@ final class OficinaTrabalho {
                                                parteDelegada: resultado.parteDelegada) }),
                       let versao = documento.versaoAtual else { return }
                 conferir(versao.id, pedidoID: pedido.id)
+            } catch MotorTrabalho.Erro.ajusteIndisponivel {
+                // ADR 08j: a causa não coube. O estado fica no pedido e a seção
+                // Praticar o diz; nada de meia evidência mandada calada.
+                guard verificarAcesso(), !Task.isCancelled, documento.pedidoAtivo?.id == pedido.id else { return }
+                alterar { $0.marcarAjusteIndisponivel(pedido.id) }
             } catch MotorTrabalho.Erro.praticaIndisponivel {
                 // P1 (volta 6): quem escolheu praticar não recebe a produção
                 // delegada. O estado fica no pedido; a seção Praticar o lê.
@@ -322,6 +327,75 @@ final class OficinaTrabalho {
         }
     }
 
+    // MARK: - ADR 08j: conferir e adaptar
+
+    private(set) var adaptando = false
+    /// A leitura saiu e NÃO sustentou uma reescrita. A tela diz isso; silêncio
+    /// aqui seria o autor tocando um botão e não sabendo se algo aconteceu.
+    private(set) var leituraSemAjuste: String?
+
+    /// ADR 08j: o ato visível "Conferir e adaptar o exercício". Uma leitura da
+    /// tentativa e, SÓ quando ela sustenta, a versão seguinte com a causa
+    /// registrada. Leitura indisponível ou sem divergência não reescreve nada
+    /// — e reabrir o documento não dispara isto: só o toque dispara.
+    /// A leitura vai ao disco ANTES do pedido (05s): se a geração falhar, o
+    /// feedback já está guardado.
+    @discardableResult
+    func conferirEAdaptar(_ evidenciaID: UUID) -> Task<Void, Never>? {
+        guard !conferindoTentativa, !adaptando, documento.pedidoAtivo == nil, verificarAcesso() else { return nil }
+        guard let evidencia = documento.evidencias.first(where: { $0.id == evidenciaID }),
+              let tentativa = evidencia.tentativa,
+              let artefatoID = evidencia.artefatoID,
+              artefatoID == documento.versaoAtual?.id,
+              let pratica = documento.artefatos.first(where: { $0.id == artefatoID })?.pratica,
+              documento.tentativaAtual?.id == evidenciaID else { return nil }
+        let apoio = documento.apoio, hipoteses = documento.hipoteses
+        let texto = evidencia.texto, apoioUtilizado = tentativa.apoioUtilizado
+        adaptando = true
+        leituraSemAjuste = nil
+        return Task { [weak self] in
+            guard let self else { return }
+            defer { adaptando = false }
+            guard verificarAcesso() else { return }
+            let registro = await feedbackDaTentativa(pratica, texto, apoioUtilizado)
+            guard verificarAcesso(), !Task.isCancelled,
+                  documento.tentativaAtual?.id == evidenciaID,
+                  documento.versaoAtual?.id == artefatoID,
+                  documento.apoio == apoio, documento.hipoteses == hipoteses else { return }
+            guard alterar({ try $0.registrarConferenciaDaTentativa(registro, em: evidenciaID) }) else { return }
+            guard let ajuste = Self.ajuste(de: registro, evidenciaID: evidenciaID, pratica: pratica) else {
+                leituraSemAjuste = registro.estado == .concluida
+                    ? PraticaTrabalho.leituraSemDivergencia : PraticaTrabalho.leituraNaoConcluida
+                return
+            }
+            // A mesma leitura não gera duas versões.
+            guard !documento.pedidos.contains(where: { $0.ajuste?.conferenciaID == registro.id }) else { return }
+            await gerar(PraticaTrabalho.instrucaoDoAjuste, ajuste: ajuste)?.value
+        }
+    }
+
+    /// A causa, montada pelo APP a partir do que a leitura de fato disse.
+    /// Sem divergência não há necessidade percebida: `nil`, e nada se reescreve.
+    static func ajuste(de c: DocumentoTrabalho.ConferenciaTentativa, evidenciaID: UUID,
+                       pratica: DocumentoTrabalho.Pratica) -> DocumentoTrabalho.Ajuste? {
+        guard c.estado == .concluida, !c.contestada else { return nil }
+        let divergentes = c.resultados.filter { $0.situacao == .divergencia }
+        guard !divergentes.isEmpty else { return nil }
+        let nomes = divergentes.compactMap { r in pratica.criterios.first { $0.id == r.criterioID }?.texto }
+        let motivo = "A leitura da sua tentativa apontou divergência em \(divergentes.count) \(divergentes.count == 1 ? "critério" : "critérios"): \(nomes.joined(separator: "; "))"
+        return .init(gatilho: .necessidadePercebida,
+                     motivo: String(motivo.prefix(PraticaTrabalho.Limite.motivoDoAjuste)),
+                     evidenciaID: evidenciaID, conferenciaID: c.id,
+                     criterioIDs: divergentes.map(\.criterioID))
+    }
+
+    /// ADR 08j: a correção do dono sobre a leitura. A conferência fica no
+    /// documento; o que ela interpretou para de orientar o ajuste seguinte.
+    @discardableResult
+    func contestarLeitura(_ conferenciaID: UUID, em evidenciaID: UUID, motivo: String) -> Bool {
+        alterar { try $0.contestarLeitura(conferenciaID, em: evidenciaID, motivo: motivo) }
+    }
+
     @ObservationIgnored var estaDisponivel: () -> Bool = { MotorTrabalho.disponivel }
 
     /// A UI chama ao mudar a origem ou a cena, antes de mostrar/copiar drafts.
@@ -362,7 +436,7 @@ final class OficinaTrabalho {
 
 @MainActor
 enum MotorTrabalho {
-    enum Erro: Error { case indisponivel, respostaVazia, praticaIndisponivel }
+    enum Erro: Error { case indisponivel, respostaVazia, praticaIndisponivel, ajusteIndisponivel }
     /// ADR 07b: produzir é só Grok — o aparelho reprovou 3 de 3 (Politica).
     static var disponivel: Bool { Politica.provedor(.produzir) != nil }
     /// A janela do provedor remoto. Acima disso a montagem desce ao aparelho.
@@ -448,20 +522,35 @@ enum MotorTrabalho {
         // preparação estruturada não sai (sem conta ou sem validar), o pedido
         // fica indisponível — NUNCA cai na produção delegada (P1, volta 6).
         if d.praticaPedida {
+            // ADR 08j: a causa é núcleo obrigatório. Não cabendo inteira na
+            // janela, o ajuste fica INDISPONÍVEL — nunca sai um pedaço dela.
+            if p.ajuste != nil, PraticaTrabalho.montarPreparacao(d, p).count > tetoRemoto {
+                throw Erro.ajusteIndisponivel
+            }
             guard let preparada = await preparar(d, p, contaLigada) else {
                 throw Erro.praticaIndisponivel
             }
             try Task.checkCancellation()
+            // O anúncio é do app: o modelo descreveu a mudança, o código diz de
+            // onde ela veio e a que tentativa se prende.
+            let anuncio = p.ajuste.flatMap { aj in
+                preparada.pratica.mudanca.map {
+                    PraticaTrabalho.anuncio(aj, mudanca: $0,
+                                            tentativaEm: aj.evidenciaID.flatMap { id in
+                                                d.evidencias.first { $0.id == id }?.data
+                                            })
+                }
+            }
+            let exercicio = PraticaTrabalho.emMarkdown(preparada.pratica, anuncio: anuncio)
             if d.apoio == .combinar {
                 let entrega = try await entregar(d, p, preparada.pratica)
                 try Task.checkCancellation()
                 guard !entrega.texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw Erro.respostaVazia }
-                return .init(texto: entrega.texto + "\n\n" + PraticaTrabalho.emMarkdown(preparada.pratica),
+                return .init(texto: entrega.texto + "\n\n" + exercicio,
                              produtor: entrega.produtor + " · entrega; " + preparada.produtor,
                              pratica: preparada.pratica, parteDelegada: entrega.texto)
             }
-            return .init(texto: PraticaTrabalho.emMarkdown(preparada.pratica),
-                         produtor: preparada.produtor, pratica: preparada.pratica)
+            return .init(texto: exercicio, produtor: preparada.produtor, pratica: preparada.pratica)
         }
         return try await entregar(d, p, nil)
     }
@@ -503,13 +592,15 @@ extension MotorTrabalho {
         guard contaLigada else { return nil }
         let mensagem = PraticaTrabalho.montarPreparacao(d, p)
         let dificuldade = d.dificuldadeVigente
+        // ADR 08j: no ajuste, "o que mudou" entra no contrato de saída.
+        let ajustando = p.ajuste != nil
         if mensagem.count <= tetoRemoto,
            let cru = await Grok.responder(sistema: PraticaTrabalho.sistemaPreparar,
                                           usuario: mensagem, temperatura: 0.3, timeout: 90,
-                                          esquema: PraticaTrabalho.esquemaRemotoPreparacao, esforco: "high", modelo: Grok.modeloTrabalho),
-           let bruta = PraticaTrabalho.parsePreparacao(cru),
+                                          esquema: PraticaTrabalho.esquemaRemotoPreparacao(comMudanca: ajustando), esforco: "high", modelo: Grok.modeloTrabalho),
+           let bruta = PraticaTrabalho.parsePreparacao(cru, comMudanca: ajustando),
            let pratica = PraticaTrabalho.validar(bruta, dificuldade: dificuldade) {
-            return (pratica, "Grok · exercício preparado")
+            return (pratica, ajustando ? "Grok · exercício adaptado" : "Grok · exercício preparado")
         }
         return nil
     }

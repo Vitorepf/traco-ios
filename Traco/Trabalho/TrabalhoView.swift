@@ -414,7 +414,7 @@ struct TrabalhoView: View {
                     let versao = o.documento.versaoAtual
                     let pratica = versao?.pratica
                     if let versao, let pratica {
-                        exercicio(pratica, produtor: versao.produtor)
+                        exercicio(pratica, produtor: versao.produtor, oficina: o)
                     } else if let linha = PraticaTrabalho.oferta(contaLigada: ContaGrok.ligada) {
                         // Uma linha só: a última recusa, nunca uma pilha.
                         Text(linha).font(Tema.meta).foregroundStyle(Tema.tintaSuave)
@@ -427,9 +427,33 @@ struct TrabalhoView: View {
                             .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
                             .accessibilityIdentifier("pratica-sem-exercicio")
                     }
+                    tentativaQueGerou(o)
+                    // ADR 08j: a causa é núcleo obrigatório; quando ela não
+                    // coube, a folha diz isso onde o exercício está — em vez de
+                    // o exercício simplesmente não mudar sem explicação.
+                    if o.documento.ajusteIndisponivel {
+                        Text(PraticaTrabalho.ajusteIndisponivel).font(Tema.meta).foregroundStyle(Tema.aviso)
+                            .accessibilityIdentifier("pratica-ajuste-indisponivel")
+                    }
                     tentativas(artefatoID: pratica == nil ? nil : versao?.id, pratica: pratica, oficina: o)
                 }
             }
+        }
+    }
+
+    /// ADR 08j: a tentativa que causou a versão vigente pertence à versão
+    /// ANTERIOR, e a lista de tentativas é filtrada pela versão atual — sem
+    /// isto ela some da tela no instante em que passa a importar, levando
+    /// junto a leitura e a rota de contestá-la. Fica aqui, em leitura, com o
+    /// feedback e o "Não foi isso que eu errei"; a tentativa nova continua
+    /// sendo a da versão de agora, e nasce em branco.
+    @ViewBuilder private func tentativaQueGerou(_ o: OficinaTrabalho) -> some View {
+        if let versao = o.documento.versaoAtual, let aj = o.documento.ajuste(de: versao),
+           let id = aj.evidenciaID, let e = o.documento.evidencias.first(where: { $0.id == id }) {
+            Text("A tentativa que gerou esta versão").rotulo(Tema.tintaSuave)
+                .accessibilityIdentifier("pratica-tentativa-da-causa")
+            tentativa(e, pratica: o.documento.artefatos.first { $0.id == e.artefatoID }?.pratica,
+                      ultima: false, oficina: o)
         }
     }
 
@@ -501,10 +525,31 @@ struct TrabalhoView: View {
         aplicar(o, limpar: [chave]) { try $0.avaliarHipotese(h.id, estado: estado, motivo: motivo) }
     }
 
-    private func exercicio(_ p: DocumentoTrabalho.Pratica, produtor: String) -> some View {
+    /// ADR 08j: UMA seção diz o que mudou e por quê, e ela mora no alto do
+    /// próprio exercício — quem abre o documento lê a mudança antes da tarefa.
+    /// A descrição é do modelo; a origem e o motivo são do app, com os vínculos
+    /// que ele conhece. Não repete o histórico e não declara aprendizagem.
+    @ViewBuilder private func nestaVersao(_ p: DocumentoTrabalho.Pratica, _ o: OficinaTrabalho) -> some View {
+        if let mudanca = p.mudanca, let versao = o.documento.versaoAtual,
+           let aj = o.documento.ajuste(de: versao) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Nesta versão").rotulo(Tema.tintaSuave)
+                Text(mudanca).accessibilityIdentifier("pratica-mudanca")
+                Text("\(PraticaTrabalho.origemDoAjuste(aj, tentativaEm: aj.evidenciaID.flatMap { id in o.documento.evidencias.first { $0.id == id }?.data })) \(aj.motivo)")
+                    .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+                    .accessibilityIdentifier("pratica-motivo-do-ajuste")
+                Text("As versões anteriores e a sua tentativa continuam guardadas. Reescrever o exercício não é dizer que você aprendeu.")
+                    .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    private func exercicio(_ p: DocumentoTrabalho.Pratica, produtor: String, oficina o: OficinaTrabalho) -> some View {
         VStack(alignment: .leading, spacing: Tema.entreItens) {
             Text("Exercício: \(p.capacidade)").font(Tema.chrome.weight(.semibold))
             Text("Preparado por \(produtor)").font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+            nestaVersao(p, o)
             // O modelo às vezes repete a capacidade na situação: não mostrar duas vezes.
             if p.situacao != p.capacidade {
                 Text("Situação: \(p.situacao)").font(Tema.meta).foregroundStyle(Tema.tintaSuave)
@@ -569,7 +614,9 @@ struct TrabalhoView: View {
             Text("Apoio usado: \(e.tentativa?.apoioUtilizado ?? "não registrado")")
                 .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
             if let p {
-                ForEach(e.tentativa?.conferencias ?? []) { c in feedback(c, pratica: p) }
+                ForEach(e.tentativa?.conferencias ?? []) { c in
+                    feedback(c, pratica: p, evidenciaID: e.id, oficina: o)
+                }
             }
             if ultima { botaoDoFeedback(e, comExercicio: p != nil, oficina: o) }
         }
@@ -592,19 +639,44 @@ struct TrabalhoView: View {
         } else if o.conferindoTentativa {
             ProgressView("A IA está conferindo sua tentativa…").font(Tema.meta)
                 .accessibilityIdentifier("pratica-conferindo")
+        } else if o.adaptando {
+            // Duas leituras, dois progressos: quem tocou "conferir e adaptar"
+            // espera outra coisa de quem tocou só "conferir".
+            ProgressView("A IA está conferindo e, se a leitura sustentar, adaptando o exercício…").font(Tema.meta)
+                .accessibilityIdentifier("pratica-adaptando")
         } else {
             acaoSecundaria("Conferir minha tentativa") {
                 guard !levouAoObstaculo(o), acesso.permitido, o.verificarAcesso() else { revalidar(); return }
                 o.conferirTentativa(e.id)
             }
             .accessibilityIdentifier("pratica-conferir-tentativa")
+            // ADR 08j: o ato do laço. Ler e, SÓ se a leitura sustentar, gerar a
+            // versão seguinte com a causa registrada. É explícito porque
+            // "Conferir minha tentativa" já promete uma operação por toque.
+            acaoSecundaria("Conferir e adaptar o exercício") {
+                guard !levouAoQueFalta(o, campoObrigatorio: nil), acesso.permitido,
+                      o.verificarAcesso() else { revalidar(); return }
+                o.conferirEAdaptar(e.id)
+            }
+            .accessibilityIdentifier("pratica-conferir-e-adaptar")
             botaoNovaTentativa
+            // A leitura saiu e não sustentou reescrita: dizer isso é o contrato.
+            if let semAjuste = o.leituraSemAjuste {
+                Text(semAjuste).font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+                    .accessibilityIdentifier("pratica-leitura-sem-ajuste")
+            }
         }
         if PraticaTrabalho.oferta(contaLigada: ContaGrok.ligada) == nil, !o.conferindoTentativa {
             acaoSecundaria("Adaptar o próximo exercício") {
                 guard !levouAoQueFalta(o, campoObrigatorio: nil) else { return }
                 definir("pedido", "Prepare um novo exercício a partir da minha última tentativa, do feedback e dos relatos. Preserve as restrições ainda aplicáveis e trabalhe a dificuldade observada, sem resolver minha próxima tentativa nem afirmar aprendizagem.")
-                o.gerar(rascunhos["pedido"] ?? "")
+                // ADR 08j: mesmo o ajuste que a pessoa pede registra a causa.
+                // A versão seguinte deixa de depender de inferência para dizer
+                // de onde veio, e o gatilho é `pedidoDoAutor` — não "percebi".
+                o.gerar(rascunhos["pedido"] ?? "",
+                        ajuste: .init(gatilho: .pedidoDoAutor,
+                                      motivo: "Você pediu um exercício adaptado a partir desta tentativa.",
+                                      evidenciaID: e.id))
             }
             .accessibilityIdentifier("pratica-adaptar-exercicio")
         }
@@ -620,7 +692,8 @@ struct TrabalhoView: View {
         .accessibilityIdentifier("pratica-nova-tentativa")
     }
 
-    private func feedback(_ c: DocumentoTrabalho.ConferenciaTentativa, pratica p: DocumentoTrabalho.Pratica) -> some View {
+    private func feedback(_ c: DocumentoTrabalho.ConferenciaTentativa, pratica p: DocumentoTrabalho.Pratica,
+                          evidenciaID: UUID, oficina o: OficinaTrabalho) -> some View {
         DisclosureGroup {
             VStack(alignment: .leading, spacing: Tema.entreItens) {
                 if let motivo = c.motivo {
@@ -645,6 +718,7 @@ struct TrabalhoView: View {
                 }
                 Text("Lido por \(c.executor) em \(c.data.formatted(date: .abbreviated, time: .shortened)). Lê a sua tentativa contra os critérios deste exercício; não avalia você, não corrige o texto e não prova aprendizagem.")
                     .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+                contestacao(c, evidenciaID: evidenciaID, oficina: o)
             }.padding(.top, 8)
         } label: {
             Text(PraticaTrabalho.linha(c))
@@ -654,6 +728,32 @@ struct TrabalhoView: View {
         .font(Tema.meta)
         .tint(Tema.tintaSuave)
         .accessibilityIdentifier("pratica-feedback")
+    }
+
+    /// ADR 08j: a correção do dono sobre a LEITURA. Ele diz o que ela entendeu
+    /// errado; a leitura fica no registro — a história não se apaga — e para de
+    /// orientar os ajustes seguintes. É a mesma gramática de "Não é essa a
+    /// dificuldade" na Hipótese: quem corrige a interpretação é a pessoa.
+    @ViewBuilder private func contestacao(_ c: DocumentoTrabalho.ConferenciaTentativa,
+                                          evidenciaID: UUID, oficina o: OficinaTrabalho) -> some View {
+        if let quando = c.contestadaEm {
+            // Sem ponto depois do motivo: o do autor costuma terminar em ponto,
+            // e a folha imprimia dois ("…vacino.." na captura da jornada).
+            Text("Você contestou esta leitura em \(quando.formatted(date: .abbreviated, time: .shortened)) — “\(c.motivoDaContestacao ?? "sem motivo registrado")” Ela continua no registro e não orienta mais os ajustes.")
+                .font(Tema.meta).foregroundStyle(Tema.aviso)
+                .accessibilityIdentifier("pratica-leitura-contestada")
+        } else {
+            let chave = "contestar-\(c.id.uuidString)"
+            campo("Por que esta leitura está errada? (para contestá-la)", chave: chave,
+                  exemplo: "O que ela entendeu errado da sua tentativa")
+            acaoSecundaria("Não foi isso que eu errei") {
+                guard !faltaCampo(chave) else { return }
+                let motivo = rascunhos[chave] ?? ""
+                aplicar(o, limpar: [chave]) { try $0.contestarLeitura(c.id, em: evidenciaID, motivo: motivo) }
+            }
+            .accessibilityHint(vazio(chave) ? "Escreva o motivo primeiro" : "")
+            .accessibilityIdentifier("pratica-contestar-leitura")
+        }
     }
 
     // MARK: - Versão
