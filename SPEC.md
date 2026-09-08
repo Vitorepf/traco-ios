@@ -6310,3 +6310,37 @@ continua com o gesto — provado na mesma tela, não só no teste.
 **O que continua valendo.** Ação `executada` segue sem cancelamento (08m), relato
 sem classificação continua entrando em qualquer estado, e o resultado observado
 continua sendo do relato, nunca um quarto estado da ação.
+
+## ADR 2026-09-08o — A orientação diz de QUAL ação está falando (volta E1-C)
+
+A 08m prometeu que **o resultado informado muda a próxima orientação**. Ela
+cumpria a promessa lendo `ultimaObservacao` — o último relato com resultado do
+**Trabalho inteiro** — e nunca dizia **de que ação** esse resultado veio. Com uma
+ação só, funciona por coincidência. Com três ações e três resultados, o juiz do G4
+fotografou o defeito (`g4-e1-09`, `g4-e1-11`): proposta *Funcionou*, orçamento *em
+parte*, ensaio *Não funcionou* — e a instrução gerada mandava *"proponha um caminho
+diferente"* num Trabalho cuja ação principal a pessoa disse que **funcionou**. O
+botão falava em "estes relatos" (plural) e a linha num resultado (singular) sem
+nome.
+
+**A ação passa a ser nomeada nos dois textos.** `TrabalhoView.acaoObservada(_:)`
+resolve o texto da ação do último resultado num lugar só; a linha da tela diz *"A
+revisão vai partir do último resultado que você informou, na ação “X”: Não
+funcionou."* e `orientacaoDoRelato(_:acao:)` diz à IA *"A pessoa informou que a
+ação “X” NÃO FUNCIONOU…"*. Os três textos por resultado não mudaram de conteúdo —
+só ganharam sujeito. O contexto já levava o resultado por ação
+(`OficinaTrabalho`); o que faltava era o **pedido vigente** concordar com ele, e é
+o pedido que prevalece.
+
+**E a premissa vem antes do gesto.** A linha "A revisão vai partir…" ficava
+**abaixo** do botão "Revisar com estes relatos": o VoiceOver lia relato → botão →
+e só então de que resultado a revisão parte. Passa a vir antes do botão, sem
+componente novo e sem mudar tinta ou fonte.
+
+**O que fica em aberto, e é honesto dizer.** O cartão da ação continua mostrando
+só o **último** resultado dela (o histórico inteiro fica em "O que aconteceu"), e
+o motivo gravado em `causaDoRelato` continua dizendo "desta ação" sem nomeá-la —
+ali o motivo já carrega o relato inteiro contra o teto `Limite.motivoDoAjuste`, e
+nomear a ação empurraria o relato para fora. Os dois são P3 do G4, registrados,
+não consertados nesta volta.
+

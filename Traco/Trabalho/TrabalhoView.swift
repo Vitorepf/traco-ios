@@ -1079,17 +1079,29 @@ struct TrabalhoView: View {
     /// resultados, três pedidos diferentes — sem isto, "revisar com estes
     /// relatos" mandava a mesma frase quando funcionou e quando fracassou, e
     /// o autor não tinha por que contar que deu errado.
-    static func orientacaoDoRelato(_ r: DocumentoTrabalho.ResultadoObservado?) -> String {
-        switch r {
+    /// ADR 08o: o resultado é de UMA ação, e a orientação diz qual. Sem o
+    /// nome, um Trabalho com três ações e três resultados manda "propor
+    /// caminho diferente" enquanto a ação principal funcionou.
+    static func orientacaoDoRelato(_ r: DocumentoTrabalho.ResultadoObservado?,
+                                   acao: String? = nil) -> String {
+        let sujeito = acao.map { "a ação “\($0)”" } ?? "a ação"
+        return switch r {
         case .funcionou:
-            "A pessoa informou que FUNCIONOU. Preserve o que ela relatou ter funcionado e não o reescreva; a revisão avança a partir daí, tratando o que ainda está em aberto. Não declare que ela aprendeu."
+            "A pessoa informou que \(sujeito) FUNCIONOU. Preserve o que ela relatou ter funcionado e não o reescreva; a revisão avança a partir daí, tratando o que ainda está em aberto. Não declare que ela aprendeu."
         case .parcial:
-            "A pessoa informou que funcionou EM PARTE. Preserve o que ela relatou ter funcionado e trabalhe apenas o que ela relatou ter faltado. Não refaça o que já serviu."
+            "A pessoa informou que \(sujeito) funcionou EM PARTE. Preserve o que ela relatou ter funcionado e trabalhe apenas o que ela relatou ter faltado. Não refaça o que já serviu."
         case .naoFuncionou:
-            "A pessoa informou que NÃO FUNCIONOU. Proponha um caminho diferente, não uma variação do mesmo; diga o que está mudando. Não trate o relato dela como erro dela."
+            "A pessoa informou que \(sujeito) NÃO FUNCIONOU. Proponha um caminho diferente, não uma variação do mesmo; diga o que está mudando. Não trate o relato dela como erro dela."
         case nil:
             "Revise a versão à luz dos relatos registrados e do resultado desejado. Diferencie o que foi observado do que ainda é incerto e proponha um ajuste concreto."
         }
+    }
+
+    /// ADR 08o: o texto da ação em que a pessoa informou o último resultado.
+    /// `nil` = nada observado, ou ação que já não está na lista.
+    static func acaoObservada(_ d: DocumentoTrabalho) -> String? {
+        guard let e = d.ultimaObservacao else { return nil }
+        return d.acoes.first { $0.id == e.acaoID }?.texto
     }
 
     /// A causa do pedido nascido de um relato, como DADO: aponta a evidência
@@ -1138,18 +1150,23 @@ struct TrabalhoView: View {
                     // causa vai junto como dado — o documento passa a dizer
                     // que esta versão nasceu do que a pessoa observou.
                     let causa = Self.causaDoRelato(o.documento)
+                    let observada = Self.acaoObservada(o.documento)
+                    let ondeInformou = observada.map { ", na ação “\($0)”" } ?? ""
+                    // ADR 08o: a premissa vem ANTES do botão — quem lê por
+                    // VoiceOver ouve de que resultado a revisão parte antes de
+                    // ter o gesto na mão, não depois.
+                    if let r = o.documento.ultimaObservacao?.resultado {
+                        Text("A revisão vai partir do último resultado que você informou\(ondeInformou): \(r.rotulo).")
+                            .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+                            .accessibilityIdentifier("trabalho-revisao-parte-do-resultado")
+                    }
                     acaoSecundaria(o.documento.praticaPedida ? "Adaptar exercício aos relatos" : "Revisar com estes relatos") {
                         guard !levouAoQueFalta(o, campoObrigatorio: nil) else { return }
-                        definir("pedido", Self.orientacaoDoRelato(o.documento.ultimaObservacao?.resultado))
+                        definir("pedido", Self.orientacaoDoRelato(o.documento.ultimaObservacao?.resultado, acao: observada))
                         let instrucao = rascunhos["pedido"] ?? ""
                         o.gerar(instrucao, ajuste: causa ?? Self.causaDoPedidoEscrito(o.documento, instrucao))
                     }
                     .accessibilityIdentifier("trabalho-revisar")
-                    if let r = o.documento.ultimaObservacao?.resultado {
-                        Text("A revisão vai partir do resultado que você informou: \(r.rotulo).")
-                            .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
-                            .accessibilityIdentifier("trabalho-revisao-parte-do-resultado")
-                    }
                 }
             }
             .id("trabalho-retorno")

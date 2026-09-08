@@ -54,3 +54,44 @@
 ## O que continua por ver
 
 Com conta Grok real, falta observar a versão que nasce de `resultadoInformado`, ler integralmente a saída contra a instrução/relato e confirmar `causaDaVersao` na versão efetivamente recebida. Sem essa conta, a prova disponível é apenas a correta: pedido e causa persistidos, falha comunicada na tela; ela não certifica semântica nem utilidade da produção do provedor.
+
+---
+
+# re-G3 — revisão independente E1-B: APROVADO (9/10)
+
+**Veredito:** APROVADO (9/10). O P1 foi fechado no agregado nas duas ordens, a rota de validação externa recusa o par proibido, e a contraprova mantém o cancelamento para a ação pendente sem resultado.
+
+## Instrumento e candidato
+
+- Candidato revisado: `9d724f112838ce1577b34e14d49cd68f79e33c13`; árvore limpa antes deste relatório. Não toquei o `C2416CBC` da frente Q.
+- Reexecutei no iPhone 17 Pro (teste 4) `A1DF082C-FC87-4DF9-9F56-F2DA1C084DED`, iOS 26.5, sempre por `ferramentas/orca/com-trava.sh`, `-destination id=` e `-parallel-testing-enabled NO`.
+- `xcodebuild build` passou; a suíte integral retornou `result: Passed`, `totalTestCount: 941`, `failedTests: 0`. A bateria focada `ResultadoObservadoTests` retornou 13/13, incluindo `observadoAntes_naoSeCancelaDepois`, `canceladaAntes_naoRecebeResultadoDepois` e `cancelarAcaoTemGestoESoAlcancaOPendente`.
+
+## Invariante, três ordens e rota não-UI
+
+- **Observado → cancelar:** `podeCancelar(_:)` exige ação pendente e `observacao(de:) == nil`; `cancelarAcao` o relê antes da escrita. O teste independente confirmou a recusa, preservando ação pendente e resultado informado.
+- **Cancelar → resultado:** `registrarRelato(... resultado:)` recusa ação cancelada; relato sem classificação segue permitido. O teste independente confirmou a recusa e preservação do estado cancelado.
+- **Cancelar e relatar ao mesmo tempo:** não há janela de `await` entre guarda e mutação. As duas entradas da tela passam por `OficinaTrabalho.alterar`, que é `@MainActor`, cria `proximo` a partir do documento atual, aplica uma mutação inteira, valida e só então publica; o segundo evento inevitavelmente lê o estado já alterado e é recusado. Não há outro chamador mutável compartilhado de `DocumentoTrabalho`.
+- **Fora da view:** `validar()` rejeita uma evidência com resultado ligada à ação cancelada; `Trabalho.ler()` e `Trabalho.atualizar(_:)` chamam essa validação antes de devolver ou persistir o documento. A prova forjada do teste focalizado voltou `DocumentoTrabalho.Erro`, cobrindo migração/importação ou novo chamador que tente introduzir o par diretamente.
+
+## Tela, copy e contraprova
+
+- Examinei as quatro imagens reais. A `15` reproduz o cartão da falha original com “Resultado que você informou: Não funcionou”, sem “Cancelar esta ação” e com a explicação; `16` e `17` mostram em AX5 que a frase inteira continua legível dentro do cartão.
+- A frase é honesta e direta: atribui o resultado à pessoa, explica que cancelar não cabe porque contradiz/apagaria o acontecido registrado, sem jargão nem culpa.
+- A `18` é a contraprova necessária: a ação cancelada fica distinguida, enquanto “Ensaiar a apresentação” permanece pendente, sem resultado e ainda oferece “Cancelar esta ação”.
+- Limite mantido: não revi a versão gerada por Grok real; ela pertence à frente Q, fora deste veredito.
+
+## Scorecard
+
+| dimensão | nota | evidência |
+|---|---:|---|
+| Visão | 9 | protege o resultado relatado sem confundir ato, observação e realização. |
+| Contrato | 9 | predicado único, duas guardas de mutação e `validar()` cobrem UI, persistência e chamador externo. |
+| Correção | 9 | 13 testes focados e 941 totais verdes no UDID próprio; ordem concorrente analisada no isolamento Main Actor. |
+| Jornada real | 9 | `15`–`18` examinadas, incluindo a contraprova do gesto ainda disponível. |
+| Simplicidade | 9 | reutiliza o predicado do agregado; não cria tela, componente ou passo. |
+| Acessibilidade | 9 | `16`–`17` em AX5 preservam a explicação sem clipe observado. |
+| Privacidade e autoria | 9 | o relato atribuído deixa de poder entrar num estado contraditório por cancelamento. |
+| Estado honesto | 9 | a interface não oferece mais cancelar depois de resultado observado e explica a restrição. |
+| Complexidade | 9 | menor mudança centralizada; sem abstração ou caminho paralelo. |
+| Relato | 9 | candidato, instrumento, provas e limite declarados acima. |

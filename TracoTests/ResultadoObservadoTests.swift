@@ -192,6 +192,31 @@ struct ResultadoObservadoTests {
         #expect(!ruim.contains("erro dela") || ruim.contains("Não trate"))
     }
 
+    /// ADR 08o: a orientação diz de QUAL ação o resultado veio. Com três
+    /// ações e três resultados, sem o nome ela mandava "propor caminho
+    /// diferente" num Trabalho cuja ação principal a pessoa disse que
+    /// funcionou — a promessa da volta só se sustenta se dá para saber qual.
+    @Test func aOrientacaoNomeiaAAcaoDoUltimoResultado() throws {
+        var (d, proposta) = try comAcao()
+        try d.prepararAcao("Ensaiar a abertura")
+        let ensaio = try #require(d.acoes.last).id
+        try d.registrarRelato("O cliente aceitou", acaoID: proposta, resultado: .funcionou)
+        try d.registrarRelato("Travei na abertura", acaoID: ensaio, resultado: .naoFuncionou)
+
+        let alvo = try #require(TrabalhoView.acaoObservada(d))
+        #expect(alvo == "Ensaiar a abertura", "o último resultado é o do ensaio, não o da proposta")
+
+        let orientacao = TrabalhoView.orientacaoDoRelato(d.ultimaObservacao?.resultado, acao: alvo)
+        #expect(orientacao.contains("Ensaiar a abertura"))
+        #expect(!orientacao.contains("Apresentar a proposta ao cliente"),
+                "a ação que funcionou não é a que motiva o caminho diferente")
+        #expect(orientacao.contains("NÃO FUNCIONOU"))
+
+        // Sem nada observado não há ação a nomear, e o pedido segue genérico.
+        let (limpo, _) = try comAcao()
+        #expect(TrabalhoView.acaoObservada(limpo) == nil)
+    }
+
     /// A causa é dado vinculante, não inferência: aponta a evidência em que a
     /// pessoa informou o resultado, e o vínculo sobrevive à versão recebida.
     @Test func aCausaDoRelatoFicaGuardadaNaVersaoQueNasceuDela() throws {
