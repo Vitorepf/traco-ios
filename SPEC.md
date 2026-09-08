@@ -5242,10 +5242,18 @@ decisão:** ele muda para a família 4, e a família 4 passa a se chamar pelo qu
 sempre foi — **confissão de conduta**, não só "o que eu fiz A ALGUÉM".
 
 **O buraco maior era de AMOSTRA, não de léxico** — e é o item que impede a
-próxima cegueira desta classe. As 57 protegidas até aqui carregavam um rabo de
-~140 caracteres: quase toda sonda ficava ACIMA do teto, e o caso curto de cada
-família nunca era exercitado. Foi por isso que quatro voltas de régua
-(06i, 06i-B, 06i-C, 06i-D) passaram por cima da assimetria sem vê-la.
+próxima cegueira desta classe. *(Corrigido pela volta P1 em 08/09: a causa
+escrita aqui era falsa. Dizia-se que "as 57 protegidas carregavam um rabo de
+~140 caracteres e quase toda sonda ficava ACIMA do teto". Medido contra a
+implementação real: **46 das 57 já estavam ABAIXO do teto**. O rabo de 140 é da
+régua de ALCANCE — `todoRamoDeRegexAlcancaOSeuMetodo` —, não das protegidas.)*
+A causa verdadeira é **CONTAMINAÇÃO**: das 57, 17 tocam a família 4 e 11 dessas
+são curtas, mas a única curta que carregava o token do defeito —
+"Não devia ter feito isso, senti muito." (38 caracteres) — é presa pela família
+**1a** por causa de `senti`, antes de a 4 ou a 5 opinarem. Toda sonda curta com
+o token trazia junto uma palavra de outra família, e foi por isso que quatro
+voltas de régua (06i, 06i-B, 06i-C, 06i-D) passaram por cima da assimetria sem
+vê-la. O conserto que isso pede não é sonda curta: é sonda curta **exclusiva**.
 `EscritaPessoalTests.curtasPorFamilia` fecha isso com **uma sonda por família
 ABAIXO do teto**, cada uma com a porta que a levaria vestida — sem a porta a
 sonda não mede nada:
@@ -5261,9 +5269,13 @@ sonda não mede nada:
 | 5 omissão + companhia | "Foi pesado e eu fiquei calada." (30) | Coluna da esquerda |
 
 `cadaFamiliaTemUmaSondaAbaixoDoTeto` cobra as cinco famílias contra o mapa de
-léxicos: **família sem sonda curta é teste vermelho**. A da família 5 é a
-companhia por definição (a omissão sozinha continua sem disparar abaixo do
-teto, ADR 06i) — está declarado na régua, não escondido nela.
+léxicos: **família sem sonda curta é teste vermelho**. Desde a volta P1 ela
+cobra também a **EXCLUSIVIDADE** — nenhuma outra família pode reconhecer a
+sonda —, que é a propriedade que teria pego este defeito e que até então existia
+por sorte do texto (seis das sete sondas saíram exclusivas sem que nada o
+exigisse). A da família 5 é a companhia por definição (a omissão sozinha
+continua sem disparar abaixo do teto, ADR 06i): a 1b entra DECLARADA na própria
+linha da sonda, à vista da régua, não escondida nela.
 
 **A frase da 06h que era falsa abaixo do teto, corrigida.** A 06h escreveu o
 custo como "a guarda fecha 14 de 287 ramos (4,9%) **para TEXTO LONGO**" e a
@@ -5276,11 +5288,23 @@ abertos abaixo de 120 — que é exatamente o defeito. **Como fica, medido:**
 | ramos | fechados |
 |---|---|
 | 3 da Coluna da esquerda (`engoli`, `fiquei calado`, `deixei passar`) | só ACIMA do teto |
-| 11 do Exame da noite | em QUALQUER tamanho (era 7 de 11) |
+| 11 dos 17 ramos do Exame da noite — os de confissão | em QUALQUER tamanho (era 7 desses 11) |
 
 E o Exame **continua alcançável abaixo do teto** pelo primeiro ramo ("exame da
-noite", "passei o dia em revista", "olhando o dia de hoje") e por "hoje eu
-fiz|reagi|tratei" — que é a frase verdadeira, agora dos dois lados do teto.
+noite", "passei o dia em revista") e por "hoje eu fiz|reagi|tratei" — que é a
+frase verdadeira, agora dos dois lados do teto.
+
+*(Corrigido pela volta P1: esta lista trazia também "olhando o dia de hoje", e a
+porta era MORTA em qualquer tamanho. `Meu dia` tem `\bo dia de hoje\b` no
+roteamento e vem antes no catálogo, então toda nota com essa frase cai no Meu
+dia e nunca no Exame — o desvio estava registrado desde a ADR 06e em
+`todoRamoDeRegexAlcancaOSeuMetodo`, e a versão anterior desta ADR listava só os
+dois primeiros, certos. A P1 apagou o ramo do `Metodos.json` em vez de o
+descrever: ramo que nunca roteia é promessa que a ficha do método não cumpre, e
+apagá-lo tirou um desvio congelado da régua de alcance, que passou de 18 para
+17. O Exame fica com 16 ramos: 11 calados pela guarda, 5 vivos. Também se
+corrigiu o rótulo "os 11 ramos do Exame": pela mesma expansão, o método tinha
+17 ramos e 11 é o subconjunto de confissão.)*
 
 **Volta:** melhorar. **O que a IA sabe:** nada de novo — a guarda continua sem
 modelo, no aparelho. **Prova:** a régua nova medida VERMELHA antes do conserto,
@@ -5293,8 +5317,17 @@ tests in 1 suite passed after 0.209 seconds.` nas quatro réguas
 (**64 protegidas + 13 com gancho + 6 legítimas + 58 de trabalho**) e
 `✔ Test run with 780 tests in 130 suites passed after 7.102 seconds.` /
 `** TEST SUCCEEDED **` na suíte inteira. **Fora:** `não devia ter` agora cala
-também a confissão de conduta sobre coisa ("não devia ter aceitado esse prazo"),
-e isso é assumido pela assimetria de sempre — calar custa um toque, vestir
+também a confissão de conduta sobre coisa ("não devia ter aceitado esse prazo").
+**O preço, medido pela volta P1 no catálogo de 28 e com controle negativo** (o
+token de volta na família 5, nada mais trocado): das seis notas de trabalho que
+o revisor escreveu com o token, **6 de 6 perdem a forma** — `classeDeReferencia`,
+`primeirosPrincipios`, `cincoPorques`, `argumento`, `vistoNaoVisto` e `destilar`
+viram silêncio. Na mesma medida, os ramos do Exame que chegam ao método abaixo
+do teto caem de **9 de 17 para 5 de 17**, e nenhum muda de lado com o teto (eram
+4 que mudavam). Foi testada a saída estreita — cobrar só os quatro verbos do
+próprio Exame — e ela é PIOR: devolve as notas de trabalho e abre três buracos
+novos pela Coluna da esquerda (`não devia ter dito|falado|respondido`). O token
+largo é escolha, não descuido. Isso é assumido pela assimetria de sempre — calar custa um toque, vestir
 carimba quatro campos; o literal continua sendo `não devia ter` com acento, e
 quem escreve "nao devia ter" não é alcançado (o mesmo resíduo de `fiquei calad`
 e companhia); e as sondas curtas são minhas e do revisor, não de uso real —
@@ -5387,3 +5420,74 @@ A escada da sábia, o `conferir`, o `responderNasNotas`, o `produzirEntrega` e o
 **O teto passa a ser medido.** Desde o iOS 26.4 o modelo conta tokens (`SystemLanguageModel.tokenCount(for:)`, `contextSize`). `Sabia.noAparelho` mantém os 3.500 caracteres como pré-corte da montagem, mas o portão real é pedido + instruções + 1.024 tokens de resposta reservados ≤ `contextSize`; sem espaço para a resposta, cala. `maximumResponseTokens` fixa a reserva.
 
 **O que esta ADR não prova.** Nenhuma operação tem medição com Grok: a conta não existe em nenhum simulador (login iniciado no iPhone 17 Pro de teste em 07/09, à espera do dono). A tabela decide onde o aparelho NÃO entra; se o Grok serve, é a próxima medição pela mesma sonda. `responder`, `instigar` e `contrapor` seguem sem medição em nenhum provedor. 5 testes em `PoliticaTests`; suíte 826/134 em 07/09/2026.
+
+## ADR 2026-09-08a — O portão do movimento, e três dívidas de documento pagas (volta P1)
+
+**A dívida 7 da limpeza de 07/09, e por que ela é a mais estrutural.** Na volta
+12 a classe do cross-fade voltou SEIS vezes, com TRÊS causas distintas. O juiz
+do re-G4 nomeou a causa comum: **não existe portão** que impeça escrever
+`withAnimation` — ou uma curva do SwiftUI em literal — sem passar por `Tema`.
+Quem escreve a curva no ponto de uso escolhe sozinho a CLASSE de movimento, e é
+a classe que decide o comportamento sob "Reduzir movimento" (ADR 05y), lei que
+mora em `Tema` num lugar só. Sem portão, cada tela recomeça a decisão.
+
+**A decisão: um teste de varredura com a dívida CONGELADA, não um lint.**
+`TracoTests/PortaoDoMovimentoTests` lê o TEXTO dos fontes de `Traco/` e
+`TracoWidget/`, tira comentário e miolo de string, e conta por arquivo quantas
+vezes ele move por conta própria (`withAnimation(`, curva nomeada do SwiftUI,
+`Animation.`, `repeatForever`, duração ou atraso em número cru). `Traco/Tema.swift`
+é o único isento. Todo o resto está numa lista congelada no próprio teste, um
+caminho por linha com o número de hoje: **19 arquivos, 76 ocorrências**. Arquivo
+fora da lista, ou número acima do congelado, é dívida nova e o teste fica
+vermelho dizendo o que fazer; número abaixo é migração feita e desce na mesma
+linha do commit, até a linha sair. `TracoWidget/` não aparece porque não tem
+nenhuma — a lista existe para que continue assim.
+
+**Esta volta NÃO migra nenhuma das 76.** Isso é das voltas por tela, e várias
+moram em views de outros donos. O portão só impede a próxima.
+
+**Prova de que ele falha de verdade.** Verde no repositório de hoje
+(`✔ Test run with 1 test in 1 suite passed after 0.620 seconds.`); com uma
+violação plantada em arquivo FORA da lista e outra em arquivo DENTRO dela, o
+teste fica vermelho nas duas por motivos diferentes e nomeia cada uma
+(`Traco/App/BarraNavegacao.swift: 2 hoje, 0 congelado ← SUBIU`,
+`Traco/Padroes/PadroesView.swift: 4 hoje, 2 congelado ← SUBIU`). As duas foram
+removidas em seguida.
+
+**Fora, dito:** a varredura é sobre texto, não sobre a árvore do compilador.
+Vale para o que se lê num fonte; não persegue a curva que atravessa uma
+`Animation` guardada numa variável, nem string de várias linhas. Congelar
+número por arquivo é grosso de propósito: obriga a olhar a linha nova, e não
+julga se ela está certa.
+
+**As três dívidas de documento (itens 5 e 6 do RUMO)** foram pagas nas ADRs
+onde elas moram — 06i-E corrigida em quatro pontos (a causa, que era
+contaminação e não rabo; a régua que passa a cobrar exclusividade; a porta morta
+`olhando o dia de hoje`; e os dois números medidos), e a `aplicabilidade` do
+`exameDaNoite` no `Metodos.json` reescrita. A ficha dizia ao autor "serve para o
+fim de um dia em que você fez algo que não quer repetir" — exatamente a matéria
+que a guarda da 06h se recusa a levar ao método. Passa a dizer a verdade: o
+método se abre pelo nome, e quando o texto é confissão a nota fica do autor.
+
+**A porta morta: apagada, não descrita.** `olhando o dia de hoje` sai do
+roteamento do `exameDaNoite`. `Meu dia` tem `\bo dia de hoje\b` e vem antes no
+catálogo: a frase nunca chegava ao Exame, em nenhum tamanho — o desvio estava
+congelado em `todoRamoDeRegexAlcancaOSeuMetodo` desde a ADR 06e. Descrever a
+porta morta a manteria como promessa que a ficha não cumpre; apagá-la tirou um
+desvio da lista de conhecidos (18 → 17) e não muda roteamento nenhum. O Exame
+fica com 16 ramos: 11 calados pela guarda, 5 vivos.
+
+**Uma armadilha fechada de lambuja.** `EscritaPessoalTests.novos` é uma cópia
+congelada das sete regex da M3, e desde a colagem de 07/09 é o bundle que manda
+(o `comOsNovos` virou no-op: `Catalogo.recarregar` recusa id repetido). Cópia
+que envelhece em silêncio faz a régua medir a M3 e não o app —
+`osSeteCongeladosBatemComOBundle` compara ramo a ramo. Ela acusou esta própria
+volta na primeira corrida, que é a prova de que precisava existir.
+
+**Volta:** melhorar para multiplicar mais depois (eixo 4, diminuir
+complexidade). **O que a IA sabe:** nada de novo. **Prova:**
+`✔ Test run with 889 tests in 144 suites passed after 11.769 seconds.` +
+`** TEST SUCCEEDED **` e `** BUILD SUCCEEDED **` com 0 aviso, no iPhone 17 Pro
+(teste 4) `A1DF082C`, sob `com-trava.sh`. As quatro réguas protegidas (64
+protegidas, 13 com gancho, 6 legítimas, 72 de trabalho) verdes, nenhuma mudou de
+lado. Sem maestro: com três simuladores ligados ele lê a hierarquia do vizinho.

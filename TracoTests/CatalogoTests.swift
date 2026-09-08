@@ -399,10 +399,11 @@ import Testing
     /// nenhuma, então o resultado não depende de qual lado do teto está o
     /// conserto da Expressiva.
     ///
-    /// DEZOITO desvios conhecidos e aceitos, de DUAS naturezas — e o número foi
-    /// remedido na colagem com main, não herdado da ADR 2026-09-06h.
+    /// DEZESSETE desvios conhecidos e aceitos, de DUAS naturezas — o número foi
+    /// remedido na colagem com main, não herdado da ADR 2026-09-06h, e a volta
+    /// P1 tirou o décimo oitavo apagando o ramo morto que o causava.
     ///
-    /// Os QUATRO primeiros são regex larga e cedo comendo regex específica e
+    /// Os TRÊS primeiros são regex larga e cedo comendo regex específica e
     /// tarde. Nenhum dos três métodos fica sem porta: todos têm ramos vivos.
     ///
     /// Os QUATORZE seguintes são a GUARDA da escrita pessoal (ADR 2026-09-06h,
@@ -417,9 +418,10 @@ import Testing
     /// O que a conta COBRA, e está aqui para ninguém descobrir sozinho: o
     /// SEGUNDO ramo do Exame da noite (`não devia ter …`, `me arrependi`,
     /// `fui injusto|grosso|duro demais|ríspido`) está INTEIRO fechado — 9 de 9
-    /// sondas caladas. O método continua alcançável só pelo primeiro ramo
-    /// (`exame da noite`, `passei o dia em revista`) e por `hoje eu
-    /// (fiz|reagi|tratei)`. É a proteção funcionando, e é o preço dela.
+    /// sondas caladas. Dos 16 ramos do método (eram 17 até a volta P1), 11 estão
+    /// calados pela guarda e 5 chegam: `exame da noite`, `passei o dia em
+    /// revista` e `hoje eu (fiz|reagi|tratei)`. É a proteção funcionando, e é o
+    /// preço dela.
     ///
     /// Desvio NOVO, fora destes 18, derruba o teste.
     @Test func todoRamoDeRegexAlcancaOSeuMetodo() {
@@ -428,7 +430,9 @@ import Testing
             "steelman|melhor argumento contra|argumento",
             "divergencia|dez ideias|notaPermanente",
             "divergencia|todas as ideias|notaPermanente",
-            "exameDaNoite|olhando o dia de hoje|dia", // ADR 2026-09-06e
+            // `exameDaNoite|olhando o dia de hoje|dia` saiu na volta P1: o ramo
+            // era morto por sombreamento (`Meu dia` tem `\bo dia de hoje\b` e
+            // vem antes no catálogo), e foi apagado do `Metodos.json`.
             // a guarda da escrita pessoal cala a sonda — Coluna da esquerda (3)
             "colunaEsquerda|engoli|silencio",          // ADR 2026-09-06h
             "colunaEsquerda|fiquei calado|silencio",   // ADR 2026-09-06h
