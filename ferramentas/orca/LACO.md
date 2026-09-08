@@ -359,3 +359,71 @@ que fecha lacuna em vez de só apontá-la.
 
 Despachei a **V13-B** (`task_32591f5f21cd`, Opus 5, no 17e `C7341E64`): só as
 duas provas, nada de conserto novo. Caçador de fala antes do ciclo: zero.
+
+## 08/09, 20h45 — a A1 mesclada, e o registro das letras vira lei
+
+A A1-D fechou as três correções **sobre o diff do worker morto**, sem refazer
+nada: refez a medida do `try!` nas duas árvores (`git archive` para ler o `main`
+sem tocar no checkout principal), abriu a captura do espelho vazio e confirmou a
+frase palavra por palavra em vez de tirar outra, e reescreveu a lacuna do
+VoiceOver como **ordem do dono**. 934/152 e zero aviso na árvore final.
+
+E devolveu um achado **meu**: a ADR 08n já era da E1-B em `main`. Fui ao
+registro completo — não à memória — e havia **duas** colisões vivas: A1 × E1-B em
+`08n`, e V13 × Q em `08p`. Decidi por **quem é mais barato mover**, não por quem
+chegou depois: a Q fica com `08p` (três letras encadeadas, já conferidas letra a
+letra por um revisor — mexer nela invalidaria prova conferida), a V13 recebeu
+`08t` por mensagem, a A1 virou **`08s`** pela minha mão, e a MAC-1 nasce com
+`08u`. Nove ocorrências em oito arquivos; normalizando a letra, os dois lados do
+diff ficam idênticos linha a linha.
+
+A causa é minha e está agora na ESTEIRA: eu reservava **uma letra por volta**,
+quando uma volta escreve quantas ADRs precisar. O registro se lê por comando,
+vale para **todas as refs vivas** (branch não mesclado já é dono da letra dele),
+e buraco antigo não se reaproveita.
+
+Suíte na árvore **mesclada** — que nenhum dos dois lados tinha testado —
+**948 testes em 153 suítes, verde**. Mesclada em `6da0df1`.
+
+## 08/09, 20h50 — a Q-F fechou as duas frases grandes demais
+
+Conserto 1 pelo caminho (a): a alegação de equivalência passa a valer para o
+**artefato** de renumeração, com 49 linhas e 55 ocorrências enumeradas uma a uma,
+as 12 linhas não-puras listadas, e a mesma frase nomeando as outras cinco
+mudanças que entram no commit. Sem reescrever história — o SHA que o veredito
+cita continua de pé.
+
+Conserto 2, e este é melhor do que eu pedi: o teste novo varre a **serialização
+inteira** de um caso de **cada uma das doze guardas** contra um exercício em que
+toda palavra é um marcador inventado (oito de 1 a 4 letras, três com acento), por
+igualdade de token — e o worker **provou que ele morde, por mutação**, desfeita
+antes do build de fecho. 919 testes, zero aviso.
+
+Despachei o **quarto** re-G3 (`task_cda75349b44b`), curto por desenho: as duas
+correções e **a foto do cartão CONTA**, que é a única coisa segurando
+`Jornada real` em 6 — e nada mescla abaixo de 9.
+
+## 08/09, 20h20 — TRILHA NOVA POR ORDEM DO DONO: o Traço no Mac pelo Grok Bot
+
+O dono pôs em `main` (`8d9ce62`) o contrato dos **onze casos de uso**
+(`ferramentas/grokbot/CASOS.md`) e o brief da trilha
+(`ferramentas/orca/papeis/trilha-mac.md`), com três voltas: MAC-1 (ler tudo e
+escrever com origem), MAC-2 (a porta de volta do Trabalho, Astra no G0) e MAC-3
+(web e briefing com citação obrigatória, só depois da Q mesclar). Ordem: abrir a
+**MAC-1 agora**, como uma das três frentes, implementador Opus e revisor GPT 5.6
+Terra, e **o revisor exercita cada caso de verdade com o MCP ligado**.
+
+Abri a MAC-1 (`task_32b0b3e6a622`, worktree novo `volta-mac-1`, ADR reservada
+`08u`). Ela paga os casos 1, 2-leitura, 3, 8, 9 e 11: `traco_agenda`,
+`traco_decisoes`, `traco_escrever` com `origem` e `fontes`, o `agenda.md`
+exportado, e a nota `origem: grokbot` com etiqueta no iPhone, **fora do
+Retrato**. A etiqueta é tela, então o spec manda carregar o `design-router` e
+começar pela fase de auditar.
+
+**A lei que mais importa nesta trilha** já estava escrita pelo dono e eu a repeti
+no spec: *o bot nunca redige como o autor*. Origem obrigatória em toda escrita
+que não seja da pessoa, nada em nota pronta, expressiva e selada nunca chegam ao
+bot, nada automático — e voz, VoiceOver e iPad proibidos como em toda parte.
+
+**As três frentes agora:** MAC-1 (nova), V13-B (as duas provas) e a Q (quarto
+re-G3). A A1 saiu por mescla.

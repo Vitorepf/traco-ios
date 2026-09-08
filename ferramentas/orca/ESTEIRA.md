@@ -131,3 +131,35 @@ fecha. O spec do sucessor diz onde o trabalho parado está e manda **ler o diff
 antes de qualquer coisa**, sem `stash` e sem refazer. E o sucessor **confere os
 números em vez de acreditar neles**: quem os mediu não está mais aqui para
 responder por eles.
+
+### O registro das letras de ADR é do orquestrador, e mora aqui (08/09)
+
+Três voltas colidiram na mesma letra em um só dia — a A1 e a E1-B em `08n`, a
+V13 e a Q em `08p` — e a causa é minha: eu reservava **uma letra por volta**,
+quando uma volta escreve **quantas ADRs precisar**. Quem mescla primeiro fica
+com a letra; quem chega depois renumera, e renumerar depois de um revisor já ter
+conferido a letra **invalida uma prova conferida**.
+
+**Regra:** antes de qualquer volta escrever uma ADR, o orquestrador lê o
+registro completo com um comando, não de memória:
+
+```
+for ref in main origin/main <cada branch vivo>; do
+  echo "$ref: $(git grep -ho '2026-09-0[0-9][a-z]' $ref -- SPEC.md | sort -u | tr '\n' ' ')"
+done
+```
+
+O registro vale para **todas as refs vivas**, não só `main`: o branch que ainda
+não mesclou já é dono da letra dele. **Buraco antigo não se reaproveita** (a
+`08c` e a `08d` estão vagas e ficam vagas — reusar uma letra morta faz duas
+coisas diferentes terem o mesmo nome na história).
+
+**Quando duas voltas vivas colidem, muda quem é mais barato de mover**, não quem
+chegou depois: uma volta com três ADRs encadeadas e revisor que já conferiu
+letra a letra fica; uma ADR sozinha muda.
+
+**A renumeração se prova assim** (e a prova é do tamanho da alegação, não maior):
+normalize a letra nos dois lados do diff e mostre que os multiconjuntos de
+linhas removidas e adicionadas são **idênticos**. Se sobrar qualquer linha, a
+alegação "só a letra mudou" é falsa — e foi exatamente essa a falha que o re-G3
+da Q pegou.
