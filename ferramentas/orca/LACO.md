@@ -114,3 +114,14 @@ Primeira volta fechada pelos portões completos desde a limpeza de 07/09, e a pr
 - **Duas quebras declaradas, nenhuma escondida:** o implementador e a volta F4-F dirigiram tela por `cliclick` antes de a ordem do dono das 11h35 existir; o re-G3 julgou o que importava — nenhuma evidência ficou contaminada.
 - **Limite novo do instrumento, achado pelo primeiro revisor a usar `orca emulator`:** o `ax` perde a árvore de acessibilidade assim que o Traço abre (`ERR_CONNECTION_REFUSED` / `ERR_EMPTY_RESPONSE`); reiniciar o helper recupera a AX da tela inicial e a perde de novo ao abrir o app. Ele não fez a segunda captura e **não apresentou a alheia como sua**.
 - **Colisão de letra de ADR, resolvida por reserva:** a sessão dos cinco itens ocupou `08a`–`08d` em `main` e três voltas escreveram por cima. Reserva vigente: **P1 = 08e (mesclada), V12 = 08f, F4-F = 08g, L2 = 08h**.
+
+### 08/09 12h25 — A FILA DO DONO entra, e o Astra deixa de implementar
+
+O dono pediu ao Astra uma leitura de prioridades, pôs o Astra a resolver as cinco primeiras sozinho e **desistiu disso**: o laço do Orca resolve as doze, com mais qualidade por token. A tabela está no RUMO (`7778687`, seção "A fila do dono, 08/09"), com o critério de "resolvido" do Astra em cada linha — e resolvido é **provado na tela**, não a volta mesclada.
+
+**O que muda para mim, em uma linha cada:**
+- **Não há sessão do Astra editando o checkout.** O checkout principal está limpo em `7778687`; o único Codex vivo é o revisor GPT 5.6 Terra da F4-F, já usando `orca emulator`. Cai o aviso que eu tinha escrito às 10h25 sobre uma sessão paralela no checkout — ele valia e deixou de valer.
+- **Toda volta nasce com a linha G0 E o critério de resolvido do Astra colado no spec.**
+- **Ordem de fila:** a do Astra, exceto onde uma volta em curso paga um item mais abaixo de graça. Do que está aberto agora: **L2 paga o item 10** (capacidades apoiadas em evidência), **V12-B e F4-F pagam parte dos itens 7, 11 e 12**.
+- **Depois das voltas em curso, nesta ordem:** **V17** (itens 1 e 6 — o artefato que se reescreve em Markdown e a jornada real do espanhol), **Q com Grok** (2, 3 e 9 — a sonda `AvaliacaoIA` nas dezesseis operações; confirmar `ContaGrok.ligada` antes de gastar), **estados da ação** (5 — `EstadoAcao` ganha o observado e `cancelada` deixa de ser inalcançável; os três estados mortos estão em `Trabalho.swift:39-44`), **retomada do Trabalho** (4 — a folha abre no ponto certo, ADR 06b §18-D descreve a estrutura que falta), **arranque honesto** (8 — o `try!` de `TracoApp.swift:13` e os outros cinco).
+- **Pré-condição da Q já conferida por mim, para não gastar volta à toa:** `ContaGrok.ligada` existe (`Traco/Analise/ContaGrok.swift:55`, verdadeiro quando há token de renovação ou de acesso guardado) e a sonda `AvaliacaoIA` já registra `contaGrokLigada` em cada medição. A confirmação é leitura barata.

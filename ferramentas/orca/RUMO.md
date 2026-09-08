@@ -18,7 +18,7 @@ Três voltas abertas ao mesmo tempo, cada uma no próprio worktree filho nascido
 
 **Dois fatos do dia que mudam o mapa:**
 - **O simulador teste 2 `B91C8DEF` tem a conta Grok do dono conectada** (confirmada no Perfil em 08/09). É proibido a todo worker: `xcodebuild test` reinstala o app e apaga o contêiner. Cai a linha "nenhuma operação tem medição com Grok" — a base existe.
-- **Outra sessão (Codex) trabalha AGORA no checkout principal**: os "cinco itens" (`prova/cinco-itens*`), com raciocínio explícito nas operações de Trabalho e o modelo `grok-4.3` no lugar do alias aposentado, ADR 2026-09-08b escrita em `SPEC.md`. Está sem commit, o build da árvore passa sem aviso, e **não se toca**: quem fecha é aquela sessão. Dívida que já se vê: a jornada visual persistida, retorno → ajuste com provedor real e a revisão final continuam pendentes (`prova/cinco-itens.md`, seção "Limites e trabalho restante").
+- ~~Outra sessão (Codex) trabalha no checkout principal~~ — **VENCIDO às 12h25**: o dono comitou os cinco itens (`f22a588`) e desistiu de pôr o Astra a implementar. O checkout está limpo, e o único Codex vivo é revisor. Da leitura dos cinco itens fica de pé a dívida: a jornada visual persistida, retorno → ajuste com provedor real e a revisão final continuam pendentes (`prova/cinco-itens.md`, "Limites e trabalho restante") — e a **volta Q** as paga.
 
 ## Em curso (05/09 à noite, modo Fable máximo)
 
