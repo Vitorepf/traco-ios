@@ -197,3 +197,106 @@ como 08c quebra a numeração reservada desta sessão. **P1 — renomear 08c par
 
 O aparelho foi mantido no UDID atribuído, `large` ao final; nenhum maestro,
 mouse ou simulador proibido foi usado. Não editei código nem comitei.
+
+## re-G3 (segundo)
+
+**Veredito: APROVAR — Contrato 9 e Performance 9.** Refiz a medida no iPhone
+17e `C7341E64-3A33-4ADD-AF6C-9296215FAD09` e executei a suíte integral sob
+`ferramentas/orca/com-trava.sh`: **891 testes em 145 suítes, 0 falhas,
+`TEST SUCCEEDED`**. A volta continua atrás de `main`, o que não entra neste
+veredito; a prova da árvore mesclada permanece o G5.
+
+### 1. Contrato — 9
+
+O cabeçalho da ADR é `2026-09-08f`, e os dois comentários do app agora apontam
+para `08f`. O `grep` literal nos alvos operacionais não é zero: restam duas
+ocorrências de `08c`, uma em `SPEC.md` e uma em `EVOLUCAO.md`, ambas na frase
+histórica que explica a colisão e a renomeação; não são identificadores ativos.
+`v12b-pagina.md`, `v12c-medidas.md`, `Traco` e `TracoTests` não têm `08c`.
+Portanto, a renomeação está completa para o contrato, e SPEC e EVOLUCAO dizem
+o mesmo fato sem apagar a proveniência da decisão.
+
+### 2. Performance — 9
+
+A rodada real digitou os **1.232 caracteres** no `TextEditor`, mediu três
+idas-e-voltas do `ScrollView` real (curso 983 pt) e manteve a sonda ativa em
+cada quadro: espera 180/0 perdidos, primeira descida 42/0 e regime 252/0;
+maior intervalo 16,7 ms. O encaixe ficou em **493→493 pt** durante a espera,
+logo o aviso não entrou sob teste; as capturas, agora fora das janelas,
+custaram 164,2 e 111,5 ms na main thread. Isso não esconde o caso do autor:
+a sonda ainda observaria mudança de encaixe ou hitch durante a rolagem real,
+mas deixa de deixar o próprio `drawHierarchy`+PNG contaminar o intervalo que
+pretende medir. A conclusão causal está sustentada também pelo diff: nenhuma
+linha de comportamento do app mudou nesta volta, somente os dois comentários;
+o restante é instrumento e relato.
+
+| dimensão | nota | evidência independente |
+|---|---:|---|
+| Contrato | **9** | `08f` ativo em SPEC, EVOLUCAO e comentários; duas menções históricas a `08c` são deliberadas e explicativas. |
+| Performance | **9** | Carga real, sonda por quadro ativa, 0 hitch nas três fases da minha rodada; captura isolada e cronometrada. |
+
+Nenhum código foi alterado nesta revisão; somente esta seção de QA foi
+acrescentada.
+
+## re-G3 (V12-E)
+
+**Veredito: CORRIGIR ANTES.** A lei está de fato no contêiner e o portão
+geométrico verde/vermelho funciona, mas a única prova independente da transição
+A1 não alcança a transição: `testLargeComCartao` aceita `sem-cartao`, passa sem
+`abrir-campos` e não produz filme utilizável nem sem RM; por isso Movimento e
+Jornada real ficam abaixo de 9.
+
+### Evidência que confirmei
+
+- No topo `aafdc72`, `CadernoView.body` é um `VStack` de irmãos: papel acima,
+  `encaixe` abaixo, `spacing: 0`; não há `safeAreaInset` nessa rota. O texto da
+  ADR 08f contém a invariante pedida palavra por palavra, inclusive que nenhuma
+  outra superfície desenha na área livre. `EscritaVisivel.seguirCaret` usa o
+  offset mínimo do `UIScrollView`, agenda por `RunLoop.main.perform` e é chamado
+  por texto, foco e mudança da janela; o teste cobre fim/meio, vazio/cartão/aviso
+  e `large`/AX5.
+- Suíte integral própria no iPhone 17 Pro (teste 2)
+  `B91C8DEF-B0A7-454A-95DE-5D7BA7B040A9`, sempre sob `com-trava.sh`,
+  `-parallel-testing-enabled NO`: **891 passados, 0 falhas, 1 pulado; 892 no
+  total**, iOS 26.5. O teste hospedado passou; na rodada integral, AX5 registrou
+  **EMULADO** (31/31) e `large` teclado real (44/44). Logo a suíte integral
+  prova a geometria reservada em AX5, não teclado visível nesse tamanho.
+- Plantei temporariamente uma sobreposição vermelha de 120 pt no irmão do
+  papel, executei a suíte e reverti a fonte antes de escrever este parecer. O
+  portão ficou vermelho nos dois parâmetros e nomeou a intrusa: AX5
+  `CALayer 0,384 402×120`; `large` `CALayer 0,394 402×120`. Isto valida o
+  oráculo contra uma sobreposição real; não foi apenas um verde de regressão.
+
+### P1 — o alvo de filme não prova A1
+
+Construí `TracoUITests` no mesmo UDID e rodei
+`testLargeComCartao` com `v12e-conduzir.sh`. A própria saída mostra que, após
+digitar o roteiro, `abrir-campos` não existe; o teste escreve
+`sem-cartao.pronto` e encerra **verde** sem asserção. Assim, o vídeo produzido
+não contém o toque nem a folha; não é refilmagem válida sem RM, e rodar com RM
+repetiria a mesma lacuna. O condutor ainda espera `gravar` por até 180 s antes
+de olhar `sem-cartao`, o que transformou este falso-verde em 151,8 s de teste.
+
+O alvo separado se justifica em princípio — evita o `orca emulator` disputado e
+permite teclado/toques reais —, mas **não se paga nesta forma**: precisa tornar
+o cartão pré-condição (`XCTAssertTrue`), falhar se `abrir-campos` faltar, e o
+condutor deve reconhecer `sem-cartao` imediatamente. Só então refilmar sem e
+com RM e contar os quadros em que cartão/pé/régua e campos são simultaneamente
+legíveis.
+
+### Scorecard re-G3 (V12-E)
+
+| dimensão | nota | evidência independente |
+|---|---:|---|
+| Contrato | 9 | ADR 08f corrigida e invariante literal no contrato e no contêiner. |
+| Correção | 9 | 892 total na suíte; planta real derruba o portão com a camada nomeada. |
+| Jornada real | 8 | Caret coberto pelo teste; A1 não é percorrido pelo alvo que deveria filmá-lo. |
+| Movimento | 8 | Corte estático é coerente, mas não há refilmagem independente válida sem/com RM. |
+| Acessibilidade | 8 | `large` teve teclado real; AX5 integral foi explicitamente emulado. |
+| Estado honesto | 8 | O limite emulado está escrito, mas o alvo chama-se “ComCartao” e passa sem cartão. |
+| Complexidade | 8 | O commit é +1224/−64 em 34 arquivos; o novo alvo de 61 linhas ainda não entrega a prova temporal. |
+
+Limites do meu instrumento: `ax` não está instalado neste ambiente, portanto
+não houve árvore AX para confrontar com a captura `simctl io` do mesmo UDID.
+Não toquei `C2416CBC` nem `6033B043`; a única alteração fora deste relatório
+foi a planta temporária, já revertida; não comitei.

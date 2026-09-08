@@ -5614,9 +5614,10 @@ suspende a proteção.
   instrumentação de renderização e não certifica "nenhum quadro possível".
 
 **O que esta seção não muda.** Nenhuma curva, duração ou `withAnimation` novo.
-`Tema.swift` intacto. O `.sheet` continua `.sheet`. **Custo assumido:** ao abrir
-a folha o encaixe some por corte e, ao voltar, reaparece por corte — a folha
-cobre a tela nos dois instantes.
+`Tema.swift` intacto. O `.sheet` continua `.sheet`. **Custo assumido:** ao
+abrir, o encaixe some por corte e o papel fica só, nu, por ~6 quadros (45–90
+ms, medido) até a folha subir; ao voltar, reaparece por corte atrás da folha
+ainda de pé.
 
 **O condutor da prova de tela.** O helper compartilhado do `orca emulator`
 relança (ou derruba) o app da frente ao anexar — provado por bissecção, e com

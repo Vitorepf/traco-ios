@@ -1,0 +1,18 @@
+application 'Traço' en=True id=None y=0 h=1 x=0 w=1
+  button 'Notas' en=True id=notas-da-pagina y=0.069 h=0.0662 x=0.0455 w=0.3038
+  button 'Concluir' en=True id=concluir y=0.069 h=0.0662 x=0.528 w=0.4265
+  pop up button 'WOOP. isto é um desejo com obstáculo pela frente.' en=True id=cartao-recolhido y=0.3469 h=0.0687 x=0.0818 w=0.8364
+  button 'Trabalhar nisto' en=True id=trabalhar-nisto y=0.4501 h=0.0725 x=0.0455 w=0.9091
+  pop up button 'Mais ações da nota' en=True id=mais-acoes-da-nota y=0.5279 h=0.1311 x=0.0455 w=0.9091
+  Grupo 'Página' en=True id=pagina y=0.0593 h=0.2751 x=0.0341 w=0.9318
+  text 'RESULTADO (O MELHOR DESFECHO)' en=True id=None y=0.3637 h=0.1506 x=0.0455 w=0.6886
+  Grupo 'Resultado (o melhor desfecho)' en=True id=campo-resultado y=0.5331 h=0.0687 x=0.0727 w=0.8545
+  text 'OBSTÁCULO INTERNO (O SEU HÁBITO/MEDO)' en=True id=None y=0.6416 h=0.1506 x=0.0455 w=0.7621
+  Grupo 'Obstáculo interno (o SEU hábito/medo)' en=True id=campo-obstaculo y=0.811 h=0.0687 x=0.0727 w=0.8545
+  text 'SE [OBSTÁCULO], ENTÃO EU' en=True id=None y=0.9195 h=0.1004 x=0.0455 w=0.8076
+  Grupo 'Se [obstáculo], então eu' en=True id=campo-plano y=1.0387 h=0.0687 x=0.0727 w=0.8545
+  text 'DEPOIS DISTO' en=True id=None y=1.1513 h=0.0502 x=0.0455 w=0.6348
+  button 'Virar Se–então' en=False id=encadear-seEntao y=1.2057 h=0.1311 x=0.0455 w=0.9091
+   '' en=True id=None y=0.6851 h=0.3149 x=0 w=1
+  text '13:58' en=True id=None y=0.023 h=0.0227 x=0.1348 w=0.1098
+  group '' en=True id=cartao-analise y=0.3299 h=0.1027 x=0.0449 w=0.9102
