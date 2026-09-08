@@ -181,3 +181,17 @@ Não toquei em nada — nem `stash`, nem commit, nem reset —, como na primeira
 **E `main` foi para o `origin`**: estava **35 commits atrás** porque ninguém deu push no dia inteiro. Ordem nova do dono, em vigor: **todo fecho termina com `git push origin main`**.
 
 **Lacuna declarada da V17, que não se esconde:** a jornada com provedor real é da frente Q; o item 1 da fila do dono só fecha quando ele **usar e continuar** a situação real.
+
+### 08/09 18h10 — o estado das três voltas vivas, e o que a tarde ensinou
+
+Nada mesclado desde a V17 (`67974dc`); as três voltas estão em ciclo de portão, e é onde elas devem estar. `main` limpa e sincronizada com o `origin` a cada fecho, como o dono ordenou às 17h05.
+
+**Q — a qualidade da IA, medida com a conta ligada.** 297 execuções de rota, 96 casos, três lançamentos. **Das dezesseis operações, só três atenderam 6 de 6**: `conferir`, `padroes` e `conferirTentativa`. **Sete saíram da execução** pela regra nova `indisponivelPorQualidade`, em dois grupos — sem substituto medido (ecos, calibragem, recordar, instigar, contrapor) e com conserto nomeado (`responder`, `responderNasNotas`). A terceira linha do Perfil diz isso ao autor em linguagem de gente, sem número e sem caminho de prova, e **nunca manda conectar conta que já existe**. A Q-B corrigiu o candidato (`acdfcb4`, provado por símbolo no dylib), reconciliou 20 contra 12 nos quatro documentos, e **subiu o teto de 90 s para 240 s** com prova: 30 chamadas, zero falhas de transporte, contra 20 de 72 antes.
+
+**A lição da Q, que vale mais que a tabela:** três casos mediram uma **rota sem chamador de produção** — a "atribuição genérica do provedor" era um título que o **nosso app** fabricava. E a Q-B achou o irmão disso: **3 de 15 preparações são recusadas pelo NOSSO parser**, com HTTP 200 e conteúdo completo do outro lado. Duas vezes seguidas, o que parecia defeito do provedor era nosso.
+
+**V12 — a escrita visível.** O conselho ditou a invariante (*a linha ativa e o caret pertencem à área livre do papel, em todo quadro*), a V12-E a pôs **no contêiner** e achou a causa raiz que cinco passadas erraram: o `.safeAreaInset` deixava o papel correr sob o encaixe. **Duas refilmagens independentes** fecharam o A1 e o A2 — zero quadros com par legível, caret 343/295/431/313 pt acima do encaixe contra **zero pixels em 11 amostras** antes. Falta o pé em AX5 acima do teclado.
+
+**E1 — o resultado da ação.** `ResultadoObservado` virou eixo próprio, `cancelada` ganhou gesto, e a orientação seguinte muda pelo relato **reusando o mecanismo da V17** em vez de um segundo paralelo. O G3 achou o de sempre: **a invariante olhava um eixo e o mundo tem dois** — dava para cancelar o que a pessoa já disse que aconteceu.
+
+**O padrão do dia, agora com seis casos:** o quadro longo que era o `fotografar()` do teste; o `ax --device` lendo o aparelho vizinho; a rota sem chamador; o teste que passava sem visitar o defeito; a `String` que não vira `Bool` no plantio de estado; e o `test-without-building` que troca o contêiner. **Em todos, o instrumento dizia mais do que mostrava.** Está na ESTEIRA como lei: o teste declara o estado que exige como **pré-condição que falha**, e todo portão nasce com a prova do vermelho.
