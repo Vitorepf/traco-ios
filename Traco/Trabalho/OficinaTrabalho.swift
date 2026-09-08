@@ -502,17 +502,32 @@ extension MotorTrabalho {
         async -> (pratica: DocumentoTrabalho.Pratica, produtor: String)? {
         guard contaLigada else { return nil }
         let mensagem = PraticaTrabalho.montarPreparacao(d, p)
-        let dificuldade = d.dificuldadeVigente
-        if mensagem.count <= tetoRemoto,
-           let cru = await Grok.responder(sistema: PraticaTrabalho.sistemaPreparar,
-                                          usuario: mensagem, temperatura: 0.3, timeout: Grok.tetoTrabalho,
-                                          esquema: PraticaTrabalho.esquemaRemotoPreparacao, esforco: "high", modelo: Grok.modeloTrabalho),
-           let bruta = PraticaTrabalho.parsePreparacao(cru),
-           let pratica = PraticaTrabalho.validar(bruta, dificuldade: dificuldade) {
+        guard mensagem.count <= tetoRemoto,
+              let cru = await Grok.responder(sistema: PraticaTrabalho.sistemaPreparar,
+                                             usuario: mensagem, temperatura: 0.3, timeout: Grok.tetoTrabalho,
+                                             esquema: PraticaTrabalho.esquemaRemotoPreparacao, esforco: "high", modelo: Grok.modeloTrabalho)
+        else { return nil }
+        switch PraticaTrabalho.lerPreparacao(cru).flatMap({ PraticaTrabalho.provar($0, dificuldade: d.dificuldadeVigente) }) {
+        case let .success(pratica):
             return (pratica, "Grok · exercício preparado")
+        case let .failure(recusa):
+            // ADR 08n: o provedor entregou e NÓS recusamos. Sem o motivo
+            // redigido ninguém decide se a regra está certa ou estreita.
+            #if DEBUG
+            recusasDaPreparacao.append(recusa.redigida)
+            #endif
+            return nil
         }
-        return nil
     }
+
+    #if DEBUG
+    /// Só a linha redigida da recusa, para a sonda. O bruto continua descartado.
+    private static var recusasDaPreparacao: [String] = []
+    static func retirarRecusasDaPreparacao() -> [String] {
+        defer { recusasDaPreparacao.removeAll() }
+        return recusasDaPreparacao
+    }
+    #endif
 
     /// "Conferir minha tentativa". ADR 05m: enunciado, critérios, apoio e
     /// tentativa cabem inteiros ou fica `indisponivel` — nada é cortado.

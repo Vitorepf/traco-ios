@@ -122,16 +122,76 @@ nonisolated enum PraticaTrabalho {
         "capacidade", "situacao", "enunciado", "exemplo", "criterios",
     ]
 
+    /// ADR 2026-09-08n: falha sem motivo legível não é medida. Cada guarda de
+    /// `lerPreparacao` e `provar` tem nome. A recusa devolve a REGRA, o CAMPO
+    /// e uma MEDIDA — contagem, tamanho, nome de chave. Nunca o texto do
+    /// exercício, que é a prática da pessoa, nem credencial: a recusa vai para
+    /// a sonda de DEBUG e para a ADR, e o bruto continua descartado.
+    nonisolated enum Recusa: Error, Hashable, Sendable {
+        case jsonInvalido(bytes: Int)
+        case chavesForaDoContrato(faltando: [String], sobrando: [String])
+        case campoNaoTexto(String)
+        case campoVazio(String)
+        case campoAcimaDoTeto(String, tamanho: Int, teto: Int)
+        case criteriosForaDaFaixa(quantidade: Int)
+        case criterioVazio(indice: Int)
+        case criterioAcimaDoTeto(indice: Int, tamanho: Int, teto: Int)
+        case criteriosRepetidos(distintos: Int, de: Int)
+        case exemploIgualAoEnunciado(palavras: Int)
+        case exemploContidoNoEnunciado(exemplo: Int, enunciado: Int)
+        case criterioVazaOExemplo(indice: Int, trecho: String)
+
+        /// Uma linha, começando pela categoria — é o que a sonda grava.
+        var redigida: String {
+            switch self {
+            case let .jsonInvalido(bytes):
+                "forma · a resposta não é um objeto JSON (\(bytes) bytes)"
+            case let .chavesForaDoContrato(faltando, sobrando):
+                "forma · chaves fora do contrato · faltando \(faltando) · sobrando \(sobrando)"
+            case let .campoNaoTexto(campo):
+                "forma · \(campo) não veio no tipo do contrato"
+            case let .campoVazio(campo):
+                "limite · \(campo) veio vazio"
+            case let .campoAcimaDoTeto(campo, tamanho, teto):
+                "limite · \(campo) tem \(tamanho) caracteres e o teto é \(teto)"
+            case let .criteriosForaDaFaixa(quantidade):
+                "limite · vieram \(quantidade) critérios e a faixa é \(Limite.criterios.lowerBound) a \(Limite.criterios.upperBound)"
+            case let .criterioVazio(indice):
+                "limite · o critério \(indice + 1) veio vazio"
+            case let .criterioAcimaDoTeto(indice, tamanho, teto):
+                "limite · o critério \(indice + 1) tem \(tamanho) caracteres e o teto é \(teto)"
+            case let .criteriosRepetidos(distintos, de):
+                "repetição · \(de) critérios viram \(distintos) distintos ao normalizar"
+            case let .exemploIgualAoEnunciado(palavras):
+                "exemplo · exemplo e enunciado são o mesmo texto normalizado (\(palavras) palavras)"
+            case let .exemploContidoNoEnunciado(exemplo, enunciado):
+                "exemplo · o exemplo (\(exemplo) palavras) está contido no enunciado (\(enunciado) palavras)"
+            case let .criterioVazaOExemplo(indice, trecho):
+                "vazamento · o critério \(indice + 1) repete do exemplo as quatro palavras seguidas “\(trecho)”"
+            }
+        }
+    }
+
     /// `nil` = fora do contrato. Chave a mais, campo faltando, lista ausente
     /// ou JSON quebrado não viram preparação parcial.
-    static func parsePreparacao(_ cru: String) -> Preparada? {
-        guard let j = objeto(cru), Set(j.keys) == chavesDaPreparacao,
-              let capacidade = texto(j["capacidade"]), let situacao = texto(j["situacao"]),
-              let enunciado = texto(j["enunciado"]), let exemplo = texto(j["exemplo"]),
-              let criterios = j["criterios"] as? [String]
-        else { return nil }
-        return .init(capacidade: capacidade, situacao: situacao, enunciado: enunciado,
-                     exemplo: exemplo, criterios: criterios.map(limpo))
+    static func parsePreparacao(_ cru: String) -> Preparada? { try? lerPreparacao(cru).get() }
+
+    /// A mesma leitura, dizendo qual guarda recusou.
+    static func lerPreparacao(_ cru: String) -> Result<Preparada, Recusa> {
+        guard let j = objeto(cru) else { return .failure(.jsonInvalido(bytes: cru.utf8.count)) }
+        let chaves = Set(j.keys)
+        guard chaves == chavesDaPreparacao else {
+            return .failure(.chavesForaDoContrato(
+                faltando: chavesDaPreparacao.subtracting(chaves).sorted(),
+                sobrando: chaves.subtracting(chavesDaPreparacao).sorted().map { String($0.prefix(32)) }))
+        }
+        guard let capacidade = texto(j["capacidade"]) else { return .failure(.campoNaoTexto("capacidade")) }
+        guard let situacao = texto(j["situacao"]) else { return .failure(.campoNaoTexto("situacao")) }
+        guard let enunciado = texto(j["enunciado"]) else { return .failure(.campoNaoTexto("enunciado")) }
+        guard let exemplo = texto(j["exemplo"]) else { return .failure(.campoNaoTexto("exemplo")) }
+        guard let criterios = j["criterios"] as? [String] else { return .failure(.campoNaoTexto("criterios")) }
+        return .success(.init(capacidade: capacidade, situacao: situacao, enunciado: enunciado,
+                              exemplo: exemplo, criterios: criterios.map(limpo)))
     }
 
     /// A prova dura da preparação, igual para os dois provedores.
@@ -143,23 +203,50 @@ nonisolated enum PraticaTrabalho {
     ///   mesma prova do Recordar (`Prova.vaza`), pelo mesmo motivo: quatro
     ///   palavras seguidas já é entregar, não é apontar.
     static func validar(_ p: Preparada, dificuldade: DocumentoTrabalho.Hipotese? = nil) -> DocumentoTrabalho.Pratica? {
+        try? provar(p, dificuldade: dificuldade).get()
+    }
+
+    /// A mesma prova, dizendo qual guarda recusou.
+    static func provar(_ p: Preparada, dificuldade: DocumentoTrabalho.Hipotese? = nil) -> Result<DocumentoTrabalho.Pratica, Recusa> {
+        for (nome, valor, teto) in [("capacidade", p.capacidade, Limite.capacidade),
+                                    ("situacao", p.situacao, Limite.situacao),
+                                    ("enunciado", p.enunciado, Limite.enunciado),
+                                    ("exemplo", p.exemplo, Limite.exemplo)] {
+            guard !valor.isEmpty else { return .failure(.campoVazio(nome)) }
+            guard valor.count <= teto else { return .failure(.campoAcimaDoTeto(nome, tamanho: valor.count, teto: teto)) }
+        }
         let criterios = p.criterios
-        guard !p.capacidade.isEmpty, p.capacidade.count <= Limite.capacidade,
-              !p.situacao.isEmpty, p.situacao.count <= Limite.situacao,
-              !p.enunciado.isEmpty, p.enunciado.count <= Limite.enunciado,
-              !p.exemplo.isEmpty, p.exemplo.count <= Limite.exemplo,
-              Limite.criterios.contains(criterios.count),
-              criterios.allSatisfy({ !limpo($0).isEmpty && $0.count <= Limite.criterio }),
-              Set(criterios.map(Prova.normal)).count == criterios.count
-        else { return nil }
+        guard Limite.criterios.contains(criterios.count) else {
+            return .failure(.criteriosForaDaFaixa(quantidade: criterios.count))
+        }
+        for (i, c) in criterios.enumerated() {
+            guard !limpo(c).isEmpty else { return .failure(.criterioVazio(indice: i)) }
+            guard c.count <= Limite.criterio else {
+                return .failure(.criterioAcimaDoTeto(indice: i, tamanho: c.count, teto: Limite.criterio))
+            }
+        }
+        let distintos = Set(criterios.map(Prova.normal)).count
+        guard distintos == criterios.count else {
+            return .failure(.criteriosRepetidos(distintos: distintos, de: criterios.count))
+        }
         let normalExemplo = Prova.normal(p.exemplo), normalEnunciado = Prova.normal(p.enunciado)
-        guard !normalExemplo.isEmpty, normalExemplo != normalEnunciado,
-              !normalEnunciado.contains(normalExemplo) else { return nil }
-        guard criterios.allSatisfy({ !Prova.vaza($0, alvo: p.exemplo) }) else { return nil }
-        return .init(capacidade: p.capacidade, situacao: p.situacao,
-                     dificuldade: dificuldade?.texto, hipoteseID: dificuldade?.id,
-                     enunciado: p.enunciado, exemplo: p.exemplo,
-                     criterios: criterios.map { .init(texto: $0) })
+        func palavras(_ s: String) -> Int { s.isEmpty ? 0 : s.split(separator: " ").count }
+        guard !normalExemplo.isEmpty else { return .failure(.campoVazio("exemplo")) }
+        guard normalExemplo != normalEnunciado else {
+            return .failure(.exemploIgualAoEnunciado(palavras: palavras(normalExemplo)))
+        }
+        guard !normalEnunciado.contains(normalExemplo) else {
+            return .failure(.exemploContidoNoEnunciado(exemplo: palavras(normalExemplo), enunciado: palavras(normalEnunciado)))
+        }
+        for (i, c) in criterios.enumerated() {
+            if let trecho = Prova.vazamento(c, alvo: p.exemplo) {
+                return .failure(.criterioVazaOExemplo(indice: i, trecho: trecho))
+            }
+        }
+        return .success(.init(capacidade: p.capacidade, situacao: p.situacao,
+                              dificuldade: dificuldade?.texto, hipoteseID: dificuldade?.id,
+                              enunciado: p.enunciado, exemplo: p.exemplo,
+                              criterios: criterios.map { .init(texto: $0) }))
     }
 
     /// O corpo da versão, montado pelo APP a partir dos campos validados —

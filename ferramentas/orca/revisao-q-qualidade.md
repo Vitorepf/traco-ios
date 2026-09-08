@@ -108,3 +108,101 @@ Não passa, porém:
 2. Corrigir disponibilidade de Trabalho: teto, retentativa ou estado explicitamente indisponível, provado na jornada.
 3. Não reativar responderNasNotas: meu caso tipado 0/3 repete a recusa que a tabela promete consertar.
 
+# re-G3 — as três correções da Q-B
+
+## Veredito: CORRIGIR ANTES
+
+As três recusas de `prepararPratica` após HTTP 200 são reais, mas a prova
+descarta justamente a saída que permitiria decidir se o defeito é do provedor ou
+se uma regra nossa é estreita; portanto não aprovo a explicação de causalidade
+nem a disponibilidade como se estivesse fechada. As correções de candidato,
+contagem e transporte fecham o que o G3 anterior havia apontado; a correção
+necessária é diagnóstico tipado/redigido da recusa e remedição dos três casos,
+não afrouxar o parser às cegas nem cortar toda a operação.
+
+Revisor independente. Não alterei Swift, dados do usuário, conta ou Safari. O
+Grok `C2416CBC` ficou ligado; não recebeu `erase`, `clearState`, `uninstall` ou
+`xcodebuild test`, e `TRACO_AVALIAR_IA` foi conferido desdefinido ao final.
+
+## Achados
+
+### [P1] A causa das 3 recusas não é auditável com a prova que sustenta a decisão
+
+`prova/qb-teto-avaliacoes.jsonl` mostra, para
+`revisor-sintetico-resumo-projeto-2x5` (repetições 2 e 3) e
+`q2-conhecido-preparar-apresentacao-proposta` (repetição 3), `HTTP 200`,
+`grok-4.6`, conteúdo completo e respectivamente 5.854, 3.777 e 6.865 tokens de
+raciocínio, mas `saida: null`. O caminho de produção só pode chegar ali por
+`parsePreparacao` ou `validar` (`PraticaTrabalho.swift:127-162`), mas o JSONL
+deliberadamente não guarda o bruto e não registra qual guarda recusou. Logo,
+"o nosso parser é estreito" e "o provedor devolveu conteúdo inválido" são hoje
+inferências concorrentes, não fatos; liberar regra de anti-gabarito sem esse
+dado arriscaria entregar a resposta da prática.
+
+Correção antes de G5: registrar na sonda de DEBUG uma categoria sem conteúdo
+bruto (por exemplo, forma/schema, limite, exemplo contido ou critério que vaza),
+reexecutar os três casos e ler as saídas completas contra a rubrica. Se a causa
+for forma, o contrato atual está correto; se for uma regra sem violação de
+autoria/prática, corrigir essa regra e remedir. Não há evidência para escolher
+qual dos dois agora.
+
+### [P2] O novo teste do teto não protege o valor decidido de 240 s
+
+`GrokContratoTests.swift:22-25` passa com `Grok.tetoTrabalho = 181`: ele só
+impõe `>= 180` e `> 90`. Isso cobre minimamente o pior tempo de ponta a ponta
+publicado (178,144 s), mas não falha quando alguém baixa o teto decidido de
+240 s, como o relato afirma; além disso o comentário chama 141 s de pior
+latência, embora a medida de `produzir` seja 178,144 s. O teste é útil como
+piso histórico, mas não é a guarda descrita para a decisão nem para a folga.
+
+Correção: separar o piso observado (>= 180) da decisão atual (240) ou reescrever
+o comentário/relato para não prometer uma proteção que o teste não fornece.
+
+## Conferências que fecham
+
+- **Candidato e dois binários:** `git show --stat` confirma `325c819` como só
+  `LACO.md` e `acdfcb4` como os 15 arquivos da Q. O diff `325c819..acdfcb4`
+  muda a sonda de Notas de `contexto` para `fontes`, remove a sobrecarga morta
+  e atualiza `Politica`; nas quatro rotas de Trabalho a política continua
+  `soGrok`. Assim, a troca não é entrada da matriz de Trabalho: a defesa contra
+  contaminação se sustenta, com a ressalva corretamente declarada de que a
+  matriz e a remedição são binários diferentes. No dylib hoje instalado no
+  `C2416CBC`, `nm` encontra somente `responderNasNotas(...fontes...)`, sem
+  assinatura `contexto:`.
+- **Números:** o `jq` independente sobre
+  `prova/q-qualidade-avaliacoes.jsonl` dá 52 completas + 20 sem resposta de
+  transporte em 72 chamadas `grok-4.6`, e 186 completas em `grok-4.3` (177 na
+  matriz, mais 9 da remedição). `SPEC.md`, `QUALIDADE-IA.md`, `EVOLUCAO.md` e
+  `q-qualidade.md` agora dizem 20, não 12; os quatro também reconciliam as
+  sete cortadas, incluindo `responderNasNotas`.
+- **Teto e medida própria:** as quatro chamadas usam
+  `Grok.tetoTrabalho = 240`. A suíte no `34CC3F94` passou 915 testes, 0 falhas,
+  build com um único aviso pré-existente de `PerfilView.swift:636`. Minha sonda
+  sintética, após fumaça autenticada com `ContaGrok.ligada: true` e 12 modelos,
+  repetiu `qn-preparar-outro-dominio-planilha`: retorno completo de `grok-4.6`,
+  HTTP 200, exercício válido em **92,648 s**. É uma medida independente acima
+  do antigo teto; 240 s cobre-a por 147,352 s e cobre o pior histórico de
+  178,144 s por pelo menos 61,856 s. Isto apoia o teto de 240, não prova uma
+  cauda segura para sempre.
+- **Tabela versus tela:** o argumento contra mover as 3/15 para
+  `Politica` se sustenta: a tabela só consegue desabilitar a operação inteira,
+  enquanto `EstadoPedido.praticaIndisponivel` preserva o pedido e
+  `TrabalhoView` mostra `pratica-preparacao-indisponivel` com "Retomar esse
+  pedido". A superfície é honesta para a falha por pedido; o que falta é saber
+  qual condição a causou e provar a tela nessa ocorrência real. Não há base
+  para reclassificar a operação inteira como indisponível por qualidade.
+- **Notas:** `responderNasNotas` permanece `indisponivelPorQualidade`; não achei
+  reativação nem fallback que desça ao aparelho.
+
+## Scorecard re-G3
+
+| dimensão | nota | evidência |
+|---|---:|---|
+| Contrato | 8 | candidato/números fecham; causa de 3 recusas segue sem classificação auditável |
+| Correção | 8 | 915 testes verdes, mas o teste do teto não guarda o valor/folga que o relato promete |
+| Jornada real | 8 | sonda real repetida; a falha `praticaIndisponivel` não foi reaberta na tela nesta volta |
+| Performance | 9 | 0/30 transporte na remedição e medida independente de 92,648 s acima de 90 |
+| Estado honesto | 8 | estado por pedido existe, porém sem motivo tipado para explicar a recusa medida |
+| Privacidade e autoria | 9 | não recomendo salvar bruto; a categoria de recusa basta para investigar sem expor prática |
+| Simplicidade | 9 | um teto para quatro chamadas; sem passo novo para o autor |
+| Demais dimensões | n/a | volta de motor, sem mudança de view, componente, movimento ou fora do app |

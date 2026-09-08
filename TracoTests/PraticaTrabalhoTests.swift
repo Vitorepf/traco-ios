@@ -406,6 +406,53 @@ struct PraticaTrabalhoTests {
         #expect(PraticaTrabalho.validar(semCapacidade) == nil)
     }
 
+    /// ADR 08n: cada guarda tem um motivo próprio, e nenhum motivo carrega o
+    /// texto do exercício. Sem isto, "o parser é estreito" e "o provedor errou"
+    /// continuam sendo inferências concorrentes em vez de fatos.
+    @Test func cadaRecusaDaPreparacaoDizQualGuardaFoiSemVazarOConteudo() {
+        let segredo = "¿dónde está la estación?"
+        var longa = preparada()
+        longa.capacidade = String(repeating: "a", count: PraticaTrabalho.Limite.capacidade + 1)
+        var vazia = preparada()
+        vazia.situacao = ""
+        let casos: [(PraticaTrabalho.Recusa, String)] = [
+            (recusaAoLer("não é json"), "forma"),
+            (recusaAoLer(#"{"capacidade":"a","situacao":"b","enunciado":"c"}"#), "forma"),
+            (recusaAoLer(#"{"capacidade":"a","situacao":"b","enunciado":"c","exemplo":"d","criterios":["e","f"],"nota":9}"#), "forma"),
+            (recusaAoProvar(vazia), "limite"),
+            (recusaAoProvar(longa), "limite"),
+            (recusaAoProvar(preparada(criterios: ["Só um critério."])), "limite"),
+            (recusaAoProvar(preparada(criterios: ["Igual.", "igual"])), "repetição"),
+            (recusaAoProvar(preparada(criterios: ["Escreve três frases completas.",
+                                                  "Diz \(segredo) como no exemplo."])), "vazamento"),
+        ]
+        #expect(Set(casos.map(\.0)).count == casos.count) // motivos distintos, não um genérico
+        for (recusa, categoria) in casos {
+            #expect(recusa.redigida.hasPrefix(categoria + " · "), "\(recusa)")
+            #expect(!recusa.redigida.contains(segredo), "\(recusa)")
+            #expect(!recusa.redigida.lowercased().contains("frases"), "\(recusa)")
+        }
+        let exemploNoEnunciado = PraticaTrabalho.Preparada(
+            capacidade: "Escrever", situacao: "Apresentação",
+            enunciado: "Escreva sobre você. Um outro caso resolvido.",
+            exemplo: "Um outro caso resolvido.", criterios: ["Tem sujeito.", "Usa verbo."])
+        #expect(recusaAoProvar(exemploNoEnunciado).redigida.hasPrefix("exemplo · "))
+    }
+
+    private func recusaAoLer(_ cru: String) -> PraticaTrabalho.Recusa {
+        guard case let .failure(r) = PraticaTrabalho.lerPreparacao(cru) else {
+            Issue.record("aceitou uma preparação fora do contrato"); return .jsonInvalido(bytes: 0)
+        }
+        return r
+    }
+
+    private func recusaAoProvar(_ p: PraticaTrabalho.Preparada) -> PraticaTrabalho.Recusa {
+        guard case let .failure(r) = PraticaTrabalho.provar(p) else {
+            Issue.record("aceitou uma preparação que não vale"); return .jsonInvalido(bytes: 0)
+        }
+        return r
+    }
+
     @Test func criteriosVaziosNaoDesaparecemParaFazerPreparacaoPassar() {
         #expect(PraticaTrabalho.validar(preparada(criterios: ["Escreve três frases.", "Usa o presente.", ""])) == nil)
         #expect(PraticaTrabalho.validar(preparada(criterios: ["Escreve três frases.", "Usa o presente.", " \n "])) == nil)

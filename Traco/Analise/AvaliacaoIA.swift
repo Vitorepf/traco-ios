@@ -104,6 +104,7 @@ enum AvaliacaoIA {
                     try Task.checkCancellation()
                     Grok.esquecerMemo()
                     _ = Grok.retirarDiagnosticos()
+                    _ = MotorTrabalho.retirarRecusasDaPreparacao()
                     PadroesRemoto.esquecerMemo()
                     var registro: [String: Any] = ["id": caso.id, "operacao": caso.operacao,
                         "repeticao": repeticao, "entrada": try objeto(caso.entrada),
@@ -120,6 +121,10 @@ enum AvaliacaoIA {
                         registro["erro"] = String(reflecting: error)
                     }
                     registro["chamadasGrok"] = try objeto(Grok.retirarDiagnosticos())
+                    // ADR 08n: quando o provedor entrega e o nosso contrato
+                    // recusa, a linha redigida diz qual guarda foi.
+                    let recusas = MotorTrabalho.retirarRecusasDaPreparacao()
+                    if !recusas.isEmpty { registro["recusasDaPreparacao"] = recusas }
                     let duracao = inicio.duration(to: .now).components
                     registro["duracaoSegundos"] = Double(duracao.seconds) + Double(duracao.attoseconds) / 1e18
                     registro["evento"] = "casoConcluido"

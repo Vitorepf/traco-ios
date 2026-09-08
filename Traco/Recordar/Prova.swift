@@ -47,17 +47,21 @@ nonisolated enum Prova {
     ///   conter o alvo, ponto;
     /// - alvo longo: nenhuma sequência de quatro palavras do alvo pode aparecer
     ///   na pergunta — quatro palavras seguidas já é citação, não é apontar.
-    static func vaza(_ pergunta: String, alvo: String) -> Bool {
+    static func vaza(_ pergunta: String, alvo: String) -> Bool { vazamento(pergunta, alvo: alvo) != nil }
+
+    /// O trecho normalizado que casou, para quem precisa AUDITAR a recusa
+    /// (ADR 08n) e não só sofrê-la. `nil` = não vaza.
+    static func vazamento(_ pergunta: String, alvo: String) -> String? {
         let p = " " + normal(pergunta) + " "
         let a = normal(alvo)
-        guard !a.isEmpty else { return false }
+        guard !a.isEmpty else { return nil }
         let termos = a.split(separator: " ").map(String.init)
-        guard termos.count > 3 else { return p.contains(" " + a + " ") }
+        guard termos.count > 3 else { return p.contains(" " + a + " ") ? a : nil }
         for i in 0...(termos.count - 4) {
             let gram = termos[i..<(i + 4)].joined(separator: " ")
-            if p.contains(" " + gram + " ") { return true }
+            if p.contains(" " + gram + " ") { return gram }
         }
-        return false
+        return nil
     }
 
     /// Minúsculas, sem acento, sem pontuação, espaços colapsados. É o que faz
