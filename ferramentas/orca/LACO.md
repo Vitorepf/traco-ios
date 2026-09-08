@@ -151,3 +151,13 @@ Terceira volta fechada pelos portões completos, e a que mais andou: **G3 → F4
 - **Evidência:** re-G4 PASSA (Design 9, Simplicidade 9, Movimento 9, Fora do app 9 com lacuna dita); árvore mesclada com **910 testes em 148 suítes**, dois alvos sem aviso, portão do movimento verde.
 - **Commit:** `494c0c6`. **Fica para o aparelho real:** StandBy noturno, Ilha mínima, VoiceOver ouvido, e a Ilha compacta com duas atividades em AX5 com o "t" cortado.
 - **Duas escolhas de método que valem registro:** o worker **decidiu não mover** os componentes para `Traco/Componentes` porque o alvo do widget não compila o app (ADR 05u) — e disse por quê em vez de mover e quebrar; e, sobre as **duas gramáticas do "…"** (palavra no publicador, grafema na face), escolheu **descrevê-las com honestidade na ADR** em vez de unificar, com o argumento de que unificar seria "reproduzir o motor de texto e errar onde ele acerta".
+
+### 08/09 14h36 — A CONTA GROK EXISTE, e o foco vira a IA
+
+Ordem do dono: **foque na IA**. A volta **Q (qualidade da IA)** abre como frente prioritária ao lado da V17; V12-E e F4-I terminam a passada em curso e só reabrem quando Q e V17 fecharem. O teto de três voltas continua.
+
+**Onde a conta está, e como ela apareceu — porque isto merece ser dito inteiro.** O dono autorizou o dispositivo, e o Perfil do **iPhone 17 Pro de teste `C2416CBC`** mostra "Grok — conectada: o Grok é o motor, pago pela sua assinatura". **É o mesmo aparelho do incidente das 11h21**, quando toques em coordenada fixa, com o layout do Perfil transbordando em AX5, caíram sobre "Entrar com a conta Grok" e abriram o fluxo *device-code* da x.ai várias vezes. Na hora eu tratei aquilo como risco e mandei preservar a evidência sem desfazer nada; o dono olhou e **autorizou**. A evidência preservada (`ferramentas/orca/l2-incidente-grok-perfil-sem-conta.png` e as abas do Safari) é o que permitiu ele decidir com o quadro na mão em vez de adivinhar.
+
+**Correção do meu registro anterior:** eu tinha escrito às 10h25, lendo `prova/cinco-itens.md`, que a conta estava no `teste 2 B91C8DEF`. **A conta que vale agora é a do `C2416CBC`**, e é a única. O `teste 2` e o `teste 3` deixam de ser proibidos (a sessão que os usava foi fechada pelo dono).
+
+**LEI DO SIMULADOR DO GROK, no spec de todo worker daqui em diante:** o `C2416CBC` é o único aparelho com a conta. **Ninguém roda `erase`, `clearState`, `uninstall` ou `xcodebuild test` nele.** Workers de outras voltas usam outros UDIDs. A volta Q **instala por cima** e confere `ContaGrok.ligada` **antes de cada corrida**. Se a conta cair, **o dono tem de reautorizar — diga em vez de contornar**.
