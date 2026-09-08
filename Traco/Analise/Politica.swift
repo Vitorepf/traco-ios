@@ -49,9 +49,17 @@ enum Politica {
 
     struct Linha: Sendable {
         let regra: Regra
-        /// A evidência, datada. É o que o Perfil mostra e o que uma volta
-        /// futura tem de derrubar para mudar a regra.
+        /// A evidência, datada. É o que sustenta a regra e vai para a ADR:
+        /// contagem ("3 de 6"), caso concreto e caminho da prova.
         let porque: String
+        /// O que a TELA mostra: uma oração curta, em linguagem de pessoa, sem
+        /// data e sem caminho de prova — a falha MEDIDA naquela operação, não
+        /// um diagnóstico geral. Vazio nas linhas que ainda têm executor: quem
+        /// responde não precisa de motivo, e o Perfil só lê este campo na
+        /// lista das indisponíveis por qualidade (onde o teste exige que
+        /// exista). Não é opcional de propósito — a tela escreve `l.motivo`
+        /// sem desembrulhar nem inventar substituto.
+        let motivo: String
         /// A data da medida que sustenta a regra, como o autor a lê. A tabela
         /// é UMA só (07b): o Perfil lê daqui em vez de guardar uma cópia que
         /// envelhece sozinha.
@@ -61,9 +69,11 @@ enum Politica {
         /// e a tela não promete volta que ninguém pode datar.
         let conserto: String?
 
-        init(regra: Regra, porque: String, medidaEm: String? = nil, conserto: String? = nil) {
+        init(regra: Regra, porque: String, motivo: String = "",
+             medidaEm: String? = nil, conserto: String? = nil) {
             self.regra = regra
             self.porque = porque
+            self.motivo = motivo
             self.medidaEm = medidaEm
             self.conserto = conserto
         }
@@ -80,22 +90,40 @@ enum Politica {
         case .conferir:
             .init(regra: .soGrok, porque: "o aparelho confirmou 3 de 3 um ponto explicitamente contradito e perdeu 3 de 3 uma paráfrase correta; o Grok acertou 6 de 6 casos com a conta ligada em 08/09 — prova/qualidade-ia-q5-avaliacao-base.md e prova/q-qualidade-avaliacoes.jsonl")
         case .ecos:
-            .init(regra: .indisponivelPorQualidade, porque: "sem retorno 6 de 6 no aparelho; e com a conta ligada em 08/09 o Grok devolveu lista vazia justamente onde o vínculo era o mais útil (18 inscritos contra a sala que comporta 15) — 3 de 6 casos reprovados — prova/q-qualidade.md, corridas em prova/q-qualidade-avaliacoes.jsonl", medidaEm: "08/09/2026")
+            .init(regra: .indisponivelPorQualidade, porque: "sem retorno 6 de 6 no aparelho; e com a conta ligada em 08/09 o Grok devolveu lista vazia justamente onde o vínculo era o mais útil (18 inscritos contra a sala que comporta 15) — 3 de 6 casos reprovados — prova/q-qualidade.md, corridas em prova/q-qualidade-avaliacoes.jsonl",
+                  motivo: "deixou de fora os vínculos mais úteis",
+                  medidaEm: "08/09/2026")
         case .calibragem:
-            .init(regra: .indisponivelPorQualidade, porque: "vazio 6 de 6 no aparelho; com a conta ligada em 08/09 o Grok cala quando não há erro a apontar e a rota nem chega ao provedor com um par só — no máximo 3 de 6 casos — prova/q-qualidade.md", medidaEm: "08/09/2026")
+            .init(regra: .indisponivelPorQualidade, porque: "vazio 6 de 6 no aparelho; com a conta ligada em 08/09 o Grok cala quando não há erro a apontar e a rota nem chega ao provedor com um par só — no máximo 3 de 6 casos — prova/q-qualidade.md",
+                  motivo: "calou quando não havia erro a apontar",
+                  medidaEm: "08/09/2026")
         case .padroes:
             .init(regra: .soGrok, porque: "falhou 3 de 3 e 2 de 3 no aparelho; as perguntas locais cobrem — prova/qualidade-ia-q5-avaliacao-base.md")
         case .recordar:
-            .init(regra: .indisponivelPorQualidade, porque: "3 de 3 no aparelho; e com a conta ligada em 08/09 o Grok vazou o alvo (a guarda de Prova.vaza suprimiu a pergunta e o autor ficou sem nada) ou devolveu a resposta dentro do enunciado — 1 de 6 casos — prova/q-qualidade.md. A frase fixa do ritual continua cobrindo", medidaEm: "08/09/2026")
+            .init(regra: .indisponivelPorQualidade, porque: "3 de 3 no aparelho; e com a conta ligada em 08/09 o Grok vazou o alvo (a guarda de Prova.vaza suprimiu a pergunta e o autor ficou sem nada) ou devolveu a resposta dentro do enunciado — 1 de 6 casos — prova/q-qualidade.md. A frase fixa do ritual continua cobrindo",
+                  motivo: "entregou a resposta dentro da pergunta",
+                  medidaEm: "08/09/2026")
         case .responderNasNotas:
             .init(regra: .indisponivelPorQualidade,
                   porque: "o aparelho acertou os fatos 3 de 3 e não citou a nota 3 de 3; com a conta ligada em 08/09, e MEDIDA de novo pelo caminho de fontes tipadas que a produção usa, o Grok atendeu 4 de 6 casos — cita a nota certa e resiste a instrução hostil, mas recusa por inteiro quando a pergunta pede fato atual, sem usar o que as notas trazem, e deixa escapar os rótulos internos N1T1/N2T1 no texto do autor — prova/q-qualidade.md",
+                  motivo: "recusou por inteiro perguntas que as suas notas ajudavam a responder",
                   medidaEm: "08/09/2026",
                   conserto: "usar o material disponível quando o fato atual falta, como produzir já faz, e manter os rótulos internos fora do texto")
         case .responder:
-            .init(regra: .indisponivelPorQualidade, porque: "com a conta ligada em 08/09 o Grok inventou fato quando o contexto não sustentava — horário de abertura de uma biblioteca que ele não podia saber, e um total de R$ 1.008 num pedido em que o autor disse não ter distância, consumo nem preço; o MESMO caso acertou numa execução e fabricou na seguinte — 3 de 6 casos — prova/q-qualidade.md", medidaEm: "08/09/2026", conserto: "recusar o fato que o contexto não sustenta e entregar o caminho, como produzir já faz")
-        case .instigar, .contrapor:
-            .init(regra: .indisponivelPorQualidade, porque: "com a conta ligada em 08/09: instigar devolveu o vocabulário do próprio prompt ao autor ('o movimento básico que se pula', 'a nota DEGRAU 0') e contrapor sustentou o contraponto em fato inventado ('metanálises de 2022', preço 12% menor na construção naval do século XV) — 1 de 6 casos cada — prova/q-qualidade.md", medidaEm: "08/09/2026")
+            .init(regra: .indisponivelPorQualidade, porque: "com a conta ligada em 08/09 o Grok inventou fato quando o contexto não sustentava — horário de abertura de uma biblioteca que ele não podia saber, e um total de R$ 1.008 num pedido em que o autor disse não ter distância, consumo nem preço; o MESMO caso acertou numa execução e fabricou na seguinte — 3 de 6 casos — prova/q-qualidade.md",
+                  motivo: "inventou fato que o contexto não sustentava",
+                  medidaEm: "08/09/2026",
+                  conserto: "recusar o fato que o contexto não sustenta e entregar o caminho, como produzir já faz")
+        case .instigar:
+            .init(regra: .indisponivelPorQualidade,
+                  porque: "com a conta ligada em 08/09 o Grok devolveu ao autor o vocabulário interno que o app passa no pedido ('o movimento básico que se pula', 'neste degrau 0', 'a forma nota'), em vez de perguntar sobre o que ele escreveu — 1 de 6 casos — prova/q-qualidade.md",
+                  motivo: "devolveu o vocabulário interno do app",
+                  medidaEm: "08/09/2026")
+        case .contrapor:
+            .init(regra: .indisponivelPorQualidade,
+                  porque: "com a conta ligada em 08/09 o Grok sustentou o contraponto em fato inventado, sempre no campo outroCampo ('metanálises de 2022', preço 12% menor na construção naval do século XV) — 1 de 6 casos — prova/q-qualidade.md",
+                  motivo: "sustentou o contraponto em fato inventado",
+                  medidaEm: "08/09/2026")
         case .vestir:
             .init(regra: .grokDepoisBordo, porque: "a forma local decide antes; o modelo só vê blocos pendentes (ADR 07a)")
         case .classificar:

@@ -57,6 +57,17 @@ import Testing
             #expect(!Politica.pelaConta.contains(op) && !Politica.peloAparelho.contains(op), "\(op) promete ajuda no Perfil")
             #expect(Politica.linha(op).medidaEm != nil, "\(op) sem data da medida")
         }
+        // O `motivo` é o que a TELA mostra, e a tela não cabe evidência: uma
+        // oração curta, sem data e sem caminho de prova. Quem carrega isso é
+        // o `porque`, que vai para a ADR.
+        for op in cortadas {
+            let m = Politica.linha(op).motivo
+            #expect(!m.isEmpty, "\(op) sem motivo para a tela")
+            #expect(m.count <= 80, "\(op): motivo longo demais para a linha (\(m.count))")
+            #expect(!m.contains("prova/"), "\(op): caminho de prova na frase da tela")
+            #expect(!m.contains("08/09"), "\(op): data na frase da tela")
+            #expect(!m.contains("de 6"), "\(op): contagem da medida na frase da tela")
+        }
         // O corte tem dois grupos, e o Perfil precisa distingui-los: sem
         // substituto medido, e com conserto já nomeado.
         #expect(Politica.indisponiveis.filter { Politica.linha($0).conserto == nil }.count == 5)
