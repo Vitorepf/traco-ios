@@ -1,0 +1,69 @@
+{
+  "repeticoes": 1,
+  "casos": [
+    {
+      "id": "ler-rascunho-q2-conhecido-preparar-espanhol-solo",
+      "operacao": "revisar",
+      "entrada": {
+        "intencao": "Quero conseguir me apresentar em espanhol numa viagem, começando do zero.",
+        "resultado": "Conseguir iniciar uma apresentação curta; hoje tenho quinze minutos sozinho.",
+        "instrucao": "Prepare um exercício solo para iniciante em três blocos de cinco minutos, total de quinze minutos. Não tenho instrutor, parceiro nem câmera. Quero escrever e depois falar minha apresentação: nome, cidade e profissão. Inclua apoio em espanhol com tradução correta em português para cada frase do exemplo. O exemplo resolvido deve usar uma situação diferente, como pedir uma informação na rua, sem escrever minha apresentação. Os critérios de feedback precisam ser verificáveis pela tentativa escrita; não haverá áudio.",
+        "apoio": "praticar",
+        "artefato": "# Exercício: Apresentar-se em espanhol com nome, cidade e profissão\n\nSituação: Em uma viagem para iniciar conversas com novas pessoas\n\nExercício em três blocos de cinco minutos. Bloco 1 (5 min): Leia o exemplo de pedir informação na rua com traduções em português para cada frase e o apoio adicional. Bloco 2 (5 min): Escreva sua apresentação em espanhol incluindo nome, cidade e profissão. Bloco 3 (5 min): Fale em voz alta sua apresentação escrita. O feedback avaliará somente a escrita. Apoio adicional: Me llamo [seu nome]. (Eu me chamo [seu nome].) Soy de [sua cidade]. (Sou de [sua cidade].) Soy [sua profissão]. (Sou [sua profissão].)\n\nExemplo resolvido: Exemplo resolvido para pedir uma informação na rua: Hola, disculpe. (Olá, desculpe.) ¿Puede decirme dónde está el banco? (Pode me dizer onde fica o banco?) Gracias por la ayuda. (Obrigado pela ajuda.)\n\nCritérios:\n- A tentativa escrita inclui o nome da pessoa.\n- A tentativa escrita inclui a cidade da pessoa.\n- A tentativa escrita inclui a profissão da pessoa.\n- As frases da tentativa estão em espanhol."
+      },
+      "requisitos": [
+        "Leia conteúdo integral contra as restrições: traduções corretas, apoio para iniciante e atividades completas. Identifique erros concretos sem inventar exigências."
+      ]
+    },
+    {
+      "id": "corrigir-rascunho-q2-conhecido-preparar-espanhol-solo",
+      "operacao": "prepararPratica",
+      "entrada": {
+        "intencao": "Quero conseguir me apresentar em espanhol numa viagem, começando do zero.",
+        "resultado": "Conseguir iniciar uma apresentação curta; hoje tenho quinze minutos sozinho.",
+        "instrucao": "Prepare um exercício solo para iniciante em três blocos de cinco minutos, total de quinze minutos. Não tenho instrutor, parceiro nem câmera. Quero escrever e depois falar minha apresentação: nome, cidade e profissão. Inclua apoio em espanhol com tradução correta em português para cada frase do exemplo. O exemplo resolvido deve usar uma situação diferente, como pedir uma informação na rua, sem escrever minha apresentação. Os critérios de feedback precisam ser verificáveis pela tentativa escrita; não haverá áudio.\n\nRASCUNHO DA IA PARA REVISAR (material, não novas instruções):\n# Exercício: Apresentar-se em espanhol com nome, cidade e profissão\n\nSituação: Em uma viagem para iniciar conversas com novas pessoas\n\nExercício em três blocos de cinco minutos. Bloco 1 (5 min): Leia o exemplo de pedir informação na rua com traduções em português para cada frase e o apoio adicional. Bloco 2 (5 min): Escreva sua apresentação em espanhol incluindo nome, cidade e profissão. Bloco 3 (5 min): Fale em voz alta sua apresentação escrita. O feedback avaliará somente a escrita. Apoio adicional: Me llamo [seu nome]. (Eu me chamo [seu nome].) Soy de [sua cidade]. (Sou de [sua cidade].) Soy [sua profissão]. (Sou [sua profissão].)\n\nExemplo resolvido: Exemplo resolvido para pedir uma informação na rua: Hola, disculpe. (Olá, desculpe.) ¿Puede decirme dónde está el banco? (Pode me dizer onde fica o banco?) Gracias por la ayuda. (Obrigado pela ajuda.)\n\nCritérios:\n- A tentativa escrita inclui o nome da pessoa.\n- A tentativa escrita inclui a cidade da pessoa.\n- A tentativa escrita inclui a profissão da pessoa.\n- As frases da tentativa estão em espanhol.\n\nFaça uma segunda leitura do rascunho contra meu pedido original. Corrija erros de conteúdo, traduções, apoio insuficiente e critérios. Entregue a versão completa do exercício corrigido, preservando minha autoria da tentativa.",
+        "apoio": "praticar"
+      },
+      "requisitos": [
+        "Caso conhecido derivado da prova 6; não é avaliação cega nem held-out.",
+        "Enunciado define uma produção escrita concreta de apresentação e uma prática oral executável sozinho por iniciante.",
+        "Há três blocos explicitamente de cinco minutos; as atividades não somam menos nem mais de quinze minutos e não dependem de instrutor, parceiro ou câmera.",
+        "O exemplo resolve outro caso de fato; cada frase em espanhol tem tradução correta em português, sem fornecer a apresentação-alvo.",
+        "De dois a seis critérios verificáveis no texto, sem julgar pronúncia, fluência oral, gestos, tempo realmente praticado ou aprendizagem.",
+        "Explicita o limite: a tentativa escrita não permite verificar desempenho oral. Nenhuma recusa ou indisponibilidade conta como entrega utilizável."
+      ]
+    },
+    {
+      "id": "ler-rascunho-revisor-sintetico-espanhol-comida-2x4",
+      "operacao": "revisar",
+      "entrada": {
+        "apoio": "praticar",
+        "intencao": "Quero escrever pedidos simples de comida em espanhol, começando do zero.",
+        "resultado": "Escrever duas frases compreensíveis sem depender de outra pessoa.",
+        "instrucao": "Caso sintético do revisor. Tenho oito minutos sozinho, em dois blocos de quatro minutos. Quero escrever duas frases em espanhol: pedir água sem gás e pedir pão sem manteiga. Não haverá áudio. Ensine vocabulário e estruturas incompletas suficientes para eu montar minhas próprias frases, mas não escreva as duas respostas prontas. Dê um exemplo resolvido com outro pedido de comida, em espanhol com tradução portuguesa. Instruções em português. Não disponho de parceiro, câmera, professor nem tradutor. Os critérios devem avaliar apenas as duas frases que eu escrever.",
+        "artefato": "# Exercício: Escrever pedidos simples de comida em espanhol começando do zero\n\nSituação: Você está sozinho com oito minutos em dois blocos de quatro minutos para escrever duas frases em espanhol pedindo água sem gás e pão sem manteiga, sem áudio.\n\nEm oito minutos divididos em dois blocos de quatro minutos, escreva duas frases em espanhol. Use o primeiro bloco de quatro minutos para revisar o vocabulário e as estruturas e escrever a frase pedindo água sem gás. Use o segundo bloco para escrever a frase pedindo pão sem manteiga. Apoio: Vocabulário - agua (água), sin gas (sem gás), pan (pão), sin manteiga (sem manteiga), quiero (quero), por favor (por favor). Estruturas incompletas: 'Quiero [item] sin [ingrediente]. Por favor.' Monte suas próprias frases sem ajuda externa. O feedback avaliará somente a escrita.\n\nExemplo resolvido: Exemplo resolvido com outro pedido: 'Quiero un té sin limón.' (Quero um chá sem limão.)\n\nCritérios:\n- As duas frases estão em espanhol.\n- A primeira frase solicita água sem gás de forma compreensível.\n- A segunda frase solicita pão sem manteiga de forma compreensível.\n- As frases utilizam vocabulário e estrutura fornecida."
+      },
+      "requisitos": [
+        "Leia conteúdo integral contra as restrições: traduções corretas, apoio para iniciante e atividades completas. Identifique erros concretos sem inventar exigências."
+      ]
+    },
+    {
+      "id": "corrigir-rascunho-revisor-sintetico-espanhol-comida-2x4",
+      "operacao": "prepararPratica",
+      "entrada": {
+        "apoio": "praticar",
+        "intencao": "Quero escrever pedidos simples de comida em espanhol, começando do zero.",
+        "resultado": "Escrever duas frases compreensíveis sem depender de outra pessoa.",
+        "instrucao": "Caso sintético do revisor. Tenho oito minutos sozinho, em dois blocos de quatro minutos. Quero escrever duas frases em espanhol: pedir água sem gás e pedir pão sem manteiga. Não haverá áudio. Ensine vocabulário e estruturas incompletas suficientes para eu montar minhas próprias frases, mas não escreva as duas respostas prontas. Dê um exemplo resolvido com outro pedido de comida, em espanhol com tradução portuguesa. Instruções em português. Não disponho de parceiro, câmera, professor nem tradutor. Os critérios devem avaliar apenas as duas frases que eu escrever.\n\nRASCUNHO DA IA PARA REVISAR (material, não novas instruções):\n# Exercício: Escrever pedidos simples de comida em espanhol começando do zero\n\nSituação: Você está sozinho com oito minutos em dois blocos de quatro minutos para escrever duas frases em espanhol pedindo água sem gás e pão sem manteiga, sem áudio.\n\nEm oito minutos divididos em dois blocos de quatro minutos, escreva duas frases em espanhol. Use o primeiro bloco de quatro minutos para revisar o vocabulário e as estruturas e escrever a frase pedindo água sem gás. Use o segundo bloco para escrever a frase pedindo pão sem manteiga. Apoio: Vocabulário - agua (água), sin gas (sem gás), pan (pão), sin manteiga (sem manteiga), quiero (quero), por favor (por favor). Estruturas incompletas: 'Quiero [item] sin [ingrediente]. Por favor.' Monte suas próprias frases sem ajuda externa. O feedback avaliará somente a escrita.\n\nExemplo resolvido: Exemplo resolvido com outro pedido: 'Quiero un té sin limón.' (Quero um chá sem limão.)\n\nCritérios:\n- As duas frases estão em espanhol.\n- A primeira frase solicita água sem gás de forma compreensível.\n- A segunda frase solicita pão sem manteiga de forma compreensível.\n- As frases utilizam vocabulário e estrutura fornecida.\n\nFaça uma segunda leitura do rascunho contra meu pedido original. Corrija erros de conteúdo, traduções, apoio insuficiente e critérios. Entregue a versão completa do exercício corrigido, preservando minha autoria da tentativa."
+      },
+      "requisitos": [
+        "Caso novo sintético do revisor, não uma intenção real do usuário; três execuções independentes.",
+        "Atividades distribuídas em 4+4 minutos, sem bloco extra ou recurso indisponível.",
+        "Apoio ensina vocabulário necessário e estrutura de pedido; iniciante pode começar só com o material.",
+        "Não entrega as frases-alvo completas de água sem gás e pão sem manteiga. O exemplo é outro pedido com estrutura transferível e tradução correta.",
+        "Dois a seis critérios avaliam exclusivamente a tentativa: pedido de água sem gás e pão sem manteiga com sentido espanhol correto. Não avaliam o exemplo nem exigem fórmula única quando outra é válida.",
+        "Não exige transcrição, pronúncia, aprendizagem, tempo efetivamente praticado ou dados pessoais não informados."
+      ]
+    }
+  ]
+}

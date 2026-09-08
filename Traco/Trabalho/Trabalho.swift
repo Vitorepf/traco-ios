@@ -182,6 +182,12 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
         var avaliadaEm: Date?
         var motivoAvaliacao: String?
     }
+    func instrucoesAnteriores(ao pedido: DocumentoTrabalho.Pedido) -> [String] {
+        pedidos.prefix { $0.id != pedido.id }
+            .filter { $0.estado == .pronto && $0.intencaoID == pedido.intencaoID }
+            .reversed().map(\.instrucao)
+    }
+
     struct Pedido: Codable, Sendable, Equatable, Identifiable {
         var id = UUID()
         var data = Date.now

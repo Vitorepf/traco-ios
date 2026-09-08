@@ -2,6 +2,17 @@
 
 Contrato operacional de desenvolvimento da visão vigente. Atualizar por evidência, sem transformar o incremento concluído em redefinição da finalidade. “Perfeição” não é um teste finito; conclusão do trabalho exige confrontar toda a visão e declarar lacunas reais.
 
+Atualização em execução, 08/09/2026 — [cinco itens](prova/cinco-itens.md):
+conta Grok conectada pelo usuário; 16 operações medidas três vezes com conta e
+sem conta pela política do app. Jornada de QA com dados fictícios já preservou
+exercício, tentativa errada, feedback, relato parcial e adaptação após reabertura.
+Atalhos e histórico foram observados no simulador. Regras v3 corrigem resumo de
+tempo duplicado e preservam restrições ao adaptar. Suíte de 891 testes passou.
+Qualidade semântica permanece em correção: variantes `medium` tiveram 15/27
+atendimentos integrais; `high` sozinho não corrigiu a preparação. Provas negativas
+permanecem no denominador. Isso não demonstra aprendizagem nem resultado pessoal
+do usuário, nem encerra a visão integral.
+
 | Capacidade da visão | Estado atual | Prova ainda necessária |
 |---|---|---|
 | Qualidade efetiva transversal da IA | ADR07a e QUALIDADE-IA.md: contratos estruturados, evidência por IDs, correções de contexto/transformação e Combinar em avaliação. 137 testes selecionados passaram em 07/09 às 14:16 UTC no candidato daquele momento; base viva encontrou falhas semânticas e de atribuição. | Matriz Q1–Q8 inteira, atendimento >=9 em cada dimensão e três inferências novas por caso; geração espanhola, feedback observável, fontes, todas as rotas e provedores, privacidade após espera e jornada integrada. Meta integral aberta; regras/testes não substituem essas provas. |

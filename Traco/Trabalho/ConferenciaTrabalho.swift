@@ -9,8 +9,8 @@ import NaturalLanguage
 /// significa qualidade. Sem rede, sem modelo gerativo: regras e o
 /// `NLLanguageRecognizer` do aparelho.
 nonisolated enum ConferenciaTrabalho {
-    static let versaoDoMetodo = 2
-    static let executor = "aparelho · regras v2"
+    static let versaoDoMetodo = 3
+    static let executor = "aparelho · regras v3"
     /// Prosa curta demais para o reconhecedor decidir (o parecer do consultor).
     static let minimoDeProsa = 40
     /// Acima disso a conferência recusa veredito em vez de ler um pedaço (05m).
@@ -20,7 +20,8 @@ nonisolated enum ConferenciaTrabalho {
 
     static func conferir(pedido: DocumentoTrabalho.Pedido,
                          intencao: DocumentoTrabalho.Intencao,
-                         artefato: String) -> DocumentoTrabalho.Conferencia {
+                         artefato: String,
+                         instrucoesAnteriores: [String] = []) -> DocumentoTrabalho.Conferencia {
         func registro(_ estado: DocumentoTrabalho.EstadoConferencia,
                       motivo: String? = nil,
                       resultados: [DocumentoTrabalho.Resultado] = []) -> DocumentoTrabalho.Conferencia {
@@ -31,7 +32,7 @@ nonisolated enum ConferenciaTrabalho {
             return registro(.indisponivel,
                 motivo: "O artefato tem \(artefato.count) caracteres e não cabe inteiro nesta checagem. Não conferi um pedaço dele.")
         }
-        let criterios = criterios(pedido: pedido, intencao: intencao)
+        let criterios = criterios(pedido: pedido, intencao: intencao, instrucoesAnteriores: instrucoesAnteriores)
         var resultados = criterios.map { avaliar($0, no: artefato) }
         if criterios.isEmpty {
             resultados.append(.init(criterio: "Restrições do pedido",
@@ -107,9 +108,12 @@ nonisolated enum ConferenciaTrabalho {
     /// Instrução vigente prevalece sobre resultado desejado e sobre intenção:
     /// a primeira fonte que casa a regra é a que vale, e o trecho é literal.
     static func criterios(pedido: DocumentoTrabalho.Pedido,
-                          intencao: DocumentoTrabalho.Intencao) -> [Criterio] {
+                          intencao: DocumentoTrabalho.Intencao,
+                          instrucoesAnteriores: [String] = []) -> [Criterio] {
         let fontes: [(DocumentoTrabalho.FonteCriterio, String)] = [
-            (.instrucao, pedido.instrucao), (.resultado, intencao.resultado), (.intencao, intencao.texto),
+            (.instrucao, pedido.instrucao),
+        ] + instrucoesAnteriores.map { (.instrucao, $0) } + [
+            (.resultado, intencao.resultado), (.intencao, intencao.texto),
         ]
         var achados: [Criterio] = []
         for (fonte, texto) in fontes where !texto.isEmpty {
@@ -253,7 +257,23 @@ nonisolated enum ConferenciaTrabalho {
         _ blocos: Int?, _ cada: Int?, _ total: Int, _ artefato: String,
         _ resultado: (DocumentoTrabalho.SituacaoCriterio, [String], String) -> DocumentoTrabalho.Resultado
     ) -> DocumentoTrabalho.Resultado {
-        let lidasNoTexto = artefato.matches(of: regex(marcaDeTempo))
+        let todas = artefato.matches(of: regex(marcaDeTempo))
+        // A apresentação “três blocos de cinco minutos” não é um quarto bloco.
+        // Só retiramos a declaração que coincide com o pedido e tem distribuição abaixo.
+        let resumos = artefato.matches(of: regex(blocosDeTempo)).filter {
+            $0.output[1].substring.flatMap(valor) == blocos &&
+            $0.output[2].substring.flatMap(minutos) == cada
+        }
+        let primeiraDistribuida = todas.first { marca in
+            !resumos.contains { $0.range.contains(marca.range.lowerBound) }
+        }
+        let distribuicao = todas.filter { marca in
+            !resumos.contains {
+                $0.range.contains(marca.range.lowerBound) &&
+                $0.range.upperBound <= (primeiraDistribuida?.range.lowerBound ?? artefato.startIndex)
+            }
+        }
+        let lidasNoTexto = distribuicao.isEmpty ? todas : distribuicao
         let marcas = lidasNoTexto.compactMap { minutos(artefato[$0.range]) }
         guard marcas.count == lidasNoTexto.count, let somaBruta = somar(marcas) else {
             return resultado(.inconclusivo, [], "As marcas de tempo excedem o limite numérico desta checagem. Não descartei valores para apresentar uma soma menor.")

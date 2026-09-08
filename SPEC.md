@@ -5387,3 +5387,62 @@ A escada da sábia, o `conferir`, o `responderNasNotas`, o `produzirEntrega` e o
 **O teto passa a ser medido.** Desde o iOS 26.4 o modelo conta tokens (`SystemLanguageModel.tokenCount(for:)`, `contextSize`). `Sabia.noAparelho` mantém os 3.500 caracteres como pré-corte da montagem, mas o portão real é pedido + instruções + 1.024 tokens de resposta reservados ≤ `contextSize`; sem espaço para a resposta, cala. `maximumResponseTokens` fixa a reserva.
 
 **O que esta ADR não prova.** Nenhuma operação tem medição com Grok: a conta não existe em nenhum simulador (login iniciado no iPhone 17 Pro de teste em 07/09, à espera do dono). A tabela decide onde o aparelho NÃO entra; se o Grok serve, é a próxima medição pela mesma sonda. `responder`, `instigar` e `contrapor` seguem sem medição em nenhum provedor. 5 testes em `PoliticaTests`; suíte 826/134 em 07/09/2026.
+
+## ADR 2026-09-08b — Raciocínio explícito e medição do provedor
+
+A base viva de 08/09 (`prova/cinco-itens.md`) encontrou falhas semânticas no
+Grok em prática e revisão apesar do schema válido. Produção, preparação de
+prática, feedback e revisão passam a solicitar raciocínio `medium`; demais
+chamadas preservam `none`. O modelo explícito é `grok-4.3`, em lugar do alias
+aposentado `grok-4-fast-non-reasoning`. A [migração oficial da xAI](https://docs.x.ai/developers/migration/may-15-retirement)
+descreve o redirecionamento do alias para 4.3 sem raciocínio. A aceitação pela
+conta e a qualidade são medidas no app, não inferidas dessa documentação.
+
+A sonda Debug registra modelo solicitado/respondido, esforço, status HTTP e
+desfecho de transporte/conteúdo, sem credenciais ou corpos de erro. As saídas
+semânticas continuam completas no JSONL. Não existe aprovação automática por
+raciocínio ativado; a revisão independente e a jornada continuam obrigatórias.
+Mudança de ações ou evidências cancela preparação em voo, pois ela ainda não
+leu o novo retorno. O pedido cancelado permanece disponível para retomada.
+
+### ADR08c — conferência conserva restrições ao adaptar (08/09/2026)
+
+A jornada com conta conectada expôs dois falsos alarmes locais: a apresentação
+“três blocos de cinco minutos” contava como um quarto bloco, e o pedido genérico
+“adapte aos relatos” perdia tempo/idiomas anteriormente pedidos. Regras v3 excluem
+resumos compatíveis anteriores à distribuição, sem excluir blocos adicionais
+posteriores. É uma gramática limitada, não medição da duração praticada.
+
+Produção, prática, conferência local e revisão assistida compartilham a seleção
+de instruções anteriores concluídas da mesma intenção, somente antes do pedido
+lido, recentes primeiro. A restrição explícita vigente prevalece. As conferências
+preservam o trecho literal como instrução, incluindo histórico; revisão que não
+cabe inteira na janela fica indisponível. Registros v2 anteriores permanecem
+históricos, sem reescrita. A sonda usa o mesmo contexto da interface.
+
+Na preparação de prática, o candidato passa a raciocínio `high`, limite de 90 s,
+pois `medium` ainda omitiu fala pedida e gerou tradução incorreta nas variantes.
+Sem gravação limita avaliação, não elimina uma prática oral solicitada. Adaptação
+precisa mudar apoio ou atividade diante da dificuldade; repetir o enunciado não
+prova ajuste útil. Este registro descreve o candidato, não aprovação semântica.
+
+### ADR08d — modelo por rota de Trabalho e limites da prova (08/09/2026)
+
+As medições de `grok-4.3` com raciocínio, prompt curto e segunda leitura continuaram
+falhando em preparação e adaptação. A segunda leitura foi só experimento da sonda;
+não foi acrescentada ao produto. A listagem autenticada `/v1/models` confirmou
+`grok-4.6` disponível na conta. O candidato o usa explicitamente em produzir,
+preparar exercício, conferir tentativa e revisão assistida. As demais rotas
+mantêm o modelo configurado anterior. O cache distingue modelo, esforço e pedido.
+
+A observação de feedback e revisão é em português. Reconhecer um critério textual
+atendido não é aprovação global nem certificação da pessoa. `inconclusivo` exige
+lacuna de evidência real; incompletude não torna errada uma tradução presente que
+está correta. A preparação usa um contrato mais curto de tarefa, apoio, exemplo e
+critérios; o pedido explícito governa assunto do exemplo e atividades obrigatórias.
+
+A sonda Debug também pode listar apenas IDs de modelos e registrar a contagem de
+tokens de raciocínio devolvida pela API. Não guarda credenciais nem raciocínio.
+Troca de modelo não é prova de qualidade: matrizes, denominadores e retornos
+anteriores permanecem em `prova/cinco-itens*`, e o novo candidato exige leitura
+integral das respostas e jornada com persistência antes de ser considerado pronto.

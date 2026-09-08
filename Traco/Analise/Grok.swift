@@ -44,7 +44,8 @@ nonisolated enum Motores {
 /// Silêncio em erro continua sendo a lei: qualquer falha devolve nil e o
 /// chamador desce a escada (§19.4).
 nonisolated enum Grok {
-    static let modelo = "grok-4-fast-non-reasoning" // pago pelo pool da assinatura (ADR 31k)
+    static let modelo = "grok-4.3"
+    static let modeloTrabalho = "grok-4.6"
     private static let endereco = URL(string: "https://api.x.ai/v1/chat/completions")!
 
     // MARK: - memo
@@ -55,6 +56,40 @@ nonisolated enum Grok {
     private nonisolated(unsafe) static var memo: [(chave: String, resposta: String)] = []
     private static let tranca = NSLock()
     private static let tetoMemo = 32
+
+    #if DEBUG
+    static func modelosDisponiveis() async -> [String]? {
+        guard !Motores.desligados, let token = await ContaGrok.token() else { return nil }
+        var pedido = URLRequest(url: URL(string: "https://api.x.ai/v1/models")!)
+        pedido.timeoutInterval = 20
+        pedido.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        guard let (dados, resposta) = try? await URLSession.shared.data(for: pedido),
+              (resposta as? HTTPURLResponse)?.statusCode == 200,
+              let raiz = (try? JSONSerialization.jsonObject(with: dados)) as? [String: Any],
+              let modelos = raiz["data"] as? [[String: Any]] else { return nil }
+        return modelos.compactMap { $0["id"] as? String }.sorted()
+    }
+
+    struct Diagnostico: Codable, Sendable {
+        var modeloSolicitado: String
+        var modeloRespondido: String?
+        var esforco: String
+        var statusHTTP: Int?
+        var tokensDeRaciocinio: Int?
+        var desfecho: String
+    }
+    private nonisolated(unsafe) static var diagnosticos: [Diagnostico] = []
+    static func retirarDiagnosticos() -> [Diagnostico] {
+        tranca.lock(); defer { tranca.unlock() }
+        defer { diagnosticos.removeAll() }
+        return diagnosticos
+    }
+    private static func registrar(_ d: Diagnostico) {
+        tranca.lock(); defer { tranca.unlock() }
+        diagnosticos.append(d)
+        if diagnosticos.count > 32 { diagnosticos.removeFirst() }
+    }
+    #endif
 
     private static func memoLido(_ chave: String) -> String? {
         tranca.lock(); defer { tranca.unlock() }
@@ -86,26 +121,44 @@ nonisolated enum Grok {
     /// pede de novo esperando algo novo — instigar, padrões — não memoiza.
     static func responder(sistema: String, usuario: String, temperatura: Double,
                           timeout: TimeInterval = 20, memoPor chave: String? = nil,
-                          esquema: String? = nil) async -> String? {
+                          esquema: String? = nil, esforco: String = "none",
+                          modelo: String = Grok.modelo) async -> String? {
         guard !Motores.desligados, !Task.isCancelled else { return nil }
         // Uma chave do chamador não pode reutilizar uma resposta de outro
         // pedido/schema. A validação continua depois da geração estruturada.
-        let chave = chave.map { "\($0)\u{1}\(sistema)\u{1}\(usuario)\u{1}\(temperatura)\u{1}\(esquema ?? "")" }
+        let chave = chave.map { "\($0)\u{1}\(modelo)\u{1}\(esforco)\u{1}\(sistema)\u{1}\(usuario)\u{1}\(temperatura)\u{1}\(esquema ?? "")" }
         if let chave, let guardada = memoLido(chave) { return guardada }
         guard let token = await ContaGrok.token() else { return nil }
         guard !Task.isCancelled,
               let corpo = corpo(sistema: sistema, usuario: usuario,
-                                temperatura: temperatura, esquema: esquema) else { return nil }
+                                temperatura: temperatura, esquema: esquema, esforco: esforco, modelo: modelo) else { return nil }
         var pedido = URLRequest(url: endereco)
         pedido.httpMethod = "POST"
         pedido.timeoutInterval = timeout
         pedido.setValue("application/json", forHTTPHeaderField: "Content-Type")
         pedido.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         pedido.httpBody = corpo
-        guard let (dados, resposta) = try? await URLSession.shared.data(for: pedido),
+        #if DEBUG
+        var diagnostico = Diagnostico(modeloSolicitado: modelo, esforco: esforco, desfecho: "sem resposta de transporte")
+        defer { registrar(diagnostico) }
+        #endif
+        guard let (dados, resposta) = try? await URLSession.shared.data(for: pedido) else { return nil }
+        #if DEBUG
+        diagnostico.statusHTTP = (resposta as? HTTPURLResponse)?.statusCode
+        let envelope = (try? JSONSerialization.jsonObject(with: dados)) as? [String: Any]
+        diagnostico.modeloRespondido = envelope?["model"] as? String
+        let uso = envelope?["usage"] as? [String: Any]
+        let detalhes = uso?["completion_tokens_details"] as? [String: Any]
+        diagnostico.tokensDeRaciocinio = detalhes?["reasoning_tokens"] as? Int
+        diagnostico.desfecho = "HTTP ou conteúdo recusado"
+        #endif
+        guard
               !Task.isCancelled,
               (resposta as? HTTPURLResponse)?.statusCode == 200,
               let msg = textoCompleto(dados) else { return nil }
+        #if DEBUG
+        diagnostico.desfecho = "conteúdo completo"
+        #endif
         if let chave { memoGrava(chave, msg) }
         return msg
     }
@@ -113,9 +166,11 @@ nonisolated enum Grok {
     /// O schema vai no protocolo da API, não apenas numa promessa no prompt.
     /// JSON válido ainda precisa das verificações de domínio e de conteúdo.
     static func corpo(sistema: String, usuario: String, temperatura: Double,
-                      esquema: String?) -> Data? {
+                      esquema: String?, esforco: String = "none", modelo: String = Grok.modelo) -> Data? {
+        guard ["none", "low", "medium", "high"].contains(esforco) else { return nil }
         var corpo: [String: Any] = [
             "model": modelo,
+            "reasoning_effort": esforco,
             "temperature": temperatura,
             "messages": [
                 ["role": "system", "content": sistema],

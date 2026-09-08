@@ -238,18 +238,20 @@ final class OficinaTrabalho {
         guard let artefato = documento.artefatos.first(where: { $0.id == artefatoID }),
               let pedido = documento.pedidos.first(where: { $0.id == pedidoID }),
               let intencao = documento.intencoes.first(where: { $0.id == artefato.intencaoID }) else { return false }
-        let registro = conferencia(pedido, intencao, artefato.conteudo)
+        let registro = conferencia(pedido, intencao, artefato.conteudo, documento.instrucoesAnteriores(ao: pedido))
         return alterar { try $0.registrarConferencia(registro, em: artefatoID) }
     }
 
-    @ObservationIgnored var conferencia: (DocumentoTrabalho.Pedido, DocumentoTrabalho.Intencao, String) -> DocumentoTrabalho.Conferencia = ConferenciaTrabalho.conferir
+    @ObservationIgnored var conferencia: (DocumentoTrabalho.Pedido, DocumentoTrabalho.Intencao, String, [String]) -> DocumentoTrabalho.Conferencia = {
+        ConferenciaTrabalho.conferir(pedido: $0, intencao: $1, artefato: $2, instrucoesAnteriores: $3)
+    }
 
     /// ADR 05q: a revisão assistida. SÓ A PEDIDO — `gerar` nunca chama isto —
     /// e uma chamada por toque: `revisando` fecha a porta enquanto a anterior
     /// não voltou. O acesso é revalidado antes de enviar, depois do await e de
     /// novo dentro de `alterar`, antes de a leitura aparecer na tela.
-    @ObservationIgnored var revisao: (DocumentoTrabalho.Pedido, DocumentoTrabalho.Intencao, String, [DocumentoTrabalho.Resultado]) async -> DocumentoTrabalho.Conferencia = {
-        await RevisaoTrabalho.revisar(pedido: $0, intencao: $1, artefato: $2, criterios: $3)
+    @ObservationIgnored var revisao: (DocumentoTrabalho.Pedido, DocumentoTrabalho.Intencao, String, [DocumentoTrabalho.Resultado], [String]) async -> DocumentoTrabalho.Conferencia = {
+        await RevisaoTrabalho.revisar(pedido: $0, intencao: $1, artefato: $2, criterios: $3, instrucoesAnteriores: $4)
     }
     private(set) var revisando = false
 
@@ -261,12 +263,13 @@ final class OficinaTrabalho {
               let pedido = documento.pedidos.first(where: { $0.id == pedidoID }),
               let intencao = documento.intencoes.first(where: { $0.id == artefato.intencaoID }) else { return nil }
         let criterios = artefato.conferencias?.last { $0.executor == ConferenciaTrabalho.executor }?.resultados ?? []
+        let anteriores = documento.instrucoesAnteriores(ao: pedido)
         revisando = true
         return Task { [weak self] in
             guard let self else { return }
             defer { revisando = false }
             guard verificarAcesso() else { return }
-            let registro = await revisao(pedido, intencao, artefato.conteudo, criterios)
+            let registro = await revisao(pedido, intencao, artefato.conteudo, criterios, anteriores)
             guard verificarAcesso(), !Task.isCancelled,
                   documento.versaoAtual?.id == artefatoID else { return }
             alterar { try $0.registrarConferencia(registro, em: artefatoID) }
@@ -378,6 +381,9 @@ enum MotorTrabalho {
     Entregue o conteúdo utilizável pedido, não só instruções para criá-lo.
     Confira destinatário, idioma, duração e restrições explícitas. Um roteiro
     com duração precisa distribuir o tempo e trazer o material para começar.
+    Intervalos consecutivos compartilham o limite: 0:00–5:00, 5:00–10:00,
+    10:00–15:00. Não subtraia segundos entre blocos. Quando definir contagens
+    de repetição, explique como ocupar o tempo restante sem acelerar à força.
     Faça só suposições reversíveis necessárias e declare-as; não invente
     instrutor, equipamento ou requisitos. Não prometa confiança, aprendizagem
     ou resultado no mundo sem observação. Se pediram apenas princípios,
@@ -417,8 +423,7 @@ enum MotorTrabalho {
             "\($0.texto) · \($0.estado.rawValue) · responsável: \($0.responsavel.rawValue) · horário: \($0.agendadaEm?.ISO8601Format() ?? "sem horário") · versão: \($0.artefatoID?.uuidString ?? "sem artefato")"
         }.joined(separator: "\n")
         if !acoes.isEmpty { secoes.append("AÇÕES REGISTRADAS (horário passado não prova execução; execução não prova resultado):\n\(acoes)") }
-        let anteriores = d.pedidos.filter { $0.estado == .pronto && $0.id != p.id && $0.intencaoID == p.intencaoID }
-            .reversed().map(\.instrucao).joined(separator: "\n\n")
+        let anteriores = d.instrucoesAnteriores(ao: p).joined(separator: "\n\n")
         if !anteriores.isEmpty { secoes.append("PEDIDOS ANTERIORES (preserve restrições ainda aplicáveis; o pedido vigente prevalece):\n\(anteriores)") }
         if let versao = d.versaoAtual, !versao.conteudo.isEmpty {
             secoes.append("VERSÃO ANTERIOR [\(versao.id)]:\n\(versao.conteudo)")
@@ -467,7 +472,7 @@ enum MotorTrabalho {
         try Task.checkCancellation()
         let remoto = pedido(d, p, teto: tetoRemoto, praticaPreservada: praticaPreservada)
         if remoto.count <= tetoRemoto,
-           let texto = await Grok.responder(sistema: sistema, usuario: remoto, temperatura: 0.3),
+           let texto = await Grok.responder(sistema: sistema, usuario: remoto, temperatura: 0.3, timeout: 90, esforco: "medium", modelo: Grok.modeloTrabalho),
            !texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             return .init(texto: texto, produtor: remoto.contains("[CONTEXTO PARCIAL:") ? "Grok · parte do histórico" : "Grok")
         }
@@ -500,8 +505,8 @@ extension MotorTrabalho {
         let dificuldade = d.dificuldadeVigente
         if mensagem.count <= tetoRemoto,
            let cru = await Grok.responder(sistema: PraticaTrabalho.sistemaPreparar,
-                                          usuario: mensagem, temperatura: 0.3, timeout: 60,
-                                          esquema: PraticaTrabalho.esquemaRemotoPreparacao),
+                                          usuario: mensagem, temperatura: 0.3, timeout: 90,
+                                          esquema: PraticaTrabalho.esquemaRemotoPreparacao, esforco: "high", modelo: Grok.modeloTrabalho),
            let bruta = PraticaTrabalho.parsePreparacao(cru),
            let pratica = PraticaTrabalho.validar(bruta, dificuldade: dificuldade) {
             return (pratica, "Grok · exercício preparado")
@@ -534,8 +539,8 @@ extension MotorTrabalho {
         }
         guard mensagem.count <= tetoRemoto else { return naoCoube(tetoRemoto) }
         if let cru = await Grok.responder(sistema: PraticaTrabalho.sistemaConferir,
-                                          usuario: mensagem, temperatura: 0.2, timeout: 60,
-                                          esquema: PraticaTrabalho.esquemaRemotoConferencia(pratica, tentativa: tentativa)) {
+                                          usuario: mensagem, temperatura: 0.2, timeout: 90,
+                                          esquema: PraticaTrabalho.esquemaRemotoConferencia(pratica, tentativa: tentativa), esforco: "high", modelo: Grok.modeloTrabalho) {
             let executor = "Grok \(PraticaTrabalho.sufixoDoExecutor)"
             guard let resultados = PraticaTrabalho.parseConferencia(cru, pratica: pratica, tentativa: tentativa) else {
                 return registro(.indisponivel, executor: executor, motivo: PraticaTrabalho.foraDoContrato)
