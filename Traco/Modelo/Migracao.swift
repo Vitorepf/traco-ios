@@ -75,26 +75,35 @@ enum TracoMigracao: SchemaMigrationPlan {
     }
 }
 
-/// O disco falhou: a página não finge que o caderno está vazio.
+/// O arranque do disco. Se o banco não abre, NADA se abre no lugar dele: a
+/// versão anterior caía num contentor em memória e deixava o app inteiro de pé
+/// sobre um caderno vazio — e as rotas do selo (`Corpus.escrever`) apagam do
+/// espelho em Arquivos todo `.md` que não estiver na lista que recebem. Um
+/// caderno vazio na RAM sobrevoando o espelho é o estrago que o defeito ainda
+/// não tinha feito (ADR 2026-09-08s). Preservar vem antes de voltar a funcionar.
 enum DiscoTraco {
-    static var aviso: String?
     /// O container do app, para os intents reusarem em vez de abrir outro.
     static var compartilhado: ModelContainer?
 
-    /// Testes: memória. App: disco. Se o disco recusa, o aviso diz a verdade
-    /// e o contentor em memória só existe para o SwiftUI não explodir.
+    enum Resultado {
+        case aberto(ModelContainer)
+        case recusou(Error)
+    }
+
+    /// Testes: memória. App: disco. A recusa é estado tratado, nunca `try!` —
+    /// e nunca um contentor de emergência que finge ser o caderno.
     static func abrir(
         emTeste: Bool,
         disco: () throws -> ModelContainer = { try ModelContainer.traco() },
         memoria: () throws -> ModelContainer = { try ModelContainer.traco(emMemoria: true) }
-    ) rethrows -> ModelContainer {
-        if emTeste { return try memoria() }
+    ) -> Resultado {
         do {
-            aviso = nil
-            return try disco()
+            let container = try emTeste ? memoria() : disco()
+            compartilhado = container
+            return .aberto(container)
         } catch {
-            aviso = "as notas estão no disco e não abri. o app não inventa um caderno vazio."
-            return try memoria()
+            compartilhado = nil
+            return .recusou(error)
         }
     }
 }

@@ -125,19 +125,6 @@ struct RaizView: View {
             ? .easeOut(duration: Tema.Duracao.media)
             : .easeOut(duration: Tema.Duracao.fecho), reduzido: reduceMotion),
             value: sessao.fechoExpressiva)
-        .overlay {
-            if let aviso = DiscoTraco.aviso {
-                ZStack {
-                    Tema.fundo.ignoresSafeArea()
-                    Text(aviso)
-                        .font(Tema.corpo)
-                        .foregroundStyle(Tema.tinta)
-                        .padding(Tema.margem)
-                        .frame(maxWidth: 680)
-                }
-                .accessibilityIdentifier("disco-falhou")
-            }
-        }
         // um mundo só (ADR 2026-09-02h): nunca claro numa aba e escuro noutra
         .preferredColorScheme(.light)
         .environment(\.abrirCalendarioDoTrabalho, { data in

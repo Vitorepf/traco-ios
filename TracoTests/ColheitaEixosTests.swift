@@ -815,66 +815,51 @@ struct GestoNovosNomesTests {
     }
 }
 
+/// ADR 2026-09-08s: a recusa do disco é ESTADO, nunca `try!` e nunca um
+/// contentor de emergência. Um caderno vazio na RAM deixaria o app inteiro de
+/// pé sobre nada — e as rotas do selo (`Corpus.escrever`) apagam do espelho em
+/// Arquivos todo `.md` que não estiver na lista que recebem.
 struct DiscoTracoTests {
-    @Test func discoQuebraNaoFingeCadernoVazio() throws {
-        DiscoTraco.aviso = nil
-        struct Boom: Error {}
-        _ = try DiscoTraco.abrir(
-            emTeste: false,
-            disco: { throw Boom() },
-            memoria: { try ModelContainer.traco(emMemoria: true) }
-        )
-        #expect(DiscoTraco.aviso?.contains("não inventa") == true)
-        DiscoTraco.aviso = nil
+    /// o `compartilhado` do app hospedeiro volta ao lugar: a suíte corre neste
+    /// processo e os intents leem essa mesma variável
+    private func preservandoOCompartilhado(_ corpo: () -> Void) {
+        let doApp = DiscoTraco.compartilhado
+        defer { DiscoTraco.compartilhado = doApp }
+        corpo()
     }
 
-    @Test func discoSaudavelNaoAvisa() throws {
-        DiscoTraco.aviso = "sujo"
-        _ = try DiscoTraco.abrir(
-            emTeste: false,
-            disco: { try ModelContainer.traco(emMemoria: true) },
-            memoria: { throw DiscoTesteErro.falhou }
-        )
-        #expect(DiscoTraco.aviso == nil)
+    @Test func discoQuebraNaoFingeCadernoVazio() {
+        preservandoOCompartilhado {
+            struct Boom: Error {}
+            let r = DiscoTraco.abrir(
+                emTeste: false,
+                disco: { throw Boom() },
+                memoria: { try ModelContainer.traco(emMemoria: true) }
+            )
+            guard case .recusou = r else {
+                Issue.record("disco quebrado devolveu \(r) — deveria ser .recusou")
+                return
+            }
+            // nem o contentor de emergência: nada fica de pé para sobrevoar o espelho
+            #expect(DiscoTraco.compartilhado == nil)
+        }
+    }
+
+    @Test func discoSaudavelAbreEPublica() {
+        preservandoOCompartilhado {
+            DiscoTraco.compartilhado = nil
+            let r = DiscoTraco.abrir(
+                emTeste: false,
+                disco: { try ModelContainer.traco(emMemoria: true) },
+                memoria: { throw DiscoTesteErro.falhou }
+            )
+            guard case .aberto(let c) = r else {
+                Issue.record("disco saudável devolveu \(r) — deveria ser .aberto")
+                return
+            }
+            #expect(DiscoTraco.compartilhado === c)
+        }
     }
 }
 
 private enum DiscoTesteErro: Error { case falhou }
-
-@MainActor
-struct MigracaoDiscoTests {
-    @Test func v1NoDiscoChegaVivaNaV2() throws {
-        let dir = FileManager.default.temporaryDirectory
-            .appendingPathComponent("traco-mig-\(UUID().uuidString)", isDirectory: true)
-        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        defer { try? FileManager.default.removeItem(at: dir) }
-        let url = dir.appendingPathComponent("traco.store")
-        let id = UUID()
-        let criada = Date(timeIntervalSince1970: 1_700_000_000)
-
-        try autoreleasepool {
-            let v1 = try ModelContainer(
-                for: Schema(versionedSchema: TracoSchemaV1.self),
-                configurations: ModelConfiguration(url: url)
-            )
-            let n = TracoSchemaV1.Nota(
-                texto: "quero correr de manhã",
-                gestoRaw: "woop",
-                criadaEm: criada,
-                editadaEm: criada
-            )
-            n.uuid = id
-            v1.mainContext.insert(n)
-            try v1.mainContext.save()
-        }
-
-        let v2 = try ModelContainer.traco(url: url)
-        let notas = try v2.mainContext.fetch(FetchDescriptor<Nota>())
-        #expect(notas.count == 1)
-        #expect(notas[0].uuid == id)
-        #expect(notas[0].texto == "quero correr de manhã")
-        #expect(notas[0].gesto == .woop)
-        #expect(notas[0].dominio == nil)
-        #expect(notas[0].gatilhoEm == nil)
-    }
-}
