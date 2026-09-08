@@ -16,5 +16,5 @@ xcrun simctl shutdown "$U" 2>/dev/null || true
 sleep 3
 rm -rf "$D/Library/chronod" "$D/Library/Caches/com.apple.chronod" "$D/Library/Caches/com.apple.chrono"
 xcrun simctl boot "$U"
-sleep 25
+xcrun simctl bootstatus "$U" -b >/dev/null   # espera o boot de verdade, não o relógio
 echo "faces esquecidas"

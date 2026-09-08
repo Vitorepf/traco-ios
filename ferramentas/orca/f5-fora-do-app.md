@@ -126,15 +126,18 @@ cliclick a não ser a captura da Ilha expandida, e ela é refazível pelo
 instrumento certo. Nada do que fiz tocou a janela de outro aparelho — o ponto
 sempre veio do `AXGroup` da MINHA janela, achada pelo nome.
 
-E uma que não é lei, é ferramenta: **dá para tocar o simulador certo sem
-maestro e sem chutar coordenada** — `f5-tocar.sh` acha a janela pelo NOME e lê
-o retângulo da tela do próprio acessibility da janela (`AXGroup`), então o
-toque não pode cair no vizinho. Foi assim que a Ilha expandiu.
+O toque que abriu a Ilha veio de um script (`f5-tocar.sh`) que fazia isso pelo
+cursor do Mac; a correção F4-G o **apagou** do repositório — o instrumento é
+`orca emulator tap <x> <y> --device <UDID>`, com coordenadas 0..1 e o elemento
+achado por `orca emulator ax`, e um script em volta de uma linha é muleta.
 
-Os scripts ficam versionados para as próximas voltas: `f5-semear.sh` (estado do
+Os scripts que ficam, para a próxima volta de widget: `f5-semear.sh` (estado do
 Traço), `f5-plantar.py` (widgets por `IconState.plist`, sem galeria),
-`f5-instalar.sh` (instala e confere), `f5-esquecer-faces.sh` (força redesenho),
-`f5-fotografar.sh` (tema + tamanho + captura), `f5-tocar.sh` (toque).
+`f5-instalar.sh` (instala e confere por símbolo — o símbolo agora é argumento),
+`f5-esquecer-faces.sh` (força redesenho; espera o boot por `bootstatus`, não
+por relógio), `f5-fotografar.sh` + `f5-ler.swift` (tema + tamanho + captura,
+dada por boa só quando o OCR lê o conteúdo esperado na face — ver a seção
+F4-G no fim).
 
 ## As seis fases do `design-router`
 
@@ -186,6 +189,51 @@ nomeada, e o que não tem está marcado como limite.
 | Performance | n/a | nada de lista, editor ou parser; a linha do tempo não mudou |
 | Privacidade e autoria | 9 | nenhuma rota de leitura nova; nada publica nem envia |
 | Estado honesto | 9 | "Desatualizado." continua saindo em toda face; o que não coube é contado |
-| Complexidade | 9 | +295/−85 com 3 leis novas testadas e 2 opções apagadas |
+| Complexidade | 9 | +295/−85 com 3 leis novas testadas e 2 opções apagadas; cinco scripts de QA, nenhum proibido, captura que só vale com conteúdo lido (F4-G) |
 | Fora do app | 8 | tudo capturado menos a **Ilha mínima** e o **StandBy**, os dois com o motivo dito e um deles limite do simulador |
 | Relato | 9 | este arquivo |
+
+## F4-G — a correção depois do G3 (Fable 5.1, 08/09, 11h50–12h20)
+
+O revisor de outro fornecedor (`revisao-f4f-fora-do-app.md`) deu treze
+dimensões em 9 e reprovou **Complexidade em 8** por dois defeitos nos scripts.
+Nada da face foi tocado nesta correção; simulador **iPhone Air
+`64F7B8B4-CBBD-4449-A51E-19E1A1A077B4`**, o único meu ligado.
+
+**Decisão sobre cada script, com o critério "fica se a próxima volta reusa":**
+
+| script | decisão |
+|---|---|
+| `f5-tocar.sh` | **apagado.** Controlava o cursor do Mac (`AXRaise`, AppleScript, `cliclick`) — proibido pela ordem de 08/09 — e o substituto é uma linha, `orca emulator tap <x> <y> --device <UDID>`; script em volta de uma linha é muleta |
+| `f5-fotografar.sh` | **reescrito: prontidão observável.** Depois de renascer o SpringBoard, captura a cada 3 s e lê a tela por OCR (`f5-ler.swift`, Vision); só dá a captura por boa quando o texto esperado aparece `vezes` vezes; em 90 s sem isso **falha com exit 1** e guarda o quadro como `*.nao-pronta.png`, dizendo que não é evidência |
+| `f5-semear.sh` | **fica, com a mesma lei.** A prova desta correção pegou o defeito ao vivo: num contêiner recém-instalado o app não publicou `superficie.json` em 4 s, e as quatro faces saíram em "Não consegui ler o Traço." — o `f5-fotografar.sh` novo **recusou** essa captura (`'terminar o' ×1, precisava ×2`). Agora o script espera o arquivo ficar mais novo que o lançamento (até 30 s) e falha se não vier |
+| `f5-instalar.sh` | **fica, parametrizado.** O símbolo conferido era desta volta (`FraseDoAutor`); passa a argumento obrigatório, com uso se faltar |
+| `f5-esquecer-faces.sh` | **fica.** `sleep 25` vira `simctl bootstatus -b`: espera o boot, não o relógio |
+| `f5-plantar.py` | **fica como está.** É o único caminho para plantar widget sem a galeria que trava |
+
+**Prova dos scripts, no Air, nesta ordem:** `f5-instalar.sh` com
+`FraseDoAutor LinhasDoDestaque` → `instalado e conferido`; sem símbolo → `uso:` e
+`rc=2`. `f5-semear.sh dia` → `semeado: dia (12:12:55 …/superficie.json)`.
+`f5-fotografar.sh … light large "terminar o" 2` → `pronta em 7 s, 'terminar o'
+×2`, captura em `f4g-fotografar-pronta-air.png` (quatro cartões desenhados,
+frase inteira no pequeno e no médio). Caminho de falha:
+`f5-fotografar.sh … "xyzzy" 1` → `a face NÃO ficou pronta em 90 s ('xyzzy' ×0,
+precisava ×1)`, `rc=1`.
+
+**ADR e merge.** A letra `08b` já era da ADR "Raciocínio explícito e medição do
+provedor" em `main`; a desta volta passa a **`ADR 2026-09-08g`** (SPEC,
+EVOLUCAO e este relato). `main` mesclado no branch (`e1fb28c`): o único
+conflito foi as duas ADRs no mesmo lugar do `SPEC.md`, resolvido com `08b`,
+`08e` e depois `08g`, em ordem cronológica; `EVOLUCAO.md` e o `pbxproj`
+(`PortaoDoMovimentoTests.swift`) mesclaram sozinhos.
+
+**Build e suíte na árvore mesclada**, sob `com-trava.sh`, destino
+`id=64F7B8B4-CBBD-4449-A51E-19E1A1A077B4`:
+- `xcodebuild build -scheme TracoWidget` → `** BUILD SUCCEEDED **`, zero `warning:`
+- `xcodebuild build -scheme Traco` → `** BUILD SUCCEEDED **`, zero `warning:`
+- `xcodebuild test -scheme Traco` → `✔ Test run with 900 tests in 146 suites passed after 10.260 seconds.` / `** TEST SUCCEEDED **` (893 + 7 de `PortaoDoMovimentoTests`, do lado do dono)
+
+Aparelho restaurado: tema claro, tamanho `large`, helper do `orca emulator`
+encerrado. O revisor tinha razão nos dois pontos, e o segundo se provou
+sozinho: a primeira captura desta correção era exatamente o cartão que uma
+espera fixa teria entregue como evidência.

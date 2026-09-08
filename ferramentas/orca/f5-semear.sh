@@ -59,7 +59,12 @@ esac
 xcrun simctl spawn "$U" launchctl kill 9 system/com.apple.cfprefsd.xpc.daemon 2>/dev/null || true
 xcrun simctl terminate "$U" app.traco 2>/dev/null || true
 sleep 1
+SUP="$GRUPO/superficie.json"; MARCA=$(mktemp)   # a superfície tem de ser mais nova que o lançamento
 xcrun simctl launch "$U" app.traco >/dev/null
-sleep 4
+# espera fixa não é prova (F4-G): num contêiner recém-instalado 4 s não bastaram e
+# o widget ficou em "Não consegui ler o Traço." — esperar o arquivo, ou falhar
+for _ in $(seq 1 30); do [ "$SUP" -nt "$MARCA" ] && break; sleep 1; done
+rm -f "$MARCA"
 xcrun simctl terminate "$U" app.traco 2>/dev/null || true
-echo "semeado: $CENARIO"
+[ -n "$(find "$SUP" -newer "$PLIST" 2>/dev/null)" ] || { echo "f5-semear: o app NÃO publicou $SUP em 30 s" >&2; exit 1; }
+echo "semeado: $CENARIO ($(stat -f %Sm -t %H:%M:%S "$SUP") $SUP)"
