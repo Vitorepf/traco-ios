@@ -772,6 +772,7 @@ struct TrabalhoView: View {
                 Text(a.produtor).font(Tema.meta).foregroundStyle(Tema.tintaSuave)
             }
             conferencia(a, oficina: o)
+            causaDaVersao(a, oficina: o)
             if a.intencaoID != o.documento.intencaoAtual.id {
                 Text("Esta versão foi preparada para uma intenção anterior. Confira o que ainda serve.")
                     .font(Tema.meta).foregroundStyle(Tema.aviso)
@@ -810,6 +811,19 @@ struct TrabalhoView: View {
         .transition(Tema.transicao(.asymmetric(
             insertion: .move(edge: .bottom).combined(with: .opacity), removal: .opacity
         ), reduzido: reduceMotion))
+    }
+
+    /// ADR 08m: por que esta versão nasceu, quando isso está REGISTRADO. Fora
+    /// da prática não há "o que mudou" descrito pelo modelo — a entrega
+    /// delegada não tem contrato de saída com essa chave, e resumir a
+    /// diferença por conta própria seria o app afirmando o que não observou.
+    /// Diz-se o que se sabe: a origem e o motivo guardados no pedido.
+    @ViewBuilder private func causaDaVersao(_ a: DocumentoTrabalho.Artefato, oficina o: OficinaTrabalho) -> some View {
+        if a.pratica == nil, let aj = o.documento.ajuste(de: a) {
+            Text("\(PraticaTrabalho.origemDoAjuste(aj, tentativaEm: aj.evidenciaID.flatMap { id in o.documento.evidencias.first { $0.id == id }?.data })) \(aj.motivo)")
+                .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+                .accessibilityIdentifier("trabalho-causa-da-versao")
+        }
     }
 
     /// ADR 05p/05q: a checagem local ao lado do produtor e, quando o autor
@@ -970,8 +984,16 @@ struct TrabalhoView: View {
             ForEach(o.documento.acoes) { acao in
                 VStack(alignment: .leading, spacing: Tema.entreItens) {
                     Text(acao.texto).font(Tema.chrome.weight(.semibold))
+                    // ADR 08m: dois eixos, duas linhas. O ATO ("realizei") e o
+                    // RESULTADO ("funcionou") nunca se resumem um no outro, e
+                    // o terceiro — o horário — está na ficha logo abaixo.
                     Text(acao.estado == .executada ? "Você marcou como realizada" : acao.estado == .cancelada ? "Cancelado" : "Realização ainda não confirmada")
                         .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+                        .accessibilityIdentifier("trabalho-estado-do-ato")
+                    Text(o.documento.observacao(de: acao.id)?.resultado.map { "Resultado que você informou: \($0.rotulo)" }
+                         ?? "Resultado ainda não informado")
+                        .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+                        .accessibilityIdentifier("trabalho-resultado-observado")
                     if let id = acao.artefatoID {
                         Text("Material: versão \(numero(id, em: o.documento))")
                             .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
@@ -990,13 +1012,34 @@ struct TrabalhoView: View {
                         if acao.estado == .pendente {
                             acaoSecundaria("Realizei esta ação") { aplicar(o) { try $0.marcarExecutada(acao.id) } }
                                 .accessibilityIdentifier("trabalho-marcar-realizada")
+                            // ADR 08m: `cancelada` existia no contrato e não
+                            // tinha gesto. Desistir de um ato é uma coisa que
+                            // acontece; sem esta saída, a lista só cresce.
+                            // ADR 08n: e ela some quando já há resultado
+                            // informado — com o motivo dito, porque gesto que
+                            // desaparece calado parece defeito.
+                            if o.documento.podeCancelar(acao.id) {
+                                acaoSecundaria("Cancelar esta ação") { aplicar(o) { try $0.cancelarAcao(acao.id) } }
+                                    .accessibilityIdentifier("trabalho-cancelar-acao")
+                            } else {
+                                Text("Esta ação não se cancela mais: você já informou um resultado, e cancelar apagaria o que aconteceu.")
+                                    .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+                                    .accessibilityIdentifier("trabalho-cancelar-indisponivel")
+                            }
                         }
                         let chave = "relato-\(acao.id.uuidString)"
+                        let chaveResultado = "resultado-\(acao.id.uuidString)"
                         campo("O que aconteceu?", chave: chave, exemplo: "O que funcionou ou faltou")
+                        trilhoDoResultado(chaveResultado)
+                        Text("Informar o resultado é opcional, e vale para tentativa parcial e para fracasso. Sem ele, o relato fica como não observado — nunca como sucesso.")
+                            .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
                         acaoSecundaria("Registrar meu relato") {
                             guard !faltaCampo(chave) else { return }
                             let texto = rascunhos[chave] ?? ""
-                            aplicar(o, limpar: [chave]) { try $0.registrarRelato(texto, acaoID: acao.id) }
+                            let resultado = DocumentoTrabalho.ResultadoObservado(rawValue: rascunhos[chaveResultado] ?? "")
+                            aplicar(o, limpar: [chave, chaveResultado]) {
+                                try $0.registrarRelato(texto, acaoID: acao.id, resultado: resultado)
+                            }
                         }
                         .accessibilityHint(vazio(chave) ? "Escreva o relato primeiro" : "")
                         .accessibilityIdentifier("trabalho-registrar-relato")
@@ -1008,6 +1051,68 @@ struct TrabalhoView: View {
             }
         }
         .id("trabalho-atos")
+    }
+
+    /// ADR 08m: as três formas do resultado, no mesmo trilho do apoio — a
+    /// pessoa escolhe uma ou nenhuma, e tocar de novo desmarca. Fracasso e
+    /// parcial ficam ao lado de "funcionou", com o mesmo peso: a lista que só
+    /// oferece sucesso obriga a mentir ou a calar.
+    @ViewBuilder private func trilhoDoResultado(_ chave: String) -> some View {
+        let escolhido = DocumentoTrabalho.ResultadoObservado(rawValue: rascunhos[chave] ?? "")
+        let pilulas = ForEach(DocumentoTrabalho.ResultadoObservado.allCases, id: \.self) { r in
+            Pilula(r.rotulo, forma: .filtro, selecionada: escolhido == r) {
+                if escolhido == r { limpar([chave]) } else { definir(chave, r.rawValue) }
+            }
+            .accessibilityAddTraits(escolhido == r ? [.isSelected] : [])
+            .accessibilityIdentifier("trabalho-resultado-\(r.rawValue)")
+        }
+        // A mesma razão do trilho do apoio: em tamanho de acessibilidade três
+        // cápsulas não cabem lado a lado e empurram a folha para fora da tela.
+        if tamanhoTexto.isAccessibilitySize {
+            VStack(alignment: .leading, spacing: 8) { pilulas }
+        } else {
+            HStack(spacing: 8) { pilulas }
+        }
+    }
+
+    /// ADR 08m: a orientação seguinte NASCE do resultado informado. Três
+    /// resultados, três pedidos diferentes — sem isto, "revisar com estes
+    /// relatos" mandava a mesma frase quando funcionou e quando fracassou, e
+    /// o autor não tinha por que contar que deu errado.
+    /// ADR 08o: o resultado é de UMA ação, e a orientação diz qual. Sem o
+    /// nome, um Trabalho com três ações e três resultados manda "propor
+    /// caminho diferente" enquanto a ação principal funcionou.
+    static func orientacaoDoRelato(_ r: DocumentoTrabalho.ResultadoObservado?,
+                                   acao: String? = nil) -> String {
+        let sujeito = acao.map { "a ação “\($0)”" } ?? "a ação"
+        return switch r {
+        case .funcionou:
+            "A pessoa informou que \(sujeito) FUNCIONOU. Preserve o que ela relatou ter funcionado e não o reescreva; a revisão avança a partir daí, tratando o que ainda está em aberto. Não declare que ela aprendeu."
+        case .parcial:
+            "A pessoa informou que \(sujeito) funcionou EM PARTE. Preserve o que ela relatou ter funcionado e trabalhe apenas o que ela relatou ter faltado. Não refaça o que já serviu."
+        case .naoFuncionou:
+            "A pessoa informou que \(sujeito) NÃO FUNCIONOU. Proponha um caminho diferente, não uma variação do mesmo; diga o que está mudando. Não trate o relato dela como erro dela."
+        case nil:
+            "Revise a versão à luz dos relatos registrados e do resultado desejado. Diferencie o que foi observado do que ainda é incerto e proponha um ajuste concreto."
+        }
+    }
+
+    /// ADR 08o: o texto da ação em que a pessoa informou o último resultado.
+    /// `nil` = nada observado, ou ação que já não está na lista.
+    static func acaoObservada(_ d: DocumentoTrabalho) -> String? {
+        guard let e = d.ultimaObservacao else { return nil }
+        return d.acoes.first { $0.id == e.acaoID }?.texto
+    }
+
+    /// A causa do pedido nascido de um relato, como DADO: aponta a evidência
+    /// em que a pessoa informou o resultado. `nil` = nenhum resultado
+    /// informado — e aí não há causa a registrar, só um pedido comum.
+    static func causaDoRelato(_ d: DocumentoTrabalho) -> DocumentoTrabalho.Ajuste? {
+        guard let e = d.ultimaObservacao, let r = e.resultado else { return nil }
+        let motivo = "Você informou o resultado desta ação: \(r.rotulo). Seu relato: \(e.texto)"
+        return .init(gatilho: .resultadoInformado,
+                     motivo: String(motivo.prefix(PraticaTrabalho.Limite.motivoDoAjuste)),
+                     evidenciaID: e.id)
     }
 
     /// Só relatos: a tentativa já está em Praticar, e a dificuldade (hipótese,
@@ -1022,6 +1127,12 @@ struct TrabalhoView: View {
                     VStack(alignment: .leading, spacing: 6) {
                         Text("Relato de \(e.atribuidaA) · \(e.data.formatted(date: .abbreviated, time: .shortened))")
                             .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+                        // ADR 08m: o resultado informado fica ao lado do relato
+                        // que o informou. Relato antigo diz "não observado" —
+                        // ninguém lhe atribui sucesso por releitura.
+                        Text(e.resultado.map { "Resultado informado: \($0.rotulo)" } ?? "Resultado não observado")
+                            .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+                            .accessibilityIdentifier("trabalho-relato-resultado")
                         Text(e.texto).textSelection(.enabled)
                         if let acao = o.documento.acoes.first(where: { $0.id == e.acaoID }) {
                             Text("Ação: \(acao.texto)").font(Tema.meta).foregroundStyle(Tema.tintaSuave)
@@ -1035,11 +1146,25 @@ struct TrabalhoView: View {
                     .cartao(.papel)
                 }
                 if !o.documento.praticaPedida || PraticaTrabalho.oferta(contaLigada: ContaGrok.ligada) == nil {
+                    // ADR 08m: a orientação seguinte muda pelo resultado, e a
+                    // causa vai junto como dado — o documento passa a dizer
+                    // que esta versão nasceu do que a pessoa observou.
+                    let causa = Self.causaDoRelato(o.documento)
+                    let observada = Self.acaoObservada(o.documento)
+                    let ondeInformou = observada.map { ", na ação “\($0)”" } ?? ""
+                    // ADR 08o: a premissa vem ANTES do botão — quem lê por
+                    // VoiceOver ouve de que resultado a revisão parte antes de
+                    // ter o gesto na mão, não depois.
+                    if let r = o.documento.ultimaObservacao?.resultado {
+                        Text("A revisão vai partir do último resultado que você informou\(ondeInformou): \(r.rotulo).")
+                            .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+                            .accessibilityIdentifier("trabalho-revisao-parte-do-resultado")
+                    }
                     acaoSecundaria(o.documento.praticaPedida ? "Adaptar exercício aos relatos" : "Revisar com estes relatos") {
                         guard !levouAoQueFalta(o, campoObrigatorio: nil) else { return }
-                        definir("pedido", "Revise a versão à luz dos relatos registrados e do resultado desejado. Diferencie o que foi observado do que ainda é incerto e proponha um ajuste concreto.")
+                        definir("pedido", Self.orientacaoDoRelato(o.documento.ultimaObservacao?.resultado, acao: observada))
                         let instrucao = rascunhos["pedido"] ?? ""
-                        o.gerar(instrucao, ajuste: Self.causaDoPedidoEscrito(o.documento, instrucao))
+                        o.gerar(instrucao, ajuste: causa ?? Self.causaDoPedidoEscrito(o.documento, instrucao))
                     }
                     .accessibilityIdentifier("trabalho-revisar")
                 }

@@ -169,15 +169,28 @@ nonisolated enum PraticaTrabalho {
     /// entra — ela disse que a interpretação estava errada, e a correção dela
     /// vale mais que a leitura da IA.
     static func nucleoDoAjuste(_ d: DocumentoTrabalho, _ aj: DocumentoTrabalho.Ajuste) -> String {
+        let gatilho: String
+        switch aj.gatilho {
+        case .pedidoDoAutor: gatilho = "a pessoa pediu"
+        case .necessidadePercebida: gatilho = "leitura da tentativa dela"
+        case .resultadoInformado: gatilho = "o resultado que ela informou"
+        }
         var linhas = ["POR QUE ESTE AJUSTE (núcleo obrigatório — não resuma, não omita):",
-                      "Gatilho: \(aj.gatilho == .pedidoDoAutor ? "a pessoa pediu" : "leitura da tentativa dela")",
+                      "Gatilho: \(gatilho)",
                       "Motivo registrado pelo aplicativo: \(aj.motivo)"]
         guard let evidenciaID = aj.evidenciaID,
               let evidencia = d.evidencias.first(where: { $0.id == evidenciaID }) else {
             return linhas.joined(separator: "\n")
         }
+        // ADR 08m: o relato que sustenta um ajuste não é uma tentativa; dizer
+        // "TENTATIVA" sobre ele seria o app afirmando um ato que não houve.
+        guard let tentativa = evidencia.tentativa else {
+            linhas.append("RELATO QUE SUSTENTA O AJUSTE (escrito pela pessoa em \(evidencia.data.ISO8601Format())):\n\(evidencia.texto)")
+            linhas.append("RESULTADO QUE ELA INFORMOU: \(evidencia.resultado?.rotulo ?? "não observado"). É a observação dela, não uma medição: não a trate como prova de aprendizagem.")
+            return linhas.joined(separator: "\n")
+        }
         linhas.append("TENTATIVA QUE SUSTENTA O AJUSTE (escrita pela pessoa em \(evidencia.data.ISO8601Format())):\n\(evidencia.texto)")
-        linhas.append("APOIO QUE ELA DIZ TER USADO: \(evidencia.tentativa?.apoioUtilizado ?? "não registrado")")
+        linhas.append("APOIO QUE ELA DIZ TER USADO: \(tentativa.apoioUtilizado)")
         let pratica = evidencia.artefatoID.flatMap { id in d.artefatos.first { $0.id == id }?.pratica }
         if let leitura = d.leituraDoAjuste(aj) {
             linhas.append("LEITURA ATRIBUÍDA A \(leitura.executor) (\(leitura.estado.rawValue)):")
@@ -208,6 +221,11 @@ nonisolated enum PraticaTrabalho {
         case .necessidadePercebida:
             let quando = tentativaEm.map { " de \($0.formatted(date: .abbreviated, time: .shortened))" } ?? ""
             return "A partir da leitura da sua tentativa\(quando)."
+        case .resultadoInformado:
+            // ADR 08m: a origem é a observação DELA. O app não diz que leu nem
+            // que mediu: repete de onde veio a mudança.
+            let quando = tentativaEm.map { " em \($0.formatted(date: .abbreviated, time: .shortened))" } ?? ""
+            return "A partir do resultado que você informou\(quando)."
         }
     }
 

@@ -6210,3 +6210,137 @@ pedido ativo é interrompido na abertura do documento. Ele está provado por tes
 (`editarDuranteAAdaptacaoNaoTrocaODocumentoDebaixoDaPessoa`) e por código, não por
 captura. A lacuna da jornada com provedor real continua exatamente como a 08j a
 declarou — é prova da frente Q.
+
+## ADR 2026-09-08m — O resultado da ação volta ao trabalho: agendado, feito e funcionou (volta E1)
+
+`EstadoAcao` tinha três casos e a auditoria de 07/09 achou os três **mortos**: não
+havia como dizer que uma ação foi **observada**, `cancelada` era **inalcançável**
+na tela, e o relato do que aconteceu **não mudava a orientação seguinte**. O
+contrato desta volta é o item 5 da fila do dono: *"o resultado informado muda a
+próxima orientação; agendado, feito e funcionou continuam distintos"*.
+
+**Observar é outro eixo, não um quarto estado.** `ResultadoObservado` —
+`funcionou`, `parcial`, `naoFuncionou` — mora no **relato**
+(`Evidencia.resultado`), não na ação. É de propósito: executar é ato, observar é
+resultado, e um existe sem o outro. A tela prova os dois: uma ação **pendente**
+com "Resultado que você informou: Não funcionou", e uma **executada** sem
+resultado nenhum. `observacao(de:)` devolve o último resultado informado para uma
+ação; `nil` é **não observado**, nunca "deu certo por omissão".
+
+**Fracasso e parcial são de primeira classe.** As três formas estão no mesmo
+trilho de cápsulas, com o mesmo peso — a ferramenta que só aceita sucesso mente
+por omissão, e o dono pediu explicitamente as tentativas parciais e os fracassos.
+Informar continua **opcional**: contar o que houve sem classificar é honesto, e a
+linha ao lado diz para onde isso vai ("sem ele, o relato fica como não observado —
+nunca como sucesso"). Nada aqui é nota, pontuação ou "aprendeu": "funcionou" é
+observação do autor, não certificação do app.
+
+**Migração: nenhum estado velho vira resultado por releitura.** Documento gravado
+antes deste contrato não tem a chave, decodifica `nil` e fica **não observado** —
+inclusive o relato de uma ação marcada como `executada`. É a mesma regra que a 05r
+fixou para a tentativa. E `resultado` só existe em relato: numa tentativa,
+"funcionou" seria a resposta de um exercício se declarando certa, e quem lê
+tentativa é a conferência (`validar()` recusa).
+
+**`cancelada` ganha gesto.** "Cancelar esta ação" no cartão, e só sobre o que está
+**pendente**: o que a pessoa marcou como realizado aconteceu, e desfazer isso
+apagaria um ato. A agenda e o aviso já liam `pendente`, então cancelar sai do
+calendário e cala o alarme pelas rotas que já existiam.
+
+**A orientação seguinte muda pelo resultado, e o documento diz por quê.** Reuso do
+mecanismo da 08j, e não um segundo: a causa é `Pedido.ajuste`, o vínculo é
+`Artefato.pedidoID`. `GatilhoDoAjuste` ganha `resultadoInformado` — e o acréscimo
+não fura a lista fechada, porque o motivo **não é inventado pelo app**: é o
+resultado que a pessoa informou, citado com o relato dela. `validarAjuste` exige
+que a evidência apontada exista e **traga um resultado**; `conferenciaID` e
+`criterioIDs` têm de estar vazios, porque aqui não há leitura de tentativa a
+citar. "Revisar com estes relatos" passa a escrever **três instruções diferentes**
+— preservar o que funcionou, trabalhar só o que faltou, propor um caminho
+diferente — e a tela diz de qual resultado a revisão vai partir, antes do toque.
+O contexto da IA passa a distinguir os três eixos na mesma linha: *estado
+registrado* · *resultado informado pela pessoa* (ou "não observado") · material.
+
+**O que ficou de fora, e por quê.** A entrega **delegada** não recebe o
+`nucleoDoAjuste` como núcleo obrigatório: ela tem duas janelas (remoto e aparelho)
+e nenhuma rota de `ajusteIndisponivel`, então exigir a causa inteira ali só
+produziria meia causa mandada calada. A causa chega ao pedido pela instrução (que
+não se corta) e pelo `contextoDeRetorno`; a explicação ao autor vem do documento,
+não do prompt. E "o que mudou" descrito pelo modelo continua exclusivo da prática,
+onde o contrato de saída tem a chave `mudanca`: resumir a diferença de uma entrega
+livre seria o app afirmando o que não observou. Fora da prática, a versão diz a
+**origem e o motivo** guardados — `causaDaVersao` no cartão da versão.
+
+**Limite de instrumento, declarado.** A versão nascida do relato **não se
+fotografa** neste aparelho: sem conta Grok o pedido nasce com a causa, é guardado
+e falha. A causa registrada foi conferida no `default.store` do App Group
+(`gatilho: resultadoInformado`, `evidenciaID` do relato de fracasso, motivo com a
+frase da pessoa) e a tela mostra a falha, não uma versão inventada. A jornada com
+provedor real continua sendo prova da frente Q.
+
+## ADR 2026-09-08n — Cancelar não apaga o que já foi observado (volta E1-B)
+
+A 08m separou dois eixos — **executar** é ato, **observar** é resultado — e deixou
+a invariante do cancelamento olhando **só um deles**. `cancelarAcao` exigia
+`estado == .pendente`, e uma observação **não muda o estado** de propósito. Logo o
+mesmo cartão que dizia *"Resultado que você informou: Funcionou"* ainda oferecia
+*"Cancelar esta ação"*: dava para apagar o que a pessoa já tinha dito que
+aconteceu. O G3 reproduziu na própria captura `02` da volta anterior.
+
+É a doença que a V12 nomeou e que derrubou a V17: **a regra olha uma dimensão e o
+mundo tem duas**. Separar os eixos foi decisão do dono, e ela obriga a invariante a
+olhar os dois.
+
+**A garantia é do agregado, nas duas ordens.** `podeCancelar(_:)` exige `pendente`
+**e** `observacao(de:) == nil`; `cancelarAcao` passa a lê-lo. A ordem inversa é
+outro caminho e por isso tem outra guarda: `registrarRelato` recusa `resultado`
+numa ação **cancelada** — contar o que houve continua valendo, classificar o
+resultado do que se desistiu de fazer, não. E `validar()` recusa o par
+`cancelada` + evidência com resultado, para que nenhuma importação, migração ou
+chamador novo grave pelas costas o estado que os dois gestos recusam. Garantia que
+vive só na tela é contornável por outra rota — foi por isso que o G3 da V17
+reprovou.
+
+**Na tela, o gesto some e diz por quê.** Onde havia "Cancelar esta ação" com
+resultado informado, o cartão passa a dizer: *"Esta ação não se cancela mais: você
+já informou um resultado, e cancelar apagaria o que aconteceu."* Gesto que
+desaparece calado parece defeito; a linha é do mesmo `Tema.meta`/`tintaSuave` das
+outras linhas do cartão, sem componente novo. A ação **pendente e não observada**
+continua com o gesto — provado na mesma tela, não só no teste.
+
+**O que continua valendo.** Ação `executada` segue sem cancelamento (08m), relato
+sem classificação continua entrando em qualquer estado, e o resultado observado
+continua sendo do relato, nunca um quarto estado da ação.
+
+## ADR 2026-09-08o — A orientação diz de QUAL ação está falando (volta E1-C)
+
+A 08m prometeu que **o resultado informado muda a próxima orientação**. Ela
+cumpria a promessa lendo `ultimaObservacao` — o último relato com resultado do
+**Trabalho inteiro** — e nunca dizia **de que ação** esse resultado veio. Com uma
+ação só, funciona por coincidência. Com três ações e três resultados, o juiz do G4
+fotografou o defeito (`g4-e1-09`, `g4-e1-11`): proposta *Funcionou*, orçamento *em
+parte*, ensaio *Não funcionou* — e a instrução gerada mandava *"proponha um caminho
+diferente"* num Trabalho cuja ação principal a pessoa disse que **funcionou**. O
+botão falava em "estes relatos" (plural) e a linha num resultado (singular) sem
+nome.
+
+**A ação passa a ser nomeada nos dois textos.** `TrabalhoView.acaoObservada(_:)`
+resolve o texto da ação do último resultado num lugar só; a linha da tela diz *"A
+revisão vai partir do último resultado que você informou, na ação “X”: Não
+funcionou."* e `orientacaoDoRelato(_:acao:)` diz à IA *"A pessoa informou que a
+ação “X” NÃO FUNCIONOU…"*. Os três textos por resultado não mudaram de conteúdo —
+só ganharam sujeito. O contexto já levava o resultado por ação
+(`OficinaTrabalho`); o que faltava era o **pedido vigente** concordar com ele, e é
+o pedido que prevalece.
+
+**E a premissa vem antes do gesto.** A linha "A revisão vai partir…" ficava
+**abaixo** do botão "Revisar com estes relatos": o VoiceOver lia relato → botão →
+e só então de que resultado a revisão parte. Passa a vir antes do botão, sem
+componente novo e sem mudar tinta ou fonte.
+
+**O que fica em aberto, e é honesto dizer.** O cartão da ação continua mostrando
+só o **último** resultado dela (o histórico inteiro fica em "O que aconteceu"), e
+o motivo gravado em `causaDoRelato` continua dizendo "desta ação" sem nomeá-la —
+ali o motivo já carrega o relato inteiro contra o teto `Limite.motivoDoAjuste`, e
+nomear a ação empurraria o relato para fora. Os dois são P3 do G4, registrados,
+não consertados nesta volta.
+
