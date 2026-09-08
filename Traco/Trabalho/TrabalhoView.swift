@@ -359,7 +359,8 @@ struct TrabalhoView: View {
                 Pilula(combinando ? "Preparar entrega e exercício" : o.documento.praticaPedida ? "Preparar exercício com IA" : o.documento.versaoAtual == nil ? "Preparar com IA" : "Preparar nova versão com IA",
                        forma: .larga, selecionada: true) {
                     guard !levouAoQueFalta(o, campoObrigatorio: "pedido") else { return }
-                    o.gerar(rascunhos["pedido"] ?? "")
+                    let instrucao = rascunhos["pedido"] ?? ""
+                    o.gerar(instrucao, ajuste: Self.causaDoPedidoEscrito(o.documento, instrucao))
                 }
                     .accessibilityIdentifier("trabalho-gerar")
                     .accessibilityHint(travado || vazio("pedido") ? motivoDoTravamento(o) : "")
@@ -643,6 +644,7 @@ struct TrabalhoView: View {
             // Duas leituras, dois progressos: quem tocou "conferir e adaptar"
             // espera outra coisa de quem tocou só "conferir".
             ProgressView("A IA está conferindo e, se a leitura sustentar, adaptando o exercício…").font(Tema.meta)
+                .id("pratica-adaptando")
                 .accessibilityIdentifier("pratica-adaptando")
         } else {
             acaoSecundaria("Conferir minha tentativa") {
@@ -666,20 +668,23 @@ struct TrabalhoView: View {
                     .accessibilityIdentifier("pratica-leitura-sem-ajuste")
             }
         }
-        if PraticaTrabalho.oferta(contaLigada: ContaGrok.ligada) == nil, !o.conferindoTentativa {
-            acaoSecundaria("Adaptar o próximo exercício") {
-                guard !levouAoQueFalta(o, campoObrigatorio: nil) else { return }
-                definir("pedido", "Prepare um novo exercício a partir da minha última tentativa, do feedback e dos relatos. Preserve as restrições ainda aplicáveis e trabalhe a dificuldade observada, sem resolver minha próxima tentativa nem afirmar aprendizagem.")
-                // ADR 08j: mesmo o ajuste que a pessoa pede registra a causa.
-                // A versão seguinte deixa de depender de inferência para dizer
-                // de onde veio, e o gatilho é `pedidoDoAutor` — não "percebi".
-                o.gerar(rascunhos["pedido"] ?? "",
-                        ajuste: .init(gatilho: .pedidoDoAutor,
-                                      motivo: "Você pediu um exercício adaptado a partir desta tentativa.",
-                                      evidenciaID: e.id))
-            }
-            .accessibilityIdentifier("pratica-adaptar-exercicio")
-        }
+    }
+
+    /// ADR 08k: o pedido que a PESSOA escreve para reescrever o exercício
+    /// também registra a sua causa — e a causa é o que ela escreveu, não uma
+    /// frase enlatada. Antes disso, a única via do `pedidoDoAutor` era a
+    /// cápsula "Adaptar o próximo exercício", uma quarta ação empilhada
+    /// disputando com "Conferir", "Conferir e adaptar" e "Nova tentativa"
+    /// (Simplicidade 7 da revisão): retirá-la sem isto teria apagado a via.
+    ///
+    /// Nenhuma evidência é apontada: a pessoa escreveu um pedido, não disse a
+    /// qual tentativa ele responde, e deduzir isso seria inventar causalidade.
+    /// Fora da prática, ou sem exercício vigente, não há ajuste a explicar —
+    /// preparar não é ajustar, e a primeira versão não nasce de nenhuma.
+    static func causaDoPedidoEscrito(_ d: DocumentoTrabalho, _ instrucao: String) -> DocumentoTrabalho.Ajuste? {
+        let limpo = instrucao.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard d.praticaPedida, d.versaoAtual?.pratica != nil, !limpo.isEmpty else { return nil }
+        return .init(gatilho: .pedidoDoAutor, motivo: String(limpo.prefix(PraticaTrabalho.Limite.motivoDoAjuste)))
     }
 
     private var botaoNovaTentativa: some View {
@@ -787,10 +792,15 @@ struct TrabalhoView: View {
             if editandoVersao || Self.alterado(rascunhos, "versao", em: o.documento) {
                 campo("Editar a versão", chave: "versao", padrao: a.conteudo)
                     .accessibilityIdentifier("trabalho-editar-versao")
-                acaoSecundaria("Guardar como nova versão") { guardarVersao(o) }
+                acaoSecundaria("Guardar como nova versão") { guardarVersao(o, base: a.id) }
                     .accessibilityHint(vazio("versao") ? "Escreva a versão primeiro" : "")
             } else {
+                // ADR 08k: enquanto a IA prepara ou adapta, entrar em edição
+                // abriria a fresta que o contrato proíbe — a pessoa editaria a
+                // versão N e a N+1 chegaria por baixo dela. Tocar leva ao
+                // progresso em curso, como em toda ação que compete com ele.
                 acaoSecundaria("Editar esta versão") {
+                    guard !preparacaoEmCurso(o) else { return }
                     definir("versao", a.conteudo)
                     gaveta { editandoVersao = true }
                 }
@@ -1028,7 +1038,8 @@ struct TrabalhoView: View {
                     acaoSecundaria(o.documento.praticaPedida ? "Adaptar exercício aos relatos" : "Revisar com estes relatos") {
                         guard !levouAoQueFalta(o, campoObrigatorio: nil) else { return }
                         definir("pedido", "Revise a versão à luz dos relatos registrados e do resultado desejado. Diferencie o que foi observado do que ainda é incerto e proponha um ajuste concreto.")
-                        o.gerar(rascunhos["pedido"] ?? "")
+                        let instrucao = rascunhos["pedido"] ?? ""
+                        o.gerar(instrucao, ajuste: Self.causaDoPedidoEscrito(o.documento, instrucao))
                     }
                     .accessibilityIdentifier("trabalho-revisar")
                 }
@@ -1295,7 +1306,15 @@ struct TrabalhoView: View {
     }
 
     /// Enquanto a IA prepara, o que competiria com ela leva ao progresso dela.
+    /// ADR 08k: adaptar também conta. Entre a leitura da tentativa e a versão
+    /// seguinte não existe `pedidoAtivo` — era por essa fresta que a edição
+    /// começava e o documento trocava debaixo dela.
     private func preparacaoEmCurso(_ o: OficinaTrabalho) -> Bool {
+        if o.adaptando {
+            rolarPara = "pratica-adaptando"
+            anunciar("A IA está conferindo e adaptando o exercício. Espere a versão chegar.")
+            return true
+        }
         guard o.documento.pedidoAtivo != nil else { return false }
         rolarPara = "trabalho-preparando"
         anunciar("A IA já está preparando. Espere ou cancele a preparação em curso.")
@@ -1327,10 +1346,13 @@ struct TrabalhoView: View {
         else if !o.salvo { limparAposCommit = chaves }
     }
 
-    private func guardarVersao(_ o: OficinaTrabalho) {
+    /// ADR 08k: `base` é a versão que estava na tela quando a edição começou.
+    /// O documento recusa guardar por cima de outra — bloquear a entrada em
+    /// edição é guarda de tela, e guarda de tela não é invariante.
+    private func guardarVersao(_ o: OficinaTrabalho, base: UUID? = nil) {
         guard !faltaCampo("versao") else { return }
         let texto = rascunhos["versao"] ?? ""
-        aplicar(o, limpar: ["versao"]) { try $0.guardarVersaoHumana(texto) }
+        aplicar(o, limpar: ["versao"]) { try $0.guardarVersaoHumana(texto, base: base) }
         if o.salvo { editandoVersao = false }
     }
 

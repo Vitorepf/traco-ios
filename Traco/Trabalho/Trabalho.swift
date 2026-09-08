@@ -379,6 +379,11 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
         // A causa é conferida ANTES de tocar no documento: um ajuste recusado
         // não pode deixar para trás um pedido cancelado que ninguém pediu.
         try validarAjuste(pedido)
+        // ADR 08k: leitura contestada não sustenta ajuste NOVO. A checagem é
+        // aqui, no nascimento, e não em `validar`: a leitura que a pessoa
+        // contestou DEPOIS continua explicando a versão que já nasceu dela —
+        // recusar o documento inteiro por isso apagaria a história.
+        if let aj = pedido.ajuste, aj.conferenciaID != nil, leituraDoAjuste(aj) == nil { throw Erro.referencia }
         cancelarPedido()
         pedidos.append(pedido)
         return pedido
@@ -506,8 +511,14 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
               i == artefatos.count - 1 else { throw Erro.pedidoAntigo }
         artefatos[i].conferencias = (artefatos[i].conferencias ?? []) + [c]
     }
-    mutating func guardarVersaoHumana(_ texto: String) throws {
+    /// ADR 08k: `base` é a versão que a pessoa TINHA na tela quando começou a
+    /// editar. Se outra chegou no meio — uma adaptação que a leitura sustentou,
+    /// por exemplo —, guardar por cima diria que este texto responde a um
+    /// material que ela não leu. `nil` = base não declarada (importação e
+    /// registro antigo), e aí ninguém reconstrói o que ela estava lendo.
+    mutating func guardarVersaoHumana(_ texto: String, base: UUID? = nil) throws {
         guard !texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw Erro.vazio }
+        guard base == nil || base == versaoAtual?.id else { throw Erro.pedidoAntigo }
         cancelarPedido()
         let anterior = versaoAtual
         let origem: Origem = anterior.map { $0.origem == .pessoa ? .pessoa : .mista } ?? .pessoa
@@ -555,7 +566,17 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
         guard let aj = p.ajuste else { return }
         guard !aj.motivo.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw Erro.vazio }
         if aj.gatilho == .necessidadePercebida {
-            guard aj.evidenciaID != nil, aj.conferenciaID != nil else { throw Erro.referencia }
+            // ADR 08k: "percebi" sem critério apontado é o app afirmando uma
+            // observação que não tem onde ler.
+            guard aj.evidenciaID != nil, aj.conferenciaID != nil, !aj.criterioIDs.isEmpty else { throw Erro.referencia }
+        }
+        // ADR 08k: a mesma leitura não sustenta DUAS versões. Isto era guarda
+        // de tela em `conferirEAdaptar`, e guarda de tela é contornável por
+        // outra rota, por importação e pelo chamador seguinte. Aqui vale para
+        // todos: o documento recusa o segundo ajuste da mesma leitura.
+        if let conferenciaID = aj.conferenciaID {
+            guard !pedidos.contains(where: { $0.id != p.id && $0.ajuste?.conferenciaID == conferenciaID })
+            else { throw Erro.referencia }
         }
         guard let evidenciaID = aj.evidenciaID else {
             guard aj.conferenciaID == nil, aj.criterioIDs.isEmpty else { throw Erro.referencia }
@@ -564,7 +585,14 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
         guard let evidencia = evidencias.first(where: { $0.id == evidenciaID }),
               let tentativa = evidencia.tentativa else { throw Erro.referencia }
         if let conferenciaID = aj.conferenciaID {
-            guard tentativa.conferencias?.contains(where: { $0.id == conferenciaID }) ?? false else { throw Erro.referencia }
+            // ADR 08k: e a leitura citada tem de DIZER o que a causa afirma —
+            // conferência concluída, e cada critério citado divergente nela.
+            // Leitura inconclusiva ou critério que ela deu por atendido não
+            // sustentam a reescrita do exercício de ninguém.
+            guard let leitura = tentativa.conferencias?.first(where: { $0.id == conferenciaID }),
+                  leitura.estado == .concluida else { throw Erro.referencia }
+            let divergentes = Set(leitura.resultados.filter { $0.situacao == .divergencia }.map(\.criterioID))
+            guard Set(aj.criterioIDs).isSubset(of: divergentes) else { throw Erro.referencia }
         }
         let criterios = Set(evidencia.artefatoID
             .flatMap { id in artefatos.first { $0.id == id }?.pratica?.criterios.map(\.id) } ?? [])

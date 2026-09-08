@@ -5772,3 +5772,52 @@ indisponibilidade real. É o mesmo instrumento que a 06c criou para o ditado. A
 jornada foi observada num documento plantado no aparelho, não gerado pelo
 provedor: esta ADR descreve o contrato e a superfície, e **não** certifica a
 qualidade semântica do exercício adaptado, que continua sendo prova da frente Q.
+
+## ADR 2026-09-08k — A garantia sai da tela e vira invariante do documento (volta V17-B)
+
+A revisão independente da V17 passou nos sete pontos do contrato e **reprovou por
+dois P1 com a mesma doença**: a garantia existia **na tela** e não no agregado. A
+lição do dia é essa: **a lei tem de morar onde ninguém pode contorná-la** — outra
+rota, uma importação ou uma regressão de chamador passam por cima de um `guard`
+de View.
+
+**A unicidade e a semântica da leitura passam a ser do documento.**
+`OficinaTrabalho.conferirEAdaptar` impedia a repetição; `validarAjuste` só conferia
+que o `conferenciaID` existia. Agora, no agregado: `necessidadePercebida` exige
+critério apontado; a leitura citada tem de estar **concluída** e cada critério
+citado tem de ser **divergência nela** — critério que a leitura deu por atendido
+não sustenta reescrita; e o mesmo `conferenciaID` **não aparece em dois**
+`Pedido.ajuste`, de modo que a N+2 da mesma leitura é recusada em `iniciarPedido`
+e um documento que a trouxesse é recusado em `validar()`.
+
+**A leitura contestada é checada no nascimento do pedido, não em `validar`.** Uma
+contestação vem DEPOIS da versão que ela explica; recusar o documento inteiro por
+isso apagaria a história. `iniciarPedido` recusa o ajuste novo apoiado numa
+leitura contestada; a versão que já nasceu dela continua guardada e explicada.
+
+**A troca de documento durante a edição.** Enquanto a IA prepara ou adapta, a
+folha **não deixa entrar em edição** — tocar leva ao progresso em curso, como toda
+ação que compete com ele (e `adaptando` entra nessa conta: entre a leitura e a
+versão seguinte não existe `pedidoAtivo`, e era por essa fresta que a edição
+começava). E porque guarda de tela não é invariante, `guardarVersaoHumana` passa a
+aceitar a **base** que estava na tela e a recusar guardar por cima de outra: um
+texto escrito sobre a versão N não é guardado como resposta à N+1. `nil` = base
+não declarada (importação e registro antigo), e ninguém reconstrói o que a pessoa
+estava lendo.
+
+**A causa do pedido escrito pelo autor.** "Adaptar o próximo exercício" era o
+único chamador de UI que criava `Pedido.ajuste(gatilho: .pedidoDoAutor)` — cortar
+a cápsula sem mais apagaria a via do pedido explícito. Então, na ordem: primeiro
+**o que o autor escreve no campo vira a causa registrada** (`pedidoDoAutor`, com o
+texto dele como motivo, dentro da prática e com exercício vigente — preparar não é
+ajustar), e só então a cápsula enlatada saiu. A seção Praticar volta de quatro
+para três cápsulas e o anúncio da versão diz "A pedido seu." seguido do que ele
+escreveu. **Nenhuma evidência é apontada**: ele escreveu um pedido, não disse a
+qual tentativa responde, e deduzir isso seria inventar causalidade.
+
+**Limite de instrumento, declarado.** O bloqueio da entrada em edição **não se
+fotografa** neste aparelho: sem conta Grok, `adaptando` dura milissegundos e um
+pedido ativo é interrompido na abertura do documento. Ele está provado por teste
+(`editarDuranteAAdaptacaoNaoTrocaODocumentoDebaixoDaPessoa`) e por código, não por
+captura. A lacuna da jornada com provedor real continua exatamente como a 08j a
+declarou — é prova da frente Q.

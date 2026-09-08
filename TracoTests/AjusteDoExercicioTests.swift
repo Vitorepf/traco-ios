@@ -264,8 +264,11 @@ struct AjusteDoExercicioTests {
         let (o, trabalho) = try oficina(d, no: container)
         let n = try #require(o.documento.versaoAtual).id
 
+        // ADR 08k: a necessidade percebida aponta o critério que divergiu — a
+        // causa que não cabe é a mesma que o app monta, não uma mais frouxa.
         let ajuste = DocumentoTrabalho.Ajuste(gatilho: .necessidadePercebida, motivo: "a leitura apontou o verbo",
-                                              evidenciaID: evidenciaID, conferenciaID: c.id)
+                                              evidenciaID: evidenciaID, conferenciaID: c.id,
+                                              criterioIDs: [pratica.criterios[0].id])
         let tarefa = try #require(o.gerar(PraticaTrabalho.instrucaoDoAjuste, ajuste: ajuste))
         await tarefa.value
 
@@ -323,6 +326,161 @@ struct AjusteDoExercicioTests {
         #expect(reaberta.documento.artefatos.count == 2)
         #expect(reaberta.documento.pedidos.count == 2)
         #expect(reaberta.leituraSemAjuste == nil)
+    }
+
+    /// P1 da revisão G3 desta volta: a unicidade da leitura era guarda de
+    /// TELA — `conferirEAdaptar` a impunha e o agregado não. Outra rota, uma
+    /// importação ou um chamador novo passavam por cima. Aqui ela é do
+    /// documento: a N+2 da mesma leitura é recusada sem tela nenhuma, e uma
+    /// leitura que não concluiu, que foi contestada ou que deu o critério por
+    /// atendido não sustenta ajuste algum.
+    @Test func aMesmaLeituraNaoSustentaUmSegundoAjusteNoProprioDocumento() throws {
+        var (d, praticaN, evidenciaID) = try comTentativa()
+        let c = leitura(praticaN)
+        try d.registrarConferenciaDaTentativa(c, em: evidenciaID)
+        let causa = DocumentoTrabalho.Ajuste(gatilho: .necessidadePercebida,
+                                             motivo: "a leitura apontou o verbo",
+                                             evidenciaID: evidenciaID, conferenciaID: c.id,
+                                             criterioIDs: [praticaN.criterios[0].id])
+        let p = try d.iniciarPedido(PraticaTrabalho.instrucaoDoAjuste, ajuste: causa)
+        let adaptada = try pratica(preparada(criterios: ["Conjuga o verbo.", "Mantém os blocos."],
+                                             mudanca: "Mudei o segundo bloco."))
+        try d.receber(PraticaTrabalho.emMarkdown(adaptada), produtor: "Fake",
+                      pedidoID: p.id, pratica: adaptada)
+        #expect(d.artefatos.count == 2)
+
+        // A N+2 da MESMA leitura: recusada pelo agregado, sem passar pela tela.
+        #expect(throws: DocumentoTrabalho.Erro.self) {
+            try d.iniciarPedido(PraticaTrabalho.instrucaoDoAjuste, ajuste: causa)
+        }
+        #expect(d.artefatos.count == 2)
+        #expect(d.pedidos.count == 2) // e o pedido recusado não ficou para trás
+        #expect(d.pedidos.allSatisfy { $0.estado == .pronto })
+
+        // E um documento que trouxesse os dois ajustes da mesma leitura — de
+        // uma importação, de uma regressão — não passa na leitura do disco.
+        var forjado = d
+        forjado.pedidos.append(.init(instrucao: "por fora", intencaoID: d.intencaoAtual.id,
+                                     artefatoID: d.versaoAtual?.id, estado: .pronto, ajuste: causa))
+        #expect(throws: DocumentoTrabalho.Erro.self) { try forjado.validar() }
+
+        // Leitura que não concluiu não sustenta ajuste.
+        var comOutras = d
+        let inconclusa = leitura(praticaN, estado: .indisponivel)
+        try comOutras.registrarConferenciaDaTentativa(inconclusa, em: evidenciaID)
+        #expect(throws: DocumentoTrabalho.Erro.self) {
+            try comOutras.iniciarPedido("adapte", ajuste: .init(gatilho: .necessidadePercebida,
+                                                                motivo: "a leitura apontou",
+                                                                evidenciaID: evidenciaID,
+                                                                conferenciaID: inconclusa.id,
+                                                                criterioIDs: [praticaN.criterios[0].id]))
+        }
+
+        // Critério que a leitura deu por ATENDIDO não é divergência a tratar.
+        let outra = leitura(praticaN)
+        try comOutras.registrarConferenciaDaTentativa(outra, em: evidenciaID)
+        #expect(throws: DocumentoTrabalho.Erro.self) {
+            try comOutras.iniciarPedido("adapte", ajuste: .init(gatilho: .necessidadePercebida,
+                                                                motivo: "a leitura apontou",
+                                                                evidenciaID: evidenciaID,
+                                                                conferenciaID: outra.id,
+                                                                criterioIDs: [praticaN.criterios[1].id]))
+        }
+        // E "percebi" sem apontar critério nenhum não é percepção.
+        #expect(throws: DocumentoTrabalho.Erro.self) {
+            try comOutras.iniciarPedido("adapte", ajuste: .init(gatilho: .necessidadePercebida,
+                                                                motivo: "a leitura apontou",
+                                                                evidenciaID: evidenciaID,
+                                                                conferenciaID: outra.id))
+        }
+
+        // Contestada, a mesma leitura para de sustentar ajuste NOVO — e a
+        // versão que já nasceu dela continua guardada e explicada.
+        try comOutras.contestarLeitura(outra.id, em: evidenciaID, motivo: "não foi isso que eu errei")
+        #expect(throws: DocumentoTrabalho.Erro.self) {
+            try comOutras.iniciarPedido("adapte", ajuste: .init(gatilho: .necessidadePercebida,
+                                                                motivo: "a leitura apontou",
+                                                                evidenciaID: evidenciaID,
+                                                                conferenciaID: outra.id,
+                                                                criterioIDs: [praticaN.criterios[0].id]))
+        }
+        try comOutras.validar()
+        #expect(comOutras.artefatos.count == 2)
+        #expect(comOutras.ajuste(de: try #require(comOutras.versaoAtual))?.conferenciaID == c.id)
+    }
+
+    /// P1 da revisão G3 desta volta: entre o toque em "Conferir e adaptar" e a
+    /// chegada da N+1 a pessoa ainda podia entrar em "Editar esta versão", e o
+    /// documento trocava debaixo dela. A tela agora leva ao progresso em vez de
+    /// abrir o campo — e a lei mora no documento: guardar sobre uma base que já
+    /// não está na tela é recusado, com o texto dela preservado.
+    @Test func editarDuranteAAdaptacaoNaoTrocaODocumentoDebaixoDaPessoa() async throws {
+        let (d, praticaN, evidenciaID) = try comTentativa()
+        let container = try container()
+        let (o, trabalho) = try oficina(d, no: container)
+        let liberar = AsyncStream<Void>.makeStream()
+        o.feedbackDaTentativa = { _, _, _ in
+            var it = liberar.stream.makeAsyncIterator()
+            _ = await it.next()
+            return self.leitura(praticaN)
+        }
+        let n = try #require(o.documento.versaoAtual).id
+
+        // 1. começar a adaptar
+        let tarefa = try #require(o.conferirEAdaptar(evidenciaID))
+        // 2. editar: é este o estado que a tela lê para fechar a entrada em
+        //    edição (`preparacaoEmCurso`), e a base editada é a N.
+        #expect(o.adaptando)
+
+        // 3. a resposta chega no meio da edição: a N+1 nasce
+        liberar.continuation.yield()
+        liberar.continuation.finish()
+        await tarefa.value
+        let n1 = try #require(o.documento.versaoAtual).id
+        #expect(n1 != n)
+        #expect(o.documento.artefatos.count == 2)
+
+        // 4. guardar o texto editado sobre a N é recusado: ele responde a um
+        //    material que já não está na tela. Nada é sobrescrito.
+        #expect(!o.alterar { try $0.guardarVersaoHumana("Minha reescrita da versão anterior", base: n) })
+        #expect(o.documento.artefatos.count == 2)
+        #expect(o.documento.versaoAtual?.id == n1)
+        #expect(try trabalho.ler().artefatos.count == 2)
+
+        // 5. sobre a versão que ESTÁ na tela, guardar continua sendo dela
+        #expect(o.alterar { try $0.guardarVersaoHumana("Minha reescrita do que estou lendo agora", base: n1) })
+        #expect(o.documento.artefatos.count == 3)
+        #expect(try trabalho.ler().artefatos.count == 3)
+    }
+
+    /// Simplicidade 7 da revisão: a cápsula enlatada saiu, e a via do pedido
+    /// explícito do autor não saiu com ela — o que ele ESCREVE passa a ser a
+    /// causa registrada. Sem apontar tentativa nenhuma: ele escreveu um pedido,
+    /// não disse a qual tentativa ele responde.
+    @Test func oPedidoEscritoPeloAutorRegistraAPropriaCausa() throws {
+        var (d, _, _) = try comTentativa()
+        let escrito = "Quero um exercício mais curto, com uma frase só, ainda sobre me apresentar."
+        let causa = try #require(TrabalhoView.causaDoPedidoEscrito(d, escrito))
+        #expect(causa.gatilho == .pedidoDoAutor)
+        #expect(causa.motivo == escrito)
+        #expect(causa.evidenciaID == nil)
+        #expect(causa.conferenciaID == nil)
+        #expect(causa.criterioIDs.isEmpty)
+
+        let p = try d.iniciarPedido(escrito, ajuste: causa)
+        let nova = try pratica(preparada(enunciado: "Escreva uma frase em espanhol se apresentando.",
+                                         mudanca: "Reduzi para uma frase, como você pediu."))
+        try d.receber(PraticaTrabalho.emMarkdown(nova), produtor: "Fake", pedidoID: p.id, pratica: nova)
+        let vigente = try #require(d.versaoAtual)
+        #expect(d.ajuste(de: vigente)?.motivo == escrito)
+        #expect(PraticaTrabalho.origemDoAjuste(try #require(d.ajuste(de: vigente)), tentativaEm: nil) == "A pedido seu.")
+        try d.validar()
+
+        // Preparar não é ajustar: sem exercício vigente não há causa a inventar.
+        var semExercicio = DocumentoTrabalho(intencao: "Praticar espanhol")
+        semExercicio.apoio = .praticar
+        #expect(TrabalhoView.causaDoPedidoEscrito(semExercicio, escrito) == nil)
+        #expect(TrabalhoView.causaDoPedidoEscrito(d, "   ") == nil)
     }
 
     // MARK: - 4. A correção do dono tira a leitura equivocada do ajuste seguinte
