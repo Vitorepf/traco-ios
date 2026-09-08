@@ -78,6 +78,8 @@ Regra, para todo portão novo: **o teste declara o estado que exige como PRÉ-CO
 
 **`orca emulator gesture` exige `type` begin/move/end em CADA ponto** (achado da E1-C, 08/09): sem isso ele devolve `ok:false` e **não faz nada** — e um gesto que não acontece parece um app que não responde.
 
+**Nada de Siri, ditado por voz ou síntese de fala em simulador enquanto o dono está na máquina** (ordem do dono, 08/09 19h25, depois de OUVIR a voz). A síntese roda dentro do simulador (`sirittsd`, `SiriAUSP`, `MacinTalk`) e sai pelas caixas do Mac; inclui `orca emulator button siri`, Speak Screen e ditado do teclado. E a razão que torna a lei fácil de aceitar: **prova de Siri é no iPhone do dono, com ele** — no simulador ela não conta como evidência, então acioná-la não produz prova, só ruído na sala de quem trabalha. O mesmo vale para VoiceOver falado: prove pela árvore de AX conferida contra captura, e declare o falado como limite.
+
 ## Scorecard
 
 | dimensão | mínimo 9 significa | evidência |

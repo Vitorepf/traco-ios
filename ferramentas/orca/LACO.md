@@ -226,3 +226,13 @@ Sexta volta do dia, e a primeira do item 5 da fila do dono. A auditoria de 07/09
 **(2) Sete simuladores ligados, e a lei diz um por worker.** Mapeei dono a dono e **desliguei os três sem dono vivo**: `A1DF082C` (teste 4), `C7341E64` (17e) e `64F7B8B4` (Air) — as voltas que os usavam (E1 e P1) já mesclaram e os worktrees foram removidos. Sobraram **quatro, um por frente viva**: `C2416CBC` (volta Q, **e ninguém o desliga**), `B91C8DEF` (V13), `34CC3F94` (Q, build e teste) e `6033B043` (A1-B). Abaixo do teto de cinco em que o macOS começa a derrubar sozinho.
 
 **O que eu levo disto:** o teto de simuladores não é regra de higiene, é a mesma família dos achados do dia — aparelho ligado sem dono é estado que ninguém conferiu, e foi assim que o `ax --device` passou a ler a árvore do vizinho.
+
+### 08/09 19h25 — a voz era a Siri DENTRO do simulador, e a lei nova
+
+O dono achou o que eu não tinha achado: **não era VoiceOver, era a síntese de voz da Siri dentro dos simuladores**, saindo pelas caixas do Mac — `sirittsd`/`SiriAUSP`/`MacinTalk` vivos no **teste 4** desde as 18h03 e no **teste 2** desde as 19h22. Ele matou os processos para silenciar.
+
+**Quem foi:** no teste 4, a volta **E1-B**, que rodou ali por volta das 18h e já mesclou (worker morto, e eu desliguei o aparelho às 19h30 por não ter dono vivo). No teste 2, a volta **V13**, viva — avisada na hora, com ordem de dizer no relato o que acionou e a que horas, **não para se justificar, mas para a lei nascer do caso real**, como nasceram a do `cliclick` e a do `booted`.
+
+**Lei nova, no preâmbulo de todo spec e na ESTEIRA:** nenhum worker aciona Siri, ditado por voz ou síntese de fala em simulador enquanto o dono está na máquina — inclui `orca emulator button siri`, Speak Screen e ditado do teclado. E a razão que a torna fácil de aceitar: **prova de Siri é no iPhone do dono, com ele**; no simulador ela não é evidência, então acioná-la não produz prova, só barulho na sala de quem trabalha.
+
+**A conta do dia sobe para nove leis de instrumento**, e esta é a segunda em que o incômodo do dono na própria máquina é o sintoma — a primeira foi o mouse disputado às 11h35.
