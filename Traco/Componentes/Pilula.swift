@@ -48,8 +48,18 @@ struct Pilula<Conteudo: View>: View {
 
     private var cheia: Bool { forma == .acao || selecionada }
 
-    private var tinta: Color {
-        if !ativa { return Tema.tintaMorta }
+    /// DESABILITADA continua LEGÍVEL. `tintaMorta` (#C7C7CC) mede **1,53:1**
+    /// sobre o papel — abaixo de qualquer piso — e era o que TODOS os chamadores
+    /// recebiam (A3 da revisão da V19; a `TrabalhoView` chegou a contornar o
+    /// componente por causa disto). `tintaFraca` (#68686C) mede **5,04:1** no
+    /// papel, **4,65:1** na névoa, **4,52:1** no chip e **5,55:1** no branco:
+    /// ≥ 4,5:1 em todo fundo onde uma cápsula pode pousar. Quem diz "desligado"
+    /// passa a ser o FUNDO que sai, não o texto que apaga.
+    /// Fora do `body` para ter teste (`PilulaContrasteTests`): a tinta é a
+    /// decisão de acessibilidade do componente e não pode voltar a 1,53:1 sem
+    /// alguém ver.
+    static func tinta(ativa: Bool, cheia: Bool, forma: Forma) -> Color {
+        if !ativa { return Tema.tintaFraca }
         if cheia { return .white }
         return forma == .larga ? Tema.tinta : Tema.tintaSuave
     }
@@ -68,10 +78,17 @@ struct Pilula<Conteudo: View>: View {
         }
     }
 
-    @ViewBuilder private var capsula: some View {
+    /// Sem o preenchimento, a cápsula desabilitada virava texto solto e a
+    /// pessoa deixava de ver que ali havia um controle. A hairline guarda a
+    /// FORMA do que está desligado — é a mesma linha de estrutura do resto do app.
+    private var capsula: some View {
+        corpo.overlay(Capsule().strokeBorder(ativa ? .clear : Tema.linha, lineWidth: 0.5))
+    }
+
+    @ViewBuilder private var corpo: some View {
         let base = conteudo()
             .font(fonte)
-            .foregroundStyle(tinta)
+            .foregroundStyle(Self.tinta(ativa: ativa, cheia: cheia, forma: forma))
         switch forma {
         case .filtro:
             base.padding(.horizontal, 12).padding(.vertical, 8).frame(minHeight: 34)
@@ -139,9 +156,21 @@ struct SetaDeMenu: View {
 }
 
 #Preview("desabilitada") {
-    HStack(spacing: 8) {
-        Pilula("Trancadas", forma: .filtro) {}.disabled(true)
-        Pilula("Pronto", forma: .acao) {}.disabled(true)
+    // ligada em cima, desligada embaixo: o que muda é o PREENCHIMENTO, não a
+    // legibilidade — `tintaFraca` mede 5,04:1 sobre o papel (era 1,53:1)
+    VStack(alignment: .leading, spacing: 12) {
+        HStack(spacing: 8) {
+            Pilula("Trancadas", forma: .filtro) {}
+            Pilula("Pronto", forma: .acao) {}
+            Pilula("Do seu iPhone", forma: .controle)
+        }
+        HStack(spacing: 8) {
+            Pilula("Trancadas", forma: .filtro) {}
+            Pilula("Pronto", forma: .acao) {}
+            Pilula("Do seu iPhone", forma: .controle)
+        }
+        .disabled(true)
+        Pilula("Abrir no Calendário", forma: .larga) {}.disabled(true)
     }
     .padding()
     .background(Tema.fundo)

@@ -1,0 +1,32 @@
+application | 'Traço' | val='' | en=True | id=None | cx=0.500 cy=0.500 y=0.000 h=1.000
+  Grupo | '' | val='' | en=True | id=None | cx=0.500 cy=0.803 y=0.303 h=1.000
+    button | 'Deixar como nota' | val='' | en=True | id=soltar-forma | cx=0.500 cy=0.410 y=0.313 h=0.195
+    button | 'Abrir os campos' | val='' | en=True | id=abrir-campos | cx=0.500 cy=0.605 y=0.508 h=0.195
+  button | 'q' | val='' | en=True | id=None | cx=0.059 cy=1.054 y=1.025 h=0.059
+  button | 'w' | val='' | en=True | id=None | cx=0.158 cy=1.054 y=1.025 h=0.059
+  button | 'e' | val='' | en=True | id=None | cx=0.256 cy=1.054 y=1.025 h=0.059
+  button | 'r' | val='' | en=True | id=None | cx=0.355 cy=1.054 y=1.025 h=0.059
+  button | 't' | val='' | en=True | id=None | cx=0.453 cy=1.054 y=1.025 h=0.059
+  button | 'y' | val='' | en=True | id=None | cx=0.552 cy=1.054 y=1.025 h=0.059
+  button | 'u' | val='' | en=True | id=None | cx=0.650 cy=1.054 y=1.025 h=0.059
+  button | 'i' | val='' | en=True | id=None | cx=0.748 cy=1.054 y=1.025 h=0.059
+  button | 'o' | val='' | en=True | id=None | cx=0.847 cy=1.054 y=1.025 h=0.059
+  button | 'p' | val='' | en=True | id=None | cx=0.945 cy=1.054 y=1.025 h=0.059
+  button | 'a' | val='' | en=True | id=None | cx=0.108 cy=1.113 y=1.084 h=0.059
+  button | 's' | val='' | en=True | id=None | cx=0.207 cy=1.113 y=1.084 h=0.059
+  button | 'd' | val='' | en=True | id=None | cx=0.305 cy=1.113 y=1.084 h=0.059
+  button | 'f' | val='' | en=True | id=None | cx=0.404 cy=1.113 y=1.084 h=0.059
+  button | 'g' | val='' | en=True | id=None | cx=0.502 cy=1.113 y=1.084 h=0.059
+  button | 'h' | val='' | en=True | id=None | cx=0.601 cy=1.113 y=1.084 h=0.059
+  button | 'j' | val='' | en=True | id=None | cx=0.699 cy=1.113 y=1.084 h=0.059
+  button | 'k' | val='' | en=True | id=None | cx=0.798 cy=1.113 y=1.084 h=0.059
+  button | 'l' | val='' | en=True | id=None | cx=0.896 cy=1.113 y=1.084 h=0.059
+  button | 'z' | val='' | en=True | id=None | cx=0.207 cy=1.172 y=1.142 h=0.059
+  button | 'x' | val='' | en=True | id=None | cx=0.305 cy=1.172 y=1.142 h=0.059
+  button | 'c' | val='' | en=True | id=None | cx=0.404 cy=1.172 y=1.142 h=0.059
+  button | 'v' | val='' | en=True | id=None | cx=0.502 cy=1.172 y=1.142 h=0.059
+  button | 'b' | val='' | en=True | id=None | cx=0.601 cy=1.172 y=1.142 h=0.059
+  button | 'n' | val='' | en=True | id=None | cx=0.699 cy=1.172 y=1.142 h=0.059
+  button | 'm' | val='' | en=True | id=None | cx=0.798 cy=1.172 y=1.142 h=0.059
+  button | ' ' | val='' | en=True | id=space | cx=0.502 cy=1.230 y=1.201 h=0.059
+  button | 'Descartar menu contextual' | val='' | en=True | id=None | cx=0.500 cy=0.500 y=0.000 h=1.000

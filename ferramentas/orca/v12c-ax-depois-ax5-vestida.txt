@@ -1,0 +1,14 @@
+application | 'Traço' | val='' | en=True | id=None | cx=0.500 cy=0.500 y=0.000 h=1.000
+  button | 'Notas' | val='' | en=True | id=notas-da-pagina | cx=0.197 cy=0.102 y=0.069 h=0.066
+  button | 'Concluir' | val='' | en=True | id=concluir | cx=0.741 cy=0.102 y=0.069 h=0.066
+  pop up button | 'Se–então. isto é um hábito que trava num gatilho.' | val='' | en=True | id=cartao-recolhido | cx=0.500 cy=0.678 y=0.644 h=0.069
+  button | 'Trabalhar nisto' | val='' | en=True | id=trabalhar-nisto | cx=0.500 cy=0.783 y=0.747 h=0.072
+  pop up button | 'Mais ações da nota' | val='' | en=True | id=mais-acoes-da-nota | cx=0.500 cy=0.891 y=0.825 h=0.131
+  Grupo | 'Página' | val='Quero correr de manha mas tenho preguica de levantar' | en=True | id=pagina | cx=0.500 cy=0.227 y=0.144 h=0.167
+  text | 'SE (HORA / LUGAR / OBSTÁCULO)' | val='' | en=True | id=None | cx=0.494 cy=0.391 y=0.340 h=0.100
+  Grupo | 'Se (hora / lugar / obstáculo)' | val='' | en=True | id=campo-se | cx=0.500 cy=0.494 y=0.460 h=0.069
+  text | 'ENTÃO EU (SUBSTITUTO CONCRETO, NÃO “NÃO FAÇO”)' | val='' | en=True | id=None | cx=0.433 cy=0.668 y=0.568 h=0.201
+  Grupo | 'Então eu (substituto concreto, não “não faço”)' | val='' | en=True | id=campo-entao | cx=0.500 cy=0.822 y=0.788 h=0.069
+  text | 'DEPOIS DISTO' | val='' | en=True | id=None | cx=0.363 cy=0.925 y=0.900 h=0.050
+  button | 'Conferir o hábito em 7 dias' | val='' | en=False | id=encadear-compromisso | cx=0.500 cy=1.053 y=0.955 h=0.196
+  group | '' | val='' | en=True | id=cartao-analise | cx=0.500 cy=0.678 y=0.627 h=0.103

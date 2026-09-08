@@ -1,0 +1,115 @@
+# V12-E — linhas dos testes (coladas dos logs do xcodebuild, 08/09/2026, iPhone 17 Pro Max 6033B043)
+
+## EscritaVisivelTests sozinho, candidato (teste23.log)
+ESCRITA teclado AX5: de software, na tela 318 pt (2 tentativa(s)), papel 256–586 pt, topo do teclado 638 pt, inset extra 284 pt
+ESCRITA AX5: 31 amostras, 31 com a linha do caret na área livre do papel; teclado real 318 pt
+ESCRITA teclado large: de software, na tela 318 pt (2 tentativa(s)), papel 118–480 pt, topo do teclado 638 pt, inset extra 284 pt
+ESCRITA large: 44 amostras, 44 com a linha do caret na área livre do papel; teclado real 318 pt
+✔ Test run with 1 test in 1 suite passed after 24.148 seconds.
+** TEST SUCCEEDED **
+
+## Planta 1 — camada intrusa sobre as últimas linhas do papel (teste-planta1b.log)
+ESCRITA AX5: 31 amostras, 2 com a linha do caret na área livre do papel; teclado real 318 pt
+ESCRITA large: 44 amostras, 14 com a linha do caret na área livre do papel; teclado real 318 pt
+✘ Test run with 1 test in 1 suite failed after 24.235 seconds with 59 issues.
+** TEST FAILED **
+amostras reprovadas: 59
+↳ a linha do caret saiu da área livre do papel — AX5, encaixe vazio, fim: linha 326–392 pt, papel 150–408 pt, intrusos CALayer 0,288 440×120 | CGDrawingLayer 112,317 216×63 [papel offset 103, conteúdo 361, janela 259; editor 47–408, conteúdo 353, rola sim; teclado 638]
+↳ a linha do caret saiu da área livre do papel — AX5, cartão, fim: linha 313–380 pt, papel 137–388 pt, intrusos CALayer 0,268 440×120 | CGDrawingLayer 112,296 216×63 [papel offset 2813, conteúdo 3063, janela 250; editor -2675–388, conteúdo 3063, rola sim; teclado 638]
+↳ a linha do caret saiu da área livre do papel — large, encaixe vazio, fim: linha 446–473 pt, papel 118–480 pt, intrusos CALayer 0,360 440×120 [papel offset 121, conteúdo 483, janela 362; editor -3–480, conteúdo 483, rola sim; teclado 638]
+
+## Planta 2 — superfície do encaixe desenhada 120 pt sobre o papel (teste-planta2d.log)
+ESCRITA AX5: 31 amostras, 2 com a linha do caret na área livre do papel; teclado real 318 pt
+ESCRITA large: 44 amostras, 14 com a linha do caret na área livre do papel; teclado real 318 pt
+✘ Test run with 1 test in 1 suite failed after 24.221 seconds with 59 issues.
+** TEST FAILED **
+amostras reprovadas: 59
+↳ a linha do caret saiu da área livre do papel — AX5, encaixe vazio, fim: linha 321–387 pt, papel 145–400 pt, intrusos CALayer 0,280 440×120 [papel offset 103, conteúdo 358, janela 255; editor 42–400, conteúdo 353, rola sim; teclado 638]
+↳ a linha do caret saiu da área livre do papel — AX5, cartão, fim: linha 313–380 pt, papel 137–388 pt, intrusos CALayer 0,268 440×120 [papel offset 2813, conteúdo 3063, janela 250; editor -2675–388, conteúdo 3063, rola sim; teclado 638]
+↳ a linha do caret saiu da área livre do papel — large, encaixe vazio, fim: linha 446–473 pt, papel 118–480 pt, intrusos CALayer 0,360 440×120 [papel offset 121, conteúdo 483, janela 362; editor -3–480, conteúdo 483, rola sim; teclado 638]
+
+## Sem o seguidor e sem o gatilho da janela (teste-planta2b.log): o SwiftUI segue sozinho em parte
+ESCRITA AX5: 31 amostras, 30 com a linha do caret na área livre do papel; teclado real 318 pt
+ESCRITA large: 44 amostras, 43 com a linha do caret na área livre do papel; teclado real 318 pt
+↳ a linha do caret saiu da área livre do papel — AX5, encaixe vazio, fim: linha 362–429 pt, papel 156–419 pt, intrusos CALayer 0,419 440×537 | CALayer 0,419 440×102 [papel offset 73, conteúdo 365, janela 263; editor 83–449, conteúdo 353, rola sim; teclado 638]
+↳ a linha do caret saiu da área livre do papel — large, cartão chegou, antes de digitar: linha 446–473 pt, papel 118–378 pt, intrusos CALayer 0,378 440×578 | CALayer 20,378 400×110 | CGDrawingLayer 265,440 139×20 [papel offset 189, conteúdo 551, janela 260; editor -71–480, conteúdo 551, rola sim; teclado 638]
+
+## Suíte integral antes do corte do encaixe (suite2.log)
+ESCRITA teclado AX5: EMULADO pela área segura 318 pt (8 tentativa(s)), papel 256–586 pt, topo do teclado 638 pt, inset extra 284 pt
+ESCRITA AX5: 31 amostras, 31 com a linha do caret na área livre do papel; teclado emulado 318 pt
+ESCRITA teclado large: EMULADO pela área segura 318 pt (8 tentativa(s)), papel 118–480 pt, topo do teclado 638 pt, inset extra 284 pt
+ESCRITA large: 44 amostras, 44 com a linha do caret na área livre do papel; teclado emulado 318 pt
+✔ Test run with 892 tests in 146 suites passed after 73.109 seconds.
+** TEST SUCCEEDED **
+
+## XCUITest (condutor da prova de tela)
+Test Case '-[TracoUITests.EscritaVisivelUITests testLargeComCartao]' passed (40.179 seconds).
+Test Case '-[TracoUITests.EscritaVisivelUITests testLargeComCartao]' passed (39.560 seconds).
+Test Case '-[TracoUITests.EscritaVisivelUITests testAX5ComCartao]' passed (152.176 seconds).
+Test Case '-[TracoUITests.EscritaVisivelUITests testAX5EncaixeVazio]' passed (151.887 seconds).
+Test Case '-[TracoUITests.EscritaVisivelUITests testLargeEncaixeVazio]' passed (149.724 seconds).
+
+## Pixels de caret (varredura do âmbar por captura, ciclo do piscar, 4 amostras a 0,35 s)
+v12e-large-semrm-digitado-1.png pixels de caret: 1080 linhas y(pt): (343, 418)
+v12e-large-semrm-digitado-2.png pixels de caret: 616 linhas y(pt): (394, 418)
+v12e-large-semrm-digitado-3.png pixels de caret: 1080 linhas y(pt): (343, 418)
+v12e-large-semrm-digitado-4.png pixels de caret: 616 linhas y(pt): (394, 418)
+v12e-large-semrm-fim-1.png pixels de caret: 1007 linhas y(pt): (343, 418)
+v12e-large-semrm-fim-2.png pixels de caret: 616 linhas y(pt): (394, 418)
+v12e-large-semrm-fim-3.png pixels de caret: 1007 linhas y(pt): (343, 418)
+v12e-large-semrm-fim-4.png pixels de caret: 616 linhas y(pt): (394, 418)
+v12e-large-semrm-meio-1.png pixels de caret: 1080 linhas y(pt): (343, 418)
+v12e-large-semrm-meio-2.png pixels de caret: 616 linhas y(pt): (394, 418)
+v12e-large-semrm-meio-3.png pixels de caret: 1080 linhas y(pt): (343, 418)
+v12e-large-semrm-meio-4.png pixels de caret: 616 linhas y(pt): (394, 418)
+v12e-large-vazio-digitado-1.png pixels de caret: 393 linhas y(pt): (431, 458)
+v12e-large-vazio-digitado-2.png pixels de caret: 0 linhas y(pt): None
+v12e-large-vazio-digitado-3.png pixels de caret: 393 linhas y(pt): (431, 458)
+v12e-large-vazio-digitado-4.png pixels de caret: 0 linhas y(pt): None
+v12e-large-vazio-fim-1.png pixels de caret: 464 linhas y(pt): (431, 457)
+v12e-large-vazio-fim-2.png pixels de caret: 464 linhas y(pt): (431, 457)
+v12e-large-vazio-fim-3.png pixels de caret: 464 linhas y(pt): (431, 457)
+v12e-large-vazio-fim-4.png pixels de caret: 0 linhas y(pt): None
+v12e-large-vazio-meio-1.png pixels de caret: 391 linhas y(pt): (159, 185)
+v12e-large-vazio-meio-2.png pixels de caret: 391 linhas y(pt): (159, 185)
+v12e-large-vazio-meio-3.png pixels de caret: 391 linhas y(pt): (159, 185)
+v12e-large-vazio-meio-4.png pixels de caret: 0 linhas y(pt): None
+v12e-ax5-cartao-digitado-1.png pixels de caret: 2547 linhas y(pt): (313, 461)
+v12e-ax5-cartao-digitado-2.png pixels de caret: 1541 linhas y(pt): (404, 461)
+v12e-ax5-cartao-digitado-3.png pixels de caret: 2547 linhas y(pt): (313, 461)
+v12e-ax5-cartao-digitado-4.png pixels de caret: 1541 linhas y(pt): (404, 461)
+v12e-ax5-cartao-fim-1.png pixels de caret: 2745 linhas y(pt): (295, 461)
+v12e-ax5-cartao-fim-2.png pixels de caret: 1541 linhas y(pt): (404, 461)
+v12e-ax5-cartao-fim-3.png pixels de caret: 2745 linhas y(pt): (295, 461)
+v12e-ax5-cartao-fim-4.png pixels de caret: 1541 linhas y(pt): (404, 461)
+v12e-ax5-cartao-meio-1.png pixels de caret: 2547 linhas y(pt): (295, 461)
+v12e-ax5-cartao-meio-2.png pixels de caret: 1541 linhas y(pt): (404, 461)
+v12e-ax5-cartao-meio-3.png pixels de caret: 2547 linhas y(pt): (295, 461)
+v12e-ax5-cartao-meio-4.png pixels de caret: 1541 linhas y(pt): (404, 461)
+v12e-ax5-vazio-digitado-1.png pixels de caret: 0 linhas y(pt): None
+v12e-ax5-vazio-digitado-2.png pixels de caret: 1186 linhas y(pt): (313, 379)
+v12e-ax5-vazio-digitado-3.png pixels de caret: 0 linhas y(pt): None
+v12e-ax5-vazio-digitado-4.png pixels de caret: 1186 linhas y(pt): (313, 379)
+v12e-ax5-vazio-fim-1.png pixels de caret: 1008 linhas y(pt): (313, 380)
+v12e-ax5-vazio-fim-2.png pixels de caret: 1008 linhas y(pt): (313, 380)
+v12e-ax5-vazio-fim-3.png pixels de caret: 0 linhas y(pt): None
+v12e-ax5-vazio-fim-4.png pixels de caret: 1008 linhas y(pt): (313, 380)
+v12e-ax5-vazio-meio-1.png pixels de caret: 1006 linhas y(pt): (313, 380)
+v12e-ax5-vazio-meio-2.png pixels de caret: 1006 linhas y(pt): (313, 380)
+v12e-ax5-vazio-meio-3.png pixels de caret: 0 linhas y(pt): None
+v12e-ax5-vazio-meio-4.png pixels de caret: 1006 linhas y(pt): (313, 380)
+
+## Suíte integral, código final (suite4.log)
+ESCRITA teclado AX5: EMULADO pela área segura 318 pt (8 tentativa(s)), papel 256–586 pt, topo do teclado 638 pt, inset extra 284 pt
+ESCRITA AX5: 31 amostras, 31 com a linha do caret na área livre do papel; teclado emulado 318 pt
+ESCRITA teclado large: EMULADO pela área segura 318 pt (8 tentativa(s)), papel 118–480 pt, topo do teclado 638 pt, inset extra 284 pt
+ESCRITA large: 44 amostras, 44 com a linha do caret na área livre do papel; teclado emulado 318 pt
+✔ Test run with 892 tests in 146 suites passed after 72.389 seconds.
+** TEST SUCCEEDED **
+avisos Swift no build: 0
+
+## Filmes finais (XCUITest + simctl recordVideo)
+Test Case '-[TracoUITests.EscritaVisivelUITests testLargeComCartao]' passed (41.136 seconds).
+2.768333,69
+Test Case '-[TracoUITests.EscritaVisivelUITests testLargeComCartao]' passed (39.689 seconds).
+2.833333,76

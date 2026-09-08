@@ -1,0 +1,25 @@
+== ax5-antes
+EscritaVisivelUITests.swift:107: error: -[TracoUITests.EscritaVisivelUITests testAX5ComCartao] : XCTAssertLessThanOrEqual failed: ("591.6666666666666") is greater than ("583.5") - o pé entra 8 pt sob o teclado (fim)
+Test Case '-[TracoUITests.EscritaVisivelUITests testAX5ComCartao]' failed (43.739 seconds).
+== ax5-sonda
+Test Case '-[TracoUITests.EscritaVisivelUITests testAX5ComCartao]' failed (43.200 seconds).
+== ax5-rigido
+Test Case '-[TracoUITests.EscritaVisivelUITests testAX5ComCartao]' passed (46.204 seconds).
+== ax5-cartao
+/private/tmp/claude-501/-Users-vitorepf-orca-workspaces-traco-ios-volta-v12b-pagina/7c89bd4c-c333-444d-9047-3b4a67f8baac/scratchpad/saida-ax5-cartao.log:Test Case '-[TracoUITests.EscritaVisivelUITests testAX5ComCartao]' passed (45.333 seconds).
+/private/tmp/claude-501/-Users-vitorepf-orca-workspaces-traco-ios-volta-v12b-pagina/7c89bd4c-c333-444d-9047-3b4a67f8baac/scratchpad/teste-ax5-cartao.log:Test Case '-[TracoUITests.EscritaVisivelUITests testAX5ComCartao]' passed (45.333 seconds).
+== large-cartao
+/private/tmp/claude-501/-Users-vitorepf-orca-workspaces-traco-ios-volta-v12b-pagina/7c89bd4c-c333-444d-9047-3b4a67f8baac/scratchpad/saida-large-cartao.log:Test Case '-[TracoUITests.EscritaVisivelUITests testLargeComCartao]' passed (42.356 seconds).
+/private/tmp/claude-501/-Users-vitorepf-orca-workspaces-traco-ios-volta-v12b-pagina/7c89bd4c-c333-444d-9047-3b4a67f8baac/scratchpad/teste-large-cartao.log:Test Case '-[TracoUITests.EscritaVisivelUITests testLargeComCartao]' passed (42.356 seconds).
+== ax5-vazio
+/private/tmp/claude-501/-Users-vitorepf-orca-workspaces-traco-ios-volta-v12b-pagina/7c89bd4c-c333-444d-9047-3b4a67f8baac/scratchpad/saida-ax5-vazio.log:Test Case '-[TracoUITests.EscritaVisivelUITests testAX5EncaixeVazio]' passed (30.573 seconds).
+/private/tmp/claude-501/-Users-vitorepf-orca-workspaces-traco-ios-volta-v12b-pagina/7c89bd4c-c333-444d-9047-3b4a67f8baac/scratchpad/teste-ax5-vazio.log:Test Case '-[TracoUITests.EscritaVisivelUITests testAX5EncaixeVazio]' passed (30.573 seconds).
+== large-vazio
+/private/tmp/claude-501/-Users-vitorepf-orca-workspaces-traco-ios-volta-v12b-pagina/7c89bd4c-c333-444d-9047-3b4a67f8baac/scratchpad/saida-large-vazio.log:Test Case '-[TracoUITests.EscritaVisivelUITests testLargeEncaixeVazio]' passed (30.614 seconds).
+/private/tmp/claude-501/-Users-vitorepf-orca-workspaces-traco-ios-volta-v12b-pagina/7c89bd4c-c333-444d-9047-3b4a67f8baac/scratchpad/teste-large-vazio.log:Test Case '-[TracoUITests.EscritaVisivelUITests testLargeEncaixeVazio]' passed (30.614 seconds).
+== ax5-cartao-rm
+/private/tmp/claude-501/-Users-vitorepf-orca-workspaces-traco-ios-volta-v12b-pagina/7c89bd4c-c333-444d-9047-3b4a67f8baac/scratchpad/teste-ax5-cartao-rm.log:Test Case '-[TracoUITests.EscritaVisivelUITests testAX5ComCartao]' passed (45.512 seconds).
+/private/tmp/claude-501/-Users-vitorepf-orca-workspaces-traco-ios-volta-v12b-pagina/7c89bd4c-c333-444d-9047-3b4a67f8baac/scratchpad/saida-ax5-cartao-rm.log:Test Case '-[TracoUITests.EscritaVisivelUITests testAX5ComCartao]' passed (45.512 seconds).
+== large-cartao-rm
+/private/tmp/claude-501/-Users-vitorepf-orca-workspaces-traco-ios-volta-v12b-pagina/7c89bd4c-c333-444d-9047-3b4a67f8baac/scratchpad/saida-large-cartao-rm.log:Test Case '-[TracoUITests.EscritaVisivelUITests testLargeComCartao]' passed (41.805 seconds).
+/private/tmp/claude-501/-Users-vitorepf-orca-workspaces-traco-ios-volta-v12b-pagina/7c89bd4c-c333-444d-9047-3b4a67f8baac/scratchpad/teste-large-cartao-rm.log:Test Case '-[TracoUITests.EscritaVisivelUITests testLargeComCartao]' passed (41.805 seconds).

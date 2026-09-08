@@ -12,11 +12,24 @@ struct PaginaView: View {
     @Query(sort: \Nota.editadaEm, order: .reverse) private var notas: [Nota]
     @FocusState private var focoPagina: Bool
     @State private var mostrarCampos = false
+    /// A folha dos campos está a subir ou em cena: o encaixe inteiro (cartão e
+    /// pé) sai POR CORTE antes de ela subir e volta por corte quando ela desce.
+    /// Com o encaixe em cena enquanto o teclado descia, o papel crescia na hora
+    /// (o `UIScrollView` recebe o frame final de imediato) e os rótulos dos
+    /// campos — conteúdo do próprio papel — ficavam legíveis entre o cartão e o
+    /// pé por ~100 ms, sem e com Reduzir Movimento (G4 final da V12, A1; ADR
+    /// 08f, V12-E). Sem encaixe, a única superfície naquela faixa é o papel.
+    @State private var folhaEmCena = false
     @State private var trabalhoAberto: Trabalho?
     @ScaledMetric(relativeTo: .body) private var corpoFolga: CGFloat = 9
     @State private var abrirArquivo = false
     @State private var lenteAberta = false
     @State private var chegou = false
+    #if DEBUG
+    /// A sessão da Página viva, para o teste hospedado (`EscritaVisivelTests`)
+    /// pôr o cartão e o aviso de pé sem simular a análise. Só em DEBUG.
+    nonisolated(unsafe) static weak var sessaoViva: Sessao?
+    #endif
 
     var body: some View {
         // §20: a navegação é da RAIZ. Este Empilha era resíduo da arquitetura
@@ -99,6 +112,9 @@ struct PaginaView: View {
             .presentationDragIndicator(.visible)
         }
         .onAppear {
+            #if DEBUG
+            Self.sessaoViva = sessao
+            #endif
             // a chegada assenta em vez de piscar pronta
             withAnimation(Tema.movimento(.opacidade, .easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion)) { chegou = true }
             sessao.trancarExpressivasVencidas(no: context)
@@ -177,7 +193,11 @@ struct PaginaView: View {
             if g == nil || g == .expressiva { mostrarCampos = false }
         }
         .onChange(of: mostrarCampos) { _, aberto in
-            if !aberto { restaurarFoco() }
+            if !aberto {
+                var t = Transaction(); t.disablesAnimations = true
+                withTransaction(t) { folhaEmCena = false }
+                restaurarFoco()
+            }
         }
         // VoiceOver: o cartão muda sozinho no rodapé — quem não vê precisa ouvir
         // (a forma vestida e a expressiva já são anunciadas pela Sessão)
@@ -310,55 +330,60 @@ struct PaginaView: View {
         }
     }
 
-    @ViewBuilder
+    /// O encaixe acima do pé. A pilha é EXPLÍCITA porque quem a recebe é um
+    /// `AnyView` (`CadernoView.acima`): apagado o tipo, o `TupleView` deixa de
+    /// ser achatado pela pilha de baixo e os ocupantes espalhavam-se pela caixa
+    /// do teto — o aviso nascia no meio do texto do autor (ADR 08f).
     private var acimaDoPe: some View {
-        if let toast = sessao.toast {
-            // O aviso fala a língua das outras superfícies: cartão de raio 12,
-            // largura cheia, texto na margem; vive no fluxo do pé, nunca por
-            // cima das ações (a linha de recusa da gravação fica aqui até o
-            // disco dizer sim, ADR 05s)
-            Text(toast)
-                .font(Tema.corpo)
-                .foregroundStyle(Tema.tintaSuave)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
-                .cartao(.papel, recuo: [])
-                .padding(.horizontal, Tema.margem)
-                .padding(.bottom, 8)
-                .transition(Tema.transicao(.opacity.combined(with: .offset(y: 6)), reduzido: reduceMotion))
-                .accessibilityIdentifier("toast-analise")
-                .accessibilityAddTraits(.isStaticText)
-        }
-        if let cartao = sessao.cartao {
-            // enquanto o autor ESCREVE (teclado de pé) o cartão vale uma
-            // linha: a página é do texto dele. As saídas ficam à vista; a
-            // prosa abre a um toque, no lugar, sem mexer no teclado.
-            CartaoAnaliseView(cartao: cartao, sessao: sessao,
-                              aoAbrirCampos: { mostrarCampos = true },
-                              // com a folha dos campos em cena o cartão fica
-                              // como está: mudar de forma por trás dela é
-                              // desenhar o encaixe em duas geometrias
-                              recolhido: focoPagina || mostrarCampos)
-                .padding(.horizontal, Tema.margem)
-                .padding(.bottom, 12)
-                // a troca de CASO do cartão é troca de VIEW, e ela CORTA: sem
-                // isto o SwiftUI dissolvia o texto velho sobre o novo, nas mesmas
-                // linhas — foi o que o G3 da V12 filmou entre `.forma` e
-                // `.vestida` (A1). Dentro do mesmo caso a identidade fica: a
-                // resposta da sábia chega sem reiniciar o "serviu / não serviu".
-                .transition(.identity)
-                .id(casoDoCartao(cartao))
-        } else if sessao.analisando, !sessao.paginaVazia {
-            // o sinal de que ALGO está acontecendo — sem ele a tela fica muda
-            LinhaDeEstado("lendo…", .lendo)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, Tema.margem)
-                .padding(.vertical, 8)
-                .accessibilityIdentifier("analisando")
-                // "lendo…" e o cartão ocupam a MESMA linha do encaixe: um fade
-                // entre eles é o cross-fade entre irmãos legíveis que a 05y proíbe
-                .transition(.identity)
+        VStack(alignment: .leading, spacing: 0) {
+            if let toast = sessao.toast {
+                // O aviso fala a língua das outras superfícies: cartão de raio 12,
+                // largura cheia, texto na margem; vive no fluxo do pé, nunca por
+                // cima das ações (a linha de recusa da gravação fica aqui até o
+                // disco dizer sim, ADR 05s)
+                Text(toast)
+                    .font(Tema.corpo)
+                    .foregroundStyle(Tema.tintaSuave)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
+                    .cartao(.papel, recuo: [])
+                    .padding(.horizontal, Tema.margem)
+                    .padding(.bottom, 8)
+                    .transition(Tema.transicao(.opacity.combined(with: .offset(y: 6)), reduzido: reduceMotion))
+                    .accessibilityIdentifier("toast-analise")
+                    .accessibilityAddTraits(.isStaticText)
+            }
+            if let cartao = sessao.cartao {
+                // enquanto o autor ESCREVE (teclado de pé) o cartão vale uma
+                // linha: a página é do texto dele. As saídas ficam à vista; a
+                // prosa abre a um toque, no lugar, sem mexer no teclado.
+                CartaoAnaliseView(cartao: cartao, sessao: sessao,
+                                  aoAbrirCampos: { abrirCampos() },
+                                  // com a folha dos campos em cena o cartão fica
+                                  // como está: mudar de forma por trás dela é
+                                  // desenhar o encaixe em duas geometrias
+                                  recolhido: focoPagina || mostrarCampos)
+                    .padding(.horizontal, Tema.margem)
+                    .padding(.bottom, 12)
+                    // a troca de CASO do cartão é troca de VIEW, e ela CORTA: sem
+                    // isto o SwiftUI dissolvia o texto velho sobre o novo, nas mesmas
+                    // linhas — foi o que o G3 da V12 filmou entre `.forma` e
+                    // `.vestida` (A1). Dentro do mesmo caso a identidade fica: a
+                    // resposta da sábia chega sem reiniciar o "serviu / não serviu".
+                    .transition(.identity)
+                    .id(casoDoCartao(cartao))
+            } else if sessao.analisando, !sessao.paginaVazia {
+                // o sinal de que ALGO está acontecendo — sem ele a tela fica muda
+                LinhaDeEstado("lendo…", .lendo)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, Tema.margem)
+                    .padding(.vertical, 8)
+                    .accessibilityIdentifier("analisando")
+                    // "lendo…" e o cartão ocupam a MESMA linha do encaixe: um fade
+                    // entre eles é o cross-fade entre irmãos legíveis que a 05y proíbe
+                    .transition(.identity)
+            }
         }
     }
 
@@ -408,12 +433,21 @@ struct PaginaView: View {
         ))
     }
 
+    /// O encaixe sai por corte (transação sem animação) e SÓ DEPOIS a folha
+    /// sobe com a sua própria curva: duas mudanças de estado, duas transações.
+    private func abrirCampos() {
+        var t = Transaction(); t.disablesAnimations = true
+        withTransaction(t) { folhaEmCena = true }
+        mostrarCampos = true
+    }
+
     private var editor: some View {
         CadernoView(
-            rodape: !sessao.paginaVazia || sessao.podeRecordar ? AnyView(bottomBar) : nil,
+            rodape: (!sessao.paginaVazia || sessao.podeRecordar) && !folhaEmCena ? AnyView(bottomBar) : nil,
             abaixo: camposAbaixo,
-            acima: AnyView(acimaDoPe),
+            acima: folhaEmCena ? nil : AnyView(acimaDoPe),
             esconderRegua: Self.esconderRegua(cartao: sessao.cartao, tamanho: tamanhoTexto),
+            folhaEmCena: folhaEmCena,
             texto: $sessao.texto,
             foco: $focoPagina,
             folga: corpoFolga,
