@@ -64,17 +64,10 @@ struct Pilula<Conteudo: View>: View {
         return forma == .larga ? Tema.tinta : Tema.tintaSuave
     }
 
-    private var tinta: Color { Self.tinta(ativa: ativa, cheia: cheia, forma: forma) }
-
     private var fundo: Color {
         if !ativa { return .clear }
         return cheia ? Tema.chipAtivo : Tema.chip
     }
-
-    /// Sem o preenchimento, a cápsula desabilitada virava texto solto e a
-    /// pessoa deixava de ver que ali havia um controle. A hairline guarda a
-    /// FORMA do que está desligado — é a mesma linha de estrutura do resto do app.
-    private var contorno: Color { ativa ? .clear : Tema.linha }
 
     private var fonte: Font {
         switch forma {
@@ -85,14 +78,17 @@ struct Pilula<Conteudo: View>: View {
         }
     }
 
+    /// Sem o preenchimento, a cápsula desabilitada virava texto solto e a
+    /// pessoa deixava de ver que ali havia um controle. A hairline guarda a
+    /// FORMA do que está desligado — é a mesma linha de estrutura do resto do app.
     private var capsula: some View {
-        corpo.overlay(Capsule().strokeBorder(contorno, lineWidth: 0.5))
+        corpo.overlay(Capsule().strokeBorder(ativa ? .clear : Tema.linha, lineWidth: 0.5))
     }
 
     @ViewBuilder private var corpo: some View {
         let base = conteudo()
             .font(fonte)
-            .foregroundStyle(tinta)
+            .foregroundStyle(Self.tinta(ativa: ativa, cheia: cheia, forma: forma))
         switch forma {
         case .filtro:
             base.padding(.horizontal, 12).padding(.vertical, 8).frame(minHeight: 34)

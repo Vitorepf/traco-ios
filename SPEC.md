@@ -5442,3 +5442,53 @@ lista congelada do portão do movimento só desce. O `.sheet` continua a ser
 `xcrun simctl io` preso ao UDID, quadros nativos por `ffmpeg`; sem maestro,
 porque havia quatro simuladores ligados): `ferramentas/orca/v12b-pagina.md`.
 Suíte: 890 testes em 144 suítes, verde.
+
+**As quatro medidas que faltavam (V12-C, 08/09).** O G3 independente (GPT 5.6
+Terra) confirmou a causa, o contraste e o crédito, e reprovou a PROVA em quatro
+dimensões — não o código. As medidas, coladas em
+`ferramentas/orca/v12c-medidas.md`:
+
+- **Curva-zero, em toques.** Roteiro Página → cartão vestido → "Abrir os
+  campos", contado nos dois builds (`499623c` e este), no mesmo aparelho:
+  `large` **1 toque antes, 1 toque depois**; AX5 **2 toques antes, 2 toques
+  depois** (o cartão vira menu "•••" e "Abrir os campos" mora dentro). Empate,
+  e é o que se esperava: a volta moveu geometria, não controles.
+- **VoiceOver.** O simulador não roda o VoiceOver; a prova é a árvore de
+  acessibilidade viva (`orca emulator ax`, que lê os mesmos elementos, rótulos
+  e traços que o leitor lê). `Pilula` desabilitada ("Recordar" na Página,
+  "Conferir o hábito em 7 dias" na forma) expõe `enabled = false` — o leitor
+  anuncia "esmaecido", não botão comum — com o rótulo inteiro. Em AX5
+  vestido, todo elemento tem rótulo e a ordem posicional é topbar → papel e
+  campos → cartão → ações; o VoiceOver em si não roda no simulador, e isso
+  fica dito como limite do instrumento.
+- **Performance.** O Instruments não mede hitch no simulador ("Hitches is not
+  supported on this platform"; "The SwiftUI instrument is not supported on the
+  Simulator") e o Time Profiler pendura sem fim neste aparelho. O trace
+  equivalente é `CadernoHitchesTests`: um `CADisplayLink` dentro do processo
+  conta quadros atrasados enquanto o teste digita 1232 caracteres no
+  `TextEditor` real e rola o `ScrollView` real três vezes. Antes e depois:
+  **0 quadros perdidos atribuíveis** (1750 quadros de digitação, 252 de
+  rolagem; o ruído de 0–5 quadros oscila igual nos dois builds).
+- **O que a medida achou, e o conserto.** O mesmo teste imprime o inset
+  inferior do papel: com o teclado de pé e o encaixe VAZIO, a base media
+  192 pt e a V12-B **746 pt**. Era o papel coberto: `.frame(maxHeight:
+  tetoDoEncaixe)` é flexível e enche o teto que o `.safeAreaInset` propõe, e
+  o `VStack` explícito desta ADR fez a caixa existir mesmo sem ocupante —
+  opaca, cobria o texto do autor a partir da terceira linha
+  (`v12c-digitado-v12b-coberto.png`). O `alignment: .bottom` tratava o
+  sintoma. **A rede não pode expandir:** `.fixedSize(horizontal: false,
+  vertical: true)` depois do frame devolve à caixa a altura do ocupante; o
+  teto segue como limite, o cartão fica colado ao pé por construção, e o
+  inset volta a 192 pt (`v12c-digitado-depois.png`).
+- **Complexidade — exceção concedida.** O código de app fecha em **+36 linhas
+  líquidas** (`git diff 499623c --numstat -- Traco/`: +99/−63; com `-w`,
+  +51/−15 = +36): +45 menos a passada de corte (dois wrappers de uma linha na
+  `Pilula` inlinados, dois comentários que repetiam esta ADR encurtados, −11)
+  mais o conserto acima (+2). A regra líquido-negativa da migração para `Componentes` **não é
+  atendida, e fica excepcionada nesta volta pelo orquestrador (Claude Opus 5,
+  08/09)**, pela régua da ESTEIRA e não por simpatia: o saldo compra **um
+  estado que não existia** — a `Pilula` desabilitada legível, que estava a
+  1,53:1 para TODOS os chamadores — e **um portão que impede a regressão**
+  (`PilulaContrasteTests`). Isto é lacuna nomeada, que é o que a regra pede
+  para admitir crescimento. Não se inventou refatoração para caçar o zero:
+  trocar dívida de tamanho por dívida de clareza seria pior.

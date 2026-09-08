@@ -312,11 +312,8 @@ struct PaginaView: View {
 
     /// O encaixe acima do pé. A pilha é EXPLÍCITA porque quem a recebe é um
     /// `AnyView` (`CadernoView.acima`): apagado o tipo, o `TupleView` deixa de
-    /// ser achatado pela pilha do `CadernoView` e os dois ocupantes espalhavam-se
-    /// pela caixa do teto — o aviso nascia a ~300 pt da barra, no meio do texto
-    /// do autor, e não colado a ela como esta ADR sempre disse. Com o `VStack`
-    /// aqui e o `alignment: .bottom` lá, a distância até a barra é a soma dos
-    /// paddings e mais nada.
+    /// ser achatado pela pilha de baixo e os ocupantes espalhavam-se pela caixa
+    /// do teto — o aviso nascia no meio do texto do autor (ADR 08c).
     private var acimaDoPe: some View {
         VStack(alignment: .leading, spacing: 0) {
             if let toast = sessao.toast {

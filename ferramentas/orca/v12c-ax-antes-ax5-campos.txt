@@ -1,0 +1,14 @@
+application | 'Traço' | val='' | en=True | id=None | cx=0.500 cy=0.500 y=0.000 h=1.000
+  button | 'Capturador de Folhas' | val='Expandido' | en=True | id=None | cx=0.500 cy=0.073 y=0.060 h=0.026
+  button | 'Voltar' | val='' | en=True | id=campos-voltar | cx=0.235 cy=0.115 y=0.082 h=0.066
+  heading | 'WOOP' | val='' | en=True | id=None | cx=0.247 cy=0.205 y=0.169 h=0.072
+  button | 'Deixar como nota' | val='' | en=True | id=soltar-na-folha | cx=0.792 cy=0.269 y=0.178 h=0.183
+  text | 'RESULTADO (O MELHOR DESFECHO)' | val='' | en=True | id=None | cx=0.390 cy=0.461 y=0.386 h=0.151
+  Grupo | 'Resultado (o melhor desfecho)' | val='' | en=True | id=campo-resultado | cx=0.500 cy=0.590 y=0.555 h=0.069
+  text | 'OBSTÁCULO INTERNO (O SEU HÁBITO/MEDO)' | val='' | en=True | id=None | cx=0.427 cy=0.739 y=0.664 h=0.151
+  Grupo | 'Obstáculo interno (o SEU hábito/medo)' | val='' | en=True | id=campo-obstaculo | cx=0.500 cy=0.868 y=0.833 h=0.069
+  text | 'SE [OBSTÁCULO], ENTÃO EU' | val='' | en=True | id=None | cx=0.449 cy=0.992 y=0.942 h=0.100
+  Grupo | 'Se [obstáculo], então eu' | val='' | en=True | id=campo-plano | cx=0.500 cy=1.096 y=1.061 h=0.069
+  text | 'DEPOIS DISTO' | val='' | en=True | id=None | cx=0.363 cy=1.199 y=1.174 h=0.050
+  button | 'Virar Se–então' | val='' | en=False | id=encadear-seEntao | cx=0.500 cy=1.294 y=1.229 h=0.131
+  group | '' | val='' | en=True | id=forma-woop | cx=0.500 cy=0.873 y=0.386 h=0.974

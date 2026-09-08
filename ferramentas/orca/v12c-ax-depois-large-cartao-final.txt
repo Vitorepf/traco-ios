@@ -1,0 +1,22 @@
+application | 'Traço' | val='' | en=True | id=None | cx=0.500 cy=0.500 y=0.000 h=1.000
+  button | 'Notas' | val='' | en=True | id=notas-da-pagina | cx=0.097 cy=0.092 y=0.069 h=0.046
+  button | 'Concluir' | val='' | en=True | id=concluir | cx=0.883 cy=0.092 y=0.069 h=0.046
+  button | 'Abrir as notas' | val='' | en=True | id=aba-arquivo | cx=0.050 cy=0.515 y=0.460 h=0.109
+  button | 'WOOP. Qual é o hábito ou o medo seu que vai impedir — não o relógio, não os outros?' | val='' | en=True | id=cartao-recolhido | cx=0.500 cy=0.701 y=0.688 h=0.025
+  button | 'Abrir a forma WOOP' | val='' | en=True | id=None | cx=0.517 cy=0.747 y=0.724 h=0.046
+  Grupo | 'Régua de formas' | val='' | en=True | id=regua | cx=0.366 cy=0.826 y=0.803 h=0.046
+  button | 'Todas' | val='' | en=True | id=regua-todas | cx=0.799 cy=0.826 y=0.803 h=0.046
+  button | 'Esconder teclado' | val='' | en=True | id=keyboard.chevron.compact.down | cx=0.896 cy=0.826 y=0.803 h=0.046
+  button | 'Trabalhar nisto' | val='' | en=True | id=trabalhar-nisto | cx=0.500 cy=0.885 y=0.862 h=0.046
+  button | 'Analisar' | val='' | en=True | id=None | cx=0.152 cy=0.936 y=0.913 h=0.046
+  button | 'Recordar' | val='' | en=True | id=None | cx=0.384 cy=0.936 y=0.913 h=0.046
+  button | 'Anexar arquivo' | val='' | en=True | id=abrir-arquivo | cx=0.616 cy=0.936 y=0.913 h=0.046
+  button | 'Lente da língua' | val='' | en=True | id=abrir-lente | cx=0.848 cy=0.936 y=0.913 h=0.046
+  Grupo | 'Página' | val='Quero correr de manha mas tenho preguica de levantar' | en=True | id=pagina | cx=0.500 cy=0.397 y=0.123 h=0.548
+  group | '' | val='' | en=True | id=cartao-analise | cx=0.500 cy=0.729 y=0.671 h=0.116
+  button | 'Título' | val='' | en=True | id=regua-titulo | cx=0.081 cy=0.826 y=0.803 h=0.046
+  button | 'Seção' | val='' | en=True | id=regua-seccao | cx=0.191 cy=0.826 y=0.803 h=0.046
+  button | 'Lista' | val='' | en=True | id=regua-lista | cx=0.296 cy=0.826 y=0.803 h=0.046
+  button | 'Numerada' | val='' | en=True | id=regua-numerada | cx=0.427 cy=0.826 y=0.803 h=0.046
+  button | 'Tarefa' | val='' | en=True | id=regua-tarefa | cx=0.566 cy=0.826 y=0.803 h=0.046
+  button | 'Citação' | val='' | en=True | id=regua-citacao | cx=0.689 cy=0.826 y=0.803 h=0.046
