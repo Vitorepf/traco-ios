@@ -56,6 +56,7 @@ import XCTest
         pagina.typeText("abc")
         sleep(1)
         sinal("fim")
+        medirPe(app, fase: "fim")
         // no MEIO: um toque no alto do papel e três letras
         pagina.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.12)).tap()
         sleep(1)
@@ -83,6 +84,34 @@ import XCTest
         let folha = app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH 'forma-'")).firstMatch
         guard exigir(folha, "a folha dos campos não abriu depois do toque", prazo: 2) else { return }
         sinal("aberto")
+    }
+
+    /// V12-G (B1 do re-G4): o pé INTEIRO acima do teclado, medido em pontos
+    /// pelo próprio condutor — o relato anterior escreveu "inteiros" sobre uma
+    /// foto que mostrava o corte. Os frames vão para `medidas-<fase>.txt`, e a
+    /// asserção falha se "Mais ações da nota" (AX) ou a barra entrar sob o
+    /// teclado.
+    private func medirPe(_ app: XCUIApplication, fase: String) {
+        // o topo REAL do teclado é o `inputView` (barra preditiva incluída, 44
+        // pt): `app.keyboards` começa nas teclas, e uma régua 44 pt abaixo da
+        // verdadeira deixava passar o corte que o re-G4 mediu por pixel
+        let teclas = app.keyboards.firstMatch
+        guard teclas.exists else { return }
+        let entrada = app.otherElements["inputView"].firstMatch
+        let teclado = entrada.exists && entrada.frame.minY < teclas.frame.minY ? entrada : teclas
+        let nomes = ["pagina", "cartao-recolhido", "trabalhar-nisto", "mais-acoes-da-nota", "abrir-lente", "regua"]
+        var linhas: [String] = ["teclado \(teclado.frame)"]
+        var pe: CGRect = .null
+        for nome in nomes {
+            let e = app.descendants(matching: .any)[nome].firstMatch
+            guard e.exists else { continue }
+            linhas.append("\(nome) \(e.frame)")
+            if nome != "pagina" { pe = pe.union(e.frame) }
+        }
+        try? linhas.joined(separator: "\n").write(toFile: "\(pasta)/medidas-\(fase).txt", atomically: true, encoding: .utf8)
+        try? app.debugDescription.write(toFile: "\(pasta)/arvore-\(fase).txt", atomically: true, encoding: .utf8)
+        XCTAssertLessThanOrEqual(pe.maxY, teclado.frame.minY + 0.5,
+                                 "o pé entra \(Int(pe.maxY - teclado.frame.minY)) pt sob o teclado (\(fase))")
     }
 
     static let woop = String(repeating: "quero correr de manha mas tenho preguica de levantar. Se de manha eu ficar na cama depois do alarme, entao eu ponho os pes no chao e visto o tenis antes de pensar. ", count: 3)

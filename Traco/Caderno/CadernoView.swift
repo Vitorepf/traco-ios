@@ -161,6 +161,15 @@ struct CadernoView: View {
         // deixa de ser achatado pelo VStack de fora — a régua ia parar EM CIMA
         // da barra de ações, que é exatamente a sobreposição que a 05y proíbe.
         VStack(spacing: 0) { conteudoDoPe }
+            // RÍGIDO. Como irmão numa pilha (V12-E) o pé recebia uma PROPOSTA, e
+            // o `.frame(minHeight:)` do rodapé aceita qualquer proposta acima do
+            // mínimo: a pilha do corpo dividia a tela a meio entre papel e
+            // encaixe, e em AX5 com o cartão o pé (213 pt) cabia em 91 e
+            // transbordava 61 pt para cada lado — sobre a linha do cartão e sob
+            // o teclado (re-G4 da V12-E, B1; medido por sonda na V12-G).
+            // Dentro do `.safeAreaInset` a proposta era nula e o pé valia o
+            // ideal; aqui isso se declara.
+            .fixedSize(horizontal: false, vertical: true)
     }
 
     @ViewBuilder private var conteudoDoPe: some View {

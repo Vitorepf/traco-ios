@@ -5667,3 +5667,46 @@ pé, folha a partir de q35 — **0 quadros com par legível em 69**; com RM
 `v12f-abrir-com-rm.mp4`: q26 (2,327 s) último com encaixe, q27 (2,350 s) sem
 ele, folha a partir de q34 — **0 em 69**. Uma tomada por modo, amostrada; o
 oráculo de pixels segue no RUMO. Relato: `ferramentas/orca/v12f-teste-do-a1.md`.
+
+### O pé é rígido na pilha (V12-G, 08/09)
+
+O re-G4 da V12-E apanhou a regressão B1: em AX5 com o cartão e o teclado de
+pé, "Mais ações da nota" tinha a segunda linha sob o teclado, e o relato
+anterior escrevia "inteiros" sobre uma foto que mostrava o corte. **Causa,
+medida por sonda de geometria:** ao virar irmão do papel na pilha do corpo
+(V12-E), o pé passou a receber uma PROPOSTA de altura, e o
+`.frame(minHeight:)` do rodapé aceita qualquer proposta acima do mínimo — o
+encaixe inteiro ficou flexível, e a pilha dividia o corpo A MEIO entre papel e
+encaixe (200,8 pt cada, num corpo de 401,7). Dentro do encaixe o cartão
+recolhido tomava 109,7 e o pé, que mede 212,7, cabia em 91,2: transbordava
+60,7 pt para cima (a barra por cima da linha do cartão) e 60,7 pt para baixo
+(sob o teclado). Dentro do `.safeAreaInset` a proposta era nula e o pé valia o
+ideal, por acidente. **Regra que fica:** o pé do encaixe declara-se rígido
+(`fixedSize` vertical); a pilha do corpo tem UM filho flexível, o papel. O
+teto do cartão (05y: nunca mais que metade da sobra) segue como está.
+
+**Custo, com número:** no iPhone 17 Pro (874 pt) em AX5 com cartão e
+teclado, a sobra depois do pé é 189 pt, o teto 94,5, e a linha recolhida do
+cartão pede 109,7 — perde 15 pt do topo (o recuo de 16 do cartão; a linha
+fica inteira) e o papel fica com 94,5 pt, uma linha e meia de AX5. É a regra
+da metade da 05y a decidir contra o cartão, não contra o texto; no Pro Max
+(956 pt) cabe tudo. **Régua nova no condutor:** o topo real do teclado é o
+`inputView` (barra preditiva incluída, 44 pt acima de `app.keyboards`); o
+`testAX5ComCartao`/`testLargeComCartao` medem "Trabalhar nisto", "Mais ações
+da nota", a barra e a régua contra ele e FALHAM se o pé entrar sob o teclado
+(vermelho provado no topo `e4ea756`: "o pé entra 8 pt sob o teclado" ainda
+com a régua velha; com a verdadeira eram 52,7).
+
+**Prova** (`B91C8DEF`, teclado de software, sob `com-trava.sh`, `simctl io`):
+`v12g-ax5-cartao-pe-inteiro.png` e `-rm.png` — "Mais ações da nota"
+405,7–531,0, `inputView` a 539, **8 pt de ar**, sem e com RM, iguais;
+`v12g-antes-ax5-cartao-pe-cortado.png` é o topo anterior. Os quatro casos do
+condutor verdes (`v12g-teste-linhas.txt`), inclusive os dois "encaixe vazio",
+que nunca tinham sido rodados. AX5 com RM refilmado (`v12g-ax5-abrir-com-rm.mp4`):
+o encaixe corta em q38 (2,355 s) atrás do menu; de q40 a q44 (2,377–2,433 s,
+~60 ms) o MENU DO SISTEMA dissolve sobre os rótulos do papel — superfície do
+UIKit, não do encaixe, igual sem RM (q37–q44, ~65 ms, `v12g-ax5-abrir-sem-rm.mp4`);
+a folha cobre a partir de q46. `large` continua 0 pares: sem RM q26 último com
+encaixe, q27 sem, folha q35; com RM q26/q27/q34 — os mesmos números da V12-F.
+Suíte integral 891/892 (1 pulado, 0 falhas) em `B91C8DEF`. Relato:
+`ferramentas/orca/v12g-pe-ax5.md`.
