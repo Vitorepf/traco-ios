@@ -203,6 +203,16 @@ estava desligado quando peguei), `install` por cima, `launch`, `terminate`,
 chamada autenticada antes de instalar, em cada um dos 27 registros, e depois de
 tudo: `contaGrokLigada: true`, 12 modelos.
 
+**Estado em que deixo o aparelho.** Achei o `C2416CBC` **desligado** (foi assim
+que o revisor o deixou) e o liguei — `boot` não está entre os proibidos, e a
+conta sobreviveu a ele, como já tinha sobrevivido ao desligamento de 16h30 da
+volta Q. **Deixo-o LIGADO de propósito**, e não desligado como o achei: quem
+faz o G3 desta volta precisa dele, e desligar é o gesto que menos quero repetir
+perto desta conta. `TRACO_AVALIAR_IA` está **desdefinido** (conferido:
+`launchctl getenv` devolve vazio), então o app não roda sonda no próximo
+lançamento. O app instalado é o desta branch, com `tetoTrabalho = 240`.
+Orientação, letra e aparência não foram tocadas.
+
 ## 6. O que esta volta NÃO prova
 
 - **240 s não é um teto provado seguro para sempre.** É o teto sob o qual nada
