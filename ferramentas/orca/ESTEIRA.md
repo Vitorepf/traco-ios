@@ -192,3 +192,23 @@ e aí um `check` simples basta. Se ainda assim quiser esperar em bloco, então
 E a lição de leitura, que é a de sempre: **um comando que sai em silêncio não
 disse "nada aconteceu"** — pode ter sido derrubado. Olhe o código de saída e o
 erro antes de concluir.
+
+### O portão passa, e a mescla ainda pode não caber (08/09)
+
+A volta Q **passou** no quarto re-G3, todas as dimensões em 9 — e a mescla
+abortou com cinco conflitos, dois deles em Swift de mérito: enquanto ela
+trabalhava, outra volta mesclou e **mexeu nas mesmas funções**. Nenhum dos dois
+lados está errado; os dois contratos precisam caber na mesma função, e a decisão
+de como é **semântica**, não mecânica.
+
+**Regra:** o G5 tem dois passos, não um. Aprovado ≠ mesclável. Quando os
+conflitos passarem de vizinhança, **o orquestrador não resolve adivinhando** —
+devolve ao implementador uma volta de **reconciliação**, que traz o `main` para
+dentro do branch, funde as regras sem que nenhuma desapareça, **declara cada
+escolha de semântica por escrito**, e prova na **árvore mesclada** (a que nenhum
+dos dois lados testou). Teste de um dos lados que fica vermelho na fusão **é o
+achado**, não um estorvo.
+
+Resolver conflito de mérito no lugar de quem escreveu o código é a versão de
+mescla do "conserto confiante e errado": o diff é pequeno, parece limpo, e põe no
+`main` uma semântica que ninguém escolheu.

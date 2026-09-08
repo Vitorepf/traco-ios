@@ -479,3 +479,33 @@ A outra sessão não tocou em mais nada além de remover o worktree
 `volta-a1-arranque`, que estava limpo e mesclado em `6da0df1` — remoção correta.
 Ela está parada e vai perguntar ao dono qual das duas conduz. **Até a resposta
 dele, o laço é meu**, e sigo com as quatro frentes.
+
+## 08/09, 21h20 — a Q PASSA no quarto re-G3, e a mescla abre um sexto problema
+
+O revisor recomputou tudo **sem usar a contagem do implementador**: as 49 linhas
+e 55 ocorrências são puras, as 12 linhas mistas declaradas estão completas, e
+nenhuma frase sobrevivente diz que o commit inteiro só renomeia. Na guarda
+estrutural ele foi além de conferir — **fez a própria mutação**
+(`nome` → `valor` em `.campoAcimaDoTeto`), viu o vermelho nomeando
+`["gorrenita"]`, desfez, e confirmou os 54 testes verdes com a árvore limpa. E
+foi ao Perfil no `34CC3F94`: captura e árvore de AX do mesmo instante mostram as
+três listas, os dois grupos, o quê/por quê/conserto por operação, e **nenhuma
+linha mandando conectar a conta**. Todas as dimensões em 9. **PASSA.**
+
+Fui mesclar e **abortei**. Cinco conflitos, e dois deles em Swift de mérito:
+enquanto a Q trabalhava, a **V17 mesclou** e mexeu nas MESMAS funções —
+`OficinaTrabalho.preparacaoRemota` e `PraticaTrabalho.parsePreparacao/validar`.
+O `main` exige a chave `mudanca` no contrato quando há ajuste e derruba a
+preparação se ela vier vazia; a Q trocou o mesmo corpo por `lerPreparacao` com
+`Result<Preparada, Recusa>`, que nomeia a guarda que recusou. **Os dois estão
+certos e os dois têm de caber na mesma função.**
+
+Não resolvi. Escolher qual `Recusa` a `mudanca` merece é decisão de semântica de
+quem escreveu as duas regras, e um diff pequeno e limpo teria posto no `main`
+uma semântica que ninguém escolheu. Despachei a **Q-H**
+(`task_1b67bbdd2a79`, Opus 5): traz o `main` para dentro do branch, funde sem
+que nenhuma regra desapareça, **declara cada escolha por escrito**, e prova na
+**árvore mesclada** — com a instrução de que um teste que fique vermelho na
+fusão **é o achado**, não um estorvo.
+
+Vira lei na ESTEIRA: **o G5 tem dois passos. Aprovado não é mesclável.**
