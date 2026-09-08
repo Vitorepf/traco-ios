@@ -212,17 +212,23 @@ enum AnaliseLocal: Sendable {
     /// fala de si.
     static let lexicoDoNaoAguento = #"n[ãa]o (durmo|consigo dormir|como mais|rio|aguento|tenho vontade|saio da cama|consigo mais)"#
 
-    /// 4. o que eu fiz A ALGUÉM, em QUALQUER tamanho. O teto de 120 era a
-    /// régua errada aqui: contar que se foi grosso com o irmão é desabafo com
-    /// noventa caracteres tanto quanto com quatrocentos.
+    /// 4. a CONFISSÃO DE CONDUTA — o que eu fiz a alguém, ou o que eu não devia
+    /// ter feito — em QUALQUER tamanho. O teto de 120 era a régua errada aqui:
+    /// contar que se foi grosso com o irmão é desabafo com noventa caracteres
+    /// tanto quanto com quatrocentos.
     /// ADR 06i-D: `\b` em `tratei mal` — sem ela "contratei mal" e "retratei
     /// mal" calavam uma nota de trabalho. Mesma classe de borda da 06i-C.
-    static let lexicoDoAtoContraAlguem = #"fui (injust|gross|duro demais|ríspid)|perdi a (paciência|cabeça)|\btratei mal|\bbriguei|discuti com|gritei com|xinguei|explodi com|descontei (com|n[oa]|nel[ae]|em)"#
+    /// ADR 06i-E: `não devia ter` veio da família 5, e a assimetria era
+    /// arbitrária — "fui grosso com ele hoje" era calada e "não devia ter
+    /// reagido assim com ele" chegava VESTIDA de Exame da noite no mesmo
+    /// tamanho, sendo o mesmo ato de fala.
+    static let lexicoDoAtoContraAlguem = #"fui (injust|gross|duro demais|ríspid)|perdi a (paciência|cabeça)|\btratei mal|\bbriguei|discuti com|gritei com|xinguei|explodi com|descontei (com|n[oa]|nel[ae]|em)|não devia ter"#
 
     /// 5. o que eu DEIXEI de fazer — e este sim só ACIMA do teto: curta,
     /// "fiquei calada quando perguntaram" é a nota que nomeia uma conversa, e o
-    /// método que pergunta serve; longa, é o dia sendo despejado.
-    static let lexicoDaOmissao = #"engoli|fiquei calad|deixei passar|não devia ter"#
+    /// método que pergunta serve; longa, é o dia sendo despejado. Só o que é
+    /// omissão de verdade mora aqui (ADR 06i-E).
+    static let lexicoDaOmissao = #"engoli|fiquei calad|deixei passar"#
 
     /// ADR 06h — a fronteira do produto, em código e não no `Metodos.json`: a
     /// pasta do autor reescreve o catálogo, e uma guarda que protege a escrita

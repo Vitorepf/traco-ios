@@ -4218,6 +4218,90 @@ outras cinco. Depois, no iPhone 17 Pro (teste 4) `A1DF082C`: `✔ Test run with
 sem cópula; a dívida da densidade em nota de sistema segue no RUMO; e a régua
 inversa continua sendo escrita por mim e pelo revisor, não por uso real.
 
+### 06i-E — A CONFISSÃO CURTA, e o buraco que era de AMOSTRA (volta A-6)
+
+**Uma linha de código, e ela veio de fora.** Quem achou foi o revisor da volta
+M3, medindo a guarda contra o catálogo de 28 métodos, e a prova é a tela dele
+(`m3-reg3-01-confissao-curta-vestida.png`, no branch
+`Vitorepf/volta-m3-colagem`): **"Não devia ter reagido assim com ele." — 36
+caracteres — chegava VESTIDA de Exame da noite.**
+
+**A causa, e por que ela é arbitrária.** `não devia ter` morava na **família 5**
+(a omissão, que só dispara ACIMA do teto de 120) e não na **família 4** (o ato,
+que vale em qualquer tamanho). No mesmo tamanho e com o mesmo ato de fala:
+
+| a frase | a família | abaixo do teto |
+|---|---|---|
+| "Fui grosso com ele hoje." | 4 | calada ✓ |
+| "Perdi a paciência com ele hoje." | 4 | calada ✓ |
+| "Não devia ter reagido assim com ele." | **5** | **vestida de Exame da noite** ✗ |
+
+As três são confissão de conduta, que é o que a 06h existe para proteger.
+`engoli`, `fiquei calad` e `deixei passar` continuam na 5 porque são omissão de
+verdade — curtas, elas nomeiam uma conversa e a Coluna da esquerda serve
+("Fiquei calada quando perguntaram quem tinha feito", uma das seis legítimas).
+`não devia ter` não nomeia conversa nenhuma: nomeia o que o autor fez. **A
+decisão:** ele muda para a família 4, e a família 4 passa a se chamar pelo que
+sempre foi — **confissão de conduta**, não só "o que eu fiz A ALGUÉM".
+
+**O buraco maior era de AMOSTRA, não de léxico** — e é o item que impede a
+próxima cegueira desta classe. As 57 protegidas até aqui carregavam um rabo de
+~140 caracteres: quase toda sonda ficava ACIMA do teto, e o caso curto de cada
+família nunca era exercitado. Foi por isso que quatro voltas de régua
+(06i, 06i-B, 06i-C, 06i-D) passaram por cima da assimetria sem vê-la.
+`EscritaPessoalTests.curtasPorFamilia` fecha isso com **uma sonda por família
+ABAIXO do teto**, cada uma com a porta que a levaria vestida — sem a porta a
+sonda não mede nada:
+
+| família | a sonda (chars) | a porta que a levaria |
+|---|---|---|
+| 1a sentimento | "Hoje eu fiz besteira e chorei escondido no carro." (49) | Exame da noite |
+| 1b dupla vida | "Toda vez que abro o chat eu fico ansioso pra caramba." (53) | Se–então |
+| 2 juízo sobre si | "Percebi que eu não presto pra ninguém." (38) | Nota permanente |
+| 3 não aguento | "Hoje eu preciso trabalhar e não durmo desde terça." (50) | Meu dia |
+| 4 confissão | "Não devia ter reagido assim com ele." (36) | Exame da noite |
+| 4 confissão | "Fui grosso com o meu irmão hoje." (32) | Exame da noite |
+| 5 omissão + companhia | "Foi pesado e eu fiquei calada." (30) | Coluna da esquerda |
+
+`cadaFamiliaTemUmaSondaAbaixoDoTeto` cobra as cinco famílias contra o mapa de
+léxicos: **família sem sonda curta é teste vermelho**. A da família 5 é a
+companhia por definição (a omissão sozinha continua sem disparar abaixo do
+teto, ADR 06i) — está declarado na régua, não escondido nela.
+
+**A frase da 06h que era falsa abaixo do teto, corrigida.** A 06h escreveu o
+custo como "a guarda fecha 14 de 287 ramos (4,9%) **para TEXTO LONGO**" e a
+06i repetiu o enquadramento. **Não era verdade nos dois lados do teto:** dos 11
+ramos do Exame, 7 já fechavam em QUALQUER tamanho (`me arrependi` pela família
+1, `fui injusto|grosso|duro demais|ríspido` e `perdi a paciência|cabeça` pela
+4); só os quatro de `não devia ter (feito|reagido|agido|tratado)` ficavam
+abertos abaixo de 120 — que é exatamente o defeito. **Como fica, medido:**
+
+| ramos | fechados |
+|---|---|
+| 3 da Coluna da esquerda (`engoli`, `fiquei calado`, `deixei passar`) | só ACIMA do teto |
+| 11 do Exame da noite | em QUALQUER tamanho (era 7 de 11) |
+
+E o Exame **continua alcançável abaixo do teto** pelo primeiro ramo ("exame da
+noite", "passei o dia em revista", "olhando o dia de hoje") e por "hoje eu
+fiz|reagi|tratei" — que é a frase verdadeira, agora dos dois lados do teto.
+
+**Volta:** melhorar. **O que a IA sabe:** nada de novo — a guarda continua sem
+modelo, no aparelho. **Prova:** a régua nova medida VERMELHA antes do conserto,
+com `não devia ter` de volta à família 5 — `✘ confissão curta vestida de
+exameDaNoite: «Não devia ter reagido assim com ele.»` em
+`cadaFamiliaTemUmaSondaAbaixoDoTeto` e em `asDuasReguasValemAoMesmoTempo`
+(`✘ Test run with 15 tests in 1 suite failed after 0.210 seconds with 4
+issues.`). Depois, no iPhone 17 Pro (teste 2) `B91C8DEF`: `✔ Test run with 15
+tests in 1 suite passed after 0.209 seconds.` nas quatro réguas
+(**64 protegidas + 13 com gancho + 6 legítimas + 58 de trabalho**) e
+`✔ Test run with 780 tests in 130 suites passed after 7.102 seconds.` /
+`** TEST SUCCEEDED **` na suíte inteira. **Fora:** `não devia ter` agora cala
+também a confissão de conduta sobre coisa ("não devia ter aceitado esse prazo"),
+e isso é assumido pela assimetria de sempre — calar custa um toque, vestir
+carimba quatro campos; o literal continua sendo `não devia ter` com acento, e
+quem escreve "nao devia ter" não é alcançado (o mesmo resíduo de `fiquei calad`
+e companhia); e as sondas curtas são minhas e do revisor, não de uso real —
+elas provam alcance, não representatividade.
 
 ## ADR 2026-09-07a — Qualidade efetiva da IA: contratos e prova em curso
 
