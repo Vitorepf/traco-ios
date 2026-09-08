@@ -538,3 +538,28 @@ lados do diff ficam idênticos. Commit `4e8bc40`. Despachei o **re-G3 segundo**
 (`task_99b2222e5719`) para o mesmo revisor confirmar as duas provas e,
 principalmente, **conferir a atribuição do limite** — se ele discordar, aquilo é
 defeito do app e não limite do instrumento.
+
+## 08/09, 21h50 — a V13 PASSA, e o revisor me corrige na dose da minha própria lei
+
+Movimento e Acessibilidade subiram a 9: ele foi ao **vídeo bruto** e contou os
+quadros (nove intermediários no normal, um com Movimento Reduzido), e o par AX5
+prova rótulo, ordem e ausência de sobreposição. **PASSA**, commit `3eff3bd` no
+branch.
+
+E ele fez comigo o que eu venho cobrando de todo mundo: **cortou a minha
+alegação no tamanho da prova.** Eu tinha escrito na ESTEIRA que o leitor de AX
+"devolve no máximo três dos quatro elementos, e qual some muda com o tamanho de
+letra". Ele confirma o que a evidência sustenta — *"Fechar ausente da árvore mas
+presente na captura é limite do leitor"* — e nomeia o que falta: **sem a árvore
+bruta em `medium`, o "máximo de três" e a variação por tamanho não viram regra
+geral.**
+
+Corrigi a ESTEIRA para separar as duas coisas: o que está provado (a árvore pode
+omitir um elemento que está na tela; presença vale, ausência não prova ausência)
+e o que não está (o teto de três, a dependência do tamanho de letra). Quem
+precisar da generalização, mede e guarda as duas árvores brutas.
+
+É a terceira vez hoje que eu escrevo uma frase maior que a prova — a primeira foi
+a recusa de vazamento que eu atribuí ao provedor, a segunda o achado de perda de
+dados da A1. Desta vez quem pegou foi o revisor, e no mesmo dia em que eu reprovei
+a Q por exatamente isso.

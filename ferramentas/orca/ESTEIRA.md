@@ -215,12 +215,18 @@ mescla do "conserto confiante e errado": o diff é pequeno, parece limpo, e põe
 
 ### A árvore de AX do serve-sim pode devolver menos do que a tela tem (08/09)
 
-A V13-B mediu e atribuiu: **o leitor de AX do serve-sim devolve no máximo três
-dos quatro elementos do cartão, e qual some muda com o tamanho de letra.** Em
-`medium` sumia "Fechar"; em AX5, com pergunta longa que estoura o teto do
-`ScrollView`, sumia "Repetir pergunta". Refeita a rota com pergunta curta, os
-três elementos que interessavam vieram, com frames que **batem pixel a pixel com
-a captura** — foi assim que ela separou limite do leitor de defeito do app.
+**O que está PROVADO, e é só isto:** num cartão de quatro elementos, o leitor
+devolveu a árvore **sem "Fechar"** enquanto a captura do mesmo instante mostrava
+"Fechar" na tela. Os frames dos elementos que vieram batem **pixel a pixel** com
+a captura — foi assim que a V13-B separou limite do leitor de defeito do app, e
+o revisor confirmou a atribuição **nesta evidência**.
+
+**O que NÃO está provado, e não se cita como se estivesse:** que o teto seja
+"no máximo três", e que a variação dependa do tamanho de letra. A V13-B observou
+que em AX5 com pergunta longa sumia "Repetir pergunta" e em `medium` some
+"Fechar", mas **a árvore bruta em `medium` não foi guardada**, e sem ela a regra
+geral não se sustenta. Quem precisar dessa generalização, meça e guarde as duas
+árvores brutas.
 
 **O que isto muda em toda prova de acessibilidade:**
 - **Presença na árvore continua valendo** — rótulo, ordem de leitura, frame.
