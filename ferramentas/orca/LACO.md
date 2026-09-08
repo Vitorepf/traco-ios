@@ -206,3 +206,15 @@ Quinta volta do dia, e a mais teimosa: **cinco passadas seguidas com a mesma cla
 - **A ADR 08f mentiu duas vezes** — "nenhum par legível" e "a folha cobre a tela nos dois instantes" — e as duas frases foram trocadas pelo medido, a segunda achada pelo juiz no último portão. **ADR é contrato, não narrativa.**
 - **Commit:** `e58b0ee`, empurrado para o `origin`. Árvore mesclada: **933 testes em 152 suítes**, 0 aviso, portão do movimento verde. Evidência dos portões comitada e reduzida com honestidade: 58 PNG de 34,5 MB para 10,3 MB, 8 vídeos de 15,8 MB para 0,6 MB **com a contagem de quadros conferida igual por `ffprobe`**.
 - **Fica para o RUMO:** os 15 pt que o cartão recolhido perde no aparelho de 874 pt (custo dito, não escondido) e o oráculo de pixels, que o conselho já dimensionou como volta própria.
+
+### 08/09 19h15 — MESCLADA a volta E1: agendado, feito e funcionou são três coisas
+
+Sexta volta do dia, e a primeira do item 5 da fila do dono. A auditoria de 07/09 tinha achado os três `EstadoAcao` **mortos**: não havia como dizer que uma ação foi **observada**, `cancelada` era inalcançável, e o relato não mudava a orientação seguinte.
+
+- **`ResultadoObservado` virou eixo próprio**, no relato, com `nil` = **não observado** inclusive em registro antigo — nenhum registro velho vira "deu certo" por releitura. **Executar é ato, observar é resultado**, e um existe sem o outro.
+- **Fracasso e parcial são de primeira classe:** as três cápsulas têm o mesmo peso na tela, e **parcial e fracasso geram orientações diferentes** — o juiz confirmou, senão o eixo seria decorativo.
+- **A orientação muda reusando o mecanismo da V17** (ADR 08j), com o gatilho `resultadoInformado`, sem inventar um segundo — e dizendo o que **não** serviu.
+- **O G3 achou a doença do dia:** a invariante olhava **um** eixo e o mundo tem **dois** — dava para cancelar o que a pessoa já tinha dito que aconteceu. Conserto no **modelo**: `podeCancelar` exige pendente **e** sem observação, `registrarRelato` recusa a ordem inversa, e `validar()` recusa o par para fechar importação, migração e chamador novo. **Com contraprova na mesma captura:** ação pendente e não observada continua com o gesto.
+- **E o G4 pegou o que faria a promessa funcionar por acaso:** a orientação seguia o último relato **sem nomear a ação** — com três ações e três resultados, mandava "propor caminho diferente" num Trabalho cuja ação principal funcionou. A contraprova são **três pedidos gravados no mesmo documento**: dois sem a ação, o terceiro com ela.
+- **Commit:** `7691e45`, no `origin`. Árvore mesclada: **947 testes em 153 suítes**, 0 aviso, portão verde. Evidência reduzida: 4.576 KB → 2.372 KB e 1.493 KB → 840 KB, maior arquivo 187 KB.
+- **Aberto de propósito e dito:** `causaDoRelato` ainda diz "desta ação" sem nomeá-la, porque ali o motivo **disputa o teto** com o relato inteiro — é decisão de orçamento, não uma linha.
