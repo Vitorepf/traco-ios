@@ -111,7 +111,7 @@ enum DestaqueDoDia: Sendable {
 
     // MARK: - Projeção
 
-    /// ADR 08h: o teto público entra AQUI, uma vez, antes da distribuição —
+    /// ADR 08i: o teto público entra AQUI, uma vez, antes da distribuição —
     /// `publicar` e `reconciliar` leem a mesma projeção, então o widget, a
     /// tela bloqueada e a Ilha saem com o mesmo trecho e a mesma declaração.
     /// O estado (`chaveLinha`) guarda o texto inteiro; só a projeção corta.

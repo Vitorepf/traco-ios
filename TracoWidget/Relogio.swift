@@ -153,7 +153,7 @@ nonisolated enum Restantes: Equatable {
     }
 }
 
-/// Quanto um RÓTULO pode encolher antes de a face desistir (F5, ADR 08h).
+/// Quanto um RÓTULO pode encolher antes de a face desistir (F5, ADR 08i).
 ///
 /// Só rótulos encolhem: marca, estado, oferta — texto NOSSO, curto e
 /// reescrevível. Se não couber a 60%, o conserto é escrever mais curto.
@@ -163,12 +163,12 @@ nonisolated enum Restantes: Equatable {
 /// ligou acessibilidade — o encolhimento comia o aumento que a pessoa pediu —
 /// e com 247 caracteres desenhava onze linhas a ~7 pt e ainda cortava. A
 /// frase mantém o corpo do papel escolhido e reduz a QUANTIDADE de texto; o
-/// que não cabe termina em "…" (`Sacrificio`, e a ADR 08h para a regra).
+/// que não cabe termina em "…" (`Sacrificio`, e a ADR 08i para a regra).
 nonisolated enum Encolhe {
     static let rotulo: CGFloat = 0.6
 }
 
-/// A ordem de sacrifício do pequeno com Destaque (ADR 08h).
+/// A ordem de sacrifício do pequeno com Destaque (ADR 08i).
 ///
 /// O que não cede: o rodapé "Desatualizado." e a legibilidade da frase — o
 /// corpo de leitura não é a última moeda para pagar a falta de espaço. O que
@@ -200,7 +200,7 @@ nonisolated enum Sacrificio {
 }
 
 
-/// Até quantas linhas a frase do autor pode crescer no médio (F5, ADR 08h).
+/// Até quantas linhas a frase do autor pode crescer no médio (F5, ADR 08i).
 ///
 /// Com agenda embaixo, duas: a agenda só existe ali e fica com o pé do cartão.
 /// Sem agenda, o layout decide (`Sacrificio.maximo`): na F4-H o teto de duas

@@ -49,7 +49,7 @@ Não há autorização inferida para publicar, gastar ou enviar mensagens extern
   vazio antes e depois, desatualizado nos dois tamanhos, tela bloqueada e Ilha
   compacta e expandida. Lacuna aberta que continua: modo escuro do widget
   (é `Tema.swift`, volta L2) e Ilha mínima (limite do instrumento).
-  **F4-H (08/09, ADR 2026-09-08h): o corte honesto.** A promessa "inteira,
+  **F4-H (08/09, ADR 2026-09-08i): o corte honesto.** A promessa "inteira,
   sempre" custava o corpo de leitura (~11 pt em AX5, ~7 pt com 247
   caracteres, e ainda reticências). Agora o publicador limita a projeção
   (140 grafemas, uma vez, para widget, tela bloqueada e Ilha) e declara se é

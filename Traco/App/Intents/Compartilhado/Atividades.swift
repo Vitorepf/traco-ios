@@ -10,7 +10,7 @@ import Foundation
 nonisolated struct DestaqueAtividade: ActivityAttributes {
     nonisolated struct ContentState: Codable, Hashable {
         var linha: String
-        /// ADR 08h: o MESMO contrato do widget — a linha aqui é a mesma
+        /// ADR 08i: o MESMO contrato do widget — a linha aqui é a mesma
         /// projeção, cortada pelo mesmo teto, e a Ilha diz se é trecho.
         var inteira: Bool? = nil
     }

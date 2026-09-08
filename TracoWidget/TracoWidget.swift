@@ -424,7 +424,7 @@ nonisolated func textoDoDestaque(_ linha: String, feito: Bool) -> Text {
     return Text(t)
 }
 
-/// A frase do autor: trecho fiel e legível, com omissão reconhecível (ADR 08h).
+/// A frase do autor: trecho fiel e legível, com omissão reconhecível (ADR 08i).
 ///
 /// A F4-F tirou o teto de linhas e deixou a frase ENCOLHER até 35% para sair
 /// inteira. O G4 mediu o preço: em AX5 a frase saía no mesmo corpo de ~11 pt
@@ -752,7 +752,7 @@ struct TracoWidgetView: View {
                                  linhas: linhas)
         BotaoFeito(destaque: d) {
             Group {
-                // ADR 08h: no pequeno em tamanho de acessibilidade a coluna
+                // ADR 08i: no pequeno em tamanho de acessibilidade a coluna
                 // ao lado do círculo tem ~90 pt, e a 24 pt uma palavra de
                 // oito letras não cabe — o SwiftUI partia "termi-/nar" em
                 // sílaba. O círculo sobe uma linha e a frase fica com os 123
@@ -775,7 +775,7 @@ struct TracoWidgetView: View {
     }
 
 
-    /// O pequeno com Destaque, na ordem de sacrifício da ADR 08h: o rótulo
+    /// O pequeno com Destaque, na ordem de sacrifício da ADR 08i: o rótulo
     /// "Nova nota" — que aqui é desenho, não toque — cede antes de a frase
     /// perder uma linha; a frase cede quantidade, nunca corpo. Cada candidato
     /// é "n linhas, com ou sem o rótulo", e o layout fica com o primeiro que
@@ -829,7 +829,7 @@ struct TracoWidgetView: View {
         // para atualizar" e o toque abria uma PÁGINA EM BRANCO. Abrir o app é
         // o que republica; então o destino passa a ser o app, não uma nota
         // nova que ninguém pediu.
-        // ADR 08h: com a frase do autor na face — e ela pode ser um trecho —
+        // ADR 08i: com a frase do autor na face — e ela pode ser um trecho —
         // a promessa do toque é a CONTINUAÇÃO dela, não uma nota nova. A rota
         // é a de entidade da 05u; a tela revalida selo e acesso.
         if let d = entrada.destaque {
@@ -845,7 +845,7 @@ struct TracoWidgetView: View {
 
     /// PEQUENO: o widget inteiro é um alvo só (`widgetURL`), então o atalho
     /// aqui é desenho — e só o primário. "Recordar" saiu da casa na F4-F (o
-    /// médio perdeu o cabeçalho de atalhos) e a ADR 08h diz isso em voz alta:
+    /// médio perdeu o cabeçalho de atalhos) e a ADR 08i diz isso em voz alta:
     /// continua no app, na Siri e em `traco://recordar`.
     private var pequeno: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -864,7 +864,7 @@ struct TracoWidgetView: View {
             // não pela propriedade). Quem separa é padding; quem empurra para
             // o alto é o frame.
             Group {
-                // ADR 08h: com Destaque, os candidatos (frase + rótulo) são
+                // ADR 08i: com Destaque, os candidatos (frase + rótulo) são
                 // provados juntos, para que o rótulo ceda antes da frase.
                 if let d = entrada.destaque { destaqueQueCabe(d) } else { miolo }
             }
@@ -960,7 +960,7 @@ struct TracoWidgetView: View {
     /// O médio vazio do Traço: o quadro compartilhado, na ordem de valor
     /// desta face — escrever primeiro (`QuadroVazio` guarda o porquê).
     private var quadroVazio: some View {
-        // ADR 08h: a terceira oferta ("Recordar") nunca era desenhada — o
+        // ADR 08i: a terceira oferta ("Recordar") nunca era desenhada — o
         // quadro mostra duas. Oferta que não aparece não é oferta; saiu.
         QuadroVazio(estado: "Nada em destaque hoje.",
                     ofertas: [("traco://nova", "Nova nota", "square.and.pencil"),

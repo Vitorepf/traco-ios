@@ -323,7 +323,7 @@ struct RestantesTests {
     }
 }
 
-/// ADR 08h — até quantas linhas a frase pode crescer no médio.
+/// ADR 08i — até quantas linhas a frase pode crescer no médio.
 @Suite("F5: quantas linhas o Destaque pode ocupar no médio")
 struct LinhasDoDestaqueTests {
     @Test("com agenda embaixo, duas — a agenda só existe ali e fica com o pé do cartão")
@@ -338,7 +338,7 @@ struct LinhasDoDestaqueTests {
     }
 }
 
-/// ADR 08h — só o RÓTULO encolhe; a frase do autor mantém o corpo e cede
+/// ADR 08i — só o RÓTULO encolhe; a frase do autor mantém o corpo e cede
 /// quantidade. O piso de 0,35 da F4-F comia o aumento que a pessoa pediu.
 @Suite("F5: o piso do encolhimento")
 struct EncolheTests {
@@ -349,8 +349,8 @@ struct EncolheTests {
     }
 }
 
-/// ADR 08h — a ordem de sacrifício do pequeno com Destaque, como dado com suíte.
-@Suite("ADR 08h: a ordem de sacrifício")
+/// ADR 08i — a ordem de sacrifício do pequeno com Destaque, como dado com suíte.
+@Suite("ADR 08i: a ordem de sacrifício")
 struct SacrificioTests {
     @Test("o rótulo cede antes de uma linha da frase: para cada n, com rótulo vem antes de sem")
     func rotuloCedePrimeiro() {

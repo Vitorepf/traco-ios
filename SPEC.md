@@ -5600,7 +5600,7 @@ Junto, a lei do teto sai da view e ganha suíte (`LinhasDoDestaque`), como `Esta
 
 Suíte 893 testes em 145 suítes, verde; build dos dois alvos sem aviso.
 
-## ADR 2026-09-08h — O corte honesto: o publicador limita a projeção, a face limita a apresentação (volta F4-H)
+## ADR 2026-09-08i — O corte honesto: o publicador limita a projeção, a face limita a apresentação (volta F4-H)
 
 **A distância.** A 08g prometeu "a frase do autor inteira, sempre" e comprou a promessa com encolhimento até 35%. O G4 da F4-F mediu o preço em dois fatos: com 103 caracteres em AX5 a frase saía no mesmo corpo de ~11 pt de quem não ligou acessibilidade, enquanto tudo à volta crescia 1,4× — o encolhimento comia o aumento que a pessoa pediu; e com a primeira linha de uma nota real (247 caracteres; `VozDoAutor.titulo` não tem teto) o pequeno desenhava onze linhas a ~7 pt no normal e **voltava a terminar em reticências** em AX5. O "pior caso real" de 43 caracteres da 08g não era o que o app publica. Segunda recusa da volta; o conselho (`ferramentas/orca/consulta-f4f-corte-honesto.md`) foi ouvido e esta é a decisão.
 

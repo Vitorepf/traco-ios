@@ -354,7 +354,7 @@ enum Rota {
             return .calendario
         case "recordar": return .recordar
         case "nota":
-            // ADR 08h: o widget que mostra um trecho promete a continuação —
+            // ADR 08i: o widget que mostra um trecho promete a continuação —
             // `traco://nota/<uuid>` cai na rota de entidade da 05u, e a tela
             // revalida selo e acesso antes de abrir.
             return UUID(uuidString: url.path.trimmingCharacters(in: CharacterSet(charactersIn: "/")))

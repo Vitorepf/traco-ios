@@ -11,7 +11,7 @@
 | 1 teto do publicador, na projeção | `SuperficieFora.swift`, `DestaqueDoDia.swift` | `Superficie.Destaque.teto = 140` grafemas aplicado em `DestaqueDoDia.projecao`, que `publicar` e `reconciliar` compartilham; `estadoVivo` monta o `ContentState` da Ilha a partir da MESMA projeção (teste `projecaoEAtividadeComOMesmoContrato`) |
 | 2 três estados | `SuperficieFora.swift`, `Atividades.swift` | `inteira: Bool?` → `integridade` (.inteira/.trecho/.desconhecida); documento antigo decodifica `nil` (teste); "…" literal do autor dentro do teto é inteira (teste) |
 | 3 grafemas, fronteira de palavra | `Superficie.Destaque.trecho` | `Character`; prefere espaço se guarda metade do orçamento, senão grafema; testado com 200 bandeiras 🇧🇷, 300 letras sem espaço, 299 chars em palavras |
-| 4 regra do corte honesto | ADR 08h | com as palavras da decisão; promessa da 08g corrigida para "trecho fiel e legível, com omissão reconhecível" |
+| 4 regra do corte honesto | ADR 08i | com as palavras da decisão; promessa da 08g corrigida para "trecho fiel e legível, com omissão reconhecível" |
 | 5 corpo do papel, sem fração | `FraseDoAutor`, `Encolhe` | `ViewThatFits` sobre `lineLimit(n)` no corpo cheio, sem `minimumScaleFactor`; `Encolhe.frase` apagado; no pequeno em AX o círculo sobe uma linha para a frase ter 123 pt |
 | 6 ordem de sacrifício | `Sacrificio` em `Relogio.swift`, `destaqueQueCabe` | candidatos (n linhas, com/sem rótulo) em ordem; rótulo só entra se não custa linha; `LinhasDoDestaque.noMedio(comAgenda:)` — sem agenda o layout decide (o teto de 2 com rodapé deixava 3 linhas vazias) |
 | 7 promessa verdadeira | `Intencoes.swift`, `destino` | **escolhi fazer o destino corresponder:** `traco://nota/<id>` → `Destino.nota` (rota da 05u, revalida selo); rótulo "Abrir a nota"; provado com nota real (abaixo) |
@@ -55,7 +55,7 @@ Por construção e por teste: `reconciliar` passou a usar `estadoVivo`, que nasc
 | dimensão | nota | por quê |
 |---|---|---|
 | Visão | 9 | a única coisa de hoje legível a quem pediu letra grande, e o toque leva à continuação — ciclo 1 |
-| Contrato | 9 | ADR 08h com a regra nas palavras da decisão e a promessa corrigida; EVOLUCAO |
+| Contrato | 9 | ADR 08i com a regra nas palavras da decisão e a promessa corrigida; EVOLUCAO |
 | Correção | 9 | 16 testes novos (teto, grafemas, projeção = Ilha, documento antigo, rota, ordem de sacrifício); suíte 909 verde |
 | Jornada real | 9 | 103 e 247 nos dois tamanhos, claro e escuro, fresco e velho; 43 com rótulo; toque com nota real |
 | Design | 9 | corpo do papel em toda categoria; rótulo cede antes da frase; buraco do médio fechado; hífen em AX resolvido no pequeno |

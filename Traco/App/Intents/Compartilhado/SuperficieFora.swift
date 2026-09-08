@@ -41,7 +41,7 @@ nonisolated struct Superficie: Codable, Equatable, Sendable {
 
     nonisolated struct Destaque: Codable, Equatable, Sendable {
         /// O teto público da linha, em grafemas (`Character`), marcador
-        /// incluído (ADR 08h). É o limite do PUBLICADOR: `VozDoAutor.titulo`
+        /// incluído (ADR 08i). É o limite do PUBLICADOR: `VozDoAutor.titulo`
         /// entrega a primeira linha de uma nota sem teto, e um parágrafo de
         /// 247 caracteres chegava inteiro à face. Nenhum número garante que o
         /// texto caiba — a face ainda corta o que sobrar; este só reduz o que

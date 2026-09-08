@@ -80,7 +80,7 @@ struct ForaDoAppTests {
         }
     }
 
-    // ADR 08h: o teto público entra na projeção, que `publicar` e `reconciliar` compartilham.
+    // ADR 08i: o teto público entra na projeção, que `publicar` e `reconciliar` compartilham.
     @Test("a projeção corta; o estado guarda o texto inteiro; a Ilha recebe o mesmo trecho")
     func projecaoEAtividadeComOMesmoContrato() async throws {
         try await isolado { _, _ in
@@ -607,14 +607,14 @@ struct ForaDoAppTests {
     }
 }
 
-/// ADR 08h — o corte honesto é do PUBLICADOR, uma vez, antes da distribuição.
+/// ADR 08i — o corte honesto é do PUBLICADOR, uma vez, antes da distribuição.
 ///
 /// O G4 da F4-F semeou a primeira linha de uma nota real (247 caracteres) e a
 /// face desenhou onze linhas a ~7 pt e ainda cortou: `VozDoAutor.titulo` não
 /// tem teto, e a ADR chamava 43 caracteres de "pior caso real". Aqui o teto
 /// mora na projeção — `publicar` e `reconciliar` leem a mesma —, é em
 /// grafemas, prefere fronteira de palavra, e DECLARA a omissão.
-@Suite("ADR 08h: o trecho público do Destaque")
+@Suite("ADR 08i: o trecho público do Destaque")
 struct TrechoPublicoTests {
     private let teto = Superficie.Destaque.teto
 
