@@ -7,8 +7,14 @@ import Testing
 ///
 /// As 58 frases são do REVISOR da volta M3 (`ferramentas/orca/m3-rev-provas/`),
 /// não minhas: 22 delas eram roubadas por dois métodos que fazem pergunta sobre
-/// a conduta do autor. Os dois entram aqui pela pasta do autor — o
-/// `Metodos.json` é da volta M3 e não se toca — com o roteamento literal dela.
+/// a conduta do autor.
+///
+/// A frase que estava aqui — "os dois entram pela pasta do autor, o
+/// `Metodos.json` é da volta M3 e não se toca" — morreu na colagem de 07/09:
+/// a M3 mesclou, o bundle passou a ter os 28, e `Catalogo.recarregar` recusa id
+/// repetido. `comOsNovos` é hoje um no-op: os sete já estão no catálogo, e é de
+/// lá que as réguas os leem. A cópia congelada em `novos` fica como o retrato
+/// da M3, e `osSeteCongeladosBatemComOBundle` a impede de divergir em silêncio.
 @Suite(.serialized) struct EscritaPessoalTests {
     /// Os SETE da volta M3, com o roteamento literal do `Metodos.json` dela.
     static let novos = [
@@ -18,7 +24,7 @@ import Testing
         "cincoPorques": #"{"id":"cincoPorques","nome":"Cinco porquês","campos":[{"id":"aconteceu","rotulo":"O que aconteceu (o fato, sem explicação)"},{"id":"porque1","rotulo":"Por quê? (1)"}],"roteamento":["\\bdeu errado de novo\\b|\\baconteceu de novo\\b|\\bde novo o mesmo\\b|\\bsempre (quebra|estoura|d[áa] errado)\\b","\\bpor que isso (aconteceu|deu errado|quebrou)\\b|\\bcausa raiz\\b|\\bcinco porqu[êe]s\\b|\\b5 porqu[êe]s\\b","\\bqual (foi|é) a causa\\b|\\bfalhou de novo\\b"]}"#,
         "perguntaHamming": #"{"id":"perguntaHamming","nome":"A pergunta de Hamming","campos":[{"id":"campo","rotulo":"O meu campo — onde eu quero contar"},{"id":"importantes","rotulo":"Os problemas importantes dele (um por linha)"}],"roteamento":["\\bproblemas? importantes?\\b|\\bo que (é|e) importante no meu campo\\b|\\bgrandes problemas\\b","\\bno que eu (deveria|devia) estar trabalhando\\b|\\bestou trabalhando (n[oa] )?(coisa )?errad[oa]\\b|\\btrabalhando em coisa pequena\\b","\\bvale a pena trabalhar nisso\\b|\\bisso me leva a algum lugar\\b|\\bpara onde isso me leva\\b"]}"#,
         "vistoNaoVisto": #"{"id":"vistoNaoVisto","nome":"O que se vê e o que não se vê","campos":[{"id":"ato","rotulo":"O ato, o hábito ou o gasto"},{"id":"vejo","rotulo":"O que se vê (o efeito imediato)"}],"roteamento":["\\bcusto de oportunidade\\b|\\bo que eu deixo de (fazer|ganhar|ter)\\b|\\bdeixo de fazer\\b","\\bcompensa mesmo\\b|\\bsai mais barato\\b|\\bt[áa] de gra[çc]a\\b|\\bnão custa nada\\b","\\bem troca de quê\\b|\\bo que isso me custa\\b|\\bo pre[çc]o disso\\b"]}"#,
-        "exameDaNoite": #"{"id":"exameDaNoite","nome":"Exame da noite","campos":[{"id":"revi","rotulo":"O dia em revista, sem esconder nada"},{"id":"naoRepito","rotulo":"O que EU fiz e não quero repetir"}],"roteamento":["\\bexame da noite\\b|\\bpassei o dia em revista\\b|\\bolhando o dia de hoje\\b","\\bn[ãa]o devia ter (feito|reagido|agido|tratado)\\b|\\bme arrependi\\b|\\bfui (injust[oa]|gross[oa]|duro demais|ríspid[oa])\\b","\\bperdi a (paci[êe]ncia|cabe[çc]a)\\b|\\bhoje eu (fiz|reagi|tratei)\\b"]}"#,
+        "exameDaNoite": #"{"id":"exameDaNoite","nome":"Exame da noite","campos":[{"id":"revi","rotulo":"O dia em revista, sem esconder nada"},{"id":"naoRepito","rotulo":"O que EU fiz e não quero repetir"}],"roteamento":["\\bexame da noite\\b|\\bpassei o dia em revista\\b","\\bn[ãa]o devia ter (feito|reagido|agido|tratado)\\b|\\bme arrependi\\b|\\bfui (injust[oa]|gross[oa]|duro demais|ríspid[oa])\\b","\\bperdi a (paci[êe]ncia|cabe[çc]a)\\b|\\bhoje eu (fiz|reagi|tratei)\\b"]}"#,
     ]
 
     /// As 14 linhas curtas do revisor (`frases2.txt`), todas com o dia em
@@ -130,24 +136,31 @@ import Testing
         ("Hoje eu preciso fingir que está tudo bem, mas por dentro pesa.", "dia"),
     ]
 
-    /// ADR 06i-E — A AMOSTRA CURTA: uma sonda por família ABAIXO do teto. O
-    /// buraco da A-5 não foi de léxico, foi de amostra — o rabo de 140
-    /// caracteres das sondas punha TODA frase acima do teto, e por isso
-    /// `não devia ter` na família errada sobreviveu a quatro voltas de régua.
-    /// Cada linha: a frase, a família que a reconhece, e a porta que a levaria
-    /// VESTIDA se a guarda não existisse. Sem a porta, a sonda não mede nada.
-    static let curtasPorFamilia: [(String, String, String)] = [
-        ("Hoje eu fiz besteira e chorei escondido no carro.", "1a", "exameDaNoite"),
-        ("Toda vez que abro o chat eu fico ansioso pra caramba.", "1b", "seEntao"),
-        ("Percebi que eu não presto pra ninguém.", "2", "notaPermanente"),
-        ("Hoje eu preciso trabalhar e não durmo desde terça.", "3", "dia"),
+    /// ADR 06i-E, com a causa corrigida pela volta P1 — A AMOSTRA CURTA: uma
+    /// sonda por família ABAIXO do teto, EXCLUSIVA da sua família. O buraco da
+    /// A-5 não foi de tamanho: 46 das 57 protegidas já eram curtas (medido).
+    /// Foi de CONTAMINAÇÃO — a única sonda curta que carregava `não devia ter`
+    /// («Não devia ter feito isso, senti muito.», 38 caracteres) era presa pela
+    /// família 1a, por causa de `senti`, antes de a 4 ou a 5 opinarem. Por isso
+    /// a família errada sobreviveu a quatro voltas de régua.
+    ///
+    /// Cada linha: a frase, a família que a reconhece, a porta que a levaria
+    /// VESTIDA se a guarda não existisse (sem a porta, a sonda não mede nada) e
+    /// as OUTRAS famílias que a sonda pode acionar — vazio quer dizer exclusiva,
+    /// e é o que `cadaFamiliaTemUmaSondaAbaixoDoTeto` cobra.
+    static let curtasPorFamilia: [(String, String, String, [String])] = [
+        ("Hoje eu fiz besteira e chorei escondido no carro.", "1a", "exameDaNoite", []),
+        ("Toda vez que abro o chat eu fico ansioso pra caramba.", "1b", "seEntao", []),
+        ("Percebi que eu não presto pra ninguém.", "2", "notaPermanente", []),
+        ("Hoje eu preciso trabalhar e não durmo desde terça.", "3", "dia", []),
         // a frase do revisor da M3, a que abriu esta volta, e o par dela: mesmo
         // ato de fala, mesmo tamanho, lados opostos até a 06i-E
-        ("Não devia ter reagido assim com ele.", "4", "exameDaNoite"),
-        ("Fui grosso com o meu irmão hoje.", "4", "exameDaNoite"),
+        ("Não devia ter reagido assim com ele.", "4", "exameDaNoite", []),
+        ("Fui grosso com o meu irmão hoje.", "4", "exameDaNoite", []),
         // a família 5 abaixo do teto só vale com companhia (aqui `pesado`, da
-        // 1b) — é a regra da 06i, não um furo desta régua
-        ("Foi pesado e eu fiquei calada.", "5", "colunaEsquerda"),
+        // 1b) — é a regra da 06i, não um furo desta régua: a companhia está
+        // DECLARADA aqui, e a régua a cobra como cobra a exclusividade das outras
+        ("Foi pesado e eu fiquei calada.", "5", "colunaEsquerda", ["1b"]),
     ]
 
     static let lexicoPorFamilia: [String: String] = [
@@ -298,6 +311,21 @@ import Testing
         }
     }
 
+    /// A armadilha que o revisor do re-G3 da M3 nomeou como latente, fechada na
+    /// volta P1: `novos` é uma CÓPIA das sete regex, e desde a colagem o bundle
+    /// é quem manda. Cópia que envelhece em silêncio faz a régua medir a M3 e
+    /// não o app. Aqui elas têm de bater, ramo a ramo.
+    @MainActor @Test func osSeteCongeladosBatemComOBundle() throws {
+        for (id, json) in Self.novos {
+            let congelado = try #require(
+                try JSONDecoder().decode(Metodo.self, from: Data(json.utf8)) as Metodo?)
+            let doApp = try #require(Catalogo.metodo(id), Comment(rawValue: "sumiu do bundle: \(id)"))
+            #expect(congelado.roteamento == doApp.roteamento,
+                    Comment(rawValue: "a cópia da M3 divergiu do bundle em \(id):\n"
+                            + "congelado: \(congelado.roteamento)\nbundle:    \(doApp.roteamento)"))
+        }
+    }
+
     @MainActor @Test func nenhumaDas22ViraExercicio() {
         Self.comOsNovos {
             // a régua do revisor da M3: escrita pessoal não vira `.gesto`
@@ -428,9 +456,11 @@ import Testing
     }
 
     /// AS DUAS RÉGUAS JUNTAS, no mesmo catálogo e na mesma corrida — é a
-    /// condição que a ADR 06i cobra: a guarda que protege as 57 não pode calar
-    /// as 47, e vice-versa. Se um dia as duas não puderem valer ao mesmo tempo,
-    /// o caso vai para a ADR com o lado escolhido, não para este teste.
+    /// condição que a ADR 06i cobra: a guarda que protege as 64 (mais as 13 com
+    /// gancho) não pode calar as 72 de trabalho, e vice-versa. Se um dia as duas
+    /// não puderem valer ao mesmo tempo, o caso vai para a ADR com o lado
+    /// escolhido, não para este teste. Os números são de 08/09, contra o
+    /// catálogo de 28 — eram 57 e 47 quando a 06i os escreveu.
     @MainActor @Test func asDuasReguasValemAoMesmoTempo() {
         Self.comOsNovos {
             for frase in Self.curtas + Self.longas + Self.doRevisorG3
@@ -469,13 +499,23 @@ import Testing
     /// impede a próxima cegueira de amostra — não a de léxico.
     @MainActor @Test func cadaFamiliaTemUmaSondaAbaixoDoTeto() throws {
         try Self.comOsNovos {
-            for (frase, familia, porta) in Self.curtasPorFamilia {
+            for (frase, familia, porta, alem) in Self.curtasPorFamilia {
                 #expect(frase.count < AnaliseLocal.tetoDoDesabafo,
                         Comment(rawValue: "sonda com rabo, não mede o caso curto [\(frase.count)]: «\(frase)»"))
                 let lower = frase.lowercased()
                 let lexico = try #require(Self.lexicoPorFamilia[familia])
                 #expect(lower.contains(regex: lexico),
                         Comment(rawValue: "não é da família \(familia): «\(frase)»"))
+                // A EXCLUSIVIDADE (volta P1): sonda que aciona família não
+                // declarada não mede a sua — é a contaminação que escondeu
+                // `não devia ter` por quatro voltas. A companhia legítima entra
+                // em `alem`, à vista, e não em silêncio.
+                let reconhecem = Self.lexicoPorFamilia
+                    .filter { lower.contains(regex: $0.value) }.keys.sorted()
+                #expect(Set(reconhecem) == Set([familia] + alem),
+                        Comment(rawValue: "sonda contaminada — declara \(familia)"
+                                + (alem.isEmpty ? " sozinha" : " + \(alem.joined(separator: ","))")
+                                + ", reconhecem \(reconhecem.joined(separator: ",")): «\(frase)»"))
                 #expect(AnaliseLocal.eEscritaPessoal(frase, lower),
                         Comment(rawValue: "a guarda não reconhece: «\(frase)»"))
                 // abaixo do teto a Expressiva nem abre: o destino certo é o silêncio

@@ -1,0 +1,174 @@
+{
+  "apoio": "praticar",
+  "formato": 1,
+  "evidencias": [
+    {
+      "tipo": "tentativa",
+      "texto": "Me llamo Ana. Soy Recife. Soy designer.",
+      "id": "DD8F46E3-E300-47D2-9ED4-1D748EFCD087",
+      "acaoID": "F015385D-6D08-4155-AF3F-27B9A64F81A0",
+      "tentativa": {
+        "apoioUtilizado": "Consultei o exemplo; tentativa sintética de QA.",
+        "conferencias": [
+          {
+            "resultados": [
+              {
+                "observacao": "O texto é composto por três frases separadas por pontos.",
+                "id": "70A1D768-74EB-49F7-BBA8-43748EBA0171",
+                "criterioID": "2165C641-935A-428F-AFA5-51686995FC29",
+                "situacao": "atendidoNoEscopo",
+                "trechoDaTentativa": "Me llamo Ana. Soy Recife. Soy designer."
+              },
+              {
+                "situacao": "atendidoNoEscopo",
+                "id": "53459F36-8D01-4889-8AEB-31763BBCC8F7",
+                "criterioID": "31F5A9EF-1D5D-4219-88E6-C7A2C78169DD",
+                "observacao": "A primeira frase utiliza a estrutura Me llamo seguida de Ana.",
+                "trechoDaTentativa": "Me llamo Ana. Soy Recife. Soy designer."
+              },
+              {
+                "situacao": "divergencia",
+                "id": "90B9BA1A-5927-4C11-B9AB-99D05174F029",
+                "criterioID": "59620006-9164-4711-860A-18ADD24E0FD4",
+                "observacao": "A segunda frase é Soy Recife.",
+                "trechoDaTentativa": "Me llamo Ana. Soy Recife. Soy designer."
+              },
+              {
+                "situacao": "atendidoNoEscopo",
+                "id": "906FAF25-E805-4705-89FF-1154D595EFF6",
+                "criterioID": "4023E6AA-934C-43F6-BCEA-4890ADBAEACA",
+                "observacao": "A terceira frase utiliza a estrutura Soy seguida de designer.",
+                "trechoDaTentativa": "Me llamo Ana. Soy Recife. Soy designer."
+              },
+              {
+                "observacao": "O texto inclui a palavra designer.",
+                "criterioID": "DFF742D9-86FA-4A82-AEB4-31DEB525A9D3",
+                "id": "E2B41C22-7D59-467E-95F6-A9F1AC0442EC",
+                "situacao": "divergencia",
+                "trechoDaTentativa": "Me llamo Ana. Soy Recife. Soy designer."
+              }
+            ],
+            "versaoDoMetodo": 2,
+            "data": 810566688.236228,
+            "id": "0D0DDDC4-1D1A-4962-8EF4-2438BF76CE32",
+            "executor": "Grok · feedback da tentativa",
+            "estado": "concluida"
+          }
+        ],
+        "origem": "pessoa"
+      },
+      "artefatoID": "C3130E4C-4F69-4A39-AF2D-F979C826D695",
+      "data": 810566622.801802,
+      "atribuidaA": "Você"
+    }
+  ],
+  "hipoteses": [],
+  "acoes": [
+    {
+      "estado": "pendente",
+      "artefatoID": "C3130E4C-4F69-4A39-AF2D-F979C826D695",
+      "id": "F015385D-6D08-4155-AF3F-27B9A64F81A0",
+      "texto": "Fazer o exercício preparado",
+      "responsavel": "pessoa"
+    }
+  ],
+  "pedidos": [
+    {
+      "estado": "pronto",
+      "data": 810566336.21662,
+      "instrucao": "Teste de QA com dados fictícios. Prepare um exercício de espanhol para iniciante em tres blocos de cinco minutos, sozinho, sem camera nem parceiro. Quero escrever e depois falar nome, cidade e profissão. Ensine vocabulário e estruturas incompletas com tradução portuguesa, sem escrever minha resposta. Use um exemplo resolvido de outra pessoa. Avalie so a tentativa escrita, sem audio. Dados fictícios para a tentativa: Ana, Recife, designer.",
+      "intencaoID": "932A0083-23FE-4574-8D6E-E8B18E63ADBD",
+      "id": "55E676EA-39E0-4FDC-A1D9-D51EA1C74085"
+    }
+  ],
+  "intencoes": [
+    {
+      "data": 810566301.669023,
+      "id": "932A0083-23FE-4574-8D6E-E8B18E63ADBD",
+      "resultado": "",
+      "texto": "QA 08/09 - Praticar espanhol do zero"
+    }
+  ],
+  "encerrado": false,
+  "id": "B8FBE1AC-9FE5-463D-8E07-8123B105A182",
+  "artefatos": [
+    {
+      "conferencias": [
+        {
+          "estado": "concluida",
+          "pedidoID": "55E676EA-39E0-4FDC-A1D9-D51EA1C74085",
+          "versaoDoMetodo": 2,
+          "data": 810566357.27995,
+          "id": "D54D71AC-3938-4243-B0D1-5BEBD9143B05",
+          "executor": "aparelho · regras v2",
+          "resultados": [
+            {
+              "situacao": "atendidoNoEscopo",
+              "justificativa": "Os trechos examinados ficam dentro de português e espanhol. Não conferi qual frase é original e qual é tradução — isso exige leitura.",
+              "trechoFonte": "Ensine vocabulário e estruturas incompletas com tradução portuguesa, sem escrever minha resposta Prepare um exercício de espanhol para iniciante em tres blocos de cinco minutos, sozinho, sem camera nem parceiro",
+              "trechosDoArtefato": [],
+              "id": "AB7E00D4-C15B-4C6D-8A0D-DD76FBA84B7F",
+              "criterio": "Idiomas pedidos: português e espanhol",
+              "fonte": "instrucao"
+            },
+            {
+              "situacao": "divergencia",
+              "justificativa": "O pedido pede 3 blocos de 5 minutos (15 no total); encontrei 4 marcas: 5 min, 5 min, 5 min, 5 min, somando 20. Cada bloco também precisa ter a duração pedida.",
+              "trechoFonte": "Prepare um exercício de espanhol para iniciante em tres blocos de cinco minutos, sozinho, sem camera nem parceiro",
+              "trechosDoArtefato": [
+                "5 min, 5 min, 5 min, 5 min"
+              ],
+              "id": "1029F47D-566F-44AD-B1BB-FA1E9B4C0ED7",
+              "criterio": "Tempo pedido: 3 blocos de 5 minutos (15 no total)",
+              "fonte": "instrucao"
+            },
+            {
+              "criterio": "Destinatário, conteúdo e adequação",
+              "trechosDoArtefato": [],
+              "justificativa": "Se o material serve a quem foi pedido, se as traduções estão corretas e se o texto é utilizável, ninguém leu. Isso exige leitura, não regra.",
+              "id": "580702C3-633F-4084-A27A-651849E534CE",
+              "fonte": "instrucao",
+              "situacao": "naoAvaliado",
+              "trechoFonte": "Teste de QA com dados fictícios"
+            }
+          ]
+        }
+      ],
+      "produtor": "Grok · exercício preparado",
+      "conteudo": "# Exercício: Escrever e falar nome, cidade e profissão em espanhol\n\n**Situação:** Em prática individual de autoapresentação em espanhol sem recursos adicionais\n\n## O que fazer\n\nRealize o exercício em três blocos de cinco minutos, sozinho. Bloco 1 (5 minutos): Leia e memorize estas estruturas com traduções ao português: Me llamo [seu nome]. (Eu me chamo [seu nome].) Soy de [sua cidade]. (Sou de [sua cidade].) Soy [sua profissão]. (Sou [sua profissão].) Para designer feminino, utilize 'diseñadora'. Bloco 2 (5 minutos): Escreva três frases em espanhol completando as estruturas com os dados Ana, Recife e designer. Bloco 3 (5 minutos): Pratique falar as frases em voz alta. Somente o texto escrito será avaliado, sem considerar áudio.\n\n## Exemplo resolvido (de outro caso, não é a resposta)\n\nExemplo resolvido para Carlos de Barcelona, engenheiro: Me llamo Carlos. (Eu me chamo Carlos.) Soy de Barcelona. (Sou de Barcelona.) Soy ingeniero. (Sou engenheiro.)\n\n## Como conferir o seu desempenho\n\n- Produz exatamente três frases.\n- A primeira frase utiliza a estrutura 'Me llamo' seguida de um nome.\n- A segunda frase utiliza a estrutura 'Soy de' seguida de uma cidade.\n- A terceira frase utiliza a estrutura 'Soy' seguida de uma profissão.\n- O texto está escrito em espanhol sem traduções incluídas.",
+      "pratica": {
+        "exemplo": "Exemplo resolvido para Carlos de Barcelona, engenheiro: Me llamo Carlos. (Eu me chamo Carlos.) Soy de Barcelona. (Sou de Barcelona.) Soy ingeniero. (Sou engenheiro.)",
+        "capacidade": "Escrever e falar nome, cidade e profissão em espanhol",
+        "criterios": [
+          {
+            "id": "2165C641-935A-428F-AFA5-51686995FC29",
+            "texto": "Produz exatamente três frases."
+          },
+          {
+            "id": "31F5A9EF-1D5D-4219-88E6-C7A2C78169DD",
+            "texto": "A primeira frase utiliza a estrutura 'Me llamo' seguida de um nome."
+          },
+          {
+            "id": "59620006-9164-4711-860A-18ADD24E0FD4",
+            "texto": "A segunda frase utiliza a estrutura 'Soy de' seguida de uma cidade."
+          },
+          {
+            "id": "4023E6AA-934C-43F6-BCEA-4890ADBAEACA",
+            "texto": "A terceira frase utiliza a estrutura 'Soy' seguida de uma profissão."
+          },
+          {
+            "id": "DFF742D9-86FA-4A82-AEB4-31DEB525A9D3",
+            "texto": "O texto está escrito em espanhol sem traduções incluídas."
+          }
+        ],
+        "situacao": "Em prática individual de autoapresentação em espanhol sem recursos adicionais",
+        "enunciado": "Realize o exercício em três blocos de cinco minutos, sozinho. Bloco 1 (5 minutos): Leia e memorize estas estruturas com traduções ao português: Me llamo [seu nome]. (Eu me chamo [seu nome].) Soy de [sua cidade]. (Sou de [sua cidade].) Soy [sua profissão]. (Sou [sua profissão].) Para designer feminino, utilize 'diseñadora'. Bloco 2 (5 minutos): Escreva três frases em espanhol completando as estruturas com os dados Ana, Recife e designer. Bloco 3 (5 minutos): Pratique falar as frases em voz alta. Somente o texto escrito será avaliado, sem considerar áudio."
+      },
+      "id": "C3130E4C-4F69-4A39-AF2D-F979C826D695",
+      "formato": "markdown",
+      "intencaoID": "932A0083-23FE-4574-8D6E-E8B18E63ADBD",
+      "data": 810566357.248449,
+      "origem": "ia"
+    }
+  ]
+}

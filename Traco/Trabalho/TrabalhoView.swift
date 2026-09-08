@@ -37,6 +37,7 @@ struct TrabalhoView: View {
     /// A gaveta da versão: escrever a primeira e editar a atual nunca convivem.
     @State private var editandoVersao = false
     @State private var editandoIntencao = false
+    @State private var historicoAberto = false
     @State private var confirmarDescarte = false
     @State private var recuperacao: String?
     @State private var confirmarApagarCopia = false
@@ -178,6 +179,7 @@ struct TrabalhoView: View {
             .id("trabalho-erro")
         }
         intencao(o)
+        retomada(o)
         apoio(o)
         producao(o)
         praticar(o)
@@ -191,6 +193,28 @@ struct TrabalhoView: View {
     }
 
     // MARK: - Intenção
+
+    @ViewBuilder private func retomada(_ o: OficinaTrabalho) -> some View {
+        if let acao = o.documento.acoes.first(where: { $0.estado == .pendente }) {
+            acaoSecundaria("Continuar: \(acao.texto)") {
+                campoEmFoco = nil
+                rolarPara = "trabalho-atos"
+            }
+            .accessibilityIdentifier("trabalho-continuar-ato")
+        }
+        if let retorno = o.documento.evidencias.last {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Último retorno · \(retorno.atribuidaA)").font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+                Text(retorno.texto).lineLimit(3)
+                acaoSecundaria("Ver retorno e histórico") {
+                    campoEmFoco = nil
+                    if retorno.tentativa != nil { historicoAberto = true }
+                    rolarPara = retorno.tentativa == nil ? "trabalho-retorno" : "trabalho-historico"
+                }
+            }
+            .accessibilityIdentifier("trabalho-retomada")
+        }
+    }
 
     private func intencao(_ o: OficinaTrabalho) -> some View {
         VStack(alignment: .leading, spacing: Tema.entreItens) {
@@ -576,6 +600,14 @@ struct TrabalhoView: View {
             .accessibilityIdentifier("pratica-conferir-tentativa")
             botaoNovaTentativa
         }
+        if PraticaTrabalho.oferta(contaLigada: ContaGrok.ligada) == nil, !o.conferindoTentativa {
+            acaoSecundaria("Adaptar o próximo exercício") {
+                guard !levouAoQueFalta(o, campoObrigatorio: nil) else { return }
+                definir("pedido", "Prepare um novo exercício a partir da minha última tentativa, do feedback e dos relatos. Preserve as restrições ainda aplicáveis e trabalhe a dificuldade observada, sem resolver minha próxima tentativa nem afirmar aprendizagem.")
+                o.gerar(rascunhos["pedido"] ?? "")
+            }
+            .accessibilityIdentifier("pratica-adaptar-exercicio")
+        }
     }
 
     private var botaoNovaTentativa: some View {
@@ -865,6 +897,7 @@ struct TrabalhoView: View {
                 .id(acao.id)
             }
         }
+        .id("trabalho-atos")
     }
 
     /// Só relatos: a tentativa já está em Praticar, e a dificuldade (hipótese,
@@ -900,13 +933,19 @@ struct TrabalhoView: View {
                     .accessibilityIdentifier("trabalho-revisar")
                 }
             }
+            .id("trabalho-retorno")
         }
     }
 
     /// Uma gaveta só, e sem gaveta dentro de gaveta: cada versão é um cartão.
     private func historico(_ o: OficinaTrabalho) -> some View {
-        DisclosureGroup("Histórico de versões (\(o.documento.artefatos.count))") {
+        DisclosureGroup("Histórico de versões (\(o.documento.artefatos.count))", isExpanded: $historicoAberto) {
             VStack(alignment: .leading, spacing: Tema.entreItens) {
+                let livres = o.documento.tentativas(doArtefato: nil)
+                if !livres.isEmpty {
+                    Text("Tentativas sem material preparado").font(Tema.chrome.weight(.semibold))
+                    ForEach(livres) { e in tentativa(e, pratica: nil, ultima: false, oficina: o) }
+                }
                 ForEach(o.documento.artefatos.reversed()) { a in
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Versão \(numero(a.id, em: o.documento)) · \(a.produtor)")
@@ -929,6 +968,7 @@ struct TrabalhoView: View {
         }
         .font(Tema.chrome)
         .tint(Tema.tintaSuave)
+        .id("trabalho-historico")
     }
 
     /// O rodapé de estado: salvamento, rascunhos e a cópia de recuperação.
