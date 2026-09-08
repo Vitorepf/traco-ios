@@ -258,6 +258,48 @@ O dono pediu ao Astra uma leitura de prioridades e depois decidiu que o laço do
 
 **O que esta volta NÃO fecha, e eu prefiro dizer agora:** o item 1 da fila do dono só se resolve quando **o dono efetivamente usa e continua a situação real** — a demonstração técnica não o fecha. A V17 entrega o mecanismo e a jornada provada; o item 1 fecha no uso.
 
+### G0 da RETOMADA DO TRABALHO — item 4 da fila do dono (escrito em 08/09, à espera de vaga)
+
+**Ciclo:** multiplicar a mente. O autor volta ao Trabalho depois de um dia e
+continua **sem reconstruir o contexto**.
+**Critério de resolvido (do Astra, palavra dele):** *"o dono volta depois e
+continua com pouca explicação"*.
+
+**Intenção que serve:** retomar objetivo, versões, decisões e próximo passo.
+
+**Obstáculo, nomeado no código e a conferir na tela viva antes de codar (a
+auditoria é datada — metade dos defeitos já caiu):** existe uma
+`TrabalhoView.retomada(_:)` (`Traco/Trabalho/TrabalhoView.swift:197`), e ela
+entrega **duas** coisas: "Continuar: <ato pendente>" e "Último retorno ·
+<atribuição>" com três linhas e um atalho para o histórico. O que ela **não**
+entrega é o resto do critério do dono:
+
+1. **A folha não abre no ponto certo.** `retomada` é o segundo bloco de uma
+   pilha de quinze (`intencao`, `retomada`, `apoio`, `producao`, `praticar`,
+   artefato, intercâmbio, `atos`, `retorno`, `dificuldade`, `historico`,
+   `rodape`) — ela **oferece** rolagem (`rolarPara`), mas a abertura é sempre no
+   topo. Quem volta cai na intenção, não no ponto onde parou.
+2. **Não há resumo do que houve entre as duas visitas.** Versão N produzida,
+   decisão tomada (o apoio marcado, o trecho delimitado no Combinar), ato
+   agendado, resultado observado — nada disso é dito junto. Depois da **E1** o
+   `ResultadoObservado` existe como eixo próprio e é candidato natural a entrar
+   nesse resumo.
+3. **"Último retorno" é a última evidência, não o que mudou.** Se o autor
+   guardou a própria versão e não houve evidência nova, a retomada fala de algo
+   antigo — ou não fala nada.
+
+**Evidência que prova (a régua desta volta):** **curva-zero medida em toques**,
+com o mesmo gesto nos dois builds, na jornada "voltei depois de um dia e
+continuo de onde parei" — com estado plantado (há receita:
+`plantar-trabalho-no-store`, o JSON no `ZTRABALHO` do App Group). Antes e
+depois no **mesmo aparelho**, com captura e árvore de AX do mesmo instante. E o
+teste que fica vermelho se a retomada voltar a apontar para o lugar errado.
+
+**Fronteiras:** nada de tela nova e nada de agregado novo — é a folha do
+Trabalho que já existe. Nada de `EstadoExercicio` persistido (decisão da V17,
+item 3). Nada de resumo escrito pela IA: quem sabe o que mudou é o app, que tem
+os vínculos; modelo não inventa o que a pessoa fez.
+
 ## Próximas, em ordem
 
 | # | volta | valor | esforço | ciclo | lacuna (EVOLUCAO) |
