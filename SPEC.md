@@ -5740,3 +5740,134 @@ mesmo tamanho de letra não transborda. É acessibilidade real e é do `Camadas`
 *Previews por estado.* `FraseDoAutor` e `CapsulaViva` ganham preview por estado (inteira, trecho e desconhecida; a face cortando em corpo cheio; com "Desatualizado."; AX5; tela bloqueada; casa e Ilha), e o trecho do preview sai do mesmo `trecho()` do publicador. Ficam no arquivo do widget, não em `Traco/Componentes`: o alvo `TracoWidget` compila só `TracoWidget/`, `Tema.swift` e `Intents/Compartilhado` (ADR 05u), e nada no app usa as duas — mudá-las de pasta as poria a compilar no app para ninguém e abriria à extensão uma pasta que é do app. A casa de um componente é onde ele é usado.
 
 **O que esta ADR NÃO prova.** StandBy e Ilha mínima seguem limites do instrumento (08g). O toque no widget que abre a nota foi provado na rota e no aparelho com uma nota real; o alvo do círculo do feito no pequeno continua dividido com o `widgetURL`, como antes. Modo escuro do widget continua sendo o papel único de `Tema.fundo` (volta L2).
+
+## ADR 2026-09-08j — A causa do ajuste é dado, não inferência (volta V17)
+
+O laço que faltava ao artefato era de **observação e versão**, não de
+renderização: o Trabalho já tinha versão com origem (05i, 05s), tentativa do
+autor como evidência separada (05r), ida e volta pelo arquivo com conflito e
+retry (05l, 06a) e preparação que lê tentativas anteriores (08a). O que não
+existia era a **causa do ajuste como dado vinculante**: `pedidoDe` a inferia por
+base e intenção, e inferência não pode ser a autoridade que explica ao autor por
+que o exercício dele mudou.
+
+**Dono único: o Trabalho.** O exercício continua sendo
+`DocumentoTrabalho.Artefato.pratica` e a versão seguinte nasce pela rota que já
+existe — `OficinaTrabalho.gerar` → `MotorTrabalho.produzir` →
+`DocumentoTrabalho.receber`. Nenhuma versão, corpus ou índice paralelo; nenhuma
+tela nova; a representação segue na seção Praticar da folha do Trabalho.
+
+**Contrato mínimo.** `Pedido.ajuste?` guarda gatilho **fechado**
+(`pedidoDoAutor` ou `necessidadePercebida`), motivo escrito pelo app e
+referência à evidência — mais a conferência e os critérios quando foram eles que
+o sustentaram. `Artefato.pedidoID?` liga a versão à causa. `validarAjuste`
+recusa vínculo quebrado, `necessidadePercebida` sem tentativa E sem leitura,
+motivo vazio e critério que não pertence ao exercício daquela tentativa.
+Ausência nos registros antigos significa **vínculo não registrado**: `ajuste(de:)`
+devolve `nil` e ninguém reconstrói causalidade histórica. A inferência antiga
+sobrevive só dentro de `pedidoDe`, e só para achar a rota de conferência da 05q.
+
+**Nenhum estado de exercício persistido.** Produzido vem da versão guardada;
+tentativa registrada vem da evidência do autor; desempenho demonstrado continua
+exigindo leitura sustentada com avaliador visível. Sem `aprendido`, sem
+pontuação global, sem contador de domínio, sem promoção automática de hipótese.
+Reescrever o exercício não é dizer que a pessoa aprendeu, e a seção que anuncia
+a mudança escreve isso na tela.
+
+**A causa não cabe no trecho descartável.** Num ajuste, a tentativa que o
+sustenta, a leitura atribuída dela, os critérios vigentes e as restrições ainda
+aplicáveis sobem para a cabeça do contexto, fora do bloco que o orçamento corta.
+Não cabendo na janela do provedor, o pedido fica `ajusteIndisponivel` e a folha
+diz isso — nunca sai um pedaço da evidência que explica a mudança.
+
+**A fronteira da IA está no tipo.** A saída da adaptação aceita a preparação e
+`mudanca` — o que mudou — e nada mais: `additionalProperties: false`, chave a
+mais derruba a resposta inteira, e não existe campo de resposta nem comando que
+toque em `Evidencia`. `guardarTentativa` continua operação do autor e o campo de
+tentativa da versão nova nasce vazio. `mudanca` passa pelo mesmo teto e pela
+mesma prova de vazamento dos critérios. **Limite reconhecido:** validação
+estrutural impede escrita na evidência, mas **não prova ausência de solução
+disfarçada no enunciado** — isso é leitura semântica, como a 05r já admite.
+
+**O ato visível é "Conferir e adaptar o exercício"**, novo e explícito, porque
+"Conferir minha tentativa" já promete uma operação e uma chamada por toque
+(05r). Ele lê a tentativa, guarda a leitura **antes** de pedir a versão (05s), e
+só reescreve quando a leitura sustenta: conferência indisponível ou sem
+divergência não gera versão e a folha diz por quê. A mesma leitura não gera duas
+versões; reabrir o documento não dispara nada; não há laço em segundo plano.
+
+**O anúncio é UMA seção no próprio documento**, escrita pelo app: a descrição da
+mudança é do modelo, a origem, o motivo e os vínculos são do código — o modelo
+não inventa ID nem decide qual pedido o produziu. Não repete o histórico e não
+declara aprendizagem.
+
+**A correção do dono sobre a leitura.** `ConferenciaTentativa.contestadaEm` e
+`motivoDaContestacao`, pela ação "Não foi isso que eu errei". A leitura **fica**
+no registro, com todos os seus resultados, e sai do `contextoDeRetorno` e do
+núcleo do ajuste: a interpretação que o autor contestou não orienta mais os
+ajustes seguintes.
+
+**Defeito de superfície achado na tela viva e corrigido nesta volta:** a lista de
+tentativas é filtrada pela versão vigente, então a tentativa que causou a versão
+sumia da folha no instante em que passava a importar, levando junto a leitura e a
+rota de contestá-la. A seção "A tentativa que gerou esta versão" a devolve, em
+leitura, com o feedback e a contestação.
+
+**Limite de instrumento, declarado.** O simulador de teste não tem conta Grok — o
+aparelho que tem é de outra volta e não podia ser tocado. Os dois atos gatilhados
+pela conta foram fotografados com `-ensaio-oferta-da-pratica`, um argumento de
+lançamento **só em Debug** que abre a OFERTA e nada mais: não fabrica token, não
+chama rede, e o que a tela mostra depois do toque continua sendo a
+indisponibilidade real. É o mesmo instrumento que a 06c criou para o ditado. A
+jornada foi observada num documento plantado no aparelho, não gerado pelo
+provedor: esta ADR descreve o contrato e a superfície, e **não** certifica a
+qualidade semântica do exercício adaptado, que continua sendo prova da frente Q.
+
+## ADR 2026-09-08k — A garantia sai da tela e vira invariante do documento (volta V17-B)
+
+A revisão independente da V17 passou nos sete pontos do contrato e **reprovou por
+dois P1 com a mesma doença**: a garantia existia **na tela** e não no agregado. A
+lição do dia é essa: **a lei tem de morar onde ninguém pode contorná-la** — outra
+rota, uma importação ou uma regressão de chamador passam por cima de um `guard`
+de View.
+
+**A unicidade e a semântica da leitura passam a ser do documento.**
+`OficinaTrabalho.conferirEAdaptar` impedia a repetição; `validarAjuste` só conferia
+que o `conferenciaID` existia. Agora, no agregado: `necessidadePercebida` exige
+critério apontado; a leitura citada tem de estar **concluída** e cada critério
+citado tem de ser **divergência nela** — critério que a leitura deu por atendido
+não sustenta reescrita; e o mesmo `conferenciaID` **não aparece em dois**
+`Pedido.ajuste`, de modo que a N+2 da mesma leitura é recusada em `iniciarPedido`
+e um documento que a trouxesse é recusado em `validar()`.
+
+**A leitura contestada é checada no nascimento do pedido, não em `validar`.** Uma
+contestação vem DEPOIS da versão que ela explica; recusar o documento inteiro por
+isso apagaria a história. `iniciarPedido` recusa o ajuste novo apoiado numa
+leitura contestada; a versão que já nasceu dela continua guardada e explicada.
+
+**A troca de documento durante a edição.** Enquanto a IA prepara ou adapta, a
+folha **não deixa entrar em edição** — tocar leva ao progresso em curso, como toda
+ação que compete com ele (e `adaptando` entra nessa conta: entre a leitura e a
+versão seguinte não existe `pedidoAtivo`, e era por essa fresta que a edição
+começava). E porque guarda de tela não é invariante, `guardarVersaoHumana` passa a
+aceitar a **base** que estava na tela e a recusar guardar por cima de outra: um
+texto escrito sobre a versão N não é guardado como resposta à N+1. `nil` = base
+não declarada (importação e registro antigo), e ninguém reconstrói o que a pessoa
+estava lendo.
+
+**A causa do pedido escrito pelo autor.** "Adaptar o próximo exercício" era o
+único chamador de UI que criava `Pedido.ajuste(gatilho: .pedidoDoAutor)` — cortar
+a cápsula sem mais apagaria a via do pedido explícito. Então, na ordem: primeiro
+**o que o autor escreve no campo vira a causa registrada** (`pedidoDoAutor`, com o
+texto dele como motivo, dentro da prática e com exercício vigente — preparar não é
+ajustar), e só então a cápsula enlatada saiu. A seção Praticar volta de quatro
+para três cápsulas e o anúncio da versão diz "A pedido seu." seguido do que ele
+escreveu. **Nenhuma evidência é apontada**: ele escreveu um pedido, não disse a
+qual tentativa responde, e deduzir isso seria inventar causalidade.
+
+**Limite de instrumento, declarado.** O bloqueio da entrada em edição **não se
+fotografa** neste aparelho: sem conta Grok, `adaptando` dura milissegundos e um
+pedido ativo é interrompido na abertura do documento. Ele está provado por teste
+(`editarDuranteAAdaptacaoNaoTrocaODocumentoDebaixoDaPessoa`) e por código, não por
+captura. A lacuna da jornada com provedor real continua exatamente como a 08j a
+declarou — é prova da frente Q.

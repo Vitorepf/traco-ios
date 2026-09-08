@@ -21,6 +21,7 @@
 		106CBE50EBFFC19F908C0FAC /* RascunhoTrabalhoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07BBD0ED2EF321DDCE0E6B9C /* RascunhoTrabalhoTests.swift */; };
 		12BB3542B2F7018C8D12F2F3 /* ConversaNotasTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E42136E3E9C7EFF19C16BF /* ConversaNotasTests.swift */; };
 		1425C8343284780C8896D088 /* DestaqueFeitoIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1E9A224786DC6173B194387 /* DestaqueFeitoIntent.swift */; };
+		15D58FA109E577388359863B /* AjusteDoExercicioTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D7F182DAA90D0C99BD9326B /* AjusteDoExercicioTests.swift */; };
 		167D033BE03D47F30DA5BAD5 /* AnaliseDeBordoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83996006ACA17F6C0CCA1E9 /* AnaliseDeBordoTests.swift */; };
 		18CA95CB59AA6B9E3DF98CDC /* AgendamentoAcaoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AADD8085337A3F3C82395E8 /* AgendamentoAcaoView.swift */; };
 		18E59F465C2E5F093AD7040E /* TracoWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 8C37AE5D202E97779C84A745 /* TracoWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -322,6 +323,7 @@
 		8A31CF16DDDD850E4008ED6A /* VozDoAutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VozDoAutor.swift; sourceTree = "<group>"; };
 		8C37AE5D202E97779C84A745 /* TracoWidget.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = TracoWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		8C539D876F7FEE65C40EA9E2 /* Volta.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Volta.swift; sourceTree = "<group>"; };
+		8D7F182DAA90D0C99BD9326B /* AjusteDoExercicioTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AjusteDoExercicioTests.swift; sourceTree = "<group>"; };
 		8F27C76D6940C416F3957AA3 /* VersoesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VersoesView.swift; sourceTree = "<group>"; };
 		91E87C7FB979BD1A3D4211AE /* LinhaDoTempoWidgetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinhaDoTempoWidgetTests.swift; sourceTree = "<group>"; };
 		948CA481153CAE57BEF667E4 /* LinhasDeProveniencia.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinhasDeProveniencia.swift; sourceTree = "<group>"; };
@@ -574,6 +576,7 @@
 		686520F100AADC6764F73F5E /* TracoTests */ = {
 			isa = PBXGroup;
 			children = (
+				8D7F182DAA90D0C99BD9326B /* AjusteDoExercicioTests.swift */,
 				D83996006ACA17F6C0CCA1E9 /* AnaliseDeBordoTests.swift */,
 				AECFB44B4FF4BE148A31BF05 /* AnaliseLocalTests.swift */,
 				E039F3F107E8DC3EDD18C55E /* AvisoDoCompromissoTests.swift */,
@@ -894,6 +897,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				15D58FA109E577388359863B /* AjusteDoExercicioTests.swift in Sources */,
 				167D033BE03D47F30DA5BAD5 /* AnaliseDeBordoTests.swift in Sources */,
 				810CC40FDE779309217667CD /* AnaliseLocalTests.swift in Sources */,
 				8C9D2230F1FD4B08B21BFD7F /* AvisoDoCompromissoTests.swift in Sources */,
