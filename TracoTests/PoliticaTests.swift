@@ -41,7 +41,7 @@ import Testing
         #expect(todas.count == Politica.Operacao.allCases.count)
     }
 
-    /// ADR 08k: com a conta LIGADA, seis operações continuam sem executor —
+    /// ADR 08q: com a conta LIGADA, seis operações continuam sem executor —
     /// e a frase da tela não pode mandar conectar a conta que já existe.
     @Test func indisponivelPorQualidadeNaoTemExecutorNemComContaEAparelho() {
         let cortadas: [Politica.Operacao] = [.ecos, .calibragem, .recordar, .responderNasNotas,

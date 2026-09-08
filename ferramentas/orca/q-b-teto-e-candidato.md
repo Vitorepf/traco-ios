@@ -7,7 +7,7 @@ antes do G5. **Esta é a minha leitura; a nota final é do revisor independente.
 ## G0 — a linha da volta
 
 **Ciclo:** melhorar. **Intenção:** o que a tela oferece, o autor recebe.
-**Obstáculo:** a ADR 08k identificava o candidato errado, contava 12 falhas onde
+**Obstáculo:** a ADR 08q identificava o candidato errado, contava 12 falhas onde
 o próprio JSONL somava 20, e mantinha três rotas de Trabalho na vitrine sabendo
 que uma delas chegava em 1 de 6 casos. **Evidência:** recontagem linha a linha
 do JSONL de 08/09; leitura do `git show` dos dois commits; e uma remedição nova
@@ -21,7 +21,7 @@ no aparelho do dono, com a conta ligada, dos nove casos que carregavam todas as
 O G3 tem razão, e o `git show` fecha em uma linha:
 
 - `325c819` — **um arquivo**, `ferramentas/orca/LACO.md`, 10 linhas. Não
-  implementa nada da 08k.
+  implementa nada da 08q.
 - `acdfcb4` — **os 15 arquivos da Q**: `Politica.swift` (+76), `Sabia.swift`
   (−8), `AvaliacaoIA.swift`, `PoliticaTests.swift`, SPEC, QUALIDADE-IA,
   EVOLUCAO, o relatório e as seis provas.
@@ -81,7 +81,7 @@ desfecho:
 as 9 da remedição. Os dois estão certos, com denominadores diferentes, e agora
 os dois estão escritos.
 
-**Onde foi corrigido:** `SPEC.md` (ADR 08k), `ferramentas/orca/q-qualidade.md`,
+**Onde foi corrigido:** `SPEC.md` (ADR 08q), `ferramentas/orca/q-qualidade.md`,
 `QUALIDADE-IA.md` e `EVOLUCAO.md` — que também dizia "sete rotas cortadas" e
 listava seis, faltando `responderNasNotas`.
 
@@ -103,7 +103,7 @@ contra 20 em 72.*
   espera — e o defeito de espera tinha conserto.
 - **Teto.** Mesmo modelo, mesmo `reasoning_effort`, mesmo prompt: muda só a
   paciência, e por isso não obriga a remedir as dezesseis. (Baixar o raciocínio,
-  que a 08k listava como terceira saída, obrigaria.)
+  que a 08q listava como terceira saída, obrigaria.)
 
 ### O código
 
@@ -113,7 +113,7 @@ Quatro `timeout: 90` literais viraram **um** `Grok.tetoTrabalho = 240`
 divergem em silêncio — e foi assim que um teto apagou uma operação da tela sem
 ninguém decidir isso.
 
-### A medida nova (ADR 2026-09-08m)
+### A medida nova (ADR 2026-09-08r)
 
 Aparelho `C2416CBC`, install **por cima**, conta conferida antes, em cada
 registro e depois. Nove casos — exatamente os que carregavam as 20 falhas — × 3
@@ -235,7 +235,7 @@ Orientação, letra e aparência não foram tocadas.
 
 | dimensão | nota | evidência |
 |---|---:|---|
-| Visão | 9 | fecha a lacuna de disponibilidade que a 08k nomeou e adiou; EVOLUCAO atualizado |
+| Visão | 9 | fecha a lacuna de disponibilidade que a 08q nomeou e adiou; EVOLUCAO atualizado |
 | Contrato | 9 | candidato `acdfcb4` provado por `git show` e por símbolo no dylib instalado; 20 contra 12 reconciliado nos quatro lugares, com o terceiro número (177/186) escrito antes de virar contradição |
 | Correção | 9 | 915 testes, zero falhas, linha colada; teste novo que falha se o teto voltar a 90 |
 | Jornada real | 8 | 27 execuções pelas funções de produção no aparelho do dono com a conta ligada; mas é sonda, não a jornada do Trabalho aberta na tela — e eu digo isso em vez de vender captura |

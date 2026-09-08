@@ -13,7 +13,7 @@ struct GrokContratoTests {
         #expect(Grok.corpo(sistema: "", usuario: "", temperatura: 0, esquema: nil, esforco: "inventado") == nil)
     }
 
-    /// ADR 2026-09-08m. Um teto só para as quatro rotas de Trabalho, e ele é
+    /// ADR 2026-09-08r. Um teto só para as quatro rotas de Trabalho, e ele é
     /// MEDIDO: com 90 s, 20 de 72 chamadas a `grok-4.6` morriam aos 91 s
     /// (`prepararPratica` 11 de 18); com 240 s, as 30 chamadas das 27 execuções
     /// que carregavam essas 20 falhas voltaram inteiras. A pior execução medida
@@ -22,7 +22,7 @@ struct GrokContratoTests {
     ///
     /// São duas guardas distintas, e o G3 pediu as duas separadas:
     /// o PISO OBSERVADO (não descer abaixo do que já medimos chegar) e a
-    /// DECISÃO (240 s, com a folga que a ADR 08m escolheu). Baixar o teto para
+    /// DECISÃO (240 s, com a folga que a ADR 08r escolheu). Baixar o teto para
     /// 181 passaria no piso e mataria a decisão — foi assim que a operação
     /// sumiu da tela sem ninguém notar.
     @Test func oTetoDeTrabalhoCobreAPiorLatenciaMedida() {
@@ -30,7 +30,7 @@ struct GrokContratoTests {
                 "piso: 178,144 s é a pior execução que a medida de 08/09 viu chegar inteira")
         #expect(Grok.tetoTrabalho > 90, "90 s foi o teto que cortou 28 % das chamadas a grok-4.6")
         #expect(Grok.tetoTrabalho == 240,
-                "decisão da ADR 08m: 240 s. Mudar o valor é mudar a ADR, com medida nova ao lado")
+                "decisão da ADR 08r: 240 s. Mudar o valor é mudar a ADR, com medida nova ao lado")
     }
 
     @Test func respostaCortadaOuRecusadaNaoViraEntregaCompleta() throws {

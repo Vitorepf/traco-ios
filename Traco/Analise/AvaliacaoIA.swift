@@ -192,7 +192,7 @@ enum AvaliacaoIA {
             return try objeto(await MotorTrabalho.conferirTentativa(pratica: exigir(e.pratica, "pratica"),
                 tentativa: exigir(e.tentativa, "tentativa"), apoioUtilizado: exigir(e.apoioUtilizado, "apoioUtilizado")))
         case "responderNasNotas":
-            // ADR 08k: `fontes` é OBRIGATÓRIO. A conveniência que aceitava
+            // ADR 08q: `fontes` é OBRIGATÓRIO. A conveniência que aceitava
             // `contexto` embrulhava a prosa inteira numa fonte sintética
             // chamada "Contexto fornecido" — um título do próprio app, que a
             // medida de 08/09 leu como atribuição genérica do provedor. A

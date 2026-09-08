@@ -6,7 +6,7 @@ import Foundation
 /// degraus da classificação e o domínio só de bordo), e o modelo do aparelho
 /// seguia em oito rotas onde a medição de 07/09 diz que ele não serve.
 ///
-/// ADR 2026-09-08k acrescentou a quarta regra: `indisponivelPorQualidade`.
+/// ADR 2026-09-08q acrescentou a quarta regra: `indisponivelPorQualidade`.
 /// Até ela, a tabela só sabia dizer "falta conta"; a medida de 08/09 no
 /// aparelho do dono, com a conta LIGADA, reprovou seis operações — e mandar
 /// conectar uma conta que já existe é mentira na tela.
@@ -159,7 +159,7 @@ enum Politica {
         case .revisar: RevisaoTrabalho.semProvedor
         case .conferir: "Conferir o que voltou pela IA precisa da conta Grok; o modelo do aparelho errou a comparação."
         case .padroes: "Precisa da conta Grok; o modelo do aparelho não serviu aqui."
-        // As seis abaixo estão INDISPONÍVEIS POR QUALIDADE (ADR 08k): a conta
+        // As seis abaixo estão INDISPONÍVEIS POR QUALIDADE (ADR 08q): a conta
         // pode estar ligada e mesmo assim ninguém responde, porque o que
         // respondia não atendeu na medida de 08/09. A frase não manda conectar
         // conta, não pede para tentar de novo e não promete guardar nada — quem

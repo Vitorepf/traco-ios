@@ -79,7 +79,7 @@ Está correto proibir IA maior ou igual a 9 sempre, Grok aprovado nas dezesseis,
 
 Não passa, porém:
 
-1. ADR 08k e relatório dizem candidato 325c819; código/provas Q entraram em acdfcb4.
+1. ADR 08q e relatório dizem candidato 325c819; código/provas Q entraram em acdfcb4.
 2. ADR fala em 12 falhas de transporte, mas enumera 11+6+3 = 20; EVOLUCAO.md repete 12 e só seis das sete cortadas. JSONL e relatório sustentam 20/72 em 4.6 e 0/177 em 4.3.
 
 ## Scorecard

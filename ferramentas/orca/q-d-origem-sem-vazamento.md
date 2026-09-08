@@ -23,7 +23,7 @@ e os comentários de código em `PraticaTrabalho.swift`, `Prova.swift`, `Oficina
 e `AvaliacaoIA.swift`. O documento do revisor (`revisao-q-qualidade.md`) fica como ele o
 escreveu — é o registro do achado, não uma referência a corrigir.
 
-**Emendar a `08k` em vez de abrir letra nova foi considerado, e recusado.** A `08k` decide a
+**Emendar a `08q` (então `08k`) em vez de abrir letra nova foi considerado, e recusado.** A `08q` decide a
 QUARTA REGRA da tabela `Politica` a partir da medição do provedor; a `08p` decide outra coisa,
 no nosso código: a recusa do parser vira `Result<_, Recusa>`, a régua passa a ter uma cópia só
 e a sonda ganha `recusasDaPreparacao`. Enterrar isso dentro de uma ADR de política de provedor
@@ -35,6 +35,12 @@ esconderia a decisão de quem for procurá-la. Se o orquestrador discordar, o de
 (V17-B) e `08m` é "O resultado da ação volta ao trabalho" (E1). Só a `08l` (Perfil) e a `08p`
 estão livres. Não renumerei as duas porque não foram pedidas e porque são decisões de
 despachos anteriores; a colisão está aqui declarada, não escondida.
+
+> **RESOLVIDO na Q-E (08/09), a pedido do orquestrador:** `08k` desta branch virou **`08q`** e
+> `08m` virou **`08r`**; `08l` e `08p` ficaram. Daqui para a frente este relatório fala de
+> `08q` onde falava da ADR de política desta branch. As duas ocorrências acima que citam
+> V17-B e E1 continuam dizendo `08k` e `08m` **porque são as letras de `main`**, não as nossas.
+> Ver `ferramentas/orca/q-e-letras-e-fecho.md`.
 
 ## 2. O quadrigrama que vazava — CONSERTADO: posição e contagem, nunca o trecho
 
@@ -158,11 +164,13 @@ ficam **indeterminadas** e não foram contadas a favor — a conclusão da `08p`
 ## 5. O que esta volta NÃO fez
 
 Não alarguei o parser — a régua nos dois sentidos continua no RUMO, por escrever.
-(Registro: `ferramentas/orca/RUMO.md` ainda **não tem** essa linha; a `08p` diz que vai, e
-quem mantém o RUMO é o orquestrador.) Não reabri o corte das sete, não reativei
+(Registro: quando a Q-D fechou, `ferramentas/orca/RUMO.md` ainda **não tinha** essa linha; o
+orquestrador a escreveu em `main` na seção “A RÉGUA DO VAZAMENTO, nos dois sentidos”, e a
+`08p` passou a apontar para ela — ver `q-e-letras-e-fecho.md`.) Não reabri o corte das sete, não reativei
 `responderNasNotas`, não toquei em `Traco/Perfil/**`, `Traco/App/**`, `Traco/Modelo/**` nem
 `Traco/Notas/**`. Não trouxe `main`. Não renumerei `08k` e `08m`, que também colidem — está
-declarado em §1. Não fotografei a tela do `praticaIndisponivel`: a recusa foi medida pela
+declarado em §1 (**e a Q-E renumerou depois: `08q` e `08r`**). Não fotografei a tela do
+`praticaIndisponivel`: a recusa foi medida pela
 sonda, e essa lacuna da `08p` continua aberta.
 
 ## 6. Prova

@@ -577,7 +577,7 @@ struct PerfilView: View {
 
     /// Uma operação que a medida reprovou, como a tabela a entrega: motivo,
     /// data e conserto são DADO da medição e moram em `Politica`; aqui só se
-    /// formata (ADR 08k).
+    /// formata (ADR 08q).
     struct Reprovada {
         let op: Politica.Operacao
         let motivo: String
@@ -633,11 +633,20 @@ struct PerfilView: View {
             Text(abertura)
                 .fixedSize(horizontal: false, vertical: true)
             ForEach(lista, id: \.op.rawValue) { r in
-                (Text(Politica.nome(r.op)).foregroundStyle(Tema.tintaSuave)
-                 + Text(Self.restoDa(r, dataNaLinha: dataNaLinha)))
+                Text(Self.linhaDa(r, dataNaLinha: dataNaLinha))
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
+    }
+
+    /// A linha inteira: o nome da operação em tinta suave, o resto na tinta do
+    /// corpo. `AttributedString` em vez de `Text + Text` (`+` está obsoleto no
+    /// iOS 26) e em vez de interpolação, que passaria o motivo do autor por
+    /// Markdown — o motivo é prosa da tabela `Politica`, não marcação.
+    static func linhaDa(_ r: Reprovada, dataNaLinha: Bool) -> AttributedString {
+        var nome = AttributedString(Politica.nome(r.op))
+        nome.foregroundColor = Tema.tintaSuave
+        return nome + AttributedString(restoDa(r, dataNaLinha: dataNaLinha))
     }
 
     /// O que vem depois do nome: " — motivo", a data só quando o grupo não a

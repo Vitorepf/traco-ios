@@ -13,7 +13,7 @@ serve. **Obstáculo:** nenhuma das dezesseis operações tinha medição com Gro
 nove estavam em "só Grok" por presunção. **Evidência:** a sonda `AvaliacaoIA`
 rodada no aparelho do dono com a conta ligada, três execuções por caso, JSONL
 com as saídas inteiras, leitura contra a rubrica de `QUALIDADE-IA.md`, e a
-tabela `Politica` ajustada pelo resultado (ADR 2026-09-08k).
+tabela `Politica` ajustada pelo resultado (ADR 2026-09-08q).
 
 ## 1. A conta, antes de tudo
 
@@ -37,7 +37,7 @@ simulador do Grok.
 |---|---|
 | aparelho | iPhone 17 Pro `C2416CBC-C5D9-41F9-ACD8-45EED8FC355E`, iOS 26.5 (23F77) |
 | candidato | **`acdfcb4`**, o commit dos 15 arquivos da Q, Debug |
-| binários da corrida | **dois**, e o JSONL diz qual é qual: a matriz de 16 × 6 × 3 (corridas `05D574C2`, `D91E98DE`, `F4D24F76`) na árvore de `325c819`, com `Traco` sha256 `504d29d7…0442` e `Traco.debug.dylib` sha256 `2152892a…315c` conferidos no contêiner; a remedição com fontes tipadas (`1FB24380`, `60B40CFE`, `B7A619E5`) na árvore que virou `acdfcb4`, que é a única cuja sonda exige `fontes`. Ver a tabela na ADR 08k |
+| binários da corrida | **dois**, e o JSONL diz qual é qual: a matriz de 16 × 6 × 3 (corridas `05D574C2`, `D91E98DE`, `F4D24F76`) na árvore de `325c819`, com `Traco` sha256 `504d29d7…0442` e `Traco.debug.dylib` sha256 `2152892a…315c` conferidos no contêiner; a remedição com fontes tipadas (`1FB24380`, `60B40CFE`, `B7A619E5`) na árvore que virou `acdfcb4`, que é a única cuja sonda exige `fontes`. Ver a tabela na ADR 08q |
 | fixture | `prova/q-qualidade-casos.json`, sha256 `29654d46…c909b5`, 96 casos |
 | fixture da remedição | `prova/q-qualidade-notas-tipadas.json`, sha256 `ea68b976…4b37f` |
 | JSONL | `prova/q-qualidade-avaliacoes.jsonl` (cópia do `avaliacoes-ia.jsonl` do Documents do app) |
@@ -205,16 +205,16 @@ chamadas a `grok-4.6` — **28 %** — contra **0 de 177** em `grok-4.3`:
 
 Para o autor, uma operação que falha metade das vezes por tempo é uma operação
 que não está lá. Isso é defeito medido, não detalhe. **O conserto é da volta
-Q-B: ADR 2026-09-08m, teto medido em vez de teto suposto** — e o número certo
-aqui é 20, não 12 (a ADR 08k e o EVOLUCAO diziam 12; 11 + 6 + 3 = 20).
+Q-B: ADR 2026-09-08r, teto medido em vez de teto suposto** — e o número certo
+aqui é 20, não 12 (a ADR 08q e o EVOLUCAO diziam 12; 11 + 6 + 3 = 20).
 
-## 7. A tabela `Politica`, antes e depois (ADR 2026-09-08k)
+## 7. A tabela `Politica`, antes e depois (ADR 2026-09-08q)
 
 A quarta regra, `indisponivelPorQualidade`, existe porque as três anteriores só
 sabiam dizer "falta conta". A linha da tabela **fica**, com operação, motivo
 datado e prova; o que sai é o **executor**.
 
-| operação | 07b (antes) | 08k (depois) | motivo da mudança |
+| operação | 07b (antes) | 08q (depois) | motivo da mudança |
 |---|---|---|---|
 | produzir | só Grok | **só Grok** | inalterada: o conteúdo serve; o que falha é o teto de tempo |
 | prepararPratica | só Grok | **só Grok** | idem |
@@ -320,7 +320,7 @@ conta foi conferida antes de instalar, depois de instalar, e em cada um dos
 | dimensão | nota | evidência |
 |---|---|---|
 | Visão | 9 | fecha a lacuna nomeada da 07b ("nenhuma operação tem medição com Grok"); diff do EVOLUCAO |
-| Contrato | 9 | ADR 08k com tabela antes/depois, motivo por linha e os limites da própria prova; SPEC, EVOLUCAO e QUALIDADE-IA coerentes com o código |
+| Contrato | 9 | ADR 08q com tabela antes/depois, motivo por linha e os limites da própria prova; SPEC, EVOLUCAO e QUALIDADE-IA coerentes com o código |
 | Correção | 9 | 911 testes, zero falhas, linha colada; comportamento novo coberto por teste que falha se a frase voltar a mandar conectar conta |
 | Jornada real | 9 | §11: a linha nova fotografada no aparelho do dono COM a conta conectada; as duas listas antigas encolheram na mesma tela |
 | Design | n/a | volta de motor, sem view |

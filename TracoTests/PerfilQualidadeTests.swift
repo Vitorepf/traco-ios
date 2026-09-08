@@ -30,4 +30,18 @@ struct PerfilQualidadeTests {
                 == " — motivo · conserto: exigir fonte")
         #expect(!PerfilView.restoDa(r(.ecos, "08/09/2026"), dataNaLinha: false).contains("conserto"))
     }
+
+    /// Q-E: a linha deixou de ser `Text + Text` (obsoleto no iOS 26). O que não
+    /// pode mudar: só o NOME leva a tinta suave, o resto vai sem cor própria, e
+    /// o texto é o mesmo de antes — verbatim, sem passar por Markdown.
+    @Test("a linha compõe nome tingido mais resto sem cor, e o texto não muda")
+    func linhaTingeSoONome() {
+        let caso = r(.responder, "08/09/2026", conserto: "exigir fonte")
+        let linha = PerfilView.linhaDa(caso, dataNaLinha: false)
+        #expect(String(linha.characters)
+                == Politica.nome(.responder) + PerfilView.restoDa(caso, dataNaLinha: false))
+        let tingidos = linha.runs.filter { $0.foregroundColor == Tema.tintaSuave }
+        #expect(tingidos.count == 1)
+        #expect(tingidos.first.map { String(linha[$0.range].characters) } == Politica.nome(.responder))
+    }
 }

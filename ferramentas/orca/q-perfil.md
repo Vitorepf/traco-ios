@@ -4,7 +4,7 @@
 
 ## Ancorar
 
-- **Pessoa e situação:** o autor, no Perfil, no cartão CONTA, onde já lê duas listas — o que o aparelho faz sem conta e o que só faz com a conta Grok. A volta Q mediu com a conta ligada e reprovou operações; a regra nova `indisponivelPorQualidade` (ADR 08k, do implementador) as tira da execução.
+- **Pessoa e situação:** o autor, no Perfil, no cartão CONTA, onde já lê duas listas — o que o aparelho faz sem conta e o que só faz com a conta Grok. A volta Q mediu com a conta ligada e reprovou operações; a regra nova `indisponivelPorQualidade` (ADR 08q, do implementador) as tira da execução.
 - **Obstáculo:** sem uma terceira lista, a operação reprovada simplesmente sumia das duas — o autor via menos coisa e nenhuma explicação; e a frase de "sem provedor" mandava conectar a conta que ele já tem (o defeito que o conselho nomeou).
 - **Resultado observável:** uma terceira lista no mesmo cartão, dizendo por operação o quê, por quê em uma oração de pessoa, e quando foi medido; dois estados distintos (sem substituto / em correção com conserto nomeado); lista que muda de tamanho, com um estado dito quando estiver vazia; nunca manda conectar conta; nunca promete prazo.
 - **Restrições:** nada de tela nova; nada de painel de notas; tokens de `Tema`; Dynamic Type até AX5 sem clipe; um idioma.
@@ -74,8 +74,8 @@ O achado de AX5 é o mesmo mal da L2 (medida fixa em pontos onde a letra cresce)
 
 | dimensão | minha nota | evidência |
 |---|---|---|
-| Visão | 9 | ciclo "multiplicar": o autor sabe o que a IA não faz por ele e por quê, sem ser mandado a uma conta que já tem; fecha a lacuna nomeada na 08k ("o Perfil precisa de uma terceira linha") |
-| Contrato | 9 | ADR 08l no SPEC depois da 08k; EVOLUCAO; código lê a tabela, não a copia |
+| Visão | 9 | ciclo "multiplicar": o autor sabe o que a IA não faz por ele e por quê, sem ser mandado a uma conta que já tem; fecha a lacuna nomeada na 08q ("o Perfil precisa de uma terceira linha") |
+| Contrato | 9 | ADR 08l no SPEC depois da 08q; EVOLUCAO; código lê a tabela, não a copia |
 | Correção | 9 | 3 testes novos verdes (`PerfilQualidadeTests`); suíte integral no Air, `-parallel-testing-enabled NO`: `✔ Test run with 914 tests in 149 suites passed after 9.109 seconds.` / `** TEST SUCCEEDED **` (17:00 de 08/09); build sem aviso em `PerfilView` |
 | Jornada real | 9 | capturas do Air em `large` e AX5, com árvore do mesmo instante; vazio coberto por teste e por estado dito (não fotografado: a tabela de hoje não está vazia) |
 | Design | 9 | seis fases cumpridas; tokens de `Tema`; um `@ScaledMetric` novo com motivo medido; nenhum literal de cor ou fonte |
@@ -119,4 +119,4 @@ O achado de AX5 é o mesmo mal da L2 (medida fixa em pontos onde a letra cresce)
 - A letra miúda do cartão CONTA tinha três `maxWidth: 280` fixos que davam doze caracteres por linha em AX5; um `@ScaledMetric` corrigiu os três, e a linha de uma operação caiu de 0,32–0,38 tela para 0,26.
 - Custo honesto: o cartão cresce ~0,65 tela em `large` e ~4 telas em AX5, metade disso nas duas frases de conserto de 15–22 palavras — conserto é nome, não descrição; reparo na tabela, para a FILA.
 - Instrumento: Air `64F7B8B4` ligado por mim, tudo sob `com-trava.sh`, zero mouse, zero maestro; os primeiros toques no app não chegavam e passaram a chegar depois de um toque na tela inicial (registrado, sem causa).
-- 3 testes novos, suíte 914/149 verde, ADR 08l depois da 08k, EVOLUCAO com a linha.
+- 3 testes novos, suíte 914/149 verde, ADR 08l depois da 08q, EVOLUCAO com a linha.

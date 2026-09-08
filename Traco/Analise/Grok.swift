@@ -48,7 +48,7 @@ nonisolated enum Grok {
     static let modeloTrabalho = "grok-4.6"
 
     /// O teto de tempo das quatro rotas de Trabalho, num lugar só (ADR
-    /// 2026-09-08m). Era `90` repetido em quatro chamadas, e a medida de 08/09
+    /// 2026-09-08r). Era `90` repetido em quatro chamadas, e a medida de 08/09
     /// mostrou que ele cortava 20 de 72 chamadas a `grok-4.6` — 28 % — sempre
     /// aos 91 s, enquanto `grok-4.3` não perdeu nenhuma das 177. Teto que corta
     /// a operação para o autor não é prudência: é a operação ausente.
