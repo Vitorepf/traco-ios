@@ -185,9 +185,15 @@ O simulador não prova, e as quatro ficam para uma passada no iPhone do dono (it
 
 O juiz listou e não descontou: `isHeader` faltando nas duas seções novas; o `id` do `DisclosureGroup` sombreando os filhos; as aspas de "A pedido seu."; e um `spacing` literal onde a convenção manda token. Nenhum é de tela quebrada — são acabamento de acessibilidade e de convenção, e entram na volta que tocar `TrabalhoView` de novo.
 
-### O achado da Q-B que fica aberto: o nosso parser recusa o que o provedor entregou
+### RESOLVIDO em 08/09 pela Q-C, e a resposta é contra nós: a guarda está no lugar errado
 
 **3 das 15 execuções de `prepararPratica` não entregam — e não é teto nem provedor.** HTTP 200, conteúdo completo, `grok-4.6` confirmado, 3.777 a 6.865 tokens de raciocínio, e **recusadas pelo NOSSO contrato** (`PraticaTrabalho.parsePreparacao`/`validar`). Por entrega, a operação sai de 1/6 para **4/6**.
+
+**A resposta veio com o texto na mão, não com a contagem.** Instrumentado o motivo, as cinco recusas caíram **todas na mesma guarda** — *"vazamento · o critério N repete quatro palavras seguidas do exemplo"* — e, com o quadrigrama exposto, o texto vazado é **"a dependência ainda aberta"**: **vocabulário estrutural da tarefa**, que o pedido do autor manda separar (concluído, a dependência, próximo passo) e que **está na instrução antes de estar no exemplo**.
+
+**O defeito é NOSSO.** `Prova.vaza` veio do Recordar, onde **o alvo É a resposta**; aqui o alvo é o **exemplo**, que por contrato é outro caso. A guarda certa no lugar errado recusa trabalho bom. **A Q-C não alargou o parser** — ordem minha — e a régua nos dois sentidos fica para escrever antes de mexer: *o que é vazar quando o alvo é um exemplo, e não a resposta?*
+
+**Correção de leitura minha, registrada:** eu havia concluído, com a categoria da recusa mas sem o texto, que o parser estava certo e o defeito era do provedor. Estava errado, e foi o worker que me corrigiu expondo o trecho.
 
 A Q-B **não** moveu isso para a tabela de indisponibilidade, e o argumento é bom: recusa ocasional já tem superfície por pedido (`EstadoPedido.praticaIndisponivel`), enquanto **a tabela não sabe dizer "às vezes"**. Fica a pergunta que decide de quem é o defeito: **o parser está certo em recusar, ou está estreito demais?** Volta própria, e ela é do tipo que pode devolver uma operação inteira ao autor sem tocar no provedor.
 
