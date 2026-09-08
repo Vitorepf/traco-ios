@@ -5630,3 +5630,40 @@ reais pelo XCTest, `-UIPreferredContentSizeCategoryName` para AX5, e
 software — "Connect Hardware Keyboard" desligado para o UDID e restaurado —,
 tudo por `xcrun simctl io` preso ao UDID; direção por `orca emulator` sob
 `com-trava.sh`, sem maestro e sem mouse): `ferramentas/orca/v12e-escrita-visivel.md`.
+
+### O teste do A1 passa pelo caminho do A1 (V12-F, 08/09)
+
+O re-G3 da V12-E apanhou o `testLargeComCartao` a passar VERDE sem cartão:
+o alvo que devia provar o fim do fantasma de "Abrir os campos" aceitava o
+estado sem cartão como saída normal e nunca tocava no botão — verde que não
+visitou o lugar do defeito, quarta vez no dia. **Regra que fica:** num teste
+de prova de tela, o estado de partida é PRÉ-CONDIÇÃO que falha com o motivo,
+nunca um ramo aceitável. No condutor: cartão, botão "Abrir os campos" e folha
+aberta são três `XCTFail` nomeados; a falha escreve `falhou.pronto` com o
+motivo, e o shell de fora encerra na hora em vez de esperar 180 s por um
+`gravar` que não vem (35,8 s contra 151,8 s do falso-verde). Os casos "encaixe
+vazio" afirmam o contrário — o texto sem forma NÃO veste. Em AX5 o botão vive
+no menu da linha do cartão e o teste o abre por lá.
+
+**O estado do aparelho não decide a prova.** A causa do sem-cartão era
+`autoAnalise = false` esquecido no contêiner do app (lido no plist do
+`B91C8DEF` antes de tocar em nada). O teste passa `-autoAnalise <true/>` em
+`launchArguments` — tem de ser a forma `<true/>`: no domínio de argumentos
+`1`, `YES` e `true` são STRING, e o `object(forKey:) as? Bool` da `Sessao`
+os ignora (provado com `UserDefaults` num binário de linha de comando; a
+primeira planta com `"0"` passou verde por isso). Achado colateral: o
+`xcodebuild test-without-building` trocou o contêiner de dados do app
+(UUID novo, sem plist), então plantar pelo plist não chega ao app — a planta
+válida é `<false/>` pelo mesmo canal.
+
+**Prova** (iPhone 17 Pro (teste 2) `B91C8DEF`, iOS 26.5, teclado de software,
+`-parallel-testing-enabled NO`, tudo sob `com-trava.sh`, capturas e filmes
+por `xcrun simctl io B91C8DEF`, sem maestro, sem mouse, `C2416CBC` e
+`6033B043` intocados): planta `<false/>` VERMELHA com a pré-condição nomeada e
+o condutor parado (`v12f-teste-linhas.txt`, `v12f-planta-falhou.png`);
+refilmagem pelo caminho certo, sem RM `v12f-abrir-sem-rm.mp4`: q26 (2,212 s)
+é o último quadro com o encaixe, q27 (2,230 s) já não tem cartão, régua nem
+pé, folha a partir de q35 — **0 quadros com par legível em 69**; com RM
+`v12f-abrir-com-rm.mp4`: q26 (2,327 s) último com encaixe, q27 (2,350 s) sem
+ele, folha a partir de q34 — **0 em 69**. Uma tomada por modo, amostrada; o
+oráculo de pixels segue no RUMO. Relato: `ferramentas/orca/v12f-teste-do-a1.md`.

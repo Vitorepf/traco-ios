@@ -1,0 +1,24 @@
+# V12-F — linhas dos testes (coladas dos logs do xcodebuild, 08/09/2026, iPhone 17 Pro (teste 2) B91C8DEF, iOS 26.5, -parallel-testing-enabled NO, sob com-trava.sh)
+
+## testLargeComCartao sem RM (candidato)
+Test Case '-[TracoUITests.EscritaVisivelUITests testLargeComCartao]' passed (40.157 seconds).
+** TEST EXECUTE SUCCEEDED **
+
+## testLargeComCartao com RM (candidato)
+Test Case '-[TracoUITests.EscritaVisivelUITests testLargeComCartao]' passed (41.467 seconds).
+** TEST EXECUTE SUCCEEDED **
+
+## testAX5ComCartao sem RM (candidato; a saída vive no menu da linha)
+Test Case '-[TracoUITests.EscritaVisivelUITests testAX5ComCartao]' passed (43.097 seconds).
+** TEST EXECUTE SUCCEEDED **
+
+## PLANTA — `-autoAnalise <false/>` (o cartão não vem)
+/Users/vitorepf/orca/workspaces/traco-ios/volta-v12b-pagina/TracoUITests/EscritaVisivelUITests.swift:33: error: -[TracoUITests.EscritaVisivelUITests testLargeComCartao] : failed - PRÉ-CONDIÇÃO: o cartão da forma não está na tela — o caminho do A1 começa nele
+Test Case '-[TracoUITests.EscritaVisivelUITests testLargeComCartao]' failed (35.840 seconds).
+	 Executed 1 test, with 1 failure (0 unexpected) in 35.840 (35.841) seconds
+	 Executed 1 test, with 1 failure (0 unexpected) in 35.840 (35.842) seconds
+condutor: PRÉ-CONDIÇÃO falhou antes de 'gravar': o cartão da forma não está na tela — o caminho do A1 começa nele
+
+## testLargeComCartao depois de reverter a planta (build final)
+Test Case '-[TracoUITests.EscritaVisivelUITests testLargeComCartao]' passed (41.409 seconds).
+** TEST EXECUTE SUCCEEDED **
