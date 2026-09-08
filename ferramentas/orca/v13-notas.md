@@ -63,7 +63,7 @@ Não vi nada errado na **barra de baixo** (busca + cartão no `safeAreaInset`): 
 | **sábia em falha (recolhida)** | `v13-antes-13-sabia-recolhida.png` (vão de ~100 pt) | `v13-depois-13-sabia-recolhida.png` — pergunta, estado, ação, sem vão |
 | falha em AX5 | `v13-antes-14-sabia-recolhida-ax5.png` ("Repetir pergu…") | `v13-depois-14-sabia-recolhida-ax5.png` — "Repetir / pergunta" em duas linhas, sem sobrepor |
 | Trabalhos aberto | — | `v13-depois-15-trabalhos.png` (a folha abre pela linha) |
-| movimento | — | nenhuma animação nova; a seta da régua entra/sai em `.opacity` sob `Tema.transicao` (movimento reduzido → corte). **Sem vídeo**: o aparelho teve de ser desligado antes |
+| movimento | — | nenhuma animação nova; a seta da régua entra/sai em `.opacity` sob `Tema.transicao` (movimento reduzido → corte). **Com vídeo desde a passada V13-B**: `v13-seta-normal.mp4` e `v13-seta-movimento-reduzido.mp4` |
 
 **Curva-zero** (roteiro "achar uma nota que escrevi na semana passada", nota de 02/09 "Proposta para o cliente da padaria", 16 notas, 17e, mesmo arrasto de 0,03 de tela por gesto nos dois builds):
 
@@ -82,7 +82,7 @@ O ganho de escala nos gestos é do instrumento (ESTEIRA: o arrasto amplifica); a
 - **A prova de "a seta some no fim da régua" não tem captura.** Duas tentativas de arrastar a régua até o fim: a primeira andou pouco (chegou a "Inversão", seta ainda certa porque havia mais); na terceira passada o toque cego que devia dispensar um diálogo abriu uma nota, e desliguei o 17e sem religar de novo. Fica a lógica (`contentOffset.x + containerSize.width < contentSize.width − 1`) e a captura da seta presente; o revisor confere o fim num aparelho dele.
 - **`v13-depois-06-filtro-woop.png` foi sobrescrita e apagada**; a prova de "3 notas · WOOP" está na montagem `v13-depois-folha-1958.png`.
 - **Antes e depois em aparelhos diferentes** (teste 2 → 17e): por isso refiz o ANTES da lista e a curva no 17e com o build de `HEAD` (`v13-antes17e-01-lista.png`).
-- **Sem vídeo e sem VoiceOver**, por ordem do dono; acessibilidade provada por árvore de AX e captura.
+- **Sem VoiceOver**, por ordem do dono; acessibilidade provada por árvore de AX e captura. O vídeo que faltava foi gravado na passada V13-B (seção abaixo).
 - **Diff não é líquido-negativo** (+119/−50 em código): ver a ADR.
 - **`ax --device` conferido**: em cada passada o cabeçalho "Notas" e os rótulos da árvore batiam com a captura `simctl` do mesmo UDID no mesmo instante; quando a árvore só devolvia a raiz, era um diálogo do sistema por cima (notificações no contêiner novo), não o vizinho.
 
@@ -92,9 +92,123 @@ O ganho de escala nos gestos é do instrumento (ESTEIRA: o arrasto amplifica); a
 |---|---|---|---|
 | Design | 7 | 9 | os três defeitos de desenho da V9 caíram com o sistema existente; a régua ganhou sinal determinístico |
 | Simplicidade | 7 | 8 | a lista deixou de mentir e a contagem explica o filtro; a régua continua a decisão mais longa (29 chips) — o conserto é chip por capacidade, fora desta área |
-| Movimento | 8 | 9 | nada novo além de uma opacidade sob `Tema.transicao`; sem vídeo, por instrumento |
+| Movimento | 8 | 9 | nada novo além de uma opacidade sob `Tema.transicao`; vídeo dos dois modos anexado na V13-B |
 | Componentes | 6 | 9 | zero `Capsule()` local em `Traco/Notas`; nenhum componente novo |
 | Acessibilidade | 6 | 9 | AX5 sem corte de título, sem sobreposição, botão que quebra linha; VoiceOver não ouvido (proibido) |
 | Estado honesto | 8 | 9 | linha em branco fora, seta só quando há omissão, cartão sem vão; a pergunta interrompida que some fica registrada como dívida |
 | Correção | — | 9 | teste da prova do vermelho; 947/948 com o vermelho pré-existente e alheio |
 | Complexidade | — | 7 | +69 líquidas em código |
+
+---
+
+# V13-B — as duas provas que o G3 segurou
+
+Passada de 08/09/2026, 20h22–20h44, depois do veredito em `ferramentas/orca/revisao-v13-notas.md`
+(Acessibilidade 8 e Movimento 8). **Nenhuma linha de código mudou nesta passada**: só prova.
+
+**Aparelho.** iPhone 17e **`C7341E64-3A33-4ADD-AF6C-9296215FAD09`**, o mesmo da volta, ligado por mim
+às 20h22 e **desligado ao fim** (`xcrun simctl shutdown`, conferido `Shutdown` em `simctl list devices`).
+Não toquei nos outros três (`C2416CBC` da conta Grok, `34CC3F94`, `6033B043`, e o `A1DF082C` do revisor).
+Build do candidato `ae48727` por UDID (`** BUILD SUCCEEDED **`), `uninstall` + `install` por UDID, nunca
+`booted`. Toda sessão de `orca emulator` e o `xcodebuild` passaram por `ferramentas/orca/com-trava.sh`
+— segurei a trava em cada passada. Nenhuma voz, Siri, ditado, síntese de fala, VoiceOver ou iPad;
+os dois vídeos são `simctl recordVideo`, que é captura de tela **sem faixa de áudio** (`ffprobe`
+devolve um único `codec_type=video` em cada arquivo).
+
+## Prova 1 — `Repetir pergunta` em AX5: árvore de AX e captura do mesmo instante
+
+**Rota real, a mesma da volta.** Escrevi a nota fonte ("Proposta para o cliente da padaria / O orçamento
+fechado com a padaria Sol foi de 4200 reais e o prazo combinado e de tres semanas, com entrega em 29 de
+setembro."), perguntei na barra de baixo, a sábia respondeu **pelo modelo do aparelho** (Ajustes dizia
+"A Apple Intelligence está pronta"; sem conta Grok neste aparelho), abri a nota fonte pela lista, **editei**
+e voltei — `revalidarFontes` derrubou a dependência e o cartão virou `.recolhida`. Só então liguei o AX5.
+
+**AX5 aplicou:** `xcrun simctl ui C7341E64… content_size accessibility-extra-extra-extra-large`,
+conferido por captura (a régua mostra dois chips onde antes cabiam quatro).
+**Restaurei ao fim:** `content_size medium`, conferido em `v13/v13b-restaurado-medium.png` (20h44).
+
+| arquivo | o que é |
+|---|---|
+| `v13/v13b-ax5-sabia-recolhida.png` | captura do cartão em falha (recolhida) em AX5 — 20:43:17 |
+| `v13/v13b-ax5-sabia-recolhida-ax.json` | árvore de AX (`orca emulator ax --device C7341E64… --json`) — 20:43:18, **1 s depois**, mesma tela |
+| `v13/v13b-ax5-arvore-e-captura.png` | as duas lado a lado: os frames da árvore desenhados sobre a captura |
+| `v13/v13b-restaurado-medium.png` | prova de que o aparelho voltou a `content_size medium` |
+
+**O que a árvore diz** (frações da tela, origem no canto superior esquerdo):
+
+```
+pergunta-pendente-notas    y=0,1363..0,2745   label='Prazo da padaria?'
+sabia-falhou-notas         y=0,2862..0,6993   label='A resposta foi recolhida porque uma fonte
+                                                     mudou ou deixou de estar acessível.'
+repetir-pergunta-notas     y=0,7113..0,8495   label='Repetir pergunta'
+```
+
+1. **Rótulo inteiro.** `label='Repetir pergunta'` — sem reticências, sem corte. Na captura ele aparece
+   quebrado em duas linhas ("Repetir / pergunta"), e a árvore confirma que o rótulo é um só e está completo.
+2. **Ordem de leitura.** A ordem da árvore é pergunta → estado → ação, e é a mesma ordem de cima para baixo
+   na captura. Os `y` crescem monotonicamente.
+3. **Sem sobreposição.** Os vãos entre os frames são 0,0117 e 0,0120 da tela (≈10 pt cada). Nenhum par se
+   cruza. A altura do botão é 0,1382 da tela ≈ 117 pt — **duas linhas de AX5**, que é exatamente o que o
+   `fixedSize(horizontal: false, vertical: true)` do botão passou a garantir (antes ele media uma linha e
+   desenhava duas por cima das vizinhas).
+
+**Limite do instrumento, dito por extenso.** O leitor de AX do `serve-sim` (o mesmo que o
+`orca emulator ax` embrulha; conferi indo direto ao `http://127.0.0.1:3100/ax` e o resultado é idêntico)
+**devolve no máximo três dos quatro elementos do cartão**. Nesta captura falta `fechar-sabia-notas`, que a
+imagem mostra. Numa tentativa anterior, com uma pergunta longa que estourava o teto de 120 pt do
+`ScrollView`, o elemento omitido foi justamente `repetir-pergunta-notas`, e os frames da pergunta e do
+estado vinham **sobrepostos** — porque para um texto dentro de `ScrollView` o leitor reporta o frame do
+**conteúdo**, não o da janela recortada. Que o elemento omitido mude conforme o tamanho de letra (em
+`content_size medium` o omitido é `Fechar`, com `Repetir pergunta` presente e sem sobreposição) mostra que
+**é limite do leitor, não defeito do app**: a mesma tela, os mesmos quatro filhos, e a cada configuração
+some um diferente. A prova acima foi refeita com uma pergunta curta ("Prazo da padaria?"), que cabe no
+teto — e aí os três elementos que interessam vêm todos, com frames que batem pixel a pixel com a captura.
+Nenhuma nota deve ser descontada por isso; é fato a registrar.
+
+## Prova 2 — vídeo da seta da régua, normal e Movimento Reduzido
+
+Trajeto idêntico nos dois vídeos, dirigido só por UDID (`orca emulator gesture`, `begin/move/end` em cada
+ponto): parado no começo da régua (seta presente) → três arrastos para a esquerda até o fim ("Ideias" é o
+último chip; a seta some) → pausa → três arrastos de volta ao começo (a seta volta).
+
+| arquivo | estado do aparelho |
+|---|---|
+| `v13/v13-seta-normal.mp4` | 13,2 s, 1170×2532, 60 fps, sem áudio. Movimento Reduzido **desligado** |
+| `v13/v13-seta-movimento-reduzido.mp4` | 13,3 s, 1170×2532, 60 fps, sem áudio. Movimento Reduzido **ligado** |
+| `v13/v13-movimento-reduzido-ligado.png` | Ajustes ▸ Acessibilidade ▸ Movimento com "Reduzir Movimento" ligado |
+| `v13/v13-seta-quadro-a-quadro.png` | os onze quadros seguintes ao instante do sumiço, nos dois modos |
+
+**Como liguei o Movimento Reduzido, e como sei que pegou.** Pela interface do próprio aparelho:
+Ajustes ▸ Acessibilidade ▸ Movimento ▸ **Reduzir Movimento**, tocando o interruptor por coordenada de
+UDID. Três confirmações independentes, todas do aparelho e não da minha intenção:
+o valor na árvore de AX passou a `'Reduzir Movimento' => '1'`;
+apareceu a linha **"Preferir Cross-Fade"**, que a Apple só mostra com Reduzir Movimento ligado;
+e `xcrun simctl spawn C7341E64… defaults read com.apple.Accessibility ReduceMotionEnabled` devolveu `1`.
+O Traço foi relançado depois disso. Ao fim desliguei o interruptor pelo mesmo caminho e conferi
+`'Reduzir Movimento' => '0'` na árvore.
+
+**O que os vídeos mostram, medido quadro a quadro.** Recortei a região da seta em todos os 790/799
+quadros de cada vídeo e li o pixel mais escuro do glifo (240 = fundo, ~98 = seta cheia):
+
+```
+normal              quadros 298→307:   98 · 123 · 146 · 167 · 187 · 202 · 216 · 226 · 237 · 240
+movimento reduzido  quadros 305→308:   98 · 98 · 240 · 240
+```
+
+- **Normal:** a seta sai por **nove quadros de meio-tom** (298→307, ~150 ms a 60 fps), que é o `.easeOut(Duracao.curta)`
+  do `Tema.animacao` sobre a `.opacity` do `Tema.transicao`. É um esmaecer, não um sumiço.
+- **Movimento Reduzido:** **um quadro só** (306→307), de 98 direto para 240, **sem nenhum valor intermediário** —
+  o corte que `Tema.movimento` promete (`.deslocamento` devolve `nil` sob reduzido).
+- **Não pisca em nenhum dos dois.** No trecho todo há **um único cruzamento de limiar** por sentido:
+  a seta não vai e volta enquanto o dedo arrasta, e não reaparece por um quadro depois de sair. E a
+  volta ao começo da régua a traz de volta, uma vez só (quadro 730 no normal, 584 no reduzido).
+- **A seta existe só enquanto há chip omitido:** nos quadros intermediários do trajeto (t≈5 s), com a
+  régua no meio, ela está lá; nos quadros do fim da régua (t≈6 s a 10 s, "Ideias" encostado na borda),
+  não está.
+
+## O que esta passada NÃO fez
+
+- Nenhum conserto, nenhuma refatoração, nenhuma linha de `Traco/` tocada.
+- Não repeti a suíte integral (947/948, o vermelho do caret do Caderno em AX XXXL é pré-existente no 17e).
+- Não refiz a captura da seta sumindo no fim da régua: o revisor já a fechou na revisão dele, no `A1DF082C`.
+- Não mexi na `Sessao`: a pergunta interrompida que some ao trocar de aba continua no RUMO, de outra volta.
