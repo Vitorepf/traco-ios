@@ -1,0 +1,90 @@
+q001 0.000000, ouro= 3446 branco= 37095 topo_r=  145 pega=1280
+q002  0.166667 ouro= 3452 branco= 37419 topo_r=  145 pega=1320
+q003  0.203333 ouro= 3452 branco= 37410 topo_r=  145 pega=1293
+q004  0.241667 ouro= 3451 branco= 37381 topo_r=  145 pega=1322
+q005  0.280000 ouro= 3451 branco= 37348 topo_r=  145 pega=1309
+q006  0.318333 ouro= 3454 branco= 37451 topo_r=  145 pega=1311
+q007  0.516667 ouro= 3453 branco= 37423 topo_r=  145 pega=1311
+q008  0.556667 ouro= 3453 branco= 37473 topo_r=  145 pega=1298
+q009  0.593333 ouro= 3453 branco= 37465 topo_r=  145 pega=1288
+q010  0.630000 ouro= 3453 branco= 37422 topo_r=  145 pega=1297
+q011  0.668333 ouro= 3453 branco= 37466 topo_r=  145 pega=1287
+q012  1.166667 ouro= 3453 branco= 37421 topo_r=  145 pega=1297
+q013  1.205000 ouro= 3453 branco= 37466 topo_r=  145 pega=1287
+q014  1.243333 ouro= 3452 branco= 37422 topo_r=  145 pega=1298
+q015  1.280000 ouro= 3453 branco= 37464 topo_r=  145 pega=1290
+q016  1.318333 ouro= 3452 branco= 37441 topo_r=  145 pega=1299
+q017  1.516667 ouro= 3453 branco= 37484 topo_r=  145 pega=1285
+q018  1.555000 ouro= 3454 branco= 37398 topo_r=  145 pega=1302
+q019  1.593333 ouro= 3454 branco= 37446 topo_r=  145 pega=1294
+q020  1.630000 ouro= 3452 branco= 37427 topo_r=  145 pega=1303
+q021  1.668333 ouro= 3454 branco= 37447 topo_r=  145 pega=1290
+q022  2.148333 ouro= 3451 branco= 37431 topo_r=  145 pega=1325
+q023  2.163333 ouro= 3451 branco= 37385 topo_r=  145 pega=1326
+q024  2.180000 ouro= 3450 branco= 37477 topo_r=  145 pega=1317
+q025  2.195000 ouro= 3452 branco= 37426 topo_r=  145 pega=1310
+q026  2.211667 ouro= 3449 branco= 37516 topo_r=  145 pega=1305
+q027  2.228333 ouro= 3450 branco= 37479 topo_r=  145 pega=1302
+q028  2.245000 ouro= 3449 branco= 37493 topo_r=  145 pega=1300
+q029  2.261667 ouro= 3450 branco= 37475 topo_r=  145 pega=1302
+q030 2.266667, ouro= 3451 branco= 37880 topo_r=  145 pega=1313
+q031  2.285000 ouro= 3450 branco= 37918 topo_r=  145 pega=1312
+q032  2.301667 ouro= 3450 branco= 37924 topo_r=  145 pega=1313
+q033  2.320000 ouro= 3450 branco= 37908 topo_r=  145 pega=1313
+q034  2.336667 ouro=    0 branco= 99322 topo_r=  145 pega=522
+q035  2.350000 ouro=    0 branco= 57821 topo_r=  145 pega=575
+q036  2.358333 ouro=    0 branco= 58700 topo_r=  145 pega=575
+q037  2.365000 ouro=    0 branco= 23413 topo_r=  145 pega=372
+q038  2.371667 ouro=    0 branco= 23461 topo_r=  145 pega=384
+q039  2.381667 ouro=    0 branco= 21646 topo_r=  145 pega=237
+q040  2.388333 ouro=    0 branco= 28794 topo_r=  144 pega=372
+q041  2.393333 ouro=    0 branco= 36645 topo_r=  143 pega=378
+q042  2.405000 ouro=    0 branco= 30165 topo_r=  142 pega=394
+q043  2.413333 ouro=    0 branco= 39093 topo_r=  141 pega=981
+q044  2.421667 ouro=    0 branco= 57944 topo_r=  139 pega=989
+q045  2.428333 ouro=    0 branco= 68597 topo_r=  138 pega=1024
+q046  2.438333 ouro=    0 branco= 95247 topo_r=  136 pega=745
+q047  2.445000 ouro=    0 branco=103840 topo_r=  134 pega=590
+q048  2.455000 ouro=    0 branco=127846 topo_r=  133 pega=453
+q049  2.461667 ouro=    0 branco=135082 topo_r=  131 pega=460
+q050  2.471667 ouro=    0 branco=156842 topo_r=  130 pega=464
+q051  2.478333 ouro=    0 branco=164715 topo_r=  129 pega=465
+q052  2.488333 ouro=    0 branco=183202 topo_r=  127 pega=220
+q053  2.496667 ouro=    0 branco=189693 topo_r=  126 pega=221
+q054  2.505000 ouro=    0 branco=206232 topo_r=  125 pega=104
+q055  2.511667 ouro=    0 branco=209034 topo_r=  125 pega=  0
+q056  2.523333 ouro=    0 branco=212305 topo_r=  123 pega=  0
+q057  2.530000 ouro=    0 branco=209513 topo_r=  122 pega= 96
+q058  2.540000 ouro=    0 branco=209312 topo_r=  121 pega= 94
+q059  2.546667 ouro=    0 branco=203445 topo_r=  121 pega=234
+q060 2.555000, ouro=    0 branco=205655 topo_r=  120 pega= 73
+q061  2.563333 ouro=    0 branco=206080 topo_r=  120 pega= 14
+q062  2.573333 ouro=    0 branco=208461 topo_r=  119 pega=  1
+q063  2.580000 ouro=    0 branco=208023 topo_r=  119 pega=  0
+q064  2.590000 ouro=    0 branco=208025 topo_r=  118 pega=  0
+q065  2.598333 ouro=    0 branco=207950 topo_r=  118 pega=  0
+q066  2.606667 ouro=    0 branco=208653 topo_r=  118 pega=  0
+q067  2.610000 ouro=    0 branco=208778 topo_r=  118 pega=  0
+q068  2.621667 ouro=    0 branco=208480 topo_r=  117 pega=  0
+q069  2.625000 ouro=    0 branco=208617 topo_r=  117 pega=  0
+q070  2.636667 ouro=    0 branco=207997 topo_r=  117 pega=  0
+q071  2.640000 ouro=    0 branco=207802 topo_r=  117 pega=  0
+q072  2.653333 ouro=    0 branco=206929 topo_r=  116 pega= 10
+q073  2.666667 ouro=    0 branco=205646 topo_r=  116 pega=334
+q074  2.685000 ouro=    0 branco=204681 topo_r=  116 pega=391
+q075  2.701667 ouro=    0 branco=204067 topo_r=  116 pega=433
+q076  2.718333 ouro=    0 branco=203308 topo_r=  116 pega=867
+q077  2.735000 ouro=    0 branco=203359 topo_r=  116 pega=935
+q078  2.751667 ouro=    0 branco=203536 topo_r=  116 pega=968
+q079  2.770000 ouro=    0 branco=203238 topo_r=  116 pega=1159
+q080  2.786667 ouro=    0 branco=203412 topo_r=  116 pega=1158
+q081  2.805000 ouro=    0 branco=203527 topo_r=  116 pega=1182
+q082  2.821667 ouro=    0 branco=202911 topo_r=  116 pega=1201
+q083  2.836667 ouro=    0 branco=202708 topo_r=  116 pega=1202
+q084  2.853333 ouro=    0 branco=203209 topo_r=  116 pega=1202
+q085  2.871667 ouro=    0 branco=203533 topo_r=  116 pega=1206
+q086  2.888333 ouro=    0 branco=203325 topo_r=  116 pega=1208
+q087  2.903333 ouro=    0 branco=205191 topo_r=  116 pega=1217
+q088  2.916667 ouro=    0 branco=205192 topo_r=  116 pega=1217
+q089 2.935000, ouro=    0 branco=205194 topo_r=  116 pega=1225
+q090  3.943333 ouro=    0 branco=205194 topo_r=  116 pega=1225

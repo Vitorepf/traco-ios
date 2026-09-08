@@ -1,0 +1,7 @@
+xcodebuild test -scheme Traco -destination id=B91C8DEF-B0A7-454A-95DE-5D7BA7B040A9 -derivedDataPath build -parallel-testing-enabled NO (sob com-trava.sh), 08/09 18:11–18:1x
+xcresult: result Passed, totalTestCount 892, passedTests 891, failedTests 0, skippedTests 1
+ESCRITA teclado AX5: EMULADO pela área segura 318 pt (8 tentativa(s)), papel 256–504 pt, topo do teclado 556 pt, inset extra 284 pt
+ESCRITA AX5: 31 amostras, 31 com a linha do caret na área livre do papel; teclado emulado 318 pt
+ESCRITA teclado large: de software, na tela 308 pt (2 tentativa(s)), papel 118–408 pt, topo do teclado 566 pt, inset extra 274 pt
+ESCRITA large: 44 amostras, 44 com a linha do caret na área livre do papel; teclado real 308 pt
+** TEST SUCCEEDED **

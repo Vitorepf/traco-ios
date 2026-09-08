@@ -61,6 +61,19 @@ Lei, para toda volta que medir comportamento de IA ou de qualquer motor: **antes
 
 Isto é irmão do achado da V12-D (o quadro longo era o `fotografar()` do próprio teste) e do `ax --device` que lê o vizinho: **em três medições do mesmo dia, o instrumento foi o réu.**
 
+## Verde que não visitou o lugar do defeito — o padrão de 08/09
+
+**Quatro vezes num dia** um instrumento nosso provou menos do que parecia, e sempre pelo mesmo mecanismo: **passou verde sem visitar o lugar onde o defeito mora.**
+
+1. **V12-D:** o quadro longo na rolagem não era do app — era o `fotografar()` do próprio teste (`drawHierarchy` + PNG de 1,3 MB, 127–162 ms na main thread).
+2. **`ax --device`:** lê a árvore do aparelho VIZINHO sem avisar, então a medida de geometria pode ser do aparelho errado e parecer certa.
+3. **Volta Q:** três casos mediram uma sobrecarga **sem chamador de produção**, que fabricava o título "Contexto fornecido" — a "atribuição genérica do provedor" era um título do próprio app.
+4. **V12-E:** o teste que devia provar que o fantasma acabou **aceitava o estado sem cartão e passava verde** — não percorria "Abrir os campos", que é onde o fantasma vivia.
+
+Regra, para todo portão novo: **o teste declara o estado que exige como PRÉ-CONDIÇÃO QUE FALHA**, nunca como estado aceitável — se o cenário não foi montado, ele fica vermelho dizendo isso. E **todo portão nasce com a prova do vermelho**: plante a violação, mostre a falha, remova. Verde sozinho não é portão; é confiança falsa, que é pior que nenhuma.
+
+**Dois becos de plantio de estado, achados pela V12-F em 08/09**, que fazem um teste passar verde sem o estado que ele exige: **`'1'` e `'YES'` chegam como String ao domínio de argumentos**, e o `object(forKey:) as? Bool` os ignora — plante `<true/>`/`<false/>` de verdade e confira lendo o valor de dentro do app; e **`xcodebuild test-without-building` troca o contêiner**, então plantar por plist antes dele não chega ao app que roda.
+
 ## Scorecard
 
 | dimensão | mínimo 9 significa | evidência |

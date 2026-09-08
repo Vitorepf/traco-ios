@@ -96,6 +96,24 @@ targets:
         GENERATE_INFOPLIST_FILE: YES
         BUNDLE_LOADER: $(TEST_HOST)
         TEST_HOST: $(BUILT_PRODUCTS_DIR)/Traco.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Traco
+  # V12-E: o condutor da prova de tela da Página — toques reais pelo XCTest,
+  # sem o helper compartilhado do `orca emulator` (que relança o app da frente
+  # ao anexar e, disputado por três voltas, o derruba). Corre só pelo esquema
+  # `TracoUITests`; a suíte integral (`Traco`) não o inclui.
+  TracoUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: TracoUITests
+    dependencies:
+      - target: Traco
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: app.traco.uitests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_TARGET_NAME: Traco
+        # XCTestCase é nonisolated; o padrão MainActor do projeto não serve aqui
+        SWIFT_DEFAULT_ACTOR_ISOLATION: nonisolated
   TracoWidget:
     type: app-extension
     platform: iOS
@@ -142,3 +160,14 @@ schemes:
       config: Debug
       targets:
         - TracoTests
+  TracoUITests:
+    build:
+      targets:
+        Traco: all
+        TracoUITests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - TracoUITests
