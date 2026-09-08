@@ -322,3 +322,58 @@ struct RestantesTests {
         }
     }
 }
+
+/// F5 — o teto de altura da frase do autor no médio.
+///
+/// A lei que a F4 escrevia dentro da view (`max(1, teto - 1)` quando o rodapé
+/// entrava em tamanho de acessibilidade) dava **uma linha** ao Destaque num
+/// cartão de 4×2, e era isso que imprimia
+/// `terminar o capítulo do meio antes de do…` na casa do dono. Aqui a lei sai
+/// da view e ganha suíte, como `EstadoNaFace` e `LinhasDoEstado` antes dela.
+@Suite("F5: quantas linhas o Destaque pode ocupar no médio")
+struct LinhasDoDestaqueTests {
+    @Test("com rodapé de estado o médio não desce a uma linha — era o corte da F4")
+    func rodapeNaoRoubaAMetadeDaFrase() {
+        #expect(LinhasDoDestaque.noMedio(rodape: true, comAgenda: false) == 2)
+    }
+
+    @Test("com agenda embaixo, duas — a agenda fica com o pé do cartão")
+    func agendaFicaComOPe() {
+        #expect(LinhasDoDestaque.noMedio(rodape: false, comAgenda: true) == 2)
+        #expect(LinhasDoDestaque.noMedio(rodape: true, comAgenda: true) == 2)
+    }
+
+    @Test("sem rodapé e sem agenda, três — não há mais nada disputando o cartão")
+    func fraseSozinhaGanhaATerceira() {
+        #expect(LinhasDoDestaque.noMedio(rodape: false, comAgenda: false) == 3)
+    }
+
+    @Test("nunca menos de duas: uma linha para a frase do autor é a mentira da F4")
+    func nuncaUmaLinha() {
+        for rodape in [true, false] {
+            for agenda in [true, false] {
+                #expect(LinhasDoDestaque.noMedio(rodape: rodape, comAgenda: agenda) >= 2)
+            }
+        }
+    }
+}
+
+/// F5 — o piso do encolhimento é do PAPEL, não da face.
+///
+/// A F4 fixou 0,6 em toda `Text` e declarou o custo fechado; na tela, em AX5,
+/// a frase do autor continuava terminando em reticências, porque 60% de um
+/// corpo de acessibilidade ainda não cabe em 123 pt. A frase encolhe até
+/// caber; o rótulo, que é texto nosso e reescrevível, não passa de 0,6.
+@Suite("F5: o piso do encolhimento")
+struct EncolheTests {
+    @Test("a frase do autor pode encolher mais que o rótulo")
+    func aFraseVaiMaisFundo() {
+        #expect(Encolhe.frase < Encolhe.rotulo)
+    }
+
+    @Test("os dois pisos são frações válidas, e a frase não some")
+    func pisosValidos() {
+        #expect(Encolhe.frase > 0.2)
+        #expect(Encolhe.rotulo <= 1)
+    }
+}

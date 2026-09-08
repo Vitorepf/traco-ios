@@ -152,3 +152,50 @@ nonisolated enum Restantes: Equatable {
         }
     }
 }
+
+/// Quanto a frase do autor pode encolher antes de a face desistir (F5).
+///
+/// A F4 fixou 0,6 em toda `Text` da casa e declarou o custo como fechado. Na
+/// tela, em AX5, a linha do Destaque continuava terminando em reticências: 60%
+/// de um corpo de acessibilidade ainda não cabe em 123 pt de largura, e o que
+/// não cabe o SwiftUI CORTA. Reticências na frase do autor é a mentira que a
+/// F4 veio matar; letra pequena é só letra pequena.
+///
+/// Então o piso é do PAPEL, não da face:
+/// - `frase`: a linha que o autor escreveu — encolhe até caber, sempre.
+///   35% é o que a conta pede no pior caso real (43 caracteres num pequeno em
+///   AX5 sem a marca): abaixo disso nenhuma frase deste app precisou ir.
+/// - `rotulo`: marca, estado, oferta — texto NOSSO, curto e reescrevível. Se
+///   não couber a 60%, o conserto é escrever mais curto, não encolher mais.
+nonisolated enum Encolhe {
+    static let frase: CGFloat = 0.35
+    static let rotulo: CGFloat = 0.6
+}
+
+/// O teto de ALTURA da frase do autor, em linhas, na face que tem outra coisa
+/// embaixo (F5).
+///
+/// Só o médio precisa dele: lá a agenda disputa o pé do cartão, e sem teto a
+/// frase tomaria o cartão inteiro. No pequeno a frase É o cartão — ela recebe
+/// toda a altura que sobra e não passa por aqui.
+///
+/// A F4 escrevia `max(1, teto - 1)` quando o rodapé "Desatualizado." entrava
+/// em tamanho de acessibilidade — e no médio isso dava **1**: uma linha para a
+/// frase do autor num cartão de 4×2, que é o que produzia
+/// `terminar o capítulo do meio antes de do…` (visto na tela, 08/09, AX5). A
+/// troca "o estado ganha do comprimento da frase" foi julgada certa no
+/// pequeno, onde a quarta linha custa um quarto do cartão; no médio ela
+/// custava METADE da frase para ganhar um rodapé de uma palavra. Aqui o médio
+/// não cede: duas linhas com o rodapé, três sem ele — a largura inteira do
+/// cartão paga a terceira quando não há mais nada a dizer.
+///
+/// Mora fora do SwiftUI pela razão de sempre: um `if` de view não tem suíte, e
+/// foram `if`s de view que derrubaram esta família quatro vezes.
+nonisolated enum LinhasDoDestaque {
+    /// - Parameters:
+    ///   - rodape: o estado honesto ocupa o pé do cartão.
+    ///   - comAgenda: há compromissos publicados a mostrar embaixo.
+    static func noMedio(rodape: Bool, comAgenda: Bool) -> Int {
+        rodape || comAgenda ? 2 : 3
+    }
+}

@@ -25,3 +25,16 @@ Contrato operacional de desenvolvimento da visão vigente. Atualizar por evidên
 | design-router | Atualizado para autoridade, fidelidade da captura e restauração do ambiente de teste; cenários revisados. V10: fases Construir e Mover com componentes em `Traco/Componentes` e movimento em `Tema`; Julgar e Portão ficam com G3/G4 | Ampliar evidência de estados e tarefas; defeitos AX continuam abertos mesmo após restaurar o tamanho normal; as telas fora das três migradas ainda desenham por conta própria (lista no relatório da V10-B) |
 
 Não há autorização inferida para publicar, gastar ou enviar mensagens externas. Produção local e validação prosseguem; dependências reais entram como pendências explícitas. O AGENTS.md deste repositório foi criado para orientar agentes pela visão vigente; AGENTS de outros projetos e skills de terceiros não foram alterados.
+
+- **Fora do app: a frase do autor inteira, e o dia no médio** (08/09, ADR 2026-09-08b).
+  O corte em reticências da linha do Destaque — quatro voltas em aberto — fecha
+  pela causa certa: o teto de linhas, não a propriedade de encolhimento. As
+  quatro faces que desenham a frase passam a usar a mesma view, sem teto de
+  linhas e com piso de encolhimento próprio do papel do texto. O médio do Traço
+  troca dois atalhos de cabeçalho por duas linhas de agenda (era nenhuma), e o
+  quadro do estado vazio deixa a forma de lista de Ajustes por uma linha de
+  ações com cápsula âmbar. Prova: capturas `simctl` do iPhone 17 Pro (teste 3)
+  em `ferramentas/orca/f5-*.png`, casa em claro/escuro × normal/AX5, estado
+  vazio antes e depois, desatualizado nos dois tamanhos, tela bloqueada e Ilha
+  compacta e expandida. Lacuna aberta que continua: modo escuro do widget
+  (é `Tema.swift`, volta L2) e Ilha mínima (limite do instrumento).

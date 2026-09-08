@@ -124,12 +124,13 @@ private struct AtalhoTraco: View {
     let rotulo: String
     let glifo: String
     var primario: Bool = false
-    /// No quadro de ofertas o alvo é a linha inteira (Fitts); no cabeçalho,
-    /// não — lá ele divide a faixa com a marca e com o irmão.
-    var largo: Bool = false
-    /// No quadro, a oferta ocupa a altura que sobra: alvo maior ainda e, de
-    /// quebra, morre o cartão vazio embaixo das ofertas.
-    var preenche: Bool = false
+    /// F5: a ação PRINCIPAL do quadro vazio veste a cápsula âmbar da tela
+    /// bloqueada — a mesma que o autor já toca ali (`CapsulaLembrar`). É o que
+    /// tira o quadro da forma de lista e lhe dá uma ação de primeira classe.
+    var capsula: Bool = false
+    /// A alternativa do quadro: sem glifo e sem moldura, para que a diferença
+    /// entre as duas ofertas seja de FORMA, não só de cor.
+    var semGlifo: Bool = false
 
     var body: some View {
         Link(destination: URL(string: rota)!) {
@@ -138,17 +139,32 @@ private struct AtalhoTraco: View {
             // O mínimo da esteira é `Tema.alvo`, e ele vale onde o toque
             // EXISTE: no pequeno o atalho é desenho (`corpo`), e quem leva o
             // toque é o widget inteiro.
-            corpo.frame(minHeight: Tema.alvo, maxHeight: preenche ? .infinity : nil)
+            vestido.frame(minHeight: Tema.alvo)
         }
         .accessibilityLabel(rotulo)
+    }
+
+    @ViewBuilder private var vestido: some View {
+        if capsula {
+            corpo
+                .padding(.horizontal, 16)
+                .padding(.vertical, 9)
+                .background(.quaternary, in: Capsule())
+                .overlay(Capsule().strokeBorder(Tema.ambar.opacity(0.55), lineWidth: 1))
+                .contentShape(Capsule())
+        } else {
+            corpo
+        }
     }
 
     /// No pequeno o sistema só honra um destino (`widgetURL`): ali o atalho é
     /// desenho, não `Link` — quem leva o toque é o widget inteiro.
     var corpo: some View {
         HStack(spacing: 5) {
-            Image(systemName: glifo)
-                .font(Tema.miudo.weight(.semibold))
+            if !semGlifo {
+                Image(systemName: glifo)
+                    .font(Tema.miudo.weight(.semibold))
+            }
             // A3, de novo: encolher a 85% não salva "Marcar compromisso" em
             // tamanho de acessibilidade — e oferta cortada não é oferta. A
             // linha quebra; a palavra, nunca.
@@ -158,10 +174,8 @@ private struct AtalhoTraco: View {
                 .allowsTightening(true)
                 .fixedSize(horizontal: false, vertical: true)
                 .multilineTextAlignment(.leading)
-            if largo { Spacer(minLength: 0) }
         }
         .foregroundStyle(primario ? Tema.ambarTinta : Tema.tintaSuave)
-        .frame(maxWidth: largo ? .infinity : nil, alignment: .leading)
         .contentShape(Rectangle())
     }
 }
@@ -415,6 +429,48 @@ nonisolated func textoDoDestaque(_ linha: String, feito: Bool) -> Text {
     return Text(t)
 }
 
+/// A frase do autor, inteira, na altura que a face de fato tem (F5).
+///
+/// Aqui morava o defeito que a F4 fechou três vezes e a tela reabriu: em AX5,
+/// no pequeno e no médio, a linha do Destaque terminava em reticências.
+/// **A causa não é `minimumScaleFactor` — é o TETO DE LINHAS.** Com
+/// `lineLimit(n)` a altura de que a `Text` precisa fica presa em n linhas, ela
+/// nunca excede a proposta, e o SwiftUI conclui que já cabe: corta a frase em
+/// vez de encolhê-la. É a mesma lei que a F4-D descobriu na palavra do estado
+/// ("com teto o SwiftUI prefere hifenizar a encolher"), agora na frase inteira.
+///
+/// Então esta view não tem teto de linhas. Ela recebe a ALTURA que a face lhe
+/// deu — não `alturaDaLinha × teto`, que é um chute, mas o que sobrou de
+/// verdade — e deixa o encolhimento decidir quantas linhas cabem. Quem mede é
+/// o layout; a view só não mente.
+///
+/// O piso é `Encolhe.frase` (35%), não os 0,6 dos rótulos: a 60% de um corpo
+/// de acessibilidade a frase ainda não cabe em 123 pt, e o que não cabe o
+/// SwiftUI corta. Letra pequena é letra pequena; frase cortada é mentira.
+private struct FraseDoAutor: View {
+    let destaque: Superficie.Destaque
+    let fonte: Font
+    /// `nil` = a frase usa toda a altura que a face lhe der (o pequeno, onde
+    /// ela é o assunto). Um número = o teto em linhas, para a face onde há
+    /// outra coisa embaixo disputando (o médio, que tem agenda).
+    var teto: CGFloat? = nil
+    /// Na tela bloqueada quem tinge é o sistema (o material apaga tinta nossa):
+    /// lá a frase usa `.primary`/`.secondary`, como as outras faces de acessório.
+    var acessorio: Bool = false
+
+    var body: some View {
+        textoDoDestaque(destaque.linha, feito: destaque.feito)
+            .font(fonte)
+            .foregroundStyle(acessorio
+                             ? (destaque.feito ? AnyShapeStyle(.secondary) : AnyShapeStyle(.primary))
+                             : AnyShapeStyle(destaque.feito ? Tema.tintaFraca : Tema.tinta))
+            .allowsTightening(true)
+            .minimumScaleFactor(Encolhe.frase)
+            .multilineTextAlignment(.leading)
+            .frame(maxHeight: teto ?? .infinity, alignment: .topLeading)
+    }
+}
+
 /// O botão do feito, com identidade (ADR 05u): marca ou desfaz — dois
 /// intents, nunca um toggle. O mesmo gesto na casa e na tela bloqueada (04f).
 private struct BotaoFeito<Rotulo: View>: View {
@@ -480,7 +536,11 @@ private struct AgendaQueCabe: View {
             ForEach(Array(proximos.prefix(quantos).enumerated()), id: \.element.ocorrencia) { i, p in
                 if entreLinhas, i > 0 { Rectangle().fill(Tema.linha).frame(height: 0.5) }
                 LinhaProximo(proximo: p, agora: agora, primeiro: i == 0)
-                    .padding(.bottom, entreLinhas ? 0 : 5)
+                    // F5: o respiro vai ENTRE as linhas, não depois da última.
+                    // Os 5 pt do pé não separavam nada e custavam, no médio do
+                    // Traço, quase a metade de uma linha de agenda — que é
+                    // justamente a coisa que faltava caber ali.
+                    .padding(.bottom, entreLinhas || i == quantos - 1 ? 0 : 5)
             }
             conta(mostrando: quantos)
         }
@@ -524,36 +584,62 @@ private struct AgendaQueCabe: View {
 /// (`curva-zero`: a recuperação não desaparece no tamanho que mais precisa
 /// dela). Quantas cabem é do layout — com alvo de 44 pt (achado G) duas já
 /// tomam o cartão em AX5, e a terceira continua no cabeçalho e no app.
+/// **F5, achado I da revisão da F4: "o quadro lê como lista de Ajustes".**
+///
+/// E lia. A causa não era a cor nem a fonte: era a FORMA. Duas linhas de
+/// largura inteira, do mesmo peso, com glifo à esquerda e o mesmo passo
+/// vertical, empilhadas e esticadas para dividir o cartão em fatias iguais —
+/// isso É uma lista de sistema, seja qual for a tinta. E uma lista não tem
+/// ação principal: as duas ofertas pediam a mesma coisa ao mesmo tempo.
+///
+/// Aqui o quadro deixa de ser lista e vira **frase de estado + uma ação, com
+/// uma alternativa ao lado**: a primeira em cápsula âmbar — a mesma cápsula
+/// que o autor já toca na tela bloqueada (`CapsulaLembrar`), que é a
+/// assinatura da casa fora do app —, a segunda em texto discreto, sem glifo,
+/// no fim da mesma linha. Uma linha de ações, não uma pilha de linhas iguais;
+/// hierarquia por forma e peso, não por ordem (`von-restorff`).
+///
+/// Em tamanho de acessibilidade a linha não cabe: aí fica só a cápsula, que é
+/// a ação de maior valor da face. A alternativa continua no app.
 private struct QuadroVazio: View {
-    @Environment(\.dynamicTypeSize) private var tipo
     let estado: String
     /// Em ordem de valor; a primeira é a primária.
     let ofertas: [(rota: String, rotulo: String, glifo: String)]
 
-    /// DUAS, e uma em tamanho de acessibilidade.
-    ///
-    /// Não é preguiça: com o alvo de 44 pt do achado G, três ofertas mais a
-    /// linha do estado não cabem num médio — medido na tela, não estimado. O
-    /// juiz pediu as duas coisas, e entre um alvo de 16 pt e uma terceira
-    /// oferta, quem fica é o alvo. A terceira continua no cabeçalho do tamanho
-    /// normal e no app (`curva-zero`: o poder muda de lugar, não some).
-    private var quantas: Int { tipo.isAccessibilitySize ? 1 : 2 }
-
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: 10) {
             Text(estado)
                 .font(Tema.meta.weight(.medium))
                 .foregroundStyle(Tema.tintaSuave)
                 .lineLimit(LinhasDoEstado.de(estado, teto: 2))
                 .allowsTightening(true)
-                .minimumScaleFactor(0.6)
+                .minimumScaleFactor(Encolhe.rotulo)
                 .fixedSize(horizontal: false, vertical: true)
-            ForEach(Array(ofertas.prefix(quantas).enumerated()), id: \.offset) { i, o in
-                AtalhoTraco(rota: o.rota, rotulo: o.rotulo, glifo: o.glifo,
-                            primario: i == 0, largo: true, preenche: true)
+            // Quem decide se a alternativa cabe é o LAYOUT, não um `if` de
+            // tamanho de tipo escrito à mão: em AX5 a linha inteira não passa,
+            // e `ViewThatFits` cai na cápsula sozinha sem inventar regra.
+            ViewThatFits(in: .horizontal) {
+                linha(comAlternativa: true)
+                linha(comAlternativa: false)
             }
+            Spacer(minLength: 0)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    }
+
+    private func linha(comAlternativa: Bool) -> some View {
+        HStack(spacing: 14) {
+            if let o = ofertas.first {
+                AtalhoTraco(rota: o.rota, rotulo: o.rotulo, glifo: o.glifo,
+                            primario: true, capsula: true)
+            }
+            if comAlternativa, ofertas.count > 1 {
+                AtalhoTraco(rota: ofertas[1].rota, rotulo: ofertas[1].rotulo,
+                            glifo: ofertas[1].glifo, semGlifo: true)
+            }
+            Spacer(minLength: 0)
+        }
+        .fixedSize(horizontal: false, vertical: true)
     }
 }
 
@@ -600,11 +686,10 @@ struct TracoWidgetView: View {
                                     .lineLimit(1)
                                     .allowsTightening(true)
                                     .minimumScaleFactor(0.6)
-                                textoDoDestaque(d.linha, feito: d.feito)
-                                    .font(Tema.meta.weight(.medium))
-                                    .lineLimit(2)
-                                    .allowsTightening(true)
-                                    .minimumScaleFactor(0.6)
+                                // F5: a mesma lei na tela bloqueada — teto de
+                                // linhas corta, altura encolhe.
+                                FraseDoAutor(destaque: d, fonte: Tema.meta.weight(.medium),
+                                             acessorio: true)
                             }
                             Spacer(minLength: 0)
                         }
@@ -628,13 +713,8 @@ struct TracoWidgetView: View {
     /// Quantas linhas a única coisa de hoje pode ocupar. Em tamanho de
     /// acessibilidade o pequeno abre mão do atalho: a linha vem primeiro.
     private var linhasDoDestaque: Int {
-        let teto = familia == .systemSmall ? (tipo.isAccessibilitySize ? 4 : 3) : 2
-        // Passado o horizonte entra o rodapé do estado. No tamanho normal
-        // cabem os dois; em tamanho de acessibilidade não, e aí a QUARTA
-        // linha da frase cede — saber que está velho vale mais. O custo é
-        // só esse: com `minimumScaleFactor(0.6)` a frase encolhe para caber
-        // nas três linhas que sobram, e NUNCA termina em reticências.
-        return estadoNaFace == .rodape && tipo.isAccessibilitySize ? max(1, teto - 1) : teto
+        LinhasDoDestaque.noMedio(rodape: estadoNaFace == .rodape,
+                                 comAgenda: !entrada.proximos.isEmpty)
     }
     private var soALinha: Bool { familia == .systemSmall && tipo.isAccessibilitySize }
     /// O miolo já traz a ação: repeti-la no rodapé mostrava "Nova nota" duas
@@ -663,32 +743,13 @@ struct TracoWidgetView: View {
                 Image(systemName: d.feito ? "checkmark.circle.fill" : "circle")
                     .font(Tema.chrome.weight(.light))
                     .foregroundStyle(d.feito ? Tema.tintaFraca : Tema.ambar)
-                textoDoDestaque(d.linha, feito: d.feito)
-                    .font(Tema.chrome.weight(.semibold))
-                    .foregroundStyle(d.feito ? Tema.tintaFraca : Tema.tinta)
-                    // `reservesSpace` no pequeno: sem ele a `Text` recebe uma
-                    // proposta de altura FOLGADA, conclui que não precisa
-                    // encolher e o `lineLimit` corta a frase com reticências —
-                    // o `minimumScaleFactor` só entra quando a altura aperta.
-                    // Reservando as linhas, a altura é sempre a do teto e a
-                    // frase encolhe inteira, como manda a F4-D.
-                    .lineLimit(linhasDoDestaque)
-                    // 0,85 não chega em 155 pt no AX5 e a frase terminava em
-                    // reticências (`capítul…`, re-G3 N1) — reticências no
-                    // Destaque é o defeito que abriu a volta. Como em
-                    // `Velho()`: a frase ENCOLHE inteira, nunca corta.
-                    .allowsTightening(true)
-                    .minimumScaleFactor(0.6)
-                    .multilineTextAlignment(.leading)
-                    // o teto de linhas VIRA altura: sem isto o encolhimento
-                    // nunca é acionado e a frase termina em reticências
-                    // TETO de altura no teto de linhas: `minimumScaleFactor`
-                    // só encolhe quando a altura aperta, e com proposta folgada
-                    // a frase terminava em reticências. Teto, e não altura
-                    // fixa: amarrar mínimo E máximo empurra o conteúdo para
-                    // fora do cartão pequeno (visto na tela, 06/09).
-                    .frame(maxHeight: alturaDaLinha * CGFloat(linhasDoDestaque),
-                           alignment: .topLeading)
+                // No PEQUENO a frase é o assunto do cartão e fica com toda a
+                // altura que sobrar; no MÉDIO ela cede o pé à agenda, então
+                // leva um teto — que é ALTURA, nunca teto de linhas
+                // (`FraseDoAutor` guarda o porquê).
+                FraseDoAutor(destaque: d, fonte: Tema.chrome.weight(.semibold),
+                             teto: familia == .systemMedium
+                                   ? alturaDaLinha * CGFloat(linhasDoDestaque) : nil)
                 Spacer(minLength: 0)
             }
             .contentShape(Rectangle())
@@ -744,7 +805,13 @@ struct TracoWidgetView: View {
     /// lugar).
     private var pequeno: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Selo(rotulo: "TRAÇO")
+            // F5: em tamanho de acessibilidade a marca CEDE. Ela custa quase um
+            // quarto do cartão de 123 pt — e a casa já escreve "Traço" logo
+            // embaixo do widget, na etiqueta do sistema. Gastar a altura do
+            // autor para repetir o nome do app é a mesma falta que a F4 tirou
+            // do cabeçalho ("o widget não gasta linha falando de si mesmo"),
+            // um degrau acima. Onde a frase aperta, quem sai é a marca.
+            if !tipo.isAccessibilitySize { Selo(rotulo: "TRAÇO") }
             // Espaçador flexível DISPUTA altura com o texto: entre dois
             // `Spacer` o miolo recebia um terço do cartão, e com o rodapé do
             // estado embaixo a linha do Destaque deixava de encolher e passava
@@ -783,16 +850,20 @@ struct TracoWidgetView: View {
     /// frase (G0 da F4, item 5).
     private var medio: some View {
         VStack(alignment: .leading, spacing: 0) {
+            // F5: o cabeçalho do médio é a MARCA, e só ela.
+            //
+            // Os dois atalhos que moravam aqui custavam 44 pt de altura (o alvo
+            // do achado G) num cartão de ~141 — e a conta é dura: com eles, a
+            // `AgendaQueCabe` não achava altura nem para UMA linha e caía em
+            // "3 compromissos por vir", com o dia do autor reduzido a um
+            // número (visto na tela, 08/09). Três linhas de agenda e uma frase
+            // de duas linhas não cabem juntas num 4×2 — isso é aritmética, não
+            // escolha. O que É escolha é quem paga: a agenda, que só existe
+            // AQUI, ou dois caminhos para dentro do app, que existem no ícone,
+            // no controle Ditar, na Siri e no toque do pequeno.
+            // Pagam os atalhos (`curva-zero`: o poder muda de lugar, não some).
             HStack(alignment: .firstTextBaseline, spacing: 12) {
                 Selo(rotulo: "TRAÇO")
-                // Com a face vazia os atalhos descem para o corpo (A11/M1):
-                // repeti-los aqui seria a mesma ação duas vezes.
-                if !tipo.isAccessibilitySize, !vazioTotal {
-                    AtalhoTraco(rota: "traco://nova", rotulo: "Nova nota",
-                                glifo: "square.and.pencil", primario: true)
-                    AtalhoTraco(rota: "traco://recordar", rotulo: "Recordar",
-                                glifo: "arrow.counterclockwise")
-                }
             }
             Group {
                 if entrada.indisponivel {
@@ -815,9 +886,11 @@ struct TracoWidgetView: View {
                 // espaçamentos aqui são fixos de propósito — `Spacer` flexível
                 // disputa altura com o `ViewThatFits` e o faz escolher menos
                 // do que caberia.
+                // F5: 14 pt de respiro em volta do filete valiam mais como
+                // linha de agenda. O filete separa; separar não custa isso.
                 Rectangle().fill(Tema.linha).frame(height: 0.5)
-                    .padding(.top, 8)
-                    .padding(.bottom, 6)
+                    .padding(.top, 6)
+                    .padding(.bottom, 4)
                 AgendaQueCabe(proximos: entrada.proximos, agora: entrada.date, alem: entrada.alem)
                     // sem o frame o `ViewThatFits` recebe do VStack uma
                     // proposta de migalha e escolhe a menor candidata com o
@@ -1155,15 +1228,11 @@ struct ProximoWidgetView: View {
                         Image(systemName: d.feito ? "checkmark.circle.fill" : "circle")
                             .font(Tema.chrome.weight(.light))
                             .foregroundStyle(d.feito ? Tema.tintaFraca : Tema.ambar)
-                        textoDoDestaque(d.linha, feito: d.feito)
-                            .font(Tema.chrome.weight(.semibold))
-                            .foregroundStyle(d.feito ? Tema.tintaFraca : Tema.tinta)
-                            .lineLimit(familia == .systemSmall ? 3 : 2)
-                            // re-G3 N3: aqui a frase já cortava em AX5 com a
-                            // superfície FRESCA — o corte não era do rodapé.
-                            .allowsTightening(true)
-                            .minimumScaleFactor(0.6)
-                            .multilineTextAlignment(.leading)
+                        // F5: a MESMA frase do autor, a mesma lei. Aqui ela
+                        // cortava tanto no pequeno quanto no médio (re-G3 N3);
+                        // o teto de linhas era o culpado dos dois lados, e a
+                        // correção mora num lugar só (`FraseDoAutor`).
+                        FraseDoAutor(destaque: d, fonte: Tema.chrome.weight(.semibold))
                         Spacer(minLength: 0)
                     }
                     .contentShape(Rectangle())
