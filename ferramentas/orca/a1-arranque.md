@@ -57,7 +57,19 @@ portão do movimento (ADR 08e) e reusando a varredura dele (`codigoVisivel`, que
 apaga comentário e string antes de contar).
 
 **4. A lista congelada, MEDIDA e com julgamento caso a caso.**
-`grep -rn 'try!' Traco/ TracoWidget/` deu **9 antes** da volta, **8 depois**.
+O `grep` cru **não serve de prova** — hoje ele conta **10** neste branch, porque
+esta volta escreveu duas linhas de comentário que dizem `try!`. A conta que vale
+é a de `try!` em CÓDIGO, e este comando a reproduz em qualquer checkout:
+
+```
+grep -rn 'try!' Traco/ TracoWidget/ | grep -vE '^[^:]+:[0-9]+:[[:space:]]*//'
+```
+
+**9 em `main`, 8 aqui** — as duas saídas estão coladas na seção "A medida do
+`try!`, refeita nas duas árvores", abaixo. O portão não usa esse filtro de uma
+linha: usa `codigoVisivel`, que apaga comentário **e** string antes de contar, e
+chega ao mesmo 8; o filtro acima é a versão que qualquer um roda sem compilar
+nada.
 
 | arquivo:linha | julgamento |
 |---|---|
@@ -95,6 +107,52 @@ em `Traco/App/TituloTela.swift`, e removido em seguida (`git diff` limpo):
   Traco/App/TituloTela.swift: 1 hoje, 0 congelado  ← SUBIU
 ```
 
+### A medida do `try!`, refeita nas duas árvores
+
+Conferida no fecho da volta (A1-D, 08/09), não herdada do texto. `main` estava
+em `b4559f5`; o candidato, em `8f2c671` + o diff desta passada. A árvore de
+`main` foi extraída por `git archive main Traco TracoWidget` para um diretório
+temporário — o checkout principal está sendo editado por outra sessão e não se
+toca.
+
+**`main` (`b4559f5`) — 9, e o `grep` cru também dá 9:**
+
+```
+Traco/TracoApp.swift:13:        container = try! DiscoTraco.abrir(emTeste: emTeste)
+Traco/Analise/FonteNotas.swift:155:        String(data: try! JSONSerialization.data(withJSONObject: objeto, options: [.sortedKeys]), encoding: .utf8)!
+Traco/App/Sessao.swift:599:        let dados = try! JSONEncoder().encode([nota.texto, nota.camposJSON, nota.sentido,
+Traco/Caderno/AnexoDisco.swift:48:        let rx = try! NSRegularExpression(pattern: #"traco://[a-z]+/([0-9A-Fa-f-]{36})"#)
+Traco/Trabalho/ConferenciaTrabalho.swift:179:    private static func regex(_ padrao: String) -> Regex<AnyRegexOutput> { try! Regex("(?i)" + padrao) }
+Traco/Trabalho/PraticaTrabalho.swift:547:        String(data: try! JSONSerialization.data(withJSONObject: objeto, options: [.sortedKeys]), encoding: .utf8)!
+Traco/Notas/Corpus.swift:144:                let valor = String(decoding: try! JSONEncoder().encode(f.campos[id]!), as: UTF8.self)
+Traco/Notas/Corpus.swift:277:        let padrao = try! NSRegularExpression(
+Traco/Notas/Indice.swift:96:    nonisolated static let marcadorPDF = try! NSRegularExpression(
+```
+
+**Candidato (branch da A1) — 8, com o `grep` cru em 10:**
+
+```
+Traco/Analise/FonteNotas.swift:155:        String(data: try! JSONSerialization.data(withJSONObject: objeto, options: [.sortedKeys]), encoding: .utf8)!
+Traco/App/Sessao.swift:599:        let dados = try! JSONEncoder().encode([nota.texto, nota.camposJSON, nota.sentido,
+Traco/Caderno/AnexoDisco.swift:48:        let rx = try! NSRegularExpression(pattern: #"traco://[a-z]+/([0-9A-Fa-f-]{36})"#)
+Traco/Trabalho/ConferenciaTrabalho.swift:179:    private static func regex(_ padrao: String) -> Regex<AnyRegexOutput> { try! Regex("(?i)" + padrao) }
+Traco/Trabalho/PraticaTrabalho.swift:529:        String(data: try! JSONSerialization.data(withJSONObject: objeto, options: [.sortedKeys]), encoding: .utf8)!
+Traco/Notas/Corpus.swift:144:                let valor = String(decoding: try! JSONEncoder().encode(f.campos[id]!), as: UTF8.self)
+Traco/Notas/Corpus.swift:277:        let padrao = try! NSRegularExpression(
+Traco/Notas/Indice.swift:96:    nonisolated static let marcadorPDF = try! NSRegularExpression(
+```
+
+A diferença entre as duas listas é **uma linha e só uma**: `TracoApp.swift:13`,
+que era o arranque. As 8 do candidato são exatamente as da tabela congelada
+acima, e o portão (por `codigoVisivel`) chega ao mesmo 8.
+
+**Uma divergência de número de linha, dita porque `main` andou hoje:**
+`PraticaTrabalho.swift` está em **:529** neste branch e em **:547** no `main` de
+`b4559f5` — a volta E1 mexeu no arquivo depois que este branch saiu. O `try!` é
+o mesmo e a lista continua com os mesmos 8 alvos; quem mesclar deve reler essa
+linha da tabela (aqui, no RUMO e no doc do portão) contra o `main` do momento da
+mescla. Nada disso muda a contagem.
+
 ### Suíte integral e build
 
 ```
@@ -105,6 +163,18 @@ em `Traco/App/TituloTela.swift`, e removido em seguida (`git diff` limpo):
 `ferramentas/orca/com-trava.sh xcodebuild test -scheme Traco -destination
 'id=6033B043-F436-41F9-B4F8-2D9E67761980' -parallel-testing-enabled NO`.
 Zero `warning:` no log (`grep -c warning: → 0`).
+
+**Repetida na ÁRVORE FINAL** (A1-D, 08/09, com as correções do revisor já
+escritas, mesmo comando, mesmo `6033B043`, que foi ligado para isto e desligado
+ao fim):
+
+```
+✔ Test run with 934 tests in 152 suites passed after 55.699 seconds.
+** TEST SUCCEEDED **
+```
+
+`grep -c warning: → 0` também neste log. É a árvore que vai ao commit, não uma
+anterior.
 
 ### A tela, com o banco de VERDADE impedido de abrir
 
@@ -161,7 +231,64 @@ Depois de **três arranques falhos e um "tentar de novo" recusado**:
 Byte por byte igual. Restaurado o `default.store`, a nota reapareceu na lista
 (`a1-07-nota-viva.png`), com domínio ESTUDO e sob HOJE.
 
-### Ordem de leitura para o VoiceOver
+### O pior caso da frase do meio: o espelho VAZIO, fotografado
+
+A frase do meio conta os `.md` que estão no espelho **naquele instante**. O
+estado que mais podia assustar ou mentir é o de zero — e ele foi exercitado no
+aparelho, não no preview.
+
+**Como o estado foi plantado** (`6033B043`, 08/09 às 19:17–19:26):
+
+1. O espelho inteiro saiu do contêiner do app para fora do alcance do processo —
+   `Documents/notas/*.md` e `Documents/traco-corpus.md` movidos para
+   `/tmp/a1b-guardado/` (dois `.md` de nota, 261 e 173 bytes, e o corpus de
+   2,4 kB). `Documents/notas/` ficou existente e **vazio**, que é o caso da
+   frase, e não o caso de pasta ausente.
+2. O `default.store` do App Group
+   (`.../AppGroup/1B1F9212-…/Library/Application Support/`) saiu para
+   `/tmp/a1b-guardado/store/` e foi **trocado por um diretório de mesmo nome** —
+   a mesma sabotagem da passada anterior, que produz o erro real
+   `SwiftDataError(…loadIssueModelContainer…)`, e não um erro simulado.
+3. App relançado. Captura `xcrun simctl io 6033B043-… screenshot` às **19:26**,
+   guardada como `ferramentas/orca/a1-08-espelho-vazio.png`
+   (SHA-256 `80668d06695ca7ff…`).
+
+**A frase que a tela mostrou**, conferida abrindo a captura, palavra por
+palavra:
+
+> Não encontrei cópia em Markdown no app Arquivos. O arquivo original continua
+> neste aparelho, intacto — o Traço não o toca enquanto não conseguir lê-lo.
+
+Com o título "O Traço não abriu o seu caderno.", o parágrafo do que houve, a
+ação "Tentar abrir de novo" em âmbar e o detalhe técnico
+`SwiftDataError(_error: SwiftData.SwiftDataError._Error.loadIssueModelContainer,
+_explanation: nil)` em miúdo no fim. **Nenhuma contagem falsa e nenhum backup
+inventado**: com zero `.md` a tela diz que não encontrou cópia, e mesmo assim
+não deixa a pessoa achar que o original se perdeu.
+
+**Os `.md` voltaram byte a byte.** SHA-256 dos três arquivos ao sair (19:17) e
+depois de restaurados no espelho do aparelho:
+
+```
+31c8df5e02f7f18cc911f8b59a51704b21d1354efd5328ad9dc70ea9974f9867  traco-corpus.md
+735b07435baf62d60993a93eb9e5b9429a705f4e03751801fef0a05f894a9549  notas/3bfca0b4-2a55-41f4-88e4-426bf2e41ce8.md
+54c62bbd99d9206eef8869db7747511cf3ae78172f157b5f077f8d4c07b1c2b8  notas/f4474b30-2376-47ec-aa97-27cab47e19eb.md
+```
+
+As duas listas são **idênticas** — o mesmo comando nas duas pontas, `diff` vazio.
+Conferido de novo em 08/09 no fecho da volta (A1-D), com o `default.store` já
+de volta ao lugar como arquivo e os três `.md` de volta em
+`Documents/`.
+
+**Onde essa evidência está agora, dito para ninguém procurar em vão:** a
+conferência foi feita **antes** da suíte integral do fecho. O `xcodebuild test`
+**troca o contêiner de dados do app** (lei conhecida do instrumento), e depois
+dele o container `2FE7F8BD-…` não existe mais no `6033B043`. Os três arquivos
+originais continuam em `/tmp/a1b-guardado/`, com os SHA-256 acima — quem quiser
+refazer a conta os tem na mão; quem for olhar o aparelho não vai achar o espelho
+daquele instante, e isso é o teste, não o defeito.
+
+### Ordem de leitura na árvore de acessibilidade
 
 A árvore de AX entrega, nesta ordem: cabeçalho → o que houve → onde está o
 conteúdo (id `arranque-onde-esta`) → ação (id `arranque-tentar`) → "Detalhe
@@ -193,8 +320,58 @@ tela, sistema existente como âncora). Sem moodboard, sem tokens novos.
 - **Portão.** Estados exercitados na tela real: falha em `large`, falha em AX5
   (topo e rolado), segunda recusa, recuperação. Não há estado "carregando" nem
   "sem permissão" nesta tela; "vazio" é a variante da frase quando o espelho não
-  tem nenhum `.md`, e ela está no código e no preview — **não fotografada**,
-  porque o espelho do aparelho tinha a nota (declarado, não vendido como visto).
+  tem nenhum `.md`, e ela foi **fotografada no aparelho** com o espelho
+  esvaziado de propósito (`a1-08-espelho-vazio.png`, seção acima).
+
+## Para quem mescla — conferido no fecho (A1-D), contra o `main` de `b4559f5`
+
+Eu não mesclo. Isto é o que a mescla vai encontrar, medido com
+`git merge-tree --write-tree main HEAD`:
+
+**1. O número da ADR COLIDE, e é o único achado que exige decisão.** Enquanto
+esta volta corria, a E1 entregou três ADRs em `main`: `08m` (E1), **`08n`
+(E1-B, "Cancelar não apaga o que já foi observado")** e `08o` (E1-C). A A1
+também se chama **`08n`**. Duas ADRs diferentes com o mesmo número não podem
+subir. A primeira letra livre hoje é **`08p`**, mas quem mescla decide — a E1
+pode tomá-la antes. **Não renumerei de propósito:** escolher o número é da
+mescla, e escolher errado aqui deixaria duas ADRs erradas em vez de uma.
+As 11 referências a renumerar, todas neste branch:
+
+```
+SPEC.md:6214                          (o cabeçalho da ADR)
+EVOLUCAO.md:19                        (linha "Preservar escrita…")
+Traco/TracoApp.swift:7
+Traco/App/ArranqueFalhouView.swift:3
+Traco/Modelo/Migracao.swift:83
+TracoTests/PortaoDoTryBangTests.swift:9 e :129
+TracoTests/ColheitaEixosTests.swift:818
+ferramentas/orca/RUMO.md:96
+ferramentas/orca/a1-arranque.md:4 e :372   (este documento)
+```
+
+**2. `ferramentas/orca/RUMO.md` NÃO desfaz nada.** `git merge-tree` casa o
+arquivo sozinho ("Auto-merging", sem conflito). A A1 acrescenta **duas linhas e
+só duas**, na seção "Dívida vinda dos portões de hoje" (as quatro dívidas de
+`try!` congeladas; a recuperação que a A1 não entrega). Tudo o que o `main`
+ganhou hoje mais abaixo no arquivo — os dois achados da V13, a régua do
+vazamento, o RESOLVIDO da Q-C — está em outra região e **sobrevive intacto**.
+
+**3. Os dois conflitos são de vizinhança, não de mérito.**
+- `EVOLUCAO.md` (uma marca): os dois lados mexeram em **linhas diferentes** da
+  mesma tabela — o `main` na linha "Intenção→artefato delegado…" (E1), a A1 na
+  linha "Preservar escrita, importação e restauração". Resolve-se ficando com
+  as duas, cada uma do seu lado.
+- `SPEC.md` (uma marca): os dois lados **acrescentaram ADRs no mesmo ponto**.
+  `main` traz `08m`/`08n`/`08o` da E1; este branch traz a da A1. Ficam todas —
+  com o número da A1 corrigido conforme o item 1.
+
+**4. Uma linha da tabela congelada envelhece com o `main`.**
+`Traco/Trabalho/PraticaTrabalho.swift` está em **:529** aqui e em **:547** no
+`main` — a E1 mexeu no arquivo depois. É a MESMA ocorrência de `try!` e a
+contagem não muda (8 aqui, 9 lá), mas o número da linha aparece em três lugares
+(a tabela deste relatório, o `RUMO.md` e o doc de `PortaoDoTryBangTests`) e deve
+ser relido contra o `main` do momento da mescla. O portão não usa número de
+linha — ele conta —, então nada fica vermelho por isto.
 
 ## Scorecard (preenchido por mim; a nota final é do revisor independente)
 
@@ -218,11 +395,14 @@ tela, sistema existente como âncora). Sem moodboard, sem tokens novos.
 
 ## Limites, ditos
 
-- **O estado "espelho vazio"** da frase do meio não foi fotografado (o aparelho
-  tinha a nota). Está no código e no preview.
-- **VoiceOver falado** não foi ouvido — a ordem e os rótulos vêm da árvore de AX,
-  não de um simulador com VoiceOver ligado. Mesma pendência de instrumento que o
-  RUMO já registra para outras voltas.
+- **VoiceOver falado não foi ouvido, e não será** — não é pendência de
+  instrumento: é **ordem do dono**. Voz, VoiceOver e ditado estão proibidos no
+  Traço, porque o áudio de qualquer simulador sai pelas caixas do Mac onde o
+  autor trabalha. A lei da ESTEIRA diz como se prova acessibilidade no lugar
+  disso: **árvore de AX e captura**, conferidas no mesmo instante — que é
+  exatamente o que esta volta tem (ordem de leitura acima, AX5 em duas capturas,
+  alvo de 43,98 pt medido). A fala fica **declarada como limite, e limite
+  declarado não desconta nota**.
 - **A recuperação é só "tentar de novo".** Trazer o espelho em Markdown de volta
   para dentro do banco é volta própria, e está no RUMO.
 - O aparelho foi restaurado: `content_size` de volta em `large` (conferido por

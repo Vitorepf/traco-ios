@@ -6232,10 +6232,20 @@ mudou nesta volta, e é o achado maior que o `try!`.** A versão que estava em
 `main` não morria: ela caía num contentor **em memória** e deixava o app inteiro
 de pé sobre um caderno vazio, com uma frase de aviso por cima. Só que
 `Corpus.escrever` **apaga do espelho em Arquivos todo `.md` que não estiver na
-lista que recebe** (`Corpus.swift`, a varredura do selo), e a lista vem do
-contexto. Um caderno vazio na RAM sobrevoando o espelho apaga o backup sem nuvem
-— o estrago que o defeito ainda não tinha feito. Por isso, agora, **nada se abre
-no lugar**: sem container não há `RaizView`, sem `RaizView` nenhuma rota do selo
+lista que recebe** (`Corpus.swift:440-464`, a varredura do selo), e a lista vem
+do contexto.
+
+**A forma exata do perigo, porque a forma exagerada seria falsa.** O arranque
+antigo **não apagava nada sozinho**: nenhuma chamada de `Corpus.escrever` corre
+só por subir, e o selo automático, encontrando zero notas naquele contentor de
+emergência, não chega à varredura destrutiva. O estrago precisava de **um gesto
+seguinte da pessoa dentro do caderno falso** — selar, queimar, apagar ou
+importar, qualquer rota que projete o mundo. Aí sim a lista chegava vazia e o
+espelho em Arquivos, que é o backup sem nuvem, era varrido. Dizer "apaga
+sozinho" seria mentira, e mentira sobre um risco grave é o que autoriza
+desprezá-lo: o defeito era **um gesto de distância** da destruição, com a pessoa
+convencida de que estava mexendo no caderno dela. É por isso que ele se corta
+pela raiz, e não por aviso. Agora **nada se abre no lugar**: sem container não há `RaizView`, sem `RaizView` nenhuma rota do selo
 existe, e o espelho não é tocado. `Ferias`, `Revisoes` e as reconciliações da
 Ilha também não correm — reagendar a partir de um mundo vazio calaria o que está
 de pé lá fora. **Preservar vem antes de voltar a funcionar**, e nenhum caminho
@@ -6243,8 +6253,19 @@ de recuperação limpa, recria ou migra o que não conseguiu ler.
 
 **O portão do `try!`**, irmão do portão do movimento da 08e e com a mesma
 varredura (`codigoVisivel`, que apaga comentário e string antes de contar).
-A lista congelada **nasce medida**: 9 ocorrências antes da volta, 8 depois, com
-julgamento caso a caso — **infalível por construção** (`AnexoDisco`, `Indice` e
+A lista congelada **nasce medida, e a medida se refaz** — o `grep` cru não serve
+de prova, porque esta volta escreveu duas linhas de comentário que dizem `try!`
+e o comando literal passou a contar 10. A conta que vale é a de `try!` em
+código, e este comando a reproduz em qualquer checkout:
+
+```
+grep -rn 'try!' Traco/ TracoWidget/ | grep -vE '^[^:]+:[0-9]+:[[:space:]]*//'
+```
+
+**9 em `main`, 8 aqui**, e as 8 linhas que ele imprime são exatamente as da
+tabela congelada. O portão não usa esse filtro de uma linha: usa `codigoVisivel`,
+que apaga comentário **e** string antes de contar, e chega ao mesmo 8. Julgamento
+caso a caso — **infalível por construção** (`AnexoDisco`, `Indice` e
 `Corpus:277`, regex de padrão literal; `ConferenciaTrabalho`, literal só
 enquanto todo chamador passar literal) e **dívida real** (`FonteNotas`,
 `PraticaTrabalho`, `Corpus:144` e `Sessao:599` — serialização de valor vindo de
@@ -6262,3 +6283,19 @@ verdade. Depois de três arranques falhos e de um "tentar de novo" recusado, o
 espelho continuava com o `.md` da nota e o `traco-corpus.md` com 2.303 bytes;
 restaurado o `default.store`, a nota reapareceu na lista. Capturas em
 `ferramentas/orca/a1-arranque.md`.
+
+**O pior caso da frase do meio, fotografado.** Com o mesmo banco impedido de
+abrir e o espelho **esvaziado** (`Documents/notas/` sem nenhum `.md`), a tela diz
+"Não encontrei cópia em Markdown no app Arquivos. O arquivo original continua
+neste aparelho, intacto — o Traço não o toca enquanto não conseguir lê-lo."
+(`ferramentas/orca/a1-08-espelho-vazio.png`). É o momento em que a tela mais
+poderia assustar ou mentir, e ela faz as duas coisas certas: não inventa um
+backup que não existe e não deixa a pessoa achar que o original foi perdido.
+Os `.md` guardados voltaram byte a byte (SHA-256 idêntico antes e depois).
+
+**Lacuna que fica, por ordem do dono, não por limite de instrumento.** A leitura
+falada do VoiceOver **não foi e não será exercitada**: comando por voz e
+VoiceOver estão proibidos no Traço — o áudio de qualquer simulador sai pelas
+caixas do Mac do autor. A acessibilidade desta tela se prova por árvore de AX
+(cabeçalho → o que houve → onde está o conteúdo → ação → detalhe técnico) e por
+captura, que é o que a lei manda. A ordem de leitura está provada; a fala, não.

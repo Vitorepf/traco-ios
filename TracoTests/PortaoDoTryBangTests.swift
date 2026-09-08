@@ -17,8 +17,20 @@ import Testing
 /// para não contar `try!` escrito dentro de comentário ou de string — este
 /// próprio arquivo de doc estaria vermelho sem isso.
 struct PortaoDoTryBangTests {
-    /// A DÍVIDA CONGELADA em 08/09/2026, **medida** (`grep -rn 'try!' Traco/
-    /// TracoWidget/` deu 9 antes desta volta, 8 depois — `TracoApp.swift` saiu).
+    /// A DÍVIDA CONGELADA em 08/09/2026, **medida** — e a medida se refaz. O
+    /// `grep` cru NÃO serve de prova: hoje ele conta 10, porque esta volta
+    /// escreveu duas linhas de comentário que dizem `try!`. A conta que vale é
+    /// a de `try!` em CÓDIGO, e este comando a reproduz, aqui e em `main`:
+    ///
+    /// ```
+    /// grep -rn 'try!' Traco/ TracoWidget/ | grep -vE '^[^:]+:[0-9]+:[[:space:]]*//'
+    /// ```
+    ///
+    /// **9 em `main`, 8 no candidato** (`TracoApp.swift:13` saiu), e as 8 linhas
+    /// que ele imprime são exatamente as da tabela abaixo. O portão não usa esse
+    /// filtro de uma linha: usa `codigoVisivel`, que apaga comentário E string
+    /// antes de contar, e chega ao mesmo 8 — o filtro acima é a versão que
+    /// qualquer um roda sem compilar nada.
     /// Duas colunas de julgamento, porque distinguir os dois é metade do valor
     /// da volta: **infalível por construção** (literal que o compilador não
     /// verifica mas o autor sim) versus **dívida real** (pode falhar com dado
