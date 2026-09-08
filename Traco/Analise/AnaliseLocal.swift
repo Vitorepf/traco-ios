@@ -10,7 +10,7 @@ enum AnaliseLocal: Sendable {
         case expressiva
     }
 
-    nonisolated static let avisoFrasePronta = "A frase aqui é sua. O Traço não escreve."
+    nonisolated static let avisoFrasePronta = "Nesta página, a escrita é sua. Para delegar um texto à IA, use um Trabalho."
     /// ADR 06f: o app não diz o que a fonte não mediu. Wood 2009 mediu HUMOR
     /// logo depois de repetir uma frase dada, não fixação — a informação e a
     /// pergunta ficam; a sentença sobre o mundo, não.
@@ -56,7 +56,7 @@ enum AnaliseLocal: Sendable {
         let voz = VozDoAutor.juntar(texto: bruto, campos: campos)
         let lower = voz.lowercased()
 
-        if lower.contains(regex: #"escrev[ae] (por|pra|para) mim|melhore|reescreva|resuma"#) {
+        if pedeTextoPronto(texto) {
             return .aviso(avisoFrasePronta)
         }
         if lower.contains(regex: #"eu sou (rico|um vencedor|incrível|o melhor|imparável)"#) {
@@ -97,6 +97,19 @@ enum AnaliseLocal: Sendable {
             return .aviso(avisoOettingen)
         }
         return .silencio
+    }
+
+    /// O aviso local tem prioridade até sobre o modelo: uma menção não pode
+    /// interromper o autor como se fosse um pedido. Preservar a estrutura aqui
+    /// impede que `prosa` transforme citação, título ou tarefa em comando.
+    /// Campos são respostas do método, não instruções ao aplicativo.
+    static func pedeTextoPronto(_ markdown: String) -> Bool {
+        guard case .paragrafo(let abertura) = Caderno.fatias(markdown).first?.bloco else { return false }
+        // ponytail: reconhece somente comandos diretos na abertura. Pedidos
+        // indiretos exigem intenção explícita na superfície, não mais palavras
+        // soltas classificadas como ordem dentro do material do autor.
+        return abertura.trimmingCharacters(in: .whitespacesAndNewlines).lowercased().contains(regex:
+            #"^(?:por favor[,\s]+)?(?:escrev[ae]\s+(?:por|pra|para)\s+mim\b|(?:resuma|reescreva)\b|melhore\s+(?:(?:o|a|os|as|este|esta|esse|essa|meu|minha)\s+)?(?:texto|frase|par[aá]grafo|rascunho|reda[çc][ãa]o)\b)"#)
     }
 
     /// Plano/fantasia sem obstáculo interno — e sem o gancho WOOP ("quero"),

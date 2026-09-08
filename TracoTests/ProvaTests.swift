@@ -39,6 +39,17 @@ import Testing
         #expect(Prova.pontos(longo, teto: 8).count == 8)
     }
 
+    @Test func pontosPreservamNumerosEAbreviacoes() throws {
+        let alvo = "A Dra. Silva estimou 12.50 reais por unidade. O total foi 25.00 reais."
+        let pontos = Prova.pontos(alvo)
+        try #require(pontos.count == 2)
+        #expect(pontos[0].contains("Dra. Silva"))
+        #expect(pontos[0].contains("12.50 reais por unidade"))
+        #expect(pontos[1].contains("25.00 reais"))
+        #expect(pontos.allSatisfy { alvo.contains($0) })
+        #expect(Prova.pontos("   \n ").isEmpty)
+    }
+
     // MARK: a pergunta não pode entregar a resposta
 
     @Test func quatroPalavrasSeguidasDoAlvoEVazamento() {
@@ -83,20 +94,34 @@ import Testing
                                               alvo: nota) == nil)
     }
 
-    // MARK: o parser da conferência — só números, e só os que existem
+    // MARK: o parser exige comparação de todos os pontos; não certifica significado
 
-    @Test func aConferenciaAceitaIndicesValidos() {
-        #expect(Sabia.parseVoltaram(#"{"voltaram":[0,2]}"#, pontos: 3) == [0, 2])
-        #expect(Sabia.parseVoltaram(#"{"voltaram":[]}"#, pontos: 3) == [])
+    @Test func aConferenciaExigeDecisaoPorPontoESelecionaSoEquivalentes() {
+        #expect(Sabia.parseVoltaram(#"{"ponto_0":"equivalente","ponto_1":"parcial","ponto_2":"equivalente"}"#, pontos: 3) == [0, 2])
+        #expect(Sabia.parseVoltaram(#"{"ponto_0":"equivalente","ponto_1":"equivalente","ponto_2":"equivalente"}"#, pontos: 3) == [0, 1, 2])
+        #expect(Sabia.parseVoltaram(#"{"ponto_0":"contradicao","ponto_1":"ausente","ponto_2":"incerto"}"#, pontos: 3) == [])
     }
 
-    /// Índice inventado derruba a conferência INTEIRA: meia conferência mentiria
-    /// sobre o que não voltou, e o autor leria uma falta que não houve.
-    @Test func indiceInventadoDerrubaTudo() {
-        #expect(Sabia.parseVoltaram(#"{"voltaram":[0,9]}"#, pontos: 3) == nil)
-        #expect(Sabia.parseVoltaram(#"{"voltaram":[-1]}"#, pontos: 3) == nil)
-        #expect(Sabia.parseVoltaram(#"{"voltaram":["um"]}"#, pontos: 3) == nil)
-        #expect(Sabia.parseVoltaram(#"{"voltaram":[0],"nota":"muito bem!"}"#, pontos: 0) == nil)
+    @Test func omissaoPontoInventadoOuEstadoDesconhecidoDerrubaTudo() {
+        #expect(Sabia.parseVoltaram(#"{"ponto_0":"equivalente"}"#, pontos: 2) == nil)
+        #expect(Sabia.parseVoltaram(#"{"ponto_0":"equivalente","ponto_9":"ausente"}"#, pontos: 2) == nil)
+        #expect(Sabia.parseVoltaram(#"{"ponto_0":"correto"}"#, pontos: 1) == nil)
+        #expect(Sabia.parseVoltaram(#"{"ponto_0":true}"#, pontos: 1) == nil)
+        #expect(Sabia.parseVoltaram(#"{"voltaram":[0,2]}"#, pontos: 3) == nil)
+        #expect(Sabia.parseVoltaram(#"{}"#, pontos: 0) == nil)
+    }
+
+    @Test func esquemaRemotoExigeTodosOsJulgamentosSemExemploDeAcertos() throws {
+        let esquema = try #require(Sabia.esquemaRemotoConferir(pontos: 3))
+        let json = try #require(try JSONSerialization.jsonObject(with: Data(esquema.utf8)) as? [String: Any])
+        #expect(json["required"] as? [String] == ["ponto_0", "ponto_1", "ponto_2"])
+        #expect(json["additionalProperties"] as? Bool == false)
+        let propriedades = try #require(json["properties"] as? [String: [String: Any]])
+        for propriedade in propriedades.values {
+            #expect(propriedade["type"] as? String == "string")
+            #expect(propriedade["enum"] as? [String] == Sabia.estadosConferir)
+        }
+        #expect(Sabia.esquemaRemotoConferir(pontos: 0) == nil)
     }
 
     @Test func textoLivreNoLugarDoJsonNaoPassa() {

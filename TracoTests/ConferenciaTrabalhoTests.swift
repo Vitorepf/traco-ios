@@ -57,8 +57,8 @@ struct ConferenciaTrabalhoTests {
         let lido = try trabalho.ler()
         let c = try #require(lido.versaoAtual?.conferencias?.last)
         #expect(c.pedidoID == p.id)
-        #expect(c.executor == "aparelho · regras v1")
-        #expect(c.versaoDoMetodo == 1)
+        #expect(c.executor == "aparelho · regras v2")
+        #expect(c.versaoDoMetodo == 2)
         #expect(c.estado == .concluida)
         #expect(c.resultados.count == lido.versaoAtual?.conferencias?.last?.resultados.count)
     }
@@ -205,7 +205,7 @@ struct ConferenciaTrabalhoTests {
                                   """)
         let r = try criterio(conferir(d, p), contendo: "Tempo")
         #expect(r.situacao == .divergencia)
-        #expect(r.justificativa == "O pedido pede 3 blocos de 5 minutos (15 no total); encontrei 2 marcas somando 10.")
+        #expect(r.justificativa == "O pedido pede 3 blocos de 5 minutos (15 no total); encontrei 2 marcas: 5 min, 5 min, somando 10. Cada bloco também precisa ter a duração pedida.")
         #expect(r.trechosDoArtefato == ["5 min, 5 min"])
     }
 
@@ -261,7 +261,7 @@ struct ConferenciaTrabalhoTests {
                                   """)
         let r = try criterio(conferir(d, p), contendo: "Tempo")
         #expect(r.situacao == .divergencia)
-        #expect(r.justificativa == "O pedido pede 3 blocos de 5 minutos (15 no total); encontrei 1 marca somando 5.")
+        #expect(r.justificativa == "O pedido pede 3 blocos de 5 minutos (15 no total); encontrei 1 marca: 5 min, somando 5. Cada bloco também precisa ter a duração pedida.")
         #expect(!r.justificativa.contains("nenhuma marca"))
     }
 
@@ -404,7 +404,7 @@ struct ConferenciaTrabalhoTests {
         let texto = try #require(String(data: arquivo, encoding: .utf8))
         #expect(!texto.contains("conferencia"))
         #expect(!texto.contains("atendidoNoEscopo"))
-        #expect(!texto.contains("aparelho · regras v1"))
+        #expect(!texto.contains("aparelho · regras v2"))
 
         let editado = Data((texto + "\n\nUma linha acrescentada fora do Traço, num editor qualquer.").utf8)
         let previa = try IntercambioTrabalho.preparar(editado, para: d)
@@ -506,6 +506,7 @@ struct ConferenciaTrabalhoTests {
         let noGrok = await revisar(d, p, resposta: cru, provedor: "Grok")
         #expect(noGrok.executor == "Grok · revisão assistida")
         #expect(noGrok.estado == .concluida)
+        #expect(noGrok.versaoDoMetodo == 2)
     }
 
     @Test func aRespostaFavoravelNaoAprovaEDizQuemNaoApontou() async throws {
@@ -517,7 +518,7 @@ struct ConferenciaTrabalhoTests {
         #expect(!RevisaoTrabalho.linha(c).contains("verificad"))
     }
 
-    @Test func acimaDaJanelaDoAparelhoFicaIndisponivelSemCortarNemChamar() async throws {
+    @Test func acimaDaJanelaDoProvedorFicaIndisponivelSemCortarNemChamar() async throws {
         let (d, p) = try paraRevisar()
         nonisolated(unsafe) var chamadas = 0
         let c = await RevisaoTrabalho.revisar(
@@ -526,20 +527,24 @@ struct ConferenciaTrabalhoTests {
         #expect(chamadas == 0)
         #expect(c.estado == .indisponivel)
         #expect(c.executor == RevisaoTrabalho.naoExecutada)
-        #expect(try #require(c.motivo).hasPrefix("Limite do aparelho:"))
+        #expect(try #require(c.motivo).hasPrefix("Limite do provedor:"))
         #expect(try #require(c.motivo).contains("Não mandei um pedaço"))
         // O artefato continua inteiro no documento: nada foi resumido para caber.
         #expect(d.versaoAtual?.conteudo == bilingue)
     }
 
-    @Test func nenhumProvedorRespondeNaoViraAusenciaDeDivergencia() async throws {
+    @Test func retornoIncompletoNaoInventaQueOProvedorNaoLeuOArtefato() async throws {
         let (d, p) = try paraRevisar()
         let c = await RevisaoTrabalho.revisar(pedido: p, intencao: d.intencaoAtual,
                                               artefato: bilingue, criterios: [],
                                               janela: { 100_000 }, chamar: { _, _ in nil })
         #expect(c.estado == .indisponivel)
         #expect(c.executor == RevisaoTrabalho.naoExecutada)
-        #expect(RevisaoTrabalho.linha(c).contains("Nenhum provedor respondeu"))
+        let linha = RevisaoTrabalho.linha(c)
+        #expect(linha.contains("Não recebi uma revisão completa"))
+        #expect(linha.contains("tente novamente"))
+        #expect(!linha.contains("Nada do artefato foi lido"))
+        #expect(!linha.contains("Nenhum provedor respondeu"))
     }
 
     @Test func gerarNaoDisparaRevisaoDaIA() async throws {
@@ -635,7 +640,7 @@ struct ConferenciaTrabalhoTests {
                       fonte: .instrucao, situacao: .naoAvaliado, justificativa: "Ninguém leu."),
             ])
         let texto = try #require(ConferenciaTrabalho.pedidoDeAjuste(c))
-        let marca = "Ajustar a versão anterior (a partir da conferência de \(c.data.formatted(date: .abbreviated, time: .shortened)), por aparelho · regras v1):"
+        let marca = "Ajustar a versão anterior (a partir da conferência de \(c.data.formatted(date: .abbreviated, time: .shortened)), por aparelho · regras v2):"
         #expect(texto == """
         \(marca)
         - Tempo pedido: 3 blocos de 5 minutos (15 no total). Na versão anterior: “5 min”. O pedido diz: “3 blocos de 5 minutos”. O pedido pede 3 blocos de 5 minutos (15 no total); encontrei 1 marca somando 5.

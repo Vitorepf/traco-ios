@@ -136,31 +136,31 @@ import Testing
         #expect(Sabia.parseVoltaram("} {", pontos: 3) == nil)
     }
 
-    @Test func booleanosNaoSaoIndices() {
-        #expect(Sabia.parseVoltaram(#"{"voltaram":[true,false]}"#, pontos: 3) == nil)
+    @Test func booleanosNaoSaoJulgamentos() {
+        #expect(Sabia.parseVoltaram(#"{"ponto_0":true}"#, pontos: 1) == nil)
     }
 
     @Test func chaveExtraRecusaConferenciaInteira() {
-        #expect(Sabia.parseVoltaram(#"{"voltaram":[0],"nota":"x"}"#, pontos: 3) == nil)
+        #expect(Sabia.parseVoltaram(#"{"ponto_0":"equivalente","nota":"x"}"#, pontos: 1) == nil)
     }
 
-    @Test func fracaoNaoEIndice() {
-        #expect(Sabia.parseVoltaram(#"{"voltaram":[1.5]}"#, pontos: 3) == nil)
+    @Test func fracaoNaoEJulgamento() {
+        #expect(Sabia.parseVoltaram(#"{"ponto_0":1.5}"#, pontos: 1) == nil)
     }
 
-    @Test func stringNaoEIndice() {
-        #expect(Sabia.parseVoltaram(#"{"voltaram":["1"]}"#, pontos: 3) == nil)
+    @Test func numeroEmStringNaoEJulgamento() {
+        #expect(Sabia.parseVoltaram(#"{"ponto_0":"1"}"#, pontos: 1) == nil)
     }
 
-    @Test func indicesValidos() {
-        #expect(Sabia.parseVoltaram(#"{"voltaram":[0,2]}"#, pontos: 3) == [0, 2])
+    @Test func julgamentosValidosViramIndices() {
+        #expect(Sabia.parseVoltaram(#"{"ponto_0":"equivalente","ponto_1":"parcial","ponto_2":"equivalente"}"#, pontos: 3) == [0, 2])
     }
 
     @Test func indiceForaRecusaTudo() {
-        #expect(Sabia.parseVoltaram(#"{"voltaram":[0,3]}"#, pontos: 3) == nil)
+        #expect(Sabia.parseVoltaram(#"{"ponto_0":"equivalente","ponto_3":"ausente"}"#, pontos: 2) == nil)
     }
 
-    @Test func listaVaziaEConferenciaValida() {
-        #expect(Sabia.parseVoltaram(#"{"voltaram":[]}"#, pontos: 3) == [])
+    @Test func nenhumEquivalenteEConferenciaValida() {
+        #expect(Sabia.parseVoltaram(#"{"ponto_0":"contradicao","ponto_1":"ausente","ponto_2":"incerto"}"#, pontos: 3) == [])
     }
 }

@@ -313,9 +313,10 @@ struct TrabalhoView: View {
     }
 
     private func producaoComIA(_ o: OficinaTrabalho) -> some View {
-        VStack(alignment: .leading, spacing: Tema.entreItens) {
-            secao(o.documento.praticaPedida ? "Preparar um exercício" : "Preparar uma versão")
-            campo(o.documento.praticaPedida ? "O que você quer praticar?" : "O que você quer que a IA prepare ou ajuste?",
+        let combinando = o.documento.apoio == .combinar && o.documento.praticaPedida
+        return VStack(alignment: .leading, spacing: Tema.entreItens) {
+            secao(combinando ? "Preparar entrega e exercício" : o.documento.praticaPedida ? "Preparar um exercício" : "Preparar uma versão")
+            campo(combinando ? "O que você quer produzir e praticar?" : o.documento.praticaPedida ? "O que você quer praticar?" : "O que você quer que a IA prepare ou ajuste?",
                   chave: "pedido", exemplo: o.documento.praticaPedida ? "Quero praticar me apresentar em espanhol" : "Prepare uma apresentação curta")
                 .accessibilityIdentifier("trabalho-pedido")
             if o.documento.pedidoAtivo != nil {
@@ -331,7 +332,7 @@ struct TrabalhoView: View {
                 // pendente, a saída do erro —, e o motivo continua escrito
                 // abaixo (curva-zero §3).
                 let travado = !o.salvo || edicaoPendente(o)
-                Pilula(o.documento.praticaPedida ? "Preparar exercício com IA" : o.documento.versaoAtual == nil ? "Preparar com IA" : "Preparar nova versão com IA",
+                Pilula(combinando ? "Preparar entrega e exercício" : o.documento.praticaPedida ? "Preparar exercício com IA" : o.documento.versaoAtual == nil ? "Preparar com IA" : "Preparar nova versão com IA",
                        forma: .larga, selecionada: true) {
                     guard !levouAoQueFalta(o, campoObrigatorio: "pedido") else { return }
                     o.gerar(rascunhos["pedido"] ?? "")
@@ -626,7 +627,8 @@ struct TrabalhoView: View {
     // MARK: - Versão
 
     private func artefato(_ a: DocumentoTrabalho.Artefato, oficina o: OficinaTrabalho) -> some View {
-        VStack(alignment: .leading, spacing: Tema.entreItens) {
+        let praticaAcima = o.documento.praticaPedida && a.id == o.documento.versaoAtual?.id
+        return VStack(alignment: .leading, spacing: Tema.entreItens) {
             HStack(alignment: .firstTextBaseline) {
                 secao("Versão \(numero(a.id, em: o.documento))")
                 Spacer()
@@ -637,11 +639,12 @@ struct TrabalhoView: View {
                 Text("Esta versão foi preparada para uma intenção anterior. Confira o que ainda serve.")
                     .font(Tema.meta).foregroundStyle(Tema.aviso)
             }
-            if a.pratica != nil {
+            if a.pratica != nil && praticaAcima {
                 Text("O exercício está na seção Praticar, acima.")
                     .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
-            } else {
-                ConteudoTrabalhoView(fonte: a.conteudo)
+            }
+            if a.pratica == nil || a.parteDelegada != nil || !praticaAcima {
+                ConteudoTrabalhoView(fonte: praticaAcima ? a.parteDelegada ?? a.conteudo : a.conteudo)
                     .id(a.id)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .accessibilityIdentifier("trabalho-artefato")

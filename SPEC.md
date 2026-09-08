@@ -4217,3 +4217,75 @@ outras cinco. Depois, no iPhone 17 Pro (teste 4) `A1DF082C`: `✔ Test run with
 `** TEST SUCCEEDED **` na suíte inteira. **Fora:** a arbitragem do `dá medo de` acima; a família do adjetivo
 sem cópula; a dívida da densidade em nota de sistema segue no RUMO; e a régua
 inversa continua sendo escrita por mim e pelo revisor, não por uso real.
+
+
+## ADR 2026-09-07a — Qualidade efetiva da IA: contratos e prova em curso
+
+O pedido vigente exige ajuda utilizável, fiel às restrições e fundamentada,
+com avaliação >=9 por caso e dimensão. O contrato e a matriz integral estão
+em [QUALIDADE-IA.md](QUALIDADE-IA.md). Testes de tipos, transporte, guardas e
+persistência não certificam a utilidade semântica. O objetivo permanece aberto.
+
+**Produção e prática.** Combinar com trecho delimitado prepara o exercício e
+produz o restante delegado; o enunciado e a divisão entram inteiros no pedido
+da entrega, que deve reservar a contribuição da pessoa. Só o sucesso das duas
+partes retorna uma versão. `Artefato.parteDelegada?` preserva a parte mostrada
+separadamente quando o exercício está em Praticar; `conteudo` contém ambas
+para leitura integral e Markdown. Campos ausentes em documentos antigos
+continuam `nil`. Mudar apoio, hipótese ou trecho cancela a preparação em voo,
+inclusive antes de uma segunda chamada. Trocar o apoio para Delegar não
+esconde o exercício já guardado. A qualidade dessa divisão ainda precisa ser
+medida em saídas reais, inclusive para impedir resposta-alvo na parte delegada.
+
+**Provedor e feedback.** Preparação, conferência de tentativa e revisão usam
+JSON Schema no protocolo Grok, além da validação de domínio. Essas operações
+não descem silenciosamente ao modelo do aparelho: as provas históricas 5–6
+não demonstraram capacidade suficiente dele. Feedback v2 seleciona IDs de
+linhas em um array JSON compacto; o app resolve o texto original, preservando
+CRLF e recusando referências inventadas, repetidas, fora de ordem ou com lacunas.
+O formato persistido das citações continua o mesmo. Revisão assistida v2 não
+confirma atendimento sem citar conteúdo do artefato. Resposta incompleta não
+vira entrega, e a falha não afirma que o provedor deixou de ler algo enviado.
+Estas regras não provam que um critério é observável nem que o julgamento é
+correto; esses casos continuam obrigatórios na avaliação semântica.
+
+**Regras locais.** Conferência v2 exige cada duração pedida, além da soma e
+quantidade; números fora de capacidade não derrubam o app nem desaparecem da
+soma. A gramática continua limitada e não é aprovação de qualidade. Vestir
+preserva cercas e separadores originais e reaproveita estrutura local útil
+antes de pedir rótulos para prosa pendente. Citações de calibragem e Padrões
+não são cortadas após validação. Recordar preserva decimais e abreviaturas ao
+segmentar as frases. O aviso de texto pronto distingue pedido direto nesta
+página de relato/citação, sem reinstalar a proibição global de delegar.
+
+**Evidência.** A base viva de 07/09 teve três falhas de conteúdo/duração no
+roteiro espanhol e três respostas sobre notas sem fonte. Reforçar o prompt
+da consulta não corrigiu a atribuição em outras três execuções: o contrato de
+fontes está em revisão. Relatórios e JSONL completos ficam em `prova/qualidade-ia-*`.
+A bateria selecionada de 14:16 UTC passou 137 testes no iPhone 17 Pro (teste 2),
+com modelos desligados pela suíte. Esse resultado cobre aquele candidato e
+não os incrementos posteriores nem a semântica dos provedores. Validação
+remota aguarda conta Grok nesse simulador; não se presume acesso nem se copiam
+credenciais. O Perfil deixa explícita a dependência.
+
+## ADR 2026-09-07b — Quem responde cada operação: a tabela, medida
+
+**A distância.** Não existia um lugar que decidisse provedor por operação. Eram cinco políticas soltas: a escada Grok → aparelho da sábia (`Sabia.chamarComProveniencia`), a escada própria do Trabalho com duas montagens (`MotorTrabalho.produzirEntrega`), três `contaLigada` (preparar exercício, conferir tentativa, revisar), os três degraus da classificação escritos na `Sessao`, e o domínio só de bordo. E o modelo do aparelho seguia em OITO rotas onde a medição de 07/09 (`prova/qualidade-ia-avaliacao-base.md`, `prova/qualidade-ia-q5-avaliacao-base.md`, provas 4 a 6) diz que ele não serve: produzir reprovado 3 de 3; conferir do Recordar confirmando 3 de 3 um ponto explicitamente contradito, e o veredito vira sinal gravado; ecos sem retorno 6 de 6; calibragem vazia 6 de 6 com o positivo perdido; Padrões 3 de 3 e 2 de 3; a pergunta do Recordar revelando a resposta. Em todas, a falha era SILÊNCIO na tela: o autor não distinguia "não há ecos" de "ninguém respondeu".
+
+O dono pediu, em 07/09: implementar e sobretudo ENTENDER quando usar Apple Intelligence e quando usar o Grok, porque "tem muita coisa que o Apple Intelligence não é bom e não tem capacidade". O modelo do aparelho tem 3 bilhões de parâmetros e uma janela de 4.096 tokens compartilhada entre instruções, pedido e resposta; a Apple o descreve para resumir, extrair e classificar, e diz que não serve a conhecimento de mundo nem a raciocínio avançado. O modelo de nuvem privada (32K, raciocínio, sem conta) é do iOS 27 e não existe no SDK 26.5 deste projeto.
+
+**A decisão.** `Traco/Analise/Politica.swift` é a tabela única: para cada uma das 16 operações da sonda `AvaliacaoIA`, uma regra (`soGrok`, `grokDepoisBordo`, `soBordo`) e o PORQUÊ, datado, com o arquivo da prova. A regra nasce da medição (DIRETRIZ §5: medir, não torcer), e mudar de provedor é mudar a tabela e a prova junto.
+
+- **Só Grok** (o aparelho foi medido e não serviu): produzir, preparar exercício, conferir tentativa, revisar, conferir o que voltou, ecos, calibragem, Padrões, a pergunta do Recordar. Sem conta, NINGUÉM responde e a tela diz — `Politica.semProvedor` — em vez de descer calada a um resultado pior. A falha de rede do Grok também não desce.
+- **Grok, depois o aparelho** (provou ou ainda não reprovou; pergunta e resposta curtas cabem na janela): responder, instigar, contrapor, responder nas Notas (fatos certos 3 de 3, fonte em revisão pela 07a), vestir (a forma local decide antes) e classificar (3 de 3 com esquema tipado; as regex arbitram por último, 04c/06h).
+- **Só o aparelho**: o domínio da nota, rótulo fechado com esquema tipado.
+
+A classe que o aparelho serve é uma: escolher entre rótulos fechados com esquema tipado sobre entrada curta. A classe que ele não serve são duas: gerar texto longo fiel a restrições, e julgar com citação literal. É esse o entendimento, e é ele que a tabela codifica.
+
+A escada da sábia, o `conferir`, o `responderNasNotas`, o `produzirEntrega` e o `PadroesRemoto` passam a consultar a tabela: `Politica.provedor(op)` diz quem pode responder agora e `Politica.desceAoAparelho(op)` diz se a falha do Grok desce. O caminho do aparelho nessas rotas continua no código, GUARDADO pela tabela, para o dia em que uma medição o reabrir — não é código morto descrevendo contrato falso (a lição da A2), é ramo fechado por dado.
+
+**A superfície** (a lei do motor sem superfície): o Perfil ganha, no cartão da conta, duas linhas — o que o aparelho faz sem conta e o que só faz com a conta Grok, com "medido em 07/09: nessas, o modelo do aparelho não serviu". As três seções que calavam ganham a linha do estado (`LinhaDeEstado`, `.semConta`) no lugar da seção ausente: "O QUE NÃO VOLTOU" no Recordar, "TALVEZ SE LIGUEM" na Rede, "Sobre o seu juízo" nos Padrões. A mensagem do Trabalho sem provedor vem da tabela.
+
+**O teto passa a ser medido.** Desde o iOS 26.4 o modelo conta tokens (`SystemLanguageModel.tokenCount(for:)`, `contextSize`). `Sabia.noAparelho` mantém os 3.500 caracteres como pré-corte da montagem, mas o portão real é pedido + instruções + 1.024 tokens de resposta reservados ≤ `contextSize`; sem espaço para a resposta, cala. `maximumResponseTokens` fixa a reserva.
+
+**O que esta ADR não prova.** Nenhuma operação tem medição com Grok: a conta não existe em nenhum simulador (login iniciado no iPhone 17 Pro de teste em 07/09, à espera do dono). A tabela decide onde o aparelho NÃO entra; se o Grok serve, é a próxima medição pela mesma sonda. `responder`, `instigar` e `contrapor` seguem sem medição em nenhum provedor. 5 testes em `PoliticaTests`; suíte 826/134 em 07/09/2026.

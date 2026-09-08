@@ -56,6 +56,52 @@ struct AnaliseLocalTests {
         #expect(v == .aviso(AnaliseLocal.avisoFrasePronta))
     }
 
+    @Test func pedidoDiretoDeTextoContinuaAvisandoNestaSuperficie() {
+        for texto in ["escreve pra mim um parágrafo", "Escreva para mim uma frase.",
+                      "Resuma este texto.", "reescreva minha frase", "Por favor, resuma o texto.",
+                      "Melhore meu rascunho.", "melhore a redação"] {
+            #expect(AnaliseLocal.classificar(texto: texto, gestoAtual: nil, campos: [:])
+                    == .aviso(AnaliseLocal.avisoFrasePronta), "\(texto)")
+        }
+        #expect(AnaliseLocal.avisoFrasePronta.contains("Nesta página"))
+        #expect(AnaliseLocal.avisoFrasePronta.contains("Trabalho"))
+    }
+
+    @Test func relatoCitacaoObjetivoENegacaoNaoSaoPedidosDeTextoAIA() {
+        let casos = [
+            "Quero que João resuma a reunião amanhã.",
+            "Minha professora pediu que eu reescreva a conclusão.",
+            "Melhorei minha rotina de revisão.",
+            "Quero que o serviço melhore sem aumentar o preço.",
+            "Não resuma minhas anotações.",
+            "Não reescreva esta frase.",
+            "Ela disse: escreva para mim uma carta.",
+            "A mensagem foi:\n\nResuma o projeto para mim.",
+            "“Resuma o artigo” foi o exercício de ontem.",
+            "> Resuma este texto.",
+            "# Reescreva o futuro",
+            "- Resuma a reunião para João.",
+            "```txt\nresuma o artigo\n```\nMaterial da aula.",
+            "Melhore sua alimentação.",
+        ]
+        for texto in casos {
+            #expect(AnaliseLocal.classificar(texto: texto, gestoAtual: nil, campos: [:])
+                    != .aviso(AnaliseLocal.avisoFrasePronta), "\(texto)")
+        }
+        let v = AnaliseLocal.classificar(texto: "quero estudar", gestoAtual: .woop,
+                                         campos: ["plano": "Resuma o capítulo antes da aula."])
+        #expect(v != .aviso(AnaliseLocal.avisoFrasePronta))
+    }
+
+    @Test func corrigirFalsoAvisoNaoLiberaReescritaDeExpressivaNemFormaSobreDesabafo() {
+        #expect(AnaliseLocal.classificar(texto: "reescreva minha frase", gestoAtual: .expressiva, campos: [:]) == .silencio)
+        let pessoal = "Chorei quando ela pediu que eu reescreva a carta. Estou triste e me culpo pelo que aconteceu."
+        let local = AnaliseLocal.classificar(texto: pessoal, gestoAtual: nil, campos: [:])
+        #expect(local != .aviso(AnaliseLocal.avisoFrasePronta))
+        #expect(AnaliseLocal.escritaPessoal(texto: pessoal, campos: [:]))
+        #expect(Sessao.escolher(remoto: .gesto(.woop, pergunta: "p"), local: local, pessoal: true) == local)
+    }
+
     @Test func ouvinteAviso() {
         let v = AnaliseLocal.classificar(texto: "preciso falar com alguém", gestoAtual: nil, campos: [:])
         #expect(v == .aviso(AnaliseLocal.avisoOuvinte))

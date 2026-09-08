@@ -33,6 +33,9 @@ struct TracoApp: App {
     var body: some Scene {
         WindowGroup {
             RaizView()
+                #if DEBUG
+                .task { await AvaliacaoIA.executarSeSolicitado() }
+                #endif
         }
         .modelContainer(container)
     }

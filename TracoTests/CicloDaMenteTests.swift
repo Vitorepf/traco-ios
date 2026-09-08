@@ -103,7 +103,7 @@ private func temp(_ nome: String) -> URL {
         #expect(r.contains("sofrer por antecipação"))
         #expect(r.contains("2 de 5 pontos não voltaram"))
         #expect(r.contains("aquém do esperado em 1, igual em 1, além em 0"))
-        #expect(r.contains("o que fica de fora?"))
+        #expect(!r.contains("o que fica de fora?")) // sinal sem dependências não autoriza reenviar a pergunta
         #expect(!r.contains("melhor") && !r.contains("pior"))
         #expect(r.count <= Retrato.teto + 1)
     }
@@ -115,6 +115,20 @@ private func temp(_ nome: String) -> URL {
         ]
         let r = Retrato.ler(notas: notas, sinais: [])
         #expect(r.isEmpty)
+    }
+
+    @Test func perguntaDerivadaSemOrigemNaoVoltaPeloRetratoAposSeloOuExclusao() {
+        let pergunta = "Como comunicar à Marina o fim da sociedade em dezembro?"
+        for serviu in [true, false] {
+            let sinal = Sinal(tipo: .pergunta, forma: "spec", serviu: serviu, texto: pergunta)
+            for notas in [[], [nota(.spec, [:], fechada: true)], [nota(.expressiva, [:])]] {
+                let r = Retrato.ler(notas: notas, sinais: [sinal])
+                #expect(r.isEmpty)
+            }
+            let r = Retrato.ler(notas: [nota(.woop, ["obstaculo": "O celular na cama"])], sinais: [sinal])
+            #expect(r.contains("O celular na cama"))
+            #expect(!r.contains("Marina") && !r.contains("sociedade"))
+        }
     }
 
     @Test func retratoVazioNaoViaja() {
@@ -493,12 +507,19 @@ private func temp(_ nome: String) -> URL {
             .init(uuid: trancada.uuid, editadaEm: trancada.editadaEm, voz: trancada.vozDoAutor, podeEntrar: true),
         ])
         let s = Sessao()
-        let (texto, titulos) = s.contextoDasNotas(
-            pergunta: "que método uso para treinar ao acordar?",
-            conversa: [.init(pergunta: "oi", resposta: "olá")], no: c)
+        let fontes = s.contextoDasNotas(pergunta: "que método uso para treinar ao acordar?", no: c)
+        let pacote = try #require(RespostaNotas.montar(pergunta: "que método uso para treinar ao acordar?",
+            fontes: fontes, conversa: [.init(pergunta: "oi", resposta: "olá")],
+            catalogo: "WOOP: examinar desejo e obstáculo", retrato: "", teto: 16_000))
+        let texto = pacote.mensagem
         #expect(texto.contains("FORMAS DO TRAÇO") && texto.contains("WOOP:"))
-        #expect(titulos == [aberta.tituloNaLista])
+        #expect(fontes.map(\.titulo) == [aberta.tituloNaLista])
         #expect(!texto.contains("pretendo fazer exercício"))
-        #expect(texto.contains("CONVERSA ATÉ AQUI") && texto.contains("Ela: oi"))
+        #expect(texto.contains("CONVERSA") && texto.contains("oi") && texto.contains("olá"))
+        let inicioNotas = try #require(texto.range(of: "NOTA (JSON"))
+        let inicioConversa = try #require(texto.range(of: "CONVERSA"))
+        let inicioCatalogo = try #require(texto.range(of: "FORMAS DO TRAÇO"))
+        #expect(inicioNotas.lowerBound < inicioCatalogo.lowerBound)
+        #expect(inicioConversa.lowerBound < inicioCatalogo.lowerBound)
     }
 }

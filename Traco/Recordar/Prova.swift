@@ -1,4 +1,5 @@
 import Foundation
+import NaturalLanguage
 
 /// A metade ALGORÍTMICA da prova do Recordar (ADR 2026-09-03i).
 ///
@@ -16,9 +17,14 @@ nonisolated enum Prova {
     static func pontos(_ alvo: String, teto: Int = 8) -> [String] {
         let limpo = alvo.replacingOccurrences(of: "\r\n", with: "\n")
         var saida: [String] = []
+        let tokenizer = NLTokenizer(unit: .sentence)
+        tokenizer.setLanguage(.portuguese)
         for linha in limpo.split(whereSeparator: \.isNewline) {
-            for frase in linha.split(whereSeparator: { $0 == "." || $0 == "!" || $0 == "?" || $0 == ";" }) {
-                let t = frase.trimmingCharacters(in: .whitespacesAndNewlines)
+            let texto = String(linha)
+            tokenizer.string = texto
+            // Um ponto dentro de 12.50 ou Dra. não termina a evidência.
+            for intervalo in tokenizer.tokens(for: texto.startIndex..<texto.endIndex) {
+                let t = texto[intervalo].trimmingCharacters(in: .whitespacesAndNewlines)
                     .trimmingCharacters(in: CharacterSet(charactersIn: "-*>#[] "))
                 // pedaço curto demais não é ponto: é migalha, e cobrar migalha
                 // transforma a prova em caça-palavra

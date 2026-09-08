@@ -194,7 +194,7 @@ enum ContaGrok {
 extension ContaGrok {
     /// Estado honesto da conta, em uma linha, para o perfil.
     static func estado() async -> String {
-        guard ligada else { return "sem conta — tudo funciona aqui no aparelho." }
+        guard ligada else { return "sem conta — recursos locais disponíveis; exercício e revisão por IA precisam do Grok." }
         guard let token = await token() else {
             return "sessão expirada — entre de novo."
         }

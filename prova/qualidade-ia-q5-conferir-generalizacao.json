@@ -1,0 +1,69 @@
+{
+  "repeticoes": 3,
+  "casos": [
+    {
+      "id": "q5-conferir-unidades-e-sinonimos-novos",
+      "operacao": "conferir",
+      "entrada": {
+        "itens": [
+          "A garrafa contém um litro e meio de água.",
+          "A reunião dura duas horas.",
+          "O frigorífico está regulado para quatro graus Celsius.",
+          "O pacote contém cinco gramas de sal."
+        ],
+        "texto": "Na garrafa há 1500 mL de água. O encontro dura 120 minutos. A geladeira está ajustada para 4 °C. O pacote contém 5 miligramas de sal."
+      },
+      "requisitos": [
+        "Conjunto retornado exatamente [0,1,2], independentemente da ordem interna, nas três repetições.",
+        "Reconhece as equivalências de quantidade e unidade: um litro e meio = 1500 mL e duas horas = 120 minutos; não exige que a unidade tenha a mesma grafia.",
+        "Reconhece reunião/encontro, frigorífico/geladeira e quatro graus Celsius/4 °C preservando as respectivas entidades e relações.",
+        "O ponto 3 não voltou: 5 miligramas e cinco gramas são quantidades incompatíveis, apesar do número e do assunto iguais. Não corrigir silenciosamente a memória para 5 gramas.",
+        "Se houver captura bruta, ponto_0, ponto_1 e ponto_2 devem ser equivalente e ponto_3 contradicao; a API pública sozinha só demonstra o conjunto, não a categoria dos pontos excluídos.",
+        "Todos os dados são sintéticos. nil, erro ou exclusão de qualquer equivalência clara falham atendimento; saída não vazia por si só não aprova o caso."
+      ]
+    },
+    {
+      "id": "q5-conferir-negacao-e-contradicao-interna",
+      "operacao": "conferir",
+      "entrada": {
+        "itens": [
+          "O portão fica aberto durante a reunião.",
+          "A reunião começa às quinze horas.",
+          "A entrada não exige cadastro.",
+          "Marina recebe o pacote."
+        ],
+        "texto": "O portão não fica aberto durante a reunião; fica fechado. A reunião começa às 15h. A mesma reunião começa às 16h. As duas afirmações de horário valem para a mesma reunião. A entrada dispensa cadastro. Quem recebe o pacote é Paulo, não Marina."
+      },
+      "requisitos": [
+        "Conjunto retornado exatamente [2], independentemente da ordem interna, nas três repetições.",
+        "Ponto 0 é negado explicitamente: a presença literal de portão e aberto não confirma que ele fica aberto.",
+        "Ponto 1 é contraditório dentro da própria memória. O sistemaConferir manda comparar todo o texto e excluir o ponto quando há afirmações incompatíveis; não selecionar só a frase favorável das 15h.",
+        "As duas frases de horário referem-se explicitamente à mesma reunião e não narram uma mudança de plano ou correção. A inconsistência é intencional e não deve ser resolvida inventando cronologia.",
+        "Ponto 2 voltou integralmente: dispensa cadastro equivale à proposição negativa não exige cadastro. Negação correta na fonte não autoriza rejeitar o ponto indiscriminadamente.",
+        "Ponto 3 é contradito pela troca explícita do destinatário para Paulo; mencionar Marina sob negação não a torna a destinatária.",
+        "Se houver captura bruta, estados esperados são contradicao, contradicao, equivalente, contradicao por índice. O conjunto público não comprova sozinho essas categorias.",
+        "nil ou erro são indisponibilidade; [] também reprova porque omite a recuperação correta do ponto 2."
+      ]
+    },
+    {
+      "id": "q5-conferir-fidelidade-a-nota-falsa",
+      "operacao": "conferir",
+      "entrada": {
+        "itens": [
+          "A capital da França é Buenos Aires.",
+          "Uma hora tem noventa minutos.",
+          "Um triângulo tem quatro lados."
+        ],
+        "texto": "Conforme a nota, Buenos Aires é a capital francesa. Uma hora corresponde a 90 minutos. Um triângulo tem 4 lados."
+      },
+      "requisitos": [
+        "Conjunto retornado exatamente [0,1,2], independentemente da ordem interna, nas três repetições.",
+        "As três afirmações da fonte são deliberadamente falsas no mundo; este caso avalia reprodução fiel da nota, não conhecimento geral ou endosso de sua veracidade.",
+        "A memória recupera integralmente cada proposição, com paráfrase e conversão de números por extenso em algarismos. Não trocar Buenos Aires por Paris, noventa por sessenta ou quatro por três.",
+        "A expressão Conforme a nota explicita a atribuição e não nega nenhum ponto. Não classificá-la como incerteza sobre a reprodução.",
+        "Se houver captura bruta, os três campos devem ser equivalente. Não aprovar por corrigir fatos, completar a memória ou avaliar a pessoa.",
+        "nil, erro, recusa por falsidade factual ou qualquer ponto excluído falham atendimento neste teste legítimo de fidelidade. Isso não demonstra aprendizagem nem autoriza usar as afirmações como fatos."
+      ]
+    }
+  ]
+}

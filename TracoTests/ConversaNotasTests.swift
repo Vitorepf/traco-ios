@@ -32,7 +32,7 @@ struct ConversaNotasTests {
         func devolver(_ indice: Int, resposta: String?, titulos: [String] = []) {
             let retorno = pedidos[indice].retorno
             pedidos[indice].retorno = nil
-            retorno?.resume(returning: (resposta, titulos))
+            retorno?.resume(returning: .init(resposta: resposta, titulos: titulos))
         }
     }
 
@@ -138,12 +138,32 @@ struct ConversaNotasTests {
         var chamou = false
         let tarefa = conversa.perguntar(disponivel: false) { _, _ in
             chamou = true
-            return (nil, [])
+            return .init(resposta: nil, titulos: [])
         }
         #expect(tarefa == nil)
         #expect(!chamou)
         #expect(conversa.semModelo)
         #expect(conversa.entrada == "o que busco")
+    }
+
+    @Test func dependenciaViajaComTrocaEHistoricoRevogadoSaiMesmoNaFalha() async throws {
+        let conversa = ConversaNotas()
+        let fonte = FonteNotas(id: UUID(), titulo: "Proposta", texto: "Prazo 12/09.", editadaEm: .now)
+        conversa.entrada = "prazo?"
+        let primeira = try #require(conversa.perguntar(disponivel: true) { _, _ in
+            .init(resposta: "12/09", titulos: [fonte.titulo], dependencias: [fonte])
+        })
+        await primeira.value
+        #expect(conversa.trocas.last?.dependencias == [fonte])
+        conversa.entrada = "confirme"
+        let segunda = try #require(conversa.perguntar(disponivel: true) { _, anteriores in
+            #expect(anteriores.last?.dependencias == [fonte])
+            return .init(resposta: nil, titulos: [], conversaValida: [])
+        })
+        await segunda.value
+        #expect(conversa.trocas.isEmpty)
+        #expect(conversa.titulos.isEmpty)
+        #expect(conversa.estado == .falhou("confirme"))
     }
 
     @Test func envioDuplicadoNaoIniciaOutraChamadaNemApagaRascunho() async throws {

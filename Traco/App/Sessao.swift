@@ -1,4 +1,5 @@
 import Foundation
+import CryptoKit
 import SwiftData
 import SwiftUI
 
@@ -586,45 +587,83 @@ final class Sessao {
     nonisolated struct TrocaNasNotas: Equatable, Sendable {
         var pergunta: String
         var resposta: String
+        var dependencias: [FonteNotas] = []
     }
 
-    /// O que viaja com a pergunta feita nas Notas: as vizinhas pelo sentido
-    /// (inteiras até o teto), o catálogo em uma linha por forma, e a conversa
-    /// até aqui. O selo corta: fechada e expressiva nunca. Devolve o texto e
-    /// os títulos que foram.
-    func contextoDasNotas(pergunta: String, conversa: [TrocaNasNotas], no context: ModelContext,
-                          teto: Int = 8) -> (texto: String, titulos: [String]) {
-        var partes: [String] = []
-        partes.append("FORMAS DO TRAÇO (nome: para que serve):\n" + Catalogo.todos
-            .filter { $0.id != Gesto.expressiva.rawValue }
-            .map { "\($0.nome): \($0.definicao)" }.joined(separator: "\n"))
-        var titulos: [String] = []
+    static func fonteParaPergunta(_ nota: Nota) -> FonteNotas? {
+        guard !nota.fechada, nota.gesto != .expressiva, nota.temVoz else { return nil }
+        let prosa = nota.vozDoAutor.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !prosa.isEmpty else { return nil }
+        // A voz junta campos; sua ordem não é identidade. Assinatura usa a
+        // representação guardada para detectar edição mesmo sem mudar a data.
+        let dados = try! JSONEncoder().encode([nota.texto, nota.camposJSON, nota.sentido,
+                                               nota.gestoRaw ?? "", nota.tituloNaLista])
+        let assinatura = SHA256.hash(data: dados).map { String(format: "%02x", $0) }.joined()
+        return FonteNotas(id: nota.uuid, titulo: nota.tituloNaLista, texto: prosa,
+                          editadaEm: nota.editadaEm, assinatura: assinatura)
+    }
+
+    static func dependenciasValidas(_ fontes: [FonteNotas], no context: ModelContext) -> Bool {
+        guard !fontes.isEmpty else { return true }
+        guard let notas = try? context.fetch(FetchDescriptor<Nota>()) else { return false }
+        let porID = Dictionary(uniqueKeysWithValues: notas.map { ($0.uuid, $0) })
+        return fontes.allSatisfy { fonte in
+            guard let nota = porID[fonte.id], let atual = fonteParaPergunta(nota),
+                  let assinatura = fonte.assinatura else { return false }
+            return assinatura == atual.assinatura && fonte.editadaEm == atual.editadaEm
+        }
+    }
+
+    /// O histórico derivado de uma nota revogada ou editada não volta ao
+    /// modelo. Perguntas e correções das trocas restantes seguem inteiras.
+    static func conversaValida(_ conversa: [TrocaNasNotas], no context: ModelContext) -> [TrocaNasNotas] {
+        conversa.filter { dependenciasValidas($0.dependencias, no: context) }
+    }
+
+    func contextoDasNotas(pergunta: String, no context: ModelContext, teto: Int = 8) -> [FonteNotas] {
         let vizinhas = Indice.vizinhas(de: pergunta, teto: teto, minimo: 0.15)
-        if !vizinhas.isEmpty, let notas = try? context.fetch(FetchDescriptor<Nota>()) {
-            let porId = Dictionary(uniqueKeysWithValues: notas.map { ($0.uuid, $0) })
-            var linhas: [String] = []
-            for v in vizinhas {
-                guard let n = porId[v.uuid], !n.fechada, n.gesto != .expressiva, n.temVoz else { continue }
-                let prosa = n.vozDoAutor.trimmingCharacters(in: .whitespacesAndNewlines)
-                guard !prosa.isEmpty else { continue }
-                titulos.append(n.tituloNaLista)
-                linhas.append("--- nota sua: \(n.tituloNaLista) ---\n\(prosa.prefix(1200))")
-            }
-            if !linhas.isEmpty { partes.append("NOTAS DELA (só para você entender; não as reescreva):\n" + linhas.joined(separator: "\n\n")) }
-        }
-        if !conversa.isEmpty {
-            partes.append("CONVERSA ATÉ AQUI:\n" + conversa.suffix(4)
-                .map { "Ela: \($0.pergunta)\nVocê: \($0.resposta)" }.joined(separator: "\n"))
-        }
-        return (partes.joined(separator: "\n\n"), titulos)
+        guard let notas = try? context.fetch(FetchDescriptor<Nota>()) else { return [] }
+        let porID = Dictionary(uniqueKeysWithValues: notas.map { ($0.uuid, $0) })
+        return vizinhas.compactMap { v in porID[v.uuid].flatMap(Self.fonteParaPergunta) }
     }
 
-    /// A resposta da sábia à barra das Notas. nil = não respondeu.
+    /// Injeção somente da operação de IA; seleção e revalidação de acesso
+    /// permanecem as mesmas no app e nas provas de retorno atrasado.
+    var responderContextoNotas: (String, [FonteNotas], [TrocaNasNotas], String, String, ([FonteNotas]) -> Bool) async -> RespostaNotas.Retorno? = {
+        await Sabia.responderNasNotas(pergunta: $0, fontes: $1, conversa: $2, catalogo: $3, retrato: $4, validarAcesso: $5)
+    }
+
     func responderNasNotas(_ pergunta: String, conversa: [TrocaNasNotas],
-                           no context: ModelContext) async -> (resposta: String?, titulos: [String]) {
-        let (contexto, titulos) = contextoDasNotas(pergunta: pergunta, conversa: conversa, no: context)
-        let r = await Sabia.responderNasNotas(pergunta: pergunta, contexto: contexto, retrato: retratoAtual())
-        return (r, titulos)
+                           no context: ModelContext) async -> ConversaNotas.Resultado {
+        let validas = Self.conversaValida(conversa, no: context)
+        let fontes = contextoDasNotas(pergunta: pergunta, no: context)
+        // Retrato também deriva das notas: monte do estado autorizado atual e
+        // guarde suas dependências, inclusive quando não são fontes citadas.
+        let notas = (try? context.fetch(FetchDescriptor<Nota>())) ?? []
+        let fontesDoRetrato = notas.compactMap(Self.fonteParaPergunta)
+        let retrato = Retrato.ligado ? Retrato.ler(notas: notas.filter { !$0.fechada && $0.gesto != .expressiva }.map {
+            .init(gesto: $0.gesto, fechada: $0.fechada, expressiva: false, criadaEm: $0.criadaEm, campos: $0.campos)
+        }, sinais: Sinais.todos()) : ""
+        let catalogo = Catalogo.todos.filter { $0.id != Gesto.expressiva.rawValue }
+            .map { "\($0.nome): \($0.definicao)" }.joined(separator: "\n")
+        let retorno = await responderContextoNotas(pergunta, fontes, validas, catalogo, retrato) { enviadas in
+            Self.dependenciasValidas(validas.flatMap(\.dependencias) + enviadas
+                + (retrato.isEmpty ? [] : fontesDoRetrato), no: context)
+        }
+        var dependencias = validas.flatMap(\.dependencias) + (retorno?.enviadas ?? [])
+        if !retrato.isEmpty { dependencias += fontesDoRetrato }
+        var vistos = Set<UUID>()
+        dependencias = dependencias.filter { vistos.insert($0.id).inserted }
+        let aindaValidas = Self.conversaValida(validas, no: context)
+        let fontesValidas = Self.dependenciasValidas(dependencias, no: context)
+        guard !Task.isCancelled, let retorno, fontesValidas else {
+            return .init(resposta: nil, titulos: [], conversaValida: aindaValidas, fontesMudaram: !fontesValidas)
+        }
+        let avisoHistorico = validas.count == conversa.count ? ""
+            : "\n\nParte da conversa anterior ficou fora desta consulta porque suas fontes mudaram ou deixaram de estar acessíveis."
+        return .init(resposta: retorno.texto + avisoHistorico, titulos: retorno.enviadas.map(\.titulo),
+                     dependencias: dependencias, fontesCitadas: retorno.citadas,
+                     conversaValida: aindaValidas)
     }
 
     /// Veste o texto inteiro: motor local agora; a sábia, se ligada, refina

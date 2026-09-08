@@ -332,6 +332,83 @@ struct RevisaoNoturnaTests {
 }
 
 struct SabiaTests {
+    @MainActor @Test func vestirResolveTituloListaECodigoSemChamarModelo() async throws {
+        let codigo = "```swift\r\nlet x = 1\r\n\r\nprint(x)\r\n```"
+        let texto = "Plano do app\r\n\r\n" + codigo + "\r\n\r\nprimeira\r\nsegunda"
+        var chamadas = 0
+        let mapa = try #require(await Sabia.vestir(blocos: Sabia.blocos(texto), gesto: nil, gerar: { _ in
+            chamadas += 1
+            return nil
+        }))
+        #expect(chamadas == 0)
+        #expect(mapa == [.init(i: 0, forma: .titulo), .init(i: 1, forma: .codigo), .init(i: 2, forma: .lista)])
+        #expect(Sabia.aplicar(mapa, a: texto) == "# Plano do app\r\n\r\n" + codigo + "\r\n\r\n- primeira\n- segunda")
+    }
+
+    @MainActor @Test func vestirMandaSoProsaPendenteERemapeiaIndices() async throws {
+        let codigo = "~~~python\nsegredo = 42\n~~~"
+        let prosa = "Esta explicação contém uma frase completa que o modelo ainda pode organizar."
+        let texto = "Plano do app\n\n" + codigo + "\n\n" + prosa
+        var mensagem = ""
+        let mapa = try #require(await Sabia.vestir(blocos: Sabia.blocos(texto), gesto: nil, gerar: { usuario in
+            mensagem = usuario
+            return #"[{"i":0,"forma":"titulo"}]"#
+        }))
+        #expect(mensagem == "[0] " + prosa)
+        #expect(!mensagem.contains("segredo"))
+        #expect(mapa == [.init(i: 0, forma: .titulo), .init(i: 1, forma: .codigo), .init(i: 2, forma: .secao)])
+        #expect(Sabia.aplicar(mapa, a: texto) == "# Plano do app\n\n" + codigo + "\n\n## " + prosa)
+    }
+
+    @MainActor @Test func vestirNaoDisfarcaFalhaSemMelhoriaLocal() async {
+        let prosa = "Esta explicação contém uma frase completa que o modelo ainda pode organizar."
+        for retorno in [String?.none, "inválido", #"[{"i":9,"forma":"lista"}]"#] {
+            #expect(await Sabia.vestir(blocos: [prosa], gesto: nil, gerar: { _ in retorno }) == nil)
+        }
+    }
+
+    @Test func vestirPreservaCercasECodigoMesmoComRotuloIncorreto() throws {
+        for quebra in ["\n", "\r\n"] {
+            for cerca in ["```", "````", "~~~", "~~~~"] {
+                let codigo = [cerca + "swift", "let marca = \"``` e ~~~\"  ", "", "  ", "let intermediario = 2", "", "\tprint(marca)", cerca]
+                    .joined(separator: quebra)
+                let antes = "\n  \nPlano do app\n\n" + codigo + "\n\nprimeira\nsegunda\n\n"
+                let esperado = "\n  \n# Plano do app\n\n" + codigo + "\n\n- primeira\n- segunda\n\n"
+                try #require(Sabia.blocos(antes).count == 3)
+                #expect(Sabia.blocos(antes)[1] == codigo)
+                #expect(Caderno.estruturar(antes) == esperado)
+                for forma in Sabia.FormaDeBloco.allCases {
+                    let mapa = [Sabia.Rotulo(i: 0, forma: .titulo), .init(i: 1, forma: forma), .init(i: 2, forma: .lista)]
+                    #expect(Sabia.aplicar(mapa, a: antes) == esperado)
+                    #expect(Sabia.aplicar(mapa, a: Caderno.estruturar(antes)) == esperado)
+                }
+            }
+        }
+    }
+
+    @Test func cercaMaiorProtegeCercasMenoresETextoSemLinhaVazia() {
+        let codigo = "````markdown\n```swift\n\nlet x = 1\n```\n\n````"
+        let antes = "Introdução\n" + codigo + "\nConclusão"
+        #expect(Sabia.blocos(antes) == ["Introdução", codigo, "Conclusão"])
+        let mapa = [Sabia.Rotulo(i: 0, forma: .titulo), .init(i: 1, forma: .tarefas), .init(i: 2, forma: .secao)]
+        #expect(Sabia.aplicar(mapa, a: antes) == "# Introdução\n" + codigo + "\n## Conclusão")
+    }
+
+    @Test func cercaAbertaNaoEFechadaNemSeuConteudoVestido() {
+        for codigo in ["```swift\nlet x = 1\n\nprint(x)\n", "~~~python\r\nx = 1\r\n\r\nprint(x)\r\n"] {
+            #expect(Sabia.blocos(codigo) == [codigo])
+            #expect(Caderno.estruturar(codigo) == codigo)
+            #expect(Sabia.aplicar([.init(i: 0, forma: .titulo)], a: codigo) == codigo)
+        }
+    }
+
+    @Test func vestirProsaCRLFContinuaCriandoTituloEItens() {
+        let antes = "Plano\r\n\r\nprimeira\r\nsegunda"
+        let esperado = "# Plano\r\n\r\n- primeira\n- segunda"
+        #expect(Caderno.estruturar(antes) == esperado)
+        #expect(Sabia.aplicar([.init(i: 0, forma: .titulo), .init(i: 1, forma: .lista)], a: antes) == esperado)
+    }
+
     @Test func mapaSoEntraSeForVerificavel() {
         let ok = Sabia.parseMapa(#"[{"i":0,"forma":"titulo"},{"i":1,"forma":"lista"},{"i":2,"forma":"prosa"}]"#, blocos: 3)
         #expect(ok?.count == 3)

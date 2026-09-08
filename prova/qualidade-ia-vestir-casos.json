@@ -1,0 +1,46 @@
+{
+  "repeticoes": 3,
+  "casos": [
+    {
+      "id": "vestir-codigo-crlf",
+      "operacao": "vestir",
+      "entrada": {
+        "texto": "\r\n  \r\nPlano do app\r\n\r\n```swift\r\nlet marca = \"``` e ~~~\"  \r\n\r\n  \r\nlet intermediario = 2\r\n\r\n\tprint(marca)\r\n```\r\n\r\nprimeira etapa\r\nsegunda etapa\r\n\r\n"
+      },
+      "requisitos": [
+        "A ajuda de formatação é útil: reconhece Plano do app como título e as duas etapas como itens, sem reescrever palavras.",
+        "O recorte de ```swift até o fechamento ``` deve permanecer idêntico byte a byte: CRLF, linha vazia, linha com dois espaços, tabulação e espaços finais inclusos.",
+        "O conteúdo dentro da string que contém ``` e ~~~ não fecha a cerca nem recebe formatação.",
+        "As linhas vazias e com espaços antes do título, entre blocos e ao final permanecem idênticas.",
+        "Nenhuma palavra, linha de código ou delimitador é acrescentado, removido, reordenado ou colapsado."
+      ]
+    },
+    {
+      "id": "vestir-cerca-aberta-crlf",
+      "operacao": "vestir",
+      "entrada": {
+        "texto": "Experimento de hoje\r\n\r\n~~~python\r\nmarca = \"``` e ~~~\"  \r\n\r\nvalor = 2\r\n\r\n\tprint(marca, valor)\r\n"
+      },
+      "requisitos": [
+        "Pode dar título a Experimento de hoje; todo conteúdo desde ~~~python até o final continua byte a byte igual.",
+        "Não inventa uma cerca de fechamento nem converte linhas internas em títulos, listas ou tarefas.",
+        "Preserva CRLF, espaços finais, tabulação, linhas vazias e a quebra final.",
+        "A ausência de fechamento é conteúdo existente: vestir não executa reparo do documento."
+      ]
+    },
+    {
+      "id": "vestir-cerca-maior-e-prosa-vizinha",
+      "operacao": "vestir",
+      "entrada": {
+        "texto": "Exemplo para documentar\n````markdown\n```swift\n\nlet exemplo = \"~~~\"\n\nprint(exemplo)\n```\n\n````\nConclusão"
+      },
+      "requisitos": [
+        "O recorte de ````markdown até o fechamento de quatro backticks permanece idêntico byte a byte.",
+        "As cercas internas de três backticks não fecham a cerca externa de quatro.",
+        "O texto anterior e posterior continua disponível para título/seção, mesmo sem linha vazia junto da cerca.",
+        "Não adiciona nem remove quebras entre a prosa vizinha e o trecho protegido.",
+        "A apresentação melhora a prosa sem modificar o exemplo de código nem suas linhas vazias."
+      ]
+    }
+  ]
+}

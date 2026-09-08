@@ -149,7 +149,7 @@ struct PadroesView: View {
     /// A única leitura do app que olha para o AUTOR e não para um texto.
     /// Só entra com dois pares ou mais: um caso não é padrão.
     private func lerCalibragem() async {
-        guard let c = semana?.calibragem, c.count >= 2, Sabia.disponivel else { return }
+        guard let c = semana?.calibragem, c.count >= 2, Politica.provedor(.calibragem) != nil else { return }
         let pares = c.map { "escolha: \($0.escolha)\nesperava: \($0.esperava)\naconteceu: \($0.aconteceu)" }
         let r = await Sabia.lerCalibragem(pares: pares)
         withAnimation(Tema.movimento(.deslocamento, .easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion)) { sobreOJuizo = r ?? [] }
@@ -173,6 +173,10 @@ struct PadroesView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .accessibilityIdentifier("sobre-o-juizo")
             .transition(Tema.transicao(.opacity.combined(with: .offset(y: 8)), reduzido: reduceMotion))
+        } else if let c = semana?.calibragem, c.count >= 2, Politica.provedor(.calibragem) == nil {
+            // ADR 07b: há pares para ler e ninguém que leia — dito, não calado
+            LinhaDeEstado(Politica.semProvedor(.calibragem), .semConta)
+                .accessibilityIdentifier("juizo-sem-provedor")
         }
     }
 

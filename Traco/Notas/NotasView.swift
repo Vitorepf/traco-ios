@@ -5,6 +5,7 @@ import SwiftUI
 struct NotasView: View {
     @Bindable var sessao: Sessao
     @Environment(\.modelContext) private var context
+    @Environment(\.scenePhase) private var faseDaCena
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.dynamicTypeSize) private var tamanhoTexto
     @Query(sort: \Nota.criadaEm, order: .reverse) private var notas: [Nota]
@@ -33,6 +34,11 @@ struct NotasView: View {
             // ADR 04n: a busca por letras é a primeira; o índice de sentido
             // responde logo atrás, com o que ela não achou
             .onChange(of: busca) { _, nova in procurarPeloSentido(nova, entre: filtradas) }
+            .onChange(of: fontesVigentesDaConversa) { _, _ in revalidarConversa() }
+            .onChange(of: faseDaCena) { _, fase in
+                if fase == .active { revalidarConversa() }
+            }
+            .onAppear { revalidarConversa() }
             .onChange(of: sessao.aba) { _, aba in
                 if aba != .notas { conversaNotas.interromper() }
             }
@@ -82,6 +88,7 @@ struct NotasView: View {
                 switch estado {
                 case .pensando: AccessibilityNotification.Announcement("A sábia está pensando.").post()
                 case .falhou: AccessibilityNotification.Announcement("A sábia não respondeu. Repetir pergunta disponível.").post()
+                case .recolhida: AccessibilityNotification.Announcement("A resposta foi recolhida porque uma fonte mudou ou deixou de estar acessível. Você pode repetir a pergunta.").post()
                 default: break
                 }
             }
@@ -100,6 +107,19 @@ struct NotasView: View {
     private var conversa: [Sessao.TrocaNasNotas] { conversaNotas.trocas }
     private var pensando: Bool { conversaNotas.pensando }
     private var titulosNaPergunta: [String] { conversaNotas.titulos }
+
+    /// Lê os campos observáveis das dependências, não só a identidade da
+    /// lista: selar/editar a mesma Nota também precisa disparar revalidação.
+    private var fontesVigentesDaConversa: [FonteNotas] {
+        let ids = Set(conversa.flatMap(\.dependencias).map(\.id))
+        return notas.filter { ids.contains($0.uuid) }.compactMap(Sessao.fonteParaPergunta)
+    }
+
+    private func revalidarConversa() {
+        if conversaNotas.revalidarFontes({ Sessao.dependenciasValidas($0, no: context) }) {
+            avaliada = []
+        }
+    }
 
     private func perguntar() {
         conversaNotas.perguntar(disponivel: Sabia.disponivel) { pergunta, anteriores in
@@ -164,9 +184,11 @@ struct NotasView: View {
                             .accessibilityIdentifier("pergunta-pendente-notas")
                     }
                     .frame(maxHeight: 120)
-                    LinhaDeEstado(conversaNotas.estado == .interrompida(pergunta)
-                                  ? "a pergunta foi interrompida."
-                                  : "a sábia não respondeu.", .falhou)
+                    LinhaDeEstado(conversaNotas.estado == .recolhida(pergunta)
+                                  ? "A resposta foi recolhida porque uma fonte mudou ou deixou de estar acessível."
+                                  : conversaNotas.estado == .interrompida(pergunta)
+                                    ? "a pergunta foi interrompida."
+                                    : "a sábia não respondeu.", .falhou)
                         .accessibilityIdentifier("sabia-falhou-notas")
                     Button("Repetir pergunta") { repetirPergunta() }
                         .font(Tema.meta)

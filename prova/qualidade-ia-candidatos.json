@@ -1,0 +1,23 @@
+{
+  "nota": "Em Debug, o executável Traco é um lançador; o código do app está em Traco.debug.dylib. Hash do lançador sozinho não identifica o candidato. sha256ConteudoApp é SHA256 do JSON compacto de pares caminho/sha256, ordenados por caminho, para todos os arquivos no bundle.",
+  "candidatos": [
+    {
+      "pacoteTeste": "/Users/vitorepf/Library/Developer/XcodeBuildMCP/workspaces/traco-ios-2036ad0a344d/test-products/test_sim_2026-09-07T13-56-05-995Z_pid22167_7e561e01.xctestproducts",
+      "sha256ConteudoApp": "075d7e17b7450ca17fdd2aee963626c7b7018e32c5bf0fe99915a9ce3ba7b2af",
+      "executavel": "0c20cc0b974c6d50541339d85740fbd777b39b70819500cfb9e7dc2fe7b34d43",
+      "codigoDebugDylib": "c9c9c7dfb498caeadde57d78a9d0ede3005758c23a38157bc6e455f57af1afd3"
+    },
+    {
+      "pacoteTeste": "/Users/vitorepf/Library/Developer/XcodeBuildMCP/workspaces/traco-ios-2036ad0a344d/test-products/test_sim_2026-09-07T14-06-44-549Z_pid22167_98d55c04.xctestproducts",
+      "sha256ConteudoApp": "ef42c531d580783b89a519a574acec67b23f0b5b235ecf29f977ec1f7d5ee3ea",
+      "executavel": "0c20cc0b974c6d50541339d85740fbd777b39b70819500cfb9e7dc2fe7b34d43",
+      "codigoDebugDylib": "f5faba8f3b9418658b8126f6e74a80d0faaf51537b75ea49f55d8168ed9d8687"
+    },
+    {
+      "pacoteTeste": "/Users/vitorepf/Library/Developer/XcodeBuildMCP/workspaces/traco-ios-2036ad0a344d/test-products/test_sim_2026-09-07T14-16-12-595Z_pid22167_19372c2e.xctestproducts",
+      "sha256ConteudoApp": "602716a30a3cfe4e46c1b7a53e8ada59baf33ed20753e00d43cb81b4a9cb0459",
+      "executavel": "0c20cc0b974c6d50541339d85740fbd777b39b70819500cfb9e7dc2fe7b34d43",
+      "codigoDebugDylib": "3fe225402070c78002ec01cbb2e2a29ae11e879b6e4feb0b49c25d919c71cffd"
+    }
+  ]
+}
