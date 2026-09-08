@@ -261,3 +261,11 @@ Depois do meu aviso das 19h35, **a V13 religou o teste 2 e a fala voltou às 19h
 4. **Dois simuladores ligados**, um por worker vivo com dono nomeado.
 
 **A lição, e ela é sobre mim:** eu escrevi nove leis de instrumento hoje lendo o que os workers mediram, e **duas nasceram do corpo do dono** — o mouse disputado e a voz. Nas duas, o sintoma chegou pela pessoa e não pelo log; e nesta segunda **a causa fui eu**. Reaproveitar spec sem reler cada item é a mesma família do "verde que não visitou o lugar do defeito": texto que parece cumprido porque já esteve certo alguma vez.
+
+### 08/09 20h00 — o caçador de fala casava com ele mesmo
+
+O verificador que eu instalei às 19h45 para rodar em toda espera usava `pgrep -f`, que casa com a **linha de comando inteira** — e a linha de comando dele **contém os nomes que ele procura**. Resultado: ele acusava fala viva olhando para si mesmo, e um `ps aux | grep` no mesmo instante mostrava **zero** processos de síntese. Quase parei um worker por causa disso.
+
+Corrigido: o caçador passou a olhar o **nome do executável** (`comm`), nunca a linha de comando, e a lista ficou restrita ao que o dono nomeou por **ouvir** — `sirittsd`, `SiriAUSP`, `MacinTalk`, `speechsynthesisd`. Tirei `assistantd` e `siriactionsd`, que são daemons de sistema do macOS, sempre vivos e **não são fala**: mantê-los na lista faria o caçador acusar silêncio como barulho para sempre.
+
+**É o sétimo instrumento do dia que diz mais do que mostra** — e o primeiro que eu mesmo escrevi. A régua que eu cobrei a tarde inteira dos workers (*todo portão nasce com a prova do vermelho, e o teste precisa visitar o lugar do defeito*) eu não apliquei ao meu próprio verificador: instalei sem nunca tê-lo visto **acusar de verdade** nem **ficar quieto de verdade**. Agora os dois estados estão vistos.
