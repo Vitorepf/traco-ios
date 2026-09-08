@@ -181,6 +181,10 @@ Ordem do dono de 07/09 à noite: limpeza geral do git, sem perder nada, só `mai
 
 O simulador não prova, e as quatro ficam para uma passada no iPhone do dono (item 12 da fila): **StandBy noturno** (não renderiza no simulador), **Ilha mínima** (só aparece com duas atividades disputando a Ilha, e não há segundo app com Live Activity), **VoiceOver ouvido** (o `ax` recusa e ligar o leitor exige reiniciar o aparelho) e **a Ilha compacta com duas atividades em AX5**, onde o juiz viu um quadro isolado com o "t" cortado. As três primeiras foram confirmadas como limite por dois revisores independentes — não são desculpa de implementador.
 
+### Quatro P3 do G4 da V17 (não bloqueiam, ficam para a próxima volta do Trabalho)
+
+O juiz listou e não descontou: `isHeader` faltando nas duas seções novas; o `id` do `DisclosureGroup` sombreando os filhos; as aspas de "A pedido seu."; e um `spacing` literal onde a convenção manda token. Nenhum é de tela quebrada — são acabamento de acessibilidade e de convenção, e entram na volta que tocar `TrabalhoView` de novo.
+
 ### O que o conselho da Q fixou sobre a fila do dono (08/09)
 
 - **Item 2 fecha com o MAPA**, não com dezesseis células preenchidas de Grok: atendimento, falhas, condições e a política correspondente, **declarando qualquer executor inacessível**.
