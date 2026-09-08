@@ -49,6 +49,8 @@ O juiz do G4 da F4-F acrescentou o quarto dado, e é o mais claro: **`orca emula
 
 Consequências, enquanto o instrumento for assim: **toda sessão de `orca emulator` passa por `ferramentas/orca/com-trava.sh`**, como build e teste, porque o helper é recurso único da máquina; quem for medir geometria ou dirigir tela **declara no relato que segurou a trava**; e medição que o revisor não conseguiu repetir por causa do helper é **limite de instrumento, não confirmação** — não se vende como segunda prova. Prova de tela continua sendo `xcrun simctl io <UDID> screenshot`, que não depende do helper.
 
+**Com quatro simuladores ligados, `xcodebuild test` pendura** em `test runner hung before establishing connection` (achado da F4-I, duas vezes seguidas em 08/09). **A clonagem do teste paralelo é o que pendura:** `-parallel-testing-enabled NO` resolve de primeira. Use-o sempre que houver mais de dois simuladores de pé.
+
 **A galeria de widgets trava.** A folha "Adicionar Widget" para de paginar e depois trava de vez — três sessões seguidas de revisão da F4 esbarraram nisso, e já custou replantio de widget em três revisões. Some com o Simulator reiniciado, às vezes. Quando travar: é instrumento, não desconta nota, e a saída é usar as capturas de quem conseguiu plantar, conferindo o conteúdo e o relógio delas. A Live Activity do Destaque também engole o toque no botão "Editar" da galeria.
 
 ## Scorecard
