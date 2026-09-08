@@ -64,3 +64,4 @@ Não há autorização inferida para publicar, gastar ou enviar mensagens extern
   corpo do papel no espaço livre ao lado do marcador"), com a premissa na
   suíte; `FraseDoAutor` e `CapsulaViva` com preview por estado.
 
+- **Perfil: a terceira linha — o que a medida reprovou, dito ao autor** (08/09, ADR 2026-09-08l). O cartão CONTA lê da tabela `Politica` uma terceira lista, "indisponível por qualidade", em dois grupos (sem substituto / em correção com conserto nomeado), uma linha por operação com o quê, por quê em uma oração de pessoa e a data; vazio é estado dito; nunca manda conectar conta, nunca promete prazo. A letra miúda do cartão passa a escalar com Dynamic Type (`@ScaledMetric` no lugar de três `maxWidth: 280`): em AX5 a linha de uma operação cai de 0,32–0,38 tela para 0,26. Provado no iPhone Air em `large` e AX5, claro e com o aparelho em escuro (o app força claro); 3 testes.

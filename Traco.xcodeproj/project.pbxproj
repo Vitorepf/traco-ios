@@ -51,6 +51,7 @@
 		3E9C38ACB5C95C91C6618836 /* Ditado.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70BFE2A780D77BFF32E35C00 /* Ditado.swift */; };
 		41477564BC9389B7A7982A6C /* Toque.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2751D1D96F07B6B9980FA75 /* Toque.swift */; };
 		43856A9FFE628D9063718BF2 /* AnaliseLocal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07E0810B1D0BA208B63D167C /* AnaliseLocal.swift */; };
+		43C251BD794B608040BC2122 /* PerfilQualidadeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9890CD695524F56039E48D8 /* PerfilQualidadeTests.swift */; };
 		44BADDD31419D3764ECE1AE5 /* TrabalhoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE52AE87EF1BA2A3B863362 /* TrabalhoTests.swift */; };
 		4588AF25A6B240A074095E45 /* IntegridadeEntradaTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AACA865AA4D86AF3CFEEEAC /* IntegridadeEntradaTests.swift */; };
 		472ADC766DC54F75D9875100 /* OficinaTrabalho.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBE905DFA3CEA272597F706D /* OficinaTrabalho.swift */; };
@@ -361,6 +362,7 @@
 		C8368BD8FD67D026089BF81E /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		C84F5A9736B63E8169395C4D /* CalendarioView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarioView.swift; sourceTree = "<group>"; };
 		C905B08A3932A5955A7DAFA6 /* BlocoCaderno.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlocoCaderno.swift; sourceTree = "<group>"; };
+		C9890CD695524F56039E48D8 /* PerfilQualidadeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PerfilQualidadeTests.swift; sourceTree = "<group>"; };
 		C9F22E37F6BFFDA21C00C087 /* CartaoAnaliseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CartaoAnaliseView.swift; sourceTree = "<group>"; };
 		CB7E188EF083C0B2B0088DA0 /* Entidades.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Entidades.swift; sourceTree = "<group>"; };
 		CCF1D5953BA6DC42175A6EB5 /* Feriados.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Feriados.swift; sourceTree = "<group>"; };
@@ -604,6 +606,7 @@
 				91E87C7FB979BD1A3D4211AE /* LinhaDoTempoWidgetTests.swift */,
 				E02DEF691F4862133348FB4F /* MotorTrabalhoContextoTests.swift */,
 				B544C7CB0EEA5F5D2DAFB30C /* NotasESessaoTests.swift */,
+				C9890CD695524F56039E48D8 /* PerfilQualidadeTests.swift */,
 				EAD464BFBF2CFB1AC681E006 /* PoliticaTests.swift */,
 				1DF90794EAEA73FCBE0A4A60 /* PortaoDoMovimentoTests.swift */,
 				C68F1BAA39BE524BD2FC78D7 /* PraticaTrabalhoTests.swift */,
@@ -924,6 +927,7 @@
 				B1A0B7674B844F8483CA35C2 /* LinhaDoTempoWidgetTests.swift in Sources */,
 				6FEC54E297B9BCE0985F0CC1 /* MotorTrabalhoContextoTests.swift in Sources */,
 				56A38C95EE9713A63A475FC8 /* NotasESessaoTests.swift in Sources */,
+				43C251BD794B608040BC2122 /* PerfilQualidadeTests.swift in Sources */,
 				AF769CCB6D775021AA03EACC /* PoliticaTests.swift in Sources */,
 				312948997692C3C3AE524E29 /* PortaoDoMovimentoTests.swift in Sources */,
 				EE11CA7A0F68FE32B0AEFBF9 /* PraticaTrabalhoTests.swift in Sources */,
