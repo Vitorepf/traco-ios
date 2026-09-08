@@ -185,6 +185,12 @@ O simulador não prova, e as quatro ficam para uma passada no iPhone do dono (it
 
 O juiz listou e não descontou: `isHeader` faltando nas duas seções novas; o `id` do `DisclosureGroup` sombreando os filhos; as aspas de "A pedido seu."; e um `spacing` literal onde a convenção manda token. Nenhum é de tela quebrada — são acabamento de acessibilidade e de convenção, e entram na volta que tocar `TrabalhoView` de novo.
 
+### O achado da Q-B que fica aberto: o nosso parser recusa o que o provedor entregou
+
+**3 das 15 execuções de `prepararPratica` não entregam — e não é teto nem provedor.** HTTP 200, conteúdo completo, `grok-4.6` confirmado, 3.777 a 6.865 tokens de raciocínio, e **recusadas pelo NOSSO contrato** (`PraticaTrabalho.parsePreparacao`/`validar`). Por entrega, a operação sai de 1/6 para **4/6**.
+
+A Q-B **não** moveu isso para a tabela de indisponibilidade, e o argumento é bom: recusa ocasional já tem superfície por pedido (`EstadoPedido.praticaIndisponivel`), enquanto **a tabela não sabe dizer "às vezes"**. Fica a pergunta que decide de quem é o defeito: **o parser está certo em recusar, ou está estreito demais?** Volta própria, e ela é do tipo que pode devolver uma operação inteira ao autor sem tocar no provedor.
+
 ### O que o conselho da Q fixou sobre a fila do dono (08/09)
 
 - **Item 2 fecha com o MAPA**, não com dezesseis células preenchidas de Grok: atendimento, falhas, condições e a política correspondente, **declarando qualquer executor inacessível**.
