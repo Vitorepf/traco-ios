@@ -2818,6 +2818,250 @@ errado recusa sem rota; falha do Anotar não deposita); suíte 715/125 sobre a V
 sem aviso; capturas no iPhone Air. **Fora (F3b):** ditado próprio — áudio
 salvo primeiro, transcrito depois, falha preserva o áudio — por `.captura`.
 
+---
+
+## ADR 2026-09-06d — Os widgets da casa prestam (volta F4)
+
+**Contexto.** Às 13:04 de 06/09 o dono mandou um print do iPhone dele com um
+veredito de quatro palavras. Os dois widgets diziam "atualizado às 04:14" —
+nove horas parados. E o que eles diziam, além disso, era pouco: o pequeno era
+uma lista de dois links com um filete no meio, o médio inteiro servia para
+"nada marcado", e nada ali dizia Traço.
+
+**Decisão.**
+
+1. **A linha do tempo não congela.** `TracoWidget/Relogio.swift`: as ENTRADAS
+   desenham o dia (elas não custam orçamento — recarga custa) e a POLÍTICA
+   garante a releitura. `policy: .never` sai das duas linhas; entra
+   `.after(voltar(agora:ultima:))`, que é a última entrada limitada a três
+   horas e nunca abaixo de quinze minutos: no máximo oito releituras por dia,
+   e "abra o Traço" deixa de ser a única saída quando o `reloadTimelines` do
+   app é recusado (ChronoCore 27, A1 da 05u). As entradas passam a incluir a
+   VÉSPERA de cada compromisso (uma hora antes, quando a hora vira âmbar), o
+   início, o fim, a soneca, a meia-noite e o horizonte. Relevância declarada
+   (`TimelineEntryRelevance`): a Pilha Inteligente sobe o widget quando há uma
+   coisa por fazer e o esquece quando ela foi feita.
+2. **O widget não fala de si.** `RodapeAtualizado` ("atualizado às HH:MM", um
+   terço do widget pequeno) morre. O estado honesto da 05u fica, dito só
+   quando é VERDADE — e **na linha do conteúdo, não no cabeçalho**. A F4
+   pôs um selo de estado ao lado da marca e em 155 pt ele saía
+   `TRAÇO · desatua…`, com `PRÓXIMO` hifenizado no meio da palavra (G3, A1).
+   A causa não era a fonte, era o lugar: o estado é sobre o CONTEÚDO, e o
+   cabeçalho não é do conteúdo. Agora `Selo` carrega só a marca, e o corpo
+   diz a frase inteira com a recuperação junto — `Desatualizado.` /
+   `Não consegui ler o Traço.`, mais `Abrir o Traço`.
+3. **Vazio é oferta, não vácuo** (`curva-zero`). Sem a única coisa de hoje, o
+   widget do Traço traz o que vem — do MESMO instantâneo, sem dado novo. Sem
+   compromisso, o widget do Próximo traz a única coisa de hoje, com o círculo
+   que a marca. Sem nada, uma linha de estado e UMA ação ("Nova nota",
+   "Marcar compromisso"); nunca a mesma ação duas vezes na mesma face. A
+   oferta cabe INTEIRA: quebra a linha, nunca a palavra, e em tamanho de
+   acessibilidade o glifo cede a coluna às palavras (G3, A3).
+4. **Identidade.** O PONTO ÂMBAR que a tela bloqueada carrega desde a 05u
+   entra na casa: `Selo` (ponto + rótulo). Os atalhos deixam de ser duas
+   linhas de largura inteira com filete e viram glifo + palavra em `Tema.miudo`
+   — cabem numa linha e sobra espaço para conteúdo. Nenhum token novo:
+   `Tema.ambar`, `ambarTinta`, `label`, `miudo`, `meta`, `chrome`, `tituloTela`,
+   `linha`, `aviso`.
+5. **Densidade.** O médio do Próximo mostra TRÊS compromissos com hora,
+   assunto e a hora do alarme (`LinhaProximo`); um só vira bloco com a hora
+   como manchete (`BlocoProximo`), que é também o pequeno. O médio do Traço é
+   em faixas de largura inteira, não em duas colunas — a coluna estreita
+   cortava "Dentista" em "De…" (medido no simulador, 06/09).
+
+6. **O sino é promessa, não enfeite** (G3, A2). Nenhum ponto da publicação
+   consultava a autorização: `mudo:` calava UM evento e a revogação global
+   não calava nada — avisos negados às 15:20 e seis sinos desenhados às
+   15:21. `Avisos.estado()` passa a gravar a resposta do iOS num espelho no
+   App Group (`avisosPermitidos`), lido SEM `await` por
+   `ProximoCompromisso.proximasFatias`; a volta à cena relê e republica,
+   porque a permissão muda nos Ajustes. E `Sessao.encadear` sem agenda em
+   cena — o ramo que a F4 criou — publicava com sino e dizia "com aviso" sem
+   NUNCA agendar: agora publica mudo, pede o alarme de verdade e a frase que
+   fica na tela é a que o sistema respondeu.
+7. **Um toque faz o que a face mostra** (G3, A6). O pequeno do Traço abria
+   página em branco mesmo exibindo "16:40 Dentista"; o destino e o rodapé
+   passam a sair da mesma decisão — compromisso na face leva ao Calendário.
+
+8. **O estado honesto não depende do ramo** (Re-G3, R1). A correção do
+   item 2 desceu o estado para a linha do conteúdo — e ali, na view, ele
+   virou o ÚLTIMO `else if` de uma cadeia que começa no Destaque. Com
+   Destaque posto e o horizonte vencido, o widget do Traço largava a agenda
+   inteira e ficava **calado**: verdade truncada trocada por silêncio, no
+   defeito que abriu a volta. A decisão sai do SwiftUI e vira lei com teste
+   (`EstadoNaFace`, em `Relogio.swift`): **passada a validade, toda face
+   diz**; só o LUGAR muda. Sem conteúdo em cima, o estado é o miolo e carrega
+   a recuperação; com conteúdo, desce ao rodapé (`Velho`), onde o atalho cede
+   a linha — a promessa da face vem antes de mais um caminho para dentro do
+   app. Nas duas famílias da tela bloqueada, que não têm rodapé: a etiqueta
+   `DESTAQUE` vira `DESATUALIZADO` e a linha do `accessoryInline` diz
+   `Traço · desatualizado` em vez de exibir a frase de ontem como se fosse a
+   de hoje. Um `if/else` de view não tem suíte, e foi um `if/else` de view que
+   regrediu — por isso `Amostra.velhoComDestaque` entra nos previews das
+   quatro famílias.
+9. **O médio vazio é um quadro de ofertas** (Re-G3, M1 e A11). Quatro por dois
+   para uma frase e ~70% de área morta é o defeito 5 do dono ("densidade
+   errada") voltando pela porta dos fundos, e widget configurável não resolve:
+   calendário vazio continua vazio com pasta escolhida ou sem. Sem Destaque e
+   sem agenda não existe conteúdo a mostrar — o que existe é o que o autor
+   PODE fazer daqui. A face inteira passa a ser isso: três ações reais, uma
+   por linha, com o alvo na linha toda (`Nova nota`, `Marcar compromisso`,
+   `Recordar`), e o cabeçalho abre mão das miniaturas, que seriam a mesma
+   ação duas vezes. E elas moram no CORPO: por isso continuam existindo em
+   tamanho de acessibilidade, onde o cabeçalho se cala e o vazio ficava mudo
+   (M1) — a recuperação da `curva-zero` não desaparece no tamanho que mais
+   precisa dela. Em AX5 são duas; "Recordar" continua no tamanho normal e no
+   app.
+
+10. **A palavra do estado não se parte ao meio** (Re-G3, N1/N2/N3). A F4-C
+   declarou o custo de AX5 pela metade — escreveu que a frase do Destaque
+   "cede uma linha", quando na tela ela terminava em RETICÊNCIAS
+   (`Terminar / o / capítul…`); não declarou que `Desatualizado.` quebrava com
+   HÍFEN NO MEIO (`Desatualiza-/do.`) no pequeno do Próximo, que é a mesma
+   família do `PRÓXI-/MO` do item 2; e atribuiu ao rodapé um corte que já
+   existia sem ele, no ramo "o vazio traz o Destaque". Nenhuma das três é
+   troca: são propriedades que ficaram para trás. A frase do Destaque passa a
+   `minimumScaleFactor(0.6)` com `allowsTightening`, nos dois lugares onde
+   ela é desenhada — a receita que `Velho()` já usava três linhas ao lado, e
+   que faz a frase ENCOLHER inteira em vez de cortar. E o teto de linhas da
+   frase de estado sai da view e vira `LinhasDoEstado`, em `Relogio.swift`,
+   com suíte: **palavra sem espaço não tem quebra honesta**, então recebe uma
+   linha só e encolhe; com espaço, quebra a linha e sai no corpo cheio. Com
+   teto maior que 1 o SwiftUI prefere hifenizar a encolher, e era isso que
+   partia a palavra que diz a verdade. A troca do item 8 continua de pé — o
+   estado ganha do comprimento da frase —, mas o custo dela deixa de ser
+   pago: cabem os dois.
+
+**Custo assumido.** O pequeno tem um destino só (`widgetURL`): "Recordar"
+continua no médio e no app, não no pequeno — o sistema não honra `Link` no
+`systemSmall`. Em tamanho de acessibilidade o médio abre mão dos atalhos e da
+agenda: a única coisa de hoje vem primeiro — mas **"+N depois" não some mais**
+(G3, A8), porque esconder informação para limpar a tela é o que o AGENTS.md
+proíbe. **Em AX5, no pequeno, com Destaque longo e horizonte vencido, a frase
+do Destaque tem três linhas em vez de quatro e ENCOLHE até 60% para caber
+nelas** — este é o custo inteiro, medido na tela: não há reticências em lugar
+nenhum, nem hífen no meio de palavra, em nenhuma das quatro famílias, em
+nenhum dos dois temas. `Relogio.swift` compila também no alvo de testes (`project.yml`),
+porque a lei que faltou à 05u tinha de caber numa suíte. O espelho da
+permissão é o mínimo honesto dentro desta volta: a unificação com
+`PromessaDoAviso` (volta 18, ainda não mesclada) é a volta seguinte.
+
+### F4-E — a face não fecha um número que ela não sabe (correção do G4)
+
+O G4 recusou por um degrau em cinco eixos e o achado mais pesado era da
+dimensão *Fora do app*: com **cinco** compromissos no calendário a superfície
+carrega três e o pequeno imprimia **"+2 depois"** — uma contagem exata,
+derivada de uma lista que a própria face sabia cortada. O dono lia "+2" e
+acreditava que o dia dele tinha três. Número errado é pior que nenhum, porque
+encerra a dúvida.
+
+1. **O instantâneo passa a carregar quantos há** (mudança de contrato da 05u,
+   declarada): `Superficie.alemDaLista: Int?` guarda quantos compromissos do
+   horizonte NÃO couberam. É opcional de propósito — documento gravado antes
+   desta conta decodifica com `nil`, que quer dizer *não sei*, e a face que não
+   sabe diz "mais depois", sem número (`Restantes` em `Relogio.swift`, com
+   suíte). O CORTE mudou de lugar: `proximasFatias` devolve o horizonte
+   inteiro e quem corta é `publicar`, junto de `candidatas` e de `validoAte` —
+   quem corta conta. `Superficie.candidatas` desceu para o documento porque o
+   alvo do widget não compila `ProximoCompromisso` e precisa do número para
+   saber se a lista que tem na mão está cortada.
+2. **A guarda do idêntico e o mapa de reload passaram a ver o documento
+   inteiro.** O sexto compromisso do dia não muda os três publicados, muda
+   quantos faltam: sem `alemDaLista` na comparação a escrita era descartada
+   como "idêntica" e a face seguia contando errado. E o mapa "kind afetado" era
+   da F2, quando cada face lia METADE do documento — desde a F4 o widget do
+   Traço mostra a agenda e o do Próximo mostra o Destaque, então **os dois
+   kinds recarregam sempre**; recarregar só "quem mudou" deixava a agenda de
+   ontem embaixo do Destaque de hoje. Quem economiza orçamento é a guarda do
+   idêntico, e ela ficou onde estava.
+3. **Quem decide quantas linhas cabem é o layout, não um `if`.**
+   `AgendaQueCabe` (`ViewThatFits`) prova três, duas, uma — e cada candidata
+   leva junto a conta do que ela mesma deixou de fora, então o número nunca
+   descreve outra lista. A guarda `!tipo.isAccessibilitySize` que escondia a
+   agenda inteira caiu: em AX5 a face mostra o que cabe e, quando não cabe nem
+   uma linha, diz quantos vêm. Espaçador flexível DISPUTA altura com o
+   `ViewThatFits` e com o texto — por isso os espaçadores dessas faces viraram
+   padding, o conteúdo ganhou `frame(maxHeight: .infinity)` e a linha do
+   Destaque ganhou `layoutPriority(1)`: sem ela o VStack repartia a altura em
+   fatias iguais, a frase recebia menos do que o teto de linhas pedia e saía
+   com reticências — a família da C causada pela REPARTIÇÃO, não pela
+   propriedade.
+4. **`BlocoProximo` no mesmo degrau dos irmãos** (achado C): `0,85` não chega
+   em 155 pt e o pequeno saía "Café com o Pe…" — o nome do compromisso, que é
+   a informação. Fechada a classe com uma varredura: **os 24 `lineLimit` e os 8
+   `minimumScaleFactor` do alvo, conferidos um a um** face por face (o arquivo
+   terminou com 31 e 24), com seis divergências corrigidas: o rótulo do `Selo`;
+   a hora e o assunto da
+   `LinhaProximo`, que passou a sair em AX5; a hora e o título do
+   `BlocoProximo`; `DESATUALIZADO` e a linha do Destaque na tela bloqueada; e
+   o `PRÓXIMO` da bloqueada, que não tinha teto de linha NENHUM — é o
+   `PRÓXI-/MO` original, vivo na superfície que o dono mais olha.
+5. **O quadro de ofertas é um só** (`QuadroVazio`), e agora o do Próximo vazio
+   também — calendário vazio é o estado mais comum num app de escrita. Com o
+   alvo de 44 pt do achado G, **três ofertas não cabem num médio** (medido na
+   tela): são duas, uma em AX5, e elas PREENCHEM a altura que sobra, então não
+   há mais cartão morto embaixo. A terceira continua no cabeçalho e no app.
+6. **O risco do feito aparece** (achado F) e **o toque tem eco** (achado H).
+   `.strikethrough` como modificador não chegava à tela ao conviver com
+   `minimumScaleFactor`; como atributo de run, chega. Só que
+   `Text(AttributedString)` ignora `minimumScaleFactor` e `allowsTightening` —
+   então cada estado leva o caminho que serve a ele: a linha POR FAZER é texto
+   simples e encolhe inteira; a linha FEITA, que já é recibo e não leitura,
+   vira atributo e ganha o traço. `.invalidatableContent()` nos dois botões do
+   feito, e `.contentTransition(.numericText())` na hora do bloco.
+7. **A promessa e o destino, a mesma frase** (achado J): com o instantâneo
+   velho a face dizia "Abrir o Traço para atualizar" e o toque abria uma
+   PÁGINA EM BRANCO; passa a abrir o app (`traco://notas`), que é o que
+   republica.
+
+**Custo assumido:** o alvo de 44 pt do cabeçalho custa uma linha de agenda no
+médio do Traço — as duas coisas que o juiz pediu não cabem juntas, e entre um
+alvo de 16 pt e uma linha a mais fica o alvo; a face diz o que não mostrou, e
+por isso nada fica escondido. O achado I (o quadro lê como lista de Ajustes)
+não foi tratado: as ofertas agora preenchem a altura e têm primária em âmbar,
+mas a forma continua glifo + palavra.
+
+**Prova:** 6 testes novos (`RestantesTests`: dia inteiro na face, cinco no dia
+com um na face = "+4 depois" e não "+2", instantâneo que não sabe não publica
+número, a voz acompanha a tela, lista curta sabe sozinha; `ForaDoAppTests`:
+cinco publicados de ponta a ponta com `alemDaLista == 2` e o sexto compromisso
+acordando a escrita que a guarda do idêntico descartaria, e as duas faces
+recarregando juntas), suíte **773/133**, dois alvos sem aviso. Capturas do
+build desta volta, plantadas na casa pelo `IconState.plist` (a galeria não é
+preciso): `ferramentas/orca/f4e-casa-claro.png`, `-escuro`, `-ax5-claro`,
+`-ax5-escuro`, `f4e-ax5-nome-inteiro.png` (o recorte onde o juiz leu "Café com
+o Pe…" e agora se lê o nome inteiro com "+4 depois"), `f4e-vazio.png`,
+`f4e-feito.png`, `f4e-feito-risco.png` e `f4e-desatualizado.png` (o horizonte
+vencendo sozinho pela linha do tempo, não por remendo no arquivo).
+**Fora:** tela bloqueada e StandBy seguem sem render no simulador; o toque
+(e portanto o vídeo do eco do feito) exige janela, que este instrumento não
+tem.
+
+**Volta:** multiplicar. **A IA:** nada. **Prova:** 17 testes (11 em
+`LinhaDoTempoWidgetTests` — a política sempre devolve volta, com teto, piso e
+orçamento; véspera/início/fim/meia-noite/soneca na linha; nada no passado,
+nada repetido, linha curta — e 2 em `SinoHonestoTests`: sem permissão no
+último olhar a superfície sai sem sino nenhum, e com permissão o sino volta;
+e 4 em `EstadoNaFaceTests`: nas quatro combinações de velha × conteúdo, velho
+é SEMPRE dito — a lei que a R1 quebrou; e 3 em `LinhasDoEstadoTests`: palavra
+sem espaço ganha uma linha e encolhe, frase com espaço usa o teto — o corte
+que se via na tela e em suíte nenhuma);
+suíte **732/128** na volta, **764/131** depois do `merge main` e **767/132**
+com a correção do corte em AX5, dois alvos sem aviso (os únicos 4 `warning:` da suíte estão em `TracoTests/ConferenciaTrabalhoTests.swift:381`, que veio da main); capturas por estado nos dois temas
+de verdade (`ferramentas/orca/f4b-*.png`, brilho médio 187,5 claro × 140,1
+escuro), as QUATRO famílias plantadas na casa, o horizonte virando sozinho
+para `Desatualizado.` inteiro, a oferta inteira em AX5, os sinos com e sem
+permissão, e `sem dados` na tela. As QUATRO famílias em AX5, nos dois temas,
+com Destaque longo e horizonte vencido, sem reticências e sem hífen no meio
+da palavra do estado: `ferramentas/orca/f4d-ax5-claro.png`,
+`f4d-ax5-escuro.png`, e o ramo "o vazio traz o Destaque" com a superfície
+fresca em `f4d-ax5-vazio-destaque-claro.png` e `-escuro.png`. O `chronod` registrando a releitura
+agendada para +3 h (`f4-rev-releitura.txt`) segue valendo. **Fora:** StandBy
+e accessory na tela bloqueada trancada seguem sem render no simulador
+(F1 §7) — prova no aparelho do dono.
+
+---
+
 ## ADR 2026-09-05x — De onde vem cada método
 
 **A distância.** O catálogo trazia só a origem nominal ("Gabriele Oettingen",

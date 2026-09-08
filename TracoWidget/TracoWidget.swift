@@ -9,74 +9,410 @@ import SwiftUI
 // horizonte) e o app recarrega os kinds afetados depois de cada escrita.
 // Tipografia pelos degraus de `Tema` (D3): escala com o sistema.
 
+/// A ponte entre o instantâneo e o `Relogio` (que é só aritmética de datas).
+extension Relogio {
+    static func inicios(_ leitura: SuperficieDisco.Leitura, agora: Date) -> [Date] {
+        guard case .disponivel(let s) = leitura else { return [] }
+        return s.proximos.filter { $0.fim > agora }.map(\.inicio)
+    }
+}
+
 struct EntradaTraco: TimelineEntry {
     let date: Date
     let leitura: SuperficieDisco.Leitura
+    var relevance: TimelineEntryRelevance?
 
     var indisponivel: Bool { leitura == .indisponivel }
     var destaque: Superficie.Destaque? {
         guard case .disponivel(let s) = leitura else { return nil }
         return s.destaqueDeHoje(agora: date)
     }
-    var geradoEm: Date? {
-        guard case .disponivel(let s) = leitura else { return nil }
-        return s.geradoEm
+    /// F4: o widget do Destaque também mostra o que vem — quando não há a
+    /// única coisa de hoje, ele traz algo do app em vez de morrer vazio.
+    var proximos: [Superficie.Proximo] {
+        guard case .disponivel(let s) = leitura, !s.desatualizada(agora: date) else { return [] }
+        return s.proximos.filter { $0.fim > date }
+    }
+    /// Quantos compromissos do horizonte NÃO couberam no instantâneo (achado
+    /// A do G4). `nil` = instantâneo anterior a esta conta: não sabe, e a face
+    /// que não sabe não publica número.
+    var alem: Int? {
+        guard case .disponivel(let s) = leitura, !s.desatualizada(agora: date) else { return 0 }
+        return s.alem()
+    }
+    /// Estado honesto (F2), dito só quando é verdade: passou o horizonte, a
+    /// lista deixou de ser a verdade inteira.
+    var velha: Bool {
+        guard case .disponivel(let s) = leitura else { return false }
+        return s.desatualizada(agora: date)
     }
 }
 
 struct ProvedorTraco: TimelineProvider {
-    private func entrada(_ agora: Date = .now) -> EntradaTraco {
-        EntradaTraco(date: agora, leitura: SuperficieDisco.ler())
+    private func entrada(_ agora: Date, _ leitura: SuperficieDisco.Leitura) -> EntradaTraco {
+        var e = EntradaTraco(date: agora, leitura: leitura)
+        // Relevância declarada (ADR 06d): a Pilha Inteligente sobe o widget
+        // quando há uma coisa por fazer, e o esquece quando ela foi feita.
+        let peso: Float = if e.indisponivel { 0 }
+            else if let d = e.destaque { d.feito ? 5 : 60 }
+            else if e.proximos.isEmpty { 0 } else { 20 }
+        e.relevance = TimelineEntryRelevance(score: peso)
+        return e
     }
-    func placeholder(in context: Context) -> EntradaTraco { entrada() }
+    func placeholder(in context: Context) -> EntradaTraco { entrada(.now, SuperficieDisco.ler()) }
     func getSnapshot(in context: Context, completion: @escaping (EntradaTraco) -> Void) {
-        completion(entrada())
+        completion(entrada(.now, SuperficieDisco.ler()))
     }
     func getTimeline(in context: Context, completion: @escaping (Timeline<EntradaTraco>) -> Void) {
         let agora = Date()
-        let e = entrada(agora)
-        var entradas = [e]
-        if e.destaque != nil {
-            // o Destaque acaba com o dia: à meia-noite a mesma leitura vira ausência
-            let meiaNoite = Calendar.current.startOfDay(
-                for: Calendar.current.date(byAdding: .day, value: 1, to: agora) ?? agora)
-            entradas.append(EntradaTraco(date: meiaNoite, leitura: e.leitura))
-        }
-        completion(Timeline(entries: entradas, policy: entradas.count > 1 ? .atEnd : .never))
+        let leitura = SuperficieDisco.ler()
+        let entradas = Relogio.datas(base: Superficie.transicoes(leitura, agora: agora),
+                                     inicios: Relogio.inicios(leitura, agora: agora),
+                                     agora: agora).map { entrada($0, leitura) }
+        completion(Timeline(entries: entradas.isEmpty ? [entrada(agora, leitura)] : entradas,
+                            policy: .after(Relogio.voltar(agora: agora, ultima: entradas.last?.date))))
     }
 }
 
-/// Um alvo de toque: a palavra, a área inteira. Sem ícone — o vocabulário é o gesto.
+// MARK: - O vocabulário da casa (ADR 06d)
+//
+// O G0 da F4: "nenhuma cor, nenhum ícone, nenhuma hierarquia que diga Traço".
+// O que o app já tem e a casa não usava: o PONTO ÂMBAR — a marca que a tela
+// bloqueada carrega desde a 05u (`DestaqueVivo`, `CompromissoVivo`). Trazê-lo
+// para o widget é o que faz as quatro superfícies pertencerem ao mesmo app,
+// sem inventar cor nem token: `Tema.ambar`, `Tema.label`, nada mais.
+
+/// O cabeçalho: a marca, e só ela.
+///
+/// A F2 gastava uma linha inteira dizendo "atualizado às HH:MM" mesmo com o
+/// dado fresco; a F4 trocou isso por um selo de estado no mesmo cabeçalho — e
+/// em 155 pt de largura o selo saía `TRAÇO · desatua…`, com `PRÓXIMO`
+/// hifenizado no meio da marca (revisão G3, A1). A causa não é a fonte: é o
+/// LUGAR. O estado é sobre o CONTEÚDO, não sobre o widget, e a faixa do topo
+/// não é do conteúdo — o dono já disse que o widget não gasta linha falando de
+/// si mesmo. Então o estado desceu para a linha do conteúdo (`Oferta`), onde
+/// tem largura inteira e é dito por extenso; aqui ficou a marca, que nunca
+/// mais disputa espaço com nada.
+private struct Selo: View {
+    let rotulo: String
+
+    var body: some View {
+        HStack(spacing: 5) {
+            Circle()
+                .fill(Tema.ambar)
+                .frame(width: 5, height: 5)
+            Text(rotulo)
+                .font(Tema.label)
+                .tracking(Tema.trackingLabel)
+                .foregroundStyle(Tema.tintaFraca)
+                .lineLimit(1)
+                .allowsTightening(true)
+                // varredura da C: "PRÓXIMO" é uma palavra só, e foi ela que
+                // saiu `PRÓXI-/MO` na F4. Uma linha e encolhe inteira.
+                .minimumScaleFactor(0.6)
+            Spacer(minLength: 0)
+        }
+        .accessibilityElement(children: .combine)
+    }
+}
+
+/// Um atalho compacto: glifo âmbar e palavra. Antes eram duas linhas de texto
+/// de largura inteira com um filete entre elas — "parece menu de sistema, não
+/// widget" (G0 da F4). Aqui ocupam uma linha só, e sobra espaço para conteúdo.
 private struct AtalhoTraco: View {
     let rota: String
     let rotulo: String
-    let destaque: Bool
+    let glifo: String
+    var primario: Bool = false
+    /// No quadro de ofertas o alvo é a linha inteira (Fitts); no cabeçalho,
+    /// não — lá ele divide a faixa com a marca e com o irmão.
+    var largo: Bool = false
+    /// No quadro, a oferta ocupa a altura que sobra: alvo maior ainda e, de
+    /// quebra, morre o cartão vazio embaixo das ofertas.
+    var preenche: Bool = false
 
     var body: some View {
         Link(destination: URL(string: rota)!) {
-            Text(rotulo)
-                .font(Tema.meta.weight(.medium))
-                .foregroundStyle(destaque ? Tema.ambarTinta : Tema.tinta)
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .contentShape(Rectangle())
+            // Achado G do G4: as ofertas empilhadas tinham passo de ~32 pt e
+            // área tocável de ~16 — três destinos diferentes num polegar só.
+            // O mínimo da esteira é `Tema.alvo`, e ele vale onde o toque
+            // EXISTE: no pequeno o atalho é desenho (`corpo`), e quem leva o
+            // toque é o widget inteiro.
+            corpo.frame(minHeight: Tema.alvo, maxHeight: preenche ? .infinity : nil)
         }
         .accessibilityLabel(rotulo)
     }
+
+    /// No pequeno o sistema só honra um destino (`widgetURL`): ali o atalho é
+    /// desenho, não `Link` — quem leva o toque é o widget inteiro.
+    var corpo: some View {
+        HStack(spacing: 5) {
+            Image(systemName: glifo)
+                .font(Tema.miudo.weight(.semibold))
+            // A3, de novo: encolher a 85% não salva "Marcar compromisso" em
+            // tamanho de acessibilidade — e oferta cortada não é oferta. A
+            // linha quebra; a palavra, nunca.
+            Text(rotulo)
+                .font(Tema.miudo.weight(.semibold))
+                .lineLimit(2)
+                .allowsTightening(true)
+                .fixedSize(horizontal: false, vertical: true)
+                .multilineTextAlignment(.leading)
+            if largo { Spacer(minLength: 0) }
+        }
+        .foregroundStyle(primario ? Tema.ambarTinta : Tema.tintaSuave)
+        .frame(maxWidth: largo ? .infinity : nil, alignment: .leading)
+        .contentShape(Rectangle())
+    }
 }
 
-/// A idade do que está na tela, dita (ADR 05u) — em hora absoluta: "há 1 min
-/// e 58 seg" mudava a cada segundo numa superfície que o conselho quis calma.
-private struct RodapeAtualizado: View {
-    let gerado: Date
+/// Uma linha de compromisso: hora à esquerda, assunto no meio, sino à direita.
+/// É a unidade que faltava — o médio gastava a área inteira numa frase.
+private struct LinhaProximo: View {
+    let proximo: Superficie.Proximo
+    let agora: Date
+    var primeiro: Bool = false
+
+    private var hoje: Bool { Calendar.current.isDate(proximo.inicio, inSameDayAs: agora) }
+    private var iminente: Bool {
+        primeiro && proximo.inicio.timeIntervalSince(agora) <= Relogio.vespera && proximo.fim > agora
+    }
 
     var body: some View {
-        Text("atualizado às \(Superficie.horaCurta(gerado))")
-            .font(Tema.miudo)
-            .foregroundStyle(Tema.tintaFraca)
-            .lineLimit(1)
+        HStack(alignment: .firstTextBaseline, spacing: 8) {
+            VStack(alignment: .leading, spacing: 0) {
+                Text(proximo.diaInteiro ? "dia" : Superficie.horaCurta(proximo.inicio))
+                    .font((primeiro ? Tema.meta : Tema.miudo).weight(.semibold).monospacedDigit())
+                    .foregroundStyle(iminente ? Tema.ambarTinta : (primeiro ? Tema.tinta : Tema.tintaSuave))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+                if !hoje {
+                    Text(Superficie.diaEmPalavras(proximo.inicio, agora: agora))
+                        .font(Tema.label)
+                        .foregroundStyle(Tema.tintaFraca)
+                        .lineLimit(1)
+                }
+            }
+            .frame(width: 46, alignment: .leading)
+            Text(proximo.titulo)
+                .font((primeiro ? Tema.meta : Tema.miudo).weight(primeiro ? .semibold : .medium))
+                .foregroundStyle(primeiro ? Tema.tinta : Tema.tintaSuave)
+                .lineLimit(1)
+                // varredura da C: a agenda passou a sair em AX5 (achado D) e
+                // é aqui que o assunto viraria reticências.
+                .allowsTightening(true)
+                .minimumScaleFactor(0.6)
+            Spacer(minLength: 0)
+            sino
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(
+            "\(Superficie.quando(proximo.inicio, diaInteiro: proximo.diaInteiro, agora: agora)), \(proximo.titulo)")
     }
+
+    /// A promessa do alarme, também aqui (ADR 04a: ele tem de VER que vai ser
+    /// cobrado). A soneca pedida na tela bloqueada ganha o âmbar.
+    @ViewBuilder private var sino: some View {
+        if let quando = proximo.lembrarEm, quando > agora {
+            Label(Superficie.horaCurta(quando), systemImage: "bell.badge")
+                .font(Tema.label.monospacedDigit())
+                .foregroundStyle(Tema.ambarTinta)
+                .labelStyle(.titleAndIcon)
+        } else if let aviso = proximo.aviso, aviso > agora {
+            Label(Superficie.horaCurta(aviso), systemImage: "bell.fill")
+                .font(Tema.label.monospacedDigit())
+                .foregroundStyle(Tema.tintaFraca)
+                .labelStyle(.titleAndIcon)
+        }
+    }
+}
+
+/// O compromisso em BLOCO: a hora como manchete, o assunto embaixo. É o que
+/// cabe em 155pt de largura — a linha de agenda (hora | assunto | sino) só
+/// serve onde há largura inteira.
+private struct BlocoProximo: View {
+    let proximo: Superficie.Proximo
+    let agora: Date
+    var restantes: Restantes = .nenhum
+    var grande: Bool = false
+
+    private var iminente: Bool { proximo.inicio.timeIntervalSince(agora) <= Relogio.vespera }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            if !proximo.diaInteiro {
+                Text(Superficie.horaCurta(proximo.inicio))
+                    .font((grande ? Tema.tituloTela : Tema.corpo).weight(.semibold).monospacedDigit())
+                    .tracking(Tema.trackingTitulo)
+                    .foregroundStyle(iminente ? Tema.ambarTinta : Tema.tinta)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+                    // H, corolário: entre uma entrada e a seguinte a hora
+                    // TROCA, não corta. É o movimento do sistema, não enfeite.
+                    .contentTransition(.numericText())
+            }
+            Text(proximo.titulo)
+                .font(Tema.meta.weight(.semibold))
+                .foregroundStyle(Tema.tinta)
+                .lineLimit(2)
+                // Achado C do G4: 0,85 não chega em 155 pt e o pequeno saía
+                // "Café com o Pe…" — o NOME do compromisso, que é a
+                // informação. É a terceira vez desta família na volta
+                // (PRÓXI-MO, Desatualiza-do, agora o nome): a face inteira
+                // está no mesmo degrau dos irmãos, e a varredura fechou a
+                // classe.
+                .allowsTightening(true)
+                .minimumScaleFactor(0.6)
+                .padding(.top, proximo.diaInteiro ? 0 : 1)
+            if !Calendar.current.isDate(proximo.inicio, inSameDayAs: agora) {
+                Text(Superficie.diaEmPalavras(proximo.inicio, agora: agora))
+                    .font(Tema.miudo.weight(.medium))
+                    .foregroundStyle(Tema.tintaSuave)
+                    .padding(.top, 2)
+            }
+            // a promessa também aqui: o autor confere o alarme sem abrir o app
+            // (ADR 04a — ele tem de VER que vai ser cobrado)
+            if let quando = proximo.lembrarEm, quando > agora {
+                Label("lembro às \(Superficie.horaCurta(quando))", systemImage: "bell.badge")
+                    .font(Tema.miudo.weight(.medium))
+                    .foregroundStyle(Tema.ambarTinta)
+                    .padding(.top, 6)
+            } else if let aviso = proximo.aviso, aviso > agora {
+                Label(Superficie.horaCurta(aviso), systemImage: "bell.fill")
+                    .font(Tema.miudo.weight(.medium))
+                    .foregroundStyle(Tema.tintaFraca)
+                    .padding(.top, 6)
+            }
+            if let frase = restantes.frase {
+                Text(frase)
+                    .font(Tema.label)
+                    .tracking(Tema.trackingLabel)
+                    .foregroundStyle(Tema.tintaFraca)
+                    .padding(.top, 6)
+            }
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(rotuloDeVoz)
+    }
+
+    /// A8: é a peça do PEQUENO, a família mais usada, e era a única das cinco
+    /// sem rótulo — o VoiceOver lia hora, título e sino como três elementos
+    /// soltos. Uma frase, na ordem em que o autor lê.
+    private var rotuloDeVoz: String {
+        var partes = [Superficie.quando(proximo.inicio, diaInteiro: proximo.diaInteiro, agora: agora),
+                      proximo.titulo]
+        if let quando = proximo.lembrarEm, quando > agora {
+            partes.append("lembro às \(Superficie.horaCurta(quando))")
+        } else if let aviso = proximo.aviso, aviso > agora {
+            partes.append("aviso às \(Superficie.horaCurta(aviso))")
+        }
+        if let voz = restantes.emVoz { partes.append(voz) }
+        return partes.joined(separator: ", ")
+    }
+}
+
+/// Vazio não é widget morto (`curva-zero`): a superfície diz o estado numa
+/// linha e OFERECE a próxima ação, com o alvo do widget inteiro por trás.
+private struct Oferta: View {
+    @Environment(\.dynamicTypeSize) private var tipo
+    let estado: String
+    /// `nil` quando a ação já está dita ali perto (o médio a tem no cabeçalho):
+    /// oferecer "Nova nota" duas vezes na mesma face é ruído, não convite.
+    var rotulo: String? = nil
+    var glifo: String = "square.and.pencil"
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            // As duas propriedades que faltavam aqui e existem em `Velho()`
+            // três telas ao lado: sem elas a palavra do estado partia ao meio.
+            Text(estado)
+                .font(Tema.meta.weight(.medium))
+                .foregroundStyle(Tema.tintaSuave)
+                .lineLimit(LinhasDoEstado.de(estado))
+                .allowsTightening(true)
+                .minimumScaleFactor(0.6)
+                .fixedSize(horizontal: false, vertical: true)
+            if let rotulo {
+                HStack(alignment: .firstTextBaseline, spacing: 5) {
+                    // No tamanho de acessibilidade o glifo come 30 pt da
+                    // coluna de 123 e "compromisso" deixa de caber — aí o
+                    // desenho cede à palavra, nunca o contrário.
+                    if !tipo.isAccessibilitySize {
+                        Image(systemName: glifo).font(Tema.miudo.weight(.semibold))
+                    }
+                    // A oferta É a recuperação (`curva-zero`). Saía
+                    // "Marcar um compro…" no pequeno (revisão G3, A3):
+                    // 85% de escala não chega em 155 pt, e oferta cortada
+                    // no meio não é oferta. Quebra a LINHA, nunca a palavra.
+                    Text(rotulo)
+                        .font(Tema.miudo.weight(.semibold))
+                        .lineLimit(3)
+                        .allowsTightening(true)
+                        .multilineTextAlignment(.leading)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .foregroundStyle(Tema.ambarTinta)
+            }
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(rotulo.map { "\(estado). \($0)" } ?? estado)
+    }
+}
+
+/// O estado honesto quando há conteúdo em cima dele (R1 da revisão Re-G3).
+///
+/// A frase é a mesma da `Oferta` (`Desatualizado.`), no mesmo vocabulário; o
+/// que muda é o degrau. Havendo Destaque posto, o miolo é do Destaque — e o
+/// estado, que é do INSTANTÂNEO inteiro e não do ramo que sobrou, desce para
+/// o rodapé. Nunca some: `EstadoNaFace` decide, e a lei tem teste.
+private struct Velho: View {
+    @Environment(\.dynamicTypeSize) private var tipo
+
+    var body: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 5) {
+            // Como na `Oferta` (A3): no tamanho de acessibilidade o glifo
+            // cede a coluna à palavra — a frase inteira vale mais que o desenho.
+            if !tipo.isAccessibilitySize {
+                Image(systemName: "clock.badge.exclamationmark")
+                    .font(Tema.label)
+            }
+            Text("Desatualizado.")
+                .font(Tema.miudo.weight(.semibold))
+                .lineLimit(1)
+                .allowsTightening(true)
+                // 155 pt em AX5 não cabem 14 letras: aqui a palavra ENCOLHE
+                // inteira, nunca vira reticências nem hífen no meio (A1).
+                .minimumScaleFactor(0.6)
+            Spacer(minLength: 0)
+        }
+        .foregroundStyle(Tema.tintaFraca)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Desatualizado. Abra o Traço para atualizar.")
+    }
+}
+
+/// A linha do Destaque, com ou sem o risco do feito.
+///
+/// Achado F do G4: `linhaDoDestaque` declarava `.strikethrough(...)` e a tela
+/// não tinha traço nenhum — o código prometia e a superfície não cumpria. O
+/// culpado é a convivência do modificador com `minimumScaleFactor` na mesma
+/// `Text`; como atributo de run (o caminho que a prosa do app já usa) o risco
+/// aparece, e está fotografado.
+///
+/// Só que `Text(AttributedString)` cobra o preço inverso: ele ignora
+/// `minimumScaleFactor` e `allowsTightening`, e a linha que ANTES encolhia
+/// passou a terminar em reticências — o defeito que abriu esta volta, de
+/// volta pela porta dos fundos (visto na tela, 06/09, no estado velho).
+///
+/// Então cada estado leva o caminho que serve a ele: a linha POR FAZER, que é
+/// a que o autor lê o dia inteiro, continua sendo texto simples e encolhe
+/// inteira; a linha FEITA, que já não é leitura e sim recibo, vira atributo e
+/// ganha o traço. Nenhum dos dois defeitos sobra.
+nonisolated func textoDoDestaque(_ linha: String, feito: Bool) -> Text {
+    guard feito else { return Text(linha) }
+    var t = AttributedString(linha)
+    t.strikethroughStyle = .single
+    return Text(t)
 }
 
 /// O botão do feito, com identidade (ADR 05u): marca ou desfaz — dois
@@ -87,10 +423,18 @@ private struct BotaoFeito<Rotulo: View>: View {
 
     var body: some View {
         Group {
+            // Achado H do G4: sem `invalidatableContent` o dono tocava o
+            // círculo e a face ficava EXATAMENTE igual até a recarga chegar —
+            // o gesto de assinatura do Traço fora do app, sem eco. É o único
+            // movimento com função nesta superfície, e é do sistema.
             if destaque.feito {
-                Button(intent: DestaqueDesfazerIntent(nota: destaque.id, dia: destaque.dia)) { rotulo() }
+                Button(intent: DestaqueDesfazerIntent(nota: destaque.id, dia: destaque.dia)) {
+                    rotulo().invalidatableContent()
+                }
             } else {
-                Button(intent: DestaqueFeitoIntent(nota: destaque.id, dia: destaque.dia)) { rotulo() }
+                Button(intent: DestaqueFeitoIntent(nota: destaque.id, dia: destaque.dia)) {
+                    rotulo().invalidatableContent()
+                }
             }
         }
         .buttonStyle(.plain)
@@ -99,16 +443,141 @@ private struct BotaoFeito<Rotulo: View>: View {
     }
 }
 
+
+/// A agenda do médio: o MÁXIMO que cabe, e a conta do que não coube.
+///
+/// Achados B e D do G4. Com Destaque posto o médio mostrava `prefix(2)`, não
+/// dizia "+N" nenhum e deixava uma faixa vazia no pé; em tamanho de
+/// acessibilidade a agenda inteira era escondida por um `if` e sobrava 55% de
+/// cartão morto — o defeito nº 5 do dono ("densidade errada") reconstituído
+/// para quem mais precisa de ajuda.
+///
+/// Quem decide quantas linhas cabem é o LAYOUT, não um `if` escrito à mão:
+/// `ViewThatFits` prova três, duas, uma — e cada candidata leva junto a conta
+/// do que ela própria deixou de fora, então o número nunca descreve outra
+/// lista. Não coube nem uma linha (AX5): a face ainda diz quantos vêm, porque
+/// esconder informação para limpar a tela é o que o AGENTS.md proíbe.
+private struct AgendaQueCabe: View {
+    let proximos: [Superficie.Proximo]
+    let agora: Date
+    /// Quantos ficaram fora do instantâneo; `nil` = não sabe (achado A).
+    let alem: Int?
+    /// No widget do Próximo o filete separa as linhas entre si; no do Traço
+    /// ele já separa a agenda do Destaque, e repeti-lo vira grade.
+    var entreLinhas: Bool = false
+
+    var body: some View {
+        ViewThatFits(in: .vertical) {
+            lista(3)
+            lista(2)
+            lista(1)
+            soAConta
+        }
+    }
+
+    private func lista(_ quantos: Int) -> some View {
+        VStack(alignment: .leading, spacing: entreLinhas ? 6 : 0) {
+            ForEach(Array(proximos.prefix(quantos).enumerated()), id: \.element.ocorrencia) { i, p in
+                if entreLinhas, i > 0 { Rectangle().fill(Tema.linha).frame(height: 0.5) }
+                LinhaProximo(proximo: p, agora: agora, primeiro: i == 0)
+                    .padding(.bottom, entreLinhas ? 0 : 5)
+            }
+            conta(mostrando: quantos)
+        }
+    }
+
+    @ViewBuilder private func conta(mostrando: Int) -> some View {
+        if let frase = Restantes.de(naFace: mostrando, publicados: proximos.count, alem: alem).frase {
+            Text(frase)
+                .font(Tema.label)
+                .tracking(Tema.trackingLabel)
+                .foregroundStyle(Tema.tintaFraca)
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+                .accessibilityLabel(Restantes.de(naFace: mostrando, publicados: proximos.count,
+                                                 alem: alem).emVoz ?? "")
+        }
+    }
+
+    /// Nem uma linha coube: a informação irredutível é QUANTOS vêm.
+    private var soAConta: some View {
+        let total = proximos.count + (alem ?? 0)
+        return Text(alem == nil ? "e mais compromissos"
+                    : (total == 1 ? "1 compromisso por vir" : "\(total) compromissos por vir"))
+            .font(Tema.miudo.weight(.medium))
+            .foregroundStyle(Tema.tintaSuave)
+            .lineLimit(1)
+            .allowsTightening(true)
+            .minimumScaleFactor(0.6)
+    }
+}
+
+/// O médio VAZIO como quadro de ofertas (A11 da re-G3; achado E do G4).
+///
+/// Quatro por dois para uma frase é o defeito nº 5 do dono voltando pela porta
+/// dos fundos. O widget do Traço já tinha o quadro; o do Próximo, não — e
+/// calendário vazio é o estado mais comum de todos num app de escrita. Um
+/// quadro só, os dois widgets, cada um com a sua ordem de valor.
+///
+/// As ofertas moram no CORPO, não no cabeçalho: assim continuam existindo em
+/// tamanho de acessibilidade, onde o cabeçalho se cala e o vazio ficava mudo
+/// (`curva-zero`: a recuperação não desaparece no tamanho que mais precisa
+/// dela). Quantas cabem é do layout — com alvo de 44 pt (achado G) duas já
+/// tomam o cartão em AX5, e a terceira continua no cabeçalho e no app.
+private struct QuadroVazio: View {
+    @Environment(\.dynamicTypeSize) private var tipo
+    let estado: String
+    /// Em ordem de valor; a primeira é a primária.
+    let ofertas: [(rota: String, rotulo: String, glifo: String)]
+
+    /// DUAS, e uma em tamanho de acessibilidade.
+    ///
+    /// Não é preguiça: com o alvo de 44 pt do achado G, três ofertas mais a
+    /// linha do estado não cabem num médio — medido na tela, não estimado. O
+    /// juiz pediu as duas coisas, e entre um alvo de 16 pt e uma terceira
+    /// oferta, quem fica é o alvo. A terceira continua no cabeçalho do tamanho
+    /// normal e no app (`curva-zero`: o poder muda de lugar, não some).
+    private var quantas: Int { tipo.isAccessibilitySize ? 1 : 2 }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(estado)
+                .font(Tema.meta.weight(.medium))
+                .foregroundStyle(Tema.tintaSuave)
+                .lineLimit(LinhasDoEstado.de(estado, teto: 2))
+                .allowsTightening(true)
+                .minimumScaleFactor(0.6)
+                .fixedSize(horizontal: false, vertical: true)
+            ForEach(Array(ofertas.prefix(quantas).enumerated()), id: \.offset) { i, o in
+                AtalhoTraco(rota: o.rota, rotulo: o.rotulo, glifo: o.glifo,
+                            primario: i == 0, largo: true, preenche: true)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    }
+}
+
 struct TracoWidgetView: View {
     @Environment(\.widgetFamily) private var familia
     @Environment(\.dynamicTypeSize) private var tipo
+    /// A altura de UMA linha do corpo, escalada com o tipo do sistema. Existe
+    /// porque `minimumScaleFactor` só encolhe quando a ALTURA aperta: com a
+    /// proposta folgada que o VStack dá, a `Text` conclui que cabe, não
+    /// encolhe, e o `lineLimit` corta a frase com reticências (visto na tela,
+    /// 06/09, no estado velho com uma linha longa). Amarrando a altura ao teto
+    /// de linhas, a frase ENCOLHE inteira — que é a lei da F4-D.
+    @ScaledMetric(relativeTo: .body) private var alturaDaLinha: CGFloat = 22
     var entrada: EntradaTraco
 
     var body: some View {
         Group {
             switch familia {
             case .accessoryInline:
-                Text(entrada.destaque?.linha ?? "Traço")
+                // R1: uma linha só — e quando o instantâneo é velho, o que
+                // ela tem a dizer é isso. Mostrar a linha de ontem como se
+                // fosse a de hoje é a mentira que a volta veio matar.
+                Text(entrada.velha ? "Traço · desatualizado"
+                                   : (entrada.destaque?.linha ?? "Traço"))
             case .accessoryRectangular:
                 if let d = entrada.destaque {
                     // ADR 04f: na tela bloqueada o Destaque também se marca.
@@ -117,22 +586,37 @@ struct TracoWidgetView: View {
                             Image(systemName: d.feito ? "checkmark.circle.fill" : "circle")
                                 .font(Tema.miudo)
                             VStack(alignment: .leading, spacing: 2) {
-                                Text("DESTAQUE")
+                                // R1: na bloqueada não sobra linha para um
+                                // rodapé — então o estado ocupa a etiqueta,
+                                // que é o único lugar que já era de estado.
+                                // varredura da C: "DESATUALIZADO" é a mesma
+                                // palavra única que saía `Desatualiza-do` na
+                                // casa — na bloqueada ela também encolhe
+                                // inteira em vez de cortar.
+                                Text(entrada.velha ? "DESATUALIZADO" : "DESTAQUE")
                                     .font(Tema.label)
                                     .tracking(Tema.trackingLabel)
                                     .foregroundStyle(.secondary)
-                                Text(d.linha)
+                                    .lineLimit(1)
+                                    .allowsTightening(true)
+                                    .minimumScaleFactor(0.6)
+                                textoDoDestaque(d.linha, feito: d.feito)
                                     .font(Tema.meta.weight(.medium))
                                     .lineLimit(2)
-                                    .strikethrough(d.feito)
+                                    .allowsTightening(true)
+                                    .minimumScaleFactor(0.6)
                             }
                             Spacer(minLength: 0)
                         }
                         .contentShape(Rectangle())
                     }
                 } else {
-                    Text(entrada.indisponivel ? "Traço · sem dados" : "Traço")
+                    Text(entrada.indisponivel ? "Traço · sem dados"
+                         : (entrada.velha ? "Traço · desatualizado" : "Traço"))
                         .font(Tema.meta.weight(.medium))
+                        .lineLimit(2)
+                        .allowsTightening(true)
+                        .minimumScaleFactor(0.6)
                 }
             default:
                 casa
@@ -141,78 +625,232 @@ struct TracoWidgetView: View {
         .containerBackground(Tema.fundo, for: .widget)
     }
 
-    private var regua: some View {
-        Rectangle().fill(Tema.linha).frame(height: 0.5).padding(.vertical, 10)
+    /// Quantas linhas a única coisa de hoje pode ocupar. Em tamanho de
+    /// acessibilidade o pequeno abre mão do atalho: a linha vem primeiro.
+    private var linhasDoDestaque: Int {
+        let teto = familia == .systemSmall ? (tipo.isAccessibilitySize ? 4 : 3) : 2
+        // Passado o horizonte entra o rodapé do estado. No tamanho normal
+        // cabem os dois; em tamanho de acessibilidade não, e aí a QUARTA
+        // linha da frase cede — saber que está velho vale mais. O custo é
+        // só esse: com `minimumScaleFactor(0.6)` a frase encolhe para caber
+        // nas três linhas que sobram, e NUNCA termina em reticências.
+        return estadoNaFace == .rodape && tipo.isAccessibilitySize ? max(1, teto - 1) : teto
+    }
+    private var soALinha: Bool { familia == .systemSmall && tipo.isAccessibilitySize }
+    /// O miolo já traz a ação: repeti-la no rodapé mostrava "Nova nota" duas
+    /// vezes no mesmo widget (visto no simulador, 06/09).
+    private var ofertando: Bool {
+        entrada.indisponivel || (entrada.destaque == nil && entrada.proximos.isEmpty)
+    }
+    /// R1: onde o estado honesto sai nesta face. Havendo Destaque (ou agenda),
+    /// há conteúdo — e o estado vira rodapé em vez de desaparecer.
+    private var estadoNaFace: EstadoNaFace {
+        .de(velha: entrada.velha,
+            temConteudo: !entrada.indisponivel && entrada.destaque != nil)
+    }
+    /// Sem Destaque, sem agenda e com o instantâneo fresco não há conteúdo
+    /// nenhum: aí a face inteira vira oferta (A11, segunda metade).
+    private var vazioTotal: Bool {
+        !entrada.indisponivel && !entrada.velha
+            && entrada.destaque == nil && entrada.proximos.isEmpty
     }
 
-    /// No pequeno, a linha do Destaque (ou o "sem dados") ocupa o lugar do
-    /// segundo atalho: o widget existe para mostrar a única coisa de hoje
-    /// INTEIRA, e "Correr antes…" não a mostrava (A3 do G3). Recordar segue
-    /// no médio e no app.
-    private var soNovaNota: Bool {
-        familia == .systemSmall && (entrada.indisponivel || entrada.destaque != nil)
+    /// A única coisa de hoje, e um toque que a fecha sem abrir o app (F2).
+    /// Agora ela é o ASSUNTO do widget: 17pt, não 15, e o círculo âmbar.
+    @ViewBuilder private func linhaDoDestaque(_ d: Superficie.Destaque) -> some View {
+        BotaoFeito(destaque: d) {
+            HStack(alignment: .top, spacing: 8) {
+                Image(systemName: d.feito ? "checkmark.circle.fill" : "circle")
+                    .font(Tema.chrome.weight(.light))
+                    .foregroundStyle(d.feito ? Tema.tintaFraca : Tema.ambar)
+                textoDoDestaque(d.linha, feito: d.feito)
+                    .font(Tema.chrome.weight(.semibold))
+                    .foregroundStyle(d.feito ? Tema.tintaFraca : Tema.tinta)
+                    // `reservesSpace` no pequeno: sem ele a `Text` recebe uma
+                    // proposta de altura FOLGADA, conclui que não precisa
+                    // encolher e o `lineLimit` corta a frase com reticências —
+                    // o `minimumScaleFactor` só entra quando a altura aperta.
+                    // Reservando as linhas, a altura é sempre a do teto e a
+                    // frase encolhe inteira, como manda a F4-D.
+                    .lineLimit(linhasDoDestaque)
+                    // 0,85 não chega em 155 pt no AX5 e a frase terminava em
+                    // reticências (`capítul…`, re-G3 N1) — reticências no
+                    // Destaque é o defeito que abriu a volta. Como em
+                    // `Velho()`: a frase ENCOLHE inteira, nunca corta.
+                    .allowsTightening(true)
+                    .minimumScaleFactor(0.6)
+                    .multilineTextAlignment(.leading)
+                    // o teto de linhas VIRA altura: sem isto o encolhimento
+                    // nunca é acionado e a frase termina em reticências
+                    // TETO de altura no teto de linhas: `minimumScaleFactor`
+                    // só encolhe quando a altura aperta, e com proposta folgada
+                    // a frase terminava em reticências. Teto, e não altura
+                    // fixa: amarrar mínimo E máximo empurra o conteúdo para
+                    // fora do cartão pequeno (visto na tela, 06/09).
+                    .frame(maxHeight: alturaDaLinha * CGFloat(linhasDoDestaque),
+                           alignment: .topLeading)
+                Spacer(minLength: 0)
+            }
+            .contentShape(Rectangle())
+        }
     }
 
-    /// Em tamanho de acessibilidade o pequeno não cabe linha, atalho e
-    /// rodapé: fica só a única coisa de hoje, em até três linhas (visto no
-    /// Air em AX5: "Correr a…" e "atualizado às 0…"). O médio segue inteiro.
-    private var soALinha: Bool { soNovaNota && tipo.isAccessibilitySize }
+    /// O miolo do pequeno, por ordem de valor: a única coisa de hoje; sem
+    /// ela, o que vem a seguir (é o mesmo instantâneo — nada de dado novo);
+    /// sem nada, a oferta. Nunca um vazio de um terço de widget.
+    @ViewBuilder private var miolo: some View {
+        if entrada.indisponivel {
+            Oferta(estado: "Não consegui ler o Traço.", rotulo: "Abrir o Traço",
+                   glifo: "arrow.up.forward.app")
+        } else if let d = entrada.destaque {
+            linhaDoDestaque(d)
+        } else if let p = entrada.proximos.first {
+            // sem a única coisa de hoje, o pequeno traz o que vem — em bloco,
+            // porque a LINHA de agenda (hora | assunto | sino) não cabe em 155pt
+            BlocoProximo(proximo: p, agora: entrada.date,
+                         restantes: .de(naFace: 1, publicados: entrada.proximos.count,
+                                        alem: entrada.alem))
+        } else if estadoNaFace == .miolo {
+            // A1: o estado honesto por extenso, na linha do conteúdo. Passado o
+            // horizonte o instantâneo é velho — e sobre um instantâneo velho o
+            // widget NÃO afirma "nada em destaque hoje": ele não sabe.
+            Oferta(estado: "Desatualizado.", rotulo: "Abrir o Traço",
+                   glifo: "arrow.up.forward.app")
+        } else {
+            Oferta(estado: "Nada em destaque hoje.", rotulo: "Nova nota")
+        }
+    }
 
-    private var casa: some View {
+    /// Para onde o toque leva — e o que o rodapé promete. É o que a FACE
+    /// mostra, não uma constante: quando o pequeno cai no compromisso
+    /// (sem Destaque de hoje), ele exibia "16:10 Dentista" e o toque abria
+    /// uma página em branco (revisão G3, A6). Um destino, uma promessa.
+    private var destino: (rota: String, rotulo: String, glifo: String) {
+        // Achado J do G4: com o instantâneo velho a face dizia "Abrir o Traço
+        // para atualizar" e o toque abria uma PÁGINA EM BRANCO. Abrir o app é
+        // o que republica; então o destino passa a ser o app, não uma nota
+        // nova que ninguém pediu.
+        if entrada.velha || entrada.indisponivel {
+            return ("traco://notas", "Abrir o Traço", "arrow.up.forward.app")
+        }
+        return entrada.destaque == nil && !entrada.proximos.isEmpty
+            ? ("traco://calendario", "Calendário", "calendar")
+            : ("traco://nova", "Nova nota", "square.and.pencil")
+    }
+
+    /// PEQUENO: o widget inteiro é um alvo só (`widgetURL`), então os atalhos
+    /// aqui são desenho — e só um deles, o primário. "Recordar" continua
+    /// encontrável no médio e no app (curva-zero: o poder não some, muda de
+    /// lugar).
+    private var pequeno: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("TRAÇO")
-                .font(Tema.label)
-                .tracking(Tema.trackingLabel)
-                .foregroundStyle(Tema.tintaFraca)
-            Spacer(minLength: 8)
-            if entrada.indisponivel {
-                // App Group indisponível ou arquivo corrompido: dito, nunca fingido
-                Text("sem dados · abra o Traço")
-                    .font(Tema.meta.weight(.medium))
-                    .foregroundStyle(Tema.tintaFraca)
-                    .lineLimit(soALinha ? 3 : 2)
-                if !soALinha { regua }
-            } else if let d = entrada.destaque {
-                // F2: a única coisa de hoje, e um toque que a fecha sem abrir
-                // o app. Não é streak nem contagem — vale só para hoje.
-                BotaoFeito(destaque: d) {
-                    HStack(alignment: .top, spacing: 8) {
-                        Image(systemName: d.feito ? "checkmark.circle.fill" : "circle")
-                            .font(Tema.meta)
-                            .foregroundStyle(d.feito ? Tema.tintaSuave : Tema.tintaFraca)
-                        Text(d.linha)
-                            .font(Tema.meta.weight(.medium))
-                            .foregroundStyle(d.feito ? Tema.tintaFraca : Tema.tinta)
-                            .strikethrough(d.feito, color: Tema.tintaFraca)
-                            .lineLimit(soALinha ? 3 : 2)
-                            .multilineTextAlignment(.leading)
-                        Spacer(minLength: 0)
-                    }
-                    .contentShape(Rectangle())
-                }
-                if !soALinha { regua }
-            }
-            if soALinha {
-                EmptyView()
-            } else if soNovaNota {
-                AtalhoTraco(rota: "traco://nova", rotulo: "Nova nota", destaque: true)
-            } else if familia == .systemSmall {
-                AtalhoTraco(rota: "traco://nova", rotulo: "Nova nota", destaque: true)
-                Rectangle().fill(Tema.linha).frame(height: 0.5).padding(.vertical, 12)
-                AtalhoTraco(rota: "traco://recordar", rotulo: "Recordar", destaque: false)
-            } else {
-                HStack(spacing: 16) {
-                    AtalhoTraco(rota: "traco://nova", rotulo: "Nova nota", destaque: true)
-                    Rectangle().fill(Tema.linha).frame(width: 0.5)
-                    AtalhoTraco(rota: "traco://recordar", rotulo: "Recordar", destaque: false)
-                }
-            }
-            Spacer(minLength: 0)
-            if let gerado = entrada.geradoEm, !soALinha {
-                RodapeAtualizado(gerado: gerado)
+            Selo(rotulo: "TRAÇO")
+            // Espaçador flexível DISPUTA altura com o texto: entre dois
+            // `Spacer` o miolo recebia um terço do cartão, e com o rodapé do
+            // estado embaixo a linha do Destaque deixava de encolher e passava
+            // a terminar em reticências (visto na tela, 06/09, no estado
+            // velho — é a família da C outra vez, agora causada pelo LAYOUT e
+            // não pela propriedade). Quem separa é padding; quem empurra para
+            // o alto é o frame.
+            miolo
+                .padding(.top, 8)
+                .padding(.bottom, 4)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                // A ÚNICA COISA DE HOJE tem prioridade de altura sobre o
+                // rodapé do estado: sem isto o VStack reparte a altura em
+                // fatias iguais, a linha recebe menos do que o teto de linhas
+                // pede e sai com reticências — a família da C, agora causada
+                // pela repartição e não pela propriedade (visto na tela).
+                .layoutPriority(1)
+            if estadoNaFace == .rodape {
+                // R1: o Destaque fica, e o rodapé conta que ele é velho —
+                // o atalho cede a linha, porque a promessa da face vem antes
+                // de mais um caminho para dentro do app.
+                Velho()
+            } else if !soALinha, !ofertando {
+                AtalhoTraco(rota: destino.rota, rotulo: destino.rotulo,
+                            glifo: destino.glifo, primario: true).corpo
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .widgetURL(URL(string: destino.rota))
+    }
+
+    /// MÉDIO: em faixas de largura inteira, não em duas colunas — a coluna
+    /// estreita cortava "Dentista" em "De…" (visto no simulador, 06/09).
+    /// Em cima o dia do autor (marca, atalhos, a única coisa); embaixo o que
+    /// vem. O médio tinha lugar para três compromissos e usava tudo numa
+    /// frase (G0 da F4, item 5).
+    private var medio: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(alignment: .firstTextBaseline, spacing: 12) {
+                Selo(rotulo: "TRAÇO")
+                // Com a face vazia os atalhos descem para o corpo (A11/M1):
+                // repeti-los aqui seria a mesma ação duas vezes.
+                if !tipo.isAccessibilitySize, !vazioTotal {
+                    AtalhoTraco(rota: "traco://nova", rotulo: "Nova nota",
+                                glifo: "square.and.pencil", primario: true)
+                    AtalhoTraco(rota: "traco://recordar", rotulo: "Recordar",
+                                glifo: "arrow.counterclockwise")
+                }
+            }
+            Group {
+                if entrada.indisponivel {
+                    Oferta(estado: "Não consegui ler o Traço.", rotulo: "Abrir o Traço",
+                           glifo: "arrow.up.forward.app")
+                } else if let d = entrada.destaque {
+                    linhaDoDestaque(d)
+                } else if estadoNaFace == .miolo {
+                    Oferta(estado: "Desatualizado.", rotulo: "Abrir o Traço",
+                           glifo: "arrow.up.forward.app")
+                } else if vazioTotal {
+                    quadroVazio
+                }
+            }
+            .padding(.top, 8)
+            .layoutPriority(1)
+            if !entrada.proximos.isEmpty {
+                // Sem `!tipo.isAccessibilitySize`: em AX5 a agenda não some,
+                // encolhe para o que cabe e DIZ o resto (achados B e D). E os
+                // espaçamentos aqui são fixos de propósito — `Spacer` flexível
+                // disputa altura com o `ViewThatFits` e o faz escolher menos
+                // do que caberia.
+                Rectangle().fill(Tema.linha).frame(height: 0.5)
+                    .padding(.top, 8)
+                    .padding(.bottom, 6)
+                AgendaQueCabe(proximos: entrada.proximos, agora: entrada.date, alem: entrada.alem)
+                    // sem o frame o `ViewThatFits` recebe do VStack uma
+                    // proposta de migalha e escolhe a menor candidata com o
+                    // cartão vazio embaixo (visto na tela, 06/09)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            }
+            // Passada a validade a agenda está vazia por lei (`proximos`
+            // devolve [] quando o instantâneo é velho), então o rodapé continua
+            // sendo empurrado para o pé do cartão sem brigar com nada.
+            if entrada.proximos.isEmpty, !vazioTotal { Spacer(minLength: 0) }
+            if estadoNaFace == .rodape {
+                // R1: com Destaque posto, o médio largava a agenda inteira e
+                // não dizia nada. Agora diz — no rodapé, embaixo do conteúdo
+                // que ele está pondo em dúvida, como no pequeno.
+                Velho()
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    }
+
+    /// O médio vazio do Traço: o quadro compartilhado, na ordem de valor
+    /// desta face — escrever primeiro (`QuadroVazio` guarda o porquê).
+    private var quadroVazio: some View {
+        QuadroVazio(estado: "Nada em destaque hoje.",
+                    ofertas: [("traco://nova", "Nova nota", "square.and.pencil"),
+                              ("traco://calendario", "Marcar compromisso", "calendar.badge.plus"),
+                              ("traco://recordar", "Recordar", "arrow.counterclockwise")])
+    }
+
+    private var casa: some View {
+        Group {
+            if familia == .systemMedium { medio } else { pequeno }
+        }
     }
 }
 
@@ -222,7 +860,7 @@ struct TracoWidget: Widget {
             TracoWidgetView(entrada: entrada)
         }
         .configurationDisplayName("Traço")
-        .description("O Destaque do dia na tela bloqueada. Na casa: uma página ou Recordar.")
+        .description("A única coisa de hoje, o que vem a seguir e um toque para começar.")
         .supportedFamilies([.systemSmall, .systemMedium, .accessoryRectangular, .accessoryInline])
     }
 }
@@ -316,6 +954,7 @@ struct DestaqueVivo: Widget {
 struct EntradaProximo: TimelineEntry {
     let date: Date
     let leitura: SuperficieDisco.Leitura
+    var relevance: TimelineEntryRelevance?
 
     /// Um estado só por entrada, decidido pela DATA da entrada: a mesma
     /// leitura vira "nada marcado" quando o último acaba e "desatualizado"
@@ -325,45 +964,85 @@ struct EntradaProximo: TimelineEntry {
         return s.estadoDoProximo(agora: date)
     }
 
-    var geradoEm: Date? {
+    /// A agenda que ainda vale, para o médio: até três, na ordem.
+    var proximos: [Superficie.Proximo] {
+        guard case .disponivel(let s) = leitura, !s.desatualizada(agora: date) else { return [] }
+        return s.proximos.filter { $0.fim > date }.map { p in
+            var p = p
+            if let l = p.lembrarEm, l <= date { p.lembrarEm = nil }
+            return p
+        }
+    }
+
+    /// Quantos ficaram de fora do instantâneo (achado A do G4).
+    var alem: Int? {
+        guard case .disponivel(let s) = leitura, !s.desatualizada(agora: date) else { return 0 }
+        return s.alem()
+    }
+
+    /// F4: quando não há compromisso, o widget traz o que o app tem —
+    /// a única coisa de hoje — em vez de um vazio de quatro por dois.
+    var destaque: Superficie.Destaque? {
         guard case .disponivel(let s) = leitura else { return nil }
-        return s.geradoEm
+        return s.destaqueDeHoje(agora: date)
     }
 }
 
 struct ProvedorProximo: TimelineProvider {
-    private func entrada(_ agora: Date = .now) -> EntradaProximo {
-        EntradaProximo(date: agora, leitura: SuperficieDisco.ler())
+    private func entrada(_ agora: Date, _ leitura: SuperficieDisco.Leitura) -> EntradaProximo {
+        var e = EntradaProximo(date: agora, leitura: leitura)
+        // Relevância declarada (ADR 06d): quanto mais perto o compromisso,
+        // mais alto o widget sobe na Pilha Inteligente.
+        let peso: Float
+        if case .proximo(let p) = e.estado {
+            let falta = p.inicio.timeIntervalSince(agora)
+            peso = falta <= Relogio.vespera ? 90 : (falta <= 6 * 3600 ? 50 : 20)
+        } else if e.destaque != nil {
+            peso = 15
+        } else {
+            peso = 0
+        }
+        e.relevance = TimelineEntryRelevance(score: peso)
+        return e
     }
-    func placeholder(in context: Context) -> EntradaProximo { entrada() }
+    func placeholder(in context: Context) -> EntradaProximo { entrada(.now, SuperficieDisco.ler()) }
     func getSnapshot(in context: Context, completion: @escaping (EntradaProximo) -> Void) {
-        completion(entrada())
+        completion(entrada(.now, SuperficieDisco.ler()))
     }
     func getTimeline(in context: Context, completion: @escaping (Timeline<EntradaProximo>) -> Void) {
         let agora = Date()
         let leitura = SuperficieDisco.ler()
-        // as transições REAIS: cada fim (o seguinte entra, ou "nada marcado"),
-        // a soneca que passa, e o horizonte (depois dele, "desatualizado").
-        // Poucas entradas, nenhuma inventada, e nenhum reload por minuto.
-        let entradas = Superficie.transicoes(leitura, agora: agora).map { EntradaProximo(date: $0, leitura: leitura) }
-        completion(Timeline(entries: entradas, policy: .never))
+        // As transições reais do dia (fim de cada próximo, véspera, soneca,
+        // meia-noite, horizonte) — e uma POLÍTICA de volta. `.never`, que
+        // estava aqui, deixou os dois widgets nove horas parados no iPhone do
+        // dono (06/09, 13:04): sem o app abrir, nada nunca mais era relido.
+        let entradas = Relogio.datas(base: Superficie.transicoes(leitura, agora: agora),
+                                     inicios: Relogio.inicios(leitura, agora: agora),
+                                     agora: agora).map { entrada($0, leitura) }
+        completion(Timeline(entries: entradas.isEmpty ? [entrada(agora, leitura)] : entradas,
+                            policy: .after(Relogio.voltar(agora: agora, ultima: entradas.last?.date))))
     }
 }
 
 struct ProximoWidgetView: View {
     @Environment(\.widgetFamily) private var familia
+    @Environment(\.dynamicTypeSize) private var tipo
     var entrada: EntradaProximo
 
     private func quando(_ p: Superficie.Proximo) -> String {
         Superficie.quando(p.inicio, diaInteiro: p.diaInteiro, agora: entrada.date)
     }
 
-    /// O que a superfície diz quando não há compromisso para mostrar.
+    /// O que a superfície diz quando não há compromisso para mostrar — e é
+    /// AQUI que o estado honesto vive (A1). Antes ele aparecia duas vezes: um
+    /// selo truncado no cabeçalho (`desatua…`) e a frase logo abaixo, que
+    /// ainda repetia a ação do rótulo ("· abra o Traço" mais "Abrir o Traço").
+    /// Um lugar, uma frase inteira, a ação uma vez só.
     private var ausencia: String {
         switch entrada.estado {
-        case .indisponivel: "sem dados · abra o Traço"
-        case .desatualizado: "desatualizado · abra o Traço"
-        default: "nada marcado"
+        case .indisponivel: "Não consegui ler o Traço."
+        case .desatualizado: "Desatualizado."
+        default: "Nada marcado."
         }
     }
 
@@ -378,21 +1057,34 @@ struct ProximoWidgetView: View {
                 }
             case .accessoryRectangular:
                 VStack(alignment: .leading, spacing: 2) {
+                    // varredura da C: era a face com mais divergência — o
+                    // rótulo sem teto de linha nenhum (é o PRÓXI-/MO original,
+                    // vivo na tela bloqueada), o assunto sem escala e a
+                    // ausência em 0,9, que não chega em AX5.
                     Text("PRÓXIMO")
                         .font(Tema.label)
                         .tracking(Tema.trackingLabel)
                         .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .allowsTightening(true)
+                        .minimumScaleFactor(0.6)
                     if case .proximo(let p) = entrada.estado {
                         Text(p.titulo)
                             .font(Tema.meta.weight(.medium))
                             .lineLimit(1)
+                            .allowsTightening(true)
+                            .minimumScaleFactor(0.6)
                         Text(quando(p))
                             .font(Tema.miudo)
                             .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.6)
                     } else {
                         Text(ausencia)
                             .font(Tema.meta.weight(.medium))
-                            .lineLimit(2)
+                            .lineLimit(LinhasDoEstado.de(ausencia, teto: 2))
+                            .allowsTightening(true)
+                            .minimumScaleFactor(0.6)
                     }
                 }
             default:
@@ -405,52 +1097,90 @@ struct ProximoWidgetView: View {
 
     private var casa: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("PRÓXIMO")
-                .font(Tema.label)
-                .tracking(Tema.trackingLabel)
-                .foregroundStyle(Tema.tintaFraca)
-            Spacer(minLength: 10)
-            if case .proximo(let p) = entrada.estado {
-                Text(p.titulo)
-                    .font(Tema.chrome.weight(.semibold))
-                    .foregroundStyle(Tema.tinta)
-                    .lineLimit(2)
-                Text(quando(p))
-                    .font(Tema.miudo.weight(.medium))
-                    .foregroundStyle(Tema.tintaSuave)
-                    .padding(.top, 2)
-                // a promessa também aqui: o autor confere o alarme sem abrir
-                // o app (ADR 04a — ele tem de VER que vai ser cobrado)
-                if let quando = p.lembrarEm {
-                    HStack(spacing: 4) {
-                        Image(systemName: "bell.badge")
-                            .font(Tema.label)
-                        Text("lembro às \(Superficie.horaCurta(quando))")
-                            .font(Tema.miudo.weight(.medium))
+            Selo(rotulo: "PRÓXIMO")
+            Group {
+                if case .proximo(let p) = entrada.estado {
+                    // um compromisso só não vira "lista de um": o bloco preenche o
+                    // médio; a agenda entra quando há de fato uma agenda.
+                    if familia == .systemMedium, entrada.proximos.count > 1 {
+                        agenda
+                    } else {
+                        aquele(p)
                     }
-                    .foregroundStyle(Tema.ambarTinta)
-                    .padding(.top, 6)
-                } else if let aviso = p.aviso {
-                    HStack(spacing: 4) {
-                        Image(systemName: "bell.fill")
-                            .font(Tema.label)
-                        Text(Superficie.horaCurta(aviso))
-                            .font(Tema.miudo.weight(.medium))
-                    }
-                    .foregroundStyle(Tema.tintaSuave)
-                    .padding(.top, 6)
+                } else {
+                    vazio
                 }
-            } else {
-                Text(ausencia)
-                    .font(Tema.meta.weight(.medium))
-                    .foregroundStyle(Tema.tintaSuave)
             }
-            Spacer(minLength: 0)
-            if let gerado = entrada.geradoEm {
-                RodapeAtualizado(gerado: gerado)
-            }
+            // O que empurra o conteúdo para o alto é o FRAME, não um `Spacer`:
+            // espaçador flexível disputa altura com o `ViewThatFits` da agenda
+            // e o faz escolher menos linhas do que caberiam.
+            .padding(.top, 8)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    }
+
+    /// PEQUENO (e o médio de um só): o compromisso em bloco, com a hora como
+    /// manchete — é o que se lê de relance. E, quando há mais no dia, o autor
+    /// sabe que há mais.
+    private func aquele(_ p: Superficie.Proximo) -> some View {
+        // A8: `+N depois` NÃO some em tamanho de acessibilidade. Esconder
+        // informação para limpar a tela é exatamente o que o AGENTS.md
+        // proíbe — o autor tem de saber que há mais dois compromissos hoje.
+        BlocoProximo(proximo: p, agora: entrada.date,
+                     restantes: .de(naFace: 1, publicados: entrada.proximos.count,
+                                    alem: entrada.alem),
+                     grande: true)
+    }
+
+    /// MÉDIO: a agenda. Os compromissos com hora, assunto e alarme — o espaço
+    /// que a F2 gastava numa frase (G0 da F4, item 5) — e, desde o G4, a conta
+    /// do que não coube: mostrava três de cinco sem dizer que havia mais.
+    private var agenda: some View {
+        AgendaQueCabe(proximos: entrada.proximos, agora: entrada.date,
+                      alem: entrada.alem, entreLinhas: true)
+    }
+
+    /// Vazio é oportunidade (`curva-zero`): sem compromisso, o widget traz a
+    /// única coisa de hoje — que já está no mesmo instantâneo — e só quando
+    /// não há nem isso é que ele oferece a ação.
+    @ViewBuilder private var vazio: some View {
+        if case .vazio = entrada.estado, let d = entrada.destaque {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Nada marcado hoje.")
+                    .font(Tema.miudo.weight(.medium))
+                    .foregroundStyle(Tema.tintaFraca)
+                BotaoFeito(destaque: d) {
+                    HStack(alignment: .top, spacing: 8) {
+                        Image(systemName: d.feito ? "checkmark.circle.fill" : "circle")
+                            .font(Tema.chrome.weight(.light))
+                            .foregroundStyle(d.feito ? Tema.tintaFraca : Tema.ambar)
+                        textoDoDestaque(d.linha, feito: d.feito)
+                            .font(Tema.chrome.weight(.semibold))
+                            .foregroundStyle(d.feito ? Tema.tintaFraca : Tema.tinta)
+                            .lineLimit(familia == .systemSmall ? 3 : 2)
+                            // re-G3 N3: aqui a frase já cortava em AX5 com a
+                            // superfície FRESCA — o corte não era do rodapé.
+                            .allowsTightening(true)
+                            .minimumScaleFactor(0.6)
+                            .multilineTextAlignment(.leading)
+                        Spacer(minLength: 0)
+                    }
+                    .contentShape(Rectangle())
+                }
+            }
+        } else if case .vazio = entrada.estado, familia == .systemMedium {
+            // Achado E: só o widget do Traço tinha ganhado o quadro. Aqui a
+            // ordem de valor é outra — quem olha o Próximo vazio quer MARCAR.
+            QuadroVazio(estado: ausencia,
+                        ofertas: [("traco://calendario", "Marcar compromisso", "calendar.badge.plus"),
+                                  ("traco://nova", "Nova nota", "square.and.pencil"),
+                                  ("traco://recordar", "Recordar", "arrow.counterclockwise")])
+        } else if case .vazio = entrada.estado {
+            Oferta(estado: ausencia, rotulo: "Marcar compromisso", glifo: "calendar.badge.plus")
+        } else {
+            Oferta(estado: ausencia, rotulo: "Abrir o Traço", glifo: "arrow.up.forward.app")
+        }
     }
 }
 
@@ -460,7 +1190,7 @@ struct TracoProximoWidget: Widget {
             ProximoWidgetView(entrada: entrada)
         }
         .configurationDisplayName("Próximo compromisso")
-        .description("O que vem a seguir, e a que horas o Traço te avisa.")
+        .description("A agenda do dia: hora, assunto e a que horas o Traço te avisa.")
         .supportedFamilies([.systemSmall, .systemMedium, .accessoryRectangular, .accessoryInline])
     }
 }
@@ -694,8 +1424,16 @@ private enum Amostra {
     }
     static func proximo(lembrar: Bool = false) -> Superficie.Proximo {
         .init(titulo: "Dentista", inicio: agora.addingTimeInterval(2700), fim: agora.addingTimeInterval(6300),
-              diaInteiro: false, aviso: agora.addingTimeInterval(2700),
+              diaInteiro: false, aviso: agora.addingTimeInterval(2100),
               lembrarEm: lembrar ? agora.addingTimeInterval(600) : nil)
+    }
+    /// A agenda cheia: o médio tem lugar para três (F4, item 5).
+    static var tres: [Superficie.Proximo] {
+        [proximo(),
+         .init(titulo: "Revisão com o time", inicio: agora.addingTimeInterval(3 * 3600),
+               fim: agora.addingTimeInterval(4 * 3600), diaInteiro: false),
+         .init(titulo: "Jantar com a Ana", inicio: agora.addingTimeInterval(7 * 3600),
+               fim: agora.addingTimeInterval(9 * 3600), diaInteiro: false)]
     }
 
     static var comDestaque: EntradaTraco { .init(date: agora, leitura: superficie(destaque: destaque(feito: false))) }
@@ -703,7 +1441,32 @@ private enum Amostra {
     static var vazio: EntradaTraco { .init(date: agora, leitura: superficie()) }
     static var indisponivel: EntradaTraco { .init(date: agora, leitura: .indisponivel) }
 
+    /// F4: a única coisa de hoje E o que vem — o mesmo instantâneo.
+    static var oDia: EntradaTraco {
+        .init(date: agora, leitura: superficie(destaque: destaque(feito: false), proximos: tres))
+    }
+    /// F4: sem Destaque, o widget traz o que vem em vez de morrer vazio.
+    static var semDestaqueComAgenda: EntradaTraco { .init(date: agora, leitura: superficie(proximos: tres)) }
+    /// A7: o estado que a F4 introduziu e nenhum preview olhava — foi por isso
+    /// que `TRAÇO · desatua…` chegou até a casa do dono (revisão G3, A1/A7).
+    static var velho: EntradaTraco {
+        .init(date: agora, leitura: superficie(proximos: tres, validoAte: agora.addingTimeInterval(-60)))
+    }
+    /// R1: o estado que faltava — velho COM Destaque posto. É a casa do dono
+    /// (ele tem os dois widgets e põe Destaque todo dia), e era a única
+    /// combinação que nenhum preview olhava: por isso o widget do Traço pôde
+    /// ficar mudo por uma volta inteira.
+    static var velhoComDestaque: EntradaTraco {
+        .init(date: agora, leitura: superficie(destaque: destaque(feito: false), proximos: tres,
+                                               validoAte: agora.addingTimeInterval(-60)))
+    }
+
     static var comProximo: EntradaProximo { .init(date: agora, leitura: superficie(proximos: [proximo()])) }
+    static var agendaCheia: EntradaProximo { .init(date: agora, leitura: superficie(proximos: tres)) }
+    /// F4: agenda vazia mostra a única coisa de hoje (curva-zero).
+    static var vazioComDestaque: EntradaProximo {
+        .init(date: agora, leitura: superficie(destaque: destaque(feito: false)))
+    }
     static var comSoneca: EntradaProximo { .init(date: agora, leitura: superficie(proximos: [proximo(lembrar: true)])) }
     static var nadaMarcado: EntradaProximo { .init(date: agora, leitura: superficie()) }
     static var desatualizado: EntradaProximo {
@@ -715,18 +1478,24 @@ private enum Amostra {
 #Preview("Traço · pequeno", as: .systemSmall) {
     TracoWidget()
 } timeline: {
-    Amostra.comDestaque
+    Amostra.oDia
     Amostra.feito
+    Amostra.semDestaqueComAgenda
     Amostra.vazio
+    Amostra.velho
+    Amostra.velhoComDestaque
     Amostra.indisponivel
 }
 
 #Preview("Traço · médio", as: .systemMedium) {
     TracoWidget()
 } timeline: {
-    Amostra.comDestaque
+    Amostra.oDia
     Amostra.feito
+    Amostra.semDestaqueComAgenda
     Amostra.vazio
+    Amostra.velho
+    Amostra.velhoComDestaque
     Amostra.indisponivel
 }
 
@@ -735,12 +1504,43 @@ private enum Amostra {
 } timeline: {
     Amostra.comDestaque
     Amostra.feito
+    Amostra.velhoComDestaque
     Amostra.vazio
     Amostra.indisponivel
 }
 
 #Preview("Traço · AX5", traits: .fixedLayout(width: 170, height: 170)) {
-    TracoWidgetView(entrada: Amostra.comDestaque)
+    TracoWidgetView(entrada: Amostra.oDia)
+        .padding(16)
+        .environment(\.dynamicTypeSize, .accessibility5)
+}
+
+/// A7: os dois estados que truncaram na casa, no tamanho grande e na largura
+/// estreita — o par que teria pegado A1 e A3 antes do dono.
+#Preview("Traço · velho AX5", traits: .fixedLayout(width: 170, height: 170)) {
+    TracoWidgetView(entrada: Amostra.velho)
+        .padding(16)
+        .environment(\.dynamicTypeSize, .accessibility5)
+}
+
+#Preview("Traço · médio AX5", traits: .fixedLayout(width: 364, height: 170)) {
+    TracoWidgetView(entrada: Amostra.semDestaqueComAgenda)
+        .padding(16)
+        .environment(\.dynamicTypeSize, .accessibility5)
+}
+
+/// R1: a combinação que regrediu — Destaque posto e horizonte vencido — nas
+/// duas larguras da casa e no tamanho grande. Um preview por defeito conhecido.
+#Preview("Traço · velho com Destaque AX5", traits: .fixedLayout(width: 170, height: 170)) {
+    TracoWidgetView(entrada: Amostra.velhoComDestaque)
+        .padding(16)
+        .environment(\.dynamicTypeSize, .accessibility5)
+}
+
+/// A11/M1: o médio vazio virou quadro de ofertas — e em AX5 ele continua
+/// tendo ação, que era exatamente o que sumia.
+#Preview("Traço · médio vazio AX5", traits: .fixedLayout(width: 364, height: 170)) {
+    TracoWidgetView(entrada: Amostra.vazio)
         .padding(16)
         .environment(\.dynamicTypeSize, .accessibility5)
 }
@@ -748,8 +1548,10 @@ private enum Amostra {
 #Preview("Próximo · pequeno", as: .systemSmall) {
     TracoProximoWidget()
 } timeline: {
+    Amostra.agendaCheia
     Amostra.comProximo
     Amostra.comSoneca
+    Amostra.vazioComDestaque
     Amostra.nadaMarcado
     Amostra.desatualizado
     Amostra.semDados
@@ -758,8 +1560,10 @@ private enum Amostra {
 #Preview("Próximo · médio", as: .systemMedium) {
     TracoProximoWidget()
 } timeline: {
+    Amostra.agendaCheia
     Amostra.comProximo
     Amostra.comSoneca
+    Amostra.vazioComDestaque
     Amostra.nadaMarcado
     Amostra.desatualizado
     Amostra.semDados
@@ -775,7 +1579,21 @@ private enum Amostra {
 }
 
 #Preview("Próximo · AX5", traits: .fixedLayout(width: 170, height: 170)) {
-    ProximoWidgetView(entrada: Amostra.comProximo)
+    ProximoWidgetView(entrada: Amostra.agendaCheia)
+        .padding(16)
+        .environment(\.dynamicTypeSize, .accessibility5)
+}
+
+/// A7: a oferta que saía "Marcar um compro…" e o estado que saía "desatua…",
+/// nos dois lugares onde eles cortavam.
+#Preview("Próximo · vazio AX5", traits: .fixedLayout(width: 170, height: 170)) {
+    ProximoWidgetView(entrada: Amostra.nadaMarcado)
+        .padding(16)
+        .environment(\.dynamicTypeSize, .accessibility5)
+}
+
+#Preview("Próximo · velho AX5", traits: .fixedLayout(width: 170, height: 170)) {
+    ProximoWidgetView(entrada: Amostra.desatualizado)
         .padding(16)
         .environment(\.dynamicTypeSize, .accessibility5)
 }

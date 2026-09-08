@@ -84,6 +84,10 @@ targets:
     platform: iOS
     sources:
       - path: TracoTests
+      # ADR 06d: a linha do tempo do widget (entradas do dia e política de
+      # volta) é lógica pura e tem teste — o `.never` que congelou os widgets
+      # no iPhone do dono não se via em nenhuma suíte.
+      - path: TracoWidget/Relogio.swift
     dependencies:
       - target: Traco
     settings:

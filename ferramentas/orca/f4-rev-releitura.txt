@@ -1,0 +1,56 @@
+# Prova independente do revisor — a linha do tempo agenda releitura (F4, item 1)
+# iPhone 17 Pro (teste 3) 34CC3F94-FDB5-4575-A4F5-80271829A18B, 06/09/2026
+# Recorte das linhas decisivas do chronod. 17:51:20 = 14:51:20 + 3h = Relogio.releitura.
+
+2026-09-06 14:42:18.370 Df chronod[23703:e06c5d] [com.apple.chrono:snapshot.store] Task [4] [app.traco::app.traco.widget:TracoWidget] Follow-on reload from completion needed: [[stale-immediate-free-1]]
+2026-09-06 14:42:18.377 Df chronod[23703:e06c5d] [com.apple.chrono:snapshot.store] Task [5] [app.traco::app.traco.widget:TracoWidget] Scheduled with cancellable token: [<TaskService.TaskCancellable: TaskID: AA3C65DF>]
+2026-09-06 14:42:18.391 Df chronod[23703:e06c4a] [com.apple.chrono:snapshot.store] Task [6] [app.traco::app.traco.widget:TracoWidget] Follow-on reload from completion needed: [[stale-immediate-free-1]]
+2026-09-06 14:42:18.396 Df chronod[23703:e06c4a] [com.apple.chrono:snapshot.store] Task [7] [app.traco::app.traco.widget:TracoWidget] Scheduled with cancellable token: [<TaskService.TaskCancellable: TaskID: 6E331700>]
+2026-09-06 14:42:18.410 Df chronod[23703:e078ba] [com.apple.chrono:snapshot.store] Task [8] [app.traco::app.traco.widget:TracoProximo] Follow-on reload from completion needed: [[stale-immediate-free-1]]
+2026-09-06 14:42:18.417 Df chronod[23703:e078ba] [com.apple.chrono:snapshot.store] Task [9] [app.traco::app.traco.widget:TracoProximo] Scheduled with cancellable token: [<TaskService.TaskCancellable: TaskID: D7179502>]
+2026-09-06 14:44:07.168 Df chronod[23703:e0f17c] [com.apple.chrono:snapshot.store] Task [13] [app.traco::app.traco.widget:TracoProximo] Follow-on reload from completion needed: [[stale-immediate-free-1]]
+2026-09-06 14:44:07.176 Df chronod[23703:e0f17c] [com.apple.chrono:snapshot.store] Task [14] [app.traco::app.traco.widget:TracoProximo] Scheduled with cancellable token: [<TaskService.TaskCancellable: TaskID: 19B50D84>]
+2026-09-06 14:44:44.072 Df chronod[23703:e1075c] [com.apple.chrono:snapshot.store] Task [15] [app.traco::app.traco.widget:TracoWidget] Follow-on reload from completion needed: [[stale-immediate-free-1]]
+2026-09-06 14:44:44.075 Df chronod[23703:e1075c] [com.apple.chrono:snapshot.store] Task [16] [app.traco::app.traco.widget:TracoWidget] Scheduled with cancellable token: [<TaskService.TaskCancellable: TaskID: 21F18316>]
+2026-09-06 14:44:44.093 Df chronod[23703:e0f17c] [com.apple.chrono:snapshot.store] Task [17] [app.traco::app.traco.widget:TracoWidget] Follow-on reload from completion needed: [[stale-immediate-free-1]]
+2026-09-06 14:44:44.097 Df chronod[23703:e0f17c] [com.apple.chrono:snapshot.store] Task [18] [app.traco::app.traco.widget:TracoWidget] Scheduled with cancellable token: [<TaskService.TaskCancellable: TaskID: A0196F86>]
+2026-09-06 14:48:06.631 Df chronod[23703:e1b443] [com.apple.chrono:snapshot.store] Task [20] [app.traco::app.traco.widget:TracoProximo] Follow-on reload from completion needed: [[stale-immediate-free-1]]
+2026-09-06 14:48:06.636 Df chronod[23703:e1b443] [com.apple.chrono:snapshot.store] Task [21] [app.traco::app.traco.widget:TracoProximo] Scheduled with cancellable token: [<TaskService.TaskCancellable: TaskID: 520318C5>]
+2026-09-06 14:50:58.083 Df chronod[23703:e240aa] [com.apple.chrono:timeline.store] Task [87] [app.traco::app.traco.widget:TracoWidget] Scheduled with cancellable token: [<TaskService.TaskCancellable: TaskID: F99D96DC>]
+2026-09-06 14:50:58.087 Df chronod[23703:e240ab] [com.apple.chrono:timeline.store] Task [88] [app.traco::app.traco.widget:TracoProximo] Scheduled with cancellable token: [<TaskService.TaskCancellable: TaskID: F38ACC92>]
+2026-09-06 14:50:58.091 Df chronod[23703:e240ab] [com.apple.chrono:timeline.store] Task [89] [app.traco::app.traco.widget:TracoProximo] Scheduled with cancellable token: [<TaskService.TaskCancellable: TaskID: 3A46C763>]
+2026-09-06 14:50:58.101 Df chronod[23703:e240ab] [com.apple.chrono:timeline.store] Task [92] [app.traco::app.traco.widget:TracoWidget] Scheduled with cancellable token: [<TaskService.TaskCancellable: TaskID: F68ECE37>]
+2026-09-06 14:50:58.322 Df chronod[23703:e240ca] [com.apple.chrono:activity.store] Task [4] [app.traco::app.traco.widget:Attributes type: CompromissoAtividade:6384CA01-AC40-4ED6-B821-5C7E0F1A5965] Scheduled with cancellable token: [<TaskService.TaskCancellable: TaskID: BB06F7C1>]
+2026-09-06 14:50:58.330 Df chronod[23703:e240ca] [com.apple.chrono:activity.store] Task [5] [app.traco::app.traco.widget:Attributes type: DestaqueAtividade:21FECBB9-7484-473B-B00E-226899200049] Scheduled with cancellable token: [<TaskService.TaskCancellable: TaskID: 83184691>]
+2026-09-06 14:50:58.345 Df chronod[23703:e240cb] [com.apple.chrono:placeholder.store] Task [63] app.traco::app.traco.widget Scheduled with cancellable token: [<TaskService.TaskCancellable: TaskID: 957F4FDE>]
+2026-09-06 14:50:59.231 Df chronod[23703:e240aa] [com.apple.chrono:timeline.store] Task [106] [app.traco::app.traco.widget:TracoProximo] Scheduled with cancellable token: [<TaskService.TaskCancellable: TaskID: D6C24B70>]
+2026-09-06 14:50:59.369 Df chronod[23703:e22e92] [com.apple.chrono:timeline.store] Task [107] [app.traco::app.traco.widget:TracoWidget] Scheduled with cancellable token: [<TaskService.TaskCancellable: TaskID: AB03EB8F>]
+2026-09-06 14:50:59.434 Df chronod[23703:e240cd] [com.apple.chrono:timeline.store] Task [106] [app.traco::app.traco.widget:TracoProximo] Follow-on reload from completion needed: [[timelineExhausted-2026-09-06T17:50:59-03:00-budgeted-1]]
+2026-09-06 14:50:59.434 Df chronod[23703:e240cd] [com.apple.chrono:timeline.store] Task [109] [app.traco::app.traco.widget:TracoProximo] Scheduling reload with configuration: [timelineExhausted-2026-09-06T17:50:59-03:00-budgeted-1]
+2026-09-06 14:50:59.438 Df chronod[23703:e240cd] [com.apple.chrono:timeline.store] Task [109] [app.traco::app.traco.widget:TracoProximo] Scheduled with cancellable token: [<TaskService.TaskCancellable: TaskID: ED2FC3D5>]
+2026-09-06 14:50:59.554 Df chronod[23703:e240ad] [com.apple.chrono:timeline.store] Task [107] [app.traco::app.traco.widget:TracoWidget] Follow-on reload from completion needed: [[timelineExhausted-2026-09-06T17:50:59-03:00-budgeted-1]]
+2026-09-06 14:50:59.555 Df chronod[23703:e240ad] [com.apple.chrono:timeline.store] Task [110] [app.traco::app.traco.widget:TracoWidget] Scheduling reload with configuration: [timelineExhausted-2026-09-06T17:50:59-03:00-budgeted-1]
+2026-09-06 14:50:59.560 Df chronod[23703:e240ad] [com.apple.chrono:timeline.store] Task [110] [app.traco::app.traco.widget:TracoWidget] Scheduled with cancellable token: [<TaskService.TaskCancellable: TaskID: 12BF9748>]
+2026-09-06 14:51:20.111 Df chronod[23703:e25da2] [com.apple.chrono:timeline.store] Task [117] [app.traco::app.traco.widget:TracoWidget] Scheduled with cancellable token: [<TaskService.TaskCancellable: TaskID: FAB5F69A>]
+2026-09-06 14:51:20.117 Df chronod[23703:e25e2d] [com.apple.chrono:timeline.store] Task [118] [app.traco::app.traco.widget:TracoProximo] Scheduled with cancellable token: [<TaskService.TaskCancellable: TaskID: C06B1F63>]
+2026-09-06 14:51:20.315 Df chronod[23703:e25e2d] [com.apple.chrono:activity.store] Task [6] [app.traco::app.traco.widget:Attributes type: CompromissoAtividade:6384CA01-AC40-4ED6-B821-5C7E0F1A5965] Scheduled with cancellable token: [<TaskService.TaskCancellable: TaskID: 20B04C74>]
+2026-09-06 14:51:20.321 Df chronod[23703:e25e2d] [com.apple.chrono:activity.store] Task [7] [app.traco::app.traco.widget:Attributes type: DestaqueAtividade:21FECBB9-7484-473B-B00E-226899200049] Scheduled with cancellable token: [<TaskService.TaskCancellable: TaskID: 41275526>]
+2026-09-06 14:51:20.363 Df chronod[23703:e25e2d] [com.apple.chrono:placeholder.store] Task [68] app.traco::app.traco.widget Scheduled with cancellable token: [<TaskService.TaskCancellable: TaskID: 47D0E8D4>]
+2026-09-06 14:51:20.375 Df chronod[23703:e25e30] [com.apple.chrono:timeline.store] Task [123] [app.traco::app.traco.widget:TracoWidget] Scheduled with cancellable token: [<TaskService.TaskCancellable: TaskID: D78AFE6F>]
+2026-09-06 14:51:20.380 Df chronod[23703:e25e5c] [com.apple.chrono:timeline.store] Task [124] [app.traco::app.traco.widget:TracoProximo] Scheduled with cancellable token: [<TaskService.TaskCancellable: TaskID: 8C3FAF05>]
+2026-09-06 14:51:20.808 Df chronod[23703:e25e5c] [com.apple.chrono:timeline.store] Task [123] [app.traco::app.traco.widget:TracoWidget] Follow-on reload from completion needed: [[timelineExhausted-2026-09-06T17:51:20-03:00-budgeted-1]]
+2026-09-06 14:51:20.808 Df chronod[23703:e25e5c] [com.apple.chrono:timeline.store] Task [134] [app.traco::app.traco.widget:TracoWidget] Scheduling reload with configuration: [timelineExhausted-2026-09-06T17:51:20-03:00-budgeted-1]
+2026-09-06 14:51:20.812 Df chronod[23703:e25e5c] [com.apple.chrono:timeline.store] Task [134] [app.traco::app.traco.widget:TracoWidget] Scheduled with cancellable token: [<TaskService.TaskCancellable: TaskID: C250E9F5>]
+2026-09-06 14:51:20.893 Df chronod[23703:e25e5c] [com.apple.chrono:timeline.store] Task [124] [app.traco::app.traco.widget:TracoProximo] Follow-on reload from completion needed: [[timelineExhausted-2026-09-06T17:51:20-03:00-budgeted-1]]
+2026-09-06 14:51:20.894 Df chronod[23703:e25e5c] [com.apple.chrono:timeline.store] Task [135] [app.traco::app.traco.widget:TracoProximo] Scheduling reload with configuration: [timelineExhausted-2026-09-06T17:51:20-03:00-budgeted-1]
+2026-09-06 14:51:20.898 Df chronod[23703:e25e5c] [com.apple.chrono:timeline.store] Task [135] [app.traco::app.traco.widget:TracoProximo] Scheduled with cancellable token: [<TaskService.TaskCancellable: TaskID: BBC9C4CC>]
+
+# --- tamanho da linha do tempo publicada (entradas por familia) ---
+app.traco::app.traco.widget:TracoProximo:systemMedium::349.67/164.33/27.94:(null)~(null)]	entry count: 10	date range: 2026-09-06 17:38:37 +0000 to 2026-09-07 03:00:00 +0000
+app.traco::app.traco.widget:TracoProximo:systemMedium::349.67/164.33/27.94:(null)~(null)]	entry count: 10	date range: 2026-09-06 17:50:58 +0000 to 2026-09-07 03:00:00 +0000
+app.traco::app.traco.widget:TracoProximo:systemMedium::349.67/164.33/27.94:(null)~(null)]	entry count: 10	date range: 2026-09-06 17:50:59 +0000 to 2026-09-07 03:00:00 +0000
+app.traco::app.traco.widget:TracoProximo:systemMedium::349.67/164.33/27.94:(null)~(null)]	entry count: 10	date range: 2026-09-06 17:51:20 +0000 to 2026-09-07 03:00:00 +0000
+app.traco::app.traco.widget:TracoProximo:systemSmall::164.33/164.33/27.94:(null)~(null)]	entry count: 10	date range: 2026-09-06 17:38:37 +0000 to 2026-09-07 03:00:00 +0000
+app.traco::app.traco.widget:TracoProximo:systemSmall::164.33/164.33/27.94:(null)~(null)]	entry count: 10	date range: 2026-09-06 17:50:58 +0000 to 2026-09-07 03:00:00 +0000
+app.traco::app.traco.widget:TracoProximo:systemSmall::164.33/164.33/27.94:(null)~(null)]	entry count: 10	date range: 2026-09-06 17:50:59 +0000 to 2026-09-07 03:00:00 +0000
+app.traco::app.traco.widget:TracoProximo:systemSmall::164.33/164.33/27.94:(null)~(null)]	entry count: 10	date range: 2026-09-06 17:51:20 +0000 to 2026-09-07 03:00:00 +0000

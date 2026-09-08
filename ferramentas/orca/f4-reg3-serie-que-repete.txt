@@ -1,0 +1,16 @@
+# Re-G3 — o sino de um compromisso que REPETE (pergunta do orquestrador)
+# iPhone 17 Pro (teste 3) 34CC3F94, 06/09/2026 18:14. Prova pelo conteudo do App Group,
+# nao pelo maestro (ESTEIRA, 'o maestro nao isola').
+
+## Semeado em calendario.json (serie semanal, cabeca 3 domingos atras):
+  {"titulo":"Padel de domingo","inicio":"2026-08-16T21:00:00-03:00","repeteEm":[1],"avisoMinutos":60}
+
+## Publicado pelo app em superficie.json:
+   Revisão com o time     inicio 06/09 18:30 | aviso 06/09 18:15
+   Padel de domingo       inicio 06/09 21:00 | aviso 06/09 20:00
+   Padel de domingo       inicio 13/09 21:00 | aviso 13/09 20:00
+
+## Veredito
+Cada OCORRENCIA carrega o proprio aviso (06/09 20:00 e 13/09 20:00), nunca a data da
+cabeca da serie (16/08). Calendario.ocorrencias expande por movido(paraODiaDe:) ANTES de
+Aviso.instante, entao o mal da volta 18 nao existe neste caminho.

@@ -789,18 +789,33 @@ final class Sessao {
             let evento = EventoCalendario(titulo: c.titulo + String(frase.prefix(80)), inicio: inicio,
                                           fim: inicio.addingTimeInterval(1800),
                                           notas: origemTitulo.isEmpty ? "" : "[[\(origemTitulo)]]")
-            if let agenda {
-                agenda.guardar(evento)
-            } else if case .eventos(var lista) = CalendarioDisco.carregar() {
-                lista.append(evento)
-                try? CalendarioDisco.gravar(lista)
-            } else {
-                try? CalendarioDisco.gravar([evento])
-            }
+            // ADR 06d: onde o dado que o widget mostra muda, o widget é
+            // recarregado. `agenda.guardar` já republica E agenda o alarme;
+            // sem agenda em cena (encadeamento a partir da página) o
+            // compromisso ia ao disco, o widget desenhava o sino e o toast
+            // dizia "com aviso" — sem NINGUÉM ter agendado nada (revisão G3,
+            // A2). Aqui a superfície sai MUDA e a promessa só é feita depois
+            // que o iOS aceitou.
             let f = DateFormatter()
             f.locale = Locale(identifier: "pt_BR")
             f.dateFormat = "EEEE d, HH:mm"
-            mostrarToast("marcado para \(f.string(from: inicio)) · com aviso")
+            let marcado = "marcado para \(f.string(from: inicio))"
+            if let agenda {
+                agenda.guardar(evento)
+                mostrarToast(marcado)
+            } else {
+                var lista: [EventoCalendario]
+                if case .eventos(let atual) = CalendarioDisco.carregar() {
+                    lista = atual
+                    lista.append(evento)
+                } else {
+                    lista = [evento]
+                }
+                try? CalendarioDisco.gravar(lista)
+                ProximoCompromisso.publicar(lista, cal: cal, mudo: evento.id)
+                mostrarToast(marcado)
+                agendarEContar(evento, em: lista, cal: cal, marcado: marcado)
+            }
             Toque.suave()
             return
         }
@@ -822,6 +837,32 @@ final class Sessao {
         irPara(.escrever, no: context)
         mostrarToast("\(destino.nome) aberta com as suas palavras" + (origemTitulo.isEmpty ? "" : " · ligada a “\(VozDoAutor.truncar(origemTitulo, 28))”"))
         Toque.suave()
+    }
+
+    /// ADR 06d (revisão G3, A2): pede o alarme de verdade e conta o que
+    /// aconteceu. A superfície só ganha o sino quando o iOS aceitou; a frase
+    /// que fica na tela é a que o sistema respondeu, nunca "com aviso" por
+    /// otimismo. Mesma ordem de `CalendarioAgenda.avisar` — a unificação dos
+    /// dois num tipo só (`PromessaDoAviso`) é a volta seguinte.
+    private func agendarEContar(_ e: EventoCalendario, em lista: [EventoCalendario],
+                                cal: Calendar, marcado: String) {
+        Task { [weak self] in
+            let r = await Revisoes.agendarCompromisso(e, cal: cal)
+            ProximoCompromisso.publicar(lista, cal: cal, mudo: r.vaiTocar ? nil : e.id)
+            guard let self else { return }
+            switch r {
+            case .agendado(let quando):
+                mostrarToast("\(marcado) · o aviso toca às \(Superficie.horaCurta(quando))")
+            case .semPermissao:
+                mostrarToast("\(marcado) — mas os avisos do Traço estão desligados no iPhone.")
+            case .semEspaco:
+                mostrarToast("\(marcado). o iPhone já tem \(Avisos.teto) avisos; este ficou sem.")
+            case .passou:
+                mostrarToast("\(marcado). a hora do aviso já passou, então não vai tocar.")
+            case .semAviso:
+                break // o "marcado para …" já em cena é a verdade inteira
+            }
+        }
     }
 
     /// Os encadeamentos da forma aberta que já podem acender (ADR 04k).

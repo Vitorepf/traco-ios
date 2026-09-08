@@ -160,6 +160,15 @@ struct RaizView: View {
             // o Traço dorme, então quem republica o próximo é o voltar à cena —
             // sem isto, o widget e a Ilha mostravam o de ontem.
             agenda.publicarProximo()
+            // ADR 06d (revisão G3, A2): a permissão dos avisos muda FORA do
+            // app, nos Ajustes. Quem volta à cena relê o estado e republica —
+            // sem isto o sino prometido ficava desenhado na casa até alguém
+            // marcar outra coisa. A publicação acima não espera (diálogo de
+            // permissão já travou a superfície uma vez); esta corrige depois.
+            Task {
+                _ = await Avisos.estado()
+                agenda.publicarProximo()
+            }
             // ADR 05u: o reload pedido na escrita pode ter sido recusado em
             // rajada e a API não conta; a volta à cena repete, fora da rajada,
             // o que ainda não foi confirmado ("abra o Traço" tem de se cumprir)

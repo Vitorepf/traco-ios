@@ -655,12 +655,35 @@ enum Avisos {
     /// ninguém. Um app que promete cobrar tem de saber quanto já prometeu.
     nonisolated static let teto = 64
 
+    /// ADR 2026-09-06d (revisão G3, A2) — o ESPELHO da permissão, legível
+    /// sem `await`.
+    ///
+    /// A publicação da superfície é síncrona de propósito: esperar o diálogo
+    /// de permissão já deixou a tela bloqueada sem "próximo" nenhum (04/set).
+    /// Mas sem saber da permissão ela desenhava sino para alarme que o iOS
+    /// nunca ia tocar — a mentira da ADR 04a, do outro lado. `mudo:` só
+    /// silenciava UM evento; revogação global não silenciava nada.
+    ///
+    /// Este é o mínimo honesto: `estado()` é o único ponto que pergunta ao
+    /// iOS, e ele grava a resposta no App Group. Quem publica lê aqui, sem
+    /// esperar. A volta 18 unifica isto em `PromessaDoAviso`.
+    nonisolated static let chaveEspelho = "avisosPermitidos"
+
+    /// Só `.concedido` promete. Nunca perguntado e negado não prometem —
+    /// nos dois casos não existe alarme para o sino representar.
+    nonisolated static var permitidosNoUltimoOlhar: Bool {
+        SuperficieDisco.defaults.bool(forKey: chaveEspelho)
+    }
+
     static func estado() async -> Estado {
-        switch await UNUserNotificationCenter.current().notificationSettings().authorizationStatus {
+        let e: Estado = switch await UNUserNotificationCenter.current()
+            .notificationSettings().authorizationStatus {
         case .notDetermined: .naoPerguntado
         case .authorized, .provisional, .ephemeral: .concedido
         default: .negado
         }
+        SuperficieDisco.defaults.set(e == .concedido, forKey: chaveEspelho)
+        return e
     }
 
     /// Pede UMA vez, no instante em que o autor marca alguma coisa — nunca no
