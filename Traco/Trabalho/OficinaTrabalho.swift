@@ -493,10 +493,13 @@ enum MotorTrabalho {
         var secoes: [String] = []
         let retorno = d.contextoDeRetorno
         if !retorno.isEmpty { secoes.append("RETORNO ATRIBUÍDO (não aplicar a outra versão sem examinar):\n\(retorno)") }
+        // ADR 08m: os três eixos, um a um. O rótulo da seção já dizia que
+        // execução não prova resultado; agora o resultado tem onde ser lido, e
+        // "não observado" é dito em vez de deduzido do estado da ação.
         let acoes = d.acoes.reversed().map {
-            "\($0.texto) · \($0.estado.rawValue) · responsável: \($0.responsavel.rawValue) · horário: \($0.agendadaEm?.ISO8601Format() ?? "sem horário") · versão: \($0.artefatoID?.uuidString ?? "sem artefato")"
+            "\($0.texto) · \($0.estado.rawValue) · resultado informado pela pessoa: \(d.observacao(de: $0.id)?.resultado?.rotulo ?? "não observado") · responsável: \($0.responsavel.rawValue) · horário: \($0.agendadaEm?.ISO8601Format() ?? "sem horário") · versão: \($0.artefatoID?.uuidString ?? "sem artefato")"
         }.joined(separator: "\n")
-        if !acoes.isEmpty { secoes.append("AÇÕES REGISTRADAS (horário passado não prova execução; execução não prova resultado):\n\(acoes)") }
+        if !acoes.isEmpty { secoes.append("AÇÕES REGISTRADAS (horário passado não prova execução; execução não prova resultado; resultado é observação da pessoa, não medição):\n\(acoes)") }
         let anteriores = d.instrucoesAnteriores(ao: p).joined(separator: "\n\n")
         if !anteriores.isEmpty { secoes.append("PEDIDOS ANTERIORES (preserve restrições ainda aplicáveis; o pedido vigente prevalece):\n\(anteriores)") }
         if let versao = d.versaoAtual, !versao.conteudo.isEmpty {

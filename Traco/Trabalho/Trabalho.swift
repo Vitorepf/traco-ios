@@ -37,6 +37,24 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
     enum Origem: String, Codable { case pessoa, ia, mista, externa }
     enum FormatoArtefato: String, Codable { case markdown, html }
     enum EstadoAcao: String, Codable { case pendente, executada, cancelada }
+    /// ADR 08m: o que a PESSOA viu acontecer. Não é nota, pontuação nem juízo
+    /// do app sobre ela: é o relato dela, com três formas de primeira classe —
+    /// a ferramenta que só aceita sucesso mente por omissão. Eixo separado de
+    /// `EstadoAcao` de propósito: executar é ato, observar é resultado, e um
+    /// existe sem o outro (ação feita sem resultado observado, e resultado
+    /// observado de ação que ninguém marcou como feita).
+    enum ResultadoObservado: String, Codable, CaseIterable {
+        case funcionou, parcial, naoFuncionou
+        /// O mesmo texto na tela e no pedido à IA: duas redações do mesmo
+        /// estado seriam duas verdades sobre o que a pessoa disse.
+        var rotulo: String {
+            switch self {
+            case .funcionou: "Funcionou"
+            case .parcial: "Funcionou em parte"
+            case .naoFuncionou: "Não funcionou"
+            }
+        }
+    }
     /// ADR 05r: `tentativa` é a resposta do autor a um exercício. Nasce aqui e
     /// não no disco antigo — nenhum registro anterior vira tentativa por
     /// releitura. Continua sendo evidência de uma AÇÃO, nunca versão.
@@ -51,7 +69,12 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
     enum EstadoPedido: String, Codable { case preparando, interrompido, falhou, cancelado, pronto, praticaIndisponivel, ajusteIndisponivel }
     /// ADR 08j: por que esta versão foi pedida. Lista FECHADA — o app não
     /// inventa um terceiro motivo para reescrever o exercício de alguém.
-    enum GatilhoDoAjuste: String, Codable { case pedidoDoAutor, necessidadePercebida }
+    /// ADR 08m acrescenta `resultadoInformado`, e o acréscimo não fura a
+    /// regra: o motivo não é inventado pelo app, é o resultado que a PESSOA
+    /// informou. Sem ele, a única causa registrável de uma revisão nascida de
+    /// relato seria "a pessoa pediu" — verdade pela metade, que apaga o que
+    /// ela observou.
+    enum GatilhoDoAjuste: String, Codable { case pedidoDoAutor, necessidadePercebida, resultadoInformado }
     enum FonteCriterio: String, Codable { case intencao, resultado, instrucao }
     enum SituacaoCriterio: String, Codable, CaseIterable { case atendidoNoEscopo, divergencia, inconclusivo, naoAvaliado }
     enum EstadoConferencia: String, Codable { case concluida, indisponivel }
@@ -188,6 +211,11 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
         var artefatoID: UUID?
         var referencia: String?
         var tentativa: Tentativa?
+        /// ADR 08m: o resultado que a pessoa informou neste relato. `nil` =
+        /// NÃO OBSERVADO, e é o que todo registro anterior a este contrato
+        /// vale — nunca "deu certo por omissão". Nenhum estado velho vira
+        /// resultado por releitura (a mesma regra da 05r para a tentativa).
+        var resultado: ResultadoObservado?
     }
     struct Hipotese: Codable, Sendable, Equatable, Identifiable {
         var id = UUID()
@@ -273,6 +301,15 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
     var dificuldadeVigente: Hipotese? { hipoteses.last { $0.estado != .contestada } }
     /// A última tentativa guardada. As anteriores continuam na lista.
     var tentativaAtual: Evidencia? { evidencias.last { $0.tentativa != nil } }
+    /// ADR 08m: o último resultado que a pessoa informou para esta ação.
+    /// `nil` = ela ainda não informou nenhum — e isso NÃO se lê no estado da
+    /// ação: marcar "realizei" continua sendo o ato, não o resultado.
+    func observacao(de acaoID: UUID) -> Evidencia? {
+        evidencias.last { $0.acaoID == acaoID && $0.resultado != nil }
+    }
+    /// O último resultado informado no Trabalho inteiro — o que a revisão
+    /// seguinte tem para orientar-se. `nil` = nada observado ainda.
+    var ultimaObservacao: Evidencia? { evidencias.last { $0.resultado != nil } }
 
     /// O mesmo orçamento para entrega e exercício; o núcleo nunca é cortado.
     static func montarContexto(cabeca: String, secoes: [String], final: String, teto: Int) -> String {
@@ -298,7 +335,9 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
         return evidencias.reversed().map { e in
             let acao = atos[e.acaoID]
             var linhas = ["[\(e.tipo.rawValue), \(e.atribuidaA), \(e.data.ISO8601Format()), ação \(e.acaoID), versão \(e.artefatoID?.uuidString ?? "sem artefato")] \(e.texto)",
-                "Ação: \(acao?.texto ?? "referência ausente") · estado registrado: \(acao?.estado.rawValue ?? "desconhecido") · material: \(e.artefatoID?.uuidString ?? "sem artefato")"]
+                // ADR 08m: os três eixos na mesma linha e separados. Marcar
+                // executada não é resultado; resultado ausente é NÃO OBSERVADO.
+                "Ação: \(acao?.texto ?? "referência ausente") · estado registrado: \(acao?.estado.rawValue ?? "desconhecido") · resultado informado pela pessoa: \(e.resultado?.rotulo ?? "não observado") · material: \(e.artefatoID?.uuidString ?? "sem artefato")"]
             if let tentativa = e.tentativa {
                 let pratica = e.artefatoID.flatMap { materiais[$0]?.pratica }
                 if let pratica { linhas.append("Exercício dessa tentativa: \(pratica.enunciado)") }
@@ -537,15 +576,33 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
         // ação sem horário não tem aviso; fora da lista fechada não entra
         acoes[i].avisoMinutos = data == nil ? nil : (Aviso.opcoes.contains(aviso) ? aviso : 0)
     }
-    mutating func registrarRelato(_ texto: String, acaoID: UUID) throws {
+    /// ADR 08m: `resultado` é o que a pessoa VIU acontecer, e é opcional —
+    /// contar o que houve sem classificar continua valendo. Registrar um
+    /// resultado não marca a ação como executada, e marcar executada não
+    /// informa resultado: são dois eixos e a tela mostra os dois.
+    @discardableResult
+    mutating func registrarRelato(_ texto: String, acaoID: UUID,
+                                  resultado: ResultadoObservado? = nil) throws -> Evidencia {
         guard !texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw Erro.vazio }
         guard let i = acoes.firstIndex(where: { $0.id == acaoID }) else { throw Erro.referencia }
-        evidencias.append(.init(texto: texto, atribuidaA: "Você", acaoID: acaoID, artefatoID: acoes[i].artefatoID))
+        let e = Evidencia(texto: texto, atribuidaA: "Você", acaoID: acaoID,
+                          artefatoID: acoes[i].artefatoID, resultado: resultado)
+        evidencias.append(e)
+        return e
     }
     mutating func marcarExecutada(_ acaoID: UUID) throws {
         guard let i = acoes.firstIndex(where: { $0.id == acaoID }) else { throw Erro.referencia }
         acoes[i].estado = .executada
         acoes[i].executadaEm = .now
+    }
+    /// ADR 08m: `cancelada` existia no contrato e não tinha gesto — estado que
+    /// só os testes alcançavam. Só o que está pendente se cancela: o que a
+    /// pessoa marcou como realizado aconteceu, e desfazer isso seria apagar um
+    /// ato. O horário fica no registro; a agenda e o aviso já leem `pendente`.
+    mutating func cancelarAcao(_ acaoID: UUID) throws {
+        guard let i = acoes.firstIndex(where: { $0.id == acaoID }), acoes[i].estado == .pendente
+        else { throw Erro.referencia }
+        acoes[i].estado = .cancelada
     }
     /// Só a pessoa avalia, e "faz sentido neste contexto" é concordância
     /// contextual — nunca certificação do app nem declaração de aprendizagem.
@@ -565,6 +622,16 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
     func validarAjuste(_ p: Pedido) throws {
         guard let aj = p.ajuste else { return }
         guard !aj.motivo.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw Erro.vazio }
+        // ADR 08m: "você informou" tem de apontar o relato em que ela informou,
+        // e esse relato tem de trazer um resultado. Sem isso o app estaria
+        // dizendo que observou o que ninguém escreveu. Não há leitura de
+        // tentativa aqui, e por isso não há critério a citar.
+        if aj.gatilho == .resultadoInformado {
+            guard let id = aj.evidenciaID, aj.conferenciaID == nil, aj.criterioIDs.isEmpty,
+                  evidencias.contains(where: { $0.id == id && $0.resultado != nil })
+            else { throw Erro.referencia }
+            return
+        }
         if aj.gatilho == .necessidadePercebida {
             // ADR 08k: "percebi" sem critério apontado é o app afirmando uma
             // observação que não tem onde ler.
@@ -636,6 +703,10 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
         for a in acoes where a.agendadaEm == nil && a.avisoMinutos != nil { throw Erro.referencia }
         for e in evidencias {
             guard let a = acoes.first(where: { $0.id == e.acaoID }), a.artefatoID == e.artefatoID else { throw Erro.referencia }
+            // ADR 08m: resultado observado é do RELATO de um ato no mundo. Numa
+            // tentativa, "funcionou" seria a resposta de um exercício se
+            // declarando certa — e quem lê a tentativa é a conferência.
+            guard e.resultado == nil || e.tipo == .relato else { throw Erro.referencia }
             guard let t = e.tentativa else { continue }
             guard e.tipo == .tentativa, t.origem == .pessoa,
                   t.anteriorID.map({ id in id != e.id && evidencias.contains { $0.id == id && $0.tentativa != nil } }) ?? true

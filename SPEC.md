@@ -5871,3 +5871,69 @@ pedido ativo é interrompido na abertura do documento. Ele está provado por tes
 (`editarDuranteAAdaptacaoNaoTrocaODocumentoDebaixoDaPessoa`) e por código, não por
 captura. A lacuna da jornada com provedor real continua exatamente como a 08j a
 declarou — é prova da frente Q.
+
+## ADR 2026-09-08m — O resultado da ação volta ao trabalho: agendado, feito e funcionou (volta E1)
+
+`EstadoAcao` tinha três casos e a auditoria de 07/09 achou os três **mortos**: não
+havia como dizer que uma ação foi **observada**, `cancelada` era **inalcançável**
+na tela, e o relato do que aconteceu **não mudava a orientação seguinte**. O
+contrato desta volta é o item 5 da fila do dono: *"o resultado informado muda a
+próxima orientação; agendado, feito e funcionou continuam distintos"*.
+
+**Observar é outro eixo, não um quarto estado.** `ResultadoObservado` —
+`funcionou`, `parcial`, `naoFuncionou` — mora no **relato**
+(`Evidencia.resultado`), não na ação. É de propósito: executar é ato, observar é
+resultado, e um existe sem o outro. A tela prova os dois: uma ação **pendente**
+com "Resultado que você informou: Não funcionou", e uma **executada** sem
+resultado nenhum. `observacao(de:)` devolve o último resultado informado para uma
+ação; `nil` é **não observado**, nunca "deu certo por omissão".
+
+**Fracasso e parcial são de primeira classe.** As três formas estão no mesmo
+trilho de cápsulas, com o mesmo peso — a ferramenta que só aceita sucesso mente
+por omissão, e o dono pediu explicitamente as tentativas parciais e os fracassos.
+Informar continua **opcional**: contar o que houve sem classificar é honesto, e a
+linha ao lado diz para onde isso vai ("sem ele, o relato fica como não observado —
+nunca como sucesso"). Nada aqui é nota, pontuação ou "aprendeu": "funcionou" é
+observação do autor, não certificação do app.
+
+**Migração: nenhum estado velho vira resultado por releitura.** Documento gravado
+antes deste contrato não tem a chave, decodifica `nil` e fica **não observado** —
+inclusive o relato de uma ação marcada como `executada`. É a mesma regra que a 05r
+fixou para a tentativa. E `resultado` só existe em relato: numa tentativa,
+"funcionou" seria a resposta de um exercício se declarando certa, e quem lê
+tentativa é a conferência (`validar()` recusa).
+
+**`cancelada` ganha gesto.** "Cancelar esta ação" no cartão, e só sobre o que está
+**pendente**: o que a pessoa marcou como realizado aconteceu, e desfazer isso
+apagaria um ato. A agenda e o aviso já liam `pendente`, então cancelar sai do
+calendário e cala o alarme pelas rotas que já existiam.
+
+**A orientação seguinte muda pelo resultado, e o documento diz por quê.** Reuso do
+mecanismo da 08j, e não um segundo: a causa é `Pedido.ajuste`, o vínculo é
+`Artefato.pedidoID`. `GatilhoDoAjuste` ganha `resultadoInformado` — e o acréscimo
+não fura a lista fechada, porque o motivo **não é inventado pelo app**: é o
+resultado que a pessoa informou, citado com o relato dela. `validarAjuste` exige
+que a evidência apontada exista e **traga um resultado**; `conferenciaID` e
+`criterioIDs` têm de estar vazios, porque aqui não há leitura de tentativa a
+citar. "Revisar com estes relatos" passa a escrever **três instruções diferentes**
+— preservar o que funcionou, trabalhar só o que faltou, propor um caminho
+diferente — e a tela diz de qual resultado a revisão vai partir, antes do toque.
+O contexto da IA passa a distinguir os três eixos na mesma linha: *estado
+registrado* · *resultado informado pela pessoa* (ou "não observado") · material.
+
+**O que ficou de fora, e por quê.** A entrega **delegada** não recebe o
+`nucleoDoAjuste` como núcleo obrigatório: ela tem duas janelas (remoto e aparelho)
+e nenhuma rota de `ajusteIndisponivel`, então exigir a causa inteira ali só
+produziria meia causa mandada calada. A causa chega ao pedido pela instrução (que
+não se corta) e pelo `contextoDeRetorno`; a explicação ao autor vem do documento,
+não do prompt. E "o que mudou" descrito pelo modelo continua exclusivo da prática,
+onde o contrato de saída tem a chave `mudanca`: resumir a diferença de uma entrega
+livre seria o app afirmando o que não observou. Fora da prática, a versão diz a
+**origem e o motivo** guardados — `causaDaVersao` no cartão da versão.
+
+**Limite de instrumento, declarado.** A versão nascida do relato **não se
+fotografa** neste aparelho: sem conta Grok o pedido nasce com a causa, é guardado
+e falha. A causa registrada foi conferida no `default.store` do App Group
+(`gatilho: resultadoInformado`, `evidenciaID` do relato de fracasso, motivo com a
+frase da pessoa) e a tela mostra a falha, não uma versão inventada. A jornada com
+provedor real continua sendo prova da frente Q.
