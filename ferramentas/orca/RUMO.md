@@ -2,6 +2,20 @@
 
 Mantido pelo orquestrador a cada fecho (ESTEIRA.md). Volta que não está aqui não abre. Ordem = valor para a visão (dois ciclos) ÷ esforço, com a regra da frente de front-end: auditoria → fundação → telas. Notas de tela no scorecard só existem depois da V9.
 
+## Em curso (08/09 de manhã — o laço retomado pelo vigia)
+
+Três voltas abertas ao mesmo tempo, cada uma no próprio worktree filho nascido de `main` (5065929), áreas de arquivo disjuntas, todas tirando dívida da limpeza de 07/09. Workers em Opus 5 (cotas às 10h20: janela 9%, semanal 11%, Fable semanal 6% — o Fable voltou no reset de domingo).
+
+| volta | dívida que fecha | área | simulador | estado |
+|---|---|---|---|---|
+| P1 | item 7 (o portão que impede `withAnimation` fora de `Tema`) + item 5 (A-6, quatro linhas de documento) + item 6 (M3, a `aplicabilidade` do exameDaNoite) | TracoTests, Metodos.json, Analise (sem Grok/AvaliacaoIA), SPEC | teste 4 `A1DF082C` | EM EDIÇÃO |
+| F4-F | item 2 (F4: o Destaque longo cortado pelo rodapé, o quadro de ofertas, tela bloqueada/StandBy/Ilha sem captura, o médio de uma linha) | TracoWidget, App/Intents | teste 3 `34CC3F94` | EM EDIÇÃO |
+| L2 | item 4 (L1: o G4 reprovado — Design 8, Simplicidade 7: teto de 12 meses, `Tema.miudo` dentro do app, frase-resumo em duas linhas, `quantas == 1`; falta escuro, B×AX5 e VoiceOver) | Traco/Perfil, Tema.swift | iPhone 17 Pro `C2416CBC` | EM EDIÇÃO |
+
+**Dois fatos do dia que mudam o mapa:**
+- **O simulador teste 2 `B91C8DEF` tem a conta Grok do dono conectada** (confirmada no Perfil em 08/09). É proibido a todo worker: `xcodebuild test` reinstala o app e apaga o contêiner. Cai a linha "nenhuma operação tem medição com Grok" — a base existe.
+- **Outra sessão (Codex) trabalha AGORA no checkout principal**: os "cinco itens" (`prova/cinco-itens*`), com raciocínio explícito nas operações de Trabalho e o modelo `grok-4.3` no lugar do alias aposentado, ADR 2026-09-08b escrita em `SPEC.md`. Está sem commit, o build da árvore passa sem aviso, e **não se toca**: quem fecha é aquela sessão. Dívida que já se vê: a jornada visual persistida, retorno → ajuste com provedor real e a revisão final continuam pendentes (`prova/cinco-itens.md`, seção "Limites e trabalho restante").
+
 ## Em curso (05/09 à noite, modo Fable máximo)
 
 | volta | tema | área | estado |
