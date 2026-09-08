@@ -117,3 +117,17 @@ O orquestrador mantém ferramentas/orca/RUMO.md: lista ordenada das próximas vo
 ## Frente de front-end
 
 Antes de multiplicar voltas visuais, uma volta de auditoria (design-router, fase de auditar antes de tocar) percorre as telas principais e dá nota base no scorecard para cada uma. Em seguida uma volta de fundação: tokens em Tema.swift, pasta Traco/Componentes com previews, biblioteca de movimento com curvas e durações nomeadas. Só depois as voltas por tela, cada uma subindo a nota da tela até 9 ou mais. Tela abaixo de 9 no RUMO tem prioridade sobre função nova de mesma lacuna.
+
+### Worker morto não é volta perdida (08/09)
+
+Dois despachos da A1 terminaram `failed`, terminal `exited`, **sem `worker_done`
+e sem saída capturada** — falharam calando. O que eles tinham feito continuava
+no worktree: quatro arquivos modificados, uma captura nova, as três correções do
+revisor escritas. Refazer a volta do zero teria jogado tudo fora.
+
+**Regra:** ao ver um despacho morto, a primeira coisa é `git status` e
+`git diff` no worktree dele — antes de decidir se a volta recomeça, continua ou
+fecha. O spec do sucessor diz onde o trabalho parado está e manda **ler o diff
+antes de qualquer coisa**, sem `stash` e sem refazer. E o sucessor **confere os
+números em vez de acreditar neles**: quem os mediu não está mais aqui para
+responder por eles.

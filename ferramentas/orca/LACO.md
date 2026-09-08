@@ -279,3 +279,60 @@ E a mesma volta confirmou, comando a comando, que **nunca usou Siri, `button`, d
 **Então a causa da voz continua desconhecida**, e é assim que fica registrado. O que resta em pé são as defesas, que não dependem de saber a causa: a proibição de voz em letras grandes no preâmbulo de todo spec, o caçador de fala rodando antes de cada espera do laço, e um simulador por worker com dono nomeado. **Nenhum processo de síntese apareceu desde as 19h45.**
 
 A tentação aqui seria fechar a investigação com a hipótese bonita que eu mesmo escrevi. Ela foi testada e não se sustentou; escrever "provavelmente era o Apple Intelligence" seria exatamente o tipo de conclusão sem evidência que este dia inteiro recusou nas medidas da IA.
+
+## 08/09, 20h — dois workers da A1 morreram calados; a volta não morreu com eles
+
+O `worker-read` dos dois despachos da A1 (`ctx_73f170be81ae`, A1-B, e
+`ctx_72fba36e5103`, A1-C) volta `status: failed`, terminal `exited`, **sem
+`worker_done` e sem saída capturada**. O inbox não tinha nada: eles não
+falharam contando, falharam calando.
+
+O que sobreviveu está no disco, e é bom: o worktree `volta-a1-arranque` tem o
+commit `8f2c671` mais **quatro arquivos modificados e não comitados** — a
+medida do `try!` reescrita para se reproduzir (o `grep` cru conta 10 hoje,
+porque a própria volta escreveu comentários que dizem `try!`; o comando com
+filtro dá 9 em `main` e 8 no candidato), o pior caso da frase do meio já
+fotografado (`a1-08-espelho-vazio.png`, 19h26, espelho sem nenhum `.md`) e a
+lacuna do VoiceOver escrita com a formulação certa: **não é pendência de
+instrumento, é ordem do dono**, e por lei da ESTEIRA não desconta nota.
+
+**Lição para a esteira:** worker morto não é volta perdida — a primeira coisa a
+fazer é `git status` e `git diff` no worktree dele, antes de decidir qualquer
+coisa. Refazer do zero teria jogado fora as três correções.
+
+Despachei a **A1-D** (`task_1506bf7b6420`, Opus 5): conferir os números em vez
+de acreditar neles, pôr a captura no relatório, build e suíte integral na árvore
+final no `6033B043`, e comitar. Nada de mérito novo — o G3 já passou nele.
+
+## 08/09, 20h — o terceiro re-G3 da Q: CORRIGIR ANTES, e as duas frases grandes demais
+
+O revisor de outro fornecedor (`gpt-5.6-terra`) confirmou o que a Q-E entregou —
+as letras `08q`/`08r` não colidem em nenhuma ref viva, a ADR 08p aponta o RUMO
+pelo nome sem prometer conserto, o aviso do build era **nosso** (`git blame` põe
+`PerfilView.swift:637` em `42c0c20`, desta volta, não da A1) e a suíte 918/149
+reproduz limpa — e reprovou duas afirmações:
+
+1. **A prova de escopo é falsa.** A Q-E disse que desfazer as letras devolve o
+   lado velho caractere por caractere e que o commit não trouxe nada além da
+   renumeração. Repetida a transformação sobre a árvore inteira, **sobram 8
+   hunks**, e `git show --stat` dá 16 arquivos, 223/56. As outras mudanças são
+   legítimas e pedidas; a **frase** é que é grande demais.
+2. **A varredura de privacidade não é o que o relato diz.** O teste filtra
+   `$0.count >= 5`, então palavra de 1 a 4 letras não tem asserção — "palavra a
+   palavra" é mais do que ele faz. O caminho certo é **estrutural**: o que
+   protege o autor é que `Recusa.redigida` não tem campo nenhum que carregue o
+   trecho.
+
+Isto é a mesma família dos sete instrumentos que disseram mais do que mostraram:
+desta vez o instrumento era **uma frase de prova**. Despachei a **Q-F**
+(`task_67876c84f1f0`, Opus 5) com as duas correções e nada mais; a foto do
+cartão CONTA segue lacuna declarada.
+
+## 08/09, 20h — três voltas, três simuladores, um dono cada
+
+Com os dois workers da A1 mortos, o **Pro Max `6033B043` ficou órfão ligado** e
+eu o desliguei. Ficam ligados apenas o `C2416CBC` (conta Grok do dono, que
+ninguém toca) e o `A1DF082C` (revisor da V13, vivo). A Q-F liga o `34CC3F94` e a
+A1-D religa o `6033B043` — **um por worker**, como o dono mandou. Caçador de
+fala rodado antes deste ciclo: **zero processos**.
+
