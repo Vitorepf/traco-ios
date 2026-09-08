@@ -427,3 +427,35 @@ bot, nada automático — e voz, VoiceOver e iPad proibidos como em toda parte.
 
 **As três frentes agora:** MAC-1 (nova), V13-B (as duas provas) e a Q (quarto
 re-G3). A A1 saiu por mescla.
+
+## 08/09, 21h — a pausa da cota, a retomada, e o observador que eu mesmo matava
+
+Pausa e retomada do laço registradas por ordem permanente do vigia: a janela de
+sessão do Claude voltou (uso 19%) e o laço seguiu sem perder volta — as três
+frentes continuaram vivas durante a janela.
+
+**E achei um erro meu de instrumento, do tipo que este dia inteiro vem
+colecionando.** `check --wait` é um **consumidor da caixa**: cada vez que eu
+rodava um `check` simples para responder ao aviso de mensagem, eu **derrubava o
+observador de fundo** — ele morria com `consumer_fenced` e saída vazia, e eu lia
+aquele silêncio como "nada chegou". Perdi dois assim. O `worker-start` seguinte
+chegou a falhar por o terminal coordenador ter perdido o vínculo com o Run
+(`run-use` reata).
+
+O conserto é apagar o instrumento, não consertá-lo: **o observador de fundo é
+dispensável**, porque o próprio ambiente avisa quando há mensagem. Um leitor de
+cada vez. Está na ESTEIRA, junto com a regra de ler o código de saída antes de
+concluir que o silêncio quer dizer alguma coisa.
+
+**Quarta frente aberta: F5b**, a trilha fora do app (`task_c556899450c1`, Fable
+5.1, Pro Max `6033B043`, ADR `08v`). Ela fecha os estados da Ilha do compromisso
+que **ninguém nunca viu**: a mínima — que a F4 deixou por fotografar dizendo que
+"exige outra atividade viva ao mesmo tempo", o que é estado a **plantar**, não
+impossibilidade —, o fim da atividade, e a compacta com duas atividades em AX5,
+onde a F4 registrou um "t" cortado. O StandBy fica declarado: não renderiza no
+simulador, e perseguir limite de instrumento não é trabalho.
+
+A volta também nasceu com o nome consertado: era F5, virou F6, e **F6 já era dos
+widgets da tela bloqueada** — colidia duas vezes. Fica **F5b**, e é a mesma
+lição das letras de ADR, aplicada a número de volta: o registro se lê, não se
+lembra.

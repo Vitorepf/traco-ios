@@ -163,3 +163,23 @@ normalize a letra nos dois lados do diff e mostre que os multiconjuntos de
 linhas removidas e adicionadas são **idênticos**. Se sobrar qualquer linha, a
 alegação "só a letra mudou" é falsa — e foi exatamente essa a falha que o re-G3
 da Q pegou.
+
+### Duas leituras da mesma caixa se derrubam (08/09)
+
+`orca orchestration check --wait` **é um consumidor da caixa**. Rodar um `check`
+simples enquanto um `--wait` está no ar **substitui** o consumidor: o que estava
+esperando morre com `consumer_fenced` ("this mailbox consumer was replaced while
+waiting"), e o `worker-start` seguinte ainda pode falhar por o terminal
+coordenador ter perdido o vínculo com o Run — conserta-se com `run-use` de novo.
+
+Perdi dois observadores assim antes de entender: eles saíam com código 1 e sem
+saída, e eu li o silêncio como "nada chegou".
+
+**Regra:** um leitor de cada vez. **O observador de fundo é dispensável** — o
+próprio ambiente avisa quando há mensagem ("You have N orchestration messages"),
+e aí um `check` simples basta. Se ainda assim quiser esperar em bloco, então
+**nenhum `check` avulso** até ele voltar.
+
+E a lição de leitura, que é a de sempre: **um comando que sai em silêncio não
+disse "nada aconteceu"** — pode ter sido derrubado. Olhe o código de saída e o
+erro antes de concluir.
