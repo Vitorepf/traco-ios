@@ -5349,6 +5349,23 @@ não os incrementos posteriores nem a semântica dos provedores. Validação
 remota aguarda conta Grok nesse simulador; não se presume acesso nem se copiam
 credenciais. O Perfil deixa explícita a dependência.
 
+## ADR 2026-09-08a — Retomada com ação e retorno compreensíveis
+
+Ajustar uma entrega ou um exercício deve levar ao executor o contexto da
+ação, seu estado atribuído, o material utilizado e os relatos pertinentes.
+Preparar prática também pode ler tentativas anteriores e feedback atribuído
+para adaptar o próximo exercício; isso não autoriza resolver a nova tentativa.
+Pedidos anteriores concluídos contextualizam restrições; o pedido vigente
+prevalece. Nenhum relato marca execução ou aprendizagem automaticamente.
+Histórico excedente tem omissão explícita; o núcleo do pedido não é truncado.
+Na interface, relatos identificam a ação e a versão; a retomada oferece acesso
+ao próximo ato e ao retorno sem exigir reconstruir o documento.
+
+Bootstrap e placement emulados: visão, SPEC, EVOLUCAO e código local; não há
+artisan nem o documento Atlas nesta árvore. Donos: Trabalho (domínio, contexto
+e interface), Analise/AvaliacaoIA (provas vivas), TracoTests (regressões).
+Esta decisão não certifica qualidade de provedor nem realização humana.
+
 ## ADR 2026-09-07b — Quem responde cada operação: a tabela, medida
 
 **A distância.** Não existia um lugar que decidisse provedor por operação. Eram cinco políticas soltas: a escada Grok → aparelho da sábia (`Sabia.chamarComProveniencia`), a escada própria do Trabalho com duas montagens (`MotorTrabalho.produzirEntrega`), três `contaLigada` (preparar exercício, conferir tentativa, revisar), os três degraus da classificação escritos na `Sessao`, e o domínio só de bordo. E o modelo do aparelho seguia em OITO rotas onde a medição de 07/09 (`prova/qualidade-ia-avaliacao-base.md`, `prova/qualidade-ia-q5-avaliacao-base.md`, provas 4 a 6) diz que ele não serve: produzir reprovado 3 de 3; conferir do Recordar confirmando 3 de 3 um ponto explicitamente contradito, e o veredito vira sinal gravado; ecos sem retorno 6 de 6; calibragem vazia 6 de 6 com o positivo perdido; Padrões 3 de 3 e 2 de 3; a pergunta do Recordar revelando a resposta. Em todas, a falha era SILÊNCIO na tela: o autor não distinguia "não há ecos" de "ninguém respondeu".

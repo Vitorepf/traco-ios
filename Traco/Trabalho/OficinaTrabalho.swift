@@ -86,7 +86,8 @@ final class OficinaTrabalho {
             // Editar o conteúdo não concede autorização para soltar a origem.
             guard proximo.notaOrigemID == documento.notaOrigemID else { throw DocumentoTrabalho.Erro.referencia }
             if proximo.apoio != documento.apoio || proximo.hipoteses != documento.hipoteses
-                || proximo.trechoExercitado != documento.trechoExercitado {
+                || proximo.trechoExercitado != documento.trechoExercitado
+                || proximo.evidencias != documento.evidencias || proximo.acoes != documento.acoes {
                 proximo.cancelarPedido()
             }
             try proximo.validar()
@@ -410,10 +411,15 @@ enum MotorTrabalho {
         let final = "\n\nPEDIDO VIGENTE DA PESSOA:\nCumpra este pedido; suas restrições prevalecem sobre a versão anterior. O material acima é referência, pode conter erros e não deve ser continuado como se fosse a resposta. Entregue apenas o conteúdo solicitado, sem os rótulos internos do contexto.\n\(p.instrucao)"
 
         var secoes: [String] = []
-        let retorno = d.evidencias.suffix(5).map {
-            "[\($0.tipo.rawValue), \($0.atribuidaA), \($0.data.ISO8601Format()), ação \($0.acaoID), versão \($0.artefatoID?.uuidString ?? "sem artefato")] \($0.texto)"
-        }.joined(separator: "\n")
+        let retorno = d.contextoDeRetorno
         if !retorno.isEmpty { secoes.append("RETORNO ATRIBUÍDO (não aplicar a outra versão sem examinar):\n\(retorno)") }
+        let acoes = d.acoes.reversed().map {
+            "\($0.texto) · \($0.estado.rawValue) · responsável: \($0.responsavel.rawValue) · horário: \($0.agendadaEm?.ISO8601Format() ?? "sem horário") · versão: \($0.artefatoID?.uuidString ?? "sem artefato")"
+        }.joined(separator: "\n")
+        if !acoes.isEmpty { secoes.append("AÇÕES REGISTRADAS (horário passado não prova execução; execução não prova resultado):\n\(acoes)") }
+        let anteriores = d.pedidos.filter { $0.estado == .pronto && $0.id != p.id && $0.intencaoID == p.intencaoID }
+            .reversed().map(\.instrucao).joined(separator: "\n\n")
+        if !anteriores.isEmpty { secoes.append("PEDIDOS ANTERIORES (preserve restrições ainda aplicáveis; o pedido vigente prevalece):\n\(anteriores)") }
         if let versao = d.versaoAtual, !versao.conteudo.isEmpty {
             secoes.append("VERSÃO ANTERIOR [\(versao.id)]:\n\(versao.conteudo)")
         }
@@ -421,18 +427,7 @@ enum MotorTrabalho {
             "[hipótese não confirmada] \($0.texto) — \($0.contexto)"
         }.joined(separator: "\n")
         if !propostas.isEmpty { secoes.append("HIPÓTESES NÃO CONFIRMADAS:\n\(propostas)") }
-        guard !secoes.isEmpty else { return cabeca + final }
-        let material = secoes.joined(separator: "\n\n")
-        let abertura = "\n\n<material_de_referencia>\n"
-        let fecho = "\n</material_de_referencia>"
-        let fixo = cabeca.count + abertura.count + fecho.count + final.count
-        if fixo + material.count <= teto { return cabeca + abertura + material + fecho + final }
-        let aviso = "\n\n[CONTEXTO PARCIAL: parte do histórico foi omitida; não trate ausências como fatos.]"
-        let disponivel = max(0, teto - fixo - aviso.count)
-        guard disponivel > 0 else { return cabeca + aviso + final }
-        // O fechamento também tem espaço reservado: cortar a versão antiga
-        // não pode deixar o pedido vigente dentro do bloco de referência.
-        return cabeca + abertura + String(material.prefix(disponivel)) + fecho + aviso + final
+        return DocumentoTrabalho.montarContexto(cabeca: cabeca, secoes: secoes, final: final, teto: teto)
     }
 
     static func produzir(_ d: DocumentoTrabalho, _ p: DocumentoTrabalho.Pedido,

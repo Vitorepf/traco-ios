@@ -491,11 +491,13 @@ struct PraticaTrabalhoTests {
             .contains("O TRECHO QUE ELA VAI EXERCITAR"))
     }
 
-    @Test func montagemDaPreparacaoNaoLevaATentativaDaPessoa() throws {
+    @Test func montagemDaPreparacaoLevaTentativaAtribuidaSemResolverAProxima() throws {
         var (d, _, _) = try comTentativa()
         let p = try d.iniciarPedido("prepare outro exercício")
         let mensagem = PraticaTrabalho.montarPreparacao(d, p)
-        #expect(!mensagem.contains(tentativaEscrita))
+        #expect(mensagem.contains(tentativaEscrita))
+        #expect(mensagem.contains("Apoio declarado: olhei o exemplo"))
+        #expect(mensagem.contains("Não entregue a resposta da próxima tentativa."))
         #expect(mensagem.contains("Praticar espanhol sozinho, do zero"))
     }
 

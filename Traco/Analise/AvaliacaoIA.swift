@@ -27,6 +27,7 @@ enum AvaliacaoIA {
     }
 
     private struct Entrada: Codable {
+        var documento: DocumentoTrabalho?
         var texto: String?
         var pergunta: String?
         var contexto: String?
@@ -149,9 +150,16 @@ enum AvaliacaoIA {
         let gesto = e.gesto.flatMap { Gesto(rawValue: $0) }
         switch caso.operacao {
         case "produzir", "prepararPratica", "revisar":
-            var documento = DocumentoTrabalho(intencao: try exigir(e.intencao, "intencao"), resultado: e.resultado ?? "")
-            documento.apoio = e.apoio ?? (caso.operacao == "prepararPratica" ? .praticar : .delegar)
-            documento.trechoExercitado = e.trechoExercitado
+            var documento: DocumentoTrabalho
+            if let anterior = e.documento {
+                try anterior.validar()
+                documento = anterior
+            } else {
+                documento = DocumentoTrabalho(intencao: try exigir(e.intencao, "intencao"), resultado: e.resultado ?? "")
+                documento.apoio = caso.operacao == "prepararPratica" ? .praticar : .delegar
+            }
+            if let apoio = e.apoio { documento.apoio = apoio }
+            if let trecho = e.trechoExercitado { documento.trechoExercitado = trecho }
             if let anterior = e.artefato { try documento.guardarVersaoHumana(anterior) }
             let pedido = try documento.iniciarPedido(exigir(e.instrucao, "instrucao"))
             if caso.operacao == "produzir" {

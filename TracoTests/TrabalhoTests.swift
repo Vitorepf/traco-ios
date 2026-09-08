@@ -53,7 +53,7 @@ struct TrabalhoTests {
         return (container, try OficinaTrabalho(trabalho: trabalho, context: container.mainContext))
     }
 
-    @Test func evidenciaAdicionadaDuranteProducaoSobreviveAoRetorno() async throws {
+    @Test func evidenciaNovaCancelaProducaoQueAindaNaoALeu() async throws {
         var original = DocumentoTrabalho(intencao: "Comparar uma oferta")
         try original.guardarVersaoHumana("Versão apresentada ao cliente")
         try original.prepararAcao("Apresentar a oferta")
@@ -71,7 +71,8 @@ struct TrabalhoTests {
 
         #expect(oficina.documento.evidencias == evidencias)
         #expect(oficina.documento.artefatos.first == original.artefatos.first)
-        #expect(oficina.documento.versaoAtual?.conteudo == "Versão revista")
+        #expect(oficina.documento.versaoAtual == original.versaoAtual)
+        #expect(oficina.documento.pedidos.last?.estado == .cancelado)
         #expect(oficina.documento.evidencias.first?.artefatoID == original.versaoAtual?.id)
         #expect(try oficina.trabalho.ler() == oficina.documento)
     }

@@ -228,6 +228,48 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
     var dificuldadeVigente: Hipotese? { hipoteses.last { $0.estado != .contestada } }
     /// A última tentativa guardada. As anteriores continuam na lista.
     var tentativaAtual: Evidencia? { evidencias.last { $0.tentativa != nil } }
+
+    /// O mesmo orçamento para entrega e exercício; o núcleo nunca é cortado.
+    static func montarContexto(cabeca: String, secoes: [String], final: String, teto: Int) -> String {
+        guard !secoes.isEmpty else { return cabeca + final }
+        let material = secoes.joined(separator: "\n\n")
+        let abertura = "\n\n<material_de_referencia>\n"
+        let fecho = "\n</material_de_referencia>"
+        let fixo = cabeca.count + abertura.count + fecho.count + final.count
+        if fixo + material.count <= teto { return cabeca + abertura + material + fecho + final }
+        let aviso = "\n\n[CONTEXTO PARCIAL: parte do histórico foi omitida; não trate ausências como fatos.]"
+        let disponivel = max(0, teto - fixo - aviso.count)
+        guard disponivel > 0 else { return cabeca + aviso + final }
+        // O fechamento também tem espaço reservado: cortar a versão antiga
+        // não pode deixar o pedido vigente dentro do bloco de referência.
+        return cabeca + abertura + String(material.prefix(disponivel)) + fecho + aviso + final
+    }
+
+    /// Contexto derivado do registro, compartilhado por entrega e prática.
+    /// Mais recente primeiro: a janela não deve priorizar uma tentativa antiga.
+    var contextoDeRetorno: String {
+        let atos = Dictionary(uniqueKeysWithValues: acoes.map { ($0.id, $0) })
+        let materiais = Dictionary(uniqueKeysWithValues: artefatos.map { ($0.id, $0) })
+        return evidencias.reversed().map { e in
+            let acao = atos[e.acaoID]
+            var linhas = ["[\(e.tipo.rawValue), \(e.atribuidaA), \(e.data.ISO8601Format()), ação \(e.acaoID), versão \(e.artefatoID?.uuidString ?? "sem artefato")] \(e.texto)",
+                "Ação: \(acao?.texto ?? "referência ausente") · estado registrado: \(acao?.estado.rawValue ?? "desconhecido") · material: \(e.artefatoID?.uuidString ?? "sem artefato")"]
+            if let tentativa = e.tentativa {
+                let pratica = e.artefatoID.flatMap { materiais[$0]?.pratica }
+                if let pratica { linhas.append("Exercício dessa tentativa: \(pratica.enunciado)") }
+                linhas.append("Apoio declarado: \(tentativa.apoioUtilizado)")
+                if let feedback = tentativa.conferencias?.last {
+                    linhas.append("Feedback atribuído a \(feedback.executor) · \(feedback.estado.rawValue):")
+                    linhas += feedback.resultados.map { r in
+                        let criterio = pratica?.criterios.first { $0.id == r.criterioID }?.texto ?? "critério indisponível"
+                        return "\(criterio) · \(r.situacao.rawValue): \(r.observacao) · trecho: \(r.trechoDaTentativa)"
+                    }
+                    if let motivo = feedback.motivo { linhas.append(motivo) }
+                }
+            }
+            return linhas.joined(separator: "\n")
+        }.joined(separator: "\n\n")
+    }
     /// `nil` lista as tentativas feitas SEM exercício preparado: a prática
     /// não depende da IA para existir.
     func tentativas(doArtefato id: UUID?) -> [Evidencia] {

@@ -880,12 +880,19 @@ struct TrabalhoView: View {
                         Text("Relato de \(e.atribuidaA) · \(e.data.formatted(date: .abbreviated, time: .shortened))")
                             .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
                         Text(e.texto).textSelection(.enabled)
+                        if let acao = o.documento.acoes.first(where: { $0.id == e.acaoID }) {
+                            Text("Ação: \(acao.texto)").font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+                        }
+                        if let id = e.artefatoID {
+                            Text("Material: versão \(numero(id, em: o.documento))")
+                                .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+                        }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .cartao(.papel)
                 }
                 if !o.documento.praticaPedida || PraticaTrabalho.oferta(contaLigada: ContaGrok.ligada) == nil {
-                    acaoSecundaria("Revisar com estes relatos") {
+                    acaoSecundaria(o.documento.praticaPedida ? "Adaptar exercício aos relatos" : "Revisar com estes relatos") {
                         guard !levouAoQueFalta(o, campoObrigatorio: nil) else { return }
                         definir("pedido", "Revise a versão à luz dos relatos registrados e do resultado desejado. Diferencie o que foi observado do que ainda é incerto e proponha um ajuste concreto.")
                         o.gerar(rascunhos["pedido"] ?? "")
@@ -911,6 +918,9 @@ struct TrabalhoView: View {
                         ConteudoTrabalhoView(fonte: a.conteudo)
                             .id(a.id)
                             .frame(maxWidth: .infinity, alignment: .leading)
+                        ForEach(o.documento.tentativas(doArtefato: a.id)) { e in
+                            tentativa(e, pratica: a.pratica, ultima: false, oficina: o)
+                        }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .cartao(.papel)
