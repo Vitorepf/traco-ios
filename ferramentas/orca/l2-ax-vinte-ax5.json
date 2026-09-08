@@ -1,0 +1,1258 @@
+{
+  "id": "fcbd06d3-9a23-40ce-a816-892c867a6f77",
+  "ok": true,
+  "result": [
+    {
+      "role": "application",
+      "type": "Application",
+      "label": "Traço",
+      "value": "",
+      "enabled": true,
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "width": 1,
+        "height": 1
+      },
+      "children": [
+        {
+          "role": "heading",
+          "type": "Heading",
+          "label": "Perfil",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0498,
+            "y": 0.0801,
+            "width": 0.3375,
+            "height": 0.0793
+          },
+          "children": []
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "CONTA",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": -2.2292,
+            "width": 0.3507,
+            "height": 0.0549
+          },
+          "children": []
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "Grok",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": -2.1606,
+            "width": 0.2828,
+            "height": 0.0725
+          },
+          "children": []
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "sem conta — recursos locais disponíveis; exercício e revisão por IA precisam do Grok.",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": -2.0858,
+            "width": 0.7952,
+            "height": 0.4653
+          },
+          "children": [],
+          "id": "estado-conta"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Entrar com a conta Grok",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": -1.6137,
+            "width": 0.728,
+            "height": 0.1434
+          },
+          "children": [],
+          "id": "entrar-conta"
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "No aparelho, pronto — a análise não precisa de conta nem de sinal.",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": -1.4697,
+            "width": 0.7877,
+            "height": 0.3162
+          },
+          "children": [],
+          "id": "estado-de-bordo"
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "A análise e a sábia usam a sua assinatura do Grok — sem chave de API, sem cobrança por uso. Sem a conta, a sábia responde pelo modelo do aparelho (Apple Intelligence), sem rede, com uma janela menor. Hoje: pelo modelo do aparelho, sem rede. Notas trancadas e expressivas jamais vão à rede.",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": -1.1398,
+            "width": 0.6965,
+            "height": 1.8589
+          },
+          "children": []
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "Pelo aparelho, sem conta: responder nas Notas, responder à sua pergunta, instigar, contrapor, vestir a forma, reconhecer a forma, o domínio da nota., Só com a conta Grok: preparar versões no Trabalho, preparar exercícios, conferir a sua tentativa, revisar uma versão, a pergunta do Recordar, conferir o que voltou, ecos entre notas, ler o seu juízo, perguntas dos Padrões. Medido em 07/09: nessas, o modelo do aparelho não serviu.",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 0.7328,
+            "width": 0.6965,
+            "height": 2.7269
+          },
+          "children": [],
+          "id": "quem-responde"
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "PERMISSÕES",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 3.533,
+            "width": 0.6418,
+            "height": 0.0549
+          },
+          "children": []
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "Calendários do aparelho",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 3.6016,
+            "width": 0.7338,
+            "height": 0.1434
+          },
+          "children": []
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "acesso negado. O campo volta a mostrar um exemplo.",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 3.7496,
+            "width": 0.8209,
+            "height": 0.2662
+          },
+          "children": [],
+          "id": "estado-calendario"
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "Apple, Google, iCloud — o Traço lê todos os que estão em Ajustes › Apps › Calendário › Contas, e nunca escreve em nenhum. Serve para o campo do calendário já sugerir o seu próximo compromisso.",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 4.0296,
+            "width": 0.8027,
+            "height": 0.8337
+          },
+          "children": []
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Abrir os Ajustes do Traço",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 4.8772,
+            "width": 0.6484,
+            "height": 0.2143
+          },
+          "children": [],
+          "id": "abrir-ajustes"
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "Avisos",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 5.1194,
+            "width": 0.3897,
+            "height": 0.0725
+          },
+          "children": []
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "desligados. Sem eles, nada te cobra: nem o Recordar, nem os compromissos.",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 5.1964,
+            "width": 0.8176,
+            "height": 0.3989
+          },
+          "children": [],
+          "id": "estado-avisos"
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "ainda não pedi — marco um compromisso e o iPhone pergunta.",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 5.5999,
+            "width": 0.8176,
+            "height": 0.2387
+          },
+          "children": [],
+          "id": "orcamento-avisos"
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "CALENDÁRIO",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 5.9119,
+            "width": 0.6493,
+            "height": 0.0549
+          },
+          "children": []
+        },
+        {
+          "role": "switch",
+          "type": "CheckBox",
+          "label": "Semana começa na segunda, O calendário do Traço vive no aparelho. Não sincroniza, e nunca escreve numa nota.",
+          "value": "0",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 5.9805,
+            "width": 0.8209,
+            "height": 0.7029
+          },
+          "children": [],
+          "id": "ajustes-segunda"
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "0 compromissos",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 6.7115,
+            "width": 0.3134,
+            "height": 0.3726
+          },
+          "children": []
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Apagar tudo",
+          "value": "",
+          "enabled": false,
+          "frame": {
+            "x": 0.51,
+            "y": 6.831,
+            "width": 0.4005,
+            "height": 0.1335
+          },
+          "children": [],
+          "id": "ajustes-apagar-tudo"
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "AJUSTES",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 7.1573,
+            "width": 0.4536,
+            "height": 0.0549
+          },
+          "children": []
+        },
+        {
+          "role": "switch",
+          "type": "CheckBox",
+          "label": "Análise automática, A análise chega sozinha na pausa da escrita. Você nunca precisa lembrar do botão.",
+          "value": "1",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 7.2258,
+            "width": 0.8209,
+            "height": 0.6285
+          },
+          "children": [],
+          "id": "ajuste-auto-analise"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Recordar às 8h, Recordar às, Diminuir",
+          "value": "8 horas",
+          "enabled": true,
+          "frame": {
+            "x": 0.6766,
+            "y": 7.9249,
+            "width": 0.1169,
+            "height": 0.0366
+          },
+          "children": [],
+          "id": "Decrement"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Recordar às 8h, Recordar às, Aumentar",
+          "value": "8 horas",
+          "enabled": true,
+          "frame": {
+            "x": 0.7935,
+            "y": 7.9249,
+            "width": 0.1169,
+            "height": 0.0366
+          },
+          "children": [],
+          "id": "Increment"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "manhã 8h, manhã, Diminuir",
+          "value": "8 horas",
+          "enabled": true,
+          "frame": {
+            "x": 0.6766,
+            "y": 8.0877,
+            "width": 0.1169,
+            "height": 0.0366
+          },
+          "children": [],
+          "id": "Decrement"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "manhã 8h, manhã, Aumentar",
+          "value": "8 horas",
+          "enabled": true,
+          "frame": {
+            "x": 0.7935,
+            "y": 8.0877,
+            "width": 0.1169,
+            "height": 0.0366
+          },
+          "children": [],
+          "id": "Increment"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "tarde 14h, tarde, Diminuir",
+          "value": "14 horas",
+          "enabled": true,
+          "frame": {
+            "x": 0.6766,
+            "y": 8.214,
+            "width": 0.1169,
+            "height": 0.0366
+          },
+          "children": [],
+          "id": "Decrement"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "tarde 14h, tarde, Aumentar",
+          "value": "14 horas",
+          "enabled": true,
+          "frame": {
+            "x": 0.7935,
+            "y": 8.214,
+            "width": 0.1169,
+            "height": 0.0366
+          },
+          "children": [],
+          "id": "Increment"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "noite 21h, noite, Diminuir",
+          "value": "21 horas",
+          "enabled": true,
+          "frame": {
+            "x": 0.6766,
+            "y": 8.3028,
+            "width": 0.1169,
+            "height": 0.0366
+          },
+          "children": [],
+          "id": "Decrement"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "noite 21h, noite, Aumentar",
+          "value": "21 horas",
+          "enabled": true,
+          "frame": {
+            "x": 0.7935,
+            "y": 8.3028,
+            "width": 0.1169,
+            "height": 0.0366
+          },
+          "children": [],
+          "id": "Increment"
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "A SÁBIA E VOCÊ",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 8.4319,
+            "width": 0.7844,
+            "height": 0.0549
+          },
+          "children": []
+        },
+        {
+          "role": "switch",
+          "type": "CheckBox",
+          "label": "A sábia conhece você, Um retrato feito só com as suas palavras e contagens viaja junto de cada pergunta: as formas que usa, os obstáculos que nomeou, o que não voltou no Recordar. Nunca conclui, nunca pontua.",
+          "value": "1",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 8.5004,
+            "width": 0.8209,
+            "height": 1.3574
+          },
+          "children": [],
+          "id": "ajuste-retrato"
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "O retrato, exatamente como viaja",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 9.8717,
+            "width": 0.7371,
+            "height": 0.2982
+          },
+          "children": [],
+          "id": "retrato"
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "O que o Traço registrou — contagem, não conclusão",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 10.1882,
+            "width": 0.8209,
+            "height": 0.2853
+          },
+          "children": []
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "nenhum sinal ainda — eles nascem quando você solta uma forma, conclui uma, ou diz se uma pergunta serviu.",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 10.4781,
+            "width": 0.7695,
+            "height": 0.4767
+          },
+          "children": [],
+          "id": "sinais"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Esquecer tudo",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 10.9687,
+            "width": 0.8209,
+            "height": 0.1434
+          },
+          "children": [],
+          "id": "esquecer-sinais"
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "LATÊNCIA DA DESCOBERTA",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 11.1852,
+            "width": 0.6783,
+            "height": 0.1098
+          },
+          "children": []
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "Quanto tempo passa entre afirmar uma coisa e saber se estava certa. Sai das hipóteses do Trabalho e das decisões com data de conferir — nada a preencher aqui. Hipótese sem resposta é informação; abandonar é resultado.",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 11.3087,
+            "width": 0.8134,
+            "height": 0.9527
+          },
+          "children": []
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "40 descobertas com as duas datas · a do meio levou 4 dias",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 12.2752,
+            "width": 0.7338,
+            "height": 0.4272
+          },
+          "children": [],
+          "id": "latencia-resumo"
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "O tempo do meio entre as descobertas de cada mês, nos 12 últimos.",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 12.7206,
+            "width": 0.8209,
+            "height": 0.2982
+          },
+          "children": [],
+          "id": "latencia-meses"
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "setembro de 2025 · 4 dias · 2 descobertas",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 13.0303,
+            "width": 0.757,
+            "height": 0.1998
+          },
+          "children": [],
+          "id": "latencia-meses"
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "outubro de 2025 · 5 dias · 2 descobertas",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 13.2569,
+            "width": 0.7546,
+            "height": 0.1998
+          },
+          "children": [],
+          "id": "latencia-meses"
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "novembro de 2025 · 3 dias · 2 descobertas",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 13.4834,
+            "width": 0.7554,
+            "height": 0.1998
+          },
+          "children": [],
+          "id": "latencia-meses"
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "dezembro de 2025 · 4 dias · 2 descobertas",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 13.71,
+            "width": 0.757,
+            "height": 0.1998
+          },
+          "children": [],
+          "id": "latencia-meses"
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "janeiro de 2026 · 5 dias · 2 descobertas",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 13.9365,
+            "width": 0.8209,
+            "height": 0.1998
+          },
+          "children": [],
+          "id": "latencia-meses"
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "fevereiro de 2026 · 6 dias · 2 descobertas",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 14.163,
+            "width": 0.7629,
+            "height": 0.1998
+          },
+          "children": [],
+          "id": "latencia-meses"
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "março de 2026 · 4 dias · 2 descobertas",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 14.3896,
+            "width": 0.8209,
+            "height": 0.1998
+          },
+          "children": [],
+          "id": "latencia-meses"
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "abril de 2026 · 2 dias · 2 descobertas",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 14.6161,
+            "width": 0.772,
+            "height": 0.1998
+          },
+          "children": [],
+          "id": "latencia-meses"
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "maio de 2026 · 3 dias · 2 descobertas",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 14.8427,
+            "width": 0.8035,
+            "height": 0.1998
+          },
+          "children": [],
+          "id": "latencia-meses"
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "junho de 2026 · 4 dias · 2 descobertas",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 15.0692,
+            "width": 0.8209,
+            "height": 0.1998
+          },
+          "children": [],
+          "id": "latencia-meses"
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "julho de 2026 · 5 dias · 2 descobertas",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 15.2958,
+            "width": 0.8002,
+            "height": 0.1998
+          },
+          "children": [],
+          "id": "latencia-meses"
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "agosto de 2026 · 6 dias · 2 descobertas",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 15.5223,
+            "width": 0.7629,
+            "height": 0.1998
+          },
+          "children": [],
+          "id": "latencia-meses"
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "descoberto · levou 7 dias, hipótese 20b de 08/2026",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 15.7672,
+            "width": 0.7819,
+            "height": 0.2555
+          },
+          "children": [],
+          "id": "latencia-registros"
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "descoberto · levou 5 dias, hipótese 20a de 08/2026",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 16.0341,
+            "width": 0.7761,
+            "height": 0.2555
+          },
+          "children": [],
+          "id": "latencia-registros"
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "descoberto · levou 6 dias, hipótese 19b de 07/2026",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 16.3011,
+            "width": 0.7695,
+            "height": 0.2555
+          },
+          "children": [],
+          "id": "latencia-registros"
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "descoberto · levou 4 dias, hipótese 19a de 07/2026",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 16.5681,
+            "width": 0.7645,
+            "height": 0.2555
+          },
+          "children": [],
+          "id": "latencia-registros"
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "MÉTODOS",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 16.8968,
+            "width": 0.5025,
+            "height": 0.0549
+          },
+          "children": []
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "28 do app",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 16.9657,
+            "width": 0.8209,
+            "height": 0.0721
+          },
+          "children": [],
+          "id": "metodos"
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "Cada método é um arquivo. Os seus vivem em Arquivos › Traço › metodos, ou em metodos/ na pasta espelhada: um JSON com id, nome, campos e o movimento que a sábia cobra. O app lê ao abrir.",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 17.0517,
+            "width": 0.8209,
+            "height": 0.7742
+          },
+          "children": []
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "FÉRIAS",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 17.8991,
+            "width": 0.3483,
+            "height": 0.0549
+          },
+          "children": []
+        },
+        {
+          "role": "switch",
+          "type": "CheckBox",
+          "label": "Modo férias, O Traço para de cobrar memória: a fila do Recordar, a revisão de domingo e a série da expressiva esperam. Os seus compromissos continuam avisando — férias não desmarca dentista.",
+          "value": "0",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 17.968,
+            "width": 0.8209,
+            "height": 1.2231
+          },
+          "children": [],
+          "id": "ajuste-ferias"
+        },
+        {
+          "role": "switch",
+          "type": "CheckBox",
+          "label": "E nos feriados, Desligado, o Traço cobra no feriado também — dia em casa é bom dia para recordar.",
+          "value": "0",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 19.2048,
+            "width": 0.8209,
+            "height": 0.569
+          },
+          "children": [],
+          "id": "ajuste-ferias-feriados"
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "desligado. O Traço cobra todo dia, como sempre.",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 19.7878,
+            "width": 0.7819,
+            "height": 0.2662
+          },
+          "children": [],
+          "id": "estado-ferias"
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "DADOS",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 20.1272,
+            "width": 0.3574,
+            "height": 0.0549
+          },
+          "children": []
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Exportar todas as notas (.md)",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 20.1957,
+            "width": 0.8209,
+            "height": 0.2143
+          },
+          "children": [],
+          "id": "exportar-corpus"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Importar notas (.md)",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 20.4382,
+            "width": 0.8209,
+            "height": 0.1434
+          },
+          "children": [],
+          "id": "importar-md"
+        },
+        {
+          "role": "switch",
+          "type": "CheckBox",
+          "label": "Revisão da semana no domingo, um aviso sem conteúdo, na hora da noite, abrindo os Padrões",
+          "value": "1",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 20.6096,
+            "width": 0.8209,
+            "height": 0.5149
+          },
+          "children": [],
+          "id": "revisao-semanal"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Espelhar numa pasta (iCloud Drive…)",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 21.1526,
+            "width": 0.8209,
+            "height": 0.2853
+          },
+          "children": [],
+          "id": "espelho-pasta"
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "O backup automático grava no app Arquivos a cada nota concluída — nada disso depende de nuvem nem de conta. Se escolher uma pasta, a mesma cópia vai para lá; o Traço só escreve, nunca lê de volta — exceto a subpasta entrada/.",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 21.4516,
+            "width": 0.8209,
+            "height": 1.0122
+          },
+          "children": []
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "Entrada",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 22.4821,
+            "width": 0.4328,
+            "height": 0.0725
+          },
+          "children": []
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "O que o Mac deixa em Traço/entrada (um .md por nota, pelo companheiro MCP ou por qualquer editor) vira nota aberta ao abrir o app. nada entrou por aqui ainda.",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 22.5568,
+            "width": 0.7852,
+            "height": 0.6552
+          },
+          "children": [],
+          "id": "entrada"
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "Índice de sentido",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 23.2304,
+            "width": 0.5357,
+            "height": 0.1434
+          },
+          "children": []
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "0 notas no índice. Feito no aparelho: a busca acha pelo sentido, os ecos vêm das mais próximas, e a sábia lê o que se parece com a sua pergunta. Trancadas nunca entram.",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 23.376,
+            "width": 0.8209,
+            "height": 0.6552
+          },
+          "children": [],
+          "id": "indice-sentido"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Refazer o índice de sentido",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0896,
+            "y": 24.045,
+            "width": 0.8209,
+            "height": 0.2143
+          },
+          "children": [],
+          "id": "refazer-indice"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Escrever uma nota nova",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0,
+            "y": 0.9085,
+            "width": 0.1998,
+            "height": 0.0503
+          },
+          "children": [],
+          "id": "nova-nota"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Notas",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.1998,
+            "y": 0.9085,
+            "width": 0.1998,
+            "height": 0.0503
+          },
+          "children": [],
+          "id": "aba-notas"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Calendário",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.3997,
+            "y": 0.9085,
+            "width": 0.2007,
+            "height": 0.0503
+          },
+          "children": [],
+          "id": "aba-calendario"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Padrões",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.6003,
+            "y": 0.9085,
+            "width": 0.1998,
+            "height": 0.0503
+          },
+          "children": [],
+          "id": "aba-padroes"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Perfil",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.8002,
+            "y": 0.9085,
+            "width": 0.1998,
+            "height": 0.0503
+          },
+          "children": [],
+          "id": "aba-perfil"
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "13:07",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.1294,
+            "y": 0.0256,
+            "width": 0.1095,
+            "height": 0.0233
+          },
+          "children": []
+        },
+        {
+          "role": "",
+          "type": "GenericElement",
+          "label": "Dynamic Island, Vazia",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.3441,
+            "y": 0.016,
+            "width": 0.3118,
+            "height": 0.042
+          },
+          "children": []
+        },
+        {
+          "role": "",
+          "type": "GenericElement",
+          "label": "Celular",
+          "value": "Sem sinal",
+          "enabled": true,
+          "frame": {
+            "x": 0.7172,
+            "y": 0.0301,
+            "width": 0.0481,
+            "height": 0.0141
+          },
+          "children": []
+        },
+        {
+          "role": "",
+          "type": "GenericElement",
+          "label": "",
+          "value": "SSID, 3 de 3 barras Wi-Fi",
+          "enabled": true,
+          "frame": {
+            "x": 0.7836,
+            "y": 0.0301,
+            "width": 0.0423,
+            "height": 0.0141
+          },
+          "children": [],
+          "id": "3 de 3 barras Wi-Fi"
+        },
+        {
+          "role": "",
+          "type": "GenericElement",
+          "label": "carga da bateria, 100%",
+          "value": "Não está carregando",
+          "enabled": true,
+          "frame": {
+            "x": 0.8441,
+            "y": 0.0297,
+            "width": 0.068,
+            "height": 0.0149
+          },
+          "children": []
+        }
+      ]
+    }
+  ],
+  "_meta": {
+    "runtimeId": "29a00263-8c2e-4822-afea-b504e815d7ae"
+  }
+}

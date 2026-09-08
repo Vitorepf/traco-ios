@@ -5577,3 +5577,116 @@ complexidade). **O que a IA sabe:** nada de novo. **Prova:**
 (teste 4) `A1DF082C`, sob `com-trava.sh`. As quatro réguas protegidas (64
 protegidas, 13 com gancho, 6 legítimas, 72 de trabalho) verdes, nenhuma mudou de
 lado. Sem maestro: com três simuladores ligados ele lê a hierarquia do vizinho.
+
+## ADR 2026-09-08h — A latência lê-se em dois degraus, e a lista de meses para de crescer (volta L2)
+
+**A distância.** A volta L1 foi mesclada em main por ordem do dono com o G4
+REPROVADO (`ferramentas/orca/g4-l1-design.md`: Design 8, Simplicidade 7). O juiz
+confirmou o conceito — paleta silenciosa, nenhum placar, quatro estados no mesmo
+cinza, nada tocável — e fechou com quatro correções pequenas, nenhuma delas
+mexendo no modelo, em teste, ou no que a seção mede. Esta volta faz as quatro.
+
+**1. Teto de doze meses, com o horizonte dito.** A lista de registros já tinha
+corte por estado; a de meses era `ForEach(lista)` sem corte nenhum. Com três
+meses semeados não se via; no aparelho de quem escreve há dois anos são 24
+linhas, e era justamente o pedaço de onde a barra saiu na L1-C. Agora
+`lista.suffix(12)`, e a copy diz o horizonte ("nos 12 últimos"), senão o corte
+mentiria por omissão. Medido: com vinte meses semeados o cartão passa de
+6.148 pt para 5.340 pt em AX5 (−13%).
+
+**2. `Tema.miudo` sai de dentro do app.** O degrau de 12 pt está documentado em
+`Tema.swift:75` como reservado a FORA do app (ADR 05u — a faixa compacta da Ilha
+e o rodapé do widget não têm 15 pt), e a L1 foi o primeiro uso dele dentro do
+app em todo o produto — logo na linha que carrega a medida. A varredura
+`grep -rn "Tema.miudo" Traco` agora não devolve nada: o token voltou a existir
+só para `TracoWidget`.
+
+**3. Dois degraus, sempre no mesmo sentido.** O par da L1 era 12 pt/`tintaFraca`
+em cima e 13 pt/`tintaSuave` embaixo: a linha da MEDIDA era ao mesmo tempo a
+menor e a mais clara, e o registro lia-se como uma massa só em tamanho padrão.
+A regra do cartão passa a ser uma só: **linha que carrega medida é
+`Tema.meta` + `tintaSuave`; prosa de apoio é `.footnote` + `tintaFraca`**. Vale
+para o registro, para a linha do mês e para a segunda linha do resumo; a
+manchete continua `Tema.chrome` + `tinta` e o rótulo continua `Tema.label`.
+Nenhuma cor nova, nenhum token novo, e os quatro estados seguem no mesmo cinza.
+
+**4. A frase-resumo em duas linhas.** Cinco fatos colados por "·" faziam o olho
+parar no que destoa — no MODO B, o "18 em aberto" — e não na duração que a seção
+existe para mostrar. A medida vira manchete sozinha; a composição (sem data · em
+aberto · abandonadas) desce uma linha e fica mais quieta. **Nenhum número sai**,
+e a copy da série não nasce de novo na view: são duas leituras da MESMA
+`Latencia.emPalavras`, uma com só os descobertos e outra com só o resto. O
+identificador `latencia-resumo` fica no grupo, então os fluxos que o usam de
+âncora continuam achando a seção mesmo quando um dos dois lados está vazio.
+
+**5. `quantas == 1` não tem "tempo do meio".** Um mês com uma descoberta só
+imprimia "agosto de 2026 · 5 dias · 1 descoberta" sob a legenda "o tempo do meio
+entre as descobertas". Agora diz "agosto de 2026 · 1 descoberta · levou 5 dias":
+mesmo número, sem estatística falsa.
+
+**6. Copy encurtada (declarado, não pedido pelo juiz).** O parágrafo de abertura
+perdeu 12 das 49 palavras e a legenda dos meses 10 das 16, sem perder nenhuma
+das três promessas que o juiz creditou ("nada a preencher aqui", "hipótese sem
+resposta é informação", "abandonar é resultado") nem a proveniência (hipóteses do
+Trabalho, decisões com data de conferir). É o que paga parte da altura que o
+degrau maior custa.
+
+**O que a decisão custa, medido e não escondido.** Pôr a medida num degrau
+legível engorda o cartão onde a série é curta: em AX5, com o estado semeado de
+três meses, o cartão vai de 5.200 pt para 5.541 pt (+6,6%); no MODO B, de
+5.758 pt para 6.115 pt (+6,2%). São +345 pt só da linha da medida em nove
+registros. Onde a série é de verdade — vinte meses — o teto inverte o sinal:
+6.148 pt → 5.340 pt (−13%). A troca é essa, e é deliberada: a linha que carrega
+o número deixa de ser o menor texto do produto, e o pedaço que crescia sem fim
+para de crescer.
+
+**O que esta volta NÃO faz.** Não muda o modelo, `Decisao`, `abandonado`, nem o
+que a seção mede; não extrai os nove cartões inline do `PerfilView` (dívida do
+RUMO); não devolve a barra; não cria alvo, cor de juízo, meta, sequência ou
+ordem que pareça ranking. Movimento: nenhum — a seção segue sendo superfície de
+leitura, e a ausência é deliberada (o juiz já a aceitou no G4 da L1).
+
+**Prova.** Suíte integral 887 testes em 143 suítes, verde no iPhone 17 Pro
+`C2416CBC` em 08/09/2026; build sem aviso. Altura medida pela árvore de
+acessibilidade (`orca emulator ax`), que devolve o frame de todo elemento dentro
+e fora da tela — do rótulo "LATÊNCIA DA DESCOBERTA" ao rótulo "MÉTODOS" —, com o
+número conferido de forma independente por varredura de capturas com OCR
+(5.198 pt contra 5.200 pt no mesmo estado). Capturas antes/depois em
+`ferramentas/orca/l2-*.png`; relatório em `ferramentas/orca/l2-latencia-g4.md`.
+
+**Volta L2-B (a correção do G3, 08/09/2026).** Três coisas. (1) Esta ADR nasceu
+com a letra `08b`, que é de `main`; a letra reservada à volta é `08h`, e SPEC e
+EVOLUCAO passam a usá-la. (2) As capturas "depois" da primeira passada tinham a
+copy de um binário intermediário ("Sai do que já está escrito…", "nos últimos 12
+meses com descobertas.") — as três medidas de altura eram do binário certo (a
+árvore de AX conferiu: 5.541, 6.115), mas a foto não era. Todas as capturas
+`l2-depois-*.png`, as árvores `l2-ax-*-ax5.json` e as medidas foram refeitas
+com o binário deste commit, nos quatro estados (A, B, vazio, vinte meses),
+inclusive o vazio DEPOIS que faltava: 241 pt em `large`, 1.485 pt em AX5.
+O estado de vinte meses foi semeado de novo com script próprio (duas
+descobertas por mês, jan/2025→ago/2026) e por isso o número mudou: 4.992 pt em
+AX5, não 5.340 — é outra semente, não outra altura; o teto de doze e a copy do
+horizonte estão na captura. (3) O G3 pediu que os +341 pt da série curta em AX5
+caíssem por "uma apresentação de fato compacta dos detalhes dos registros". Foi
+tentado, medido e RECUSADO, e a razão está na tabela: a única apresentação mais
+compacta que não esconde texto nem devolve `Tema.miudo` é o registro num fluxo
+só — a medida abre a linha em `Tema.meta`/`tintaSuave` e a hipótese segue em
+`.footnote`/`tintaFraca` na mesma linha. Ela recupera 180 pt dos 341 em AX5
+(5.541→5.361, −3,2%) e 36 pt em `large` (886→850), porque em AX5 quase todo
+registro já embrulha em quatro a seis linhas e a hipótese começa numa linha nova
+de qualquer jeito (`l2-alternativa-inline-ax5-registros.png`); e em `large` ela
+troca a linha "título · legenda" — a medida sozinha, a hipótese embaixo — por
+uma linha de dois corpos que quebra no meio da hipótese
+(`l2-alternativa-inline-large-fim.png`). Onde a altura mora em AX5, pela árvore:
+o parágrafo de abertura tem 833 pt, os nove registros 3.000 pt em linhas
+embrulhadas, e nenhum arranjo dos detalhes muda a conta sem cortar palavras.
+Decisão: o registro fica em duas linhas; o custo de +341 pt em AX5 na série
+curta é o preço de a medida ser legível, e fica declarado, não escondido. A
+nota de Simplicidade que isso vale é do revisor.
+
+**Achado que fica aberto (não é desta volta).** Em AX5, a camada do arquivo do
+Perfil transborda na horizontal em algumas sessões — o cartão e a barra de abas
+saem cortados dos dois lados. Reproduz igual no build de HEAD, sem esta mudança
+(`l2-achado-ax5-transbordo-head.png`), e o app Ajustes no mesmo aparelho e no
+mesmo tamanho de letra não transborda. É acessibilidade real e é do `Camadas` /
+`RaizView`, não do cartão: fica para a volta do Perfil.
