@@ -247,3 +247,17 @@ Ordem com o dono furioso, e com razão: ele já proibiu **comando por voz, Voice
 **(4) Um simulador por worker:** ficaram **dois booted** — `C2416CBC` (volta Q, o da conta, que ninguém desliga) e `6033B043` (A1-B). Desliguei o `34CC3F94`; o teste 2 e o teste 4 o dono já tinha desligado, e o 17e e o Air eu havia desligado antes. De sete, sobraram dois.
 
 **A lição, e ela é minha:** duas das nove leis de instrumento do dia nasceram do **incômodo do dono na própria máquina** — o mouse disputado às 11h35 e a voz agora. Nenhuma das duas apareceu em teste, log ou revisão: apareceram porque **uma pessoa estava sentada ali**. Quando o laço roda na máquina de alguém, o corpo dessa pessoa é parte do instrumento, e eu não estava medindo isso.
+
+### 08/09 19h45 — NÃO BASTOU: a fala voltou, e a cadeia era minha
+
+Depois do meu aviso das 19h35, **a V13 religou o teste 2 e a fala voltou às 19h4x**; e havia síntese rodando também no Pro Max, na volta **A1-B — cujo próprio nome de terminal carregava a palavra que eu tinha mandado** no spec. O dono interrompeu as duas voltas pelo terminal, desligou o teste 2 de novo, forçou a chave de leitura de tela para `false` nos dois aparelhos e matou a fala. Ele disse, com estas palavras, que **a próxima voz encerra o laço**.
+
+**A cadeia inteira sai do meu texto.** Eu escrevi "ouça a leitura de tela" no spec da A1; o worker obedeceu; o Mac do dono passou a falar. Não foi iniciativa de worker, foi ordem minha mal pensada — e eu a repeti no spec da A1-B mesmo depois de já ter revogado a ideia, porque reaproveitei o texto anterior sem reler o item.
+
+**O que fiz, e é o que vale como conserto:**
+1. **O spec da A1 foi REESCRITO** (A1-C) sem a palavra proibida em lugar nenhum: a acessibilidade da tela do arranque se prova **pela árvore de acessibilidade conferida contra captura do mesmo instante**, e o falado é **limite declarado, não tarefa**. O terminal foi renomeado.
+2. **A V13 está em PARADA CONDICIONAL:** só continua se o worker confirmar por escrito que não aciona voz e não religa o aparelho sem avisar, e disser o que acionou às 19h22 e às 19h4x. Se houver nova fala, **paro a volta e recomeço com outro worker**.
+3. **O esperador do laço passou a caçar fala antes de qualquer outra coisa:** todo ciclo de espera roda `pgrep -f 'sirittsd|SiriAUSP|MacinTalk|speechsynthesisd'` e, se achar, **mata os processos e recusa a esperar**, obrigando-me a parar o worker dono do simulador **antes** de acusar qualquer batimento. A verificação virou parte do laço, não lembrança minha.
+4. **Dois simuladores ligados**, um por worker vivo com dono nomeado.
+
+**A lição, e ela é sobre mim:** eu escrevi nove leis de instrumento hoje lendo o que os workers mediram, e **duas nasceram do corpo do dono** — o mouse disputado e a voz. Nas duas, o sintoma chegou pela pessoa e não pelo log; e nesta segunda **a causa fui eu**. Reaproveitar spec sem reler cada item é a mesma família do "verde que não visitou o lugar do defeito": texto que parece cumprido porque já esteve certo alguma vez.
