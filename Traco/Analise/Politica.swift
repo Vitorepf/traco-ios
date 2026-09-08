@@ -6,6 +6,11 @@ import Foundation
 /// degraus da classificação e o domínio só de bordo), e o modelo do aparelho
 /// seguia em oito rotas onde a medição de 07/09 diz que ele não serve.
 ///
+/// ADR 2026-09-08k acrescentou a quarta regra: `indisponivelPorQualidade`.
+/// Até ela, a tabela só sabia dizer "falta conta"; a medida de 08/09 no
+/// aparelho do dono, com a conta LIGADA, reprovou seis operações — e mandar
+/// conectar uma conta que já existe é mentira na tela.
+///
 /// A regra nasce da MEDIÇÃO (DIRETRIZ §5: medir, não torcer), e cada linha
 /// carrega a prova. Mudar de provedor é mudar esta tabela, e a prova junto.
 /// O modelo do aparelho tem 3 bilhões de parâmetros e 4.096 tokens de janela
@@ -29,6 +34,12 @@ enum Politica {
         case soGrok
         /// Só o aparelho: rótulo curto, esquema tipado, sem rede.
         case soBordo
+        /// NINGUÉM responde: a operação foi medida COM a conta ligada e o que
+        /// respondia não atendeu. A linha fica na tabela, com o motivo datado
+        /// e a prova — o que sai é o EXECUTOR, não o registro. É distinta de
+        /// `soGrok` sem conta: aqui a conta existe, e mandar conectá-la seria
+        /// mentira. Volta a ter executor quando algum passar a MESMA matriz.
+        case indisponivelPorQualidade
     }
 
     enum Provedor: String, Sendable {
@@ -41,6 +52,21 @@ enum Politica {
         /// A evidência, datada. É o que o Perfil mostra e o que uma volta
         /// futura tem de derrubar para mudar a regra.
         let porque: String
+        /// A data da medida que sustenta a regra, como o autor a lê. A tabela
+        /// é UMA só (07b): o Perfil lê daqui em vez de guardar uma cópia que
+        /// envelhece sozinha.
+        let medidaEm: String?
+        /// Só para `indisponivelPorQualidade`: o conserto já nomeado, quando
+        /// existe. `nil` = reprovada sem substituto nem conserto conhecido —
+        /// e a tela não promete volta que ninguém pode datar.
+        let conserto: String?
+
+        init(regra: Regra, porque: String, medidaEm: String? = nil, conserto: String? = nil) {
+            self.regra = regra
+            self.porque = porque
+            self.medidaEm = medidaEm
+            self.conserto = conserto
+        }
     }
 
     static func linha(_ op: Operacao) -> Linha {
@@ -52,19 +78,24 @@ enum Politica {
         case .revisar:
             .init(regra: .soGrok, porque: "dois casos reais do aparelho sem revisão utilizável: JSON inválido e citações não literais — prova/5.md")
         case .conferir:
-            .init(regra: .soGrok, porque: "o aparelho confirmou 3 de 3 um ponto explicitamente contradito e perdeu 3 de 3 uma paráfrase correta; o veredito vira sinal gravado — prova/qualidade-ia-q5-avaliacao-base.md")
+            .init(regra: .soGrok, porque: "o aparelho confirmou 3 de 3 um ponto explicitamente contradito e perdeu 3 de 3 uma paráfrase correta; o Grok acertou 6 de 6 casos com a conta ligada em 08/09 — prova/qualidade-ia-q5-avaliacao-base.md e prova/q-qualidade-avaliacoes.jsonl")
         case .ecos:
-            .init(regra: .soGrok, porque: "sem retorno 6 de 6 no aparelho — prova/qualidade-ia-q5-avaliacao-base.md")
+            .init(regra: .indisponivelPorQualidade, porque: "sem retorno 6 de 6 no aparelho; e com a conta ligada em 08/09 o Grok devolveu lista vazia justamente onde o vínculo era o mais útil (18 inscritos contra a sala que comporta 15) — 3 de 6 casos reprovados — prova/q-qualidade.md, corridas em prova/q-qualidade-avaliacoes.jsonl", medidaEm: "08/09/2026")
         case .calibragem:
-            .init(regra: .soGrok, porque: "vazio 6 de 6 no aparelho, com o positivo perdido — prova/qualidade-ia-q5-avaliacao-base.md")
+            .init(regra: .indisponivelPorQualidade, porque: "vazio 6 de 6 no aparelho; com a conta ligada em 08/09 o Grok cala quando não há erro a apontar e a rota nem chega ao provedor com um par só — no máximo 3 de 6 casos — prova/q-qualidade.md", medidaEm: "08/09/2026")
         case .padroes:
             .init(regra: .soGrok, porque: "falhou 3 de 3 e 2 de 3 no aparelho; as perguntas locais cobrem — prova/qualidade-ia-q5-avaliacao-base.md")
         case .recordar:
-            .init(regra: .soGrok, porque: "3 de 3 no aparelho: duas sem retorno e uma pergunta que revelava a resposta; a frase fixa do ritual cobre — prova/qualidade-ia-q5-avaliacao-base.md")
+            .init(regra: .indisponivelPorQualidade, porque: "3 de 3 no aparelho; e com a conta ligada em 08/09 o Grok vazou o alvo (a guarda de Prova.vaza suprimiu a pergunta e o autor ficou sem nada) ou devolveu a resposta dentro do enunciado — 1 de 6 casos — prova/q-qualidade.md. A frase fixa do ritual continua cobrindo", medidaEm: "08/09/2026")
         case .responderNasNotas:
-            .init(regra: .grokDepoisBordo, porque: "o aparelho acertou os fatos 3 de 3 e não citou a nota 3 de 3; o contrato de fontes está em revisão (ADR 07a)")
-        case .responder, .instigar, .contrapor:
-            .init(regra: .grokDepoisBordo, porque: "sem medição; pergunta e resposta curtas cabem na janela do aparelho")
+            .init(regra: .indisponivelPorQualidade,
+                  porque: "o aparelho acertou os fatos 3 de 3 e não citou a nota 3 de 3; com a conta ligada em 08/09, e MEDIDA de novo pelo caminho de fontes tipadas que a produção usa, o Grok atendeu 4 de 6 casos — cita a nota certa e resiste a instrução hostil, mas recusa por inteiro quando a pergunta pede fato atual, sem usar o que as notas trazem, e deixa escapar os rótulos internos N1T1/N2T1 no texto do autor — prova/q-qualidade.md",
+                  medidaEm: "08/09/2026",
+                  conserto: "usar o material disponível quando o fato atual falta, como produzir já faz, e manter os rótulos internos fora do texto")
+        case .responder:
+            .init(regra: .indisponivelPorQualidade, porque: "com a conta ligada em 08/09 o Grok inventou fato quando o contexto não sustentava — horário de abertura de uma biblioteca que ele não podia saber, e um total de R$ 1.008 num pedido em que o autor disse não ter distância, consumo nem preço; o MESMO caso acertou numa execução e fabricou na seguinte — 3 de 6 casos — prova/q-qualidade.md", medidaEm: "08/09/2026", conserto: "recusar o fato que o contexto não sustenta e entregar o caminho, como produzir já faz")
+        case .instigar, .contrapor:
+            .init(regra: .indisponivelPorQualidade, porque: "com a conta ligada em 08/09: instigar devolveu o vocabulário do próprio prompt ao autor ('o movimento básico que se pula', 'a nota DEGRAU 0') e contrapor sustentou o contraponto em fato inventado ('metanálises de 2022', preço 12% menor na construção naval do século XV) — 1 de 6 casos cada — prova/q-qualidade.md", medidaEm: "08/09/2026")
         case .vestir:
             .init(regra: .grokDepoisBordo, porque: "a forma local decide antes; o modelo só vê blocos pendentes (ADR 07a)")
         case .classificar:
@@ -82,6 +113,7 @@ enum Politica {
         case .soGrok: contaLigada ? .grok : nil
         case .soBordo: bordo ? .bordo : nil
         case .grokDepoisBordo: contaLigada ? .grok : (bordo ? .bordo : nil)
+        case .indisponivelPorQualidade: nil
         }
     }
 
@@ -98,18 +130,36 @@ enum Politica {
         case .prepararPratica, .conferirTentativa: PraticaTrabalho.semProvedor
         case .revisar: RevisaoTrabalho.semProvedor
         case .conferir: "Conferir o que voltou pela IA precisa da conta Grok; o modelo do aparelho errou a comparação."
-        case .ecos: "Ecos entre notas precisam da conta Grok; o modelo do aparelho não os encontrou."
-        case .calibragem: "Ler o seu juízo pela IA precisa da conta Grok."
-        case .padroes, .recordar: "Precisa da conta Grok; o modelo do aparelho não serviu aqui."
-        case .responderNasNotas, .responder, .instigar, .contrapor, .vestir, .classificar:
+        case .padroes: "Precisa da conta Grok; o modelo do aparelho não serviu aqui."
+        // As seis abaixo estão INDISPONÍVEIS POR QUALIDADE (ADR 08k): a conta
+        // pode estar ligada e mesmo assim ninguém responde, porque o que
+        // respondia não atendeu na medida de 08/09. A frase não manda conectar
+        // conta, não pede para tentar de novo e não promete guardar nada — quem
+        // guardou o pedido é que diz isso, depois de confirmar.
+        case .ecos: "Ecos entre notas está indisponível: a IA deixou de fora justamente os vínculos mais úteis quando medimos, em 08/09. As notas continuam buscáveis pelo texto."
+        case .calibragem: "Ler o seu juízo pela IA está indisponível: na medida de 08/09 ela calou quando não havia erro a apontar. Os seus pares de previsão e resultado continuam aqui para você comparar."
+        case .recordar: "A pergunta do Recordar pela IA está indisponível: na medida de 08/09 ela entregou a resposta dentro da própria pergunta. O ritual segue com a pergunta fixa."
+        case .responder: "Responder à sua pergunta pela IA está indisponível: na medida de 08/09 ela inventou fato quando o seu contexto não sustentava a resposta. Perguntar nas Notas, sobre as suas notas, continua funcionando."
+        case .instigar: "Instigar pela IA está indisponível: na medida de 08/09 ela devolveu o vocabulário interno do app em vez de uma pergunta sobre o que você escreveu. As perguntas do método continuam na página."
+        case .contrapor: "Contrapor pela IA está indisponível: na medida de 08/09 ela sustentou o contraponto em fato inventado. O Steelman e a Inversão continuam no catálogo, escritos por você."
+        case .responderNasNotas: "Responder sobre as suas notas pela IA está indisponível: na medida de 08/09 ela recusou por inteiro perguntas que as suas notas ainda ajudavam a responder. A busca pelo texto das notas continua."
+        case .vestir, .classificar:
             "A sábia precisa da sua conta Grok (em Perfil) ou da Apple Intelligence ligada."
         case .dominio: "O domínio pela IA precisa da Apple Intelligence ligada; sem ela, o léxico decide."
         }
     }
 
-    /// Para o Perfil: o que o aparelho faz sozinho e o que exige a conta.
+    /// Para o Perfil: o que o aparelho faz sozinho, o que exige a conta, e o
+    /// que NÃO TEM MAIS EXECUTOR. As três listas juntas são as dezesseis; uma
+    /// operação indisponível por qualidade não pode aparecer nas outras duas,
+    /// porque isso prometeria ao autor uma ajuda que ele não vai receber.
     static var pelaConta: [Operacao] { Operacao.allCases.filter { linha($0).regra == .soGrok } }
-    static var peloAparelho: [Operacao] { Operacao.allCases.filter { linha($0).regra != .soGrok } }
+    static var peloAparelho: [Operacao] {
+        Operacao.allCases.filter { linha($0).regra == .soBordo || linha($0).regra == .grokDepoisBordo }
+    }
+    static var indisponiveis: [Operacao] {
+        Operacao.allCases.filter { linha($0).regra == .indisponivelPorQualidade }
+    }
 
     static func nome(_ op: Operacao) -> String {
         switch op {

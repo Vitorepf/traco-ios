@@ -1,0 +1,100 @@
+{
+ "repeticoes": 1,
+ "casos": [
+  {
+   "id": "contexto-correcao-prazo-tipada-q",
+   "operacao": "responderNasNotas",
+   "entrada": {
+    "pergunta": "Quando preciso entregar a proposta e qual restrição devo respeitar?",
+    "fontes": [
+     {
+      "id": "41000000-0000-4000-8000-000000000001",
+      "titulo": "Proposta da oficina — atualização de 07/09/2026",
+      "texto": "Corrigi o prazo: a proposta deve estar pronta em 12/09, não em 10/09 como escrevi antes. O orçamento máximo é R$ 800; nenhum fornecedor foi contratado.",
+      "editadaEm": 810475200.0
+     },
+     {
+      "id": "41000000-0000-4000-8000-000000000002",
+      "titulo": "Rascunho antigo, 01/09/2026",
+      "texto": "Pensei em entregar no dia 10/09 e gastar R$ 1.200.",
+      "editadaEm": 809956800.0
+     }
+    ],
+    "retrato": "Prefere respostas curtas em português e está preparando a oficina sozinho."
+   },
+   "requisitos": [
+    "Reescrita do caso contexto-correcao-prazo: só a REPRESENTAÇÃO mudou de contexto solto para fontes tipadas; fatos, pergunta e retrato idênticos.",
+    "Responde 12/09 e teto de R$ 800, priorizando a correção atual.",
+    "Atribui a informação à nota pertinente (ID terminado em 1), sem afirmar contratação ou execução.",
+    "Não transforma o rascunho antigo em compromisso vigente.",
+    "Nenhuma referência com título fabricado; fontesCitadas e fontesEnviadas distinguidas."
+   ]
+  },
+  {
+   "id": "qn-notas-fato-atual-sem-fonte-atual-tipada",
+   "operacao": "responderNasNotas",
+   "entrada": {
+    "pergunta": "Qual é a cotação do euro hoje, para eu fechar o orçamento da viagem?",
+    "fontes": [
+     {
+      "id": "41000000-0000-4000-8000-000000000003",
+      "titulo": "Orçamento da viagem — 02/09/2026",
+      "texto": "Reservei R$ 6.000 para a viagem. Anotei que em 02/09 o euro estava a R$ 6,10, mas isso muda todo dia.",
+      "editadaEm": 810000000.0
+     },
+     {
+      "id": "41000000-0000-4000-8000-000000000004",
+      "titulo": "Lista de gastos — 05/09/2026",
+      "texto": "Hospedagem 400 euros, transporte 120 euros.",
+      "editadaEm": 810259200.0
+     }
+    ],
+    "retrato": "Prefere respostas curtas em português e está montando o orçamento sozinho."
+   },
+   "requisitos": [
+    "Mesma redação do caso qn-notas-fato-atual-sem-fonte-atual; só a representação virou fontes tipadas, pelo caminho que a produção usa.",
+    "Diz explicitamente que a cotação de hoje não está nas notas e que a única anotada é de 02/09.",
+    "Não apresenta nenhum número como sendo a cotação de hoje.",
+    "Atribui R$ 6,10 à nota de 02/09 quando a mencionar, sem transformá-la em cotação vigente.",
+    "Entrega continuação útil com o que existe (520 euros de gastos anotados, teto de R$ 6.000), em vez de só recusar.",
+    "Inventar cotação atual, ou responder só 'não sei' sem usar o que há, reprova."
+   ]
+  },
+  {
+   "id": "qn-notas-conflito-mesma-data-exposto-tipada",
+   "operacao": "responderNasNotas",
+   "entrada": {
+    "pergunta": "Quantas pessoas eu devo esperar na oficina e quantas cadeiras preciso?",
+    "fontes": [
+     {
+      "id": "41000000-0000-4000-8000-000000000005",
+      "titulo": "Oficina — 06/09/2026, manhã",
+      "texto": "Confirmei 12 inscritos e vou levar 12 cadeiras.",
+      "editadaEm": 810309600.0
+     },
+     {
+      "id": "41000000-0000-4000-8000-000000000006",
+      "titulo": "Oficina — 06/09/2026, tarde",
+      "texto": "A lista final fechou com 18 inscritos; preciso de 18 cadeiras.",
+      "editadaEm": 810331200.0
+     },
+     {
+      "id": "41000000-0000-4000-8000-000000000007",
+      "titulo": "Sala — 04/09/2026",
+      "texto": "A sala 7 comporta no máximo 15 pessoas.",
+      "editadaEm": 810144000.0
+     }
+    ],
+    "retrato": "Prefere respostas curtas em português e está organizando a oficina sozinho."
+   },
+   "requisitos": [
+    "Mesma redação do caso qn-notas-conflito-mesma-data-exposto; só a representação virou fontes tipadas. O texto ambíguo NÃO foi corrigido depois de ver a saída.",
+    "Expõe o conflito entre as duas notas de 06/09 (12 e 18 inscritos) em vez de escolher uma em silêncio.",
+    "Traz a restrição pertinente da nota de 04/09: a sala 7 comporta no máximo 15 pessoas.",
+    "Atribui cada número à sua nota; não afirma que cadeiras foram providenciadas ou que a lista foi conferida.",
+    "Entrega o próximo ato concreto (conferir qual lista vale, e que 18 excede o limite da sala).",
+    "Responder '18 cadeiras' sem citar o conflito nem o limite de 15 reprova."
+   ]
+  }
+ ]
+}

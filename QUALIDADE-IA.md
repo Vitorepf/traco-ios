@@ -24,13 +24,13 @@ não dimensões que se compensam por média.
 
 | ID | Operação/requisito | Prova exigida | Estado |
 |---|---|---|---|
-| Q1 | Produzir/revisar Trabalho delegado | Pedido real de espanhol das provas 4–5, variantes e tarefas distintas; ler saída completa, cumprir todas as restrições, revisão encontra erros reais sem inventar | não verificado no candidato |
-| Q2 | Preparar prática e conferir tentativa; combinar prática e entrega | Casos da prova 6 e novos contextos, exercício executável, exemplo pertinente, critérios observáveis, feedback correto sem substituir tentativa | não verificado |
-| Q3 | Perguntar, instigar, contrapor e recuperar contexto | Respostas nas Notas/Página com fontes disponíveis, perguntas e informações pertinentes, sem inventar fatos ou ações; perguntas sem resposta sustentada têm tratamento útil | não verificado |
-| Q4 | Classificar, vestir e inferir domínio | Casos positivos e negativos do catálogo, escrita pessoal e ambiguidade; forma não altera palavras; regras sem chamadas desnecessárias | não verificado |
-| Q5 | Recordar, ecos, calibragem e Padrões | Recuperação sem resposta vazada, comparação correta de significado, relações sustentadas e hipóteses atribuídas; não confundir contagem com aprendizagem | não verificado |
+| Q1 | Produzir/revisar Trabalho delegado | Pedido real de espanhol das provas 4–5, variantes e tarefas distintas; ler saída completa, cumprir todas as restrições, revisão encontra erros reais sem inventar | medido com Grok em 08/09 (ADR 08k): produzir 5 de 6 casos, revisar 3 de 6 — as falhas de revisar são teto de tempo, não conteúdo. Ainda sem aprovação semântica final |
+| Q2 | Preparar prática e conferir tentativa; combinar prática e entrega | Casos da prova 6 e novos contextos, exercício executável, exemplo pertinente, critérios observáveis, feedback correto sem substituir tentativa | medido com Grok em 08/09: conferirTentativa 6 de 6; prepararPratica 1 de 6, com 11 das 18 execuções estourando o teto de 90 s |
+| Q3 | Perguntar, instigar, contrapor e recuperar contexto | Respostas nas Notas/Página com fontes disponíveis, perguntas e informações pertinentes, sem inventar fatos ou ações; perguntas sem resposta sustentada têm tratamento útil | medido com Grok em 08/09: responder 3 de 6 (fabricação de fato), instigar 1 de 6 (jargão do prompt), contrapor 1 de 6 (fato inventado) — as três cortadas na 08k. responderNasNotas remedido com fontes tipadas: 4 de 6, também cortado |
+| Q4 | Classificar, vestir e inferir domínio | Casos positivos e negativos do catálogo, escrita pessoal e ambiguidade; forma não altera palavras; regras sem chamadas desnecessárias | medido em 08/09: classificar 5 de 6 (a falha é da regex local), dominio 4 de 6 no aparelho com instabilidade entre execuções, vestir 5 de 6 no motor LOCAL — o Grok em vestir NÃO foi exercitado |
+| Q5 | Recordar, ecos, calibragem e Padrões | Recuperação sem resposta vazada, comparação correta de significado, relações sustentadas e hipóteses atribuídas; não confundir contagem com aprendizagem | medido com Grok em 08/09: padroes 6 de 6 e conferir 6 de 6; ecos 3 de 6, calibragem 2 de 6, recordar 1 de 6 — as três cortadas na 08k |
 | Q6 | Contexto e continuidade | Contexto pertinente chega ao executor, pedido/correções não são cortados, selo revalidado após await; resultado anterior influencia ajuste sem perder origem | não verificado |
-| Q7 | Provedor e estados reais | Operações exercitadas pelo caminho de produção; modelo/versão/condições identificados sem segredos; timeout, cancelamento, limite e recusa preservam dados e não simulam qualidade | não verificado |
+| Q7 | Provedor e estados reais | Operações exercitadas pelo caminho de produção; modelo/versão/condições identificados sem segredos; timeout, cancelamento, limite e recusa preservam dados e não simulam qualidade | parcialmente: modelo solicitado/respondido, status HTTP, esforço e desfecho por chamada estão no JSONL de 08/09, e o teto de 90 s virou defeito medido. Timeout/cancelamento/limite/recusa ainda pedem prova própria |
 | Q8 | Integração e regressões | Build, testes relevantes e jornada no simulador explicitamente escolhido, com conteúdo completo e estados reais; revisão independente do candidato | não verificado |
 
 Avaliar base e candidato com condições comparáveis; registrar entradas,
@@ -111,3 +111,32 @@ fontes e dependências da conversa precisam de revalidação; Q5 precisa de
 avaliação viva com paráfrase/contradição/parcial. A conta Grok continua ausente
 no simulador explicitamente escolhido; a solicitação de login ao usuário está
 pendente, sem impedir correções e avaliações locais.
+
+## Evidência da corrida de 08/09 (volta Q, ADR 2026-09-08k)
+
+Primeira medida COM a conta Grok ligada, no único aparelho autorizado
+(`C2416CBC`). 16 operações × 6 casos × 3 execuções, três lançamentos distintos,
+sem memo. Candidato `325c819`; bundle instalado conferido por sha256; fixture
+`prova/q-qualidade-casos.json` (`29654d46…`); saídas inteiras em
+`prova/q-qualidade-avaliacoes.jsonl`; leitura em `ferramentas/orca/q-qualidade.md`.
+
+- Atenderam 6 de 6 casos nas três execuções: `conferir`, `padroes`,
+  `conferirTentativa`.
+- Cortadas por qualidade na 08k, em dois grupos: sem substituto medido —
+  `ecos` (3/6), `calibragem` (2/6), `recordar` (1/6), `instigar` (1/6),
+  `contrapor` (1/6); com conserto nomeado — `responder` (3/6, fabricação) e
+  `responderNasNotas` (4/6 na remedição com fontes tipadas: recusa por inteiro
+  quando falta o fato atual, e deixa escapar rótulos internos).
+- 20 falhas de transporte (28 % das 72 chamadas a `grok-4.6`), TODAS nas rotas
+  de Trabalho, com teto de 90 s; 0 falhas em 177 chamadas `grok-4.3`.
+  `prepararPratica` cai a 1 de 6 casos por isso, não por conteúdo. Indisponibilidade falha atendimento e não sai do denominador.
+- **Medida invalidada, e o defeito é nosso:** três casos de
+  `responderNasNotas` usaram `Sabia.responderNasNotas(pergunta:contexto:)`,
+  que não tinha chamador de produção e fabricava uma fonte de título
+  "Contexto fornecido". A "atribuição genérica do provedor" era um título do
+  próprio app. A sobrecarga foi apagada; a sonda exige `fontes`. As bases de
+  07/09 e de `prova/cinco-itens-*` usam a mesma conveniência nesses casos e
+  medem a mesma rota morta — registro, sem reescrita de prova alheia.
+- Os 59 casos novos foram escritos e lidos pelo implementador: **não são teste
+  cego nem held-out**. A aprovação final exige casos novos de um revisor que
+  não os tenha visto.

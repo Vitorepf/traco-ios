@@ -16,7 +16,7 @@ import Testing
 
     @Test func ondeOAparelhoReprovouSemContaNinguemResponde() {
         let medidas: [Politica.Operacao] = [.produzir, .prepararPratica, .conferirTentativa, .revisar,
-                                            .conferir, .ecos, .calibragem, .padroes, .recordar]
+                                            .conferir, .padroes]
         for op in medidas {
             #expect(Politica.linha(op).regra == .soGrok, "\(op)")
             #expect(Politica.provedor(op, contaLigada: false, bordo: true) == nil, "\(op) desceu ao aparelho")
@@ -26,9 +26,9 @@ import Testing
     }
 
     @Test func aEscadaDesceAoAparelhoSoOndeATabelaDeixa() {
-        #expect(Politica.provedor(.responder, contaLigada: false, bordo: true) == .bordo)
-        #expect(Politica.provedor(.responder, contaLigada: true, bordo: true) == .grok)
-        #expect(Politica.provedor(.responder, contaLigada: false, bordo: false) == nil)
+        #expect(Politica.provedor(.classificar, contaLigada: false, bordo: true) == .bordo)
+        #expect(Politica.provedor(.classificar, contaLigada: true, bordo: true) == .grok)
+        #expect(Politica.provedor(.classificar, contaLigada: false, bordo: false) == nil)
         #expect(Politica.desceAoAparelho(.classificar))
         // o domínio nunca vai à rede, com ou sem conta
         #expect(Politica.provedor(.dominio, contaLigada: true, bordo: false) == nil)
@@ -36,9 +36,31 @@ import Testing
     }
 
     @Test func oPerfilListaAsDezesseisSemRepetir() {
-        let todas = Politica.pelaConta + Politica.peloAparelho
+        let todas = Politica.pelaConta + Politica.peloAparelho + Politica.indisponiveis
         #expect(Set(todas).count == Politica.Operacao.allCases.count)
         #expect(todas.count == Politica.Operacao.allCases.count)
+    }
+
+    /// ADR 08k: com a conta LIGADA, seis operações continuam sem executor —
+    /// e a frase da tela não pode mandar conectar a conta que já existe.
+    @Test func indisponivelPorQualidadeNaoTemExecutorNemComContaEAparelho() {
+        let cortadas: [Politica.Operacao] = [.ecos, .calibragem, .recordar, .responderNasNotas,
+                                            .responder, .instigar, .contrapor]
+        #expect(Set(Politica.indisponiveis) == Set(cortadas))
+        for op in cortadas {
+            #expect(Politica.linha(op).regra == .indisponivelPorQualidade, "\(op)")
+            #expect(Politica.provedor(op, contaLigada: true, bordo: true) == nil, "\(op) ainda tem executor")
+            #expect(!Politica.desceAoAparelho(op), "\(op) desceu ao aparelho")
+            let frase = Politica.semProvedor(op)
+            #expect(frase.contains("indisponível"), "\(op): a frase não diz que está indisponível")
+            #expect(!frase.contains("conta Grok"), "\(op): a frase manda conectar conta que já existe")
+            #expect(!Politica.pelaConta.contains(op) && !Politica.peloAparelho.contains(op), "\(op) promete ajuda no Perfil")
+            #expect(Politica.linha(op).medidaEm != nil, "\(op) sem data da medida")
+        }
+        // O corte tem dois grupos, e o Perfil precisa distingui-los: sem
+        // substituto medido, e com conserto já nomeado.
+        #expect(Politica.indisponiveis.filter { Politica.linha($0).conserto == nil }.count == 5)
+        #expect(Set(Politica.indisponiveis.filter { Politica.linha($0).conserto != nil }) == Set([.responder, .responderNasNotas]))
     }
 
     /// Sem conta e sem aparelho (a suíte), produzir é indisponibilidade dita —
