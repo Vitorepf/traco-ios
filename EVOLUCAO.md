@@ -26,7 +26,7 @@ Contrato operacional de desenvolvimento da visão vigente. Atualizar por evidên
 
 Não há autorização inferida para publicar, gastar ou enviar mensagens externas. Produção local e validação prosseguem; dependências reais entram como pendências explícitas. O AGENTS.md deste repositório foi criado para orientar agentes pela visão vigente; AGENTS de outros projetos e skills de terceiros não foram alterados.
 
-- **Fora do app: a frase do autor inteira, e o dia no médio** (08/09, ADR 2026-09-08b).
+- **Fora do app: a frase do autor inteira, e o dia no médio** (08/09, ADR 2026-09-08g).
   O corte em reticências da linha do Destaque — quatro voltas em aberto — fecha
   pela causa certa: o teto de linhas, não a propriedade de encolhimento. As
   quatro faces que desenham a frase passam a usar a mesma view, sem teto de

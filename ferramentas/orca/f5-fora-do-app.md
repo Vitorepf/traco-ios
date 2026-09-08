@@ -175,7 +175,7 @@ nomeada, e o que não tem está marcado como limite.
 | dimensão | nota | evidência |
 |---|---|---|
 | Visão | 9 | linha G0; EVOLUCAO fecha a lacuna nomeada |
-| Contrato | 9 | ADR 2026-09-08b, SPEC e EVOLUCAO coerentes com o diff |
+| Contrato | 9 | ADR 2026-09-08g, SPEC e EVOLUCAO coerentes com o diff |
 | Correção | 9 | 893/145 verde; 8 testes novos para as duas leis novas |
 | Jornada real | 9 | 14 capturas por estado, conteúdo e relógio conferidos |
 | Design | 9 | seis fases acima; nenhum token novo; forma resolve o achado I |

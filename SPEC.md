@@ -5388,7 +5388,7 @@ A escada da sábia, o `conferir`, o `responderNasNotas`, o `produzirEntrega` e o
 
 **O que esta ADR não prova.** Nenhuma operação tem medição com Grok: a conta não existe em nenhum simulador (login iniciado no iPhone 17 Pro de teste em 07/09, à espera do dono). A tabela decide onde o aparelho NÃO entra; se o Grok serve, é a próxima medição pela mesma sonda. `responder`, `instigar` e `contrapor` seguem sem medição em nenhum provedor. 5 testes em `PoliticaTests`; suíte 826/134 em 07/09/2026.
 
-## ADR 2026-09-08b — A frase do autor não termina em reticências (volta F5)
+## ADR 2026-09-08g — A frase do autor não termina em reticências (volta F4-F)
 
 **A distância.** A F4 foi mesclada em `main` sem o último portão, com quatro dívidas escritas no RUMO. A primeira, e a que abriu a volta original, é a mais dura: **em AX5, no widget pequeno e no médio, a linha do Destaque terminava em reticências** quando o rodapé "Desatualizado." entrava — `terminar o capítulo do meio antes…` no pequeno, `terminar o capítulo do meio antes de do…` no médio, com metade do cartão vazia embaixo. Fotografado de novo em 08/09 na tela viva, antes de tocar em Swift: `ferramentas/orca/f5-antes-ax5-desatualizado.png`.
 
