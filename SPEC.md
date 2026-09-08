@@ -6210,3 +6210,55 @@ pedido ativo é interrompido na abertura do documento. Ele está provado por tes
 (`editarDuranteAAdaptacaoNaoTrocaODocumentoDebaixoDaPessoa`) e por código, não por
 captura. A lacuna da jornada com provedor real continua exatamente como a 08j a
 declarou — é prova da frente Q.
+
+## ADR 2026-09-08n — O arranque que não abre tem de dizer, não morrer (volta A1)
+
+`TracoApp.swift:13` era `try! DiscoTraco.abrir(emTeste:)`. O RUMO registrava a
+morte no arranque desde a limpeza de 07/09, e o item 8 da fila do dono pedia
+que "falhas previsíveis permitam recuperação e preservem o conteúdo".
+
+**A recusa do disco vira estado, e a tela responde três perguntas.** O arranque
+deixou o `try!`: `DiscoTraco.abrir` devolve `.aberto(container)` ou
+`.recusou(erro)`, e `ArranqueFalhouView` diz **o que houve** ("o arquivo onde as
+suas notas ficam neste aparelho não respondeu"), **onde está o conteúdo** (a
+contagem MEDIDA dos `.md` no espelho: "1 nota está em Markdown no app Arquivos,
+na pasta Traço") e **o próximo ato** ("Tentar abrir de novo", alvo de 44,0 pt
+medido na árvore de AX). Se a segunda tentativa também recusa, a tela diz isso —
+não promete conserto que não existe, porque o Traço não tem como reparar um
+arquivo que não conseguiu ler.
+
+**O que a leitura da radiografia de 02/09 (tag `arquivo/fix-furos-radiografia`)
+mudou nesta volta, e é o achado maior que o `try!`.** A versão que estava em
+`main` não morria: ela caía num contentor **em memória** e deixava o app inteiro
+de pé sobre um caderno vazio, com uma frase de aviso por cima. Só que
+`Corpus.escrever` **apaga do espelho em Arquivos todo `.md` que não estiver na
+lista que recebe** (`Corpus.swift`, a varredura do selo), e a lista vem do
+contexto. Um caderno vazio na RAM sobrevoando o espelho apaga o backup sem nuvem
+— o estrago que o defeito ainda não tinha feito. Por isso, agora, **nada se abre
+no lugar**: sem container não há `RaizView`, sem `RaizView` nenhuma rota do selo
+existe, e o espelho não é tocado. `Ferias`, `Revisoes` e as reconciliações da
+Ilha também não correm — reagendar a partir de um mundo vazio calaria o que está
+de pé lá fora. **Preservar vem antes de voltar a funcionar**, e nenhum caminho
+de recuperação limpa, recria ou migra o que não conseguiu ler.
+
+**O portão do `try!`**, irmão do portão do movimento da 08e e com a mesma
+varredura (`codigoVisivel`, que apaga comentário e string antes de contar).
+A lista congelada **nasce medida**: 9 ocorrências antes da volta, 8 depois, com
+julgamento caso a caso — **infalível por construção** (`AnexoDisco`, `Indice` e
+`Corpus:277`, regex de padrão literal; `ConferenciaTrabalho`, literal só
+enquanto todo chamador passar literal) e **dívida real** (`FonteNotas`,
+`PraticaTrabalho`, `Corpus:144` e `Sessao:599` — serialização de valor vindo de
+fora). As quatro dívidas foram ao RUMO e **não se consertam aqui**: `Analise` é
+da volta Q e `Trabalho` é da volta E1, as duas vivas.
+
+**A prova do vermelho.** Um `try!` plantado em `Traco/App/TituloTela.swift`
+deixou o portão vermelho — `Traco/App/TituloTela.swift: 1 hoje, 0 congelado ←
+SUBIU` — e foi removido. Verde sozinho não é portão.
+
+**A prova da tela é com o banco de verdade impedido de abrir**, não com um mock:
+o `default.store` do App Group foi guardado e trocado por um diretório de mesmo
+nome; o arranque recebeu `SwiftDataError(_error: …loadIssueModelContainer)` de
+verdade. Depois de três arranques falhos e de um "tentar de novo" recusado, o
+espelho continuava com o `.md` da nota e o `traco-corpus.md` com 2.303 bytes;
+restaurado o `default.store`, a nota reapareceu na lista. Capturas em
+`ferramentas/orca/a1-arranque.md`.

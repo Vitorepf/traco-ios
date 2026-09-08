@@ -27,6 +27,7 @@
 		18E59F465C2E5F093AD7040E /* TracoWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 8C37AE5D202E97779C84A745 /* TracoWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		198370EA532E27044DBF7CC9 /* FonteNotas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E7C655DC474B72C55FD3A38 /* FonteNotas.swift */; };
 		1A4E61254ECA4D97944BFDC7 /* GrokContratoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A4184FEB9365E01A506762A /* GrokContratoTests.swift */; };
+		1D4ACAE206478E95A594C12B /* ArranqueFalhouView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB3BF4BFF47F4717BAEDCE78 /* ArranqueFalhouView.swift */; };
 		1D509E13759CEE0DEB1ADEC9 /* LembrarDepoisIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80F88073410C6E7EE55833B2 /* LembrarDepoisIntent.swift */; };
 		1E26BA58FB55F45BEA707EF6 /* Ferias.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD168914C5D50E4178D21DF /* Ferias.swift */; };
 		1F3CC3DB7BCF54870BAF6417 /* EscritaVisivelUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 390F139B808A32B771BB1C55 /* EscritaVisivelUITests.swift */; };
@@ -92,6 +93,7 @@
 		793BE3AE186B9D29159CC21E /* IntegridadeRotasTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEE5A0BF90A8A66D87A0B64C /* IntegridadeRotasTests.swift */; };
 		7955B1999142FE2CCC93DDD9 /* TituloTela.swift in Sources */ = {isa = PBXBuildFile; fileRef = 813C9D0A44A4071EBACC0EFD /* TituloTela.swift */; };
 		7A40D574819B61176C09C344 /* LinhasDeProveniencia.swift in Sources */ = {isa = PBXBuildFile; fileRef = 948CA481153CAE57BEF667E4 /* LinhasDeProveniencia.swift */; };
+		7A884C0F2EEE3A6ACA98DFB3 /* PortaoDoTryBangTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 620B5566A2EFBFFE129994A6 /* PortaoDoTryBangTests.swift */; };
 		7C1C6E4F04DB0F87F10AE130 /* Pilula.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9622B1F0FCBD585B72089CD2 /* Pilula.swift */; };
 		7F26309223D4872E96CFEA82 /* ContaGrok.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DBB3255C8D14DB1494C3558 /* ContaGrok.swift */; };
 		7F6EB1BC7BAFE1E2083BCFB3 /* CapturarIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3387F830FCA497BB6F9A71F /* CapturarIntent.swift */; };
@@ -304,6 +306,7 @@
 		5976C267B0B7C444FE2F9E0E /* Relogio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Relogio.swift; sourceTree = "<group>"; };
 		5B743712E55CA95F23379510 /* AnaliseDeBordo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnaliseDeBordo.swift; sourceTree = "<group>"; };
 		5D38D66CE676B1CC86F2344E /* Politica.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Politica.swift; sourceTree = "<group>"; };
+		620B5566A2EFBFFE129994A6 /* PortaoDoTryBangTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortaoDoTryBangTests.swift; sourceTree = "<group>"; };
 		63779AF022C1F93A0C3E8385 /* LinhaQueAbre.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinhaQueAbre.swift; sourceTree = "<group>"; };
 		65BEA908CA56E5E6C5353906 /* PadroesLocal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PadroesLocal.swift; sourceTree = "<group>"; };
 		665F2C234F3966C3C528A729 /* PapelForma.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PapelForma.swift; sourceTree = "<group>"; };
@@ -415,6 +418,7 @@
 		E8BDEC05ABCA7C2EAE27733D /* Retrato.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Retrato.swift; sourceTree = "<group>"; };
 		EA63C18CDAA8BE967EB4C44C /* ContinuidadeTrabalhoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContinuidadeTrabalhoTests.swift; sourceTree = "<group>"; };
 		EAD464BFBF2CFB1AC681E006 /* PoliticaTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoliticaTests.swift; sourceTree = "<group>"; };
+		EB3BF4BFF47F4717BAEDCE78 /* ArranqueFalhouView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArranqueFalhouView.swift; sourceTree = "<group>"; };
 		EFD168914C5D50E4178D21DF /* Ferias.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ferias.swift; sourceTree = "<group>"; };
 		F097B670D2780F7796A2E211 /* DitadoProprio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DitadoProprio.swift; sourceTree = "<group>"; };
 		F39FDF5D127D1C7D7B719758 /* DoCadernoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoCadernoView.swift; sourceTree = "<group>"; };
@@ -582,6 +586,7 @@
 		5CCD748C62CA770B789E3C49 /* App */ = {
 			isa = PBXGroup;
 			children = (
+				EB3BF4BFF47F4717BAEDCE78 /* ArranqueFalhouView.swift */,
 				A810EC1AF4E17D4DB08A56B3 /* BarraNavegacao.swift */,
 				ACC5FB2B7162F211E437D280 /* Camadas.swift */,
 				70BC8BBFDD05D262FE72B42E /* RaizView.swift */,
@@ -632,6 +637,7 @@
 				20335A38BE8FACD4383BD329 /* PilulaContrasteTests.swift */,
 				EAD464BFBF2CFB1AC681E006 /* PoliticaTests.swift */,
 				1DF90794EAEA73FCBE0A4A60 /* PortaoDoMovimentoTests.swift */,
+				620B5566A2EFBFFE129994A6 /* PortaoDoTryBangTests.swift */,
 				C68F1BAA39BE524BD2FC78D7 /* PraticaTrabalhoTests.swift */,
 				40493CD4A16FE11067FED441 /* PrivacidadeTrabalhoTests.swift */,
 				FE42683E3E5F989A0E75E4AB /* PromessaDoAvisoTests.swift */,
@@ -987,6 +993,7 @@
 				C196D8572F49D79DF5BE49BE /* PilulaContrasteTests.swift in Sources */,
 				AF769CCB6D775021AA03EACC /* PoliticaTests.swift in Sources */,
 				312948997692C3C3AE524E29 /* PortaoDoMovimentoTests.swift in Sources */,
+				7A884C0F2EEE3A6ACA98DFB3 /* PortaoDoTryBangTests.swift in Sources */,
 				EE11CA7A0F68FE32B0AEFBF9 /* PraticaTrabalhoTests.swift in Sources */,
 				91E15F303FB313BA849D33A8 /* PrivacidadeTrabalhoTests.swift in Sources */,
 				CD2D139C66A11ACB0ECE3765 /* PromessaDoAvisoTests.swift in Sources */,
@@ -1014,6 +1021,7 @@
 				47CDB34EC591FC6D2C9B98F1 /* AnaliseRemota.swift in Sources */,
 				4C087E51618A29E54C7DB4BF /* AnexoDisco.swift in Sources */,
 				D8077BAEB36715E625DCE1A6 /* ArquivoMarkdownTrabalho.swift in Sources */,
+				1D4ACAE206478E95A594C12B /* ArranqueFalhouView.swift in Sources */,
 				AB0C9971D3509CD45DE07BC8 /* Atividades.swift in Sources */,
 				0DD3BBE75E20A798A60CAB94 /* AvaliacaoIA.swift in Sources */,
 				EFE3BD16FDB33FBF2B0E27C7 /* BarraNavegacao.swift in Sources */,
