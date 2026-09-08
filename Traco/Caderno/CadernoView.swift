@@ -225,7 +225,15 @@ struct CadernoView: View {
                     // viaja pelo ambiente para o cartão o usar POR DENTRO (é lá
                     // que a rolagem dele mora); o `.frame` aqui é a rede.
                     .environment(\.tetoDoEncaixe, tetoDoEncaixe)
-                    .frame(maxHeight: tetoDoEncaixe)
+                    // `alignment: .bottom` é o conserto do fantasma do `.sheet`
+                    // (A5 do re-G4 da V12). Sem ele o ocupante ficava CENTRADO
+                    // numa caixa cuja altura é o teto — e o teto cresce 334 pt
+                    // quando o teclado desce, logo o cartão SALTAVA ~170 pt para
+                    // cima no mesmo quadro em que a folha subia: duas geometrias
+                    // no ar, que é a assinatura da classe A1. Colado ao pé, o
+                    // cartão viaja COM o teclado, um relógio só, e a distância
+                    // até a régua deixa de ser um vão que ninguém escolheu.
+                    .frame(maxHeight: tetoDoEncaixe, alignment: .bottom)
                 peDoEncaixe
                     .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { alturaDoPe = $0 }
             }

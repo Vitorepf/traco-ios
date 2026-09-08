@@ -5387,3 +5387,58 @@ A escada da sábia, o `conferir`, o `responderNasNotas`, o `produzirEntrega` e o
 **O teto passa a ser medido.** Desde o iOS 26.4 o modelo conta tokens (`SystemLanguageModel.tokenCount(for:)`, `contextSize`). `Sabia.noAparelho` mantém os 3.500 caracteres como pré-corte da montagem, mas o portão real é pedido + instruções + 1.024 tokens de resposta reservados ≤ `contextSize`; sem espaço para a resposta, cala. `maximumResponseTokens` fixa a reserva.
 
 **O que esta ADR não prova.** Nenhuma operação tem medição com Grok: a conta não existe em nenhum simulador (login iniciado no iPhone 17 Pro de teste em 07/09, à espera do dono). A tabela decide onde o aparelho NÃO entra; se o Grok serve, é a próxima medição pela mesma sonda. `responder`, `instigar` e `contrapor` seguem sem medição em nenhum provedor. 5 testes em `PoliticaTests`; suíte 826/134 em 07/09/2026.
+
+## ADR 2026-09-08c — O encaixe cola no pé: o fantasma do `.sheet`, o aviso e a cápsula desligada (volta V12-B)
+
+**A distância.** Três dívidas da limpeza de 07/09, todas na Página, todas com a
+mesma raiz de layout ou o mesmo esquecimento de contraste.
+
+1. **O fantasma do `.sheet`** (A5 do re-G4 da V12): ao tocar "Abrir os campos",
+   o cartão da forma vestida aparecia em DUAS geometrias no mesmo gesto — a
+   assinatura da classe A1 —, e o defeito era idêntico com e sem Reduzir
+   Movimento, logo não era a lei do movimento.
+2. **O aviso** (`toast`) nascia longe da barra, no meio do papel — sobre o texto
+   do autor. A revisão da V19 tinha achado o `padding(.bottom, 88)` chutado; a
+   V12 já o tinha apagado ao mudar o aviso para dentro do encaixe, e o número
+   não foi substituído por outro número: foi substituído por um vão.
+3. **A `Pilula` desabilitada** devolvia `tintaMorta` (#C7C7CC) — **1,53:1**
+   sobre o papel — para TODOS os chamadores (A3 da revisão da V19).
+
+**A causa dos dois primeiros é uma só, e não é o `.sheet`.** `CadernoView` dá
+ao encaixe `.frame(maxHeight: tetoDoEncaixe)` — sem alinhamento. Sem alinhamento
+o conteúdo fica **centrado** numa caixa cuja altura é o teto, e o teto cresce
+334 pt quando o teclado desce. Consequência medida em `large`, com o cartão da
+forma vestida: **86,7 pt de vão** entre o pé do cartão e o fio da régua
+(cartão 284,3 → 393,3 pt; régua 480,0 pt), e um **salto de ~176 pt** do cartão
+no mesmo quadro em que a folha subia — o teclado a descer dobrava o teto e o
+centro da caixa mudava de lugar. O `.sheet` não pintava fantasma nenhum: ele
+só revelava um encaixe que flutuava.
+
+**A decisão.**
+
+- O encaixe **cola no pé**: `.frame(maxHeight: tetoDoEncaixe, alignment: .bottom)`.
+  O aviso e o cartão viajam COM o teclado, um relógio só, e a distância até a
+  barra passa a ser a soma dos paddings do próprio ocupante — **12,7 pt**
+  medidos (cartão 358,3 → 467,3 pt; régua 480,0 pt), não um número escolhido.
+  Nenhuma constante entrou no lugar do 88: quem mede é o layout.
+- `PaginaView.acimaDoPe` passa a ser um `VStack(spacing: 0)` explícito. Ele
+  chega ao `CadernoView` dentro de um `AnyView`; apagado o tipo, o `TupleView`
+  deixa de ser achatado pela pilha de baixo e os ocupantes espalhavam-se pela
+  caixa. A pilha explícita fecha isso.
+- **`Pilula` desabilitada continua legível**: a tinta é `tintaFraca` (#68686C) —
+  **5,04:1** no papel, **4,65:1** na névoa, **4,52:1** no chip, **5,55:1** no
+  branco, ≥ 4,5:1 em todo fundo onde uma cápsula pousa. O que diz "desligado"
+  passa a ser o preenchimento que sai, e a **cápsula sobrevive** por uma hairline
+  `Tema.linha`. A tinta sai do `body` (`Pilula.tinta(ativa:cheia:forma:)`) e tem
+  portão em `PilulaContrasteTests`. O contorno à mão que a `RecordarView` tinha
+  no chamador foi apagado (medido: a hairline era desenhada duas vezes, RGB 211
+  contra os 227 de uma linha só).
+
+**O que esta ADR não muda.** Nenhuma curva, duração ou `withAnimation` novo: a
+lista congelada do portão do movimento só desce. O `.sheet` continua a ser
+`.sheet`; a folha dos campos continua a nascer inteira (04u).
+
+**Prova** (iPhone 17 Pro Max `6033B043`, `TRACO_SEM_MODELO=1`, tudo por
+`xcrun simctl io` preso ao UDID, quadros nativos por `ffmpeg`; sem maestro,
+porque havia quatro simuladores ligados): `ferramentas/orca/v12b-pagina.md`.
+Suíte: 890 testes em 144 suítes, verde.
