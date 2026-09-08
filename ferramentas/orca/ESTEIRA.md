@@ -45,9 +45,21 @@ Lei: **nunca `booted` e nunca `-destination generic` para instalar**. Sempre `xc
 
 O juiz do G4 da F4-F acrescentou o quarto dado, e é o mais claro: **`orca emulator attach` é por worktree**, e cada reatamento dele pode ter tirado o aparelho do revisor que trabalhava em paralelo.
 
+**E o pior deles, achado pelo juiz do G4 da V12 em 08/09:** `tap --device` **recusa** quando o helper está noutro aparelho, mas **`ax --device` lê a árvore do VIZINHO sem avisar**. Quer dizer: uma medida de geometria feita pela árvore de acessibilidade pode ser do aparelho errado e **parecer certa**. Regra: toda medida pela árvore de AX é conferida contra uma captura `simctl io` do mesmo UDID no mesmo instante (texto e estado batendo), ou não vale; duas medidas independentes que concordam valem mais que uma sozinha.
+
 Consequências, enquanto o instrumento for assim: **toda sessão de `orca emulator` passa por `ferramentas/orca/com-trava.sh`**, como build e teste, porque o helper é recurso único da máquina; quem for medir geometria ou dirigir tela **declara no relato que segurou a trava**; e medição que o revisor não conseguiu repetir por causa do helper é **limite de instrumento, não confirmação** — não se vende como segunda prova. Prova de tela continua sendo `xcrun simctl io <UDID> screenshot`, que não depende do helper.
 
+**Com quatro simuladores ligados, `xcodebuild test` pendura** em `test runner hung before establishing connection` (achado da F4-I, duas vezes seguidas em 08/09). **A clonagem do teste paralelo é o que pendura:** `-parallel-testing-enabled NO` resolve de primeira. Use-o sempre que houver mais de dois simuladores de pé.
+
 **A galeria de widgets trava.** A folha "Adicionar Widget" para de paginar e depois trava de vez — três sessões seguidas de revisão da F4 esbarraram nisso, e já custou replantio de widget em três revisões. Some com o Simulator reiniciado, às vezes. Quando travar: é instrumento, não desconta nota, e a saída é usar as capturas de quem conseguiu plantar, conferindo o conteúdo e o relógio delas. A Live Activity do Destaque também engole o toque no botão "Editar" da galeria.
+
+## Medir a rota certa — lei de 08/09, achada pela volta Q
+
+**Hash de fixture e JSONL completo NÃO impedem medir a rota errada.** Na volta Q, três dos seis casos de `responderNasNotas` exercitaram `Sabia.responderNasNotas(pergunta:contexto:)`, que **não tem nenhum chamador de produção**: existe só para a sonda, e embrulha a string de contexto numa fonte sintética com o título literal "Contexto fornecido". A atribuição genérica que ia ser registrada como **defeito do provedor** era um título **fabricado pelo próprio app** — o modelo citou corretamente a única fonte que recebeu.
+
+Lei, para toda volta que medir comportamento de IA ou de qualquer motor: **antes de dar nota, leia os chamadores e diga, operação por operação, com arquivo e linha, qual rota a produção usa e se o caso mediu ESSA rota.** Rota exercitada só pela medição é armadilha, não conveniência: apague-a ou exija o caminho real. Medição feita por rota fantasma é **inválida por defeito do instrumento** — registre assim, com essas palavras, mesmo quando a conclusão anterior era favorável a nós. E medição inválida **não vira boa por ser antiga**: as bases anteriores que usaram a rota morta ficam marcadas como tal, sem reescrever prova alheia.
+
+Isto é irmão do achado da V12-D (o quadro longo era o `fotografar()` do próprio teste) e do `ax --device` que lê o vizinho: **em três medições do mesmo dia, o instrumento foi o réu.**
 
 ## Scorecard
 

@@ -70,12 +70,42 @@ struct ForaDoAppTests {
             let s = try #require(lida())
             #expect(s.versao == Superficie.versaoAtual)
             #expect(s.revisao == 1)
-            #expect(s.destaque == .init(id: id, dia: hoje, linha: "correr antes do café", feito: false))
+            #expect(s.destaque == .init(id: id, dia: hoje, linha: "correr antes do café", feito: false, inteira: true))
+
             DestaqueDoDia.gravar("correr antes do café", id: id)
             #expect(lida()?.revisao == 1)
             DestaqueDoDia.gravar("outra", id: id)
             #expect(lida()?.revisao == 2)
             #expect(contador.chamadas.count == 2)
+        }
+    }
+
+    // ADR 08i: o teto público entra na projeção, que `publicar` e `reconciliar` compartilham.
+    @Test("a projeção corta; o estado guarda o texto inteiro; a Ilha recebe o mesmo trecho")
+    func projecaoEAtividadeComOMesmoContrato() async throws {
+        try await isolado { _, _ in
+            let id = UUID()
+            let longa = Array(repeating: "ainda me incomoda que", count: 12).joined(separator: " ")
+            #expect(longa.count > Superficie.Destaque.teto)
+            DestaqueDoDia.gravar(longa, id: id)
+            let d = try #require(DestaqueDoDia.projecao())
+            #expect(d.integridade == .trecho)
+            #expect(d.linha.count <= Superficie.Destaque.teto)
+            #expect(d.linha.hasSuffix("…"))
+            #expect(DestaqueDoDia.linhaDeHoje() == longa)
+            let vivo = try #require(DestaqueDoDia.estadoVivo())
+            #expect(vivo.linha == d.linha)
+            #expect(vivo.inteira == false)
+            if case .disponivel(let s) = SuperficieDisco.ler() {
+                #expect(s.destaque?.linha == d.linha)
+                #expect(s.destaque?.integridade == .trecho)
+            } else {
+                Issue.record("a superfície não foi publicada")
+            }
+            DestaqueDoDia.gravar("curta", id: id)
+            #expect(DestaqueDoDia.projecao()?.integridade == .inteira)
+            #expect(DestaqueDoDia.estadoVivo()?.inteira == true)
+            DestaqueDoDia.apagar(id: id)
         }
     }
 
@@ -574,5 +604,87 @@ struct ForaDoAppTests {
         _ = try await ok.perform()
         let itens = Entrada.recolher(raizes: [Entrada.raizDoApp])
         #expect(itens.map(\.texto).sorted() == ["e o pão", "ligar para o dentista"])
+    }
+}
+
+/// ADR 08i — o corte honesto é do PUBLICADOR, uma vez, antes da distribuição.
+///
+/// O G4 da F4-F semeou a primeira linha de uma nota real (247 caracteres) e a
+/// face desenhou onze linhas a ~7 pt e ainda cortou: `VozDoAutor.titulo` não
+/// tem teto, e a ADR chamava 43 caracteres de "pior caso real". Aqui o teto
+/// mora na projeção — `publicar` e `reconciliar` leem a mesma —, é em
+/// grafemas, prefere fronteira de palavra, e DECLARA a omissão.
+@Suite("ADR 08i: o trecho público do Destaque")
+struct TrechoPublicoTests {
+    private let teto = Superficie.Destaque.teto
+
+    @Test("dentro do teto a linha é inteira e não muda")
+    func inteiraFicaInteira() {
+        let (linha, inteira) = Superficie.Destaque.trecho("terminar o capítulo do meio antes de dormir")
+        #expect(linha == "terminar o capítulo do meio antes de dormir")
+        #expect(inteira)
+    }
+
+    @Test("a pontuação do autor não é metadado: uma frase que já termina em … continua inteira")
+    func reticenciaDoAutorNaoEhCorte() {
+        let (linha, inteira) = Superficie.Destaque.trecho("e depois…")
+        #expect(linha == "e depois…")
+        #expect(inteira)
+    }
+
+    @Test("acima do teto: prefixo fiel, fronteira de palavra, marcador dentro do orçamento")
+    func corteEmPalavra() {
+        let frase = Array(repeating: "quero terminar o capítulo do meio antes de dormir", count: 6).joined(separator: " ")
+        #expect(frase.count == 299)
+        let (linha, inteira) = Superficie.Destaque.trecho(frase)
+        #expect(!inteira)
+        #expect(linha.hasSuffix("…"))
+        #expect(linha.count <= teto)
+        let semMarcador = String(linha.dropLast())
+        #expect(frase.hasPrefix(semMarcador))
+        // terminou numa palavra inteira: o caractere seguinte no original é espaço
+        #expect(frase[frase.index(frase.startIndex, offsetBy: semMarcador.count)] == " ")
+        #expect(!semMarcador.hasSuffix(" "))
+    }
+
+    @Test("o teto é em grafemas: 200 bandeiras contam 200, e o corte não parte um emoji")
+    func grafemas() {
+        let bandeiras = String(repeating: "🇧🇷", count: 200)
+        #expect(bandeiras.count == 200)
+        let (linha, inteira) = Superficie.Destaque.trecho(bandeiras)
+        #expect(!inteira)
+        #expect(linha.count == teto)
+        #expect(linha.dropLast().allSatisfy { $0 == "🇧🇷" })
+    }
+
+    @Test("palavra maior que o orçamento corta por grafema, ainda sinalizado")
+    func semEspacos() {
+        let (linha, inteira) = Superficie.Destaque.trecho(String(repeating: "a", count: 300))
+        #expect(!inteira)
+        #expect(linha.count == teto)
+        #expect(linha.hasSuffix("…"))
+    }
+
+    @Test("instantâneo anterior a esta conta decodifica como integralidade desconhecida")
+    func documentoAntigoNaoSabe() throws {
+        let json = #"{"id":"\#(UUID().uuidString)","dia":"2026-09-08","linha":"antiga…","feito":false}"#
+        let d = try JSONDecoder().decode(Superficie.Destaque.self, from: Data(json.utf8))
+        #expect(d.integridade == .desconhecida)
+        #expect(d.emVoz == "antiga…")
+    }
+
+    @Test("o VoiceOver distingue trecho de texto integral")
+    func emVoz() {
+        #expect(Superficie.Destaque(id: UUID(), dia: "d", linha: "toda", feito: false, inteira: true).emVoz == "toda")
+        #expect(Superficie.Destaque(id: UUID(), dia: "d", linha: "parte…", feito: false, inteira: false).emVoz
+                == "Trecho: parte… Continua no Traço.")
+    }
+
+    @Test("o pequeno com Destaque promete a continuação: traco://nota/<id> abre a nota; id inválido não abre nada")
+    func rotaDaNota() {
+        let id = UUID()
+        #expect(Rota.daURL(URL(string: "traco://nota/\(id.uuidString)")!) == .nota(id))
+        #expect(Rota.daURL(URL(string: "traco://nota/isso-nao-e-id")!) == nil)
+        #expect(Rota.daURL(URL(string: "traco://nota")!) == nil)
     }
 }
