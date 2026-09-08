@@ -1,7 +1,8 @@
 import SwiftUI
 
 /// Os três estilos de botão que vivem em Componentes. Todos pressionam com
-/// `Tema.pressaoAnim` e escala `Tema.pressao`; sob Reduzir Movimento a
+/// `Tema.pressaoAnim` e escala `Tema.pressao` — só escala, nunca opacidade
+/// (ADR 02h; o G4 da V10 pegou 0,7 no press); sob Reduzir Movimento a
 /// pressão não anima (é escala: o estado vira).
 ///
 /// - `.discreto`: o rótulo como está; só escala (é a `PressaoDiscreta` de
@@ -13,10 +14,9 @@ import SwiftUI
 ///   sabe qual é o caminho (von-restorff-effect). É o antigo `CompactoStyle`
 ///   do cartão da análise, que passou a citar este.
 ///
-/// Ainda por tela, até a volta de cada uma (sete estilos no repositório, não
-/// três): `PressaoClara` (CalendarioTema), `CartaoBotaoStyle`
-/// (CartaoAnaliseView), `BarraBotaoStyle` (PaginaView, desenho do dono) e
-/// `AcaoTrabalhoStyle` (TrabalhoView).
+/// Ainda por tela, até a volta de cada uma (seis estilos no repositório, não
+/// três): `PressaoClara` (CalendarioTema), `BarraBotaoStyle` (PaginaView,
+/// desenho do dono) e `AcaoTrabalhoStyle` (TrabalhoView).
 struct BotaoPrimario: ButtonStyle {
     var alinhamento: Alignment = .center
     @Environment(\.isEnabled) private var ativo
@@ -24,13 +24,12 @@ struct BotaoPrimario: ButtonStyle {
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .animation(Tema.pressaoAnim(configuration.isPressed, reduzido: reduceMotion), value: configuration.isPressed)
             .font(Tema.barra)
             .foregroundStyle(ativo ? Tema.ambarTinta : Tema.tintaFraca)
             .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: alinhamento)
             .contentShape(Rectangle())
             .scaleEffect(configuration.isPressed ? Tema.pressao : 1)
-            .opacity(configuration.isPressed ? 0.7 : 1)
+            .animation(Tema.pressaoAnim(configuration.isPressed, reduzido: reduceMotion), value: configuration.isPressed)
     }
 }
 
@@ -42,7 +41,6 @@ struct BotaoCompacto: ButtonStyle {
             .font(Tema.barra)
             .alvo()
             .scaleEffect(configuration.isPressed ? Tema.pressao : 1)
-            .opacity(configuration.isPressed ? 0.7 : 1)
             .animation(Tema.pressaoAnim(configuration.isPressed, reduzido: reduceMotion), value: configuration.isPressed)
     }
 }
@@ -86,7 +84,6 @@ extension ButtonStyle where Self == BotaoCompacto {
         .font(Tema.barra)
         .foregroundStyle(Tema.ambarTinta)
         .scaleEffect(Tema.pressao)
-        .opacity(0.7)
         .padding()
         .background(Tema.fundo)
 }

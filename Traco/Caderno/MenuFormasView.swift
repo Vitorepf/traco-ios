@@ -61,7 +61,7 @@ struct MenuFormasView: View {
                             .padding(.vertical, 8)
                             .contentShape(Rectangle())
                         }
-                        .buttonStyle(PressaoDiscreta())
+                        .buttonStyle(.discreto)
                         .accessibilityIdentifier("vestir-tudo")
                     }
 
@@ -76,7 +76,7 @@ struct MenuFormasView: View {
                                 .font(Tema.chrome.weight(.semibold))
                                 .foregroundStyle(Tema.ambarTinta)
                                 .alvo()
-                                .buttonStyle(PressaoDiscreta())
+                                .buttonStyle(.discreto)
                                 .accessibilityIdentifier("limpar-filtro-formas")
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -116,7 +116,7 @@ struct MenuFormasView: View {
                                 }
                                 .contentShape(Rectangle())
                             }
-                            .buttonStyle(PressaoDiscreta())
+                            .buttonStyle(.discreto)
                             .accessibilityIdentifier("catalogo-\(papel.slug)")
                         }
                       } header: {
@@ -168,7 +168,7 @@ struct MenuFormasView: View {
                         .frame(width: Tema.alvo, height: Tema.alvo)
                         .contentShape(Rectangle())
                 }
-                .buttonStyle(PressaoDiscreta())
+                .buttonStyle(.discreto)
                 .accessibilityIdentifier("limpar-busca-formas")
             }
         }

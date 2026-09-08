@@ -8,10 +8,7 @@ struct SinalTipo: View {
     let nome: String
 
     var body: some View {
-        Text(nome.uppercased())
-            .font(Tema.label)
-            .tracking(Tema.trackingLabel)
-            .foregroundStyle(Tema.tintaFraca)
+        Text(nome).rotulo()
     }
 }
 
@@ -100,12 +97,7 @@ struct PortalArquivoView: View {
                 PlayerAnexo(url: AnexoDisco.url(id, nome: nome))
             }
         }
-        .padding(14)
-        .background(Tema.superficie, in: RoundedRectangle(cornerRadius: Tema.raio, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: Tema.raio, style: .continuous)
-                .strokeBorder(Tema.linha, lineWidth: 1)
-        }
+        .cartao(.papel)
         .overlay(alignment: .leading) { trilho }
         .contentShape(Rectangle())
         .onTapGesture(perform: aoEditar)
@@ -199,12 +191,7 @@ struct PortalArquivoView: View {
                 }
             }
         }
-        .padding(14)
-        .background(Tema.superficie, in: RoundedRectangle(cornerRadius: Tema.raio, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: Tema.raio, style: .continuous)
-                .strokeBorder(Tema.linha, lineWidth: 1)
-        }
+        .cartao(.papel)
         .overlay(alignment: .leading) { trilho }
         .accessibilityElement(children: .contain)
         .accessibilityLabel("PDF, \(nome)")
@@ -244,12 +231,7 @@ struct PortalArquivoView: View {
                 .accessibilityLabel("Compartilhar arquivo")
             }
         }
-        .padding(14)
-        .background(Tema.superficie, in: RoundedRectangle(cornerRadius: Tema.raio, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: Tema.raio, style: .continuous)
-                .strokeBorder(Tema.linha, lineWidth: 1)
-        }
+        .cartao(.papel)
         .overlay(alignment: .leading) { trilho }
         .contentShape(Rectangle())
         .onTapGesture(perform: aoEditar)
@@ -288,8 +270,7 @@ struct PortalArquivoView: View {
             .font(Tema.corpo)
             .foregroundStyle(Tema.tintaSuave)
             .frame(maxWidth: .infinity, minHeight: 88, alignment: .leading)
-            .padding(14)
-            .background(Tema.superficie, in: RoundedRectangle(cornerRadius: Tema.raio, style: .continuous))
+            .cartao(.papel)
     }
 }
 
@@ -315,7 +296,7 @@ private struct PlayerAnexo: View {
                 .foregroundStyle(Tema.tinta)
                 .frame(width: Tema.alvo, height: Tema.alvo)
         }
-        .buttonStyle(PressaoDiscreta())
+        .buttonStyle(.discreto)
         .accessibilityLabel(toca ? "Pausar" : "Tocar")
     }
 }

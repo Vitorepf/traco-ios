@@ -17,7 +17,6 @@ struct PaginaView: View {
     @State private var abrirArquivo = false
     @State private var lenteAberta = false
     @State private var chegou = false
-    @State private var pulso = false
 
     var body: some View {
         // §20: a navegação é da RAIZ. Este Empilha era resíduo da arquitetura
@@ -28,15 +27,14 @@ struct PaginaView: View {
             .sheet(isPresented: $mostrarCampos) {
                 if let gesto = sessao.gesto, gesto != .expressiva {
                     VStack(alignment: .leading, spacing: 0) {
-                        Button("Voltar à página") {
+                        // "voltar" em tinta, não no âmbar do tint (2,0:1 sobre
+                        // branco, ADR 02h): o cabeçalho é o de toda folha
+                        CabecalhoDeFolha(saida: .voltar, aoSair: {
                             guard sessao.salvar(no: context) else { return }
                             mostrarCampos = false
-                        }
-                        .font(Tema.meta)
-                        .padding(.horizontal, Tema.margem)
-                        .padding(.top, 16)
-                        .alvo()
-                        .accessibilityIdentifier("voltar-campos")
+                        }, prefixo: "campos")
+                            .padding(.horizontal, Tema.margem)
+                            .padding(.top, 16)
                         // a folha tem cabeçalho de verdade: o nome da forma é
                         // TÍTULO, não um sexto rótulo. E o âmbar sai do botão
                         // que descarta — o olho não entra pela ação destrutiva
@@ -53,7 +51,7 @@ struct PaginaView: View {
                             }
                             .font(Tema.meta)
                             .foregroundStyle(Tema.tintaSuave)
-                            .buttonStyle(PressaoDiscreta())
+                            .buttonStyle(.discreto)
                             .accessibilityIdentifier("soltar-na-folha")
                             .accessibilityHint("Desfaz a forma; o seu texto fica intacto")
                         }
@@ -283,69 +281,84 @@ struct PaginaView: View {
                 }
                 editor
             }
-
-            if let toast = sessao.toast {
-                // O aviso fala a língua das outras superfícies: cartão de raio
-                // 12, largura cheia, texto na margem — a cápsula centrada era o
-                // único oval do app e quebrava o eixo esquerdo (report do dono,
-                // 01/set: "esses elementos estão diferentes do resto";
-                // law-of-similarity com o cartão da análise).
-                Text(toast)
-                    .font(Tema.corpo)
-                    .foregroundStyle(Tema.tintaSuave)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-                    .background(Tema.superficieAlta, in: RoundedRectangle(cornerRadius: Tema.raio, style: .continuous))
-                    .overlay(RoundedRectangle(cornerRadius: Tema.raio, style: .continuous).strokeBorder(Tema.linha, lineWidth: 0.5))
-                    .shadow(color: Tema.sombraContato, radius: 2, y: 1)
-                    .padding(.horizontal, Tema.margem)
-                    .padding(.bottom, 88)
-                    .transition(Tema.transicao(.opacity.combined(with: .offset(y: 6)), reduzido: reduceMotion))
-                    .accessibilityIdentifier("toast-analise")
-                    .accessibilityAddTraits(.isStaticText)
-            }
-
         }
         .animation(Tema.movimento(.deslocamento, .easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion), value: sessao.paginaVazia)
         .animation(Tema.movimento(.deslocamento, .easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion), value: sessao.toast)
+        // o cartão entra e sai como a gaveta: quem anima é a ALTURA do encaixe
+        .animation(Tema.gaveta(reduzido: reduceMotion), value: sessao.cartao)
+        .animation(Tema.gaveta(reduzido: reduceMotion), value: sessao.analisando)
     }
 
-    /// Auditoria de movimento: UMA superfície no rodapé.
-    ///
-    /// Régua, barra de ações e cartão eram três views independentes, cada uma
-    /// com sua opacidade e sua lei — e se atravessavam no ar (g111: "SPEC" e
-    /// "Analisar" legíveis na MESMA linha de base; g112: a régua legível DENTRO
-    /// do cartão). Aqui só existe UM ocupante por vez, e a troca é uma transição
-    /// de conteúdo dentro do mesmo container.
+    /// O que fica ACIMA do pé — o aviso, o cartão da análise ou "lendo…" —
+    /// dentro do mesmo encaixe da régua e das ações, que são desenho do dono
+    /// (ADR 05f) e não saem do lugar: o V9 viu o cartão tomar o pé e o toque
+    /// mirado em "Todas" cair no texto do cartão (fitts-law). Um sai, o outro
+    /// entra — CORTANDO, nunca em fade sobre as mesmas linhas —, e quem anima é
+    /// a altura do container (§21).
+    /// A identidade do cartão é o CASO, não a carga: ver `acimaDoPe`.
+    private func casoDoCartao(_ c: CartaoAnalisar) -> String {
+        switch c {
+        case .aviso: "aviso"
+        case .forma: "forma"
+        case .vestida: "vestida"
+        case .expressiva: "expressiva"
+        case .pergunta: "pergunta"
+        case .resposta: "resposta"
+        case .sabiaPensando: "sabiaPensando"
+        case .vestido: "vestido"
+        case .semConta: "semConta"
+        }
+    }
+
     @ViewBuilder
-    private var rodapeUnico: some View {
-        // sem `.transition(.opacity)`: cross-fade deixava as DUAS barras
-        // legíveis nas mesmas linhas por um quadro inteiro. Elementos que
-        // ocupam o mesmo espaço não se dissolvem um no outro — um sai, o outro
-        // entra, e quem anima é a ALTURA do container.
+    private var acimaDoPe: some View {
+        if let toast = sessao.toast {
+            // O aviso fala a língua das outras superfícies: cartão de raio 12,
+            // largura cheia, texto na margem; vive no fluxo do pé, nunca por
+            // cima das ações (a linha de recusa da gravação fica aqui até o
+            // disco dizer sim, ADR 05s)
+            Text(toast)
+                .font(Tema.corpo)
+                .foregroundStyle(Tema.tintaSuave)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+                .cartao(.papel, recuo: [])
+                .padding(.horizontal, Tema.margem)
+                .padding(.bottom, 8)
+                .transition(Tema.transicao(.opacity.combined(with: .offset(y: 6)), reduzido: reduceMotion))
+                .accessibilityIdentifier("toast-analise")
+                .accessibilityAddTraits(.isStaticText)
+        }
         if let cartao = sessao.cartao {
-            CartaoAnaliseView(cartao: cartao, sessao: sessao, aoAbrirCampos: { mostrarCampos = true })
+            // enquanto o autor ESCREVE (teclado de pé) o cartão vale uma
+            // linha: a página é do texto dele. As saídas ficam à vista; a
+            // prosa abre a um toque, no lugar, sem mexer no teclado.
+            CartaoAnaliseView(cartao: cartao, sessao: sessao,
+                              aoAbrirCampos: { mostrarCampos = true },
+                              // com a folha dos campos em cena o cartão fica
+                              // como está: mudar de forma por trás dela é
+                              // desenhar o encaixe em duas geometrias
+                              recolhido: focoPagina || mostrarCampos)
                 .padding(.horizontal, Tema.margem)
                 .padding(.bottom, 12)
+                // a troca de CASO do cartão é troca de VIEW, e ela CORTA: sem
+                // isto o SwiftUI dissolvia o texto velho sobre o novo, nas mesmas
+                // linhas — foi o que o G3 da V12 filmou entre `.forma` e
+                // `.vestida` (A1). Dentro do mesmo caso a identidade fica: a
+                // resposta da sábia chega sem reiniciar o "serviu / não serviu".
+                .transition(.identity)
+                .id(casoDoCartao(cartao))
         } else if sessao.analisando, !sessao.paginaVazia {
             // o sinal de que ALGO está acontecendo — sem ele a tela fica muda
-            HStack(spacing: 8) {
-                Circle()
-                    .fill(Tema.ambar)
-                    .frame(width: 5, height: 5)
-                    .opacity(pulso ? 1 : 0.25)
-                    // laço: sob movimento reduzido para — o ponto fica aceso, e o "lendo…" já diz
-                    .animation(Tema.movimento(.laco, .easeInOut(duration: Tema.Duracao.pulso).repeatForever(autoreverses: true), reduzido: reduceMotion), value: pulso)
-                Text("lendo…")
-                    .font(Tema.meta)
-                    .foregroundStyle(Tema.tintaSuave)
-            }
-            .frame(maxWidth: .infinity, minHeight: 54)
-            .onAppear { pulso = true }
-            .accessibilityIdentifier("analisando")
-        } else if !sessao.paginaVazia || sessao.podeRecordar {
-            bottomBar
+            LinhaDeEstado("lendo…", .lendo)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, Tema.margem)
+                .padding(.vertical, 8)
+                .accessibilityIdentifier("analisando")
+                // "lendo…" e o cartão ocupam a MESMA linha do encaixe: um fade
+                // entre eles é o cross-fade entre irmãos legíveis que a 05y proíbe
+                .transition(.identity)
         }
     }
 
@@ -370,11 +383,18 @@ struct PaginaView: View {
                 .accessibilityHint("Guarda e abre uma página nova")
         }
         .font(Tema.chrome)
-        .buttonStyle(PressaoDiscreta())
+        .buttonStyle(.discreto)
         .padding(.horizontal, Tema.margem)
         .padding(.top, 4)
         .padding(.bottom, 8)
         .animation(Tema.movimento(.deslocamento, .easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion), value: sessao.temVoz)
+    }
+
+    /// Custo assumido da 05y: em tamanho AX, com o cartão em cena, uma terceira
+    /// barra não cabe — a régua cede. Em `large` ela FICA, cartão ou não; foi
+    /// isso que o G3 da V12 pediu para provar (M1).
+    static func esconderRegua(cartao: CartaoAnalisar?, tamanho: DynamicTypeSize) -> Bool {
+        cartao != nil && tamanho.isAccessibilitySize
     }
 
     /// SPEC §4: os campos nascem abaixo do texto. Reabrir a nota não os esconde.
@@ -390,9 +410,10 @@ struct PaginaView: View {
 
     private var editor: some View {
         CadernoView(
-            rodape: AnyView(rodapeUnico),
+            rodape: !sessao.paginaVazia || sessao.podeRecordar ? AnyView(bottomBar) : nil,
             abaixo: camposAbaixo,
-            esconderRegua: sessao.cartao != nil,
+            acima: AnyView(acimaDoPe),
+            esconderRegua: Self.esconderRegua(cartao: sessao.cartao, tamanho: tamanhoTexto),
             texto: $sessao.texto,
             foco: $focoPagina,
             folga: corpoFolga,
@@ -490,22 +511,38 @@ struct PaginaView: View {
         }
     }
 
+    @ViewBuilder private var trabalharNistoBotao: some View {
+        if sessao.temVoz, sessao.gesto != .expressiva {
+            Button("Trabalhar nisto", action: trabalharNisto)
+                .foregroundStyle(Tema.ambarTinta)
+                .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .leading)
+                .accessibilityHint("Cria um trabalho com esta intenção; sua nota é preservada")
+                .accessibilityIdentifier("trabalhar-nisto")
+        }
+    }
+
     private var bottomBar: some View {
         VStack(alignment: .leading, spacing: 8) {
-            if sessao.temVoz, sessao.gesto != .expressiva {
-                Button("Trabalhar nisto", action: trabalharNisto)
-                    .foregroundStyle(Tema.ambarTinta)
-                    .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .leading)
-                    .accessibilityHint("Cria um trabalho com esta intenção; sua nota é preservada")
-                    .accessibilityIdentifier("trabalhar-nisto")
-            }
             if tamanhoTexto.isAccessibilitySize {
-                Menu("Mais ações da nota") { acoesDaPagina }
-                    .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .leading)
+                // em AX cada ação ocupa a LARGURA inteira — lado a lado, as
+                // quatro espremiam "Mais ações da nota" a "Mais ações d…" (AX5,
+                // 06/09). "Trabalhar nisto" fica FORA do menu, como era antes
+                // desta volta: com as cinco dentro, o menu ficava mais alto que a
+                // tela e a quinta só existia depois de rolar, sem afordância
+                // nenhuma (G3 da V12, M3 — `v12-rev-ax5-menu.png`). Quatro cabem.
+                trabalharNistoBotao
+                Menu("Mais ações da nota") {
+                    acoesDaPagina
+                }
+                .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .leading)
+                .accessibilityIdentifier("mais-acoes-da-nota")
             } else {
+                trabalharNistoBotao
                 HStack(spacing: 8) { acoesDaPagina }
             }
         }
+        // o pé não cede ao cartão: se falta altura, é o texto do cartão que rola
+        .fixedSize(horizontal: false, vertical: true)
         .sheet(isPresented: $lenteAberta) {
             LenteView(texto: sessao.texto, notaUUID: sessao.gesto == .expressiva ? nil : sessao.notaUUID, gesto: sessao.gesto,
                       retrato: sessao.retratoAtual())
@@ -564,9 +601,7 @@ struct PaginaView: View {
     private func cartaoPergunta(_ pergunta: String) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Text("PERGUNTA DOS PADRÕES")
-                .font(Tema.label)
-                .tracking(Tema.trackingLabel)
-                .foregroundStyle(Tema.tintaFraca)
+                .rotulo()
             Text(pergunta)
                 .font(Tema.corpo)
                 .foregroundStyle(Tema.tinta)
@@ -577,12 +612,12 @@ struct PaginaView: View {
             .font(Tema.corpo)
             .foregroundStyle(Tema.tintaSuave)
             .alvo()
-            .buttonStyle(PressaoDiscreta())
+            .buttonStyle(.discreto)
             .accessibilityLabel("Soltar a pergunta")
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Tema.superficie, in: RoundedRectangle(cornerRadius: Tema.raio, style: .continuous))
+        .cartao(.papel, recuo: [])
         .padding(.horizontal, 10)
         .padding(.bottom, 8)
         .accessibilityIdentifier("cartao-padroes")
@@ -720,7 +755,7 @@ private struct LinhaDaVolta: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .contentShape(Rectangle())
             }
-            .buttonStyle(PressaoDiscreta())
+            .buttonStyle(.discreto)
             .padding(.horizontal, Tema.margem)
             .padding(.bottom, 2)
             .transition(.opacity)

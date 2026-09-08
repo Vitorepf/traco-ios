@@ -144,10 +144,33 @@ struct Camadas<Arquivo: View, Escrita: View>: View {
                     // instante, e isso matava a mola (a volta saía em 1 quadro)
                     try? await Task.sleep(for: .milliseconds(16))
                     if mudou { arquivoAberto = alvo }
+                    // o binding pode recusar (timer da expressiva de pé pede
+                    // confirmação, re-G3 V7): a posição volta ao estado real,
+                    // senão a camada fica à mostra sem receber toque
+                    if let volta = Trilho.posicaoAposRecusa(alvoPedido: alvo, arquivoAberto: arquivoAberto, largura: w) {
+                        withAnimation(mola) { pos = volta }
+                    }
                     try? await Task.sleep(for: .milliseconds(700))
                     animandoPeloGesto = false
                 }
             }
+    }
+}
+
+/// O trilho da camada na parte que é ARITMÉTICA e não gesto, para poder ser
+/// provada sem tela: a re-G3 da volta 7 vivia num ramo dentro de um
+/// `DragGesture` e voltou uma vez por não ter teste (G3 da V12, M1).
+enum Trilho {
+    /// Depois de soltar, o binding pode RECUSAR o alvo — o timer da expressiva
+    /// de pé pede confirmação e `Sessao.irPara` recusa de forma síncrona, então
+    /// no quadro seguinte `arquivoAberto` ainda é o valor velho.
+    ///
+    /// `nil` = o binding aceitou e a mola já parou no lugar certo. Caso
+    /// contrário, a posição do estado REAL: sem ela a camada fica à mostra sem
+    /// receber toque.
+    static func posicaoAposRecusa(alvoPedido: Bool, arquivoAberto: Bool, largura: CGFloat) -> CGFloat? {
+        guard arquivoAberto != alvoPedido else { return nil }
+        return arquivoAberto ? 0 : -largura
     }
 }
 
@@ -169,10 +192,10 @@ struct AbaArquivo: View {
                 .frame(width: 4, height: 64)
                 .padding(.leading, 3)
                 .padding(.vertical, 20)
-                .padding(.trailing, 16)   // alvo largo sem chrome largo
+                .padding(.trailing, Tema.alvo - 7)   // 3 + 4 + 37 = 44 de alvo, sem chrome largo
                 .contentShape(Rectangle())
         }
-        .buttonStyle(PressaoDiscreta())
+        .buttonStyle(.discreto)
         .frame(maxHeight: .infinity, alignment: .center)
         .accessibilityIdentifier("aba-arquivo")
         .accessibilityLabel("Abrir as notas")

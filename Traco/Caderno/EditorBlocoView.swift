@@ -239,7 +239,9 @@ struct EditorBlocoView: View {
                         acao: @escaping () -> Void) -> some View {
         Button {
             Toque.selecao()
-            withAnimation(Tema.movimento(.deslocamento, Tema.Mola.escala, reduzido: reduceMotion)) {
+            // a fileira que nasce ENTRA de estado: curva e classe da mesma
+            // família (o G4 da V10 pegou uma mola de escala sob .deslocamento)
+            withAnimation(Tema.movimento(.deslocamento, .easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion)) {
                 acao()
             }
         } label: {
@@ -254,7 +256,7 @@ struct EditorBlocoView: View {
                 .frame(height: altura)
                 .contentShape(Rectangle())
         }
-        .buttonStyle(PressaoDiscreta())
+        .buttonStyle(.discreto)
         .accessibilityIdentifier(id)
         .accessibilityLabel(rotulo)
     }

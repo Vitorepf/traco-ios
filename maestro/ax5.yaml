@@ -10,8 +10,11 @@ appId: app.traco
 - tapOn:
     id: pagina
 - inputText: "quero correr de manhã"
+# em AX o cartão vale uma linha com o teclado de pé e as saídas vivem no menu
+# dela (ADR 05y, correção do G4): o que está sempre à vista é o cartão
 - extendedWaitUntil:
-    visible: "Deixar como nota"
+    visible:
+      id: "cartao-analise"
     timeout: 6000
 - takeScreenshot: /tmp/traco-verify/hoje/ax5-02-forma
 - tapOn:
