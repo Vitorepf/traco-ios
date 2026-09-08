@@ -379,3 +379,89 @@ exatamente o que o teste cobre.
 | Simplicidade | 9 | correção local, sem dependência nova |
 | Design, Movimento, Componentes, Acessibilidade, Fora do app | n/a | não há entrega nova dessas superfícies; foto do Perfil permanece aberta |
 | Relato | 7 | número, blame e lacuna estão rastreáveis; corrigir a prova de escopo e a descrição da varredura |
+
+## re-G3 (quarto) — PASSA
+
+Revisor e QA independente, 08/09/2026, candidato `9007e92`. Esta passada
+confere somente as duas correções pedidas e a foto pendente; não reabri as
+letras, ADR/RUMO, atribuição do aviso, quatro recusas INDETERMINADAS nem a
+suíte integral já reproduzida.
+
+### As duas correções
+
+**Escopo — PASSA.** Recomputei o diff de `1a4cacf^..1a4cacf`, sem usar a
+contagem do implementador: cada linha alterada do lado novo que, ao trocar
+`08q→08k` e `08r→08m`, coincide exatamente com uma linha do pai dá **49
+linhas / 55 ocorrências**. As outras linhas alteradas que contêm as letras
+novas são exatamente as **12** enumeradas em Q-F §1: `SPEC.md:5862`, cinco
+linhas de `q-d-origem-sem-vazamento.md` e seis do relatório novo Q-E. O
+`git show --stat 1a4cacf` continua em 16 arquivos, 223 inserções/56 remoções;
+a errata em Q-F e Q-E nomeia RUMO, notas de origem, `AttributedString`/teste,
+atualizações Q-D e relatório Q-E, e restringe a equivalência à lista — não
+sobrou alegação de que o commit inteiro só renomeia.
+
+**Guarda estrutural — PASSA.** `Recusa` tem 12 casos e
+`nenhumCampoDaRecusaCarregaPalavraDoExercicio` constrói 12 recusas cobertas
+(`cobertos.count == 12`), com marcadores `q`, `zk`, `vún`, `nubz`, `plu`,
+`wix`, `mub`, `tyz`, `krebli`, `gorrênita`, `qanaptu`, `ferzol`: oito de 1--4
+letras e três acentuados. Ela normaliza, separa em tokens e usa
+`isDisjoint`, sobre `redigida + String(reflecting:)`; não há `contains`
+ingênuo. Fiz a mutação mínima em `PraticaTrabalho.provar` que troca `nome`
+por `valor` em `.campoAcimaDoTeto`: o grupo falhou com
+`["gorrenita"] em .campoAcimaDoTeto(...)` em
+`PraticaTrabalhoTests.swift:521`; desfiz-a e o grupo voltou verde:
+`Test run with 54 tests in 1 suite passed after 0.143 seconds.` / `** TEST
+SUCCEEDED **`. A árvore final está limpa; o texto corrente volta a passar
+`nome`, não `valor`. A fronteira declarada permanece honesta:
+`chavesForaDoContrato` pode ecoar o nome da chave externa truncado, e o teste
+o afirma explicitamente.
+
+### Foto da jornada
+
+Usei somente o **iPhone 17 Pro teste 3**
+`34CC3F94-FDB5-4575-A4F5-80271829A18B`: liguei-o, construí a árvore
+`9007e92`, instalei `Traco.app` com UDID explícito, e segurei
+`ferramentas/orca/com-trava.sh` para attach, toques, AX e captura. O
+`C2416CBC` (Grok do dono) não foi tocado. A captura
+[`re-g3-quarto-conta-inicial.png`](re-g3-quarto-conta-inicial.png) e a árvore
+[`re-g3-quarto-conta-inicial.ax.json`](re-g3-quarto-conta-inicial.ax.json)
+foram obtidas na mesma operação travada.
+
+Elas mostram, em ordem, `Pelo aparelho, sem conta`, `Só com a conta Grok` e a
+terceira lista `Indisponível mesmo com a conta Grok — a medida de 08/09
+reprovou, e não há outro caminho:`. A árvore no mesmo instante também contém
+o segundo grupo da terceira lista, `Em correção, com conserto nomeado e sem
+data`, e as duas operações com **o quê**, **por quê** e **conserto**;
+portanto, sem prazo. Nenhuma linha da terceira lista manda conectar a conta;
+o botão geral `Entrar com a conta Grok` existe acima das listas e não foi
+acionado. O código entrega cada operação por um único
+`Text(Self.linhaDa(...))`; `linhaDa` produz um `AttributedString`, e o teste
+`linhaTingeSoONome` fixa texto integral e um único run em `Tema.tintaSuave`.
+Não acionei VoiceOver, Siri, ditado, Speak Screen ou iPad; a ordem de leitura
+foi conferida pela AX, que expõe os textos nessa ordem.
+
+O estado vazio existe no código (`Nenhuma operação indisponível por
+qualidade.`), mas não é alcançável por UI nesta árvore sem modificar a
+política: `reprovadas` deriva de `Politica.indisponiveis`, que deriva das
+regras estáticas de todas as operações, e há reprovadas no candidato. Não
+alterei dados, fonte ou política para fabricá-lo.
+
+### Scorecard
+
+| dimensão | nota | evidência |
+|---|---:|---|
+| Visão | 9 | a linha reprovada explica indisponibilidade medida em vez de calar ou prometer disponibilidade |
+| Contrato | 9 | recomputação independente: 49/55 puras, 12 mistas, alegação limitada ao artefato |
+| Correção | 9 | mutação ficou vermelha; restaurada, 54 testes/1 suíte verdes e árvore limpa |
+| Jornada real | 9 | captura e AX do Perfil/CONTA no mesmo estado mostram a terceira lista legível e os dois grupos |
+| Performance | 9 | build Debug desta árvore concluiu `** BUILD SUCCEEDED **`; não há nova mudança de execução nesta passada |
+| Privacidade e autoria | 9 | as 12 formas são varridas integralmente, tokens curtos/acentuados incluídos; mutação expôs o vazamento |
+| Estado honesto | 9 | escopo da frase coincide com a prova; sem prazo e estado vazio inacessível são declarados, não inventados |
+| Simplicidade | 9 | guarda é uma asserção sobre a forma existente; sem dependência ou abstração nova |
+| Design, Movimento, Componentes, Fora do app | n/a | esta passada não entrega nem altera essas superfícies |
+| Acessibilidade | 9 | AX e captura do mesmo instante confirmam conteúdo/ordem; VoiceOver não foi ligado por ordem explícita |
+| Relato | 9 | comando, candidato, aparelhos, evidência visual e limite do vazio estão nomeados |
+
+**Veredito: PASSA para G5.** Desliguei o `34CC3F94` ao fim. Não alterei Swift
+de forma persistente, não mesclei e não toquei no parser nem na régua do
+vazamento.
