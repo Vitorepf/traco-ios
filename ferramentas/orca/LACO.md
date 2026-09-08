@@ -161,3 +161,13 @@ Ordem do dono: **foque na IA**. A volta **Q (qualidade da IA)** abre como frente
 **Correção do meu registro anterior:** eu tinha escrito às 10h25, lendo `prova/cinco-itens.md`, que a conta estava no `teste 2 B91C8DEF`. **A conta que vale agora é a do `C2416CBC`**, e é a única. O `teste 2` e o `teste 3` deixam de ser proibidos (a sessão que os usava foi fechada pelo dono).
 
 **LEI DO SIMULADOR DO GROK, no spec de todo worker daqui em diante:** o `C2416CBC` é o único aparelho com a conta. **Ninguém roda `erase`, `clearState`, `uninstall` ou `xcodebuild test` nele.** Workers de outras voltas usam outros UDIDs. A volta Q **instala por cima** e confere `ContaGrok.ligada` **antes de cada corrida**. Se a conta cair, **o dono tem de reautorizar — diga em vez de contornar**.
+
+### 08/09 16h40 — A V17 pronta e o merge SEGURADO: outra sessão escreve em `main` ao vivo
+
+A volta V17 passou em todos os portões (G3 → V17-B → re-G3 PASSA → G4 PASSA) e a V17-C fechou a parte dela do G5: prova dos portões comitada (capturas de 3,7 MB para 1,8 MB, nenhuma acima do teto do RUMO), `main` trazida em ordem cronológica (21 commits, conflito só de lugar no SPEC) e **árvore mesclada provada: 928 testes em 149 suítes, 0 aviso, portão do movimento com a lista de divergências vazia**.
+
+**Não mesclei, e a razão é a segunda colisão do dia com uma sessão externa.** Às 16h39 o checkout principal estava sujo, escrito naquele minuto: `Traco/Trabalho/ConferenciaTrabalho.swift`, `OficinaTrabalho.swift`, `TrabalhoView.swift`, `TracoTests/ConferenciaTrabalhoTests.swift` e `prova/cinco-itens-grok46-validacao.jsonl` — pelo nome, a continuação dos cinco itens. **`OficinaTrabalho.swift` e `TrabalhoView.swift` são exatamente os arquivos que a V17 reescreveu.**
+
+Não toquei em nada — nem `stash`, nem commit, nem reset —, como na primeira vez, de manhã. Perguntei ao dono e a volta espera no branch, sem risco de perder nada.
+
+**A lição, que já é padrão e vai para a ESTEIRA quando eu tiver a resposta:** worktree isola a EDIÇÃO, não o MERGE. Uma sessão que trabalha direto no checkout principal bloqueia o G5 de qualquer volta que toque os mesmos arquivos, e o orquestrador não pode resolver isso sozinho sem passar por cima de trabalho vivo. Da primeira vez (10h25) o dono comitou e destravou; desta vez ele decide de novo.
