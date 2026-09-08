@@ -10,7 +10,7 @@ Três voltas abertas ao mesmo tempo, cada uma no próprio worktree filho nascido
 |---|---|---|---|---|
 | P1 | item 7 (o portão que impede `withAnimation` fora de `Tema`) + item 5 (A-6) + item 6 (M3) | TracoTests, Metodos.json, Analise, SPEC | teste 4 → 17e | **MESCLADA** em `29cc2ce` (ADR 08e; G3 corrigir antes → correção → re-G3 APROVADO por outro fornecedor; dívida real de curva literal = ZERO; 894 testes na árvore mesclada) |
 | F4-F | item 2 (F4: o Destaque longo cortado pelo rodapé, o quadro de ofertas, tela bloqueada/StandBy/Ilha sem captura, o médio de uma linha) | TracoWidget, App/Intents | teste 3 `34CC3F94` | EM EDIÇÃO |
-| L2 | item 4 (L1: o G4 reprovado — Design 8, Simplicidade 7: teto de 12 meses, `Tema.miudo` dentro do app, frase-resumo em duas linhas, `quantas == 1`; falta escuro, B×AX5 e VoiceOver) | Traco/Perfil, Tema.swift | iPhone 17 Pro `C2416CBC` | EM EDIÇÃO |
+| L2 | item 4 (L1: o G4 reprovado) | Traco/Perfil, Tema.swift | iPhone 17 Pro | **MESCLADA** em `9a711eb` (ADR 08h; G3 corrigir antes → prova refeita no binário → G4 PASSA com Design 9 e Simplicidade 8 declarada teto honesto) |
 
 **Dívidas que a rodada de 08/09 destapou, e viram volta própria:**
 - **Um arquivo de teste viveu em `main` sem nunca rodar.** `TracoTests/ContinuidadeTrabalhoTests.swift` existia e estava fora do alvo de teste; nada acusou, e só apareceu porque o `xcodegen` da P1 o ligou de carona. Falta um portão que exija que todo `TracoTests/*.swift` esteja no alvo. Ciclo: melhorar (barateia toda volta seguinte, como o portão do movimento). Evidência: o teste falha quando alguém acrescenta um arquivo de teste fora do alvo.
@@ -18,7 +18,7 @@ Três voltas abertas ao mesmo tempo, cada uma no próprio worktree filho nascido
 
 **Dois fatos do dia que mudam o mapa:**
 - **O simulador teste 2 `B91C8DEF` tem a conta Grok do dono conectada** (confirmada no Perfil em 08/09). É proibido a todo worker: `xcodebuild test` reinstala o app e apaga o contêiner. Cai a linha "nenhuma operação tem medição com Grok" — a base existe.
-- **Outra sessão (Codex) trabalha AGORA no checkout principal**: os "cinco itens" (`prova/cinco-itens*`), com raciocínio explícito nas operações de Trabalho e o modelo `grok-4.3` no lugar do alias aposentado, ADR 2026-09-08b escrita em `SPEC.md`. Está sem commit, o build da árvore passa sem aviso, e **não se toca**: quem fecha é aquela sessão. Dívida que já se vê: a jornada visual persistida, retorno → ajuste com provedor real e a revisão final continuam pendentes (`prova/cinco-itens.md`, seção "Limites e trabalho restante").
+- ~~Outra sessão (Codex) trabalha no checkout principal~~ — **VENCIDO às 12h25**: o dono comitou os cinco itens (`f22a588`) e desistiu de pôr o Astra a implementar. O checkout está limpo, e o único Codex vivo é revisor. Da leitura dos cinco itens fica de pé a dívida: a jornada visual persistida, retorno → ajuste com provedor real e a revisão final continuam pendentes (`prova/cinco-itens.md`, "Limites e trabalho restante") — e a **volta Q** as paga.
 
 ## Em curso (05/09 à noite, modo Fable máximo)
 
@@ -169,6 +169,50 @@ Ordem do dono de 07/09 à noite: limpeza geral do git, sem perder nada, só `mai
 8. Depois: **V13 Notas**, **V15 Calendário** (as duas começam conferindo a auditoria V9 na tela viva) e **V17 em Markdown** (G0 acima).
 
 **Branches guardados como tag, não mescláveis:** `arquivo/feat-traco-folha` (03–05/09: a nota como folha sobre o tampo, share de entrada, arrasto na lista — 4 commits) e `arquivo/fix-furos-radiografia` (02/09: selo desde o primeiro caractere, arranque honesto com banco que não abre, uma porta só para o disco, apagar com desfazer, 70 fluxos com asserção — 12 commits). Os dois nasceram em `c1e1bbe`, 184 commits atrás; `main` reimplementou parte por outro caminho (ADRs 05h/05s). O que ainda vale deles é ideia a reler, não código a colar — o `try!` de `DiscoTraco.abrir` no arranque (`TracoApp.swift:13`), que a radiografia tratava, continua vivo em `main`.
+
+### Vindas do fecho da L2 (08/09), para a volta do Perfil
+
+- **A decisão que levaria a tela a 9 não é a extração dos cartões** — o juiz do G4 mediu e disse: extrair não muda um pixel (é dívida de Complexidade). O que muda a Simplicidade é **decidir o que o Perfil mostra por padrão**. Essa é a linha G0 da volta do Perfil.
+- **A copy do horizonte está imprecisa:** os "12 últimos" são meses **com descobertas**, não os doze últimos meses do calendário.
+- **VoiceOver do Perfil continua por ouvir** — ligar o leitor exige reiniciar o aparelho, o que é proibido no meio de uma rodada; precisa de uma janela própria.
+- **O transbordo horizontal do Perfil em AX5** reproduz em `HEAD` sem o diff da volta, e o app Ajustes no mesmo aparelho não transborda: é de `Camadas`/`RaizView`.
+
+## A fila do dono, 08/09 — as doze prioridades do Astra, mapeadas nas voltas
+
+O dono pediu ao Astra uma leitura de prioridades e depois decidiu que o laço do Orca as resolve, todas, com mais qualidade por token. A tabela abaixo é a dele; a coluna da direita é a volta que a paga. Ordem de fila: a do Astra, exceto onde uma volta já em curso paga um item mais abaixo de graça. "Resolvido" é o critério da terceira coluna dele, provado na tela, não a volta mesclada.
+
+| # | prioridade do Astra | resolvido quando | volta que paga |
+|---|---|---|---|
+| 1 | Completar uma jornada real, começando pelo espanhol: intenção, ajuda, tentativa, resultado e ajuste | o dono usa o Traço para avançar numa situação concreta e continua a partir do que aconteceu | **V17** (o artefato que se reescreve em Markdown) mais a jornada real de ponta a ponta com o caso do espanhol; depende do 2 e do 3 para a IA servir |
+| 2 | Avaliar a IA nos provedores disponíveis, incluindo Grok, com pedidos reais e restrições explícitas | sabemos quais operações funcionam, onde falham e em que condições, com respostas completas examinadas | **volta Q** — a sonda `AvaliacaoIA` nas dezesseis operações com Grok (conta confirmada por `ContaGrok.ligada` no simulador de teste), lida contra `QUALIDADE-IA.md`; a tabela `Politica` (ADR 07b) ajustada pelo resultado |
+| 3 | Corrigir as falhas de IA que impedem essa jornada: contexto, instruções, modelo, tratamento da resposta | a ajuda atende ao pedido, respeita as restrições e produz algo utilizável em tentativas variadas | **volta Q-B**, nascida do que a Q medir; Astra no G0 |
+| 4 | Melhorar a continuidade do trabalho: retomar objetivo, versões, decisões e próximo passo sem reconstruir o contexto | o dono volta depois e continua com pouca explicação | **volta de retomada do Trabalho** — a folha abre no ponto certo com o resumo do que houve (ADR 06b §18-D já descreve a estrutura que falta) |
+| 5 | Trazer o resultado da ação de volta ao trabalho, inclusive tentativas parciais e fracassos | o resultado informado muda a próxima orientação; agendado, feito e funcionou continuam distintos | **volta dos estados** — `EstadoAcao` ganha o observado, `cancelada` deixa de ser inalcançável, o relato muda a próxima orientação (a auditoria de 07/09 achou os três estados mortos em `Trabalho.swift:39-44`) |
+| 6 | Tornar a revisão pela IA útil: identificar o que não serviu e revisar o artefato preservando origem e versões | uma correção do dono gera mudança pertinente sem apagar conteúdo nem repetir o erro | paga pela **V17** (a versão N+1 nasce da observação, com origem e motivo no documento) e pela **Q** (revisar medida com Grok) |
+| 7 | Reduzir o esforço da jornada principal: navegação, controles ambíguos, excesso de decisões, recuperação de erros | iniciar, agir, corrigir e retomar sem entender a estrutura interna do app | **V12-B, V13, V15** com `curva-zero` medida em toques antes e depois |
+| 8 | Verificar os riscos de estabilidade e dados, incluindo o `try!` do arranque | falhas previsíveis permitem recuperação e preservam o conteúdo | **volta do arranque honesto** — `TracoApp.swift:13` e os outros cinco `try!` de produção; a radiografia de 02/09 (tag `arquivo/fix-furos-radiografia`) já tratava disso e serve de leitura |
+| 9 | Testar o percurso integrado com IA real, além dos testes isolados | provas atuais do percurso completo, com resposta ruim, interrupção e nova tentativa | **Q** mais um fluxo maestro do percurso com a sonda ligada; `prova/7.md` |
+| 10 | Fazer o desenvolvimento de capacidades se apoiar em evidências: distinguir uso, satisfação e desempenho | o Traço ajusta a ajuda por uma dificuldade demonstrada e permite corrigir as hipóteses sobre o dono | **L2** (latência da descoberta, em curso) e a prática dentro da V17 |
+| 11 | Fechar a dívida visual e de acessibilidade nas telas alteradas | hierarquia, animações, tamanho de texto, VoiceOver e controles funcionam na jornada real | **a dívida da limpeza de 07/09** (P1 já mesclada, V12-B e L2 em curso, V19 e F4 restantes) |
+| 12 | Comprovar as entradas externas no aparelho: Siri, widgets, ditado | cada entrada inicia ou retoma a ação esperada, com contexto certo e falhas compreensíveis | **F5** (em curso) mais uma passada no iPhone do dono, porque o simulador não prova Siri nem tela bloqueada trancada |
+
+### G0 da V17 — o artefato que se reescreve, em Markdown (decidido em 08/09, depois do conselho do Astra)
+
+**Ciclo:** os dois, e é por isso que ela é a próxima. Multiplicar (o autor avança numa situação concreta) e melhorar (a versão seguinte ataca o que ele errou).
+**Intenção que serve:** o autor pratica no artefato, erra, e o artefato **se reescreve para atacar aquilo** — guardando as versões, a origem e o motivo de cada mudança.
+**Obstáculo que reduz:** o laço que falta é de **observação e versão, não de renderização** (DIRETRIZ §4). O Trabalho já tem versão com origem (05i, 05s), a tentativa do autor como evidência separada (05r), ida e volta pelo arquivo com conflito e retry (05l, 06a) e, desde a ADR 08a, a preparação já lê tentativas anteriores. **O que não existe é a causa do ajuste como dado vinculante**: hoje `pedidoDe` a INFERE por base e intenção, e inferência não pode ser a autoridade que explica ao autor por que o exercício dele mudou.
+**Evidência que prova:** no caso concreto do espanhol — uma tentativa com erro gera atividade **diferente e pertinente**, preserva as restrições e **deixa a próxima resposta em branco**; uma correção do dono remove a interpretação equivocada do ajuste seguinte; fechar e reabrir conserva N, tentativa, causa e N+1, inclusive depois de falha de gravação, retry, conflito ou revogação.
+
+**A decisão, minha, sobre o parecer do Astra (`ferramentas/orca/consulta-v17-markdown.md`) — aceito, e é a versão curta:**
+1. **Dono único: o Trabalho.** O exercício é `DocumentoTrabalho.Artefato.pratica`; o bloco do Caderno (`BlocoCaderno.recipiente`) é **representação e porta de interação**, não um segundo agregado. A N+1 nasce pela rota que já existe (`OficinaTrabalho.gerar` → `MotorTrabalho.produzir` → `DocumentoTrabalho.receber`). **Nada de versões, corpus ou índice paralelos, e nenhuma tela nova.**
+2. **Contrato mínimo, e só ele:** `Pedido.ajuste?` (gatilho **fechado**: `pedidoDoAutor` ou `necessidadePercebida`, mais motivo e referência à evidência que o sustenta) e `Artefato.pedidoID?` (o vínculo direto da versão à causa, no lugar da inferência). Ausência nos registros antigos significa **vínculo não registrado** — não se reconstrói causalidade histórica.
+3. **Nenhum `EstadoExercicio` persistido.** Produzido vem da versão guardada; tentativa registrada vem da evidência do autor; desempenho demonstrado exige leitura sustentada com avaliador visível. **Sem `aprendido`, sem pontuação global, sem contador de domínio, sem promoção automática de hipótese.** "Reescrito" não é "aprendido".
+4. **A causa não cabe no trecho descartável.** Hoje o histórico pode ser omitido por orçamento; a evidência causal, os critérios e as restrições vigentes são **núcleo obrigatório** — se não couber, **o ajuste fica indisponível** e diz isso.
+5. **A fronteira da IA, no tipo e não no prompt:** a saída da adaptação aceita preparação e descrição da mudança, e **não tem campo de resposta nem comando que altere `Evidencia`**; `guardarTentativa` continua operação do autor; o campo de tentativa nasce vazio. Reconhecido e escrito: validação estrutural **não prova ausência de solução disfarçada no enunciado** — isso é leitura semântica, e a 05r já admite o limite.
+6. **O ato visível é "Conferir e adaptar o exercício"**, novo e explícito, porque "Conferir minha tentativa" já promete uma operação e uma chamada por toque (05r). Conferência inconclusiva, ausência de resposta ou reabrir o documento **não disparam reescrita**; a mesma conferência não gera duas versões; nada em segundo plano, e o documento não troca enquanto a pessoa digita.
+7. **O anúncio é uma seção só, no próprio documento**, escrita pelo app com os vínculos que ele conhece (o modelo não inventa ID nem decide qual pedido o produziu), dizendo o que mudou e por quê, sem repetir o histórico e sem declarar que a pessoa aprendeu.
+
+**O que esta volta NÃO fecha, e eu prefiro dizer agora:** o item 1 da fila do dono só se resolve quando **o dono efetivamente usa e continua a situação real** — a demonstração técnica não o fecha. A V17 entrega o mecanismo e a jornada provada; o item 1 fecha no uso.
 
 ## Próximas, em ordem
 
