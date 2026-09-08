@@ -10,7 +10,7 @@ DATA=$(xcrun simctl get_app_container "$U" app.traco data)
 GRUPO=$(xcrun simctl get_app_container "$U" app.traco group.app.traco)
 PLIST="$GRUPO/Library/Preferences/group.app.traco.plist"
 DIA=$(date +%Y-%m-%d)
-ID=$(uuidgen)
+ID="${ID:-$(uuidgen)}"   # ADR 08h: a prova do toque precisa do id de uma nota REAL
 CAL="$DATA/Documents/Traço/calendario.json"
 mkdir -p "$(dirname "$CAL")" "$(dirname "$PLIST")"
 

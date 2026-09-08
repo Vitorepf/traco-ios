@@ -49,3 +49,13 @@ Não há autorização inferida para publicar, gastar ou enviar mensagens extern
   vazio antes e depois, desatualizado nos dois tamanhos, tela bloqueada e Ilha
   compacta e expandida. Lacuna aberta que continua: modo escuro do widget
   (é `Tema.swift`, volta L2) e Ilha mínima (limite do instrumento).
+  **F4-H (08/09, ADR 2026-09-08h): o corte honesto.** A promessa "inteira,
+  sempre" custava o corpo de leitura (~11 pt em AX5, ~7 pt com 247
+  caracteres, e ainda reticências). Agora o publicador limita a projeção
+  (140 grafemas, uma vez, para widget, tela bloqueada e Ilha) e declara se é
+  trecho; a face mantém o corpo do papel e reduz a quantidade, o rótulo
+  "Nova nota" cede antes de uma linha da frase, o toque no pequeno abre a
+  nota do Destaque, e o VoiceOver distingue trecho de integral. Prova:
+  `ferramentas/orca/f4h-*.png` no iPhone 17 Pro (teste 4), 103 e 247
+  caracteres, normal/AX5, claro/escuro, com "Desatualizado.".
+

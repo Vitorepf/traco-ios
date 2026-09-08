@@ -111,9 +111,21 @@ enum DestaqueDoDia: Sendable {
 
     // MARK: - Projeção
 
+    /// ADR 08h: o teto público entra AQUI, uma vez, antes da distribuição —
+    /// `publicar` e `reconciliar` leem a mesma projeção, então o widget, a
+    /// tela bloqueada e a Ilha saem com o mesmo trecho e a mesma declaração.
+    /// O estado (`chaveLinha`) guarda o texto inteiro; só a projeção corta.
     nonisolated static func projecao(agora: Date = .now) -> Superficie.Destaque? {
         guard let linha = linhaDeHoje(agora: agora), let id = idDeHoje(agora: agora) else { return nil }
-        return .init(id: id, dia: Superficie.diaISO(agora), linha: linha, feito: feitoHoje(agora: agora))
+        let (trecho, inteira) = Superficie.Destaque.trecho(linha)
+        return .init(id: id, dia: Superficie.diaISO(agora), linha: trecho,
+                     feito: feitoHoje(agora: agora), inteira: inteira)
+    }
+
+    /// O estado da Live Activity nasce da MESMA projeção do widget.
+    nonisolated static func estadoVivo(agora: Date = .now) -> DestaqueAtividade.ContentState? {
+        guard let p = projecao(agora: agora), !p.feito else { return nil }
+        return .init(linha: p.linha, inteira: p.inteira)
     }
 
     @discardableResult
@@ -129,12 +141,12 @@ enum DestaqueDoDia: Sendable {
     // nonisolated: Activity não é Sendable; sem fronteira de ator não há envio
     nonisolated static func reconciliar(agora: Date = .now) async {
         #if canImport(ActivityKit)
-        guard let p = projecao(agora: agora), !p.feito else {
+        guard let p = projecao(agora: agora), let estado = estadoVivo(agora: agora) else {
             await encerrarAtividades()
             return
         }
         guard SuperficieDisco.atividades() else { return }
-        let estado = DestaqueAtividade.ContentState(linha: p.linha)
+
         let meiaNoite = Calendar.current.startOfDay(
             for: Calendar.current.date(byAdding: .day, value: 1, to: agora) ?? agora)
         let conteudo = ActivityContent(state: estado, staleDate: meiaNoite)

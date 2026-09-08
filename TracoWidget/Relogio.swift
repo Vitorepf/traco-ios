@@ -153,49 +153,67 @@ nonisolated enum Restantes: Equatable {
     }
 }
 
-/// Quanto a frase do autor pode encolher antes de a face desistir (F5).
+/// Quanto um RÓTULO pode encolher antes de a face desistir (F5, ADR 08h).
 ///
-/// A F4 fixou 0,6 em toda `Text` da casa e declarou o custo como fechado. Na
-/// tela, em AX5, a linha do Destaque continuava terminando em reticências: 60%
-/// de um corpo de acessibilidade ainda não cabe em 123 pt de largura, e o que
-/// não cabe o SwiftUI CORTA. Reticências na frase do autor é a mentira que a
-/// F4 veio matar; letra pequena é só letra pequena.
+/// Só rótulos encolhem: marca, estado, oferta — texto NOSSO, curto e
+/// reescrevível. Se não couber a 60%, o conserto é escrever mais curto.
 ///
-/// Então o piso é do PAPEL, não da face:
-/// - `frase`: a linha que o autor escreveu — encolhe até caber, sempre.
-///   35% é o que a conta pede no pior caso real (43 caracteres num pequeno em
-///   AX5 sem a marca): abaixo disso nenhuma frase deste app precisou ir.
-/// - `rotulo`: marca, estado, oferta — texto NOSSO, curto e reescrevível. Se
-///   não couber a 60%, o conserto é escrever mais curto, não encolher mais.
+/// A frase do autor NÃO passa por aqui. A F4-F lhe deu um piso de 0,35 e o
+/// G4 mediu o preço: em AX5 a frase saía no mesmo corpo de ~11 pt de quem não
+/// ligou acessibilidade — o encolhimento comia o aumento que a pessoa pediu —
+/// e com 247 caracteres desenhava onze linhas a ~7 pt e ainda cortava. A
+/// frase mantém o corpo do papel escolhido e reduz a QUANTIDADE de texto; o
+/// que não cabe termina em "…" (`Sacrificio`, e a ADR 08h para a regra).
 nonisolated enum Encolhe {
-    static let frase: CGFloat = 0.35
     static let rotulo: CGFloat = 0.6
 }
 
-/// O teto de ALTURA da frase do autor, em linhas, na face que tem outra coisa
-/// embaixo (F5).
+/// A ordem de sacrifício do pequeno com Destaque (ADR 08h).
 ///
-/// Só o médio precisa dele: lá a agenda disputa o pé do cartão, e sem teto a
-/// frase tomaria o cartão inteiro. No pequeno a frase É o cartão — ela recebe
-/// toda a altura que sobra e não passa por aqui.
+/// O que não cede: o rodapé "Desatualizado." e a legibilidade da frase — o
+/// corpo de leitura não é a última moeda para pagar a falta de espaço. O que
+/// cede, nesta ordem: primeiro o rótulo de caminho "Nova nota" (é redundante
+/// — o cartão inteiro já é o toque, e o G4 provou que ele não é alvo
+/// independente); só depois a QUANTIDADE de frase, com corte honesto.
 ///
-/// A F4 escrevia `max(1, teto - 1)` quando o rodapé "Desatualizado." entrava
-/// em tamanho de acessibilidade — e no médio isso dava **1**: uma linha para a
-/// frase do autor num cartão de 4×2, que é o que produzia
-/// `terminar o capítulo do meio antes de do…` (visto na tela, 08/09, AX5). A
-/// troca "o estado ganha do comprimento da frase" foi julgada certa no
-/// pequeno, onde a quarta linha custa um quarto do cartão; no médio ela
-/// custava METADE da frase para ganhar um rodapé de uma palavra. Aqui o médio
-/// não cede: duas linhas com o rodapé, três sem ele — a largura inteira do
-/// cartão paga a terceira quando não há mais nada a dizer.
+/// Cada candidato é "n linhas da frase, com ou sem o rótulo"; a face prova os
+/// candidatos em ordem (`ViewThatFits`) e fica com o primeiro que cabe. Para
+/// cada n, o candidato COM rótulo vem antes do sem — assim o rótulo só entra
+/// quando não custa uma linha da frase. Mora aqui, fora do SwiftUI, para que a
+/// ordem tenha suíte: foi um `if` de view que decidia isso na F4-F.
+nonisolated enum Sacrificio {
+    nonisolated struct Candidato: Hashable, Sendable {
+        let linhas: Int
+        let rotulo: Bool
+    }
+
+    /// Quantas linhas, no máximo, a face tenta — o pequeno em tamanho normal
+    /// cabe cinco; oito cobre qualquer família que passe por aqui.
+    static let maximo = 8
+
+    static func candidatos(maximo: Int = maximo, rotulo: Bool) -> [Candidato] {
+        (1...max(1, maximo)).reversed().flatMap { n in
+            rotulo ? [Candidato(linhas: n, rotulo: true), Candidato(linhas: n, rotulo: false)]
+                   : [Candidato(linhas: n, rotulo: false)]
+        }
+    }
+}
+
+
+/// Até quantas linhas a frase do autor pode crescer no médio (F5, ADR 08h).
+///
+/// Com agenda embaixo, duas: a agenda só existe ali e fica com o pé do cartão.
+/// Sem agenda, o layout decide (`Sacrificio.maximo`): na F4-H o teto de duas
+/// linhas com o rodapé "Desatualizado." deixava três linhas de cartão VAZIAS
+/// entre a frase cortada e o rodapé — corte evitável, que é a falha que a
+/// regra do corte honesto nomeia. O rodapé não precisa de teto para existir:
+/// ele tem prioridade de layout menor e o VStack lhe garante a linha.
 ///
 /// Mora fora do SwiftUI pela razão de sempre: um `if` de view não tem suíte, e
 /// foram `if`s de view que derrubaram esta família quatro vezes.
 nonisolated enum LinhasDoDestaque {
-    /// - Parameters:
-    ///   - rodape: o estado honesto ocupa o pé do cartão.
-    ///   - comAgenda: há compromissos publicados a mostrar embaixo.
-    static func noMedio(rodape: Bool, comAgenda: Bool) -> Int {
-        rodape || comAgenda ? 2 : 3
+    static func noMedio(comAgenda: Bool) -> Int {
+        comAgenda ? 2 : Sacrificio.maximo
     }
 }
+
