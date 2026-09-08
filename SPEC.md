@@ -5388,7 +5388,7 @@ A escada da sábia, o `conferir`, o `responderNasNotas`, o `produzirEntrega` e o
 
 **O que esta ADR não prova.** Nenhuma operação tem medição com Grok: a conta não existe em nenhum simulador (login iniciado no iPhone 17 Pro de teste em 07/09, à espera do dono). A tabela decide onde o aparelho NÃO entra; se o Grok serve, é a próxima medição pela mesma sonda. `responder`, `instigar` e `contrapor` seguem sem medição em nenhum provedor. 5 testes em `PoliticaTests`; suíte 826/134 em 07/09/2026.
 
-## ADR 2026-09-08b — A latência lê-se em dois degraus, e a lista de meses para de crescer (volta L2)
+## ADR 2026-09-08h — A latência lê-se em dois degraus, e a lista de meses para de crescer (volta L2)
 
 **A distância.** A volta L1 foi mesclada em main por ordem do dono com o G4
 REPROVADO (`ferramentas/orca/g4-l1-design.md`: Design 8, Simplicidade 7). O juiz
@@ -5463,6 +5463,36 @@ e fora da tela — do rótulo "LATÊNCIA DA DESCOBERTA" ao rótulo "MÉTODOS" �
 número conferido de forma independente por varredura de capturas com OCR
 (5.198 pt contra 5.200 pt no mesmo estado). Capturas antes/depois em
 `ferramentas/orca/l2-*.png`; relatório em `ferramentas/orca/l2-latencia-g4.md`.
+
+**Volta L2-B (a correção do G3, 08/09/2026).** Três coisas. (1) Esta ADR nasceu
+com a letra `08b`, que é de `main`; a letra reservada à volta é `08h`, e SPEC e
+EVOLUCAO passam a usá-la. (2) As capturas "depois" da primeira passada tinham a
+copy de um binário intermediário ("Sai do que já está escrito…", "nos últimos 12
+meses com descobertas.") — as três medidas de altura eram do binário certo (a
+árvore de AX conferiu: 5.541, 6.115), mas a foto não era. Todas as capturas
+`l2-depois-*.png`, as árvores `l2-ax-*-ax5.json` e as medidas foram refeitas
+com o binário deste commit, nos quatro estados (A, B, vazio, vinte meses),
+inclusive o vazio DEPOIS que faltava: 241 pt em `large`, 1.485 pt em AX5.
+O estado de vinte meses foi semeado de novo com script próprio (duas
+descobertas por mês, jan/2025→ago/2026) e por isso o número mudou: 4.992 pt em
+AX5, não 5.340 — é outra semente, não outra altura; o teto de doze e a copy do
+horizonte estão na captura. (3) O G3 pediu que os +341 pt da série curta em AX5
+caíssem por "uma apresentação de fato compacta dos detalhes dos registros". Foi
+tentado, medido e RECUSADO, e a razão está na tabela: a única apresentação mais
+compacta que não esconde texto nem devolve `Tema.miudo` é o registro num fluxo
+só — a medida abre a linha em `Tema.meta`/`tintaSuave` e a hipótese segue em
+`.footnote`/`tintaFraca` na mesma linha. Ela recupera 180 pt dos 341 em AX5
+(5.541→5.361, −3,2%) e 36 pt em `large` (886→850), porque em AX5 quase todo
+registro já embrulha em quatro a seis linhas e a hipótese começa numa linha nova
+de qualquer jeito (`l2-alternativa-inline-ax5-registros.png`); e em `large` ela
+troca a linha "título · legenda" — a medida sozinha, a hipótese embaixo — por
+uma linha de dois corpos que quebra no meio da hipótese
+(`l2-alternativa-inline-large-fim.png`). Onde a altura mora em AX5, pela árvore:
+o parágrafo de abertura tem 833 pt, os nove registros 3.000 pt em linhas
+embrulhadas, e nenhum arranjo dos detalhes muda a conta sem cortar palavras.
+Decisão: o registro fica em duas linhas; o custo de +341 pt em AX5 na série
+curta é o preço de a medida ser legível, e fica declarado, não escondido. A
+nota de Simplicidade que isso vale é do revisor.
 
 **Achado que fica aberto (não é desta volta).** Em AX5, a camada do arquivo do
 Perfil transborda na horizontal em algumas sessões — o cartão e a barra de abas

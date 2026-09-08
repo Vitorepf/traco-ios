@@ -1,5 +1,12 @@
 # VOLTA L2 — o G4 que não passou: as quatro correções da latência da descoberta
 
+> **Adendo de 08/09 (L2-B):** o G3 apontou que as capturas "depois" deste
+> relatório eram de um binário intermediário e que a ADR usava a letra errada.
+> As duas coisas estão corrigidas em `l2b-prova-do-binario.md`, que refaz
+> todas as capturas `l2-depois-*.png`, as árvores e as medidas no binário do
+> commit final, entrega o vazio DEPOIS que faltava aqui e argumenta, com
+> captura, por que os 341 pt da série curta em AX5 não foram cortados.
+
 Worker de FRONT-END E DESIGN. Meu simulador: iPhone 17 Pro
 `C2416CBC-C5D9-41F9-ACD8-45EED8FC355E` (402 × 874 pt), o único que liguei e o
 único onde instalei. Nunca toquei em `B91C8DEF` (teste 2) nem em `34CC3F94`
@@ -139,7 +146,7 @@ cor.
 | dimensão | nota que eu proponho | evidência |
 |---|---|---|
 | Visão | 9 | entra no ciclo "melhorar para multiplicar"; fecha a lacuna do G4 da L1, com o diff do EVOLUCAO |
-| Contrato | 9 | ADR 2026-09-08b em `SPEC.md`, EVOLUCAO atualizado, código coerente com os dois |
+| Contrato | 9 | ADR 2026-09-08h em `SPEC.md`, EVOLUCAO atualizado, código coerente com os dois |
 | Correção | 9 | nenhum comportamento novo; suíte integral **887 testes em 143 suítes, verde** |
 | Jornada real | 8 | MODO A, MODO B, vazio, 20 meses e AX5 vistos na tela; **faltou a captura do vazio DEPOIS e do MODO B × AX5** — o helper do `orca emulator` é um só na máquina e outra sessão o tomava (limite de instrumento, declarado abaixo) |
 | Design | 9 | `Tema.miudo` fora do app (varredura vazia), uma regra de degrau só, paleta intacta, quatro estados no mesmo cinza |
