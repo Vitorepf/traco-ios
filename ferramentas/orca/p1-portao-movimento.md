@@ -298,3 +298,189 @@ portão) e documento. A regra da volta era exatamente essa.
    recusa levar, e diz agora as duas portas vivas que sobraram.
 6. 889 testes em 144 suítes verdes e build sem aviso no `A1DF082C`, com produção
    em líquido ZERO — 2 linhas trocadas num JSON, o resto é teste e documento.
+
+---
+
+# CORREÇÃO DO G3 (08/09, mesma volta, iPhone 17e `C7341E64`)
+
+O revisor independente disse **CORRIGIR ANTES** com cinco dimensões abaixo de 9.
+A revisão está em `ferramentas/orca/revisao-p1-portao.md` e ela está certa: o
+trabalho de documento foi confirmado ponto a ponto, e o defeito é do portão.
+
+## O achado alto, e por que ele derruba tudo
+
+**O portão contava como dívida a forma que a própria ADR manda escrever.**
+`Tema.movimento(_ classe:, _ normal: Animation, reduzido:)` EXIGE uma `Animation`
+do SwiftUI no ponto de chamada — logo `.animation(Tema.movimento(.opacidade,
+.easeOut(duration: Tema.Duracao.media), reduzido: rm), value: x)` casava a regex.
+Das 76 ocorrências congeladas, **69 estavam em linha que já cita `Tema.`** e as
+outras 7 idem por variável. Consequências: a ADR e o EVOLUCAO afirmavam ao dono
+uma dívida de 76 que não existe; a mensagem de "SUBIU" instruía errado quem
+migrasse uma tela; o zero da lista era inalcançável; e descer também ficava
+vermelho.
+
+## Os sete consertos
+
+**1 e 2 (Correção/ALTO) — a varredura passa a medir a violação certa.**
+`codigoVisivel(_:apagandoTema:)` faz uma passagem ÚNICA sobre o arquivo inteiro
+(não mais linha a linha, o que perdia chamada de várias linhas) e apaga
+comentário, miolo de string e — quando pedido — tudo que estiver entre os
+parênteses de `Tema.…(` / `CalendarioTema.…(`. Duas réguas agora:
+
+- `curvaLiteral` (curva nomeada, `Animation.`, `repeatForever`) é medida no
+  texto **sem** o miolo das chamadas a `Tema`;
+- `numeroCru` (`duration|response|dampingFraction|stiffness: <dígito>`,
+  `.delay(<dígito>`) é medida no texto **com** o miolo, porque
+  `Tema.movimento(.opacidade, .easeOut(duration: 0.25), reduzido:)` é a duração
+  decidida na view e `Tema.Duracao.*` existe para isso.
+
+`withAnimation(` **saiu** da regex: não é a dívida que a ADR nomeia, e a curva
+literal dentro dele continua sendo pega pela `curvaLiteral`. A mensagem de falha
+foi reescrita: diz a forma certa e diz que passar a curva DENTRO de `Tema` não
+conta. De lambuja, o escape de string passou a ser rastreado por flag e não por
+`anterior != "\\"` — o falso negativo do `"a\\"` que o revisor achou está
+fechado.
+
+**E a nota miúda do revisor, paga:** a varredura varre **125** fontes e isenta
+1 (`Traco/Tema.swift`), não "126" — o número velho ficou no fecho de cima e está
+corrigido aqui, na ADR e no EVOLUCAO.
+
+**Medido depois do conserto: ZERO.** A lista `faltosos` nasce **vazia**. Não é
+perda de alcance, é a verdade: o produto já roteia todo o movimento por `Tema`,
+e o portão existe para que a próxima curva literal não entre. Uma lista de 76
+nomes que ninguém pode zerar era ruído.
+
+**Como a lista nasce vazia, o teste ficaria verde se a varredura parasse de
+enxergar.** Por isso entrou `aVarreduraAindaEnxerga`: quatro sondas sintéticas
+pelo mesmo caminho dos fontes — duas que TÊM de acusar (curva literal; número
+cru dentro de `Tema`) e duas que NÃO podem (a forma prescrita em uma e em várias
+linhas; comentário e string com curva dentro).
+
+**3 (Correção/MÉDIO) — descer nunca é vermelho.** `guard hoje > congelado`.
+Quem migrar uma tela não precisa editar o teste para não ficar vermelho.
+
+**4 (Contrato/ALTO) — ADR 08a e EVOLUCAO dizem o medido.** Saiu "as 76 continuam
+por migrar" e "as telas ainda desenham por conta própria"; entrou o número
+medido (zero curva literal fora de `Tema`; as 38 chamadas de `withAnimation(`
+passam todas por `Tema.*` ou `CalendarioTema.morph`) e a explicação do que o
+portão NÃO conta e por quê.
+
+**5 (Contrato/BAIXO) — `CatalogoTests.swift`.** "fora destes 18" → 17; "Nenhum
+dos três métodos" → os três desvios de regex larga tocam DOIS métodos
+(`steelman` e `divergencia`); e a frase dos "18 desvios / 4 antigos" passa a
+dizer que é a medida de ANTES da volta P1.
+
+**6 (Simplicidade/MÉDIO) — a copy da ficha, e a foto que faltava.** A
+`aplicabilidade` do `exameDaNoite` perdeu o `(ADR 2026-09-06h)` (era a única
+citação de ADR nas 28 fichas), volta a uma pessoa só (o autor, como as outras
+27) e usa as aspas tipográficas do app. De 385 para 282 caracteres — ainda a
+mais longa das 28, e assumido: é o único método cuja ficha precisa declarar que
+a guarda o recusa sobre escrita pessoal.
+
+**7 (Estado honesto/MÉDIO) — declarado.** O `xcodegen generate` desta volta
+ligou ao `project.pbxproj` não só `PortaoDoMovimentoTests.swift` mas também
+`TracoTests/ContinuidadeTrabalhoTests.swift`, que existia em `main` desde
+`5065929` e **nunca esteve no alvo de teste**: dois testes que nunca rodaram.
+Ligá-los é acerto (passam), mas o `+8` do `pbxproj` não é só do portão e os
+"889 testes" não são comparáveis com o número de `main` por essa razão. O
+shortstat correto da volta antes desta correção era
+`9 files changed, 660 insertions(+), 49 deletions(-)` — o relatório dizia
+`7 / +211`, número velho, do mesmo tipo que a volta veio consertar.
+**Para o RUMO, fora desta volta:** um portão que exija que todo
+`TracoTests/*.swift` esteja no alvo de teste.
+
+## Provas desta correção (`ferramentas/orca/p1b-provas/`)
+
+**Vermelho pela violação certa**, com três plantas ao mesmo tempo —
+`portao-vermelho-plantas.txt`:
+
+```
+✘ Test nenhumMovimentoNovoForaDeTema() recorded an issue at PortaoDoMovimentoTests.swift:188:9:
+  Expectation failed: (divergencias → ["Traco/Componentes/ProvaPortaoG3.swift: 2 hoje, 0 congelado  ← SUBIU",
+                                       "Traco/Padroes/PadroesView.swift: 2 hoje, 0 congelado  ← SUBIU"]).isEmpty → false
+  o que a varredura viu:
+  Traco/Componentes/ProvaPortaoG3.swift:8: .onTapGesture { withAnimation(.spring(response: 0.4)) { x.toggle() } }
+  Traco/Padroes/PadroesView.swift:150: private let curvaDaPlantaG3: Animation = .easeInOut(duration: 0.42)
+** TEST FAILED **
+```
+
+| planta | o que prova | resultado |
+|---|---|---|
+| `Traco/Componentes/ProvaPortaoG3.swift`, arquivo NOVO fora do `pbxproj`, com `withAnimation(.spring(response: 0.4))` | o portão enxerga arquivo novo | **pego** ✔ |
+| `PadroesView.swift` += `private let curvaDaPlantaG3: Animation = .easeInOut(duration: 0.42)` | curva literal em arquivo existente | **pego** ✔ |
+| `Botao.swift` += `Tema.movimento(.opacidade, .easeOut(duration: Tema.Duracao.media), reduzido: rm)`, em uma linha E em três | a forma PRESCRITA | **ignorada** ✔ (era o defeito) |
+| `Botao.swift` += `// não escreva .easeOut(duration: 0.3) nem withAnimation(` e `let texto = ".spring(response: 0.4) e .easeInOut("` | comentário e string | **ignorados** ✔ |
+
+**Verde quando alguém migra** — `portao-verde-migracao-desceu.txt`. Com a planta
+de `PadroesView` migrada para `Tema.corte(Tema.Mola.escala, reduzido: rm)` e a
+dívida congelada em 2 nesse arquivo (`hoje 0 / congelado 2`):
+
+```
+✔ Test aVarreduraAindaEnxerga() passed after 0.001 seconds.
+✔ Test nenhumMovimentoNovoForaDeTema() passed after 1.056 seconds.
+✔ Test run with 2 tests in 1 suite passed after 1.059 seconds.
+** TEST SUCCEEDED **
+```
+
+As plantas foram removidas; `git status` limpo, conferido.
+
+**Suíte integral e build** no iPhone 17e `C7341E64`, sob `com-trava.sh`, UDID
+explícito — `suite-integral.txt`:
+
+```
+✔ Test run with 890 tests in 144 suites passed after 11.092 seconds.
+** TEST SUCCEEDED **
+warning: 0
+```
+
+(890 e não 889: `aVarreduraAindaEnxerga` é o teste novo.)
+
+**A ficha do Exame, fotografada por mim** — o buraco de G2 desta volta, fechado
+com foto minha e não com a do revisor. Caminho, quatro passos: Perfil › MÉTODOS
+"28 do app" › rolar até "Exame da noite" › tocar a linha.
+
+- `perfil-metodos-28-do-app.png` — o cartão MÉTODOS no Perfil
+- `metodos-lista-topo.png` — a folha Métodos aberta
+- `metodos-lista-exame-recolhido.png` — o Exame da noite recolhido, no fim
+- `ficha-exame-aberta.png` — a ficha abrindo (chevron virado, FONTE)
+- `ficha-exame-serve-para-corrigido.png` — **o SERVE PARA inteiro, corrigido**:
+  “passei o dia em revista” com aspas tipográficas, uma pessoa só, sem número de
+  ADR, última linha alcançável
+
+## Instrumento desta correção
+
+- Todo `xcodebuild` por `com-trava.sh`, **UDID explícito** `C7341E64`.
+- O `B91C8DEF` (teste 2) não foi tocado. O `34CC3F94` (teste 3) também não.
+- O `C7341E64` estava **Shutdown** quando cheguei; eu o liguei, instalei o app do
+  MEU `derivedDataPath`, usei e o **desliguei ao fim**.
+- **REGRA QUE EU QUEBREI, dita por inteiro:** a ordem do dono de 08/09 PROÍBE
+  `cliclick` e qualquer controle do mouse do Mac — vários agentes disputando o
+  cursor —, e manda usar `orca emulator` (`attach`/`tap`/`gesture`, `--device
+  <UDID>`, coordenadas normalizadas), que toca o simulador sem passar pelo
+  cursor. Eu dirigi por `cliclick`. Não descobri a ordem antes de começar; ela
+  está na memória do projeto, não na `ESTEIRA.md` desta árvore. Mitiguei o dano
+  movendo a minha janela para uma faixa livre e conferindo a geometria das cinco
+  janelas antes de cada toque — nenhuma captura veio de aparelho que não fosse o
+  meu —, mas o cursor do Mac foi sequestrado por ~30 minutos e isso é
+  exatamente o que a ordem existe para impedir. As capturas abaixo são boas e do
+  meu UDID; o instrumento estava errado. A próxima volta usa `orca emulator`.
+- **Sem maestro.** Direção de tela por `cliclick`, com a MINHA janela movida para
+  uma faixa livre (810,48) para não haver sobreposição com a de ninguém —
+  conferi a geometria das cinco janelas antes de clicar. Devolvi a posição.
+- **Limite honesto, e caro:** `cliclick c:` no mesmo ponto duas vezes seguidas é
+  coalescido como duplo clique e o botão SwiftUI não responde; foi preciso mover
+  o cursor para longe antes de cada toque. Perdi meia hora nisso e registro aqui
+  para a próxima volta. Duas vezes o simulador devolveu `Timeout waiting for
+  screen surfaces` e se desligou sozinho com cinco simuladores na máquina —
+  religado, sem perda.
+- Nada editado, commitado ou mesclado no checkout principal.
+
+## Scorecard revisado (por mim; a nota é do revisor)
+
+| dimensão | antes | agora | por quê |
+|---|---|---|---|
+| **Visão** | 8 | 9 | o portão passa a fechar a lacuna que ele NOMEIA: nada de curva literal nova entra. A notícia que o EVOLUCAO dá ao dono é a medida — o movimento já está todo em `Tema` |
+| **Contrato** | 7 | 9 | ADR 08a e EVOLUCAO dizem o medido, com o que o portão não conta e por quê; `CatalogoTests` sem os dois números velhos |
+| **Correção** | 7 | 9 | a forma prescrita não acusa mais (provado em uma e em várias linhas), descer não acusa mais (provado com `hoje 0 / congelado 2`), o vermelho continua para arquivo novo e curva literal, e o falso negativo do escape de string está fechado |
+| **Simplicidade** | 8 | 9 | a copy da ficha em uma pessoa, sem contabilidade interna, com as aspas do app, 27% mais curta |
+| **Estado honesto** | 8 | 9 | o `ContinuidadeTrabalhoTests` declarado, o shortstat corrigido, o limite do `cliclick` escrito, e a ficha fotografada por mim |

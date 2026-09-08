@@ -5425,8 +5425,8 @@ A escada da sábia, o `conferir`, o `responderNasNotas`, o `produzirEntrega` e o
 
 **A dívida 7 da limpeza de 07/09, e por que ela é a mais estrutural.** Na volta
 12 a classe do cross-fade voltou SEIS vezes, com TRÊS causas distintas. O juiz
-do re-G4 nomeou a causa comum: **não existe portão** que impeça escrever
-`withAnimation` — ou uma curva do SwiftUI em literal — sem passar por `Tema`.
+do re-G4 nomeou a causa comum: **não existe portão** que impeça escrever uma
+curva do SwiftUI em literal sem passar por `Tema`.
 Quem escreve a curva no ponto de uso escolhe sozinho a CLASSE de movimento, e é
 a classe que decide o comportamento sob "Reduzir movimento" (ADR 05y), lei que
 mora em `Tema` num lugar só. Sem portão, cada tela recomeça a decisão.
@@ -5434,31 +5434,54 @@ mora em `Tema` num lugar só. Sem portão, cada tela recomeça a decisão.
 **A decisão: um teste de varredura com a dívida CONGELADA, não um lint.**
 `TracoTests/PortaoDoMovimentoTests` lê o TEXTO dos fontes de `Traco/` e
 `TracoWidget/`, tira comentário e miolo de string, e conta por arquivo quantas
-vezes ele move por conta própria (`withAnimation(`, curva nomeada do SwiftUI,
-`Animation.`, `repeatForever`, duração ou atraso em número cru). `Traco/Tema.swift`
-é o único isento. Todo o resto está numa lista congelada no próprio teste, um
-caminho por linha com o número de hoje: **19 arquivos, 76 ocorrências**. Arquivo
-fora da lista, ou número acima do congelado, é dívida nova e o teste fica
-vermelho dizendo o que fazer; número abaixo é migração feita e desce na mesma
-linha do commit, até a linha sair. `TracoWidget/` não aparece porque não tem
-nenhuma — a lista existe para que continue assim.
+vezes ele escreve **curva ou duração LITERAL fora de `Tema`** (curva nomeada do
+SwiftUI, `Animation.`, `repeatForever`, duração/atraso/mola em número cru).
+`Traco/Tema.swift` é o único isento.
 
-**Esta volta NÃO migra nenhuma das 76.** Isso é das voltas por tela, e várias
-moram em views de outros donos. O portão só impede a próxima.
+**O que o portão NÃO conta, e por quê (correção do G3, 08/09).** A primeira
+versão contava também `withAnimation(` e a curva passada DENTRO de uma chamada a
+`Tema.…(…)` / `CalendarioTema.…(…)`. Isso congelou 76 ocorrências em 19
+arquivos — e o revisor do G3 mediu o que elas eram: **69 das 76 estavam em linha
+que já cita `Tema.`**, e as outras 7 idem por variável. Era a **forma que esta
+ADR manda escrever**: `Tema.movimento(_ classe:, _ normal: Animation, reduzido:)`
+exige uma `Animation` no ponto de chamada. O portão ficava vermelho para quem
+fizesse a coisa certa, e a lista congelada era inalcançável por construção.
+A varredura passa a apagar o miolo das chamadas a `Tema.`/`CalendarioTema.`
+antes de contar a curva — mas NÃO apaga número cru lá dentro, porque
+`Tema.movimento(.opacidade, .easeOut(duration: 0.25), reduzido:)` continua sendo
+a duração decidida na view, e `Tema.Duracao.*` existe para isso.
 
-**Prova de que ele falha de verdade.** Verde no repositório de hoje
-(`✔ Test run with 1 test in 1 suite passed after 0.620 seconds.`); com uma
-violação plantada em arquivo FORA da lista e outra em arquivo DENTRO dela, o
-teste fica vermelho nas duas por motivos diferentes e nomeia cada uma
-(`Traco/App/BarraNavegacao.swift: 2 hoje, 0 congelado ← SUBIU`,
-`Traco/Padroes/PadroesView.swift: 4 hoje, 2 congelado ← SUBIU`). As duas foram
-removidas em seguida.
+**Medido depois do conserto: a dívida é ZERO.** Nenhum fonte de `Traco/` ou
+`TracoWidget/` escreve curva ou duração literal fora de `Tema` hoje; as 38
+chamadas de `withAnimation(` do repositório passam todas por `Tema.*` ou
+`CalendarioTema.morph`. A lista congelada `faltosos` nasce **vazia**, e é uma
+notícia boa: o produto já roteia o movimento por `Tema`, e o portão existe para
+que a PRÓXIMA curva literal não entre. Não há nada a migrar.
+
+**Descer nunca é vermelho.** A guarda é `hoje > congelado`, não `hoje !=
+congelado`: quem migrar uma tela um dia não pode precisar editar este teste para
+não ficar vermelho. Se um arquivo entrar na lista por uma volta, o número desce
+no commit da migração e a linha sai quando zera.
+
+**Prova de que ele falha de verdade.** Verde no repositório de hoje; vermelho
+com três plantas ao mesmo tempo — um arquivo NOVO fora do `project.pbxproj`
+(`Traco/Componentes/ProvaPortaoG3.swift: 2 hoje, 0 congelado ← SUBIU`) e uma
+curva literal num arquivo existente
+(`Traco/Padroes/PadroesView.swift: 2 hoje, 0 congelado ← SUBIU`) — enquanto a
+forma PRESCRITA (`Tema.movimento(.opacidade, .easeOut(duration: Tema.Duracao.media),
+reduzido:)`, em uma e em várias linhas), um comentário e uma string com curva
+dentro ficaram de fora da conta. E com a dívida congelada em 2 num arquivo já
+migrado, `hoje 0 / congelado 2` fica **verde**. As plantas foram removidas.
+Como a lista nasce vazia, o teste ficaria verde se a varredura parasse de
+enxergar: `aVarreduraAindaEnxerga` é o contra-veneno — quatro sondas sintéticas,
+duas que TÊM de acusar e duas que NÃO podem.
 
 **Fora, dito:** a varredura é sobre texto, não sobre a árvore do compilador.
 Vale para o que se lê num fonte; não persegue a curva que atravessa uma
-`Animation` guardada numa variável, nem string de várias linhas. Congelar
-número por arquivo é grosso de propósito: obriga a olhar a linha nova, e não
-julga se ela está certa.
+`Animation` guardada numa variável, nem string de várias linhas, nem parêntese
+desbalanceado dentro de string dentro de chamada a `Tema.` — os três erram para
+o lado de NÃO acusar. Congelar número por arquivo é grosso de propósito: obriga
+a olhar a linha nova, e não julga se a linha existente está certa.
 
 **As três dívidas de documento (itens 5 e 6 do RUMO)** foram pagas nas ADRs
 onde elas moram — 06i-E corrigida em quatro pontos (a causa, que era
@@ -5468,6 +5491,10 @@ contaminação e não rabo; a régua que passa a cobrar exclusividade; a porta m
 fim de um dia em que você fez algo que não quer repetir" — exatamente a matéria
 que a guarda da 06h se recusa a levar ao método. Passa a dizer a verdade: o
 método se abre pelo nome, e quando o texto é confissão a nota fica do autor.
+*(Copy revista no G3, 08/09, depois de fotografada: saiu o `(ADR 2026-09-06h)`,
+que era a única citação de ADR nas 28 fichas; a frase volta a uma pessoa só — o
+autor, como as outras 27 —, e as aspas passam a ser as tipográficas do app.
+De 385 para 282 caracteres.)*
 
 **A porta morta: apagada, não descrita.** `olhando o dia de hoje` sai do
 roteamento do `exameDaNoite`. `Meu dia` tem `\bo dia de hoje\b` e vem antes no

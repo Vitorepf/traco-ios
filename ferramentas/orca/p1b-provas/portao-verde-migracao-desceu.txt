@@ -1,0 +1,11 @@
+◇ Test run started.
+↳ Testing Library Version: 1902
+↳ Target Platform: arm64-apple-ios13.0-simulator
+◇ Suite PortaoDoMovimentoTests started.
+◇ Test aVarreduraAindaEnxerga() started.
+✔ Test aVarreduraAindaEnxerga() passed after 0.001 seconds.
+◇ Test nenhumMovimentoNovoForaDeTema() started.
+✔ Test nenhumMovimentoNovoForaDeTema() passed after 1.056 seconds.
+✔ Suite PortaoDoMovimentoTests passed after 1.059 seconds.
+✔ Test run with 2 tests in 1 suite passed after 1.059 seconds.
+** TEST SUCCEEDED **

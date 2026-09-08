@@ -404,16 +404,18 @@ import Testing
     /// P1 tirou o décimo oitavo apagando o ramo morto que o causava.
     ///
     /// Os TRÊS primeiros são regex larga e cedo comendo regex específica e
-    /// tarde. Nenhum dos três métodos fica sem porta: todos têm ramos vivos.
+    /// tarde, e tocam DOIS métodos (`steelman` e `divergencia`) — nenhum dos
+    /// dois fica sem porta: os dois têm ramos vivos.
     ///
     /// Os QUATORZE seguintes são a GUARDA da escrita pessoal (ADR 2026-09-06h,
     /// estreitada pela 06i e pelas 06i-B/C/D) chegando antes do roteamento e
     /// calando a sonda: 3 ramos da Coluna da esquerda e 11 do Exame da noite.
     /// Não é regex morta — é regex que o app se recusa a usar, de propósito,
     /// porque a frase é confissão de conduta e a nota fica do autor. Medido
-    /// com `conhecidos` vazio depois da colagem: 18 desvios, os 4 antigos
-    /// ainda vivos (nenhuma entrada morta) e 14 novos, o mesmo número que a
-    /// 06h previu — o estreitamento da A5 e das A-5-B/C/D não mudou a conta.
+    /// com `conhecidos` vazio depois da colagem, ANTES da volta P1: eram 18
+    /// desvios — 4 antigos ainda vivos (nenhuma entrada morta) e 14 novos, o
+    /// mesmo número que a 06h previu; o estreitamento da A5 e das A-5-B/C/D não
+    /// mudou a conta. A P1 apagou o ramo morto e um dos 4 antigos saiu com ele.
     ///
     /// O que a conta COBRA, e está aqui para ninguém descobrir sozinho: o
     /// SEGUNDO ramo do Exame da noite (`não devia ter …`, `me arrependi`,
@@ -423,7 +425,7 @@ import Testing
     /// revista` e `hoje eu (fiz|reagi|tratei)`. É a proteção funcionando, e é o
     /// preço dela.
     ///
-    /// Desvio NOVO, fora destes 18, derruba o teste.
+    /// Desvio NOVO, fora destes 17, derruba o teste.
     @Test func todoRamoDeRegexAlcancaOSeuMetodo() {
         let conhecidos: Set<String> = [
             // regex larga comendo regex específica (pré-existentes)
