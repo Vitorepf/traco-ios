@@ -175,6 +175,15 @@ coordenador ter perdido o vínculo com o Run — conserta-se com `run-use` de no
 Perdi dois observadores assim antes de entender: eles saíam com código 1 e sem
 saída, e eu li o silêncio como "nada chegou".
 
+**A mesma queda tem uma segunda causa, e ela vem de fora (08/09 20h36):** outro
+terminal rodando `run-use` no mesmo Run **assume o coordenador** e sobe a
+geração — quem estava esperando cai igual, com `consumer_fenced` e saída vazia, e
+o `worker-start` seguinte é recusado por "requires the coordinator terminal
+currently bound". Não é sinal de que a sua sessão errou. **Conserto nos dois
+casos: `run-use` de novo, e conferir os despachos vivos** (`worker-show`) antes
+de concluir qualquer coisa — os workers seguem trabalhando enquanto o
+coordenador troca de mão.
+
 **Regra:** um leitor de cada vez. **O observador de fundo é dispensável** — o
 próprio ambiente avisa quando há mensagem ("You have N orchestration messages"),
 e aí um `check` simples basta. Se ainda assim quiser esperar em bloco, então

@@ -459,3 +459,23 @@ A volta também nasceu com o nome consertado: era F5, virou F6, e **F6 já era d
 widgets da tela bloqueada** — colidia duas vezes. Fica **F5b**, e é a mesma
 lição das letras de ADR, aplicada a número de volta: o registro se lê, não se
 lembra.
+
+## 08/09, 21h05 — dois orquestradores no mesmo laço, e a queda que eu tinha acabado de documentar veio de fora
+
+O dono abriu às 20h34 uma segunda sessão de orquestrador. Às 20h36 ela rodou
+`run-use` no mesmo Run sem saber que eu estava vivo: o coordenador passou para
+outro terminal e a geração foi de 3 para 4. **É exatamente a queda que eu
+documentei em `ec7dc18` uma hora antes** — `consumer_fenced` com saída vazia —
+só que desta vez a causa não era minha.
+
+Isso melhora a lei em vez de contradizê-la: a mesma queda tem **duas** causas —
+um `check` avulso meu por cima do meu próprio `--wait`, e **outro terminal
+assumindo o Run**. Nos dois casos o silêncio não quer dizer "nada chegou", o
+conserto é `run-use` de novo, e **os workers não param**: conferi os quatro
+despachos (V13-B, MAC-1, Q re-G3, F5b) e os quatro seguem `dispatched`. A
+ESTEIRA passa a dizer isso.
+
+A outra sessão não tocou em mais nada além de remover o worktree
+`volta-a1-arranque`, que estava limpo e mesclado em `6da0df1` — remoção correta.
+Ela está parada e vai perguntar ao dono qual das duas conduz. **Até a resposta
+dele, o laço é meu**, e sigo com as quatro frentes.
