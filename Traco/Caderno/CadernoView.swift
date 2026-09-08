@@ -225,7 +225,7 @@ struct CadernoView: View {
                     // viaja pelo ambiente para o cartão o usar POR DENTRO (é lá
                     // que a rolagem dele mora); o `.frame` aqui é a rede.
                     .environment(\.tetoDoEncaixe, tetoDoEncaixe)
-                    // A rede NÃO PODE EXPANDIR (ADR 08c): `.frame(maxHeight:)` é flexível
+                    // A rede NÃO PODE EXPANDIR (ADR 08f): `.frame(maxHeight:)` é flexível
                     // e enchia o teto inteiro (554 pt com o teclado de pé) mesmo vazio —
                     // e esta pilha é opaca, logo cobria o papel a partir da terceira
                     // linha. `fixedSize` devolve à caixa a altura do ocupante; o teto

@@ -173,8 +173,8 @@ com `-w`, +59/−14 = +45). A passada barata, sem perder estado nem prova:
 |---|---|---:|
 | `Pilula.swift` | `private var tinta` (wrapper de uma linha do `static func tinta`) — inlinado no `foregroundStyle` | −2 |
 | `Pilula.swift` | `private var contorno` (wrapper de uma linha) — inlinado no `strokeBorder`; o comentário ficou, em cima de `capsula` | −2 |
-| `CadernoView.swift` | comentário de 8 linhas que repetia a ADR 08c → 4 linhas com ponteiro | −4 |
-| `PaginaView.swift` | comentário de 7 linhas que repetia a ADR 08c → 4 linhas | −3 |
+| `CadernoView.swift` | comentário de 8 linhas que repetia a ADR 08f → 4 linhas com ponteiro | −4 |
+| `PaginaView.swift` | comentário de 7 linhas que repetia a ADR 08f → 4 linhas | −3 |
 
 Depois do corte, +34. Entra então o conserto da seção 3 (uma linha de código
 e quatro de comentário no `CadernoView`), e o saldo final
@@ -189,7 +189,7 @@ e os comentários que contam o porquê. **Não inventei refatoração para caça
 zero** — o orquestrador foi explícito, e trocar dívida de tamanho por dívida
 de clareza seria pior.
 
-**A exceção está na ADR 08c** (`SPEC.md`, bloco "As quatro medidas que
+**A exceção está na ADR 08f** (`SPEC.md`, bloco "As quatro medidas que
 faltavam"): saldo **+36**, autorizado pelo **orquestrador (Claude Opus 5,
 08/09)**, porque o crescimento compra **um estado que não existia** (a
 `Pilula` desabilitada legível, que estava a 1,53:1 para todos os chamadores)
@@ -239,7 +239,7 @@ HITCH digitação (1232 caracteres no TextEditor): 1733 quadros em 29.0 s, 5 per
 | dimensão | nota | por quê |
 |---|---|---|
 | Visão | 9 | inalterado da V12-B |
-| Contrato | 9 | ADR 08c ganha o bloco das medidas e a exceção com o saldo, a lacuna e quem autorizou |
+| Contrato | 9 | ADR 08f ganha o bloco das medidas e a exceção com o saldo, a lacuna e quem autorizou |
 | Correção | 9 | suíte verde com o teste de medida novo; o defeito que a medida expôs foi consertado e provado |
 | Jornada real | 9 | o roteiro Página → vestida → campos percorrido nos dois builds, em `large` e AX5, com captura e árvore a cada toque |
 | Design | 9 | inalterado |
@@ -266,4 +266,4 @@ HITCH digitação (1232 caracteres no TextEditor): 1733 quadros em 29.0 s, 5 per
 | `v12c-digitado-depois.png` · `v12c-rolado-depois.png` | o mesmo estado com o conserto: papel inteiro, última linha na régua |
 | `v12c-rolado-antes.png` · `v12c-rolado-v12b.png` | o papel rolado até o fim, antes e na V12-B (o vão de 554 pt) |
 | `TracoTests/CadernoHitchesTests.swift` | a medida de hitch em digitação e rolagem, com a geometria e as capturas de dentro do processo |
-| `SPEC.md` ADR 08c | as medidas e a exceção de complexidade |
+| `SPEC.md` ADR 08f | as medidas e a exceção de complexidade |

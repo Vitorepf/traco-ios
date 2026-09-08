@@ -104,3 +104,96 @@ movimento novo deste diff.
 4. **Complexidade:** reduzir o saldo de +45 para atender a regra líquido-negativa, ou obter e registrar uma exceção explícita para este portão de contraste/preview.
 
 Nenhum código foi alterado nesta revisão.
+
+## re-G3 — V12-C: quatro medidas e o defeito que elas destaparam
+
+**Veredito: CORRIGIR ANTES.** Simplicidade, Acessibilidade e Complexidade
+chegam a **9**; Performance fica em **8** pelo hitch repetido ainda sem causa
+separada, e há um P1 de contrato: esta volta usa a ADR **08c**, letra já
+reservada por `main`; a correção é renomeá-la para **08f** e atualizar todas as
+referências. A branch estar atrás de `main` não entra neste veredito: a prova
+da árvore mesclada é o G5 do orquestrador.
+
+### 1. A medida achou um defeito real criado pela V12-B
+
+Confirmado no mesmo iPhone 17 Pro Max `6033B043-F436-41F9-B4F8-2D9E67761980`,
+sempre com `com-trava.sh`: um probe temporário, igual nos dois candidatos,
+mediu o `adjustedContentInset.bottom` com teclado de pé e encaixe vazio em
+**726 pt na V12-B (`62fc69f`) contra 86 pt na V12-C (`035c5e0`)**. O valor
+absoluto muda com o conteúdo que está no papel: o `CadernoHitchesTests` final,
+com os 1232 caracteres do roteiro, mede os **192 pt** declarados; a V12-B
+anterior registrava 746 pt nesse mesmo cenário. O fato relevante se reproduz
+sem ambiguidade: a V12-B acrescenta ~640 pt de caixa vazia, e a V12-C a remove.
+
+`v12c-digitado-v12b-coberto.png` mostra de fato a terceira linha do autor
+cortada por uma área opaca até a régua; não é só uma discrepância numérica. A
+causa no diff também fecha: o `VStack` explícito cria o ocupante vazio e
+`.frame(maxHeight:)` aceita o teto; `.fixedSize(horizontal: false, vertical:
+true)` logo após o frame devolve a altura ao ocupante. No build final, a medida
+opt-in passou (1232 caracteres e três idas-e-voltas): 192 pt com cartão, e a
+árvore final põe o cartão em `y=0,671`, a mesma âncora da V12-B. Portanto a
+volta realmente consertou “o cartão cobre o texto do autor”, mas antes tinha
+criado uma versão pior do mesmo defeito; foi a medição exigida que o revelou.
+
+Aceito como limite a falta de novo filme do `.sheet`: a transição já foi
+filmada antes e a mudança final elimina a caixa flexível que permitiria o salto.
+Aceito também a falta de foto do cartão com teclado de software: o teclado
+físico do teste não o desenha, mas o cartão final tem geometria medida e a
+âncora não mudou.
+
+### 2. Curva-zero e árvore AX
+
+**Simplicidade: 9.** As capturas e árvores por passo sustentam a contagem:
+Página vestida → Abrir os campos é **1/1** toque em `large` e **2/2** em AX5,
+antes/depois. É empate, não melhora; satisfaz a exigência desta revisão, que
+era medir e não prometer redução onde controles não foram alterados.
+
+**Acessibilidade: 9, para o escopo pedido.** A árvore AX viva contém os dois
+estados desabilitados com rótulo completo e `enabled=false` e, em AX5 vestido,
+os elementos têm rótulo e seguem topbar → papel/campos → cartão → ações. Ela
+substitui VoiceOver para verificar rótulo, estado e ordem estrutural que eu
+pedira. Não substitui fala, rotor ou gesto humano em aparelho real; essa é uma
+lacuna global explicitamente dita, não uma alegação falsa de VoiceOver rodado.
+
+### 3. Performance: medida aceita, resultado ainda não fecha 9
+
+O `CADisplayLink` dentro do processo é um trace equivalente aceitável diante
+das recusas explícitas do Instruments no simulador. A carga também é adequada
+para a Página tocada: `TextEditor` real, 1232 caracteres e três idas-e-voltas
+do `ScrollView` real. Minha rodada final passou como teste, mas registrou 3
+quadros perdidos na digitação (máximo 58,9 ms) e 1 na rolagem (161,8 ms); o
+relato já registra quadros isolados de 92, 151 e 176 ms em 3 de 6 rodadas.
+
+Isso não prova regressão do `fixedSize`, mas também não prova “sem hitch”: a
+hipótese do aviso da análise caindo no deslize ainda não foi isolada. Assim,
+o trace é aceito como instrumento, mas o quadro longo repetido vira **P2 de
+medida/performance**, não só limite: **CORRIGIR ANTES — separar a chegada do
+aviso da rolagem (ou estabilizar a carga), repetir o par de candidatos e
+eliminar ou explicar com limite objetivo os hitches.**
+
+### 4. Complexidade e contrato
+
+**Complexidade: 9.** Conferi `git diff 499623c..035c5e0 --numstat -- Traco/`:
+**+99/−63 = +36**, e com `-w`, **+51/−15 = +36**. A exceção está escrita na
+ADR: saldo, lacuna (estado desabilitado antes em 1,53:1), portão e autorizador
+(orquestrador, 08/09) estão todos presentes; ela satisfaz a regra de admitir
+crescimento explicitamente, mesmo sem saldo líquido-negativo.
+
+**Contrato: 8.** A exceção está materialmente completa, porém sob identificador
+colidido. O histórico da integração de `main` registra que 08c/08d já eram do
+dono e que outra volta precisou virar 08e para não colidir; manter a V12-C
+como 08c quebra a numeração reservada desta sessão. **P1 — renomear 08c para
+08f, inclusive referências em SPEC, relatórios e comentários.**
+
+## Scorecard re-G3
+
+| dimensão | nota | evidência independente |
+|---|---:|---|
+| Simplicidade | **9** | 1/1 toque `large`, 2/2 AX5; empate declarado e árvores/capturas por toque. |
+| Acessibilidade | **9** | AX viva: rótulos completos, `enabled=false` e ordem AX5; fala/gesto humano continuam limite nomeado. |
+| Performance | **8** | Trace equivalente e carga suficientes, mas quadros longos repetidos sem causa isolada. |
+| Complexidade | **9** | +99/−63; +51/−15 com `-w`; exceção com saldo, lacuna e autorizador. |
+| Contrato | **8** | P1: ADR 08c colide; reservar 08f para esta volta. |
+
+O aparelho foi mantido no UDID atribuído, `large` ao final; nenhum maestro,
+mouse ou simulador proibido foi usado. Não editei código nem comitei.

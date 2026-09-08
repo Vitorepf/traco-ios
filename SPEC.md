@@ -5388,7 +5388,7 @@ A escada da sábia, o `conferir`, o `responderNasNotas`, o `produzirEntrega` e o
 
 **O que esta ADR não prova.** Nenhuma operação tem medição com Grok: a conta não existe em nenhum simulador (login iniciado no iPhone 17 Pro de teste em 07/09, à espera do dono). A tabela decide onde o aparelho NÃO entra; se o Grok serve, é a próxima medição pela mesma sonda. `responder`, `instigar` e `contrapor` seguem sem medição em nenhum provedor. 5 testes em `PoliticaTests`; suíte 826/134 em 07/09/2026.
 
-## ADR 2026-09-08c — O encaixe cola no pé: o fantasma do `.sheet`, o aviso e a cápsula desligada (volta V12-B)
+## ADR 2026-09-08f — O encaixe cola no pé: o fantasma do `.sheet`, o aviso e a cápsula desligada (volta V12-B)
 
 **A distância.** Três dívidas da limpeza de 07/09, todas na Página, todas com a
 mesma raiz de layout ou o mesmo esquecimento de contraste.
@@ -5492,3 +5492,26 @@ dimensões — não o código. As medidas, coladas em
   (`PilulaContrasteTests`). Isto é lacuna nomeada, que é o que a regra pede
   para admitir crescimento. Não se inventou refatoração para caçar o zero:
   trocar dívida de tamanho por dívida de clareza seria pior.
+
+**A letra e o quadro longo (V12-D, 08/09).** Esta ADR nasceu como `08c`, letra
+que já era de `main` (a conferência que conserva restrições ao adaptar); passa
+a **`08f`** em SPEC, EVOLUCAO, relatórios e nos dois comentários de código que
+a citam. E o quadro longo que a V12-C viu em 3 de 6 rodadas de rolagem
+(92–176 ms) tinha uma hipótese — o aviso da análise a cair no deslize — e
+hipótese não fecha dimensão. `CadernoHitchesTests` passou a ler, **a cada
+quadro**, o inset inferior do papel (a altura do encaixe) e o offset da
+rolagem, a imprimir cada quadro longo com o que mudou nele e a cronometrar a
+chamada de rolar. Em **3 de 3** rodadas do protocolo antigo o quadro longo
+(131–176 ms) caiu a +0,13–0,18 s da primeira descida com o encaixe parado em
+**192 → 192 pt** e a chamada em **< 1 ms**: **não era o aviso** — sob teste
+ele nem entra (o Grok cala quando `emTeste`, e nem cartão nem "lendo…" mudaram
+o encaixe em 3 s medidos). Medida também a espera, o mesmo quadro apareceu a
++0,15 s **dela** — e as duas fases tinham a mesma coisa logo antes: a captura
+do próprio teste (`drawHierarchy` da janela + PNG de 1,3 MB), que cronometrada
+custa **127–162 ms na main thread**. Era o instrumento a medir-se a si mesmo.
+Com a captura fora de toda janela medida, **6 de 6** rodadas fecham com **0
+quadros perdidos** na espera (1080 quadros), na primeira descida (247) e na
+rolagem em regime (1516); a digitação segue com o ruído de 0–1 quadro de
+45–54 ms. Nenhuma linha de app mudou por isto, e nada vai ao RUMO: não há
+custo a declarar. Linhas de 21 rodadas em `ferramentas/orca/v12d-hitch-linhas.txt`;
+relato `v12d-letra-e-quadro.md`.

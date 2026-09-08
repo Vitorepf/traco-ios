@@ -24,8 +24,15 @@ struct CadernoHitchesTests {
 
     /// Quem escuta o `CADisplayLink`: um instante por quadro entregue.
     final class Relogio: NSObject {
-        var quadros: [(instante: CFTimeInterval, duracao: CFTimeInterval)] = []
-        @objc func quadro(_ link: CADisplayLink) { quadros.append((link.timestamp, link.duration)) }
+        var quadros: [(instante: CFTimeInterval, duracao: CFTimeInterval, inset: CGFloat, offset: CGFloat)] = []
+        /// Sonda lida a CADA quadro: o inset inferior do papel (a altura do
+        /// encaixe — muda quando o aviso/cartão entra) e o offset da rolagem.
+        /// É o que separa "o aviso caiu no deslize" de "o deslize engasgou".
+        var sonda: (() -> (CGFloat, CGFloat))?
+        @objc func quadro(_ link: CADisplayLink) {
+            let (inset, offset) = sonda?() ?? (0, 0)
+            quadros.append((link.timestamp, link.duration, inset, offset))
+        }
 
         /// Quadros perdidos: intervalo maior que 1,5 × a duração esperada (o
         /// quadro seguinte não chegou a tempo). Tempo de hitch: o atraso somado,
@@ -34,15 +41,24 @@ struct CadernoHitchesTests {
             let fatia = Array(quadros[inicio...])
             guard fatia.count > 2 else { return "HITCH \(fase): sem quadros" }
             var perdidos = 0, atraso: CFTimeInterval = 0, maior: CFTimeInterval = 0
+            var longos: [String] = []
             for i in 1..<fatia.count {
                 let intervalo = fatia[i].instante - fatia[i - 1].instante
                 let esperado = fatia[i].duracao
                 maior = max(maior, intervalo)
-                if intervalo > esperado * 1.5 { perdidos += 1; atraso += intervalo - esperado }
+                if intervalo > esperado * 1.5 {
+                    perdidos += 1; atraso += intervalo - esperado
+                    // cada quadro longo com o que mudou NELE: se o inset saltou, o
+                    // encaixe trocou de altura nesse quadro (aviso/cartão a entrar)
+                    longos.append(String(format: "HITCH   quadro longo: +%.2f s, %.1f ms, inset %.0f→%.0f pt, offset %.0f→%.0f pt",
+                                         fatia[i].instante - fatia.first!.instante, intervalo * 1000,
+                                         fatia[i - 1].inset, fatia[i].inset, fatia[i - 1].offset, fatia[i].offset))
+                }
             }
             let total = fatia.last!.instante - fatia.first!.instante
-            return String(format: "HITCH %@: %d quadros em %.1f s, %d perdidos, hitch %.1f ms (%.2f ms/s), maior intervalo %.1f ms",
-                          fase, fatia.count, total, perdidos, atraso * 1000, atraso * 1000 / total, maior * 1000)
+            let linha = String(format: "HITCH %@: %d quadros em %.1f s, %d perdidos, hitch %.1f ms (%.2f ms/s), maior intervalo %.1f ms",
+                               fase, fatia.count, total, perdidos, atraso * 1000, atraso * 1000 / total, maior * 1000)
+            return ([linha] + longos).joined(separator: "\n")
         }
     }
 
@@ -70,12 +86,18 @@ struct CadernoHitchesTests {
     }
 
     /// A prova para o olho: a janela do app como está, gravada no tmp do contêiner.
+    /// CUSTA ~140 ms na main thread (desenhar a janela + codificar 1,3 MB de PNG)
+    /// e por isso nunca é chamada dentro de uma janela medida: a V12-D achou que
+    /// o "quadro longo da rolagem" (V12-C) era ESTA chamada a cair a +0,15 s da
+    /// fase seguinte. Cronometrada para o número ficar na linha.
     private func fotografar(_ nome: String) {
         guard let w = janela() else { return }
+        let t0 = CACurrentMediaTime()
         let png = UIGraphicsImageRenderer(bounds: w.bounds).image { _ in w.drawHierarchy(in: w.bounds, afterScreenUpdates: true) }.pngData()
         let destino = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(nome)
         try? png?.write(to: destino)
-        print("HITCH captura: \(destino.path)")
+        print(String(format: "HITCH captura: %@ (%.1f ms na main thread)", destino.path, (CACurrentMediaTime() - t0) * 1000))
+        esperar(0.5) // o custo da captura assenta fora de qualquer fase medida
     }
 
     @Test func digitacaoERolagemNoCaderno() throws {
@@ -102,20 +124,37 @@ struct CadernoHitchesTests {
             for ch in bloco { tv.insertText(String(ch)); esperar(0.02) }
         }
         print(relogio.resumo("digitação (1232 caracteres no TextEditor)", de: inicioDigitacao))
-        fotografar("hitch-digitado.png") // onde a linha do autor está, com o teclado de pé
 
         let sv = try #require(scrollAcima(de: tv), "o ScrollView do Caderno não foi encontrado acima do editor")
-        esperar(2.5) // a análise da pausa veste a forma; o encaixe muda de altura aqui
-        fotografar("hitch-vestido.png") // o cartão no encaixe, teclado de pé
-        print(String(format: "HITCH geometria com cartão: inset inferior %.0f pt", sv.adjustedContentInset.bottom))
+        relogio.sonda = { (sv.adjustedContentInset.bottom, sv.contentOffset.y) }
+        let insetDigitado = sv.adjustedContentInset.bottom
+        // A ESPERA é fase medida (V12-D): é onde a análise da pausa (1,6 s depois
+        // da última tecla) faria o encaixe mudar, e a sonda mostra se mudou.
+        let inicioEspera = relogio.quadros.count
+        esperar(3.0)
+        let insetsDaEspera = relogio.quadros[inicioEspera...].map(\.inset)
+        print(relogio.resumo("espera da análise (3,0 s depois da última tecla)", de: inicioEspera))
+        print(String(format: "HITCH aviso: inset %.0f pt ao fim da digitação, mín %.0f / máx %.0f pt durante a espera, %.0f pt ao fim (%@)",
+                     insetDigitado, insetsDaEspera.min() ?? 0, insetsDaEspera.max() ?? 0, sv.adjustedContentInset.bottom,
+                     (insetsDaEspera.max() ?? 0) == insetDigitado ? "o encaixe NÃO mudou: nem 'lendo…' nem cartão entraram" : "o encaixe mudou durante a espera"))
+        fotografar("hitch-digitado.png") // a linha do autor com o teclado de pé, o encaixe como está
+        print(String(format: "HITCH geometria antes de rolar: inset inferior %.0f pt, TextKit %@", sv.adjustedContentInset.bottom,
+                     tv.textLayoutManager == nil ? "1" : "2"))
         let fundo = max(0, sv.contentSize.height - sv.bounds.height + sv.adjustedContentInset.bottom)
         #expect(fundo > 0, "o papel não rola — a medida de rolagem não mediu nada")
+        // V12-D: a PRIMEIRA descida é fase própria — é nela que a V12-C via o
+        // quadro longo (a +0,13–0,19 s, inset parado em 192→192 pt, chamada de
+        // rolar < 1 ms), e ele era a captura logo acima a assentar. Separada, se
+        // um dia voltar, a linha diz em que fase.
+        let inicioRevelacao = relogio.quadros.count
+        sv.setContentOffset(CGPoint(x: 0, y: fundo), animated: true); esperar(0.7)
+        print(relogio.resumo("primeira descida (revela o texto abaixo da dobra, curso \(Int(fundo)) pt)", de: inicioRevelacao))
         let inicioRolagem = relogio.quadros.count
         for _ in 0..<3 {
-            sv.setContentOffset(CGPoint(x: 0, y: fundo), animated: true); esperar(0.7)
             sv.setContentOffset(.zero, animated: true); esperar(0.7)
+            sv.setContentOffset(CGPoint(x: 0, y: fundo), animated: true); esperar(0.7)
         }
-        print(relogio.resumo("rolagem (3 idas e voltas, curso \(Int(fundo)) pt)", de: inicioRolagem))
+        print(relogio.resumo("rolagem em regime (3 idas e voltas, curso \(Int(fundo)) pt)", de: inicioRolagem))
         print(String(format: "HITCH geometria: conteúdo %.0f pt, janela %.0f pt, inset inferior %.0f pt, teclado %@",
                      sv.contentSize.height, sv.bounds.height, sv.adjustedContentInset.bottom, tv.isFirstResponder ? "de pé" : "fechado"))
         #expect(relogio.quadros.count > 60, "o CADisplayLink não contou quadros — nada foi medido")

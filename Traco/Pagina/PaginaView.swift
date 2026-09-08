@@ -313,7 +313,7 @@ struct PaginaView: View {
     /// O encaixe acima do pé. A pilha é EXPLÍCITA porque quem a recebe é um
     /// `AnyView` (`CadernoView.acima`): apagado o tipo, o `TupleView` deixa de
     /// ser achatado pela pilha de baixo e os ocupantes espalhavam-se pela caixa
-    /// do teto — o aviso nascia no meio do texto do autor (ADR 08c).
+    /// do teto — o aviso nascia no meio do texto do autor (ADR 08f).
     private var acimaDoPe: some View {
         VStack(alignment: .leading, spacing: 0) {
             if let toast = sessao.toast {

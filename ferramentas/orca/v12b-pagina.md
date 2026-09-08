@@ -260,7 +260,7 @@ em uma linha.
 | dimensão | nota | por quê |
 |---|---|---|
 | Visão | 9 | fecha três dívidas nomeadas do RUMO na tela onde o autor passa mais tempo; ciclo multiplicar, lacuna "Direção visual e uso simples" atualizada no EVOLUCAO |
-| Contrato | 9 | ADR 08c curta, com a causa medida, o que muda e o que não muda; SPEC e EVOLUCAO coerentes com o código |
+| Contrato | 9 | ADR 08f curta, com a causa medida, o que muda e o que não muda; SPEC e EVOLUCAO coerentes com o código |
 | Correção | 9 | 890/144 verde; teste novo (`PilulaContrasteTests`) para o comportamento novo, com a conta da WCAG dentro |
 | Jornada real | 9 | escrever → vestir → abrir os campos percorrido na tela viva em `large` e AX5, com e sem RM; aviso nos quatro estados; itens 2 e 4 do re-G4 refeitos |
 | Design | 9 | o encaixe passa a ler como o que a ADR sempre disse que era: colado ao pé, acima da régua. O vão de 86,7 pt era desenho por acidente |
