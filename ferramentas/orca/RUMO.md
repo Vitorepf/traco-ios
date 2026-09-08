@@ -185,6 +185,14 @@ O simulador não prova, e as quatro ficam para uma passada no iPhone do dono (it
 
 O juiz listou e não descontou: `isHeader` faltando nas duas seções novas; o `id` do `DisclosureGroup` sombreando os filhos; as aspas de "A pedido seu."; e um `spacing` literal onde a convenção manda token. Nenhum é de tela quebrada — são acabamento de acessibilidade e de convenção, e entram na volta que tocar `TrabalhoView` de novo.
 
+### A RÉGUA DO VAZAMENTO, nos dois sentidos — volta própria, e ela vem antes de mexer no parser
+
+A Q-D mediu 30 execuções e 9 recusas, **8 por vazamento e 1 por limite**, e em quatro delas a evidência exposta aponta para **nós**: as quatro palavras do trecho **já estavam no pedido do autor**. As quatro sem evidência ficaram **INDETERMINADAS e não foram contadas a favor**.
+
+**O que falta escrever antes de tocar no código:** o que é vazar **quando o alvo é um exemplo** e não a resposta. No Recordar, a guarda `Prova.vaza` existe porque **o alvo É a resposta** — repetir o alvo entrega o exercício. Na preparação de prática, o alvo é **o exemplo**, que por contrato é **outro caso**, e o vocabulário estrutural da tarefa (o que o próprio pedido manda separar) **passa pelo exemplo antes de chegar ao critério**. Sem essa régua escrita, alargar o parser é abrir a porta para a IA entregar a resposta pronta, e apertá-lo é recusar trabalho bom.
+
+Ciclo: melhorar. **Evidência:** a régua escrita nos dois sentidos, com casos que a guarda DEVE recusar e casos que ela NÃO deve, e a medida refeita contra ela.
+
 ### RESOLVIDO em 08/09 pela Q-C, e a resposta é contra nós: a guarda está no lugar errado
 
 **3 das 15 execuções de `prepararPratica` não entregam — e não é teto nem provedor.** HTTP 200, conteúdo completo, `grok-4.6` confirmado, 3.777 a 6.865 tokens de raciocínio, e **recusadas pelo NOSSO contrato** (`PraticaTrabalho.parsePreparacao`/`validar`). Por entrega, a operação sai de 1/6 para **4/6**.
