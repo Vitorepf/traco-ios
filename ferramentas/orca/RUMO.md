@@ -185,6 +185,11 @@ O simulador não prova, e as quatro ficam para uma passada no iPhone do dono (it
 
 O juiz listou e não descontou: `isHeader` faltando nas duas seções novas; o `id` do `DisclosureGroup` sombreando os filhos; as aspas de "A pedido seu."; e um `spacing` literal onde a convenção manda token. Nenhum é de tela quebrada — são acabamento de acessibilidade e de convenção, e entram na volta que tocar `TrabalhoView` de novo.
 
+### Dois achados da V13 (08/09), com dono nomeado
+
+- **O caret do Caderno falha em AX XXXL no iPhone 17e.** A V13 rodou a suíte integral no `C7341E64` e o **único vermelho** é esse — e ela provou que é **pré-existente**, com as mesmas 18 ocorrências em `HEAD` sem o diff dela. É da invariante da escrita visível (V12, ADR 08f, já mesclada), que foi provada no Pro Max e no teste 2 mas **não neste aparelho neste tamanho**. Volta do Caderno, e a prova tem de incluir o 17e em AX XXXL.
+- **A pergunta interrompida some ao trocar de aba**, porque `RaizView` **recria** a `NotasView`. É estado desonesto — a pessoa perde o que estava esperando sem que nada diga. Conserto na `Sessao`, área do arquiteto, não do front.
+
 ### A RÉGUA DO VAZAMENTO, nos dois sentidos — volta própria, e ela vem antes de mexer no parser
 
 A Q-D mediu 30 execuções e 9 recusas, **8 por vazamento e 1 por limite**, e em quatro delas a evidência exposta aponta para **nós**: as quatro palavras do trecho **já estavam no pedido do autor**. As quatro sem evidência ficaram **INDETERMINADAS e não foram contadas a favor**.

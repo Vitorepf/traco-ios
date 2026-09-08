@@ -269,3 +269,13 @@ O verificador que eu instalei às 19h45 para rodar em toda espera usava `pgrep -
 Corrigido: o caçador passou a olhar o **nome do executável** (`comm`), nunca a linha de comando, e a lista ficou restrita ao que o dono nomeou por **ouvir** — `sirittsd`, `SiriAUSP`, `MacinTalk`, `speechsynthesisd`. Tirei `assistantd` e `siriactionsd`, que são daemons de sistema do macOS, sempre vivos e **não são fala**: mantê-los na lista faria o caçador acusar silêncio como barulho para sempre.
 
 **É o sétimo instrumento do dia que diz mais do que mostra** — e o primeiro que eu mesmo escrevi. A régua que eu cobrei a tarde inteira dos workers (*todo portão nasce com a prova do vermelho, e o teste precisa visitar o lugar do defeito*) eu não apliquei ao meu próprio verificador: instalei sem nunca tê-lo visto **acusar de verdade** nem **ficar quieto de verdade**. Agora os dois estados estão vistos.
+
+### 08/09 20h20 — a hipótese da voz CAIU, e a causa continua desconhecida
+
+Eu tinha proposto que os processos de fala subiam porque **a sábia responde pelo Apple Intelligence do aparelho**, que no iOS 26 roda sobre a infraestrutura da Siri. A V13 testou no 17e, do jeito que pedi — `ps` antes, 1 s depois, 10 s depois e ao fim de uma pergunta pelo caminho do aparelho: **zero processos de fala, sempre**. **A hipótese caiu.**
+
+E a mesma volta confirmou, comando a comando, que **nunca usou Siri, `button`, ditado, leitura de tela nem `say`** — só `attach/ax/tap/type/gesture` e `simctl` —, e que o plist de acessibilidade do teste 2 não tinha nada ligado.
+
+**Então a causa da voz continua desconhecida**, e é assim que fica registrado. O que resta em pé são as defesas, que não dependem de saber a causa: a proibição de voz em letras grandes no preâmbulo de todo spec, o caçador de fala rodando antes de cada espera do laço, e um simulador por worker com dono nomeado. **Nenhum processo de síntese apareceu desde as 19h45.**
+
+A tentação aqui seria fechar a investigação com a hipótese bonita que eu mesmo escrevi. Ela foi testada e não se sustentou; escrever "provavelmente era o Apple Intelligence" seria exatamente o tipo de conclusão sem evidência que este dia inteiro recusou nas medidas da IA.
