@@ -177,6 +177,10 @@ Ordem do dono de 07/09 à noite: limpeza geral do git, sem perder nada, só `mai
 - **VoiceOver do Perfil continua por ouvir** — ligar o leitor exige reiniciar o aparelho, o que é proibido no meio de uma rodada; precisa de uma janela própria.
 - **O transbordo horizontal do Perfil em AX5** reproduz em `HEAD` sem o diff da volta, e o app Ajustes no mesmo aparelho não transborda: é de `Camadas`/`RaizView`.
 
+### Vinda do conselho da V12 (08/09): o oráculo de pixels
+
+**Volta própria, e cara.** O conselho respondeu que a prova geométrica da escrita visível cabe numa suíte hospedada (entra na V12-E), mas **a prova TEMPORAL do fantasma exige um oráculo de pixels sobre quadros nativos capturados**: detecta texto do papel na região exclusiva do cartão, perda de cobertura ou duas geometrias concorrentes, com e sem Reduzir Movimento, analisando **depois** da captura, sem juiz assistindo a vídeo. Custa instrumentação de renderização, é **amostrada** e **não certifica "nenhum quadro possível"** — captura externa ao caminho medido, localização das superfícies, tolerâncias calibradas e controle de quadros ausentes; lacuna de captura torna o intervalo inconclusivo. Ciclo: melhorar (barateia todo julgamento de movimento). **Avisos do conselho, para quem abrir:** `CADisplayLink` é temporizador sincronizado à tela, **não captura de pixels**; `presentation()` é aproximação da camada exibida; e **fotografar no callback altera o fenômeno** — a V12-D provou isso por outro caminho, ao descobrir que o quadro longo era o `fotografar()` do próprio teste.
+
 ## A fila do dono, 08/09 — as doze prioridades do Astra, mapeadas nas voltas
 
 O dono pediu ao Astra uma leitura de prioridades e depois decidiu que o laço do Orca as resolve, todas, com mais qualidade por token. A tabela abaixo é a dele; a coluna da direita é a volta que a paga. Ordem de fila: a do Astra, exceto onde uma volta já em curso paga um item mais abaixo de graça. "Resolvido" é o critério da terceira coluna dele, provado na tela, não a volta mesclada.
