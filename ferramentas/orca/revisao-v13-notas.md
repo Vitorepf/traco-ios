@@ -4,7 +4,7 @@
 
 ## Escopo e instrumento
 
-- Revisei o diff `a8d2c93..ae48727`, a ADR 2026-09-08p, `EVOLUCAO.md`, `RUMO.md`, `v13-notas.md` e as capturas entregues. Não alterei código.
+- Revisei o diff `a8d2c93..ae48727`, a ADR 2026-09-08t, `EVOLUCAO.md`, `RUMO.md`, `v13-notas.md` e as capturas entregues. Não alterei código.
 - Liguei exclusivamente o iPhone 17 Pro teste 4 `A1DF082C-FC87-4DF9-9F56-F2DA1C084DED`, instalei o candidato por UDID, e usei `com-trava.sh` para build, teste e `orca emulator`. Não usei voz, Siri, ditado, VoiceOver, iPad ou simuladores proibidos.
 - Prova viva própria: árvore AX e `xcrun simctl io A1DF… screenshot` no mesmo instante. Artefatos temporários: `/tmp/v13-g3-ax-notas.json` + `/tmp/v13-g3-notas-2.png`, `/tmp/v13-g3-ax-woop.json` + `/tmp/v13-g3-woop.png`, `/tmp/v13-g3-ax-regua-final.json` + `/tmp/v13-g3-regua-final.png`, `/tmp/v13-g3-ax-trabalhos.json` + `/tmp/v13-g3-trabalhos.png`.
 - Desliguei o A1DF082C ao final; `simctl list devices` confirmou `Shutdown`.

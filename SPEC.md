@@ -6311,7 +6311,7 @@ continua com o gesto — provado na mesma tela, não só no teste.
 sem classificação continua entrando em qualquer estado, e o resultado observado
 continua sendo do relato, nunca um quarto estado da ação.
 
-## ADR 2026-09-08p — A lista das Notas não afirma o que não há (volta V13)
+## ADR 2026-09-08t — A lista das Notas não afirma o que não há (volta V13)
 
 **A auditoria V9 foi conferida na tela viva antes da primeira linha**, defeito a
 defeito, porque no Recordar ela já tinha envelhecido (RUMO, "parcialmente
