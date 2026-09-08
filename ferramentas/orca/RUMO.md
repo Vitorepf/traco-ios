@@ -181,6 +181,13 @@ Ordem do dono de 07/09 à noite: limpeza geral do git, sem perder nada, só `mai
 
 O simulador não prova, e as quatro ficam para uma passada no iPhone do dono (item 12 da fila): **StandBy noturno** (não renderiza no simulador), **Ilha mínima** (só aparece com duas atividades disputando a Ilha, e não há segundo app com Live Activity), **VoiceOver ouvido** (o `ax` recusa e ligar o leitor exige reiniciar o aparelho) e **a Ilha compacta com duas atividades em AX5**, onde o juiz viu um quadro isolado com o "t" cortado. As três primeiras foram confirmadas como limite por dois revisores independentes — não são desculpa de implementador.
 
+### O que o conselho da Q fixou sobre a fila do dono (08/09)
+
+- **Item 2 fecha com o MAPA**, não com dezesseis células preenchidas de Grok: atendimento, falhas, condições e a política correspondente, **declarando qualquer executor inacessível**.
+- **Item 3 fica na Q-B** enquanto a ajuda não atender tentativas variadas. Corte honesto não o paga.
+- **Item 9 exige jornada atual com IA real** — resposta ruim, interrupção, nova tentativa, estados e conteúdo preservados na UI. **A sonda isolada não o fecha.**
+- **Indisponibilidade por qualidade não existe hoje na tabela:** as três regras da `Politica` não a distinguem de falta de conta, e por isso a tela manda conectar Grok quando a conta já existe. É contrato a criar, não texto a trocar.
+
 ### Vinda do conselho da V12 (08/09): o oráculo de pixels
 
 **Volta própria, e cara.** O conselho respondeu que a prova geométrica da escrita visível cabe numa suíte hospedada (entra na V12-E), mas **a prova TEMPORAL do fantasma exige um oráculo de pixels sobre quadros nativos capturados**: detecta texto do papel na região exclusiva do cartão, perda de cobertura ou duas geometrias concorrentes, com e sem Reduzir Movimento, analisando **depois** da captura, sem juiz assistindo a vídeo. Custa instrumentação de renderização, é **amostrada** e **não certifica "nenhum quadro possível"** — captura externa ao caminho medido, localização das superfícies, tolerâncias calibradas e controle de quadros ausentes; lacuna de captura torna o intervalo inconclusivo. Ciclo: melhorar (barateia todo julgamento de movimento). **Avisos do conselho, para quem abrir:** `CADisplayLink` é temporizador sincronizado à tela, **não captura de pixels**; `presentation()` é aproximação da camada exibida; e **fotografar no callback altera o fenômeno** — a V12-D provou isso por outro caminho, ao descobrir que o quadro longo era o `fotografar()` do próprio teste.
