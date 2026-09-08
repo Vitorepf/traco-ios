@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 import Testing
 
 @testable import Traco
@@ -199,5 +200,60 @@ import Testing
     @Test func aCitacaoDeOutraParteAcrescenta() {
         let titulo = "Foco e um recurso que acaba"
         #expect(!Prova.normal(titulo).contains(Prova.normal("cobra um pedaco que nao volta")))
+    }
+}
+
+/// Volta 19 — a regra de layout do revelar, testada fora da tela.
+///
+/// A auditoria V9 deu 5 em Acessibilidade ao Recordar. A causa era uma medida
+/// em pontos decidindo sozinha se a comparação cabe em duas colunas: em AX5
+/// cada coluna ficava com ~150 pt, o SwiftUI hifenizava em vez de encolher e a
+/// nota saía cortada no meio de uma letra. A lição da F4 é esta: o teto vira
+/// regra nomeada e testada, não um `if` escondido no meio do `body`.
+@Suite struct RecordarLadoALadoTests {
+    @Test func aFolhaLargaEmCorpoNormalComparaLadoALado() {
+        #expect(RecordarView.comparaLadoALado(largura: 393, tamanho: .large))
+        #expect(RecordarView.comparaLadoALado(largura: 360, tamanho: .xxxLarge))
+    }
+
+    @Test func aFolhaEstreitaEmpilha() {
+        #expect(!RecordarView.comparaLadoALado(largura: 359, tamanho: .large))
+    }
+
+    @Test func corpoDeAcessibilidadeEmpilhaEmQualquerLargura() {
+        // é o defeito que esta volta fecha: duas colunas de ~150 pt em AX5
+        // hifenizam "obstá-culo" e cortam a nota
+        for tamanho in [DynamicTypeSize.accessibility1, .accessibility3, .accessibility5] {
+            #expect(!RecordarView.comparaLadoALado(largura: 440, tamanho: tamanho))
+        }
+    }
+}
+
+/// O app não troca o enunciado embaixo de quem está escrevendo.
+///
+/// O vídeo da volta 19 pegou a pergunta da sábia entrando ~4 s depois da fixa,
+/// com o autor já no meio da resposta: trocar a pergunta no meio da prova é
+/// mudar a prova. A guarda era o comportamento novo mais importante da volta e
+/// era o único sem teste (M4 do G3).
+@Suite struct RecordarPerguntaTardiaTests {
+    @Test func aPerguntaChegaAntesDaPrimeiraLetraEEntra() {
+        #expect(RecordarView.aceitaPergunta(jaTem: false, memoria: ""))
+    }
+
+    @Test func aPerguntaQueChegaDepoisDaPrimeiraLetraNaoEntra() {
+        #expect(!RecordarView.aceitaPergunta(jaTem: false, memoria: "e"))
+        #expect(!RecordarView.aceitaPergunta(jaTem: false, memoria: "era um obstáculo"))
+    }
+
+    @Test func espacoEmBrancoNaoEEscrita() {
+        // tocar no campo e o teclado inserir um espaço não pode fechar a porta
+        // da pergunta: o autor ainda não escreveu nada
+        #expect(RecordarView.aceitaPergunta(jaTem: false, memoria: "   "))
+        #expect(RecordarView.aceitaPergunta(jaTem: false, memoria: "\n \n"))
+    }
+
+    @Test func aSegundaPerguntaNaoSubstituiAPrimeira() {
+        // com a pergunta já na tela, nenhuma outra entra — nem com o campo vazio
+        #expect(!RecordarView.aceitaPergunta(jaTem: true, memoria: ""))
     }
 }
