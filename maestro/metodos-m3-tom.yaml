@@ -1,0 +1,32 @@
+# Volta M3-B: o TOM do cartão vestido, na tela.
+#
+# A frase é do revisor do G3 (m3-rev-03). O roteamento ainda a veste de Exame
+# da noite — esse é o achado alto, e o conserto mora em Traco/Analise. O que
+# este fluxo prova é a outra metade: quando o cartão chega, ele diz "o seu dia
+# em revista — e uma regra para amanhã", não "pedindo julgamento — dos seus
+# atos". Motores desligados ANTES do fluxo (o degrau de bordo decide antes da
+# regex e pode discordar dela):
+#   xcrun simctl spawn <UDID> launchctl setenv TRACO_SEM_MODELO 1
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: {id: pagina}
+    timeout: 8000
+# clearState zera a permissão: o alerta de notificação cobre o teclado
+- runFlow:
+    when:
+      visible: "Não Permitir"
+    commands:
+      - tapOn: "Não Permitir"
+- tapOn: {id: pagina}
+# ADR 2026-09-06h: a frase original desta prova ("Perdi a paciencia com ela
+# hoje. Me arrependi e chorei.") e confissao de conduta e a guarda a CALA, que e
+# o certo. O tom do Exame se prova com quem convoca o metodo.
+- inputText: "Exame da noite: o que do dia de trabalho eu nao repito amanha."
+- extendedWaitUntil:
+    visible: "Deixar como nota"
+    timeout: 8000
+- assertVisible: "isto é o seu dia em revista — e uma regra para amanhã."
+- assertNotVisible: "isto é o seu dia pedindo julgamento — dos seus atos."

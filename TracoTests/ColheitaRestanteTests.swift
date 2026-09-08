@@ -613,8 +613,11 @@ struct CampoDaVoltaTests {
         // ADR 04t: a volta tem DOIS campos — o que aconteceu, e o saldo que o autor dá
         #expect(Gesto.decisao.campos.filter(\.soDepois).map(\.id) == ["aconteceu", "saldo"])
         // só as formas com VOLTA declarada têm campo de depois (ADR 04l):
-        // a decisão, o dia (o que roubou, à noite) e a atualização (quanto agora)
-        let comVolta: Set<String> = ["decisao", "dia", "atualizacao"]
+        // a decisão, o dia (o que roubou, à noite), a atualização (quanto agora)
+        // e, desde a volta M3 (ADR 2026-09-06e), a classe de referência (como terminou de fato —
+        // é o desfecho que alimenta a classe da próxima vez). O `default` de
+        // `Volta.devida` já cobra qualquer `soDepois` sete dias depois.
+        let comVolta: Set<String> = ["decisao", "dia", "atualizacao", "classeDeReferencia"]
         for g in Gesto.allCases where !comVolta.contains(g.rawValue) {
             #expect(g.campos.allSatisfy { !$0.soDepois })
         }

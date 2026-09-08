@@ -3606,6 +3606,156 @@ não é `Destino`), suíte 727/126; dois alvos sem aviso;
 **Fora (F3b+):** ouvir o áudio de dentro do Recordar, ditado que continua com
 o app fechado, transcrição em fila para os áudios que ficaram sem letra.
 
+## ADR 2026-09-06e — Sete métodos novos, e o que protege a escrita pessoal
+
+**A distância.** O catálogo tinha 21 métodos e três faculdades vazias
+(simplificação, direção, consequência). A trilha Métodos levantou doze
+candidatos com fonte primária, rejeitou seis por duplicação, e mediu uma coisa
+que não é intuitiva: **onde um método é colado muda o que o autor recebe.**
+`AnaliseLocal.detectarGesto` percorre o catálogo **na ordem do arquivo** e vence
+o primeiro cuja regex casa. Ordem é comportamento, não arrumação.
+
+**A decisão.** Os sete aprovados entram **no FIM** do `Metodos.json`, nesta
+ordem: Subtração, Coluna da esquerda, Classe de referência, Cinco porquês (M1),
+A pergunta de Hamming, O que se vê e o que não se vê, Exame da noite (M2).
+
+Colados **antes da Especificação**, a Coluna da esquerda passa a roubar o
+desabafo da Expressiva — medido nesta volta com o catálogo inteiro montado:
+
+```
+os 7 no FIM                 -> 0 desvio nas 74 frases desta AMOSTRA
+os 7 antes da Especificação -> colunaEsquerda «na reunião com o chefe eu senti
+                               uma raiva enorme, doeu ficar ali, fiquei calado
+                               o tempo todo e chorei depois no corredor…»
+```
+
+**74 frases é uma amostra, não uma propriedade do catálogo**: 74 frases escritas
+pelo autor desta volta, roteadas contra o catálogo montado. O G3 escreveu 58
+próprias e achou **22 desvios** — todos de escrita pessoal.
+
+**O que protege a escrita pessoal, medido pelo G3:** é a ordem do arquivo
+**mais** o teto de 120 caracteres em `AnaliseLocal.detectarGesto`
+(`if g == .expressiva, x.count <= 120 { continue }`). O teto pula a Expressiva
+em texto curto e promove `colunaEsquerda` e `exameDaNoite` a primeiro-a-casar:
+14 de 14 linhas curtas com palavra de sentimento chegam vestidas de método
+(`m3-rev-03`). E acima do teto a ordem também não basta, porque o léxico de dez
+palavras da Expressiva não cobre o desabafo **factual**: 8 de 8 chegam vestidos
+(`m3-rev-02`).
+
+Daí a regra permanente, **corrigida**: nenhum método cuja regex mencione
+conversa, silêncio, arrependimento ou sentimento entra antes da Expressiva —
+**e essa regra sozinha não protege ninguém enquanto o teto de 120 existir**. Os
+sete a obedecem e o roubo acontece assim mesmo. `oDesabafoLongoContinuaExpressivo`
+prova só o caso fácil (desabafo longo e carregado de vocabulário da Expressiva);
+`aEscritaPessoalNaoChegaVestidaDeMetodo` cobra as 22 frases do G3 e **falhava
+nesta volta, de propósito** — o conserto morava em `Traco/Analise`, fora daqui.
+
+**A colagem (volta M3-C, 06/09).** O conserto chegou pelas voltas A1–A5 (ADRs
+2026-09-06h e 06i, com as passadas 06i-B/C/D) e entrou em main antes desta.
+Depois do `git merge main`, **as 22 passaram sem uma linha de `Traco/Analise`
+tocada aqui**: `aEscritaPessoalNaoChegaVestidaDeMetodo` está verde, e nenhuma
+das 22 sobrou. A guarda cobriu tudo o que esta volta criava.
+
+Alargar a Expressiva por dado não é saída: as palavras que cobririam o desabafo
+factual (`engoli`, `fiquei calado`, `me arrependi`, `perdi a paciência`) são as
+regex dos dois métodos novos, e o alargamento os deixaria inalcançáveis.
+Medido com `todoRamoDeRegexAlcancaOSeuMetodo`, não suposto.
+
+**No mesmo passo, o conserto do Se–então.** `sempre que|toda vez|não consigo
+parar` sem `\b` casava DENTRO de "sempre quebra", "sempre queria", "sempre
+quero" — e o Se–então levava a frase de quem ela era. Com `\b`:
+
+```
+seEntao -> cincoPorques    «sempre quebra no mesmo ponto, qual é a causa»
+seEntao -> colunaEsquerda  «sempre queria ter dito o que pensei»
+seEntao -> seEntao         «sempre que abro o telefone na cama eu perco uma hora»
+```
+
+**Guarda de dado contra botão morto.** `Sessao.encadear` sai em silêncio quando
+o destino não está no catálogo, mas `CamposFormaView` desenha o botão do mesmo
+jeito: destino inexistente = botão que acende e não faz nada. Nenhum
+encadeamento colado aponta para id inexistente, e
+`nenhumEncadeamentoApontaParaMetodoInexistente` trava sobre `Catalogo.todos`.
+A correção da tela (não acender) é outra volta.
+
+**O tom do cartão vestido.** Três frases de `reconhecimento` julgavam o autor em
+vez de nomear o material — a voz das outras 25 (`isto é…`, `isto pede…`).
+`m3-rev-03` mostra a pior servida a quem escreveu que chorou. Corrigidas para a
+voz da casa, e a da Coluna da esquerda passa a repetir a própria `definicao`:
+"você calou o principal" → "o principal ficou por dizer"; "trabalho sem direção
+— falta perguntar se importa" → "trabalho que ainda não nomeou o problema
+importante"; "o seu dia pedindo julgamento — dos seus atos" → "o seu dia em
+revista — e uma regra para amanhã" (o próprio `movimento` diz que julgamento sem
+prescrição é remorso, e remorso não é método). É mitigação, não cura: a cura é a
+nota pessoal não chegar vestida.
+
+**Três frases de honestidade nos 21 antigos.** A régua da proveniência
+(trilha Métodos) achou três fichas com grau de origem declarado acima do real —
+obra real citada ao lado de procedimento que não está nela. Nenhuma sai; as três
+passam a dizer o que a fonte não contém: a **Decisão** ("prática atribuída a
+Daniel Kahneman, sem texto dele que a descreva"; o artigo de 2009 é evidência
+vizinha, não a origem), os **Primeiros princípios** ("Aristóteles não propõe
+este exercício; o Traço toma dele a noção de princípio e monta o resto") e a
+**Inversão** ("sem transcrição de referência localizada", e a frase de Jacobi
+marcada como atribuição). Fragilidade dita é honestidade.
+
+**O que fica de fora, e é dito.** Cinco desvios de roteamento que já existiam
+antes desta volta continuam de pé, e são de uma volta de roteamento própria:
+`(?m)^quero` do WOOP engole Pré-mortem, Feynman, Primeiros princípios e Prática
+deliberada; `ideia` da Nota permanente engole Destilar. Um sexto, achado aqui:
+`\bo dia de hoje\b` do Dia engole `\bolhando o dia de hoje\b` do Exame da noite
+— a mesma família (regex larga e cedo comendo regex específica e tarde), sem
+efeito novo, porque a frase já ia para o Dia antes.
+
+**Alcance de ramo, guarda nova.** Nenhum teste garantia que uma frase de gatilho
+**chega** ao método que a declara — todo método futuro podia nascer com ramos
+mortos sem ninguém saber. `todoRamoDeRegexAlcancaOSeuMetodo` gera uma frase por
+ramo de regex de `Catalogo.todos` (287 sondas nos 28) e cobra a chegada.
+
+Os desvios conhecidos são **dezoito**, remedidos na colagem com `conhecidos`
+vazio — não herdados da lista de catorze da ADR 06h, e o estreitamento da A5 e
+das 06i-B/C/D **não mudou a conta**. Quatro são regex larga e cedo comendo regex
+específica e tarde: `melhor argumento contra` (steelman → argumento), `dez
+ideias` e `todas as ideias` (divergência → nota permanente) e `olhando o dia de
+hoje` (exame da noite → dia); os quatro seguem vivos, nenhuma entrada morta. Os
+outros **catorze** são a guarda da escrita pessoal chegando antes do roteamento
+e calando a sonda: **3 ramos da Coluna da esquerda** (`engoli`, `fiquei calado`,
+`deixei passar`) e **11 do Exame da noite**. Não é regex morta — é regex que o
+app se recusa a usar, de propósito. Desvio novo, fora dos dezoito, derruba o
+teste.
+
+**O preço, dito por inteiro.** O **segundo ramo do Exame da noite** (`não devia
+ter …`, `me arrependi`, `fui injusto|grosso|duro demais|ríspido`) está
+**inteiro fechado**: 9 de 9 sondas caladas. O método continua alcançável pelo
+primeiro ramo (`exame da noite`, `passei o dia em revista`) e por `hoje eu
+(fiz|reagi|tratei)`, mas a sua porta mais natural sumiu. É a proteção
+funcionando, e é o que ela custa — está no teste para ninguém redescobrir
+sozinho.
+
+**Duas frases desta volta morreram, e estavam erradas.** `osSeteNovosRoteiamParaSiMesmos` afirmava que "perdi a paciência na reunião e me arrependi" e "fui
+injusto com o time hoje de manhã" chegavam ao Exame da noite. As duas são
+confissão de conduta, indistinguíveis das 22 do revisor: **o teste pedia
+exatamente o roubo que a 06h proíbe**. Foram trocadas por três frases que
+convocam o método sem confessar nada. O teste estava errado, não a guarda.
+
+**As sete portas ganharam régua.** `todaPortaDeMainTemPeloMenosDuasFrases` cobra
+duas notas de trabalho por porta de `Catalogo.doApp`, e o catálogo passou de 21
+para 28: as sete novas — justamente as que roubavam — entraram com **catorze
+frases de trabalho** em `EscritaPessoalTests.trabalho` (58 → 72). As três réguas
+de main (57 protegidas, 13 com gancho, 6 legítimas, agora 72 de trabalho) valem
+com os sete colados, sem um caractere de guarda enfraquecido.
+
+**A prova.** Suíte integral verde no iPhone 17 Pro (teste 2) na colagem — **785
+testes em 130 suítes, 0 falhas** — e 723 testes em 125 suítes no fecho da
+primeira volta; no app o Perfil diz "28 do app" com a proveniência
+dos novos abrindo (`maestro/metodos-m3.yaml`). O target do app compila limpo; o
+de teste traz **4 avisos (2 únicos) em `ConferenciaTrabalhoTests.swift:381`,
+pré-existentes de `73b1ebc`** — não são desta volta, e "build sem aviso" era
+falso. **Fora:** os três da M4, a correção da UI
+do botão sem destino, os cinco desvios do WOOP e da Nota permanente, e os
+pedidos de app que a forma livre levantou (campo repetível, compromisso
+recorrente, campo emparelhado, Classe de referência lendo o corpus).
+
 ## ADR 2026-09-06f — O aviso diz o que a fonte sustenta
 
 **A distância.** O `avisoWood` interrompia a escrita com "Afirmação sem prova

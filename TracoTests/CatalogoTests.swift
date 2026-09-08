@@ -5,15 +5,19 @@ import Testing
 /// ADR 2026-09-04l: o catálogo é dado. Se o JSON do bundle quebrar, TODA nota
 /// perde os campos — este é o teste que grita antes do autor.
 @Suite(.serialized) struct CatalogoTests {
-    @Test func oBundleTemOsVinteEUmMetodos() {
+    @Test func oBundleTemOsVinteEOitoMetodos() {
         let ids = Catalogo.doApp.map(\.id)
-        #expect(ids.count == 21)
+        #expect(ids.count == 28)
         for esperado in ["woop", "seEntao", "spec", "notaPermanente", "destaque", "expressiva", "destilar",
                          "palavra", "decisao", "premortem", "argumento", "leitura", "feynman", "dia",
                          "analogia", "inversao", "steelman", "divergencia", "primeirosPrincipios",
                          "praticaDeliberada", "atualizacao"] {
             #expect(ids.contains(esperado), "falta \(esperado)")
         }
+        // ADR 2026-09-06e: os sete da trilha Métodos entram no FIM, e a POSIÇÃO é
+        // comportamento — o roteador para no primeiro que casa.
+        #expect(Array(ids.suffix(7)) == ["subtracao", "colunaEsquerda", "classeDeReferencia", "cincoPorques",
+                                         "perguntaHamming", "vistoNaoVisto", "exameDaNoite"])
     }
 
     @Test func osDezDeOrigemMantemOsCampos() {
@@ -163,10 +167,10 @@ import Testing
         #expect(Catalogo.metodo("inversao")?.encadeamentos.first?.para == "premortem")
     }
 
-    /// ADR 05x: os 21 dizem de onde vêm, com função válida (prática, lente
+    /// ADR 05x: todo método do app diz de onde vem, com função válida (prática, lente
     /// ou evidência) e sem campo vazio — "sem evidência específica conhecida"
     /// é resposta; silêncio não é.
-    @Test func osVinteEUmTemProveniencia() throws {
+    @Test func todoMetodoDoAppTemProveniencia() throws {
         for m in Catalogo.doApp {
             let p = try #require(m.proveniencia, Comment(rawValue: m.id))
             #expect(p.funcao != nil, Comment(rawValue: m.id))
@@ -227,6 +231,256 @@ import Testing
         #expect(Gesto.woop.metodoDef.proveniencia?.funcao == .evidencia)
     }
 
+    /// ADR 2026-09-06e: "sempre que" sem `\b` casava DENTRO de "sempre quebra",
+    /// "sempre queria", "sempre quero" — e o Se–então roubava a frase de quem
+    /// ela era. Estas três casavam errado antes do `\b`; agora não casam.
+    @Test func oSeEntaoNaoCasaDentroDeOutraPalavra() {
+        func id(_ t: String) -> String? {
+            if case let .gesto(g, _) = AnaliseLocal.classificar(texto: t, gestoAtual: nil, campos: [:]) { return g.rawValue }
+            return nil
+        }
+        #expect(id("sempre quebra no mesmo ponto, qual é a causa") == "cincoPorques")
+        #expect(id("sempre queria ter dito o que pensei") == "colunaEsquerda")
+        // e o Se–então continua pegando o que sempre foi dele
+        #expect(id("sempre que abro o telefone na cama eu perco uma hora") == "seEntao")
+        #expect(id("toda vez que sento para escrever eu abro o navegador") == "seEntao")
+        #expect(id("não consigo parar de conferir o e-mail no meio da escrita") == "seEntao")
+    }
+
+    /// ADR 2026-09-06e: os sete novos roteiam para si mesmos com a frase do autor.
+    ///
+    /// As duas frases do Exame da noite desta volta eram "perdi a paciência na
+    /// reunião e me arrependi" e "fui injusto com o time hoje de manhã", e as
+    /// duas MORRERAM na colagem com main: a guarda da ADR 2026-09-06h as lê
+    /// como escrita pessoal e as cala, que é o que ela existe para fazer — as
+    /// duas são confissão de conduta, indistinguíveis das 22 do revisor. O
+    /// teste estava errado, não a guarda: pedia que uma confissão virasse
+    /// exercício. As três frases abaixo convocam o método sem confessar nada.
+    @Test func osSeteNovosRoteiamParaSiMesmos() {
+        func id(_ t: String) -> String? {
+            if case let .gesto(g, _) = AnaliseLocal.classificar(texto: t, gestoAtual: nil, campos: [:]) { return g.rawValue }
+            return nil
+        }
+        let casos: [(String, String)] = [
+            ("subtracao", "preciso simplificar o fecho da volta, virou um monstro"),
+            ("subtracao", "o roteiro está complicado demais, o que eu tiro dele"),
+            ("colunaEsquerda", "fiquei calado e devia ter falado sobre o prazo"),
+            ("colunaEsquerda", "não disse o que pensei na conversa de ontem"),
+            ("classeDeReferencia", "quanto tempo vai levar para eu terminar isso"),
+            ("classeDeReferencia", "acho que termino em três dias, mas nunca acerto"),
+            ("cincoPorques", "por que isso aconteceu, quero a causa raiz"),
+            ("cincoPorques", "o build quebrou de novo, qual foi a causa"),
+            ("perguntaHamming", "quais são os problemas importantes do meu campo"),
+            ("perguntaHamming", "no que eu deveria estar trabalhando este ano"),
+            ("vistoNaoVisto", "qual é o custo de oportunidade de tocar esta frente agora"),
+            ("vistoNaoVisto", "em troca de quê eu estou fazendo isso"),
+            ("exameDaNoite", "exame da noite: o que eu não quero repetir amanhã"),
+            ("exameDaNoite", "passei o dia em revista antes de deitar"),
+            ("exameDaNoite", "passei o dia em revista e anotei o que muda amanhã"),
+        ]
+        for (esperado, frase) in casos {
+            #expect(id(frase) == esperado, Comment(rawValue: "«\(frase)» foi para \(id(frase) ?? "nada")"))
+        }
+        // e nenhum deles rouba os 21 antigos
+        #expect(id("vou construir uma função para simplificar o cadastro") == "spec")
+        #expect(id("hoje eu preciso fechar a volta e responder o dono") == "dia")
+        #expect(id("preciso decidir entre ficar no emprego e abrir a empresa") == "decisao")
+        #expect(id("como garantir que falhe: eu deixaria o método sem origem") == "inversao")
+        #expect(id("quais são as suposições que eu herdei sobre notas") == "primeirosPrincipios")
+    }
+
+    /// O CASO FÁCIL da proteção, e só ele: desabafo LONGO e carregado de
+    /// vocabulário da Expressiva (`senti`, `raiva`, `doeu`, `chorei`). Aqui a
+    /// ordem do arquivo basta — a Coluna da esquerda casa por `fiquei calad[oa]`
+    /// e `na reunião com`, o Exame da noite por `me arrependi`, e os dois
+    /// perdem porque a Expressiva vem antes. Se alguém mover um dos sete para
+    /// cima dela, este teste cai.
+    ///
+    /// A proteção NÃO é só a ordem: é a ordem MAIS o teto de 120 caracteres em
+    /// `AnaliseLocal.detectarGesto`, que pula a Expressiva em texto curto. O
+    /// caso difícil — linha curta e desabafo factual — está em
+    /// `aEscritaPessoalNaoChegaVestidaDeMetodo`, que FALHAVA de propósito
+    /// nesta volta e passou a VERDE na colagem com main, quando a guarda das
+    /// voltas A1–A5 (ADRs 2026-09-06h e 06i) entrou.
+    @Test func oDesabafoLongoContinuaExpressivo() {
+        let desabafo = """
+            na reunião com o chefe eu senti uma raiva enorme, doeu ficar ali, fiquei calado o tempo todo \
+            e chorei depois no corredor, foi pesado demais para mim
+            """
+        #expect(desabafo.count > 120)
+        #expect(AnaliseLocal.classificar(texto: desabafo, gestoAtual: nil, campos: [:]) == .expressiva)
+
+        let arrependido = """
+            perdi a paciência com o time hoje e me arrependi na hora, senti uma raiva que não passou o dia \
+            inteiro, doeu ver a cara deles e chorei sozinho depois
+            """
+        #expect(AnaliseLocal.classificar(texto: arrependido, gestoAtual: nil, campos: [:]) == .expressiva)
+
+        // a posição no arquivo é o que segura: os sete estão DEPOIS da Expressiva
+        let ids = Catalogo.doApp.map(\.id)
+        let expressiva = ids.firstIndex(of: "expressiva") ?? .max
+        for novo in ["subtracao", "colunaEsquerda", "classeDeReferencia", "cincoPorques",
+                     "perguntaHamming", "vistoNaoVisto", "exameDaNoite"] {
+            #expect((ids.firstIndex(of: novo) ?? -1) > expressiva, Comment(rawValue: "\(novo) subiu acima da Expressiva"))
+        }
+    }
+
+    /// O CASO DIFÍCIL da proteção da escrita pessoal. Escrito VERMELHO nesta
+    /// volta, ele passou a VERDE na colagem com main: as 22 do revisor são
+    /// caladas pela guarda das voltas A1–A5 (ADRs 2026-09-06h e 06i), sem uma
+    /// linha de `Traco/Analise` tocada aqui. Nenhuma das 22 sobrou.
+    ///
+    /// As 22 frases são do revisor do G3 (`ferramentas/orca/m3-rev-provas/`),
+    /// não do autor desta volta: 14 linhas curtas com palavra de sentimento e
+    /// 8 desabafos longos e factuais, sem nenhuma das dez palavras da
+    /// Expressiva. Nenhuma delas é material de exercício. Quando uma chega
+    /// como `.gesto`, `Sessao` veste a nota sozinha (`usarForma(g,
+    /// explicita: false)`, `cartao = .vestida`) e carimba 4–5 campos de método
+    /// sobre o texto de quem acabou de escrever que chorou — reproduzido na
+    /// tela em `m3-rev-02` e `m3-rev-03`. A Expressiva, quando ganha, só
+    /// SUGERE. Os dois caminhos não são simétricos, e o que rouba é o que veste.
+    ///
+    /// Por que falhava, e o que cada metade cobrava — a medição do G3, mantida
+    /// porque é ela que explica de onde a guarda veio:
+    /// - as 14 curtas caem no teto de 120 de `AnaliseLocal.detectarGesto`, que
+    ///   pula a Expressiva e promove `colunaEsquerda` e `exameDaNoite` a
+    ///   primeiro-a-casar. É conserto de `Traco/Analise`, fora desta volta.
+    /// - os 8 longos passam do teto e mesmo assim são roubados: o léxico de dez
+    ///   palavras da Expressiva não cobre o desabafo factual, e as palavras que
+    ///   o cobririam (`engoli`, `fiquei calado`, `me arrependi`, `perdi a
+    ///   paciência`) são as regex dos dois métodos novos. Alargar a Expressiva
+    ///   por dado deixaria os dois inalcançáveis — medido, não suposto.
+    ///   Esta metade cobrava guarda em código, não regex — e foi guarda em
+    ///   código que chegou.
+    @Test func aEscritaPessoalNaoChegaVestidaDeMetodo() {
+        let curtas = [
+            "Senti raiva e me arrependi na hora.",
+            "Chorei e me arrependi de ter dito aquilo.",
+            "Doeu. Perdi a paciência com ela.",
+            "Fiquei calado e senti medo de falar.",
+            "Triste. Engoli tudo de novo.",
+            "Me arrependi.",
+            "Fui grosso com ele e sinto vergonha.",
+            "Hoje eu reagi mal, tive raiva, e pronto.",
+            "Não devia ter feito isso, senti muito.",
+            "Estou triste porque não consegui dizer nada.",
+            "Perdi a cabeça. Sinto muito.",
+            "Deixei passar e doeu.",
+            "Foi pesado e eu fiquei calada.",
+            "Me arrependi e chorei.",
+        ]
+        let longas = [
+            "Foi um dia longo e eu fiquei calado a reunião inteira enquanto ele levava o crédito pelo que eu fiz. Saí de lá com um nó na garganta e não falei com ninguém.",
+            "Engoli o que eu queria dizer. De novo. É sempre assim, eu penso a resposta perfeita três horas depois quando já não serve pra nada e só sobra o gosto ruim.",
+            "Me arrependi. Deitei e fiquei olhando o teto pensando em tudo que eu não devia ter feito hoje, e quanto mais eu penso pior fica, não consigo desligar isso.",
+            "Perdi a paciência de novo com a minha mãe no telefone. Ela não fez nada demais, eu que já estava no limite desde de manhã e joguei tudo em cima dela.",
+            "Não devia ter reagido assim na frente do meu filho. Ele só perguntou uma coisa boba e eu explodi. Fico revendo a cara dele e me odiando um pouco por isso.",
+            "Deixei passar mais uma vez. Ele falou aquilo na frente de todo mundo e eu ri junto como um idiota. Depois passei o resto do dia remoendo o que eu devia ter dito.",
+            "Hoje eu tratei mal quem não merecia e agora estou aqui às onze da noite escrevendo isso pra não ligar pra ela e piorar tudo com uma desculpa mal feita.",
+            "Fui injusto com o time inteiro na retrospectiva. Falei que o problema era falta de cuidado quando o problema era o prazo que eu mesmo aceitei sem discutir.",
+        ]
+        for frase in curtas + longas {
+            let v = AnaliseLocal.classificar(texto: frase, gestoAtual: nil, campos: [:])
+            if case let .gesto(g, _) = v {
+                Issue.record(Comment(rawValue: "escrita pessoal vestida de \(g.nome) [\(frase.count)]: «\(frase)»"))
+            }
+        }
+        // as 8 longas passam do teto de 120: se uma delas encolher, o teste
+        // deixa de medir o que diz medir
+        for frase in longas { #expect(frase.count > 120, Comment(rawValue: frase)) }
+    }
+
+    /// ALCANCE: nenhum ramo de regex nasce inalcançável sem alguém saber.
+    ///
+    /// Gera uma frase por ramo de cada regex de `Catalogo.todos` (alternância
+    /// vira ramo, classe vira a primeira letra, opcional some, `\w+` e `\d`
+    /// viram palavra e dígito) e cobra que ela chegue no método que a declara.
+    /// Cada sonda leva um rabo de pontos: passa o teto de 120 sem casar regex
+    /// nenhuma, então o resultado não depende de qual lado do teto está o
+    /// conserto da Expressiva.
+    ///
+    /// DEZOITO desvios conhecidos e aceitos, de DUAS naturezas — e o número foi
+    /// remedido na colagem com main, não herdado da ADR 2026-09-06h.
+    ///
+    /// Os QUATRO primeiros são regex larga e cedo comendo regex específica e
+    /// tarde. Nenhum dos três métodos fica sem porta: todos têm ramos vivos.
+    ///
+    /// Os QUATORZE seguintes são a GUARDA da escrita pessoal (ADR 2026-09-06h,
+    /// estreitada pela 06i e pelas 06i-B/C/D) chegando antes do roteamento e
+    /// calando a sonda: 3 ramos da Coluna da esquerda e 11 do Exame da noite.
+    /// Não é regex morta — é regex que o app se recusa a usar, de propósito,
+    /// porque a frase é confissão de conduta e a nota fica do autor. Medido
+    /// com `conhecidos` vazio depois da colagem: 18 desvios, os 4 antigos
+    /// ainda vivos (nenhuma entrada morta) e 14 novos, o mesmo número que a
+    /// 06h previu — o estreitamento da A5 e das A-5-B/C/D não mudou a conta.
+    ///
+    /// O que a conta COBRA, e está aqui para ninguém descobrir sozinho: o
+    /// SEGUNDO ramo do Exame da noite (`não devia ter …`, `me arrependi`,
+    /// `fui injusto|grosso|duro demais|ríspido`) está INTEIRO fechado — 9 de 9
+    /// sondas caladas. O método continua alcançável só pelo primeiro ramo
+    /// (`exame da noite`, `passei o dia em revista`) e por `hoje eu
+    /// (fiz|reagi|tratei)`. É a proteção funcionando, e é o preço dela.
+    ///
+    /// Desvio NOVO, fora destes 18, derruba o teste.
+    @Test func todoRamoDeRegexAlcancaOSeuMetodo() {
+        let conhecidos: Set<String> = [
+            // regex larga comendo regex específica (pré-existentes)
+            "steelman|melhor argumento contra|argumento",
+            "divergencia|dez ideias|notaPermanente",
+            "divergencia|todas as ideias|notaPermanente",
+            "exameDaNoite|olhando o dia de hoje|dia", // ADR 2026-09-06e
+            // a guarda da escrita pessoal cala a sonda — Coluna da esquerda (3)
+            "colunaEsquerda|engoli|silencio",          // ADR 2026-09-06h
+            "colunaEsquerda|fiquei calado|silencio",   // ADR 2026-09-06h
+            "colunaEsquerda|deixei passar|silencio",   // ADR 2026-09-06h
+            // a guarda da escrita pessoal cala a sonda — Exame da noite (11)
+            "exameDaNoite|não devia ter feito|silencio",    // ADR 2026-09-06h
+            "exameDaNoite|não devia ter reagido|silencio",  // ADR 2026-09-06h
+            "exameDaNoite|não devia ter agido|silencio",    // ADR 2026-09-06h
+            "exameDaNoite|não devia ter tratado|silencio",  // ADR 2026-09-06h
+            "exameDaNoite|me arrependi|silencio",           // ADR 2026-09-06h
+            "exameDaNoite|fui injusto|silencio",            // ADR 2026-09-06h
+            "exameDaNoite|fui grosso|silencio",             // ADR 2026-09-06h
+            "exameDaNoite|fui duro demais|silencio",        // ADR 2026-09-06h
+            "exameDaNoite|fui ríspido|silencio",            // ADR 2026-09-06h
+            "exameDaNoite|perdi a paciência|silencio",      // ADR 2026-09-06h
+            "exameDaNoite|perdi a cabeça|silencio",         // ADR 2026-09-06h
+        ]
+        let rabo = " " + String(repeating: ".", count: 140)
+        var total = 0
+        for m in Catalogo.todos {
+            for regex in m.roteamento {
+                for sonda in Sondas.deRegex(regex) {
+                    total += 1
+                    var chegou = "silencio"
+                    switch AnaliseLocal.classificar(texto: sonda + rabo, gestoAtual: nil, campos: [:]) {
+                    case let .gesto(g, _): chegou = g.rawValue
+                    case .expressiva: chegou = "expressiva"
+                    default: break
+                    }
+                    guard chegou != m.id else { continue }
+                    let chave = "\(m.id)|\(sonda)|\(chegou)"
+                    #expect(conhecidos.contains(chave),
+                            Comment(rawValue: "ramo inalcançável: \(m.id) «\(sonda)» chega em \(chegou)"))
+                }
+            }
+        }
+        #expect(total > 250, Comment(rawValue: "só \(total) sondas — o expansor parou de expandir"))
+    }
+
+    /// `Sessao.encadear` sai em silêncio quando o destino não está no catálogo,
+    /// mas a view desenha o botão do mesmo jeito: destino inexistente = botão
+    /// que acende e não faz nada. Guarda de dado — a correção da view é outra
+    /// volta.
+    @Test func nenhumEncadeamentoApontaParaMetodoInexistente() {
+        for m in Catalogo.todos {
+            for e in m.encadeamentos {
+                guard let para = e.para else { continue }
+                #expect(Catalogo.metodo(para) != nil, Comment(rawValue: "\(m.id) → \(para): botão morto"))
+            }
+        }
+    }
+
     @Test func aPastaDoAutorEntraEOInvalidoEDito() throws {
         let pasta = FileManager.default.temporaryDirectory.appendingPathComponent("metodos-\(UUID().uuidString)")
         try FileManager.default.createDirectory(at: pasta, withIntermediateDirectories: true)
@@ -243,5 +497,94 @@ import Testing
         #expect(Catalogo.problemas.count == 2)
         let v = AnaliseLocal.classificar(texto: "anotar em cornell a aula de hoje", gestoAtual: nil, campos: [:])
         #expect(v == .gesto(Gesto(rawValue: "cornell")!, pergunta: ""))
+    }
+}
+
+/// Expansor de ramos de regex: a máquina do teste de alcance. Cobre só o que o
+/// `roteamento` do catálogo usa — alternância, grupo, classe, opcional, `\w`,
+/// `\d`, `.*`, `\b` e `^`. Não é um motor de regex; é o inverso barato dele.
+enum Sondas {
+    /// Uma frase por ramo do padrão inteiro.
+    static func deRegex(_ padrao: String) -> [String] {
+        fatiar(Array(padrao)).flatMap { frases($0) }
+    }
+
+    /// Corta no `|` de nível zero — fora de grupo e fora de classe.
+    private static func fatiar(_ s: [Character]) -> [[Character]] {
+        var partes: [[Character]] = [[]], nivel = 0, classe = false
+        for c in s {
+            if classe {
+                partes[partes.count - 1].append(c)
+                if c == "]" { classe = false }
+                continue
+            }
+            switch c {
+            case "[": classe = true; partes[partes.count - 1].append(c)
+            case "(": nivel += 1; partes[partes.count - 1].append(c)
+            case ")": nivel -= 1; partes[partes.count - 1].append(c)
+            case "|" where nivel == 0: partes.append([])
+            default: partes[partes.count - 1].append(c)
+            }
+        }
+        return partes
+    }
+
+    private static func frases(_ ramo: [Character]) -> [String] {
+        var saidas = [""]
+        func juntar(_ pedacos: [String]) { saidas = saidas.flatMap { a in pedacos.map { a + $0 } } }
+        var i = 0
+        while i < ramo.count {
+            let c = ramo[i]
+            if c == "\\", i + 1 < ramo.count {
+                let n = ramo[i + 1]
+                i += 2
+                switch n {
+                case "b": continue
+                case "d":
+                    if i < ramo.count, ramo[i] == "{" { while i < ramo.count, ramo[i] != "}" { i += 1 }; i += 1 }
+                    juntar(["7"])
+                case "w":
+                    if i < ramo.count, ramo[i] == "+" || ramo[i] == "*" { i += 1 }
+                    juntar(["coisa"])
+                case "s": juntar([" "])
+                default: juntar([String(n)])
+                }
+                continue
+            }
+            switch c {
+            case "^", "$":
+                i += 1
+            case ".":
+                i += 1
+                if i < ramo.count, ramo[i] == "*" || ramo[i] == "+" { i += 1 }
+                juntar([" isso "])
+            case "(":
+                var nivel = 1, j = i + 1, dentro: [Character] = []
+                while j < ramo.count, nivel > 0 {
+                    if ramo[j] == "(" { nivel += 1 }
+                    if ramo[j] == ")" { nivel -= 1 }
+                    if nivel > 0 { dentro.append(ramo[j]) }
+                    j += 1
+                }
+                i = j
+                let opcional = i < ramo.count && (ramo[i] == "?" || ramo[i] == "*")
+                if opcional { i += 1 }
+                if dentro.first == "?" { continue } // (?m), (?i): não é grupo
+                if opcional { continue }            // ramo sem o opcional
+                juntar(fatiar(dentro).flatMap { frases($0) })
+            case "[":
+                var j = i + 1, dentro: [Character] = []
+                while j < ramo.count, ramo[j] != "]" { dentro.append(ramo[j]); j += 1 }
+                i = j + 1
+                if i < ramo.count, ramo[i] == "?" || ramo[i] == "*" { i += 1; continue }
+                juntar([String(dentro.first ?? "a")])
+            default:
+                i += 1
+                if i < ramo.count, ramo[i] == "?" || ramo[i] == "*" { i += 1; continue }
+                if i < ramo.count, ramo[i] == "+" { i += 1 }
+                juntar([String(c)])
+            }
+        }
+        return saidas.map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
     }
 }

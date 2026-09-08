@@ -64,7 +64,7 @@
     "movimento": "Intenção de implementação (Gollwitzer). O gatilho tem de ser CONCRETO e observável (hora, lugar, coisa que acontece), nunca um estado de espírito. E a resposta tem de ser um comportamento SUBSTITUTO, não \"não fazer X\". Cobre os dois onde estiverem vagos.",
     "pergunta": "Quando o gatilho vier, você faz o quê — concreto, substituto?",
     "roteamento": [
-      "sempre que|toda vez|não consigo parar"
+      "\\bsempre que\\b|\\btoda vez\\b|\\bnão consigo parar\\b"
     ],
     "campos": [
       {
@@ -311,7 +311,7 @@
     "origem": "Kahneman e Klein",
     "faculdade": "decidir",
     "proveniencia": {
-      "fonte": "Diário de decisão, prática divulgada por Daniel Kahneman; derivado de Kahneman e Gary Klein, Conditions for Intuitive Expertise (2009)",
+      "fonte": "Diário de decisão: prática atribuída a Daniel Kahneman, sem texto dele que a descreva. Kahneman e Gary Klein, Conditions for Intuitive Expertise (2009), tratam de quando a intuição de especialista é confiável — é evidência vizinha sobre julgamento, não a origem deste método.",
       "funcao": "pratica",
       "adaptacao": "Opções, critério, o decidido e o que se espera COM DATA; a data vira aviso e, na volta, o autor diz se ficou aquém, igual ou além (ADR 03a, 04t).",
       "evidencia": "Sem estudo específico do diário de decisão conhecido. A calibragem por retorno tem base em estudos de julgamento, não medida aqui.",
@@ -746,7 +746,7 @@
     "origem": "Charlie Munger",
     "faculdade": "estratégia",
     "proveniencia": {
-      "fonte": "Charlie Munger, discursos (1986 em diante), citando Carl Jacobi: inverta, sempre inverta",
+      "fonte": "Charlie Munger, discursos (1986 em diante), sem transcrição de referência localizada, citando uma frase atribuída a Carl Jacobi: inverta, sempre inverta",
       "funcao": "lente",
       "adaptacao": "O que quero, como garantir que falhe, logo o que evito; leva ao Pré-mortem.",
       "evidencia": "Sem evidência específica conhecida; é heurística de prática.",
@@ -932,7 +932,7 @@
     "proveniencia": {
       "fonte": "Aristóteles, Física e Metafísica; divulgado como prática de engenharia",
       "funcao": "lente",
-      "adaptacao": "O que acho que sei, o que é verdade de fato, o que construo do zero.",
+      "adaptacao": "Aristóteles não propõe este exercício; o Traço toma dele a noção de princípio e monta o resto: o que acho que sei, o que é verdade de fato, o que construo do zero.",
       "evidencia": "Sem evidência específica conhecida.",
       "aplicabilidade": "Serve para uma suposição herdada que se quer desmontar. Não serve para decisão rápida."
     },
@@ -1128,5 +1128,624 @@
       }
     ],
     "definicao": "uma crença com número (0–100) e o que a faria subir ou descer"
+  },
+  {
+    "id": "subtracao",
+    "nome": "Subtração",
+    "origem": "Adams, Converse, Hales e Klotz, 2021",
+    "faculdade": "simplificação",
+    "proveniencia": {
+      "fonte": "Gabrielle S. Adams, Benjamin A. Converse, Andrew H. Hales e Leidy E. Klotz, \"People systematically overlook subtractive changes\", Nature 592, 258–261 (8 de abril de 2021)",
+      "funcao": "evidencia",
+      "adaptacao": "O estudo mostra que a busca mental por melhorias vai sozinha para o que se acrescenta. O Traço faz a dica que falta virar campo: o autor escreve primeiro o que ia ACRESCENTAR, e só depois é obrigado a escrever o que SAI e o que se perde tirando.",
+      "evidencia": "Oito experimentos relatam que as pessoas acham menos as mudanças subtrativas vantajosas quando a tarefa não sugere a subtração, quando têm uma só chance de perceber a falha da busca aditiva, e sob carga cognitiva maior. Os experimentos são tarefas de laboratório (uma estrutura de Lego, padrões numa grade, um texto). Não há estudo de escrever isto numa nota, nem do efeito sobre um projeto real.",
+      "aplicabilidade": "Serve para algo que já existe e cresceu demais — uma rotina, um plano, um texto, uma tela. Não serve para o que ainda não existe: aí é Especificação."
+    },
+    "filtro": "Subtração",
+    "reconhecimento": "isto já cresceu demais e pede corte, não mais uma peça.",
+    "movimento": "Subtração (Adams e colegas, 2021). Antes de escolher o que acrescentar, nomear o que SAI. O estudo mostra que a opção de tirar não chega a ser considerada quando ninguém sugere. Cobre o que sai de fato, o que se perde tirando — se nada se perde, não era peça, era entulho — e quem vai sentir falta.",
+    "pergunta": "O que SAI — e o que se perde quando sair?",
+    "roteamento": [
+      "\\bsimplificar\\b|\\benxugar\\b|\\bcortar pela metade\\b|\\bmenos (é|e) mais\\b",
+      "\\bo que (eu )?(tiro|corto|removo)\\b|\\bo que (tirar|remover|cortar)\\b|\\btirar (uma|umas|algumas|as) (coisa|coisas|peças?|partes?|etapas?)\\b",
+      "\\b(cheio|cheia|lotad[oa]) de (passos|etapas|op[çc][õo]es|regras|coisas|bot[õo]es)\\b|\\bcomplicad[oa] demais\\b|\\bvirou um monstro\\b"
+    ],
+    "campos": [
+      {
+        "id": "melhorar",
+        "rotulo": "O que eu quero melhorar (já existe)"
+      },
+      {
+        "id": "ia",
+        "rotulo": "O que eu ia acrescentar"
+      },
+      {
+        "id": "sai",
+        "rotulo": "O que SAI no lugar"
+      },
+      {
+        "id": "perco",
+        "rotulo": "O que se perde tirando (se nada se perde, era entulho)"
+      },
+      {
+        "id": "sente",
+        "rotulo": "Quem vai sentir falta"
+      }
+    ],
+    "encadeamentos": [
+      {
+        "rotulo": "Pré-mortem do corte",
+        "para": "premortem",
+        "mapa": {
+          "plano": "sai"
+        },
+        "exige": [
+          "sai"
+        ]
+      },
+      {
+        "rotulo": "Conferir o corte em 14 dias",
+        "compromisso": {
+          "titulo": "conferir o corte: ",
+          "campo": "sai",
+          "dias": 14
+        },
+        "exige": [
+          "sai"
+        ]
+      }
+    ],
+    "definicao": "algo que já existe e cresceu demais, e pede corte antes de mais uma peça (\"simplificar\", \"complicado demais\", \"o que eu tiro\")"
+  },
+  {
+    "id": "colunaEsquerda",
+    "nome": "Coluna da esquerda",
+    "origem": "Chris Argyris",
+    "faculdade": "relação",
+    "proveniencia": {
+      "fonte": "Chris Argyris e Donald Schön, Theory in Practice (1974); o caso das duas colunas em Chris Argyris, \"Teaching Smart People How to Learn\", Harvard Business Review, maio–junho de 1991; difundido por Senge e colegas, The Fifth Discipline Fieldbook (1994)",
+      "funcao": "pratica",
+      "adaptacao": "Argyris escreve o roteiro de uma reunião que ainda vai acontecer e a analisa com terceiros. No Traço a conversa em geral já aconteceu, e quem lê é o próprio autor: o que foi dito, o que ele pensou e NÃO disse, o que o impediu de dizer, e a frase que diria agora na frente da pessoa. A IA nunca escreve a coluna da esquerda.",
+      "evidencia": "Sem estudo de eficácia conhecido: é método de intervenção e ensino, com casos relatados, não ensaio. Argyris afirma que a teoria que a pessoa diz usar e a que ela usa de fato costumam não bater; não afirma que escrever as duas colunas sozinho num caderno melhore a relação.",
+      "aplicabilidade": "Serve para uma conversa específica em que o principal ficou por dizer. Não serve para reclamar de alguém em geral, nem para desabafo — desabafo é a Expressiva, e ela não é comentada."
+    },
+    "filtro": "Coluna da esquerda",
+    "reconhecimento": "isto é uma conversa em que o principal ficou por dizer.",
+    "movimento": "Coluna da esquerda (Argyris). À direita, o que foi dito; à esquerda, o que se pensou e sentiu e não se disse. O que governa a conversa é a coluna da esquerda, e ela é a que ninguém escreve. Cobre se a esquerda tem mesmo o que doeu, o que impediu de dizer, e se a frase nova é dizível na frente da pessoa.",
+    "pergunta": "O que você pensou e não disse — a frase inteira?",
+    "roteamento": [
+      "\\bn[ãa]o (disse|falei|consegui dizer)\\b|\\bengoli\\b|\\bfiquei calad[oa]\\b|\\bdeixei passar\\b",
+      "\\bdevia ter (dito|falado|respondido)\\b|\\bqueria ter dito\\b|\\bo que eu queria ter falado\\b",
+      "\\b(essa|aquela) conversa (com|foi)\\b|\\ba conversa com (o|a|ele|ela)\\b|\\bna reuni[ãa]o com\\b"
+    ],
+    "campos": [
+      {
+        "id": "comQuem",
+        "rotulo": "A conversa (com quem, sobre o quê)"
+      },
+      {
+        "id": "disse",
+        "rotulo": "O que foi dito, dos dois lados"
+      },
+      {
+        "id": "naoDisse",
+        "rotulo": "O que eu pensei e NÃO disse"
+      },
+      {
+        "id": "impediu",
+        "rotulo": "O que me impediu de dizer"
+      },
+      {
+        "id": "diria",
+        "rotulo": "A frase que eu diria agora, na frente dela"
+      }
+    ],
+    "recordar": {
+      "alvo": [
+        "naoDisse",
+        "diria"
+      ],
+      "pista": [
+        "comQuem"
+      ],
+      "pergunta": "O que você não disse — e o que diria agora?",
+      "instrucao": "A conversa fica. A coluna da esquerda some.",
+      "rotuloAlvo": "A COLUNA DA ESQUERDA"
+    },
+    "encadeamentos": [
+      {
+        "rotulo": "Se–então para a próxima",
+        "para": "seEntao",
+        "mapa": {
+          "se": "impediu",
+          "entao": "diria"
+        },
+        "exige": [
+          "diria"
+        ]
+      },
+      {
+        "rotulo": "O outro lado, no melhor",
+        "para": "steelman",
+        "mapa": {
+          "contraria": "disse"
+        },
+        "exige": [
+          "disse"
+        ]
+      }
+    ],
+    "definicao": "uma conversa em que o principal ficou por dizer (\"não disse\", \"devia ter dito\", \"fiquei calado\")"
+  },
+  {
+    "id": "classeDeReferencia",
+    "nome": "Classe de referência",
+    "origem": "Kahneman e Tversky; Flyvbjerg",
+    "faculdade": "previsão",
+    "proveniencia": {
+      "fonte": "Daniel Kahneman e Amos Tversky, \"Intuitive Prediction: Biases and Corrective Procedures\" (1979), p. 316; método operacionalizado por Bent Flyvbjerg, \"From Nobel Prize to Project Management: Getting Risks Right\", Project Management Journal 37(3), agosto de 2006, p. 5–15",
+      "funcao": "evidencia",
+      "adaptacao": "Flyvbjerg exige um banco de dados de projetos comparáveis. O Traço usa a única classe que o autor tem à mão: as vezes em que ELE já fez algo parecido, uma a uma, com o desfecho de fato. O palpite de dentro fica escrito ANTES, para poder ser comparado com o de fora, e o campo do \"desta vez é diferente\" cobra a prova da exceção.",
+      "evidencia": "Kahneman e Tversky argumentam que ignorar a informação distributiva é talvez a maior fonte de erro em previsão. Flyvbjerg relata o primeiro uso prático em obras de transporte, com bancos de dados reais, e (2024) que em 219 projetos ver o próprio projeto como único está associado a pior desempenho. Nada disso mede uma pessoa usando as próprias lembranças como classe — a memória tem viés que um banco de dados não tem. Isto é adaptação, não o método medido.",
+      "aplicabilidade": "Serve para uma estimativa de prazo, custo ou resultado em que o autor já fez coisa parecida antes. Não serve quando não existe caso parecido, nem para crença sobre o mundo — isso é a Atualização."
+    },
+    "filtro": "Classe",
+    "reconhecimento": "isto é uma estimativa que ainda não olhou para os casos parecidos.",
+    "movimento": "Classe de referência (Kahneman e Tversky; Flyvbjerg). Escrever o palpite de dentro, depois NOMEAR a classe — as vezes em que já se fez algo parecido — e como cada uma terminou de fato. Só então o número novo. O que se pula é a classe: estima-se pelos detalhes deste plano em vez dos desfechos dos parecidos. Cobre se os casos terminaram de verdade, não como se lembra que deviam ter terminado, e se o número se moveu.",
+    "pergunta": "As últimas vezes que você fez algo parecido: como terminaram, de fato?",
+    "roteamento": [
+      "\\bquanto tempo (isso |isto |ele |ela )?(vai levar|leva|vai demorar|demora)\\b|\\bem quanto tempo\\b",
+      "\\bestimativa\\b|\\bestimo\\b|\\bchute de (prazo|tempo)\\b|\\bd[áa] para (fazer|terminar|entregar) (isso|isto) em\\b",
+      "\\bacho que (levo|leva|demora|dá para fazer em|termino em)\\b|\\bfica pronto em\\b|\\bentrego (em|at[ée])\\b"
+    ],
+    "campos": [
+      {
+        "id": "estimo",
+        "rotulo": "O que estou estimando, e o palpite de agora"
+      },
+      {
+        "id": "parecidos",
+        "rotulo": "As vezes em que fiz parecido, e como cada uma terminou"
+      },
+      {
+        "id": "agora",
+        "rotulo": "O número novo, depois de olhar para elas"
+      },
+      {
+        "id": "diferente",
+        "rotulo": "O que neste caso é mesmo diferente (e como eu sei)"
+      },
+      {
+        "id": "deu",
+        "rotulo": "Como terminou de fato",
+        "soDepois": true
+      }
+    ],
+    "recordar": {
+      "alvo": [
+        "parecidos",
+        "agora"
+      ],
+      "pista": [
+        "estimo"
+      ],
+      "pergunta": "Como terminaram os casos parecidos — e qual era o número novo?",
+      "instrucao": "O que você estima fica. A classe some.",
+      "rotuloAlvo": "A CLASSE"
+    },
+    "encadeamentos": [
+      {
+        "rotulo": "Pré-mortem deste prazo",
+        "para": "premortem",
+        "mapa": {
+          "plano": "estimo"
+        },
+        "exige": [
+          "estimo"
+        ]
+      },
+      {
+        "rotulo": "Conferir a estimativa em 30 dias",
+        "compromisso": {
+          "titulo": "conferir a estimativa: ",
+          "campo": "estimo",
+          "dias": 30
+        },
+        "exige": [
+          "agora"
+        ]
+      },
+      {
+        "rotulo": "Por que os parecidos terminaram assim",
+        "para": "cincoPorques",
+        "mapa": {
+          "aconteceu": "parecidos"
+        },
+        "exige": [
+          "parecidos"
+        ]
+      }
+    ],
+    "definicao": "uma estimativa de prazo, custo ou resultado que ainda não olhou para os casos parecidos"
+  },
+  {
+    "id": "cincoPorques",
+    "nome": "Cinco porquês",
+    "origem": "Taiichi Ohno",
+    "faculdade": "causa",
+    "proveniencia": {
+      "fonte": "Taiichi Ohno, Toyota Production System: Beyond Large-Scale Production (Productivity Press, 1988; original japonês de 1978), ISBN 0915299143 — obra conferida no registro de catálogo. A citação que sustenta o método é da Toyota Motor Corporation, \"Ask 'why' five times about every matter\", Toyota Traditions, março de 2006, lida na íntegra.",
+      "funcao": "pratica",
+      "adaptacao": "Cinco porquês encadeados, e mais dois campos que a crítica publicada pede: a causa só vale se for algo que o AUTOR controla (não uma pessoa), e uma segunda cadeia possível que ele não seguiu. A forma verdadeira é uma cadeia que para quando a causa é controlável, não uma lista de cinco — ver a ficha.",
+      "evidencia": "A Toyota publica o método como de Ohno e dá o exemplo do robô de solda, descendo do fusível queimado até a falta de filtro na bomba. É relato de prática industrial, não estudo. Teruyuki Minoura, ex-diretor da Toyota, chama a ferramenta de básica demais para achar a causa raiz. Alan J. Card (BMJ Quality & Safety 26:671–677, 2017) argumenta que a profundidade do quinto porquê é arbitrária e que investigadores diferentes chegam a causas diferentes. Nada aqui mede o uso por uma pessoa nas próprias notas.",
+      "aplicabilidade": "Serve para algo que já deu errado e se repete, num sistema que o autor controla. Não serve para plano futuro — isso é o Pré-mortem — nem para culpar alguém."
+    },
+    "filtro": "Cinco porquês",
+    "reconhecimento": "isto já deu errado, e a causa ainda é a primeira que apareceu.",
+    "movimento": "Cinco porquês (Ohno). Descer a cadeia de causas até uma causa que o autor CONTROLA. Duas cobranças que a crítica publicada pede: causa que é uma pessoa não é causa, é queixa; e o quinto porquê não é sagrado — se a cadeia parou antes, para; se não parou, continua. Cobre também a segunda cadeia possível: a primeira que se acha é a que se procurava.",
+    "pergunta": "Por que isso aconteceu — e por que ISSO aconteceu?",
+    "campos": [
+      {
+        "id": "aconteceu",
+        "rotulo": "O que aconteceu (o fato, sem explicação)"
+      },
+      {
+        "id": "porque1",
+        "rotulo": "Por quê? (1)"
+      },
+      {
+        "id": "porque2",
+        "rotulo": "E por que isso? (2)"
+      },
+      {
+        "id": "porque3",
+        "rotulo": "E por que isso? (3)"
+      },
+      {
+        "id": "porque4",
+        "rotulo": "E por que isso? (4)"
+      },
+      {
+        "id": "porque5",
+        "rotulo": "E por que isso? (5)"
+      },
+      {
+        "id": "controlo",
+        "rotulo": "A causa que EU controlo (pessoa não é causa)"
+      },
+      {
+        "id": "outra",
+        "rotulo": "Outra cadeia possível, que eu não segui"
+      },
+      {
+        "id": "mudo",
+        "rotulo": "O que eu mudo para não repetir"
+      }
+    ],
+    "roteamento": [
+      "\\bdeu errado de novo\\b|\\baconteceu de novo\\b|\\bde novo o mesmo\\b|\\bsempre (quebra|estoura|d[áa] errado)\\b",
+      "\\bpor que isso (aconteceu|deu errado|quebrou)\\b|\\bcausa raiz\\b|\\bcinco porqu[êe]s\\b|\\b5 porqu[êe]s\\b",
+      "\\bqual (foi|é) a causa\\b|\\bfalhou de novo\\b"
+    ],
+    "recordar": {
+      "alvo": [
+        "controlo",
+        "mudo"
+      ],
+      "pista": [
+        "aconteceu"
+      ],
+      "pergunta": "Qual era a causa que você controla, e o que você mudou?",
+      "instrucao": "O que aconteceu fica. A causa some.",
+      "rotuloAlvo": "A CAUSA"
+    },
+    "encadeamentos": [
+      {
+        "rotulo": "Vigiar a causa (Se–então)",
+        "para": "seEntao",
+        "mapa": {
+          "se": "controlo",
+          "entao": "mudo"
+        },
+        "exige": [
+          "mudo"
+        ]
+      },
+      {
+        "rotulo": "Conferir em 30 dias se repetiu",
+        "compromisso": {
+          "titulo": "repetiu? ",
+          "campo": "aconteceu",
+          "dias": 30
+        },
+        "exige": [
+          "controlo"
+        ]
+      },
+      {
+        "rotulo": "Tirar a peça (Subtração)",
+        "para": "subtracao",
+        "mapa": {
+          "melhorar": "aconteceu",
+          "sai": "controlo"
+        },
+        "exige": [
+          "controlo"
+        ]
+      }
+    ],
+    "definicao": "algo que já deu errado e se repete, e pede a causa que o autor controla (\"por que isso aconteceu\", \"deu errado de novo\")"
+  },
+  {
+    "id": "perguntaHamming",
+    "nome": "A pergunta de Hamming",
+    "origem": "Richard Hamming, 1986",
+    "faculdade": "direção",
+    "proveniencia": {
+      "fonte": "Richard W. Hamming, \"You and Your Research\", palestra no Bell Communications Research Colloquium Seminar, 7 de março de 1986; transcrição de J. F. Kaiser a partir da gravação",
+      "funcao": "pratica",
+      "adaptacao": "O Traço vira para dentro a pergunta que Hamming fazia aos outros na mesa do almoço, e acrescenta a coluna do ATAQUE — que é o critério do próprio Hamming para o que conta como problema importante. O fecho é a escolha que ele diz ter feito: mudar a meta ou mudar o que se faz.",
+      "evidencia": "É uma palestra: quarenta anos de observação de um pesquisador sobre outros pesquisadores, com casos nomeados. Não é estudo, não tem grupo de controle, e Hamming não afirma que responder à pergunta melhore o trabalho de alguém. Não há medida de efeito.",
+      "aplicabilidade": "Serve para quem tem alguma escolha sobre no que trabalha. Não serve para quem não tem nenhuma — o próprio Hamming reconhece que no começo não se tem."
+    },
+    "filtro": "Hamming",
+    "reconhecimento": "isto é trabalho que ainda não nomeou o problema importante.",
+    "movimento": "A pergunta de Hamming. Listar os problemas IMPORTANTES do próprio campo, dizer em qual deles se está trabalhando e, se não for nenhum, por quê. Importante, para Hamming, não é o de maior consequência: é aquele para o qual você tem um ATAQUE. Cobre o ataque de cada problema listado, e o fecho: mudar a meta ou mudar o que se faz.",
+    "pergunta": "Se você acredita que a ação está lá, por que você marcha para cá?",
+    "roteamento": [
+      "\\bproblemas? importantes?\\b|\\bo que (é|e) importante no meu campo\\b|\\bgrandes problemas\\b",
+      "\\bno que eu (deveria|devia) estar trabalhando\\b|\\bestou trabalhando (n[oa] )?(coisa )?errad[oa]\\b|\\btrabalhando em coisa pequena\\b",
+      "\\bvale a pena trabalhar nisso\\b|\\bisso me leva a algum lugar\\b|\\bpara onde isso me leva\\b"
+    ],
+    "campos": [
+      {
+        "id": "campo",
+        "rotulo": "O meu campo — onde eu quero contar"
+      },
+      {
+        "id": "importantes",
+        "rotulo": "Os problemas importantes dele (um por linha)"
+      },
+      {
+        "id": "ataque",
+        "rotulo": "Em qual deles eu tenho um ATAQUE — e qual é"
+      },
+      {
+        "id": "trabalhando",
+        "rotulo": "No que eu estou trabalhando de fato"
+      },
+      {
+        "id": "porque",
+        "rotulo": "Se não é um deles, por quê"
+      },
+      {
+        "id": "mudo",
+        "rotulo": "Mudo a meta, ou mudo o que eu faço"
+      }
+    ],
+    "recordar": {
+      "alvo": [
+        "importantes",
+        "ataque"
+      ],
+      "pista": [
+        "campo"
+      ],
+      "pergunta": "Quais eram os problemas importantes, e onde você tinha ataque?",
+      "instrucao": "O campo fica. Os problemas somem.",
+      "rotuloAlvo": "OS IMPORTANTES"
+    },
+    "encadeamentos": [
+      {
+        "rotulo": "Especificar o ataque",
+        "para": "spec",
+        "mapa": {
+          "problema": "ataque"
+        },
+        "exige": [
+          "ataque"
+        ]
+      },
+      {
+        "rotulo": "Grandes pensamentos em 7 dias",
+        "compromisso": {
+          "titulo": "grandes pensamentos: ",
+          "campo": "campo",
+          "dias": 7
+        },
+        "exige": [
+          "importantes"
+        ]
+      },
+      {
+        "rotulo": "O que sai para caber o ataque",
+        "para": "subtracao",
+        "mapa": {
+          "melhorar": "trabalhando",
+          "ia": "ataque"
+        },
+        "exige": [
+          "ataque"
+        ]
+      }
+    ],
+    "definicao": "trabalho sem direção: quais são os problemas importantes do campo, e por que você não está num deles"
+  },
+  {
+    "id": "vistoNaoVisto",
+    "nome": "O que se vê e o que não se vê",
+    "origem": "Frédéric Bastiat, 1850",
+    "faculdade": "consequência",
+    "proveniencia": {
+      "fonte": "Frédéric Bastiat, \"Ce qu'on voit et ce qu'on ne voit pas\" (1850); tradução inglesa de Patrick James Stirling em Essays on Political Economy, lida integralmente no Wikisource",
+      "funcao": "lente",
+      "adaptacao": "Bastiat aplica a lente à economia política, em ensaio corrido. O Traço a reduz a um ato do autor e cobra o prazo: quando o não visto aparece. O fecho — manter ou trocar — é do Traço.",
+      "evidencia": "É um argumento, não um estudo: Bastiat não mede nada e não afirma eficácia de método nenhum. O texto é de 1850 e sua parte econômica é discutida até hoje. O que se usa aqui é a distinção, não a economia. Não há evidência de que escrever isto melhore decisão.",
+      "aplicabilidade": "Serve para um ato, hábito ou gasto cujo efeito visível é claro. Não serve para escolher entre opções — isso é a Decisão."
+    },
+    "filtro": "O que não se vê",
+    "reconhecimento": "isto tem um efeito visível e um custo que não aparece.",
+    "movimento": "O que se vê e o que não se vê (Bastiat, 1850). Todo ato dá origem não a um efeito, mas a uma série: o primeiro se vê, os outros não. Escrever os dois — o efeito imediato e o que DEIXA de acontecer porque este ato aconteceu. O que não se vê é um fato negativo: não aparece sozinho, tem de ser nomeado. Cobre o prazo em que ele aparece.",
+    "pergunta": "O que deixa de acontecer porque isto aconteceu?",
+    "roteamento": [
+      "\\bcusto de oportunidade\\b|\\bo que eu deixo de (fazer|ganhar|ter)\\b|\\bdeixo de fazer\\b",
+      "\\bcompensa mesmo\\b|\\bsai mais barato\\b|\\bt[áa] de gra[çc]a\\b|\\bnão custa nada\\b",
+      "\\bem troca de quê\\b|\\bo que isso me custa\\b|\\bo pre[çc]o disso\\b"
+    ],
+    "campos": [
+      {
+        "id": "ato",
+        "rotulo": "O ato, o hábito ou o gasto"
+      },
+      {
+        "id": "vejo",
+        "rotulo": "O que se vê (o efeito imediato)"
+      },
+      {
+        "id": "naoVejo",
+        "rotulo": "O que NÃO se vê (o que deixa de acontecer)"
+      },
+      {
+        "id": "quando",
+        "rotulo": "Quando o não visto aparece"
+      },
+      {
+        "id": "troco",
+        "rotulo": "Sabendo dos dois: mantenho ou troco"
+      }
+    ],
+    "recordar": {
+      "alvo": [
+        "naoVejo"
+      ],
+      "pista": [
+        "ato",
+        "vejo"
+      ],
+      "pergunta": "O que deixava de acontecer por causa disto?",
+      "instrucao": "O que se vê fica. O que não se vê some.",
+      "rotuloAlvo": "O NÃO VISTO"
+    },
+    "encadeamentos": [
+      {
+        "rotulo": "Decidir sobre isto",
+        "para": "decisao",
+        "mapa": {
+          "escolha": "ato",
+          "criterio": "naoVejo"
+        },
+        "exige": [
+          "naoVejo"
+        ]
+      },
+      {
+        "rotulo": "Ver o não visto em 30 dias",
+        "compromisso": {
+          "titulo": "apareceu o não visto? ",
+          "campo": "naoVejo",
+          "dias": 30
+        },
+        "exige": [
+          "quando"
+        ]
+      },
+      {
+        "rotulo": "Tirar isto (Subtração)",
+        "para": "subtracao",
+        "mapa": {
+          "melhorar": "ato"
+        },
+        "exige": [
+          "naoVejo"
+        ]
+      }
+    ],
+    "definicao": "um ato cujo efeito visível é claro e cujo custo não aparece (\"custo de oportunidade\", \"o que eu deixo de fazer\")"
+  },
+  {
+    "id": "exameDaNoite",
+    "nome": "Exame da noite",
+    "origem": "Sêneca, citando Quinto Sêxtio",
+    "faculdade": "caráter",
+    "proveniencia": {
+      "fonte": "Sêneca, De Ira, livro III, capítulo 36 (séc. I); tradução inglesa de Aubrey Stewart (1900), lida integralmente no Wikisource. Sêneca atribui a prática a Quinto Sêxtio.",
+      "funcao": "pratica",
+      "adaptacao": "Quatro campos e uma regra: o Traço separa o que o autor FEZ do que lhe aconteceu, e exige a prescrição concreta para a próxima vez — Sêneca perdoa e prescreve na mesma frase, e é a prescrição que o Traço cobra. Nada disto é desabafo: a Expressiva continua sendo o lugar do desabafo, e não é comentada.",
+      "evidencia": "Sem estudo: é prática filosófica antiga, relatada por quem a fazia. Sêneca afirma que o exame diário torna a ira mais branda; não há medida disso, nem nada que o Traço possa alegar. A literatura moderna de escrita reflexiva é outra coisa e não se transfere para cá.",
+      "aplicabilidade": "Serve para o fim de um dia em que o autor fez algo que não quer repetir. Não serve para julgar os outros, nem para ruminar — se o texto vira desabafo, a forma é a Expressiva."
+    },
+    "filtro": "Exame",
+    "reconhecimento": "isto é o seu dia em revista — e uma regra para amanhã.",
+    "movimento": "Exame da noite (Sêneca, De Ira III.36, da prática de Sêxtio). À noite, o dia inteiro em revista, sem esconder nada, e o julgamento só dos PRÓPRIOS atos: o que eu fiz que não quero repetir, o que eu contive hoje, e a regra concreta para a próxima vez. Cobre a regra: julgamento sem prescrição é remorso, e remorso não é método.",
+    "pergunta": "Que hábito ruim você curou hoje? Que defeito você conteve?",
+    "roteamento": [
+      "\\bexame da noite\\b|\\bpassei o dia em revista\\b|\\bolhando o dia de hoje\\b",
+      "\\bn[ãa]o devia ter (feito|reagido|agido|tratado)\\b|\\bme arrependi\\b|\\bfui (injust[oa]|gross[oa]|duro demais|ríspid[oa])\\b",
+      "\\bperdi a (paci[êe]ncia|cabe[çc]a)\\b|\\bhoje eu (fiz|reagi|tratei)\\b"
+    ],
+    "campos": [
+      {
+        "id": "revi",
+        "rotulo": "O dia em revista, sem esconder nada"
+      },
+      {
+        "id": "naoRepito",
+        "rotulo": "O que EU fiz e não quero repetir"
+      },
+      {
+        "id": "contive",
+        "rotulo": "O que eu contive hoje, e no que estou melhor"
+      },
+      {
+        "id": "regra",
+        "rotulo": "A regra para a próxima vez, concreta"
+      }
+    ],
+    "recordar": {
+      "alvo": [
+        "regra"
+      ],
+      "pista": [
+        "naoRepito"
+      ],
+      "pergunta": "Qual era a regra que você deu a si mesmo?",
+      "instrucao": "O que você fez fica. A regra some.",
+      "rotuloAlvo": "A REGRA"
+    },
+    "encadeamentos": [
+      {
+        "rotulo": "Virar Se–então",
+        "para": "seEntao",
+        "mapa": {
+          "se": "naoRepito",
+          "entao": "regra"
+        },
+        "exige": [
+          "regra"
+        ]
+      },
+      {
+        "rotulo": "Conferir a regra em 7 dias",
+        "compromisso": {
+          "titulo": "a regra pegou? ",
+          "campo": "regra",
+          "dias": 7
+        },
+        "exige": [
+          "regra"
+        ]
+      },
+      {
+        "rotulo": "Abrir a conversa (Coluna da esquerda)",
+        "para": "colunaEsquerda",
+        "mapa": {
+          "comQuem": "naoRepito"
+        },
+        "exige": [
+          "naoRepito"
+        ]
+      }
+    ],
+    "definicao": "o dia julgado à noite pelos próprios atos, com uma regra concreta para a próxima vez"
   }
 ]
