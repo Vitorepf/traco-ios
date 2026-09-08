@@ -170,6 +170,25 @@ Ordem do dono de 07/09 à noite: limpeza geral do git, sem perder nada, só `mai
 
 **Branches guardados como tag, não mescláveis:** `arquivo/feat-traco-folha` (03–05/09: a nota como folha sobre o tampo, share de entrada, arrasto na lista — 4 commits) e `arquivo/fix-furos-radiografia` (02/09: selo desde o primeiro caractere, arranque honesto com banco que não abre, uma porta só para o disco, apagar com desfazer, 70 fluxos com asserção — 12 commits). Os dois nasceram em `c1e1bbe`, 184 commits atrás; `main` reimplementou parte por outro caminho (ADRs 05h/05s). O que ainda vale deles é ideia a reler, não código a colar — o `try!` de `DiscoTraco.abrir` no arranque (`TracoApp.swift:13`), que a radiografia tratava, continua vivo em `main`.
 
+## A fila do dono, 08/09 — as doze prioridades do Astra, mapeadas nas voltas
+
+O dono pediu ao Astra uma leitura de prioridades e depois decidiu que o laço do Orca as resolve, todas, com mais qualidade por token. A tabela abaixo é a dele; a coluna da direita é a volta que a paga. Ordem de fila: a do Astra, exceto onde uma volta já em curso paga um item mais abaixo de graça. "Resolvido" é o critério da terceira coluna dele, provado na tela, não a volta mesclada.
+
+| # | prioridade do Astra | resolvido quando | volta que paga |
+|---|---|---|---|
+| 1 | Completar uma jornada real, começando pelo espanhol: intenção, ajuda, tentativa, resultado e ajuste | o dono usa o Traço para avançar numa situação concreta e continua a partir do que aconteceu | **V17** (o artefato que se reescreve em Markdown) mais a jornada real de ponta a ponta com o caso do espanhol; depende do 2 e do 3 para a IA servir |
+| 2 | Avaliar a IA nos provedores disponíveis, incluindo Grok, com pedidos reais e restrições explícitas | sabemos quais operações funcionam, onde falham e em que condições, com respostas completas examinadas | **volta Q** — a sonda `AvaliacaoIA` nas dezesseis operações com Grok (conta confirmada por `ContaGrok.ligada` no simulador de teste), lida contra `QUALIDADE-IA.md`; a tabela `Politica` (ADR 07b) ajustada pelo resultado |
+| 3 | Corrigir as falhas de IA que impedem essa jornada: contexto, instruções, modelo, tratamento da resposta | a ajuda atende ao pedido, respeita as restrições e produz algo utilizável em tentativas variadas | **volta Q-B**, nascida do que a Q medir; Astra no G0 |
+| 4 | Melhorar a continuidade do trabalho: retomar objetivo, versões, decisões e próximo passo sem reconstruir o contexto | o dono volta depois e continua com pouca explicação | **volta de retomada do Trabalho** — a folha abre no ponto certo com o resumo do que houve (ADR 06b §18-D já descreve a estrutura que falta) |
+| 5 | Trazer o resultado da ação de volta ao trabalho, inclusive tentativas parciais e fracassos | o resultado informado muda a próxima orientação; agendado, feito e funcionou continuam distintos | **volta dos estados** — `EstadoAcao` ganha o observado, `cancelada` deixa de ser inalcançável, o relato muda a próxima orientação (a auditoria de 07/09 achou os três estados mortos em `Trabalho.swift:39-44`) |
+| 6 | Tornar a revisão pela IA útil: identificar o que não serviu e revisar o artefato preservando origem e versões | uma correção do dono gera mudança pertinente sem apagar conteúdo nem repetir o erro | paga pela **V17** (a versão N+1 nasce da observação, com origem e motivo no documento) e pela **Q** (revisar medida com Grok) |
+| 7 | Reduzir o esforço da jornada principal: navegação, controles ambíguos, excesso de decisões, recuperação de erros | iniciar, agir, corrigir e retomar sem entender a estrutura interna do app | **V12-B, V13, V15** com `curva-zero` medida em toques antes e depois |
+| 8 | Verificar os riscos de estabilidade e dados, incluindo o `try!` do arranque | falhas previsíveis permitem recuperação e preservam o conteúdo | **volta do arranque honesto** — `TracoApp.swift:13` e os outros cinco `try!` de produção; a radiografia de 02/09 (tag `arquivo/fix-furos-radiografia`) já tratava disso e serve de leitura |
+| 9 | Testar o percurso integrado com IA real, além dos testes isolados | provas atuais do percurso completo, com resposta ruim, interrupção e nova tentativa | **Q** mais um fluxo maestro do percurso com a sonda ligada; `prova/7.md` |
+| 10 | Fazer o desenvolvimento de capacidades se apoiar em evidências: distinguir uso, satisfação e desempenho | o Traço ajusta a ajuda por uma dificuldade demonstrada e permite corrigir as hipóteses sobre o dono | **L2** (latência da descoberta, em curso) e a prática dentro da V17 |
+| 11 | Fechar a dívida visual e de acessibilidade nas telas alteradas | hierarquia, animações, tamanho de texto, VoiceOver e controles funcionam na jornada real | **a dívida da limpeza de 07/09** (P1 já mesclada, V12-B e L2 em curso, V19 e F4 restantes) |
+| 12 | Comprovar as entradas externas no aparelho: Siri, widgets, ditado | cada entrada inicia ou retoma a ação esperada, com contexto certo e falhas compreensíveis | **F5** (em curso) mais uma passada no iPhone do dono, porque o simulador não prova Siri nem tela bloqueada trancada |
+
 ## Próximas, em ordem
 
 | # | volta | valor | esforço | ciclo | lacuna (EVOLUCAO) |
