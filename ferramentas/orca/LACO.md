@@ -218,3 +218,11 @@ Sexta volta do dia, e a primeira do item 5 da fila do dono. A auditoria de 07/09
 - **E o G4 pegou o que faria a promessa funcionar por acaso:** a orientação seguia o último relato **sem nomear a ação** — com três ações e três resultados, mandava "propor caminho diferente" num Trabalho cuja ação principal funcionou. A contraprova são **três pedidos gravados no mesmo documento**: dois sem a ação, o terceiro com ela.
 - **Commit:** `7691e45`, no `origin`. Árvore mesclada: **947 testes em 153 suítes**, 0 aviso, portão verde. Evidência reduzida: 4.576 KB → 2.372 KB e 1.493 KB → 840 KB, maior arquivo 187 KB.
 - **Aberto de propósito e dito:** `causaDoRelato` ainda diz "desta ação" sem nomeá-la, porque ali o motivo **disputa o teto** com o relato inteiro — é decisão de orçamento, não uma linha.
+
+### 08/09 19h35 — duas perguntas do dono, respondidas com o estado da máquina
+
+**(1) VoiceOver.** Conferi os sete simuladores: **está desligado em todos**, e o macOS também. Um só tem a chave escrita — o `6033B043`, com valor **0**. Quem a tocou foi o worker da A1, e **por ordem minha**: eu tinha mandado "ouvir o VoiceOver" na tela do arranque falho. **Revoguei a ordem**: ninguém liga VoiceOver, Speak Screen ou síntese de voz na máquina do dono; a acessibilidade daquela tela passa a ser provada **pela árvore de AX conferida contra captura do mesmo UDID**, com o VoiceOver falado declarado como **limite** — o mesmo tipo de limite que o juiz da L2 declarou hoje.
+
+**(2) Sete simuladores ligados, e a lei diz um por worker.** Mapeei dono a dono e **desliguei os três sem dono vivo**: `A1DF082C` (teste 4), `C7341E64` (17e) e `64F7B8B4` (Air) — as voltas que os usavam (E1 e P1) já mesclaram e os worktrees foram removidos. Sobraram **quatro, um por frente viva**: `C2416CBC` (volta Q, **e ninguém o desliga**), `B91C8DEF` (V13), `34CC3F94` (Q, build e teste) e `6033B043` (A1-B). Abaixo do teto de cinco em que o macOS começa a derrubar sozinho.
+
+**O que eu levo disto:** o teto de simuladores não é regra de higiene, é a mesma família dos achados do dia — aparelho ligado sem dono é estado que ninguém conferiu, e foi assim que o `ax --device` passou a ler a árvore do vizinho.
