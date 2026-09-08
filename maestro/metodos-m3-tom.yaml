@@ -1,10 +1,16 @@
 # Volta M3-B: o TOM do cartão vestido, na tela.
 #
-# A frase é do revisor do G3 (m3-rev-03). O roteamento ainda a veste de Exame
-# da noite — esse é o achado alto, e o conserto mora em Traco/Analise. O que
-# este fluxo prova é a outra metade: quando o cartão chega, ele diz "o seu dia
-# em revista — e uma regra para amanhã", não "pedindo julgamento — dos seus
-# atos". Motores desligados ANTES do fluxo (o degrau de bordo decide antes da
+# A frase é do revisor do G3 (m3-rev-03). O cabeçalho antigo dizia que "o
+# roteamento ainda a veste de Exame da noite e o conserto mora em Traco/Analise":
+# o conserto ESTÁ FEITO, duas vezes, e a frase morreu — a ADR 2026-09-06h pôs a
+# guarda em AnaliseLocal.eEscritaPessoal, e a 06i-E mudou `não devia ter` da
+# família 5 para a 4, fechando a confissão curta. A prova em teste é
+# EscritaPessoalTests. Não procure o conserto: ele já passou.
+#
+# O que este fluxo prova, e é a única coisa que ele prova, é o TOM: quando o
+# cartão chega (por quem CONVOCA o método pelo nome, não por confissão), ele diz
+# "o seu dia em revista — e uma regra para amanhã", não "pedindo julgamento — dos
+# seus atos". Motores desligados ANTES do fluxo (o degrau de bordo decide antes da
 # regex e pode discordar dela):
 #   xcrun simctl spawn <UDID> launchctl setenv TRACO_SEM_MODELO 1
 appId: app.traco

@@ -69,3 +69,59 @@ O laço parou por ordem, não por cota (semanal em 4%, janela de sessão em 1%) 
 Três leis de instrumento nasceram medindo, e estão na ESTEIRA: **o `maestro --device` não isola** (o driver do vizinho responde pela porta 7001 — provado por dimensão de pixel e por uma tela que ele jurava não existir); **a trava do instrumento prende** (duas vezes, por motivos diferentes — driver pendurado com processo vivo, e dono morto sem soltar; o `com-trava.sh` agora retoma nos dois casos e escreve o dono dentro dela); e **a galeria de widgets trava** (três revisões perdidas nela, até um juiz plantar pelo `IconState.plist` do SpringBoard). A quarta, do último worker: `simctl ui content_size medium` NÃO aplica, e o `chronod` guarda tipo e tema em cache — capturas inteiras vinham do ambiente velho.
 
 E a lição de método, que vale mais: **a auditoria V9 está parcialmente desatualizada** — três dos quatro defeitos que ela lista para o Recordar já tinham caído, e o quarto estava declarado morto e estava vivo. Auditar antes de tocar passou a significar conferir a auditoria na tela viva e escrever na ADR, defeito a defeito, qual continua vivo.
+
+## PAUSA de 07/09 e RETOMADA de 08/09 — o que aconteceu no meio
+
+**A pausa não foi de cota nem de falha.** O laço ficou parado desde 23h20 de 06/09 por ordem do dono. No dia 07/09 o dono trabalhou fora do laço e deu duas ordens que mudaram o mapa:
+
+- **Limpeza geral do git** (07/09 à noite): só `main` local e remota. As seis voltas que estavam a um passo do merge (A-6 → M3 → V12 → F4 → V19 → L1) foram mescladas NA ORDEM que este registro pedia, **sem o último portão de cada uma**; os oito worktrees e todos os branches foram apagados; `arquivo/feat-traco-folha` e `arquivo/fix-furos-radiografia` ficaram como tag. Suíte integral verde na árvore final (885 em 142). A dívida de cada volta está nomeada na seção "A limpeza de 07/09" do RUMO e é o topo da fila.
+- **Duas decisões de rumo:** a política do provedor (ADR 07b, `Traco/Analise/Politica.swift` — quem responde cada operação de IA, medido) e o artefato que se transforma nasce em **Markdown**, não em HTML (DIRETRIZ §4; a V17 ganhou G0 e o HTML virou faixa estreita).
+
+**A retomada foi do vigia, às 10h20 de 08/09**, com a janela de sessão em 9% e — o que o brief não sabia — **a semanal do Fable de volta em 6%** desde o reset de domingo. Ao ler o estado antes de despachar, duas coisas apareceram que nenhum documento registrava:
+
+1. **A conta Grok existe.** Está conectada no simulador `iPhone 17 Pro (teste 2)` `B91C8DEF`, confirmada no Perfil em 08/09. Cai a frase "nenhuma operação tem medição com Grok" da ADR 07b. A base medida está em `prova/cinco-itens.md`, e é dura: com conta, preparar prática 0/3, instigar 0/3 e contrapor 0/3. **Regra nova: esse simulador é proibido a todo worker** — `xcodebuild test` reinstala o app e apaga o contêiner onde a conta mora.
+2. **Outra sessão (Codex) trabalha no checkout principal neste momento**, nos "cinco itens": raciocínio explícito nas quatro operações de Trabalho, modelo `grok-4.3` no lugar do alias aposentado, ADR 2026-09-08b escrita em `SPEC.md`, tudo **sem commit**. O orquestrador rodou só o build para saber se `main` serve de base (`** BUILD SUCCEEDED **`, zero avisos), **não comitou nada disso**, e comitou apenas o RUMO por caminho (`a63da33`). Quem fecha esse trabalho é aquela sessão.
+
+**O inbox tinha uma só mensagem viva** — o `worker_done` da F4-E de 07/09, cujo conteúdo já é a dívida da F4 no RUMO — e uma tarefa em `ready` que virou impossível (`task_d32819a85e9c`, o G3 da A-6 e o fecho da M3: os dois worktrees não existem mais e as duas voltas já estão em main). Marcada `failed` com o motivo, não silenciada.
+
+**Três voltas abertas às 10h25**, cada uma em worktree filho nascido de `main`, áreas disjuntas, todas tirando dívida da limpeza — duas comuns mais a trilha fora do app, como o brief manda:
+
+| volta | worktree | dívida que fecha | simulador |
+|---|---|---|---|
+| P1 | `volta-p1-portao-movimento` | o **portão que impede `withAnimation` fora de `Tema`** (item 7, o achado mais estrutural do dia 06: a classe do cross-fade apareceu 6 vezes com 3 causas; há 39 ocorrências soltas hoje) + as quatro linhas do A-6 + a `aplicabilidade` do exameDaNoite da M3 | teste 4 `A1DF082C` |
+| F4-F | `volta-f5-fora-do-app` | o Destaque longo cortado pelo rodapé "Desatualizado.", o quadro de ofertas, tela bloqueada/StandBy/Ilha sem captura, o médio de uma linha | teste 3 `34CC3F94` |
+| L2 | `volta-l2-latencia-g4` | o **G4 reprovado** da L1 (Design 8, Simplicidade 7): teto de 12 meses, `Tema.miudo` dentro do app contra a ADR 05u, frase-resumo em duas linhas, `quantas == 1`; mais escuro, B×AX5 e VoiceOver | iPhone 17 Pro `C2416CBC` |
+
+**Lei de instrumento acrescentada nesta rodada:** com três simuladores ligados, `booted` é ambíguo e maestro não vale nada — todo worker recebeu ordem de usar `xcrun simctl io <UDID>` explícito e nenhum maestro. Primeiro achado devolvido, às 10h33, pela F4-F: a causa do corte do Destaque é **`lineLimit` impedindo o `minimumScaleFactor` em tamanho normal** — repartição de altura, como a F4-E suspeitava, agora nomeada.
+
+### 08/09 11h16 — EQUIPE NOVA, por ordem do dono (vale da próxima task em diante)
+
+O dono leu as duas sessões anteriores de orquestração (`ferramentas/orca/ORCA-LICOES.md`, `8e3a1a5`) e trocou o time (briefs em `f22a588`): **o revisor do G3 passa a ser outro fornecedor** — `codex --model gpt-5.6-terra` (quem escreveu foi Claude, quem revisa não é), com o re-G3 no mesmo terminal; **o juiz de design do G4 é Fable 5.1** em sessão própria; **o Astra (`gpt-6-astra`) entra em três momentos e só neles** — G0 de toda volta que toca IA, a SEGUNDA recusa na mesma volta, e arquitetura ou contrato difícil, no máximo duas consultas por volta; **front-end e fora do app voltam a Fable** (Opus só acima de 90% da semanal do Fable); **teto de TRÊS voltas em edição ao mesmo tempo**; **nenhum Grok como agente**. Ordem de fila depois da dívida: **V17** (o artefato que se reescreve em Markdown) e depois **a qualidade da IA pela sonda `AvaliacaoIA` com Grok**, esta só depois de confirmar `ContaGrok.ligada` no simulador de teste.
+
+No mesmo commit o dono fechou o trabalho dos "cinco itens" que estava sem commit no checkout principal (55 arquivos, +4.955), então **`main` está com a árvore limpa** e as voltas voltam a poder mesclar. Um segundo orquestrador subiu por engano às 11h00 e foi fechado — e ele é o suspeito mais provável da instalação por cima que custou 25 min à F4-F, porque quem builda do checkout principal instala o código de `main`.
+
+Estava com **quatro voltas em edição** quando a ordem chegou (P1-B em correção de G3, L2, F4-F, V12-B); não interrompi nenhuma, não abri a quinta, e volto a três no próximo fecho.
+
+### 08/09 12h20 — MESCLADA a volta P1: o portão do movimento
+
+Primeira volta fechada pelos portões completos desde a limpeza de 07/09, e a primeira revisada por **outro fornecedor** (GPT 5.6 Terra), como a equipe nova manda.
+
+- **O que mudou:** `TracoTests/PortaoDoMovimentoTests` varre os 126 fontes de `Traco/` e `TracoWidget/`, apaga comentário, string e o **miolo das chamadas a `Tema.`**, e fica vermelho quando alguém escreve curva ou duração **literal** fora da casa. Mais as três dívidas de documento da limpeza: as quatro linhas da A-6 refeitas com número medido (a causa era contaminação, não rabo; a porta morta `olhando o dia de hoje` apagada, desvios de 18 para 17) e a `aplicabilidade` do `exameDaNoite`, que parou de prometer ao autor a matéria que a guarda recusa levar ao método.
+- **O ciclo do portão, que é a lição:** a primeira versão contava como dívida **a forma que a própria ADR manda escrever** — 69 das 76 ocorrências congeladas já citavam `Tema.` — e por isso ficava vermelha até quando alguém migrava uma tela. O G3 recusou; medida a violação certa, **a dívida real é ZERO**: as 38 chamadas de `withAnimation(` já passam todas por `Tema`. Um portão que fica vermelho quando se faz a coisa certa é pior que portão nenhum.
+- **Lista vazia é o estado perigoso de um portão**, e o implementador viu isso sozinho: `aVarreduraAindaEnxerga` impede que vazio vire verde falso. O revisor confirmou apontando a varredura para um diretório inexistente — **ficou vermelha**.
+- **Evidência:** re-G3 APROVADO, nenhuma dimensão abaixo de 9, com seis ataques ao portão (curva literal, arquivo novo fora do `pbxproj`, forma prescrita, migração para baixo, comentário e string). Árvore **mesclada** provada no iPhone 17e: `894 tests in 144 suites passed`, 0 aviso, e o portão em **zero** contra o código novo que veio de `main` (a única curva em `Traco/Trabalho` é a forma prescrita).
+- **Commit:** `29cc2ce`. Cotas no fecho: janela 30%, semanal 14%, Fable 6%, Codex 2%.
+- **Duas quebras declaradas, nenhuma escondida:** o implementador e a volta F4-F dirigiram tela por `cliclick` antes de a ordem do dono das 11h35 existir; o re-G3 julgou o que importava — nenhuma evidência ficou contaminada.
+- **Limite novo do instrumento, achado pelo primeiro revisor a usar `orca emulator`:** o `ax` perde a árvore de acessibilidade assim que o Traço abre (`ERR_CONNECTION_REFUSED` / `ERR_EMPTY_RESPONSE`); reiniciar o helper recupera a AX da tela inicial e a perde de novo ao abrir o app. Ele não fez a segunda captura e **não apresentou a alheia como sua**.
+- **Colisão de letra de ADR, resolvida por reserva:** a sessão dos cinco itens ocupou `08a`–`08d` em `main` e três voltas escreveram por cima. Reserva vigente: **P1 = 08e (mesclada), V12 = 08f, F4-F = 08g, L2 = 08h**.
+
+### 08/09 12h25 — A FILA DO DONO entra, e o Astra deixa de implementar
+
+O dono pediu ao Astra uma leitura de prioridades, pôs o Astra a resolver as cinco primeiras sozinho e **desistiu disso**: o laço do Orca resolve as doze, com mais qualidade por token. A tabela está no RUMO (`7778687`, seção "A fila do dono, 08/09"), com o critério de "resolvido" do Astra em cada linha — e resolvido é **provado na tela**, não a volta mesclada.
+
+**O que muda para mim, em uma linha cada:**
+- **Não há sessão do Astra editando o checkout.** O checkout principal está limpo em `7778687`; o único Codex vivo é o revisor GPT 5.6 Terra da F4-F, já usando `orca emulator`. Cai o aviso que eu tinha escrito às 10h25 sobre uma sessão paralela no checkout — ele valia e deixou de valer.
+- **Toda volta nasce com a linha G0 E o critério de resolvido do Astra colado no spec.**
+- **Ordem de fila:** a do Astra, exceto onde uma volta em curso paga um item mais abaixo de graça. Do que está aberto agora: **L2 paga o item 10** (capacidades apoiadas em evidência), **V12-B e F4-F pagam parte dos itens 7, 11 e 12**.
+- **Depois das voltas em curso, nesta ordem:** **V17** (itens 1 e 6 — o artefato que se reescreve em Markdown e a jornada real do espanhol), **Q com Grok** (2, 3 e 9 — a sonda `AvaliacaoIA` nas dezesseis operações; confirmar `ContaGrok.ligada` antes de gastar), **estados da ação** (5 — `EstadoAcao` ganha o observado e `cancelada` deixa de ser inalcançável; os três estados mortos estão em `Trabalho.swift:39-44`), **retomada do Trabalho** (4 — a folha abre no ponto certo, ADR 06b §18-D descreve a estrutura que falta), **arranque honesto** (8 — o `try!` de `TracoApp.swift:13` e os outros cinco).
+- **Pré-condição da Q já conferida por mim, para não gastar volta à toa:** `ContaGrok.ligada` existe (`Traco/Analise/ContaGrok.swift:55`, verdadeiro quando há token de renovação ou de acesso guardado) e a sonda `AvaliacaoIA` já registra `contaGrokLigada` em cada medição. A confirmação é leitura barata.

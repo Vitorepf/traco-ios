@@ -3,7 +3,7 @@
 # do Claude tem folga, manda ele continuar. Sai calado em qualquer outro caso.
 # Agendado por launchd (app.traco.vigia) a cada 10 min. Log em ~/Library/Logs/traco-vigia.log
 export PATH="$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
-H=term_420a67b2-e7c1-4d37-92cc-ba801f351448
+H=term_92c6194d-bdb5-42e1-9f3a-4d8f9676300c
 LOG=~/Library/Logs/traco-vigia.log
 say(){ echo "$(date '+%F %T') $*" >> "$LOG"; }
 orca status --json 2>/dev/null | grep -q '"reachable": true' || { say "orca fora"; exit 0; }

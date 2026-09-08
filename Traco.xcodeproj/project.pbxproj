@@ -40,6 +40,7 @@
 		2AE57F8A97E7C0D562E67805 /* Botao.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AF311A52F6BABC502DD0E41 /* Botao.swift */; };
 		2EDE2DC95FFCC08152DD4D8C /* TracoWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7460E11C15C79C8BF502E84 /* TracoWidget.swift */; };
 		2EEAEF428EDFD4A27B3A9AB7 /* ConversaNotas.swift in Sources */ = {isa = PBXBuildFile; fileRef = D78CA40BB6261B7ED51A389D /* ConversaNotas.swift */; };
+		312948997692C3C3AE524E29 /* PortaoDoMovimentoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DF90794EAEA73FCBE0A4A60 /* PortaoDoMovimentoTests.swift */; };
 		320423513B15D07279F6B32F /* TrabalhosView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4E86ED863C6D7F804028F82 /* TrabalhosView.swift */; };
 		3300AF225512A35291C48F3D /* ProsaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4207F1ADDB6DE919995145D4 /* ProsaView.swift */; };
 		3335D22042BB5555CF503651 /* RedeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06D8B8DA8F9AB5510FC4CB69 /* RedeView.swift */; };
@@ -245,6 +246,7 @@
 		1AF311A52F6BABC502DD0E41 /* Botao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Botao.swift; sourceTree = "<group>"; };
 		1B0F9BB5E377CB48CE727C3F /* Queima.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Queima.swift; sourceTree = "<group>"; };
 		1C7AAAC02FD4111DF3F7A6A6 /* TracoTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = TracoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		1DF90794EAEA73FCBE0A4A60 /* PortaoDoMovimentoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortaoDoMovimentoTests.swift; sourceTree = "<group>"; };
 		1E45B3300CFC72465D0F5BBB /* LatenciaTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LatenciaTests.swift; sourceTree = "<group>"; };
 		1E777317BA19B73B43328EA4 /* MenuFormasView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuFormasView.swift; sourceTree = "<group>"; };
 		1F1A0C028CE98D7512FD39AB /* CalendarioEscalas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarioEscalas.swift; sourceTree = "<group>"; };
@@ -603,6 +605,7 @@
 				E02DEF691F4862133348FB4F /* MotorTrabalhoContextoTests.swift */,
 				B544C7CB0EEA5F5D2DAFB30C /* NotasESessaoTests.swift */,
 				EAD464BFBF2CFB1AC681E006 /* PoliticaTests.swift */,
+				1DF90794EAEA73FCBE0A4A60 /* PortaoDoMovimentoTests.swift */,
 				C68F1BAA39BE524BD2FC78D7 /* PraticaTrabalhoTests.swift */,
 				40493CD4A16FE11067FED441 /* PrivacidadeTrabalhoTests.swift */,
 				FE42683E3E5F989A0E75E4AB /* PromessaDoAvisoTests.swift */,
@@ -922,6 +925,7 @@
 				6FEC54E297B9BCE0985F0CC1 /* MotorTrabalhoContextoTests.swift in Sources */,
 				56A38C95EE9713A63A475FC8 /* NotasESessaoTests.swift in Sources */,
 				AF769CCB6D775021AA03EACC /* PoliticaTests.swift in Sources */,
+				312948997692C3C3AE524E29 /* PortaoDoMovimentoTests.swift in Sources */,
 				EE11CA7A0F68FE32B0AEFBF9 /* PraticaTrabalhoTests.swift in Sources */,
 				91E15F303FB313BA849D33A8 /* PrivacidadeTrabalhoTests.swift in Sources */,
 				CD2D139C66A11ACB0ECE3765 /* PromessaDoAvisoTests.swift in Sources */,

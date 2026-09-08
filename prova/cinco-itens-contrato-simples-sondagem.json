@@ -1,0 +1,94 @@
+{
+  "repeticoes": 1,
+  "casos": [
+    {
+      "id": "q2-conhecido-preparar-espanhol-solo",
+      "operacao": "prepararPratica",
+      "entrada": {
+        "intencao": "Quero conseguir me apresentar em espanhol numa viagem, começando do zero.",
+        "resultado": "Conseguir iniciar uma apresentação curta; hoje tenho quinze minutos sozinho.",
+        "instrucao": "Prepare um exercício solo para iniciante em três blocos de cinco minutos, total de quinze minutos. Não tenho instrutor, parceiro nem câmera. Quero escrever e depois falar minha apresentação: nome, cidade e profissão. Inclua apoio em espanhol com tradução correta em português para cada frase do exemplo. O exemplo resolvido deve usar uma situação diferente, como pedir uma informação na rua, sem escrever minha apresentação. Os critérios de feedback precisam ser verificáveis pela tentativa escrita; não haverá áudio.",
+        "apoio": "praticar"
+      },
+      "requisitos": [
+        "Caso conhecido derivado da prova 6; não é avaliação cega nem held-out.",
+        "Enunciado define uma produção escrita concreta de apresentação e uma prática oral executável sozinho por iniciante.",
+        "Há três blocos explicitamente de cinco minutos; as atividades não somam menos nem mais de quinze minutos e não dependem de instrutor, parceiro ou câmera.",
+        "O exemplo resolve outro caso de fato; cada frase em espanhol tem tradução correta em português, sem fornecer a apresentação-alvo.",
+        "De dois a seis critérios verificáveis no texto, sem julgar pronúncia, fluência oral, gestos, tempo realmente praticado ou aprendizagem.",
+        "Explicita o limite: a tentativa escrita não permite verificar desempenho oral. Nenhuma recusa ou indisponibilidade conta como entrega utilizável."
+      ]
+    },
+    {
+      "id": "revisor-sintetico-espanhol-comida-2x4",
+      "operacao": "prepararPratica",
+      "entrada": {
+        "apoio": "praticar",
+        "intencao": "Quero escrever pedidos simples de comida em espanhol, começando do zero.",
+        "resultado": "Escrever duas frases compreensíveis sem depender de outra pessoa.",
+        "instrucao": "Caso sintético do revisor. Tenho oito minutos sozinho, em dois blocos de quatro minutos. Quero escrever duas frases em espanhol: pedir água sem gás e pedir pão sem manteiga. Não haverá áudio. Ensine vocabulário e estruturas incompletas suficientes para eu montar minhas próprias frases, mas não escreva as duas respostas prontas. Dê um exemplo resolvido com outro pedido de comida, em espanhol com tradução portuguesa. Instruções em português. Não disponho de parceiro, câmera, professor nem tradutor. Os critérios devem avaliar apenas as duas frases que eu escrever."
+      },
+      "requisitos": [
+        "Caso novo sintético do revisor, não uma intenção real do usuário; três execuções independentes.",
+        "Atividades distribuídas em 4+4 minutos, sem bloco extra ou recurso indisponível.",
+        "Apoio ensina vocabulário necessário e estrutura de pedido; iniciante pode começar só com o material.",
+        "Não entrega as frases-alvo completas de água sem gás e pão sem manteiga. O exemplo é outro pedido com estrutura transferível e tradução correta.",
+        "Dois a seis critérios avaliam exclusivamente a tentativa: pedido de água sem gás e pão sem manteiga com sentido espanhol correto. Não avaliam o exemplo nem exigem fórmula única quando outra é válida.",
+        "Não exige transcrição, pronúncia, aprendizagem, tempo efetivamente praticado ou dados pessoais não informados."
+      ]
+    },
+    {
+      "id": "q2-conhecido-feedback-espanhol-parcial",
+      "operacao": "conferirTentativa",
+      "entrada": {
+        "pratica": {
+          "capacidade": "Escrever uma apresentação básica em espanhol",
+          "situacao": "Ensaio escrito de apresentação de uma personagem fictícia",
+          "dificuldade": null,
+          "hipoteseID": null,
+          "enunciado": "Apresente a personagem Ana, que mora em Recife e trabalha como designer. Escreva três frases em espanhol: uma para o nome, outra para a cidade e outra para a profissão. Ao lado de cada frase, escreva sua tradução em português. Não há áudio; só o texto será conferido.",
+          "exemplo": "Outro caso, pedir informação: ¿Dónde está la estación? — Onde fica a estação?",
+          "criterios": [
+            {
+              "id": "21000000-0000-4000-8000-000000000001",
+              "texto": "Contém três frases de apresentação em espanhol, com verbo e sentido completo."
+            },
+            {
+              "id": "21000000-0000-4000-8000-000000000002",
+              "texto": "A tradução em português de cada frase escrita corresponde ao seu significado em espanhol."
+            },
+            {
+              "id": "21000000-0000-4000-8000-000000000003",
+              "texto": "O texto em espanhol informa nome Ana, cidade Recife e profissão designer, conforme o perfil fictício."
+            }
+          ]
+        },
+        "tentativa": "Me llamo Ana. — Eu me chamo Ana.",
+        "apoioUtilizado": "Sem apoio."
+      },
+      "requisitos": [
+        "Caso conhecido e sintético; não é held-out. Cada ID abaixo refere-se ao último grupo numérico do critério da prática fornecida.",
+        "Uma leitura útil por critério, sem inventar evidência, solução-alvo, reescrita, elogio, nota ou aprendizagem. Citações devem ser trechos literais reais e pertinentes da tentativa.",
+        "Recusa, timeout, retorno indisponível ou todos os critérios inconclusivos não contam como atendimento quando os critérios são verificáveis.",
+        "Critério 1: divergencia; há uma frase, não três. Critério 3: divergencia; faltam cidade e profissão.",
+        "Critério 2: atendidoNoEscopo; o critério avalia a tradução de cada frase escrita e a única tradução presente é correta. Não inventa erro de tradução para representar a incompletude já coberta pelos outros critérios.",
+        "Não completa as frases que faltam nem trata uma resposta parcial como domínio demonstrado."
+      ]
+    },
+    {
+      "id": "revisao-material-adequado-sintetico",
+      "operacao": "revisar",
+      "entrada": {
+        "intencao": "Praticar saudações em espanhol sozinho",
+        "resultado": "Um treino utilizável de quinze minutos",
+        "instrucao": "Prepare três blocos de cinco minutos, com frases em espanhol e traduções em português. Sem parceiro, câmera ou instrutor. Repetir as mesmas frases é permitido.",
+        "artefato": "# Treino solo\nMaterial: este texto e o relógio do celular.\nFrases-base: Hola. (Olá.) Gracias. (Obrigado.) Hasta luego. (Até logo.)\nBloco 1: 0:00–5:00 (5 minutos). Leia cada frase e sua tradução. Repita devagar, alternando leitura e fala, até completar cinco minutos.\nBloco 2: 5:00–10:00 (5 minutos). Cubra o espanhol, leia cada tradução e tente dizer a frase correspondente; descubra para conferir. Repita até completar o bloco.\nBloco 3: 10:00–15:00 (5 minutos). Diga as três frases em sequência e reveja as que esqueceu. Repita até completar o bloco.\nTempo total: 15 minutos. Não avalia pronúncia nem prova aprendizagem."
+      },
+      "requisitos": [
+        "Não inventa divergência de duração ou requisito de mais frases, gravação, professor ou ausência de repetição.",
+        "Reconhece três blocos de cinco e traduções adequadas; pode declarar limites sem reprovar critérios atendidos.",
+        "Citações literais e fontes válidas."
+      ]
+    }
+  ]
+}
