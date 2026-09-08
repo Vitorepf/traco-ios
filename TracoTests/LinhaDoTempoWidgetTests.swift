@@ -322,3 +322,75 @@ struct RestantesTests {
         }
     }
 }
+
+/// ADR 08i — até quantas linhas a frase pode crescer no médio.
+@Suite("F5: quantas linhas o Destaque pode ocupar no médio")
+struct LinhasDoDestaqueTests {
+    @Test("com agenda embaixo, duas — a agenda só existe ali e fica com o pé do cartão")
+    func agendaFicaComOPe() {
+        #expect(LinhasDoDestaque.noMedio(comAgenda: true) == 2)
+    }
+
+    @Test("sem agenda o layout decide: o teto de duas linhas com o rodapé deixava três linhas vazias")
+    func semAgendaOLayoutDecide() {
+        #expect(LinhasDoDestaque.noMedio(comAgenda: false) == Sacrificio.maximo)
+        #expect(Sacrificio.maximo > 2)
+    }
+}
+
+/// ADR 08i — só o RÓTULO encolhe; a frase do autor mantém o corpo e cede
+/// quantidade. O piso de 0,35 da F4-F comia o aumento que a pessoa pediu.
+@Suite("F5: o piso do encolhimento")
+struct EncolheTests {
+    @Test("o rótulo encolhe até 0,6 — legível, e reescrevível se não couber")
+    func pisoDoRotulo() {
+        #expect(Encolhe.rotulo >= 0.6)
+        #expect(Encolhe.rotulo <= 1)
+    }
+}
+
+/// ADR 08i — a ordem de sacrifício do pequeno com Destaque, como dado com suíte.
+@Suite("ADR 08i: a ordem de sacrifício")
+struct SacrificioTests {
+    @Test("o rótulo cede antes de uma linha da frase: para cada n, com rótulo vem antes de sem")
+    func rotuloCedePrimeiro() {
+        let c = Sacrificio.candidatos(maximo: 3, rotulo: true)
+        #expect(c == [.init(linhas: 3, rotulo: true), .init(linhas: 3, rotulo: false),
+                      .init(linhas: 2, rotulo: true), .init(linhas: 2, rotulo: false),
+                      .init(linhas: 1, rotulo: true), .init(linhas: 1, rotulo: false)])
+    }
+
+    @Test("a frase nunca fica sem candidato: o último é uma linha, sem rótulo")
+    func ultimoCandidato() {
+        for maximo in [0, 1, 5, Sacrificio.maximo] {
+            #expect(Sacrificio.candidatos(maximo: maximo, rotulo: true).last == .init(linhas: 1, rotulo: false))
+            #expect(Sacrificio.candidatos(maximo: maximo, rotulo: false).last == .init(linhas: 1, rotulo: false))
+        }
+    }
+
+    @Test("no estado velho o rodapé toma o lugar do rótulo: nenhum candidato o tem")
+    func semRotuloNoVelho() {
+        #expect(Sacrificio.candidatos(rotulo: false).allSatisfy { !$0.rotulo })
+        #expect(Sacrificio.candidatos(rotulo: false).map(\.linhas) == Array((1...Sacrificio.maximo).reversed()))
+    }
+
+    /// O critério medível da ADR 08i (F4-I): "corte é evitável quando cabe uma
+    /// linha inteira do corpo do papel no espaço livre ao lado do marcador".
+    /// A suíte não mede altura — a captura mede. O que ela garante é a
+    /// PREMISSA que faz o `ViewThatFits` cumprir o critério: os candidatos
+    /// descem de um em um, sem lacuna, e o primeiro que cabe é o MAIOR que
+    /// cabe — se n + 1 não coube, o que sobra ao lado do "…" é menos de uma
+    /// linha. Uma lista com buraco (8, 6, 4…) reabriria o corte evitável.
+    @Test("o critério medível: os candidatos descem de um em um, sem lacuna")
+    func semLacunaEntreCandidatos() {
+        for rotulo in [true, false] {
+            let linhas = Sacrificio.candidatos(rotulo: rotulo).map(\.linhas)
+            #expect(linhas.first == Sacrificio.maximo)
+            #expect(linhas.last == 1)
+            for (maior, menor) in zip(linhas, linhas.dropFirst()) {
+                #expect(maior - menor == 0 || maior - menor == 1)
+            }
+        }
+    }
+}
+

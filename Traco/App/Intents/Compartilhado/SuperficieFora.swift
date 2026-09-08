@@ -40,12 +40,63 @@ nonisolated struct Superficie: Codable, Equatable, Sendable {
     var alemDaLista: Int?
 
     nonisolated struct Destaque: Codable, Equatable, Sendable {
+        /// O teto público da linha, em grafemas (`Character`), marcador
+        /// incluído (ADR 08i). É o limite do PUBLICADOR: `VozDoAutor.titulo`
+        /// entrega a primeira linha de uma nota sem teto, e um parágrafo de
+        /// 247 caracteres chegava inteiro à face. Nenhum número garante que o
+        /// texto caiba — a face ainda corta o que sobrar; este só reduz o que
+        /// viaja e DECLARA a omissão.
+        static let teto = 140
+
         var id: UUID
         /// `yyyy-MM-dd`: a marca de feito e a atividade valem só neste dia.
         var dia: String
         var linha: String
         var feito: Bool
+        /// `true`: `linha` é o texto do autor inteiro. `false`: é um trecho
+        /// cortado em `teto` e termina no marcador. `nil`: instantâneo
+        /// anterior a esta conta — integralidade DESCONHECIDA, e a face não
+        /// afirma nem uma coisa nem outra. A pontuação literal do autor não é
+        /// metadado: uma frase que já termina em "…" não prova corte.
+        var inteira: Bool? = nil
+
+        nonisolated enum Integridade: Equatable, Sendable { case inteira, trecho, desconhecida }
+        var integridade: Integridade {
+            switch inteira {
+            case .some(true): .inteira
+            case .some(false): .trecho
+            case .none: .desconhecida
+            }
+        }
+
+        /// O que o VoiceOver diz. Ler a projeção não autoriza anunciar texto
+        /// completo; um trecho é anunciado como trecho.
+        var emVoz: String { Superficie.Destaque.emVoz(linha, inteira: inteira) }
+
+        nonisolated static func emVoz(_ linha: String, inteira: Bool?) -> String {
+            inteira == false ? "Trecho: \(linha) Continua no Traço." : linha
+        }
+
+        /// O corte honesto do publicador: um prefixo fiel de `texto`, em
+        /// grafemas, com o marcador dentro do orçamento. Prefere terminar em
+        /// fronteira de palavra; palavra maior que o orçamento (ou escrita sem
+        /// espaços) corta por grafema — sempre sinalizado. Nunca resume,
+        /// nunca escolhe outra oração, nunca toca no original guardado.
+        nonisolated static func trecho(_ texto: String, teto: Int = teto) -> (linha: String, inteira: Bool) {
+            guard texto.count > teto else { return (texto, true) }
+            let orcamento = texto.prefix(max(1, teto - 1))
+            var corte = Substring(orcamento)
+            // ponytail: fronteira de palavra só se guarda metade do orçamento;
+            // senão a palavra é maior que o espaço e o corte é por grafema
+            if let espaco = orcamento.lastIndex(where: \.isWhitespace),
+               orcamento.distance(from: orcamento.startIndex, to: espaco) >= orcamento.count / 2 {
+                corte = orcamento[..<espaco]
+            }
+            let base = corte.trimmingCharacters(in: .whitespacesAndNewlines.union(.init(charactersIn: ",;:")))
+            return ((base.isEmpty ? String(orcamento) : base) + "…", false)
+        }
     }
+
 
     nonisolated struct Proximo: Codable, Equatable, Sendable {
         var id: UUID

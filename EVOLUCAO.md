@@ -36,3 +36,31 @@ do usuário, nem encerra a visão integral.
 | design-router | Atualizado para autoridade, fidelidade da captura e restauração do ambiente de teste; cenários revisados. V10: fases Construir e Mover com componentes em `Traco/Componentes` e movimento em `Tema`; Julgar e Portão ficam com G3/G4. ADR 08e (volta P1): a fase Mover ganha PORTÃO em teste — `PortaoDoMovimentoTests` varre os 125 fontes de `Traco/` e `TracoWidget/` (`Tema.swift` isento) e conta curva ou duração LITERAL escrita fora de `Tema`. **Medido em 08/09: ZERO** — as 38 chamadas de `withAnimation(` do repositório passam todas por `Tema.*` ou `CalendarioTema.morph`, e a lista congelada nasce vazia. Passar a curva DENTRO de `Tema.movimento(…)` é a forma que a ADR manda escrever e não conta. Curva literal nova, em arquivo velho ou novo, fica vermelha e diz o que fazer; descer nunca é vermelho. Provado: verde na árvore de hoje, vermelho com plantas em arquivo novo fora do `pbxproj` e em arquivo existente, e a forma prescrita, o comentário e a string fora da conta | Ampliar evidência de estados e tarefas; defeitos AX continuam abertos mesmo após restaurar o tamanho normal; o movimento já está TODO roteado por `Tema` (zero curva literal fora dele, medido em 08/09) e o portão existe para que continue assim — ele não julga se a linha existente escolheu a classe certa, só impede que a próxima seja escrita na view |
 
 Não há autorização inferida para publicar, gastar ou enviar mensagens externas. Produção local e validação prosseguem; dependências reais entram como pendências explícitas. O AGENTS.md deste repositório foi criado para orientar agentes pela visão vigente; AGENTS de outros projetos e skills de terceiros não foram alterados.
+
+- **Fora do app: a frase do autor inteira, e o dia no médio** (08/09, ADR 2026-09-08g).
+  O corte em reticências da linha do Destaque — quatro voltas em aberto — fecha
+  pela causa certa: o teto de linhas, não a propriedade de encolhimento. As
+  quatro faces que desenham a frase passam a usar a mesma view, sem teto de
+  linhas e com piso de encolhimento próprio do papel do texto. O médio do Traço
+  troca dois atalhos de cabeçalho por duas linhas de agenda (era nenhuma), e o
+  quadro do estado vazio deixa a forma de lista de Ajustes por uma linha de
+  ações com cápsula âmbar. Prova: capturas `simctl` do iPhone 17 Pro (teste 3)
+  em `ferramentas/orca/f5-*.png`, casa em claro/escuro × normal/AX5, estado
+  vazio antes e depois, desatualizado nos dois tamanhos, tela bloqueada e Ilha
+  compacta e expandida. Lacuna aberta que continua: modo escuro do widget
+  (é `Tema.swift`, volta L2) e Ilha mínima (limite do instrumento).
+  **F4-H (08/09, ADR 2026-09-08i): o corte honesto.** A promessa "inteira,
+  sempre" custava o corpo de leitura (~11 pt em AX5, ~7 pt com 247
+  caracteres, e ainda reticências). Agora o publicador limita a projeção
+  (140 grafemas, uma vez, para widget, tela bloqueada e Ilha) e declara se é
+  trecho; a face mantém o corpo do papel e reduz a quantidade, o rótulo
+  "Nova nota" cede antes de uma linha da frase, o toque no pequeno abre a
+  nota do Destaque, e o VoiceOver distingue trecho de integral. Prova:
+  `ferramentas/orca/f4h-*.png` no iPhone 17 Pro (teste 4), 103 e 247
+  caracteres, normal/AX5, claro/escuro, com "Desatualizado.".
+  **F4-I (08/09, emenda da 08i):** o que faltava em Componentes — a ADR diz
+  as duas gramáticas do marcador (palavra no publicador, grafema na face) e
+  ganha o critério medível de corte evitável ("cabe uma linha inteira do
+  corpo do papel no espaço livre ao lado do marcador"), com a premissa na
+  suíte; `FraseDoAutor` e `CapsulaViva` com preview por estado.
+
