@@ -69,15 +69,24 @@ a `08f` no lugar cronológico dela (`SPEC.md:5583`) e as minhas `08m`/`08n` fica
 Ordem das ADRs conferida: `…08f · 08g · 08h · 08i · 08j · 08k · 08m · 08n · 08o`.
 `git log HEAD..main` = **0**.
 
+`main` andou outra vez enquanto eu fechava (`d27c85e`, só `ferramentas/orca/RUMO.md`, 7 linhas de
+markdown). Trouxe-a também — segundo merge sem conflito — e **reexecutei a prova na árvore final
+`157e857`**, para que nenhuma linha colada aqui seja de uma árvore que já não existe.
+
 **2. Árvore mesclada provada no `64F7B8B4`**, com `-destination id=`, `derivedDataPath` próprio e
 `-parallel-testing-enabled NO`:
 
 ```
-** BUILD SUCCEEDED **          (zero linhas de warning: no diff do build)
-✔ Test run with 947 tests in 153 suites passed after 74.487 seconds.
+** BUILD SUCCEEDED **          (zero linhas de warning: no build)
+✔ Test run with 947 tests in 153 suites passed after 74.487 seconds.   (3a5cb1c + a mudança)
 ** TEST SUCCEEDED **
 ✔ Suite PortaoDoMovimentoTests passed after 1.013 seconds.
 ✔ Test run with 2 tests in 1 suite passed after 1.013 seconds.
+
+✔ Test run with 947 tests in 153 suites passed after 54.351 seconds.   (árvore final 157e857)
+** TEST SUCCEEDED **
+✔ Test run with 2 tests in 1 suite passed after 0.999 seconds.         (portão do movimento)
+** TEST EXECUTE SUCCEEDED **
 ```
 
 941 → **947**: 5 vieram da V12 e **1 é meu** (`aOrientacaoNomeiaAAcaoDoUltimoResultado`, que planta
