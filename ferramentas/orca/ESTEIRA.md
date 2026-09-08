@@ -212,3 +212,25 @@ achado**, não um estorvo.
 Resolver conflito de mérito no lugar de quem escreveu o código é a versão de
 mescla do "conserto confiante e errado": o diff é pequeno, parece limpo, e põe no
 `main` uma semântica que ninguém escolheu.
+
+### A árvore de AX do serve-sim pode devolver menos do que a tela tem (08/09)
+
+A V13-B mediu e atribuiu: **o leitor de AX do serve-sim devolve no máximo três
+dos quatro elementos do cartão, e qual some muda com o tamanho de letra.** Em
+`medium` sumia "Fechar"; em AX5, com pergunta longa que estoura o teto do
+`ScrollView`, sumia "Repetir pergunta". Refeita a rota com pergunta curta, os
+três elementos que interessavam vieram, com frames que **batem pixel a pixel com
+a captura** — foi assim que ela separou limite do leitor de defeito do app.
+
+**O que isto muda em toda prova de acessibilidade:**
+- **Presença na árvore continua valendo** — rótulo, ordem de leitura, frame.
+- **Ausência na árvore NÃO é prova de ausência na tela.** Nenhuma conclusão do
+  tipo "nada se sobrepõe", "não há linha que diga X" ou "o elemento não existe"
+  se sustenta na árvore sozinha: precisa da **captura do mesmo instante**
+  mostrando o mesmo.
+- Se a contagem da árvore não bater com a captura, **diga isso** em vez de
+  escolher a fonte que fecha a conta.
+
+É o oitavo instrumento do dia a dizer mais (ou menos) do que mostra — e o
+primeiro em que a diferença entre "o app não expõe" e "o leitor não devolveu"
+era invisível sem alguém ir medir a mesma tela de dois jeitos.

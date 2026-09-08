@@ -509,3 +509,32 @@ que nenhuma regra desapareça, **declara cada escolha por escrito**, e prova na
 fusão **é o achado**, não um estorvo.
 
 Vira lei na ESTEIRA: **o G5 tem dois passos. Aprovado não é mesclável.**
+
+## 08/09, 21h35 — a V13-B anexou as duas provas, e trouxe o oitavo instrumento
+
+As duas provas que o G3 segurou entraram, **sem tocar em uma linha de
+`Traco/`**: o cartão da sábia em falha alcançado pela rota real e capturado em
+AX5 com árvore e screenshot a um segundo de distância (rótulo inteiro, 117 pt =
+duas linhas, ordem pergunta → estado → ação, vãos de ~10 pt, nenhuma
+sobreposição), e dois vídeos sem áudio do mesmo trajeto da seta, medidos quadro a
+quadro: **nove quadros de meio-tom (~150 ms) sem Movimento Reduzido, um quadro
+só com ele, sem meio-tom e sem piscar.**
+
+E o achado que vale mais que a volta: **o leitor de AX do serve-sim devolve no
+máximo três dos quatro elementos do cartão, e qual some muda com o tamanho de
+letra.** Ela não parou no sintoma — provou que é do leitor e não do app, porque
+em `medium` some "Fechar" e em AX5 sumia "Repetir pergunta"; refeito com
+pergunta curta, os três vieram com frames que batem pixel a pixel com a captura.
+
+Eu já tinha avisado as outras duas frentes por batimento, sem prova. Agora tem
+prova e virou lei: **ausência na árvore não é prova de ausência na tela**;
+presença continua valendo. É o oitavo instrumento do dia a dizer menos do que
+mostra, e o primeiro em que a diferença entre "o app não expõe" e "o leitor não
+devolveu" só apareceu porque alguém mediu a mesma tela de dois jeitos.
+
+Renumerei a ADR da V13 de `08p` para **`08t`** (a `08p` é da Q, que já teve as
+letras conferidas uma a uma) — duas ocorrências, e normalizando a letra os dois
+lados do diff ficam idênticos. Commit `4e8bc40`. Despachei o **re-G3 segundo**
+(`task_99b2222e5719`) para o mesmo revisor confirmar as duas provas e,
+principalmente, **conferir a atribuição do limite** — se ele discordar, aquilo é
+defeito do app e não limite do instrumento.
