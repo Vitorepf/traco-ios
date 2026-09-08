@@ -55,3 +55,86 @@
 - O ANTES refeito no mesmo aparelho é a correção adequada para a troca de aparelho; não é falha.
 - Não capturar a seta no fim originalmente **seria** lacuna, mas foi fechada nesta revisão no A1DF082C pela captura e árvore simultâneas.
 - Sem vídeo não é aceitável para a animação nova da seta; isso segura Movimento. A ausência de VoiceOver falado é limite permitido e não entra na nota.
+
+## re-G3 (segundo) — provas V13-B
+
+**Veredito: PASSA.** As duas pendências do primeiro G3 foram fechadas pelos
+artefatos V13-B no candidato `4e8bc40` (código ainda é o mesmo candidato da
+V13; este commit apenas normaliza `2026-09-08p` para `2026-09-08t` em duas
+ocorrências de documentação). Não reabri os demais itens já aprovados.
+
+### Instrumento e escopo
+
+- Revisei `v13b-ax5-sabia-recolhida.png`, a árvore bruta
+  `v13b-ax5-sabia-recolhida-ax.json`, a montagem
+  `v13b-ax5-arvore-e-captura.png`, `v13b-restaurado-medium.png`, os dois MP4
+  e `v13-seta-quadro-a-quadro.png`. Não alterei `Traco/`.
+- Liguei somente o iPhone 17 Pro teste 2
+  `B91C8DEF-B0A7-454A-95DE-5D7BA7B040A9`, que estava desligado, e o desliguei
+  ao fim. O app nele abriu em `medium`; não usei voz, Siri, ditado, VoiceOver,
+  iPad, mouse ou outro simulador. Tentei a leitura viva por
+  `ferramentas/orca/com-trava.sh`; a trava estava ocupada por sessões vizinhas,
+  portanto não apresento aquela tentativa como uma segunda medição.
+
+### Movimento — 9/10
+
+Os dois MP4 são capturas de tela sem faixa de áudio e mostram a seta no estado
+real da régua. Reextraí e contei a saída no fluxo bruto: no normal, os frames
+82--91 passam gradualmente do tom da seta ao fundo (nove quadros de meio-tom;
+aproximadamente 150 ms a 60 fps); no frame 92 ela já não está. Com Reduzir
+Movimento, o frame 82 ainda contém a seta e o 83 já é o fundo estável: não há
+meio-tom nem piscar. `v13-movimento-reduzido-ligado.png` mostra o interruptor
+do sistema **Reduzir Movimento** ligado durante a gravação reduzida. A fita
+`v13-seta-quadro-a-quadro.png` confere a mesma contagem visualmente.
+
+### Acessibilidade — 9/10
+
+A árvore bruta e a captura são do estado real de resposta recolhida: a foto
+tem 20:43 e seus metadados registram 20:43:17; o JSON foi salvo às 20:43:18.
+Nelas, os três elementos relevantes aparecem na mesma ordem espacial e de
+leitura: `pergunta-pendente-notas` “Prazo da padaria?” (y=0,1363),
+`sabia-falhou-notas` (y=0,2862) e `repetir-pergunta-notas` “Repetir pergunta”
+(y=0,7113). A ação tem altura 0,1382 da tela (cerca de 117 pt), mostra o
+rótulo completo em duas linhas no AX5 e os vãos entre os três frames são
+0,0117 e 0,0120 da tela (cerca de 10 pt): não há sobreposição. A montagem bate
+com a captura pixel a pixel para texto, estado e geometria. A captura
+`v13b-restaurado-medium.png` também mostra o retorno ao `medium`.
+
+### Limite do leitor de AX
+
+**Concordo expressamente que, nesta prova, a ausência na árvore é limite do
+leitor do serve-sim, não defeito demonstrado do app.** Na mesma evidência AX5,
+o JSON devolve os três elementos acima e não devolve `Fechar`; a captura
+simultânea mostra “Fechar” inteiro no cartão. Logo, ausência de um elemento
+nesse leitor não permite afirmar que ele esteja ausente da tela/app. A prova
+exigida para este G3 continua válida porque os três elementos que ela exigia
+— pergunta, estado e ação — estão todos na árvore e na captura.
+
+Não promovo, porém, a parte mais ampla da declaração a fato universal: esta
+entrega não inclui uma segunda árvore bruta em `medium`, portanto não confirma
+independentemente “no máximo três” em todo tamanho nem que o elemento omitido
+sempre muda com o tamanho. O que está comprovado é o limite concreto acima;
+daqui em diante árvore AX deve ser sempre pareada com captura do mesmo UDID e
+instante, e ausência isolada na árvore é inconclusiva.
+
+### Scorecard refeito
+
+| dimensão | nota | evidência / limite |
+|---|---:|---|
+| Visão | 9 | Mantém a retomada localizável e honesta já aceita no G3. |
+| Contrato | 9 | ADR 2026-09-08t é a mesma decisão V13, só renumerada; nenhum contrato de código mudou. |
+| Correção | 9 | As quatro correções e o teste focado já conferidos permanecem no mesmo código. |
+| Jornada real | 9 | A resposta recolhida e a régua foram conferidas em captura de estado real. |
+| Design | 9 | Sem mudança nesta passada; a seta conserva a comunicação de continuação. |
+| Simplicidade | 9 | Sem nova decisão, tela ou passo nesta passada. |
+| Movimento | 9 | MP4 normal/RM, contagem independente 9 vs. 1 quadro e interruptor RM visível. |
+| Componentes | 9 | Sem mudança; reutilização `Pilula` já aprovada. |
+| Acessibilidade | 9 | AX5 pareado: rótulo completo, ordem pergunta→estado→ação e frames sem sobreposição. VoiceOver falado segue limite proibido. |
+| Performance | n/a | Nenhum algoritmo, IO ou volume novo nesta prova. |
+| Privacidade e autoria | 9 | Esta V13-B não toca `Traco/` nem dados/proteções. |
+| Estado honesto | 9 | O cartão declara a resposta recolhida e mantém ação recuperável visível. |
+| Complexidade | 9 | V13-B acrescenta evidência, não código ou dependência. |
+| Fora do app | n/a | Não pertence ao escopo. |
+| Relato | 9 | Provas de vídeo e árvore/captura agora estão preservadas, com a limitação do leitor declarada. |
+
+Todos os itens aplicáveis estão em 9 ou mais. **PASSA para G5.**
