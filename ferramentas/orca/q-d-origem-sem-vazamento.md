@@ -85,8 +85,11 @@ não supõe zero.
 **O teste de privacidade fechou o furo que o re-G3 nomeou.** Ele procurava só
 `¿dónde está la estación?` quando a saída seria `donde esta la estacion`. Agora
 `cadaRecusaDaPreparacaoDizQualGuardaFoiSemVazarOConteudo` normaliza a linha redigida e
-varre **palavra a palavra do exemplo** (todas com 5+ letras: `pedir`, `informacao`,
-`perdone`, `donde`, `estacion`, `licenca`, `estacao`) em cada uma das doze recusas. Teste
+varre as palavras do exemplo **com 5 letras ou mais** (`pedir`, `informacao`, `perdone`,
+`donde`, `estacion`, `licenca`, `estacao`) em cada uma das doze recusas. **Só essas**: por
+`contains`, palavra funcional do exemplo casaria com a prosa da recusa. Quem cobre toda
+palavra, curta inclusive, é a prova ESTRUTURAL que a Q-F acrescentou
+(`nenhumCampoDaRecusaCarregaPalavraDoExercicio`, `ferramentas/orca/q-f-escopo-e-guarda.md` §2). Teste
 novo `aRecusaPorVazamentoContaAOrigemDoQuadrigramaSemOTrecho` cobre os três estados da
 origem — nenhuma, todas, não conferida — e prova que a origem não muda o veredicto.
 
@@ -195,7 +198,7 @@ aparelho não devolve nada, e o próximo lançamento não roda sonda. O app est�
 | dimensão | nota | evidência |
 |---|---:|---|
 | Contrato | 9 | letra `08p` livre em todas as branches vivas, com a tabela de letras conferida uma a uma; as colisões que NÃO consertei estão nomeadas |
-| Privacidade e autoria | 9 | o trecho morre dentro de `provar`; a recusa carrega posição e contagem, e o teste varre a forma normalizada palavra a palavra |
+| Privacidade e autoria | 9 | o trecho morre dentro de `provar`; a recusa carrega posição e contagem, e o teste varre a forma normalizada nas palavras de 5+ letras — a cobertura de TODA palavra é a prova estrutural da Q-F |
 | Estado honesto | 9 | quatro recusas ficam **indeterminadas** em vez de contadas a favor; a corrida abortada e o teto de confiança da contagem estão escritos; duas afirmações da redação anterior foram desmentidas por medida nova |
 | Correção | 9 | 917 testes verdes; o teste novo cobre os três estados da origem e prova que ela não altera a régua |
 | Simplicidade | 9 | um parâmetro opcional, uma tupla de retorno e um enum com dois campos a mais; nenhum chamador novo, nenhum passo novo para o autor |

@@ -286,3 +286,96 @@ deve conservar essa qualificação.
 | Performance | 9 | teto central continua 240 e a suíte não regrediu |
 | Jornada real | 8 | li a remedição real preservada; não reexecutei a conta do dono |
 | Demais dimensões | n/a | sem mudança de view, componente, movimento ou fora do app |
+
+# re-G3 (terceiro)
+
+## Veredito: CORRIGIR ANTES
+
+A correção da letra, a atribuição do aviso e a prova de build/suíte passam; o
+registro novo não reconstrói o trecho e a causalidade só sustenta
+"aponta para nós" na formulação limitada já escrita. Mas a prova forte de que
+a renumeração não levou nenhuma outra alteração é falsa para o commit
+`1a4cacf`, e o teste de privacidade não varre literalmente cada palavra
+normalizada como o relato afirma. As duas são abaixo de 9 em Contrato e
+Privacidade/estado honesto; corrigir a prova e o teste antes de G5.
+
+Revisor independente. Não alterei Swift, não toquei em Safari, voz, VoiceOver
+ou iPad, e não usei `erase`, `clearState`, `uninstall`, install ou
+`xcodebuild test` no `C2416CBC`; ele permaneceu ligado. Liguei somente o
+`34CC3F94` para build/teste por `ferramentas/orca/com-trava.sh` e o deixei
+**Shutdown** ao fim.
+
+## Achados
+
+### [P1] A prova de que a renumeração veio sozinha não corresponde ao commit
+
+`1a4cacf` declara que desfazer `08q -> 08k` e `08r -> 08m` devolve o lado
+velho "caractere por caractere" e que nada mais entrou junto. Repeti a
+transformação literal sobre cada arquivo do pai e comparei a árvore inteira:
+restaram **8 hunks**. Eles incluem a nova referência da ADR 08p ao RUMO,
+`PerfilView.linhaDa`/`AttributedString`, o teste de Perfil, atualizações do
+relato Q-D e o novo `q-e-letras-e-fecho.md`; o próprio `git show --stat` dá 16
+arquivos e 223 inserções/56 remoções, não apenas as 50 linhas de renumeração.
+
+Isso não torna essas mudanças erradas — a referência e o conserto do aviso são
+pedidos desta passada —, mas invalida a afirmação de equivalência do **commit
+inteiro**. Correção antes de G5: restringir a afirmação e a prova ao artefato
+de renumeração (lista explícita de ocorrências), ou separar a renumeração das
+outras mudanças; não declarar que o commit não trouxe nada além dela.
+
+### [P2] A varredura de privacidade normaliza, mas não cobre toda palavra
+
+`cadaRecusaDaPreparacaoDizQualGuardaFoiSemVazarOConteudo` compara
+`Prova.normal(linha)` contra palavras normalizadas do exemplo, mas filtra
+`$0.count >= 5`. Logo ela cobre `estacion` e `informacao` e fecha o furo de
+acento/pontuação, porém não varre palavra a palavra no sentido literal: termos
+de 1--4 caracteres não têm asserção individual. O registro em produção segue
+seguro nesta leitura: `Recusa.redigida` serializa somente categoria, índice,
+posição, tamanho e contagem de origem; sem o texto do exemplo, esses metadados
+não permitem reconstruir o quadrigrama.
+
+Correção antes de G5: tornar a prova estrutural (a recusa não tem campo/texto
+do trecho) e acrescentar casos de palavras curtas normalizadas sem usar
+`contains` ingênuo que confunda palavras funcionais. Então o relato pode dizer
+exatamente o que o teste cobre.
+
+## Conferências que passam
+
+- **Letras:** em todas as refs vivas com `SPEC.md` (`main`, `origin/main`, A1,
+  V13, WIP e esta volta), só esta branch contém `08p`, `08q` e `08r`; `08k` e
+  `08m` continuam ocupadas em `main`. A renumeração evita a colisão.
+- **ADR/RUMO:** a ADR 08p nomeia a seção
+  `ferramentas/orca/RUMO.md` em `main` e diz na mesma frase que esta volta não
+  escreveu a régua nem mexeu no parser. Ela não promete conserto realizado.
+- **Privacidade e causalidade:** na corrida `1B7E0E63`, `jq` confirma 12
+  preparações, 12 HTTP 200 completos e quatro recusas: três `vazamento`, todas
+  com 4/4 palavras atribuídas ao pedido, e uma `limite` (1582/1500). Junto da
+  corrida anterior: 30 preparações completas, 9 recusas, 8 por vazamento e 1
+  por limite. A conclusão aceitável é somente a declarada: quatro ocorrências
+  expostas apontam para a nossa guarda; as quatro antigas permanecem
+  indeterminadas e a contagem por palavra não prova sequência.
+- **Aviso:** `git blame` põe as duas metades do antigo `Text + Text` no commit
+  `42c0c20` desta volta, não na A1. `1a4cacf` troca a composição por
+  `AttributedString` e o teste novo mantém texto e um único run tingido.
+- **Prova reproduzida:** no `34CC3F94`, `clean build-for-testing` terminou em
+  `** TEST BUILD SUCCEEDED **` com 0 linhas `warning:`; a suíte integral deu
+  `918 tests in 149 suites` e `** TEST SUCCEEDED **`, também com 0
+  `warning:`. Os avisos de haptics no log de runtime são `error` do simulador,
+  não warnings do compilador; não são prova de build limpo nem falha da suíte.
+- **Lacuna declarada:** a foto do cartão CONTA com a terceira linha continua
+  aberta; não a tratei como entregue.
+
+## Scorecard re-G3 (terceiro)
+
+| dimensão | nota | evidência |
+|---|---:|---|
+| Visão | 9 | a volta corrige rastreabilidade de ADR e atribuição de aviso sem fingir fechar a foto pendente |
+| Contrato | 7 | letras livres passam, mas a prova de escopo do commit é materialmente mais ampla que a alegação |
+| Correção | 9 | `AttributedString` preserva o texto/run e 918/149 passam |
+| Jornada real | 6 | nenhuma nova captura; a terceira linha do cartão continua sem foto |
+| Performance | 9 | build/teste íntegros, sem aviso de compilação |
+| Privacidade e autoria | 8 | o registro não carrega trecho, mas o teste normalizado exclui palavras curtas |
+| Estado honesto | 7 | a causalidade é qualificada corretamente, porém a alegação de equivalência do commit é excessiva |
+| Simplicidade | 9 | correção local, sem dependência nova |
+| Design, Movimento, Componentes, Acessibilidade, Fora do app | n/a | não há entrega nova dessas superfícies; foto do Perfil permanece aberta |
+| Relato | 7 | número, blame e lacuna estão rastreáveis; corrigir a prova de escopo e a descrição da varredura |

@@ -46,9 +46,19 @@ linha em `SPEC.md` dizendo a letra de origem e por que mudou, para quem chegar p
 tela' (V17-B)" e "`08m` é 'O resultado da ação volta ao trabalho' (E1)" falam das letras **de
 `main`**, não das nossas. O relatório ganhou uma nota dizendo que a colisão foi resolvida aqui.
 
-**Como sei que a troca não pegou nada além disso:** o diff tem 50 linhas alteradas; desfazer
-`08q→08k` e `08r→08m` no lado novo devolve o lado velho **caractere por caractere** (`diff`
-vazio). Nenhuma outra alteração entrou junto.
+**O que sei, e o que eu tinha dito a mais** (corrigido na Q-F, a pedido do re-G3): esta
+alegação estava grande demais. O commit `1a4cacf` **não** é só a renumeração — ele tem 16
+arquivos e 223/56 linhas, e traz de propósito, na mesma passada: a referência da ADR `08p` ao
+`ferramentas/orca/RUMO.md`, a nota de origem da letra nas ADRs `08q` e `08r`, o conserto do
+aviso de compilador em `PerfilView.linhaDa` (`AttributedString`), o teste novo em
+`PerfilQualidadeTests`, as atualizações do relatório da Q-D e este relatório novo.
+
+O que é equivalente caractere por caractere é o **artefato de renumeração**, e ele é uma lista
+explícita: **49 linhas, 55 ocorrências**, enumeradas uma a uma (arquivo:linha, de → para) em
+`ferramentas/orca/q-f-escopo-e-guarda.md` §1. Desfazer exatamente essas 55 ocorrências devolve
+o lado velho caractere por caractere naquelas 49 linhas; o que sobra são as outras mudanças
+acima, nomeadas. Outras 12 linhas contêm `08q`/`08r` e **não** são renumeração pura: nasceram
+ou mudaram nesta passada por outro motivo, e também estão listadas lá.
 
 ## 2. A `08p` aponta para o RUMO, e não promete o que esta volta não fez — FEITO
 
@@ -123,7 +133,7 @@ já não era a das letras antes desta passada, e mexer nisso é diff grande sem 
 
 | dimensão | nota | evidência |
 |---|---:|---|
-| Contrato | 9 | `08q`, `08r`, `08l` e `08p` conferidas uma a uma em cinco refs depois de `fetch`; as duas ADRs dizem a letra de origem; o diff provado equivalente ao original módulo a troca |
+| Contrato | 9 | `08q`, `08r`, `08l` e `08p` conferidas uma a uma em cinco refs depois de `fetch`; as duas ADRs dizem a letra de origem; a equivalência vale para a LISTA de 55 ocorrências (Q-F §1), não para o commit, que traz também o RUMO, as notas de origem, o aviso e o teste — a alegação larga foi corrigida na Q-F |
 | Estado honesto | 9 | desmenti a atribuição errada da Q-D (o aviso era nosso, `git blame` em `42c0c20`); declarei que as mensagens de commit antigas continuam com as letras velhas; declarei que a foto do cartão não foi feita |
 | Correção | 9 | 918 testes verdes, build limpo com **0** avisos; o teste novo fixa texto, número de runs tingidos e qual run |
 | Privacidade e autoria | 9 | a troca de `+` por `AttributedString` foi escolhida **para não** passar prosa do autor por Markdown; nenhum dado novo sai para lugar nenhum |

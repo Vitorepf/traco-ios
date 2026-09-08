@@ -429,8 +429,13 @@ struct PraticaTrabalhoTests {
         ]
         #expect(Set(casos.map(\.0)).count == casos.count) // motivos distintos, não um genérico
         // O furo que o re-G3 achou: procurar só a forma acentuada deixa passar
-        // "donde esta la estacion". A busca é na forma normalizada, palavra a
-        // palavra do exemplo — que é o que a guarda do vazamento manipula.
+        // "donde esta la estacion". A busca é na forma normalizada, que é o que
+        // a guarda do vazamento manipula. O corte em 5 letras é deliberado e
+        // NÃO é a prova geral: por `contains`, palavra funcional do exemplo
+        // ("la", "en", "de") casaria com a prosa da própria recusa e diria
+        // vazamento onde não há. Quem cobre TODA palavra, curta inclusive, é
+        // `nenhumCampoDaRecusaCarregaPalavraDoExercicio`, que varre a
+        // serialização inteira por igualdade de token.
         let doExemplo = Prova.normal(preparada().exemplo)
             .split(separator: " ").map(String.init).filter { $0.count >= 5 }
         #expect(doExemplo.contains("estacion") && doExemplo.contains("informacao"))
@@ -449,6 +454,89 @@ struct PraticaTrabalhoTests {
             enunciado: "Escreva sobre você. Um outro caso resolvido.",
             exemplo: "Um outro caso resolvido.", criterios: ["Tem sujeito.", "Usa verbo."])
         #expect(recusaAoProvar(exemploNoEnunciado).redigida.hasPrefix("exemplo · "))
+    }
+
+    /// ADR 08p (correção da Q-F): o que protege o autor não é uma lista de
+    /// palavras — é a FORMA da recusa. `Recusa` não tem campo nenhum que
+    /// carregue o exercício: só categoria, campo do contrato, índice, posição,
+    /// tamanho e contagem de origem. Este teste prova isso varrendo a
+    /// SERIALIZAÇÃO INTEIRA de cada recusa — a linha redigida MAIS o dump do
+    /// valor, com todos os valores associados — contra um exercício em que
+    /// CADA palavra é um marcador inventado. Se alguém acrescentar um campo
+    /// que carregue o trecho, o marcador aparece no dump e o teste cai; se
+    /// alguém acrescentar um CASO novo à enum, a conta de casos cobertos cai.
+    ///
+    /// Os marcadores vão de 1 a 9 letras e levam acento de propósito: a
+    /// conferência é por IGUALDADE de token normalizado, nunca por `contains`,
+    /// que confundiria palavra funcional da prosa da recusa ("a", "de", "no")
+    /// com ocorrência real do exercício.
+    @Test func nenhumCampoDaRecusaCarregaPalavraDoExercicio() {
+        let marcador = ["q", "zk", "vún", "nubz", "plu", "wix", "mub", "tyz",
+                        "krebli", "gorrênita", "qanaptu", "ferzol"]
+        let doExercicio = Set(marcador.map(Prova.normal))
+        #expect(doExercicio.count == marcador.count)
+        #expect(doExercicio.filter { $0.count <= 4 }.count == 8) // 8 de 1 a 4 letras
+
+        func comMarcador(enunciado: String = "Mub tyz krebli gorrênita qanaptu ferzol q zk.",
+                         exemplo: String = "Vún nubz plu wix mub tyz krebli.",
+                         capacidade: String = "Q zk vún",
+                         situacao: String = "Nubz plu wix",
+                         criterios: [String] = ["Gorrênita qanaptu ferzol.", "Q zk vún nubz plu."])
+        -> PraticaTrabalho.Preparada {
+            .init(capacidade: capacidade, situacao: situacao, enunciado: enunciado,
+                  exemplo: exemplo, criterios: criterios)
+        }
+        // O exercício marcado é VÁLIDO: as recusas abaixo vêm de uma alteração
+        // deliberada, não de o texto ser estranho.
+        #expect(PraticaTrabalho.validar(comMarcador()) != nil)
+
+        let vazando = comMarcador(criterios: ["Gorrênita qanaptu.",
+                                              "Vún nubz plu wix como no exemplo."])
+        let recusas: [PraticaTrabalho.Recusa] = [
+            recusaAoLer("gorrênita qanaptu ferzol"),
+            recusaAoLer(#"{"capacidade":"q zk","situacao":"nubz plu","enunciado":"mub tyz","exemplo":"wix krebli","nota":9}"#),
+            recusaAoLer(#"{"capacidade":"q zk","situacao":"nubz plu","enunciado":"mub tyz","exemplo":9,"criterios":["gorrênita","ferzol"]}"#),
+            recusaAoProvar(comMarcador(situacao: "")),
+            recusaAoProvar(comMarcador(capacidade: String(repeating: "gorrênita ", count: 40))),
+            recusaAoProvar(comMarcador(criterios: ["Gorrênita qanaptu ferzol."])),
+            recusaAoProvar(comMarcador(criterios: ["Gorrênita.", "   "])),
+            recusaAoProvar(comMarcador(criterios: [String(repeating: "ferzol ", count: 40), "Qanaptu."])),
+            recusaAoProvar(comMarcador(criterios: ["Gorrênita qanaptu.", "gorrenita, qanaptu!"])),
+            recusaAoProvar(comMarcador(enunciado: "Vún nubz plu wix mub tyz krebli.")),
+            recusaAoProvar(comMarcador(enunciado: "Vún nubz plu wix mub tyz krebli, ferzol.")),
+            recusaAoProvar(vazando),
+            provaRecusada(vazando, pedidoDoAutor: "Quero vún nubz plu wix no meu trabalho."),
+        ]
+
+        // Cobertura: um caso de cada guarda da enum. Caso novo sem varredura
+        // derruba esta conta antes de chegar ao dono.
+        let cobertos = Set(recusas.map { String(describing: $0).prefix { $0 != "(" } })
+        #expect(cobertos.count == 12, "casos cobertos: \(cobertos.sorted())")
+
+        for recusa in recusas {
+            // A serialização COMPLETA: a linha que a sonda grava e o valor
+            // inteiro, com todos os campos associados.
+            let tudo = Prova.normal(recusa.redigida + " " + String(reflecting: recusa))
+            let palavras = Set(tudo.split(separator: " ").map(String.init))
+            #expect(palavras.isDisjoint(with: doExercicio),
+                    "\(palavras.intersection(doExercicio).sorted()) em \(recusa)")
+        }
+
+        // Fronteira declarada, não fechada: `chavesForaDoContrato` ecoa o NOME
+        // da chave a mais que veio na resposta, cortado em 32 caracteres. Nome
+        // de chave é forma do contrato — é o único texto da resposta que chega
+        // à linha, e por isso está dito aqui em vez de ficar por omissão.
+        let chaveEstranha = recusaAoLer(#"{"capacidade":"q","situacao":"zk","enunciado":"vún","exemplo":"nubz","criterios":["plu","wix"],"gorrênita":9}"#)
+        #expect(chaveEstranha.redigida.contains("gorrênita"))
+    }
+
+    /// A prova com o pedido do autor junto, para o caso do vazamento.
+    private func provaRecusada(_ p: PraticaTrabalho.Preparada,
+                               pedidoDoAutor: String) -> PraticaTrabalho.Recusa {
+        guard case let .failure(r) = PraticaTrabalho.provar(p, pedidoDoAutor: pedidoDoAutor) else {
+            Issue.record("aceitou uma preparação que não vale"); return .jsonInvalido(bytes: 0)
+        }
+        return r
     }
 
     /// ADR 08p: a recusa por vazamento tem de sustentar o diagnóstico — de
