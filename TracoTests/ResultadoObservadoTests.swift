@@ -128,6 +128,54 @@ struct ResultadoObservadoTests {
         #expect(feita.acoes[0].estado == .executada)
     }
 
+    /// ADR 08n: a regra que olhava um eixo só deixava cancelar o que a pessoa
+    /// JÁ disse que aconteceu. Primeira ordem: o relato com resultado chega e
+    /// depois vem a tentativa de cancelar.
+    @Test func observadoAntes_naoSeCancelaDepois() throws {
+        var (d, acao) = try comAcao()
+        #expect(d.podeCancelar(acao), "pendente e não observada: o gesto cabe")
+        try d.registrarRelato("Apresentei e o cliente fechou", acaoID: acao, resultado: .funcionou)
+
+        #expect(!d.podeCancelar(acao), "a tela não oferece mais o gesto")
+        #expect(throws: DocumentoTrabalho.Erro.self) { try d.cancelarAcao(acao) }
+        #expect(d.acoes[0].estado == .pendente, "e nada mudou por tentar")
+        #expect(d.observacao(de: acao)?.resultado == .funcionou, "o que ela observou continua lá")
+        try d.validar()
+
+        // Relato SEM resultado não tranca a saída: contar não é observar.
+        var (aberta, outra) = try comAcao("Ligar para o fornecedor")
+        try aberta.registrarRelato("Liguei, ainda sem retorno", acaoID: outra)
+        #expect(aberta.podeCancelar(outra))
+        try aberta.cancelarAcao(outra)
+        #expect(aberta.acoes[0].estado == .cancelada)
+        try aberta.validar()
+    }
+
+    /// Segunda ordem, o mesmo lugar honesto: cancelou primeiro e o resultado
+    /// chega no meio. Classificar o resultado de uma ação cancelada seria
+    /// observar o que se desistiu de fazer — e nenhuma rota grava o par.
+    @Test func canceladaAntes_naoRecebeResultadoDepois() throws {
+        var (d, acao) = try comAcao()
+        try d.cancelarAcao(acao)
+
+        #expect(throws: DocumentoTrabalho.Erro.self) {
+            try d.registrarRelato("Mas no fim deu certo", acaoID: acao, resultado: .funcionou)
+        }
+        #expect(d.observacao(de: acao) == nil)
+        #expect(d.acoes[0].estado == .cancelada)
+
+        // Contar o que houve continua valendo — só a classificação não entra.
+        try d.registrarRelato("Desisti porque o cliente sumiu", acaoID: acao)
+        #expect(d.evidencias.count == 1 && d.evidencias[0].resultado == nil)
+        try d.validar()
+
+        // E a rota de fora (importação, migração, chamador novo) também não
+        // grava o par: a guarda é do documento, não do gesto.
+        var forjado = d
+        forjado.evidencias[0].resultado = .funcionou
+        #expect(throws: DocumentoTrabalho.Erro.self) { try forjado.validar() }
+    }
+
     // MARK: - 3. A orientação seguinte muda pelo resultado informado
 
     /// Três resultados, três pedidos diferentes — e o quarto caso, sem

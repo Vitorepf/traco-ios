@@ -310,6 +310,14 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
     /// O último resultado informado no Trabalho inteiro — o que a revisão
     /// seguinte tem para orientar-se. `nil` = nada observado ainda.
     var ultimaObservacao: Evidencia? { evidencias.last { $0.resultado != nil } }
+    /// ADR 08n: executar e observar são eixos independentes, e a regra que
+    /// olha um só apaga o outro. Cancelar exige as DUAS condições: pendente
+    /// (o ato realizado não se desfaz) E não observado (o resultado que a
+    /// pessoa informou não se apaga por desistência retroativa). A tela lê
+    /// este predicado; a garantia é aqui, não lá.
+    func podeCancelar(_ acaoID: UUID) -> Bool {
+        acoes.contains { $0.id == acaoID && $0.estado == .pendente } && observacao(de: acaoID) == nil
+    }
 
     /// O mesmo orçamento para entrega e exercício; o núcleo nunca é cortado.
     static func montarContexto(cabeca: String, secoes: [String], final: String, teto: Int) -> String {
@@ -585,6 +593,10 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
                                   resultado: ResultadoObservado? = nil) throws -> Evidencia {
         guard !texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw Erro.vazio }
         guard let i = acoes.firstIndex(where: { $0.id == acaoID }) else { throw Erro.referencia }
+        // ADR 08n: a ordem inversa do mesmo estado proibido. Contar o que
+        // houve numa ação cancelada continua valendo — classificar o
+        // resultado dela, não: seria observar o que se desistiu de fazer.
+        guard resultado == nil || acoes[i].estado != .cancelada else { throw Erro.referencia }
         let e = Evidencia(texto: texto, atribuidaA: "Você", acaoID: acaoID,
                           artefatoID: acoes[i].artefatoID, resultado: resultado)
         evidencias.append(e)
@@ -599,8 +611,10 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
     /// só os testes alcançavam. Só o que está pendente se cancela: o que a
     /// pessoa marcou como realizado aconteceu, e desfazer isso seria apagar um
     /// ato. O horário fica no registro; a agenda e o aviso já leem `pendente`.
+    /// ADR 08n: e só o que ninguém observou — cancelar o que a pessoa já disse
+    /// que aconteceu apagaria o resultado dela pelo outro eixo (`podeCancelar`).
     mutating func cancelarAcao(_ acaoID: UUID) throws {
-        guard let i = acoes.firstIndex(where: { $0.id == acaoID }), acoes[i].estado == .pendente
+        guard let i = acoes.firstIndex(where: { $0.id == acaoID }), podeCancelar(acaoID)
         else { throw Erro.referencia }
         acoes[i].estado = .cancelada
     }
@@ -707,6 +721,9 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
             // tentativa, "funcionou" seria a resposta de um exercício se
             // declarando certa — e quem lê a tentativa é a conferência.
             guard e.resultado == nil || e.tipo == .relato else { throw Erro.referencia }
+            // ADR 08n: e nenhuma rota — importação, migração, chamador novo —
+            // guarda uma ação cancelada com resultado observado.
+            guard e.resultado == nil || a.estado != .cancelada else { throw Erro.referencia }
             guard let t = e.tentativa else { continue }
             guard e.tipo == .tentativa, t.origem == .pessoa,
                   t.anteriorID.map({ id in id != e.id && evidencias.contains { $0.id == id && $0.tentativa != nil } }) ?? true

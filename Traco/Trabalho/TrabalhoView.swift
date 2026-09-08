@@ -1015,8 +1015,17 @@ struct TrabalhoView: View {
                             // ADR 08m: `cancelada` existia no contrato e não
                             // tinha gesto. Desistir de um ato é uma coisa que
                             // acontece; sem esta saída, a lista só cresce.
-                            acaoSecundaria("Cancelar esta ação") { aplicar(o) { try $0.cancelarAcao(acao.id) } }
-                                .accessibilityIdentifier("trabalho-cancelar-acao")
+                            // ADR 08n: e ela some quando já há resultado
+                            // informado — com o motivo dito, porque gesto que
+                            // desaparece calado parece defeito.
+                            if o.documento.podeCancelar(acao.id) {
+                                acaoSecundaria("Cancelar esta ação") { aplicar(o) { try $0.cancelarAcao(acao.id) } }
+                                    .accessibilityIdentifier("trabalho-cancelar-acao")
+                            } else {
+                                Text("Esta ação não se cancela mais: você já informou um resultado, e cancelar apagaria o que aconteceu.")
+                                    .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+                                    .accessibilityIdentifier("trabalho-cancelar-indisponivel")
+                            }
                         }
                         let chave = "relato-\(acao.id.uuidString)"
                         let chaveResultado = "resultado-\(acao.id.uuidString)"

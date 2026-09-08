@@ -5937,3 +5937,37 @@ e falha. A causa registrada foi conferida no `default.store` do App Group
 (`gatilho: resultadoInformado`, `evidenciaID` do relato de fracasso, motivo com a
 frase da pessoa) e a tela mostra a falha, não uma versão inventada. A jornada com
 provedor real continua sendo prova da frente Q.
+
+## ADR 2026-09-08n — Cancelar não apaga o que já foi observado (volta E1-B)
+
+A 08m separou dois eixos — **executar** é ato, **observar** é resultado — e deixou
+a invariante do cancelamento olhando **só um deles**. `cancelarAcao` exigia
+`estado == .pendente`, e uma observação **não muda o estado** de propósito. Logo o
+mesmo cartão que dizia *"Resultado que você informou: Funcionou"* ainda oferecia
+*"Cancelar esta ação"*: dava para apagar o que a pessoa já tinha dito que
+aconteceu. O G3 reproduziu na própria captura `02` da volta anterior.
+
+É a doença que a V12 nomeou e que derrubou a V17: **a regra olha uma dimensão e o
+mundo tem duas**. Separar os eixos foi decisão do dono, e ela obriga a invariante a
+olhar os dois.
+
+**A garantia é do agregado, nas duas ordens.** `podeCancelar(_:)` exige `pendente`
+**e** `observacao(de:) == nil`; `cancelarAcao` passa a lê-lo. A ordem inversa é
+outro caminho e por isso tem outra guarda: `registrarRelato` recusa `resultado`
+numa ação **cancelada** — contar o que houve continua valendo, classificar o
+resultado do que se desistiu de fazer, não. E `validar()` recusa o par
+`cancelada` + evidência com resultado, para que nenhuma importação, migração ou
+chamador novo grave pelas costas o estado que os dois gestos recusam. Garantia que
+vive só na tela é contornável por outra rota — foi por isso que o G3 da V17
+reprovou.
+
+**Na tela, o gesto some e diz por quê.** Onde havia "Cancelar esta ação" com
+resultado informado, o cartão passa a dizer: *"Esta ação não se cancela mais: você
+já informou um resultado, e cancelar apagaria o que aconteceu."* Gesto que
+desaparece calado parece defeito; a linha é do mesmo `Tema.meta`/`tintaSuave` das
+outras linhas do cartão, sem componente novo. A ação **pendente e não observada**
+continua com o gesto — provado na mesma tela, não só no teste.
+
+**O que continua valendo.** Ação `executada` segue sem cancelamento (08m), relato
+sem classificação continua entrando em qualquer estado, e o resultado observado
+continua sendo do relato, nunca um quarto estado da ação.
