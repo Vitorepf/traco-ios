@@ -57,8 +57,8 @@ struct ConferenciaTrabalhoTests {
         let lido = try trabalho.ler()
         let c = try #require(lido.versaoAtual?.conferencias?.last)
         #expect(c.pedidoID == p.id)
-        #expect(c.executor == "aparelho · regras v2")
-        #expect(c.versaoDoMetodo == 2)
+        #expect(c.executor == "aparelho · regras v3")
+        #expect(c.versaoDoMetodo == 3)
         #expect(c.estado == .concluida)
         #expect(c.resultados.count == lido.versaoAtual?.conferencias?.last?.resultados.count)
     }
@@ -161,6 +161,23 @@ struct ConferenciaTrabalhoTests {
 
     // MARK: - Tempo
 
+    @Test func ajusteHerdaRestricoesSemSobreporPedidoNovo() throws {
+        let (d, p) = try recebido(intencao: "Praticar espanhol",
+                                  pedido: "Adapte aos relatos.", artefato: "Bloco 1: 5 minutos. Bloco 2: 5 minutos. Bloco 3: 5 minutos.")
+        let anteriores = ["Prepare três blocos de cinco minutos, com espanhol e tradução em português."]
+        let herdados = ConferenciaTrabalho.criterios(pedido: p, intencao: d.intencaoAtual, instrucoesAnteriores: anteriores)
+        #expect(herdados.contains { $0.alvo == .idioma([.portuguese, .spanish]) })
+        #expect(herdados.contains { $0.alvo == .tempo(blocos: 3, cada: 5, total: 15) })
+        var novo = p
+        novo.instrucao = "Agora em inglês, dois blocos de quatro minutos."
+        let atuais = ConferenciaTrabalho.criterios(pedido: novo, intencao: d.intencaoAtual, instrucoesAnteriores: anteriores)
+        #expect(atuais.contains { $0.alvo == .idioma([.english]) })
+        #expect(atuais.contains { $0.alvo == .tempo(blocos: 2, cada: 4, total: 8) })
+        let resposta = #"{"criterios":[{"criterio":"Tempo","trechoFonte":"três blocos de cinco minutos","fonte":"instrucao","situacao":"inconclusivo","trechosDoArtefato":[],"justificativa":"Não medi a prática."}]}"#
+        let revisao = try #require(RevisaoTrabalho.parse(resposta, pedido: p, intencao: d.intencaoAtual, artefato: "", instrucoesAnteriores: anteriores))
+        #expect(revisao[0].trechoFonte == "três blocos de cinco minutos")
+    }
+
     @Test func tresBlocosDeCincoComArtefatoSomandoQuinzeEAtendido() throws {
         let (d, p) = try recebido(intencao: "Praticar espanhol",
                                   pedido: "Roteiro solo em espanhol, 3 blocos de 5 minutos.",
@@ -207,6 +224,22 @@ struct ConferenciaTrabalhoTests {
         #expect(r.situacao == .divergencia)
         #expect(r.justificativa == "O pedido pede 3 blocos de 5 minutos (15 no total); encontrei 2 marcas: 5 min, 5 min, somando 10. Cada bloco também precisa ter a duração pedida.")
         #expect(r.trechosDoArtefato == ["5 min, 5 min"])
+    }
+
+    @Test(arguments: [5, 6]) func resumoDosBlocosNaoContaComoBlocoExtra(ultimo: Int) throws {
+        let (d, p) = try recebido(intencao: "Praticar espanhol",
+                                  pedido: "3 blocos de 5 minutos.",
+                                  artefato: "Realize o exercício em três blocos de cinco minutos, sozinho. Bloco 1 (5 minutos): Leia. Bloco 2 (5 minutos): Escreva. Bloco 3 (\(ultimo) minutos): Pratique.")
+        let r = try criterio(conferir(d, p), contendo: "Tempo")
+        #expect(r.situacao == (ultimo == 5 ? .atendidoNoEscopo : .divergencia))
+        #expect(r.trechosDoArtefato == ["5 min, 5 min, \(ultimo) min"])
+    }
+
+    @Test func blocosAdicionaisDepoisDaDistribuicaoNaoSaoResumo() throws {
+        let (d, p) = try recebido(intencao: "Praticar espanhol",
+                                  pedido: "3 blocos de 5 minutos.",
+                                  artefato: "Bloco 1: 5 minutos. Bloco 2: 5 minutos. Bloco 3: 5 minutos. Depois faça mais três blocos de cinco minutos.")
+        #expect(try criterio(conferir(d, p), contendo: "Tempo").situacao == .divergencia)
     }
 
     @Test func totalAnunciadoNoCabecalhoNaoContaDuasVezes() throws {
@@ -363,7 +396,7 @@ struct ConferenciaTrabalhoTests {
         try container.mainContext.save()
         let oficina = try OficinaTrabalho(trabalho: trabalho, context: container.mainContext)
         nonisolated(unsafe) var leituras = 0
-        oficina.conferencia = { pedido, _, _ in
+        oficina.conferencia = { pedido, _, _, _ in
             leituras += 1
             return .init(pedidoID: pedido.id, executor: "x", versaoDoMetodo: 1, estado: .concluida)
         }
@@ -558,7 +591,7 @@ struct ConferenciaTrabalhoTests {
                                           produzir: { _, _ in .init(texto: self.bilingue, produtor: "Fake controlado, só para teste") })
         oficina.estaDisponivel = { true }
         nonisolated(unsafe) var revisoes = 0
-        oficina.revisao = { pedido, _, _, _ in
+        oficina.revisao = { pedido, _, _, _, _ in
             revisoes += 1
             return .init(pedidoID: pedido.id, executor: "x · revisão assistida", versaoDoMetodo: 1, estado: .concluida)
         }
@@ -580,7 +613,7 @@ struct ConferenciaTrabalhoTests {
         try container.mainContext.save()
         let oficina = try OficinaTrabalho(trabalho: trabalho, context: container.mainContext)
         nonisolated(unsafe) var criteriosVistos: [String] = []
-        oficina.revisao = { pedido, _, _, criterios in
+        oficina.revisao = { pedido, _, _, criterios, _ in
             criteriosVistos = criterios.map(\.criterio)
             return .init(pedidoID: pedido.id, executor: "Apple Intelligence no aparelho · revisão assistida",
                          versaoDoMetodo: 1, estado: .concluida,
@@ -611,7 +644,7 @@ struct ConferenciaTrabalhoTests {
         try container.mainContext.save()
         let oficina = try OficinaTrabalho(trabalho: trabalho, context: container.mainContext)
         nonisolated(unsafe) var chamadas = 0
-        oficina.revisao = { pedido, _, _, _ in
+        oficina.revisao = { pedido, _, _, _, _ in
             chamadas += 1
             return .init(pedidoID: pedido.id, executor: "x · revisão assistida", versaoDoMetodo: 1, estado: .concluida)
         }
@@ -640,7 +673,7 @@ struct ConferenciaTrabalhoTests {
                       fonte: .instrucao, situacao: .naoAvaliado, justificativa: "Ninguém leu."),
             ])
         let texto = try #require(ConferenciaTrabalho.pedidoDeAjuste(c))
-        let marca = "Ajustar a versão anterior (a partir da conferência de \(c.data.formatted(date: .abbreviated, time: .shortened)), por aparelho · regras v2):"
+        let marca = "Ajustar a versão anterior (a partir da conferência de \(c.data.formatted(date: .abbreviated, time: .shortened)), por aparelho · regras v3):"
         #expect(texto == """
         \(marca)
         - Tempo pedido: 3 blocos de 5 minutos (15 no total). Na versão anterior: “5 min”. O pedido diz: “3 blocos de 5 minutos”. O pedido pede 3 blocos de 5 minutos (15 no total); encontrei 1 marca somando 5.

@@ -3,6 +3,15 @@ import Testing
 @testable import Traco
 
 struct GrokContratoTests {
+    @Test(arguments: [Grok.modelo, Grok.modeloTrabalho])
+    func esforcoExplicitoNaoMudaOSchemaENaoAceitaValorInvalido(modelo: String) throws {
+        let dados = try #require(Grok.corpo(sistema: "", usuario: "", temperatura: 0.3,
+                                           esquema: nil, esforco: "medium", modelo: modelo))
+        let corpo = try #require(try JSONSerialization.jsonObject(with: dados) as? [String: Any])
+        #expect(corpo["model"] as? String == modelo)
+        #expect(corpo["reasoning_effort"] as? String == "medium")
+        #expect(Grok.corpo(sistema: "", usuario: "", temperatura: 0, esquema: nil, esforco: "inventado") == nil)
+    }
     @Test func respostaCortadaOuRecusadaNaoViraEntregaCompleta() throws {
         func resposta(_ fim: String, texto: String = "Conteúdo completo", recusa: String? = nil) throws -> Data {
             var mensagem = ["content": texto]

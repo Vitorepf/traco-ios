@@ -2,6 +2,24 @@
 
 Mantido pelo orquestrador a cada fecho (ESTEIRA.md). Volta que não está aqui não abre. Ordem = valor para a visão (dois ciclos) ÷ esforço, com a regra da frente de front-end: auditoria → fundação → telas. Notas de tela no scorecard só existem depois da V9.
 
+## Em curso (08/09 de manhã — o laço retomado pelo vigia)
+
+Três voltas abertas ao mesmo tempo, cada uma no próprio worktree filho nascido de `main` (5065929), áreas de arquivo disjuntas, todas tirando dívida da limpeza de 07/09. Workers em Opus 5 (cotas às 10h20: janela 9%, semanal 11%, Fable semanal 6% — o Fable voltou no reset de domingo).
+
+| volta | dívida que fecha | área | simulador | estado |
+|---|---|---|---|---|
+| P1 | item 7 (o portão que impede `withAnimation` fora de `Tema`) + item 5 (A-6, quatro linhas de documento) + item 6 (M3, a `aplicabilidade` do exameDaNoite) | TracoTests, Metodos.json, Analise (sem Grok/AvaliacaoIA), SPEC | teste 4 `A1DF082C` | EM EDIÇÃO |
+| F4-F | item 2 (F4: o Destaque longo cortado pelo rodapé, o quadro de ofertas, tela bloqueada/StandBy/Ilha sem captura, o médio de uma linha) | TracoWidget, App/Intents | teste 3 `34CC3F94` | EM EDIÇÃO |
+| L2 | item 4 (L1: o G4 reprovado — Design 8, Simplicidade 7: teto de 12 meses, `Tema.miudo` dentro do app, frase-resumo em duas linhas, `quantas == 1`; falta escuro, B×AX5 e VoiceOver) | Traco/Perfil, Tema.swift | iPhone 17 Pro `C2416CBC` | EM EDIÇÃO |
+
+**Dívidas que a rodada de 08/09 destapou, e viram volta própria:**
+- **Um arquivo de teste viveu em `main` sem nunca rodar.** `TracoTests/ContinuidadeTrabalhoTests.swift` existia e estava fora do alvo de teste; nada acusou, e só apareceu porque o `xcodegen` da P1 o ligou de carona. Falta um portão que exija que todo `TracoTests/*.swift` esteja no alvo. Ciclo: melhorar (barateia toda volta seguinte, como o portão do movimento). Evidência: o teste falha quando alguém acrescenta um arquivo de teste fora do alvo.
+- **A ficha de método tem três defeitos de copy que só a foto mostra** (achado do revisor da P1, `ferramentas/orca/revisao-p1-provas/`): a `aplicabilidade` do exameDaNoite mostra `(ADR 2026-09-06h)` ao autor, mistura "o autor" com "você" na mesma frase e usa aspas retas. A P1-B corrige esta; **as outras fichas do catálogo não foram olhadas** — vale uma varredura de copy nas 7.
+
+**Dois fatos do dia que mudam o mapa:**
+- **O simulador teste 2 `B91C8DEF` tem a conta Grok do dono conectada** (confirmada no Perfil em 08/09). É proibido a todo worker: `xcodebuild test` reinstala o app e apaga o contêiner. Cai a linha "nenhuma operação tem medição com Grok" — a base existe.
+- **Outra sessão (Codex) trabalha AGORA no checkout principal**: os "cinco itens" (`prova/cinco-itens*`), com raciocínio explícito nas operações de Trabalho e o modelo `grok-4.3` no lugar do alias aposentado, ADR 2026-09-08b escrita em `SPEC.md`. Está sem commit, o build da árvore passa sem aviso, e **não se toca**: quem fecha é aquela sessão. Dívida que já se vê: a jornada visual persistida, retorno → ajuste com provedor real e a revisão final continuam pendentes (`prova/cinco-itens.md`, seção "Limites e trabalho restante").
+
 ## Em curso (05/09 à noite, modo Fable máximo)
 
 | volta | tema | área | estado |
@@ -27,7 +45,7 @@ Sempre uma volta desta trilha em edição, em paralelo às voltas comuns, no pr�
 | F3 | Captar pensamento em um toque | MESCLADA (ADR 05w): controle Anotar na Central/bloqueada/botão de Ação abre o app com teclado pronto e microfone a um toque; F3b = ditado próprio com áudio preservado |
 | F3b | Ditado próprio | áudio salvo antes de transcrever; falha preserva o áudio | MESCLADA (ADR 06c; G3, correção, re-G3 aprovado) |
 | F4 | **Os widgets da tela de início prestam** (era "widget próxima volta interativo") | refresh que funciona, identidade do Traço, vazio que oferece ação, densidade do médio, botão de feito na própria superfície | **EM EDIÇÃO, PRIORIDADE MÁXIMA** (worktree f4-widgets; ordem do dono 06/09 13:04, com print do iPhone) |
-| F5 | Ilha do compromisso vivo | estados completos (compacta, expandida, mínima, fim) | |
+| F6 | Ilha do compromisso vivo (era F5; a sigla F5 foi gasta pelos arquivos `f5-*` da volta F4-F em 08/09) | estados completos (compacta, expandida, mínima, fim). A mínima só aparece com DUAS atividades disputando a Ilha, e o StandBy não renderiza no simulador — as duas lacunas ficaram declaradas na F4-F | |
 | F6 | Widgets da tela bloqueada | accessoryCircular e accessoryInline do dia | |
 | F7 | Controle da Central de Controle | Recordar | |
 | F8 | Widget configurável | por pasta ou método | |

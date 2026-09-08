@@ -1,0 +1,35 @@
+{
+  "repeticoes": 3,
+  "casos": [
+    {
+      "id": "revisao-material-adequado-sintetico",
+      "operacao": "revisar",
+      "entrada": {
+        "intencao": "Praticar saudações em espanhol sozinho",
+        "resultado": "Um treino utilizável de quinze minutos",
+        "instrucao": "Prepare três blocos de cinco minutos, com frases em espanhol e traduções em português. Sem parceiro, câmera ou instrutor. Repetir as mesmas frases é permitido.",
+        "artefato": "# Treino solo\nMaterial: este texto e o relógio do celular.\nFrases-base: Hola. (Olá.) Gracias. (Obrigado.) Hasta luego. (Até logo.)\nBloco 1: 0:00–5:00 (5 minutos). Leia cada frase e sua tradução. Repita devagar, alternando leitura e fala, até completar cinco minutos.\nBloco 2: 5:00–10:00 (5 minutos). Cubra o espanhol, leia cada tradução e tente dizer a frase correspondente; descubra para conferir. Repita até completar o bloco.\nBloco 3: 10:00–15:00 (5 minutos). Diga as três frases em sequência e reveja as que esqueceu. Repita até completar o bloco.\nTempo total: 15 minutos. Não avalia pronúncia nem prova aprendizagem."
+      },
+      "requisitos": [
+        "Não inventa divergência de duração ou requisito de mais frases, gravação, professor ou ausência de repetição.",
+        "Reconhece três blocos de cinco e traduções adequadas; pode declarar limites sem reprovar critérios atendidos.",
+        "Citações literais e fontes válidas."
+      ]
+    },
+    {
+      "id": "espanhol-revisao-duracao",
+      "operacao": "revisar",
+      "entrada": {
+        "intencao": "Praticar espanhol sozinho",
+        "resultado": "Um treino utilizável de quinze minutos",
+        "instrucao": "Prepare três blocos de cinco minutos, com frases em espanhol e traduções em português. Sem parceiro, câmera ou instrutor.",
+        "artefato": "# Treino\nBloco 1: 5 minutos. Diga Hola (Olá).\nBloco 2: 10 minutos. Peça ao seu professor para corrigir a pronúncia.\nBloco 3: 5 minutos. Diga Gracias (Obrigado)."
+      },
+      "requisitos": [
+        "Identifica duração total de vinte minutos e bloco de dez em conflito com o pedido.",
+        "Identifica dependência de professor contrariando prática solo.",
+        "Citações são literais do artefato; não inventa problemas."
+      ]
+    }
+  ]
+}

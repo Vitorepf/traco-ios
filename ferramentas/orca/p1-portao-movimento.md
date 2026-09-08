@@ -3,7 +3,7 @@
 Branch `Vitorepf/volta-p1-portao-movimento`, worktree próprio. Implementador
 (Claude Opus 5). Simulador **iPhone 17 Pro (teste 4) `A1DF082C-FC87-4DF9-9F56-F2DA1C084DED`**,
 08/09/2026. Nada tocado no checkout principal; nada mesclado em `main`.
-ADR desta volta: **2026-09-08a** em `SPEC.md`.
+ADR desta volta: **2026-09-08e** em `SPEC.md`.
 
 ## G0 — a linha da volta, como ela ficou
 
@@ -271,7 +271,7 @@ portão) e documento. A regra da volta era exatamente essa.
 | dimensão | nota | por quê |
 |---|---|---|
 | **Visão** | 9 | entra no ciclo "melhorar para multiplicar" pelo eixo 4; fecha a lacuna do design-router no EVOLUCAO ("as telas fora das três migradas ainda desenham por conta própria") trocando um relatório por um portão executável |
-| **Contrato** | 9 | ADR 08a curta; a 06i-E corrigida nos quatro pontos onde ela mora; EVOLUCAO coerente com o código; a ficha do `exameDaNoite` deixa de prometer o que a guarda recusa |
+| **Contrato** | 9 | ADR 08e curta; a 06i-E corrigida nos quatro pontos onde ela mora; EVOLUCAO coerente com o código; a ficha do `exameDaNoite` deixa de prometer o que a guarda recusa |
 | **Correção** | 9 | 889/144 verde, 0 aviso; o portão provado nos DOIS sentidos, com violação plantada fora e dentro da lista; a régua nova de exclusividade e a de cópia-vs-bundle, esta acusando a própria volta |
 | **Jornada real** | n/a | zero código de view; nenhuma tela alterada. A única mudança visível é uma string num campo já desenhado, e ela não foi fotografada (§7) |
 | **Design / Movimento / Componentes / Acessibilidade / Fora do app** | n/a | nada tocado. O portão é sobre movimento, mas não muda movimento nenhum: congela |
@@ -359,7 +359,7 @@ linhas; comentário e string com curva dentro).
 **3 (Correção/MÉDIO) — descer nunca é vermelho.** `guard hoje > congelado`.
 Quem migrar uma tela não precisa editar o teste para não ficar vermelho.
 
-**4 (Contrato/ALTO) — ADR 08a e EVOLUCAO dizem o medido.** Saiu "as 76 continuam
+**4 (Contrato/ALTO) — ADR 08e e EVOLUCAO dizem o medido.** Saiu "as 76 continuam
 por migrar" e "as telas ainda desenham por conta própria"; entrou o número
 medido (zero curva literal fora de `Tema`; as 38 chamadas de `withAnimation(`
 passam todas por `Tema.*` ou `CalendarioTema.morph`) e a explicação do que o
@@ -480,7 +480,7 @@ com foto minha e não com a do revisor. Caminho, quatro passos: Perfil › MÉTO
 | dimensão | antes | agora | por quê |
 |---|---|---|---|
 | **Visão** | 8 | 9 | o portão passa a fechar a lacuna que ele NOMEIA: nada de curva literal nova entra. A notícia que o EVOLUCAO dá ao dono é a medida — o movimento já está todo em `Tema` |
-| **Contrato** | 7 | 9 | ADR 08a e EVOLUCAO dizem o medido, com o que o portão não conta e por quê; `CatalogoTests` sem os dois números velhos |
+| **Contrato** | 7 | 9 | ADR 08e e EVOLUCAO dizem o medido, com o que o portão não conta e por quê; `CatalogoTests` sem os dois números velhos |
 | **Correção** | 7 | 9 | a forma prescrita não acusa mais (provado em uma e em várias linhas), descer não acusa mais (provado com `hoje 0 / congelado 2`), o vermelho continua para arquivo novo e curva literal, e o falso negativo do escape de string está fechado |
 | **Simplicidade** | 8 | 9 | a copy da ficha em uma pessoa, sem contabilidade interna, com as aspas do app, 27% mais curta |
 | **Estado honesto** | 8 | 9 | o `ContinuidadeTrabalhoTests` declarado, o shortstat corrigido, o limite do `cliclick` escrito, e a ficha fotografada por mim |
