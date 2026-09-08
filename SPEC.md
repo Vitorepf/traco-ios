@@ -4823,6 +4823,220 @@ outras cinco. Depois, no iPhone 17 Pro (teste 4) `A1DF082C`: `✔ Test run with
 sem cópula; a dívida da densidade em nota de sistema segue no RUMO; e a régua
 inversa continua sendo escrita por mim e pelo revisor, não por uso real.
 
+## ADR 2026-09-06j — A latência da descoberta: quanto tempo entre afirmar e saber
+
+**A distância.** O Traço já media e não sabia que media. `Hipotese` guarda
+`data` (quando foi proposta) e `avaliadaEm` (quando foi avaliada, ADR 05r); a
+Decisão guarda "o que espero que aconteça, e quando eu confiro" e "o que
+aconteceu" (03a/04t); `Versoes` carimba cada gravação desde a 04. Nada disso
+virava grandeza: o único leitor de `avaliadaEm` em todo o app era
+`TrabalhoView.avaliacao`, que imprime a data absoluta ao lado de UMA hipótese
+("· por você em 3 de jul de 2026, 10:00"). Distância entre os dois carimbos,
+nenhuma; série ao longo dos meses, nenhuma. Motor sem superfície: função que o
+autor não vê não foi entregue.
+
+**Primeiro medir, depois inventar campo.** A ordem foi essa, e o resultado é
+que **nenhum campo novo foi criado**. Do que já estava gravado saiu tudo:
+
+- Hipótese: `data` → `avaliadaEm` dá a latência inteira, sem nada a mais.
+- Hipótese avaliada ANTES da 05r: `estado` diz que foi avaliada e `avaliadaEm`
+  é `nil`. Isso não é buraco a preencher, é a informação real — a tela diz
+  "tempo desconhecido" e ninguém reconstrói a data por dedução.
+- Decisão: `criadaEm` é a afirmação; a data do "espero", lida por `Gatilho`, é
+  a hora de conferir; "o que aconteceu" preenchido é a descoberta.
+- **A descoberta da decisão tem data porque `Versoes` já a tinha.** `editadaEm`
+  seria a mentira fácil: é a última edição de qualquer coisa e desliza a cada
+  retoque. O histórico guarda o estado ANTERIOR carimbado com a hora da
+  gravação, então a versão mais recente que ainda tinha "o que aconteceu" vazio
+  é a hora em que ele deixou de estar vazio. Sem histórico (nota importada, ou
+  as 30 versões passaram por cima), fica `nil` — tempo desconhecido, de novo
+  sem inventar. Foi esse achado que dispensou o campo novo.
+
+**A decisão.** `Traco/Modelo/Latencia.swift`, motor puro (`nonisolated enum`, no
+molde de `Retrato`): lê hipóteses e decisões, devolve `Registro` com quatro
+estados **distintos na tela** — AFIRMADO (dito, ainda não é hora), DEVIDO (a
+hora chegou e continua sem resposta), DESCOBERTO (soube, com ou sem a data) e
+ABANDONADO (fechou sem conferir). Nenhum deles é falha. Abandonar é resultado
+legítimo e aparece com essa palavra. Hipótese não tem data de conferir e por
+isso **nunca fica DEVIDA**: cobrar prazo que o autor não marcou seria inventar.
+
+**A série é o produto, não o número.** Uma latência sozinha não diz nada. A
+tela mostra o mês, o tempo do MEIO daquele mês (mediana, não média — uma
+hipótese esquecida por um ano deslocaria a média do mês inteiro) e quantas
+descobertas houve. E **os abertos viajam junto dos fechados**: série só do que
+fechou é o viés de sobrevivência, que é justamente o que a conversa de origem
+desta volta (`ferramentas/orca/IDEIAS.md` §A) veio combater. A palavra
+"mediana" fica no código; na tela é "a do meio", que se lê sem glossário.
+
+**Não é placar, e o desenho é que garante isso.** Sem meta, sem sequência, sem
+XP, sem seta, sem verde e vermelho — e, desde a L1-C, **sem barra nenhuma**: o
+mês é uma linha de palavras. Nenhuma ação na seção — o autor lê e sai.
+A cobrança de conferir já existe na lista de Notas (`Volta.campoDevido`) e não
+foi duplicada aqui; se esta tela tivesse um botão "conferir agora", a medida
+viraria lista de tarefas e destruiria o que mede. A pergunta da `curva-zero`
+tem resposta literal na tela: "não há nada a preencher aqui".
+
+**Onde mora.** `Traco/Perfil/PerfilView.swift`, logo depois de "A SÁBIA E VOCÊ".
+É a mesma família da linha que a 06h acabou de corrigir — "O que o Traço
+registrou, contagem, não conclusão" —, e herda essa vizinhança e essa voz. Não
+foi para a Análise nem para o Trabalho: a série é do AUTOR e atravessa todos os
+trabalhos, então não pertence a um deles.
+
+**Custo assumido.** `Versoes.listar` roda uma vez por decisão ao abrir o Perfil,
+síncrono na main — são JSONs pequenos e dezenas de notas; se um dia doer, o
+caminho é gravar a data no instante em que "o que aconteceu" enche (aí sim um
+campo). `Gatilho` prefere uma hora escrita ("às 9h") à data do mesmo texto e
+devolve a próxima manhã: limite herdado, que atinge igualmente a cobrança da
+lista, não corrigido aqui. E o estado DEVIDO desta leitura ancora a data do
+"espero" em `criadaEm`, enquanto `Volta.devida` a relê a partir de HOJE — em
+texto relativo ("em duas semanas") a lista adia a cobrança para sempre e esta
+tela não; a divergência é deliberada e está declarada, não resolvida.
+
+**Selo:** nota trancada ou queimada **não entra na latência, nem como
+contagem** — a mesma regra do retrato, que é o cartão imediatamente acima nesta
+tela ("nada de expressiva, trancada ou queimada entra no retrato, nem como
+contagem"). A primeira escrita desta ADR dizia "entra pela contagem" e citava a
+05s por uma regra que a 05s não tem; a citação estava errada e a política era
+mais frouxa que a do vizinho de cima. Uma DURAÇÃO medida a partir do que o selo
+fechou é mais do que contar. A guarda mora em `Latencia.registro(decisao:)`,
+que devolve `nil` — no funil por onde toda leitura de decisão passa, não em
+cada chamador. Consequência aceita: a decisão selada deixa de ser o único
+caminho de uma decisão para ABANDONADO, que agora é só do Trabalho encerrado —
+e isso é mais honesto, porque trancar uma nota nunca foi abandonar a decisão.
+**Volta:** melhorar — é a lacuna "modelo revisável do autor" do EVOLUCAO.
+**O que a IA sabe:** nada. A leitura é do algoritmo, não viaja no prompt e não
+entra no retrato.
+**Prova:** 11 testes em `LatenciaTests`; suíte integral **758 testes em 129
+suítes, 0 falhas**, no iPhone 17 Pro Max de teste em 06/09/2026. A série na
+tela, com os quatro estados na mesma captura, uma hipótese fechada, uma aberta
+e o registro antigo em "tempo desconhecido": `ferramentas/orca/l1-serie-large.png`,
+`l1-tempo-desconhecido-large.png`, `l1-serie-ax5.png` e
+`l1-tempo-desconhecido-ax5.png` (`xcrun simctl io screenshot`, não a captura do
+maestro). Fluxo `maestro/latencia.yaml`, que rola até cada um dos quatro
+estados — em AX5 a seção não cabe numa tela e "está visível agora" seria
+asserção sobre o tamanho do texto. As barras foram MEDIDAS na captura: julho
+42,6 % da largura (21/49 = 42,9 %) e agosto 7,8 % (4/49 = 8,2 %) — e foi essa
+medida, repetida pela revisão, que tirou a barra da tela na L1-C.
+**Semeadura declarada:** o simulador não viaja no tempo, então os registros com
+datas de junho a setembro foram escritos no formato que o próprio app grava —
+mesma tabela SwiftData, mesmo JSON do `DocumentoTrabalho`, mesmo histórico
+`Versoes` (`ferramentas/orca/semear-latencia.py`). **Não é a série do aparelho
+do dono**, que continua sem captura.
+**Fora:** a decisão respondida antes de existir histórico continua sem data; o
+`Gatilho`; e não há rota `traco://` para o Perfil (a captura pede maestro).
+
+### A volta L1-B — o portão que a seção não tinha atravessado
+
+A revisão G3 derrubou três dimensões e todas as três pela mesma raiz: uma
+superfície nova de LEITURA foi aberta sem passar pelos funis que o resto do app
+já tinha. Nenhuma delas era erro de conta.
+
+**1. O selo do Trabalho vale aqui.** `PerfilView.lerLatencia` lia `t.ler()` de
+todo `Trabalho` sem `AcessoTrabalho.permitido` — sozinha entre onze superfícies
+que gateiam. Um Trabalho nascido de nota trancada, queimada ou expressiva some
+da lista, do calendário, da página e dos Atalhos, e continuava imprimindo o
+texto literal da hipótese no Perfil. Agora passa pelo mesmo funil. A causa é de
+FORMA, e fica escrita: o gate é chamado por cada leitor, então esquecer é
+sempre possível; fechar a classe é barato: `trabalho.ler()`
+tem TRÊS chamadores no app inteiro, e uma versão única que recebe o
+`ModelContext` e devolve `nil` no restrito tira o gate da lembrança de quem
+escreve a próxima superfície. Não foi feito aqui para a volta não inchar — está
+nomeado, com o tamanho medido.
+
+**2. O corte da lista é POR ESTADO.** `prefix(12)` sobre a lista com os abertos
+na frente apagava todos os fechados assim que os abertos passavam de doze: com
+dezessete, a tela virava doze contadores de dívida, sem uma descoberta e sem um
+abandono. É o modo de falha que o dono nomeou com as próprias palavras ("se a
+tela fizer o autor se sentir devendo, a volta não passa"), chegando por um
+limite de lista. `Latencia.paraTela` dá cota a cada estado: **2 devidos, o resto
+de 4 em afirmados** (na ordem do tempo, o mais velho primeiro), **2 sem data,
+4 descobertos** (os mais recentes) **e 2 abandonados** — teto de doze linhas, e
+cada estado que existe sobrevive ao corte. A linha de resumo continua contando
+TUDO: a lista é amostra, o número é inteiro.
+
+**3. A autoria viaja junto (05r).** `Latencia.registros` descartava
+`propostaPor`, então o registro anterior à 05r e a hipótese proposta pela IA
+apareciam como do autor — sob uma frase que dizia "entre **você** afirmar". A
+latência de uma hipótese que a IA propôs não é a latência do autor. `Registro`
+leva `propostaPor` e a linha ganha a marca quando ela NÃO é do autor: "proposta
+por Grok", "autoria desconhecida" para o registro antigo — as mesmas palavras
+que a `TrabalhoView` já imprime. Sem marca significa do autor, e a decisão nunca
+tem marca porque decisão é escrita do autor e não tem proponente. A frase de
+abertura perdeu o "você": "quanto tempo passa entre afirmar uma coisa e saber
+se estava certa".
+
+**Prova da L1-B.** Suíte integral no iPhone 17 Pro Max de teste, 06/09/2026:
+`✔ Test run with 792 tests in 131 suites passed after 6.525 seconds.` /
+`** TEST SUCCEEDED **`. `LatenciaTests`: 13 testes. Na tela, com o estado que a
+revisão usou para derrubar (origem selada + dezessete abertos + autoria perdida,
+`MODO=b python3 ferramentas/orca/semear-latencia.py`):
+`ferramentas/orca/l1b-selo-nao-vaza.png` — a hipótese do trabalho de origem
+trancada é a MAIS VELHA de todas e não aparece em lugar nenhum; e
+`l1b-quatro-estados-e-autoria.png` — com dezoito em aberto, as doze linhas
+trazem afirmado, devido, descoberto (com data e sem data) e abandonado, e as
+duas primeiras dizem "autoria desconhecida" e "proposta por Grok". A decisão
+trancada e respondida não entra na contagem: o resumo diz 4 descobertas, não 5.
+`maestro/latencia.yaml` ganhou `assertNotVisible: "SEGREDO SELADO.*"`.
+
+**O ida-e-volta pelo app**, que a revisão pediu e tinha razão:
+`maestro/latencia-ida-e-volta.yaml` cria a hipótese PELA TELA do Trabalho,
+avalia PELA TELA e a encontra no Perfil como "descoberto · levou menos de um
+dia", sem nenhuma marca de autoria alheia
+(`ferramentas/orca/l1b-ida-e-volta-pelo-app.png`). Isso fecha a circularidade de
+o semeador e o leitor terem sido escritos pela mesma mão: o ciclo está provado
+pelo app. A SÉRIE de meses continua dependendo da semeadura, e a série real do
+dono só existe no aparelho dele.
+
+**Ainda fora na L1-B:** a barra do mês continua normalizada pelo pior mês da
+série, sem escala fixa — duas capturas de meses diferentes não são comparáveis
+entre si. É decisão do dono (pista fixa ou nenhuma barra) e não foi tomada aqui.
+
+### A volta L1-C — a barra sai, ficam as palavras
+
+**Por que não há barra.** Ela não mentia: o número em dias estava escrito ao
+lado, e não havia meta, cor nem seta. Mas a escala era a série, não a duração —
+**o pior mês da série é sempre 100 %**. Um mês com mediana de 300 dias enchia
+97,6 % da pista e um mês com mediana de 1 dia encheria igual, porque a barra
+codificava POSIÇÃO NA SÉRIE ao lado de um número ABSOLUTO. O relance e a leitura
+discordavam, e num painel cujo contrato inteiro é "nunca vira placar" a barra era
+o elemento mais parecido com um placar da tela. **A única escala honesta seria
+absoluta, e uma escala absoluta de dias não cabe na largura nem informa**: a
+latência real vai de horas a anos, então ou a pista tem um teto arbitrário (que
+é meta disfarçada) ou os meses curtos viram fios de 1 px. As palavras já eram
+honestas e já estavam lá — "julho de 2026 · 21 dias · 3 descobertas" —, então
+tirar foi entrega, não recusa. Decisão do dono (DIRETRIZ §6), não do
+implementador.
+
+**O que ficou no lugar: o espaço.** Sem barra, o que separa um mês do outro é o
+vão, e vão fixo quebra em AX5 — a linha do mês passa a ocupar três linhas e um
+espaço de 8 pt some dentro da própria entrelinha, colando os três meses num
+bloco só. O vão entre meses vira `@ScaledMetric(relativeTo: .footnote)`, e o vão
+do grupo até os registros carrega o mesmo valor **somado** ao ritmo da seção,
+para que a fronteira do grupo seja sempre maior que a distância interna (a
+inversão de proximidade que a barra escondia).
+
+**Prova da L1-C.** Suíte integral no iPhone 17 Pro Max de teste (6033B043),
+06/09/2026: `✔ Test run with 792 tests in 131 suites passed after 9.267
+seconds.` / `** TEST SUCCEEDED **`. Na tela, com a semeadura de três meses
+(`MODO=a`): `ferramentas/orca/l1c-sem-barra-large.png` — julho 21 dias, agosto
+4 dias e setembro 49 dias em três linhas de palavras, sem barra, e a série ainda
+lida como série; `l1c-sem-barra-ax5.png` — em AX5 cada mês quebra em três linhas
+e continua separado do vizinho e do primeiro registro. `xcrun simctl io
+screenshot`, não a captura do maestro.
+
+**Fora — e é volta própria, não conserto desta.** A L1-B fechou a rota da nota
+selada para ABANDONADO ("trancar uma nota nunca foi abandonar a decisão") e com
+isso deixou a Decisão **sem nenhuma porta para `abandonado`**: hipótese chega lá
+pelo Trabalho encerrado, decisão não chega de jeito nenhum. A consequência é a
+conflação INVERTIDA — a decisão que o autor nunca vai conferir fica DEVIDA para
+sempre, e o único jeito de tirá-la da tela é trancar a nota, que é exatamente o
+gesto que a L1-B declarou não ser abandono. Falta o gesto de "não vou conferir
+esta": um ato explícito do autor sobre a decisão (não sobre a nota), que a
+levasse a ABANDONADO e a tirasse da dívida sem selar nada. Não foi implementado
+aqui de propósito — inventar o gesto pede campo novo ou releitura do "espero", e
+esta volta é de subtração. Fica nomeado, com o modo de falha medido: uma tela
+que existe para não fazer o autor se sentir devendo tem hoje um estado que só
+sai pela porta errada.
 ## ADR 2026-09-06k — O Recordar tem um pé, um eixo e uma coluna quando a letra cresce (volta 19)
 
 **A distância.** A auditoria V9 deu **6,2** ao Recordar (Design 5 · Movimento 5 ·

@@ -12,6 +12,9 @@ struct PerfilView: View {
     /// se mexem uma vez na vida — e o "⋯" ainda era duplicata do "+" do campo.
     var agenda: CalendarioAgenda
     @Environment(\.openURL) private var abrir
+    /// Sem a barra, o que separa um mês do outro é só o espaço: em AX5 a linha
+    /// do mês quebra em três e um vão fixo some dentro da própria entrelinha.
+    @ScaledMetric(relativeTo: .footnote) private var entreMeses: CGFloat = 8
 
     @State private var ligada = ContaGrok.ligada
     @State private var estado: String?
@@ -46,6 +49,9 @@ struct PerfilView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.modelContext) private var context
     @Query(sort: \Nota.criadaEm, order: .reverse) private var notas: [Nota]
+    /// ADR 06j: as hipóteses do Trabalho entram na latência pela mesma tela.
+    @Query private var trabalhos: [Trabalho]
+    @State private var serieDaLatencia = Latencia.Serie()
 
     var body: some View {
         ZStack {
@@ -59,6 +65,9 @@ struct PerfilView: View {
                     calendario.emCartao()
                     ajustes.emCartao()
                     sabiaEVoce.emCartao()
+                    // a latência vem logo depois do retrato: é a mesma família
+                    // — o que o autor registrou, em contagem e sem conclusão
+                    latencia.emCartao()
                     metodos.emCartao()
                     // as férias vêm DEPOIS dos ajustes de todo dia: primeiro o
                     // que vale sempre, depois a exceção (serial-position, e o
@@ -104,6 +113,7 @@ struct PerfilView: View {
         .task {
             estado = await ContaGrok.estado()
             lerRetrato()
+            lerLatencia()
         }
         .confirmationDialog("Esquecer tudo o que o Traço registrou?",
                             isPresented: $confirmarEsquecer, titleVisibility: .visible) {
@@ -185,6 +195,121 @@ struct PerfilView: View {
             .padding(.top, 4)
             linhaAcao("Esquecer tudo") { confirmarEsquecer = true }
                 .accessibilityIdentifier("esquecer-sinais")
+        }
+    }
+
+    // MARK: - Latência da descoberta (ADR 2026-09-06j)
+
+    /// Nada aqui pede trabalho ao autor: a leitura sai do que ele já escreveu.
+    /// ponytail: um `Versoes.listar` por decisão, síncrono — são dezenas de
+    /// JSONs pequenos e a tela abre uma vez; se um dia doer, a data da
+    /// descoberta vira campo gravado na hora em que "o que aconteceu" enche.
+    private func lerLatencia() {
+        var registros: [Latencia.Registro] = []
+        for t in trabalhos where AcessoTrabalho.permitido(t, no: context) {
+            guard let doc = try? t.ler() else { continue }
+            registros += Latencia.registros(hipoteses: doc.hipoteses, encerrado: doc.encerrado)
+        }
+        for n in notas where n.gesto == .decisao {
+            // `registro` devolve nil para nota selada: o selo fecha a rota
+            if let r = Latencia.registro(decisao: n.uuid, campos: n.campos,
+                                         criadaEm: n.criadaEm, fechada: n.fechada) {
+                registros.append(r)
+            }
+        }
+        serieDaLatencia = Latencia.serie(registros)
+    }
+
+    private var latencia: some View {
+        let s = serieDaLatencia
+        return VStack(alignment: .leading, spacing: Tema.entreItens) {
+            rotulo("LATÊNCIA DA DESCOBERTA")
+            Text("Quanto tempo passa entre afirmar uma coisa e saber se estava certa. Sai do que já está escrito — as hipóteses do Trabalho e as decisões com data de conferir —, não há nada a preencher aqui. Hipótese sem resposta é informação, e abandonar é resultado.")
+                .font(.footnote)
+                .foregroundStyle(Tema.tintaFraca)
+                .fixedSize(horizontal: false, vertical: true)
+            if s.vazia {
+                Text("ainda não há série — ela nasce quando você propõe uma hipótese num Trabalho ou escreve uma Decisão com data de conferir.")
+                    .font(.footnote)
+                    .foregroundStyle(Tema.tintaFraca)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityIdentifier("latencia-vazia")
+            } else {
+                Text(Latencia.emPalavras(s))
+                    .font(Tema.chrome)
+                    .foregroundStyle(Tema.tinta)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityIdentifier("latencia-resumo")
+                if !s.meses.isEmpty { meses(s.meses) }
+                registrosDaLatencia(s)
+            }
+        }
+    }
+
+    /// A série: um mês por linha, na ordem do tempo, só em palavras. Não há
+    /// barra: normalizada pela série, o pior mês enchia a pista sempre — 300
+    /// dias e 1 dia desenhariam igual —, e a única escala honesta seria
+    /// absoluta, que em dias não cabe na largura nem informa (ADR 06j, L1-C).
+    private func meses(_ lista: [Latencia.Mes]) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Por mês, o tempo do meio entre as descobertas daquele mês.")
+                .font(Tema.miudo)
+                .foregroundStyle(Tema.tintaFraca)
+            VStack(alignment: .leading, spacing: entreMeses) {
+                ForEach(lista) { m in
+                    Text(m.inicio.formatted(.dateTime.month(.wide).year())
+                         + " · " + Latencia.emDias(m.mediana)
+                         + " · \(m.quantas) descoberta\(m.quantas == 1 ? "" : "s")")
+                        .font(.footnote)
+                        .foregroundStyle(Tema.tintaSuave)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+        }
+        .padding(.top, 4)
+        // o vão até os registros tem de ser MAIOR que o vão entre os meses,
+        // senão em AX5 a primeira linha de registro entra no grupo dos meses
+        .padding(.bottom, entreMeses)
+        .accessibilityIdentifier("latencia-meses")
+    }
+
+    /// Os abertos viajam junto dos fechados: uma série só do que fechou
+    /// esconderia justamente o que nunca voltou. O corte é POR ESTADO
+    /// (`Latencia.paraTela`) para que os quatro sobrevivam a ele.
+    private func registrosDaLatencia(_ s: Latencia.Serie) -> some View {
+        return VStack(alignment: .leading, spacing: 10) {
+            ForEach(Latencia.paraTela(s)) { r in
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(Latencia.rotulo(r.estado) + " · " + medidaDe(r)
+                         + (r.autoria.map { " · " + $0 } ?? ""))
+                        .font(Tema.miudo)
+                        .foregroundStyle(Tema.tintaFraca)
+                    if !r.texto.isEmpty {
+                        Text(r.texto)
+                            .font(.footnote)
+                            .foregroundStyle(Tema.tintaSuave)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+                .accessibilityElement(children: .combine)
+            }
+        }
+        .padding(.top, 4)
+        .accessibilityIdentifier("latencia-registros")
+    }
+
+    private func medidaDe(_ r: Latencia.Registro) -> String {
+        switch r.estado {
+        case .descoberto:
+            // o registro antigo (ADR 05r) diz que não sabe, e não deduz
+            guard let d = r.dias else { return "tempo desconhecido" }
+            return "levou " + Latencia.emDias(d)
+        case .afirmado, .devido:
+            let ha = "em aberto há " + Latencia.emDias(r.diasEmAberto() ?? 0)
+            guard let quando = r.devidoEm else { return ha }
+            return ha + " · conferir em " + quando.formatted(date: .abbreviated, time: .omitted)
+        case .abandonado:
+            return "fechado sem conferir"
         }
     }
 

@@ -1,0 +1,108 @@
+# ADR 2026-09-06j. O ida-e-volta que fecha a circularidade: a hipótese nasce
+# PELA TELA do Trabalho, é avaliada PELA TELA, e aparece no Perfil como
+# "descoberto · menos de um dia". Não precisa de viagem no tempo — o que ela
+# prova é o CICLO, não a série de meses (essa é a semeadura, e está declarada).
+# Capturas de prova: xcrun simctl io <UDID> screenshot.
+appId: app.traco
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: {id: "pagina"}
+    timeout: 15000
+# a mesma navegação de `latencia.yaml`: da escrita, a borda esquerda traz o
+# arquivo. Pelo `openLink` a barra de baixo não troca de aba depois da folha.
+- swipe:
+    start: 1%, 50%
+    end: 85%, 50%
+- tapOn: {id: "aba-notas"}
+- extendedWaitUntil:
+    visible: {id: "abrir-trabalhos"}
+    timeout: 15000
+- tapOn: {id: "abrir-trabalhos"}
+- extendedWaitUntil:
+    visible: {id: "trabalho-nova-intencao"}
+    timeout: 15000
+- tapOn: {id: "trabalho-nova-intencao"}
+- inputText: "Apresentar a ideia ao cliente"
+- waitForAnimationToEnd: {timeout: 1000}
+- tapOn: {id: "trabalho-criar"}
+- extendedWaitUntil:
+    visible: {id: "trabalho-pedido"}
+    timeout: 15000
+- waitForAnimationToEnd: {timeout: 2500}
+# o teclado abre no pedido e cobre o resto da folha
+- swipe:
+    start: 50%, 30%
+    end: 50%, 85%
+    duration: 900
+- waitForAnimationToEnd: {timeout: 1500}
+# AFIRMAR: a hipótese escrita pela tela, agora
+- scrollUntilVisible:
+    element: {id: "pratica-dificuldade"}
+    direction: DOWN
+    centerElement: true
+    timeout: 20000
+# o toque vai no PLACEHOLDER, não no contêiner do campo: o identificador cobre
+# rótulo e campo, e o centro dele às vezes cai no rótulo, que não dá foco
+- tapOn: "Pode ser contexto, recursos, acesso ou divisão do trabalho"
+- waitForAnimationToEnd: {timeout: 2000}
+- inputText: "o ida e volta pelo proprio app"
+# o texto ENTROU no campo: sem isto, o guardar cai no guarda de campo vazio e
+# o fluxo passaria adiante sem ter afirmado nada
+- extendedWaitUntil:
+    visible: "o ida e volta pelo proprio app"
+    timeout: 10000
+# a rolagem recolhe o teclado (mesmo gesto de `trabalho-curva-zero`);
+# `hideKeyboard` acrescentava uma letra ao campo
+- swipe:
+    start: 50%, 30%
+    end: 50%, 85%
+    duration: 900
+- waitForAnimationToEnd: {timeout: 1500}
+- scrollUntilVisible:
+    element: {id: "pratica-guardar-dificuldade"}
+    direction: DOWN
+    centerElement: true
+    timeout: 20000
+- tapOn: {id: "pratica-guardar-dificuldade"}
+# a autoria é do autor porque foi ele quem escreveu, e a tela do Trabalho diz
+- extendedWaitUntil:
+    visible: "Proposta por Você.*"
+    timeout: 15000
+# SABER: avaliar pela tela, no mesmo dia
+- scrollUntilVisible:
+    element: {id: "pratica-confirmar-hipotese"}
+    direction: DOWN
+    centerElement: true
+    timeout: 20000
+- tapOn: {id: "pratica-confirmar-hipotese"}
+- waitForAnimationToEnd: {timeout: 2000}
+- tapOn: {id: "trabalho-voltar"}
+- waitForAnimationToEnd: {timeout: 1500}
+# a folha do Trabalho volta para a LISTA de trabalhos, que ainda cobre a barra
+- tapOn: "voltar"
+- extendedWaitUntil:
+    visible: {id: "aba-perfil"}
+    timeout: 15000
+# VER: a mesma hipótese, medida, no Perfil
+- waitForAnimationToEnd: {timeout: 2000}
+- tapOn: {id: "aba-perfil"}
+- waitForAnimationToEnd: {timeout: 2000}
+# "Perfil" sozinho não serve de prova: é também o rótulo da aba, e passa sem
+# a tela ter trocado. `latencia-resumo` só existe no Perfil.
+- scrollUntilVisible:
+    element: {id: "latencia-resumo"}
+    direction: DOWN
+    timeout: 90000
+# a linha e o texto são UM elemento (`children: .combine`), então o padrão
+# precisa do rabo: o rótulo vem colado no que a hipótese diz
+- scrollUntilVisible:
+    element: {text: "descoberto . levou menos de um dia.*"}
+    direction: DOWN
+    timeout: 90000
+- assertVisible: ".*o ida e volta pelo proprio app.*"
+# ela é do autor: nenhuma marca de autoria alheia nem de registro antigo
+- assertNotVisible: ".*autoria desconhecida.*"
+- assertNotVisible: ".*proposta por .*"
+- takeScreenshot: /tmp/traco-verify/latencia-ida-e-volta
