@@ -302,6 +302,16 @@ Trabalho que já existe. Nada de `EstadoExercicio` persistido (decisão da V17,
 item 3). Nada de resumo escrito pela IA: quem sabe o que mudou é o app, que tem
 os vínculos; modelo não inventa o que a pessoa fez.
 
+## Trilha própria: Mac (permanente; brief em papeis/trilha-mac.md; casos em ferramentas/grokbot/CASOS.md)
+
+Ordem do dono de 08/09 à noite: os ONZE casos de uso do Traço no Mac pelo Grok Bot, todos. Sempre uma volta desta trilha em edição, dentro do teto de três.
+
+| # | volta | casos | estado |
+|---|---|---|---|
+| MAC-1 | ler tudo e escrever com origem: `traco_agenda`, `traco_decisoes`, `traco_escrever` com origem/fontes, `agenda.md`, etiqueta de origem na nota | 1, 2 (leitura), 3, 8, 9, 11 | abre agora |
+| MAC-2 | a porta de volta do Trabalho: `trabalhos/<id>.md`, `trabalhos/entrada/`, `traco_trabalho_escrever`, `traco_tentativa`, `traco_relatar` | 2 (escrita), 4, 5, 6 | depois da MAC-1; Astra no G0 |
+| MAC-3 | web e briefing com citação obrigatória | 7, 10 | depois da Q mesclar |
+
 ## Próximas, em ordem
 
 | # | volta | valor | esforço | ciclo | lacuna (EVOLUCAO) |
