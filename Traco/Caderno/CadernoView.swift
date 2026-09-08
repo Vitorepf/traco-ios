@@ -18,6 +18,12 @@ struct CadernoView: View {
     /// (AX5 + régua + cartão com três saídas deixava uma letra do autor à
     /// vista); a régua, que já segue o foco, cede ao cartão.
     var esconderRegua: Bool = false
+    /// A folha dos campos está a subir ou em cena: o encaixe inteiro sai por
+    /// corte — a régua também, porque o foco NÃO cai quando a folha sobe (o
+    /// teclado desce sem o SwiftUI soltar o `FocusState`), e a régua descendo
+    /// com o teclado deixava o "Todas" legível sobre os campos do papel por
+    /// ~100 ms (V12-E, quadros nativos).
+    var folhaEmCena: Bool = false
     @Binding var texto: String
     var foco: FocusState<Bool>.Binding
     var folga: CGFloat
@@ -55,6 +61,12 @@ struct CadernoView: View {
     /// Altura desta view — com o teclado de pé, a tela menos o teclado.
     @State private var alturaDisponivel: CGFloat = 0
     @State private var alturaDoPe: CGFloat = 0
+    /// A régua entra e sai POR CORTE, fora da transação em que o foco muda:
+    /// dentro de uma transação animada o SwiftUI segura a régua removida até o
+    /// fim da animação, e o "Todas" ficava no lugar enquanto o pé descia
+    /// (resíduo medido na V12-D). Com o papel agora dono da faixa, ficaria
+    /// sobre texto.
+    @State private var reguaEmCena = false
     /// Três linhas de corpo: o piso declarado do papel (ADR 05y).
     @ScaledMetric(relativeTo: .body) private var pisoDoPapel: CGFloat = 92
 
@@ -105,7 +117,15 @@ struct CadernoView: View {
                 .padding(.bottom, abaixo == nil ? 0 : 28)
             }
             .scrollDismissesKeyboard(.interactively)
+            .onScrollGeometryChange(for: CGFloat.self, of: { $0.containerSize.height }, action: seguirAoMudarAJanela)
         }
+    }
+
+    /// A janela do papel mudou (teclado, cartão, aviso, pé): a linha ativa tem
+    /// de continuar dentro dela. Lido do ScrollView de verdade, depois do
+    /// layout — medido pelo container ele chegava um quadro antes dos bounds.
+    private func seguirAoMudarAJanela(_: CGFloat, _: CGFloat) {
+        EscritaVisivel.seguirCaret(folga: folga)
     }
 
     private var paginaFatias: some View {
@@ -120,6 +140,7 @@ struct CadernoView: View {
             .padding(.bottom, 28)
         }
         .scrollDismissesKeyboard(editando == nil ? .interactively : .never)
+        .onScrollGeometryChange(for: CGFloat.self, of: { $0.containerSize.height }, action: seguirAoMudarAJanela)
     }
 
     @ViewBuilder
@@ -151,7 +172,7 @@ struct CadernoView: View {
                 .accessibilityIdentifier("a-gravar")
                 .accessibilityLabel("Parar gravação")
         }
-        if foco.wrappedValue, let trecho = Rede.ligacaoEmVoo(texto),
+        if reguaEmCena, let trecho = Rede.ligacaoEmVoo(texto),
            !sugestoesDeLigacao(trecho).isEmpty {
             barraDeLigacao(trecho)
                 .padding(.horizontal, Tema.margem)
@@ -162,7 +183,7 @@ struct CadernoView: View {
                     Rectangle().fill(Tema.linha).frame(height: 0.5)
                 }
                 .transition(.identity)
-        } else if foco.wrappedValue, !esconderRegua {
+        } else if reguaEmCena, !esconderRegua, !folhaEmCena {
             regua
                 .padding(.horizontal, Tema.margem)
                 .padding(.vertical, 4)
@@ -198,74 +219,94 @@ struct CadernoView: View {
         Self.tetoDoEncaixe(altura: alturaDisponivel, pe: alturaDoPe, piso: pisoDoPapel)
     }
 
+    /// O encaixe: o que fica acima do pé (aviso, cartão, "lendo…") e o pé.
+    /// Irmão do papel na pilha do `body`, nunca por cima dele.
+    private var encaixe: some View {
+        VStack(spacing: 0) {
+            acima
+                // o cartão nunca come a página: se o que sobra não chega,
+                // é o TEXTO DO CARTÃO que rola dentro do teto, nunca a
+                // linha que o autor está a escrever que sai da tela. O teto
+                // viaja pelo ambiente para o cartão o usar POR DENTRO (é lá
+                // que a rolagem dele mora); o `.frame` aqui é a rede.
+                .environment(\.tetoDoEncaixe, tetoDoEncaixe)
+                // A rede NÃO PODE EXPANDIR (ADR 08f): `.frame(maxHeight:)` é flexível
+                // e enchia o teto inteiro (554 pt com o teclado de pé) mesmo vazio —
+                // e esta pilha é opaca, logo cobria o papel a partir da terceira
+                // linha. `fixedSize` devolve à caixa a altura do ocupante; o teto
+                // segue como limite e `.bottom` como lei do pé.
+                .frame(maxHeight: tetoDoEncaixe, alignment: .bottom)
+                .fixedSize(horizontal: false, vertical: true)
+            peDoEncaixe
+                .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { alturaDoPe = $0 }
+        }
+        // uma animação para a superfície inteira: os filhos trocam DENTRO
+        // dela — quem anima é a ALTURA do container, não a opacidade de
+        // dois irmãos que ocupam as mesmas linhas. Por isso os ocupantes
+        // entram e saem por `.identity`: com `.move(edge: .bottom)` a régua
+        // DESLIZAVA por cima do rodapé e ficava legível em duas posições, uma
+        // delas na linha de base de "Trabalhar nisto" (G3 da V12, A1 —
+        // `v12-rev-cruzamento-regua-pe.png`); o `.clipped()` é do VStack
+        // inteiro e não separa irmão de irmão. Cortar aqui não perde
+        // movimento: o encaixe cresce e revela, que é a lei da gaveta.
+        // A régua entra e sai com o TECLADO, e o teclado já tem a sua curva:
+        // uma gaveta de 0,4 s por cima de uma descida de 0,25 s são dois
+        // relógios no mesmo evento, e o que se vê é o pé numa geometria e o
+        // cartão noutra, os dois legíveis (A3 do G4 da V12, ~215 ms sem RM
+        // no toque em "Abrir os campos"). Aqui a régua CORTA e quem carrega
+        // o movimento é o teclado. A gaveta fica onde a altura muda sozinha:
+        // `esconderRegua` (o cartão a chegar em AX).
+        .animation(Tema.gaveta(reduzido: reduceMotion), value: esconderRegua)
+        .clipped()
+        // o papel desce até a borda: sem isto o texto rolado aparecia por
+        // baixo do pé, na faixa do indicador de casa (AX5, 06/09)
+        .background(Tema.fundo.ignoresSafeArea(edges: .bottom))
+    }
+
     var body: some View {
-        // O ZStack existe para dar ao ENCAIXE uma identidade que não troca.
-        // `paginaCaderno` escolhe entre página una e fatias, e `paginaUna` entre
-        // ter ou não ter `abaixo` — vestir a forma cria os campos e vira esse
-        // ramo. Com o `.safeAreaInset` pendurado direto no ramo, o SwiftUI
-        // trocava a ÁRVORE INTEIRA e dissolvia o pé velho sobre o novo: régua em
-        // duas posições, cartão velho sobre o novo (G3 da V12, A1). O texto não
-        // ghostava porque é igual nos dois; o pé, que muda de altura, sim.
-        ZStack(alignment: .top) { paginaCaderno }
-        // o encaixe ancora no FIM desta view: sem preencher a altura, a régua
-        // ficava pendurada no meio da tela, com um vão até a barra de ações
+        // A LEI DA ESCRITA VISÍVEL mora AQUI (ADR 08f, V12-E): o contêiner
+        // concede ao papel e ao encaixe áreas EXCLUSIVAS — irmãos de uma pilha,
+        // nenhum pixel em comum. Antes o encaixe era um `.safeAreaInset`, e o
+        // ScrollView do papel corria POR BAIXO dele: o `TextEditor` julgava o
+        // caret visível dentro de um frame que o pé e o cartão cobriam (G4 final
+        // da V12, A2 — 0 pixels de caret em 11 amostras), e ao abrir a folha o
+        // papel refluía ATRAVESSANDO o cartão (A1). Com áreas disjuntas nada do
+        // papel pode desenhar sob o encaixe em quadro nenhum, por construção;
+        // rolar até o caret é de `EscritaVisivel`, e `EscritaVisivelTests` mede
+        // as duas coisas na Página real.
+        VStack(spacing: 0) {
+            // O ZStack existe para dar ao papel uma identidade que não troca.
+            // `paginaCaderno` escolhe entre página una e fatias, e `paginaUna`
+            // entre ter ou não ter `abaixo` — vestir a forma cria os campos e vira
+            // esse ramo; com o encaixe pendurado direto no ramo, o SwiftUI trocava
+            // a ÁRVORE INTEIRA e dissolvia o pé velho sobre o novo (G3 da V12, A1).
+            ZStack(alignment: .top) { paginaCaderno }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            encaixe
+        }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .onChange(of: foco.wrappedValue) { _, agora in
+            var t = Transaction(); t.disablesAnimations = true
+            withTransaction(t) { reguaEmCena = agora }
+            EscritaVisivel.seguirCaret(folga: folga)
             if !agora, descendoDoTitulo {
                 descendoDoTitulo = false
                 foco.wrappedValue = true
             }
         }
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            VStack(spacing: 0) {
-                acima
-                    // o cartão nunca come a página: se o que sobra não chega,
-                    // é o TEXTO DO CARTÃO que rola dentro do teto, nunca a
-                    // linha que o autor está a escrever que sai da tela. O teto
-                    // viaja pelo ambiente para o cartão o usar POR DENTRO (é lá
-                    // que a rolagem dele mora); o `.frame` aqui é a rede.
-                    .environment(\.tetoDoEncaixe, tetoDoEncaixe)
-                    // A rede NÃO PODE EXPANDIR (ADR 08f): `.frame(maxHeight:)` é flexível
-                    // e enchia o teto inteiro (554 pt com o teclado de pé) mesmo vazio —
-                    // e esta pilha é opaca, logo cobria o papel a partir da terceira
-                    // linha. `fixedSize` devolve à caixa a altura do ocupante; o teto
-                    // segue como limite e `.bottom` como lei do pé.
-                    .frame(maxHeight: tetoDoEncaixe, alignment: .bottom)
-                    .fixedSize(horizontal: false, vertical: true)
-                peDoEncaixe
-                    .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { alturaDoPe = $0 }
-            }
-            // uma animação para a superfície inteira: os filhos trocam DENTRO
-            // dela — quem anima é a ALTURA do container, não a opacidade de
-            // dois irmãos que ocupam as mesmas linhas. Por isso os ocupantes
-            // entram e saem por `.identity`: com `.move(edge: .bottom)` a régua
-            // DESLIZAVA por cima do rodapé e ficava legível em duas posições, uma
-            // delas na linha de base de "Trabalhar nisto" (G3 da V12, A1 —
-            // `v12-rev-cruzamento-regua-pe.png`); o `.clipped()` é do VStack
-            // inteiro e não separa irmão de irmão. Cortar aqui não perde
-            // movimento: o encaixe cresce e revela, que é a lei da gaveta.
-            // A régua entra e sai com o TECLADO, e o teclado já tem a sua curva:
-            // uma gaveta de 0,4 s por cima de uma descida de 0,25 s são dois
-            // relógios no mesmo evento, e o que se vê é o pé numa geometria e o
-            // cartão noutra, os dois legíveis (A3 do G4 da V12, ~215 ms sem RM
-            // no toque em "Abrir os campos"). Aqui a régua CORTA e quem carrega
-            // o movimento é o teclado. A gaveta fica onde a altura muda sozinha:
-            // `esconderRegua` (o cartão a chegar em AX).
-            .animation(Tema.gaveta(reduzido: reduceMotion), value: esconderRegua)
-            .clipped()
-            // o papel desce até a borda: sem isto o texto rolado aparecia por
-            // baixo do pé, na faixa do indicador de casa (AX5, 06/09)
-            .background(Tema.fundo.ignoresSafeArea(edges: .bottom))
-        }
+        // a linha nova: o papel rola até o caret (só enquanto há foco). O teclado
+        // a subir e o cartão a chegar disparam pela geometria do próprio
+        // ScrollView, em `paginaUna`/`paginaFatias`.
+        .onChange(of: texto) { _, _ in EscritaVisivel.seguirCaret(folga: folga) }
         // O PISO DO PAPEL (ADR 05y, correção do G4): o que sobra da tela depois
-        // do encaixe é o trabalho do autor. A medida vem DEPOIS do
-        // `.safeAreaInset` de propósito — medida por dentro dele, ela já vinha
-        // descontada do próprio encaixe e o teto realimentava a si mesmo. Aqui
-        // é a altura inteira desta view, que com o teclado de pé já é a tela
-        // menos o teclado. O pé mede-se sozinho e não depende do cartão.
+        // do encaixe é o trabalho do autor. A medida é a altura INTEIRA desta
+        // view, que com o teclado de pé já é a tela menos o teclado — medida por
+        // dentro do encaixe ela vinha descontada dele e o teto realimentava a si
+        // mesmo. O pé mede-se sozinho e não depende do cartão.
         .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { alturaDisponivel = $0 }
         .onAppear {
             unaCrua = Caderno.paginaUna(texto) != nil
+            reguaEmCena = foco.wrappedValue
         }
         // A régua segue o FOCO e mais nada. Duas tentativas de amarrá-la ao
         // teclado falharam: seguir a PRESENÇA do teclado apagava a régua inteira

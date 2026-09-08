@@ -3237,7 +3237,9 @@ as 8 de `animacao`/`morph` e as 4 de `gaveta` do app**, não só para a Página:
 quadros nativos: na Página, a linha que abre a prosa e o toque em "Abrir os campos", sete quadros
 nativos por linha, SEM Reduzir Movimento (`v12d-sem-rm-quadros.png`) e COM
 (`v12d-com-rm-quadros.png`): o cartão está num quadro e não está no seguinte, e
-em nenhum há par legível na mesma faixa; no **Calendário**, tela de outra volta,
+em nenhum há par legível na mesma faixa — **afirmação corrigida pela V12-E
+(08f): o G4 final mediu ~100 ms sem RM e ~125 ms com, e a prova passa a ser
+amostrada, nunca universal**; no **Calendário**, tela de outra volta,
 Dia→Semana e Semana→Mês sob RM em UM quadro cada
 (`v12d-calendario-rm-corta.png`), onde a fade de 0,15 s dava uma interpolação de
 quatro a cinco. A chegada do cartão sob RM também virou um quadro
@@ -5404,6 +5406,13 @@ mesma raiz de layout ou o mesmo esquecimento de contraste.
 3. **A `Pilula` desabilitada** devolvia `tintaMorta` (#C7C7CC) — **1,53:1**
    sobre o papel — para TODOS os chamadores (A3 da revisão da V19).
 
+**Correção da V12-E (08/09, à noite):** o que esta ADR chama de "fantasma do
+`.sheet`" fechou só em parte — o vão e o salto de 176 pt caíram, mas o par
+legível ficou (~100 ms sem Reduzir Movimento, ~125 ms com, medidos pelo G4
+final em quadros nativos, `g4f-fantasma-*`); a frase "nenhum par legível" abaixo
+e na 05y era falsa. O que a V12-E mudou e o que ela mediu está na seção
+**"A invariante da escrita visível (V12-E)"**, no fim desta ADR.
+
 **A causa dos dois primeiros é uma só, e não é o `.sheet`.** `CadernoView` dá
 ao encaixe `.frame(maxHeight: tetoDoEncaixe)` — sem alinhamento. Sem alinhamento
 o conteúdo fica **centrado** numa caixa cuja altura é o teto, e o teto cresce
@@ -5515,3 +5524,109 @@ rolagem em regime (1516); a digitação segue com o ruído de 0–1 quadro de
 45–54 ms. Nenhuma linha de app mudou por isto, e nada vai ao RUMO: não há
 custo a declarar. Linhas de 21 rodadas em `ferramentas/orca/v12d-hitch-linhas.txt`;
 relato `v12d-letra-e-quadro.md`.
+
+### A invariante da escrita visível (V12-E, 08/09)
+
+**A distância.** O G4 final recusou a volta pela segunda vez com dois achados:
+**A2**, o autor escreve às cegas assim que o texto passa da altura do papel —
+em AX5 com o encaixe vazio e em `large` com o cartão, **0 pixels de caret em 11
+amostras**, porque o frame do papel corria POR BAIXO do encaixe (`Página` até
+0,667 em AX5, 77 pt dentro do cartão em `large`) e o `TextEditor` julgava o caret
+visível dentro de um frame que o pé e o cartão cobriam; e **A1**, o fantasma de
+"Abrir os campos" continuava vivo (~100 ms sem RM, ~125 ms com), com o papel a
+refluir ATRAVESSANDO o cartão enquanto o teclado descia. A segunda recusa abriu
+consulta ao conselho (`ferramentas/orca/consulta-v12-invariante.md`), e a decisão
+do orquestrador é o contrato desta seção.
+
+**A invariante, com estas palavras:** *em cada quadro apresentado enquanto a
+Página recebe escrita, a linha visual ativa inteira e o retângulo do caret
+pertencem à área livre do papel; nenhuma outra superfície pode desenhar nessa
+área.* Protege a última linha digitada, inclusive vazia; o piscar do caret não
+suspende a proteção.
+
+**A decisão.**
+
+- **A lei mora no contêiner.** `CadernoView.body` deixa de pendurar o encaixe
+  num `.safeAreaInset` — que deixava o `ScrollView` do papel correr por baixo
+  dele — e passa a ser uma pilha de dois irmãos, **papel e encaixe, sem pixel em
+  comum**: o papel recebe o que sobra, o encaixe (aviso, cartão, "lendo…", régua,
+  ações) fica abaixo, com o mesmo teto e o mesmo piso de antes. Nada do papel
+  pode desenhar sob o encaixe em quadro nenhum, por construção; um tipo novo com
+  `CGRect` não resolveria, porque um ancestral ainda poderia ignorá-lo.
+- **O papel rola de verdade até o caret.** `EscritaVisivel.seguirCaret` (em
+  `Traco/Caderno`) corre quando o texto muda, quando o foco muda e quando a
+  janela do `ScrollView` muda (teclado, cartão, aviso, pé — lido por
+  `onScrollGeometryChange`, depois do layout); acha o editor focado, mede o
+  caret, e põe o offset MÍNIMO que traz a linha inteira (caret mais a folga entre
+  linhas) para dentro da área visível. Só enquanto há foco: com o teclado
+  recolhido o autor pode estar a reler qualquer parte. Detalhes que custaram
+  medida: o `ScrollView` do SwiftUI ignora `scrollRectToVisible` (o offset é
+  posto à mão), e a rolagem corre por `RunLoop.main.perform`, não pela fila
+  principal do GCD — um runloop aninhado (o de um teste hospedado) não esvazia a
+  fila, e o seguidor só correria depois de o teste acabar. O SwiftUI segue o
+  caret sozinho em parte dos casos (73 de 75 amostras sem o seguidor, medido),
+  mas deixa a linha ~10 pt sob o pé e não reage ao cartão a chegar; o seguidor
+  garante a linha inteira em todos.
+- **Se falta espaço, o aparato cede antes da escrita:** o teto do encaixe e o
+  piso do papel (05y) continuam a lei; só recortar o papel segue reprovado.
+- **O teste geométrico entra na suíte, hospedado:** `EscritaVisivelTests` monta
+  a Página REAL do app hospedeiro (a `Sessao` viva é publicada por um gancho só
+  de DEBUG em `PaginaView`), espera o editor focado e o teclado de software,
+  digita mais do que cabe no papel — no fim e no meio — e, a cada inserção, mede
+  na mesma coordenada da janela: **E** (a linha do caret pelo layout do TextKit
+  2, mais o caret), **P** (o recorte do `ScrollView` do papel e de todo ancestral
+  que recorta, sem o teclado) e **O** (toda camada À FRENTE do editor que toque a
+  linha — pela árvore de `CALayer`, porque o SwiftUI desenha texto e cor sem
+  `UIView`). Em `large` e AX5 (por `traitOverrides` na janela), com o encaixe
+  vazio, o cartão e o aviso. O teste NÃO rola o papel: quem rola é o app. Verde
+  no candidato: **AX5 31 de 31 amostras, `large` 44 de 44**, teclado de software
+  real nos dois. Vermelho com as duas plantas: uma camada intrusa sobre as
+  últimas linhas do papel (**59 amostras reprovadas**, "CALayer 0,360 440×120 |
+  CGDrawingLayer") e uma superfície do encaixe desenhada 120 pt para cima sobre
+  o papel (**59 reprovadas**, "CALayer 0,280 440×120"); plantas removidas.
+- **Limite do instrumento, escrito:** sob `xcodebuild test` o teclado de
+  software nasce fora da tela e o hospedeiro do SwiftUI não desvia dele; o teste
+  o levanta pelo UIKit (soltar e pedir o foco de novo) e repõe o desvio por
+  `additionalSafeAreaInsets` — a mesma coisa, pela porta do UIKit — conferindo
+  que o papel ficou acima do teclado antes de medir. Rodado sozinho, o teclado
+  real subiu nos dois tamanhos; dentro da suíte integral (892 testes, 146
+  suítes, verde) ele ficou fora da tela e a altura foi reservada com a etiqueta
+  "EMULADO" na linha do relato. A suíte inteira corre no mesmo processo, e
+  outra suíte pode deixar o app noutra camada (`CalendarioTrabalhoTests` posta
+  `abrirCompromisso`): o teste volta à Página e exige papel limpo antes de medir.
+- **A1, a parte decidida por corte.** A pilha sozinha NÃO bastou, e os quadros
+  nativos disseram por quê (`v12e-antes-abrir-*`): no toque em "Abrir os
+  campos" o teclado desce, o `UIScrollView` do papel recebe o frame FINAL de
+  imediato e o desenho do SwiftUI (cartão, pé, régua) desce animado — por ~100
+  ms, sem e com RM, os rótulos dos campos (conteúdo do papel) ficavam legíveis
+  entre a linha do cartão e "Trabalhar nisto". A causa concreta é o encaixe
+  continuar em cena enquanto a folha sobe. Agora `PaginaView.abrirCampos` tira
+  o encaixe INTEIRO — cartão, pé e régua — numa transação sem animação e só
+  depois põe a folha a subir; ao descer a folha, o encaixe volta por corte
+  (`folhaEmCena`). A régua também passa a entrar e sair por corte fora da
+  transação em que o foco muda (`reguaEmCena`). O contrato temporal do
+  conselho — cada pixel reservado a uma superfície textual tem um único dono em
+  todo quadro — fica atendido porque, do toque até a folha cobrir a tela, a
+  única superfície na faixa é o papel. A prova é **amostrada por quadros
+  nativos** (`v12e-abrir-sem-rm.mp4`, `v12e-abrir-com-rm.mp4`, uma tomada por
+  modo), e o número está no relato; **não é universal**. O oráculo de pixels
+  sobre a composição nativa é volta própria e vai para o RUMO: custa
+  instrumentação de renderização e não certifica "nenhum quadro possível".
+
+**O que esta seção não muda.** Nenhuma curva, duração ou `withAnimation` novo.
+`Tema.swift` intacto. O `.sheet` continua `.sheet`. **Custo assumido:** ao abrir
+a folha o encaixe some por corte e, ao voltar, reaparece por corte — a folha
+cobre a tela nos dois instantes.
+
+**O condutor da prova de tela.** O helper compartilhado do `orca emulator`
+relança (ou derruba) o app da frente ao anexar — provado por bissecção, e com
+três voltas a disputá-lo ele apagou o texto digitado e derrubou o app duas
+vezes. A prova de tela passou a ser conduzida por um alvo XCUITest
+(`TracoUITests`, esquema próprio, fora da suíte integral): toques e teclado
+reais pelo XCTest, `-UIPreferredContentSizeCategoryName` para AX5, e
+`xcrun simctl io <UDID>` de fora, sincronizado por arquivos-sinal.
+
+**Prova** (iPhone 17 Pro Max `6033B043`, `TRACO_SEM_MODELO=1`, teclado de
+software — "Connect Hardware Keyboard" desligado para o UDID e restaurado —,
+tudo por `xcrun simctl io` preso ao UDID; direção por `orca emulator` sob
+`com-trava.sh`, sem maestro e sem mouse): `ferramentas/orca/v12e-escrita-visivel.md`.
