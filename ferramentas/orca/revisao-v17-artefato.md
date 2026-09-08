@@ -59,3 +59,28 @@ O botão novo chama `levouAoQueFalta`, então bloqueia o início se já houver r
 No B91C8DEF, o app abriu com `-ensaio-oferta-da-pratica` e a árvore mostrou um Trabalho local existente, sem qualquer conta Grok. O argumento só aparece em `PraticaTrabalho.swift:22-36`, dentro de `#if DEBUG`; a configuração Release não define `DEBUG` (`project.pbxproj:1147`), portanto não compila para Release. Ele somente torna `oferta` visível: `prepararPratica` e `conferirTentativa` continuam retornando indisponibilidade sem conta e não há token/rede criado por esse ramo.
 
 Fica por verificar com IA real: recebimento de uma leitura semanticamente útil, adaptação realmente pertinente ao erro e às três restrições do caso espanhol, comportamento diante de JSON/resultado ruim, cancelamento de uma chamada real e nova tentativa posterior. Isso é limite assumido da V17, não evidência de aprovação semântica.
+
+# re-G3 — os dois P1 agora são invariantes do agregado
+
+**VEREDITO: PASSA.** Os dois P1 de G3 deixam de depender da folha: a causa por leitura é validada tanto no nascimento quanto na leitura do documento, e uma edição iniciada sobre N não consegue ser gravada como se respondesse à N+1. Não encontrei P0/P1 novo no diff `5b627e9...4bbc6c1`.
+
+## Ataque e evidência independente
+
+- **Simulador e suíte:** `ferramentas/orca/com-trava.sh xcodebuild test -project Traco.xcodeproj -scheme Traco -destination 'platform=iOS Simulator,id=B91C8DEF-B0A7-454A-95DE-5D7BA7B040A9' -parallel-testing-enabled NO` passou em **912 testes / 145 suítes**, sem falhas, no iPhone 17 Pro (teste 2), iOS 26.5. Resultado: `/tmp/re-g3-v17b-B91C8DEF.xcresult`.
+- **N+2 e disco:** `aMesmaLeituraNaoSustentaUmSegundoAjusteNoProprioDocumento` cria o primeiro ajuste, tenta a N+2 por `iniciarPedido` sem UI e injeta um segundo `Pedido.ajuste` no documento forjado. A injeção é recusada por `validar()`; a rota real de leitura é direta (`Trabalho.ler`: decodifica e chama `validar()` antes de devolver), e `referenciaCorrompidaTambemRecusaAberturaSemSobrescrever` exerce essa abertura depois de gravar JSON corrompido no `Trabalho`. Assim não há uma segunda rota de leitura que pule a invariância. Observação de precisão: o novo teste forja e chama `validar()` em memória, não serializa especificamente a N+2 antes de chamar `ler()`; o efeito no disco decorre da rota única de `Trabalho.ler`, não de uma quarta asserção isolada.
+- **Contestação e história:** `iniciarPedido` consulta `leituraDoAjuste` depois de `validarAjuste`; `validar()` continua aceitando a leitura posteriormente contestada. O teste contesta a leitura, recusa o ajuste novo e em seguida valida o documento que ainda conserva a versão/causa original: a distinção é correta e não apaga história.
+- **Edição concorrente:** `preparacaoEmCurso` inclui `adaptando`; `guardarVersaoHumana(_:base:)` recusa `base != versaoAtual`. O entrelaçamento determinístico do teste entrega N+1 depois de a pessoa ter N, recusa o salvamento sobre N e confirma a persistência; salvar sobre N+1 continua permitido. Aceito a prova por teste+código sem captura: neste aparelho o estado não se mantém sem conta Grok, e uma foto não acrescentaria evidência estável. A jornada com provedor real permanece da frente Q.
+- **Superfície:** conferi as três capturas do candidato. `v17b-a-tres-capsulas.png` mostra exatamente Conferir minha tentativa, Conferir e adaptar o exercício e Nova tentativa; `v17b-b-a-pedido-seu.png` mostra “A pedido seu.” seguido do pedido escrito; `v17b-c-campo-do-pedido.png` preserva a via no campo. AX e `simctl io` foram ambos usados no mesmo B91C8DEF; não toquei C2416CBC nem A1DF082C.
+
+## Scorecard re-G3
+
+| dimensão | nota | evidência colada e julgamento |
+|---|---:|---|
+| Contrato | 9 | `validarAjuste` exige critério apontado, leitura concluída e divergente, e `conferenciaID` único; é chamado por `iniciarPedido` e pelo laço de `validar()`. Contestação é corretamente guarda de nascimento, não veto retroativo do documento. |
+| Correção | 9 | 912/0 no UDID independente; N+2 por rota do agregado, documento forjado, contestação preservando história e corrida N→N+1 têm testes. A prova de disco da N+2 é composta pela rota única `ler`→`validar`, com teste de abertura corrompida já existente; não é um bypass. |
+| Simplicidade | 9 | A causa do pedido escrito existe nas duas rotas do campo antes da remoção; não inventa evidência. A tela volta de quatro para três cápsulas, confirmado visualmente. |
+| Complexidade | 9 | A autoridade migrou de guards de UI para `DocumentoTrabalho`; não há novo tipo, dependência, superfície ou fluxo paralelo. A base opcional reutiliza o mutador existente e cobre quem já estava editando. |
+
+## Limite que permanece
+
+Não houve afirmação de qualidade semântica nem jornada Grok real neste portão. Para torná-la prova de release, a frente Q ainda precisa executar e ler integralmente o caso real, incluindo resposta ruim, interrupção e nova tentativa.
