@@ -5902,6 +5902,21 @@ encaixe, q27 sem, folha q35; com RM q26/q27/q34 — os mesmos números da V12-F.
 Suíte integral 891/892 (1 pulado, 0 falhas) em `B91C8DEF`. Relato:
 `ferramentas/orca/v12g-pe-ax5.md`.
 
+### A última frase falsa, e a árvore mesclada (V12-H, 08/09)
+
+"O que esta seção não muda" dizia que a folha cobre a tela nos dois instantes
+do corte. Na abertura é falso — o próprio parágrafo acima diz que "do toque
+até a folha cobrir a tela" só há papel — e o juiz mediu o buraco duas vezes:
+**6 quadros de papel nu, 45–90 ms conforme o aparelho**. A frase agora diz o
+medido. A ADR é contrato, não narrativa: quem lê "cobre" constrói por cima.
+`main` (08b, 08e, 08g–08k) entrou no branch com a 08f no seu lugar
+cronológico; a árvore mesclada dá build sem aviso e suíte integral
+**933/933 em 152 suítes (1 pulada, 0 falhas)** em `B91C8DEF`, com
+`PortaoDoMovimentoTests` verde — os 41 testes a mais são de `main`. A
+evidência do G4 e dos dois re-G4 está comitada reduzida (nenhum arquivo acima
+de 400 KB; vídeos com a contagem de quadros conferida igual). Relato:
+`ferramentas/orca/v12h-g5.md`.
+
 ## ADR 2026-09-08g — A frase do autor não termina em reticências (volta F4-F)
 
 **A distância.** A F4 foi mesclada em `main` sem o último portão, com quatro dívidas escritas no RUMO. A primeira, e a que abriu a volta original, é a mais dura: **em AX5, no widget pequeno e no médio, a linha do Destaque terminava em reticências** quando o rodapé "Desatualizado." entrava — `terminar o capítulo do meio antes…` no pequeno, `terminar o capítulo do meio antes de do…` no médio, com metade do cartão vazia embaixo. Fotografado de novo em 08/09 na tela viva, antes de tocar em Swift: `ferramentas/orca/f5-antes-ax5-desatualizado.png`.
