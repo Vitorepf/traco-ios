@@ -472,7 +472,7 @@ enum MotorTrabalho {
         try Task.checkCancellation()
         let remoto = pedido(d, p, teto: tetoRemoto, praticaPreservada: praticaPreservada)
         if remoto.count <= tetoRemoto,
-           let texto = await Grok.responder(sistema: sistema, usuario: remoto, temperatura: 0.3, timeout: 90, esforco: "medium", modelo: Grok.modeloTrabalho),
+           let texto = await Grok.responder(sistema: sistema, usuario: remoto, temperatura: 0.3, timeout: Grok.tetoTrabalho, esforco: "medium", modelo: Grok.modeloTrabalho),
            !texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             return .init(texto: texto, produtor: remoto.contains("[CONTEXTO PARCIAL:") ? "Grok · parte do histórico" : "Grok")
         }
@@ -505,7 +505,7 @@ extension MotorTrabalho {
         let dificuldade = d.dificuldadeVigente
         if mensagem.count <= tetoRemoto,
            let cru = await Grok.responder(sistema: PraticaTrabalho.sistemaPreparar,
-                                          usuario: mensagem, temperatura: 0.3, timeout: 90,
+                                          usuario: mensagem, temperatura: 0.3, timeout: Grok.tetoTrabalho,
                                           esquema: PraticaTrabalho.esquemaRemotoPreparacao, esforco: "high", modelo: Grok.modeloTrabalho),
            let bruta = PraticaTrabalho.parsePreparacao(cru),
            let pratica = PraticaTrabalho.validar(bruta, dificuldade: dificuldade) {
@@ -539,7 +539,7 @@ extension MotorTrabalho {
         }
         guard mensagem.count <= tetoRemoto else { return naoCoube(tetoRemoto) }
         if let cru = await Grok.responder(sistema: PraticaTrabalho.sistemaConferir,
-                                          usuario: mensagem, temperatura: 0.2, timeout: 90,
+                                          usuario: mensagem, temperatura: 0.2, timeout: Grok.tetoTrabalho,
                                           esquema: PraticaTrabalho.esquemaRemotoConferencia(pratica, tentativa: tentativa), esforco: "high", modelo: Grok.modeloTrabalho) {
             let executor = "Grok \(PraticaTrabalho.sufixoDoExecutor)"
             guard let resultados = PraticaTrabalho.parseConferencia(cru, pratica: pratica, tentativa: tentativa) else {

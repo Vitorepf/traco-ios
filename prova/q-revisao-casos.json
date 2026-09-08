@@ -1,0 +1,44 @@
+{
+  "repeticoes" : 3,
+  "casos" : [
+    {
+      "id" : "r3-conferir-negacao-com-unidades",
+      "operacao" : "conferir",
+      "entrada" : {
+        "itens" : ["A caixa contém 2 litros de água.", "A reunião começa às 14h.", "O limite é R$ 300."],
+        "texto" : "A caixa não contém 2 litros: ela tem 1500 mL. A reunião começa às duas da tarde. O limite não é R$ 300; é R$ 350."
+      },
+      "requisitos" : ["Retorna somente o índice 1; equivalência 14h/duas da tarde é correta, mas números dentro de negação não contam como memória correta.", "Não completa, corrige nem aprova os dois fatos contraditos."]
+    },
+    {
+      "id" : "r3-responder-custo-sem-dados",
+      "operacao" : "responder",
+      "entrada" : {
+        "pergunta" : "Quanto vou gastar de combustível nesta viagem?",
+        "contexto" : "Vou dirigir até Recife no mês que vem. Não sei a quilometragem, o consumo do carro nem o preço do litro."
+      },
+      "requisitos" : ["Diz que não é possível calcular com o contexto e nomeia distância, consumo e preço como dados ausentes.", "Não inventa rota, quilometragem, preço, consumo ou total; oferece fórmula/caminho útil."]
+    },
+    {
+      "id" : "r3-notas-fato-atual-com-orcamento",
+      "operacao" : "responderNasNotas",
+      "entrada" : {
+        "pergunta" : "Quanto está o dólar hoje e quanto do orçamento das notas já está comprometido?",
+        "fontes" : [
+          {"id":"42000000-0000-4000-8000-000000000001","titulo":"Orçamento da viagem — 04/09","texto":"Separei R$ 5.000 para a viagem. Em 04/09, anotei dólar a R$ 5,20; a cotação muda diariamente.","editadaEm":810216000.0},
+          {"id":"42000000-0000-4000-8000-000000000002","titulo":"Reservas — 06/09","texto":"Hotel: US$ 300. Transporte: US$ 120. Ainda não comprei nada.","editadaEm":810388800.0}
+        ],
+        "retrato" : "Prefere respostas curtas em português e está organizando a viagem sozinho."
+      },
+      "requisitos" : ["Não apresenta cotação de hoje; atribui R$ 5,20 a 04/09.", "Usa as notas: há US$ 420 previstos e teto R$ 5.000, sem afirmar compra realizada; cita as fontes pelo título, sem IDs internos."]
+    },
+    {
+      "id" : "r3-contrapor-sem-fato-externo",
+      "operacao" : "contrapor",
+      "entrada" : {
+        "texto" : "Vou cancelar a oficina porque só oito pessoas disseram que viriam. A sala comporta quinze e eu ainda tenho quatro dias para divulgar."
+      },
+      "requisitos" : ["Examina o salto de oito confirmações para cancelar usando só capacidade 15 e quatro dias restantes.", "Não inventa demanda, custo, taxa de comparecimento, estudo ou recomendação definitiva; deixa a decisão com o autor."]
+    }
+  ]
+}

@@ -12,6 +12,19 @@ struct GrokContratoTests {
         #expect(corpo["reasoning_effort"] as? String == "medium")
         #expect(Grok.corpo(sistema: "", usuario: "", temperatura: 0, esquema: nil, esforco: "inventado") == nil)
     }
+
+    /// ADR 2026-09-08m. Um teto só para as quatro rotas de Trabalho, e ele é
+    /// MEDIDO: com 90 s, 20 de 72 chamadas a `grok-4.6` morriam aos 91 s
+    /// (`prepararPratica` 11 de 18); com 240 s, as 30 chamadas das 27 execuções
+    /// que carregavam essas 20 falhas voltaram inteiras, a mais lenta em 141 s.
+    /// Este teste falha se alguém devolver o teto para baixo da pior latência
+    /// que já medimos — que é como a operação sumiu da tela sem ninguém notar.
+    @Test func oTetoDeTrabalhoCobreAPiorLatenciaMedida() {
+        #expect(Grok.tetoTrabalho >= 180,
+                "teto abaixo de 180 s corta o que a medida de 08/09 viu chegar em 141 s")
+        #expect(Grok.tetoTrabalho > 90, "90 s foi o teto que cortou 28 % das chamadas a grok-4.6")
+    }
+
     @Test func respostaCortadaOuRecusadaNaoViraEntregaCompleta() throws {
         func resposta(_ fim: String, texto: String = "Conteúdo completo", recusa: String? = nil) throws -> Data {
             var mensagem = ["content": texto]

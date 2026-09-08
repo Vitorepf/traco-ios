@@ -116,7 +116,13 @@ pendente, sem impedir correções e avaliações locais.
 
 Primeira medida COM a conta Grok ligada, no único aparelho autorizado
 (`C2416CBC`). 16 operações × 6 casos × 3 execuções, três lançamentos distintos,
-sem memo. Candidato `325c819`; bundle instalado conferido por sha256; fixture
+sem memo. Candidato **`acdfcb4`** — o commit que carrega a quarta regra, a
+sobrecarga morta apagada e as quinze provas. (`325c819`, que esta seção dizia
+antes, só acrescenta `ferramentas/orca/LACO.md` e não implementa nada da 08k;
+corrigido em 08/09 pela volta Q-B, achado do G3.) A corrida usou **dois**
+binários, e o JSONL diz qual é qual: a matriz de 16 × 6 × 3 rodou na árvore de
+`325c819` (bundle `504d29d7…`, dylib `2152892a…`), e a remedição com fontes
+tipadas rodou na árvore que virou `acdfcb4` — ver a tabela na ADR 08k. Fixture
 `prova/q-qualidade-casos.json` (`29654d46…`); saídas inteiras em
 `prova/q-qualidade-avaliacoes.jsonl`; leitura em `ferramentas/orca/q-qualidade.md`.
 
@@ -130,6 +136,9 @@ sem memo. Candidato `325c819`; bundle instalado conferido por sha256; fixture
 - 20 falhas de transporte (28 % das 72 chamadas a `grok-4.6`), TODAS nas rotas
   de Trabalho, com teto de 90 s; 0 falhas em 177 chamadas `grok-4.3`.
   `prepararPratica` cai a 1 de 6 casos por isso, não por conteúdo. Indisponibilidade falha atendimento e não sai do denominador.
+  **20 é o número certo; onde se leu 12 (ADR 08k e EVOLUCAO) estava errado** —
+  a própria tabela somava 11 + 6 + 3. Recontado linha a linha no JSONL em
+  08/09 pela Q-B, que também mediu o conserto (ADR 2026-09-08m).
 - **Medida invalidada, e o defeito é nosso:** três casos de
   `responderNasNotas` usaram `Sabia.responderNasNotas(pergunta:contexto:)`,
   que não tinha chamador de produção e fabricava uma fonte de título

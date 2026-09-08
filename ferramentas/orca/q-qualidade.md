@@ -1,8 +1,10 @@
 # Volta Q — a qualidade da IA, medida com a conta ligada
 
 08/09/2026 · implementador (Claude Opus 5) · branch `Vitorepf/volta-q-qualidade`,
-candidato congelado em `325c819`. **Esta é a leitura do implementador. A nota
-final é do revisor independente, não minha.**
+candidato **`acdfcb4`** — corrigido em 08/09 pela volta Q-B (o G3 mostrou que
+`325c819`, o hash que este relatório trazia, é o **pai** de `acdfcb4` e só
+acrescenta o `LACO.md`). **Esta é a leitura do implementador. A nota final é do
+revisor independente, não minha.**
 
 ## G0 — a linha da volta
 
@@ -34,8 +36,8 @@ simulador do Grok.
 | o quê | valor |
 |---|---|
 | aparelho | iPhone 17 Pro `C2416CBC-C5D9-41F9-ACD8-45EED8FC355E`, iOS 26.5 (23F77) |
-| candidato | `325c819`, Debug, construído em `generic/platform=iOS Simulator` |
-| bundle **efetivamente instalado** | `Traco` sha256 `504d29d7…0442` · `Traco.debug.dylib` sha256 `2152892a…315c` — conferidos no contêiner do aparelho, não no diretório de build |
+| candidato | **`acdfcb4`**, o commit dos 15 arquivos da Q, Debug |
+| binários da corrida | **dois**, e o JSONL diz qual é qual: a matriz de 16 × 6 × 3 (corridas `05D574C2`, `D91E98DE`, `F4D24F76`) na árvore de `325c819`, com `Traco` sha256 `504d29d7…0442` e `Traco.debug.dylib` sha256 `2152892a…315c` conferidos no contêiner; a remedição com fontes tipadas (`1FB24380`, `60B40CFE`, `B7A619E5`) na árvore que virou `acdfcb4`, que é a única cuja sonda exige `fontes`. Ver a tabela na ADR 08k |
 | fixture | `prova/q-qualidade-casos.json`, sha256 `29654d46…c909b5`, 96 casos |
 | fixture da remedição | `prova/q-qualidade-notas-tipadas.json`, sha256 `ea68b976…4b37f` |
 | JSONL | `prova/q-qualidade-avaliacoes.jsonl` (cópia do `avaliacoes-ia.jsonl` do Documents do app) |
@@ -202,8 +204,9 @@ chamadas a `grok-4.6` — **28 %** — contra **0 de 177** em `grok-4.3`:
 | todas as rotas em `grok-4.3` | **0 / 177** | nenhuma falha de transporte |
 
 Para o autor, uma operação que falha metade das vezes por tempo é uma operação
-que não está lá. Isso é defeito medido, não detalhe. **O conserto — teto maior,
-retentativa, ou raciocínio menor nessas rotas — não é desta volta.**
+que não está lá. Isso é defeito medido, não detalhe. **O conserto é da volta
+Q-B: ADR 2026-09-08m, teto medido em vez de teto suposto** — e o número certo
+aqui é 20, não 12 (a ADR 08k e o EVOLUCAO diziam 12; 11 + 6 + 3 = 20).
 
 ## 7. A tabela `Politica`, antes e depois (ADR 2026-09-08k)
 
