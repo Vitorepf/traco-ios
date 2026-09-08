@@ -10,7 +10,7 @@ Três voltas abertas ao mesmo tempo, cada uma no próprio worktree filho nascido
 |---|---|---|---|---|
 | P1 | item 7 (o portão que impede `withAnimation` fora de `Tema`) + item 5 (A-6) + item 6 (M3) | TracoTests, Metodos.json, Analise, SPEC | teste 4 → 17e | **MESCLADA** em `29cc2ce` (ADR 08e; G3 corrigir antes → correção → re-G3 APROVADO por outro fornecedor; dívida real de curva literal = ZERO; 894 testes na árvore mesclada) |
 | F4-F | item 2 (F4: o Destaque longo cortado pelo rodapé, o quadro de ofertas, tela bloqueada/StandBy/Ilha sem captura, o médio de uma linha) | TracoWidget, App/Intents | teste 3 `34CC3F94` | EM EDIÇÃO |
-| L2 | item 4 (L1: o G4 reprovado — Design 8, Simplicidade 7: teto de 12 meses, `Tema.miudo` dentro do app, frase-resumo em duas linhas, `quantas == 1`; falta escuro, B×AX5 e VoiceOver) | Traco/Perfil, Tema.swift | iPhone 17 Pro `C2416CBC` | EM EDIÇÃO |
+| L2 | item 4 (L1: o G4 reprovado) | Traco/Perfil, Tema.swift | iPhone 17 Pro | **MESCLADA** em `9a711eb` (ADR 08h; G3 corrigir antes → prova refeita no binário → G4 PASSA com Design 9 e Simplicidade 8 declarada teto honesto) |
 
 **Dívidas que a rodada de 08/09 destapou, e viram volta própria:**
 - **Um arquivo de teste viveu em `main` sem nunca rodar.** `TracoTests/ContinuidadeTrabalhoTests.swift` existia e estava fora do alvo de teste; nada acusou, e só apareceu porque o `xcodegen` da P1 o ligou de carona. Falta um portão que exija que todo `TracoTests/*.swift` esteja no alvo. Ciclo: melhorar (barateia toda volta seguinte, como o portão do movimento). Evidência: o teste falha quando alguém acrescenta um arquivo de teste fora do alvo.
@@ -169,6 +169,13 @@ Ordem do dono de 07/09 à noite: limpeza geral do git, sem perder nada, só `mai
 8. Depois: **V13 Notas**, **V15 Calendário** (as duas começam conferindo a auditoria V9 na tela viva) e **V17 em Markdown** (G0 acima).
 
 **Branches guardados como tag, não mescláveis:** `arquivo/feat-traco-folha` (03–05/09: a nota como folha sobre o tampo, share de entrada, arrasto na lista — 4 commits) e `arquivo/fix-furos-radiografia` (02/09: selo desde o primeiro caractere, arranque honesto com banco que não abre, uma porta só para o disco, apagar com desfazer, 70 fluxos com asserção — 12 commits). Os dois nasceram em `c1e1bbe`, 184 commits atrás; `main` reimplementou parte por outro caminho (ADRs 05h/05s). O que ainda vale deles é ideia a reler, não código a colar — o `try!` de `DiscoTraco.abrir` no arranque (`TracoApp.swift:13`), que a radiografia tratava, continua vivo em `main`.
+
+### Vindas do fecho da L2 (08/09), para a volta do Perfil
+
+- **A decisão que levaria a tela a 9 não é a extração dos cartões** — o juiz do G4 mediu e disse: extrair não muda um pixel (é dívida de Complexidade). O que muda a Simplicidade é **decidir o que o Perfil mostra por padrão**. Essa é a linha G0 da volta do Perfil.
+- **A copy do horizonte está imprecisa:** os "12 últimos" são meses **com descobertas**, não os doze últimos meses do calendário.
+- **VoiceOver do Perfil continua por ouvir** — ligar o leitor exige reiniciar o aparelho, o que é proibido no meio de uma rodada; precisa de uma janela própria.
+- **O transbordo horizontal do Perfil em AX5** reproduz em `HEAD` sem o diff da volta, e o app Ajustes no mesmo aparelho não transborda: é de `Camadas`/`RaizView`.
 
 ## A fila do dono, 08/09 — as doze prioridades do Astra, mapeadas nas voltas
 
