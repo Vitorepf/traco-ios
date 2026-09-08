@@ -4,7 +4,7 @@ import SwiftUI
 
 @main
 struct TracoApp: App {
-    // ADR 2026-09-08n: o arranque deixou de ser `try!`. A recusa do disco é
+    // ADR 2026-09-08s: o arranque deixou de ser `try!`. A recusa do disco é
     // estado, e o estado é `@State` porque "tentar de novo" é o único ato
     // honesto que se pode oferecer — um disco cheio ou um arquivo ainda preso
     // pelo iCloud abre na segunda vez.

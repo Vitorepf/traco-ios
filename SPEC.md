@@ -6211,7 +6211,7 @@ pedido ativo é interrompido na abertura do documento. Ele está provado por tes
 captura. A lacuna da jornada com provedor real continua exatamente como a 08j a
 declarou — é prova da frente Q.
 
-## ADR 2026-09-08n — O arranque que não abre tem de dizer, não morrer (volta A1)
+## ADR 2026-09-08s — O arranque que não abre tem de dizer, não morrer (volta A1)
 
 `TracoApp.swift:13` era `try! DiscoTraco.abrir(emTeste:)`. O RUMO registrava a
 morte no arranque desde a limpeza de 07/09, e o item 8 da fila do dono pedia

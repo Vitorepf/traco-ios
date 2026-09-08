@@ -1,7 +1,7 @@
 # Volta A1 — o arranque honesto: o Traço que não abre tem de dizer, não morrer
 
 Implementador: Claude Opus 5. Simulador: **iPhone 17 Pro Max `6033B043-F436-41F9-B4F8-2D9E67761980`**.
-ADR: **2026-09-08n**. Branch: `Vitorepf/volta-a1-arranque`, sem mesclar.
+ADR: **2026-09-08s**. Branch: `Vitorepf/volta-a1-arranque`, sem mesclar.
 
 Declaro: toda sessão de `orca emulator` e todo `xcodebuild` passaram por
 `ferramentas/orca/com-trava.sh` — **segurei a trava**. Nenhum mouse ou teclado

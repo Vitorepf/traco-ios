@@ -6,7 +6,7 @@ import Testing
 /// recuperação e preservam o conteúdo") e a dívida que a limpeza de 07/09
 /// registrou no RUMO: `TracoApp.swift:13` fazia `try! DiscoTraco.abrir(…)`, e
 /// um banco que não abrisse matava o app no arranque — sem tela, sem
-/// explicação, sem recuperação (ADR 2026-09-08n).
+/// explicação, sem recuperação (ADR 2026-09-08s).
 ///
 /// `try!` num caminho de produção é uma decisão de matar o processo tomada no
 /// ponto de uso, longe de quem vai ver a tela morrer. O portão não proíbe:
@@ -126,7 +126,7 @@ struct PortaoDoTryBangTests {
 
             `try!` mata o processo no ponto de uso, longe de quem vê a tela
             morrer — foi assim que o arranque do Traço morria com o banco
-            fechado (ADR 2026-09-08n). Escreva `try?` com estado tratado, ou
+            fechado (ADR 2026-09-08s). Escreva `try?` com estado tratado, ou
             `do/catch` com uma tela que diga o que houve, onde o conteúdo está
             e o próximo ato. Se for mesmo infalível por construção (regex
             literal), acrescente a linha na tabela de `faltosos` com o

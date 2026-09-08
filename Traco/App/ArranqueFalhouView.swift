@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// O arranque que não abriu (ADR 2026-09-08n, item 8 da fila do dono: "falhas
+/// O arranque que não abriu (ADR 2026-09-08s, item 8 da fila do dono: "falhas
 /// previsíveis permitem recuperação e preservam o conteúdo").
 ///
 /// A tela responde às três perguntas de quem abre o app e não vê o caderno, na

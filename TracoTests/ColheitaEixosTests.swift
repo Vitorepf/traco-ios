@@ -815,7 +815,7 @@ struct GestoNovosNomesTests {
     }
 }
 
-/// ADR 2026-09-08n: a recusa do disco é ESTADO, nunca `try!` e nunca um
+/// ADR 2026-09-08s: a recusa do disco é ESTADO, nunca `try!` e nunca um
 /// contentor de emergência. Um caderno vazio na RAM deixaria o app inteiro de
 /// pé sobre nada — e as rotas do selo (`Corpus.escrever`) apagam do espelho em
 /// Arquivos todo `.md` que não estiver na lista que recebem.

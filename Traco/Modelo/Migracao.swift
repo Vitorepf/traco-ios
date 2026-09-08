@@ -80,7 +80,7 @@ enum TracoMigracao: SchemaMigrationPlan {
 /// sobre um caderno vazio — e as rotas do selo (`Corpus.escrever`) apagam do
 /// espelho em Arquivos todo `.md` que não estiver na lista que recebem. Um
 /// caderno vazio na RAM sobrevoando o espelho é o estrago que o defeito ainda
-/// não tinha feito (ADR 2026-09-08n). Preservar vem antes de voltar a funcionar.
+/// não tinha feito (ADR 2026-09-08s). Preservar vem antes de voltar a funcionar.
 enum DiscoTraco {
     /// O container do app, para os intents reusarem em vez de abrir outro.
     static var compartilhado: ModelContainer?
