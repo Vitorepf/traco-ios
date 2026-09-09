@@ -407,6 +407,10 @@ Perfil tem de dizer a segunda em vez da primeira; se não sabe, é contrato a cr
 **Estado honesto**, e a mesma família da 08q: *nunca mande conectar a conta que a
 pessoa já tem*.
 
+## D1 — Notas sem slop (veredito do dono 09/09 11h22: 4/10; DIRETRIZ §9)
+
+Ciclo: multiplicar (achar e marcar sem pensar na ferramenta). Intenção: a lista de notas ser uma folha do Traço, não uma lista de sistema com selos. Obstáculo: chips em cápsula, etiquetas em caixa alta à direita, rótulo "A VOLTA", barra de busca padrão, "Trabalhos" como linha de menu — o dono chamou de slop. Evidência: antes/depois em large e AX5, vídeo de 15 s no aparelho da conta enviado ao dono, teste do genérico do `tastemaker` respondido por escrito, curva-zero de achar/marcar medida em toques, e o dono dando a nota. Escopo: `Traco/Notas/NotasView.swift`, `Traco/Notas/NotasFiltro.swift`, `Traco/Componentes/{Pilula,ChipDominio,Rotulo}.swift`, `Traco/App/BarraNavegacao.swift`, Tema. Fora: motor de busca, Trabalho. Designer Fable, juiz Fable, revisor GPT 5.6 Terra. Astra não.
+
 ## Próximas, em ordem
 
 | # | volta | valor | esforço | ciclo | lacuna (EVOLUCAO) |

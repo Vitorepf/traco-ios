@@ -85,3 +85,13 @@ O que isso muda:
 - **Otimizar ao máximo:** `swiftui-performance-audit` e Instruments nas telas de lista, editor e parser; hitch, alocação por tecla e reparse inteiro são defeitos. Cada volta de otimização traz a medida antes e depois, no mesmo aparelho.
 - **Ponytail é lei de código:** a solução mais curta que funciona; nada de abstração para um caso, nada de camada "para depois"; deleção conta como entrega; a suíte cobre o ramo que muda e mais nada. O revisor reprova por excesso tanto quanto por falta.
 - **A ordem de fila continua a da §7** (IA até a nota 9, design ao extremo), com a caça a defeitos correndo em paralelo como trilha.
+
+## 9. Veredito do dono sobre o design, 09/09 11h22 — "uma porcaria, 4/10, deplorável, muito IA slop"
+
+Ele olhou a tela de Notas do build de hoje (chips de filtro em cápsula, a linha "Trabalhos", a seção "A VOLTA", a lista com etiqueta de método e de domínio à direita, a barra "Buscar ou perguntar", a barra de abas com o Escrever em âmbar) e deu **4 de 10**. A palavra dele é **slop**: tela que qualquer app de notas gerado por IA teria. A barra dele são apps lapidados por anos — Notes, Things, Craft — e a sensação de FOLHA, não de lista de sistema.
+
+O que isso muda:
+- **A nota das telas do scorecard cai para o que ele deu.** Notas = 4. As outras telas se presumem no mesmo nível até ele dizer o contrário. Nenhuma "nota 9" do juiz vale contra o veredito dele; o juiz calibra pelo dono.
+- **Volta de design D1, Notas, abre como frente prioritária ao lado da IA.** Fase 5 do design-router primeiro (auditar antes de tocar, com esta tela como o "antes"), depois Ancorar com direção própria: o que dá identidade ao Traço é o papel, a letra e o silêncio, não cápsulas, etiquetas e barras. `tastemaker` para o teste contra design genérico ("se trocar o nome, serve a qualquer app?"), `curva-zero` para a jornada de achar e marcar, `design-router` nas seis fases, `gate-loop` no ciclo. Juiz G4 em Fable, e o dono julga o resultado em vídeo.
+- **O que ele NÃO quer ver:** cápsula de filtro em fileira, etiqueta em caixa alta à direita de cada linha, seção em rótulo de sistema ("A VOLTA"), barra de busca de sistema, "Trabalhos" como linha de menu. O que ele quer sentir: uma folha, hierarquia por tipografia, o método e o domínio ditos com uma palavra em tinta suave e não em selo, o gesto de escrever como a coisa principal.
+- **Cada volta de tela daqui em diante termina com um vídeo de 15 s no aparelho da conta, enviado ao dono**, e só ele fecha a nota.
