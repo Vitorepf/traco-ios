@@ -103,3 +103,22 @@ retomar é o dono reautorizar a conta no `C2416CBC`; depois, uma nova revisão
 deve instalar por cima, checar a conta antes de cada lançamento e executar os
 seis casos acima três vezes, lendo integralmente as 18 saídas. Não use outro
 simulador, não limpe o atual e não recupere a conta por automação.
+
+## Nova tentativa após a reautorização declarada
+
+**Veredito permanece: NÃO APROVAR.** Antes de instalar qualquer candidato ou
+de disparar os casos cegos, preservei o JSONL anterior e executei a fumaça
+limpa `q2-fumaca.json` no único aparelho autorizado,
+`C2416CBC-C5D9-41F9-ACD8-45EED8FC355E`. Às `2026-09-09T04:30:19Z`, a corrida
+`786451F2-34AF-4255-88E7-5DE38FFFE011` registrou
+`contaGrokLigada:false`, `Falha.semRetorno` e nenhuma chamada Grok; a cópia
+permanece em
+`.../Containers/Data/Application/F834D0EC-B9F1-47DE-BC15-F5E8B014B51F/Documents/avaliacoes-ia.jsonl`.
+
+Interrompi ali: sem `erase`, `clearState`, `uninstall`, instalação por cima,
+`xcodebuild test`, voz, VoiceOver, iPad, Maestro ou outro aparelho. Portanto
+não há inferência nova válida, nem mudança de nota nas cinco dimensões:
+aderência, correção sustentada, utilidade, destinatário/divisão de trabalho e
+uso do contexto continuam **inconclusivos**, e `responder` continua
+`indisponivelPorQualidade`. O `B91C8DEF` não foi iniciado: build/suíte não
+substituiriam a pré-condição perdida nem autorizariam contornar a conta.
