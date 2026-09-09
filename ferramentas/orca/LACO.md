@@ -1002,3 +1002,45 @@ da R1**, onde a pergunta que mais me interessa é se **a recusa dela em implemen
 a rolagem automática** — porque conferiu na tela viva que a retomada já nasce a
 0,36 tela do topo, e o que está acima é a intenção — está certa ou deixou de
 entregar o critério.
+
+## 09/09, 02h — pausa e retomada (uso 5%); a MAC-1 aprovada, e o conserto que calou quatro rotas de uma vez
+
+**A MAC-1-B passou no re-G3** e o conserto é do tipo que eu gosto de registrar:
+o P0 não era um esquecimento a remendar num lugar — `Nota.vozDoAutor` passa a
+devolver **vazio quando a nota não é do autor**, e isso **calou de uma vez o
+léxico, o classificador de bordo e as perguntas dos Padrões**, com `Nota.dominio`
+calando o chip `TRABALHO` **sem migração**. As seis conversões espalhadas viraram
+quatro (`paraRetrato`, `paraTrajetoria`, `paraSemana`, `paraRede`), e o campo
+**não tem padrão** — a incompatibilidade mora no tipo, como o dono decidiu.
+
+O revisor conferiu do jeito certo: **injetou o mesmo teste de rota no commit
+velho num checkout temporário** e viu o vermelho (o retrato enviado continha
+`2 WOOP` e *"o bot achou isto"*), depois viu o verde no candidato. E exercitou o
+**caso 8 num cliente MCP de verdade**: o `traco_contrato` agora traz "Métodos,
+campos e a PERGUNTA de cada um", e o cliente fez **somente** a pergunta do WOOP,
+sem escrever arquivo.
+
+Um achado de brinde que corrige a nossa própria ADR: o replay da V5 mostrou que
+**o checksum duplicado só reclama quando um estágio RODA**, e que a falha é uma
+`NSException` **que nenhum `do/catch` pega**.
+
+**Mesclada** (`6d1c90d`), com os conflitos de vizinhança resolvidos e o projeto
+**regerado por `xcodegen`** em vez de concatenado à mão — concatenar `pbxproj` é
+como concatenar um banco. Suíte na árvore mesclada, que ninguém dos dois lados
+tinha rodado: **973 testes em 156 suítes, verde**.
+
+**A R1 recebeu CORRIGIR ANTES, e a recusa dela foi confirmada:** o revisor
+escreveu que **o contrato determinístico é bom e que não rolar automaticamente
+está CORRETO**. O que trava é a régua nova do dono: **as seis fases do
+design-router citadas**, a **curva-zero em toques e gestos** (ela mediu em telas
+de rolagem, que é distância percorrida e não esforço), e a **Complexidade 8 que
+ela mesma marcou** — honestidade boa, que agora tem de virar 9 ou descer o diff.
+
+**A Q2-C parou de novo**: a fumaça às 05:42:01Z gravou `contaGrokLigada:false`,
+zero chamadas, e ela **não instalou nada**. `responder` segue não aprovada, e as
+cinco dimensões ficam **inconclusivas** — que é a palavra certa, e não "reprovada".
+
+Despachei **R1-B** e **F5b-B**. A F5b-B tem a régua do revisor: **teste de
+request/update** (o que falha se alguém parar de passar o `relevanceScore` na
+publicação), **semeadura que de fato publica** para qualquer um reproduzir, e os
+pares `large`/AX5 com **log versionado**, não citado.
