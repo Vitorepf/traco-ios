@@ -7842,3 +7842,45 @@ teste continua **vermelho no pai** `cce6beb`.
 aparelho: perguntar, sair, voltar, e encontrar o cartão no lugar. A medida de
 curva-zero da 09c (2 toques + redigitar → 1 toque) só passa a valer agora, porque
 só agora a ida ao Calendário existe.
+
+## ADR 2026-09-09j — o toast é gaveta, e o piso do papel empata
+
+**Contexto.** A fusão de C1, R1 e S1 sobre a M1 ficou com dois vermelhos que
+nenhuma das voltas via sozinha, os dois na invariante 08f da C1 e os dois no
+iPhone 17 Pro (`34CC3F94`) — a C1-D mediu no 17e, e a diferença de aparelho é
+que os expôs.
+
+**Vermelho 1 — o toast corria sobre a linha do autor.** A 08x diz que, com o
+foco na Página, a altura do encaixe muda **por corte**, nunca por animação: a
+gaveta não corre sobre a letra que está a ser escrita. O `cartao` e o
+`analisando` já tinham essa guarda (`focoPagina ? nil : Tema.gaveta`); o
+**`toast` não**, e ele vive no **mesmo encaixe** (`acimaDoPe`) e muda a mesma
+altura. Medido na Página real, por quadro: com o toast a entrar em `large`, a
+borda de baixo do papel desceu **8 pt por quadro** e o seguidor ficou atrás —
+**3 quadros com 1 pt da linha ativa fora do papel** e 2 com outra superfície
+sobre ela, de +0,317 s a +0,350 s. As duas cenas de cartão da mesma corrida, que
+já cortam, deram **0 e 0**: mesmo teste, mesmo aparelho, mesma linha — só muda
+quem anima. **Conserto:** a mesma guarda de `focoPagina` na animação do
+`sessao.toast`. Depois: **0 fora e 0 cobertos nos dois tamanhos.**
+
+**Vermelho 2 — o empate era legítimo, e a asserção é que estava errada.** O caso
+da etiqueta de origem (09e) cobrava `papelComEtiqueta < papelSemEtiqueta` como
+portão contra prova vazia. Em AX XXXL, com o aviso e o toast de pé, o papel **já
+está no piso da 09g** (`pisoDoPapel / 3`, uma linha de corpo): **86,3 pt**. A
+cápsula desce a `CadernoView` inteira, mas quem cede é o **encaixe** — o papel
+não pode encolher mais, e a 09g manda que não encolha. **Não é a etiqueta que
+falta desenhar:** medida a rect inteira, o topo do papel desceu **60 pt** em
+AX XXXL (86,3 → 86,3 pt de altura) e **25 pt** em `large` (209 → 183). A
+etiqueta desenha nos dois; só num deles a altura do papel pode contar isso.
+
+**O que o portão passou a afirmar,** porque é o que ele sempre quis dizer: a
+cápsula fica **acima** do editor, logo **desce o topo do papel** sempre que
+desenha (`comEtiqueta.minY > semEtiqueta.minY`), e o papel **nunca cresce** com
+ela em cena (`height <=`). Uma etiqueta que não desenhasse deixaria o topo onde
+estava, e o caso continua reprovando por prova vazia. O `<` não virou `<=` para
+ficar verde: a altura deixou de ser o portão porque a medida mostrou que ela não
+pode sê-lo no piso.
+
+**Estado honesto.** O Vermelho 1 é defeito de produto, consertado na produção. O
+Vermelho 2 é defeito do teste, e a medida diz de qual dos dois lados: a etiqueta
+desenha, o papel é que está no chão.

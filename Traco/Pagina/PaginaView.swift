@@ -312,7 +312,12 @@ struct PaginaView: View {
             }
         }
         .animation(Tema.movimento(.deslocamento, .easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion), value: sessao.paginaVazia)
-        .animation(Tema.movimento(.deslocamento, .easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion), value: sessao.toast)
+        // O toast vive no MESMO encaixe do cartão (`acimaDoPe`) e muda a altura
+        // do papel como ele: com o foco na Página ele entra e sai por CORTE
+        // (ADR 08x). Animado, ele cortava a linha ativa — 3 quadros com 1 pt
+        // fora do papel em `large` no 17 Pro, com o seguidor 8 pt atrás da
+        // borda que descia (ADR 09j).
+        .animation(focoPagina ? nil : Tema.movimento(.deslocamento, .easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion), value: sessao.toast)
         // o cartão entra e sai como a gaveta: quem anima é a ALTURA do encaixe.
         // MAS A GAVETA NÃO CORRE SOBRE A LINHA DO AUTOR (ADR 08x): com o foco
         // na Página, a altura do encaixe muda por CORTE.
