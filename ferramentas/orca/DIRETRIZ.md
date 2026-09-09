@@ -74,3 +74,14 @@ O que isso muda:
 - **Foco 1: a IA.** As sete operações marcadas `indisponivelPorQualidade` na medida de 08/09 voltam UMA POR UMA, cada uma com a sua volta, medida de novo com o Grok pela sonda antes e depois, e só sai da lista com nota 9 nas cinco dimensões de QUALIDADE-IA.md. Contexto, prompt, esquema de saída e teto são as quatro alavancas; a régua é a saída inteira lida, nunca o hash.
 - **Foco 2: design e experiência ao extremo.** Toda volta visual passa por `design-router` com as seis fases citadas, `curva-zero` medida em toques antes e depois, e `gate-loop` como dono do ciclo. Tela abaixo de 9 no scorecard tem prioridade sobre função nova.
 - **A nota é a régua.** Cada fecho de volta diz o que mudou na nota da dimensão que tocou, com a prova. O dia inteiro de 08/09 subiu um ponto; o que sobe o próximo é a IA que serve e a jornada real do dono.
+
+## 8. Ordem do dono, 09/09/2026 9h — o mais rápido possível, zero bugs, otimizar ao máximo
+
+Palavras dele: "deixe o Orca focado em melhorar o Traço iOS da forma mais rápida possível. Eliminar todos os bugs, erros e otimizar ao máximo. Use as skills ponytail se precisar."
+
+O que isso muda:
+- **Velocidade sem perder o portão:** o que acelera é fechar, não abrir. Toda volta nasce com o menor escopo que prova o ganho; corrigir um defeito é uma volta curta com teste que reproduz e captura, não uma volta de tela. O revisor devolve em uma passada o que consegue; passada de acabamento vira dívida nomeada no RUMO, não terceira rodada.
+- **Caça a defeitos como frente permanente:** uma volta `B` por vez varre uma classe inteira de erro — os seis `try!` de produção, estados inalcançáveis, rota que cala em vez de dizer, ação que não faz nada, texto que promete o que o motor não sustenta — com teste que reproduz antes e fica vermelho sem o conserto. Fonte: a auditoria de 07/09, a dívida da limpeza no RUMO, o `LETRAS-ADR` e o que os revisores acharam e ficou "aberto".
+- **Otimizar ao máximo:** `swiftui-performance-audit` e Instruments nas telas de lista, editor e parser; hitch, alocação por tecla e reparse inteiro são defeitos. Cada volta de otimização traz a medida antes e depois, no mesmo aparelho.
+- **Ponytail é lei de código:** a solução mais curta que funciona; nada de abstração para um caso, nada de camada "para depois"; deleção conta como entrega; a suíte cobre o ramo que muda e mais nada. O revisor reprova por excesso tanto quanto por falta.
+- **A ordem de fila continua a da §7** (IA até a nota 9, design ao extremo), com a caça a defeitos correndo em paralelo como trilha.
