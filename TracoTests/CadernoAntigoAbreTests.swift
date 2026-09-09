@@ -61,11 +61,6 @@ struct CadernoAntigoAbreTests {
     /// A frase "cada versão" tem de ter cada versão: uma linha na lista por
     /// entrada do plano. Quem abrir a V6 e esquecer o caderno dela vê vermelho
     /// aqui — e vê ANTES de a mudança chegar ao aparelho do autor.
-    // SONDA TEMPORÁRIA (não vai ao commit): a conta do dono no aparelho.
-    @Test func sondaContaGrok() {
-        print("SONDA-CONTA-GROK ligada=\(ContaGrok.ligada)")
-    }
-
     @Test func oPortaoTemUmCadernoPorVersao() {
         #expect(Self.cadernos.count == TracoMigracao.schemas.count,
                 "o plano tem \(TracoMigracao.schemas.count) versões e o portão \(Self.cadernos.count) cadernos")

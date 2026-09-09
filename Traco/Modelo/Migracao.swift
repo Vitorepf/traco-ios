@@ -191,11 +191,12 @@ enum TracoSchemaV5: VersionedSchema {
 /// (`loadIssueModelContainer`) e o autor fica sem o caderno.
 enum TracoMigracao: SchemaMigrationPlan {
     static var schemas: [any VersionedSchema.Type] {
-        [/*SONDA TracoSchemaV0.self,*/ TracoSchemaV1.self, TracoSchemaV2.self,
+        [TracoSchemaV0.self, TracoSchemaV1.self, TracoSchemaV2.self,
          TracoSchemaV3.self, TracoSchemaV4.self, TracoSchemaV5.self]
     }
     static var stages: [MigrationStage] {
-        [/*SONDA*/ MigrationStage.lightweight(fromVersion: TracoSchemaV1.self, toVersion: TracoSchemaV2.self),
+        [MigrationStage.lightweight(fromVersion: TracoSchemaV0.self, toVersion: TracoSchemaV1.self),
+         MigrationStage.lightweight(fromVersion: TracoSchemaV1.self, toVersion: TracoSchemaV2.self),
          MigrationStage.lightweight(fromVersion: TracoSchemaV2.self, toVersion: TracoSchemaV3.self),
          MigrationStage.lightweight(fromVersion: TracoSchemaV3.self, toVersion: TracoSchemaV4.self),
          MigrationStage.lightweight(fromVersion: TracoSchemaV4.self, toVersion: TracoSchemaV5.self)]
