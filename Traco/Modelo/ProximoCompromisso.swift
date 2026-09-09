@@ -188,6 +188,14 @@ nonisolated enum ProximoCompromisso: Sendable {
     /// olhar o relógio resolve. Seis horas é a janela de "o resto do meu dia".
     nonisolated static let janelaViva: TimeInterval = 6 * 3600
 
+    /// ADR 08v: com o Destaque também vivo, o iOS mostra UMA atividade do app
+    /// na Ilha e empilha a outra na tela bloqueada — e sem dizer qual, era o
+    /// Destaque que escondia o compromisso a 40 min (D9 da F1, visto de novo
+    /// na F5b). O compromisso vence: é o único lugar em que a contagem se vê
+    /// sem abrir o app; o Destaque tem o widget e o cartão. O Destaque fica
+    /// no zero, que é o padrão do `ActivityContent`.
+    nonisolated static let relevanciaNaIlha: Double = 1
+
     /// Uma atividade só, da ocorrência publicada; encerra o resto. Chamada
     /// no arranque, no retorno à cena, em cada publicação e após comando.
     nonisolated static func reconciliar(agora: Date = .now) async {
@@ -204,7 +212,7 @@ nonisolated enum ProximoCompromisso: Sendable {
         let estado = CompromissoAtividade.ContentState(
             titulo: f.titulo, inicio: f.inicio, fim: f.fim, diaInteiro: f.diaInteiro,
             lembrarEm: f.lembrarEm, recado: nil)
-        let conteudo = ActivityContent(state: estado, staleDate: f.fim)
+        let conteudo = ActivityContent(state: estado, staleDate: f.fim, relevanceScore: relevanciaNaIlha)
         var viva: Activity<CompromissoAtividade>?
         for a in Activity<CompromissoAtividade>.activities {
             if viva == nil, a.attributes.chave == f.ocorrencia, a.activityState == .active {
@@ -247,7 +255,7 @@ nonisolated enum ProximoCompromisso: Sendable {
             var estado = a.content.state
             estado.lembrarEm = f.lembrarEm
             estado.recado = recado
-            await a.update(ActivityContent(state: estado, staleDate: f.fim))
+            await a.update(ActivityContent(state: estado, staleDate: f.fim, relevanceScore: relevanciaNaIlha))
         }
         #endif
     }

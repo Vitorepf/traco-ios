@@ -6432,3 +6432,77 @@ VoiceOver estão proibidos no Traço — o áudio de qualquer simulador sai pela
 caixas do Mac do autor. A acessibilidade desta tela se prova por árvore de AX
 (cabeçalho → o que houve → onde está o conteúdo → ação → detalhe técnico) e por
 captura, que é o que a lei manda. A ordem de leitura está provada; a fala, não.
+
+## ADR 2026-09-08v — A Ilha é do compromisso, e os estados que ninguém tinha visto (volta F5b)
+
+A F1 fotografou a Ilha compacta e a expandida; a F4 deixou a **mínima** por
+fotografar ("exige outra atividade viva ao mesmo tempo") e ninguém tinha visto
+o **fim** de um compromisso nem a compacta com duas atividades em AX5. Esta
+volta plantou os quatro estados no iPhone 17 Pro Max do simulador e corrigiu o
+que apareceu.
+
+**Duas atividades do mesmo app: o iOS mostra UMA na Ilha e empilha a outra na
+tela bloqueada, e sem dizer qual.** Com o Destaque e o compromisso vivos ao
+mesmo tempo, a Ilha era do Destaque e o compromisso a 40 minutos ficava atrás
+(`f5b-antes-ilha-compacta-destaque-esconde.png`; o `liveactivitiesd` registra
+as duas a subir no mesmo segundo, e a tela mostra uma). É o D9 da F1, ainda
+vivo. **O compromisso vence**: `ProximoCompromisso.relevanciaNaIlha = 1` e
+`DestaqueDoDia.relevanciaNaIlha = 0` (o padrão do `ActivityContent`), porque a
+Ilha é o único lugar em que a contagem se vê sem abrir o app, e o Destaque tem
+o widget e o cartão. Vale para a Ilha e para a ordem da pilha na tela bloqueada
+(`f5b-depois-ilha-compacta-compromisso-vence.png`,
+`f5b-depois-bloqueada-dois-vivos.png`, `f5b-depois-bloqueada-pilha-aberta.png`).
+Teste: `ForaDoAppTests.aIlhaEDoCompromisso` fixa a ordem.
+
+**A mínima só existe com atividade de OUTRO app.** Duas do Traço não bastam
+(acima). O simulador não tem Relógio nem navegação, então a F5b subiu um app
+descartável com uma Live Activity vazia (`ferramentas/orca/f5b-outra/`,
+instrumento, não produto) e a Ilha encolheu as duas para o círculo: a do Traço
+é só o ícone — estrela âmbar para o Destaque, calendário para o compromisso —
+sem texto, que é o que cabe (`f5b-ilha-minima-destaque.png`,
+`f5b-ilha-minima-compromisso.png`, `f5b-ilha-minima-compromisso-ax5.png`).
+Nada a mudar na mínima: o `minimal` já desenhava o mesmo ícone do
+`compactLeading`.
+
+**A expandida cortava o último dígito da contagem** ("36:1|5",
+`f5b-antes-ilha-expandida-corte.png`). O `Text(_, style: .timer)` reserva a
+largura do maior valor que pode mostrar (h:mm:ss, porque a atividade sobe até
+seis horas antes), e o teto de 76 pt centrava essa caixa e a cortava dos dois
+lados. Sai o teto: a região mede o que a contagem precisa e os dígitos ficam à
+esquerda da caixa, com a folga à direita (`f5b-depois-ilha-expandida.png`).
+Duas formas que NÃO servem, vistas na tela e registradas para ninguém repetir:
+`fixedSize(horizontal:)` na contagem deixa a expandida **vazia** — só o ícone
+da região `leading` desenha (`f5b-instrumento-fixedsize-expandida-vazia.png`);
+e `multilineTextAlignment(.trailing)` empurra os dígitos para a borda da caixa
+reservada e corta de novo (`f5b-instrumento-alinhada-corta.png`).
+
+**O fim: "acabou", e por quanto tempo.** Semeado um compromisso de um minuto, o
+`staleDate` (= fim) passa e o `liveactivitiesd` marca a atividade *stale*: a
+compacta vira calendário + "acabou", a expandida vira "Dentista / acabou" sem
+contagem e sem cápsula, e o cartão da tela bloqueada perde o relógio relativo
+e diz "acabou" (`f5b-fim-1-*.png` antes, `f5b-fim-2-*.png` no fim). **A Ilha
+larga o "acabou" sozinha em menos de doze minutos** — às 21:42 estava vazia
+sem o app ter aberto (`f5b-fim-3-ilha-vazia-12min.png`); **a tela bloqueada
+mantém o cartão** (aos catorze minutos, `f5b-fim-3-bloqueada-acabou-14min.png`)
+até o app voltar à cena e `reconciliar` encerrar. É o desenho que o ActivityKit
+permite: não há fim agendado, só `staleDate`; o que a tela diz nesse intervalo é
+verdade, e o cartão sai com um deslize. Quanto tempo o iOS deixa o cartão de pé
+sem o app é medida para o aparelho do dono. Na expandida do fim a curva do
+canto da Ilha comia o "a" de "acabou", a linha mais baixa da região (`…-antes.png`):
+o recuo horizontal da região inferior passa de 4 para 10 pt (`…-depois.png`).
+
+**AX5 na Ilha não existe.** A compacta é idêntica em `large` e em AX5
+(`f5b-ax5-ilha-compacta-destaque.png`, `f5b-ax5-ilha-compacta-compromisso.png`
+contra as capturas normais): a Ilha não escala com o Dynamic Type; o cartão da
+tela bloqueada escala (`f5b-ax5-bloqueada-destaque.png`). O "t" cortado que o
+juiz da F4 viu na compacta com duas atividades em AX5 **não se reproduz**: com
+as duas vivas e AX5 a compacta diz "terminar o ca…", com reticências limpas. A
+auditoria é datada; este defeito caiu sozinho, e sai do RUMO.
+
+**Movimento.** A Ilha anima pelo sistema; o Traço não escreve curva nem duração
+nela (o portão do movimento segue com a lista vazia). Entrada (o app publica e a
+atividade sobe), troca de estado (a cápsula "Lembrar em 10 min" vira o recado
+"avisos desligados no iPhone", que é o estado honesto de um contêiner sem
+permissão) e saída (o app reconcilia um compromisso passado e encerra) estão
+em `f5b-ilha-movimento.mp4` e, com Reduzir Movimento, em
+`f5b-ilha-movimento-reduzido.mp4` — a expansão vira fusão, o resto é igual.

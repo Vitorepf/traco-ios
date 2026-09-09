@@ -309,6 +309,13 @@ struct ForaDoAppTests {
 
     // MARK: - Feito, com identidade
 
+    @Test("ADR 08v: com os dois vivos, a Ilha é do compromisso — a relevância dele é maior")
+    func aIlhaEDoCompromisso() {
+        // o iOS mostra uma atividade por app na Ilha e escolhe pela relevância;
+        // sem esta ordem o Destaque escondia o compromisso a 40 min (D9 da F1)
+        #expect(ProximoCompromisso.relevanciaNaIlha > DestaqueDoDia.relevanciaNaIlha)
+    }
+
     @Test("feito repetido não inverte; desfazer é explícito")
     func feitoNaoAlterna() async throws {
         try await isolado { _, _ in

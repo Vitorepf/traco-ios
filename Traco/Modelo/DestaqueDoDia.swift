@@ -139,6 +139,10 @@ enum DestaqueDoDia: Sendable {
     /// da dona de hoje, e nenhuma quando não há Destaque ou ele já foi feito.
     /// Chamada no arranque, no retorno à cena e depois de cada comando.
     // nonisolated: Activity não é Sendable; sem fronteira de ator não há envio
+    /// ADR 08v: a Ilha é do compromisso quando os dois estão vivos (ver
+    /// `ProximoCompromisso.relevanciaNaIlha`); o Destaque fica no padrão.
+    nonisolated static let relevanciaNaIlha: Double = 0
+
     nonisolated static func reconciliar(agora: Date = .now) async {
         #if canImport(ActivityKit)
         guard let p = projecao(agora: agora), let estado = estadoVivo(agora: agora) else {
@@ -149,7 +153,7 @@ enum DestaqueDoDia: Sendable {
 
         let meiaNoite = Calendar.current.startOfDay(
             for: Calendar.current.date(byAdding: .day, value: 1, to: agora) ?? agora)
-        let conteudo = ActivityContent(state: estado, staleDate: meiaNoite)
+        let conteudo = ActivityContent(state: estado, staleDate: meiaNoite, relevanceScore: relevanciaNaIlha)
         var viva: Activity<DestaqueAtividade>?
         for a in Activity<DestaqueAtividade>.activities {
             if viva == nil, a.attributes.dia == p.dia, a.attributes.id == p.id, a.activityState == .active {

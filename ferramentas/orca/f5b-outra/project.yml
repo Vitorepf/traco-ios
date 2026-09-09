@@ -1,0 +1,43 @@
+name: Outra
+options:
+  xcodeVersion: "17.0"
+  bundleIdPrefix: app.traco.f5b
+  deploymentTarget:
+    iOS: "17.0"
+targets:
+  Outra:
+    type: application
+    platform: iOS
+    sources: [Outra]
+    info:
+      path: Outra/Info.plist
+      properties:
+        NSSupportsLiveActivities: true
+        CFBundleShortVersionString: "1.0"
+        CFBundleVersion: "1"
+        UILaunchScreen: {}
+    dependencies:
+      - target: OutraWidget
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: app.traco.f5b.outra
+      MARKETING_VERSION: "1.0"
+      CURRENT_PROJECT_VERSION: "1"
+      TARGETED_DEVICE_FAMILY: "1"
+      GENERATE_INFOPLIST_FILE: YES
+  OutraWidget:
+    type: app-extension
+    platform: iOS
+    sources: [OutraWidget]
+    info:
+      path: OutraWidget/Info.plist
+      properties:
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+        CFBundleShortVersionString: "1.0"
+        CFBundleVersion: "1"
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: app.traco.f5b.outra.widget
+      MARKETING_VERSION: "1.0"
+      CURRENT_PROJECT_VERSION: "1"
+      TARGETED_DEVICE_FAMILY: "1"
+      GENERATE_INFOPLIST_FILE: YES
