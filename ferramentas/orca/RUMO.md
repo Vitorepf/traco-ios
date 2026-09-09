@@ -446,6 +446,32 @@ Ciclo: multiplicar (achar e marcar sem pensar na ferramenta). Intenção: a list
 
 **Estado 09/09 12h (branch `Vitorepf/volta-d1-notas`, ADR 09k, relatório `ferramentas/orca/d1-notas-sem-slop.md`):** construída e provada no teste 3; **vídeo de 15 s gravado no aparelho da conta às 12h43 (`ferramentas/orca/d1/d1-notas-15s-conta.mp4`, caderno real, conta `Grok conectada` antes e depois do install por cima)**; a nota é do dono, pelo vídeo. **Dívida nomeada, com dono (próxima volta de design):** o rótulo "A SÁBIA, SOBRE:" do cartão e os `.rotulo()` das outras telas continuam em caixa alta (mudar `Rotulo` é volta de sistema); a régua de `Pilula(.filtro)` continua em `Trabalho*` e no caderno; filtrar por WOOP custa 2 toques onde custava 1 (o menu trocou o melhor caso pelo pior caso). **Vermelho vivo no `main` (não desta volta, reproduzido em checkout de HEAD no 17 Pro teste 3, 12h05):** `EscritaVisivelTests.aLinhaFicaNoPapelEmCadaQuadroDaGaveta` em `large` (`totalFora 3`, `totalCoberto 2`) e `aLinhaAtivaEOCaretFicamNaAreaLivreDoPapel` em AX XXXL (`papelComEtiqueta == papelSemEtiqueta`, 86,33) — `Traco/Caderno`, dono C1. **Instrumento (ESTEIRA):** `simctl openurl traco://…` abre o diálogo "Abrir com Traço?"; helper do `orca emulator` de um boot anterior diz `ok` sem tocar — matar só o `serve-sim` do próprio UDID e reatar; `simctl recordVideo` estica o relógio (15,5 s de parede → 21,4 s de arquivo), retimar por `setpts`; `orca emulator list --json` devolve um objeto único, não `streams[]`.
 
+### DECISÃO (09/09, minha, §6): o caminho da ESCRITA não é o caminho da RESPOSTA
+
+A Q2-E não decidiu sozinha e fez certo: com o modelo novo, **`classificar` subiu
+para 11–16 s no caminho da escrita**, e ela viu que isso *"muda a régua da §10"*.
+
+**Decido que não muda, e a razão está na própria tabela.** A §10 foi escrita com o
+dono aceitando **36 s por uma resposta que ele PEDIU e está esperando**, num
+cartão. **`classificar` é outra coisa:** roda **enquanto o autor escreve**, sem ele
+pedir, e a `Politica` já diz o que ela é — **`grokDepoisBordo`**: *"o aparelho
+acertou 3 de 3 com esquema tipado; as regex arbitram por último"*. O Grok ali é
+**refinamento**, não resposta.
+
+**Fazer o autor esperar 11–16 s por um refinamento que o aparelho já acerta é o
+troco errado.** A regra que fica:
+
+> **No caminho da escrita, o melhor modelo entra sem fazer esperar.** A resposta
+> local vale de imediato; a do Grok, quando chega, refina. Se estourar um teto
+> curto, **a local fica** — e nada na tela some ou pisca por causa disso.
+
+**Isto é volta própria e nasce nomeada: Q5 — a classificação que não faz esperar.**
+Ela mede o antes/depois em **toques e em tempo até a letra aparecer**, não em
+acerto do modelo (que já foi medido).
+
+**Se o dono discordar, é uma linha para desfazer** — a decisão está aqui e o
+motivo também.
+
 ## Próximas, em ordem
 
 | # | volta | valor | esforço | ciclo | lacuna (EVOLUCAO) |

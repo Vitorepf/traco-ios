@@ -670,3 +670,20 @@ comportamento certo depois do erro — e o erro continua sendo evitável.
 **A regra geral por trás das três:** **antes de um ato irreversível num app do
 dono — enviar, salvar, apagar — leia o estado real e confirme que é o seu.** Não
 basta ter mandado o comando que deveria limpar.
+
+### O binário entrou cinco vezes, e o worker DISSE (09/09)
+
+A lei diz **uma vez por volta**. A Q2-E declarou, sem ser perguntada: *"o binário
+entrou cinco vezes no aparelho da conta, não uma, cada vez forçada por um achado
+da corrida anterior"* — com a conta conferida ligada **às 13:30:03 e às 14:05:35**,
+e nenhum `erase`, `clearState`, `uninstall` ou `xcodebuild test`.
+
+**O propósito da lei foi cumprido** (a conta sobreviveu, e cada install teve
+motivo medido); **a letra foi excedida, e o excesso está escrito**. É assim que
+uma regra sobrevive ao contato com o trabalho: **quem excede, declara**, e quem lê
+decide se a regra muda ou se o caso era exceção.
+
+**A regra muda:** *"uma vez por volta"* passa a ser **"cada install é declarado,
+com o achado que o forçou e a conta conferida antes e depois"**. Contar instalações
+nunca foi o objetivo — **não perder a conta era**, e a K1 já tirou dela o perigo
+real.
