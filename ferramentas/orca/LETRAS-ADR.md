@@ -62,7 +62,7 @@ que este arquivo existe para impedir — e ele reincidiu no próprio arquivo.
 | 09e | C1-D · a reconciliação da C1 | em `main` |
 | 09f | M1 e M1-B · a migração do caderno | em `main` |
 | 09g | C1-A · era 08w, depois 09d | em `main` |
-| 09h | Q3 · responder nas Notas | reservada |
+| 09h | Q3 · responder nas Notas | reservada, volta viva |
 | 09i | Q4 · instigar e contrapor | reservada |
 | 09j | FUSÃO · o toast é gaveta; o piso empata | em `main` |
 | 09k | D1 · as Notas sem slop | em `main` |

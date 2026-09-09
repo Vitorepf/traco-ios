@@ -95,6 +95,49 @@ struct RespostaNotasTests {
         #expect(schema["additionalProperties"] as? Bool == false)
     }
 
+    /// ADR 2026-09-09h, metade 1: VERMELHO antes do conserto — o parser
+    /// trocava por `limiteSemBase` TUDO o que viesse com base `insuficiente`,
+    /// inclusive a resposta parcial que usava as notas. Medido em 08/09,
+    /// 3 de 3 (`qn-notas-fato-atual-sem-fonte-atual-tipada`).
+    @Test func insuficienteComAjudaEscritaNaoViraSilencioTotal() throws {
+        let p = try pacote([fonte("Orçamento da viagem", texto: "Reservei R$ 6.000 para a viagem.")])
+        let ajuda = "A cotação de hoje não está nas suas notas. Você reservou R$ 6.000 e pode confirmar a taxa do dia no site do seu banco."
+        let r = try #require(RespostaNotas.interpretar(resposta([], texto: ajuda, base: "insuficiente"), pacote: p))
+        #expect(r.texto == ajuda)
+        #expect(!r.texto.contains(RespostaNotas.limiteSemBase))
+        // o piso honesto continua: quem não escreveu nada recebe a frase fixa
+        let mudo = try #require(RespostaNotas.interpretar(resposta([], texto: "", base: "insuficiente"), pacote: p))
+        #expect(mudo.texto == RespostaNotas.limiteSemBase)
+        // e `insuficiente` continua sem poder citar trecho nenhum
+        #expect(RespostaNotas.interpretar(try resposta(["N1T1"], base: "insuficiente"), pacote: p) == nil)
+    }
+
+    /// ADR 2026-09-09h, metade 2: VERMELHO antes do conserto — `N1T1` é
+    /// endereço interno do app e a medida de 08/09 o pegou dentro do texto do
+    /// autor, 2 de 6 execuções tipadas. Ele sai na volta, virando o título.
+    @Test func rotuloInternoSaiDoTextoEViraOTituloDaNota() throws {
+        let a = fonte("Proposta atual", texto: "O prazo é 12/09.")
+        let b = fonte("Rascunho antigo", texto: "O prazo era 10/09.")
+        let p = try pacote([a, b])
+        let cru = try resposta(["N1T1"], texto: "O prazo é 12/09, conforme a nota N1T1; N2T1 trazia 10/09.")
+        let r = try #require(RespostaNotas.interpretar(cru, pacote: p))
+        #expect(!r.texto.contains("N1T1") && !r.texto.contains("N2T1"))
+        #expect(r.texto.contains("conforme a nota “Proposta atual”"))
+        #expect(r.texto.contains("“Rascunho antigo” trazia 10/09"))
+        // a citação declarada não muda: o texto limpo não fabrica referência
+        #expect(r.citadas.map(\.id) == [a.id])
+    }
+
+    /// O rótulo do PACOTE é o único endereço nosso: `N9T9` não existe aqui e
+    /// fica como está, e `N12` não pode ser mordido pela troca de `N1`.
+    @Test func trocaDeRotuloNaoInventaFonteNemMordePalavraVizinha() throws {
+        let p = try pacote([fonte("Só uma", texto: "O prazo é 12/09.")])
+        let cru = try resposta([], texto: "A norma N12 e o trecho N9T9 seguem sem dono.", base: "geral")
+        let r = try #require(RespostaNotas.interpretar(cru, pacote: p))
+        #expect(r.texto == "A norma N12 e o trecho N9T9 seguem sem dono.")
+        #expect(RespostaNotas.semRotulos("N1 fala do prazo.", pacote: p) == "“Só uma” fala do prazo.")
+    }
+
     @Test func snapshotRejeitaSeloEdicaoSemDataEExclusao() throws {
         let c = try ModelContainer.traco(emMemoria: true)
         let n = Nota(texto: "Prazo 12/09.")
