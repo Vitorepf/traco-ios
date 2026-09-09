@@ -1044,3 +1044,28 @@ Despachei **R1-B** e **F5b-B**. A F5b-B tem a régua do revisor: **teste de
 request/update** (o que falha se alguém parar de passar o `relevanceScore` na
 publicação), **semeadura que de fato publica** para qualquer um reproduzir, e os
 pares `large`/AX5 com **log versionado**, não citado.
+
+## 09/09, 03h — pausa e retomada (uso 9%); a S1 abre, e a C1-B já reproduziu o resíduo
+
+Pausa e retomada registradas. As três frentes seguem, e a **C1-B fez o certo logo
+de saída**: em vez de aceitar a alegação dos 220 screenshots, montou uma **sonda
+por quadro** e **reproduziu o resíduo da gaveta**. Medir o fenômeno antes de
+decidir entre consertar e contratualizar é a única ordem que sustenta a decisão.
+
+**Quarta frente aberta: S1**, a pergunta interrompida que some ao trocar de aba
+(`task_797fb1e2bf64`, Opus 5, ADR `09c`). É o segundo achado da V13, e o RUMO já
+nomeava o dono: *"é estado desonesto — a pessoa perde o que estava esperando sem
+que nada diga"*, com o conserto na `Sessao` e não na view, porque `RaizView`
+**recria** a `NotasView` ao trocar de aba.
+
+O spec nasce com duas coisas que o dia ensinou. A primeira: **conferir na tela
+viva antes de codar**, porque hoje já foi três vezes que um defeito anotado tinha
+caído sozinho — a última na R1, que achou o defeito 1 do próprio G0 dela já morto.
+A segunda: **a honestidade é a entrega, não só a persistência** — se em algum
+caminho a pergunta não puder sobreviver, a tela **diz**; o que não pode é sumir em
+silêncio.
+
+Escolhi esta e não outra da fila porque **as voltas de IA estão todas travadas na
+conta caída** — `responderNasNotas`, `instigar`, `contrapor`, `ecos`, `calibragem`
+e `recordar` precisam do Grok, e ele só volta com o dono. A S1 não precisa de
+nada além do aparelho.

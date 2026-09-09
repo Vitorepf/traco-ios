@@ -49,7 +49,8 @@ idênticos. Sobrou linha, a alegação "só a letra mudou" é falsa.
 
 | letra | dona | estado |
 |---|---:|---|
-| 09b | MAC-1-B (a origem acompanha todo consumidor) | no branch da MAC-1 |
+| 09b | MAC-1-B (a origem acompanha todo consumidor) | em `main` |
+| 09c | S1 (a pergunta interrompida) | reservada, volta viva |
 
-**Próxima livre: 09c.** (A `09a` não foi usada por ninguém e **fica vaga** — buraco
+**Próxima livre: 09d.** (A `09a` não foi usada por ninguém e **fica vaga** — buraco
 não se reaproveita.)
