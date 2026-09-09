@@ -287,9 +287,14 @@ a fumaça antes do install registrou `contaGrokLigada=true` com **12 modelos**
 às 03:20:38Z; depois do **install por cima**, `contaGrokLigada=false` com
 **0 modelos** às 03:22:07Z. O revisor parou na hora e **não contornou**.
 
-**A lei passa a ser:** no `C2416CBC` **ninguém instala nada** — nem por cima.
-Nada de `erase`, `clearState`, `uninstall`, `xcodebuild test` **nem
-`simctl install`**. Só o dono reautoriza, e cada reautorização custa a ele.
+**A lei, na forma que o dono deu em 09/09 08h40:** no `C2416CBC` **a sonda roda no
+build JÁ INSTALADO** — `simctl launch` com `TRACO_AVALIAR_IA` no ambiente, ou
+`terminate`+`launch`. **Binário novo entra nesse aparelho UMA vez por volta**, com
+**`ContaGrok.ligada` conferido antes e depois**. Nada de `erase`, `clearState`,
+`uninstall` nem `xcodebuild test` — nunca. **Se a conta cair, a volta para e diz;
+mas o objetivo é ela não cair.** Só o dono reautoriza, e cada reautorização custa
+a ele — foi o install por cima repetido que a derrubou duas vezes e travou uma
+noite inteira.
 
 **E como se roda uma corrida de IA sem instalar**, que é o que destrava o
 trabalho: a sonda `AvaliacaoIA` lê a fixture pelo nome em
@@ -364,3 +369,20 @@ tocar às cegas.
 **E nunca afrouxe a asserção para ficar verde.** Se o caminho não é testável do
 jeito escrito, **troque o instrumento** — foi o que a R1-B fez ao ver o helper
 devolver `ok:true` sem mover a tela.
+
+### O que conta é a nota do produto, não a volta mesclada (09/09, ordem do dono)
+
+*"Esse tempo todo e ainda é 7."* O dono mede pelo produto. Uma volta mesclada que
+não move a nota de nenhuma dimensão **não é progresso, é manutenção** — e
+manutenção necessária continua não sendo o que ele pediu.
+
+**Toda volta de IA fecha com três coisas, não duas:**
+1. a medida (a sonda, o JSONL, a leitura independente das saídas inteiras);
+2. **a linha do Perfil atualizada** — a operação **sai da lista de indisponíveis**,
+   e a tabela `Politica` recebe a medida nova;
+3. **a captura do cartão com a resposta real na tela.** *"O dono quer VER a IA
+   funcionando"* — JSONL não é tela, e motor sem superfície não conta como
+   entregue.
+
+E o LACO registra **com a hora** o momento em que cada operação volta a estar
+disponível.
