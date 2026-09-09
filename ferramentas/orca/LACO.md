@@ -1516,3 +1516,35 @@ teste flaky voltou". Registro o resultado antes de qualquer mescla nova.
 **O que isto custa e por que vale:** `main` fica sem as três voltas por mais um
 ciclo. O contrário — empurrar 5 vermelhos para fechar mais rápido, no dia em que o
 dono pediu velocidade — seria trocar a nota do produto por uma linha no relatório.
+
+## 09/09, 09h45 — os cinco vermelhos tinham nome, e o primeiro era uma sonda esquecida no `main`
+
+Reexecutei para pegar os nomes, porque contagem não distingue "a fusão quebrou
+algo" de "um teste voltou a mentir". Os cinco são **três achados**:
+
+**1. A sonda da M1-B ficou dentro do código de produção.** Em
+`Migracao.swift:194`: `[/*SONDA TracoSchemaV0.self,*/ TracoSchemaV1.self, …]`, com
+o estágio V0→V1 apagado. Era a mutação que ela plantou para **ver o portão
+reprovar** — e ela **morreu antes de desfazer**. O commit póstumo levou a mutação
+para o `main`.
+
+**A consequência é exatamente o defeito que a M1 existia para fechar:** o caderno
+mais antigo **não abria** (`loadIssueModelContainer` no `caderno-v0-b7fbc3e`), e o
+portão `oPortaoTemUmCadernoPorVersao` acusava a diferença (6 cadernos, 5 schemas).
+**O portão estava vermelho dizendo a verdade.**
+
+Restaurei o `TracoSchemaV0` e o estágio V0→V1: **`CadernoAntigoAbreTests` passa
+3/3, os seis cadernos abrem com as notas**. Por decisão do dono, empurrei **o
+conserto sozinho**, num commit pequeno (`9fb7428`), sem esperar C1/R1/S1 — `main`
+volta a abrir caderno de qualquer versão **agora**.
+
+**2 e 3. Os outros dois vermelhos são da C1 na árvore mesclada:** a gaveta deixa
+**3 quadros fora e 2 cobertos em tamanho `L`** (a C1 media 0 nos dois tamanhos), e
+`papelComEtiqueta < papelSemEtiqueta` **falha empatando em 86,33** — a etiqueta de
+origem que a C1-D passou a medir **não está comendo papel naquele caminho**, e o
+teste afirma desigualdade estrita onde o empate é possível. Vão para uma passada
+curta, não para o `main`.
+
+**A lei que fica:** *a mutação que prova o vermelho é dívida viva até ser
+desfeita* — marque-a com uma palavra única, procure por ela antes de comitar, e
+**quem comita por um worker morto herda a dívida dele**. Está na ESTEIRA.

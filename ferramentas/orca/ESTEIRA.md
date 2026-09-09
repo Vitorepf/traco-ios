@@ -481,3 +481,27 @@ otimizar ao máximo; ponytail"*. Cinco pontos, e eles mudam como a esteira corre
    problema**.
 5. **A fila da §7 segue:** Q2, Q3 e Q4 na frente de IA, a **trilha B ao lado**, e
    C1/R1/S1 **fecham antes de abrir mais**.
+
+### A mutação que prova o vermelho é uma DÍVIDA VIVA até ser desfeita (09/09)
+
+A M1-B comentou `TracoSchemaV0` do plano de migração e apagou o estágio V0→V1
+para ver o portão reprovar — **e morreu antes de desfazer**. O commit póstumo
+levou a mutação para `main`, com a consequência exata que o portão denunciava: **o
+caderno mais antigo não abria**, que era o defeito que a volta existia para
+fechar. A suíte ficou vermelha **dizendo a verdade**, e foi só por isso que a
+mutação apareceu.
+
+**Regras, e as três são baratas:**
+
+1. **Marque a mutação para ela gritar.** `/*SONDA ...*/` foi o que salvou aqui —
+   um comentário com uma palavra única que se acha com um `grep`. Use sempre a
+   mesma palavra, e **procure por ela antes de comitar**.
+2. **Desfaça antes de rodar a corrida de fecho**, e **diga no relato que desfez**,
+   com a saída verde depois da reversão. Foi o que a Q-F e a C1-C fizeram.
+3. **Quem comita o trabalho de um worker morto herda a dívida dele:** procure a
+   palavra da sonda **antes** de comitar por ele. O trabalho estava pronto; a
+   mutação também estava lá.
+
+**E o portão fez o que devia:** ele não deixou passar. Um portão que só fica verde
+não é portão — este ficou vermelho no dia em que a mutação chegou ao `main`, e é
+por isso que o defeito durou minutos em vez de semanas.
