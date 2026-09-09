@@ -122,3 +122,63 @@ aderência, correção sustentada, utilidade, destinatário/divisão de trabalho
 uso do contexto continuam **inconclusivos**, e `responder` continua
 `indisponivelPorQualidade`. O `B91C8DEF` não foi iniciado: build/suíte não
 substituiriam a pré-condição perdida nem autorizariam contornar a conta.
+
+## Q2-C — casos cegos sem instalar: interrupção antes da primeira inferência
+
+**Veredito: NÃO APROVAR.** Não houve corrida dos seis casos nem há alteração de
+nota: a fumaça obrigatória, antes da primeira corrida, voltou a achar a conta
+desligada. Parei antes de lançar a fixture de casos, portanto não há uma falsa
+fumaça de fecho nem uma saída sem retorno sendo contada como inferência.
+
+### Candidato e instrumento
+
+O aparelho autorizado continua sendo o iPhone 17 Pro
+`C2416CBC-C5D9-41F9-ACD8-45EED8FC355E`; não instalei, apaguei, desinstalei,
+limpei estado ou rodei testes nele. A fixture já presente no Documents é a que
+o revisor escreveu, `q2-revisao-responder-casos.json`, SHA-256
+`e3ace2b6ae91d27bff4266303d542b33a2f21625aff32fcb51b9c079cffbd08e`, com os
+seis casos e uma repetição por lançamento; ela não foi reescrita nem lançada.
+
+O `Traco.debug.dylib` instalado tem SHA-256 `25d2ed41951…`, diferente do
+`461de14a…` registrado para a v3 no relatório Q2. Uma compilação limpa do
+código de `3c4213b` passou (`** BUILD SUCCEEDED **`, sem instalar em simulador),
+mas também gerou outro hash (arm64 `49c302e6…`): o artefato não é
+byte-identificável por esses hashes. Os marcadores funcionais conferíveis no
+dylib instalado e no candidato — `sistemaResponder` v3 (inclusive “Não suponha
+o cenário”), `TRACO_AVALIAR_LIBERAR`, `indisponivelPorQualidade` e a assinatura
+de `Sabia.responder` — coincidem. Isso sustenta compatibilidade funcional, não
+uma atribuição criptográfica do bundle a `3c4213b`; por isso a próxima passada
+deve registrar também o artefato que o dono aceita medir, sem instalar nada.
+
+### Fumaça e parada
+
+A corrida `C27FE4AC-0622-434F-A08D-44D753A01676`, às
+`2026-09-09T05:42:01Z`, lançou somente `q2-fumaca.json` por
+`SIMCTL_CHILD_TRACO_AVALIAR_IA` e terminou com `contaGrokLigada:false`, nenhuma
+lista/modelo disponível (contagem observável: 0), `Falha.semRetorno` e
+`chamadasGrok:[]`. A evidência preservada é
+`prova/q2-revisao-responder-q2c-conta-indisponivel.jsonl` (SHA-256
+`95f836599d06263e8c74fee347e2a8811760c93e7ec12e6ce3affb34edf6f450`). Não há
+fumaça posterior porque nenhuma corrida de caso começou; não havia conta a
+proteger entre as duas.
+
+Não usei voz, Siri, ditado, VoiceOver, iPad, Maestro, `orca emulator`, mouse ou
+outro simulador. A compilação foi protegida por `ferramentas/orca/com-trava.sh`;
+não rodei suíte, pois um verde local não resolve conta ausente nem mede a
+qualidade semântica.
+
+| dimensão de `QUALIDADE-IA.md` | nota Q2-C | motivo |
+|---|---:|---|
+| aderência ao pedido | inconclusiva | 0/18 novas saídas para ler |
+| correção sustentada | inconclusiva | não houve caso de fabricação de cenário válido |
+| utilidade concreta | inconclusiva | não houve caso de recusa covarde válido |
+| destinatário e divisão de trabalho | inconclusiva | responsável, venda e compra não chegaram ao motor |
+| uso do contexto pertinente | inconclusiva | cotação, suporte e correção não chegaram ao motor |
+
+`responder` permanece `indisponivelPorQualidade`. Para retomar, o dono precisa
+reativar a conta neste mesmo aparelho e a revisão precisa obter fumaça com conta
+ligada e lista autenticada de modelos antes e depois de cada um dos três
+lançamentos; só então pode ler integralmente as 18 saídas. Mesmo nesse cenário,
+uma aprovação só pode cobrir a configuração que o JSONL efetivamente registrar:
+o binário atual declara `grok-4.3`; não há evidência nova de
+`grok-4.6`/`medium`.
