@@ -6501,6 +6501,7 @@ VoiceOver estão proibidos no Traço — o áudio de qualquer simulador sai pela
 caixas do Mac do autor. A acessibilidade desta tela se prova por árvore de AX
 (cabeçalho → o que houve → onde está o conteúdo → ação → detalhe técnico) e por
 captura, que é o que a lei manda. A ordem de leitura está provada; a fala, não.
+
 ## ADR 2026-09-08q — Quem responde, medido COM a conta: a quarta regra da tabela (volta Q)
 
 *(Letra corrigida na Q-E, 08/09: esta ADR nasceu `2026-09-08k` e a letra já estava tomada em `main` pela V17-B, "A garantia sai da tela e vira invariante do documento". As mensagens de commit anteriores a esta correção ainda dizem `08k`.)*
@@ -7140,3 +7141,407 @@ build que gravava aquela versão não existe mais).
 **byte a byte idêntico** depois da recusa do `main` (`cmp` limpo). O arranque
 honesto comprou o tempo para este conserto — mas recusa não é abrir, e a porta
 agora abre.
+## ADR 2026-09-09g — Uma linha é o piso do papel, e a folga cede antes da letra (volta C1)
+
+**Ciclo:** multiplicar a mente — o autor escreve sem lutar com a ferramenta.
+**Intenção:** a pessoa vê o que está escrevendo, em qualquer tamanho de letra e
+em qualquer aparelho. **Obstáculo:** a invariante da escrita visível (ADR 08f)
+estava provada no iPhone 17 Pro e no Pro Max e **falhava no iPhone 17e em
+AX XXXL** — 18 amostras vermelhas, o único vermelho da suíte integral naquele
+aparelho, pré-existente (a V13 mediu as mesmas 18 em `HEAD` sem o diff dela).
+
+### O que estava errado, medido antes de ser corrigido
+
+Sonda em `CadernoView.tetoDoEncaixe` no 17e com o teclado de pé, em AX XXXL:
+
+```
+SONDA teto: altura 413,67  pe 274,67  piso 259,33 -> teto 69,50  papel 69,50
+SONDA teto: altura 413,67  pe 326,67  piso 259,33 -> teto 43,50  papel 43,50
+```
+
+A tela do 17e dá 413,67 pt de trabalho com o teclado de pé. **O pé toma 274,67
+— e 326,67 com o aviso.** A regra de então era `papel = min(piso, sobra / 2)`:
+com 139 pt de sobra o papel ficava com **69,5 pt**, e com 87 de sobra ficava com
+**43,5**. Uma linha de corpo em AX XXXL mede **67 pt**. O papel era menor que a
+linha que ele existe para mostrar — não havia rolagem que resolvesse, e o autor
+escrevia às cegas. Duas causas independentes, as duas em função compartilhada:
+
+1. **O contêiner concedia menos de uma linha.** `tetoDoEncaixe` repartia o que
+   sobra do pé pela metade. Onde a tela é pequena e a letra grande, metade não
+   dá uma linha. O comentário da 05y admitia a troca de propósito — "um piso
+   maior deixaria o autor sem as duas saídas em vez de sem texto" — e essa troca
+   **contradiz a 08f**: a letra do autor à vista vale mais que a saída do cartão.
+2. **O seguidor perseguia o CARET, não a LINHA.** `EscritaVisivel.seguirCaret`
+   media `caretRect`, que em AX XXXL tem 45 pt para uma linha de 67: a
+   entrelinha fica POR CIMA do caret. E pedia `folga` inteira dos dois lados;
+   com o papel curto, a folga empurrava a linha para fora — o alinhamento pelo
+   fundo deixava 22 pt de letra acima da borda no meio da nota, onde havia
+   rolagem de sobra.
+
+### A decisão
+
+**O piso do papel é UMA LINHA, e a folga cede antes da letra.**
+
+- `tetoDoEncaixe` passa a ser `sobra − min(max(min(piso, sobra/2), piso/3), sobra)`:
+  o piso continua sendo três linhas limitado a meia sobra, mas **nunca desce
+  abaixo de `piso/3`, que é uma linha**. Quando nem uma linha cabe, o papel toma
+  a sobra inteira e o encaixe cede — é a 08f aplicada à letra, não ao cartão.
+- `EscritaVisivel.linhaDoCaret` mede a **linha visual** pelo TextKit 2 (o
+  fragmento de linha unido ao retângulo do caret), e `seguirCaret` segue essa
+  linha. A medida é feita de novo aqui, e não lida do teste: o instrumento mede
+  sozinho, senão a prova passa a citar o código que devia julgar.
+- A folga vira `min(folga, (vista − linha) / 2)`: onde o papel não tem espaço
+  para ela, ela encolhe simetricamente. **Quem tem de caber é a linha.**
+
+Em `large` nada muda (a sonda mede papel 92 pt antes e depois); a regra só morde
+onde a metade já era menor que uma linha.
+
+### A pré-mortem
+
+O que pode dar errado: em AX XXXL com aviso E toast, o encaixe fica com ~0 pt e
+a mensagem do cartão some da tela. Isso é **decisão, não descuido** — mas é o
+sinal de que o verdadeiro exagero está no pé, que toma 275 dos 414 pt naquele
+aparelho. **Fica no RUMO:** a barra de baixo em tamanhos de acessibilidade
+precisa de uma volta própria; enquanto ela não vier, o papel ganha da barra.
+
+### Resíduo observado, não corrigido
+
+Durante a **gaveta do cartão a chegar** (`Tema.gaveta` anima a altura do
+encaixe), há um quadro em que a altura do encaixe já cresceu e o seguidor ainda
+não correu: a linha ativa aparece **cortada ao meio** pela borda do cartão
+(`ferramentas/orca/c1/c1-04-residuo-gaveta-cartao.png`, ~0,11 s numa varredura
+de 220 quadros). O mecanismo — um quadro de atraso entre a altura animada e a
+volta do runloop — não foi alterado por esta volta, e a suíte não o apanha
+porque mede em pontos discretos. **Fica escrito, não escondido.**
+
+## ADR 2026-09-08x — Nenhuma gaveta corre sobre a linha do autor (volta C1-B)
+
+**Ciclo:** multiplicar a mente. **Intenção:** a pessoa vê o que está escrevendo,
+em qualquer tamanho de letra e em qualquer aparelho — **em cada quadro**, que é
+como a 08f está escrita. **Obstáculo:** a 09d fechou a invariante nos pontos
+DISCRETOS onde a suíte mede (31/31 em AX5, 44/44 em `large`) e deixou declarado
+um resíduo: durante a gaveta do cartão a chegar, a linha ativa aparecia cortada
+(`c1-04-residuo-gaveta-cartao.png`, "~0,11 s numa varredura de 220"). Declarar
+não torna mesclável uma violação conhecida de uma regra escrita sem exceção, e
+"~0,11 s" não era verificável.
+
+### O instrumento primeiro: a invariante passa a ser medida POR QUADRO
+
+`EscritaVisivelTests.aLinhaFicaNoPapelEmCadaQuadroDaGaveta(tamanho:)` põe um
+`CADisplayLink` a medir a 08f **em cada quadro entregue**, com o instante de
+cada um, enquanto a Página REAL recebe as três gavetas que encolhem o papel: o
+cartão a chegar, o aviso a tomar o lugar dele e o toast. Duas coisas o separam
+do teste discreto que já existia:
+
+- **mede as camadas de APRESENTAÇÃO, não o modelo.** Durante uma animação o
+  modelo já tem o valor final e só a apresentação diz o que o olho vê — que é o
+  que a 08f escreve. O quadro apresentado é, medido, sempre o **modelo do
+  quadro anterior**.
+- **cada quadro traz o seu instante**, e a conta sai em quadros e em segundos,
+  com a cadência ao lado (16,7 ms: 60 Hz sem quadro perdido) e o custo da
+  própria sonda (0,2–0,5 ms/quadro). É a "sequência carimbada" que o re-G3
+  pediu no lugar da varredura sem tempo.
+
+**O que ele mediu no pai (build `4898703`, iPhone 17e `C7341E64`):**
+
+```
+GAVETA AX5,   cartão a chegar: 85 quadros em 1,42 s, 6 fora; +0,268 a +0,350 s = 0,098 s, pior corte 32 pt
+GAVETA large, cartão a chegar: 86 quadros em 1,42 s, 6 fora; +0,267 a +0,350 s = 0,100 s, pior corte 13 pt
+GAVETA (aviso e toast, nos dois tamanhos): 0 fora
+```
+
+**Duas correções ao que a 09d escreveu**, as duas contra nós: o resíduo é de
+**0,098–0,100 s**, não 0,11; e **não é só de AX XXXL** — o `large`, que a 09d
+dava por são, tem o mesmo resíduo de 6 quadros. A "varredura de 220" não
+sustentava nenhum dos dois números.
+
+### A causa, medida antes de tocar no código
+
+Sonda por quadro no `tetoDoEncaixe` e na geometria do papel, no 17e:
+
+- **`large`:** a altura do papel é ANIMADA pela gaveta e desce 378 → 366 → 352
+  → 334 → 314 → 295 → 283 → … pt, **até 21 pt por quadro**. O seguidor é
+  chamado a cada quadro (`onScrollGeometryChange` avisa 275,0 → 262,8 → 248,6 →
+  231,3 → 210,7 → …, em dia), corrige, e **a linha fica sempre um passo atrás**:
+  o corte de cada quadro é exatamente o passo daquele quadro.
+- **AX5:** o mesmo, mais um **estouro de 52 pt**. O cartão entra por CORTE
+  (`.identity`) e a régua saía por GAVETA, então por ~0,3 s o encaixe tinha os
+  dois — 52 pt a mais do que antes E do que depois — e o papel caía a **35 pt
+  para uma linha de 67**. Aí nenhuma rolagem cabe: a 08f é impossível por
+  construção enquanto durar.
+
+**E o limite, medido e não suposto:** **de fora do layout não há corrida a
+ganhar.** Foram experimentados três seguidores — adiado pelo runloop (como
+era), síncrono no aviso da geometria, e síncrono com a altura anunciada mais um
+passo de adiantamento e mira no piso da 09d — e os **três produziram os mesmos
+offsets, ao ponto** (`ferramentas/orca/c1b-gaveta.md`, tabela da ablação). A
+correção da rolagem e a mudança da altura não cabem no mesmo quadro quando a
+altura é animada, porque o quadro apresentado é o modelo do anterior.
+
+### A decisão
+
+**Nenhuma gaveta corre sobre a linha do autor.** Com o foco na Página, a altura
+do encaixe muda por **CORTE**; a gaveta fica para quando o autor não está a
+escrever.
+
+- `PaginaView`: `.animation(focoPagina ? nil : Tema.gaveta(reduzido:), value:
+  sessao.cartao)`, e o mesmo para `sessao.analisando`. É a mesma lei que a 08f
+  já tinha aplicado duas vezes no mesmo encaixe — a régua CORTA, e o encaixe
+  inteiro sai por corte ao abrir os campos —, agora estendida ao ocupante que
+  faltava. **Não é uma exceção nova: é a regra do encaixe, completa.**
+- `EscritaVisivel.seguirCaretAgora(folga:altura:)`: quando quem chama é
+  `onScrollGeometryChange`, o seguidor corre **agora**, e não na volta seguinte
+  do runloop, **com a altura que lhe ANUNCIARAM** — nessa passada o `bounds` do
+  ScrollView ainda é o da anterior, e o seguidor que lê em vez de ouvir corrige
+  para o papel de ontem. Isto ganha a corrida contra uma mudança de **um passo**
+  — que é o que o corte produz — e só. `seguirCaret(folga:)`, o de texto e foco,
+  continua adiado: ali o layout ainda não assentou.
+
+**As duas metades são necessárias e nenhuma basta**, medido por ablação no
+mesmo aparelho: só o corte (com o seguidor adiado) deixa **1 quadro com 115 pt**
+de linha cortada em `large`; só o seguidor síncrono, com a gaveta de pé, deixa
+os **6 quadros** de sempre. Juntas: **0**.
+
+**O que fica igual.** Nenhuma curva, duração ou `withAnimation` novo — o portão
+do movimento continua vazio. `Tema.swift` intacto. A gaveta do cartão continua a
+existir e a correr sempre que a Página **não** tem o foco. A gaveta de
+`esconderRegua` no `CadernoView` **ficou**: a ablação mostrou que, com o corte de
+cima, ela já não estoura nada, e tirá-la seria movimento perdido sem razão
+medida.
+
+### A prova
+
+iPhone 17e `C7341E64` e iPhone 17 Pro Max `6033B043`, `com-trava.sh` em toda
+passada, teclado de software REAL nos dois aparelhos e nos dois tamanhos
+(308 pt no 17e, 318 no Pro Max):
+
+```
+17e     GAVETA AX5 e large, três cenas cada: 0 fora em todas (84–88 quadros, cadência 16,7 ms)
+17e     ESCRITA AX5 31/31, large 44/44, teclado real nos dois
+Pro Max GAVETA AX5 e large: 0 fora; ESCRITA AX5 31/31, large 44/44, teclado real 318 pt
+17e     ✔ Test run with 956 tests in 154 suites passed after 81.350 seconds — grep -c warning: 0
+```
+
+Quadros carimbados, versionados: `ferramentas/orca/c1/c1b-quadros-vermelho.txt`
+e `c1b-quadros-verde.txt`. Relato: `ferramentas/orca/c1b-gaveta.md`. **O vídeo
+que esta seção anunciava foi removido na C1-C: continha 44 s da Tela Inicial,
+sem o Traço** — ver a correção do re-G3 no fim desta ADR.
+
+### O que mais o re-G3 nomeou, e ficou fechado aqui
+
+- **As bordas do TextKit 2** em `linhaDoCaret` têm suíte própria
+  (`LinhaDoCaretTests`): documento vazio, linha vazia depois de `\n`, quebra
+  suave por palavra, fim do documento, e a borda do `NSMaxRange` varrida em
+  todos os offsets. **E a medida achou o contrário do que se esperava:** num
+  `UITextView` nu — com a entrelinha do papel e a fonte de corpo em AX XXXL — o
+  `caretRect` do UIKit **já é** a caixa da linha visual, ao ponto, em **0 de 61
+  offsets** ele difere. A distância de 45 para 67 pt que a 09d mediu é do editor
+  da **Página**, não do TextKit 2 em geral; quem a prova é o teste hospedado. As
+  bordas cobram então o que protege o seguidor em qualquer editor: nunca nula,
+  sempre contendo o caret, UMA linha visual só, e na altura certa do documento.
+- **O que muda onde havia folga sobrando** (a pergunta do Pro Max) é
+  **nada, e provado por varredura, não por aparelho**:
+  `TemaTests.ondeHaviaFolgaSobrandoA09dNaoMudaNada` percorre 3.025 combinações
+  de tela, pé e piso — **2.687 com folga sobrando e 338 apertadas** — e mostra
+  que, onde meia sobra já dava uma linha, a regra da 09d devolve **o mesmo
+  número** da 05y, e onde não dava, devolve estritamente mais papel. O Pro Max é um caso dessa varredura, e a corrida nele confirma a
+  aritmética na tela.
+- **As duas dívidas prometidas foram escritas no RUMO** (barra de baixo em AX;
+  oráculo de pixels), mais a terceira que esta volta mediu: **o seguidor não
+  ganha de uma altura animada**, com os três seguidores e os offsets iguais.
+
+### A pré-mortem
+
+**O que pode dar errado:** o cartão passa a APARECER, sem gaveta, enquanto o
+autor escreve — e um salto de 52 pt (AX5) ou 121 (`large`) sem movimento pode
+ler-se como um susto, que é justamente o que a lei do movimento evita. É a
+troca que esta ADR aceita, e ela tem lado: **um salto que o autor vê é melhor
+que uma linha que ele não vê**, e o quadro em que a linha estava cortada era
+exatamente o quadro em que ele estava a escrever. Se a leitura na mão do dono
+disser o contrário, o caminho não é voltar à gaveta: é a gaveta **empurrar o
+papel antes de crescer** — reservar primeiro, animar depois —, e isso precisa
+do gancho dentro do layout que o RUMO já nomeia.
+
+**A segunda:** `focoPagina` é a condição, e ela não é o mesmo que "o teclado
+está de pé". Com o teclado recolhido por arrasto o foco continua (a régua segue
+o foco), e o corte vale ali também, onde a gaveta não fazia mal nenhum. É
+movimento perdido num estado; preferi a condição que o `EscritaVisivel` já usa
+para correr, porque duas condições diferentes para o mesmo evento é como nascem
+os dois relógios que esta ADR acabou de fechar.
+
+### A correção do re-G3 (C1-C, 09/09/2026): a sonda mede a regra inteira
+
+O re-G3 reproduziu o vermelho do pai e o verde do candidato com as próprias
+mãos, e mesmo assim reprovou — por duas coisas que não são o conserto, e sim a
+**prova** dele.
+
+**1. A sonda media metade da 08f.** `Quadro.cabe` era só `area.contains(linha)`:
+`E ⊆ P`. A 08f também diz que **nenhuma outra superfície desenha nessa área** —
+`P ∩ O = ∅` —, e essa metade não tinha portão nenhum por quadro. Agora cada
+quadro carrega as duas, medidas e **relatadas separadas**: `noPapel` e
+`semIntruso`, com o vermelho de cada uma contado, datado e nomeado no seu
+próprio termo. O `intrusos(sobre:editor:)` que a medida discreta já usava passa
+a ser chamado **em cada quadro**, e a ler a árvore de camadas pela
+**apresentação**, como `E` e `P`.
+
+**Uma camada sem `presentation()` não conta.** A primeira versão desta medida
+acusou um intruso em `large` no primeiro quadro depois de o cartão nascer: era
+falso. Uma camada recém-criada ainda não foi entregue ao render — `presentation()`
+devolve nil — e lê-la pelo modelo é lê-la **na geometria de destino**, enquanto
+a linha e o papel estão na do quadro anterior. Dois relógios outra vez, agora
+dentro do instrumento. Camada sem apresentação não pinta naquele quadro: fica
+de fora, e isso está escrito no código.
+
+**E o portão prova que sabe reprovar.** Na mesma corrida, depois das três cenas
+verdes, o teste **planta uma camada adversarial** à frente do editor, sobre a
+linha ativa, e exige que os quadros a acusem — 35 de ~51 em cada tamanho, com o
+intervalo do que a apresentação leva para a mostrar. Sai depois, e os quadros
+seguintes voltam a zero. Zero intruso só vale como prova quando a sonda mostra,
+ali, que veria um.
+
+**2. `E` era a caixa do caret, não a linha.** Medindo, a faixa adversarial saiu
+com **2 pt de largura**: no FIM do documento — que é onde o autor escreve —
+nenhum fragmento do TextKit 2 começa na posição do caret, `textLayoutFragment(for:)`
+devolve nil, e `linhaAtiva` ficava só com o `caretRect`. Com o recuo de um
+caractere, `E` volta a ser a linha de letras: **322 pt em AX5, 55 em `large`**.
+A metade `P ∩ O = ∅` cobrava, antes disto, apenas quem cobrisse a coluna do
+caret.
+
+**O vermelho do pai, agora nas duas metades** (pai `4898703` num checkout
+descartável, **só** a sonda trazida deste ramo, mesmo 17e `C7341E64`):
+
+```
+PAI 4898703 + sonda C1-C, teclado real 308 pt
+AX5,   cartão a chegar: 85 quadros, 7 fora do papel (E ⊄ P) e 2 cobertos (P ∩ O ≠ ∅)
+       fora +0,270 a +0,367 s = 0,113 s, pior corte 32 pt
+       coberta +0,317 a +0,350 s = 0,050 s — ColorShapeLayer e CGDrawingLayer do CARTÃO sobre a linha
+large, cartão a chegar: 85 quadros, 5 fora (0,083 s, pior corte 14 pt) e 5 cobertos (0,083 s)
+✘ Test run with 2 tests in 1 suite failed after 54,574 s with 4 issues
+
+CANDIDATO, mesmo aparelho: 0 fora e 0 cobertos nas seis cenas, nos dois tamanhos
+✔ Test run with 956 tests in 154 suites passed after 85,241 s — grep -c warning: 0
+```
+
+O cartão do pai não só **cortava** a linha: ele **desenhava por cima dela**, e
+o instrumento anterior não tinha como dizê-lo. O conserto da C1-B fecha as duas.
+
+**3. O vídeo era prova falsa.** `c1b-gaveta-consertada.mp4` tinha 44 s da Tela
+Inicial, sem o Traço. Foi **removido**. No lugar entra
+`c1/c1c-pagina-na-sonda.mp4` — 36 s, 390×844, gravado por
+`xcrun simctl io <UDID> recordVideo` durante a corrida verde e **assistido
+quadro a quadro antes de versionar**: mostra a Página real com o teclado, o
+texto a ser escrito, o cartão a chegar, o aviso, o toast e a faixa adversarial
+vermelha sobre a linha ativa. O que ele prova é que a corrida aconteceu **na
+Página**; a prova por quadro continua sendo a sequência carimbada,
+`c1/c1c-quadros-{vermelho,verde}.txt`. Relato: `ferramentas/orca/c1c-sonda-inteira.md`.
+
+**O que fica herdado, e dito.** A parte do Pro Max `6033B043` **não foi
+reexecutada** nesta volta: o aparelho estava reservado a outra frente e a
+pergunta ao orquestrador expirou sem resposta. A prova da C1-B no Pro Max
+permanece **herdada**, não observada aqui. E a corrida da suíte INTEGRAL desta
+volta teve teclado real em `large` (308 pt) mas **emulado em AX5** (318 pt, 8
+tentativas) — a corrida isolada teve real nos dois. Limite do instrumento, não
+asserção afrouxada.
+
+## ADR 2026-09-09e — A C1 reconciliada: a letra que colidiu muda, e a etiqueta do bot entra na invariante (volta C1-D)
+
+**Ciclo:** multiplicar a mente — o autor escreve sem lutar com a ferramenta.
+**Obstáculo:** a C1 passou no mérito e **não era mesclável**. O `main` estava
+**53 commits à frente**, e um deles toca `PaginaView.swift`, o arquivo da outra
+metade da 08x. Aprovado não é mesclável: é a lei que a Q-H fixou, e é por isso
+que esta volta existe.
+
+**A fusão em si foi barata, e isso é fato a registrar, não mérito a cobrar.**
+Um só conflito de texto — `SPEC.md`, append contra append, os dois blocos ficam
+inteiros e o meu vai por último, que é a ordem de mesclagem que este documento
+sempre teve. `PaginaView.swift` juntou sozinho: o `main` mexeu nas linhas 122,
+280 e 485, e a C1 na 304.
+
+### A letra, e por que a C1 é quem move
+
+A C1 escreveu **duas** ADRs e o orquestrador reservara **uma** letra. A primeira
+ficou na `08w`, que a colisão de 08/09 já dera à Q-H — e a Q-H **mesclou**. A
+regra do `LETRAS-ADR.md` é "muda quem é mais barato de mover", e ela não se
+aplica a quem já está em `main`: `main` não se move. Move a C1, como o
+orquestrador decidira em 08/09 22h20. A **`08x` fica**; a C1-A passa a **`09d`**.
+
+**A troca foi provada do tamanho da alegação**, como o registro manda: nos seis
+arquivos que só mudaram de letra, os multiconjuntos de linhas removidas e
+adicionadas são **idênticos** depois de normalizar a letra. Nenhuma linha sobrou.
+
+**E o registro estava errado sobre si mesmo.** `LETRAS-ADR.md` dava `08z` como
+próxima livre; lida pelo comando que ele próprio prescreve, a `08z` está no
+branch da Q2. **`08` está cheia** — `08a`–`08z` todas tomadas ou buracos. Por
+isso a C1-A vai para `09d` e esta ADR para `09e`. O arquivo que existe para
+impedir colisão de letra reincidiu no defeito que combate, e a causa é a mesma
+de sempre: alguém leu de memória em vez de rodar o comando.
+
+### O achado da fusão: a etiqueta do bot come papel
+
+O `main` trouxe a **etiqueta de origem** (ADR 08u/09b) e a pôs **ACIMA do
+editor**, na Página. Ela aparece quando o autor abre uma nota feita pelo bot — e
+ele **escreve nela**, com o teclado de pé e o caret vivo. É exatamente o estado
+que a 08f governa, e a invariante **nunca o tinha visto**, porque a etiqueta não
+existia quando a suíte foi escrita.
+
+A geometria aguenta, e por uma razão que vale escrever: os dois lados da C1 leem
+alturas **já descontadas** da etiqueta — o seguidor ouve o `containerSize` do
+próprio ScrollView, e `tetoDoEncaixe` mede a altura da `CadernoView`, que é irmã
+da cápsula, não sua dona. Mas **isso é raciocínio, e raciocínio não é prova**:
+a invariante passou a medir o caso. Medido no 17e, teclado real de 308 pt:
+
+```
+ETIQUETA AX5:   papel 180 -> 150 pt (a cápsula tomou 30 pt)
+ETIQUETA large: papel 194 -> 168 pt (a cápsula tomou 25 pt)
+ESCRITA AX5:   39 amostras, 39 com a linha do caret na área livre do papel
+ESCRITA large: 52 amostras, 52 com a linha do caret na área livre do papel
+```
+
+O número de testes não muda com isto (981 em 157): são asserções e amostras
+dentro de um caso que já existia. O que cresce são as amostras — **31 → 39** e
+**44 → 52**, as duas fases da etiqueta.
+
+**O caso traz o próprio portão.** Uma etiqueta que não desenhasse não encolheria
+nada e a invariante daria verde sobre a tela de sempre — prova vazia com cara de
+prova. Então o caso **exige que o papel encolha** antes de medir: se a cápsula
+não tomar papel, ele reprova dizendo que não mede o que promete.
+
+**E o cenário passou a neutralizar a origem**, como já neutralizava cartão e
+toast. `origemDaPagina` é estado visual da sessão VIVA, que a suíte inteira
+partilha, e entrou no `main` depois deste cenário — ninguém o devolvia. Hoje
+nenhuma suíte o suja pelo caminho da sessão viva (as que chamam `abrir(nota:)`
+usam `Sessao` própria), então isto é **guarda, não conserto de vermelho**: dito
+assim para não cobrar mérito que não houve.
+
+### O que a fusão mediu
+
+Suíte integral na árvore MESCLADA, `com-trava.sh`, `-parallel-testing-enabled NO`,
+no 17e `C7341E64`: **981 testes em 157 suítes, 0 falhos, 0 avisos** (87,2 s) — a
+C1 sozinha tinha 956 em 154. Os 25 testes que o `main` trouxe e os da C1 passam **juntos**,
+que é a única coisa que nenhum dos dois lados tinha medido.
+
+**A dívida do Pro Max está paga.** `6033B043` foi **reexecutado na árvore
+mesclada**, com teclado **REAL de 318 pt nos dois tamanhos**: 7 testes em 2
+suítes, verdes. A ressalva de "prova herdada" da C1-C **sai** — e esta prova é
+melhor que a que ela herdava, porque é da árvore fundida, não do candidato só.
+
+**O teclado emulado de AX5, e por que não muda conclusão nenhuma.** Na suíte
+integral o caso GAVETA de AX5 volta a cair no teclado emulado (318 pt, 8
+tentativas). Duas razões, e nenhuma é indulgência: **(1)** o caminho emulado
+aplica uma área segura DE VERDADE (`additionalSafeAreaInsets.bottom`) e o layout
+reflui — o que é sintético é o número, não a restrição, e a medida é de uma
+geometria real; **(2)** 318 > 308, e um papel menor é **estritamente mais
+difícil** para uma invariante de continência: passar a 318 é mais forte que
+passar a 308, não mais fraco. O que o caso emulado **não** prova é a chegada
+animada do teclado real — e isso está coberto de outro lado: nesta corrida o
+caso ESCRITA teve o teclado **real de 308 pt nos dois tamanhos**, e no Pro Max o
+real de 318 nos dois.
+
+**Pré-mortem.** Se isto voltar, volta por uma de duas portas. A primeira: alguém
+põe **mais uma superfície acima do editor** — a etiqueta provou que a Página
+aceita isso sem ninguém reparar — e o papel encolhe outra vez sem a invariante
+ver, porque ela mede as superfícies que conhece pelo nome. A segunda: a `09` se
+enche como a `08` se encheu, e a próxima volta lê o "próxima livre" em vez de
+rodar o comando. A defesa da primeira é a asserção nova, que reprova quando a
+cápsula não desenha; a defesa da segunda é não haver defesa nenhuma além de
+rodar o comando, e é por isso que ele está escrito no topo do registro.

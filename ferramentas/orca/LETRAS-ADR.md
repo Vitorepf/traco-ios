@@ -40,10 +40,14 @@ idênticos. Sobrou linha, a alegação "só a letra mudou" é falsa.
 | 08u | MAC-1 (Traço no Mac) | reservada, volta viva |
 | 08v | F5b (Ilha do compromisso) | reservada, volta viva |
 | 08w | Q-H (reconciliação da Q com o `main`) | no branch da Q |
-| 08x | C1 (caret do Caderno) | reservada, volta viva — era 08w, trocada |
+| 08x | C1-B/C (a gaveta e a linha do autor) | reservada, volta viva — era 08w, trocada |
 | 08y | R1 (retomada do Trabalho) | reservada, volta viva |
+| 08z | Q2 (responder) | **no branch da Q2** — tomada sem passar por aqui, LIDA pelo comando em 09/09 na C1-D |
 
-**Próxima livre: 08z.**
+**08 está CHEIA.** `08a`–`08z` estão todas tomadas ou são buracos (`08c`, `08d`).
+A `08z` desmente o "próxima livre: 08z" que estava escrito aqui: quem lê de
+memória em vez de rodar o comando dá a mesma letra duas vezes, que é o defeito
+que este arquivo existe para impedir — e ele reincidiu no próprio arquivo.
 
 ## 2026-09-09
 
@@ -68,3 +72,16 @@ vagos. Quem precisar de letra hoje usa a série `09`.
 si mesmo**, dando `08z` como livre quando ela está no branch da Q2. O registro só
 vale se quem despacha o atualiza **no mesmo ato** em que reserva — foi assim que
 a `09d` saiu duas vezes no mesmo turno.
+| 09c | S1 (a pergunta interrompida) | reservada, volta viva |
+| 09d | C1 (uma linha é o piso do papel) | reservada, volta viva — **era 08w**, trocada na C1-D |
+| 09e | C1-D (reconciliação da C1 com o `main`) | reservada, volta viva |
+
+**Próxima livre: 09f.** (A `09a` não foi usada por ninguém e **fica vaga** — buraco
+não se reaproveita.)
+
+**A segunda troca da C1, e por que ela é da C1 e não da Q-H.** A C1 escreveu
+DUAS ADRs e o orquestrador tinha reservado UMA letra: a `08x`. A primeira ficou
+na `08w` que a colisão de 08/09 já tinha dado à Q-H, e a Q-H **mesclou** — a
+regra de "muda quem é mais barato de mover" não se aplica a quem já está em
+`main`, que não se move. Move a C1, como o orquestrador já tinha decidido
+(`LACO.md`, 08/09 22h20). A `08x` fica como estava.

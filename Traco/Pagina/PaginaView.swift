@@ -313,9 +313,11 @@ struct PaginaView: View {
         }
         .animation(Tema.movimento(.deslocamento, .easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion), value: sessao.paginaVazia)
         .animation(Tema.movimento(.deslocamento, .easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion), value: sessao.toast)
-        // o cartão entra e sai como a gaveta: quem anima é a ALTURA do encaixe
-        .animation(Tema.gaveta(reduzido: reduceMotion), value: sessao.cartao)
-        .animation(Tema.gaveta(reduzido: reduceMotion), value: sessao.analisando)
+        // o cartão entra e sai como a gaveta: quem anima é a ALTURA do encaixe.
+        // MAS A GAVETA NÃO CORRE SOBRE A LINHA DO AUTOR (ADR 08x): com o foco
+        // na Página, a altura do encaixe muda por CORTE.
+        .animation(focoPagina ? nil : Tema.gaveta(reduzido: reduceMotion), value: sessao.cartao)
+        .animation(focoPagina ? nil : Tema.gaveta(reduzido: reduceMotion), value: sessao.analisando)
     }
 
     /// O que fica ACIMA do pé — o aviso, o cartão da análise ou "lendo…" —

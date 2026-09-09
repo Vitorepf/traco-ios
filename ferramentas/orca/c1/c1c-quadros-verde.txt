@@ -1,0 +1,18 @@
+ESCRITA teclado AX5: de software, na tela 308 pt (2 tentativa(s)), papel 241–484 pt, topo do teclado 536 pt, inset extra 274 pt, TextKit 2
+GAVETA AX5, cartão a chegar: 84 quadros em 1.42 s (cadência 16.7 ms, sonda 2.1 ms/quadro), 0 fora do papel (E ⊄ P), 0 cobertos (P ∩ O ≠ ∅)
+GAVETA AX5, aviso no lugar do cartão: 87 quadros em 1.43 s (cadência 16.7 ms, sonda 2.4 ms/quadro), 0 fora do papel (E ⊄ P), 0 cobertos (P ∩ O ≠ ∅)
+GAVETA AX5, toast por cima do encaixe: 87 quadros em 1.43 s (cadência 16.7 ms, sonda 2.7 ms/quadro), 0 fora do papel (E ⊄ P), 0 cobertos (P ∩ O ≠ ∅)
+GAVETA AX5: teclado real 308 pt, 0 quadro(s) com a linha ativa fora do papel, 0 quadro(s) com outra superfície sobre ela
+GAVETA AX5, sonda adversarial: camada 151–184 pt sobre a linha 134–201 (322 pt de largura); 50 quadros, 35 acusados (P ∩ O ≠ ∅), 0 fora do papel; primeiro achado: CALayer 0,151 390×33
+ESCRITA teclado large: de software, na tela 308 pt (2 tentativa(s)), papel 103–378 pt, topo do teclado 536 pt, inset extra 274 pt, TextKit 2
+GAVETA large, cartão a chegar: 84 quadros em 1.42 s (cadência 16.7 ms, sonda 2.9 ms/quadro), 0 fora do papel (E ⊄ P), 0 cobertos (P ∩ O ≠ ∅)
+GAVETA large, aviso no lugar do cartão: 87 quadros em 1.43 s (cadência 16.7 ms, sonda 3.1 ms/quadro), 0 fora do papel (E ⊄ P), 0 cobertos (P ∩ O ≠ ∅)
+GAVETA large, toast por cima do encaixe: 87 quadros em 1.45 s (cadência 16.7 ms, sonda 2.4 ms/quadro), 0 fora do papel (E ⊄ P), 0 cobertos (P ∩ O ≠ ∅)
+GAVETA large: teclado real 308 pt, 0 quadro(s) com a linha ativa fora do papel, 0 quadro(s) com outra superfície sobre ela
+GAVETA large, sonda adversarial: camada 168–181 pt sobre a linha 161–188 (55 pt de largura); 51 quadros, 35 acusados (P ∩ O ≠ ∅), 0 fora do papel; primeiro achado: CALayer 0,168 390×13
+ESCRITA teclado AX5: de software, na tela 308 pt (2 tentativa(s)), papel 122–535 pt, topo do teclado 536 pt, inset extra 0 pt, TextKit 2
+ESCRITA AX5: 31 amostras, 31 com a linha do caret na área livre do papel; teclado real 308 pt
+ESCRITA teclado large: de software, na tela 308 pt (2 tentativa(s)), papel 103–378 pt, topo do teclado 536 pt, inset extra 274 pt, TextKit 2
+ESCRITA large: 44 amostras, 44 com a linha do caret na área livre do papel; teclado real 308 pt
+✔ Test run with 2 tests in 1 suite passed after 54.669 seconds.
+** TEST SUCCEEDED **

@@ -189,8 +189,53 @@ O juiz listou e não descontou: `isHeader` faltando nas duas seções novas; o `
 
 ### Dois achados da V13 (08/09), com dono nomeado
 
-- **O caret do Caderno falha em AX XXXL no iPhone 17e.** A V13 rodou a suíte integral no `C7341E64` e o **único vermelho** é esse — e ela provou que é **pré-existente**, com as mesmas 18 ocorrências em `HEAD` sem o diff dela. É da invariante da escrita visível (V12, ADR 08f, já mesclada), que foi provada no Pro Max e no teste 2 mas **não neste aparelho neste tamanho**. Volta do Caderno, e a prova tem de incluir o 17e em AX XXXL.
+- **[FECHADO em 09/09 pelas voltas C1 e C1-B — ADR 09d e 08x.]** ~~O caret do Caderno falha em AX XXXL no iPhone 17e.~~ A V13 rodou a suíte integral no `C7341E64` e o **único vermelho** é esse — e ela provou que é **pré-existente**, com as mesmas 18 ocorrências em `HEAD` sem o diff dela. É da invariante da escrita visível (V12, ADR 08f, já mesclada), que foi provada no Pro Max e no teste 2 mas **não neste aparelho neste tamanho**. Volta do Caderno, e a prova tem de incluir o 17e em AX XXXL.
 - **A pergunta interrompida some ao trocar de aba**, porque `RaizView` **recria** a `NotasView`. É estado desonesto — a pessoa perde o que estava esperando sem que nada diga. Conserto na `Sessao`, área do arquiteto, não do front.
+
+### Vindas do fecho da C1 (09/09): a barra de baixo, e o que o instrumento não alcança
+
+**Escritas aqui porque a ADR 09d as prometeu ao RUMO e o re-G3 as cobrou. As duas
+saem do mesmo lugar: o pé toma 275 dos 414 pt do 17e em AX XXXL.**
+
+- **A BARRA DE BAIXO EM TAMANHOS DE ACESSIBILIDADE — volta própria, do front.**
+  No iPhone 17e em AX XXXL o pé do encaixe toma **274,67 dos 413,67 pt** de tela
+  com o teclado de pé, e **326,67 com o aviso**. Enquanto ela não encolher, o
+  papel só cabe porque a 09d mandou o cartão ceder: com aviso E toast o encaixe
+  fica com ~0 pt e a mensagem da sábia sai da tela. Isso é **decisão escrita**
+  (09d), não descuido — e é a decisão que deixa de ser necessária no dia em que
+  a barra couber. **Ciclo:** multiplicar. **Intenção:** o autor vê o que escreve
+  E a saída do cartão, sem escolher entre os dois. **Evidência pedida:** a mesma
+  sonda de `tetoDoEncaixe` no 17e em AX XXXL, com o pé abaixo de 200 pt e
+  `EscritaVisivelTests` verde sem o encaixe ceder a zero.
+
+- **O ORÁCULO DE PIXELS SOBRE A COMPOSIÇÃO NATIVA — herdada da 08f, ENCOLHIDA
+  na C1-C.** A C1-B provou a 08f **quadro a quadro** por dentro do processo
+  (`CADisplayLink` + camadas de apresentação), e isso alcança a geometria: onde
+  a linha e o papel estão em cada quadro entregue. Faltava a outra metade da
+  regra, e a C1-C a pôs de pé: a varredura de camadas (`intrusos`) **corre agora
+  em cada quadro**, pela apresentação, e custa **1,6–3,1 ms/quadro** dentro de
+  uma cadência de 16,7 ms — o preço que se temia é pago com folga. Com ela, o
+  pai `4898703` deixa de estar só cortado: o cartão dele **desenhava sobre a
+  linha** em 2 quadros (AX5) e 5 (`large`).
+  **O que ainda não alcança:** o pixel. A árvore de camadas mede quem está à
+  frente e onde; não mede tinta — uma camada transparente que a árvore acuse, ou
+  uma composição que o servidor de render resolva de outro modo, não são
+  distinguidas. O portão contra o silêncio existe (camada adversarial plantada,
+  35 de ~51 quadros acusados), mas ele prova a sonda, não o pixel.
+  **Ciclo:** multiplicar. **Evidência pedida:** comparação de quadros nativos
+  (`simctl io recordVideo` + `ffmpeg`) contra a geometria esperada, num alvo
+  fora da suíte integral.
+
+- **O SEGUIDOR NÃO GANHA DE UMA ALTURA ANIMADA — limite do instrumento, escrito
+  para não ser redescoberto.** Medido na C1-B com três seguidores diferentes
+  (adiado pelo runloop, síncrono, síncrono com a altura anunciada e com
+  adiantamento de um passo): **os três deram os mesmos offsets, ao ponto.** De
+  fora do layout do SwiftUI não há como pôr a correção da rolagem no MESMO
+  quadro em que a altura muda, porque o quadro apresentado é sempre o modelo do
+  anterior. Por isso a 08x proíbe a gaveta sobre a linha do autor em vez de
+  tentar correr mais depressa. **Quem quiser reabrir** precisa de um gancho
+  dentro do layout (um `UIScrollView` próprio, não o do SwiftUI), e isso é volta
+  de arquitetura, não de acabamento.
 
 ### A RÉGUA DO VAZAMENTO, nos dois sentidos — volta própria, e ela vem antes de mexer no parser
 
