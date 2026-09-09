@@ -1711,3 +1711,39 @@ passa a ser prova exigida**.
 **Q2-D** segue medindo IA no `B91C8DEF`.
 
 **Fecho:** o `main` ficou vermelho às **11h05** e voltou ao verde às **11h42** — 990 testes em 160 suítes, `TEST SUCCEEDED`. Trinta e sete minutos, e a causa foi minha. Antes deste push rodei `git log --oneline origin/main..main` e li a lista — a regra que nasceu do erro, aplicada.
+
+## 09/09, 12h — pausa e retomada (uso 12%); a conta era a NOSSA SUÍTE que apagava
+
+**O worker da M1-B achou o que passou a noite escondido**, e achou porque a ordem
+do dono manda parar e dizer com o comando exato:
+
+> `TracoTests/NotasESessaoTests.swift:572` e `:578` chamam `ContaGrok.sair()`, que
+> apaga `oauth-acesso` e `oauth-renova` do keychain **do SIMULADOR**. **A suíte
+> integral apaga a conta de verdade.**
+
+Três leituras: ligada às **08:57**, desligada às **09:12:48**, `genp` de **56 para
+54 linhas** e o `-wal` carimbado **08:58** — dentro da janela da suíte.
+
+**Isso corrige duas conclusões minhas e explica a noite inteira.** Eu escrevi
+ontem que o **install por cima** derrubava a conta; hoje de manhã medi que **não
+derrubava** e apontei o `xcodebuild test` como candidato. **Era ele.** A conta
+caindo duas vezes, a Q2 travada uma noite, o revisor bloqueado duas vezes — tudo
+**a nossa própria suíte**, e nada disso teria aparecido sem a fumaça antes e
+depois e sem workers que **param em vez de contornar**.
+
+**Despachei a K1** (`ctx_f4fa36418cab`) como prioridade máxima, porque **atinge
+toda a esteira**: enquanto não fechar, o fecho obrigatório de qualquer volta apaga
+a conta do dono. E escrevi a lição maior na ESTEIRA: **teste que escreve em
+recurso do APARELHO não está isolado** — o que ele apaga, apaga de verdade.
+
+**Decidi sozinho, como manda a §6:** autorizei a Q2-D a instalar o candidato uma
+vez (ela estava bloqueada porque **o binário que EU instalei era o do `main`**, sem
+o protocolo da Q2 — erro meu, não dela), e a resposta não chegou a tempo porque o
+despacho já tinha encerrado; ela volta com o spec corrigido.
+
+**A M1-B fechou com um achado que ninguém tinha visto:** a versão **1.0.0 teve
+DUAS formas** (`b7fbc3e` às 08h27 e `fea00dd` às 16h31 de 31/08, que acrescentou
+`queimada`/`sentido` **sem abrir versão**), e o conserto anterior **só cobria a
+segunda** — a primeira ainda recusava abrir. `TracoSchemaV0` e o estágio V0→V1
+fecham isso, e **o caderno antigo voltou a abrir às 08:55:15**. Falta trazer o
+commit `1c0d6dd` dela para o `main`.

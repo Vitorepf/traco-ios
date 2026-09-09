@@ -588,3 +588,33 @@ própria pergunta. E *"main ficou vermelho, reverto ou conserto para a frente?"*
 eu já sabia que reverter três mesclas cria a armadilha do re-merge, e disse isso
 na própria pergunta. **Quem escreve a recomendação junto com a pergunta já
 decidiu; o que falta é assumir.**
+
+### ⛔ A SUÍTE INTEGRAL APAGA A CONTA DO DONO (09/09) — e isso atinge todo mundo
+
+**Achado do worker da M1-B, medido em três leituras independentes.** O fecho
+obrigatório de qualquer volta — *"suíte integral por `com-trava.sh`"* — **apaga a
+conta Grok** quando roda no aparelho dela.
+
+**A causa, no código:** `TracoTests/NotasESessaoTests.swift:572` e `:578` chamam
+`ContaGrok.sair()`, que faz `guardar(nil)` em `oauth-acesso` e `oauth-renova` do
+keychain `app.traco.xai` — e **o keychain é do SIMULADOR, não do processo de
+teste**. A suíte apaga a conta de verdade.
+
+**A prova:** sonda dentro do app-host **ligada=true às 08:57**; **false às
+09:12:48**; `genp` do keychain do simulador **de 56 para 54 linhas**, `-wal`
+carimbado **08:58**, dentro da janela da suíte.
+
+**Enquanto a K1 não fecha:** **NINGUÉM roda `xcodebuild test` no aparelho da
+conta.** Suíte só no aparelho de trabalho efêmero.
+
+**E isto fecha o mistério de ontem, corrigindo duas conclusões minhas.** Eu escrevi
+que **o install por cima derrubava a conta**; depois medi que **não derrubava** e
+disse que a causa provável era o `xcodebuild test`. **Era.** A cadeia inteira de
+ontem — a conta caindo duas vezes, a Q2 travada uma noite, o revisor bloqueado
+duas vezes — foi **a nossa própria suíte**, e o que a expôs foi a regra barata de
+sempre: **fumaça antes e depois, e parar em vez de contornar**.
+
+**A lição de teste, que é maior que este caso:** **teste que escreve em recurso do
+APARELHO — keychain, `UserDefaults` do app, App Group, arquivos do contêiner — não
+está isolado**, por mais que o alvo se chame "testes de unidade". O que ele apaga,
+apaga de verdade. Injete o cofre, ou pule com a razão dita.
