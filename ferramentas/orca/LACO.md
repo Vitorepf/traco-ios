@@ -2132,3 +2132,7 @@ ADR e no RUMO, com a saída honesta nomeada.
 
 Virou lei: **portão que não enxerga tem de falhar fechado.** Um que reprova o que
 não entende custa uma conversa; um que aprova o que não entende custa o defeito.
+
+**Fecho:** **1000 testes em 161 suítes, `TEST SUCCEEDED`** com a B1-B dentro — o
+milésimo teste do Traço é um que guarda um portão de **falhar fechado**, o que é
+um jeito razoável de chegar ao número redondo. Aparelho efêmero desligado ao fim.
