@@ -412,3 +412,20 @@ O dono desligou todos os simuladores menos o **iPhone 17 Pro
 mas a fila do instrumento é única — e uma suíte integral segura as outras duas.
 Vale a pena porque **a conta do dono vive nesse aparelho**, e foi a disputa entre
 aparelhos que a derrubou duas vezes.
+
+### Fixture do passado se GRAVA com o código do passado (09/09)
+
+A M1 declarou que não fabricava fixtures das versões antigas *"com o código de
+hoje, por ser circular"*. A objeção está certa: **gerar um store antigo com o
+código de hoje não prova nada**, porque o que se quer provar é que o código de
+hoje **lê o que o código de ontem gravou**.
+
+**A saída não é gerar: é gravar com o código de ontem.** O git tem os commits, e o
+revisor da mesma volta já fez isso — montou os cadernos V2, V3 e V4 e o conserto
+abriu os três. Então: **checkout descartável em `/tmp` no commit da época**,
+compilar ali, gravar o caderno, **copiar o `default.store` para as fixtures**, e
+**dizer de qual commit veio cada uma** — a proveniência é parte da prova.
+
+Se alguma versão **não compilar mais** com o Xcode de hoje, **isso é o relato**:
+diga qual, com o erro, e aquela fixture fica **declarada impossível**. Declarar
+limite é aceitável; **prometer "cada versão" e entregar duas não é**.

@@ -1387,3 +1387,28 @@ exatamente o passado não visitado que deixou este defeito passar, então o port
 que promete visitar o passado **tem de visitar o passado inteiro**. A M1-B
 (`ctx_4a67a34c7ae7`) fecha isso e traz o `main` para dentro, com a lei da Q-H:
 aprovado não é mesclável.
+
+## 09/09, 12h — pausa e retomada (uso 13%); um aparelho, uma fila, e a circularidade resolvida
+
+Um simulador ligado, o caçador de fala em zero, e a M1-B trabalhando sozinha no
+instrumento — a fila única já está valendo.
+
+**A M1 levantou uma objeção boa e eu respondi com o que ela mesma quase tinha:**
+ela disse que não fabricava fixtures das versões antigas *"com o código de hoje,
+por ser circular"*. Está certa — gerar um store antigo com o código de hoje não
+prova nada, porque o que se quer provar é que **o código de hoje lê o que o de
+ontem gravou**. Mas a saída não é gerar: é **gravar com o código de ontem**, e o
+**revisor dela já tinha feito isso** ao montar os cadernos V2, V3 e V4 à mão.
+Checkout descartável no commit da época, compilar, gravar, copiar o
+`default.store` para as fixtures, **e dizer de qual commit veio cada uma**.
+
+E se alguma versão não compilar mais com o Xcode de hoje, **isso é o relato** —
+declarar limite é aceitável, **prometer "cada versão" e entregar duas não é**.
+Está na ESTEIRA.
+
+O relato da M1 também tem a frase que fecha o diagnóstico melhor do que a minha:
+**"a causa NÃO é o `origemRaw`"** — é que `TracoSchemaV2/V3/V4` apontavam para a
+classe viva, então o checksum da V4 **andou junto com a 08u** e o caderno de
+checksum `ImY8W7…` deixou de casar. Ela também considerou **e recusou por
+escrito** a alternativa barata (tirar o `migrationPlan`), e declarou o custo: ~60
+linhas duplicadas.
