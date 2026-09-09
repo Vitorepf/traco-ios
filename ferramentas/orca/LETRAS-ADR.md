@@ -44,3 +44,12 @@ idênticos. Sobrou linha, a alegação "só a letra mudou" é falsa.
 | 08y | R1 (retomada do Trabalho) | reservada, volta viva |
 
 **Próxima livre: 08z.**
+
+## 2026-09-09
+
+| letra | dona | estado |
+|---|---:|---|
+| 09b | MAC-1-B (a origem acompanha todo consumidor) | no branch da MAC-1 |
+
+**Próxima livre: 09c.** (A `09a` não foi usada por ninguém e **fica vaga** — buraco
+não se reaproveita.)

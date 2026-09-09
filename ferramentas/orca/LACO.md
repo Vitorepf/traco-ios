@@ -974,3 +974,31 @@ O que ele apurou sem a tela vale: a pasta espelhada **não existe** e o servidor
 responde a **mensagem honesta** ("A pasta do Traço não está em …"); o
 `.cursor/mcp.json` aponta para o caminho estável; `tools/list` do `main` traz **10
 ferramentas, sem `traco_agenda` nem `traco_decisoes`**; `settings.json` intocado.
+
+## 09/09, 01h30 — pausa e retomada (uso 3%); a conta segue caída e eu paro de perguntar
+
+A fumaça da Q2-C às **04:30:19Z** gravou `contaGrokLigada:false` e
+`Falha.semRetorno`. O revisor **não instalou candidato e não rodou os casos
+cegos** — a fronteira nova respeitada à risca. `responder` continua **não
+aprovada**, e a razão está escrita: falta o dono reautorizar **de forma
+verificável**.
+
+**Pedi duas vezes e as duas coisas não aconteceram** (o Mac nunca destrancou, a
+conta não voltou). Registro e **paro de perguntar**: repetir a pergunta não
+produz trabalho, e o dono responde quando estiver na máquina. As duas ficam
+esperando, com a evidência guardada — a Q2 tem a medida inteira em `prova/`, e a
+MAC-0 tem o roteiro de retomada pronto.
+
+**A MAC-1-B entregou** (`8bdc591`, ADR **2026-09-09b**) e a frase do commit diz o
+que interessa: *"o corte da 08u estava no LEITOR, e o CHAMADOR de produção o
+esquecia"*. `vozDoAutor` **sem padrão**, o caso 8 exercitado no cliente real, e os
+dois vermelhos que faltavam. Foi ao re-G3 com o mesmo revisor.
+
+Também despachei a **C1-B** — que tem de **escolher um caminho e escrever a
+razão**: consertar a gaveta, ou **contratualizar** a exceção na ADR 08f de forma
+nomeada, delimitada e medida. Escrever exceção larga para caber o que hoje falha
+seria enfraquecer a invariante em vez de dizer a verdade sobre ela. E a **revisão
+da R1**, onde a pergunta que mais me interessa é se **a recusa dela em implementar
+a rolagem automática** — porque conferiu na tela viva que a retomada já nasce a
+0,36 tela do topo, e o que está acima é a intenção — está certa ou deixou de
+entregar o critério.
