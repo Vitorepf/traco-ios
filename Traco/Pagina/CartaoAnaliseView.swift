@@ -68,6 +68,16 @@ struct CartaoAnaliseView: View {
 
     private var podeRecolher: Bool { Self.podeRecolher(cartao) }
 
+    /// A frase da espera. Fora do `body` para ter teste, como `podeRecolher`.
+    /// Os primeiros segundos não levam número: até aí a espera é a de sempre e
+    /// um contador só apressaria quem não estava com pressa. Do quarto segundo
+    /// em diante o número aparece e anda — é o que separa "está pensando" de
+    /// "travou", e a medida diz que ele vai passar dos trinta (ADR 09n).
+    static func fraseDaEspera(desde: Date, agora: Date) -> String {
+        let s = max(0, Int(agora.timeIntervalSince(desde)))
+        return s < 4 ? "a sábia pensa…" : "a sábia pensa há \(s) s…"
+    }
+
     /// A linha: o mesmo trilho âmbar do cartão inteiro e a frase que importa,
     /// cortada numa linha. Sem rótulo em cima — a frase já diz qual é a forma,
     /// e cada linha a mais aqui é uma linha a menos de papel.
@@ -231,7 +241,7 @@ struct CartaoAnaliseView: View {
         case .forma(let gesto, _): gesto.nome
         case .vestida(let gesto, _): gesto.nome
         case .pergunta: "Sua pergunta"
-        case .sabiaPensando: "A sábia"
+        case .sabiaPensando(let q, _): "A sábia, sobre: \(q)"
         case .resposta(let q, _): "A sábia, sobre: \(q)"
         case .vestido: "Vestido"
         case .semConta: "Sem conta"
@@ -248,7 +258,7 @@ struct CartaoAnaliseView: View {
         case .forma(_, let pergunta): pergunta
         case .vestida(let gesto, _): gesto.reconhecimento
         case .pergunta(let q): q
-        case .sabiaPensando: "pensando…"
+        case .sabiaPensando(_, let desde): Self.fraseDaEspera(desde: desde, agora: .now)
         case .resposta(_, let texto): texto
         case .vestido: "As suas palavras, com forma. Nenhuma mudou."
         case .semConta: "a sábia " + Sabia.porOndeEmPalavras + "."
@@ -311,15 +321,24 @@ struct CartaoAnaliseView: View {
                         .foregroundStyle(Tema.tinta)
                         .fixedSize(horizontal: false, vertical: true)
                 }
-            case .sabiaPensando:
+            case .sabiaPensando(_, let desde):
                 corpoCartao(trilho: Tema.ambar) {
                     chip(kicker, aviso: false)
-                    HStack(spacing: 10) {
-                        ProgressView().tint(Tema.tintaSuave)
-                        Text("pensando…")
-                            .font(Tema.corpo)
-                            .foregroundStyle(Tema.tintaSuave)
+                    // ADR 09n. O que estava aqui era um `ProgressView` do
+                    // sistema: um laço que gira igual ao 1º e ao 70º segundo,
+                    // e a espera passou de 1,4 s para 36 s de média. Um laço
+                    // que não sabe quanto falta não informa nada — é o
+                    // "spinner mudo" que a §10 proíbe. `LinhaDeEstado` é o
+                    // componente que o app já tem para isto (ADR 05t: uma
+                    // frase, sem glifo, sem laço), e o movimento honesto é o
+                    // SEGUNDO que anda: ele prova que o app está vivo E diz
+                    // quanto já se esperou. `TimelineView` acorda a linha uma
+                    // vez por segundo sem `@State`, sem timer e sem animação
+                    // — o que Movimento Reduzido não tem o que reduzir.
+                    TimelineView(.periodic(from: desde, by: 1)) { agora in
+                        LinhaDeEstado(Self.fraseDaEspera(desde: desde, agora: agora.date), .pensando)
                     }
+                    .accessibilityIdentifier("sabia-pensando")
                 }
             case .resposta(_, let texto):
                 corpoCartao(trilho: Tema.ambar) {
@@ -377,7 +396,7 @@ struct CartaoAnaliseView: View {
 
     private var temAcoes: Bool {
         switch cartao {
-        case .aviso, .sabiaPensando: false
+        case .aviso: false
         default: true
         }
     }
@@ -385,8 +404,19 @@ struct CartaoAnaliseView: View {
     /// As saídas de cada cartão, num lugar só: o pé.
     @ViewBuilder private var acoes: some View {
         switch cartao {
-        case .aviso, .sabiaPensando:
+        case .aviso:
             EmptyView()
+        case .sabiaPensando:
+            // ADR 09n: esperar 77 s sem saída é a pessoa presa ao cartão. A
+            // saída é discreta de propósito — o caminho principal é ESPERAR,
+            // porque a resposta está a caminho —, e não perde nada: a pergunta
+            // volta ao cartão com "Perguntar à sábia" a um toque, e a linha "?"
+            // nunca saiu da nota.
+            Button("Parar de esperar") { sessao.pararDeEsperarASabia() }
+                .buttonStyle(.compacto)
+                .foregroundStyle(Tema.tintaSuave)
+                .accessibilityIdentifier("parar-de-esperar")
+                .accessibilityHint("A sua pergunta fica no cartão; perguntar de novo é um toque")
         case .forma(let gesto, _):
             Button("Abrir a forma \(gesto.nome)") {
                 sessao.usarForma(gesto)

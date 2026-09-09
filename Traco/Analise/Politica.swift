@@ -110,10 +110,8 @@ enum Politica {
                   medidaEm: "08/09/2026",
                   conserto: "usar o material disponível quando o fato atual falta, como produzir já faz, e manter os rótulos internos fora do texto")
         case .responder:
-            .init(regra: .indisponivelPorQualidade, porque: "com a conta ligada em 08/09 o Grok inventou fato quando o contexto não sustentava — horário de abertura de uma biblioteca que ele não podia saber, e um total de R$ 1.008 num pedido em que o autor disse não ter distância, consumo nem preço; o MESMO caso acertou numa execução e fabricou na seguinte — 3 de 6 casos — prova/q-qualidade.md",
-                  motivo: "inventou fato que o contexto não sustentava",
-                  medidaEm: "08/09/2026",
-                  conserto: "recusar o fato que o contexto não sustenta e entregar o caminho, como produzir já faz")
+            .init(regra: .soGrok, porque: "cortada em 08/09 (a 08q mediu 3 de 6: horário de biblioteca e um total de R$ 1.008 que o contexto não sustentava). VOLTOU em 09/09 (ADR 09n) com as duas alavancas medidas juntas: o contrato de sustentação em `sistemaResponder` matou a fabricação de NÚMERO (0 em 108 execuções) e o modelo escolhido pela DIRETRIZ §10, com esforço `medium`, matou a de CENÁRIO — 12 de 12 casos e 36 de 36 execuções sem um descumprimento, contra 8 de 12 do `grok-4.3` com o mesmo prompt. O preço é a espera (19,4 s a 77,5 s, média 36,1 s), assumida pelo dono e mostrada no cartão. O aparelho continua fora: ele nunca foi medido bem aqui — prova/q2-responder-*.jsonl, ferramentas/orca/q2-responder.md",
+                  medidaEm: "09/09/2026")
         case .instigar:
             .init(regra: .indisponivelPorQualidade,
                   porque: "com a conta ligada em 08/09 o Grok devolveu ao autor o vocabulário interno que o app passa no pedido ('o movimento básico que se pula', 'neste degrau 0', 'a forma nota'), em vez de perguntar sobre o que ele escreveu — 1 de 6 casos — prova/q-qualidade.md",
@@ -133,6 +131,22 @@ enum Politica {
         }
     }
 
+#if DEBUG
+    /// ADR 2026-09-08z — SÓ PARA A SONDA. Uma operação cortada por qualidade
+    /// não tem executor, e sem executor não há como MEDIR o conserto: a sonda
+    /// bate em `nil` antes de alcançar o provedor. Esta chave abre a linha
+    /// para o Grok apenas no binário de avaliação, e a sonda grava em cada
+    /// registro do JSONL quais operações foram liberadas — a medida diz de si
+    /// mesma em que condição foi feita. Nunca existe em Release, e o app do
+    /// autor continua vendo a tabela como ela é.
+    ///   xcrun simctl launch ... SIMCTL_CHILD_TRACO_AVALIAR_LIBERAR=responder
+    nonisolated static let liberadasParaAvaliacao: Set<String> = Set(
+        (ProcessInfo.processInfo.environment["TRACO_AVALIAR_LIBERAR"] ?? "")
+            .split(separator: ",")
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+            .filter { !$0.isEmpty })
+#endif
+
     /// Quem responde AGORA. `nil` = ninguém: a rota cala ou a tela diz.
     static func provedor(_ op: Operacao,
                          contaLigada: Bool = ContaGrok.ligada,
@@ -141,7 +155,12 @@ enum Politica {
         case .soGrok: contaLigada ? .grok : nil
         case .soBordo: bordo ? .bordo : nil
         case .grokDepoisBordo: contaLigada ? .grok : (bordo ? .bordo : nil)
-        case .indisponivelPorQualidade: nil
+        case .indisponivelPorQualidade:
+#if DEBUG
+            liberadasParaAvaliacao.contains(op.rawValue) && contaLigada ? .grok : nil
+#else
+            nil
+#endif
         }
     }
 
@@ -159,7 +178,9 @@ enum Politica {
         case .revisar: RevisaoTrabalho.semProvedor
         case .conferir: "Conferir o que voltou pela IA precisa da conta Grok; o modelo do aparelho errou a comparação."
         case .padroes: "Precisa da conta Grok; o modelo do aparelho não serviu aqui."
-        // As seis abaixo estão INDISPONÍVEIS POR QUALIDADE (ADR 08q): a conta
+        case .responder: "Responder à sua pergunta pela IA precisa da conta Grok (em Perfil); o modelo do aparelho não foi medido bem aqui."
+        // As cinco abaixo estão INDISPONÍVEIS POR QUALIDADE (ADR 08q; a
+        // `responder` saiu da lista na 09n, medida de novo e aprovada): a conta
         // pode estar ligada e mesmo assim ninguém responde, porque o que
         // respondia não atendeu na medida de 08/09. A frase não manda conectar
         // conta, não pede para tentar de novo e não promete guardar nada — quem
@@ -167,7 +188,6 @@ enum Politica {
         case .ecos: "Ecos entre notas está indisponível: a IA deixou de fora justamente os vínculos mais úteis quando medimos, em 08/09. As notas continuam buscáveis pelo texto."
         case .calibragem: "Ler o seu juízo pela IA está indisponível: na medida de 08/09 ela calou quando não havia erro a apontar. Os seus pares de previsão e resultado continuam aqui para você comparar."
         case .recordar: "A pergunta do Recordar pela IA está indisponível: na medida de 08/09 ela entregou a resposta dentro da própria pergunta. O ritual segue com a pergunta fixa."
-        case .responder: "Responder à sua pergunta pela IA está indisponível: na medida de 08/09 ela inventou fato quando o seu contexto não sustentava a resposta. Perguntar nas Notas, sobre as suas notas, continua funcionando."
         case .instigar: "Instigar pela IA está indisponível: na medida de 08/09 ela devolveu o vocabulário interno do app em vez de uma pergunta sobre o que você escreveu. As perguntas do método continuam na página."
         case .contrapor: "Contrapor pela IA está indisponível: na medida de 08/09 ela sustentou o contraponto em fato inventado. O Steelman e a Inversão continuam no catálogo, escritos por você."
         case .responderNasNotas: "Responder sobre as suas notas pela IA está indisponível: na medida de 08/09 ela recusou por inteiro perguntas que as suas notas ainda ajudavam a responder. A busca pelo texto das notas continua."

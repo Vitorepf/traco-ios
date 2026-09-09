@@ -564,7 +564,7 @@ enum MotorTrabalho {
         try Task.checkCancellation()
         let remoto = pedido(d, p, teto: tetoRemoto, praticaPreservada: praticaPreservada)
         if remoto.count <= tetoRemoto,
-           let texto = await Grok.responder(sistema: sistema, usuario: remoto, temperatura: 0.3, timeout: Grok.tetoTrabalho, esforco: "medium", modelo: Grok.modeloTrabalho),
+           let texto = await Grok.responder(sistema: sistema, usuario: remoto, temperatura: 0.3, esforco: "medium"),
            !texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             return .init(texto: texto, produtor: remoto.contains("[CONTEXTO PARCIAL:") ? "Grok · parte do histórico" : "Grok")
         }
@@ -599,9 +599,9 @@ extension MotorTrabalho {
         let ajustando = p.ajuste != nil
         guard mensagem.count <= tetoRemoto,
               let cru = await Grok.responder(sistema: PraticaTrabalho.sistemaPreparar,
-                                             usuario: mensagem, temperatura: 0.3, timeout: Grok.tetoTrabalho,
+                                             usuario: mensagem, temperatura: 0.3,
                                              esquema: PraticaTrabalho.esquemaRemotoPreparacao(comMudanca: ajustando),
-                                             esforco: "high", modelo: Grok.modeloTrabalho)
+                                             esforco: "high")
         else { return nil }
         // O que o AUTOR escreveu neste pedido — os três campos que a sonda já
         // grava em `entrada`, para a origem do quadrigrama ser conferível sem
@@ -657,8 +657,8 @@ extension MotorTrabalho {
         }
         guard mensagem.count <= tetoRemoto else { return naoCoube(tetoRemoto) }
         if let cru = await Grok.responder(sistema: PraticaTrabalho.sistemaConferir,
-                                          usuario: mensagem, temperatura: 0.2, timeout: Grok.tetoTrabalho,
-                                          esquema: PraticaTrabalho.esquemaRemotoConferencia(pratica, tentativa: tentativa), esforco: "high", modelo: Grok.modeloTrabalho) {
+                                          usuario: mensagem, temperatura: 0.2,
+                                          esquema: PraticaTrabalho.esquemaRemotoConferencia(pratica, tentativa: tentativa), esforco: "high") {
             let executor = "Grok \(PraticaTrabalho.sufixoDoExecutor)"
             guard let resultados = PraticaTrabalho.parseConferencia(cru, pratica: pratica, tentativa: tentativa) else {
                 return registro(.indisponivel, executor: executor, motivo: PraticaTrabalho.foraDoContrato)

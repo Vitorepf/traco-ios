@@ -677,7 +677,7 @@ struct PaginaView: View {
         switch cartao {
         case .forma(let g, _): "Forma \(g.nome) sugerida. Abrir a forma disponível."
         case .aviso(let frase): frase
-        case .sabiaPensando: "A sábia está pensando."
+        case .sabiaPensando: "A sábia está pensando. Parar de esperar disponível."
         case .resposta: "A sábia respondeu. A resposta está no cartão."
         case .vestido: "Vestido. Desfazer disponível."
         case .semConta: "A sábia " + Sabia.porOndeEmPalavras + "."

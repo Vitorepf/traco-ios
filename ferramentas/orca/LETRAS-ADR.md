@@ -72,6 +72,9 @@ que este arquivo existe para impedir — e ele reincidiu no próprio arquivo.
 | 09o | B1 (os `try!`: dois saem por medida, dois pela pré-condição) | em `main` |
 
 **Próxima livre: 09p.**
+| 09n | Q2-E (`responder` volta com o melhor Grok; a espera vira tela) | no branch da Q2 |
+
+**Próxima livre: 09o.**
 
 **A série 08 está CHEIA** — de `08a` a `08z`, com `08c` e `08d` como buracos.
 

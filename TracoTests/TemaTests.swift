@@ -250,10 +250,43 @@ struct TemaTests {
     @Test func oAvisoEARespostaNaoRecolhem() {
         #expect(!CartaoAnaliseView.podeRecolher(.aviso("não consegui guardar")))
         #expect(!CartaoAnaliseView.podeRecolher(.semConta))
-        #expect(!CartaoAnaliseView.podeRecolher(.sabiaPensando))
+        #expect(!CartaoAnaliseView.podeRecolher(.sabiaPensando(pergunta: "q", desde: .now)))
         // a resposta da sábia o autor PEDIU: chega aberta
         #expect(!CartaoAnaliseView.podeRecolher(.resposta(pergunta: "q", texto: "texto longo")))
         #expect(CartaoAnaliseView.podeRecolher(.vestida(.woop, pergunta: "?")))
         #expect(CartaoAnaliseView.podeRecolher(.forma(.woop, pergunta: "?")))
+    }
+
+    /// ADR 09n: a espera passou de 1,4 s para 36 s de média (77,5 s no pior
+    /// caso medido). O `ProgressView` do sistema girava igual no segundo 1 e
+    /// no 70; o que separa "pensando" de "travou" é o número que ANDA.
+    /// Os primeiros segundos ficam sem número: até aí é a espera de sempre.
+    @Test func aEsperaDaSabiaMostraOTempoDepoisDosPrimeirosSegundos() {
+        let inicio = Date(timeIntervalSince1970: 0)
+        func frase(_ s: TimeInterval) -> String {
+            CartaoAnaliseView.fraseDaEspera(desde: inicio, agora: inicio.addingTimeInterval(s))
+        }
+        #expect(frase(0) == "a sábia pensa…")
+        #expect(frase(3.9) == "a sábia pensa…")
+        #expect(frase(4) == "a sábia pensa há 4 s…")
+        #expect(frase(36) == "a sábia pensa há 36 s…")
+        #expect(frase(77.5) == "a sábia pensa há 77 s…")
+        // relógio que anda para trás não vira número negativo na tela
+        #expect(frase(-5) == "a sábia pensa…")
+    }
+
+    /// ADR 09n: parar de esperar não pode custar o que a pessoa escreveu.
+    /// A pergunta volta ao cartão `.pergunta`, que já tem "Perguntar à sábia"
+    /// no pé — um toque, e sem redigitar nada. A linha "?" da nota nunca sai.
+    @MainActor
+    @Test func pararDeEsperarDevolveAPerguntaEmVezDePerdeLa() {
+        let s = Sessao()
+        s.cartao = .sabiaPensando(pergunta: "por onde começo?", desde: .now)
+        s.pararDeEsperarASabia()
+        #expect(s.cartao == .pergunta("por onde começo?"))
+        // fora da espera, o gesto não mexe em cartão nenhum
+        s.cartao = .resposta(pergunta: "q", texto: "t")
+        s.pararDeEsperarASabia()
+        #expect(s.cartao == .resposta(pergunta: "q", texto: "t"))
     }
 }

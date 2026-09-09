@@ -33,11 +33,40 @@ enum Sabia {
     /// ADR 04r: UM teto, 900, no prompt e no parser.
     nonisolated static let tetoResposta = 900
 
+    /// ADR 2026-09-08z — o contrato de SUSTENTAÇÃO. A medida de 08/09 pegou o
+    /// provedor completando lacuna com fato (R$ 1.008 de gasolina num pedido
+    /// sem distância, consumo nem preço; a biblioteca "abre às 13h"). A versão
+    /// anterior pedia "informação, opções e critérios" e não proibia nada: com
+    /// as opções cobradas em toda resposta, o modelo preenchia os números que
+    /// faltavam para ter o que listar. O contrato agora vem de
+    /// `MotorTrabalho.sistema` (a única rota medida que preserva os dados e
+    /// nomeia o que falta), adaptado ao cartão: responde o sustentado, nomeia
+    /// o dado ausente, e continua ajudando com fórmula, critério ou caminho.
+    /// Recusar por inteiro é o defeito oposto, e reprova igual.
     static let sistemaResponder = """
-    Você é uma pessoa sábia ao lado de quem escreve. Ela deixou uma pergunta na própria nota e você responde
-    com informação, opções e critérios — em português, direto, sem elogio, sem rodeio, no máximo 900 caracteres.
+    Você é uma pessoa sábia ao lado de quem escreve. Ela deixou uma pergunta na própria nota e você
+    responde em português, direto, sem elogio, sem rodeio, no máximo 900 caracteres.
     Você NÃO escreve a nota por ela: não redija o texto dela, não conclua por ela, não decida por ela.
-    Onde houver mais de um caminho, mostre os caminhos e o que decide entre eles.
+    Responda tudo o que o contexto e o conhecimento geral sustentam, e entregue ajuda utilizável, não só
+    o diagnóstico do que falta. Faltar um dado nunca é motivo para recusar a pergunta inteira.
+    Não invente fato: distância, consumo, preço, valor, horário, data, endereço, telefone, número de
+    página, seção de documento, fonte, ou terceiro (cliente, chefe, colega) que ela não nomeou só entram
+    se ela os deu. Não apresente número que você escolheu como se fosse dela — nem como média,
+    estimativa ou exemplo. Não afirme o que há dentro de um documento que ela não descreveu.
+    Não suponha o cenário: com quem ela combinou, por onde ela passa, em que suporte está o que ela
+    lê, e o que ela já fez, leu ou estudou — nada disso entra na resposta se ela não disse.
+    Quando faltar um dado indispensável, diga exatamente qual é e siga ajudando: use os dados que ela
+    deu, entregue a fórmula ou o critério com os nomes no lugar dos números, e o caminho concreto para
+    ela levantar o que falta — aproveitando o que ela já deu (nome, endereço, o que anotou). Um fato
+    público que você não pode saber (horário de hoje, preço corrente) se responde assim: diga que não
+    sabe e diga ONDE ela confirma. Conhecimento geral, método e raciocínio continuam seus, sem ressalva.
+    Um dado que ela deu, você usa; uma correção explícita dela substitui o anterior e não pede
+    confirmação extra. Se as versões conflitam e ela não resolveu, exponha o conflito e o que o
+    resolveria. Distinga o que ela relatou do que você supõe, e declare a suposição.
+    Você não conversa e não consulta nada: nunca devolva uma pergunta no lugar da resposta, nunca peça
+    para ela responder a você, nunca prometa procurar, calcular depois ou verificar por ela.
+    Opções só quando a pergunta admitir mais de um caminho — aí mostre os caminhos e o que decide entre
+    eles; nunca invente condição para ter o que listar.
     Se houver um bloco SOBRE QUEM ESCREVE, use-o para responder a ESTA pessoa — nunca o comente, nunca o elogie.
     """
 
@@ -356,7 +385,11 @@ enum Sabia {
         guard gesto != .expressiva else { return nil }
         let usuario = "\(rotuloContextoDaNota)\n\(contexto.prefix(5000))"
             + blocoDoRetrato(retrato) + "\n\nPergunta: \(pergunta)"
+        // ADR 09n: `medium` é o esforço MEDIDO desta rota — com ele o modelo
+        // escolhido passou os doze casos e as 36 execuções; com `none` a
+        // fabricação de cenário volta. Custa a espera, que o cartão mostra.
         guard let cru = await chamar(.responder, sistema: sistemaResponder, usuario: usuario, temperatura: 0.3,
+                                     esforco: "medium",
                                      mensagemLocal: { montarResponder(pergunta: pergunta, contexto: contexto,
                                                                       retrato: retrato, rotulo: rotuloContextoDaNota) })
         else { return nil }
@@ -532,9 +565,10 @@ enum Sabia {
     /// Vestir, calibragem e Padrões não cortam mais aqui: sem montagem própria,
     /// só seguem no aparelho se a mensagem inteira couber.
     static func chamar(_ operacao: Politica.Operacao, sistema: String, usuario: String, temperatura: Double,
-                       memoPor chave: String? = nil, mensagemLocal: (() -> String?)? = nil) async -> String? {
+                       memoPor chave: String? = nil, esforco: String = Grok.esforcoMinimo,
+                       mensagemLocal: (() -> String?)? = nil) async -> String? {
         await chamarComProveniencia(operacao, sistema: sistema, usuario: usuario, temperatura: temperatura,
-                                    memoPor: chave, mensagemLocal: mensagemLocal)?.texto
+                                    memoPor: chave, esforco: esforco, mensagemLocal: mensagemLocal)?.texto
     }
 
     /// A mesma escada, dizendo QUEM respondeu. `chamar` devolve só o texto, e
@@ -545,13 +579,21 @@ enum Sabia {
     /// ADR 07b: a tabela `Politica` decide QUEM pode responder esta operação.
     /// Onde o aparelho foi medido e não serviu, a falha do Grok não desce a
     /// ele — devolve nil, e a tela diz (nunca um resultado pior, calado).
+    ///
+    /// ADR 2026-09-09n: o ESFORÇO viaja por operação. O modelo não viaja: o
+    /// padrão de `Grok.modelo` já é o melhor que a conta expõe (DIRETRIZ §10),
+    /// e parâmetro que só recebe o padrão é configuração para valor que não
+    /// muda. O que muda por operação é quanto o modelo pensa; quem não pede
+    /// nada fica no `Grok.esforcoMinimo`, e o teto é o mesmo para todas,
+    /// porque com este modelo não há mais rota que não pense.
     static func chamarComProveniencia(_ operacao: Politica.Operacao,
                                       sistema: String, usuario: String, temperatura: Double,
-                                      memoPor chave: String? = nil,
+                                      memoPor chave: String? = nil, esforco: String = Grok.esforcoMinimo,
                                       mensagemLocal: (() -> String?)? = nil) async -> (texto: String, provedor: String)? {
         guard let quem = Politica.provedor(operacao) else { return nil }
         if quem == .grok, let r = await Grok.responder(sistema: sistema, usuario: usuario,
-                                                       temperatura: temperatura, memoPor: chave) {
+                                                       temperatura: temperatura,
+                                                       memoPor: chave, esforco: esforco) {
             return (r, Politica.Provedor.grok.rawValue)
         }
         guard Politica.desceAoAparelho(operacao) else { return nil }

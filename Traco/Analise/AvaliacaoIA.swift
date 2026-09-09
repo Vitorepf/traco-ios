@@ -108,10 +108,14 @@ enum AvaliacaoIA {
                     PadroesRemoto.esquecerMemo()
                     var registro: [String: Any] = ["id": caso.id, "operacao": caso.operacao,
                         "repeticao": repeticao, "entrada": try objeto(caso.entrada),
-                        "modeloConfigurado": Grok.modelo, "modeloTrabalhoConfigurado": Grok.modeloTrabalho,
+                        "modeloConfigurado": Grok.modelo,
                         "contaGrokLigada": ContaGrok.ligada,
                         "modeloDoAparelhoDisponivel": AnaliseDeBordo.disponivel,
-                        "motoresDesligados": Motores.desligados]
+                        "motoresDesligados": Motores.desligados,
+                        // ADR 08z: a corrida diz em que condição foi feita. Uma
+                        // operação indisponível por qualidade só alcança o
+                        // provedor se estiver listada aqui.
+                        "operacoesLiberadasParaAvaliacao": Politica.liberadasParaAvaliacao.sorted()]
                     registro["evento"] = "casoIniciado"
                     try gravar(registro)
                     let inicio = ContinuousClock.now
