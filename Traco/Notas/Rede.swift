@@ -17,6 +17,11 @@ nonisolated enum Rede {
         var gesto: Gesto?
         var fechada: Bool
         var expressivaEmCurso: Bool
+        /// ADR 09b: ligar é ato de pensamento do AUTOR. A nota que o bot deixou
+        /// na pasta pode ser DESTINO — ligar a ela é ato dele —, mas nunca
+        /// ORIGEM: uma menção que ele não escreveu não é ligação dele.
+        /// Sem padrão: o chamador declara ou não compila.
+        var vozDoAutor: Bool
 
         /// Selo: a expressiva (em curso ou fechada) e a trancada não entram na
         /// rede — nem como origem, nem como destino.
@@ -82,7 +87,7 @@ nonisolated enum Rede {
             .sorted { $0.titulo.count < $1.titulo.count }
 
         var saida: [Ligacao] = []
-        for origem in elegiveis {
+        for origem in elegiveis where origem.vozDoAutor {
             for termo in alvos(origem) {
                 let k = chave(termo)
                 guard !k.isEmpty else { continue }

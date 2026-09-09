@@ -90,6 +90,11 @@ struct EscritaVisivelTests {
             sessao.mostrarRecordar = false
             sessao.cartao = nil
             sessao.toast = nil
+            // a etiqueta de origem (ADR 08u/09b) é estado VISUAL da sessão viva,
+            // como o cartão e o toast, e entrou depois deste cenário: sem a
+            // neutralizar, uma suíte que abrisse nota do bot deixava a cápsula
+            // de pé e mudava o papel por baixo desta medida (achado da C1-D).
+            sessao.origemDaPagina = .autor
             sessao.soltarForma()
             janela.traitOverrides.preferredContentSizeCategory = tamanho
             EscritaVisivelTests.esperar(0.8)
@@ -98,6 +103,7 @@ struct EscritaVisivelTests {
         func desmontar() {
             sessao.cartao = nil
             sessao.toast = nil
+            sessao.origemDaPagina = .autor
             sessao.soltarForma()
             janela.traitOverrides.remove(UITraitPreferredContentSizeCategory.self)
             janela.rootViewController?.additionalSafeAreaInsets = .zero
@@ -481,7 +487,7 @@ struct EscritaVisivelTests {
 
     /// A 08f é escrita "em cada quadro apresentado"; o teste acima mede em
     /// PONTOS DISCRETOS, depois de cada inserção, com o papel parado. A gaveta
-    /// muda a altura do encaixe ao longo de `Tema.gaveta`, e o resíduo da 08w
+    /// muda a altura do encaixe ao longo de `Tema.gaveta`, e o resíduo da 09d
     /// mora aí: a linha ativa cortada pela borda do papel que encolheu antes de
     /// o seguidor correr (`ferramentas/orca/c1/c1-04-residuo-gaveta-cartao.png`).
     /// Aqui a medida é POR QUADRO, com o instante de cada um — é o que troca
@@ -576,6 +582,25 @@ struct EscritaVisivelTests {
         tv.selectedRange = NSRange(location: tv.text.utf16.count, length: 0)
         Self.digitar(Self.bloco, em: tv, teclado: teclado, estado: "\(nome), aviso e toast, fim", amostras: &amostras)
 
+        // A ETIQUETA DE ORIGEM, que o `main` trouxe na fusão da C1-D (ADR 08u /
+        // 09b): a nota feita pelo bot põe uma cápsula ACIMA do editor, e ela
+        // come papel no ponto exato em que a 09d mediu o aperto. É estado de
+        // PRODUÇÃO — o autor abre a nota do bot e escreve nela — e a invariante
+        // 08f nunca o tinha visto, porque a etiqueta não existia quando esta
+        // suíte foi escrita. Medido aqui, e não deduzido do layout.
+        let papelSemEtiqueta = EscritaVisivel.rolagemAcima(de: tv)?.bounds.height ?? 0
+        cenario.sessao.origemDaPagina = .grokbot
+        Self.esperar(0.6)
+        let papelComEtiqueta = EscritaVisivel.rolagemAcima(de: tv)?.bounds.height ?? 0
+        print("ETIQUETA \(nome): papel \(Int(papelSemEtiqueta)) -> \(Int(papelComEtiqueta)) pt (a cápsula tomou \(Int(papelSemEtiqueta - papelComEtiqueta)) pt)")
+        // sem isto o caso passaria à toa: uma etiqueta que não desenha não
+        // encolhe nada, e a invariante daria verde sobre a tela de sempre
+        #expect(papelComEtiqueta < papelSemEtiqueta,
+                "a etiqueta de origem não tomou papel nenhum — ou não desenhou, e então este caso não mede o que promete")
+        amostras.append(Self.medir(tv, teclado: teclado, estado: "\(nome), etiqueta do bot, antes de digitar"))
+        tv.selectedRange = NSRange(location: tv.text.utf16.count, length: 0)
+        Self.digitar(Self.bloco, em: tv, teclado: teclado, estado: "\(nome), etiqueta do bot, fim", amostras: &amostras)
+
         let dentro = amostras.filter(\.cabe).count
         print("ESCRITA \(nome): \(amostras.count) amostras, \(dentro) com a linha do caret na área livre do papel; teclado \(tecladoReal ? "real" : "emulado") \(Int(teclado.height)) pt")
         #expect(amostras.count >= 20, "poucas amostras para valer como prova")
@@ -595,7 +620,7 @@ struct EscritaVisivelTests {
 /// nu — com a entrelinha do papel e até com a fonte de corpo em AX XXXL — o
 /// `caretRect` do UIKit JÁ É a caixa da linha visual, ao pt, em todos os
 /// offsets (a linha `LINHA` do relato conta quantos diferem: zero). A distância
-/// de 45 para 67 pt que a 08w mediu é do editor da PÁGINA, não do TextKit 2 em
+/// de 45 para 67 pt que a 09d mediu é do editor da PÁGINA, não do TextKit 2 em
 /// geral — quem a prova é o teste hospedado, com a Página real. Então estes
 /// casos não podem cobrar "a linha é mais alta que o caret": seria uma
 /// asserção que passa por acidente do aparelho. Cobram o que protege o
@@ -609,7 +634,7 @@ struct EscritaVisivelTests {
 
     /// Um `UITextView` de TextKit 2, estreito para a palavra quebrar, com a
     /// entrelinha do papel e a fonte de corpo em AX XXXL — o tamanho em que a
-    /// 08w mediu a diferença entre a linha e o caret.
+    /// 09d mediu a diferença entre a linha e o caret.
     private static func editor(_ texto: String, largura: CGFloat = 160,
                                tamanho: UIContentSizeCategory = .accessibilityExtraExtraExtraLarge) throws -> UITextView {
         let tv = UITextView(frame: CGRect(x: 0, y: 0, width: largura, height: 2000))

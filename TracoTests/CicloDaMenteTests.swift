@@ -81,7 +81,8 @@ private func temp(_ nome: String) -> URL {
 @Suite struct RetratoTests {
     private func nota(_ g: Gesto?, _ campos: [String: String], fechada: Bool = false, dias: Int = 0) -> Retrato.NotaLida {
         Retrato.NotaLida(gesto: g, fechada: fechada, expressiva: g == .expressiva,
-                         criadaEm: Date.now.addingTimeInterval(-Double(dias) * 86_400), campos: campos)
+                         criadaEm: Date.now.addingTimeInterval(-Double(dias) * 86_400), campos: campos,
+                         vozDoAutor: true)
     }
 
     @Test func oRetratoSoTemAsPalavrasDoAutorEContagens() {
@@ -185,7 +186,8 @@ private func temp(_ nome: String) -> URL {
     @Test func doisPeriodosSemSetaESemPlacar() {
         func n(_ g: Gesto?, _ campos: [String: String], dias: Int, fechada: Bool = false, sentido: String = "") -> Trajetoria.NotaLida {
             let d = Date.now.addingTimeInterval(-Double(dias) * 86_400)
-            return Trajetoria.NotaLida(uuid: UUID(), gesto: g, fechada: fechada, criadaEm: d, editadaEm: d, campos: campos, sentido: sentido)
+            return Trajetoria.NotaLida(uuid: UUID(), gesto: g, fechada: fechada, criadaEm: d, editadaEm: d,
+                                       campos: campos, sentido: sentido, vozDoAutor: true)
         }
         let notas = [
             n(.woop, ["obstaculo": "o celular"], dias: 3),

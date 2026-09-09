@@ -136,7 +136,7 @@ quadro (~0,11 s numa varredura de 220) mostra a linha ativa **cortada ao meio**
 pela borda do cartão — a altura do encaixe já cresceu e o seguidor ainda não
 correu. O mecanismo não foi alterado por esta volta e a suíte não o apanha
 (mede em pontos discretos). **Não afirmo que seja pré-existente: não o medi em
-`HEAD`.** Está na ADR 08w e vai para o RUMO.
+`HEAD`.** Está na ADR 09d e vai para o RUMO.
 
 ## 6. Limites do instrumento (fatos, não desculpas)
 

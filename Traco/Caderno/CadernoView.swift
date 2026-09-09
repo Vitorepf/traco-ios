@@ -218,7 +218,7 @@ struct CadernoView: View {
     /// metade do que sobra depois do pé: em tamanhos AX três linhas de corpo
     /// não cabem com o cartão, e um piso maior que o teto deixaria o autor sem
     /// as duas saídas em vez de sem texto.
-    /// E NUNCA menos de UMA linha (`piso / 3`) — ADR 08w. Metade do que sobra
+    /// E NUNCA menos de UMA linha (`piso / 3`) — ADR 09d. Metade do que sobra
     /// era pouco onde a tela é pequena e a letra grande: no iPhone 17e em
     /// AX XXXL o pé toma 275 dos 414 pt disponíveis, a metade dava 69,5 pt de
     /// papel e a linha de corpo mede 67 — não cabia em quadro nenhum, com ou

@@ -39,6 +39,10 @@ nonisolated struct Trajetoria: Equatable, Sendable {
         var editadaEm: Date
         var campos: [String: String]
         var sentido: String
+        /// ADR 08u/09b: a trajetória é da mente do autor. O que o bot escreveu
+        /// não entra — nem na calibragem, nem nas palavras dele, nem na linha
+        /// de sentido. Sem padrão: o chamador declara ou não compila.
+        var vozDoAutor: Bool
     }
 
     nonisolated static func ler(notas: [NotaLida], sinais: [Sinal], agora: Date = .now,
@@ -55,7 +59,7 @@ nonisolated struct Trajetoria: Equatable, Sendable {
                                 de: Date, a: Date) -> Periodo {
         var p = Periodo(rotulo: rotulo)
         // o selo: expressiva só entra pela linha de sentido, como sempre
-        let abertas = notas.filter { !$0.fechada && $0.gesto != .expressiva && $0.criadaEm >= de && $0.criadaEm <= a }
+        let abertas = notas.filter { !$0.fechada && $0.gesto != .expressiva && $0.vozDoAutor && $0.criadaEm >= de && $0.criadaEm <= a }
         p.notas = abertas.count
         var conta: [String: Int] = [:]
         for n in abertas { conta[n.gesto?.nome ?? "sem forma", default: 0] += 1 }
@@ -81,7 +85,7 @@ nonisolated struct Trajetoria: Equatable, Sendable {
 
         let lidas = abertas.map {
             Retrato.NotaLida(gesto: $0.gesto, fechada: $0.fechada, expressiva: $0.gesto == .expressiva,
-                             criadaEm: $0.criadaEm, campos: $0.campos)
+                             criadaEm: $0.criadaEm, campos: $0.campos, vozDoAutor: true)
         }
         let c = Retrato.calibrar(lidas)
         if c.total > 0 {
@@ -96,7 +100,7 @@ nonisolated struct Trajetoria: Equatable, Sendable {
             }
             .prefix(3).map { $0 }
 
-        p.sentidos = notas.filter { $0.gesto == .expressiva && $0.fechada && $0.editadaEm >= de && $0.editadaEm <= a }
+        p.sentidos = notas.filter { $0.vozDoAutor && $0.gesto == .expressiva && $0.fechada && $0.editadaEm >= de && $0.editadaEm <= a }
             .sorted { $0.editadaEm > $1.editadaEm }
             .map { $0.sentido.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }

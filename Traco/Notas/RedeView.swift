@@ -52,11 +52,7 @@ struct RedeView: View {
     }
 
     private func lerLigacoes() {
-        ligacoes = Rede.ligacoes(todas.map {
-            Rede.NotaLida(uuid: $0.uuid, titulo: $0.tituloNaLista, texto: $0.texto, campos: $0.campos,
-                          gesto: $0.gesto, fechada: $0.fechada,
-                          expressivaEmCurso: $0.gesto == .expressiva && !$0.fechada)
-        })
+        ligacoes = Rede.ligacoes(todas.map(\.paraRede))
     }
 
     var body: some View {

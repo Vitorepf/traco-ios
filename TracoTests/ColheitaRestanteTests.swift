@@ -498,7 +498,8 @@ struct RevisaoSemanalTests {
         let agora = Date()
         func nota(_ g: Gesto?, dias: Int, campos: [String: String] = [:], fechada: Bool = false, gatilho: Date? = nil, sentido: String = "") -> RevisaoSemanal.NotaLida {
             RevisaoSemanal.NotaLida(uuid: UUID(), gesto: g, fechada: fechada, criadaEm: cal.date(byAdding: .day, value: dias, to: agora)!,
-                                    gatilhoEm: gatilho, titulo: "t", campos: campos, sentido: sentido, queimadaOuSeladaEm: nil)
+                                    gatilhoEm: gatilho, titulo: "t", campos: campos, sentido: sentido,
+                                    queimadaOuSeladaEm: nil, vozDoAutor: true)
         }
         let amanha = cal.date(byAdding: .day, value: 1, to: agora)!
         let notas = [
@@ -538,7 +539,8 @@ struct DecisaoRecordarTests {
         #expect(RevisaoSemanal.texto(vazia).isEmpty)
         let agora = Date()
         let n = RevisaoSemanal.NotaLida(uuid: UUID(), gesto: .destaque, fechada: false, criadaEm: agora,
-                                        gatilhoEm: nil, titulo: "t", campos: ["unica": "terminar o relatório"], sentido: "", queimadaOuSeladaEm: nil)
+                                        gatilhoEm: nil, titulo: "t", campos: ["unica": "terminar o relatório"], sentido: "",
+                                        queimadaOuSeladaEm: nil, vozDoAutor: true)
         let t = RevisaoSemanal.texto(RevisaoSemanal.ler(notas: [n], eventos: [], agora: agora))
         #expect(t.contains("1 destaque"))
         #expect(t.contains("terminar o relatório"))
@@ -550,7 +552,8 @@ struct PlanosSemRiscoTests {
         let agora = Date()
         func n(_ g: Gesto, _ campos: [String: String]) -> RevisaoSemanal.NotaLida {
             RevisaoSemanal.NotaLida(uuid: UUID(), gesto: g, fechada: false, criadaEm: agora, gatilhoEm: nil,
-                                    titulo: g.nome, campos: campos, sentido: "", queimadaOuSeladaEm: nil)
+                                    titulo: g.nome, campos: campos, sentido: "", queimadaOuSeladaEm: nil,
+                                    vozDoAutor: true)
         }
         let r = RevisaoSemanal.ler(notas: [
             n(.spec, ["problema": "x"]),                 // sem limites: cobrado
@@ -588,7 +591,8 @@ struct CalibragemTests {
         let agora = Date()
         func d(_ campos: [String: String]) -> RevisaoSemanal.NotaLida {
             RevisaoSemanal.NotaLida(uuid: UUID(), gesto: .decisao, fechada: false, criadaEm: agora, gatilhoEm: nil,
-                                    titulo: "d", campos: campos, sentido: "", queimadaOuSeladaEm: nil)
+                                    titulo: "d", campos: campos, sentido: "", queimadaOuSeladaEm: nil,
+                                    vozDoAutor: true)
         }
         let r = RevisaoSemanal.ler(notas: [
             d(["escolha": "ficar ou sair", "espero": "mais calma", "aconteceu": "menos dinheiro e mais calma"]),
@@ -676,7 +680,7 @@ struct RedeTests {
                    fechada: Bool = false, emCurso: Bool = false) -> Rede.NotaLida {
         Rede.NotaLida(uuid: UUID(), titulo: titulo, texto: texto.isEmpty ? titulo : texto,
                       campos: liga.isEmpty ? [:] : ["liga": liga], gesto: gesto,
-                      fechada: fechada, expressivaEmCurso: emCurso)
+                      fechada: fechada, expressivaEmCurso: emCurso, vozDoAutor: true)
     }
 
     @Test func aMencaoLigaEOReversoAparece() {

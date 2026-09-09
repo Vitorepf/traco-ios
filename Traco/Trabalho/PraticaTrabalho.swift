@@ -240,25 +240,127 @@ nonisolated enum PraticaTrabalho {
         "capacidade", "situacao", "enunciado", "exemplo", "criterios",
     ]
 
+    /// ADR 2026-09-08p: falha sem motivo legível não é medida. Cada guarda de
+    /// `lerPreparacao` e `provar` tem nome. A recusa devolve a REGRA, o CAMPO
+    /// e uma MEDIDA — contagem, tamanho, nome de chave. Nunca o texto do
+    /// exercício, que é a prática da pessoa, nem credencial: a recusa vai para
+    /// a sonda de DEBUG e para a ADR, e o bruto continua descartado.
+    ///
+    /// Inclusive no vazamento: o quadrigrama que casou É conteúdo do exemplo, e
+    /// registrá-lo — normalizado ou não — o publicaria. O que se registra é
+    /// POSIÇÃO (qual critério, qual palavra do exemplo, de quantas) e ORIGEM
+    /// (QUANTAS das palavras do trecho o AUTOR já tinha escrito neste pedido).
+    /// A origem é a evidência que decide de quem é o defeito, e é conferível
+    /// pela `entrada` que a sonda já grava, sem o trecho.
+    ///
+    /// A conta é por palavra, não por sequência: exigir as quatro SEGUIDAS no
+    /// pedido seria quase sempre falso e diria pouco. Em troca, palavra
+    /// funcional ("a", "de") infla a conta — por isso só o valor CHEIO
+    /// (todas as palavras do trecho já escritas pelo autor) sustenta sozinho
+    /// "isto é vocabulário do pedido"; qualquer valor menor é indício.
+    nonisolated enum Recusa: Error, Hashable, Sendable {
+        case jsonInvalido(bytes: Int)
+        case chavesForaDoContrato(faltando: [String], sobrando: [String])
+        case campoNaoTexto(String)
+        case campoVazio(String)
+        case campoAcimaDoTeto(String, tamanho: Int, teto: Int)
+        case criteriosForaDaFaixa(quantidade: Int)
+        case criterioVazio(indice: Int)
+        case criterioAcimaDoTeto(indice: Int, tamanho: Int, teto: Int)
+        case criteriosRepetidos(distintos: Int, de: Int)
+        case exemploIgualAoEnunciado(palavras: Int)
+        case exemploContidoNoEnunciado(exemplo: Int, enunciado: Int)
+        case criterioVazaOExemplo(indice: Int, palavra: Int, de: Int,
+                                  trechoPalavras: Int, noPedidoDoAutor: Int?)
+        /// ADR 08j + 08p: a descrição da mudança tem CAMPO PRÓPRIO na recusa.
+        /// Reaproveitar `criterioVazaOExemplo` obrigaria a inventar um índice
+        /// de critério para um campo que não é critério — a recusa mentiria
+        /// sobre qual guarda reprovou, que é o que esta volta existe para
+        /// impedir. Mesma régua, mesma medida sem conteúdo, campo declarado.
+        case mudancaVazaOExemplo(palavra: Int, de: Int,
+                                 trechoPalavras: Int, noPedidoDoAutor: Int?)
+
+        /// Uma linha, começando pela categoria — é o que a sonda grava.
+        var redigida: String {
+            switch self {
+            case let .jsonInvalido(bytes):
+                "forma · a resposta não é um objeto JSON (\(bytes) bytes)"
+            case let .chavesForaDoContrato(faltando, sobrando):
+                "forma · chaves fora do contrato · faltando \(faltando) · sobrando \(sobrando)"
+            case let .campoNaoTexto(campo):
+                "forma · \(campo) não veio no tipo do contrato"
+            case let .campoVazio(campo):
+                "limite · \(campo) veio vazio"
+            case let .campoAcimaDoTeto(campo, tamanho, teto):
+                "limite · \(campo) tem \(tamanho) caracteres e o teto é \(teto)"
+            case let .criteriosForaDaFaixa(quantidade):
+                "limite · vieram \(quantidade) critérios e a faixa é \(Limite.criterios.lowerBound) a \(Limite.criterios.upperBound)"
+            case let .criterioVazio(indice):
+                "limite · o critério \(indice + 1) veio vazio"
+            case let .criterioAcimaDoTeto(indice, tamanho, teto):
+                "limite · o critério \(indice + 1) tem \(tamanho) caracteres e o teto é \(teto)"
+            case let .criteriosRepetidos(distintos, de):
+                "repetição · \(de) critérios viram \(distintos) distintos ao normalizar"
+            case let .exemploIgualAoEnunciado(palavras):
+                "exemplo · exemplo e enunciado são o mesmo texto normalizado (\(palavras) palavras)"
+            case let .exemploContidoNoEnunciado(exemplo, enunciado):
+                "exemplo · o exemplo (\(exemplo) palavras) está contido no enunciado (\(enunciado) palavras)"
+            case let .criterioVazaOExemplo(indice, palavra, de, trechoPalavras, noPedido):
+                "vazamento · o critério \(indice + 1) repete \(trechoPalavras) palavras seguidas do exemplo (a partir da palavra \(palavra) de \(de)) · \(Self.origem(noPedido, de: trechoPalavras))"
+            case let .mudancaVazaOExemplo(palavra, de, trechoPalavras, noPedido):
+                "vazamento · a descrição da mudança repete \(trechoPalavras) palavras seguidas do exemplo (a partir da palavra \(palavra) de \(de)) · \(Self.origem(noPedido, de: trechoPalavras))"
+            }
+        }
+
+        /// De quem é o vocabulário: a linha que sustenta a causalidade sem
+        /// carregar o conteúdo. `nil` só quando o pedido não foi passado.
+        private static func origem(_ noPedidoDoAutor: Int?, de trechoPalavras: Int) -> String {
+            guard let n = noPedidoDoAutor else {
+                return "origem não conferida (o pedido do autor não foi passado à prova)"
+            }
+            return n == 0
+                ? "nenhuma dessas palavras está no pedido do autor"
+                : "\(n) dessas \(trechoPalavras) palavras o autor já tinha escrito no pedido"
+        }
+    }
+
     /// `nil` = fora do contrato. Chave a mais, campo faltando, lista ausente
     /// ou JSON quebrado não viram preparação parcial.
     static func parsePreparacao(_ cru: String, comMudanca: Bool = false) -> Preparada? {
+        try? lerPreparacao(cru, comMudanca: comMudanca).get()
+    }
+
+    /// A mesma leitura, dizendo qual guarda recusou.
+    ///
+    /// Num AJUSTE (ADR 08j), "o que mudou" é chave do contrato: ausente, fora
+    /// do tipo ou vazia derruba a preparação INTEIRA — versão que muda calada
+    /// é o que a V17 existe para impedir, e essa regra não cede. O que muda
+    /// aqui é só que a queda passa a ter nome: chave ausente é
+    /// `chavesForaDoContrato(faltando: ["mudanca"])`, porque num ajuste ela É
+    /// do contrato; tipo errado é `campoNaoTexto`; vazia é `campoVazio` — as
+    /// mesmas três guardas dos outros cinco campos, pelo mesmo motivo.
+    static func lerPreparacao(_ cru: String, comMudanca: Bool = false) -> Result<Preparada, Recusa> {
         let esperadas = comMudanca ? chavesDaPreparacao.union(["mudanca"]) : chavesDaPreparacao
-        guard let j = objeto(cru), Set(j.keys) == esperadas,
-              let capacidade = texto(j["capacidade"]), let situacao = texto(j["situacao"]),
-              let enunciado = texto(j["enunciado"]), let exemplo = texto(j["exemplo"]),
-              let criterios = j["criterios"] as? [String]
-        else { return nil }
-        // ADR 08j: num ajuste, "o que mudou" é campo do contrato. Ausente ou
-        // vazio derruba a preparação inteira — versão que muda calada é o que
-        // esta volta existe para impedir.
+        guard let j = objeto(cru) else { return .failure(.jsonInvalido(bytes: cru.utf8.count)) }
+        let chaves = Set(j.keys)
+        guard chaves == esperadas else {
+            return .failure(.chavesForaDoContrato(
+                faltando: esperadas.subtracting(chaves).sorted(),
+                sobrando: chaves.subtracting(esperadas).sorted().map { String($0.prefix(32)) }))
+        }
+        guard let capacidade = texto(j["capacidade"]) else { return .failure(.campoNaoTexto("capacidade")) }
+        guard let situacao = texto(j["situacao"]) else { return .failure(.campoNaoTexto("situacao")) }
+        guard let enunciado = texto(j["enunciado"]) else { return .failure(.campoNaoTexto("enunciado")) }
+        guard let exemplo = texto(j["exemplo"]) else { return .failure(.campoNaoTexto("exemplo")) }
+        guard let criterios = j["criterios"] as? [String] else { return .failure(.campoNaoTexto("criterios")) }
         var mudanca: String?
         if comMudanca {
-            guard let m = texto(j["mudanca"]), !m.isEmpty else { return nil }
+            guard let m = texto(j["mudanca"]) else { return .failure(.campoNaoTexto("mudanca")) }
+            guard !m.isEmpty else { return .failure(.campoVazio("mudanca")) }
             mudanca = m
         }
-        return .init(capacidade: capacidade, situacao: situacao, enunciado: enunciado,
-                     exemplo: exemplo, criterios: criterios.map(limpo), mudanca: mudanca)
+        return .success(.init(capacidade: capacidade, situacao: situacao, enunciado: enunciado,
+                              exemplo: exemplo, criterios: criterios.map(limpo), mudanca: mudanca))
     }
 
     /// A prova dura da preparação, igual para os dois provedores.
@@ -270,28 +372,88 @@ nonisolated enum PraticaTrabalho {
     ///   mesma prova do Recordar (`Prova.vaza`), pelo mesmo motivo: quatro
     ///   palavras seguidas já é entregar, não é apontar.
     static func validar(_ p: Preparada, dificuldade: DocumentoTrabalho.Hipotese? = nil) -> DocumentoTrabalho.Pratica? {
-        let criterios = p.criterios
-        guard !p.capacidade.isEmpty, p.capacidade.count <= Limite.capacidade,
-              !p.situacao.isEmpty, p.situacao.count <= Limite.situacao,
-              !p.enunciado.isEmpty, p.enunciado.count <= Limite.enunciado,
-              !p.exemplo.isEmpty, p.exemplo.count <= Limite.exemplo,
-              Limite.criterios.contains(criterios.count),
-              criterios.allSatisfy({ !limpo($0).isEmpty && $0.count <= Limite.criterio }),
-              Set(criterios.map(Prova.normal)).count == criterios.count
-        else { return nil }
-        let normalExemplo = Prova.normal(p.exemplo), normalEnunciado = Prova.normal(p.enunciado)
-        guard !normalExemplo.isEmpty, normalExemplo != normalEnunciado,
-              !normalEnunciado.contains(normalExemplo) else { return nil }
-        guard criterios.allSatisfy({ !Prova.vaza($0, alvo: p.exemplo) }) else { return nil }
-        // A descrição da mudança passa pelo mesmo teto e pela mesma prova de
-        // vazamento dos critérios: o anúncio não é rota para dar a resposta.
-        if let m = p.mudanca {
-            guard !limpo(m).isEmpty, m.count <= Limite.mudanca, !Prova.vaza(m, alvo: p.exemplo) else { return nil }
+        try? provar(p, dificuldade: dificuldade).get()
+    }
+
+    /// A mesma prova, dizendo qual guarda recusou.
+    ///
+    /// `pedidoDoAutor` são as palavras que a PESSOA escreveu neste pedido —
+    /// objetivo, resultado e instrução vigente. Não entra na régua: nada passa
+    /// nem cai por causa dele. Serve só para a recusa por vazamento CONTAR
+    /// quantas palavras do trecho já eram vocabulário do próprio pedido
+    /// (defeito NOSSO) e quantas só existem no exemplo (a guarda acertou).
+    /// Ausente = não conferido, e a recusa diz isso em vez de supor (ADR 08p).
+    static func provar(_ p: Preparada, dificuldade: DocumentoTrabalho.Hipotese? = nil,
+                       pedidoDoAutor: String? = nil) -> Result<DocumentoTrabalho.Pratica, Recusa> {
+        for (nome, valor, teto) in [("capacidade", p.capacidade, Limite.capacidade),
+                                    ("situacao", p.situacao, Limite.situacao),
+                                    ("enunciado", p.enunciado, Limite.enunciado),
+                                    ("exemplo", p.exemplo, Limite.exemplo)] {
+            guard !valor.isEmpty else { return .failure(.campoVazio(nome)) }
+            guard valor.count <= teto else { return .failure(.campoAcimaDoTeto(nome, tamanho: valor.count, teto: teto)) }
         }
-        return .init(capacidade: p.capacidade, situacao: p.situacao,
-                     dificuldade: dificuldade?.texto, hipoteseID: dificuldade?.id,
-                     enunciado: p.enunciado, exemplo: p.exemplo,
-                     criterios: criterios.map { .init(texto: $0) }, mudanca: p.mudanca)
+        let criterios = p.criterios
+        guard Limite.criterios.contains(criterios.count) else {
+            return .failure(.criteriosForaDaFaixa(quantidade: criterios.count))
+        }
+        for (i, c) in criterios.enumerated() {
+            guard !limpo(c).isEmpty else { return .failure(.criterioVazio(indice: i)) }
+            guard c.count <= Limite.criterio else {
+                return .failure(.criterioAcimaDoTeto(indice: i, tamanho: c.count, teto: Limite.criterio))
+            }
+        }
+        let distintos = Set(criterios.map(Prova.normal)).count
+        guard distintos == criterios.count else {
+            return .failure(.criteriosRepetidos(distintos: distintos, de: criterios.count))
+        }
+        let normalExemplo = Prova.normal(p.exemplo), normalEnunciado = Prova.normal(p.enunciado)
+        func palavras(_ s: String) -> Int { s.isEmpty ? 0 : s.split(separator: " ").count }
+        /// A medida do trecho que casou, SEM o trecho: quantas palavras ele
+        /// tem e quantas delas o autor já tinha escrito neste pedido (ADR 08p).
+        func medida(_ trecho: String) -> (palavras: Int, noPedido: Int?) {
+            let termos = trecho.split(separator: " ").map(String.init)
+            let doAutor = pedidoDoAutor.map { " " + Prova.normal($0) + " " }
+            return (termos.count, doAutor.map { pedido in
+                termos.filter { pedido.contains(" " + $0 + " ") }.count
+            })
+        }
+        guard !normalExemplo.isEmpty else { return .failure(.campoVazio("exemplo")) }
+        guard normalExemplo != normalEnunciado else {
+            return .failure(.exemploIgualAoEnunciado(palavras: palavras(normalExemplo)))
+        }
+        guard !normalEnunciado.contains(normalExemplo) else {
+            return .failure(.exemploContidoNoEnunciado(exemplo: palavras(normalExemplo), enunciado: palavras(normalEnunciado)))
+        }
+        for (i, c) in criterios.enumerated() {
+            if let casado = Prova.vazamento(c, alvo: p.exemplo) {
+                // O trecho morre aqui: só a posição e a contagem seguem viagem.
+                let m = medida(casado.trecho)
+                return .failure(.criterioVazaOExemplo(
+                    indice: i, palavra: casado.palavra, de: casado.de,
+                    trechoPalavras: m.palavras, noPedidoDoAutor: m.noPedido))
+            }
+        }
+        // ADR 08j: a descrição da mudança passa pelo MESMO teto e pela MESMA
+        // prova de vazamento dos critérios — o anúncio não é rota para dar a
+        // resposta. Vem depois dos critérios de propósito: o exercício é
+        // provado antes do que se diz sobre ele. A recusa dela é nomeada por
+        // campo próprio, pelo mesmo motivo que as outras têm nome.
+        if let mudanca = p.mudanca {
+            guard !limpo(mudanca).isEmpty else { return .failure(.campoVazio("mudanca")) }
+            guard mudanca.count <= Limite.mudanca else {
+                return .failure(.campoAcimaDoTeto("mudanca", tamanho: mudanca.count, teto: Limite.mudanca))
+            }
+            if let casado = Prova.vazamento(mudanca, alvo: p.exemplo) {
+                let m = medida(casado.trecho)
+                return .failure(.mudancaVazaOExemplo(
+                    palavra: casado.palavra, de: casado.de,
+                    trechoPalavras: m.palavras, noPedidoDoAutor: m.noPedido))
+            }
+        }
+        return .success(.init(capacidade: p.capacidade, situacao: p.situacao,
+                              dificuldade: dificuldade?.texto, hipoteseID: dificuldade?.id,
+                              enunciado: p.enunciado, exemplo: p.exemplo,
+                              criterios: criterios.map { .init(texto: $0) }, mudanca: p.mudanca))
     }
 
     /// O corpo da versão, montado pelo APP a partir dos campos validados —

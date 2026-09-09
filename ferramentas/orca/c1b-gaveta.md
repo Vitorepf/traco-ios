@@ -73,7 +73,7 @@ Sonda temporária em `tetoDoEncaixe` e na geometria do papel, quadro a quadro:
 | pai `4898703` (seguidor adiado, gaveta de pé) | 6 quadros, 0,098 s, corte 32 pt | 6 quadros, 0,100 s, corte 13 pt |
 | seguidor **síncrono** no aviso da geometria | 5 quadros | **6 quadros — os mesmos offsets, ao pt** |
 | síncrono + altura anunciada + adiantar um passo | 3 quadros | **6 quadros — os mesmos offsets, ao pt** |
-| … + mirar no piso da 08w | 4 quadros | **6 quadros — os mesmos offsets, ao pt** |
+| … + mirar no piso da 09d | 4 quadros | **6 quadros — os mesmos offsets, ao pt** |
 | **corte** com o seguidor ADIADO | 0 | **1 quadro, 0,017 s, corte 115 pt** |
 | **corte + seguidor síncrono com a altura anunciada** | **0** | **0** |
 
@@ -101,7 +101,7 @@ falha, que é o que o re-G3 proibiu por escrito.
 não assentou e o adiamento pelo runloop continua a ser a razão certa.
 
 **O que NÃO entrou, e por quê:** o adiantamento de um passo, a mira no piso da
-08w e a remoção da gaveta de `esconderRegua` foram implementados, medidos e
+09d e a remoção da gaveta de `esconderRegua` foram implementados, medidos e
 **revertidos** — a ablação mostrou que nenhum deles muda um offset depois do
 corte. Três funções e um parâmetro a menos no diff final.
 
@@ -173,8 +173,8 @@ isolada, que era o limite escrito no relato do revisor.
   como FECHADO.
 - **A prova do Pro Max** está acima, e a pergunta que a acompanhava — *o que
   muda onde havia folga sobrando?* — foi respondida por **varredura, não por
-  aparelho**: `TemaTests.ondeHaviaFolgaSobrandoA08wNaoMudaNada` mostra que, onde
-  meia sobra já dava uma linha, a 08w devolve **o mesmo número** da 05y. Vale
+  aparelho**: `TemaTests.ondeHaviaFolgaSobrandoA09dNaoMudaNada` mostra que, onde
+  meia sobra já dava uma linha, a 09d devolve **o mesmo número** da 05y. Vale
   para o Pro Max e para os aparelhos que ainda não existem; a corrida no Pro Max
   confirma a aritmética na tela.
 - **As bordas do TextKit 2** têm suíte (`LinhaDoCaretTests`): vazio, linha vazia
@@ -185,7 +185,7 @@ isolada, que era o limite escrito no relato do revisor.
 
 - **`caretRect` já é a linha visual num `UITextView` nu.** Com a entrelinha do
   papel e a fonte de corpo em AX XXXL, a linha e o caret coincidem ao ponto em
-  **0 de 61 offsets**. A distância de 45 para 67 pt que a 08w mediu é do editor
+  **0 de 61 offsets**. A distância de 45 para 67 pt que a 09d mediu é do editor
   da **Página**, não do TextKit 2 em geral. Por isso as bordas não cobram "a
   linha é mais alta que o caret" — seria uma asserção que passa por acidente —,
   e sim o que protege o seguidor em qualquer editor. **A união com o fragmento

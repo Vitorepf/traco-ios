@@ -61,7 +61,7 @@ enum EscritaVisivel {
         // o papel é curto: no 17e em AX XXXL o papel tem 87 pt para uma
         // linha de 66 e uma folga de 25, e pedir a folga inteira empurrava
         // 5 pt de letra para debaixo do encaixe. Quem tem de caber é a
-        // LINHA; a folga leva o que sobrar, metade de cada lado (ADR 08w).
+        // LINHA; a folga leva o que sobrar, metade de cada lado (ADR 09d).
         let podeFolga = max(0, (vista.height - crua.height) / 2)
         let linha = crua.insetBy(dx: 0, dy: -min(folga, podeFolga))
         var y = papel.contentOffset.y
@@ -80,7 +80,7 @@ enum EscritaVisivel {
     /// no papel, e ela é mais alta que o caret — a entrelinha fica por cima.
     /// No iPhone 17e em AX XXXL são 67 pt de linha para 45 de caret, e seguir
     /// só o caret deixava 22 pt de letra acima da borda do papel, no meio da
-    /// nota, onde a rolagem tinha para onde ir (ADR 08w).
+    /// nota, onde a rolagem tinha para onde ir (ADR 09d).
     /// Medido aqui de novo, e não lido do teste: o instrumento mede sozinho,
     /// senão a prova passa a citar o código que devia julgar.
     static func linhaDoCaret(_ tv: UITextView, em fim: UITextPosition) -> CGRect {

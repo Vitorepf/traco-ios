@@ -189,20 +189,20 @@ O juiz listou e não descontou: `isHeader` faltando nas duas seções novas; o `
 
 ### Dois achados da V13 (08/09), com dono nomeado
 
-- **[FECHADO em 09/09 pelas voltas C1 e C1-B — ADR 08w e 08x.]** ~~O caret do Caderno falha em AX XXXL no iPhone 17e.~~ A V13 rodou a suíte integral no `C7341E64` e o **único vermelho** é esse — e ela provou que é **pré-existente**, com as mesmas 18 ocorrências em `HEAD` sem o diff dela. É da invariante da escrita visível (V12, ADR 08f, já mesclada), que foi provada no Pro Max e no teste 2 mas **não neste aparelho neste tamanho**. Volta do Caderno, e a prova tem de incluir o 17e em AX XXXL.
+- **[FECHADO em 09/09 pelas voltas C1 e C1-B — ADR 09d e 08x.]** ~~O caret do Caderno falha em AX XXXL no iPhone 17e.~~ A V13 rodou a suíte integral no `C7341E64` e o **único vermelho** é esse — e ela provou que é **pré-existente**, com as mesmas 18 ocorrências em `HEAD` sem o diff dela. É da invariante da escrita visível (V12, ADR 08f, já mesclada), que foi provada no Pro Max e no teste 2 mas **não neste aparelho neste tamanho**. Volta do Caderno, e a prova tem de incluir o 17e em AX XXXL.
 - **A pergunta interrompida some ao trocar de aba**, porque `RaizView` **recria** a `NotasView`. É estado desonesto — a pessoa perde o que estava esperando sem que nada diga. Conserto na `Sessao`, área do arquiteto, não do front.
 
 ### Vindas do fecho da C1 (09/09): a barra de baixo, e o que o instrumento não alcança
 
-**Escritas aqui porque a ADR 08w as prometeu ao RUMO e o re-G3 as cobrou. As duas
+**Escritas aqui porque a ADR 09d as prometeu ao RUMO e o re-G3 as cobrou. As duas
 saem do mesmo lugar: o pé toma 275 dos 414 pt do 17e em AX XXXL.**
 
 - **A BARRA DE BAIXO EM TAMANHOS DE ACESSIBILIDADE — volta própria, do front.**
   No iPhone 17e em AX XXXL o pé do encaixe toma **274,67 dos 413,67 pt** de tela
   com o teclado de pé, e **326,67 com o aviso**. Enquanto ela não encolher, o
-  papel só cabe porque a 08w mandou o cartão ceder: com aviso E toast o encaixe
+  papel só cabe porque a 09d mandou o cartão ceder: com aviso E toast o encaixe
   fica com ~0 pt e a mensagem da sábia sai da tela. Isso é **decisão escrita**
-  (08w), não descuido — e é a decisão que deixa de ser necessária no dia em que
+  (09d), não descuido — e é a decisão que deixa de ser necessária no dia em que
   a barra couber. **Ciclo:** multiplicar. **Intenção:** o autor vê o que escreve
   E a saída do cartão, sem escolher entre os dois. **Evidência pedida:** a mesma
   sonda de `tetoDoEncaixe` no 17e em AX XXXL, com o pé abaixo de 200 pt e
@@ -275,7 +275,7 @@ O dono pediu ao Astra uma leitura de prioridades e depois decidiu que o laço do
 | # | prioridade do Astra | resolvido quando | volta que paga |
 |---|---|---|---|
 | 1 | Completar uma jornada real, começando pelo espanhol: intenção, ajuda, tentativa, resultado e ajuste | o dono usa o Traço para avançar numa situação concreta e continua a partir do que aconteceu | **V17** (o artefato que se reescreve em Markdown) mais a jornada real de ponta a ponta com o caso do espanhol; depende do 2 e do 3 para a IA servir |
-| 2 | Avaliar a IA nos provedores disponíveis, incluindo Grok, com pedidos reais e restrições explícitas | sabemos quais operações funcionam, onde falham e em que condições, com respostas completas examinadas | **volta Q** — a sonda `AvaliacaoIA` nas dezesseis operações com Grok (conta confirmada por `ContaGrok.ligada` no simulador de teste), lida contra `QUALIDADE-IA.md`; a tabela `Politica` (ADR 07b) ajustada pelo resultado |
+| 2 | Avaliar a IA nos provedores disponíveis, incluindo Grok, com pedidos reais e restrições explícitas | sabemos quais operações funcionam, onde falham e em que condições, com respostas completas examinadas | **volta Q — MESCLADA em 08/09** (ADRs 08l, 08p, 08q, 08r, 08w; quatro re-G3) — a sonda `AvaliacaoIA` nas dezesseis operações com Grok (conta confirmada por `ContaGrok.ligada` no simulador de teste), lida contra `QUALIDADE-IA.md`; a tabela `Politica` (ADR 07b) ajustada pelo resultado |
 | 3 | Corrigir as falhas de IA que impedem essa jornada: contexto, instruções, modelo, tratamento da resposta | a ajuda atende ao pedido, respeita as restrições e produz algo utilizável em tentativas variadas | **volta Q-B**, nascida do que a Q medir; Astra no G0 |
 | 4 | Melhorar a continuidade do trabalho: retomar objetivo, versões, decisões e próximo passo sem reconstruir o contexto | o dono volta depois e continua com pouca explicação | **volta de retomada do Trabalho** — a folha abre no ponto certo com o resumo do que houve (ADR 06b §18-D já descreve a estrutura que falta) |
 | 5 | Trazer o resultado da ação de volta ao trabalho, inclusive tentativas parciais e fracassos | o resultado informado muda a próxima orientação; agendado, feito e funcionou continuam distintos | **volta dos estados** — `EstadoAcao` ganha o observado, `cancelada` deixa de ser inalcançável, o relato muda a próxima orientação (a auditoria de 07/09 achou os três estados mortos em `Trabalho.swift:39-44`) |
@@ -356,6 +356,22 @@ Ordem do dono de 08/09 à noite: os ONZE casos de uso do Traço no Mac pelo Grok
 | MAC-1 | ler tudo e escrever com origem: `traco_agenda`, `traco_decisoes`, `traco_escrever` com origem/fontes, `agenda.md`, etiqueta de origem na nota | 1, 2 (leitura), 3, 8, 9, 11 | abre agora |
 | MAC-2 | a porta de volta do Trabalho: `trabalhos/<id>.md`, `trabalhos/entrada/`, `traco_trabalho_escrever`, `traco_tentativa`, `traco_relatar` | 2 (escrita), 4, 5, 6 | depois da MAC-1; Astra no G0 |
 | MAC-3 | web e briefing com citação obrigatória | 7, 10 | depois da Q mesclar |
+
+### DECISÃO DE CONTRATO do dono (08/09, 23h): a origem acompanha todo consumidor
+
+O revisor da MAC-1 levantou e o dono decidiu: **nenhum consumidor que declare
+voz, retrato, trajetória ou mapa do autor lê texto que não seja dele** — nem
+para inferir domínio, nem para contar. A interface promete que o Retrato é feito
+*"só com as suas palavras e contagens"*, e classificar o texto `grokbot` como
+`TRABALHO` fazia uma afirmação **derivada dele** influenciar o mapa do autor.
+
+**Como se implementa (MAC-1-B):** a `origem` acompanha o dado até o consumidor,
+e o campo que hoje se chama para o modelo passa a se chamar **`vozDoAutor`** —
+o nome torna a incompatibilidade explícita no tipo, em vez de deixá-la para a
+disciplina de quem escreve o próximo chamador. O P0 do Retrato
+(`Sessao.responderNasNotas` criando `Retrato.NotaLida` sem `doAutor:`, cujo
+padrão é `true`) é o primeiro caso, e o teste tem de exercitar **o chamador**,
+não o leitor isolado.
 
 ## Próximas, em ordem
 

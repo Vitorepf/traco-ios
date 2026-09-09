@@ -188,7 +188,7 @@ struct TemaTests {
         let umaLinha: CGFloat = 280 / 3
         #expect(apertado == 146 - umaLinha) // papel 93,3 (uma linha), não 73
 
-        // O 17e em AX XXXL, MEDIDO (ADR 08w, sonda em `tetoDoEncaixe`):
+        // O 17e em AX XXXL, MEDIDO (ADR 09d, sonda em `tetoDoEncaixe`):
         // 413,67 pt disponíveis, pé de 274,67, piso de 259,33 — a metade dava
         // 69,5 pt de papel para uma linha de corpo de 67, e a linha não cabia
         // em quadro nenhum, com ou sem rolagem. Agora o papel leva uma linha
@@ -202,7 +202,7 @@ struct TemaTests {
         #expect(e17 > 0)      // e ainda sobra encaixe: o cartão não some
 
         // com o aviso o pé sobe a 326,67 e sobram 87: aí o papel toma tudo —
-        // a letra do autor à vista vale mais que a saída do cartão (08w)
+        // a letra do autor à vista vale mais que a saída do cartão (09d)
         let peAviso: CGFloat = 326.6667
         let eAviso = try #require(CadernoView.tetoDoEncaixe(altura: altura17, pe: peAviso, piso: piso17))
         #expect(eAviso < 1) // o encaixe cede inteiro: sobram 87 pt para a linha
@@ -211,7 +211,7 @@ struct TemaTests {
         #expect(CadernoView.tetoDoEncaixe(altura: 400, pe: 400, piso: 92) == nil)
     }
 
-    /// O que a 08w mudou ONDE HAVIA FOLGA SOBRANDO — a pergunta do re-G3 da C1,
+    /// O que a 09d mudou ONDE HAVIA FOLGA SOBRANDO — a pergunta do re-G3 da C1,
     /// que a prova do 17e não respondia: a invariante da 08f fora provada no Pro
     /// Max, e a regra nova faz a folga ceder antes da letra. A regra velha (05y)
     /// era `min(piso, sobra / 2)`; a nova só acrescenta o CHÃO de uma linha.
@@ -219,7 +219,7 @@ struct TemaTests {
     /// Pro Max inclusive —, as duas dão o MESMO número, e onde não dava, a nova
     /// dá estritamente MAIS papel. Varrido, não amostrado, e sem aparelho: é
     /// aritmética, e vale para os que ainda não existem.
-    @Test func ondeHaviaFolgaSobrandoA08wNaoMudaNada() {
+    @Test func ondeHaviaFolgaSobrandoA09dNaoMudaNada() {
         var apertadas = 0, comFolga = 0
         for altura in stride(from: CGFloat(300), through: 900, by: 25) {
             for pe in stride(from: CGFloat(40), through: 400, by: 15) {
@@ -240,7 +240,7 @@ struct TemaTests {
                 }
             }
         }
-        print("PISO: \(comFolga) combinações com folga sobrando (a 08w dá o mesmo que a 05y), \(apertadas) apertadas (a 08w dá mais papel)")
+        print("PISO: \(comFolga) combinações com folga sobrando (a 09d dá o mesmo que a 05y), \(apertadas) apertadas (a 09d dá mais papel)")
         #expect(comFolga > 0 && apertadas > 0, "a varredura não cobriu os dois lados")
     }
 

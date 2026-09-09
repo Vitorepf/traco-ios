@@ -6502,7 +6502,582 @@ caixas do Mac do autor. A acessibilidade desta tela se prova por árvore de AX
 (cabeçalho → o que houve → onde está o conteúdo → ação → detalhe técnico) e por
 captura, que é o que a lei manda. A ordem de leitura está provada; a fala, não.
 
-## ADR 2026-09-08w — Uma linha é o piso do papel, e a folga cede antes da letra (volta C1)
+## ADR 2026-09-08q — Quem responde, medido COM a conta: a quarta regra da tabela (volta Q)
+
+*(Letra corrigida na Q-E, 08/09: esta ADR nasceu `2026-09-08k` e a letra já estava tomada em `main` pela V17-B, "A garantia sai da tela e vira invariante do documento". As mensagens de commit anteriores a esta correção ainda dizem `08k`.)*
+
+**A distância.** A 07b decidiu onde o modelo do aparelho NÃO entra, e disse com todas as letras o que faltava: "nenhuma operação tem medição com Grok; a conta não existe em nenhum simulador". A conta passou a existir em 08/09, num aparelho só — o iPhone 17 Pro `C2416CBC`, autorizado pelo dono. Nove operações estavam em "só Grok" por PRESUNÇÃO: o aparelho tinha reprovado, e ninguém tinha medido se o Grok servia.
+
+**A medida.** Sonda `AvaliacaoIA` pelo caminho de produção (`TRACO_AVALIAR_IA`, ADR 07a), 16 operações × 6 casos × 3 execuções em três lançamentos distintos, sem memo; fixture `prova/q-qualidade-casos.json` sha256 `29654d46…`; saídas inteiras em `prova/q-qualidade-avaliacoes.jsonl`; leitura em `ferramentas/orca/q-qualidade.md`. `contaGrokLigada: true` em todos os registros, e a corrida de fumaça devolveu a listagem autenticada de modelos. Um caso só passa se as TRÊS execuções cumprirem todos os requisitos obrigatórios; média não aprova nada.
+
+**Qual binário, e a correção de 08/09 (achado do G3, corrigido na volta Q-B).** Esta ADR dizia "candidato `325c819`", e `325c819` **não implementa nada disto**: ele só acrescenta `ferramentas/orca/LACO.md`. O commit que carrega a decisão — a quarta regra, a sobrecarga morta apagada, a sonda exigindo `fontes`, e as quinze provas — é **`acdfcb4`**, e é ele o candidato desta ADR. Conferível hoje no aparelho do dono: o `Traco.debug.dylib` instalado do build de `acdfcb4` traz `indisponivelPorQualidade`, `medidaEm` e `conserto`, e `nm` só encontra a assinatura `responderNasNotas(pergunta:fontes:…)` — a de `contexto:` não existe mais.
+
+E há um fato que a redação antiga escondia atrás de um hash só: **a corrida não foi de um binário, foi de dois**, e o JSONL prova qual é qual pela própria entrada dos casos.
+
+| corridas | árvore construída | bundle conferido por sha256 | como se sabe |
+|---|---|---|---|
+| `05D574C2`, `D91E98DE`, `F4D24F76` — a matriz de 16 × 6 × 3 | a de `325c819` (é `main` antes da volta Q) | `Traco` `504d29d7…`, `Traco.debug.dylib` `2152892a…` | os três casos de `responderNasNotas` com `contexto` **concluíram com saída**, e só a sonda anterior aceitava `contexto` |
+| `1FB24380`, `60B40CFE`, `B7A619E5` — a remedição com fontes tipadas | a que virou `acdfcb4` | o mesmo aparelho, instalado por cima | os casos `…-tipada-q` exigem `fontes`, o que só a sonda de `acdfcb4` faz |
+
+A troca de binário no meio da volta **não contamina a matriz**: o que `acdfcb4` mudou em execução foi a sonda (passou a exigir `fontes`) e a tabela `Politica` — e a tabela é CONSEQUÊNCIA da medida, não entrada dela; nas quatro rotas de Trabalho `desceAoAparelho` já era falso na 07b, antes e depois. O que a troca custa é dito, e é isto: os hashes `504d29d7…`/`2152892a…` atestam o binário da **matriz**, não o da remedição, e nenhum dos dois é o binário que hoje serve a decisão.
+
+**O que o SPEC tem direito de escrever, e é só isto:** neste candidato identificado, nesta data e nestas condições, cada rota atendeu N de 6 casos obrigatórios e K de 18 execuções, com leitura por dimensão; a política habilita os executores aprovados NESSE escopo e torna os demais indisponíveis com explicação e continuação. Seria mentira escrever "IA ≥ 9 sempre", "Grok aprovado nas dezesseis", "fallback equivalente" sem prova dele, ou que o autor aprendeu qualquer coisa.
+
+**A decisão: a quarta regra.** `Politica.Regra` ganha `indisponivelPorQualidade`. A linha da tabela FICA, com operação, motivo datado e a prova; o que sai é o EXECUTOR. Ela existe porque as três regras anteriores não sabiam distinguir "falta conta" de "foi medido e não serviu" — e mandar conectar uma conta que já existe é mentira na tela. `provedor()` devolve `nil`, `desceAoAparelho()` é falso, e `semProvedor()` diz o que está indisponível, por quê em uma frase, e qual é a continuação que funciona; não pede para conectar conta e não promete guardar nada (quem guardou é que diz, depois de confirmar).
+
+**A tabela, antes e depois.**
+
+| operação | 07b | 08q | por quê |
+|---|---|---|---|
+| produzir, prepararPratica, conferirTentativa, revisar | só Grok | **só Grok** | o conteúdo serve quando responde; o que falha é tempo, não qualidade (ver abaixo) |
+| conferir | só Grok | **só Grok** | 6 de 6 casos, 18 de 18 execuções |
+| padroes | só Grok | **só Grok** | 6 de 6 casos, 18 de 18 execuções |
+| **ecos** | só Grok | **indisponível por qualidade** | 3 de 6. Devolve `[]` onde o vínculo mais serve: 18 inscritos contra "a sala 7 comporta no máximo 15 pessoas" |
+| **calibragem** | só Grok | **indisponível por qualidade** | 2 de 6. Cala quando não há erro a apontar, e com um par só a rota nem chega ao provedor |
+| **recordar** | só Grok | **indisponível por qualidade** | 1 de 6. Vazou o alvo ("Por que a sala 7 não pode receber mais que 15 pessoas?"); quando a guarda `Prova.vaza` suprimiu a pergunta, o autor ficou sem nada |
+| **responder** | Grok, depois o aparelho | **indisponível por qualidade** | 3 de 6, por FABRICAÇÃO: "A biblioteca municipal do seu bairro abre às 13h"; "1.650 km… R$ 1.072,50" num pedido em que o autor disse não ter distância, consumo nem preço |
+| **instigar**, **contrapor** | Grok, depois o aparelho | **indisponível por qualidade** | 1 de 6 cada. Instigar devolve o vocabulário do próprio prompt ("o movimento básico que se pula", "a nota DEGRAU 0"); contrapor sustenta o contraponto em fato inventado ("metanálises de 2022", "na construção naval do século XV o preço era 12 % menor") |
+| **responderNasNotas** | Grok, depois o aparelho | **indisponível por qualidade**, no grupo com conserto nomeado | remedida com fontes tipadas (ressalva 1): 4 de 6. Cita a nota certa e resiste a instrução hostil, mas recusa por inteiro quando falta o fato atual, sem usar o que as notas trazem, e deixa escapar os rótulos `N1T1`/`N2T1` no texto do autor |
+| vestir, classificar | Grok, depois o aparelho | **inalteradas** | ver a ressalva 2 abaixo |
+| dominio | só o aparelho | **só o aparelho** | 4 de 6; o mesmo texto voltou `trabalho`, `estudo` e `casa` em três execuções. Instabilidade registrada, sem trocar de executor: não há outro medido |
+
+O corte tem DOIS grupos, e a tela precisa distingui-los: **cinco sem substituto medido** (`ecos`, `calibragem`, `recordar`, `instigar`, `contrapor`) e **duas com conserto nomeado, em correção** (`responder`, `responderNasNotas`). `Politica.Linha` ganhou `medidaEm` e `conserto` para que o Perfil leia a distinção da tabela em vez de guardar uma cópia que envelhece sozinha. Nenhuma das sete cortadas tem substituto: quatro já constavam como reprovadas no aparelho na 07b, e para as outras três o aparelho **não foi medido** — e só substitui quem passar a MESMA matriz e o mesmo limiar. Aviso de qualidade foi descartado: aviso não transforma resultado insuficiente em ajuda aprovada. Descer ao aparelho por ser "menos ruim" também.
+
+**Ressalva 1, e ela vai contra nós: a medida anterior de `responderNasNotas` foi INVÁLIDA POR DEFEITO DO INSTRUMENTO, não do provedor.** `Sabia.responderNasNotas(pergunta:contexto:)` não tinha nenhum chamador de produção — só a sonda — e embrulhava a prosa inteira numa `FonteNotas` sintética de título "Contexto fornecido". A "atribuição genérica do Grok" que quase virou linha de SPEC era um título que o PRÓPRIO APP fabricou. A sobrecarga foi apagada e a sonda passa a exigir `fontes`; os casos foram reescritos com fontes tipadas (`prova/q-qualidade-notas-tipadas.json`, `ea68b976…`) e remedidos em três execuções. O resultado NOVO — 4 de 6, com o caso do conflito entre notas passando a acertar — é o que decide, e ele reprova assim mesmo. As bases de 07/09 e as de `prova/cinco-itens-*` usam a mesma conveniência nesses casos: aquelas linhas medem a rota morta, e ficam registradas assim, sem reescrita de prova alheia.
+
+**Ressalva 2: `vestir` não teve o Grok exercitado em nenhum dos seis casos** — a forma local resolveu antes, como a 07a previu. A rota do Grok em `vestir` continua NÃO MEDIDA, e nada se habilita nem se corta com base nesta volta. A única falha de `vestir` (vestir de título e lista um texto que pedia "não quero organizar isso em tópico nenhum") e a única de `classificar` (Destaque numa lista de compras) são da REGRA LOCAL, com o modelo calado — não são matéria de tabela de provedor.
+
+**Defeito de disponibilidade, medido aqui e consertado na 08r.** São **20** falhas de transporte, não 12: o número 12 estava errado nesta ADR e no EVOLUCAO, e a soma da própria tabela já o desmentia — 11 + 6 + 3 = 20. Recontadas linha a linha no JSONL em 08/09 pela Q-B, são **20 de 72** chamadas a `grok-4.6`, todas nas quatro rotas de Trabalho, que pedem raciocínio e tinham teto de 90 s: prepararPratica 11 de 18 (61 %), revisar 6 de 18, produzir 3 de 18, conferirTentativa 0 de 18 — sempre aos 91 s, e sempre concentradas nos mesmos nove casos. As rotas em `grok-4.3` tiveram 0 falhas em **177** chamadas na matriz, e 0 em **186** contando as 9 da remedição com fontes tipadas — os dois números são o mesmo fato com denominador diferente, e ficam escritos os dois para não virarem uma terceira contradição. `prepararPratica` fica em **1 de 6 casos** por causa disso, não por conteúdo. Para o autor, uma operação que falha metade das vezes por tempo é uma operação que não está lá — e por isso o conserto virou ADR própria: **2026-09-08r**.
+
+**O limite desta prova, escrito porque ela é sobre medir.** O JSONL da sonda **não é transcrição integral do provedor**: guarda o retorno das APIs de domínio, não o bruto que os parsers descartam. O hash atesta identidade dos bytes comparados, não correção nem execução do binário alegado. `modeloRespondido` ausente significa identidade não confirmada. Duração e esforço solicitado não provam raciocínio efetivo. Os 59 casos novos foram escritos pelo implementador e lidos por ele: **não são teste cego nem held-out**, e a aprovação final exige casos novos de um revisor que não os tenha visto. Uma amostra finita não prova "sempre". E a lição que custou esta volta: hash de fixture e JSONL completo **não impedem medir a rota errada** — "qual executor e qual caminho foram realmente observados" se responde lendo o chamador, caso a caso.
+
+**A superfície.** As telas que já liam a tabela (`RecordarView`, `RedeView`, `PadroesView`, `OficinaTrabalho`) passam a mostrar a frase nova sem mudança de view. O **Perfil** precisa de uma TERCEIRA linha — hoje ele imprime só `pelaConta` e `peloAparelho`, e uma operação cortada sumiria das duas; `Politica.indisponiveis` existe para ela. Frente de front-end aberta pelo orquestrador; enquanto ela não fecha, o corte está no motor e **não** está dito no Perfil. Suíte: 911 testes em 148 suítes, zero falhas.
+
+## ADR 2026-09-08p — Por que o NOSSO parser recusou, dito por ele mesmo (volta Q-C)
+
+**A distância.** A 08r mediu que **3 de 15** execuções de `prepararPratica` não entregavam nada ao autor **depois** de o provedor ter entregue inteiro — HTTP 200, `finish_reason: stop`, `grok-4.6` confirmado, 3.777 a 6.865 tokens de raciocínio — e escreveu, honestamente, que quem recusou foi o nosso contrato de domínio. Mas parou aí. O re-G3 reprovou por isso e tem razão: `parsePreparacao` e `validar` são **onze guardas** e o JSONL guardava um `nil`. "O provedor devolveu conteúdo inválido" e "uma regra nossa é estreita" continuavam sendo inferências concorrentes, e ninguém pode decidir sobre uma régua que não consegue ler. **É a mesma lei que esta volta inteira aplicou ao provedor: falha sem motivo legível não é medida.** Nós a aplicávamos a ele e não a nós.
+
+**A decisão: a recusa tem nome, e o nome não custa o bruto.** `PraticaTrabalho.Recusa` é um enum com doze casos; `lerPreparacao` e `provar` devolvem `Result<_, Recusa>` e são a ÚNICA cópia das regras — `parsePreparacao` e `validar` viram `try? …get()`, para que a régua e o motivo nunca divirjam em silêncio. Cada caso redige **uma linha**: a categoria (`forma`, `limite`, `repetição`, `exemplo`, `vazamento`), o campo e uma **medida** — contagem, tamanho, índice do critério, nome de chave truncado em 32. Não vai o texto do exercício, que é a prática da pessoa, nem credencial, nem o bruto: exatamente a categoria que o revisor recomendou, mais o campo que ela sozinha não dá. No caso do vazamento o motivo precisa dizer mais que "vazou" — e é aí que a primeira redação desta ADR errou. Ela gravava o **quadrigrama normalizado** que casou, e o re-G3 reprovou com razão: tirar acento e pontuação não tira o conteúdo. O trecho é, por definição, texto do EXEMPLO; um exemplo com dado pessoal, texto selado ou credencial em quatro palavras seria publicado pela sonda. E o pedido que gerou o furo foi meu: pedi o trecho para provar o diagnóstico.
+
+**A correção: posição e contagem, nunca o trecho.** A recusa por vazamento registra (a) qual critério, (b) a partir de qual palavra do exemplo, de quantas, e (c) **quantas das palavras do trecho o AUTOR já tinha escrito neste pedido** — objetivo, resultado e instrução vigente, os três campos que a sonda já grava em `entrada` e que o leitor pode conferir sozinho. O trecho existe dentro de `provar` e morre lá. `Prova.vazamento` devolve `(trecho, palavra, de)` e `Prova.vaza` continua sendo `vazamento(…) != nil` — uma implementação, dois usos, para não haver duas contas de quatro palavras. O pedido do autor **não entra na régua**: nada passa nem cai por causa dele, e sem ele a recusa diz "origem não conferida" em vez de supor zero. **A garantia é ESTRUTURAL, e o teste prova pela forma** (correção da Q-F, 08/09): `Recusa` não tem campo nenhum que carregue o trecho, e `nenhumCampoDaRecusaCarregaPalavraDoExercicio` varre a serialização inteira — a linha redigida mais o dump do valor com todos os campos associados — de um caso de cada uma das doze guardas, contra um exercício em que cada palavra é um marcador inventado, oito deles de 1 a 4 letras, conferidos por igualdade de token normalizado. Campo novo com o texto derruba o teste; caso novo sem varredura derruba a conta de doze. A fronteira que fica aberta está dita no próprio teste: `chavesForaDoContrato` ecoa o NOME da chave a mais que veio na resposta, cortado em 32 caracteres.
+
+**Por que contagem por palavra, e o que ela não garante.** Exigir as quatro palavras SEGUIDAS no pedido seria quase sempre falso — o autor escreve "separando o que foi concluído, a dependência e o próximo passo", não a frase do exemplo — e não distinguiria nada. Contar palavra a palavra distingue, mas palavra funcional ("a", "de") infla a conta: por isso **só o valor cheio** (todas as palavras do trecho já escritas pelo autor) sustenta sozinho "isto é vocabulário do pedido"; qualquer valor menor é indício e está escrito como indício. O hash do quadrigrama foi considerado e recusado: continua sendo oráculo de confirmação para quem tenha um palpite do texto, e não responde a pergunta que a ADR faz. O teste de privacidade agora procura a forma NORMALIZADA — o furo que o re-G3 achou era procurar só "¿dónde está la estación?" quando a saída seria "donde esta la estacion" — e varre palavra a palavra do exemplo em cada uma das doze linhas redigidas.
+
+Em DEBUG, `MotorTrabalho.prepararPratica` guarda a linha e a sonda a retira com `retirarRecusasDaPreparacao()`, do mesmo jeito que retira os diagnósticos do Grok; a chave `recusasDaPreparacao` só aparece no JSONL quando houve recusa.
+
+**A remedição, no aparelho do dono, com a conta ligada.** `C2416CBC`, install **por cima** (sem `uninstall`, `erase`, `clearState` nem `xcodebuild test`), conta conferida por listagem **autenticada** de 12 modelos na abertura (corrida `2DFC05C3`, 20h55Z), em cada um dos registros e no fecho (`qc-fumaca-fecho`, 21h58Z, os mesmos 12). Dois lançamentos: `2DFC05C3` com 5 repetições dos dois casos e `0065BE4A` com 4, já com o quadrigrama exposto. **18 execuções de `prepararPratica`, 18 respostas HTTP 200 completas de `grok-4.6`, 5 recusas nossas.** Fixtures `prova/qc-recusa-casos.json` (`df2fc8bb…`) e `prova/qc-recusa2-casos.json` (`5a65ccdf…`); saídas inteiras em `prova/qc-recusa-avaliacoes.jsonl`.
+
+| corrida | caso | execução | motivo redigido |
+|---|---|---:|---|
+| 2DFC05C3 | revisor-sintetico-resumo-projeto-2x5 | 2 | vazamento · o critério 4 repete quatro palavras seguidas do exemplo |
+| 2DFC05C3 | q2-conhecido-preparar-apresentacao-proposta | 1 | vazamento · o critério 5 repete quatro palavras seguidas do exemplo |
+| 2DFC05C3 | q2-conhecido-preparar-apresentacao-proposta | 2 | vazamento · o critério 4 repete quatro palavras seguidas do exemplo |
+| 2DFC05C3 | q2-conhecido-preparar-apresentacao-proposta | 3 | vazamento · o critério 4 repete quatro palavras seguidas do exemplo |
+| 0065BE4A | revisor-sintetico-resumo-projeto-2x5 | 4 | vazamento · o critério 3 repete do exemplo as quatro palavras seguidas **“a dependencia ainda aberta”** |
+
+(Esta última linha é a redação ANTIGA, que carregava o trecho. Fica registrada porque o caso é **sintético e autorizado** — a régua da volta permite JSONL completo dessas entradas — e porque apagar a história para parecer limpo seria pior que declará-la. O mecanismo mudou: nenhuma recusa produz mais trecho.)
+
+**Cinco de cinco na MESMA guarda.** Nenhuma recusa foi de forma, de chave, de limite, de critério repetido ou de exemplo contido no enunciado: as onze outras guardas não dispararam uma vez. A recusa é **uma** — `Prova.vaza(criterio, alvo: exemplo)`, a última linha de `provar`.
+
+**A segunda remedição (volta Q-D): a causalidade medida caso a caso, sem o trecho.**
+O re-G3 disse, com razão, que a conclusão "o defeito é nosso" estava provada em UMA das
+cinco recusas — só a quinta tinha quadrigrama. As outras quatro não têm como ser
+recuperadas: o bruto foi corretamente descartado e as corridas passaram. Então em vez de
+inferir, **remedi com o instrumento novo**. `C2416CBC`, install por cima, sem `uninstall`,
+`erase`, `clearState` nem `xcodebuild test`; conta conferida por listagem **autenticada** de
+12 modelos na abertura e no fecho (`qd-fumaca-abertura`/`qd-fumaca-fecho`) e
+`contaGrokLigada: true` em cada registro. Corrida `1B7E0E63`, os mesmos dois casos,
+6 repetições: **12 execuções de `prepararPratica`, 12 HTTP 200 completos de `grok-4.6`,
+4 recusas nossas.** Fixture `prova/qd-origem-casos.json` (`6e38dfbe…`), saídas inteiras em
+`prova/qd-origem-avaliacoes.jsonl` (`fd60c7c8…`).
+
+| caso | exec. | guarda | posição | origem |
+|---|---:|---|---|---|
+| revisor-sintetico-resumo-projeto-2x5 | 3 | **limite** | enunciado com 1582 caracteres, teto 1500 | — |
+| revisor-sintetico-resumo-projeto-2x5 | 4 | vazamento | critério 3, palavra 19 de 95 | **4 das 4** já escritas pelo autor |
+| q2-conhecido-preparar-apresentacao-proposta | 4 | vazamento | critério 5, palavra 80 de 85 | **4 das 4** já escritas pelo autor |
+| q2-conhecido-preparar-apresentacao-proposta | 5 | vazamento | critério 4, palavra 73 de 78 | **4 das 4** já escritas pelo autor |
+
+**O veredito, caso a caso, e ele não é arredondado para o nosso lado.** Nas **três** recusas
+por vazamento desta corrida, **as quatro palavras do trecho já estavam no pedido do autor —
+3 de 3 no valor cheio**. Com a quinta recusa da 08p (`“a dependencia ainda aberta”`, cujo
+vocabulário está na instrução), são **4 ocorrências com evidência exposta, 4 apontando para
+NÓS**. As **quatro recusas da corrida `2DFC05C3` continuam sem evidência individual** e
+assim ficam escritas: não foram contadas a favor.
+
+**O que isso NÃO prova.** A conta é por palavra, não por sequência; o pedido do autor tem
+93 palavras distintas num caso e 70 no outro, e palavra funcional ("a", "de", "o") entra na
+conta. Um trecho de quatro palavras funcionais daria 4 de 4 sem dizer nada. O que sustenta a
+leitura aqui é o valor CHEIO em três de três, num alvo de 70–93 palavras distintas — indício
+forte, não teorema. E a leitura de fundo continua a mesma: em `provar` o `alvo` de
+`Prova.vaza` é o EXEMPLO, que o nosso próprio prompt manda ser de outro caso e nunca a
+resposta-alvo; em Recordar o `alvo` É a resposta. Herdamos a régua sem herdar a premissa.
+
+**Uma correção de fato contra a 08p original: as outras guardas DISPARAM.** A redação
+anterior dizia "as onze outras guardas não dispararam uma vez", e isso valia para 18
+execuções. Em 12 novas, `limite · enunciado tem 1582 caracteres e o teto é 1500` disparou uma
+vez — guarda de tamanho, não de vazamento, e nada a ver com a régua importada. Somando as
+duas remedições: **30 execuções, 9 recusas (30 %), 8 por vazamento e 1 por limite.** A
+recusa por vazamento é DOMINANTE, não exclusiva, e a ADR passa a dizer isso.
+
+**E mesmo assim o parser NÃO muda nesta volta.** Alargar contrato de validação é volta própria, com régua antes do conserto, e por três razões que valem mais que a pressa: (1) a guarda protege de verdade contra o caso em que o exemplo É o caso-alvo disfarçado, e desligá-la sem uma régua nova reabre isso; (2) trocar o `alvo` de `exemplo` para "o que a pessoa deve produzir" exige nomear esse alvo, que hoje o contrato não tem campo para dizer; (3) o revisor tem de ver a régua antes, e não depois. **Vai para o RUMO, nomeado: `Prova.vaza` em `PraticaTrabalho.provar` usa o EXEMPLO como alvo e reprova vocabulário estrutural da tarefa — 8 recusas por essa guarda em 30 preparações completas em 08/09/2026, e nas quatro com origem exposta o quadrigrama era, palavra por palavra, vocabulário que o autor já tinha escrito no pedido. Decidir o alvo certo, escrever a régua nos dois sentidos (o que deve passar e o que deve continuar sendo recusado) e só então mexer.** A linha está escrita: `ferramentas/orca/RUMO.md`, seção **“A RÉGUA DO VAZAMENTO, nos dois sentidos — volta própria, e ela vem antes de mexer no parser”**, com a evidência desta ADR e as quatro recusas sem evidência declaradas INDETERMINADAS. Esta volta **não** escreveu a régua e **não** mexeu no parser: o que ela entrega é a medida e a pergunta, não o conserto. Até lá `EstadoPedido.praticaIndisponivel` continua contando a falha pedido a pedido na `TrabalhoView`, como a 08r decidiu, e a tabela `Politica` continua sem mudança.
+
+**O teto: o teste passa a guardar o valor decidido, e são duas guardas, não uma.** `oTetoDeTrabalhoCobreAPiorLatenciaMedida` só exigia `>= 180` e `> 90` — passava com `181` e deixava cair os 240 s que a 08r decidiu, que é a folga, não o piso. Agora são três expectativas com papéis separados: o **piso observado** (`>= 179`, porque a pior execução inteira medida é 178,144 s), a lápide dos 90 s, e a **decisão** (`== 240`), com a mensagem dizendo que mudar o número é mudar a ADR e trazer medida nova ao lado. O comentário que chamava 141 s de "pior latência" foi corrigido: 141,058 s é a chamada isolada mais lenta; 178,144 s é a pior execução de ponta a ponta, com duas chamadas.
+
+**O que esta ADR não prova.** 30 execuções não são a distribuição: 5 de 18 (28 %) e 4 de 12 (33 %) são consistentes com os 3 de 15 (20 %) da 08r, e nada mais. Das doze guardas, DUAS foram vistas recusar (vazamento e limite); das outras dez continua sendo ausência de evidência, não evidência de ausência. A causalidade tem evidência exposta em **quatro** ocorrências (três da `1B7E0E63` mais a quinta da `2DFC05C3`), não em todas as nove: as quatro recusas iniciais rodaram no binário anterior, sem posição nem origem, e não foram contadas. A origem é contagem por palavra num alvo de 70–93 palavras distintas, não prova de sequência. E esta volta **não julgou a qualidade** dos treze exercícios que passaram — mediu quem recusou e por quê, não se o que entrou serve.
+
+## ADR 2026-09-08r — O teto das rotas de Trabalho é medido, não suposto (volta Q-B)
+
+*(Letra corrigida na Q-E, 08/09: esta ADR nasceu `2026-09-08m` e a letra já estava tomada em `main` pela E1, "O resultado da ação volta ao trabalho". As mensagens de commit anteriores a esta correção ainda dizem `08m`.)*
+
+**A distância.** O G3 da volta Q recusou a 08q por três coisas, e a segunda é esta: manter `produzir`, `prepararPratica` e `revisar` como oferta **contradiz a régua que nós mesmos escrevemos** — timeout material significa operação ausente para o autor. A 08q tinha o dado e mesmo assim deixou a oferta de pé: **20 de 72** chamadas a `grok-4.6` morriam aos 91 s (`prepararPratica` 11 de 18, 61 %), contra **0 de 177** em `grok-4.3`. Anunciar no Perfil "só com a conta Grok: preparar exercícios" quando a operação chega em 1 de 6 casos é prometer o que não se entrega.
+
+**Por que o teto, e não as outras duas saídas.** As três estavam na mesa; duas caem pela própria medida.
+
+- **Retentativa: reprovada pelo dado, não por gosto.** A falha não é intermitente. Cinco dos nove casos que carregavam as 20 falhas estouraram os 91 s nas **três** execuções — `q2-conhecido-preparar-espanhol-solo`, `qn-preparar-criterio-so-do-que-esta-escrito`, `qn-preparar-outro-dominio-planilha`, `qn-produzir-combinar-sem-resolver-a-pratica` e `ler-rascunho-q2-conhecido-preparar-espanhol-solo`. Repetir um pedido determinístico é fazer o autor esperar 180 s pelo mesmo nada.
+- **Indisponível por qualidade: desproporcional ao defeito medido.** Cortaria junto `conferirTentativa`, que é `grok-4.6` com esforço `high` e teve **0 falhas em 18** e 6 de 6 casos, e `produzir`, cuja única reprovação foi exatamente este teto. Aplicar a regra de indisponibilidade a um defeito de espera é usar a régua errada.
+- **Teto: o único que não invalida a medida de qualidade.** Mesmo modelo, mesmo `reasoning_effort`, mesmo prompt, mesma janela — muda só a paciência. Baixar o raciocínio, que a 08q também listava, mudaria o que foi medido e obrigaria a remedir as dezesseis.
+
+**A decisão.** O `90` literal, repetido em quatro chamadas de `Traco/Trabalho`, vira **um** valor em `Grok.tetoTrabalho`, e o valor é **240 s** — que é o teto sob o qual a remedição foi feita e nada o encostou. Um lugar só, pela mesma razão da 03l: quatro cópias divergem em silêncio, e foi assim que um teto virou a ausência de uma operação sem ninguém decidir isso.
+
+**A medida nova, no aparelho do dono, com a conta ligada.** Sonda `AvaliacaoIA` pelo caminho de produção, no `C2416CBC`, install **por cima** (sem `uninstall`, `erase`, `clearState` nem `xcodebuild test`). Conta conferida **antes de instalar** (corrida de fumaça `2934F6EC`, 20h08Z: `contaGrokLigada: true` e a listagem **autenticada** de 12 modelos devolvida pela API), **em cada um dos 27 registros** da corrida, e **depois de tudo** (corrida `007BB0B8`, 20h59Z, os mesmos 12 modelos). A conta sobreviveu ao `boot`, ao install por cima e às 30 chamadas. Fixture `prova/qb-teto-casos.json` sha256 `1055b023…`; saídas inteiras em `prova/qb-teto-avaliacoes.jsonl` sha256 `fa51544a…` (as três corridas, fumaça de abertura, remedição e fumaça de fecho, no mesmo arquivo); corrida da remedição `B54FF0BE`.
+
+Os nove casos remedidos são exatamente os que carregavam as 20 falhas — 9 casos × 3 execuções = 27, e 30 chamadas a `grok-4.6` (os três `Combinar` chamam duas vezes).
+
+| rota | antes, teto 90 s | depois, teto 240 s | pior latência medida |
+|---|---|---|---|
+| prepararPratica | 11 de 18 falhas de transporte | **0 de 15** | 141,1 s |
+| revisar | 6 de 18 | **0 de 9** | 133,7 s |
+| produzir | 3 de 18 | **0 de 3** (duas chamadas por execução) | 178,1 s no caso inteiro |
+| conferirTentativa | 0 de 18 | não remedido (não tinha falha) | 45,7 s em 08/09 |
+| **total `grok-4.6`** | **20 de 72 (28 %)** | **0 de 30** | — |
+
+Os casos que estouravam nas três execuções voltaram inteiros: `ler-rascunho-q2-conhecido-preparar-espanhol-solo` em 133/91/100 s, `qn-preparar-outro-dominio-planilha` em 113/107/102 s, `qn-produzir-combinar-sem-resolver-a-pratica` em 160/178/130 s. **O teto era o defeito.**
+
+**O achado que vai contra nós, e ele não é de teto.** Com o transporte inteiro, **3 das 15 execuções de `prepararPratica` continuam sem entregar nada ao autor** — `revisor-sintetico-resumo-projeto-2x5` (2 de 3) e `q2-conhecido-preparar-apresentacao-proposta` (1 de 3). Nessas três a chamada voltou **HTTP 200, `finish_reason: stop`, conteúdo completo, `grok-4.6` confirmado, 3.777 a 6.865 tokens de raciocínio**: quem recusou foi o **nosso contrato de domínio** (`PraticaTrabalho.parsePreparacao`/`validar`), não a rede. É defeito de conteúdo, medido, e o teto não o conserta. Pela contagem de entrega por caso, `prepararPratica` sai de **1 de 6** para **4 de 6**; as outras três rotas entregaram em todas as execuções medidas.
+
+**O que isso muda na tabela `Politica`: nada, e o motivo é o lugar do estado honesto.** Ausência sistemática — metade das vezes, determinística por caso — é indisponibilidade e mora na tabela. Recusa ocasional do próprio contrato já tem superfície própria e por pedido: `Trabalho.EstadoPedido.praticaIndisponivel`, que a `TrabalhoView` mostra em `pratica-preparacao-indisponivel` com a saída "Retomar esse pedido". Mover isso para a tabela apagaria a operação inteira por um defeito que a tela já conta, pedido a pedido — e a tabela não sabe dizer "às vezes". O que fica aberto no RUMO, nomeado: por que `validar` recusa 1 em 5 preparações completas, e se o defeito é do provedor ou do nosso esquema.
+
+**`responderNasNotas` continua cortada.** O revisor escreveu um caso tipado **novo, que o implementador não viu** — teto de R$ 5.000, US$ 300 + US$ 120 previstos, cotação de R$ 5,20 datada — e as três execuções recusaram por inteiro: *"Não tenho informação disponível nesta consulta para confirmar isso."* Zero de três (`prova/q-revisao-avaliacoes.jsonl`). A linha da tabela não muda e o motivo continua sendo o da recusa por inteiro: **conserto nomeado não é conserto feito**.
+
+**O que esta ADR não prova.** 240 s é o teto sob o qual **nada** encostou em 30 chamadas; não é prova de que nada encostará — a cauda é longa e a maior amostra que temos por ponto é uma. As 27 execuções saíram de **um** lançamento com três repetições e `esquecerMemo()` entre elas, não de três lançamentos como a matriz da 08q: menos independência entre execuções do que a corrida original, e isso está dito. Só os nove casos que falhavam foram remedidos — os 52 que já chegavam abaixo de 90 s não foram repetidos, porque subir um teto não transforma sucesso em falha. E esta volta mediu **entrega**, não releu a qualidade caso a caso: dizer "4 de 6" para `prepararPratica` é dizer que quatro casos entregaram nas três execuções, não que o conteúdo dos quatro atende a rubrica.
+
+## ADR 2026-09-08l — A terceira linha do Perfil: o que a medida reprovou, dito ao autor
+
+**A distância.** A ADR 08q tirou da execução as operações que a medida de 08/09 reprovou com a conta ligada (`indisponivelPorQualidade`). Mas o Perfil imprimia só duas listas — `pelaConta` e `peloAparelho` —, e uma operação reprovada sumia das duas: o autor via menos coisa e nenhuma explicação, o contrário da ordem do dono ("o que reprovar vira linha honesta na tela, nunca resultado pior calado"). Pior: com o filtro por negação de `peloAparelho`, a reprovada passaria a ser anunciada como "pelo aparelho, sem conta" — mentira produzida por código que ninguém tocou (achado desta volta, corrigido na 08q pelo filtro por inclusão).
+
+**A decisão.** O cartão CONTA do Perfil ganha uma terceira lista, lida da MESMA tabela (`Politica.indisponiveis`, com `motivo`, `medidaEm` e `conserto` na `Linha`): uma linha por operação, no nome que o autor entende (`Politica.nome`) e não no símbolo, com o porquê em uma oração de pessoa e a data da medida. Dois estados, dois grupos, para o dono ver qual é qual: *reprovada sem substituto medido* ("Indisponível mesmo com a conta Grok — a medida de 08/09 reprovou, e não há outro caminho:") e *reprovada com conserto nomeado* ("Em correção, com conserto nomeado e sem data — a medida de 08/09 reprovou:", e a linha termina em "· conserto: …"). A data sobe para a abertura do grupo quando todas as linhas a compartilham; se um dia divergirem, desce a cada linha. A lista muda de tamanho com a medida — e vazia é o estado que se quer: a tela então diz "Nenhuma operação indisponível por qualidade." em vez de sumir com a linha.
+
+O que a linha NÃO faz, por regra: não manda conectar conta (a conta existe; a frase de recusa no momento do pedido é a de `semProvedor`, que a 08q já corrigiu); não promete prazo (conserto tem nome, não tem data); não vira boletim — a evidência (contagens, caminhos de prova) fica em `porque`, para a ADR e o `prova/`, e não na tela. A frase longa do momento da recusa e a linha curta do Perfil são duas coisas: não se repete a longa nos dois lugares.
+
+**Dynamic Type.** A letra miúda do cartão tinha `maxWidth: 280` fixo em pontos; em AX5 isso dava doze caracteres por linha e um terço da tela em branco, e as três listas dobravam de altura à toa. Passa a `medidaMiuda`, `@ScaledMetric` relativo a `.subheadline` (280 em `large`, ~45 caracteres): escala com a letra e, quando cresce além da tela, a largura do cartão manda. Medido no iPhone Air em AX5: a linha de uma operação cai de 0,32–0,38 tela para 0,26.
+
+**O que esta ADR não prova.** A qualidade das frases de `motivo` é de quem mediu; a tela só as formata. VoiceOver não foi ouvido (o simulador pede reiniciar o aparelho); a árvore de acessibilidade mostra cada linha como um elemento, na ordem visual, nada focável como ação. 3 testes em `PerfilQualidadeTests` (a lista vem da tabela; a data no lugar certo; o conserto na linha).
+
+## ADR 2026-09-08w — Duas voltas na mesma função: a `mudanca` do ajuste passa a recusar com nome (volta Q-H)
+
+**O conflito.** Enquanto a volta Q instrumentava as guardas da preparação, a
+V17 (ADR 08j) mesclou em `main` e acrescentou às MESMAS duas funções um campo
+novo de contrato: `mudanca`, a frase em que o modelo diz o que mudou de um
+exercício para o anterior. `parsePreparacao` virou `lerPreparacao ->
+Result<Preparada, Recusa>` de um lado e ganhou `comMudanca:` do outro;
+`validar` virou `provar` de um lado e ganhou teto e prova de vazamento sobre a
+`mudanca` do outro. As duas mudanças são de mérito e nenhuma cede.
+
+**Decisão.** A `lerPreparacao` conhece `comMudanca`, e cada queda que a V17
+escrevia como `nil` passa a ter guarda nomeada. Chave ausente num ajuste é
+`chavesForaDoContrato(faltando: ["mudanca"])` — num ajuste ela É do contrato.
+Tipo errado é `campoNaoTexto("mudanca")`; vazia é `campoVazio("mudanca")`; acima
+de `Limite.mudanca` é `campoAcimaDoTeto`. Os quatro são casos REAPROVEITADOS:
+a `mudanca` falha do mesmo jeito que os outros cinco campos, e inventar
+categoria para ela diria que é outro tipo de defeito. A regra da V17 fica
+inteira: qualquer uma dessas quedas derruba a preparação INTEIRA, porque versão
+que muda calada é o que aquela volta existe para impedir.
+
+**O único caso NOVO: `mudancaVazaOExemplo`.** `criterioVazaOExemplo` carrega um
+`indice` e diz "o critério N". Usá-lo para a `mudanca` obrigaria a inventar um
+índice de critério para um campo que não é critério — a recusa mentiria sobre
+qual guarda reprovou, que é o oposto do que a ADR 08p faz. Mesma régua
+(`Prova.vazamento`), mesma disciplina de medida sem conteúdo (posição, contagem
+de palavras e origem no pedido do autor; nunca o trecho), mesmo `Recusa.origem`.
+Só o campo é declarado por nome. A `mudanca` é provada DEPOIS dos critérios: o
+exercício se prova antes do que se diz sobre ele.
+
+**Na rota remota**, um único `ajustando = p.ajuste != nil` governa o esquema de
+saída, a leitura e o rótulo do produtor (`"Grok · exercício adaptado"`), e o
+`timeout` é o `Grok.tetoTrabalho` MEDIDO na 08r, não o `90` suposto que a V17
+carregava — mantê-lo devolveria à rota de ajuste a falha de transporte que a
+volta Q acabou de fechar. A sonda de DEBUG grava as recusas do ajuste também,
+sem ramo: a recusa de um ajuste é a que mais precisa de nome, porque é ela que
+decide se o exercício de alguém não mudou por defeito do provedor ou por
+estreiteza da nossa régua.
+
+**Prova.** Build sem aviso e suíte integral na árvore MESCLADA — a que ninguém
+tinha testado — no `34CC3F94`: 957 testes, 956 passados, 0 falhos, 1 pulado em duas execuções limpas; e 958 / 957 / 0 / 1 depois de trazer também o `main` que a V13 avançou durante o trabalho (auto-merge limpo, zero conflitos)
+(`CadernoHitchesTests`, já pulado antes). Os testes da V17 sobre `mudanca` e os
+da Q sobre `Recusa` passam juntos. Decisão por decisão em
+`ferramentas/orca/q-h-reconciliacao.md`.
+
+**O que esta ADR NÃO prova.** Nada de novo sobre a qualidade do ajuste: nenhuma
+chamada real ao provedor foi feita nesta passada, e a régua do vazamento
+continua como estava — alargá-la é volta própria, já no RUMO. Duas execuções da
+suíte travaram antes de conectar o runner (0 de 957, 345 s cada) e a terceira
+passou inteira; provei que a árvore mesclada sobe instalando e lançando o app
+no aparelho (`ferramentas/orca/q-h-app-mesclado.png`). É limite do instrumento
+registrado, não resultado.
+
+## ADR 2026-09-08u — Quem escreve na pasta tem nome (volta MAC-1)
+
+O companheiro do Mac (`ferramentas/traco-mcp/servidor.py`) lia notas e corpus e
+escrevia em `entrada/`, mas **`traco_escrever` não sabia dizer quem escreveu**:
+uma nota do bot entrava idêntica a uma nota da pessoa, e o app a tratava como
+voz do autor — inclusive no Retrato, que é a evidência SOBRE QUEM ESCREVE posta
+na frente da IA. Faltavam também a agenda e as decisões, sem as quais o "bom
+dia" e a revisão da semana não existem (casos 11 e 2 de `ferramentas/grokbot/CASOS.md`).
+
+**`origem` é obrigatória em toda escrita que não seja texto da pessoa, e a
+recusa diz o que falta.** `traco_escrever` ganhou `origem` (`autor` | `grokbot`
+| `pesquisa`), `motivo` e `fontes`. O padrão continua `autor`. Origem diferente
+de `autor` **sem motivo é recusada** — "escrita com origem “grokbot” exige
+`motivo` — uma linha dizendo por que o bot está escrevendo isto" —, e nada é
+gravado. `pesquisa` sem `fontes` também é recusada: pesquisa sem fonte é opinião
+do bot, e o próprio texto da recusa manda escrevê-la como `grokbot`. O motivo e
+as fontes viajam no CORPO da nota, como rodapé ("— feito pelo bot: …"), para que
+o autor leia quem escreveu e por quê **dentro da nota**, sem abrir outra tela; o
+cabeçalho carrega só `origem:`, que é o que o app consome.
+
+**A etiqueta.** `Nota.origemRaw` (vazio = o autor, que é o que toda nota anterior
+a esta ADR é) atravessa o import (`Corpus.importarComEstado` lê `origem:` do
+cabeçalho já extraído para checar o selo — a ordem das linhas não importa), o
+export (`arquivoMd` só escreve a linha quando não é do autor) e a tela. Na tela
+é `Pilula(forma: .etiqueta)`, a MESMA cápsula em que o gesto já vive na lista —
+sem cor nova, sem componente novo: **"feito pelo bot"** (a formulação do
+contrato) e **"pesquisa do bot"**. Aparece em dois lugares, e os dois importam:
+na linha da lista, para que o autor saiba antes de abrir; e na página aberta,
+**acima do texto**, porque a página é o lugar em que se confunde o texto do bot
+com a própria voz — o rótulo tem de chegar antes da leitura, não depois.
+
+**Fora do Retrato, e não só do Retrato.** `Retrato.NotaLida.doAutor` corta a
+nota do bot no mesmo filtro em que o selo já cortava expressiva, selada e
+queimada — **nem como contagem**: duas notas WOOP, uma do bot, dizem "1 WOOP".
+`Trajetoria.NotaLida.doAutor` faz o mesmo, porque a trajetória calcula a
+calibragem das decisões e as palavras conquistadas; deixar o bot ali seria
+medir a mente da pessoa com texto que não é dela. No servidor, `traco_semana` e
+`traco_decisoes` também pulam origem diferente de `autor`.
+
+**`agenda.md`, o quarto arquivo solto.** `Corpus.agenda` escreve, ao lado de
+`LEIA-ME.md`, `INDICE.md` e `traco-corpus.md`: **Compromissos** (do mesmo
+`calendario.json` que a pasta já copiava), **Decisões a conferir** (as que
+`Volta.campoDevido` diz que venceram) e **Recordar devido** (`FatiaCorpus.recordarEm`,
+lido de `Revisoes.proximaData` no ponto em que a fatia nasce, que é @MainActor).
+É `.md` com a data no começo de cada linha e " · " como separador: o autor abre
+a pasta e lê, e `traco_agenda(dias)` parte a linha. O selo continua valendo —
+`vivas` já exclui a expressiva em curso, e selada/queimada entram como
+`soMetadado`, que a agenda pula. Ações de Trabalho **não** estão aqui: são da
+MAC-2, e o arquivo diz isso em vez de fingir completude.
+
+**`traco_decisoes` e o bug que ele desenterrou.** A ferramenta devolve, por
+decisão, `esperava` × `aconteceu` × `saldo`, separando `respondidas` de
+`sem_resposta`. Ao escrevê-la apareceu que **`traco_semana` lia os campos da
+forma do CABEÇALHO** (`c.get("escolha")`), e eles vivem no CORPO, depois do
+marcador `<!-- traco-campos:json-v1 -->` (ADR 05h): a revisão da semana devolvia
+decisões e destaques vazios desde sempre, e a fixture do autoteste sustentava o
+engano pondo `unica:` no cabeçalho, onde nenhuma nota real o tem.
+`Pasta.campos()` passa a ler o bloco JSON, e a fixture foi corrigida para o
+formato que o app de fato exporta.
+
+**Sem V5 no schema.** `origemRaw` entrou como atributo com valor padrão, dentro
+da V4. A primeira tentativa criou `TracoSchemaV5` com a mesma lista de classes
+da V4 e o CoreData derrubou o arranque com "Duplicate version checksums
+detected" — os `VersionedSchema` daqui apontam para a classe VIVA, não para uma
+cópia congelada, então versão nova só faz sentido para MODELO novo (a V3 trouxe
+o recibo, a V4 o Trabalho). *(A afirmação "dois testes de migração pegaram isto"
+era falsa quando escrita: o diff não os tinha. A 09b os escreveu, e ao escrevê-los
+o defeito ficou mais preciso do que este parágrafo dizia — veja lá.)*
+
+**Prova.** Autoteste do servidor verde com os casos novos e as três recusas
+(sem motivo, pesquisa sem fontes, origem desconhecida), incluindo a asserção de
+que a recusa **não escreve arquivo nenhum**. Cinco testes novos em
+`IntegridadeCorpusTests`: a origem atravessa o import (as quatro grafias,
+inclusive a inválida, que vira `autor`), sobrevive ao roundtrip pela pasta, fica
+fora do Retrato nem como contagem, a agenda traz o que vence e não traz o que o
+selo fecha, e expressiva/selada continuam fora dos quatro arquivos soltos depois
+deste diff. Suíte integral 953/0 em 153 suítes, `grep -c warning:` = 0.
+Capturas em `ferramentas/orca/mac1-*.png`.
+
+**Limite declarado.** A leitura falada do VoiceOver não foi exercitada: voz e
+VoiceOver estão proibidos no Traço (ordem do dono). A etiqueta tem
+`accessibilityIdentifier` e `accessibilityLabel` ("Esta nota não é sua voz: …"),
+provados por árvore de AX e por captura.
+
+## ADR 2026-09-09b — A origem acompanha todo consumidor (volta MAC-1-B)
+
+A 08u pôs a origem na nota e cortou o bot do Retrato e da Trajetória. O G3
+recusou a volta e mostrou por quê: o corte estava no LEITOR, e um CHAMADOR
+esquecia de passá-lo. `Sessao.responderNasNotas` — **a rota de produção**, a que
+monta o retrato para a IA quando o autor pergunta nas Notas — construía
+`Retrato.NotaLida` sem o argumento, e o padrão `= true` mandava a nota `grokbot`
+embora. O teste da 08u exercitava `Retrato.ler` isolado: **não visitava o lugar
+do defeito**, e por isso o verde não valia nada.
+
+**A regra, palavra do dono (09/09).** Não é conserto pontual: **nenhum consumidor
+que declare voz, retrato, trajetória ou mapa do autor lê texto que não seja
+dele — nem para inferir domínio, nem para contar.** A interface promete um
+retrato feito "só com as suas palavras e contagens"; chamar de TRABALHO o texto
+que o bot escreveu faz uma afirmação DERIVADA dele moldar o mapa do autor.
+
+**O nome carrega a regra.** O campo passou de `doAutor` a **`vozDoAutor`** e
+**perdeu o padrão**: em `Retrato.NotaLida`, `Trajetoria.NotaLida`,
+`RevisaoSemanal.NotaLida` (nova) e `Rede.NotaLida` (nova) ele é obrigatório, e
+quem escrever o sétimo chamador **não compila** sem declarar de quem é a voz. A
+disciplina saiu da cabeça de quem escreve e entrou no tipo. E as seis conversões
+`Nota → NotaLida` espalhadas por views e intents viraram **uma só**, em
+`Nota.paraRetrato/paraTrajetoria/paraSemana/paraRede`: um lugar para acertar.
+
+**Quatro consumidores, não um.** Cada um diz na própria documentação que fala da
+mente do autor, e cada um lia texto que não era dela:
+- **Retrato** — a evidência SOBRE QUEM ESCREVE posta na frente da IA;
+- **Trajetória** — inclusive a linha de sentido, que não era filtrada;
+- **Revisão da semana** — "o que a MENTE deixou no papel": contava a nota do bot
+  por forma e mostrava o destaque dele como destaque da pessoa;
+- **Rede** — "a ligação nasce do que o AUTOR escreveu": uma menção `[[assim]]`
+  escrita pelo bot virava ligação dele. A nota do bot continua sendo **destino**
+  — ligar a ela é ato do autor —, mas nunca **origem**.
+
+**O texto também tem nome.** `Nota.vozDoAutor` prometia "só a voz do autor" e
+devolvia o texto do bot. Agora devolve **vazio** quando a nota não é dele, e a
+busca — que TEM de achar a nota do bot, porque ela está na pasta — passou a
+pedir `Nota.textoDeQualquerOrigem`, cujo nome diz o que está pedindo. Com isso o
+léxico e o classificador de bordo pararam de rotular o que o bot escreveu, e as
+perguntas dos Padrões pararam de perguntar ao autor sobre o texto do bot: nada
+disso precisou de um `if` novo em cada lugar.
+
+**O rótulo que já estava gravado cala, sem migração.** `Nota.dominio` devolve
+`nil` quando a origem não é o autor — a não ser que o AUTOR tenha escolhido no
+menu (`dominioTravado`), porque aí a afirmação é dele. Foi o chip `TRABALHO` na
+nota `grokbot` que o G3 viu na tela; ele some sem tocar no disco.
+
+**Citar a nota do bot continua possível — com o nome de quem escreveu.**
+`Sessao.fonteParaPergunta` põe a etiqueta no TÍTULO da fonte ("… · feito pelo
+bot"). A citação na tela e a fonte no prompt dizem quem escreveu, em vez de
+devolverem texto do bot como voz de quem perguntou.
+
+**O caso 8 passou a funcionar no cliente real.** `traco_contrato` devolvia o
+contrato sem os métodos: o catálogo vive no bundle do app, que o Mac não abre, e
+`metodos/` na pasta só tem os do autor. O contrato passou a ser **gerado** de
+`Catalogo.todos` — bloco "Métodos, campos e a PERGUNTA de cada um", com
+`- <Nome> (\`id\`)`, `campos:` e `pergunta:` —, o que de quebra apagou a lista
+fixa de dez formas que já não era o catálogo de vinte e oito. Exercitado num
+cliente MCP de verdade: o bot confirma o que entendeu, acha o WOOP e faz a
+pergunta dele, uma só (`ferramentas/orca/mac1b-caso8-cliente-mcp.txt`).
+
+**Os dois vermelhos que faltavam, agora reexecutáveis.**
+- `traco_semana`: o autoteste passou a rodar a fixture nova **contra o leitor
+  antigo** (os campos lidos do cabeçalho) e a exigir que ele venha VAZIO, ao lado
+  do verde do leitor de hoje na mesma fixture.
+- A V5: `TracoSchemaV5Duplicado` e `TracoMigracaoComV5` existem no teste, e o
+  replay roda com `touch /tmp/traco-replay-v5`. **A sonda corrigiu a 08u:** com
+  um caderno NOVO o plano com a V5 duplicada abre sem reclamar — o checksum só é
+  conferido quando um estágio de fato RODA. Por isso o replay sobe um caderno da
+  V3, e aí sim: `*** Terminating app due to uncaught exception
+  'NSInvalidArgumentException', reason: 'Duplicate version checksums detected.'`
+  É `NSException`, não `Error` de Swift: **nenhum `do/catch` a pega**, e é por
+  isso que ela derrubava o arranque em vez de virar recusa tratada. O guarda
+  permanente é o verde ao lado — um caderno da V3 sobe pelo plano de hoje; quem
+  acrescentar a V5 mata a suíte inteira.
+
+**Prova.** Oito testes novos, **um por consumidor e todos do CHAMADOR**, cada um
+visto vermelho contra o código de `2f0749b` antes de ficar verde. Suíte integral
+963/0 em 155 suítes, `grep -c warning:` = 0. Na tela do A1DF, com a mesma pasta:
+os chips `TRABALHO` e `ESTUDO` somem das notas do bot (`mac1b-dominio-antes.png`
+× `mac1b-dominio-depois.png`) e os Padrões contam "1 destaque · 1 woop" com duas
+notas Destaque no caderno (`mac1b-padroes-sem-o-bot.png`).
+
+**Limite declarado.** O cartão do Retrato no Perfil continua fora de alcance: o
+gesto do helper não rola aquela tela (o mesmo limite que o G3 registrou, com a
+árvore parada em y=2,07). A rota do Perfil já passava a origem em `2f0749b` e
+está coberta por teste; a prova viva desta volta veio dos Padrões, que é a tela
+cujo comportamento MUDOU. A etiqueta no título da fonte citada é provada por
+teste na função de produção: vê-la na tela exige uma resposta de provedor, e o
+único simulador com a conta do dono está fora de alcance nesta rodada.
+
+## ADR 2026-09-08v — A Ilha é do compromisso, e os estados que ninguém tinha visto (volta F5b)
+
+A F1 fotografou a Ilha compacta e a expandida; a F4 deixou a **mínima** por
+fotografar ("exige outra atividade viva ao mesmo tempo") e ninguém tinha visto
+o **fim** de um compromisso nem a compacta com duas atividades em AX5. Esta
+volta plantou os quatro estados no iPhone 17 Pro Max do simulador e corrigiu o
+que apareceu.
+
+**Duas atividades do mesmo app: o iOS mostra UMA na Ilha e empilha a outra na
+tela bloqueada, e sem dizer qual.** Com o Destaque e o compromisso vivos ao
+mesmo tempo, a Ilha era do Destaque e o compromisso a 40 minutos ficava atrás
+(`f5b-antes-ilha-compacta-destaque-esconde.png`; o `liveactivitiesd` registra
+as duas a subir no mesmo segundo, e a tela mostra uma). É o D9 da F1, ainda
+vivo. **O compromisso vence**: `ProximoCompromisso.relevanciaNaIlha = 1` e
+`DestaqueDoDia.relevanciaNaIlha = 0` (o padrão do `ActivityContent`), porque a
+Ilha é o único lugar em que a contagem se vê sem abrir o app, e o Destaque tem
+o widget e o cartão. Vale para a Ilha e para a ordem da pilha na tela bloqueada
+(`f5b-depois-ilha-compacta-compromisso-vence.png`,
+`f5b-depois-bloqueada-dois-vivos.png`, `f5b-depois-bloqueada-pilha-aberta.png`).
+Teste: `ForaDoAppTests.aIlhaEDoCompromisso` fixa a ordem.
+
+**A mínima só existe com atividade de OUTRO app.** Duas do Traço não bastam
+(acima). O simulador não tem Relógio nem navegação, então a F5b subiu um app
+descartável com uma Live Activity vazia (`ferramentas/orca/f5b-outra/`,
+instrumento, não produto) e a Ilha encolheu as duas para o círculo: a do Traço
+é só o ícone — estrela âmbar para o Destaque, calendário para o compromisso —
+sem texto, que é o que cabe (`f5b-ilha-minima-destaque.png`,
+`f5b-ilha-minima-compromisso.png`, `f5b-ilha-minima-compromisso-ax5.png`).
+Nada a mudar na mínima: o `minimal` já desenhava o mesmo ícone do
+`compactLeading`.
+
+**A expandida cortava o último dígito da contagem** ("36:1|5",
+`f5b-antes-ilha-expandida-corte.png`). O `Text(_, style: .timer)` reserva a
+largura do maior valor que pode mostrar (h:mm:ss, porque a atividade sobe até
+seis horas antes), e o teto de 76 pt centrava essa caixa e a cortava dos dois
+lados. Sai o teto: a região mede o que a contagem precisa e os dígitos ficam à
+esquerda da caixa, com a folga à direita (`f5b-depois-ilha-expandida.png`).
+Duas formas que NÃO servem, vistas na tela e registradas para ninguém repetir:
+`fixedSize(horizontal:)` na contagem deixa a expandida **vazia** — só o ícone
+da região `leading` desenha (`f5b-instrumento-fixedsize-expandida-vazia.png`);
+e `multilineTextAlignment(.trailing)` empurra os dígitos para a borda da caixa
+reservada e corta de novo (`f5b-instrumento-alinhada-corta.png`).
+
+**O fim: "acabou", e por quanto tempo.** Semeado um compromisso de um minuto, o
+`staleDate` (= fim) passa e o `liveactivitiesd` marca a atividade *stale*: a
+compacta vira calendário + "acabou", a expandida vira "Dentista / acabou" sem
+contagem e sem cápsula, e o cartão da tela bloqueada perde o relógio relativo
+e diz "acabou" (`f5b-fim-1-*.png` antes, `f5b-fim-2-*.png` no fim). **A Ilha
+larga o "acabou" sozinha em menos de doze minutos** — às 21:42 estava vazia
+sem o app ter aberto (`f5b-fim-3-ilha-vazia-12min.png`); **a tela bloqueada
+mantém o cartão** (aos catorze minutos, `f5b-fim-3-bloqueada-acabou-14min.png`)
+até o app voltar à cena e `reconciliar` encerrar. É o desenho que o ActivityKit
+permite: não há fim agendado, só `staleDate`; o que a tela diz nesse intervalo é
+verdade, e o cartão sai com um deslize. Quanto tempo o iOS deixa o cartão de pé
+sem o app é medida para o aparelho do dono. Na expandida do fim a curva do
+canto da Ilha comia o "a" de "acabou", a linha mais baixa da região (`…-antes.png`):
+o recuo horizontal da região inferior passa de 4 para 10 pt (`…-depois.png`).
+
+**AX5 na Ilha não existe.** A compacta é idêntica em `large` e em AX5
+(`f5b-ax5-ilha-compacta-destaque.png`, `f5b-ax5-ilha-compacta-compromisso.png`
+contra as capturas normais): a Ilha não escala com o Dynamic Type; o cartão da
+tela bloqueada escala (`f5b-ax5-bloqueada-destaque.png`). O "t" cortado que o
+juiz da F4 viu na compacta com duas atividades em AX5 **não se reproduz**: com
+as duas vivas e AX5 a compacta diz "terminar o ca…", com reticências limpas. A
+auditoria é datada; este defeito caiu sozinho, e sai do RUMO.
+
+**Movimento.** A Ilha anima pelo sistema; o Traço não escreve curva nem duração
+nela (o portão do movimento segue com a lista vazia). Entrada (o app publica e a
+atividade sobe), troca de estado (a cápsula "Lembrar em 10 min" vira o recado
+"avisos desligados no iPhone", que é o estado honesto de um contêiner sem
+permissão) e saída (o app reconcilia um compromisso passado e encerra) estão
+em `f5b-ilha-movimento.mp4` e, com Reduzir Movimento, em
+`f5b-ilha-movimento-reduzido.mp4` — a expansão vira fusão, o resto é igual.
+
+**Revisão G3 (F5b-B, 09/09): a prova reprodutível.** O revisor independente
+confirmou o mecanismo e recusou a prova (`ferramentas/orca/revisao-f5b-ilha.md`).
+O que mudou para fechá-la, sem redesenho:
+
+- **O teste segura o wiring, não a constante.** O `ActivityContent` que sobe
+  para o ActivityKit — em `request`, em `update` e no recado do intent — nasce
+  de UM construtor por atividade (`ProximoCompromisso.conteudo(de:recado:)`,
+  `DestaqueDoDia.conteudo(_:agora:)`), e `aIlhaEDoCompromisso` lê o
+  `relevanceScore` e o `staleDate` do conteúdo construído: apagar o argumento
+  do construtor põe o teste vermelho. Limite declarado: a suíte não exercita o
+  ActivityKit (ADR 05u isola `atividades()` em teste), então um `ActivityContent`
+  montado à mão fora do construtor não é visto pelo teste — é o que a revisão
+  de código guarda, e os dois arquivos não têm outro.
+- **A atividade já viva ganha a relevância.** `update` só saía quando o
+  `ContentState` mudava; uma atividade que subiu numa versão sem prioridade
+  ficava atrás do Destaque até o app a encerrar. `ActivityContent.difere(de:relevancia:)`
+  compara estado E relevância, nas duas atividades; o teste cobre os dois lados.
+- **A semeadura publica pela rota real.** O arranque só reconcilia a projeção
+  que já está no disco; `f5b-semear.sh` escrevia `calendario.json` e o
+  compromisso nunca ia ao ar — a reprodução do revisor viu só o Destaque. Em
+  DEBUG, `TRACO_REPUBLICAR_CALENDARIO` no ambiente faz o arranque chamar
+  `ProximoCompromisso.publicar(eventos, cal:)`, a mesma função da agenda, do
+  editor e do intent (precedente: `TRACO_AVALIAR_IA`). O script agora exige o
+  título semeado dentro de `superficie.json` e, com `LOG=<arquivo>`, grava o
+  `liveactivitiesd` do instante: `Starting activity` com o id e
+  `Marking activities stale` com o `staleDate` — o compromisso stale no fim,
+  o Destaque à meia-noite. O daemon **não** registra o `relevanceScore`; a
+  prova dele na tela é qual das duas a Ilha mostra.
+- **Pares `large`/AX5 refeitos, Ilha inteira no quadro, mesmo estado, log ao
+  lado.** Casa: `f5bb-large-ilha-compacta.png` (04:16:27) / `f5bb-ax5-ilha-compacta.png`
+  (04:18:18) — a Ilha é do compromisso nas duas e é idêntica; o que escala são
+  os rótulos da casa, prova de que AX5 aplicou. Bloqueada: `f5bb-large-bloqueada.png`
+  (04:16:31) / `f5bb-ax5-bloqueada.png` (04:16:42) e `f5bb-ax5-bloqueada-ao-acordar.png`
+  (04:16:38) — o cartão do compromisso por cima nas duas. `f5bb-log-large.log`
+  é o `liveactivitiesd` da semeadura (04:16:19, dois `Starting activity`);
+  `f5bb-log-ax5.log` é a janela inteira das seis capturas, sem atividade a
+  subir ou cair entre elas. Tamanho lido de volta antes e depois; restaurado
+  a `medium`.
+- **Controle natural, não planejado:** entre duas capturas o `xcodebuild test`
+  de outra volta instalou no mesmo aparelho um binário SEM a 08v (`cmp`
+  diferente, `nm` sem `relevanciaNaIlha`); o iOS relançou o app por "Activity
+  ended" e o arranque reergueu as duas atividades a partir da mesma projeção
+  (`f5bb-log-controle.log`): **a Ilha voltou ao Destaque**
+  (`f5bb-controle-sem-relevancia-ilha-compacta.png`, 04:13:05). Mesmo estado,
+  mesma projeção, só o `relevanceScore` diferente — é a prova mais limpa desta
+  volta de que ele é o mecanismo, e ela veio de um acidente de posse do aparelho.
+- **Achado novo em AX5:** no cartão da tela bloqueada o relógio relativo do
+  canto ("39 minutos" em `large`) cortava para **"39 minut…"** em AX5
+  (`f5bb-ax5-bloqueada.png`); ao acordar a tela o mesmo canto mostrava a
+  contagem "39:39" inteira (`…-ao-acordar.png`). Corrigido na F5b-C, abaixo.
+- **O corte por alinhamento à direita vira hipótese.** A captura
+  `f5b-instrumento-alinhada-corta.png` mostra "29:48" inteiro; o corte que o
+  relato alegou não está nela. Fica registrado que `multilineTextAlignment(.trailing)`
+  sem teto **não foi provado** cortar; a escolha de deixar os dígitos à esquerda
+  da caixa do `.timer` se sustenta sozinha pela captura `f5b-depois-ilha-expandida.png`.
+  (A F5b-C, abaixo, mostra por que a caixa é larga: o `Text` de data é guloso.)
+
+**Revisão G3 (F5b-C, 09/09): o corte em AX5, e o controle com nome.** O
+revisor aceitou as três provas e recusou de novo por duas coisas: a tela
+bloqueada cortava em AX5 e o relato não trazia as seis fases do
+`design-router`. O que mudou:
+
+- **O relógio do cartão não corta mais, em nenhum tamanho.** A causa não era
+  o tamanho da letra: o `Text` de data (`.timer` e `.relative`) é **guloso** —
+  toma toda a largura que a linha oferece e encosta o conteúdo à esquerda
+  dela. O teto de 92 pt existia para domar isso, e em AX5 "39 minutos" precisa
+  de mais que 92. Sem teto o texto nunca corta, mas gruda em "PRÓXIMO"
+  (`f5bc-instrumento-sem-teto-relogio-a-esquerda.png`, visto na tela);
+  alinhado à direita (`multilineTextAlignment(.trailing)`) ele volta ao canto
+  e, de quebra, a contagem passa a encostar na mesma borda da hora — antes
+  ficava 40 pt para dentro (`f5bb-ax5-bloqueada-ao-acordar.png`, "39:39"
+  solto). Pares refeitos, mesmo estado (Dentista em +40 min por 60 min,
+  Destaque vivo), mesmo binário (`cmp` igual nos dois dylibs), semeadura pela
+  rota real: bloqueada `f5bc-large-bloqueada.png` (05:21:42) /
+  `f5bc-ax5-bloqueada.png` (05:21:59), ambas "39 minutos" inteiro no canto;
+  ao acordar `f5bc-large-bloqueada-ao-acordar.png` (05:21:45, "39:43") /
+  `f5bc-ax5-bloqueada-ao-acordar.png` (05:22:01, "39:26"); casa
+  `f5bc-large-ilha-compacta.png` / `f5bc-ax5-ilha-compacta.png`, a Ilha do
+  compromisso nas duas. `f5bc-log-large.log` é o `liveactivitiesd` da
+  semeadura (05:21:31, dois `Starting activity`); `f5bc-log-ax5.log` é a
+  janela das capturas AX5, sem atividade a subir ou cair. O que a hipótese
+  acima dizia da expandida vale aqui às avessas: alinhar à direita **não
+  cortou** no cartão, porque a caixa gulosa tem folga; na expandida a região
+  é estreita e a folga não existe — a escolha de lá fica como está.
+- **O controle ganha o nome certo.** O que a F5b-B chamou de "controle que eu
+  não planejei" é um **grupo de controle**: o `xcodebuild test` de outra volta
+  instalou no mesmo aparelho um binário sem a 08v, o iOS reergueu as duas
+  atividades **a partir da mesma projeção**, e a Ilha voltou ao Destaque
+  (`f5bb-controle-sem-relevancia-ilha-compacta.png`, 04:13:05;
+  `f5bb-log-controle.log`, ids `2F19AAAE…`/`C496A60E…` às 04:07:00). Mesmo
+  estado, mesma projeção, mesmo aparelho, só o `relevanceScore` ausente: é a
+  prova **por ausência** de que a relevância é o mecanismo — e vale mais que
+  uma captura a mais, porque nenhuma captura com a 08v distingue "a relevância
+  decidiu" de "o iOS escolheu por outro critério que coincide". O daemon não
+  registra `relevanceScore` (declarado e aceito): a prova é a tela **com** e
+  **sem**.
+- **Limite do instrumento, visto de novo:** entre uma captura e outra o iOS
+  perguntou "Deseja continuar permitindo as Atividades ao Vivo do app Traço?"
+  por cima do cartão (`f5bc-instrumento-dialogo-atividades.png`); o toque do
+  `orca emulator` na pilha fechada abre a pilha em vez de acertar o botão, e só
+  na pilha aberta o botão recebe o toque. Respondido "Permitir Sempre".
+
+## ADR 2026-09-09d — Uma linha é o piso do papel, e a folga cede antes da letra (volta C1)
 
 **Ciclo:** multiplicar a mente — o autor escreve sem lutar com a ferramenta.
 **Intenção:** a pessoa vê o que está escrevendo, em qualquer tamanho de letra e
@@ -6579,7 +7154,7 @@ porque mede em pontos discretos. **Fica escrito, não escondido.**
 
 **Ciclo:** multiplicar a mente. **Intenção:** a pessoa vê o que está escrevendo,
 em qualquer tamanho de letra e em qualquer aparelho — **em cada quadro**, que é
-como a 08f está escrita. **Obstáculo:** a 08w fechou a invariante nos pontos
+como a 08f está escrita. **Obstáculo:** a 09d fechou a invariante nos pontos
 DISCRETOS onde a suíte mede (31/31 em AX5, 44/44 em `large`) e deixou declarado
 um resíduo: durante a gaveta do cartão a chegar, a linha ativa aparecia cortada
 (`c1-04-residuo-gaveta-cartao.png`, "~0,11 s numa varredura de 220"). Declarar
@@ -6611,8 +7186,8 @@ GAVETA large, cartão a chegar: 86 quadros em 1,42 s, 6 fora; +0,267 a +0,350 s 
 GAVETA (aviso e toast, nos dois tamanhos): 0 fora
 ```
 
-**Duas correções ao que a 08w escreveu**, as duas contra nós: o resíduo é de
-**0,098–0,100 s**, não 0,11; e **não é só de AX XXXL** — o `large`, que a 08w
+**Duas correções ao que a 09d escreveu**, as duas contra nós: o resíduo é de
+**0,098–0,100 s**, não 0,11; e **não é só de AX XXXL** — o `large`, que a 09d
 dava por são, tem o mesmo resíduo de 6 quadros. A "varredura de 220" não
 sustentava nenhum dos dois números.
 
@@ -6634,7 +7209,7 @@ Sonda por quadro no `tetoDoEncaixe` e na geometria do papel, no 17e:
 **E o limite, medido e não suposto:** **de fora do layout não há corrida a
 ganhar.** Foram experimentados três seguidores — adiado pelo runloop (como
 era), síncrono no aviso da geometria, e síncrono com a altura anunciada mais um
-passo de adiantamento e mira no piso da 08w — e os **três produziram os mesmos
+passo de adiantamento e mira no piso da 09d — e os **três produziram os mesmos
 offsets, ao ponto** (`ferramentas/orca/c1b-gaveta.md`, tabela da ablação). A
 correção da rolagem e a mudança da altura não cabem no mesmo quadro quando a
 altura é animada, porque o quadro apresentado é o modelo do anterior.
@@ -6696,15 +7271,15 @@ sem o Traço** — ver a correção do re-G3 no fim desta ADR.
   todos os offsets. **E a medida achou o contrário do que se esperava:** num
   `UITextView` nu — com a entrelinha do papel e a fonte de corpo em AX XXXL — o
   `caretRect` do UIKit **já é** a caixa da linha visual, ao ponto, em **0 de 61
-  offsets** ele difere. A distância de 45 para 67 pt que a 08w mediu é do editor
+  offsets** ele difere. A distância de 45 para 67 pt que a 09d mediu é do editor
   da **Página**, não do TextKit 2 em geral; quem a prova é o teste hospedado. As
   bordas cobram então o que protege o seguidor em qualquer editor: nunca nula,
   sempre contendo o caret, UMA linha visual só, e na altura certa do documento.
 - **O que muda onde havia folga sobrando** (a pergunta do Pro Max) é
   **nada, e provado por varredura, não por aparelho**:
-  `TemaTests.ondeHaviaFolgaSobrandoA08wNaoMudaNada` percorre 3.025 combinações
+  `TemaTests.ondeHaviaFolgaSobrandoA09dNaoMudaNada` percorre 3.025 combinações
   de tela, pé e piso — **2.687 com folga sobrando e 338 apertadas** — e mostra
-  que, onde meia sobra já dava uma linha, a regra da 08w devolve **o mesmo
+  que, onde meia sobra já dava uma linha, a regra da 09d devolve **o mesmo
   número** da 05y, e onde não dava, devolve estritamente mais papel. O Pro Max é um caso dessa varredura, e a corrida nele confirma a
   aritmética na tela.
 - **As duas dívidas prometidas foram escritas no RUMO** (barra de baixo em AX;
