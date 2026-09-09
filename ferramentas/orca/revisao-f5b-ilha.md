@@ -1,63 +1,53 @@
-# G3 independente — F5b, a Ilha do compromisso vivo
+# re-G3 F5b — a prova reprodutível da Ilha
 
-**Veredito: CORRIGIR ANTES.** Revisei `05acc35` no worktree `volta-f5b-ilha`, sem alterar código de produto. O mecanismo escolhido é o correto: a Apple define `ActivityContent.relevanceScore` como o critério que escolhe a Live Activity do mesmo app na Ilha e ordena a tela bloqueada ([documentação](https://developer.apple.com/documentation/activitykit/activitycontent/relevancescore)). Mas a prova e o teste não sustentam ainda que o candidato o aplique no caminho alegado.
+**Veredito: CORRIGIR ANTES.** A prova que recusara passou: o teste agora morde o `ActivityContent` publicado, a semeadura percorre a rota real e os pares `large`/AX5 têm captura e log versionados. A volta ainda não pode fechar porque a tela bloqueada corta conteúdo em AX5 e o relato não entrega as seis fases exigidas pelo portão para esta dimensão visual.
 
-## Instrumento e alcance
+**Escopo revisado:** `abd09b0...0abdc4c`, ADR 2026-09-08v, no worktree `volta-f5b-ilha`. Revisei e rodei só no iPhone 17 Pro Max `6033B043-F436-41F9-B4F8-2D9E67761980`, sob `ferramentas/orca/com-trava.sh`; avisei no comentário compartilhado que a C1-B também usa o aparelho. Não toquei no Pro do Grok `C2416CBC`, nem usei Siri, voz, ditado, VoiceOver, iPad ou maestro.
 
-- Li o relato F5b inteiro, ADR 2026-09-08v, `VISAO-PRODUTO.md`, `SPEC.md`, `EVOLUCAO.md`, `ESTEIRA.md`, `AGENTS.md` e o brief de revisor. A tentativa de bootstrap Atlas foi emulada: este repositório iOS não contém `artisan` nem o documento de governança apontado pelo `AGENTS.md`.
-- Usei somente o iPhone 17 Pro Max `6033B043-F436-41F9-B4F8-2D9E67761980`, que liguei e desligarei ao final. Segurei `ferramentas/orca/com-trava.sh` para build/teste e `f5b-emu.sh` para AX; não usei maestro, Siri, voz, ditado, VoiceOver ou iPad.
-- `xcodebuild test -project Traco.xcodeproj -scheme Traco -destination id=6033B043… -derivedDataPath /tmp/traco-f5b-g3-dd -parallel-testing-enabled NO`: resultado XCResult **Passed**, 949 testes no total, 948 passados, 1 ignorado, 0 falhas. Isto prova a suíte, não a ordem visual da Ilha.
+## Achados que impedem o G5
 
-## Achados que impedem o portão
+### [P1] Dynamic Type AX5 ainda corta o cartão bloqueado
 
-### P1 — o teste não falha se a integração de `relevanceScore` for removida
+`ferramentas/orca/f5bb-ax5-bloqueada.png` mostra o prazo como **"39 minut…"**; em `f5bb-large-bloqueada.png` o mesmo campo é **"39 minutos"**. É o estado igual, com o compromisso no topo, amarrado ao mesmo par pelo `f5bb-log-ax5.log`; logo não é inferência de árvore de acessibilidade. Isso fica abaixo do mínimo de Acessibilidade (`ESTEIRA.md:101`).
 
-`ForaDoAppTests.aIlhaEDoCompromisso` só avalia `ProximoCompromisso.relevanciaNaIlha > DestaqueDoDia.relevanciaNaIlha`. Ele fica verde se forem apagados os três argumentos `relevanceScore:` de `DestaqueDoDia.swift:156` e `ProximoCompromisso.swift:215,258`, desde que as duas constantes permaneçam. Portanto é teste de prioridade declarada, não do contrato ActivityKit request/update que a entrega afirma proteger. A correção deve provar que request **e** update carregam a prioridade; não aceite apenas a comparação das constantes.
+**Para fechar:** eliminar o corte no cartão bloqueado em AX5 e refazer o par com o mesmo estado e log. A fala do VoiceOver permanece proibida e não entra como desconto; a árvore de AX devolve 503 nessas superfícies, portanto nenhuma ausência na árvore foi usada como prova de ausência na tela.
 
-Há um segundo risco no mesmo caminho: uma atividade já viva só recebe `conteudo` se `ContentState` mudar (`DestaqueDoDia.swift:166`, `ProximoCompromisso.swift:227`). Uma atualização de versão que só introduz/muda a relevância deixa a atividade antiga com o score anterior. A documentação da Apple pede acompanhar e poder mudar a relevância a cada update; essa transição não está coberta.
+### [P1] O relato da re-G3 não contém as seis fases obrigatórias do `design-router`
 
-### P1 — minha reprodução do instrumento não criou as duas atividades alegadas
+`ferramentas/orca/f5b-b-prova.md:4` declara que não registrará as fases. A regra pede no relato **Ancorar, Sistema, Construir, Mover, Julgar e Portão** (`ESTEIRA.md:20-28`; scorecard `:97`), e o pedido desta re-G3 explicitou essa exigência para Fora do app. Não basta mencionar que não houve redesenho.
 
-Depois da suíte, executei `f5b-semear.sh 6033B043… 40 60 destaque 'Revisão G3'`, fui à casa pelo wrapper travado e capturei `/tmp/f5b-g3-duas-vivas.png`. A Ilha mostrou o **Destaque**, não o compromisso. O log do próprio simulador registrou só uma `Starting activity` (`C5E2545A…`) e agendou stale à meia-noite, isto é, o Destaque; o `superficie.json` continuou contendo o `Dentista` anterior.
+**Para fechar:** registrar as seis fases como foram aplicadas à prova e confrontá-las com as capturas atuais, inclusive o corte AX5. Isso é documentação verificável, não justificativa para inventar uma mudança visual.
 
-A causa do instrumento é rastreável: o script grava `Documents/Traço/calendario.json`, mas `TracoApp.aoAbrir` apenas chama `DestaqueDoDia.reconciliar()` e `ProximoCompromisso.reconciliar()`, que relê a projeção já publicada. Ele não chama `ProximoCompromisso.publicar` para o arquivo semeado. A própria condição final do script verifica apenas se `superficie.json` é mais novo que o plist, permitindo falso positivo com uma projeção antiga. Isto não demonstra por si só defeito no fluxo normal de salvar pelo calendário, mas invalida a repetição independente da principal prova F5b; a jornada precisa ser refeita pelo caminho que publica a projeção, com ids/staleDate preservados no artefato.
+## As três provas reexecutadas
 
-### P1 — a evidência AX5 não sustenta retirar a dívida do RUMO
+1. **O teste morde o wiring.** `ProximoCompromisso.conteudo(de:recado:)` é a origem única do conteúdo usado por `request`, `update` e recado (`Traco/Modelo/ProximoCompromisso.swift:212-240,262-266`). `ForaDoAppTests.aIlhaEDoCompromisso` lê o conteúdo construído, incluindo o update (`TracoTests/ForaDoAppTests.swift:312-334`). Eu removi temporariamente somente `relevanceScore: relevanciaNaIlha` da publicação: no resultado `Test-Traco-2026.09.09_04-47-30--0300.xcresult`, 24 passaram e 1 falhou com `Expectation failed: (compromisso.relevanceScore -> 0.0) > (destaque.relevanceScore -> 0.0)`. Restaurei a linha e a repetição verde deu `Test run with 25 tests in 1 suite passed after 0.219 seconds.` e `** TEST SUCCEEDED **`.
+2. **A semeadura publica pela rota real.** Em DEBUG, o arranque chama a mesma `ProximoCompromisso.publicar(eventos, cal:)` da agenda, editor e intent (`Traco/TracoApp.swift:37-49`; chamadores em `CalendarioAgenda.swift:350`, `Intencoes.swift:235`, `Sessao.swift:815`). Rodei `f5b-semear.sh` de estado limpo do cenário, com o binário candidato já instalado: `semeado: Dentista revisor em +40 min por 60 min, destaque (04:49:06); 2 atividade(s) a subir no liveactivitiesd`; a projeção passou a conter `"titulo":"Dentista revisor"`, o log fresco traz dois `Starting activity` às 04:49:05-06, e a captura `/tmp/f5b-revisor-ilha.png` mostra calendário e `39:51`. Logo, qualquer pessoa reproduz com os quatro comandos versionados em `f5b-b-prova.md:31-40`, desde que instale o candidato DEBUG indicado ali.
+3. **Pares e log versionado.** Confirmei que os nove artefatos `f5bb-*` estão versionados. `f5bb-large-ilha-compacta.png`/`f5bb-ax5-ilha-compacta.png` mostram a Ilha do compromisso (`39:50`/`37:59`); `f5bb-large-bloqueada.png`/`f5bb-ax5-bloqueada.png` mostram o cartão do compromisso por cima. `f5bb-log-large.log` registra as duas atividades da semeadura; `f5bb-log-ax5.log` fixa a janela das seis capturas e declara que nenhuma atividade subiu ou caiu entre elas. A prova de prioridade é visual: o daemon não contém `relevanceScore`.
 
-`f5b-ax5-ilha-compacta-destaque.png`, inspecionada no arquivo, não mostra o texto compacto nem uma Ilha completa para comparar: a parte superior está fora da imagem. Logo não demonstra que a compacta AX5 é “pixel a pixel” igual à large nem que o `t` desapareceu. A captura `f5b-ax5-ilha-compacta-compromisso.png` mostra um timer, mas não traz a contraparte com o mesmo conteúdo/configuração. Não é lícito apagar o RUMO com esse par; refaça large e AX5 com o mesmo estado, Ilha inteira visível e configuração registrada.
+## Julgamento da dispensa de `curva-zero`
 
-### P2 — uma das duas recusas visuais não é provada pela própria imagem
+**Válida, portanto Simplicidade = n/a.** Esta re-G3 não criou jornada, formulário, primeiro uso, folha nem novo toque: só testou e semeou a superfície que já tinha o gesto de um toque. `ESTEIRA.md:26` limita `curva-zero` a essas jornadas ou a Simplicidade abaixo de 9; o script é instrumento de QA e não caminho de produto. Isso não dispensa o `design-router` exigido acima nem encobre o corte de AX5.
 
-`f5b-instrumento-fixedsize-expandida-vazia.png` confirma a primeira recusa: só o ícone leading permanece. Porém `f5b-instrumento-alinhada-corta.png` que acompanha o relato mostra `29:48` legível por inteiro, não `29:4|8`; ela não sustenta o corte alegado. O código final sem alinhamento à direita pode continuar sendo a escolha mínima, mas a recusa precisa de uma recaptura fiel ou de texto reduzido a hipótese.
-
-## O que foi confirmado e o que permanece limitado
-
-- **Instrumento certo, ligação incompleta:** `relevanceScore` é o instrumento de plataforma correto para Ilha e pilha; os três sites de `ActivityContent` da árvore atual o recebem. As capturas históricas `f5b-antes-ilha-compacta-destaque-esconde.png` e `f5b-depois-ilha-compacta-compromisso-vence.png` mostram o antes e o depois declarados, mas não substituem a repetição acima nem o teste de wiring.
-- **Mínima:** `f5b-ilha-minima-compromisso.png` mostra os dois círculos de apps distintos; `ferramentas/orca/f5b-outra/` é um projeto separado sob ferramentas, não é referenciado por `project.yml` do Traço. É instrumento descartável, não produto. Confirmado.
-- **Acabamento:** a expandida final em `f5b-depois-ilha-expandida.png` mostra `29:07` inteiro; `f5b-fim-2-expandida-acabou-depois.png` mostra “acabou” sem a curva comer o primeiro glifo. Confirmados, com a ressalva da recusa de alinhamento acima.
-- **Fim e honestidade:** `f5b-fim-3-bloqueada-acabou-14min.png` tem relógio 21:43 e cartão 21:29, sustentando a permanência aos 14 min. `staleDate` só torna o conteúdo stale; não agenda `end`. Assim, dizer “acabou” enquanto o cartão espera reconciliação é honesto, mas a permanência é uma dívida de produto explícita para medir/decidir no aparelho real, não um fim garantido. A captura de Ilha vazia em menos de 12 min é observação de um simulador, não SLA.
-- **AX e log:** na minha sessão, `orca emulator ax` não devolveu 503: devolveu a árvore da casa, sem a Ilha, enquanto a captura do mesmo estado a mostrava. Isso confirma a lei de que ausência na árvore não prova ausência na tela. Não há transcript de `liveactivitiesd` versionado junto às capturas históricas; portanto não pude auditar a alegada correlação histórica entre ids, `staleDate` e cada screenshot. Meu log de reprodução só confirma a única atividade acima.
-- **Design-router / curva-zero:** as seis fases estão citadas e correspondem ao escopo local observado (prioridade, dois ajustes de layout e estados). A dispensa de `curva-zero` é válida: não houve jornada, formulário ou novo toque; a superfície continuou de um toque. O problema é de evidência do estado, não de complexidade introduzida.
-- **Simulador:** o relato F5b registra ter encontrado `6033B043` já ligado às 20:38 e o ter desligado; tratei isso como incidente de posse declarado, não falha de autoria da volta.
-
-## Scorecard G3
+## Scorecard do revisor
 
 | dimensão | nota | evidência e julgamento |
 |---|---:|---|
-| Visão | 9 | Priorizar o compromisso vivo serve à ação imediata sem fazer o Destaque desaparecer do produto. |
-| Contrato | 8 | ADR é clara, mas o contrato de atualização de atividade já viva não está fechado. |
-| Correção | 8 | Suíte verde; teste novo não protege o wiring ActivityKit e há risco em atividade existente. |
-| Jornada real | 8 | A semeadura atual não publicou o compromisso na repetição independente. |
-| Design | 9 | Correções locais visíveis; sem redesenho especulativo. |
-| Simplicidade | n/a | Nenhuma jornada ou decisão adicional de pessoa. |
-| Movimento | 9 | Sistema é dono da animação; não encontrei curva/duração nova no diff. |
-| Componentes | n/a | Nenhum componente novo. |
-| Acessibilidade | 8 | AX5 do cartão existe, mas a prova da Ilha compacta está fora de quadro; VoiceOver foi corretamente proibido/declarado. |
-| Performance | n/a | Sem caminho de lista, parser ou IO novo mensurável. |
-| Privacidade e autoria | 9 | A mínima auxiliar é isolada em ferramentas; não há nova exposição de conteúdo. |
-| Estado honesto | 9 | “acabou” é verdadeiro; a permanência sem end é declarada como dívida, não disfarçada. |
-| Complexidade | 9 | Diff produtivo curto; app auxiliar não entra no target. |
-| Fora do app | 8 | Mecanismo correto, porém a evidência/reprodução da prioridade e AX5 não fecha. |
-| Relato | 7 | Forte cobertura de estados, mas a captura de alinhamento contradiz o texto e AX5 não prova o que diz. |
+| Visão | 9 | O compromisso próximo se anuncia sem abrir o app; `EVOLUCAO.md` e ADR 08v coerentes. |
+| Contrato | 9 | `ActivityContent.difere` atualiza também mudança de relevância; construtores centralizam request/update/recado. |
+| Correção | 9 | Mutação própria vermelha (24/25) e restauração verde (25/25) no `6033B043`. |
+| Jornada real | 9 | Semeadura fresca publicou `Dentista revisor`, projeção, log e captura conferidos. |
+| Design | 8 | Falta o registro verificável das seis fases, requisito explícito do portão. |
+| Simplicidade | n/a | Dispensa de `curva-zero` válida: nenhum caminho de produto mudou. |
+| Movimento | n/a | Esta re-G3 não mudou movimento. |
+| Componentes | n/a | Nenhum componente novo nesta re-G3. |
+| Acessibilidade | 8 | AX5 corta `39 minutos` para `39 minut…`; VoiceOver não foi exercitado por proibição, sem desconto adicional. |
+| Performance | n/a | Não tocou lista, editor ou parser. |
+| Privacidade e autoria | 9 | A prova usa calendário local em DEBUG; nenhuma nota/expressiva entra na superfície. |
+| Estado honesto | 9 | Log, captura e o limite da árvore AX estão declarados sem inferência indevida. |
+| Complexidade | 9 | Um construtor por atividade reduz os sites de publicação e o gancho é DEBUG de instrumento. |
+| Fora do app | 9 | A dimensão tocada está provada: prioridade reproduzida na captura fresca e nos pares versionados, com logs da mesma janela. |
+| Relato | 8 | Provas técnicas são legíveis, mas a ausência deliberada das seis fases impede o fecho exigido. |
 
-Nenhuma mescla: há dimensões abaixo de 9. Para reabrir G3, entregue uma reprodução que publique o compromisso de verdade, log versionado com ids/staleDate correspondente às capturas, teste que falhe ao retirar o wiring e pares large/AX5 enquadrados; então refaça esta revisão sem corrigir por inferência.
+## Limites de instrumento
+
+O `liveactivitiesd` prova subida, estabilidade da janela e `staleDate`; ele não registra `relevanceScore`, por isso a prioridade foi conferida na captura. A árvore AX 503 da casa/bloqueada não prova nem desmente elementos visuais; as conclusões de presença e do corte vêm exclusivamente das capturas no mesmo UDID. O bootstrap Atlas pedido pelo `AGENTS.md` não pôde ser executado neste checkout: não há `artisan` nem `docs/engineering-knowledge-base/atlas-ai-knowledge-governance-system.md`.
