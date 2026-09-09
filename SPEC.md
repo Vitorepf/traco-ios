@@ -7545,3 +7545,203 @@ enche como a `08` se encheu, e a próxima volta lê o "próxima livre" em vez de
 rodar o comando. A defesa da primeira é a asserção nova, que reprova quando a
 cápsula não desenha; a defesa da segunda é não haver defesa nenhuma além de
 rodar o comando, e é por isso que ele está escrito no topo do registro.
+## ADR 2026-09-08y — A retomada conta o que houve entre duas visitas (volta R1)
+
+**O critério, palavra do Astra:** *"o dono volta depois e continua com pouca
+explicação"*. Item 4 da fila do dono; ciclo multiplicar a mente.
+
+**O obstáculo, medido antes de codar e não copiado da auditoria.** A auditoria
+do G0 nomeava três defeitos. Aberta a folha na tela viva com estado plantado
+(`ferramentas/orca/semear-retomada.py`, o JSON no `ZTRABALHO` do App Group),
+**o primeiro caiu sozinho**: a `retomada` já é o segundo bloco e nasce ACIMA da
+dobra — o "Continuar: <ato>" fica a 0,36 tela do topo e o "Último retorno" a
+0,46. Rolar para ela na abertura esconderia a intenção, que é o **objetivo** que
+o critério manda retomar. Não há rolagem automática nesta volta, e isso é
+decisão, não omissão.
+
+Os outros dois são reais, e a régua é a árvore de AX do mesmo instante, com as
+posições em **alturas de tela a partir do topo da folha** (o documento inteiro
+tem 4,74 antes e 4,95 depois):
+
+| o que o autor precisa saber ao voltar | antes | depois |
+|---|---|---|
+| objetivo | 0,15 | 0,15 |
+| próximo passo | 0,36 | 0,36 |
+| **versão nova preparada ontem** | **1,57** | **0,58** |
+| **ato que ele marcou como realizado** | **2,41** | **0,53** |
+| **resultado que ele mesmo informou** | **2,45** | **0,67** |
+| **quando foi o último retorno** | **3,76** | **0,64** |
+| **dificuldade que ele registrou** | **4,22** | **0,48** |
+
+**A régua do dono é TOQUE E GESTO, e a distância é só a explicação** (G3 da R1,
+09/09). A tabela acima mede distância percorrida; o que o dono cobra é *quanto a
+pessoa tem de fazer*. A mesma tarefa — **voltar no dia seguinte e saber as sete
+coisas** — foi executada nos DOIS candidatos pelo XCUITest, que dá toque e
+arrasto de verdade no aparelho do `-destination` (e não pelo helper do
+`orca emulator`, que amplifica o arrasto de 6 a 24x e é um só na máquina):
+
+| | antes (`c751c02`) | depois |
+|---|---:|---:|
+| toques até a folha | 3 | 3 |
+| **arrastos dentro da folha** | **5** | **0** |
+| **paradas de leitura** (posições onde um fato novo aparece) | **6** | **1** |
+| fatos na primeira tela | 2 de 7 | **7 de 7** |
+
+O gesto é o mesmo nos dois lados (`swipeUp()` do XCUITest, ~0,76 tela por vez) e
+o estado plantado é o mesmo. O condutor é
+`TracoUITests/CurvaZeroRetomadaUITests.swift`, a tabela por gesto fica em
+`ferramentas/orca/r1b-medida-antes.txt` e `…-depois.txt`, e ele fica **vermelho**
+se algum dos sete fatos deixar de aparecer.
+
+**Decisão.** Um bloco só, dentro da `retomada` que já existe: **"Desde
+\<instante da visita anterior\>"**, com as coisas que ACONTECERAM depois dela,
+mais recente primeiro, teto de quatro linhas e o excedente DITO (`e mais N desde
+então` — sem prometer onde está: nem tudo mora no histórico). E o "Último
+retorno" ganha **data** e o **resultado informado**.
+
+1. **Quem escreve as linhas é o app, não o modelo.** `mudancasDesde(_:)` sai dos
+   vínculos do documento — versão e produtor, ato executado, relato, resultado
+   observado, decisão de apoio, dificuldade. Nenhuma frase é gerada; um resumo
+   escrito por modelo seria bonito e seria mentira sobre o que a pessoa fez.
+2. **A visita mora no aparelho, não no documento.** `UserDefaults`, chave
+   `trabalho.visita.<uuid>`, ao lado dos rascunhos. Quando o autor abriu a folha
+   é fato deste aparelho: exportar o Markdown não carrega a visita de ninguém e
+   o registro compartilhado não ganha campo de vigilância. Sem visita guardada
+   **não há bloco** — o app não sabe desde quando contar e cala.
+3. **Duas datas novas no documento, e só duas:** `apoioMarcadoEm` e
+   `trechoDelimitadoEm`. `apoio` e `trechoExercitado` eram valores sem história,
+   e a retomada precisa DATAR a decisão para contá-la. `nil` = registro anterior
+   a este contrato: decisão não datada, nunca data inventada.
+4. **Executar e observar continuam dois eixos** (ADR 08m): "Você marcou como
+   realizada" e "Resultado que você informou" são duas linhas com as duas datas.
+5. **Nada de `EstadoExercicio` persistido** (V17, item 3), nenhuma tela nova,
+   nenhum agregado novo, nenhum componente novo — `secao`, `Tema.meta` e
+   `Tema.tintaSuave`, que a folha já usa.
+6. **A mesma notícia não aparece duas vezes na mesma tela:** a linha do relato
+   que a folha já mostra inteiro logo abaixo sai da lista.
+
+**Prova.** Suíte integral no `34CC3F94` (iPhone 17 Pro, teste 3), sem
+paralelismo: **963 testes em 155 suítes, 0 falhas**, `grep -c warning:` = **0**.
+Antes e depois no MESMO aparelho, mesmo estado plantado, mesmos três toques até
+a folha, mesmo tamanho de letra (`large`, o padrão): `r1-antes-folha.png` /
+`r1-depois-folha.png`, com as duas árvores de AX do mesmo instante em
+`r1-ax-antes.json` / `r1-ax-depois.json`. AX5 sem sangramento: nenhum elemento
+sai de `x=0,050 … 0,950` (`r1-depois-ax5.png`). Teto e linha de decisão em
+`r1-depois-decisoes-e-teto.png`.
+
+**O teste que fica vermelho** está em `TracoTests/RetomadaTrabalhoTests.swift`,
+e o vermelho foi mostrado antes do verde nos dois sentidos do erro: janela
+errada (o resumo passa a falar da versão do dia 5, que é anterior à visita) e
+âncora errada (`rolarPara` para um `.id` que não existe — o portão conta 8
+destinos literais, medidos antes de congelar).
+
+**Os estados do bloco, na tela viva** (R1-B, 09/09), cada um com árvore e
+captura `simctl` do MESMO instante, porque ausência na árvore não é prova de
+ausência na tela:
+
+- **normal** — quatro linhas e `e mais 1 desde então`: `r1b-normal.png`.
+- **sem visita guardada** (primeira abertura, reinstalação, dados limpos) — a
+  folha CALA, e a captura mostra a folha inteira sem o bloco:
+  `r1b-sem-visita.png`.
+- **fechar e reabrir a folha é uma VISITA NOVA**: a janela recomeça e o bloco
+  cala, porque a notícia já foi entregue. O que a janela preserva é a reabertura
+  interna depois de um erro de escrita (`preservarEReabrir`), que não destrói a
+  tela. Isso agora é teste, não descrição.
+- **AX5** com o bloco DENTRO da janela — o que faltava na volta anterior, cuja
+  captura AX5 mostrava só o topo da folha: `r1b-ax5.png`. Em AX5 o bloco tem
+  1289 pt e a janela 874: ele não cabe inteiro, e o teste prova a primeira linha
+  inteira na janela e nenhuma linha sangrando pelos lados.
+
+**O que esta ADR NÃO prova.** Não prova que o dono volta e continua: isso fecha
+no uso dele, não na demonstração. Não há avaliação de hipótese na lista (evento
+real, deixado de fora por enxugamento) e os dois destinos de rolagem que passam
+por variável (`chave`, `falta`) ficam fora do portão, que o diz em vez de fingir
+que os cobre. A rolagem por arrasto do `orca emulator` amplifica de 6 a 24x e
+por isso **não** foi usada como régua: quem conta gesto é o XCUITest, e quem
+mede distância é a árvore de AX. E o número de arrastos do "antes" é o do
+aparelho com a letra padrão: em AX5 o mesmo percurso é mais longo, e não foi
+medido nos dois candidatos.
+
+### Reconciliação com o `main` (volta R1-C) — e o vermelho que ela desenterrou
+
+A R1 nasceu sobre `c751c02` e o `main` andou 25 commits antes do G5. A fusão foi
+feita no worktree da R1, em duas etapas (o `main` andou de novo durante o
+trabalho): `3916924` primeiro, `05ef887` (F5b) depois.
+
+**Conflitos: dois, os dois de documento.** `SPEC.md` — as voltas MAC-1, MAC-1-B,
+F5b e R1 apenderam ADR no mesmo ponto do arquivo — e `ferramentas/orca/LETRAS-ADR.md`,
+na linha da letra `08y`. Nenhum conflito de código: a R1 vive em
+`Traco/Trabalho/` e o `main` andou em `Modelo`, `Notas`, `Padroes`, `Pagina`,
+`App` e `TracoWidget`. `Traco.xcodeproj/project.pbxproj` fundiu sozinho e o
+`xcodegen generate` sobre a árvore mesclada devolveu **diff vazio** — a fusão do
+projeto é a canônica, não uma que só parece certa.
+
+**As escolhas de semântica, uma a uma.**
+
+1. **`SPEC.md`, ordem das ADRs.** O arquivo é cronológico por ENTRADA, não por
+   letra (a `08t` já vinha antes da `08o`). As ADRs que já estavam em `main`
+   ficam na ordem em que entraram; a `08y` vai por último. Nenhum texto dos dois
+   lados foi cortado.
+2. **`LETRAS-ADR.md`.** Fica a tabela do `main`, que é a mais nova (traz o bloco
+   de 2026-09-09 e a `09c` da S1), e dentro dela a linha `08y` fica na redação da
+   R1 — "no branch da R1" —, que é o estado verdadeiro desta letra. Estado de
+   letra alheia não foi tocado.
+3. **`EVOLUCAO.md`.** Fundiu sozinho; a linha "Intenção→artefato" ficou com a
+   redação da R1, que é a única das duas que mudou naquela linha.
+4. **"A origem acompanha todo consumidor" (ADR 09b) não alcança a R1, e isso é
+   uma decisão declarada, não um esquecimento.** A regra vale para quem lê NOTA
+   como voz do autor. O bloco da retomada não lê nota nenhuma: `mudancasDesde`
+   sai de `artefatos`, `acoes`, `evidencias`, `apoioMarcadoEm`,
+   `trechoDelimitadoEm` e `hipoteses` — tudo do `DocumentoTrabalho`. Os `selos`
+   da folha já existiam antes das duas voltas e continuam como estavam. Se um dia
+   a retomada citar nota, a origem terá de viajar junto.
+
+**O ACHADO: os quatro testes de tela da R1 ficam VERMELHOS na árvore mesclada, e
+a causa não é a fusão.** Primeira corrida da árvore mesclada: 4 de 4 falharam em
+`abrirAFolha`, com "a Página não abriu". A tela viva do mesmo instante mostra o
+**arranque honesto da A1** (ADR 08s): "O Traço não abriu o seu caderno", com
+`SwiftDataError(_error: …loadIssueModelContainer, _explanation: nil)`.
+
+A causa foi medida nos TRÊS builds, sobre o MESMO `default.store` e no MESMO
+aparelho (`34CC3F94`), restaurado de cópia antes de cada um:
+
+| build | o que a tela mostra |
+|---|---|
+| `e72dd85` (R1 antes da fusão) | a Página abre normalmente |
+| `main` sozinho (`3916924`, checkout descartável em `/tmp`) | "O Traço não abriu o seu caderno" |
+| árvore mesclada | "O Traço não abriu o seu caderno" |
+
+O `ZNOTA` daquele store não tem `ZORIGEMRAW`: foi gravado por um build anterior
+à ADR 08u. A 08u acrescentou `Nota.origemRaw` como migração leve DENTRO do
+`TracoSchemaV4` — e o `TracoSchemaV4` aponta para a classe VIVA, então o
+checksum da V4 mudou junto. O caderno carrega o carimbo da V4 antiga, nenhum
+estágio do plano casa, e o CoreData recusa o container. A A1, corretamente, para
+em vez de abrir um caderno vazio por cima.
+
+**O que isso quer dizer, dito sem enfeite: quem já tem o Traço instalado não abre
+o caderno depois desta atualização.** É defeito do `main`, não da R1 — a camada
+de modelo da árvore mesclada é byte a byte igual à do `main` (`git diff main --
+Traco/Modelo Traco/Notas Traco/App …` vazio) e o `e72dd85` abre o mesmo arquivo.
+A R1 não conserta isto: consertar migração de esquema é volta própria, com o
+caderno do dono em risco. Fica ESCALADO ao orquestrador e no RUMO. O que a R1
+prova é que a fusão dela está sã: com um caderno que a própria árvore mesclada
+cria, os quatro testes de tela passam.
+
+**Prova de fecho na árvore mesclada** (`34CC3F94`, `-parallel-testing-enabled NO`,
+por `ferramentas/orca/com-trava.sh`): suíte integral **979 testes em 157 suítes,
+`** TEST SUCCEEDED **`, duas execuções**, `grep -c warning:` = **0** nas duas. Os
+quatro de tela, cada um isolado e com o estado replantado antes:
+`testCurvaZeroEmToquesEGestos` (**3 toques, 0 arrastos, 7/7 fatos**),
+`testTetoExcedenteEAVisitaQueRecomecaAoReabrir`, `testSemVisitaGuardadaAFolhaCala`
+e `testBlocoDaRetomadaEmAX5` — os quatro `** TEST SUCCEEDED **`. A folha
+fotografada na árvore mesclada está em `ferramentas/orca/r1c-mesclado-retomada.png`.
+
+**Segundo achado, menor, e também da fusão.** O `main` de 09/09 (`55af39f`) passou
+a exigir que **pré-condição de estado more dentro do teste**. Os quatro da R1 não
+cumprem: o estado vem de fora (`semear-retomada.py`), e a visita anterior mora no
+`Library/Preferences` do contêiner de DADOS do app — que o `xcodebuild test`
+recria quando o binário muda. Medido: na primeira corrida depois de um binário
+novo o bloco some e o teste fica vermelho; reexecutado com o estado replantado,
+passa. Isolados, os quatro passam. Não foi consertado nesta volta — mudar de onde
+a visita mora é decisão da ADR 08y, não de uma reconciliação — e fica declarado
+como dívida nomeada da R1.

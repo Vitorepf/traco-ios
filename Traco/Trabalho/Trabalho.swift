@@ -33,7 +33,19 @@ final class Trabalho {
 
 nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable {
     enum Erro: Error { case formato, referencia, vazio, pedidoAntigo }
-    enum Apoio: String, Codable, CaseIterable { case delegar, praticar, combinar }
+    enum Apoio: String, Codable, CaseIterable {
+        case delegar, praticar, combinar
+        /// O nome que a pessoa lê. Mora aqui porque a retomada também conta a
+        /// decisão, e duas telas escrevendo "Combinar" cada uma por sua conta
+        /// divergem na primeira renomeação.
+        var nome: String {
+            switch self {
+            case .delegar: "Delegar"
+            case .praticar: "Praticar"
+            case .combinar: "Combinar"
+            }
+        }
+    }
     enum Origem: String, Codable { case pessoa, ia, mista, externa }
     enum FormatoArtefato: String, Codable { case markdown, html }
     enum EstadoAcao: String, Codable { case pendente, executada, cancelada }
@@ -54,6 +66,11 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
             case .naoFuncionou: "Não funcionou"
             }
         }
+        /// A frase inteira num lugar só: a folha a escreve em três pontos —
+        /// cartão do ato, último retorno e retomada — e três literais divergem
+        /// na primeira renomeação, que foi o que já acontecera com o nome do
+        /// apoio.
+        var frase: String { "Resultado que você informou: \(rotulo)" }
     }
     /// ADR 05r: `tentativa` é a resposta do autor a um exercício. Nasce aqui e
     /// não no disco antigo — nenhum registro anterior vira tentativa por
@@ -279,6 +296,12 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
     /// delimitação, combinar é entrega delegada — classificar a entrega
     /// inteira como prática seria chamar de exercício o que ela não fez.
     var trechoExercitado: String?
+    /// ADR 08y: `apoio` e `trechoExercitado` são valores sem história, e a
+    /// retomada precisa DATAR a decisão para contá-la ao autor que volta.
+    /// `nil` = registro anterior a este contrato: decisão não datada. O app
+    /// cala em vez de inventar quando ela foi tomada.
+    var apoioMarcadoEm: Date?
+    var trechoDelimitadoEm: Date?
 
     init(intencao: String, resultado: String = "", notaOrigemID: UUID? = nil) {
         self.intencoes = [.init(texto: intencao, resultado: resultado)]
@@ -317,6 +340,56 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
     /// este predicado; a garantia é aqui, não lá.
     func podeCancelar(_ acaoID: UUID) -> Bool {
         acoes.contains { $0.id == acaoID && $0.estado == .pendente } && observacao(de: acaoID) == nil
+    }
+
+    /// Uma coisa que ACONTECEU neste trabalho, com a data em que aconteceu.
+    struct Mudanca: Sendable, Equatable, Identifiable {
+        var data: Date
+        var texto: String
+        /// A evidência de onde saiu a linha, quando saiu de uma: a tela que já
+        /// mostra esse relato inteiro não precisa repetir a linha dele.
+        var evidenciaID: UUID?
+        var id: String { "\(data.timeIntervalSinceReferenceDate)·\(texto)" }
+    }
+
+    /// ADR 08y: o que houve neste trabalho depois de `instante`, mais recente
+    /// primeiro. Sai dos vínculos que o app guarda — versão, ato, relato,
+    /// resultado informado, decisão de apoio, dificuldade — e de nada mais:
+    /// nenhum resumo escrito por modelo, nenhuma causa reconstruída. O que não
+    /// tem data no registro não entra; ausência aqui é ausência de data, e não
+    /// afirmação de que nada aconteceu.
+    func mudancasDesde(_ instante: Date) -> [Mudanca] {
+        var linhas: [Mudanca] = []
+        for (i, a) in artefatos.enumerated() where a.data > instante {
+            linhas.append(.init(data: a.data, texto: a.origem == .pessoa
+                ? "Versão \(i + 1) guardada por você"
+                : "Versão \(i + 1) preparada por \(a.produtor)"))
+        }
+        for a in acoes {
+            if let feita = a.executadaEm, feita > instante {
+                linhas.append(.init(data: feita, texto: "Você marcou como realizada: \(a.texto)"))
+            }
+        }
+        for e in evidencias where e.data > instante {
+            // ADR 08m: executar e observar são eixos distintos, e é o resultado
+            // que a pessoa informou que orienta o passo seguinte — por isso ele
+            // manda na linha quando existe.
+            let texto = if let r = e.resultado { r.frase }
+                else if e.tentativa != nil { "Tentativa sua guardada" }
+                else { "Relato registrado" }
+            linhas.append(.init(data: e.data, texto: texto, evidenciaID: e.id))
+        }
+        if let quando = apoioMarcadoEm, quando > instante {
+            linhas.append(.init(data: quando, texto: "Apoio marcado: \(apoio.nome)"))
+        }
+        if let quando = trechoDelimitadoEm, quando > instante,
+           let trecho = trechoExercitado?.trimmingCharacters(in: .whitespacesAndNewlines), !trecho.isEmpty {
+            linhas.append(.init(data: quando, texto: "Trecho que você vai exercitar: \(trecho)"))
+        }
+        for h in hipoteses where h.data > instante {
+            linhas.append(.init(data: h.data, texto: "Dificuldade registrada: \(h.texto)"))
+        }
+        return linhas.sorted { $0.data > $1.data }
     }
 
     /// O mesmo orçamento para entrega e exercício; o núcleo nunca é cortado.

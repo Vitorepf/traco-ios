@@ -43,6 +43,8 @@ idênticos. Sobrou linha, a alegação "só a letra mudou" é falsa.
 | 08x | C1-B/C (a gaveta e a linha do autor) | reservada, volta viva — era 08w, trocada |
 | 08y | R1 (retomada do Trabalho) | reservada, volta viva |
 | 08z | Q2 (responder) | **no branch da Q2** — tomada sem passar por aqui, LIDA pelo comando em 09/09 na C1-D |
+| 08x | C1 (caret do Caderno) | reservada, volta viva — era 08w, trocada |
+| 08y | R1 (a retomada do Trabalho) | no branch da R1 |
 
 **08 está CHEIA.** `08a`–`08z` estão todas tomadas ou são buracos (`08c`, `08d`).
 A `08z` desmente o "próxima livre: 08z" que estava escrito aqui: quem lê de
