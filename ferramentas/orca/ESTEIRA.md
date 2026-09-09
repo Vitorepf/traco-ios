@@ -346,3 +346,21 @@ mãos e depois o verde. Sem isso, estaria acreditando no log de outra pessoa.
 nada escrito no checkout principal nem em worktree alheio; e **diga o que trouxe
 do candidato para o pai** — medir o pai com o instrumento do candidato é o que
 torna a comparação válida, e trazer mais do que o instrumento é o que a invalida.
+
+### Verde que só é verde na sua máquina (09/09)
+
+A S1 relatou **973 testes verdes**; o revisor rodou **o mesmo candidato** e os
+dois testes novos dela deram **3 falhas**. Nenhum dos dois mentiu: o teste
+dependia de estado que um tinha e o outro não — com o campo de busca em foco a
+**barra de navegação some inteira**, e o toque cai numa tecla.
+
+**Regra:** teste de jornada nova roda **dez vezes seguidas, do zero**, com o
+aparelho recém-ligado e o app recém-instalado, e as **dez saídas** vão no relato.
+**Um teste que passa 9 de 10 não passa** — é um teste que mente uma vez em dez.
+E toda **pré-condição de estado** (teclado fechado, aba inicial, nota semeada)
+mora **dentro do teste**, falhando com mensagem clara quando não vale, em vez de
+tocar às cegas.
+
+**E nunca afrouxe a asserção para ficar verde.** Se o caminho não é testável do
+jeito escrito, **troque o instrumento** — foi o que a R1-B fez ao ver o helper
+devolver `ok:true` sem mover a tela.
