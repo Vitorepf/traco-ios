@@ -771,3 +771,30 @@ requisição de produção** e usou **a frase da resposta** como critério — a
 pelo nome se ele foi enviado*. A triagem honesta deixou **três** candidatos, não
 dois — e o `grok-4.5`, **cortado por posição na passada anterior**, era um deles,
 e acabou sendo o melhor dos três.
+
+### A trava serializa COMANDO, não SEQUÊNCIA (09/09) — e o aparelho é de UMA volta por vez
+
+**O que aconteceu:** eu dei o mesmo aparelho de trabalho a duas voltas. Uma
+instalou e lançou **sob a trava** às 17h27; a outra plantou a tela bloqueada às
+17h28. Os **dois toques de navegação** da primeira foram dados **fora da trava** e
+caíram **na tela da segunda** — e um deles **respondeu "Permitir"** a um diálogo do
+sistema que era da corrida alheia. O install por cima ainda pode ter **trocado o
+binário debaixo da medida dela**.
+
+**Duas leis, e a segunda o próprio worker escreveu antes de mim:**
+
+1. **Toda a SEQUÊNCIA de captura vai dentro de UMA chamada de `com-trava.sh`** —
+   plantar, instalar, lançar, navegar, fotografar. **Segurar a trava para instalar
+   e soltá-la para dirigir é o mesmo que não segurar.**
+2. **Diálogo de sistema que aparece numa corrida alheia não se responde** — nem
+   para seguir em frente. *"O 'Permitir' que eu dei não era meu para dar."*
+
+**E a lei de despacho, que é minha:** **um aparelho é de UMA volta por vez.** Duas
+voltas no mesmo UDID é contenção que a trava não resolve, porque a trava não sabe
+o que é uma sessão. Quem despacha **escreve o UDID de cada volta e confere que
+nenhum se repete**.
+
+**E o que se faz com a evidência contaminada:** **declara-se e descarta-se.**
+Captura tirada durante a colisão não sabe qual binário estava instalado nem quem
+respondeu ao diálogo. **Evidência contaminada declarada vale; usada, é pior que
+nenhuma.**
