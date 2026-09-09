@@ -119,3 +119,102 @@ Privacidade e autoria e Fora do app estão abaixo da régua.
 - `ferramentas/orca/revisao-mac1-perfil-retrato.png`
 
 O simulador A1DF foi desligado ao encerrar a revisão.
+
+---
+
+# re-G3 — MAC-1-B, revisão independente de `8bdc591`
+
+**Veredito: APROVADA no G3 para `8bdc591`; não mesclei.** Revi
+`2f0749b...8bdc591` no iPhone 17 Pro teste 4
+`A1DF082C-FC87-4DF9-9F56-F2DA1C084DED`; todo `xcodebuild` usou
+`ferramentas/orca/com-trava.sh`. Não usei voz, Siri, ditado, VoiceOver, iPad
+ou mouse; não toquei no `C2416CBC`.
+
+## Os quatro pontos recusados, rechecados
+
+1. **P0 de autoria — fechado no chamador de produção.** O candidato leva
+   `Sessao.responderNasNotas` a `notas.map(\.paraRetrato)`
+   (`Traco/App/Sessao.swift:647-651`) e a conversão declara
+   `vozDoAutor: origem == .autor` (`Traco/Modelo/Nota.swift:240-243`). Contra
+   `2f0749b`, injetei o mesmo teste de rota num checkout temporário: ficou
+   vermelho porque o retrato enviado continha `2 WOOP` e
+   `“o bot achou isto”`. No candidato, a suíte registrou
+   `OrigemAcompanhaConsumidorTests/retratoDaRotaDeProducaoDasNotasNaoLevaOTextoDoBot()` como **Passed**.
+
+2. **Contrato “a origem acompanha todo consumidor” — fechado no tipo e nos
+   consumidores.** Não há padrão permissivo em `Retrato.NotaLida`,
+   `Trajetoria.NotaLida`, `RevisaoSemanal.NotaLida` ou `Rede.NotaLida`; o grep
+   de produção só encontrou duas construções diretas, ambas explicitamente
+   `vozDoAutor: true` para (a) dados já filtrados da própria trajetória e (b)
+   a página que o autor está digitando. Todas as demais rotas passam pelas
+   quatro conversões de `Nota`. A suíte verde contém testes próprios para:
+   rota Notas, Perfil/Página, trajetória, revisão semanal, rede, domínio e
+   fonte citada; cada um aparece como **Passed** em
+   `OrigemAcompanhaConsumidorTests`.
+
+3. **Caso 8 em cliente MCP real — passou.** Com o binário atual instalado no
+   A1DF, relancei o app e usei o `Documents/` dele como pasta do MCP. Claude
+   Code conectou `mcp__traco__traco_contrato`; li a resposta integral, que
+   contém o bloco “Métodos, campos e a PERGUNTA de cada um”, incluindo WOOP,
+   seus três campos e a pergunta. Para “Quero correr de manhã; já falhei três
+   vezes e não sei o que me trava”, o cliente confirmou o entendimento,
+   escolheu WOOP existente, fez **somente** “Qual é o hábito ou o medo seu que
+   vai impedir — não o relógio, não os outros?” e não escreveu arquivo.
+
+4. **Os dois vermelhos — reproduzidos.** A mesma fixture, contra
+   `servidor.py` de `8d9ce62`, devolveu `destaques: []` e decisão com
+   `escolha/espero: ""`; contra o leitor atual devolveu
+   `terminar o relatorio`, `abrir a segunda clinica` e `dois pacientes a mais`.
+   Com `touch /tmp/traco-replay-v5`, os dois testes `MigracaoDuplicadaTests`
+   executaram: o verde do plano de hoje passou e o replay caiu. O `xcresult`
+   registrou `Crash: Traco at
+   MigracaoDuplicadaTests.v5ComAMesmaListaDaV4DerrubaOArranqueDeQuemJaTinhaCaderno()`;
+   o log do A1DF registrou a exceção `NSInvalidArgumentException`, razão
+   **`Duplicate version checksums detected.`** O marcador foi removido ao fim.
+
+## Execução independente
+
+```
+$ python3 ferramentas/traco-mcp/servidor.py --autoteste
+autoteste ok
+
+$ ferramentas/orca/com-trava.sh xcodebuild test -quiet -scheme Traco \
+    -destination 'id=A1DF082C-FC87-4DF9-9F56-F2DA1C084DED' \
+    -parallel-testing-enabled NO -derivedDataPath /tmp/traco-mac1-reg3-current
+totalTestCount: 963; passedTests: 961; failedTests: 0; skippedTests: 2
+result: Passed
+```
+
+O vermelho P0 foi executado em cópia temporária do commit recusado; além dele,
+dois portões históricos daquele checkout falharam por a cópia de `git archive`
+não conter `Traco/privateAnalise/AnaliseDeBordo.swift`. Não afetam o replay P0,
+cuja falha foi registrada separadamente pelo `xcresult`. A leitura falada do
+VoiceOver continua limite declarado e proibido, não foi exercitada.
+
+**Integridade de merge.** No fecho, `git log HEAD..main` não estava vazio: a
+`main` avançou enquanto a revisão rodava. Este aceite é somente do candidato
+`8bdc591`; o orquestrador precisa rebasear/conferir o candidato resultante e
+refazer os portões atingidos antes de G5.
+
+## Scorecard novo da ESTEIRA
+
+| dimensão | nota | evidência / limite |
+|---|---:|---|
+| Visão | 9 | mantém o ciclo multiplicar, sem atribuir produção do bot à mente do autor |
+| Contrato | 10 | ADR 09b, quatro tipos sem padrão e conversão comum |
+| Correção | 10 | P0 vermelho/verde, 963 total com 0 falhas, leitor antigo e V5 reproduzidos |
+| Jornada real | 9 | cliente MCP real no `Documents/` exportado pelo A1DF; caso 8 completo |
+| Design | 9 | só remove classificação indevida; nenhum componente/cor novo |
+| Simplicidade | 9 | quatro conversões comuns removem os chamadores divergentes |
+| Movimento | n/a | sem alteração de movimento |
+| Componentes | 9 | nenhum componente novo; usa as superfícies existentes |
+| Acessibilidade | 9 | sem alvo ou rótulo novo; VoiceOver falado proibido e declarado |
+| Performance | n/a | sem alteração de lista, editor ou parser de UI |
+| Privacidade e autoria | 10 | bot não chega ao retrato, trajetória, semana, rede ou domínio do autor |
+| Estado honesto | 10 | o crash de V5 é reproduzido e exposto, não convertido em falso verde |
+| Complexidade | 9 | uma conversão por projeção, sem dependência nova |
+| Fora do app | 10 | `traco_contrato` real entrega métodos, campos e perguntas acionáveis |
+| Relato | 10 | comandos, vermelhos, verdes, limites e UDID declarados |
+
+Não há dimensão abaixo de 9. Desliguei o A1DF ao encerrar a re-G3 (eu o liguei
+para a revisão); não alterei orientação, tamanho de texto ou configurações.
