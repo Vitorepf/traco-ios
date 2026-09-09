@@ -1235,3 +1235,155 @@ nela, com a regra nova das dez corridas.
 seguiu pelo caminho menos destrutivo: **declarou a prova como herdada** em vez de
 tomar o aparelho de outra volta. Foi a decisão certa; e agora que a F5b mesclou, a
 C1-D fecha essa ponta.
+
+## 09/09, 09h — pausa e retomada (uso 6%); o vermelho da fusão entregou o defeito mais grave do laço
+
+Eu escrevi no spec da R1-C que **"teste que fica vermelho na fusão É O ACHADO, não
+um estorvo"**. Foi literalmente isso: os quatro testes de tela da R1 ficaram
+vermelhos na árvore mesclada, ela **não afrouxou nada** — mediu **no mesmo store e
+no mesmo aparelho, em três builds** — e o que saiu de lá é o defeito mais grave
+que este laço achou:
+
+**um caderno gravado antes da ADR 08u não abre mais.** `e72dd85` abre; **`main`
+sozinho e a árvore mesclada param no arranque honesto da A1** com
+`loadIssueModelContainer`. **Não é da fusão. É do `main`.**
+
+Duas coisas ao mesmo tempo, e as duas verdadeiras: **a rede da A1 funcionou** —
+nada foi destruído, o arranque recusou abrir e disse o que houve, que é
+exatamente para isso que ela existe — **e a porta está fechada**, o que não é
+aceitável.
+
+O dono mandou **abrir a migração como topo da fila, acima da IA e do resto**.
+Abri a **M1** (`ctx_b7108b4acac5`, ADR `09f`), com três exigências: **reproduzir o
+vermelho com um store real pré-08u antes de consertar**, **confirmar ou derrubar a
+hipótese** do comentário da `Migracao.swift` (que `VersionedSchema` apontando para
+a classe viva não congela nada), e **deixar o portão que faltava** — um teste que
+abre um **store congelado de cada versão**.
+
+**Por que nenhum teste pegou**, e isso é a lição: os testes de `DiscoTraco`
+**injetam closures** e **nunca abriram um store antigo de verdade**. Um portão que
+nunca viu o passado não guarda o passado.
+
+A **S1-B** e a **C1-D** também entregaram — a S1-B com um achado próprio ("o vazio
+também rola: quem filtrava as Notas até zero ficava preso atrás do teclado") e a
+C1-D com a reconciliação e a ADR `09e`.
+
+## 09/09, 10h — pausa e retomada (uso 7%); a M1 achou a frase que explica tudo
+
+**"Um `VersionedSchema` que aponta para a CLASSE VIVA não congela nada: é um
+apelido para 'o código de hoje', e o checksum dele anda junto com o código."**
+
+É isso. O store guarda o checksum do dia em que foi gravado (`4.0.0`,
+`ImY8W7hR8jJH+…`); quando a 08u pôs `origemRaw` na `Nota`, a V4 passou a valer
+`2AijN0DBwZ…`, **nenhuma versão do plano casou com o caderno do autor**, e o
+CoreData recusou tudo — `NSCocoaErrorDomain 134504, "Cannot use staged migration
+with an unknown model version"`. A frase que fecha o diagnóstico:
+**"o erro da 08u não foi acrescentar atributo com padrão: foi acrescentá-lo sem
+abrir versão"**.
+
+O conserto: V2, V3 e V4 passam a declarar **cópias congeladas**; a **V5 é a única
+com as classes vivas**; estágio V4→V5 leve. Provado com um **store REAL** gravado
+pelo build `8d9ce62`. Despachei a revisão com o peso que ela tem: **se aprovar
+errado, o caderno do dono fica fechado** — e com a exigência de **reproduzir o
+vermelho com store próprio** e de **quebrar o portão novo** para vê-lo reprovar.
+
+**A escalação da R1-C tinha a causa exata antes de mim:** *"o `ZNOTA` daquele
+store não tem `ZORIGEMRAW` (`PRAGMA table_info`)"*. Ela mediu, escalou, **e não
+consertou** — porque o mandato dela era integração e *"migração de esquema com o
+caderno do dono em jogo é volta própria"*. Saber onde parar é o que fez o defeito
+chegar inteiro à volta certa.
+
+**A S1-B fechou o caso do teste que mentia**, e a causa é melhor que a hipótese: a
+busca terminava valendo `o que eu aprendi ontem**gggd**` — os quatro toques na aba
+viraram **quatro letras**, porque `NotasView.lista` tem dois ramos e **só o CHEIO
+tinha `.scrollDismissesKeyboard`**. Os testes filtram até zero e caem sempre no
+ramo **VAZIO**, que era um `VStack` sem gesto. *"O teste passava para quem tinha
+notas no aparelho e falhava para quem abria o app limpo — media o lixo da corrida
+anterior."* Ela **consertou no produto, não no teste**, com a razão certa:
+**filtrar até zero com o teclado em pé PRENDE a pessoa**. 10 de 10 corridas do
+zero, com `shutdown`+`boot`+`uninstall` a cada uma.
+
+**A C1-D fechou as duas pendências** — o Pro Max reexecutado (a ressalva de "prova
+herdada" sai) e o teclado emulado explicado — e achou o que eu não tinha visto:
+**a etiqueta de origem que o `main` pôs acima do editor come 30 pt de papel em
+AX5**, exatamente onde a invariante mede o aperto. Ela passou a medir esse estado,
+com portão que reprova se a cápsula não desenhar.
+
+**E a terceira colisão de letra do laço foi minha de novo:** reservei `09d` para a
+S1-B e a C1-D tomou a mesma letra no mesmo turno, porque eu **não atualizei o
+`LETRAS-ADR.md` no ato**. A C1 passa a `09g`. O arquivo também **estava errado
+sobre si mesmo** — dava `08z` como livre quando ela está no branch da Q2 —, o que
+a própria C1-D pegou. Corrigi as duas coisas e escrevi a regra que faltava:
+**quem despacha atualiza o registro no mesmo ato em que reserva**.
+
+## 09/09, 10h30 — o dono está indignado, e ele tem razão na conta
+
+*"Esse tempo todo e ainda é 7."* Ele mede **a nota do produto**, não voltas
+mescladas — e pela conta dele a noite rendeu pouco. Vale escrever por quê, sem
+desculpa e sem enfeite:
+
+**cinco voltas mescladas** (A1, V13, Q, MAC-1, F5b) moveram Estado honesto,
+Contrato, Design e Fora do app — **nenhuma delas move a nota da IA**, que é a
+dimensão que ele quer ver subir. **As sete operações da IA continuam
+indisponíveis.** A Q2 mediu o conserto e **não pôde fechar**: a conta caiu duas
+vezes, e caiu porque **a lei que eu escrevi permitia instalar por cima**. Essa
+parte é minha: a lei era minha, o gatilho apareceu por medição de um revisor, e
+entre uma coisa e a outra passou uma noite.
+
+**As três ordens dele, registradas:**
+
+1. **Nada de reinstalar por cima no `C2416CBC`.** A sonda roda **no build já
+   instalado**; binário novo entra **uma vez por volta**, com `ContaGrok.ligada`
+   conferido **antes e depois**. Reescrevi a lei na ESTEIRA e no preâmbulo com
+   essas palavras.
+2. **Assim que a M1 mesclar, as três frentes são IA:** **Q2** (responder), **Q3**
+   (responder nas Notas) e **Q4** (instigar + contrapor), em paralelo, **cada uma
+   com o seu simulador sem conta** para tudo que não seja a medição, e o
+   `C2416CBC` **só para a corrida da sonda, serializada pela trava**. Os specs da
+   Q3 e da Q4 já estão escritos e as letras reservadas (`09h`, `09i`) — abrem no
+   minuto em que a M1 entrar.
+3. **Cada fecho de IA termina com a linha do Perfil atualizada e a captura do
+   cartão com a resposta real na tela.** *"O dono quer VER a IA funcionando"* —
+   JSONL não é tela. Está na ESTEIRA como parte do portão, não como pedido.
+
+**A M1 é o que segura tudo agora**, e ela segura pelo motivo certo: enquanto o
+caderno gravado antes da 08u não abrir, nenhuma nota importa. A revisão dela está
+em curso com o peso escrito no spec: **se aprovar errado, o caderno do dono fica
+fechado**.
+
+## 09/09, 08h50 — UM SIMULADOR SÓ, por ordem do dono, e o Grok liberado nele
+
+O dono desligou todos os simuladores menos o **iPhone 17 Pro `C2416CBC`** e
+**liberou o Grok nele**. Encontrei o 17e ainda ligado e o desliguei; agora há **um
+aparelho na máquina**. Confirmei a ordem **no comentário dos cinco worktrees**,
+como ele pediu, e reescrevi o bloco de instrumento do preâmbulo inteiro.
+
+**O que muda:** nenhum worker liga outro simulador; build, suíte, sonda, capturas
+e jornada, tudo nesse aparelho, **serializado por `com-trava.sh`** — três frentes
+editam, **uma de cada vez no instrumento**. Nada de `erase`, `clearState` ou
+`uninstall`. **Install por cima uma vez por volta**, com `ContaGrok.ligada`
+conferido antes e depois. **Se a conta cair, o worker para e diz na hora, com o
+comando que a derrubou** — o dono quer a causa, não só o aviso.
+
+**E uma lei morreu, do jeito certo:** o **maestro volta a valer como evidência**.
+A proibição de 06/09 existia porque, com vários simuladores ligados, ele lia a
+hierarquia do vizinho. Com um só, **a razão da regra morreu, e a regra morre
+junto** — é a única forma honesta de encolher uma lista de leis, e vale escrever
+que ela encolheu por medida e não por cansaço.
+
+**O custo, dito na frente:** o paralelismo cai. Uma suíte integral segura as
+outras duas frentes. Vale a pena porque **a conta do dono vive nesse aparelho**, e
+foi a disputa entre aparelhos que a derrubou duas vezes.
+
+## 09/09, 11h — a M1 abriu os cadernos V2, V3 e V4 do revisor, e ainda assim não passa
+
+O revisor **montou os cadernos antigos ele mesmo** e o conserto **abriu os três,
+sem perder as sete notas**. **Estado honesto: 10.** O diagnóstico e o conserto
+estão de pé.
+
+O que reprova é uma frase maior que a prova — **de novo**, e desta vez na minha
+casa: **o portão declarado como "cada versão" só contém V4 e V5**. Foi
+exatamente o passado não visitado que deixou este defeito passar, então o portão
+que promete visitar o passado **tem de visitar o passado inteiro**. A M1-B
+(`ctx_4a67a34c7ae7`) fecha isso e traz o `main` para dentro, com a lei da Q-H:
+aprovado não é mesclável.
