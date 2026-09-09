@@ -14,7 +14,7 @@ appId: app.traco
 - tapOn: {id: "busca-notas"}
 - inputText: "reunião de orçamento com finanças"
 - extendedWaitUntil:
-    visible: "PELO SENTIDO"
+    visible: "pelo sentido"
     timeout: 10000
 - assertVisible: "o relatório está no anexo"
 - takeScreenshot: /tmp/traco-verify/ciclo/36-anexo-no-sentido

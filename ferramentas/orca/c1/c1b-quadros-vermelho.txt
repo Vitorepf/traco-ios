@@ -1,0 +1,54 @@
+# A gaveta quadro a quadro — o VERMELHO, antes da 08x
+# iPhone 17e C7341E64, 09/09/2026 04:18, build 4898703 + a sonda por quadro
+# instrumento: CADisplayLink, um instante por quadro entregue; geometria das camadas de APRESENTAÇÃO
+
+GAVETA AX5, cartão a chegar: 85 quadros em 1.42 s (cadência 16.7 ms, sonda 0.3 ms/quadro), 6 fora; de +0.268 s a +0.350 s = 0.098 s de linha cortada, pior corte 32 pt
+GAVETA   +0.200 s: linha 135–202, papel 122–209, corte 0 |  | papelP 122–209, papelM 122–209, areaM 122–209, offset 2253.0, insetB 0.0, linhaM 135–202
+GAVETA   +0.217 s: linha 135–202, papel 122–209, corte 0 |  | papelP 122–209, papelM 122–209, areaM 122–209, offset 2253.0, insetB 0.0, linhaM 135–202
+GAVETA   +0.233 s: linha 135–202, papel 122–209, corte 0 | TETO altura 413.7 pe 274.7 piso 259.3 -> teto 52.6 | papelP 122–209, papelM 122–209, areaM 122–209, offset 2253.0, insetB 0.0, linhaM 135–202
+GAVETA   +0.268 s: linha 91–157, papel 122–157, corte 32 | TETO altura 413.7 pe 274.7 piso 259.3 -> teto 52.6 | papelP 122–157, papelM 122–157, areaM 122–157, offset 2297.7, insetB 0.0, linhaM 91–157
+GAVETA   +0.283 s: linha 91–157, papel 122–162, corte 32 | TETO altura 413.7 pe 274.7 piso 259.3 -> teto 52.6 | papelP 122–162, papelM 122–162, areaM 122–162, offset 2297.7, insetB 0.0, linhaM 91–157
+GAVETA   +0.300 s: linha 91–157, papel 91–136, corte 21 | TETO altura 413.7 pe 274.7 piso 259.3 -> teto 52.6 | papelP 91–136, papelM 122–168, areaM 122–168, offset 2266.0, insetB 0.0, linhaM 122–189
+GAVETA   +0.317 s: linha 122–189, papel 144–196, corte 21 | TETO altura 413.7 pe 274.7 piso 259.3 -> teto 52.6 | papelP 144–196, papelM 122–175, areaM 122–175, offset 2287.3, insetB 0.0, linhaM 101–168
+GAVETA   +0.333 s: linha 101–168, papel 101–162, corte 6 | TETO altura 413.7 pe 274.7 piso 259.3 -> teto 52.6 | papelP 101–162, papelM 122–183, areaM 122–183, offset 2266.0, insetB 0.0, linhaM 122–189
+GAVETA   +0.350 s: linha 122–189, papel 127–196, corte 5 | TETO altura 413.7 pe 274.7 piso 259.3 -> teto 52.6 | papelP 127–196, papelM 122–192, areaM 122–192, offset 2270.7, insetB 0.0, linhaM 118–184
+GAVETA   +0.367 s: linha 118–184, papel 116–191, corte 0 | TETO altura 413.7 pe 274.7 piso 259.3 -> teto 52.6 | papelP 116–191, papelM 122–197, areaM 122–197, offset 2264.7, insetB 0.0, linhaM 124–190
+GAVETA   +0.383 s: linha 124–190, papel 120–197, corte 0 | TETO altura 413.7 pe 274.7 piso 259.3 -> teto 52.6 | papelP 120–197, papelM 122–200, areaM 122–200, offset 2262.0, insetB 0.0, linhaM 126–193
+GAVETA   +0.400 s: linha 126–193, papel 120–200, corte 0 | TETO altura 413.7 pe 274.7 piso 259.3 -> teto 52.6 | papelP 120–200, papelM 122–202, areaM 122–202, offset 2260.0, insetB 0.0, linhaM 128–195
+GAVETA   +0.417 s: linha 128–195, papel 121–202, corte 0 | TETO altura 413.7 pe 274.7 piso 259.3 -> teto 52.6 | papelP 121–202, papelM 122–204, areaM 122–204, offset 2258.7, insetB 0.0, linhaM 130–196
+GAVETA   +0.433 s: linha 130–196, papel 121–204, corte 0 | TETO altura 413.7 pe 274.7 piso 259.3 -> teto 52.6 | papelP 121–204, papelM 122–205, areaM 122–205, offset 2257.7, insetB 0.0, linhaM 131–197
+GAVETA   +0.450 s: linha 131–197, papel 121–205, corte 0 | TETO altura 413.7 pe 274.7 piso 259.3 -> teto 52.6 | papelP 121–205, papelM 122–206, areaM 122–206, offset 2256.7, insetB 0.0, linhaM 132–198
+GAVETA   +0.467 s: linha 132–198, papel 122–206, corte 0 | TETO altura 413.7 pe 274.7 piso 259.3 -> teto 52.6 | papelP 122–206, papelM 122–206, areaM 122–206, offset 2256.0, insetB 0.0, linhaM 132–199
+GAVETA   +0.483 s: linha 132–199, papel 122–206, corte 0 | TETO altura 413.7 pe 274.7 piso 259.3 -> teto 52.6 | papelP 122–206, papelM 122–207, areaM 122–207, offset 2255.7, insetB 0.0, linhaM 133–199
+GAVETA   +0.500 s: linha 133–199, papel 122–207, corte 0 | TETO altura 413.7 pe 274.7 piso 259.3 -> teto 52.6 | papelP 122–207, papelM 122–207, areaM 122–207, offset 2255.0, insetB 0.0, linhaM 133–200
+GAVETA   +0.517 s: linha 133–200, papel 122–207, corte 0 | TETO altura 413.7 pe 274.7 piso 259.3 -> teto 52.6 | papelP 122–207, papelM 122–208, areaM 122–208, offset 2254.7, insetB 0.0, linhaM 134–200
+GAVETA   +0.533 s: linha 134–200, papel 122–208, corte 0 | TETO altura 413.7 pe 274.7 piso 259.3 -> teto 52.6 | papelP 122–208, papelM 122–208, areaM 122–208, offset 2254.3, insetB 0.0, linhaM 134–201
+GAVETA   +0.550 s: linha 134–201, papel 122–208, corte 0 | TETO altura 413.7 pe 274.7 piso 259.3 -> teto 52.6 | papelP 122–208, papelM 122–208, areaM 122–208, offset 2254.3, insetB 0.0, linhaM 134–201
+GAVETA AX5, aviso no lugar do cartão: 87 quadros em 1.43 s (cadência 16.7 ms, sonda 0.4 ms/quadro), 0 fora
+GAVETA AX5, toast por cima do encaixe: 87 quadros em 1.43 s (cadência 16.7 ms, sonda 0.4 ms/quadro), 0 fora
+GAVETA AX5: teclado real 308 pt, 6 quadro(s) com a linha ativa fora do papel
+GAVETA large, cartão a chegar: 86 quadros em 1.42 s (cadência 16.7 ms, sonda 0.3 ms/quadro), 6 fora; de +0.267 s a +0.350 s = 0.100 s de linha cortada, pior corte 13 pt
+GAVETA   +0.217 s: linha 344–371, papel 103–378, corte 0 | TETO altura 413.7 pe 274.7 piso 259.3 -> teto 52.6 | papelP 103–378, papelM 103–378, areaM 103–378, offset 344.0, insetB 0.0, linhaM 344–371
+GAVETA   +0.233 s: linha 344–371, papel 103–378, corte 0 | TETO altura 433.0 pe 158.0 piso 92.0 -> teto 183.0 | papelP 103–378, papelM 103–378, areaM 103–378, offset 344.0, insetB 0.0, linhaM 344–371
+GAVETA   +0.250 s: linha 344–371, papel 103–378, corte 0 | TETO altura 433.0 pe 158.0 piso 92.0 -> teto 183.0 | papelP 103–378, papelM 103–378, areaM 103–378, offset 344.0, insetB 0.0, linhaM 344–371
+GAVETA   +0.267 s: linha 344–371, papel 103–366, corte 5 | TETO altura 433.0 pe 158.0 piso 92.0 -> teto 183.0 | papelP 103–366, papelM 103–366, areaM 103–366, offset 344.0, insetB 0.0, linhaM 344–371
+GAVETA   +0.283 s: linha 344–371, papel 115–364, corte 7 | TETO altura 433.0 pe 158.0 piso 92.0 -> teto 183.0 | papelP 115–364, papelM 103–352, areaM 103–352, offset 356.3, insetB 0.0, linhaM 332–358
+GAVETA   +0.300 s: linha 332–358, papel 117–348, corte 10 | TETO altura 433.0 pe 158.0 piso 92.0 -> teto 183.0 | papelP 117–348, papelM 103–334, areaM 103–334, offset 370.3, insetB 0.0, linhaM 318–344
+GAVETA   +0.317 s: linha 318–344, papel 120–331, corte 13 | TETO altura 433.0 pe 158.0 piso 92.0 -> teto 183.0 | papelP 120–331, papelM 103–314, areaM 103–314, offset 387.7, insetB 0.0, linhaM 300–327
+GAVETA   +0.333 s: linha 300–327, papel 124–315, corte 12 | TETO altura 433.0 pe 158.0 piso 92.0 -> teto 183.0 | papelP 124–315, papelM 103–295, areaM 103–295, offset 408.3, insetB 0.0, linhaM 280–306
+GAVETA   +0.350 s: linha 280–306, papel 122–302, corte 4 | TETO altura 433.0 pe 158.0 piso 92.0 -> teto 183.0 | papelP 122–302, papelM 103–283, areaM 103–283, offset 427.3, insetB 0.0, linhaM 261–287
+GAVETA   +0.367 s: linha 261–287, papel 115–287, corte 0 | TETO altura 433.0 pe 158.0 piso 92.0 -> teto 183.0 | papelP 115–287, papelM 103–276, areaM 103–276, offset 439.0, insetB 0.0, linhaM 249–276
+GAVETA   +0.383 s: linha 249–276, papel 110–278, corte 0 | TETO altura 433.0 pe 158.0 piso 92.0 -> teto 183.0 | papelP 110–278, papelM 103–271, areaM 103–271, offset 446.3, insetB 0.0, linhaM 242–268
+GAVETA   +0.400 s: linha 242–268, papel 108–272, corte 0 | TETO altura 433.0 pe 158.0 piso 92.0 -> teto 183.0 | papelP 108–272, papelM 103–268, areaM 103–268, offset 451.0, insetB 0.0, linhaM 237–264
+GAVETA   +0.417 s: linha 237–264, papel 106–268, corte 0 | TETO altura 433.0 pe 158.0 piso 92.0 -> teto 183.0 | papelP 106–268, papelM 103–265, areaM 103–265, offset 454.3, insetB 0.0, linhaM 234–260
+GAVETA   +0.433 s: linha 234–260, papel 106–266, corte 0 | TETO altura 433.0 pe 158.0 piso 92.0 -> teto 183.0 | papelP 106–266, papelM 103–263, areaM 103–263, offset 457.0, insetB 0.0, linhaM 231–258
+GAVETA   +0.450 s: linha 231–258, papel 105–264, corte 0 | TETO altura 433.0 pe 158.0 piso 92.0 -> teto 183.0 | papelP 105–264, papelM 103–262, areaM 103–262, offset 459.0, insetB 0.0, linhaM 229–256
+GAVETA   +0.467 s: linha 229–256, papel 104–262, corte 0 | TETO altura 433.0 pe 158.0 piso 92.0 -> teto 183.0 | papelP 104–262, papelM 103–260, areaM 103–260, offset 460.3, insetB 0.0, linhaM 228–254
+GAVETA   +0.483 s: linha 228–254, papel 104–261, corte 0 | TETO altura 433.0 pe 158.0 piso 92.0 -> teto 183.0 | papelP 104–261, papelM 103–259, areaM 103–259, offset 461.7, insetB 0.0, linhaM 226–253
+GAVETA   +0.500 s: linha 226–253, papel 104–259, corte 0 | TETO altura 433.0 pe 158.0 piso 92.0 -> teto 183.0 | papelP 104–259, papelM 103–258, areaM 103–258, offset 462.7, insetB 0.0, linhaM 225–252
+GAVETA   +0.517 s: linha 225–252, papel 104–259, corte 0 | TETO altura 433.0 pe 158.0 piso 92.0 -> teto 183.0 | papelP 104–259, papelM 103–258, areaM 103–258, offset 463.7, insetB 0.0, linhaM 224–251
+GAVETA   +0.533 s: linha 224–251, papel 103–257, corte 0 | TETO altura 433.0 pe 158.0 piso 92.0 -> teto 183.0 | papelP 103–257, papelM 103–257, areaM 103–257, offset 463.7, insetB 0.0, linhaM 224–251
+GAVETA   +0.550 s: linha 224–251, papel 104–258, corte 0 | TETO altura 433.0 pe 158.0 piso 92.0 -> teto 183.0 | papelP 104–258, papelM 103–257, areaM 103–257, offset 464.7, insetB 0.0, linhaM 223–250
+GAVETA large, aviso no lugar do cartão: 87 quadros em 1.43 s (cadência 16.7 ms, sonda 0.4 ms/quadro), 0 fora
+GAVETA large, toast por cima do encaixe: 87 quadros em 1.43 s (cadência 16.7 ms, sonda 0.4 ms/quadro), 0 fora
+GAVETA large: teclado real 308 pt, 6 quadro(s) com a linha ativa fora do papel

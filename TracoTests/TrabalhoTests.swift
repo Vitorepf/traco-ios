@@ -495,11 +495,21 @@ struct TrabalhoTests {
         do {
             let v3 = try ModelContainer(for: Schema(versionedSchema: TracoSchemaV3.self),
                                        configurations: ModelConfiguration(url: url))
-            let nota = Nota(texto: "Texto pessoal preservado", gesto: .expressiva, campos: [:],
-                            trancada: true, criadaEm: data, editadaEm: data, sentido: "Sentido preservado")
+            // ADR 09f: quem grava na V3 são as CÓPIAS CONGELADAS daquela versão.
+            // Com as classes vivas dos dois lados, a migração era encenada.
+            let nota = TracoSchemaV2.Nota()
             nota.uuid = notaID
+            nota.texto = "Texto pessoal preservado"
+            nota.gestoRaw = "expressiva"
+            nota.trancada = true
+            nota.criadaEm = data
+            nota.editadaEm = data
+            nota.sentido = "Sentido preservado"
             v3.mainContext.insert(nota)
-            v3.mainContext.insert(ReciboEntrada(chave: "arquivo-ja-importado", recebidaEm: data))
+            let recibo = TracoSchemaV3.ReciboEntrada()
+            recibo.chave = "arquivo-ja-importado"
+            recibo.recebidaEm = data
+            v3.mainContext.insert(recibo)
             try v3.mainContext.save()
         }
         do {

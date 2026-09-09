@@ -10,7 +10,9 @@ struct NotasView: View {
     @Environment(\.dynamicTypeSize) private var tamanhoTexto
     @Query(sort: \Nota.criadaEm, order: .reverse) private var notas: [Nota]
     @Query private var trabalhos: [Trabalho]
-    @State private var conversaNotas = ConversaNotas()
+    /// ADR 09c: a conversa vive na `Sessao` — em `@State` ela morria toda vez
+    /// que a `RaizView` recriava esta view ao trocar de aba.
+    private var conversaNotas: ConversaNotas { sessao.conversaNotas }
     private var busca: String {
         get { conversaNotas.entrada }
         nonmutating set { conversaNotas.entrada = newValue }
@@ -29,9 +31,6 @@ struct NotasView: View {
     @State private var escolhidas: Set<UUID> = []
     @State private var confirmarLote = false
     @State private var mostrarTrabalhos = false
-    /// ADR 08p: há chip fora da régua, à direita? Nasce verdadeiro: 29 chips
-    /// nunca cabem num iPhone; a geometria do scroll corrige no primeiro layout.
-    @State private var haMaisChips = true
 
     var body: some View {
         telaNotas
@@ -57,7 +56,7 @@ struct NotasView: View {
             Tema.fundo.ignoresSafeArea()
             VStack(alignment: .leading, spacing: 0) {
                 topbar
-                chips
+                regencia
                 lista
             }
         }
@@ -91,7 +90,8 @@ struct NotasView: View {
                 if sem { AccessibilityNotification.Announcement("A sábia " + Sabia.porOndeEmPalavras + ". A busca continua.").post() }
             }
             .padding(.top, 8)
-            .background(Tema.fundo.opacity(0.96))
+            // D1: opaco — sem o cartão branco, a lista passava por baixo da linha de busca
+            .background(Tema.fundo)
         }
     }
 
@@ -239,31 +239,143 @@ struct NotasView: View {
             if !escolhidas.isEmpty {
                 loteAcoes
             } else if !filtradas.isEmpty {
-                HStack(spacing: 14) {
-                    menuOrdem
-                    // texto solto no canto não parecia botão (critique-affordance);
-                    // agora é o gesto de compartilhar que todo iPhone conhece (jakobs-law)
-                    Button {
-                        contextoURL = Corpus.urlComoContexto(
-                            filtradas.map(FatiaCorpus.de), nome: "traco-contexto.md")
-                    } label: {
-                        Image(systemName: "square.and.arrow.up")
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(Tema.tintaSuave)
-                            .frame(width: 34, height: 34)
-                            .background(Tema.chip, in: Circle())
-                    }
-                    .frame(width: Tema.alvo, height: Tema.alvo)
-                    .contentShape(Rectangle())
-                    .buttonStyle(.discreto)
-                    .accessibilityLabel("Como contexto")
-                    .accessibilityHint("Entrega estas notas à sua IA, sem servidor")
+                // o gesto de compartilhar que todo iPhone conhece (jakobs-law);
+                // D1: só o glifo, sem o círculo de chip — a folha não tem botões redondos
+                Button {
+                    contextoURL = Corpus.urlComoContexto(
+                        filtradas.map(FatiaCorpus.de), nome: "traco-contexto.md")
+                } label: {
+                    Image(systemName: "square.and.arrow.up")
+                        .font(.body.weight(.medium))
+                        .foregroundStyle(Tema.tintaSuave)
                 }
-                // dois controles de chrome ao lado do título: em AX5 cresciam
-                // até partir "Notas" em duas linhas; teto igual ao das barras
+                .frame(width: Tema.alvo, height: Tema.alvo)
+                .contentShape(Rectangle())
+                .buttonStyle(.discreto)
+                .accessibilityLabel("Como contexto")
+                .accessibilityHint("Entrega estas notas à sua IA, sem servidor")
+                // ao lado do título: em AX5 crescia até partir "Notas" em duas linhas
                 .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
             }
         }
+    }
+
+    /// D1 (DIRETRIZ §9): a régua de 29 cápsulas e a cápsula da ordem viram
+    /// duas PALAVRAS em tinta suave sob o título — "Todas ⌄ · Mais recentes ⌄" —,
+    /// cada uma abrindo o seu menu. Hierarquia por tipografia, não por selo.
+    /// A seta da régua (V13) deixa de ser necessária: o menu mostra os 29 de
+    /// uma vez, nenhum fica escondido à direita.
+    private var regencia: some View {
+        let eixo = tamanhoTexto.isAccessibilitySize
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: 4))
+            : AnyLayout(HStackLayout(spacing: 8))
+        return eixo {
+            menuFiltro
+            if !tamanhoTexto.isAccessibilitySize {
+                Text("·").font(Tema.meta).foregroundStyle(Tema.tintaFraca).accessibilityHidden(true)
+            }
+            menuOrdem
+        }
+        .padding(.horizontal, Tema.margem)
+        .padding(.bottom, 12)
+        .sheet(isPresented: Binding(get: { contextoURL != nil },
+                                    set: { if !$0 { contextoURL = nil } })) {
+            if let contextoURL { CompartilharArquivo(url: contextoURL) }
+        }
+        .sheet(item: $versoesDe) { nota in
+            VersoesView(nota: nota, sessao: sessao)
+        }
+        .sheet(item: $redeDe) { nota in
+            RedeView(nota: nota, todas: notas, sessao: sessao)
+        }
+        .sheet(item: Binding(get: { serieDe.map(IdDaSerie.init) },
+                             set: { serieDe = $0?.id })) { alvo in
+            SerieView(serie: alvo.id, todas: notas)
+        }
+        .confirmationDialog(
+            "Apagar \(escolhidas.count) nota\(escolhidas.count == 1 ? "" : "s")?",
+            isPresented: $confirmarLote, titleVisibility: .visible
+        ) {
+            Button("Apagar", role: .destructive) {
+                for uuid in escolhidas { sessao.apagar(uuid: uuid, no: context) }
+                escolhidas = []
+            }
+            Button("Manter", role: .cancel) {}
+        } message: {
+            Text("O traço some do aparelho, e a revisão marcada some com ele.")
+        }
+    }
+
+    /// Uma palavra que abre um menu: o rótulo em `meta` tinta suave e a seta
+    /// pequena. É o mesmo desenho do domínio na linha da nota (`ChipDominio`).
+    private func palavraDeMenu(_ texto: String) -> some View {
+        HStack(spacing: 3) {
+            Text(texto)
+            SetaDeMenu()
+        }
+        .font(Tema.meta)
+        .foregroundStyle(Tema.tintaSuave)
+    }
+
+    private var nomeDoFiltro: String {
+        filtro?.rawValue ?? filtroDominio?.nome ?? "Todas"
+    }
+
+    private var menuFiltro: some View {
+        Menu {
+            Button {
+                Toque.selecao()
+                filtro = nil
+                filtroDominio = nil
+            } label: {
+                Label("Todas", systemImage: filtro == nil && filtroDominio == nil ? "checkmark" : "")
+            }
+            .accessibilityIdentifier("filtro-todas")
+            // Domínio primeiro: são sete e é o eixo de "marcar"; os métodos são
+            // onze e crescem com a pasta do autor — os dois primeiros grupos
+            // cabem sem rolar o menu (hicks-law: uma lista, dois grupos).
+            Section("Domínio") {
+                ForEach(Dominio.allCases) { item in
+                    Button {
+                        Toque.selecao()
+                        filtroDominio = filtroDominio == item ? nil : item
+                        filtro = nil
+                    } label: {
+                        Label(item.nome, systemImage: filtroDominio == item ? "checkmark" : "")
+                    }
+                    .accessibilityIdentifier("filtro-dominio-\(item.rawValue)")
+                }
+            }
+            Section("Método") {
+                ForEach(FiltroNotas.allCases.filter { $0 != .trancadas }) { item in
+                    Button {
+                        Toque.selecao()
+                        filtro = filtro == item ? nil : item
+                        filtroDominio = nil
+                    } label: {
+                        Label(item.rawValue, systemImage: filtro == item ? "checkmark" : "")
+                    }
+                    .accessibilityIdentifier("filtro-\(item.slug)")
+                }
+            }
+            Button {
+                Toque.selecao()
+                filtro = filtro == .trancadas ? nil : .trancadas
+                filtroDominio = nil
+            } label: {
+                Label(FiltroNotas.trancadas.rawValue, systemImage: filtro == .trancadas ? "checkmark" : "")
+            }
+            .accessibilityIdentifier("filtro-trancadas")
+        } label: {
+            palavraDeMenu(nomeDoFiltro)
+        }
+        .menuStyle(.button)
+        .buttonStyle(.discreto)
+        // a palavra mede 20; o alvo de 44 cresce para o vão, sem ocupar layout
+        .alvo(folgaV: 12)
+        .accessibilityLabel("Mostrar \(nomeDoFiltro)")
+        .accessibilityHint("Um filtro por vez: método, domínio ou trancadas")
+        .accessibilityIdentifier("filtro-notas")
     }
 
     /// Q3: a lista só sabia ordenar por data de criação — e o "recordada 3×"
@@ -279,21 +391,11 @@ struct NotasView: View {
                 }
             }
         } label: {
-            Pilula(forma: .menu) {
-                HStack(spacing: 4) {
-                    if tamanhoTexto.isAccessibilitySize {
-                        // AX5: o nome não cabe ao lado do título e virava "…"
-                        Image(systemName: "arrow.up.arrow.down")
-                    } else {
-                        Text(ordem.nome)
-                    }
-                    SetaDeMenu()
-                }
-            }
+            palavraDeMenu(ordem.nome)
         }
         .menuStyle(.button)
         .buttonStyle(.discreto)
-        .alvo()
+        .alvo(folgaV: 12)
         .accessibilityLabel("Ordenar por \(ordem.nome)")
         .accessibilityIdentifier("ordem-notas")
     }
@@ -322,15 +424,15 @@ struct NotasView: View {
         .buttonStyle(.discreto)
     }
 
+    /// D1: a busca é uma LINHA no pé da folha, não uma barra de sistema —
+    /// sem cartão branco nem lupa; a hairline acima e o caret âmbar dizem
+    /// "escreva aqui", como na página.
     private var campoBusca: some View {
         HStack(spacing: 8) {
-            Image(systemName: "magnifyingglass")
-                .foregroundStyle(Tema.tintaFraca)
-                .accessibilityHidden(true)
             TextField(
                 "",
-                text: $conversaNotas.entrada,
-                prompt: Text("Buscar ou perguntar").foregroundStyle(Tema.tintaFraca)
+                text: Bindable(conversaNotas).entrada,
+                prompt: Text("buscar ou perguntar").foregroundStyle(Tema.tintaFraca)
             )
                 .foregroundStyle(Tema.tinta)
                 .tint(Tema.ambar)
@@ -379,116 +481,23 @@ struct NotasView: View {
                 .accessibilityLabel("Limpar busca")
             }
         }
-        .padding(.horizontal, 12)
         .alvo()
-        .cartao(.papel, recuo: [])
         .padding(.horizontal, Tema.margem)
-        .padding(.bottom, 8)
+        .padding(.bottom, 4)
+        .overlay(alignment: .top) { Rectangle().fill(Tema.linha).frame(height: 0.5) }
         .opacity(filtro == .trancadas ? 0.4 : 1)
         .disabled(filtro == .trancadas)
     }
 
-    private var chips: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
-                // "Todas" é a saída: sem ela, filtrar era um caminho sem volta
-                // óbvio (critique-affordance)
-                chipFiltro(titulo: "Todas", ligado: filtro == nil, id: "filtro-todas") {
-                    filtro = nil
-                    filtroDominio = nil
-                }
-                ForEach(FiltroNotas.allCases) { item in
-                    chipFiltro(
-                        titulo: item.rawValue,
-                        ligado: filtro == item,
-                        id: "filtro-\(item.slug)"
-                    ) {
-                        filtro = filtro == item ? nil : item
-                    }
-                }
-                ForEach(Dominio.allCases) { item in
-                    chipFiltro(
-                        titulo: item.nome,
-                        ligado: filtroDominio == item,
-                        id: "filtro-dominio-\(item.rawValue)"
-                    ) {
-                        filtroDominio = filtroDominio == item ? nil : item
-                    }
-                }
-                Color.clear.frame(width: 4)
-            }
-            .padding(.horizontal, Tema.margem)
-        }
-        // MESMO defeito da régua do caderno: ScrollView horizontal sem altura
-        // engole todo o espaço que o VStack oferece. A fileira de filtros
-        // flutuava no meio de um bloco de ~280pt — 110pt de vão até a busca e
-        // 128pt até a lista, três ilhas soltas onde devia haver uma coluna
-        // (law-of-proximity).
-        .frame(height: Tema.alvo)
-        // ADR 08p: o esfumado de 28 pt apagava o chip seguinte inteiro e a
-        // régua parecia acabar em "Especificação"; e o chip cortado na borda
-        // não é sinal confiável — no 17e a borda cai no vão entre dois chips.
-        // A seta só existe enquanto há chip omitido à direita, e some no fim.
-        .onScrollGeometryChange(for: Bool.self) { g in
-            g.contentOffset.x + g.containerSize.width < g.contentSize.width - 1
-        } action: { _, novo in haMaisChips = novo }
-        .overlay(alignment: .trailing) {
-            if haMaisChips {
-                HStack(spacing: 0) {
-                    LinearGradient(colors: [Tema.fundo.opacity(0), Tema.fundo],
-                                   startPoint: .leading, endPoint: .trailing)
-                        .frame(width: 28)
-                    Image(systemName: "chevron.forward")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(Tema.tintaFraca)
-                        .frame(width: Tema.margem, height: Tema.alvo)
-                        .background(Tema.fundo)
-                }
-                .allowsHitTesting(false)
-                .accessibilityHidden(true)
-                .transition(Tema.transicao(.opacity, reduzido: reduceMotion))
-            }
-        }
-        .animation(Tema.animacao(.easeOut(duration: Tema.Duracao.curta), reduzido: reduceMotion), value: haMaisChips)
-        .padding(.bottom, 8)
-        .accessibilityHint("Um filtro por vez")
-        .sheet(isPresented: Binding(get: { contextoURL != nil },
-                                    set: { if !$0 { contextoURL = nil } })) {
-            if let contextoURL { CompartilharArquivo(url: contextoURL) }
-        }
-        .sheet(item: $versoesDe) { nota in
-            VersoesView(nota: nota, sessao: sessao)
-        }
-        .sheet(item: $redeDe) { nota in
-            RedeView(nota: nota, todas: notas, sessao: sessao)
-        }
-        .sheet(item: Binding(get: { serieDe.map(IdDaSerie.init) },
-                             set: { serieDe = $0?.id })) { alvo in
-            SerieView(serie: alvo.id, todas: notas)
-        }
-        .confirmationDialog(
-            "Apagar \(escolhidas.count) nota\(escolhidas.count == 1 ? "" : "s")?",
-            isPresented: $confirmarLote, titleVisibility: .visible
-        ) {
-            Button("Apagar", role: .destructive) {
-                for uuid in escolhidas { sessao.apagar(uuid: uuid, no: context) }
-                escolhidas = []
-            }
-            Button("Manter", role: .cancel) {}
-        } message: {
-            Text("O traço some do aparelho, e a revisão marcada some com ele.")
-        }
-    }
-
-    private func chipFiltro(titulo: String, ligado: Bool, id: String,
-                            acao: @escaping () -> Void) -> some View {
-        Pilula(titulo, forma: .filtro, selecionada: ligado) {
-            Toque.selecao()
-            withAnimation(Tema.animacao(.easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion)) { acao() }
-        }
-        .accessibilityAddTraits(ligado ? [.isSelected] : [])
-        .accessibilityIdentifier(id)
-        .accessibilityLabel(titulo)
+    /// D1: o rótulo de seção da folha é uma palavra em tinta fraca — "hoje",
+    /// "setembro", "pelo sentido" —, não um selo em caixa alta com tracking.
+    private func secao(_ titulo: String) -> some View {
+        Text(titulo)
+            .font(Tema.meta)
+            .foregroundStyle(Tema.tintaFraca)
+            .padding(.top, 24)
+            .padding(.bottom, 2)
+            .accessibilityAddTraits(.isHeader)
     }
 
     /// ADR 04n: pergunta ao índice de sentido, fora da main thread, e só
@@ -512,11 +521,7 @@ struct NotasView: View {
 
     @ViewBuilder private var secaoPeloSentido: some View {
         if !busca.isEmpty, !peloSentido.isEmpty {
-            Text("PELO SENTIDO")
-                .rotulo()
-                .padding(.top, 20)
-                .padding(.bottom, 2)
-                .accessibilityAddTraits(.isHeader)
+            secao("pelo sentido")
             Text("falam disto sem usar a palavra")
                 .font(.footnote)
                 .foregroundStyle(Tema.tintaFraca)
@@ -543,76 +548,67 @@ struct NotasView: View {
     @ViewBuilder private var secaoDaVolta: some View {
         let devidas = voltas
         if !devidas.isEmpty {
-            Text("A VOLTA")
-                .rotulo()
-                .padding(.top, 20)
-                .padding(.bottom, 6)
-                .accessibilityAddTraits(.isHeader)
-                .accessibilityIdentifier("secao-volta")
+            // D1: sem o rótulo "A VOLTA". A pergunta em tinta ÂMBAR é o único
+            // texto âmbar da folha — é a folha cobrando, como "1 volta a
+            // conferir" na página em branco (ADR 05b): mesmo idioma, mesma tinta.
             // a mesma nota volta a aparecer no mês: o id tem de ser outro, ou o
             // LazyVStack descarta uma das duas linhas (visto na captura 31)
-            ForEach(Array(devidas.enumerated()), id: \.offset) { i, par in
-                Button {
-                    sessao.abrir(par.nota)
-                } label: {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(Volta.cobranca(par.campo))
-                            .font(Tema.chrome.weight(.semibold))
-                            .foregroundStyle(Tema.tinta)
-                            .lineLimit(2)
-                        Text(titulo(par.nota))
-                            .font(Tema.meta)
-                            .foregroundStyle(Tema.tintaFraca)
-                            .lineLimit(tamanhoTexto.isAccessibilitySize ? nil : 1)
+            VStack(alignment: .leading, spacing: 0) {
+                ForEach(Array(devidas.enumerated()), id: \.offset) { i, par in
+                    Button {
+                        sessao.abrir(par.nota)
+                    } label: {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(Volta.cobranca(par.campo))
+                                .font(Tema.corpo)
+                                .foregroundStyle(Tema.ambarTinta)
+                                .lineLimit(tamanhoTexto.isAccessibilitySize ? nil : 2)
+                            Text(titulo(par.nota))
+                                .font(Tema.meta)
+                                .foregroundStyle(Tema.tintaFraca)
+                                .lineLimit(tamanhoTexto.isAccessibilitySize ? nil : 1)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .contentShape(Rectangle())
+                        .padding(.vertical, 12)
+                        .alvo()
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .contentShape(Rectangle())
-                    .padding(.vertical, 12)
-                    .alvo()
-                }
-                .buttonStyle(.discreto)
-                .accessibilityLabel("\(Volta.cobranca(par.campo)) \(titulo(par.nota))")
-                .accessibilityHint("Abre a nota com o campo da volta")
-                .accessibilityIdentifier("volta-notas")
-                if i < devidas.count - 1 {
-                    Rectangle().fill(Tema.linha).frame(height: 0.5)
+                    .buttonStyle(.discreto)
+                    .accessibilityLabel("A volta: \(Volta.cobranca(par.campo)) \(titulo(par.nota))")
+                    .accessibilityHint("Abre a nota com o campo da volta")
+                    .accessibilityIdentifier("volta-notas")
+                    if i < devidas.count - 1 {
+                        Rectangle().fill(Tema.linha).frame(height: 0.5)
+                    }
                 }
             }
+            .padding(.top, 4)
+            .accessibilityIdentifier("secao-volta")
         }
     }
 
-    /// ADR 08p: Trabalhos é destino, não ação — e destino vestido de link âmbar
-    /// no chrome era o defeito que o §20 tirou do rodapé e a 05f do topo. Aqui
-    /// é uma linha da lista com a seta que todo iPhone lê como "abre"
-    /// (jakobs-law); rola com o arquivo e some quando o autor está buscando.
+    /// ADR 08p: Trabalhos é destino, não ação — nem link âmbar no chrome (§20,
+    /// 05f) nem, desde a D1, linha de menu com ícone e seta na borda. É uma
+    /// FRASE em tinta suave que diz o que há — "3 trabalhos ›" — no idioma que a
+    /// página em branco já usa ("1 volta a conferir"): a folha afirma um fato e
+    /// o fato é a porta. O "›" fica no texto, tipográfico, para continuar a
+    /// ler-se como "abre" (jakobs-law). Rola com o arquivo e some na busca.
     @ViewBuilder private var linhaTrabalhos: some View {
         if busca.isEmpty, filtro == nil, filtroDominio == nil {
             Button { mostrarTrabalhos = true } label: {
-                HStack(spacing: 8) {
-                    Image(systemName: "doc.text")
-                        .font(Tema.meta)
-                        .foregroundStyle(Tema.tintaSuave)
-                    Text("Trabalhos")
-                        .font(Tema.chrome)
-                        .foregroundStyle(Tema.tinta)
-                    Spacer()
-                    if !trabalhos.isEmpty {
-                        Text("\(trabalhos.count)")
-                            .font(Tema.meta)
-                            .foregroundStyle(Tema.tintaSuave)
-                    }
-                    Image(systemName: "chevron.forward")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(Tema.tintaFraca)
-                }
-                .padding(.top, 8)
-                .alvo()
+                Text(trabalhos.isEmpty ? "trabalhos ›"
+                     : "\(trabalhos.count) trabalho\(trabalhos.count == 1 ? "" : "s") ›")
+                    .font(Tema.meta)
+                    .foregroundStyle(Tema.tintaSuave)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentShape(Rectangle())
+                    .padding(.vertical, 6)
+                    .alvo(folgaV: 8)
             }
             .buttonStyle(.discreto)
             .accessibilityLabel(trabalhos.isEmpty ? "Trabalhos" : "Trabalhos, \(trabalhos.count)")
             .accessibilityHint("Retoma intenções, versões e próximos atos")
             .accessibilityIdentifier("abrir-trabalhos")
-            Rectangle().fill(Tema.linha).frame(height: 0.5)
         }
     }
 
@@ -628,21 +624,30 @@ struct NotasView: View {
                 // a saída tem que ser do BURACO em que o autor caiu: quando
                 // o vazio é da busca, "escrever na página" joga fora o que
                 // ele estava procurando em vez de devolver o arquivo
-                VStack(alignment: .leading, spacing: 0) {
-                    // a porta dos Trabalhos existe mesmo com o arquivo vazio
-                    linhaTrabalhos.padding(.horizontal, Tema.margem)
-                    Vazio(frase: vazioTitulo, acao: busca.isEmpty && filtro == nil && filtroDominio == nil
-                          ? .init("escrever na página") {
-                              sessao.novaPagina()
-                              sessao.mostrarNotas = false
-                          }
-                          : .init("ver todas as notas", id: "limpar-busca") {
-                              busca = ""
-                              filtro = nil
-                              filtroDominio = nil
-                          })
+                // ADR 09d: o vazio também rola. Filtrar até zero com o teclado
+                // em pé deixava a pessoa PRESA: sem lista não havia gesto que
+                // dispensasse o teclado, e a tab bar ficava atrás dele — sair
+                // custava jogar fora o que se estava procurando.
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 0) {
+                        // a porta dos Trabalhos existe mesmo com o arquivo vazio
+                        linhaTrabalhos.padding(.horizontal, Tema.margem)
+                        Vazio(frase: vazioTitulo, acao: busca.isEmpty && filtro == nil && filtroDominio == nil
+                              ? .init("escrever na página") {
+                                  sessao.novaPagina()
+                                  sessao.mostrarNotas = false
+                              }
+                              : .init("ver todas as notas", id: "limpar-busca") {
+                                  busca = ""
+                                  filtro = nil
+                                  filtroDominio = nil
+                              })
+                    }
+                    .frame(maxWidth: .infinity, alignment: .topLeading)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                // conteúdo curto não rola sozinho: sem isto não há gesto para
+                // o teclado seguir
+                .scrollBounceBehavior(.always)
             } else {
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 0) {
@@ -663,16 +668,12 @@ struct NotasView: View {
                         }
                         linhaTrabalhos
                         secaoDaVolta
-                        ForEach(meses(visiveis), id: \.titulo) { secao in
-                            Text(secao.titulo)
-                                .rotulo()
-                                .padding(.top, 20)
-                                .padding(.bottom, 6)
-                                .accessibilityAddTraits(.isHeader)
-                            ForEach(Array(secao.notas.enumerated()), id: \.element.uuid) { i, nota in
+                        ForEach(meses(visiveis), id: \.titulo) { mes in
+                            secao(mes.titulo)
+                            ForEach(Array(mes.notas.enumerated()), id: \.element.uuid) { i, nota in
                                 botaoNota(nota)
                                 // sem separador depois do último: a lista fecha
-                                if i < secao.notas.count - 1 {
+                                if i < mes.notas.count - 1 {
                                     Rectangle().fill(Tema.linha).frame(height: 0.5)
                                 }
                             }
@@ -682,13 +683,14 @@ struct NotasView: View {
                     }
                     .padding(.horizontal, Tema.margem)
                 }
-                // o mesmo gesto do caderno (CadernoView:68): arrastar a lista
-                // devolve a tela — sem isto o teclado da busca prendia a tab
-                // bar atrás de si e a única saída era o "x" (jakobs-law: no
-                // Notes, arrastar a lista dispensa o teclado)
-                .scrollDismissesKeyboard(.interactively)
             }
         }
+        // o mesmo gesto do caderno (CadernoView:68): arrastar a lista devolve
+        // a tela — sem isto o teclado da busca prende a tab bar atrás de si e
+        // a única saída é o "x" (jakobs-law: no Notes, arrastar a lista
+        // dispensa o teclado). Vale nos DOIS ramos: era só do cheio, e o vazio
+        // ficou para trás.
+        .scrollDismissesKeyboard(.interactively)
     }
 
     private struct SecaoMes {
@@ -706,11 +708,12 @@ struct NotasView: View {
         for nota in notas {
             let ano = cal.component(.year, from: nota.criadaEm)
             f.dateFormat = ano == anoAtual ? "LLLL" : "LLLL yyyy"
-            // a seção de hoje se chama HOJE: repetir "agosto" no cabeçalho e
-            // "hoje" em cada linha gasta a única informação temporal útil
+            // a seção de hoje se chama "hoje": repetir "agosto" no cabeçalho e
+            // "hoje" em cada linha gasta a única informação temporal útil.
+            // D1: minúsculas — é uma palavra na margem da folha, não um selo.
             let titulo = cal.isDateInToday(nota.criadaEm)
-                ? "HOJE"
-                : f.string(from: nota.criadaEm).uppercased()
+                ? "hoje"
+                : f.string(from: nota.criadaEm).lowercased()
             if grupos[titulo] == nil { ordem.append(titulo) }
             grupos[titulo, default: []].append(nota)
         }
@@ -745,9 +748,11 @@ struct NotasView: View {
     }
 
     private func botaoNota(_ nota: Nota) -> some View {
-        // Dois botões irmãos — nunca um Button dentro do outro. O chip de
-        // domínio promete um toque; aninhado, o toque abria a nota.
-        HStack(alignment: .center, spacing: 8) {
+        // Dois botões irmãos — nunca um Button dentro do outro. O domínio
+        // promete um toque; aninhado, o toque abria a nota. D1: alinhados
+        // pela última linha de base, a palavra do domínio fecha a última
+        // linha da nota, na margem — tipografia, não caixa.
+        HStack(alignment: .lastTextBaseline, spacing: 8) {
             Button {
                 if escolhidas.isEmpty {
                     abrirDaLista(nota)
@@ -762,7 +767,7 @@ struct NotasView: View {
                         // §8: a queimada não finge existir. Mostra o que sobrou —
                         // e o que sobrou é justamente o que se multiplica.
                         Text("Expressiva — queimada")
-                            .font(.body.weight(.semibold))
+                            .font(Tema.corpo)
                             .foregroundStyle(Tema.tintaSuave)
                         if !nota.sentido.isEmpty {
                             DestaqueBusca.texto(nota.sentido, termo: busca, base: Tema.tinta)
@@ -776,26 +781,31 @@ struct NotasView: View {
                             .foregroundStyle(Tema.tintaFraca)
                     } else if nota.trancada {
                         Text("Expressiva — trancada")
-                            .font(.body.weight(.semibold))
+                            .font(Tema.corpo)
                             .foregroundStyle(Tema.tintaSuave)
                         Text("não se relê · \(VozDoAutor.relativo(nota.criadaEm))")
                             .font(.subheadline)
                             .foregroundStyle(Tema.tintaFraca)
                     } else {
+                        // D1: o título é a primeira linha do autor, na letra da
+                        // página (`corpo`, regular) — a lista é o sumário da folha
                         DestaqueBusca.texto(titulo(nota), termo: busca, base: Tema.tinta)
-                            .font(Tema.chrome.weight(.semibold))
+                            .font(Tema.corpo)
                             // em AX o teto de duas linhas cortava "Quero dormir mais cedo est…"
                             .lineLimit(tamanhoTexto.isAccessibilitySize ? nil : 2)
-                        HStack(spacing: 8) {
-                            if let g = nota.gesto {
-                                Pilula(g.nome, forma: .etiqueta)
-                            }
-                            let sub = subtitulo(nota)
-                            if !(sub == "hoje" && busca.isEmpty) {
-                                DestaqueBusca.texto(sub, termo: busca, base: Tema.tintaFraca)
-                                    .font(Tema.meta)
-                                    .lineLimit(1)
-                            }
+                        // D1: método e quem escreveu (ADR 08u) ditos com uma
+                        // palavra em tinta suave, o trecho em tinta fraca; nada
+                        // em selo. O domínio é a palavra com seta, na margem
+                        // direita da mesma linha — irmão do botão (abaixo).
+                        let sub = subtitulo(nota)
+                        let comSub = !(sub == "hoje" && busca.isEmpty)
+                        let palavras = [nota.gesto?.nome, nota.origem.etiqueta].compactMap { $0 }
+                        if comSub || !palavras.isEmpty {
+                            (Text(palavras.joined(separator: " · ") + (comSub && !palavras.isEmpty ? " · " : ""))
+                                .foregroundStyle(Tema.tintaSuave)
+                             + (comSub ? DestaqueBusca.texto(sub, termo: busca, base: Tema.tintaFraca) : Text("")))
+                                .font(Tema.meta)
+                                .lineLimit(1)
                         }
                     }
                 }
@@ -803,7 +813,7 @@ struct NotasView: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.discreto)
-            // a linha de um título só mede 24; o alvo pega 10 do vão de cada lado
+            // a linha de um título só mede 25; o alvo pega 10 do vão de cada lado
             .alvo(folgaV: 10)
             .tint(Tema.tinta)
             .accessibilityLabel(nota.trancada ? "Expressiva trancada" : titulo(nota))
@@ -811,7 +821,7 @@ struct NotasView: View {
             .accessibilityIdentifier("nota-notas")
 
             if !nota.fechada, nota.gesto != .expressiva, nota.dominio != nil || nota.dominioTravado {
-                // ADR 05d: o chip abre o menu; nada apaga num toque
+                // ADR 05d: a palavra abre o menu; nada apaga num toque
                 ChipDominio(atual: nota.dominio, travado: nota.dominioTravado,
                             aoEscolher: { sessao.escolherDominio($0, na: nota, no: context) },
                             aoDevolver: { sessao.devolverDominio(nota, no: context) })
@@ -878,7 +888,7 @@ struct NotasView: View {
 
     private func subtitulo(_ nota: Nota) -> String {
         if !busca.isEmpty {
-            let trecho = VozDoAutor.trecho(em: nota.vozDoAutor, termo: busca)
+            let trecho = VozDoAutor.trecho(em: nota.textoDeQualquerOrigem, termo: busca)
             // trecho que repete o título gasta uma linha e não informa nada
             let t = titulo(nota)
             if trecho == t || t.hasPrefix(trecho) || trecho.hasPrefix(t) {

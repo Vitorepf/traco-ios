@@ -1,0 +1,41 @@
+ESCRITA teclado AX5: de software, na tela 308 pt (2 tentativa(s)), papel 241–484 pt, topo do teclado 536 pt, inset extra 274 pt, TextKit 2
+GAVETA AX5, cartão a chegar: 85 quadros em 1.42 s (cadência 16.7 ms, sonda 2.3 ms/quadro), 7 fora do papel (E ⊄ P), 2 cobertos (P ∩ O ≠ ∅); fora de +0.270 s a +0.367 s = 0.113 s de linha cortada, pior corte 32 pt
+GAVETA   fora +0.270 s: linha 91–157, papel 122–157, corte 32 pt | modelo: papel 122–157, offset 2297.7
+GAVETA   fora +0.283 s: linha 91–157, papel 122–157, corte 32 pt | modelo: papel 122–161, offset 2297.7
+GAVETA   fora +0.300 s: linha 91–157, papel 122–161, corte 32 pt | modelo: papel 122–167, offset 2266.0
+GAVETA   fora +0.317 s: linha 122–189, papel 122–167, corte 22 pt | modelo: papel 122–174, offset 2288.0
+GAVETA   fora +0.333 s: linha 100–167, papel 122–174, corte 22 pt | modelo: papel 122–183, offset 2266.0
+GAVETA   fora +0.350 s: linha 122–189, papel 122–183, corte 6 pt | modelo: papel 122–191, offset 2271.3
+GAVETA   fora +0.367 s: linha 117–184, papel 122–191, corte 5 pt | modelo: papel 122–197, offset 2265.0; coberta de +0.317 s a +0.350 s = 0.050 s de linha sob outra superfície
+GAVETA   coberta +0.317 s: linha 122–189 | CALayer 0,167 390×677 | CALayer 20,167 350×82 | ColorShapeLayer 36,168 3×66 | CGDrawingLayer 51,168 197×66
+GAVETA   coberta +0.350 s: linha 122–189 | CALayer 0,183 390×661 | CALayer 20,183 350×67 | ColorShapeLayer 36,183 3×51 | CGDrawingLayer 51,183 197×51
+GAVETA AX5, aviso no lugar do cartão: 88 quadros em 1.45 s (cadência 16.7 ms, sonda 2.4 ms/quadro), 0 fora do papel (E ⊄ P), 0 cobertos (P ∩ O ≠ ∅)
+GAVETA AX5, toast por cima do encaixe: 87 quadros em 1.43 s (cadência 16.7 ms, sonda 2.5 ms/quadro), 0 fora do papel (E ⊄ P), 0 cobertos (P ∩ O ≠ ∅)
+GAVETA AX5: teclado real 308 pt, 7 quadro(s) com a linha ativa fora do papel, 2 quadro(s) com outra superfície sobre ela
+✘ Test aLinhaFicaNoPapelEmCadaQuadroDaGaveta(tamanho:) recorded an issue with 1 argument tamanho → UIContentSizeCategory(rawValue: "UICTContentSizeCategoryAccessibilityXXXL") at EscritaVisivelTests.swift:524:9: Expectation failed: (totalFora → 7) == 0
+✘ Test aLinhaFicaNoPapelEmCadaQuadroDaGaveta(tamanho:) recorded an issue with 1 argument tamanho → UIContentSizeCategory(rawValue: "UICTContentSizeCategoryAccessibilityXXXL") at EscritaVisivelTests.swift:525:9: Expectation failed: (totalCoberto → 2) == 0
+GAVETA AX5, sonda adversarial: camada 151–184 pt sobre a linha 134–201 (322 pt de largura); 50 quadros, 35 acusados (P ∩ O ≠ ∅), 0 fora do papel; primeiro achado: CALayer 0,151 390×33
+ESCRITA teclado large: de software, na tela 308 pt (2 tentativa(s)), papel 103–378 pt, topo do teclado 536 pt, inset extra 274 pt, TextKit 2
+GAVETA large, cartão a chegar: 85 quadros em 1.43 s (cadência 16.7 ms, sonda 2.3 ms/quadro), 5 fora do papel (E ⊄ P), 5 cobertos (P ∩ O ≠ ∅); fora de +0.333 s a +0.400 s = 0.083 s de linha cortada, pior corte 14 pt
+GAVETA   fora +0.333 s: linha 325–352, papel 103–344, corte 8 pt | modelo: papel 103–325, offset 412.0
+GAVETA   fora +0.350 s: linha 310–337, papel 103–325, corte 12 pt | modelo: papel 103–304, offset 431.0
+GAVETA   fora +0.367 s: linha 291–318, papel 103–304, corte 14 pt | modelo: papel 103–288, offset 452.0
+GAVETA   fora +0.383 s: linha 270–297, papel 103–288, corte 8 pt | modelo: papel 103–279, offset 467.7
+GAVETA   fora +0.400 s: linha 254–281, papel 103–279, corte 2 pt | modelo: papel 103–273, offset 477.0; coberta de +0.333 s a +0.400 s = 0.083 s de linha sob outra superfície
+GAVETA   coberta +0.333 s: linha 325–352 | CALayer 0,344 390×500 | CALayer 20,344 350×22
+GAVETA   coberta +0.350 s: linha 310–337 | CALayer 0,325 390×519 | CALayer 20,325 350×41
+GAVETA   coberta +0.367 s: linha 291–318 | CALayer 0,304 390×540 | CALayer 20,304 350×62
+GAVETA   coberta +0.383 s: linha 270–297 | CALayer 0,288 390×556 | CALayer 20,288 350×78 | ColorShapeLayer 36,288 3×8 | CGDrawingLayer 51,288 264×8
+GAVETA   coberta +0.400 s: linha 254–281 | CALayer 0,279 390×565 | CALayer 20,279 350×87 | ColorShapeLayer 36,279 3×17 | CGDrawingLayer 51,279 264×17
+GAVETA large, aviso no lugar do cartão: 87 quadros em 1.43 s (cadência 16.7 ms, sonda 2.6 ms/quadro), 0 fora do papel (E ⊄ P), 0 cobertos (P ∩ O ≠ ∅)
+GAVETA large, toast por cima do encaixe: 87 quadros em 1.43 s (cadência 16.7 ms, sonda 2.7 ms/quadro), 0 fora do papel (E ⊄ P), 0 cobertos (P ∩ O ≠ ∅)
+GAVETA large: teclado real 308 pt, 5 quadro(s) com a linha ativa fora do papel, 5 quadro(s) com outra superfície sobre ela
+✘ Test aLinhaFicaNoPapelEmCadaQuadroDaGaveta(tamanho:) recorded an issue with 1 argument tamanho → UIContentSizeCategory(rawValue: "UICTContentSizeCategoryL") at EscritaVisivelTests.swift:524:9: Expectation failed: (totalFora → 5) == 0
+✘ Test aLinhaFicaNoPapelEmCadaQuadroDaGaveta(tamanho:) recorded an issue with 1 argument tamanho → UIContentSizeCategory(rawValue: "UICTContentSizeCategoryL") at EscritaVisivelTests.swift:525:9: Expectation failed: (totalCoberto → 5) == 0
+GAVETA large, sonda adversarial: camada 167–180 pt sobre a linha 161–187 (55 pt de largura); 52 quadros, 35 acusados (P ∩ O ≠ ∅), 0 fora do papel; primeiro achado: CALayer 0,168 390×13
+ESCRITA teclado AX5: de software, na tela 308 pt (2 tentativa(s)), papel 122–535 pt, topo do teclado 536 pt, inset extra 0 pt, TextKit 2
+ESCRITA AX5: 31 amostras, 31 com a linha do caret na área livre do papel; teclado real 308 pt
+ESCRITA teclado large: de software, na tela 308 pt (2 tentativa(s)), papel 103–378 pt, topo do teclado 536 pt, inset extra 274 pt, TextKit 2
+ESCRITA large: 44 amostras, 44 com a linha do caret na área livre do papel; teclado real 308 pt
+✘ Test run with 2 tests in 1 suite failed after 54.574 seconds with 4 issues.
+** TEST FAILED **

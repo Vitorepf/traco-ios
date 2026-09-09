@@ -18,6 +18,11 @@ nonisolated enum Retrato {
         var expressiva: Bool
         var criadaEm: Date
         var campos: [String: String]
+        /// ADR 08u/09b: só a voz do autor entra no retrato. O que o bot
+        /// escreveu não é evidência sobre quem escreve — nem como contagem.
+        /// SEM PADRÃO de propósito: o chamador que esquecer não compila. O
+        /// defeito de 08u nasceu de um `= true` que a rota das Notas herdou.
+        var vozDoAutor: Bool
     }
 
     static var ligado: Bool {
@@ -29,7 +34,7 @@ nonisolated enum Retrato {
     nonisolated static func ler(notas: [NotaLida], sinais: [Sinal], agora: Date = .now,
                                 cal: Calendar = .current) -> String {
         // o selo corta antes: expressiva, selada e queimada não entram, nem como contagem
-        let abertas = notas.filter { !$0.fechada && !$0.expressiva }
+        let abertas = notas.filter { !$0.fechada && !$0.expressiva && $0.vozDoAutor }
         let trintaAtras = cal.date(byAdding: .day, value: -30, to: agora) ?? agora
         var blocos: [String] = []
 

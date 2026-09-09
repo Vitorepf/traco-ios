@@ -115,7 +115,7 @@ struct CorpusSeloTests {
         let s = Sessao()
         s.persistirNoDisco = { _ in throw DiscoImportRecusou.gravar }
         let n = s.importarCorpus([
-            (texto: "quero correr de manhã", gestoNome: "WOOP", criadaEm: .now)
+            (texto: "quero correr de manhã", gestoNome: "WOOP", criadaEm: Date.now, origem: .autor)
         ], no: c.mainContext)
         #expect(n == 0)
         #expect(s.toast != nil)
@@ -127,7 +127,7 @@ struct CorpusSeloTests {
         let s = Sessao()
         let n = s.importarCorpus([
             (texto: "quero correr de manhã", gestoNome: "WOOP",
-             criadaEm: Date(timeIntervalSince1970: 1))
+             criadaEm: Date(timeIntervalSince1970: 1), origem: .autor)
         ], no: c.mainContext)
         #expect(n == 1)
         let nota = try #require(try c.mainContext.fetch(FetchDescriptor<Nota>()).first)
@@ -863,3 +863,97 @@ struct DiscoTracoTests {
 }
 
 private enum DiscoTesteErro: Error { case falhou }
+
+/// ADR 08u/09b — o vermelho da V5, reexecutável.
+///
+/// A ADR 08u afirma que `origemRaw` entrou dentro da V4 porque um
+/// `TracoSchemaV5` com a MESMA lista de classes derruba o arranque com
+/// "Duplicate version checksums detected". A afirmação estava no texto e não
+/// no diff: os testes de `DiscoTraco` injetam closures e nunca constroem o
+/// schema duplicado. Estes dois constroem — o primeiro observa a recusa, o
+/// segundo mostra que o plano de hoje, sem a V5, abre.
+///
+/// Os `VersionedSchema` daqui apontam para a classe VIVA, não para uma cópia
+/// congelada: por isso versão nova só faz sentido para MODELO novo (a V3
+/// trouxe o recibo, a V4 o Trabalho), e atributo com valor padrão é migração
+/// leve dentro da versão corrente.
+enum TracoSchemaV5Duplicado: VersionedSchema {
+    static var versionIdentifier: Schema.Version { Schema.Version(5, 0, 0) }
+    // exatamente a lista da V4 — é isto que o checksum vê
+    static var models: [any PersistentModel.Type] { [Nota.self, ReciboEntrada.self, Trabalho.self] }
+}
+
+enum TracoMigracaoComV5: SchemaMigrationPlan {
+    static var schemas: [any VersionedSchema.Type] {
+        [TracoSchemaV1.self, TracoSchemaV2.self, TracoSchemaV3.self, TracoSchemaV4.self,
+         TracoSchemaV5Duplicado.self]
+    }
+    static var stages: [MigrationStage] {
+        [MigrationStage.lightweight(fromVersion: TracoSchemaV1.self, toVersion: TracoSchemaV2.self),
+         MigrationStage.lightweight(fromVersion: TracoSchemaV2.self, toVersion: TracoSchemaV3.self),
+         MigrationStage.lightweight(fromVersion: TracoSchemaV3.self, toVersion: TracoSchemaV4.self),
+         MigrationStage.lightweight(fromVersion: TracoSchemaV4.self, toVersion: TracoSchemaV5Duplicado.self)]
+    }
+}
+
+struct MigracaoDuplicadaTests {
+    /// Um caderno na V3, como o de quem instalou o app antes do Trabalho.
+    private func cadernoNaV3() throws -> URL {
+        enum PlanoAteV3: SchemaMigrationPlan {
+            static var schemas: [any VersionedSchema.Type] {
+                [TracoSchemaV1.self, TracoSchemaV2.self, TracoSchemaV3.self]
+            }
+            static var stages: [MigrationStage] {
+                [MigrationStage.lightweight(fromVersion: TracoSchemaV1.self, toVersion: TracoSchemaV2.self),
+                 MigrationStage.lightweight(fromVersion: TracoSchemaV2.self, toVersion: TracoSchemaV3.self)]
+            }
+        }
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("v3-\(UUID().uuidString).store")
+        let c = try ModelContainer(for: Schema(versionedSchema: TracoSchemaV3.self),
+                                   migrationPlan: PlanoAteV3.self,
+                                   configurations: ModelConfiguration(url: url))
+        c.mainContext.insert(Nota(texto: "o caderno que já estava lá"))
+        try c.mainContext.save()
+        return url
+    }
+
+    /// O REPLAY do vermelho da 08u, fora da corrida normal porque ele MATA o
+    /// processo: "Duplicate version checksums detected" é `NSInvalidArgumentException`
+    /// do CoreData, não um `Error` de Swift — nenhum `do/catch` a pega, e é
+    /// por isso que ela derrubava o arranque em vez de virar recusa tratada.
+    ///
+    ///     touch /tmp/traco-replay-v5
+    ///     ferramentas/orca/com-trava.sh xcodebuild test -scheme Traco \
+    ///       -destination 'id=<UDID>' -only-testing:TracoTests/MigracaoDuplicadaTests
+    ///     rm /tmp/traco-replay-v5
+    ///
+    /// A sonda mostrou o resto: com um caderno NOVO, o plano com a V5
+    /// duplicada abre sem reclamar — o checksum só é conferido quando um
+    /// estágio de fato RODA. Por isso o teste abaixo sobe um caderno da V3.
+    @Test(.enabled(if: FileManager.default.fileExists(atPath: "/tmp/traco-replay-v5")))
+    func v5ComAMesmaListaDaV4DerrubaOArranqueDeQuemJaTinhaCaderno() throws {
+        let url = try cadernoNaV3()
+        defer { try? FileManager.default.removeItem(at: url) }
+        _ = try ModelContainer(for: Schema(versionedSchema: TracoSchemaV5Duplicado.self),
+                               migrationPlan: TracoMigracaoComV5.self,
+                               configurations: ModelConfiguration(url: url))
+        Issue.record("o plano com a V5 duplicada subiu um caderno da V3 sem derrubar nada — o checksum deixou de bater e a ADR 08u precisa ser reescrita")
+    }
+
+    /// O verde que guarda a decisão: o mesmo caderno da V3 sobe pelo plano de
+    /// hoje. Se alguém acrescentar uma V5 com a lista de classes da V4, é
+    /// ESTE teste que morre — e a suíte inteira com ele.
+    @Test func oPlanoDeHojeSobeUmCadernoDaV3EGuardaAOrigem() throws {
+        let url = try cadernoNaV3()
+        defer { try? FileManager.default.removeItem(at: url) }
+        let c = try ModelContainer.traco(url: url)
+        let lidas = try c.mainContext.fetch(FetchDescriptor<Nota>())
+        #expect(lidas.count == 1 && lidas[0].texto == "o caderno que já estava lá")
+        // e a `origem` que motivou a tentativa de V5 atravessa o disco na V4
+        lidas[0].origem = .grokbot
+        try c.mainContext.save()
+        let outra = try ModelContainer.traco(url: url)
+        #expect(try outra.mainContext.fetch(FetchDescriptor<Nota>()).first?.origem == .grokbot)
+    }
+}

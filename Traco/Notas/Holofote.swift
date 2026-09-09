@@ -16,7 +16,7 @@ enum Holofote {
     @discardableResult
     static func indexar(notas todas: [Nota]) -> [CSSearchableItem] {
         indexar(notas: todas.map { n in
-            (n.uuid, n.vozDoAutor, !sai(fechada: n.fechada, expressivaEmCurso: n.gesto == .expressiva && !n.fechada, voz: n.vozDoAutor))
+            (n.uuid, n.textoDeQualquerOrigem, !sai(fechada: n.fechada, expressivaEmCurso: n.gesto == .expressiva && !n.fechada, voz: n.textoDeQualquerOrigem))
         })
     }
 

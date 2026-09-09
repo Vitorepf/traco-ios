@@ -140,8 +140,14 @@ struct IntegridadeEntradaTests {
             do {
                 let antigo = try ModelContainer(for: Schema(versionedSchema: TracoSchemaV2.self),
                     configurations: ModelConfiguration(url: url))
-                let nota = Nota(texto: "Autoria anterior", gesto: .woop, campos: ["obstaculo": "Primeiro\n\nSegundo"])
+                // ADR 09f: a V2 é uma CÓPIA CONGELADA, não a classe viva — gravar
+                // aqui com a `Nota` de hoje não migrava coisa nenhuma (era o mesmo
+                // modelo dos dois lados), e foi essa ficção que deixou a 08u passar.
+                let nota = TracoSchemaV2.Nota()
                 nota.uuid = uuid
+                nota.texto = "Autoria anterior"
+                nota.gestoRaw = "woop"
+                nota.camposJSON = #"{"obstaculo":"Primeiro\n\nSegundo"}"#
                 antigo.mainContext.insert(nota)
                 try antigo.mainContext.save()
             }

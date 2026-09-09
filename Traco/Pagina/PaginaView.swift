@@ -122,10 +122,7 @@ struct PaginaView: View {
             sessao.rearmarSeries(no: context)
             // ADR 04i: o retrato lê o disco quando a sábia precisa dele
             sessao.notasParaRetrato = {
-                ((try? context.fetch(FetchDescriptor<Nota>())) ?? []).map {
-                    Retrato.NotaLida(gesto: $0.gesto, fechada: $0.fechada, expressiva: $0.gesto == .expressiva,
-                                     criadaEm: $0.criadaEm, campos: $0.campos)
-                }
+                ((try? context.fetch(FetchDescriptor<Nota>())) ?? []).map(\.paraRetrato)
             }
             // ADR 04n / 04p: o índice de sentido e a entrada do Mac, no arranque
             sessao.sincronizarIndice(no: context)
@@ -280,6 +277,18 @@ struct PaginaView: View {
 
             VStack(spacing: 0) {
                 topbar
+                // ADR 08u: a etiqueta de origem. Vem ANTES do texto porque é o
+                // que muda como se lê o que vem depois — a página é o lugar em
+                // que se confunde texto do bot com a própria voz. Mesma cápsula
+                // do gesto na lista: nada de cor nova, nada de componente novo.
+                if let marca = sessao.origemDaPagina.etiqueta {
+                    Pilula(marca, forma: .etiqueta)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, Tema.margem)
+                        .padding(.bottom, 8)
+                        .accessibilityIdentifier("origem-nota")
+                        .accessibilityLabel("Esta nota não é sua voz: \(marca)")
+                }
                 if sessao.paginaVazia && sessao.gesto == nil && !sessao.timerLigado {
                     // a única companhia do cursor: o dia (some no primeiro caractere)
                     Text(Date.now, format: .dateTime.weekday(.wide).day().month(.wide))
@@ -303,10 +312,17 @@ struct PaginaView: View {
             }
         }
         .animation(Tema.movimento(.deslocamento, .easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion), value: sessao.paginaVazia)
-        .animation(Tema.movimento(.deslocamento, .easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion), value: sessao.toast)
-        // o cartão entra e sai como a gaveta: quem anima é a ALTURA do encaixe
-        .animation(Tema.gaveta(reduzido: reduceMotion), value: sessao.cartao)
-        .animation(Tema.gaveta(reduzido: reduceMotion), value: sessao.analisando)
+        // O toast vive no MESMO encaixe do cartão (`acimaDoPe`) e muda a altura
+        // do papel como ele: com o foco na Página ele entra e sai por CORTE
+        // (ADR 08x). Animado, ele cortava a linha ativa — 3 quadros com 1 pt
+        // fora do papel em `large` no 17 Pro, com o seguidor 8 pt atrás da
+        // borda que descia (ADR 09j).
+        .animation(focoPagina ? nil : Tema.movimento(.deslocamento, .easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion), value: sessao.toast)
+        // o cartão entra e sai como a gaveta: quem anima é a ALTURA do encaixe.
+        // MAS A GAVETA NÃO CORRE SOBRE A LINHA DO AUTOR (ADR 08x): com o foco
+        // na Página, a altura do encaixe muda por CORTE.
+        .animation(focoPagina ? nil : Tema.gaveta(reduzido: reduceMotion), value: sessao.cartao)
+        .animation(focoPagina ? nil : Tema.gaveta(reduzido: reduceMotion), value: sessao.analisando)
     }
 
     /// O que fica ACIMA do pé — o aviso, o cartão da análise ou "lendo…" —
@@ -485,7 +501,7 @@ struct PaginaView: View {
               sessao.salvar(no: context), let id = sessao.notaUUID,
               let nota = Sessao.buscar(uuid: id, no: context), !nota.fechada else { return }
         do {
-            let documento = DocumentoTrabalho(intencao: nota.vozDoAutor, notaOrigemID: id)
+            let documento = DocumentoTrabalho(intencao: nota.textoDeQualquerOrigem, notaOrigemID: id)
             let trabalho = try Trabalho(documento: documento)
             context.insert(trabalho)
             try context.save()

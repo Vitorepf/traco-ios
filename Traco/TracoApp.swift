@@ -34,6 +34,15 @@ struct TracoApp: App {
         Ferias.expirarSePassou()
         Revisoes.agendarFilaDiaria()
         Revisoes.agendarRevisaoSemanal()
+        #if DEBUG
+        // Instrumento (F5b-B): a semeadura fora do app escreve calendario.json
+        // e precisa da MESMA rota que a agenda e o intent usam para publicar —
+        // o arranque sozinho só reconcilia a projeção que já está no disco.
+        if ProcessInfo.processInfo.environment["TRACO_REPUBLICAR_CALENDARIO"] != nil,
+           case .eventos(let eventos) = CalendarioDisco.carregar() {
+            ProximoCompromisso.publicar(eventos, cal: Calendario.gregoriano())
+        }
+        #endif
         // ADR 05u: atividade órfã (o app morreu entre o commit e o ActivityKit,
         // ou o dia virou) é reconciliada com o estado guardado no arranque
         FilaDeAtividade.compartilhada.enfileirar {

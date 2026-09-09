@@ -1,0 +1,9 @@
+janela=874pt  toques-ate-a-folha=3
+gesto	objetivo	proximo-passo	versao-nova	ato-realizado	resultado-informado	quando-foi-o-retorno	dificuldade	vistos
+0	0.24*	0.36*	1.57	2.41	2.45	3.76	4.22	2
+1	-0.54	-0.42	0.79*	1.63	1.67	2.98	3.44	3
+2	-1.32	-1.20	0.01*	0.85*	0.89	2.20	2.66	4
+3	-2.10	-1.98	-0.77	0.08*	0.11*	1.42	1.88	5
+4	-2.88	-2.76	-1.55	-0.70	-0.67	0.64*	1.10	6
+5	-3.58	-3.46	-2.25	-1.41	-1.37	-0.06	0.40*	7
+gestos-ate-os-sete=5  toques=3  vistos=7/7

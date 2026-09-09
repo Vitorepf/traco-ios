@@ -45,11 +45,22 @@ struct TrabalhoView: View {
     @State private var exibicaoSuspensa = false
     @FocusState private var campoEmFoco: String?
     @State private var rolarPara: String?
+    /// Quando esta folha foi aberta da última vez. `nil` = primeira visita
+    /// registrada; não há "desde quando" a contar. Fica em `@State` para que a
+    /// retomada não se apague sob os olhos de quem está lendo: a visita de
+    /// agora já foi gravada quando o bloco apareceu.
+    @State private var ultimaVisita: Date?
 
     /// A chave dos rascunhos em `UserDefaults` — `static` para que fechar e
     /// reabrir a folha seja provável em teste com a chave que o app usa, e
     /// não com uma cópia da string.
     static func chaveRascunho(_ trabalho: UUID) -> String { "trabalho.rascunhos.\(trabalho.uuidString)" }
+    /// A visita anterior. Fica em `UserDefaults` como os rascunhos, e não no
+    /// documento: quando o autor abriu a folha é fato deste aparelho, não do
+    /// trabalho — exportar ou importar o Markdown não carrega a visita de
+    /// ninguém, e o registro compartilhado não ganha um campo de vigilância.
+    static func chaveVisita(_ trabalho: UUID) -> String { "trabalho.visita.\(trabalho.uuidString)" }
+    private var chaveVisita: String { Self.chaveVisita(trabalho.uuid) }
     private var chaveRascunho: String { Self.chaveRascunho(trabalho.uuid) }
     private var selos: [SeloOrigemTrabalho] { notas.map(SeloOrigemTrabalho.init) }
     private var acesso: AcessoTrabalho.Estado { AcessoTrabalho.estado(trabalho, no: context) }
@@ -202,9 +213,22 @@ struct TrabalhoView: View {
             }
             .accessibilityIdentifier("trabalho-continuar-ato")
         }
+        desdeAUltimaVisita(o)
         if let retorno = o.documento.evidencias.last {
             VStack(alignment: .leading, spacing: 6) {
-                Text("Último retorno · \(retorno.atribuidaA)").font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+                // ADR 08y: a data estava fora daqui, e "Último retorno" sem
+                // data se lê como retorno de ontem mesmo quando é de junho —
+                // a retomada contava algo velho como se fosse novo.
+                Text("Último retorno · \(retorno.atribuidaA) · \(retorno.data.formatted(date: .abbreviated, time: .shortened))")
+                    .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+                // ADR 08m/08y: o resultado que a PESSOA informou é eixo próprio
+                // e estava a 2,4 telas daqui. A frase é a mesma do cartão do
+                // ato: duas redações do mesmo estado seriam duas verdades.
+                if let resultado = retorno.resultado {
+                    Text(resultado.frase)
+                        .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+                        .accessibilityIdentifier("trabalho-retomada-resultado")
+                }
                 Text(retorno.texto).lineLimit(3)
                 acaoSecundaria("Ver retorno e histórico") {
                     campoEmFoco = nil
@@ -215,6 +239,46 @@ struct TrabalhoView: View {
             .accessibilityIdentifier("trabalho-retomada")
         }
     }
+
+    /// ADR 08y: o que houve entre as duas visitas, junto e datado. Sem isto o
+    /// autor que volta depois de um dia só descobre a versão nova 1,6 tela
+    /// abaixo e o resultado que ele mesmo informou 2,4 telas abaixo (medido na
+    /// árvore de AX, 08/09). As linhas são do app, que tem os vínculos; nenhum
+    /// modelo escreve aqui. Sem visita anterior guardada não há bloco: o app
+    /// não sabe desde quando contar, e chutar seria inventar a ausência.
+    @ViewBuilder private func desdeAUltimaVisita(_ o: OficinaTrabalho) -> some View {
+        if let visita = ultimaVisita {
+            // O relato que a folha já mostra inteiro logo abaixo não vira linha
+            // de lista: seria a mesma notícia duas vezes na mesma tela.
+            let jaMostrado = o.documento.evidencias.last?.id
+            let mudancas = o.documento.mudancasDesde(visita).filter { $0.evidenciaID != jaMostrado }
+            if !mudancas.isEmpty {
+                VStack(alignment: .leading, spacing: 6) {
+                    secao("Desde \(visita.formatted(date: .abbreviated, time: .shortened))")
+                    ForEach(mudancas.prefix(Self.tetoDaRetomada)) { m in
+                        Text(m.texto).font(Tema.meta)
+                            .accessibilityIdentifier("trabalho-mudanca")
+                    }
+                    if mudancas.count > Self.tetoDaRetomada {
+                        // O que não coube é DITO, não escondido — e a linha não
+                        // promete onde está: nem tudo o que houve mora no
+                        // histórico (a decisão de apoio, por exemplo, está no
+                        // trilho logo abaixo), e mandar o autor ao lugar errado
+                        // é pior que não mandar a lugar nenhum.
+                        Text("e mais \(mudancas.count - Self.tetoDaRetomada) desde então")
+                            .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+                            .accessibilityIdentifier("trabalho-mudancas-restantes")
+                    }
+                }
+                .accessibilityElement(children: .contain)
+                .accessibilityIdentifier("trabalho-desde-a-ultima-visita")
+            }
+        }
+    }
+
+    /// Quatro linhas cabem na primeira tela junto com a intenção e o "Continuar".
+    /// Uma lista maior deixa de ser retomada e vira o histórico de novo.
+    static let tetoDaRetomada = 4
 
     private func intencao(_ o: OficinaTrabalho) -> some View {
         VStack(alignment: .leading, spacing: Tema.entreItens) {
@@ -271,8 +335,8 @@ struct TrabalhoView: View {
 
     @ViewBuilder private func trilhoDoApoio(_ o: OficinaTrabalho) -> some View {
         let pilulas = ForEach(DocumentoTrabalho.Apoio.allCases, id: \.self) { a in
-            Pilula(nomeDoApoio(a), forma: .filtro, selecionada: o.documento.apoio == a) {
-                aplicar(o) { $0.cancelarPedido(); $0.apoio = a }
+            Pilula(a.nome, forma: .filtro, selecionada: o.documento.apoio == a) {
+                aplicar(o) { $0.cancelarPedido(); $0.apoio = a; $0.apoioMarcadoEm = .now }
             }
             // O `Picker` da V9 anunciava o valor escolhido de graça; o trilho
             // dizia a escolha só por cor, e para o VoiceOver as três pílulas
@@ -285,14 +349,6 @@ struct TrabalhoView: View {
             VStack(alignment: .leading, spacing: 8) { pilulas }
         } else {
             HStack(spacing: 8) { pilulas }
-        }
-    }
-
-    private func nomeDoApoio(_ a: DocumentoTrabalho.Apoio) -> String {
-        switch a {
-        case .delegar: "Delegar"
-        case .praticar: "Praticar"
-        case .combinar: "Combinar"
         }
     }
 
@@ -315,7 +371,7 @@ struct TrabalhoView: View {
             acaoSecundaria("Guardar o trecho") {
                 guard !faltaCampo("trecho") else { return }
                 let texto = rascunhos["trecho"] ?? ""
-                aplicar(o, limpar: ["trecho"]) { $0.trechoExercitado = texto }
+                aplicar(o, limpar: ["trecho"]) { $0.trechoExercitado = texto; $0.trechoDelimitadoEm = .now }
             }
             .accessibilityHint(vazio("trecho") ? "Escreva o trecho primeiro" : "")
             if !o.documento.praticaPedida {
@@ -990,7 +1046,7 @@ struct TrabalhoView: View {
                     Text(acao.estado == .executada ? "Você marcou como realizada" : acao.estado == .cancelada ? "Cancelado" : "Realização ainda não confirmada")
                         .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
                         .accessibilityIdentifier("trabalho-estado-do-ato")
-                    Text(o.documento.observacao(de: acao.id)?.resultado.map { "Resultado que você informou: \($0.rotulo)" }
+                    Text(o.documento.observacao(de: acao.id)?.resultado.map(\.frase)
                          ?? "Resultado ainda não informado")
                         .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
                         .accessibilityIdentifier("trabalho-resultado-observado")
@@ -1495,6 +1551,14 @@ struct TrabalhoView: View {
             let nova = try OficinaTrabalho(trabalho: trabalho, context: context)
             rascunhos = UserDefaults.standard.dictionary(forKey: chaveRascunho) as? [String: String] ?? [:]
             recuperacao = UserDefaults.standard.string(forKey: chaveRascunho + ".recuperacao")
+            // Lê a visita anterior na PRIMEIRA abertura desta folha e já grava
+            // a de agora. `oficina` ainda é `nil` só aqui: reabrir depois de um
+            // erro de escrita (`preservarEReabrir`) não pode zerar a janela que
+            // o autor está lendo, e a leitura que falha não consome a janela.
+            if oficina == nil {
+                ultimaVisita = UserDefaults.standard.object(forKey: chaveVisita) as? Date
+                UserDefaults.standard.set(Date.now, forKey: chaveVisita)
+            }
             oficina = nova
             exibicaoSuspensa = false
             erroDeLeitura = nil

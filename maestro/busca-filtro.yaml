@@ -24,11 +24,14 @@ appId: app.traco
     end: 85%, 50%
 - tapOn:
     id: "aba-notas"
+# D1: o filtro é uma palavra que abre um menu — abrir, escolher; abrir, desfazer
 - tapOn:
-    id: "filtro-woop"
+    id: "filtro-notas"
+- tapOn: "WOOP"
 - assertVisible: "quero correr de manhã"
 - tapOn:
-    id: "filtro-woop"
+    id: "filtro-notas"
+- tapOn: "WOOP"
 - tapOn:
     id: "busca-notas"
 - eraseText

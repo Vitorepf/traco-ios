@@ -1422,7 +1422,14 @@ struct CompromissoVivo: Widget {
                         .font(Tema.miudo.weight(.medium).monospacedDigit())
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
-                        .frame(maxWidth: 92, alignment: .trailing)
+                        // F5b-C: o teto de 92 pt cortava o relógio relativo em
+                        // AX5 ("39 minut…", visto na tela bloqueada). O `Text`
+                        // de data (`.timer` e `.relative`) é GULOSO: toma toda a
+                        // largura que a linha oferece e encosta os dígitos à
+                        // esquerda dela — sem teto e sem alinhar, o relógio
+                        // grudava em "PRÓXIMO" (visto). Sem teto o texto nunca
+                        // corta; alinhado à direita ele volta ao canto.
+                        .multilineTextAlignment(.trailing)
                     }
                 }
 
@@ -1456,11 +1463,17 @@ struct CompromissoVivo: Widget {
                 }
                 DynamicIslandExpandedRegion(.trailing) {
                     if !contexto.state.diaInteiro, !contexto.isStale {
-                        // aberta há espaço: aqui a contagem cabe inteira
+                        // aberta há espaço: aqui a contagem cabe inteira. F5b: o
+                        // teto de 76 pt cortava o último dígito ("36:1|5", visto
+                        // na tela) — o `.timer` reserva a largura do maior valor
+                        // que pode mostrar (h:mm:ss, a seis horas do início) e a
+                        // caixa transbordava dos dois lados. Sem teto: a região
+                        // mede o que a contagem precisa. Alinhar à direita corta
+                        // de novo ("29:4|8", visto): os dígitos ficam à esquerda
+                        // da caixa reservada, e a folga fica à direita.
                         Text(contexto.state.inicio, style: .timer)
                             .font(Tema.meta.weight(.semibold).monospacedDigit())
-                            .frame(maxWidth: 76)
-                            .multilineTextAlignment(.trailing)
+                            .lineLimit(1)
                     }
                 }
                 DynamicIslandExpandedRegion(.bottom) {
@@ -1472,7 +1485,9 @@ struct CompromissoVivo: Widget {
                         LinhaDaAcao(estado: contexto.state, ocorrencia: contexto.attributes.chave,
                                     velho: contexto.isStale, naIlha: true)
                     }
-                    .padding(.horizontal, 4)
+                    // F5b: com 4 pt a curva do canto da Ilha comia o "a" de
+                    // "acabou", a linha mais baixa da região (visto na tela)
+                    .padding(.horizontal, 10)
                 }
             } compactLeading: {
                 Image(systemName: "calendar")
