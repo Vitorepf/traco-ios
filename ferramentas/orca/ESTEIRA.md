@@ -703,3 +703,27 @@ a sete com a frase *"quem tirar uma sem medida nova, PAREADA, quebra aqui"*.
 **A regra:** teste de estado é documentação executável. Quando o estado muda, o
 teste muda **junto com o porquê** — senão a volta seguinte desfaz a reversão por
 descuido, e ninguém saberá que houve um motivo.
+
+### Aparelho ligado que você não ligou, e trava ocupada (09/09)
+
+Duas perguntas de worker no mesmo dia sobre a mesma coisa. As respostas:
+
+- **Aparelho que você encontrou ligado e não ligou:** use-o se for o seu por spec,
+  e **deixe como achou**. A lei "quem liga, desliga" tem o par que faltava:
+  **quem NÃO ligou, não desliga**.
+- **Trava ocupada não é suíte bloqueada.** A `com-trava.sh` **serializa de
+  propósito** — esperar é o comportamento correto, e "registrei a suíte como
+  bloqueada" é declarar limite onde só havia fila.
+
+### O `worker_done` pode morrer no runtime, e o worker não pode ficar preso nisso
+
+O revisor da Q2-E teve o `worker_done` **rejeitado três vezes** por um erro do
+runtime (`unknown dispatch`, com o id truncado num caractere), depois de
+`request-show` e `dispatch-show` confirmarem o despacho. Ele fez o certo:
+**comitou o veredito no branch** e **mandou um `status`** dizendo que o resultado
+estava pronto e onde. **O trabalho chegou; só o carimbo não.**
+
+**Regra:** se o `worker_done` falhar por erro do runtime, **comite o resultado e
+mande um `status` com o SHA e o caminho do relatório**. E do meu lado: **despacho
+preso se resolve com `worker-abandon`**, que não finge que o processo parou —
+só o desprende.
