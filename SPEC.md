@@ -7075,3 +7075,68 @@ bloqueada cortava em AX5 e o relato não trazia as seis fases do
   por cima do cartão (`f5bc-instrumento-dialogo-atividades.png`); o toque do
   `orca emulator` na pilha fechada abre a pilha em vez de acertar o botão, e só
   na pilha aberta o botão recebe o toque. Respondido "Permitir Sempre".
+
+## ADR 2026-09-09f — O caderno gravado ontem tem de abrir hoje (volta M1)
+
+**Ciclo (G0):** preservar o que o autor escreveu — antes de multiplicar ou
+melhorar. **Intenção:** o autor abre o Traço e o caderno dele está lá, depois de
+qualquer atualização. **Obstáculo:** um caderno gravado antes da 08u não abria
+mais. **Evidência:** o mesmo store, pré-08u, medido no aparelho em dois builds.
+
+**O defeito, medido e não deduzido.** Com o caderno pré-08u plantado no App
+Group do `1A46B6D3`, o `main` de hoje mostra a tela de recusa da A1 — "O Traço
+não abriu o seu caderno" — e o CoreData diz por quê:
+
+    NSCocoaErrorDomain 134504 — "Cannot use staged migration with an unknown model version."
+    SwiftDataError(_error: SwiftData.SwiftDataError._Error.loadIssueModelContainer)
+
+**A causa não é o `origemRaw`; é o `VersionedSchema` que não congela nada.**
+`TracoSchemaV2/V3/V4` apontavam para a **classe viva**. Um schema que aponta
+para a classe viva não é uma versão: é um apelido para "o código de hoje", e o
+checksum dele anda junto com o código. O store guarda o checksum do **dia em que
+foi gravado** (`NSStoreModelVersionChecksumKey` = `ImY8W7hR8jJH+…`, versão
+`4.0.0`); quando a 08u pôs `origemRaw` na `Nota`, a V4 passou a valer
+`2AijN0DBwZ…`, nenhuma versão do plano casou com o caderno do autor, e o plano
+inteiro recusou. **O erro da 08u não foi acrescentar atributo com padrão — foi
+acrescentá-lo sem abrir versão.**
+
+O comentário que a `Migracao.swift` carregava desde a 08u ("um `VersionedSchema`
+novo com a MESMA lista de classes tem o mesmo checksum do anterior") **estava
+certo no raciocínio e nunca foi medido contra um store real**: ele descreve
+exatamente a razão pela qual os schemas tinham de ser congelados, e concluía o
+contrário — que não se devia abrir versão nenhuma.
+
+**A decisão: congelar as cópias e abrir a V5 de verdade.** V2 declara a cópia
+congelada da `Nota` (a forma que valeu de 02/09 até a 08u), V3 declara a do
+`ReciboEntrada`, V4 a do `Trabalho`; V2, V3 e V4 reusam a mesma `Nota` porque
+entre elas a `Nota` **não mudou** — o que distingue os três checksums é a LISTA
+de classes. **A V5 é a única que aponta para as classes vivas, e é isso que
+"corrente" quer dizer.** O estágio V4→V5 é leve. `ModelContainer.traco` passa a
+abrir pela V5.
+
+**Custo, dito de frente:** três classes duplicadas (~60 linhas) que ninguém
+instancia e que **nunca mais se tocam**. É o preço de poder abrir o que o autor
+já escreveu, e ele se paga uma vez por versão. A alternativa barata — tirar o
+`migrationPlan` e deixar o CoreData inferir — abriria o caderno de hoje e
+desistiria de poder renomear ou apagar um campo amanhã sem perda; foi recusada.
+
+**O portão que faltava.** `CadernoAntigoAbreTests` abre um **store real de cada
+versão**, congelado em `TracoTests/Fixtures/`, e conta as notas. Os testes de
+`DiscoTraco` injetam closures e **nunca abriram um store antigo de verdade** —
+por isso a 08u passou verde e derrubou o arranque no aparelho do autor. Há dois
+cadernos: `caderno-v4-pre08u` (gravado pelo build `8d9ce62`, anterior à 08u) e
+`caderno-v5-origem` (gravado pelo build desta volta). O segundo é o que fecha a
+armadilha: quem mudar a classe viva sem abrir a V6 vê vermelho — provado
+acrescentando um atributo à `Nota` viva, que deixou o `caderno-v5-origem` em
+`loadIssueModelContainer` enquanto o `caderno-v4-pre08u` seguia verde.
+
+**A regra daqui em diante.** Toda mudança em `Nota`, `ReciboEntrada` ou
+`Trabalho` — atributo novo inclusive — congela a cópia na versão corrente, abre
+a seguinte, acrescenta o estágio, e **grava um caderno congelado novo antes de a
+mudança entrar** (`GerarCadernoCongelado` produz o `.store`; depois da mudança o
+build que gravava aquela versão não existe mais).
+
+**A rede da A1 funcionou.** Nada foi destruído: o store pré-08u ficou
+**byte a byte idêntico** depois da recusa do `main` (`cmp` limpo). O arranque
+honesto comprou o tempo para este conserto — mas recusa não é abrir, e a porta
+agora abre.
