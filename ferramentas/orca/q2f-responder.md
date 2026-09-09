@@ -3,8 +3,8 @@
 Volta `Vitorepf/volta-q2-responder`, sobre o `main` com a reversão dentro
 (`0d357e7`). ADR **2026-09-09q**. Aparelho da conta:
 `B91C8DEF-B0A7-454A-95DE-5D7BA7B040A9`. **Nenhum aparelho de trabalho foi ligado
-para a medida**; o `34CC3F94` só entrou para a suíte, no fim, e saiu na mesma
-corrida.
+para a medida**; o `34CC3F94` só entrou para as três corridas de suíte, no fim, e
+foi desligado ao término de cada uma (§6).
 
 **O veredito, em uma linha: a troca NÃO se sustenta.** `responder` **fica** em
 `indisponivelPorQualidade` e `Grok.modelo` **fica** `grok-4.3`. **Não há captura
