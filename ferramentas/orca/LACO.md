@@ -675,3 +675,497 @@ e não conserto.
 O revisor (`task_2072a1006345`) vai com a ordem do dono colada: **exercitar cada
 caso de verdade com o MCP ligado num cliente, e ler o retorno inteiro** — uma
 instrução que só funciona na cabeça de quem a escreveu não está entregue.
+
+## 08/09, 23h — pausa e retomada (uso 38%); a R1 abre o item 4 da fila do dono
+
+Pausa e retomada registradas. Inbox vazio, os três despachos conferidos vivos —
+nada se perdeu na janela.
+
+**Terceira frente reaberta: R1, a retomada do Trabalho** (`task_80cb1e43fc7b`,
+Opus 5, ADR `08y`, teste 3). É o **item 4 da fila do dono** e a área ficou livre
+com a mescla da Q — o G0 dela já estava escrito no RUMO desde as 20h, à espera de
+vaga, e é por isso que ela nasceu pronta.
+
+O que ela ataca é uma **meia entrega**, não uma ausência: `TrabalhoView.retomada`
+já dá "Continuar: \<ato pendente\>" e "Último retorno", mas a folha **abre sempre
+no topo** de quinze blocos — ela *oferece* rolagem e nunca a usa na abertura —,
+não há resumo do que houve entre duas visitas, e "último retorno" é a última
+evidência, não o que mudou: se o autor guardou a própria versão e nada mais
+aconteceu, a retomada fala de algo velho ou cala.
+
+A fronteira que mais importa está no spec em letras próprias: **nada de resumo
+escrito pela IA**. Quem sabe o que mudou é o app, que tem os vínculos. Um resumo
+gerado seria bonito e seria mentira — e é exatamente o tipo de coisa que este
+projeto existe para não fazer.
+
+**As frentes:** revisor da MAC-1 (exercitando os seis casos com o MCP ligado), C1
+(caret já verde no 17e, nas capturas), R1 (nova) e a trilha fora do app com a
+F5b.
+
+## 08/09, 23h15 — a C1 leva o único vermelho do 17e a zero, e a causa é uma conta
+
+Fez o caminho na ordem certa: **reproduziu as 18 issues antes de consertar**, e
+mediu a causa com sonda em vez de adivinhar. No 17e com teclado de pé sobram
+413,67 pt; o pé toma 274,67 (326,67 com o aviso); e a regra `min(piso, sobra/2)`
+dava **69,5 pt — depois 43,5 — de papel para uma linha de corpo de 67**. Somado
+a isso, `EscritaVisivel.seguirCaret` perseguia o **`caretRect` (45 pt)** e não a
+**linha visual (67 pt)**, pedindo a folga inteira num papel curto.
+
+O conserto é nas **duas funções compartilhadas e sem tocar no teste** — que era
+exatamente o que eu tinha proibido no spec: o piso do papel nunca desce abaixo de
+uma linha, a folga cede antes da letra, e a nova `linhaDoCaret` mede pelo TextKit
+2. **18 → 0**, AX5 31/31, large 44/44, suíte integral **949 em 153 suítes verde
+no 17e**, zero aviso, `content_size` restaurado.
+
+**Uma contradição que mandei o revisor desempatar:** o assunto do `worker_done`
+diz "AX XXXL" e o corpo diz que as 18 issues são **todas AX5**. Eu escrevi
+"AX XXXL" no spec porque foi assim que a V13 relatou, e pode ser que eu tenha
+propagado um erro de leitura. Importa: **AX5 é um tamanho que muito mais gente
+usa que o XXXL**.
+
+Dois limites declarados e não corrigidos, que o revisor julga se ficam como
+dívida: um resíduo de ~0,11 s na gaveta do cartão a chegar, e a barra de baixo,
+que em AX XXXL toma **275 dos 414 pt** do 17e.
+
+E uma nota de instrumento: **o `orca emulator` parou de entregar toque no meio da
+passada**, e a saída foi varrer **220 quadros com `simctl io`** enquanto o teste
+hospedado dirigia a Página real. Não vira lei ainda — mandei o revisor conferir
+se a evidência assim obtida sustenta o que ela afirma.
+
+## 08/09, 23h25 — MAC-0 aberta por ordem do dono, e a lei do mouse suspensa por uma volta só
+
+Ordem literal: *"tem o Astra e o Fable 5.1, dois modelos excepcionais para
+controlar meu computador, e no Orca todos têm permissão total; deixe totalmente
+configurado"*. O dono suspendeu a **lei do mouse** — a mesma que ele criou às
+11h35 de hoje, com raiva, ao ver agentes disputando o cursor — **para esta volta
+e só para ela**, e escreveu a exceção na ESTEIRA em `main` (`6613a72`).
+
+Pus os limites em letras próprias no spec, porque uma exceção mal lida vira a
+regra: **só o app "Grok Bot"** (`com.anysphere.sand`) e, se preciso para a
+primeira tarefa, o **"Espelhamento do iPhone"**; nenhum outro app, nem navegador,
+nem Ajustes, nem Finder; **aviso ao dono no comentário do worktree ao começar e
+ao terminar**, e o mouse devolvido no fim; **nenhum simulador**; e **voz,
+VoiceOver e iPad continuam proibidos sem exceção nenhuma** — a suspensão é do
+mouse e só do mouse.
+
+**A tarefa 1 é a que decide o resto:** a pasta espelhada
+`~/Library/Mobile Documents/com~apple~CloudDocs/Traço` **não existe no Mac**, e
+sem ela o servidor não tem o que ler. Ela nasce pelo caminho do produto — no
+Traço do iPhone do dono, Perfil › Dados › Espelhar numa pasta › iCloud Drive —,
+com a instrução de **não tocar em nada mais no iPhone** e de **reportar e seguir**
+se o aparelho não estiver alcançável.
+
+E a prova que pedi é de uso, não de configuração: **"bom dia"** tem de chamar
+`traco_agenda`, e **"o que eu já pensei sobre o Traço?"** tem de chamar
+`traco_buscar` **citando ids**. Com uma saída honesta escrita no spec: **se a
+pasta ainda não existir, a prova válida é a mensagem do servidor dizendo isso** —
+uma configuração que responde "não achei a pasta" está mais entregue do que uma
+que inventa.
+
+**Teto:** o dono mandou segurar a próxima abertura até a MAC-0 fechar. Em edição
+ficam R1 e MAC-0; MAC-1 e C1 estão em G3 (revisão, não edição) e a F5b é a trilha
+fora do app. Não abro mais nada até ela voltar.
+
+## 08/09, 23h35 — DIRETRIZ §7: a lei do mouse cai, e o foco vira a IA até a nota 9
+
+Palavras do dono: *"todos os modelos no Orca têm total liberdade de controlar meu
+computador e evoluir o Traço iOS. Foco número um: levar o Traço a 9/10; está em 7
+e demorou o dia inteiro. Foquem na melhoria da IA, testem a IA, têm total
+controle do computador. Elevem ao extremo design e experiência: curva-zero,
+design-router, gate-loop."*
+
+**O que muda, e já pus no preâmbulo de todo spec:**
+
+1. **A lei do mouse foi substituída** — controle do computador liberado para todo
+   worker, com **aviso no comentário do worktree ao começar e ao terminar** e
+   **nunca dois workers no mesmo app**. No simulador, `orca emulator` continua
+   preferido, porque toca pelo UDID sem disputar o cursor. **Voz, VoiceOver e
+   iPad seguem proibidos** — essa não se toca.
+2. **Foco 1 é a IA:** as **sete** operações `indisponivelPorQualidade` (`ecos`,
+   `calibragem`, `recordar`, `responderNasNotas`, `responder`, `instigar`,
+   `contrapor`) voltam **uma por uma**, cada uma com volta própria, medidas com o
+   Grok pela sonda **antes e depois**, e só saem da lista com **9 nas cinco
+   dimensões**. Alavancas: contexto, prompt, esquema de saída e teto. **A régua é
+   a saída inteira lida.**
+3. **Foco 2:** toda volta visual cita as seis fases do design-router, curva-zero
+   medida em toques, gate-loop dono do ciclo; **tela abaixo de 9 antes de função
+   nova**.
+4. **Cada fecho diz o que mudou na NOTA da dimensão tocada, com prova.**
+
+Aproveitei o preâmbulo aberto para acrescentar as duas leis de instrumento que
+nasceram hoje: **ausência na árvore de AX não prova ausência na tela**, e
+**runner travado antes de conectar não é resultado**.
+
+**Abri a consulta de G0 ao Astra para a Q2** (`task_6d119a00ab8f`), que é
+`responder` — a primeira da fila do dono, escolhida por valer mais para a jornada
+do espanhol e para a sábia na página. O defeito medido: *o Grok inventou fato
+quando o contexto não sustentava* (horário de biblioteca que ele não podia saber,
+um total de R$ 1.008 sem distância, consumo nem preço), **3 de 6 casos — e o
+mesmo caso acertou numa execução e fabricou na seguinte**.
+
+Fiz três perguntas e a terceira é a que me preocupa: apertar contra a invenção
+compra facilmente **a recusa covarde** — calar onde o contexto sustentava. Isso
+já aconteceu com a irmã `responderNasNotas`. Pedi ao Astra **a forma da prova de
+que a volta não comprou esse defeito**, não a promessa de cuidado. E avisei que
+"N de 6" sozinho não decide, porque o mesmo caso deu os dois resultados.
+
+## 08/09, 23h55 — pausa e retomada (uso 44%); quatro entregas de uma vez, e duas reprovações que valem
+
+Pausa e retomada registradas. Quatro despachos voltaram `completed` **sem
+`worker_done` na caixa** — fui direto ao `git log` de cada worktree, como a lei
+de hoje manda, e todos os quatro tinham entregado.
+
+**G3 da MAC-1: RECUSADA.** E os três achados são bons:
+- **P0 de autoria:** `PerfilView.lerRetrato` passa `doAutor:` certo, mas
+  `Sessao.responderNasNotas` — **a rota de produção** — cria `Retrato.NotaLida`
+  **sem esse argumento**, e o padrão é `true`. Uma nota `grokbot` aberta **entra
+  no retrato mandado à IA**. O teste novo exercitava `Retrato.ler` isolado, **não
+  esse chamador**: é o teste que não visitou o lugar do defeito, de novo.
+- **P1:** o caso 8 **não é executável como prometido** — com o MCP ligado num
+  cliente real, `traco_contrato` devolve só contrato e corpus, **sem os métodos e
+  as perguntas** que a instrução manda o bot buscar. É exatamente por isto que o
+  dono mandou o revisor exercitar cada caso de verdade.
+- **P2:** as duas correções não deixaram replay do vermelho.
+
+**G3 da C1: CORRIGIR ANTES**, e a régua dele é dura do jeito certo. Ele
+**reproduziu as 18 no pai com as próprias mãos** e confirmou o verde
+(31/31, 44/44, 949 integral). Mas a ADR 08f escreve a invariante como *"em cada
+quadro apresentado"*, e a captura `c1-04` mostra a linha ativa cortada pelo
+cartão **durante a gaveta**. Declarar como resíduo é honesto — **e não torna
+mesclável uma violação conhecida de uma regra sem exceção**. Ele acrescenta que
+os 0,11 s **não são verificáveis**: há captura e a alegação de 220 screenshots,
+mas sem timestamps, sequência ou vídeo versionado.
+
+**F5b entregou, e é a melhor volta da trilha até aqui.** Ela achou o defeito
+**antes** do acabamento: com Destaque e compromisso vivos, o iOS mostra um e
+empilha o outro — **era o Destaque escondendo o compromisso que está
+acontecendo**; conserto por `relevanceScore`. Plantou a **Ilha mínima** subindo
+um segundo app descartável, porque duas atividades do mesmo app não a produzem.
+Mediu o fim: o "acabou" sai sozinho da Ilha em **menos de 12 min** e fica na tela
+bloqueada **além dos 14**. E **removeu um item do RUMO**: o "t" cortado da F4
+**não se reproduz**, porque **a Ilha não escala com Dynamic Type** — mandei o
+revisor conferir essa afirmação, porque ela apaga uma dívida.
+
+**Astra entregou o G0 da Q2** e o parecer tem a qualidade que se paga por ele: o
+critério de resolvido em uma frase (**um único descumprimento reprova**), a
+alavanca (**prompt primeiro**, adaptando o contrato de sustentação do
+`MotorTrabalho.sistema`, que já proíbe inventar fato e manda nomear o dado
+ausente), e — o que mais importa — **o aviso de que a comparação com `produzir`
+é hipótese e não prova causal**, porque as corridas usam modelos e esforços
+diferentes. Ele também derrubou a régua antiga: **"3 de 6" não é gabarito
+semântico**, porque casos contados como bons inventam coisas também.
+
+**Despachei:** a **Q2** (`ctx_b3298d891b2b`), com o critério do Astra e a tabela
+de pares que muda só a evidência — a prova de que apertar contra a invenção não
+comprou a **recusa covarde** —, e o **revisor da F5b** (`ctx_a51788690b90`).
+
+**Seguro a MAC-1-B e a C1-B**: em edição já estão R1, MAC-0 e Q2, e o dono
+mandou que a próxima abertura fosse a Q2 e mais nada. Elas entram quando abrir
+vaga.
+
+## 09/09, 00h — pausa e retomada (uso 46%); a Q2 mede, e recusa aprovar a si mesma
+
+**A Q2 é a melhor volta de IA do laço até aqui, e o motivo não são os números.**
+Cinco corridas na sonda, **no aparelho do dono com a conta ligada**, 12 casos × 3
+execuções, saídas inteiras guardadas. Duas alavancas medidas **separadamente**:
+
+- **prompt sozinho no `grok-4.3`:** base 5/12 → candidato **8/12**. A **fabricação
+  de NÚMERO morreu** — os R$ 1.008 e o horário da biblioteca **não voltaram em
+  108 execuções**. Mas sobrou **fabricação de cenário**, que **sobrevive a uma
+  proibição escrita com todas as letras**;
+- **o mesmo prompt no `grok-4.6` com esforço `medium`:** **12/12 e 36/36, nenhum
+  descumprimento**.
+
+**E ela não aprovou a si mesma.** Escreveu: *"eu escrevi os doze casos e eu os li;
+aprovar a operação com a minha própria leitura seria usar a nota do gerador como
+aprovação — o que `QUALIDADE-IA.md` proíbe na mesma página"*. Também não
+implementou a habilitação: *"não implementei o que não posso aprovar"*. E mediu o
+preço em vez de escondê-lo: a espera vai de **1,4 s para 36,1 s de média, pior
+caso 77,5 s**, dizendo que a régua do aceitável ali é do dono.
+
+**O dono decidiu: vale a espera, e a tela tem de avisar.** Isso resolve o preço;
+**a qualidade quem decide é o revisor independente**, que despachei
+(`ctx_e79573532c4a`) com a exigência que o conselho fixou: **casos NOVOS, dele**,
+atacando a fabricação de cenário — a que sobreviveu — e a recusa covarde, que é o
+defeito oposto; cada saída inteira lida; **um único descumprimento reprova**.
+
+**MAC-0 ficou duas horas cega** e o worker fez o certo: a tela do Mac estava
+trancada desde as 21h23, a acessibilidade não expunha janela nenhuma, e ele
+**não tentou destrancar** — registrou tudo e parou (`c0155fe`). O dono
+desbloqueou; a MAC-0-B (`ctx_9287c38942ea`) retoma com duas respostas dadas: o
+servidor aponta para o **caminho estável do `main`**, nunca para um worktree que
+vai sumir, e o **"bom dia" fica declarado em aberto** — `traco_agenda` só nasce
+quando a MAC-1 mesclar, e uma configuração honesta que diz o que não tem vale
+mais do que uma que parece completa.
+
+**O revisor da F5b também recusou** ("a Ilha sem prova reprodutível") e a R1
+entregou com um achado que me interessa: **o defeito que a minha auditoria
+acusava já tinha caído** — a terceira vez hoje que a régua "a auditoria é datada"
+se paga sozinha.
+
+## 09/09, 00h30 — pausa e retomada (uso 0%); o revisor da Q2 parou pelo motivo certo
+
+**O revisor da Q2 escreveu "NÃO APROVAR" e a razão honra a esteira:** *"a conta
+do único aparelho autorizado caiu depois do install por cima, e não a
+contornei"*. A lei do simulador do Grok diz **"se a conta cair, diga em vez de
+contornar"** — ele disse. O dono reautorizou, e a **Q2-B** (`ctx_8700c898fcf6`)
+retoma **só o que falta**: as três inferências novas em **casos que o
+implementador não escreveu**.
+
+O que a leitura dele já estabeleceu, e não se refaz: leu **as 36 saídas inteiras**
+do `grok-4.6` e **não achou** fabricação de número, horário, terceiro, suporte
+nem ação já realizada, **nem recusa integral de pedido atendível**; e conferiu
+que **a sonda e o cartão de produção chamam a MESMA função** — *não é a sobrecarga
+fantasma que invalidou a medição anterior de `responderNasNotas`*. Fica também a
+ressalva dele, que é justa: a sonda abre `responder` **só em DEBUG**, então isto
+**mede motor, não entrega superfície**.
+
+**O Mac continuou trancado** e a MAC-0-B fechou pelo mesmo motivo da primeira,
+sem configurar nada e sem desfazer nada. O dono está destrancando; a MAC-0-C
+espera a confirmação.
+
+**Duas leis novas de instrumento, as duas vindas da R1:**
+
+1. **`orca emulator kill` derruba o vizinho.** A R1 matou o helper para o
+   `34CC3F94` e **o `6033B043` de outra volta desligou no mesmo segundo** — o
+   helper é um só e derruba o que ele gerencia, não só o `--device` pedido. Para
+   encerrar o próprio aparelho, `simctl shutdown`, que é escopado.
+2. **O `ask` expira, e o laço tem de contar com isso.** Duas perguntas morreram
+   por timeout na mesma noite, porque eu só olho a caixa quando sou avisado. O
+   worker da R1 fez o certo: com a pergunta expirada, **religou o simulador para
+   restaurar o estado em que encontrou a máquina** — voltar ao que estava é a
+   decisão certa quando o coordenador não responde. Está no preâmbulo agora.
+
+Despachei também a **MAC-1-B** (`ctx_b365f76d3509`) com o P0 de autoria e a
+decisão de contrato do dono: **a origem acompanha todo consumidor**, o campo vira
+`vozDoAutor` para a incompatibilidade morar no tipo, e **o padrão não pode ser
+permissivo** — o defeito nasceu de um `default true`.
+
+## 09/09, 01h — pausa e retomada (uso 2%); a lei do Grok estava errada, e quem a derrubou foi a fumaça
+
+**A conta caiu por causa do INSTALL POR CIMA — que a lei permitia.** A fumaça do
+revisor mediu `contaGrokLigada=true` com **12 modelos** às 03:20:38Z e, **89
+segundos depois do install**, `false` com **0 modelos** às 03:22:07Z. Ele parou
+na hora, não reautorizou, não limpou, não usou outro aparelho — e foi **por não
+contornar** que o gatilho apareceu. Se ele tivesse dado um jeito, a lei
+continuaria errada e a conta continuaria caindo sem ninguém saber por quê.
+
+**A lei está corrigida:** no `C2416CBC` **ninguém instala nada, nem por cima**.
+E ficou escrito **como rodar IA sem instalar**, que é o que destrava o trabalho:
+a sonda lê a fixture pelo nome em `TRACO_AVALIAR_IA` **no Documents do app**
+(`AvaliacaoIA.swift:58`) — escreve-se a fixture no contêiner de dados, relança-se
+com a variável, e **usa-se o binário que já está lá**, dizendo no relato qual
+candidato é (medir com binário alheio é o erro irmão). Fumaça obrigatória antes e
+depois de cada corrida.
+
+Despachei a **Q2-C** (`ctx_...`) com esse método e com os **seis casos
+independentes que ele já tinha escrito** — eles voltaram `semRetorno` por causa
+da conta; não se reescrevem, rodam-se.
+
+**O Mac nunca foi destrancado**, e o worker provou em vez de reclamar: o carimbo
+`CGSSessionScreenLockedTime` continua **21:23:03 de 08/09**, e o macOS o reescreve
+a cada bloqueio novo — logo a tela não abriu em momento nenhum. Ele escalou às
+21h46, repetiu a pergunta três vezes, esperou o prazo e **fechou como falha por
+bloqueio sem tomar o mouse e sem alterar nada**. A observação dele para o dono é
+prática: **destrancar e avisar no momento**, porque o Mac trava sozinho por
+inatividade.
+
+O que ele apurou sem a tela vale: a pasta espelhada **não existe** e o servidor
+responde a **mensagem honesta** ("A pasta do Traço não está em …"); o
+`.cursor/mcp.json` aponta para o caminho estável; `tools/list` do `main` traz **10
+ferramentas, sem `traco_agenda` nem `traco_decisoes`**; `settings.json` intocado.
+
+## 09/09, 01h30 — pausa e retomada (uso 3%); a conta segue caída e eu paro de perguntar
+
+A fumaça da Q2-C às **04:30:19Z** gravou `contaGrokLigada:false` e
+`Falha.semRetorno`. O revisor **não instalou candidato e não rodou os casos
+cegos** — a fronteira nova respeitada à risca. `responder` continua **não
+aprovada**, e a razão está escrita: falta o dono reautorizar **de forma
+verificável**.
+
+**Pedi duas vezes e as duas coisas não aconteceram** (o Mac nunca destrancou, a
+conta não voltou). Registro e **paro de perguntar**: repetir a pergunta não
+produz trabalho, e o dono responde quando estiver na máquina. As duas ficam
+esperando, com a evidência guardada — a Q2 tem a medida inteira em `prova/`, e a
+MAC-0 tem o roteiro de retomada pronto.
+
+**A MAC-1-B entregou** (`8bdc591`, ADR **2026-09-09b**) e a frase do commit diz o
+que interessa: *"o corte da 08u estava no LEITOR, e o CHAMADOR de produção o
+esquecia"*. `vozDoAutor` **sem padrão**, o caso 8 exercitado no cliente real, e os
+dois vermelhos que faltavam. Foi ao re-G3 com o mesmo revisor.
+
+Também despachei a **C1-B** — que tem de **escolher um caminho e escrever a
+razão**: consertar a gaveta, ou **contratualizar** a exceção na ADR 08f de forma
+nomeada, delimitada e medida. Escrever exceção larga para caber o que hoje falha
+seria enfraquecer a invariante em vez de dizer a verdade sobre ela. E a **revisão
+da R1**, onde a pergunta que mais me interessa é se **a recusa dela em implementar
+a rolagem automática** — porque conferiu na tela viva que a retomada já nasce a
+0,36 tela do topo, e o que está acima é a intenção — está certa ou deixou de
+entregar o critério.
+
+## 09/09, 02h — pausa e retomada (uso 5%); a MAC-1 aprovada, e o conserto que calou quatro rotas de uma vez
+
+**A MAC-1-B passou no re-G3** e o conserto é do tipo que eu gosto de registrar:
+o P0 não era um esquecimento a remendar num lugar — `Nota.vozDoAutor` passa a
+devolver **vazio quando a nota não é do autor**, e isso **calou de uma vez o
+léxico, o classificador de bordo e as perguntas dos Padrões**, com `Nota.dominio`
+calando o chip `TRABALHO` **sem migração**. As seis conversões espalhadas viraram
+quatro (`paraRetrato`, `paraTrajetoria`, `paraSemana`, `paraRede`), e o campo
+**não tem padrão** — a incompatibilidade mora no tipo, como o dono decidiu.
+
+O revisor conferiu do jeito certo: **injetou o mesmo teste de rota no commit
+velho num checkout temporário** e viu o vermelho (o retrato enviado continha
+`2 WOOP` e *"o bot achou isto"*), depois viu o verde no candidato. E exercitou o
+**caso 8 num cliente MCP de verdade**: o `traco_contrato` agora traz "Métodos,
+campos e a PERGUNTA de cada um", e o cliente fez **somente** a pergunta do WOOP,
+sem escrever arquivo.
+
+Um achado de brinde que corrige a nossa própria ADR: o replay da V5 mostrou que
+**o checksum duplicado só reclama quando um estágio RODA**, e que a falha é uma
+`NSException` **que nenhum `do/catch` pega**.
+
+**Mesclada** (`6d1c90d`), com os conflitos de vizinhança resolvidos e o projeto
+**regerado por `xcodegen`** em vez de concatenado à mão — concatenar `pbxproj` é
+como concatenar um banco. Suíte na árvore mesclada, que ninguém dos dois lados
+tinha rodado: **973 testes em 156 suítes, verde**.
+
+**A R1 recebeu CORRIGIR ANTES, e a recusa dela foi confirmada:** o revisor
+escreveu que **o contrato determinístico é bom e que não rolar automaticamente
+está CORRETO**. O que trava é a régua nova do dono: **as seis fases do
+design-router citadas**, a **curva-zero em toques e gestos** (ela mediu em telas
+de rolagem, que é distância percorrida e não esforço), e a **Complexidade 8 que
+ela mesma marcou** — honestidade boa, que agora tem de virar 9 ou descer o diff.
+
+**A Q2-C parou de novo**: a fumaça às 05:42:01Z gravou `contaGrokLigada:false`,
+zero chamadas, e ela **não instalou nada**. `responder` segue não aprovada, e as
+cinco dimensões ficam **inconclusivas** — que é a palavra certa, e não "reprovada".
+
+Despachei **R1-B** e **F5b-B**. A F5b-B tem a régua do revisor: **teste de
+request/update** (o que falha se alguém parar de passar o `relevanceScore` na
+publicação), **semeadura que de fato publica** para qualquer um reproduzir, e os
+pares `large`/AX5 com **log versionado**, não citado.
+
+## 09/09, 03h — pausa e retomada (uso 9%); a S1 abre, e a C1-B já reproduziu o resíduo
+
+Pausa e retomada registradas. As três frentes seguem, e a **C1-B fez o certo logo
+de saída**: em vez de aceitar a alegação dos 220 screenshots, montou uma **sonda
+por quadro** e **reproduziu o resíduo da gaveta**. Medir o fenômeno antes de
+decidir entre consertar e contratualizar é a única ordem que sustenta a decisão.
+
+**Quarta frente aberta: S1**, a pergunta interrompida que some ao trocar de aba
+(`task_797fb1e2bf64`, Opus 5, ADR `09c`). É o segundo achado da V13, e o RUMO já
+nomeava o dono: *"é estado desonesto — a pessoa perde o que estava esperando sem
+que nada diga"*, com o conserto na `Sessao` e não na view, porque `RaizView`
+**recria** a `NotasView` ao trocar de aba.
+
+O spec nasce com duas coisas que o dia ensinou. A primeira: **conferir na tela
+viva antes de codar**, porque hoje já foi três vezes que um defeito anotado tinha
+caído sozinho — a última na R1, que achou o defeito 1 do próprio G0 dela já morto.
+A segunda: **a honestidade é a entrega, não só a persistência** — se em algum
+caminho a pergunta não puder sobreviver, a tela **diz**; o que não pode é sumir em
+silêncio.
+
+Escolhi esta e não outra da fila porque **as voltas de IA estão todas travadas na
+conta caída** — `responderNasNotas`, `instigar`, `contrapor`, `ecos`, `calibragem`
+e `recordar` precisam do Grok, e ele só volta com o dono. A S1 não precisa de
+nada além do aparelho.
+
+## 09/09, 04h — pausa e retomada (uso 14%); as três correções voltaram, e a C1 escolheu consertar
+
+Pausa e retomada registradas. **A C1-B escolheu o caminho (a): consertou** —
+*"nenhuma gaveta corre sobre a linha do autor"*. Ela podia ter escrito uma exceção
+na ADR 08f, que era o caminho (b) e o mais barato; preferiu **medir primeiro com
+uma sonda por quadro, reproduzir o resíduo, e então tirá-lo**. É a ordem certa, e
+o resultado que ela relata é o único que fecha a invariante escrita sem exceção:
+**0 quadros fora nos dois tamanhos**.
+
+A **R1-B** voltou com a régua do dono (as seis fases, a curva-zero em toques e a
+Complexidade resolvida) e a **F5b-B** com as três provas que o revisor nomeou —
+teste que **morde o wiring**, semeadura que **publica pela rota real**, e os pares
+`large`/AX5 com **log versionado**.
+
+Mandei os três de volta ao **mesmo revisor** que os recusou, cada um com a lista
+ponto a ponto do que ele mesmo exigiu, e com a instrução de **quebrar o teste do
+wiring com as próprias mãos** em vez de aceitar que ele morde.
+
+Um detalhe de máquina que funcionou sozinho: a F5b-B avisou no batimento que
+**outro worker estava rodando `xcodebuild test` no `6033B043`** — era a C1-B
+fazendo a prova do Pro Max que eu autorizei — e **esperou a trava** em vez de
+disputar. Foi a primeira vez no dia que duas voltas dividiram um aparelho sem
+incidente, e o que fez a diferença foi o aviso no comentário do worktree, que a
+DIRETRIZ §7 tornou obrigatório.
+
+**As duas travadas em você continuam paradas:** a conta Grok caída segura a Q2 e
+as outras seis operações; a tela do Mac trancada segura a MAC-0.
+
+## 09/09, 05h — pausa e retomada (uso 15%); o vídeo que mostrava a Tela Inicial
+
+**O revisor da C1 abriu o vídeo.** A C1-B versionou um MP4 anunciado como "a
+gaveta consertada" e ele contém **44,04 s da Tela Inicial, sem o Traço**. A
+sequência textual carimbada da mesma passada é boa; o vídeo era **prova falsa**, e
+o que separou uma coisa da outra foi alguém **abrir o arquivo**. Virou lei:
+**prova que ninguém olhou não é prova** — caminho de arquivo no relatório é
+promessa, não evidência.
+
+Ele também achou que **a sonda nova mede metade da invariante**: `E ⊆ P` sim,
+`P ∩ O = ∅` não. Uma sonda que só reprova metade da regra **dá um verde** para a
+outra metade, o que é pior do que não ter sonda. Também virou lei.
+
+**E ainda assim a C1-B fez a coisa mais bonita da noite:** o instrumento por
+quadro que ela montou (`CADisplayLink` sobre as camadas de apresentação)
+**corrigiu duas medidas dela contra ela mesma** — o resíduo é de 0,098 s (AX5) e
+0,100 s (large), 6 quadros cada, e **não era só de AX XXXL**, como a C1 e eu
+vínhamos repetindo desde o relato da V13. Construir o instrumento que te desmente
+é o oposto de escrever a frase que te convém.
+
+**A R1-B trocou de instrumento por um motivo que vira lei irmã:** o helper do
+`orca emulator` devolveu **`ok:true` sem mover a tela**. Ela mediu a curva-zero
+por XCUITest e a medida ficou boa: antes **3 toques + 5 arrastos + 6 paradas** de
+leitura para saber sete coisas; depois **3 toques + 0 arrastos + 1 parada**, com
+os sete fatos na primeira tela. E resolveu a Complexidade com número: o código de
+produção **desceu de 82 para 81 linhas**, com a migração para Componentes
+**medida e recusada** porque acrescentaria 25–30 linhas para um chamador só.
+
+**A F5b-B ganhou um grupo de controle sem pedir:** o `xcodebuild test` de outro
+worker instalou no `6033B043` um binário **sem a 08v**, e a Ilha voltou ao
+Destaque **com a mesma projeção**. Prova por ausência, que vale mais que uma
+captura a mais. O senão é de processo: aquele worker usou o aparelho **sem avisar
+no comentário do worktree**, que a DIRETRIZ §7 tornou obrigatório — fica
+registrado, sem culpa da F5b, que anotou.
+
+Os dois re-G3 recusaram de novo (C1 pela prova temporal, F5b pelo corte em AX5 e
+pelas seis fases), e despachei **C1-C**, **F5b-C** e a **revisão da S1**, que
+entregou a pergunta que não some mais ao trocar de aba.
+
+## 09/09, 06h — pausa e retomada (uso 2%); a S1 pegou o próprio verde falso
+
+**A S1 fechou, e o que ela achou sobre si mesma vale mais que o conserto.** O
+conserto é pequeno e certo: a `ConversaNotas` sai do `@State` da `NotasView` e vai
+para a `Sessao` — **3 linhas de código, +14 −2** — e com ela vieram junto a
+pergunta guardada, as trocas, o aviso de "sem conta" e a busca em edição.
+
+Mas o achado é este: **a primeira corrida do teste dela passou VERDE sem visitar
+o defeito.** Com o campo de busca em foco, **a barra de navegação some inteira**,
+e o toque do teste caiu numa tecla do teclado. Ela percebeu, nomeou o colateral, e
+consertou o teste — que agora **solta o teclado por arrasto e exige
+`calendario-titulo` como pré-condição**. É a lei do "verde que não visitou o lugar
+do defeito" **pega pelo próprio autor**, que é a única forma barata de pegá-la.
+
+Ela também declarou o que **não** consertou, na classe certa: filtro, domínio,
+ordem e lote **também** morrem na recriação, **mas a tela mostra isso no mesmo
+quadro** — outra classe de problema, anotada e não remendada.
+
+E a suíte dela travou antes de conectar na primeira corrida: **mostrou as duas
+saídas** e não contou a travada como resultado, exatamente como a lei de ontem
+manda. 973 testes em 156 suítes na repetida.
+
+**Uma pergunta de revisor virou regra.** Ele perguntou se podia montar um checkout
+descartável do pai em `/tmp` para reproduzir o vermelho, porque *"só no seu
+worktree"* deixava isso ambíguo. **Pode, e deve** — foi assim que o revisor da C1
+produziu a melhor prova da noite, trazendo **só a sonda** do candidato para o pai.
+Está na ESTEIRA e no preâmbulo, com as condições. Perguntar em vez de supor é o
+que faz uma regra melhorar em vez de ser contornada em silêncio.
+
+Os dois re-G3 recusaram com prova reexecutada — a C1 pela sonda que mede metade e
+pelo vídeo vazio, a F5b pelo corte em AX5 e pelas seis fases —, e a **C1-C**,
+a **F5b-C** e a **revisão da S1** já estão em curso.

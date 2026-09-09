@@ -41,17 +41,7 @@ Lei: **nunca `booted` e nunca `-destination generic` para instalar**. Sempre `xc
 
 **VOZ, VOICEOVER E iPAD SÃO PROIBIDOS (lei de 08/09, ordem do dono, repetida por ele inúmeras vezes).** Nenhum worker aciona Siri, o botão siri do `orca emulator`, ditado por voz, Speak Screen, VoiceOver ou `say`, em simulador nenhum, nunca: a fala dos simuladores sai pelas caixas do Mac do dono, e em 08/09 ele ouviu a Siri do teste 2 e do teste 4 enquanto trabalhava. Prova de Siri, de ditado e de qualquer entrada por voz é no iPhone do dono, com ele presente, ou não existe. Acessibilidade se prova pela árvore (`orca emulator ax`, hierarquia) e por captura, nunca com VoiceOver ligado. iPad não existe no Traço e não se cita. Worker que violar é parado e a volta recomeça. Vai no preâmbulo de todo spec, antes de qualquer outra lei.
 
-**Ninguém toca no mouse do dono (lei de 08/09, ordem do dono).** Nenhum worker controla o mouse ou o teclado do Mac — nem `cliclick`, nem computer-use, nem `AXRaise`, nem AppleScript de clique. O dono trabalha na mesma máquina e em 08/09 viu vários agentes disputando o cursor ao mesmo tempo; além disso o clique por coordenada cai na janela do simulador vizinho. O instrumento é o controle de simulador do Orca, que toca o aparelho pelo UDID sem passar pelo cursor: `orca emulator attach <UDID> --json` uma vez; `orca emulator ax --device <UDID> --json` para achar o elemento (frames normalizados 0..1, origem no canto superior esquerdo; tocar no centro, x+w/2 e y+h/2); `orca emulator tap <x> <y> --device <UDID> --json`; `orca emulator type "texto" --device <UDID>` (só ASCII); `orca emulator button home --device <UDID>`; `orca emulator kill --device <UDID>` ao terminar. Evidência continua sendo `xcrun simctl io <UDID> screenshot`. Quem muda orientação, tamanho de letra ou aparência do simulador restaura ao fim da passada e confere por captura. Esta lei vai no spec de todo worker.
-
-**O helper do `orca emulator` é UM SÓ na máquina** (três achados independentes em 08/09, e é o limite do instrumento novo). O revisor da P1 viu o `ax` perder a árvore de acessibilidade **assim que o Traço abre** (`ERR_CONNECTION_REFUSED` / `ERR_EMPTY_RESPONSE`), recuperando-a na tela inicial e perdendo-a de novo ao abrir o app. A volta L2 perdeu duas capturas porque o helper é global. E o revisor da L2, **depois de anexar explicitamente o seu UDID, viu o helper voltar a apontar para o aparelho de OUTRA volta** e as chamadas seguintes perderem o aparelho — o que o impediu de repetir uma medição de geometria de forma independente.
-
-O juiz do G4 da F4-F acrescentou o quarto dado, e é o mais claro: **`orca emulator attach` é por worktree**, e cada reatamento dele pode ter tirado o aparelho do revisor que trabalhava em paralelo.
-
-**E o pior deles, achado pelo juiz do G4 da V12 em 08/09:** `tap --device` **recusa** quando o helper está noutro aparelho, mas **`ax --device` lê a árvore do VIZINHO sem avisar**. Quer dizer: uma medida de geometria feita pela árvore de acessibilidade pode ser do aparelho errado e **parecer certa**. Regra: toda medida pela árvore de AX é conferida contra uma captura `simctl io` do mesmo UDID no mesmo instante (texto e estado batendo), ou não vale; duas medidas independentes que concordam valem mais que uma sozinha.
-
-Consequências, enquanto o instrumento for assim: **toda sessão de `orca emulator` passa por `ferramentas/orca/com-trava.sh`**, como build e teste, porque o helper é recurso único da máquina; quem for medir geometria ou dirigir tela **declara no relato que segurou a trava**; e medição que o revisor não conseguiu repetir por causa do helper é **limite de instrumento, não confirmação** — não se vende como segunda prova. Prova de tela continua sendo `xcrun simctl io <UDID> screenshot`, que não depende do helper.
-
-**Com quatro simuladores ligados, `xcodebuild test` pendura** em `test runner hung before establishing connection` (achado da F4-I, duas vezes seguidas em 08/09). **A clonagem do teste paralelo é o que pendura:** `-parallel-testing-enabled NO` resolve de primeira. Use-o sempre que houver mais de dois simuladores de pé.
+**O controle do computador está LIBERADO para todo worker (ordem do dono, 08/09 22h, DIRETRIZ §7).** O worker pode usar o computer-use do Orca, o simulador, apps do Mac e o Espelhamento do iPhone quando a prova exigir o aparelho, com duas condições: avisar no comentário do worktree ao começar e ao terminar, e nunca dois workers no mesmo app ao mesmo tempo. Para o simulador, `orca emulator` continua sendo o caminho preferido (toca pelo UDID, sem disputar o cursor); `cliclick` em coordenada de tela cai na janela do vizinho. Quem muda orientação, tamanho de letra ou aparência restaura ao fim. **VOZ, VOICEOVER E iPAD CONTINUAM PROIBIDOS.**
 
 **A galeria de widgets trava.** A folha "Adicionar Widget" para de paginar e depois trava de vez — três sessões seguidas de revisão da F4 esbarraram nisso, e já custou replantio de widget em três revisões. Some com o Simulator reiniciado, às vezes. Quando travar: é instrumento, não desconta nota, e a saída é usar as capturas de quem conseguiu plantar, conferindo o conteúdo e o relógio delas. A Live Activity do Destaque também engole o toque no botão "Editar" da galeria.
 
@@ -257,3 +247,102 @@ vezes idênticas.
 instrumento**, e a resposta é repetir a corrida e mostrar as duas saídas — nunca
 declarar vermelho (não houve teste) nem verde (não houve teste). Quem relata,
 relata as duas: a que travou e a que rodou.
+
+### `orca emulator kill` derruba o vizinho (09/09)
+
+A R1 fechou com `orca emulator kill --device 34CC3F94` seguido de `simctl
+shutdown` do próprio aparelho — e **o `6033B043` de outra volta desligou no mesmo
+segundo** (`device.plist` modificado às 22:08:33; o comando às 22:08:34). O
+worker nem tinha tocado nele. É o mesmo helper único da máquina, já conhecido por
+perder a árvore de AX e por apontar para o aparelho errado depois de um `attach`:
+o `kill` derruba **o que o helper gerencia**, não só o `--device` pedido.
+
+**Regra:** para encerrar o SEU aparelho, use `xcrun simctl shutdown <UDID>` — que
+é escopado — e **evite `orca emulator kill` enquanto houver outra volta com
+simulador ligado**. Se precisar dele, **avise antes** e **confira depois** quais
+aparelhos ficaram de pé, restaurando o que você derrubou sem querer. Nenhum dado
+se perde num `shutdown` (o contêiner fica), mas a volta do vizinho perde a
+passada.
+
+**E o que o worker fez de certo:** perguntou por `ask` antes de mexer no aparelho
+alheio. A pergunta **expirou em 10 minutos sem resposta** e ele então religou o
+`6033B043` para **restaurar o estado em que encontrou a máquina** — que é a
+decisão certa quando o coordenador não responde: voltar ao que estava, não
+escolher por conta própria um estado novo.
+
+### O `ask` expira, e o laço tem de contar com isso (09/09)
+
+Duas perguntas de worker morreram por timeout na mesma noite (10 min e 900 s),
+porque o orquestrador só olha a caixa quando o ambiente o avisa. **Quem pergunta
+não pode ficar parado:** o spec passa a dizer que, se o `ask` expirar, o worker
+**faz o que restaura o estado anterior** (ou segue pelo caminho menos
+destrutivo), **registra a pergunta e a expiração no relato**, e continua — nunca
+escolhe sozinho um caminho irreversível.
+
+### LEI DO SIMULADOR DO GROK, corrigida: o INSTALL POR CIMA também derruba a conta (09/09)
+
+A lei antiga proibia `erase`, `clearState`, `uninstall` e `xcodebuild test` no
+`C2416CBC` e **permitia instalar por cima**. Estava errada, e a medida é limpa:
+a fumaça antes do install registrou `contaGrokLigada=true` com **12 modelos**
+às 03:20:38Z; depois do **install por cima**, `contaGrokLigada=false` com
+**0 modelos** às 03:22:07Z. O revisor parou na hora e **não contornou**.
+
+**A lei passa a ser:** no `C2416CBC` **ninguém instala nada** — nem por cima.
+Nada de `erase`, `clearState`, `uninstall`, `xcodebuild test` **nem
+`simctl install`**. Só o dono reautoriza, e cada reautorização custa a ele.
+
+**E como se roda uma corrida de IA sem instalar**, que é o que destrava o
+trabalho: a sonda `AvaliacaoIA` lê a fixture pelo nome em
+`TRACO_AVALIAR_IA=<fixture.json>` **no Documents do app**
+(`AvaliacaoIA.swift:58`). Então:
+
+1. escreva a fixture nova no contêiner de dados do app
+   (`xcrun simctl get_app_container <UDID> <bundle> data`);
+2. relance com a variável (`SIMCTL_CHILD_TRACO_AVALIAR_IA=<fixture.json>`,
+   `simctl launch --terminate-running-process`);
+3. **use o binário que já está no aparelho** e diga no relato **qual candidato é**
+   (o SHA que o instalou por último), porque medir com binário alheio é o erro
+   irmão.
+
+**Fumaça obrigatória antes e depois de cada corrida:** `contaGrokLigada` e a
+contagem de modelos, com carimbo de hora, coladas no relato. Se cair, **diga em
+vez de contornar** — foi assim que o gatilho apareceu.
+
+### Prova que ninguém olhou não é prova (09/09)
+
+A C1-B versionou um MP4 e o anunciou como "a gaveta consertada". O revisor abriu:
+**44,04 s da Tela Inicial, sem o Traço dentro**. A sequência textual carimbada da
+mesma passada era boa; **o vídeo era prova falsa** — e ninguém tinha aberto o
+arquivo antes de anexá-lo.
+
+**Regra:** todo artefato de prova — vídeo, captura, árvore, log — é **aberto e
+conferido por quem o anexa**, e o relato diz **o que se vê nele**, não o que
+deveria ver. Um caminho de arquivo no relatório não é evidência; é uma promessa.
+
+Duas irmãs do mesmo dia, para a lista não parecer exagero: o helper do
+`orca emulator` devolveu **`ok:true` sem mover a tela** (a R1-B trocou de
+instrumento e mediu por XCUITest), e a sonda nova da C1-B media **`E ⊆ P` mas não
+`P ∩ O = ∅`** — metade da invariante 08f, com a outra metade sem portão.
+
+### A sonda que mede metade da regra é pior que nenhuma (09/09)
+
+Porque ela dá um verde. Quando escrever instrumento para uma invariante de duas
+partes, **mostre o vermelho de cada parte separadamente** — se uma das metades
+nunca ficou vermelha, ela não está sendo medida.
+
+### O checkout descartável do pai é o caminho certo, não uma exceção (09/09)
+
+Um revisor perguntou se podia montar um checkout descartável do pai em `/tmp`
+para reproduzir o vermelho no próprio aparelho, porque a regra *"só no seu
+worktree"* deixava isso ambíguo. **Pode, e deve.** A regra existe para ninguém
+escrever no worktree alheio nem no checkout principal — nunca quis dizer que não
+se monta uma árvore descartável para ver um vermelho.
+
+Foi assim que o revisor da C1 produziu a melhor prova da noite: montou o pai
+descartável, **trouxe só a sonda do candidato**, viu o vermelho com as próprias
+mãos e depois o verde. Sem isso, estaria acreditando no log de outra pessoa.
+
+**Condições:** em `/tmp`, **removido ao fim** e dito no relato; **só o seu UDID**;
+nada escrito no checkout principal nem em worktree alheio; e **diga o que trouxe
+do candidato para o pai** — medir o pai com o instrumento do candidato é o que
+torna a comparação válida, e trazer mais do que o instrumento é o que a invalida.

@@ -312,6 +312,22 @@ Ordem do dono de 08/09 à noite: os ONZE casos de uso do Traço no Mac pelo Grok
 | MAC-2 | a porta de volta do Trabalho: `trabalhos/<id>.md`, `trabalhos/entrada/`, `traco_trabalho_escrever`, `traco_tentativa`, `traco_relatar` | 2 (escrita), 4, 5, 6 | depois da MAC-1; Astra no G0 |
 | MAC-3 | web e briefing com citação obrigatória | 7, 10 | depois da Q mesclar |
 
+### DECISÃO DE CONTRATO do dono (08/09, 23h): a origem acompanha todo consumidor
+
+O revisor da MAC-1 levantou e o dono decidiu: **nenhum consumidor que declare
+voz, retrato, trajetória ou mapa do autor lê texto que não seja dele** — nem
+para inferir domínio, nem para contar. A interface promete que o Retrato é feito
+*"só com as suas palavras e contagens"*, e classificar o texto `grokbot` como
+`TRABALHO` fazia uma afirmação **derivada dele** influenciar o mapa do autor.
+
+**Como se implementa (MAC-1-B):** a `origem` acompanha o dado até o consumidor,
+e o campo que hoje se chama para o modelo passa a se chamar **`vozDoAutor`** —
+o nome torna a incompatibilidade explícita no tipo, em vez de deixá-la para a
+disciplina de quem escreve o próximo chamador. O P0 do Retrato
+(`Sessao.responderNasNotas` criando `Retrato.NotaLida` sem `doAutor:`, cujo
+padrão é `true`) é o primeiro caso, e o teste tem de exercitar **o chamador**,
+não o leitor isolado.
+
 ## Próximas, em ordem
 
 | # | volta | valor | esforço | ciclo | lacuna (EVOLUCAO) |

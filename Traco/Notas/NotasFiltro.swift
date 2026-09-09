@@ -17,7 +17,7 @@ enum NotasFiltro {
             if let dominio, nota.dominio != dominio { return false }
             if !busca.isEmpty {
                 // "analise" acha "análise": busca sem acento e sem caixa
-                return nota.vozDoAutor.range(
+                return nota.textoDeQualquerOrigem.range(
                     of: busca,
                     options: [.caseInsensitive, .diacriticInsensitive],
                     locale: .current

@@ -66,6 +66,13 @@ enum TracoSchemaV4: VersionedSchema {
     static var models: [any PersistentModel.Type] { [Nota.self, ReciboEntrada.self, Trabalho.self] }
 }
 
+/// ADR 08u: `Nota.origemRaw` entrou como atributo com valor padrão, sem V5.
+/// Um `VersionedSchema` novo com a MESMA lista de classes tem o mesmo checksum
+/// do anterior — os schemas aqui apontam para a classe viva, não para uma cópia
+/// congelada — e o CoreData recusa o plano inteiro com "Duplicate version
+/// checksums detected", derrubando o arranque. Versão nova é para MODELO novo
+/// (V3 trouxe o recibo, V4 o Trabalho); atributo com padrão é migração leve
+/// dentro da versão corrente, como `gatilhoEm` e `dominioRaw` já eram.
 enum TracoMigracao: SchemaMigrationPlan {
     static var schemas: [any VersionedSchema.Type] { [TracoSchemaV1.self, TracoSchemaV2.self, TracoSchemaV3.self, TracoSchemaV4.self] }
     static var stages: [MigrationStage] {

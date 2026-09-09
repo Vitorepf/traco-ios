@@ -64,3 +64,13 @@ Decida sozinho, sempre, e registre a decisão com o porquê no LACO em uma linha
 Mesmo nesses casos: abra o gate, escreva a pergunta em ferramentas/orca/PERGUNTAS.md com as opções e a sua recomendação, e SIGA com todas as outras voltas. Uma volta esperando nunca para o laço. Se a espera passar de duas horas e a decisão for reversível na prática, tome a sua recomendação como resposta, escreva que foi por tempo, e siga; o dono desfaz se discordar.
 
 Escolha a opção que preserva mais: dados, versões, origem e a possibilidade de voltar atrás. Quando o risco for de perda, prove primeiro em simulador de teste, nunca no aparelho do dono.
+
+## 7. Ordem do dono, 08/09/2026 22h — controle total do computador, e a nota 9
+
+Palavras dele: "todos os modelos que estão no Orca trabalhando no Traço têm total liberdade de controlar meu computador e evoluir o Traço iOS. O foco número um é levar o Traço iOS para 9/10; ainda está em 7, e demorou o dia inteiro para subir de 6 para 7. Foquem na melhoria da IA, testem a IA, têm total controle do meu computador. Elevem o padrão de design e de experiência: curva-zero, design-router, gate-loop. Elevem ao extremo a qualidade e o poder do Traço iOS."
+
+O que isso muda:
+- **Controle do computador liberado para todo worker do Orca** (computer-use do Orca, simulador, apps do Mac, Espelhamento do iPhone quando a prova exigir o aparelho), com uma condição só: avisar no comentário do worktree ao começar e ao terminar, e nunca dois workers no mesmo app ao mesmo tempo. A lei do mouse da ESTEIRA passa a ser esta. **VOZ, VOICEOVER E iPAD CONTINUAM PROIBIDOS**, sem exceção.
+- **Foco 1: a IA.** As sete operações marcadas `indisponivelPorQualidade` na medida de 08/09 voltam UMA POR UMA, cada uma com a sua volta, medida de novo com o Grok pela sonda antes e depois, e só sai da lista com nota 9 nas cinco dimensões de QUALIDADE-IA.md. Contexto, prompt, esquema de saída e teto são as quatro alavancas; a régua é a saída inteira lida, nunca o hash.
+- **Foco 2: design e experiência ao extremo.** Toda volta visual passa por `design-router` com as seis fases citadas, `curva-zero` medida em toques antes e depois, e `gate-loop` como dono do ciclo. Tela abaixo de 9 no scorecard tem prioridade sobre função nova.
+- **A nota é a régua.** Cada fecho de volta diz o que mudou na nota da dimensão que tocou, com a prova. O dia inteiro de 08/09 subiu um ponto; o que sobe o próximo é a IA que serve e a jornada real do dono.
