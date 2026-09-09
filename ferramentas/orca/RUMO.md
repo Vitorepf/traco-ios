@@ -500,6 +500,17 @@ IA **não esperam a vez**:
 **Pendente do dono:** um **segundo aparelho com conta** (teste 3) dobraria a vazão
 — se ele autorizar, a Q3 corre nele em paralelo.
 
+### Achado colateral da Q4 (09/09): o texto do `conserto` vai INTEIRO para a tela
+
+A Q4 anotou o que não era dela: **o `conserto` da linha de `responder` na
+`Politica` diz *"o prompt"*** — vocabulário nosso — **e esse texto vai inteiro para
+a tela do autor**, no cartão CONTA do Perfil. É irmão do `N1T1` e do andaime da
+`instigar`: **o app deixando o próprio jargão chegar a quem não o escreveu**.
+
+**Volta pequena, dona: a frente do Perfil.** A régua já existe na 08q: *o motivo é
+uma oração de pessoa, sem caminho de prova, sem data e sem contagem* — e o
+`conserto` precisa da mesma régua.
+
 ## Próximas, em ordem
 
 | # | volta | valor | esforço | ciclo | lacuna (EVOLUCAO) |

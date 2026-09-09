@@ -2277,3 +2277,34 @@ chamador de produção monta, campo a campo.**
 **E ela não mexeu na tabela**, com a razão certa escrita: *"conserto sem medida não
 sai da lista"*. Fixture pronta em `prova/q3-responder-nas-notas.json`, esperando a
 janela do instrumento.
+
+## 09/09, 19h — as duas fixtures ficaram prontas, e o LOTE entrou no instrumento
+
+**A Q4 achou a causa em vez de supor, e ela desmente o provedor:** dos casos de
+08/09, **os dois COM método não vazaram; vazaram os quatro SEM método** — onde a
+instrução de degrau era **o único esteio** e, sendo meta, **virou assunto**. Ou
+seja: **o defeito é da nossa redação, não do Grok**. O andaime saiu do texto
+citável e foi para a mensagem de sistema, o rótulo `Forma: <nome>` foi deletado, e
+a guarda `Sabia.vazaAlheio` derruba a frase que carrega **um termo nosso que o
+texto do autor não tem**.
+
+**E ela provou o vermelho com material real:** usou **as saídas de 08/09** como
+entrada, com a guarda desligada — **12 issues em 7 provas** —, e verde depois.
+
+**A B2 varreu 54 enums atrás de irmãs do `EstadoAcao` e não achou nenhuma** — o que
+é um resultado. O inalcançável estava em outro lugar: **das DEZESSEIS frases de
+`Politica.semProvedor`, só SEIS tinham tela**, e **três das dez órfãs estavam em
+rotas com botão**. A pior: na Lente, `instigar` e `contrapor` perguntavam a
+`Sabia.disponivel` em vez de à tabela que as cortou, e o toque devolvia **só uma
+vibração** — provado com a árvore de AX **idêntica seis segundos depois do toque**.
+
+**Despachei o LOTE** (`ctx_d80d4c591631`): monta **um binário** com Q3 e Q4 dentro,
+prova com a suíte, e roda **as três fixtures numa janela só** do aparelho da conta,
+**sem reinstalar entre elas**, com fumaça antes, depois e ao fim, **tudo dentro de
+UMA chamada da trava**. E com uma fronteira escrita: **ele mede, não julga** — se um
+caso parecer errado, **anota como observação, não como nota**.
+
+**Fica no RUMO um achado colateral da Q4 que não era dela:** o `conserto` da linha
+de `responder` diz *"o prompt"* — **vocabulário nosso indo inteiro para a tela do
+autor**. É irmão do `N1T1` e do andaime: **o app deixando o próprio jargão chegar a
+quem não o escreveu.**
