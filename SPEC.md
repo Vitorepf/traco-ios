@@ -8536,3 +8536,86 @@ relato. O que sobrou de inalcançável nesta volta não era enum: eram os **dez 
 `semProvedor`** que nenhuma tela lia — e o conserto lhes deu a porta.
 
 **Consequência.** Relato e evidência em `ferramentas/orca/b2-estados-e-silencio.md`.
+
+## ADR 2026-09-09h — Faltar um dado não é motivo para calar, e `N1T1` é endereço nosso (volta Q3)
+
+**A distância.** `responderNasNotas` está em `indisponivelPorQualidade` desde a
+08q. Remedida em 08/09 **com a conta ligada e pelo caminho de fontes tipadas que
+a produção usa**, ela atendeu **4 de 6**: cita a nota certa, resiste a instrução
+plantada dentro da nota — e falha em duas coisas que são defeitos **diferentes**,
+com donos diferentes.
+
+**Metade 1 — a RECUSA COVARDE, e ela era NOSSA.** Perguntada sobre a cotação do
+euro de hoje, com duas notas úteis no pedido (teto de R$ 6.000 e 520 euros de
+gastos já anotados), a resposta entregue ao autor foi, **3 de 3**, a frase fixa de
+limite e nada mais (`qn-notas-fato-atual-sem-fonte-atual-tipada`, em
+`prova/q-qualidade-avaliacoes.jsonl`). Ler o registro mostra por quê: **o prompt
+mandava**. `insuficiente` estava definida como *"faltam dados para responder sobre
+a vida, prazo, orçamento ou compromissos da pessoa; texto e trechoIDs vazios"* — e
+**falta parcial de dado é o caso comum de quem pergunta ao próprio caderno**. O
+parser fechava o círculo: base `insuficiente` **descartava o texto** e devolvia
+`limiteSemBase`. Lacuna parcial virava silêncio total por desenho, nos dois lados.
+
+Os dois lados mudam. No prompt, `insuficiente` vira **ÚLTIMO RECURSO** — *nada no
+material sustenta NENHUMA parte da pergunta* —, e entra a regra que a 08z/09n já
+mediu funcionando em `sistemaResponder`: **faltar um dado nunca é motivo para
+recusar a pergunta inteira**; responda o sustentado, diga exatamente qual dado
+falta, e siga ajudando com o que existe (os números que ela anotou, a fórmula com
+os nomes no lugar do que falta, onde ela levanta o resto). Um fato de hoje que o
+modelo não pode saber se responde dizendo que não sabe, dizendo **onde ela
+confirma**, e respondendo o resto. No parser, `insuficiente` deixa de apagar o que
+o modelo escreveu: `resposta = texto.isEmpty ? limiteSemBase : texto`. A frase fixa
+continua sendo o **piso honesto de quem não escreveu nada — e só dele**.
+
+**Metade 2 — o rótulo interno, e ele também era nosso.** `N1T1`/`N2T1` são o
+endereço com que o app numera as fontes para o modelo poder apontá-las em
+`trechoIDs`. Eles apareceram **dentro do texto do autor** em 2 de 6 execuções
+tipadas: *"conforme a correção explícita da nota N1T1"*, *"N1T1 indica 12 inscritos
+… A nota N3T1 informa"*. O rótulo **não pode sair do pedido** — sem ele não há
+citação. Então sai da **volta**: `RespostaNotas.semRotulos` troca cada rótulo do
+pacote pelo **título da nota que ele endereça**, e só os do pacote (um `N9T9`
+inventado fica como está; o `\b` impede que `N1` seja mordido dentro de `N12`).
+
+Recusar a resposta inteira por causa do rótulo seria trocar um defeito pelo outro
+que esta mesma ADR conserta. **Mas um guarda que esconde o que conta é o defeito
+da 09o**: `Retorno.escreveuRotuloInterno` diz se o modelo escreveu rótulo, o autor
+não vê o endereço e **a medida vê**. O prompt também passou a proibir por escrito.
+
+**A sonda passou a exercer a conversa.** `Sessao.responderNasNotas` passa a conversa
+anterior ao provedor e a sonda **não passava**: a base `conversa` e a mistura "o
+fato está na fala dela, o gasto está na nota" nunca foram medidas. `Entrada` ganhou
+`conversa: [Troca]` — as duas falas, sem `dependencias`, que é estado do caderno.
+
+**A fixture, em `prova/q3-responder-nas-notas.json`** (7 casos × 3 = 21 execuções):
+o **trio de evidência** sobre a mesma pergunta — cotação ausente, cotação numa
+nota, cotação na conversa —, onde **a saída certa muda nas três e calar nas três
+reprova**; os **dois casos exatos que vazaram rótulo** em 08/09; o **contrapeso**
+(pergunta sem lastro nenhum, onde inventar para não calar reprova); e a instrução
+hostil, que a medida já aprovava e o conserto não pode derrubar.
+
+**O que NÃO mudou, de propósito.** A tabela da 07b continua dizendo
+`indisponivelPorQualidade` com o motivo de 08/09: **conserto sem medida não sai da
+lista** — a linha do Perfil muda quando a corrida acontecer. O esforço da rota
+continua `Grok.esforcoMinimo`; mexer nele agora seria uma segunda alavanca no meio
+da comparação pareada da Q2-F. O conserto **não depende do modelo**: é contrato de
+prompt mais guarda de parser, e vale para qualquer vencedor.
+
+**Guardado por teste** (`TracoTests/RespostaNotasTests.swift`, três novos, os dois
+primeiros vistos **vermelhos** no código anterior):
+`insuficienteComAjudaEscritaNaoViraSilencioTotal`,
+`rotuloInternoSaiDoTextoEViraOTituloDaNota` e
+`trocaDeRotuloNaoInventaFonteNemMordePalavraVizinha` (este verde nos dois lados por
+desenho: guarda o conserto de morder palavra vizinha ou inventar fonte).
+
+**A origem (09b) foi conferida, não reescrita.** O retrato desta rota já vem de
+`paraRetrato`, que zera `vozDoAutor` fora do autor, e a fonte do bot já leva a
+etiqueta no título — os dois guardados em `TracoTests/OrigemAcompanhaConsumidorTests.swift`
+(`retratoDaRotaDeProducaoDasNotasNaoLevaOTextoDoBot`, `aNotaDoBotCitadaChegaComAOrigemNoTitulo`).
+Nada a mudar aqui.
+
+**Limite declarado.** A troca do rótulo pelo título **não** acrescenta a nota à
+lista de `citadas`: a referência continua sendo o que o modelo **declarou** em
+`trechoIDs`. Uma nota nomeada no texto sem ter sido declarada aparece pelo título e
+fica fora da linha "Referência". Dívida nomeada no RUMO, dona Q3.
+
+**Consequência.** Relatório em `ferramentas/orca/q3-responder-nas-notas.md`.
