@@ -14,6 +14,16 @@ Regras de origem, para todos os casos:
 - Pesquisa vai com `origem: pesquisa` e a lista de fontes.
 - Toda afirmação do bot sobre o que a pessoa pensa cita o id da nota. Sem id, é opinião do bot e vem marcada.
 
+## Casos prontos (09/09)
+
+**1, 2 (leitura), 3, 8, 9 e 11** — pagos pela MAC-1, mesclada em `6d1c90d`.
+`traco_agenda`, `traco_decisoes` e `traco_escrever` com `origem`/`motivo`/`fontes`
+estão no servidor; o app exporta `agenda.md`; a nota que não é do autor entra com
+etiqueta e **fora de todo consumidor que declara voz, retrato, trajetória ou mapa**.
+Falta a configuração do bot no Mac (MAC-0, travada pela tela trancada).
+
+**2 (escrita), 4, 5 e 6** — MAC-2, não aberta. **7 e 10** — MAC-3, não aberta.
+
 | # | caso | a pessoa diz | o bot lê | o bot escreve | no iPhone aparece | volta |
 |---|---|---|---|---|---|---|
 | 1 | O que eu já pensei sobre isso | "o que eu já escrevi sobre abrir a segunda clínica?" | `traco_buscar`, `traco_nota`, `traco_corpus` | nada, ou uma nota `origem: grokbot` se a pessoa pedir "guarda isso" | a nota com etiqueta do bot | MAC-1 |
