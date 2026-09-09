@@ -8176,3 +8176,122 @@ um revisor que não os tenha visto. E o corte de 5.000 caracteres de
 escrito na nota **depois** do recorte, e nenhum prompt recupera o que não foi
 enviado. Limite do instrumento, registrado, não descontado da nota da operação;
 quem mexer nisso mexe na montagem, não no contrato.
+
+## ADR 2026-09-09n — `responder` volta, e o melhor Grok custa a espera que a tela mostra (volta Q2-E)
+
+**A distância.** A 08z pagou a dívida da 08q e parou antes de adotar: mediu que
+o contrato de sustentação mata a fabricação de NÚMERO (0 em 108 execuções) e que
+só o modelo maior mata a de CENÁRIO, e **não implementou o que não podia
+aprovar**. A DIRETRIZ §10 (ordem do dono, 09/09 12h) aprovou: *"sempre use o
+melhor Grok possível"*, com a espera assumida. Esta ADR adota — e o que ela achou
+adotando é maior do que a adoção.
+
+**Qual é o melhor, e como se escolheu.** A conta expõe **doze** modelos, e a
+listagem da API dá **só o `id`** — nenhuma capacidade, nenhum parâmetro. A
+triagem foi por eliminação declarada, e cada corte tem um fato:
+
+| modelo | o que é | por quê entrou ou saiu |
+|---|---|---|
+| `grok-imagine-image`, `-image-2.0`, `-image-quality`, `-video`, `-video-1.5` | imagem e vídeo | modalidade errada: `responder` é texto em `chat/completions` |
+| `grok-build-0.1` | build `0.1` | versão 0.1, não é modelo de conversa geral |
+| `grok-4.3` | o padrão de 03/set | **medido** na 08z: 8 de 12 casos com o prompt novo |
+| `grok-4.5` | intermediário | abaixo do 4.6 na mesma linha; responde (HTTP 200 medido) |
+| `grok-4.20-0309-non-reasoning` | o irmão sem raciocínio | "non-reasoning" pelo nome, e o caso que sobra exige raciocínio |
+| **`grok-4.6`** | topo da linha 4.x | **candidato 1** — 12 de 12 e 36 de 36 na 08z |
+| **`grok-4.20-0309-reasoning`** | topo alcançável da família 4.20 | **candidato 2** |
+| `grok-4.20-multi-agent-0309` | topo nominal da 4.20 | **inalcançável: HTTP 400 em 4 de 4 chamadas, com e sem `reasoning_effort`, e corpo de erro vazio.** Não é escolha nossa; é o que a conta faz |
+
+**O achado da triagem, que o instrumento não sabia contar.** As três variantes
+`grok-4.20` devolviam `400` mudo. A sonda registrava o número e mais nada — *rota
+que cala em vez de dizer* (DIRETRIZ §8). `Grok.Diagnostico` ganhou `erroDaAPI`
+(DEBUG, só o texto de erro do provedor) e o `400` virou frase: **`Model
+grok-4.20-0309-reasoning does not support parameter reasoningEffort`**. A família
+inteira recusa o parâmetro que o Traço manda em TODA chamada. Sem o campo,
+`grok-4.20-0309-reasoning` responde — e foi assim que ele pôde ser medido.
+
+**A medida, uma corrida cada, mesma fixture de doze casos, mesmo binário, mesmo
+aparelho** (`prova/q2e-modelo-46.jsonl`, `prova/q2e-modelo-420.jsonl`):
+
+| | `grok-4.6` / `medium` | `grok-4.20-0309-reasoning` / sem esforço |
+|---|---:|---:|
+| casos atendidos | **12 de 12** | **9 de 12** |
+| espera (min–máx, média) | 15,5–65,0 s, **38,3 s** | 10,6–34,8 s, **20,2 s** |
+
+**O `4.20` é quase o dobro mais rápido e perde assim mesmo — a escolha é pelo
+resultado, e o desempate por espera não chegou a existir.** Os três casos que ele
+perde:
+- `q2-prazo-conflito-sem-resolucao`: fecha com *"Critério: a anotação mais recente
+  na lista define a vigência quando não há marca de rascunho ou cancelamento"* —
+  a **regra genérica inventada e dita como certeza** que o caso proíbe por escrito;
+- `q2-espanhol-geral`: não divide em 5+5+5 (nenhum minuto na resposta) e ainda
+  **limita por dado pessoal ausente** um pedido de conhecimento geral;
+- `q2-relatorio-tres-restricoes`: supõe o relatório *"que você tem aberto agora"* e
+  **vaza `(487 caracteres)`** para dentro do texto do autor.
+
+**A adoção.** `Grok.modelo` = **`grok-4.6`**, padrão de TODAS as rotas.
+`Grok.modeloTrabalho` **deixou de existir**: ele só existia porque o padrão era
+menor, e duas constantes com o mesmo valor divergem em silêncio (03l). Pelo mesmo
+motivo `Grok.tetoTrabalho` virou **`Grok.teto`**: o teto é do modelo que raciocina,
+não da rota. 240 s continua o valor medido da 08r (pior caso do Trabalho 178 s) e
+cobre o pior caso da sábia com **3,1× de folga** (77,5 s em 36 execuções na 08z).
+`Sabia.responder` pede `esforco: "medium"`, que é o esforço medido dela; o modelo
+não viaja como parâmetro porque o padrão global **já é** o escolhido, e parâmetro
+que só recebe o padrão é configuração para valor que não muda (§8).
+
+**O bug que a adoção quase fez, e que a medida pegou antes da tela.** Trocar o
+padrão global sem medir as rotas rápidas teria quebrado **todas** elas:
+`grok-4.6` **não aceita `reasoning_effort: none`** — `400 — This model does not
+support reasoning_effort value none`, 6 de 6 execuções
+(`prova/q2e-rotas-esforco-none.jsonl`). E o pior não é o `400`: em `classificar`
+e `vestir`, que descem ao aparelho, a falha seria **calada** — o autor receberia o
+modelo pior sem nada dizer, que é o defeito que a 07b existe para impedir. Daí
+`Grok.esforcoMinimo = "low"`, o menor esforço que o modelo escolhido aceita.
+Remedidas no piso novo, 3 execuções cada (`prova/q2e-rotas-esforco-minimo.jsonl`):
+`conferir` 3,1–3,6 s, `padroes` 8,5–13,6 s, `classificar` 11,1–16,3 s, **HTTP 200
+e `grok-4.6` confirmado em 9 de 9**.
+
+**O segundo teto que era o defeito, exatamente como na 08r.** `AnaliseRemota.classificar`
+carregava `timeout: 10`, medido para um modelo que não raciocinava. Com o modelo
+escolhido ele estourou em **3 de 3** e a classificação caiu calada para o aparelho.
+O `10` saiu; fica o `Grok.teto`, e a espera real está publicada acima. O teto limita
+a falha, não a espera: a análise seguinte cancela a anterior.
+
+**A tabela.** `responder` sai de `indisponivelPorQualidade` e vira `soGrok`, com
+`medidaEm: "09/09/2026"`. Eram sete cortadas; são seis. O aparelho continua fora
+dela — nunca foi medido bem ali —, e a frase de "sem provedor" deixou de dizer
+"indisponível" para dizer o que é: precisa da conta. **`responder` voltou a
+responder no aparelho da conta às 14h01 de 09/09/2026 (BRT)**, na primeira
+pergunta real depois da adoção.
+
+**A espera virou tela, e é a parte que o dono vê.** O que existia era
+`ProgressView` do sistema mais a palavra "pensando…", desenhado quando a espera
+era de 1,4 s; e o cartão **não tinha pé nenhum** — `temAcoes` devolvia `false`, e
+quem perguntasse ficava preso até 77 s sem saída. Três mudanças, todas com o que
+já existe:
+1. **`LinhaDeEstado`**, o componente que o Traço já tem para isto (05t: uma frase,
+   sem glifo, **sem laço**), no lugar do laço do sistema. O cartão contradizia o
+   próprio app.
+2. **O segundo que anda**: `a sábia pensa há 22 s…`, por `TimelineView(.periodic)`
+   — sem `@State`, sem timer, sem animação, e por isso nada para Movimento
+   Reduzido reduzir. Um laço gira igual no segundo 1 e no 70; o número é o único
+   movimento que **informa**. Os primeiros 4 s ficam sem número: até aí a espera é
+   a de sempre.
+3. **`Parar de esperar`**, discreto, porque o caminho principal é esperar. Ele
+   cancela a `Task` (a chamada seguia paga) e devolve o cartão `.pergunta` com a
+   pergunta inteira e "Perguntar à sábia" a um toque — **nada do que a pessoa
+   escreveu se perde**, e a linha "?" nunca saiu da nota. A pergunta também subiu
+   para o rótulo do cartão (`A sábia, sobre: …`), como a `.resposta` já fazia:
+   quem espera meio minuto lê o que pediu.
+
+**Prova na tela, no aparelho da conta** (`ferramentas/orca/q2e-01-pensando-22s.png`,
+`q2e-02-resposta-real.png`, `q2e-03-parou-pergunta-intacta.png`).
+
+**O que esta ADR NÃO prova.** Uma corrida por modelo, doze casos, **e os casos
+continuam os da 08z — escritos e lidos por quem implementa**: a leitura
+independente de casos cegos segue devendo, e ela é do revisor. A comparação entre
+os dois candidatos não é entre iguais: o `4.6` levou `medium` e o `4.20` não pôde
+levar esforço nenhum, porque a API dele recusa o campo — está dito, e é fato da
+conta, não escolha de método. As rotas rápidas foram medidas em **transporte e
+espera**, não em qualidade: dizer que `conferir` responde em 3,1 s não é dizer que
+responde melhor. `grok-4.5` e `grok-4.20-0309-non-reasoning` foram cortados por
+nome e posição, não por corrida.

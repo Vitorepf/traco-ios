@@ -385,7 +385,11 @@ enum Sabia {
         guard gesto != .expressiva else { return nil }
         let usuario = "\(rotuloContextoDaNota)\n\(contexto.prefix(5000))"
             + blocoDoRetrato(retrato) + "\n\nPergunta: \(pergunta)"
+        // ADR 09n: `medium` é o esforço MEDIDO desta rota — com ele o modelo
+        // escolhido passou os doze casos e as 36 execuções; com `none` a
+        // fabricação de cenário volta. Custa a espera, que o cartão mostra.
         guard let cru = await chamar(.responder, sistema: sistemaResponder, usuario: usuario, temperatura: 0.3,
+                                     esforco: "medium",
                                      mensagemLocal: { montarResponder(pergunta: pergunta, contexto: contexto,
                                                                       retrato: retrato, rotulo: rotuloContextoDaNota) })
         else { return nil }
@@ -561,9 +565,10 @@ enum Sabia {
     /// Vestir, calibragem e Padrões não cortam mais aqui: sem montagem própria,
     /// só seguem no aparelho se a mensagem inteira couber.
     static func chamar(_ operacao: Politica.Operacao, sistema: String, usuario: String, temperatura: Double,
-                       memoPor chave: String? = nil, mensagemLocal: (() -> String?)? = nil) async -> String? {
+                       memoPor chave: String? = nil, esforco: String = Grok.esforcoMinimo,
+                       mensagemLocal: (() -> String?)? = nil) async -> String? {
         await chamarComProveniencia(operacao, sistema: sistema, usuario: usuario, temperatura: temperatura,
-                                    memoPor: chave, mensagemLocal: mensagemLocal)?.texto
+                                    memoPor: chave, esforco: esforco, mensagemLocal: mensagemLocal)?.texto
     }
 
     /// A mesma escada, dizendo QUEM respondeu. `chamar` devolve só o texto, e
@@ -574,13 +579,21 @@ enum Sabia {
     /// ADR 07b: a tabela `Politica` decide QUEM pode responder esta operação.
     /// Onde o aparelho foi medido e não serviu, a falha do Grok não desce a
     /// ele — devolve nil, e a tela diz (nunca um resultado pior, calado).
+    ///
+    /// ADR 2026-09-09n: o ESFORÇO viaja por operação. O modelo não viaja: o
+    /// padrão de `Grok.modelo` já é o melhor que a conta expõe (DIRETRIZ §10),
+    /// e parâmetro que só recebe o padrão é configuração para valor que não
+    /// muda. O que muda por operação é quanto o modelo pensa; quem não pede
+    /// nada fica no `Grok.esforcoMinimo`, e o teto é o mesmo para todas,
+    /// porque com este modelo não há mais rota que não pense.
     static func chamarComProveniencia(_ operacao: Politica.Operacao,
                                       sistema: String, usuario: String, temperatura: Double,
-                                      memoPor chave: String? = nil,
+                                      memoPor chave: String? = nil, esforco: String = Grok.esforcoMinimo,
                                       mensagemLocal: (() -> String?)? = nil) async -> (texto: String, provedor: String)? {
         guard let quem = Politica.provedor(operacao) else { return nil }
         if quem == .grok, let r = await Grok.responder(sistema: sistema, usuario: usuario,
-                                                       temperatura: temperatura, memoPor: chave) {
+                                                       temperatura: temperatura,
+                                                       memoPor: chave, esforco: esforco) {
             return (r, Politica.Provedor.grok.rawValue)
         }
         guard Politica.desceAoAparelho(operacao) else { return nil }

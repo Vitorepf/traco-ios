@@ -3,7 +3,7 @@ import Testing
 @testable import Traco
 
 struct GrokContratoTests {
-    @Test(arguments: [Grok.modelo, Grok.modeloTrabalho])
+    @Test(arguments: [Grok.modelo])
     func esforcoExplicitoNaoMudaOSchemaENaoAceitaValorInvalido(modelo: String) throws {
         let dados = try #require(Grok.corpo(sistema: "", usuario: "", temperatura: 0.3,
                                            esquema: nil, esforco: "medium", modelo: modelo))
@@ -25,11 +25,13 @@ struct GrokContratoTests {
     /// DECISÃO (240 s, com a folga que a ADR 08r escolheu). Baixar o teto para
     /// 181 passaria no piso e mataria a decisão — foi assim que a operação
     /// sumiu da tela sem ninguém notar.
-    @Test func oTetoDeTrabalhoCobreAPiorLatenciaMedida() {
-        #expect(Grok.tetoTrabalho >= 179,
+    /// ADR 09n alargou o mesmo teto à sábia: pior caso medido em `responder`
+    /// com o modelo escolhido, 77,5 s em 36 execuções — cabe com 3,1× de folga.
+    @Test func oTetoCobreAPiorLatenciaMedida() {
+        #expect(Grok.teto >= 179,
                 "piso: 178,144 s é a pior execução que a medida de 08/09 viu chegar inteira")
-        #expect(Grok.tetoTrabalho > 90, "90 s foi o teto que cortou 28 % das chamadas a grok-4.6")
-        #expect(Grok.tetoTrabalho == 240,
+        #expect(Grok.teto > 90, "90 s foi o teto que cortou 28 % das chamadas a grok-4.6")
+        #expect(Grok.teto == 240,
                 "decisão da ADR 08r: 240 s. Mudar o valor é mudar a ADR, com medida nova ao lado")
     }
 

@@ -99,6 +99,9 @@ final class Sessao {
     }
 
     private var analiseTask: Task<Void, Never>?
+    /// A pergunta em voo. Existe para PARAR: sem ela, "parar de esperar" só
+    /// esconderia o cartão e a chamada seguiria paga até o teto (ADR 09n).
+    private var perguntaTask: Task<Void, Never>?
 
 
     /// Algum campo da forma tem resposta do autor. Campos recém-criados são
@@ -558,10 +561,11 @@ final class Sessao {
         // a resposta tem até 900 caracteres e o teclado cobria metade dela
         // (visto na primeira chamada real, 03/set). Quem pergunta vai LER.
         Teclado.recolher()
-        cartao = .sabiaPensando
+        cartao = .sabiaPensando(pergunta: q, desde: .now)
         let g = gesto
         let retrato = retratoAtual()
-        Task { [weak self] in
+        perguntaTask?.cancel()
+        perguntaTask = Task { [weak self] in
             guard let self else { return }
             let doCaderno = await self.contextoDoCaderno(no: context, pergunta: q)
             guard case .sabiaPensando? = self.cartao else { return }
@@ -581,6 +585,16 @@ final class Sessao {
                 self.mostrarToast("a sábia não respondeu. tente de novo.")
             }
         }
+    }
+
+    /// ADR 2026-09-09n: quem espera pode parar de esperar. O que a pessoa
+    /// escreveu não se perde — a pergunta volta ao cartão `.pergunta`, com
+    /// "Perguntar à sábia" a um toque, e a linha "?" nunca saiu da nota.
+    func pararDeEsperarASabia() {
+        guard case .sabiaPensando(let q, _)? = cartao else { return }
+        perguntaTask?.cancel()
+        perguntaTask = nil
+        cartao = .pergunta(q)
     }
 
     // MARK: ADR 05e — perguntar nas Notas
@@ -1929,8 +1943,11 @@ enum CartaoAnalisar: Equatable {
     case pergunta(String)
     /// a resposta da sábia — no cartão, nunca na nota
     case resposta(pergunta: String, texto: String)
-    /// a sábia pensando (rede)
-    case sabiaPensando
+    /// A sábia pensando (rede). ADR 2026-09-09n: a espera passou de 1,4 s para
+    /// 36 s de média, e por isso ela carrega a PERGUNTA e a HORA em que começou
+    /// — o cartão mostra as duas, e cancelar devolve a pergunta em vez de
+    /// perdê-la. Estado da espera é da sessão, não da view (ADR 09c).
+    case sabiaPensando(pergunta: String, desde: Date)
     /// vestiu tudo; um toque desfaz
     case vestido(antes: String)
     /// pediu a sábia sem conta ligada

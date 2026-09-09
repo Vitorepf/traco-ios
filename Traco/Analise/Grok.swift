@@ -44,16 +44,66 @@ nonisolated enum Motores {
 /// Silêncio em erro continua sendo a lei: qualquer falha devolve nil e o
 /// chamador desce a escada (§19.4).
 nonisolated enum Grok {
-    static let modelo = "grok-4.3"
-    static let modeloTrabalho = "grok-4.6"
+    /// O padrão de TODAS as rotas, e ele é MEDIDO, não presumido (DIRETRIZ §10,
+    /// ordem do dono de 09/09: "sempre use o melhor Grok possível"). A conta
+    /// expõe doze modelos; a ADR 2026-09-09n mediu os dois candidatos capazes
+    /// na mesma fixture de doze casos e escreveu por que este ganhou.
+    ///
+    /// Era `grok-4.3`, o padrão de 03/set, e foi ele que a 08q reprovou em
+    /// `responder`: o modelo maior é a alavanca que o prompt não alcançou.
+    static let modelo = escolhido
+    /// SÓ PARA A SONDA (DEBUG, por ambiente). Nem todo modelo da conta aceita
+    /// `reasoning_effort`: a família `grok-4.20` devolve `400 — Model … does
+    /// not support parameter reasoningEffort` em TODA chamada, medido em
+    /// 09/09 (ADR 09n). Sem esta chave não haveria como medir a qualidade
+    /// desses modelos na mesma fixture, e a comparação ficaria por decreto.
+    /// Em produção o campo vai sempre: é ele que faz o modelo pensar.
+    static let semEsforco: Bool = {
+#if DEBUG
+        return ProcessInfo.processInfo.environment["TRACO_AVALIAR_SEM_ESFORCO"] == "1"
+#else
+        return false
+#endif
+    }()
 
-    /// O teto de tempo das quatro rotas de Trabalho, num lugar só (ADR
-    /// 2026-09-08r). Era `90` repetido em quatro chamadas, e a medida de 08/09
-    /// mostrou que ele cortava 20 de 72 chamadas a `grok-4.6` — 28 % — sempre
-    /// aos 91 s, enquanto `grok-4.3` não perdeu nenhuma das 177. Teto que corta
-    /// a operação para o autor não é prudência: é a operação ausente.
-    /// O valor é MEDIDO, não escolhido: ver a ADR e `prova/qb-teto-*.jsonl`.
-    static let tetoTrabalho: TimeInterval = 240
+    /// O MENOR esforço que o modelo escolhido aceita, e o padrão de quem não
+    /// pede outro. Era `"none"` — e `"none"` **não existe** no `grok-4.6`:
+    /// medido em 09/09, toda chamada volta `400 — This model does not support
+    /// reasoning_effort value none` (`prova/q2e-rotas-esforco-none.jsonl`).
+    /// Trocar o modelo global sem trocar este piso mataria em silêncio TODAS
+    /// as rotas rápidas (`conferir`, `padroes`, `ecos`, `calibragem`,
+    /// `recordar`, `vestir`, `instigar`, `contrapor`) — e `classificar` e
+    /// `vestir`, que descem ao aparelho, cairiam caladas para o modelo pior,
+    /// que é exatamente o que a ADR 07b existe para impedir.
+    static let esforcoMinimo = "low"
+
+    private static let escolhido: String = {
+        let padrao = "grok-4.6"
+#if DEBUG
+        // SÓ PARA A SONDA, e por ambiente: comparar dois modelos exige o MESMO
+        // binário nos dois lados, senão a diferença medida não é do modelo.
+        // A sonda grava `modeloConfigurado` em cada registro, então a medida
+        // diz de si mesma qual modelo rodou. Em Release não existe.
+        return ProcessInfo.processInfo.environment["TRACO_AVALIAR_MODELO"] ?? padrao
+#else
+        return padrao
+#endif
+    }()
+
+    /// O teto de tempo de TODA rota que raciocina, num lugar só (ADR
+    /// 2026-09-08r, alargada pela 09n). Era `90` repetido em quatro chamadas
+    /// do Trabalho, e a medida de 08/09 mostrou que ele cortava 20 de 72
+    /// chamadas a `grok-4.6` — 28 % — sempre aos 91 s. Teto que corta a
+    /// operação para o autor não é prudência: é a operação ausente.
+    ///
+    /// O valor é MEDIDO, não escolhido: 240 s é o teto sob o qual nada encostou
+    /// em 30 chamadas do Trabalho (pior latência medida: 178 s). A 09n trouxe
+    /// a sábia para debaixo do mesmo teto — pior caso medido em `responder`
+    /// com o modelo escolhido: **77,5 s** em 36 execuções, 3,1× de folga. Um
+    /// número, não dois: o teto é do MODELO que raciocina, não da rota, e duas
+    /// cópias do mesmo teto divergem em silêncio (ADR 03l).
+    /// Ver `prova/qb-teto-*.jsonl` e `prova/q2-responder-modelo46.jsonl`.
+    static let teto: TimeInterval = 240
     private static let endereco = URL(string: "https://api.x.ai/v1/chat/completions")!
 
     // MARK: - memo
@@ -84,6 +134,12 @@ nonisolated enum Grok {
         var esforco: String
         var statusHTTP: Int?
         var tokensDeRaciocinio: Int?
+        /// ADR 09n: o que a API DIZ quando recusa. Sem isto um `400` era um
+        /// número mudo, e a triagem entre modelos não sabia dizer se o modelo
+        /// é que não serve ou se o pedido é que não cabe nele — "rota que cala
+        /// em vez de dizer" (DIRETRIZ §8). Só o texto de erro do provedor, e
+        /// só em DEBUG: nada do pedido, nada do token.
+        var erroDaAPI: String?
         var desfecho: String
     }
     private nonisolated(unsafe) static var diagnosticos: [Diagnostico] = []
@@ -128,8 +184,8 @@ nonisolated enum Grok {
     /// mesma coisa (a pergunta da prova num degrau, por exemplo). Onde o autor
     /// pede de novo esperando algo novo — instigar, padrões — não memoiza.
     static func responder(sistema: String, usuario: String, temperatura: Double,
-                          timeout: TimeInterval = 20, memoPor chave: String? = nil,
-                          esquema: String? = nil, esforco: String = "none",
+                          timeout: TimeInterval = Grok.teto, memoPor chave: String? = nil,
+                          esquema: String? = nil, esforco: String = Grok.esforcoMinimo,
                           modelo: String = Grok.modelo) async -> String? {
         guard !Motores.desligados, !Task.isCancelled else { return nil }
         // Uma chave do chamador não pode reutilizar uma resposta de outro
@@ -159,6 +215,10 @@ nonisolated enum Grok {
         let detalhes = uso?["completion_tokens_details"] as? [String: Any]
         diagnostico.tokensDeRaciocinio = detalhes?["reasoning_tokens"] as? Int
         diagnostico.desfecho = "HTTP ou conteúdo recusado"
+        if diagnostico.statusHTTP != 200 {
+            let erro = envelope?["error"]
+            diagnostico.erroDaAPI = String(describing: erro ?? "sem corpo de erro").prefix(400).description
+        }
         #endif
         guard
               !Task.isCancelled,
@@ -174,17 +234,17 @@ nonisolated enum Grok {
     /// O schema vai no protocolo da API, não apenas numa promessa no prompt.
     /// JSON válido ainda precisa das verificações de domínio e de conteúdo.
     static func corpo(sistema: String, usuario: String, temperatura: Double,
-                      esquema: String?, esforco: String = "none", modelo: String = Grok.modelo) -> Data? {
+                      esquema: String?, esforco: String = Grok.esforcoMinimo, modelo: String = Grok.modelo) -> Data? {
         guard ["none", "low", "medium", "high"].contains(esforco) else { return nil }
         var corpo: [String: Any] = [
             "model": modelo,
-            "reasoning_effort": esforco,
             "temperature": temperatura,
             "messages": [
                 ["role": "system", "content": sistema],
                 ["role": "user", "content": usuario],
             ],
         ]
+        if !semEsforco { corpo["reasoning_effort"] = esforco }
         if let esquema {
             guard let dados = esquema.data(using: .utf8),
                   let schema = try? JSONSerialization.jsonObject(with: dados) as? [String: Any],

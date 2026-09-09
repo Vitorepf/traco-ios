@@ -41,11 +41,13 @@ import Testing
         #expect(todas.count == Politica.Operacao.allCases.count)
     }
 
-    /// ADR 08q: com a conta LIGADA, seis operações continuam sem executor —
-    /// e a frase da tela não pode mandar conectar a conta que já existe.
+    /// ADR 08q: com a conta LIGADA, as cortadas continuam sem executor — e a
+    /// frase da tela não pode mandar conectar a conta que já existe.
+    /// ADR 09n: `responder` SAIU desta lista, medida de novo e aprovada. Eram
+    /// sete; são seis. Quem tirar outra sem medida nova quebra aqui.
     @Test func indisponivelPorQualidadeNaoTemExecutorNemComContaEAparelho() {
         let cortadas: [Politica.Operacao] = [.ecos, .calibragem, .recordar, .responderNasNotas,
-                                            .responder, .instigar, .contrapor]
+                                            .instigar, .contrapor]
         #expect(Set(Politica.indisponiveis) == Set(cortadas))
         // ADR 08z: a chave da sonda só existe em DEBUG e só abre o que ela
         // nomeia. Aqui ela tem de estar VAZIA — uma suíte que rodasse com a
@@ -75,7 +77,28 @@ import Testing
         // O corte tem dois grupos, e o Perfil precisa distingui-los: sem
         // substituto medido, e com conserto já nomeado.
         #expect(Politica.indisponiveis.filter { Politica.linha($0).conserto == nil }.count == 5)
-        #expect(Set(Politica.indisponiveis.filter { Politica.linha($0).conserto != nil }) == Set([.responder, .responderNasNotas]))
+        #expect(Set(Politica.indisponiveis.filter { Politica.linha($0).conserto != nil }) == Set([.responderNasNotas]))
+    }
+
+    /// ADR 09n / DIRETRIZ §10 — "sempre use o melhor Grok possível". Duas
+    /// coisas se contratam aqui, e as duas já se perderam uma vez:
+    /// 1. o padrão global NÃO é mais o `grok-4.3` que a 08q reprovou;
+    /// 2. `responder` voltou a ter executor, e sem descer ao aparelho, que
+    ///    nunca foi medido bem nela.
+    @Test func responderVoltouComOMelhorModeloEOEsforcoMedido() {
+        #expect(Grok.modelo != "grok-4.3", "o padrão global voltou ao modelo que a 08q reprovou")
+        #expect(Politica.linha(.responder).regra == .soGrok)
+        #expect(Politica.provedor(.responder, contaLigada: true, bordo: true) == .grok)
+        #expect(Politica.provedor(.responder, contaLigada: false, bordo: true) == nil)
+        #expect(!Politica.desceAoAparelho(.responder))
+        #expect(Politica.pelaConta.contains(.responder))
+        #expect(!Politica.indisponiveis.contains(.responder))
+        #expect(!Politica.semProvedor(.responder).contains("indisponível"))
+        #expect(Politica.linha(.responder).medidaEm == "09/09/2026")
+        // O esforço `medium` é o que a medida aprovou, e com ele vem o teto:
+        // 20 s cortaria a chamada que a medida viu levar 77,5 s.
+        #expect(Grok.corpo(sistema: "", usuario: "", temperatura: 0.3, esquema: nil,
+                           esforco: "medium") != nil)
     }
 
     /// Sem conta e sem aparelho (a suíte), produzir é indisponibilidade dita —

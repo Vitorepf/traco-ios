@@ -49,7 +49,15 @@ enum AnaliseRemota {
         #endif
         // memo pelo texto: dispensar o cartão e pausar de novo não repaga token
         guard let msg = await Grok.responder(sistema: sistema, usuario: String(texto.prefix(6000)),
-                                             temperatura: 0, timeout: 10,
+                                             // ADR 09n: o `timeout: 10` daqui foi medido para um
+                                             // modelo que NÃO raciocinava. Com o modelo escolhido
+                                             // (DIRETRIZ §10) ele estourava em 2 de 2 execuções e a
+                                             // classificação caía CALADA para o modelo do aparelho —
+                                             // o "resultado pior calado" que a ADR 07b existe para
+                                             // impedir. Fica o `Grok.teto` medido, como nas outras
+                                             // rotas: um teto só, e ele limita a falha, não a espera
+                                             // (a análise seguinte cancela a anterior).
+                                             temperatura: 0,
                                              memoPor: "classificar\u{1}\(texto.hashValue)")
         else { return nil }
         return parseVeredito(msg)

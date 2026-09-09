@@ -108,7 +108,7 @@ enum AvaliacaoIA {
                     PadroesRemoto.esquecerMemo()
                     var registro: [String: Any] = ["id": caso.id, "operacao": caso.operacao,
                         "repeticao": repeticao, "entrada": try objeto(caso.entrada),
-                        "modeloConfigurado": Grok.modelo, "modeloTrabalhoConfigurado": Grok.modeloTrabalho,
+                        "modeloConfigurado": Grok.modelo,
                         "contaGrokLigada": ContaGrok.ligada,
                         "modeloDoAparelhoDisponivel": AnaliseDeBordo.disponivel,
                         "motoresDesligados": Motores.desligados,
