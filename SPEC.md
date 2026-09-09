@@ -8480,3 +8480,59 @@ continua sendo do G3. E `grok-4.20-multi-agent-0309` segue inalcançável por um
 ficou mais forte, não mais fraca, porque os nove lançamentos comparados são o
 mesmo byte. Conta ligada e 12 modelos autenticados às 15h54 e às 16h57 de
 09/09/2026, e `contaGrokLigada: true` nos 162 registros.
+## ADR 2026-09-09q — a frase existia e nenhuma tela a dizia: o botão que só vibrava (volta B2)
+
+**Contexto.** A tabela `Politica` (ADR `2026-09-07b`, quarta regra em `2026-09-08q`) escreve,
+para cada uma das **dezesseis** operações de IA, uma frase de tela em `semProvedor(_:)` — a
+oração curta que o autor lê quando ninguém vai responder. `PoliticaTests` guarda desde a 08q
+que nenhuma delas está vazia. **O que ninguém guardava é se alguma TELA a mostra.** A B2
+contou: **dezesseis escritas, seis mostradas**. As outras dez eram motor sem superfície, e
+três estavam em rotas com botão.
+
+**O defeito, medido.** `Lente · Instigar` e `Lente · Contrapor` perguntavam a
+`Sabia.disponivel` — que responde "sim" quando há conta Grok ou Apple Intelligence. Mas as
+duas são `indisponivelPorQualidade` desde a 08q: `Politica.provedor` devolve `nil`
+**independentemente da conta**, e `Sabia.chamar` volta `nil` na primeira linha. O autor tocava
+o botão, via o laço girar e recebia **uma vibração** (`Toque.aviso()`). Nada na tela, nada na
+nota, nenhum caminho para descobrir por quê — a explicação existia a duas telas de distância,
+na terceira lista do Perfil. Irmãs do mesmo defeito: `Caderno · Perguntar à sábia` mostrava
+"a sábia não respondeu. **tente de novo.**" para uma operação que a medida cortou — convite a
+repetir o que nunca vai dar certo —, e `Vestir tudo` ficava mudo quando o refino remoto
+falhava sem que o motor local tivesse mexido em nada.
+
+**Decisão.** Uma linha em `Politica`:
+
+```swift
+static func aviso(_ op: Operacao, contaLigada:, bordo:) -> String? {
+    provedor(op, ...) == nil ? semProvedor(op) : nil
+}
+```
+
+`nil` = há quem responda, a rota segue. Texto = é isto que a tela diz, **no ponto em que o
+autor tocou**. Nenhuma rota volta a decidir sozinha o que perguntar: quem chamava
+`Sabia.disponivel` para saber se podia chamar estava perguntando a coisa errada, e a resposta
+certa é uma só para todas. A Lente reusa `LinhaDeEstado` — o mesmo componente que
+`RecordarView`, `RedeView` e `PadroesView` já usam para isto —, e o `Toque.aviso()` mudo
+ganhou a frase "a sábia não respondeu.". No Caderno a pergunta volta ao cartão `.pergunta`,
+como no cancelamento da 09n: o que ele escreveu não se perde.
+
+**Portão.** `TracoTests/PortaoDaRotaQueCalaTests.swift`, no espírito do `PortaoDoTryBang`:
+uma **tabela congelada** de quem mostra a frase (dez) e quem não mostra (seis), esta com o
+julgamento escrito ao lado. Varre os fontes com o `codigoVisivel` do `PortaoDoMovimento`
+(comentário e string não contam como superfície) e fica **vermelho** se uma rota perder a sua
+— medido: sem o conserto, acusa exatamente `instigar`, `responder` e `contrapor`.
+
+**O que fica, com dono.** `responderNasNotas` tem o mesmo defeito da `responder` — `NotasView`
+diz "a sábia não respondeu." com "Repetir" ao lado — e **não** entra aqui porque a tela das
+Notas está sendo reescrita pela frente de design (09k). Dívida nomeada no RUMO, dona: a frente
+das Notas. As outras cinco sem superfície não causam dano e o portão diz por quê: `recordar`
+cai na pergunta fixa do ritual, `padroes` faz `remotas ?? locais`, `vestir` tem frase própria,
+e `classificar`/`dominio` são rotas automáticas, onde o §17 manda calar.
+
+**Estados inalcançáveis.** A busca pelas irmãs do `EstadoAcao` da E1 varreu os **54 `enum`**
+de `Traco/` e `TracoWidget/` procurando `case` que a produção nunca constrói. **Nenhum.** Os
+oito candidatos da varredura são todos alcançáveis, e a conferência caso a caso está no
+relato. O que sobrou de inalcançável nesta volta não era enum: eram os **dez ramos de
+`semProvedor`** que nenhuma tela lia — e o conserto lhes deu a porta.
+
+**Consequência.** Relato e evidência em `ferramentas/orca/b2-estados-e-silencio.md`.

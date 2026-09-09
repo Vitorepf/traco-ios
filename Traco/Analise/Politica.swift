@@ -202,6 +202,18 @@ enum Politica {
         }
     }
 
+    /// O que a TELA DIZ, no ponto em que o autor tocou. `nil` = há quem
+    /// responda e a rota segue. ADR 2026-09-09q: `semProvedor` já existia com
+    /// uma frase por operação, mas cada rota decidia sozinha se perguntava —
+    /// e a Lente perguntava a `Sabia.disponivel`, que responde "sim" com a
+    /// conta ligada mesmo quando a tabela diz que ninguém responde. Resultado:
+    /// o autor tocava "Instigar", via o laço girar e recebia uma VIBRAÇÃO.
+    /// Uma linha aqui, e a resposta é a mesma em toda rota.
+    static func aviso(_ op: Operacao, contaLigada: Bool = ContaGrok.ligada,
+                      bordo: Bool = Sabia.noAparelho) -> String? {
+        provedor(op, contaLigada: contaLigada, bordo: bordo) == nil ? semProvedor(op) : nil
+    }
+
     /// Para o Perfil: o que o aparelho faz sozinho, o que exige a conta, e o
     /// que NÃO TEM MAIS EXECUTOR. As três listas juntas são as dezesseis; uma
     /// operação indisponível por qualidade não pode aparecer nas outras duas,
