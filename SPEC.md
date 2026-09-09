@@ -8346,3 +8346,110 @@ controlada, com casos do revisor, `responder` não pode sair de
 `indisponivelPorQualidade` nem `Grok.modelo` pode ser declarado o melhor global.
 O cartão de espera, o piso `low` e o teto único são evidência separada e não
 resolvem esta decisão.
+
+### Adendo Q2-F — a comparação refeita, e o que ela desfez desta ADR
+
+A **ADR 2026-09-09q** refez a medida com uma alavanca só. Três correções ao que
+está escrito acima, todas por corrida:
+
+1. **A triagem desta ADR estava errada em dois cortes.** `grok-build-0.1` não sai
+   pela versão `0.1`: sai porque devolve `Model grok-build-0.1 does not support
+   parameter reasoningEffort` — a mesma frase da família `4.20`, o que derruba a
+   leitura de que a recusa fosse traço daquela linha. E as cinco `imagine` não
+   saem por "modalidade errada" deduzida: saem porque a API responde `Model not
+   found` em `chat/completions`.
+2. **`grok-4.5`, cortado aqui por posição, é candidato e é o melhor por uma das
+   duas leituras do placar** (17 de 18 casos contra 16 do `4.6`).
+3. **O "12 de 12" do `grok-4.6` não se repete.** Ele veio de UMA corrida. Em três
+   corridas idênticas o `4.6` perdeu dois casos numa delas e nenhum nas outras
+   duas: uma corrida por modelo não distingue o modelo do sorteio, e foi ela que
+   sustentou a adoção desta ADR.
+
+**O que desta ADR permanece:** o contrato de sustentação em `sistemaResponder`,
+o piso `Grok.esforcoMinimo = "low"`, o teto único `Grok.teto`, o `erroDaAPI` da
+sonda — que é o instrumento com que a 09q triou os doze — e a espera como estado
+de tela. **O que não permanece:** a escolha do modelo global, já revertida.
+
+## ADR 2026-09-09q — a comparação pareada foi feita, e ela não elege ninguém (volta Q2-F)
+
+**A distância.** O G3 reprovou a 09n por dois P1: a comparação mudou **duas**
+alavancas (modelo e `reasoning_effort`) e por isso não decidia o padrão global; e
+a triagem dos doze modelos excluiu candidatos por **nome e posição**, não por
+fato observado. Esta ADR refaz o experimento. **O resultado é negativo, e é o
+resultado:** `Grok.modelo` continua `grok-4.3` e `responder` continua
+`indisponivelPorQualidade`.
+
+**A triagem, agora por frase da API.** A régua foi dita antes de aplicar: entra
+na disputa quem **serve a requisição que o Traço manda em produção** — `model`,
+`temperature`, `messages` e `reasoning_effort`. Os doze foram à API com a mesma
+requisição (`prova/q2f-triagem-doze-modelos.jsonl`):
+
+| modelo | HTTP | o que a API respondeu |
+|---|---:|---|
+| as cinco `grok-imagine-*` | 400 | `Model not found: <id>` |
+| `grok-build-0.1` | 400 | `Model grok-build-0.1 does not support parameter reasoningEffort.` |
+| `grok-4.20-0309-non-reasoning` | 400 | idem, com o próprio nome |
+| `grok-4.20-0309-reasoning` | 400 | idem, com o próprio nome |
+| `grok-4.20-multi-agent-0309` | 400 | sem corpo de erro |
+| **`grok-4.3`**, **`grok-4.5`**, **`grok-4.6`** | **200** | responderam |
+
+**Os três `400` de `reasoningEffort` são a prova em banda que o G3 pediu.** O
+revisor apontou, com razão, que `esforco: medium` no JSONL é o argumento Swift e
+não o corpo HTTP. O provedor só pode recusar **o parâmetro pelo nome** se ele foi
+enviado — logo o campo estava lá, e estava lá igual nos três braços.
+
+**A medida: uma alavanca, 18 casos, 3 corridas, 54 execuções por modelo.** Fixos
+em todos os nove lançamentos: a fixture (os 12 casos da 08z **mais os 6 cegos do
+revisor**, sem reescrita, sha256 `135d6a71…`), o binário (o MESMO já instalado,
+sha256 `6ddf3a8d…` — **zero instalações nesta volta**), o aparelho, a temperatura
+`0.3`, o esforço `medium`, o teto `240 s` e o prompt (os 2.235 caracteres de
+`sistemaResponder`, conferidos byte a byte dentro do dylib instalado). Variou
+`TRACO_AVALIAR_MODELO`, e só ele.
+
+| leitura | `grok-4.3` | `grok-4.5` | `grok-4.6` |
+|---|---:|---:|---:|
+| por caso (uma execução reprova o caso) | 15 de 18 | **17 de 18** | 16 de 18 |
+| por execução (54 cada) | 46 de 54 | 51 de 54 | **52 de 54** |
+| os 6 casos cegos do revisor | **reprova** | passa | passa |
+| espera média | **9,4 s** | 13,1 s | 39,9 s |
+
+**Por que isto não elege ninguém.** Nenhum dos três chega a 18 de 18, e a régua
+do portão é "um descumprimento reprova". Pior: as duas leituras honestas do
+placar **não elegem o mesmo vencedor** entre `4.5` e `4.6` — a distância é de UM
+descumprimento em 54 —, e o `4.6` custa **4,2×** a espera. Coroar um "melhor Grok
+global" com essa margem seria repetir, com método melhor, o erro que o G3
+apontou: decidir mais do que a medida decide.
+
+**Os defeitos que a medida nomeia** (`prova/q2f-modelo-4*.jsonl`, 162 saídas
+lidas por inteiro):
+- **`grok-4.3` reprova `revisor-responsavel-nao-definido`, 3 de 3** — um caso
+  CEGO. Ou para sem continuação (*"Sem essa anotação, a definição não consta no
+  que você tem."*), ou dá uma inventando o que o caso nega (*"consulte o registro
+  da reunião ou a pessoa que definiu a apresentação"*). **É a razão de
+  `responder` continuar cortada**, e não uma nota da Q2-F.
+- **`grok-4.3` e `grok-4.5` reprovam `q2-relatorio-tres-restricoes`** (2/3 e
+  3/3): afirmam que o relatório é PDF, onde estão sumário e conclusões, e até que
+  há tabelas — exatamente o que o requisito proíbe e o que `sistemaResponder` já
+  proíbe em prosa. Isso aponta uma alavanca de **PROMPT**, não de modelo.
+- **`grok-4.5` estourou o teto de 900 caracteres em 4 das 54 execuções**: a
+  resposta chega ao autor cortada no meio da frase por
+  `Sabia.limparResposta`. Nos outros dois modelos, zero.
+
+**A tabela.** `Politica.linha(.responder)` continua `indisponivelPorQualidade`
+com `medidaEm 09/09/2026`. **Duas strings mudaram**, porque as duas diziam ao
+autor que faltava a comparação pareada — e ela deixou de faltar: o `porque` traz
+o resultado dos três candidatos, e o `conserto` da tela passa a nomear o que a
+medida achou de verdade: *"o prompt já mata a invenção de número; trocar de
+modelo não resolve (três medidos, nenhum passou) — falta o prompt impedir também
+a invenção da ESTRUTURA de um documento"*.
+
+**O que esta ADR NÃO prova.** Três corridas por modelo mostram que a variação
+existe, não a medem. Os seis casos do revisor são cegos para quem implementou a
+08z e a 09n, **não** para quem escreveu esta ADR — a leitura independente
+continua sendo do G3. E `grok-4.20-multi-agent-0309` segue inalcançável por um
+`400` sem corpo: não sabemos por quê, e está dito assim.
+
+**Zero instalações no aparelho da conta**, contra as cinco da 09n — e a medida
+ficou mais forte, não mais fraca, porque os nove lançamentos comparados são o
+mesmo byte. Conta ligada e 12 modelos autenticados às 15h54 e às 16h57 de
+09/09/2026, e `contaGrokLigada: true` nos 162 registros.
