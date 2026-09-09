@@ -8335,6 +8335,33 @@ espera**, não em qualidade: dizer que `conferir` responde em 3,1 s não é dize
 responde melhor. `grok-4.5` e `grok-4.20-0309-non-reasoning` foram cortados por
 nome e posição, não por corrida.
 
+**Adendo B1-B — o portão se contornava com uma chamada aninhada (P1 do G3).** O
+reconhecedor era `regex\(([^()]*)\)` e, por não admitir parêntese no argumento, **não
+casava com nada** quando o padrão vinha embrulhado: `regex(p.trimmingCharacters(in:
+.whitespaces))` ficava INVISÍVEL e o portão dava VERDE. Isso dava verde exatamente para o
+caso real, porque no código de verdade o padrão quase nunca chega cru — chega depois de um
+`trimming`, de um `map` ou de uma interpolação. Medido no mesmo plantio, no `34CC3F94`:
+parser de `ea48a8e` → `✔ ... passed` (6 testes); parser de agora → `✘ Expectation failed:
+(deFora → ["padraoDeFora.trimmingCharacters(in: .whitespaces)) }"])`. A forma plana continua
+vermelha (`deFora → ["padraoDeFora"]`).
+
+O conserto é `AProvaDosQuatro.argumentosDeRegex`: casa só `regex(` (a captura `func\s+`
+descarta a declaração) e exige que o que vem logo depois seja um **identificador NU** seguido
+de `)`. Qualquer outra forma volta como o resto da linha CRU e, não sendo nome de literal do
+arquivo, cai em `deFora`. Consumir só `regex(` mantém duas chamadas na mesma linha visíveis
+como duas. As duas formas ficam guardadas em `oPortaoDaConferenciaEnxergaArgumentoAninhado`,
+com as duas que NÃO podem acusar (literal e a própria declaração).
+
+**LIMITE DECLARADO — o portão promete só o que vê.** Ele reconhece apenas `regex(nome)` na
+mesma linha. Concatenação, interpolação, string inline e chamada partida em duas linhas saem
+VERMELHAS mesmo quando o padrão é literal deste arquivo: a troca é deliberada, porque nenhuma
+dessas formas dá falso VERDE e é essa a direção que importa. Quem precisar de uma delas tira
+o `try!` de `regex(_:)` em vez de afrouxar o portão. Dívida nomeada no RUMO.
+
+**Consequência.** Relato e evidência em `ferramentas/orca/b1-try-bang.md` e
+`ferramentas/orca/b1b-portao-aninhado.md`. Suíte integral 997/0 em 161 suítes, 0 warning, no
+`34CC3F94`.
+
 ### Adendo G3 — revisão independente da 09n
 
 O G3 de 09/09 **reprovou a adoção**. `TRACO_AVALIAR_SEM_ESFORCO=1` muda o

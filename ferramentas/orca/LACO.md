@@ -2091,3 +2091,48 @@ frase de tela e não só estado.
 com o conserto do prompt, o piso de esforço, o teto único, a espera na tela e a
 sonda com `erroDaAPI`; **sem** a escolha do modelo global e **sem** `responder`
 fora da lista. Aparelho efêmero desligado ao fim.
+
+## 09/09, 16h — pausa e retomada (uso 2%); o veredito chegou pelo branch, não pelo carimbo
+
+O revisor da Q2-E teve o `worker_done` **rejeitado três vezes pelo runtime**
+(`unknown dispatch`, com o id truncado num caractere), depois de `request-show` e
+`dispatch-show` confirmarem o despacho. **E ainda assim o trabalho chegou**: ele
+comitou o veredito em `db0a3a6` e mandou um `status` dizendo onde estava. Eu li o
+branch, revertí o que ele pediu, e o carimbo era a única coisa que faltava.
+
+Desprendi o despacho com `worker-abandon` — que **não finge que o processo
+parou**, só o solta — e escrevi as duas regras que faltavam: **se o `worker_done`
+falhar por erro do runtime, comite e mande `status` com o SHA**; e do meu lado,
+**despacho preso se resolve desprendendo, não esperando**.
+
+E respondi, na ESTEIRA e no preâmbulo, a pergunta que dois workers fizeram no mesmo
+dia: **aparelho que você encontrou ligado e não ligou — use se for o seu, e deixe
+como achou** ("quem liga, desliga" ganhou o par que faltava: **quem não ligou, não
+desliga**); e **trava ocupada não é suíte bloqueada** — a `com-trava.sh` serializa
+de propósito, esperar é o comportamento certo.
+
+## 09/09, 16h30 — a B1-B fechou o bypass, e a causa era um portão CEGO, não frouxo
+
+O regex do portão era `regex\(([^()]*)\)`. **Com um parêntese dentro do
+argumento ele não casa em lugar nenhum**, e a chamada ficava **invisível** — a
+contagem parada em 4. Ou seja: não era um portão que deixava passar, era um que
+**não via**, e dava verde por cegueira.
+
+Ela **reproduziu o bypass antes de consertar**, com o mesmo plantio aninhado: no
+commit velho o portão passa (6 verdes); no novo ele reprova com
+`deFora → ["padraoDeFora.trimmingCharacters(in: .whitespaces)) }"]`. E guardou **as
+duas formas** no teste — a plana e a aninhada — **junto com as duas que NÃO podem
+acusar**, que é o par que impede o portão de virar histérico.
+
+**O que ela declarou em vez de esconder, e é a melhor parte:** o portão novo só
+reconhece `regex(nome)` na mesma linha; **concatenação, interpolação, string inline
+e chamada em duas linhas saem VERMELHAS mesmo sendo literais**. **Nenhuma dá falso
+verde** — ele **falha fechado** —, e o limite está escrito no próprio portão, na
+ADR e no RUMO, com a saída honesta nomeada.
+
+Virou lei: **portão que não enxerga tem de falhar fechado.** Um que reprova o que
+não entende custa uma conversa; um que aprova o que não entende custa o defeito.
+
+**Fecho:** **1000 testes em 161 suítes, `TEST SUCCEEDED`** com a B1-B dentro — o
+milésimo teste do Traço é um que guarda um portão de **falhar fechado**, o que é
+um jeito razoável de chegar ao número redondo. Aparelho efêmero desligado ao fim.
