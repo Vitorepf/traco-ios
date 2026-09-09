@@ -444,10 +444,40 @@ JSONL das corridas sobreviveram. Mas o erro não foi só distração: **"um simu
 só" e "nunca `xcodebuild test` nesse simulador" não cabem juntas** — a suíte fica
 sem onde rodar, e quem executa acaba escolhendo em silêncio qual das duas quebrar.
 
-**A regra passa a ser dois aparelhos com papéis duros:** o **`C2416CBC`** é o da
-**conta** (sonda de IA e capturas da tela real, e nada mais), o **`B91C8DEF`** é o
-de **trabalho** (build, suíte, tudo o resto). Nenhum worker liga um terceiro.
+**A regra, na forma que o dono deu (09/09 09h30), decidida pela reversibilidade:**
+
+- **`C2416CBC` é o aparelho da CONTA e o único ligado fora de uma corrida de
+  suíte.** Recebe o binário **uma vez por volta**, com `ContaGrok.ligada`
+  conferido; **nunca `xcodebuild test`**, nunca `erase`/`clearState`/`uninstall`,
+  **nunca voz nem mouse nele**.
+- **O segundo simulador existe SÓ para build e suíte.** É **ligado pela trava no
+  início da corrida e DESLIGADO ao fim da MESMA corrida** — quem liga, desliga, e
+  não deixa ligado "para a próxima". Fora da suíte, **há um aparelho ligado na
+  máquina**.
+- Nenhum worker liga um terceiro.
 
 **A lição de orquestração:** quando duas ordens se contradizem, **quem executa não
 resolve em silêncio** — mostra a contradição para quem mandou. Eu só a vi porque
 tropecei nela; o certo era tê-la visto ao escrever a segunda.
+
+### DIRETRIZ §8 (09/09, `418a1b5`) — o mais rápido possível, zero bugs, ponytail
+
+Palavras do dono: *"o mais rápido possível; eliminar todos os bugs e erros;
+otimizar ao máximo; ponytail"*. Cinco pontos, e eles mudam como a esteira corre:
+
+1. **Fechar antes de abrir.** Escopo mínimo, **uma passada de revisão**, e
+   **acabamento vira dívida nomeada** em vez de segurar a volta. O laço de hoje
+   teve voltas com três e quatro re-G3 — isso acaba: se o mérito passou e falta
+   acabamento, **o acabamento vai para o RUMO com dono**.
+2. **Trilha B, caça a defeitos, permanente:** **B1** os `try!` de produção
+   (`TracoApp.swift:13` primeiro), **B2** estados inalcançáveis e rotas que calam,
+   **B3** texto que promete o que o motor não sustenta. **Cada uma com teste que
+   reproduz antes.**
+3. **Otimização com medida antes/depois** em **lista, editor e parser** — número,
+   não impressão.
+4. **`ponytail` é lei de código**, para implementador **e** revisor: a escada
+   (existe? já existe aqui? stdlib? nativo? dependência que já entrou? uma linha?)
+   antes de escrever, e o diff mais curto que funciona **depois de entender o
+   problema**.
+5. **A fila da §7 segue:** Q2, Q3 e Q4 na frente de IA, a **trilha B ao lado**, e
+   C1/R1/S1 **fecham antes de abrir mais**.
