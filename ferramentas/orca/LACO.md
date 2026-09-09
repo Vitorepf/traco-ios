@@ -1069,3 +1069,31 @@ Escolhi esta e não outra da fila porque **as voltas de IA estão todas travadas
 conta caída** — `responderNasNotas`, `instigar`, `contrapor`, `ecos`, `calibragem`
 e `recordar` precisam do Grok, e ele só volta com o dono. A S1 não precisa de
 nada além do aparelho.
+
+## 09/09, 04h — pausa e retomada (uso 14%); as três correções voltaram, e a C1 escolheu consertar
+
+Pausa e retomada registradas. **A C1-B escolheu o caminho (a): consertou** —
+*"nenhuma gaveta corre sobre a linha do autor"*. Ela podia ter escrito uma exceção
+na ADR 08f, que era o caminho (b) e o mais barato; preferiu **medir primeiro com
+uma sonda por quadro, reproduzir o resíduo, e então tirá-lo**. É a ordem certa, e
+o resultado que ela relata é o único que fecha a invariante escrita sem exceção:
+**0 quadros fora nos dois tamanhos**.
+
+A **R1-B** voltou com a régua do dono (as seis fases, a curva-zero em toques e a
+Complexidade resolvida) e a **F5b-B** com as três provas que o revisor nomeou —
+teste que **morde o wiring**, semeadura que **publica pela rota real**, e os pares
+`large`/AX5 com **log versionado**.
+
+Mandei os três de volta ao **mesmo revisor** que os recusou, cada um com a lista
+ponto a ponto do que ele mesmo exigiu, e com a instrução de **quebrar o teste do
+wiring com as próprias mãos** em vez de aceitar que ele morde.
+
+Um detalhe de máquina que funcionou sozinho: a F5b-B avisou no batimento que
+**outro worker estava rodando `xcodebuild test` no `6033B043`** — era a C1-B
+fazendo a prova do Pro Max que eu autorizei — e **esperou a trava** em vez de
+disputar. Foi a primeira vez no dia que duas voltas dividiram um aparelho sem
+incidente, e o que fez a diferença foi o aviso no comentário do worktree, que a
+DIRETRIZ §7 tornou obrigatório.
+
+**As duas travadas em você continuam paradas:** a conta Grok caída segura a Q2 e
+as outras seis operações; a tela do Mac trancada segura a MAC-0.
