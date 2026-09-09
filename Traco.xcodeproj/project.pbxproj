@@ -14,6 +14,7 @@
 		04FD23B1D01D9095B4435ED5 /* Intencoes.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5C891E43910EF91FDBE00CB /* Intencoes.swift */; };
 		05008721B50DE83B33C36004 /* CamposFormaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B496594B9155DDF9FAE0B85C /* CamposFormaView.swift */; };
 		074CEFA001610B7014480820 /* ColheitaEixosTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF372B1BEFF3653F9B724C23 /* ColheitaEixosTests.swift */; };
+		08DA99533D3C1F8E0515EA2E /* caderno-v1-fea00dd.store in Resources */ = {isa = PBXBuildFile; fileRef = F1B42F690F6695FA7EEA5BE3 /* caderno-v1-fea00dd.store */; };
 		0BD2BD74128AD32BFB929D54 /* RecordarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B3F4812CA2DDBAB60FE7D78 /* RecordarView.swift */; };
 		0DD3BBE75E20A798A60CAB94 /* AvaliacaoIA.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8191FC3749B7823792F0B8E /* AvaliacaoIA.swift */; };
 		0EE55C0236D7E574EA1A7F6D /* VozDoAutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A31CF16DDDD850E4008ED6A /* VozDoAutor.swift */; };
@@ -21,6 +22,7 @@
 		106CBE50EBFFC19F908C0FAC /* RascunhoTrabalhoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07BBD0ED2EF321DDCE0E6B9C /* RascunhoTrabalhoTests.swift */; };
 		12BB3542B2F7018C8D12F2F3 /* ConversaNotasTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E42136E3E9C7EFF19C16BF /* ConversaNotasTests.swift */; };
 		1425C8343284780C8896D088 /* DestaqueFeitoIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1E9A224786DC6173B194387 /* DestaqueFeitoIntent.swift */; };
+		14F2CBB12307C73C2A34EE1C /* caderno-v2-bf535c5.store in Resources */ = {isa = PBXBuildFile; fileRef = B40B38EBE36DBAA12A3FD392 /* caderno-v2-bf535c5.store */; };
 		15525F840E59A676807EFF08 /* caderno-v5-origem.store in Resources */ = {isa = PBXBuildFile; fileRef = F2A303CDC8D54E3206A31E17 /* caderno-v5-origem.store */; };
 		15D58FA109E577388359863B /* AjusteDoExercicioTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D7F182DAA90D0C99BD9326B /* AjusteDoExercicioTests.swift */; };
 		167D033BE03D47F30DA5BAD5 /* AnaliseDeBordoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83996006ACA17F6C0CCA1E9 /* AnaliseDeBordoTests.swift */; };
@@ -87,6 +89,7 @@
 		62F244DD1EE82BE8E45B1831 /* CadernoDiagnostico.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BE14BD28362A74300FD085A /* CadernoDiagnostico.swift */; };
 		6316127746D5DEF2A9900FB9 /* RevisaoTrabalho.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80097AC5D039C24E7A2B7E04 /* RevisaoTrabalho.swift */; };
 		68866A915706D914EB1EFCC3 /* ProximoCompromisso.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C82A29BB5E74DA79ECDBAE /* ProximoCompromisso.swift */; };
+		6AEC6029D7019120B0354DBE /* caderno-v3-degrau.store in Resources */ = {isa = PBXBuildFile; fileRef = 79DD9F72B5E30D1ABEEE668D /* caderno-v3-degrau.store */; };
 		6C51B66439DD2E152C8A1D77 /* CalendarioTema.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AD715564AD56997FD28528F /* CalendarioTema.swift */; };
 		6D43C242414B765A5F777549 /* ConferenciaTrabalhoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAD1B67DFB05E314DF1EEA2C /* ConferenciaTrabalhoTests.swift */; };
 		6FEC54E297B9BCE0985F0CC1 /* MotorTrabalhoContextoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E02DEF691F4862133348FB4F /* MotorTrabalhoContextoTests.swift */; };
@@ -101,6 +104,7 @@
 		7A40D574819B61176C09C344 /* LinhasDeProveniencia.swift in Sources */ = {isa = PBXBuildFile; fileRef = 948CA481153CAE57BEF667E4 /* LinhasDeProveniencia.swift */; };
 		7A884C0F2EEE3A6ACA98DFB3 /* PortaoDoTryBangTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 620B5566A2EFBFFE129994A6 /* PortaoDoTryBangTests.swift */; };
 		7C1C6E4F04DB0F87F10AE130 /* Pilula.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9622B1F0FCBD585B72089CD2 /* Pilula.swift */; };
+		7E9B1AA490E3E8D2107DFAB5 /* caderno-v0-b7fbc3e.store in Resources */ = {isa = PBXBuildFile; fileRef = E35E8577BD13404163E19BE7 /* caderno-v0-b7fbc3e.store */; };
 		7F26309223D4872E96CFEA82 /* ContaGrok.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DBB3255C8D14DB1494C3558 /* ContaGrok.swift */; };
 		7F6EB1BC7BAFE1E2083BCFB3 /* CapturarIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3387F830FCA497BB6F9A71F /* CapturarIntent.swift */; };
 		80ADF1AB86E85FB378787A92 /* Camadas.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACC5FB2B7162F211E437D280 /* Camadas.swift */; };
@@ -334,6 +338,7 @@
 		71ACE4748B93E89F90F631F5 /* EscritaVisivel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EscritaVisivel.swift; sourceTree = "<group>"; };
 		752E5B8AEE11066FE1493A3D /* Nota.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Nota.swift; sourceTree = "<group>"; };
 		7537CF8C51549F26D7FCB726 /* CalendarioTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarioTests.swift; sourceTree = "<group>"; };
+		79DD9F72B5E30D1ABEEE668D /* caderno-v3-degrau.store */ = {isa = PBXFileReference; path = "caderno-v3-degrau.store"; sourceTree = "<group>"; };
 		7AADD8085337A3F3C82395E8 /* AgendamentoAcaoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgendamentoAcaoView.swift; sourceTree = "<group>"; };
 		7BB175F2F50DED6365BFB989 /* DestaqueDoDia.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DestaqueDoDia.swift; sourceTree = "<group>"; };
 		7DF4DB2A8B1FE3987EEA5C93 /* ChipDominio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChipDominio.swift; sourceTree = "<group>"; };
@@ -376,6 +381,7 @@
 		B2C82A29BB5E74DA79ECDBAE /* ProximoCompromisso.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProximoCompromisso.swift; sourceTree = "<group>"; };
 		B3387F830FCA497BB6F9A71F /* CapturarIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapturarIntent.swift; sourceTree = "<group>"; };
 		B34FA98F79085411C8C75034 /* CalendarioTrabalhoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarioTrabalhoTests.swift; sourceTree = "<group>"; };
+		B40B38EBE36DBAA12A3FD392 /* caderno-v2-bf535c5.store */ = {isa = PBXFileReference; path = "caderno-v2-bf535c5.store"; sourceTree = "<group>"; };
 		B496594B9155DDF9FAE0B85C /* CamposFormaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CamposFormaView.swift; sourceTree = "<group>"; };
 		B544C7CB0EEA5F5D2DAFB30C /* NotasESessaoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotasESessaoTests.swift; sourceTree = "<group>"; };
 		B5A488C4342AF60848A88895 /* CadernoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CadernoTests.swift; sourceTree = "<group>"; };
@@ -422,6 +428,7 @@
 		E22B84151D11BBFF7BDAFB6F /* Vazio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Vazio.swift; sourceTree = "<group>"; };
 		E251FAB2A436CD18A9DB6295 /* QualidadeTrabalhoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QualidadeTrabalhoTests.swift; sourceTree = "<group>"; };
 		E2751D1D96F07B6B9980FA75 /* Toque.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Toque.swift; sourceTree = "<group>"; };
+		E35E8577BD13404163E19BE7 /* caderno-v0-b7fbc3e.store */ = {isa = PBXFileReference; path = "caderno-v0-b7fbc3e.store"; sourceTree = "<group>"; };
 		E4E86ED863C6D7F804028F82 /* TrabalhosView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrabalhosView.swift; sourceTree = "<group>"; };
 		E593B503C3E68C037618072D /* OrdemNotas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrdemNotas.swift; sourceTree = "<group>"; };
 		E6A126EE0A969827F3AF54EB /* ColheitaRestanteTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColheitaRestanteTests.swift; sourceTree = "<group>"; };
@@ -432,6 +439,7 @@
 		EB3BF4BFF47F4717BAEDCE78 /* ArranqueFalhouView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArranqueFalhouView.swift; sourceTree = "<group>"; };
 		EFD168914C5D50E4178D21DF /* Ferias.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ferias.swift; sourceTree = "<group>"; };
 		F097B670D2780F7796A2E211 /* DitadoProprio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DitadoProprio.swift; sourceTree = "<group>"; };
+		F1B42F690F6695FA7EEA5BE3 /* caderno-v1-fea00dd.store */ = {isa = PBXFileReference; path = "caderno-v1-fea00dd.store"; sourceTree = "<group>"; };
 		F2A303CDC8D54E3206A31E17 /* caderno-v5-origem.store */ = {isa = PBXFileReference; path = "caderno-v5-origem.store"; sourceTree = "<group>"; };
 		F39FDF5D127D1C7D7B719758 /* DoCadernoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoCadernoView.swift; sourceTree = "<group>"; };
 		F5C891E43910EF91FDBE00CB /* Intencoes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Intencoes.swift; sourceTree = "<group>"; };
@@ -698,6 +706,10 @@
 		6A2FF06629BFE6347A139815 /* Fixtures */ = {
 			isa = PBXGroup;
 			children = (
+				E35E8577BD13404163E19BE7 /* caderno-v0-b7fbc3e.store */,
+				F1B42F690F6695FA7EEA5BE3 /* caderno-v1-fea00dd.store */,
+				B40B38EBE36DBAA12A3FD392 /* caderno-v2-bf535c5.store */,
+				79DD9F72B5E30D1ABEEE668D /* caderno-v3-degrau.store */,
 				B8D1B89DFE640B09BE5BDEC0 /* caderno-v4-pre08u.store */,
 				F2A303CDC8D54E3206A31E17 /* caderno-v5-origem.store */,
 			);
@@ -970,6 +982,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7E9B1AA490E3E8D2107DFAB5 /* caderno-v0-b7fbc3e.store in Resources */,
+				08DA99533D3C1F8E0515EA2E /* caderno-v1-fea00dd.store in Resources */,
+				14F2CBB12307C73C2A34EE1C /* caderno-v2-bf535c5.store in Resources */,
+				6AEC6029D7019120B0354DBE /* caderno-v3-degrau.store in Resources */,
 				2D1949D38062D037B74701BB /* caderno-v4-pre08u.store in Resources */,
 				15525F840E59A676807EFF08 /* caderno-v5-origem.store in Resources */,
 			);

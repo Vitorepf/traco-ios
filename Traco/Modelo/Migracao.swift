@@ -1,8 +1,46 @@
 import Foundation
 import SwiftData
 
-/// Schema versionado desde o dia 1: toda mudança futura em `Nota` entra como
-/// V2 + estágio de migração — nunca como perda silenciosa das notas do autor.
+/// A PRIMEIRA forma da 1.0.0 — a `Nota` de `b7fbc3e` (31/08 08:27), o commit em
+/// que o schema versionado nasceu. Naquela tarde, `fea00dd` (31/08 16:31) pôs
+/// `queimada`, `queimadaEm`, `minutosEscritos` e `sentido` na `Nota` **sem abrir
+/// versão** — o mesmo pecado da 08u, cometido antes dela. O rótulo continuou
+/// `1.0.0`; o checksum, não: `ZaCSxtyZ+GhOyX+/HrdB0vDyHUU4iGbD8pyC5WHEAI8=`
+/// virou `c2qnFksOJhh+/ANo29UNO8QkIxGdsSf0P+COGywTg4E=`. Um caderno gravado
+/// naquelas oito horas não casava com nenhuma versão do plano e **não abria**
+/// (medido, ADR 2026-09-09f). Existem portanto DUAS 1.0.0 no mundo, e o
+/// CoreData casa o store pelo CHECKSUM, não pelo rótulo: por isso a primeira
+/// entra aqui com um rótulo próprio (`0.9.0`) — que serve só para nós lermos.
+enum TracoSchemaV0: VersionedSchema {
+    static var versionIdentifier: Schema.Version { Schema.Version(0, 9, 0) }
+    static var models: [any PersistentModel.Type] { [Nota.self] }
+
+    @Model
+    final class Nota {
+        var uuid: UUID
+        var texto: String
+        var gestoRaw: String?
+        var camposJSON: String
+        var trancada: Bool
+        var criadaEm: Date
+        var editadaEm: Date
+        var expressivaPrazo: Date?
+
+        init() {
+            self.uuid = UUID()
+            self.texto = ""
+            self.camposJSON = "{}"
+            self.trancada = false
+            self.criadaEm = .now
+            self.editadaEm = .now
+        }
+    }
+}
+
+/// A SEGUNDA forma da 1.0.0 — a `Nota` de `fea00dd` até `bf535c5^`, com o fecho
+/// expressivo (queima, minutos, sentido). Schema versionado desde o dia 1: toda
+/// mudança futura em `Nota` entra como versão nova + estágio de migração —
+/// nunca como perda silenciosa das notas do autor.
 enum TracoSchemaV1: VersionedSchema {
     static var versionIdentifier: Schema.Version { Schema.Version(1, 0, 0) }
     static var models: [any PersistentModel.Type] { [Nota.self] }
@@ -153,10 +191,11 @@ enum TracoSchemaV5: VersionedSchema {
 /// (`loadIssueModelContainer`) e o autor fica sem o caderno.
 enum TracoMigracao: SchemaMigrationPlan {
     static var schemas: [any VersionedSchema.Type] {
-        [TracoSchemaV1.self, TracoSchemaV2.self, TracoSchemaV3.self, TracoSchemaV4.self, TracoSchemaV5.self]
+        [/*SONDA TracoSchemaV0.self,*/ TracoSchemaV1.self, TracoSchemaV2.self,
+         TracoSchemaV3.self, TracoSchemaV4.self, TracoSchemaV5.self]
     }
     static var stages: [MigrationStage] {
-        [MigrationStage.lightweight(fromVersion: TracoSchemaV1.self, toVersion: TracoSchemaV2.self),
+        [/*SONDA*/ MigrationStage.lightweight(fromVersion: TracoSchemaV1.self, toVersion: TracoSchemaV2.self),
          MigrationStage.lightweight(fromVersion: TracoSchemaV2.self, toVersion: TracoSchemaV3.self),
          MigrationStage.lightweight(fromVersion: TracoSchemaV3.self, toVersion: TracoSchemaV4.self),
          MigrationStage.lightweight(fromVersion: TracoSchemaV4.self, toVersion: TracoSchemaV5.self)]
