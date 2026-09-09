@@ -1350,3 +1350,40 @@ entre uma coisa e a outra passou uma noite.
 caderno gravado antes da 08u não abrir, nenhuma nota importa. A revisão dela está
 em curso com o peso escrito no spec: **se aprovar errado, o caderno do dono fica
 fechado**.
+
+## 09/09, 08h50 — UM SIMULADOR SÓ, por ordem do dono, e o Grok liberado nele
+
+O dono desligou todos os simuladores menos o **iPhone 17 Pro `C2416CBC`** e
+**liberou o Grok nele**. Encontrei o 17e ainda ligado e o desliguei; agora há **um
+aparelho na máquina**. Confirmei a ordem **no comentário dos cinco worktrees**,
+como ele pediu, e reescrevi o bloco de instrumento do preâmbulo inteiro.
+
+**O que muda:** nenhum worker liga outro simulador; build, suíte, sonda, capturas
+e jornada, tudo nesse aparelho, **serializado por `com-trava.sh`** — três frentes
+editam, **uma de cada vez no instrumento**. Nada de `erase`, `clearState` ou
+`uninstall`. **Install por cima uma vez por volta**, com `ContaGrok.ligada`
+conferido antes e depois. **Se a conta cair, o worker para e diz na hora, com o
+comando que a derrubou** — o dono quer a causa, não só o aviso.
+
+**E uma lei morreu, do jeito certo:** o **maestro volta a valer como evidência**.
+A proibição de 06/09 existia porque, com vários simuladores ligados, ele lia a
+hierarquia do vizinho. Com um só, **a razão da regra morreu, e a regra morre
+junto** — é a única forma honesta de encolher uma lista de leis, e vale escrever
+que ela encolheu por medida e não por cansaço.
+
+**O custo, dito na frente:** o paralelismo cai. Uma suíte integral segura as
+outras duas frentes. Vale a pena porque **a conta do dono vive nesse aparelho**, e
+foi a disputa entre aparelhos que a derrubou duas vezes.
+
+## 09/09, 11h — a M1 abriu os cadernos V2, V3 e V4 do revisor, e ainda assim não passa
+
+O revisor **montou os cadernos antigos ele mesmo** e o conserto **abriu os três,
+sem perder as sete notas**. **Estado honesto: 10.** O diagnóstico e o conserto
+estão de pé.
+
+O que reprova é uma frase maior que a prova — **de novo**, e desta vez na minha
+casa: **o portão declarado como "cada versão" só contém V4 e V5**. Foi
+exatamente o passado não visitado que deixou este defeito passar, então o portão
+que promete visitar o passado **tem de visitar o passado inteiro**. A M1-B
+(`ctx_4a67a34c7ae7`) fecha isso e traz o `main` para dentro, com a lei da Q-H:
+aprovado não é mesclável.

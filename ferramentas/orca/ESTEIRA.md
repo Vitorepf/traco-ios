@@ -388,3 +388,27 @@ manutenção necessária continua não sendo o que ele pediu.
 
 E o LACO registra **com a hora** o momento em que cada operação volta a estar
 disponível.
+
+### UM SIMULADOR SÓ (ordem do dono, 09/09 08h50)
+
+O dono desligou todos os simuladores menos o **iPhone 17 Pro
+`C2416CBC-C5D9-41F9-ACD8-45EED8FC355E`** e **liberou o Grok nele**. A partir daqui:
+
+- **Nenhum worker liga outro simulador.** Build, suíte, sonda, capturas e jornada,
+  **tudo nesse aparelho**, serializado por `com-trava.sh`. Três frentes editam,
+  **uma de cada vez no instrumento**.
+- **Nada de `erase`, `clearState` ou `uninstall`.** Instalar por cima **só quando a
+  volta precisar do binário novo, uma vez**, com `ContaGrok.ligada` conferido
+  **antes e depois**, com a hora.
+- **Se a conta cair, o worker PARA e diz na hora, com o comando que a derrubou** —
+  para o dono reautorizar e para acharmos a causa.
+- **O maestro volta a valer como evidência.** A proibição de 06/09 existia porque
+  com vários simuladores ele lia a hierarquia do vizinho; com um só, o motivo
+  caiu. **As leis morrem quando a razão delas morre** — e essa é a única forma
+  honesta de encolher uma lista de regras.
+- **O caçador de fala segue** rodando em toda espera.
+
+**O que isto custa, dito na frente:** o paralelismo cai. Três voltas podem editar,
+mas a fila do instrumento é única — e uma suíte integral segura as outras duas.
+Vale a pena porque **a conta do dono vive nesse aparelho**, e foi a disputa entre
+aparelhos que a derrubou duas vezes.
