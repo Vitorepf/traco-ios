@@ -61,12 +61,19 @@ nonisolated struct RevisaoSemanal: Equatable, Sendable {
         var campos: [String: String]
         var sentido: String
         var queimadaOuSeladaEm: Date?
+        /// ADR 09b: a revisão é do que a MENTE do autor deixou no papel. O que
+        /// o bot escreveu não é semana dele — nem como contagem. Sem padrão:
+        /// o chamador declara ou não compila.
+        var vozDoAutor: Bool
     }
 
     nonisolated static func ler(notas: [NotaLida], eventos: [EventoCalendario], agora: Date = .now,
                                 cal: Calendar = .current) -> RevisaoSemanal {
         let seteAtras = cal.date(byAdding: .day, value: -7, to: agora) ?? agora
         let seteAFrente = cal.date(byAdding: .day, value: 7, to: agora) ?? agora
+        // ADR 09b: um corte só, no topo — cada bloco abaixo parte de `notas`, e
+        // um filtro por bloco seria seis lugares para esquecer o sétimo.
+        let notas = notas.filter(\.vozDoAutor)
 
         // a expressiva em curso não é nota da semana: nem conta, nem sai (selo)
         let daSemana = notas.filter { !$0.fechada && $0.gesto != .expressiva && $0.criadaEm >= seteAtras && $0.criadaEm <= agora }

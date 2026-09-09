@@ -109,4 +109,119 @@ struct IntegridadeCorpusTests {
         PastaEspelho.limpar()
         #expect(defaults.string(forKey: PastaEspelho.chaveNome) == nil)
     }
+
+    // MARK: - ADR 2026-09-08u: quem escreveu
+
+    @Test func origemDoCabecalhoAtravessaOImport() throws {
+        for (linha, esperada) in [("origem: grokbot", OrigemNota.grokbot),
+                                  ("origem: pesquisa", .pesquisa),
+                                  ("", .autor),
+                                  ("origem: assistente", .autor)] {
+            let md = "---\ncriada: 1970-01-01T00:00:00Z\ngesto: WOOP\n"
+                + (linha.isEmpty ? "" : linha + "\n") + "---\n\ntrês temas voltam\n"
+            let item = try #require(Corpus.importar(md).first)
+            #expect(item.origem == esperada, "linha “\(linha)”")
+        }
+    }
+
+    @Test func origemSobreviveAoRoundtripPelaPasta() throws {
+        var f = FatiaCorpus(id: UUID(), texto: "o que se repete", gesto: nil, campos: [:],
+                            criadaEm: Date(timeIntervalSince1970: 0), editadaEm: Date(timeIntervalSince1970: 0),
+                            recordada: 0, sentido: "", minutos: 0, trancada: false, queimada: false,
+                            expressivaEmCurso: false, dominio: nil, serie: nil, dia: 0)
+        f.origem = .grokbot
+        let md = Corpus.arquivoMd(f)
+        #expect(md.contains("origem: grokbot"))
+        #expect(try #require(Corpus.importar(md).first).origem == .grokbot)
+        // e a nota do autor não ganha uma linha que não existia
+        f.origem = .autor
+        #expect(!Corpus.arquivoMd(f).contains("origem:"))
+    }
+
+    @Test func notaQueNaoEDoAutorFicaForaDoRetrato() {
+        let campos = ["obstaculo": "deixo para depois"]
+        let doAutor = Retrato.NotaLida(gesto: .woop, fechada: false, expressiva: false,
+                                       criadaEm: .now, campos: campos, vozDoAutor: true)
+        let doBot = Retrato.NotaLida(gesto: .woop, fechada: false, expressiva: false,
+                                     criadaEm: .now, campos: ["obstaculo": "o bot achou isto"],
+                                     vozDoAutor: false)
+        let texto = Retrato.ler(notas: [doAutor, doBot], sinais: [])
+        #expect(texto.contains("deixo para depois"))
+        #expect(!texto.contains("o bot achou isto"))
+        // nem como CONTAGEM: uma forma só, não duas
+        #expect(texto.contains("1 WOOP"))
+        #expect(Retrato.ler(notas: [doBot], sinais: []).isEmpty)
+    }
+
+    @Test func agendaSaiNaPastaComOQueVenceESemOQueOSeloFecha() throws {
+        let raiz = FileManager.default.temporaryDirectory
+            .appendingPathComponent("agenda-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: raiz, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: raiz) }
+
+        let agora = Date(timeIntervalSince1970: 1_760_000_000)
+        let velha = agora.addingTimeInterval(-40 * 86_400)
+        func fatia(_ texto: String, gesto: Gesto?, campos: [String: String] = [:],
+                   trancada: Bool = false, emCurso: Bool = false, recordar: Date? = nil) -> FatiaCorpus {
+            FatiaCorpus(id: UUID(), texto: texto, gesto: gesto, campos: campos, criadaEm: velha,
+                        editadaEm: velha, recordada: 0, sentido: "", minutos: 3, trancada: trancada,
+                        queimada: false, expressivaEmCurso: emCurso, dominio: nil, serie: nil, dia: 0,
+                        origem: .autor, recordarEm: recordar)
+        }
+        let devida = fatia("abrir a segunda clínica", gesto: .decisao,
+                           campos: ["escolha": "abrir a segunda clínica", "espero": "dois pacientes a mais"])
+        let respondida = fatia("trocar o contador", gesto: .decisao,
+                               campos: ["escolha": "trocar o contador", "espero": "menos retrabalho",
+                                        "aconteceu": "veio igual", "saldo": "igual"])
+        let cobrada = fatia("quero correr todo dia", gesto: .woop,
+                            campos: ["resultado": "acordar leve", "obstaculo": "durmo tarde", "plano": "deito às 23h"],
+                            recordar: agora.addingTimeInterval(-86_400))
+        let selada = fatia("a dor", gesto: .expressiva, trancada: true, recordar: agora.addingTimeInterval(-86_400))
+        let emCurso = fatia("a dor de agora", gesto: .expressiva, emCurso: true)
+
+        let evento = EventoCalendario(titulo: "reunião com o contador",
+                                      inicio: agora.addingTimeInterval(86_400),
+                                      fim: agora.addingTimeInterval(90_000))
+        let passado = EventoCalendario(titulo: "o que já foi", inicio: velha, fim: velha)
+        let texto = Corpus.agenda([devida, respondida, cobrada, selada, emCurso].filter { !$0.nuncaSai },
+                                  eventos: [evento, passado], agora: agora)
+
+        #expect(texto.contains("reunião com o contador"))
+        #expect(!texto.contains("o que já foi"))
+        #expect(texto.contains("abrir a segunda clínica"))
+        #expect(!texto.contains("trocar o contador"), "decisão já respondida não é cobrança")
+        #expect(texto.contains("quero correr todo dia"))
+        // o selo continua valendo na agenda: nem o corpo da selada, nem a em curso
+        #expect(!texto.contains("a dor"))
+
+        // e o arquivo aparece de verdade ao lado dos três de hoje
+        Corpus.escrever(fatias: [devida, cobrada], em: raiz)
+        let noDisco = try String(contentsOf: raiz.appendingPathComponent("agenda.md"), encoding: .utf8)
+        #expect(noDisco.hasPrefix("# Agenda do Traço"))
+        #expect(FileManager.default.fileExists(atPath: raiz.appendingPathComponent("INDICE.md").path))
+    }
+
+    @Test func expressivaESeladaContinuamForaDaPastaDepoisDaOrigem() throws {
+        let raiz = FileManager.default.temporaryDirectory
+            .appendingPathComponent("selo-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: raiz, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: raiz) }
+        let quando = Date(timeIntervalSince1970: 0)
+        func f(trancada: Bool, emCurso: Bool) -> FatiaCorpus {
+            FatiaCorpus(id: UUID(), texto: "o texto da dor", gesto: .expressiva, campos: [:],
+                        criadaEm: quando, editadaEm: quando, recordada: 0, sentido: "o medo era outro",
+                        minutos: 15, trancada: trancada, queimada: false, expressivaEmCurso: emCurso,
+                        dominio: nil, serie: nil, dia: 0)
+        }
+        Corpus.escrever(fatias: [f(trancada: true, emCurso: false), f(trancada: false, emCurso: true)], em: raiz)
+        for nome in ["traco-corpus.md", "agenda.md", "INDICE.md"] {
+            let conteudo = (try? String(contentsOf: raiz.appendingPathComponent(nome), encoding: .utf8)) ?? ""
+            #expect(!conteudo.contains("o texto da dor"), "\(nome) deixou o corpo da expressiva sair")
+        }
+        let notas = (try? FileManager.default.contentsOfDirectory(
+            atPath: raiz.appendingPathComponent("notas").path)) ?? []
+        #expect(notas.count == 1, "a em curso não vira arquivo")
+        let selada = try String(contentsOf: raiz.appendingPathComponent("notas/\(notas[0])"), encoding: .utf8)
+        #expect(selada.contains("estado: selada") && !selada.contains("o texto da dor"))
+    }
 }

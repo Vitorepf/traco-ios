@@ -4,6 +4,10 @@ Ordem do dono, 08/09/2026: implementar os onze. Este arquivo é o contrato em li
 
 O que o bot tem que o app não tem: tela grande e teclado; um modelo grande com conhecimento de mundo e busca na web; leitura de todas as notas de uma vez; conversa. O que o bot NUNCA faz: redigir como se fosse a pessoa, resumir expressiva ou selada (nem chegam a ele), inventar fato sem citar a nota de onde veio, sincronizar sozinho, usar voz.
 
+**Casos prontos (08/09/2026).** 1, 3, 8, 9 e 11, e a LEITURA do 2 — volta MAC-1
+(ADR 2026-09-08u). As instruções para colar no bot estão em `casos/`. Faltam a
+escrita do 2 e os casos 4, 5 e 6 (MAC-2), e os 7 e 10 (MAC-3).
+
 Regras de origem, para todos os casos:
 - Texto da pessoa vai para `entrada/` como nota dela (`origem: autor`).
 - Texto do bot vai para `entrada/` ou `trabalhos/entrada/` com `origem: grokbot` e o motivo. O app mostra a etiqueta "feito pelo bot", nunca conta isso como voz do autor, e nunca põe no Retrato.
