@@ -1267,3 +1267,51 @@ nunca viu o passado não guarda o passado.
 A **S1-B** e a **C1-D** também entregaram — a S1-B com um achado próprio ("o vazio
 também rola: quem filtrava as Notas até zero ficava preso atrás do teclado") e a
 C1-D com a reconciliação e a ADR `09e`.
+
+## 09/09, 10h — pausa e retomada (uso 7%); a M1 achou a frase que explica tudo
+
+**"Um `VersionedSchema` que aponta para a CLASSE VIVA não congela nada: é um
+apelido para 'o código de hoje', e o checksum dele anda junto com o código."**
+
+É isso. O store guarda o checksum do dia em que foi gravado (`4.0.0`,
+`ImY8W7hR8jJH+…`); quando a 08u pôs `origemRaw` na `Nota`, a V4 passou a valer
+`2AijN0DBwZ…`, **nenhuma versão do plano casou com o caderno do autor**, e o
+CoreData recusou tudo — `NSCocoaErrorDomain 134504, "Cannot use staged migration
+with an unknown model version"`. A frase que fecha o diagnóstico:
+**"o erro da 08u não foi acrescentar atributo com padrão: foi acrescentá-lo sem
+abrir versão"**.
+
+O conserto: V2, V3 e V4 passam a declarar **cópias congeladas**; a **V5 é a única
+com as classes vivas**; estágio V4→V5 leve. Provado com um **store REAL** gravado
+pelo build `8d9ce62`. Despachei a revisão com o peso que ela tem: **se aprovar
+errado, o caderno do dono fica fechado** — e com a exigência de **reproduzir o
+vermelho com store próprio** e de **quebrar o portão novo** para vê-lo reprovar.
+
+**A escalação da R1-C tinha a causa exata antes de mim:** *"o `ZNOTA` daquele
+store não tem `ZORIGEMRAW` (`PRAGMA table_info`)"*. Ela mediu, escalou, **e não
+consertou** — porque o mandato dela era integração e *"migração de esquema com o
+caderno do dono em jogo é volta própria"*. Saber onde parar é o que fez o defeito
+chegar inteiro à volta certa.
+
+**A S1-B fechou o caso do teste que mentia**, e a causa é melhor que a hipótese: a
+busca terminava valendo `o que eu aprendi ontem**gggd**` — os quatro toques na aba
+viraram **quatro letras**, porque `NotasView.lista` tem dois ramos e **só o CHEIO
+tinha `.scrollDismissesKeyboard`**. Os testes filtram até zero e caem sempre no
+ramo **VAZIO**, que era um `VStack` sem gesto. *"O teste passava para quem tinha
+notas no aparelho e falhava para quem abria o app limpo — media o lixo da corrida
+anterior."* Ela **consertou no produto, não no teste**, com a razão certa:
+**filtrar até zero com o teclado em pé PRENDE a pessoa**. 10 de 10 corridas do
+zero, com `shutdown`+`boot`+`uninstall` a cada uma.
+
+**A C1-D fechou as duas pendências** — o Pro Max reexecutado (a ressalva de "prova
+herdada" sai) e o teclado emulado explicado — e achou o que eu não tinha visto:
+**a etiqueta de origem que o `main` pôs acima do editor come 30 pt de papel em
+AX5**, exatamente onde a invariante mede o aperto. Ela passou a medir esse estado,
+com portão que reprova se a cápsula não desenhar.
+
+**E a terceira colisão de letra do laço foi minha de novo:** reservei `09d` para a
+S1-B e a C1-D tomou a mesma letra no mesmo turno, porque eu **não atualizei o
+`LETRAS-ADR.md` no ato**. A C1 passa a `09g`. O arquivo também **estava errado
+sobre si mesmo** — dava `08z` como livre quando ela está no branch da Q2 —, o que
+a própria C1-D pegou. Corrigi as duas coisas e escrevi a regra que faltava:
+**quem despacha atualiza o registro no mesmo ato em que reserva**.
