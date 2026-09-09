@@ -640,3 +640,33 @@ API falha por `throw` ou por exceção Objective-C**. Se for exceção, **nenhum
 controle, `U+FFFF`, emoji, `U+2028/2029`, aspas e barra. Eles passam de "dívida
 real" a **"infalível por construção COM A PROVA"**. Sair da lista **por medida** é
 tão válido quanto sair por conserto — e é mais barato.
+
+### ⛔ Com o dono ativo na máquina, não se levanta janela nem se escreve em campo (09/09)
+
+**O que aconteceu, e é o pior tipo de acidente: o silencioso.** A janela do Grok
+Bot sumiu; o worker fez `open -a "Grok Bot"` para ler a resposta, e isso
+**levantou a janela por cima do que o dono estava fazendo** — um `appl` dele
+apareceu no campo do bot. O worker esperou **45 s de inatividade**, clicou no
+campo, mandou `cmd+a` (o helper respondeu **"provider unavailable": não selecionou
+nada**), colou a pergunta e deu Return. **O campo tinha um rascunho do dono, e ele
+foi enviado ao bot junto com a pergunta do worker.**
+
+Nada saiu da conta dele e o destinatário foi o próprio bot; o worker **escalou na
+hora, não apagou nem editou a conversa, e não tocou mais no app**. Isso é o
+comportamento certo depois do erro — e o erro continua sendo evitável.
+
+**Três regras, e as três nasceram deste minuto:**
+
+1. **Com o dono ativo no Mac (ocioso < 60 s), não se levanta janela nem se escreve
+   em campo de texto.** Esperar 45 s não bastou; espere o Mac ficar realmente
+   parado, ou **peça e aguarde**.
+2. **`open -a` não é neutro:** ele **rouba o foco** do que a pessoa está fazendo.
+   Para *ler* uma janela, leia pela árvore de acessibilidade sem trazê-la à frente.
+3. **O `hotkey` do helper não é confiável.** Ele respondeu "provider unavailable" e
+   **não selecionou nada**, e o worker seguiu como se tivesse selecionado.
+   **Confira o VALOR do campo por AX antes de qualquer Return** — enviar é
+   irreversível, e o que estava lá não era seu.
+
+**A regra geral por trás das três:** **antes de um ato irreversível num app do
+dono — enviar, salvar, apagar — leia o estado real e confirme que é o seu.** Não
+basta ter mandado o comando que deveria limpar.
