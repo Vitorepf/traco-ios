@@ -10,7 +10,9 @@ struct NotasView: View {
     @Environment(\.dynamicTypeSize) private var tamanhoTexto
     @Query(sort: \Nota.criadaEm, order: .reverse) private var notas: [Nota]
     @Query private var trabalhos: [Trabalho]
-    @State private var conversaNotas = ConversaNotas()
+    /// ADR 09c: a conversa vive na `Sessao` — em `@State` ela morria toda vez
+    /// que a `RaizView` recriava esta view ao trocar de aba.
+    private var conversaNotas: ConversaNotas { sessao.conversaNotas }
     private var busca: String {
         get { conversaNotas.entrada }
         nonmutating set { conversaNotas.entrada = newValue }
@@ -329,7 +331,7 @@ struct NotasView: View {
                 .accessibilityHidden(true)
             TextField(
                 "",
-                text: $conversaNotas.entrada,
+                text: Bindable(conversaNotas).entrada,
                 prompt: Text("Buscar ou perguntar").foregroundStyle(Tema.tintaFraca)
             )
                 .foregroundStyle(Tema.tinta)

@@ -585,6 +585,16 @@ final class Sessao {
 
     // MARK: ADR 05e — perguntar nas Notas
 
+    /// ADR 09c: a conversa é da SESSÃO, não da view. `RaizView` recria a
+    /// `NotasView` a cada troca de aba do arquivo (o `switch` de `abaArquivo`),
+    /// e com o `@State` morria a conversa inteira — a pergunta que a pessoa
+    /// estava esperando sumia sem que nada dissesse. `interromper()` já dizia
+    /// "sair da tela não perde o pedido interrompido"; era o `@State` que
+    /// desmentia. Aqui em cima o objeto vive enquanto a sessão viver, e todo
+    /// estado dela vem junto: a pergunta guardada, as trocas já respondidas, o
+    /// aviso de "sem conta" e a busca que a pessoa estava escrevendo.
+    let conversaNotas = ConversaNotas()
+
     nonisolated struct TrocaNasNotas: Equatable, Sendable {
         var pergunta: String
         var resposta: String

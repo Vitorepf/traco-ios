@@ -190,7 +190,7 @@ O juiz listou e não descontou: `isHeader` faltando nas duas seções novas; o `
 ### Dois achados da V13 (08/09), com dono nomeado
 
 - **O caret do Caderno falha em AX XXXL no iPhone 17e.** A V13 rodou a suíte integral no `C7341E64` e o **único vermelho** é esse — e ela provou que é **pré-existente**, com as mesmas 18 ocorrências em `HEAD` sem o diff dela. É da invariante da escrita visível (V12, ADR 08f, já mesclada), que foi provada no Pro Max e no teste 2 mas **não neste aparelho neste tamanho**. Volta do Caderno, e a prova tem de incluir o 17e em AX XXXL.
-- **A pergunta interrompida some ao trocar de aba**, porque `RaizView` **recria** a `NotasView`. É estado desonesto — a pessoa perde o que estava esperando sem que nada diga. Conserto na `Sessao`, área do arquiteto, não do front.
+- ~~**A pergunta interrompida some ao trocar de aba**~~ — **FECHADO em 09/09 pela volta S1 (ADR 2026-09-09c)**. O achado foi confirmado vivo na tela antes de tocar em qualquer linha (`ferramentas/orca/s1-01`/`s1-02`), e o conserto foi na `Sessao`: `let conversaNotas = ConversaNotas()` vive enquanto a sessão viver, e com ele a pergunta guardada, as trocas, o aviso de "sem conta" e a busca em edição. Dois XCUITest vermelhos antes e verdes depois, no mesmo aparelho; prova viva em `s1-03`/`s1-04`/`s1-05`. Relatório: `ferramentas/orca/s1-pergunta.md`.
 
 ### A RÉGUA DO VAZAMENTO, nos dois sentidos — volta própria, e ela vem antes de mexer no parser
 
