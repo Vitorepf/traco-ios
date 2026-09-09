@@ -7884,3 +7884,47 @@ pode sê-lo no piso.
 **Estado honesto.** O Vermelho 1 é defeito de produto, consertado na produção. O
 Vermelho 2 é defeito do teste, e a medida diz de qual dos dois lados: a etiqueta
 desenha, o papel é que está no chão.
+
+## ADR 2026-09-09l — o cofre do dono não é da suíte (volta K1)
+
+**Contexto.** Dois testes da `AnaliseRemotaTests` abriam com `ContaGrok.sair()`
+para armar a pré-condição "sem conta". `TracoTests` roda **hospedada dentro do
+app**, e o keychain é do **SIMULADOR**, não do processo de teste: aquele `sair()`
+apagava `oauth-acesso` e `oauth-renova` do serviço `app.traco.xai` de verdade. O
+fecho obrigatório de toda volta — suíte integral por `com-trava.sh` — derrubava a
+conta Grok do dono sempre que corresse no aparelho dela.
+
+**Isto já tinha precedente e ele foi lido pela metade.** A ADR 05u desviou o App
+Group para os testes (`SuperficieDisco.isolarParaTestes()`), com o portão "A2: a
+suíte não escreve no App Group real". Ficou o **cofre**, que ninguém desviou.
+
+**Decisão.** O mesmo desvio, no único ponto por onde todo acesso ao cofre passa:
+sob `XCTestConfigurationFilePath`, `ContaGrok.servico` vira
+`app.traco.xai.testes` e `chaveExpira` vira `grokExpiraEm-testes`. Os dois testes
+ficam de pé com o texto que tinham — eles guardam coisa que importa — e passam a
+escrever num cofre que é deles.
+
+**Por que aqui e não em cada teste.** Uma guarda em `sair()` conserta só quem
+chama `sair()`; o sufixo em `servico` conserta `guardar`, `lido`, `ligada`,
+`token`, `renovar` e `guardarSessao` de uma vez, e conserta também o teste que
+ainda não foi escrito. É o diff mais curto que fecha a classe inteira.
+
+**Medida, antes e depois, no aparelho de trabalho `34CC3F94`** (nunca no
+`B91C8DEF`, que é o da conta). Um teste descartável plantou uma conta FALSA no
+serviço real e chamou `sair()`:
+
+| | acesso | renova |
+|---|---|---|
+| antes do conserto | `FALSO-acesso-k1` → **APAGADO** | `FALSO-renova-k1` → **APAGADO** |
+| depois do conserto | `FALSO-acesso-k1` → `FALSO-acesso-k1` | `FALSO-renova-k1` → `FALSO-renova-k1` |
+
+**Portão.** `testeNuncaEscreveNoCofreDoAparelho` afirma que sob teste o serviço
+**não é** `app.traco.xai`, e mede direto que `sair()` não move o que está no
+cofre do aparelho. Com o valor antigo restaurado ele fica vermelho na linha
+`Expectation failed: (ContaGrok.servico → "app.traco.xai") != "app.traco.xai"` —
+foi assim que se provou que ele morde.
+
+**Estado honesto.** O `UserDefaults.standard` do app continua real na suíte
+(`revisaoNivel`, `padroesVistas`, `revisaoProxima`, rascunho do Trabalho): são
+preferências, cada teste limpa a sua, e nenhuma é credencial. Fica como dívida
+nomeada no RUMO, não segura esta volta.

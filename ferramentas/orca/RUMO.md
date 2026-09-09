@@ -441,3 +441,18 @@ Ciclo: multiplicar (achar e marcar sem pensar na ferramenta). Intenção: a list
 **V10 — Fundação de design.** Ciclo: multiplicar + eixo 4. Intenção: toda tela nasce dos mesmos tokens, componentes e movimentos. Obstáculo: Tema.swift tem tokens parciais, componentes repetidos por tela (cápsulas, chips, linhas de estado, disclosures), animações com curvas e durações soltas e reduce motion tratado em 10 arquivos. Evidência: Traco/Componentes/*.swift com preview por estado (normal, vazio, carregando, falha, desabilitado, AX5), Tema.swift com tokens nomeados (cor, tipo, espaço, raio, sombra, duração, curva), `Tema.movimento` que devolve o movimento certo sob reduce motion, e pelo menos três telas migradas sem mudança visual (captura antes = depois); suíte verde; shortstat com linhas líquidas ≤ 0. Escopo: Tema.swift, Traco/Componentes (novo), e as três telas migradas; duas frentes disjuntas (tokens+movimento em Tema / componentes+previews). Sistema: SISTEMA-CLARO.md.
 
 **V11 — Ambiente Markdown: conflitos e retry.** Ciclo: multiplicar. Intenção: o autor edita o Trabalho fora do Traço e volta sem perder nada, mesmo quando as duas pontas mudaram. Obstáculo: ADR 05l provou o retorno feliz; conflito (base antiga com nova versão local), retry após recusa de commit e revogação da origem com o seletor/exportador aberto não têm prova na UI. Evidência: prévia de conflito com as duas versões e escolha explícita (nova versão, nunca sobrescrita), retry que confirma a mesma versão sem duplicar, seletor aberto + selar a origem → material recolhido com linha honesta; testes + capturas dos estados + fluxo maestro em simulador de teste. Escopo: Traco/Trabalho/{IntercambioTrabalho,IntercambioTrabalhoView}.swift e testes; depende da V6 mesclada.
+
+## Dívida nomeada — a suíte ainda escreve no `UserDefaults` real do app (K1, 09/09)
+
+O cofre já está isolado (ADR 2026-09-09l): sob `XCTestConfigurationFilePath` a
+`ContaGrok` escreve em `app.traco.xai.testes`. **Fica aberto** o
+`UserDefaults.standard` do processo hospedeiro: `revisaoNivel`, `revisaoProxima`,
+`revisaoConta`, `padroesVistas` e a chave do rascunho do Trabalho são gravadas e
+apagadas por testes dentro do app. Nenhuma é credencial e cada teste limpa a sua,
+por isso **não segurou a volta**; mas um teste que morra no meio deixa a
+preferência do dono trocada no aparelho onde a suíte correu.
+
+**Conserto quando doer:** o mesmo desvio de sufixo, ou um
+`UserDefaults(suiteName:)` próprio dos testes injetado no arranque, ao lado do
+`SuperficieDisco.isolarParaTestes()` da 05u. **Dono: quem tocar em Revisões ou
+no rascunho do Trabalho a seguir.**

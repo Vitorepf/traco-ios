@@ -1,3 +1,4 @@
+import Security
 import SwiftData
 import SwiftUI
 import Testing
@@ -578,6 +579,32 @@ struct AnaliseRemotaTests {
         ContaGrok.sair()
         let v = await AnaliseRemota.classificar(texto: "quero correr", gestoAtual: nil)
         #expect(v == nil) // sem conta: zero rede, cai no local
+    }
+
+    /// PORTÃO (ADR 2026-09-09l): a suíte roda hospedada no app, então o cofre é
+    /// o do APARELHO. Se alguém devolver `servico` ao nome real, `sair()` nos
+    /// dois testes acima volta a apagar a conta do dono — e este teste fica
+    /// vermelho antes disso chegar ao aparelho dele.
+    @Test func testeNuncaEscreveNoCofreDoAparelho() {
+        func cofreDoAparelho(_ conta: String) -> Data? {
+            var ref: CFTypeRef?
+            let q: [String: Any] = [
+                kSecClass as String: kSecClassGenericPassword,
+                kSecAttrService as String: "app.traco.xai",
+                kSecAttrAccount as String: conta,
+                kSecReturnData as String: true,
+                kSecMatchLimit as String: kSecMatchLimitOne,
+            ]
+            guard SecItemCopyMatching(q as CFDictionary, &ref) == errSecSuccess else { return nil }
+            return ref as? Data
+        }
+        #expect(ContaGrok.emTeste) // se isto cair, o desvio inteiro está desligado
+        #expect(ContaGrok.servico != "app.traco.xai")
+        // e a prova direta: `sair()` não move o que está no cofre do aparelho
+        let antes = (cofreDoAparelho("oauth-acesso"), cofreDoAparelho("oauth-renova"))
+        ContaGrok.sair()
+        #expect(cofreDoAparelho("oauth-acesso") == antes.0)
+        #expect(cofreDoAparelho("oauth-renova") == antes.1)
     }
 
     /// A lei do dono (ADR 31j/31k): não existe chave de API neste app.
