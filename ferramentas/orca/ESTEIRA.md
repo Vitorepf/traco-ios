@@ -247,3 +247,34 @@ vezes idênticas.
 instrumento**, e a resposta é repetir a corrida e mostrar as duas saídas — nunca
 declarar vermelho (não houve teste) nem verde (não houve teste). Quem relata,
 relata as duas: a que travou e a que rodou.
+
+### `orca emulator kill` derruba o vizinho (09/09)
+
+A R1 fechou com `orca emulator kill --device 34CC3F94` seguido de `simctl
+shutdown` do próprio aparelho — e **o `6033B043` de outra volta desligou no mesmo
+segundo** (`device.plist` modificado às 22:08:33; o comando às 22:08:34). O
+worker nem tinha tocado nele. É o mesmo helper único da máquina, já conhecido por
+perder a árvore de AX e por apontar para o aparelho errado depois de um `attach`:
+o `kill` derruba **o que o helper gerencia**, não só o `--device` pedido.
+
+**Regra:** para encerrar o SEU aparelho, use `xcrun simctl shutdown <UDID>` — que
+é escopado — e **evite `orca emulator kill` enquanto houver outra volta com
+simulador ligado**. Se precisar dele, **avise antes** e **confira depois** quais
+aparelhos ficaram de pé, restaurando o que você derrubou sem querer. Nenhum dado
+se perde num `shutdown` (o contêiner fica), mas a volta do vizinho perde a
+passada.
+
+**E o que o worker fez de certo:** perguntou por `ask` antes de mexer no aparelho
+alheio. A pergunta **expirou em 10 minutos sem resposta** e ele então religou o
+`6033B043` para **restaurar o estado em que encontrou a máquina** — que é a
+decisão certa quando o coordenador não responde: voltar ao que estava, não
+escolher por conta própria um estado novo.
+
+### O `ask` expira, e o laço tem de contar com isso (09/09)
+
+Duas perguntas de worker morreram por timeout na mesma noite (10 min e 900 s),
+porque o orquestrador só olha a caixa quando o ambiente o avisa. **Quem pergunta
+não pode ficar parado:** o spec passa a dizer que, se o `ask` expirar, o worker
+**faz o que restaura o estado anterior** (ou segue pelo caminho menos
+destrutivo), **registra a pergunta e a expiração no relato**, e continua — nunca
+escolhe sozinho um caminho irreversível.
