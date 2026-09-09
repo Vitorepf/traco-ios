@@ -2136,3 +2136,35 @@ não entende custa uma conversa; um que aprova o que não entende custa o defeit
 **Fecho:** **1000 testes em 161 suítes, `TEST SUCCEEDED`** com a B1-B dentro — o
 milésimo teste do Traço é um que guarda um portão de **falhar fechado**, o que é
 um jeito razoável de chegar ao número redondo. Aparelho efêmero desligado ao fim.
+
+## 09/09, 17h — pausa e retomada (uso 8%); duas frentes reabertas, e as letras reservadas no ato
+
+Com a Q2-F sozinha no instrumento, reabri duas que **não precisam do aparelho da
+conta**:
+
+**B2 — estados inalcançáveis e rotas que calam** (`ctx_6bed670fc401`, ADR `09q`),
+segunda volta da trilha B. O spec exige **prova por achado**, não lista de
+suspeitas: para cada um, ou **a rota existe e ela a percorreu** (com o gesto e a
+captura), ou **nenhum gesto chega** (e ela mostra por quê), ou **ela fez a rota
+falhar e mostrou que nada apareceu** — *captura da tela em silêncio é a prova*.
+
+A casa já tem os dois exemplos que dão a régua: os **três `EstadoAcao` mortos** que
+a auditoria de 07/09 achou de uma vez, e a rota que a **Q2-E** pegou hoje — o `400`
+do `reasoning_effort` deixaria `classificar` e `vestir` **respondendo pior sem
+ninguém dizer**. E a decisão que mandei ela escrever para cada estado inalcançável
+é a que evita código morto por educação: **"o autor precisa disto? então falta a
+porta; não precisa? então some"**.
+
+**F6 — os widgets da tela bloqueada** (`ctx_bd6fd9f9379d`, ADR `09r`), a volta da
+vez da trilha fora do app. A F1 inventariou, a F4 arrumou a tela de início, a F5b a
+Ilha; **este pedaço nunca teve volta**. Mandei **começar pela fase 5** com uma
+saída honesta escrita: **pode ser que já prestem, e nesse caso a volta é a medida e
+o RUMO, não código** — a auditoria é datada, e hoje já foi três vezes que um
+defeito anotado tinha caído sozinho.
+
+A pergunta que pus para ela responder é a que decide um widget pequeno: **não é "o
+que dá para enfiar num círculo", é "qual é a única coisa que vale a pena ali"** — e
+que se responde com a tela, não com a lista de campos.
+
+**As duas letras foram reservadas no mesmo ato do despacho**, que é a regra que eu
+mesmo quebrei hoje de manhã quando a `09d` saiu duas vezes.
