@@ -110,10 +110,10 @@ enum Politica {
                   medidaEm: "08/09/2026",
                   conserto: "usar o material disponível quando o fato atual falta, como produzir já faz, e manter os rótulos internos fora do texto")
         case .responder:
-            .init(regra: .indisponivelPorQualidade, porque: "com a conta ligada em 08/09 o Grok inventou fato quando o contexto não sustentava — horário de abertura de uma biblioteca que ele não podia saber, e um total de R$ 1.008 num pedido em que o autor disse não ter distância, consumo nem preço; o MESMO caso acertou numa execução e fabricou na seguinte — 3 de 6 casos — prova/q-qualidade.md",
+            .init(regra: .indisponivelPorQualidade, porque: "com a conta ligada em 08/09 o Grok inventou fato quando o contexto não sustentava — horário de abertura de uma biblioteca que ele não podia saber, e um total de R$ 1.008 num pedido em que o autor disse não ter distância, consumo nem preço; 3 de 6 casos — prova/q-qualidade.md. REMEDIDA na volta Q2 (ADR 08z), em duas alavancas. Prompt: o contrato de sustentação matou a fabricação de NÚMERO (0 em 108 execuções), mas com grok-4.3 o candidato passa só 8 de 12 casos — em 3 de 3 ele supõe o destinatário que o autor nunca nomeou. Prompt MAIS grok-4.6 com esforço medium: 12 de 12 casos, 36 de 36 execuções sem um descumprimento, pela minha leitura. A operação FICA porque o próprio critério exige o que eu não posso ser — leitura independente e casos cegos de um revisor —, e porque a espera passa de 1,4 s para 36 s de média (77 s no pior caso) num cartão da nota. O conserto está medido e nomeado, e a habilitação é decisão de quem revisa — prova/q2-responder-*.jsonl, ferramentas/orca/q2-responder.md",
                   motivo: "inventou fato que o contexto não sustentava",
                   medidaEm: "08/09/2026",
-                  conserto: "recusar o fato que o contexto não sustenta e entregar o caminho, como produzir já faz")
+                  conserto: "medido em 08/09: o contrato que a impede de inventar já está escrito, e com o modelo maior ela passou os doze casos — falta a leitura de quem não escreveu os casos, e decidir se a resposta pode demorar meio minuto")
         case .instigar:
             .init(regra: .indisponivelPorQualidade,
                   porque: "com a conta ligada em 08/09 o Grok devolveu ao autor o vocabulário interno que o app passa no pedido ('o movimento básico que se pula', 'neste degrau 0', 'a forma nota'), em vez de perguntar sobre o que ele escreveu — 1 de 6 casos — prova/q-qualidade.md",
@@ -133,6 +133,22 @@ enum Politica {
         }
     }
 
+#if DEBUG
+    /// ADR 2026-09-08z — SÓ PARA A SONDA. Uma operação cortada por qualidade
+    /// não tem executor, e sem executor não há como MEDIR o conserto: a sonda
+    /// bate em `nil` antes de alcançar o provedor. Esta chave abre a linha
+    /// para o Grok apenas no binário de avaliação, e a sonda grava em cada
+    /// registro do JSONL quais operações foram liberadas — a medida diz de si
+    /// mesma em que condição foi feita. Nunca existe em Release, e o app do
+    /// autor continua vendo a tabela como ela é.
+    ///   xcrun simctl launch ... SIMCTL_CHILD_TRACO_AVALIAR_LIBERAR=responder
+    nonisolated static let liberadasParaAvaliacao: Set<String> = Set(
+        (ProcessInfo.processInfo.environment["TRACO_AVALIAR_LIBERAR"] ?? "")
+            .split(separator: ",")
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+            .filter { !$0.isEmpty })
+#endif
+
     /// Quem responde AGORA. `nil` = ninguém: a rota cala ou a tela diz.
     static func provedor(_ op: Operacao,
                          contaLigada: Bool = ContaGrok.ligada,
@@ -141,7 +157,12 @@ enum Politica {
         case .soGrok: contaLigada ? .grok : nil
         case .soBordo: bordo ? .bordo : nil
         case .grokDepoisBordo: contaLigada ? .grok : (bordo ? .bordo : nil)
-        case .indisponivelPorQualidade: nil
+        case .indisponivelPorQualidade:
+#if DEBUG
+            liberadasParaAvaliacao.contains(op.rawValue) && contaLigada ? .grok : nil
+#else
+            nil
+#endif
         }
     }
 

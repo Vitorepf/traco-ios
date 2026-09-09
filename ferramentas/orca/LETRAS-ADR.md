@@ -42,5 +42,6 @@ idênticos. Sobrou linha, a alegação "só a letra mudou" é falsa.
 | 08w | Q-H (reconciliação da Q com o `main`) | no branch da Q |
 | 08x | C1 (caret do Caderno) | reservada, volta viva — era 08w, trocada |
 | 08y | R1 (retomada do Trabalho) | reservada, volta viva |
+| 08z | Q2 (`responder` remedida) | no branch da Q2 |
 
-**Próxima livre: 08z.**
+**Próxima livre: 09a** — o alfabeto de 08 acabou em `08z`.

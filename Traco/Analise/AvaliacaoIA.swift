@@ -111,7 +111,11 @@ enum AvaliacaoIA {
                         "modeloConfigurado": Grok.modelo, "modeloTrabalhoConfigurado": Grok.modeloTrabalho,
                         "contaGrokLigada": ContaGrok.ligada,
                         "modeloDoAparelhoDisponivel": AnaliseDeBordo.disponivel,
-                        "motoresDesligados": Motores.desligados]
+                        "motoresDesligados": Motores.desligados,
+                        // ADR 08z: a corrida diz em que condição foi feita. Uma
+                        // operação indisponível por qualidade só alcança o
+                        // provedor se estiver listada aqui.
+                        "operacoesLiberadasParaAvaliacao": Politica.liberadasParaAvaliacao.sorted()]
                     registro["evento"] = "casoIniciado"
                     try gravar(registro)
                     let inicio = ContinuousClock.now

@@ -1,0 +1,6 @@
+{
+  "repeticoes": 1,
+  "casos": [
+    { "id": "q2-fumaca-conta", "operacao": "modelosGrok", "entrada": {} }
+  ]
+}

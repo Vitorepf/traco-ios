@@ -47,6 +47,10 @@ import Testing
         let cortadas: [Politica.Operacao] = [.ecos, .calibragem, .recordar, .responderNasNotas,
                                             .responder, .instigar, .contrapor]
         #expect(Set(Politica.indisponiveis) == Set(cortadas))
+        // ADR 08z: a chave da sonda só existe em DEBUG e só abre o que ela
+        // nomeia. Aqui ela tem de estar VAZIA — uma suíte que rodasse com a
+        // variável ligada mediria outra tabela e não a do autor.
+        #expect(Politica.liberadasParaAvaliacao.isEmpty, "a suíte correu com operações liberadas para avaliação")
         for op in cortadas {
             #expect(Politica.linha(op).regra == .indisponivelPorQualidade, "\(op)")
             #expect(Politica.provedor(op, contaLigada: true, bordo: true) == nil, "\(op) ainda tem executor")

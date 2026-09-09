@@ -6724,3 +6724,109 @@ suíte travaram antes de conectar o runner (0 de 957, 345 s cada) e a terceira
 passou inteira; provei que a árvore mesclada sobe instalando e lançando o app
 no aparelho (`ferramentas/orca/q-h-app-mesclado.png`). É limite do instrumento
 registrado, não resultado.
+
+## ADR 2026-09-08z — `responder` remedida: a fabricação de número cede ao prompt, a de cenário não (volta Q2)
+
+**A distância.** A 08q cortou `responder` com uma prova e um conserto nomeado:
+"o Grok inventou fato quando o contexto não sustentava" e "recusar o fato que o
+contexto não sustenta e entregar o caminho, como produzir já faz". Um conserto
+nomeado é uma dívida: ou se mede, ou a linha na tela vira promessa velha. Esta
+ADR paga a dívida — e o resultado é que o conserto **não bastou**.
+
+**A alavanca, e só ela.** `Sabia.sistemaResponder` pedia "informação, opções e
+critérios" e não proibia nada; com as opções cobradas em toda resposta, o modelo
+preenchia os números que faltavam para ter o que listar. O contrato de
+sustentação de `MotorTrabalho.sistema` — não inventar fato, nomear precisamente
+o dado indispensável ausente, distinguir proposta de pressuposto, entregar
+conteúdo utilizável — foi **adaptado ao cartão**, não copiado: modelo, esforço,
+teto, recorte, parser e o Markdown de artefato ficaram como estavam. Três
+variantes, cada uma medida inteira.
+
+**O instrumento, e por que ele precisou existir.** `Politica.provedor(.responder)`
+devolve `nil`: a sonda batia na tabela antes de alcançar o provedor, e medir o
+conserto de uma operação cortada era impossível. `Politica.liberadasParaAvaliacao`
+lê `TRACO_AVALIAR_LIBERAR` **só em DEBUG** e só abre a regra
+`indisponivelPorQualidade` para as operações nomeadas ali, com a conta ligada.
+Em Release a constante não existe. A sonda grava
+`operacoesLiberadasParaAvaliacao` em **cada registro** — a medida declara em que
+condição foi feita — e `PoliticaTests` exige a chave **vazia** na suíte: uma
+suíte que corresse liberada mediria outra tabela, não a do autor.
+
+**A medida.** `C2416CBC` (o único aparelho com a conta), temperatura 0,3.
+**Cinco** corridas: quatro com `grok-4.3` (o modelo de produção desta rota),
+mudando **só** o prompt, e uma quinta que mantém o prompt da quarta e muda **só**
+o modelo — `grok-4.6` com esforço `medium` e o timeout de 240 s que a 08r mediu,
+numa **build descartável** (`Grok.swift` revertido byte a byte antes da corrida;
+o arquivo não muda no branch). Fixture `prova/q2-responder-casos.json` sha256
+`81d85437…`, 12 casos × 3 execuções em três lançamentos distintos, sem memo.
+Seis regressões com o texto de 08/09, cinco pares do conselho que mudam **só a
+evidência** (gasolina em três gradações, biblioteca em três, prazo em duas), e
+um caso do limite do recorte. Conta conferida por chamada autenticada antes de
+cada corrida (12 modelos), `contaGrokLigada: true` nos 144 registros, 0 erros de
+transporte. Cada `Traco.debug.dylib` conferido por sha256 no contêiner:
+base `f5cb7f4b…`, v1 `a225d1cf…`, v2 `74f40fdb…`, v3 `461de14a…`. Saídas
+inteiras em `prova/q2-responder-{base,candidato,candidato2,candidato3,modelo46}.jsonl`;
+leitura caso a caso em `ferramentas/orca/q2-responder.md`.
+
+**O resultado. Prompt sozinho: base 5 de 12 casos, melhor candidato 8 de 12.
+Prompt MAIS `grok-4.6`/`medium`: 12 de 12 casos, 36 de 36 execuções.**
+
+1. **A fabricação de número morreu.** Nas 108 execuções do candidato, nenhuma
+   repetiu o total inventado da gasolina nem o horário inventado da biblioteca —
+   os dois defeitos que cortaram a operação em 08/09.
+2. **Apertar contra a invenção compra recusa, e os pares pegaram isso.** A v1
+   trocou a fabricação por silêncio: na biblioteca sem horário, três execuções
+   recusaram sem continuação, uma devolvendo *uma pergunta* ao autor. Sem os
+   pares do conselho eu teria chamado a v1 de conserto. A v2 acrescentou "você
+   não conversa e não consulta: nunca devolva uma pergunta no lugar da resposta"
+   e "o fato público que você não pode saber se responde dizendo que não sabe **e**
+   dizendo onde ele confirma" — e o caso voltou a passar.
+3. **O que resta não cede a prompt — cede ao modelo.** A v3 proíbe, com todas as
+   letras, supor "com quem ela combinou". Com `grok-4.3` as três execuções do
+   prazo em conflito continuaram supondo um destinatário e um envio que o autor
+   nunca mencionou; trocaram "cliente" por "destinatário" e seguiram. Com o
+   **mesmo prompt** e `grok-4.6`/`medium`, as três pararam de supor, e uma delas
+   escreveu sozinha, no caso vizinho, "os apontamentos não registram combinação
+   de prazo com ninguém". A hipótese que o conselho classificou como não-causal
+   está **medida no escopo destes doze casos**.
+4. **A alavanca que funciona custa espera.** `grok-4.3` responde em 1,4 s de
+   média; `grok-4.6`/`medium`, em **36,1 s**, pior caso **77,5 s**, sem um único
+   timeout. Para a pergunta que o autor deixou na nota, é outra experiência —
+   número medido e publicado, não escolhido por mim.
+5. **Prompt mais longo não é monotonicamente melhor.** A v3 introduziu dois
+   erros materiais que a v1 não tinha: uma execução inverteu a fórmula
+   ("multiplique 600 km pelo consumo") e outra recusou um dado que o autor
+   **tinha escrito** (R$ 6,00 o litro).
+
+**A decisão.** `responder` **fica** em `indisponivelPorQualidade` — e o motivo
+mudou de "não temos conserto" para "temos, e falta quem o julgue". O critério do
+conselho não pede só ≥9 nas cinco dimensões: pede **"a leitura independente de
+cada saída inteira do candidato final"** e **casos novos do revisor**. Eu escrevi
+os doze casos e eu os li; aprovar por essa leitura seria usar a nota do gerador
+como aprovação, o que `QUALIDADE-IA.md` proíbe na mesma página. Some-se a espera
+de 36 s, que é régua do dono. A linha recebe as duas medidas no `porque` e o
+`conserto` **renomeado**: o antigo ("como produzir já faz") foi feito e não
+bastou sozinho, e mantê-lo prometeria uma correção já tentada.
+
+**O caminho de habilitação, deixado escrito para quem decidir:**
+`Sabia.chamarComProveniencia` chama `Grok.responder` sem `modelo:` nem
+`esforco:` e por isso herda o `grok-4.3` global; habilitar é passar os dois na
+rota (a assinatura já os aceita), subir o timeout dessa chamada como a 08r fez no
+Trabalho, e trocar a linha da `Politica` com a medida junto. **Nada disso está no
+branch:** o spec desta volta proibiu copiar modelo e esforço, e não se habilita o
+que não se pode aprovar.
+
+**O prompt novo fica no branch e NÃO tem efeito na produção.** `sistemaResponder`
+só é lido por `Sabia.responder`, e `responder` continua sem executor. É motor
+sem superfície, dito como tal: o ponto de partida medido da próxima volta, não
+uma entrega ao autor.
+
+**O que esta ADR NÃO prova.** Que `grok-4.6` "resolve" `responder`: o que está
+medido é **doze casos, três execuções cada, num aparelho, num dia** — o próprio
+conselho disse que a aprovação vale para o escopo medido e não como garantia
+universal. Os 12 casos foram escritos e lidos por quem implementou — **não são cegos nem held-out**, e a aprovação final exige casos de
+um revisor que não os tenha visto. E o corte de 5.000 caracteres de
+`Sabia.responder` é real: no caso `q2-dado-alem-do-recorte` o dado decisivo está
+escrito na nota **depois** do recorte, e nenhum prompt recupera o que não foi
+enviado. Limite do instrumento, registrado, não descontado da nota da operação;
+quem mexer nisso mexe na montagem, não no contrato.
