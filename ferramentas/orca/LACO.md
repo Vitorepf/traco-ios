@@ -593,3 +593,50 @@ resposta certa aí é dizer e parar.
 
 **As frentes:** MAC-1 (Traço no Mac), Q-H (reconciliar a Q com o `main`), C1 (o
 caret) e a trilha fora do app com a F5b (a Ilha).
+
+## 08/09, 22h20 — a volta Q MESCLADA, depois de quatro re-G3 e uma reconciliação
+
+A Q-H fundiu os dois contratos sem que nenhuma regra sumisse, e a decisão que ela
+tomou é melhor do que a que eu teria tomado: **`lerPreparacao` passa a conhecer
+`comMudanca`** — chave ausente, tipo errado ou vazia continuam derrubando a
+preparação, como a V17 exige, mas agora por **guarda nomeada em vez de `nil`
+mudo** —, `provar` prova a `mudanca` pelo mesmo teto e pela mesma régua dos
+critérios e **depois** deles, e um único `ajustando` governa esquema, leitura e
+rótulo.
+
+**Uma única decisão de caso novo, e a justificativa é a que eu queria ouvir:**
+`mudancaVazaOExemplo` nasce porque reaproveitar `criterioVazaOExemplo` obrigaria
+a **inventar um índice de critério para um campo que não é critério** — e aí a
+recusa mentiria sobre qual guarda reprovou. Os outros quatro casos são
+reaproveitados, com a razão de cada um escrita: treze decisões, uma por linha.
+
+Suíte integral **na árvore mesclada**, duas execuções idênticas: 957 testes,
+956 passados, 0 falhos, 1 pulado. E como o `main` andou durante o trabalho (a
+V13 entrou), ela trouxe o `ea182a0` também — auto-merge limpo, sem conflito e sem
+colisão de letra, verde de novo em 958/957/0/1.
+
+Mesclei sem re-rodar a suíte, e digo por quê em vez de pedir confiança:
+`git diff 543561d HEAD -- '*.swift' '*.pbxproj' Traco/ TracoTests/ TracoWidget/`
+**volta vazio** — o código da árvore mesclada é idêntico ao que ela provou
+verde; o que difere são dois arquivos de documento.
+
+**Item 2 da fila do dono, pago.**
+
+## 08/09, 22h20 — a terceira colisão de letra, e desta vez eu colidi comigo mesmo
+
+Dei a **`08w`** à Q-H e à C1 **no mesmo turno**, porque eu vinha reservando letra
+**dentro do spec de cada volta** — espalhada assim, ninguém consegue ler o
+conjunto, eu inclusive. A Q-H já tinha comitado e mesclado; a C1 ainda nem
+escreveu a ADR, então a C1 é quem move: **`08x`**, avisada, com o registro
+completo na mensagem.
+
+O conserto não é lembrar melhor: é tirar o registro dos specs. Criei
+`ferramentas/orca/LETRAS-ADR.md` — um lugar só, com o comando que lê todas as
+refs vivas, a regra de não reaproveitar buraco antigo, a de mover quem é mais
+barato quando duas voltas vivas colidem, e a forma de provar a troca. Os specs
+passam a apontar para lá.
+
+E ficou mais uma lei da Q-H: **o runner que trava antes de conectar não é
+resultado.** Ela pegou dois "hung before establishing connection" com 0 de 957 e
+não os contou nem como vermelho nem como verde — provou que a árvore sobe no
+aparelho e repetiu, mostrando as duas saídas.
