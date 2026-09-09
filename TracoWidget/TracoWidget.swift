@@ -666,8 +666,21 @@ struct TracoWidgetView: View {
                 // R1: uma linha só — e quando o instantâneo é velho, o que
                 // ela tem a dizer é isso. Mostrar a linha de ontem como se
                 // fosse a de hoje é a mentira que a volta veio matar.
-                Text(entrada.velha ? "Traço · desatualizado"
-                                   : (entrada.destaque?.linha ?? "Traço"))
+                // F6 (ADR 09r), medido na bloqueada de verdade: a linha FEITA
+                // saía igual à por fazer — o glifo do retângulo entra aqui
+                // também; e o vazio dizia só "Traço", que não oferece nada.
+                if let d = entrada.destaque, !entrada.velha {
+                    Label { Text(d.linha) } icon: {
+                        Image(systemName: d.feito ? "checkmark.circle.fill" : "circle")
+                    }
+                    .accessibilityLabel(d.feito ? "Feito: \(d.emVoz)" : d.emVoz)
+                } else {
+                    // Medido: ao lado da data cabem ~21 caracteres; com "Traço · "
+                    // na frente a oferta saía "escolha a única c…".
+                    Text(entrada.indisponivel ? "Traço · sem dados"
+                         : entrada.velha ? "Traço · desatualizado"
+                         : "escolha a única coisa")
+                }
             case .accessoryRectangular:
                 if let d = entrada.destaque {
                     // ADR 04f: na tela bloqueada o Destaque também se marca.
@@ -691,21 +704,42 @@ struct TracoWidgetView: View {
                                     .allowsTightening(true)
                                     .minimumScaleFactor(0.6)
                                 // F5: a mesma lei na tela bloqueada — teto de
-                                // linhas corta, altura encolhe.
+                                // linhas corta, altura encolhe. F6, medido na
+                                // bloqueada de verdade: o `ViewThatFits` escolhia
+                                // UMA linha ("terminar o ca…") com metade do
+                                // cartão vazia embaixo — o retângulo tem lugar
+                                // para exatamente duas, e é isso que se pede.
                                 FraseDoAutor(destaque: d, fonte: Tema.meta.weight(.medium),
-                                             acessorio: true)
+                                             linhas: 2, acessorio: true)
+                                    // Medido: o rótulo do `Button` do widget propunha
+                                    // a altura de UMA linha à frase; sem isto, "…" em
+                                    // 14 caracteres com metade do cartão vazia.
+                                    .fixedSize(horizontal: false, vertical: true)
                             }
-                            Spacer(minLength: 0)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                         }
                         .contentShape(Rectangle())
                     }
-                } else {
-                    Text(entrada.indisponivel ? "Traço · sem dados"
-                         : (entrada.velha ? "Traço · desatualizado" : "Traço"))
+                } else if entrada.indisponivel || entrada.velha {
+                    Text(entrada.indisponivel ? "Traço · sem dados" : "Traço · desatualizado")
                         .font(Tema.meta.weight(.medium))
                         .lineLimit(2)
                         .allowsTightening(true)
                         .minimumScaleFactor(0.6)
+                } else {
+                    // F6: vazio que oferece (regra da F4), na forma do próprio
+                    // Destaque — etiqueta e frase —, não um "Traço" solto.
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("DESTAQUE")
+                            .font(Tema.label)
+                            .tracking(Tema.trackingLabel)
+                            .foregroundStyle(.secondary)
+                        Text("escolha a única coisa de hoje")
+                            .font(Tema.meta.weight(.medium))
+                            .lineLimit(2)
+                            .allowsTightening(true)
+                            .minimumScaleFactor(0.6)
+                    }
                 }
             default:
                 casa

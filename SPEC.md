@@ -8360,3 +8360,48 @@ o `try!` de `regex(_:)` em vez de afrouxar o portão. Dívida nomeada no RUMO.
 **Consequência.** Relato e evidência em `ferramentas/orca/b1-try-bang.md` e
 `ferramentas/orca/b1b-portao-aninhado.md`. Suíte integral 997/0 em 161 suítes, 0 warning, no
 `34CC3F94`.
+
+## ADR 2026-09-09r — Os widgets da tela bloqueada, vistos na bloqueada de verdade (volta F6)
+
+**Contexto.** `accessoryInline` e `accessoryRectangular` existem desde a 05u e nunca tinham
+sido fotografados na tela bloqueada: a F1 concluiu que "o simulador não expõe Personalizar"
+e a F5 chamou de "bloqueada" o cartão da Live Activity. A F6 entrou no editor real do iOS
+(toque longo → Personalizar → Adicionar Widget → Traço) dirigindo pela **árvore de AX**, que
+enxerga o editor inteiro — a captura é que é cega ao chrome do PosterBoard. Receita em
+`ferramentas/orca/f6-plantar-bloqueada.sh`.
+
+**O que a tela mostrou, e o que mudou.**
+
+1. **Inline: a única coisa que cabe é a linha do autor**, ao lado da data, em ~21 caracteres
+   ("Qua., 9 ○ terminar o capítulo do…"). O sistema corta com reticências; não há segunda
+   linha. A linha FEITA saía igual à por fazer — agora o inline leva o mesmo glifo do
+   retângulo (○ / ✓) e o rótulo de voz "Feito: …". O vazio dizia só "Traço", que não oferece
+   nada: passa a "escolha a única coisa" (medido: com "Traço · " na frente saía "escolha a
+   única c…").
+2. **Retângulo: etiqueta + duas linhas.** Saía UMA linha ("terminar o ca…", 14 caracteres)
+   com metade do cartão vazia. Três medidas até achar a causa: teto `linhas: 2` sozinho não
+   mudou nada; `frame(maxWidth: .infinity)` no lugar do `Spacer` ganhou uma letra; o que
+   abriu a segunda linha foi `fixedSize(horizontal: false, vertical: true)` na frase — o
+   rótulo do `Button` do widget propõe a altura de uma linha ao texto. Agora "terminar o /
+   capítulo do me…" (22 caracteres). O vazio ("Traço") passa a "DESTAQUE / escolha a única
+   coisa de hoje", na forma do próprio Destaque.
+3. **Círculo: hoje, nada que valha o lugar.** A única coisa que daria sentido a um
+   `accessoryCircular` é o gesto de assinatura fora do app — feito a um toque — e **esse gesto
+   não roda na bloqueada**: o `Button(intent:)` do widget (retângulo que já existia e círculo
+   experimental) ABRE O APP em vez de executar `DestaqueFeitoIntent` (`LiveActivityIntent`,
+   que corre no processo do app; medido três vezes, `superficie.feito` seguiu `false`, log do
+   `chronod` sem `perform`). A cápsula do cartão vivo, com o mesmo tipo de intent, roda sem
+   abrir o app. O círculo foi construído, fotografado (`f6-*circulo*.png`) e retirado; nasce
+   quando o feito rodar na bloqueada — **F6b no RUMO**, com a ADR 04f corrigida: "na tela
+   bloqueada o Destaque também se marca" vale para a Live Activity, não para o widget.
+4. **Eles atualizam pela linha do tempo, sem o app**: o "curto" (três compromissos de 1 min)
+   passa a "Traço · desatualizado" / "DESATUALIZADO" quando `validoAte` vence, com as entradas
+   já desenhadas pelo `Relogio`; a recarga externa depois de cada publicação do app aparece no
+   `chronod` como `record reload … externalRequest(Traco)` em ≤ 2 s.
+5. **Dynamic Type e aparência: os widgets da bloqueada NÃO escalam** (inline e retângulo
+   idênticos em `medium` e AX5; o cartão vivo, ao lado, escala) e **não têm claro/escuro** —
+   o material é o do fundo de tela. Limite do sistema, registrado, não nota.
+
+**Consequência.** `TracoWidget.swift` (inline, retângulo vazio, `linhas: 2`); scripts
+`f6-plantar-bloqueada.sh` e `f6-fotografar.sh`; relato e capturas em
+`ferramentas/orca/f6-bloqueada.md` e `ferramentas/orca/f6-*.png`. Sem mesclar; SHA no relato.

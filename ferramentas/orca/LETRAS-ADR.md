@@ -71,8 +71,9 @@ que este arquivo existe para impedir — e ele reincidiu no próprio arquivo.
 | 09n | Q2-E · o melhor Grok medido e a espera na tela | em `main` |
 | 09o | B1 · os `try!` de dívida real | em `main` |
 | 09p | MAC-0-E · o servidor chega por `--chamar` | em `main` |
+| 09r | F6 · os widgets da tela bloqueada, vistos na bloqueada | branch `Vitorepf/volta-f6-bloqueada` |
 
-**Próxima livre: 09q.**
+**Próxima livre: 09q** (a F6 recebeu 09r pelo despacho; 09q segue livre).
 
 **A série 08 está CHEIA** — de `08a` a `08z`, com `08c` e `08d` como buracos.
 
