@@ -1786,3 +1786,42 @@ esteira inteira.
 sonda esquecida (`grep SONDA` limpo em `Traco/` e `TracoWidget/`), `TracoSchemaV0`
 no plano e no estágio. **A partir deste commit, a suíte integral não apaga mais a
 conta do dono.**
+
+## 09/09, 13h — pausa e retomada (uso 23%); duas decisões tomadas sozinho, e uma delas foi NÃO
+
+**§6 aplicada às duas perguntas do turno**, sem parar o laço:
+
+**A D1 perguntou se podia instalar no aparelho da conta.** Pode, e eu já sabia:
+a Q2-D encerrou sem instalar nada, então **o binário que está lá é o do `main` que
+eu mesmo pus** — não há trabalho de ninguém para atropelar. Autorizei com a
+conferência da conta antes e depois, e com o dado novo que muda o risco: **quem
+derrubava a conta era a suíte, não o install**, e a K1 já está no `main`.
+
+**A MAC-0-C escalou um achado que ninguém sabia:** o **Grok Bot 0.44 não tem tela
+de cadastro de servidor MCP local**. Não há string nem deeplink de "adicionar
+servidor" no bundle; os servidores stdio vêm da **configuração de MCP da CONTA
+Cursor, na nuvem**, e o `.cursor/mcp.json` do repositório **é irrelevante para o
+app**, porque não há workspace. O caminho existiria pelo site, com a sessão logada
+do dono.
+
+**Decidi NÃO**, e a razão não é a lei do mouse: **mexer na configuração da conta
+dele, pela sessão dele, num site fora dos dois apps autorizados, é tocar nos dados
+dele** — e "dados do dono" é a primeira das quatro exceções da §6. Decidir sozinho
+inclui **decidir não fazer**.
+
+**O que entra no lugar é melhor que um clique meu:** a MAC-0-D deixa **o trecho
+exato pronto para o dono colar**, com o comando, o caminho estável e a pasta
+espelhada preenchidos, **onde colar**, e **o que ele vai ver quando funcionar**.
+Trinta segundos dele, sem adivinhação.
+
+**E o que já está entregue é real:** a **pasta espelhada nasceu pelo caminho do
+produto**, no iPhone dele, pelo Espelhamento — `Perfil › Dados › Espelhar ›
+iCloud Drive/Traço` — e **o app publicou `notas/`, `INDICE` e o corpus**. O **bot
+"Traço" existe** no Grok Bot com as instruções dos seis casos. Mandei uma coisa
+dura no spec: a prova do "bom dia" tem de dizer **se o bot respondeu com o servidor
+ou sem ele** — bot falando sozinho não é o caso 11 funcionando, e arredondar isso
+seria a mentira mais fácil do dia.
+
+**A D1 entregou o desenho** (`ddbff15`, ADR **09k**): *"as Notas viram uma folha do
+Traço — palavras em vez de cápsulas, a cobrança em âmbar, a busca como linha"*.
+Falta o **vídeo de 15 s** que o dono pediu por nome, e é o que a D1-B fecha.
