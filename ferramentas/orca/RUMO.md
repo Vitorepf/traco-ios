@@ -365,6 +365,19 @@ Ordem do dono de 08/09 à noite: os ONZE casos de uso do Traço no Mac pelo Grok
 | MAC-2 | a porta de volta do Trabalho: `trabalhos/<id>.md`, `trabalhos/entrada/`, `traco_trabalho_escrever`, `traco_tentativa`, `traco_relatar` | 2 (escrita), 4, 5, 6 | depois da MAC-1; Astra no G0 |
 | MAC-3 | web e briefing com citação obrigatória | 7, 10 | depois da Q mesclar |
 
+### MAC-0-E — o servidor precisa chegar ao Grok Bot, e hoje não chega (dívida da MAC-0-D, 09/09)
+
+O Grok Bot 0.44 recusa todo servidor com `command` (`stdio_unsupported`) e a Cursor confirmou em
+13/08/2026 que o bot não liga servidor da máquina do usuário. Enquanto isso valer, **os onze casos
+não podem ser provados pelo bot por MCP**. Duas saídas, a mais barata primeiro; dono: Fora do app.
+1. **Linha de comando no `servidor.py`** (`--chamar traco_agenda '{"dias":1}'`) e uma linha nas
+   instruções do bot: o bot já executa comandos no Mac do dono (captura `mac-0-c-09`); o servidor
+   vira ferramenta por essa rota, sem transporte novo. Prova: "bom dia" com cartão de comando
+   mostrando `traco_agenda` na saída.
+2. **Transporte HTTP (Streamable HTTP) + URL pública** e cadastro como conector manual, como o
+   GrokBotDev. É o caminho que a Cursor recomenda; custa túnel e segredo, e o Mac tem de estar ligado.
+Relato completo: `ferramentas/orca/mac-0-configuracao.md`, quarta passada.
+
 ### DECISÃO DE CONTRATO do dono (08/09, 23h): a origem acompanha todo consumidor
 
 O revisor da MAC-1 levantou e o dono decidiu: **nenhum consumidor que declare
