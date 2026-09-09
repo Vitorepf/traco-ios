@@ -18,6 +18,9 @@ nonisolated enum Entrada {
         var texto: String
         var gestoNome: String?
         var criadaEm: Date
+        /// ADR 08u: quem escreveu. O que o bot deixa em `entrada/` entra com a
+        /// marca dele; sem a linha no cabeçalho, é do autor.
+        var origem: OrigemNota = .autor
     }
 
     nonisolated struct Arquivo: Sendable {
@@ -48,7 +51,7 @@ nonisolated enum Entrada {
                 guard let dados = try? Data(contentsOf: url),
                       let conteudo = String(data: dados, encoding: .utf8) else { continue }
                 let resultado = Corpus.importarComEstado(conteudo)
-                let itens = resultado.itens.map { Item(texto: $0.texto, gestoNome: $0.gestoNome, criadaEm: $0.criadaEm) }
+                let itens = resultado.itens.map { Item(texto: $0.texto, gestoNome: $0.gestoNome, criadaEm: $0.criadaEm, origem: $0.origem) }
                 guard !itens.isEmpty else { continue }
                 var identidade = Data(url.path.utf8)
                 identidade.append(0)

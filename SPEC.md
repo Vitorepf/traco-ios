@@ -6432,3 +6432,86 @@ VoiceOver estão proibidos no Traço — o áudio de qualquer simulador sai pela
 caixas do Mac do autor. A acessibilidade desta tela se prova por árvore de AX
 (cabeçalho → o que houve → onde está o conteúdo → ação → detalhe técnico) e por
 captura, que é o que a lei manda. A ordem de leitura está provada; a fala, não.
+
+## ADR 2026-09-08u — Quem escreve na pasta tem nome (volta MAC-1)
+
+O companheiro do Mac (`ferramentas/traco-mcp/servidor.py`) lia notas e corpus e
+escrevia em `entrada/`, mas **`traco_escrever` não sabia dizer quem escreveu**:
+uma nota do bot entrava idêntica a uma nota da pessoa, e o app a tratava como
+voz do autor — inclusive no Retrato, que é a evidência SOBRE QUEM ESCREVE posta
+na frente da IA. Faltavam também a agenda e as decisões, sem as quais o "bom
+dia" e a revisão da semana não existem (casos 11 e 2 de `ferramentas/grokbot/CASOS.md`).
+
+**`origem` é obrigatória em toda escrita que não seja texto da pessoa, e a
+recusa diz o que falta.** `traco_escrever` ganhou `origem` (`autor` | `grokbot`
+| `pesquisa`), `motivo` e `fontes`. O padrão continua `autor`. Origem diferente
+de `autor` **sem motivo é recusada** — "escrita com origem “grokbot” exige
+`motivo` — uma linha dizendo por que o bot está escrevendo isto" —, e nada é
+gravado. `pesquisa` sem `fontes` também é recusada: pesquisa sem fonte é opinião
+do bot, e o próprio texto da recusa manda escrevê-la como `grokbot`. O motivo e
+as fontes viajam no CORPO da nota, como rodapé ("— feito pelo bot: …"), para que
+o autor leia quem escreveu e por quê **dentro da nota**, sem abrir outra tela; o
+cabeçalho carrega só `origem:`, que é o que o app consome.
+
+**A etiqueta.** `Nota.origemRaw` (vazio = o autor, que é o que toda nota anterior
+a esta ADR é) atravessa o import (`Corpus.importarComEstado` lê `origem:` do
+cabeçalho já extraído para checar o selo — a ordem das linhas não importa), o
+export (`arquivoMd` só escreve a linha quando não é do autor) e a tela. Na tela
+é `Pilula(forma: .etiqueta)`, a MESMA cápsula em que o gesto já vive na lista —
+sem cor nova, sem componente novo: **"feito pelo bot"** (a formulação do
+contrato) e **"pesquisa do bot"**. Aparece em dois lugares, e os dois importam:
+na linha da lista, para que o autor saiba antes de abrir; e na página aberta,
+**acima do texto**, porque a página é o lugar em que se confunde o texto do bot
+com a própria voz — o rótulo tem de chegar antes da leitura, não depois.
+
+**Fora do Retrato, e não só do Retrato.** `Retrato.NotaLida.doAutor` corta a
+nota do bot no mesmo filtro em que o selo já cortava expressiva, selada e
+queimada — **nem como contagem**: duas notas WOOP, uma do bot, dizem "1 WOOP".
+`Trajetoria.NotaLida.doAutor` faz o mesmo, porque a trajetória calcula a
+calibragem das decisões e as palavras conquistadas; deixar o bot ali seria
+medir a mente da pessoa com texto que não é dela. No servidor, `traco_semana` e
+`traco_decisoes` também pulam origem diferente de `autor`.
+
+**`agenda.md`, o quarto arquivo solto.** `Corpus.agenda` escreve, ao lado de
+`LEIA-ME.md`, `INDICE.md` e `traco-corpus.md`: **Compromissos** (do mesmo
+`calendario.json` que a pasta já copiava), **Decisões a conferir** (as que
+`Volta.campoDevido` diz que venceram) e **Recordar devido** (`FatiaCorpus.recordarEm`,
+lido de `Revisoes.proximaData` no ponto em que a fatia nasce, que é @MainActor).
+É `.md` com a data no começo de cada linha e " · " como separador: o autor abre
+a pasta e lê, e `traco_agenda(dias)` parte a linha. O selo continua valendo —
+`vivas` já exclui a expressiva em curso, e selada/queimada entram como
+`soMetadado`, que a agenda pula. Ações de Trabalho **não** estão aqui: são da
+MAC-2, e o arquivo diz isso em vez de fingir completude.
+
+**`traco_decisoes` e o bug que ele desenterrou.** A ferramenta devolve, por
+decisão, `esperava` × `aconteceu` × `saldo`, separando `respondidas` de
+`sem_resposta`. Ao escrevê-la apareceu que **`traco_semana` lia os campos da
+forma do CABEÇALHO** (`c.get("escolha")`), e eles vivem no CORPO, depois do
+marcador `<!-- traco-campos:json-v1 -->` (ADR 05h): a revisão da semana devolvia
+decisões e destaques vazios desde sempre, e a fixture do autoteste sustentava o
+engano pondo `unica:` no cabeçalho, onde nenhuma nota real o tem.
+`Pasta.campos()` passa a ler o bloco JSON, e a fixture foi corrigida para o
+formato que o app de fato exporta.
+
+**Sem V5 no schema.** `origemRaw` entrou como atributo com valor padrão, dentro
+da V4. A primeira tentativa criou `TracoSchemaV5` com a mesma lista de classes
+da V4 e o CoreData derrubou o arranque com "Duplicate version checksums
+detected" — os `VersionedSchema` daqui apontam para a classe VIVA, não para uma
+cópia congelada, então versão nova só faz sentido para MODELO novo (a V3 trouxe
+o recibo, a V4 o Trabalho). Dois testes de migração pegaram isto antes de
+qualquer aparelho.
+
+**Prova.** Autoteste do servidor verde com os casos novos e as três recusas
+(sem motivo, pesquisa sem fontes, origem desconhecida), incluindo a asserção de
+que a recusa **não escreve arquivo nenhum**. Cinco testes novos em
+`IntegridadeCorpusTests`: a origem atravessa o import (as quatro grafias,
+inclusive a inválida, que vira `autor`), sobrevive ao roundtrip pela pasta, fica
+fora do Retrato nem como contagem, a agenda traz o que vence e não traz o que o
+selo fecha, e expressiva/selada continuam fora dos quatro arquivos soltos depois
+deste diff. Suíte integral 953/0 em 153 suítes, `grep -c warning:` = 0.
+Capturas em `ferramentas/orca/mac1-*.png`.
+
+**Limite declarado.** A leitura falada do VoiceOver não foi exercitada: voz e
+VoiceOver estão proibidos no Traço (ordem do dono). A etiqueta tem
+`accessibilityIdentifier` e `accessibilityLabel` ("Esta nota não é sua voz: …"),
+provados por árvore de AX e por captura.

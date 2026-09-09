@@ -115,7 +115,7 @@ struct CorpusSeloTests {
         let s = Sessao()
         s.persistirNoDisco = { _ in throw DiscoImportRecusou.gravar }
         let n = s.importarCorpus([
-            (texto: "quero correr de manhã", gestoNome: "WOOP", criadaEm: .now)
+            (texto: "quero correr de manhã", gestoNome: "WOOP", criadaEm: Date.now, origem: .autor)
         ], no: c.mainContext)
         #expect(n == 0)
         #expect(s.toast != nil)
@@ -127,7 +127,7 @@ struct CorpusSeloTests {
         let s = Sessao()
         let n = s.importarCorpus([
             (texto: "quero correr de manhã", gestoNome: "WOOP",
-             criadaEm: Date(timeIntervalSince1970: 1))
+             criadaEm: Date(timeIntervalSince1970: 1), origem: .autor)
         ], no: c.mainContext)
         #expect(n == 1)
         let nota = try #require(try c.mainContext.fetch(FetchDescriptor<Nota>()).first)

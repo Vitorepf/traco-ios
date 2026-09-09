@@ -9,6 +9,9 @@ final class Sessao {
     var gesto: Gesto?
     var campos: [String: String] = [:]
     var notaUUID: UUID?
+    /// ADR 08u: quem escreveu a nota que está aberta. Página nova é sempre do
+    /// autor; a etiqueta da página lê daqui.
+    var origemDaPagina: OrigemNota = .autor
     var perguntaPadroes: String?
     var cartao: CartaoAnalisar?
     var toast: String?
@@ -1350,6 +1353,7 @@ final class Sessao {
                         let partes = Corpus.separarCampos(texto: item.texto, gesto: gesto)
                         let nota = Nota(texto: partes.texto, gesto: gesto, campos: partes.campos)
                         nota.criadaEm = item.criadaEm
+                        nota.origem = item.origem
                         context.insert(nota)
                         novas += 1
                     }
@@ -1470,6 +1474,7 @@ final class Sessao {
         gesto = nil
         campos = [:]
         notaUUID = nil
+        origemDaPagina = .autor
         perguntaPadroes = nil
         perguntaDaSabia = nil
         notasNaPergunta = []
@@ -1528,6 +1533,7 @@ final class Sessao {
         gesto = nota.gesto
         campos = nota.campos
         notaUUID = nota.uuid
+        origemDaPagina = nota.origem
         criadaEmDaPagina = nota.criadaEm
         instigou = false
         dominio = nota.dominio
@@ -1765,7 +1771,7 @@ final class Sessao {
     /// entraram — o aviso não mente que entraram.
     @discardableResult
     func importarCorpus(
-        _ itens: [(texto: String, gestoNome: String?, criadaEm: Date)],
+        _ itens: [Corpus.ItemImportado],
         no context: ModelContext, anunciar: Bool = true
     ) -> Int {
         guard !itens.isEmpty else { return 0 }
@@ -1774,6 +1780,7 @@ final class Sessao {
             let (corpo, campos) = Corpus.separarCampos(texto: item.texto, gesto: gesto)
             let nota = Nota(texto: corpo, gesto: gesto, campos: campos)
             nota.criadaEm = item.criadaEm
+            nota.origem = item.origem
             context.insert(nota)
         }
         guard persistir(context) else {

@@ -33,7 +33,8 @@ struct PadroesView: View {
         semana = RevisaoSemanal.ler(notas: lidas, eventos: eventos)
         trajetoria = Trajetoria.ler(notas: notas.map {
             Trajetoria.NotaLida(uuid: $0.uuid, gesto: $0.gesto, fechada: $0.fechada, criadaEm: $0.criadaEm,
-                                editadaEm: $0.queimadaEm ?? $0.editadaEm, campos: $0.campos, sentido: $0.sentido)
+                                editadaEm: $0.queimadaEm ?? $0.editadaEm, campos: $0.campos, sentido: $0.sentido,
+                                doAutor: $0.origem == .autor)
         }, sinais: Sinais.todos())
     }
 

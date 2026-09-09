@@ -95,7 +95,7 @@ struct PerfilView: View {
                       allowedContentTypes: [.plainText, .init(filenameExtension: "md") ?? .plainText],
                       allowsMultipleSelection: true) { resultado in
             guard case .success(let urls) = resultado else { return }
-            var itens: [(texto: String, gestoNome: String?, criadaEm: Date)] = []
+            var itens: [Corpus.ItemImportado] = []
             for url in urls {
                 let acesso = url.startAccessingSecurityScopedResource()
                 defer { if acesso { url.stopAccessingSecurityScopedResource() } }
@@ -136,7 +136,8 @@ struct PerfilView: View {
         sinaisEmPalavras = Sinais.emPalavras()
         let lidas = notas.map {
             Retrato.NotaLida(gesto: $0.gesto, fechada: $0.fechada, expressiva: $0.gesto == .expressiva,
-                             criadaEm: $0.criadaEm, campos: $0.campos)
+                             criadaEm: $0.criadaEm, campos: $0.campos,
+                             doAutor: $0.origem == .autor)
         }
         retratoTexto = Retrato.ler(notas: lidas, sinais: sinais)
         formasSugeridas = Gesto.allCases.filter { $0 != .expressiva && Sinais.sugerirEmVezDeVestir($0, sinais: sinais) }

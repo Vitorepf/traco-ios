@@ -93,6 +93,7 @@ class Pasta:
                 "dominio": c.get("dominio", ""),
                 "estado": c.get("estado", ""),
                 "sentido": c.get("sentido", ""),
+                "origem": c.get("origem", "autor"),
                 "titulo": primeira[:120],
             })
             if len(saida) >= limite:
@@ -127,37 +128,163 @@ class Pasta:
         por_forma: dict = {}
         destaques, decisoes, sentidos = [], [], []
         for p in self.arquivos():
-            c = self.cabecalho(p.read_text(encoding="utf-8"))
+            texto = p.read_text(encoding="utf-8")
+            c = self.cabecalho(texto)
             criada = c.get("criada", "")[:10]
             if criada < corte:
+                continue
+            # a revisão é do que a MENTE deixou no papel: o que o bot escreveu
+            # não conta como semana do autor (lei da trilha Mac)
+            if c.get("origem", "autor") != "autor":
                 continue
             g = c.get("gesto", "") or "sem forma"
             if c.get("estado", "") in ("em curso",):
                 continue
             por_forma[g] = por_forma.get(g, 0) + 1
-            if g == "Destaque" and c.get("unica"):
-                destaques.append(c["unica"])
-            if g == "Decisão":
-                decisoes.append({"escolha": c.get("escolha", ""), "espero": c.get("espero", ""), "aconteceu": c.get("aconteceu", "")})
+            # ADR 05h: as respostas da forma vivem no CORPO, depois do
+            # marcador — nunca no cabeçalho. Lidas dali, vinham sempre vazias.
+            campos = self.campos(texto)
+            if g == "Destaque" and campos.get("unica"):
+                destaques.append(campos["unica"])
+            if g in ("Decisão", "Decisao"):
+                decisoes.append({"escolha": campos.get("escolha", ""), "espero": campos.get("espero", ""), "aconteceu": campos.get("aconteceu", "")})
             if c.get("sentido"):
                 sentidos.append(c["sentido"])
         return {"desde": corte, "por_forma": por_forma, "destaques": destaques, "decisoes": decisoes, "sentidos": sentidos}
 
+    # --- os campos da forma (ADR 05h): o bloco JSON depois do marcador
+
+    MARCADOR_CAMPOS = "<!-- traco-campos:json-v1 -->"
+
+    @classmethod
+    def campos(cls, texto: str) -> dict:
+        """As respostas do autor. Elas NÃO estão no cabeçalho: vivem no corpo,
+        depois do marcador, uma por linha, com o valor em JSON (ADR 05h). Quem
+        as lia do cabeçalho lia vazio sempre."""
+        i = texto.rfind(cls.MARCADOR_CAMPOS)
+        if i < 0:
+            return {}
+        campos = {}
+        for linha in texto[i + len(cls.MARCADOR_CAMPOS):].splitlines():
+            if ": " not in linha:
+                continue
+            k, v = linha.split(": ", 1)
+            try:
+                campos[k.strip()] = json.loads(v)
+            except json.JSONDecodeError:
+                continue
+        return campos
+
+    # --- a agenda (ADR 08u): o que o app exporta em agenda.md
+
+    def agenda(self, dias: int = 7):
+        """O `agenda.md` que o app escreve ao lado do corpus, filtrado.
+
+        Formato: seções `## Nome`, itens `- <data ISO> · campo · campo`.
+        Compromissos ficam na janela de `dias` à frente; as outras seções já
+        nascem vencidas e vêm inteiras."""
+        import datetime as dt
+        p = self.raiz / "agenda.md"
+        if not p.exists():
+            return {"erro": "Sem agenda.md ainda. O app a escreve na pasta espelhada "
+                            "quando você abre o Traço no iPhone; se a pasta é antiga, "
+                            "abra o app uma vez."}
+        hoje = dt.date.today()
+        limite = hoje + dt.timedelta(days=max(0, dias))
+        secoes: dict = {}
+        atual = None
+        for linha in p.read_text(encoding="utf-8").splitlines():
+            if linha.startswith("## "):
+                atual = linha[3:].strip()
+                secoes[atual] = []
+            elif linha.startswith("- ") and atual:
+                partes = [x.strip() for x in linha[2:].split(" · ")]
+                quando = partes[0]
+                try:
+                    dia = dt.date.fromisoformat(quando[:10])
+                except ValueError:
+                    continue
+                # o futuro distante não é agenda de hoje; o vencido é sempre agenda
+                if dia > limite or (atual.startswith("Compromissos") and dia < hoje):
+                    continue
+                secoes[atual].append({"quando": quando, "o_que": partes[1:]})
+        return {"ate": limite.isoformat(), "secoes": secoes}
+
+    # --- as decisões (ADR 08u): esperava × aconteceu × sem resposta
+
+    def decisoes(self, dias: int = 90):
+        """Por decisão: o que o autor escreveu que esperava, o que escreveu que
+        aconteceu, e as que ninguém respondeu. Só o texto DELE — o bot não
+        conclui por ele."""
+        import datetime as dt
+        corte = (dt.datetime.now() - dt.timedelta(days=dias)).date().isoformat()
+        respondidas, sem_resposta = [], []
+        for p in self.arquivos():
+            texto = p.read_text(encoding="utf-8")
+            c = self.cabecalho(texto)
+            if (c.get("gesto", "") or "").lower() not in ("decisão", "decisao"):
+                continue
+            if c.get("criada", "")[:10] < corte or c.get("origem", "autor") != "autor":
+                continue
+            campos = self.campos(texto)
+            item = {
+                "id": p.stem,
+                "criada": c.get("criada", "")[:10],
+                "escolha": campos.get("escolha", "") or campos.get("decidido", ""),
+                "esperava": campos.get("espero", ""),
+                "aconteceu": campos.get("aconteceu", ""),
+                "saldo": campos.get("saldo", ""),
+            }
+            (respondidas if item["aconteceu"].strip() else sem_resposta).append(item)
+        return {"desde": corte, "respondidas": respondidas, "sem_resposta": sem_resposta}
+
     # --- a entrada (ADR 04p): o único lugar em que o Mac escreve
 
-    def escrever(self, titulo: str, texto: str, forma: str | None = None) -> str:
+    ORIGENS = ("autor", "grokbot", "pesquisa")
+    ETIQUETAS = {"grokbot": "feito pelo bot", "pesquisa": "pesquisa do bot"}
+
+    def escrever(self, titulo: str, texto: str, forma: str | None = None,
+                 origem: str = "autor", motivo: str = "", fontes=None) -> str:
         """Um .md em entrada/, com o cabeçalho do corpus. O app o transforma em
-        nota aberta ao abrir e apaga o arquivo. Import jamais tranca."""
+        nota aberta ao abrir e apaga o arquivo. Import jamais tranca.
+
+        ADR 2026-09-08u: quem escreve tem nome. `autor` é o padrão e é o texto
+        da pessoa. Qualquer outra origem é o bot falando, e o bot só fala
+        DECLARANDO por quê — sem motivo a escrita é recusada, e a recusa diz o
+        que falta. O app põe a etiqueta e mantém a nota fora do Retrato."""
         import datetime
+        origem = (origem or "autor").strip().lower()
+        if origem not in self.ORIGENS:
+            return ("Origem desconhecida: “%s”. Use uma de: %s."
+                    % (origem, ", ".join(self.ORIGENS)))
+        motivo = (motivo or "").strip()
+        fontes = [str(f).strip() for f in (fontes or []) if str(f).strip()]
+        if origem != "autor" and not motivo:
+            return ("Recusado: escrita com origem “%s” exige `motivo` — uma linha "
+                    "dizendo por que o bot está escrevendo isto (ex.: “a pessoa "
+                    "pediu para guardar o resumo da conversa”). Só `origem: autor` "
+                    "dispensa, e essa é para o texto da própria pessoa." % origem)
+        if origem == "pesquisa" and not fontes:
+            return ("Recusado: origem “pesquisa” exige `fontes` — a lista de onde "
+                    "cada afirmação veio. Pesquisa sem fonte é opinião do bot; "
+                    "escreva-a como `grokbot` com o motivo, ou traga as fontes.")
         corpo = (titulo.strip() + "\n\n" + texto.strip()).strip() if titulo.strip() else texto.strip()
         if not corpo:
             return "Nada a escrever: o texto está vazio."
+        if origem != "autor":
+            # o rodapé viaja DENTRO da nota: no iPhone o autor lê, junto do
+            # texto, quem o escreveu e por quê — sem abrir outra tela
+            corpo += "\n\n— %s: %s" % (self.ETIQUETAS[origem], motivo)
+            if fontes:
+                corpo += "\nFontes: " + "; ".join(fontes)
         pasta = self.raiz / "entrada"
         pasta.mkdir(parents=True, exist_ok=True)
         agora = datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0)
         cab = [f"criada: {agora.isoformat().replace('+00:00', 'Z')}"]
         if forma:
             cab.append(f"gesto: {forma.strip()}")
+        if origem != "autor":
+            cab.append(f"origem: {origem}")
         slug = re.sub(r"[^a-z0-9]+", "-", (titulo or texto)[:40].lower()).strip("-") or "nota"
         nome = f"{agora.strftime('%Y%m%d-%H%M%S')}-{slug}.md"
         (pasta / nome).write_text("---\n" + "\n".join(cab) + "\n---\n\n" + corpo + "\n", encoding="utf-8")
@@ -207,11 +334,19 @@ FERRAMENTAS = [
      "inputSchema": {"type": "object", "properties": {}}},
     {"name": "traco_semana", "description": "A revisão da semana: notas por forma nos últimos sete dias, destaques, decisões, o que ficou claro.",
      "inputSchema": {"type": "object", "properties": {"dias": {"type": "integer", "default": 7}}}},
-    {"name": "traco_escrever", "description": "Escreve uma nota NOVA na entrada do Traço (entrada/*.md). Vira nota aberta no iPhone quando o app abrir. Use só com texto do próprio autor — nunca redija por ele.",
+    {"name": "traco_agenda", "description": "O dia: compromissos à frente, decisões cuja hora de conferir já passou e as notas que o Recordar deve cobrar. É LEITURA — o briefing da manhã não escreve nada.",
+     "inputSchema": {"type": "object", "properties": {"dias": {"type": "integer", "default": 7, "description": "Quantos dias de compromissos à frente"}}}},
+    {"name": "traco_decisoes", "description": "As decisões do autor: o que ele escreveu que esperava, o que escreveu que aconteceu, e as que ficaram sem resposta. Só as palavras dele — não conclua por ele.",
+     "inputSchema": {"type": "object", "properties": {"dias": {"type": "integer", "default": 90}}}},
+    {"name": "traco_escrever", "description": "Escreve uma nota NOVA na entrada do Traço (entrada/*.md). Vira nota aberta no iPhone quando o app abrir. Texto da pessoa vai como `autor` (padrão). Se QUEM ESCREVEU foi você, declare `origem` e `motivo`: nunca redija como se fosse ela.",
      "inputSchema": {"type": "object", "properties": {
          "titulo": {"type": "string", "description": "A primeira linha da nota"},
          "texto": {"type": "string", "description": "O corpo, nas palavras do autor"},
-         "forma": {"type": "string", "description": "Opcional: o nome da forma (WOOP, Decisão, Leitura…)"}},
+         "forma": {"type": "string", "description": "Opcional: o nome da forma (WOOP, Decisão, Leitura…)"},
+         "origem": {"type": "string", "enum": ["autor", "grokbot", "pesquisa"], "default": "autor",
+                    "description": "Quem escreveu o texto. `autor` só para as palavras da pessoa."},
+         "motivo": {"type": "string", "description": "Obrigatório quando a origem não é `autor`: por que você está escrevendo isto"},
+         "fontes": {"type": "array", "items": {"type": "string"}, "description": "Obrigatório em `pesquisa`: de onde cada afirmação veio"}},
          "required": ["texto"]}},
     {"name": "traco_metodo_escrever", "description": "Adiciona um MÉTODO ao catálogo do Traço (metodos/<id>.json): id, nome, origem, campos [{id, rotulo}], movimento (o que a sábia cobra), pergunta, roteamento (regex).",
      "inputSchema": {"type": "object", "properties": {"metodo": {"type": "object"}}, "required": ["metodo"]}},
@@ -237,8 +372,15 @@ def chamar(pasta: Pasta, nome: str, args: dict) -> str:
         return pasta.corpus() or "Sem traco-corpus.md ainda."
     if nome == "traco_semana":
         return json.dumps(pasta.semana(int(args.get("dias", 7))), ensure_ascii=False, indent=1)
+    if nome == "traco_agenda":
+        return json.dumps(pasta.agenda(int(args.get("dias", 7))), ensure_ascii=False, indent=1)
+    if nome == "traco_decisoes":
+        return json.dumps(pasta.decisoes(int(args.get("dias", 90))), ensure_ascii=False, indent=1)
     if nome == "traco_escrever":
-        return pasta.escrever(str(args.get("titulo", "")), str(args.get("texto", "")), args.get("forma"))
+        f = args.get("fontes")
+        return pasta.escrever(str(args.get("titulo", "")), str(args.get("texto", "")), args.get("forma"),
+                              origem=str(args.get("origem", "autor")), motivo=str(args.get("motivo", "")),
+                              fontes=f if isinstance(f, list) else None)
     if nome == "traco_metodo_escrever":
         m = args.get("metodo")
         return pasta.escrever_metodo(m if isinstance(m, dict) else {})
@@ -300,7 +442,7 @@ def autoteste():
     r = responder(pasta, {"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {}})
     assert r["result"]["serverInfo"]["name"] == "traco"
     r = responder(pasta, {"jsonrpc": "2.0", "id": 2, "method": "tools/list"})
-    assert len(r["result"]["tools"]) == 10
+    assert len(r["result"]["tools"]) == 12
     r = responder(pasta, {"jsonrpc": "2.0", "id": 3, "method": "tools/call", "params": {"name": "traco_notas", "arguments": {"gesto": "woop"}}})
     lista = json.loads(r["result"]["content"][0]["text"])
     assert len(lista) == 1 and lista[0]["titulo"] == "quero correr todo dia"
@@ -314,8 +456,11 @@ def autoteste():
     assert "error" in r
     import datetime as dt
     hoje = dt.date.today().isoformat()
+    # o campo da forma vive no CORPO, como o app o exporta (ADR 05h) — a
+    # fixture antiga o punha no cabeçalho, onde nenhuma nota real o tem
     (raiz / "notas" / "cccc-3.md").write_text(
-        f"---\ngesto: Destaque\ncriada: {hoje}\nunica: terminar o relatório\n---\nlista do dia\n", encoding="utf-8")
+        f"---\ngesto: Destaque\ncriada: {hoje}\n---\nlista do dia\n\n— Destaque —\n"
+        + Pasta.MARCADOR_CAMPOS + '\nunica: "terminar o relatório"\n', encoding="utf-8")
     r = responder(pasta, {"jsonrpc": "2.0", "id": 9, "method": "tools/call", "params": {"name": "traco_escrever", "arguments": {"titulo": "do Mac", "texto": "uma linha escrita no computador", "forma": "Leitura"}}})
     assert "entrada/" in r["result"]["content"][0]["text"], r
     entrada = list((pasta.raiz / "entrada").glob("*.md"))
@@ -327,6 +472,94 @@ def autoteste():
     r = responder(pasta, {"jsonrpc": "2.0", "id": 8, "method": "tools/call", "params": {"name": "traco_semana", "arguments": {}}})
     semana = json.loads(r["result"]["content"][0]["text"])
     assert semana["destaques"] == ["terminar o relatório"] and semana["por_forma"].get("Destaque", 0) >= 1
+
+    # --- ADR 08u: quem escreve tem nome
+
+    def chamar_(nome, args, ident=99):
+        return responder(pasta, {"jsonrpc": "2.0", "id": ident, "method": "tools/call",
+                                 "params": {"name": nome, "arguments": args}})["result"]["content"][0]["text"]
+
+    # o bot sem motivo é RECUSADO, e a recusa diz o que falta
+    antes = len(list((pasta.raiz / "entrada").glob("*.md")))
+    t = chamar_("traco_escrever", {"texto": "três temas se repetem", "origem": "grokbot"})
+    assert t.startswith("Recusado:") and "motivo" in t, t
+    assert len(list((pasta.raiz / "entrada").glob("*.md"))) == antes, "recusa não pode escrever"
+    # pesquisa sem fontes também
+    t = chamar_("traco_escrever", {"texto": "as clínicas agendam por WhatsApp", "origem": "pesquisa",
+                                   "motivo": "a pessoa pediu a pesquisa"})
+    assert t.startswith("Recusado:") and "fontes" in t, t
+    # origem que não existe
+    t = chamar_("traco_escrever", {"texto": "x", "origem": "assistente", "motivo": "y"})
+    assert "Origem desconhecida" in t, t
+    # com motivo, entra — com a origem no cabeçalho e o motivo no corpo
+    t = chamar_("traco_escrever", {"titulo": "o que se repete", "texto": "três temas voltam toda semana",
+                                   "origem": "grokbot", "motivo": "a pessoa pediu para guardar"})
+    assert "entrada/" in t, t
+    doBot = [f for f in (pasta.raiz / "entrada").glob("*.md")
+             if "origem: grokbot" in f.read_text(encoding="utf-8")]
+    assert len(doBot) == 1, doBot
+    conteudo = doBot[0].read_text(encoding="utf-8")
+    assert "— feito pelo bot: a pessoa pediu para guardar" in conteudo, conteudo
+    # pesquisa com fontes
+    t = chamar_("traco_escrever", {"texto": "agendam por WhatsApp", "origem": "pesquisa",
+                                   "motivo": "cruzar com o que ele escreveu",
+                                   "fontes": ["https://exemplo.org/a", "https://exemplo.org/b"]})
+    assert "entrada/" in t, t
+    assert any("Fontes: https://exemplo.org/a; https://exemplo.org/b" in f.read_text(encoding="utf-8")
+               for f in (pasta.raiz / "entrada").glob("*.md"))
+    # e a nota do bot NÃO conta como semana do autor
+    (raiz / "notas" / "dddd-4.md").write_text(
+        f"---\ngesto: Destaque\ncriada: {hoje}\norigem: grokbot\n---\nresumo do bot\n\n"
+        "— Destaque —\n" + Pasta.MARCADOR_CAMPOS + '\nunica: "o bot achou isto"\n', encoding="utf-8")
+    semana = json.loads(chamar_("traco_semana", {}))
+    assert "o bot achou isto" not in semana["destaques"], semana
+
+    # --- traco_decisoes: esperava × aconteceu × sem resposta
+
+    m = Pasta.MARCADOR_CAMPOS
+    (raiz / "notas" / "eeee-5.md").write_text(
+        f'---\ngesto: Decisão\ncriada: {hoje}\n---\nabrir a segunda clínica\n\n— Decisão —\n{m}\n'
+        'escolha: "abrir a segunda clínica"\nespero: "dois pacientes a mais por semana; confiro em 30 dias"\n'
+        'aconteceu: "veio um só"\nsaldo: "aquém"\n', encoding="utf-8")
+    (raiz / "notas" / "ffff-6.md").write_text(
+        f'---\ngesto: Decisão\ncriada: {hoje}\n---\ntrocar o contador\n\n— Decisão —\n{m}\n'
+        'escolha: "trocar o contador"\nespero: "menos retrabalho no mês que vem"\n', encoding="utf-8")
+    d = json.loads(chamar_("traco_decisoes", {}))
+    assert [x["id"] for x in d["respondidas"]] == ["eeee-5"], d
+    assert d["respondidas"][0]["saldo"] == "aquém" and d["respondidas"][0]["aconteceu"] == "veio um só"
+    assert [x["id"] for x in d["sem_resposta"]] == ["ffff-6"], d
+    # a mesma correção paga a semana, que lia os campos do cabeçalho e via vazio
+    semana = json.loads(chamar_("traco_semana", {}))
+    assert semana["decisoes"] and semana["decisoes"][0]["espero"], semana
+
+    # --- traco_agenda: lê o agenda.md que o app exporta
+
+    t = chamar_("traco_agenda", {})
+    assert "Sem agenda.md ainda" in t, t
+    amanha = (dt.date.today() + dt.timedelta(days=1)).isoformat()
+    longe = (dt.date.today() + dt.timedelta(days=40)).isoformat()
+    ontem = (dt.date.today() - dt.timedelta(days=1)).isoformat()
+    (raiz / "agenda.md").write_text(
+        "# Agenda do Traço\n\n## Compromissos\n"
+        f"- {amanha} 09:00 · reunião com o contador\n"
+        f"- {longe} · dia inteiro · viagem\n"
+        f"- {ontem} 08:00 · já passou\n"
+        "## Decisões a conferir\n"
+        f"- {ontem} · eeee-5 · abrir a segunda clínica\n"
+        "## Recordar devido\n"
+        f"- {ontem} · aaaa-1 · WOOP · quero correr todo dia\n", encoding="utf-8")
+    a = json.loads(chamar_("traco_agenda", {"dias": 7}))
+    comp = a["secoes"]["Compromissos"]
+    assert [c["o_que"][0] for c in comp] == ["reunião com o contador"], a
+    assert len(a["secoes"]["Decisões a conferir"]) == 1 and len(a["secoes"]["Recordar devido"]) == 1, a
+    # a janela maior traz a viagem de volta
+    a = json.loads(chamar_("traco_agenda", {"dias": 60}))
+    assert len(a["secoes"]["Compromissos"]) == 2, a
+    # e o caminho de travessia continua fechado
+    r = responder(pasta, {"jsonrpc": "2.0", "id": 30, "method": "tools/call",
+                          "params": {"name": "traco_nota", "arguments": {"id": "../../agenda"}}})
+    assert "Não há nota" in r["result"]["content"][0]["text"]
+
     print("autoteste ok")
 
 

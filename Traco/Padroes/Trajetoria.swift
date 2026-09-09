@@ -39,6 +39,9 @@ nonisolated struct Trajetoria: Equatable, Sendable {
         var editadaEm: Date
         var campos: [String: String]
         var sentido: String
+        /// ADR 08u: a trajetória é da mente do autor. O que o bot escreveu não
+        /// entra — nem na calibragem, nem nas palavras dele.
+        var doAutor: Bool = true
     }
 
     nonisolated static func ler(notas: [NotaLida], sinais: [Sinal], agora: Date = .now,
@@ -55,7 +58,7 @@ nonisolated struct Trajetoria: Equatable, Sendable {
                                 de: Date, a: Date) -> Periodo {
         var p = Periodo(rotulo: rotulo)
         // o selo: expressiva só entra pela linha de sentido, como sempre
-        let abertas = notas.filter { !$0.fechada && $0.gesto != .expressiva && $0.criadaEm >= de && $0.criadaEm <= a }
+        let abertas = notas.filter { !$0.fechada && $0.gesto != .expressiva && $0.doAutor && $0.criadaEm >= de && $0.criadaEm <= a }
         p.notas = abertas.count
         var conta: [String: Int] = [:]
         for n in abertas { conta[n.gesto?.nome ?? "sem forma", default: 0] += 1 }

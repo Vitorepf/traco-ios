@@ -1,6 +1,22 @@
 import Foundation
 import SwiftData
 
+/// Quem escreveu o texto (ADR 2026-09-08u). O padrão é o autor; qualquer outra
+/// origem é o bot falando, e o app diz isso na tela, mantém a nota fora do
+/// Retrato e nunca a conta como voz do autor.
+nonisolated enum OrigemNota: String, Sendable, CaseIterable {
+    case autor, grokbot, pesquisa
+
+    /// A palavra que aparece na etiqueta. Diz o essencial: não é voz do autor.
+    var etiqueta: String? {
+        switch self {
+        case .autor: nil
+        case .grokbot: "feito pelo bot"
+        case .pesquisa: "pesquisa do bot"
+        }
+    }
+}
+
 @Model
 final class Nota {
     var uuid: UUID
@@ -31,6 +47,9 @@ final class Nota {
     /// Série da expressiva (1–4). `serieRaw` vazio = sessão única.
     var serieRaw: String = ""
     var diaDaSerie: Int = 0
+    /// ADR 08u: quem escreveu. Vazio = o autor — é o que toda nota anterior a
+    /// esta ADR é, e continuar a ser.
+    var origemRaw: String = ""
 
     init(
         texto: String = "",
@@ -68,6 +87,12 @@ final class Nota {
     /// Fechada de qualquer jeito: selada OU queimada. Quem pergunta "pode sair
     /// daqui?" tem de olhar esta, nunca só `trancada`.
     var fechada: Bool { trancada || queimada }
+
+    /// Nota que não é do autor: etiqueta na tela, fora do Retrato, fora da voz.
+    var origem: OrigemNota {
+        get { OrigemNota(rawValue: origemRaw) ?? .autor }
+        set { origemRaw = newValue == .autor ? "" : newValue.rawValue }
+    }
 
     var gesto: Gesto? {
         get { gestoRaw.flatMap(Gesto.init(rawValue:)) }

@@ -53,7 +53,7 @@ nonisolated enum PastaEspelho {
             let notas = raiz.appendingPathComponent("notas", isDirectory: true)
             for nome in meus { try? fm.removeItem(at: notas.appendingPathComponent(nome)) }
             try? fm.removeItem(at: manifesto)
-            for solto in ["LEIA-ME.md", "INDICE.md", "traco-corpus.md"] {
+            for solto in ["LEIA-ME.md", "INDICE.md", "traco-corpus.md", "agenda.md"] {
                 try? fm.removeItem(at: raiz.appendingPathComponent(solto))
             }
             if let resto = try? fm.contentsOfDirectory(atPath: notas.path), resto.isEmpty { try? fm.removeItem(at: notas) }

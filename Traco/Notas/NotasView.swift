@@ -726,6 +726,19 @@ struct NotasView: View {
                             if let g = nota.gesto {
                                 Pilula(g.nome, forma: .etiqueta)
                             }
+                            // ADR 08u: quem escreveu, na mesma cápsula em que o
+                            // gesto já vive. Na lista o autor precisa saber
+                            // ANTES de abrir que aquela linha não é a voz dele.
+                            if let marca = nota.origem.etiqueta {
+                                // `fixedSize`: com gesto, origem, subtítulo e o
+                                // chip de domínio na mesma linha, a cápsula era
+                                // a que cedia e quebrava em duas ("FEITO /
+                                // PELO BOT"). Quem cede é o subtítulo, que já
+                                // trunca por desenho.
+                                Pilula(marca, forma: .etiqueta)
+                                    .fixedSize(horizontal: true, vertical: false)
+                                    .accessibilityIdentifier("origem-nota")
+                            }
                             let sub = subtitulo(nota)
                             if !(sub == "hoje" && busca.isEmpty) {
                                 DestaqueBusca.texto(sub, termo: busca, base: Tema.tintaFraca)
