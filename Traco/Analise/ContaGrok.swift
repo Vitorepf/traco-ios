@@ -17,10 +17,17 @@ enum ContaGrok {
 
     // MARK: - Keychain (o mesmo cofre de sempre: nunca UserDefaults, nunca log)
 
-    private static let servico = "app.traco.xai"
+    // ADR 2026-09-09l: a suíte roda HOSPEDADA no app, e o cofre é do
+    // SIMULADOR, não do processo de teste — `sair()` num teste apagava a conta
+    // de verdade do dono. Mesmo desvio de ADR 05u (`isolarParaTestes`), que
+    // pegou o App Group e esqueceu o cofre.
+    // ponytail: um sufixo no ponto por onde TODO acesso passa é menor que uma
+    // guarda em cada teste que chama `sair()`.
+    static let emTeste = ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+    static let servico = emTeste ? "app.traco.xai.testes" : "app.traco.xai"
     private static let contaAcesso = "oauth-acesso"
     private static let contaRenova = "oauth-renova"
-    private static let chaveExpira = "grokExpiraEm"
+    private static let chaveExpira = emTeste ? "grokExpiraEm-testes" : "grokExpiraEm"
 
     private static func guardar(_ valor: String?, em conta: String) {
         let q: [String: Any] = [

@@ -17,6 +17,10 @@ nonisolated struct FatiaCorpus: Sendable, Equatable {
     var dominio: Dominio?
     var serie: UUID?
     var dia: Int
+    /// ADR 08u: quem escreveu. O que não é do autor sai com a marca.
+    var origem: OrigemNota = .autor
+    /// ADR 08u: quando o Recordar cobra esta nota — só para o `agenda.md`.
+    var recordarEm: Date?
 
     var estado: String? {
         if queimada { return "queimada" }
@@ -46,7 +50,11 @@ nonisolated struct FatiaCorpus: Sendable, Equatable {
             expressivaEmCurso: nota.gesto == .expressiva && !nota.fechada,
             dominio: nota.dominio,
             serie: nota.serieUUID,
-            dia: nota.diaDaSerie
+            dia: nota.diaDaSerie,
+            origem: nota.origem,
+            recordarEm: Revisoes.podeAgendar(gesto: nota.gesto, trancada: nota.fechada,
+                                             texto: nota.texto, campos: nota.campos)
+                ? Revisoes.proximaData(nota.uuid) : nil
         )
     }
 }
@@ -63,7 +71,34 @@ enum Corpus {
 
     static var pastaNotas: URL { diretorio.appendingPathComponent("notas", isDirectory: true) }
 
-    nonisolated static let contrato = """
+    /// O contrato da pasta. ADR 09b: os MÉTODOS entram aqui, com os campos e a
+    /// PERGUNTA de cada um — o caso 8 ("da ideia solta ao método") manda o bot
+    /// buscar a pergunta no contrato, e ela não estava em lugar nenhum da
+    /// pasta: o catálogo vive no bundle do app, que o Mac não abre. Gerado de
+    /// `Catalogo.todos`, e não copiado à mão, para não haver duas listas
+    /// divergindo — a lista fixa de dez formas que estava aqui já não era o
+    /// catálogo de vinte e oito.
+    nonisolated static var contrato: String { base + "\n\n" + metodosEmTexto() }
+
+    nonisolated static func metodosEmTexto(_ metodos: [Metodo]? = nil) -> String {
+        var linhas = ["""
+        Métodos, campos e a PERGUNTA de cada um. `gesto` no cabeçalho é o nome;
+        `metodo` é o id, quando difere. Os campos são o que a nota guarda. A
+        pergunta é a que se faz a QUEM ESCREVE, uma por vez — quem pergunta não
+        responde, e não preenche campo "para ela ver como fica".
+        """]
+        for m in (metodos ?? Catalogo.todos).sorted(by: { $0.nome < $1.nome }) {
+            var bloco = "- \(m.nome)" + (m.id == m.nome ? "" : " (`\(m.id)`)")
+            if !m.campos.isEmpty {
+                bloco += "\n  campos: " + m.campos.map(\.id).joined(separator: " · ")
+            }
+            if !m.pergunta.isEmpty { bloco += "\n  pergunta: \(m.pergunta)" }
+            linhas.append(bloco)
+        }
+        return linhas.joined(separator: "\n") + "\n"
+    }
+
+    nonisolated private static let base = """
     # Traço — corpus
 
     Este arquivo é uma exportação das notas do Traço, não o segundo cérebro
@@ -90,19 +125,8 @@ enum Corpus {
     (quantas vezes o autor lembrou de memória), `sentido` (a linha que ele
     escreveu no fecho), `estado`, `minutos`, `serie`, `dia`.
 
-    Gestos e o que cada um guarda:
-    - WOOP: resultado, obstaculo, plano
-    - Se–então: se, entao
-    - Especificação: problema, pronto, nao, restricoes, limites
-    - Nota permanente: ideia, liga, fonte
-    - Destaque: unica (a única coisa daquele dia)
-    - Destilar: em200, em100, em50, frase
-    - Palavra: minhas, frase, onde
-    - Decisão: escolha, opcoes, criterio, decidido, espero, aconteceu
-    - Pré-mortem: plano, falhou, sinal, mudo
-    - Expressiva: sem corpo; só sentido e minutos
-
     Import ignore `id`. Trancadas e queimadas nunca voltam como nota aberta.
+    A expressiva não tem corpo aqui: só sentido e minutos.
     """
 
     // MARK: - Formato
@@ -121,6 +145,9 @@ enum Corpus {
             if gesto.rawValue != gesto.nome { cab.append("metodo: \(gesto.rawValue)") }
         }
         if let dominio = f.dominio { cab.append("dominio: \(dominio.nome)") }
+        // ADR 08u: quem escreveu viaja com a nota. Ausente = o autor, que é o
+        // que toda nota da pasta era antes desta ADR.
+        if f.origem != .autor { cab.append("origem: \(f.origem.rawValue)") }
         cab.append("recordada: \(f.recordada)")
         if f.soMetadado {
             if let estado = f.estado { cab.append("estado: \(estado)") }
@@ -263,15 +290,19 @@ enum Corpus {
         return campos.isEmpty ? (texto, [:]) : (corpo, campos)
     }
 
+    /// O que um .md traz para dentro. A `origem` diz quem escreveu (ADR 08u):
+    /// ausente no cabeçalho = o autor.
+    typealias ItemImportado = (texto: String, gestoNome: String?, criadaEm: Date, origem: OrigemNota)
+
     /// REGRA DO SELO: import JAMAIS cria nota trancada.
-    nonisolated static func importar(_ conteudo: String) -> [(texto: String, gestoNome: String?, criadaEm: Date)] {
+    nonisolated static func importar(_ conteudo: String) -> [ItemImportado] {
         importarComEstado(conteudo).itens
     }
 
     /// O coletor precisa saber se parte do arquivo foi recusada pelo selo:
     /// importar suas notas abertas não autoriza apagar a fonte inteira.
     nonisolated static func importarComEstado(_ conteudo: String) -> (
-        itens: [(texto: String, gestoNome: String?, criadaEm: Date)], contemProtegida: Bool
+        itens: [ItemImportado], contemProtegida: Bool
     ) {
         let f = ISO8601DateFormatter()
         let padrao = try! NSRegularExpression(
@@ -281,9 +312,9 @@ enum Corpus {
         guard !hits.isEmpty else {
             let limpo = conteudo.trimmingCharacters(in: .whitespacesAndNewlines)
             if limpo.isEmpty || limpo.hasPrefix("# Traço") { return ([], false) }
-            return ([(limpo, nil, .now)], false)
+            return ([(limpo, nil, .now, .autor)], false)
         }
-        var saida: [(String, String?, Date)] = []
+        var saida: [ItemImportado] = []
         var contemProtegida = false
         for (i, hit) in hits.enumerated() {
             let inicioBloco = hit.range.location
@@ -294,6 +325,15 @@ enum Corpus {
             let inicioCabecalho = bloco.index(bloco.startIndex, offsetBy: 4)
             guard let fecha = bloco.range(of: "\n---\n", range: inicioCabecalho..<bloco.endIndex) else { continue }
             let cabecalho = bloco[inicioCabecalho..<fecha.lowerBound]
+            // ADR 08u: quem escreveu. O regex de cima só casa o prefixo fixo do
+            // cabeçalho; a origem sai daqui, onde a ordem das linhas não importa.
+            let origem = cabecalho.split(separator: "\n").lazy
+                .compactMap { linha -> OrigemNota? in
+                    let l = linha.trimmingCharacters(in: .whitespaces)
+                    guard l.hasPrefix("origem: ") else { return nil }
+                    return OrigemNota(rawValue: String(l.dropFirst(8)).trimmingCharacters(in: .whitespaces))
+                }
+                .first ?? .autor
             if cabecalho.split(separator: "\n").contains(where: {
                 let linha = $0.trimmingCharacters(in: .whitespaces)
                 return linha == "estado: selada" || linha == "estado: queimada"
@@ -312,7 +352,7 @@ enum Corpus {
             // vira id: texto livre de um .md alheio não entra como forma.
             let gestoNome = idDoMetodo
                 ?? nomeDoGesto.flatMap { Gesto.doNome($0)?.conhecido == true ? $0 : nil }
-            saida.append((corpo, gestoNome, data))
+            saida.append((corpo, gestoNome, data, origem))
         }
         return (saida, contemProtegida)
     }
@@ -381,12 +421,77 @@ enum Corpus {
         escreverAgregados(vivas, em: raiz, geracao: g)
     }
 
+    /// ADR 2026-09-08u: o dia da pessoa, ao lado do corpus. É o único arquivo
+    /// da pasta que o companheiro do Mac precisa para o briefing da manhã: os
+    /// compromissos que vêm, as decisões cuja hora de conferir já passou e as
+    /// notas que o Recordar deve cobrar. Só leitura — o app escreve, ninguém
+    /// edita. Nada aqui vem de expressiva, selada ou queimada: `vivas` já é o
+    /// que pode sair, e `Volta`/`Revisoes` recusam a expressiva por dentro.
+    ///
+    /// ponytail: um `.md` com data no começo de cada linha, não JSON — o autor
+    /// abre a pasta e lê, e o servidor MCP parte a linha pelo separador.
+    nonisolated static func agenda(_ vivas: [FatiaCorpus], eventos: [EventoCalendario],
+                                  agora: Date = .now, cal: Calendar = .current) -> String {
+        let dia = DateFormatter(); dia.dateFormat = "yyyy-MM-dd"
+        let hora = DateFormatter(); hora.dateFormat = "yyyy-MM-dd HH:mm"
+        let hoje = cal.startOfDay(for: agora)
+
+        var linhas = ["# Agenda do Traço", "",
+                      "Escrita pelo Traço em \(hora.string(from: agora)). Só leitura: o app grava,",
+                      "ninguém edita. O que está aqui é o que o autor marcou e o que o app deve",
+                      "cobrar dele — nunca conclusão sobre ele. As ações dos Trabalhos ainda não",
+                      "chegam a este arquivo.", ""]
+
+        linhas.append("## Compromissos")
+        let futuros = eventos.filter { $0.fim >= hoje }.sorted { $0.inicio < $1.inicio }
+        for e in futuros {
+            let quando = e.diaInteiro ? "\(dia.string(from: e.inicio)) · dia inteiro" : hora.string(from: e.inicio)
+            linhas.append("- \(quando) · \(umaLinha(e.titulo))")
+        }
+        // seção vazia fica vazia: um item de mentira viraria compromisso no MCP
+
+        linhas.append("")
+        linhas.append("## Decisões a conferir")
+        for f in vivas.filter({ $0.gesto == .decisao && !$0.soMetadado })
+            where Volta.campoDevido(gesto: f.gesto, campos: f.campos, criadaEm: f.criadaEm, agora: agora) != nil {
+            let oQue = ["escolha", "decidido"].compactMap { f.campos[$0] }.first ?? umaLinha(f.texto)
+            linhas.append("- \(dia.string(from: f.criadaEm)) · \(f.id.uuidString.lowercased()) · \(umaLinha(oQue))"
+                          + (f.campos["espero"].map { " · espero: \(umaLinha($0))" } ?? ""))
+        }
+
+        linhas.append("")
+        linhas.append("## Recordar devido")
+        for f in vivas.sorted(by: { $0.criadaEm < $1.criadaEm }) {
+            guard let quando = f.recordarEm, quando <= agora, !f.soMetadado else { continue }
+            linhas.append("- \(dia.string(from: quando)) · \(f.id.uuidString.lowercased()) · "
+                          + "\(f.gesto?.nome ?? "página") · \(umaLinha(f.texto))")
+        }
+        return linhas.joined(separator: "\n") + "\n"
+    }
+
+    /// Uma linha só: o separador do arquivo é " · " e a quebra parte o item.
+    nonisolated private static func umaLinha(_ s: String, teto: Int = 120) -> String {
+        let plano = s.replacingOccurrences(of: "\n", with: " ")
+            .replacingOccurrences(of: " · ", with: " - ")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        return plano.count > teto ? String(plano.prefix(teto)) + "…" : plano
+    }
+
     nonisolated private static func escreverAgregados(_ vivas: [FatiaCorpus], em raiz: URL, geracao g: Int) {
         let corpus = raiz.appendingPathComponent("traco-corpus.md")
         guard avanca(corpus, g) else { return }
         escreverSeMudou(corpoDoCorpus(fatias: vivas).data(using: .utf8), em: corpus)
         escreverSeMudou(indice(fatias: vivas).data(using: .utf8),
                         em: raiz.appendingPathComponent("INDICE.md"))
+        // ADR 08u: o quarto arquivo solto. Os compromissos vêm do mesmo disco
+        // que o `calendario.json` copia — nada de novo a carregar.
+        // ponytail: relê o calendario.json a cada gravação de agregado; é um
+        // arquivo pequeno e `escreverSeMudou` corta a escrita. Se doer, guarde
+        // os eventos junto com a geração.
+        let eventos: [EventoCalendario]
+        if case .eventos(let e) = CalendarioDisco.carregar() { eventos = e } else { eventos = [] }
+        escreverSeMudou(agenda(vivas, eventos: eventos).data(using: .utf8),
+                        em: raiz.appendingPathComponent("agenda.md"))
     }
 
     static func exportar(notas: [Nota]) -> URL? {

@@ -45,7 +45,7 @@ Sempre uma volta desta trilha em edição, em paralelo às voltas comuns, no pr�
 | F3 | Captar pensamento em um toque | MESCLADA (ADR 05w): controle Anotar na Central/bloqueada/botão de Ação abre o app com teclado pronto e microfone a um toque; F3b = ditado próprio com áudio preservado |
 | F3b | Ditado próprio | áudio salvo antes de transcrever; falha preserva o áudio | MESCLADA (ADR 06c; G3, correção, re-G3 aprovado) |
 | F4 | **Os widgets da tela de início prestam** (era "widget próxima volta interativo") | refresh que funciona, identidade do Traço, vazio que oferece ação, densidade do médio, botão de feito na própria superfície | **EM EDIÇÃO, PRIORIDADE MÁXIMA** (worktree f4-widgets; ordem do dono 06/09 13:04, com print do iPhone) |
-| F5b | Ilha do compromisso vivo (era F5; a sigla F5 foi gasta pelos arquivos `f5-*` da F4-F, e "F6" já era dos widgets da tela bloqueada — o nome colidia duas vezes) | estados completos (compacta, expandida, mínima, fim). A mínima só aparece com DUAS atividades disputando a Ilha, e o StandBy não renderiza no simulador — as duas lacunas ficaram declaradas na F4-F | **EM EDIÇÃO** (worktree volta-f5b-ilha, ADR 08v) |
+| F5b | Ilha do compromisso vivo (era F5; a sigla F5 foi gasta pelos arquivos `f5-*` da F4-F, e "F6" já era dos widgets da tela bloqueada — o nome colidia duas vezes) | estados completos (compacta, expandida, mínima, fim). A mínima só aparece com DUAS atividades disputando a Ilha, e o StandBy não renderiza no simulador — as duas lacunas ficaram declaradas na F4-F | **MESCLADA em 09/09** (`d5f77e2`, ADR 08v; três G3, e o "t" cortado da F4 saiu do RUMO por prova — a Ilha não escala com Dynamic Type) |
 | F6 | Widgets da tela bloqueada | accessoryCircular e accessoryInline do dia | |
 | F7 | Controle da Central de Controle | Recordar | |
 | F8 | Widget configurável | por pasta ou método | |
@@ -92,6 +92,12 @@ Achado de processo da V19 (Recordar), confirmado pelo revisor com `git show` e q
 **A regra que sai daí, e vale para toda volta por tela daqui em diante:** a fase "auditar antes de tocar" do `design-router` não é ler a auditoria, é **conferir a auditoria na tela viva antes de escrever a primeira linha** — e escrever na ADR, defeito a defeito, qual continua vivo e qual já caiu, com a captura que prova. Sem isso, corre-se o risco de gastar uma volta consertando o que já está consertado, ou pior, de declarar morto o que está vivo. A V9 tem cinco dias e cinco voltas de código por cima.
 
 ### Dívida vinda dos portões de hoje
+
+- **A renumeração `09d` -> `09g` da C1 parou no `SPEC.md`.** `45c81e2` trocou a letra num arquivo só; ficaram **onze** referências a "09d" em código e teste que hoje apontam para a ADR da S1-B (*o vazio também rola*), que é outra coisa: `Traco/Caderno/CadernoView.swift:221`, `Traco/Caderno/EscritaVisivel.swift:64,83`, `TracoTests/TemaTests.swift:191,205,214,222,243` (inclusive o **nome de um teste**, `ondeHaviaFolgaSobrandoA09dNaoMudaNada`) e `TracoTests/EscritaVisivelTests.swift:490,587,634,648`. As duas legítimas são `Traco/Notas/NotasView.swift:633` e `TracoUITests/PerguntaSobreviveUITests.swift:37`, que são mesmo da 09d. A FUSÃO não varreu de propósito: é área da C1 e um `sed` em onze pontos alarga o diff de dois vermelhos. **Dono: a C1** (é a renumeração dela), num varrimento só, com o nome do teste incluído.
+
+- **A etiqueta de origem toma 60 pt onde o autor tem 86 (uma linha).** Medido na FUSÃO (ADR 09j), iPhone 17 Pro em AX XXXL, com o aviso e o toast de pé: a cápsula desce a `CadernoView` inteira 60 pt, o papel já está no piso da 09g (`pisoDoPapel / 3` = 86,3 pt) e quem cede os 60 é o encaixe. **Não é vermelho** — a 08f continua verde, 39/39 amostras dentro. É pergunta de produto: a mesma cápsula que em `large` custa 25 pt custa 60 em AX XXXL, e nesse tamanho o autor está a escrever numa linha. Conserto provável: a etiqueta encolher em AX (uma linha, sem a cápsula) ou sair de cena com o teclado de pé. **Dono: a volta da Página (V12).** Escopo: `Traco/Pagina/PaginaView.swift` (o `Pilula(marca, forma: .etiqueta)`) e o caso ETIQUETA de `EscritaVisivelTests`.
+
+- **A 08x não tem portão: a guarda `focoPagina` é copiada à mão em cada `.animation`.** A FUSÃO achou o `toast` sem ela (ADR 09j) três voltas depois de a 08x existir — o `cartao` e o `analisando` tinham, o `toast` não, e ninguém percebeu porque a única prova é a invariante 08f por quadro, que só reprova quando o aparelho é apertado o bastante (o 17e dava 0; o 17 Pro deu 3 quadros com 1 pt). Sobra `CadernoView.swift:281` (`value: esconderRegua`), hoje **medido em zero** porque cresce o papel em vez de encolher — mas é a mesma classe. **Dono: a mesma volta do item 7 daqui de baixo** (o portão que impede `withAnimation` fora de `Tema`), que já é um teste que varre o repositório: acrescentar a regra "toda `.animation` que muda a altura do encaixe da Página passa por `focoPagina`".
 
 - **As quatro dívidas de `try!` que a volta A1 congelou** (ADR 08n; o portão está em `TracoTests/PortaoDoTryBangTests.swift` e fica vermelho se subirem). Medido, e a medida se refaz — `grep -rn 'try!' Traco/ TracoWidget/ | grep -vE '^[^:]+:[0-9]+:[[:space:]]*//'` dá **9 em `main` e 8 no branch da A1** (o `grep` cru dá 10 hoje: a volta escreveu duas linhas de comentário que dizem `try!`; o portão conta com `codigoVisivel`, que apaga comentário e string, e chega ao mesmo 8). **Infalível por construção, não é dívida:** `Traco/Caderno/AnexoDisco.swift:48`, `Traco/Notas/Indice.swift:96` e `Traco/Notas/Corpus.swift:277` (`NSRegularExpression` de padrão literal); `Traco/Trabalho/ConferenciaTrabalho.swift:179` é literal **só enquanto todo chamador passar literal** — o padrão chega por argumento, e isso é o que fura primeiro. **Dívida real, serialização de valor vindo de fora:** `Traco/Analise/FonteNotas.swift:155` e `Traco/Trabalho/PraticaTrabalho.swift:529` (`JSONSerialization.data` sobre objeto montado em runtime), `Traco/Notas/Corpus.swift:144` (`encode` de campo do autor, com um `!` de dicionário na mesma linha) e `Traco/App/Sessao.swift:599` (`encode` do texto do autor). A A1 NÃO as consertou de propósito: `Analise` é da volta Q e `Trabalho` é da E1, as duas vivas em 08/09. Volta própria, pequena, quando as duas fecharem.
 - **A recuperação que a A1 não entrega:** a tela do arranque falho oferece só "tentar de novo". Trazer o espelho em Markdown de volta para dentro do banco — o backup que a própria tela aponta — é volta própria, e tem de nascer com a regra da A1 na mão: preservar antes de voltar a funcionar, nada apaga para consertar.
@@ -189,8 +195,55 @@ O juiz listou e não descontou: `isHeader` faltando nas duas seções novas; o `
 
 ### Dois achados da V13 (08/09), com dono nomeado
 
-- **O caret do Caderno falha em AX XXXL no iPhone 17e.** A V13 rodou a suíte integral no `C7341E64` e o **único vermelho** é esse — e ela provou que é **pré-existente**, com as mesmas 18 ocorrências em `HEAD` sem o diff dela. É da invariante da escrita visível (V12, ADR 08f, já mesclada), que foi provada no Pro Max e no teste 2 mas **não neste aparelho neste tamanho**. Volta do Caderno, e a prova tem de incluir o 17e em AX XXXL.
+- **[FECHADO em 09/09 pelas voltas C1 e C1-B — ADR 09d e 08x.]** ~~O caret do Caderno falha em AX XXXL no iPhone 17e.~~ A V13 rodou a suíte integral no `C7341E64` e o **único vermelho** é esse — e ela provou que é **pré-existente**, com as mesmas 18 ocorrências em `HEAD` sem o diff dela. É da invariante da escrita visível (V12, ADR 08f, já mesclada), que foi provada no Pro Max e no teste 2 mas **não neste aparelho neste tamanho**. Volta do Caderno, e a prova tem de incluir o 17e em AX XXXL.
 - **A pergunta interrompida some ao trocar de aba**, porque `RaizView` **recria** a `NotasView`. É estado desonesto — a pessoa perde o que estava esperando sem que nada diga. Conserto na `Sessao`, área do arquiteto, não do front.
+- **O caret do Caderno falha em AX XXXL no iPhone 17e.** A V13 rodou a suíte integral no `C7341E64` e o **único vermelho** é esse — e ela provou que é **pré-existente**, com as mesmas 18 ocorrências em `HEAD` sem o diff dela. É da invariante da escrita visível (V12, ADR 08f, já mesclada), que foi provada no Pro Max e no teste 2 mas **não neste aparelho neste tamanho**. Volta do Caderno, e a prova tem de incluir o 17e em AX XXXL.
+- ~~**A pergunta interrompida some ao trocar de aba**~~ — **FECHADO em 09/09 pela volta S1 (ADR 2026-09-09c)**. O achado foi confirmado vivo na tela antes de tocar em qualquer linha (`ferramentas/orca/s1-01`/`s1-02`), e o conserto foi na `Sessao`: `let conversaNotas = ConversaNotas()` vive enquanto a sessão viver, e com ele a pergunta guardada, as trocas, o aviso de "sem conta" e a busca em edição. Dois XCUITest vermelhos antes e verdes depois, no mesmo aparelho; prova viva em `s1-03`/`s1-04`/`s1-05`. Relatório: `ferramentas/orca/s1-pergunta.md`. O G3 reprovou a prova (não o conserto) e a volta **S1-B** fechou o achado colateral que a bloqueava: **filtrar as Notas até zero com o teclado em pé prendia a pessoa atrás dele** — o ramo vazio da lista não tinha `ScrollView`, logo não tinha o gesto que dispensa o teclado, e a barra de abas ficava fora da tela (`y: 1.0572`). **ADR 2026-09-09d**; dez corridas do zero verdes e o vermelho do pai reproduzido com o mesmo instrumento. Relatório: `ferramentas/orca/s1b-prova.md`.
+
+### Vindas do fecho da C1 (09/09): a barra de baixo, e o que o instrumento não alcança
+
+**Escritas aqui porque a ADR 09d as prometeu ao RUMO e o re-G3 as cobrou. As duas
+saem do mesmo lugar: o pé toma 275 dos 414 pt do 17e em AX XXXL.**
+
+- **A BARRA DE BAIXO EM TAMANHOS DE ACESSIBILIDADE — volta própria, do front.**
+  No iPhone 17e em AX XXXL o pé do encaixe toma **274,67 dos 413,67 pt** de tela
+  com o teclado de pé, e **326,67 com o aviso**. Enquanto ela não encolher, o
+  papel só cabe porque a 09d mandou o cartão ceder: com aviso E toast o encaixe
+  fica com ~0 pt e a mensagem da sábia sai da tela. Isso é **decisão escrita**
+  (09d), não descuido — e é a decisão que deixa de ser necessária no dia em que
+  a barra couber. **Ciclo:** multiplicar. **Intenção:** o autor vê o que escreve
+  E a saída do cartão, sem escolher entre os dois. **Evidência pedida:** a mesma
+  sonda de `tetoDoEncaixe` no 17e em AX XXXL, com o pé abaixo de 200 pt e
+  `EscritaVisivelTests` verde sem o encaixe ceder a zero.
+
+- **O ORÁCULO DE PIXELS SOBRE A COMPOSIÇÃO NATIVA — herdada da 08f, ENCOLHIDA
+  na C1-C.** A C1-B provou a 08f **quadro a quadro** por dentro do processo
+  (`CADisplayLink` + camadas de apresentação), e isso alcança a geometria: onde
+  a linha e o papel estão em cada quadro entregue. Faltava a outra metade da
+  regra, e a C1-C a pôs de pé: a varredura de camadas (`intrusos`) **corre agora
+  em cada quadro**, pela apresentação, e custa **1,6–3,1 ms/quadro** dentro de
+  uma cadência de 16,7 ms — o preço que se temia é pago com folga. Com ela, o
+  pai `4898703` deixa de estar só cortado: o cartão dele **desenhava sobre a
+  linha** em 2 quadros (AX5) e 5 (`large`).
+  **O que ainda não alcança:** o pixel. A árvore de camadas mede quem está à
+  frente e onde; não mede tinta — uma camada transparente que a árvore acuse, ou
+  uma composição que o servidor de render resolva de outro modo, não são
+  distinguidas. O portão contra o silêncio existe (camada adversarial plantada,
+  35 de ~51 quadros acusados), mas ele prova a sonda, não o pixel.
+  **Ciclo:** multiplicar. **Evidência pedida:** comparação de quadros nativos
+  (`simctl io recordVideo` + `ffmpeg`) contra a geometria esperada, num alvo
+  fora da suíte integral.
+
+- **O SEGUIDOR NÃO GANHA DE UMA ALTURA ANIMADA — limite do instrumento, escrito
+  para não ser redescoberto.** Medido na C1-B com três seguidores diferentes
+  (adiado pelo runloop, síncrono, síncrono com a altura anunciada e com
+  adiantamento de um passo): **os três deram os mesmos offsets, ao ponto.** De
+  fora do layout do SwiftUI não há como pôr a correção da rolagem no MESMO
+  quadro em que a altura muda, porque o quadro apresentado é sempre o modelo do
+  anterior. Por isso a 08x proíbe a gaveta sobre a linha do autor em vez de
+  tentar correr mais depressa. **Quem quiser reabrir** precisa de um gancho
+  dentro do layout (um `UIScrollView` próprio, não o do SwiftUI), e isso é volta
+  de arquitetura, não de acabamento.
 
 ### A RÉGUA DO VAZAMENTO, nos dois sentidos — volta própria, e ela vem antes de mexer no parser
 
@@ -312,6 +365,58 @@ Ordem do dono de 08/09 à noite: os ONZE casos de uso do Traço no Mac pelo Grok
 | MAC-2 | a porta de volta do Trabalho: `trabalhos/<id>.md`, `trabalhos/entrada/`, `traco_trabalho_escrever`, `traco_tentativa`, `traco_relatar` | 2 (escrita), 4, 5, 6 | depois da MAC-1; Astra no G0 |
 | MAC-3 | web e briefing com citação obrigatória | 7, 10 | depois da Q mesclar |
 
+### DECISÃO DE CONTRATO do dono (08/09, 23h): a origem acompanha todo consumidor
+
+O revisor da MAC-1 levantou e o dono decidiu: **nenhum consumidor que declare
+voz, retrato, trajetória ou mapa do autor lê texto que não seja dele** — nem
+para inferir domínio, nem para contar. A interface promete que o Retrato é feito
+*"só com as suas palavras e contagens"*, e classificar o texto `grokbot` como
+`TRABALHO` fazia uma afirmação **derivada dele** influenciar o mapa do autor.
+
+**Como se implementa (MAC-1-B):** a `origem` acompanha o dado até o consumidor,
+e o campo que hoje se chama para o modelo passa a se chamar **`vozDoAutor`** —
+o nome torna a incompatibilidade explícita no tipo, em vez de deixá-la para a
+disciplina de quem escreve o próximo chamador. O P0 do Retrato
+(`Sessao.responderNasNotas` criando `Retrato.NotaLida` sem `doAutor:`, cujo
+padrão é `true`) é o primeiro caso, e o teste tem de exercitar **o chamador**,
+não o leitor isolado.
+
+### TOPO DA FILA (09/09): o caderno gravado antes da 08u não abre
+
+**Achado da R1-C, medido no mesmo store e no mesmo aparelho em três builds:**
+`e72dd85` **abre**; **`main` sozinho e a árvore mesclada param no arranque honesto
+da A1** com `loadIssueModelContainer`. **Não é da fusão — é do `main`.**
+
+A rede da A1 funcionou: **nada foi destruído**, o arranque **recusou abrir e
+disse**. Mas a porta está fechada, e por ordem do dono a **M1** sobe acima de tudo,
+inclusive do foco na IA da DIRETRIZ §7.
+
+**Hipótese a confirmar ou derrubar antes de consertar** (`Migracao.swift:69-75`):
+a 08u pôs `Nota.origemRaw` como atributo com padrão **sem V5**, porque um
+`VersionedSchema` novo com a mesma lista de classes colide no checksum — e os
+schemas do plano **apontam para a classe viva, não para uma cópia congelada**. O
+raciocínio é bom; **a consequência nunca foi medida contra um store real**.
+
+**Por que nenhum teste pegou:** os testes de `DiscoTraco` **injetam closures** e
+**nunca abriram um store antigo de verdade**. O portão que falta é um teste que
+abre um **store congelado de cada versão**.
+
+### Achado de produto (09/09 10h47): autorizar o dispositivo não é entrar no Traço
+
+O dono autorizou a conta Grok no aparelho (**"Dispositivo Autorizado"** na tela) e
+o **Perfil do Traço continuou dizendo "Grok — sem conta"**, oferecendo *"Entrar com
+a conta Grok"*. Se acontece com quem escreveu o app, acontece com qualquer autor.
+
+**A pergunta que a volta tem de responder:** o Traço sabe distinguir *"você não
+tem conta"* de *"você tem conta e ainda não entrou aqui"*? Se sabe, a linha do
+Perfil tem de dizer a segunda em vez da primeira; se não sabe, é contrato a criar.
+**Estado honesto**, e a mesma família da 08q: *nunca mande conectar a conta que a
+pessoa já tem*.
+
+## D1 — Notas sem slop (veredito do dono 09/09 11h22: 4/10; DIRETRIZ §9)
+
+Ciclo: multiplicar (achar e marcar sem pensar na ferramenta). Intenção: a lista de notas ser uma folha do Traço, não uma lista de sistema com selos. Obstáculo: chips em cápsula, etiquetas em caixa alta à direita, rótulo "A VOLTA", barra de busca padrão, "Trabalhos" como linha de menu — o dono chamou de slop. Evidência: antes/depois em large e AX5, vídeo de 15 s no aparelho da conta enviado ao dono, teste do genérico do `tastemaker` respondido por escrito, curva-zero de achar/marcar medida em toques, e o dono dando a nota. Escopo: `Traco/Notas/NotasView.swift`, `Traco/Notas/NotasFiltro.swift`, `Traco/Componentes/{Pilula,ChipDominio,Rotulo}.swift`, `Traco/App/BarraNavegacao.swift`, Tema. Fora: motor de busca, Trabalho. Designer Fable, juiz Fable, revisor GPT 5.6 Terra. Astra não.
+
 ## Próximas, em ordem
 
 | # | volta | valor | esforço | ciclo | lacuna (EVOLUCAO) |
@@ -336,3 +441,18 @@ Ordem do dono de 08/09 à noite: os ONZE casos de uso do Traço no Mac pelo Grok
 **V10 — Fundação de design.** Ciclo: multiplicar + eixo 4. Intenção: toda tela nasce dos mesmos tokens, componentes e movimentos. Obstáculo: Tema.swift tem tokens parciais, componentes repetidos por tela (cápsulas, chips, linhas de estado, disclosures), animações com curvas e durações soltas e reduce motion tratado em 10 arquivos. Evidência: Traco/Componentes/*.swift com preview por estado (normal, vazio, carregando, falha, desabilitado, AX5), Tema.swift com tokens nomeados (cor, tipo, espaço, raio, sombra, duração, curva), `Tema.movimento` que devolve o movimento certo sob reduce motion, e pelo menos três telas migradas sem mudança visual (captura antes = depois); suíte verde; shortstat com linhas líquidas ≤ 0. Escopo: Tema.swift, Traco/Componentes (novo), e as três telas migradas; duas frentes disjuntas (tokens+movimento em Tema / componentes+previews). Sistema: SISTEMA-CLARO.md.
 
 **V11 — Ambiente Markdown: conflitos e retry.** Ciclo: multiplicar. Intenção: o autor edita o Trabalho fora do Traço e volta sem perder nada, mesmo quando as duas pontas mudaram. Obstáculo: ADR 05l provou o retorno feliz; conflito (base antiga com nova versão local), retry após recusa de commit e revogação da origem com o seletor/exportador aberto não têm prova na UI. Evidência: prévia de conflito com as duas versões e escolha explícita (nova versão, nunca sobrescrita), retry que confirma a mesma versão sem duplicar, seletor aberto + selar a origem → material recolhido com linha honesta; testes + capturas dos estados + fluxo maestro em simulador de teste. Escopo: Traco/Trabalho/{IntercambioTrabalho,IntercambioTrabalhoView}.swift e testes; depende da V6 mesclada.
+
+## Dívida nomeada — a suíte ainda escreve no `UserDefaults` real do app (K1, 09/09)
+
+O cofre já está isolado (ADR 2026-09-09l): sob `XCTestConfigurationFilePath` a
+`ContaGrok` escreve em `app.traco.xai.testes`. **Fica aberto** o
+`UserDefaults.standard` do processo hospedeiro: `revisaoNivel`, `revisaoProxima`,
+`revisaoConta`, `padroesVistas` e a chave do rascunho do Trabalho são gravadas e
+apagadas por testes dentro do app. Nenhuma é credencial e cada teste limpa a sua,
+por isso **não segurou a volta**; mas um teste que morra no meio deixa a
+preferência do dono trocada no aparelho onde a suíte correu.
+
+**Conserto quando doer:** o mesmo desvio de sufixo, ou um
+`UserDefaults(suiteName:)` próprio dos testes injetado no arranque, ao lado do
+`SuperficieDisco.isolarParaTestes()` da 05u. **Dono: quem tocar em Revisões ou
+no rascunho do Trabalho a seguir.**

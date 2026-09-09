@@ -122,10 +122,12 @@ struct CadernoView: View {
     }
 
     /// A janela do papel mudou (teclado, cartão, aviso, pé): a linha ativa tem
-    /// de continuar dentro dela. Lido do ScrollView de verdade, depois do
-    /// layout — medido pelo container ele chegava um quadro antes dos bounds.
-    private func seguirAoMudarAJanela(_: CGFloat, _: CGFloat) {
-        EscritaVisivel.seguirCaret(folga: folga)
+    /// de continuar dentro dela, NO MESMO QUADRO — esperar a volta do runloop
+    /// deixa o quadro apresentado com o papel já encolhido e a linha no lugar
+    /// velho (ADR 08x). A altura vai junto: o container chega um quadro ANTES
+    /// dos `bounds`, e quem lê o `bounds` aqui corrige para o papel de ontem.
+    private func seguirAoMudarAJanela(_: CGFloat, _ agora: CGFloat) {
+        EscritaVisivel.seguirCaretAgora(folga: folga, altura: agora)
     }
 
     private var paginaFatias: some View {
@@ -216,12 +218,21 @@ struct CadernoView: View {
     /// metade do que sobra depois do pé: em tamanhos AX três linhas de corpo
     /// não cabem com o cartão, e um piso maior que o teto deixaria o autor sem
     /// as duas saídas em vez de sem texto.
+    /// E NUNCA menos de UMA linha (`piso / 3`) — ADR 09d. Metade do que sobra
+    /// era pouco onde a tela é pequena e a letra grande: no iPhone 17e em
+    /// AX XXXL o pé toma 275 dos 414 pt disponíveis, a metade dava 69,5 pt de
+    /// papel e a linha de corpo mede 67 — não cabia em quadro nenhum, com ou
+    /// sem rolagem, e o autor escrevia às cegas (18 amostras vermelhas da
+    /// invariante 08f). Com o aviso o pé sobe a 327 e sobravam 43,5 pt: aí o
+    /// papel toma o que sobra inteiro e o encaixe cede, porque a lei 08f é a
+    /// letra do autor à vista, não a saída do cartão.
     /// Fora do `body` para ter teste (`CadernoTetoTests`).
     static func tetoDoEncaixe(altura: CGFloat, pe: CGFloat, piso: CGFloat) -> CGFloat? {
         guard altura > 0 else { return nil }
         let sobra = altura - pe
         guard sobra > 0 else { return nil }
-        return max(0, sobra - min(piso, sobra / 2))
+        let doPapel = min(max(min(piso, sobra / 2), piso / 3), sobra)
+        return max(0, sobra - doPapel)
     }
 
     private var tetoDoEncaixe: CGFloat? {
@@ -264,7 +275,9 @@ struct CadernoView: View {
         // cartão noutra, os dois legíveis (A3 do G4 da V12, ~215 ms sem RM
         // no toque em "Abrir os campos"). Aqui a régua CORTA e quem carrega
         // o movimento é o teclado. A gaveta fica onde a altura muda sozinha:
-        // `esconderRegua` (o cartão a chegar em AX).
+        // `esconderRegua` (o cartão a chegar em AX) — e com o FOCO no papel
+        // quem a desliga é a Página, porque nenhuma gaveta corre sobre a linha
+        // do autor (ADR 08x).
         .animation(Tema.gaveta(reduzido: reduceMotion), value: esconderRegua)
         .clipped()
         // o papel desce até a borda: sem isto o texto rolado aparecia por

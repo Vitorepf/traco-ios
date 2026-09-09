@@ -6501,6 +6501,7 @@ VoiceOver estão proibidos no Traço — o áudio de qualquer simulador sai pela
 caixas do Mac do autor. A acessibilidade desta tela se prova por árvore de AX
 (cabeçalho → o que houve → onde está o conteúdo → ação → detalhe técnico) e por
 captura, que é o que a lei manda. A ordem de leitura está provada; a fala, não.
+
 ## ADR 2026-09-08q — Quem responde, medido COM a conta: a quarta regra da tabela (volta Q)
 
 *(Letra corrigida na Q-E, 08/09: esta ADR nasceu `2026-09-08k` e a letra já estava tomada em `main` pela V17-B, "A garantia sai da tela e vira invariante do documento". As mensagens de commit anteriores a esta correção ainda dizem `08k`.)*
@@ -6724,3 +6725,1264 @@ suíte travaram antes de conectar o runner (0 de 957, 345 s cada) e a terceira
 passou inteira; provei que a árvore mesclada sobe instalando e lançando o app
 no aparelho (`ferramentas/orca/q-h-app-mesclado.png`). É limite do instrumento
 registrado, não resultado.
+
+## ADR 2026-09-08u — Quem escreve na pasta tem nome (volta MAC-1)
+
+O companheiro do Mac (`ferramentas/traco-mcp/servidor.py`) lia notas e corpus e
+escrevia em `entrada/`, mas **`traco_escrever` não sabia dizer quem escreveu**:
+uma nota do bot entrava idêntica a uma nota da pessoa, e o app a tratava como
+voz do autor — inclusive no Retrato, que é a evidência SOBRE QUEM ESCREVE posta
+na frente da IA. Faltavam também a agenda e as decisões, sem as quais o "bom
+dia" e a revisão da semana não existem (casos 11 e 2 de `ferramentas/grokbot/CASOS.md`).
+
+**`origem` é obrigatória em toda escrita que não seja texto da pessoa, e a
+recusa diz o que falta.** `traco_escrever` ganhou `origem` (`autor` | `grokbot`
+| `pesquisa`), `motivo` e `fontes`. O padrão continua `autor`. Origem diferente
+de `autor` **sem motivo é recusada** — "escrita com origem “grokbot” exige
+`motivo` — uma linha dizendo por que o bot está escrevendo isto" —, e nada é
+gravado. `pesquisa` sem `fontes` também é recusada: pesquisa sem fonte é opinião
+do bot, e o próprio texto da recusa manda escrevê-la como `grokbot`. O motivo e
+as fontes viajam no CORPO da nota, como rodapé ("— feito pelo bot: …"), para que
+o autor leia quem escreveu e por quê **dentro da nota**, sem abrir outra tela; o
+cabeçalho carrega só `origem:`, que é o que o app consome.
+
+**A etiqueta.** `Nota.origemRaw` (vazio = o autor, que é o que toda nota anterior
+a esta ADR é) atravessa o import (`Corpus.importarComEstado` lê `origem:` do
+cabeçalho já extraído para checar o selo — a ordem das linhas não importa), o
+export (`arquivoMd` só escreve a linha quando não é do autor) e a tela. Na tela
+é `Pilula(forma: .etiqueta)`, a MESMA cápsula em que o gesto já vive na lista —
+sem cor nova, sem componente novo: **"feito pelo bot"** (a formulação do
+contrato) e **"pesquisa do bot"**. Aparece em dois lugares, e os dois importam:
+na linha da lista, para que o autor saiba antes de abrir; e na página aberta,
+**acima do texto**, porque a página é o lugar em que se confunde o texto do bot
+com a própria voz — o rótulo tem de chegar antes da leitura, não depois.
+
+**Fora do Retrato, e não só do Retrato.** `Retrato.NotaLida.doAutor` corta a
+nota do bot no mesmo filtro em que o selo já cortava expressiva, selada e
+queimada — **nem como contagem**: duas notas WOOP, uma do bot, dizem "1 WOOP".
+`Trajetoria.NotaLida.doAutor` faz o mesmo, porque a trajetória calcula a
+calibragem das decisões e as palavras conquistadas; deixar o bot ali seria
+medir a mente da pessoa com texto que não é dela. No servidor, `traco_semana` e
+`traco_decisoes` também pulam origem diferente de `autor`.
+
+**`agenda.md`, o quarto arquivo solto.** `Corpus.agenda` escreve, ao lado de
+`LEIA-ME.md`, `INDICE.md` e `traco-corpus.md`: **Compromissos** (do mesmo
+`calendario.json` que a pasta já copiava), **Decisões a conferir** (as que
+`Volta.campoDevido` diz que venceram) e **Recordar devido** (`FatiaCorpus.recordarEm`,
+lido de `Revisoes.proximaData` no ponto em que a fatia nasce, que é @MainActor).
+É `.md` com a data no começo de cada linha e " · " como separador: o autor abre
+a pasta e lê, e `traco_agenda(dias)` parte a linha. O selo continua valendo —
+`vivas` já exclui a expressiva em curso, e selada/queimada entram como
+`soMetadado`, que a agenda pula. Ações de Trabalho **não** estão aqui: são da
+MAC-2, e o arquivo diz isso em vez de fingir completude.
+
+**`traco_decisoes` e o bug que ele desenterrou.** A ferramenta devolve, por
+decisão, `esperava` × `aconteceu` × `saldo`, separando `respondidas` de
+`sem_resposta`. Ao escrevê-la apareceu que **`traco_semana` lia os campos da
+forma do CABEÇALHO** (`c.get("escolha")`), e eles vivem no CORPO, depois do
+marcador `<!-- traco-campos:json-v1 -->` (ADR 05h): a revisão da semana devolvia
+decisões e destaques vazios desde sempre, e a fixture do autoteste sustentava o
+engano pondo `unica:` no cabeçalho, onde nenhuma nota real o tem.
+`Pasta.campos()` passa a ler o bloco JSON, e a fixture foi corrigida para o
+formato que o app de fato exporta.
+
+**Sem V5 no schema.** `origemRaw` entrou como atributo com valor padrão, dentro
+da V4. A primeira tentativa criou `TracoSchemaV5` com a mesma lista de classes
+da V4 e o CoreData derrubou o arranque com "Duplicate version checksums
+detected" — os `VersionedSchema` daqui apontam para a classe VIVA, não para uma
+cópia congelada, então versão nova só faz sentido para MODELO novo (a V3 trouxe
+o recibo, a V4 o Trabalho). *(A afirmação "dois testes de migração pegaram isto"
+era falsa quando escrita: o diff não os tinha. A 09b os escreveu, e ao escrevê-los
+o defeito ficou mais preciso do que este parágrafo dizia — veja lá.)*
+
+**Prova.** Autoteste do servidor verde com os casos novos e as três recusas
+(sem motivo, pesquisa sem fontes, origem desconhecida), incluindo a asserção de
+que a recusa **não escreve arquivo nenhum**. Cinco testes novos em
+`IntegridadeCorpusTests`: a origem atravessa o import (as quatro grafias,
+inclusive a inválida, que vira `autor`), sobrevive ao roundtrip pela pasta, fica
+fora do Retrato nem como contagem, a agenda traz o que vence e não traz o que o
+selo fecha, e expressiva/selada continuam fora dos quatro arquivos soltos depois
+deste diff. Suíte integral 953/0 em 153 suítes, `grep -c warning:` = 0.
+Capturas em `ferramentas/orca/mac1-*.png`.
+
+**Limite declarado.** A leitura falada do VoiceOver não foi exercitada: voz e
+VoiceOver estão proibidos no Traço (ordem do dono). A etiqueta tem
+`accessibilityIdentifier` e `accessibilityLabel` ("Esta nota não é sua voz: …"),
+provados por árvore de AX e por captura.
+
+## ADR 2026-09-09b — A origem acompanha todo consumidor (volta MAC-1-B)
+
+A 08u pôs a origem na nota e cortou o bot do Retrato e da Trajetória. O G3
+recusou a volta e mostrou por quê: o corte estava no LEITOR, e um CHAMADOR
+esquecia de passá-lo. `Sessao.responderNasNotas` — **a rota de produção**, a que
+monta o retrato para a IA quando o autor pergunta nas Notas — construía
+`Retrato.NotaLida` sem o argumento, e o padrão `= true` mandava a nota `grokbot`
+embora. O teste da 08u exercitava `Retrato.ler` isolado: **não visitava o lugar
+do defeito**, e por isso o verde não valia nada.
+
+**A regra, palavra do dono (09/09).** Não é conserto pontual: **nenhum consumidor
+que declare voz, retrato, trajetória ou mapa do autor lê texto que não seja
+dele — nem para inferir domínio, nem para contar.** A interface promete um
+retrato feito "só com as suas palavras e contagens"; chamar de TRABALHO o texto
+que o bot escreveu faz uma afirmação DERIVADA dele moldar o mapa do autor.
+
+**O nome carrega a regra.** O campo passou de `doAutor` a **`vozDoAutor`** e
+**perdeu o padrão**: em `Retrato.NotaLida`, `Trajetoria.NotaLida`,
+`RevisaoSemanal.NotaLida` (nova) e `Rede.NotaLida` (nova) ele é obrigatório, e
+quem escrever o sétimo chamador **não compila** sem declarar de quem é a voz. A
+disciplina saiu da cabeça de quem escreve e entrou no tipo. E as seis conversões
+`Nota → NotaLida` espalhadas por views e intents viraram **uma só**, em
+`Nota.paraRetrato/paraTrajetoria/paraSemana/paraRede`: um lugar para acertar.
+
+**Quatro consumidores, não um.** Cada um diz na própria documentação que fala da
+mente do autor, e cada um lia texto que não era dela:
+- **Retrato** — a evidência SOBRE QUEM ESCREVE posta na frente da IA;
+- **Trajetória** — inclusive a linha de sentido, que não era filtrada;
+- **Revisão da semana** — "o que a MENTE deixou no papel": contava a nota do bot
+  por forma e mostrava o destaque dele como destaque da pessoa;
+- **Rede** — "a ligação nasce do que o AUTOR escreveu": uma menção `[[assim]]`
+  escrita pelo bot virava ligação dele. A nota do bot continua sendo **destino**
+  — ligar a ela é ato do autor —, mas nunca **origem**.
+
+**O texto também tem nome.** `Nota.vozDoAutor` prometia "só a voz do autor" e
+devolvia o texto do bot. Agora devolve **vazio** quando a nota não é dele, e a
+busca — que TEM de achar a nota do bot, porque ela está na pasta — passou a
+pedir `Nota.textoDeQualquerOrigem`, cujo nome diz o que está pedindo. Com isso o
+léxico e o classificador de bordo pararam de rotular o que o bot escreveu, e as
+perguntas dos Padrões pararam de perguntar ao autor sobre o texto do bot: nada
+disso precisou de um `if` novo em cada lugar.
+
+**O rótulo que já estava gravado cala, sem migração.** `Nota.dominio` devolve
+`nil` quando a origem não é o autor — a não ser que o AUTOR tenha escolhido no
+menu (`dominioTravado`), porque aí a afirmação é dele. Foi o chip `TRABALHO` na
+nota `grokbot` que o G3 viu na tela; ele some sem tocar no disco.
+
+**Citar a nota do bot continua possível — com o nome de quem escreveu.**
+`Sessao.fonteParaPergunta` põe a etiqueta no TÍTULO da fonte ("… · feito pelo
+bot"). A citação na tela e a fonte no prompt dizem quem escreveu, em vez de
+devolverem texto do bot como voz de quem perguntou.
+
+**O caso 8 passou a funcionar no cliente real.** `traco_contrato` devolvia o
+contrato sem os métodos: o catálogo vive no bundle do app, que o Mac não abre, e
+`metodos/` na pasta só tem os do autor. O contrato passou a ser **gerado** de
+`Catalogo.todos` — bloco "Métodos, campos e a PERGUNTA de cada um", com
+`- <Nome> (\`id\`)`, `campos:` e `pergunta:` —, o que de quebra apagou a lista
+fixa de dez formas que já não era o catálogo de vinte e oito. Exercitado num
+cliente MCP de verdade: o bot confirma o que entendeu, acha o WOOP e faz a
+pergunta dele, uma só (`ferramentas/orca/mac1b-caso8-cliente-mcp.txt`).
+
+**Os dois vermelhos que faltavam, agora reexecutáveis.**
+- `traco_semana`: o autoteste passou a rodar a fixture nova **contra o leitor
+  antigo** (os campos lidos do cabeçalho) e a exigir que ele venha VAZIO, ao lado
+  do verde do leitor de hoje na mesma fixture.
+- A V5: `TracoSchemaV5Duplicado` e `TracoMigracaoComV5` existem no teste, e o
+  replay roda com `touch /tmp/traco-replay-v5`. **A sonda corrigiu a 08u:** com
+  um caderno NOVO o plano com a V5 duplicada abre sem reclamar — o checksum só é
+  conferido quando um estágio de fato RODA. Por isso o replay sobe um caderno da
+  V3, e aí sim: `*** Terminating app due to uncaught exception
+  'NSInvalidArgumentException', reason: 'Duplicate version checksums detected.'`
+  É `NSException`, não `Error` de Swift: **nenhum `do/catch` a pega**, e é por
+  isso que ela derrubava o arranque em vez de virar recusa tratada. O guarda
+  permanente é o verde ao lado — um caderno da V3 sobe pelo plano de hoje; quem
+  acrescentar a V5 mata a suíte inteira.
+
+**Prova.** Oito testes novos, **um por consumidor e todos do CHAMADOR**, cada um
+visto vermelho contra o código de `2f0749b` antes de ficar verde. Suíte integral
+963/0 em 155 suítes, `grep -c warning:` = 0. Na tela do A1DF, com a mesma pasta:
+os chips `TRABALHO` e `ESTUDO` somem das notas do bot (`mac1b-dominio-antes.png`
+× `mac1b-dominio-depois.png`) e os Padrões contam "1 destaque · 1 woop" com duas
+notas Destaque no caderno (`mac1b-padroes-sem-o-bot.png`).
+
+**Limite declarado.** O cartão do Retrato no Perfil continua fora de alcance: o
+gesto do helper não rola aquela tela (o mesmo limite que o G3 registrou, com a
+árvore parada em y=2,07). A rota do Perfil já passava a origem em `2f0749b` e
+está coberta por teste; a prova viva desta volta veio dos Padrões, que é a tela
+cujo comportamento MUDOU. A etiqueta no título da fonte citada é provada por
+teste na função de produção: vê-la na tela exige uma resposta de provedor, e o
+único simulador com a conta do dono está fora de alcance nesta rodada.
+
+## ADR 2026-09-08v — A Ilha é do compromisso, e os estados que ninguém tinha visto (volta F5b)
+
+A F1 fotografou a Ilha compacta e a expandida; a F4 deixou a **mínima** por
+fotografar ("exige outra atividade viva ao mesmo tempo") e ninguém tinha visto
+o **fim** de um compromisso nem a compacta com duas atividades em AX5. Esta
+volta plantou os quatro estados no iPhone 17 Pro Max do simulador e corrigiu o
+que apareceu.
+
+**Duas atividades do mesmo app: o iOS mostra UMA na Ilha e empilha a outra na
+tela bloqueada, e sem dizer qual.** Com o Destaque e o compromisso vivos ao
+mesmo tempo, a Ilha era do Destaque e o compromisso a 40 minutos ficava atrás
+(`f5b-antes-ilha-compacta-destaque-esconde.png`; o `liveactivitiesd` registra
+as duas a subir no mesmo segundo, e a tela mostra uma). É o D9 da F1, ainda
+vivo. **O compromisso vence**: `ProximoCompromisso.relevanciaNaIlha = 1` e
+`DestaqueDoDia.relevanciaNaIlha = 0` (o padrão do `ActivityContent`), porque a
+Ilha é o único lugar em que a contagem se vê sem abrir o app, e o Destaque tem
+o widget e o cartão. Vale para a Ilha e para a ordem da pilha na tela bloqueada
+(`f5b-depois-ilha-compacta-compromisso-vence.png`,
+`f5b-depois-bloqueada-dois-vivos.png`, `f5b-depois-bloqueada-pilha-aberta.png`).
+Teste: `ForaDoAppTests.aIlhaEDoCompromisso` fixa a ordem.
+
+**A mínima só existe com atividade de OUTRO app.** Duas do Traço não bastam
+(acima). O simulador não tem Relógio nem navegação, então a F5b subiu um app
+descartável com uma Live Activity vazia (`ferramentas/orca/f5b-outra/`,
+instrumento, não produto) e a Ilha encolheu as duas para o círculo: a do Traço
+é só o ícone — estrela âmbar para o Destaque, calendário para o compromisso —
+sem texto, que é o que cabe (`f5b-ilha-minima-destaque.png`,
+`f5b-ilha-minima-compromisso.png`, `f5b-ilha-minima-compromisso-ax5.png`).
+Nada a mudar na mínima: o `minimal` já desenhava o mesmo ícone do
+`compactLeading`.
+
+**A expandida cortava o último dígito da contagem** ("36:1|5",
+`f5b-antes-ilha-expandida-corte.png`). O `Text(_, style: .timer)` reserva a
+largura do maior valor que pode mostrar (h:mm:ss, porque a atividade sobe até
+seis horas antes), e o teto de 76 pt centrava essa caixa e a cortava dos dois
+lados. Sai o teto: a região mede o que a contagem precisa e os dígitos ficam à
+esquerda da caixa, com a folga à direita (`f5b-depois-ilha-expandida.png`).
+Duas formas que NÃO servem, vistas na tela e registradas para ninguém repetir:
+`fixedSize(horizontal:)` na contagem deixa a expandida **vazia** — só o ícone
+da região `leading` desenha (`f5b-instrumento-fixedsize-expandida-vazia.png`);
+e `multilineTextAlignment(.trailing)` empurra os dígitos para a borda da caixa
+reservada e corta de novo (`f5b-instrumento-alinhada-corta.png`).
+
+**O fim: "acabou", e por quanto tempo.** Semeado um compromisso de um minuto, o
+`staleDate` (= fim) passa e o `liveactivitiesd` marca a atividade *stale*: a
+compacta vira calendário + "acabou", a expandida vira "Dentista / acabou" sem
+contagem e sem cápsula, e o cartão da tela bloqueada perde o relógio relativo
+e diz "acabou" (`f5b-fim-1-*.png` antes, `f5b-fim-2-*.png` no fim). **A Ilha
+larga o "acabou" sozinha em menos de doze minutos** — às 21:42 estava vazia
+sem o app ter aberto (`f5b-fim-3-ilha-vazia-12min.png`); **a tela bloqueada
+mantém o cartão** (aos catorze minutos, `f5b-fim-3-bloqueada-acabou-14min.png`)
+até o app voltar à cena e `reconciliar` encerrar. É o desenho que o ActivityKit
+permite: não há fim agendado, só `staleDate`; o que a tela diz nesse intervalo é
+verdade, e o cartão sai com um deslize. Quanto tempo o iOS deixa o cartão de pé
+sem o app é medida para o aparelho do dono. Na expandida do fim a curva do
+canto da Ilha comia o "a" de "acabou", a linha mais baixa da região (`…-antes.png`):
+o recuo horizontal da região inferior passa de 4 para 10 pt (`…-depois.png`).
+
+**AX5 na Ilha não existe.** A compacta é idêntica em `large` e em AX5
+(`f5b-ax5-ilha-compacta-destaque.png`, `f5b-ax5-ilha-compacta-compromisso.png`
+contra as capturas normais): a Ilha não escala com o Dynamic Type; o cartão da
+tela bloqueada escala (`f5b-ax5-bloqueada-destaque.png`). O "t" cortado que o
+juiz da F4 viu na compacta com duas atividades em AX5 **não se reproduz**: com
+as duas vivas e AX5 a compacta diz "terminar o ca…", com reticências limpas. A
+auditoria é datada; este defeito caiu sozinho, e sai do RUMO.
+
+**Movimento.** A Ilha anima pelo sistema; o Traço não escreve curva nem duração
+nela (o portão do movimento segue com a lista vazia). Entrada (o app publica e a
+atividade sobe), troca de estado (a cápsula "Lembrar em 10 min" vira o recado
+"avisos desligados no iPhone", que é o estado honesto de um contêiner sem
+permissão) e saída (o app reconcilia um compromisso passado e encerra) estão
+em `f5b-ilha-movimento.mp4` e, com Reduzir Movimento, em
+`f5b-ilha-movimento-reduzido.mp4` — a expansão vira fusão, o resto é igual.
+
+**Revisão G3 (F5b-B, 09/09): a prova reprodutível.** O revisor independente
+confirmou o mecanismo e recusou a prova (`ferramentas/orca/revisao-f5b-ilha.md`).
+O que mudou para fechá-la, sem redesenho:
+
+- **O teste segura o wiring, não a constante.** O `ActivityContent` que sobe
+  para o ActivityKit — em `request`, em `update` e no recado do intent — nasce
+  de UM construtor por atividade (`ProximoCompromisso.conteudo(de:recado:)`,
+  `DestaqueDoDia.conteudo(_:agora:)`), e `aIlhaEDoCompromisso` lê o
+  `relevanceScore` e o `staleDate` do conteúdo construído: apagar o argumento
+  do construtor põe o teste vermelho. Limite declarado: a suíte não exercita o
+  ActivityKit (ADR 05u isola `atividades()` em teste), então um `ActivityContent`
+  montado à mão fora do construtor não é visto pelo teste — é o que a revisão
+  de código guarda, e os dois arquivos não têm outro.
+- **A atividade já viva ganha a relevância.** `update` só saía quando o
+  `ContentState` mudava; uma atividade que subiu numa versão sem prioridade
+  ficava atrás do Destaque até o app a encerrar. `ActivityContent.difere(de:relevancia:)`
+  compara estado E relevância, nas duas atividades; o teste cobre os dois lados.
+- **A semeadura publica pela rota real.** O arranque só reconcilia a projeção
+  que já está no disco; `f5b-semear.sh` escrevia `calendario.json` e o
+  compromisso nunca ia ao ar — a reprodução do revisor viu só o Destaque. Em
+  DEBUG, `TRACO_REPUBLICAR_CALENDARIO` no ambiente faz o arranque chamar
+  `ProximoCompromisso.publicar(eventos, cal:)`, a mesma função da agenda, do
+  editor e do intent (precedente: `TRACO_AVALIAR_IA`). O script agora exige o
+  título semeado dentro de `superficie.json` e, com `LOG=<arquivo>`, grava o
+  `liveactivitiesd` do instante: `Starting activity` com o id e
+  `Marking activities stale` com o `staleDate` — o compromisso stale no fim,
+  o Destaque à meia-noite. O daemon **não** registra o `relevanceScore`; a
+  prova dele na tela é qual das duas a Ilha mostra.
+- **Pares `large`/AX5 refeitos, Ilha inteira no quadro, mesmo estado, log ao
+  lado.** Casa: `f5bb-large-ilha-compacta.png` (04:16:27) / `f5bb-ax5-ilha-compacta.png`
+  (04:18:18) — a Ilha é do compromisso nas duas e é idêntica; o que escala são
+  os rótulos da casa, prova de que AX5 aplicou. Bloqueada: `f5bb-large-bloqueada.png`
+  (04:16:31) / `f5bb-ax5-bloqueada.png` (04:16:42) e `f5bb-ax5-bloqueada-ao-acordar.png`
+  (04:16:38) — o cartão do compromisso por cima nas duas. `f5bb-log-large.log`
+  é o `liveactivitiesd` da semeadura (04:16:19, dois `Starting activity`);
+  `f5bb-log-ax5.log` é a janela inteira das seis capturas, sem atividade a
+  subir ou cair entre elas. Tamanho lido de volta antes e depois; restaurado
+  a `medium`.
+- **Controle natural, não planejado:** entre duas capturas o `xcodebuild test`
+  de outra volta instalou no mesmo aparelho um binário SEM a 08v (`cmp`
+  diferente, `nm` sem `relevanciaNaIlha`); o iOS relançou o app por "Activity
+  ended" e o arranque reergueu as duas atividades a partir da mesma projeção
+  (`f5bb-log-controle.log`): **a Ilha voltou ao Destaque**
+  (`f5bb-controle-sem-relevancia-ilha-compacta.png`, 04:13:05). Mesmo estado,
+  mesma projeção, só o `relevanceScore` diferente — é a prova mais limpa desta
+  volta de que ele é o mecanismo, e ela veio de um acidente de posse do aparelho.
+- **Achado novo em AX5:** no cartão da tela bloqueada o relógio relativo do
+  canto ("39 minutos" em `large`) cortava para **"39 minut…"** em AX5
+  (`f5bb-ax5-bloqueada.png`); ao acordar a tela o mesmo canto mostrava a
+  contagem "39:39" inteira (`…-ao-acordar.png`). Corrigido na F5b-C, abaixo.
+- **O corte por alinhamento à direita vira hipótese.** A captura
+  `f5b-instrumento-alinhada-corta.png` mostra "29:48" inteiro; o corte que o
+  relato alegou não está nela. Fica registrado que `multilineTextAlignment(.trailing)`
+  sem teto **não foi provado** cortar; a escolha de deixar os dígitos à esquerda
+  da caixa do `.timer` se sustenta sozinha pela captura `f5b-depois-ilha-expandida.png`.
+  (A F5b-C, abaixo, mostra por que a caixa é larga: o `Text` de data é guloso.)
+
+**Revisão G3 (F5b-C, 09/09): o corte em AX5, e o controle com nome.** O
+revisor aceitou as três provas e recusou de novo por duas coisas: a tela
+bloqueada cortava em AX5 e o relato não trazia as seis fases do
+`design-router`. O que mudou:
+
+- **O relógio do cartão não corta mais, em nenhum tamanho.** A causa não era
+  o tamanho da letra: o `Text` de data (`.timer` e `.relative`) é **guloso** —
+  toma toda a largura que a linha oferece e encosta o conteúdo à esquerda
+  dela. O teto de 92 pt existia para domar isso, e em AX5 "39 minutos" precisa
+  de mais que 92. Sem teto o texto nunca corta, mas gruda em "PRÓXIMO"
+  (`f5bc-instrumento-sem-teto-relogio-a-esquerda.png`, visto na tela);
+  alinhado à direita (`multilineTextAlignment(.trailing)`) ele volta ao canto
+  e, de quebra, a contagem passa a encostar na mesma borda da hora — antes
+  ficava 40 pt para dentro (`f5bb-ax5-bloqueada-ao-acordar.png`, "39:39"
+  solto). Pares refeitos, mesmo estado (Dentista em +40 min por 60 min,
+  Destaque vivo), mesmo binário (`cmp` igual nos dois dylibs), semeadura pela
+  rota real: bloqueada `f5bc-large-bloqueada.png` (05:21:42) /
+  `f5bc-ax5-bloqueada.png` (05:21:59), ambas "39 minutos" inteiro no canto;
+  ao acordar `f5bc-large-bloqueada-ao-acordar.png` (05:21:45, "39:43") /
+  `f5bc-ax5-bloqueada-ao-acordar.png` (05:22:01, "39:26"); casa
+  `f5bc-large-ilha-compacta.png` / `f5bc-ax5-ilha-compacta.png`, a Ilha do
+  compromisso nas duas. `f5bc-log-large.log` é o `liveactivitiesd` da
+  semeadura (05:21:31, dois `Starting activity`); `f5bc-log-ax5.log` é a
+  janela das capturas AX5, sem atividade a subir ou cair. O que a hipótese
+  acima dizia da expandida vale aqui às avessas: alinhar à direita **não
+  cortou** no cartão, porque a caixa gulosa tem folga; na expandida a região
+  é estreita e a folga não existe — a escolha de lá fica como está.
+- **O controle ganha o nome certo.** O que a F5b-B chamou de "controle que eu
+  não planejei" é um **grupo de controle**: o `xcodebuild test` de outra volta
+  instalou no mesmo aparelho um binário sem a 08v, o iOS reergueu as duas
+  atividades **a partir da mesma projeção**, e a Ilha voltou ao Destaque
+  (`f5bb-controle-sem-relevancia-ilha-compacta.png`, 04:13:05;
+  `f5bb-log-controle.log`, ids `2F19AAAE…`/`C496A60E…` às 04:07:00). Mesmo
+  estado, mesma projeção, mesmo aparelho, só o `relevanceScore` ausente: é a
+  prova **por ausência** de que a relevância é o mecanismo — e vale mais que
+  uma captura a mais, porque nenhuma captura com a 08v distingue "a relevância
+  decidiu" de "o iOS escolheu por outro critério que coincide". O daemon não
+  registra `relevanceScore` (declarado e aceito): a prova é a tela **com** e
+  **sem**.
+- **Limite do instrumento, visto de novo:** entre uma captura e outra o iOS
+  perguntou "Deseja continuar permitindo as Atividades ao Vivo do app Traço?"
+  por cima do cartão (`f5bc-instrumento-dialogo-atividades.png`); o toque do
+  `orca emulator` na pilha fechada abre a pilha em vez de acertar o botão, e só
+  na pilha aberta o botão recebe o toque. Respondido "Permitir Sempre".
+
+## ADR 2026-09-09f — O caderno gravado ontem tem de abrir hoje (volta M1)
+
+**Ciclo (G0):** preservar o que o autor escreveu — antes de multiplicar ou
+melhorar. **Intenção:** o autor abre o Traço e o caderno dele está lá, depois de
+qualquer atualização. **Obstáculo:** um caderno gravado antes da 08u não abria
+mais. **Evidência:** o mesmo store, pré-08u, medido no aparelho em dois builds.
+
+**O defeito, medido e não deduzido.** Com o caderno pré-08u plantado no App
+Group do `1A46B6D3`, o `main` de hoje mostra a tela de recusa da A1 — "O Traço
+não abriu o seu caderno" — e o CoreData diz por quê:
+
+    NSCocoaErrorDomain 134504 — "Cannot use staged migration with an unknown model version."
+    SwiftDataError(_error: SwiftData.SwiftDataError._Error.loadIssueModelContainer)
+
+**A causa não é o `origemRaw`; é o `VersionedSchema` que não congela nada.**
+`TracoSchemaV2/V3/V4` apontavam para a **classe viva**. Um schema que aponta
+para a classe viva não é uma versão: é um apelido para "o código de hoje", e o
+checksum dele anda junto com o código. O store guarda o checksum do **dia em que
+foi gravado** (`NSStoreModelVersionChecksumKey` = `ImY8W7hR8jJH+…`, versão
+`4.0.0`); quando a 08u pôs `origemRaw` na `Nota`, a V4 passou a valer
+`2AijN0DBwZ…`, nenhuma versão do plano casou com o caderno do autor, e o plano
+inteiro recusou. **O erro da 08u não foi acrescentar atributo com padrão — foi
+acrescentá-lo sem abrir versão.**
+
+O comentário que a `Migracao.swift` carregava desde a 08u ("um `VersionedSchema`
+novo com a MESMA lista de classes tem o mesmo checksum do anterior") **estava
+certo no raciocínio e nunca foi medido contra um store real**: ele descreve
+exatamente a razão pela qual os schemas tinham de ser congelados, e concluía o
+contrário — que não se devia abrir versão nenhuma.
+
+**A decisão: congelar as cópias e abrir a V5 de verdade.** V2 declara a cópia
+congelada da `Nota` (a forma que valeu de 02/09 até a 08u), V3 declara a do
+`ReciboEntrada`, V4 a do `Trabalho`; V2, V3 e V4 reusam a mesma `Nota` porque
+entre elas a `Nota` **não mudou** — o que distingue os três checksums é a LISTA
+de classes. **A V5 é a única que aponta para as classes vivas, e é isso que
+"corrente" quer dizer.** O estágio V4→V5 é leve. `ModelContainer.traco` passa a
+abrir pela V5.
+
+**Custo, dito de frente:** três classes duplicadas (~60 linhas) que ninguém
+instancia e que **nunca mais se tocam**. É o preço de poder abrir o que o autor
+já escreveu, e ele se paga uma vez por versão. A alternativa barata — tirar o
+`migrationPlan` e deixar o CoreData inferir — abriria o caderno de hoje e
+desistiria de poder renomear ou apagar um campo amanhã sem perda; foi recusada.
+
+**O portão que faltava.** `CadernoAntigoAbreTests` abre um **store real de cada
+versão**, congelado em `TracoTests/Fixtures/`, e conta as notas. Os testes de
+`DiscoTraco` injetam closures e **nunca abriram um store antigo de verdade** —
+por isso a 08u passou verde e derrubou o arranque no aparelho do autor. Há dois
+cadernos: `caderno-v4-pre08u` (gravado pelo build `8d9ce62`, anterior à 08u) e
+`caderno-v5-origem` (gravado pelo build desta volta). O segundo é o que fecha a
+armadilha: quem mudar a classe viva sem abrir a V6 vê vermelho — provado
+acrescentando um atributo à `Nota` viva, que deixou o `caderno-v5-origem` em
+`loadIssueModelContainer` enquanto o `caderno-v4-pre08u` seguia verde.
+
+**A regra daqui em diante.** Toda mudança em `Nota`, `ReciboEntrada` ou
+`Trabalho` — atributo novo inclusive — congela a cópia na versão corrente, abre
+a seguinte, acrescenta o estágio, e **grava um caderno congelado novo antes de a
+mudança entrar** (`GerarCadernoCongelado` produz o `.store`; depois da mudança o
+build que gravava aquela versão não existe mais).
+
+**A rede da A1 funcionou.** Nada foi destruído: o store pré-08u ficou
+**byte a byte idêntico** depois da recusa do `main` (`cmp` limpo). O arranque
+honesto comprou o tempo para este conserto — mas recusa não é abrir, e a porta
+agora abre.
+## ADR 2026-09-09g — Uma linha é o piso do papel, e a folga cede antes da letra (volta C1)
+
+**Ciclo:** multiplicar a mente — o autor escreve sem lutar com a ferramenta.
+**Intenção:** a pessoa vê o que está escrevendo, em qualquer tamanho de letra e
+em qualquer aparelho. **Obstáculo:** a invariante da escrita visível (ADR 08f)
+estava provada no iPhone 17 Pro e no Pro Max e **falhava no iPhone 17e em
+AX XXXL** — 18 amostras vermelhas, o único vermelho da suíte integral naquele
+aparelho, pré-existente (a V13 mediu as mesmas 18 em `HEAD` sem o diff dela).
+
+### O que estava errado, medido antes de ser corrigido
+
+Sonda em `CadernoView.tetoDoEncaixe` no 17e com o teclado de pé, em AX XXXL:
+
+```
+SONDA teto: altura 413,67  pe 274,67  piso 259,33 -> teto 69,50  papel 69,50
+SONDA teto: altura 413,67  pe 326,67  piso 259,33 -> teto 43,50  papel 43,50
+```
+
+A tela do 17e dá 413,67 pt de trabalho com o teclado de pé. **O pé toma 274,67
+— e 326,67 com o aviso.** A regra de então era `papel = min(piso, sobra / 2)`:
+com 139 pt de sobra o papel ficava com **69,5 pt**, e com 87 de sobra ficava com
+**43,5**. Uma linha de corpo em AX XXXL mede **67 pt**. O papel era menor que a
+linha que ele existe para mostrar — não havia rolagem que resolvesse, e o autor
+escrevia às cegas. Duas causas independentes, as duas em função compartilhada:
+
+1. **O contêiner concedia menos de uma linha.** `tetoDoEncaixe` repartia o que
+   sobra do pé pela metade. Onde a tela é pequena e a letra grande, metade não
+   dá uma linha. O comentário da 05y admitia a troca de propósito — "um piso
+   maior deixaria o autor sem as duas saídas em vez de sem texto" — e essa troca
+   **contradiz a 08f**: a letra do autor à vista vale mais que a saída do cartão.
+2. **O seguidor perseguia o CARET, não a LINHA.** `EscritaVisivel.seguirCaret`
+   media `caretRect`, que em AX XXXL tem 45 pt para uma linha de 67: a
+   entrelinha fica POR CIMA do caret. E pedia `folga` inteira dos dois lados;
+   com o papel curto, a folga empurrava a linha para fora — o alinhamento pelo
+   fundo deixava 22 pt de letra acima da borda no meio da nota, onde havia
+   rolagem de sobra.
+
+### A decisão
+
+**O piso do papel é UMA LINHA, e a folga cede antes da letra.**
+
+- `tetoDoEncaixe` passa a ser `sobra − min(max(min(piso, sobra/2), piso/3), sobra)`:
+  o piso continua sendo três linhas limitado a meia sobra, mas **nunca desce
+  abaixo de `piso/3`, que é uma linha**. Quando nem uma linha cabe, o papel toma
+  a sobra inteira e o encaixe cede — é a 08f aplicada à letra, não ao cartão.
+- `EscritaVisivel.linhaDoCaret` mede a **linha visual** pelo TextKit 2 (o
+  fragmento de linha unido ao retângulo do caret), e `seguirCaret` segue essa
+  linha. A medida é feita de novo aqui, e não lida do teste: o instrumento mede
+  sozinho, senão a prova passa a citar o código que devia julgar.
+- A folga vira `min(folga, (vista − linha) / 2)`: onde o papel não tem espaço
+  para ela, ela encolhe simetricamente. **Quem tem de caber é a linha.**
+
+Em `large` nada muda (a sonda mede papel 92 pt antes e depois); a regra só morde
+onde a metade já era menor que uma linha.
+
+### A pré-mortem
+
+O que pode dar errado: em AX XXXL com aviso E toast, o encaixe fica com ~0 pt e
+a mensagem do cartão some da tela. Isso é **decisão, não descuido** — mas é o
+sinal de que o verdadeiro exagero está no pé, que toma 275 dos 414 pt naquele
+aparelho. **Fica no RUMO:** a barra de baixo em tamanhos de acessibilidade
+precisa de uma volta própria; enquanto ela não vier, o papel ganha da barra.
+
+### Resíduo observado, não corrigido
+
+Durante a **gaveta do cartão a chegar** (`Tema.gaveta` anima a altura do
+encaixe), há um quadro em que a altura do encaixe já cresceu e o seguidor ainda
+não correu: a linha ativa aparece **cortada ao meio** pela borda do cartão
+(`ferramentas/orca/c1/c1-04-residuo-gaveta-cartao.png`, ~0,11 s numa varredura
+de 220 quadros). O mecanismo — um quadro de atraso entre a altura animada e a
+volta do runloop — não foi alterado por esta volta, e a suíte não o apanha
+porque mede em pontos discretos. **Fica escrito, não escondido.**
+
+## ADR 2026-09-08x — Nenhuma gaveta corre sobre a linha do autor (volta C1-B)
+
+**Ciclo:** multiplicar a mente. **Intenção:** a pessoa vê o que está escrevendo,
+em qualquer tamanho de letra e em qualquer aparelho — **em cada quadro**, que é
+como a 08f está escrita. **Obstáculo:** a 09d fechou a invariante nos pontos
+DISCRETOS onde a suíte mede (31/31 em AX5, 44/44 em `large`) e deixou declarado
+um resíduo: durante a gaveta do cartão a chegar, a linha ativa aparecia cortada
+(`c1-04-residuo-gaveta-cartao.png`, "~0,11 s numa varredura de 220"). Declarar
+não torna mesclável uma violação conhecida de uma regra escrita sem exceção, e
+"~0,11 s" não era verificável.
+
+### O instrumento primeiro: a invariante passa a ser medida POR QUADRO
+
+`EscritaVisivelTests.aLinhaFicaNoPapelEmCadaQuadroDaGaveta(tamanho:)` põe um
+`CADisplayLink` a medir a 08f **em cada quadro entregue**, com o instante de
+cada um, enquanto a Página REAL recebe as três gavetas que encolhem o papel: o
+cartão a chegar, o aviso a tomar o lugar dele e o toast. Duas coisas o separam
+do teste discreto que já existia:
+
+- **mede as camadas de APRESENTAÇÃO, não o modelo.** Durante uma animação o
+  modelo já tem o valor final e só a apresentação diz o que o olho vê — que é o
+  que a 08f escreve. O quadro apresentado é, medido, sempre o **modelo do
+  quadro anterior**.
+- **cada quadro traz o seu instante**, e a conta sai em quadros e em segundos,
+  com a cadência ao lado (16,7 ms: 60 Hz sem quadro perdido) e o custo da
+  própria sonda (0,2–0,5 ms/quadro). É a "sequência carimbada" que o re-G3
+  pediu no lugar da varredura sem tempo.
+
+**O que ele mediu no pai (build `4898703`, iPhone 17e `C7341E64`):**
+
+```
+GAVETA AX5,   cartão a chegar: 85 quadros em 1,42 s, 6 fora; +0,268 a +0,350 s = 0,098 s, pior corte 32 pt
+GAVETA large, cartão a chegar: 86 quadros em 1,42 s, 6 fora; +0,267 a +0,350 s = 0,100 s, pior corte 13 pt
+GAVETA (aviso e toast, nos dois tamanhos): 0 fora
+```
+
+**Duas correções ao que a 09d escreveu**, as duas contra nós: o resíduo é de
+**0,098–0,100 s**, não 0,11; e **não é só de AX XXXL** — o `large`, que a 09d
+dava por são, tem o mesmo resíduo de 6 quadros. A "varredura de 220" não
+sustentava nenhum dos dois números.
+
+### A causa, medida antes de tocar no código
+
+Sonda por quadro no `tetoDoEncaixe` e na geometria do papel, no 17e:
+
+- **`large`:** a altura do papel é ANIMADA pela gaveta e desce 378 → 366 → 352
+  → 334 → 314 → 295 → 283 → … pt, **até 21 pt por quadro**. O seguidor é
+  chamado a cada quadro (`onScrollGeometryChange` avisa 275,0 → 262,8 → 248,6 →
+  231,3 → 210,7 → …, em dia), corrige, e **a linha fica sempre um passo atrás**:
+  o corte de cada quadro é exatamente o passo daquele quadro.
+- **AX5:** o mesmo, mais um **estouro de 52 pt**. O cartão entra por CORTE
+  (`.identity`) e a régua saía por GAVETA, então por ~0,3 s o encaixe tinha os
+  dois — 52 pt a mais do que antes E do que depois — e o papel caía a **35 pt
+  para uma linha de 67**. Aí nenhuma rolagem cabe: a 08f é impossível por
+  construção enquanto durar.
+
+**E o limite, medido e não suposto:** **de fora do layout não há corrida a
+ganhar.** Foram experimentados três seguidores — adiado pelo runloop (como
+era), síncrono no aviso da geometria, e síncrono com a altura anunciada mais um
+passo de adiantamento e mira no piso da 09d — e os **três produziram os mesmos
+offsets, ao ponto** (`ferramentas/orca/c1b-gaveta.md`, tabela da ablação). A
+correção da rolagem e a mudança da altura não cabem no mesmo quadro quando a
+altura é animada, porque o quadro apresentado é o modelo do anterior.
+
+### A decisão
+
+**Nenhuma gaveta corre sobre a linha do autor.** Com o foco na Página, a altura
+do encaixe muda por **CORTE**; a gaveta fica para quando o autor não está a
+escrever.
+
+- `PaginaView`: `.animation(focoPagina ? nil : Tema.gaveta(reduzido:), value:
+  sessao.cartao)`, e o mesmo para `sessao.analisando`. É a mesma lei que a 08f
+  já tinha aplicado duas vezes no mesmo encaixe — a régua CORTA, e o encaixe
+  inteiro sai por corte ao abrir os campos —, agora estendida ao ocupante que
+  faltava. **Não é uma exceção nova: é a regra do encaixe, completa.**
+- `EscritaVisivel.seguirCaretAgora(folga:altura:)`: quando quem chama é
+  `onScrollGeometryChange`, o seguidor corre **agora**, e não na volta seguinte
+  do runloop, **com a altura que lhe ANUNCIARAM** — nessa passada o `bounds` do
+  ScrollView ainda é o da anterior, e o seguidor que lê em vez de ouvir corrige
+  para o papel de ontem. Isto ganha a corrida contra uma mudança de **um passo**
+  — que é o que o corte produz — e só. `seguirCaret(folga:)`, o de texto e foco,
+  continua adiado: ali o layout ainda não assentou.
+
+**As duas metades são necessárias e nenhuma basta**, medido por ablação no
+mesmo aparelho: só o corte (com o seguidor adiado) deixa **1 quadro com 115 pt**
+de linha cortada em `large`; só o seguidor síncrono, com a gaveta de pé, deixa
+os **6 quadros** de sempre. Juntas: **0**.
+
+**O que fica igual.** Nenhuma curva, duração ou `withAnimation` novo — o portão
+do movimento continua vazio. `Tema.swift` intacto. A gaveta do cartão continua a
+existir e a correr sempre que a Página **não** tem o foco. A gaveta de
+`esconderRegua` no `CadernoView` **ficou**: a ablação mostrou que, com o corte de
+cima, ela já não estoura nada, e tirá-la seria movimento perdido sem razão
+medida.
+
+### A prova
+
+iPhone 17e `C7341E64` e iPhone 17 Pro Max `6033B043`, `com-trava.sh` em toda
+passada, teclado de software REAL nos dois aparelhos e nos dois tamanhos
+(308 pt no 17e, 318 no Pro Max):
+
+```
+17e     GAVETA AX5 e large, três cenas cada: 0 fora em todas (84–88 quadros, cadência 16,7 ms)
+17e     ESCRITA AX5 31/31, large 44/44, teclado real nos dois
+Pro Max GAVETA AX5 e large: 0 fora; ESCRITA AX5 31/31, large 44/44, teclado real 318 pt
+17e     ✔ Test run with 956 tests in 154 suites passed after 81.350 seconds — grep -c warning: 0
+```
+
+Quadros carimbados, versionados: `ferramentas/orca/c1/c1b-quadros-vermelho.txt`
+e `c1b-quadros-verde.txt`. Relato: `ferramentas/orca/c1b-gaveta.md`. **O vídeo
+que esta seção anunciava foi removido na C1-C: continha 44 s da Tela Inicial,
+sem o Traço** — ver a correção do re-G3 no fim desta ADR.
+
+### O que mais o re-G3 nomeou, e ficou fechado aqui
+
+- **As bordas do TextKit 2** em `linhaDoCaret` têm suíte própria
+  (`LinhaDoCaretTests`): documento vazio, linha vazia depois de `\n`, quebra
+  suave por palavra, fim do documento, e a borda do `NSMaxRange` varrida em
+  todos os offsets. **E a medida achou o contrário do que se esperava:** num
+  `UITextView` nu — com a entrelinha do papel e a fonte de corpo em AX XXXL — o
+  `caretRect` do UIKit **já é** a caixa da linha visual, ao ponto, em **0 de 61
+  offsets** ele difere. A distância de 45 para 67 pt que a 09d mediu é do editor
+  da **Página**, não do TextKit 2 em geral; quem a prova é o teste hospedado. As
+  bordas cobram então o que protege o seguidor em qualquer editor: nunca nula,
+  sempre contendo o caret, UMA linha visual só, e na altura certa do documento.
+- **O que muda onde havia folga sobrando** (a pergunta do Pro Max) é
+  **nada, e provado por varredura, não por aparelho**:
+  `TemaTests.ondeHaviaFolgaSobrandoA09dNaoMudaNada` percorre 3.025 combinações
+  de tela, pé e piso — **2.687 com folga sobrando e 338 apertadas** — e mostra
+  que, onde meia sobra já dava uma linha, a regra da 09d devolve **o mesmo
+  número** da 05y, e onde não dava, devolve estritamente mais papel. O Pro Max é um caso dessa varredura, e a corrida nele confirma a
+  aritmética na tela.
+- **As duas dívidas prometidas foram escritas no RUMO** (barra de baixo em AX;
+  oráculo de pixels), mais a terceira que esta volta mediu: **o seguidor não
+  ganha de uma altura animada**, com os três seguidores e os offsets iguais.
+
+### A pré-mortem
+
+**O que pode dar errado:** o cartão passa a APARECER, sem gaveta, enquanto o
+autor escreve — e um salto de 52 pt (AX5) ou 121 (`large`) sem movimento pode
+ler-se como um susto, que é justamente o que a lei do movimento evita. É a
+troca que esta ADR aceita, e ela tem lado: **um salto que o autor vê é melhor
+que uma linha que ele não vê**, e o quadro em que a linha estava cortada era
+exatamente o quadro em que ele estava a escrever. Se a leitura na mão do dono
+disser o contrário, o caminho não é voltar à gaveta: é a gaveta **empurrar o
+papel antes de crescer** — reservar primeiro, animar depois —, e isso precisa
+do gancho dentro do layout que o RUMO já nomeia.
+
+**A segunda:** `focoPagina` é a condição, e ela não é o mesmo que "o teclado
+está de pé". Com o teclado recolhido por arrasto o foco continua (a régua segue
+o foco), e o corte vale ali também, onde a gaveta não fazia mal nenhum. É
+movimento perdido num estado; preferi a condição que o `EscritaVisivel` já usa
+para correr, porque duas condições diferentes para o mesmo evento é como nascem
+os dois relógios que esta ADR acabou de fechar.
+
+### A correção do re-G3 (C1-C, 09/09/2026): a sonda mede a regra inteira
+
+O re-G3 reproduziu o vermelho do pai e o verde do candidato com as próprias
+mãos, e mesmo assim reprovou — por duas coisas que não são o conserto, e sim a
+**prova** dele.
+
+**1. A sonda media metade da 08f.** `Quadro.cabe` era só `area.contains(linha)`:
+`E ⊆ P`. A 08f também diz que **nenhuma outra superfície desenha nessa área** —
+`P ∩ O = ∅` —, e essa metade não tinha portão nenhum por quadro. Agora cada
+quadro carrega as duas, medidas e **relatadas separadas**: `noPapel` e
+`semIntruso`, com o vermelho de cada uma contado, datado e nomeado no seu
+próprio termo. O `intrusos(sobre:editor:)` que a medida discreta já usava passa
+a ser chamado **em cada quadro**, e a ler a árvore de camadas pela
+**apresentação**, como `E` e `P`.
+
+**Uma camada sem `presentation()` não conta.** A primeira versão desta medida
+acusou um intruso em `large` no primeiro quadro depois de o cartão nascer: era
+falso. Uma camada recém-criada ainda não foi entregue ao render — `presentation()`
+devolve nil — e lê-la pelo modelo é lê-la **na geometria de destino**, enquanto
+a linha e o papel estão na do quadro anterior. Dois relógios outra vez, agora
+dentro do instrumento. Camada sem apresentação não pinta naquele quadro: fica
+de fora, e isso está escrito no código.
+
+**E o portão prova que sabe reprovar.** Na mesma corrida, depois das três cenas
+verdes, o teste **planta uma camada adversarial** à frente do editor, sobre a
+linha ativa, e exige que os quadros a acusem — 35 de ~51 em cada tamanho, com o
+intervalo do que a apresentação leva para a mostrar. Sai depois, e os quadros
+seguintes voltam a zero. Zero intruso só vale como prova quando a sonda mostra,
+ali, que veria um.
+
+**2. `E` era a caixa do caret, não a linha.** Medindo, a faixa adversarial saiu
+com **2 pt de largura**: no FIM do documento — que é onde o autor escreve —
+nenhum fragmento do TextKit 2 começa na posição do caret, `textLayoutFragment(for:)`
+devolve nil, e `linhaAtiva` ficava só com o `caretRect`. Com o recuo de um
+caractere, `E` volta a ser a linha de letras: **322 pt em AX5, 55 em `large`**.
+A metade `P ∩ O = ∅` cobrava, antes disto, apenas quem cobrisse a coluna do
+caret.
+
+**O vermelho do pai, agora nas duas metades** (pai `4898703` num checkout
+descartável, **só** a sonda trazida deste ramo, mesmo 17e `C7341E64`):
+
+```
+PAI 4898703 + sonda C1-C, teclado real 308 pt
+AX5,   cartão a chegar: 85 quadros, 7 fora do papel (E ⊄ P) e 2 cobertos (P ∩ O ≠ ∅)
+       fora +0,270 a +0,367 s = 0,113 s, pior corte 32 pt
+       coberta +0,317 a +0,350 s = 0,050 s — ColorShapeLayer e CGDrawingLayer do CARTÃO sobre a linha
+large, cartão a chegar: 85 quadros, 5 fora (0,083 s, pior corte 14 pt) e 5 cobertos (0,083 s)
+✘ Test run with 2 tests in 1 suite failed after 54,574 s with 4 issues
+
+CANDIDATO, mesmo aparelho: 0 fora e 0 cobertos nas seis cenas, nos dois tamanhos
+✔ Test run with 956 tests in 154 suites passed after 85,241 s — grep -c warning: 0
+```
+
+O cartão do pai não só **cortava** a linha: ele **desenhava por cima dela**, e
+o instrumento anterior não tinha como dizê-lo. O conserto da C1-B fecha as duas.
+
+**3. O vídeo era prova falsa.** `c1b-gaveta-consertada.mp4` tinha 44 s da Tela
+Inicial, sem o Traço. Foi **removido**. No lugar entra
+`c1/c1c-pagina-na-sonda.mp4` — 36 s, 390×844, gravado por
+`xcrun simctl io <UDID> recordVideo` durante a corrida verde e **assistido
+quadro a quadro antes de versionar**: mostra a Página real com o teclado, o
+texto a ser escrito, o cartão a chegar, o aviso, o toast e a faixa adversarial
+vermelha sobre a linha ativa. O que ele prova é que a corrida aconteceu **na
+Página**; a prova por quadro continua sendo a sequência carimbada,
+`c1/c1c-quadros-{vermelho,verde}.txt`. Relato: `ferramentas/orca/c1c-sonda-inteira.md`.
+
+**O que fica herdado, e dito.** A parte do Pro Max `6033B043` **não foi
+reexecutada** nesta volta: o aparelho estava reservado a outra frente e a
+pergunta ao orquestrador expirou sem resposta. A prova da C1-B no Pro Max
+permanece **herdada**, não observada aqui. E a corrida da suíte INTEGRAL desta
+volta teve teclado real em `large` (308 pt) mas **emulado em AX5** (318 pt, 8
+tentativas) — a corrida isolada teve real nos dois. Limite do instrumento, não
+asserção afrouxada.
+
+## ADR 2026-09-09e — A C1 reconciliada: a letra que colidiu muda, e a etiqueta do bot entra na invariante (volta C1-D)
+
+**Ciclo:** multiplicar a mente — o autor escreve sem lutar com a ferramenta.
+**Obstáculo:** a C1 passou no mérito e **não era mesclável**. O `main` estava
+**53 commits à frente**, e um deles toca `PaginaView.swift`, o arquivo da outra
+metade da 08x. Aprovado não é mesclável: é a lei que a Q-H fixou, e é por isso
+que esta volta existe.
+
+**A fusão em si foi barata, e isso é fato a registrar, não mérito a cobrar.**
+Um só conflito de texto — `SPEC.md`, append contra append, os dois blocos ficam
+inteiros e o meu vai por último, que é a ordem de mesclagem que este documento
+sempre teve. `PaginaView.swift` juntou sozinho: o `main` mexeu nas linhas 122,
+280 e 485, e a C1 na 304.
+
+### A letra, e por que a C1 é quem move
+
+A C1 escreveu **duas** ADRs e o orquestrador reservara **uma** letra. A primeira
+ficou na `08w`, que a colisão de 08/09 já dera à Q-H — e a Q-H **mesclou**. A
+regra do `LETRAS-ADR.md` é "muda quem é mais barato de mover", e ela não se
+aplica a quem já está em `main`: `main` não se move. Move a C1, como o
+orquestrador decidira em 08/09 22h20. A **`08x` fica**; a C1-A passa a **`09d`**.
+
+**A troca foi provada do tamanho da alegação**, como o registro manda: nos seis
+arquivos que só mudaram de letra, os multiconjuntos de linhas removidas e
+adicionadas são **idênticos** depois de normalizar a letra. Nenhuma linha sobrou.
+
+**E o registro estava errado sobre si mesmo.** `LETRAS-ADR.md` dava `08z` como
+próxima livre; lida pelo comando que ele próprio prescreve, a `08z` está no
+branch da Q2. **`08` está cheia** — `08a`–`08z` todas tomadas ou buracos. Por
+isso a C1-A vai para `09d` e esta ADR para `09e`. O arquivo que existe para
+impedir colisão de letra reincidiu no defeito que combate, e a causa é a mesma
+de sempre: alguém leu de memória em vez de rodar o comando.
+
+### O achado da fusão: a etiqueta do bot come papel
+
+O `main` trouxe a **etiqueta de origem** (ADR 08u/09b) e a pôs **ACIMA do
+editor**, na Página. Ela aparece quando o autor abre uma nota feita pelo bot — e
+ele **escreve nela**, com o teclado de pé e o caret vivo. É exatamente o estado
+que a 08f governa, e a invariante **nunca o tinha visto**, porque a etiqueta não
+existia quando a suíte foi escrita.
+
+A geometria aguenta, e por uma razão que vale escrever: os dois lados da C1 leem
+alturas **já descontadas** da etiqueta — o seguidor ouve o `containerSize` do
+próprio ScrollView, e `tetoDoEncaixe` mede a altura da `CadernoView`, que é irmã
+da cápsula, não sua dona. Mas **isso é raciocínio, e raciocínio não é prova**:
+a invariante passou a medir o caso. Medido no 17e, teclado real de 308 pt:
+
+```
+ETIQUETA AX5:   papel 180 -> 150 pt (a cápsula tomou 30 pt)
+ETIQUETA large: papel 194 -> 168 pt (a cápsula tomou 25 pt)
+ESCRITA AX5:   39 amostras, 39 com a linha do caret na área livre do papel
+ESCRITA large: 52 amostras, 52 com a linha do caret na área livre do papel
+```
+
+O número de testes não muda com isto (981 em 157): são asserções e amostras
+dentro de um caso que já existia. O que cresce são as amostras — **31 → 39** e
+**44 → 52**, as duas fases da etiqueta.
+
+**O caso traz o próprio portão.** Uma etiqueta que não desenhasse não encolheria
+nada e a invariante daria verde sobre a tela de sempre — prova vazia com cara de
+prova. Então o caso **exige que o papel encolha** antes de medir: se a cápsula
+não tomar papel, ele reprova dizendo que não mede o que promete.
+
+**E o cenário passou a neutralizar a origem**, como já neutralizava cartão e
+toast. `origemDaPagina` é estado visual da sessão VIVA, que a suíte inteira
+partilha, e entrou no `main` depois deste cenário — ninguém o devolvia. Hoje
+nenhuma suíte o suja pelo caminho da sessão viva (as que chamam `abrir(nota:)`
+usam `Sessao` própria), então isto é **guarda, não conserto de vermelho**: dito
+assim para não cobrar mérito que não houve.
+
+### O que a fusão mediu
+
+Suíte integral na árvore MESCLADA, `com-trava.sh`, `-parallel-testing-enabled NO`,
+no 17e `C7341E64`: **981 testes em 157 suítes, 0 falhos, 0 avisos** (87,2 s) — a
+C1 sozinha tinha 956 em 154. Os 25 testes que o `main` trouxe e os da C1 passam **juntos**,
+que é a única coisa que nenhum dos dois lados tinha medido.
+
+**A dívida do Pro Max está paga.** `6033B043` foi **reexecutado na árvore
+mesclada**, com teclado **REAL de 318 pt nos dois tamanhos**: 7 testes em 2
+suítes, verdes. A ressalva de "prova herdada" da C1-C **sai** — e esta prova é
+melhor que a que ela herdava, porque é da árvore fundida, não do candidato só.
+
+**O teclado emulado de AX5, e por que não muda conclusão nenhuma.** Na suíte
+integral o caso GAVETA de AX5 volta a cair no teclado emulado (318 pt, 8
+tentativas). Duas razões, e nenhuma é indulgência: **(1)** o caminho emulado
+aplica uma área segura DE VERDADE (`additionalSafeAreaInsets.bottom`) e o layout
+reflui — o que é sintético é o número, não a restrição, e a medida é de uma
+geometria real; **(2)** 318 > 308, e um papel menor é **estritamente mais
+difícil** para uma invariante de continência: passar a 318 é mais forte que
+passar a 308, não mais fraco. O que o caso emulado **não** prova é a chegada
+animada do teclado real — e isso está coberto de outro lado: nesta corrida o
+caso ESCRITA teve o teclado **real de 308 pt nos dois tamanhos**, e no Pro Max o
+real de 318 nos dois.
+
+**Pré-mortem.** Se isto voltar, volta por uma de duas portas. A primeira: alguém
+põe **mais uma superfície acima do editor** — a etiqueta provou que a Página
+aceita isso sem ninguém reparar — e o papel encolhe outra vez sem a invariante
+ver, porque ela mede as superfícies que conhece pelo nome. A segunda: a `09` se
+enche como a `08` se encheu, e a próxima volta lê o "próxima livre" em vez de
+rodar o comando. A defesa da primeira é a asserção nova, que reprova quando a
+cápsula não desenha; a defesa da segunda é não haver defesa nenhuma além de
+rodar o comando, e é por isso que ele está escrito no topo do registro.
+## ADR 2026-09-08y — A retomada conta o que houve entre duas visitas (volta R1)
+
+**O critério, palavra do Astra:** *"o dono volta depois e continua com pouca
+explicação"*. Item 4 da fila do dono; ciclo multiplicar a mente.
+
+**O obstáculo, medido antes de codar e não copiado da auditoria.** A auditoria
+do G0 nomeava três defeitos. Aberta a folha na tela viva com estado plantado
+(`ferramentas/orca/semear-retomada.py`, o JSON no `ZTRABALHO` do App Group),
+**o primeiro caiu sozinho**: a `retomada` já é o segundo bloco e nasce ACIMA da
+dobra — o "Continuar: <ato>" fica a 0,36 tela do topo e o "Último retorno" a
+0,46. Rolar para ela na abertura esconderia a intenção, que é o **objetivo** que
+o critério manda retomar. Não há rolagem automática nesta volta, e isso é
+decisão, não omissão.
+
+Os outros dois são reais, e a régua é a árvore de AX do mesmo instante, com as
+posições em **alturas de tela a partir do topo da folha** (o documento inteiro
+tem 4,74 antes e 4,95 depois):
+
+| o que o autor precisa saber ao voltar | antes | depois |
+|---|---|---|
+| objetivo | 0,15 | 0,15 |
+| próximo passo | 0,36 | 0,36 |
+| **versão nova preparada ontem** | **1,57** | **0,58** |
+| **ato que ele marcou como realizado** | **2,41** | **0,53** |
+| **resultado que ele mesmo informou** | **2,45** | **0,67** |
+| **quando foi o último retorno** | **3,76** | **0,64** |
+| **dificuldade que ele registrou** | **4,22** | **0,48** |
+
+**A régua do dono é TOQUE E GESTO, e a distância é só a explicação** (G3 da R1,
+09/09). A tabela acima mede distância percorrida; o que o dono cobra é *quanto a
+pessoa tem de fazer*. A mesma tarefa — **voltar no dia seguinte e saber as sete
+coisas** — foi executada nos DOIS candidatos pelo XCUITest, que dá toque e
+arrasto de verdade no aparelho do `-destination` (e não pelo helper do
+`orca emulator`, que amplifica o arrasto de 6 a 24x e é um só na máquina):
+
+| | antes (`c751c02`) | depois |
+|---|---:|---:|
+| toques até a folha | 3 | 3 |
+| **arrastos dentro da folha** | **5** | **0** |
+| **paradas de leitura** (posições onde um fato novo aparece) | **6** | **1** |
+| fatos na primeira tela | 2 de 7 | **7 de 7** |
+
+O gesto é o mesmo nos dois lados (`swipeUp()` do XCUITest, ~0,76 tela por vez) e
+o estado plantado é o mesmo. O condutor é
+`TracoUITests/CurvaZeroRetomadaUITests.swift`, a tabela por gesto fica em
+`ferramentas/orca/r1b-medida-antes.txt` e `…-depois.txt`, e ele fica **vermelho**
+se algum dos sete fatos deixar de aparecer.
+
+**Decisão.** Um bloco só, dentro da `retomada` que já existe: **"Desde
+\<instante da visita anterior\>"**, com as coisas que ACONTECERAM depois dela,
+mais recente primeiro, teto de quatro linhas e o excedente DITO (`e mais N desde
+então` — sem prometer onde está: nem tudo mora no histórico). E o "Último
+retorno" ganha **data** e o **resultado informado**.
+
+1. **Quem escreve as linhas é o app, não o modelo.** `mudancasDesde(_:)` sai dos
+   vínculos do documento — versão e produtor, ato executado, relato, resultado
+   observado, decisão de apoio, dificuldade. Nenhuma frase é gerada; um resumo
+   escrito por modelo seria bonito e seria mentira sobre o que a pessoa fez.
+2. **A visita mora no aparelho, não no documento.** `UserDefaults`, chave
+   `trabalho.visita.<uuid>`, ao lado dos rascunhos. Quando o autor abriu a folha
+   é fato deste aparelho: exportar o Markdown não carrega a visita de ninguém e
+   o registro compartilhado não ganha campo de vigilância. Sem visita guardada
+   **não há bloco** — o app não sabe desde quando contar e cala.
+3. **Duas datas novas no documento, e só duas:** `apoioMarcadoEm` e
+   `trechoDelimitadoEm`. `apoio` e `trechoExercitado` eram valores sem história,
+   e a retomada precisa DATAR a decisão para contá-la. `nil` = registro anterior
+   a este contrato: decisão não datada, nunca data inventada.
+4. **Executar e observar continuam dois eixos** (ADR 08m): "Você marcou como
+   realizada" e "Resultado que você informou" são duas linhas com as duas datas.
+5. **Nada de `EstadoExercicio` persistido** (V17, item 3), nenhuma tela nova,
+   nenhum agregado novo, nenhum componente novo — `secao`, `Tema.meta` e
+   `Tema.tintaSuave`, que a folha já usa.
+6. **A mesma notícia não aparece duas vezes na mesma tela:** a linha do relato
+   que a folha já mostra inteiro logo abaixo sai da lista.
+
+**Prova.** Suíte integral no `34CC3F94` (iPhone 17 Pro, teste 3), sem
+paralelismo: **963 testes em 155 suítes, 0 falhas**, `grep -c warning:` = **0**.
+Antes e depois no MESMO aparelho, mesmo estado plantado, mesmos três toques até
+a folha, mesmo tamanho de letra (`large`, o padrão): `r1-antes-folha.png` /
+`r1-depois-folha.png`, com as duas árvores de AX do mesmo instante em
+`r1-ax-antes.json` / `r1-ax-depois.json`. AX5 sem sangramento: nenhum elemento
+sai de `x=0,050 … 0,950` (`r1-depois-ax5.png`). Teto e linha de decisão em
+`r1-depois-decisoes-e-teto.png`.
+
+**O teste que fica vermelho** está em `TracoTests/RetomadaTrabalhoTests.swift`,
+e o vermelho foi mostrado antes do verde nos dois sentidos do erro: janela
+errada (o resumo passa a falar da versão do dia 5, que é anterior à visita) e
+âncora errada (`rolarPara` para um `.id` que não existe — o portão conta 8
+destinos literais, medidos antes de congelar).
+
+**Os estados do bloco, na tela viva** (R1-B, 09/09), cada um com árvore e
+captura `simctl` do MESMO instante, porque ausência na árvore não é prova de
+ausência na tela:
+
+- **normal** — quatro linhas e `e mais 1 desde então`: `r1b-normal.png`.
+- **sem visita guardada** (primeira abertura, reinstalação, dados limpos) — a
+  folha CALA, e a captura mostra a folha inteira sem o bloco:
+  `r1b-sem-visita.png`.
+- **fechar e reabrir a folha é uma VISITA NOVA**: a janela recomeça e o bloco
+  cala, porque a notícia já foi entregue. O que a janela preserva é a reabertura
+  interna depois de um erro de escrita (`preservarEReabrir`), que não destrói a
+  tela. Isso agora é teste, não descrição.
+- **AX5** com o bloco DENTRO da janela — o que faltava na volta anterior, cuja
+  captura AX5 mostrava só o topo da folha: `r1b-ax5.png`. Em AX5 o bloco tem
+  1289 pt e a janela 874: ele não cabe inteiro, e o teste prova a primeira linha
+  inteira na janela e nenhuma linha sangrando pelos lados.
+
+**O que esta ADR NÃO prova.** Não prova que o dono volta e continua: isso fecha
+no uso dele, não na demonstração. Não há avaliação de hipótese na lista (evento
+real, deixado de fora por enxugamento) e os dois destinos de rolagem que passam
+por variável (`chave`, `falta`) ficam fora do portão, que o diz em vez de fingir
+que os cobre. A rolagem por arrasto do `orca emulator` amplifica de 6 a 24x e
+por isso **não** foi usada como régua: quem conta gesto é o XCUITest, e quem
+mede distância é a árvore de AX. E o número de arrastos do "antes" é o do
+aparelho com a letra padrão: em AX5 o mesmo percurso é mais longo, e não foi
+medido nos dois candidatos.
+
+### Reconciliação com o `main` (volta R1-C) — e o vermelho que ela desenterrou
+
+A R1 nasceu sobre `c751c02` e o `main` andou 25 commits antes do G5. A fusão foi
+feita no worktree da R1, em duas etapas (o `main` andou de novo durante o
+trabalho): `3916924` primeiro, `05ef887` (F5b) depois.
+
+**Conflitos: dois, os dois de documento.** `SPEC.md` — as voltas MAC-1, MAC-1-B,
+F5b e R1 apenderam ADR no mesmo ponto do arquivo — e `ferramentas/orca/LETRAS-ADR.md`,
+na linha da letra `08y`. Nenhum conflito de código: a R1 vive em
+`Traco/Trabalho/` e o `main` andou em `Modelo`, `Notas`, `Padroes`, `Pagina`,
+`App` e `TracoWidget`. `Traco.xcodeproj/project.pbxproj` fundiu sozinho e o
+`xcodegen generate` sobre a árvore mesclada devolveu **diff vazio** — a fusão do
+projeto é a canônica, não uma que só parece certa.
+
+**As escolhas de semântica, uma a uma.**
+
+1. **`SPEC.md`, ordem das ADRs.** O arquivo é cronológico por ENTRADA, não por
+   letra (a `08t` já vinha antes da `08o`). As ADRs que já estavam em `main`
+   ficam na ordem em que entraram; a `08y` vai por último. Nenhum texto dos dois
+   lados foi cortado.
+2. **`LETRAS-ADR.md`.** Fica a tabela do `main`, que é a mais nova (traz o bloco
+   de 2026-09-09 e a `09c` da S1), e dentro dela a linha `08y` fica na redação da
+   R1 — "no branch da R1" —, que é o estado verdadeiro desta letra. Estado de
+   letra alheia não foi tocado.
+3. **`EVOLUCAO.md`.** Fundiu sozinho; a linha "Intenção→artefato" ficou com a
+   redação da R1, que é a única das duas que mudou naquela linha.
+4. **"A origem acompanha todo consumidor" (ADR 09b) não alcança a R1, e isso é
+   uma decisão declarada, não um esquecimento.** A regra vale para quem lê NOTA
+   como voz do autor. O bloco da retomada não lê nota nenhuma: `mudancasDesde`
+   sai de `artefatos`, `acoes`, `evidencias`, `apoioMarcadoEm`,
+   `trechoDelimitadoEm` e `hipoteses` — tudo do `DocumentoTrabalho`. Os `selos`
+   da folha já existiam antes das duas voltas e continuam como estavam. Se um dia
+   a retomada citar nota, a origem terá de viajar junto.
+
+**O ACHADO: os quatro testes de tela da R1 ficam VERMELHOS na árvore mesclada, e
+a causa não é a fusão.** Primeira corrida da árvore mesclada: 4 de 4 falharam em
+`abrirAFolha`, com "a Página não abriu". A tela viva do mesmo instante mostra o
+**arranque honesto da A1** (ADR 08s): "O Traço não abriu o seu caderno", com
+`SwiftDataError(_error: …loadIssueModelContainer, _explanation: nil)`.
+
+A causa foi medida nos TRÊS builds, sobre o MESMO `default.store` e no MESMO
+aparelho (`34CC3F94`), restaurado de cópia antes de cada um:
+
+| build | o que a tela mostra |
+|---|---|
+| `e72dd85` (R1 antes da fusão) | a Página abre normalmente |
+| `main` sozinho (`3916924`, checkout descartável em `/tmp`) | "O Traço não abriu o seu caderno" |
+| árvore mesclada | "O Traço não abriu o seu caderno" |
+
+O `ZNOTA` daquele store não tem `ZORIGEMRAW`: foi gravado por um build anterior
+à ADR 08u. A 08u acrescentou `Nota.origemRaw` como migração leve DENTRO do
+`TracoSchemaV4` — e o `TracoSchemaV4` aponta para a classe VIVA, então o
+checksum da V4 mudou junto. O caderno carrega o carimbo da V4 antiga, nenhum
+estágio do plano casa, e o CoreData recusa o container. A A1, corretamente, para
+em vez de abrir um caderno vazio por cima.
+
+**O que isso quer dizer, dito sem enfeite: quem já tem o Traço instalado não abre
+o caderno depois desta atualização.** É defeito do `main`, não da R1 — a camada
+de modelo da árvore mesclada é byte a byte igual à do `main` (`git diff main --
+Traco/Modelo Traco/Notas Traco/App …` vazio) e o `e72dd85` abre o mesmo arquivo.
+A R1 não conserta isto: consertar migração de esquema é volta própria, com o
+caderno do dono em risco. Fica ESCALADO ao orquestrador e no RUMO. O que a R1
+prova é que a fusão dela está sã: com um caderno que a própria árvore mesclada
+cria, os quatro testes de tela passam.
+
+**Prova de fecho na árvore mesclada** (`34CC3F94`, `-parallel-testing-enabled NO`,
+por `ferramentas/orca/com-trava.sh`): suíte integral **979 testes em 157 suítes,
+`** TEST SUCCEEDED **`, duas execuções**, `grep -c warning:` = **0** nas duas. Os
+quatro de tela, cada um isolado e com o estado replantado antes:
+`testCurvaZeroEmToquesEGestos` (**3 toques, 0 arrastos, 7/7 fatos**),
+`testTetoExcedenteEAVisitaQueRecomecaAoReabrir`, `testSemVisitaGuardadaAFolhaCala`
+e `testBlocoDaRetomadaEmAX5` — os quatro `** TEST SUCCEEDED **`. A folha
+fotografada na árvore mesclada está em `ferramentas/orca/r1c-mesclado-retomada.png`.
+
+**Segundo achado, menor, e também da fusão.** O `main` de 09/09 (`55af39f`) passou
+a exigir que **pré-condição de estado more dentro do teste**. Os quatro da R1 não
+cumprem: o estado vem de fora (`semear-retomada.py`), e a visita anterior mora no
+`Library/Preferences` do contêiner de DADOS do app — que o `xcodebuild test`
+recria quando o binário muda. Medido: na primeira corrida depois de um binário
+novo o bloco some e o teste fica vermelho; reexecutado com o estado replantado,
+passa. Isolados, os quatro passam. Não foi consertado nesta volta — mudar de onde
+a visita mora é decisão da ADR 08y, não de uma reconciliação — e fica declarado
+como dívida nomeada da R1.
+## ADR 2026-09-09c — A pergunta é da sessão, não da view (volta S1)
+
+**O achado da V13, provado vivo em 09/09.** A pessoa pergunta à sábia nas Notas,
+a resposta demora, ela vai ao Calendário ver a agenda e volta. Não há mais nada:
+nem a pergunta, nem o cartão, nem o aviso de que a sábia não respondeu, nem a
+busca que ela estava escrevendo. **Estado desonesto** — ela perdeu o que estava
+esperando sem que nada dissesse. Captura do defeito vivo em
+`ferramentas/orca/s1-01-antes-cartao-na-tela.png` e `s1-02-antes-sumiu-ao-voltar.png`.
+
+**A causa não estava na conversa; estava em onde ela morava.** `RaizView` monta
+o arquivo num `switch` de `sessao.abaArquivo` (`Traco/App/RaizView.swift:34`), e
+trocar de aba **destrói** a `NotasView`. Com ela morria o
+`@State private var conversaNotas = ConversaNotas()`. A intenção correta já
+estava escrita no próprio `ConversaNotas.interromper()` — *"sair da tela não
+perde o pedido interrompido nem o rascunho seguinte"* —, e o `@State` a
+desmentia: guardava a pergunta em `.interrompida(pergunta)` num objeto que
+morria no quadro seguinte.
+
+**O conserto é uma linha, no lugar certo.** `let conversaNotas = ConversaNotas()`
+passou para a `Sessao`, que vive enquanto a sessão viver, e a `NotasView` a lê de
+lá. Não é uma guarda por estado nem por chamador: **todo** o estado da conversa
+vem junto — a pergunta guardada, as trocas já respondidas, o aviso de "sem
+conta", os títulos citados e a busca que a pessoa estava escrevendo. Uma guarda
+por caminho teria consertado a pergunta e deixado as irmãs quebradas.
+
+**Preservar, e não avisar do sumiço.** A honestidade admitia dois desfechos: ou a
+pergunta sobrevive, ou a tela diz que se perdeu. Preservar era possível em todos
+os caminhos, então nada precisa ser dito — e nenhum pixel novo entrou. A tela
+depois da volta é idêntica à de antes de sair
+(`s1-03`, `s1-04`, `s1-05`): cartão, pergunta e "Repetir pergunta" no lugar.
+
+**Curva-zero, medida em toques.** Retomar a pergunta perdida custava **2 toques
+mais redigitar a frase inteira** — e antes disso exigia LEMBRAR o que se tinha
+perguntado, porque a tela não guardava rastro. Agora custa **1 toque** em
+"Repetir pergunta", sem redigitação e sem memória. Nenhum toque novo foi
+introduzido em nenhum caminho.
+
+**O que continua morrendo na recriação, e por que não entrou nesta volta.** O
+chip de filtro, o domínio, a ordem e a seleção de lote também são `@State` da
+`NotasView` e voltam ao padrão ao trocar de aba (medido na tela viva: o chip
+volta a "Todas"). São de outra classe: a tela **mostra** que voltaram ao padrão
+no mesmo quadro — o chip aceso é visível. Ficam anotados; não são "sumir sem
+dizer nada".
+
+**Achado colateral, agora consertado na ADR 2026-09-09d:** com o campo de busca
+das Notas em foco, `tecladoAberto` esconde a barra de navegação inteira, e **não
+há como trocar de aba sem antes soltar o teclado**. Foi o que fez a primeira
+corrida do teste passar verde sem visitar o lugar do defeito — o toque na barra
+caía numa tecla. Registrei aqui como "não consertado"; o G3 mostrou que sem
+consertar **a jornada não fecha**, e a 09d fecha.
+
+## ADR 2026-09-09d — O vazio também rola: o teclado prendia quem filtrou até zero (volta S1-B)
+
+**O G3 reprovou a S1 e a reprovação estava certa.** Os dois XCUITest novos
+passaram para quem os escreveu e falharam **três vezes** para o revisor, no mesmo
+candidato `47231c9`. A saída dele nomeia a causa melhor do que qualquer
+hipótese: a busca terminou a corrida valendo
+`"o que eu aprendi ontem`**`gggd`**`"`. Os quatro toques em `aba-calendario` não
+trocaram de aba — **viraram quatro letras**, porque a barra estava atrás do
+teclado (AX do G3: abas em `y: 1.0572`, fora da tela). Reproduzi o mesmo vermelho
+no A1DF082C com o app recém-instalado.
+
+**A dependência de estado tinha nome.** `NotasView.lista` tem dois ramos. O ramo
+cheio é um `ScrollView` com `.scrollDismissesKeyboard(.interactively)` — o gesto
+que a própria ADR 05e já tinha posto ali, com o comentário certo: *"sem isto o
+teclado da busca prendia a tab bar atrás de si e a única saída era o 'x'"*. O
+ramo **vazio** é um `VStack`. Sem `ScrollView` não há gesto, e sem gesto o
+teclado não sai. Ora: os dois testes digitam `"o que eu aprendi ontem"` na busca,
+**o que filtra o arquivo até zero** e cai justamente no ramo vazio. O teste
+passava para quem tinha notas semeadas que a busca por sentido devolvia, e
+falhava para quem abriu o app limpo. **Era o instrumento medindo o lixo do
+aparelho anterior, não a tela.**
+
+**O defeito não é do teste; é da pessoa.** Filtrar até zero com o teclado em pé
+**prende quem escreveu**: a barra de abas fica atrás do teclado, não há lista
+para arrastar, e a única saída é o "x" ou "ver todas as notas" — as duas jogam
+fora exatamente o que se estava procurando. O conserto do ramo cheio existia
+desde a 05e; **o ramo vazio ficou para trás**, e é onde a pessoa está mais
+perdida. Uma guarda no lugar comum, não uma por ramo: o `.scrollDismissesKeyboard`
+subiu para o `Group` e o vazio virou um `ScrollView` com
+`.scrollBounceBehavior(.always)` — conteúdo curto não rola sozinho, e sem rolar
+não há gesto para o teclado seguir. O desenho da tela não mudou um pixel: o
+mesmo `VStack` alinhado ao topo, na mesma margem.
+
+**O que o teste passou a afirmar, em vez de tocar às cegas.** O helper agora
+arrasta **enquanto** `app.keyboards` existir e então **afirma** que ele saiu, com
+mensagem que diz o que aconteceu ("todo toque na barra vira letra"); depois
+afirma que `aba-calendario` **existe** e que **é alcançável**, antes de tocar.
+Um teste que toca uma coordenada sem checar o que está sob ela não mede a tela —
+mede a sorte. Nenhuma asserção foi afrouxada: as duas asserções finais
+(`busca-notas` com o texto, `cartao-sabia-notas` na tela) estão intactas, e o
+teste continua **vermelho no pai** `cce6beb`.
+
+**Estado honesto.** A jornada da 09c agora é observável de ponta a ponta no
+aparelho: perguntar, sair, voltar, e encontrar o cartão no lugar. A medida de
+curva-zero da 09c (2 toques + redigitar → 1 toque) só passa a valer agora, porque
+só agora a ida ao Calendário existe.
+
+## ADR 2026-09-09j — o toast é gaveta, e o piso do papel empata
+
+**Contexto.** A fusão de C1, R1 e S1 sobre a M1 ficou com dois vermelhos que
+nenhuma das voltas via sozinha, os dois na invariante 08f da C1 e os dois no
+iPhone 17 Pro (`34CC3F94`) — a C1-D mediu no 17e, e a diferença de aparelho é
+que os expôs.
+
+**Vermelho 1 — o toast corria sobre a linha do autor.** A 08x diz que, com o
+foco na Página, a altura do encaixe muda **por corte**, nunca por animação: a
+gaveta não corre sobre a letra que está a ser escrita. O `cartao` e o
+`analisando` já tinham essa guarda (`focoPagina ? nil : Tema.gaveta`); o
+**`toast` não**, e ele vive no **mesmo encaixe** (`acimaDoPe`) e muda a mesma
+altura. Medido na Página real, por quadro: com o toast a entrar em `large`, a
+borda de baixo do papel desceu **8 pt por quadro** e o seguidor ficou atrás —
+**3 quadros com 1 pt da linha ativa fora do papel** e 2 com outra superfície
+sobre ela, de +0,317 s a +0,350 s. As duas cenas de cartão da mesma corrida, que
+já cortam, deram **0 e 0**: mesmo teste, mesmo aparelho, mesma linha — só muda
+quem anima. **Conserto:** a mesma guarda de `focoPagina` na animação do
+`sessao.toast`. Depois: **0 fora e 0 cobertos nos dois tamanhos.**
+
+**Vermelho 2 — o empate era legítimo, e a asserção é que estava errada.** O caso
+da etiqueta de origem (09e) cobrava `papelComEtiqueta < papelSemEtiqueta` como
+portão contra prova vazia. Em AX XXXL, com o aviso e o toast de pé, o papel **já
+está no piso da 09g** (`pisoDoPapel / 3`, uma linha de corpo): **86,3 pt**. A
+cápsula desce a `CadernoView` inteira, mas quem cede é o **encaixe** — o papel
+não pode encolher mais, e a 09g manda que não encolha. **Não é a etiqueta que
+falta desenhar:** medida a rect inteira, o topo do papel desceu **60 pt** em
+AX XXXL (86,3 → 86,3 pt de altura) e **25 pt** em `large` (209 → 183). A
+etiqueta desenha nos dois; só num deles a altura do papel pode contar isso.
+
+**O que o portão passou a afirmar,** porque é o que ele sempre quis dizer: a
+cápsula fica **acima** do editor, logo **desce o topo do papel** sempre que
+desenha (`comEtiqueta.minY > semEtiqueta.minY`), e o papel **nunca cresce** com
+ela em cena (`height <=`). Uma etiqueta que não desenhasse deixaria o topo onde
+estava, e o caso continua reprovando por prova vazia. O `<` não virou `<=` para
+ficar verde: a altura deixou de ser o portão porque a medida mostrou que ela não
+pode sê-lo no piso.
+
+**Estado honesto.** O Vermelho 1 é defeito de produto, consertado na produção. O
+Vermelho 2 é defeito do teste, e a medida diz de qual dos dois lados: a etiqueta
+desenha, o papel é que está no chão.
+
+## ADR 2026-09-09l — o cofre do dono não é da suíte (volta K1)
+
+**Contexto.** Dois testes da `AnaliseRemotaTests` abriam com `ContaGrok.sair()`
+para armar a pré-condição "sem conta". `TracoTests` roda **hospedada dentro do
+app**, e o keychain é do **SIMULADOR**, não do processo de teste: aquele `sair()`
+apagava `oauth-acesso` e `oauth-renova` do serviço `app.traco.xai` de verdade. O
+fecho obrigatório de toda volta — suíte integral por `com-trava.sh` — derrubava a
+conta Grok do dono sempre que corresse no aparelho dela.
+
+**Isto já tinha precedente e ele foi lido pela metade.** A ADR 05u desviou o App
+Group para os testes (`SuperficieDisco.isolarParaTestes()`), com o portão "A2: a
+suíte não escreve no App Group real". Ficou o **cofre**, que ninguém desviou.
+
+**Decisão.** O mesmo desvio, no único ponto por onde todo acesso ao cofre passa:
+sob `XCTestConfigurationFilePath`, `ContaGrok.servico` vira
+`app.traco.xai.testes` e `chaveExpira` vira `grokExpiraEm-testes`. Os dois testes
+ficam de pé com o texto que tinham — eles guardam coisa que importa — e passam a
+escrever num cofre que é deles.
+
+**Por que aqui e não em cada teste.** Uma guarda em `sair()` conserta só quem
+chama `sair()`; o sufixo em `servico` conserta `guardar`, `lido`, `ligada`,
+`token`, `renovar` e `guardarSessao` de uma vez, e conserta também o teste que
+ainda não foi escrito. É o diff mais curto que fecha a classe inteira.
+
+**Medida, antes e depois, no aparelho de trabalho `34CC3F94`** (nunca no
+`B91C8DEF`, que é o da conta). Um teste descartável plantou uma conta FALSA no
+serviço real e chamou `sair()`:
+
+| | acesso | renova |
+|---|---|---|
+| antes do conserto | `FALSO-acesso-k1` → **APAGADO** | `FALSO-renova-k1` → **APAGADO** |
+| depois do conserto | `FALSO-acesso-k1` → `FALSO-acesso-k1` | `FALSO-renova-k1` → `FALSO-renova-k1` |
+
+**Portão.** `testeNuncaEscreveNoCofreDoAparelho` afirma que sob teste o serviço
+**não é** `app.traco.xai`, e mede direto que `sair()` não move o que está no
+cofre do aparelho. Com o valor antigo restaurado ele fica vermelho na linha
+`Expectation failed: (ContaGrok.servico → "app.traco.xai") != "app.traco.xai"` —
+foi assim que se provou que ele morde.
+
+**Estado honesto.** O `UserDefaults.standard` do app continua real na suíte
+(`revisaoNivel`, `padroesVistas`, `revisaoProxima`, rascunho do Trabalho): são
+preferências, cada teste limpa a sua, e nenhuma é credencial. Fica como dívida
+nomeada no RUMO, não segura esta volta.
+
+### Adendo M1-B — "cada versão" passou a ter cada versão, e apareceu uma 1.0.0 que ninguém tinha visto
+
+A G3 reprovou a frase, não o conserto: o portão dizia "um store real de **cada
+versão**" e tinha dois arquivos, V4 e V5. Ou a prova cresce até a frase, ou a
+frase encolhe até a prova — e aqui foi a prova que cresceu, porque **o passado
+não visitado é exatamente onde o defeito estava**.
+
+**Como um caderno de 31/08 é gravado hoje sem falsificar o passado.** O checksum
+de uma versão não depende da plataforma nem do módulo: depende só da FORMA das
+entidades. Medido, não suposto — a cópia congelada V4 deste repo, gravada num
+executável macOS, produz
+`ImY8W7hR8jJH+xS4hddeRW+haXr9qO3ZDVx/J9RS3sI=`, **o mesmo checksum, byte a
+byte**, do `caderno-v4-pre08u` que o build iOS `8d9ce62` gravou no simulador. Com
+o instrumento assim calibrado contra um caso conhecido, as formas antigas da
+`Nota` foram **extraídas do `git` por script** (não transcritas à mão) e usadas
+para gravar um caderno de cada versão.
+
+**O achado.** A `1.0.0` teve **duas formas**. `b7fbc3e` (31/08 08:27) criou o
+schema versionado; `fea00dd` (31/08 16:31) pôs `queimada`, `queimadaEm`,
+`minutosEscritos` e `sentido` na `Nota` **sem abrir versão** — o mesmo pecado da
+08u, cometido oito horas depois de o schema nascer. O rótulo continuou `1.0.0`; o
+checksum foi de `ZaCSxtyZ+GhOyX+/HrdB0vDyHUU4iGbD8pyC5WHEAI8=` para
+`c2qnFksOJhh+/ANo29UNO8QkIxGdsSf0P+COGywTg4E=`. O conserto da M1 congelou a
+segunda forma como `TracoSchemaV1` e **deixou a primeira órfã**: um caderno
+escrito naquela manhã continuava recusando abrir, com o mesmo
+`loadIssueModelContainer`, no build já consertado.
+
+**A decisão: `TracoSchemaV0`, rótulo `0.9.0`, e o estágio `V0→V1` leve.** O
+rótulo não é o que casa o store — o CoreData casa pelo checksum, e o rótulo só
+serve para nós lermos; duas versões do plano não podem carregar o mesmo número,
+então a primeira 1.0.0 fica registrada como `0.9.0` com a razão escrita ao lado.
+
+**O portão agora tem seis cadernos, um por versão do plano**, com contagens
+distintas de propósito (3, 4, 5, 6, 7, 7) para que abrir o arquivo errado
+apareça na conta, e cada um confere texto, selo, queima, sentido e a origem
+`.autor` da 08u:
+
+| arquivo | versão | de onde vem |
+|---|---|---|
+| `caderno-v0-b7fbc3e` | 0.9.0 | forma viva de `b7fbc3e` (31/08 08:27) |
+| `caderno-v1-fea00dd` | 1.0.0 | forma viva de `fea00dd` (31/08 16:31) |
+| `caderno-v2-bf535c5` | 2.0.0 | forma viva de `bf535c5` (02/09) |
+| `caderno-v3-degrau` | 3.0.0 | degrau: **nenhum build a gravou em campo** |
+| `caderno-v4-pre08u` | 4.0.0 | build `8d9ce62`, o caderno do autor |
+| `caderno-v5-origem` | 5.0.0 | build desta volta |
+
+**A `3.0.0` nunca esteve na mão de ninguém** — nasceu e foi superada dentro do
+mesmo commit (`9ad639e`), que já abria o container pela V4. O caderno dela é o
+degrau do plano montado com as formas vivas daquele commit, e o nome do arquivo
+diz isso; declarar seria mais barato que fingir.
+
+**A frase passou a se defender sozinha.** `oPortaoTemUmCadernoPorVersao` compara
+o tamanho da lista com `TracoMigracao.schemas.count`: quem abrir a V6 e esquecer
+o caderno dela vê vermelho **antes** de a mudança chegar ao aparelho do autor.
+Provado tirando o `TracoSchemaV0` do plano: o contador acusou 6 contra 5 e o
+`caderno-v0-b7fbc3e` recusou abrir com `loadIssueModelContainer`, enquanto as
+outras cinco seguiram verdes.

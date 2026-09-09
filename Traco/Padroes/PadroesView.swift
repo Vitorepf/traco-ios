@@ -25,16 +25,8 @@ struct PadroesView: View {
     private func lerSemana() {
         var eventos: [EventoCalendario] = []
         if case .eventos(let lidos) = CalendarioDisco.carregar() { eventos = lidos }
-        let lidas = notas.map {
-            RevisaoSemanal.NotaLida(uuid: $0.uuid, gesto: $0.gesto, fechada: $0.fechada, criadaEm: $0.criadaEm,
-                                    gatilhoEm: $0.gatilhoEm, titulo: $0.tituloNaLista, campos: $0.campos,
-                                    sentido: $0.sentido, queimadaOuSeladaEm: $0.queimadaEm ?? $0.editadaEm)
-        }
-        semana = RevisaoSemanal.ler(notas: lidas, eventos: eventos)
-        trajetoria = Trajetoria.ler(notas: notas.map {
-            Trajetoria.NotaLida(uuid: $0.uuid, gesto: $0.gesto, fechada: $0.fechada, criadaEm: $0.criadaEm,
-                                editadaEm: $0.queimadaEm ?? $0.editadaEm, campos: $0.campos, sentido: $0.sentido)
-        }, sinais: Sinais.todos())
+        semana = RevisaoSemanal.ler(notas: notas.map(\.paraSemana), eventos: eventos)
+        trajetoria = Trajetoria.ler(notas: notas.map(\.paraTrajetoria), sinais: Sinais.todos())
     }
 
     // MARK: - A trajetória (ADR 04q)

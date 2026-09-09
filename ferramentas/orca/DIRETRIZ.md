@@ -64,3 +64,34 @@ Decida sozinho, sempre, e registre a decisão com o porquê no LACO em uma linha
 Mesmo nesses casos: abra o gate, escreva a pergunta em ferramentas/orca/PERGUNTAS.md com as opções e a sua recomendação, e SIGA com todas as outras voltas. Uma volta esperando nunca para o laço. Se a espera passar de duas horas e a decisão for reversível na prática, tome a sua recomendação como resposta, escreva que foi por tempo, e siga; o dono desfaz se discordar.
 
 Escolha a opção que preserva mais: dados, versões, origem e a possibilidade de voltar atrás. Quando o risco for de perda, prove primeiro em simulador de teste, nunca no aparelho do dono.
+
+## 7. Ordem do dono, 08/09/2026 22h — controle total do computador, e a nota 9
+
+Palavras dele: "todos os modelos que estão no Orca trabalhando no Traço têm total liberdade de controlar meu computador e evoluir o Traço iOS. O foco número um é levar o Traço iOS para 9/10; ainda está em 7, e demorou o dia inteiro para subir de 6 para 7. Foquem na melhoria da IA, testem a IA, têm total controle do meu computador. Elevem o padrão de design e de experiência: curva-zero, design-router, gate-loop. Elevem ao extremo a qualidade e o poder do Traço iOS."
+
+O que isso muda:
+- **Controle do computador liberado para todo worker do Orca** (computer-use do Orca, simulador, apps do Mac, Espelhamento do iPhone quando a prova exigir o aparelho), com uma condição só: avisar no comentário do worktree ao começar e ao terminar, e nunca dois workers no mesmo app ao mesmo tempo. A lei do mouse da ESTEIRA passa a ser esta. **VOZ, VOICEOVER E iPAD CONTINUAM PROIBIDOS**, sem exceção.
+- **Foco 1: a IA.** As sete operações marcadas `indisponivelPorQualidade` na medida de 08/09 voltam UMA POR UMA, cada uma com a sua volta, medida de novo com o Grok pela sonda antes e depois, e só sai da lista com nota 9 nas cinco dimensões de QUALIDADE-IA.md. Contexto, prompt, esquema de saída e teto são as quatro alavancas; a régua é a saída inteira lida, nunca o hash.
+- **Foco 2: design e experiência ao extremo.** Toda volta visual passa por `design-router` com as seis fases citadas, `curva-zero` medida em toques antes e depois, e `gate-loop` como dono do ciclo. Tela abaixo de 9 no scorecard tem prioridade sobre função nova.
+- **A nota é a régua.** Cada fecho de volta diz o que mudou na nota da dimensão que tocou, com a prova. O dia inteiro de 08/09 subiu um ponto; o que sobe o próximo é a IA que serve e a jornada real do dono.
+
+## 8. Ordem do dono, 09/09/2026 9h — o mais rápido possível, zero bugs, otimizar ao máximo
+
+Palavras dele: "deixe o Orca focado em melhorar o Traço iOS da forma mais rápida possível. Eliminar todos os bugs, erros e otimizar ao máximo. Use as skills ponytail se precisar."
+
+O que isso muda:
+- **Velocidade sem perder o portão:** o que acelera é fechar, não abrir. Toda volta nasce com o menor escopo que prova o ganho; corrigir um defeito é uma volta curta com teste que reproduz e captura, não uma volta de tela. O revisor devolve em uma passada o que consegue; passada de acabamento vira dívida nomeada no RUMO, não terceira rodada.
+- **Caça a defeitos como frente permanente:** uma volta `B` por vez varre uma classe inteira de erro — os seis `try!` de produção, estados inalcançáveis, rota que cala em vez de dizer, ação que não faz nada, texto que promete o que o motor não sustenta — com teste que reproduz antes e fica vermelho sem o conserto. Fonte: a auditoria de 07/09, a dívida da limpeza no RUMO, o `LETRAS-ADR` e o que os revisores acharam e ficou "aberto".
+- **Otimizar ao máximo:** `swiftui-performance-audit` e Instruments nas telas de lista, editor e parser; hitch, alocação por tecla e reparse inteiro são defeitos. Cada volta de otimização traz a medida antes e depois, no mesmo aparelho.
+- **Ponytail é lei de código:** a solução mais curta que funciona; nada de abstração para um caso, nada de camada "para depois"; deleção conta como entrega; a suíte cobre o ramo que muda e mais nada. O revisor reprova por excesso tanto quanto por falta.
+- **A ordem de fila continua a da §7** (IA até a nota 9, design ao extremo), com a caça a defeitos correndo em paralelo como trilha.
+
+## 9. Veredito do dono sobre o design, 09/09 11h22 — "uma porcaria, 4/10, deplorável, muito IA slop"
+
+Ele olhou a tela de Notas do build de hoje (chips de filtro em cápsula, a linha "Trabalhos", a seção "A VOLTA", a lista com etiqueta de método e de domínio à direita, a barra "Buscar ou perguntar", a barra de abas com o Escrever em âmbar) e deu **4 de 10**. A palavra dele é **slop**: tela que qualquer app de notas gerado por IA teria. A barra dele são apps lapidados por anos — Notes, Things, Craft — e a sensação de FOLHA, não de lista de sistema.
+
+O que isso muda:
+- **A nota das telas do scorecard cai para o que ele deu.** Notas = 4. As outras telas se presumem no mesmo nível até ele dizer o contrário. Nenhuma "nota 9" do juiz vale contra o veredito dele; o juiz calibra pelo dono.
+- **Volta de design D1, Notas, abre como frente prioritária ao lado da IA.** Fase 5 do design-router primeiro (auditar antes de tocar, com esta tela como o "antes"), depois Ancorar com direção própria: o que dá identidade ao Traço é o papel, a letra e o silêncio, não cápsulas, etiquetas e barras. `tastemaker` para o teste contra design genérico ("se trocar o nome, serve a qualquer app?"), `curva-zero` para a jornada de achar e marcar, `design-router` nas seis fases, `gate-loop` no ciclo. Juiz G4 em Fable, e o dono julga o resultado em vídeo.
+- **O que ele NÃO quer ver:** cápsula de filtro em fileira, etiqueta em caixa alta à direita de cada linha, seção em rótulo de sistema ("A VOLTA"), barra de busca de sistema, "Trabalhos" como linha de menu. O que ele quer sentir: uma folha, hierarquia por tipografia, o método e o domínio ditos com uma palavra em tinta suave e não em selo, o gesto de escrever como a coisa principal.
+- **Cada volta de tela daqui em diante termina com um vídeo de 15 s no aparelho da conta, enviado ao dono**, e só ele fecha a nota.

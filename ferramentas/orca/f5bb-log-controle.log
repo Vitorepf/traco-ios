@@ -1,0 +1,39 @@
+# F5b-B — o liveactivitiesd do Pro Max 6033B043 entre a semeadura (03:54:49) e o fim dos pares (04:13:21).
+# Capturas: f5bb-large-ilha-compacta 04:13:05 · f5bb-large-bloqueada 04:13:09 · content_size=accessibility-extra-extra-extra-large às 04:13:1x · f5bb-ax5-ilha-compacta 04:13:16 · f5bb-ax5-bloqueada 04:13:20 · restaurado medium 04:13:21.
+# Entre 03:59:51 e 04:07:00 outro worker rodou 'xcodebuild test' neste aparelho: o install encerrou as duas atividades e o iOS relançou o app ('Launched process for reason Activity ended'), cujo arranque (ADR 05u, reconciliar) as subiu de novo a partir da projeção — os ids das capturas são os de 04:07:00.
+2026-09-09 03:54:50.031 Df liveactivitiesd[41377:b88140] [com.apple.activitykit:activityManager] Starting activity: id: D62DDB96-3CD7-4304-A226-BC623A30136F; created: 2026-09-09 06:54:50 +0000; started: 2026-09-09 06:54:50 +0000; 
+2026-09-09 03:54:50.042 Df liveactivitiesd[41377:b88140] [com.apple.activitykit:wake] Earliest nonwaking date from task "Marking activities stale": 2026-09-09T05:34:48-03:00, 
+2026-09-09 03:54:50.162 Df liveactivitiesd[41377:b8814d] [com.apple.activitykit:activityManager] Starting activity: id: 299EAACC-0571-45C7-A77E-17581F5838FF; created: 2026-09-09 06:54:50 +0000; started: 2026-09-09 06:54:50 +0000; 
+2026-09-09 03:54:50.165 Df liveactivitiesd[41377:b8814d] [com.apple.activitykit:wake] Earliest nonwaking date from task "Marking activities stale": 2026-09-09T05:34:48-03:00, 
+2026-09-09 03:54:50.165 Df liveactivitiesd[41377:b8814d] [com.apple.activitykit:wake] Earliest nonwaking date from task "Marking activities stale": 2026-09-09T05:34:48-03:00, 
+2026-09-09 03:54:50.167 Df liveactivitiesd[41377:b8814d] [com.apple.activitykit:wake] Earliest nonwaking date from task "Marking activities stale": 2026-09-09T05:34:48-03:00, 
+2026-09-09 03:59:51.425 Df liveactivitiesd[41377:b95eb8] [com.apple.activitykit:wake] Earliest nonwaking date from task "Marking activities stale": 2026-09-09T05:34:48-03:00, 
+2026-09-09 03:59:51.425 Df liveactivitiesd[41377:b95eb8] [com.apple.activitykit:wake] Earliest nonwaking date from task "Marking activities stale": 2026-09-09T05:34:48-03:00, 
+2026-09-09 03:59:51.427 Df liveactivitiesd[41377:b95eb8] [com.apple.activitykit:wake] Earliest nonwaking date from task "Marking activities stale": 2026-09-09T05:34:48-03:00, 
+2026-09-09 03:59:51.428 Df liveactivitiesd[41377:b95eb8] [com.apple.activitykit:dismissParticipant] Momentary activity ended 299EAACC-0571-45C7-A77E-17581F5838FF
+2026-09-09 03:59:51.435 Df liveactivitiesd[41377:b95eb8] [com.apple.activitykit:wake] Earliest nonwaking date from task "Marking activities stale": 2026-09-09T05:34:48-03:00, 
+2026-09-09 03:59:51.435 Df liveactivitiesd[41377:b95eb8] [com.apple.activitykit:dismissParticipant] Momentary activity ended D62DDB96-3CD7-4304-A226-BC623A30136F
+2026-09-09 03:59:51.548 Df liveactivitiesd[41377:b95eb8] [com.apple.activitykit:activityClient] Launched process for reason "Activity ended": app.traco
+2026-09-09 03:59:51.548 Df liveactivitiesd[41377:b95eff] [com.apple.activitykit:activityClient] Launched process for reason "Activity ended": app.traco
+2026-09-09 03:59:51.748 Df liveactivitiesd[41377:b95f4d] [com.apple.activitykit:activityManager] Starting activity: id: 4A468BCE-A65B-4E4E-B9EE-F648CE7D1EBF; created: 2026-09-09 06:59:51 +0000; started: 2026-09-09 06:59:51 +0000; 
+2026-09-09 03:59:51.889 Df liveactivitiesd[41377:b95eb8] [com.apple.activitykit:activityManager] Starting activity: id: 2DD1BF22-5B75-4DFE-AB79-7AD8DE718CD4; created: 2026-09-09 06:59:51 +0000; started: 2026-09-09 06:59:51 +0000; 
+2026-09-09 03:59:51.892 Df liveactivitiesd[41377:b95eb8] [com.apple.activitykit:wake] Earliest nonwaking date from task "Marking activities stale": 2026-09-10T00:00:00-03:00, 
+2026-09-09 03:59:51.894 Df liveactivitiesd[41377:b95eb8] [com.apple.activitykit:wake] Earliest nonwaking date from task "Marking activities stale": 2026-09-09T05:34:48-03:00, 
+2026-09-09 04:06:01.176 Df liveactivitiesd[35776:b9ef19] [com.apple.activitykit:activityManager] Starting activity: id: 4A468BCE-A65B-4E4E-B9EE-F648CE7D1EBF; created: 2026-09-09 06:59:51 +0000; started: 2026-09-09 06:59:51 +0000; 
+2026-09-09 04:06:01.248 Df liveactivitiesd[35776:b9ef19] [com.apple.activitykit:activityManager] Starting activity: id: 2DD1BF22-5B75-4DFE-AB79-7AD8DE718CD4; created: 2026-09-09 06:59:51 +0000; started: 2026-09-09 06:59:51 +0000; 
+2026-09-09 04:06:01.367 Df liveactivitiesd[35776:b9ef19] [com.apple.activitykit:wake] Earliest nonwaking date from task "Marking activities stale": 2026-09-10T00:00:00-03:00, 
+2026-09-09 04:06:01.440 Df liveactivitiesd[35776:b9ef19] [com.apple.activitykit:wake] Earliest nonwaking date from task "Marking activities stale": 2026-09-09T05:34:48-03:00, 
+2026-09-09 04:06:03.181 Df liveactivitiesd[35776:b9efbb] [com.apple.activitykit:activityClient] Launched process for reason "Activity started": app.traco
+2026-09-09 04:06:03.182 Df liveactivitiesd[35776:b9efcd] [com.apple.activitykit:activityClient] Launched process for reason "Activity started": app.traco
+2026-09-09 04:06:59.962 Df liveactivitiesd[35776:b9f06d] [com.apple.activitykit:wake] Earliest nonwaking date from task "Marking activities stale": 2026-09-09T05:34:48-03:00, 
+2026-09-09 04:06:59.963 Df liveactivitiesd[35776:b9f06d] [com.apple.activitykit:wake] Earliest nonwaking date from task "Marking activities stale": 2026-09-09T05:34:48-03:00, 
+2026-09-09 04:06:59.964 Df liveactivitiesd[35776:b9f06d] [com.apple.activitykit:wake] Earliest nonwaking date from task "Marking activities stale": 2026-09-09T05:34:48-03:00, 
+2026-09-09 04:06:59.965 Df liveactivitiesd[35776:b9f06d] [com.apple.activitykit:dismissParticipant] Momentary activity ended 4A468BCE-A65B-4E4E-B9EE-F648CE7D1EBF
+2026-09-09 04:06:59.970 Df liveactivitiesd[35776:b9f06d] [com.apple.activitykit:wake] Earliest nonwaking date from task "Marking activities stale": 2026-09-09T05:34:48-03:00, 
+2026-09-09 04:06:59.973 Df liveactivitiesd[35776:b9f06d] [com.apple.activitykit:dismissParticipant] Momentary activity ended 2DD1BF22-5B75-4DFE-AB79-7AD8DE718CD4
+2026-09-09 04:07:00.423 Df liveactivitiesd[35776:ba1902] [com.apple.activitykit:activityClient] Launched process for reason "Activity ended": app.traco
+2026-09-09 04:07:00.425 Df liveactivitiesd[35776:b9f06d] [com.apple.activitykit:activityClient] Launched process for reason "Activity ended": app.traco
+2026-09-09 04:07:00.721 Df liveactivitiesd[35776:b9f06d] [com.apple.activitykit:activityManager] Starting activity: id: 2F19AAAE-E196-4519-BFDB-770DF8B0D0CD; created: 2026-09-09 07:07:00 +0000; started: 2026-09-09 07:07:00 +0000; 
+2026-09-09 04:07:00.869 Df liveactivitiesd[35776:ba1902] [com.apple.activitykit:activityManager] Starting activity: id: C496A60E-CDAF-4B2F-8629-C386C474E3A9; created: 2026-09-09 07:07:00 +0000; started: 2026-09-09 07:07:00 +0000; 
+2026-09-09 04:07:00.871 Df liveactivitiesd[35776:ba1902] [com.apple.activitykit:wake] Earliest nonwaking date from task "Marking activities stale": 2026-09-10T00:00:00-03:00, 
+2026-09-09 04:07:00.874 Df liveactivitiesd[35776:ba1902] [com.apple.activitykit:wake] Earliest nonwaking date from task "Marking activities stale": 2026-09-09T05:34:48-03:00, 

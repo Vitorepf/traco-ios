@@ -41,17 +41,9 @@ Lei: **nunca `booted` e nunca `-destination generic` para instalar**. Sempre `xc
 
 **VOZ, VOICEOVER E iPAD SÃO PROIBIDOS (lei de 08/09, ordem do dono, repetida por ele inúmeras vezes).** Nenhum worker aciona Siri, o botão siri do `orca emulator`, ditado por voz, Speak Screen, VoiceOver ou `say`, em simulador nenhum, nunca: a fala dos simuladores sai pelas caixas do Mac do dono, e em 08/09 ele ouviu a Siri do teste 2 e do teste 4 enquanto trabalhava. Prova de Siri, de ditado e de qualquer entrada por voz é no iPhone do dono, com ele presente, ou não existe. Acessibilidade se prova pela árvore (`orca emulator ax`, hierarquia) e por captura, nunca com VoiceOver ligado. iPad não existe no Traço e não se cita. Worker que violar é parado e a volta recomeça. Vai no preâmbulo de todo spec, antes de qualquer outra lei.
 
-**Ninguém toca no mouse do dono (lei de 08/09, ordem do dono).** Nenhum worker controla o mouse ou o teclado do Mac — nem `cliclick`, nem computer-use, nem `AXRaise`, nem AppleScript de clique. O dono trabalha na mesma máquina e em 08/09 viu vários agentes disputando o cursor ao mesmo tempo; além disso o clique por coordenada cai na janela do simulador vizinho. O instrumento é o controle de simulador do Orca, que toca o aparelho pelo UDID sem passar pelo cursor: `orca emulator attach <UDID> --json` uma vez; `orca emulator ax --device <UDID> --json` para achar o elemento (frames normalizados 0..1, origem no canto superior esquerdo; tocar no centro, x+w/2 e y+h/2); `orca emulator tap <x> <y> --device <UDID> --json`; `orca emulator type "texto" --device <UDID>` (só ASCII); `orca emulator button home --device <UDID>`; `orca emulator kill --device <UDID>` ao terminar. Evidência continua sendo `xcrun simctl io <UDID> screenshot`. Quem muda orientação, tamanho de letra ou aparência do simulador restaura ao fim da passada e confere por captura. Esta lei vai no spec de todo worker. **Exceção única, por ordem do dono (08/09 22h):** quando o dono manda configurar um aplicativo do Mac dele por uma volta nomeada, o worker dessa volta pode usar o controle do computador do Orca (`orca computer-use`), e só ele, só nesse app, avisando o dono no início e no fim pelo comentário do worktree; voz continua proibida; ao terminar, devolve o mouse e registra no LACO o que tocou.
+**UM SIMULADOR SÓ (ordem do dono, 09/09 08h50).** Só o iPhone 17 Pro (teste 2) `B91C8DEF-B0A7-454A-95DE-5D7BA7B040A9` fica ligado, e é o aparelho da conta Grok (o dono autorizou lá em 09/09 10:55 e mandou "usar o que já está funcionando"; o C2416CBC deixou de ser o aparelho da conta). Ninguém liga outro. Build, suíte, sonda, capturas e jornada correm nele, serializados por `com-trava.sh`. Nada de erase, clearState ou uninstall; instalar por cima só quando a volta precisa do binário novo, uma vez, com `ContaGrok.ligada` conferido antes e depois; se a conta cair, o worker para e diz o comando que a derrubou. Com um aparelho, o maestro volta a valer como evidência.
 
-**O helper do `orca emulator` é UM SÓ na máquina** (três achados independentes em 08/09, e é o limite do instrumento novo). O revisor da P1 viu o `ax` perder a árvore de acessibilidade **assim que o Traço abre** (`ERR_CONNECTION_REFUSED` / `ERR_EMPTY_RESPONSE`), recuperando-a na tela inicial e perdendo-a de novo ao abrir o app. A volta L2 perdeu duas capturas porque o helper é global. E o revisor da L2, **depois de anexar explicitamente o seu UDID, viu o helper voltar a apontar para o aparelho de OUTRA volta** e as chamadas seguintes perderem o aparelho — o que o impediu de repetir uma medição de geometria de forma independente.
-
-O juiz do G4 da F4-F acrescentou o quarto dado, e é o mais claro: **`orca emulator attach` é por worktree**, e cada reatamento dele pode ter tirado o aparelho do revisor que trabalhava em paralelo.
-
-**E o pior deles, achado pelo juiz do G4 da V12 em 08/09:** `tap --device` **recusa** quando o helper está noutro aparelho, mas **`ax --device` lê a árvore do VIZINHO sem avisar**. Quer dizer: uma medida de geometria feita pela árvore de acessibilidade pode ser do aparelho errado e **parecer certa**. Regra: toda medida pela árvore de AX é conferida contra uma captura `simctl io` do mesmo UDID no mesmo instante (texto e estado batendo), ou não vale; duas medidas independentes que concordam valem mais que uma sozinha.
-
-Consequências, enquanto o instrumento for assim: **toda sessão de `orca emulator` passa por `ferramentas/orca/com-trava.sh`**, como build e teste, porque o helper é recurso único da máquina; quem for medir geometria ou dirigir tela **declara no relato que segurou a trava**; e medição que o revisor não conseguiu repetir por causa do helper é **limite de instrumento, não confirmação** — não se vende como segunda prova. Prova de tela continua sendo `xcrun simctl io <UDID> screenshot`, que não depende do helper.
-
-**Com quatro simuladores ligados, `xcodebuild test` pendura** em `test runner hung before establishing connection` (achado da F4-I, duas vezes seguidas em 08/09). **A clonagem do teste paralelo é o que pendura:** `-parallel-testing-enabled NO` resolve de primeira. Use-o sempre que houver mais de dois simuladores de pé.
+**O controle do computador está LIBERADO para todo worker (ordem do dono, 08/09 22h, DIRETRIZ §7).** O worker pode usar o computer-use do Orca, o simulador, apps do Mac e o Espelhamento do iPhone quando a prova exigir o aparelho, com duas condições: avisar no comentário do worktree ao começar e ao terminar, e nunca dois workers no mesmo app ao mesmo tempo. Para o simulador, `orca emulator` continua sendo o caminho preferido (toca pelo UDID, sem disputar o cursor); `cliclick` em coordenada de tela cai na janela do vizinho. Quem muda orientação, tamanho de letra ou aparência restaura ao fim. **VOZ, VOICEOVER E iPAD CONTINUAM PROIBIDOS.**
 
 **A galeria de widgets trava.** A folha "Adicionar Widget" para de paginar e depois trava de vez — três sessões seguidas de revisão da F4 esbarraram nisso, e já custou replantio de widget em três revisões. Some com o Simulator reiniciado, às vezes. Quando travar: é instrumento, não desconta nota, e a saída é usar as capturas de quem conseguiu plantar, conferindo o conteúdo e o relógio delas. A Live Activity do Destaque também engole o toque no botão "Editar" da galeria.
 
@@ -125,7 +117,12 @@ e sem saída capturada** — falharam calando. O que eles tinham feito continuav
 no worktree: quatro arquivos modificados, uma captura nova, as três correções do
 revisor escritas. Refazer a volta do zero teria jogado tudo fora.
 
-**Regra:** ao ver um despacho morto, a primeira coisa é `git status` e
+**Terceira vez em 24 h** (A1-B, A1-C, M1-B, 08/09–09/09): o terminal sai, o
+despacho fica `dispatched` ou `failed`, e **o trabalho está inteiro no worktree**.
+Na M1-B estavam lá as fixtures `v0` a `v5`, o schema `V0` e o teste ampliado — e o
+portão já tinha passado no aparelho.
+
+**Regra:** ao ver um despacho morto, **`orca orchestration worker-read --dispatch <id>`** e, em seguida, `git status` e
 `git diff` no worktree dele — antes de decidir se a volta recomeça, continua ou
 fecha. O spec do sucessor diz onde o trabalho parado está e manda **ler o diff
 antes de qualquer coisa**, sem `stash` e sem refazer. E o sucessor **confere os
@@ -257,3 +254,367 @@ vezes idênticas.
 instrumento**, e a resposta é repetir a corrida e mostrar as duas saídas — nunca
 declarar vermelho (não houve teste) nem verde (não houve teste). Quem relata,
 relata as duas: a que travou e a que rodou.
+
+### `orca emulator kill` derruba o vizinho (09/09)
+
+A R1 fechou com `orca emulator kill --device 34CC3F94` seguido de `simctl
+shutdown` do próprio aparelho — e **o `6033B043` de outra volta desligou no mesmo
+segundo** (`device.plist` modificado às 22:08:33; o comando às 22:08:34). O
+worker nem tinha tocado nele. É o mesmo helper único da máquina, já conhecido por
+perder a árvore de AX e por apontar para o aparelho errado depois de um `attach`:
+o `kill` derruba **o que o helper gerencia**, não só o `--device` pedido.
+
+**Regra:** para encerrar o SEU aparelho, use `xcrun simctl shutdown <UDID>` — que
+é escopado — e **evite `orca emulator kill` enquanto houver outra volta com
+simulador ligado**. Se precisar dele, **avise antes** e **confira depois** quais
+aparelhos ficaram de pé, restaurando o que você derrubou sem querer. Nenhum dado
+se perde num `shutdown` (o contêiner fica), mas a volta do vizinho perde a
+passada.
+
+**E o que o worker fez de certo:** perguntou por `ask` antes de mexer no aparelho
+alheio. A pergunta **expirou em 10 minutos sem resposta** e ele então religou o
+`6033B043` para **restaurar o estado em que encontrou a máquina** — que é a
+decisão certa quando o coordenador não responde: voltar ao que estava, não
+escolher por conta própria um estado novo.
+
+### O `ask` expira, e o laço tem de contar com isso (09/09)
+
+Duas perguntas de worker morreram por timeout na mesma noite (10 min e 900 s),
+porque o orquestrador só olha a caixa quando o ambiente o avisa. **Quem pergunta
+não pode ficar parado:** o spec passa a dizer que, se o `ask` expirar, o worker
+**faz o que restaura o estado anterior** (ou segue pelo caminho menos
+destrutivo), **registra a pergunta e a expiração no relato**, e continua — nunca
+escolhe sozinho um caminho irreversível.
+
+### LEI DO SIMULADOR DO GROK, corrigida: o INSTALL POR CIMA também derruba a conta (09/09)
+
+A lei antiga proibia `erase`, `clearState`, `uninstall` e `xcodebuild test` no
+`C2416CBC` e **permitia instalar por cima**. Estava errada, e a medida é limpa:
+a fumaça antes do install registrou `contaGrokLigada=true` com **12 modelos**
+às 03:20:38Z; depois do **install por cima**, `contaGrokLigada=false` com
+**0 modelos** às 03:22:07Z. O revisor parou na hora e **não contornou**.
+
+**A lei, na forma que o dono deu em 09/09 08h40:** no `C2416CBC` **a sonda roda no
+build JÁ INSTALADO** — `simctl launch` com `TRACO_AVALIAR_IA` no ambiente, ou
+`terminate`+`launch`. **Binário novo entra nesse aparelho UMA vez por volta**, com
+**`ContaGrok.ligada` conferido antes e depois**. Nada de `erase`, `clearState`,
+`uninstall` nem `xcodebuild test` — nunca. **Se a conta cair, a volta para e diz;
+mas o objetivo é ela não cair.** Só o dono reautoriza, e cada reautorização custa
+a ele — foi o install por cima repetido que a derrubou duas vezes e travou uma
+noite inteira.
+
+**E como se roda uma corrida de IA sem instalar**, que é o que destrava o
+trabalho: a sonda `AvaliacaoIA` lê a fixture pelo nome em
+`TRACO_AVALIAR_IA=<fixture.json>` **no Documents do app**
+(`AvaliacaoIA.swift:58`). Então:
+
+1. escreva a fixture nova no contêiner de dados do app
+   (`xcrun simctl get_app_container <UDID> <bundle> data`);
+2. relance com a variável (`SIMCTL_CHILD_TRACO_AVALIAR_IA=<fixture.json>`,
+   `simctl launch --terminate-running-process`);
+3. **use o binário que já está no aparelho** e diga no relato **qual candidato é**
+   (o SHA que o instalou por último), porque medir com binário alheio é o erro
+   irmão.
+
+**Fumaça obrigatória antes e depois de cada corrida:** `contaGrokLigada` e a
+contagem de modelos, com carimbo de hora, coladas no relato. Se cair, **diga em
+vez de contornar** — foi assim que o gatilho apareceu.
+
+### Prova que ninguém olhou não é prova (09/09)
+
+A C1-B versionou um MP4 e o anunciou como "a gaveta consertada". O revisor abriu:
+**44,04 s da Tela Inicial, sem o Traço dentro**. A sequência textual carimbada da
+mesma passada era boa; **o vídeo era prova falsa** — e ninguém tinha aberto o
+arquivo antes de anexá-lo.
+
+**Regra:** todo artefato de prova — vídeo, captura, árvore, log — é **aberto e
+conferido por quem o anexa**, e o relato diz **o que se vê nele**, não o que
+deveria ver. Um caminho de arquivo no relatório não é evidência; é uma promessa.
+
+Duas irmãs do mesmo dia, para a lista não parecer exagero: o helper do
+`orca emulator` devolveu **`ok:true` sem mover a tela** (a R1-B trocou de
+instrumento e mediu por XCUITest), e a sonda nova da C1-B media **`E ⊆ P` mas não
+`P ∩ O = ∅`** — metade da invariante 08f, com a outra metade sem portão.
+
+### A sonda que mede metade da regra é pior que nenhuma (09/09)
+
+Porque ela dá um verde. Quando escrever instrumento para uma invariante de duas
+partes, **mostre o vermelho de cada parte separadamente** — se uma das metades
+nunca ficou vermelha, ela não está sendo medida.
+
+### O checkout descartável do pai é o caminho certo, não uma exceção (09/09)
+
+Um revisor perguntou se podia montar um checkout descartável do pai em `/tmp`
+para reproduzir o vermelho no próprio aparelho, porque a regra *"só no seu
+worktree"* deixava isso ambíguo. **Pode, e deve.** A regra existe para ninguém
+escrever no worktree alheio nem no checkout principal — nunca quis dizer que não
+se monta uma árvore descartável para ver um vermelho.
+
+Foi assim que o revisor da C1 produziu a melhor prova da noite: montou o pai
+descartável, **trouxe só a sonda do candidato**, viu o vermelho com as próprias
+mãos e depois o verde. Sem isso, estaria acreditando no log de outra pessoa.
+
+**Condições:** em `/tmp`, **removido ao fim** e dito no relato; **só o seu UDID**;
+nada escrito no checkout principal nem em worktree alheio; e **diga o que trouxe
+do candidato para o pai** — medir o pai com o instrumento do candidato é o que
+torna a comparação válida, e trazer mais do que o instrumento é o que a invalida.
+
+### Verde que só é verde na sua máquina (09/09)
+
+A S1 relatou **973 testes verdes**; o revisor rodou **o mesmo candidato** e os
+dois testes novos dela deram **3 falhas**. Nenhum dos dois mentiu: o teste
+dependia de estado que um tinha e o outro não — com o campo de busca em foco a
+**barra de navegação some inteira**, e o toque cai numa tecla.
+
+**Regra:** teste de jornada nova roda **dez vezes seguidas, do zero**, com o
+aparelho recém-ligado e o app recém-instalado, e as **dez saídas** vão no relato.
+**Um teste que passa 9 de 10 não passa** — é um teste que mente uma vez em dez.
+E toda **pré-condição de estado** (teclado fechado, aba inicial, nota semeada)
+mora **dentro do teste**, falhando com mensagem clara quando não vale, em vez de
+tocar às cegas.
+
+**E nunca afrouxe a asserção para ficar verde.** Se o caminho não é testável do
+jeito escrito, **troque o instrumento** — foi o que a R1-B fez ao ver o helper
+devolver `ok:true` sem mover a tela.
+
+### O que conta é a nota do produto, não a volta mesclada (09/09, ordem do dono)
+
+*"Esse tempo todo e ainda é 7."* O dono mede pelo produto. Uma volta mesclada que
+não move a nota de nenhuma dimensão **não é progresso, é manutenção** — e
+manutenção necessária continua não sendo o que ele pediu.
+
+**Toda volta de IA fecha com três coisas, não duas:**
+1. a medida (a sonda, o JSONL, a leitura independente das saídas inteiras);
+2. **a linha do Perfil atualizada** — a operação **sai da lista de indisponíveis**,
+   e a tabela `Politica` recebe a medida nova;
+3. **a captura do cartão com a resposta real na tela.** *"O dono quer VER a IA
+   funcionando"* — JSONL não é tela, e motor sem superfície não conta como
+   entregue.
+
+E o LACO registra **com a hora** o momento em que cada operação volta a estar
+disponível.
+
+### UM SIMULADOR SÓ (ordem do dono, 09/09 08h50)
+
+O dono desligou todos os simuladores menos o **iPhone 17 Pro
+`C2416CBC-C5D9-41F9-ACD8-45EED8FC355E`** e **liberou o Grok nele**. A partir daqui:
+
+- **Nenhum worker liga outro simulador.** Build, suíte, sonda, capturas e jornada,
+  **tudo nesse aparelho**, serializado por `com-trava.sh`. Três frentes editam,
+  **uma de cada vez no instrumento**.
+- **Nada de `erase`, `clearState` ou `uninstall`.** Instalar por cima **só quando a
+  volta precisar do binário novo, uma vez**, com `ContaGrok.ligada` conferido
+  **antes e depois**, com a hora.
+- **Se a conta cair, o worker PARA e diz na hora, com o comando que a derrubou** —
+  para o dono reautorizar e para acharmos a causa.
+- **O maestro volta a valer como evidência.** A proibição de 06/09 existia porque
+  com vários simuladores ele lia a hierarquia do vizinho; com um só, o motivo
+  caiu. **As leis morrem quando a razão delas morre** — e essa é a única forma
+  honesta de encolher uma lista de regras.
+- **O caçador de fala segue** rodando em toda espera.
+
+**O que isto custa, dito na frente:** o paralelismo cai. Três voltas podem editar,
+mas a fila do instrumento é única — e uma suíte integral segura as outras duas.
+Vale a pena porque **a conta do dono vive nesse aparelho**, e foi a disputa entre
+aparelhos que a derrubou duas vezes.
+
+### Fixture do passado se GRAVA com o código do passado (09/09)
+
+A M1 declarou que não fabricava fixtures das versões antigas *"com o código de
+hoje, por ser circular"*. A objeção está certa: **gerar um store antigo com o
+código de hoje não prova nada**, porque o que se quer provar é que o código de
+hoje **lê o que o código de ontem gravou**.
+
+**A saída não é gerar: é gravar com o código de ontem.** O git tem os commits, e o
+revisor da mesma volta já fez isso — montou os cadernos V2, V3 e V4 e o conserto
+abriu os três. Então: **checkout descartável em `/tmp` no commit da época**,
+compilar ali, gravar o caderno, **copiar o `default.store` para as fixtures**, e
+**dizer de qual commit veio cada uma** — a proveniência é parte da prova.
+
+Se alguma versão **não compilar mais** com o Xcode de hoje, **isso é o relato**:
+diga qual, com o erro, e aquela fixture fica **declarada impossível**. Declarar
+limite é aceitável; **prometer "cada versão" e entregar duas não é**.
+
+### Duas ordens que não cabiam juntas, e o erro que as expôs (09/09)
+
+**Eu mandei a suíte da árvore mesclada rodar com `xcodebuild test` no
+`C2416CBC`** — o aparelho da conta do dono —, que é **exatamente o comando que a
+minha própria lei proíbe nele**. Matei antes da fase de teste; o contêiner e os
+JSONL das corridas sobreviveram. Mas o erro não foi só distração: **"um simulador
+só" e "nunca `xcodebuild test` nesse simulador" não cabem juntas** — a suíte fica
+sem onde rodar, e quem executa acaba escolhendo em silêncio qual das duas quebrar.
+
+**A regra, na forma que o dono deu (09/09 09h30), decidida pela reversibilidade:**
+
+- **`C2416CBC` é o aparelho da CONTA e o único ligado fora de uma corrida de
+  suíte.** Recebe o binário **uma vez por volta**, com `ContaGrok.ligada`
+  conferido; **nunca `xcodebuild test`**, nunca `erase`/`clearState`/`uninstall`,
+  **nunca voz nem mouse nele**.
+- **O segundo simulador existe SÓ para build e suíte.** É **ligado pela trava no
+  início da corrida e DESLIGADO ao fim da MESMA corrida** — quem liga, desliga, e
+  não deixa ligado "para a próxima". Fora da suíte, **há um aparelho ligado na
+  máquina**.
+- Nenhum worker liga um terceiro.
+
+**A lição de orquestração:** quando duas ordens se contradizem, **quem executa não
+resolve em silêncio** — mostra a contradição para quem mandou. Eu só a vi porque
+tropecei nela; o certo era tê-la visto ao escrever a segunda.
+
+### DIRETRIZ §8 (09/09, `418a1b5`) — o mais rápido possível, zero bugs, ponytail
+
+Palavras do dono: *"o mais rápido possível; eliminar todos os bugs e erros;
+otimizar ao máximo; ponytail"*. Cinco pontos, e eles mudam como a esteira corre:
+
+1. **Fechar antes de abrir.** Escopo mínimo, **uma passada de revisão**, e
+   **acabamento vira dívida nomeada** em vez de segurar a volta. O laço de hoje
+   teve voltas com três e quatro re-G3 — isso acaba: se o mérito passou e falta
+   acabamento, **o acabamento vai para o RUMO com dono**.
+2. **Trilha B, caça a defeitos, permanente:** **B1** os `try!` de produção
+   (`TracoApp.swift:13` primeiro), **B2** estados inalcançáveis e rotas que calam,
+   **B3** texto que promete o que o motor não sustenta. **Cada uma com teste que
+   reproduz antes.**
+3. **Otimização com medida antes/depois** em **lista, editor e parser** — número,
+   não impressão.
+4. **`ponytail` é lei de código**, para implementador **e** revisor: a escada
+   (existe? já existe aqui? stdlib? nativo? dependência que já entrou? uma linha?)
+   antes de escrever, e o diff mais curto que funciona **depois de entender o
+   problema**.
+5. **A fila da §7 segue:** Q2, Q3 e Q4 na frente de IA, a **trilha B ao lado**, e
+   C1/R1/S1 **fecham antes de abrir mais**.
+
+### A mutação que prova o vermelho é uma DÍVIDA VIVA até ser desfeita (09/09)
+
+A M1-B comentou `TracoSchemaV0` do plano de migração e apagou o estágio V0→V1
+para ver o portão reprovar — **e morreu antes de desfazer**. O commit póstumo
+levou a mutação para `main`, com a consequência exata que o portão denunciava: **o
+caderno mais antigo não abria**, que era o defeito que a volta existia para
+fechar. A suíte ficou vermelha **dizendo a verdade**, e foi só por isso que a
+mutação apareceu.
+
+**Regras, e as três são baratas:**
+
+1. **Marque a mutação para ela gritar.** `/*SONDA ...*/` foi o que salvou aqui —
+   um comentário com uma palavra única que se acha com um `grep`. Use sempre a
+   mesma palavra, e **procure por ela antes de comitar**.
+2. **Desfaça antes de rodar a corrida de fecho**, e **diga no relato que desfez**,
+   com a saída verde depois da reversão. Foi o que a Q-F e a C1-C fizeram.
+3. **Quem comita o trabalho de um worker morto herda a dívida dele:** procure a
+   palavra da sonda **antes** de comitar por ele. O trabalho estava pronto; a
+   mutação também estava lá.
+
+**E o portão fez o que devia:** ele não deixou passar. Um portão que só fica verde
+não é portão — este ficou vermelho no dia em que a mutação chegou ao `main`, e é
+por isso que o defeito durou minutos em vez de semanas.
+
+### CORREÇÃO DE APARELHO (09/09 10h58): a conta que funciona é a do `B91C8DEF`
+
+O dono autorizou no **`C2416CBC`** e o Traço lá continuou dizendo **"sem conta"**;
+no **`B91C8DEF` (teste 2)** ele autorizou e o Perfil mostra **"Grok — conectada —
+o Grok é o motor, pago pela sua assinatura"**, lido por mim na árvore de AX às
+10h58. Ordem dele: ***"usa o que já está funcionando"***.
+
+**A partir daqui:**
+
+- **`B91C8DEF` é o APARELHO DA CONTA** — sonda de IA e capturas da tela real.
+  **Nunca** `erase`, `clearState`, `uninstall` nem `xcodebuild test` nele. Binário
+  de `main` instalado **uma vez por volta**, por cima, com `ContaGrok` conferido
+  **antes e depois**.
+- **A suíte roda num segundo simulador EFÊMERO e sem conta** (`34CC3F94`, teste
+  3), **ligado e desligado pela trava na mesma corrida**.
+- O **`C2416CBC` foi desligado pelo dono** (tinha um consentimento pendente que
+  não vamos usar).
+
+**A lição que eu levo daqui, e ela é minha:** eu vinha rodando `xcodebuild test`
+no `B91C8DEF` a noite toda como "aparelho de trabalho" — **era o aparelho onde a
+conta funcionava**. Aparelho não se identifica por apelido nem por memória: **o
+papel de cada UDID se lê na tela antes de cada corrida**, e o Perfil é a fonte.
+
+### O install por cima NÃO derruba a conta — a medida de hoje corrige a de ontem (09/09)
+
+Ontem eu escrevi, a partir da fumaça do revisor da Q2, que **o install por cima
+derrubava a conta**: `contaGrokLigada` verdadeiro com 12 modelos, e falso com 0
+**89 segundos depois de um `simctl install`**. Hoje medi o contrário, no aparelho
+onde a conta funciona:
+
+```
+10:57:16  antes do install   "conectada — o Grok é o motor, pago pela sua assinatura"
+10:57:16  xcrun simctl install B91C8DEF... Traco.app   (por cima, sem uninstall)
+10:58:16  depois do install   "conectada — o Grok é o motor, pago pela sua assinatura"
+```
+
+**As duas medidas são boas e a conclusão de ontem era grande demais:** o install
+por cima **não é suficiente** para derrubar a conta. O que caiu ontem caiu por
+outra coisa no mesmo minuto — o candidato mais provável é o `xcodebuild test`, que
+instala o runner e pode trocar o contêiner, e que estava proibido justamente por
+isso.
+
+**A regra prática não muda, e é a barata:** `ContaGrok` conferido **antes e
+depois** de cada corrida, com a hora; **se cair, parar e dizer com o comando
+exato**. Foi o que produziu as duas medidas e o que vai produzir a terceira.
+
+### `git push origin main` empurra o que está no seu checkout, não o commit que você acabou de escrever (09/09)
+
+Eu escrevi no LACO, às claras, que **não empurraria** a fusão vermelha. Uma hora
+depois dei `git push origin main` para publicar **um registro do LACO** — e levei
+junto **três mesclas** que estavam no meu `main` local, com **dois testes
+vermelhos**. A intenção era um commit; o efeito foi o ramo inteiro.
+
+**Regra para quem mescla:** o `main` do orquestrador é **área de trabalho**, e
+empurrá-lo publica **tudo o que estiver nele**. Antes de qualquer
+`git push origin main`, **`git log --oneline origin/main..main`** e leia a lista —
+se aparecer algo que você não pretendia publicar, **não empurre**.
+
+**E a regra que evita o problema na raiz, que eu já deveria estar seguindo:**
+trabalho de volta **não mora no checkout do orquestrador**. Mescla que não fecha na
+hora vira **branch com worktree e dono** — foi o que fiz com a `fusao-c1r1s1`,
+tarde demais. Registro que ficou fora do livro vira dívida invisível, e dívida
+invisível é a que vaza para o `main`.
+
+### DIRETRIZ §6 — DECIDA SOZINHO, e eu descumpri duas vezes hoje (09/09)
+
+O dono cobrou, e a conta é objetiva: **duas `AskUserQuestion` hoje pararam o laço
+por vinte minutos cada**, esperando ele ver. As duas eram **decisões
+reversíveis**, e nenhuma estava na lista fechada.
+
+**Perguntar é só nos quatro casos:** dados do dono; dinheiro, publicar ou enviar;
+contrato de privacidade, autoria ou selo; apagar trabalho. **Todo o resto: decida,
+registre no LACO com a razão, e siga** — se estiver errado, o registro é o que
+permite desfazer.
+
+**Para me lembrar de como isso se parece na prática, as duas de hoje:** *"onde
+roda a suíte, já que um simulador só e nunca `xcodebuild test` nele não cabem
+juntas?"* — eu tinha a resposta (segundo aparelho efêmero) e a recomendei na
+própria pergunta. E *"main ficou vermelho, reverto ou conserto para a frente?"* —
+eu já sabia que reverter três mesclas cria a armadilha do re-merge, e disse isso
+na própria pergunta. **Quem escreve a recomendação junto com a pergunta já
+decidiu; o que falta é assumir.**
+
+### ⛔ A SUÍTE INTEGRAL APAGA A CONTA DO DONO (09/09) — e isso atinge todo mundo
+
+**Achado do worker da M1-B, medido em três leituras independentes.** O fecho
+obrigatório de qualquer volta — *"suíte integral por `com-trava.sh`"* — **apaga a
+conta Grok** quando roda no aparelho dela.
+
+**A causa, no código:** `TracoTests/NotasESessaoTests.swift:572` e `:578` chamam
+`ContaGrok.sair()`, que faz `guardar(nil)` em `oauth-acesso` e `oauth-renova` do
+keychain `app.traco.xai` — e **o keychain é do SIMULADOR, não do processo de
+teste**. A suíte apaga a conta de verdade.
+
+**A prova:** sonda dentro do app-host **ligada=true às 08:57**; **false às
+09:12:48**; `genp` do keychain do simulador **de 56 para 54 linhas**, `-wal`
+carimbado **08:58**, dentro da janela da suíte.
+
+**Enquanto a K1 não fecha:** **NINGUÉM roda `xcodebuild test` no aparelho da
+conta.** Suíte só no aparelho de trabalho efêmero.
+
+**E isto fecha o mistério de ontem, corrigindo duas conclusões minhas.** Eu escrevi
+que **o install por cima derrubava a conta**; depois medi que **não derrubava** e
+disse que a causa provável era o `xcodebuild test`. **Era.** A cadeia inteira de
+ontem — a conta caindo duas vezes, a Q2 travada uma noite, o revisor bloqueado
+duas vezes — foi **a nossa própria suíte**, e o que a expôs foi a regra barata de
+sempre: **fumaça antes e depois, e parar em vez de contornar**.
+
+**A lição de teste, que é maior que este caso:** **teste que escreve em recurso do
+APARELHO — keychain, `UserDefaults` do app, App Group, arquivos do contêiner — não
+está isolado**, por mais que o alvo se chame "testes de unidade". O que ele apaga,
+apaga de verdade. Injete o cofre, ou pule com a razão dita.

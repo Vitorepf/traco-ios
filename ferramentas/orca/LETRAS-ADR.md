@@ -40,7 +40,40 @@ idênticos. Sobrou linha, a alegação "só a letra mudou" é falsa.
 | 08u | MAC-1 (Traço no Mac) | reservada, volta viva |
 | 08v | F5b (Ilha do compromisso) | reservada, volta viva |
 | 08w | Q-H (reconciliação da Q com o `main`) | no branch da Q |
-| 08x | C1 (caret do Caderno) | reservada, volta viva — era 08w, trocada |
+| 08x | C1-B/C (a gaveta e a linha do autor) | reservada, volta viva — era 08w, trocada |
 | 08y | R1 (retomada do Trabalho) | reservada, volta viva |
+| 08z | Q2 (responder) | **no branch da Q2** — tomada sem passar por aqui, LIDA pelo comando em 09/09 na C1-D |
+| 08x | C1 (caret do Caderno) | reservada, volta viva — era 08w, trocada |
+| 08y | R1 (a retomada do Trabalho) | no branch da R1 |
 
-**Próxima livre: 08z.**
+**08 está CHEIA.** `08a`–`08z` estão todas tomadas ou são buracos (`08c`, `08d`).
+A `08z` desmente o "próxima livre: 08z" que estava escrito aqui: quem lê de
+memória em vez de rodar o comando dá a mesma letra duas vezes, que é o defeito
+que este arquivo existe para impedir — e ele reincidiu no próprio arquivo.
+
+## 2026-09-09
+
+| letra | dona | estado |
+|---|---:|---|
+| 09a | — | **buraco, fica vaga** |
+| 09b | MAC-1-B (a origem acompanha todo consumidor) | em `main` |
+| 09c | S1 (a pergunta interrompida) | em `main` |
+| 09d | S1-B (o vazio também rola) | em `main` |
+| 09e | C1-D (a reconciliação da C1) | em `main` |
+| 09f | M1 (a migração do caderno) | em `main` |
+| 09g | C1-A (era 08w, depois 09d) | em `main` |
+| 09h | Q3 (responder nas Notas) | reservada |
+| 09i | Q4 (instigar e contrapor) | reservada |
+| 09j | FUSÃO (o toast é gaveta, e o piso do papel empata) | reservada, volta viva |
+| 09k | — | livre |
+| 09l | K1 (o cofre do dono não é da suíte) | no branch `Vitorepf/volta-k1-cofre` |
+
+**Próxima livre: 09k** — a `09l` foi dada pelo comando fora de ordem, e
+quem pegar a `09k` não precisa de esperar por ninguém.
+
+**A série 08 está CHEIA** — de `08a` a `08z`, com `08c` e `08d` como buracos que
+ficam vagos. Quem precisar de letra hoje usa a série `09`.
+
+**A regra que faz o registro funcionar:** quem despacha atualiza este arquivo **no
+mesmo ato em que reserva**. Reservar de memória é como a `09d` saiu duas vezes no
+mesmo turno.
