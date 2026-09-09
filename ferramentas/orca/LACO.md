@@ -1780,3 +1780,9 @@ ficou sem portão e deixou o toast de fora por três voltas**.
 Mesclei **K1** e **M1-B** no `main` e a suíte está correndo no aparelho efêmero.
 Com a K1 dentro, **a suíte deixa de apagar a conta** — que é o que destrava a
 esteira inteira.
+
+**Fecho:** suíte na árvore com K1 e M1-B dentro — **990 testes em 160 suítes,
+`TEST SUCCEEDED`**, no aparelho efêmero, desligado ao fim da mesma corrida. Sem
+sonda esquecida (`grep SONDA` limpo em `Traco/` e `TracoWidget/`), `TracoSchemaV0`
+no plano e no estágio. **A partir deste commit, a suíte integral não apaga mais a
+conta do dono.**
