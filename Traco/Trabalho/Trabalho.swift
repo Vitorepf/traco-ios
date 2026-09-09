@@ -66,6 +66,11 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
             case .naoFuncionou: "Não funcionou"
             }
         }
+        /// A frase inteira num lugar só: a folha a escreve em três pontos —
+        /// cartão do ato, último retorno e retomada — e três literais divergem
+        /// na primeira renomeação, que foi o que já acontecera com o nome do
+        /// apoio.
+        var frase: String { "Resultado que você informou: \(rotulo)" }
     }
     /// ADR 05r: `tentativa` é a resposta do autor a um exercício. Nasce aqui e
     /// não no disco antigo — nenhum registro anterior vira tentativa por
@@ -369,7 +374,7 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
             // ADR 08m: executar e observar são eixos distintos, e é o resultado
             // que a pessoa informou que orienta o passo seguinte — por isso ele
             // manda na linha quando existe.
-            let texto = if let r = e.resultado { "Resultado que você informou: \(r.rotulo)" }
+            let texto = if let r = e.resultado { r.frase }
                 else if e.tentativa != nil { "Tentativa sua guardada" }
                 else { "Relato registrado" }
             linhas.append(.init(data: e.data, texto: texto, evidenciaID: e.id))

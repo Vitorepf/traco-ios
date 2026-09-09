@@ -50,7 +50,6 @@ struct TrabalhoView: View {
     /// retomada não se apague sob os olhos de quem está lendo: a visita de
     /// agora já foi gravada quando o bloco apareceu.
     @State private var ultimaVisita: Date?
-    @State private var visitaLida = false
 
     /// A chave dos rascunhos em `UserDefaults` — `static` para que fechar e
     /// reabrir a folha seja provável em teste com a chave que o app usa, e
@@ -226,7 +225,7 @@ struct TrabalhoView: View {
                 // e estava a 2,4 telas daqui. A frase é a mesma do cartão do
                 // ato: duas redações do mesmo estado seriam duas verdades.
                 if let resultado = retorno.resultado {
-                    Text("Resultado que você informou: \(resultado.rotulo)")
+                    Text(resultado.frase)
                         .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
                         .accessibilityIdentifier("trabalho-retomada-resultado")
                 }
@@ -1047,7 +1046,7 @@ struct TrabalhoView: View {
                     Text(acao.estado == .executada ? "Você marcou como realizada" : acao.estado == .cancelada ? "Cancelado" : "Realização ainda não confirmada")
                         .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
                         .accessibilityIdentifier("trabalho-estado-do-ato")
-                    Text(o.documento.observacao(de: acao.id)?.resultado.map { "Resultado que você informou: \($0.rotulo)" }
+                    Text(o.documento.observacao(de: acao.id)?.resultado.map(\.frase)
                          ?? "Resultado ainda não informado")
                         .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
                         .accessibilityIdentifier("trabalho-resultado-observado")
@@ -1552,11 +1551,11 @@ struct TrabalhoView: View {
             let nova = try OficinaTrabalho(trabalho: trabalho, context: context)
             rascunhos = UserDefaults.standard.dictionary(forKey: chaveRascunho) as? [String: String] ?? [:]
             recuperacao = UserDefaults.standard.string(forKey: chaveRascunho + ".recuperacao")
-            // Lê a visita anterior UMA vez por folha aberta e já grava a de
-            // agora. Reabrir depois de um erro de escrita (`preservarEReabrir`)
-            // não pode zerar a janela que o autor está lendo.
-            if !visitaLida {
-                visitaLida = true
+            // Lê a visita anterior na PRIMEIRA abertura desta folha e já grava
+            // a de agora. `oficina` ainda é `nil` só aqui: reabrir depois de um
+            // erro de escrita (`preservarEReabrir`) não pode zerar a janela que
+            // o autor está lendo, e a leitura que falha não consome a janela.
+            if oficina == nil {
                 ultimaVisita = UserDefaults.standard.object(forKey: chaveVisita) as? Date
                 UserDefaults.standard.set(Date.now, forKey: chaveVisita)
             }

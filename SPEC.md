@@ -6753,6 +6753,26 @@ tem 4,74 antes e 4,95 depois):
 | **quando foi o último retorno** | **3,76** | **0,64** |
 | **dificuldade que ele registrou** | **4,22** | **0,48** |
 
+**A régua do dono é TOQUE E GESTO, e a distância é só a explicação** (G3 da R1,
+09/09). A tabela acima mede distância percorrida; o que o dono cobra é *quanto a
+pessoa tem de fazer*. A mesma tarefa — **voltar no dia seguinte e saber as sete
+coisas** — foi executada nos DOIS candidatos pelo XCUITest, que dá toque e
+arrasto de verdade no aparelho do `-destination` (e não pelo helper do
+`orca emulator`, que amplifica o arrasto de 6 a 24x e é um só na máquina):
+
+| | antes (`c751c02`) | depois |
+|---|---:|---:|
+| toques até a folha | 3 | 3 |
+| **arrastos dentro da folha** | **5** | **0** |
+| **paradas de leitura** (posições onde um fato novo aparece) | **6** | **1** |
+| fatos na primeira tela | 2 de 7 | **7 de 7** |
+
+O gesto é o mesmo nos dois lados (`swipeUp()` do XCUITest, ~0,76 tela por vez) e
+o estado plantado é o mesmo. O condutor é
+`TracoUITests/CurvaZeroRetomadaUITests.swift`, a tabela por gesto fica em
+`ferramentas/orca/r1b-medida-antes.txt` e `…-depois.txt`, e ele fica **vermelho**
+se algum dos sete fatos deixar de aparecer.
+
 **Decisão.** Um bloco só, dentro da `retomada` que já existe: **"Desde
 \<instante da visita anterior\>"**, com as coisas que ACONTECERAM depois dela,
 mais recente primeiro, teto de quatro linhas e o excedente DITO (`e mais N desde
@@ -6795,9 +6815,29 @@ errada (o resumo passa a falar da versão do dia 5, que é anterior à visita) e
 âncora errada (`rolarPara` para um `.id` que não existe — o portão conta 8
 destinos literais, medidos antes de congelar).
 
+**Os estados do bloco, na tela viva** (R1-B, 09/09), cada um com árvore e
+captura `simctl` do MESMO instante, porque ausência na árvore não é prova de
+ausência na tela:
+
+- **normal** — quatro linhas e `e mais 1 desde então`: `r1b-normal.png`.
+- **sem visita guardada** (primeira abertura, reinstalação, dados limpos) — a
+  folha CALA, e a captura mostra a folha inteira sem o bloco:
+  `r1b-sem-visita.png`.
+- **fechar e reabrir a folha é uma VISITA NOVA**: a janela recomeça e o bloco
+  cala, porque a notícia já foi entregue. O que a janela preserva é a reabertura
+  interna depois de um erro de escrita (`preservarEReabrir`), que não destrói a
+  tela. Isso agora é teste, não descrição.
+- **AX5** com o bloco DENTRO da janela — o que faltava na volta anterior, cuja
+  captura AX5 mostrava só o topo da folha: `r1b-ax5.png`. Em AX5 o bloco tem
+  1289 pt e a janela 874: ele não cabe inteiro, e o teste prova a primeira linha
+  inteira na janela e nenhuma linha sangrando pelos lados.
+
 **O que esta ADR NÃO prova.** Não prova que o dono volta e continua: isso fecha
 no uso dele, não na demonstração. Não há avaliação de hipótese na lista (evento
 real, deixado de fora por enxugamento) e os dois destinos de rolagem que passam
 por variável (`chave`, `falta`) ficam fora do portão, que o diz em vez de fingir
 que os cobre. A rolagem por arrasto do `orca emulator` amplifica de 6 a 24x e
-por isso **não** foi usada como régua: a medida é a árvore de AX.
+por isso **não** foi usada como régua: quem conta gesto é o XCUITest, e quem
+mede distância é a árvore de AX. E o número de arrastos do "antes" é o do
+aparelho com a letra padrão: em AX5 o mesmo percurso é mais longo, e não foi
+medido nos dois candidatos.
