@@ -37,6 +37,24 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
     enum Origem: String, Codable { case pessoa, ia, mista, externa }
     enum FormatoArtefato: String, Codable { case markdown, html }
     enum EstadoAcao: String, Codable { case pendente, executada, cancelada }
+    /// ADR 08m: o que a PESSOA viu acontecer. Não é nota, pontuação nem juízo
+    /// do app sobre ela: é o relato dela, com três formas de primeira classe —
+    /// a ferramenta que só aceita sucesso mente por omissão. Eixo separado de
+    /// `EstadoAcao` de propósito: executar é ato, observar é resultado, e um
+    /// existe sem o outro (ação feita sem resultado observado, e resultado
+    /// observado de ação que ninguém marcou como feita).
+    enum ResultadoObservado: String, Codable, CaseIterable {
+        case funcionou, parcial, naoFuncionou
+        /// O mesmo texto na tela e no pedido à IA: duas redações do mesmo
+        /// estado seriam duas verdades sobre o que a pessoa disse.
+        var rotulo: String {
+            switch self {
+            case .funcionou: "Funcionou"
+            case .parcial: "Funcionou em parte"
+            case .naoFuncionou: "Não funcionou"
+            }
+        }
+    }
     /// ADR 05r: `tentativa` é a resposta do autor a um exercício. Nasce aqui e
     /// não no disco antigo — nenhum registro anterior vira tentativa por
     /// releitura. Continua sendo evidência de uma AÇÃO, nunca versão.
@@ -45,7 +63,18 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
     /// ADR 05r (volta 6): `praticaIndisponivel` é o pedido de PRÁTICA cuja
     /// preparação não validou. Fica guardado assim — nunca cai na produção
     /// delegada, que entregaria a resposta a quem escolheu praticar.
-    enum EstadoPedido: String, Codable { case preparando, interrompido, falhou, cancelado, pronto, praticaIndisponivel }
+    /// ADR 08j: `ajusteIndisponivel` é o pedido de AJUSTE cuja causa não coube
+    /// na janela do provedor. A evidência causal é núcleo obrigatório: se não
+    /// cabe, o ajuste não sai — e a tela diz isso, em vez de mandar um pedaço.
+    enum EstadoPedido: String, Codable { case preparando, interrompido, falhou, cancelado, pronto, praticaIndisponivel, ajusteIndisponivel }
+    /// ADR 08j: por que esta versão foi pedida. Lista FECHADA — o app não
+    /// inventa um terceiro motivo para reescrever o exercício de alguém.
+    /// ADR 08m acrescenta `resultadoInformado`, e o acréscimo não fura a
+    /// regra: o motivo não é inventado pelo app, é o resultado que a PESSOA
+    /// informou. Sem ele, a única causa registrável de uma revisão nascida de
+    /// relato seria "a pessoa pediu" — verdade pela metade, que apaga o que
+    /// ela observou.
+    enum GatilhoDoAjuste: String, Codable { case pedidoDoAutor, necessidadePercebida, resultadoInformado }
     enum FonteCriterio: String, Codable { case intencao, resultado, instrucao }
     enum SituacaoCriterio: String, Codable, CaseIterable { case atendidoNoEscopo, divergencia, inconclusivo, naoAvaliado }
     enum EstadoConferencia: String, Codable { case concluida, indisponivel }
@@ -98,6 +127,10 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
         var enunciado: String
         var exemplo: String
         var criterios: [Criterio]
+        /// ADR 08j: o que MUDOU nesta versão, descrito pelo modelo e limitado
+        /// pelo mesmo contrato de tipo do resto. `nil` = esta versão não nasceu
+        /// de um ajuste; nunca "mudou e não disse".
+        var mudanca: String?
     }
     struct Artefato: Codable, Sendable, Equatable, Identifiable {
         var id = UUID()
@@ -108,6 +141,11 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
         var produtor: String
         var intencaoID: UUID
         var anteriorID: UUID?
+        /// ADR 08j: o pedido que produziu esta versão, guardado. Antes disso
+        /// `pedidoDe` inferia por base e intenção, e inferência não pode ser a
+        /// autoridade que explica ao autor por que o exercício dele mudou.
+        /// `nil` em registro antigo, em versão escrita à mão e em importada.
+        var pedidoID: UUID?
         var conferencias: [Conferencia]?
         var pratica: Pratica?
         /// Em Combinar, a entrega fica legível separadamente do exercício.
@@ -147,6 +185,12 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
         var estado: EstadoConferencia
         var motivo: String?
         var resultados: [ResultadoDaTentativa] = []
+        /// ADR 08j: a pessoa disse que esta leitura interpretou errado. A
+        /// leitura FICA — a história não se apaga —, mas para de orientar
+        /// ajustes: some do contexto de retorno e não sustenta um ajuste novo.
+        var contestadaEm: Date?
+        var motivoDaContestacao: String?
+        var contestada: Bool { contestadaEm != nil }
     }
     /// ADR 05r: a resposta que a pessoa escreveu. `apoioUtilizado` é dela e é
     /// obrigatório — desconhecido nunca vira "sem ajuda". `anteriorID` liga
@@ -167,6 +211,11 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
         var artefatoID: UUID?
         var referencia: String?
         var tentativa: Tentativa?
+        /// ADR 08m: o resultado que a pessoa informou neste relato. `nil` =
+        /// NÃO OBSERVADO, e é o que todo registro anterior a este contrato
+        /// vale — nunca "deu certo por omissão". Nenhum estado velho vira
+        /// resultado por releitura (a mesma regra da 05r para a tentativa).
+        var resultado: ResultadoObservado?
     }
     struct Hipotese: Codable, Sendable, Equatable, Identifiable {
         var id = UUID()
@@ -188,6 +237,21 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
             .reversed().map(\.instrucao)
     }
 
+    /// ADR 08j: a CAUSA do ajuste, como dado — não como inferência. Guarda o
+    /// gatilho, o motivo escrito pelo app e a referência à evidência (e à
+    /// leitura e aos critérios, quando foram eles que a sustentaram).
+    /// `necessidadePercebida` exige tentativa E leitura: sem elas, "o app
+    /// percebeu" seria o app afirmando o que não observou. `pedidoDoAutor`
+    /// existe sem nenhuma das duas — a pessoa pode simplesmente querer outro
+    /// exercício.
+    struct Ajuste: Codable, Sendable, Equatable {
+        var gatilho: GatilhoDoAjuste
+        var motivo: String
+        var evidenciaID: UUID?
+        var conferenciaID: UUID?
+        var criterioIDs: [UUID] = []
+    }
+
     struct Pedido: Codable, Sendable, Equatable, Identifiable {
         var id = UUID()
         var data = Date.now
@@ -195,6 +259,9 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
         var intencaoID: UUID
         var artefatoID: UUID?
         var estado: EstadoPedido = .preparando
+        /// `nil` = este pedido não é um ajuste, ou é registro antigo. Ausência
+        /// significa vínculo NÃO REGISTRADO; ninguém reconstrói causalidade.
+        var ajuste: Ajuste?
     }
 
     var formato = 1
@@ -234,6 +301,23 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
     var dificuldadeVigente: Hipotese? { hipoteses.last { $0.estado != .contestada } }
     /// A última tentativa guardada. As anteriores continuam na lista.
     var tentativaAtual: Evidencia? { evidencias.last { $0.tentativa != nil } }
+    /// ADR 08m: o último resultado que a pessoa informou para esta ação.
+    /// `nil` = ela ainda não informou nenhum — e isso NÃO se lê no estado da
+    /// ação: marcar "realizei" continua sendo o ato, não o resultado.
+    func observacao(de acaoID: UUID) -> Evidencia? {
+        evidencias.last { $0.acaoID == acaoID && $0.resultado != nil }
+    }
+    /// O último resultado informado no Trabalho inteiro — o que a revisão
+    /// seguinte tem para orientar-se. `nil` = nada observado ainda.
+    var ultimaObservacao: Evidencia? { evidencias.last { $0.resultado != nil } }
+    /// ADR 08n: executar e observar são eixos independentes, e a regra que
+    /// olha um só apaga o outro. Cancelar exige as DUAS condições: pendente
+    /// (o ato realizado não se desfaz) E não observado (o resultado que a
+    /// pessoa informou não se apaga por desistência retroativa). A tela lê
+    /// este predicado; a garantia é aqui, não lá.
+    func podeCancelar(_ acaoID: UUID) -> Bool {
+        acoes.contains { $0.id == acaoID && $0.estado == .pendente } && observacao(de: acaoID) == nil
+    }
 
     /// O mesmo orçamento para entrega e exercício; o núcleo nunca é cortado.
     static func montarContexto(cabeca: String, secoes: [String], final: String, teto: Int) -> String {
@@ -259,18 +343,27 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
         return evidencias.reversed().map { e in
             let acao = atos[e.acaoID]
             var linhas = ["[\(e.tipo.rawValue), \(e.atribuidaA), \(e.data.ISO8601Format()), ação \(e.acaoID), versão \(e.artefatoID?.uuidString ?? "sem artefato")] \(e.texto)",
-                "Ação: \(acao?.texto ?? "referência ausente") · estado registrado: \(acao?.estado.rawValue ?? "desconhecido") · material: \(e.artefatoID?.uuidString ?? "sem artefato")"]
+                // ADR 08m: os três eixos na mesma linha e separados. Marcar
+                // executada não é resultado; resultado ausente é NÃO OBSERVADO.
+                "Ação: \(acao?.texto ?? "referência ausente") · estado registrado: \(acao?.estado.rawValue ?? "desconhecido") · resultado informado pela pessoa: \(e.resultado?.rotulo ?? "não observado") · material: \(e.artefatoID?.uuidString ?? "sem artefato")"]
             if let tentativa = e.tentativa {
                 let pratica = e.artefatoID.flatMap { materiais[$0]?.pratica }
                 if let pratica { linhas.append("Exercício dessa tentativa: \(pratica.enunciado)") }
                 linhas.append("Apoio declarado: \(tentativa.apoioUtilizado)")
                 if let feedback = tentativa.conferencias?.last {
-                    linhas.append("Feedback atribuído a \(feedback.executor) · \(feedback.estado.rawValue):")
-                    linhas += feedback.resultados.map { r in
-                        let criterio = pratica?.criterios.first { $0.id == r.criterioID }?.texto ?? "critério indisponível"
-                        return "\(criterio) · \(r.situacao.rawValue): \(r.observacao) · trecho: \(r.trechoDaTentativa)"
+                    // ADR 08j: a leitura que a pessoa contestou FICA no registro
+                    // e sai do contexto: o que ela disse que está errado não
+                    // pode continuar orientando o exercício seguinte.
+                    if feedback.contestada {
+                        linhas.append("Leitura contestada pela pessoa em \(feedback.data.ISO8601Format()) · motivo: \(feedback.motivoDaContestacao ?? "não informado"). NÃO use esta interpretação para orientar o ajuste.")
+                    } else {
+                        linhas.append("Feedback atribuído a \(feedback.executor) · \(feedback.estado.rawValue):")
+                        linhas += feedback.resultados.map { r in
+                            let criterio = pratica?.criterios.first { $0.id == r.criterioID }?.texto ?? "critério indisponível"
+                            return "\(criterio) · \(r.situacao.rawValue): \(r.observacao) · trecho: \(r.trechoDaTentativa)"
+                        }
+                        if let motivo = feedback.motivo { linhas.append(motivo) }
                     }
-                    if let motivo = feedback.motivo { linhas.append(motivo) }
                 }
             }
             return linhas.joined(separator: "\n")
@@ -284,6 +377,9 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
     /// O último pedido de prática ficou sem exercício? Só o último conta: a
     /// tela mostra uma linha de recusa, não uma pilha.
     var praticaIndisponivel: Bool { pedidos.last?.estado == .praticaIndisponivel }
+    /// ADR 08j: o último pedido era um ajuste cuja causa não coube? Só o
+    /// último conta, como na prática indisponível: uma linha, não uma pilha.
+    var ajusteIndisponivel: Bool { pedidos.last?.estado == .ajusteIndisponivel }
     var pedidoAtivo: Pedido? { pedidos.last(where: { $0.estado == .preparando }) }
     /// O pedido que produziu esta versão, quando houve um: a rota para conferir
     /// uma versão que ficou sem conferência (ADR 05q). Versão escrita à mão ou
@@ -291,9 +387,29 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
     /// `receber` cria versão a partir de um pedido, por isso `origem == .ia`:
     /// sem isso, material importado com `anteriorID` nulo casava o PRIMEIRO
     /// pedido e a conferência ficava presa a um texto que ele não gerou.
+    /// ADR 08j: o vínculo guardado manda. A inferência abaixo continua só para
+    /// registro antigo, e SÓ para achar a rota de conferência da 05q — a causa
+    /// que a tela conta ao autor vem de `ajuste(de:)`, que não infere nada.
     func pedidoDe(_ a: Artefato) -> Pedido? {
+        if let id = a.pedidoID { return pedidos.first { $0.id == id } }
         guard a.origem == .ia else { return nil }
         return pedidos.last { $0.estado == .pronto && $0.intencaoID == a.intencaoID && $0.artefatoID == a.anteriorID }
+    }
+    /// ADR 08j: por que esta versão nasceu, quando isso está REGISTRADO.
+    /// `nil` = vínculo não registrado (versão anterior ao contrato, escrita à
+    /// mão, importada ou pedida sem ajuste). Nunca uma causa reconstruída.
+    func ajuste(de a: Artefato) -> Ajuste? {
+        guard let id = a.pedidoID else { return nil }
+        return pedidos.first { $0.id == id }?.ajuste
+    }
+    /// A leitura que sustenta um ajuste, quando ela ainda orienta: contestada
+    /// pela pessoa, some daqui — a história fica no documento.
+    func leituraDoAjuste(_ aj: Ajuste) -> ConferenciaTentativa? {
+        guard let evidenciaID = aj.evidenciaID, let conferenciaID = aj.conferenciaID,
+              let c = evidencias.first(where: { $0.id == evidenciaID })?
+                  .tentativa?.conferencias?.first(where: { $0.id == conferenciaID }),
+              !c.contestada else { return nil }
+        return c
     }
 
     mutating func reverIntencao(_ texto: String, resultado: String) throws {
@@ -302,10 +418,20 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
         cancelarPedido()
         intencoes.append(.init(texto: texto, resultado: resultado))
     }
-    mutating func iniciarPedido(_ instrucao: String) throws -> Pedido {
+    @discardableResult
+    mutating func iniciarPedido(_ instrucao: String, ajuste: Ajuste? = nil) throws -> Pedido {
         guard !instrucao.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw Erro.vazio }
+        let pedido = Pedido(instrucao: instrucao, intencaoID: intencaoAtual.id,
+                            artefatoID: versaoAtual?.id, ajuste: ajuste)
+        // A causa é conferida ANTES de tocar no documento: um ajuste recusado
+        // não pode deixar para trás um pedido cancelado que ninguém pediu.
+        try validarAjuste(pedido)
+        // ADR 08k: leitura contestada não sustenta ajuste NOVO. A checagem é
+        // aqui, no nascimento, e não em `validar`: a leitura que a pessoa
+        // contestou DEPOIS continua explicando a versão que já nasceu dela —
+        // recusar o documento inteiro por isso apagaria a história.
+        if let aj = pedido.ajuste, aj.conferenciaID != nil, leituraDoAjuste(aj) == nil { throw Erro.referencia }
         cancelarPedido()
-        let pedido = Pedido(instrucao: instrucao, intencaoID: intencaoAtual.id, artefatoID: versaoAtual?.id)
         pedidos.append(pedido)
         return pedido
     }
@@ -318,6 +444,12 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
     mutating func falharPedido(_ id: UUID) {
         guard let i = pedidos.firstIndex(where: { $0.id == id && $0.estado == .preparando }) else { return }
         pedidos[i].estado = .falhou
+    }
+    /// ADR 08j: a causa não coube na janela. O pedido fica guardado assim e a
+    /// tela diz por quê; nada de mandar um pedaço da evidência causal.
+    mutating func marcarAjusteIndisponivel(_ id: UUID) {
+        guard let i = pedidos.firstIndex(where: { $0.id == id && $0.estado == .preparando }) else { return }
+        pedidos[i].estado = .ajusteIndisponivel
     }
     mutating func marcarPraticaIndisponivel(_ id: UUID) {
         guard let i = pedidos.firstIndex(where: { $0.id == id && $0.estado == .preparando }) else { return }
@@ -335,7 +467,7 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
         }
         artefatos.append(.init(conteudo: texto, origem: .ia, produtor: produtor,
                               intencaoID: intencaoAtual.id, anteriorID: pedidos[i].artefatoID,
-                              pratica: pratica, parteDelegada: parteDelegada))
+                              pedidoID: pedidoID, pratica: pratica, parteDelegada: parteDelegada))
         pedidos[i].estado = .pronto
     }
 
@@ -389,6 +521,22 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
         evidencias[i].tentativa = tentativa
     }
 
+    /// ADR 08j: a correção do dono sobre uma LEITURA. Não apaga a conferência
+    /// nem a tentativa: marca que aquela interpretação está contestada, e a
+    /// partir daí ela não entra mais no contexto que orienta um ajuste.
+    /// Contestar de novo só troca o motivo; nunca cria uma segunda leitura.
+    mutating func contestarLeitura(_ conferenciaID: UUID, em evidenciaID: UUID, motivo: String) throws {
+        let limpo = motivo.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !limpo.isEmpty else { throw Erro.vazio }
+        guard let i = evidencias.firstIndex(where: { $0.id == evidenciaID }),
+              var tentativa = evidencias[i].tentativa,
+              let j = tentativa.conferencias?.firstIndex(where: { $0.id == conferenciaID })
+        else { throw Erro.referencia }
+        tentativa.conferencias?[j].contestadaEm = .now
+        tentativa.conferencias?[j].motivoDaContestacao = limpo
+        evidencias[i].tentativa = tentativa
+    }
+
     /// A dificuldade, proposta por quem de fato a propôs. Sem evidências
     /// pertinentes selecionadas, a lista fica vazia — apontar todas as
     /// evidências do Trabalho seria inventar pertinência.
@@ -410,8 +558,14 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
               i == artefatos.count - 1 else { throw Erro.pedidoAntigo }
         artefatos[i].conferencias = (artefatos[i].conferencias ?? []) + [c]
     }
-    mutating func guardarVersaoHumana(_ texto: String) throws {
+    /// ADR 08k: `base` é a versão que a pessoa TINHA na tela quando começou a
+    /// editar. Se outra chegou no meio — uma adaptação que a leitura sustentou,
+    /// por exemplo —, guardar por cima diria que este texto responde a um
+    /// material que ela não leu. `nil` = base não declarada (importação e
+    /// registro antigo), e aí ninguém reconstrói o que ela estava lendo.
+    mutating func guardarVersaoHumana(_ texto: String, base: UUID? = nil) throws {
         guard !texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw Erro.vazio }
+        guard base == nil || base == versaoAtual?.id else { throw Erro.pedidoAntigo }
         cancelarPedido()
         let anterior = versaoAtual
         let origem: Origem = anterior.map { $0.origem == .pessoa ? .pessoa : .mista } ?? .pessoa
@@ -430,15 +584,39 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
         // ação sem horário não tem aviso; fora da lista fechada não entra
         acoes[i].avisoMinutos = data == nil ? nil : (Aviso.opcoes.contains(aviso) ? aviso : 0)
     }
-    mutating func registrarRelato(_ texto: String, acaoID: UUID) throws {
+    /// ADR 08m: `resultado` é o que a pessoa VIU acontecer, e é opcional —
+    /// contar o que houve sem classificar continua valendo. Registrar um
+    /// resultado não marca a ação como executada, e marcar executada não
+    /// informa resultado: são dois eixos e a tela mostra os dois.
+    @discardableResult
+    mutating func registrarRelato(_ texto: String, acaoID: UUID,
+                                  resultado: ResultadoObservado? = nil) throws -> Evidencia {
         guard !texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw Erro.vazio }
         guard let i = acoes.firstIndex(where: { $0.id == acaoID }) else { throw Erro.referencia }
-        evidencias.append(.init(texto: texto, atribuidaA: "Você", acaoID: acaoID, artefatoID: acoes[i].artefatoID))
+        // ADR 08n: a ordem inversa do mesmo estado proibido. Contar o que
+        // houve numa ação cancelada continua valendo — classificar o
+        // resultado dela, não: seria observar o que se desistiu de fazer.
+        guard resultado == nil || acoes[i].estado != .cancelada else { throw Erro.referencia }
+        let e = Evidencia(texto: texto, atribuidaA: "Você", acaoID: acaoID,
+                          artefatoID: acoes[i].artefatoID, resultado: resultado)
+        evidencias.append(e)
+        return e
     }
     mutating func marcarExecutada(_ acaoID: UUID) throws {
         guard let i = acoes.firstIndex(where: { $0.id == acaoID }) else { throw Erro.referencia }
         acoes[i].estado = .executada
         acoes[i].executadaEm = .now
+    }
+    /// ADR 08m: `cancelada` existia no contrato e não tinha gesto — estado que
+    /// só os testes alcançavam. Só o que está pendente se cancela: o que a
+    /// pessoa marcou como realizado aconteceu, e desfazer isso seria apagar um
+    /// ato. O horário fica no registro; a agenda e o aviso já leem `pendente`.
+    /// ADR 08n: e só o que ninguém observou — cancelar o que a pessoa já disse
+    /// que aconteceu apagaria o resultado dela pelo outro eixo (`podeCancelar`).
+    mutating func cancelarAcao(_ acaoID: UUID) throws {
+        guard let i = acoes.firstIndex(where: { $0.id == acaoID }), podeCancelar(acaoID)
+        else { throw Erro.referencia }
+        acoes[i].estado = .cancelada
     }
     /// Só a pessoa avalia, e "faz sentido neste contexto" é concordância
     /// contextual — nunca certificação do app nem declaração de aprendizagem.
@@ -451,6 +629,57 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
         let limpo = motivo?.trimmingCharacters(in: .whitespacesAndNewlines)
         hipoteses[i].motivoAvaliacao = estado == .proposta || (limpo ?? "").isEmpty ? nil : limpo
     }
+    /// ADR 08j: a causa registrada tem de ser verdadeira no próprio documento.
+    /// `necessidadePercebida` exige a tentativa E a leitura que a sustentam —
+    /// o app não diz "percebi" sem apontar o que leu. Os critérios citados são
+    /// os do exercício daquela tentativa: nenhum critério inventado entra.
+    func validarAjuste(_ p: Pedido) throws {
+        guard let aj = p.ajuste else { return }
+        guard !aj.motivo.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw Erro.vazio }
+        // ADR 08m: "você informou" tem de apontar o relato em que ela informou,
+        // e esse relato tem de trazer um resultado. Sem isso o app estaria
+        // dizendo que observou o que ninguém escreveu. Não há leitura de
+        // tentativa aqui, e por isso não há critério a citar.
+        if aj.gatilho == .resultadoInformado {
+            guard let id = aj.evidenciaID, aj.conferenciaID == nil, aj.criterioIDs.isEmpty,
+                  evidencias.contains(where: { $0.id == id && $0.resultado != nil })
+            else { throw Erro.referencia }
+            return
+        }
+        if aj.gatilho == .necessidadePercebida {
+            // ADR 08k: "percebi" sem critério apontado é o app afirmando uma
+            // observação que não tem onde ler.
+            guard aj.evidenciaID != nil, aj.conferenciaID != nil, !aj.criterioIDs.isEmpty else { throw Erro.referencia }
+        }
+        // ADR 08k: a mesma leitura não sustenta DUAS versões. Isto era guarda
+        // de tela em `conferirEAdaptar`, e guarda de tela é contornável por
+        // outra rota, por importação e pelo chamador seguinte. Aqui vale para
+        // todos: o documento recusa o segundo ajuste da mesma leitura.
+        if let conferenciaID = aj.conferenciaID {
+            guard !pedidos.contains(where: { $0.id != p.id && $0.ajuste?.conferenciaID == conferenciaID })
+            else { throw Erro.referencia }
+        }
+        guard let evidenciaID = aj.evidenciaID else {
+            guard aj.conferenciaID == nil, aj.criterioIDs.isEmpty else { throw Erro.referencia }
+            return
+        }
+        guard let evidencia = evidencias.first(where: { $0.id == evidenciaID }),
+              let tentativa = evidencia.tentativa else { throw Erro.referencia }
+        if let conferenciaID = aj.conferenciaID {
+            // ADR 08k: e a leitura citada tem de DIZER o que a causa afirma —
+            // conferência concluída, e cada critério citado divergente nela.
+            // Leitura inconclusiva ou critério que ela deu por atendido não
+            // sustentam a reescrita do exercício de ninguém.
+            guard let leitura = tentativa.conferencias?.first(where: { $0.id == conferenciaID }),
+                  leitura.estado == .concluida else { throw Erro.referencia }
+            let divergentes = Set(leitura.resultados.filter { $0.situacao == .divergencia }.map(\.criterioID))
+            guard Set(aj.criterioIDs).isSubset(of: divergentes) else { throw Erro.referencia }
+        }
+        let criterios = Set(evidencia.artefatoID
+            .flatMap { id in artefatos.first { $0.id == id }?.pratica?.criterios.map(\.id) } ?? [])
+        guard Set(aj.criterioIDs).isSubset(of: criterios) else { throw Erro.referencia }
+    }
+
     func validar() throws {
         guard formato == 1, !intencoes.isEmpty else { throw Erro.formato }
         let intencaoIDs = Set(intencoes.map(\.id)), artefatoIDs = Set(artefatos.map(\.id))
@@ -463,6 +692,13 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
         for a in artefatos {
             guard intencaoIDs.contains(a.intencaoID),
                   a.anteriorID.map({ artefatoIDs.contains($0) && $0 != a.id }) ?? true else { throw Erro.referencia }
+            // ADR 08j: o vínculo guardado aponta para um pedido que existe e que
+            // de fato tinha esta versão como base. Um ponteiro que não fecha
+            // explicaria a mudança errada — pior que não explicar.
+            if let pedidoID = a.pedidoID {
+                guard let p = pedidos.first(where: { $0.id == pedidoID }),
+                      p.intencaoID == a.intencaoID, p.artefatoID == a.anteriorID else { throw Erro.referencia }
+            }
             if let parteDelegada = a.parteDelegada {
                 guard a.pratica != nil, !parteDelegada.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
                       a.conteudo.contains(parteDelegada) else { throw Erro.referencia }
@@ -481,6 +717,13 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
         for a in acoes where a.agendadaEm == nil && a.avisoMinutos != nil { throw Erro.referencia }
         for e in evidencias {
             guard let a = acoes.first(where: { $0.id == e.acaoID }), a.artefatoID == e.artefatoID else { throw Erro.referencia }
+            // ADR 08m: resultado observado é do RELATO de um ato no mundo. Numa
+            // tentativa, "funcionou" seria a resposta de um exercício se
+            // declarando certa — e quem lê a tentativa é a conferência.
+            guard e.resultado == nil || e.tipo == .relato else { throw Erro.referencia }
+            // ADR 08n: e nenhuma rota — importação, migração, chamador novo —
+            // guarda uma ação cancelada com resultado observado.
+            guard e.resultado == nil || a.estado != .cancelada else { throw Erro.referencia }
             guard let t = e.tentativa else { continue }
             guard e.tipo == .tentativa, t.origem == .pessoa,
                   t.anteriorID.map({ id in id != e.id && evidencias.contains { $0.id == id && $0.tentativa != nil } }) ?? true
@@ -504,6 +747,7 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
         for h in hipoteses where !h.evidencias.allSatisfy(evidenciaIDs.contains) { throw Erro.referencia }
         for p in pedidos {
             guard intencaoIDs.contains(p.intencaoID), p.artefatoID.map(artefatoIDs.contains) ?? true else { throw Erro.referencia }
+            try validarAjuste(p)
         }
     }
 }

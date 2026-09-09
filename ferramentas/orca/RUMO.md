@@ -45,7 +45,7 @@ Sempre uma volta desta trilha em edição, em paralelo às voltas comuns, no pr�
 | F3 | Captar pensamento em um toque | MESCLADA (ADR 05w): controle Anotar na Central/bloqueada/botão de Ação abre o app com teclado pronto e microfone a um toque; F3b = ditado próprio com áudio preservado |
 | F3b | Ditado próprio | áudio salvo antes de transcrever; falha preserva o áudio | MESCLADA (ADR 06c; G3, correção, re-G3 aprovado) |
 | F4 | **Os widgets da tela de início prestam** (era "widget próxima volta interativo") | refresh que funciona, identidade do Traço, vazio que oferece ação, densidade do médio, botão de feito na própria superfície | **EM EDIÇÃO, PRIORIDADE MÁXIMA** (worktree f4-widgets; ordem do dono 06/09 13:04, com print do iPhone) |
-| F6 | Ilha do compromisso vivo (era F5; a sigla F5 foi gasta pelos arquivos `f5-*` da volta F4-F em 08/09) | estados completos (compacta, expandida, mínima, fim). A mínima só aparece com DUAS atividades disputando a Ilha, e o StandBy não renderiza no simulador — as duas lacunas ficaram declaradas na F4-F | |
+| F5b | Ilha do compromisso vivo (era F5; a sigla F5 foi gasta pelos arquivos `f5-*` da F4-F, e "F6" já era dos widgets da tela bloqueada — o nome colidia duas vezes) | estados completos (compacta, expandida, mínima, fim). A mínima só aparece com DUAS atividades disputando a Ilha, e o StandBy não renderiza no simulador — as duas lacunas ficaram declaradas na F4-F | **EM EDIÇÃO** (worktree volta-f5b-ilha, ADR 08v) |
 | F6 | Widgets da tela bloqueada | accessoryCircular e accessoryInline do dia | |
 | F7 | Controle da Central de Controle | Recordar | |
 | F8 | Widget configurável | por pasta ou método | |
@@ -93,6 +93,8 @@ Achado de processo da V19 (Recordar), confirmado pelo revisor com `git show` e q
 
 ### Dívida vinda dos portões de hoje
 
+- **As quatro dívidas de `try!` que a volta A1 congelou** (ADR 08n; o portão está em `TracoTests/PortaoDoTryBangTests.swift` e fica vermelho se subirem). Medido, e a medida se refaz — `grep -rn 'try!' Traco/ TracoWidget/ | grep -vE '^[^:]+:[0-9]+:[[:space:]]*//'` dá **9 em `main` e 8 no branch da A1** (o `grep` cru dá 10 hoje: a volta escreveu duas linhas de comentário que dizem `try!`; o portão conta com `codigoVisivel`, que apaga comentário e string, e chega ao mesmo 8). **Infalível por construção, não é dívida:** `Traco/Caderno/AnexoDisco.swift:48`, `Traco/Notas/Indice.swift:96` e `Traco/Notas/Corpus.swift:277` (`NSRegularExpression` de padrão literal); `Traco/Trabalho/ConferenciaTrabalho.swift:179` é literal **só enquanto todo chamador passar literal** — o padrão chega por argumento, e isso é o que fura primeiro. **Dívida real, serialização de valor vindo de fora:** `Traco/Analise/FonteNotas.swift:155` e `Traco/Trabalho/PraticaTrabalho.swift:529` (`JSONSerialization.data` sobre objeto montado em runtime), `Traco/Notas/Corpus.swift:144` (`encode` de campo do autor, com um `!` de dicionário na mesma linha) e `Traco/App/Sessao.swift:599` (`encode` do texto do autor). A A1 NÃO as consertou de propósito: `Analise` é da volta Q e `Trabalho` é da E1, as duas vivas em 08/09. Volta própria, pequena, quando as duas fecharem.
+- **A recuperação que a A1 não entrega:** a tela do arranque falho oferece só "tentar de novo". Trazer o espelho em Markdown de volta para dentro do banco — o backup que a própria tela aponta — é volta própria, e tem de nascer com a regra da A1 na mão: preservar antes de voltar a funcionar, nada apaga para consertar.
 - **AX5 sangra pelos dois lados** num documento COM versão da IA (`ConteudoTrabalhoView`), enquanto documento novo fica impecável. Pré-existente, achado no re-G3 da V18 — e o revisor assumiu que o próprio G3 dele validou AX5 num trabalho sem versão.
 - **O teclado cobre a ação primária** depois do pedido, no Trabalho. Atrito igual antes e depois da V18.
 - **O `.compacto` secundário com 17,0:1 contra 6,36:1 da primária** (achado do G4 da V11): a secundária tem mais contraste que a primária.
@@ -181,6 +183,42 @@ Ordem do dono de 07/09 à noite: limpeza geral do git, sem perder nada, só `mai
 
 O simulador não prova, e as quatro ficam para uma passada no iPhone do dono (item 12 da fila): **StandBy noturno** (não renderiza no simulador), **Ilha mínima** (só aparece com duas atividades disputando a Ilha, e não há segundo app com Live Activity), **VoiceOver ouvido** (o `ax` recusa e ligar o leitor exige reiniciar o aparelho) e **a Ilha compacta com duas atividades em AX5**, onde o juiz viu um quadro isolado com o "t" cortado. As três primeiras foram confirmadas como limite por dois revisores independentes — não são desculpa de implementador.
 
+### Quatro P3 do G4 da V17 (não bloqueiam, ficam para a próxima volta do Trabalho)
+
+O juiz listou e não descontou: `isHeader` faltando nas duas seções novas; o `id` do `DisclosureGroup` sombreando os filhos; as aspas de "A pedido seu."; e um `spacing` literal onde a convenção manda token. Nenhum é de tela quebrada — são acabamento de acessibilidade e de convenção, e entram na volta que tocar `TrabalhoView` de novo.
+
+### Dois achados da V13 (08/09), com dono nomeado
+
+- **O caret do Caderno falha em AX XXXL no iPhone 17e.** A V13 rodou a suíte integral no `C7341E64` e o **único vermelho** é esse — e ela provou que é **pré-existente**, com as mesmas 18 ocorrências em `HEAD` sem o diff dela. É da invariante da escrita visível (V12, ADR 08f, já mesclada), que foi provada no Pro Max e no teste 2 mas **não neste aparelho neste tamanho**. Volta do Caderno, e a prova tem de incluir o 17e em AX XXXL.
+- **A pergunta interrompida some ao trocar de aba**, porque `RaizView` **recria** a `NotasView`. É estado desonesto — a pessoa perde o que estava esperando sem que nada diga. Conserto na `Sessao`, área do arquiteto, não do front.
+
+### A RÉGUA DO VAZAMENTO, nos dois sentidos — volta própria, e ela vem antes de mexer no parser
+
+A Q-D mediu 30 execuções e 9 recusas, **8 por vazamento e 1 por limite**, e em quatro delas a evidência exposta aponta para **nós**: as quatro palavras do trecho **já estavam no pedido do autor**. As quatro sem evidência ficaram **INDETERMINADAS e não foram contadas a favor**.
+
+**O que falta escrever antes de tocar no código:** o que é vazar **quando o alvo é um exemplo** e não a resposta. No Recordar, a guarda `Prova.vaza` existe porque **o alvo É a resposta** — repetir o alvo entrega o exercício. Na preparação de prática, o alvo é **o exemplo**, que por contrato é **outro caso**, e o vocabulário estrutural da tarefa (o que o próprio pedido manda separar) **passa pelo exemplo antes de chegar ao critério**. Sem essa régua escrita, alargar o parser é abrir a porta para a IA entregar a resposta pronta, e apertá-lo é recusar trabalho bom.
+
+Ciclo: melhorar. **Evidência:** a régua escrita nos dois sentidos, com casos que a guarda DEVE recusar e casos que ela NÃO deve, e a medida refeita contra ela.
+
+### RESOLVIDO em 08/09 pela Q-C, e a resposta é contra nós: a guarda está no lugar errado
+
+**3 das 15 execuções de `prepararPratica` não entregam — e não é teto nem provedor.** HTTP 200, conteúdo completo, `grok-4.6` confirmado, 3.777 a 6.865 tokens de raciocínio, e **recusadas pelo NOSSO contrato** (`PraticaTrabalho.parsePreparacao`/`validar`). Por entrega, a operação sai de 1/6 para **4/6**.
+
+**A resposta veio com o texto na mão, não com a contagem.** Instrumentado o motivo, as cinco recusas caíram **todas na mesma guarda** — *"vazamento · o critério N repete quatro palavras seguidas do exemplo"* — e, com o quadrigrama exposto, o texto vazado é **"a dependência ainda aberta"**: **vocabulário estrutural da tarefa**, que o pedido do autor manda separar (concluído, a dependência, próximo passo) e que **está na instrução antes de estar no exemplo**.
+
+**O defeito é NOSSO.** `Prova.vaza` veio do Recordar, onde **o alvo É a resposta**; aqui o alvo é o **exemplo**, que por contrato é outro caso. A guarda certa no lugar errado recusa trabalho bom. **A Q-C não alargou o parser** — ordem minha — e a régua nos dois sentidos fica para escrever antes de mexer: *o que é vazar quando o alvo é um exemplo, e não a resposta?*
+
+**Correção de leitura minha, registrada:** eu havia concluído, com a categoria da recusa mas sem o texto, que o parser estava certo e o defeito era do provedor. Estava errado, e foi o worker que me corrigiu expondo o trecho.
+
+A Q-B **não** moveu isso para a tabela de indisponibilidade, e o argumento é bom: recusa ocasional já tem superfície por pedido (`EstadoPedido.praticaIndisponivel`), enquanto **a tabela não sabe dizer "às vezes"**. Fica a pergunta que decide de quem é o defeito: **o parser está certo em recusar, ou está estreito demais?** Volta própria, e ela é do tipo que pode devolver uma operação inteira ao autor sem tocar no provedor.
+
+### O que o conselho da Q fixou sobre a fila do dono (08/09)
+
+- **Item 2 fecha com o MAPA**, não com dezesseis células preenchidas de Grok: atendimento, falhas, condições e a política correspondente, **declarando qualquer executor inacessível**.
+- **Item 3 fica na Q-B** enquanto a ajuda não atender tentativas variadas. Corte honesto não o paga.
+- **Item 9 exige jornada atual com IA real** — resposta ruim, interrupção, nova tentativa, estados e conteúdo preservados na UI. **A sonda isolada não o fecha.**
+- **Indisponibilidade por qualidade não existe hoje na tabela:** as três regras da `Politica` não a distinguem de falta de conta, e por isso a tela manda conectar Grok quando a conta já existe. É contrato a criar, não texto a trocar.
+
 ### Vinda do conselho da V12 (08/09): o oráculo de pixels
 
 **Volta própria, e cara.** O conselho respondeu que a prova geométrica da escrita visível cabe numa suíte hospedada (entra na V12-E), mas **a prova TEMPORAL do fantasma exige um oráculo de pixels sobre quadros nativos capturados**: detecta texto do papel na região exclusiva do cartão, perda de cobertura ou duas geometrias concorrentes, com e sem Reduzir Movimento, analisando **depois** da captura, sem juiz assistindo a vídeo. Custa instrumentação de renderização, é **amostrada** e **não certifica "nenhum quadro possível"** — captura externa ao caminho medido, localização das superfícies, tolerâncias calibradas e controle de quadros ausentes; lacuna de captura torna o intervalo inconclusivo. Ciclo: melhorar (barateia todo julgamento de movimento). **Avisos do conselho, para quem abrir:** `CADisplayLink` é temporizador sincronizado à tela, **não captura de pixels**; `presentation()` é aproximação da camada exibida; e **fotografar no callback altera o fenômeno** — a V12-D provou isso por outro caminho, ao descobrir que o quadro longo era o `fotografar()` do próprio teste.
@@ -221,6 +259,58 @@ O dono pediu ao Astra uma leitura de prioridades e depois decidiu que o laço do
 7. **O anúncio é uma seção só, no próprio documento**, escrita pelo app com os vínculos que ele conhece (o modelo não inventa ID nem decide qual pedido o produziu), dizendo o que mudou e por quê, sem repetir o histórico e sem declarar que a pessoa aprendeu.
 
 **O que esta volta NÃO fecha, e eu prefiro dizer agora:** o item 1 da fila do dono só se resolve quando **o dono efetivamente usa e continua a situação real** — a demonstração técnica não o fecha. A V17 entrega o mecanismo e a jornada provada; o item 1 fecha no uso.
+
+### G0 da RETOMADA DO TRABALHO — item 4 da fila do dono (escrito em 08/09, à espera de vaga)
+
+**Ciclo:** multiplicar a mente. O autor volta ao Trabalho depois de um dia e
+continua **sem reconstruir o contexto**.
+**Critério de resolvido (do Astra, palavra dele):** *"o dono volta depois e
+continua com pouca explicação"*.
+
+**Intenção que serve:** retomar objetivo, versões, decisões e próximo passo.
+
+**Obstáculo, nomeado no código e a conferir na tela viva antes de codar (a
+auditoria é datada — metade dos defeitos já caiu):** existe uma
+`TrabalhoView.retomada(_:)` (`Traco/Trabalho/TrabalhoView.swift:197`), e ela
+entrega **duas** coisas: "Continuar: <ato pendente>" e "Último retorno ·
+<atribuição>" com três linhas e um atalho para o histórico. O que ela **não**
+entrega é o resto do critério do dono:
+
+1. **A folha não abre no ponto certo.** `retomada` é o segundo bloco de uma
+   pilha de quinze (`intencao`, `retomada`, `apoio`, `producao`, `praticar`,
+   artefato, intercâmbio, `atos`, `retorno`, `dificuldade`, `historico`,
+   `rodape`) — ela **oferece** rolagem (`rolarPara`), mas a abertura é sempre no
+   topo. Quem volta cai na intenção, não no ponto onde parou.
+2. **Não há resumo do que houve entre as duas visitas.** Versão N produzida,
+   decisão tomada (o apoio marcado, o trecho delimitado no Combinar), ato
+   agendado, resultado observado — nada disso é dito junto. Depois da **E1** o
+   `ResultadoObservado` existe como eixo próprio e é candidato natural a entrar
+   nesse resumo.
+3. **"Último retorno" é a última evidência, não o que mudou.** Se o autor
+   guardou a própria versão e não houve evidência nova, a retomada fala de algo
+   antigo — ou não fala nada.
+
+**Evidência que prova (a régua desta volta):** **curva-zero medida em toques**,
+com o mesmo gesto nos dois builds, na jornada "voltei depois de um dia e
+continuo de onde parei" — com estado plantado (há receita:
+`plantar-trabalho-no-store`, o JSON no `ZTRABALHO` do App Group). Antes e
+depois no **mesmo aparelho**, com captura e árvore de AX do mesmo instante. E o
+teste que fica vermelho se a retomada voltar a apontar para o lugar errado.
+
+**Fronteiras:** nada de tela nova e nada de agregado novo — é a folha do
+Trabalho que já existe. Nada de `EstadoExercicio` persistido (decisão da V17,
+item 3). Nada de resumo escrito pela IA: quem sabe o que mudou é o app, que tem
+os vínculos; modelo não inventa o que a pessoa fez.
+
+## Trilha própria: Mac (permanente; brief em papeis/trilha-mac.md; casos em ferramentas/grokbot/CASOS.md)
+
+Ordem do dono de 08/09 à noite: os ONZE casos de uso do Traço no Mac pelo Grok Bot, todos. Sempre uma volta desta trilha em edição, dentro do teto de três.
+
+| # | volta | casos | estado |
+|---|---|---|---|
+| MAC-1 | ler tudo e escrever com origem: `traco_agenda`, `traco_decisoes`, `traco_escrever` com origem/fontes, `agenda.md`, etiqueta de origem na nota | 1, 2 (leitura), 3, 8, 9, 11 | abre agora |
+| MAC-2 | a porta de volta do Trabalho: `trabalhos/<id>.md`, `trabalhos/entrada/`, `traco_trabalho_escrever`, `traco_tentativa`, `traco_relatar` | 2 (escrita), 4, 5, 6 | depois da MAC-1; Astra no G0 |
+| MAC-3 | web e briefing com citação obrigatória | 7, 10 | depois da Q mesclar |
 
 ## Próximas, em ordem
 

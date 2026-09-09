@@ -1,0 +1,222 @@
+# V12-D — linhas HITCH de todas as rodadas (iPhone 17 Pro Max 6033B043, build da branch, cada xcodebuild test sob com-trava.sh)
+
+## Rodadas 1–3: protocolo da V12-C (2,5 s de espera não medida, 3 idas e voltas), com sonda por quadro (inset/offset) e chamada de rolar cronometrada
+== rodada 1 ==
+HITCH digitação (1232 caracteres no TextEditor): 1736 quadros em 28.9 s, 0 perdidos, hitch 0.0 ms (0.00 ms/s), maior intervalo 16.7 ms
+HITCH aviso: inset 192 pt ao fim da digitação, 192 pt 2,5 s depois (o encaixe AINDA NÃO mudou — o aviso vai cair na rolagem)
+HITCH geometria com cartão: inset inferior 192 pt
+HITCH rolagem (3 idas e voltas, curso 449 pt): 253 quadros em 4.3 s, 1 perdidos, hitch 134.1 ms (30.96 ms/s), maior intervalo 150.8 ms
+HITCH   quadro longo: +0.15 s, 150.8 ms, inset 192→192 pt, offset 0→186 pt
+HITCH geometria: conteúdo 1095 pt, janela 838 pt, inset inferior 192 pt, teclado de pé
+== rodada 2: exit 0 ==
+  HITCH digitação (1232 caracteres no TextEditor): 1745 quadros em 29.1 s, 1 perdidos, hitch 16.7 ms (0.57 ms/s), maior intervalo 33.3 ms
+  HITCH   quadro longo: +0.03 s, 33.3 ms, inset 0→0 pt, offset 0→0 pt
+  HITCH aviso: inset 192 pt ao fim da digitação, 192 pt 2,5 s depois (o encaixe AINDA NÃO mudou — o aviso vai cair na rolagem)
+  HITCH geometria com cartão: inset inferior 192 pt
+  HITCH   pedido de rolar 1 (descer): 0.2 ms na chamada
+  HITCH   pedido de rolar 2 (descer): 0.6 ms na chamada
+  HITCH   pedido de rolar 3 (descer): 0.5 ms na chamada
+  HITCH rolagem (3 idas e voltas, curso 449 pt): 252 quadros em 4.3 s, 1 perdidos, hitch 159.9 ms (36.75 ms/s), maior intervalo 176.5 ms
+  HITCH   quadro longo: +0.18 s, 176.5 ms, inset 192→192 pt, offset 0→224 pt
+  HITCH geometria: conteúdo 1095 pt, janela 838 pt, inset inferior 192 pt, teclado de pé
+== rodada 3: exit 0 ==
+  HITCH digitação (1232 caracteres no TextEditor): 1738 quadros em 29.0 s, 1 perdidos, hitch 16.7 ms (0.58 ms/s), maior intervalo 33.3 ms
+  HITCH   quadro longo: +0.03 s, 33.3 ms, inset 0→0 pt, offset 0→0 pt
+  HITCH aviso: inset 192 pt ao fim da digitação, 192 pt 2,5 s depois (o encaixe AINDA NÃO mudou — o aviso vai cair na rolagem)
+  HITCH geometria com cartão: inset inferior 192 pt
+  HITCH   pedido de rolar 1 (descer): 0.2 ms na chamada
+  HITCH   pedido de rolar 2 (descer): 0.3 ms na chamada
+  HITCH   pedido de rolar 3 (descer): 0.3 ms na chamada
+  HITCH rolagem (3 idas e voltas, curso 449 pt): 253 quadros em 4.3 s, 1 perdidos, hitch 114.2 ms (26.45 ms/s), maior intervalo 130.9 ms
+  HITCH   quadro longo: +0.13 s, 130.9 ms, inset 192→192 pt, offset 0→0 pt
+  HITCH geometria: conteúdo 1095 pt, janela 838 pt, inset inferior 192 pt, teclado de pé
+
+## Rodadas 4–9: primeira descida separada da rolagem em regime (espera de 2,5 s ainda não medida; captura logo antes da primeira descida)
+== rodada 4: exit 0 ==
+  HITCH digitação (1232 caracteres no TextEditor): 1765 quadros em 29.5 s, 3 perdidos, hitch 66.7 ms (2.26 ms/s), maior intervalo 57.2 ms
+  HITCH   quadro longo: +0.03 s, 33.3 ms, inset 0→0 pt, offset 0→0 pt
+  HITCH   quadro longo: +15.69 s, 57.2 ms, inset 0→0 pt, offset 0→0 pt
+  HITCH   quadro longo: +15.72 s, 26.2 ms, inset 0→0 pt, offset 0→0 pt
+  HITCH aviso: inset 192 pt ao fim da digitação, 192 pt 2,5 s depois (o encaixe NÃO mudou: nem aviso nem cartão entraram)
+  HITCH geometria antes de rolar: inset inferior 192 pt, TextKit 2
+  HITCH primeira descida (revela o texto abaixo da dobra, curso 449 pt): 42 quadros em 0.8 s, 2 perdidos, hitch 150.0 ms (180.00 ms/s), maior intervalo 157.0 ms
+  HITCH   quadro longo: +0.16 s, 157.0 ms, inset 192→192 pt, offset 0→0 pt
+  HITCH   quadro longo: +0.18 s, 26.4 ms, inset 192→192 pt, offset 0→9 pt
+  HITCH rolagem em regime (3 idas e voltas, curso 449 pt): 253 quadros em 4.2 s, 0 perdidos, hitch 0.0 ms (0.00 ms/s), maior intervalo 16.7 ms
+  HITCH geometria: conteúdo 1095 pt, janela 838 pt, inset inferior 192 pt, teclado de pé
+== rodada 5: exit 0 ==
+  HITCH digitação (1232 caracteres no TextEditor): 1759 quadros em 29.3 s, 1 perdidos, hitch 32.2 ms (1.10 ms/s), maior intervalo 48.9 ms
+  HITCH   quadro longo: +0.05 s, 48.9 ms, inset 0→0 pt, offset 0→0 pt
+  HITCH aviso: inset 192 pt ao fim da digitação, 192 pt 2,5 s depois (o encaixe NÃO mudou: nem aviso nem cartão entraram)
+  HITCH geometria antes de rolar: inset inferior 192 pt, TextKit 2
+  HITCH primeira descida (revela o texto abaixo da dobra, curso 449 pt): 41 quadros em 0.7 s, 1 perdidos, hitch 8.4 ms (12.48 ms/s), maior intervalo 25.1 ms
+  HITCH   quadro longo: +0.03 s, 25.1 ms, inset 192→192 pt, offset 0→8 pt
+  HITCH rolagem em regime (3 idas e voltas, curso 449 pt): 253 quadros em 4.2 s, 0 perdidos, hitch 0.0 ms (0.00 ms/s), maior intervalo 16.7 ms
+  HITCH geometria: conteúdo 1095 pt, janela 838 pt, inset inferior 192 pt, teclado de pé
+== rodada 6: exit 0 ==
+  HITCH digitação (1232 caracteres no TextEditor): 1767 quadros em 29.4 s, 0 perdidos, hitch 0.0 ms (0.00 ms/s), maior intervalo 16.7 ms
+  HITCH aviso: inset 192 pt ao fim da digitação, 192 pt 2,5 s depois (o encaixe NÃO mudou: nem aviso nem cartão entraram)
+  HITCH geometria antes de rolar: inset inferior 192 pt, TextKit 2
+  HITCH primeira descida (revela o texto abaixo da dobra, curso 449 pt): 43 quadros em 0.8 s, 1 perdidos, hitch 132.8 ms (159.30 ms/s), maior intervalo 149.4 ms
+  HITCH   quadro longo: +0.15 s, 149.4 ms, inset 192→192 pt, offset 0→0 pt
+  HITCH rolagem em regime (3 idas e voltas, curso 449 pt): 252 quadros em 4.2 s, 0 perdidos, hitch 0.0 ms (0.00 ms/s), maior intervalo 16.7 ms
+  HITCH geometria: conteúdo 1095 pt, janela 838 pt, inset inferior 192 pt, teclado de pé
+== rodada 7: exit 0 ==
+  HITCH digitação (1232 caracteres no TextEditor): 1768 quadros em 29.5 s, 1 perdidos, hitch 17.5 ms (0.59 ms/s), maior intervalo 34.1 ms
+  HITCH   quadro longo: +0.03 s, 34.1 ms, inset 0→0 pt, offset 0→0 pt
+  HITCH aviso: inset 192 pt ao fim da digitação, 192 pt 2,5 s depois (o encaixe NÃO mudou: nem aviso nem cartão entraram)
+  HITCH geometria antes de rolar: inset inferior 192 pt, TextKit 2
+  HITCH primeira descida (revela o texto abaixo da dobra, curso 449 pt): 43 quadros em 0.9 s, 1 perdidos, hitch 169.0 ms (194.98 ms/s), maior intervalo 185.7 ms
+  HITCH   quadro longo: +0.19 s, 185.7 ms, inset 192→192 pt, offset 0→0 pt
+  HITCH rolagem em regime (3 idas e voltas, curso 449 pt): 252 quadros em 4.2 s, 0 perdidos, hitch 0.0 ms (0.00 ms/s), maior intervalo 16.7 ms
+  HITCH geometria: conteúdo 1095 pt, janela 838 pt, inset inferior 192 pt, teclado de pé
+== rodada 8: exit 0 ==
+  HITCH digitação (1232 caracteres no TextEditor): 1763 quadros em 29.4 s, 0 perdidos, hitch 0.0 ms (0.00 ms/s), maior intervalo 16.7 ms
+  HITCH aviso: inset 192 pt ao fim da digitação, 192 pt 2,5 s depois (o encaixe NÃO mudou: nem aviso nem cartão entraram)
+  HITCH geometria antes de rolar: inset inferior 192 pt, TextKit 2
+  HITCH primeira descida (revela o texto abaixo da dobra, curso 449 pt): 42 quadros em 0.8 s, 2 perdidos, hitch 133.3 ms (163.27 ms/s), maior intervalo 140.3 ms
+  HITCH   quadro longo: +0.14 s, 140.3 ms, inset 192→192 pt, offset 0→148 pt
+  HITCH   quadro longo: +0.17 s, 26.3 ms, inset 192→192 pt, offset 148→224 pt
+  HITCH rolagem em regime (3 idas e voltas, curso 449 pt): 252 quadros em 4.2 s, 0 perdidos, hitch 0.0 ms (0.00 ms/s), maior intervalo 16.7 ms
+  HITCH geometria: conteúdo 1095 pt, janela 838 pt, inset inferior 192 pt, teclado de pé
+== rodada 9: exit 0 ==
+  HITCH digitação (1232 caracteres no TextEditor): 1766 quadros em 29.4 s, 1 perdidos, hitch 16.7 ms (0.57 ms/s), maior intervalo 33.3 ms
+  HITCH   quadro longo: +0.03 s, 33.3 ms, inset 0→0 pt, offset 0→0 pt
+  HITCH aviso: inset 192 pt ao fim da digitação, 192 pt 2,5 s depois (o encaixe NÃO mudou: nem aviso nem cartão entraram)
+  HITCH geometria antes de rolar: inset inferior 192 pt, TextKit 2
+  HITCH primeira descida (revela o texto abaixo da dobra, curso 449 pt): 42 quadros em 0.8 s, 1 perdidos, hitch 130.0 ms (159.20 ms/s), maior intervalo 146.7 ms
+  HITCH   quadro longo: +0.15 s, 146.7 ms, inset 192→192 pt, offset 0→0 pt
+  HITCH rolagem em regime (3 idas e voltas, curso 449 pt): 253 quadros em 4.2 s, 0 perdidos, hitch 0.0 ms (0.00 ms/s), maior intervalo 16.7 ms
+  HITCH geometria: conteúdo 1095 pt, janela 838 pt, inset inferior 192 pt, teclado de pé
+
+## Rodadas 10–12: sonda ensureLayout + 0,5 s de respiro antes da primeira descida (o layout custou 0,0 ms; o respiro limpou a descida)
+== rodada 10: exit 0 ==
+  HITCH digitação (1232 caracteres no TextEditor): 1737 quadros em 29.0 s, 1 perdidos, hitch 34.6 ms (1.19 ms/s), maior intervalo 51.2 ms
+  HITCH   quadro longo: +28.28 s, 51.2 ms, inset 0→0 pt, offset 0→0 pt
+  HITCH aviso: inset 192 pt ao fim da digitação, 192 pt 2,5 s depois (o encaixe NÃO mudou: nem aviso nem cartão entraram)
+  HITCH geometria antes de rolar: inset inferior 192 pt, TextKit 2
+  HITCH layout do documento antes de rolar (ensureLayout): 0.0 ms
+  HITCH primeira descida (revela o texto abaixo da dobra, curso 449 pt): 41 quadros em 0.7 s, 0 perdidos, hitch 0.0 ms (0.00 ms/s), maior intervalo 16.7 ms
+  HITCH rolagem em regime (3 idas e voltas, curso 449 pt): 252 quadros em 4.2 s, 0 perdidos, hitch 0.0 ms (0.00 ms/s), maior intervalo 16.7 ms
+  HITCH geometria: conteúdo 1095 pt, janela 838 pt, inset inferior 192 pt, teclado de pé
+== rodada 11: exit 0 ==
+  HITCH digitação (1232 caracteres no TextEditor): 1738 quadros em 29.0 s, 1 perdidos, hitch 16.7 ms (0.58 ms/s), maior intervalo 33.3 ms
+  HITCH   quadro longo: +0.03 s, 33.3 ms, inset 0→0 pt, offset 0→0 pt
+  HITCH aviso: inset 192 pt ao fim da digitação, 192 pt 2,5 s depois (o encaixe NÃO mudou: nem aviso nem cartão entraram)
+  HITCH geometria antes de rolar: inset inferior 192 pt, TextKit 2
+  HITCH layout do documento antes de rolar (ensureLayout): 0.0 ms
+  HITCH primeira descida (revela o texto abaixo da dobra, curso 449 pt): 43 quadros em 0.7 s, 0 perdidos, hitch 0.0 ms (0.00 ms/s), maior intervalo 16.7 ms
+  HITCH rolagem em regime (3 idas e voltas, curso 449 pt): 252 quadros em 4.2 s, 0 perdidos, hitch 0.0 ms (0.00 ms/s), maior intervalo 16.7 ms
+  HITCH geometria: conteúdo 1095 pt, janela 838 pt, inset inferior 192 pt, teclado de pé
+== rodada 12: exit 0 ==
+  HITCH digitação (1232 caracteres no TextEditor): 1733 quadros em 28.9 s, 0 perdidos, hitch 0.0 ms (0.00 ms/s), maior intervalo 16.7 ms
+  HITCH aviso: inset 192 pt ao fim da digitação, 192 pt 2,5 s depois (o encaixe NÃO mudou: nem aviso nem cartão entraram)
+  HITCH geometria antes de rolar: inset inferior 192 pt, TextKit 2
+  HITCH layout do documento antes de rolar (ensureLayout): 0.0 ms
+  HITCH primeira descida (revela o texto abaixo da dobra, curso 449 pt): 42 quadros em 0.7 s, 0 perdidos, hitch 0.0 ms (0.00 ms/s), maior intervalo 16.7 ms
+  HITCH rolagem em regime (3 idas e voltas, curso 449 pt): 252 quadros em 4.2 s, 0 perdidos, hitch 0.0 ms (0.00 ms/s), maior intervalo 16.7 ms
+  HITCH geometria: conteúdo 1095 pt, janela 838 pt, inset inferior 192 pt, teclado de pé
+
+## Rodadas 13–15: espera de 3,0 s MEDIDA (captura logo antes da espera e logo antes da primeira descida — o quadro longo aparece nas duas)
+== rodada 13: exit 0 ==
+  HITCH digitação (1232 caracteres no TextEditor): 1738 quadros em 29.0 s, 3 perdidos, hitch 50.0 ms (1.72 ms/s), maior intervalo 38.5 ms
+  HITCH   quadro longo: +0.04 s, 38.5 ms, inset 0→0 pt, offset 0→0 pt
+  HITCH   quadro longo: +0.07 s, 28.1 ms, inset 0→0 pt, offset 0→0 pt
+  HITCH   quadro longo: +2.60 s, 33.3 ms, inset 0→0 pt, offset 0→0 pt
+  HITCH espera da análise (3,0 s depois da última tecla): 181 quadros em 3.1 s, 1 perdidos, hitch 137.1 ms (43.76 ms/s), maior intervalo 153.8 ms
+  HITCH   quadro longo: +0.15 s, 153.8 ms, inset 192→192 pt, offset 0→0 pt
+  HITCH aviso: inset 192 pt ao fim da digitação, mín 192 / máx 192 pt durante a espera, 192 pt ao fim (o encaixe NÃO mudou: nem 'lendo…' nem cartão entraram)
+  HITCH geometria antes de rolar: inset inferior 192 pt, TextKit 2
+  HITCH primeira descida (revela o texto abaixo da dobra, curso 449 pt): 43 quadros em 0.8 s, 1 perdidos, hitch 119.8 ms (146.66 ms/s), maior intervalo 136.4 ms
+  HITCH   quadro longo: +0.14 s, 136.4 ms, inset 192→192 pt, offset 0→0 pt
+  HITCH rolagem em regime (3 idas e voltas, curso 449 pt): 252 quadros em 4.2 s, 0 perdidos, hitch 0.0 ms (0.00 ms/s), maior intervalo 16.7 ms
+  HITCH geometria: conteúdo 1095 pt, janela 838 pt, inset inferior 192 pt, teclado de pé
+== rodada 14: exit 0 ==
+  HITCH digitação (1232 caracteres no TextEditor): 1736 quadros em 28.9 s, 0 perdidos, hitch 0.0 ms (0.00 ms/s), maior intervalo 16.7 ms
+  HITCH espera da análise (3,0 s depois da última tecla): 180 quadros em 3.1 s, 2 perdidos, hitch 133.3 ms (42.78 ms/s), maior intervalo 138.1 ms
+  HITCH   quadro longo: +0.14 s, 138.1 ms, inset 192→192 pt, offset 0→0 pt
+  HITCH   quadro longo: +0.17 s, 28.5 ms, inset 192→192 pt, offset 0→0 pt
+  HITCH aviso: inset 192 pt ao fim da digitação, mín 192 / máx 192 pt durante a espera, 192 pt ao fim (o encaixe NÃO mudou: nem 'lendo…' nem cartão entraram)
+  HITCH geometria antes de rolar: inset inferior 192 pt, TextKit 2
+  HITCH primeira descida (revela o texto abaixo da dobra, curso 449 pt): 42 quadros em 0.8 s, 2 perdidos, hitch 150.0 ms (180.00 ms/s), maior intervalo 156.8 ms
+  HITCH   quadro longo: +0.16 s, 156.8 ms, inset 192→192 pt, offset 0→0 pt
+  HITCH   quadro longo: +0.18 s, 26.5 ms, inset 192→192 pt, offset 0→9 pt
+  HITCH rolagem em regime (3 idas e voltas, curso 449 pt): 252 quadros em 4.2 s, 0 perdidos, hitch 0.0 ms (0.00 ms/s), maior intervalo 16.7 ms
+  HITCH geometria: conteúdo 1095 pt, janela 838 pt, inset inferior 192 pt, teclado de pé
+== rodada 15: exit 0 ==
+  HITCH digitação (1232 caracteres no TextEditor): 1741 quadros em 29.0 s, 1 perdidos, hitch 18.2 ms (0.63 ms/s), maior intervalo 34.8 ms
+  HITCH   quadro longo: +0.03 s, 34.8 ms, inset 0→0 pt, offset 0→0 pt
+  HITCH espera da análise (3,0 s depois da última tecla): 180 quadros em 3.1 s, 1 perdidos, hitch 130.5 ms (41.87 ms/s), maior intervalo 147.2 ms
+  HITCH   quadro longo: +0.15 s, 147.2 ms, inset 192→192 pt, offset 0→0 pt
+  HITCH aviso: inset 192 pt ao fim da digitação, mín 192 / máx 192 pt durante a espera, 192 pt ao fim (o encaixe NÃO mudou: nem 'lendo…' nem cartão entraram)
+  HITCH geometria antes de rolar: inset inferior 192 pt, TextKit 2
+  HITCH primeira descida (revela o texto abaixo da dobra, curso 449 pt): 42 quadros em 0.8 s, 1 perdidos, hitch 132.1 ms (161.75 ms/s), maior intervalo 148.8 ms
+  HITCH   quadro longo: +0.15 s, 148.8 ms, inset 192→192 pt, offset 0→0 pt
+  HITCH rolagem em regime (3 idas e voltas, curso 449 pt): 253 quadros em 4.2 s, 0 perdidos, hitch 0.0 ms (0.00 ms/s), maior intervalo 16.7 ms
+  HITCH geometria: conteúdo 1095 pt, janela 838 pt, inset inferior 192 pt, teclado de pé
+
+## Rodadas 16–21: PROTOCOLO FINAL — captura cronometrada e fora de toda janela medida
+== rodada 16: exit 0 ==
+  HITCH digitação (1232 caracteres no TextEditor): 1739 quadros em 29.0 s, 1 perdidos, hitch 28.2 ms (0.97 ms/s), maior intervalo 44.8 ms
+  HITCH   quadro longo: +0.04 s, 44.8 ms, inset 0→0 pt, offset 0→0 pt
+  HITCH espera da análise (3,0 s depois da última tecla): 180 quadros em 3.0 s, 0 perdidos, hitch 0.0 ms (0.00 ms/s), maior intervalo 16.7 ms
+  HITCH aviso: inset 192 pt ao fim da digitação, mín 192 / máx 192 pt durante a espera, 192 pt ao fim (o encaixe NÃO mudou: nem 'lendo…' nem cartão entraram)
+  HITCH geometria antes de rolar: inset inferior 192 pt, TextKit 2
+  HITCH primeira descida (revela o texto abaixo da dobra, curso 449 pt): 41 quadros em 0.7 s, 0 perdidos, hitch 0.0 ms (0.00 ms/s), maior intervalo 16.7 ms
+  HITCH rolagem em regime (3 idas e voltas, curso 449 pt): 252 quadros em 4.2 s, 0 perdidos, hitch 0.0 ms (0.00 ms/s), maior intervalo 16.7 ms
+  HITCH geometria: conteúdo 1095 pt, janela 838 pt, inset inferior 192 pt, teclado de pé
+== rodada 17: exit 0 ==
+  HITCH digitação (1232 caracteres no TextEditor): 1769 quadros em 29.5 s, 0 perdidos, hitch 0.0 ms (0.00 ms/s), maior intervalo 16.7 ms
+  HITCH espera da análise (3,0 s depois da última tecla): 180 quadros em 3.0 s, 0 perdidos, hitch 0.0 ms (0.00 ms/s), maior intervalo 16.7 ms
+  HITCH aviso: inset 192 pt ao fim da digitação, mín 192 / máx 192 pt durante a espera, 192 pt ao fim (o encaixe NÃO mudou: nem 'lendo…' nem cartão entraram)
+  HITCH geometria antes de rolar: inset inferior 192 pt, TextKit 2
+  HITCH primeira descida (revela o texto abaixo da dobra, curso 449 pt): 41 quadros em 0.7 s, 0 perdidos, hitch 0.0 ms (0.00 ms/s), maior intervalo 16.7 ms
+  HITCH rolagem em regime (3 idas e voltas, curso 449 pt): 253 quadros em 4.2 s, 0 perdidos, hitch 0.0 ms (0.00 ms/s), maior intervalo 16.7 ms
+  HITCH geometria: conteúdo 1095 pt, janela 838 pt, inset inferior 192 pt, teclado de pé
+== rodada 18: exit 0 ==
+  HITCH digitação (1232 caracteres no TextEditor): 1769 quadros em 29.5 s, 0 perdidos, hitch 0.0 ms (0.00 ms/s), maior intervalo 16.7 ms
+  HITCH espera da análise (3,0 s depois da última tecla): 180 quadros em 3.0 s, 0 perdidos, hitch 0.0 ms (0.00 ms/s), maior intervalo 16.7 ms
+  HITCH aviso: inset 192 pt ao fim da digitação, mín 192 / máx 192 pt durante a espera, 192 pt ao fim (o encaixe NÃO mudou: nem 'lendo…' nem cartão entraram)
+  HITCH geometria antes de rolar: inset inferior 192 pt, TextKit 2
+  HITCH primeira descida (revela o texto abaixo da dobra, curso 449 pt): 42 quadros em 0.7 s, 0 perdidos, hitch 0.0 ms (0.00 ms/s), maior intervalo 16.7 ms
+  HITCH rolagem em regime (3 idas e voltas, curso 449 pt): 252 quadros em 4.2 s, 0 perdidos, hitch 0.0 ms (0.00 ms/s), maior intervalo 16.7 ms
+  HITCH geometria: conteúdo 1095 pt, janela 838 pt, inset inferior 192 pt, teclado de pé
+== rodada 19: exit 0 ==
+  HITCH digitação (1232 caracteres no TextEditor): 1738 quadros em 28.9 s, 0 perdidos, hitch 0.0 ms (0.00 ms/s), maior intervalo 16.7 ms
+  HITCH espera da análise (3,0 s depois da última tecla): 180 quadros em 3.0 s, 0 perdidos, hitch 0.0 ms (0.00 ms/s), maior intervalo 16.7 ms
+  HITCH aviso: inset 192 pt ao fim da digitação, mín 192 / máx 192 pt durante a espera, 192 pt ao fim (o encaixe NÃO mudou: nem 'lendo…' nem cartão entraram)
+  HITCH geometria antes de rolar: inset inferior 192 pt, TextKit 2
+  HITCH primeira descida (revela o texto abaixo da dobra, curso 449 pt): 41 quadros em 0.7 s, 0 perdidos, hitch 0.0 ms (0.00 ms/s), maior intervalo 16.7 ms
+  HITCH rolagem em regime (3 idas e voltas, curso 449 pt): 253 quadros em 4.2 s, 0 perdidos, hitch 0.0 ms (0.00 ms/s), maior intervalo 16.7 ms
+  HITCH geometria: conteúdo 1095 pt, janela 838 pt, inset inferior 192 pt, teclado de pé
+== rodada 20: exit 0 ==
+  HITCH digitação (1232 caracteres no TextEditor): 1737 quadros em 29.0 s, 1 perdidos, hitch 37.4 ms (1.29 ms/s), maior intervalo 54.1 ms
+  HITCH   quadro longo: +28.44 s, 54.1 ms, inset 0→0 pt, offset 0→0 pt
+  HITCH espera da análise (3,0 s depois da última tecla): 180 quadros em 3.0 s, 0 perdidos, hitch 0.0 ms (0.00 ms/s), maior intervalo 16.7 ms
+  HITCH aviso: inset 192 pt ao fim da digitação, mín 192 / máx 192 pt durante a espera, 192 pt ao fim (o encaixe NÃO mudou: nem 'lendo…' nem cartão entraram)
+  HITCH geometria antes de rolar: inset inferior 192 pt, TextKit 2
+  HITCH primeira descida (revela o texto abaixo da dobra, curso 449 pt): 41 quadros em 0.7 s, 0 perdidos, hitch 0.0 ms (0.00 ms/s), maior intervalo 16.7 ms
+  HITCH rolagem em regime (3 idas e voltas, curso 449 pt): 253 quadros em 4.2 s, 0 perdidos, hitch 0.0 ms (0.00 ms/s), maior intervalo 16.7 ms
+  HITCH geometria: conteúdo 1095 pt, janela 838 pt, inset inferior 192 pt, teclado de pé
+== rodada 21: exit 0 ==
+  HITCH digitação (1232 caracteres no TextEditor): 1738 quadros em 28.9 s, 0 perdidos, hitch 0.0 ms (0.00 ms/s), maior intervalo 16.7 ms
+  HITCH espera da análise (3,0 s depois da última tecla): 180 quadros em 3.0 s, 0 perdidos, hitch 0.0 ms (0.00 ms/s), maior intervalo 16.7 ms
+  HITCH aviso: inset 192 pt ao fim da digitação, mín 192 / máx 192 pt durante a espera, 192 pt ao fim (o encaixe NÃO mudou: nem 'lendo…' nem cartão entraram)
+  HITCH geometria antes de rolar: inset inferior 192 pt, TextKit 2
+  HITCH primeira descida (revela o texto abaixo da dobra, curso 449 pt): 41 quadros em 0.7 s, 0 perdidos, hitch 0.0 ms (0.00 ms/s), maior intervalo 16.7 ms
+  HITCH rolagem em regime (3 idas e voltas, curso 449 pt): 253 quadros em 4.2 s, 0 perdidos, hitch 0.0 ms (0.00 ms/s), maior intervalo 16.7 ms
+  HITCH geometria: conteúdo 1095 pt, janela 838 pt, inset inferior 192 pt, teclado de pé
+
+## Custo de cada captura (fotografar) nas rodadas 16–21
+hitch-digitado.png (161.0 ms na main thread)
+hitch-fim.png (126.6 ms na main thread)
+hitch-digitado.png (127.0 ms na main thread)
+hitch-fim.png (129.5 ms na main thread)
+hitch-digitado.png (148.4 ms na main thread)
+hitch-fim.png (155.0 ms na main thread)
+hitch-digitado.png (159.3 ms na main thread)
+hitch-fim.png (152.8 ms na main thread)
+hitch-digitado.png (162.2 ms na main thread)
+hitch-fim.png (129.0 ms na main thread)
+hitch-digitado.png (159.3 ms na main thread)
+hitch-fim.png (135.8 ms na main thread)

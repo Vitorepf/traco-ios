@@ -1,0 +1,19 @@
+Sonda temporária (onGeometryChange em frame(in: .global), CadernoView; removida antes do commit).
+iPhone 17 Pro (teste 2) B91C8DEF, 402×874 pt, AX5, forma vestida (cartão recolhido), teclado de software de pé (topo 539 pt).
+Formato: nome minY–maxY (altura) | alturaDisponivel pe(alturaDoPe) piso teto
+
+ANTES (topo aafdc72/e4ea756, pé flexível):
+corpo   137.3–539.0 (h 401.7) | altura 401.7 pe 91.2 piso 259.3 teto 155.2
+papel   137.3–338.2 (h 200.8) — metade do corpo
+encaixe 338.2–539.0 (h 200.8) — a outra metade
+acima   338.2–447.8 (h 109.7) — cartão recolhido + 12 pt
+pe      447.8–539.0 (h  91.2) — mas o conteúdo do pé mede 212.7 pt: transborda 60.7 pt para cima (sobre a linha do cartão) e 60.7 pt para baixo (sob o teclado)
+XCUITest no mesmo estado: mais-acoes-da-nota 466.3–591.7 → 52.7 pt sob o topo real do teclado (539); linha do cartão coberta pela barra do pé (v12g-antes-ax5-cartao-pe-cortado.png)
+
+DEPOIS (pé com fixedSize vertical):
+corpo   137.3–539.0 (h 401.7) | altura 401.7 pe 212.7 piso 259.3 teto 94.5
+papel   137.3–231.8 (h  94.5) — o que sobra: metade da sobra (regra da 05y)
+encaixe 231.8–539.0 (h 307.2)
+acima   231.8–326.3 (h  94.5) — o teto; o cartão recolhido pede 109.7, perde 15.2 pt do topo (recorte do encaixe)
+pe      326.3–539.0 (h 212.7) — inteiro, encostado no topo do teclado
+XCUITest no mesmo estado: trabalhar-nisto 331.3–400.7, mais-acoes-da-nota 405.7–531.0, inputView 539 → 8 pt de ar

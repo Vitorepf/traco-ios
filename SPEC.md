@@ -3237,7 +3237,9 @@ as 8 de `animacao`/`morph` e as 4 de `gaveta` do app**, não só para a Página:
 quadros nativos: na Página, a linha que abre a prosa e o toque em "Abrir os campos", sete quadros
 nativos por linha, SEM Reduzir Movimento (`v12d-sem-rm-quadros.png`) e COM
 (`v12d-com-rm-quadros.png`): o cartão está num quadro e não está no seguinte, e
-em nenhum há par legível na mesma faixa; no **Calendário**, tela de outra volta,
+em nenhum há par legível na mesma faixa — **afirmação corrigida pela V12-E
+(08f): o G4 final mediu ~100 ms sem RM e ~125 ms com, e a prova passa a ser
+amostrada, nunca universal**; no **Calendário**, tela de outra volta,
 Dia→Semana e Semana→Mês sob RM em UM quadro cada
 (`v12d-calendario-rm-corta.png`), onde a fade de 0,15 s dava uma interpolação de
 quatro a cinco. A chegada do cartão sob RM também virou um quadro
@@ -5578,6 +5580,343 @@ complexidade). **O que a IA sabe:** nada de novo. **Prova:**
 protegidas, 13 com gancho, 6 legítimas, 72 de trabalho) verdes, nenhuma mudou de
 lado. Sem maestro: com três simuladores ligados ele lê a hierarquia do vizinho.
 
+## ADR 2026-09-08f — O encaixe cola no pé: o fantasma do `.sheet`, o aviso e a cápsula desligada (volta V12-B)
+
+**A distância.** Três dívidas da limpeza de 07/09, todas na Página, todas com a
+mesma raiz de layout ou o mesmo esquecimento de contraste.
+
+1. **O fantasma do `.sheet`** (A5 do re-G4 da V12): ao tocar "Abrir os campos",
+   o cartão da forma vestida aparecia em DUAS geometrias no mesmo gesto — a
+   assinatura da classe A1 —, e o defeito era idêntico com e sem Reduzir
+   Movimento, logo não era a lei do movimento.
+2. **O aviso** (`toast`) nascia longe da barra, no meio do papel — sobre o texto
+   do autor. A revisão da V19 tinha achado o `padding(.bottom, 88)` chutado; a
+   V12 já o tinha apagado ao mudar o aviso para dentro do encaixe, e o número
+   não foi substituído por outro número: foi substituído por um vão.
+3. **A `Pilula` desabilitada** devolvia `tintaMorta` (#C7C7CC) — **1,53:1**
+   sobre o papel — para TODOS os chamadores (A3 da revisão da V19).
+
+**Correção da V12-E (08/09, à noite):** o que esta ADR chama de "fantasma do
+`.sheet`" fechou só em parte — o vão e o salto de 176 pt caíram, mas o par
+legível ficou (~100 ms sem Reduzir Movimento, ~125 ms com, medidos pelo G4
+final em quadros nativos, `g4f-fantasma-*`); a frase "nenhum par legível" abaixo
+e na 05y era falsa. O que a V12-E mudou e o que ela mediu está na seção
+**"A invariante da escrita visível (V12-E)"**, no fim desta ADR.
+
+**A causa dos dois primeiros é uma só, e não é o `.sheet`.** `CadernoView` dá
+ao encaixe `.frame(maxHeight: tetoDoEncaixe)` — sem alinhamento. Sem alinhamento
+o conteúdo fica **centrado** numa caixa cuja altura é o teto, e o teto cresce
+334 pt quando o teclado desce. Consequência medida em `large`, com o cartão da
+forma vestida: **86,7 pt de vão** entre o pé do cartão e o fio da régua
+(cartão 284,3 → 393,3 pt; régua 480,0 pt), e um **salto de ~176 pt** do cartão
+no mesmo quadro em que a folha subia — o teclado a descer dobrava o teto e o
+centro da caixa mudava de lugar. O `.sheet` não pintava fantasma nenhum: ele
+só revelava um encaixe que flutuava.
+
+**A decisão.**
+
+- O encaixe **cola no pé**: `.frame(maxHeight: tetoDoEncaixe, alignment: .bottom)`.
+  O aviso e o cartão viajam COM o teclado, um relógio só, e a distância até a
+  barra passa a ser a soma dos paddings do próprio ocupante — **12,7 pt**
+  medidos (cartão 358,3 → 467,3 pt; régua 480,0 pt), não um número escolhido.
+  Nenhuma constante entrou no lugar do 88: quem mede é o layout.
+- `PaginaView.acimaDoPe` passa a ser um `VStack(spacing: 0)` explícito. Ele
+  chega ao `CadernoView` dentro de um `AnyView`; apagado o tipo, o `TupleView`
+  deixa de ser achatado pela pilha de baixo e os ocupantes espalhavam-se pela
+  caixa. A pilha explícita fecha isso.
+- **`Pilula` desabilitada continua legível**: a tinta é `tintaFraca` (#68686C) —
+  **5,04:1** no papel, **4,65:1** na névoa, **4,52:1** no chip, **5,55:1** no
+  branco, ≥ 4,5:1 em todo fundo onde uma cápsula pousa. O que diz "desligado"
+  passa a ser o preenchimento que sai, e a **cápsula sobrevive** por uma hairline
+  `Tema.linha`. A tinta sai do `body` (`Pilula.tinta(ativa:cheia:forma:)`) e tem
+  portão em `PilulaContrasteTests`. O contorno à mão que a `RecordarView` tinha
+  no chamador foi apagado (medido: a hairline era desenhada duas vezes, RGB 211
+  contra os 227 de uma linha só).
+
+**O que esta ADR não muda.** Nenhuma curva, duração ou `withAnimation` novo: a
+lista congelada do portão do movimento só desce. O `.sheet` continua a ser
+`.sheet`; a folha dos campos continua a nascer inteira (04u).
+
+**Prova** (iPhone 17 Pro Max `6033B043`, `TRACO_SEM_MODELO=1`, tudo por
+`xcrun simctl io` preso ao UDID, quadros nativos por `ffmpeg`; sem maestro,
+porque havia quatro simuladores ligados): `ferramentas/orca/v12b-pagina.md`.
+Suíte: 890 testes em 144 suítes, verde.
+
+**As quatro medidas que faltavam (V12-C, 08/09).** O G3 independente (GPT 5.6
+Terra) confirmou a causa, o contraste e o crédito, e reprovou a PROVA em quatro
+dimensões — não o código. As medidas, coladas em
+`ferramentas/orca/v12c-medidas.md`:
+
+- **Curva-zero, em toques.** Roteiro Página → cartão vestido → "Abrir os
+  campos", contado nos dois builds (`499623c` e este), no mesmo aparelho:
+  `large` **1 toque antes, 1 toque depois**; AX5 **2 toques antes, 2 toques
+  depois** (o cartão vira menu "•••" e "Abrir os campos" mora dentro). Empate,
+  e é o que se esperava: a volta moveu geometria, não controles.
+- **VoiceOver.** O simulador não roda o VoiceOver; a prova é a árvore de
+  acessibilidade viva (`orca emulator ax`, que lê os mesmos elementos, rótulos
+  e traços que o leitor lê). `Pilula` desabilitada ("Recordar" na Página,
+  "Conferir o hábito em 7 dias" na forma) expõe `enabled = false` — o leitor
+  anuncia "esmaecido", não botão comum — com o rótulo inteiro. Em AX5
+  vestido, todo elemento tem rótulo e a ordem posicional é topbar → papel e
+  campos → cartão → ações; o VoiceOver em si não roda no simulador, e isso
+  fica dito como limite do instrumento.
+- **Performance.** O Instruments não mede hitch no simulador ("Hitches is not
+  supported on this platform"; "The SwiftUI instrument is not supported on the
+  Simulator") e o Time Profiler pendura sem fim neste aparelho. O trace
+  equivalente é `CadernoHitchesTests`: um `CADisplayLink` dentro do processo
+  conta quadros atrasados enquanto o teste digita 1232 caracteres no
+  `TextEditor` real e rola o `ScrollView` real três vezes. Antes e depois:
+  **0 quadros perdidos atribuíveis** (1750 quadros de digitação, 252 de
+  rolagem; o ruído de 0–5 quadros oscila igual nos dois builds).
+- **O que a medida achou, e o conserto.** O mesmo teste imprime o inset
+  inferior do papel: com o teclado de pé e o encaixe VAZIO, a base media
+  192 pt e a V12-B **746 pt**. Era o papel coberto: `.frame(maxHeight:
+  tetoDoEncaixe)` é flexível e enche o teto que o `.safeAreaInset` propõe, e
+  o `VStack` explícito desta ADR fez a caixa existir mesmo sem ocupante —
+  opaca, cobria o texto do autor a partir da terceira linha
+  (`v12c-digitado-v12b-coberto.png`). O `alignment: .bottom` tratava o
+  sintoma. **A rede não pode expandir:** `.fixedSize(horizontal: false,
+  vertical: true)` depois do frame devolve à caixa a altura do ocupante; o
+  teto segue como limite, o cartão fica colado ao pé por construção, e o
+  inset volta a 192 pt (`v12c-digitado-depois.png`).
+- **Complexidade — exceção concedida.** O código de app fecha em **+36 linhas
+  líquidas** (`git diff 499623c --numstat -- Traco/`: +99/−63; com `-w`,
+  +51/−15 = +36): +45 menos a passada de corte (dois wrappers de uma linha na
+  `Pilula` inlinados, dois comentários que repetiam esta ADR encurtados, −11)
+  mais o conserto acima (+2). A regra líquido-negativa da migração para `Componentes` **não é
+  atendida, e fica excepcionada nesta volta pelo orquestrador (Claude Opus 5,
+  08/09)**, pela régua da ESTEIRA e não por simpatia: o saldo compra **um
+  estado que não existia** — a `Pilula` desabilitada legível, que estava a
+  1,53:1 para TODOS os chamadores — e **um portão que impede a regressão**
+  (`PilulaContrasteTests`). Isto é lacuna nomeada, que é o que a regra pede
+  para admitir crescimento. Não se inventou refatoração para caçar o zero:
+  trocar dívida de tamanho por dívida de clareza seria pior.
+
+**A letra e o quadro longo (V12-D, 08/09).** Esta ADR nasceu como `08c`, letra
+que já era de `main` (a conferência que conserva restrições ao adaptar); passa
+a **`08f`** em SPEC, EVOLUCAO, relatórios e nos dois comentários de código que
+a citam. E o quadro longo que a V12-C viu em 3 de 6 rodadas de rolagem
+(92–176 ms) tinha uma hipótese — o aviso da análise a cair no deslize — e
+hipótese não fecha dimensão. `CadernoHitchesTests` passou a ler, **a cada
+quadro**, o inset inferior do papel (a altura do encaixe) e o offset da
+rolagem, a imprimir cada quadro longo com o que mudou nele e a cronometrar a
+chamada de rolar. Em **3 de 3** rodadas do protocolo antigo o quadro longo
+(131–176 ms) caiu a +0,13–0,18 s da primeira descida com o encaixe parado em
+**192 → 192 pt** e a chamada em **< 1 ms**: **não era o aviso** — sob teste
+ele nem entra (o Grok cala quando `emTeste`, e nem cartão nem "lendo…" mudaram
+o encaixe em 3 s medidos). Medida também a espera, o mesmo quadro apareceu a
++0,15 s **dela** — e as duas fases tinham a mesma coisa logo antes: a captura
+do próprio teste (`drawHierarchy` da janela + PNG de 1,3 MB), que cronometrada
+custa **127–162 ms na main thread**. Era o instrumento a medir-se a si mesmo.
+Com a captura fora de toda janela medida, **6 de 6** rodadas fecham com **0
+quadros perdidos** na espera (1080 quadros), na primeira descida (247) e na
+rolagem em regime (1516); a digitação segue com o ruído de 0–1 quadro de
+45–54 ms. Nenhuma linha de app mudou por isto, e nada vai ao RUMO: não há
+custo a declarar. Linhas de 21 rodadas em `ferramentas/orca/v12d-hitch-linhas.txt`;
+relato `v12d-letra-e-quadro.md`.
+
+### A invariante da escrita visível (V12-E, 08/09)
+
+**A distância.** O G4 final recusou a volta pela segunda vez com dois achados:
+**A2**, o autor escreve às cegas assim que o texto passa da altura do papel —
+em AX5 com o encaixe vazio e em `large` com o cartão, **0 pixels de caret em 11
+amostras**, porque o frame do papel corria POR BAIXO do encaixe (`Página` até
+0,667 em AX5, 77 pt dentro do cartão em `large`) e o `TextEditor` julgava o caret
+visível dentro de um frame que o pé e o cartão cobriam; e **A1**, o fantasma de
+"Abrir os campos" continuava vivo (~100 ms sem RM, ~125 ms com), com o papel a
+refluir ATRAVESSANDO o cartão enquanto o teclado descia. A segunda recusa abriu
+consulta ao conselho (`ferramentas/orca/consulta-v12-invariante.md`), e a decisão
+do orquestrador é o contrato desta seção.
+
+**A invariante, com estas palavras:** *em cada quadro apresentado enquanto a
+Página recebe escrita, a linha visual ativa inteira e o retângulo do caret
+pertencem à área livre do papel; nenhuma outra superfície pode desenhar nessa
+área.* Protege a última linha digitada, inclusive vazia; o piscar do caret não
+suspende a proteção.
+
+**A decisão.**
+
+- **A lei mora no contêiner.** `CadernoView.body` deixa de pendurar o encaixe
+  num `.safeAreaInset` — que deixava o `ScrollView` do papel correr por baixo
+  dele — e passa a ser uma pilha de dois irmãos, **papel e encaixe, sem pixel em
+  comum**: o papel recebe o que sobra, o encaixe (aviso, cartão, "lendo…", régua,
+  ações) fica abaixo, com o mesmo teto e o mesmo piso de antes. Nada do papel
+  pode desenhar sob o encaixe em quadro nenhum, por construção; um tipo novo com
+  `CGRect` não resolveria, porque um ancestral ainda poderia ignorá-lo.
+- **O papel rola de verdade até o caret.** `EscritaVisivel.seguirCaret` (em
+  `Traco/Caderno`) corre quando o texto muda, quando o foco muda e quando a
+  janela do `ScrollView` muda (teclado, cartão, aviso, pé — lido por
+  `onScrollGeometryChange`, depois do layout); acha o editor focado, mede o
+  caret, e põe o offset MÍNIMO que traz a linha inteira (caret mais a folga entre
+  linhas) para dentro da área visível. Só enquanto há foco: com o teclado
+  recolhido o autor pode estar a reler qualquer parte. Detalhes que custaram
+  medida: o `ScrollView` do SwiftUI ignora `scrollRectToVisible` (o offset é
+  posto à mão), e a rolagem corre por `RunLoop.main.perform`, não pela fila
+  principal do GCD — um runloop aninhado (o de um teste hospedado) não esvazia a
+  fila, e o seguidor só correria depois de o teste acabar. O SwiftUI segue o
+  caret sozinho em parte dos casos (73 de 75 amostras sem o seguidor, medido),
+  mas deixa a linha ~10 pt sob o pé e não reage ao cartão a chegar; o seguidor
+  garante a linha inteira em todos.
+- **Se falta espaço, o aparato cede antes da escrita:** o teto do encaixe e o
+  piso do papel (05y) continuam a lei; só recortar o papel segue reprovado.
+- **O teste geométrico entra na suíte, hospedado:** `EscritaVisivelTests` monta
+  a Página REAL do app hospedeiro (a `Sessao` viva é publicada por um gancho só
+  de DEBUG em `PaginaView`), espera o editor focado e o teclado de software,
+  digita mais do que cabe no papel — no fim e no meio — e, a cada inserção, mede
+  na mesma coordenada da janela: **E** (a linha do caret pelo layout do TextKit
+  2, mais o caret), **P** (o recorte do `ScrollView` do papel e de todo ancestral
+  que recorta, sem o teclado) e **O** (toda camada À FRENTE do editor que toque a
+  linha — pela árvore de `CALayer`, porque o SwiftUI desenha texto e cor sem
+  `UIView`). Em `large` e AX5 (por `traitOverrides` na janela), com o encaixe
+  vazio, o cartão e o aviso. O teste NÃO rola o papel: quem rola é o app. Verde
+  no candidato: **AX5 31 de 31 amostras, `large` 44 de 44**, teclado de software
+  real nos dois. Vermelho com as duas plantas: uma camada intrusa sobre as
+  últimas linhas do papel (**59 amostras reprovadas**, "CALayer 0,360 440×120 |
+  CGDrawingLayer") e uma superfície do encaixe desenhada 120 pt para cima sobre
+  o papel (**59 reprovadas**, "CALayer 0,280 440×120"); plantas removidas.
+- **Limite do instrumento, escrito:** sob `xcodebuild test` o teclado de
+  software nasce fora da tela e o hospedeiro do SwiftUI não desvia dele; o teste
+  o levanta pelo UIKit (soltar e pedir o foco de novo) e repõe o desvio por
+  `additionalSafeAreaInsets` — a mesma coisa, pela porta do UIKit — conferindo
+  que o papel ficou acima do teclado antes de medir. Rodado sozinho, o teclado
+  real subiu nos dois tamanhos; dentro da suíte integral (892 testes, 146
+  suítes, verde) ele ficou fora da tela e a altura foi reservada com a etiqueta
+  "EMULADO" na linha do relato. A suíte inteira corre no mesmo processo, e
+  outra suíte pode deixar o app noutra camada (`CalendarioTrabalhoTests` posta
+  `abrirCompromisso`): o teste volta à Página e exige papel limpo antes de medir.
+- **A1, a parte decidida por corte.** A pilha sozinha NÃO bastou, e os quadros
+  nativos disseram por quê (`v12e-antes-abrir-*`): no toque em "Abrir os
+  campos" o teclado desce, o `UIScrollView` do papel recebe o frame FINAL de
+  imediato e o desenho do SwiftUI (cartão, pé, régua) desce animado — por ~100
+  ms, sem e com RM, os rótulos dos campos (conteúdo do papel) ficavam legíveis
+  entre a linha do cartão e "Trabalhar nisto". A causa concreta é o encaixe
+  continuar em cena enquanto a folha sobe. Agora `PaginaView.abrirCampos` tira
+  o encaixe INTEIRO — cartão, pé e régua — numa transação sem animação e só
+  depois põe a folha a subir; ao descer a folha, o encaixe volta por corte
+  (`folhaEmCena`). A régua também passa a entrar e sair por corte fora da
+  transação em que o foco muda (`reguaEmCena`). O contrato temporal do
+  conselho — cada pixel reservado a uma superfície textual tem um único dono em
+  todo quadro — fica atendido porque, do toque até a folha cobrir a tela, a
+  única superfície na faixa é o papel. A prova é **amostrada por quadros
+  nativos** (`v12e-abrir-sem-rm.mp4`, `v12e-abrir-com-rm.mp4`, uma tomada por
+  modo), e o número está no relato; **não é universal**. O oráculo de pixels
+  sobre a composição nativa é volta própria e vai para o RUMO: custa
+  instrumentação de renderização e não certifica "nenhum quadro possível".
+
+**O que esta seção não muda.** Nenhuma curva, duração ou `withAnimation` novo.
+`Tema.swift` intacto. O `.sheet` continua `.sheet`. **Custo assumido:** ao
+abrir, o encaixe some por corte e o papel fica só, nu, por ~6 quadros (45–90
+ms, medido) até a folha subir; ao voltar, reaparece por corte atrás da folha
+ainda de pé.
+
+**O condutor da prova de tela.** O helper compartilhado do `orca emulator`
+relança (ou derruba) o app da frente ao anexar — provado por bissecção, e com
+três voltas a disputá-lo ele apagou o texto digitado e derrubou o app duas
+vezes. A prova de tela passou a ser conduzida por um alvo XCUITest
+(`TracoUITests`, esquema próprio, fora da suíte integral): toques e teclado
+reais pelo XCTest, `-UIPreferredContentSizeCategoryName` para AX5, e
+`xcrun simctl io <UDID>` de fora, sincronizado por arquivos-sinal.
+
+**Prova** (iPhone 17 Pro Max `6033B043`, `TRACO_SEM_MODELO=1`, teclado de
+software — "Connect Hardware Keyboard" desligado para o UDID e restaurado —,
+tudo por `xcrun simctl io` preso ao UDID; direção por `orca emulator` sob
+`com-trava.sh`, sem maestro e sem mouse): `ferramentas/orca/v12e-escrita-visivel.md`.
+
+### O teste do A1 passa pelo caminho do A1 (V12-F, 08/09)
+
+O re-G3 da V12-E apanhou o `testLargeComCartao` a passar VERDE sem cartão:
+o alvo que devia provar o fim do fantasma de "Abrir os campos" aceitava o
+estado sem cartão como saída normal e nunca tocava no botão — verde que não
+visitou o lugar do defeito, quarta vez no dia. **Regra que fica:** num teste
+de prova de tela, o estado de partida é PRÉ-CONDIÇÃO que falha com o motivo,
+nunca um ramo aceitável. No condutor: cartão, botão "Abrir os campos" e folha
+aberta são três `XCTFail` nomeados; a falha escreve `falhou.pronto` com o
+motivo, e o shell de fora encerra na hora em vez de esperar 180 s por um
+`gravar` que não vem (35,8 s contra 151,8 s do falso-verde). Os casos "encaixe
+vazio" afirmam o contrário — o texto sem forma NÃO veste. Em AX5 o botão vive
+no menu da linha do cartão e o teste o abre por lá.
+
+**O estado do aparelho não decide a prova.** A causa do sem-cartão era
+`autoAnalise = false` esquecido no contêiner do app (lido no plist do
+`B91C8DEF` antes de tocar em nada). O teste passa `-autoAnalise <true/>` em
+`launchArguments` — tem de ser a forma `<true/>`: no domínio de argumentos
+`1`, `YES` e `true` são STRING, e o `object(forKey:) as? Bool` da `Sessao`
+os ignora (provado com `UserDefaults` num binário de linha de comando; a
+primeira planta com `"0"` passou verde por isso). Achado colateral: o
+`xcodebuild test-without-building` trocou o contêiner de dados do app
+(UUID novo, sem plist), então plantar pelo plist não chega ao app — a planta
+válida é `<false/>` pelo mesmo canal.
+
+**Prova** (iPhone 17 Pro (teste 2) `B91C8DEF`, iOS 26.5, teclado de software,
+`-parallel-testing-enabled NO`, tudo sob `com-trava.sh`, capturas e filmes
+por `xcrun simctl io B91C8DEF`, sem maestro, sem mouse, `C2416CBC` e
+`6033B043` intocados): planta `<false/>` VERMELHA com a pré-condição nomeada e
+o condutor parado (`v12f-teste-linhas.txt`, `v12f-planta-falhou.png`);
+refilmagem pelo caminho certo, sem RM `v12f-abrir-sem-rm.mp4`: q26 (2,212 s)
+é o último quadro com o encaixe, q27 (2,230 s) já não tem cartão, régua nem
+pé, folha a partir de q35 — **0 quadros com par legível em 69**; com RM
+`v12f-abrir-com-rm.mp4`: q26 (2,327 s) último com encaixe, q27 (2,350 s) sem
+ele, folha a partir de q34 — **0 em 69**. Uma tomada por modo, amostrada; o
+oráculo de pixels segue no RUMO. Relato: `ferramentas/orca/v12f-teste-do-a1.md`.
+
+### O pé é rígido na pilha (V12-G, 08/09)
+
+O re-G4 da V12-E apanhou a regressão B1: em AX5 com o cartão e o teclado de
+pé, "Mais ações da nota" tinha a segunda linha sob o teclado, e o relato
+anterior escrevia "inteiros" sobre uma foto que mostrava o corte. **Causa,
+medida por sonda de geometria:** ao virar irmão do papel na pilha do corpo
+(V12-E), o pé passou a receber uma PROPOSTA de altura, e o
+`.frame(minHeight:)` do rodapé aceita qualquer proposta acima do mínimo — o
+encaixe inteiro ficou flexível, e a pilha dividia o corpo A MEIO entre papel e
+encaixe (200,8 pt cada, num corpo de 401,7). Dentro do encaixe o cartão
+recolhido tomava 109,7 e o pé, que mede 212,7, cabia em 91,2: transbordava
+60,7 pt para cima (a barra por cima da linha do cartão) e 60,7 pt para baixo
+(sob o teclado). Dentro do `.safeAreaInset` a proposta era nula e o pé valia o
+ideal, por acidente. **Regra que fica:** o pé do encaixe declara-se rígido
+(`fixedSize` vertical); a pilha do corpo tem UM filho flexível, o papel. O
+teto do cartão (05y: nunca mais que metade da sobra) segue como está.
+
+**Custo, com número:** no iPhone 17 Pro (874 pt) em AX5 com cartão e
+teclado, a sobra depois do pé é 189 pt, o teto 94,5, e a linha recolhida do
+cartão pede 109,7 — perde 15 pt do topo (o recuo de 16 do cartão; a linha
+fica inteira) e o papel fica com 94,5 pt, uma linha e meia de AX5. É a regra
+da metade da 05y a decidir contra o cartão, não contra o texto; no Pro Max
+(956 pt) cabe tudo. **Régua nova no condutor:** o topo real do teclado é o
+`inputView` (barra preditiva incluída, 44 pt acima de `app.keyboards`); o
+`testAX5ComCartao`/`testLargeComCartao` medem "Trabalhar nisto", "Mais ações
+da nota", a barra e a régua contra ele e FALHAM se o pé entrar sob o teclado
+(vermelho provado no topo `e4ea756`: "o pé entra 8 pt sob o teclado" ainda
+com a régua velha; com a verdadeira eram 52,7).
+
+**Prova** (`B91C8DEF`, teclado de software, sob `com-trava.sh`, `simctl io`):
+`v12g-ax5-cartao-pe-inteiro.png` e `-rm.png` — "Mais ações da nota"
+405,7–531,0, `inputView` a 539, **8 pt de ar**, sem e com RM, iguais;
+`v12g-antes-ax5-cartao-pe-cortado.png` é o topo anterior. Os quatro casos do
+condutor verdes (`v12g-teste-linhas.txt`), inclusive os dois "encaixe vazio",
+que nunca tinham sido rodados. AX5 com RM refilmado (`v12g-ax5-abrir-com-rm.mp4`):
+o encaixe corta em q38 (2,355 s) atrás do menu; de q40 a q44 (2,377–2,433 s,
+~60 ms) o MENU DO SISTEMA dissolve sobre os rótulos do papel — superfície do
+UIKit, não do encaixe, igual sem RM (q37–q44, ~65 ms, `v12g-ax5-abrir-sem-rm.mp4`);
+a folha cobre a partir de q46. `large` continua 0 pares: sem RM q26 último com
+encaixe, q27 sem, folha q35; com RM q26/q27/q34 — os mesmos números da V12-F.
+Suíte integral 891/892 (1 pulado, 0 falhas) em `B91C8DEF`. Relato:
+`ferramentas/orca/v12g-pe-ax5.md`.
+
+### A última frase falsa, e a árvore mesclada (V12-H, 08/09)
+
+"O que esta seção não muda" dizia que a folha cobre a tela nos dois instantes
+do corte. Na abertura é falso — o próprio parágrafo acima diz que "do toque
+até a folha cobrir a tela" só há papel — e o juiz mediu o buraco duas vezes:
+**6 quadros de papel nu, 45–90 ms conforme o aparelho**. A frase agora diz o
+medido. A ADR é contrato, não narrativa: quem lê "cobre" constrói por cima.
+`main` (08b, 08e, 08g–08k) entrou no branch com a 08f no seu lugar
+cronológico; a árvore mesclada dá build sem aviso e suíte integral
+**933/933 em 152 suítes (1 pulada, 0 falhas)** em `B91C8DEF`, com
+`PortaoDoMovimentoTests` verde — os 41 testes a mais são de `main`. A
+evidência do G4 e dos dois re-G4 está comitada reduzida (nenhum arquivo acima
+de 400 KB; vídeos com a contagem de quadros conferida igual). Relato:
+`ferramentas/orca/v12h-g5.md`.
+
 ## ADR 2026-09-08g — A frase do autor não termina em reticências (volta F4-F)
 
 **A distância.** A F4 foi mesclada em `main` sem o último portão, com quatro dívidas escritas no RUMO. A primeira, e a que abriu a volta original, é a mais dura: **em AX5, no widget pequeno e no médio, a linha do Destaque terminava em reticências** quando o rodapé "Desatualizado." entrava — `terminar o capítulo do meio antes…` no pequeno, `terminar o capítulo do meio antes de do…` no médio, com metade do cartão vazia embaixo. Fotografado de novo em 08/09 na tela viva, antes de tocar em Swift: `ferramentas/orca/f5-antes-ax5-desatualizado.png`.
@@ -5741,6 +6080,358 @@ mesmo tamanho de letra não transborda. É acessibilidade real e é do `Camadas`
 
 **O que esta ADR NÃO prova.** StandBy e Ilha mínima seguem limites do instrumento (08g). O toque no widget que abre a nota foi provado na rota e no aparelho com uma nota real; o alvo do círculo do feito no pequeno continua dividido com o `widgetURL`, como antes. Modo escuro do widget continua sendo o papel único de `Tema.fundo` (volta L2).
 
+## ADR 2026-09-08j — A causa do ajuste é dado, não inferência (volta V17)
+
+O laço que faltava ao artefato era de **observação e versão**, não de
+renderização: o Trabalho já tinha versão com origem (05i, 05s), tentativa do
+autor como evidência separada (05r), ida e volta pelo arquivo com conflito e
+retry (05l, 06a) e preparação que lê tentativas anteriores (08a). O que não
+existia era a **causa do ajuste como dado vinculante**: `pedidoDe` a inferia por
+base e intenção, e inferência não pode ser a autoridade que explica ao autor por
+que o exercício dele mudou.
+
+**Dono único: o Trabalho.** O exercício continua sendo
+`DocumentoTrabalho.Artefato.pratica` e a versão seguinte nasce pela rota que já
+existe — `OficinaTrabalho.gerar` → `MotorTrabalho.produzir` →
+`DocumentoTrabalho.receber`. Nenhuma versão, corpus ou índice paralelo; nenhuma
+tela nova; a representação segue na seção Praticar da folha do Trabalho.
+
+**Contrato mínimo.** `Pedido.ajuste?` guarda gatilho **fechado**
+(`pedidoDoAutor` ou `necessidadePercebida`), motivo escrito pelo app e
+referência à evidência — mais a conferência e os critérios quando foram eles que
+o sustentaram. `Artefato.pedidoID?` liga a versão à causa. `validarAjuste`
+recusa vínculo quebrado, `necessidadePercebida` sem tentativa E sem leitura,
+motivo vazio e critério que não pertence ao exercício daquela tentativa.
+Ausência nos registros antigos significa **vínculo não registrado**: `ajuste(de:)`
+devolve `nil` e ninguém reconstrói causalidade histórica. A inferência antiga
+sobrevive só dentro de `pedidoDe`, e só para achar a rota de conferência da 05q.
+
+**Nenhum estado de exercício persistido.** Produzido vem da versão guardada;
+tentativa registrada vem da evidência do autor; desempenho demonstrado continua
+exigindo leitura sustentada com avaliador visível. Sem `aprendido`, sem
+pontuação global, sem contador de domínio, sem promoção automática de hipótese.
+Reescrever o exercício não é dizer que a pessoa aprendeu, e a seção que anuncia
+a mudança escreve isso na tela.
+
+**A causa não cabe no trecho descartável.** Num ajuste, a tentativa que o
+sustenta, a leitura atribuída dela, os critérios vigentes e as restrições ainda
+aplicáveis sobem para a cabeça do contexto, fora do bloco que o orçamento corta.
+Não cabendo na janela do provedor, o pedido fica `ajusteIndisponivel` e a folha
+diz isso — nunca sai um pedaço da evidência que explica a mudança.
+
+**A fronteira da IA está no tipo.** A saída da adaptação aceita a preparação e
+`mudanca` — o que mudou — e nada mais: `additionalProperties: false`, chave a
+mais derruba a resposta inteira, e não existe campo de resposta nem comando que
+toque em `Evidencia`. `guardarTentativa` continua operação do autor e o campo de
+tentativa da versão nova nasce vazio. `mudanca` passa pelo mesmo teto e pela
+mesma prova de vazamento dos critérios. **Limite reconhecido:** validação
+estrutural impede escrita na evidência, mas **não prova ausência de solução
+disfarçada no enunciado** — isso é leitura semântica, como a 05r já admite.
+
+**O ato visível é "Conferir e adaptar o exercício"**, novo e explícito, porque
+"Conferir minha tentativa" já promete uma operação e uma chamada por toque
+(05r). Ele lê a tentativa, guarda a leitura **antes** de pedir a versão (05s), e
+só reescreve quando a leitura sustenta: conferência indisponível ou sem
+divergência não gera versão e a folha diz por quê. A mesma leitura não gera duas
+versões; reabrir o documento não dispara nada; não há laço em segundo plano.
+
+**O anúncio é UMA seção no próprio documento**, escrita pelo app: a descrição da
+mudança é do modelo, a origem, o motivo e os vínculos são do código — o modelo
+não inventa ID nem decide qual pedido o produziu. Não repete o histórico e não
+declara aprendizagem.
+
+**A correção do dono sobre a leitura.** `ConferenciaTentativa.contestadaEm` e
+`motivoDaContestacao`, pela ação "Não foi isso que eu errei". A leitura **fica**
+no registro, com todos os seus resultados, e sai do `contextoDeRetorno` e do
+núcleo do ajuste: a interpretação que o autor contestou não orienta mais os
+ajustes seguintes.
+
+**Defeito de superfície achado na tela viva e corrigido nesta volta:** a lista de
+tentativas é filtrada pela versão vigente, então a tentativa que causou a versão
+sumia da folha no instante em que passava a importar, levando junto a leitura e a
+rota de contestá-la. A seção "A tentativa que gerou esta versão" a devolve, em
+leitura, com o feedback e a contestação.
+
+**Limite de instrumento, declarado.** O simulador de teste não tem conta Grok — o
+aparelho que tem é de outra volta e não podia ser tocado. Os dois atos gatilhados
+pela conta foram fotografados com `-ensaio-oferta-da-pratica`, um argumento de
+lançamento **só em Debug** que abre a OFERTA e nada mais: não fabrica token, não
+chama rede, e o que a tela mostra depois do toque continua sendo a
+indisponibilidade real. É o mesmo instrumento que a 06c criou para o ditado. A
+jornada foi observada num documento plantado no aparelho, não gerado pelo
+provedor: esta ADR descreve o contrato e a superfície, e **não** certifica a
+qualidade semântica do exercício adaptado, que continua sendo prova da frente Q.
+
+## ADR 2026-09-08k — A garantia sai da tela e vira invariante do documento (volta V17-B)
+
+A revisão independente da V17 passou nos sete pontos do contrato e **reprovou por
+dois P1 com a mesma doença**: a garantia existia **na tela** e não no agregado. A
+lição do dia é essa: **a lei tem de morar onde ninguém pode contorná-la** — outra
+rota, uma importação ou uma regressão de chamador passam por cima de um `guard`
+de View.
+
+**A unicidade e a semântica da leitura passam a ser do documento.**
+`OficinaTrabalho.conferirEAdaptar` impedia a repetição; `validarAjuste` só conferia
+que o `conferenciaID` existia. Agora, no agregado: `necessidadePercebida` exige
+critério apontado; a leitura citada tem de estar **concluída** e cada critério
+citado tem de ser **divergência nela** — critério que a leitura deu por atendido
+não sustenta reescrita; e o mesmo `conferenciaID` **não aparece em dois**
+`Pedido.ajuste`, de modo que a N+2 da mesma leitura é recusada em `iniciarPedido`
+e um documento que a trouxesse é recusado em `validar()`.
+
+**A leitura contestada é checada no nascimento do pedido, não em `validar`.** Uma
+contestação vem DEPOIS da versão que ela explica; recusar o documento inteiro por
+isso apagaria a história. `iniciarPedido` recusa o ajuste novo apoiado numa
+leitura contestada; a versão que já nasceu dela continua guardada e explicada.
+
+**A troca de documento durante a edição.** Enquanto a IA prepara ou adapta, a
+folha **não deixa entrar em edição** — tocar leva ao progresso em curso, como toda
+ação que compete com ele (e `adaptando` entra nessa conta: entre a leitura e a
+versão seguinte não existe `pedidoAtivo`, e era por essa fresta que a edição
+começava). E porque guarda de tela não é invariante, `guardarVersaoHumana` passa a
+aceitar a **base** que estava na tela e a recusar guardar por cima de outra: um
+texto escrito sobre a versão N não é guardado como resposta à N+1. `nil` = base
+não declarada (importação e registro antigo), e ninguém reconstrói o que a pessoa
+estava lendo.
+
+**A causa do pedido escrito pelo autor.** "Adaptar o próximo exercício" era o
+único chamador de UI que criava `Pedido.ajuste(gatilho: .pedidoDoAutor)` — cortar
+a cápsula sem mais apagaria a via do pedido explícito. Então, na ordem: primeiro
+**o que o autor escreve no campo vira a causa registrada** (`pedidoDoAutor`, com o
+texto dele como motivo, dentro da prática e com exercício vigente — preparar não é
+ajustar), e só então a cápsula enlatada saiu. A seção Praticar volta de quatro
+para três cápsulas e o anúncio da versão diz "A pedido seu." seguido do que ele
+escreveu. **Nenhuma evidência é apontada**: ele escreveu um pedido, não disse a
+qual tentativa responde, e deduzir isso seria inventar causalidade.
+
+**Limite de instrumento, declarado.** O bloqueio da entrada em edição **não se
+fotografa** neste aparelho: sem conta Grok, `adaptando` dura milissegundos e um
+pedido ativo é interrompido na abertura do documento. Ele está provado por teste
+(`editarDuranteAAdaptacaoNaoTrocaODocumentoDebaixoDaPessoa`) e por código, não por
+captura. A lacuna da jornada com provedor real continua exatamente como a 08j a
+declarou — é prova da frente Q.
+
+## ADR 2026-09-08m — O resultado da ação volta ao trabalho: agendado, feito e funcionou (volta E1)
+
+`EstadoAcao` tinha três casos e a auditoria de 07/09 achou os três **mortos**: não
+havia como dizer que uma ação foi **observada**, `cancelada` era **inalcançável**
+na tela, e o relato do que aconteceu **não mudava a orientação seguinte**. O
+contrato desta volta é o item 5 da fila do dono: *"o resultado informado muda a
+próxima orientação; agendado, feito e funcionou continuam distintos"*.
+
+**Observar é outro eixo, não um quarto estado.** `ResultadoObservado` —
+`funcionou`, `parcial`, `naoFuncionou` — mora no **relato**
+(`Evidencia.resultado`), não na ação. É de propósito: executar é ato, observar é
+resultado, e um existe sem o outro. A tela prova os dois: uma ação **pendente**
+com "Resultado que você informou: Não funcionou", e uma **executada** sem
+resultado nenhum. `observacao(de:)` devolve o último resultado informado para uma
+ação; `nil` é **não observado**, nunca "deu certo por omissão".
+
+**Fracasso e parcial são de primeira classe.** As três formas estão no mesmo
+trilho de cápsulas, com o mesmo peso — a ferramenta que só aceita sucesso mente
+por omissão, e o dono pediu explicitamente as tentativas parciais e os fracassos.
+Informar continua **opcional**: contar o que houve sem classificar é honesto, e a
+linha ao lado diz para onde isso vai ("sem ele, o relato fica como não observado —
+nunca como sucesso"). Nada aqui é nota, pontuação ou "aprendeu": "funcionou" é
+observação do autor, não certificação do app.
+
+**Migração: nenhum estado velho vira resultado por releitura.** Documento gravado
+antes deste contrato não tem a chave, decodifica `nil` e fica **não observado** —
+inclusive o relato de uma ação marcada como `executada`. É a mesma regra que a 05r
+fixou para a tentativa. E `resultado` só existe em relato: numa tentativa,
+"funcionou" seria a resposta de um exercício se declarando certa, e quem lê
+tentativa é a conferência (`validar()` recusa).
+
+**`cancelada` ganha gesto.** "Cancelar esta ação" no cartão, e só sobre o que está
+**pendente**: o que a pessoa marcou como realizado aconteceu, e desfazer isso
+apagaria um ato. A agenda e o aviso já liam `pendente`, então cancelar sai do
+calendário e cala o alarme pelas rotas que já existiam.
+
+**A orientação seguinte muda pelo resultado, e o documento diz por quê.** Reuso do
+mecanismo da 08j, e não um segundo: a causa é `Pedido.ajuste`, o vínculo é
+`Artefato.pedidoID`. `GatilhoDoAjuste` ganha `resultadoInformado` — e o acréscimo
+não fura a lista fechada, porque o motivo **não é inventado pelo app**: é o
+resultado que a pessoa informou, citado com o relato dela. `validarAjuste` exige
+que a evidência apontada exista e **traga um resultado**; `conferenciaID` e
+`criterioIDs` têm de estar vazios, porque aqui não há leitura de tentativa a
+citar. "Revisar com estes relatos" passa a escrever **três instruções diferentes**
+— preservar o que funcionou, trabalhar só o que faltou, propor um caminho
+diferente — e a tela diz de qual resultado a revisão vai partir, antes do toque.
+O contexto da IA passa a distinguir os três eixos na mesma linha: *estado
+registrado* · *resultado informado pela pessoa* (ou "não observado") · material.
+
+**O que ficou de fora, e por quê.** A entrega **delegada** não recebe o
+`nucleoDoAjuste` como núcleo obrigatório: ela tem duas janelas (remoto e aparelho)
+e nenhuma rota de `ajusteIndisponivel`, então exigir a causa inteira ali só
+produziria meia causa mandada calada. A causa chega ao pedido pela instrução (que
+não se corta) e pelo `contextoDeRetorno`; a explicação ao autor vem do documento,
+não do prompt. E "o que mudou" descrito pelo modelo continua exclusivo da prática,
+onde o contrato de saída tem a chave `mudanca`: resumir a diferença de uma entrega
+livre seria o app afirmando o que não observou. Fora da prática, a versão diz a
+**origem e o motivo** guardados — `causaDaVersao` no cartão da versão.
+
+**Limite de instrumento, declarado.** A versão nascida do relato **não se
+fotografa** neste aparelho: sem conta Grok o pedido nasce com a causa, é guardado
+e falha. A causa registrada foi conferida no `default.store` do App Group
+(`gatilho: resultadoInformado`, `evidenciaID` do relato de fracasso, motivo com a
+frase da pessoa) e a tela mostra a falha, não uma versão inventada. A jornada com
+provedor real continua sendo prova da frente Q.
+
+## ADR 2026-09-08n — Cancelar não apaga o que já foi observado (volta E1-B)
+
+A 08m separou dois eixos — **executar** é ato, **observar** é resultado — e deixou
+a invariante do cancelamento olhando **só um deles**. `cancelarAcao` exigia
+`estado == .pendente`, e uma observação **não muda o estado** de propósito. Logo o
+mesmo cartão que dizia *"Resultado que você informou: Funcionou"* ainda oferecia
+*"Cancelar esta ação"*: dava para apagar o que a pessoa já tinha dito que
+aconteceu. O G3 reproduziu na própria captura `02` da volta anterior.
+
+É a doença que a V12 nomeou e que derrubou a V17: **a regra olha uma dimensão e o
+mundo tem duas**. Separar os eixos foi decisão do dono, e ela obriga a invariante a
+olhar os dois.
+
+**A garantia é do agregado, nas duas ordens.** `podeCancelar(_:)` exige `pendente`
+**e** `observacao(de:) == nil`; `cancelarAcao` passa a lê-lo. A ordem inversa é
+outro caminho e por isso tem outra guarda: `registrarRelato` recusa `resultado`
+numa ação **cancelada** — contar o que houve continua valendo, classificar o
+resultado do que se desistiu de fazer, não. E `validar()` recusa o par
+`cancelada` + evidência com resultado, para que nenhuma importação, migração ou
+chamador novo grave pelas costas o estado que os dois gestos recusam. Garantia que
+vive só na tela é contornável por outra rota — foi por isso que o G3 da V17
+reprovou.
+
+**Na tela, o gesto some e diz por quê.** Onde havia "Cancelar esta ação" com
+resultado informado, o cartão passa a dizer: *"Esta ação não se cancela mais: você
+já informou um resultado, e cancelar apagaria o que aconteceu."* Gesto que
+desaparece calado parece defeito; a linha é do mesmo `Tema.meta`/`tintaSuave` das
+outras linhas do cartão, sem componente novo. A ação **pendente e não observada**
+continua com o gesto — provado na mesma tela, não só no teste.
+
+**O que continua valendo.** Ação `executada` segue sem cancelamento (08m), relato
+sem classificação continua entrando em qualquer estado, e o resultado observado
+continua sendo do relato, nunca um quarto estado da ação.
+
+## ADR 2026-09-08o — A orientação diz de QUAL ação está falando (volta E1-C)
+
+A 08m prometeu que **o resultado informado muda a próxima orientação**. Ela
+cumpria a promessa lendo `ultimaObservacao` — o último relato com resultado do
+**Trabalho inteiro** — e nunca dizia **de que ação** esse resultado veio. Com uma
+ação só, funciona por coincidência. Com três ações e três resultados, o juiz do G4
+fotografou o defeito (`g4-e1-09`, `g4-e1-11`): proposta *Funcionou*, orçamento *em
+parte*, ensaio *Não funcionou* — e a instrução gerada mandava *"proponha um caminho
+diferente"* num Trabalho cuja ação principal a pessoa disse que **funcionou**. O
+botão falava em "estes relatos" (plural) e a linha num resultado (singular) sem
+nome.
+
+**A ação passa a ser nomeada nos dois textos.** `TrabalhoView.acaoObservada(_:)`
+resolve o texto da ação do último resultado num lugar só; a linha da tela diz *"A
+revisão vai partir do último resultado que você informou, na ação “X”: Não
+funcionou."* e `orientacaoDoRelato(_:acao:)` diz à IA *"A pessoa informou que a
+ação “X” NÃO FUNCIONOU…"*. Os três textos por resultado não mudaram de conteúdo —
+só ganharam sujeito. O contexto já levava o resultado por ação
+(`OficinaTrabalho`); o que faltava era o **pedido vigente** concordar com ele, e é
+o pedido que prevalece.
+
+**E a premissa vem antes do gesto.** A linha "A revisão vai partir…" ficava
+**abaixo** do botão "Revisar com estes relatos": o VoiceOver lia relato → botão →
+e só então de que resultado a revisão parte. Passa a vir antes do botão, sem
+componente novo e sem mudar tinta ou fonte.
+
+**O que fica em aberto, e é honesto dizer.** O cartão da ação continua mostrando
+só o **último** resultado dela (o histórico inteiro fica em "O que aconteceu"), e
+o motivo gravado em `causaDoRelato` continua dizendo "desta ação" sem nomeá-la —
+ali o motivo já carrega o relato inteiro contra o teto `Limite.motivoDoAjuste`, e
+nomear a ação empurraria o relato para fora. Os dois são P3 do G4, registrados,
+não consertados nesta volta.
+
+## ADR 2026-09-08s — O arranque que não abre tem de dizer, não morrer (volta A1)
+
+`TracoApp.swift:13` era `try! DiscoTraco.abrir(emTeste:)`. O RUMO registrava a
+morte no arranque desde a limpeza de 07/09, e o item 8 da fila do dono pedia
+que "falhas previsíveis permitam recuperação e preservem o conteúdo".
+
+**A recusa do disco vira estado, e a tela responde três perguntas.** O arranque
+deixou o `try!`: `DiscoTraco.abrir` devolve `.aberto(container)` ou
+`.recusou(erro)`, e `ArranqueFalhouView` diz **o que houve** ("o arquivo onde as
+suas notas ficam neste aparelho não respondeu"), **onde está o conteúdo** (a
+contagem MEDIDA dos `.md` no espelho: "1 nota está em Markdown no app Arquivos,
+na pasta Traço") e **o próximo ato** ("Tentar abrir de novo", alvo de 44,0 pt
+medido na árvore de AX). Se a segunda tentativa também recusa, a tela diz isso —
+não promete conserto que não existe, porque o Traço não tem como reparar um
+arquivo que não conseguiu ler.
+
+**O que a leitura da radiografia de 02/09 (tag `arquivo/fix-furos-radiografia`)
+mudou nesta volta, e é o achado maior que o `try!`.** A versão que estava em
+`main` não morria: ela caía num contentor **em memória** e deixava o app inteiro
+de pé sobre um caderno vazio, com uma frase de aviso por cima. Só que
+`Corpus.escrever` **apaga do espelho em Arquivos todo `.md` que não estiver na
+lista que recebe** (`Corpus.swift:440-464`, a varredura do selo), e a lista vem
+do contexto.
+
+**A forma exata do perigo, porque a forma exagerada seria falsa.** O arranque
+antigo **não apagava nada sozinho**: nenhuma chamada de `Corpus.escrever` corre
+só por subir, e o selo automático, encontrando zero notas naquele contentor de
+emergência, não chega à varredura destrutiva. O estrago precisava de **um gesto
+seguinte da pessoa dentro do caderno falso** — selar, queimar, apagar ou
+importar, qualquer rota que projete o mundo. Aí sim a lista chegava vazia e o
+espelho em Arquivos, que é o backup sem nuvem, era varrido. Dizer "apaga
+sozinho" seria mentira, e mentira sobre um risco grave é o que autoriza
+desprezá-lo: o defeito era **um gesto de distância** da destruição, com a pessoa
+convencida de que estava mexendo no caderno dela. É por isso que ele se corta
+pela raiz, e não por aviso. Agora **nada se abre no lugar**: sem container não há `RaizView`, sem `RaizView` nenhuma rota do selo
+existe, e o espelho não é tocado. `Ferias`, `Revisoes` e as reconciliações da
+Ilha também não correm — reagendar a partir de um mundo vazio calaria o que está
+de pé lá fora. **Preservar vem antes de voltar a funcionar**, e nenhum caminho
+de recuperação limpa, recria ou migra o que não conseguiu ler.
+
+**O portão do `try!`**, irmão do portão do movimento da 08e e com a mesma
+varredura (`codigoVisivel`, que apaga comentário e string antes de contar).
+A lista congelada **nasce medida, e a medida se refaz** — o `grep` cru não serve
+de prova, porque esta volta escreveu duas linhas de comentário que dizem `try!`
+e o comando literal passou a contar 10. A conta que vale é a de `try!` em
+código, e este comando a reproduz em qualquer checkout:
+
+```
+grep -rn 'try!' Traco/ TracoWidget/ | grep -vE '^[^:]+:[0-9]+:[[:space:]]*//'
+```
+
+**9 em `main`, 8 aqui**, e as 8 linhas que ele imprime são exatamente as da
+tabela congelada. O portão não usa esse filtro de uma linha: usa `codigoVisivel`,
+que apaga comentário **e** string antes de contar, e chega ao mesmo 8. Julgamento
+caso a caso — **infalível por construção** (`AnexoDisco`, `Indice` e
+`Corpus:277`, regex de padrão literal; `ConferenciaTrabalho`, literal só
+enquanto todo chamador passar literal) e **dívida real** (`FonteNotas`,
+`PraticaTrabalho`, `Corpus:144` e `Sessao:599` — serialização de valor vindo de
+fora). As quatro dívidas foram ao RUMO e **não se consertam aqui**: `Analise` é
+da volta Q e `Trabalho` é da volta E1, as duas vivas.
+
+**A prova do vermelho.** Um `try!` plantado em `Traco/App/TituloTela.swift`
+deixou o portão vermelho — `Traco/App/TituloTela.swift: 1 hoje, 0 congelado ←
+SUBIU` — e foi removido. Verde sozinho não é portão.
+
+**A prova da tela é com o banco de verdade impedido de abrir**, não com um mock:
+o `default.store` do App Group foi guardado e trocado por um diretório de mesmo
+nome; o arranque recebeu `SwiftDataError(_error: …loadIssueModelContainer)` de
+verdade. Depois de três arranques falhos e de um "tentar de novo" recusado, o
+espelho continuava com o `.md` da nota e o `traco-corpus.md` com 2.303 bytes;
+restaurado o `default.store`, a nota reapareceu na lista. Capturas em
+`ferramentas/orca/a1-arranque.md`.
+
+**O pior caso da frase do meio, fotografado.** Com o mesmo banco impedido de
+abrir e o espelho **esvaziado** (`Documents/notas/` sem nenhum `.md`), a tela diz
+"Não encontrei cópia em Markdown no app Arquivos. O arquivo original continua
+neste aparelho, intacto — o Traço não o toca enquanto não conseguir lê-lo."
+(`ferramentas/orca/a1-08-espelho-vazio.png`). É o momento em que a tela mais
+poderia assustar ou mentir, e ela faz as duas coisas certas: não inventa um
+backup que não existe e não deixa a pessoa achar que o original foi perdido.
+Os `.md` guardados voltaram byte a byte (SHA-256 idêntico antes e depois).
+
+**Lacuna que fica, por ordem do dono, não por limite de instrumento.** A leitura
+falada do VoiceOver **não foi e não será exercitada**: comando por voz e
+VoiceOver estão proibidos no Traço — o áudio de qualquer simulador sai pelas
+caixas do Mac do autor. A acessibilidade desta tela se prova por árvore de AX
+(cabeçalho → o que houve → onde está o conteúdo → ação → detalhe técnico) e por
+captura, que é o que a lei manda. A ordem de leitura está provada; a fala, não.
 ## ADR 2026-09-08q — Quem responde, medido COM a conta: a quarta regra da tabela (volta Q)
 
 *(Letra corrigida na Q-E, 08/09: esta ADR nasceu `2026-09-08k` e a letra já estava tomada em `main` pela V17-B, "A garantia sai da tela e vira invariante do documento". As mensagens de commit anteriores a esta correção ainda dizem `08k`.)*
@@ -5912,3 +6603,55 @@ O que a linha NÃO faz, por regra: não manda conectar conta (a conta existe; a 
 **Dynamic Type.** A letra miúda do cartão tinha `maxWidth: 280` fixo em pontos; em AX5 isso dava doze caracteres por linha e um terço da tela em branco, e as três listas dobravam de altura à toa. Passa a `medidaMiuda`, `@ScaledMetric` relativo a `.subheadline` (280 em `large`, ~45 caracteres): escala com a letra e, quando cresce além da tela, a largura do cartão manda. Medido no iPhone Air em AX5: a linha de uma operação cai de 0,32–0,38 tela para 0,26.
 
 **O que esta ADR não prova.** A qualidade das frases de `motivo` é de quem mediu; a tela só as formata. VoiceOver não foi ouvido (o simulador pede reiniciar o aparelho); a árvore de acessibilidade mostra cada linha como um elemento, na ordem visual, nada focável como ação. 3 testes em `PerfilQualidadeTests` (a lista vem da tabela; a data no lugar certo; o conserto na linha).
+
+## ADR 2026-09-08w — Duas voltas na mesma função: a `mudanca` do ajuste passa a recusar com nome (volta Q-H)
+
+**O conflito.** Enquanto a volta Q instrumentava as guardas da preparação, a
+V17 (ADR 08j) mesclou em `main` e acrescentou às MESMAS duas funções um campo
+novo de contrato: `mudanca`, a frase em que o modelo diz o que mudou de um
+exercício para o anterior. `parsePreparacao` virou `lerPreparacao ->
+Result<Preparada, Recusa>` de um lado e ganhou `comMudanca:` do outro;
+`validar` virou `provar` de um lado e ganhou teto e prova de vazamento sobre a
+`mudanca` do outro. As duas mudanças são de mérito e nenhuma cede.
+
+**Decisão.** A `lerPreparacao` conhece `comMudanca`, e cada queda que a V17
+escrevia como `nil` passa a ter guarda nomeada. Chave ausente num ajuste é
+`chavesForaDoContrato(faltando: ["mudanca"])` — num ajuste ela É do contrato.
+Tipo errado é `campoNaoTexto("mudanca")`; vazia é `campoVazio("mudanca")`; acima
+de `Limite.mudanca` é `campoAcimaDoTeto`. Os quatro são casos REAPROVEITADOS:
+a `mudanca` falha do mesmo jeito que os outros cinco campos, e inventar
+categoria para ela diria que é outro tipo de defeito. A regra da V17 fica
+inteira: qualquer uma dessas quedas derruba a preparação INTEIRA, porque versão
+que muda calada é o que aquela volta existe para impedir.
+
+**O único caso NOVO: `mudancaVazaOExemplo`.** `criterioVazaOExemplo` carrega um
+`indice` e diz "o critério N". Usá-lo para a `mudanca` obrigaria a inventar um
+índice de critério para um campo que não é critério — a recusa mentiria sobre
+qual guarda reprovou, que é o oposto do que a ADR 08p faz. Mesma régua
+(`Prova.vazamento`), mesma disciplina de medida sem conteúdo (posição, contagem
+de palavras e origem no pedido do autor; nunca o trecho), mesmo `Recusa.origem`.
+Só o campo é declarado por nome. A `mudanca` é provada DEPOIS dos critérios: o
+exercício se prova antes do que se diz sobre ele.
+
+**Na rota remota**, um único `ajustando = p.ajuste != nil` governa o esquema de
+saída, a leitura e o rótulo do produtor (`"Grok · exercício adaptado"`), e o
+`timeout` é o `Grok.tetoTrabalho` MEDIDO na 08r, não o `90` suposto que a V17
+carregava — mantê-lo devolveria à rota de ajuste a falha de transporte que a
+volta Q acabou de fechar. A sonda de DEBUG grava as recusas do ajuste também,
+sem ramo: a recusa de um ajuste é a que mais precisa de nome, porque é ela que
+decide se o exercício de alguém não mudou por defeito do provedor ou por
+estreiteza da nossa régua.
+
+**Prova.** Build sem aviso e suíte integral na árvore MESCLADA — a que ninguém
+tinha testado — no `34CC3F94`, duas execuções limpas com números idênticos: 957 testes, 956 passados, 0 falhos, 1 pulado
+(`CadernoHitchesTests`, já pulado antes). Os testes da V17 sobre `mudanca` e os
+da Q sobre `Recusa` passam juntos. Decisão por decisão em
+`ferramentas/orca/q-h-reconciliacao.md`.
+
+**O que esta ADR NÃO prova.** Nada de novo sobre a qualidade do ajuste: nenhuma
+chamada real ao provedor foi feita nesta passada, e a régua do vazamento
+continua como estava — alargá-la é volta própria, já no RUMO. Duas execuções da
+suíte travaram antes de conectar o runner (0 de 957, 345 s cada) e a terceira
+passou inteira; provei que a árvore mesclada sobe instalando e lançando o app
+no aparelho (`ferramentas/orca/q-h-app-mesclado.png`). É limite do instrumento
+registrado, não resultado.

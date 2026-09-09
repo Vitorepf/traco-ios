@@ -326,14 +326,10 @@ struct RecordarView: View {
                         saidas: [Saida] = []) -> some View {
         VStack(spacing: 4) {
             Button(action: acao) {
+                // desabilitada, a `Pilula` guarda a cápsula e a tinta legível
+                // por dentro do componente (V12-B): o contorno à mão que vivia
+                // aqui virava hairline dobrada e saiu
                 Pilula(principal, forma: .larga, selecionada: ativa)
-                    // desabilitada a `Pilula` fica sem fundo: sem o contorno
-                    // ela volta a ser o texto solto que esta volta veio tirar
-                    .overlay {
-                        if !ativa {
-                            Capsule().strokeBorder(Tema.linha, lineWidth: 0.5)
-                        }
-                    }
             }
             .buttonStyle(.discreto)
             .disabled(!ativa)

@@ -1,0 +1,12 @@
+application | 'Traço' | val='' | en=True | id=None | cx=0.500 cy=0.500 y=0.000 h=1.000
+  button | 'Capturador de Folhas' | val='Expandido' | en=True | id=None | cx=0.500 cy=0.073 y=0.060 h=0.026
+  button | 'Voltar' | val='' | en=True | id=campos-voltar | cx=0.235 cy=0.115 y=0.082 h=0.066
+  heading | 'Se–então' | val='' | en=True | id=None | cx=0.216 cy=0.241 y=0.169 h=0.144
+  button | 'Deixar como nota' | val='' | en=True | id=soltar-na-folha | cx=0.705 cy=0.239 y=0.178 h=0.122
+  text | 'SE (HORA / LUGAR / OBSTÁCULO)' | val='' | en=True | id=None | cx=0.494 cy=0.388 y=0.338 h=0.100
+  Grupo | 'Se (hora / lugar / obstáculo)' | val='' | en=True | id=campo-se | cx=0.500 cy=0.491 y=0.457 h=0.069
+  text | 'ENTÃO EU (SUBSTITUTO CONCRETO, NÃO “NÃO FAÇO”)' | val='' | en=True | id=None | cx=0.433 cy=0.666 y=0.566 h=0.201
+  Grupo | 'Então eu (substituto concreto, não “não faço”)' | val='' | en=True | id=campo-entao | cx=0.500 cy=0.820 y=0.785 h=0.069
+  text | 'DEPOIS DISTO' | val='' | en=True | id=None | cx=0.363 cy=0.923 y=0.898 h=0.050
+  button | 'Conferir o hábito em 7 dias' | val='' | en=False | id=encadear-compromisso | cx=0.500 cy=1.051 y=0.953 h=0.196
+  group | '' | val='' | en=True | id=forma-seEntao | cx=0.500 cy=0.743 y=0.338 h=0.811

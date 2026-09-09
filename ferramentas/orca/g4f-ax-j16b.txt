@@ -1,0 +1,7 @@
+application 'Traço' en=True id=None y=0 h=1 x=0 w=1
+  Grupo '' en=True id=None y=0.3469 h=1 x=0.0455 w=0.9091
+    button 'Abrir os campos' en=True id=abrir-campos y=0.3574 h=0.1946 x=0.0455 w=0.9091
+    button 'Deixar como nota' en=True id=soltar-forma y=0.552 h=0.1946 x=0.0455 w=0.9091
+   '' en=True id=None y=1.0178 h=0.3149 x=0 w=1
+  button 'Descartar menu contextual' en=True id=None y=0 h=1 x=0 w=1
+  text '13:58' en=True id=None y=0.023 h=0.0227 x=0.1348 w=0.1098

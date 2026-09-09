@@ -161,3 +161,351 @@ Ordem do dono: **foque na IA**. A volta **Q (qualidade da IA)** abre como frente
 **Correção do meu registro anterior:** eu tinha escrito às 10h25, lendo `prova/cinco-itens.md`, que a conta estava no `teste 2 B91C8DEF`. **A conta que vale agora é a do `C2416CBC`**, e é a única. O `teste 2` e o `teste 3` deixam de ser proibidos (a sessão que os usava foi fechada pelo dono).
 
 **LEI DO SIMULADOR DO GROK, no spec de todo worker daqui em diante:** o `C2416CBC` é o único aparelho com a conta. **Ninguém roda `erase`, `clearState`, `uninstall` ou `xcodebuild test` nele.** Workers de outras voltas usam outros UDIDs. A volta Q **instala por cima** e confere `ContaGrok.ligada` **antes de cada corrida**. Se a conta cair, **o dono tem de reautorizar — diga em vez de contornar**.
+
+### 08/09 16h40 — A V17 pronta e o merge SEGURADO: outra sessão escreve em `main` ao vivo
+
+A volta V17 passou em todos os portões (G3 → V17-B → re-G3 PASSA → G4 PASSA) e a V17-C fechou a parte dela do G5: prova dos portões comitada (capturas de 3,7 MB para 1,8 MB, nenhuma acima do teto do RUMO), `main` trazida em ordem cronológica (21 commits, conflito só de lugar no SPEC) e **árvore mesclada provada: 928 testes em 149 suítes, 0 aviso, portão do movimento com a lista de divergências vazia**.
+
+**Não mesclei, e a razão é a segunda colisão do dia com uma sessão externa.** Às 16h39 o checkout principal estava sujo, escrito naquele minuto: `Traco/Trabalho/ConferenciaTrabalho.swift`, `OficinaTrabalho.swift`, `TrabalhoView.swift`, `TracoTests/ConferenciaTrabalhoTests.swift` e `prova/cinco-itens-grok46-validacao.jsonl` — pelo nome, a continuação dos cinco itens. **`OficinaTrabalho.swift` e `TrabalhoView.swift` são exatamente os arquivos que a V17 reescreveu.**
+
+Não toquei em nada — nem `stash`, nem commit, nem reset —, como na primeira vez, de manhã. Perguntei ao dono e a volta espera no branch, sem risco de perder nada.
+
+**A lição, que já é padrão e vai para a ESTEIRA quando eu tiver a resposta:** worktree isola a EDIÇÃO, não o MERGE. Uma sessão que trabalha direto no checkout principal bloqueia o G5 de qualquer volta que toque os mesmos arquivos, e o orquestrador não pode resolver isso sozinho sem passar por cima de trabalho vivo. Da primeira vez (10h25) o dono comitou e destravou; desta vez ele decide de novo.
+
+### 08/09 17h10 — MESCLADA a volta V17, e `main` volta a ter dono no origin
+
+**A árvore suja era WIP parado, não escrita ao vivo.** Eu tinha lido os cinco arquivos como sessão viva porque a hora de modificação era do minuto anterior; o dono conferiu e mostrou que a thread do Astra no app do Codex não escrevia desde 11h14 e que os arquivos não mudavam desde 16h39:32. O conteúdo ficou inteiro no branch `wip/cinco-itens-grok46-16h39` (`d26310e`) e os cinco arquivos voltaram ao estado de `main`. **Segurar o merge foi certo; o que eu errei foi a leitura da causa** — mtime recente não prova sessão ativa, e eu deveria ter comparado duas leituras separadas por alguns minutos antes de chamar de "escrita ao vivo".
+
+**V17 mesclada em `67974dc`.** O laço que faltava era de observação e versão, não de renderização: a causa do ajuste virou dado vinculante (`Pedido.ajuste` com gatilho fechado e `Artefato.pedidoID`), no lugar de uma inferência que não podia ser a autoridade que explica ao autor por que o exercício dele mudou. Nenhum estado de exercício persistido, a causa como núcleo obrigatório, a fronteira da IA no tipo, e o anúncio escrito pelo app sem dizer que a pessoa aprendeu. G3 reprovou duas garantias que viviam só na UI; a V17-B moveu as duas para invariante do agregado. G4 PASSA. Árvore mesclada: **928 testes em 149 suítes**, 0 aviso.
+
+**E `main` foi para o `origin`**: estava **35 commits atrás** porque ninguém deu push no dia inteiro. Ordem nova do dono, em vigor: **todo fecho termina com `git push origin main`**.
+
+**Lacuna declarada da V17, que não se esconde:** a jornada com provedor real é da frente Q; o item 1 da fila do dono só fecha quando ele **usar e continuar** a situação real.
+
+### 08/09 18h10 — o estado das três voltas vivas, e o que a tarde ensinou
+
+Nada mesclado desde a V17 (`67974dc`); as três voltas estão em ciclo de portão, e é onde elas devem estar. `main` limpa e sincronizada com o `origin` a cada fecho, como o dono ordenou às 17h05.
+
+**Q — a qualidade da IA, medida com a conta ligada.** 297 execuções de rota, 96 casos, três lançamentos. **Das dezesseis operações, só três atenderam 6 de 6**: `conferir`, `padroes` e `conferirTentativa`. **Sete saíram da execução** pela regra nova `indisponivelPorQualidade`, em dois grupos — sem substituto medido (ecos, calibragem, recordar, instigar, contrapor) e com conserto nomeado (`responder`, `responderNasNotas`). A terceira linha do Perfil diz isso ao autor em linguagem de gente, sem número e sem caminho de prova, e **nunca manda conectar conta que já existe**. A Q-B corrigiu o candidato (`acdfcb4`, provado por símbolo no dylib), reconciliou 20 contra 12 nos quatro documentos, e **subiu o teto de 90 s para 240 s** com prova: 30 chamadas, zero falhas de transporte, contra 20 de 72 antes.
+
+**A lição da Q, que vale mais que a tabela:** três casos mediram uma **rota sem chamador de produção** — a "atribuição genérica do provedor" era um título que o **nosso app** fabricava. E a Q-B achou o irmão disso: **3 de 15 preparações são recusadas pelo NOSSO parser**, com HTTP 200 e conteúdo completo do outro lado. Duas vezes seguidas, o que parecia defeito do provedor era nosso.
+
+**V12 — a escrita visível.** O conselho ditou a invariante (*a linha ativa e o caret pertencem à área livre do papel, em todo quadro*), a V12-E a pôs **no contêiner** e achou a causa raiz que cinco passadas erraram: o `.safeAreaInset` deixava o papel correr sob o encaixe. **Duas refilmagens independentes** fecharam o A1 e o A2 — zero quadros com par legível, caret 343/295/431/313 pt acima do encaixe contra **zero pixels em 11 amostras** antes. Falta o pé em AX5 acima do teclado.
+
+**E1 — o resultado da ação.** `ResultadoObservado` virou eixo próprio, `cancelada` ganhou gesto, e a orientação seguinte muda pelo relato **reusando o mecanismo da V17** em vez de um segundo paralelo. O G3 achou o de sempre: **a invariante olhava um eixo e o mundo tem dois** — dava para cancelar o que a pessoa já disse que aconteceu.
+
+**O padrão do dia, agora com seis casos:** o quadro longo que era o `fotografar()` do teste; o `ax --device` lendo o aparelho vizinho; a rota sem chamador; o teste que passava sem visitar o defeito; a `String` que não vira `Bool` no plantio de estado; e o `test-without-building` que troca o contêiner. **Em todos, o instrumento dizia mais do que mostrava.** Está na ESTEIRA como lei: o teste declara o estado que exige como **pré-condição que falha**, e todo portão nasce com a prova do vermelho.
+
+### 08/09 18h45 — MESCLADA a volta V12: o autor não escreve às cegas
+
+Quinta volta do dia, e a mais teimosa: **cinco passadas seguidas com a mesma classe de defeito e causas diferentes** — o cartão cobrindo a régua, o `withAnimation` sem `Tema`, o encaixe sem alinhamento, a caixa opaca sem ocupante, e o caret por baixo do encaixe. À segunda recusa o conselho entrou e ditou a lei que faltava: **a linha ativa e o caret pertencem à área livre do papel, em cada quadro apresentado, e nenhuma outra superfície desenha ali — no CONTÊINER**, não num tipo novo que um ancestral possa ignorar.
+
+- **A causa raiz que cinco passadas erraram:** o `.safeAreaInset` deixava o papel **correr sob o encaixe**. O `CadernoView` virou pilha de irmãos sem pixel em comum; `seguirCaret` rola até a linha ativa; `abrirCampos` tira cartão, pé e régua **por corte, antes de a folha subir**.
+- **A prova, e ela é dupla:** caret em **343/295/431/313 pt acima do encaixe** contra **zero pixels em 11 amostras** antes; **zero quadros com par legível** em 69 e depois em 222, refilmados por **dois juízes independentes**; o pé em AX5 terminando a 630,0 pt contra o teclado em 638. O par que resta é a **`UIMenu` do sistema** (~65 ms), declarado como limite.
+- **O portão que quase mentiu:** o teste hospedado passou verde **sem visitar o defeito** — aceitava o estado sem cartão. Virou **pré-condição que falha com motivo**, e a prova do vermelho está colada. Foi o quarto de **seis** instrumentos que neste dia disseram mais do que mostravam.
+- **A ADR 08f mentiu duas vezes** — "nenhum par legível" e "a folha cobre a tela nos dois instantes" — e as duas frases foram trocadas pelo medido, a segunda achada pelo juiz no último portão. **ADR é contrato, não narrativa.**
+- **Commit:** `e58b0ee`, empurrado para o `origin`. Árvore mesclada: **933 testes em 152 suítes**, 0 aviso, portão do movimento verde. Evidência dos portões comitada e reduzida com honestidade: 58 PNG de 34,5 MB para 10,3 MB, 8 vídeos de 15,8 MB para 0,6 MB **com a contagem de quadros conferida igual por `ffprobe`**.
+- **Fica para o RUMO:** os 15 pt que o cartão recolhido perde no aparelho de 874 pt (custo dito, não escondido) e o oráculo de pixels, que o conselho já dimensionou como volta própria.
+
+### 08/09 19h15 — MESCLADA a volta E1: agendado, feito e funcionou são três coisas
+
+Sexta volta do dia, e a primeira do item 5 da fila do dono. A auditoria de 07/09 tinha achado os três `EstadoAcao` **mortos**: não havia como dizer que uma ação foi **observada**, `cancelada` era inalcançável, e o relato não mudava a orientação seguinte.
+
+- **`ResultadoObservado` virou eixo próprio**, no relato, com `nil` = **não observado** inclusive em registro antigo — nenhum registro velho vira "deu certo" por releitura. **Executar é ato, observar é resultado**, e um existe sem o outro.
+- **Fracasso e parcial são de primeira classe:** as três cápsulas têm o mesmo peso na tela, e **parcial e fracasso geram orientações diferentes** — o juiz confirmou, senão o eixo seria decorativo.
+- **A orientação muda reusando o mecanismo da V17** (ADR 08j), com o gatilho `resultadoInformado`, sem inventar um segundo — e dizendo o que **não** serviu.
+- **O G3 achou a doença do dia:** a invariante olhava **um** eixo e o mundo tem **dois** — dava para cancelar o que a pessoa já tinha dito que aconteceu. Conserto no **modelo**: `podeCancelar` exige pendente **e** sem observação, `registrarRelato` recusa a ordem inversa, e `validar()` recusa o par para fechar importação, migração e chamador novo. **Com contraprova na mesma captura:** ação pendente e não observada continua com o gesto.
+- **E o G4 pegou o que faria a promessa funcionar por acaso:** a orientação seguia o último relato **sem nomear a ação** — com três ações e três resultados, mandava "propor caminho diferente" num Trabalho cuja ação principal funcionou. A contraprova são **três pedidos gravados no mesmo documento**: dois sem a ação, o terceiro com ela.
+- **Commit:** `7691e45`, no `origin`. Árvore mesclada: **947 testes em 153 suítes**, 0 aviso, portão verde. Evidência reduzida: 4.576 KB → 2.372 KB e 1.493 KB → 840 KB, maior arquivo 187 KB.
+- **Aberto de propósito e dito:** `causaDoRelato` ainda diz "desta ação" sem nomeá-la, porque ali o motivo **disputa o teto** com o relato inteiro — é decisão de orçamento, não uma linha.
+
+### 08/09 19h35 — duas perguntas do dono, respondidas com o estado da máquina
+
+**(1) VoiceOver.** Conferi os sete simuladores: **está desligado em todos**, e o macOS também. Um só tem a chave escrita — o `6033B043`, com valor **0**. Quem a tocou foi o worker da A1, e **por ordem minha**: eu tinha mandado "ouvir o VoiceOver" na tela do arranque falho. **Revoguei a ordem**: ninguém liga VoiceOver, Speak Screen ou síntese de voz na máquina do dono; a acessibilidade daquela tela passa a ser provada **pela árvore de AX conferida contra captura do mesmo UDID**, com o VoiceOver falado declarado como **limite** — o mesmo tipo de limite que o juiz da L2 declarou hoje.
+
+**(2) Sete simuladores ligados, e a lei diz um por worker.** Mapeei dono a dono e **desliguei os três sem dono vivo**: `A1DF082C` (teste 4), `C7341E64` (17e) e `64F7B8B4` (Air) — as voltas que os usavam (E1 e P1) já mesclaram e os worktrees foram removidos. Sobraram **quatro, um por frente viva**: `C2416CBC` (volta Q, **e ninguém o desliga**), `B91C8DEF` (V13), `34CC3F94` (Q, build e teste) e `6033B043` (A1-B). Abaixo do teto de cinco em que o macOS começa a derrubar sozinho.
+
+**O que eu levo disto:** o teto de simuladores não é regra de higiene, é a mesma família dos achados do dia — aparelho ligado sem dono é estado que ninguém conferiu, e foi assim que o `ax --device` passou a ler a árvore do vizinho.
+
+### 08/09 19h25 — a voz era a Siri DENTRO do simulador, e a lei nova
+
+O dono achou o que eu não tinha achado: **não era VoiceOver, era a síntese de voz da Siri dentro dos simuladores**, saindo pelas caixas do Mac — `sirittsd`/`SiriAUSP`/`MacinTalk` vivos no **teste 4** desde as 18h03 e no **teste 2** desde as 19h22. Ele matou os processos para silenciar.
+
+**Quem foi:** no teste 4, a volta **E1-B**, que rodou ali por volta das 18h e já mesclou (worker morto, e eu desliguei o aparelho às 19h30 por não ter dono vivo). No teste 2, a volta **V13**, viva — avisada na hora, com ordem de dizer no relato o que acionou e a que horas, **não para se justificar, mas para a lei nascer do caso real**, como nasceram a do `cliclick` e a do `booted`.
+
+**Lei nova, no preâmbulo de todo spec e na ESTEIRA:** nenhum worker aciona Siri, ditado por voz ou síntese de fala em simulador enquanto o dono está na máquina — inclui `orca emulator button siri`, Speak Screen e ditado do teclado. E a razão que a torna fácil de aceitar: **prova de Siri é no iPhone do dono, com ele**; no simulador ela não é evidência, então acioná-la não produz prova, só barulho na sala de quem trabalha.
+
+**A conta do dia sobe para nove leis de instrumento**, e esta é a segunda em que o incômodo do dono na própria máquina é o sintoma — a primeira foi o mouse disputado às 11h35.
+
+### 08/09 19h35 — O MAC DO DONO ESTAVA FALANDO. Os quatro itens, feitos
+
+Ordem com o dono furioso, e com razão: ele já proibiu **comando por voz, VoiceOver e iPad** inúmeras vezes. Ele matou os processos de fala e desligou o teste 2 e o teste 4.
+
+**(1) Avisados os SEIS terminais vivos** — as três voltas (Q, A1, V13) e os terminais de apoio de cada uma —, com a ordem de **parar a passada e reportar** quem estivesse acionando voz.
+**(2) Quem acionou, com nome de volta:** no **teste 2 `B91C8DEF`, às 19h22, foi a V13** (viva, avisada na hora); no **teste 4 `A1DF082C`, às 18h03, foi a E1-B** — volta já mesclada, worker morto, aparelho que eu havia desligado às 19h30 por não ter dono vivo. A cadeia que levou a isso é minha: **eu mandei "ouvir o VoiceOver"** no spec da A1, e a chave `VoiceOverTouchEnabled` só aparece escrita no aparelho dela. Ordem revogada por mim antes de o dono cobrar, mas o estrago já estava feito.
+**(3) A proibição está EM LETRAS GRANDES** no preâmbulo de todo spec e no topo da seção de instrumento da ESTEIRA: voz, VoiceOver e iPad proibidos; prova de Siri só no iPhone do dono, com ele; acessibilidade por árvore e captura, nunca com VoiceOver ligado.
+**(4) Um simulador por worker:** ficaram **dois booted** — `C2416CBC` (volta Q, o da conta, que ninguém desliga) e `6033B043` (A1-B). Desliguei o `34CC3F94`; o teste 2 e o teste 4 o dono já tinha desligado, e o 17e e o Air eu havia desligado antes. De sete, sobraram dois.
+
+**A lição, e ela é minha:** duas das nove leis de instrumento do dia nasceram do **incômodo do dono na própria máquina** — o mouse disputado às 11h35 e a voz agora. Nenhuma das duas apareceu em teste, log ou revisão: apareceram porque **uma pessoa estava sentada ali**. Quando o laço roda na máquina de alguém, o corpo dessa pessoa é parte do instrumento, e eu não estava medindo isso.
+
+### 08/09 19h45 — NÃO BASTOU: a fala voltou, e a cadeia era minha
+
+Depois do meu aviso das 19h35, **a V13 religou o teste 2 e a fala voltou às 19h4x**; e havia síntese rodando também no Pro Max, na volta **A1-B — cujo próprio nome de terminal carregava a palavra que eu tinha mandado** no spec. O dono interrompeu as duas voltas pelo terminal, desligou o teste 2 de novo, forçou a chave de leitura de tela para `false` nos dois aparelhos e matou a fala. Ele disse, com estas palavras, que **a próxima voz encerra o laço**.
+
+**A cadeia inteira sai do meu texto.** Eu escrevi "ouça a leitura de tela" no spec da A1; o worker obedeceu; o Mac do dono passou a falar. Não foi iniciativa de worker, foi ordem minha mal pensada — e eu a repeti no spec da A1-B mesmo depois de já ter revogado a ideia, porque reaproveitei o texto anterior sem reler o item.
+
+**O que fiz, e é o que vale como conserto:**
+1. **O spec da A1 foi REESCRITO** (A1-C) sem a palavra proibida em lugar nenhum: a acessibilidade da tela do arranque se prova **pela árvore de acessibilidade conferida contra captura do mesmo instante**, e o falado é **limite declarado, não tarefa**. O terminal foi renomeado.
+2. **A V13 está em PARADA CONDICIONAL:** só continua se o worker confirmar por escrito que não aciona voz e não religa o aparelho sem avisar, e disser o que acionou às 19h22 e às 19h4x. Se houver nova fala, **paro a volta e recomeço com outro worker**.
+3. **O esperador do laço passou a caçar fala antes de qualquer outra coisa:** todo ciclo de espera roda `pgrep -f 'sirittsd|SiriAUSP|MacinTalk|speechsynthesisd'` e, se achar, **mata os processos e recusa a esperar**, obrigando-me a parar o worker dono do simulador **antes** de acusar qualquer batimento. A verificação virou parte do laço, não lembrança minha.
+4. **Dois simuladores ligados**, um por worker vivo com dono nomeado.
+
+**A lição, e ela é sobre mim:** eu escrevi nove leis de instrumento hoje lendo o que os workers mediram, e **duas nasceram do corpo do dono** — o mouse disputado e a voz. Nas duas, o sintoma chegou pela pessoa e não pelo log; e nesta segunda **a causa fui eu**. Reaproveitar spec sem reler cada item é a mesma família do "verde que não visitou o lugar do defeito": texto que parece cumprido porque já esteve certo alguma vez.
+
+### 08/09 20h00 — o caçador de fala casava com ele mesmo
+
+O verificador que eu instalei às 19h45 para rodar em toda espera usava `pgrep -f`, que casa com a **linha de comando inteira** — e a linha de comando dele **contém os nomes que ele procura**. Resultado: ele acusava fala viva olhando para si mesmo, e um `ps aux | grep` no mesmo instante mostrava **zero** processos de síntese. Quase parei um worker por causa disso.
+
+Corrigido: o caçador passou a olhar o **nome do executável** (`comm`), nunca a linha de comando, e a lista ficou restrita ao que o dono nomeou por **ouvir** — `sirittsd`, `SiriAUSP`, `MacinTalk`, `speechsynthesisd`. Tirei `assistantd` e `siriactionsd`, que são daemons de sistema do macOS, sempre vivos e **não são fala**: mantê-los na lista faria o caçador acusar silêncio como barulho para sempre.
+
+**É o sétimo instrumento do dia que diz mais do que mostra** — e o primeiro que eu mesmo escrevi. A régua que eu cobrei a tarde inteira dos workers (*todo portão nasce com a prova do vermelho, e o teste precisa visitar o lugar do defeito*) eu não apliquei ao meu próprio verificador: instalei sem nunca tê-lo visto **acusar de verdade** nem **ficar quieto de verdade**. Agora os dois estados estão vistos.
+
+### 08/09 20h20 — a hipótese da voz CAIU, e a causa continua desconhecida
+
+Eu tinha proposto que os processos de fala subiam porque **a sábia responde pelo Apple Intelligence do aparelho**, que no iOS 26 roda sobre a infraestrutura da Siri. A V13 testou no 17e, do jeito que pedi — `ps` antes, 1 s depois, 10 s depois e ao fim de uma pergunta pelo caminho do aparelho: **zero processos de fala, sempre**. **A hipótese caiu.**
+
+E a mesma volta confirmou, comando a comando, que **nunca usou Siri, `button`, ditado, leitura de tela nem `say`** — só `attach/ax/tap/type/gesture` e `simctl` —, e que o plist de acessibilidade do teste 2 não tinha nada ligado.
+
+**Então a causa da voz continua desconhecida**, e é assim que fica registrado. O que resta em pé são as defesas, que não dependem de saber a causa: a proibição de voz em letras grandes no preâmbulo de todo spec, o caçador de fala rodando antes de cada espera do laço, e um simulador por worker com dono nomeado. **Nenhum processo de síntese apareceu desde as 19h45.**
+
+A tentação aqui seria fechar a investigação com a hipótese bonita que eu mesmo escrevi. Ela foi testada e não se sustentou; escrever "provavelmente era o Apple Intelligence" seria exatamente o tipo de conclusão sem evidência que este dia inteiro recusou nas medidas da IA.
+
+## 08/09, 20h — dois workers da A1 morreram calados; a volta não morreu com eles
+
+O `worker-read` dos dois despachos da A1 (`ctx_73f170be81ae`, A1-B, e
+`ctx_72fba36e5103`, A1-C) volta `status: failed`, terminal `exited`, **sem
+`worker_done` e sem saída capturada**. O inbox não tinha nada: eles não
+falharam contando, falharam calando.
+
+O que sobreviveu está no disco, e é bom: o worktree `volta-a1-arranque` tem o
+commit `8f2c671` mais **quatro arquivos modificados e não comitados** — a
+medida do `try!` reescrita para se reproduzir (o `grep` cru conta 10 hoje,
+porque a própria volta escreveu comentários que dizem `try!`; o comando com
+filtro dá 9 em `main` e 8 no candidato), o pior caso da frase do meio já
+fotografado (`a1-08-espelho-vazio.png`, 19h26, espelho sem nenhum `.md`) e a
+lacuna do VoiceOver escrita com a formulação certa: **não é pendência de
+instrumento, é ordem do dono**, e por lei da ESTEIRA não desconta nota.
+
+**Lição para a esteira:** worker morto não é volta perdida — a primeira coisa a
+fazer é `git status` e `git diff` no worktree dele, antes de decidir qualquer
+coisa. Refazer do zero teria jogado fora as três correções.
+
+Despachei a **A1-D** (`task_1506bf7b6420`, Opus 5): conferir os números em vez
+de acreditar neles, pôr a captura no relatório, build e suíte integral na árvore
+final no `6033B043`, e comitar. Nada de mérito novo — o G3 já passou nele.
+
+## 08/09, 20h — o terceiro re-G3 da Q: CORRIGIR ANTES, e as duas frases grandes demais
+
+O revisor de outro fornecedor (`gpt-5.6-terra`) confirmou o que a Q-E entregou —
+as letras `08q`/`08r` não colidem em nenhuma ref viva, a ADR 08p aponta o RUMO
+pelo nome sem prometer conserto, o aviso do build era **nosso** (`git blame` põe
+`PerfilView.swift:637` em `42c0c20`, desta volta, não da A1) e a suíte 918/149
+reproduz limpa — e reprovou duas afirmações:
+
+1. **A prova de escopo é falsa.** A Q-E disse que desfazer as letras devolve o
+   lado velho caractere por caractere e que o commit não trouxe nada além da
+   renumeração. Repetida a transformação sobre a árvore inteira, **sobram 8
+   hunks**, e `git show --stat` dá 16 arquivos, 223/56. As outras mudanças são
+   legítimas e pedidas; a **frase** é que é grande demais.
+2. **A varredura de privacidade não é o que o relato diz.** O teste filtra
+   `$0.count >= 5`, então palavra de 1 a 4 letras não tem asserção — "palavra a
+   palavra" é mais do que ele faz. O caminho certo é **estrutural**: o que
+   protege o autor é que `Recusa.redigida` não tem campo nenhum que carregue o
+   trecho.
+
+Isto é a mesma família dos sete instrumentos que disseram mais do que mostraram:
+desta vez o instrumento era **uma frase de prova**. Despachei a **Q-F**
+(`task_67876c84f1f0`, Opus 5) com as duas correções e nada mais; a foto do
+cartão CONTA segue lacuna declarada.
+
+## 08/09, 20h — três voltas, três simuladores, um dono cada
+
+Com os dois workers da A1 mortos, o **Pro Max `6033B043` ficou órfão ligado** e
+eu o desliguei. Ficam ligados apenas o `C2416CBC` (conta Grok do dono, que
+ninguém toca) e o `A1DF082C` (revisor da V13, vivo). A Q-F liga o `34CC3F94` e a
+A1-D religa o `6033B043` — **um por worker**, como o dono mandou. Caçador de
+fala rodado antes deste ciclo: **zero processos**.
+
+## 08/09, 20h30 — o G3 da V13: tudo confirmado na tela, e ainda assim NÃO PASSA
+
+O revisor de outro fornecedor conferiu a V13 no aparelho dele e **viu com os
+próprios olhos** o que a volta afirmou: a linha `Trabalhos` deixou de parecer
+link, some no filtro e na busca, a seta aparece com chip omitido e **some no
+fim da régua** — ele inclusive fechou, na revisão, a captura que a volta tinha
+declarado em aberto. Build verde, 7/7 no focado, caret igual no candidato e no
+pai. Onze dimensões em 9.
+
+Mesmo assim: **NÃO PASSA**, por duas provas que faltam, não por defeito.
+**Acessibilidade 8** — o conserto de `Repetir pergunta` em AX5 só tem PNG, e a
+imagem mostra que nada se sobrepõe mas não prova o rótulo inteiro nem a ordem de
+leitura; a ESTEIRA pede árvore de AX **e** captura do mesmo instante.
+**Movimento 8** — a seta é animação nova com `.opacity` e não tem vídeo, nem
+normal nem sob Movimento Reduzido.
+
+Duas frases do revisor que ficam: *"não desconto pela voz, que era proibida"* —
+a lei do dono entrou na régua sem virar prejuízo para quem obedece; e *"não
+capturar a seta no fim seria lacuna, mas foi fechada nesta revisão"* — revisor
+que fecha lacuna em vez de só apontá-la.
+
+Despachei a **V13-B** (`task_32591f5f21cd`, Opus 5, no 17e `C7341E64`): só as
+duas provas, nada de conserto novo. Caçador de fala antes do ciclo: zero.
+
+## 08/09, 20h45 — a A1 mesclada, e o registro das letras vira lei
+
+A A1-D fechou as três correções **sobre o diff do worker morto**, sem refazer
+nada: refez a medida do `try!` nas duas árvores (`git archive` para ler o `main`
+sem tocar no checkout principal), abriu a captura do espelho vazio e confirmou a
+frase palavra por palavra em vez de tirar outra, e reescreveu a lacuna do
+VoiceOver como **ordem do dono**. 934/152 e zero aviso na árvore final.
+
+E devolveu um achado **meu**: a ADR 08n já era da E1-B em `main`. Fui ao
+registro completo — não à memória — e havia **duas** colisões vivas: A1 × E1-B em
+`08n`, e V13 × Q em `08p`. Decidi por **quem é mais barato mover**, não por quem
+chegou depois: a Q fica com `08p` (três letras encadeadas, já conferidas letra a
+letra por um revisor — mexer nela invalidaria prova conferida), a V13 recebeu
+`08t` por mensagem, a A1 virou **`08s`** pela minha mão, e a MAC-1 nasce com
+`08u`. Nove ocorrências em oito arquivos; normalizando a letra, os dois lados do
+diff ficam idênticos linha a linha.
+
+A causa é minha e está agora na ESTEIRA: eu reservava **uma letra por volta**,
+quando uma volta escreve quantas ADRs precisar. O registro se lê por comando,
+vale para **todas as refs vivas** (branch não mesclado já é dono da letra dele),
+e buraco antigo não se reaproveita.
+
+Suíte na árvore **mesclada** — que nenhum dos dois lados tinha testado —
+**948 testes em 153 suítes, verde**. Mesclada em `6da0df1`.
+
+## 08/09, 20h50 — a Q-F fechou as duas frases grandes demais
+
+Conserto 1 pelo caminho (a): a alegação de equivalência passa a valer para o
+**artefato** de renumeração, com 49 linhas e 55 ocorrências enumeradas uma a uma,
+as 12 linhas não-puras listadas, e a mesma frase nomeando as outras cinco
+mudanças que entram no commit. Sem reescrever história — o SHA que o veredito
+cita continua de pé.
+
+Conserto 2, e este é melhor do que eu pedi: o teste novo varre a **serialização
+inteira** de um caso de **cada uma das doze guardas** contra um exercício em que
+toda palavra é um marcador inventado (oito de 1 a 4 letras, três com acento), por
+igualdade de token — e o worker **provou que ele morde, por mutação**, desfeita
+antes do build de fecho. 919 testes, zero aviso.
+
+Despachei o **quarto** re-G3 (`task_cda75349b44b`), curto por desenho: as duas
+correções e **a foto do cartão CONTA**, que é a única coisa segurando
+`Jornada real` em 6 — e nada mescla abaixo de 9.
+
+## 08/09, 20h20 — TRILHA NOVA POR ORDEM DO DONO: o Traço no Mac pelo Grok Bot
+
+O dono pôs em `main` (`8d9ce62`) o contrato dos **onze casos de uso**
+(`ferramentas/grokbot/CASOS.md`) e o brief da trilha
+(`ferramentas/orca/papeis/trilha-mac.md`), com três voltas: MAC-1 (ler tudo e
+escrever com origem), MAC-2 (a porta de volta do Trabalho, Astra no G0) e MAC-3
+(web e briefing com citação obrigatória, só depois da Q mesclar). Ordem: abrir a
+**MAC-1 agora**, como uma das três frentes, implementador Opus e revisor GPT 5.6
+Terra, e **o revisor exercita cada caso de verdade com o MCP ligado**.
+
+Abri a MAC-1 (`task_32b0b3e6a622`, worktree novo `volta-mac-1`, ADR reservada
+`08u`). Ela paga os casos 1, 2-leitura, 3, 8, 9 e 11: `traco_agenda`,
+`traco_decisoes`, `traco_escrever` com `origem` e `fontes`, o `agenda.md`
+exportado, e a nota `origem: grokbot` com etiqueta no iPhone, **fora do
+Retrato**. A etiqueta é tela, então o spec manda carregar o `design-router` e
+começar pela fase de auditar.
+
+**A lei que mais importa nesta trilha** já estava escrita pelo dono e eu a repeti
+no spec: *o bot nunca redige como o autor*. Origem obrigatória em toda escrita
+que não seja da pessoa, nada em nota pronta, expressiva e selada nunca chegam ao
+bot, nada automático — e voz, VoiceOver e iPad proibidos como em toda parte.
+
+**As três frentes agora:** MAC-1 (nova), V13-B (as duas provas) e a Q (quarto
+re-G3). A A1 saiu por mescla.
+
+## 08/09, 21h — a pausa da cota, a retomada, e o observador que eu mesmo matava
+
+Pausa e retomada do laço registradas por ordem permanente do vigia: a janela de
+sessão do Claude voltou (uso 19%) e o laço seguiu sem perder volta — as três
+frentes continuaram vivas durante a janela.
+
+**E achei um erro meu de instrumento, do tipo que este dia inteiro vem
+colecionando.** `check --wait` é um **consumidor da caixa**: cada vez que eu
+rodava um `check` simples para responder ao aviso de mensagem, eu **derrubava o
+observador de fundo** — ele morria com `consumer_fenced` e saída vazia, e eu lia
+aquele silêncio como "nada chegou". Perdi dois assim. O `worker-start` seguinte
+chegou a falhar por o terminal coordenador ter perdido o vínculo com o Run
+(`run-use` reata).
+
+O conserto é apagar o instrumento, não consertá-lo: **o observador de fundo é
+dispensável**, porque o próprio ambiente avisa quando há mensagem. Um leitor de
+cada vez. Está na ESTEIRA, junto com a regra de ler o código de saída antes de
+concluir que o silêncio quer dizer alguma coisa.
+
+**Quarta frente aberta: F5b**, a trilha fora do app (`task_c556899450c1`, Fable
+5.1, Pro Max `6033B043`, ADR `08v`). Ela fecha os estados da Ilha do compromisso
+que **ninguém nunca viu**: a mínima — que a F4 deixou por fotografar dizendo que
+"exige outra atividade viva ao mesmo tempo", o que é estado a **plantar**, não
+impossibilidade —, o fim da atividade, e a compacta com duas atividades em AX5,
+onde a F4 registrou um "t" cortado. O StandBy fica declarado: não renderiza no
+simulador, e perseguir limite de instrumento não é trabalho.
+
+A volta também nasceu com o nome consertado: era F5, virou F6, e **F6 já era dos
+widgets da tela bloqueada** — colidia duas vezes. Fica **F5b**, e é a mesma
+lição das letras de ADR, aplicada a número de volta: o registro se lê, não se
+lembra.
+
+## 08/09, 21h05 — dois orquestradores no mesmo laço, e a queda que eu tinha acabado de documentar veio de fora
+
+O dono abriu às 20h34 uma segunda sessão de orquestrador. Às 20h36 ela rodou
+`run-use` no mesmo Run sem saber que eu estava vivo: o coordenador passou para
+outro terminal e a geração foi de 3 para 4. **É exatamente a queda que eu
+documentei em `ec7dc18` uma hora antes** — `consumer_fenced` com saída vazia —
+só que desta vez a causa não era minha.
+
+Isso melhora a lei em vez de contradizê-la: a mesma queda tem **duas** causas —
+um `check` avulso meu por cima do meu próprio `--wait`, e **outro terminal
+assumindo o Run**. Nos dois casos o silêncio não quer dizer "nada chegou", o
+conserto é `run-use` de novo, e **os workers não param**: conferi os quatro
+despachos (V13-B, MAC-1, Q re-G3, F5b) e os quatro seguem `dispatched`. A
+ESTEIRA passa a dizer isso.
+
+A outra sessão não tocou em mais nada além de remover o worktree
+`volta-a1-arranque`, que estava limpo e mesclado em `6da0df1` — remoção correta.
+Ela está parada e vai perguntar ao dono qual das duas conduz. **Até a resposta
+dele, o laço é meu**, e sigo com as quatro frentes.
+
+## 08/09, 21h20 — a Q PASSA no quarto re-G3, e a mescla abre um sexto problema
+
+O revisor recomputou tudo **sem usar a contagem do implementador**: as 49 linhas
+e 55 ocorrências são puras, as 12 linhas mistas declaradas estão completas, e
+nenhuma frase sobrevivente diz que o commit inteiro só renomeia. Na guarda
+estrutural ele foi além de conferir — **fez a própria mutação**
+(`nome` → `valor` em `.campoAcimaDoTeto`), viu o vermelho nomeando
+`["gorrenita"]`, desfez, e confirmou os 54 testes verdes com a árvore limpa. E
+foi ao Perfil no `34CC3F94`: captura e árvore de AX do mesmo instante mostram as
+três listas, os dois grupos, o quê/por quê/conserto por operação, e **nenhuma
+linha mandando conectar a conta**. Todas as dimensões em 9. **PASSA.**
+
+Fui mesclar e **abortei**. Cinco conflitos, e dois deles em Swift de mérito:
+enquanto a Q trabalhava, a **V17 mesclou** e mexeu nas MESMAS funções —
+`OficinaTrabalho.preparacaoRemota` e `PraticaTrabalho.parsePreparacao/validar`.
+O `main` exige a chave `mudanca` no contrato quando há ajuste e derruba a
+preparação se ela vier vazia; a Q trocou o mesmo corpo por `lerPreparacao` com
+`Result<Preparada, Recusa>`, que nomeia a guarda que recusou. **Os dois estão
+certos e os dois têm de caber na mesma função.**
+
+Não resolvi. Escolher qual `Recusa` a `mudanca` merece é decisão de semântica de
+quem escreveu as duas regras, e um diff pequeno e limpo teria posto no `main`
+uma semântica que ninguém escolheu. Despachei a **Q-H**
+(`task_1b67bbdd2a79`, Opus 5): traz o `main` para dentro do branch, funde sem
+que nenhuma regra desapareça, **declara cada escolha por escrito**, e prova na
+**árvore mesclada** — com a instrução de que um teste que fique vermelho na
+fusão **é o achado**, não um estorvo.
+
+Vira lei na ESTEIRA: **o G5 tem dois passos. Aprovado não é mesclável.**

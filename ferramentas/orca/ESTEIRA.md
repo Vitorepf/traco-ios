@@ -39,6 +39,8 @@ A mesma máquina, com seis ou sete simuladores, derruba simulador sozinha por pr
 
 Lei: **nunca `booted` e nunca `-destination generic` para instalar**. Sempre `xcodebuild -destination id=<UDID>` e `xcrun simctl install <UDID>`; captura sempre `xcrun simctl io <UDID> screenshot`. E a defesa que o próprio worker inventou, que vale para todos: **quando a tela mostrar comportamento antigo que você jura ter consertado, confira os símbolos do dylib instalado (`nm` no binário do contêiner) antes de caçar cache** — pode ser outra sessão em cima do seu aparelho, não um bug seu. Simulador que outra sessão declarou como dela é dela: leia o que as sessões vizinhas escreveram antes de escolher o seu.
 
+**VOZ, VOICEOVER E iPAD SÃO PROIBIDOS (lei de 08/09, ordem do dono, repetida por ele inúmeras vezes).** Nenhum worker aciona Siri, o botão siri do `orca emulator`, ditado por voz, Speak Screen, VoiceOver ou `say`, em simulador nenhum, nunca: a fala dos simuladores sai pelas caixas do Mac do dono, e em 08/09 ele ouviu a Siri do teste 2 e do teste 4 enquanto trabalhava. Prova de Siri, de ditado e de qualquer entrada por voz é no iPhone do dono, com ele presente, ou não existe. Acessibilidade se prova pela árvore (`orca emulator ax`, hierarquia) e por captura, nunca com VoiceOver ligado. iPad não existe no Traço e não se cita. Worker que violar é parado e a volta recomeça. Vai no preâmbulo de todo spec, antes de qualquer outra lei.
+
 **Ninguém toca no mouse do dono (lei de 08/09, ordem do dono).** Nenhum worker controla o mouse ou o teclado do Mac — nem `cliclick`, nem computer-use, nem `AXRaise`, nem AppleScript de clique. O dono trabalha na mesma máquina e em 08/09 viu vários agentes disputando o cursor ao mesmo tempo; além disso o clique por coordenada cai na janela do simulador vizinho. O instrumento é o controle de simulador do Orca, que toca o aparelho pelo UDID sem passar pelo cursor: `orca emulator attach <UDID> --json` uma vez; `orca emulator ax --device <UDID> --json` para achar o elemento (frames normalizados 0..1, origem no canto superior esquerdo; tocar no centro, x+w/2 e y+h/2); `orca emulator tap <x> <y> --device <UDID> --json`; `orca emulator type "texto" --device <UDID>` (só ASCII); `orca emulator button home --device <UDID>`; `orca emulator kill --device <UDID>` ao terminar. Evidência continua sendo `xcrun simctl io <UDID> screenshot`. Quem muda orientação, tamanho de letra ou aparência do simulador restaura ao fim da passada e confere por captura. Esta lei vai no spec de todo worker.
 
 **O helper do `orca emulator` é UM SÓ na máquina** (três achados independentes em 08/09, e é o limite do instrumento novo). O revisor da P1 viu o `ax` perder a árvore de acessibilidade **assim que o Traço abre** (`ERR_CONNECTION_REFUSED` / `ERR_EMPTY_RESPONSE`), recuperando-a na tela inicial e perdendo-a de novo ao abrir o app. A volta L2 perdeu duas capturas porque o helper é global. E o revisor da L2, **depois de anexar explicitamente o seu UDID, viu o helper voltar a apontar para o aparelho de OUTRA volta** e as chamadas seguintes perderem o aparelho — o que o impediu de repetir uma medição de geometria de forma independente.
@@ -52,6 +54,37 @@ Consequências, enquanto o instrumento for assim: **toda sessão de `orca emulat
 **Com quatro simuladores ligados, `xcodebuild test` pendura** em `test runner hung before establishing connection` (achado da F4-I, duas vezes seguidas em 08/09). **A clonagem do teste paralelo é o que pendura:** `-parallel-testing-enabled NO` resolve de primeira. Use-o sempre que houver mais de dois simuladores de pé.
 
 **A galeria de widgets trava.** A folha "Adicionar Widget" para de paginar e depois trava de vez — três sessões seguidas de revisão da F4 esbarraram nisso, e já custou replantio de widget em três revisões. Some com o Simulator reiniciado, às vezes. Quando travar: é instrumento, não desconta nota, e a saída é usar as capturas de quem conseguiu plantar, conferindo o conteúdo e o relógio delas. A Live Activity do Destaque também engole o toque no botão "Editar" da galeria.
+
+## Medir a rota certa — lei de 08/09, achada pela volta Q
+
+**Hash de fixture e JSONL completo NÃO impedem medir a rota errada.** Na volta Q, três dos seis casos de `responderNasNotas` exercitaram `Sabia.responderNasNotas(pergunta:contexto:)`, que **não tem nenhum chamador de produção**: existe só para a sonda, e embrulha a string de contexto numa fonte sintética com o título literal "Contexto fornecido". A atribuição genérica que ia ser registrada como **defeito do provedor** era um título **fabricado pelo próprio app** — o modelo citou corretamente a única fonte que recebeu.
+
+Lei, para toda volta que medir comportamento de IA ou de qualquer motor: **antes de dar nota, leia os chamadores e diga, operação por operação, com arquivo e linha, qual rota a produção usa e se o caso mediu ESSA rota.** Rota exercitada só pela medição é armadilha, não conveniência: apague-a ou exija o caminho real. Medição feita por rota fantasma é **inválida por defeito do instrumento** — registre assim, com essas palavras, mesmo quando a conclusão anterior era favorável a nós. E medição inválida **não vira boa por ser antiga**: as bases anteriores que usaram a rota morta ficam marcadas como tal, sem reescrever prova alheia.
+
+Isto é irmão do achado da V12-D (o quadro longo era o `fotografar()` do próprio teste) e do `ax --device` que lê o vizinho: **em três medições do mesmo dia, o instrumento foi o réu.**
+
+## Verde que não visitou o lugar do defeito — o padrão de 08/09
+
+**Quatro vezes num dia** um instrumento nosso provou menos do que parecia, e sempre pelo mesmo mecanismo: **passou verde sem visitar o lugar onde o defeito mora.**
+
+1. **V12-D:** o quadro longo na rolagem não era do app — era o `fotografar()` do próprio teste (`drawHierarchy` + PNG de 1,3 MB, 127–162 ms na main thread).
+2. **`ax --device`:** lê a árvore do aparelho VIZINHO sem avisar, então a medida de geometria pode ser do aparelho errado e parecer certa.
+3. **Volta Q:** três casos mediram uma sobrecarga **sem chamador de produção**, que fabricava o título "Contexto fornecido" — a "atribuição genérica do provedor" era um título do próprio app.
+4. **V12-E:** o teste que devia provar que o fantasma acabou **aceitava o estado sem cartão e passava verde** — não percorria "Abrir os campos", que é onde o fantasma vivia.
+
+Regra, para todo portão novo: **o teste declara o estado que exige como PRÉ-CONDIÇÃO QUE FALHA**, nunca como estado aceitável — se o cenário não foi montado, ele fica vermelho dizendo isso. E **todo portão nasce com a prova do vermelho**: plante a violação, mostre a falha, remova. Verde sozinho não é portão; é confiança falsa, que é pior que nenhuma.
+
+**Dois becos de plantio de estado, achados pela V12-F em 08/09**, que fazem um teste passar verde sem o estado que ele exige: **`'1'` e `'YES'` chegam como String ao domínio de argumentos**, e o `object(forKey:) as? Bool` os ignora — plante `<true/>`/`<false/>` de verdade e confira lendo o valor de dentro do app; e **`xcodebuild test-without-building` troca o contêiner**, então plantar por plist antes dele não chega ao app que roda.
+
+**`orca emulator gesture` exige `type` begin/move/end em CADA ponto** (achado da E1-C, 08/09): sem isso ele devolve `ok:false` e **não faz nada** — e um gesto que não acontece parece um app que não responde.
+
+### ⛔ VOZ, VOICEOVER E iPAD SÃO PROIBIDOS NO TRAÇO — SEM EXCEÇÃO
+
+Ordem do dono, repetida inúmeras vezes e reforçada em **08/09 19h35, com o Mac dele falando alto**. Proibido: comando por voz, acionar a Siri (inclusive `orca emulator button siri`), ditado por voz, Speak Screen, **VoiceOver ligado em simulador**, `say`, síntese de fala por qualquer caminho, e **iPad em qualquer forma**. Vale para todo worker, todo juiz e todo revisor, e vai **no preâmbulo de todo spec**.
+
+**O que vale no lugar:** prova de Siri é **no iPhone do dono, com ele** — no simulador ela não é evidência; teste de acessibilidade é **por árvore de acessibilidade e captura conferida no mesmo instante**, com o VoiceOver falado **declarado como limite**, o que **não desconta nota**; e **um simulador por worker**, dito no relato.
+
+**Nada de Siri, ditado por voz ou síntese de fala em simulador enquanto o dono está na máquina** (ordem do dono, 08/09 19h25, depois de OUVIR a voz). A síntese roda dentro do simulador (`sirittsd`, `SiriAUSP`, `MacinTalk`) e sai pelas caixas do Mac; inclui `orca emulator button siri`, Speak Screen e ditado do teclado. E a razão que torna a lei fácil de aceitar: **prova de Siri é no iPhone do dono, com ele** — no simulador ela não conta como evidência, então acioná-la não produz prova, só ruído na sala de quem trabalha. O mesmo vale para VoiceOver falado: prove pela árvore de AX conferida contra captura, e declare o falado como limite.
 
 ## Scorecard
 
@@ -84,3 +117,98 @@ O orquestrador mantém ferramentas/orca/RUMO.md: lista ordenada das próximas vo
 ## Frente de front-end
 
 Antes de multiplicar voltas visuais, uma volta de auditoria (design-router, fase de auditar antes de tocar) percorre as telas principais e dá nota base no scorecard para cada uma. Em seguida uma volta de fundação: tokens em Tema.swift, pasta Traco/Componentes com previews, biblioteca de movimento com curvas e durações nomeadas. Só depois as voltas por tela, cada uma subindo a nota da tela até 9 ou mais. Tela abaixo de 9 no RUMO tem prioridade sobre função nova de mesma lacuna.
+
+### Worker morto não é volta perdida (08/09)
+
+Dois despachos da A1 terminaram `failed`, terminal `exited`, **sem `worker_done`
+e sem saída capturada** — falharam calando. O que eles tinham feito continuava
+no worktree: quatro arquivos modificados, uma captura nova, as três correções do
+revisor escritas. Refazer a volta do zero teria jogado tudo fora.
+
+**Regra:** ao ver um despacho morto, a primeira coisa é `git status` e
+`git diff` no worktree dele — antes de decidir se a volta recomeça, continua ou
+fecha. O spec do sucessor diz onde o trabalho parado está e manda **ler o diff
+antes de qualquer coisa**, sem `stash` e sem refazer. E o sucessor **confere os
+números em vez de acreditar neles**: quem os mediu não está mais aqui para
+responder por eles.
+
+### O registro das letras de ADR é do orquestrador, e mora aqui (08/09)
+
+Três voltas colidiram na mesma letra em um só dia — a A1 e a E1-B em `08n`, a
+V13 e a Q em `08p` — e a causa é minha: eu reservava **uma letra por volta**,
+quando uma volta escreve **quantas ADRs precisar**. Quem mescla primeiro fica
+com a letra; quem chega depois renumera, e renumerar depois de um revisor já ter
+conferido a letra **invalida uma prova conferida**.
+
+**Regra:** antes de qualquer volta escrever uma ADR, o orquestrador lê o
+registro completo com um comando, não de memória:
+
+```
+for ref in main origin/main <cada branch vivo>; do
+  echo "$ref: $(git grep -ho '2026-09-0[0-9][a-z]' $ref -- SPEC.md | sort -u | tr '\n' ' ')"
+done
+```
+
+O registro vale para **todas as refs vivas**, não só `main`: o branch que ainda
+não mesclou já é dono da letra dele. **Buraco antigo não se reaproveita** (a
+`08c` e a `08d` estão vagas e ficam vagas — reusar uma letra morta faz duas
+coisas diferentes terem o mesmo nome na história).
+
+**Quando duas voltas vivas colidem, muda quem é mais barato de mover**, não quem
+chegou depois: uma volta com três ADRs encadeadas e revisor que já conferiu
+letra a letra fica; uma ADR sozinha muda.
+
+**A renumeração se prova assim** (e a prova é do tamanho da alegação, não maior):
+normalize a letra nos dois lados do diff e mostre que os multiconjuntos de
+linhas removidas e adicionadas são **idênticos**. Se sobrar qualquer linha, a
+alegação "só a letra mudou" é falsa — e foi exatamente essa a falha que o re-G3
+da Q pegou.
+
+### Duas leituras da mesma caixa se derrubam (08/09)
+
+`orca orchestration check --wait` **é um consumidor da caixa**. Rodar um `check`
+simples enquanto um `--wait` está no ar **substitui** o consumidor: o que estava
+esperando morre com `consumer_fenced` ("this mailbox consumer was replaced while
+waiting"), e o `worker-start` seguinte ainda pode falhar por o terminal
+coordenador ter perdido o vínculo com o Run — conserta-se com `run-use` de novo.
+
+Perdi dois observadores assim antes de entender: eles saíam com código 1 e sem
+saída, e eu li o silêncio como "nada chegou".
+
+**A mesma queda tem uma segunda causa, e ela vem de fora (08/09 20h36):** outro
+terminal rodando `run-use` no mesmo Run **assume o coordenador** e sobe a
+geração — quem estava esperando cai igual, com `consumer_fenced` e saída vazia, e
+o `worker-start` seguinte é recusado por "requires the coordinator terminal
+currently bound". Não é sinal de que a sua sessão errou. **Conserto nos dois
+casos: `run-use` de novo, e conferir os despachos vivos** (`worker-show`) antes
+de concluir qualquer coisa — os workers seguem trabalhando enquanto o
+coordenador troca de mão.
+
+**Regra:** um leitor de cada vez. **O observador de fundo é dispensável** — o
+próprio ambiente avisa quando há mensagem ("You have N orchestration messages"),
+e aí um `check` simples basta. Se ainda assim quiser esperar em bloco, então
+**nenhum `check` avulso** até ele voltar.
+
+E a lição de leitura, que é a de sempre: **um comando que sai em silêncio não
+disse "nada aconteceu"** — pode ter sido derrubado. Olhe o código de saída e o
+erro antes de concluir.
+
+### O portão passa, e a mescla ainda pode não caber (08/09)
+
+A volta Q **passou** no quarto re-G3, todas as dimensões em 9 — e a mescla
+abortou com cinco conflitos, dois deles em Swift de mérito: enquanto ela
+trabalhava, outra volta mesclou e **mexeu nas mesmas funções**. Nenhum dos dois
+lados está errado; os dois contratos precisam caber na mesma função, e a decisão
+de como é **semântica**, não mecânica.
+
+**Regra:** o G5 tem dois passos, não um. Aprovado ≠ mesclável. Quando os
+conflitos passarem de vizinhança, **o orquestrador não resolve adivinhando** —
+devolve ao implementador uma volta de **reconciliação**, que traz o `main` para
+dentro do branch, funde as regras sem que nenhuma desapareça, **declara cada
+escolha de semântica por escrito**, e prova na **árvore mesclada** (a que nenhum
+dos dois lados testou). Teste de um dos lados que fica vermelho na fusão **é o
+achado**, não um estorvo.
+
+Resolver conflito de mérito no lugar de quem escreveu o código é a versão de
+mescla do "conserto confiante e errado": o diff é pequeno, parece limpo, e põe no
+`main` uma semântica que ninguém escolheu.

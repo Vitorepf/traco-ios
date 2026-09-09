@@ -1,0 +1,26 @@
+application 'Traço' en=True id=None y=0 h=1 x=0 w=1
+  button 'Notas' en=True id=notas-da-pagina y=0.069 h=0.046 x=0.0455 w=0.1023
+  button 'Concluir' en=True id=concluir y=0.069 h=0.046 x=0.8106 w=0.1439
+  button 'WOOP. isto é um desejo com obstáculo pela frente.' en=True id=cartao-recolhido y=0.3912 h=0.0251 x=0.0818 w=0.8364
+  button 'Abrir os campos' en=True id=abrir-campos y=0.4268 h=0.046 x=0.1159 w=0.4636
+  button 'Deixar como nota' en=True id=soltar-forma y=0.4268 h=0.046 x=0.6023 w=0.3159
+  Grupo 'Régua de formas' en=True id=regua y=0.5063 h=0.046 x=0.025 w=0.6818
+  button 'Todas' en=True id=regua-todas y=0.5063 h=0.046 x=0.7417 w=0.1152
+  button 'Esconder teclado' en=True id=keyboard.chevron.compact.down y=0.5063 h=0.046 x=0.8364 w=0.1182
+  button 'Trabalhar nisto' en=True id=trabalhar-nisto y=0.5649 h=0.046 x=0.0455 w=0.9091
+  button 'Analisar' en=True id=None y=0.6161 h=0.046 x=0.0455 w=0.2136
+  button 'Recordar' en=True id=None y=0.6161 h=0.046 x=0.2773 w=0.2136
+  button 'Anexar arquivo' en=True id=abrir-arquivo y=0.6161 h=0.046 x=0.5091 w=0.2136
+  button 'Lente da língua' en=True id=abrir-lente y=0.6161 h=0.046 x=0.7409 w=0.2136
+  Grupo 'Página' en=True id=pagina y=0.1234 h=0.3274 x=0.0341 w=0.9318
+  text 'RESULTADO (O MELHOR DESFECHO)' en=True id=None y=0.4801 h=0.0139 x=0.0455 w=0.5394
+  Grupo 'Resultado (o melhor desfecho)' en=True id=campo-resultado y=0.5129 h=0.0262 x=0.0727 w=0.8545
+  text 'OBSTÁCULO INTERNO (O SEU HÁBITO/MEDO)' en=True id=None y=0.5788 h=0.0139 x=0.0455 w=0.672
+  Grupo 'Obstáculo interno (o SEU hábito/medo)' en=True id=campo-obstaculo y=0.6116 h=0.0262 x=0.0727 w=0.8545
+  text 'SE [OBSTÁCULO], ENTÃO EU' en=True id=None y=0.6775 h=0.0139 x=0.0455 w=0.4242
+  Grupo 'Se [obstáculo], então eu' en=True id=campo-plano y=0.7103 h=0.0262 x=0.0727 w=0.8545
+  text 'DEPOIS DISTO' en=True id=None y=0.7803 h=0.0139 x=0.0455 w=0.2129
+  button 'Virar Se–então' en=False id=encadear-seEntao y=0.7985 h=0.046 x=0.0455 w=0.9091
+   '' en=True id=None y=0.6851 h=0.3149 x=0 w=1
+  text '14:10' en=True id=None y=0.023 h=0.0227 x=0.1379 w=0.1038
+  group '' en=True id=cartao-analise y=0.3742 h=0.1156 x=0.0449 w=0.9102

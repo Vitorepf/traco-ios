@@ -1,0 +1,11 @@
+application 'Traço' en=True id=None y=0 h=1 x=0 w=1
+  button 'Notas' en=True id=notas-da-pagina y=0.069 h=0.0662 x=0.0455 w=0.3038
+  button 'Concluir' en=True id=concluir y=0.069 h=0.0662 x=0.528 w=0.4265
+  Grupo 'Régua de formas' en=True id=regua y=0.3947 h=0.046 x=0.025 w=0.6477
+  button 'Todas' en=True id=regua-todas y=0.3947 h=0.046 x=0.7076 w=0.1492
+  button 'Esconder teclado' en=True id=keyboard.chevron.compact.down y=0.3947 h=0.046 x=0.8364 w=0.1182
+  button 'Trabalhar nisto' en=True id=trabalhar-nisto y=0.4501 h=0.0725 x=0.0455 w=0.9091
+  pop up button 'Mais ações da nota' en=True id=mais-acoes-da-nota y=0.5279 h=0.1311 x=0.0455 w=0.9091
+  Grupo 'Página' en=True id=pagina y=0.1196 h=0.5478 x=0.0341 w=0.9318
+   '' en=True id=None y=0.6851 h=0.3149 x=0 w=1
+  text '14:02' en=True id=None y=0.023 h=0.0227 x=0.1356 w=0.1091

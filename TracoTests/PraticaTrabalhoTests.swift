@@ -612,7 +612,7 @@ struct PraticaTrabalhoTests {
     @Test func schemasRemotosUsamOsMesmosIDsReaisDoPrompt() throws {
         let p = try pratica()
         let tentativa = "Primeira.\nSegunda."
-        let preparacao = try JSONSerialization.jsonObject(with: Data(PraticaTrabalho.esquemaRemotoPreparacao.utf8))
+        let preparacao = try JSONSerialization.jsonObject(with: Data(PraticaTrabalho.esquemaRemotoPreparacao().utf8))
         #expect((preparacao as? [String: Any])?["additionalProperties"] as? Bool == false)
         let schema = PraticaTrabalho.esquemaRemotoConferencia(p, tentativa: tentativa)
         let raiz = try #require(try JSONSerialization.jsonObject(with: Data(schema.utf8)) as? [String: Any])
