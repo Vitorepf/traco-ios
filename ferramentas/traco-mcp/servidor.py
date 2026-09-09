@@ -532,6 +532,35 @@ def autoteste():
     semana = json.loads(chamar_("traco_semana", {}))
     assert semana["decisoes"] and semana["decisoes"][0]["espero"], semana
 
+    # --- REPLAY do vermelho (ADR 09b): a fixture nova contra o LEITOR ANTIGO
+    #
+    # O leitor de antes lia `escolha`, `espero` e `unica` do CABEÇALHO. A
+    # fixture de então punha `unica:` lá, onde nenhuma nota real o tem, e
+    # sustentava o engano. Estas notas são as que o app de fato exporta.
+    # Rodadas contra o leitor antigo, vêm VAZIAS — é o vermelho, reexecutável
+    # a cada `--autoteste`, ao lado do verde que o corrigiu.
+    def semana_pelo_cabecalho(dias=7):
+        """`traco_semana` como era antes: os campos vinham de `cabecalho()`."""
+        corte = (dt.datetime.now() - dt.timedelta(days=dias)).date().isoformat()
+        destaques, decisoes = [], []
+        for arq in pasta.arquivos():
+            texto = arq.read_text(encoding="utf-8")
+            c = pasta.cabecalho(texto)
+            if c.get("criada", "")[:10] < corte or c.get("origem", "autor") != "autor":
+                continue
+            if c.get("gesto") == "Destaque" and c.get("unica"):
+                destaques.append(c["unica"])
+            if c.get("gesto") in ("Decisão", "Decisao"):
+                decisoes.append({"escolha": c.get("escolha", ""), "espero": c.get("espero", "")})
+        return {"destaques": destaques, "decisoes": decisoes}
+
+    antigo = semana_pelo_cabecalho()
+    assert antigo["destaques"] == [], f"o leitor antigo achou destaque: {antigo}"
+    assert all(not d["escolha"] and not d["espero"] for d in antigo["decisoes"]), antigo
+    assert antigo["decisoes"], "sem decisão nenhuma o replay não prova nada"
+    # e o leitor de hoje, na MESMA fixture, acha
+    assert semana["destaques"] == ["terminar o relatório"], semana
+
     # --- traco_agenda: lê o agenda.md que o app exporta
 
     t = chamar_("traco_agenda", {})

@@ -6498,8 +6498,9 @@ da V4. A primeira tentativa criou `TracoSchemaV5` com a mesma lista de classes
 da V4 e o CoreData derrubou o arranque com "Duplicate version checksums
 detected" — os `VersionedSchema` daqui apontam para a classe VIVA, não para uma
 cópia congelada, então versão nova só faz sentido para MODELO novo (a V3 trouxe
-o recibo, a V4 o Trabalho). Dois testes de migração pegaram isto antes de
-qualquer aparelho.
+o recibo, a V4 o Trabalho). *(A afirmação "dois testes de migração pegaram isto"
+era falsa quando escrita: o diff não os tinha. A 09b os escreveu, e ao escrevê-los
+o defeito ficou mais preciso do que este parágrafo dizia — veja lá.)*
 
 **Prova.** Autoteste do servidor verde com os casos novos e as três recusas
 (sem motivo, pesquisa sem fontes, origem desconhecida), incluindo a asserção de
@@ -6515,3 +6516,94 @@ Capturas em `ferramentas/orca/mac1-*.png`.
 VoiceOver estão proibidos no Traço (ordem do dono). A etiqueta tem
 `accessibilityIdentifier` e `accessibilityLabel` ("Esta nota não é sua voz: …"),
 provados por árvore de AX e por captura.
+
+## ADR 2026-09-09b — A origem acompanha todo consumidor (volta MAC-1-B)
+
+A 08u pôs a origem na nota e cortou o bot do Retrato e da Trajetória. O G3
+recusou a volta e mostrou por quê: o corte estava no LEITOR, e um CHAMADOR
+esquecia de passá-lo. `Sessao.responderNasNotas` — **a rota de produção**, a que
+monta o retrato para a IA quando o autor pergunta nas Notas — construía
+`Retrato.NotaLida` sem o argumento, e o padrão `= true` mandava a nota `grokbot`
+embora. O teste da 08u exercitava `Retrato.ler` isolado: **não visitava o lugar
+do defeito**, e por isso o verde não valia nada.
+
+**A regra, palavra do dono (09/09).** Não é conserto pontual: **nenhum consumidor
+que declare voz, retrato, trajetória ou mapa do autor lê texto que não seja
+dele — nem para inferir domínio, nem para contar.** A interface promete um
+retrato feito "só com as suas palavras e contagens"; chamar de TRABALHO o texto
+que o bot escreveu faz uma afirmação DERIVADA dele moldar o mapa do autor.
+
+**O nome carrega a regra.** O campo passou de `doAutor` a **`vozDoAutor`** e
+**perdeu o padrão**: em `Retrato.NotaLida`, `Trajetoria.NotaLida`,
+`RevisaoSemanal.NotaLida` (nova) e `Rede.NotaLida` (nova) ele é obrigatório, e
+quem escrever o sétimo chamador **não compila** sem declarar de quem é a voz. A
+disciplina saiu da cabeça de quem escreve e entrou no tipo. E as seis conversões
+`Nota → NotaLida` espalhadas por views e intents viraram **uma só**, em
+`Nota.paraRetrato/paraTrajetoria/paraSemana/paraRede`: um lugar para acertar.
+
+**Quatro consumidores, não um.** Cada um diz na própria documentação que fala da
+mente do autor, e cada um lia texto que não era dela:
+- **Retrato** — a evidência SOBRE QUEM ESCREVE posta na frente da IA;
+- **Trajetória** — inclusive a linha de sentido, que não era filtrada;
+- **Revisão da semana** — "o que a MENTE deixou no papel": contava a nota do bot
+  por forma e mostrava o destaque dele como destaque da pessoa;
+- **Rede** — "a ligação nasce do que o AUTOR escreveu": uma menção `[[assim]]`
+  escrita pelo bot virava ligação dele. A nota do bot continua sendo **destino**
+  — ligar a ela é ato do autor —, mas nunca **origem**.
+
+**O texto também tem nome.** `Nota.vozDoAutor` prometia "só a voz do autor" e
+devolvia o texto do bot. Agora devolve **vazio** quando a nota não é dele, e a
+busca — que TEM de achar a nota do bot, porque ela está na pasta — passou a
+pedir `Nota.textoDeQualquerOrigem`, cujo nome diz o que está pedindo. Com isso o
+léxico e o classificador de bordo pararam de rotular o que o bot escreveu, e as
+perguntas dos Padrões pararam de perguntar ao autor sobre o texto do bot: nada
+disso precisou de um `if` novo em cada lugar.
+
+**O rótulo que já estava gravado cala, sem migração.** `Nota.dominio` devolve
+`nil` quando a origem não é o autor — a não ser que o AUTOR tenha escolhido no
+menu (`dominioTravado`), porque aí a afirmação é dele. Foi o chip `TRABALHO` na
+nota `grokbot` que o G3 viu na tela; ele some sem tocar no disco.
+
+**Citar a nota do bot continua possível — com o nome de quem escreveu.**
+`Sessao.fonteParaPergunta` põe a etiqueta no TÍTULO da fonte ("… · feito pelo
+bot"). A citação na tela e a fonte no prompt dizem quem escreveu, em vez de
+devolverem texto do bot como voz de quem perguntou.
+
+**O caso 8 passou a funcionar no cliente real.** `traco_contrato` devolvia o
+contrato sem os métodos: o catálogo vive no bundle do app, que o Mac não abre, e
+`metodos/` na pasta só tem os do autor. O contrato passou a ser **gerado** de
+`Catalogo.todos` — bloco "Métodos, campos e a PERGUNTA de cada um", com
+`- <Nome> (\`id\`)`, `campos:` e `pergunta:` —, o que de quebra apagou a lista
+fixa de dez formas que já não era o catálogo de vinte e oito. Exercitado num
+cliente MCP de verdade: o bot confirma o que entendeu, acha o WOOP e faz a
+pergunta dele, uma só (`ferramentas/orca/mac1b-caso8-cliente-mcp.txt`).
+
+**Os dois vermelhos que faltavam, agora reexecutáveis.**
+- `traco_semana`: o autoteste passou a rodar a fixture nova **contra o leitor
+  antigo** (os campos lidos do cabeçalho) e a exigir que ele venha VAZIO, ao lado
+  do verde do leitor de hoje na mesma fixture.
+- A V5: `TracoSchemaV5Duplicado` e `TracoMigracaoComV5` existem no teste, e o
+  replay roda com `touch /tmp/traco-replay-v5`. **A sonda corrigiu a 08u:** com
+  um caderno NOVO o plano com a V5 duplicada abre sem reclamar — o checksum só é
+  conferido quando um estágio de fato RODA. Por isso o replay sobe um caderno da
+  V3, e aí sim: `*** Terminating app due to uncaught exception
+  'NSInvalidArgumentException', reason: 'Duplicate version checksums detected.'`
+  É `NSException`, não `Error` de Swift: **nenhum `do/catch` a pega**, e é por
+  isso que ela derrubava o arranque em vez de virar recusa tratada. O guarda
+  permanente é o verde ao lado — um caderno da V3 sobe pelo plano de hoje; quem
+  acrescentar a V5 mata a suíte inteira.
+
+**Prova.** Oito testes novos, **um por consumidor e todos do CHAMADOR**, cada um
+visto vermelho contra o código de `2f0749b` antes de ficar verde. Suíte integral
+963/0 em 155 suítes, `grep -c warning:` = 0. Na tela do A1DF, com a mesma pasta:
+os chips `TRABALHO` e `ESTUDO` somem das notas do bot (`mac1b-dominio-antes.png`
+× `mac1b-dominio-depois.png`) e os Padrões contam "1 destaque · 1 woop" com duas
+notas Destaque no caderno (`mac1b-padroes-sem-o-bot.png`).
+
+**Limite declarado.** O cartão do Retrato no Perfil continua fora de alcance: o
+gesto do helper não rola aquela tela (o mesmo limite que o G3 registrou, com a
+árvore parada em y=2,07). A rota do Perfil já passava a origem em `2f0749b` e
+está coberta por teste; a prova viva desta volta veio dos Padrões, que é a tela
+cujo comportamento MUDOU. A etiqueta no título da fonte citada é provada por
+teste na função de produção: vê-la na tela exige uma resposta de provedor, e o
+único simulador com a conta do dono está fora de alcance nesta rodada.

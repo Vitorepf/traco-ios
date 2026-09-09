@@ -172,12 +172,7 @@ struct EstaSemanaIntent: AppIntent {
     func perform() async throws -> some IntentResult & ReturnsValue<String> & ProvidesDialog {
         var eventos: [EventoCalendario] = []
         if case .eventos(let lidos) = CalendarioDisco.carregar() { eventos = lidos }
-        let lidas = notasDoDisco().map {
-            RevisaoSemanal.NotaLida(uuid: $0.uuid, gesto: $0.gesto, fechada: $0.fechada, criadaEm: $0.criadaEm,
-                                    gatilhoEm: $0.gatilhoEm, titulo: $0.tituloNaLista, campos: $0.campos,
-                                    sentido: $0.sentido, queimadaOuSeladaEm: $0.queimadaEm ?? $0.editadaEm)
-        }
-        let r = RevisaoSemanal.ler(notas: lidas, eventos: eventos)
+        let r = RevisaoSemanal.ler(notas: notasDoDisco().map(\.paraSemana), eventos: eventos)
         let texto = RevisaoSemanal.texto(r)
         return .result(value: texto, dialog: IntentDialog(stringLiteral: texto.isEmpty ? "Nada esta semana ainda." : texto))
     }
@@ -190,12 +185,7 @@ struct TrajetoriaIntent: AppIntent {
 
     @MainActor
     func perform() async throws -> some IntentResult & ReturnsValue<String> & ProvidesDialog {
-        let lidas = notasDoDisco().map {
-            Trajetoria.NotaLida(uuid: $0.uuid, gesto: $0.gesto, fechada: $0.fechada, criadaEm: $0.criadaEm,
-                                editadaEm: $0.queimadaEm ?? $0.editadaEm, campos: $0.campos, sentido: $0.sentido,
-                                doAutor: $0.origem == .autor)
-        }
-        let t = Trajetoria.ler(notas: lidas, sinais: Sinais.todos())
+        let t = Trajetoria.ler(notas: notasDoDisco().map(\.paraTrajetoria), sinais: Sinais.todos())
         let texto = t.vazia ? "" : Trajetoria.texto(t)
         return .result(value: texto, dialog: IntentDialog(stringLiteral: texto.isEmpty ? "Ainda não há trajetória: escreva primeiro." : texto))
     }

@@ -122,11 +122,7 @@ struct PaginaView: View {
             sessao.rearmarSeries(no: context)
             // ADR 04i: o retrato lê o disco quando a sábia precisa dele
             sessao.notasParaRetrato = {
-                ((try? context.fetch(FetchDescriptor<Nota>())) ?? []).map {
-                    Retrato.NotaLida(gesto: $0.gesto, fechada: $0.fechada, expressiva: $0.gesto == .expressiva,
-                                     criadaEm: $0.criadaEm, campos: $0.campos,
-                                     doAutor: $0.origem == .autor)
-                }
+                ((try? context.fetch(FetchDescriptor<Nota>())) ?? []).map(\.paraRetrato)
             }
             // ADR 04n / 04p: o índice de sentido e a entrada do Mac, no arranque
             sessao.sincronizarIndice(no: context)
@@ -498,7 +494,7 @@ struct PaginaView: View {
               sessao.salvar(no: context), let id = sessao.notaUUID,
               let nota = Sessao.buscar(uuid: id, no: context), !nota.fechada else { return }
         do {
-            let documento = DocumentoTrabalho(intencao: nota.vozDoAutor, notaOrigemID: id)
+            let documento = DocumentoTrabalho(intencao: nota.textoDeQualquerOrigem, notaOrigemID: id)
             let trabalho = try Trabalho(documento: documento)
             context.insert(trabalho)
             try context.save()

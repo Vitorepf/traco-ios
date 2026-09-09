@@ -141,10 +141,10 @@ struct IntegridadeCorpusTests {
     @Test func notaQueNaoEDoAutorFicaForaDoRetrato() {
         let campos = ["obstaculo": "deixo para depois"]
         let doAutor = Retrato.NotaLida(gesto: .woop, fechada: false, expressiva: false,
-                                       criadaEm: .now, campos: campos)
+                                       criadaEm: .now, campos: campos, vozDoAutor: true)
         let doBot = Retrato.NotaLida(gesto: .woop, fechada: false, expressiva: false,
                                      criadaEm: .now, campos: ["obstaculo": "o bot achou isto"],
-                                     doAutor: false)
+                                     vozDoAutor: false)
         let texto = Retrato.ler(notas: [doAutor, doBot], sinais: [])
         #expect(texto.contains("deixo para depois"))
         #expect(!texto.contains("o bot achou isto"))

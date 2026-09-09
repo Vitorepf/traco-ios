@@ -451,19 +451,17 @@ final class Sessao {
     func notasLigadas(no context: ModelContext, teto: Int = 3) -> [(titulo: String, prosa: String)] {
         guard !Rede.mencoes(texto).isEmpty else { return [] }
         let todas = (try? context.fetch(FetchDescriptor<Nota>())) ?? []
-        let lidas = todas.map {
-            Rede.NotaLida(uuid: $0.uuid, titulo: $0.tituloNaLista, texto: $0.texto, campos: $0.campos,
-                          gesto: $0.gesto, fechada: $0.fechada,
-                          expressivaEmCurso: $0.gesto == .expressiva && !$0.fechada)
-        }
+        let lidas = todas.map(\.paraRede)
         // a página aberta ainda não é nota: entra como uma, para reusar o
         // casamento de `ligacoes` em vez de reescrevê-lo aqui
         let euUUID = notaUUID ?? UUID()
         // título vazio de propósito: `ligacoes` pula chave vazia ao indexar
         // alvos, então a página é só ORIGEM — nunca vira destino de si mesma
         // nem rouba o casamento de uma nota de verdade.
+        // a página aberta é o autor digitando agora — o bot não digita aqui
         let eu = Rede.NotaLida(uuid: euUUID, titulo: "", texto: texto, campos: campos,
-                               gesto: gesto, fechada: false, expressivaEmCurso: false)
+                               gesto: gesto, fechada: false, expressivaEmCurso: false,
+                               vozDoAutor: true)
         let ligacoes = Rede.daqui(euUUID, Rede.ligacoes(lidas.filter { $0.uuid != euUUID } + [eu]))
         var saida: [(titulo: String, prosa: String)] = []
         for l in ligacoes.prefix(teto) {
@@ -593,16 +591,21 @@ final class Sessao {
         var dependencias: [FonteNotas] = []
     }
 
+    /// ADR 09b: a nota do bot continua citável — ela está no caderno e o autor
+    /// pode perguntar sobre ela —, mas a origem viaja no TÍTULO: a citação na
+    /// tela e a fonte no prompt dizem "feito pelo bot" em vez de devolverem o
+    /// texto do bot como se fosse a voz de quem escreveu.
     static func fonteParaPergunta(_ nota: Nota) -> FonteNotas? {
         guard !nota.fechada, nota.gesto != .expressiva, nota.temVoz else { return nil }
-        let prosa = nota.vozDoAutor.trimmingCharacters(in: .whitespacesAndNewlines)
+        let prosa = nota.textoDeQualquerOrigem.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !prosa.isEmpty else { return nil }
+        let titulo = nota.tituloNaLista + (nota.origem.etiqueta.map { " · \($0)" } ?? "")
         // A voz junta campos; sua ordem não é identidade. Assinatura usa a
         // representação guardada para detectar edição mesmo sem mudar a data.
         let dados = try! JSONEncoder().encode([nota.texto, nota.camposJSON, nota.sentido,
                                                nota.gestoRaw ?? "", nota.tituloNaLista])
         let assinatura = SHA256.hash(data: dados).map { String(format: "%02x", $0) }.joined()
-        return FonteNotas(id: nota.uuid, titulo: nota.tituloNaLista, texto: prosa,
+        return FonteNotas(id: nota.uuid, titulo: titulo, texto: prosa,
                           editadaEm: nota.editadaEm, assinatura: assinatura)
     }
 
@@ -644,9 +647,8 @@ final class Sessao {
         // guarde suas dependências, inclusive quando não são fontes citadas.
         let notas = (try? context.fetch(FetchDescriptor<Nota>())) ?? []
         let fontesDoRetrato = notas.compactMap(Self.fonteParaPergunta)
-        let retrato = Retrato.ligado ? Retrato.ler(notas: notas.filter { !$0.fechada && $0.gesto != .expressiva }.map {
-            .init(gesto: $0.gesto, fechada: $0.fechada, expressiva: false, criadaEm: $0.criadaEm, campos: $0.campos)
-        }, sinais: Sinais.todos()) : ""
+        let retrato = Retrato.ligado
+            ? Retrato.ler(notas: notas.map(\.paraRetrato), sinais: Sinais.todos()) : ""
         let catalogo = Catalogo.todos.filter { $0.id != Gesto.expressiva.rawValue }
             .map { "\($0.nome): \($0.definicao)" }.joined(separator: "\n")
         let retorno = await responderContextoNotas(pergunta, fontes, validas, catalogo, retrato) { enviadas in
@@ -1124,7 +1126,7 @@ final class Sessao {
         let marcadores = Indice.marcadorPDF.matches(in: n.texto, range: NSRange(location: 0, length: ns.length))
             .map { ns.substring(with: $0.range) }
         return Indice.NotaLida(uuid: n.uuid, editadaEm: n.editadaEm,
-                               voz: ([n.vozDoAutor] + marcadores).joined(separator: "\n"),
+                               voz: ([n.textoDeQualquerOrigem] + marcadores).joined(separator: "\n"),
                                podeEntrar: !n.fechada && n.gesto != .expressiva && n.temVoz)
     }
 

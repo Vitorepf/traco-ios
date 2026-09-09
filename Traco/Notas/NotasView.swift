@@ -827,7 +827,7 @@ struct NotasView: View {
 
     private func subtitulo(_ nota: Nota) -> String {
         if !busca.isEmpty {
-            let trecho = VozDoAutor.trecho(em: nota.vozDoAutor, termo: busca)
+            let trecho = VozDoAutor.trecho(em: nota.textoDeQualquerOrigem, termo: busca)
             // trecho que repete o título gasta uma linha e não informa nada
             let t = titulo(nota)
             if trecho == t || t.hasPrefix(trecho) || trecho.hasPrefix(t) {

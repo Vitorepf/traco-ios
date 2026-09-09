@@ -71,7 +71,34 @@ enum Corpus {
 
     static var pastaNotas: URL { diretorio.appendingPathComponent("notas", isDirectory: true) }
 
-    nonisolated static let contrato = """
+    /// O contrato da pasta. ADR 09b: os MÉTODOS entram aqui, com os campos e a
+    /// PERGUNTA de cada um — o caso 8 ("da ideia solta ao método") manda o bot
+    /// buscar a pergunta no contrato, e ela não estava em lugar nenhum da
+    /// pasta: o catálogo vive no bundle do app, que o Mac não abre. Gerado de
+    /// `Catalogo.todos`, e não copiado à mão, para não haver duas listas
+    /// divergindo — a lista fixa de dez formas que estava aqui já não era o
+    /// catálogo de vinte e oito.
+    nonisolated static var contrato: String { base + "\n\n" + metodosEmTexto() }
+
+    nonisolated static func metodosEmTexto(_ metodos: [Metodo]? = nil) -> String {
+        var linhas = ["""
+        Métodos, campos e a PERGUNTA de cada um. `gesto` no cabeçalho é o nome;
+        `metodo` é o id, quando difere. Os campos são o que a nota guarda. A
+        pergunta é a que se faz a QUEM ESCREVE, uma por vez — quem pergunta não
+        responde, e não preenche campo "para ela ver como fica".
+        """]
+        for m in (metodos ?? Catalogo.todos).sorted(by: { $0.nome < $1.nome }) {
+            var bloco = "- \(m.nome)" + (m.id == m.nome ? "" : " (`\(m.id)`)")
+            if !m.campos.isEmpty {
+                bloco += "\n  campos: " + m.campos.map(\.id).joined(separator: " · ")
+            }
+            if !m.pergunta.isEmpty { bloco += "\n  pergunta: \(m.pergunta)" }
+            linhas.append(bloco)
+        }
+        return linhas.joined(separator: "\n") + "\n"
+    }
+
+    nonisolated private static let base = """
     # Traço — corpus
 
     Este arquivo é uma exportação das notas do Traço, não o segundo cérebro
@@ -98,19 +125,8 @@ enum Corpus {
     (quantas vezes o autor lembrou de memória), `sentido` (a linha que ele
     escreveu no fecho), `estado`, `minutos`, `serie`, `dia`.
 
-    Gestos e o que cada um guarda:
-    - WOOP: resultado, obstaculo, plano
-    - Se–então: se, entao
-    - Especificação: problema, pronto, nao, restricoes, limites
-    - Nota permanente: ideia, liga, fonte
-    - Destaque: unica (a única coisa daquele dia)
-    - Destilar: em200, em100, em50, frase
-    - Palavra: minhas, frase, onde
-    - Decisão: escolha, opcoes, criterio, decidido, espero, aconteceu
-    - Pré-mortem: plano, falhou, sinal, mudo
-    - Expressiva: sem corpo; só sentido e minutos
-
     Import ignore `id`. Trancadas e queimadas nunca voltam como nota aberta.
+    A expressiva não tem corpo aqui: só sentido e minutos.
     """
 
     // MARK: - Formato
