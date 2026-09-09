@@ -6684,8 +6684,9 @@ Pro Max GAVETA AX5 e large: 0 fora; ESCRITA AX5 31/31, large 44/44, teclado real
 ```
 
 Quadros carimbados, versionados: `ferramentas/orca/c1/c1b-quadros-vermelho.txt`
-e `c1b-quadros-verde.txt`; vídeo da gaveta consertada,
-`c1/c1b-gaveta-consertada.mp4`. Relato: `ferramentas/orca/c1b-gaveta.md`.
+e `c1b-quadros-verde.txt`. Relato: `ferramentas/orca/c1b-gaveta.md`. **O vídeo
+que esta seção anunciava foi removido na C1-C: continha 44 s da Tela Inicial,
+sem o Traço** — ver a correção do re-G3 no fim desta ADR.
 
 ### O que mais o re-G3 nomeou, e ficou fechado aqui
 
@@ -6728,3 +6729,77 @@ o foco), e o corte vale ali também, onde a gaveta não fazia mal nenhum. É
 movimento perdido num estado; preferi a condição que o `EscritaVisivel` já usa
 para correr, porque duas condições diferentes para o mesmo evento é como nascem
 os dois relógios que esta ADR acabou de fechar.
+
+### A correção do re-G3 (C1-C, 09/09/2026): a sonda mede a regra inteira
+
+O re-G3 reproduziu o vermelho do pai e o verde do candidato com as próprias
+mãos, e mesmo assim reprovou — por duas coisas que não são o conserto, e sim a
+**prova** dele.
+
+**1. A sonda media metade da 08f.** `Quadro.cabe` era só `area.contains(linha)`:
+`E ⊆ P`. A 08f também diz que **nenhuma outra superfície desenha nessa área** —
+`P ∩ O = ∅` —, e essa metade não tinha portão nenhum por quadro. Agora cada
+quadro carrega as duas, medidas e **relatadas separadas**: `noPapel` e
+`semIntruso`, com o vermelho de cada uma contado, datado e nomeado no seu
+próprio termo. O `intrusos(sobre:editor:)` que a medida discreta já usava passa
+a ser chamado **em cada quadro**, e a ler a árvore de camadas pela
+**apresentação**, como `E` e `P`.
+
+**Uma camada sem `presentation()` não conta.** A primeira versão desta medida
+acusou um intruso em `large` no primeiro quadro depois de o cartão nascer: era
+falso. Uma camada recém-criada ainda não foi entregue ao render — `presentation()`
+devolve nil — e lê-la pelo modelo é lê-la **na geometria de destino**, enquanto
+a linha e o papel estão na do quadro anterior. Dois relógios outra vez, agora
+dentro do instrumento. Camada sem apresentação não pinta naquele quadro: fica
+de fora, e isso está escrito no código.
+
+**E o portão prova que sabe reprovar.** Na mesma corrida, depois das três cenas
+verdes, o teste **planta uma camada adversarial** à frente do editor, sobre a
+linha ativa, e exige que os quadros a acusem — 35 de ~51 em cada tamanho, com o
+intervalo do que a apresentação leva para a mostrar. Sai depois, e os quadros
+seguintes voltam a zero. Zero intruso só vale como prova quando a sonda mostra,
+ali, que veria um.
+
+**2. `E` era a caixa do caret, não a linha.** Medindo, a faixa adversarial saiu
+com **2 pt de largura**: no FIM do documento — que é onde o autor escreve —
+nenhum fragmento do TextKit 2 começa na posição do caret, `textLayoutFragment(for:)`
+devolve nil, e `linhaAtiva` ficava só com o `caretRect`. Com o recuo de um
+caractere, `E` volta a ser a linha de letras: **322 pt em AX5, 55 em `large`**.
+A metade `P ∩ O = ∅` cobrava, antes disto, apenas quem cobrisse a coluna do
+caret.
+
+**O vermelho do pai, agora nas duas metades** (pai `4898703` num checkout
+descartável, **só** a sonda trazida deste ramo, mesmo 17e `C7341E64`):
+
+```
+PAI 4898703 + sonda C1-C, teclado real 308 pt
+AX5,   cartão a chegar: 85 quadros, 7 fora do papel (E ⊄ P) e 2 cobertos (P ∩ O ≠ ∅)
+       fora +0,270 a +0,367 s = 0,113 s, pior corte 32 pt
+       coberta +0,317 a +0,350 s = 0,050 s — ColorShapeLayer e CGDrawingLayer do CARTÃO sobre a linha
+large, cartão a chegar: 85 quadros, 5 fora (0,083 s, pior corte 14 pt) e 5 cobertos (0,083 s)
+✘ Test run with 2 tests in 1 suite failed after 54,574 s with 4 issues
+
+CANDIDATO, mesmo aparelho: 0 fora e 0 cobertos nas seis cenas, nos dois tamanhos
+✔ Test run with 956 tests in 154 suites passed after 85,241 s — grep -c warning: 0
+```
+
+O cartão do pai não só **cortava** a linha: ele **desenhava por cima dela**, e
+o instrumento anterior não tinha como dizê-lo. O conserto da C1-B fecha as duas.
+
+**3. O vídeo era prova falsa.** `c1b-gaveta-consertada.mp4` tinha 44 s da Tela
+Inicial, sem o Traço. Foi **removido**. No lugar entra
+`c1/c1c-pagina-na-sonda.mp4` — 36 s, 390×844, gravado por
+`xcrun simctl io <UDID> recordVideo` durante a corrida verde e **assistido
+quadro a quadro antes de versionar**: mostra a Página real com o teclado, o
+texto a ser escrito, o cartão a chegar, o aviso, o toast e a faixa adversarial
+vermelha sobre a linha ativa. O que ele prova é que a corrida aconteceu **na
+Página**; a prova por quadro continua sendo a sequência carimbada,
+`c1/c1c-quadros-{vermelho,verde}.txt`. Relato: `ferramentas/orca/c1c-sonda-inteira.md`.
+
+**O que fica herdado, e dito.** A parte do Pro Max `6033B043` **não foi
+reexecutada** nesta volta: o aparelho estava reservado a outra frente e a
+pergunta ao orquestrador expirou sem resposta. A prova da C1-B no Pro Max
+permanece **herdada**, não observada aqui. E a corrida da suíte INTEGRAL desta
+volta teve teclado real em `large` (308 pt) mas **emulado em AX5** (318 pt, 8
+tentativas) — a corrida isolada teve real nos dois. Limite do instrumento, não
+asserção afrouxada.

@@ -33,8 +33,8 @@ struct EscritaVisivelTests {
         var geometria = ""
         var cabe: Bool { !linha.isNull && linha.height > 0 && area.contains(linha) && intrusos.isEmpty }
         var descricao: String {
-            String(format: "%@: linha %.0f–%.0f pt, papel %.0f–%.0f pt, intrusos %@",
-                   estado, linha.minY, linha.maxY, area.minY, area.maxY,
+            String(format: "%@: linha %.0f–%.0f pt (%.0f de largura), papel %.0f–%.0f pt, intrusos %@",
+                   estado, linha.minY, linha.maxY, linha.width, area.minY, area.maxY,
                    intrusos.isEmpty ? "nenhum" : intrusos.joined(separator: " | ")) + geometria
         }
     }
@@ -137,7 +137,12 @@ struct EscritaVisivelTests {
             let offset = tv.offset(from: tv.beginningOfDocument, to: fim)
             if let loc = tcm.location(tcm.documentRange.location, offsetBy: offset) {
                 tlm.ensureLayout(for: NSTextRange(location: loc))
-                if let frag = tlm.textLayoutFragment(for: loc) {
+                // No FIM do documento — onde o autor escreve — nenhum fragmento
+                // começa em `loc` e o TextKit 2 devolve nil; sem este recuo de um
+                // caractere, E era só a caixa do caret (2 pt de largura), e a
+                // metade `P ∩ O = ∅` só reprovava quem cobrisse a coluna do caret.
+                let anterior = offset > 0 ? tcm.location(tcm.documentRange.location, offsetBy: offset - 1) : nil
+                if let frag = tlm.textLayoutFragment(for: loc) ?? anterior.flatMap({ tlm.textLayoutFragment(for: $0) }) {
                     let dentro = offset - tcm.offset(from: tcm.documentRange.location, to: frag.rangeInElement.location)
                     let linhas = frag.textLineFragments
                     for (i, lf) in linhas.enumerated()
@@ -195,15 +200,37 @@ struct EscritaVisivelTests {
             while let l = x { if l === a { return true }; x = l.superlayer }
             return false
         }
+        // O é lido no quadro APRESENTADO, como E e P: uma camada que entra por
+        // fade ou por corte só cobre a linha quando a apresentação já a pintou.
+        // A árvore percorrida continua a do MODELO (é ela que dá a ordem de
+        // irmãos); a geometria e a opacidade vêm de `presentation()`, e a
+        // conversão nunca mistura as duas árvores.
+        //
+        // Sem `presentation()` a camada AINDA NÃO FOI ENTREGUE ao render: ela
+        // não pinta neste quadro, e contá-la pela geometria do modelo (que já
+        // é a de destino) acusava um intruso que a tela não mostrava — foi o
+        // que aconteceu no primeiro quadro depois de o cartão nascer.
+        let raizP = raiz.presentation() ?? raiz
+        func caixa(_ l: CALayer) -> CGRect? {
+            guard let p = l.presentation() else { return nil }
+            return p.convert(p.bounds, to: raizP)
+        }
         func visivel(_ l: CALayer) -> Bool {
             var x: CALayer? = l
-            while let a = x { if a.isHidden || a.opacity < 0.01 { return false }; x = a.superlayer }
+            while let a = x {
+                guard let p = a.presentation() else { return false }
+                if p.isHidden || p.opacity < 0.01 { return false }
+                x = a.superlayer
+            }
             return true
         }
         func retanguloVisivel(_ l: CALayer) -> CGRect {
-            var r = l.convert(l.bounds, to: raiz)
+            guard var r = caixa(l) else { return .null }
             var x = l.superlayer
-            while let a = x { if a.masksToBounds { r = r.intersection(a.convert(a.bounds, to: raiz)) }; x = a.superlayer }
+            while let a = x {
+                if a.masksToBounds, let c = caixa(a) { r = r.intersection(c) }
+                x = a.superlayer
+            }
             return r
         }
         var achados: [String] = []
@@ -276,7 +303,7 @@ struct EscritaVisivelTests {
             Self.esperar(0.6)
         }
         let papel = EscritaVisivel.rolagemAcima(de: tv).map { $0.convert($0.bounds, to: nil) } ?? .null
-        print("ESCRITA teclado \(nome): \(tecladoReal ? "de software, na tela" : "EMULADO pela área segura") \(Int(teclado.height)) pt (\(tentativas) tentativa(s)), papel \(Int(papel.minY))–\(Int(papel.maxY)) pt, topo do teclado \(Int(teclado.minY)) pt, inset extra \(Int(raiz.additionalSafeAreaInsets.bottom)) pt")
+        print("ESCRITA teclado \(nome): \(tecladoReal ? "de software, na tela" : "EMULADO pela área segura") \(Int(teclado.height)) pt (\(tentativas) tentativa(s)), papel \(Int(papel.minY))–\(Int(papel.maxY)) pt, topo do teclado \(Int(teclado.minY)) pt, inset extra \(Int(raiz.additionalSafeAreaInsets.bottom)) pt, TextKit \(tv.textLayoutManager == nil ? "1" : "2")")
         try #require(papel.maxY <= teclado.minY + 1, "o papel continua por baixo do teclado")
         tv.selectAll(nil); tv.deleteBackward(); Self.esperar(0.3)
         // antes de medir: nada pode estar sobre o papel — se está, é poluição
@@ -359,17 +386,26 @@ struct EscritaVisivelTests {
         return area
     }
 
-    /// Um quadro entregue pelo `CADisplayLink`, com a invariante medida NELE.
+    /// Um quadro entregue pelo `CADisplayLink`, com a invariante INTEIRA medida
+    /// NELE. A 08f tem duas metades e as duas são medidas aqui, separadas para
+    /// que cada uma reprove com o seu próprio nome: `E ⊆ P` (a linha ativa
+    /// dentro do papel) e `P ∩ O = ∅` (nenhuma superfície à frente pintando
+    /// sobre ela).
     struct Quadro {
         var instante: CFTimeInterval
         var linha: CGRect
         var area: CGRect
+        var intrusos: [String]
         var custo: CFTimeInterval
         var sonda = ""
-        var cabe: Bool { !linha.isNull && linha.height > 0 && area.contains(linha) }
-        /// quanto da linha ficou fora do papel, em pt (0 quando cabe)
+        /// E ⊆ P
+        var noPapel: Bool { !linha.isNull && linha.height > 0 && area.contains(linha) }
+        /// P ∩ O = ∅
+        var semIntruso: Bool { intrusos.isEmpty }
+        var cabe: Bool { noPapel && semIntruso }
+        /// quanto da linha ficou fora do papel, em pt (0 quando está dentro)
         var corte: CGFloat {
-            guard !cabe else { return 0 }
+            guard !noPapel else { return 0 }
             guard !linha.isNull, !area.isNull else { return linha.height }
             return max(0, linha.maxY - area.maxY) + max(0, area.minY - linha.minY)
         }
@@ -392,7 +428,9 @@ struct EscritaVisivelTests {
                 let am = EscritaVisivelTests.areaLivre(tv, teclado: teclado)
                 sonda = String(format: "modelo: papel %.0f–%.0f, offset %.1f", am.minY, am.maxY, sv.contentOffset.y)
             }
-            quadros.append(Quadro(instante: link.timestamp, linha: linha, area: area, custo: CACurrentMediaTime() - t0, sonda: sonda))
+            let intrusos = linha.isNull ? [] : EscritaVisivelTests.intrusos(sobre: linha, editor: tv)
+            quadros.append(Quadro(instante: link.timestamp, linha: linha, area: area, intrusos: intrusos,
+                                  custo: CACurrentMediaTime() - t0, sonda: sonda))
         }
         /// Repouso, a mudança, e o tempo da gaveta — tudo com o link de pé.
         func gravar(_ segundos: TimeInterval, _ mudar: () -> Void) -> [Quadro] {
@@ -407,26 +445,38 @@ struct EscritaVisivelTests {
         }
     }
 
-    /// A conta de uma gaveta: quantos quadros, quantos fora, e QUANDO.
-    private static func contar(_ nome: String, _ quadros: [Quadro]) -> (linha: String, fora: Int) {
-        guard let primeiro = quadros.first, quadros.count > 2 else { return ("GAVETA \(nome): sem quadros", 0) }
-        let fora = quadros.filter { !$0.cabe }
+    /// A conta de uma gaveta: quantos quadros, quantos reprovaram CADA METADE
+    /// da 08f, e QUANDO. As duas metades saem separadas — uma sonda que soma
+    /// os dois vermelhos num número só deixa de dizer qual regra caiu.
+    private static func contar(_ nome: String, _ quadros: [Quadro]) -> (linha: String, fora: Int, cobertos: Int) {
+        guard let primeiro = quadros.first, quadros.count > 2 else { return ("GAVETA \(nome): sem quadros", 0, 0) }
+        let fora = quadros.filter { !$0.noPapel }
+        let cobertos = quadros.filter { !$0.semIntruso }
         let intervalos = zip(quadros.dropFirst(), quadros).map { $0.instante - $1.instante }.sorted()
         let mediana = intervalos[intervalos.count / 2]
         let custo = quadros.map(\.custo).reduce(0, +) / Double(quadros.count)
-        var texto = String(format: "GAVETA %@: %d quadros em %.2f s (cadência %.1f ms, sonda %.1f ms/quadro), %d fora",
+        var texto = String(format: "GAVETA %@: %d quadros em %.2f s (cadência %.1f ms, sonda %.1f ms/quadro), %d fora do papel (E ⊄ P), %d cobertos (P ∩ O ≠ ∅)",
                            nome, quadros.count, quadros.last!.instante - primeiro.instante,
-                           mediana * 1000, custo * 1000, fora.count)
+                           mediana * 1000, custo * 1000, fora.count, cobertos.count)
         if let a = fora.first, let z = fora.last {
-            texto += String(format: "; de +%.3f s a +%.3f s = %.3f s de linha cortada, pior corte %.0f pt",
+            texto += String(format: "; fora de +%.3f s a +%.3f s = %.3f s de linha cortada, pior corte %.0f pt",
                             a.instante - primeiro.instante, z.instante - primeiro.instante,
                             z.instante - a.instante + mediana, fora.map(\.corte).max() ?? 0)
             for q in fora.prefix(30) {
-                texto += String(format: "\nGAVETA   +%.3f s: linha %.0f–%.0f, papel %.0f–%.0f, corte %.0f pt | %@",
+                texto += String(format: "\nGAVETA   fora +%.3f s: linha %.0f–%.0f, papel %.0f–%.0f, corte %.0f pt | %@",
                                 q.instante - primeiro.instante, q.linha.minY, q.linha.maxY, q.area.minY, q.area.maxY, q.corte, q.sonda)
             }
         }
-        return (texto, fora.count)
+        if let a = cobertos.first, let z = cobertos.last {
+            texto += String(format: "; coberta de +%.3f s a +%.3f s = %.3f s de linha sob outra superfície",
+                            a.instante - primeiro.instante, z.instante - primeiro.instante,
+                            z.instante - a.instante + mediana)
+            for q in cobertos.prefix(30) {
+                texto += String(format: "\nGAVETA   coberta +%.3f s: linha %.0f–%.0f | %@",
+                                q.instante - primeiro.instante, q.linha.minY, q.linha.maxY, q.intrusos.joined(separator: " | "))
+            }
+        }
+        return (texto, fora.count, cobertos.count)
     }
 
     /// A 08f é escrita "em cada quadro apresentado"; o teste acima mede em
@@ -445,7 +495,11 @@ struct EscritaVisivelTests {
         // com a linha ativa encostada na borda de baixo do papel: é ela que a
         // gaveta alcança, e é aí que o autor está a escrever
         var antes: [Medida] = []
-        Self.digitar(String(repeating: Self.bloco, count: tamanho == .large ? 4 : 2), em: tv, teclado: teclado,
+        // o "agora" no fim não é enfeite: o bloco acaba em espaço, e com ele o
+        // caret cai no início de uma linha VAZIA — E virava a caixa do caret, 2
+        // pt de largura. Com uma palavra no fim, E é a linha de letras que o
+        // autor está a escrever, que é o que a 08f protege.
+        Self.digitar(String(repeating: Self.bloco, count: tamanho == .large ? 4 : 2) + "agora", em: tv, teclado: teclado,
                      estado: "\(nome), antes da gaveta", amostras: &antes)
         let ultima = try #require(antes.last)
         try #require(ultima.cabe, "a linha já estava fora do papel antes da gaveta — \(ultima.descricao)")
@@ -459,14 +513,38 @@ struct EscritaVisivelTests {
             ("aviso no lugar do cartão", { cenario.sessao.cartao = .aviso("A sábia não respondeu. O seu texto continua aqui.") }),
             ("toast por cima do encaixe", { cenario.sessao.toast = "Toque no microfone do teclado para ditar." }),
         ]
-        var totalFora = 0
+        var totalFora = 0, totalCoberto = 0
         for (cena, mudar) in cenas {
-            let (linha, fora) = Self.contar("\(nome), \(cena)", camera.gravar(1.2, mudar))
+            let (linha, fora, cobertos) = Self.contar("\(nome), \(cena)", camera.gravar(1.2, mudar))
             print(linha)
             totalFora += fora
+            totalCoberto += cobertos
         }
-        print("GAVETA \(nome): teclado \(tecladoReal ? "real" : "emulado") \(Int(teclado.height)) pt, \(totalFora) quadro(s) com a linha ativa fora do papel")
+        print("GAVETA \(nome): teclado \(tecladoReal ? "real" : "emulado") \(Int(teclado.height)) pt, \(totalFora) quadro(s) com a linha ativa fora do papel, \(totalCoberto) quadro(s) com outra superfície sobre ela")
         #expect(totalFora == 0, "a linha ativa saiu do papel durante a gaveta — a 08f vale em cada quadro apresentado")
+        #expect(totalCoberto == 0, "outra superfície desenhou sobre a linha ativa durante a gaveta — a 08f também proíbe isso em cada quadro apresentado")
+
+        // O vermelho da SEGUNDA metade, na mesma corrida: zero intruso só vale
+        // como prova se a sonda souber ver um. Uma camada adversarial é plantada
+        // à frente do editor, sobre a linha ativa, e os quadros TÊM de acusá-la.
+        let linhaAgora = Self.linhaApresentada(tv)
+        let intruso = CALayer()
+        // larga como uma gaveta de verdade, e não só como o caret: a faixa toma
+        // a largura da janela na altura da linha ativa
+        intruso.frame = CGRect(x: 0, y: linhaAgora.midY - linhaAgora.height / 4,
+                               width: cenario.janela.bounds.width, height: max(2, linhaAgora.height / 2))
+        intruso.backgroundColor = UIColor.red.withAlphaComponent(0.5).cgColor
+        let adversarial = camera.gravar(0.6) { cenario.janela.layer.addSublayer(intruso) }
+        intruso.removeFromSuperlayer()
+        Self.esperar(0.2)
+        let acusados = adversarial.filter { !$0.semIntruso }
+        let aindaNoPapel = adversarial.filter { !$0.noPapel }
+        print("GAVETA \(nome), sonda adversarial: camada \(Int(intruso.frame.minY))–\(Int(intruso.frame.maxY)) pt sobre a linha \(Int(linhaAgora.minY))–\(Int(linhaAgora.maxY)) (\(Int(linhaAgora.width)) pt de largura); \(adversarial.count) quadros, \(acusados.count) acusados (P ∩ O ≠ ∅), \(aindaNoPapel.count) fora do papel; primeiro achado: \(acusados.first?.intrusos.joined(separator: " | ") ?? "NENHUM")")
+        #expect(acusados.count > adversarial.count / 2, "a sonda não viu uma camada plantada sobre a linha ativa — a metade P ∩ O = ∅ estaria dando verde sem portão")
+        #expect(aindaNoPapel.isEmpty, "a camada adversarial não devia mexer em E ⊆ P — as duas metades são medidas separadas")
+        let depois = camera.gravar(0.3) {}
+        let sobrou = depois.filter { !$0.cabe }
+        #expect(sobrou.isEmpty, "a camada adversarial não saiu: \(sobrou.first?.intrusos.joined(separator: " | ") ?? "")")
     }
 
     @Test(arguments: [UIContentSizeCategory.accessibilityExtraExtraExtraLarge, .large])

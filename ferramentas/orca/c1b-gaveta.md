@@ -194,8 +194,10 @@ isolada, que era o limite escrito no relato do revisor.
   desenhe por cima com a mesma geometria passa por ela. A varredura de camadas
   (`intrusos`) cobre esse caso na medida discreta e não corre por quadro porque
   custa a árvore inteira. Está no RUMO.
-- **O vermelho está carimbado, não filmado.** O vídeo versionado
-  (`c1/c1b-gaveta-consertada.mp4`) é da gaveta já consertada; o resíduo do pai
+- **O vermelho está carimbado, não filmado.** ~~O vídeo versionado
+  (`c1/c1b-gaveta-consertada.mp4`)~~ **— o re-G3 abriu esse arquivo e ele tinha
+  44 s da Tela Inicial, sem o Traço; foi removido na C1-C e substituído por
+  `c1/c1c-pagina-na-sonda.mp4`, assistido antes de versionar —** o resíduo do pai
   ficou na sequência carimbada (`c1/c1b-quadros-vermelho.txt`), que é a
   alternativa que o G3 admitiu. Filmar o vermelho exigiria reverter o conserto
   para gravar, e a sequência tem mais informação do que o vídeo teria.

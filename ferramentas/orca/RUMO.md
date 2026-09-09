@@ -208,15 +208,23 @@ saem do mesmo lugar: o pé toma 275 dos 414 pt do 17e em AX XXXL.**
   sonda de `tetoDoEncaixe` no 17e em AX XXXL, com o pé abaixo de 200 pt e
   `EscritaVisivelTests` verde sem o encaixe ceder a zero.
 
-- **O ORÁCULO DE PIXELS SOBRE A COMPOSIÇÃO NATIVA — herdada da 08f, agora com
-  preço medido.** A C1-B provou a 08f **quadro a quadro** por dentro do processo
+- **O ORÁCULO DE PIXELS SOBRE A COMPOSIÇÃO NATIVA — herdada da 08f, ENCOLHIDA
+  na C1-C.** A C1-B provou a 08f **quadro a quadro** por dentro do processo
   (`CADisplayLink` + camadas de apresentação), e isso alcança a geometria: onde
-  a linha e o papel estão em cada quadro entregue. **Não alcança o pixel**: uma
-  camada que desenhe por cima com a mesma geometria passa. A varredura de
-  camadas (`intrusos`) cobre o caso na medida discreta, e não corre por quadro
-  porque custa a passada inteira da árvore. **Ciclo:** multiplicar.
-  **Evidência pedida:** comparação de quadros nativos (`simctl io recordVideo` +
-  `ffmpeg`) contra a geometria esperada, num alvo fora da suíte integral.
+  a linha e o papel estão em cada quadro entregue. Faltava a outra metade da
+  regra, e a C1-C a pôs de pé: a varredura de camadas (`intrusos`) **corre agora
+  em cada quadro**, pela apresentação, e custa **1,6–3,1 ms/quadro** dentro de
+  uma cadência de 16,7 ms — o preço que se temia é pago com folga. Com ela, o
+  pai `4898703` deixa de estar só cortado: o cartão dele **desenhava sobre a
+  linha** em 2 quadros (AX5) e 5 (`large`).
+  **O que ainda não alcança:** o pixel. A árvore de camadas mede quem está à
+  frente e onde; não mede tinta — uma camada transparente que a árvore acuse, ou
+  uma composição que o servidor de render resolva de outro modo, não são
+  distinguidas. O portão contra o silêncio existe (camada adversarial plantada,
+  35 de ~51 quadros acusados), mas ele prova a sonda, não o pixel.
+  **Ciclo:** multiplicar. **Evidência pedida:** comparação de quadros nativos
+  (`simctl io recordVideo` + `ffmpeg`) contra a geometria esperada, num alvo
+  fora da suíte integral.
 
 - **O SEGUIDOR NÃO GANHA DE UMA ALTURA ANIMADA — limite do instrumento, escrito
   para não ser redescoberto.** Medido na C1-B com três seguidores diferentes
