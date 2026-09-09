@@ -43,11 +43,13 @@ import Testing
 
     /// ADR 08q: com a conta LIGADA, as cortadas continuam sem executor — e a
     /// frase da tela não pode mandar conectar a conta que já existe.
-    /// ADR 09n: `responder` SAIU desta lista, medida de novo e aprovada. Eram
-    /// sete; são seis. Quem tirar outra sem medida nova quebra aqui.
+    /// ADR 09n: `responder` saiu desta lista às 14h01 de 09/09 e VOLTOU às 15h,
+    /// quando o G3 reprovou a escolha do modelo — a comparação mudou duas
+    /// alavancas e não decidia o padrão global. São sete de novo. Quem tirar
+    /// uma sem medida nova, PAREADA, quebra aqui.
     @Test func indisponivelPorQualidadeNaoTemExecutorNemComContaEAparelho() {
         let cortadas: [Politica.Operacao] = [.ecos, .calibragem, .recordar, .responderNasNotas,
-                                            .instigar, .contrapor]
+                                            .instigar, .contrapor, .responder]
         #expect(Set(Politica.indisponiveis) == Set(cortadas))
         // ADR 08z: a chave da sonda só existe em DEBUG e só abre o que ela
         // nomeia. Aqui ela tem de estar VAZIA — uma suíte que rodasse com a
@@ -77,26 +79,32 @@ import Testing
         // O corte tem dois grupos, e o Perfil precisa distingui-los: sem
         // substituto medido, e com conserto já nomeado.
         #expect(Politica.indisponiveis.filter { Politica.linha($0).conserto == nil }.count == 5)
-        #expect(Set(Politica.indisponiveis.filter { Politica.linha($0).conserto != nil }) == Set([.responderNasNotas]))
+        #expect(Set(Politica.indisponiveis.filter { Politica.linha($0).conserto != nil }) == Set([.responderNasNotas, .responder]))
     }
 
-    /// ADR 09n / DIRETRIZ §10 — "sempre use o melhor Grok possível". Duas
-    /// coisas se contratam aqui, e as duas já se perderam uma vez:
-    /// 1. o padrão global NÃO é mais o `grok-4.3` que a 08q reprovou;
-    /// 2. `responder` voltou a ter executor, e sem descer ao aparelho, que
-    ///    nunca foi medido bem nela.
-    @Test func responderVoltouComOMelhorModeloEOEsforcoMedido() {
-        #expect(Grok.modelo != "grok-4.3", "o padrão global voltou ao modelo que a 08q reprovou")
-        #expect(Politica.linha(.responder).regra == .soGrok)
-        #expect(Politica.provedor(.responder, contaLigada: true, bordo: true) == .grok)
-        #expect(Politica.provedor(.responder, contaLigada: false, bordo: true) == nil)
+    /// ADR 09n, REVERTIDA em 09/09 pelo G3 (`revisao-q2-responder.md`). A
+    /// medida do conserto ficou; a ESCOLHA DO MODELO caiu, por dois P1: a
+    /// comparação mudou duas alavancas (modelo e `reasoning_effort`), logo não
+    /// decide o padrão global, e a triagem dos doze candidatos excluiu por nome
+    /// e posição, não por fato observado.
+    ///
+    /// Este teste guarda o estado revertido — e guarda o MOTIVO, para a volta
+    /// não voltar por descuido: `responder` só sai da lista de novo quando uma
+    /// comparação de UMA alavanca escolher o modelo.
+    @Test func responderEsperaAComparacaoPareadaAntesDeVoltar() {
+        #expect(Grok.modelo == "grok-4.3", "o padrão global só muda por comparação pareada (G3 de 09/09)")
+        #expect(Politica.linha(.responder).regra == .indisponivelPorQualidade)
+        #expect(Politica.provedor(.responder, contaLigada: true, bordo: true) == nil)
         #expect(!Politica.desceAoAparelho(.responder))
-        #expect(Politica.pelaConta.contains(.responder))
-        #expect(!Politica.indisponiveis.contains(.responder))
-        #expect(!Politica.semProvedor(.responder).contains("indisponível"))
+        #expect(!Politica.pelaConta.contains(.responder))
+        #expect(Politica.indisponiveis.contains(.responder))
         #expect(Politica.linha(.responder).medidaEm == "09/09/2026")
-        // O esforço `medium` é o que a medida aprovou, e com ele vem o teto:
-        // 20 s cortaria a chamada que a medida viu levar 77,5 s.
+        // O conserto do prompt FICA e está nomeado: o que falta é a escolha do
+        // modelo, não o contrato de sustentação.
+        #expect(Politica.linha(.responder).conserto != nil)
+        // O piso de esforço nasceu de uma falha CALADA e sobrevive à reversão:
+        // `"none"` é recusado por modelo que raciocina, e a rota calaria.
+        #expect(Grok.esforcoMinimo == "low")
         #expect(Grok.corpo(sistema: "", usuario: "", temperatura: 0.3, esquema: nil,
                            esforco: "medium") != nil)
     }

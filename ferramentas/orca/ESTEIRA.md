@@ -687,3 +687,19 @@ decide se a regra muda ou se o caso era exceção.
 com o achado que o forçou e a conta conferida antes e depois"**. Contar instalações
 nunca foi o objetivo — **não perder a conta era**, e a K1 já tirou dela o perigo
 real.
+
+### O teste que guarda o estado tem de guardar o MOTIVO (09/09)
+
+Ao reverter a adoção do modelo, o teste `responderVoltouComOMelhorModeloEOEsforcoMedido`
+ficou vermelho — **corretamente**: ele guardava o estado que deixou de valer. A
+tentação é apagá-lo ou afrouxá-lo; o certo é **reescrevê-lo para guardar o estado
+novo E a razão dele**.
+
+Ele virou `responderEsperaAComparacaoPareadaAntesDeVoltar`, e o comentário diz o
+que a próxima pessoa precisa saber: **`responder` só sai da lista de novo quando
+uma comparação de UMA alavanca escolher o modelo**. E a lista das cortadas voltou
+a sete com a frase *"quem tirar uma sem medida nova, PAREADA, quebra aqui"*.
+
+**A regra:** teste de estado é documentação executável. Quando o estado muda, o
+teste muda **junto com o porquê** — senão a volta seguinte desfaz a reversão por
+descuido, e ninguém saberá que houve um motivo.
