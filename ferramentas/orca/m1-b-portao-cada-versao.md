@@ -151,6 +151,15 @@ na árvore já mesclada com o `main`:
     SUITE FIM 08:58:27
     warnings: 0
 
+E de novo **no commit final** (`1c0d6dd`), para que a linha da suíte seja a do
+código que fica:
+
+    SUITE FINAL INICIO 09:15:34   HEAD 1c0d6dd
+    ✔ Test run with 977 tests in 158 suites passed after 55.032 seconds.
+    ** TEST SUCCEEDED **
+    SUITE FINAL FIM 09:16:37
+    warnings: 0
+
 `ferramentas/orca/com-trava.sh xcodebuild test -scheme Traco -destination
 id=C2416CBC-C5D9-41F9-ACD8-45EED8FC355E -parallel-testing-enabled NO`.
 `grep -c 'warning:'` → **0**.
