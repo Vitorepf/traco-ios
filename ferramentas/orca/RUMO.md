@@ -576,3 +576,20 @@ aberto, com dono:
    corrida e 18 de 18 nas outras duas, idênticas. Antes de qualquer nova adoção, o
    número de corridas se escolhe pela variância medida aqui (`prova/q2f-modelo-4*.jsonl`),
    não pelo orçamento. **Dono: quem retomar a escolha do modelo.**
+
+## Dívida nomeada — a trava dos 30 min contra a janela de uma chamada só (09/09, LOTE)
+
+A lei de 09/09 manda a **sequência inteira** dentro de UMA chamada de
+`com-trava.sh` ("a trava serializa comando, não sessão"). Mas `com-trava.sh` tem
+**duas** guardas de reclamação, e a segunda — `find "$L" -maxdepth 0 -mmin +30` —
+**não olha o PID do dono**: aos 30 min ela toma a trava de um dono VIVO. Uma
+janela longa e legítima pode ser roubada por baixo, que é exatamente o acidente
+que a lei nasceu para impedir.
+
+A janela do LOTE levou 10 min 27 s e o risco não se materializou; ela manteve o
+`mtime` fresco com um `touch` a cada 60 s **de dentro do próprio script**
+(`ferramentas/orca/lote-ia-09-janela.sh`), que morre com o script — a guarda de
+PID morto continua valendo. **`com-trava.sh` não foi tocado.**
+
+**Dono: orquestrador.** Decidir se a guarda dos 30 min passa a exigir também
+`kill -0` no dono, agora que a lei manda sequências inteiras numa chamada só.
