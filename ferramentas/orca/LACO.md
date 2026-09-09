@@ -2350,3 +2350,34 @@ abre a segunda).
 widgets **ABRE O APP** na tela bloqueada em vez de marcar feito. **Entregar um botão
 que promete marcar e abre o app seria pior que não ter botão.** Dívida F6b nomeada
 com diagnóstico. **Deleção conta como entrega**, pela segunda vez hoje.
+
+## 09/09, 20h — as duas leituras independentes REPROVARAM, e a medida foi feita no pior modelo
+
+**`responderNasNotas`, `instigar` e `contrapor` continuam cortadas.** Os dois
+revisores leram **as saídas inteiras** — 21 e 36 execuções, zero erro de transporte
+— e aplicaram a régua: **uma só violação obrigatória reprova**.
+
+**O que a Q3 conseguiu, e o revisor reconheceu:** *"a correção removeu a recusa
+total observada em 08/09 e preservou autoria/origem"*. **O defeito principal
+morreu**; o que reprova são violações em mais de um caso. **Isso não é o mesmo
+lugar de ontem**, e o relatório diz qual é.
+
+**Mas há um fato que muda a leitura das três, e o próprio LOTE o separou dos
+números:** a corrida foi **em `grok-4.3`** — o padrão de produção e, pela medida da
+Q2-F, **o PIOR dos três candidatos** (15 de 18, contra **17 de 18** do `grok-4.5`).
+**Reprovar um conserto medido no pior modelo não responde se ele serve** — e a §10
+do dono é *"sempre use o melhor Grok possível"*.
+
+**Decidi sozinho e despachei o LOTE-2** (`ctx_4b5ad5ecd9d9`), porque uma corrida
+responde **duas** perguntas abertas:
+
+1. **os consertos passam com um modelo melhor?**
+2. **o `grok-4.5` vence em OUTRAS rotas, ou só na de `responder`?** — que é
+   exatamente a pergunta barata que a Q2-F deixou, e a que decide se o padrão
+   global muda. **Promover a partir de uma operação foi a armadilha que derrubou a
+   09n; duas rotas independentes sustentam o que uma não sustenta.**
+
+Mesmo binário (`sha256` conferido, **sem instalar**), mesmas fixtures, **variando
+`TRACO_AVALIAR_MODELO` e só ele**, três repetições, tudo numa chamada da trava. E
+com a instrução de **cortar pelo modelo, não pelas repetições**, se a janela ficar
+longa: **melhor dois modelos bem medidos que quatro medidos uma vez**.
