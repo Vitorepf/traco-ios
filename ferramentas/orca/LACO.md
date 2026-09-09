@@ -2308,3 +2308,45 @@ caso parecer errado, **anota como observação, não como nota**.
 de `responder` diz *"o prompt"* — **vocabulário nosso indo inteiro para a tela do
 autor**. É irmão do `N1T1` e do andaime: **o app deixando o próprio jargão chegar a
 quem não o escreveu.**
+
+## 09/09, 19h30 — o LOTE mediu as três num binário só, e a revisão saiu em paralelo
+
+**A janela funcionou como desenhada:** **10 min 27 s** no aparelho da conta,
+**dentro de UMA chamada da trava**, com **um binário** (`sha256 e9983ddb5a0f…`,
+com os símbolos dos dois consertos **conferidos no dylib**, não supostos), **uma
+instalação só** no meio, e **três fumaças** dando `contaGrokLigada=true` com 12
+modelos — **22:18:16Z, 22:18:24Z, 22:28:41Z**. **76 execuções, zero erro de
+transporte.**
+
+E ele **mediu sem julgar**, que era a fronteira do spec: as observações ficaram
+**separadas dos números**, e a leitura caso a caso foi para **dois revisores em
+paralelo** (`ctx_f6804c821fbc` e `ctx_d4811adb1272`) — como o dono pediu.
+
+**Corrigi na ESTEIRA uma seção minha que estava errada**, em vez de apagá-la: a que
+culpava **o install por cima** pela queda da conta. A causa era **a suíte**, e o
+LOTE agora dá a quarta medida contra a minha conclusão de ontem — conta ligada
+**antes, depois e ao fim** de uma janela com instalação no meio. A seção fica **com
+o aviso no topo**, porque errar em público e apagar é pior que errar.
+
+**E o LOTE nomeou uma briga entre duas regras minhas:** a `com-trava.sh` **retoma a
+trava de um dono VIVO depois de 30 min**, e a lei de hoje manda **a sequência
+inteira numa chamada só**. Juntas, produzem exatamente a colisão de hoje com outro
+nome. Dívida nomeada: **a retomada deve exigir prova de que o dono morreu** — tempo
+mede paciência, não abandono.
+
+## 09/09, 19h30 — a F6 fotografou a tela bloqueada de verdade, e RETIROU o círculo
+
+**O editor da tela bloqueada existe no simulador** — a captura é cega ao chrome
+dele, **mas a árvore de AX o dirige**. É a terceira vez neste laço que um "não dá"
+vira "o instrumento não via": a F1 tinha registrado isso como limite.
+
+Primeiras fotos do `accessoryInline` e do `accessoryRectangular` **na bloqueada
+real**, em dia/feito/vazio/desatualizado, `medium` e AX5, claro e escuro. Consertos:
+o **feito não se via** no inline (glifo ○/✓ e rótulo de voz), o **vazio calava nas
+duas faces**, e o retângulo mostrava **uma linha de 14 caracteres** (o `fixedSize`
+abre a segunda).
+
+**E o círculo foi construído, medido e RETIRADO** — porque o `Button(intent:)` dos
+widgets **ABRE O APP** na tela bloqueada em vez de marcar feito. **Entregar um botão
+que promete marcar e abre o app seria pior que não ter botão.** Dívida F6b nomeada
+com diagnóstico. **Deleção conta como entrega**, pela segunda vez hoje.
