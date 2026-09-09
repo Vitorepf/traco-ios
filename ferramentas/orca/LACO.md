@@ -902,3 +902,41 @@ mais do que uma que parece completa.
 entregou com um achado que me interessa: **o defeito que a minha auditoria
 acusava já tinha caído** — a terceira vez hoje que a régua "a auditoria é datada"
 se paga sozinha.
+
+## 09/09, 00h30 — pausa e retomada (uso 0%); o revisor da Q2 parou pelo motivo certo
+
+**O revisor da Q2 escreveu "NÃO APROVAR" e a razão honra a esteira:** *"a conta
+do único aparelho autorizado caiu depois do install por cima, e não a
+contornei"*. A lei do simulador do Grok diz **"se a conta cair, diga em vez de
+contornar"** — ele disse. O dono reautorizou, e a **Q2-B** (`ctx_8700c898fcf6`)
+retoma **só o que falta**: as três inferências novas em **casos que o
+implementador não escreveu**.
+
+O que a leitura dele já estabeleceu, e não se refaz: leu **as 36 saídas inteiras**
+do `grok-4.6` e **não achou** fabricação de número, horário, terceiro, suporte
+nem ação já realizada, **nem recusa integral de pedido atendível**; e conferiu
+que **a sonda e o cartão de produção chamam a MESMA função** — *não é a sobrecarga
+fantasma que invalidou a medição anterior de `responderNasNotas`*. Fica também a
+ressalva dele, que é justa: a sonda abre `responder` **só em DEBUG**, então isto
+**mede motor, não entrega superfície**.
+
+**O Mac continuou trancado** e a MAC-0-B fechou pelo mesmo motivo da primeira,
+sem configurar nada e sem desfazer nada. O dono está destrancando; a MAC-0-C
+espera a confirmação.
+
+**Duas leis novas de instrumento, as duas vindas da R1:**
+
+1. **`orca emulator kill` derruba o vizinho.** A R1 matou o helper para o
+   `34CC3F94` e **o `6033B043` de outra volta desligou no mesmo segundo** — o
+   helper é um só e derruba o que ele gerencia, não só o `--device` pedido. Para
+   encerrar o próprio aparelho, `simctl shutdown`, que é escopado.
+2. **O `ask` expira, e o laço tem de contar com isso.** Duas perguntas morreram
+   por timeout na mesma noite, porque eu só olho a caixa quando sou avisado. O
+   worker da R1 fez o certo: com a pergunta expirada, **religou o simulador para
+   restaurar o estado em que encontrou a máquina** — voltar ao que estava é a
+   decisão certa quando o coordenador não responde. Está no preâmbulo agora.
+
+Despachei também a **MAC-1-B** (`ctx_b365f76d3509`) com o P0 de autoria e a
+decisão de contrato do dono: **a origem acompanha todo consumidor**, o campo vira
+`vozDoAutor` para a incompatibilidade morar no tipo, e **o padrão não pode ser
+permissivo** — o defeito nasceu de um `default true`.
