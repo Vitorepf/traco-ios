@@ -26,7 +26,7 @@ Volta de configuração do Mac do dono, 08/09/2026 à noite. Worker: Fable 5.1, 
 | 2. Servidor `traco` visível no Grok Bot com ferramentas | não executado | idem; fora do app, o servidor do main responde a `tools/list` com 10 ferramentas, sem `traco_agenda`/`traco_decisoes` |
 | 3. Bot "Traço" com README + seis casos + regras de origem | não executado | texto pronto para colar (ver "Como retomar"); nada colado |
 | 4. Prova de uso | parcial, fora do app | só a mensagem honesta do servidor por stdio (acima); nenhuma resposta do bot |
-| 5. Mouse devolvido e tudo o que tocou registrado | feito | o cursor nunca foi tomado; tabela abaixo |
+| 5. Mouse devolvido e tudo o que tocou registrado | feito | o cursor nunca foi tomado, nas duas passadas; tabela abaixo |
 
 ## Capturas
 
@@ -54,3 +54,23 @@ Nenhuma de tela: com a tela bloqueada o provedor não captura janela (`window_no
 | 21:40 | Cartão do worktree `main` no Orca | comentário "COMEÇANDO a usar o mouse" | — |
 | 23:18 | Cartão do worktree `main` no Orca | comentário "TERMINEI; mouse devolvido" | — |
 | — | `~/.grokbot/settings.json`, Grok Bot (telas), Espelhamento, iPhone, simuladores, pasta do iCloud | **nada** | inalterados |
+
+## Segunda passada (MAC-0-B), 09/09 00:18–00:30 — a tela continuava trancada
+
+O despacho dizia que o dono tinha desbloqueado o Mac. Não tinha, ou trancou de novo antes de eu chegar:
+
+- `CGSessionCopyCurrentDictionary()` às 00:18 e às 00:29: `CGSSessionScreenIsLocked = 1`, `CGSSessionScreenLockedTime = 1788913383` (08/09 21:23:03). O macOS grava um carimbo novo a cada bloqueio; o carimbo ser o mesmo da primeira passada diz que a tela não foi destrancada em momento nenhum entre 21:23 e 00:29.
+- `orca computer list-windows --app com.anysphere.sand` → `windows: []` (pid 68362); `--app com.apple.ScreenContinuity` → `windows: []` (pid 60681). Os dois apps rodam, nenhum expõe janela.
+- Sem tela, nenhuma das cinco tarefas anda: a 1 precisa do Espelhamento, a 2 e a 3 do Grok Bot, a 4 do bot respondendo, a 5 fica sem o que registrar.
+
+Conferido de novo sem mouse, tudo igual à primeira passada: pasta espelhada ausente; `.cursor/mcp.json` aponta para o `servidor.py` do checkout principal (o caminho estável que o despacho pede); `autoteste ok`; `tools/list` do main com 10 ferramentas, sem `traco_agenda`/`traco_decisoes`; `traco_buscar` devolve a mensagem honesta de pasta ausente; `settings.json` intocado. A MAC-1 está em `fc125b1` (G3 recusado), só no branch dela.
+
+**Escalada e espera:** escalação `msg_87c00e997757` às 00:19; pergunta bloqueante (thread `msg_366d22aed625`) com duas opções, prazo de 10 min, expirou às 00:29 sem resposta. Como a ordem desta passada era parar e dizer em vez de esperar horas, a volta fecha aqui: **falha por bloqueio, nada configurado, nada desfeito**. O cursor não foi tomado; nenhum comentário de "começando a usar o mouse" foi feito porque o mouse não foi usado.
+
+**Duas respostas que mudam a próxima retomada (vieram no despacho da MAC-0-B):**
+1. O servidor cadastrado aponta para o caminho estável `/Users/vitorepf/develop/traco-ios/ferramentas/traco-mcp/servidor.py`, nunca para o worktree da MAC-1. O item 2 de "Como retomar" acima fica cancelado.
+2. "bom dia" → `traco_agenda` fica **declarado em aberto** até a MAC-1 mesclar. A prova possível hoje é "o que eu já pensei sobre o Traço?" → `traco_buscar` citando ids, e só depois da pasta espelhada existir (tarefa 1); antes disso a resposta certa é a mensagem de pasta ausente.
+
+**Para quem retomar:** confira o bloqueio primeiro, pelo carimbo `CGSSessionScreenLockedTime` — se ele mudou para depois do último destrancamento do dono, a tela trancou de novo (o Mac trava sozinho por inatividade; vale pedir ao dono que fique com a tela aberta durante a volta ou que a destranque e avise no momento).
+
+| 09/09 00:18–00:29 | Terminal (sem cursor) | leitura de estado: `CGSessionCopyCurrentDictionary`, `orca computer list-windows`, `servidor.py --autoteste`, `tools/list` e `traco_buscar` por stdio | nada alterado no Mac |
