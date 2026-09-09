@@ -675,3 +675,29 @@ e não conserto.
 O revisor (`task_2072a1006345`) vai com a ordem do dono colada: **exercitar cada
 caso de verdade com o MCP ligado num cliente, e ler o retorno inteiro** — uma
 instrução que só funciona na cabeça de quem a escreveu não está entregue.
+
+## 08/09, 23h — pausa e retomada (uso 38%); a R1 abre o item 4 da fila do dono
+
+Pausa e retomada registradas. Inbox vazio, os três despachos conferidos vivos —
+nada se perdeu na janela.
+
+**Terceira frente reaberta: R1, a retomada do Trabalho** (`task_80cb1e43fc7b`,
+Opus 5, ADR `08y`, teste 3). É o **item 4 da fila do dono** e a área ficou livre
+com a mescla da Q — o G0 dela já estava escrito no RUMO desde as 20h, à espera de
+vaga, e é por isso que ela nasceu pronta.
+
+O que ela ataca é uma **meia entrega**, não uma ausência: `TrabalhoView.retomada`
+já dá "Continuar: \<ato pendente\>" e "Último retorno", mas a folha **abre sempre
+no topo** de quinze blocos — ela *oferece* rolagem e nunca a usa na abertura —,
+não há resumo do que houve entre duas visitas, e "último retorno" é a última
+evidência, não o que mudou: se o autor guardou a própria versão e nada mais
+aconteceu, a retomada fala de algo velho ou cala.
+
+A fronteira que mais importa está no spec em letras próprias: **nada de resumo
+escrito pela IA**. Quem sabe o que mudou é o app, que tem os vínculos. Um resumo
+gerado seria bonito e seria mentira — e é exatamente o tipo de coisa que este
+projeto existe para não fazer.
+
+**As frentes:** revisor da MAC-1 (exercitando os seis casos com o MCP ligado), C1
+(caret já verde no 17e, nas capturas), R1 (nova) e a trilha fora do app com a
+F5b.
