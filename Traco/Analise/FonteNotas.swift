@@ -150,8 +150,17 @@ nonisolated enum RespostaNotas {
         ])
     }
 
-    private static func json(_ objeto: Any) -> String {
-        // Apenas tipos JSON construídos neste arquivo.
-        String(data: try! JSONSerialization.data(withJSONObject: objeto, options: [.sortedKeys]), encoding: .utf8)!
+    /// ADR 2026-09-09o, MEDIDO: um objeto inválido aqui NÃO lança — o
+    /// `JSONSerialization` levanta `NSInvalidArgumentException` ("Invalid type
+    /// in JSON write"), que nenhum `try` pega. Trocar `try!` por `try?` seria
+    /// teatro; o guarda que existe é `isValidJSONObject`, e é este. Com os
+    /// chamadores de hoje (só `String`, `Int`, array e dicionário) o `nil` é
+    /// inalcançável — e quando alcançar, o esquema vazio faz a resposta remota
+    /// falhar a leitura em `ler(_:)`, que é a recusa que já fala.
+    static func json(_ objeto: Any) -> String {
+        guard JSONSerialization.isValidJSONObject(objeto),
+              let dados = try? JSONSerialization.data(withJSONObject: objeto, options: [.sortedKeys]),
+              let texto = String(data: dados, encoding: .utf8) else { return "{}" }
+        return texto
     }
 }

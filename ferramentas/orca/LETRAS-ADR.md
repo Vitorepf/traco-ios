@@ -70,6 +70,8 @@ que este arquivo existe para impedir — e ele reincidiu no próprio arquivo.
 | 09m | MAC-0-D (o Grok Bot recusa servidor local) | em `main` |
 | 09n | Q2-E (adoção do melhor Grok e a espera na tela) | reservada, volta viva |
 | 09o | B1 (os `try!` de dívida real) | reservada, volta viva |
+| 09n | despachada a outra volta; não estava registrada aqui em 09/09 13h | reservada |
+| 09o | B1 (o `try!` do JSON não guardava nada) | em `Vitorepf/volta-b1-trybang` |
 
 **Próxima livre: 09p.**
 

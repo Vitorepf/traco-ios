@@ -1,4 +1,5 @@
 import Foundation
+import SwiftData
 import Testing
 @testable import Traco
 
@@ -26,37 +27,36 @@ struct PortaoDoTryBangTests {
     /// grep -rn 'try!' Traco/ TracoWidget/ | grep -vE '^[^:]+:[0-9]+:[[:space:]]*//'
     /// ```
     ///
-    /// **9 em `main`, 8 no candidato** (`TracoApp.swift:13` saiu), e as 8 linhas
-    /// que ele imprime são exatamente as da tabela abaixo. O portão não usa esse
-    /// filtro de uma linha: usa `codigoVisivel`, que apaga comentário E string
-    /// antes de contar, e chega ao mesmo 8 — o filtro acima é a versão que
-    /// qualquer um roda sem compilar nada.
-    /// Duas colunas de julgamento, porque distinguir os dois é metade do valor
-    /// da volta: **infalível por construção** (literal que o compilador não
-    /// verifica mas o autor sim) versus **dívida real** (pode falhar com dado
-    /// de fora e mata o app).
+    /// **8 em 08/09; 6 depois da volta B1** (ADR 2026-09-09o). O portão não usa
+    /// esse filtro de uma linha: usa `codigoVisivel`, que apaga comentário E
+    /// string antes de contar — o filtro acima é a versão que qualquer um roda
+    /// sem compilar nada.
+    ///
+    /// A volta B1 foi ATRÁS das quatro "dívidas reais" com o dado que as faz
+    /// explodir, como manda a §8, e o que achou virou medida em vez de opinião:
+    /// **nenhuma das quatro pode explodir**, e duas delas nem sequer estavam
+    /// guardadas pelo `try`. A prova roda em `AProvaDosQuatro`, abaixo.
     ///
     /// | arquivo | n | julgamento |
     /// |---|---|---|
-    /// | `Traco/Analise/FonteNotas.swift` | 1 | **dívida real** — `JSONSerialization.data` sobre objeto montado em runtime; volta Q, viva |
-    /// | `Traco/App/Sessao.swift` | 1 | **dívida real** — `JSONEncoder().encode([String])` do texto do autor; codificar `[String]` não falha na prática, mas o valor vem de fora |
     /// | `Traco/Caderno/AnexoDisco.swift` | 1 | **infalível por construção** — `NSRegularExpression` de padrão literal |
-    /// | `Traco/Trabalho/ConferenciaTrabalho.swift` | 1 | **infalível por construção** — `Regex` de padrão literal, mas o padrão chega por argumento: infalível só enquanto todos os chamadores forem literais; volta E1, viva |
-    /// | `Traco/Trabalho/PraticaTrabalho.swift` | 1 | **dívida real** — igual ao `FonteNotas`; volta E1, viva |
-    /// | `Traco/Notas/Corpus.swift` | 2 | linha 144 **dívida real** (`encode` de campo do autor, com `!` no dicionário logo ao lado); linha 277 **infalível por construção** (regex literal) |
+    /// | `Traco/Trabalho/ConferenciaTrabalho.swift` | 1 | **infalível por construção** — `Regex` de padrão literal, mas o padrão chega por argumento: infalível só enquanto todos os chamadores forem literais, e é isso que `aConferenciaSoAceitaPadraoLiteralDoProprioArquivo` guarda |
+    /// | `Traco/Notas/Corpus.swift` | 2 | **as duas infalíveis por construção** — a do corpo é `JSONEncoder().encode` de um `String` (`campos` é `[String: String]`) com o `!` do dicionário coberto pelo filtro `f.campos[$0] != nil` três linhas acima; a outra é regex literal |
     /// | `Traco/Notas/Indice.swift` | 1 | **infalível por construção** — `NSRegularExpression` de padrão literal |
+    /// | `Traco/App/Sessao.swift` | 1 | **infalível por construção** — `JSONEncoder().encode([String])`: `[String]` é sempre JSON válido e `String` do Swift é sempre UTF-8 válido, então não há texto do autor que derrube a assinatura |
     ///
-    /// As quatro dívidas reais foram ao RUMO. NÃO se conserta nada disto nesta
-    /// volta: `Analise` é da volta Q e `Trabalho` é da volta E1, as duas vivas —
-    /// e mexer na área de outra volta é falha, não zelo.
+    /// SAÍRAM (`FonteNotas` e `PraticaTrabalho`, o mesmo `json(_ objeto: Any)`
+    /// nos dois): não saíram por serem infalíveis — saíram porque o `try!` ali
+    /// era o guarda ERRADO. `JSONSerialization.data(withJSONObject:)` com objeto
+    /// inválido **não lança**: levanta `NSInvalidArgumentException`, que mata o
+    /// processo por baixo de `try!`, de `try?` e de `do/catch` igualmente. O
+    /// guarda que funciona é `isValidJSONObject`, e é o que está lá agora.
     static let faltosos: [String: Int] = [
-        "Traco/Analise/FonteNotas.swift": 1,
         "Traco/App/Sessao.swift": 1,
         "Traco/Caderno/AnexoDisco.swift": 1,
         "Traco/Notas/Corpus.swift": 2,
         "Traco/Notas/Indice.swift": 1,
         "Traco/Trabalho/ConferenciaTrabalho.swift": 1,
-        "Traco/Trabalho/PraticaTrabalho.swift": 1,
     ]
 
     /// `try!` como token: `try` seguido de `!` e depois espaço ou não-`=`
@@ -110,7 +110,7 @@ struct PortaoDoTryBangTests {
         // a lista congelada NÃO nasce vazia (8 casos medidos em 08/09), então
         // uma varredura que não vê nada é varredura cega, não repositório limpo.
         // Esta linha sai junto com o último item da lista.
-        #expect(!vistas.isEmpty, "a varredura ficou cega: 8 `try!` estavam congelados")
+        #expect(!vistas.isEmpty, "a varredura ficou cega: \(Self.faltosos.values.reduce(0,+)) `try!` estão congelados")
 
         // descer NUNCA é vermelho: quem conserta uma dívida não edita este teste
         var divergencias: [String] = []
@@ -134,6 +134,151 @@ struct PortaoDoTryBangTests {
 
             o que a varredura viu:
             \(vistas.joined(separator: "\n"))
+            """))
+    }
+}
+
+/// A PROVA DOS QUATRO — volta B1, ADR 2026-09-09o.
+///
+/// A §8 manda "cada uma com teste que reproduz **antes**". Fui atrás do dado
+/// que faz cada uma das quatro "dívidas reais" explodir na mão do autor. Ele
+/// não existe, e é isto que está medido aqui — o vermelho que faltou é achado,
+/// não desculpa. O que a caça achou de verdade foi outra coisa, e pior: nos
+/// dois `json(_ objeto: Any)` o `try!` guardava a porta errada.
+///
+/// O VERMELHO, medido fora da suíte porque não cabe dentro dela: uma exceção
+/// do Objective-C não é capturável em Swift e mata o runner inteiro, então a
+/// sonda foi um binário à parte (`swift sonda.swift`):
+///
+/// ```
+/// *** Terminating app due to uncaught exception 'NSInvalidArgumentException',
+///     reason: 'Invalid number value (NaN) in JSON write'
+/// *** Terminating app due to uncaught exception 'NSInvalidArgumentException',
+///     reason: 'Invalid type in JSON write (__NSTaggedDate)'
+/// ```
+///
+/// Isto acontece **por baixo** de `try!`, de `try?` e de `do/catch` igualmente:
+/// `JSONSerialization.data(withJSONObject:)` não LANÇA com objeto inválido, ela
+/// LEVANTA. Trocar `try!` por `try?` ali teria sido um verde que nunca visitou
+/// o lugar do defeito. O guarda que funciona é `isValidJSONObject`.
+@MainActor
+struct AProvaDosQuatro {
+    /// O pior que um autor consegue digitar e colar: NUL, controle, o não-caractere
+    /// U+FFFF, emoji fora do plano básico, espaço de largura zero, os separadores
+    /// de linha e parágrafo do Unicode, barra, aspas, a pontuação toda do JSON e
+    /// um acento combinante solto no fim.
+    static let feio = "\u{0}\u{1F}\u{FFFF}\u{1F600}\u{200B}\u{2028}\u{2029}\\\"{}[]:,\n\t— c\u{301}"
+
+    /// `Traco/Analise/FonteNotas.swift` — o objeto é montado em runtime, mas só
+    /// com `String`, `Int`, array e dicionário. Não há título nem linha de nota
+    /// que o derrube: o texto mais feio entra inteiro e o esquema sai válido.
+    @Test func oPromptDasNotasSobreviveAoTextoMaisFeioDoAutor() throws {
+        let f = FonteNotas(id: UUID(), titulo: Self.feio, texto: "\(Self.feio)\nsegunda linha",
+                           editadaEm: Date(timeIntervalSince1970: 0))
+        let p = try #require(RespostaNotas.montar(
+            pergunta: Self.feio, fontes: [f],
+            conversa: [.init(pergunta: Self.feio, resposta: Self.feio)],
+            catalogo: Self.feio, retrato: Self.feio, teto: 40_000))
+        #expect(p.fontes.count == 1)
+        #expect(p.omitidas == 0)
+        let esquema = try #require(try JSONSerialization.jsonObject(
+            with: Data(RespostaNotas.esquemaRemoto(p).utf8)) as? [String: Any])
+        // se o guarda tivesse caído no `"{}"`, esta chave não existiria
+        #expect(esquema["additionalProperties"] as? Bool == false)
+    }
+
+    /// `Traco/Trabalho/PraticaTrabalho.swift` — mesmo helper, mesma prova: a
+    /// tentativa da pessoa vira `[String]` e nenhum caractere dela é inválido.
+    @Test func aTentativaMaisFeiaSerializaSemPerderLinha() throws {
+        let linhas = PraticaTrabalho.segmentos("\(Self.feio)\n\(Self.feio)").map(\.texto)
+        let saida = PraticaTrabalho.json(linhas)
+        let volta = try #require(try JSONSerialization.jsonObject(with: Data(saida.utf8)) as? [String])
+        #expect(volta == linhas)
+    }
+
+    /// `Traco/Notas/Corpus.swift` — o `encode` é de um `String` (`campos` é
+    /// `[String: String]`) e o `!` do dicionário está coberto pelo filtro
+    /// `f.campos[$0] != nil` três linhas acima. A prova é a ida e a volta: o
+    /// campo mais feio, com chave conhecida e chave que o catálogo não conhece,
+    /// volta idêntico.
+    @Test func oCampoMaisFeioVoltaIdenticoDoBackup() throws {
+        let campos = ["obstaculo": Self.feio, "chave-que-o-catalogo-nao-conhece": Self.feio]
+        let md = Corpus.arquivoMd(texto: Self.feio, gesto: .woop, campos: campos,
+                                  criadaEm: Date(timeIntervalSince1970: 0))
+        let item = try #require(Corpus.importar(md).first)
+        #expect(Corpus.separarCampos(texto: item.texto, gesto: .woop).campos == campos)
+    }
+
+    /// `Traco/App/Sessao.swift` — `JSONEncoder().encode([String])`. `[String]`
+    /// é sempre um JSON válido e `String` do Swift é sempre UTF-8 válido: não
+    /// existe nota que derrube a assinatura, e ela continua distinguindo edição.
+    @Test func aAssinaturaDaNotaAceitaOTextoMaisFeio() throws {
+        let c = try ModelContainer.traco(emMemoria: true)
+        let n = Nota(texto: Self.feio)
+        n.sentido = Self.feio
+        c.mainContext.insert(n)
+        try c.mainContext.save()
+        let antes = try #require(Sessao.fonteParaPergunta(n))
+        #expect(antes.assinatura?.count == 64)
+        n.texto = Self.feio + "!"
+        let depois = try #require(Sessao.fonteParaPergunta(n))
+        #expect(antes.assinatura != depois.assinatura)
+    }
+
+    /// O ACHADO DA CAÇA, e o verde do vermelho colado no cabeçalho: com objeto
+    /// inválido o `JSONSerialization` não devolve erro — `isValidJSONObject` é
+    /// o único jeito de saber antes, e agora os dois helpers perguntam. O que
+    /// era morte do processo virou esquema vazio, e esquema vazio derruba a
+    /// leitura da resposta, que é a recusa que o Traço já sabe dizer.
+    @Test func oGuardaDoJsonEOIsValidJSONObjectENaoOTry() {
+        #expect(!JSONSerialization.isValidJSONObject(["a": Double.nan]))
+        #expect(!JSONSerialization.isValidJSONObject(["a": Date()]))
+        #expect(!JSONSerialization.isValidJSONObject("texto solto no topo"))
+        #expect(RespostaNotas.json(["a": Double.nan]) == "{}")
+        #expect(PraticaTrabalho.json(["a": Date()]) == "{}")
+        // e o caminho bom continua bom, com as chaves ordenadas
+        #expect(RespostaNotas.json(["b": "x", "a": 1] as [String: Any]) == #"{"a":1,"b":"x"}"#)
+        #expect(PraticaTrabalho.json([Self.feio]) != "{}")
+    }
+
+    /// A QUINTA, que a A1 nomeou e ninguém guardava.
+    ///
+    /// `ConferenciaTrabalho.regex(_:)` faz `try! Regex("(?i)" + padrao)`. É
+    /// infalível **só enquanto todo chamador passar um literal do próprio
+    /// arquivo** — no dia em que alguém passar um padrão vindo do documento, do
+    /// pedido ou da IA, um `[` sem par mata o app dentro da conferência. É a
+    /// dívida que ainda não é dívida, e é barata de guardar agora: este teste
+    /// fica vermelho no commit que a criar, não no relatório de crash.
+    @Test func aConferenciaSoAceitaPadraoLiteralDoProprioArquivo() throws {
+        let caminho = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent().deletingLastPathComponent()
+            .appending(path: "Traco/Trabalho/ConferenciaTrabalho.swift")
+        let texto = PortaoDoMovimentoTests.codigoVisivel(
+            try String(contentsOf: caminho, encoding: .utf8), apagandoTema: false)
+
+        // os literais que o próprio arquivo declara. `codigoVisivel` apaga o
+        // conteúdo da string crua mas conserva o `#` que a abre, e é por ele
+        // que se reconhece a declaração depois da varredura.
+        let literais = Set(texto.matches(of: try Regex(#"private static let (\w+) = #"#))
+            .map { String($0.output[1].substring ?? "") })
+        #expect(literais.contains("marcaDeTempo"), "os literais de padrão sumiram: \(literais)")
+
+        // todo argumento que chega a `regex(...)`; a linha da declaração traz
+        // `_ padrao: String` e é a única com `:`, então sai por aí
+        let usados = texto.matches(of: try Regex(#"\bregex\(([^()]*)\)"#))
+            .map { String($0.output[1].substring ?? "") }
+            .filter { !$0.contains(":") }
+        #expect(usados.count >= 4, "a varredura ficou cega: \(usados.count) chamadas de regex(")
+
+        let deFora = usados.filter { !literais.contains($0) }.sorted()
+        #expect(deFora.isEmpty, Comment(rawValue: """
+            padrão que NÃO é literal deste arquivo chegando a `regex(_:)`:
+            \(deFora.joined(separator: "\n"))
+
+            `regex(_:)` é `try! Regex(...)`: com padrão vindo do documento, do
+            pedido ou da resposta da IA, um `[` sem par mata o app no meio da
+            conferência. Se o padrão passou a vir de fora, o `try!` tem de sair
+            junto — `try?` e o critério que não se lê, em vez do processo morto.
             """))
     }
 }
