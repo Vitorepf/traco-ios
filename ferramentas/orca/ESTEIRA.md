@@ -505,3 +505,26 @@ mutação apareceu.
 **E o portão fez o que devia:** ele não deixou passar. Um portão que só fica verde
 não é portão — este ficou vermelho no dia em que a mutação chegou ao `main`, e é
 por isso que o defeito durou minutos em vez de semanas.
+
+### CORREÇÃO DE APARELHO (09/09 10h58): a conta que funciona é a do `B91C8DEF`
+
+O dono autorizou no **`C2416CBC`** e o Traço lá continuou dizendo **"sem conta"**;
+no **`B91C8DEF` (teste 2)** ele autorizou e o Perfil mostra **"Grok — conectada —
+o Grok é o motor, pago pela sua assinatura"**, lido por mim na árvore de AX às
+10h58. Ordem dele: ***"usa o que já está funcionando"***.
+
+**A partir daqui:**
+
+- **`B91C8DEF` é o APARELHO DA CONTA** — sonda de IA e capturas da tela real.
+  **Nunca** `erase`, `clearState`, `uninstall` nem `xcodebuild test` nele. Binário
+  de `main` instalado **uma vez por volta**, por cima, com `ContaGrok` conferido
+  **antes e depois**.
+- **A suíte roda num segundo simulador EFÊMERO e sem conta** (`34CC3F94`, teste
+  3), **ligado e desligado pela trava na mesma corrida**.
+- O **`C2416CBC` foi desligado pelo dono** (tinha um consentimento pendente que
+  não vamos usar).
+
+**A lição que eu levo daqui, e ela é minha:** eu vinha rodando `xcodebuild test`
+no `B91C8DEF` a noite toda como "aparelho de trabalho" — **era o aparelho onde a
+conta funcionava**. Aparelho não se identifica por apelido nem por memória: **o
+papel de cada UDID se lê na tela antes de cada corrida**, e o Perfil é a fonte.
