@@ -263,11 +263,7 @@ struct AProvaDosQuatro {
             .map { String($0.output[1].substring ?? "") })
         #expect(literais.contains("marcaDeTempo"), "os literais de padrão sumiram: \(literais)")
 
-        // todo argumento que chega a `regex(...)`; a linha da declaração traz
-        // `_ padrao: String` e é a única com `:`, então sai por aí
-        let usados = texto.matches(of: try Regex(#"\bregex\(([^()]*)\)"#))
-            .map { String($0.output[1].substring ?? "") }
-            .filter { !$0.contains(":") }
+        let usados = try Self.argumentosDeRegex(texto)
         #expect(usados.count >= 4, "a varredura ficou cega: \(usados.count) chamadas de regex(")
 
         let deFora = usados.filter { !literais.contains($0) }.sorted()
@@ -279,6 +275,66 @@ struct AProvaDosQuatro {
             pedido ou da resposta da IA, um `[` sem par mata o app no meio da
             conferência. Se o padrão passou a vir de fora, o `try!` tem de sair
             junto — `try?` e o critério que não se lê, em vez do processo morto.
+
+            Se a linha acima não é um nome mas o resto de uma linha, o portão
+            não reconheceu a FORMA do argumento (chamada aninhada, concatenação,
+            interpolação, string inline). Isso é vermelho de propósito: veja o
+            LIMITE DECLARADO em `argumentosDeRegex`.
             """))
+    }
+
+    /// Todo argumento que chega a `regex(...)` no texto, com a DECLARAÇÃO
+    /// (`func regex(`) já de fora. Só identificador NU volta como nome; para
+    /// qualquer outra forma volta o resto da linha CRU, que por não ser nome de
+    /// literal deste arquivo cai como "de fora".
+    ///
+    /// O parser anterior era `regex\(([^()]*)\)` e **não casava com nada**
+    /// quando o argumento tinha parênteses: `regex(p.trimmingCharacters(in:
+    /// .whitespaces))` ficava INVISÍVEL e o portão dava VERDE — exatamente o
+    /// caso real, porque no código de verdade o padrão chega depois de um
+    /// `trimming`, de um `map` ou de uma interpolação (G3, ADR 2026-09-09o).
+    /// Medido no parser antigo com o plantio aninhado: 4 chamadas, `deFora`
+    /// vazio. No parser de agora: 5 chamadas, uma de fora.
+    ///
+    /// LIMITE DECLARADO — o portão só reconhece `regex(nome)` na mesma linha:
+    /// 1. concatenação, interpolação e string inline saem VERMELHAS mesmo sendo
+    ///    literais deste arquivo. É a troca deliberada: quem precisar de uma
+    ///    delas tira o `try!` de `regex(_:)` em vez de afrouxar o portão.
+    /// 2. chamada partida em DUAS LINHAS sai vermelha pelo mesmo motivo —
+    ///    nada além da linha que abre o `regex(` é lido.
+    /// Nenhuma das duas dá falso VERDE, e é essa a direção que importa.
+    static func argumentosDeRegex(_ texto: String) throws -> [String] {
+        // só `regex(` é consumido, então duas chamadas na mesma linha continuam
+        // sendo duas; a captura 1 marca a declaração e a tira da lista
+        let abre = try Regex(#"(func\s+)?\bregex\("#)
+        let nu = try Regex(#"^(\w+)\)"#)
+        return texto.matches(of: abre).compactMap { m -> String? in
+            guard m.output[1].substring == nil else { return nil }
+            let resto = texto[m.range.upperBound...].prefix { $0 != "\n" }
+            guard let nome = resto.firstMatch(of: nu) else { return String(resto) }
+            return String(nome.output[1].substring ?? "")
+        }
+    }
+
+    /// A SONDA DO PORTÃO — o contra-veneno de 08/09 ("verde que não visitou o
+    /// lugar do defeito") apontado para o PARSER, porque foi ele que falhou.
+    /// Uma de cada forma, para a próxima pessoa não precisar redescobrir: as
+    /// duas que TÊM de acusar (plana e aninhada) e as duas que NÃO podem.
+    @Test func oPortaoDaConferenciaEnxergaArgumentoAninhado() throws {
+        // `marcaDeTempo` faz o papel do literal declarado no próprio arquivo
+        func deFora(_ s: String) throws -> [String] {
+            try Self.argumentosDeRegex(s).filter { $0 != "marcaDeTempo" }
+        }
+        let literal = try deFora("if let m = texto.firstMatch(of: regex(marcaDeTempo)) {")
+        #expect(literal.isEmpty, "literal do próprio arquivo virou vermelho: \(literal)")
+        let declaracao = try deFora("private static func regex(_ padrao: String) -> Regex<AnyRegexOutput> {")
+        #expect(declaracao.isEmpty, "a declaração de `regex(_:)` virou vermelho: \(declaracao)")
+
+        let plana = try deFora("_ = regex(padraoDeFora)")
+        #expect(plana == ["padraoDeFora"],
+                "a chamada PLANA com padrão de fora deixou de ser vista: \(plana)")
+        let aninhada = try deFora("_ = regex(padraoDeFora.trimmingCharacters(in: .whitespaces))")
+        #expect(aninhada.count == 1 && aninhada.first?.hasPrefix("padraoDeFora.") == true,
+                "a chamada ANINHADA voltou a ser invisível (o bypass do G3): \(aninhada)")
     }
 }
