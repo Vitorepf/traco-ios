@@ -558,6 +558,17 @@ final class Sessao {
             cartao = .semConta
             return
         }
+        // ADR 2026-09-09q: `responder` está indisponível por qualidade desde a
+        // 08q. Com a conta ligada a rota girava o laço, batia em `nil` dentro
+        // de `Sabia.chamar` e o toast dizia "tente de novo" — convite a repetir
+        // o que nunca vai dar certo. A frase honesta já existia em `Politica`
+        // e nenhuma tela a mostrava. A pergunta volta ao cartão, como no
+        // cancelamento da 09n: o que ele escreveu não se perde.
+        if let aviso = Politica.aviso(.responder) {
+            cartao = .pergunta(q)
+            mostrarToast(aviso, duracao: .seconds(8))
+            return
+        }
         // a resposta tem até 900 caracteres e o teclado cobria metade dela
         // (visto na primeira chamada real, 03/set). Quem pergunta vai LER.
         Teclado.recolher()
@@ -713,11 +724,23 @@ final class Sessao {
         }
         let base = texto
         let g = gesto
+        // ADR 2026-09-09q: quando o motor local não mexeu em nada, o autor está
+        // esperando a sábia — e ela falhava calada. Sem conta ele já ouvia
+        // "nada a vestir aqui."; COM conta, um toque em Vestir tudo podia não
+        // produzir nada e nem uma palavra.
+        let nadaLocal = local == antes
         Task { [weak self] in
-            guard let mapa = await Sabia.vestir(blocos: Sabia.blocos(antes), gesto: g) else { return }
+            let mapa = await Sabia.vestir(blocos: Sabia.blocos(antes), gesto: g)
             guard let self, self.texto == base else { return } // o autor mexeu: silêncio
+            guard let mapa else {
+                if nadaLocal { self.mostrarToast("a sábia não respondeu. o texto ficou como estava.") }
+                return
+            }
             let refinado = Sabia.aplicar(mapa, a: antes)
-            guard refinado != base, refinado != antes else { return }
+            guard refinado != base, refinado != antes else {
+                if nadaLocal { self.mostrarToast("nada a vestir aqui.") }
+                return
+            }
             self.texto = refinado
             self.cartao = .vestido(antes: antes)
             Toque.suave()

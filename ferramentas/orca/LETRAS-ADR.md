@@ -71,8 +71,9 @@ que este arquivo existe para impedir — e ele reincidiu no próprio arquivo.
 | 09n | Q2-E · o melhor Grok medido e a espera na tela | em `main` |
 | 09o | B1 · os `try!` de dívida real | em `main` |
 | 09p | MAC-0-E · o servidor chega por `--chamar` | em `main` |
+| 09q | B2 · a frase existia e nenhuma tela a dizia | no branch `Vitorepf/volta-b2-silencio` |
 
-**Próxima livre: 09q.**
+**Próxima livre: 09r.**
 
 **A série 08 está CHEIA** — de `08a` a `08z`, com `08c` e `08d` como buracos.
 

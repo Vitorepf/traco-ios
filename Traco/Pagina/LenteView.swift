@@ -17,7 +17,11 @@ struct LenteView: View {
     @State private var contraparte: Sabia.Contraparte?
     @State private var contrapondo = false
     @State private var avaliouContraparte = false
-    @State private var semConta = false
+    /// O que a rota da sábia tem a DIZER: a frase da tabela quando ninguém
+    /// responde, ou a falha quando quem responde não respondeu. Era um `Bool`
+    /// que só sabia falar de conta — e com a conta ligada a rota calava
+    /// (ADR 2026-09-09q).
+    @State private var aviso: (op: Politica.Operacao, texto: String, estado: LinhaDeEstado.Estado)?
     @State private var apontados: [Apontamento] = []
     @State private var trechoNovo = ""
     @State private var recusado = false
@@ -163,12 +167,11 @@ struct LenteView: View {
                             ForEach(perguntasDaSabia, id: \.self) { q in
                                 linha(q, nil, rotulo: nil)
                             }
-                            if semConta {
-                                Text("a sábia " + Sabia.porOndeEmPalavras + ".")
-                                    .font(Tema.meta)
-                                    .foregroundStyle(Tema.aviso)
+                            if let aviso, aviso.op == .instigar {
+                                LinhaDeEstado(aviso.texto, aviso.estado)
                                     .padding(.horizontal, 14)
                                     .padding(.vertical, 10)
+                                    .accessibilityIdentifier("lente-aviso-instigar")
                             }
                             Button {
                                 instigar()
@@ -219,12 +222,11 @@ struct LenteView: View {
                                 .alvo()
                                 .padding(.horizontal, 14)
                             }
-                            if semConta {
-                                Text("a sábia " + Sabia.porOndeEmPalavras + ".")
-                                    .font(Tema.meta)
-                                    .foregroundStyle(Tema.aviso)
+                            if let aviso, aviso.op == .contrapor {
+                                LinhaDeEstado(aviso.texto, aviso.estado)
                                     .padding(.horizontal, 14)
                                     .padding(.vertical, 10)
+                                    .accessibilityIdentifier("lente-aviso-contrapor")
                             }
                             Button {
                                 contrapor()
@@ -298,8 +300,8 @@ struct LenteView: View {
     }
 
     private func instigar() {
-        guard Sabia.disponivel else { semConta = true; return }
-        semConta = false
+        if let frase = Politica.aviso(.instigar) { aviso = (.instigar, frase, .semConta); return }
+        aviso = nil
         instigando = true
         let t = prosa
         let g = gesto
@@ -309,13 +311,14 @@ struct LenteView: View {
         Task {
             let r = await Sabia.instigar(texto: t, gesto: g, degrau: degrau, retrato: r0)
             instigando = false
-            if let r { perguntasDaSabia = r; Toque.suave() } else { Toque.aviso() }
+            if let r { perguntasDaSabia = r; Toque.suave() }
+            else { aviso = (.instigar, "a sábia não respondeu.", .falhou); Toque.aviso() }
         }
     }
 
     private func contrapor() {
-        guard Sabia.disponivel else { semConta = true; return }
-        semConta = false
+        if let frase = Politica.aviso(.contrapor) { aviso = (.contrapor, frase, .semConta); return }
+        aviso = nil
         contrapondo = true
         avaliouContraparte = false
         let t = prosa
@@ -324,7 +327,8 @@ struct LenteView: View {
         Task {
             let r = await Sabia.contrapor(texto: t, gesto: g, retrato: r0)
             contrapondo = false
-            if let r { contraparte = r; Toque.suave() } else { Toque.aviso() }
+            if let r { contraparte = r; Toque.suave() }
+            else { aviso = (.contrapor, "a sábia não respondeu.", .falhou); Toque.aviso() }
         }
     }
 
