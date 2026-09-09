@@ -1933,3 +1933,7 @@ de arredondar: a D1-B entregou o vídeo **retimado por `setpts`** porque o
 `recordVideo` **estica o relógio** (15,5 s de parede viram 21,37 s de arquivo), e a
 MAC-0-D disse que a captura do "bom dia" **é o bot falando sozinho, não o caso 11**,
 e que a do caso 1 é **indício, não prova**, porque veio de execução local.
+
+**Fecho:** **996 testes em 161 suítes, `TEST SUCCEEDED`** com a B1 dentro — seis
+testes a mais que a corrida anterior, que são os que ela escreveu para provar que
+o dado que derruba **não existe**. Aparelho efêmero desligado ao fim da corrida.

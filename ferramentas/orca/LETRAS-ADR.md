@@ -60,7 +60,7 @@ que este arquivo existe para impedir — e ele reincidiu no próprio arquivo.
 | 09c | S1 (a pergunta interrompida) | em `main` |
 | 09d | S1-B (o vazio também rola) | em `main` |
 | 09e | C1-D (a reconciliação da C1) | em `main` |
-| 09f | M1 e M1-B (a migração do caderno, com adendo) | em `main` |
+| 09f | M1 e M1-B (a migração do caderno) | em `main` |
 | 09g | C1-A (era 08w, depois 09d) | em `main` |
 | 09h | Q3 (responder nas Notas) | reservada |
 | 09i | Q4 (instigar e contrapor) | reservada |
@@ -68,16 +68,12 @@ que este arquivo existe para impedir — e ele reincidiu no próprio arquivo.
 | 09k | D1 (as Notas sem slop) | em `main` |
 | 09l | K1 (o cofre do dono não é da suíte) | em `main` |
 | 09m | MAC-0-D (o Grok Bot recusa servidor local) | em `main` |
-| 09n | Q2-E (adoção do melhor Grok e a espera na tela) | reservada, volta viva |
-| 09o | B1 (os `try!` de dívida real) | reservada, volta viva |
-| 09n | despachada a outra volta; não estava registrada aqui em 09/09 13h | reservada |
-| 09o | B1 (o `try!` do JSON não guardava nada) | em `Vitorepf/volta-b1-trybang` |
+| 09n | Q2-E (o melhor Grok e a espera na tela) | reservada, volta viva |
+| 09o | B1 (os `try!`: dois saem por medida, dois pela pré-condição) | em `main` |
 
 **Próxima livre: 09p.**
 
-**A série 08 está CHEIA** — de `08a` a `08z`, com `08c` e `08d` como buracos que
-ficam vagos.
+**A série 08 está CHEIA** — de `08a` a `08z`, com `08c` e `08d` como buracos.
 
 **A regra que faz o registro funcionar:** quem despacha atualiza este arquivo **no
-mesmo ato em que reserva**. Reservar de memória é como a `09d` saiu duas vezes no
-mesmo turno.
+mesmo ato em que reserva**.
