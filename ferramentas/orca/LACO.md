@@ -1577,3 +1577,33 @@ pelo Traço**, qualquer autor passa pelo mesmo. Vai ao RUMO.
 **Não instalei o binário do `main`** — a etapa 2 depende da etapa 1, e a etapa 1
 reprovou. A Q2 continua parada pelo mesmo motivo de ontem, agora com a causa um
 passo mais perto.
+
+## 09/09, 10h58 — a conta funciona no `B91C8DEF`, o binário de `main` entrou, e a Q2 retomou
+
+**Sequência do dono, cumprida etapa por etapa e com hora:**
+
+- **10h57:16** — Perfil **antes**: *"Grok — conectada — o Grok é o motor, pago pela
+  sua assinatura"*, lido na **árvore de AX** do `B91C8DEF`.
+- **10h57:16** — `xcrun simctl install B91C8DEF… Traco.app`, **uma vez, por cima,
+  sem `uninstall`**, com o binário de `origin/main` (que já tem a M1 e a reversão
+  da sonda).
+- **10h58:16** — Perfil **depois**: **a mesma linha, a conta continuou**.
+  Capturas em `ferramentas/orca/conta/`.
+
+**E isso corrige uma frase minha de ontem.** Eu tinha escrito que **o install por
+cima derrubava a conta**, com a fumaça do revisor como prova. Hoje a medida dá o
+contrário no aparelho que funciona. As duas medidas são boas; **a minha conclusão
+é que era grande demais** — install por cima **não basta** para derrubar. O que
+caiu ontem caiu por outra coisa no mesmo minuto, e o candidato mais provável é o
+`xcodebuild test`. Está corrigido na ESTEIRA.
+
+**A Q2-D saiu** (`ctx_429757c20423`) com uma tarefa só: **rodar os seis casos
+independentes que o revisor já escreveu** — eles voltaram `semRetorno` duas vezes
+por causa da conta, e não se reescrevem, rodam-se. Se aprovar, o fecho tem três
+partes: o veredito com as cinco notas, **a linha do Perfil com `responder` fora da
+lista de indisponíveis**, e **a captura do cartão com a resposta real na tela**.
+
+E a correção de aparelho do dono me deixou uma lição desconfortável: **eu rodei
+`xcodebuild test` a noite toda no `B91C8DEF` chamando-o de "aparelho de
+trabalho"** — era o aparelho onde a conta dele funcionava. **Papel de UDID se lê na
+tela antes da corrida, não na memória.**

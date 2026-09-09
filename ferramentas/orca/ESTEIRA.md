@@ -528,3 +528,26 @@ o Grok é o motor, pago pela sua assinatura"**, lido por mim na árvore de AX à
 no `B91C8DEF` a noite toda como "aparelho de trabalho" — **era o aparelho onde a
 conta funcionava**. Aparelho não se identifica por apelido nem por memória: **o
 papel de cada UDID se lê na tela antes de cada corrida**, e o Perfil é a fonte.
+
+### O install por cima NÃO derruba a conta — a medida de hoje corrige a de ontem (09/09)
+
+Ontem eu escrevi, a partir da fumaça do revisor da Q2, que **o install por cima
+derrubava a conta**: `contaGrokLigada` verdadeiro com 12 modelos, e falso com 0
+**89 segundos depois de um `simctl install`**. Hoje medi o contrário, no aparelho
+onde a conta funciona:
+
+```
+10:57:16  antes do install   "conectada — o Grok é o motor, pago pela sua assinatura"
+10:57:16  xcrun simctl install B91C8DEF... Traco.app   (por cima, sem uninstall)
+10:58:16  depois do install   "conectada — o Grok é o motor, pago pela sua assinatura"
+```
+
+**As duas medidas são boas e a conclusão de ontem era grande demais:** o install
+por cima **não é suficiente** para derrubar a conta. O que caiu ontem caiu por
+outra coisa no mesmo minuto — o candidato mais provável é o `xcodebuild test`, que
+instala o runner e pode trocar o contêiner, e que estava proibido justamente por
+isso.
+
+**A regra prática não muda, e é a barata:** `ContaGrok` conferido **antes e
+depois** de cada corrida, com a hora; **se cair, parar e dizer com o comando
+exato**. Foi o que produziu as duas medidas e o que vai produzir a terceira.
