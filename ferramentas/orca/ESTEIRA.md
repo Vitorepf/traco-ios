@@ -278,3 +278,32 @@ não pode ficar parado:** o spec passa a dizer que, se o `ask` expirar, o worker
 **faz o que restaura o estado anterior** (ou segue pelo caminho menos
 destrutivo), **registra a pergunta e a expiração no relato**, e continua — nunca
 escolhe sozinho um caminho irreversível.
+
+### LEI DO SIMULADOR DO GROK, corrigida: o INSTALL POR CIMA também derruba a conta (09/09)
+
+A lei antiga proibia `erase`, `clearState`, `uninstall` e `xcodebuild test` no
+`C2416CBC` e **permitia instalar por cima**. Estava errada, e a medida é limpa:
+a fumaça antes do install registrou `contaGrokLigada=true` com **12 modelos**
+às 03:20:38Z; depois do **install por cima**, `contaGrokLigada=false` com
+**0 modelos** às 03:22:07Z. O revisor parou na hora e **não contornou**.
+
+**A lei passa a ser:** no `C2416CBC` **ninguém instala nada** — nem por cima.
+Nada de `erase`, `clearState`, `uninstall`, `xcodebuild test` **nem
+`simctl install`**. Só o dono reautoriza, e cada reautorização custa a ele.
+
+**E como se roda uma corrida de IA sem instalar**, que é o que destrava o
+trabalho: a sonda `AvaliacaoIA` lê a fixture pelo nome em
+`TRACO_AVALIAR_IA=<fixture.json>` **no Documents do app**
+(`AvaliacaoIA.swift:58`). Então:
+
+1. escreva a fixture nova no contêiner de dados do app
+   (`xcrun simctl get_app_container <UDID> <bundle> data`);
+2. relance com a variável (`SIMCTL_CHILD_TRACO_AVALIAR_IA=<fixture.json>`,
+   `simctl launch --terminate-running-process`);
+3. **use o binário que já está no aparelho** e diga no relato **qual candidato é**
+   (o SHA que o instalou por último), porque medir com binário alheio é o erro
+   irmão.
+
+**Fumaça obrigatória antes e depois de cada corrida:** `contaGrokLigada` e a
+contagem de modelos, com carimbo de hora, coladas no relato. Se cair, **diga em
+vez de contornar** — foi assim que o gatilho apareceu.
