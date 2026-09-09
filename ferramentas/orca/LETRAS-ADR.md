@@ -56,8 +56,10 @@ idênticos. Sobrou linha, a alegação "só a letra mudou" é falsa.
 | 09e | C1-D (a reconciliação da C1) | no branch da C1 |
 | 09f | M1 (a migração do caderno) | no branch da M1 |
 | 09g | C1-A (era 08w, depois 09d) | no branch da C1 |
+| 09h | Q3 (responder nas Notas) | reservada, a abrir quando a M1 mesclar |
+| 09i | Q4 (instigar e contrapor) | reservada, a abrir quando a M1 mesclar |
 
-**Próxima livre: 09h.**
+**Próxima livre: 09j.**
 
 **A 08 está CHEIA** — de `08a` a `08z`, com `08c` e `08d` como buracos que ficam
 vagos. Quem precisar de letra hoje usa a série `09`.

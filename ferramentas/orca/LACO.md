@@ -1315,3 +1315,38 @@ S1-B e a C1-D tomou a mesma letra no mesmo turno, porque eu **não atualizei o
 sobre si mesmo** — dava `08z` como livre quando ela está no branch da Q2 —, o que
 a própria C1-D pegou. Corrigi as duas coisas e escrevi a regra que faltava:
 **quem despacha atualiza o registro no mesmo ato em que reserva**.
+
+## 09/09, 10h30 — o dono está indignado, e ele tem razão na conta
+
+*"Esse tempo todo e ainda é 7."* Ele mede **a nota do produto**, não voltas
+mescladas — e pela conta dele a noite rendeu pouco. Vale escrever por quê, sem
+desculpa e sem enfeite:
+
+**cinco voltas mescladas** (A1, V13, Q, MAC-1, F5b) moveram Estado honesto,
+Contrato, Design e Fora do app — **nenhuma delas move a nota da IA**, que é a
+dimensão que ele quer ver subir. **As sete operações da IA continuam
+indisponíveis.** A Q2 mediu o conserto e **não pôde fechar**: a conta caiu duas
+vezes, e caiu porque **a lei que eu escrevi permitia instalar por cima**. Essa
+parte é minha: a lei era minha, o gatilho apareceu por medição de um revisor, e
+entre uma coisa e a outra passou uma noite.
+
+**As três ordens dele, registradas:**
+
+1. **Nada de reinstalar por cima no `C2416CBC`.** A sonda roda **no build já
+   instalado**; binário novo entra **uma vez por volta**, com `ContaGrok.ligada`
+   conferido **antes e depois**. Reescrevi a lei na ESTEIRA e no preâmbulo com
+   essas palavras.
+2. **Assim que a M1 mesclar, as três frentes são IA:** **Q2** (responder), **Q3**
+   (responder nas Notas) e **Q4** (instigar + contrapor), em paralelo, **cada uma
+   com o seu simulador sem conta** para tudo que não seja a medição, e o
+   `C2416CBC` **só para a corrida da sonda, serializada pela trava**. Os specs da
+   Q3 e da Q4 já estão escritos e as letras reservadas (`09h`, `09i`) — abrem no
+   minuto em que a M1 entrar.
+3. **Cada fecho de IA termina com a linha do Perfil atualizada e a captura do
+   cartão com a resposta real na tela.** *"O dono quer VER a IA funcionando"* —
+   JSONL não é tela. Está na ESTEIRA como parte do portão, não como pedido.
+
+**A M1 é o que segura tudo agora**, e ela segura pelo motivo certo: enquanto o
+caderno gravado antes da 08u não abrir, nenhuma nota importa. A revisão dela está
+em curso com o peso escrito no spec: **se aprovar errado, o caderno do dono fica
+fechado**.
