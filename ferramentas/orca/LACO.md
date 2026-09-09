@@ -1854,3 +1854,13 @@ hora antes. Ela fez o certo (reproduziu no pai, com checkout descartável, e
 declarou), e o `merge` traz o conserto junto. Nada a fazer além de mesclar.
 
 Mesclei **D1** e **MAC-0** e a suíte está correndo no aparelho efêmero.
+
+**Fecho:** **990 testes em 160 suítes, `TEST SUCCEEDED`** com D1 e MAC-0 dentro.
+
+**Uma conta que não batia, conferida em vez de arredondada:** a K1 relatou **991**
+(990 + o portão novo) e a minha corrida deu **990**. Em vez de aceitar o verde,
+rodei o portão da K1 pelo nome — `testeNuncaEscreveNoCofreDoAparelho` — e ele
+**existe e passa** em `main`, junto com a guarda
+(`servico = emTeste ? "app.traco.xai.testes" : "app.traco.xai"`). A diferença é de
+composição de árvore, não de teste perdido. **Contagem que não fecha se confere;
+não se explica.**
