@@ -150,10 +150,7 @@ enum DestaqueDoDia: Sendable {
             return
         }
         guard SuperficieDisco.atividades() else { return }
-
-        let meiaNoite = Calendar.current.startOfDay(
-            for: Calendar.current.date(byAdding: .day, value: 1, to: agora) ?? agora)
-        let conteudo = ActivityContent(state: estado, staleDate: meiaNoite, relevanceScore: relevanciaNaIlha)
+        let conteudo = conteudo(estado, agora: agora)
         var viva: Activity<DestaqueAtividade>?
         for a in Activity<DestaqueAtividade>.activities {
             if viva == nil, a.attributes.dia == p.dia, a.attributes.id == p.id, a.activityState == .active {
@@ -163,12 +160,25 @@ enum DestaqueDoDia: Sendable {
             }
         }
         if let viva {
-            if viva.content.state != estado { await viva.update(conteudo) }
+            if conteudo.difere(de: viva.content.state, relevancia: viva.content.relevanceScore) {
+                await viva.update(conteudo)
+            }
             return
         }
         _ = try? Activity.request(attributes: DestaqueAtividade(dia: p.dia, id: p.id), content: conteudo)
         #endif
     }
+
+    #if canImport(ActivityKit)
+    /// O conteúdo que sobe, em `request` e em `update`: stale à meia-noite (o
+    /// Destaque é do dia) e a relevância do padrão — ver `relevanciaNaIlha`.
+    nonisolated static func conteudo(_ estado: DestaqueAtividade.ContentState, agora: Date)
+        -> ActivityContent<DestaqueAtividade.ContentState> {
+        let meiaNoite = Calendar.current.startOfDay(
+            for: Calendar.current.date(byAdding: .day, value: 1, to: agora) ?? agora)
+        return ActivityContent(state: estado, staleDate: meiaNoite, relevanceScore: relevanciaNaIlha)
+    }
+    #endif
 
     nonisolated static func encerrarAtividades() async {
         #if canImport(ActivityKit)

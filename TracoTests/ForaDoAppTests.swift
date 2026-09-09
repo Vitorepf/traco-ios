@@ -309,11 +309,29 @@ struct ForaDoAppTests {
 
     // MARK: - Feito, com identidade
 
-    @Test("ADR 08v: com os dois vivos, a Ilha é do compromisso — a relevância dele é maior")
+    @Test("ADR 08v: o conteúdo que sobe (request, update e recado) carrega a relevância — o compromisso vence a Ilha")
     func aIlhaEDoCompromisso() {
-        // o iOS mostra uma atividade por app na Ilha e escolhe pela relevância;
-        // sem esta ordem o Destaque escondia o compromisso a 40 min (D9 da F1)
-        #expect(ProximoCompromisso.relevanciaNaIlha > DestaqueDoDia.relevanciaNaIlha)
+        // o iOS mostra uma atividade por app na Ilha e escolhe pelo
+        // `relevanceScore` do ActivityContent; o G3 recusou o teste que só
+        // comparava as constantes, porque ele ficava verde com o argumento
+        // apagado dos três sites. Agora os sites passam por UM construtor.
+        let agora = Date()
+        let f = Superficie.Proximo(titulo: "Dentista", inicio: agora.addingTimeInterval(2400),
+                                   fim: agora.addingTimeInterval(6000), diaInteiro: false)
+        let compromisso = ProximoCompromisso.conteudo(de: f)
+        let destaque = DestaqueDoDia.conteudo(.init(linha: "terminar o capítulo"), agora: agora)
+        #expect(compromisso.relevanceScore > destaque.relevanceScore)
+        #expect(compromisso.relevanceScore == 1 && destaque.relevanceScore == 0)
+        #expect(compromisso.staleDate == f.fim)
+        #expect(compromisso.state.titulo == "Dentista" && compromisso.state.recado == nil)
+        // o recado (a resposta do intent da tela bloqueada) é um update: mesma prioridade
+        let recado = ProximoCompromisso.conteudo(de: f, recado: "avisos desligados")
+        #expect(recado.relevanceScore == 1 && recado.state.recado == "avisos desligados")
+        // uma atividade viva de uma versão sem relevância recebe o update, mesmo com o estado igual
+        #expect(compromisso.difere(de: compromisso.state, relevancia: 0))
+        #expect(!compromisso.difere(de: compromisso.state, relevancia: 1))
+        #expect(destaque.difere(de: .init(linha: "outra"), relevancia: 0))
+        #expect(!destaque.difere(de: destaque.state, relevancia: 0))
     }
 
     @Test("feito repetido não inverte; desfazer é explícito")

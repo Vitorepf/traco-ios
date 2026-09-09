@@ -6506,3 +6506,60 @@ atividade sobe), troca de estado (a cápsula "Lembrar em 10 min" vira o recado
 permissão) e saída (o app reconcilia um compromisso passado e encerra) estão
 em `f5b-ilha-movimento.mp4` e, com Reduzir Movimento, em
 `f5b-ilha-movimento-reduzido.mp4` — a expansão vira fusão, o resto é igual.
+
+**Revisão G3 (F5b-B, 09/09): a prova reprodutível.** O revisor independente
+confirmou o mecanismo e recusou a prova (`ferramentas/orca/revisao-f5b-ilha.md`).
+O que mudou para fechá-la, sem redesenho:
+
+- **O teste segura o wiring, não a constante.** O `ActivityContent` que sobe
+  para o ActivityKit — em `request`, em `update` e no recado do intent — nasce
+  de UM construtor por atividade (`ProximoCompromisso.conteudo(de:recado:)`,
+  `DestaqueDoDia.conteudo(_:agora:)`), e `aIlhaEDoCompromisso` lê o
+  `relevanceScore` e o `staleDate` do conteúdo construído: apagar o argumento
+  do construtor põe o teste vermelho. Limite declarado: a suíte não exercita o
+  ActivityKit (ADR 05u isola `atividades()` em teste), então um `ActivityContent`
+  montado à mão fora do construtor não é visto pelo teste — é o que a revisão
+  de código guarda, e os dois arquivos não têm outro.
+- **A atividade já viva ganha a relevância.** `update` só saía quando o
+  `ContentState` mudava; uma atividade que subiu numa versão sem prioridade
+  ficava atrás do Destaque até o app a encerrar. `ActivityContent.difere(de:relevancia:)`
+  compara estado E relevância, nas duas atividades; o teste cobre os dois lados.
+- **A semeadura publica pela rota real.** O arranque só reconcilia a projeção
+  que já está no disco; `f5b-semear.sh` escrevia `calendario.json` e o
+  compromisso nunca ia ao ar — a reprodução do revisor viu só o Destaque. Em
+  DEBUG, `TRACO_REPUBLICAR_CALENDARIO` no ambiente faz o arranque chamar
+  `ProximoCompromisso.publicar(eventos, cal:)`, a mesma função da agenda, do
+  editor e do intent (precedente: `TRACO_AVALIAR_IA`). O script agora exige o
+  título semeado dentro de `superficie.json` e, com `LOG=<arquivo>`, grava o
+  `liveactivitiesd` do instante: `Starting activity` com o id e
+  `Marking activities stale` com o `staleDate` — o compromisso stale no fim,
+  o Destaque à meia-noite. O daemon **não** registra o `relevanceScore`; a
+  prova dele na tela é qual das duas a Ilha mostra.
+- **Pares `large`/AX5 refeitos, Ilha inteira no quadro, mesmo estado, log ao
+  lado.** Casa: `f5bb-large-ilha-compacta.png` (04:16:27) / `f5bb-ax5-ilha-compacta.png`
+  (04:18:18) — a Ilha é do compromisso nas duas e é idêntica; o que escala são
+  os rótulos da casa, prova de que AX5 aplicou. Bloqueada: `f5bb-large-bloqueada.png`
+  (04:16:31) / `f5bb-ax5-bloqueada.png` (04:16:42) e `f5bb-ax5-bloqueada-ao-acordar.png`
+  (04:16:38) — o cartão do compromisso por cima nas duas. `f5bb-log-large.log`
+  é o `liveactivitiesd` da semeadura (04:16:19, dois `Starting activity`);
+  `f5bb-log-ax5.log` é a janela inteira das seis capturas, sem atividade a
+  subir ou cair entre elas. Tamanho lido de volta antes e depois; restaurado
+  a `medium`.
+- **Controle natural, não planejado:** entre duas capturas o `xcodebuild test`
+  de outra volta instalou no mesmo aparelho um binário SEM a 08v (`cmp`
+  diferente, `nm` sem `relevanciaNaIlha`); o iOS relançou o app por "Activity
+  ended" e o arranque reergueu as duas atividades a partir da mesma projeção
+  (`f5bb-log-controle.log`): **a Ilha voltou ao Destaque**
+  (`f5bb-controle-sem-relevancia-ilha-compacta.png`, 04:13:05). Mesmo estado,
+  mesma projeção, só o `relevanceScore` diferente — é a prova mais limpa desta
+  volta de que ele é o mecanismo, e ela veio de um acidente de posse do aparelho.
+- **Achado novo em AX5, sem correção nesta volta:** no cartão da tela
+  bloqueada o relógio relativo do canto ("39 minutos" em `large`) corta para
+  **"39 minut…"** em AX5 (`f5bb-ax5-bloqueada.png`); ao acordar a tela o mesmo
+  canto mostra a contagem "39:39" inteira (`…-ao-acordar.png`). Fica no
+  EVOLUCAO como lacuna aberta; a compacta da Ilha continua sem corte.
+- **O corte por alinhamento à direita vira hipótese.** A captura
+  `f5b-instrumento-alinhada-corta.png` mostra "29:48" inteiro; o corte que o
+  relato alegou não está nela. Fica registrado que `multilineTextAlignment(.trailing)`
+  sem teto **não foi provado** cortar; a escolha de deixar os dígitos à esquerda
+  da caixa do `.timer` se sustenta sozinha pela captura `f5b-depois-ilha-expandida.png`.
