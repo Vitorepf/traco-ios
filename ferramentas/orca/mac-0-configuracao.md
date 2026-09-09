@@ -74,3 +74,82 @@ Conferido de novo sem mouse, tudo igual à primeira passada: pasta espelhada aus
 **Para quem retomar:** confira o bloqueio primeiro, pelo carimbo `CGSSessionScreenLockedTime` — se ele mudou para depois do último destrancamento do dono, a tela trancou de novo (o Mac trava sozinho por inatividade; vale pedir ao dono que fique com a tela aberta durante a volta ou que a destranque e avise no momento).
 
 | 09/09 00:18–00:29 | Terminal (sem cursor) | leitura de estado: `CGSessionCopyCurrentDictionary`, `orca computer list-windows`, `servidor.py --autoteste`, `tools/list` e `traco_buscar` por stdio | nada alterado no Mac |
+
+## Terceira passada (MAC-0-C), 09/09 11:31–12:12 — o Mac destrancado, a pasta espelhada nasceu, o bot existe
+
+Worker: Fable 5.1, branch `Vitorepf/volta-mac-0`. Conferido antes de tocar em qualquer coisa: `CGSessionCopyCurrentDictionary()` às 11:31 **sem** `CGSSessionScreenIsLocked` (a tela estava aberta o tempo todo). Mouse tomado às 11:32 e devolvido às 12:12, com aviso no comentário do worktree `main` nas duas pontas. Só dois apps foram tocados: **Espelhamento do iPhone** e **Grok Bot**. Voz, VoiceOver, iPad e simulador: não tocados.
+
+O que mudou desde a segunda passada: a **MAC-1 mesclou** (`8bdc591`). O `servidor.py` do checkout principal responde a `tools/list` com **12 ferramentas**, incluindo `traco_agenda` e `traco_decisoes`; `ferramentas/grokbot/casos/` (README + seis casos) e `CASOS.md` estão no `main`.
+
+### Tarefa 1 — a pasta espelhada, pelo caminho do produto: FEITA
+
+No iPhone do dono, pelo Espelhamento: Buscar › Traço › alça da borda esquerda (arquivo) › aba Perfil › rolar até DADOS › "Espelhar numa pasta (iCloud Drive…)" › seletor do sistema › Explorar › iCloud Drive › "…" › Nova Pasta › `Traço` › entrar › Abrir. O Perfil passou a mostrar **"Espelhando em “Traço”"** e o app publicou na hora (`Corpus.escreverEspelho` roda ao escolher a pasta). No Mac, 20 s depois:
+
+```
+~/Library/Mobile Documents/com~apple~CloudDocs/Traço/Traço/
+  LEIA-ME.md  INDICE.md  traco-corpus.md  calendario.json  .espelho-ad98cd0f.json  notas/21666fb0-….md
+```
+
+Repare na forma: o app grava uma subpasta `Traço/` **dentro** da pasta escolhida. O `servidor.py` apontado para `…/CloudDocs/Traço` (o caminho do `.cursor/mcp.json`) **acha a pasta** — `traco_buscar` devolve `[]` para "Traço" (nenhuma nota fala do app), e `traco_agenda` devolve a mensagem honesta:
+
+> Sem agenda.md ainda. O app a escreve na pasta espelhada quando você abre o Traço no iPhone; se a pasta é antiga, abra o app uma vez.
+
+O `agenda.md` não existe porque o **build instalado no iPhone do dono é anterior à MAC-1** (é o código de `Corpus.swift:494` de 09/09 que o escreve). Instalar build no iPhone do dono não é desta volta; fica declarado.
+
+Nada além desse caminho foi tocado no iPhone. O app ficou aberto no Perfil.
+
+### Tarefa 2 — o servidor `traco` no Grok Bot: LIMITE DO APP, declarado
+
+O Grok Bot 0.44.0 **não tem tela de cadastro de servidor MCP local**. Apurado no bundle (`app.asar`) e na interface:
+
+- Não há "espaço de trabalho": o app é um chat de bots, sem pasta aberta. O `.cursor/mcp.json` do repositório é lido pelo agente da Cursor em workspace, **não por este app**. O commit `5808a56` não erra, mas não alcança o Grok Bot.
+- A configuração de MCP vem da **conta Cursor, na nuvem** (`GetMcpConfig`/`SetMcpConfig`, `configJson` com `mcpServers`); servidores stdio dessa configuração rodam "no computador do Grok Bot" (`mcpBoxServers` do `settings.json` é só a lista dos habilitados). O único método de escrita (`addServer(name, configJson)`) não tem chamador na interface; as strings pt-BR do bundle não têm "Adicionar servidor"; não há deeplink `grokbot://…/mcp/install`.
+- O Marketplace tem a categoria "MCP" (catálogo hospedado) e "Seus plugins" com 21 instalados. O único "Adicionado manualmente" do dono, **GrokBotDev**, é **HTTP** (`https://mcp.grokbot.dev/mcp`), com "Falha ao carregar o conector" — captura 06. O cadastro manual acontece fora do app (site cursor.com, configuração de MCP da conta).
+
+Escalado ao coordenador às 12:00 (`msg_70836266ccb8`) com duas saídas: (a) autorizar o navegador só em cursor.com para cadastrar `traco` stdio com o comando do `.cursor/mcp.json`; (b) deixar declarado como limite. Sem resposta até o fecho; segui pela (b). `~/.grokbot/settings.json` **não foi alterado** (os ids 3037497, 3237977 e 3432659 seguem como estavam).
+
+### Tarefa 3 — o bot "Traço": FEITO
+
+Criado por "Novo chat › Criar novo Bot" e renomeado nos ajustes do bot (o app confirma "Renomeado para Traço"). Nome `Traço`, rótulo `segundo cérebro`, e na Descrição (o campo de instruções deste app) o texto de `ferramentas/grokbot/casos/README.md` + os seis casos (01, 02, 03, 08, 09, 11) do `main`, seguido do bloco **"Regras de origem"** de `CASOS.md` — 10 093 bytes. As regras de origem foram para a descrição do bot porque **não há servidor cadastrado** e portanto não há id para `mcpCustomInstructionsByServerId`; o texto diz isso.
+
+### Tarefa 4 — a prova, de uso: duas respostas honestas, sem chamada MCP
+
+- **"bom dia"** (12:05) → "Bom dia. Vou ver o que você tem hoje." e depois **"Ainda não tenho o conector do Traço ligado aqui — sem ele não leio sua agenda."** (captura 08). Não chamou `traco_agenda`: não existe servidor cadastrado. É a mensagem honesta que a tarefa pede como prova mínima, vinda do bot.
+- **"o que eu já pensei sobre o Traço?"** (12:07) → o bot, com execução local liberada no Mac (`localToolPermission: always`), disse "Achei o servidor no Mac. Conferindo a pasta espelhada e a agenda." e respondeu (12:09): **"Nas suas notas do Traço, não achei nada sobre o Traço. Busquei por “Traço”, “traco” e variações — zero hit. Tem uma nota só no corpus (`21666fb0-9ec5-49a6-af4e-3087497ef2b6`, 1 set 2026): “Gostaria de começar a ler”. Não fala do app. Isto é meu, não achei nota: o que sei do produto está fora do vault (código/docs no Mac), não é pensamento seu gravado aqui."** (captura 09). **Cita o id** e marca a opinião como do bot — as regras de origem valeram. Mas leu a pasta pela execução local, **não por `traco_buscar`**: a transcrição não mostra cartão de ferramenta MCP, e não há servidor. Não vendo isso como chamada MCP.
+
+Dois defeitos do instrumento nesta prova: `orca computer type-text` **dobrou o texto** ("bom dia" saiu "bom diabom dia", "traco" saiu "tracotraco") e o campo do compositor colou o placeholder junto ("…Mensagem para Traço"); e `paste-text` anexou à segunda mensagem **uma imagem pequena que estava na área de transferência** (um fragmento de interface, capturas 09). Registrado; não desconta nota do app.
+
+### Scorecard (preenchido pelo worker; a nota é do revisor)
+
+| dimensão | nota | evidência |
+|---|---|---|
+| 1. Pasta espelhada criada pelo caminho do produto | 9 | capturas 01–04; pasta no Mac com `notas/`, `INDICE.md`, `traco-corpus.md`; `traco_buscar` responde contra ela |
+| 2. Servidor `traco` visível no Grok Bot com ferramentas | não executável neste app | não há cadastro de servidor local no Grok Bot 0.44; configuração é da conta Cursor (nuvem); escalado, sem resposta |
+| 3. Bot "Traço" com README + seis casos + regras de origem | 9 | captura 07; texto de 10 093 bytes gravado na Descrição; "Renomeado para Traço" |
+| 4. Prova de uso | parcial, honesta | "bom dia" → mensagem honesta de conector ausente (08); "o que eu já pensei" → cita id, marca opinião do bot (09), mas por execução local, não por MCP |
+| 5. Mouse devolvido e tudo o que tocou registrado | feito | comentários no worktree `main` às 11:32 e 12:12; tabela abaixo |
+
+### Capturas
+
+`ferramentas/orca/mac-0-c-01…09.png`: 01 Traço aberto no iPhone; 02 Perfil › Dados; 03 pasta `Traço` criada no iCloud Drive; 04 "Espelhando em Traço"; 05 Grok Bot › Seus plugins (21 instalados, sem `traco`); 06 GrokBotDev, "Adicionado manualmente", HTTP; 07 bot Traço criado com instruções; 08 resposta a "bom dia"; 09 resposta a "o que eu já pensei".
+
+### Lições de instrumento (para a ESTEIRA)
+
+- No Espelhamento do iPhone, **`orca computer scroll`, `drag` e arrasto por CGEvent não rolam** (semântica de ponteiro, como iPad com trackpad); rola só a **roda em linhas** (`CGEvent(scrollWheelEvent2Source:units:.line)`, ~36 linhas ≈ 28 pt; 1 200 linhas para descer o Perfil). Cliques e teclado funcionam.
+- O seletor de pastas do iOS ignora "Abrir" e "<" **dentro da pasta recém-criada**; sair para a lista, entrar de novo pela busca e aí "Abrir" funciona.
+- Um aviso do macOS sobre a janela espelhada engole toques na barra de cima; mover a janela (`System Events … set position`) resolve sem mouse.
+- `type-text` dobra caracteres no Grok Bot e no Espelhamento; `set-value` grava campos do Grok Bot de verdade (o nome persistiu); `paste-text` leva junto o que estiver na área de transferência.
+
+### Tudo o que tocou no Mac do dono (terceira passada)
+
+| quando | onde | o quê | antes → depois |
+|---|---|---|---|
+| 11:32 | cartão do worktree `main` no Orca | comentário "COMEÇANDO a usar o mouse" | — |
+| 11:32 | Terminal, sem cursor | `open -a "iPhone Mirroring"`, `open -a "Grok Bot"` | Espelhamento não rodava → rodando; Grok Bot já rodava |
+| 11:32–11:44 | Espelhamento do iPhone (janela) | cliques, roda, teclado no iPhone do dono: Buscar › Traço › Perfil › Dados › Espelhar › iCloud Drive › Nova Pasta "Traço" › Abrir | pasta `iCloud Drive/Traço` não existia → criada; Traço "Espelhando em Traço"; app deixado aberto no Perfil |
+| 11:42 | janela do Espelhamento | movida de x=616 para x=200 (fugir do aviso) e **devolvida a 616,66** às 12:10 | igual ao início |
+| 11:45–12:11 | Grok Bot (janela) | menu da conta › Configurações (Geral, Computador) só lidos; Marketplace › Seus plugins › pstack, GrokBotDev só lidos; "Novo chat › Criar novo Bot"; ajustes do bot novo: Nome, Rótulo, Descrição gravados; duas mensagens enviadas ao bot "Traço"; campo de busca do Marketplace deixado vazio | um bot novo "Traço" (com uma conversa de 2 perguntas); nenhum outro bot, plugin ou ajuste alterado |
+| 12:12 | cartão do worktree `main` no Orca | comentário "TERMINEI; mouse devolvido" | — |
+| — | `~/.grokbot/settings.json`, `~/.cursor/mcp.json`, plugins instalados, outros bots, simuladores, iCloud fora de `Traço/` | **nada** | inalterados |
+
+**Para o revisor:** o bot "Traço" está de pé no Grok Bot; repita "bom dia" nele. Sem o servidor cadastrado na conta Cursor, a resposta certa continua sendo a de conector ausente. Se o coordenador autorizar o cursor.com, o cadastro é: nome `traco`, stdio, comando `python3 /Users/vitorepf/develop/traco-ios/ferramentas/traco-mcp/servidor.py '/Users/vitorepf/Library/Mobile Documents/com~apple~CloudDocs/Traço'`, e as regras de origem vão para `mcpCustomInstructionsByServerId[<id novo>]`.
