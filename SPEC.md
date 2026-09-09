@@ -7842,3 +7842,70 @@ teste continua **vermelho no pai** `cce6beb`.
 aparelho: perguntar, sair, voltar, e encontrar o cartão no lugar. A medida de
 curva-zero da 09c (2 toques + redigitar → 1 toque) só passa a valer agora, porque
 só agora a ida ao Calendário existe.
+
+## ADR 2026-09-09k — As Notas são uma folha do Traço, não uma lista de sistema com selos (volta D1)
+
+**O veredito.** O dono olhou a lista das Notas do build de 09/09 e deu **4/10**,
+com a palavra **slop** (DIRETRIZ §9): régua de cápsulas, etiquetas em caixa alta à
+direita, o rótulo "A VOLTA", a barra de busca de sistema, "Trabalhos" como linha
+de menu. A auditoria da fase 5 confirmou na tela viva (`ferramentas/orca/d1/antes-01-large.png`)
+e respondeu ao **teste do genérico**: trocando fonte e cor, a tela servia a qualquer
+app de notas; só as palavras eram do Traço. O domínio "Saúde" ficava a **7,8
+telas** à direita na régua (árvore de AX, `x = 7.766`).
+
+**A decisão: a lista é o sumário da folha.** O que dá identidade ao Traço é o
+papel, a letra e o silêncio — a página em branco tem a data, "1 volta a conferir"
+em tinta âmbar e o caret. A lista passa a falar esse idioma, sem token, cor, fonte
+ou componente novo:
+
+1. **Filtro e ordem são palavras, não cápsulas.** Sob o título, "Todas ⌄ ·
+   Mais recentes ⌄" em `Tema.meta` tinta suave; cada palavra abre o seu `Menu`.
+   O menu do filtro lista **Domínio** (sete) antes de **Método** (onze e
+   crescendo com a pasta do autor) e "Trancadas" no fim — os dois grupos cabem
+   sem rolar. A **seta da régua** (V13, ADR 08t) deixa de existir porque a régua
+   deixa de existir: o menu mostra os 29 de uma vez, nenhum fica escondido à
+   direita — o propósito daquele ganho está cumprido por construção. **A contagem
+   que nomeia o filtro** ("3 notas · Saúde") fica.
+2. **"Trabalhos" é uma frase-porta**, "1 trabalho ›", em tinta suave — o idioma
+   que `LinhaDaVolta` (ADR 05b) já usa na página: a folha afirma um fato e o fato
+   abre. O "›" fica no texto, tipográfico, para continuar a ler-se como "abre"
+   (o ganho da V13); saem o ícone e o chevron na borda. Continua sendo linha da
+   lista, rola com ela e some na busca.
+3. **A volta sem rótulo.** "A VOLTA" sai; a cobrança ("O que aconteceu?") vai em
+   `Tema.corpo` e **tinta âmbar** — o único texto âmbar da lista, a folha
+   cobrando, a mesma tinta de "1 volta a conferir". É a quebra deliberada da
+   tela.
+4. **O título da nota na letra da página** (`Tema.corpo`, regular), e a segunda
+   linha em uma frase: "WOOP · o celular na cama · acordar sem alarme…" — método
+   e "feito pelo bot" (ADR 08u) em tinta suave, trecho em tinta fraca. **O domínio
+   é a palavra com seta na margem direita, alinhada pela última linha de base**
+   ("Saúde ⌄"), e continua abrindo o menu (ADR 05d) como irmão do botão, nunca
+   filho. `ChipDominio` sem `tingido` passa a desenhar essa palavra (o cartão da
+   página também a recebe).
+5. **Rótulos de seção em minúsculas** ("hoje", "setembro", "pelo sentido") em
+   `meta` tinta fraca, sem caixa alta nem tracking — margem, não selo.
+6. **A busca é uma linha no pé da folha**: sem cartão branco nem lupa, hairline
+   acima, prompt "buscar ou perguntar" em tinta fraca; o fundo do encaixe fica
+   opaco (`Tema.fundo`) porque sem o cartão a lista passava por baixo.
+7. O compartilhar perde o círculo de chip; `Pilula.Forma.menu` morre sem
+   consumidor.
+
+**O que não mudou, de propósito:** a barra de abas (o âmbar do Escrever é a
+assinatura de ação, ADR 02h), o cartão da sábia, o modo lote, os fluxos de
+abrir/recordar/contexto, e a régua de cápsulas de `Trabalho*`/`CadernoView`, que
+são de outras telas.
+
+**Curva-zero em toques e gestos** (sonda `ferramentas/orca/d1/sonda-curva-zero.py`,
+mesmo estado semeado, teste 3): achar por domínio "Saúde" — antes **2 arrastos
+na régua + 1 toque**, com a cápsula cortada na borda no fim da régua; depois **2
+toques**. Achar a nota de julho rolando — 1 arrasto nos dois. Marcar o domínio
+(menu) — 2 toques nos dois. Achar por palavra — 1 toque + digitar nos dois. O
+custo assumido: filtrar por WOOP, que era o segundo chip visível, passa de 1
+toque para 2.
+
+**Instrumento.** Os fluxos `maestro/busca-filtro.yaml` (o filtro abre pelo menu),
+`pelo-sentido.yaml` e `anexo-no-sentido.yaml` ("pelo sentido" em minúsculas) foram
+atualizados por leitura, não corridos: o `varrer.sh` recusa correr com dois
+simuladores ligados, e o da conta fica ligado. A sonda desta volta percorreu os
+mesmos passos (menu → WOOP/Saúde, busca "celular", `chip-dominio` → Estudo,
+`secao-volta` visível) e as capturas estão em `ferramentas/orca/d1/`.

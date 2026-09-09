@@ -31,7 +31,7 @@ struct PilulaContrasteTests {
     /// correção também tem de ser — nenhum chamador fica com o cinza morto.
     @Test func nenhumaFormaVoltaAoCinzaMorto() {
         let morta = corDe(Tema.tintaMorta)
-        for forma: Pilula<Text>.Forma in [.filtro, .menu, .controle, .acao, .larga, .etiqueta] {
+        for forma: Pilula<Text>.Forma in [.filtro, .controle, .acao, .larga, .etiqueta] {
             let tinta = corDe(Pilula<Text>.tinta(ativa: false, cheia: false, forma: forma))
             #expect(tinta != morta, "forma \(forma) voltou a tintaMorta")
         }

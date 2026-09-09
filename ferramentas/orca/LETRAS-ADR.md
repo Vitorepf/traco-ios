@@ -64,8 +64,10 @@ que este arquivo existe para impedir — e ele reincidiu no próprio arquivo.
 | 09g | C1-A (era 08w, depois 09d) | em `main` |
 | 09h | Q3 (responder nas Notas) | reservada |
 | 09i | Q4 (instigar e contrapor) | reservada |
+| 09j | — | pulada pelo despacho da D1 (o spec deu 09k); fica vaga até quem despachou dizer |
+| 09k | D1 (as Notas sem slop) | no branch `Vitorepf/volta-d1-notas` |
 
-**Próxima livre: 09j.**
+**Próxima livre: 09l.**
 
 **A série 08 está CHEIA** — de `08a` a `08z`, com `08c` e `08d` como buracos que
 ficam vagos. Quem precisar de letra hoje usa a série `09`.

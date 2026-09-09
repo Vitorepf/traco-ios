@@ -21,7 +21,7 @@ appId: app.traco
 - tapOn: {id: "busca-notas"}
 - inputText: "fazer exercício todos os dias"
 - extendedWaitUntil:
-    visible: "PELO SENTIDO"
+    visible: "pelo sentido"
     timeout: 8000
 - assertVisible: "quero correr de manhã antes do trabalho"
 - takeScreenshot: /tmp/traco-verify/ciclo/05-pelo-sentido

@@ -8,10 +8,9 @@ import SwiftUI
 /// a volta por tela decide qual sobrevive (o sistema pede `controle`).
 struct Pilula<Conteudo: View>: View {
     enum Forma {
-        /// Notas, filtros: meta médio, 12×8, mínimo 34 (mede 36).
+        /// Trabalho e caderno, ações em cápsula: meta médio, 12×8, mínimo 34 (mede 36).
+        /// (D1: as Notas deixaram de usar cápsulas — filtro e ordem são palavras.)
         case filtro
-        /// Notas, ordem: meta médio, 12, 34 cravados, com seta.
-        case menu
         /// SISTEMA-CLARO: 36 de altura num trilho de 44.
         case controle
         /// "Pronto": chrome, 14, 36, sempre carvão.
@@ -71,7 +70,7 @@ struct Pilula<Conteudo: View>: View {
 
     private var fonte: Font {
         switch forma {
-        case .filtro, .menu: Tema.meta.weight(.medium)
+        case .filtro: Tema.meta.weight(.medium)
         case .controle: CalendarioTema.dia
         case .acao, .larga: CalendarioTema.chrome
         case .etiqueta: Tema.label
@@ -92,9 +91,6 @@ struct Pilula<Conteudo: View>: View {
         switch forma {
         case .filtro:
             base.padding(.horizontal, 12).padding(.vertical, 8).frame(minHeight: 34)
-                .background(fundo, in: Capsule())
-        case .menu:
-            base.padding(.horizontal, 12).frame(height: 34)
                 .background(fundo, in: Capsule())
         case .controle:
             base.padding(.horizontal, 12).frame(height: CalendarioTema.controle)
@@ -120,7 +116,7 @@ extension Pilula where Conteudo == Text {
     }
 }
 
-/// A seta de quem abre um menu, no corpo da cápsula.
+/// A seta de quem abre um menu, ao lado da palavra (Notas) ou no corpo da cápsula (ficha).
 struct SetaDeMenu: View {
     var body: some View {
         Image(systemName: "chevron.down")
@@ -135,7 +131,6 @@ struct SetaDeMenu: View {
             Pilula("WOOP", forma: .filtro) {}
             Pilula("Trabalho", forma: .filtro) {}
         }
-        Pilula(forma: .menu) { HStack(spacing: 4) { Text("Mais recentes"); SetaDeMenu() } }
         HStack(spacing: 8) {
             Pilula("Do seu iPhone", forma: .controle)
             Pilula("Pronto", forma: .acao)
