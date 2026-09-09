@@ -152,4 +152,70 @@ Dois defeitos do instrumento nesta prova: `orca computer type-text` **dobrou o t
 | 12:12 | cartão do worktree `main` no Orca | comentário "TERMINEI; mouse devolvido" | — |
 | — | `~/.grokbot/settings.json`, `~/.cursor/mcp.json`, plugins instalados, outros bots, simuladores, iCloud fora de `Traço/` | **nada** | inalterados |
 
-**Para o revisor:** o bot "Traço" está de pé no Grok Bot; repita "bom dia" nele. Sem o servidor cadastrado na conta Cursor, a resposta certa continua sendo a de conector ausente. Se o coordenador autorizar o cursor.com, o cadastro é: nome `traco`, stdio, comando `python3 /Users/vitorepf/develop/traco-ios/ferramentas/traco-mcp/servidor.py '/Users/vitorepf/Library/Mobile Documents/com~apple~CloudDocs/Traço'`, e as regras de origem vão para `mcpCustomInstructionsByServerId[<id novo>]`.
+**Para o revisor:** o bot "Traço" está de pé no Grok Bot; repita "bom dia" nele. Sem o servidor cadastrado na conta Cursor, a resposta certa continua sendo a de conector ausente. *(Corrigido na quarta passada, abaixo: um cadastro stdio na conta não entra no Grok Bot — o app recusa qualquer servidor com `command`.)*
+
+## Quarta passada (MAC-0-D), 09/09 12:20–12:55 — sem mouse: o stdio não chega ao Grok Bot, e isso é do produto
+
+Decisão do coordenador sobre a escalação da MAC-0-C: (b), declarar o limite. Nesta passada **nada foi tocado no Mac** — sem mouse, sem navegador, sem cursor.com; só leitura do bundle do app, dos docs públicos da Cursor e do servidor por stdio. Branch atualizado com o `main` (`0f4a014`, mesclagem limpa).
+
+### O achado que muda o pedido: não é "trinta segundos do dono"
+
+O despacho pedia o trecho stdio para o dono colar na configuração MCP da conta. **Esse trecho não funcionaria em tela nenhuma do Grok Bot**, e a prova está em três lugares:
+
+1. **Código do app (0.44.0, `app.asar`).** No fluxo que liga um servidor da conta: `if ("command" in config) → { status: "not-supported", reason: "stdio_unsupported" }`. Toda entrada com `command` é recusada antes de qualquer tentativa. A mensagem pt-BR do bundle para esse estado: *"<nome> é executado no computador do Grok Bot e não usa login pelo navegador. Configure as credenciais dele nas configurações de ambiente."* — "computador do Grok Bot" é a máquina do bot na nuvem, não o Mac do dono; lá não existe `/Users/vitorepf/…` nem o iCloud Drive.
+2. **A Cursor, por escrito.** Kevin Neilson (staff), fórum da Cursor, 13/08/2026: *"Grok Bot does not attach MCP servers that run on your own machine, whether that's stdio or something listening on localhost."* O que vale: *"remote HTTP/SSE MCP and catalog connectors where they exist, and the Bot's cloud browser everywhere else"* (`forum.cursor.com/t/does-grok-bot-support-local-mcp-e-g-workflowy/168182`).
+3. **Docs (`cursor.com/docs/context/mcp`).** stdio é transporte local do Cursor IDE (`.cursor/mcp.json` do projeto, `~/.cursor/mcp.json` global); servidores de equipe ficam em *Dashboard › Integrations & MCP* e são remotos.
+
+O que a MAC-0-C viu bate com isso: o único "Adicionado manualmente" do dono (GrokBotDev) é HTTP. O `.cursor/mcp.json` do repositório (`5808a56`) segue certo **para o Cursor IDE e para agentes em nuvem que abrem o repositório**, e irrelevante para o Grok Bot.
+
+### O que fica pronto, e para quem
+
+**Para o dono, hoje: nada a colar que ligue o servidor ao Grok Bot.** Não há tela, nem no app nem na conta, onde um servidor local entre. Pedir a ele que cole o stdio seria mandá-lo fazer algo que o app recusa.
+
+**O trecho, no lugar onde ele funciona hoje (Cursor IDE, não o Grok Bot).** Já está em `.cursor/mcp.json` do repositório; para valer em qualquer projeto, o mesmo bloco em `~/.cursor/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "traco": {
+      "command": "python3",
+      "args": [
+        "/Users/vitorepf/develop/traco-ios/ferramentas/traco-mcp/servidor.py",
+        "/Users/vitorepf/Library/Mobile Documents/com~apple~CloudDocs/Traço"
+      ]
+    }
+  }
+}
+```
+
+Onde, segundo o próprio bundle do Grok Bot: *"Open Cursor's Customize page > MCPs"* (a tela de MCP do Cursor IDE). Não vi essa tela nesta volta; o caminho é o do texto do app.
+
+**O que ele vê quando funciona**, em qualquer cliente que ligue o servidor — resposta real de `tools/list` do servidor do `main`, colhida às 12:25 contra a pasta espelhada:
+
+`traco_contrato, traco_indice, traco_notas, traco_nota, traco_buscar, traco_sentidos, traco_corpus, traco_semana, traco_agenda, traco_decisoes, traco_escrever, traco_metodo_escrever` — 12 ferramentas. Se `traco_agenda` e `traco_decisoes` não aparecem, o cliente pegou um `servidor.py` anterior à MAC-1.
+
+**O caminho que chega ao Grok Bot é volta de código, não clique:** o servidor precisa de transporte HTTP e de uma URL pública (o bot fala da nuvem); aí entra como conector manual, como o GrokBotDev, com `{"mcpServers":{"traco":{"url":"https://<url pública>/mcp"}}}` — a URL só existe quando a volta existir, por isso o placeholder. Dívida nomeada no RUMO como **MAC-0-E**, com a alternativa mais barata logo abaixo.
+
+### O que a prova do "bom dia" mostra de fato
+
+- **Captura 08 (`mac-0-c-08`)**: "bom dia" → *"Bom dia. Vou ver o que você tem hoje."* e *"Ainda não tenho o conector do Traço ligado aqui — sem ele não leio sua agenda."* Não há cartão de ferramenta, não houve chamada a `traco_agenda`, e o texto é o que as instruções coladas na Descrição mandam dizer quando não há conector. **É o bot falando sozinho, honesto. Não é o caso 11 funcionando.** O caso 11 segue não provado, e não pode ser provado pelo bot até a MAC-0-E; além disso o `agenda.md` só nasce com o build da MAC-1 instalado no iPhone do dono (não instalado).
+- **Captura 09 (`mac-0-c-09`)**: "o que eu já pensei sobre o Traço?" → *"Achei o servidor no Mac. Conferindo a pasta espelhada e a agenda."* e a resposta que cita o id `21666fb0-…` e marca a opinião como do bot. Aqui o bot **rodou comandos no Mac do dono** pela permissão "Executar um comando no seu computador local" (`localToolPermission: always`, já estava assim) e leu a pasta espelhada. É o caso 1 respondendo na **forma certa (cita id, marca opinião)** por uma **rota que não é o MCP**, contra um corpus de uma nota. **Indício, não prova**: nada garante que ele use `traco_buscar` nem que respeite `traco_contrato`.
+
+Essa rota local alcança o Mac — o que a nuvem do bot não alcança por MCP, o "computador local" alcança por comando. Fica no RUMO como alternativa à MAC-0-E: um modo de linha de comando em `servidor.py` (`--chamar traco_agenda`) e uma linha nas instruções do bot. É código, e é de outra volta.
+
+### Scorecard (preenchido pelo worker; a nota é do revisor)
+
+| dimensão | nota | evidência |
+|---|---|---|
+| 1. Pasta espelhada criada pelo caminho do produto | 9 | MAC-0-C, capturas 01–04; pasta com `notas/`, `INDICE.md`, corpus; `tools/list` e `traco_agenda` respondem contra ela |
+| 2. Servidor `traco` visível no Grok Bot | não executável no produto | `stdio_unsupported` no código; Cursor (13/08/2026); nenhum servidor local entra no Grok Bot |
+| 3. Bot "Traço" com README + seis casos + regras de origem | 9 | MAC-0-C, captura 07 |
+| 4. Prova de uso | parcial, honesta | 08: bot sozinho, sem MCP; 09: caso 1 por execução local, indício |
+| 5. Mouse devolvido e tudo registrado | feito | nesta passada o mouse não foi tomado; fecho no comentário do worktree `main` |
+
+### Tudo o que tocou no Mac do dono (quarta passada)
+
+| quando | onde | o quê |
+|---|---|---|
+| 12:20–12:55 | Terminal, sem cursor | leitura: `app.asar` (grep), `servidor.py` por stdio (`tools/list`), `ls` da pasta espelhada, docs públicos da Cursor por WebFetch |
+| — | Grok Bot, Espelhamento, iPhone, `~/.grokbot/`, `~/.cursor/mcp.json`, cursor.com, simuladores | **nada** |

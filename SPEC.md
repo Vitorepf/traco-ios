@@ -7986,3 +7986,21 @@ o caderno dela vê vermelho **antes** de a mudança chegar ao aparelho do autor.
 Provado tirando o `TracoSchemaV0` do plano: o contador acusou 6 contra 5 e o
 `caderno-v0-b7fbc3e` recusou abrir com `loadIssueModelContainer`, enquanto as
 outras cinco seguiram verdes.
+
+## ADR 2026-09-09m — o Grok Bot não liga servidor local; o MCP do Traço chega ao bot por HTTP ou por comando (volta MAC-0-D)
+
+**Contexto.** A trilha Mac supõe o `servidor.py` (stdio) cadastrado no Grok Bot. O app 0.44
+recusa qualquer servidor com `command` (`stdio_unsupported`, no fluxo de ligação da conta) e
+a Cursor escreveu em 13/08/2026 que o bot não liga servidor da máquina do usuário: os servidores
+da conta rodam "no computador do Grok Bot", na nuvem. O `.cursor/mcp.json` do repositório vale
+para o Cursor IDE e para agentes em nuvem, não para o Grok Bot.
+
+**Decisão.** O stdio fica como transporte do Cursor IDE e de qualquer cliente local. Para o
+Grok Bot, o caminho é um dos dois da MAC-0-E (RUMO): modo de linha de comando no `servidor.py`,
+chamado pela execução local que o bot já tem no Mac, ou transporte HTTP com URL pública. Nenhum
+caso da trilha Mac é declarado provado até um dos dois existir e a prova mostrar a ferramenta
+`traco_*` no cartão da resposta.
+
+**Consequência.** O bot "Traço" e a pasta espelhada existem; "bom dia" hoje é o bot avisando
+que não tem conector, e isso é a resposta certa, não o caso 11. Relato:
+`ferramentas/orca/mac-0-configuracao.md`.

@@ -4,9 +4,15 @@ Ordem do dono, 08/09/2026: implementar os onze. Este arquivo é o contrato em li
 
 O que o bot tem que o app não tem: tela grande e teclado; um modelo grande com conhecimento de mundo e busca na web; leitura de todas as notas de uma vez; conversa. O que o bot NUNCA faz: redigir como se fosse a pessoa, resumir expressiva ou selada (nem chegam a ele), inventar fato sem citar a nota de onde veio, sincronizar sozinho, usar voz.
 
-**Casos prontos (08/09/2026).** 1, 3, 8, 9 e 11, e a LEITURA do 2 — volta MAC-1
-(ADR 2026-09-08u). As instruções para colar no bot estão em `casos/`. Faltam a
-escrita do 2 e os casos 4, 5 e 6 (MAC-2), e os 7 e 10 (MAC-3).
+**Casos prontos (09/09/2026, MAC-0-D).** No MCP: 1, 3, 8, 9, 11 e a LEITURA do 2
+(MAC-1, ADR 2026-09-08u); as instruções para colar no bot estão em `casos/`. No Grok Bot:
+o bot "Traço" existe com essas instruções e a pasta espelhada existe no Mac (MAC-0-C), mas
+**nenhum caso está provado pelo bot** — o Grok Bot não liga servidor MCP da máquina do
+usuário (código do app: `stdio_unsupported`; Cursor, 13/08/2026), então `traco_*` não
+chega ao bot até haver transporte HTTP com URL pública (MAC-0-E, no RUMO). O caso 1
+respondeu uma vez por execução local do bot no Mac, sem MCP, contra um corpus de uma
+nota (captura `orca/mac-0-c-09`): indício, não prova. Faltam a escrita do 2 e os casos
+4, 5 e 6 (MAC-2), e os 7 e 10 (MAC-3).
 
 Regras de origem, para todos os casos:
 - Texto da pessoa vai para `entrada/` como nota dela (`origem: autor`).
