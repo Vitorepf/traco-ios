@@ -8,7 +8,11 @@ enum NotasFiltro {
             if nota.trancada { return busca.isEmpty && filtro == nil && dominio == nil }
             // Série em voo grava a página vazia para o kill não a perder.
             // O arquivo é o que o autor escreveu — sem voz, não é nota.
-            if !nota.fechada && !nota.temVoz { return false }
+            // ADR 08p: e sem nome também não. Uma página só com o marcador
+            // "## " tem texto cru (Nota.temVoz diz sim) mas nada visível: a
+            // lista afirmava uma nota onde não havia nada. A raiz é
+            // Sessao.paginaVazia/Nota.temVoz lerem o texto cru — fora desta volta.
+            if !nota.fechada && (!nota.temVoz || nota.tituloNaLista.isEmpty) { return false }
             if let filtro, let g = filtro.gesto, nota.gesto != g { return false }
             if let dominio, nota.dominio != dominio { return false }
             if !busca.isEmpty {

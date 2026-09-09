@@ -1,0 +1,950 @@
+{
+  "id": "f6761a2b-6d39-4ffd-ade7-06cefdfe1d00",
+  "ok": true,
+  "result": [
+    {
+      "role": "application",
+      "type": "Application",
+      "label": "Traço",
+      "value": "",
+      "enabled": true,
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "width": 1,
+        "height": 1
+      },
+      "children": [
+        {
+          "role": "heading",
+          "type": "Heading",
+          "label": "Notas",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0513,
+            "y": -0.0552,
+            "width": 0.3991,
+            "height": 0.0821
+          },
+          "children": []
+        },
+        {
+          "role": "pop up button",
+          "type": "PopUpButton",
+          "label": "Ordenar por Mais recentes",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.6026,
+            "y": -0.0225,
+            "width": 0.1974,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "ordem-notas"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Como contexto",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.8359,
+            "y": -0.0225,
+            "width": 0.1128,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "square.and.arrow.up"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Todas",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0513,
+            "y": 0.0487,
+            "width": 0.3906,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "filtro-todas"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "WOOP",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.4624,
+            "y": 0.0487,
+            "width": 0.4402,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "filtro-woop"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Se–então",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.9231,
+            "y": 0.0487,
+            "width": 0.588,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "filtro-se-entao"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Especificação",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 1.5316,
+            "y": 0.0487,
+            "width": 0.8308,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "filtro-spec"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Permanente",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 2.3829,
+            "y": 0.0487,
+            "width": 0.7274,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "filtro-nota-permanente"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Destaque",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 3.1308,
+            "y": 0.0487,
+            "width": 0.5923,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "filtro-destaque"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Destilar",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 3.7436,
+            "y": 0.0487,
+            "width": 0.4838,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "filtro-destilar"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Palavras",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 4.2479,
+            "y": 0.0487,
+            "width": 0.5239,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "filtro-palavra"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Decisões",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 4.7923,
+            "y": 0.0487,
+            "width": 0.5701,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "filtro-decisao"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Pré-mortem",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 5.3829,
+            "y": 0.0487,
+            "width": 0.7299,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "filtro-premortem"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Argumento",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 6.1333,
+            "y": 0.0487,
+            "width": 0.6761,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "filtro-argumento"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Leitura",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 6.8299,
+            "y": 0.0487,
+            "width": 0.441,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "filtro-leitura"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Feynman",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 7.2915,
+            "y": 0.0487,
+            "width": 0.5658,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "filtro-feynman"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Dia",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 7.8778,
+            "y": 0.0487,
+            "width": 0.2436,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "filtro-dia"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Analogia",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 8.1419,
+            "y": 0.0487,
+            "width": 0.5444,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "filtro-analogia"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Inversão",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 8.7068,
+            "y": 0.0487,
+            "width": 0.5299,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "filtro-inversao"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Steelman",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 9.2573,
+            "y": 0.0487,
+            "width": 0.5812,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "filtro-steelman"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Divergência",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 9.859,
+            "y": 0.0487,
+            "width": 0.7137,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "filtro-divergencia"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Princípios",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 10.5932,
+            "y": 0.0487,
+            "width": 0.6026,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "filtro-primeirosprincipios"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Prática",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 11.2162,
+            "y": 0.0487,
+            "width": 0.4453,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "filtro-praticadeliberada"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Atualização",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 11.6821,
+            "y": 0.0487,
+            "width": 0.7034,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "filtro-atualizacao"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Subtração",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 12.406,
+            "y": 0.0487,
+            "width": 0.6299,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "filtro-subtracao"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Coluna da esquerda",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 13.0564,
+            "y": 0.0487,
+            "width": 1.1581,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "filtro-colunaesquerda"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Classe",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 14.235,
+            "y": 0.0487,
+            "width": 0.435,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "filtro-classedereferencia"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Cinco porquês",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 14.6906,
+            "y": 0.0487,
+            "width": 0.8598,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "filtro-cincoporques"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Hamming",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 15.5709,
+            "y": 0.0487,
+            "width": 0.5949,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "filtro-perguntahamming"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "O que não se vê",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 16.1863,
+            "y": 0.0487,
+            "width": 0.9316,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "filtro-vistonaovisto"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Exame",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 17.1385,
+            "y": 0.0487,
+            "width": 0.4325,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "filtro-examedanoite"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Trancadas",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 17.5915,
+            "y": 0.0487,
+            "width": 0.6325,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "filtro-trancadas"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Trabalho",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 18.2444,
+            "y": 0.0487,
+            "width": 0.5385,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "filtro-dominio-trabalho"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Casa",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 18.8034,
+            "y": 0.0487,
+            "width": 0.3436,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "filtro-dominio-casa"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Saúde",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 19.1675,
+            "y": 0.0487,
+            "width": 0.4137,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "filtro-dominio-saude"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Dinheiro",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 19.6017,
+            "y": 0.0487,
+            "width": 0.5222,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "filtro-dominio-dinheiro"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Pessoas",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 20.1444,
+            "y": 0.0487,
+            "width": 0.5222,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "filtro-dominio-pessoas"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Estudo",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 20.6872,
+            "y": 0.0487,
+            "width": 0.447,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "filtro-dominio-estudo"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Ideias",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 21.1547,
+            "y": 0.0487,
+            "width": 0.388,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "filtro-dominio-ideias"
+        },
+        {
+          "role": "image",
+          "type": "Image",
+          "label": "Avançar",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.8769,
+            "y": 0,
+            "width": 0.1333,
+            "height": 0.1007
+          },
+          "children": [],
+          "id": "chevron.forward"
+        },
+        {
+          "role": "group",
+          "type": "Group",
+          "label": "Cartão da sábia",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0506,
+            "y": 0.1194,
+            "width": 0.8987,
+            "height": 0.8284
+          },
+          "children": [],
+          "id": "cartao-sabia-notas"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Trabalhos",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0513,
+            "y": 0.1102,
+            "width": 0.8974,
+            "height": 0.0845
+          },
+          "children": [],
+          "id": "abrir-trabalhos"
+        },
+        {
+          "role": "heading",
+          "type": "Heading",
+          "label": "A VOLTA",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0513,
+            "y": 0.219,
+            "width": 0.4265,
+            "height": 0.0569
+          },
+          "children": [],
+          "id": "secao-volta"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "O que aconteceu? Decidir se troco de plano de celular",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0513,
+            "y": 0.2828,
+            "width": 0.8974,
+            "height": 0.389
+          },
+          "children": [],
+          "id": "volta-notas"
+        },
+        {
+          "role": "heading",
+          "type": "Heading",
+          "label": "HOJE",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0513,
+            "y": 0.6953,
+            "width": 0.2795,
+            "height": 0.0569
+          },
+          "children": []
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Proposta para o cliente da padaria O orçamento fechado com a padaria Sol foi de 4200 reais e o prazo combinado e de tres semanas, com entrega em 29 de setembro. Revisado.",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0513,
+            "y": 0.7615,
+            "width": 0.4436,
+            "height": 0.2954
+          },
+          "children": [],
+          "id": "nota-notas"
+        },
+        {
+          "role": "pop up button",
+          "type": "PopUpButton",
+          "label": "Domínio: Dinheiro",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.5154,
+            "y": 0.8464,
+            "width": 0.4333,
+            "height": 0.1256
+          },
+          "children": [],
+          "id": "chip-dominio"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Quero dormir mais cedo esta semana",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0513,
+            "y": 1.0624,
+            "width": 0.4846,
+            "height": 0.5893
+          },
+          "children": [],
+          "id": "nota-notas"
+        },
+        {
+          "role": "pop up button",
+          "type": "PopUpButton",
+          "label": "Domínio: Saúde",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.5564,
+            "y": 1.3227,
+            "width": 0.3923,
+            "height": 0.0687
+          },
+          "children": [],
+          "id": "chip-dominio"
+        },
+        {
+          "role": "text field",
+          "type": "TextField",
+          "label": "Buscar ou perguntar",
+          "value": "vazio",
+          "enabled": true,
+          "frame": {
+            "x": 0.0513,
+            "y": 0.957,
+            "width": 0.8974,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "busca-notas"
+        },
+        {
+          "role": "image",
+          "type": "Image",
+          "label": "Buscar",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0974,
+            "y": 0.9526,
+            "width": 0.1299,
+            "height": 0.0608
+          },
+          "children": [],
+          "id": "magnifyingglass"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Escrever uma nota nova",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0,
+            "y": 1.0257,
+            "width": 0.2,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "nova-nota"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Notas",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.2,
+            "y": 1.0257,
+            "width": 0.2,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "aba-notas"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Calendário",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.4,
+            "y": 1.0257,
+            "width": 0.2,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "aba-calendario"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Padrões",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.6,
+            "y": 1.0257,
+            "width": 0.2,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "aba-padroes"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Perfil",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.8,
+            "y": 1.0257,
+            "width": 0.2,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "aba-perfil"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Voltar para Ajustes",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0308,
+            "y": 0.0363,
+            "width": 0.1333,
+            "height": 0.0158
+          },
+          "children": [],
+          "id": "breadcrumb"
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "20:43",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0769,
+            "y": 0.0099,
+            "width": 0.1137,
+            "height": 0.0221
+          },
+          "children": []
+        },
+        {
+          "role": "",
+          "type": "GenericElement",
+          "label": "Celular",
+          "value": "Sem sinal",
+          "enabled": true,
+          "frame": {
+            "x": 0.7752,
+            "y": 0.0225,
+            "width": 0.0436,
+            "height": 0.0134
+          },
+          "children": []
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "Prazo da padaria?",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0872,
+            "y": 0.1363,
+            "width": 0.488,
+            "height": 0.1382
+          },
+          "children": [],
+          "id": "pergunta-pendente-notas"
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "A resposta foi recolhida porque uma fonte mudou ou deixou de estar acessível.",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0872,
+            "y": 0.2862,
+            "width": 0.8094,
+            "height": 0.4131
+          },
+          "children": [],
+          "id": "sabia-falhou-notas"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Repetir pergunta",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0872,
+            "y": 0.7113,
+            "width": 0.4769,
+            "height": 0.1382
+          },
+          "children": [],
+          "id": "repetir-pergunta-notas"
+        }
+      ]
+    }
+  ],
+  "_meta": {
+    "runtimeId": "29a00263-8c2e-4822-afea-b504e815d7ae"
+  }
+}

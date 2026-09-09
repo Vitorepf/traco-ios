@@ -509,3 +509,87 @@ que nenhuma regra desapareça, **declara cada escolha por escrito**, e prova na
 fusão **é o achado**, não um estorvo.
 
 Vira lei na ESTEIRA: **o G5 tem dois passos. Aprovado não é mesclável.**
+
+## 08/09, 21h35 — a V13-B anexou as duas provas, e trouxe o oitavo instrumento
+
+As duas provas que o G3 segurou entraram, **sem tocar em uma linha de
+`Traco/`**: o cartão da sábia em falha alcançado pela rota real e capturado em
+AX5 com árvore e screenshot a um segundo de distância (rótulo inteiro, 117 pt =
+duas linhas, ordem pergunta → estado → ação, vãos de ~10 pt, nenhuma
+sobreposição), e dois vídeos sem áudio do mesmo trajeto da seta, medidos quadro a
+quadro: **nove quadros de meio-tom (~150 ms) sem Movimento Reduzido, um quadro
+só com ele, sem meio-tom e sem piscar.**
+
+E o achado que vale mais que a volta: **o leitor de AX do serve-sim devolve no
+máximo três dos quatro elementos do cartão, e qual some muda com o tamanho de
+letra.** Ela não parou no sintoma — provou que é do leitor e não do app, porque
+em `medium` some "Fechar" e em AX5 sumia "Repetir pergunta"; refeito com
+pergunta curta, os três vieram com frames que batem pixel a pixel com a captura.
+
+Eu já tinha avisado as outras duas frentes por batimento, sem prova. Agora tem
+prova e virou lei: **ausência na árvore não é prova de ausência na tela**;
+presença continua valendo. É o oitavo instrumento do dia a dizer menos do que
+mostra, e o primeiro em que a diferença entre "o app não expõe" e "o leitor não
+devolveu" só apareceu porque alguém mediu a mesma tela de dois jeitos.
+
+Renumerei a ADR da V13 de `08p` para **`08t`** (a `08p` é da Q, que já teve as
+letras conferidas uma a uma) — duas ocorrências, e normalizando a letra os dois
+lados do diff ficam idênticos. Commit `4e8bc40`. Despachei o **re-G3 segundo**
+(`task_99b2222e5719`) para o mesmo revisor confirmar as duas provas e,
+principalmente, **conferir a atribuição do limite** — se ele discordar, aquilo é
+defeito do app e não limite do instrumento.
+
+## 08/09, 21h50 — a V13 PASSA, e o revisor me corrige na dose da minha própria lei
+
+Movimento e Acessibilidade subiram a 9: ele foi ao **vídeo bruto** e contou os
+quadros (nove intermediários no normal, um com Movimento Reduzido), e o par AX5
+prova rótulo, ordem e ausência de sobreposição. **PASSA**, commit `3eff3bd` no
+branch.
+
+E ele fez comigo o que eu venho cobrando de todo mundo: **cortou a minha
+alegação no tamanho da prova.** Eu tinha escrito na ESTEIRA que o leitor de AX
+"devolve no máximo três dos quatro elementos, e qual some muda com o tamanho de
+letra". Ele confirma o que a evidência sustenta — *"Fechar ausente da árvore mas
+presente na captura é limite do leitor"* — e nomeia o que falta: **sem a árvore
+bruta em `medium`, o "máximo de três" e a variação por tamanho não viram regra
+geral.**
+
+Corrigi a ESTEIRA para separar as duas coisas: o que está provado (a árvore pode
+omitir um elemento que está na tela; presença vale, ausência não prova ausência)
+e o que não está (o teto de três, a dependência do tamanho de letra). Quem
+precisar da generalização, mede e guarda as duas árvores brutas.
+
+É a terceira vez hoje que eu escrevo uma frase maior que a prova — a primeira foi
+a recusa de vazamento que eu atribuí ao provedor, a segunda o achado de perda de
+dados da A1. Desta vez quem pegou foi o revisor, e no mesmo dia em que eu reprovei
+a Q por exatamente isso.
+
+## 08/09, 22h — pausa e retomada (uso 26%); a V13 mesclada e a C1 aberta
+
+Pausa e retomada do laço registradas por ordem permanente do vigia. Nenhuma
+volta se perdeu na janela: as três frentes continuaram trabalhando.
+
+**V13 mesclada** (`70ba8e6`), suíte na árvore mesclada em **949 testes / 153
+suítes, verde**, worktree removido e RUMO marcado. Ela fecha com a frase que
+merece ficar: **foi reprovada por prova que faltava, não por defeito.**
+
+**Terceira frente reaberta: C1**, o caret do Caderno em AX XXXL no 17e
+(`task_f3a396a8b66a`, Opus 5, ADR `08w`). É o **único vermelho** da suíte
+integral naquele aparelho e a V13 provou que é **pré-existente** — a invariante
+da escrita visível (ADR 08f) foi provada no Pro Max e no teste 2 e **não neste
+aparelho neste tamanho**, que é justamente onde a tela é menor e a letra maior.
+
+Escolhi esta e não a `RaizView`/`NotasView`, que também está na fila, por dois
+motivos: o vermelho **já existe** (é a evidência mais forte que uma volta pode
+nascer tendo), e a área é **disjunta** das três frentes vivas — a `Sessao`, onde
+mora o conserto da outra, encosta no que a MAC-1 está mexendo. Depois do que a
+mescla da Q me ensinou hoje, abrir duas voltas no mesmo arquivo é comprar
+conflito de mérito.
+
+O spec nasce com duas leis do dia: **começar reproduzindo** (se o vermelho já
+tiver caído sozinho, isso é o relato) e **conserto na causa, não no teste** —
+afrouxar a asserção ou excluir o 17e da medida seria apagar o instrumento, e a
+resposta certa aí é dizer e parar.
+
+**As frentes:** MAC-1 (Traço no Mac), Q-H (reconciliar a Q com o `main`), C1 (o
+caret) e a trilha fora do app com a F5b (a Ilha).

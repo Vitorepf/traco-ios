@@ -6311,6 +6311,75 @@ continua com o gesto — provado na mesma tela, não só no teste.
 sem classificação continua entrando em qualquer estado, e o resultado observado
 continua sendo do relato, nunca um quarto estado da ação.
 
+## ADR 2026-09-08t — A lista das Notas não afirma o que não há (volta V13)
+
+**A auditoria V9 foi conferida na tela viva antes da primeira linha**, defeito a
+defeito, porque no Recordar ela já tinha envelhecido (RUMO, "parcialmente
+desatualizada"). Nas Notas os quatro defeitos nomeados estavam **vivos**, e dois
+dos secundários tinham caído pela metade (o menu de ordem em AX5 virou ícone na
+V8; as cápsulas locais das Notas migraram para `Pilula` na V10-B, as de Versões e
+Rede não). A tabela com captura por defeito está em `ferramentas/orca/v13-notas.md`.
+
+**Quatro decisões, cada uma amarrada a um defeito confirmado:**
+
+1. **Trabalhos é destino, e destino não se veste de link.** O texto âmbar com
+   ícone sob o título era a mesma doença que o §20 tirou do rodapé e a 05f do
+   topo. Vira uma **linha da lista** — ícone em `tintaSuave`, "Trabalhos" em
+   `chrome`, a contagem e a seta `chevron.forward` em `tintaFraca` —, a primeira do
+   arquivo, que rola com ele e some quando o autor está buscando ou filtrando
+   (não é resultado). Com o arquivo vazio a linha continua, acima do vazio: é a
+   porta da função, e os fluxos `maestro/*` que chegam por `abrir-trabalhos` com
+   `clearState` dependem dela.
+2. **A régua de chips diz que há mais — e só enquanto há.** A máscara de 28 pt
+   de 31/08 (`2a3dc68`) esfumava o último chip e apagava o seguinte inteiro: a
+   régua *parecia terminar* em "Especificação", que é mentira pequena (lei da
+   08g: reticência que encobre corte evitável). Tirar a máscara e confiar no
+   chip cortado não bastou: **no iPhone 17e a borda cai exatamente no vão entre
+   dois chips** (`v13-depois-folha-1958.png`, primeira captura, antes da seta) e
+   não há corte a ver. O sinal passa a ser determinístico: uma seta
+   `chevron.forward` no fim da régua, sobre o fundo, que **existe enquanto a
+   geometria do scroll diz que há chip omitido à direita** e some no fim
+   (`onScrollGeometryChange`). É reticência honesta na definição da 08g: indica
+   continuação realmente omitida. E quando o chip aceso rolou para fora da régua,
+   a contagem diz por quê: **"3 notas · WOOP"**, "4 notas · Saúde".
+3. **Teto é teto, não altura.** No cartão da sábia, `ScrollView { … }.frame(maxHeight:)`
+   ocupa o teto inteiro mesmo com uma linha de texto — daí o vão de ~100 pt entre
+   a pergunta e "a sábia não respondeu." `fixedSize(horizontal: false, vertical: true)`
+   depois do `frame` devolve ao cartão a altura do conteúdo, até o teto. Vale para
+   a resposta (220) e para a pergunta pendente (120). Em AX5 "Repetir pergunta"
+   cortava em "Repetir pergu…": a ação quebra linha, não some.
+4. **Página sem nome não vira linha em branco.** Uma nota que nasce só com o
+   marcador de seção (`## `) grava (`Sessao.paginaVazia` lê o texto cru),
+   `Nota.temVoz` diz sim e `tituloNaLista` devolve "": a lista afirmava uma nota
+   onde não havia nada — estado desonesto. Escolhi **"não é nota"** em vez de
+   **"tem nome"**: o arquivo já esconde a página sem voz da série em voo pela
+   mesma razão (§8), e batizar de "Sem título" uma página em que o autor não
+   escreveu nada seria o app pondo palavras na boca dele. `NotasFiltro` esconde
+   a nota aberta cujo `tituloNaLista` é vazio; código sozinho continua entrando
+   (tem nome, porque `Caderno.visivel` o lê). **A raiz fica nomeada e fora desta
+   volta:** `Sessao.paginaVazia` e `Nota.temVoz` deviam olhar o texto visível,
+   não o cru — `Traco/App` e `Traco/Modelo`, área do arquiteto.
+
+**E dois acertos menores:** em tamanhos de acessibilidade o título da nota não
+tem teto de duas linhas (cortava "Quero dormir mais cedo est…"); "Pronto" e
+"Restaurar" de Versões e Ligações usam `Pilula(.acao)` em vez de três `Capsule()`
+à mão — o "Pronto" passa de chip/tinta para carvão/branco, que é o "Pronto" do
+sistema (`CabecalhoDeFolha`).
+
+**O que não mudou, de propósito:** a barra de baixo (busca + cartão no
+`safeAreaInset`) — a V9 não achou defeito nela e esta volta não inventa item; a
+régua continua a decisão mais longa da tela (29 chips), e o conserto de verdade é
+chip por capacidade, que mora no catálogo (RUMO).
+
+**Achado novo, sem conserto aqui:** a pergunta interrompida some. `ConversaNotas`
+promete "sair da tela não perde o pedido", mas `RaizView` recria `NotasView` ao
+trocar de aba e o `@State` morre — perguntei, fui ao Calendário, voltei: nenhum
+cartão. É estado desonesto e a saída é a conversa viver na `Sessao` (A1).
+
+**Prova:** suíte integral no iPhone 17e `C7341E64` sob `com-trava.sh`, `-parallel-testing-enabled NO`: **948 testes em 153 suítes, 947 verdes**; o único vermelho é `EscritaVisivelTests.aLinhaAtivaEOCaretFicamNaAreaLivreDoPapel` em AX XXXL, **pré-existente no 17e** (18 issues idênticas na árvore de `HEAD` sem este diff — geometria do caderno num aparelho de 390 pt, fora desta volta); build sem aviso. Capturas antes e depois por estado em `ferramentas/orca/v13/`.
+Curva-zero do roteiro "achar uma nota da semana passada": no 17e, com as mesmas 16 notas, a nota de 02/09 exige **2 arrastos antes e 2 depois**; em repouso ela está 0,057 de tela (≈48 pt) mais perto do topo, porque a linha em branco de HOJE sumiu e a linha Trabalhos rola com o arquivo em vez de ocupar 44 pt fixos do chrome. Por palavra continua 1 toque + digitar; por filtro, 1 toque em 29 chips (o chip aceso agora se lê na contagem).
+`git diff --shortstat`: código `5 files changed, 119 insertions(+), 50 deletions(-)` — **não ficou líquido-negativo**: a linha Trabalhos (+32), a seta determinística da régua (+22) e o teste da prova do vermelho (+15) pesam mais que a máscara (−7) e as três cápsulas (−12); as duas primeiras são o preço de dois defeitos vivos, e o que se pôde tirar foi tirado.
+
 ## ADR 2026-09-08o — A orientação diz de QUAL ação está falando (volta E1-C)
 
 A 08m prometeu que **o resultado informado muda a próxima orientação**. Ela
@@ -6643,7 +6712,7 @@ decide se o exercício de alguém não mudou por defeito do provedor ou por
 estreiteza da nossa régua.
 
 **Prova.** Build sem aviso e suíte integral na árvore MESCLADA — a que ninguém
-tinha testado — no `34CC3F94`, duas execuções limpas com números idênticos: 957 testes, 956 passados, 0 falhos, 1 pulado
+tinha testado — no `34CC3F94`: 957 testes, 956 passados, 0 falhos, 1 pulado em duas execuções limpas; e 958 / 957 / 0 / 1 depois de trazer também o `main` que a V13 avançou durante o trabalho (auto-merge limpo, zero conflitos)
 (`CadernoHitchesTests`, já pulado antes). Os testes da V17 sobre `mudanca` e os
 da Q sobre `Recusa` passam juntos. Decisão por decisão em
 `ferramentas/orca/q-h-reconciliacao.md`.

@@ -23,12 +23,8 @@ struct VersoesView: View {
                         .foregroundStyle(Tema.tintaSuave)
                 }
                 Spacer()
-                Button("Pronto") { dismiss() }
-                    .font(Tema.barra)
-                    .foregroundStyle(Tema.tinta)
-                    .padding(.horizontal, 14)
-                    .frame(height: 36)
-                    .background(Tema.chip, in: Capsule())
+                // ADR 08p: a cápsula do sistema, não uma cópia local (V9, Componentes)
+                Pilula("Pronto", forma: .acao) { dismiss() }
                     .accessibilityIdentifier("versoes-pronto")
             }
 
@@ -111,16 +107,11 @@ private struct VersaoAbertaView: View {
                     .font(Tema.chrome)
                     .foregroundStyle(Tema.tintaSuave)
                 Spacer()
-                Button("Restaurar") {
+                Pilula("Restaurar", forma: .acao) {
                     sessao.restaurar(nota, versao: versao, no: context)
                     aoRestaurar()
                     dismiss()
                 }
-                .font(Tema.barra)
-                .foregroundStyle(.white)
-                .padding(.horizontal, 14)
-                .frame(height: 36)
-                .background(Tema.chipAtivo, in: Capsule())
                 .accessibilityIdentifier("versao-restaurar")
             }
             ScrollView {

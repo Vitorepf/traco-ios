@@ -212,3 +212,31 @@ achado**, não um estorvo.
 Resolver conflito de mérito no lugar de quem escreveu o código é a versão de
 mescla do "conserto confiante e errado": o diff é pequeno, parece limpo, e põe no
 `main` uma semântica que ninguém escolheu.
+
+### A árvore de AX do serve-sim pode devolver menos do que a tela tem (08/09)
+
+**O que está PROVADO, e é só isto:** num cartão de quatro elementos, o leitor
+devolveu a árvore **sem "Fechar"** enquanto a captura do mesmo instante mostrava
+"Fechar" na tela. Os frames dos elementos que vieram batem **pixel a pixel** com
+a captura — foi assim que a V13-B separou limite do leitor de defeito do app, e
+o revisor confirmou a atribuição **nesta evidência**.
+
+**O que NÃO está provado, e não se cita como se estivesse:** que o teto seja
+"no máximo três", e que a variação dependa do tamanho de letra. A V13-B observou
+que em AX5 com pergunta longa sumia "Repetir pergunta" e em `medium` some
+"Fechar", mas **a árvore bruta em `medium` não foi guardada**, e sem ela a regra
+geral não se sustenta. Quem precisar dessa generalização, meça e guarde as duas
+árvores brutas.
+
+**O que isto muda em toda prova de acessibilidade:**
+- **Presença na árvore continua valendo** — rótulo, ordem de leitura, frame.
+- **Ausência na árvore NÃO é prova de ausência na tela.** Nenhuma conclusão do
+  tipo "nada se sobrepõe", "não há linha que diga X" ou "o elemento não existe"
+  se sustenta na árvore sozinha: precisa da **captura do mesmo instante**
+  mostrando o mesmo.
+- Se a contagem da árvore não bater com a captura, **diga isso** em vez de
+  escolher a fonte que fecha a conta.
+
+É o oitavo instrumento do dia a dizer mais (ou menos) do que mostra — e o
+primeiro em que a diferença entre "o app não expõe" e "o leitor não devolveu"
+era invisível sem alguém ir medir a mesma tela de dois jeitos.

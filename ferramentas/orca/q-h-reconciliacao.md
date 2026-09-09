@@ -144,6 +144,22 @@ Q; `08j`/`08k` da V17, `08m`/`08n`/`08o` da E1, `08s` da A1.
 Executada DUAS vezes até o fim, com o mesmo resultado nas duas — 957 / 956 / 0 / 1,
 `** TEST SUCCEEDED **`, 0 `warning:` na compilação completa das duas.
 
+**Segunda mescla, porque o `main` andou durante o trabalho.** A V13 mesclou em
+`main` (ADR 08t) depois de eu ter começado; deixar a reconciliação parada em
+cima do `main` velho devolveria ao orquestrador o mesmo problema. Trouxe o
+`main` novo (`ea182a0`) para dentro: **auto-merge limpo, ZERO conflitos** — a
+V13 mexeu nas Notas, área disjunta da Q, e nenhuma letra de ADR colidiu
+(`08a b e f g h i j k l m n o p q r s t w`, sem duplicata). Suíte integral
+outra vez na árvore mesclada nova, mesmo aparelho, mesma trava:
+
+```
+** TEST SUCCEEDED **
+"result" : "Passed", "totalTestCount" : 958, "passedTests" : 957,
+"failedTests" : 0, "skippedTests" : 1
+```
+
+958 e não 957 porque a V13 trouxe um teste seu. 0 `warning:` de novo.
+
 O único pulado é `CadernoHitchesTests/digitacaoERolagemNoCaderno()`, que já se
 pulava antes desta fusão (teste de hitches, condicional) — não é achado desta
 volta.
