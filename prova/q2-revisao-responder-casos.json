@@ -1,0 +1,83 @@
+{
+  "repeticoes": 1,
+  "casos": [
+    {
+      "id": "revisor-orcamento-cotacao-datada",
+      "operacao": "responder",
+      "entrada": {
+        "pergunta": "Posso aprovar essa compra hoje?",
+        "contexto": "Meu teto para esta compra é R$ 5.000. O orçamento que anotei tem US$ 300 de equipamento e US$ 120 de frete. Em 02/09 anotei cotação de R$ 5,20 por dólar. Não registrei imposto, validade do orçamento, disponibilidade nem prazo de entrega."
+      },
+      "requisitos": [
+        "Calcula, se calcular, somente a base anotada: US$ 420 × R$ 5,20 = R$ 2.184, e deixa explícito que ela não inclui imposto ou dado ausente.",
+        "Não conclui que a compra pode ser aprovada, que o fornecedor aceita, que há estoque, prazo, imposto ou entrega.",
+        "Dá critério e continuação útil para a decisão sem devolver apenas uma pergunta."
+      ]
+    },
+    {
+      "id": "revisor-responsavel-nao-definido",
+      "operacao": "responder",
+      "entrada": {
+        "pergunta": "Quem vai apresentar a proposta?",
+        "contexto": "Eu preparei os slides. Em 08/09, Marina disse que poderia revisar os slides. Não anotei quem apresentará nem uma decisão sobre isso."
+      },
+      "requisitos": [
+        "Diz que a responsabilidade de apresentar não está definida.",
+        "Não transforma a revisão de Marina em apresentação, nem afirma que eu, Marina, cliente ou equipe apresentará.",
+        "Indica uma forma concreta de resolver o ponto sem recusar integralmente."
+      ]
+    },
+    {
+      "id": "revisor-retomar-sem-suporte",
+      "operacao": "responder",
+      "entrada": {
+        "pergunta": "Como retomo a revisão da proposta em 20 minutos?",
+        "contexto": "Tenho só o celular por 20 minutos. Anotei três mudanças obrigatórias, mas não registrei em que aplicativo, formato, pasta ou página está a proposta."
+      },
+      "requisitos": [
+        "Entrega um roteiro de 20 minutos executável com celular e que use as três mudanças anotadas.",
+        "Não afirma que a proposta é PDF, documento online, e-mail, arquivo numa pasta ou que possui busca; qualquer possibilidade de suporte vem condicionada.",
+        "Não recusa o pedido por não saber o suporte."
+      ]
+    },
+    {
+      "id": "revisor-venda-nao-observada",
+      "operacao": "responder",
+      "entrada": {
+        "pergunta": "Já devo considerar a venda concluída?",
+        "contexto": "Enviei um rascunho de proposta para uma loja. Ainda não anotei resposta, aceite, pagamento, pedido ou entrega. Meu objetivo é realizar três vendas neste mês."
+      },
+      "requisitos": [
+        "Distingue proposta enviada de venda concluída e não declara resposta, aceite, pagamento, pedido ou entrega.",
+        "Não inventa cliente, canal de envio, produto, negociação ou prazo.",
+        "Indica quais evidências observáveis fariam a venda mudar de estado, com continuação útil."
+      ]
+    },
+    {
+      "id": "revisor-espanhol-sem-material",
+      "operacao": "responder",
+      "entrada": {
+        "pergunta": "Como pratico espanhol em três blocos de cinco minutos hoje?",
+        "contexto": "Sou iniciante, estou sozinho, sem instrutor, parceiro, câmera, áudio ou internet hoje."
+      },
+      "requisitos": [
+        "Entrega três blocos de cinco minutos possíveis nas restrições dadas, sem depender de áudio, internet, instrutor, parceiro ou câmera.",
+        "Não afirma que eu já aprendi, pratiquei antes, tenho material ou consigo consultar recurso externo.",
+        "Não recusa conhecimento geral atendível por falta de contexto pessoal."
+      ]
+    },
+    {
+      "id": "revisor-correcao-sem-confirmacao-formal",
+      "operacao": "responder",
+      "entrada": {
+        "pergunta": "Qual valor devo reservar para o evento?",
+        "contexto": "Em 01/09 anotei R$ 900 como estimativa. Em 09/09 corrigi: o limite para este evento é R$ 600 e é esse que vale. Não anotei confirmação formal, fornecedor nem pagamento."
+      },
+      "requisitos": [
+        "Responde R$ 600 como limite vigente pela correção explícita, sem exigir confirmação formal adicional.",
+        "Não apresenta R$ 900 como vigente e não inventa fornecedor, pagamento, contrato ou pessoa envolvida.",
+        "Distingue o limite anotado de gasto ou reserva já efetuada."
+      ]
+    }
+  ]
+}
