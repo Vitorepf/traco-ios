@@ -727,3 +727,23 @@ estava pronto e onde. **O trabalho chegou; só o carimbo não.**
 mande um `status` com o SHA e o caminho do relatório**. E do meu lado: **despacho
 preso se resolve com `worker-abandon`**, que não finge que o processo parou —
 só o desprende.
+
+### Portão que não enxerga tem de falhar FECHADO (09/09, B1-B)
+
+O portão da regex tinha `regex\(([^()]*)\)`. Com **um parêntese dentro do
+argumento** ele **não casa em lugar nenhum** — e a chamada ficava **invisível**,
+com a contagem parada em 4. Não era um portão frouxo: era um portão **cego**, que
+dá verde por não ver.
+
+O conserto exige **identificador nu seguido de `)`** e **devolve o resto da linha
+cru** para qualquer outra forma — que então **cai em `deFora`** e reprova.
+
+**A direção da falha é a lição.** O portão novo **não reconhece** concatenação,
+interpolação, string inline nem chamada em duas linhas — e todas elas saem
+**VERMELHAS mesmo sendo literais**. **Nenhuma dá falso verde.** Um portão que
+reprova o que não entende custa uma conversa; um que aprova o que não entende
+custa o defeito.
+
+**E o limite está escrito onde se lê** — no próprio portão, na ADR e no RUMO, com
+a saída honesta nomeada. Portão que promete mais do que vê era o defeito que esta
+volta veio consertar; declarar o que ele não vê é o que impede a repetição.
