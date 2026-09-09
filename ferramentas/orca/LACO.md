@@ -563,3 +563,33 @@ precisar da generalização, mede e guarda as duas árvores brutas.
 a recusa de vazamento que eu atribuí ao provedor, a segunda o achado de perda de
 dados da A1. Desta vez quem pegou foi o revisor, e no mesmo dia em que eu reprovei
 a Q por exatamente isso.
+
+## 08/09, 22h — pausa e retomada (uso 26%); a V13 mesclada e a C1 aberta
+
+Pausa e retomada do laço registradas por ordem permanente do vigia. Nenhuma
+volta se perdeu na janela: as três frentes continuaram trabalhando.
+
+**V13 mesclada** (`70ba8e6`), suíte na árvore mesclada em **949 testes / 153
+suítes, verde**, worktree removido e RUMO marcado. Ela fecha com a frase que
+merece ficar: **foi reprovada por prova que faltava, não por defeito.**
+
+**Terceira frente reaberta: C1**, o caret do Caderno em AX XXXL no 17e
+(`task_f3a396a8b66a`, Opus 5, ADR `08w`). É o **único vermelho** da suíte
+integral naquele aparelho e a V13 provou que é **pré-existente** — a invariante
+da escrita visível (ADR 08f) foi provada no Pro Max e no teste 2 e **não neste
+aparelho neste tamanho**, que é justamente onde a tela é menor e a letra maior.
+
+Escolhi esta e não a `RaizView`/`NotasView`, que também está na fila, por dois
+motivos: o vermelho **já existe** (é a evidência mais forte que uma volta pode
+nascer tendo), e a área é **disjunta** das três frentes vivas — a `Sessao`, onde
+mora o conserto da outra, encosta no que a MAC-1 está mexendo. Depois do que a
+mescla da Q me ensinou hoje, abrir duas voltas no mesmo arquivo é comprar
+conflito de mérito.
+
+O spec nasce com duas leis do dia: **começar reproduzindo** (se o vermelho já
+tiver caído sozinho, isso é o relato) e **conserto na causa, não no teste** —
+afrouxar a asserção ou excluir o 17e da medida seria apagar o instrumento, e a
+resposta certa aí é dizer e parar.
+
+**As frentes:** MAC-1 (Traço no Mac), Q-H (reconciliar a Q com o `main`), C1 (o
+caret) e a trilha fora do app com a F5b (a Ilha).
