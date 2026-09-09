@@ -808,3 +808,57 @@ compra facilmente **a recusa covarde** — calar onde o contexto sustentava. Iss
 já aconteceu com a irmã `responderNasNotas`. Pedi ao Astra **a forma da prova de
 que a volta não comprou esse defeito**, não a promessa de cuidado. E avisei que
 "N de 6" sozinho não decide, porque o mesmo caso deu os dois resultados.
+
+## 08/09, 23h55 — pausa e retomada (uso 44%); quatro entregas de uma vez, e duas reprovações que valem
+
+Pausa e retomada registradas. Quatro despachos voltaram `completed` **sem
+`worker_done` na caixa** — fui direto ao `git log` de cada worktree, como a lei
+de hoje manda, e todos os quatro tinham entregado.
+
+**G3 da MAC-1: RECUSADA.** E os três achados são bons:
+- **P0 de autoria:** `PerfilView.lerRetrato` passa `doAutor:` certo, mas
+  `Sessao.responderNasNotas` — **a rota de produção** — cria `Retrato.NotaLida`
+  **sem esse argumento**, e o padrão é `true`. Uma nota `grokbot` aberta **entra
+  no retrato mandado à IA**. O teste novo exercitava `Retrato.ler` isolado, **não
+  esse chamador**: é o teste que não visitou o lugar do defeito, de novo.
+- **P1:** o caso 8 **não é executável como prometido** — com o MCP ligado num
+  cliente real, `traco_contrato` devolve só contrato e corpus, **sem os métodos e
+  as perguntas** que a instrução manda o bot buscar. É exatamente por isto que o
+  dono mandou o revisor exercitar cada caso de verdade.
+- **P2:** as duas correções não deixaram replay do vermelho.
+
+**G3 da C1: CORRIGIR ANTES**, e a régua dele é dura do jeito certo. Ele
+**reproduziu as 18 no pai com as próprias mãos** e confirmou o verde
+(31/31, 44/44, 949 integral). Mas a ADR 08f escreve a invariante como *"em cada
+quadro apresentado"*, e a captura `c1-04` mostra a linha ativa cortada pelo
+cartão **durante a gaveta**. Declarar como resíduo é honesto — **e não torna
+mesclável uma violação conhecida de uma regra sem exceção**. Ele acrescenta que
+os 0,11 s **não são verificáveis**: há captura e a alegação de 220 screenshots,
+mas sem timestamps, sequência ou vídeo versionado.
+
+**F5b entregou, e é a melhor volta da trilha até aqui.** Ela achou o defeito
+**antes** do acabamento: com Destaque e compromisso vivos, o iOS mostra um e
+empilha o outro — **era o Destaque escondendo o compromisso que está
+acontecendo**; conserto por `relevanceScore`. Plantou a **Ilha mínima** subindo
+um segundo app descartável, porque duas atividades do mesmo app não a produzem.
+Mediu o fim: o "acabou" sai sozinho da Ilha em **menos de 12 min** e fica na tela
+bloqueada **além dos 14**. E **removeu um item do RUMO**: o "t" cortado da F4
+**não se reproduz**, porque **a Ilha não escala com Dynamic Type** — mandei o
+revisor conferir essa afirmação, porque ela apaga uma dívida.
+
+**Astra entregou o G0 da Q2** e o parecer tem a qualidade que se paga por ele: o
+critério de resolvido em uma frase (**um único descumprimento reprova**), a
+alavanca (**prompt primeiro**, adaptando o contrato de sustentação do
+`MotorTrabalho.sistema`, que já proíbe inventar fato e manda nomear o dado
+ausente), e — o que mais importa — **o aviso de que a comparação com `produzir`
+é hipótese e não prova causal**, porque as corridas usam modelos e esforços
+diferentes. Ele também derrubou a régua antiga: **"3 de 6" não é gabarito
+semântico**, porque casos contados como bons inventam coisas também.
+
+**Despachei:** a **Q2** (`ctx_b3298d891b2b`), com o critério do Astra e a tabela
+de pares que muda só a evidência — a prova de que apertar contra a invenção não
+comprou a **recusa covarde** —, e o **revisor da F5b** (`ctx_a51788690b90`).
+
+**Seguro a MAC-1-B e a C1-B**: em edição já estão R1, MAC-0 e Q2, e o dono
+mandou que a próxima abertura fosse a Q2 e mais nada. Elas entram quando abrir
+vaga.
