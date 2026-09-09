@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// O chip do domínio, único (ADR 05d, 05f). Etiqueta em caixa alta na lista
-/// das Notas; cápsula tingida com ícone e seta na ficha do calendário. Com
+/// O chip do domínio, único (ADR 05d, 05f). Palavra em tinta suave com seta na
+/// lista das Notas (D1); cápsula tingida com ícone e seta na ficha do calendário. Com
 /// `aoEscolher` abre o menu: os sete, "Sem domínio" e, se travado, "Devolver
 /// ao app". Nada apaga num toque. Sem `aoEscolher`, só mostra.
 struct ChipDominio: View {
@@ -67,13 +67,17 @@ struct ChipDominio: View {
             .frame(height: CalendarioTema.controle)
             .background(CalendarioTema.fundo(de: atual), in: Capsule())
         } else {
-            // 8×5, não os 6×2 da etiqueta de gesto: o chip do domínio é um
-            // controle, e o gesto é só um rótulo em cápsula
-            Text(atual?.nome ?? "Domínio")
-                .rotulo(Tema.tintaSuave)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 5)
-                .background(Tema.chip, in: Capsule())
+            // D1 (DIRETRIZ §9): nas Notas o domínio é uma PALAVRA em tinta
+            // suave, com a seta pequena de quem abre um menu — não uma
+            // etiqueta em caixa alta numa cápsula. É o mesmo desenho de
+            // "Todas ⌄" e "Mais recentes ⌄" sob o título.
+            HStack(spacing: 3) {
+                Text(atual?.nome ?? "Domínio")
+                if aoEscolher != nil { SetaDeMenu() }
+            }
+            .font(Tema.meta)
+            .foregroundStyle(Tema.tintaSuave)
+            .fixedSize()
         }
     }
 }
