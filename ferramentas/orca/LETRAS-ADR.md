@@ -51,6 +51,9 @@ idênticos. Sobrou linha, a alegação "só a letra mudou" é falsa.
 |---|---:|---|
 | 09b | MAC-1-B (a origem acompanha todo consumidor) | em `main` |
 | 09c | S1 (a pergunta interrompida) | reservada, volta viva |
+| 09d | S1-B (pilha, meio e topo do teclado) | reservada, volta viva |
+| 09e | C1-D (o Caderno) | reservada, volta viva |
+| 09f | M1 (o caderno pré-08u tem de abrir) | reservada, volta viva |
 
-**Próxima livre: 09d.** (A `09a` não foi usada por ninguém e **fica vaga** — buraco
+**Próxima livre: 09g.** (A `09a` não foi usada por ninguém e **fica vaga** — buraco
 não se reaproveita.)
