@@ -20,33 +20,59 @@ enum EscritaVisivel {
         // Pelo RunLoop, não pela fila principal do GCD: um runloop aninhado (o
         // `RunLoop.main.run(until:)` de um teste hospedado) não esvazia a fila,
         // e o seguidor só correria depois de o teste acabar.
-        RunLoop.main.perform { MainActor.assumeIsolated {
-            guard let janela = janelaChave(), let editor = editorFocado(em: janela),
-                  let papel = rolagemAcima(de: editor),
-                  let fim = editor.selectedTextRange?.end else { return }
-            janela.layoutIfNeeded()
-            // `bounds` de um UIScrollView é o que está à vista, em coordenadas do
-            // conteúdo; o ScrollView do SwiftUI ignora `scrollRectToVisible`, e
-            // o offset é posto à mão, o mínimo que traz a linha para dentro
-            let vista = papel.bounds.inset(by: papel.adjustedContentInset)
-            let crua = papel.convert(linhaDoCaret(editor, em: fim), from: editor)
-            // A folga é o que se pede DEPOIS da linha, e é ela que cede quando
-            // o papel é curto: no 17e em AX XXXL o papel tem 87 pt para uma
-            // linha de 66 e uma folga de 25, e pedir a folga inteira empurrava
-            // 5 pt de letra para debaixo do encaixe. Quem tem de caber é a
-            // LINHA; a folga leva o que sobrar, metade de cada lado (ADR 08w).
-            let podeFolga = max(0, (vista.height - crua.height) / 2)
-            let linha = crua.insetBy(dx: 0, dy: -min(folga, podeFolga))
-            var y = papel.contentOffset.y
-            if linha.maxY > vista.maxY { y += linha.maxY - vista.maxY }
-            else if linha.minY < vista.minY { y -= vista.minY - linha.minY }
-            let teto = max(-papel.adjustedContentInset.top,
-                           papel.contentSize.height - papel.bounds.height + papel.adjustedContentInset.bottom)
-            y = min(max(y, -papel.adjustedContentInset.top), teto)
-            if abs(y - papel.contentOffset.y) > 0.5 {
-                papel.setContentOffset(CGPoint(x: papel.contentOffset.x, y: y), animated: false)
-            }
-        } }
+        RunLoop.main.perform { MainActor.assumeIsolated { correr(folga: folga) } }
+    }
+
+    /// A JANELA DO PAPEL MUDOU — o teclado, o cartão, o aviso, o pé —, e aqui a
+    /// volta do runloop é tarde demais: a mudança e a correção têm de caber no
+    /// MESMO quadro, senão o quadro apresentado mostra o papel já encolhido com
+    /// a linha ainda no lugar velho (medido: um quadro, 115 pt de linha cortada,
+    /// `ferramentas/orca/c1b-gaveta.md`). Quem chama é `onScrollGeometryChange`,
+    /// depois do layout, e ele já corre na main.
+    ///
+    /// `altura` é a altura que ele ACABOU de anunciar, e não a que o `bounds`
+    /// do ScrollView tem: nessa passada o `bounds` ainda é o da anterior, e o
+    /// seguidor que lê em vez de ouvir corrige para o papel de ontem.
+    ///
+    /// Isto ganha a corrida contra uma mudança de UM PASSO, e só. Contra uma
+    /// ALTURA ANIMADA não há corrida a ganhar de fora do layout: cada quadro
+    /// traz um passo novo e o quadro apresentado é sempre o modelo do anterior
+    /// — três seguidores diferentes deram os mesmos offsets, ao pt. Por isso a
+    /// outra metade da 08x está na Página: com o foco no papel, a altura do
+    /// encaixe muda por CORTE, não por gaveta.
+    @MainActor static func seguirCaretAgora(folga: CGFloat, altura: CGFloat) {
+        correr(folga: folga, altura: altura)
+    }
+
+    @MainActor private static func correr(folga: CGFloat, altura: CGFloat = 0) {
+        guard let janela = janelaChave(), let editor = editorFocado(em: janela),
+              let papel = rolagemAcima(de: editor),
+              let fim = editor.selectedTextRange?.end else { return }
+        janela.layoutIfNeeded()
+        // `bounds` de um UIScrollView é o que está à vista, em coordenadas do
+        // conteúdo; o ScrollView do SwiftUI ignora `scrollRectToVisible`, e
+        // o offset é posto à mão, o mínimo que traz a linha para dentro
+        var vista = papel.bounds.inset(by: papel.adjustedContentInset)
+        if altura > 0 { // a altura anunciada, não a que o bounds ainda tem
+            vista.size.height = max(0, altura - papel.adjustedContentInset.top - papel.adjustedContentInset.bottom)
+        }
+        let crua = papel.convert(linhaDoCaret(editor, em: fim), from: editor)
+        // A folga é o que se pede DEPOIS da linha, e é ela que cede quando
+        // o papel é curto: no 17e em AX XXXL o papel tem 87 pt para uma
+        // linha de 66 e uma folga de 25, e pedir a folga inteira empurrava
+        // 5 pt de letra para debaixo do encaixe. Quem tem de caber é a
+        // LINHA; a folga leva o que sobrar, metade de cada lado (ADR 08w).
+        let podeFolga = max(0, (vista.height - crua.height) / 2)
+        let linha = crua.insetBy(dx: 0, dy: -min(folga, podeFolga))
+        var y = papel.contentOffset.y
+        if linha.maxY > vista.maxY { y += linha.maxY - vista.maxY }
+        else if linha.minY < vista.minY { y -= vista.minY - linha.minY }
+        let teto = max(-papel.adjustedContentInset.top,
+                       papel.contentSize.height - papel.bounds.height + papel.adjustedContentInset.bottom)
+        y = min(max(y, -papel.adjustedContentInset.top), teto)
+        if abs(y - papel.contentOffset.y) > 0.5 {
+            papel.setContentOffset(CGPoint(x: papel.contentOffset.x, y: y), animated: false)
+        }
     }
 
     /// A linha VISUAL em que o caret está: o retângulo do caret unido ao

@@ -211,6 +211,39 @@ struct TemaTests {
         #expect(CadernoView.tetoDoEncaixe(altura: 400, pe: 400, piso: 92) == nil)
     }
 
+    /// O que a 08w mudou ONDE HAVIA FOLGA SOBRANDO — a pergunta do re-G3 da C1,
+    /// que a prova do 17e não respondia: a invariante da 08f fora provada no Pro
+    /// Max, e a regra nova faz a folga ceder antes da letra. A regra velha (05y)
+    /// era `min(piso, sobra / 2)`; a nova só acrescenta o CHÃO de uma linha.
+    /// Onde meia sobra já dava uma linha — que é todo aparelho com tela grande, o
+    /// Pro Max inclusive —, as duas dão o MESMO número, e onde não dava, a nova
+    /// dá estritamente MAIS papel. Varrido, não amostrado, e sem aparelho: é
+    /// aritmética, e vale para os que ainda não existem.
+    @Test func ondeHaviaFolgaSobrandoA08wNaoMudaNada() {
+        var apertadas = 0, comFolga = 0
+        for altura in stride(from: CGFloat(300), through: 900, by: 25) {
+            for pe in stride(from: CGFloat(40), through: 400, by: 15) {
+                for piso in [CGFloat(92), 160, 200, 259.3333, 280] {
+                    let sobra = altura - pe
+                    guard sobra > 0, let teto = CadernoView.tetoDoEncaixe(altura: altura, pe: pe, piso: piso) else { continue }
+                    let velho = min(piso, sobra / 2) // a regra da 05y
+                    let novo = sobra - teto
+                    if sobra / 2 >= piso / 3 {
+                        #expect(abs(novo - velho) < 0.001,
+                                "com folga sobrando (sobra \(sobra), piso \(piso)) a regra mudou: \(velho) -> \(novo)")
+                        comFolga += 1
+                    } else {
+                        #expect(novo > velho,
+                                "apertado (sobra \(sobra), piso \(piso)): a regra tinha de dar MAIS papel, deu \(novo) contra \(velho)")
+                        apertadas += 1
+                    }
+                }
+            }
+        }
+        print("PISO: \(comFolga) combinações com folga sobrando (a 08w dá o mesmo que a 05y), \(apertadas) apertadas (a 08w dá mais papel)")
+        #expect(comFolga > 0 && apertadas > 0, "a varredura não cobriu os dois lados")
+    }
+
     /// O cartão recolhe-se enquanto o autor escreve, mas o AVISO não — esconder
     /// falha para limpar a tela é o que o contrato proíbe (AGENTS, Fronteiras)
     /// — e a resposta da sábia também não, porque o autor a pediu.

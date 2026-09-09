@@ -6574,3 +6574,157 @@ não correu: a linha ativa aparece **cortada ao meio** pela borda do cartão
 de 220 quadros). O mecanismo — um quadro de atraso entre a altura animada e a
 volta do runloop — não foi alterado por esta volta, e a suíte não o apanha
 porque mede em pontos discretos. **Fica escrito, não escondido.**
+
+## ADR 2026-09-08x — Nenhuma gaveta corre sobre a linha do autor (volta C1-B)
+
+**Ciclo:** multiplicar a mente. **Intenção:** a pessoa vê o que está escrevendo,
+em qualquer tamanho de letra e em qualquer aparelho — **em cada quadro**, que é
+como a 08f está escrita. **Obstáculo:** a 08w fechou a invariante nos pontos
+DISCRETOS onde a suíte mede (31/31 em AX5, 44/44 em `large`) e deixou declarado
+um resíduo: durante a gaveta do cartão a chegar, a linha ativa aparecia cortada
+(`c1-04-residuo-gaveta-cartao.png`, "~0,11 s numa varredura de 220"). Declarar
+não torna mesclável uma violação conhecida de uma regra escrita sem exceção, e
+"~0,11 s" não era verificável.
+
+### O instrumento primeiro: a invariante passa a ser medida POR QUADRO
+
+`EscritaVisivelTests.aLinhaFicaNoPapelEmCadaQuadroDaGaveta(tamanho:)` põe um
+`CADisplayLink` a medir a 08f **em cada quadro entregue**, com o instante de
+cada um, enquanto a Página REAL recebe as três gavetas que encolhem o papel: o
+cartão a chegar, o aviso a tomar o lugar dele e o toast. Duas coisas o separam
+do teste discreto que já existia:
+
+- **mede as camadas de APRESENTAÇÃO, não o modelo.** Durante uma animação o
+  modelo já tem o valor final e só a apresentação diz o que o olho vê — que é o
+  que a 08f escreve. O quadro apresentado é, medido, sempre o **modelo do
+  quadro anterior**.
+- **cada quadro traz o seu instante**, e a conta sai em quadros e em segundos,
+  com a cadência ao lado (16,7 ms: 60 Hz sem quadro perdido) e o custo da
+  própria sonda (0,2–0,5 ms/quadro). É a "sequência carimbada" que o re-G3
+  pediu no lugar da varredura sem tempo.
+
+**O que ele mediu no pai (build `4898703`, iPhone 17e `C7341E64`):**
+
+```
+GAVETA AX5,   cartão a chegar: 85 quadros em 1,42 s, 6 fora; +0,268 a +0,350 s = 0,098 s, pior corte 32 pt
+GAVETA large, cartão a chegar: 86 quadros em 1,42 s, 6 fora; +0,267 a +0,350 s = 0,100 s, pior corte 13 pt
+GAVETA (aviso e toast, nos dois tamanhos): 0 fora
+```
+
+**Duas correções ao que a 08w escreveu**, as duas contra nós: o resíduo é de
+**0,098–0,100 s**, não 0,11; e **não é só de AX XXXL** — o `large`, que a 08w
+dava por são, tem o mesmo resíduo de 6 quadros. A "varredura de 220" não
+sustentava nenhum dos dois números.
+
+### A causa, medida antes de tocar no código
+
+Sonda por quadro no `tetoDoEncaixe` e na geometria do papel, no 17e:
+
+- **`large`:** a altura do papel é ANIMADA pela gaveta e desce 378 → 366 → 352
+  → 334 → 314 → 295 → 283 → … pt, **até 21 pt por quadro**. O seguidor é
+  chamado a cada quadro (`onScrollGeometryChange` avisa 275,0 → 262,8 → 248,6 →
+  231,3 → 210,7 → …, em dia), corrige, e **a linha fica sempre um passo atrás**:
+  o corte de cada quadro é exatamente o passo daquele quadro.
+- **AX5:** o mesmo, mais um **estouro de 52 pt**. O cartão entra por CORTE
+  (`.identity`) e a régua saía por GAVETA, então por ~0,3 s o encaixe tinha os
+  dois — 52 pt a mais do que antes E do que depois — e o papel caía a **35 pt
+  para uma linha de 67**. Aí nenhuma rolagem cabe: a 08f é impossível por
+  construção enquanto durar.
+
+**E o limite, medido e não suposto:** **de fora do layout não há corrida a
+ganhar.** Foram experimentados três seguidores — adiado pelo runloop (como
+era), síncrono no aviso da geometria, e síncrono com a altura anunciada mais um
+passo de adiantamento e mira no piso da 08w — e os **três produziram os mesmos
+offsets, ao ponto** (`ferramentas/orca/c1b-gaveta.md`, tabela da ablação). A
+correção da rolagem e a mudança da altura não cabem no mesmo quadro quando a
+altura é animada, porque o quadro apresentado é o modelo do anterior.
+
+### A decisão
+
+**Nenhuma gaveta corre sobre a linha do autor.** Com o foco na Página, a altura
+do encaixe muda por **CORTE**; a gaveta fica para quando o autor não está a
+escrever.
+
+- `PaginaView`: `.animation(focoPagina ? nil : Tema.gaveta(reduzido:), value:
+  sessao.cartao)`, e o mesmo para `sessao.analisando`. É a mesma lei que a 08f
+  já tinha aplicado duas vezes no mesmo encaixe — a régua CORTA, e o encaixe
+  inteiro sai por corte ao abrir os campos —, agora estendida ao ocupante que
+  faltava. **Não é uma exceção nova: é a regra do encaixe, completa.**
+- `EscritaVisivel.seguirCaretAgora(folga:altura:)`: quando quem chama é
+  `onScrollGeometryChange`, o seguidor corre **agora**, e não na volta seguinte
+  do runloop, **com a altura que lhe ANUNCIARAM** — nessa passada o `bounds` do
+  ScrollView ainda é o da anterior, e o seguidor que lê em vez de ouvir corrige
+  para o papel de ontem. Isto ganha a corrida contra uma mudança de **um passo**
+  — que é o que o corte produz — e só. `seguirCaret(folga:)`, o de texto e foco,
+  continua adiado: ali o layout ainda não assentou.
+
+**As duas metades são necessárias e nenhuma basta**, medido por ablação no
+mesmo aparelho: só o corte (com o seguidor adiado) deixa **1 quadro com 115 pt**
+de linha cortada em `large`; só o seguidor síncrono, com a gaveta de pé, deixa
+os **6 quadros** de sempre. Juntas: **0**.
+
+**O que fica igual.** Nenhuma curva, duração ou `withAnimation` novo — o portão
+do movimento continua vazio. `Tema.swift` intacto. A gaveta do cartão continua a
+existir e a correr sempre que a Página **não** tem o foco. A gaveta de
+`esconderRegua` no `CadernoView` **ficou**: a ablação mostrou que, com o corte de
+cima, ela já não estoura nada, e tirá-la seria movimento perdido sem razão
+medida.
+
+### A prova
+
+iPhone 17e `C7341E64` e iPhone 17 Pro Max `6033B043`, `com-trava.sh` em toda
+passada, teclado de software REAL nos dois aparelhos e nos dois tamanhos
+(308 pt no 17e, 318 no Pro Max):
+
+```
+17e     GAVETA AX5 e large, três cenas cada: 0 fora em todas (84–88 quadros, cadência 16,7 ms)
+17e     ESCRITA AX5 31/31, large 44/44, teclado real nos dois
+Pro Max GAVETA AX5 e large: 0 fora; ESCRITA AX5 31/31, large 44/44, teclado real 318 pt
+17e     ✔ Test run with 956 tests in 154 suites passed after 81.350 seconds — grep -c warning: 0
+```
+
+Quadros carimbados, versionados: `ferramentas/orca/c1/c1b-quadros-vermelho.txt`
+e `c1b-quadros-verde.txt`; vídeo da gaveta consertada,
+`c1/c1b-gaveta-consertada.mp4`. Relato: `ferramentas/orca/c1b-gaveta.md`.
+
+### O que mais o re-G3 nomeou, e ficou fechado aqui
+
+- **As bordas do TextKit 2** em `linhaDoCaret` têm suíte própria
+  (`LinhaDoCaretTests`): documento vazio, linha vazia depois de `\n`, quebra
+  suave por palavra, fim do documento, e a borda do `NSMaxRange` varrida em
+  todos os offsets. **E a medida achou o contrário do que se esperava:** num
+  `UITextView` nu — com a entrelinha do papel e a fonte de corpo em AX XXXL — o
+  `caretRect` do UIKit **já é** a caixa da linha visual, ao ponto, em **0 de 61
+  offsets** ele difere. A distância de 45 para 67 pt que a 08w mediu é do editor
+  da **Página**, não do TextKit 2 em geral; quem a prova é o teste hospedado. As
+  bordas cobram então o que protege o seguidor em qualquer editor: nunca nula,
+  sempre contendo o caret, UMA linha visual só, e na altura certa do documento.
+- **O que muda onde havia folga sobrando** (a pergunta do Pro Max) é
+  **nada, e provado por varredura, não por aparelho**:
+  `TemaTests.ondeHaviaFolgaSobrandoA08wNaoMudaNada` percorre 3.025 combinações
+  de tela, pé e piso — **2.687 com folga sobrando e 338 apertadas** — e mostra
+  que, onde meia sobra já dava uma linha, a regra da 08w devolve **o mesmo
+  número** da 05y, e onde não dava, devolve estritamente mais papel. O Pro Max é um caso dessa varredura, e a corrida nele confirma a
+  aritmética na tela.
+- **As duas dívidas prometidas foram escritas no RUMO** (barra de baixo em AX;
+  oráculo de pixels), mais a terceira que esta volta mediu: **o seguidor não
+  ganha de uma altura animada**, com os três seguidores e os offsets iguais.
+
+### A pré-mortem
+
+**O que pode dar errado:** o cartão passa a APARECER, sem gaveta, enquanto o
+autor escreve — e um salto de 52 pt (AX5) ou 121 (`large`) sem movimento pode
+ler-se como um susto, que é justamente o que a lei do movimento evita. É a
+troca que esta ADR aceita, e ela tem lado: **um salto que o autor vê é melhor
+que uma linha que ele não vê**, e o quadro em que a linha estava cortada era
+exatamente o quadro em que ele estava a escrever. Se a leitura na mão do dono
+disser o contrário, o caminho não é voltar à gaveta: é a gaveta **empurrar o
+papel antes de crescer** — reservar primeiro, animar depois —, e isso precisa
+do gancho dentro do layout que o RUMO já nomeia.
+
+**A segunda:** `focoPagina` é a condição, e ela não é o mesmo que "o teclado
+está de pé". Com o teclado recolhido por arrasto o foco continua (a régua segue
+o foco), e o corte vale ali também, onde a gaveta não fazia mal nenhum. É
+movimento perdido num estado; preferi a condição que o `EscritaVisivel` já usa
+para correr, porque duas condições diferentes para o mesmo evento é como nascem
+os dois relógios que esta ADR acabou de fechar.

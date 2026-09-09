@@ -1,0 +1,24 @@
+# A gaveta quadro a quadro — o VERDE, com a 08x
+# iPhone 17e C7341E64, 09/09/2026 04:18, mesmo instrumento
+
+GAVETA AX5, cartão a chegar: 84 quadros em 1.42 s (cadência 16.7 ms, sonda 0.3 ms/quadro), 0 fora
+GAVETA AX5, aviso no lugar do cartão: 87 quadros em 1.45 s (cadência 16.7 ms, sonda 0.4 ms/quadro), 0 fora
+GAVETA AX5, toast por cima do encaixe: 87 quadros em 1.43 s (cadência 16.7 ms, sonda 0.5 ms/quadro), 0 fora
+GAVETA AX5: teclado real 308 pt, 0 quadro(s) com a linha ativa fora do papel
+GAVETA large, cartão a chegar: 84 quadros em 1.42 s (cadência 16.7 ms, sonda 0.5 ms/quadro), 0 fora
+GAVETA large, aviso no lugar do cartão: 87 quadros em 1.43 s (cadência 16.7 ms, sonda 0.5 ms/quadro), 0 fora
+GAVETA large, toast por cima do encaixe: 88 quadros em 1.45 s (cadência 16.7 ms, sonda 0.4 ms/quadro), 0 fora
+GAVETA large: teclado real 308 pt, 0 quadro(s) com a linha ativa fora do papel
+
+# iPhone 17 Pro Max 6033B043, mesmo build e mesmo instrumento
+GAVETA AX5, cartão a chegar: 84 quadros em 1.42 s (cadência 16.7 ms, sonda 0.2 ms/quadro), 0 fora
+GAVETA AX5, aviso no lugar do cartão: 86 quadros em 1.42 s (cadência 16.7 ms, sonda 0.3 ms/quadro), 0 fora
+GAVETA AX5, toast por cima do encaixe: 88 quadros em 1.45 s (cadência 16.7 ms, sonda 0.3 ms/quadro), 0 fora
+GAVETA AX5: teclado real 318 pt, 0 quadro(s) com a linha ativa fora do papel
+GAVETA large, cartão a chegar: 84 quadros em 1.42 s (cadência 16.7 ms, sonda 0.3 ms/quadro), 0 fora
+GAVETA large, aviso no lugar do cartão: 87 quadros em 1.43 s (cadência 16.7 ms, sonda 0.3 ms/quadro), 0 fora
+GAVETA large, toast por cima do encaixe: 88 quadros em 1.45 s (cadência 16.7 ms, sonda 0.3 ms/quadro), 0 fora
+GAVETA large: teclado real 318 pt, 0 quadro(s) com a linha ativa fora do papel
+ESCRITA AX5: 31 amostras, 31 com a linha do caret na área livre do papel; teclado real 318 pt
+ESCRITA large: 44 amostras, 44 com a linha do caret na área livre do papel; teclado real 318 pt
+LINHA: 61 offsets varridos, 0 em que a linha visual difere do caret; menor linha 63 pt, maior 65 pt
