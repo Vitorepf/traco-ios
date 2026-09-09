@@ -95,3 +95,11 @@ O que isso muda:
 - **Volta de design D1, Notas, abre como frente prioritária ao lado da IA.** Fase 5 do design-router primeiro (auditar antes de tocar, com esta tela como o "antes"), depois Ancorar com direção própria: o que dá identidade ao Traço é o papel, a letra e o silêncio, não cápsulas, etiquetas e barras. `tastemaker` para o teste contra design genérico ("se trocar o nome, serve a qualquer app?"), `curva-zero` para a jornada de achar e marcar, `design-router` nas seis fases, `gate-loop` no ciclo. Juiz G4 em Fable, e o dono julga o resultado em vídeo.
 - **O que ele NÃO quer ver:** cápsula de filtro em fileira, etiqueta em caixa alta à direita de cada linha, seção em rótulo de sistema ("A VOLTA"), barra de busca de sistema, "Trabalhos" como linha de menu. O que ele quer sentir: uma folha, hierarquia por tipografia, o método e o domínio ditos com uma palavra em tinta suave e não em selo, o gesto de escrever como a coisa principal.
 - **Cada volta de tela daqui em diante termina com um vídeo de 15 s no aparelho da conta, enviado ao dono**, e só ele fecha a nota.
+
+## 10. Ordem do dono, 09/09 12h — "sempre use o melhor Grok possível"
+
+Decisão sobre a régua da Q2: o dono aceita a espera em troca da resposta que se sustenta. **Toda rota que chama o Grok usa o melhor modelo que a conta expõe**, não o padrão antigo (`grok-4.3`). "Melhor" é medido, não presumido: a conta lista doze modelos (`grok-4.3`, `4.5`, `4.6`, a família `4.20`…); a volta que adota escolhe entre os dois mais capazes pela sonda, no mesmo caso, e registra a medida. O modelo escolhido vira o padrão global de `Grok.modelo`, com esforço medido por operação (o 4.6 em `medium` deu 36 de 36 em `responder`).
+
+O preço, assumido pelo dono: 36 s de média e 77 s de pior caso em vez de 1,4 s. Então a espera vira estado da tela, nunca silêncio: o cartão diz que está pensando, mostra o tempo passando, deixa cancelar, e o tempo limite da chamada sobe para caber o pior caso medido, como a ADR 08r fez no Trabalho. Espera sem estado é defeito de design.
+
+Uma operação sai de `indisponivelPorQualidade` quando passa com o melhor modelo; se nem com ele passar, continua na lista com a medida nova.
