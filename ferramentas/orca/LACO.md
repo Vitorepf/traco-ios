@@ -1496,3 +1496,23 @@ literal) e **quatro são dívida real** — `FonteNotas:155`, `PraticaTrabalho`,
 `Corpus:144` e `Sessao:599`, todos serialização de valor vindo de fora. A B1 nasce,
 então, **com o alvo já reduzido a quatro** e com o julgamento pronto: é escrever o
 conserto e o portão, não refazer a auditoria.
+
+## 09/09, 09h35 — a minha própria fusão ficou vermelha, e eu NÃO empurrei
+
+Mesclei C1, R1 e S1 em cima do `main` com a M1 dentro, rodei a suíte na árvore
+mesclada **no aparelho de trabalho** — e deu **990 testes em 160 suítes com 5
+falhas**. **Não empurrei.**
+
+Cada uma das três passou verde sozinha, com o `main` de então dentro de si; **as
+três juntas, com a M1 por baixo, não passam.** É exatamente o que eu venho
+escrevendo nos specs dos outros — *"teste que fica vermelho na fusão é o achado"* —
+agora do meu lado da mesa, e a resposta é a mesma que eu cobrei deles: **não
+afrouxar, não empurrar, achar o que a fusão mudou na regra que o teste guardava.**
+
+Estou reexecutando para capturar **os nomes dos cinco**, porque a saída resumida
+só dá a contagem, e nome de teste é o que separa "a fusão quebrou algo" de "um
+teste flaky voltou". Registro o resultado antes de qualquer mescla nova.
+
+**O que isto custa e por que vale:** `main` fica sem as três voltas por mais um
+ciclo. O contrário — empurrar 5 vermelhos para fechar mais rápido, no dia em que o
+dono pediu velocidade — seria trocar a nota do produto por uma linha no relatório.
