@@ -2024,3 +2024,7 @@ cinco `traco_buscar` mais `traco_corpus`/`traco_contrato` no "o que eu já pense
 
 E de passagem ela achou **um bug real que esvaziava toda busca**: o app grava em
 `<pasta>/Traço/` e **o servidor olhava um nível acima**.
+
+**Fecho:** **999 testes em 161 suítes, `TEST SUCCEEDED`**, com Q2-E e MAC-0-E
+dentro. Aparelho efêmero desligado ao fim da corrida; o da conta, intocado pela
+suíte — que é o que a K1 garantiu esta manhã.
