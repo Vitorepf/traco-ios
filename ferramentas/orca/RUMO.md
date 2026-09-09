@@ -395,6 +395,18 @@ raciocínio é bom; **a consequência nunca foi medida contra um store real**.
 **nunca abriram um store antigo de verdade**. O portão que falta é um teste que
 abre um **store congelado de cada versão**.
 
+### Achado de produto (09/09 10h47): autorizar o dispositivo não é entrar no Traço
+
+O dono autorizou a conta Grok no aparelho (**"Dispositivo Autorizado"** na tela) e
+o **Perfil do Traço continuou dizendo "Grok — sem conta"**, oferecendo *"Entrar com
+a conta Grok"*. Se acontece com quem escreveu o app, acontece com qualquer autor.
+
+**A pergunta que a volta tem de responder:** o Traço sabe distinguir *"você não
+tem conta"* de *"você tem conta e ainda não entrou aqui"*? Se sabe, a linha do
+Perfil tem de dizer a segunda em vez da primeira; se não sabe, é contrato a criar.
+**Estado honesto**, e a mesma família da 08q: *nunca mande conectar a conta que a
+pessoa já tem*.
+
 ## Próximas, em ordem
 
 | # | volta | valor | esforço | ciclo | lacuna (EVOLUCAO) |

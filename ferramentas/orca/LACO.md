@@ -1548,3 +1548,32 @@ curta, não para o `main`.
 **A lei que fica:** *a mutação que prova o vermelho é dívida viva até ser
 desfeita* — marque-a com uma palavra única, procure por ela antes de comitar, e
 **quem comita por um worker morto herda a dívida dele**. Está na ESTEIRA.
+
+## 09/09, 10h45 — conta reautorizada pelo dono; e às 10h47 o Traço ainda diz "sem conta"
+
+O dono reautorizou a conta no `C2416CBC` às **10h45**, com **"Dispositivo
+Autorizado"** na tela do simulador. A ordem dele era clara e a primeira etapa é uma
+guarda: **confirmar "Grok — conectada" no Perfil ANTES de qualquer instalação**.
+
+**A confirmação FALHOU, e por isso NÃO instalei nada.** Às **10h47**, o Perfil do
+Traço no mesmo aparelho mostra, com todas as letras:
+
+> **Grok** — *"sem conta — recursos locais disponíveis; exercício e revisão por IA
+> precisam do Grok."* — e o botão **"Entrar com a conta Grok"**.
+
+Prova em `ferramentas/orca/conta/09-09-1047-perfil-sem-conta.png`, tirada por
+`simctl io` do UDID, com a árvore de AX do mesmo instante lida antes (o rótulo
+vem da árvore, não da minha leitura da imagem).
+
+**A hipótese, e é só hipótese:** *"Dispositivo Autorizado"* é a autorização do
+lado do Grok; o Traço lê um item próprio do keychain, que só é escrito quando o
+autor entra **pelo botão do próprio Traço**. Não testei e não vou testar entrando
+pela conta dele — **só o dono entra na conta dele**.
+
+**E isto é achado de produto, não só de instrumento:** se o dono autoriza o
+dispositivo e o app continua dizendo "sem conta" **sem explicar que falta entrar
+pelo Traço**, qualquer autor passa pelo mesmo. Vai ao RUMO.
+
+**Não instalei o binário do `main`** — a etapa 2 depende da etapa 1, e a etapa 1
+reprovou. A Q2 continua parada pelo mesmo motivo de ontem, agora com a causa um
+passo mais perto.
