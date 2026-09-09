@@ -1967,3 +1967,60 @@ segue.
 A régua da prova continua a da passada anterior, que foi exemplar: **dizer, para
 cada pergunta, se a resposta veio DO SERVIDOR ou do bot falando sozinho** — bot
 falando sozinho não é o caso funcionando, e indício não é prova.
+
+## 09/09, 14h01 — **`responder` VOLTOU A ESTAR DISPONÍVEL.** Eram sete cortadas, são seis.
+
+**A hora que o dono pediu: 14h01 de 09/09/2026**, no aparelho da conta. É a
+primeira das sete operações a sair de `indisponivelPorQualidade` desde que a
+tabela existe.
+
+**E o "melhor" foi MEDIDO, não presumido**, que era a ordem dele. Dos doze modelos
+da conta, **dez caem por fato declarado** (modalidade, versão, a medida da 08z, ou
+HTTP 400 do multi-agent). Os dois candidatos correram **a mesma fixture, no mesmo
+binário, no mesmo aparelho**:
+
+| modelo | resultado | espera |
+|---|---|---|
+| `grok-4.6` / `medium` | **12 de 12** | 38,3 s de média |
+| `grok-4.20-0309-reasoning` | **9 de 12** | 20,2 s |
+
+O 4.20 é **quase o dobro mais rápido e perde assim mesmo** — regra genérica
+inventada como certeza, um `5+5+5` que não divide, e **"(487 caracteres)" vazado
+no texto do autor**. Escolha pelo resultado; **o desempate por espera não chegou a
+existir**.
+
+**Dois defeitos que a própria adoção teria criado, achados pela medida e não pela
+tela:**
+
+1. **o `grok-4.6` recusa `reasoning_effort "none"`** — 400 em 6 de 6 — e em
+   `classificar` e `vestir` **a falha seria CALADA**: o aparelho responderia pior e
+   **ninguém diria**. Piso `Grok.esforcoMinimo = "low"`, remedido 9 de 9 em HTTP
+   200;
+2. **o timeout de 10 s da classificação**, medido para um modelo que **não
+   raciocinava**, **estourou 3 de 3**. Um teto só.
+
+**Deleção conta como entrega:** `modeloTrabalho` e `tetoTrabalho` **deixaram de
+existir** — um modelo, um teto — e cinco timeouts explícitos viraram o padrão. É
+a §8 em ato: o diff que some é melhor que o diff que se acrescenta.
+
+**E a sonda ganhou `erroDaAPI`** *"porque um 400 mudo é rota que cala em vez de
+dizer"* — foi ele que **transformou o número na frase** que explica a família 4.20
+inteira. A régua da casa aplicada ao nosso próprio instrumento.
+
+**A espera virou estado de tela**, como o dono mandou: o cartão diz que pensa,
+mostra o tempo e deixa cancelar.
+
+## 09/09, 14h04 — a MAC-0-E fez o servidor chegar ao bot, e o caminho não era o que ninguém queria
+
+A conta **Free não tem seção de MCP** e o app 0.44 não tem tela de cadastro
+(capturas `mac-0-e-01/02`) — então ela **não forçou** e foi para a rota que o RUMO
+já nomeava: **`servidor.py --chamar`**, com a Descrição do bot mandando chamar as
+ferramentas por comando local.
+
+**A prova é o vigia de processos**, não a resposta bonita: o executor local do bot
+(pid 68403) rodando `servidor.py --chamar traco_agenda` no "bom dia" (13:58:05) e
+cinco `traco_buscar` mais `traco_corpus`/`traco_contrato` no "o que eu já pensei"
+— **DO SERVIDOR**, com o bot dizendo *"sem id, não invento"*.
+
+E de passagem ela achou **um bug real que esvaziava toda busca**: o app grava em
+`<pasta>/Traço/` e **o servidor olhava um nível acima**.
