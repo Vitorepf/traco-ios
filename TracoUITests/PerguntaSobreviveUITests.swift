@@ -22,21 +22,39 @@ import XCTest
                       "as Notas não abriram")
     }
 
-    /// Ida e volta pela barra: Notas → Calendário → Notas é o caminho que
-    /// recria a view. O teclado sobe sobre a barra: sem fechá-lo, o toque cai
-    /// numa TECLA e a aba nunca troca — foi assim que a primeira corrida deste
-    /// teste passou verde sem visitar o lugar do defeito.
-    private func trocarDeAbaEVoltar(_ app: XCUIApplication) {
-        // a lista fecha o teclado por arrasto (`.scrollDismissesKeyboard(.interactively)`).
-        // Sem isso o toque na barra cai numa TECLA e a aba nunca troca — foi
-        // assim que a primeira corrida deste teste passou verde sem visitar o
-        // lugar do defeito.
-        for _ in 0..<3 where !app.staticTexts["calendario-titulo"].firstMatch.exists {
+    /// PRÉ-CONDIÇÃO de toda troca de aba: o teclado fora.
+    ///
+    /// O teclado da busca sobe SOBRE a barra de abas — no AX do G3 as abas
+    /// aparecem em `y: 1.0572`, fora da tela. Tocar ali cai numa TECLA: a
+    /// corrida do revisor terminou com "o que eu aprendi ontem**gggd**" na
+    /// busca, quatro toques que viraram quatro letras. Por isso este helper
+    /// AFIRMA que o teclado saiu em vez de seguir tocando às cegas.
+    ///
+    /// O gesto é o do próprio app (`.scrollDismissesKeyboard(.interactively)`).
+    /// Ele dependia de haver lista para arrastar, e nestes dois testes a busca
+    /// filtra até zero — era essa a dependência de estado que fazia o teste
+    /// passar para quem tinha notas semeadas e falhar para quem não tinha. A
+    /// ADR 09d pôs o vazio a rolar também, então o gesto vale nos dois estados.
+    private func soltarOTeclado(_ app: XCUIApplication) {
+        for _ in 0..<4 where app.keyboards.firstMatch.exists {
             app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.30))
                 .press(forDuration: 0.1,
                        thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.62)))
-            app.buttons["aba-calendario"].firstMatch.tap()
         }
+        XCTAssertFalse(app.keyboards.firstMatch.exists,
+                       "PRÉ-CONDIÇÃO: o teclado não saiu no arrasto da lista — a barra de abas segue atrás dele e todo toque na barra vira letra")
+    }
+
+    /// Ida e volta pela barra: Notas → Calendário → Notas é o caminho que
+    /// recria a view.
+    private func trocarDeAbaEVoltar(_ app: XCUIApplication) {
+        soltarOTeclado(app)
+        let calendario = app.buttons["aba-calendario"].firstMatch
+        XCTAssertTrue(calendario.waitForExistence(timeout: 5),
+                      "PRÉ-CONDIÇÃO: a aba do Calendário não existe na árvore")
+        XCTAssertTrue(calendario.isHittable,
+                      "PRÉ-CONDIÇÃO: a aba do Calendário existe mas não é alcançável — algo está por cima dela")
+        calendario.tap()
         XCTAssertTrue(app.staticTexts["calendario-titulo"].firstMatch.waitForExistence(timeout: 5),
                       "PRÉ-CONDIÇÃO: o Calendário não abriu — a aba não trocou")
         app.buttons["aba-notas"].firstMatch.tap()

@@ -51,6 +51,7 @@ idênticos. Sobrou linha, a alegação "só a letra mudou" é falsa.
 |---|---:|---|
 | 09b | MAC-1-B (a origem acompanha todo consumidor) | no branch da MAC-1 |
 | 09c | S1 (a pergunta é da sessão, não da view) | no branch da S1 |
+| 09d | S1-B (o vazio também rola: o teclado prendia quem filtrou até zero) | no branch da S1 |
 
-**Próxima livre: 09d.** (A `09a` não foi usada por ninguém e **fica vaga** — buraco
+**Próxima livre: 09e.** (A `09a` não foi usada por ninguém e **fica vaga** — buraco
 não se reaproveita.)

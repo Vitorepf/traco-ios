@@ -630,21 +630,30 @@ struct NotasView: View {
                 // a saída tem que ser do BURACO em que o autor caiu: quando
                 // o vazio é da busca, "escrever na página" joga fora o que
                 // ele estava procurando em vez de devolver o arquivo
-                VStack(alignment: .leading, spacing: 0) {
-                    // a porta dos Trabalhos existe mesmo com o arquivo vazio
-                    linhaTrabalhos.padding(.horizontal, Tema.margem)
-                    Vazio(frase: vazioTitulo, acao: busca.isEmpty && filtro == nil && filtroDominio == nil
-                          ? .init("escrever na página") {
-                              sessao.novaPagina()
-                              sessao.mostrarNotas = false
-                          }
-                          : .init("ver todas as notas", id: "limpar-busca") {
-                              busca = ""
-                              filtro = nil
-                              filtroDominio = nil
-                          })
+                // ADR 09d: o vazio também rola. Filtrar até zero com o teclado
+                // em pé deixava a pessoa PRESA: sem lista não havia gesto que
+                // dispensasse o teclado, e a tab bar ficava atrás dele — sair
+                // custava jogar fora o que se estava procurando.
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 0) {
+                        // a porta dos Trabalhos existe mesmo com o arquivo vazio
+                        linhaTrabalhos.padding(.horizontal, Tema.margem)
+                        Vazio(frase: vazioTitulo, acao: busca.isEmpty && filtro == nil && filtroDominio == nil
+                              ? .init("escrever na página") {
+                                  sessao.novaPagina()
+                                  sessao.mostrarNotas = false
+                              }
+                              : .init("ver todas as notas", id: "limpar-busca") {
+                                  busca = ""
+                                  filtro = nil
+                                  filtroDominio = nil
+                              })
+                    }
+                    .frame(maxWidth: .infinity, alignment: .topLeading)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                // conteúdo curto não rola sozinho: sem isto não há gesto para
+                // o teclado seguir
+                .scrollBounceBehavior(.always)
             } else {
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 0) {
@@ -684,13 +693,14 @@ struct NotasView: View {
                     }
                     .padding(.horizontal, Tema.margem)
                 }
-                // o mesmo gesto do caderno (CadernoView:68): arrastar a lista
-                // devolve a tela — sem isto o teclado da busca prendia a tab
-                // bar atrás de si e a única saída era o "x" (jakobs-law: no
-                // Notes, arrastar a lista dispensa o teclado)
-                .scrollDismissesKeyboard(.interactively)
             }
         }
+        // o mesmo gesto do caderno (CadernoView:68): arrastar a lista devolve
+        // a tela — sem isto o teclado da busca prende a tab bar atrás de si e
+        // a única saída é o "x" (jakobs-law: no Notes, arrastar a lista
+        // dispensa o teclado). Vale nos DOIS ramos: era só do cheio, e o vazio
+        // ficou para trás.
+        .scrollDismissesKeyboard(.interactively)
     }
 
     private struct SecaoMes {
