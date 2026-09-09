@@ -50,7 +50,10 @@ idênticos. Sobrou linha, a alegação "só a letra mudou" é falsa.
 | letra | dona | estado |
 |---|---:|---|
 | 09b | MAC-1-B (a origem acompanha todo consumidor) | em `main` |
-| 09c | S1 (a pergunta interrompida) | reservada, volta viva |
+| 09c | S1 (a pergunta interrompida) | no branch da S1 |
+| 09d | S1-B (o vazio também rola) | no branch da S1 |
+| 09e | C1-D (a reconciliação da C1) | no branch da C1 |
+| 09f | M1 (a migração do caderno) | reservada, volta viva |
 
-**Próxima livre: 09d.** (A `09a` não foi usada por ninguém e **fica vaga** — buraco
+**Próxima livre: 09g.** (A `09a` não foi usada por ninguém e **fica vaga** — buraco
 não se reaproveita.)

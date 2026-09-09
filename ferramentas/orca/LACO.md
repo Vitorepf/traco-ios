@@ -1235,3 +1235,35 @@ nela, com a regra nova das dez corridas.
 seguiu pelo caminho menos destrutivo: **declarou a prova como herdada** em vez de
 tomar o aparelho de outra volta. Foi a decisão certa; e agora que a F5b mesclou, a
 C1-D fecha essa ponta.
+
+## 09/09, 09h — pausa e retomada (uso 6%); o vermelho da fusão entregou o defeito mais grave do laço
+
+Eu escrevi no spec da R1-C que **"teste que fica vermelho na fusão É O ACHADO, não
+um estorvo"**. Foi literalmente isso: os quatro testes de tela da R1 ficaram
+vermelhos na árvore mesclada, ela **não afrouxou nada** — mediu **no mesmo store e
+no mesmo aparelho, em três builds** — e o que saiu de lá é o defeito mais grave
+que este laço achou:
+
+**um caderno gravado antes da ADR 08u não abre mais.** `e72dd85` abre; **`main`
+sozinho e a árvore mesclada param no arranque honesto da A1** com
+`loadIssueModelContainer`. **Não é da fusão. É do `main`.**
+
+Duas coisas ao mesmo tempo, e as duas verdadeiras: **a rede da A1 funcionou** —
+nada foi destruído, o arranque recusou abrir e disse o que houve, que é
+exatamente para isso que ela existe — **e a porta está fechada**, o que não é
+aceitável.
+
+O dono mandou **abrir a migração como topo da fila, acima da IA e do resto**.
+Abri a **M1** (`ctx_b7108b4acac5`, ADR `09f`), com três exigências: **reproduzir o
+vermelho com um store real pré-08u antes de consertar**, **confirmar ou derrubar a
+hipótese** do comentário da `Migracao.swift` (que `VersionedSchema` apontando para
+a classe viva não congela nada), e **deixar o portão que faltava** — um teste que
+abre um **store congelado de cada versão**.
+
+**Por que nenhum teste pegou**, e isso é a lição: os testes de `DiscoTraco`
+**injetam closures** e **nunca abriram um store antigo de verdade**. Um portão que
+nunca viu o passado não guarda o passado.
+
+A **S1-B** e a **C1-D** também entregaram — a S1-B com um achado próprio ("o vazio
+também rola: quem filtrava as Notas até zero ficava preso atrás do teclado") e a
+C1-D com a reconciliação e a ADR `09e`.

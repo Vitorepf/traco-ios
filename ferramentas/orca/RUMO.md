@@ -328,6 +328,26 @@ disciplina de quem escreve o próximo chamador. O P0 do Retrato
 padrão é `true`) é o primeiro caso, e o teste tem de exercitar **o chamador**,
 não o leitor isolado.
 
+### TOPO DA FILA (09/09): o caderno gravado antes da 08u não abre
+
+**Achado da R1-C, medido no mesmo store e no mesmo aparelho em três builds:**
+`e72dd85` **abre**; **`main` sozinho e a árvore mesclada param no arranque honesto
+da A1** com `loadIssueModelContainer`. **Não é da fusão — é do `main`.**
+
+A rede da A1 funcionou: **nada foi destruído**, o arranque **recusou abrir e
+disse**. Mas a porta está fechada, e por ordem do dono a **M1** sobe acima de tudo,
+inclusive do foco na IA da DIRETRIZ §7.
+
+**Hipótese a confirmar ou derrubar antes de consertar** (`Migracao.swift:69-75`):
+a 08u pôs `Nota.origemRaw` como atributo com padrão **sem V5**, porque um
+`VersionedSchema` novo com a mesma lista de classes colide no checksum — e os
+schemas do plano **apontam para a classe viva, não para uma cópia congelada**. O
+raciocínio é bom; **a consequência nunca foi medida contra um store real**.
+
+**Por que nenhum teste pegou:** os testes de `DiscoTraco` **injetam closures** e
+**nunca abriram um store antigo de verdade**. O portão que falta é um teste que
+abre um **store congelado de cada versão**.
+
 ## Próximas, em ordem
 
 | # | volta | valor | esforço | ciclo | lacuna (EVOLUCAO) |
