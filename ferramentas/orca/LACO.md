@@ -1747,3 +1747,36 @@ DUAS formas** (`b7fbc3e` às 08h27 e `fea00dd` às 16h31 de 31/08, que acrescent
 segunda** — a primeira ainda recusava abrir. `TracoSchemaV0` e o estágio V0→V1
 fecham isso, e **o caderno antigo voltou a abrir às 08:55:15**. Falta trazer o
 commit `1c0d6dd` dela para o `main`.
+
+## 09/09, 12h30 — pausa e retomada (uso 21%); a K1 achou o precedente lido pela metade
+
+**O conserto da K1 é o melhor exemplo do dia da escada do `ponytail`:** ela não
+inventou isolamento nenhum — **achou que a casa já tinha o padrão e ele fora lido
+pela metade**.
+
+> *"A ADR 05u desviou o App Group para os testes e **esqueceu o cofre**. Mesmo
+> desvio, no único ponto por onde todo acesso passa — sob
+> `XCTestConfigurationFilePath`, `servico` vira `app.traco.xai.testes` e
+> `chaveExpira` vira `grokExpiraEm-testes`. **Três linhas**, e cobre `guardar`,
+> `lido`, `ligada`, `token`, `renovar` e o teste que ainda não foi escrito."*
+
+Três linhas no lugar por onde tudo passa, em vez de uma guarda por chamador. E os
+dois testes **ficam de pé com o texto que tinham** — o que eles guardavam continua
+guardado.
+
+**E ela reproduziu o vermelho sem tocar na conta do dono:** plantou uma **conta
+FALSA** no serviço real do aparelho de trabalho — `K1 ANTES acesso=FALSO-acesso-k1`
+→ `K1 DEPOIS acesso=APAGADO`. Provar o estrago **sem causá-lo a quem importa** é
+exatamente o que eu pedi e raramente vejo.
+
+**A FUSÃO também fechou melhor do que o meu spec exigia.** Eu tinha proibido trocar
+`<` por `<=` de conveniência; ela foi além e **mediu que a etiqueta DESENHA** (o
+topo do papel desce **60 pt em AX XXXL** e 25 em `large`), concluiu que **o empate é
+legítimo porque o papel já está no piso da 09g**, e trocou o portão por
+**`minY >` estrito mais `height <=` como direção** — asserção mais forte, não mais
+fraca. Deixou três dívidas com dono no RUMO, e uma delas me interessa: **a 08x
+ficou sem portão e deixou o toast de fora por três voltas**.
+
+Mesclei **K1** e **M1-B** no `main` e a suíte está correndo no aparelho efêmero.
+Com a K1 dentro, **a suíte deixa de apagar a conta** — que é o que destrava a
+esteira inteira.
