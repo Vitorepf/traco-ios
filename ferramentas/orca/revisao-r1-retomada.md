@@ -1,58 +1,114 @@
-# G3 — revisão independente da R1: retomada do Trabalho
+# re-G3 — R1 retomada: a régua do dono foi cumprida
 
-**Veredito: CORRIGIR ANTES.** O contrato determinístico da retomada é bom e a recusa de rolar automaticamente está correta, mas a volta fica abaixo da régua: o relato não cumpre as seis fases obrigatórias do `design-router`, a `curva-zero` não foi medida em toques/gestos e o próprio autor marcou Complexidade 8.
+**Veredito: A RÉGUA DO DONO ESTÁ APROVADA (re-G3).** No commit `8a87819`,
+Design, Simplicidade e Complexidade chegam a 9 por provas que conferi de novo;
+nenhuma dimensão aplicável fica abaixo de 9. G5 ainda não está autorizado:
+`main` avançou 25 commits e o `merge-tree` encontrou quatro caminhos alterados
+nos dois lados; a integração e nova verificação do candidato mesclado são do
+orquestrador.
 
-Revisor independente: Codex GPT-5. Simulador reservado: iPhone 17 Pro (teste 3) `34CC3F94-FDB5-4575-A4F5-80271829A18B`. Usei somente esse UDID; não toquei o `C2416CBC`. Toda chamada ao helper passou por `com-trava.sh`; nenhuma voz, Siri, ditado, VoiceOver, iPad, Maestro ou cursor do Mac foi usado. Repeti os mesmos três toques (Notas → Trabalhos → documento) e conferi captura + árvore simultâneas em `ferramentas/orca/g3-r1-folha-estavel.png`: bloco datado, quatro linhas, excedente, data e resultado estão presentes. Isso confirma o estado normal, não os estados sem visita e AX5.
+Revisor independente: Codex GPT-5. Simulador exclusivo: iPhone 17 Pro (teste
+3) `34CC3F94-FDB5-4575-A4F5-80271829A18B`; não toquei o `C2416CBC`. Todo
+`xcodebuild` e helper passou por `ferramentas/orca/com-trava.sh`; não usei
+Maestro, cursor, voz, Siri, ditado, VoiceOver ou iPad. Ao fim deixei meu
+aparelho em `large`, com o binário de `8a87819` instalado, e o desliguei por
+`xcrun simctl shutdown <UDID>`.
 
-## Achados
+## Conferências da re-G3
 
-### ALTO — G4 Design: as seis fases obrigatórias não foram relatadas
+### As seis fases não são mais formalidade
 
-`ferramentas/orca/r1-retomada.md:19-23` cita a rota e somente “fase 5 (auditar antes de tocar)”. Não há **Ancorar, Sistema, Construir, Mover, Julgar e Portão** citados e confrontados com a tela, como exige `ferramentas/orca/ESTEIRA.md:25-28`. O score 9 de Design é incompatível com esse portão documental; é **6/10** até o dono registrar as seis fases e a prova visual correspondente. Não é uma exigência de redesenho: basta fechar o relato do ajuste local que foi realmente feito.
+`ferramentas/orca/r1b-retomada.md:24-83` cobre as seis fases e cada uma se
+sustenta no produto:
 
-### ALTO — Simplicidade: “telas” não é a medida de toques requerida
+| Fase | O que fez / conferi |
+|---|---|
+| Ancorar | Define a tarefa verificável: voltar e saber objetivo, próximo passo e cinco fatos; a lista é a mesma do condutor `CurvaZeroRetomadaUITests.fatos`. |
+| Sistema | Reusa `secao`, `Tema.meta`, `Tema.tintaSuave`, `Pilula` e a `retomada` existente; a captura normal não mostra um enxerto visual. |
+| Construir | Um bloco local e `mudancasDesde`, sem tela, componente, agregado ou frase de modelo novos. |
+| Mover | Aplicável e justificada: não animar a chegada privilegia leitura; também registra por que a abertura não rola sozinha. |
+| Julgar | Confronta a auditoria com a tela e acrescenta visita, reabertura e AX5. |
+| Portão | Domínio + quatro testes de UI; refiz os quatro estados no candidato. |
 
-O relatório mistura três medidas: os três toques até a folha são iguais (`r1-retomada.md:63-65`), as posições AX caem de 1,57–4,22 para 0,48–0,67 (`:52-61`), e daí infere “no mínimo quatro arrastos” (`:67-71`). A primeira só prova que a entrada não ganhou custo; a segunda prova geometria/presença, não quantos gestos uma pessoa executa. A própria ADR em `SPEC.md:6798-6802` diz que o arrasto do helper amplifica 6–24x e por isso não é régua. Logo a comparação não sustenta a nota 9 de curva-zero em toques: é **7/10** até haver roteiro antes/depois com toques e gestos realmente executados (ou uma métrica de tarefa diferente, declarada sem chamá-la de toques).
+Isso fecha a causa da nota 6 anterior. A fase Mover dizer “nada se move” com
+razão é cumprimento, não campo vazio.
 
-### MÉDIO — Cobertura de interface e AX5 é incompleta para o novo bloco
+### Curva-zero: medida de novo no mesmo aparelho e estado
 
-Os cinco testes em `TracoTests/RetomadaTrabalhoTests.swift` exercitam `mudancasDesde`, a janela temporal e as âncoras, mas não a persistência da visita, o teto de quatro linhas nem o excedente no `TrabalhoView`. A captura normal `r1-depois-decisoes-e-teto.png` mostra quatro linhas e “e mais 1”, o que é evidência positiva desse estado; já `r1-depois-ax5.png` mostra o topo da folha, sem o bloco “Desde”. Ausência na árvore não serviria para concluir que o bloco não está lá, mas tampouco essa captura prova sua legibilidade em AX5. Jornada real, Correção e Acessibilidade ficam **8/10** até cobrir os estados sem visita, mais de quatro eventos e AX5 com captura + árvore do mesmo instante.
+Recompilei e rodei os dois candidatos no `34CC3F94`, com `large`, o mesmo
+semeador e o mesmo condutor XCUITest. Para `c751c02`, usei um arquivo temporário
+isolado criado por `git archive` e acrescentei somente o condutor de medição;
+para `8a87819`, usei o condutor versionado. Nenhum arquivo de produto foi
+alterado.
 
-### MÉDIO — UserDefaults é correto para a semântica escolhida, com limite explícito
+| Candidato | Toques até a folha | Arrastos na folha | Fatos sem gesto |
+|---|---:|---:|---:|
+| `c751c02` | 3 | **5** | 2 de 7 |
+| `8a87819` | 3 | **0** | **7 de 7** |
 
-`TrabalhoView.swift:1555-1562` lê/grava `trabalho.visita.<uuid>` uma vez por folha; isso preserva a janela durante uma reabertura na mesma visita e evita escrever no documento compartilhado. Para **dois aparelhos**, cada um terá sua própria primeira/última visita; para **reinstalação** (ou limpeza de dados) a chave some e a primeira abertura cala; depois de **um mês**, a mesma chave continua e mostra os eventos desde a última visita, sujeita ao teto + excedente. Isso é coerente com a ADR, não um defeito, mas falta teste que fixe esses três limites e a tela não informa que a janela é local ao aparelho.
+As saídas que eu gerei repetem as tabelas versionadas
+`r1b-medida-antes.txt`/`r1b-medida-depois.txt`: antes, o sétimo fato chega no
+gesto 5; depois, todos estão marcados na linha 0. A corrida depois terminou em
+`Test Case '-[TracoUITests.CurvaZeroRetomadaUITests
+testCurvaZeroEmToquesEGestos]' passed` e `** TEST SUCCEEDED **`; a do antes
+terminou no mesmo teste, também verde. A régua agora mede operação, não altura
+da árvore. As alturas AX continuam apenas explicação de distância.
 
-## Conferências favoráveis
+### Visita, teto e AX5
 
-- A recusa de rolagem automática é correta. Antes e depois colocam intenção em 0,15 e “Continuar” em 0,36 tela; rolar esconderia o objetivo que o critério manda retomar. O diff confirma que não foi deixada uma âncora quebrada: a folha não programa rolagem na abertura, salvo foco/ação explícitos.
-- “Escrito pelo app, nunca por modelo” se sustenta no diff. `DocumentoTrabalho.mudancasDesde(_:)` (`Traco/Trabalho/Trabalho.swift:356-387`) só interpola `Artefato`, `Acao`, `Evidencia`, `apoioMarcadoEm`, `trechoDelimitadoEm` e `Hipotese`; não chama `Grok`, `Sabia`, `OficinaTrabalho.gerar` nem recebe texto gerado. A view apenas apresenta essa lista em `TrabalhoView.swift:250-275`.
-- O teto existe no código: `prefix(Self.tetoDaRetomada)` e a linha explícita `e mais N desde então` em `TrabalhoView.swift:259-271`. A captura normal confirma o caso de seis mudanças: quatro exibidas e “e mais 1”, porque o relato já mostrado abaixo é removido da lista para não duplicar a notícia.
-- A separação entre executado e observado permanece honesta: `Trabalho.swift:363-375` cria linhas distintas, e `retomada` mantém data e resultado do último retorno (`TrabalhoView.swift:218-240`).
+No candidato, executei de novo os três estados restantes, todos verdes no mesmo
+UDID:
+
+```
+testTetoExcedenteEAVisitaQueRecomecaAoReabrir  — 1 teste, 0 falhas
+testSemVisitaGuardadaAFolhaCala                — 1 teste, 0 falhas
+testBlocoDaRetomadaEmAX5                       — 1 teste, 0 falhas
+** TEST SUCCEEDED **
+```
+
+O primeiro confere quatro `trabalho-mudanca`, a linha literal `e mais 1 desde
+então` e que reabrir cala a notícia já entregue; o segundo prova a primeira
+visita sem bloco; o terceiro percorre até uma linha visível em AX5 e verifica
+os limites horizontais. Conferi também as capturas versionadas: `r1b-normal.png`
+mostra o teto e o excedente, `r1b-sem-visita.png` mostra a ausência na folha
+inteira, e `r1b-ax5.png` mostra o bloco grande, legível e sem sangramento
+lateral. A árvore do helper, reatada sob a trava depois que o runner acabou,
+voltou para a Tela de Início; portanto não a conto como prova do app — as
+assertivas XCUITest e as capturas pareadas versionadas são a evidência válida.
+
+### O que mudou na nota
+
+| Dimensão tocada | G3 anterior | Agora | Prova |
+|---|---:|---:|---|
+| Design | 6 | **9** | seis fases com ato ou inaplicabilidade justificada, e captura normal/AX5 |
+| Simplicidade | 7 | **9** | comparação independente: 3+5 para 3+0, sete fatos na primeira tela |
+| Complexidade | 8 | **9** | diff de produção `c751c02...8a87819`: 151 adições/14 remoções; o relatório separa 81 linhas líquidas de código, elimina `visitaLida` e centraliza `ResultadoObservado.frase`; nenhuma dependência, tela ou componente de um só uso |
+| Correção | 8 | **9** | quatro testes de UI rerodados e verdes; relatório do candidato registra 963/155 verde no mesmo commit |
+| Jornada real | 8 | **9** | normal, sem visita, reabertura e AX5 exercitados com fixture do app |
+| Acessibilidade | 8 | **9** | AX5 exercitado e captura conferida; VoiceOver falado continua declarado como limite |
+| Relato | 6 | **9** | `r1b-retomada.md` explica as fases, a comparação e os limites sem esconder o que não prova |
 
 ## Scorecard
 
 | Dimensão | Nota | Evidência / limite |
 |---|---:|---|
-| Visão | 9 | Item 4 do ciclo multiplicar; EVOLUCAO declara honestamente que uso real ainda falta. |
-| Contrato | 9 | ADR 08y, SPEC, EVOLUCAO e diff coerentes. |
-| Correção | 8 | Testes de domínio/âncora e verde histórico 963/155; sem teste de visita/teto na view e sem corrida independente concluída. |
-| Jornada real | 8 | Estado populado repetido localmente com três toques, captura e AX pareados; ainda sem os estados sem visita e AX5. |
-| Design | **6** | Seis fases obrigatórias ausentes do relato. |
-| Simplicidade | **7** | Distância AX melhorou; contagem de toques/gestos não foi medida. |
-| Movimento | n/a | Nenhum movimento novo da R1. |
-| Componentes | n/a | Nenhum componente novo. |
-| Acessibilidade | 8 | AX5 lateral positivo, mas o bloco novo não foi visível na captura AX5. VoiceOver falado, corretamente, não foi usado. |
-| Performance | n/a | Sem evidência de regressão de lista/editor/parser nesta mudança local. |
-| Privacidade e autoria | 9 | Janela local, vínculos preservados, nenhuma chamada de modelo na retomada. |
-| Estado honesto | 9 | Datas ausentes não são inventadas; executado e observado seguem distintos. |
-| Complexidade | **8** | O próprio relatório registra +146 linhas de produção e nota 8; a ESTEIRA não permite arredondar. |
-| Fora do app | n/a | Sem superfície fora do app. |
-| Relato | 6 | Sem as seis fases e sem medida de toques que afirma. |
+| Visão | 9 | Retomada serve ao ciclo multiplicar; uso real do dono segue lacuna declarada. |
+| Contrato | 9 | ADR 08y, código, SPEC e EVOLUCAO coerentes. |
+| Correção | 9 | Build independente verde e quatro testes de UI rerodados; suíte 963/155 é evidência registrada do candidato, não uma nova corrida minha. |
+| Jornada real | 9 | Estado plantado e percurso XCUITest nos dois candidatos; visita/teto/AX5 repetidos no depois. |
+| Design | 9 | Seis fases materiais, sistema existente e decisão de não rolar/não animar justificada. |
+| Simplicidade | 9 | 3 toques + 5 arrastos vira 3 + 0; os sete fatos já estão na primeira tela. |
+| Movimento | n/a | A R1 não altera movimento; a recusa da rolagem automática está justificada. |
+| Componentes | n/a | Nenhum componente novo; extrair este único chamador aumentaria a superfície. |
+| Acessibilidade | 9 | AX5 passa sem sangramento; VoiceOver falado não foi usado por ordem do dono. |
+| Performance | n/a | Não há nova lista, editor ou parser; nenhum trace novo exigido por este ajuste local. |
+| Privacidade e autoria | 9 | Visita local e linhas determinísticas; sem modelo, publicação ou gasto. |
+| Estado honesto | 9 | Executado e observado seguem distintos; sem visita o app cala, sem inventar data. |
+| Complexidade | 9 | Simplificação local verificável, sem dependência nem abstração especulativa. |
+| Fora do app | n/a | Nenhuma superfície fora do app foi tocada. |
+| Relato | 9 | Fecho e mudanças de nota trazem provas e limites. |
 
-## Próximo portão mínimo
-
-1. Completar o relato do design-router com Ancorar, Sistema, Construir, Mover, Julgar e Portão, cada um ancorado à tela.
-2. Repetir a curva-zero por uma tarefa definida, contando toques e gestos reais nos dois candidatos; manter as alturas AX como medida complementar, não como substituta.
-3. Acrescentar prova de UserDefaults (primeira visita/reabertura), teto e excedente, e captura + AX simultâneos do bloco em AX5.
-
-Não alterei código de produto, SPEC ou EVOLUCAO.
+Limites honestos: a medida é gesto XCUITest, não observação de um participante;
+não foi repetida em AX5 porque ali a prova é legibilidade, não esforço; e isto
+não prova que o dono efetivamente volta e continua. Nenhum desses limites reduz
+a prova pedida para este candidato.
