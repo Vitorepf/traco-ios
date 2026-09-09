@@ -7928,3 +7928,61 @@ foi assim que se provou que ele morde.
 (`revisaoNivel`, `padroesVistas`, `revisaoProxima`, rascunho do Trabalho): são
 preferências, cada teste limpa a sua, e nenhuma é credencial. Fica como dívida
 nomeada no RUMO, não segura esta volta.
+
+### Adendo M1-B — "cada versão" passou a ter cada versão, e apareceu uma 1.0.0 que ninguém tinha visto
+
+A G3 reprovou a frase, não o conserto: o portão dizia "um store real de **cada
+versão**" e tinha dois arquivos, V4 e V5. Ou a prova cresce até a frase, ou a
+frase encolhe até a prova — e aqui foi a prova que cresceu, porque **o passado
+não visitado é exatamente onde o defeito estava**.
+
+**Como um caderno de 31/08 é gravado hoje sem falsificar o passado.** O checksum
+de uma versão não depende da plataforma nem do módulo: depende só da FORMA das
+entidades. Medido, não suposto — a cópia congelada V4 deste repo, gravada num
+executável macOS, produz
+`ImY8W7hR8jJH+xS4hddeRW+haXr9qO3ZDVx/J9RS3sI=`, **o mesmo checksum, byte a
+byte**, do `caderno-v4-pre08u` que o build iOS `8d9ce62` gravou no simulador. Com
+o instrumento assim calibrado contra um caso conhecido, as formas antigas da
+`Nota` foram **extraídas do `git` por script** (não transcritas à mão) e usadas
+para gravar um caderno de cada versão.
+
+**O achado.** A `1.0.0` teve **duas formas**. `b7fbc3e` (31/08 08:27) criou o
+schema versionado; `fea00dd` (31/08 16:31) pôs `queimada`, `queimadaEm`,
+`minutosEscritos` e `sentido` na `Nota` **sem abrir versão** — o mesmo pecado da
+08u, cometido oito horas depois de o schema nascer. O rótulo continuou `1.0.0`; o
+checksum foi de `ZaCSxtyZ+GhOyX+/HrdB0vDyHUU4iGbD8pyC5WHEAI8=` para
+`c2qnFksOJhh+/ANo29UNO8QkIxGdsSf0P+COGywTg4E=`. O conserto da M1 congelou a
+segunda forma como `TracoSchemaV1` e **deixou a primeira órfã**: um caderno
+escrito naquela manhã continuava recusando abrir, com o mesmo
+`loadIssueModelContainer`, no build já consertado.
+
+**A decisão: `TracoSchemaV0`, rótulo `0.9.0`, e o estágio `V0→V1` leve.** O
+rótulo não é o que casa o store — o CoreData casa pelo checksum, e o rótulo só
+serve para nós lermos; duas versões do plano não podem carregar o mesmo número,
+então a primeira 1.0.0 fica registrada como `0.9.0` com a razão escrita ao lado.
+
+**O portão agora tem seis cadernos, um por versão do plano**, com contagens
+distintas de propósito (3, 4, 5, 6, 7, 7) para que abrir o arquivo errado
+apareça na conta, e cada um confere texto, selo, queima, sentido e a origem
+`.autor` da 08u:
+
+| arquivo | versão | de onde vem |
+|---|---|---|
+| `caderno-v0-b7fbc3e` | 0.9.0 | forma viva de `b7fbc3e` (31/08 08:27) |
+| `caderno-v1-fea00dd` | 1.0.0 | forma viva de `fea00dd` (31/08 16:31) |
+| `caderno-v2-bf535c5` | 2.0.0 | forma viva de `bf535c5` (02/09) |
+| `caderno-v3-degrau` | 3.0.0 | degrau: **nenhum build a gravou em campo** |
+| `caderno-v4-pre08u` | 4.0.0 | build `8d9ce62`, o caderno do autor |
+| `caderno-v5-origem` | 5.0.0 | build desta volta |
+
+**A `3.0.0` nunca esteve na mão de ninguém** — nasceu e foi superada dentro do
+mesmo commit (`9ad639e`), que já abria o container pela V4. O caderno dela é o
+degrau do plano montado com as formas vivas daquele commit, e o nome do arquivo
+diz isso; declarar seria mais barato que fingir.
+
+**A frase passou a se defender sozinha.** `oPortaoTemUmCadernoPorVersao` compara
+o tamanho da lista com `TracoMigracao.schemas.count`: quem abrir a V6 e esquecer
+o caderno dela vê vermelho **antes** de a mudança chegar ao aparelho do autor.
+Provado tirando o `TracoSchemaV0` do plano: o contador acusou 6 contra 5 e o
+`caderno-v0-b7fbc3e` recusou abrir com `loadIssueModelContainer`, enquanto as
+outras cinco seguiram verdes.
