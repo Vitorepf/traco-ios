@@ -110,8 +110,11 @@ enum Politica {
                   medidaEm: "08/09/2026",
                   conserto: "usar o material disponível quando o fato atual falta, como produzir já faz, e manter os rótulos internos fora do texto")
         case .responder:
-            .init(regra: .soGrok, porque: "cortada em 08/09 (a 08q mediu 3 de 6: horário de biblioteca e um total de R$ 1.008 que o contexto não sustentava). VOLTOU em 09/09 (ADR 09n) com as duas alavancas medidas juntas: o contrato de sustentação em `sistemaResponder` matou a fabricação de NÚMERO (0 em 108 execuções) e o modelo escolhido pela DIRETRIZ §10, com esforço `medium`, matou a de CENÁRIO — 12 de 12 casos e 36 de 36 execuções sem um descumprimento, contra 8 de 12 do `grok-4.3` com o mesmo prompt. O preço é a espera (19,4 s a 77,5 s, média 36,1 s), assumida pelo dono e mostrada no cartão. O aparelho continua fora: ele nunca foi medido bem aqui — prova/q2-responder-*.jsonl, ferramentas/orca/q2-responder.md",
-                  medidaEm: "09/09/2026")
+            .init(regra: .indisponivelPorQualidade,
+                  porque: "cortada em 08/09 (a 08q mediu 3 de 6: horário de biblioteca e um total de R$ 1.008 que o contexto não sustentava). A 09n mediu um conserto que funciona — o contrato de sustentação em `sistemaResponder` matou a fabricação de NÚMERO (0 em 108 execuções), e com o modelo maior e esforço `medium` deu 12 de 12 casos e 36 de 36 execuções sem descumprimento —, mas o G3 REPROVOU a adoção em 09/09: a comparação mudou DUAS alavancas (modelo e esforço) e a triagem dos doze candidatos excluiu por nome e posição, não por fato observado. O conserto do prompt fica; a escolha do modelo volta a ser medida na Q2-F, com uma alavanca só. prova/q2-responder-*.jsonl e ferramentas/orca/revisao-q2-responder.md",
+                  motivo: "inventou cenário que o contexto não sustentava",
+                  medidaEm: "09/09/2026",
+                  conserto: "o prompt já mata a invenção de número; falta a comparação pareada que escolhe o modelo")
         case .instigar:
             .init(regra: .indisponivelPorQualidade,
                   porque: "com a conta ligada em 08/09 o Grok devolveu ao autor o vocabulário interno que o app passa no pedido ('o movimento básico que se pula', 'neste degrau 0', 'a forma nota'), em vez de perguntar sobre o que ele escreveu — 1 de 6 casos — prova/q-qualidade.md",

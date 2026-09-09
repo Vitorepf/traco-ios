@@ -2028,3 +2028,43 @@ E de passagem ela achou **um bug real que esvaziava toda busca**: o app grava em
 **Fecho:** **999 testes em 161 suítes, `TEST SUCCEEDED`**, com Q2-E e MAC-0-E
 dentro. Aparelho efêmero desligado ao fim da corrida; o da conta, intocado pela
 suíte — que é o que a K1 garantiu esta manhã.
+
+## 09/09, 15h — o G3 reprovou a adoção do modelo, e eu revertí como tinha prometido
+
+Escrevi no spec dele: *"se você reprovar, eu reverto de `main`"*. Ele reprovou, e
+os **dois P1 são exatamente as duas coisas que eu pedi para conferir**:
+
+1. **A comparação não é pareada.** Ela mudou **duas alavancas** — modelo **e**
+   `reasoning_effort` — então **não decide o modelo global**. É a mesma armadilha
+   que o conselho apontou em `produzir` e que já tinha custado uma volta: eu
+   escrevi o aviso no spec da Q2 e **não o apliquei ao próprio experimento dela**.
+2. **A triagem excluiu candidatos por nome e posição**, não por fato observado —
+   e "fato declarado é fato, opinião não é" foi a frase que eu mesmo mandei ele
+   usar.
+
+**Revertí cirurgicamente, não em bloco**, porque ele foi preciso no que pediu:
+`Grok.modelo` volta a **`grok-4.3`** e **`responder` volta a
+`indisponivelPorQualidade`** — as duas coisas que ele nomeou. **Fica o que ele
+aprovou e o que a medida provou:**
+
+- **a espera como estado de tela** (ele abriu as três capturas: pergunta, contador
+  de 22 s e "Parar de esperar") — *"a correção visual é boa"*;
+- **o piso `esforcoMinimo = "low"`**, que nasceu de um defeito real: o
+  `reasoning_effort "none"` era recusado com **falha CALADA** em `classificar` e
+  `vestir`;
+- **o teto único** e a deleção do `modeloTrabalho`/`tetoTrabalho`;
+- **o `erroDaAPI` na sonda**, que foi o que tornou legível a família 4.20.
+
+**E a linha da `Politica` conta a verdade inteira**, que é o que essa tabela existe
+para fazer: o conserto do prompt **funciona e fica**; o que falta é **a comparação
+pareada que escolhe o modelo**.
+
+**São sete cortadas de novo**, e por seis horas foram seis. Escrevo isso sem
+maquiar: o número andou para trás porque **a prova não sustentava o passo**, e é
+melhor voltar do que ficar com um padrão global escolhido por um experimento de
+duas alavancas.
+
+**O G3 da B1 também pegou um bypass:** o parser do portão da regex **não vê
+argumento aninhado** — `regex(padraoDeFora.trimmingCharacters(...))` **passa** no
+teste de literalidade, enquanto o plantio plano fica vermelho. Um portão que se
+contorna com uma chamada aninhada é um portão que dá verde para o caso real.
