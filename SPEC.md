@@ -8295,3 +8295,15 @@ conta, não escolha de método. As rotas rápidas foram medidas em **transporte 
 espera**, não em qualidade: dizer que `conferir` responde em 3,1 s não é dizer que
 responde melhor. `grok-4.5` e `grok-4.20-0309-non-reasoning` foram cortados por
 nome e posição, não por corrida.
+
+### Adendo G3 — revisão independente da 09n
+
+O G3 de 09/09 **reprovou a adoção**. `TRACO_AVALIAR_SEM_ESFORCO=1` muda o
+corpo HTTP do lado 4.20, portanto a corrida contra o 4.6/`medium` não isolou o
+modelo. Como `grok-4.5`, `grok-build-0.1` e
+`grok-4.20-0309-non-reasoning` não foram excluídos por capacidade observada, a
+lista de candidatos também ficou incompleta. Até uma nova medida realmente
+controlada, com casos do revisor, `responder` não pode sair de
+`indisponivelPorQualidade` nem `Grok.modelo` pode ser declarado o melhor global.
+O cartão de espera, o piso `low` e o teto único são evidência separada e não
+resolvem esta decisão.
