@@ -2086,3 +2086,8 @@ O portão pegou: `#expect(frase.contains("indisponível"))` e
 falta conta quando o que falta é qualidade medida. Foi um teste escrito há duas
 voltas que impediu isso, e é o melhor argumento a favor de portões que guardam
 frase de tela e não só estado.
+
+**Fecho da reversão:** **999 testes em 161 suítes, `TEST SUCCEEDED`**. `main` fica
+com o conserto do prompt, o piso de esforço, o teto único, a espera na tela e a
+sonda com `erroDaAPI`; **sem** a escolha do modelo global e **sem** `responder`
+fora da lista. Aparelho efêmero desligado ao fim.
