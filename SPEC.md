@@ -7077,7 +7077,7 @@ bloqueada cortava em AX5 e o relato não trazia as seis fases do
   `orca emulator` na pilha fechada abre a pilha em vez de acertar o botão, e só
   na pilha aberta o botão recebe o toque. Respondido "Permitir Sempre".
 
-## ADR 2026-09-09d — Uma linha é o piso do papel, e a folga cede antes da letra (volta C1)
+## ADR 2026-09-09g — Uma linha é o piso do papel, e a folga cede antes da letra (volta C1)
 
 **Ciclo:** multiplicar a mente — o autor escreve sem lutar com a ferramenta.
 **Intenção:** a pessoa vê o que está escrevendo, em qualquer tamanho de letra e
