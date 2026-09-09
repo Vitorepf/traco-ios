@@ -1,143 +1,97 @@
-# re-G3 independente — C1-B, a gaveta e a medida
+# re-G3 (terceiro) C1 — a sonda inteira e o vídeo
 
-**Veredito: CORRIGIR ANTES.** O defeito geométrico foi reproduzido no pai e
-sumiu no candidato, nos dois tamanhos, mas a nova sonda ainda não mede toda a
-invariante 08f em cada quadro: mede `E ⊆ P`, não `P ∩ O = ∅`. Além disso, o MP4
-versionado e anunciado como a gaveta consertada contém 44,04 s da Tela Inicial,
-sem o Traço; a sequência textual vermelha é utilizável, mas o vídeo é uma prova
-falsa e não pode continuar a sustentar a ADR.
+**Veredito: APROVADO no mérito do commit `8bd7382`; não mesclável.** A sonda
+agora mede as duas metades da 08f em cada quadro, as faz ficar vermelhas de
+forma independente, e o MP4 novo foi efetivamente aberto e mostra a Página que
+promete. `main` está em `55af39f`, à frente do candidato; a reconciliação é
+outra volta do orquestrador.
 
-## Instrumento e limite de aparelho
+## Instrumento e limites
 
-Usei exclusivamente o iPhone 17e `C7341E64-3A33-4ADD-AF6C-9296215FAD09`, em
-retrato, sem alterar o tamanho de texto global. Toda corrida passou por
-`ferramentas/orca/com-trava.sh`; não usei maestro, `orca emulator`, mouse,
-Siri, ditado, VoiceOver, fala ou iPad. Não toquei em `C2416CBC` nem em
-`6033B043`, que estava reservado à F5b; portanto a parte Pro Max abaixo é a
-prova herdada e a aritmética executada no 17e, não uma nova observação minha.
+Usei o 17e `C7341E64-3A33-4ADD-AF6C-9296215FAD09`, sempre por UDID explícito,
+e toda corrida passou por `ferramentas/orca/com-trava.sh`. Não usei maestro,
+`orca emulator`, mouse/computer-use, Siri, ditado, VoiceOver, fala ou iPad.
 
-O candidato terminou instalado no `C7341E64`. A captura posterior
-`/tmp/c1-caret-revisor-pos-teste.png` só mostra a Tela Inicial depois do runner;
-não a conto como prova da Página. `main` avançou a `0d09aa3` enquanto eu revia
-(`git log HEAD..main` não vazio): este parecer é do `600608f`, não uma aprovação
-de mescla atualizada.
+Para medir o pai `4898703`, criei `/tmp/c1-caret-pai-4898703`, trouxe **somente
+`TracoTests/EscritaVisivelTests.swift`** deste candidato e usei DerivedData
+separado. O checkout foi removido com `git worktree remove --force` ao fim.
 
-## Vermelho repetido, depois verde no mesmo instrumento
+**Aviso de aparelho — início e fim:** às 06:21 de 09/09 o Pro Max
+`6033B043-F436-41F9-B4F8-2D9E67761980` não tinha `xcodebuild` ativo e a F5b-C
+estava encerrada; repeti nele a sonda sob a mesma trava. A corrida terminou às
+06:22 verde, sem tocar no aparelho Grok `C2416CBC`.
 
-Para não chamar o log versionado de reprodução, montei um checkout temporário
-descartável do pai `4898703`, trouxe **somente** a sonda de teste de `600608f` e
-rodei no mesmo 17e; o checkout foi removido ao fim. O produto do pai reproduziu
-o vermelho que a C1-B diz ter encontrado:
+## A sonda inteira, e os dois vermelhos
 
-```
-PAI 4898703 + sonda 600608f, teclado de software real 308 pt
-GAVETA AX5, cartão a chegar: 85 quadros em 1.42 s, 7 fora;
-  +0.268 a +0.367 s = 0.116 s; pior corte 32 pt
-GAVETA large, cartão a chegar: 86 quadros em 1.42 s, 6 fora;
-  +0.283 a +0.367 s = 0.100 s; pior corte 13 pt
-GAVETA AX5/large, aviso e toast: 0 fora
-✘ Test aLinhaFicaNoPapelEmCadaQuadroDaGaveta ... failed after 27.089 s, 2 issues
-✘ Test run with 2 tests in 1 suite failed after 51.302 s with 2 issues.
+`Quadro` separa `noPapel` (`E ⊆ P`) de `semIntruso` (`P ∩ O = ∅`) em
+`TracoTests/EscritaVisivelTests.swift:402-405`; `contar` relata os dois totais
+separadamente e as asserções são independentes nas linhas 524-525.
 
-CANDIDATO 600608f, mesmo UDID, re-instalado depois do pai
-GAVETA AX5: cartão 84; aviso 87; toast 87 quadros — 0 fora em todas
-GAVETA large: cartão 86; aviso 87; toast 87 quadros — 0 fora em todas
-ESCRITA AX5: 31/31; large: 44/44; teclado real 308 pt
-✔ Test run with 2 tests in 1 suite passed after 51.166 seconds.
-```
-
-Os logs são `/tmp/c1-caret-qa-pai-vermelho.log` e
-`/tmp/c1-caret-qa-candidato-pos-vermelho.log`. A variação AX5 de 6 no artefato
-versionado para 7 nesta repetição é cadência/limite de frame, não uma
-contradição: os dois têm o mesmo intervalo e o mesmo corte máximo. Isto prova
-o vermelho e o verde da geometria, não pixels em cada quadro.
-
-## O que a sonda mede — e o que ela não mede
-
-`CADisplayLink` chama `linhaApresentada` e `areaApresentada` em cada frame;
-ambas consultam `layer.presentation()` (ou a camada-modelo quando não há
-animação). Ela traz instante, total, duração, mediana de cadência e custo da
-leitura. Isso mede adequadamente a geometria apresentada do resíduo que existia:
-o pai deu 7/6 quadros fora e o candidato 0/0, com 16,7 ms e 0,2–0,4 ms/quadro.
-
-Mas `Quadro.cabe` é apenas `area.contains(linha)`. Ao contrário de `Medida`, a
-sonda por quadro **não chama `intrusos(sobre:editor:)`** nem um oráculo de pixels.
-Assim, uma camada à frente que pinte a mesma geometria do papel passa em todos
-os frames. A 08f inclui expressamente a ausência de superfície sobre a escrita;
-o próprio RUMO 195–230 reconhece essa dívida. Registrar a dívida é correto; usá-la
-para chamar a invariante inteira de provada em cada quadro não é.
-
-## Tempo, vídeo e RUMO
-
-`c1/c1b-quadros-vermelho.txt` é sequência carimbada suficiente para a alegação
-do vermelho: lista +0.268, +0.283, ... +0.350 e calcula 0.098/0.100 s para seis
-frames no artefato. A minha repetição acima confirma o fenômeno. Portanto o
-antigo "~0,11 s em 220 screenshots" deixou de ser a única medida.
-
-O MP4 não é alternativo válido: `ffprobe` informa H.264, 262×568, 286 frames,
-44.042723 s; amostras em 0,25, 10, 20, 30 e 40 s mostram a mesma Tela Inicial.
-Ele deve ser removido ou regravado com a Página, a linha e a gaveta visíveis.
-Enquanto estiver no commit e na ADR como `c1b-gaveta-consertada.mp4`, o relato
-faz uma alegação visual que o arquivo não entrega.
-
-As três dívidas prometidas entraram no RUMO (linhas 195–230): barra inferior em
-AX, oráculo de pixels para composição nativa e o limite de um seguidor diante de
-altura animada. Este ponto está fechado documentalmente.
-
-## Pro Max e TextKit 2
-
-`TemaTests` foi executada no 17e e passou:
+No candidato, no meu 17e:
 
 ```
-PISO: 2687 combinações com folga sobrando (a 08w dá o mesmo que a 05y),
-338 apertadas (a 08w dá mais papel)
-✔ Test run with 15 tests in 1 suite passed after 0.090 seconds.
+GAVETA AX5: 0 quadro(s) com a linha ativa fora do papel, 0 com outra superfície sobre ela
+GAVETA AX5, sonda adversarial: 50 quadros, 35 acusados (P ∩ O ≠ ∅), 0 fora do papel
+GAVETA large: 0 quadro(s) com a linha ativa fora do papel, 0 com outra superfície sobre ela
+GAVETA large, sonda adversarial: 51 quadros, 35 acusados (P ∩ O ≠ ∅), 0 fora do papel
+✔ Test run with 2 tests in 1 suite passed after 54.441 seconds.
 ** TEST SUCCEEDED **
 ```
 
-Isso sustenta a resposta de código à pergunta do Pro Max: quando meia sobra já
-comporta uma linha, o teto devolve o mesmo papel; só o caso apertado recebe mais.
-O log/cópia verde do Pro Max no commit permanece não reexecutado por mim, porque
-o preâmbulo reserva `6033B043` à F5b. Não transformo essa prova herdada em
-observação independente.
-
-As bordas de `linhaDoCaret` foram exercitadas no candidato e passaram: documento
-vazio, linha vazia depois de `\n`, quebra por palavra, fim do documento e todos
-os 61 offsets de fronteira. Resultado observado:
+A faixa adversarial faz **só** a metade dos intrusos ficar vermelha: há 35
+acusações e zero quadros fora do papel nos dois tamanhos. No pai com esse mesmo
+instrumento e esse mesmo 17e, a geometria fez a outra metade ficar vermelha por
+si: AX5 deu 6 fora e 2 cobertos, logo 4 quadros vermelhos exclusivos de
+`E ⊆ P`; `large` deu 6 e 6. As duas asserções falharam em ambos os tamanhos:
 
 ```
-LINHA: 61 offsets varridos, 0 em que a linha visual difere do caret;
-menor linha 63 pt, maior 65 pt
-✔ Test run with 7 tests in 2 suites passed after 51.171 seconds.
+GAVETA AX5: 6 quadro(s) com a linha ativa fora do papel, 2 com outra superfície sobre ela
+Expectation failed: (totalFora → 6) == 0
+Expectation failed: (totalCoberto → 2) == 0
+GAVETA large: 6 quadro(s) com a linha ativa fora do papel, 6 com outra superfície sobre ela
+✘ Test run with 2 tests in 1 suite failed after 54.629 seconds with 4 issues.
+** TEST FAILED **
 ```
 
-Isso fecha as quatro bordas pedidas para um `UITextView` TextKit 2. O limite
-permanece bem nomeado: nesse editor nu a caixa do caret coincide com a linha;
-a diferença que motivou a função é coberta pela jornada hospedada da Página.
+No Pro Max recém-liberado, a repetição do candidato também fechou ambas as
+metades e refez o negativo do intruso:
+
+```
+GAVETA AX5: 0 fora, 0 coberto; adversarial 36/51 acusados, 0 fora
+GAVETA large: 0 fora, 0 coberto; adversarial 35/51 acusados, 0 fora
+✔ Test run with 2 tests in 1 suite passed after 55.115 seconds.
+** TEST SUCCEEDED **
+```
+
+## Vídeo aberto
+
+Abri `ferramentas/orca/c1/c1c-pagina-na-sonda.mp4`: H.264, 390×844, 20 fps,
+36,15 s. Inspecionei um mosaico de 36 quadros (um por segundo) e amostras nos
+instantes 0, 18 e 34 s: vê-se a Página **Notas**, a digitação, o cartão
+“Trabalhar nisto / Mais ações da nota”, a faixa vermelha adversarial sobre
+“pensar, agora”, a nota longa, teclado, aviso “A sábia não respondeu” e toast.
+Não há Tela Inicial do iPhone; o início é a Página vazia com data.
 
 ## Scorecard
 
-| dimensão | nota | evidência e remédio abaixo de 9 |
+| dimensão | nota | evidência |
 |---|---:|---|
-| Visão | 10 | Protege a escrita ativa em vez de preservar uma gaveta. |
-| Contrato | 8 | `E ⊆ P` passou por quadro, mas falta `P ∩ O = ∅`; adicionar intruso/oráculo por quadro. |
-| Correção | 8 | Pai 7/6 fora → candidato 0/0, mas não há prova temporal de sobreposição visual. |
-| Jornada real | 9 | Página hospedada e teclado de software real 308 pt nos dois tamanhos. |
-| Design | n/a | Sem superfície ou componente novo. |
-| Simplicidade | 9 | Duas mudanças localizadas e sem dependência nova. |
-| Movimento | 9 | A gaveta corta com foco; o defeito temporal geométrico deixou de ocorrer. |
-| Componentes | n/a | Sem componente alterado. |
-| Acessibilidade | 9 | AX5, large e cinco bordas TextKit 2 verdes; VoiceOver falado corretamente não exercitado. |
-| Performance | 9 | 16,7 ms e 0,2–0,4 ms/quadro na corrida observada. |
-| Privacidade e autoria | n/a | Diff não toca conteúdo, origem, acesso ou envio. |
-| Estado honesto | 7 | RUMO registra as dívidas, mas o MP4 afirma visualmente uma prova que não contém o app; regravar/remover. |
-| Complexidade | 9 | Correção no fluxo compartilhado, sem abstração nova. |
+| Visão | 10 | A invariante protege a escrita ativa inteira. |
+| Contrato | 10 | Duas metades por quadro, duas asserções e dois negativos independentes. |
+| Correção | 9 | Pai vermelho no mesmo 17e; candidato verde no 17e e Pro Max; reexecutei a suíte focada, não a integral. |
+| Jornada real | 9 | Página hospedada, teclado real, cartão, aviso, toast e vídeo conferido. |
+| Design | n/a | Nenhuma superfície de produto foi alterada neste commit. |
+| Simplicidade | 9 | Instrumento estendido no teste existente; sem dependência. |
+| Movimento | n/a | O commit não altera animação de produto; o vídeo é evidência do portão temporal. |
+| Componentes | n/a | Nenhum componente alterado. |
+| Acessibilidade | 9 | `large` e AX5 no 17e e Pro Max; VoiceOver falado é limite declarado. |
+| Performance | n/a | A mudança mede só no target de testes, não altera o caminho de produção. |
+| Privacidade e autoria | n/a | Sem alteração de dados, origem, acesso ou envio. |
+| Estado honesto | 10 | MP4 falso removido; o novo foi aberto e seu alcance é descrito. |
+| Complexidade | 9 | Sem código de produto nem abstração nova. |
 | Fora do app | n/a | Sem superfície fora do app. |
-| Relato | 7 | A sequência vermelha corrige a duração; o vídeo versionado contradiz o título e precisa ser corrigido. |
+| Relato | 10 | Linhas de resultado, vídeo visto, pai descartável removido e limites explícitos. |
 
-Há dimensões abaixo de 9; não segue ao G5. Para o próximo re-G3: (1) prova por
-quadro também `O`, idealmente captura nativa/oráculo de pixels ou intruso
-adversarial de camada; (2) substituir/remover o MP4 vazio e apontar ADR/relato
-para a evidência verdadeira; (3) rebasear e reexecutar contra a ponta atual de
-`main`; (4) quando a reserva liberar, repetir no Pro Max para tornar essa prova
-independente.
+Não há dimensão aplicável abaixo de 9 e não há achado P0/P1 no diff de
+`8bd7382`. A aprovação é apenas de mérito: `main` avançou, portanto não é
+autorização para mesclar sem a reconciliação própria.
