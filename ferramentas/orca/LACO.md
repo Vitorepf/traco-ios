@@ -1201,3 +1201,37 @@ declarar o limite do instrumento em vez de fabricar um teste que não mede nada.
 
 Quatro frentes rodando: **R1-C**, **S1-B**, e os **terceiros re-G3 da C1 e da
 F5b**.
+
+## 09/09, 08h — pausa e retomada (uso 4%); duas aprovações, e a sonda que se desmentiu duas vezes
+
+**A C1 e a F5b passaram no mérito.** A F5b **mesclou** (`d5f77e2`), com a suíte na árvore mesclada em **974 testes em 156 suítes, verde**; a C1 ficou
+"aprovada e **não mesclável**", e foi para a C1-D reconciliar — a mesma lei da
+Q-H, agora aplicada sem eu precisar redescobri-la.
+
+**O relato da C1-C é o melhor exemplo do dia da régua funcionando por dentro.**
+Ela achou **duas coisas contra si mesma** e escreveu as duas:
+
+- **o primeiro vermelho da metade nova era FALSO** — uma camada sem
+  `presentation()` **ainda não foi entregue ao render**, e lê-la pelo modelo é
+  lê-la na geometria de destino;
+- **`E` saía com 2 pt de largura**, porque no fim do documento o TextKit 2 não
+  devolve fragmento e a linha ativa ficava só com o `caretRect` (agora 322 pt em
+  AX5).
+
+E plantou **uma camada adversarial dentro do próprio teste** para provar que o
+portão sabe reprovar (35 de ~51 quadros acusados). Com a sonda inteira, o pai fica
+vermelho **nas duas metades**: o cartão **desenhava por cima** da linha, não só a
+cortava — coisa que a metade que faltava nunca teria visto.
+
+O MP4 falso foi **removido**, não corrigido no texto: entrou um vídeo novo,
+gravado na corrida verde e **assistido quadro a quadro antes de versionar**.
+
+**A S1 foi reprovada com o defeito nomeado:** a pré-condição diz que o Calendário
+não abriu e o hit point foi `{-1,-1}`, enquanto a captura mostra o cartão **sem a
+barra de abas**. É a barra que some com a busca em foco, de novo — a S1-B está
+nela, com a regra nova das dez corridas.
+
+**O `ask` da C1 expirou aos 600 s** perguntando se o Pro Max estava livre, e ela
+seguiu pelo caminho menos destrutivo: **declarou a prova como herdada** em vez de
+tomar o aparelho de outra volta. Foi a decisão certa; e agora que a F5b mesclou, a
+C1-D fecha essa ponta.
