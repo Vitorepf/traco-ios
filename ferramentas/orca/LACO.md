@@ -940,3 +940,37 @@ Despachei também a **MAC-1-B** (`ctx_b365f76d3509`) com o P0 de autoria e a
 decisão de contrato do dono: **a origem acompanha todo consumidor**, o campo vira
 `vozDoAutor` para a incompatibilidade morar no tipo, e **o padrão não pode ser
 permissivo** — o defeito nasceu de um `default true`.
+
+## 09/09, 01h — pausa e retomada (uso 2%); a lei do Grok estava errada, e quem a derrubou foi a fumaça
+
+**A conta caiu por causa do INSTALL POR CIMA — que a lei permitia.** A fumaça do
+revisor mediu `contaGrokLigada=true` com **12 modelos** às 03:20:38Z e, **89
+segundos depois do install**, `false` com **0 modelos** às 03:22:07Z. Ele parou
+na hora, não reautorizou, não limpou, não usou outro aparelho — e foi **por não
+contornar** que o gatilho apareceu. Se ele tivesse dado um jeito, a lei
+continuaria errada e a conta continuaria caindo sem ninguém saber por quê.
+
+**A lei está corrigida:** no `C2416CBC` **ninguém instala nada, nem por cima**.
+E ficou escrito **como rodar IA sem instalar**, que é o que destrava o trabalho:
+a sonda lê a fixture pelo nome em `TRACO_AVALIAR_IA` **no Documents do app**
+(`AvaliacaoIA.swift:58`) — escreve-se a fixture no contêiner de dados, relança-se
+com a variável, e **usa-se o binário que já está lá**, dizendo no relato qual
+candidato é (medir com binário alheio é o erro irmão). Fumaça obrigatória antes e
+depois de cada corrida.
+
+Despachei a **Q2-C** (`ctx_...`) com esse método e com os **seis casos
+independentes que ele já tinha escrito** — eles voltaram `semRetorno` por causa
+da conta; não se reescrevem, rodam-se.
+
+**O Mac nunca foi destrancado**, e o worker provou em vez de reclamar: o carimbo
+`CGSSessionScreenLockedTime` continua **21:23:03 de 08/09**, e o macOS o reescreve
+a cada bloqueio novo — logo a tela não abriu em momento nenhum. Ele escalou às
+21h46, repetiu a pergunta três vezes, esperou o prazo e **fechou como falha por
+bloqueio sem tomar o mouse e sem alterar nada**. A observação dele para o dono é
+prática: **destrancar e avisar no momento**, porque o Mac trava sozinho por
+inatividade.
+
+O que ele apurou sem a tela vale: a pasta espelhada **não existe** e o servidor
+responde a **mensagem honesta** ("A pasta do Traço não está em …"); o
+`.cursor/mcp.json` aponta para o caminho estável; `tools/list` do `main` traz **10
+ferramentas, sem `traco_agenda` nem `traco_decisoes`**; `settings.json` intocado.
