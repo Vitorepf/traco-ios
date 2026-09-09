@@ -378,6 +378,19 @@ não podem ser provados pelo bot por MCP**. Duas saídas, a mais barata primeiro
    GrokBotDev. É o caminho que a Cursor recomenda; custa túnel e segredo, e o Mac tem de estar ligado.
 Relato completo: `ferramentas/orca/mac-0-configuracao.md`, quarta passada.
 
+**Paga pela rota 1 na MAC-0-E (09/09 13h58, quinta passada):** `servidor.py --chamar` existe, a
+Descrição do bot "Traço" manda chamá-lo por comando local, e o vigia de processos do Mac viu o
+executor do Grok Bot rodar `servidor.py --chamar traco_agenda` no "bom dia". O que sobra, com dono:
+- **Orquestrador, no ato da mesclagem:** a Descrição do bot aponta para o `servidor.py` DESTE
+  worktree (`orca/workspaces/traco-ios/volta-mac-0`), porque o `--chamar` só existe aqui até
+  mesclar; trocar pelo caminho estável `develop/traco-ios/...` (o texto de
+  `ferramentas/grokbot/casos/README.md` já traz o estável). Sem isso, o bot quebra quando o
+  worktree sumir.
+- **Dono:** `agenda.md` só nasce com um build posterior à MAC-1 no iPhone dele; até lá "bom dia"
+  responde, do servidor, que não há agenda.
+- **Rota 2 (HTTP + URL pública)** fica como não feita, sem dono: a rota 1 basta enquanto o bot
+  tiver execução local no Mac.
+
 ### DECISÃO DE CONTRATO do dono (08/09, 23h): a origem acompanha todo consumidor
 
 O revisor da MAC-1 levantou e o dono decidiu: **nenhum consumidor que declare

@@ -33,7 +33,7 @@ VERSAO = "0.1.0"
 
 
 def pasta_padrao() -> Path:
-    if len(sys.argv) > 1:
+    if len(sys.argv) > 1 and not sys.argv[1].startswith("--"):
         return Path(sys.argv[1]).expanduser()
     icloud = Path.home() / "Library/Mobile Documents/com~apple~CloudDocs/Traço"
     return icloud
@@ -41,6 +41,10 @@ def pasta_padrao() -> Path:
 
 class Pasta:
     def __init__(self, raiz: Path):
+        # o app grava numa subpasta `Traço/` DENTRO da pasta que a pessoa escolheu
+        # (PastaEspelho.swift); quem aponta para a escolhida cai um nível.
+        if not (raiz / "notas").is_dir() and (raiz / "Traço" / "notas").is_dir():
+            raiz = raiz / "Traço"
         self.raiz = raiz
         self.notas = raiz / "notas"
 
@@ -439,6 +443,7 @@ def autoteste():
     (raiz / "notas" / "bbbb-2.md").write_text(
         "---\ngesto: Destaque\ncriada: 2026-09-01\n---\nterminar o relatório\n", encoding="utf-8")
     pasta = Pasta(raiz)
+    assert Pasta(raiz.parent).notas == pasta.notas  # a pasta escolhida no app leva à subpasta Traço/
     r = responder(pasta, {"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {}})
     assert r["result"]["serverInfo"]["name"] == "traco"
     r = responder(pasta, {"jsonrpc": "2.0", "id": 2, "method": "tools/list"})
@@ -448,6 +453,10 @@ def autoteste():
     assert len(lista) == 1 and lista[0]["titulo"] == "quero correr todo dia"
     r = responder(pasta, {"jsonrpc": "2.0", "id": 4, "method": "tools/call", "params": {"name": "traco_buscar", "arguments": {"termo": "relatório"}}})
     assert "bbbb-2" in r["result"]["content"][0]["text"]
+    import subprocess
+    saida = subprocess.run([sys.executable, __file__, str(raiz), "--chamar", "traco_buscar", '{"termo": "relatório"}'],
+                           capture_output=True, text=True).stdout
+    assert "bbbb-2" in saida, saida
     r = responder(pasta, {"jsonrpc": "2.0", "id": 5, "method": "tools/call", "params": {"name": "traco_sentidos", "arguments": {}}})
     assert "decepcionar" in r["result"]["content"][0]["text"]
     r = responder(pasta, {"jsonrpc": "2.0", "id": 6, "method": "tools/call", "params": {"name": "traco_nota", "arguments": {"id": "../etc/passwd"}}})
@@ -595,5 +604,13 @@ def autoteste():
 if __name__ == "__main__":
     if "--autoteste" in sys.argv:
         autoteste()
+    elif "--chamar" in sys.argv:
+        # ponytail: o Grok Bot não liga servidor stdio (ADR 09m), mas executa comandos no Mac.
+        # `servidor.py [pasta] --chamar traco_agenda '{"dias": 1}'` imprime o que tools/call devolveria.
+        i = sys.argv.index("--chamar")
+        try:
+            print(chamar(Pasta(pasta_padrao()), sys.argv[i + 1], json.loads(sys.argv[i + 2]) if len(sys.argv) > i + 2 else {}))
+        except (IndexError, KeyError):
+            sys.exit("uso: --chamar <" + "|".join(f["name"] for f in FERRAMENTAS) + "> ['{json}']")
     else:
         servir(Pasta(pasta_padrao()))
