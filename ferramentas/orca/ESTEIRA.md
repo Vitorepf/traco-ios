@@ -244,3 +244,16 @@ geral não se sustenta. Quem precisar dessa generalização, meça e guarde as d
 É o oitavo instrumento do dia a dizer mais (ou menos) do que mostra — e o
 primeiro em que a diferença entre "o app não expõe" e "o leitor não devolveu"
 era invisível sem alguém ir medir a mesma tela de dois jeitos.
+
+### O runner que trava antes de conectar não é resultado (08/09)
+
+A Q-H registrou dois travamentos do runner de teste — *"hung before establishing
+connection"*, **0 de 957**, 345 s cada — e fez o certo: **não os contou como
+falha nem como verde**. Provou que a árvore mesclada sobe, instalando e lançando
+o app no aparelho, e reexecutou; as execuções seguintes passaram inteiras, duas
+vezes idênticas.
+
+**Regra:** `0 de N` com o runner travado antes de conectar é **limite do
+instrumento**, e a resposta é repetir a corrida e mostrar as duas saídas — nunca
+declarar vermelho (não houve teste) nem verde (não houve teste). Quem relata,
+relata as duas: a que travou e a que rodou.
