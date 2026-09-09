@@ -1136,3 +1136,36 @@ registrado, sem culpa da F5b, que anotou.
 Os dois re-G3 recusaram de novo (C1 pela prova temporal, F5b pelo corte em AX5 e
 pelas seis fases), e despachei **C1-C**, **F5b-C** e a **revisão da S1**, que
 entregou a pergunta que não some mais ao trocar de aba.
+
+## 09/09, 06h — pausa e retomada (uso 2%); a S1 pegou o próprio verde falso
+
+**A S1 fechou, e o que ela achou sobre si mesma vale mais que o conserto.** O
+conserto é pequeno e certo: a `ConversaNotas` sai do `@State` da `NotasView` e vai
+para a `Sessao` — **3 linhas de código, +14 −2** — e com ela vieram junto a
+pergunta guardada, as trocas, o aviso de "sem conta" e a busca em edição.
+
+Mas o achado é este: **a primeira corrida do teste dela passou VERDE sem visitar
+o defeito.** Com o campo de busca em foco, **a barra de navegação some inteira**,
+e o toque do teste caiu numa tecla do teclado. Ela percebeu, nomeou o colateral, e
+consertou o teste — que agora **solta o teclado por arrasto e exige
+`calendario-titulo` como pré-condição**. É a lei do "verde que não visitou o lugar
+do defeito" **pega pelo próprio autor**, que é a única forma barata de pegá-la.
+
+Ela também declarou o que **não** consertou, na classe certa: filtro, domínio,
+ordem e lote **também** morrem na recriação, **mas a tela mostra isso no mesmo
+quadro** — outra classe de problema, anotada e não remendada.
+
+E a suíte dela travou antes de conectar na primeira corrida: **mostrou as duas
+saídas** e não contou a travada como resultado, exatamente como a lei de ontem
+manda. 973 testes em 156 suítes na repetida.
+
+**Uma pergunta de revisor virou regra.** Ele perguntou se podia montar um checkout
+descartável do pai em `/tmp` para reproduzir o vermelho, porque *"só no seu
+worktree"* deixava isso ambíguo. **Pode, e deve** — foi assim que o revisor da C1
+produziu a melhor prova da noite, trazendo **só a sonda** do candidato para o pai.
+Está na ESTEIRA e no preâmbulo, com as condições. Perguntar em vez de supor é o
+que faz uma regra melhorar em vez de ser contornada em silêncio.
+
+Os dois re-G3 recusaram com prova reexecutada — a C1 pela sonda que mede metade e
+pelo vídeo vazio, a F5b pelo corte em AX5 e pelas seis fases —, e a **C1-C**,
+a **F5b-C** e a **revisão da S1** já estão em curso.
