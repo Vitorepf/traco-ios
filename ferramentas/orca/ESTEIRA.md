@@ -140,8 +140,12 @@ quando uma volta escreve **quantas ADRs precisar**. Quem mescla primeiro fica
 com a letra; quem chega depois renumera, e renumerar depois de um revisor já ter
 conferido a letra **invalida uma prova conferida**.
 
-**Regra:** antes de qualquer volta escrever uma ADR, o orquestrador lê o
-registro completo com um comando, não de memória:
+**Regra:** o registro mora em `ferramentas/orca/LETRAS-ADR.md`, num lugar só, e
+o spec de cada volta aponta para lá em vez de carregar a sua cópia — reservar
+dentro de cada spec foi o que produziu a TERCEIRA colisão do dia (dei a mesma
+`08w` à Q-H e à C1, porque a lista vivia espalhada). Antes de qualquer volta
+escrever uma ADR, o orquestrador lê o registro completo com um comando, não de
+memória:
 
 ```
 for ref in main origin/main <cada branch vivo>; do
