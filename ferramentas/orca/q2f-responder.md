@@ -14,7 +14,8 @@ está na §4.1**, com o texto exato que o autor lê.
 
 **As horas.** Fumaça de abertura **15h54 (BRT)** de 09/09/2026, conta ligada e 12
 modelos autenticados. Última corrida encerrada **16h55**. Fumaça de fecho
-**16h57**, conta ligada e os mesmos 12 modelos. **Zero instalações.**
+**16h57**, conta ligada e os mesmos 12 modelos — e uma terceira, depois da suíte,
+às **17h11**, ainda ligada e ainda 12. **Zero instalações.**
 
 ## 1. Os dois P1 do G3, e o que cada um virou aqui
 
@@ -243,7 +244,8 @@ O binário já no aparelho (`Traco.debug.dylib`, sha256
 | quando | hora (BRT) | `contaGrokLigada` | modelos autenticados |
 |---|---|---|---|
 | abertura | 09/09 **15:54:14** | `true` | 12 |
-| fecho | 09/09 **16:57:08** | `true` | 12 |
+| fecho da medida | 09/09 **16:57:08** | `true` | 12 |
+| depois da suíte | 09/09 **17:11:39** | `true` | 12 |
 
 E `contaGrokLigada: true` em **todos** os 162 registros de caso. `prova/q2f-fumaca-fecho.jsonl`.
 
@@ -265,15 +267,17 @@ E `contaGrokLigada: true` em **todos** os 162 registros de caso. `prova/q2f-fuma
 ## 6. Suíte
 
 ```
-✔ Test run with 999 tests in 161 suites passed after 88.505 seconds.
+✔ Test run with 1000 tests in 161 suites passed after 89.048 seconds.
 ** TEST SUCCEEDED **
 ```
 
 `-only-testing:TracoTests`, destino `34CC3F94-FDB5-4575-A4F5-80271829A18B`,
-**17h04–17h05** de 09/09, sob `ferramentas/orca/com-trava.sh`. **Foram DUAS
-corridas de suíte**: a primeira às 17h01 (999 verdes, 89,161 s) antes de a
-asserção da linha do Perfil existir, e esta, depois dela. **Liguei e desliguei o
-`34CC3F94` nas duas**; ao fim ficou **um** aparelho ligado na máquina, o da conta.
+**17h09–17h11** de 09/09, sob `ferramentas/orca/com-trava.sh`, **na árvore já
+mesclada com o `main`** (que trouxe o B1-B durante o trabalho — 6 testes novos do
+portão do `try!`, daí 1000 e não 999). Foram **três** corridas de suíte, todas
+verdes: 17h01 (999, antes de a asserção da linha do Perfil existir), 17h04 (999,
+com ela) e esta. **Liguei e desliguei o `34CC3F94` nas três**; ao fim ficou
+**um** aparelho ligado na máquina, o da conta.
 
 ## 7. Scorecard (preenchido por mim; a nota final é do revisor)
 
