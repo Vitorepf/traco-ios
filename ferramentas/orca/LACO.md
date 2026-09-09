@@ -1825,3 +1825,32 @@ seria a mentira mais fácil do dia.
 **A D1 entregou o desenho** (`ddbff15`, ADR **09k**): *"as Notas viram uma folha do
 Traço — palavras em vez de cápsulas, a cobrança em âmbar, a busca como linha"*.
 Falta o **vídeo de 15 s** que o dono pediu por nome, e é o que a D1-B fecha.
+
+## 09/09, 13h30 — pausa e retomada (uso 17%); o vídeo foi para o dono, e o Grok Bot RECUSA servidor local
+
+**O vídeo de 15 s está com o dono**, gravado no aparelho da conta **com o caderno
+real dele**, com a Grok conferida pelo Perfil **às 12h42:52 e às 12h43:10** — antes
+e depois do install por cima. A D1-B ainda registrou um detalhe de instrumento que
+vale: **`recordVideo` estica o relógio** (15,5 s viraram 21,4 s) e ela **retimou
+por `setpts`** em vez de entregar um vídeo que mente sobre a própria duração.
+
+**A MAC-0-D fechou com o achado que encerra a discussão de ontem:** o Grok Bot
+**recusa servidor local por contrato** — `stdio_unsupported`, do lado do Cursor,
+desde 13/08. **O trecho stdio não entra em tela nenhuma do bot**, então nem o meu
+"deixe pronto para o dono colar" resolveria: **não há onde colar**. O bot "Traço"
+existe, a pasta espelhada existe, e **os casos seguem não provados** — escrito
+assim, sem arredondar. A MAC-0-E está nomeada no RUMO para achar o caminho que
+existe (HTTP, provavelmente), em vez de insistir no que o app não aceita.
+
+**Decidi ontem "não autorizo o Chrome na conta do dono" e a decisão continua
+certa por uma razão melhor do que a minha:** eu recusei por ser dado dele; o
+worker mediu que **não teria funcionado de qualquer jeito**. É o tipo de coincidência
+que não se deve confundir com acerto — a minha razão era boa, mas a razão dele é
+prova.
+
+**Os três vermelhos que a D1 relatou não eram novos:** eram **os dois da FUSÃO**
+(mais um caso), e o branch dela nasceu de `a32fe75` — o `main` vermelho de uma
+hora antes. Ela fez o certo (reproduziu no pai, com checkout descartável, e
+declarou), e o `merge` traz o conserto junto. Nada a fazer além de mesclar.
+
+Mesclei **D1** e **MAC-0** e a suíte está correndo no aparelho efêmero.
