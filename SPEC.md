@@ -6501,3 +6501,76 @@ VoiceOver estão proibidos no Traço — o áudio de qualquer simulador sai pela
 caixas do Mac do autor. A acessibilidade desta tela se prova por árvore de AX
 (cabeçalho → o que houve → onde está o conteúdo → ação → detalhe técnico) e por
 captura, que é o que a lei manda. A ordem de leitura está provada; a fala, não.
+
+## ADR 2026-09-08w — Uma linha é o piso do papel, e a folga cede antes da letra (volta C1)
+
+**Ciclo:** multiplicar a mente — o autor escreve sem lutar com a ferramenta.
+**Intenção:** a pessoa vê o que está escrevendo, em qualquer tamanho de letra e
+em qualquer aparelho. **Obstáculo:** a invariante da escrita visível (ADR 08f)
+estava provada no iPhone 17 Pro e no Pro Max e **falhava no iPhone 17e em
+AX XXXL** — 18 amostras vermelhas, o único vermelho da suíte integral naquele
+aparelho, pré-existente (a V13 mediu as mesmas 18 em `HEAD` sem o diff dela).
+
+### O que estava errado, medido antes de ser corrigido
+
+Sonda em `CadernoView.tetoDoEncaixe` no 17e com o teclado de pé, em AX XXXL:
+
+```
+SONDA teto: altura 413,67  pe 274,67  piso 259,33 -> teto 69,50  papel 69,50
+SONDA teto: altura 413,67  pe 326,67  piso 259,33 -> teto 43,50  papel 43,50
+```
+
+A tela do 17e dá 413,67 pt de trabalho com o teclado de pé. **O pé toma 274,67
+— e 326,67 com o aviso.** A regra de então era `papel = min(piso, sobra / 2)`:
+com 139 pt de sobra o papel ficava com **69,5 pt**, e com 87 de sobra ficava com
+**43,5**. Uma linha de corpo em AX XXXL mede **67 pt**. O papel era menor que a
+linha que ele existe para mostrar — não havia rolagem que resolvesse, e o autor
+escrevia às cegas. Duas causas independentes, as duas em função compartilhada:
+
+1. **O contêiner concedia menos de uma linha.** `tetoDoEncaixe` repartia o que
+   sobra do pé pela metade. Onde a tela é pequena e a letra grande, metade não
+   dá uma linha. O comentário da 05y admitia a troca de propósito — "um piso
+   maior deixaria o autor sem as duas saídas em vez de sem texto" — e essa troca
+   **contradiz a 08f**: a letra do autor à vista vale mais que a saída do cartão.
+2. **O seguidor perseguia o CARET, não a LINHA.** `EscritaVisivel.seguirCaret`
+   media `caretRect`, que em AX XXXL tem 45 pt para uma linha de 67: a
+   entrelinha fica POR CIMA do caret. E pedia `folga` inteira dos dois lados;
+   com o papel curto, a folga empurrava a linha para fora — o alinhamento pelo
+   fundo deixava 22 pt de letra acima da borda no meio da nota, onde havia
+   rolagem de sobra.
+
+### A decisão
+
+**O piso do papel é UMA LINHA, e a folga cede antes da letra.**
+
+- `tetoDoEncaixe` passa a ser `sobra − min(max(min(piso, sobra/2), piso/3), sobra)`:
+  o piso continua sendo três linhas limitado a meia sobra, mas **nunca desce
+  abaixo de `piso/3`, que é uma linha**. Quando nem uma linha cabe, o papel toma
+  a sobra inteira e o encaixe cede — é a 08f aplicada à letra, não ao cartão.
+- `EscritaVisivel.linhaDoCaret` mede a **linha visual** pelo TextKit 2 (o
+  fragmento de linha unido ao retângulo do caret), e `seguirCaret` segue essa
+  linha. A medida é feita de novo aqui, e não lida do teste: o instrumento mede
+  sozinho, senão a prova passa a citar o código que devia julgar.
+- A folga vira `min(folga, (vista − linha) / 2)`: onde o papel não tem espaço
+  para ela, ela encolhe simetricamente. **Quem tem de caber é a linha.**
+
+Em `large` nada muda (a sonda mede papel 92 pt antes e depois); a regra só morde
+onde a metade já era menor que uma linha.
+
+### A pré-mortem
+
+O que pode dar errado: em AX XXXL com aviso E toast, o encaixe fica com ~0 pt e
+a mensagem do cartão some da tela. Isso é **decisão, não descuido** — mas é o
+sinal de que o verdadeiro exagero está no pé, que toma 275 dos 414 pt naquele
+aparelho. **Fica no RUMO:** a barra de baixo em tamanhos de acessibilidade
+precisa de uma volta própria; enquanto ela não vier, o papel ganha da barra.
+
+### Resíduo observado, não corrigido
+
+Durante a **gaveta do cartão a chegar** (`Tema.gaveta` anima a altura do
+encaixe), há um quadro em que a altura do encaixe já cresceu e o seguidor ainda
+não correu: a linha ativa aparece **cortada ao meio** pela borda do cartão
+(`ferramentas/orca/c1/c1-04-residuo-gaveta-cartao.png`, ~0,11 s numa varredura
+de 220 quadros). O mecanismo — um quadro de atraso entre a altura animada e a
+volta do runloop — não foi alterado por esta volta, e a suíte não o apanha
+porque mede em pontos discretos. **Fica escrito, não escondido.**

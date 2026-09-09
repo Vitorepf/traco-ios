@@ -1,0 +1,739 @@
+{
+  "id": "5b4f2c7f-d760-4c14-96ab-2a92a793b259",
+  "ok": true,
+  "result": [
+    {
+      "role": "application",
+      "type": "Application",
+      "label": "Traço",
+      "value": "",
+      "enabled": true,
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "width": 1,
+        "height": 1
+      },
+      "children": [
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Notas",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0513,
+            "y": 0.0604,
+            "width": 0.3427,
+            "height": 0.075
+          },
+          "children": [],
+          "id": "notas-da-pagina"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Concluir",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.4675,
+            "y": 0.0604,
+            "width": 0.4812,
+            "height": 0.075
+          },
+          "children": [],
+          "id": "concluir"
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "Terça-feira, 8 de setembro",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0513,
+            "y": 0.1449,
+            "width": 0.7205,
+            "height": 0.1382
+          },
+          "children": []
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "1 volta a conferir",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0513,
+            "y": 0.2855,
+            "width": 0.8974,
+            "height": 0.0695
+          },
+          "children": [],
+          "id": "linha-da-volta"
+        },
+        {
+          "role": "Grupo",
+          "type": "TextArea",
+          "label": "Página",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0385,
+            "y": 0.3574,
+            "width": 0.9231,
+            "height": 0.184
+          },
+          "children": [],
+          "id": "pagina"
+        },
+        {
+          "role": "Grupo",
+          "type": "ScrollArea",
+          "label": "Régua de formas",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0282,
+            "y": 0.5462,
+            "width": 0.6026,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "regua"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Todas",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.6701,
+            "y": 0.5462,
+            "width": 0.1684,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "regua-todas"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Esconder teclado",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.8154,
+            "y": 0.5462,
+            "width": 0.1333,
+            "height": 0.0521
+          },
+          "children": [],
+          "id": "keyboard.chevron.compact.down"
+        },
+        {
+          "role": "",
+          "type": "GenericElement",
+          "label": "Não",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0,
+            "y": 0.6031,
+            "width": 0.3333,
+            "height": 0.0521
+          },
+          "children": []
+        },
+        {
+          "role": "",
+          "type": "GenericElement",
+          "label": "O",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.3333,
+            "y": 0.6031,
+            "width": 0.3333,
+            "height": 0.0521
+          },
+          "children": []
+        },
+        {
+          "role": "",
+          "type": "GenericElement",
+          "label": "E",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.6667,
+            "y": 0.6031,
+            "width": 0.3333,
+            "height": 0.0521
+          },
+          "children": []
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Q",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.012,
+            "y": 0.6635,
+            "width": 0.0974,
+            "height": 0.064
+          },
+          "children": []
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "W",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.1094,
+            "y": 0.6635,
+            "width": 0.0983,
+            "height": 0.064
+          },
+          "children": []
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "E",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.2077,
+            "y": 0.6635,
+            "width": 0.0983,
+            "height": 0.064
+          },
+          "children": []
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "R",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.306,
+            "y": 0.6635,
+            "width": 0.0983,
+            "height": 0.064
+          },
+          "children": []
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "T",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.4043,
+            "y": 0.6635,
+            "width": 0.0983,
+            "height": 0.064
+          },
+          "children": []
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Y",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.5026,
+            "y": 0.6635,
+            "width": 0.0983,
+            "height": 0.064
+          },
+          "children": []
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "U",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.6009,
+            "y": 0.6635,
+            "width": 0.0983,
+            "height": 0.064
+          },
+          "children": []
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "I",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.6991,
+            "y": 0.6635,
+            "width": 0.0983,
+            "height": 0.064
+          },
+          "children": []
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "O",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.7974,
+            "y": 0.6635,
+            "width": 0.0983,
+            "height": 0.064
+          },
+          "children": []
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "P",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.8957,
+            "y": 0.6635,
+            "width": 0.0983,
+            "height": 0.064
+          },
+          "children": []
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "A",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0607,
+            "y": 0.7275,
+            "width": 0.0983,
+            "height": 0.064
+          },
+          "children": []
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "S",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.159,
+            "y": 0.7275,
+            "width": 0.0983,
+            "height": 0.064
+          },
+          "children": []
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "D",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.2573,
+            "y": 0.7275,
+            "width": 0.0983,
+            "height": 0.064
+          },
+          "children": []
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "F",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.3556,
+            "y": 0.7275,
+            "width": 0.0983,
+            "height": 0.064
+          },
+          "children": []
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "G",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.4538,
+            "y": 0.7275,
+            "width": 0.0974,
+            "height": 0.064
+          },
+          "children": []
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "H",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.5513,
+            "y": 0.7275,
+            "width": 0.0983,
+            "height": 0.064
+          },
+          "children": []
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "J",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.6496,
+            "y": 0.7275,
+            "width": 0.0983,
+            "height": 0.064
+          },
+          "children": []
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "K",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.7479,
+            "y": 0.7275,
+            "width": 0.0983,
+            "height": 0.064
+          },
+          "children": []
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "L",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.8462,
+            "y": 0.7275,
+            "width": 0.0983,
+            "height": 0.064
+          },
+          "children": []
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "maiúsculas",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.012,
+            "y": 0.7915,
+            "width": 0.1274,
+            "height": 0.064
+          },
+          "children": [],
+          "id": "shift"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Z",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.159,
+            "y": 0.7915,
+            "width": 0.0983,
+            "height": 0.064
+          },
+          "children": []
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "X",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.2573,
+            "y": 0.7915,
+            "width": 0.0983,
+            "height": 0.064
+          },
+          "children": []
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "C",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.3556,
+            "y": 0.7915,
+            "width": 0.0983,
+            "height": 0.064
+          },
+          "children": []
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "V",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.4538,
+            "y": 0.7915,
+            "width": 0.0974,
+            "height": 0.064
+          },
+          "children": []
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "B",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.5513,
+            "y": 0.7915,
+            "width": 0.0983,
+            "height": 0.064
+          },
+          "children": []
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "N",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.6496,
+            "y": 0.7915,
+            "width": 0.0983,
+            "height": 0.064
+          },
+          "children": []
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "M",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.7479,
+            "y": 0.7915,
+            "width": 0.0983,
+            "height": 0.064
+          },
+          "children": []
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "apagar",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.8658,
+            "y": 0.7915,
+            "width": 0.1282,
+            "height": 0.064
+          },
+          "children": [],
+          "id": "delete"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "números",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.012,
+            "y": 0.8555,
+            "width": 0.1222,
+            "height": 0.064
+          },
+          "children": [],
+          "id": "more"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Emoji",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.1342,
+            "y": 0.8555,
+            "width": 0.1231,
+            "height": 0.064
+          },
+          "children": [],
+          "id": "emoji"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": " ",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.2573,
+            "y": 0.8555,
+            "width": 0.4906,
+            "height": 0.064
+          },
+          "children": [],
+          "id": "space"
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "retorno",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.7479,
+            "y": 0.8555,
+            "width": 0.2462,
+            "height": 0.064
+          },
+          "children": [],
+          "id": "Return"
+        },
+        {
+          "role": "",
+          "type": "GenericElement",
+          "label": "",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0,
+            "y": 0.6552,
+            "width": 1,
+            "height": 0.3448
+          },
+          "children": []
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Próximo teclado",
+          "value": "Português e English",
+          "enabled": true,
+          "frame": {
+            "x": 0.0217,
+            "y": 0.9191,
+            "width": 0.1746,
+            "height": 0.0814
+          },
+          "children": []
+        },
+        {
+          "role": "button",
+          "type": "Button",
+          "label": "Ditado",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.8037,
+            "y": 0.9187,
+            "width": 0.1746,
+            "height": 0.0814
+          },
+          "children": [],
+          "id": "dictation"
+        },
+        {
+          "role": "text",
+          "type": "StaticText",
+          "label": "21:31",
+          "value": "",
+          "enabled": true,
+          "frame": {
+            "x": 0.0838,
+            "y": 0.0186,
+            "width": 0.1,
+            "height": 0.0221
+          },
+          "children": []
+        },
+        {
+          "role": "",
+          "type": "GenericElement",
+          "label": "Celular",
+          "value": "Sem sinal",
+          "enabled": true,
+          "frame": {
+            "x": 0.7752,
+            "y": 0.0225,
+            "width": 0.0436,
+            "height": 0.0134
+          },
+          "children": []
+        },
+        {
+          "role": "",
+          "type": "GenericElement",
+          "label": "",
+          "value": "SSID, 3 de 3 barras Wi-Fi",
+          "enabled": true,
+          "frame": {
+            "x": 0.8325,
+            "y": 0.0217,
+            "width": 0.0427,
+            "height": 0.0142
+          },
+          "children": [],
+          "id": "3 de 3 barras Wi-Fi"
+        },
+        {
+          "role": "",
+          "type": "GenericElement",
+          "label": "carga da bateria, 100%",
+          "value": "Não está carregando",
+          "enabled": true,
+          "frame": {
+            "x": 0.8889,
+            "y": 0.0221,
+            "width": 0.0641,
+            "height": 0.0142
+          },
+          "children": []
+        }
+      ]
+    }
+  ],
+  "_meta": {
+    "runtimeId": "29a00263-8c2e-4822-afea-b504e815d7ae"
+  }
+}

@@ -178,14 +178,34 @@ struct TemaTests {
     /// à vista. O G4 mediu 413 pt de encaixe para 33 pt de papel — o teto do
     /// cartão era absoluto (440/380) e quem pagava era a única parte elástica.
     /// Agora o encaixe leva o que SOBRA depois do pé e do piso.
-    @Test func oPapelTemPiso() {
+    @Test func oPapelTemPiso() throws {
         // `large`, teclado de pé: 446 pt disponíveis, pé de 90, piso de 92
         #expect(CadernoView.tetoDoEncaixe(altura: 446, pe: 90, piso: 92) == 264)
         // o papel fica com o piso inteiro: 446 − 90 − 264 = 92
         // apertado (AX5): três linhas de corpo não cabem, o piso cede até
-        // metade do que sobra — mas o encaixe nunca leva tudo
+        // metade do que sobra — mas nunca abaixo de UMA linha (piso / 3)
         let apertado = CadernoView.tetoDoEncaixe(altura: 446, pe: 300, piso: 280)
-        #expect(apertado == 73)
+        let umaLinha: CGFloat = 280 / 3
+        #expect(apertado == 146 - umaLinha) // papel 93,3 (uma linha), não 73
+
+        // O 17e em AX XXXL, MEDIDO (ADR 08w, sonda em `tetoDoEncaixe`):
+        // 413,67 pt disponíveis, pé de 274,67, piso de 259,33 — a metade dava
+        // 69,5 pt de papel para uma linha de corpo de 67, e a linha não cabia
+        // em quadro nenhum, com ou sem rolagem. Agora o papel leva uma linha
+        // inteira (86,4) e ainda sobra encaixe.
+        let altura17: CGFloat = 413.6667
+        let pe17: CGFloat = 274.6667
+        let piso17: CGFloat = 259.3333
+        let e17 = try #require(CadernoView.tetoDoEncaixe(altura: altura17, pe: pe17, piso: piso17))
+        let papel17: CGFloat = altura17 - pe17 - e17
+        #expect(papel17 > 67) // uma linha de corpo em AX XXXL
+        #expect(e17 > 0)      // e ainda sobra encaixe: o cartão não some
+
+        // com o aviso o pé sobe a 326,67 e sobram 87: aí o papel toma tudo —
+        // a letra do autor à vista vale mais que a saída do cartão (08w)
+        let peAviso: CGFloat = 326.6667
+        let eAviso = try #require(CadernoView.tetoDoEncaixe(altura: altura17, pe: peAviso, piso: piso17))
+        #expect(eAviso < 1) // o encaixe cede inteiro: sobram 87 pt para a linha
         // sem medida ainda, ou pé maior que a tela: nada de teto, nada achatado
         #expect(CadernoView.tetoDoEncaixe(altura: 0, pe: 0, piso: 92) == nil)
         #expect(CadernoView.tetoDoEncaixe(altura: 400, pe: 400, piso: 92) == nil)
