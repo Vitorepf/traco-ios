@@ -1901,3 +1901,35 @@ um e o `TracoApp.swift:13` que o dono cita como primeiro **já saiu**. No spec d
 pus a pergunta que decide cada caso: **quando esse `try!` explodir na mão do
 autor, o que ele perde?** Se for o texto que ele acabou de escrever, o conserto
 não é não-explodir — é **preservar e dizer**.
+
+## 09/09, 14h — pausa e retomada (uso 34%); a B1 achou que o conserto óbvio seria um verde falso
+
+**A B1 foi atrás do dado que faz cada `try!` explodir na mão do autor, e o achado
+é melhor que o conserto:**
+
+**Dois dos quatro não têm esse dado.** `Corpus:171` codifica um `String` e
+`Sessao:615` um `[String]` — sempre JSON válido, sempre UTF-8 válido. Testados com
+**NUL, controle, `U+FFFF`, emoji, `U+2028/2029`, aspas e barra**, e o campo volta
+idêntico do backup. Eles saem da lista de dívida real **por medida, não por
+opinião** — e sair por medida é tão válido quanto sair por conserto.
+
+**Nos outros dois, o conserto óbvio seria um verde falso.** `FonteNotas` e
+`PraticaTrabalho` compartilham `json(_ objeto: Any)`, e
+`JSONSerialization.data(withJSONObject:)` com objeto inválido **NÃO lança**: ela
+**levanta `NSInvalidArgumentException` e mata o processo**, por baixo de `try!`,
+`try?` e `do/catch` **igualmente**. A frase do worker é a que fica:
+
+> *"Trocar por `try?` teria sido um verde que nunca visita o lugar do defeito."*
+
+E ele **mediu** em vez de deduzir: com o `try!` de volta, **o teste derruba o
+runner e nem aparece como falha** — que é a morte que o autor veria. O guarda é
+**`isValidJSONObject` antes da chamada**. Está na ESTEIRA, com a regra maior:
+**antes de trocar um operador de erro por outro, descubra se a API falha por
+`throw` ou por exceção Objective-C** — se for exceção, nenhum `try` a pega, e o
+conserto é a **pré-condição**.
+
+**A D1-B e a MAC-0-D fecharam** com dois cuidados que registro porque são o oposto
+de arredondar: a D1-B entregou o vídeo **retimado por `setpts`** porque o
+`recordVideo` **estica o relógio** (15,5 s de parede viram 21,37 s de arquivo), e a
+MAC-0-D disse que a captura do "bom dia" **é o bot falando sozinho, não o caso 11**,
+e que a do caso 1 é **indício, não prova**, porque veio de execução local.

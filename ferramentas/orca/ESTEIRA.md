@@ -618,3 +618,25 @@ sempre: **fumaça antes e depois, e parar em vez de contornar**.
 APARELHO — keychain, `UserDefaults` do app, App Group, arquivos do contêiner — não
 está isolado**, por mais que o alvo se chame "testes de unidade". O que ele apaga,
 apaga de verdade. Injete o cofre, ou pule com a razão dita.
+
+### `try?` pode ser um verde que nunca visita o defeito (09/09, achado da B1)
+
+Trocar `try!` por `try?` parece o conserto óbvio, e **em dois dos quatro casos da
+B1 seria um verde falso**: `JSONSerialization.data(withJSONObject:)` com objeto
+inválido **NÃO lança** — ela **levanta `NSInvalidArgumentException` e mata o
+processo**, por baixo de `try!`, `try?` e `do/catch` **igualmente**. Medido: com o
+`try!` de volta, o teste **derruba o runner e nem aparece como falha** — que é
+exatamente a morte que o autor veria.
+
+**O guarda certo é `isValidJSONObject` ANTES da chamada**, e a degradação vai para
+a recusa que o app já sabe dizer.
+
+**A regra maior:** antes de trocar um operador de erro por outro, **descubra se a
+API falha por `throw` ou por exceção Objective-C**. Se for exceção, **nenhum
+`try` a pega**, e o conserto é a **pré-condição**, não o tratamento.
+
+**E a segunda metade do achado, que é rara:** os outros dois casos
+(`Corpus:171`, `Sessao:615`) **não têm dado que os derrube** — testados com NUL,
+controle, `U+FFFF`, emoji, `U+2028/2029`, aspas e barra. Eles passam de "dívida
+real" a **"infalível por construção COM A PROVA"**. Sair da lista **por medida** é
+tão válido quanto sair por conserto — e é mais barato.
