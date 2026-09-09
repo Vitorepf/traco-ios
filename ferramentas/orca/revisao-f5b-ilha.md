@@ -1,53 +1,52 @@
-# re-G3 F5b — a prova reprodutível da Ilha
+# re-G3 (terceiro) F5b — AX5 e as seis fases
 
-**Veredito: CORRIGIR ANTES.** A prova que recusara passou: o teste agora morde o `ActivityContent` publicado, a semeadura percorre a rota real e os pares `large`/AX5 têm captura e log versionados. A volta ainda não pode fechar porque a tela bloqueada corta conteúdo em AX5 e o relato não entrega as seis fases exigidas pelo portão para esta dimensão visual.
+**Veredito: APROVAR.** Os dois P1 da re-G3 anterior estão fechados: o par de capturas mostra o prazo inteiro em `large` e AX5, e `f5b-c-corte-ax5.md` aplica e explicita as seis fases exigidas pelo `design-router`. Revisei somente `f588b05`, no worktree `volta-f5b-ilha`; não alterei código, não usei voz, Siri, ditado, VoiceOver, iPad, maestro ou o Pro do Grok.
 
-**Escopo revisado:** `abd09b0...0abdc4c`, ADR 2026-09-08v, no worktree `volta-f5b-ilha`. Revisei e rodei só no iPhone 17 Pro Max `6033B043-F436-41F9-B4F8-2D9E67761980`, sob `ferramentas/orca/com-trava.sh`; avisei no comentário compartilhado que a C1-B também usa o aparelho. Não toquei no Pro do Grok `C2416CBC`, nem usei Siri, voz, ditado, VoiceOver, iPad ou maestro.
+## Conferência dos dois P1
 
-## Achados que impedem o G5
+### [Resolvido] AX5 não corta o relógio do cartão
 
-### [P1] Dynamic Type AX5 ainda corta o cartão bloqueado
+O diff remove `.frame(maxWidth: 92, alignment: .trailing)` e conserva uma linha, substituindo-o por `.multilineTextAlignment(.trailing)` em `TracoWidget/TracoWidget.swift:1422-1432`. A causa alegada é compatível com o experimento recusado: em `f5bc-instrumento-sem-teto-relogio-a-esquerda.png`, “34 minutos” está inteiro mas começa logo depois de “PRÓXIMO”; portanto tirar só o teto elimina o corte, mas não preserva a âncora à direita.
 
-`ferramentas/orca/f5bb-ax5-bloqueada.png` mostra o prazo como **"39 minut…"**; em `f5bb-large-bloqueada.png` o mesmo campo é **"39 minutos"**. É o estado igual, com o compromisso no topo, amarrado ao mesmo par pelo `f5bb-log-ax5.log`; logo não é inferência de árvore de acessibilidade. Isso fica abaixo do mínimo de Acessibilidade (`ESTEIRA.md:101`).
+Abri as quatro capturas do par final, não apenas seus nomes:
 
-**Para fechar:** eliminar o corte no cartão bloqueado em AX5 e refazer o par com o mesmo estado e log. A fala do VoiceOver permanece proibida e não entra como desconto; a árvore de AX devolve 503 nessas superfícies, portanto nenhuma ausência na árvore foi usada como prova de ausência na tela.
+| estado | `large` | AX5 | resultado visto |
+|---|---|---|---|
+| bloqueada | `f5bc-large-bloqueada.png` | `f5bc-ax5-bloqueada.png` | “39 minutos” inteiro no canto direito nas duas |
+| ao acordar | `f5bc-large-bloqueada-ao-acordar.png` | `f5bc-ax5-bloqueada-ao-acordar.png` | “39:43” / “39:26” inteiros e na mesma borda da hora |
 
-### [P1] O relato da re-G3 não contém as seis fases obrigatórias do `design-router`
+`f5bc-log-large.log` registra duas atividades iniciadas às 05:21:31; `f5bc-log-ax5.log` delimita 05:21:50–05:22:07 sem atividade iniciada ou encerrada. A ausência de teste unitário de alinhamento é declarada corretamente em `f5b-c-corte-ax5.md:37`: a suíte não renderiza este `Text`; para essa propriedade visual, a prova é o par de capturas.
 
-`ferramentas/orca/f5b-b-prova.md:4` declara que não registrará as fases. A regra pede no relato **Ancorar, Sistema, Construir, Mover, Julgar e Portão** (`ESTEIRA.md:20-28`; scorecard `:97`), e o pedido desta re-G3 explicitou essa exigência para Fora do app. Não basta mencionar que não houve redesenho.
+### [Resolvido] Seis fases do `design-router`
 
-**Para fechar:** registrar as seis fases como foram aplicadas à prova e confrontá-las com as capturas atuais, inclusive o corte AX5. Isso é documentação verificável, não justificativa para inventar uma mudança visual.
+O relato tem Ancorar, Sistema, Construir, Mover, Julgar e Portão, na ordem e com aplicação verificável ao ajuste local. Ancorar fixa a tarefa AX5; Sistema reaproveita `Tema`; Construir corresponde ao diff de uma troca; Mover declara corretamente que nenhuma transição mudou; Julgar confronta seis telas e preserva o experimento que falhou; Portão não disfarça a captura como teste de unidade e cola a evidência de `949 tests in 153 suites passed after 55.355 seconds.` e `** TEST SUCCEEDED **`.
 
-## As três provas reexecutadas
+## Julgamento das ressalvas e do controle
 
-1. **O teste morde o wiring.** `ProximoCompromisso.conteudo(de:recado:)` é a origem única do conteúdo usado por `request`, `update` e recado (`Traco/Modelo/ProximoCompromisso.swift:212-240,262-266`). `ForaDoAppTests.aIlhaEDoCompromisso` lê o conteúdo construído, incluindo o update (`TracoTests/ForaDoAppTests.swift:312-334`). Eu removi temporariamente somente `relevanceScore: relevanciaNaIlha` da publicação: no resultado `Test-Traco-2026.09.09_04-47-30--0300.xcresult`, 24 passaram e 1 falhou com `Expectation failed: (compromisso.relevanceScore -> 0.0) > (destaque.relevanceScore -> 0.0)`. Restaurei a linha e a repetição verde deu `Test run with 25 tests in 1 suite passed after 0.219 seconds.` e `** TEST SUCCEEDED **`.
-2. **A semeadura publica pela rota real.** Em DEBUG, o arranque chama a mesma `ProximoCompromisso.publicar(eventos, cal:)` da agenda, editor e intent (`Traco/TracoApp.swift:37-49`; chamadores em `CalendarioAgenda.swift:350`, `Intencoes.swift:235`, `Sessao.swift:815`). Rodei `f5b-semear.sh` de estado limpo do cenário, com o binário candidato já instalado: `semeado: Dentista revisor em +40 min por 60 min, destaque (04:49:06); 2 atividade(s) a subir no liveactivitiesd`; a projeção passou a conter `"titulo":"Dentista revisor"`, o log fresco traz dois `Starting activity` às 04:49:05-06, e a captura `/tmp/f5b-revisor-ilha.png` mostra calendário e `39:51`. Logo, qualquer pessoa reproduz com os quatro comandos versionados em `f5b-b-prova.md:31-40`, desde que instale o candidato DEBUG indicado ali.
-3. **Pares e log versionado.** Confirmei que os nove artefatos `f5bb-*` estão versionados. `f5bb-large-ilha-compacta.png`/`f5bb-ax5-ilha-compacta.png` mostram a Ilha do compromisso (`39:50`/`37:59`); `f5bb-large-bloqueada.png`/`f5bb-ax5-bloqueada.png` mostram o cartão do compromisso por cima. `f5bb-log-large.log` registra as duas atividades da semeadura; `f5bb-log-ax5.log` fixa a janela das seis capturas e declara que nenhuma atividade subiu ou caiu entre elas. A prova de prioridade é visual: o daemon não contém `relevanceScore`.
+O estado intermediário que não serviu foi versionado e aberto: conta a favor de Estado honesto, pois explica por que o alinhamento é necessário em vez de apagar a tentativa. A casa não reescalada no intervalo de 5 s não invalida o cartão: `f5bc-ax5-bloqueada.png` é a própria evidência visual de AX5 no componente tocado, e `f5bc-ax5-ilha-compacta.png` só é usado para reiterar a regra já declarada de que a Ilha não escala; ambos foram abertos. O diálogo “Deseja continuar permitindo as Atividades ao Vivo…” aparece em `f5bc-instrumento-dialogo-atividades.png` e foi declarado como interferência antes de o par limpo ser feito.
 
-## Julgamento da dispensa de `curva-zero`
-
-**Válida, portanto Simplicidade = n/a.** Esta re-G3 não criou jornada, formulário, primeiro uso, folha nem novo toque: só testou e semeou a superfície que já tinha o gesto de um toque. `ESTEIRA.md:26` limita `curva-zero` a essas jornadas ou a Simplicidade abaixo de 9; o script é instrumento de QA e não caminho de produto. Isso não dispensa o `design-router` exigido acima nem encobre o corte de AX5.
+O chamado grupo de controle sustenta a direção causal como **corroboração por ausência**, não como prova isolada de uma variável: a captura `f5bb-controle-sem-relevancia-ilha-compacta.png` mostra o Destaque (“terminar o ca…”) e o log registra o relançamento e as duas atividades às 04:07:00. Contudo, o binário acidental sem 08v não foi preservado nem há diff dele; `cmp diferente` e `nm` ausente confirmam que ele não tinha o símbolo, mas não demonstram que nenhuma outra diferença existia. Isso não reabre P1 porque o wiring já tem a mutação vermelha/verde documentada e os pares com 08v mostram o resultado; evita apenas chamar o acidente de controle experimental limpo.
 
 ## Scorecard do revisor
 
-| dimensão | nota | evidência e julgamento |
+| dimensão | nota | evidência |
 |---|---:|---|
-| Visão | 9 | O compromisso próximo se anuncia sem abrir o app; `EVOLUCAO.md` e ADR 08v coerentes. |
-| Contrato | 9 | `ActivityContent.difere` atualiza também mudança de relevância; construtores centralizam request/update/recado. |
-| Correção | 9 | Mutação própria vermelha (24/25) e restauração verde (25/25) no `6033B043`. |
-| Jornada real | 9 | Semeadura fresca publicou `Dentista revisor`, projeção, log e captura conferidos. |
-| Design | 8 | Falta o registro verificável das seis fases, requisito explícito do portão. |
-| Simplicidade | n/a | Dispensa de `curva-zero` válida: nenhum caminho de produto mudou. |
-| Movimento | n/a | Esta re-G3 não mudou movimento. |
-| Componentes | n/a | Nenhum componente novo nesta re-G3. |
-| Acessibilidade | 8 | AX5 corta `39 minutos` para `39 minut…`; VoiceOver não foi exercitado por proibição, sem desconto adicional. |
-| Performance | n/a | Não tocou lista, editor ou parser. |
-| Privacidade e autoria | 9 | A prova usa calendário local em DEBUG; nenhuma nota/expressiva entra na superfície. |
-| Estado honesto | 9 | Log, captura e o limite da árvore AX estão declarados sem inferência indevida. |
-| Complexidade | 9 | Um construtor por atividade reduz os sites de publicação e o gancho é DEBUG de instrumento. |
-| Fora do app | 9 | A dimensão tocada está provada: prioridade reproduzida na captura fresca e nos pares versionados, com logs da mesma janela. |
-| Relato | 8 | Provas técnicas são legíveis, mas a ausência deliberada das seis fases impede o fecho exigido. |
+| Visão | 9 | o compromisso fica legível sem abrir o app |
+| Contrato | 9 | ADR 08v, código e relato concordam sobre a causa e a superfície |
+| Correção | 9 | diff mínimo; resultado integral versionado; captura é a prova apropriada do layout |
+| Jornada real | 9 | mesmo estado, logs e quatro capturas abertas |
+| Design | 9 | seis fases aplicadas ao ajuste local, sem ritual de redesenho |
+| Simplicidade | n/a | não há jornada nova; dispensa de `curva-zero` é válida |
+| Movimento | n/a | a mudança não toca transição ou animação |
+| Componentes | n/a | não cria componente |
+| Acessibilidade | 9 | AX5 integral na bloqueada trancada e ao acordar; VoiceOver é proibido e fica como limite |
+| Performance | n/a | não toca lista, editor ou parser |
+| Privacidade e autoria | 9 | nenhum dado ou destino novo |
+| Estado honesto | 9 | tentativa recusada, casa sem reescala e diálogo do sistema registrados |
+| Complexidade | 9 | remove teto rígido sem wrapper ou dependência |
+| Fora do app | 9 | cartão e Ilha conferidos em `large`/AX5; prova do corte é visual |
+| Relato | 9 | fases, limites e evidência localizável estão completos |
 
-## Limites de instrumento
+## Limites
 
-O `liveactivitiesd` prova subida, estabilidade da janela e `staleDate`; ele não registra `relevanceScore`, por isso a prioridade foi conferida na captura. A árvore AX 503 da casa/bloqueada não prova nem desmente elementos visuais; as conclusões de presença e do corte vêm exclusivamente das capturas no mesmo UDID. O bootstrap Atlas pedido pelo `AGENTS.md` não pôde ser executado neste checkout: não há `artisan` nem `docs/engineering-knowledge-base/atlas-ai-knowledge-governance-system.md`.
+Minha revisão visual abriu as nove PNGs relevantes: os quatro cartões, o experimento sem teto, as duas Ilhas do par, a captura de controle e o diálogo do sistema. Não repeti build ou suíte no `6033B043`: este despacho pediu conferir somente os dois P1 e o aparelho é compartilhado com a C1-C; o resultado de teste acima é evidência versionada do implementador, não uma nova execução minha. `git log HEAD..main` está não vazio (começa em `55af39f`), então este é um APROVAR do candidato `f588b05`, não aprovação de integração; qualquer mescla ainda pede rebase e revisão do tip. O checkout não contém `artisan` nem `docs/engineering-knowledge-base/atlas-ai-knowledge-governance-system.md`, portanto o bootstrap Atlas indicado pela projeção não é executável aqui.
