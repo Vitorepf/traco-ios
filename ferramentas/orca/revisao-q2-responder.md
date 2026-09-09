@@ -220,3 +220,84 @@ precisa autorizar uma única instalação por cima do binário que contém `3c42
 e então a revisão relança esta mesma fixture três vezes, conferindo a conta
 antes e depois de cada uma; sem isso, não há hora honesta de retorno nem cartão
 real a capturar.
+
+## G3-E — revisão de `5c07138`: a adoção global não se sustenta
+
+**Veredito: NÃO APROVAR. Sim: peço a reversão, em `main`, da adoção da ADR
+2026-09-09n (commit `5c07138`), incluindo `Grok.modelo = grok-4.6` e a saída de
+`responder` de `indisponivelPorQualidade`.** A correção visual é boa, mas não
+autoriza transformar uma escolha de modelo não decidida em padrão de todas as
+rotas.
+
+### Findings
+
+**[P1] A comparação que escolheu o padrão global não é pareada.** O relatório
+diz que somente `TRACO_AVALIAR_MODELO` variou (Q2-E, linhas 47--60), mas ele
+também declara `TRACO_AVALIAR_SEM_ESFORCO=1` no lado 4.20 (linhas 39--45).
+`Grok.corpo` omite de fato `reasoning_effort` quando essa chave está ligada
+(`Traco/Analise/Grok.swift:61-67,247`); o 4.6 recebeu `medium`, o 4.20 recebeu
+uma requisição diferente. O JSONL registra `esforco: medium` nos dois lados,
+mas esse é o argumento Swift de `Diagnostico`, não uma prova do corpo HTTP
+enviado (`Grok.swift:205-220`). Portanto os 12/12 contra 9/12 não isolam o
+modelo, e não podem decidir o modelo global.
+
+**[P1] A triagem não deixa somente dois candidatos por fato observado.** A
+listagem autenticada preservada em `prova/q2e-fumaca-fecho.jsonl` entrega IDs,
+não capacidades. Não há corrida de qualidade de `grok-4.5`; o seu corte é
+"abaixo do 4.6 na mesma linha". `grok-build-0.1` e
+`grok-4.20-0309-non-reasoning` também caem por leitura do nome/posição, não por
+uma capacidade declarada ou resultado. A própria ADR 09n reconhece ao fim que
+4.5 e non-reasoning foram cortados por nome e posição. Eles voltam para a
+disputa antes de se afirmar "o melhor Grok possível".
+
+### O que confirmou
+
+Os três defeitos atribuídos ao 4.20 são reais nas saídas completas: ele inventa
+a regra de vigência no prazo conflitante, não fornece 5+5+5 e limita espanhol
+por material ausente, e atribui ao autor um relatório "aberto agora" seguido de
+`(487 caracteres)` (`prova/q2e-modelo-420.jsonl`). As doze respostas do 4.6
+atendem aos requisitos da fixture escrita pelo implementador; isso é evidência
+favorável, não o portão independente nem a comparação necessária para padrão
+global.
+
+O piso cobre os chamadores atuais: não restou `esforco: "none"`; os defaults de
+`Grok.responder`, `Sabia.chamar` e `chamarComProveniencia` são `low`, enquanto
+as rotas deliberadas pedem `medium`/`high`. A remoção de `timeout: 10`,
+`modeloTrabalho` e `tetoTrabalho` não deixou chamador órfão, e `Grok.teto = 240`
+cobre tanto 77,5 s como o piso histórico de 179 s. Isto não repara o finding:
+9 chamadas de transporte não provam a qualidade das demais rotas.
+
+### Tela, fases e limites
+
+Abri as três capturas: a espera mostra pergunta, contador de 22 s e
+"Parar de esperar"; a resposta limita consumo/preço e conserva 600 km; o
+cancelamento devolve a pergunta e "Perguntar à sábia". Auditar, Ancorar,
+Sistema, Construir e Mover estão demonstrados; Julgar/Portão recebe **9** nesta
+revisão visual, sem descontar a ausência de voz/VoiceOver, que foi corretamente
+proibida. A captura atual em `ferramentas/orca/revisao-q2-pos-launch.png` mostra
+o app do binário instalado abrindo em Notas, sem tocar texto do dono.
+
+Não rodei uma segunda suíte: o `34CC3F94-FDB5-4575-A4F5-80271829A18B` já estava
+ligado e, ao pedir coordenação, havia uma corrida de outro trabalhador protegida
+por `com-trava.sh`; não desliguei nem disputei o aparelho. A sonda sem instalação
+no `B91C8DEF-B0A7-454A-95DE-5D7BA7B040A9` apenas relançou o binário já instalado;
+as capturas estão em `ferramentas/orca/revisao-q2-*.png`, e não houve queda de
+conta observada.
+
+| dimensão | nota | evidência |
+|---|---:|---|
+| Correção/modelo global | 0 | dois P1: candidato incompleto e medição com duas alavancas |
+| Qualidade da IA | 0 | o portão de escolha global não foi cumprido; uma falha reprova |
+| Estado honesto | 9 | piso/teto e saída visível no cartão |
+| Jornada real | 9 | três capturas abertas, inclusive cancelar sem perda |
+| Design | 9 | seis fases julgadas; componente e tokens existentes |
+| Simplicidade/Ponytail | 9 | reutiliza `LinhaDeEstado`, sem componente ou configuração nova |
+| Acessibilidade | 9 | captura legível; leitura falada não exercida por proibição explícita |
+| Privacidade/autoria | 9 | não há texto do autor escrito pela resposta; a falha permanece visível |
+| Performance | 7 | 38,3 s de média e 77,5 s máxima são aceitáveis somente se o modelo estiver aprovado |
+
+O item abaixo de 9 basta para **CORRIGIR ANTES**. A próxima medição deve manter
+fixture, binário, aparelho, prompt, temperatura e corpo HTTP idênticos, ou
+declarar que compara configurações e não coroar um vencedor global; deve também
+medir os candidatos devolvidos à disputa e usar casos do revisor antes de nova
+adoção.

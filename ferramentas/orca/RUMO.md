@@ -539,3 +539,29 @@ preferência do dono trocada no aparelho onde a suíte correu.
 `UserDefaults(suiteName:)` próprio dos testes injetado no arranque, ao lado do
 `SuperficieDisco.isolarParaTestes()` da 05u. **Dono: quem tocar em Revisões ou
 no rascunho do Trabalho a seguir.**
+
+## Dívida nomeada — o que a comparação pareada da Q2-F deixou (09/09)
+
+A ADR 2026-09-09q mediu os três modelos que a conta serve e **nenhum passou os 18
+casos**. `Grok.modelo` fica `grok-4.3` e `responder` fica cortada. O que fica
+aberto, com dono:
+
+1. **A invenção da ESTRUTURA de um documento é alavanca de PROMPT, não de
+   modelo.** `q2-relatorio-tres-restricoes` derruba `grok-4.3` (2 de 3 corridas) e
+   `grok-4.5` (3 de 3): os dois afirmam que o relatório é PDF, onde estão sumário
+   e conclusões, e até que há tabelas — contra o que `sistemaResponder` já proíbe
+   em prosa ("não afirme o que há dentro de um documento que ela não descreveu").
+   **Dono: próxima volta de IA.** A bancada desta volta serve inteira: mesma
+   fixture, mesmo binário, uma alavanca (o prompt), três candidatos já medidos
+   como linha de base.
+2. **`revisor-responsavel-nao-definido` no `grok-4.3`, 3 de 3.** É o caso CEGO que
+   o padrão global de produção reprova, e mede recusa covarde: expor o vazio sem
+   dar continuação, ou dar uma inventando o que o caso nega. **Dono: mesma volta.**
+3. **Quatro respostas do `grok-4.5` estouraram o teto de 900 e chegariam ao autor
+   cortadas no meio da frase** por `Sabia.limparResposta`. O teto é do cartão, não
+   do modelo. **Dono: próxima volta de tela** — subir o teto, pedir mais curto no
+   prompt, ou cortar na frase são decisões de superfície.
+4. **Uma corrida por modelo não mede modelo.** O `grok-4.6` deu 16 de 18 numa
+   corrida e 18 de 18 nas outras duas, idênticas. Antes de qualquer nova adoção, o
+   número de corridas se escolhe pela variância medida aqui (`prova/q2f-modelo-4*.jsonl`),
+   não pelo orçamento. **Dono: quem retomar a escolha do modelo.**

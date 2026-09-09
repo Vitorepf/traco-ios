@@ -75,6 +75,9 @@ que este arquivo existe para impedir — e ele reincidiu no próprio arquivo.
 | 09r | F6 · os widgets da tela bloqueada | reservada, volta viva |
 
 **Próxima livre: 09s.**
+| 09q | Q2-F · a comparação pareada não elege ninguém | `Vitorepf/volta-q2-responder` |
+
+**Próxima livre: 09r.**
 
 **A série 08 está CHEIA** — de `08a` a `08z`, com `08c` e `08d` como buracos.
 
