@@ -182,3 +182,41 @@ lançamentos; só então pode ler integralmente as 18 saídas. Mesmo nesse cená
 uma aprovação só pode cobrir a configuração que o JSONL efetivamente registrar:
 o binário atual declara `grok-4.3`; não há evidência nova de
 `grok-4.6`/`medium`.
+
+## Q2-D — conta recuperada, binário incompatível: parada antes da leitura
+
+**Veredito: NÃO APROVAR.** A conta voltou, mas o binário já instalado no
+`B91C8DEF-B0A7-454A-95DE-5D7BA7B040A9` não contém o protocolo de avaliação do
+candidato `3c4213b`; sem instalar por cima — ordem expressa desta volta — não
+há como obter as 18 inferências exigidas.
+
+Segurei `ferramentas/orca/com-trava.sh` para cada acesso ao instrumento, não
+instalei, apaguei, desinstalei, limpei estado, rodei testes, Maestro, voz,
+VoiceOver, iPad ou outro simulador. A fumaça prévia, corrida
+`081D7BB5-1CC9-4961-AA8D-2233FBCA33CE`, às `14:00:47Z`, e a posterior, corrida
+`951BFC20-AA41-4015-81AE-8B132C7ED88E`, às `14:04:07Z`, registraram
+`contaGrokLigada:true` e os mesmos 12 modelos autenticados, inclusive
+`grok-4.6`; portanto a conta **não caiu**.
+
+As duas tentativas com os seis casos existentes, sem reescrever a fixture,
+terminaram em `Falha.semRetorno` em cerca de 0,001 s e `chamadasGrok:[]`. A
+segunda foi lançada também com
+`SIMCTL_CHILD_TRACO_AVALIAR_LIBERAR=responder`, porém suas linhas não têm o
+campo `operacoesLiberadasParaAvaliacao` que `3c4213b` grava; isso prova que o
+app instalado ignora a abertura DEBUG e não é o binário avaliável. A evidência
+integral é `prova/q2-revisao-responder-q2d-instrumento-incompativel.jsonl`
+(SHA-256 `1fc6b8b9f9ddac10cf7b59b4dbc85e73c85c514d2fc4dbadfd4b9928a6231bd3`).
+
+| dimensão de `QUALIDADE-IA.md` | nota Q2-D | motivo |
+|---|---:|---|
+| aderência ao pedido | inconclusiva | 0/18 novas saídas chegaram ao provedor |
+| correção sustentada | inconclusiva | a política do binário instalado bloqueou todos os seis casos |
+| utilidade concreta | inconclusiva | não há resposta a ler |
+| destinatário e divisão de trabalho | inconclusiva | responsável, venda e compra não alcançaram o motor |
+| uso do contexto pertinente | inconclusiva | cotação, suporte e correção não alcançaram o motor |
+
+`responder` permanece `indisponivelPorQualidade`. Para retomar, o responsável
+precisa autorizar uma única instalação por cima do binário que contém `3c4213b`
+e então a revisão relança esta mesma fixture três vezes, conferindo a conta
+antes e depois de cada uma; sem isso, não há hora honesta de retorno nem cartão
+real a capturar.
