@@ -640,3 +640,38 @@ E ficou mais uma lei da Q-H: **o runner que trava antes de conectar não é
 resultado.** Ela pegou dois "hung before establishing connection" com 0 de 957 e
 não os contou nem como vermelho nem como verde — provou que a árvore sobe no
 aparelho e repetiu, mostrando as duas saídas.
+
+## 08/09, 22h35 — a MAC-1 entrega, e desenterra um engano que durava desde sempre
+
+Os seis casos pagos (1, 2-leitura, 3, 8, 9, 11): `traco_agenda` e
+`traco_decisoes` novos, `traco_escrever` com `origem`, `motivo` e `fontes` e
+**recusa que diz o que falta**, `agenda.md` exportado, a etiqueta "feito pelo
+bot" na lista e na página — com a `Pilula .etiqueta` **que já existia**, sem cor
+nem componente novo —, a nota do bot fora do Retrato e da Trajetória **nem como
+contagem**, e as instruções coláveis dos seis casos. Suíte 953/0 em 153 suítes,
+0 aviso.
+
+**Três defeitos de passagem, e o primeiro é o achado do dia:** `traco_semana`
+lia os campos da forma no **cabeçalho**, e eles vivem no **corpo** — a revisão da
+semana **devolvia decisões vazias desde sempre**, e **a fixture do autoteste
+sustentava o engano**. É o teste que concordava com o defeito, a versão mais cara
+dessa família: ninguém desconfia de um verde. Importa duas vezes, porque
+`traco_decisoes` nasce dessa mesma leitura. Os outros dois: um `TracoSchemaV5`
+com a lista de classes da V4 derruba o arranque ("Duplicate version checksums
+detected"), pego por **dois testes de migração e não pelo aparelho**; e a cápsula
+de origem quebrava em duas linhas com gesto + domínio juntos.
+
+**Um limite declarado, honesto:** a prova de que a nota do bot não está no
+Retrato é **por teste, não por captura** — a `ScrollView` do Perfil não rolou com
+o gesto do helper (`orca emulator exec` responde `unknown option '-d'`).
+
+**E uma pergunta de contrato que ela teve o cuidado de não responder sozinha:**
+a inferência de domínio rodou sobre a nota do bot e pôs "TRABALHO" nela. O bot
+não redigiu como o autor e a nota está fora do Retrato — mas o texto do bot passa
+a **moldar o mapa de domínios do autor**. Mandei o revisor dar a leitura dele; se
+disser que fere o contrato de origem, levo ao dono, porque é decisão de contrato
+e não conserto.
+
+O revisor (`task_2072a1006345`) vai com a ordem do dono colada: **exercitar cada
+caso de verdade com o MCP ligado num cliente, e ler o retorno inteiro** — uma
+instrução que só funciona na cabeça de quem a escreveu não está entregue.
