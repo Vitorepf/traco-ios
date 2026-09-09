@@ -1441,3 +1441,32 @@ Fica com ele a decisão de encerrar aquela sessão.
 pé**. Quem abre um stream de log num simulador está segurando o simulador, mesmo
 sem tocar na tela — e num regime de aparelho único isso basta para quebrar a
 ordem.
+
+## 09/09, 08h58 — o terceiro worker que morre calado, e duas sessões quase mesclando a mesma volta
+
+**A M1-B morreu sem comitar, com o trabalho pronto no worktree:** fixtures `v0` a
+`v5` gravadas pelos builds do passado, o schema `V0` da primeira `1.0.0`, o teste
+ampliado — e o portão `CadernoAntigoAbreTests` **já tinha passado no `C2416CBC`
+pela trava às 08h56, com os seis cadernos abrindo com as notas**. É a **terceira
+vez em 24 horas** (A1-B, A1-C, M1-B). Reforcei a lei: diante de despacho morto,
+**`worker-read` primeiro**, depois `git status` e `git diff` — o trabalho quase
+sempre está lá.
+
+**As fixtures dela merecem registro à parte**, porque respondem a objeção que ela
+mesma tinha levantado: `caderno-v0-b7fbc3e.store`, `caderno-v1-fea00dd.store`,
+`caderno-v2-bf535c5.store`, `caderno-v3-degrau.store`,
+`caderno-v4-pre08u.store`, `caderno-v5-origem.store` — **cada uma com o commit que
+a gravou no nome**. Gravar com o código de ontem, não gerar com o de hoje, e a
+proveniência no próprio nome do arquivo.
+
+**E aconteceu o que a falta de decisão sobre as duas sessões torna inevitável:** a
+segunda sessão de orquestrador comitou o trabalho da M1-B e está mesclando em
+`main` — enquanto eu tinha um monitor esperando o commit para fazer exatamente a
+mesma coisa. **Parei na hora**: não despacho M1-C, não mesclo a M1 por outro
+caminho, e espero o registro dela. Nada se perdeu, mas **duas sessões chegaram a
+um passo de mesclar a mesma volta**, e isso não é sustentável — o dono precisa
+dizer qual conduz, e a outra vira leitura.
+
+Enquanto ela usa o aparelho único, **não despacho nada que precise do
+instrumento**. Depois do push dela: build de `main` instalado no `C2416CBC` uma
+vez, `ContaGrok.ligada` conferido, e então C1, R1, S1 e a Q2.

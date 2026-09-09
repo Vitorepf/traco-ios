@@ -117,7 +117,12 @@ e sem saída capturada** — falharam calando. O que eles tinham feito continuav
 no worktree: quatro arquivos modificados, uma captura nova, as três correções do
 revisor escritas. Refazer a volta do zero teria jogado tudo fora.
 
-**Regra:** ao ver um despacho morto, a primeira coisa é `git status` e
+**Terceira vez em 24 h** (A1-B, A1-C, M1-B, 08/09–09/09): o terminal sai, o
+despacho fica `dispatched` ou `failed`, e **o trabalho está inteiro no worktree**.
+Na M1-B estavam lá as fixtures `v0` a `v5`, o schema `V0` e o teste ampliado — e o
+portão já tinha passado no aparelho.
+
+**Regra:** ao ver um despacho morto, **`orca orchestration worker-read --dispatch <id>`** e, em seguida, `git status` e
 `git diff` no worktree dele — antes de decidir se a volta recomeça, continua ou
 fecha. O spec do sucessor diz onde o trabalho parado está e manda **ler o diff
 antes de qualquer coisa**, sem `stash` e sem refazer. E o sucessor **confere os
