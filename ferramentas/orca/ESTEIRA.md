@@ -307,3 +307,25 @@ trabalho: a sonda `AvaliacaoIA` lê a fixture pelo nome em
 **Fumaça obrigatória antes e depois de cada corrida:** `contaGrokLigada` e a
 contagem de modelos, com carimbo de hora, coladas no relato. Se cair, **diga em
 vez de contornar** — foi assim que o gatilho apareceu.
+
+### Prova que ninguém olhou não é prova (09/09)
+
+A C1-B versionou um MP4 e o anunciou como "a gaveta consertada". O revisor abriu:
+**44,04 s da Tela Inicial, sem o Traço dentro**. A sequência textual carimbada da
+mesma passada era boa; **o vídeo era prova falsa** — e ninguém tinha aberto o
+arquivo antes de anexá-lo.
+
+**Regra:** todo artefato de prova — vídeo, captura, árvore, log — é **aberto e
+conferido por quem o anexa**, e o relato diz **o que se vê nele**, não o que
+deveria ver. Um caminho de arquivo no relatório não é evidência; é uma promessa.
+
+Duas irmãs do mesmo dia, para a lista não parecer exagero: o helper do
+`orca emulator` devolveu **`ok:true` sem mover a tela** (a R1-B trocou de
+instrumento e mediu por XCUITest), e a sonda nova da C1-B media **`E ⊆ P` mas não
+`P ∩ O = ∅`** — metade da invariante 08f, com a outra metade sem portão.
+
+### A sonda que mede metade da regra é pior que nenhuma (09/09)
+
+Porque ela dá um verde. Quando escrever instrumento para uma invariante de duas
+partes, **mostre o vermelho de cada parte separadamente** — se uma das metades
+nunca ficou vermelha, ela não está sendo medida.

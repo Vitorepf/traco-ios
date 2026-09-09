@@ -1097,3 +1097,42 @@ DIRETRIZ §7 tornou obrigatório.
 
 **As duas travadas em você continuam paradas:** a conta Grok caída segura a Q2 e
 as outras seis operações; a tela do Mac trancada segura a MAC-0.
+
+## 09/09, 05h — pausa e retomada (uso 15%); o vídeo que mostrava a Tela Inicial
+
+**O revisor da C1 abriu o vídeo.** A C1-B versionou um MP4 anunciado como "a
+gaveta consertada" e ele contém **44,04 s da Tela Inicial, sem o Traço**. A
+sequência textual carimbada da mesma passada é boa; o vídeo era **prova falsa**, e
+o que separou uma coisa da outra foi alguém **abrir o arquivo**. Virou lei:
+**prova que ninguém olhou não é prova** — caminho de arquivo no relatório é
+promessa, não evidência.
+
+Ele também achou que **a sonda nova mede metade da invariante**: `E ⊆ P` sim,
+`P ∩ O = ∅` não. Uma sonda que só reprova metade da regra **dá um verde** para a
+outra metade, o que é pior do que não ter sonda. Também virou lei.
+
+**E ainda assim a C1-B fez a coisa mais bonita da noite:** o instrumento por
+quadro que ela montou (`CADisplayLink` sobre as camadas de apresentação)
+**corrigiu duas medidas dela contra ela mesma** — o resíduo é de 0,098 s (AX5) e
+0,100 s (large), 6 quadros cada, e **não era só de AX XXXL**, como a C1 e eu
+vínhamos repetindo desde o relato da V13. Construir o instrumento que te desmente
+é o oposto de escrever a frase que te convém.
+
+**A R1-B trocou de instrumento por um motivo que vira lei irmã:** o helper do
+`orca emulator` devolveu **`ok:true` sem mover a tela**. Ela mediu a curva-zero
+por XCUITest e a medida ficou boa: antes **3 toques + 5 arrastos + 6 paradas** de
+leitura para saber sete coisas; depois **3 toques + 0 arrastos + 1 parada**, com
+os sete fatos na primeira tela. E resolveu a Complexidade com número: o código de
+produção **desceu de 82 para 81 linhas**, com a migração para Componentes
+**medida e recusada** porque acrescentaria 25–30 linhas para um chamador só.
+
+**A F5b-B ganhou um grupo de controle sem pedir:** o `xcodebuild test` de outro
+worker instalou no `6033B043` um binário **sem a 08v**, e a Ilha voltou ao
+Destaque **com a mesma projeção**. Prova por ausência, que vale mais que uma
+captura a mais. O senão é de processo: aquele worker usou o aparelho **sem avisar
+no comentário do worktree**, que a DIRETRIZ §7 tornou obrigatório — fica
+registrado, sem culpa da F5b, que anotou.
+
+Os dois re-G3 recusaram de novo (C1 pela prova temporal, F5b pelo corte em AX5 e
+pelas seis fases), e despachei **C1-C**, **F5b-C** e a **revisão da S1**, que
+entregou a pergunta que não some mais ao trocar de aba.
