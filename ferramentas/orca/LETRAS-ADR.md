@@ -62,22 +62,19 @@ que este arquivo existe para impedir — e ele reincidiu no próprio arquivo.
 | 09e | C1-D · a reconciliação da C1 | em `main` |
 | 09f | M1 e M1-B · a migração do caderno | em `main` |
 | 09g | C1-A · era 08w, depois 09d | em `main` |
-| 09h | Q3 · responder nas Notas | reservada |
-| 09i | Q4 · instigar e contrapor | reservada |
+| 09h | Q3 · responder nas Notas | reservada, volta viva |
+| 09i | Q4 · instigar e contrapor | reservada, volta viva |
 | 09j | FUSÃO · o toast é gaveta; o piso empata | em `main` |
 | 09k | D1 · as Notas sem slop | em `main` |
 | 09l | K1 · o cofre do dono não é da suíte | em `main` |
 | 09m | MAC-0-D · o Grok Bot recusa servidor local | em `main` |
-| 09n | Q2-E · o melhor Grok medido e a espera na tela | em `main` |
-| 09o | B1 · os `try!` de dívida real | em `main` |
+| 09n | Q2-E adotou e foi REVERTIDA; Q2-F refez a medida | em `main` |
+| 09o | B1 e B1-B · os `try!` e o portão que falha fechado | em `main` |
 | 09p | MAC-0-E · o servidor chega por `--chamar` | em `main` |
 | 09q | B2 · estados inalcançáveis e rotas que calam | reservada, volta viva |
 | 09r | F6 · os widgets da tela bloqueada | reservada, volta viva |
 
 **Próxima livre: 09s.**
-| 09q | Q2-F · a comparação pareada não elege ninguém | `Vitorepf/volta-q2-responder` |
-
-**Próxima livre: 09r.**
 
 **A série 08 está CHEIA** — de `08a` a `08z`, com `08c` e `08d` como buracos.
 

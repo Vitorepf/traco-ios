@@ -2243,3 +2243,6 @@ pergunta que a medida abriu e que vale a próxima janela: **o `grok-4.5` bate o
 fixture de **`responder`**, e promover padrão global a partir de uma operação é
 exatamente a armadilha que derrubou a 09n. **A próxima medida é essa, e ela é
 barata: a mesma comparação, com a fixture de outra rota.**
+
+**Fecho:** **1000 testes em 161 suítes, `TEST SUCCEEDED`** com a Q2-F dentro. A
+conta seguia ligada às 17h11, conferida pela volta. Aparelho efêmero desligado.
