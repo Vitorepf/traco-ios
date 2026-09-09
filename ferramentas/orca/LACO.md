@@ -1937,3 +1937,33 @@ e que a do caso 1 é **indício, não prova**, porque veio de execução local.
 **Fecho:** **996 testes em 161 suítes, `TEST SUCCEEDED`** com a B1 dentro — seis
 testes a mais que a corrida anterior, que são os que ela escreveu para provar que
 o dado que derruba **não existe**. Aparelho efêmero desligado ao fim da corrida.
+
+## 09/09, 12h15 — o dono autorizou entrar na conta dele: "pode configurar o Grok Bot"
+
+**Hora da autorização: 12h15.** Ela suspende, **só para esta tarefa**, a exceção
+de "dados do dono" da §6 — que foi exatamente o motivo pelo qual eu recusei ontem.
+O worker pode entrar na configuração de MCP da **conta Cursor**, pela **sessão já
+logada**, e cadastrar o `traco`.
+
+**Os limites que ele manteve e que eu repeti no spec:** só isso na conta (nada de
+outros servidores, cobrança, equipe, e-mail); **nenhuma senha digitada** — se pedir
+senha, **para e diz**; captura de **cada tela mexida**; voz proibida; aviso no
+worktree ao começar e ao terminar; mouse devolvido.
+
+**E pus no spec a coisa que a autorização não muda:** a MAC-0-D **mediu no código
+do app 0.44** que o Grok Bot **recusa qualquer servidor com `command`**
+(`stdio_unsupported`, *"é executado no computador do Grok Bot"*), com a Cursor
+dizendo o mesmo em 13/08. **Permissão do dono não muda o que o app aceita.** Então
+a primeira tarefa da MAC-0-E **não é cadastrar, é descobrir se há caminho** — e, se
+a conta recusar, **ir para o que existe** (HTTP alcançável, ou o modo `--chamar`
+por execução local) e **entregar funcionando, em vez de entregar o impedimento
+pela segunda vez**.
+
+**A pasta espelhada já está feita** e mandei **não refazer** — só conferir. E
+mandei **não instalar nada no iPhone dele**: o `agenda.md` só nasce com um build
+posterior à MAC-1, e **atualizar o telefone dele não foi autorizado**. Declara-se e
+segue.
+
+A régua da prova continua a da passada anterior, que foi exemplar: **dizer, para
+cada pergunta, se a resposta veio DO SERVIDOR ou do bot falando sozinho** — bot
+falando sozinho não é o caso funcionando, e indício não é prova.
