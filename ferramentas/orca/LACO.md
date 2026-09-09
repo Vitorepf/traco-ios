@@ -1709,3 +1709,5 @@ e com uma mudança que o spec original não podia ter: **a MAC-1 mesclou**, ent�
 passa a ser prova exigida**.
 
 **Q2-D** segue medindo IA no `B91C8DEF`.
+
+**Fecho:** o `main` ficou vermelho às **11h05** e voltou ao verde às **11h42** — 990 testes em 160 suítes, `TEST SUCCEEDED`. Trinta e sete minutos, e a causa foi minha. Antes deste push rodei `git log --oneline origin/main..main` e li a lista — a regra que nasceu do erro, aplicada.
