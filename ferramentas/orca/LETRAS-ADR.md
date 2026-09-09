@@ -56,8 +56,9 @@ que este arquivo existe para impedir — e ele reincidiu no próprio arquivo.
 | 09b | MAC-1-B (a origem acompanha todo consumidor) | em `main` |
 | 09c | S1 (a pergunta interrompida) | reservada, volta viva |
 | 09d | C1 (uma linha é o piso do papel) | reservada, volta viva — **era 08w**, trocada na C1-D |
+| 09e | C1-D (reconciliação da C1 com o `main`) | reservada, volta viva |
 
-**Próxima livre: 09e.** (A `09a` não foi usada por ninguém e **fica vaga** — buraco
+**Próxima livre: 09f.** (A `09a` não foi usada por ninguém e **fica vaga** — buraco
 não se reaproveita.)
 
 **A segunda troca da C1, e por que ela é da C1 e não da Q-H.** A C1 escreveu

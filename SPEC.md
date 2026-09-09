@@ -7378,3 +7378,106 @@ permanece **herdada**, não observada aqui. E a corrida da suíte INTEGRAL desta
 volta teve teclado real em `large` (308 pt) mas **emulado em AX5** (318 pt, 8
 tentativas) — a corrida isolada teve real nos dois. Limite do instrumento, não
 asserção afrouxada.
+
+## ADR 2026-09-09e — A C1 reconciliada: a letra que colidiu muda, e a etiqueta do bot entra na invariante (volta C1-D)
+
+**Ciclo:** multiplicar a mente — o autor escreve sem lutar com a ferramenta.
+**Obstáculo:** a C1 passou no mérito e **não era mesclável**. O `main` estava
+**53 commits à frente**, e um deles toca `PaginaView.swift`, o arquivo da outra
+metade da 08x. Aprovado não é mesclável: é a lei que a Q-H fixou, e é por isso
+que esta volta existe.
+
+**A fusão em si foi barata, e isso é fato a registrar, não mérito a cobrar.**
+Um só conflito de texto — `SPEC.md`, append contra append, os dois blocos ficam
+inteiros e o meu vai por último, que é a ordem de mesclagem que este documento
+sempre teve. `PaginaView.swift` juntou sozinho: o `main` mexeu nas linhas 122,
+280 e 485, e a C1 na 304.
+
+### A letra, e por que a C1 é quem move
+
+A C1 escreveu **duas** ADRs e o orquestrador reservara **uma** letra. A primeira
+ficou na `08w`, que a colisão de 08/09 já dera à Q-H — e a Q-H **mesclou**. A
+regra do `LETRAS-ADR.md` é "muda quem é mais barato de mover", e ela não se
+aplica a quem já está em `main`: `main` não se move. Move a C1, como o
+orquestrador decidira em 08/09 22h20. A **`08x` fica**; a C1-A passa a **`09d`**.
+
+**A troca foi provada do tamanho da alegação**, como o registro manda: nos seis
+arquivos que só mudaram de letra, os multiconjuntos de linhas removidas e
+adicionadas são **idênticos** depois de normalizar a letra. Nenhuma linha sobrou.
+
+**E o registro estava errado sobre si mesmo.** `LETRAS-ADR.md` dava `08z` como
+próxima livre; lida pelo comando que ele próprio prescreve, a `08z` está no
+branch da Q2. **`08` está cheia** — `08a`–`08z` todas tomadas ou buracos. Por
+isso a C1-A vai para `09d` e esta ADR para `09e`. O arquivo que existe para
+impedir colisão de letra reincidiu no defeito que combate, e a causa é a mesma
+de sempre: alguém leu de memória em vez de rodar o comando.
+
+### O achado da fusão: a etiqueta do bot come papel
+
+O `main` trouxe a **etiqueta de origem** (ADR 08u/09b) e a pôs **ACIMA do
+editor**, na Página. Ela aparece quando o autor abre uma nota feita pelo bot — e
+ele **escreve nela**, com o teclado de pé e o caret vivo. É exatamente o estado
+que a 08f governa, e a invariante **nunca o tinha visto**, porque a etiqueta não
+existia quando a suíte foi escrita.
+
+A geometria aguenta, e por uma razão que vale escrever: os dois lados da C1 leem
+alturas **já descontadas** da etiqueta — o seguidor ouve o `containerSize` do
+próprio ScrollView, e `tetoDoEncaixe` mede a altura da `CadernoView`, que é irmã
+da cápsula, não sua dona. Mas **isso é raciocínio, e raciocínio não é prova**:
+a invariante passou a medir o caso. Medido no 17e, teclado real de 308 pt:
+
+```
+ETIQUETA AX5:   papel 180 -> 150 pt (a cápsula tomou 30 pt)
+ETIQUETA large: papel 194 -> 168 pt (a cápsula tomou 25 pt)
+ESCRITA AX5:   39 amostras, 39 com a linha do caret na área livre do papel
+ESCRITA large: 52 amostras, 52 com a linha do caret na área livre do papel
+```
+
+O número de testes não muda com isto (981 em 157): são asserções e amostras
+dentro de um caso que já existia. O que cresce são as amostras — **31 → 39** e
+**44 → 52**, as duas fases da etiqueta.
+
+**O caso traz o próprio portão.** Uma etiqueta que não desenhasse não encolheria
+nada e a invariante daria verde sobre a tela de sempre — prova vazia com cara de
+prova. Então o caso **exige que o papel encolha** antes de medir: se a cápsula
+não tomar papel, ele reprova dizendo que não mede o que promete.
+
+**E o cenário passou a neutralizar a origem**, como já neutralizava cartão e
+toast. `origemDaPagina` é estado visual da sessão VIVA, que a suíte inteira
+partilha, e entrou no `main` depois deste cenário — ninguém o devolvia. Hoje
+nenhuma suíte o suja pelo caminho da sessão viva (as que chamam `abrir(nota:)`
+usam `Sessao` própria), então isto é **guarda, não conserto de vermelho**: dito
+assim para não cobrar mérito que não houve.
+
+### O que a fusão mediu
+
+Suíte integral na árvore MESCLADA, `com-trava.sh`, `-parallel-testing-enabled NO`,
+no 17e `C7341E64`: **981 testes em 157 suítes, 0 falhos, 0 avisos** (87,2 s) — a
+C1 sozinha tinha 956 em 154. Os 25 testes que o `main` trouxe e os da C1 passam **juntos**,
+que é a única coisa que nenhum dos dois lados tinha medido.
+
+**A dívida do Pro Max está paga.** `6033B043` foi **reexecutado na árvore
+mesclada**, com teclado **REAL de 318 pt nos dois tamanhos**: 7 testes em 2
+suítes, verdes. A ressalva de "prova herdada" da C1-C **sai** — e esta prova é
+melhor que a que ela herdava, porque é da árvore fundida, não do candidato só.
+
+**O teclado emulado de AX5, e por que não muda conclusão nenhuma.** Na suíte
+integral o caso GAVETA de AX5 volta a cair no teclado emulado (318 pt, 8
+tentativas). Duas razões, e nenhuma é indulgência: **(1)** o caminho emulado
+aplica uma área segura DE VERDADE (`additionalSafeAreaInsets.bottom`) e o layout
+reflui — o que é sintético é o número, não a restrição, e a medida é de uma
+geometria real; **(2)** 318 > 308, e um papel menor é **estritamente mais
+difícil** para uma invariante de continência: passar a 318 é mais forte que
+passar a 308, não mais fraco. O que o caso emulado **não** prova é a chegada
+animada do teclado real — e isso está coberto de outro lado: nesta corrida o
+caso ESCRITA teve o teclado **real de 308 pt nos dois tamanhos**, e no Pro Max o
+real de 318 nos dois.
+
+**Pré-mortem.** Se isto voltar, volta por uma de duas portas. A primeira: alguém
+põe **mais uma superfície acima do editor** — a etiqueta provou que a Página
+aceita isso sem ninguém reparar — e o papel encolhe outra vez sem a invariante
+ver, porque ela mede as superfícies que conhece pelo nome. A segunda: a `09` se
+enche como a `08` se encheu, e a próxima volta lê o "próxima livre" em vez de
+rodar o comando. A defesa da primeira é a asserção nova, que reprova quando a
+cápsula não desenha; a defesa da segunda é não haver defesa nenhuma além de
+rodar o comando, e é por isso que ele está escrito no topo do registro.
