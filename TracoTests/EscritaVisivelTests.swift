@@ -588,15 +588,27 @@ struct EscritaVisivelTests {
         // PRODUÇÃO — o autor abre a nota do bot e escreve nela — e a invariante
         // 08f nunca o tinha visto, porque a etiqueta não existia quando esta
         // suíte foi escrita. Medido aqui, e não deduzido do layout.
-        let papelSemEtiqueta = EscritaVisivel.rolagemAcima(de: tv)?.bounds.height ?? 0
+        //
+        // A ALTURA do papel NÃO serve de portão, e a medida é que diz por quê:
+        // em AX XXXL, com o aviso e o toast de pé, o papel já está no PISO da
+        // 09g (`pisoDoPapel / 3`, uma linha de corpo) — 86,3 pt. A cápsula
+        // desce a `CadernoView` inteira, mas quem cede os 60 pt é o ENCAIXE,
+        // não o papel, que já não pode encolher: 86,3 -> 86,3, empate legítimo.
+        // Em `large` a cápsula custa 25 pt, sobra folga, e aí sim a altura conta
+        // o movimento inteiro (209 -> 183). O que vale nos DOIS é o TOPO: a
+        // cápsula fica ACIMA do editor, logo empurra o papel para BAIXO sempre
+        // que desenha. É isso o portão — a etiqueta
+        // que não desenhasse deixaria o topo onde estava (ADR 09j).
+        let papel = { EscritaVisivel.rolagemAcima(de: tv).map { $0.convert($0.bounds, to: nil) } ?? .null }
+        let semEtiqueta = papel()
         cenario.sessao.origemDaPagina = .grokbot
         Self.esperar(0.6)
-        let papelComEtiqueta = EscritaVisivel.rolagemAcima(de: tv)?.bounds.height ?? 0
-        print("ETIQUETA \(nome): papel \(Int(papelSemEtiqueta)) -> \(Int(papelComEtiqueta)) pt (a cápsula tomou \(Int(papelSemEtiqueta - papelComEtiqueta)) pt)")
-        // sem isto o caso passaria à toa: uma etiqueta que não desenha não
-        // encolhe nada, e a invariante daria verde sobre a tela de sempre
-        #expect(papelComEtiqueta < papelSemEtiqueta,
-                "a etiqueta de origem não tomou papel nenhum — ou não desenhou, e então este caso não mede o que promete")
+        let comEtiqueta = papel()
+        print("ETIQUETA \(nome): papel \(Int(semEtiqueta.minY))–\(Int(semEtiqueta.maxY)) (\(Int(semEtiqueta.height)) pt) -> \(Int(comEtiqueta.minY))–\(Int(comEtiqueta.maxY)) (\(Int(comEtiqueta.height)) pt); a cápsula desceu o topo \(Int(comEtiqueta.minY - semEtiqueta.minY)) pt e tomou \(Int(semEtiqueta.height - comEtiqueta.height)) pt de altura")
+        #expect(comEtiqueta.minY > semEtiqueta.minY,
+                "a etiqueta de origem não desceu o topo do papel — ou não desenhou, e então este caso não mede o que promete")
+        #expect(comEtiqueta.height <= semEtiqueta.height,
+                "o papel CRESCEU com a etiqueta em cena — a cápsula não pode devolver papel")
         amostras.append(Self.medir(tv, teclado: teclado, estado: "\(nome), etiqueta do bot, antes de digitar"))
         tv.selectedRange = NSRange(location: tv.text.utf16.count, length: 0)
         Self.digitar(Self.bloco, em: tv, teclado: teclado, estado: "\(nome), etiqueta do bot, fim", amostras: &amostras)
