@@ -79,6 +79,11 @@ a `09d` saiu duas vezes no mesmo turno.
 | 09e | C1-D (reconciliação da C1 com o `main`) | reservada, volta viva |
 
 **Próxima livre: 09f.** (A `09a` não foi usada por ninguém e **fica vaga** — buraco
+| 09b | MAC-1-B (a origem acompanha todo consumidor) | no branch da MAC-1 |
+| 09c | S1 (a pergunta é da sessão, não da view) | no branch da S1 |
+| 09d | S1-B (o vazio também rola: o teclado prendia quem filtrou até zero) | no branch da S1 |
+
+**Próxima livre: 09e.** (A `09a` não foi usada por ninguém e **fica vaga** — buraco
 não se reaproveita.)
 
 **A segunda troca da C1, e por que ela é da C1 e não da Q-H.** A C1 escreveu

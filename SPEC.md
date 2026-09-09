@@ -7745,3 +7745,100 @@ novo o bloco some e o teste fica vermelho; reexecutado com o estado replantado,
 passa. Isolados, os quatro passam. Não foi consertado nesta volta — mudar de onde
 a visita mora é decisão da ADR 08y, não de uma reconciliação — e fica declarado
 como dívida nomeada da R1.
+## ADR 2026-09-09c — A pergunta é da sessão, não da view (volta S1)
+
+**O achado da V13, provado vivo em 09/09.** A pessoa pergunta à sábia nas Notas,
+a resposta demora, ela vai ao Calendário ver a agenda e volta. Não há mais nada:
+nem a pergunta, nem o cartão, nem o aviso de que a sábia não respondeu, nem a
+busca que ela estava escrevendo. **Estado desonesto** — ela perdeu o que estava
+esperando sem que nada dissesse. Captura do defeito vivo em
+`ferramentas/orca/s1-01-antes-cartao-na-tela.png` e `s1-02-antes-sumiu-ao-voltar.png`.
+
+**A causa não estava na conversa; estava em onde ela morava.** `RaizView` monta
+o arquivo num `switch` de `sessao.abaArquivo` (`Traco/App/RaizView.swift:34`), e
+trocar de aba **destrói** a `NotasView`. Com ela morria o
+`@State private var conversaNotas = ConversaNotas()`. A intenção correta já
+estava escrita no próprio `ConversaNotas.interromper()` — *"sair da tela não
+perde o pedido interrompido nem o rascunho seguinte"* —, e o `@State` a
+desmentia: guardava a pergunta em `.interrompida(pergunta)` num objeto que
+morria no quadro seguinte.
+
+**O conserto é uma linha, no lugar certo.** `let conversaNotas = ConversaNotas()`
+passou para a `Sessao`, que vive enquanto a sessão viver, e a `NotasView` a lê de
+lá. Não é uma guarda por estado nem por chamador: **todo** o estado da conversa
+vem junto — a pergunta guardada, as trocas já respondidas, o aviso de "sem
+conta", os títulos citados e a busca que a pessoa estava escrevendo. Uma guarda
+por caminho teria consertado a pergunta e deixado as irmãs quebradas.
+
+**Preservar, e não avisar do sumiço.** A honestidade admitia dois desfechos: ou a
+pergunta sobrevive, ou a tela diz que se perdeu. Preservar era possível em todos
+os caminhos, então nada precisa ser dito — e nenhum pixel novo entrou. A tela
+depois da volta é idêntica à de antes de sair
+(`s1-03`, `s1-04`, `s1-05`): cartão, pergunta e "Repetir pergunta" no lugar.
+
+**Curva-zero, medida em toques.** Retomar a pergunta perdida custava **2 toques
+mais redigitar a frase inteira** — e antes disso exigia LEMBRAR o que se tinha
+perguntado, porque a tela não guardava rastro. Agora custa **1 toque** em
+"Repetir pergunta", sem redigitação e sem memória. Nenhum toque novo foi
+introduzido em nenhum caminho.
+
+**O que continua morrendo na recriação, e por que não entrou nesta volta.** O
+chip de filtro, o domínio, a ordem e a seleção de lote também são `@State` da
+`NotasView` e voltam ao padrão ao trocar de aba (medido na tela viva: o chip
+volta a "Todas"). São de outra classe: a tela **mostra** que voltaram ao padrão
+no mesmo quadro — o chip aceso é visível. Ficam anotados; não são "sumir sem
+dizer nada".
+
+**Achado colateral, agora consertado na ADR 2026-09-09d:** com o campo de busca
+das Notas em foco, `tecladoAberto` esconde a barra de navegação inteira, e **não
+há como trocar de aba sem antes soltar o teclado**. Foi o que fez a primeira
+corrida do teste passar verde sem visitar o lugar do defeito — o toque na barra
+caía numa tecla. Registrei aqui como "não consertado"; o G3 mostrou que sem
+consertar **a jornada não fecha**, e a 09d fecha.
+
+## ADR 2026-09-09d — O vazio também rola: o teclado prendia quem filtrou até zero (volta S1-B)
+
+**O G3 reprovou a S1 e a reprovação estava certa.** Os dois XCUITest novos
+passaram para quem os escreveu e falharam **três vezes** para o revisor, no mesmo
+candidato `47231c9`. A saída dele nomeia a causa melhor do que qualquer
+hipótese: a busca terminou a corrida valendo
+`"o que eu aprendi ontem`**`gggd`**`"`. Os quatro toques em `aba-calendario` não
+trocaram de aba — **viraram quatro letras**, porque a barra estava atrás do
+teclado (AX do G3: abas em `y: 1.0572`, fora da tela). Reproduzi o mesmo vermelho
+no A1DF082C com o app recém-instalado.
+
+**A dependência de estado tinha nome.** `NotasView.lista` tem dois ramos. O ramo
+cheio é um `ScrollView` com `.scrollDismissesKeyboard(.interactively)` — o gesto
+que a própria ADR 05e já tinha posto ali, com o comentário certo: *"sem isto o
+teclado da busca prendia a tab bar atrás de si e a única saída era o 'x'"*. O
+ramo **vazio** é um `VStack`. Sem `ScrollView` não há gesto, e sem gesto o
+teclado não sai. Ora: os dois testes digitam `"o que eu aprendi ontem"` na busca,
+**o que filtra o arquivo até zero** e cai justamente no ramo vazio. O teste
+passava para quem tinha notas semeadas que a busca por sentido devolvia, e
+falhava para quem abriu o app limpo. **Era o instrumento medindo o lixo do
+aparelho anterior, não a tela.**
+
+**O defeito não é do teste; é da pessoa.** Filtrar até zero com o teclado em pé
+**prende quem escreveu**: a barra de abas fica atrás do teclado, não há lista
+para arrastar, e a única saída é o "x" ou "ver todas as notas" — as duas jogam
+fora exatamente o que se estava procurando. O conserto do ramo cheio existia
+desde a 05e; **o ramo vazio ficou para trás**, e é onde a pessoa está mais
+perdida. Uma guarda no lugar comum, não uma por ramo: o `.scrollDismissesKeyboard`
+subiu para o `Group` e o vazio virou um `ScrollView` com
+`.scrollBounceBehavior(.always)` — conteúdo curto não rola sozinho, e sem rolar
+não há gesto para o teclado seguir. O desenho da tela não mudou um pixel: o
+mesmo `VStack` alinhado ao topo, na mesma margem.
+
+**O que o teste passou a afirmar, em vez de tocar às cegas.** O helper agora
+arrasta **enquanto** `app.keyboards` existir e então **afirma** que ele saiu, com
+mensagem que diz o que aconteceu ("todo toque na barra vira letra"); depois
+afirma que `aba-calendario` **existe** e que **é alcançável**, antes de tocar.
+Um teste que toca uma coordenada sem checar o que está sob ela não mede a tela —
+mede a sorte. Nenhuma asserção foi afrouxada: as duas asserções finais
+(`busca-notas` com o texto, `cartao-sabia-notas` na tela) estão intactas, e o
+teste continua **vermelho no pai** `cce6beb`.
+
+**Estado honesto.** A jornada da 09c agora é observável de ponta a ponta no
+aparelho: perguntar, sair, voltar, e encontrar o cartão no lugar. A medida de
+curva-zero da 09c (2 toques + redigitar → 1 toque) só passa a valer agora, porque
+só agora a ida ao Calendário existe.

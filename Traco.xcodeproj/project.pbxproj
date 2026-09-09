@@ -139,6 +139,7 @@
 		A254904CBD2AA48CD2F7F030 /* TracoAtalhos.swift in Sources */ = {isa = PBXBuildFile; fileRef = 526ECA6F1D04E3BF27B6DAE1 /* TracoAtalhos.swift */; };
 		A730B9AC03A66E91B4194C3E /* DestaqueDoDia.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BB175F2F50DED6365BFB989 /* DestaqueDoDia.swift */; };
 		A8654DD9F2748A61B1418D85 /* EscritaPessoalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40458D2BAE5A41F6214ED074 /* EscritaPessoalTests.swift */; };
+		A8C1B1BDB1CF0E86F5DE99AC /* PerguntaSobreviveUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A52F94C2E4691C0B7230E405 /* PerguntaSobreviveUITests.swift */; };
 		A8FC554E9192ED2DB78D01C1 /* SuperficieFora.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD30107ACE35F098EB5AACE5 /* SuperficieFora.swift */; };
 		A97C8A6DB88F62888FC65D44 /* ConferenciaTrabalho.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9494F4BA0893E2C27972D8DE /* ConferenciaTrabalho.swift */; };
 		AAC0CE44B9DDC600F55E2BCF /* CalendarioAgenda.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4B0FC29FDAE2DA9A9B41BC2 /* CalendarioAgenda.swift */; };
@@ -372,6 +373,7 @@
 		A4B0FC29FDAE2DA9A9B41BC2 /* CalendarioAgenda.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarioAgenda.swift; sourceTree = "<group>"; };
 		A4D7AFFE24FE679844349AD3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A7F9EF1327293B6565E807C2 /* CadernoAntigoAbreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CadernoAntigoAbreTests.swift; sourceTree = "<group>"; };
+		A52F94C2E4691C0B7230E405 /* PerguntaSobreviveUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PerguntaSobreviveUITests.swift; sourceTree = "<group>"; };
 		A810EC1AF4E17D4DB08A56B3 /* BarraNavegacao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarraNavegacao.swift; sourceTree = "<group>"; };
 		A8573C1126CAFCC2B2C727D3 /* EscritaVisivelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EscritaVisivelTests.swift; sourceTree = "<group>"; };
 		AAC68B6A9734928BF14264CD /* Rede.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Rede.swift; sourceTree = "<group>"; };
@@ -820,6 +822,7 @@
 			children = (
 				143310676A48BCCD8C1D3252 /* CurvaZeroRetomadaUITests.swift */,
 				390F139B808A32B771BB1C55 /* EscritaVisivelUITests.swift */,
+				A52F94C2E4691C0B7230E405 /* PerguntaSobreviveUITests.swift */,
 			);
 			path = TracoUITests;
 			sourceTree = "<group>";
@@ -1212,6 +1215,7 @@
 			files = (
 				4FCEFA3CEE1B97C7FDCC02B3 /* CurvaZeroRetomadaUITests.swift in Sources */,
 				1F3CC3DB7BCF54870BAF6417 /* EscritaVisivelUITests.swift in Sources */,
+				A8C1B1BDB1CF0E86F5DE99AC /* PerguntaSobreviveUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
