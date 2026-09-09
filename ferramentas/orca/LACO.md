@@ -2197,3 +2197,49 @@ esperam a vez**:
 
 **Pendente com o dono:** um **segundo aparelho com conta** dobraria a vazão da IA.
 Se ele autorizar, a Q3 corre em paralelo em vez de esperar a janela.
+
+## 09/09, 18h — a comparação pareada foi feita, e o resultado é NEGATIVO — que é o resultado
+
+A meta do dia era **`responder` de volta hoje**. **Não volta**, e a razão é a
+melhor que se pode ter: **a medida disse não**.
+
+**A triagem agora é fato, não hipótese.** Os doze foram à API com a **mesma
+requisição de produção**, e o critério passou a ser **a frase da resposta**: as
+cinco `imagine` dizem `Model not found`; o `grok-build-0.1` e as três `grok-4.20`
+dizem `does not support parameter reasoningEffort`. **Essa recusa prova o que o G3
+disse faltar** — *o provedor só recusa o parâmetro pelo nome se ele foi enviado*.
+Sobraram **TRÊS** candidatos, não dois: **o `grok-4.5`, que a 09n cortou por
+posição**, era um deles.
+
+**Uma alavanca, 18 casos** (os 12 mais os **6 CEGOS do revisor**), **3 corridas, 54
+execuções por modelo**, com fixture, binário, aparelho, temperatura, esforço, teto
+e prompt **fixos nos nove lançamentos**:
+
+| modelo | casos | execuções | espera |
+|---|---|---|---|
+| `grok-4.3` | 15 de 18 | 46 de 54 | 9,4 s |
+| **`grok-4.5`** | **17 de 18** | **51 de 54** | **13,1 s** |
+| `grok-4.6` | 16 de 18 | 52 de 54 | 39,9 s |
+
+**Nenhum chega a 18**, e a régua é *"um descumprimento reprova"*. As duas leituras
+honestas do placar **não elegem o mesmo vencedor** entre 4.5 e 4.6 — **um
+descumprimento em 54 de distância** — e o 4.6 custa **4,2× a espera**.
+
+**E o achado que fecha a história de ontem:** o **`12 de 12` da 09n veio de UMA
+corrida e não se repete** — em três corridas idênticas o 4.6 **perdeu dois casos
+numa delas**. A adoção que eu empurrei e o G3 derrubou estava apoiada num número
+que **não era do modelo, era do dia**. Virou lei: **uma corrida é indício; três
+corridas idênticas são a menor coisa que se pode chamar de medida**.
+
+`Grok.modelo` fica `grok-4.3`, `responder` fica cortada — **e agora com razão
+medida**: o padrão global reprova `revisor-responsavel-nao-definido`, **um caso
+CEGO**, em 3 de 3. As duas frases da `Politica` mudam porque diziam ao autor que
+**faltava a comparação pareada**, e ela **deixou de faltar**.
+
+**O que eu levo ao dono, e não é o que ele pediu:** a meta não se cumpre, e o
+motivo é que **medir direito custou o resultado bonito**. Fica na mesa uma
+pergunta que a medida abriu e que vale a próxima janela: **o `grok-4.5` bate o
+`grok-4.3` em qualidade (17 contra 15) por 3,7 s a mais** — mas isso foi medido na
+fixture de **`responder`**, e promover padrão global a partir de uma operação é
+exatamente a armadilha que derrubou a 09n. **A próxima medida é essa, e ela é
+barata: a mesma comparação, com a fixture de outra rota.**

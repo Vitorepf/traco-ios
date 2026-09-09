@@ -747,3 +747,27 @@ custa o defeito.
 **E o limite está escrito onde se lê** — no próprio portão, na ADR e no RUMO, com
 a saída honesta nomeada. Portão que promete mais do que vê era o defeito que esta
 volta veio consertar; declarar o que ele não vê é o que impede a repetição.
+
+### Uma corrida não é uma medida (09/09, Q2-F)
+
+O **`12 de 12`** que fez a 09n adotar o `grok-4.6` **veio de UMA corrida**. A Q2-F
+repetiu **três corridas idênticas** e **numa delas o 4.6 perdeu dois casos**.
+Nenhum número mudou de dono por opinião: mudou porque **a segunda e a terceira
+corrida existiram**.
+
+**Regra:** medida de IA com **uma corrida** é indício. **Três corridas idênticas**
+são a menor coisa que se pode chamar de medida — e a variação entre elas **entra
+no relato**, porque é ela que diz se o número é do modelo ou do dia.
+
+### Recusa da API é FATO; ausência na lista é hipótese (09/09, Q2-F)
+
+O G3 reprovou a triagem anterior por excluir candidatos **por nome e posição**. A
+Q2-F trocou isso por uma coisa que se lê: **mandou os doze à API com a mesma
+requisição de produção** e usou **a frase da resposta** como critério — as cinco
+`imagine` dizem `Model not found`; o `grok-build-0.1` e as três `grok-4.20` dizem
+`does not support parameter reasoningEffort`.
+
+**E essa recusa prova o que faltava provar:** *o provedor só recusa o parâmetro
+pelo nome se ele foi enviado*. A triagem honesta deixou **três** candidatos, não
+dois — e o `grok-4.5`, **cortado por posição na passada anterior**, era um deles,
+e acabou sendo o melhor dos três.
