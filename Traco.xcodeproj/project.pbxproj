@@ -32,6 +32,7 @@
 		1E26BA58FB55F45BEA707EF6 /* Ferias.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD168914C5D50E4178D21DF /* Ferias.swift */; };
 		1F3CC3DB7BCF54870BAF6417 /* EscritaVisivelUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 390F139B808A32B771BB1C55 /* EscritaVisivelUITests.swift */; };
 		1F7313151EE976F673930D7D /* DitadoProprioTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FB0133656BED71FB700CDD /* DitadoProprioTests.swift */; };
+		20047C7CFAD942CC7D56C969 /* RetomadaTrabalhoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5719C25CF00B1B852D0EA56E /* RetomadaTrabalhoTests.swift */; };
 		206C9E23B411F0F28E1162E0 /* Nota.swift in Sources */ = {isa = PBXBuildFile; fileRef = 752E5B8AEE11066FE1493A3D /* Nota.swift */; };
 		207C686843759571A4FD1DC5 /* PortalFormulaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 497B071C1D5EF6487614814F /* PortalFormulaView.swift */; };
 		20B2485C29B483DC03277AB8 /* TextoDoDitado.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E9F0ACA7A53E97C35A529A1 /* TextoDoDitado.swift */; };
@@ -305,6 +306,7 @@
 		4FB4D87DCC6F49ABB1CBA6A8 /* Dominio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dominio.swift; sourceTree = "<group>"; };
 		526ECA6F1D04E3BF27B6DAE1 /* TracoAtalhos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TracoAtalhos.swift; sourceTree = "<group>"; };
 		559F50CC1AF6E37EF3CA94F7 /* AnaliseRemota.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnaliseRemota.swift; sourceTree = "<group>"; };
+		5719C25CF00B1B852D0EA56E /* RetomadaTrabalhoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RetomadaTrabalhoTests.swift; sourceTree = "<group>"; };
 		5976C267B0B7C444FE2F9E0E /* Relogio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Relogio.swift; sourceTree = "<group>"; };
 		5B743712E55CA95F23379510 /* AnaliseDeBordo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnaliseDeBordo.swift; sourceTree = "<group>"; };
 		5D38D66CE676B1CC86F2344E /* Politica.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Politica.swift; sourceTree = "<group>"; };
@@ -653,6 +655,7 @@
 				D05129456F4C8040D487DA0D /* RecomendacaoTests.swift */,
 				11D6ADE9EFC408B160AE0F5C /* RespostaNotasTests.swift */,
 				65CD7DFC40FC128DA593E446 /* ResultadoObservadoTests.swift */,
+				5719C25CF00B1B852D0EA56E /* RetomadaTrabalhoTests.swift */,
 				DEC88C57426827914E30265B /* SabiaOrcamentoTests.swift */,
 				0B04DABEDFD9C86D45507C64 /* TemaTests.swift */,
 				DFE52AE87EF1BA2A3B863362 /* TrabalhoTests.swift */,
@@ -1012,6 +1015,7 @@
 				D7B6BD4E6E54ECA9749D46AB /* Relogio.swift in Sources */,
 				B0DA1DDC6B301ED85EBC8430 /* RespostaNotasTests.swift in Sources */,
 				5453974C08045BD1DF3A4DB5 /* ResultadoObservadoTests.swift in Sources */,
+				20047C7CFAD942CC7D56C969 /* RetomadaTrabalhoTests.swift in Sources */,
 				9A7198E223ED751893053F68 /* SabiaOrcamentoTests.swift in Sources */,
 				DA6C18AAF7BE831A53CC6306 /* TemaTests.swift in Sources */,
 				44BADDD31419D3764ECE1AE5 /* TrabalhoTests.swift in Sources */,

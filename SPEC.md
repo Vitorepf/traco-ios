@@ -6724,3 +6724,80 @@ suíte travaram antes de conectar o runner (0 de 957, 345 s cada) e a terceira
 passou inteira; provei que a árvore mesclada sobe instalando e lançando o app
 no aparelho (`ferramentas/orca/q-h-app-mesclado.png`). É limite do instrumento
 registrado, não resultado.
+
+## ADR 2026-09-08y — A retomada conta o que houve entre duas visitas (volta R1)
+
+**O critério, palavra do Astra:** *"o dono volta depois e continua com pouca
+explicação"*. Item 4 da fila do dono; ciclo multiplicar a mente.
+
+**O obstáculo, medido antes de codar e não copiado da auditoria.** A auditoria
+do G0 nomeava três defeitos. Aberta a folha na tela viva com estado plantado
+(`ferramentas/orca/semear-retomada.py`, o JSON no `ZTRABALHO` do App Group),
+**o primeiro caiu sozinho**: a `retomada` já é o segundo bloco e nasce ACIMA da
+dobra — o "Continuar: <ato>" fica a 0,36 tela do topo e o "Último retorno" a
+0,46. Rolar para ela na abertura esconderia a intenção, que é o **objetivo** que
+o critério manda retomar. Não há rolagem automática nesta volta, e isso é
+decisão, não omissão.
+
+Os outros dois são reais, e a régua é a árvore de AX do mesmo instante, com as
+posições em **alturas de tela a partir do topo da folha** (o documento inteiro
+tem 4,74 antes e 4,95 depois):
+
+| o que o autor precisa saber ao voltar | antes | depois |
+|---|---|---|
+| objetivo | 0,15 | 0,15 |
+| próximo passo | 0,36 | 0,36 |
+| **versão nova preparada ontem** | **1,57** | **0,58** |
+| **ato que ele marcou como realizado** | **2,41** | **0,53** |
+| **resultado que ele mesmo informou** | **2,45** | **0,67** |
+| **quando foi o último retorno** | **3,76** | **0,64** |
+| **dificuldade que ele registrou** | **4,22** | **0,48** |
+
+**Decisão.** Um bloco só, dentro da `retomada` que já existe: **"Desde
+\<instante da visita anterior\>"**, com as coisas que ACONTECERAM depois dela,
+mais recente primeiro, teto de quatro linhas e o excedente DITO (`e mais N desde
+então` — sem prometer onde está: nem tudo mora no histórico). E o "Último
+retorno" ganha **data** e o **resultado informado**.
+
+1. **Quem escreve as linhas é o app, não o modelo.** `mudancasDesde(_:)` sai dos
+   vínculos do documento — versão e produtor, ato executado, relato, resultado
+   observado, decisão de apoio, dificuldade. Nenhuma frase é gerada; um resumo
+   escrito por modelo seria bonito e seria mentira sobre o que a pessoa fez.
+2. **A visita mora no aparelho, não no documento.** `UserDefaults`, chave
+   `trabalho.visita.<uuid>`, ao lado dos rascunhos. Quando o autor abriu a folha
+   é fato deste aparelho: exportar o Markdown não carrega a visita de ninguém e
+   o registro compartilhado não ganha campo de vigilância. Sem visita guardada
+   **não há bloco** — o app não sabe desde quando contar e cala.
+3. **Duas datas novas no documento, e só duas:** `apoioMarcadoEm` e
+   `trechoDelimitadoEm`. `apoio` e `trechoExercitado` eram valores sem história,
+   e a retomada precisa DATAR a decisão para contá-la. `nil` = registro anterior
+   a este contrato: decisão não datada, nunca data inventada.
+4. **Executar e observar continuam dois eixos** (ADR 08m): "Você marcou como
+   realizada" e "Resultado que você informou" são duas linhas com as duas datas.
+5. **Nada de `EstadoExercicio` persistido** (V17, item 3), nenhuma tela nova,
+   nenhum agregado novo, nenhum componente novo — `secao`, `Tema.meta` e
+   `Tema.tintaSuave`, que a folha já usa.
+6. **A mesma notícia não aparece duas vezes na mesma tela:** a linha do relato
+   que a folha já mostra inteiro logo abaixo sai da lista.
+
+**Prova.** Suíte integral no `34CC3F94` (iPhone 17 Pro, teste 3), sem
+paralelismo: **963 testes em 155 suítes, 0 falhas**, `grep -c warning:` = **0**.
+Antes e depois no MESMO aparelho, mesmo estado plantado, mesmos três toques até
+a folha, mesmo tamanho de letra (`large`, o padrão): `r1-antes-folha.png` /
+`r1-depois-folha.png`, com as duas árvores de AX do mesmo instante em
+`r1-ax-antes.json` / `r1-ax-depois.json`. AX5 sem sangramento: nenhum elemento
+sai de `x=0,050 … 0,950` (`r1-depois-ax5.png`). Teto e linha de decisão em
+`r1-depois-decisoes-e-teto.png`.
+
+**O teste que fica vermelho** está em `TracoTests/RetomadaTrabalhoTests.swift`,
+e o vermelho foi mostrado antes do verde nos dois sentidos do erro: janela
+errada (o resumo passa a falar da versão do dia 5, que é anterior à visita) e
+âncora errada (`rolarPara` para um `.id` que não existe — o portão conta 8
+destinos literais, medidos antes de congelar).
+
+**O que esta ADR NÃO prova.** Não prova que o dono volta e continua: isso fecha
+no uso dele, não na demonstração. Não há avaliação de hipótese na lista (evento
+real, deixado de fora por enxugamento) e os dois destinos de rolagem que passam
+por variável (`chave`, `falta`) ficam fora do portão, que o diz em vez de fingir
+que os cobre. A rolagem por arrasto do `orca emulator` amplifica de 6 a 24x e
+por isso **não** foi usada como régua: a medida é a árvore de AX.

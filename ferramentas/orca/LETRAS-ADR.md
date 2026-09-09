@@ -41,5 +41,6 @@ idênticos. Sobrou linha, a alegação "só a letra mudou" é falsa.
 | 08v | F5b (Ilha do compromisso) | reservada, volta viva |
 | 08w | Q-H (reconciliação da Q com o `main`) | no branch da Q |
 | 08x | C1 (caret do Caderno) | reservada, volta viva — era 08w, trocada |
+| 08y | R1 (a retomada do Trabalho) | no branch da R1 |
 
-**Próxima livre: 08y.**
+**Próxima livre: 08z.**
