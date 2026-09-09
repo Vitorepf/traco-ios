@@ -701,3 +701,33 @@ projeto existe para não fazer.
 **As frentes:** revisor da MAC-1 (exercitando os seis casos com o MCP ligado), C1
 (caret já verde no 17e, nas capturas), R1 (nova) e a trilha fora do app com a
 F5b.
+
+## 08/09, 23h15 — a C1 leva o único vermelho do 17e a zero, e a causa é uma conta
+
+Fez o caminho na ordem certa: **reproduziu as 18 issues antes de consertar**, e
+mediu a causa com sonda em vez de adivinhar. No 17e com teclado de pé sobram
+413,67 pt; o pé toma 274,67 (326,67 com o aviso); e a regra `min(piso, sobra/2)`
+dava **69,5 pt — depois 43,5 — de papel para uma linha de corpo de 67**. Somado
+a isso, `EscritaVisivel.seguirCaret` perseguia o **`caretRect` (45 pt)** e não a
+**linha visual (67 pt)**, pedindo a folga inteira num papel curto.
+
+O conserto é nas **duas funções compartilhadas e sem tocar no teste** — que era
+exatamente o que eu tinha proibido no spec: o piso do papel nunca desce abaixo de
+uma linha, a folga cede antes da letra, e a nova `linhaDoCaret` mede pelo TextKit
+2. **18 → 0**, AX5 31/31, large 44/44, suíte integral **949 em 153 suítes verde
+no 17e**, zero aviso, `content_size` restaurado.
+
+**Uma contradição que mandei o revisor desempatar:** o assunto do `worker_done`
+diz "AX XXXL" e o corpo diz que as 18 issues são **todas AX5**. Eu escrevi
+"AX XXXL" no spec porque foi assim que a V13 relatou, e pode ser que eu tenha
+propagado um erro de leitura. Importa: **AX5 é um tamanho que muito mais gente
+usa que o XXXL**.
+
+Dois limites declarados e não corrigidos, que o revisor julga se ficam como
+dívida: um resíduo de ~0,11 s na gaveta do cartão a chegar, e a barra de baixo,
+que em AX XXXL toma **275 dos 414 pt** do 17e.
+
+E uma nota de instrumento: **o `orca emulator` parou de entregar toque no meio da
+passada**, e a saída foi varrer **220 quadros com `simctl io`** enquanto o teste
+hospedado dirigia a Página real. Não vira lei ainda — mandei o revisor conferir
+se a evidência assim obtida sustenta o que ela afirma.
