@@ -329,3 +329,20 @@ instrumento e mediu por XCUITest), e a sonda nova da C1-B media **`E ⊆ P` mas 
 Porque ela dá um verde. Quando escrever instrumento para uma invariante de duas
 partes, **mostre o vermelho de cada parte separadamente** — se uma das metades
 nunca ficou vermelha, ela não está sendo medida.
+
+### O checkout descartável do pai é o caminho certo, não uma exceção (09/09)
+
+Um revisor perguntou se podia montar um checkout descartável do pai em `/tmp`
+para reproduzir o vermelho no próprio aparelho, porque a regra *"só no seu
+worktree"* deixava isso ambíguo. **Pode, e deve.** A regra existe para ninguém
+escrever no worktree alheio nem no checkout principal — nunca quis dizer que não
+se monta uma árvore descartável para ver um vermelho.
+
+Foi assim que o revisor da C1 produziu a melhor prova da noite: montou o pai
+descartável, **trouxe só a sonda do candidato**, viu o vermelho com as próprias
+mãos e depois o verde. Sem isso, estaria acreditando no log de outra pessoa.
+
+**Condições:** em `/tmp`, **removido ao fim** e dito no relato; **só o seu UDID**;
+nada escrito no checkout principal nem em worktree alheio; e **diga o que trouxe
+do candidato para o pai** — medir o pai com o instrumento do candidato é o que
+torna a comparação válida, e trazer mais do que o instrumento é o que a invalida.
