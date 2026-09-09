@@ -2168,3 +2168,32 @@ que se responde com a tela, não com a lista de campos.
 
 **As duas letras foram reservadas no mesmo ato do despacho**, que é a regra que eu
 mesmo quebrei hoje de manhã quando a `09d` saiu duas vezes.
+
+## 09/09, 17h40 — META DO DIA: "foque em melhorar imensamente a IA"
+
+Ordem do dono em três palavras, e a conta que a justifica: **sete operações
+cortadas, e a única que voltou foi revertida no mesmo dia**. **Meta escrita:
+`responder` de volta HOJE; Q3 e Q4 medidas até a noite.**
+
+**O gargalo não é ideia, é instrumento: um aparelho com conta.** Então mudei a
+forma de despachar em vez de mudar a ordem da fila — as três voltas de IA **não
+esperam a vez**:
+
+- **Q3** (`ctx_8c6cda57f935`) e **Q4** (`ctx_d8e64afeb8a6`) saíram **agora**, com
+  um mandato que elas não tinham antes: **escrever o conserto e a fixture e PARAR
+  antes de chamar o Grok**. A razão está no spec das duas: **medir três operações
+  em três binários diferentes é medir três coisas diferentes** — vai ser **um
+  binário, uma janela, três fixtures**, e aí a comparação entre elas passa a valer.
+- **Mandei as duas não presumirem o modelo.** A Q2-F ainda está decidindo, e o
+  conserto tem de ser escrito **sem depender de qual vencer**, dizendo no relato o
+  que muda se for outro.
+- **E mandei a Q3 e a Q4 conversarem pelo comentário do worktree** sobre uma coisa
+  só: **o `N1T1` da Q3 e o vocabulário de andaime da `instigar` são o mesmo
+  defeito** — o app deixando o próprio texto interno chegar ao autor. **Se as duas
+  resolverem isso de dois jeitos, uma delas está errada.**
+
+**B2 e F6 continuam** porque não tocam o aparelho, com a condição do dono anotada:
+**nenhum revisor ou juiz sai da IA por causa delas**; se faltar cota, param.
+
+**Pendente com o dono:** um **segundo aparelho com conta** dobraria a vazão da IA.
+Se ele autorizar, a Q3 corre em paralelo em vez de esperar a janela.

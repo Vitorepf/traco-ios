@@ -474,6 +474,32 @@ acerto do modelo (que já foi medido).
 **Se o dono discordar, é uma linha para desfazer** — a decisão está aqui e o
 motivo também.
 
+### META DO DIA (09/09 17h40, ordem do dono): "foque em melhorar imensamente a IA"
+
+**`responder` de volta HOJE; Q3 e Q4 medidas até a noite.** Sete operações
+cortadas, e a única que voltou foi revertida no mesmo dia porque a prova não
+sustentava o passo.
+
+**O gargalo é o instrumento: um aparelho com conta.** Por isso as três voltas de
+IA **não esperam a vez**:
+
+1. **Q2-F** fecha a comparação **pareada** — uma alavanca, **os dois candidatos com
+   o MESMO esforço**, mesma fixture, mesmo binário — e o vencedor vira
+   `Grok.modelo` global, com `responder` saindo da lista e o teste
+   `responderEsperaAComparacaoPareadaAntesDeVoltar` reescrito para o estado novo.
+2. **Q3 e Q4 PREPARAM AGORA** nos worktrees: conserto escrito, fixture pronta, e
+   tudo o que se prova sem o aparelho já provado. **Param antes de chamar o Grok.**
+3. **A corrida das três entra numa MESMA janela do instrumento, com UM binário
+   só** — porque medir três operações em três binários é medir três coisas
+   diferentes. Depois, **revisão em paralelo**.
+4. **Cada operação que voltar** fecha com: **captura da resposta real na tela do
+   aparelho da conta**, **linha do Perfil atualizada** e **hora no LACO**.
+5. **B2 e F6 continuam só porque não usam o aparelho** — e **nenhum revisor ou juiz
+   sai da IA por causa delas**. Se faltar cota, elas param.
+
+**Pendente do dono:** um **segundo aparelho com conta** (teste 3) dobraria a vazão
+— se ele autorizar, a Q3 corre nele em paralelo.
+
 ## Próximas, em ordem
 
 | # | volta | valor | esforço | ciclo | lacuna (EVOLUCAO) |
