@@ -2068,3 +2068,21 @@ duas alavancas.
 argumento aninhado** — `regex(padraoDeFora.trimmingCharacters(...))` **passa** no
 teste de literalidade, enquanto o plantio plano fica vermelho. Um portão que se
 contorna com uma chamada aninhada é um portão que dá verde para o caso real.
+
+**E a reversão cobrou a frase da tela, que é o que mais importa.** Com
+`responder` de volta à lista, o teste apontou que a frase continuava dizendo
+*"precisa da conta Grok (em Perfil)"* — **mandando o autor conectar a conta que ele
+já tem**, que é exatamente o defeito que a 08q nomeou e que o dono viu na tela em
+08/09.
+
+O portão pegou: `#expect(frase.contains("indisponível"))` e
+`#expect(!frase.contains("conta Grok"))`. A frase virou:
+
+> *"Responder à sua pergunta pela IA está indisponível: na medida de 08/09 ela
+> inventou fato que o contexto não sustentava. O que você escreveu continua aqui, e
+> a sua pergunta fica na nota."*
+
+**Reverter código sem reverter a tela teria deixado o app mentindo** — dizendo que
+falta conta quando o que falta é qualidade medida. Foi um teste escrito há duas
+voltas que impediu isso, e é o melhor argumento a favor de portões que guardam
+frase de tela e não só estado.

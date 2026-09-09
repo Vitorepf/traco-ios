@@ -181,13 +181,15 @@ enum Politica {
         case .revisar: RevisaoTrabalho.semProvedor
         case .conferir: "Conferir o que voltou pela IA precisa da conta Grok; o modelo do aparelho errou a comparação."
         case .padroes: "Precisa da conta Grok; o modelo do aparelho não serviu aqui."
-        case .responder: "Responder à sua pergunta pela IA precisa da conta Grok (em Perfil); o modelo do aparelho não foi medido bem aqui."
-        // As cinco abaixo estão INDISPONÍVEIS POR QUALIDADE (ADR 08q; a
-        // `responder` saiu da lista na 09n, medida de novo e aprovada): a conta
+        // As SEIS abaixo estão INDISPONÍVEIS POR QUALIDADE (ADR 08q; a
+        // `responder` saiu da lista na 09n e VOLTOU no mesmo dia, quando o G3
+        // reprovou a escolha do modelo — o conserto do prompt ficou, a
+        // comparação pareada é que falta): a conta
         // pode estar ligada e mesmo assim ninguém responde, porque o que
         // respondia não atendeu na medida de 08/09. A frase não manda conectar
         // conta, não pede para tentar de novo e não promete guardar nada — quem
         // guardou o pedido é que diz isso, depois de confirmar.
+        case .responder: "Responder à sua pergunta pela IA está indisponível: na medida de 08/09 ela inventou fato que o contexto não sustentava. O que você escreveu continua aqui, e a sua pergunta fica na nota."
         case .ecos: "Ecos entre notas está indisponível: a IA deixou de fora justamente os vínculos mais úteis quando medimos, em 08/09. As notas continuam buscáveis pelo texto."
         case .calibragem: "Ler o seu juízo pela IA está indisponível: na medida de 08/09 ela calou quando não havia erro a apontar. Os seus pares de previsão e resultado continuam aqui para você comparar."
         case .recordar: "A pergunta do Recordar pela IA está indisponível: na medida de 08/09 ela entregou a resposta dentro da própria pergunta. O ritual segue com a pergunta fixa."
