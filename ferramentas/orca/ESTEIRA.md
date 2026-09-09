@@ -434,3 +434,20 @@ compilar ali, gravar o caderno, **copiar o `default.store` para as fixtures**, e
 Se alguma versão **não compilar mais** com o Xcode de hoje, **isso é o relato**:
 diga qual, com o erro, e aquela fixture fica **declarada impossível**. Declarar
 limite é aceitável; **prometer "cada versão" e entregar duas não é**.
+
+### Duas ordens que não cabiam juntas, e o erro que as expôs (09/09)
+
+**Eu mandei a suíte da árvore mesclada rodar com `xcodebuild test` no
+`C2416CBC`** — o aparelho da conta do dono —, que é **exatamente o comando que a
+minha própria lei proíbe nele**. Matei antes da fase de teste; o contêiner e os
+JSONL das corridas sobreviveram. Mas o erro não foi só distração: **"um simulador
+só" e "nunca `xcodebuild test` nesse simulador" não cabem juntas** — a suíte fica
+sem onde rodar, e quem executa acaba escolhendo em silêncio qual das duas quebrar.
+
+**A regra passa a ser dois aparelhos com papéis duros:** o **`C2416CBC`** é o da
+**conta** (sonda de IA e capturas da tela real, e nada mais), o **`B91C8DEF`** é o
+de **trabalho** (build, suíte, tudo o resto). Nenhum worker liga um terceiro.
+
+**A lição de orquestração:** quando duas ordens se contradizem, **quem executa não
+resolve em silêncio** — mostra a contradição para quem mandou. Eu só a vi porque
+tropecei nela; o certo era tê-la visto ao escrever a segunda.
