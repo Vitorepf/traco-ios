@@ -57,38 +57,19 @@ que este arquivo existe para impedir — e ele reincidiu no próprio arquivo.
 |---|---:|---|
 | 09a | — | **buraco, fica vaga** |
 | 09b | MAC-1-B (a origem acompanha todo consumidor) | em `main` |
-| 09c | S1 (a pergunta interrompida) | no branch da S1 |
-| 09d | S1-B (o vazio também rola) | no branch da S1 |
-| 09e | C1-D (a reconciliação da C1) | no branch da C1 |
-| 09f | M1 (a migração do caderno) | no branch da M1 |
-| 09g | C1-A (era 08w, depois 09d) | no branch da C1 |
-| 09h | Q3 (responder nas Notas) | reservada, a abrir quando a M1 mesclar |
-| 09i | Q4 (instigar e contrapor) | reservada, a abrir quando a M1 mesclar |
+| 09c | S1 (a pergunta interrompida) | em `main` |
+| 09d | S1-B (o vazio também rola) | em `main` |
+| 09e | C1-D (a reconciliação da C1) | em `main` |
+| 09f | M1 (a migração do caderno) | em `main` |
+| 09g | C1-A (era 08w, depois 09d) | em `main` |
+| 09h | Q3 (responder nas Notas) | reservada |
+| 09i | Q4 (instigar e contrapor) | reservada |
 
 **Próxima livre: 09j.**
 
-**A 08 está CHEIA** — de `08a` a `08z`, com `08c` e `08d` como buracos que ficam
-vagos. Quem precisar de letra hoje usa a série `09`.
+**A série 08 está CHEIA** — de `08a` a `08z`, com `08c` e `08d` como buracos que
+ficam vagos. Quem precisar de letra hoje usa a série `09`.
 
-**Aviso que a C1-D deixou e que eu confirmei:** este arquivo **estava errado sobre
-si mesmo**, dando `08z` como livre quando ela está no branch da Q2. O registro só
-vale se quem despacha o atualiza **no mesmo ato** em que reserva — foi assim que
-a `09d` saiu duas vezes no mesmo turno.
-| 09c | S1 (a pergunta interrompida) | reservada, volta viva |
-| 09d | C1 (uma linha é o piso do papel) | reservada, volta viva — **era 08w**, trocada na C1-D |
-| 09e | C1-D (reconciliação da C1 com o `main`) | reservada, volta viva |
-
-**Próxima livre: 09f.** (A `09a` não foi usada por ninguém e **fica vaga** — buraco
-| 09b | MAC-1-B (a origem acompanha todo consumidor) | no branch da MAC-1 |
-| 09c | S1 (a pergunta é da sessão, não da view) | no branch da S1 |
-| 09d | S1-B (o vazio também rola: o teclado prendia quem filtrou até zero) | no branch da S1 |
-
-**Próxima livre: 09e.** (A `09a` não foi usada por ninguém e **fica vaga** — buraco
-não se reaproveita.)
-
-**A segunda troca da C1, e por que ela é da C1 e não da Q-H.** A C1 escreveu
-DUAS ADRs e o orquestrador tinha reservado UMA letra: a `08x`. A primeira ficou
-na `08w` que a colisão de 08/09 já tinha dado à Q-H, e a Q-H **mesclou** — a
-regra de "muda quem é mais barato de mover" não se aplica a quem já está em
-`main`, que não se move. Move a C1, como o orquestrador já tinha decidido
-(`LACO.md`, 08/09 22h20). A `08x` fica como estava.
+**A regra que faz o registro funcionar:** quem despacha atualiza este arquivo **no
+mesmo ato em que reserva**. Reservar de memória é como a `09d` saiu duas vezes no
+mesmo turno.

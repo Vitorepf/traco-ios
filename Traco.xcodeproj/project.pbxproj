@@ -372,8 +372,8 @@
 		9E3647BCEC3CE110E057EBC1 /* LinhaDeEstado.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinhaDeEstado.swift; sourceTree = "<group>"; };
 		A4B0FC29FDAE2DA9A9B41BC2 /* CalendarioAgenda.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarioAgenda.swift; sourceTree = "<group>"; };
 		A4D7AFFE24FE679844349AD3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		A7F9EF1327293B6565E807C2 /* CadernoAntigoAbreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CadernoAntigoAbreTests.swift; sourceTree = "<group>"; };
 		A52F94C2E4691C0B7230E405 /* PerguntaSobreviveUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PerguntaSobreviveUITests.swift; sourceTree = "<group>"; };
+		A7F9EF1327293B6565E807C2 /* CadernoAntigoAbreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CadernoAntigoAbreTests.swift; sourceTree = "<group>"; };
 		A810EC1AF4E17D4DB08A56B3 /* BarraNavegacao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarraNavegacao.swift; sourceTree = "<group>"; };
 		A8573C1126CAFCC2B2C727D3 /* EscritaVisivelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EscritaVisivelTests.swift; sourceTree = "<group>"; };
 		AAC68B6A9734928BF14264CD /* Rede.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Rede.swift; sourceTree = "<group>"; };
