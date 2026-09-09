@@ -1,0 +1,156 @@
+{
+ "repeticoes": 3,
+ "casos": [
+  {
+   "id": "espanhol-revisao-duracao",
+   "operacao": "revisar",
+   "entrada": {
+    "intencao": "Praticar espanhol sozinho",
+    "resultado": "Um treino utilizável de quinze minutos",
+    "instrucao": "Prepare três blocos de cinco minutos, com frases em espanhol e traduções em português. Sem parceiro, câmera ou instrutor.",
+    "artefato": "# Treino\nBloco 1: 5 minutos. Diga Hola (Olá).\nBloco 2: 10 minutos. Peça ao seu professor para corrigir a pronúncia.\nBloco 3: 5 minutos. Diga Gracias (Obrigado)."
+   },
+   "requisitos": [
+    "Identifica duração total de vinte minutos e bloco de dez em conflito com o pedido.",
+    "Identifica dependência de professor contrariando prática solo.",
+    "Citações são literais do artefato; não inventa problemas."
+   ]
+  },
+  {
+   "id": "ler-rascunho-q2-conhecido-preparar-espanhol-solo",
+   "operacao": "revisar",
+   "entrada": {
+    "intencao": "Quero conseguir me apresentar em espanhol numa viagem, começando do zero.",
+    "resultado": "Conseguir iniciar uma apresentação curta; hoje tenho quinze minutos sozinho.",
+    "instrucao": "Prepare um exercício solo para iniciante em três blocos de cinco minutos, total de quinze minutos. Não tenho instrutor, parceiro nem câmera. Quero escrever e depois falar minha apresentação: nome, cidade e profissão. Inclua apoio em espanhol com tradução correta em português para cada frase do exemplo. O exemplo resolvido deve usar uma situação diferente, como pedir uma informação na rua, sem escrever minha apresentação. Os critérios de feedback precisam ser verificáveis pela tentativa escrita; não haverá áudio.",
+    "apoio": "praticar",
+    "artefato": "# Exercício: Apresentar-se em espanhol com nome, cidade e profissão\n\nSituação: Em uma viagem para iniciar conversas com novas pessoas\n\nExercício em três blocos de cinco minutos. Bloco 1 (5 min): Leia o exemplo de pedir informação na rua com traduções em português para cada frase e o apoio adicional. Bloco 2 (5 min): Escreva sua apresentação em espanhol incluindo nome, cidade e profissão. Bloco 3 (5 min): Fale em voz alta sua apresentação escrita. O feedback avaliará somente a escrita. Apoio adicional: Me llamo [seu nome]. (Eu me chamo [seu nome].) Soy de [sua cidade]. (Sou de [sua cidade].) Soy [sua profissão]. (Sou [sua profissão].)\n\nExemplo resolvido: Exemplo resolvido para pedir uma informação na rua: Hola, disculpe. (Olá, desculpe.) ¿Puede decirme dónde está el banco? (Pode me dizer onde fica o banco?) Gracias por la ayuda. (Obrigado pela ajuda.)\n\nCritérios:\n- A tentativa escrita inclui o nome da pessoa.\n- A tentativa escrita inclui a cidade da pessoa.\n- A tentativa escrita inclui a profissão da pessoa.\n- As frases da tentativa estão em espanhol."
+   },
+   "requisitos": [
+    "Leia conteúdo integral contra as restrições: traduções corretas, apoio para iniciante e atividades completas. Identifique erros concretos sem inventar exigências."
+   ]
+  },
+  {
+   "id": "ler-rascunho-revisor-sintetico-espanhol-comida-2x4",
+   "operacao": "revisar",
+   "entrada": {
+    "apoio": "praticar",
+    "intencao": "Quero escrever pedidos simples de comida em espanhol, começando do zero.",
+    "resultado": "Escrever duas frases compreensíveis sem depender de outra pessoa.",
+    "instrucao": "Caso sintético do revisor. Tenho oito minutos sozinho, em dois blocos de quatro minutos. Quero escrever duas frases em espanhol: pedir água sem gás e pedir pão sem manteiga. Não haverá áudio. Ensine vocabulário e estruturas incompletas suficientes para eu montar minhas próprias frases, mas não escreva as duas respostas prontas. Dê um exemplo resolvido com outro pedido de comida, em espanhol com tradução portuguesa. Instruções em português. Não disponho de parceiro, câmera, professor nem tradutor. Os critérios devem avaliar apenas as duas frases que eu escrever.",
+    "artefato": "# Exercício: Escrever pedidos simples de comida em espanhol começando do zero\n\nSituação: Você está sozinho com oito minutos em dois blocos de quatro minutos para escrever duas frases em espanhol pedindo água sem gás e pão sem manteiga, sem áudio.\n\nEm oito minutos divididos em dois blocos de quatro minutos, escreva duas frases em espanhol. Use o primeiro bloco de quatro minutos para revisar o vocabulário e as estruturas e escrever a frase pedindo água sem gás. Use o segundo bloco para escrever a frase pedindo pão sem manteiga. Apoio: Vocabulário - agua (água), sin gas (sem gás), pan (pão), sin manteiga (sem manteiga), quiero (quero), por favor (por favor). Estruturas incompletas: 'Quiero [item] sin [ingrediente]. Por favor.' Monte suas próprias frases sem ajuda externa. O feedback avaliará somente a escrita.\n\nExemplo resolvido: Exemplo resolvido com outro pedido: 'Quiero un té sin limón.' (Quero um chá sem limão.)\n\nCritérios:\n- As duas frases estão em espanhol.\n- A primeira frase solicita água sem gás de forma compreensível.\n- A segunda frase solicita pão sem manteiga de forma compreensível.\n- As frases utilizam vocabulário e estrutura fornecida."
+   },
+   "requisitos": [
+    "Leia conteúdo integral contra as restrições: traduções corretas, apoio para iniciante e atividades completas. Identifique erros concretos sem inventar exigências."
+   ]
+  },
+  {
+   "id": "q2-conhecido-preparar-espanhol-solo",
+   "operacao": "prepararPratica",
+   "entrada": {
+    "intencao": "Quero conseguir me apresentar em espanhol numa viagem, começando do zero.",
+    "resultado": "Conseguir iniciar uma apresentação curta; hoje tenho quinze minutos sozinho.",
+    "instrucao": "Prepare um exercício solo para iniciante em três blocos de cinco minutos, total de quinze minutos. Não tenho instrutor, parceiro nem câmera. Quero escrever e depois falar minha apresentação: nome, cidade e profissão. Inclua apoio em espanhol com tradução correta em português para cada frase do exemplo. O exemplo resolvido deve usar uma situação diferente, como pedir uma informação na rua, sem escrever minha apresentação. Os critérios de feedback precisam ser verificáveis pela tentativa escrita; não haverá áudio.",
+    "apoio": "praticar"
+   },
+   "requisitos": [
+    "Caso conhecido derivado da prova 6; não é avaliação cega nem held-out.",
+    "Enunciado define uma produção escrita concreta de apresentação e uma prática oral executável sozinho por iniciante.",
+    "Há três blocos explicitamente de cinco minutos; as atividades não somam menos nem mais de quinze minutos e não dependem de instrutor, parceiro ou câmera.",
+    "O exemplo resolve outro caso de fato; cada frase em espanhol tem tradução correta em português, sem fornecer a apresentação-alvo.",
+    "De dois a seis critérios verificáveis no texto, sem julgar pronúncia, fluência oral, gestos, tempo realmente praticado ou aprendizagem.",
+    "Explicita o limite: a tentativa escrita não permite verificar desempenho oral. Nenhuma recusa ou indisponibilidade conta como entrega utilizável."
+   ]
+  },
+  {
+   "id": "revisor-sintetico-resumo-projeto-2x5",
+   "operacao": "prepararPratica",
+   "entrada": {
+    "apoio": "praticar",
+    "intencao": "Quero aprender a escrever atualizações curtas de projeto em português.",
+    "resultado": "Escrever três frases que distingam concluído, pendência e próximo passo.",
+    "instrucao": "Caso sintético do revisor. Tenho dez minutos sozinho, em dois blocos de cinco. Prepare um exercício escrito para iniciante usando este caso fictício: o rascunho ficou pronto; a revisão ainda depende da resposta de Lia; amanhã vou perguntar a Lia quando ela poderá revisar. A tarefa é eu escrever uma atualização de exatamente três frases, separando o que foi concluído, a dependência e o próximo passo, sem dizer que a revisão já aconteceu. Ensine a estrutura mínima e dê um exemplo resolvido de outro projeto, com fatos diferentes, sem escrever a resposta do caso-alvo. Tudo em português. Não enviar mensagem alguma nem exigir contato real. Critérios verificáveis apenas no texto que eu produzir."
+   },
+   "requisitos": [
+    "Tarefa distinta e sintética do revisor, sem mensagem a terceiros; três execuções.",
+    "Enunciado inclui todos os fatos necessários e pede exatamente três frases; blocos 5+5 minutos.",
+    "Exemplo resolve outro projeto e demonstra concluído, pendência e próximo passo, sem fornecer a resposta-alvo.",
+    "Apoio permite iniciante distinguir estado concluído de expectativa; não ensina assumir resposta de Lia ou revisão feita.",
+    "Dois a seis critérios observáveis na atualização, que avaliam os três estados e fidelidade aos fatos; não exigem frase literal ou avaliam qualidade do exemplo.",
+    "Nenhuma promessa de produtividade, conclusão do projeto ou aprendizagem observada."
+   ]
+  },
+  {
+   "id": "q2-conhecido-preparar-apresentacao-proposta",
+   "operacao": "prepararPratica",
+   "entrada": {
+    "intencao": "Quero apresentar minha proposta de oficina de desenho aos moradores do prédio.",
+    "resultado": "Ter clareza para explicar público, benefício e próximo passo sem inventar resultados.",
+    "instrucao": "Prepare um exercício de escrita para uma apresentação curta de até 80 palavras. Público: moradores iniciantes; proposta: oficina gratuita de desenho no salão, sábado às 10h; próximo passo: avisar interesse na portaria até sexta. Não há inscrições confirmadas nem aprovação do condomínio. Quero praticar explicar benefício e convite, não postura ou voz. Dê um exemplo resolvido de outro assunto, como clube de leitura, sem redigir minha proposta. Tenho dez minutos, sozinho e sem câmera.",
+    "apoio": "praticar"
+   },
+   "requisitos": [
+    "Caso conhecido criado nesta sessão para ampliar a regressão; não é held-out.",
+    "Enunciado pede texto de até 80 palavras e preserva os dados da proposta sem transformar hipótese em evento aprovado ou inscrições confirmadas.",
+    "Distribuição de trabalho cabe em dez minutos e é executável sozinho sem câmera.",
+    "Exemplo resolvido de clube de leitura ou outro assunto mostra público, benefício e próximo passo, preservando a autoria da proposta-alvo.",
+    "Critérios avaliam no texto clareza de público, benefício, convite e fidelidade aos dados; não avaliam voz, postura, persuasão real ou adesões futuras.",
+    "Não exige recurso, publicação ou contato externo para completar o exercício; entrega é utilizável sem inferir aprendizagem."
+   ]
+  },
+  {
+   "id": "qn-preparar-criterio-so-do-que-esta-escrito",
+   "operacao": "prepararPratica",
+   "entrada": {
+    "intencao": "Quero apresentar melhor as minhas ideias por escrito no trabalho.",
+    "resultado": "Praticar hoje, em dez minutos, sozinho, escrevendo.",
+    "instrucao": "Prepare um exercício de dez minutos em que eu escreva um parágrafo defendendo uma escolha técnica. Não haverá gravação, áudio nem leitor externo: só o texto que eu escrever será conferido. Quero critérios que eu mesmo possa verificar lendo o meu parágrafo.",
+    "apoio": "praticar"
+   },
+   "requisitos": [
+    "NOVO desta corrida, autorado pelo implementador; não é caso cego nem held-out.",
+    "O enunciado define uma produção escrita concreta, executável sozinho em dez minutos.",
+    "De dois a seis critérios, todos verificáveis lendo o texto escrito.",
+    "Nenhum critério julga tom de voz, pronúncia, convencimento do ouvinte, tempo realmente gasto ou aprendizagem.",
+    "Se traz exemplo, ele resolve outro caso e não escreve o parágrafo-alvo.",
+    "Recusa ou indisponibilidade não contam como entrega."
+   ]
+  },
+  {
+   "id": "qn-preparar-outro-dominio-planilha",
+   "operacao": "prepararPratica",
+   "entrada": {
+    "intencao": "Quero parar de somar coluna na mão na planilha do caixa.",
+    "resultado": "Conseguir escrever a fórmula sozinho hoje, em dez minutos.",
+    "instrucao": "Prepare um exercício de dez minutos para eu praticar somar um intervalo de células numa planilha. Sou iniciante e vou usar uma planilha vazia que eu mesmo preencho. Nada de vídeo, curso ou instrutor. Os critérios precisam ser conferíveis olhando a fórmula que eu escrever.",
+    "apoio": "praticar"
+   },
+   "requisitos": [
+    "NOVO desta corrida, autorado pelo implementador; não é caso cego nem held-out.",
+    "Exercício executável sozinho em dez minutos com planilha vazia, sem vídeo, curso ou instrutor.",
+    "A produção pedida é concreta: uma fórmula escrita pelo autor sobre dados que ele mesmo cria.",
+    "De dois a seis critérios verificáveis na fórmula escrita, sem julgar velocidade ou aprendizagem.",
+    "O exemplo, se houver, usa outro intervalo e não entrega a fórmula-alvo pronta.",
+    "Sair do domínio pedido (ensinar contabilidade, propor outro programa) reprova."
+   ]
+  },
+  {
+   "id": "qn-produzir-combinar-sem-resolver-a-pratica",
+   "operacao": "produzir",
+   "entrada": {
+    "intencao": "Quero conseguir explicar o meu projeto em dois minutos.",
+    "resultado": "Ter hoje um roteiro pronto para a parte que eu delego e um trecho para eu mesmo escrever.",
+    "instrucao": "Divida em duas partes. A parte delegada: escreva a abertura de quinze segundos que apresenta o projeto como um aplicativo de notas que reconhece a forma do que a pessoa escreve. A parte que eu vou exercitar: o fecho com o pedido concreto ao ouvinte. Escreva a abertura por inteiro e NÃO escreva o fecho — só descreva o que ele precisa conter.",
+    "apoio": "combinar",
+    "trechoExercitado": "o fecho com o pedido concreto ao ouvinte"
+   },
+   "requisitos": [
+    "A abertura de quinze segundos vem escrita por inteiro e é utilizável em voz alta.",
+    "O fecho NÃO é escrito: nenhuma frase pronta de pedido ao ouvinte aparece no retorno.",
+    "A descrição do que o fecho precisa conter é observável pelo autor, sem resolver a tarefa por ele.",
+    "Não afirma que o autor já ensaiou, apresentou ou aprendeu.",
+    "Entregar as duas partes escritas, ou só uma delas, reprova o caso."
+   ]
+  }
+ ]
+}

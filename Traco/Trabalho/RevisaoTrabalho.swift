@@ -202,7 +202,7 @@ enum RevisaoTrabalho {
                         janela: () -> Int = { janelaPadrao },
                         chamar: (String, String) async -> (texto: String, provedor: String)? = {
                             guard let texto = await Grok.responder(sistema: $0, usuario: $1,
-                                temperatura: 0.2, timeout: 90, esquema: esquemaRemoto, esforco: "medium", modelo: Grok.modeloTrabalho) else { return nil }
+                                temperatura: 0.2, timeout: Grok.tetoTrabalho, esquema: esquemaRemoto, esforco: "medium", modelo: Grok.modeloTrabalho) else { return nil }
                             return (texto, "Grok")
                         }) async -> DocumentoTrabalho.Conferencia {
         func registro(_ estado: DocumentoTrabalho.EstadoConferencia, executor: String,

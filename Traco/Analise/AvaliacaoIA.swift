@@ -104,6 +104,7 @@ enum AvaliacaoIA {
                     try Task.checkCancellation()
                     Grok.esquecerMemo()
                     _ = Grok.retirarDiagnosticos()
+                    _ = MotorTrabalho.retirarRecusasDaPreparacao()
                     PadroesRemoto.esquecerMemo()
                     var registro: [String: Any] = ["id": caso.id, "operacao": caso.operacao,
                         "repeticao": repeticao, "entrada": try objeto(caso.entrada),
@@ -120,6 +121,10 @@ enum AvaliacaoIA {
                         registro["erro"] = String(reflecting: error)
                     }
                     registro["chamadasGrok"] = try objeto(Grok.retirarDiagnosticos())
+                    // ADR 08p: quando o provedor entrega e o nosso contrato
+                    // recusa, a linha redigida diz qual guarda foi.
+                    let recusas = MotorTrabalho.retirarRecusasDaPreparacao()
+                    if !recusas.isEmpty { registro["recusasDaPreparacao"] = recusas }
                     let duracao = inicio.duration(to: .now).components
                     registro["duracaoSegundos"] = Double(duracao.seconds) + Double(duracao.attoseconds) / 1e18
                     registro["evento"] = "casoConcluido"
@@ -187,13 +192,14 @@ enum AvaliacaoIA {
             return try objeto(await MotorTrabalho.conferirTentativa(pratica: exigir(e.pratica, "pratica"),
                 tentativa: exigir(e.tentativa, "tentativa"), apoioUtilizado: exigir(e.apoioUtilizado, "apoioUtilizado")))
         case "responderNasNotas":
-            if let fontes = e.fontes {
-                let r = try exigir(await Sabia.responderNasNotas(pergunta: exigir(e.pergunta, "pergunta"),
-                    fontes: fontes, retrato: e.retrato ?? ""))
-                return ["texto": r.texto, "fontesEnviadas": try objeto(r.enviadas), "fontesCitadas": try objeto(r.citadas)]
-            }
-            return try exigir(await Sabia.responderNasNotas(pergunta: exigir(e.pergunta, "pergunta"),
-                contexto: e.contexto ?? "", retrato: e.retrato ?? ""))
+            // ADR 08q: `fontes` é OBRIGATÓRIO. A conveniência que aceitava
+            // `contexto` embrulhava a prosa inteira numa fonte sintética
+            // chamada "Contexto fornecido" — um título do próprio app, que a
+            // medida de 08/09 leu como atribuição genérica do provedor. A
+            // sonda só exercita a rota que a produção usa (Sessao.responderNasNotas).
+            let r = try exigir(await Sabia.responderNasNotas(pergunta: exigir(e.pergunta, "pergunta"),
+                fontes: exigir(e.fontes, "fontes"), retrato: e.retrato ?? ""))
+            return ["texto": r.texto, "fontesEnviadas": try objeto(r.enviadas), "fontesCitadas": try objeto(r.citadas)]
         case "responder":
             return try exigir(await Sabia.responder(pergunta: exigir(e.pergunta, "pergunta"),
                 contexto: e.contexto ?? "", gesto: gesto, retrato: e.retrato ?? ""))

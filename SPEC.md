@@ -6501,3 +6501,226 @@ VoiceOver estão proibidos no Traço — o áudio de qualquer simulador sai pela
 caixas do Mac do autor. A acessibilidade desta tela se prova por árvore de AX
 (cabeçalho → o que houve → onde está o conteúdo → ação → detalhe técnico) e por
 captura, que é o que a lei manda. A ordem de leitura está provada; a fala, não.
+## ADR 2026-09-08q — Quem responde, medido COM a conta: a quarta regra da tabela (volta Q)
+
+*(Letra corrigida na Q-E, 08/09: esta ADR nasceu `2026-09-08k` e a letra já estava tomada em `main` pela V17-B, "A garantia sai da tela e vira invariante do documento". As mensagens de commit anteriores a esta correção ainda dizem `08k`.)*
+
+**A distância.** A 07b decidiu onde o modelo do aparelho NÃO entra, e disse com todas as letras o que faltava: "nenhuma operação tem medição com Grok; a conta não existe em nenhum simulador". A conta passou a existir em 08/09, num aparelho só — o iPhone 17 Pro `C2416CBC`, autorizado pelo dono. Nove operações estavam em "só Grok" por PRESUNÇÃO: o aparelho tinha reprovado, e ninguém tinha medido se o Grok servia.
+
+**A medida.** Sonda `AvaliacaoIA` pelo caminho de produção (`TRACO_AVALIAR_IA`, ADR 07a), 16 operações × 6 casos × 3 execuções em três lançamentos distintos, sem memo; fixture `prova/q-qualidade-casos.json` sha256 `29654d46…`; saídas inteiras em `prova/q-qualidade-avaliacoes.jsonl`; leitura em `ferramentas/orca/q-qualidade.md`. `contaGrokLigada: true` em todos os registros, e a corrida de fumaça devolveu a listagem autenticada de modelos. Um caso só passa se as TRÊS execuções cumprirem todos os requisitos obrigatórios; média não aprova nada.
+
+**Qual binário, e a correção de 08/09 (achado do G3, corrigido na volta Q-B).** Esta ADR dizia "candidato `325c819`", e `325c819` **não implementa nada disto**: ele só acrescenta `ferramentas/orca/LACO.md`. O commit que carrega a decisão — a quarta regra, a sobrecarga morta apagada, a sonda exigindo `fontes`, e as quinze provas — é **`acdfcb4`**, e é ele o candidato desta ADR. Conferível hoje no aparelho do dono: o `Traco.debug.dylib` instalado do build de `acdfcb4` traz `indisponivelPorQualidade`, `medidaEm` e `conserto`, e `nm` só encontra a assinatura `responderNasNotas(pergunta:fontes:…)` — a de `contexto:` não existe mais.
+
+E há um fato que a redação antiga escondia atrás de um hash só: **a corrida não foi de um binário, foi de dois**, e o JSONL prova qual é qual pela própria entrada dos casos.
+
+| corridas | árvore construída | bundle conferido por sha256 | como se sabe |
+|---|---|---|---|
+| `05D574C2`, `D91E98DE`, `F4D24F76` — a matriz de 16 × 6 × 3 | a de `325c819` (é `main` antes da volta Q) | `Traco` `504d29d7…`, `Traco.debug.dylib` `2152892a…` | os três casos de `responderNasNotas` com `contexto` **concluíram com saída**, e só a sonda anterior aceitava `contexto` |
+| `1FB24380`, `60B40CFE`, `B7A619E5` — a remedição com fontes tipadas | a que virou `acdfcb4` | o mesmo aparelho, instalado por cima | os casos `…-tipada-q` exigem `fontes`, o que só a sonda de `acdfcb4` faz |
+
+A troca de binário no meio da volta **não contamina a matriz**: o que `acdfcb4` mudou em execução foi a sonda (passou a exigir `fontes`) e a tabela `Politica` — e a tabela é CONSEQUÊNCIA da medida, não entrada dela; nas quatro rotas de Trabalho `desceAoAparelho` já era falso na 07b, antes e depois. O que a troca custa é dito, e é isto: os hashes `504d29d7…`/`2152892a…` atestam o binário da **matriz**, não o da remedição, e nenhum dos dois é o binário que hoje serve a decisão.
+
+**O que o SPEC tem direito de escrever, e é só isto:** neste candidato identificado, nesta data e nestas condições, cada rota atendeu N de 6 casos obrigatórios e K de 18 execuções, com leitura por dimensão; a política habilita os executores aprovados NESSE escopo e torna os demais indisponíveis com explicação e continuação. Seria mentira escrever "IA ≥ 9 sempre", "Grok aprovado nas dezesseis", "fallback equivalente" sem prova dele, ou que o autor aprendeu qualquer coisa.
+
+**A decisão: a quarta regra.** `Politica.Regra` ganha `indisponivelPorQualidade`. A linha da tabela FICA, com operação, motivo datado e a prova; o que sai é o EXECUTOR. Ela existe porque as três regras anteriores não sabiam distinguir "falta conta" de "foi medido e não serviu" — e mandar conectar uma conta que já existe é mentira na tela. `provedor()` devolve `nil`, `desceAoAparelho()` é falso, e `semProvedor()` diz o que está indisponível, por quê em uma frase, e qual é a continuação que funciona; não pede para conectar conta e não promete guardar nada (quem guardou é que diz, depois de confirmar).
+
+**A tabela, antes e depois.**
+
+| operação | 07b | 08q | por quê |
+|---|---|---|---|
+| produzir, prepararPratica, conferirTentativa, revisar | só Grok | **só Grok** | o conteúdo serve quando responde; o que falha é tempo, não qualidade (ver abaixo) |
+| conferir | só Grok | **só Grok** | 6 de 6 casos, 18 de 18 execuções |
+| padroes | só Grok | **só Grok** | 6 de 6 casos, 18 de 18 execuções |
+| **ecos** | só Grok | **indisponível por qualidade** | 3 de 6. Devolve `[]` onde o vínculo mais serve: 18 inscritos contra "a sala 7 comporta no máximo 15 pessoas" |
+| **calibragem** | só Grok | **indisponível por qualidade** | 2 de 6. Cala quando não há erro a apontar, e com um par só a rota nem chega ao provedor |
+| **recordar** | só Grok | **indisponível por qualidade** | 1 de 6. Vazou o alvo ("Por que a sala 7 não pode receber mais que 15 pessoas?"); quando a guarda `Prova.vaza` suprimiu a pergunta, o autor ficou sem nada |
+| **responder** | Grok, depois o aparelho | **indisponível por qualidade** | 3 de 6, por FABRICAÇÃO: "A biblioteca municipal do seu bairro abre às 13h"; "1.650 km… R$ 1.072,50" num pedido em que o autor disse não ter distância, consumo nem preço |
+| **instigar**, **contrapor** | Grok, depois o aparelho | **indisponível por qualidade** | 1 de 6 cada. Instigar devolve o vocabulário do próprio prompt ("o movimento básico que se pula", "a nota DEGRAU 0"); contrapor sustenta o contraponto em fato inventado ("metanálises de 2022", "na construção naval do século XV o preço era 12 % menor") |
+| **responderNasNotas** | Grok, depois o aparelho | **indisponível por qualidade**, no grupo com conserto nomeado | remedida com fontes tipadas (ressalva 1): 4 de 6. Cita a nota certa e resiste a instrução hostil, mas recusa por inteiro quando falta o fato atual, sem usar o que as notas trazem, e deixa escapar os rótulos `N1T1`/`N2T1` no texto do autor |
+| vestir, classificar | Grok, depois o aparelho | **inalteradas** | ver a ressalva 2 abaixo |
+| dominio | só o aparelho | **só o aparelho** | 4 de 6; o mesmo texto voltou `trabalho`, `estudo` e `casa` em três execuções. Instabilidade registrada, sem trocar de executor: não há outro medido |
+
+O corte tem DOIS grupos, e a tela precisa distingui-los: **cinco sem substituto medido** (`ecos`, `calibragem`, `recordar`, `instigar`, `contrapor`) e **duas com conserto nomeado, em correção** (`responder`, `responderNasNotas`). `Politica.Linha` ganhou `medidaEm` e `conserto` para que o Perfil leia a distinção da tabela em vez de guardar uma cópia que envelhece sozinha. Nenhuma das sete cortadas tem substituto: quatro já constavam como reprovadas no aparelho na 07b, e para as outras três o aparelho **não foi medido** — e só substitui quem passar a MESMA matriz e o mesmo limiar. Aviso de qualidade foi descartado: aviso não transforma resultado insuficiente em ajuda aprovada. Descer ao aparelho por ser "menos ruim" também.
+
+**Ressalva 1, e ela vai contra nós: a medida anterior de `responderNasNotas` foi INVÁLIDA POR DEFEITO DO INSTRUMENTO, não do provedor.** `Sabia.responderNasNotas(pergunta:contexto:)` não tinha nenhum chamador de produção — só a sonda — e embrulhava a prosa inteira numa `FonteNotas` sintética de título "Contexto fornecido". A "atribuição genérica do Grok" que quase virou linha de SPEC era um título que o PRÓPRIO APP fabricou. A sobrecarga foi apagada e a sonda passa a exigir `fontes`; os casos foram reescritos com fontes tipadas (`prova/q-qualidade-notas-tipadas.json`, `ea68b976…`) e remedidos em três execuções. O resultado NOVO — 4 de 6, com o caso do conflito entre notas passando a acertar — é o que decide, e ele reprova assim mesmo. As bases de 07/09 e as de `prova/cinco-itens-*` usam a mesma conveniência nesses casos: aquelas linhas medem a rota morta, e ficam registradas assim, sem reescrita de prova alheia.
+
+**Ressalva 2: `vestir` não teve o Grok exercitado em nenhum dos seis casos** — a forma local resolveu antes, como a 07a previu. A rota do Grok em `vestir` continua NÃO MEDIDA, e nada se habilita nem se corta com base nesta volta. A única falha de `vestir` (vestir de título e lista um texto que pedia "não quero organizar isso em tópico nenhum") e a única de `classificar` (Destaque numa lista de compras) são da REGRA LOCAL, com o modelo calado — não são matéria de tabela de provedor.
+
+**Defeito de disponibilidade, medido aqui e consertado na 08r.** São **20** falhas de transporte, não 12: o número 12 estava errado nesta ADR e no EVOLUCAO, e a soma da própria tabela já o desmentia — 11 + 6 + 3 = 20. Recontadas linha a linha no JSONL em 08/09 pela Q-B, são **20 de 72** chamadas a `grok-4.6`, todas nas quatro rotas de Trabalho, que pedem raciocínio e tinham teto de 90 s: prepararPratica 11 de 18 (61 %), revisar 6 de 18, produzir 3 de 18, conferirTentativa 0 de 18 — sempre aos 91 s, e sempre concentradas nos mesmos nove casos. As rotas em `grok-4.3` tiveram 0 falhas em **177** chamadas na matriz, e 0 em **186** contando as 9 da remedição com fontes tipadas — os dois números são o mesmo fato com denominador diferente, e ficam escritos os dois para não virarem uma terceira contradição. `prepararPratica` fica em **1 de 6 casos** por causa disso, não por conteúdo. Para o autor, uma operação que falha metade das vezes por tempo é uma operação que não está lá — e por isso o conserto virou ADR própria: **2026-09-08r**.
+
+**O limite desta prova, escrito porque ela é sobre medir.** O JSONL da sonda **não é transcrição integral do provedor**: guarda o retorno das APIs de domínio, não o bruto que os parsers descartam. O hash atesta identidade dos bytes comparados, não correção nem execução do binário alegado. `modeloRespondido` ausente significa identidade não confirmada. Duração e esforço solicitado não provam raciocínio efetivo. Os 59 casos novos foram escritos pelo implementador e lidos por ele: **não são teste cego nem held-out**, e a aprovação final exige casos novos de um revisor que não os tenha visto. Uma amostra finita não prova "sempre". E a lição que custou esta volta: hash de fixture e JSONL completo **não impedem medir a rota errada** — "qual executor e qual caminho foram realmente observados" se responde lendo o chamador, caso a caso.
+
+**A superfície.** As telas que já liam a tabela (`RecordarView`, `RedeView`, `PadroesView`, `OficinaTrabalho`) passam a mostrar a frase nova sem mudança de view. O **Perfil** precisa de uma TERCEIRA linha — hoje ele imprime só `pelaConta` e `peloAparelho`, e uma operação cortada sumiria das duas; `Politica.indisponiveis` existe para ela. Frente de front-end aberta pelo orquestrador; enquanto ela não fecha, o corte está no motor e **não** está dito no Perfil. Suíte: 911 testes em 148 suítes, zero falhas.
+
+## ADR 2026-09-08p — Por que o NOSSO parser recusou, dito por ele mesmo (volta Q-C)
+
+**A distância.** A 08r mediu que **3 de 15** execuções de `prepararPratica` não entregavam nada ao autor **depois** de o provedor ter entregue inteiro — HTTP 200, `finish_reason: stop`, `grok-4.6` confirmado, 3.777 a 6.865 tokens de raciocínio — e escreveu, honestamente, que quem recusou foi o nosso contrato de domínio. Mas parou aí. O re-G3 reprovou por isso e tem razão: `parsePreparacao` e `validar` são **onze guardas** e o JSONL guardava um `nil`. "O provedor devolveu conteúdo inválido" e "uma regra nossa é estreita" continuavam sendo inferências concorrentes, e ninguém pode decidir sobre uma régua que não consegue ler. **É a mesma lei que esta volta inteira aplicou ao provedor: falha sem motivo legível não é medida.** Nós a aplicávamos a ele e não a nós.
+
+**A decisão: a recusa tem nome, e o nome não custa o bruto.** `PraticaTrabalho.Recusa` é um enum com doze casos; `lerPreparacao` e `provar` devolvem `Result<_, Recusa>` e são a ÚNICA cópia das regras — `parsePreparacao` e `validar` viram `try? …get()`, para que a régua e o motivo nunca divirjam em silêncio. Cada caso redige **uma linha**: a categoria (`forma`, `limite`, `repetição`, `exemplo`, `vazamento`), o campo e uma **medida** — contagem, tamanho, índice do critério, nome de chave truncado em 32. Não vai o texto do exercício, que é a prática da pessoa, nem credencial, nem o bruto: exatamente a categoria que o revisor recomendou, mais o campo que ela sozinha não dá. No caso do vazamento o motivo precisa dizer mais que "vazou" — e é aí que a primeira redação desta ADR errou. Ela gravava o **quadrigrama normalizado** que casou, e o re-G3 reprovou com razão: tirar acento e pontuação não tira o conteúdo. O trecho é, por definição, texto do EXEMPLO; um exemplo com dado pessoal, texto selado ou credencial em quatro palavras seria publicado pela sonda. E o pedido que gerou o furo foi meu: pedi o trecho para provar o diagnóstico.
+
+**A correção: posição e contagem, nunca o trecho.** A recusa por vazamento registra (a) qual critério, (b) a partir de qual palavra do exemplo, de quantas, e (c) **quantas das palavras do trecho o AUTOR já tinha escrito neste pedido** — objetivo, resultado e instrução vigente, os três campos que a sonda já grava em `entrada` e que o leitor pode conferir sozinho. O trecho existe dentro de `provar` e morre lá. `Prova.vazamento` devolve `(trecho, palavra, de)` e `Prova.vaza` continua sendo `vazamento(…) != nil` — uma implementação, dois usos, para não haver duas contas de quatro palavras. O pedido do autor **não entra na régua**: nada passa nem cai por causa dele, e sem ele a recusa diz "origem não conferida" em vez de supor zero. **A garantia é ESTRUTURAL, e o teste prova pela forma** (correção da Q-F, 08/09): `Recusa` não tem campo nenhum que carregue o trecho, e `nenhumCampoDaRecusaCarregaPalavraDoExercicio` varre a serialização inteira — a linha redigida mais o dump do valor com todos os campos associados — de um caso de cada uma das doze guardas, contra um exercício em que cada palavra é um marcador inventado, oito deles de 1 a 4 letras, conferidos por igualdade de token normalizado. Campo novo com o texto derruba o teste; caso novo sem varredura derruba a conta de doze. A fronteira que fica aberta está dita no próprio teste: `chavesForaDoContrato` ecoa o NOME da chave a mais que veio na resposta, cortado em 32 caracteres.
+
+**Por que contagem por palavra, e o que ela não garante.** Exigir as quatro palavras SEGUIDAS no pedido seria quase sempre falso — o autor escreve "separando o que foi concluído, a dependência e o próximo passo", não a frase do exemplo — e não distinguiria nada. Contar palavra a palavra distingue, mas palavra funcional ("a", "de") infla a conta: por isso **só o valor cheio** (todas as palavras do trecho já escritas pelo autor) sustenta sozinho "isto é vocabulário do pedido"; qualquer valor menor é indício e está escrito como indício. O hash do quadrigrama foi considerado e recusado: continua sendo oráculo de confirmação para quem tenha um palpite do texto, e não responde a pergunta que a ADR faz. O teste de privacidade agora procura a forma NORMALIZADA — o furo que o re-G3 achou era procurar só "¿dónde está la estación?" quando a saída seria "donde esta la estacion" — e varre palavra a palavra do exemplo em cada uma das doze linhas redigidas.
+
+Em DEBUG, `MotorTrabalho.prepararPratica` guarda a linha e a sonda a retira com `retirarRecusasDaPreparacao()`, do mesmo jeito que retira os diagnósticos do Grok; a chave `recusasDaPreparacao` só aparece no JSONL quando houve recusa.
+
+**A remedição, no aparelho do dono, com a conta ligada.** `C2416CBC`, install **por cima** (sem `uninstall`, `erase`, `clearState` nem `xcodebuild test`), conta conferida por listagem **autenticada** de 12 modelos na abertura (corrida `2DFC05C3`, 20h55Z), em cada um dos registros e no fecho (`qc-fumaca-fecho`, 21h58Z, os mesmos 12). Dois lançamentos: `2DFC05C3` com 5 repetições dos dois casos e `0065BE4A` com 4, já com o quadrigrama exposto. **18 execuções de `prepararPratica`, 18 respostas HTTP 200 completas de `grok-4.6`, 5 recusas nossas.** Fixtures `prova/qc-recusa-casos.json` (`df2fc8bb…`) e `prova/qc-recusa2-casos.json` (`5a65ccdf…`); saídas inteiras em `prova/qc-recusa-avaliacoes.jsonl`.
+
+| corrida | caso | execução | motivo redigido |
+|---|---|---:|---|
+| 2DFC05C3 | revisor-sintetico-resumo-projeto-2x5 | 2 | vazamento · o critério 4 repete quatro palavras seguidas do exemplo |
+| 2DFC05C3 | q2-conhecido-preparar-apresentacao-proposta | 1 | vazamento · o critério 5 repete quatro palavras seguidas do exemplo |
+| 2DFC05C3 | q2-conhecido-preparar-apresentacao-proposta | 2 | vazamento · o critério 4 repete quatro palavras seguidas do exemplo |
+| 2DFC05C3 | q2-conhecido-preparar-apresentacao-proposta | 3 | vazamento · o critério 4 repete quatro palavras seguidas do exemplo |
+| 0065BE4A | revisor-sintetico-resumo-projeto-2x5 | 4 | vazamento · o critério 3 repete do exemplo as quatro palavras seguidas **“a dependencia ainda aberta”** |
+
+(Esta última linha é a redação ANTIGA, que carregava o trecho. Fica registrada porque o caso é **sintético e autorizado** — a régua da volta permite JSONL completo dessas entradas — e porque apagar a história para parecer limpo seria pior que declará-la. O mecanismo mudou: nenhuma recusa produz mais trecho.)
+
+**Cinco de cinco na MESMA guarda.** Nenhuma recusa foi de forma, de chave, de limite, de critério repetido ou de exemplo contido no enunciado: as onze outras guardas não dispararam uma vez. A recusa é **uma** — `Prova.vaza(criterio, alvo: exemplo)`, a última linha de `provar`.
+
+**A segunda remedição (volta Q-D): a causalidade medida caso a caso, sem o trecho.**
+O re-G3 disse, com razão, que a conclusão "o defeito é nosso" estava provada em UMA das
+cinco recusas — só a quinta tinha quadrigrama. As outras quatro não têm como ser
+recuperadas: o bruto foi corretamente descartado e as corridas passaram. Então em vez de
+inferir, **remedi com o instrumento novo**. `C2416CBC`, install por cima, sem `uninstall`,
+`erase`, `clearState` nem `xcodebuild test`; conta conferida por listagem **autenticada** de
+12 modelos na abertura e no fecho (`qd-fumaca-abertura`/`qd-fumaca-fecho`) e
+`contaGrokLigada: true` em cada registro. Corrida `1B7E0E63`, os mesmos dois casos,
+6 repetições: **12 execuções de `prepararPratica`, 12 HTTP 200 completos de `grok-4.6`,
+4 recusas nossas.** Fixture `prova/qd-origem-casos.json` (`6e38dfbe…`), saídas inteiras em
+`prova/qd-origem-avaliacoes.jsonl` (`fd60c7c8…`).
+
+| caso | exec. | guarda | posição | origem |
+|---|---:|---|---|---|
+| revisor-sintetico-resumo-projeto-2x5 | 3 | **limite** | enunciado com 1582 caracteres, teto 1500 | — |
+| revisor-sintetico-resumo-projeto-2x5 | 4 | vazamento | critério 3, palavra 19 de 95 | **4 das 4** já escritas pelo autor |
+| q2-conhecido-preparar-apresentacao-proposta | 4 | vazamento | critério 5, palavra 80 de 85 | **4 das 4** já escritas pelo autor |
+| q2-conhecido-preparar-apresentacao-proposta | 5 | vazamento | critério 4, palavra 73 de 78 | **4 das 4** já escritas pelo autor |
+
+**O veredito, caso a caso, e ele não é arredondado para o nosso lado.** Nas **três** recusas
+por vazamento desta corrida, **as quatro palavras do trecho já estavam no pedido do autor —
+3 de 3 no valor cheio**. Com a quinta recusa da 08p (`“a dependencia ainda aberta”`, cujo
+vocabulário está na instrução), são **4 ocorrências com evidência exposta, 4 apontando para
+NÓS**. As **quatro recusas da corrida `2DFC05C3` continuam sem evidência individual** e
+assim ficam escritas: não foram contadas a favor.
+
+**O que isso NÃO prova.** A conta é por palavra, não por sequência; o pedido do autor tem
+93 palavras distintas num caso e 70 no outro, e palavra funcional ("a", "de", "o") entra na
+conta. Um trecho de quatro palavras funcionais daria 4 de 4 sem dizer nada. O que sustenta a
+leitura aqui é o valor CHEIO em três de três, num alvo de 70–93 palavras distintas — indício
+forte, não teorema. E a leitura de fundo continua a mesma: em `provar` o `alvo` de
+`Prova.vaza` é o EXEMPLO, que o nosso próprio prompt manda ser de outro caso e nunca a
+resposta-alvo; em Recordar o `alvo` É a resposta. Herdamos a régua sem herdar a premissa.
+
+**Uma correção de fato contra a 08p original: as outras guardas DISPARAM.** A redação
+anterior dizia "as onze outras guardas não dispararam uma vez", e isso valia para 18
+execuções. Em 12 novas, `limite · enunciado tem 1582 caracteres e o teto é 1500` disparou uma
+vez — guarda de tamanho, não de vazamento, e nada a ver com a régua importada. Somando as
+duas remedições: **30 execuções, 9 recusas (30 %), 8 por vazamento e 1 por limite.** A
+recusa por vazamento é DOMINANTE, não exclusiva, e a ADR passa a dizer isso.
+
+**E mesmo assim o parser NÃO muda nesta volta.** Alargar contrato de validação é volta própria, com régua antes do conserto, e por três razões que valem mais que a pressa: (1) a guarda protege de verdade contra o caso em que o exemplo É o caso-alvo disfarçado, e desligá-la sem uma régua nova reabre isso; (2) trocar o `alvo` de `exemplo` para "o que a pessoa deve produzir" exige nomear esse alvo, que hoje o contrato não tem campo para dizer; (3) o revisor tem de ver a régua antes, e não depois. **Vai para o RUMO, nomeado: `Prova.vaza` em `PraticaTrabalho.provar` usa o EXEMPLO como alvo e reprova vocabulário estrutural da tarefa — 8 recusas por essa guarda em 30 preparações completas em 08/09/2026, e nas quatro com origem exposta o quadrigrama era, palavra por palavra, vocabulário que o autor já tinha escrito no pedido. Decidir o alvo certo, escrever a régua nos dois sentidos (o que deve passar e o que deve continuar sendo recusado) e só então mexer.** A linha está escrita: `ferramentas/orca/RUMO.md`, seção **“A RÉGUA DO VAZAMENTO, nos dois sentidos — volta própria, e ela vem antes de mexer no parser”**, com a evidência desta ADR e as quatro recusas sem evidência declaradas INDETERMINADAS. Esta volta **não** escreveu a régua e **não** mexeu no parser: o que ela entrega é a medida e a pergunta, não o conserto. Até lá `EstadoPedido.praticaIndisponivel` continua contando a falha pedido a pedido na `TrabalhoView`, como a 08r decidiu, e a tabela `Politica` continua sem mudança.
+
+**O teto: o teste passa a guardar o valor decidido, e são duas guardas, não uma.** `oTetoDeTrabalhoCobreAPiorLatenciaMedida` só exigia `>= 180` e `> 90` — passava com `181` e deixava cair os 240 s que a 08r decidiu, que é a folga, não o piso. Agora são três expectativas com papéis separados: o **piso observado** (`>= 179`, porque a pior execução inteira medida é 178,144 s), a lápide dos 90 s, e a **decisão** (`== 240`), com a mensagem dizendo que mudar o número é mudar a ADR e trazer medida nova ao lado. O comentário que chamava 141 s de "pior latência" foi corrigido: 141,058 s é a chamada isolada mais lenta; 178,144 s é a pior execução de ponta a ponta, com duas chamadas.
+
+**O que esta ADR não prova.** 30 execuções não são a distribuição: 5 de 18 (28 %) e 4 de 12 (33 %) são consistentes com os 3 de 15 (20 %) da 08r, e nada mais. Das doze guardas, DUAS foram vistas recusar (vazamento e limite); das outras dez continua sendo ausência de evidência, não evidência de ausência. A causalidade tem evidência exposta em **quatro** ocorrências (três da `1B7E0E63` mais a quinta da `2DFC05C3`), não em todas as nove: as quatro recusas iniciais rodaram no binário anterior, sem posição nem origem, e não foram contadas. A origem é contagem por palavra num alvo de 70–93 palavras distintas, não prova de sequência. E esta volta **não julgou a qualidade** dos treze exercícios que passaram — mediu quem recusou e por quê, não se o que entrou serve.
+
+## ADR 2026-09-08r — O teto das rotas de Trabalho é medido, não suposto (volta Q-B)
+
+*(Letra corrigida na Q-E, 08/09: esta ADR nasceu `2026-09-08m` e a letra já estava tomada em `main` pela E1, "O resultado da ação volta ao trabalho". As mensagens de commit anteriores a esta correção ainda dizem `08m`.)*
+
+**A distância.** O G3 da volta Q recusou a 08q por três coisas, e a segunda é esta: manter `produzir`, `prepararPratica` e `revisar` como oferta **contradiz a régua que nós mesmos escrevemos** — timeout material significa operação ausente para o autor. A 08q tinha o dado e mesmo assim deixou a oferta de pé: **20 de 72** chamadas a `grok-4.6` morriam aos 91 s (`prepararPratica` 11 de 18, 61 %), contra **0 de 177** em `grok-4.3`. Anunciar no Perfil "só com a conta Grok: preparar exercícios" quando a operação chega em 1 de 6 casos é prometer o que não se entrega.
+
+**Por que o teto, e não as outras duas saídas.** As três estavam na mesa; duas caem pela própria medida.
+
+- **Retentativa: reprovada pelo dado, não por gosto.** A falha não é intermitente. Cinco dos nove casos que carregavam as 20 falhas estouraram os 91 s nas **três** execuções — `q2-conhecido-preparar-espanhol-solo`, `qn-preparar-criterio-so-do-que-esta-escrito`, `qn-preparar-outro-dominio-planilha`, `qn-produzir-combinar-sem-resolver-a-pratica` e `ler-rascunho-q2-conhecido-preparar-espanhol-solo`. Repetir um pedido determinístico é fazer o autor esperar 180 s pelo mesmo nada.
+- **Indisponível por qualidade: desproporcional ao defeito medido.** Cortaria junto `conferirTentativa`, que é `grok-4.6` com esforço `high` e teve **0 falhas em 18** e 6 de 6 casos, e `produzir`, cuja única reprovação foi exatamente este teto. Aplicar a regra de indisponibilidade a um defeito de espera é usar a régua errada.
+- **Teto: o único que não invalida a medida de qualidade.** Mesmo modelo, mesmo `reasoning_effort`, mesmo prompt, mesma janela — muda só a paciência. Baixar o raciocínio, que a 08q também listava, mudaria o que foi medido e obrigaria a remedir as dezesseis.
+
+**A decisão.** O `90` literal, repetido em quatro chamadas de `Traco/Trabalho`, vira **um** valor em `Grok.tetoTrabalho`, e o valor é **240 s** — que é o teto sob o qual a remedição foi feita e nada o encostou. Um lugar só, pela mesma razão da 03l: quatro cópias divergem em silêncio, e foi assim que um teto virou a ausência de uma operação sem ninguém decidir isso.
+
+**A medida nova, no aparelho do dono, com a conta ligada.** Sonda `AvaliacaoIA` pelo caminho de produção, no `C2416CBC`, install **por cima** (sem `uninstall`, `erase`, `clearState` nem `xcodebuild test`). Conta conferida **antes de instalar** (corrida de fumaça `2934F6EC`, 20h08Z: `contaGrokLigada: true` e a listagem **autenticada** de 12 modelos devolvida pela API), **em cada um dos 27 registros** da corrida, e **depois de tudo** (corrida `007BB0B8`, 20h59Z, os mesmos 12 modelos). A conta sobreviveu ao `boot`, ao install por cima e às 30 chamadas. Fixture `prova/qb-teto-casos.json` sha256 `1055b023…`; saídas inteiras em `prova/qb-teto-avaliacoes.jsonl` sha256 `fa51544a…` (as três corridas, fumaça de abertura, remedição e fumaça de fecho, no mesmo arquivo); corrida da remedição `B54FF0BE`.
+
+Os nove casos remedidos são exatamente os que carregavam as 20 falhas — 9 casos × 3 execuções = 27, e 30 chamadas a `grok-4.6` (os três `Combinar` chamam duas vezes).
+
+| rota | antes, teto 90 s | depois, teto 240 s | pior latência medida |
+|---|---|---|---|
+| prepararPratica | 11 de 18 falhas de transporte | **0 de 15** | 141,1 s |
+| revisar | 6 de 18 | **0 de 9** | 133,7 s |
+| produzir | 3 de 18 | **0 de 3** (duas chamadas por execução) | 178,1 s no caso inteiro |
+| conferirTentativa | 0 de 18 | não remedido (não tinha falha) | 45,7 s em 08/09 |
+| **total `grok-4.6`** | **20 de 72 (28 %)** | **0 de 30** | — |
+
+Os casos que estouravam nas três execuções voltaram inteiros: `ler-rascunho-q2-conhecido-preparar-espanhol-solo` em 133/91/100 s, `qn-preparar-outro-dominio-planilha` em 113/107/102 s, `qn-produzir-combinar-sem-resolver-a-pratica` em 160/178/130 s. **O teto era o defeito.**
+
+**O achado que vai contra nós, e ele não é de teto.** Com o transporte inteiro, **3 das 15 execuções de `prepararPratica` continuam sem entregar nada ao autor** — `revisor-sintetico-resumo-projeto-2x5` (2 de 3) e `q2-conhecido-preparar-apresentacao-proposta` (1 de 3). Nessas três a chamada voltou **HTTP 200, `finish_reason: stop`, conteúdo completo, `grok-4.6` confirmado, 3.777 a 6.865 tokens de raciocínio**: quem recusou foi o **nosso contrato de domínio** (`PraticaTrabalho.parsePreparacao`/`validar`), não a rede. É defeito de conteúdo, medido, e o teto não o conserta. Pela contagem de entrega por caso, `prepararPratica` sai de **1 de 6** para **4 de 6**; as outras três rotas entregaram em todas as execuções medidas.
+
+**O que isso muda na tabela `Politica`: nada, e o motivo é o lugar do estado honesto.** Ausência sistemática — metade das vezes, determinística por caso — é indisponibilidade e mora na tabela. Recusa ocasional do próprio contrato já tem superfície própria e por pedido: `Trabalho.EstadoPedido.praticaIndisponivel`, que a `TrabalhoView` mostra em `pratica-preparacao-indisponivel` com a saída "Retomar esse pedido". Mover isso para a tabela apagaria a operação inteira por um defeito que a tela já conta, pedido a pedido — e a tabela não sabe dizer "às vezes". O que fica aberto no RUMO, nomeado: por que `validar` recusa 1 em 5 preparações completas, e se o defeito é do provedor ou do nosso esquema.
+
+**`responderNasNotas` continua cortada.** O revisor escreveu um caso tipado **novo, que o implementador não viu** — teto de R$ 5.000, US$ 300 + US$ 120 previstos, cotação de R$ 5,20 datada — e as três execuções recusaram por inteiro: *"Não tenho informação disponível nesta consulta para confirmar isso."* Zero de três (`prova/q-revisao-avaliacoes.jsonl`). A linha da tabela não muda e o motivo continua sendo o da recusa por inteiro: **conserto nomeado não é conserto feito**.
+
+**O que esta ADR não prova.** 240 s é o teto sob o qual **nada** encostou em 30 chamadas; não é prova de que nada encostará — a cauda é longa e a maior amostra que temos por ponto é uma. As 27 execuções saíram de **um** lançamento com três repetições e `esquecerMemo()` entre elas, não de três lançamentos como a matriz da 08q: menos independência entre execuções do que a corrida original, e isso está dito. Só os nove casos que falhavam foram remedidos — os 52 que já chegavam abaixo de 90 s não foram repetidos, porque subir um teto não transforma sucesso em falha. E esta volta mediu **entrega**, não releu a qualidade caso a caso: dizer "4 de 6" para `prepararPratica` é dizer que quatro casos entregaram nas três execuções, não que o conteúdo dos quatro atende a rubrica.
+
+## ADR 2026-09-08l — A terceira linha do Perfil: o que a medida reprovou, dito ao autor
+
+**A distância.** A ADR 08q tirou da execução as operações que a medida de 08/09 reprovou com a conta ligada (`indisponivelPorQualidade`). Mas o Perfil imprimia só duas listas — `pelaConta` e `peloAparelho` —, e uma operação reprovada sumia das duas: o autor via menos coisa e nenhuma explicação, o contrário da ordem do dono ("o que reprovar vira linha honesta na tela, nunca resultado pior calado"). Pior: com o filtro por negação de `peloAparelho`, a reprovada passaria a ser anunciada como "pelo aparelho, sem conta" — mentira produzida por código que ninguém tocou (achado desta volta, corrigido na 08q pelo filtro por inclusão).
+
+**A decisão.** O cartão CONTA do Perfil ganha uma terceira lista, lida da MESMA tabela (`Politica.indisponiveis`, com `motivo`, `medidaEm` e `conserto` na `Linha`): uma linha por operação, no nome que o autor entende (`Politica.nome`) e não no símbolo, com o porquê em uma oração de pessoa e a data da medida. Dois estados, dois grupos, para o dono ver qual é qual: *reprovada sem substituto medido* ("Indisponível mesmo com a conta Grok — a medida de 08/09 reprovou, e não há outro caminho:") e *reprovada com conserto nomeado* ("Em correção, com conserto nomeado e sem data — a medida de 08/09 reprovou:", e a linha termina em "· conserto: …"). A data sobe para a abertura do grupo quando todas as linhas a compartilham; se um dia divergirem, desce a cada linha. A lista muda de tamanho com a medida — e vazia é o estado que se quer: a tela então diz "Nenhuma operação indisponível por qualidade." em vez de sumir com a linha.
+
+O que a linha NÃO faz, por regra: não manda conectar conta (a conta existe; a frase de recusa no momento do pedido é a de `semProvedor`, que a 08q já corrigiu); não promete prazo (conserto tem nome, não tem data); não vira boletim — a evidência (contagens, caminhos de prova) fica em `porque`, para a ADR e o `prova/`, e não na tela. A frase longa do momento da recusa e a linha curta do Perfil são duas coisas: não se repete a longa nos dois lugares.
+
+**Dynamic Type.** A letra miúda do cartão tinha `maxWidth: 280` fixo em pontos; em AX5 isso dava doze caracteres por linha e um terço da tela em branco, e as três listas dobravam de altura à toa. Passa a `medidaMiuda`, `@ScaledMetric` relativo a `.subheadline` (280 em `large`, ~45 caracteres): escala com a letra e, quando cresce além da tela, a largura do cartão manda. Medido no iPhone Air em AX5: a linha de uma operação cai de 0,32–0,38 tela para 0,26.
+
+**O que esta ADR não prova.** A qualidade das frases de `motivo` é de quem mediu; a tela só as formata. VoiceOver não foi ouvido (o simulador pede reiniciar o aparelho); a árvore de acessibilidade mostra cada linha como um elemento, na ordem visual, nada focável como ação. 3 testes em `PerfilQualidadeTests` (a lista vem da tabela; a data no lugar certo; o conserto na linha).
+
+## ADR 2026-09-08w — Duas voltas na mesma função: a `mudanca` do ajuste passa a recusar com nome (volta Q-H)
+
+**O conflito.** Enquanto a volta Q instrumentava as guardas da preparação, a
+V17 (ADR 08j) mesclou em `main` e acrescentou às MESMAS duas funções um campo
+novo de contrato: `mudanca`, a frase em que o modelo diz o que mudou de um
+exercício para o anterior. `parsePreparacao` virou `lerPreparacao ->
+Result<Preparada, Recusa>` de um lado e ganhou `comMudanca:` do outro;
+`validar` virou `provar` de um lado e ganhou teto e prova de vazamento sobre a
+`mudanca` do outro. As duas mudanças são de mérito e nenhuma cede.
+
+**Decisão.** A `lerPreparacao` conhece `comMudanca`, e cada queda que a V17
+escrevia como `nil` passa a ter guarda nomeada. Chave ausente num ajuste é
+`chavesForaDoContrato(faltando: ["mudanca"])` — num ajuste ela É do contrato.
+Tipo errado é `campoNaoTexto("mudanca")`; vazia é `campoVazio("mudanca")`; acima
+de `Limite.mudanca` é `campoAcimaDoTeto`. Os quatro são casos REAPROVEITADOS:
+a `mudanca` falha do mesmo jeito que os outros cinco campos, e inventar
+categoria para ela diria que é outro tipo de defeito. A regra da V17 fica
+inteira: qualquer uma dessas quedas derruba a preparação INTEIRA, porque versão
+que muda calada é o que aquela volta existe para impedir.
+
+**O único caso NOVO: `mudancaVazaOExemplo`.** `criterioVazaOExemplo` carrega um
+`indice` e diz "o critério N". Usá-lo para a `mudanca` obrigaria a inventar um
+índice de critério para um campo que não é critério — a recusa mentiria sobre
+qual guarda reprovou, que é o oposto do que a ADR 08p faz. Mesma régua
+(`Prova.vazamento`), mesma disciplina de medida sem conteúdo (posição, contagem
+de palavras e origem no pedido do autor; nunca o trecho), mesmo `Recusa.origem`.
+Só o campo é declarado por nome. A `mudanca` é provada DEPOIS dos critérios: o
+exercício se prova antes do que se diz sobre ele.
+
+**Na rota remota**, um único `ajustando = p.ajuste != nil` governa o esquema de
+saída, a leitura e o rótulo do produtor (`"Grok · exercício adaptado"`), e o
+`timeout` é o `Grok.tetoTrabalho` MEDIDO na 08r, não o `90` suposto que a V17
+carregava — mantê-lo devolveria à rota de ajuste a falha de transporte que a
+volta Q acabou de fechar. A sonda de DEBUG grava as recusas do ajuste também,
+sem ramo: a recusa de um ajuste é a que mais precisa de nome, porque é ela que
+decide se o exercício de alguém não mudou por defeito do provedor ou por
+estreiteza da nossa régua.
+
+**Prova.** Build sem aviso e suíte integral na árvore MESCLADA — a que ninguém
+tinha testado — no `34CC3F94`: 957 testes, 956 passados, 0 falhos, 1 pulado em duas execuções limpas; e 958 / 957 / 0 / 1 depois de trazer também o `main` que a V13 avançou durante o trabalho (auto-merge limpo, zero conflitos)
+(`CadernoHitchesTests`, já pulado antes). Os testes da V17 sobre `mudanca` e os
+da Q sobre `Recusa` passam juntos. Decisão por decisão em
+`ferramentas/orca/q-h-reconciliacao.md`.
+
+**O que esta ADR NÃO prova.** Nada de novo sobre a qualidade do ajuste: nenhuma
+chamada real ao provedor foi feita nesta passada, e a régua do vazamento
+continua como estava — alargá-la é volta própria, já no RUMO. Duas execuções da
+suíte travaram antes de conectar o runner (0 de 957, 345 s cada) e a terceira
+passou inteira; provei que a árvore mesclada sobe instalando e lançando o app
+no aparelho (`ferramentas/orca/q-h-app-mesclado.png`). É limite do instrumento
+registrado, não resultado.

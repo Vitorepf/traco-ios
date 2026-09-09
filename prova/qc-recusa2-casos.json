@@ -1,0 +1,41 @@
+{
+  "repeticoes": 4,
+  "casos": [
+    {
+      "id": "revisor-sintetico-resumo-projeto-2x5",
+      "operacao": "prepararPratica",
+      "entrada": {
+        "apoio": "praticar",
+        "intencao": "Quero aprender a escrever atualizações curtas de projeto em português.",
+        "resultado": "Escrever três frases que distingam concluído, pendência e próximo passo.",
+        "instrucao": "Caso sintético do revisor. Tenho dez minutos sozinho, em dois blocos de cinco. Prepare um exercício escrito para iniciante usando este caso fictício: o rascunho ficou pronto; a revisão ainda depende da resposta de Lia; amanhã vou perguntar a Lia quando ela poderá revisar. A tarefa é eu escrever uma atualização de exatamente três frases, separando o que foi concluído, a dependência e o próximo passo, sem dizer que a revisão já aconteceu. Ensine a estrutura mínima e dê um exemplo resolvido de outro projeto, com fatos diferentes, sem escrever a resposta do caso-alvo. Tudo em português. Não enviar mensagem alguma nem exigir contato real. Critérios verificáveis apenas no texto que eu produzir."
+      },
+      "requisitos": [
+        "Tarefa distinta e sintética do revisor, sem mensagem a terceiros; três execuções.",
+        "Enunciado inclui todos os fatos necessários e pede exatamente três frases; blocos 5+5 minutos.",
+        "Exemplo resolve outro projeto e demonstra concluído, pendência e próximo passo, sem fornecer a resposta-alvo.",
+        "Apoio permite iniciante distinguir estado concluído de expectativa; não ensina assumir resposta de Lia ou revisão feita.",
+        "Dois a seis critérios observáveis na atualização, que avaliam os três estados e fidelidade aos fatos; não exigem frase literal ou avaliam qualidade do exemplo.",
+        "Nenhuma promessa de produtividade, conclusão do projeto ou aprendizagem observada."
+      ]
+    },
+    {
+      "id": "q2-conhecido-preparar-apresentacao-proposta",
+      "operacao": "prepararPratica",
+      "entrada": {
+        "intencao": "Quero apresentar minha proposta de oficina de desenho aos moradores do prédio.",
+        "resultado": "Ter clareza para explicar público, benefício e próximo passo sem inventar resultados.",
+        "instrucao": "Prepare um exercício de escrita para uma apresentação curta de até 80 palavras. Público: moradores iniciantes; proposta: oficina gratuita de desenho no salão, sábado às 10h; próximo passo: avisar interesse na portaria até sexta. Não há inscrições confirmadas nem aprovação do condomínio. Quero praticar explicar benefício e convite, não postura ou voz. Dê um exemplo resolvido de outro assunto, como clube de leitura, sem redigir minha proposta. Tenho dez minutos, sozinho e sem câmera.",
+        "apoio": "praticar"
+      },
+      "requisitos": [
+        "Caso conhecido criado nesta sessão para ampliar a regressão; não é held-out.",
+        "Enunciado pede texto de até 80 palavras e preserva os dados da proposta sem transformar hipótese em evento aprovado ou inscrições confirmadas.",
+        "Distribuição de trabalho cabe em dez minutos e é executável sozinho sem câmera.",
+        "Exemplo resolvido de clube de leitura ou outro assunto mostra público, benefício e próximo passo, preservando a autoria da proposta-alvo.",
+        "Critérios avaliam no texto clareza de público, benefício, convite e fidelidade aos dados; não avaliam voz, postura, persuasão real ou adesões futuras.",
+        "Não exige recurso, publicação ou contato externo para completar o exercício; entrega é utilizável sem inferir aprendizagem."
+      ]
+    }
+  ]
+}

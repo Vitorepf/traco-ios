@@ -1,0 +1,97 @@
+operacao	caso	classe	procedencia
+dominio	continuidade-dominio	conhecido	cinco-itens-ia-casos.json
+dominio	qn-dominio-saude	novo-desta-corrida	autorado 08/09 pelo implementador
+dominio	qn-dominio-dinheiro	novo-desta-corrida	autorado 08/09 pelo implementador
+dominio	qn-dominio-ambiguo-trabalho-estudo	novo-desta-corrida	autorado 08/09 pelo implementador
+dominio	qn-dominio-pessoas	novo-desta-corrida	autorado 08/09 pelo implementador
+dominio	qn-dominio-sem-dominio-claro	novo-desta-corrida	autorado 08/09 pelo implementador
+classificar	analise-decisao-custo	conhecido	cinco-itens-ia-casos.json
+classificar	qn-classificar-woop-explicito	novo-desta-corrida	autorado 08/09 pelo implementador
+classificar	qn-classificar-escrita-pessoal-protegida	novo-desta-corrida	autorado 08/09 pelo implementador
+classificar	qn-classificar-ambiguo-sem-forcar	novo-desta-corrida	autorado 08/09 pelo implementador
+classificar	qn-classificar-lista-de-compras	novo-desta-corrida	autorado 08/09 pelo implementador
+classificar	qn-classificar-premortem	novo-desta-corrida	autorado 08/09 pelo implementador
+vestir	vestir-codigo-crlf	conhecido	cinco-itens-ia-casos.json
+vestir	vestir-cerca-aberta-crlf	conhecido	qualidade-ia-vestir-casos.json
+vestir	vestir-cerca-maior-e-prosa-vizinha	conhecido	qualidade-ia-vestir-casos.json
+vestir	qn-vestir-tabela-e-lista	novo-desta-corrida	autorado 08/09 pelo implementador
+vestir	qn-vestir-ja-formatado-nao-mexe	novo-desta-corrida	autorado 08/09 pelo implementador
+vestir	qn-vestir-escrita-pessoal-preservada	novo-desta-corrida	autorado 08/09 pelo implementador
+conferir	q5-conferir-parafrase-completa	conhecido	cinco-itens-ia-casos.json
+conferir	q5-conferir-contradicao	conhecido	qualidade-ia-q5-casos.json
+conferir	q5-conferir-resposta-parcial	conhecido	qualidade-ia-q5-casos.json
+conferir	q5-conferir-unidades-e-sinonimos-novos	conhecido	qualidade-ia-q5-conferir-generalizacao.json
+conferir	qn-conferir-memoria-vazia	novo-desta-corrida	autorado 08/09 pelo implementador
+conferir	qn-conferir-tudo-correto-literal	novo-desta-corrida	autorado 08/09 pelo implementador
+ecos	q5-ecos-sentido-e-contradicao	conhecido	cinco-itens-ia-casos.json
+ecos	q5-ecos-coincidencia-lexical	conhecido	qualidade-ia-q5-casos.json
+ecos	qn-ecos-sem-relacao-legitima	novo-desta-corrida	autorado 08/09 pelo implementador
+ecos	qn-ecos-relacao-por-consequencia	novo-desta-corrida	autorado 08/09 pelo implementador
+ecos	qn-ecos-duas-relacoes-e-distratores	novo-desta-corrida	autorado 08/09 pelo implementador
+ecos	qn-ecos-nota-curta	novo-desta-corrida	autorado 08/09 pelo implementador
+calibragem	q5-calibragem-dependencia-externa	conhecido	cinco-itens-ia-casos.json
+calibragem	q5-calibragem-sem-atraso	conhecido	qualidade-ia-q5-casos.json
+calibragem	qn-calibragem-superestimou-o-ganho	novo-desta-corrida	autorado 08/09 pelo implementador
+calibragem	qn-calibragem-previsao-acertada	novo-desta-corrida	autorado 08/09 pelo implementador
+calibragem	qn-calibragem-par-unico	novo-desta-corrida	autorado 08/09 pelo implementador
+calibragem	qn-calibragem-causa-externa-e-interna	novo-desta-corrida	autorado 08/09 pelo implementador
+padroes	q5-padroes-sobrecarga-compromissos	conhecido	cinco-itens-ia-casos.json
+padroes	q5-padroes-notas-sem-vinculo	conhecido	qualidade-ia-q5-casos.json
+padroes	qn-padroes-duas-vozes-mesma-decisao	novo-desta-corrida	autorado 08/09 pelo implementador
+padroes	qn-padroes-voz-unica	novo-desta-corrida	autorado 08/09 pelo implementador
+padroes	qn-padroes-nao-diagnosticar	novo-desta-corrida	autorado 08/09 pelo implementador
+padroes	qn-padroes-vozes-de-dominios-distintos	novo-desta-corrida	autorado 08/09 pelo implementador
+recordar	q5-recordar-capital-lisboa	conhecido	cinco-itens-ia-casos.json
+recordar	qn-recordar-alvo-numerico	novo-desta-corrida	autorado 08/09 pelo implementador
+recordar	qn-recordar-alvo-longo	novo-desta-corrida	autorado 08/09 pelo implementador
+recordar	qn-recordar-degrau-avancado	novo-desta-corrida	autorado 08/09 pelo implementador
+recordar	qn-recordar-pista-que-nao-vaza	novo-desta-corrida	autorado 08/09 pelo implementador
+recordar	qn-recordar-alvo-conceitual	novo-desta-corrida	autorado 08/09 pelo implementador
+instigar	continuidade-instigar	conhecido	cinco-itens-ia-casos.json
+instigar	qn-instigar-decisao-com-restricao	novo-desta-corrida	autorado 08/09 pelo implementador
+instigar	qn-instigar-premissa-incerta	novo-desta-corrida	autorado 08/09 pelo implementador
+instigar	qn-instigar-contexto-insuficiente	novo-desta-corrida	autorado 08/09 pelo implementador
+instigar	qn-instigar-degrau-avancado	novo-desta-corrida	autorado 08/09 pelo implementador
+instigar	qn-instigar-sem-jargao-nem-metodo	novo-desta-corrida	autorado 08/09 pelo implementador
+contrapor	continuidade-contrapor	conhecido	cinco-itens-ia-casos.json
+contrapor	qn-contrapor-premissa-tudo-ou-nada	novo-desta-corrida	autorado 08/09 pelo implementador
+contrapor	qn-contrapor-restricao-real	novo-desta-corrida	autorado 08/09 pelo implementador
+contrapor	qn-contrapor-sem-analogia-inventada	novo-desta-corrida	autorado 08/09 pelo implementador
+contrapor	qn-contrapor-afirmacao-ja-sustentada	novo-desta-corrida	autorado 08/09 pelo implementador
+contrapor	qn-contrapor-decisao-financeira	novo-desta-corrida	autorado 08/09 pelo implementador
+responder	continuidade-responder	conhecido	cinco-itens-ia-casos.json
+responder	qn-responder-contexto-nao-sustenta	novo-desta-corrida	autorado 08/09 pelo implementador
+responder	qn-responder-contexto-antigo-conflitante	novo-desta-corrida	autorado 08/09 pelo implementador
+responder	qn-responder-tres-restricoes	novo-desta-corrida	autorado 08/09 pelo implementador
+responder	qn-responder-fato-atual-limite-util	novo-desta-corrida	autorado 08/09 pelo implementador
+responder	qn-responder-pedido-legitimo-curto	novo-desta-corrida	autorado 08/09 pelo implementador
+responderNasNotas	contexto-correcao-prazo	conhecido	cinco-itens-ia-casos.json
+responderNasNotas	contexto-correcao-prazo-fontes-tipadas	conhecido	qualidade-ia-notas-fontes.json
+responderNasNotas	contexto-sem-fontes-nao-inventa-prazo	conhecido	qualidade-ia-notas-fontes.json
+responderNasNotas	contexto-instrucao-hostil-id-inexistente	conhecido	qualidade-ia-notas-fontes.json
+responderNasNotas	qn-notas-fato-atual-sem-fonte-atual	novo-desta-corrida	autorado 08/09 pelo implementador
+responderNasNotas	qn-notas-conflito-mesma-data-exposto	novo-desta-corrida	autorado 08/09 pelo implementador
+revisar	espanhol-revisao-duracao	conhecido	cinco-itens-contrato-simples-casos.json
+revisar	revisao-material-adequado-sintetico	conhecido	cinco-itens-contrato-simples-casos.json
+revisar	ler-rascunho-q2-conhecido-preparar-espanhol-solo	conhecido	cinco-itens-segunda-leitura-casos.json
+revisar	ler-rascunho-revisor-sintetico-espanhol-comida-2x4	conhecido	cinco-itens-segunda-leitura-casos.json
+revisar	qn-revisar-material-bom-nao-inventa-erro	novo-desta-corrida	autorado 08/09 pelo implementador
+revisar	qn-revisar-omissao-real-do-pedido	novo-desta-corrida	autorado 08/09 pelo implementador
+conferirTentativa	q2-conhecido-feedback-espanhol-correto	conhecido	cinco-itens-ia-casos.json
+conferirTentativa	q2-conhecido-feedback-espanhol-traducao-errada	conhecido	cinco-itens-contrato-simples-casos.json
+conferirTentativa	q2-conhecido-feedback-espanhol-parcial	conhecido	cinco-itens-contrato-simples-casos.json
+conferirTentativa	q2-conhecido-feedback-raciocinio-conclusao-errada	conhecido	qualidade-ia-pratica.json
+conferirTentativa	qn-feedback-tentativa-quase-vazia	novo-desta-corrida	autorado 08/09 pelo implementador
+conferirTentativa	qn-feedback-tentativa-ambigua	novo-desta-corrida	autorado 08/09 pelo implementador
+prepararPratica	q2-conhecido-preparar-espanhol-solo	conhecido	cinco-itens-contrato-simples-casos.json
+prepararPratica	revisor-sintetico-espanhol-comida-2x4	conhecido	cinco-itens-contrato-simples-casos.json
+prepararPratica	revisor-sintetico-resumo-projeto-2x5	conhecido	cinco-itens-contrato-simples-casos.json
+prepararPratica	q2-conhecido-preparar-apresentacao-proposta	conhecido	qualidade-ia-pratica.json
+prepararPratica	qn-preparar-criterio-so-do-que-esta-escrito	novo-desta-corrida	autorado 08/09 pelo implementador
+prepararPratica	qn-preparar-outro-dominio-planilha	novo-desta-corrida	autorado 08/09 pelo implementador
+produzir	espanhol-solo-3x5	conhecido	cinco-itens-ia-casos.json
+produzir	revisor-sintetico-espanhol-rotina-3x3	conhecido	cinco-itens-grok46-casos.json
+produzir	qn-produzir-email-restricoes-duras	novo-desta-corrida	autorado 08/09 pelo implementador
+produzir	qn-produzir-combinar-sem-resolver-a-pratica	novo-desta-corrida	autorado 08/09 pelo implementador
+produzir	qn-produzir-fato-atual-sem-fonte	novo-desta-corrida	autorado 08/09 pelo implementador
+produzir	qn-produzir-pedido-com-conflito-interno	novo-desta-corrida	autorado 08/09 pelo implementador

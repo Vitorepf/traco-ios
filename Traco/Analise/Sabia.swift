@@ -70,14 +70,6 @@ enum Sabia {
     contrato. Contexto parcial não prova ausência de um fato no acervo.
     """
 
-    /// Compatibilidade da sonda antiga: contexto sem identidade é atribuído
-    /// como foi fornecido, sem tentar adivinhar fontes dentro da prosa.
-    static func responderNasNotas(pergunta: String, contexto: String, retrato: String = "") async -> String? {
-        let fontes = contexto.isEmpty ? [] : [FonteNotas(id: UUID(), titulo: "Contexto fornecido",
-                                                          texto: contexto, editadaEm: .distantPast)]
-        return await responderNasNotas(pergunta: pergunta, fontes: fontes, retrato: retrato)?.texto
-    }
-
     static func responderNasNotas(pergunta: String, fontes: [FonteNotas],
                                   conversa: [Sessao.TrocaNasNotas] = [], catalogo: String = "",
                                   retrato: String = "", validarAcesso: ([FonteNotas]) -> Bool = { _ in true },

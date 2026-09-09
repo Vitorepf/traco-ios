@@ -564,7 +564,7 @@ enum MotorTrabalho {
         try Task.checkCancellation()
         let remoto = pedido(d, p, teto: tetoRemoto, praticaPreservada: praticaPreservada)
         if remoto.count <= tetoRemoto,
-           let texto = await Grok.responder(sistema: sistema, usuario: remoto, temperatura: 0.3, timeout: 90, esforco: "medium", modelo: Grok.modeloTrabalho),
+           let texto = await Grok.responder(sistema: sistema, usuario: remoto, temperatura: 0.3, timeout: Grok.tetoTrabalho, esforco: "medium", modelo: Grok.modeloTrabalho),
            !texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             return .init(texto: texto, produtor: remoto.contains("[CONTEXTO PARCIAL:") ? "Grok · parte do histórico" : "Grok")
         }
@@ -594,19 +594,43 @@ extension MotorTrabalho {
         async -> (pratica: DocumentoTrabalho.Pratica, produtor: String)? {
         guard contaLigada else { return nil }
         let mensagem = PraticaTrabalho.montarPreparacao(d, p)
-        let dificuldade = d.dificuldadeVigente
-        // ADR 08j: no ajuste, "o que mudou" entra no contrato de saída.
+        // ADR 08j: no ajuste, "o que mudou" entra no contrato de saída — do
+        // esquema à leitura. ADR 08r: o teto é o medido, não o 90 suposto.
         let ajustando = p.ajuste != nil
-        if mensagem.count <= tetoRemoto,
-           let cru = await Grok.responder(sistema: PraticaTrabalho.sistemaPreparar,
-                                          usuario: mensagem, temperatura: 0.3, timeout: 90,
-                                          esquema: PraticaTrabalho.esquemaRemotoPreparacao(comMudanca: ajustando), esforco: "high", modelo: Grok.modeloTrabalho),
-           let bruta = PraticaTrabalho.parsePreparacao(cru, comMudanca: ajustando),
-           let pratica = PraticaTrabalho.validar(bruta, dificuldade: dificuldade) {
+        guard mensagem.count <= tetoRemoto,
+              let cru = await Grok.responder(sistema: PraticaTrabalho.sistemaPreparar,
+                                             usuario: mensagem, temperatura: 0.3, timeout: Grok.tetoTrabalho,
+                                             esquema: PraticaTrabalho.esquemaRemotoPreparacao(comMudanca: ajustando),
+                                             esforco: "high", modelo: Grok.modeloTrabalho)
+        else { return nil }
+        // O que o AUTOR escreveu neste pedido — os três campos que a sonda já
+        // grava em `entrada`, para a origem do quadrigrama ser conferível sem
+        // o trecho (ADR 08p). Não entra na régua.
+        let doAutor = [p.instrucao, d.intencaoAtual.texto, d.intencaoAtual.resultado].joined(separator: " ")
+        switch PraticaTrabalho.lerPreparacao(cru, comMudanca: ajustando).flatMap({
+            PraticaTrabalho.provar($0, dificuldade: d.dificuldadeVigente, pedidoDoAutor: doAutor)
+        }) {
+        case let .success(pratica):
             return (pratica, ajustando ? "Grok · exercício adaptado" : "Grok · exercício preparado")
+        case let .failure(recusa):
+            // ADR 08p: o provedor entregou e NÓS recusamos. Sem o motivo
+            // redigido ninguém decide se a regra está certa ou estreita. Vale
+            // igual para o ajuste: a recusa dele é a que mais precisa de nome.
+            #if DEBUG
+            recusasDaPreparacao.append(recusa.redigida)
+            #endif
+            return nil
         }
-        return nil
     }
+
+    #if DEBUG
+    /// Só a linha redigida da recusa, para a sonda. O bruto continua descartado.
+    private static var recusasDaPreparacao: [String] = []
+    static func retirarRecusasDaPreparacao() -> [String] {
+        defer { recusasDaPreparacao.removeAll() }
+        return recusasDaPreparacao
+    }
+    #endif
 
     /// "Conferir minha tentativa". ADR 05m: enunciado, critérios, apoio e
     /// tentativa cabem inteiros ou fica `indisponivel` — nada é cortado.
@@ -633,7 +657,7 @@ extension MotorTrabalho {
         }
         guard mensagem.count <= tetoRemoto else { return naoCoube(tetoRemoto) }
         if let cru = await Grok.responder(sistema: PraticaTrabalho.sistemaConferir,
-                                          usuario: mensagem, temperatura: 0.2, timeout: 90,
+                                          usuario: mensagem, temperatura: 0.2, timeout: Grok.tetoTrabalho,
                                           esquema: PraticaTrabalho.esquemaRemotoConferencia(pratica, tentativa: tentativa), esforco: "high", modelo: Grok.modeloTrabalho) {
             let executor = "Grok \(PraticaTrabalho.sufixoDoExecutor)"
             guard let resultados = PraticaTrabalho.parseConferencia(cru, pratica: pratica, tentativa: tentativa) else {

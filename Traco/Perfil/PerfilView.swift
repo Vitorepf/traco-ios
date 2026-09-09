@@ -15,6 +15,12 @@ struct PerfilView: View {
     /// Sem a barra, o que separa um mês do outro é só o espaço: em AX5 a linha
     /// do mês quebra em três e um vão fixo some dentro da própria entrelinha.
     @ScaledMetric(relativeTo: .subheadline) private var entreMeses: CGFloat = 8
+    /// A medida da letra miúda do cartão da conta: 280 pt em `large` são ~45
+    /// caracteres, a linha que se lê sem virar o pescoço. Fixa em pontos, em
+    /// AX5 ela virava um terço da tela com doze caracteres por linha — e as
+    /// listas de quem responde dobravam de altura à toa. Escala com a letra e
+    /// o `maxWidth` da tela passa a mandar quando ela cresce.
+    @ScaledMetric(relativeTo: .subheadline) private var medidaMiuda: CGFloat = 280
 
     @State private var ligada = ContaGrok.ligada
     @State private var estado: String?
@@ -545,7 +551,7 @@ struct PerfilView: View {
             Text("A análise e a sábia usam a sua assinatura do Grok — sem chave de API, sem cobrança por uso. Sem a conta, a sábia responde pelo modelo do aparelho (Apple Intelligence), sem rede, com uma janela menor. Hoje: " + Sabia.porOndeEmPalavras + ". Notas trancadas e expressivas jamais vão à rede.")
                 .font(Tema.meta)
                 .foregroundStyle(Tema.tintaFraca)
-                .frame(maxWidth: 280, alignment: .leading)
+                .frame(maxWidth: medidaMiuda, alignment: .leading)
                 .padding(.top, Tema.entreItens)
             // ADR 07b: a tabela de quem responde, na única tela que fala de
             // provedor. Função que o autor não vê não foi entregue.
@@ -555,12 +561,112 @@ struct PerfilView: View {
             }
             .font(Tema.meta)
             .foregroundStyle(Tema.tintaFraca)
-            .frame(maxWidth: 280, alignment: .leading)
+            .frame(maxWidth: medidaMiuda, alignment: .leading)
             .padding(.top, Tema.entreItens)
             .accessibilityElement(children: .combine)
             .accessibilityIdentifier("quem-responde")
+            // A terceira linha: o que a MEDIDA reprovou. Sem ela, a operação
+            // reprovada sumia das duas listas de cima e o autor via menos
+            // coisa sem explicação — resultado pior calado.
+            indisponiveisPorQualidade
+                .padding(.top, Tema.entreItens)
         }
     }
+
+    // MARK: - Indisponível por qualidade (volta Q)
+
+    /// Uma operação que a medida reprovou, como a tabela a entrega: motivo,
+    /// data e conserto são DADO da medição e moram em `Politica`; aqui só se
+    /// formata (ADR 08q).
+    struct Reprovada {
+        let op: Politica.Operacao
+        let motivo: String
+        let medidaEm: String?
+        /// nil = sem substituto medido; com nome = em correção
+        let conserto: String?
+    }
+
+    /// A terceira lista, lida da mesma tabela que as duas de cima. Uma porta
+    /// só: o que sumir de `pelaConta` e `peloAparelho` tem de aparecer aqui.
+    static var reprovadas: [Reprovada] {
+        Politica.indisponiveis.map { op in
+            let l = Politica.linha(op)
+            return Reprovada(op: op, motivo: l.motivo, medidaEm: l.medidaEm, conserto: l.conserto)
+        }
+    }
+
+    /// Dois estados, dois grupos: reprovada sem substituto, e reprovada com
+    /// conserto nomeado. Não se misturam num balaio — o dono precisa ver qual é
+    /// qual. Indisponível não é erro nem promessa de volta: sem prazo aqui.
+    /// A lista muda de tamanho com a medida; vazia é o estado que se quer, e
+    /// a tela diz isso em vez de sumir com a linha.
+    private var indisponiveisPorQualidade: some View {
+        let todas = Self.reprovadas
+        let semConserto = todas.filter { $0.conserto == nil }
+        let emCorrecao = todas.filter { $0.conserto != nil }
+        return VStack(alignment: .leading, spacing: Tema.entreItens) {
+            if todas.isEmpty {
+                Text("Nenhuma operação indisponível por qualidade.")
+            } else {
+                if !semConserto.isEmpty {
+                    grupoReprovado(semConserto,
+                                   "Indisponível mesmo com a conta Grok — a medida\(Self.dataDe(semConserto)) reprovou, e não há outro caminho:")
+                }
+                if !emCorrecao.isEmpty {
+                    grupoReprovado(emCorrecao,
+                                   "Em correção, com conserto nomeado e sem data — a medida\(Self.dataDe(emCorrecao)) reprovou:")
+                }
+            }
+        }
+        .font(Tema.meta)
+        .foregroundStyle(Tema.tintaFraca)
+        .frame(maxWidth: medidaMiuda, alignment: .leading)
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("indisponiveis-por-qualidade")
+    }
+
+    /// Uma linha por operação: o quê, em tinta um degrau mais escura para a
+    /// margem virar coluna varrível; o porquê recua.
+    private func grupoReprovado(_ lista: [Reprovada], _ abertura: String) -> some View {
+        let dataNaLinha = Self.dataDe(lista).isEmpty
+        return VStack(alignment: .leading, spacing: 4) {
+            Text(abertura)
+                .fixedSize(horizontal: false, vertical: true)
+            ForEach(lista, id: \.op.rawValue) { r in
+                Text(Self.linhaDa(r, dataNaLinha: dataNaLinha))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+    }
+
+    /// A linha inteira: o nome da operação em tinta suave, o resto na tinta do
+    /// corpo. `AttributedString` em vez de `Text + Text` (`+` está obsoleto no
+    /// iOS 26) e em vez de interpolação, que passaria o motivo do autor por
+    /// Markdown — o motivo é prosa da tabela `Politica`, não marcação.
+    static func linhaDa(_ r: Reprovada, dataNaLinha: Bool) -> AttributedString {
+        var nome = AttributedString(Politica.nome(r.op))
+        nome.foregroundColor = Tema.tintaSuave
+        return nome + AttributedString(restoDa(r, dataNaLinha: dataNaLinha))
+    }
+
+    /// O que vem depois do nome: " — motivo", a data só quando o grupo não a
+    /// compartilha, e o conserto quando existe.
+    static func restoDa(_ r: Reprovada, dataNaLinha: Bool) -> String {
+        " — " + r.motivo
+            + (dataNaLinha ? " · " + dia(r.medidaEm) : "")
+            + (r.conserto.map { " · conserto: " + $0 } ?? "")
+    }
+
+    /// " de 08/09" quando todas as linhas do grupo têm a mesma data; senão
+    /// vazio, e a data desce a cada linha.
+    static func dataDe(_ lista: [Reprovada]) -> String {
+        let datas = Set(lista.map { dia($0.medidaEm) })
+        return datas.count == 1 && datas.first != "" ? " de " + datas.first! : ""
+    }
+
+    /// A tabela guarda "08/09/2026"; a tela diz "08/09", como a linha de cima
+    /// ("Medido em 07/09"). Um idioma só: sem formatador, sem parser.
+    static func dia(_ s: String?) -> String { String((s ?? "").prefix(5)) }
 
     private func entrar() {
         entrando = true
