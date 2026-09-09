@@ -731,3 +731,37 @@ E uma nota de instrumento: **o `orca emulator` parou de entregar toque no meio d
 passada**, e a saída foi varrer **220 quadros com `simctl io`** enquanto o teste
 hospedado dirigia a Página real. Não vira lei ainda — mandei o revisor conferir
 se a evidência assim obtida sustenta o que ela afirma.
+
+## 08/09, 23h25 — MAC-0 aberta por ordem do dono, e a lei do mouse suspensa por uma volta só
+
+Ordem literal: *"tem o Astra e o Fable 5.1, dois modelos excepcionais para
+controlar meu computador, e no Orca todos têm permissão total; deixe totalmente
+configurado"*. O dono suspendeu a **lei do mouse** — a mesma que ele criou às
+11h35 de hoje, com raiva, ao ver agentes disputando o cursor — **para esta volta
+e só para ela**, e escreveu a exceção na ESTEIRA em `main` (`6613a72`).
+
+Pus os limites em letras próprias no spec, porque uma exceção mal lida vira a
+regra: **só o app "Grok Bot"** (`com.anysphere.sand`) e, se preciso para a
+primeira tarefa, o **"Espelhamento do iPhone"**; nenhum outro app, nem navegador,
+nem Ajustes, nem Finder; **aviso ao dono no comentário do worktree ao começar e
+ao terminar**, e o mouse devolvido no fim; **nenhum simulador**; e **voz,
+VoiceOver e iPad continuam proibidos sem exceção nenhuma** — a suspensão é do
+mouse e só do mouse.
+
+**A tarefa 1 é a que decide o resto:** a pasta espelhada
+`~/Library/Mobile Documents/com~apple~CloudDocs/Traço` **não existe no Mac**, e
+sem ela o servidor não tem o que ler. Ela nasce pelo caminho do produto — no
+Traço do iPhone do dono, Perfil › Dados › Espelhar numa pasta › iCloud Drive —,
+com a instrução de **não tocar em nada mais no iPhone** e de **reportar e seguir**
+se o aparelho não estiver alcançável.
+
+E a prova que pedi é de uso, não de configuração: **"bom dia"** tem de chamar
+`traco_agenda`, e **"o que eu já pensei sobre o Traço?"** tem de chamar
+`traco_buscar` **citando ids**. Com uma saída honesta escrita no spec: **se a
+pasta ainda não existir, a prova válida é a mensagem do servidor dizendo isso** —
+uma configuração que responde "não achei a pasta" está mais entregue do que uma
+que inventa.
+
+**Teto:** o dono mandou segurar a próxima abertura até a MAC-0 fechar. Em edição
+ficam R1 e MAC-0; MAC-1 e C1 estão em G3 (revisão, não edição) e a F5b é a trilha
+fora do app. Não abro mais nada até ela voltar.
