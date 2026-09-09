@@ -60,23 +60,19 @@ que este arquivo existe para impedir — e ele reincidiu no próprio arquivo.
 | 09c | S1 (a pergunta interrompida) | em `main` |
 | 09d | S1-B (o vazio também rola) | em `main` |
 | 09e | C1-D (a reconciliação da C1) | em `main` |
-| 09f | M1 (a migração do caderno) | em `main` |
+| 09f | M1 e M1-B (a migração do caderno, com adendo) | em `main` |
 | 09g | C1-A (era 08w, depois 09d) | em `main` |
 | 09h | Q3 (responder nas Notas) | reservada |
 | 09i | Q4 (instigar e contrapor) | reservada |
-| 09j | FUSÃO (o toast é gaveta, e o piso do papel empata) | reservada, volta viva |
-| 09k | — | livre |
-| 09l | K1 (o cofre do dono não é da suíte) | no branch `Vitorepf/volta-k1-cofre` |
+| 09j | FUSÃO (o toast é gaveta; o piso empata) | em `main` |
+| 09k | D1 (as Notas sem slop) | em `main` |
+| 09l | K1 (o cofre do dono não é da suíte) | em `main` |
+| 09m | MAC-0-D (o Grok Bot recusa servidor local) | em `main` |
 
-**Próxima livre: 09k** — a `09l` foi dada pelo comando fora de ordem, e
-quem pegar a `09k` não precisa de esperar por ninguém.
-| 09j | — | pulada pelo despacho da D1 (o spec deu 09k); fica vaga até quem despachou dizer |
-| 09k | D1 (as Notas sem slop) | no branch `Vitorepf/volta-d1-notas` |
-
-**Próxima livre: 09l.**
+**Próxima livre: 09n.**
 
 **A série 08 está CHEIA** — de `08a` a `08z`, com `08c` e `08d` como buracos que
-ficam vagos. Quem precisar de letra hoje usa a série `09`.
+ficam vagos.
 
 **A regra que faz o registro funcionar:** quem despacha atualiza este arquivo **no
 mesmo ato em que reserva**. Reservar de memória é como a `09d` saiu duas vezes no
