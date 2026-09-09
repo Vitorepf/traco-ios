@@ -110,8 +110,11 @@ enum Politica {
                   medidaEm: "08/09/2026",
                   conserto: "usar o material disponível quando o fato atual falta, como produzir já faz, e manter os rótulos internos fora do texto")
         case .responder:
-            .init(regra: .soGrok, porque: "cortada em 08/09 (a 08q mediu 3 de 6: horário de biblioteca e um total de R$ 1.008 que o contexto não sustentava). VOLTOU em 09/09 (ADR 09n) com as duas alavancas medidas juntas: o contrato de sustentação em `sistemaResponder` matou a fabricação de NÚMERO (0 em 108 execuções) e o modelo escolhido pela DIRETRIZ §10, com esforço `medium`, matou a de CENÁRIO — 12 de 12 casos e 36 de 36 execuções sem um descumprimento, contra 8 de 12 do `grok-4.3` com o mesmo prompt. O preço é a espera (19,4 s a 77,5 s, média 36,1 s), assumida pelo dono e mostrada no cartão. O aparelho continua fora: ele nunca foi medido bem aqui — prova/q2-responder-*.jsonl, ferramentas/orca/q2-responder.md",
-                  medidaEm: "09/09/2026")
+            .init(regra: .indisponivelPorQualidade,
+                  porque: "cortada em 08/09 (a 08q mediu 3 de 6: horário de biblioteca e um total de R$ 1.008 que o contexto não sustentava). A 09n mediu um conserto que funciona — o contrato de sustentação em `sistemaResponder` matou a fabricação de NÚMERO (0 em 108 execuções), e com o modelo maior e esforço `medium` deu 12 de 12 casos e 36 de 36 execuções sem descumprimento —, mas o G3 REPROVOU a adoção em 09/09: a comparação mudou DUAS alavancas (modelo e esforço) e a triagem dos doze candidatos excluiu por nome e posição, não por fato observado. O conserto do prompt fica; a escolha do modelo volta a ser medida na Q2-F, com uma alavanca só. prova/q2-responder-*.jsonl e ferramentas/orca/revisao-q2-responder.md",
+                  motivo: "inventou cenário que o contexto não sustentava",
+                  medidaEm: "09/09/2026",
+                  conserto: "o prompt já mata a invenção de número; falta a comparação pareada que escolhe o modelo")
         case .instigar:
             .init(regra: .indisponivelPorQualidade,
                   porque: "com a conta ligada em 08/09 o Grok devolveu ao autor o vocabulário interno que o app passa no pedido ('o movimento básico que se pula', 'neste degrau 0', 'a forma nota'), em vez de perguntar sobre o que ele escreveu — 1 de 6 casos — prova/q-qualidade.md",
@@ -178,13 +181,15 @@ enum Politica {
         case .revisar: RevisaoTrabalho.semProvedor
         case .conferir: "Conferir o que voltou pela IA precisa da conta Grok; o modelo do aparelho errou a comparação."
         case .padroes: "Precisa da conta Grok; o modelo do aparelho não serviu aqui."
-        case .responder: "Responder à sua pergunta pela IA precisa da conta Grok (em Perfil); o modelo do aparelho não foi medido bem aqui."
-        // As cinco abaixo estão INDISPONÍVEIS POR QUALIDADE (ADR 08q; a
-        // `responder` saiu da lista na 09n, medida de novo e aprovada): a conta
+        // As SEIS abaixo estão INDISPONÍVEIS POR QUALIDADE (ADR 08q; a
+        // `responder` saiu da lista na 09n e VOLTOU no mesmo dia, quando o G3
+        // reprovou a escolha do modelo — o conserto do prompt ficou, a
+        // comparação pareada é que falta): a conta
         // pode estar ligada e mesmo assim ninguém responde, porque o que
         // respondia não atendeu na medida de 08/09. A frase não manda conectar
         // conta, não pede para tentar de novo e não promete guardar nada — quem
         // guardou o pedido é que diz isso, depois de confirmar.
+        case .responder: "Responder à sua pergunta pela IA está indisponível: na medida de 08/09 ela inventou fato que o contexto não sustentava. O que você escreveu continua aqui, e a sua pergunta fica na nota."
         case .ecos: "Ecos entre notas está indisponível: a IA deixou de fora justamente os vínculos mais úteis quando medimos, em 08/09. As notas continuam buscáveis pelo texto."
         case .calibragem: "Ler o seu juízo pela IA está indisponível: na medida de 08/09 ela calou quando não havia erro a apontar. Os seus pares de previsão e resultado continuam aqui para você comparar."
         case .recordar: "A pergunta do Recordar pela IA está indisponível: na medida de 08/09 ela entregou a resposta dentro da própria pergunta. O ritual segue com a pergunta fixa."

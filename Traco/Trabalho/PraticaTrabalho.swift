@@ -703,9 +703,15 @@ nonisolated enum PraticaTrabalho {
         s.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    private static func json(_ objeto: Any) -> String {
-        // Os objetos são construídos aqui apenas com tipos JSON, sem dados
-        // arbitrários. Falhar nessa serialização é erro de programação.
-        String(data: try! JSONSerialization.data(withJSONObject: objeto, options: [.sortedKeys]), encoding: .utf8)!
+    /// ADR 2026-09-09o, MEDIDO: igual ao `RespostaNotas.json` — objeto inválido
+    /// levanta `NSInvalidArgumentException`, não lança, e nenhum `try` pega. O
+    /// guarda é `isValidJSONObject`. Com os chamadores de hoje o `nil` é
+    /// inalcançável; se alcançar, o esquema vazio derruba a leitura da resposta,
+    /// que já é recusa dita.
+    static func json(_ objeto: Any) -> String {
+        guard JSONSerialization.isValidJSONObject(objeto),
+              let dados = try? JSONSerialization.data(withJSONObject: objeto, options: [.sortedKeys]),
+              let texto = String(data: dados, encoding: .utf8) else { return "{}" }
+        return texto
     }
 }

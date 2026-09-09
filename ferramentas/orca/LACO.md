@@ -1864,3 +1864,230 @@ rodei o portão da K1 pelo nome — `testeNuncaEscreveNoCofreDoAparelho` — e e
 (`servico = emTeste ? "app.traco.xai.testes" : "app.traco.xai"`). A diferença é de
 composição de árvore, não de teste perdido. **Contagem que não fecha se confere;
 não se explica.**
+
+## 09/09, 12h05 — DIRETRIZ §10: "SEMPRE USE O MELHOR GROK POSSÍVEL"
+
+O dono decidiu a régua que a Q2 tinha deixado com ele: **aceita a espera** — 36 s
+de média, 77 s no pior caso — **pela resposta que se sustenta**. E foi além do que
+eu tinha perguntado, em três pontos que mudam o desenho:
+
+**1. A adoção é agora.** `Sabia.chamarComProveniencia` passa **modelo e esforço na
+rota** (hoje herda o `grok-4.3` global de `Grok.swift:47`), o **tempo limite sobe
+para caber o pior caso medido**, como a 08r fez no Trabalho, e **`responder` sai de
+`indisponivelPorQualidade`** com a medida nova na `Politica` **e no Perfil**.
+
+**2. "Melhor" é medido, não escolhido pelo número da versão.** A conta expõe
+**doze modelos**; antes de fixar o padrão global, a Q2-E roda **a mesma fixture**
+nos **dois mais capazes** — `grok-4.6` e o topo da família 4.20 — **uma corrida
+cada**, e **o escolhido vira o padrão de TODAS as rotas Grok**, com esforço por
+operação. Pedi que ela **liste os doze no relato** e diga **como decidiu quais são
+os dois mais capazes**: se a lista não expõe capacidade, o critério tem de estar
+escrito.
+
+**3. A espera vira estado de tela, e é item da própria Q2** — não volta separada:
+o cartão **diz que está pensando**, **mostra o tempo** e **deixa cancelar**, sem
+perder o que a pessoa escreveu. Com `design-router` e a fase 5 primeiro, juiz
+Fable. A razão está na medida: **36 segundos sem retorno visual é onde o autor
+acha que travou.**
+
+**4. As demais repetem o protocolo** com o melhor modelo, uma por vez, e **só
+ficam na lista se nem com ele passarem** — o que muda a natureza da tabela: ela
+deixa de ser "o que o Grok não faz" e passa a ser "o que **nem o melhor Grok** faz".
+
+Despachei a **Q2-E** (`ctx_415a1b4999c2`, ADR `09n`) com as quatro ordens, e ao
+lado a **B1** (`ctx_9e9a90921b36`, ADR `09o`), primeira volta da trilha B — que
+**nasce com o alvo reduzido a quatro**, porque a A1 já julgou os oito `try!` um a
+um e o `TracoApp.swift:13` que o dono cita como primeiro **já saiu**. No spec dela
+pus a pergunta que decide cada caso: **quando esse `try!` explodir na mão do
+autor, o que ele perde?** Se for o texto que ele acabou de escrever, o conserto
+não é não-explodir — é **preservar e dizer**.
+
+## 09/09, 14h — pausa e retomada (uso 34%); a B1 achou que o conserto óbvio seria um verde falso
+
+**A B1 foi atrás do dado que faz cada `try!` explodir na mão do autor, e o achado
+é melhor que o conserto:**
+
+**Dois dos quatro não têm esse dado.** `Corpus:171` codifica um `String` e
+`Sessao:615` um `[String]` — sempre JSON válido, sempre UTF-8 válido. Testados com
+**NUL, controle, `U+FFFF`, emoji, `U+2028/2029`, aspas e barra**, e o campo volta
+idêntico do backup. Eles saem da lista de dívida real **por medida, não por
+opinião** — e sair por medida é tão válido quanto sair por conserto.
+
+**Nos outros dois, o conserto óbvio seria um verde falso.** `FonteNotas` e
+`PraticaTrabalho` compartilham `json(_ objeto: Any)`, e
+`JSONSerialization.data(withJSONObject:)` com objeto inválido **NÃO lança**: ela
+**levanta `NSInvalidArgumentException` e mata o processo**, por baixo de `try!`,
+`try?` e `do/catch` **igualmente**. A frase do worker é a que fica:
+
+> *"Trocar por `try?` teria sido um verde que nunca visita o lugar do defeito."*
+
+E ele **mediu** em vez de deduzir: com o `try!` de volta, **o teste derruba o
+runner e nem aparece como falha** — que é a morte que o autor veria. O guarda é
+**`isValidJSONObject` antes da chamada**. Está na ESTEIRA, com a regra maior:
+**antes de trocar um operador de erro por outro, descubra se a API falha por
+`throw` ou por exceção Objective-C** — se for exceção, nenhum `try` a pega, e o
+conserto é a **pré-condição**.
+
+**A D1-B e a MAC-0-D fecharam** com dois cuidados que registro porque são o oposto
+de arredondar: a D1-B entregou o vídeo **retimado por `setpts`** porque o
+`recordVideo` **estica o relógio** (15,5 s de parede viram 21,37 s de arquivo), e a
+MAC-0-D disse que a captura do "bom dia" **é o bot falando sozinho, não o caso 11**,
+e que a do caso 1 é **indício, não prova**, porque veio de execução local.
+
+**Fecho:** **996 testes em 161 suítes, `TEST SUCCEEDED`** com a B1 dentro — seis
+testes a mais que a corrida anterior, que são os que ela escreveu para provar que
+o dado que derruba **não existe**. Aparelho efêmero desligado ao fim da corrida.
+
+## 09/09, 12h15 — o dono autorizou entrar na conta dele: "pode configurar o Grok Bot"
+
+**Hora da autorização: 12h15.** Ela suspende, **só para esta tarefa**, a exceção
+de "dados do dono" da §6 — que foi exatamente o motivo pelo qual eu recusei ontem.
+O worker pode entrar na configuração de MCP da **conta Cursor**, pela **sessão já
+logada**, e cadastrar o `traco`.
+
+**Os limites que ele manteve e que eu repeti no spec:** só isso na conta (nada de
+outros servidores, cobrança, equipe, e-mail); **nenhuma senha digitada** — se pedir
+senha, **para e diz**; captura de **cada tela mexida**; voz proibida; aviso no
+worktree ao começar e ao terminar; mouse devolvido.
+
+**E pus no spec a coisa que a autorização não muda:** a MAC-0-D **mediu no código
+do app 0.44** que o Grok Bot **recusa qualquer servidor com `command`**
+(`stdio_unsupported`, *"é executado no computador do Grok Bot"*), com a Cursor
+dizendo o mesmo em 13/08. **Permissão do dono não muda o que o app aceita.** Então
+a primeira tarefa da MAC-0-E **não é cadastrar, é descobrir se há caminho** — e, se
+a conta recusar, **ir para o que existe** (HTTP alcançável, ou o modo `--chamar`
+por execução local) e **entregar funcionando, em vez de entregar o impedimento
+pela segunda vez**.
+
+**A pasta espelhada já está feita** e mandei **não refazer** — só conferir. E
+mandei **não instalar nada no iPhone dele**: o `agenda.md` só nasce com um build
+posterior à MAC-1, e **atualizar o telefone dele não foi autorizado**. Declara-se e
+segue.
+
+A régua da prova continua a da passada anterior, que foi exemplar: **dizer, para
+cada pergunta, se a resposta veio DO SERVIDOR ou do bot falando sozinho** — bot
+falando sozinho não é o caso funcionando, e indício não é prova.
+
+## 09/09, 14h01 — **`responder` VOLTOU A ESTAR DISPONÍVEL.** Eram sete cortadas, são seis.
+
+**A hora que o dono pediu: 14h01 de 09/09/2026**, no aparelho da conta. É a
+primeira das sete operações a sair de `indisponivelPorQualidade` desde que a
+tabela existe.
+
+**E o "melhor" foi MEDIDO, não presumido**, que era a ordem dele. Dos doze modelos
+da conta, **dez caem por fato declarado** (modalidade, versão, a medida da 08z, ou
+HTTP 400 do multi-agent). Os dois candidatos correram **a mesma fixture, no mesmo
+binário, no mesmo aparelho**:
+
+| modelo | resultado | espera |
+|---|---|---|
+| `grok-4.6` / `medium` | **12 de 12** | 38,3 s de média |
+| `grok-4.20-0309-reasoning` | **9 de 12** | 20,2 s |
+
+O 4.20 é **quase o dobro mais rápido e perde assim mesmo** — regra genérica
+inventada como certeza, um `5+5+5` que não divide, e **"(487 caracteres)" vazado
+no texto do autor**. Escolha pelo resultado; **o desempate por espera não chegou a
+existir**.
+
+**Dois defeitos que a própria adoção teria criado, achados pela medida e não pela
+tela:**
+
+1. **o `grok-4.6` recusa `reasoning_effort "none"`** — 400 em 6 de 6 — e em
+   `classificar` e `vestir` **a falha seria CALADA**: o aparelho responderia pior e
+   **ninguém diria**. Piso `Grok.esforcoMinimo = "low"`, remedido 9 de 9 em HTTP
+   200;
+2. **o timeout de 10 s da classificação**, medido para um modelo que **não
+   raciocinava**, **estourou 3 de 3**. Um teto só.
+
+**Deleção conta como entrega:** `modeloTrabalho` e `tetoTrabalho` **deixaram de
+existir** — um modelo, um teto — e cinco timeouts explícitos viraram o padrão. É
+a §8 em ato: o diff que some é melhor que o diff que se acrescenta.
+
+**E a sonda ganhou `erroDaAPI`** *"porque um 400 mudo é rota que cala em vez de
+dizer"* — foi ele que **transformou o número na frase** que explica a família 4.20
+inteira. A régua da casa aplicada ao nosso próprio instrumento.
+
+**A espera virou estado de tela**, como o dono mandou: o cartão diz que pensa,
+mostra o tempo e deixa cancelar.
+
+## 09/09, 14h04 — a MAC-0-E fez o servidor chegar ao bot, e o caminho não era o que ninguém queria
+
+A conta **Free não tem seção de MCP** e o app 0.44 não tem tela de cadastro
+(capturas `mac-0-e-01/02`) — então ela **não forçou** e foi para a rota que o RUMO
+já nomeava: **`servidor.py --chamar`**, com a Descrição do bot mandando chamar as
+ferramentas por comando local.
+
+**A prova é o vigia de processos**, não a resposta bonita: o executor local do bot
+(pid 68403) rodando `servidor.py --chamar traco_agenda` no "bom dia" (13:58:05) e
+cinco `traco_buscar` mais `traco_corpus`/`traco_contrato` no "o que eu já pensei"
+— **DO SERVIDOR**, com o bot dizendo *"sem id, não invento"*.
+
+E de passagem ela achou **um bug real que esvaziava toda busca**: o app grava em
+`<pasta>/Traço/` e **o servidor olhava um nível acima**.
+
+**Fecho:** **999 testes em 161 suítes, `TEST SUCCEEDED`**, com Q2-E e MAC-0-E
+dentro. Aparelho efêmero desligado ao fim da corrida; o da conta, intocado pela
+suíte — que é o que a K1 garantiu esta manhã.
+
+## 09/09, 15h — o G3 reprovou a adoção do modelo, e eu revertí como tinha prometido
+
+Escrevi no spec dele: *"se você reprovar, eu reverto de `main`"*. Ele reprovou, e
+os **dois P1 são exatamente as duas coisas que eu pedi para conferir**:
+
+1. **A comparação não é pareada.** Ela mudou **duas alavancas** — modelo **e**
+   `reasoning_effort` — então **não decide o modelo global**. É a mesma armadilha
+   que o conselho apontou em `produzir` e que já tinha custado uma volta: eu
+   escrevi o aviso no spec da Q2 e **não o apliquei ao próprio experimento dela**.
+2. **A triagem excluiu candidatos por nome e posição**, não por fato observado —
+   e "fato declarado é fato, opinião não é" foi a frase que eu mesmo mandei ele
+   usar.
+
+**Revertí cirurgicamente, não em bloco**, porque ele foi preciso no que pediu:
+`Grok.modelo` volta a **`grok-4.3`** e **`responder` volta a
+`indisponivelPorQualidade`** — as duas coisas que ele nomeou. **Fica o que ele
+aprovou e o que a medida provou:**
+
+- **a espera como estado de tela** (ele abriu as três capturas: pergunta, contador
+  de 22 s e "Parar de esperar") — *"a correção visual é boa"*;
+- **o piso `esforcoMinimo = "low"`**, que nasceu de um defeito real: o
+  `reasoning_effort "none"` era recusado com **falha CALADA** em `classificar` e
+  `vestir`;
+- **o teto único** e a deleção do `modeloTrabalho`/`tetoTrabalho`;
+- **o `erroDaAPI` na sonda**, que foi o que tornou legível a família 4.20.
+
+**E a linha da `Politica` conta a verdade inteira**, que é o que essa tabela existe
+para fazer: o conserto do prompt **funciona e fica**; o que falta é **a comparação
+pareada que escolhe o modelo**.
+
+**São sete cortadas de novo**, e por seis horas foram seis. Escrevo isso sem
+maquiar: o número andou para trás porque **a prova não sustentava o passo**, e é
+melhor voltar do que ficar com um padrão global escolhido por um experimento de
+duas alavancas.
+
+**O G3 da B1 também pegou um bypass:** o parser do portão da regex **não vê
+argumento aninhado** — `regex(padraoDeFora.trimmingCharacters(...))` **passa** no
+teste de literalidade, enquanto o plantio plano fica vermelho. Um portão que se
+contorna com uma chamada aninhada é um portão que dá verde para o caso real.
+
+**E a reversão cobrou a frase da tela, que é o que mais importa.** Com
+`responder` de volta à lista, o teste apontou que a frase continuava dizendo
+*"precisa da conta Grok (em Perfil)"* — **mandando o autor conectar a conta que ele
+já tem**, que é exatamente o defeito que a 08q nomeou e que o dono viu na tela em
+08/09.
+
+O portão pegou: `#expect(frase.contains("indisponível"))` e
+`#expect(!frase.contains("conta Grok"))`. A frase virou:
+
+> *"Responder à sua pergunta pela IA está indisponível: na medida de 08/09 ela
+> inventou fato que o contexto não sustentava. O que você escreveu continua aqui, e
+> a sua pergunta fica na nota."*
+
+**Reverter código sem reverter a tela teria deixado o app mentindo** — dizendo que
+falta conta quando o que falta é qualidade medida. Foi um teste escrito há duas
+voltas que impediu isso, e é o melhor argumento a favor de portões que guardam
+frase de tela e não só estado.
+
+**Fecho da reversão:** **999 testes em 161 suítes, `TEST SUCCEEDED`**. `main` fica
+com o conserto do prompt, o piso de esforço, o teto único, a espera na tela e a
+sonda com `erroDaAPI`; **sem** a escolha do modelo global e **sem** `responder`
+fora da lista. Aparelho efêmero desligado ao fim.

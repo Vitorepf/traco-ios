@@ -78,7 +78,13 @@ nonisolated enum Grok {
     static let esforcoMinimo = "low"
 
     private static let escolhido: String = {
-        let padrao = "grok-4.6"
+        // REVERTIDO em 09/09 pelo G3 (revisao-q2-responder.md): a comparação
+        // que escolheu o `grok-4.6` mudou DUAS alavancas (modelo e
+        // `reasoning_effort`) e a triagem dos doze excluiu candidatos por nome e
+        // posição, não por fato observado — então ela não decide o padrão global.
+        // O padrão volta ao medido de 03/set até a Q2-F refazer a comparação com
+        // uma alavanca só e a triagem por fato declarado.
+        let padrao = "grok-4.3"
 #if DEBUG
         // SÓ PARA A SONDA, e por ambiente: comparar dois modelos exige o MESMO
         // binário nos dois lados, senão a diferença medida não é do modelo.

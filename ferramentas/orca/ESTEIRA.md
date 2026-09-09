@@ -618,3 +618,88 @@ sempre: **fumaça antes e depois, e parar em vez de contornar**.
 APARELHO — keychain, `UserDefaults` do app, App Group, arquivos do contêiner — não
 está isolado**, por mais que o alvo se chame "testes de unidade". O que ele apaga,
 apaga de verdade. Injete o cofre, ou pule com a razão dita.
+
+### `try?` pode ser um verde que nunca visita o defeito (09/09, achado da B1)
+
+Trocar `try!` por `try?` parece o conserto óbvio, e **em dois dos quatro casos da
+B1 seria um verde falso**: `JSONSerialization.data(withJSONObject:)` com objeto
+inválido **NÃO lança** — ela **levanta `NSInvalidArgumentException` e mata o
+processo**, por baixo de `try!`, `try?` e `do/catch` **igualmente**. Medido: com o
+`try!` de volta, o teste **derruba o runner e nem aparece como falha** — que é
+exatamente a morte que o autor veria.
+
+**O guarda certo é `isValidJSONObject` ANTES da chamada**, e a degradação vai para
+a recusa que o app já sabe dizer.
+
+**A regra maior:** antes de trocar um operador de erro por outro, **descubra se a
+API falha por `throw` ou por exceção Objective-C**. Se for exceção, **nenhum
+`try` a pega**, e o conserto é a **pré-condição**, não o tratamento.
+
+**E a segunda metade do achado, que é rara:** os outros dois casos
+(`Corpus:171`, `Sessao:615`) **não têm dado que os derrube** — testados com NUL,
+controle, `U+FFFF`, emoji, `U+2028/2029`, aspas e barra. Eles passam de "dívida
+real" a **"infalível por construção COM A PROVA"**. Sair da lista **por medida** é
+tão válido quanto sair por conserto — e é mais barato.
+
+### ⛔ Com o dono ativo na máquina, não se levanta janela nem se escreve em campo (09/09)
+
+**O que aconteceu, e é o pior tipo de acidente: o silencioso.** A janela do Grok
+Bot sumiu; o worker fez `open -a "Grok Bot"` para ler a resposta, e isso
+**levantou a janela por cima do que o dono estava fazendo** — um `appl` dele
+apareceu no campo do bot. O worker esperou **45 s de inatividade**, clicou no
+campo, mandou `cmd+a` (o helper respondeu **"provider unavailable": não selecionou
+nada**), colou a pergunta e deu Return. **O campo tinha um rascunho do dono, e ele
+foi enviado ao bot junto com a pergunta do worker.**
+
+Nada saiu da conta dele e o destinatário foi o próprio bot; o worker **escalou na
+hora, não apagou nem editou a conversa, e não tocou mais no app**. Isso é o
+comportamento certo depois do erro — e o erro continua sendo evitável.
+
+**Três regras, e as três nasceram deste minuto:**
+
+1. **Com o dono ativo no Mac (ocioso < 60 s), não se levanta janela nem se escreve
+   em campo de texto.** Esperar 45 s não bastou; espere o Mac ficar realmente
+   parado, ou **peça e aguarde**.
+2. **`open -a` não é neutro:** ele **rouba o foco** do que a pessoa está fazendo.
+   Para *ler* uma janela, leia pela árvore de acessibilidade sem trazê-la à frente.
+3. **O `hotkey` do helper não é confiável.** Ele respondeu "provider unavailable" e
+   **não selecionou nada**, e o worker seguiu como se tivesse selecionado.
+   **Confira o VALOR do campo por AX antes de qualquer Return** — enviar é
+   irreversível, e o que estava lá não era seu.
+
+**A regra geral por trás das três:** **antes de um ato irreversível num app do
+dono — enviar, salvar, apagar — leia o estado real e confirme que é o seu.** Não
+basta ter mandado o comando que deveria limpar.
+
+### O binário entrou cinco vezes, e o worker DISSE (09/09)
+
+A lei diz **uma vez por volta**. A Q2-E declarou, sem ser perguntada: *"o binário
+entrou cinco vezes no aparelho da conta, não uma, cada vez forçada por um achado
+da corrida anterior"* — com a conta conferida ligada **às 13:30:03 e às 14:05:35**,
+e nenhum `erase`, `clearState`, `uninstall` ou `xcodebuild test`.
+
+**O propósito da lei foi cumprido** (a conta sobreviveu, e cada install teve
+motivo medido); **a letra foi excedida, e o excesso está escrito**. É assim que
+uma regra sobrevive ao contato com o trabalho: **quem excede, declara**, e quem lê
+decide se a regra muda ou se o caso era exceção.
+
+**A regra muda:** *"uma vez por volta"* passa a ser **"cada install é declarado,
+com o achado que o forçou e a conta conferida antes e depois"**. Contar instalações
+nunca foi o objetivo — **não perder a conta era**, e a K1 já tirou dela o perigo
+real.
+
+### O teste que guarda o estado tem de guardar o MOTIVO (09/09)
+
+Ao reverter a adoção do modelo, o teste `responderVoltouComOMelhorModeloEOEsforcoMedido`
+ficou vermelho — **corretamente**: ele guardava o estado que deixou de valer. A
+tentação é apagá-lo ou afrouxá-lo; o certo é **reescrevê-lo para guardar o estado
+novo E a razão dele**.
+
+Ele virou `responderEsperaAComparacaoPareadaAntesDeVoltar`, e o comentário diz o
+que a próxima pessoa precisa saber: **`responder` só sai da lista de novo quando
+uma comparação de UMA alavanca escolher o modelo**. E a lista das cortadas voltou
+a sete com a frase *"quem tirar uma sem medida nova, PAREADA, quebra aqui"*.
+
+**A regra:** teste de estado é documentação executável. Quando o estado muda, o
+teste muda **junto com o porquê** — senão a volta seguinte desfaz a reversão por
+descuido, e ninguém saberá que houve um motivo.

@@ -99,7 +99,8 @@ Achado de processo da V19 (Recordar), confirmado pelo revisor com `git show` e q
 
 - **A 08x não tem portão: a guarda `focoPagina` é copiada à mão em cada `.animation`.** A FUSÃO achou o `toast` sem ela (ADR 09j) três voltas depois de a 08x existir — o `cartao` e o `analisando` tinham, o `toast` não, e ninguém percebeu porque a única prova é a invariante 08f por quadro, que só reprova quando o aparelho é apertado o bastante (o 17e dava 0; o 17 Pro deu 3 quadros com 1 pt). Sobra `CadernoView.swift:281` (`value: esconderRegua`), hoje **medido em zero** porque cresce o papel em vez de encolher — mas é a mesma classe. **Dono: a mesma volta do item 7 daqui de baixo** (o portão que impede `withAnimation` fora de `Tema`), que já é um teste que varre o repositório: acrescentar a regra "toda `.animation` que muda a altura do encaixe da Página passa por `focoPagina`".
 
-- **As quatro dívidas de `try!` que a volta A1 congelou** (ADR 08n; o portão está em `TracoTests/PortaoDoTryBangTests.swift` e fica vermelho se subirem). Medido, e a medida se refaz — `grep -rn 'try!' Traco/ TracoWidget/ | grep -vE '^[^:]+:[0-9]+:[[:space:]]*//'` dá **9 em `main` e 8 no branch da A1** (o `grep` cru dá 10 hoje: a volta escreveu duas linhas de comentário que dizem `try!`; o portão conta com `codigoVisivel`, que apaga comentário e string, e chega ao mesmo 8). **Infalível por construção, não é dívida:** `Traco/Caderno/AnexoDisco.swift:48`, `Traco/Notas/Indice.swift:96` e `Traco/Notas/Corpus.swift:277` (`NSRegularExpression` de padrão literal); `Traco/Trabalho/ConferenciaTrabalho.swift:179` é literal **só enquanto todo chamador passar literal** — o padrão chega por argumento, e isso é o que fura primeiro. **Dívida real, serialização de valor vindo de fora:** `Traco/Analise/FonteNotas.swift:155` e `Traco/Trabalho/PraticaTrabalho.swift:529` (`JSONSerialization.data` sobre objeto montado em runtime), `Traco/Notas/Corpus.swift:144` (`encode` de campo do autor, com um `!` de dicionário na mesma linha) e `Traco/App/Sessao.swift:599` (`encode` do texto do autor). A A1 NÃO as consertou de propósito: `Analise` é da volta Q e `Trabalho` é da E1, as duas vivas em 08/09. Volta própria, pequena, quando as duas fecharem.
+- ~~**As quatro dívidas de `try!` que a volta A1 congelou**~~ — **FECHADA pela volta B1 em 09/09** (ADR `2026-09-09o`, relato `ferramentas/orca/b1-try-bang.md`). Nenhuma das quatro podia explodir, e a medida está nos testes em vez de na opinião: `Corpus:171` codifica um `String` (`campos` é `[String: String]`) com o `!` coberto pelo filtro três linhas acima, e `Sessao:615` codifica um `[String]` — os dois **infalíveis por construção**, provados com o pior texto que um autor consegue digitar. Em `FonteNotas` e `PraticaTrabalho` o `try!` guardava a **porta errada**: objeto inválido no `JSONSerialization` NÃO lança, levanta `NSInvalidArgumentException` e mata o processo por baixo de `try!`, `try?` e `do/catch` igualmente — o guarda é `isValidJSONObject`, e trocar `try!` por `try?` num `JSONSerialization.data` fica **proibido como conserto**. A quinta, `ConferenciaTrabalho.regex(_:)`, ganhou portão. Lista congelada desce de 8 para 6.
+- **O `json(_ objeto: Any)` duplicado** em `Traco/Analise/FonteNotas.swift` e `Traco/Trabalho/PraticaTrabalho.swift` — idêntico nos dois desde a B1. Unificar cruza a fronteira da volta Q e da volta E1, e por isso a B1 não o fez. Dono: quem mesclar as duas por último. Custo: um helper de ~6 linhas. Fechar por TIPO (um `JSONValue` no lugar do `Any`) é abstração sem segundo caso hoje — só vale com um terceiro chamador.
 - **A recuperação que a A1 não entrega:** a tela do arranque falho oferece só "tentar de novo". Trazer o espelho em Markdown de volta para dentro do banco — o backup que a própria tela aponta — é volta própria, e tem de nascer com a regra da A1 na mão: preservar antes de voltar a funcionar, nada apaga para consertar.
 - **AX5 sangra pelos dois lados** num documento COM versão da IA (`ConteudoTrabalhoView`), enquanto documento novo fica impecável. Pré-existente, achado no re-G3 da V18 — e o revisor assumiu que o próprio G3 dele validou AX5 num trabalho sem versão.
 - **O teclado cobre a ação primária** depois do pedido, no Trabalho. Atrito igual antes e depois da V18.
@@ -378,6 +379,19 @@ não podem ser provados pelo bot por MCP**. Duas saídas, a mais barata primeiro
    GrokBotDev. É o caminho que a Cursor recomenda; custa túnel e segredo, e o Mac tem de estar ligado.
 Relato completo: `ferramentas/orca/mac-0-configuracao.md`, quarta passada.
 
+**Paga pela rota 1 na MAC-0-E (09/09 13h58, quinta passada):** `servidor.py --chamar` existe, a
+Descrição do bot "Traço" manda chamá-lo por comando local, e o vigia de processos do Mac viu o
+executor do Grok Bot rodar `servidor.py --chamar traco_agenda` no "bom dia". O que sobra, com dono:
+- **Orquestrador, no ato da mesclagem:** a Descrição do bot aponta para o `servidor.py` DESTE
+  worktree (`orca/workspaces/traco-ios/volta-mac-0`), porque o `--chamar` só existe aqui até
+  mesclar; trocar pelo caminho estável `develop/traco-ios/...` (o texto de
+  `ferramentas/grokbot/casos/README.md` já traz o estável). Sem isso, o bot quebra quando o
+  worktree sumir.
+- **Dono:** `agenda.md` só nasce com um build posterior à MAC-1 no iPhone dele; até lá "bom dia"
+  responde, do servidor, que não há agenda.
+- **Rota 2 (HTTP + URL pública)** fica como não feita, sem dono: a rota 1 basta enquanto o bot
+  tiver execução local no Mac.
+
 ### DECISÃO DE CONTRATO do dono (08/09, 23h): a origem acompanha todo consumidor
 
 O revisor da MAC-1 levantou e o dono decidiu: **nenhum consumidor que declare
@@ -431,6 +445,32 @@ pessoa já tem*.
 Ciclo: multiplicar (achar e marcar sem pensar na ferramenta). Intenção: a lista de notas ser uma folha do Traço, não uma lista de sistema com selos. Obstáculo: chips em cápsula, etiquetas em caixa alta à direita, rótulo "A VOLTA", barra de busca padrão, "Trabalhos" como linha de menu — o dono chamou de slop. Evidência: antes/depois em large e AX5, vídeo de 15 s no aparelho da conta enviado ao dono, teste do genérico do `tastemaker` respondido por escrito, curva-zero de achar/marcar medida em toques, e o dono dando a nota. Escopo: `Traco/Notas/NotasView.swift`, `Traco/Notas/NotasFiltro.swift`, `Traco/Componentes/{Pilula,ChipDominio,Rotulo}.swift`, `Traco/App/BarraNavegacao.swift`, Tema. Fora: motor de busca, Trabalho. Designer Fable, juiz Fable, revisor GPT 5.6 Terra. Astra não.
 
 **Estado 09/09 12h (branch `Vitorepf/volta-d1-notas`, ADR 09k, relatório `ferramentas/orca/d1-notas-sem-slop.md`):** construída e provada no teste 3; **vídeo de 15 s gravado no aparelho da conta às 12h43 (`ferramentas/orca/d1/d1-notas-15s-conta.mp4`, caderno real, conta `Grok conectada` antes e depois do install por cima)**; a nota é do dono, pelo vídeo. **Dívida nomeada, com dono (próxima volta de design):** o rótulo "A SÁBIA, SOBRE:" do cartão e os `.rotulo()` das outras telas continuam em caixa alta (mudar `Rotulo` é volta de sistema); a régua de `Pilula(.filtro)` continua em `Trabalho*` e no caderno; filtrar por WOOP custa 2 toques onde custava 1 (o menu trocou o melhor caso pelo pior caso). **Vermelho vivo no `main` (não desta volta, reproduzido em checkout de HEAD no 17 Pro teste 3, 12h05):** `EscritaVisivelTests.aLinhaFicaNoPapelEmCadaQuadroDaGaveta` em `large` (`totalFora 3`, `totalCoberto 2`) e `aLinhaAtivaEOCaretFicamNaAreaLivreDoPapel` em AX XXXL (`papelComEtiqueta == papelSemEtiqueta`, 86,33) — `Traco/Caderno`, dono C1. **Instrumento (ESTEIRA):** `simctl openurl traco://…` abre o diálogo "Abrir com Traço?"; helper do `orca emulator` de um boot anterior diz `ok` sem tocar — matar só o `serve-sim` do próprio UDID e reatar; `simctl recordVideo` estica o relógio (15,5 s de parede → 21,4 s de arquivo), retimar por `setpts`; `orca emulator list --json` devolve um objeto único, não `streams[]`.
+
+### DECISÃO (09/09, minha, §6): o caminho da ESCRITA não é o caminho da RESPOSTA
+
+A Q2-E não decidiu sozinha e fez certo: com o modelo novo, **`classificar` subiu
+para 11–16 s no caminho da escrita**, e ela viu que isso *"muda a régua da §10"*.
+
+**Decido que não muda, e a razão está na própria tabela.** A §10 foi escrita com o
+dono aceitando **36 s por uma resposta que ele PEDIU e está esperando**, num
+cartão. **`classificar` é outra coisa:** roda **enquanto o autor escreve**, sem ele
+pedir, e a `Politica` já diz o que ela é — **`grokDepoisBordo`**: *"o aparelho
+acertou 3 de 3 com esquema tipado; as regex arbitram por último"*. O Grok ali é
+**refinamento**, não resposta.
+
+**Fazer o autor esperar 11–16 s por um refinamento que o aparelho já acerta é o
+troco errado.** A regra que fica:
+
+> **No caminho da escrita, o melhor modelo entra sem fazer esperar.** A resposta
+> local vale de imediato; a do Grok, quando chega, refina. Se estourar um teto
+> curto, **a local fica** — e nada na tela some ou pisca por causa disso.
+
+**Isto é volta própria e nasce nomeada: Q5 — a classificação que não faz esperar.**
+Ela mede o antes/depois em **toques e em tempo até a letra aparecer**, não em
+acerto do modelo (que já foi medido).
+
+**Se o dono discordar, é uma linha para desfazer** — a decisão está aqui e o
+motivo também.
 
 ## Próximas, em ordem
 

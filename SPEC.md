@@ -8071,6 +8071,45 @@ caso da trilha Mac é declarado provado até um dos dois existir e a prova mostr
 que não tem conector, e isso é a resposta certa, não o caso 11. Relato:
 `ferramentas/orca/mac-0-configuracao.md`.
 
+## ADR 2026-09-09o — o `try!` do JSON não guardava nada: o guarda é `isValidJSONObject` (volta B1)
+
+**Contexto.** A limpeza de 07/09 levou ao RUMO oito `try!` de produção, e a A1 (ADR
+`2026-09-08s`) julgou quatro deles "dívida real — serializam valor vindo de FORA":
+`Analise/FonteNotas.swift`, `Trabalho/PraticaTrabalho.swift`, `Notas/Corpus.swift` e
+`App/Sessao.swift`. A B1 foi buscar, como manda a §8, **o dado que faz cada um explodir na
+mão do autor**.
+
+**O que a medida achou.** Nenhum dos quatro explode, e dois deles nem estavam guardados:
+
+- `Corpus` codifica um `String` (`campos` é `[String: String]`) e o `!` do dicionário ao lado
+  está coberto pelo filtro `f.campos[$0] != nil` três linhas acima; `Sessao` codifica um
+  `[String]`. `[String]` e `String` são sempre JSON válido, e `String` do Swift é sempre UTF-8
+  válido: **não existe texto do autor que os derrube**. O teste que tentou está em
+  `AProvaDosQuatro` — NUL, controle, U+FFFF, emoji, U+2028/2029, aspas e barra entram e o
+  campo volta idêntico do backup.
+- `FonteNotas` e `PraticaTrabalho` compartilham `json(_ objeto: Any)`. Ali o `try!` guardava a
+  porta errada: `JSONSerialization.data(withJSONObject:)` com objeto inválido **não lança** —
+  levanta `NSInvalidArgumentException` ("Invalid number value (NaN) in JSON write", "Invalid
+  type in JSON write"), que mata o processo por baixo de `try!`, de `try?` e de `do/catch`
+  igualmente. Medido: com o `try!` de volta, o teste **derruba o runner inteiro**, e nem sequer
+  aparece como falha.
+
+**Decisão.** Trocar `try!` por `try?` num `JSONSerialization.data` é teatro e fica proibido
+como conserto. Onde o objeto chega como `Any`, o guarda é `JSONSerialization.isValidJSONObject`
+**antes** da chamada, e a degradação vai para a rota de recusa que já existe: esquema vazio faz
+a leitura da resposta remota falhar, e o app já sabe dizer isso. Os quatro passam de "dívida
+real" a **infalível por construção**, com a prova em `TracoTests/PortaoDoTryBangTests.swift` —
+não por opinião. A lista congelada do portão desce de 8 para 6.
+
+**A quinta, guardada.** `ConferenciaTrabalho.regex(_:)` é `try! Regex("(?i)" + padrao)`:
+infalível só enquanto todo chamador passar literal do próprio arquivo. É a dívida que ainda
+não é dívida, e agora tem portão —
+`aConferenciaSoAceitaPadraoLiteralDoProprioArquivo` compara os argumentos de `regex(` com os
+`private static let` de padrão declarados no arquivo e fica vermelho no commit que a criar,
+não no relatório de crash. Sonda: com um `regex(padraoDeFora)` plantado, o teste acusa
+`deFora → ["padraoDeFora"]`.
+
+**Consequência.** Relato e evidência em `ferramentas/orca/b1-try-bang.md`.
 ## ADR 2026-09-08z — `responder` remedida: a fabricação de número cede ao prompt, a de cenário não (volta Q2)
 
 **A distância.** A 08q cortou `responder` com uma prova e um conserto nomeado:

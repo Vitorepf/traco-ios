@@ -219,3 +219,123 @@ Essa rota local alcança o Mac — o que a nuvem do bot não alcança por MCP, o
 |---|---|---|
 | 12:20–12:55 | Terminal, sem cursor | leitura: `app.asar` (grep), `servidor.py` por stdio (`tools/list`), `ls` da pasta espelhada, docs públicos da Cursor por WebFetch |
 | — | Grok Bot, Espelhamento, iPhone, `~/.grokbot/`, `~/.cursor/mcp.json`, cursor.com, simuladores | **nada** |
+
+## Quinta passada (MAC-0-E), 09/09 13:44–14:05 — o servidor chega ao bot por comando local, e é provado no Mac
+
+Worker: Fable 5.1, branch `Vitorepf/volta-mac-0` sobre `d98f508`. **Autorização do dono às 12h15
+("pode configurar o Grok Bot")**, que suspendeu só nesta tarefa a exceção de dados do dono: sessão já
+logada, Mac destrancado (`CGSSessionScreenIsLocked` ausente às 13:45), nenhuma senha digitada, nada
+comprado, nenhum outro servidor. Aviso no comentário do worktree `main` às 13:45 e às 14:04. Voz,
+VoiceOver, iPad e simuladores: não tocados. Aparelhos: nenhum (o `B91C8DEF` ficou com a Q2-E).
+
+### 1. A configuração de MCP da conta, vista com os próprios olhos: não há onde cadastrar
+
+- **`cursor.com/dashboard/integrations`** (captura `mac-0-e-01`): Source Control (GitHub) e
+  Integrations (Slack, Teams, Linear, Jira, Sentry). **Nenhuma seção de MCP** — a conta é Free
+  (vitordsny@gmail.com), e o "Integrations & MCP" dos docs é de equipe.
+- **`cursor.com/dashboard/settings`** (captura `mac-0-e-02`, rolada até o fim): Privacy, Profile,
+  Appearance, Pull Requests, Active Sessions, Log Out/Delete. **Nada de MCP.**
+- **No app 0.44** (`app.asar`, por Python sobre o `strings`): `addServer(name, configJson)` existe e
+  grava na conta por `SetMcpConfig`, mas **não tem chamador em tela nenhuma**; "Adicionado
+  manualmente" (`hO1TWp`) é só o rótulo de qualquer servidor da conta que não seja de equipe. Há
+  um caminho de leitura de servidores stdio da conta (`fetchStdioRuntimeConfig`) — eles rodam "no
+  computador do Grok Bot", a máquina na nuvem (portas 1337/6080, noVNC, `egressTunnel`), onde não
+  existe `/Users/vitorepf`. A recusa `stdio_unsupported` da MAC-0-D é do fluxo de login desses
+  servidores. Conclusão igual à da MAC-0-D, agora vista: **não há tela, no site nem no app, onde
+  um servidor da máquina do dono entre.** Não abri o Cursor IDE (3.19.7, instalado, fechado): o
+  `~/.cursor/mcp.json` dele só tem `atlas-open-brain`, e o IDE não é o Grok Bot.
+
+Sem forçar: fui à **rota 1 do RUMO** (`--chamar`), a mais curta.
+
+### 2. O que mudou no código (diff de 3 arquivos + relato)
+
+- **`ferramentas/traco-mcp/servidor.py`**: `servidor.py [pasta] --chamar <ferramenta> ['{json}']`
+  imprime o que `tools/call` devolveria; sem ferramenta, a lista de uso. `pasta_padrao()` ignora
+  argumento que começa com `--`. E um **bug que esvaziava tudo**: o app grava numa subpasta
+  `Traço/` DENTRO da pasta escolhida (`PastaEspelho.swift:96`), e o `.cursor/mcp.json` aponta para
+  a escolhida — `Pasta.existe()` dava verdadeiro e `traco_buscar` devolvia `[]` porque `notas/`
+  estava um nível abaixo. Agora `Pasta` desce para `Traço/` quando `notas/` só existe lá. Duas
+  linhas no autoteste cobrem as duas coisas (`autoteste ok`). Medida antes/depois pelo caminho do
+  `mcp.json`: `traco_buscar '{"termo":"ler"}'` → `[]` antes, a nota `21666fb0-…` depois;
+  `traco_corpus` → "Sem traco-corpus.md ainda" antes, o corpus depois.
+- **`ferramentas/grokbot/casos/README.md`**: seção "Como você chama as ferramentas no Grok Bot"
+  — a linha do comando, três exemplos, e a proibição de ler a pasta por `ls`/`cat`/`grep`.
+- **`ferramentas/grokbot/CASOS.md`** (topo) e **`ferramentas/orca/RUMO.md`** (MAC-0-E paga; resto
+  com dono). Sem ADR: a decisão é a rota 1 já escrita na ADR 09m; a letra 09p não foi usada.
+
+### 3. Tela a tela no Grok Bot
+
+1. Botão direito no bot "Traço" da barra lateral › **Editar perfil** abre o painel Configurações
+   (captura `mac-0-e-03`: Nome "Traço", Rótulo "segundo cérebro", Descrição).
+2. **Descrição regravada** com README (já com a seção nova) + casos 01, 02, 03, 08, 09, 11 + bloco
+   "Regras de origem" (10 678 bytes). `set-value` do helper **não persiste** neste campo (o painel
+   reabriu com o texto antigo); o que persistiu foi clicar no campo, `cmd+a`, `paste-text`
+   (área de transferência), e sair do campo. Reaberto: começa em "# As instruções…", contém a
+   seção nova uma vez só, e termina em "…vem marcada" (captura `mac-0-e-04`, campo rolado ao fim).
+   **O caminho na Descrição é o deste worktree** (`orca/workspaces/traco-ios/volta-mac-0/…`), porque
+   o `--chamar` só existe aqui até mesclar; o README do repositório traz o caminho estável. Trocar
+   na mesclagem é do orquestrador (RUMO).
+3. Três mensagens ao bot Traço pelo campo de prompt (`paste-text` + Return; o `type-text` dobra
+   texto). O AX do campo cola o placeholder "Mensagem para Traço" ao valor e o balão enviado mostra
+   isso ("bom diaMensagem para Traço"): defeito do instrumento/app, igual ao da MAC-0-C.
+
+### 4. A prova, de uso — do servidor ou do bot sozinho?
+
+O Grok Bot **não mostra cartão de comando** na transcrição. A régua foi um **vigia de processos no
+Mac** (`ps -axo pid,ppid,command` a cada 50 ms), guardado em `ferramentas/orca/mac-0-e-vigia.txt`:
+todo `servidor.py --chamar` que rodou, com hora, e o pai **68403 = `local-exec-daemon` do Grok
+Bot**. Isso é o bot executando o servidor; não é inferência pelo texto.
+
+| hora | pergunta | comandos vistos no Mac (pai 68403) | resposta do bot | veredito |
+|---|---|---|---|---|
+| 13:56:35 | "bom dia" (sem vigia) | — | "Sem agenda ainda. O app escreve esse arquivo quando você abre o Traço no iPhone…" | **indício**: texto igual ao do servidor, mas sem vigia não conto |
+| 13:57:59 | "bom dia" | 13:58:05 `--chamar traco_agenda '{"dias": 2}'` | 13:58:08 "Ainda sem `agenda.md`. Abre o Traço no iPhone com o espelho ligado — o app escreve o arquivo sozinho." (captura `mac-0-e-05`) | **DO SERVIDOR.** Caso 11 provado até onde o corpus permite: `agenda.md` só nasce com build posterior à MAC-1 no iPhone do dono — não instalado, por ordem |
+| 13:58:53 | "o que eu já pensei sobre o Traço?" (antes da correção da subpasta) | 13:58:57 `traco_buscar` "Traço"; 13:59:02 `traco_buscar` "traco", "app", "escrever", "bloco de notas"; 13:59:06 `traco_corpus` | 13:59:09 "Não achei nota sua sobre o Traço… O corpus ainda não está na pasta espelhada. Isto é meu, não achei nota…" (captura `mac-0-e-06`) | **DO SERVIDOR**, fiel ao que o servidor devolveu (`[]` e "Sem traco-corpus.md") — que estava errado pelo bug da subpasta, corrigido em seguida |
+| 14:02:24 | idem, depois da correção — **enviada junto com um rascunho do dono** (§5) | 14:02:35 `traco_buscar` "Traço", "simulador", "Grok Bot", "espelho", "iPhone"; `traco_contrato` | 14:02:39 "Sobre o que você já pensou no Traço: ainda zero. Busquei … — nada. Sem id, não invento." + explicação marcada "Isto é meu" (captura `mac-0-e-07`) | **DO SERVIDOR.** Caso 1 na forma certa: só cita id quando há nota; a única nota (`21666fb0`, "Gostaria de começar a ler") não fala do Traço, então não há id a citar. **A citação de id fica por provar** num corpus com nota sobre o assunto |
+
+Comparação com a MAC-0-C: às 12:09 o bot leu a pasta com `ls`/`cat` por conta própria e citou o id
+"por fora"; agora a Descrição proíbe isso e o vigia não viu nenhum comando fora do `servidor.py`.
+
+### 5. Incidente: um rascunho do dono foi enviado ao bot por mim (14:02:24)
+
+Às 13:59 a janela do Grok Bot sumiu (0 janelas; o processo vivo; tela não bloqueada; o dono ativo
+no Mac, ocioso 0–1 s, com Claude/Chrome na frente). Às 14:00:08 fiz `open -a "Grok Bot"` para ler
+a resposta — **isso levantou a janela por cima do que o dono fazia**, e um "appl" apareceu no campo
+do bot. Esperei o dono ficar 45 s sem tocar no Mac (14:02:20) e o script clicou no campo, mandou
+`cmd+a` (o helper respondeu "provider unavailable": **não selecionou nada**), colou a pergunta e
+deu Return. O campo tinha um rascunho do dono — *"Tá, o que eu não entendia é como é que vai
+funcionar o Grok Bot, sabendo que, no meu iPhone, é de uma forma, e no simulado, tem outras notas.
+Como é que vai funcionar isso?"* — e ele **foi enviado ao bot Traço junto com a minha pergunta**
+(captura `mac-0-e-07`). O bot respondeu ao dono. Nada saiu da conta dele; o destinatário foi o
+próprio bot. Escalado ao coordenador na hora (`msg_8d3218277ff2`); não apaguei nem editei nada da
+conversa; não toquei mais no Grok Bot. **Lição para a ESTEIRA:** com o dono ativo no Mac (idle < 60
+s) não se levanta janela nem se escreve em campo de texto; e `hotkey` do helper não é confiável —
+conferir o valor do campo por AX antes de dar Return.
+
+### Scorecard (preenchido pelo worker; a nota é do revisor)
+
+| dimensão | nota | evidência |
+|---|---|---|
+| 1. Pasta espelhada criada pelo caminho do produto | 9 | continua lá (`…/CloudDocs/Traço/Traço/`: `notas/` com 1 nota, `INDICE.md`, `traco-corpus.md`, `LEIA-ME.md`); não refeita |
+| 2. Servidor `traco` chega ao Grok Bot | 8 | pela rota 1 (`--chamar` + execução local), com o comando visto no Mac (`mac-0-e-vigia.txt`); não é MCP (o app não liga), e a Descrição aponta para o worktree até mesclar |
+| 3. Bot "Traço" com README + seis casos + regras de origem | 9 | Descrição regravada e persistida com a seção nova (`mac-0-e-03`, `mac-0-e-04`) |
+| 4. Prova de uso | 8 | "bom dia" → `traco_agenda` DO SERVIDOR; "o que eu já pensei" → `traco_buscar` DO SERVIDOR com "sem id, não invento"; citação de id por provar (corpus sem nota sobre o assunto); `agenda.md` depende de build no iPhone do dono |
+| 5. Mouse devolvido e tudo registrado | 6 | devolvido às 14:04 com aviso; **mas** um rascunho do dono foi enviado ao bot (§5) |
+
+### Capturas
+
+`ferramentas/orca/mac-0-e-01…07`: 01 dashboard Integrations (sem MCP); 02 dashboard Settings (sem
+MCP); 03 Configurações do bot Traço; 04 Descrição gravada, rolada ao fim; 05 "bom dia" respondido
+pelo servidor; 06 "o que eu já pensei" antes da correção; 07 depois da correção, com o rascunho do
+dono no balão. Registro do vigia: `mac-0-e-vigia.txt`.
+
+### Tudo o que tocou no Mac do dono (quinta passada)
+
+| quando | onde | o quê | antes → depois |
+|---|---|---|---|
+| 13:45 / 14:04 | cartão do worktree `main` | comentários "COMEÇANDO" e "TERMINEI" | — |
+| 13:46–13:50 | Chrome (aba nova, sessão logada) | `cursor.com/dashboard/integrations` e `/settings`, só leitura; aba fechada ao fim | nada alterado na conta |
+| 13:51–13:56 | Grok Bot › bot Traço › Editar perfil | Descrição regravada (10 678 bytes); Nome e Rótulo intocados | Descrição sem a seção → com a seção "Como você chama as ferramentas" |
+| 13:56–14:02 | Grok Bot › bot Traço › chat | 3 mensagens: "bom dia" ×2, "o que eu já pensei sobre o Traço?" ×2 (a última com o rascunho do dono) | 4 pares a mais na conversa |
+| 14:00:08 | Terminal | `open -a "Grok Bot"` (a janela tinha sumido) | janela de volta, por cima do que o dono fazia |
+| — | `~/.grokbot/settings.json`, `~/.cursor/mcp.json`, plugins, outros bots, iPhone, Espelhamento, simuladores, iCloud | **nada** | inalterados |
