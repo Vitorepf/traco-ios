@@ -569,3 +569,22 @@ trabalho de volta **não mora no checkout do orquestrador**. Mescla que não fec
 hora vira **branch com worktree e dono** — foi o que fiz com a `fusao-c1r1s1`,
 tarde demais. Registro que ficou fora do livro vira dívida invisível, e dívida
 invisível é a que vaza para o `main`.
+
+### DIRETRIZ §6 — DECIDA SOZINHO, e eu descumpri duas vezes hoje (09/09)
+
+O dono cobrou, e a conta é objetiva: **duas `AskUserQuestion` hoje pararam o laço
+por vinte minutos cada**, esperando ele ver. As duas eram **decisões
+reversíveis**, e nenhuma estava na lista fechada.
+
+**Perguntar é só nos quatro casos:** dados do dono; dinheiro, publicar ou enviar;
+contrato de privacidade, autoria ou selo; apagar trabalho. **Todo o resto: decida,
+registre no LACO com a razão, e siga** — se estiver errado, o registro é o que
+permite desfazer.
+
+**Para me lembrar de como isso se parece na prática, as duas de hoje:** *"onde
+roda a suíte, já que um simulador só e nunca `xcodebuild test` nele não cabem
+juntas?"* — eu tinha a resposta (segundo aparelho efêmero) e a recomendei na
+própria pergunta. E *"main ficou vermelho, reverto ou conserto para a frente?"* —
+eu já sabia que reverter três mesclas cria a armadilha do re-merge, e disse isso
+na própria pergunta. **Quem escreve a recomendação junto com a pergunta já
+decidiu; o que falta é assumir.**

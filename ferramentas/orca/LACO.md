@@ -1660,3 +1660,52 @@ um vermelho honesto**.
 
 Registro aqui a hora em que ficou vermelho — **11h05** — e registro a hora em que
 fechar.
+
+## 09/09, 11h36 — DIRETRIZ §6: decida sozinho. Duas vezes hoje eu não decidi.
+
+O dono cobrou com números: **duas perguntas minhas pararam o laço por vinte
+minutos cada**. As duas eram **reversíveis** e nenhuma estava na lista fechada
+(dados dele, dinheiro/publicar/enviar, contrato de privacidade/autoria/selo,
+apagar trabalho).
+
+E o pior detalhe é que **nas duas eu escrevi a recomendação dentro da pergunta**:
+o segundo simulador efêmero, e o consertar-para-a-frente em vez de reverter três
+mesclas. **Quem já sabe a resposta e pergunta mesmo assim não está consultando,
+está adiando.** Está na ESTEIRA com esse nome.
+
+## 09/09, 11h40 — a FUSAO respondeu os dois vermelhos com medida, e um era defeito de produto
+
+**Vermelho 1 era DEFEITO, não teste.** A 08x manda a altura do encaixe mudar por
+**corte** com o foco na Página, para a gaveta não correr sobre a letra que está
+sendo escrita — e **o `cartao` e o `analisando` tinham a guarda; o `toast`, que
+vive no MESMO encaixe e muda a MESMA altura, não tinha**. Medido por quadro em
+`large`: nas cenas de cartão, 0 fora e 0 cobertos; **na do toast, 3 quadros com a
+linha ativa fora e 2 cobertos**, com a borda descendo 8 pt por quadro e o seguidor
+8 pt atrás. Conserto: a mesma guarda de `focoPagina`.
+
+**E ela derrubou a minha suspeita:** eu apontei a etiqueta de origem da MAC-1 como
+causa provável, e o worker mediu — *"a suspeita do despacho era a etiqueta de
+origem: não é; o cenário a neutraliza e ela não está em cena aqui"*. É a terceira
+vez hoje que um worker corrige uma hipótese minha com medida, e é exatamente para
+isso que eu peço medida em vez de opinião.
+
+**Vermelho 2 era DEFEITO DO TESTE**, como o spec admitia: o piso do papel **empata
+legitimamente**.
+
+Mesclei na `main` e a suíte está correndo no aparelho efêmero. **O `main` ficou
+vermelho às 11h05 e a hora do conserto entra aqui assim que a suíte fechar.**
+
+## 09/09, 11h40 — três frentes abertas, sem perguntar
+
+**D1** (`ctx_9483097627e7`, Fable): as Notas sem slop, veredito **4/10** do dono.
+Spec manda **começar pela fase 5** — auditar e **dar a própria nota antes de tocar
+num pixel** — e responder por escrito **o teste do genérico**: *o que nesta tela só
+poderia ser o Traço?* Com uma fronteira que eu acrescentei: **não desfazer o que a
+V13 ganhou** em silêncio; se algo dela for parte do slop, **dizer e propor**.
+
+**MAC-0-C** (`ctx_9a85bc23a11a`, Fable): o Grok Bot, agora com o Mac destrancado —
+e com uma mudança que o spec original não podia ter: **a MAC-1 mesclou**, então
+`traco_agenda` existe no `main` e **o "bom dia" deixa de ser lacuna declarada e
+passa a ser prova exigida**.
+
+**Q2-D** segue medindo IA no `B91C8DEF`.
