@@ -1635,3 +1635,28 @@ desenha (defeito de produto, teste certo), ou existe caminho legítimo sem etiqu
 
 **§8 aplicada:** escopo mínimo, uma passada de revisão, e o que sobrar de
 acabamento vai ao RUMO com dono em vez de segurar a volta.
+
+## 09/09, 11h05 — eu empurrei o `main` vermelho, uma hora depois de escrever que não empurraria
+
+Está escrito acima, por mim, às 09h35: *"Não empurrei."* Às 11h05 dei
+`git push origin main` para publicar **um registro do LACO** e levei junto as
+**três mesclas** de C1, R1 e S1 — com **os dois vermelhos conhecidos**. O `main`
+compila e roda; **a suíte tem duas falhas**.
+
+**A causa não é distração, é hábito errado:** eu vinha **usando o meu `main` local
+como área de trabalho** para mesclar, e `git push origin main` publica **tudo o que
+está no ramo**, não o commit que acabei de escrever. Duas regras entraram na
+ESTEIRA: **ler `git log origin/main..main` antes de empurrar**, e — a que resolve
+na raiz — **mescla que não fecha na hora vira branch com worktree e dono**, em vez
+de dormir no checkout do orquestrador. Eu fiz isso com a `fusao-c1r1s1` **quinze
+minutos tarde demais**.
+
+**Decisão do dono: consertar para a frente.** Reverter três mesclas cria a
+armadilha conhecida do git (mescla revertida emperra o re-merge) e o que está
+exposto é **suíte vermelha, não app quebrado**. A FUSAO foi avisada de que **virou
+o conserto do `main`** e que o relógio conta — com a proibição reforçada: **não
+afrouxar asserção para ficar verde**, porque **um verde falso no `main` é pior que
+um vermelho honesto**.
+
+Registro aqui a hora em que ficou vermelho — **11h05** — e registro a hora em que
+fechar.

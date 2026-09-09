@@ -551,3 +551,21 @@ isso.
 **A regra prática não muda, e é a barata:** `ContaGrok` conferido **antes e
 depois** de cada corrida, com a hora; **se cair, parar e dizer com o comando
 exato**. Foi o que produziu as duas medidas e o que vai produzir a terceira.
+
+### `git push origin main` empurra o que está no seu checkout, não o commit que você acabou de escrever (09/09)
+
+Eu escrevi no LACO, às claras, que **não empurraria** a fusão vermelha. Uma hora
+depois dei `git push origin main` para publicar **um registro do LACO** — e levei
+junto **três mesclas** que estavam no meu `main` local, com **dois testes
+vermelhos**. A intenção era um commit; o efeito foi o ramo inteiro.
+
+**Regra para quem mescla:** o `main` do orquestrador é **área de trabalho**, e
+empurrá-lo publica **tudo o que estiver nele**. Antes de qualquer
+`git push origin main`, **`git log --oneline origin/main..main`** e leia a lista —
+se aparecer algo que você não pretendia publicar, **não empurre**.
+
+**E a regra que evita o problema na raiz, que eu já deveria estar seguindo:**
+trabalho de volta **não mora no checkout do orquestrador**. Mescla que não fecha na
+hora vira **branch com worktree e dono** — foi o que fiz com a `fusao-c1r1s1`,
+tarde demais. Registro que ficou fora do livro vira dívida invisível, e dívida
+invisível é a que vaza para o `main`.
