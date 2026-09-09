@@ -845,3 +845,36 @@ nome.
 **Dívida nomeada** (RUMO, dona: a próxima volta que tocar `com-trava.sh`): a
 retomada deve exigir **prova de que o dono morreu** (o processo não existe mais),
 não só tempo — tempo mede paciência, não abandono.
+
+### Guarda mecânica não vê defeito semântico — e trocar de modelo não conserta o que ela não vê (09/09, LOTE-2)
+
+**A medida:** as mesmas fixtures nos três modelos, uma alavanca só, 114 execuções.
+Passando os três pelo mesmo conferidor de guardas literais: **57/57 no `grok-4.3`,
+56/57 no `4.5`, 57/57 no `4.6`**. **Nenhum dos três viola as guardas estruturais** —
+e, no entanto, os revisores reprovaram os três consertos.
+
+**Conclusão que vale para todo o laço:** *"a cotação dita na conversa não vira o
+cálculo exigido"*, *"o conflito não traz próximo ato"*, *"instigar não cobra o
+limite"* — **nada disso é regex**. São defeitos **do que a resposta faz**, não da
+forma dela.
+
+**Duas regras:**
+
+1. **A pergunta "passa com um modelo melhor?" não se responde por contagem** quando
+   o defeito é semântico. **Modelo maior não conserta o que a guarda não vê** — e
+   gastar janela do instrumento trocando de modelo, nesse caso, é gastar por nada.
+2. **Guarda mecânica serve para o que é mecânico** (rótulo interno vazando, campo
+   fora do contrato, teto estourado). Para o resto, **a leitura inteira é o
+   instrumento**, e ela é de gente — foi por isso que o conselho exigiu revisor que
+   não escreveu os casos.
+
+### `semRetorno` não é erro de transporte (09/09, LOTE-2)
+
+Uma execução voltou **HTTP 200**, desfecho *"conteúdo completo"*, e mesmo assim
+`Falha.semRetorno` com `saida null`. **O LOTE anterior contava as duas coisas na
+mesma coluna** — e "zero erro de transporte" passou a significar duas coisas
+diferentes no mesmo relatório.
+
+**Regra:** **transporte** (a chamada chegou e voltou) e **retorno** (veio conteúdo
+utilizável) são **colunas separadas**. Somá-las esconde exatamente o caso que mais
+interessa: **o provedor que responde 200 e não diz nada.**

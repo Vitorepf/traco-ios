@@ -2381,3 +2381,35 @@ Mesmo binário (`sha256` conferido, **sem instalar**), mesmas fixtures, **varian
 `TRACO_AVALIAR_MODELO` e só ele**, três repetições, tudo numa chamada da trava. E
 com a instrução de **cortar pelo modelo, não pelas repetições**, se a janela ficar
 longa: **melhor dois modelos bem medidos que quatro medidos uma vez**.
+
+## 09/09, 20h30 — o LOTE-2 respondeu a pergunta do modelo, e a resposta é NÃO
+
+**114 execuções, uma alavanca só, e a prova gravada em cada uma** — não na palavra
+do medidor: `esforco=low` em 114 de 114, `modeloSolicitado == modeloRespondido` em
+todas, as mesmas fixtures por SHA, conta ligada nas três leituras (23:14:49Z,
+23:22:04Z, 23:33:34Z). **Sem instalar**: a janela **conferiu o `sha256` do que já
+estava no aparelho e abortaria com `exit 2` se não batesse** — e conferiu **de novo
+depois de fechada**. Dezoito minutos, dentro de UMA chamada da trava.
+
+**E ele rodou o `4.5` primeiro de propósito:** *"se a janela esticasse, o corte
+cairia no 4.6 e não nas repetições"* — exatamente o que eu tinha pedido, aplicado
+sem eu precisar repetir.
+
+**O resultado responde a minha pergunta com um não:** passando os três modelos pelo
+mesmo conferidor de guardas, **57/57 no `4.3`, 56/57 no `4.5`, 57/57 no `4.6`** —
+**nenhum viola as guardas estruturais**, e os revisores reprovaram os três consertos
+assim mesmo.
+
+**Ou seja: os defeitos que eles acharam são SEMÂNTICOS, e nenhuma guarda os vê.**
+*"A cotação dita na conversa não vira o cálculo exigido"*, *"o conflito não traz
+próximo ato"*, *"instigar não cobra o limite"* — **nada disso é regex**, e **modelo
+maior não conserta o que a guarda não enxerga**. Minha aposta de que faltava
+modelo estava errada, e a medida custou dezoito minutos para dizer isso — barato
+pelo que evita.
+
+**E ele achou um erro de contabilidade do LOTE anterior:** uma execução voltou
+**HTTP 200**, *"conteúdo completo"*, e mesmo assim **`semRetorno` com saída nula**.
+O primeiro LOTE **contava transporte e retorno na mesma coluna** — e "zero erro de
+transporte" passou a significar duas coisas no mesmo relatório. As duas viraram
+colunas separadas na ESTEIRA, porque somá-las **esconde justamente o caso que mais
+interessa: o provedor que responde 200 e não diz nada.**
