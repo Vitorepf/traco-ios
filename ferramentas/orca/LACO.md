@@ -1169,3 +1169,69 @@ que faz uma regra melhorar em vez de ser contornada em silêncio.
 Os dois re-G3 recusaram com prova reexecutada — a C1 pela sonda que mede metade e
 pelo vídeo vazio, a F5b pelo corte em AX5 e pelas seis fases —, e a **C1-C**,
 a **F5b-C** e a **revisão da S1** já estão em curso.
+
+## 09/09, 07h — pausa e retomada (uso 2%); a R1 aprovada, e o verde que só era verde numa máquina
+
+**A R1 PASSOU no re-G3**, e o revisor não acreditou na medida dela: **mediu de
+novo por conta própria** — antes **3 toques + 5 arrastos**, depois **3 + 0**, com
+**7 de 7 fatos na tela inicial** — e reexecutou os testes de teto, reabertura,
+primeira visita e AX5. **9 em toda dimensão aplicável.** O que falta é
+integração: `main` está **25 commits à frente** com quatro caminhos alterados dos
+dois lados. Despachei a **R1-C** com a lei que a Q-H fixou: **aprovado não é
+mesclável**, e teste que fica vermelho na fusão **é o achado**.
+
+**A S1 foi reprovada por um vermelho que ela não vê.** Ela relatou 973 verdes; o
+revisor rodou **o mesmo candidato** e os dois testes novos dela deram **3
+falhas**. Nenhum dos dois mentiu — o teste depende de estado que um tinha e o
+outro não, e a causa provável é a que ela mesma nomeou: **com a busca em foco a
+barra de navegação some inteira**, e o toque cai numa tecla. Ela já tinha
+consertado por esse caminho uma vez; **voltou a falhar para outra pessoa**.
+
+Virou lei: **teste de jornada nova roda dez vezes seguidas, do zero, e as dez
+saídas vão no relato** — um teste que passa 9 de 10 **não passa**, é um teste que
+mente uma vez em dez. E toda pré-condição de estado mora **dentro** do teste, em
+vez de o teste tocar às cegas. A S1-B saiu com isso, e com a proibição explícita
+de afrouxar a asserção para ficar verde.
+
+**A F5b-C consertou o corte em AX5** (o `Text` de data guloso, domado por um teto
+de 92 pt que saiu) e fez três coisas que valem nota: versionou **o passo
+intermediário que não serviu**, nomeou o **grupo de controle** acidental como
+prova por ausência, e **disse que nada de unidade prova alinhamento de `Text`** —
+declarar o limite do instrumento em vez de fabricar um teste que não mede nada.
+
+Quatro frentes rodando: **R1-C**, **S1-B**, e os **terceiros re-G3 da C1 e da
+F5b**.
+
+## 09/09, 08h — pausa e retomada (uso 4%); duas aprovações, e a sonda que se desmentiu duas vezes
+
+**A C1 e a F5b passaram no mérito.** A F5b **mesclou** (`d5f77e2`), com a suíte na árvore mesclada em **974 testes em 156 suítes, verde**; a C1 ficou
+"aprovada e **não mesclável**", e foi para a C1-D reconciliar — a mesma lei da
+Q-H, agora aplicada sem eu precisar redescobri-la.
+
+**O relato da C1-C é o melhor exemplo do dia da régua funcionando por dentro.**
+Ela achou **duas coisas contra si mesma** e escreveu as duas:
+
+- **o primeiro vermelho da metade nova era FALSO** — uma camada sem
+  `presentation()` **ainda não foi entregue ao render**, e lê-la pelo modelo é
+  lê-la na geometria de destino;
+- **`E` saía com 2 pt de largura**, porque no fim do documento o TextKit 2 não
+  devolve fragmento e a linha ativa ficava só com o `caretRect` (agora 322 pt em
+  AX5).
+
+E plantou **uma camada adversarial dentro do próprio teste** para provar que o
+portão sabe reprovar (35 de ~51 quadros acusados). Com a sonda inteira, o pai fica
+vermelho **nas duas metades**: o cartão **desenhava por cima** da linha, não só a
+cortava — coisa que a metade que faltava nunca teria visto.
+
+O MP4 falso foi **removido**, não corrigido no texto: entrou um vídeo novo,
+gravado na corrida verde e **assistido quadro a quadro antes de versionar**.
+
+**A S1 foi reprovada com o defeito nomeado:** a pré-condição diz que o Calendário
+não abriu e o hit point foi `{-1,-1}`, enquanto a captura mostra o cartão **sem a
+barra de abas**. É a barra que some com a busca em foco, de novo — a S1-B está
+nela, com a regra nova das dez corridas.
+
+**O `ask` da C1 expirou aos 600 s** perguntando se o Pro Max estava livre, e ela
+seguiu pelo caminho menos destrutivo: **declarou a prova como herdada** em vez de
+tomar o aparelho de outra volta. Foi a decisão certa; e agora que a F5b mesclou, a
+C1-D fecha essa ponta.

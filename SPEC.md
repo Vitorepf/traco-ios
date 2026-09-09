@@ -6900,6 +6900,182 @@ cujo comportamento MUDOU. A etiqueta no título da fonte citada é provada por
 teste na função de produção: vê-la na tela exige uma resposta de provedor, e o
 único simulador com a conta do dono está fora de alcance nesta rodada.
 
+## ADR 2026-09-08v — A Ilha é do compromisso, e os estados que ninguém tinha visto (volta F5b)
+
+A F1 fotografou a Ilha compacta e a expandida; a F4 deixou a **mínima** por
+fotografar ("exige outra atividade viva ao mesmo tempo") e ninguém tinha visto
+o **fim** de um compromisso nem a compacta com duas atividades em AX5. Esta
+volta plantou os quatro estados no iPhone 17 Pro Max do simulador e corrigiu o
+que apareceu.
+
+**Duas atividades do mesmo app: o iOS mostra UMA na Ilha e empilha a outra na
+tela bloqueada, e sem dizer qual.** Com o Destaque e o compromisso vivos ao
+mesmo tempo, a Ilha era do Destaque e o compromisso a 40 minutos ficava atrás
+(`f5b-antes-ilha-compacta-destaque-esconde.png`; o `liveactivitiesd` registra
+as duas a subir no mesmo segundo, e a tela mostra uma). É o D9 da F1, ainda
+vivo. **O compromisso vence**: `ProximoCompromisso.relevanciaNaIlha = 1` e
+`DestaqueDoDia.relevanciaNaIlha = 0` (o padrão do `ActivityContent`), porque a
+Ilha é o único lugar em que a contagem se vê sem abrir o app, e o Destaque tem
+o widget e o cartão. Vale para a Ilha e para a ordem da pilha na tela bloqueada
+(`f5b-depois-ilha-compacta-compromisso-vence.png`,
+`f5b-depois-bloqueada-dois-vivos.png`, `f5b-depois-bloqueada-pilha-aberta.png`).
+Teste: `ForaDoAppTests.aIlhaEDoCompromisso` fixa a ordem.
+
+**A mínima só existe com atividade de OUTRO app.** Duas do Traço não bastam
+(acima). O simulador não tem Relógio nem navegação, então a F5b subiu um app
+descartável com uma Live Activity vazia (`ferramentas/orca/f5b-outra/`,
+instrumento, não produto) e a Ilha encolheu as duas para o círculo: a do Traço
+é só o ícone — estrela âmbar para o Destaque, calendário para o compromisso —
+sem texto, que é o que cabe (`f5b-ilha-minima-destaque.png`,
+`f5b-ilha-minima-compromisso.png`, `f5b-ilha-minima-compromisso-ax5.png`).
+Nada a mudar na mínima: o `minimal` já desenhava o mesmo ícone do
+`compactLeading`.
+
+**A expandida cortava o último dígito da contagem** ("36:1|5",
+`f5b-antes-ilha-expandida-corte.png`). O `Text(_, style: .timer)` reserva a
+largura do maior valor que pode mostrar (h:mm:ss, porque a atividade sobe até
+seis horas antes), e o teto de 76 pt centrava essa caixa e a cortava dos dois
+lados. Sai o teto: a região mede o que a contagem precisa e os dígitos ficam à
+esquerda da caixa, com a folga à direita (`f5b-depois-ilha-expandida.png`).
+Duas formas que NÃO servem, vistas na tela e registradas para ninguém repetir:
+`fixedSize(horizontal:)` na contagem deixa a expandida **vazia** — só o ícone
+da região `leading` desenha (`f5b-instrumento-fixedsize-expandida-vazia.png`);
+e `multilineTextAlignment(.trailing)` empurra os dígitos para a borda da caixa
+reservada e corta de novo (`f5b-instrumento-alinhada-corta.png`).
+
+**O fim: "acabou", e por quanto tempo.** Semeado um compromisso de um minuto, o
+`staleDate` (= fim) passa e o `liveactivitiesd` marca a atividade *stale*: a
+compacta vira calendário + "acabou", a expandida vira "Dentista / acabou" sem
+contagem e sem cápsula, e o cartão da tela bloqueada perde o relógio relativo
+e diz "acabou" (`f5b-fim-1-*.png` antes, `f5b-fim-2-*.png` no fim). **A Ilha
+larga o "acabou" sozinha em menos de doze minutos** — às 21:42 estava vazia
+sem o app ter aberto (`f5b-fim-3-ilha-vazia-12min.png`); **a tela bloqueada
+mantém o cartão** (aos catorze minutos, `f5b-fim-3-bloqueada-acabou-14min.png`)
+até o app voltar à cena e `reconciliar` encerrar. É o desenho que o ActivityKit
+permite: não há fim agendado, só `staleDate`; o que a tela diz nesse intervalo é
+verdade, e o cartão sai com um deslize. Quanto tempo o iOS deixa o cartão de pé
+sem o app é medida para o aparelho do dono. Na expandida do fim a curva do
+canto da Ilha comia o "a" de "acabou", a linha mais baixa da região (`…-antes.png`):
+o recuo horizontal da região inferior passa de 4 para 10 pt (`…-depois.png`).
+
+**AX5 na Ilha não existe.** A compacta é idêntica em `large` e em AX5
+(`f5b-ax5-ilha-compacta-destaque.png`, `f5b-ax5-ilha-compacta-compromisso.png`
+contra as capturas normais): a Ilha não escala com o Dynamic Type; o cartão da
+tela bloqueada escala (`f5b-ax5-bloqueada-destaque.png`). O "t" cortado que o
+juiz da F4 viu na compacta com duas atividades em AX5 **não se reproduz**: com
+as duas vivas e AX5 a compacta diz "terminar o ca…", com reticências limpas. A
+auditoria é datada; este defeito caiu sozinho, e sai do RUMO.
+
+**Movimento.** A Ilha anima pelo sistema; o Traço não escreve curva nem duração
+nela (o portão do movimento segue com a lista vazia). Entrada (o app publica e a
+atividade sobe), troca de estado (a cápsula "Lembrar em 10 min" vira o recado
+"avisos desligados no iPhone", que é o estado honesto de um contêiner sem
+permissão) e saída (o app reconcilia um compromisso passado e encerra) estão
+em `f5b-ilha-movimento.mp4` e, com Reduzir Movimento, em
+`f5b-ilha-movimento-reduzido.mp4` — a expansão vira fusão, o resto é igual.
+
+**Revisão G3 (F5b-B, 09/09): a prova reprodutível.** O revisor independente
+confirmou o mecanismo e recusou a prova (`ferramentas/orca/revisao-f5b-ilha.md`).
+O que mudou para fechá-la, sem redesenho:
+
+- **O teste segura o wiring, não a constante.** O `ActivityContent` que sobe
+  para o ActivityKit — em `request`, em `update` e no recado do intent — nasce
+  de UM construtor por atividade (`ProximoCompromisso.conteudo(de:recado:)`,
+  `DestaqueDoDia.conteudo(_:agora:)`), e `aIlhaEDoCompromisso` lê o
+  `relevanceScore` e o `staleDate` do conteúdo construído: apagar o argumento
+  do construtor põe o teste vermelho. Limite declarado: a suíte não exercita o
+  ActivityKit (ADR 05u isola `atividades()` em teste), então um `ActivityContent`
+  montado à mão fora do construtor não é visto pelo teste — é o que a revisão
+  de código guarda, e os dois arquivos não têm outro.
+- **A atividade já viva ganha a relevância.** `update` só saía quando o
+  `ContentState` mudava; uma atividade que subiu numa versão sem prioridade
+  ficava atrás do Destaque até o app a encerrar. `ActivityContent.difere(de:relevancia:)`
+  compara estado E relevância, nas duas atividades; o teste cobre os dois lados.
+- **A semeadura publica pela rota real.** O arranque só reconcilia a projeção
+  que já está no disco; `f5b-semear.sh` escrevia `calendario.json` e o
+  compromisso nunca ia ao ar — a reprodução do revisor viu só o Destaque. Em
+  DEBUG, `TRACO_REPUBLICAR_CALENDARIO` no ambiente faz o arranque chamar
+  `ProximoCompromisso.publicar(eventos, cal:)`, a mesma função da agenda, do
+  editor e do intent (precedente: `TRACO_AVALIAR_IA`). O script agora exige o
+  título semeado dentro de `superficie.json` e, com `LOG=<arquivo>`, grava o
+  `liveactivitiesd` do instante: `Starting activity` com o id e
+  `Marking activities stale` com o `staleDate` — o compromisso stale no fim,
+  o Destaque à meia-noite. O daemon **não** registra o `relevanceScore`; a
+  prova dele na tela é qual das duas a Ilha mostra.
+- **Pares `large`/AX5 refeitos, Ilha inteira no quadro, mesmo estado, log ao
+  lado.** Casa: `f5bb-large-ilha-compacta.png` (04:16:27) / `f5bb-ax5-ilha-compacta.png`
+  (04:18:18) — a Ilha é do compromisso nas duas e é idêntica; o que escala são
+  os rótulos da casa, prova de que AX5 aplicou. Bloqueada: `f5bb-large-bloqueada.png`
+  (04:16:31) / `f5bb-ax5-bloqueada.png` (04:16:42) e `f5bb-ax5-bloqueada-ao-acordar.png`
+  (04:16:38) — o cartão do compromisso por cima nas duas. `f5bb-log-large.log`
+  é o `liveactivitiesd` da semeadura (04:16:19, dois `Starting activity`);
+  `f5bb-log-ax5.log` é a janela inteira das seis capturas, sem atividade a
+  subir ou cair entre elas. Tamanho lido de volta antes e depois; restaurado
+  a `medium`.
+- **Controle natural, não planejado:** entre duas capturas o `xcodebuild test`
+  de outra volta instalou no mesmo aparelho um binário SEM a 08v (`cmp`
+  diferente, `nm` sem `relevanciaNaIlha`); o iOS relançou o app por "Activity
+  ended" e o arranque reergueu as duas atividades a partir da mesma projeção
+  (`f5bb-log-controle.log`): **a Ilha voltou ao Destaque**
+  (`f5bb-controle-sem-relevancia-ilha-compacta.png`, 04:13:05). Mesmo estado,
+  mesma projeção, só o `relevanceScore` diferente — é a prova mais limpa desta
+  volta de que ele é o mecanismo, e ela veio de um acidente de posse do aparelho.
+- **Achado novo em AX5:** no cartão da tela bloqueada o relógio relativo do
+  canto ("39 minutos" em `large`) cortava para **"39 minut…"** em AX5
+  (`f5bb-ax5-bloqueada.png`); ao acordar a tela o mesmo canto mostrava a
+  contagem "39:39" inteira (`…-ao-acordar.png`). Corrigido na F5b-C, abaixo.
+- **O corte por alinhamento à direita vira hipótese.** A captura
+  `f5b-instrumento-alinhada-corta.png` mostra "29:48" inteiro; o corte que o
+  relato alegou não está nela. Fica registrado que `multilineTextAlignment(.trailing)`
+  sem teto **não foi provado** cortar; a escolha de deixar os dígitos à esquerda
+  da caixa do `.timer` se sustenta sozinha pela captura `f5b-depois-ilha-expandida.png`.
+  (A F5b-C, abaixo, mostra por que a caixa é larga: o `Text` de data é guloso.)
+
+**Revisão G3 (F5b-C, 09/09): o corte em AX5, e o controle com nome.** O
+revisor aceitou as três provas e recusou de novo por duas coisas: a tela
+bloqueada cortava em AX5 e o relato não trazia as seis fases do
+`design-router`. O que mudou:
+
+- **O relógio do cartão não corta mais, em nenhum tamanho.** A causa não era
+  o tamanho da letra: o `Text` de data (`.timer` e `.relative`) é **guloso** —
+  toma toda a largura que a linha oferece e encosta o conteúdo à esquerda
+  dela. O teto de 92 pt existia para domar isso, e em AX5 "39 minutos" precisa
+  de mais que 92. Sem teto o texto nunca corta, mas gruda em "PRÓXIMO"
+  (`f5bc-instrumento-sem-teto-relogio-a-esquerda.png`, visto na tela);
+  alinhado à direita (`multilineTextAlignment(.trailing)`) ele volta ao canto
+  e, de quebra, a contagem passa a encostar na mesma borda da hora — antes
+  ficava 40 pt para dentro (`f5bb-ax5-bloqueada-ao-acordar.png`, "39:39"
+  solto). Pares refeitos, mesmo estado (Dentista em +40 min por 60 min,
+  Destaque vivo), mesmo binário (`cmp` igual nos dois dylibs), semeadura pela
+  rota real: bloqueada `f5bc-large-bloqueada.png` (05:21:42) /
+  `f5bc-ax5-bloqueada.png` (05:21:59), ambas "39 minutos" inteiro no canto;
+  ao acordar `f5bc-large-bloqueada-ao-acordar.png` (05:21:45, "39:43") /
+  `f5bc-ax5-bloqueada-ao-acordar.png` (05:22:01, "39:26"); casa
+  `f5bc-large-ilha-compacta.png` / `f5bc-ax5-ilha-compacta.png`, a Ilha do
+  compromisso nas duas. `f5bc-log-large.log` é o `liveactivitiesd` da
+  semeadura (05:21:31, dois `Starting activity`); `f5bc-log-ax5.log` é a
+  janela das capturas AX5, sem atividade a subir ou cair. O que a hipótese
+  acima dizia da expandida vale aqui às avessas: alinhar à direita **não
+  cortou** no cartão, porque a caixa gulosa tem folga; na expandida a região
+  é estreita e a folga não existe — a escolha de lá fica como está.
+- **O controle ganha o nome certo.** O que a F5b-B chamou de "controle que eu
+  não planejei" é um **grupo de controle**: o `xcodebuild test` de outra volta
+  instalou no mesmo aparelho um binário sem a 08v, o iOS reergueu as duas
+  atividades **a partir da mesma projeção**, e a Ilha voltou ao Destaque
+  (`f5bb-controle-sem-relevancia-ilha-compacta.png`, 04:13:05;
+  `f5bb-log-controle.log`, ids `2F19AAAE…`/`C496A60E…` às 04:07:00). Mesmo
+  estado, mesma projeção, mesmo aparelho, só o `relevanceScore` ausente: é a
+  prova **por ausência** de que a relevância é o mecanismo — e vale mais que
+  uma captura a mais, porque nenhuma captura com a 08v distingue "a relevância
+  decidiu" de "o iOS escolheu por outro critério que coincide". O daemon não
+  registra `relevanceScore` (declarado e aceito): a prova é a tela **com** e
+  **sem**.
+- **Limite do instrumento, visto de novo:** entre uma captura e outra o iOS
+  perguntou "Deseja continuar permitindo as Atividades ao Vivo do app Traço?"
+  por cima do cartão (`f5bc-instrumento-dialogo-atividades.png`); o toque do
+  `orca emulator` na pilha fechada abre a pilha em vez de acertar o botão, e só
+  na pilha aberta o botão recebe o toque. Respondido "Permitir Sempre".
+
 ## ADR 2026-09-08y — A retomada conta o que houve entre duas visitas (volta R1)
 
 **O critério, palavra do Astra:** *"o dono volta depois e continua com pouca
@@ -7016,3 +7192,87 @@ por isso **não** foi usada como régua: quem conta gesto é o XCUITest, e quem
 mede distância é a árvore de AX. E o número de arrastos do "antes" é o do
 aparelho com a letra padrão: em AX5 o mesmo percurso é mais longo, e não foi
 medido nos dois candidatos.
+
+### Reconciliação com o `main` (volta R1-C) — e o vermelho que ela desenterrou
+
+A R1 nasceu sobre `c751c02` e o `main` andou 25 commits antes do G5. A fusão foi
+feita no worktree da R1, em duas etapas (o `main` andou de novo durante o
+trabalho): `3916924` primeiro, `05ef887` (F5b) depois.
+
+**Conflitos: dois, os dois de documento.** `SPEC.md` — as voltas MAC-1, MAC-1-B,
+F5b e R1 apenderam ADR no mesmo ponto do arquivo — e `ferramentas/orca/LETRAS-ADR.md`,
+na linha da letra `08y`. Nenhum conflito de código: a R1 vive em
+`Traco/Trabalho/` e o `main` andou em `Modelo`, `Notas`, `Padroes`, `Pagina`,
+`App` e `TracoWidget`. `Traco.xcodeproj/project.pbxproj` fundiu sozinho e o
+`xcodegen generate` sobre a árvore mesclada devolveu **diff vazio** — a fusão do
+projeto é a canônica, não uma que só parece certa.
+
+**As escolhas de semântica, uma a uma.**
+
+1. **`SPEC.md`, ordem das ADRs.** O arquivo é cronológico por ENTRADA, não por
+   letra (a `08t` já vinha antes da `08o`). As ADRs que já estavam em `main`
+   ficam na ordem em que entraram; a `08y` vai por último. Nenhum texto dos dois
+   lados foi cortado.
+2. **`LETRAS-ADR.md`.** Fica a tabela do `main`, que é a mais nova (traz o bloco
+   de 2026-09-09 e a `09c` da S1), e dentro dela a linha `08y` fica na redação da
+   R1 — "no branch da R1" —, que é o estado verdadeiro desta letra. Estado de
+   letra alheia não foi tocado.
+3. **`EVOLUCAO.md`.** Fundiu sozinho; a linha "Intenção→artefato" ficou com a
+   redação da R1, que é a única das duas que mudou naquela linha.
+4. **"A origem acompanha todo consumidor" (ADR 09b) não alcança a R1, e isso é
+   uma decisão declarada, não um esquecimento.** A regra vale para quem lê NOTA
+   como voz do autor. O bloco da retomada não lê nota nenhuma: `mudancasDesde`
+   sai de `artefatos`, `acoes`, `evidencias`, `apoioMarcadoEm`,
+   `trechoDelimitadoEm` e `hipoteses` — tudo do `DocumentoTrabalho`. Os `selos`
+   da folha já existiam antes das duas voltas e continuam como estavam. Se um dia
+   a retomada citar nota, a origem terá de viajar junto.
+
+**O ACHADO: os quatro testes de tela da R1 ficam VERMELHOS na árvore mesclada, e
+a causa não é a fusão.** Primeira corrida da árvore mesclada: 4 de 4 falharam em
+`abrirAFolha`, com "a Página não abriu". A tela viva do mesmo instante mostra o
+**arranque honesto da A1** (ADR 08s): "O Traço não abriu o seu caderno", com
+`SwiftDataError(_error: …loadIssueModelContainer, _explanation: nil)`.
+
+A causa foi medida nos TRÊS builds, sobre o MESMO `default.store` e no MESMO
+aparelho (`34CC3F94`), restaurado de cópia antes de cada um:
+
+| build | o que a tela mostra |
+|---|---|
+| `e72dd85` (R1 antes da fusão) | a Página abre normalmente |
+| `main` sozinho (`3916924`, checkout descartável em `/tmp`) | "O Traço não abriu o seu caderno" |
+| árvore mesclada | "O Traço não abriu o seu caderno" |
+
+O `ZNOTA` daquele store não tem `ZORIGEMRAW`: foi gravado por um build anterior
+à ADR 08u. A 08u acrescentou `Nota.origemRaw` como migração leve DENTRO do
+`TracoSchemaV4` — e o `TracoSchemaV4` aponta para a classe VIVA, então o
+checksum da V4 mudou junto. O caderno carrega o carimbo da V4 antiga, nenhum
+estágio do plano casa, e o CoreData recusa o container. A A1, corretamente, para
+em vez de abrir um caderno vazio por cima.
+
+**O que isso quer dizer, dito sem enfeite: quem já tem o Traço instalado não abre
+o caderno depois desta atualização.** É defeito do `main`, não da R1 — a camada
+de modelo da árvore mesclada é byte a byte igual à do `main` (`git diff main --
+Traco/Modelo Traco/Notas Traco/App …` vazio) e o `e72dd85` abre o mesmo arquivo.
+A R1 não conserta isto: consertar migração de esquema é volta própria, com o
+caderno do dono em risco. Fica ESCALADO ao orquestrador e no RUMO. O que a R1
+prova é que a fusão dela está sã: com um caderno que a própria árvore mesclada
+cria, os quatro testes de tela passam.
+
+**Prova de fecho na árvore mesclada** (`34CC3F94`, `-parallel-testing-enabled NO`,
+por `ferramentas/orca/com-trava.sh`): suíte integral **979 testes em 157 suítes,
+`** TEST SUCCEEDED **`, duas execuções**, `grep -c warning:` = **0** nas duas. Os
+quatro de tela, cada um isolado e com o estado replantado antes:
+`testCurvaZeroEmToquesEGestos` (**3 toques, 0 arrastos, 7/7 fatos**),
+`testTetoExcedenteEAVisitaQueRecomecaAoReabrir`, `testSemVisitaGuardadaAFolhaCala`
+e `testBlocoDaRetomadaEmAX5` — os quatro `** TEST SUCCEEDED **`. A folha
+fotografada na árvore mesclada está em `ferramentas/orca/r1c-mesclado-retomada.png`.
+
+**Segundo achado, menor, e também da fusão.** O `main` de 09/09 (`55af39f`) passou
+a exigir que **pré-condição de estado more dentro do teste**. Os quatro da R1 não
+cumprem: o estado vem de fora (`semear-retomada.py`), e a visita anterior mora no
+`Library/Preferences` do contêiner de DADOS do app — que o `xcodebuild test`
+recria quando o binário muda. Medido: na primeira corrida depois de um binário
+novo o bloco some e o teste fica vermelho; reexecutado com o estado replantado,
+passa. Isolados, os quatro passam. Não foi consertado nesta volta — mudar de onde
+a visita mora é decisão da ADR 08y, não de uma reconciliação — e fica declarado
+como dívida nomeada da R1.
