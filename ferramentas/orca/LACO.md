@@ -862,3 +862,43 @@ comprou a **recusa covarde** —, e o **revisor da F5b** (`ctx_a51788690b90`).
 **Seguro a MAC-1-B e a C1-B**: em edição já estão R1, MAC-0 e Q2, e o dono
 mandou que a próxima abertura fosse a Q2 e mais nada. Elas entram quando abrir
 vaga.
+
+## 09/09, 00h — pausa e retomada (uso 46%); a Q2 mede, e recusa aprovar a si mesma
+
+**A Q2 é a melhor volta de IA do laço até aqui, e o motivo não são os números.**
+Cinco corridas na sonda, **no aparelho do dono com a conta ligada**, 12 casos × 3
+execuções, saídas inteiras guardadas. Duas alavancas medidas **separadamente**:
+
+- **prompt sozinho no `grok-4.3`:** base 5/12 → candidato **8/12**. A **fabricação
+  de NÚMERO morreu** — os R$ 1.008 e o horário da biblioteca **não voltaram em
+  108 execuções**. Mas sobrou **fabricação de cenário**, que **sobrevive a uma
+  proibição escrita com todas as letras**;
+- **o mesmo prompt no `grok-4.6` com esforço `medium`:** **12/12 e 36/36, nenhum
+  descumprimento**.
+
+**E ela não aprovou a si mesma.** Escreveu: *"eu escrevi os doze casos e eu os li;
+aprovar a operação com a minha própria leitura seria usar a nota do gerador como
+aprovação — o que `QUALIDADE-IA.md` proíbe na mesma página"*. Também não
+implementou a habilitação: *"não implementei o que não posso aprovar"*. E mediu o
+preço em vez de escondê-lo: a espera vai de **1,4 s para 36,1 s de média, pior
+caso 77,5 s**, dizendo que a régua do aceitável ali é do dono.
+
+**O dono decidiu: vale a espera, e a tela tem de avisar.** Isso resolve o preço;
+**a qualidade quem decide é o revisor independente**, que despachei
+(`ctx_e79573532c4a`) com a exigência que o conselho fixou: **casos NOVOS, dele**,
+atacando a fabricação de cenário — a que sobreviveu — e a recusa covarde, que é o
+defeito oposto; cada saída inteira lida; **um único descumprimento reprova**.
+
+**MAC-0 ficou duas horas cega** e o worker fez o certo: a tela do Mac estava
+trancada desde as 21h23, a acessibilidade não expunha janela nenhuma, e ele
+**não tentou destrancar** — registrou tudo e parou (`c0155fe`). O dono
+desbloqueou; a MAC-0-B (`ctx_9287c38942ea`) retoma com duas respostas dadas: o
+servidor aponta para o **caminho estável do `main`**, nunca para um worktree que
+vai sumir, e o **"bom dia" fica declarado em aberto** — `traco_agenda` só nasce
+quando a MAC-1 mesclar, e uma configuração honesta que diz o que não tem vale
+mais do que uma que parece completa.
+
+**O revisor da F5b também recusou** ("a Ilha sem prova reprodutível") e a R1
+entregou com um achado que me interessa: **o defeito que a minha auditoria
+acusava já tinha caído** — a terceira vez hoje que a régua "a auditoria é datada"
+se paga sozinha.
