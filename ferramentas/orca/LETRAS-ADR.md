@@ -65,8 +65,11 @@ que este arquivo existe para impedir — e ele reincidiu no próprio arquivo.
 | 09h | Q3 (responder nas Notas) | reservada |
 | 09i | Q4 (instigar e contrapor) | reservada |
 | 09j | FUSÃO (o toast é gaveta, e o piso do papel empata) | reservada, volta viva |
+| 09k | — | livre |
+| 09l | K1 (o cofre do dono não é da suíte) | no branch `Vitorepf/volta-k1-cofre` |
 
-**Próxima livre: 09k.**
+**Próxima livre: 09k** — a `09l` foi dada pelo comando fora de ordem, e
+quem pegar a `09k` não precisa de esperar por ninguém.
 
 **A série 08 está CHEIA** — de `08a` a `08z`, com `08c` e `08d` como buracos que
 ficam vagos. Quem precisar de letra hoje usa a série `09`.
