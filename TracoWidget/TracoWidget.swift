@@ -1422,7 +1422,14 @@ struct CompromissoVivo: Widget {
                         .font(Tema.miudo.weight(.medium).monospacedDigit())
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
-                        .frame(maxWidth: 92, alignment: .trailing)
+                        // F5b-C: o teto de 92 pt cortava o relógio relativo em
+                        // AX5 ("39 minut…", visto na tela bloqueada). O `Text`
+                        // de data (`.timer` e `.relative`) é GULOSO: toma toda a
+                        // largura que a linha oferece e encosta os dígitos à
+                        // esquerda dela — sem teto e sem alinhar, o relógio
+                        // grudava em "PRÓXIMO" (visto). Sem teto o texto nunca
+                        // corta; alinhado à direita ele volta ao canto.
+                        .multilineTextAlignment(.trailing)
                     }
                 }
 

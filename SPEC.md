@@ -6553,13 +6553,58 @@ O que mudou para fechá-la, sem redesenho:
   (`f5bb-controle-sem-relevancia-ilha-compacta.png`, 04:13:05). Mesmo estado,
   mesma projeção, só o `relevanceScore` diferente — é a prova mais limpa desta
   volta de que ele é o mecanismo, e ela veio de um acidente de posse do aparelho.
-- **Achado novo em AX5, sem correção nesta volta:** no cartão da tela
-  bloqueada o relógio relativo do canto ("39 minutos" em `large`) corta para
-  **"39 minut…"** em AX5 (`f5bb-ax5-bloqueada.png`); ao acordar a tela o mesmo
-  canto mostra a contagem "39:39" inteira (`…-ao-acordar.png`). Fica no
-  EVOLUCAO como lacuna aberta; a compacta da Ilha continua sem corte.
+- **Achado novo em AX5:** no cartão da tela bloqueada o relógio relativo do
+  canto ("39 minutos" em `large`) cortava para **"39 minut…"** em AX5
+  (`f5bb-ax5-bloqueada.png`); ao acordar a tela o mesmo canto mostrava a
+  contagem "39:39" inteira (`…-ao-acordar.png`). Corrigido na F5b-C, abaixo.
 - **O corte por alinhamento à direita vira hipótese.** A captura
   `f5b-instrumento-alinhada-corta.png` mostra "29:48" inteiro; o corte que o
   relato alegou não está nela. Fica registrado que `multilineTextAlignment(.trailing)`
   sem teto **não foi provado** cortar; a escolha de deixar os dígitos à esquerda
   da caixa do `.timer` se sustenta sozinha pela captura `f5b-depois-ilha-expandida.png`.
+  (A F5b-C, abaixo, mostra por que a caixa é larga: o `Text` de data é guloso.)
+
+**Revisão G3 (F5b-C, 09/09): o corte em AX5, e o controle com nome.** O
+revisor aceitou as três provas e recusou de novo por duas coisas: a tela
+bloqueada cortava em AX5 e o relato não trazia as seis fases do
+`design-router`. O que mudou:
+
+- **O relógio do cartão não corta mais, em nenhum tamanho.** A causa não era
+  o tamanho da letra: o `Text` de data (`.timer` e `.relative`) é **guloso** —
+  toma toda a largura que a linha oferece e encosta o conteúdo à esquerda
+  dela. O teto de 92 pt existia para domar isso, e em AX5 "39 minutos" precisa
+  de mais que 92. Sem teto o texto nunca corta, mas gruda em "PRÓXIMO"
+  (`f5bc-instrumento-sem-teto-relogio-a-esquerda.png`, visto na tela);
+  alinhado à direita (`multilineTextAlignment(.trailing)`) ele volta ao canto
+  e, de quebra, a contagem passa a encostar na mesma borda da hora — antes
+  ficava 40 pt para dentro (`f5bb-ax5-bloqueada-ao-acordar.png`, "39:39"
+  solto). Pares refeitos, mesmo estado (Dentista em +40 min por 60 min,
+  Destaque vivo), mesmo binário (`cmp` igual nos dois dylibs), semeadura pela
+  rota real: bloqueada `f5bc-large-bloqueada.png` (05:21:42) /
+  `f5bc-ax5-bloqueada.png` (05:21:59), ambas "39 minutos" inteiro no canto;
+  ao acordar `f5bc-large-bloqueada-ao-acordar.png` (05:21:45, "39:43") /
+  `f5bc-ax5-bloqueada-ao-acordar.png` (05:22:01, "39:26"); casa
+  `f5bc-large-ilha-compacta.png` / `f5bc-ax5-ilha-compacta.png`, a Ilha do
+  compromisso nas duas. `f5bc-log-large.log` é o `liveactivitiesd` da
+  semeadura (05:21:31, dois `Starting activity`); `f5bc-log-ax5.log` é a
+  janela das capturas AX5, sem atividade a subir ou cair. O que a hipótese
+  acima dizia da expandida vale aqui às avessas: alinhar à direita **não
+  cortou** no cartão, porque a caixa gulosa tem folga; na expandida a região
+  é estreita e a folga não existe — a escolha de lá fica como está.
+- **O controle ganha o nome certo.** O que a F5b-B chamou de "controle que eu
+  não planejei" é um **grupo de controle**: o `xcodebuild test` de outra volta
+  instalou no mesmo aparelho um binário sem a 08v, o iOS reergueu as duas
+  atividades **a partir da mesma projeção**, e a Ilha voltou ao Destaque
+  (`f5bb-controle-sem-relevancia-ilha-compacta.png`, 04:13:05;
+  `f5bb-log-controle.log`, ids `2F19AAAE…`/`C496A60E…` às 04:07:00). Mesmo
+  estado, mesma projeção, mesmo aparelho, só o `relevanceScore` ausente: é a
+  prova **por ausência** de que a relevância é o mecanismo — e vale mais que
+  uma captura a mais, porque nenhuma captura com a 08v distingue "a relevância
+  decidiu" de "o iOS escolheu por outro critério que coincide". O daemon não
+  registra `relevanceScore` (declarado e aceito): a prova é a tela **com** e
+  **sem**.
+- **Limite do instrumento, visto de novo:** entre uma captura e outra o iOS
+  perguntou "Deseja continuar permitindo as Atividades ao Vivo do app Traço?"
+  por cima do cartão (`f5bc-instrumento-dialogo-atividades.png`); o toque do
+  `orca emulator` na pilha fechada abre a pilha em vez de acertar o botão, e só
+  na pilha aberta o botão recebe o toque. Respondido "Permitir Sempre".
