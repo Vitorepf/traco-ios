@@ -68,8 +68,10 @@ que este arquivo existe para impedir — e ele reincidiu no próprio arquivo.
 | 09k | D1 (as Notas sem slop) | em `main` |
 | 09l | K1 (o cofre do dono não é da suíte) | em `main` |
 | 09m | MAC-0-D (o Grok Bot recusa servidor local) | em `main` |
+| 09n | Q2-E (adoção do melhor Grok e a espera na tela) | reservada, volta viva |
+| 09o | B1 (os `try!` de dívida real) | reservada, volta viva |
 
-**Próxima livre: 09n.**
+**Próxima livre: 09p.**
 
 **A série 08 está CHEIA** — de `08a` a `08z`, com `08c` e `08d` como buracos que
 ficam vagos.

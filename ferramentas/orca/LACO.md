@@ -1864,3 +1864,40 @@ rodei o portão da K1 pelo nome — `testeNuncaEscreveNoCofreDoAparelho` — e e
 (`servico = emTeste ? "app.traco.xai.testes" : "app.traco.xai"`). A diferença é de
 composição de árvore, não de teste perdido. **Contagem que não fecha se confere;
 não se explica.**
+
+## 09/09, 12h05 — DIRETRIZ §10: "SEMPRE USE O MELHOR GROK POSSÍVEL"
+
+O dono decidiu a régua que a Q2 tinha deixado com ele: **aceita a espera** — 36 s
+de média, 77 s no pior caso — **pela resposta que se sustenta**. E foi além do que
+eu tinha perguntado, em três pontos que mudam o desenho:
+
+**1. A adoção é agora.** `Sabia.chamarComProveniencia` passa **modelo e esforço na
+rota** (hoje herda o `grok-4.3` global de `Grok.swift:47`), o **tempo limite sobe
+para caber o pior caso medido**, como a 08r fez no Trabalho, e **`responder` sai de
+`indisponivelPorQualidade`** com a medida nova na `Politica` **e no Perfil**.
+
+**2. "Melhor" é medido, não escolhido pelo número da versão.** A conta expõe
+**doze modelos**; antes de fixar o padrão global, a Q2-E roda **a mesma fixture**
+nos **dois mais capazes** — `grok-4.6` e o topo da família 4.20 — **uma corrida
+cada**, e **o escolhido vira o padrão de TODAS as rotas Grok**, com esforço por
+operação. Pedi que ela **liste os doze no relato** e diga **como decidiu quais são
+os dois mais capazes**: se a lista não expõe capacidade, o critério tem de estar
+escrito.
+
+**3. A espera vira estado de tela, e é item da própria Q2** — não volta separada:
+o cartão **diz que está pensando**, **mostra o tempo** e **deixa cancelar**, sem
+perder o que a pessoa escreveu. Com `design-router` e a fase 5 primeiro, juiz
+Fable. A razão está na medida: **36 segundos sem retorno visual é onde o autor
+acha que travou.**
+
+**4. As demais repetem o protocolo** com o melhor modelo, uma por vez, e **só
+ficam na lista se nem com ele passarem** — o que muda a natureza da tabela: ela
+deixa de ser "o que o Grok não faz" e passa a ser "o que **nem o melhor Grok** faz".
+
+Despachei a **Q2-E** (`ctx_415a1b4999c2`, ADR `09n`) com as quatro ordens, e ao
+lado a **B1** (`ctx_9e9a90921b36`, ADR `09o`), primeira volta da trilha B — que
+**nasce com o alvo reduzido a quatro**, porque a A1 já julgou os oito `try!` um a
+um e o `TracoApp.swift:13` que o dono cita como primeiro **já saiu**. No spec dela
+pus a pergunta que decide cada caso: **quando esse `try!` explodir na mão do
+autor, o que ele perde?** Se for o texto que ele acabou de escrever, o conserto
+não é não-explodir — é **preservar e dizer**.
