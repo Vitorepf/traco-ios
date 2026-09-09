@@ -1470,3 +1470,29 @@ dizer qual conduz, e a outra vira leitura.
 Enquanto ela usa o aparelho único, **não despacho nada que precise do
 instrumento**. Depois do push dela: build de `main` instalado no `C2416CBC` uma
 vez, `ContaGrok.ligada` conferido, e então C1, R1, S1 e a Q2.
+
+## 09/09, 09h30 — a guarda do segundo aparelho, a §8, e o item da fila que já estava pago
+
+**A guarda do dono é melhor do que a minha proposta**, e a razão que ele deu é a
+certa: **reversibilidade**. O segundo simulador existe **só para build e suíte**,
+**ligado pela trava no início da corrida e desligado ao fim da MESMA corrida** —
+quem liga, desliga, e não o deixa ligado "para a próxima". **Fora de uma corrida
+há um aparelho ligado: o da conta**, sem voz e sem mouse. Escrevi assim na
+ESTEIRA, no lugar da contradição que o meu erro expôs.
+
+**DIRETRIZ §8 (`418a1b5`)** entrou no preâmbulo de todo spec: *"o mais rápido
+possível; eliminar todos os bugs e erros; otimizar ao máximo; ponytail"*. O ponto
+que mais muda o laço é o primeiro: **fechar antes de abrir** — escopo mínimo, **uma
+passada de revisão**, e **acabamento vira dívida nomeada**. Hoje tivemos voltas com
+**três e quatro re-G3**; pela §8 isso acaba: mérito aprovado com acabamento
+faltando **fecha, com o que falta no RUMO e com dono**.
+
+**E um item da fila já está pago, o que o dono talvez não saiba:** a **B1** pede os
+seis `try!` *"(`TracoApp.swift:13` primeiro)"* — e **o `TracoApp.swift:13` saiu na
+volta A1**, mesclada ontem (ADR 08s). A contagem de produção hoje é **8**, e a A1
+já os julgou um a um: **quatro são infalíveis por construção** (`AnexoDisco`,
+`Indice`, `Corpus:277`, e `ConferenciaTrabalho` enquanto todo chamador passar
+literal) e **quatro são dívida real** — `FonteNotas:155`, `PraticaTrabalho`,
+`Corpus:144` e `Sessao:599`, todos serialização de valor vindo de fora. A B1 nasce,
+então, **com o alvo já reduzido a quatro** e com o julgamento pronto: é escrever o
+conserto e o portão, não refazer a auditoria.
