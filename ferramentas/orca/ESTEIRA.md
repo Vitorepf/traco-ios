@@ -798,3 +798,26 @@ nenhum se repete**.
 Captura tirada durante a colisão não sabe qual binário estava instalado nem quem
 respondeu ao diálogo. **Evidência contaminada declarada vale; usada, é pior que
 nenhuma.**
+
+### A sonda não passava a conversa que a produção passa (09/09, achado da Q3)
+
+Mais um da família *"o instrumento não mede a rota real"*, e este durou desde que a
+sonda existe: **`AvaliacaoIA.Entrada` nunca teve `conversa`**, enquanto a rota de
+produção **sempre passou** as trocas anteriores. Ou seja, **medimos a operação sem
+o contexto que ela tem no app** — e as conclusões sobre "o modelo não usa o que já
+foi dito" nunca puderam ser separadas de "nós nunca dissemos".
+
+**Regra:** antes de confiar numa medida, **compare o que a sonda monta com o que o
+chamador de produção monta, campo a campo**. Já nos custou duas vezes: a
+sobrecarga fantasma da `responderNasNotas` (a sonda chamava outra função) e agora
+a conversa que faltava.
+
+### Rótulo interno: some do autor, fica na medida (09/09, Q3)
+
+O `N1T1` **tem de ir no pedido** — sem ele o modelo não tem como citar a nota
+certa. O erro não era mandá-lo; era **deixá-lo voltar ao texto do autor**.
+
+O conserto tem as duas metades: **`semRotulos` troca o rótulo pelo título** na
+volta, e **`escreveuRotuloInterno` grava que o modelo escreveu um** — *"o autor não
+vê o endereço, a medida vê"*. **Limpar sem registrar teria escondido do portão
+justamente o que ele precisa contar** (é a lei da 09o: portão não pode ser cego).

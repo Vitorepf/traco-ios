@@ -2246,3 +2246,34 @@ barata: a mesma comparação, com a fixture de outra rota.**
 
 **Fecho:** **1000 testes em 161 suítes, `TEST SUCCEEDED`** com a Q2-F dentro. A
 conta seguia ligada às 17h11, conferida pela volta. Aparelho efêmero desligado.
+
+## 09/09, 18h30 — pausa e retomada (uso 27%); a Q3 achou que os DOIS defeitos eram nossos
+
+**A recusa covarde estava escrita por nós, em dois lugares:** no **prompt**
+(`insuficiente` definida como *"faltam dados"* — que é **o caso comum de quem
+pergunta ao próprio caderno**) e no **parser** (base insuficiente **descartava o
+texto** e devolvia a frase fixa). Não era o modelo calando: **era o app mandando
+calar, e depois jogando fora o que ele tinha dito.**
+
+O conserto: a base vira **último recurso**, entra a regra de sustentação que a
+08z/09n já mediu funcionando, e **a frase fixa só aparece quando o modelo não
+escreveu nada**.
+
+**E o rótulo interno tem uma solução de duas metades que vale registrar:** o
+`N1T1` **precisa ir no pedido** — sem ele não há como citar a nota certa —, então
+o conserto é **na volta**: `semRotulos` troca o rótulo pelo **título da nota**, e
+`escreveuRotuloInterno` **grava que o modelo escreveu um**. *"O autor não vê o
+endereço, a medida vê."* Limpar sem registrar teria **escondido do portão
+justamente o que ele precisa contar**.
+
+**O achado de passagem é o mais grave, e é da nossa régua:** **a sonda NUNCA passou
+a conversa que a produção passa.** Medimos a operação **sem o contexto que ela tem
+no app** — e toda conclusão sobre "o modelo não usa o que já foi dito" estava
+misturada com "nós nunca dissemos". É a segunda vez que a sonda mede outra coisa
+que a produção (a primeira foi a sobrecarga fantasma da `responderNasNotas`), e
+virou lei: **antes de confiar numa medida, compare o que a sonda monta com o que o
+chamador de produção monta, campo a campo.**
+
+**E ela não mexeu na tabela**, com a razão certa escrita: *"conserto sem medida não
+sai da lista"*. Fixture pronta em `prova/q3-responder-nas-notas.json`, esperando a
+janela do instrumento.
