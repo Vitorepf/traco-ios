@@ -765,3 +765,46 @@ que inventa.
 **Teto:** o dono mandou segurar a próxima abertura até a MAC-0 fechar. Em edição
 ficam R1 e MAC-0; MAC-1 e C1 estão em G3 (revisão, não edição) e a F5b é a trilha
 fora do app. Não abro mais nada até ela voltar.
+
+## 08/09, 23h35 — DIRETRIZ §7: a lei do mouse cai, e o foco vira a IA até a nota 9
+
+Palavras do dono: *"todos os modelos no Orca têm total liberdade de controlar meu
+computador e evoluir o Traço iOS. Foco número um: levar o Traço a 9/10; está em 7
+e demorou o dia inteiro. Foquem na melhoria da IA, testem a IA, têm total
+controle do computador. Elevem ao extremo design e experiência: curva-zero,
+design-router, gate-loop."*
+
+**O que muda, e já pus no preâmbulo de todo spec:**
+
+1. **A lei do mouse foi substituída** — controle do computador liberado para todo
+   worker, com **aviso no comentário do worktree ao começar e ao terminar** e
+   **nunca dois workers no mesmo app**. No simulador, `orca emulator` continua
+   preferido, porque toca pelo UDID sem disputar o cursor. **Voz, VoiceOver e
+   iPad seguem proibidos** — essa não se toca.
+2. **Foco 1 é a IA:** as **sete** operações `indisponivelPorQualidade` (`ecos`,
+   `calibragem`, `recordar`, `responderNasNotas`, `responder`, `instigar`,
+   `contrapor`) voltam **uma por uma**, cada uma com volta própria, medidas com o
+   Grok pela sonda **antes e depois**, e só saem da lista com **9 nas cinco
+   dimensões**. Alavancas: contexto, prompt, esquema de saída e teto. **A régua é
+   a saída inteira lida.**
+3. **Foco 2:** toda volta visual cita as seis fases do design-router, curva-zero
+   medida em toques, gate-loop dono do ciclo; **tela abaixo de 9 antes de função
+   nova**.
+4. **Cada fecho diz o que mudou na NOTA da dimensão tocada, com prova.**
+
+Aproveitei o preâmbulo aberto para acrescentar as duas leis de instrumento que
+nasceram hoje: **ausência na árvore de AX não prova ausência na tela**, e
+**runner travado antes de conectar não é resultado**.
+
+**Abri a consulta de G0 ao Astra para a Q2** (`task_6d119a00ab8f`), que é
+`responder` — a primeira da fila do dono, escolhida por valer mais para a jornada
+do espanhol e para a sábia na página. O defeito medido: *o Grok inventou fato
+quando o contexto não sustentava* (horário de biblioteca que ele não podia saber,
+um total de R$ 1.008 sem distância, consumo nem preço), **3 de 6 casos — e o
+mesmo caso acertou numa execução e fabricou na seguinte**.
+
+Fiz três perguntas e a terceira é a que me preocupa: apertar contra a invenção
+compra facilmente **a recusa covarde** — calar onde o contexto sustentava. Isso
+já aconteceu com a irmã `responderNasNotas`. Pedi ao Astra **a forma da prova de
+que a volta não comprou esse defeito**, não a promessa de cuidado. E avisei que
+"N de 6" sozinho não decide, porque o mesmo caso deu os dois resultados.
