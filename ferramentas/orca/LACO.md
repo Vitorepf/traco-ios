@@ -1607,3 +1607,31 @@ E a correção de aparelho do dono me deixou uma lição desconfortável: **eu r
 `xcodebuild test` a noite toda no `B91C8DEF` chamando-o de "aparelho de
 trabalho"** — era o aparelho onde a conta dele funcionava. **Papel de UDID se lê na
 tela antes da corrida, não na memória.**
+
+## 09/09, 11h — pausa e retomada (uso 6%); um aparelho, e a fusão vira volta própria
+
+Um simulador ligado — o **`B91C8DEF`**, o da conta — e o 17e finalmente apagado.
+Fala em zero.
+
+**Publiquei a fusão como branch em vez de segurá-la no meu checkout.** As mesclas
+de C1, R1 e S1 sobre a M1 estavam só no meu `main` local, com dois vermelhos
+conhecidos; segurar trabalho de três voltas dentro do checkout do orquestrador é
+como guardar dívida fora do livro. Agora é `Vitorepf/fusao-c1r1s1`, com worktree
+próprio e um worker nela (`ctx_62c0db25118c`) — **é uma volta, e volta tem dono.**
+
+Os dois vermelhos que restaram são da C1 e **só existem com as quatro juntas**:
+
+1. **a gaveta volta a sangrar em tamanho `L`** (3 quadros fora, 2 cobertos) onde a
+   C1 media 0 nos dois tamanhos — e a suspeita óbvia é a **etiqueta de origem da
+   MAC-1**, que a C1-D já mediu comendo 30 pt de papel em AX5;
+2. **`papelComEtiqueta < papelSemEtiqueta` empata em 86,33** — a asserção é
+   **estrita** onde o empate é possível, porque naquele caminho a etiqueta **não
+   desenha**.
+
+No spec proibi o conserto fácil: **não trocar `<` por `<=` para ficar verde**.
+Decidir com medida qual das duas é verdade — a etiqueta deveria desenhar e não
+desenha (defeito de produto, teste certo), ou existe caminho legítimo sem etiqueta
+(asserção errada, e o empate entra nomeado).
+
+**§8 aplicada:** escopo mínimo, uma passada de revisão, e o que sobrar de
+acabamento vai ao RUMO com dono em vez de segurar a volta.
