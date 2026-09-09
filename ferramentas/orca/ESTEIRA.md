@@ -288,11 +288,20 @@ escolhe sozinho um caminho irreversível.
 
 ### LEI DO SIMULADOR DO GROK, corrigida: o INSTALL POR CIMA também derruba a conta (09/09)
 
+> **⚠️ ESTA SEÇÃO ESTAVA ERRADA E FICA COMO REGISTRO.** A causa não era o install
+> por cima: era **a suíte integral**, que apagava o cofre pelo `ContaGrok.sair()`
+> de dois testes (ver *"A SUÍTE INTEGRAL APAGA A CONTA DO DONO"*, e a K1 que a
+> consertou). O install por cima **não derruba a conta** — medido três vezes em
+> 09/09, e de novo pelo LOTE, com `contaGrokLigada=true` **antes, depois e ao fim**
+> de uma janela com instalação no meio.
+
 A lei antiga proibia `erase`, `clearState`, `uninstall` e `xcodebuild test` no
-`C2416CBC` e **permitia instalar por cima**. Estava errada, e a medida é limpa:
-a fumaça antes do install registrou `contaGrokLigada=true` com **12 modelos**
-às 03:20:38Z; depois do **install por cima**, `contaGrokLigada=false` com
-**0 modelos** às 03:22:07Z. O revisor parou na hora e **não contornou**.
+`C2416CBC` e **permitia instalar por cima**. A fumaça antes do install registrou
+`contaGrokLigada=true` com **12 modelos** às 03:20:38Z e, depois, `false` com
+**0 modelos** às 03:22:07Z — **e a conclusão que tirei disso, de que o install era
+o culpado, era grande demais**: no mesmo minuto havia uma suíte correndo. O
+revisor parou na hora e **não contornou**, e foi isso que permitiu achar a causa
+verdadeira horas depois.
 
 **A lei, na forma que o dono deu em 09/09 08h40:** no `C2416CBC` **a sonda roda no
 build JÁ INSTALADO** — `simctl launch` com `TRACO_AVALIAR_IA` no ambiente, ou
@@ -821,3 +830,18 @@ O conserto tem as duas metades: **`semRotulos` troca o rótulo pelo título** na
 volta, e **`escreveuRotuloInterno` grava que o modelo escreveu um** — *"o autor não
 vê o endereço, a medida vê"*. **Limpar sem registrar teria escondido do portão
 justamente o que ele precisa contar** (é a lei da 09o: portão não pode ser cego).
+
+### A guarda de 30 min da trava briga com a lei da janela inteira (09/09, achado do LOTE)
+
+`com-trava.sh` **retoma a trava de um dono vivo depois de 30 min**, e a lei de hoje
+manda **a sequência inteira numa chamada só** — janelas de medição de IA passam
+disso com facilidade (a do LOTE levou 10 min, mas três operações e mais corridas
+chegam lá).
+
+**As duas regras juntas produzem o pior caso: outro worker entra no meio de uma
+janela que o dono da trava ainda está usando.** É a colisão de hoje com outro
+nome.
+
+**Dívida nomeada** (RUMO, dona: a próxima volta que tocar `com-trava.sh`): a
+retomada deve exigir **prova de que o dono morreu** (o processo não existe mais),
+não só tempo — tempo mede paciência, não abandono.
