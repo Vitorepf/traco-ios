@@ -1412,3 +1412,32 @@ classe viva, então o checksum da V4 **andou junto com a 08u** e o caderno de
 checksum `ImY8W7…` deixou de casar. Ela também considerou **e recusou por
 escrito** a alternativa barata (tirar o `migrationPlan`), e declarou o custo: ~60
 linhas duplicadas.
+
+## 09/09, 08h56 — quem religou o 17e: não foi worker meu, e a prova é a árvore de processos
+
+O dono viu **"O Traço não abriu o seu caderno"** no 17e e mandou arrumar rápido —
+e mandou descobrir quem religou o aparelho depois da ordem de UM SIMULADOR SÓ.
+Descobri, e o achado desfaz a suspeita mais óbvia:
+
+```
+9337 <- 1275 : /Applications/Claude.app/Contents/Helpers/disclaimer --
+               xcrun simctl spawn C7341E64 log stream ...
+1275 <- 1    : /Applications/Claude.app/Contents/MacOS/Claude
+```
+
+O processo que segura o 17e **pende do app Claude do dono (pid 1275)**, iniciado
+às **08:55:25**, e o `device.plist` do aparelho tem a **mesma marca de 08:55** —
+é uma sessão do **Claude Desktop** fazendo `log stream` do 17e, **não um worker do
+Orca**. Nenhum dos meus despachos tem esse aparelho no spec desde a ordem, e
+nenhum deles aparece na cadeia de pais.
+
+**O candidato mais provável é a segunda sessão de orquestrador** que o dono abriu
+às 20h34 de ontem — aquela que ficou parada esperando ele dizer qual das duas
+conduz. **Não desliguei o aparelho de novo**: desligar sem parar a causa é teatro,
+e se for a leitura paralela do próprio dono eu mataria o trabalho dele no meio.
+Fica com ele a decisão de encerrar aquela sessão.
+
+**A lição de instrumento:** `simctl spawn ... log stream` **mantém o aparelho de
+pé**. Quem abre um stream de log num simulador está segurando o simulador, mesmo
+sem tocar na tela — e num regime de aparelho único isso basta para quebrar a
+ordem.
