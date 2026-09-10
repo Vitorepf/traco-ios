@@ -101,7 +101,7 @@ enum Politica {
             .init(regra: .soGrok, porque: "falhou 3 de 3 e 2 de 3 no aparelho; as perguntas locais cobrem — prova/qualidade-ia-q5-avaliacao-base.md")
         case .recordar:
             .init(regra: .indisponivelPorQualidade, porque: "3 de 3 no aparelho. RELIDA em 10/09 sobre a MESMA corrida de 08/09: a razão velha juntava dois defeitos OPOSTOS num 'ou', e a tela mostrava o menor. O que mais reprova é NOSSO — `Prova.vazamento` recusa por qualquer 4-grama contíguo normalizado do alvo, e derruba a pergunta CERTA: `qn-recordar-alvo-longo` devolve nil 3 de 3 e `q5-recordar-capital-lisboa` 2 de 3, sendo que a repetição que passou foi a que escreveu 'capital portuguesa' em vez de 'capital de Portugal'. Reproduzida fora do app, a régua erra nos DOIS sentidos: 'Qual é a capital de Portugal?' — que não revela Lisboa — é DERRUBADA pelo 4-grama 'a capital de portugal', e 'Por que o limite de ocupação é exatamente 15?' — que ENTREGA a resposta — PASSA. Quatro palavras seguidas não medem 'revela o alvo'. O vazamento também existe e é do modelo (`qn-recordar-degrau-avancado` entrega o 15 em 2 de 3), mas a guarda não o pega. O conserto NOSSO vem primeiro e ainda não foi medido — a régua tem de olhar o ALVO da recuperação, não o enunciado inteiro —, e por isso a tela não promete volta. A frase fixa do ritual continua cobrindo — prova/q-qualidade-avaliacoes.jsonl e ferramentas/orca/cauda-ecos-calibragem-recordar.md",
-                  motivo: "muitas vezes não devolve pergunta nenhuma, e quando devolve já entrega a resposta",
+                  motivo: "muitas vezes não devolve pergunta nenhuma, e a que vem já entrega a resposta",
                   medidaEm: "10/09/2026")
         case .responderNasNotas:
             .init(regra: .soGrok,
@@ -196,7 +196,7 @@ enum Politica {
         case .responder: "Responder à sua pergunta pela IA está indisponível: ela ainda inventa uma situação que você não escreveu e, às vezes, só diz o que falta em vez de ajudar. O que você escreveu continua aqui, e a sua pergunta fica na nota."
         case .ecos: "Ecos entre notas está indisponível: a IA ainda deixa de fora justamente as notas que mais tinham a ver. As suas notas continuam buscáveis pelo texto."
         case .calibragem: "Ler o seu juízo pela IA está indisponível: ela ainda não diz nada quando você não errou. Os seus pares de previsão e resultado continuam aqui para você comparar."
-        case .recordar: "A pergunta do Recordar pela IA está indisponível: muitas vezes ela ainda não devolve pergunta nenhuma e, quando devolve, já entrega a resposta. O ritual segue com a pergunta fixa."
+        case .recordar: "A pergunta do Recordar pela IA está indisponível: muitas vezes ela ainda não devolve pergunta nenhuma, e a que vem já entrega a resposta. O ritual segue com a pergunta fixa."
         case .instigar: "Instigar pela IA está indisponível: quando você escreveu pouco, ela ainda pergunta vago e não pergunta quando aconteceu. As perguntas do método continuam na página."
         case .contrapor: "Contrapor pela IA está indisponível: ela ainda inventa uma renda que você não escreveu e, às vezes, não responde. O Steelman e a Inversão continuam no catálogo, escritos por você."
         case .responderNasNotas: "Responder as perguntas que você deixa nas notas precisa da sua conta Grok (em Perfil)."

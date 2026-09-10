@@ -131,7 +131,7 @@ momento em que toca e nada acontece**. Corrigi os dois:
 - `Politica.semProvedor(.recordar)` (aviso da rota)
 
 > «A pergunta do Recordar pela IA está indisponível: **muitas vezes ela ainda não
-> devolve pergunta nenhuma e, quando devolve, já entrega a resposta.** O ritual
+> devolve pergunta nenhuma, e a que vem já entrega a resposta.** O ritual
 > segue com a pergunta fixa.»
 
 Sem data, sem «medida», sem jargão nosso; passa o portão da língua (`09z`). Os

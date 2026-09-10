@@ -87,7 +87,7 @@ struct PerfilQualidadeTests {
         let esperado: [Politica.Operacao: String] = [
             .ecos: "deixa de fora justamente as notas que mais tinham a ver",
             .calibragem: "não diz nada quando você não errou",
-            .recordar: "muitas vezes não devolve pergunta nenhuma, e quando devolve já entrega a resposta",
+            .recordar: "muitas vezes não devolve pergunta nenhuma, e a que vem já entrega a resposta",
             .responder: "inventa uma situação que você não escreveu, e às vezes só diz o que falta",
             .instigar: "quando você escreveu pouco, pergunta vago e não pergunta quando aconteceu",
             .contrapor: "inventa uma renda que você não escreveu",
