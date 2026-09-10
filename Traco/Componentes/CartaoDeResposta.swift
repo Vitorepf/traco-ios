@@ -178,7 +178,7 @@ struct CartaoDeResposta<Conteudo: View>: View {
     }
 }
 
-/// "serviu / não serviu" como CONTROLE: as duas saídas num campo só, separadas
+/// "serviu / não serviu" como CONTROLE: as duas saídas lado a lado, separadas
 /// por um fio, cada uma com alvo de 44. Eram dois links soltos em cinza, sem
 /// borda e sem relação visível entre si (§14). A cor E O PESO são os do texto
 /// de apoio (`meta`): o retorno é opcional, e a resposta acima é o que importa.
@@ -206,8 +206,10 @@ struct ControleDeRetorno: View {
         .font(Tema.meta)
         .foregroundStyle(Tema.tintaSuave)
         .buttonStyle(.discreto)
-        .padding(.horizontal, 10)
-        .cartao(.campo, recuo: [])
+        // sem o cartão `.campo` que o envolvia: era a última caixa dentro da
+        // conversa (REFERENCIA-HERMES §1 e §6). O fio entre as duas saídas já
+        // dá a relação que a borda dava; a caixa não resolvia nada que o tipo
+        // não resolva.
         .fixedSize()
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Esta resposta serviu?")
