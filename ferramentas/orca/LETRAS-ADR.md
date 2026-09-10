@@ -78,8 +78,9 @@ que este arquivo existe para impedir — e ele reincidiu no próprio arquivo.
 | 09u | MAC-2-A · o Trabalho chega ao Mac para ser lido | reservada, volta viva |
 | 09v | Q3-C · o modelo se escolhe POR OPERAÇÃO, com a comparação pareada na mão | reservada, volta viva |
 | 09w | Q3-D · o sinal de sobra: cartão com teto não corta calado | reservada, volta viva |
+| 09x | Q4-E · o caso cego do `contrapor`, e o modelo desta rota | reservada, volta viva |
 
-**Próxima livre: 09x.**
+**Próxima livre: 09y.**
 
 **A 09s colidiu, e quem mudou fui eu** (09/09, ~02h). Tomei a `09s` porque o
 "Próxima livre: 09s" que estava escrito aqui batia com o comando; no mesmo
