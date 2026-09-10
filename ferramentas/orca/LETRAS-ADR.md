@@ -91,7 +91,7 @@ alguém tropeçar: a série 08 encheu sem aviso e custou três colisões numa ta
 | letra | dona | estado |
 |---|---:|---|
 | 10a | TEMPO · o teto vira margem declarada, e a espera ganha estado | reservada, volta viva |
-| 10b | RESPONDER · o pedido condicionado à matéria (G0 da Astra) | reservada, volta viva |
+| 10b | RESPONDER · o pedido condicionado à matéria (G0 da Astra) | **ESCRITA** em SPEC.md — o prompt foi medido e NÃO fecha; `responder` fica cortada |
 
 **Próxima livre: 10c.**
 

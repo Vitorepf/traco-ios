@@ -81,7 +81,7 @@ struct PerfilQualidadeTests {
             .ecos: "deixa de fora justamente as notas que mais tinham a ver",
             .calibragem: "não diz nada quando você não errou",
             .recordar: "entrega a resposta junto com a pergunta",
-            .responder: "inventa uma situação que você não escreveu",
+            .responder: "inventa uma situação que você não escreveu, e às vezes só diz o que falta",
             .instigar: "quando você escreveu pouco, pergunta vago e não pergunta quando aconteceu",
             .contrapor: "inventa uma renda que você não escreveu",
         ]
@@ -90,9 +90,15 @@ struct PerfilQualidadeTests {
             let r = try #require(PerfilView.reprovadas.first { $0.op == op })
             #expect(String(PerfilView.linhaDa(r).characters).contains(frase), "\(op): \(r.motivo)")
         }
-        // As três em correção dizem o que FALTA, começando pela palavra que o
-        // autor entende — nunca "o prompt", "o modelo" ou "falta medir".
-        for op in [Politica.Operacao.responder, .instigar, .contrapor] {
+        // As em correção dizem o que FALTA, começando pela palavra que o autor
+        // entende — nunca "o prompt", "o modelo" ou "falta medir".
+        //
+        // ADR 2026-09-10b: `responder` SAIU deste grupo. O conserto que estava
+        // escrito ("falta ela parar de inventar também a estrutura do documento
+        // que você pediu") foi tentado em duas reescritas do pedido, medidas
+        // contra a base no MESMO binário, e as duas ficaram piores: base 14 e 15
+        // de 20, candidatos 12 e 12. Um conserto que já falhou é promessa, não conserto.
+        for op in [Politica.Operacao.instigar, .contrapor] {
             let c = try #require(Politica.linha(op).conserto)
             #expect(c.hasPrefix("falta ela "), "\(op): o conserto não fala com ele — \(c)")
             #expect(!c.contains("falta medir"), "\(op): agenda nossa na tela — \(c)")

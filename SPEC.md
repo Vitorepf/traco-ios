@@ -9175,3 +9175,106 @@ executor (`produzir`, `conferir`, `padroes`, `revisar`, `prepararPratica`) ainda
 explicam a escolha pelo diagnóstico (*"o modelo do aparelho errou a comparação"*).
 Não têm data nem "medida" — passam o portão —, mas não estão no molde. Fica para a
 volta que tocar cada uma.
+
+## ADR 2026-09-10b — o prompt do `responder` foi a alavanca, e ela não fecha a rota (volta RESPONDER)
+
+**Decisão.** `responder` **continua** `indisponivelPorQualidade`, e `sistemaResponder`
+**fica exatamente como estava** (o contrato de sustentação da 08z, 2.235
+caracteres, sha256 `d42d61ea…`). Duas reescritas do pedido foram medidas contra
+ele **no mesmo binário**, 20 casos × 3 repetições cada braço, e as duas ficaram
+**piores que a base**: base **14 e 15 de 20** nas duas janelas, candidatos **12 e
+12**. O `conserto` da linha do Perfil — *"falta ela parar de inventar também a
+estrutura do documento que você pediu"* — **sai da tabela**: ele foi tentado e
+medido, e prometer ao autor um conserto que já falhou é mentira na tela. O
+`motivo` ganha a segunda metade do defeito, que o autor sente e a tela não dizia.
+
+**Por quê.** O defeito é **simétrico** e nenhuma das duas versões o separou. Uma
+face inventa a estrutura do documento que a pessoa não descreveu (*"abra o PDF",
+"vá ao sumário", "pule metodologia e anexos"*); a outra para em *"não consta X"*
+sem entregar o próximo ato. O candidato 1 matou a primeira e matou a continuação
+junto (`revisor-orcamento-cotacao-datada` **3 de 3 → 0 de 3**); o candidato 2
+devolveu a continuação e o PDF voltou com ela (`q2-relatorio-tres-restricoes`
+**3 de 3 → 1 de 3**). `revisor-responsavel-nao-definido` — o caso do revisor,
+revelado e agora regressão — reprova **1 de 3 nas duas**: a distinção que a Astra
+pediu (*"não consta quem apresenta"* × *"ninguém foi escolhido"*) o pedido
+conseguiu ensinar; a continuação, não.
+
+**A armadilha da Q4-C, de novo, e desta vez armada por mim.** A cláusula *"diga
+ONDE ela confirma pelo nome e endereço que ela deu"*, escrita para o caso rico,
+fez o modelo **afirmar** que a pessoa tinha nome e endereço no caso em que ela não
+deu nenhum (`q2-biblioteca-sem-horario` **3 de 3 → 1 de 3**). Condicionar a
+cláusula no candidato 2 (*"que ela TIVER dado"*) **não resolveu**: 2 de 3 ainda
+afirmaram. **Uma cláusula que nomeia um dado ensina o modelo a supor que o dado
+existe, mesmo condicionada.** Fica registrado para quem escrever a próxima.
+
+**Uma alavanca, e como isso foi garantido.** Modelo (`grok-4.3`), esforço
+(`medium`), temperatura (0,3), contexto, formato e teto de saída ficaram idênticos
+aos da Q2-F. Para a base ser remedida no MESMO binário — sem o que se compararia
+o pedido novo contra uma régua que também mudou —, o pedido anterior viajou no
+mesmo dylib sob `TRACO_AVALIAR_PEDIDO=base` (DEBUG, por ambiente, como
+`TRACO_AVALIAR_MODELO`). A costura **foi apagada no fecho**, porque o candidato
+foi rejeitado e não há segundo texto a segurar; o que fica é
+`pedidoResponderSHA256` em cada registro do JSONL, para a corrida dizer de si
+mesma qual texto mandou. A Q2-F teve de reconstruir isso procurando 2.235 bytes
+dentro do dylib instalado.
+
+**O RETORNO BRUTO passa a ser preservado, e no portão.** A `saida` da sonda já
+vinha depois de `Sabia.limparResposta`: medir a IA era medir o que sobrou do nosso
+tratamento. `Grok.Diagnostico.bruto` (DEBUG) guarda o retorno antes de qualquer
+parser nosso, **no único lugar por onde as dezesseis rotas passam** — não numa
+guarda por chamador. A evidência liga material elegível → pacote enviado → saída
+bruta → saída tratada → texto na tela.
+
+**O corte silencioso aos 900 SAIU do parser.** A ADR 04r punha *"um teto, 900, no
+prompt e no parser"*, e o parser cortava com "…". Das 54 execuções do `grok-4.5`
+na Q2-F, quatro passavam dos 900 e chegariam ao autor **partidas no meio da
+frase** — e a parte que morre é sempre a última, que é onde mora a ressalva. Os
+900 continuam no PEDIDO, que é onde eles são um pedido; o cartão já rola (05y).
+**Limite visual e perda de conteúdo deixam de ser a mesma coisa.**
+
+**Quatro defeitos de rota, achados por leitura e fechados com vermelho e verde.**
+`Sessao.perguntarASabia` exigia apenas **algum** `.sabiaPensando` depois dos
+`await` — e "algum" inclui a pergunta seguinte: com esperas de minutos, o cartão
+podia responder à pergunta que já não era a atual. Passa a ter **identidade de
+requisição** (`UUID` por tentativa, o padrão de `ConversaNotas.tentativa`; nenhuma
+arquitetura paralela). A **página se lê junto da pergunta**, não depois do
+`await`. As fontes são **revalidadas antes de publicar** com
+`Sessao.dependenciasValidas`, a mesma guarda do `responderNasNotas`. E a
+**divulgação passa a corresponder ao que viajou**: `Sabia.contextoDaPergunta`
+monta o contexto e devolve os títulos que couberam, porque a lista era montada
+antes do corte de 5.000 e o cartão nomeava à rede notas que nunca saíram do
+aparelho. A falha deixou de ser `cartao = nil` mais um toast que passa: volta ao
+`.pergunta`, o mesmo cartão do cancelamento (09n).
+
+**A raiz de por que isso sobreviveu sete voltas.** O corpo de `perguntarASabia`
+era **inalcançável pela suíte**: sem conta Grok e com `Motores.desligados`, toda
+chamada parava na primeira linha. `disponivel:` e `aviso:` passam a chegar por
+parâmetro, com o padrão da produção — o desenho que `ConversaNotas.perguntar(disponivel:)`
+já usava. Superfície sem prova é o irmão do motor sem tela.
+
+**A frase da Astra para o Perfil NÃO foi adotada, e não por gosto.** *"Responde às
+perguntas que você deixa nas notas."* é palavra por palavra o que a linha de
+`responderNasNotas` já diz na mesma tela. Adotá-la literalmente faria o Perfil
+dizer a mesma coisa duas vezes para duas operações diferentes. Fica aberto: quando
+`responder` voltar, as duas precisam de nomes que o autor distinga — a linha `?`
+na própria nota × a barra das Notas.
+
+**Consequência.** `Traco/Analise/Sabia.swift`, `Traco/Analise/Grok.swift`,
+`Traco/Analise/Politica.swift`, `Traco/Analise/AvaliacaoIA.swift`,
+`Traco/App/Sessao.swift`, `TracoTests/RespostaNaPaginaTests.swift` (13 testes
+novos, 7 vermelhos sem os consertos), `TracoTests/PoliticaTests.swift`,
+`TracoTests/PerfilQualidadeTests.swift`, `TracoTests/ColheitaRestanteTests.swift`.
+`ferramentas/orca/lote-ia-09d-janela.sh` deixou de ser cópia por volta: UDID,
+trava e as corridas saem do ambiente e dos argumentos, e a fixture aceita caminho
+absoluto — prova com dado real mora fora do repositório. Prova em `prova/10b/`,
+`prova/10b2/` e `prova/10b-casos.json`; a pergunta REAL do aparelho da conta em
+local de acesso restrito (`~/orca/prova-restrita/responder/`, modo 600), com as
+saídas em `prova/10b*/10b*-real.jsonl`. Leitura em `ferramentas/orca/responder.md`.
+
+**Próxima alavanca, e o motivo com número.** A ordem da Astra segue: **CONTEXTO**,
+não esquema. Metade do que sobrou é o modelo falando de um documento que nunca
+viu, e nenhum texto de pedido conserta isso — o pedido não substitui a informação
+que não viajou. `Sessao.contextoDoCaderno` junta ligações, vizinhas e ecos **antes**
+do corte de 5.000, e `q2-dado-alem-do-recorte` já mostra o dado decisivo do lado de
+fora. **Não é limite do instrumento; é limite do PRODUTO**, e não absolve
+Utilidade nem Contexto.
