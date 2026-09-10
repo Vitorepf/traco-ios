@@ -2515,3 +2515,58 @@ um conferidor mais duro que a fixture **reprova conserto bom**, e parece rigor.
 cada um com **a sua própria leitura anterior na mão** e a instrução de dizer **o
 que mudou de lado, caso a caso** — e com a linha de base: *os casos que já passavam
 não podem ter piorado*.
+
+## 09/09, 22h16 — os dois re-G3 voltaram, e os dois REPROVARAM
+
+Retomada com fala **zero** e inbox processado. **A meta do dia não foi cumprida, e
+a hora é esta: às 22h16 de 09/09 nenhuma das três operações voltou a estar
+disponível.** O dono pediu `responder` de volta hoje e as Q3/Q4 medidas até a noite.
+**Medidas estão** — 114 execuções numa janela só, lidas inteiras por dois revisores
+independentes. **De volta, não.** Escrever o contrário seria inventar a prova que o
+dono quer VER na tela.
+
+**Q4 (22h07, `91a314c`):** `instigar` e `contrapor` seguem indisponíveis. Fecharam
+dois P1: o degrau 4 parou de repetir as perguntas do degrau 0 (3/3 nos dois
+modelos) e **a voz do autor voltou 3/3** — a proibição por procedência devolveu o
+`método` e o `degrau` que a nota do autor contém, inclusive sem acento. A guarda
+`vazaAlheio` foi **inocentada**: ela já comparava contra a nota; a culpa era da
+proibição por NOME. Sobraram: o texto magro do `instigar` faz **pergunta vaga e não
+pede *quando*** (3/3 no 4.3, 2/3 no 4.5), e o `contrapor` **inventa renda** que a
+nota não tem (1/3 no 4.3, **3/3 no 4.5**) e devolve `semRetorno` com **HTTP 200 e
+conteúdo completo**.
+
+**Q3 (22h08, `508cdd9`):** `responderNasNotas` segue indisponível **por uma
+meia-conta**. A meia-recusa morreu — **6/6 calculam R$ 3.354** com o preço que a
+pessoa disse, sem pedir confirmação nova — e a data local chegou. Mas **6/6 param
+antes de dizer que sobram R$ 2.646**. O autor ainda tem de fazer a subtração que o
+contrato manda a operação terminar. E o caso do conflito com o limite da sala ainda
+falha **2/3 no `grok-4.3`**, enquanto o `grok-4.5` dá 3/3.
+
+**Isto é a comparação pareada que a §10 pediu, e a resposta dela é desconfortável:**
+os dois modelos mais capazes foram medidos nas MESMAS fixtures, na MESMA janela, na
+rota de produção — e **nenhum dos dois é o melhor em tudo**. O 4.5 ganha no conflito
+da Q3 (3/3 contra 1/3) e perde feio no `contrapor` (renda inventada 3/3 contra 1/3).
+**Trocar de modelo não fecha nenhum dos defeitos que restam**, porque **os defeitos
+que restam continuam sendo o que NÓS escrevemos**: o pedido não manda fechar a conta
+contra o teto, e não manda a pergunta pedir *quando*. É a terceira medida seguida a
+dizer a mesma coisa, e agora com os dois melhores na mesa.
+
+**Um achado é nosso, não do modelo:** `Falha.semRetorno` com **HTTP 200 e conteúdo
+completo**. A resposta chegou inteira e o nosso motor a transformou em nada. Isso é
+trilha B — rota que cala — e entra na Q4-C com teste que reproduz primeiro.
+
+**Despachei duas, e é fechar antes de abrir:**
+- **MERGE-Q34** (`ctx_122c3ff61654`, worktree novo a partir de `main`): o conserto
+  medido, as 114 execuções e os dois relatórios entram em `main`; **as operações
+  NÃO saem da lista**, e as três linhas do Perfil passam a dizer **o que o LOTE-3
+  leu** — motivo velho na tela é o defeito da trilha B3 ao contrário, acusa defeito
+  que já morreu. `medidaEm` vira 10/09. Ele empurra do worktree dele, porque o
+  checkout principal está sujo com o trabalho de outra sessão.
+- **G3 F6** (`ctx_934c2a36ce11`): a volta dos widgets da tela bloqueada (`e979d8c`)
+  está pronta desde as 19h01 e **sem leitura independente** — volta pronta parada em
+  branch é dívida que rende juros. Fora da frente de IA, não disputa o instrumento
+  com a mescla.
+
+**Q3-C e Q4-C esperam a mescla**, de propósito: as duas vão mexer em `Sabia.swift`
+de novo, e começar de um `main` que já tem os dois lados casados é mais barato que
+casar duas vezes.
