@@ -3170,3 +3170,35 @@ consertar** seis linhas que a volta anterior tinha deixado como dívida. Ele jul
 **parou antes de fechar o próprio G3** — o oposto de terminar o que estava fazendo e
 mencionar de passagem. *Dívida declarada por uma volta é o melhor lugar para a seguinte
 procurar*, e **julgar não é consertar** é o que faz um revisor olhar sem pressa de resolver.
+
+## 10/09, 10h50 — DIRETRIZ §12: letra máxima sai do escopo, e a AX5-1 fecha sem mesclar
+
+**Ordem do dono, 10h35:** *"vamos parar de testar e perder tempo com letra máxima, nunca
+vou usar isso."* Executado, nesta ordem:
+
+1. **AX5-1 encerrada e o worktree removido**, sem mesclar nada. Ela não tinha commit
+   próprio; perderam-se três capturas e um teste de UI não comitados, listados antes de
+   apagar. O `worker-release` recusou porque só solta worker assentado — foi `worker-stop`
+   e depois release.
+2. **O P1 sai do RUMO como dívida e vira registro** — e a razão importa: **o defeito NÃO
+   REPRODUZIU.** A AX5-1 mediu a primeira corrida com o app **nascendo** em AX5 e a barra
+   estava em `y = 66`, dentro da tela, não em `y = -371`. A hipótese que sobrava era a letra
+   crescer **com o app de pé**, e ela não chegou a ser testada. Escrevi isso na linha de
+   registro para **ninguém pegar como pendência**.
+3. **Toda dívida de AX1–AX5/XXXL do RUMO está retirada em bloco**, com aviso no topo das
+   pendências: o item 2 do re-G4 da V12, o "refotografar AX5" da V19, a etiqueta de 60 pt em
+   AX XXXL, o "AX5 sangra pelos dois lados" da V18. Ficam como história; ninguém os pega.
+4. **O preâmbulo dos despachos mudou:** Dynamic Type vale até `large`, e é em `large` que se
+   fotografa. Vale para todo worker que eu despachar daqui em diante.
+5. **Continuam valendo:** alvos de 44 pt, contraste, rótulos e ordem na árvore. E **voz,
+   VoiceOver e iPad seguem proibidos**.
+
+**Uma nota de método, para quando isto for relido:** a volta fechada tinha acabado de
+**contradizer o próprio relatório que a originou**. Se ela tivesse consertado sem
+reproduzir, teríamos "consertado" algo que estava certo no caso medido — e o tempo que o
+dono mandou parar de gastar teria sido gasto duas vezes. **Reproduzir antes de consertar
+pagou mesmo na volta que morreu.**
+
+**O tempo liberado vai para a IA (§11)**, e ele já está lá: as três voltas vivas são
+`contrapor` na janela do aparelho da conta, o P0 do arquivo apagado, e o re-G3 que fecha a
+trilha do Mac.

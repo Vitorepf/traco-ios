@@ -553,6 +553,22 @@ uma oração de pessoa, sem caminho de prova, sem data e sem contagem* — e o
 
 **V11 — Ambiente Markdown: conflitos e retry.** Ciclo: multiplicar. Intenção: o autor edita o Trabalho fora do Traço e volta sem perder nada, mesmo quando as duas pontas mudaram. Obstáculo: ADR 05l provou o retorno feliz; conflito (base antiga com nova versão local), retry após recusa de commit e revogação da origem com o seletor/exportador aberto não têm prova na UI. Evidência: prévia de conflito com as duas versões e escolha explícita (nova versão, nunca sobrescrita), retry que confirma a mesma versão sem duplicar, seletor aberto + selar a origem → material recolhido com linha honesta; testes + capturas dos estados + fluxo maestro em simulador de teste. Escopo: Traco/Trabalho/{IntercambioTrabalho,IntercambioTrabalhoView}.swift e testes; depende da V6 mesclada.
 
+> ## ⛔ LETRA MÁXIMA SAIU DO ESCOPO — DIRETRIZ §12 (dono, 10/09 10h35)
+>
+> *"vamos parar de testar e perder tempo com letra máxima, nunca vou usar isso"*
+>
+> **Toda dívida, pendência, captura ou item deste arquivo que fale de AX1–AX5 ou XXXL está
+> RETIRADO.** Ficam como história — ninguém os pega, ninguém os mede, ninguém os
+> refotografa. Isso inclui, entre outros: o item 2 do re-G4 da V12, o "refotografar AX5 do
+> escrever" da V19, a etiqueta de 60 pt em AX XXXL, e o "AX5 sangra pelos dois lados" do
+> re-G3 da V18. **Dynamic Type vale até `large`**, que é o padrão do iPhone e o que se
+> fotografa. O código que já existe fica como está: ninguém o remove nem o mantém, e se um
+> dia quebrar em AX5 **não é defeito**.
+>
+> **Continua valendo, e não é negociável:** alvos de **44 pt**, **contraste**, **rótulos** e
+> **ordem na árvore** — acessibilidade que o dono também sente. E **VOZ, VOICEOVER E iPAD
+> seguem PROIBIDOS**.
+
 ## Dívida nomeada — a suíte ainda escreve no `UserDefaults` real do app (K1, 09/09)
 
 O cofre já está isolado (ADR 2026-09-09l): sob `XCTestConfigurationFilePath` a
@@ -761,12 +777,15 @@ defeito: só o são onde a entrada **pode** carregar CRLF. Dois merecem olhar pr
 parte texto do autor que pode ter vindo de import. **Dono: a volta que fechar a trilha do
 CRLF** — decidir caso a caso, com a entrada na mão, e não trocar tudo por reflexo.
 
-**P1 de acessibilidade, medido e ainda não consertado (10/09, achado pela Q3-D):** em
-`accessibility-extra-extra-extra-large` a **barra de cima da Página fica em `y = -371 pt` e
-não volta com rolagem** — quem usa letra grande **não alcança "Notas" nem "Concluir"**.
-Entra e não sai. Mais: o cartão **transborda a tela inteira** pela linha `"Foram junto:"`,
-que não tem teto. A Q3-D mediu enquanto fazia outra coisa, **disse**, e não consertou
-porque `Traco/Pagina` está fora do papel dela. **Volta AX5-1 despachada.**
+**RETIRADO por ordem do dono (DIRETRIZ §12, 10/09 10h35): o P1 de letra máxima.** Estava
+aqui a barra da Página em `y = -371 pt` em AX5, medida pela Q3-D. **Sai como dívida e fica
+como registro**, por três razões, e a terceira é a que importa: o dono não usa letra
+máxima e disse para parar; a volta AX5-1 foi fechada sem mesclar nada; e **o defeito não
+reproduziu** — a AX5-1 mediu a primeira corrida com o app nascendo em AX5 e a barra estava
+em `y = 66`, dentro da tela. A hipótese que sobrou era a letra crescer **com o app de pé**,
+e ela não chegou a ser testada. **Ninguém deve pegar isto como pendência.** O código que
+existe fica como está; se um dia quebrar em AX5, não é defeito. Continuam valendo alvos de
+44 pt, contraste, rótulos e ordem na árvore.
 
 **A espera do Grok foi de 241 s contra os 77 s de pior caso publicados (10/09).** A ADR
 2026-09-08r fixou o teto com **77,5 s** medidos em 36 execuções e 3,1× de folga; a corrida
