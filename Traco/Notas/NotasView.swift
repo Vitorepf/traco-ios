@@ -101,7 +101,6 @@ struct NotasView: View {
 
     private var conversa: [Sessao.TrocaNasNotas] { conversaNotas.trocas }
     private var pensando: Bool { conversaNotas.pensando }
-    private var titulosNaPergunta: [String] { conversaNotas.titulos }
 
     /// Lê os campos observáveis das dependências, não só a identidade da
     /// lista: selar/editar a mesma Nota também precisa disparar revalidação.
@@ -128,57 +127,57 @@ struct NotasView: View {
         }
     }
 
+    /// O teto da resposta, por medida (ver `CartaoDeResposta`): 360 pt guardam
+    /// ~500 grafemas inteiros em `large`; a mediana das 18 corridas (384) cabe
+    /// com folga, só a cauda (568) rola. A lista atrás continua visível: o
+    /// cartão toma pouco mais de metade dos 874 pt do aparelho.
+    static let tetoDaResposta: CGFloat = 360
+
+    private func fecharCartao() {
+        var t = Transaction(); t.disablesAnimations = true
+        withTransaction(t) { conversaNotas.fechar(); avaliada = [] }
+    }
+
+    /// A nota que foi junto abre como da lista: queimada e trancada com as
+    /// mesmas guardas.
+    private func abrirFonte(_ id: UUID) {
+        guard let nota = notas.first(where: { $0.uuid == id }) else { return }
+        abrirDaLista(nota)
+    }
+
+    /// UM cartão por vez (DIRETRIZ §14): enquanto a sábia pensa, o título é a
+    /// pergunta nova e o corpo é a espera; a resposta que chega toma o lugar.
+    /// Resposta anterior e espera lado a lado eram dois "Fechar" na tela.
     @ViewBuilder private var cartaoDaSabia: some View {
         if conversaNotas.temCartao {
             VStack(alignment: .leading, spacing: 10) {
-                if let ultima = conversa.last, conversaNotas.perguntaParaRepetir == nil {
-                    Text("A SÁBIA, SOBRE: \(ultima.pergunta)")
-                        .rotulo()
-                        .lineLimit(2)
-                    // teto de altura: a resposta tem até 900 caracteres e a
-                    // lista tem de continuar visível atrás (critique-information-density).
-                    // O teto FICA — as 18 corridas de 09-10/09 mediram respostas
-                    // de 203 a 568 grafemas e em AX5 nenhuma delas caberia em
-                    // teto nenhum que deixasse a lista atrás. O que faltava era
-                    // o sinal, e é ele que entra (ADR 2026-09-09w).
-                    ScrollView {
-                        Text(ultima.resposta)
-                            .font(Tema.corpo)
-                            .foregroundStyle(Tema.tinta)
-                            .fixedSize(horizontal: false, vertical: true)
-                            .textSelection(.enabled)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .accessibilityIdentifier("resposta-sabia-notas")
+                if let desde = conversaNotas.esperandoDesde,
+                   case .pensando(let pergunta, _) = conversaNotas.estado {
+                    CartaoDeResposta(titulo: pergunta, pensandoDesde: desde,
+                                     cancelar: { conversaNotas.interromper() },
+                                     fechar: fecharCartao, rota: "sabia-notas") { EmptyView() }
+                } else if let ultima = conversa.last, conversaNotas.perguntaParaRepetir == nil {
+                    CartaoDeResposta(
+                        titulo: ultima.pergunta,
+                        fontes: conversaNotas.fontes.map { .init(id: $0.id, titulo: $0.titulo) },
+                        abrirFonte: abrirFonte,
+                        retorno: avaliada.contains(ultima.resposta) ? nil : { serviu in
+                            Sinais.resposta(ultima.resposta, forma: nil, serviu: serviu)
+                            avaliada.insert(ultima.resposta)
+                            Toque.leve()
+                        },
+                        avaliada: avaliada.contains(ultima.resposta),
+                        fechar: fecharCartao,
+                        teto: Self.tetoDaResposta, rota: "sabia-notas"
+                    ) {
+                        Text(ultima.resposta).textSelection(.enabled)
                     }
-                    .frame(maxHeight: 220)
-                    .sinalDeSobra("sobra-resposta-notas")
-                    .fixedSize(horizontal: false, vertical: true)
-                    if !titulosNaPergunta.isEmpty {
-                        Text("Foram junto: " + titulosNaPergunta.prefix(4).joined(separator: " · ")
-                             + (titulosNaPergunta.count > 4 ? " · e mais \(titulosNaPergunta.count - 4)" : ""))
-                            .font(Tema.label)
-                            .foregroundStyle(Tema.tintaFraca)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                    if !avaliada.contains(ultima.resposta) {
-                        HStack(spacing: 14) {
-                            Button("serviu") { Sinais.resposta(ultima.resposta, forma: nil, serviu: true); avaliada.insert(ultima.resposta); Toque.leve() }
-                            Button("não serviu") { Sinais.resposta(ultima.resposta, forma: nil, serviu: false); avaliada.insert(ultima.resposta); Toque.leve() }
-                        }
-                        .font(Tema.meta)
-                        .foregroundStyle(Tema.tintaSuave)
-                        .buttonStyle(.discreto)
-                    }
-                }
-                if pensando {
-                    LinhaDeEstado("a sábia pensa…", .pensando)
-                        .accessibilityIdentifier("sabia-pensando-notas")
                 }
                 if let pergunta = conversaNotas.perguntaParaRepetir {
                     ScrollView {
                         Text(pergunta)
-                            .font(Tema.meta)
-                            .foregroundStyle(Tema.tinta)
+                            .font(Tema.chrome)
+                            .foregroundStyle(Tema.tintaSuave)
                             .fixedSize(horizontal: false, vertical: true)
                             .textSelection(.enabled)
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -187,14 +186,12 @@ struct NotasView: View {
                     // ADR 08p: o teto é teto, não altura — sem isto a pergunta de
                     // uma linha guardava ~100 pt de vão até "a sábia não respondeu."
                     .frame(maxHeight: 120)
-                    // a pergunta longa em AX5 cortava calada pelo mesmo motivo
-                    // que a resposta: irmão do mesmo defeito, no mesmo cartão
                     .sinalDeSobra("sobra-pergunta-notas")
                     .fixedSize(horizontal: false, vertical: true)
                     LinhaDeEstado(conversaNotas.estado == .recolhida(pergunta)
                                   ? "A resposta foi recolhida porque uma fonte mudou ou deixou de estar acessível."
                                   : conversaNotas.estado == .interrompida(pergunta)
-                                    ? "a pergunta foi interrompida."
+                                    ? "você parou de esperar."
                                     : "a sábia não respondeu.", .falhou)
                         .accessibilityIdentifier("sabia-falhou-notas")
                     Button("Repetir pergunta") { repetirPergunta() }
@@ -202,9 +199,6 @@ struct NotasView: View {
                         .foregroundStyle(Tema.ambarTinta)
                         .alvo()
                         .buttonStyle(.discreto)
-                        // AX5 cortava em "Repetir pergu…" (e, com o fixedSize no
-                        // rótulo, o botão media uma linha e desenhava duas por
-                        // cima das vizinhas): o botão inteiro toma a altura do texto
                         .fixedSize(horizontal: false, vertical: true)
                         .accessibilityIdentifier("repetir-pergunta-notas")
                 }
@@ -212,30 +206,25 @@ struct NotasView: View {
                     LinhaDeEstado("a sábia " + Sabia.porOndeEmPalavras + ". Sem ela, a busca continua.", .semConta)
                         .accessibilityIdentifier("sem-conta-notas")
                 }
-                HStack {
-                    if conversa.count > 1 {
-                        Text("\(conversa.count) trocas")
-                            .font(Tema.label)
-                            .foregroundStyle(Tema.tintaFraca)
-                    }
-                    Spacer()
-                    Button("Fechar") {
-                        var t = Transaction(); t.disablesAnimations = true
-                        withTransaction(t) { conversaNotas.fechar(); avaliada = [] }
-                    }
-                    .font(Tema.meta)
-                    .foregroundStyle(Tema.tintaSuave)
-                    .buttonStyle(.discreto)
-                    .accessibilityIdentifier("fechar-sabia-notas")
+                // o fechar destes estados: os que têm `CartaoDeResposta` já o
+                // levam no canto — um só por tela
+                if conversaNotas.perguntaParaRepetir != nil || (conversaNotas.semModelo && conversa.isEmpty) {
+                    Button("Fechar", action: fecharCartao)
+                        .font(Tema.meta)
+                        .foregroundStyle(Tema.tintaSuave)
+                        .alvo()
+                        .buttonStyle(.discreto)
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                        .accessibilityIdentifier("fechar-sabia-notas")
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .cartao(.papel)
             .padding(.horizontal, Tema.margem)
             .transition(Tema.transicao(.move(edge: .bottom).combined(with: .opacity), reduzido: reduceMotion))
-            // um cartão, lido inteiro na ordem: rótulo, resposta, quem foi junto, avaliação
+            // um cartão, lido inteiro na ordem: a pergunta, a resposta, quem foi junto, o retorno
             .accessibilityElement(children: .contain)
-            .accessibilityLabel("Cartão da sábia")
+            .accessibilityLabel("Resposta da sábia")
             .accessibilityIdentifier("cartao-sabia-notas")
         }
     }

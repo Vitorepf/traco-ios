@@ -101,6 +101,7 @@
 		7057AA877D102932F6BA332B /* CalendarioTrabalho.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69538E5E0F75960015C9C279 /* CalendarioTrabalho.swift */; };
 		722F9FD612A8F04C3EBFD92B /* VersoesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F27C76D6940C416F3957AA3 /* VersoesView.swift */; };
 		7644E15C3410D8E219D656BB /* BuracosFuncionaisTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26D439FE100A61693F59D02A /* BuracosFuncionaisTests.swift */; };
+		764AF693AA7F44A1EDF3EC6B /* CartaoDeResposta.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4C0E492D101C4E1988379FF /* CartaoDeResposta.swift */; };
 		777C8C51585D01D784313A3D /* ProvaTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04AD4822CC87D350BD7C56E1 /* ProvaTests.swift */; };
 		789025F0DFA61FE52A60222C /* CadernoAntigoAbreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7F9EF1327293B6565E807C2 /* CadernoAntigoAbreTests.swift */; };
 		790B6E9A5A75BFDBB00BFF9F /* PapelForma.swift in Sources */ = {isa = PBXBuildFile; fileRef = 665F2C234F3966C3C528A729 /* PapelForma.swift */; };
@@ -145,6 +146,7 @@
 		A8C1B1BDB1CF0E86F5DE99AC /* PerguntaSobreviveUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A52F94C2E4691C0B7230E405 /* PerguntaSobreviveUITests.swift */; };
 		A8FC554E9192ED2DB78D01C1 /* SuperficieFora.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD30107ACE35F098EB5AACE5 /* SuperficieFora.swift */; };
 		A97C8A6DB88F62888FC65D44 /* ConferenciaTrabalho.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9494F4BA0893E2C27972D8DE /* ConferenciaTrabalho.swift */; };
+		AA0F9C83337A13CC30E29387 /* EsperaComEstadoUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB155DEF47AD024A2C0E3C54 /* EsperaComEstadoUITests.swift */; };
 		AAC0CE44B9DDC600F55E2BCF /* CalendarioAgenda.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4B0FC29FDAE2DA9A9B41BC2 /* CalendarioAgenda.swift */; };
 		AB0C9971D3509CD45DE07BC8 /* Atividades.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD0DC7A5E06584B2E182AB2 /* Atividades.swift */; };
 		ADF9B0BFF4FA39DAA48A8CB6 /* ProsaLiteralTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC80765D4B74C62577A5363A /* ProsaLiteralTests.swift */; };
@@ -198,6 +200,7 @@
 		ECED6D32BF81936175BAF994 /* Trajetoria.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94B43AB5381093C2B583B6C8 /* Trajetoria.swift */; };
 		EE11CA7A0F68FE32B0AEFBF9 /* PraticaTrabalhoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C68F1BAA39BE524BD2FC78D7 /* PraticaTrabalhoTests.swift */; };
 		EEC11BE901A1D6583F9EAB93 /* Vazio.swift in Sources */ = {isa = PBXBuildFile; fileRef = E22B84151D11BBFF7BDAFB6F /* Vazio.swift */; };
+		EFDE3B3974576287D89DC93E /* SuperficieDaRespostaTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8729A057C355E3EC071B862 /* SuperficieDaRespostaTests.swift */; };
 		EFE3BD16FDB33FBF2B0E27C7 /* BarraNavegacao.swift in Sources */ = {isa = PBXBuildFile; fileRef = A810EC1AF4E17D4DB08A56B3 /* BarraNavegacao.swift */; };
 		F03FD5D013927175A85189D8 /* Cartao.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D7CE67A64B6C967531AEBDB /* Cartao.swift */; };
 		F148642627D0F541F44FC281 /* CadernoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC971448D0B5207611E641F1 /* CadernoView.swift */; };
@@ -381,6 +384,7 @@
 		A7F9EF1327293B6565E807C2 /* CadernoAntigoAbreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CadernoAntigoAbreTests.swift; sourceTree = "<group>"; };
 		A810EC1AF4E17D4DB08A56B3 /* BarraNavegacao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarraNavegacao.swift; sourceTree = "<group>"; };
 		A8573C1126CAFCC2B2C727D3 /* EscritaVisivelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EscritaVisivelTests.swift; sourceTree = "<group>"; };
+		A8729A057C355E3EC071B862 /* SuperficieDaRespostaTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuperficieDaRespostaTests.swift; sourceTree = "<group>"; };
 		AAC68B6A9734928BF14264CD /* Rede.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Rede.swift; sourceTree = "<group>"; };
 		AAD1B67DFB05E314DF1EEA2C /* ConferenciaTrabalhoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConferenciaTrabalhoTests.swift; sourceTree = "<group>"; };
 		AC80765D4B74C62577A5363A /* ProsaLiteralTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProsaLiteralTests.swift; sourceTree = "<group>"; };
@@ -413,6 +417,7 @@
 		C905B08A3932A5955A7DAFA6 /* BlocoCaderno.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlocoCaderno.swift; sourceTree = "<group>"; };
 		C9890CD695524F56039E48D8 /* PerfilQualidadeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PerfilQualidadeTests.swift; sourceTree = "<group>"; };
 		C9F22E37F6BFFDA21C00C087 /* CartaoAnaliseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CartaoAnaliseView.swift; sourceTree = "<group>"; };
+		CB155DEF47AD024A2C0E3C54 /* EsperaComEstadoUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EsperaComEstadoUITests.swift; sourceTree = "<group>"; };
 		CB7E188EF083C0B2B0088DA0 /* Entidades.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Entidades.swift; sourceTree = "<group>"; };
 		CCF1D5953BA6DC42175A6EB5 /* Feriados.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Feriados.swift; sourceTree = "<group>"; };
 		CDA558B75D6CDA73B4412E84 /* SerieView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SerieView.swift; sourceTree = "<group>"; };
@@ -425,6 +430,7 @@
 		D3C04A315E242E28949A4C24 /* IntercambioTrabalho.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntercambioTrabalho.swift; sourceTree = "<group>"; };
 		D3D27C2F2E3EE0267AF20320 /* Traco.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Traco.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D467AD53EA45D2F2CC714D0B /* Sinais.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sinais.swift; sourceTree = "<group>"; };
+		D4C0E492D101C4E1988379FF /* CartaoDeResposta.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CartaoDeResposta.swift; sourceTree = "<group>"; };
 		D4E42136E3E9C7EFF19C16BF /* ConversaNotasTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversaNotasTests.swift; sourceTree = "<group>"; };
 		D50C2B948E98337ABC4CE64A /* CalendarioFicha.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarioFicha.swift; sourceTree = "<group>"; };
 		D559A524E20BFCB3DD3265B3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -504,6 +510,7 @@
 				1AF311A52F6BABC502DD0E41 /* Botao.swift */,
 				2BCF75841A504A0DB56F81BB /* CabecalhoDeFolha.swift */,
 				6D7CE67A64B6C967531AEBDB /* Cartao.swift */,
+				D4C0E492D101C4E1988379FF /* CartaoDeResposta.swift */,
 				7DF4DB2A8B1FE3987EEA5C93 /* ChipDominio.swift */,
 				9E3647BCEC3CE110E057EBC1 /* LinhaDeEstado.swift */,
 				63779AF022C1F93A0C3E8385 /* LinhaQueAbre.swift */,
@@ -687,6 +694,7 @@
 				65CD7DFC40FC128DA593E446 /* ResultadoObservadoTests.swift */,
 				5719C25CF00B1B852D0EA56E /* RetomadaTrabalhoTests.swift */,
 				DEC88C57426827914E30265B /* SabiaOrcamentoTests.swift */,
+				A8729A057C355E3EC071B862 /* SuperficieDaRespostaTests.swift */,
 				0B04DABEDFD9C86D45507C64 /* TemaTests.swift */,
 				DFE52AE87EF1BA2A3B863362 /* TrabalhoTests.swift */,
 				6A2FF06629BFE6347A139815 /* Fixtures */,
@@ -830,6 +838,7 @@
 			children = (
 				143310676A48BCCD8C1D3252 /* CurvaZeroRetomadaUITests.swift */,
 				390F139B808A32B771BB1C55 /* EscritaVisivelUITests.swift */,
+				CB155DEF47AD024A2C0E3C54 /* EsperaComEstadoUITests.swift */,
 				A52F94C2E4691C0B7230E405 /* PerguntaSobreviveUITests.swift */,
 				0396420E52C37953FE6E9DEB /* SinalDeSobraUITests.swift */,
 			);
@@ -1081,6 +1090,7 @@
 				5453974C08045BD1DF3A4DB5 /* ResultadoObservadoTests.swift in Sources */,
 				20047C7CFAD942CC7D56C969 /* RetomadaTrabalhoTests.swift in Sources */,
 				9A7198E223ED751893053F68 /* SabiaOrcamentoTests.swift in Sources */,
+				EFDE3B3974576287D89DC93E /* SuperficieDaRespostaTests.swift in Sources */,
 				DA6C18AAF7BE831A53CC6306 /* TemaTests.swift in Sources */,
 				44BADDD31419D3764ECE1AE5 /* TrabalhoTests.swift in Sources */,
 			);
@@ -1120,6 +1130,7 @@
 				D87EE6AC18787F6BBDA68D8C /* CapturarIntent.swift in Sources */,
 				F03FD5D013927175A85189D8 /* Cartao.swift in Sources */,
 				921E42407F002A0F679BA76F /* CartaoAnaliseView.swift in Sources */,
+				764AF693AA7F44A1EDF3EC6B /* CartaoDeResposta.swift in Sources */,
 				C06225CD2EB5F792CA28B484 /* ChipDominio.swift in Sources */,
 				A97C8A6DB88F62888FC65D44 /* ConferenciaTrabalho.swift in Sources */,
 				21C607B41ECFAE7A1BAE87B9 /* ConfirmacaoView.swift in Sources */,
@@ -1226,6 +1237,7 @@
 			files = (
 				4FCEFA3CEE1B97C7FDCC02B3 /* CurvaZeroRetomadaUITests.swift in Sources */,
 				1F3CC3DB7BCF54870BAF6417 /* EscritaVisivelUITests.swift in Sources */,
+				AA0F9C83337A13CC30E29387 /* EsperaComEstadoUITests.swift in Sources */,
 				A8C1B1BDB1CF0E86F5DE99AC /* PerguntaSobreviveUITests.swift in Sources */,
 				05416C6838F479CA0663B4ED /* SinalDeSobraUITests.swift in Sources */,
 			);

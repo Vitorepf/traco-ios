@@ -314,15 +314,21 @@ struct RespostaNotasTests {
     /// comentário — e `codigoVisivel(apagandoTema: false)` apaga comentário e
     /// literal, então o que se conta é código.
     @Test func todoTetoDoCartaoTemSinalDeSobra() throws {
-        let fonte = URL(fileURLWithPath: #filePath)
+        // DIRETRIZ §14: a resposta mudou-se para `CartaoDeResposta`, e o teto
+        // dela foi junto; nas Notas ficou só o da pergunta pendente. O portão
+        // conta nos DOIS arquivos — um teto sem sinal em qualquer um corta calado.
+        let raiz = URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent().deletingLastPathComponent()
-            .appendingPathComponent("Traco/Notas/NotasView.swift")
-        let codigo = PortaoDoMovimentoTests.codigoVisivel(
-            try String(contentsOf: fonte, encoding: .utf8), apagandoTema: false)
-        let tetos = codigo.components(separatedBy: ".frame(maxHeight:").count - 1
-        let sinais = codigo.components(separatedBy: ".sinalDeSobra(").count - 1
-        #expect(tetos == 2, "a sonda mudou de forma: \(tetos) tetos em NotasView, não 2 — meça de novo antes de mexer no portão")
-        #expect(sinais == tetos,
-                "\(tetos) tetos de altura e só \(sinais) sinais de sobra: um deles corta calado, e foi assim que a resposta terminou em \"(A nota\" em 10/09")
+        var tetosNoTotal = 0
+        for caminho in ["Traco/Notas/NotasView.swift", "Traco/Componentes/CartaoDeResposta.swift"] {
+            let codigo = PortaoDoMovimentoTests.codigoVisivel(
+                try String(contentsOf: raiz.appendingPathComponent(caminho), encoding: .utf8), apagandoTema: false)
+            let tetos = codigo.components(separatedBy: ".frame(maxHeight:").count - 1
+            let sinais = codigo.components(separatedBy: ".sinalDeSobra(").count - 1
+            #expect(sinais == tetos,
+                    "\(caminho): \(tetos) tetos de altura e \(sinais) sinais de sobra: um deles corta calado, e foi assim que a resposta terminou em \"(A nota\" em 10/09")
+            tetosNoTotal += tetos
+        }
+        #expect(tetosNoTotal == 2, "a sonda mudou de forma: \(tetosNoTotal) tetos nos dois arquivos, não 2 — meça de novo antes de mexer no portão")
     }
 }

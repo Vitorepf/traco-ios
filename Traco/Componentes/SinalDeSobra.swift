@@ -5,17 +5,17 @@ import SwiftUI
 /// O corte de um teto não diz nada por si: em 10/09 o cartão da sábia nas
 /// Notas terminou a resposta em `"(A nota"` — parêntese aberto, frase pela
 /// metade — e o autor leu aquilo como o fim do que a IA tinha a dizer
-/// (`ferramentas/orca/q3c-01-cartao-com-a-sobra.png`). Nenhum teto conserta
-/// isso: em `accessibility-extra-extra-extra-large` toda resposta transborda,
-/// porque o que falta não é altura, é AVISO.
+/// (`ferramentas/orca/q3c-01-cartao-com-a-sobra.png`). O que faltava não era
+/// altura, era AVISO.
 ///
-/// São duas coisas, e as duas são necessárias:
-/// - o **degradê** é a dobra do papel — diz, sem palavra, que a linha
-///   continua por baixo. Nasceu no `CartaoAnaliseView` (G4 da V8: "o corte
-///   seco a meio glifo não dizia nada") e estava lá copiado à mão;
-/// - a **palavra** diz o mesmo a quem o degradê não alcança, e é ela que a
-///   suíte consegue enxergar — um degradê não entra na árvore de AX, e uma
-///   afordância que nenhum teste vê volta a sumir na próxima volta.
+/// O aviso é o **degradê**: a dobra do papel, que diz sem palavra que a linha
+/// continua por baixo. Nasceu no `CartaoAnaliseView` (G4 da V8: "o corte seco
+/// a meio glifo não dizia nada"). A ADR 09w pôs ao lado dele a palavra
+/// "continua", para a suíte enxergar a afordância; o dono a viu em letra
+/// grande sobre a resposta e a chamou de deplorável (DIRETRIZ §14). A palavra
+/// saiu. O que a suíte enxerga agora é a PRÓPRIA dobra, que virou elemento de
+/// acessibilidade com o identificador e o rótulo "continua abaixo" — a árvore
+/// de AX a vê, a tela não lê letra nenhuma.
 ///
 /// Some sozinho quando a pessoa chega ao fim: sinal que mente uma vez não é
 /// mais lido.
@@ -31,18 +31,15 @@ struct SinalDeSobra: ViewModifier {
             } action: { _, tem in sobra = tem }
             .overlay(alignment: .bottom) {
                 if sobra {
-                    Text("continua")
-                        .rotulo()
-                        .frame(maxWidth: .infinity, alignment: .trailing)
-                        // o degradê precisa de vão para virar dobra; sem ele a
-                        // palavra encosta na linha de cima e vira etiqueta
-                        .padding(.top, 20)
-                        // `cor.opacity(0)`, não `.clear`: `.clear` é preto
-                        // transparente e a interpolação abre uma faixa cinza
-                        // sobre o branco do cartão
-                        .background(LinearGradient(colors: [cor.opacity(0), cor, cor],
-                                                   startPoint: .top, endPoint: .bottom))
+                    // `cor.opacity(0)`, não `.clear`: `.clear` é preto
+                    // transparente e a interpolação abre uma faixa cinza
+                    // sobre o branco do cartão
+                    LinearGradient(colors: [cor.opacity(0), cor, cor],
+                                   startPoint: .top, endPoint: .bottom)
+                        .frame(height: 28)
                         .allowsHitTesting(false)
+                        .accessibilityElement()
+                        .accessibilityLabel("continua abaixo")
                         .accessibilityIdentifier(identificador)
                 }
             }

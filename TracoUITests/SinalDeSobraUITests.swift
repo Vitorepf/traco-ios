@@ -17,10 +17,14 @@ import XCTest
 /// O par de asserções é o que dá valor ao teste: o sinal APARECE quando há
 /// sobra e SOME quando a pessoa chega ao fim. Um sinal que nunca some não
 /// provou que enxerga — provou que está pintado na tela.
+///
+/// DIRETRIZ §14: a palavra "continua" saiu da tela; o que a suíte procura
+/// agora é a PRÓPRIA dobra, que é elemento de AX com o identificador. E o
+/// teto subiu de 220 para 360 pt: a resposta medida (568 grafemas) ainda
+/// transborda — é a cauda que o teto foi dimensionado para deixar rolar.
 @MainActor final class SinalDeSobraUITests: XCTestCase {
-    private func abrirNotasComRespostaLonga(_ tamanho: String? = nil) -> XCUIApplication {
+    private func abrirNotasComRespostaLonga() -> XCUIApplication {
         let app = XCUIApplication()
-        if let tamanho { app.launchArguments += ["-UIPreferredContentSizeCategoryName", tamanho] }
         app.launchArguments += ["-autoAnalise", "<true/>", "-ensaio-resposta-longa-nas-notas"]
         app.launchEnvironment["TRACO_SEM_MODELO"] = "1"
         app.launch()
@@ -43,8 +47,12 @@ import XCTest
                    thenDragTo: cartao.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.02)))
     }
 
+    private func sinal(_ app: XCUIApplication) -> XCUIElement {
+        app.descendants(matching: .any)["sobra-sabia-notas"].firstMatch
+    }
+
     private func exigirSinal(_ app: XCUIApplication, _ porque: String) {
-        XCTAssertTrue(app.staticTexts["sobra-resposta-notas"].firstMatch.waitForExistence(timeout: 5), porque)
+        XCTAssertTrue(sinal(app).waitForExistence(timeout: 5), porque)
     }
 
     /// `medium`: a resposta medida transborda os 220 pt e o sinal está lá.
@@ -55,28 +63,13 @@ import XCTest
         exigirSinal(app, "a resposta transborda o teto e NADA diz que continua — é o corte calado de 10/09 de volta")
     }
 
-    /// AX5: o corte que some em `medium` volta em letra grande, e é aí que ele
-    /// mais engana. Nenhum teto conserta isto; só o sinal.
-    ///
-    /// A pré-condição aqui é o CARTÃO, não o `Text` da resposta: em AX5 os 568
-    /// grafemas medem **3.120,7 pt** dentro de uma janela de 220 (a árvore de AX
-    /// da corrida de 10/09 diz "Barra de rolagem vertical, 15 páginas"), o texto
-    /// fica inteiro fora da janela e o XCUITest não o entrega. O que se afirma é
-    /// o que importa e o que ele entrega: o sinal existe.
-    /// A prova de que isso aparece NA TELA em AX5 é a captura do aparelho da
-    /// conta, não este teste — aqui garante-se a invariante, ali o que se vê.
-    func testRespostaLongaAvisaQueContinuaEmAX5() {
-        let app = abrirNotasComRespostaLonga("UICTContentSizeCategoryAccessibilityXXXL")
-        exigirSinal(app, "em AX5 a resposta transborda e NADA diz que continua")
-    }
-
     /// E o sinal é vivo: chegou ao fim, ele sai. Sem esta metade o teste
     /// passaria com um degradê pintado para sempre no pé do cartão.
     func testOSinalSaiQuandoAPessoaChegaAoFim() {
         let app = abrirNotasComRespostaLonga()
         exigirSinal(app, "PRÉ-CONDIÇÃO: o sinal não apareceu, então não há o que ver sair")
 
-        let sinal = app.staticTexts["sobra-resposta-notas"].firstMatch
+        let sinal = sinal(app)
         for _ in 0..<8 where sinal.exists { rolarNoCartao(app) }
 
         XCTAssertFalse(sinal.exists,

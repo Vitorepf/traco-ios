@@ -554,6 +554,8 @@ struct PerfilView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(Self.oQueAIAFaz)
                 Text(Self.oQueAContaAcrescenta)
+                Text(Self.notasAindaSemTela)
+                    .accessibilityIdentifier("perfil-notas-sem-tela")
             }
             .font(Tema.meta)
             .foregroundStyle(Tema.tintaFraca)
@@ -585,9 +587,19 @@ struct PerfilView: View {
 
     static var oQueAContaAcrescenta: String {
         "Com a sua conta Grok, ela faz também: "
-            + Politica.pelaConta.map(Politica.nome).joined(separator: ", ")
+            + Politica.pelaConta.filter { $0 != .responderNasNotas }.map(Politica.nome).joined(separator: ", ")
             + ". Nessas, o modelo do aparelho não dá conta sozinho."
     }
+
+    /// DIRETRIZ §14: uma operação não "volta ao autor" pelo motor — volta pela
+    /// tela, e a tela da resposta nas Notas foi vista pelo dono antes de
+    /// prestar. Até ele aprovar a superfície, o Perfil NÃO promete: a linha
+    /// sai de "faz também" e diz, na língua dele, o que está acontecendo. A
+    /// operação continua respondendo (a tabela não mudou); o que muda é o que
+    /// o cartão afirma. Quem a devolve a `oQueAContaAcrescenta` é a volta que
+    /// levar a tela aprovada.
+    static let notasAindaSemTela =
+        "Responder ao que você pergunta nas Notas: ela já responde com a sua conta, mas a tela em que a resposta chega ainda está sendo acertada."
 
     static let aberturaSemConserto = "O que ela ainda não faz, nem com a sua conta ligada:"
     static let aberturaEmCorrecao = "Também não faz ainda, e já sabemos o que falta:"

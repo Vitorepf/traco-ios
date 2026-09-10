@@ -32,7 +32,8 @@ struct ConversaNotasTests {
         func devolver(_ indice: Int, resposta: String?, titulos: [String] = []) {
             let retorno = pedidos[indice].retorno
             pedidos[indice].retorno = nil
-            retorno?.resume(returning: .init(resposta: resposta, titulos: titulos))
+            let fontes = titulos.map { FonteNotas(id: UUID(), titulo: $0, texto: $0, editadaEm: .now) }
+            retorno?.resume(returning: .init(resposta: resposta, fontes: fontes))
         }
     }
 
@@ -50,7 +51,7 @@ struct ConversaNotasTests {
 
             #expect(!conversa.temCartao)
             #expect(conversa.trocas.isEmpty)
-            #expect(conversa.titulos.isEmpty)
+            #expect(conversa.fontes.isEmpty)
             #expect(conversa.entrada == "busca nova ainda em edição")
         }
     }
@@ -82,7 +83,7 @@ struct ConversaNotasTests {
             }
 
             #expect(conversa.trocas == [.init(pergunta: "segunda", resposta: "atual")])
-            #expect(conversa.titulos == ["fonte atual"])
+            #expect(conversa.fontes.map(\.titulo) == ["fonte atual"])
             #expect(conversa.estado == .ociosa)
             #expect(conversa.perguntaParaRepetir == nil)
         }
@@ -138,7 +139,7 @@ struct ConversaNotasTests {
         var chamou = false
         let tarefa = conversa.perguntar(disponivel: false) { _, _ in
             chamou = true
-            return .init(resposta: nil, titulos: [])
+            return .init(resposta: nil)
         }
         #expect(tarefa == nil)
         #expect(!chamou)
@@ -151,18 +152,18 @@ struct ConversaNotasTests {
         let fonte = FonteNotas(id: UUID(), titulo: "Proposta", texto: "Prazo 12/09.", editadaEm: .now)
         conversa.entrada = "prazo?"
         let primeira = try #require(conversa.perguntar(disponivel: true) { _, _ in
-            .init(resposta: "12/09", titulos: [fonte.titulo], dependencias: [fonte])
+            .init(resposta: "12/09", fontes: [fonte], dependencias: [fonte])
         })
         await primeira.value
         #expect(conversa.trocas.last?.dependencias == [fonte])
         conversa.entrada = "confirme"
         let segunda = try #require(conversa.perguntar(disponivel: true) { _, anteriores in
             #expect(anteriores.last?.dependencias == [fonte])
-            return .init(resposta: nil, titulos: [], conversaValida: [])
+            return .init(resposta: nil, conversaValida: [])
         })
         await segunda.value
         #expect(conversa.trocas.isEmpty)
-        #expect(conversa.titulos.isEmpty)
+        #expect(conversa.fontes.isEmpty)
         #expect(conversa.estado == .falhou("confirme"))
     }
 
