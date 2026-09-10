@@ -3622,3 +3622,16 @@ candidato.**
   helper de AX do `34CC3F94` não devolve árvore, e ela declarou em vez de contornar. Ficou
   uma nota *"Como uso o traco"* digitada na Página desse aparelho: **dado de teste num
   aparelho de conta**, declarado.
+- **15h11 — retomada (uso 32%).** Três cadeiras: **SISTEMA DA IA** (conversa construída sobre
+  o patch da auditoria, ADR **10f**, em revisão), **`instigar`** (2ª instalação às 18:11:44Z,
+  conta true antes e depois, `cmp` batendo com o produto dele, quatro braços correndo) e
+  **G3 do `responder`** (os sete consertos de rota).
+- **15h05 — conflito de regras resolvido, e vale registrar a razão.** "**UMA** instalação por
+  volta" contra "**DUAS** tentativas no caso cego" (§ regime das 12h40). **Ganhou a das duas
+  tentativas:** a regra da instalação única nasceu para impedir reinstalação **por hábito**,
+  e a das duas tentativas **pressupõe** uma segunda medida — sem ela, a segunda tentativa não
+  existiria. *Não era conflito real: era regra velha escrita para outro caso.*
+- **15h05 — o melhor diagnóstico do dia, do `instigar`:** *"a minha frase condicionava a
+  QUANTIDADE de matéria e não ao que a nota já resolveu"*. A cláusula nova diz o contrato em
+  uma linha: **"a nota que NEGA uma delas a fechou tanto quanto a que a responde"** — negar e
+  responder fecham a pergunta do mesmo jeito; **só o silêncio a deixa aberta**.
