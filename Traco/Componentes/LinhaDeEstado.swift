@@ -107,6 +107,110 @@ struct Espera: View {
     }
 }
 
+/// Quem fala na conversa (REFERENCIA-HERMES §6). A forma distingue antes da
+/// cor (§4): ponto para quem pergunta, retângulo para a sábia. Cor é
+/// identidade (§10) e mais nada.
+enum Autor {
+    case voce, sabia
+
+    var nome: String { self == .voce ? "VOCÊ" : "SÁBIA" }
+    var cor: Color { self == .voce ? Tema.ambarTinta : Tema.sabia }
+}
+
+struct MarcaDeAutor: View {
+    let autor: Autor
+
+    var body: some View {
+        Group {
+            if autor == .voce {
+                Circle().frame(width: 7, height: 7)
+            } else {
+                RoundedRectangle(cornerRadius: 3, style: .continuous).frame(width: 13, height: 9)
+            }
+        }
+        .foregroundStyle(autor.cor)
+        .frame(width: 13)
+        .accessibilityHidden(true)
+    }
+}
+
+/// A linha de autor: a marca e o NOME em versalete espaçado, na cor de quem
+/// é. Não é caixa alta de rótulo de conteúdo (§5): nomeia QUEM, como o
+/// cabeçalho de seção agrupa — é a única caixa alta da conversa.
+struct LinhaDeAutor: View {
+    let autor: Autor
+
+    init(_ autor: Autor) { self.autor = autor }
+
+    var body: some View {
+        HStack(spacing: 8) {
+            MarcaDeAutor(autor: autor)
+            Text(autor.nome)
+                .font(Tema.label)
+                .tracking(Tema.trackingLabel)
+                .foregroundStyle(autor.cor)
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(autor == .voce ? "Você" : "A sábia")
+        .accessibilityAddTraits(.isHeader)
+    }
+}
+
+/// A espera como CÁPSULA COM TEMPO (REFERENCIA-HERMES §8): estreita, colada
+/// acima do campo — a marca da sábia cintila, o que ela faz, e o tempo
+/// decorrido à direita. Não toma a tela e não tem botão: parar é o botão do
+/// campo, que muda com o estado (§9). O cintilar anda no mesmo segundo do
+/// relógio; com Movimento Reduzido a marca fica acesa e só o número anda.
+struct CapsulaDeEspera: View {
+    let frase: String
+    let desde: Date
+    var identificador = "espera-pensando"
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    /// "0:07", "4:01" — o relógio do Hermes. Fora do `body` para ter teste.
+    static func tempo(desde: Date, agora: Date) -> String {
+        let s = max(0, Int(agora.timeIntervalSince(desde)))
+        return "\(s / 60):" + (s % 60 < 10 ? "0" : "") + "\(s % 60)"
+    }
+
+    var body: some View {
+        TimelineView(.periodic(from: desde, by: 1)) { ctx in
+            let s = max(0, Int(ctx.date.timeIntervalSince(desde)))
+            HStack(spacing: 8) {
+                MarcaDeAutor(autor: .sabia)
+                    .opacity(reduceMotion || s.isMultiple(of: 2) ? 1 : 0.35)
+                    .animation(reduceMotion ? nil : .easeInOut(duration: Tema.Duracao.relogio), value: s)
+                Text(frase + "…")
+                    .foregroundStyle(Tema.tintaSuave)
+                    .lineLimit(1)
+                Spacer(minLength: 8)
+                Text(Self.tempo(desde: desde, agora: ctx.date))
+                    .monospacedDigit()
+                    .foregroundStyle(Tema.tintaFraca)
+            }
+            .font(Tema.meta)
+            .padding(.horizontal, 12)
+            .frame(minHeight: 34)
+            .background(Tema.superficieBaixa, in: Capsule())
+            .accessibilityElement(children: .ignore)
+            .accessibilityAddTraits(.isStaticText)
+            .accessibilityLabel(Espera.linha(frase, desde: desde, agora: ctx.date))
+            .accessibilityIdentifier(identificador)
+        }
+    }
+}
+
+#Preview("cápsula com tempo") {
+    VStack(spacing: 12) {
+        CapsulaDeEspera(frase: Espera.aSabiaPensa, desde: .now)
+        CapsulaDeEspera(frase: Espera.aSabiaPensa, desde: .now.addingTimeInterval(-241))
+        LinhaDeAutor(.voce)
+        LinhaDeAutor(.sabia)
+    }
+    .padding()
+    .background(Tema.fundo)
+}
+
 #Preview("espera com relógio e saída") {
     VStack(alignment: .leading, spacing: 12) {
         Espera(frase: "a sábia pensa", desde: .now)
