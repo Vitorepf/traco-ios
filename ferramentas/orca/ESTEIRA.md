@@ -90,7 +90,7 @@ Ordem do dono, repetida inúmeras vezes e reforçada em **08/09 19h35, com o Mac
 | Simplicidade | curva-zero: caminho comum evidente, passos, decisões e telas não crescem; poder avançado continua encontrável | contagem antes/depois |
 | Movimento | toda animação tem propósito, é interrompível, respeita movimento reduzido, duração e curva coerentes com o sistema | vídeo simctl + reduce motion |
 | Componentes | reutilizável, um lugar só em Traco/Componentes, estados completos, preview, nome em pt, sem duplicata | diff + preview |
-| Acessibilidade | VoiceOver com rótulos e ordem certa, Dynamic Type até XXL sem clipe, contraste, alvo ≥ 44 pt | captura AX + Dynamic Type |
+| Acessibilidade | rótulos e ordem certa na árvore, contraste, alvo ≥ 44 pt; Dynamic Type só até **large** — tamanhos de acessibilidade (AX1–AX5, XXXL) estão FORA DO ESCOPO por ordem do dono (DIRETRIZ §12, 10/09): não se testa, não se captura, não vira dívida | árvore AX + captura em large |
 | Performance | sem hitch em rolagem e digitação nas telas tocadas; Instruments quando toca lista, editor ou parser | trace ou medida |
 | Privacidade e autoria | selo, origem e rotas protegidas intactos; nada publica, gasta ou envia sem gesto | teste + leitura do diff |
 | Estado honesto | produzido, agendado, executado e observado distintos na tela; falha visível, nunca escondida | captura da falha |
@@ -999,3 +999,666 @@ Acessibilidade que o autor tinha se dado.
 sustenta a frase que a cita é achado; a que sustenta **outra** frase, melhor, também é —
 e quem só confere se a prova bate com a legenda perde metade dos dois casos. **O nome do
 arquivo não é evidência; o pixel é.**
+
+## A caça-fala estava CEGA — o vigia que diz zero tem de provar que enxerga (09/09, 23h25)
+
+Por horas o laço reportou **`FALA: 0`** com **quatro processos de síntese vivos** dentro
+dos dois simuladores ligados (`SiriAUSP` e `MacinTalkAUSP`, desde 20h27 e 21h18). A
+causa é de uma linha: o script lia `ps -Ao pid=,comm=` e pegava **`$2`** como caminho —
+e o caminho do runtime do simulador **tem espaço** (`iOS 26.5.simruntime`), então `$2`
+era só o primeiro pedaço e o `basename` nunca casava com o nome procurado.
+
+E às **23h20 o `sirittsd` do Mac subiu**, com `ppid 1`. Matei em ~2 minutos. **Nenhum
+comando de worker explica**: os quatro em curso não pediram `siri`, nem botão, nem
+`say`, nem VoiceOver; o dono estava ativo na máquina ~5 minutos antes. **Não sei quem
+foi, e digo isso em vez de inventar culpado.**
+
+**A lei:** *vigia que reporta zero tem de provar que enxerga.* Quem escreve uma caça —
+de fala, de warning, de vazamento — **planta o alvo uma vez e confere que a caça o
+acha**; caça que nunca acusou nada não está provada, está muda. É a mesma família de
+"portão que não enxerga tem de falhar fechado" e de "medir o que a regex conta antes de
+congelar".
+
+**E o corolário que essa caça ensinou:** *separe o que FALA do que FALARIA.* O daemon do
+Mac (`sirittsd`, `speechsynthesisd`) é o que sai pelo alto-falante do dono — alarme, e
+se mata. O plugin de síntese carregado dentro de um simulador ligado é o **estopim**:
+reporta-se com o aparelho e **não se mata às cegas**, porque derrubar o áudio de um
+simulador tira o chão de uma suíte em curso. Contar os dois no mesmo número é o que
+transforma um alarme real em ruído que ninguém lê.
+
+## O estado do instrumento se lê na TRAVA, não no efeito colateral (09/09, 23h30)
+
+Perguntaram-me se a janela do aparelho da conta estava livre. Olhei o **binário
+instalado** — ainda o do LOTE-3 — e respondi "ninguém entrou, pode abrir". Estava
+errado: a Q3-C **já tinha a trava desde 23h27:13** e simplesmente ainda não chegara ao
+`install`. O worker da Q4-C me corrigiu com a prova certa: `/tmp/traco-instrumento.lock`
+com PID, script e hora, mais casos concluindo no `avaliacoes-ia.jsonl` com
+`contaGrokLigada=true`. Ele **não colidiu**: entrou na fila do `com-trava.sh`, que é o
+desenho.
+
+**A lei:** *o dono do instrumento se lê na trava — PID, script e hora —, nunca por
+efeito colateral.* Binário instalado, última captura, fase do batimento e arquivo de
+prova **todos atrasam** em relação à posse: dizem o que já aconteceu, não o que está
+acontecendo. Quem responde "o aparelho está livre" sem ter lido a trava está adivinhando.
+
+**E o padrão maior, que é meu e apareceu duas vezes na mesma hora:** mandei a MERGE-Q34
+parar lendo a saída **antiga** dela, quando ela já se recuperara; e disse que a janela
+estava livre lendo o **binário** em vez da trava. Duas vezes **li um efeito e chamei de
+estado**. *Antes de decidir sobre um worker ou sobre o instrumento, leia o sinal
+autoritativo e o mais NOVO que existir* — a trava para posse, a última saída para
+progresso. Sinal velho custa mais caro que sinal nenhum, porque parece informação.
+
+## Prova de vigia tem dois graus, e o menor se DECLARA (10/09, caça-fala)
+
+Ontem escrevi a lei "vigia que reporta zero tem de provar que enxerga". Hoje ela foi
+cobrada de mim e o resultado é mais interessante que um simples "provado":
+
+- A perna do **estopim** foi provada com **alvo plantado**: um `/bin/sleep` renomeado
+  para `MacinTalkAUSP-ISCA`, zero áudio. Isca viva, acusa 1; isca morta, acusa 0.
+- A perna do **falante** **não pôde** ser provada assim: copiar um binário assinado para
+  um arquivo chamado `sirittsd` faz o macOS matar o processo no ato (rc=137). O que se
+  pode afirmar é **menos**: o mecanismo foi conferido contra daemon real e contra nome
+  inexistente, e a perna **pegou o alvo verdadeiro duas vezes** em campo.
+
+**A lei ganha um segundo andar:** *prova de vigia tem graus, e o grau menor se declara no
+próprio vigia.* Alvo plantado > captura em campo > mecanismo conferido > nada. Escrever
+"provado" quando só se tem o terceiro grau é o mesmo defeito que a caça cega, com uma
+camada a mais de confiança falsa. **O grau está escrito dentro do `cacar-fala.sh`**, para
+quem o herdar não precisar acreditar em ninguém.
+
+**E eu já tinha cometido o erro:** o commit que trouxe essa caça para o repositório disse
+"provada com alvo plantado", sem qualificar — verdade para uma perna, não para a outra.
+Corrigido aqui, no arquivo, que é onde a próxima pessoa vai procurar.
+
+## A guarda vai onde todos passam, não em cada um que passa (10/09, G3 da MAC-2-A)
+
+O G3 reprovou a MAC-2-A com **Privacidade e autoria em 4**, e o defeito é uma forma que
+vai voltar: `Sessao.calarAcoesDerivadas` tem **três chamadores**, e
+`trancarExpressivasVencidas` **sela de verdade sem ser um deles**. Como
+`espelharTrabalhos` só escreve e nunca retira, o `.md` do trabalho de uma nota **selada**
+ficaria legível pelo bot no Mac **para sempre**. A sonda do revisor diz em uma linha:
+`SONDA-3 expressiva vencida: trancada=true permitido=false existe=true`.
+
+**A lei:** *guarda espalhada por chamador é uma lista de gente que precisa lembrar;
+guarda no laço que escreve é uma invariante.* Quatro rotas selam hoje; a quinta que
+alguém escrever amanhã não vai chamar nada, e tem de ficar correta mesmo assim. **O
+conserto certo é quase sempre MENOR que o errado** — aqui, a invariante no laço de
+espelhar dispensa o `remover` de todos os chamadores.
+
+**E o controle que prova a régua:** das quatro sondas do revisor, **uma passa de
+propósito**. Sem ela, três vermelhos não distinguem "achei o defeito" de "a sonda está
+quebrada". *Toda sonda que acusa precisa de uma irmã que não acusa.*
+
+## Fotografar janela sem levantá-la (10/09, mesmo G3)
+
+Alegou-se que a conversa do Grok Bot não podia ser capturada porque a janela está fora da
+área capturável — e a ausência da captura foi aceita como **limite de instrumento**, sem
+descontar nota, porque a chamada tinha prova de máquina e o retorno era verificável.
+**Mas o motivo não vira precedente:** `screencapture -l<windowid>` fotografa uma janela
+**sem trazê-la à frente**, o que respeita a lei do dono ativo (ocioso < 60 s, não levantar
+janela). Antes de declarar "não dá para fotografar", tente por id de janela.
+
+## O requisito promovido para morder no caso pobre vira TETO no caso rico (10/09, Q4-C)
+
+A Q4-C consertou três defeitos medidos de uma vez — `semRetorno` com HTTP 200 **1→0**,
+renda inventada **1→0**, e o texto magro passou a pedir *quando* **0/3 → 3/3**. E, na
+mesma medida, **nasceu o defeito oposto**: num caso em que a nota dá material farto, as
+perguntas viraram literalmente *"O que aconteceu? / Quando aconteceu? / O que seria dar
+certo?"* — a lista, sem nada da nota —, onde a base do LOTE-3 cobria critério, evidência
+e custo de errar.
+
+**A lei:** *requisito promovido para MORDER no caso pobre deixa de governar só onde
+falta matéria.* A medida da Q4-C nomeou a forma melhor do que eu: o requisito vira
+**acréscimo** na nota farta — o modelo cumpre a lista promovida **e a soma** às perguntas
+que já faria —, e às vezes vira **substituição**, com as três perguntas da lista e nada
+da nota (`q4-instigar-com-metodo-decisao` r2).
+Promover uma lista fixa ao alto do pedido, com "pelo menos duas cumprem ao pé da letra",
+faz o modelo cumprir a lista **e parar**. No texto magro isso é o conserto; no texto
+farto é o dano. Quando a promoção regride a linha de base, a alavanca seguinte não é
+*mais* promoção nem *mais* proibição: é o requisito ficar **condicionado à matéria** —
+quando a nota dá pouco, pergunte o que/quando/o que seria dar certo; quando dá mais, as
+perguntas saem do que ela escreveu.
+
+**E o modo como isto apareceu é o que se quer de um medidor:** a própria volta mediu,
+viu, e **nomeou o defeito como causado pela mudança dela**, sem arredondar, antes de
+saber se o outro modelo repetia. *Quem mede o próprio conserto tem de poder reprovar-se —
+e a medida que só confirma quem a encomendou não é medida.*
+
+## A trava serializa COMANDO; não serializa o ESTADO do aparelho (10/09, Q4-C)
+
+Despachei a Q3-C e a Q4-C com o **mesmo** `B91C8DEF`, cada uma com "uma instalação por
+cima", e invoquei a trava como salvaguarda. **A trava não cobre isto.** Ela serializa
+comandos; o `install` é uma **mutação que sobrevive à soltura da trava** e troca o binário
+debaixo de quem vier depois. A Q4-C mediu sozinha das 10:55:25Z às 11:10:47Z, com o
+binário carimbado nos dois extremos do log e a conta ligada nas três leituras — e então
+percebeu que **qualquer captura sua feita depois do install da Q3-C seria do binário
+alheio**. Parou antes de tirá-la.
+
+**A lei, afiada:** *duas voltas não dividem um aparelho onde qualquer uma INSTALA, nem
+serializadas.* A trava basta para quem só lê a tela; não basta para quem escreve o
+aparelho. Quem despacha escreve o UDID de cada volta e confere que **nenhum se repete** —
+e se duas precisam do mesmo aparelho da conta, ou elas entram na MESMA janela com UM
+binário (que é o que os LOTES fazem), ou a segunda espera a primeira **fechar a volta**,
+não fechar a trava.
+
+**E o corolário que a Q4-C escreveu melhor do que o meu despacho:** *evidência
+contaminada, declarada e usada, é pior que evidência nenhuma.* Uma captura do binário do
+vizinho, com uma nota de rodapé honesta, ainda seria lida como prova da volta que a
+anexou.
+
+## Não se fotografa o que o app não pode mostrar (10/09, mesma volta)
+
+A Q4-C pediu uma segunda instalação para fotografar a frase nova (`nadaPassouNaGuarda`).
+A resposta estava na própria pergunta: a frase é **inalcançável em produção hoje**, porque
+`Politica.aviso` responde antes — `instigar` e `contrapor` seguem `indisponivelPorQualidade`.
+
+**A lei:** *motor sem superfície não conta como entregue — mas superfície que o app não
+pode alcançar não se fotografa.* Gastar o aparelho da conta atrás dessa captura produziria
+nada. O limite se declara, com o motivo, e **vira dívida nomeada com dono**: quem devolver
+a operação à lista fotografa a frase **no mesmo ato**. Não é acabamento esquecido, é
+consequência declarada — no dia do retorno, essa frase chega ao autor sem nunca ter sido
+vista na tela.
+
+
+## O conserto escrito depois da medida NÃO entra no binário medido (10/09, Q4-C)
+
+A Q4-C escreveu o conserto do defeito oposto e **não o aplicou, de propósito**. A razão é
+exata: *"aplicá-la agora faria o binário comitado divergir do binário medido, e uma
+corrida nova também não seria medida"* — porque não haveria tempo nem janela para medi-la
+com a mesma alavanca única.
+
+**A lei:** *a volta que mede fecha com o binário que mediu.* O conserto que nasce da
+leitura da medida é **dívida nomeada da volta seguinte**, não um remendo de última hora —
+senão o relatório descreve um binário e o commit entrega outro, e ninguém percebe porque
+os dois têm o mesmo SHA de árvore. Escrever o conserto e não aplicá-lo é disciplina, não
+preguiça: a alavanca fica pronta e a medida fica honesta.
+
+## A trava virou ARQUIVO e travou a casa por meia hora (10/09, achado da Q4-C)
+
+Às **08h25** o `/tmp/traco-instrumento.lock` deixou de ser diretório e virou **arquivo
+comum de 0 byte**. **A causa foi achada pela Q4-C e é de uma linha:** o *keep-alive* das
+janelas de medida fazia `touch "$L"` a cada 60 s para a trava não parecer velha — e um
+`touch` **depois** de a trava ser solta **CRIA um arquivo** no lugar dela. Aconteceu duas
+vezes hoje. Consertado nos quatro `lote-ia-09*-janela.sh`: `[ -d "$L" ] && touch "$L"`. A primitiva do `com-trava.sh` é `mkdir` — atômica **porque** cria
+diretório —, então ela passou a falhar **para sempre**, e dois workers (Q4-C e MAC-2-A-B)
+ficaram girando sem poder entrar. Pior: sem `$L/dono` legível, a **guarda de PID também
+cega**, e só a de 30 minutos salvava. Meia hora de instrumento parado com três voltas
+vivas.
+
+**O conserto custou duas linhas** e está provado com **defeito plantado**: planto um
+arquivo no lugar da trava, o `com-trava.sh` acusa *"a trava virou ARQUIVO; removendo para
+destravar"* e entra; sem o defeito, entra igual (o controle).
+
+**A lei:** *toda guarda que depende da FORMA de uma coisa confere a forma antes de confiar
+nela.* `mkdir` só é atômico sobre diretório; `flock` só serializa sobre descritor; a
+guarda de PID só lê PID se o arquivo existir. Quando a forma quebra, a guarda não avisa —
+ela **falha aberta ou trava fechada**, e as duas são piores que o defeito. Aqui a
+degradação era silenciosa em ambos os sentidos, e quem a viu foi um worker esperando a
+vez, não o vigia.
+
+
+**E as duas camadas se justificam:** o `[ -d "$L" ]` do keep-alive ainda tem uma janela de
+corrida de microssegundos entre o teste e o `touch`; a guarda de forma no `com-trava.sh`
+cobre o resto. *Conserto de causa e conserto de sintoma não competem quando o sintoma é
+uma casa parada por meia hora* — mas o de causa vem primeiro, e sem ele o outro só encurta
+o estrago.
+
+## O binário que a medida rodou é EVIDÊNCIA, e um rebuild a destrói (10/09, G3 da Q3-C)
+
+O autor da Q3-C achou que a árvore carregava um prompt **editado depois de a janela
+fechar** e resolveu certo: extraiu o texto **do binário medido** (`Traco.debug.dylib`
+`57d02df3`) e comitou esse, conferido byte a byte. Mandei o G3 refazer a conferência pelo
+binário — e o revisor respondeu: **`57d02df3` não existe mais em disco.** Um build
+posterior o substituiu.
+
+**A lei:** *o binário que a medida rodou é evidência da medida, e evidência que um rebuild
+apaga não é evidência.* Quem abre janela de medida guarda, junto do `.jsonl`, **o hash e o
+que for preciso para reproduzir a alegação** — o texto do prompt extraído, no mínimo. Sem
+isso, a frase "conferi byte a byte contra o binário medido" vira **palavra**, e a régua
+desta casa é que ninguém acredita em palavra.
+
+**E é uma dívida de forma, não de pessoa:** o carimbo do binário nos dois extremos do log
+(que os LOTES já fazem) prova **qual** binário rodou; não preserva **o conteúdo** que
+alguém vai querer conferir depois. Os dois são precisos.
+
+## A porcentagem que faz média esconde o caso que foi a ZERO (10/09, G3 da Q4-C)
+
+A Q4-C mediu a regressão que o próprio conserto comprou e a reportou honestamente:
+perguntas ancoradas na nota caíram de **96% (49/51) para 76% (48/63)** no `grok-4.3`. O
+G3 reproduziu os números — e então **leu caso a caso**, e achou o que a média tinha
+diluído: em `q4-instigar-com-metodo-decisao`, **as TRÊS pernas da fixture** — critério,
+evidência e custo de errar — caíram de **3/3 para 0/3**. Não é uma piora de vinte pontos:
+naquele caso a operação **parou de fazer o que a fixture pede**, inteiramente.
+
+**A lei:** *coluna que faz média entre casos esconde o caso que foi a zero.* Uma
+porcentagem agregada é boa para dizer que **algo** mudou e péssima para dizer **o quê**.
+Toda régua nova nasce com a leitura **por caso** ao lado; e quando a agregada piorar, a
+primeira pergunta é **qual caso morreu**, não **quantos pontos caíram**.
+
+**E o modo como apareceu vale tanto quanto o achado:** o autor reportou a média com
+honestidade e sem arredondar; o revisor, que não escreveu os casos, foi ao caso. *Nenhum
+dos dois viu sozinho o que os dois viram juntos* — é para isso que o G3 é de quem não fez
+a volta.
+
+## O keep-alive morre com a janela que ele mantém viva (10/09, 08h42, achado do re-G3)
+
+Consertei de manhã o `touch "$L"` dos quatro `lote-ia-09*-janela.sh` e a guarda de forma
+no `com-trava.sh`, achando que era aquilo. **Não era.** Às 08h42 a casa travou de novo, e
+o culpado era **outro** keep-alive com o mesmo defeito — `segurar-trava.sh`, num
+scratchpad de sessão do `q3-c` — e desta vez **não destravava nunca**:
+
+- `mkdir` **nunca** passa sobre um arquivo;
+- a retomada de dono morto lê `$L/dono`, que num arquivo **não existe**;
+- a retomada de 30 min olha o **mtime**, que o `touch` renova a cada 30 s.
+
+**As duas saídas do `com-trava.sh` mortas ao mesmo tempo.** Três workers parados.
+
+E o processo era **órfão**: `ppid = 1`, o worker que ele servia já estava
+`completed/succeeded/settled`, e as capturas dele já estavam comitadas. Ele segurava uma
+janela que tinha acabado, **anunciando no `dono` um trabalho que ninguém mais fazia**.
+
+**A lei, em duas metades:**
+1. *Todo `touch` numa trava confere que ela ainda é o diretório* — senão ele a **recria
+   como arquivo** assim que o dono a solta. O padrão é sistêmico: vale para qualquer
+   keep-alive, em qualquer script, inclusive os de scratchpad que ninguém revisa.
+2. *O keep-alive morre com a janela que ele mantém viva.* Um que sobrevive ao dono não
+   está protegendo nada — está **mentindo no `dono`** e travando a casa. Se ele pode ficar
+   órfão (`ppid 1`), ele vai ficar.
+
+**E a nota amarga:** `kill` não o matou; precisou de `kill -9`. **Segunda vez no dia** que
+um matador educado falha nesta máquina — a primeira foi o vigia de fala mandando SIGTERM a
+um `sirittsd` que o ignora, e o deixou vivo 19 minutos. *Matador que não confere o corpo
+não matou.*
+
+**O método do worker que achou merece cópia:** leu a trava por `stat` e o dono por `ps`,
+**não por efeito colateral**; e viu que *"só `rm` do arquivo não resolve, o `touch` o
+recria em até 30 s"* — que é a diferença entre destravar e **parecer** que destravou. E
+não matou processo alheio sozinho: escalou com o PID na mão e seguiu na leitura estática
+enquanto esperava.
+
+## A trava deixou de serializar EM SILÊNCIO, e três xcodebuild correram no mesmo aparelho
+
+O pior efeito do dia não foi a casa parada — foi a casa **andando errado**. Enquanto a
+trava oscilava entre diretório e arquivo, ela **parou de serializar sem avisar ninguém**, e
+**três `xcodebuild test` correram no mesmo simulador**. Com o mesmo bundle id, duas
+corridas se instalam por cima uma da outra e **as duas medem errado**.
+
+A prova é de um revisor e é irrefutável: a primeira suíte dele **executou
+`RespostaNotasTests.oModeloDaRotaPassaPelaSonda()`** — um teste que **não existe na árvore
+dele**, e que `git log -S` localiza no commit `319e9a5` de outra volta, confirmado
+**não-ancestral** do HEAD dele. O pacote que rodou no UDID dele **não era o dele**. Ele
+descartou a corrida e refez.
+
+**A lei:** *suíte verde medida com a trava quebrada não é suíte verde.* E porque a quebra
+é silenciosa, o portão não pode depender de a trava estar sã:
+
+> **Quem declara "suíte verde" cola a contagem E prova que rodou a PRÓPRIA árvore** —
+> mostrando no log um teste **exclusivo do seu candidato**. Sem isso, o número pode ser do
+> vizinho.
+
+É a mesma família do controle que prova a régua: um teste que só existe aqui é o **alvo
+plantado** da suíte. E o dano não é só falso verde: **vermelho falso reprova volta boa**,
+e uma volta reprovada por engano custa mais que uma aprovada por engano, porque ninguém
+vai reconferir uma reprovação.
+
+**E o `xcodebuild test` chamado FORA do `com-trava.sh` é a causa que sobra.** A lei do
+`revisor.md` já mandava passar pela trava; um worker foi visto às 08h49 rodando direto,
+com a trava inexistente e outro esperando na fila. **Nenhuma corrida no aparelho de
+trabalho fora da trava, nem "rapidinho".**
+
+## A guarda mais forte é a que o COMPILADOR aplica (10/09, MAC-2-A-C)
+
+Duas voltas seguidas ensinaram a mesma coisa em degraus. Primeiro: *a guarda vai onde
+todos passam, não em cada um que passa* — e a invariante saiu dos chamadores para o laço
+que escreve. O revisor então achou o mesmo defeito **uma função adiante**: a `cercar` era
+aplicada **à mão** em três dos quatro campos crus, e o quarto forjava a seção.
+
+A MAC-2-A-C subiu o último degrau: **`markdown` passou a montar o arquivo a partir de
+`[Linha]`, não de `[String]`.** Literal de Swift é estrutura; valor interpolado que começa
+linha passa por `cercar` **para existir**. Um `String` cru **não compila** — e ela provou
+isso de propósito, colhendo o erro (*"cannot convert value of type String to expected
+argument type EspelhoTrabalhos.Linha"*) e desfazendo a mutação.
+
+**A lei, no seu degrau mais alto:** *guarda em tempo de execução é uma promessa; guarda no
+tipo é um fato.* Quando a forma do dado pode carregar a regra, **carregue** — o quinto
+campo que alguém acrescentar amanhã não vai lembrar de cercar, mas também **não vai
+compilar**. Suba: à mão em cada chamador → invariante no laço → impossível pelo tipo.
+
+**E a sonda subiu junto:** passou a contar título **por ESTRUTURA** (ATX com espaço, ATX
+com TAB, setext, nada dentro de cerca de código) em vez de `hasPrefix` — porque *a sonda
+que erra do mesmo jeito que o código não guarda nada*. A prova de que ela enxerga: a
+reescrita ficou **vermelha na primeira corrida**, antes de a asserção apertar.
+
+## A garantia do tipo vale até a genérica que aceita tudo (10/09, 3º G3 da MAC-2-A)
+
+Celebrei ontem à tarde que o defeito virara **impossível**: `markdown` monta de `[Linha]`,
+`String` cru **não compila**. O revisor refez a prova — **ela se sustenta** — e então a
+contornou por três portas, e as três valem a lição:
+
+1. **`appendInterpolation<T>` aceitava `Substring` e `Any`**, que passam **sem cerca**. A
+   promessa "não compila" valia para `String` e **não para os primos**. *Guarda no tipo é
+   um fato — mas a genérica que aceita tudo é a porta dos fundos do tipo.* Estreite o
+   `where`, ou a garantia é decorativa.
+2. **`"\r\n"` é UM `Character` em Swift.** `split(separator: "\n")` sobre um texto com fim
+   de linha do Windows devolve **UMA linha**, e a cerca **não rebaixa nada**: as rotas
+   reabrem juntas e o ``` pendurado **engole as seções do próprio arquivo**.
+3. **`Corpus.umaLinha` trocava o `\n` e deixava o `\r`** — que é quebra pela mesma
+   CommonMark que a ADR cita. Todo campo de "uma linha" **plantava linha**: **2 e 4** seções
+   `## Relatos` medidas onde só cabe 1.
+
+**E o conserto já existia na casa:** `Traco/Caderno/BlocoCaderno.swift:78-84` normaliza CRLF
+com o comentário certo — *"CRLF entra por import de .md feito fora do iPhone. Sem
+normalizar, o `\r` sobrevive até a TELA"*. **Escrever a segunda normalização em vez de
+reusar a primeira seria o slop que a lei nomeia.**
+
+**A lei:** *toda guarda que parte texto declara o que considera fim de linha.* E o corolário
+que fecha o arco de dois dias — à mão em cada chamador → invariante no laço → impossível
+pelo tipo — **é que nenhum degrau dispensa a pergunta seguinte: por onde mais entra?**
+
+## Fato observado, ou defeito com outra roupa? (mesma volta)
+
+O autor declarou o cabeçalho YAML como **"fato observado"**. O revisor **discordou com
+prova**: enquanto o `umaLinha` deixar o `\r`, é **o mesmo defeito com outra roupa** — e a
+frase do `SPEC` que sustentava a declaração (*"o autor não consegue plantar linha ali"*) é
+**falsa hoje**, porque foi por ali que saíram as quatro seções.
+
+**A lei:** *"fato observado" é uma alegação, e alegação se confere.* Declarar limite é
+honesto; declarar limite sobre uma premissa que ninguém testou é a meia-recusa da
+engenharia. Feche a premissa primeiro — o que sobrar depois, aí sim, é fato.
+
+## O atalho rápido que é CEGO ao caso que ele guarda (10/09, MAC-2-A-D)
+
+Mandei reusar o normalizador de CRLF que **já existia** no repositório
+(`BlocoCaderno.fatiasSemMemo`) — e a volta descobriu, consertando, que **ele nunca
+correu**. A forma era:
+
+```swift
+let normal = fonte.contains("\r") ? fonte.replacing... : fonte
+```
+
+**`String.contains("\r")` resolve para `contains(_ element: Character)`** — e num texto
+CRLF o `Character` é **`"\r\n"`**, não `"\r"`. Logo **`false`**, e o normalizador **não
+roda**. Medido: `false` por `contains`, `true` por `unicodeScalars`. Ou seja: **o import
+de `.md` do Windows nunca foi normalizado no Caderno**, e o `\r` sobrevivia até a tela —
+exatamente o que o comentário daquele código dizia estar impedindo.
+
+**E a sonda que guardava o caso estava verde pelo mesmo furo:**
+`!visivel.contains("\r")` — **a sonda copiou a expressão do código**. *A sonda que erra
+igual ao código não guarda nada*, e é a segunda vez em dois dias que isso aparece (a
+primeira foi a `SONDA-4` sem ver o TAB).
+
+**A lei:** *o atalho de desempenho tem de enxergar o mesmo que o caminho lento.* Um
+`guard` que evita trabalho e é cego ao caso que o trabalho trata é **pior que não ter
+guarda** — ele desliga o conserto **e** dá a impressão de que ele roda. Ao escrever
+"só normaliza se precisar", prove que o "se precisar" enxerga.
+
+**Em Swift, concretamente:** para procurar `\r` num texto que pode ser CRLF, use
+`s.unicodeScalars.contains("\r")`. Para "tem alguma quebra?", `contains(where: \.isNewline)`,
+**nunca** `contains("\n")`.
+
+**E a correção é minha:** eu mandei reusar aquele código dizendo que o repositório já
+resolvia isso. **Reusar é o degrau certo da escada — mas reusar sem conferir propaga o
+defeito com a autoridade de quem já estava lá.** O irmão que se reusa também se lê.
+
+## O arquivo só se apaga quando o app consumiu TUDO o que havia nele (10/09, P0-CRLF)
+
+A volta do `\r` mediu de novo, com harness próprio — cópia verbatim das linhas do `Corpus`,
+em vez de acreditar no revisor — e achou um **caso E** que muda o nome do defeito:
+
+> **prosa do autor antes do primeiro cabeçalho, LF puro, sem um único `\r`:**
+> `itens=1`, **leu 12 de 104 chars**, `apagaria=SIM`.
+
+O laço começa em `hits[0].range.location`: **tudo o que vem antes do primeiro
+`---\ncriada:` nunca é examinado**. Um `.md` que o autor escreva **à mão** na pasta
+`entrada/` do Mac, começando com um título, **perde essas linhas calado — e o arquivo é
+apagado**. Não é o bug do Windows. **O `\r` era só um dos jeitos de chegar nele.**
+
+**A lei, corrigida pelo G3 que a mediu — e a correção é minha:** *o arquivo só se apaga
+quando o app **delimitou** tudo o que havia nele.* Eu tinha escrito **cobertura de
+LEITURA**, e o revisor derrubou a alegação forte com dois contraexemplos: um descarte no
+estilo da própria casa (**teto de 140 grafemas da ADR 08h, sem `continue`**) importou **140
+de 699 caracteres do arquivo** com a conta dizendo **1,00 e apagou o arquivo** — e o número
+tem três partes, corrigido pela volta que o releu: **699** é o que o arquivo tem, **140** é
+o que aquele descarte importa, e **659** é o que o caminho de HOJE importa; **a diferença de
+40 é a tinta do cabeçalho, creditada sem virar nota**; e sem código futuro
+nenhum, os campos `dominio` e `recordada` — que **o próprio app escreve e o importador nunca
+lê** — somem na volta pela `entrada/` com a conta dizendo 100%. **A cobertura tem de contar
+o que foi DELIMITADO como pertencente a alguma nota, não o que foi consumido pelo caminho
+que existe hoje.** Menos de 100% é **incerteza**, e incerteza não apaga —
+bloco que caiu no `continue`, prosa antes do primeiro cabeçalho, bloco sem fecho, cabeçalho
+que não casou. **A pergunta certa não é "o regex casou?" e sim "quanto do arquivo eu
+consumi?"**, e isso é um número que o código calcula e o teste lê, não uma impressão.
+
+**A coluna que a volta inventou no próprio harness — `leu X de Y chars` — É a invariante.**
+Vale a atenção: a régua certa apareceu como coluna de diagnóstico antes de alguém perceber
+que era a regra. *Quando um medidor precisa de uma coluna nova para explicar o defeito,
+essa coluna costuma ser o contrato que faltava.*
+
+**E o corolário do portão:** hoje um cabeçalho que **não casa** vira "sem cabeçalho" e
+**abre tudo** — origem vira autor, selo não detectado. *Portão que não enxerga tem de
+falhar fechado*: formato não reconhecido **não entra como do autor** e **não apaga**.
+
+## O oráculo não pode ser cópia da regra que ele julga (10/09, re-G3 da MAC-2-A)
+
+O terceiro re-G3 achou o caminho que ainda entrava: **`cercar` decide se a linha abre ou
+fecha cerca de código DEPOIS de aparar o espaço; a CommonMark §4.5 decide ANTES, contando o
+recuo** (até três espaços). Com **quatro** espaços as duas discordam **nos dois sentidos**.
+
+Na tela do bot: com uma cerca recuada quatro espaços dentro da resposta do modelo, **o
+`## Relatos` DELE vira seção de verdade do arquivo e o relato do AUTOR fica dentro de um
+bloco de código** — some o que ele escreveu e entra o que ele não escreveu.
+
+**E o método é a lição:** ele usou **o parser CommonMark da Apple como oráculo**, e disse
+por quê — *"escolhido por NÃO ser cópia da regra do código"*. A sonda da própria casa
+(`TitulosDoMarkdown`) **também apara antes de decidir**, e por isso era **cega a isto**.
+
+**A lei:** *o oráculo não pode ser cópia da regra que ele julga.* Uma sonda escrita a partir
+do código confirma o código, não o contrato — é a terceira vez em dois dias que isto
+aparece (a `SONDA-4` sem ver o TAB, a sonda do CRLF copiando o `contains` do código, e agora
+a régua de títulos aparando junto). **Quando existir um implementador independente do
+contrato — um parser de referência, uma biblioteca do sistema, o próprio consumidor —,
+julgue por ele.**
+
+**E a lista do que NÃO passou é prova tanto quanto o que passou:** `U+2028`, `U+0085`, `\r`
+isolado, CRLF nos quatro campos e no cabeçalho, cerca aberta e nunca fechada, e
+`Substring`, `NSString`, `String?`, `Any`, `Double`, `Bool`, `Character`, `UUID` e
+`[String]` na interpolação — **todos recusados pelo compilador, um a um por
+`swiftc -typecheck`**. Quem só publica o que quebrou não mostra o tamanho da garantia.
+
+## Uma trava de shell não serializa uma chamada MCP (10/09) — e o P0 aconteceu ao vivo
+
+**A causa raiz das três contaminações de hoje.** Havia um **`npx xcodebuildmcp@latest mcp`**
+vivo desde as 10h40, filho do `codex app-server` do ambiente de um worker Codex. **Um MCP de
+`xcodebuild` não passa pelo `com-trava.sh` POR CONSTRUÇÃO** — nenhuma trava de shell
+serializa uma chamada de ferramenta MCP. Enquanto ele existir, **a trava é decorativa** para
+quem o usa, e a suíte do vizinho roda no seu UDID.
+
+**E o P0 do dia aconteceu ao vivo, com hora e testemunha.** Às 10h56, dentro da própria
+trava, uma volta instalou o candidato dela e semeou sete `.md`; às **10h57**, entre duas
+chamadas dela, **outro build instalou no mesmo aparelho** (o contêiner trocou, o `cmp` do
+binário deu diferente) — e **apagou quatro dos sete arquivos em um minuto, sem pedir nada**,
+deixando exatamente os dois que o parser de `main` também recusa. **Um build sem o conserto
+apagou arquivos de um autor simulado**, e nenhuma fixture teria produzido essa prova.
+
+**Duas leis:**
+
+1. *Toda medida de comportamento no aparelho confere que o binário instalado é o SEU* — com
+   `cmp` contra o próprio produto de build, **antes e depois** da corrida. A frase é de quem
+   achou: **"a trava está livre não é o mesmo que o binário é o meu."**
+2. *Nada de `xcodebuild` por MCP.* Build e install passam por **chamada de shell sob
+   `com-trava.sh`**, sempre. Um servidor MCP de build vivo na máquina é hazard, não
+   conveniência — e se aparecer um, **encerre-o e diga**.
+
+**E o padrão de auditoria de suíte sobe:** contar testes pega contaminação que muda o total;
+**conferir os NOMES executados contra os declarados na própria árvore pega a que não muda**.
+A volta que achou isto auditou **901 nomes distintos** e declarou **zero de fora**. É o que
+passo a pedir.
+
+## ⛔ TAMANHO DE LETRA DE ACESSIBILIDADE É PROIBIDO (DIRETRIZ §12, dono, 10/09)
+
+Ao lado da proibição de VOZ, e pela mesma razão: **o dono disse que não usa, e ver o app em
+letra máxima o irrita.** Ele viu o aparelho de trabalho em tamanho AX às **11h04** e
+escreveu: *"está testando letra grande por quê? já falei que está proibido."* Foi **trinta
+minutos** depois de a §12 ser escrita.
+
+**Proibido, sem exceção:**
+- `xcrun simctl ui <UDID> content_size` com **qualquer valor acima de `large`**;
+- **flow** `ax5.yaml` ou equivalente;
+- `f5-fotografar.sh` com tamanho de acessibilidade — **o 4º parâmetro dele foi removido** e
+  o tamanho é sempre `large`;
+- **launch arg** de `ContentSizeCategory` acima de `large`;
+- spec, portão, captura, teste, vídeo ou dívida em AX1–AX5 / XXXL.
+
+**Dynamic Type vale até `large`**, que é o padrão do iPhone, e é em `large` que se
+fotografa. Código que já existe fica como está: **se quebrar em AX5, não é defeito**.
+
+**Continua valendo, e não é negociável:** alvos de **44 pt**, **contraste**, **rótulos** e
+**ordem na árvore**.
+
+## Quem mata um worker herda a restauração dele (10/09, a mesma violação)
+
+**Quem pôs a letra em AX foi a volta `AX5-1`**, às ~10h39 — quatro minutos depois de a §12
+ser escrita e antes de a ordem chegar até mim. Mas **a letra ficou grande porque EU a matei
+com `worker-stop` antes de o passo de restauração dela rodar**. O spec que eu mesmo escrevi
+para ela dizia *"restaure `medium` ao fim, conferido por captura"* — e matar o worker pulou
+exatamente essa linha.
+
+**A lei:** *quem encerra um worker à força herda o `defer` dele.* Aparelho, tamanho de
+letra, tema, orientação, trava, processo de apoio: o worker morto **não desfaz nada**, e o
+estado que ele deixou é responsabilidade de quem apertou o botão. **Antes de `worker-stop`,
+leia o que o spec mandava restaurar; depois de matar, restaure e confira por captura.**
+
+Os outros três foram conferidos e estão limpos: a Q4-E só **leu** `content_size` (consulta,
+sem valor), a P0-CRLF só **escreveu `medium`** (restauração, com captura de prova), e a
+MAC-2-A G3, a Astra, a MERGE-Q3D e a TEMPO **não o chamaram nenhuma vez**.
+
+## Os aparelhos, refeitos por ordem do dono (10/09, 11h10)
+
+Palavras dele: *"eu preciso que vocês resolvam, pode fazer o que for preciso, eu JÁ REALIZEI
+LOGIN. Não é para vocês ficarem toda hora criando novo simulador para ter que de novo fazer
+login no Grok."*
+
+| aparelho | UDID | papel | lei |
+|---|---|---|---|
+| teste 2 | `B91C8DEF-…` | **CONTA** | sonda de IA e capturas. **Nunca** `erase`, `clearState`, `uninstall` nem `xcodebuild test`. Install **por cima**. |
+| teste 3 | `34CC3F94-…` | **CONTA** (novo) | **a mesma lei, inteira.** Deixa de receber suíte hoje. |
+| teste 4 | `A1DF082C-…` | **SUÍTE** | build e teste. Nenhum aparelho de conta recebe suíte. |
+
+**Duas leis novas, e a segunda é a que o dono cobrou:**
+
+1. **Com DOIS aparelhos de conta, as janelas de IA correm em PARALELO** — uma operação em
+   cada, **cada um com a própria trava por UDID**. O gargalo de uma janela de ~25 min por
+   operação **cai pela metade**.
+2. **CRIAR SIMULADOR É ATO DO ORQUESTRADOR, uma vez, registrado no LACO.** Nenhum worker
+   cria; **ninguém apaga simulador**. Cada simulador novo custa um login do Grok feito **à
+   mão pelo dono** — é o recurso mais caro da casa e não se gasta por conveniência. O teste
+   4 **já existia**: foi religado, não criado.
+
+**E a razão de a suíte sair dos aparelhos de conta é medida, não zelo:** `xcodebuild test`
+roda hospedado no app e o chaveiro é do SIMULADOR — foi assim que a suíte **apagou a conta
+do dono** em 09/09 (ADR 09l, volta K1). Enquanto a suíte correr onde há conta, a conta está
+a uma corrida de sumir.
+
+## Separe o FATO da DECISÃO no código, e ponha guarda entre os dois (10/09, TEMPO)
+
+O teto de tempo nasceu de **77,5 s medidos**, virou **promessa**, e a folga acabou — até o
+dia em que ele ficou **menor que a espera real** (240 s contra **241 s observados**) e passou
+a **cortar resposta boa**, entregando ao autor um `semRetorno` **que era nosso**.
+
+A volta TEMPO consertou a causa, não o número:
+
+```
+Grok.esperaObservada = 241   // FATO: o que se mediu. Piso.
+Grok.teto            = 300   // DECISÃO: margem declarada sobre o observado.
+```
+
+**e uma guarda entre os dois, que fica vermelha se a decisão descer abaixo do fato.**
+
+**A lei:** *fato medido e decisão de engenharia são coisas diferentes e moram em nomes
+diferentes, com uma guarda ligando os dois.* Um único número que serve às duas coisas vira
+promessa: o próximo lê `teto = 300`, não sabe de onde veio, e o trata como medida. **A ADR
+diz "300 de folga sobre os 241 observados", nunca "medimos 300".**
+
+**E os limites de fora entram na conta, ou o número é decorativo.** Ela conferiu, com
+medida: o valor do **pedido** governa o transporte (`NWListener` local, config 2 s × pedido
+6 s → erro em **6,02 s**), `timeoutIntervalForResource` no padrão, **a x.ai serviu 241 s sem
+cortar**, e a montagem de contexto — **a metade da espera que não é rede** — custa **6,3 ms
+para 40 notas**. *Teto que só governa a nossa metade não é teto.*
+
+## A espera era calada em SEIS das sete rotas (10/09, mesma volta)
+
+O dono escreveu na §13: *"espera calada é defeito de IA, não de design"*. A volta foi contar:
+**seis das sete superfícies que raciocinam** não diziam nada — **`ProgressView` mudo, e três
+delas sem saída nenhuma**. As sete passaram a usar **um componente só**, com **pensando,
+tempo e cancelar** — e **cancelar devolve a pergunta**, que é a diferença entre desistir e
+perder o que se escreveu.
+
+**A lei:** *quando um defeito de superfície aparece numa rota, conte em quantas ele existe
+antes de consertar uma.* Seis de sete não é "um caso": é o contrato faltando. E o conserto
+certo foi **reusar o que já havia** (a `LinhaDeEstado` da 05t com o relógio da 09n), não
+inventar componente.
+
+## `/tmp` quebra QUATRO portões de `main`, e o meu preâmbulo mandava usá-lo (10/09, MERGE-P0)
+
+**Achado que não era da volta e ela declarou.** As duas primeiras corridas da mescla deram
+**quatro vermelhos** — `aVarreduraAindaEnxerga`, `nenhumaOperacaoPerdeuASuaSuperficie`,
+`nenhumMovimentoNovoForaDeTema`, `nenhumTryBangNovoNaProducao` — porque
+`PortaoDoMovimentoTests.fontes(_:):128` **recorta o prefixo do caminho por string**, e
+**`/tmp` é link simbólico para `/private/tmp`**. **Qualquer checkout sob `/tmp` quebra os
+quatro.** E **chamar pelo caminho resolvido NÃO resolve**: o `/tmp` fica **assado no
+`#filePath`** do `.xctest`. Ela contornou montando em `/Users/vitorepf/traco-merge-p0`.
+
+**A parte que é minha:** o preâmbulo que eu mando em todo despacho dizia, em letra clara,
+*"Reproduzir o vermelho do pai: monte um checkout descartável em `/tmp`"*. **Eu vinha
+mandando os workers para dentro da armadilha**, e o custo é o pior possível: **quatro
+vermelhos falsos numa árvore boa**, que fazem a pessoa procurar defeito onde não há —
+*vermelho falso custa mais que verde falso, porque ninguém reconfere uma reprovação*.
+Corrigido no preâmbulo. **Dívida sem dono:** o portão devia comparar caminhos **resolvidos**,
+não prefixos de string.
+
+## Teste que roda AX5 em processo NÃO é o que o dono viu (10/09, mesma volta)
+
+A mesma volta apontou que `TracoTests/EscritaVisivelTests.swift:495/:556/:651` roda em
+`accessibilityExtraExtraExtraLarge` **em toda corrida da suíte**, e perguntou se viola a
+§12. **Registro o fato e NÃO conserto**, por duas razões:
+
+1. A **§12 item 3** é explícita: *"o código que já existe fica como está: ninguém o remove
+   nem o mantém"*. Isso entrou em `423789e`, **antes da ordem**.
+2. **E não é o que o dono viu.** Esses testes montam uma `UIContentSizeCategory` **em
+   processo**; **não mexem no `content_size` do simulador**. O que o dono viu duas vezes foi
+   o **aparelho** em letra grande, e a causa foi outra (a volta AX5-1, e depois as cópias
+   velhas dos scripts nos worktrees). **Atribuir a violação a estes testes seria culpar o
+   inocente** — e a casa já tem lei sobre isso.
+
+Fica **declarado**: os cinco chamadores de `editor(_:)` usam o **padrão** AX5, então mudar o
+padrão mexeria no que eles medem. **Quem um dia tocar essa suíte decide com as asserções na
+mão**, não por reflexo.
+
+## O conserto que trouxe de volta o defeito que veio matar (10/09, G3 da TEMPO)
+
+A volta TEMPO veio matar **a espera eterna e sem número**. O G3 achou que **a geração de
+`OficinaTrabalho` a recria, pior**: o comentário em `:264` afirma que as três rotas *"se
+excluem por guarda"* e **as linhas `:299/:345/:385` desmentem**. Com **duas chamadas em
+voo** — e as duas superfícies estão **na mesma rolagem**, então isso é o caso comum, não o
+raro — **o `defer` da primeira nunca roda**, `revisando` fica preso em `true`, e o `?? .now`
+dos três sítios faz **o relógio nunca chegar aos 4 s**. Exatamente o defeito que a volta
+existia para matar.
+
+**E o pior:** *"Parar de esperar"* cancela **só a última chamada**, deixando a órfã
+**gravar a leitura da IA no trabalho do autor**.
+
+**Duas leis:**
+
+1. *Comentário que afirma o que o código desmente é pior que comentário nenhum* — ele
+   **desliga a desconfiança** de quem lê. Aqui, três linhas contradiziam a frase logo acima
+   delas, e a frase foi escrita **pelo próprio autor do conserto**. Quando um comentário
+   afirmar uma invariante ("estas rotas se excluem"), **prove-a com teste ou apague-a**.
+2. *Todo conserto de concorrência se mede com DUAS chamadas em voo, não com uma.* Uma
+   chamada por vez esconde a classe inteira: `defer` que não roda, flag presa, cancelamento
+   que pega só a última, órfã que escreve depois de morta. **Se as duas superfícies cabem na
+   mesma rolagem, duas em voo é o caso COMUM.**
+
+**E o método do revisor merece cópia:** ele **plantou duas sondas** no teste 4 — *"1026
+testes, 2 falhas, as duas minhas: 1024 verdes do candidato"* —, **cada uma com irmã que não
+acusa**, e **as removeu ao fim**. A contagem separada (as minhas × as do candidato) é o que
+permite reprovar sem contaminar o placar do outro.

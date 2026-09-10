@@ -1,0 +1,22 @@
+[2026-09-10T02:27:13Z] binario ANTES:  c6cd0ca8611b8b1f38c0daa7ee11903829b51c6e55f04ab56e987036744edf26
+[2026-09-10T02:27:13Z] a instalar:     8c3af4962c6714b4ce47f689eaef8e1442a73d005b1133359f65b7cd175c97a9
+[2026-09-10T02:27:14Z] INICIO lote09d-fumaca-1-antes.jsonl  fixture=q2-fumaca.json liberar='' modelo='<padrao>'
+app.traco: 80021
+[2026-09-10T02:27:16Z] FIM    lote09d-fumaca-1-antes.jsonl  linhas=       4 fimGravado=1
+[2026-09-10T02:27:16Z] INSTALL (unico da janela): xcrun simctl install B91C8DEF-B0A7-454A-95DE-5D7BA7B040A9 /Users/vitorepf/orca/workspaces/traco-ios/q3-c/build/Build/Products/Debug-iphonesimulator/Traco.app
+[2026-09-10T02:27:21Z] binario DEPOIS: 8c3af4962c6714b4ce47f689eaef8e1442a73d005b1133359f65b7cd175c97a9
+[2026-09-10T02:27:21Z] dylib  DEPOIS:  57d02df3be18ff7301c8a31612e1fc115a241ddb0bcd418abb2ad349792c997e
+[2026-09-10T02:27:21Z] INICIO lote09d-fumaca-2-pos-install.jsonl  fixture=q2-fumaca.json liberar='' modelo='<padrao>'
+app.traco: 80438
+[2026-09-10T02:27:24Z] FIM    lote09d-fumaca-2-pos-install.jsonl  linhas=       4 fimGravado=1
+[2026-09-10T02:27:24Z] INICIO lote09d-q3-grok-4.3.jsonl  fixture=q3-responder-nas-notas.json liberar='responderNasNotas' modelo='grok-4.3'
+app.traco: 80504
+[2026-09-10T02:30:36Z] FIM    lote09d-q3-grok-4.3.jsonl  linhas=      44 fimGravado=1
+[2026-09-10T02:30:36Z] INICIO lote09d-q3-grok-4.5.jsonl  fixture=q3-responder-nas-notas.json liberar='responderNasNotas' modelo='grok-4.5'
+app.traco: 86816
+[2026-09-10T02:33:03Z] FIM    lote09d-q3-grok-4.5.jsonl  linhas=      44 fimGravado=1
+[2026-09-10T02:33:03Z] INICIO lote09d-fumaca-3-fim.jsonl  fixture=q2-fumaca.json liberar='' modelo='<padrao>'
+app.traco: 91839
+[2026-09-10T02:33:06Z] FIM    lote09d-fumaca-3-fim.jsonl  linhas=       4 fimGravado=1
+[2026-09-10T02:33:06Z] binario FIM:    8c3af4962c6714b4ce47f689eaef8e1442a73d005b1133359f65b7cd175c97a9
+[2026-09-10T02:33:06Z] JANELA ENCERRADA

@@ -103,3 +103,30 @@ Decisão sobre a régua da Q2: o dono aceita a espera em troca da resposta que s
 O preço, assumido pelo dono: 36 s de média e 77 s de pior caso em vez de 1,4 s. Então a espera vira estado da tela, nunca silêncio: o cartão diz que está pensando, mostra o tempo passando, deixa cancelar, e o tempo limite da chamada sobe para caber o pior caso medido, como a ADR 08r fez no Trabalho. Espera sem estado é defeito de design.
 
 Uma operação sai de `indisponivelPorQualidade` quando passa com o melhor modelo; se nem com ele passar, continua na lista com a medida nova.
+
+## 11. Ordem do dono, 10/09 07h30 — "o foco de hoje é atingir o mais perto da nota 10/10 possível"
+
+A nota de ontem à noite foi **7**. O que a sobe está medido, e a ordem do dia é a ordem de valor:
+
+1. **A IA que responde ao autor** (vale mais de um ponto). `responderNasNotas` primeiro — a corrida da Q3-C JÁ EXISTE no disco (`~/orca/workspaces/traco-ios/q3-c/prova/lote09d-*`, 4.3 e 4.5, 44 linhas cada, 23h27 de 09/09) e ninguém leu: lê-se antes de gastar o aparelho outra vez. Depois `responder` (o conserto é o prompt proibir inventar estrutura de documento; comparação de UMA alavanca, três corridas por candidato), depois instigar e contrapor, ecos, calibragem, Recordar. Cada uma sai da lista com nota 9 nas cinco dimensões e captura no aparelho da conta (`B91C8DEF`).
+2. **A jornada real do espanhol**, de ponta a ponta, no iPhone do dono e pelo Mac com o bot — depende do dono ter o app atualizado; a equipe deixa o build pronto e a jornada ensaiada no aparelho da conta.
+3. **Design sem slop** — o D1 (Notas) espera a nota do dono. Aprovado, a régua vai a Página, Calendário e Recordar; reprovado, a régua muda antes de tocar em outra tela. Ninguém redesenha outra tela antes do veredito.
+4. **Dívidas que derrubam**: os cinco `try!`, F6b (o botão da bloqueada abre o app), MAC-2 pela metade (o bot ainda não escreve no Trabalho), MAC-3 fechada, a causa da voz.
+
+O teto continua **três voltas** e **um aparelho com conta**. O segundo (teste 3, `34CC3F94`, hoje o da suíte) só vira aparelho de conta quando o dono disser "pode" e fizer o login. As leis da ESTEIRA valem inteiras: VOZ, VOICEOVER E iPAD PROIBIDOS; nunca `erase`, `clearState`, `uninstall` ou `xcodebuild test` no `B91C8DEF`.
+
+## 12. Ordem do dono, 10/09 10h35 — "vamos parar de testar e perder tempo com letra máxima, nunca vou usar isso"
+
+**Letra máxima sai do escopo.** Nenhuma volta, portão, captura, teste, vídeo ou dívida em tamanhos de acessibilidade (AX1 a AX5, XXXL). A volta AX5-1 fecha agora sem mesclar nada; o P1 "a barra sai da tela em AX5" sai do RUMO como dívida e vira uma linha de registro. A linha "Dynamic Type" do scorecard passa a valer só até **large** (o padrão do iPhone) — é o que o dono usa e é o que se fotografa. O código que já existe fica como está: ninguém o remove nem o mantém; se um dia quebrar em AX5, não é defeito. Acessibilidade que continua valendo: alvos de 44 pt, contraste, rótulos e ordem na árvore — coisas que o dono também sente. O tempo que isso libera vai para a IA (§11).
+
+## 13. Ordem do dono, 10/09 10h50 — "vamos focar completamente e deixar a IA no Traço absurda de qualidade, máxima"
+
+**A IA é o ÚNICO foco. As três cadeiras são da IA.** Nenhuma volta que não seja de IA abre; a MAC-2-A só termina o G3 que já está no meio e mescla; a trilha do Mac, o design (D1 espera a nota do dono) e as dívidas de tela ficam paradas até a IA chegar onde ele pede. O dono mandou a captura do Perfil às 10h46: o cartão CONTA diz *"Indisponível mesmo com a conta Grok — a medida de 08/09 reprovou, e não há outro caminho"* e lista o que a IA não faz. **É essa tela que tem de mudar.** "Absurda de qualidade" se define assim:
+
+1. **As dezesseis operações respondem**, com o melhor modelo medido POR OPERAÇÃO (ADR 09v) e o melhor esforço que a conta serve; a lista de indisponíveis do Perfil chega a ZERO. Ordem: `responderNasNotas` (mesclar a Q3-D), `contrapor` (Q4-E), `responder`, `instigar`, `ecos`, `calibragem`, `recordar`.
+2. **A régua sobe.** Sair da lista exige 9 nas cinco dimensões de QUALIDADE-IA.md em três corridas E o caso cego do revisor E uma resposta lida contra notas REAIS do aparelho da conta que o dono guardaria — não só a fixture. Astra no G0 de cada operação (as quatro alavancas: contexto, prompt, esquema, teto); o G3 lê a saída inteira, nunca o hash.
+3. **Espera com estado.** 241 s medidos contra 77 s prometidos: o teto sobe para o pior caso medido e a tela mostra pensando, tempo e cancelar em toda rota (§10). Espera calada é defeito de IA, não de design.
+4. **O Perfil fala a língua do autor.** Sem data, sem "medida", sem "vocabulário interno do app", sem "fato inventado": o cartão diz o que a IA faz por ele hoje, e a frase de cada operação que voltou é a da tela, fotografada em large no aparelho da conta.
+5. **Nada de portão de acessibilidade máxima (§12)**; captura só em large.
+
+**O gargalo continua sendo UM aparelho com conta.** Cada operação custa uma janela de ~25 min nele. O dono pode dobrar a velocidade dizendo "pode" para o teste 3 (`34CC3F94`) virar segundo aparelho de conta — a equipe abre o login pelo app e ele autoriza no Grok.

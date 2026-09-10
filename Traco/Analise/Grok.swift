@@ -51,7 +51,20 @@ nonisolated enum Grok {
     ///
     /// Era `grok-4.3`, o padrão de 03/set, e foi ele que a 08q reprovou em
     /// `responder`: o modelo maior é a alavanca que o prompt não alcançou.
-    static let modelo = escolhido
+    static let modelo = sonda ?? padrao
+
+    /// O modelo de UMA rota, quando a comparação pareada mediu que ela precisa
+    /// de outro (ADR 2026-09-09v). O padrão global **não se move**: no LOTE-09d
+    /// o `grok-4.5` ganhou de 21/21 contra 12/21 em `responderNasNotas` e, no
+    /// LOTE-3, PERDEU em `contrapor` (renda inventada 3 de 3 contra 1 de 3).
+    /// Um vencedor por operação, medido, é o que a DIRETRIZ §10 pede; um
+    /// vencedor global consertaria uma rota e estragaria outra.
+    ///
+    /// A sonda vence sempre, e essa precedência é o ponto: cravar o modelo na
+    /// rota sem ela cegaria a próxima comparação pareada — `TRACO_AVALIAR_MODELO`
+    /// deixaria de alcançar justamente a rota escolhida, e o silêncio pareceria
+    /// acordo.
+    static func modelo(daRota medido: String) -> String { sonda ?? medido }
     /// SÓ PARA A SONDA (DEBUG, por ambiente). Nem todo modelo da conta aceita
     /// `reasoning_effort`: a família `grok-4.20` devolve `400 — Model … does
     /// not support parameter reasoningEffort` em TODA chamada, medido em
@@ -77,22 +90,24 @@ nonisolated enum Grok {
     /// que é exatamente o que a ADR 07b existe para impedir.
     static let esforcoMinimo = "low"
 
-    private static let escolhido: String = {
-        // REVERTIDO em 09/09 pelo G3 (revisao-q2-responder.md): a comparação
-        // que escolheu o `grok-4.6` mudou DUAS alavancas (modelo e
-        // `reasoning_effort`) e a triagem dos doze excluiu candidatos por nome e
-        // posição, não por fato observado — então ela não decide o padrão global.
-        // O padrão volta ao medido de 03/set até a Q2-F refazer a comparação com
-        // uma alavanca só e a triagem por fato declarado.
-        let padrao = "grok-4.3"
+    // REVERTIDO em 09/09 pelo G3 (revisao-q2-responder.md): a comparação
+    // que escolheu o `grok-4.6` mudou DUAS alavancas (modelo e
+    // `reasoning_effort`) e a triagem dos doze excluiu candidatos por nome e
+    // posição, não por fato observado — então ela não decide o padrão global.
+    // O padrão volta ao medido de 03/set até a Q2-F refazer a comparação com
+    // uma alavanca só e a triagem por fato declarado.
+    private static let padrao = "grok-4.3"
+
+    /// SÓ PARA A SONDA, e por ambiente: comparar dois modelos exige o MESMO
+    /// binário nos dois lados, senão a diferença medida não é do modelo. A
+    /// sonda grava `modeloPadraoGlobal` em cada registro e o modelo de cada
+    /// chamada em `chamadasGrok`, então a medida diz de si mesma o que rodou.
+    /// Em Release não existe.
+    private static let sonda: String? = {
 #if DEBUG
-        // SÓ PARA A SONDA, e por ambiente: comparar dois modelos exige o MESMO
-        // binário nos dois lados, senão a diferença medida não é do modelo.
-        // A sonda grava `modeloConfigurado` em cada registro, então a medida
-        // diz de si mesma qual modelo rodou. Em Release não existe.
-        return ProcessInfo.processInfo.environment["TRACO_AVALIAR_MODELO"] ?? padrao
+        ProcessInfo.processInfo.environment["TRACO_AVALIAR_MODELO"]
 #else
-        return padrao
+        nil
 #endif
     }()
 

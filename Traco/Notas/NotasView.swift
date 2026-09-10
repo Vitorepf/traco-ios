@@ -136,7 +136,11 @@ struct NotasView: View {
                         .rotulo()
                         .lineLimit(2)
                     // teto de altura: a resposta tem até 900 caracteres e a
-                    // lista tem de continuar visível atrás (critique-information-density)
+                    // lista tem de continuar visível atrás (critique-information-density).
+                    // O teto FICA — as 18 corridas de 09-10/09 mediram respostas
+                    // de 203 a 568 grafemas e em AX5 nenhuma delas caberia em
+                    // teto nenhum que deixasse a lista atrás. O que faltava era
+                    // o sinal, e é ele que entra (ADR 2026-09-09w).
                     ScrollView {
                         Text(ultima.resposta)
                             .font(Tema.corpo)
@@ -147,6 +151,7 @@ struct NotasView: View {
                             .accessibilityIdentifier("resposta-sabia-notas")
                     }
                     .frame(maxHeight: 220)
+                    .sinalDeSobra("sobra-resposta-notas")
                     .fixedSize(horizontal: false, vertical: true)
                     if !titulosNaPergunta.isEmpty {
                         Text("Foram junto: " + titulosNaPergunta.prefix(4).joined(separator: " · ")
@@ -182,6 +187,9 @@ struct NotasView: View {
                     // ADR 08p: o teto é teto, não altura — sem isto a pergunta de
                     // uma linha guardava ~100 pt de vão até "a sábia não respondeu."
                     .frame(maxHeight: 120)
+                    // a pergunta longa em AX5 cortava calada pelo mesmo motivo
+                    // que a resposta: irmão do mesmo defeito, no mesmo cartão
+                    .sinalDeSobra("sobra-pergunta-notas")
                     .fixedSize(horizontal: false, vertical: true)
                     LinhaDeEstado(conversaNotas.estado == .recolhida(pergunta)
                                   ? "A resposta foi recolhida porque uma fonte mudou ou deixou de estar acessível."

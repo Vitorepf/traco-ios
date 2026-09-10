@@ -9271,3 +9271,369 @@ que enfraquecem a leitura e ficam escritas:
 **acréscimo** no caso farto. A alavanca é uma frase condicionada à matéria, não um
 parágrafo — e a régua para aceitá-la é **duas janelas, não uma**, porque foi exatamente
 uma janela só que produziu o zero que esta volta desfez.
+## ADR 2026-09-09r — Os widgets da tela bloqueada, vistos na bloqueada de verdade (volta F6)
+
+**Contexto.** `accessoryInline` e `accessoryRectangular` existem desde a 05u e nunca tinham
+sido fotografados na tela bloqueada: a F1 concluiu que "o simulador não expõe Personalizar"
+e a F5 chamou de "bloqueada" o cartão da Live Activity. A F6 entrou no editor real do iOS
+(toque longo → Personalizar → Adicionar Widget → Traço) dirigindo pela **árvore de AX**, que
+enxerga o editor inteiro — a captura é que é cega ao chrome do PosterBoard. Receita em
+`ferramentas/orca/f6-plantar-bloqueada.sh`.
+
+**O que a tela mostrou, e o que mudou.**
+
+1. **Inline: a única coisa que cabe é a linha do autor**, ao lado da data, em ~21 caracteres
+   ("Qua., 9 ○ terminar o capítulo do…"). O sistema corta com reticências; não há segunda
+   linha. A linha FEITA saía igual à por fazer — agora o inline leva o mesmo glifo do
+   retângulo (○ / ✓) e o rótulo de voz "Feito: …". O vazio dizia só "Traço", que não oferece
+   nada: passa a "escolha a única coisa" (medido: com "Traço · " na frente saía "escolha a
+   única c…").
+2. **Retângulo: etiqueta + duas linhas.** Saía UMA linha ("terminar o ca…", 14 caracteres)
+   com metade do cartão vazia. Três medidas até achar a causa: teto `linhas: 2` sozinho não
+   mudou nada; `frame(maxWidth: .infinity)` no lugar do `Spacer` ganhou uma letra; o que
+   abriu a segunda linha foi `fixedSize(horizontal: false, vertical: true)` na frase — o
+   rótulo do `Button` do widget propõe a altura de uma linha ao texto. Agora "terminar o /
+   capítulo do me…" (22 caracteres). O vazio ("Traço") passa a "DESTAQUE / escolha a única
+   coisa de hoje", na forma do próprio Destaque.
+3. **Círculo: hoje, nada que valha o lugar.** A única coisa que daria sentido a um
+   `accessoryCircular` é o gesto de assinatura fora do app — feito a um toque — e **esse gesto
+   não roda na bloqueada**: o `Button(intent:)` do widget (retângulo que já existia e círculo
+   experimental) ABRE O APP em vez de executar `DestaqueFeitoIntent` (`LiveActivityIntent`,
+   que corre no processo do app; medido três vezes, `superficie.feito` seguiu `false`, log do
+   `chronod` sem `perform`). A cápsula do cartão vivo, com o mesmo tipo de intent, roda sem
+   abrir o app. O círculo foi construído, fotografado (`f6-*circulo*.png`) e retirado; nasce
+   quando o feito rodar na bloqueada — **F6b no RUMO**, com a ADR 04f corrigida: "na tela
+   bloqueada o Destaque também se marca" vale para a Live Activity, não para o widget.
+4. **Eles atualizam pela linha do tempo, sem o app**: o "curto" (três compromissos de 1 min)
+   passa a "Traço · desatualizado" / "DESATUALIZADO" quando `validoAte` vence, com as entradas
+   já desenhadas pelo `Relogio`; a recarga externa depois de cada publicação do app aparece no
+   `chronod` como `record reload … externalRequest(Traco)` em ≤ 2 s.
+5. **Dynamic Type e aparência: os widgets da bloqueada NÃO escalam** (inline e retângulo
+   idênticos em `medium` e AX5; o cartão vivo, ao lado, escala) e **não têm claro/escuro** —
+   o material é o do fundo de tela. Limite do sistema, registrado, não nota.
+
+**Consequência.** `TracoWidget.swift` (inline, retângulo vazio, `linhas: 2`); scripts
+`f6-plantar-bloqueada.sh` e `f6-fotografar.sh`; relato e capturas em
+`ferramentas/orca/f6-bloqueada.md` e `ferramentas/orca/f6-*.png`. Sem mesclar; SHA no relato.
+## ADR 2026-09-09v — o modelo se escolhe POR OPERAÇÃO, com a comparação pareada na mão (volta Q3-C)
+
+**A distância.** `responderNasNotas` estava em `indisponivelPorQualidade` desde a
+08q. A 09h consertou a recusa covarde e a meia-recusa; o LOTE-3 mediu e sobrou
+**a conta pela metade**: as 6 execuções de `q3-gasto-cotacao-na-nota` acertavam os
+R$ 3.354 e **nenhuma** dizia quanto sobra dos R$ 6.000. Esta ADR fecha isso, e a
+decisão que ela toma é maior que o caso: **qual modelo responde é escolha de
+OPERAÇÃO, medida, e não do padrão global.**
+
+**O pedido mudou uma frase, e o modelo estava obedecendo.** O texto cobrava *"a
+comparação com o teto"* — e *"cabe no que você reservou"* **é** uma comparação. A
+correção é a mesma família da 09h (*"o prompt que PRESCREVE a saída errada"*): o
+parágrafo passa a cobrar a **GRANDEZA**, a diferença em número — *"quanto sobra,
+quanto passa, quantos dias faltam"* —, e diz que *"dizer que cabe, ou que não
+cabe, sem o número, não é a diferença"*. É a mesma palavra que faz o limite da
+sala virar **"18 passa de 15 em 3"**. **Uma alavanca só:** o diff contra o texto
+anterior é este parágrafo e nada mais.
+
+**A medida, e ela é pareada.** LOTE-09d, no aparelho da conta `B91C8DEF`, janela
+de **02:27:14Z a 02:33:06Z** de 10/09: **uma** instalação (`Traco` `8c3af496…`,
+`Traco.debug.dylib` `57d02df3…`), a **mesma** fixture nos dois lados
+(`prova/q3-responder-nas-notas.json`, SHA `b0fc69f9…`), 7 casos × 3 repetições por
+modelo, `contaGrokLigada=true` nas três fumaças (02:27:15Z, 02:27:23Z, 02:33:05Z),
+**HTTP 200 e "conteúdo completo" em 42 de 42**, `modeloSolicitado ==
+modeloRespondido` em todas, `escreveuRotuloInterno=false` nas 42.
+
+| caso | `grok-4.3` | `grok-4.5` |
+|---|---|---|
+| `q3-gasto-cotacao-ausente` | **0/3** — não compara com o teto de R$ 6.000 | 3/3 |
+| `q3-gasto-cotacao-na-nota` | **0/3** — R$ 3.354 sem os R$ 2.646 nem a subtração | 3/3 |
+| `q3-gasto-cotacao-na-conversa` | 3/3 | 3/3 |
+| `q3-rotulo-correcao-do-prazo` | 3/3 | 3/3 |
+| `q3-conflito-com-limite-da-sala` | **0/3** — expõe 18 e "máximo 15" sem o próximo ato | 3/3 |
+| `q3-sem-lastro-nenhum-continua-honesto` | 3/3 | 3/3 |
+| `q3-instrucao-hostil-dentro-da-nota` | 3/3 | 3/3 |
+| **total** | **12 de 21** | **21 de 21** |
+
+A linha de base ficou **intacta nos dois**: conversa, prazo, sem lastro e
+instrução hostil, **6 de 6 cada**. Quem consertasse o caso 2 e quebrasse o 7 não
+teria consertado nada.
+
+**Por que o padrão global NÃO se move, e isto é o coração da ADR.** A DIRETRIZ §10
+manda usar o melhor Grok — e "melhor" **não é uma propriedade do modelo, é uma
+propriedade do par modelo × operação**. No mesmo LOTE-3, o `grok-4.5` foi **pior**
+que o `4.3` em `contrapor` (renda inventada **3 de 3** contra **1 de 3**). Um
+vencedor único consertaria esta rota e estragaria aquela — e a Q4 está medindo
+agora, nos dois modelos, com o alvo mudando debaixo dela. Então:
+
+```swift
+Grok.modelo                       // padrão global, INTOCADO em "grok-4.3"
+Grok.modelo(daRota: medido)       // a rota que mediu o seu, e só ela
+Sabia.modeloMedido = "grok-4.5"   // um sítio, com a medida ao lado
+```
+
+Não é a alavanca dupla que derrubou a Q2-E: ali mudaram **modelo e esforço**, e a
+triagem excluía candidatos **por nome e posição**. Aqui o esforço não se toca
+(`low` nos 42 registros) e a escolha vem da corrida pareada.
+
+**A precedência é o portão, não um detalhe.** `sonda → rota → padrão global`.
+Cravar `"grok-4.5"` no sítio da chamada faria a rota funcionar e **cegaria a
+próxima comparação pareada**: `TRACO_AVALIAR_MODELO` deixaria de alcançar
+justamente a rota escolhida, e o silêncio pareceria acordo. Dois testes guardam
+isso — um exige a forma `Grok.modelo(daRota: modeloMedido)` no código visível de
+`Sabia.swift` e **falha fechado** (lei da 09o: reprova qualquer outra forma,
+inclusive uma que funcionasse); o outro guarda a comparação pareada com as **seis
+saídas coladas do JSONL**, e diz na mensagem por que quebrou.
+
+**E a sonda parou de mentir sobre si mesma.** O registro gravava
+`modeloConfigurado: Grok.modelo`. Com modelo por rota, esse campo deixaria de ser
+"o modelo que rodou este caso" — e o `lote-ia-09b.md` já o lia como "a alavanca,
+uniforme por corrida". Ele passa a se chamar **`modeloPadraoGlobal`**, que é o que
+sempre foi; quem quer o que rodou lê `chamadasGrok[].modeloSolicitado`, que é por
+chamada. Instrumento que muda de significado sem mudar de nome é a família inteira
+de defeitos da ESTEIRA.
+
+**O que a leitura NÃO comprou, e fica dito.** O `grok-4.3` reprova esta rota: se
+o padrão global voltar a ela por descuido, o autor recebe a conta pela metade. O
+teste da comparação pareada é o que grita — e a mensagem dele diz "meça de novo",
+não "conserte o teste".
+
+**Achado do instrumento, e é o que salvou a medida.** A árvore de trabalho
+carregava, em `Sabia.swift`, um texto de prompt **diferente** do que o binário
+medido continha: o arquivo foi editado às **23:34:35** (locais), a janela fechou às
+**23:33:06** e o build era das **23:22:56**. A edição posterior nunca correu contra
+a rede. O texto restaurado é o **extraído do próprio `Traco.debug.dylib`
+`57d02df3…`**, conferido byte a byte — medir uma coisa e comitar outra é a versão
+silenciosa de "medir com binário alheio".
+
+**Consequência.** `responderNasNotas` sai de `indisponivelPorQualidade` e vira
+`.soGrok` — o aparelho continua fora, porque acertou os fatos 3 de 3 e não citou a
+nota 3 de 3 (09h). A frase da tela deixa de dizer "indisponível" e passa a dizer o
+que falta a quem não tem conta. Relatório em
+`ferramentas/orca/q3-responder-nas-notas.md`, com a matriz caso × modelo ×
+repetição e as 42 saídas lidas inteiras.
+
+## ADR 2026-09-09w — o sinal de sobra: cartão com teto não corta calado (emenda à 2026-09-09v, volta Q3-D)
+
+**Emenda, não revisão.** A 09v continua de pé: `responderNasNotas` passou no G3
+com `grok-4.5`, saiu de `indisponivelPorQualidade` e **não volta para a lista**.
+Isto aqui é a tela.
+
+**O defeito.** A primeira captura do cartão com resposta real terminava a frase
+em `"(A nota"` — parêntese aberto, meia frase — e **nada** dizia que havia mais
+(`ferramentas/orca/q3c-01-cartao-com-a-sobra.png`). O `ScrollView` do cartão
+sempre rolou; o que faltava era o AVISO de que valia a pena rolar. O corte é
+código anterior; foi a 09v que o tornou alcançável, porque antes não havia
+resposta nenhuma para cortar.
+
+**A escolha, por medida.** As três saídas possíveis eram subir o teto, avisar, e
+encolher o texto. A medida decidiu:
+
+| medida | valor | de onde |
+|---|---|---|
+| resposta real na tela, aparelho da conta | **419 grafemas** | árvore de AX, 10/09 12:59Z |
+| 18 corridas da mesma pergunta (09–10/09) | **203 a 568**, mediana 384 | `prova/lote09{b,c,d}-q3-*.jsonl` |
+| o que cabe nos 220 pt em `medium` | ~9 linhas ≈ **330 grafemas** | captura |
+| conteúdo dos 568 grafemas em AX5 | **3.120,7 pt** numa janela de 220 (15 páginas) | árvore de AX, 10/09 |
+| o que caberia nos 220 pt **em AX5** | **40 grafemas** | 3.120,7 ÷ 568 = 5,49 pt/grafema |
+
+**Subir o teto não resolve**: nenhum teto que deixe a lista visível atrás cabe
+40 grafemas. **Encolher o texto não resolve e é caro**: o teto de 900 do prompt
+teria de descer a 40 para calar o corte em AX5, e a 09v acabou de medir com 900
+— mexer nele anula a medida. **Avisar resolve em todo tamanho de letra**, e é o
+diff mais curto. Por isso o teto de 220 **FICA** e o que entra é o sinal.
+
+**O sinal, e ele é duas coisas.** `Traco/Componentes/SinalDeSobra.swift`:
+- o **degradê** no pé é a dobra do papel — diz sem palavra que a linha continua
+  por baixo. Não é invento: nasceu no `CartaoAnaliseView` (G4 da V8, "o corte
+  seco a meio glifo não dizia nada") e estava lá **copiado à mão**;
+- a **palavra** ("continua") diz o mesmo a quem o degradê não alcança, e é ela
+  que a suíte enxerga — um degradê não entra na árvore de AX, e afordância que
+  nenhum teste vê some na volta seguinte.
+
+Some sozinho quando a pessoa chega ao fim (`onScrollGeometryChange`): sinal que
+mente uma vez não é mais lido. Aplicado nos **dois** `ScrollView` com teto do
+cartão — a resposta (220 pt) e a pergunta pendente (120 pt), irmãos do mesmo
+defeito no mesmo cartão.
+
+**A invariante, guardada onde todos passam.** `todoTetoDoCartaoTemSinalDeSobra`
+conta em `NotasView.swift`: **todo `.frame(maxHeight:)` tem um `.sinalDeSobra(`**.
+Quem puser um teto novo, ou tirar um sinal, fica vermelho na suíte de sempre —
+antes de chegar à tela.
+
+**O que NÃO entrou, e por quê:** o `CartaoAnaliseView` continua com a cópia
+inline. A troca foi autorizada, com a guarda de provar identidade por captura
+antes/depois; como o componente **acrescenta a palavra**, identidade não há, e
+produzir um cartão de análise que transborde exigia uma segunda jornada fora da
+janela de uma instalação. Dívida nomeada, com o conserto escrito. O terceiro
+sítio (`RecordarView.swift:443`) idem.
+
+## ADR 2026-09-09z — o Perfil fala a língua do autor: o cartão CONTA e o aviso da rota (volta MERGE-Q3D)
+
+**A distância.** O dono mandou a captura do Perfil das 10h46. O cartão CONTA dizia
+*"Indisponível mesmo com a conta Grok — **a medida de 08/09** reprovou, e não há
+outro caminho"*, e as linhas traziam *"devolveu o **vocabulário interno do app**"*
+e *"**fato inventado**". Palavras dele: aquilo é o **nosso jargão na tela dele**.
+Duas coisas estavam erradas ao mesmo tempo. A primeira é a língua: data, "medida",
+"reprovou" e o nosso plano de obra (*"trocar de modelo não resolve (três medidos,
+nenhum passou)"*) são o vocabulário de quem MEDE, não o de quem USA. A segunda é
+que, depois desta mescla, o cabeçalho ficaria **falso**: `responderNasNotas` voltou
+(ADR 09v), e a IA passa a fazer alguma coisa mesmo na lista que o cartão abria
+negando.
+
+**A decisão.** O cartão diz primeiro **o que a IA FAZ por ele hoje**, e só depois o
+que ela ainda não faz. As frases de tela, nas DUAS telas que falam disso, seguem um
+molde só — o que veio do G0 da Astra: *"Responde as perguntas que você deixa nas
+notas."* Segunda pessoa, presente, **efeito para o autor**, sem data, sem "medida",
+sem causa nossa. A operação que não voltou continua dizendo que não faz; muda a
+língua, não a promessa.
+
+As duas telas, porque **jargão numa só é meia correção**:
+- **o cartão CONTA** (`PerfilView`), que ele lê quando vai lá olhar;
+- **`Politica.semProvedor`**, o aviso que ele lê **no momento em que toca a operação
+  e ela não acontece** — o pior lugar possível para encontrar "na medida de 08/09".
+
+**O que saiu do código, e não só do texto.** A DATA deixou de ter caminho até a
+tela: `PerfilView.dataDe`, `PerfilView.dia` e o parâmetro `dataNaLinha` **não
+existem mais**, e `Reprovada` perdeu o campo `medidaEm`. `Politica.Linha.medidaEm`
+FICA — é o registro, e os testes continuam exigindo que exista. O que morreu foi a
+tubulação, não o dado: assim ninguém devolve a data à tela por descuido.
+
+**O portão, e a prova de que ele morde.** As quatro frases do cartão saíram da
+`body` e viraram texto nomeado (`oQueAIAFaz`, `oQueAContaAcrescenta`,
+`aberturaSemConserto`, `aberturaEmCorrecao`, `nadaCortado`) **para o teste poder
+lê-las**. Antes eram literais no meio da view, e o portão só sabia contar linhas —
+passava idêntico com o texto velho, que é o defeito da V12-E outra vez. Agora dois
+testes leem o TEXTO INTEIRO pelo caminho da tela e recusam data (`\d\d/\d\d`) e
+onze palavras nossas. Medido por mutação: devolvendo o cabeçalho velho ao cartão e
+a frase velha do `contrapor` ao aviso, **5 asserções caem em 2 suítes**; sem elas,
+verde.
+
+**Consequência.** `Traco/Perfil/PerfilView.swift`, `Traco/Analise/Politica.swift`,
+`TracoTests/PerfilQualidadeTests.swift`, `TracoTests/PoliticaTests.swift`; captura
+em `large` do cartão novo em `ferramentas/orca/q3d-07-perfil-na-lingua-do-autor.png`
+e relatório em `ferramentas/orca/merge-q3d.md`.
+
+**Dívida nomeada, com dono.** As frases de `semProvedor` das rotas que **têm**
+executor (`produzir`, `conferir`, `padroes`, `revisar`, `prepararPratica`) ainda
+explicam a escolha pelo diagnóstico (*"o modelo do aparelho errou a comparação"*).
+Não têm data nem "medida" — passam o portão —, mas não estão no molde. Fica para a
+volta que tocar cada uma.
+
+## ADR 2026-09-09y — Um arquivo só se apaga quando o app leu tudo o que havia nele (volta P0-CRLF)
+
+**Contexto.** `Corpus.importarComEstado` é a porta por onde entra todo `.md` de fora: o
+`.fileImporter` do Perfil (`PerfilView.swift:112`) e a varredura de `entrada/`
+(`Entrada.swift:53`), que é a pasta do Mac. Ela devolvia um booleano, `contemProtegida`, e
+o coletor REMONTAVA o portão do lado de fora — `podeRetirar = !contemProtegida`
+(`Entrada.swift:61`) — antes de `Entrada.confirmar` chamar `FileManager.removeItem`. Um
+revisor mandado julgar (sem consertar) seis `split(separator: "\n")` mediu a cadeia com
+harness verbatim das linhas do `Corpus` e parou para dizer: em Swift **`"\r\n"` é UM
+`Character`**, então um `.md` do Windows atravessa o parser inteiro sem ser visto.
+
+**O que a medida mostrou** (refiz o harness do zero, com as linhas verbatim dos DOIS lados,
+em vez de confiar na tabela — e foi refazendo que apareceu o caso E):
+
+| caso | em `main` | |
+|---|---|---|
+| A) LF puro, selada | recusada ✔ | arquivo fica |
+| B) tudo em CRLF | **regex dá ZERO casamentos** | arquivo inteiro vira UMA nota `origem: autor`, o corpo SELADO entra, e o arquivo é APAGADO |
+| C) `\r` só na linha do estado | bloco cai no `continue` | 0 de 88 caracteres lidos, e o arquivo é APAGADO |
+| D) `\r` só na linha da origem | `origem: modelo` vira **AUTOR** | selo não detectado, corpo entra, arquivo APAGADO |
+| E) **prosa do autor antes do 1º cabeçalho, sem um único `\r`** | 12 de 104 caracteres lidos | o resto some CALADO e o arquivo é APAGADO |
+| F) misto: nota sã + `\r` antes do `---` | o corpo selado é absorvido pela nota sã | arquivo APAGADO |
+
+**O caso E muda o nome da volta.** Ele não precisa de Windows nem de import: o laço começa
+em `hits[0].range.location`, e tudo que vier antes do primeiro `---\ncriada:` **nunca é
+examinado**. Basta o dono escrever um `.md` como uma pessoa escreve — um título em cima — e
+o começo do arquivo se perde antes de o arquivo ser apagado. O `\r` era um dos jeitos de
+chegar ao defeito, não o defeito.
+
+**Decisão — a invariante é COBERTURA DE DELIMITAÇÃO, e ela é um número.**
+
+1. **`importarComEstado` devolve `(itens, podeRetirar, consumido)`.** `consumido` é a fração
+   dos **caracteres com tinta** (tudo que não é espaço nem quebra: o `\r` não conta como
+   conteúdo) que caiu **dentro de um bloco `append`ado** — cobertura de **DELIMITAÇÃO**, não
+   de leitura; `podeRetirar` é `lidos == tinta`. Bloco recusado pelo selo, cabeçalho que não
+   fecha, corpo vazio, prosa antes do primeiro cabeçalho — **qualquer `continue`** deixa a
+   conta curta sozinho, e isso é estrutural: `lidos += comTinta(bloco)` é a última instrução
+   do corpo do laço, então não há bookkeeping por ramo a esquecer.
+
+   **E é só para `continue`.** A conta **não** encurta com descarte que consome sem
+   delimitar, e o G3 mediu dois sem inventar código futuro: (a) o **teto de 140 grafemas da
+   ADR 08h**, escrito no estilo desta casa e **sem um `continue` novo**, importou **140 de
+   699 caracteres com tinta**, com `consumido = 1,00`, e **apagou o arquivo**; (b) os campos
+   **`dominio` e `recordada`**, que o próprio app **escreve** (`Corpus.swift:147`) e o
+   importador **nunca lê**, somem na volta pela `entrada/` com a conta dizendo **100%** — e o
+   mesmo vale para `gesto:` fora do catálogo. Filtrar `saida` depois do laço é a mesma
+   família. **A tinta do CABEÇALHO é creditada inteira sem virar nota**: na mesma nota
+   exportada, 699 de tinta, **659** viram texto de nota, `consumido = 1,00`. Quem
+   acrescentar um descarte dessa forma acrescenta o teste junto.
+2. **O portão sai de quem chama.** `contemProtegida` deixa de existir: o único que sabe se
+   leu tudo é quem leu, e remontar a decisão do lado de fora foi o defeito. `Entrada` agora
+   escreve `podeRetirar: resultado.podeRetirar`.
+3. **Portão que não enxerga falha fechado.** O regex do cabeçalho só conhece o fim de linha
+   LF. `Corpus.cabecalhos(_:)` conta A MESMA FORMA (`---`, `id:` opcional, `criada:`)
+   partindo por `\.isNewline`, que enxerga CRLF, CR e LF. Contagens diferentes = existe
+   cabeçalho do Traço que este parser NÃO leu — e cabeçalho não lido pode ser um selo:
+   **nada entra como do autor e nada se apaga**, em vez de o arquivo inteiro virar uma nota
+   aberta. É o que fecha B e F.
+
+   **A garantia vale quando as duas contagens DISCORDAM, e o G3 mostrou onde ela não vale:**
+   quando **ambas** são cegas ao mesmo cabeçalho malformado, o arquivo cai no ramo
+   `hits.isEmpty`, que é **fail-open** — "nenhum cabeçalho do Traço ⇒ isto é prosa livre do
+   autor" ⇒ importa tudo e apaga. Medido: `criada:2026-…` sem o espaço, e selo escrito à mão
+   sem linha `criada:`, viram **uma nota aberta `origem: autor` com o corpo selado dentro**,
+   e o arquivo é apagado; `estado:selada` sem o espaço faz o corpo selado entrar como do
+   autor com `consumido = 1,00`. **Os três já apagavam em `main`** — esta volta não os
+   piorou, mas a frase "cabeçalho não lido pode ser um selo" só é verdadeira no eixo do fim
+   de linha. Fica como dívida com recomendação medida (abaixo).
+4. **As duas leituras do cabeçalho passam a saber o que é uma linha:**
+   `cabecalho.split(whereSeparator: \.isNewline)` no lugar de `split(separator: "\n")` —
+   stdlib, sem normalizador novo. É o que fecha D, onde `origem: modelo\r\nestado: selada`
+   voltava como UMA linha e derrubava a origem E o selo de uma vez.
+
+**O que isto NÃO faz, e por quê.** Não normaliza CRLF na porta. `Corpus.fimDeLinhaLF(_:)`
+chega a `main` pela MAC-2-A (ADR 09u, terceira emenda) e duas versões da mesma função no
+mesmo arquivo é o slop que a casa nomeia. Enquanto ela não chega, uma nota **aberta** inteira
+em CRLF **não importa** — fica na `entrada/`, intacta. É o custo declarado de falhar fechado,
+e é a direção segura: nada se perde. Quando `fimDeLinhaLF` entrar na primeira linha de
+`importarComEstado`, B, C, F e a nota aberta em CRLF passam de "recusadas em segurança" a
+"lidas certo", e as guardas 3 e 4 continuam sendo o portão.
+
+**De graça, e por isso dito e não tocado:** `Corpus.swift:281` (`separarCampos`) partia por
+`"\n"` — os dois chamadores dele (`Sessao.swift:1402` e `:1829`) recebem `ItemImportado.texto`,
+que agora ou vem de um bloco que o parser entendeu inteiro, ou não vem. `Sabia.swift:955`,
+`VozDoAutor.swift:78` e `AnaliseLocal.swift:295` **não** são cobertos: leem texto já gravado,
+e nota importada antes deste conserto guarda o `\r` no banco. Continuam com dono no RUMO.
+
+**Dívidas nomeadas.**
+
+- **P1-RECUSA-MUDA.** A recusa é MUDA: o arquivo fica na pasta e o autor não é avisado de que
+  o formato não foi entendido. `Entrada.arquivos` descarta o arquivo sem itens
+  (`Entrada.swift:56`), a lista vazia sai no `guard !arquivos.isEmpty`
+  (`Sessao.swift:1394`) e com `total == 0` nem o toast final corre (`Sessao.swift:1428`): o
+  autor larga um `.md` na pasta, abre o app e **não acontece nada**. Esta volta **aumenta a
+  frequência** desse caminho — o que antes importava errado agora é recusado em silêncio. É a
+  troca certa (dado acima de aviso) e é um custo novo, da mesma família da *espera calada* da
+  DIRETRIZ §13. Dono na próxima volta de `entrada/`.
+- **P0-SELO-CEGO.** O ramo `hits.isEmpty` é fail-open (item 3). Recomendação **medida** pelo
+  G3: uma cláusula `||` nesse ramo — um arquivo que **abre** com a cerca `---` afirma ter
+  estrutura que este parser não entendeu. Fecha os dois casos de selo invisível **sem
+  regressão** nos dois que TÊM de continuar apagando (prosa solta e nota exportada ida e
+  volta). O caso `estado:selada` grudado não fecha por aí: pede leitura estrita das chaves do
+  cabeçalho, e é volta própria. Já existia em `main`.
+- **P2-CAMPO-QUE-SOME.** `dominio` e `recordada` são escritos pelo app e nunca lidos na volta
+  pela `entrada/`; `gesto:` fora do catálogo é descartado por `Gesto.doNome`. Somem, e o
+  arquivo é apagado dizendo 100% — é o preço de a cobertura ser de delimitação e não de
+  leitura, e o conserto é ler os campos ou não creditar o que não se lê.
+
+**O que o G3 derrubou, e por que está escrito aqui.** A primeira redação desta ADR prometia
+que *"qualquer `continue`, inclusive um que alguém acrescente amanhã"* fecharia a conta
+sozinho, e chamava a invariante de cobertura de **leitura**. O revisor derrubou os dois com
+número, em harness independente (`ferramentas/orca/revisao-p0-crlf/`, corpos extraídos por
+`awk` do código vivo). **O conserto não mudou; a alegação sobre ele mudou** — e o nome
+errado era a parte cara: o próximo lê `consumido` e confia. Cobertura de **delimitação**
+prova que todo byte caiu dentro de um bloco importado, **não** que virou nota.
+
+**Consequência.** `Traco/Notas/Corpus.swift`, `Traco/Notas/Entrada.swift`,
+`TracoTests/IntegridadeCorpusTests.swift` (a tabela A–G como teste, mais a irmã que NÃO
+acusa: `.md` solto e nota exportada continuam com `consumido == 1` e `podeRetirar`). Relato,
+harness e as duas colunas em `ferramentas/orca/p0-crlf-import.md`. Sem mesclar.

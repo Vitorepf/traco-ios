@@ -1,0 +1,20 @@
+# Suíte — P0-CRLF, 10/09/2026, 34CC3F94, sob com-trava.sh (trava tomada 10h49m55, PID 98568)
+# derivedDataPath privado da volta; build LIMPO (árvore nova, 44 CompileSwiftSources)
+
+◇ Test arquivoSoSaiDaEntradaQuandoOAppLeuTudo() started.
+✔ Test arquivoSoSaiDaEntradaQuandoOAppLeuTudo() passed after 0.001 seconds.
+◇ Test oQueOAppLeuInteiroContinuaPodendoSairDaEntrada() started.
+✔ Test oQueOAppLeuInteiroContinuaPodendoSairDaEntrada() passed after 0.001 seconds.
+◇ Suite IntegridadeCorpusTests started.
+✔ Suite IntegridadeCorpusTests passed after 0.021 seconds.
+✔ Test run with 1021 tests in 163 suites passed after 145.732 seconds.
+** TEST SUCCEEDED **
+
+# O único warning do build (herdado, dívida de outra volta):
+/Users/vitorepf/orca/workspaces/traco-ios/p0-crlf/Traco/Notas/NotasView.swift:806:30: warning: '+' was deprecated in iOS 26.0: Use string interpolation on `Text` instead: `Text("Hello \(name)")`
+
+# PROVA DE ÁRVORE PRÓPRIA, mais forte que um nome exclusivo:
+# todo nome de teste que o log executou existe na MINHA TracoTests/.
+#   comm -23 <(nomes do log) <(nomes da árvore)
+executados distintos: 901
+nomes executados que NÃO existem na minha árvore: 0

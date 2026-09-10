@@ -2659,3 +2659,819 @@ mescladas por uma passada de instrumento, em vez de duas.
 **Estado:** MERGE-Q34 (mescla + F6) e MAC-2-A em edição, Q3-C e Q4-C escritas na gaveta
 esperando o push, e **quatro commits meus segurados** — não empurro até `origin/main`
 receber o dele, porque foi o que combinei.
+
+## 09/09, 23h09 — a mescla pousou, a trilha do Mac entregou, e quatro voltas saem juntas
+
+**`origin/main` = `7d5e482`.** A **MERGE-Q34** entrou às ~23h: as quatro pontas por
+`--no-ff` sem reescrever nada, **suíte 1019 verde**, e as três linhas do Perfil vistas
+na tela em `medium` **e em XXXL, sem clipe**. **Nenhuma regra de `Politica` mudou** — as
+três seguem `indisponivelPorQualidade` —, mas o motivo, a data (10/09) e o conserto
+passaram a dizer o que o LOTE-3 leu, junto com **as três frases de `semProvedor` que
+nomeavam o mesmo defeito morto**. E o teste dos dois grupos, que **passava idêntico com
+o texto velho**, agora lê a linha pelo caminho real da tela — com a prova do vermelho
+colada. Era a guarda inocente outra vez, e desta vez foi pega.
+
+**MAC-2-A entregou.** O app exporta `trabalhos/<id>.md` **pelo mesmo mecanismo do
+corpus** (`PastaEspelho.comAcesso` + `Corpus.escreverSeMudou`), **sem nenhum arquivo
+Swift de produção novo**; quem decide o que sai é `AcessoTrabalho`, e **o selo TIRA o
+`.md` no ato** por `Sessao.calarAcoesDerivadas`, o ponto por onde as três rotas do selo
+já passavam. O servidor foi de 12 para 14 ferramentas com autoteste. E houve o
+exercício de verdade às **22h57**: o Grok Bot chamou `--chamar traco_trabalhos` e
+`--chamar traco_trabalho` por execução local, com vigia de `ps` (ppid 94992 =
+`local-exec-daemon`), e leu o trabalho inteiro com a origem da versão preservada.
+
+## Duas colisões de letra em uma hora, as duas minhas
+
+A `09s` e a `09t` colidiram. A causa é a mesma nas duas: **eu confirmei letra por
+mensagem antes de escrevê-la no `LETRAS-ADR.md`**. Nos dois casos venceu quem já tinha
+escrito a ADR, e mudou quem era mais barato mover — a MERGE-Q34 renumerou a dela, a
+MAC-2-A vai renumerar a dela para `09u`. **A regra sobe de tom: reservar é ESCREVER
+naquele arquivo; dizer "é sua" por mensagem não reserva nada.**
+
+E o worker da mescla achou uma coisa que ninguém tinha notado: **a `09p` está no
+registro como da MAC-0-E e não existe em arquivo nenhum de `main`**. Ou a ADR não
+nasceu, ou nasceu com outro nome. Fica como está, e **ninguém a reaproveita** até a
+MAC-0-E dizer qual das duas é.
+
+## Quatro despachadas de uma vez, e por quê
+
+- **Q3-C** (`ctx_c9b2f3b23199`) e **Q4-C** (`ctx_1b89d575eeb3`) — a prioridade do dono.
+  Cada uma com **uma alavanca só** e os defeitos nomeados com número.
+- **G5 F6** (`ctx_6c92c5162c58`) — a volta aprovada não fica parada em branch.
+- **G3 MAC-2-A** (`ctx_d2270e54886b`) — a trilha fora do app segue o seu portão.
+
+Duas em edição (Q3-C, Q4-C), um G5 e um G3: é o teto, com a trilha do Mac viva. As
+quatro dividem o `34CC3F94` pela trava e **só as duas de IA tocam o `B91C8DEF`**, uma
+instalação cada, com `ContaGrok` conferido antes e depois.
+
+## 09/09, 23h25 — pausa e retomada (uso 15%); A CAÇA-FALA ESTAVA CEGA
+
+**Achado grave, e é do laço, não de worker.** A retomada acusou **`FALA: 1`** — o
+`sirittsd` do Mac, vivo desde **23h20:04**, `ppid 1`. **Matei em cerca de dois
+minutos.** Fui procurar o culpado e **não achei**: nenhum dos quatro workers em curso
+pediu `siri`, botão, `say` ou VoiceOver; o dono esteve ativo na máquina uns cinco
+minutos antes. **Digo que não sei quem foi, em vez de nomear alguém sem prova.**
+
+**Mas a caçada revelou coisa pior que o processo: a MINHA CAÇA ESTAVA CEGA.** Ela lia
+`ps -Ao pid=,comm=` e pegava `$2` como caminho — e **o caminho do runtime do simulador
+tem espaço** (`iOS 26.5.simruntime`). Resultado: **quatro processos de síntese vivos
+dentro dos dois simuladores ligados desde 20h27 e 21h18** (`SiriAUSP`,
+`MacinTalkAUSP`) **nunca apareceram**, e o laço reportou `FALA: 0` a cada volta, hora
+após hora, com convicção. **O vigia que eu repito em toda retomada estava mudo, não
+limpo.**
+
+Reescrevi a caça (`cacar-fala.sh`, 2ª versão) sem depender de campo, e com **dois
+níveis, porque não são a mesma coisa**: **FALANTE** é o daemon do Mac, o que sai pelo
+alto-falante do dono — alarme, e se mata; **ESTOPIM** é o plugin de síntese carregado
+dentro de um simulador ligado — não é fala, é a máquina que falaria; reporta-se com o
+aparelho e **não se mata às cegas**, porque derrubar o áudio de um simulador tira o
+chão de uma suíte em curso. Estado agora: **FALA 0, estopim 4** — e agora isso é uma
+frase honesta, não uma cegueira.
+
+**Lei nova na ESTEIRA:** *vigia que reporta zero tem de provar que enxerga.* Quem
+escreve uma caça — de fala, de warning, de vazamento — **planta o alvo uma vez e
+confere que a caça o acha**. Caça que nunca acusou nada não está provada: está muda.
+
+## E o resto andou bem
+
+**F6 mesclada** — `origin/main` = `c940b06`, com a F6b como dívida nomeada. **Os quatro
+workers vivos**: Q3-C e Q4-C em `implementing`/`reviewing`, o G5 da F6 fechando com
+"suíte limpa na árvore final", e o G3 da MAC-2-A com o batimento mais bonito da noite:
+**"achei 4ª rota do selo por leitura, vou provar com sonda"** — era exatamente o que o
+despacho pedia dele, procurar a rota que o autor não viu.
+
+## 10/09, 07h30 — o Mac reiniciou duas vezes; a equipe morreu às 23h38; ordem do dono: o mais perto de 10
+
+**Não foi worker.** macOS 26.6.2 instalou às 23h38 de 09/09 e reiniciou (23h45); as
+Command Line Tools 27.0 instalaram às 07h03 e reiniciaram de novo (07h07). O Orca fechou
+com os quatro workers (Q3-C, Q4-C, G5 F6, G3 MAC-2-A). `main` = `origin/main` = `52fc5b6`.
+**A janela da Q3-C tinha acabado às 23h33** — cinco minutos antes do desligamento — e a
+prova está no worktree, sem commit e sem leitura. O vigia da fala morreu no reinício;
+relancei (`cala-a-fala.sh`, 12 h) e derrubei o `sirittsd` do Mac que subiu no boot.
+O `teste 3` (`34CC3F94`) voltou sozinho a `Booted` às 07h17 — o CoreSimulator restaura o
+que estava ligado no desligamento; o `B91C8DEF` não voltou. Xcode segue 26.6 (17F113).
+
+**Ordem do dono às 07h30: "o foco de hoje é atingir o mais perto da nota 10/10 possível."**
+Escrita como DIRETRIZ §11 e META DO DIA no RUMO. Nota ao acordar: **7**. Subo o Orca e o
+orquestrador pelo `equipe.sh` com esta ordem; primeira tarefa: **ler a Q3-C que já existe**.
+
+## 10/09, 07h50 — retomada depois de dois reinícios; três voltas no ar e um vigia que não matava
+
+**Retomo com o Orca reatado** (`run-use --id run_ba86df7ee906` — o terminal tinha sido
+descercado no reinício) e as três voltas da noite **retomadas nos worktrees que já
+existem**, sem recomeçar nada. Ordem do dono das 07h30: **"o mais perto da nota 10/10
+possível"**, nota ao acordar **7**.
+
+**Despachei nesta ordem, que é a da DIRETRIZ §11:**
+
+1. **Q3-C-LER** (`ctx_4eb22f672283`, worktree `q3-c`) — **a primeira tarefa do dia, por
+   ordem expressa.** A corrida do `responderNasNotas` **já existe** e custou uma janela
+   do aparelho da conta: 7 casos × 3 repetições em `grok-4.3` e `grok-4.5`, três fumaças
+   da conta, janela de 23h27:13 a ~23h33. **Ato 0 do despacho: comitar a prova CRUA,
+   intocada, antes de qualquer análise** — ela sobreviveu a dois reinícios por sorte, sem
+   commit. Depois ler as 42 saídas inteiras e pontuar por modelo. Se um passar,
+   `responderNasNotas` volta hoje com captura no `B91C8DEF` e **a hora**.
+2. **Q4-C** (`ctx_2b25da78a052`) — mesmo Ato 0: comitar o que sobreviveu
+   (`Sabia`, `AvaliacaoIA`, a Lente, dois testes, `lote-ia-09e-*` que nunca correu), e só
+   então medir. A janela do aparelho corre **depois** da leitura da Q3-C, e a trava põe
+   na fila quem chegar segundo.
+3. **G3 MAC-2-A** (`ctx_b8b71210c065`) — o revisor morreu com
+   `EspelhoTrabalhoTests` alterado e o batimento mais valioso da noite: *"achei 4ª rota
+   do selo por leitura, vou provar com sonda"*. O despacho manda ler esse diff **antes de
+   tudo**: é a pista de uma rota do selo que o autor não viu.
+
+**O padrão que os três despachos compartilham, e é a lição da madrugada:** *o primeiro
+comando útil do dia é comitar o que sobreviveu.* Três worktrees guardavam trabalho sem
+commit — inclusive uma medida que gastou o aparelho da conta — e dois reinícios já
+tinham passado por cima.
+
+## E o vigia da fala do dono NÃO estava matando
+
+Ele relançou `cala-a-fala.sh` às 07h07 e me disse "FALA 0 agora". Às **07h36 a minha
+caça acusou FALA 1**: `sirittsd`, **pid 8646, vivo desde 07:17:29** — ou seja,
+**sobreviveu 19 minutos e cerca de 380 tentativas do vigia dele**. Matei com `kill -9` e
+caiu na hora.
+
+**A causa provável está numa letra:** o vigia dele usa `pkill -x`, que manda **SIGTERM**,
+e o `sirittsd` **ignora SIGTERM**; o meu `kill -9` (SIGKILL) derrubou de primeira. Subi
+um segundo vigia com `pkill -9 -x`, de 3 em 3 segundos por 12 h, e reescrevi a caça —
+que também tinha se perdido no reinício — com os dois níveis de ontem (**falante** é o
+daemon do Mac, alarme e se mata; **estopim** é o plugin dentro de um simulador ligado,
+que se reporta e não se mata às cegas). Estado agora: **FALA 0, estopim 0**.
+
+É a terceira vez em doze horas que um vigia meu ou nosso **agia sem funcionar**: a caça
+cega pelo espaço no caminho, o estado lido no efeito colateral em vez da trava, e agora
+um matador educado com um daemon que não escuta pedidos. **A lei já está escrita e vale
+para as três: vigia que reporta zero tem de provar que enxerga — e matador que não
+confere o corpo não matou.**
+
+## 10/09, 08h00 — pausa e retomada (uso 8%); três no ar, e a manhã já decidiu duas coisas grandes
+
+Fala **0**. Inbox vazio. **Três em edição, que é o teto:** Q3-C fechando o retorno do
+`responderNasNotas`, Q4-C na janela do aparelho da conta, MAC-2-A-B com o conserto do
+selo. Nada a reabrir.
+
+### O `responderNasNotas` volta hoje, e o modelo passa a se escolher POR OPERAÇÃO
+
+O Q3-C-LER leu as **42 saídas inteiras** da corrida que sobreviveu ao reinício e o
+veredito é limpo: **`grok-4.5` passa 21/21** pela letra da fixture; **`grok-4.3` passa
+12/21** — reprova a sobra **0/3** e o conflito **0/3**. Linha de base intacta nos dois
+modelos, `escreveuRotuloInterno=false` em 42/42, HTTP 200 em 42/42.
+
+**E o worker achou uma contradição no MEU spec, e estava certo em parar:** eu mandei
+"volta hoje" e "não mude `Grok.modelo`" — e em produção o modelo é o `4.3`, o que
+reprova. Tirar a operação da lista hoje entregaria ao autor exatamente o modelo que
+falha. Ele ofereceu três saídas; **nenhuma era a resposta, e a quarta não precisa
+escolher:** `responderNasNotas` volta **com `grok-4.5` só para ela**, e o padrão global
+segue `grok-4.3`.
+
+A encanação já existia — `Grok.responder` tem `modelo:` na assinatura e o carrega até o
+pedido —, então é o **chamador** que passa o modelo medido. **Uma alavanca, um sítio.**
+Não é a alavanca dupla que derrubou a Q2-E: o esforço não se toca, e a escolha vem da
+comparação pareada que a §10 encomendou. **E há contraprova de que o global seria
+errado:** no LOTE-3 o `4.5` foi **pior** no `contrapor` (renda inventada 3/3 contra 1/3).
+Trocar o padrão consertaria a Q3 e estragaria a Q4, que está medindo agora.
+
+Impus uma restrição dura junto, que é o que impede isto de virar cegueira: **a sonda tem
+de continuar podendo medir outro modelo nessa rota** — o env vence primeiro, depois a
+escolha da operação, depois o padrão global. Sem isso, a próxima comparação pareada morre
+em silêncio. Letra **09v**, reservada no mesmo ato: é decisão nova, não emenda.
+
+### O G3 da MAC-2-A reprovou por PRIVACIDADE, e achou com sonda
+
+**Privacidade e autoria: 4.** `Sessao.calarAcoesDerivadas` tem **três chamadores**, e
+`trancarExpressivasVencidas` **sela de verdade sem ser um deles**; como
+`espelharTrabalhos` só escreve, o `.md` do trabalho de uma nota **selada** ficaria
+legível pelo bot no Mac **para sempre**. A sonda diz numa linha:
+`SONDA-3 expressiva vencida: trancada=true permitido=false existe=true`. **Nada foi
+mesclado.**
+
+Duas coisas que esse revisor fez muito bem: recuperou as quatro sondas que o reinício
+matou e as comitou — e **uma delas passa de propósito**, o controle que prova que a sonda
+enxerga. E separou com rigor o que está certo e não se mexe. **Leis novas na ESTEIRA:**
+*a guarda vai onde todos passam, não em cada um que passa* (o conserto certo é MENOR que
+o errado: a invariante no laço dispensa o `remover` de todos os chamadores); *toda sonda
+que acusa precisa de uma irmã que não acusa*; e `screencapture -l<windowid>` **fotografa
+janela sem levantá-la**, então "não dá para fotografar" precisa de mais prova.
+
+Mandei o conserto **procurar os irmãos**: se o espelho das NOTAS tiver o mesmo buraco,
+isso já está em `main`, no aparelho do dono, e vira **P0** — nesse caso ele para e diz.
+
+### Três orquestradores, e a cadeira que se decorava
+
+O Orca restaurou uma sessão velha no reinício e ela fez `run-use`, cortando o meu inbox
+em silêncio. Ela perguntou antes de agir, não tocou em `main` e saiu sem deixar órfão —
+melhor do que eu me portei duas vezes ontem. **A causa raiz estava no `vigia.sh`:** o
+handle do orquestrador era **decorado**, e tinha sido repontado para o terminal dela. O
+launchd cutucaria de dez em dez minutos uma sessão que ia morrer, e o laço pararia de ser
+reacendido sem ninguém notar. **Agora o vigia PERGUNTA a cadeira** (`run-show --id`), com
+reserva, e o `sed` que reescrevia o próprio arquivo sumiu. Handle decorado é irmão da
+caça cega: funciona até apontar para o lugar errado, e aí falha calado.
+
+E a caça-fala **saiu do scratchpad e entrou no repositório** — era por isso que ela se
+perdia a cada reinício. Com o grau de prova escrito dentro dela: **estopim com alvo
+plantado; falante só com mecanismo conferido e duas capturas em campo**, porque cópia de
+binário assinado o macOS mata (rc=137). **Eu tinha escrito "provada com alvo plantado" no
+commit anterior, sem qualificar — verdade para uma perna, falsa para a outra.** Corrigido
+no arquivo, que é onde a próxima pessoa procura.
+
+## 10/09, 08h20min37s — `responderNasNotas` VOLTOU. A primeira das sete.
+
+**A hora, que o dono pediu por escrito: 08h20min37s de 10/09/2026** (11:20:37Z). É a
+**primeira das sete operações** a sair de `indisponivelPorQualidade` desde que a lista
+foi criada.
+
+**E o cartão real, na tela do `B91C8DEF`, diz:**
+
+> *"520 × 6,45 = R$ 3.354 … Você reservou R$ 6.000 para a viagem; **sobram R$ 2.646** em
+> relação a esse teto"*
+
+Essa segunda frase é exatamente a que faltava **6 de 6** no LOTE-3, nos dois modelos. O
+autor não precisa mais fazer a subtração que o contrato mandava a operação terminar.
+
+**A medida:** `grok-4.5` passa **21/21** pela letra da fixture; `grok-4.3` passa **12/21**
+— reprova a sobra do teto 0/3, a comparação com o teto 0/3 e o próximo ato 0/3 (no
+conflito, r3 ainda **inventa duas oficinas** e manda esperar 12). Linha de base intacta
+nos dois, `escreveuRotuloInterno=false` e HTTP 200 em **42/42**. Suíte **1021 em 163
+suítes, 0 falhas**, build limpo com o warning herdado. Conta conferida ligada **três
+vezes** na janela, com 12 modelos nas três.
+
+**O modelo passa a se escolher POR OPERAÇÃO** (ADR 09v): `.soGrok` com `grok-4.5` só para
+esta rota, padrão global intocado em `grok-4.3`, precedência **sonda → rota → global** com
+portão que falha fechado. E `modeloConfigurado` virou `modeloPadraoGlobal`, porque com
+modelo por rota **o campo tinha deixado de significar o que dizia** — renomear o campo foi
+mais honesto que mantê-lo mentindo.
+
+### O achado que quase invalidou tudo, e foi o próprio autor que o pegou
+
+**A árvore carregava um prompt EDITADO às 23:34:35 — depois de a janela fechar às
+23:33:06.** O texto no disco **não era** o texto medido. Ele extraiu o prompt **do binário
+medido** (`Traco.debug.dylib 57d02df3`), conferiu byte a byte, e comitou esse. Sem isso, a
+medida seria de um prompt e a entrega de outro, **com o mesmo SHA de árvore e ninguém
+percebendo**. Mandei o G3 refazer essa conferência pelo binário, não pelo relato: é a
+alegação mais forte e mais frágil da volta.
+
+### E o mistério do binário estranho era meu erro
+
+O autor encontrou o `B91C8DEF` **ligado** (o spec dizia desligado) e com o binário
+`264215af`, não o do LOTE-09d. Não era terceiro: era a **Q4-C**, que instalou às
+10:55:32Z. Eu despachei as duas voltas no mesmo aparelho da conta. A lei já está escrita —
+*a trava serializa comando, não o ESTADO do aparelho* — e o G3 sai com a ordem de **não
+tocar** no aparelho: a captura já existe, ele a lê.
+
+**Despachei o G3** (`ctx_3ab06afd2c3b`). Se aprovar, a operação fica; se reprovar, volta
+para a lista, **e isso é resultado**. O revisor não a devolveu, então é ele quem diz.
+
+## 10/09, 08h35 — pausa e retomada (uso 11%); a trava tinha virado ARQUIVO
+
+Fala **0**. Três no ar: **G3 da Q3-C** (`ctx_3ab06afd2c3b`) lendo a operação que voltou,
+**Q4-C** fechando com a suíte final, **MAC-2-A-B** no conserto do selo. Teto cheio, nada
+a reabrir.
+
+**O achado desta volta veio de um worker ESPERANDO A VEZ, não do vigia.** Às 08h25 o
+`/tmp/traco-instrumento.lock` deixou de ser diretório e virou **arquivo comum de 0 byte**.
+A primitiva do `com-trava.sh` é `mkdir` — atômica **porque** cria diretório —, então
+passou a falhar para sempre, e dois workers giraram sem poder entrar. Pior: sem
+`$L/dono` legível, **a guarda de PID cega junto**, e só a de 30 minutos salvaria. Meia
+hora de instrumento parado com três voltas vivas.
+
+**Consertei em duas linhas, com defeito plantado nos dois sentidos:** planto um arquivo no
+lugar da trava e o `com-trava.sh` acusa *"a trava virou ARQUIVO; removendo para
+destravar"* e entra; sem o defeito, entra igual. **Lei nova:** *toda guarda que depende da
+FORMA de uma coisa confere a forma antes de confiar nela* — `mkdir` só é atômico sobre
+diretório, e quando a forma quebra a guarda não avisa: ela falha aberta ou trava fechada,
+e as duas são piores que o defeito.
+
+**E o portão do Perfil mordeu o autor da Q4-C**, que é para o que ele existe: o motivo que
+ela escreveu tinha 91 caracteres e não passou. Portão que só reprova estranho não é
+portão.
+
+Estado do dia até aqui: **`responderNasNotas` de volta às 08h20min37s**, com a sobra na
+tela; `instigar` e `contrapor` seguem cortadas com motivo novo e o conserto do defeito
+oposto **escrito e não aplicado**, de propósito, para o binário comitado não divergir do
+medido.
+
+## 10/09, 08h55 — pausa e retomada (uso 17%); a primeira operação PASSOU no G3, e a tela dela está cortada
+
+Fala **0**. Três G3 fecharam de uma vez e o dia mudou de fase.
+
+### `responderNasNotas` FICA fora da lista — o G3 aprovou
+
+O revisor releu as **42 saídas inteiras** e chegou ao **mesmo placar, caso a caso**:
+`grok-4.5` **21/21**, `grok-4.3` **12/21**, com as nove reprovações do 4.3 exatamente nos
+três casos nomeados. As cinco dimensões de qualidade em **9 ou 10**.
+
+**E ele provou rodando, não lendo** — que é o que eu tinha exigido: com
+`TEST_RUNNER_TRACO_AVALIAR_MODELO=grok-4.6`, **tanto `Grok.modelo` quanto
+`Grok.modelo(daRota:)` viram 4.6**, ou seja, **a sonda continua medindo esta rota** (a
+restrição dura que eu impus, honrada); cravar o modelo na string deixa o portão **vermelho
+em duas asserções** (falha fechado); o `PoliticaTests` **cai** ao devolver a operação à
+lista e **também** ao devolver só a frase da tela; **nenhuma das outras sete rotas se
+moveu**.
+
+### Mas a volta não fecha com 9 em tudo: **Jornada real = 8**
+
+**A captura que o dono pediu para ver mostra a resposta CORTADA em `"(A nota"`** —
+parêntese aberto, frase pela metade, **sem afordância** de que há mais
+(`NotasView.swift:139-149`, `ScrollView` com `maxHeight 220` contra um prompt de 900
+caracteres). O corte é código anterior; **foi esta volta que o tornou alcançável**, porque
+antes ninguém via resposta nenhuma. E o relato transcreveu a frase **sem dizer que ela
+aparecia cortada** — o relato afirmou mais do que a prova tinha, de novo.
+
+**Despachei a Q3-D** (`ctx_16a7c409e761`). A operação **não volta para a lista**: isto é
+tela, não motor.
+
+### O re-G3 da MAC-2-A confirmou a tese e reprovou a metade seguinte
+
+**A tese do conserto está certa**, e o revisor a provou do jeito que eu pedi: **inventou
+uma QUINTA rota** do selo que não chama nada do funil, e o arquivo sumiu assim mesmo. As
+quatro sondas do G3, **intactas byte a byte**. E o **P0 está respondido em definitivo:
+não há P0 em `main`** — `Corpus.escrever` **recomputa o conjunto e enumera o diretório**
+em vez de remover por id, então do lado das notas **nunca existiu** "rota que esqueceu de
+avisar".
+
+**O que reprova é o mesmo defeito uma função adiante:** a `cercar` é aplicada **à mão** em
+três dos quatro campos crus, e o quarto (`trechoExercitado`) forja a seção; TAB depois dos
+sustenidos passa inteiro **e a própria sonda não o vê**; e a dívida do sublinhado estava
+defendida com **premissa falsa** — `servidor.py:269` devolve o Markdown **cru** ao modelo,
+então `Relatos` + `---` **é** um H2. **MAC-2-A-C despachada** (`ctx_e6e83e18dffa`).
+
+### E o pior achado do dia: a trava deixou de serializar EM SILÊNCIO
+
+Não foi a casa parada — foi a casa **andando errado**. Enquanto a trava oscilava entre
+diretório e arquivo, **três `xcodebuild test` correram no mesmo simulador**. A prova é
+irrefutável: a primeira suíte de um G3 **executou um teste que não existe na árvore dele**,
+de um commit **não-ancestral** do HEAD dele. O pacote que rodou no UDID **não era o dele**.
+Ele descartou e refez.
+
+**Portão novo, que não depende de a trava estar sã:** *quem declara "suíte verde" cola a
+contagem E mostra no log um teste **exclusivo do próprio candidato**.* Um teste que só
+existe ali é o **alvo plantado** da suíte. E o dano não é só falso verde: **vermelho falso
+reprova volta boa**, e ninguém reconfere uma reprovação.
+
+**Descobri também por que o meu conserto das 08h30 não protegeu ninguém: os worktrees
+rodam a cópia VELHA do `com-trava.sh`**, porque ramificaram antes. Mandei cada volta trazer
+a ferramenta do `main` por `git checkout origin/main -- ferramentas/orca/...`, e pus isso
+no preâmbulo.
+
+**Regra nova, que dois revisores alcançaram sozinhos:** *revisor reporta, não decide
+contrato* — a ADR é do autor, o veredito é do revisor.
+
+## 10/09, 09h10 — pausa e retomada (uso 20%); três em edição, e a mescla vai em três pedaços
+
+Fala **0**, inbox limpo. **Três em edição, teto cheio, nada a reabrir:** **Q3-D** (o cartão
+que corta calado), **MAC-2-A-C** (a cerca com três furos) e **Q4-D** (a guarda que calava,
+viva no `vestir`).
+
+**O G3 da Q4-C fechou com a decomposição mais útil do dia:** REPROVA para mescla
+(Correção 7, Contrato 8) e **APROVA a medida** — ele recalculou os quatro números do LOTE-5
+do zero, a partir do JSONL cru, e **todos batem ao grafema**. E recomendou mesclar **em
+três pedaços, separando por evidência e não por arquivo**:
+
+1. **Entra** o conserto da guarda, o `sistemaContrapor` e a palavra `renda` — medidos,
+   positivos, e a **colheita SUBIU**: campos vazios **14/54 → 9/54** e **3/54 → 0/54**, o
+   oposto da recusa covarde que se temia ao endurecer a guarda.
+2. **Segura** as quatro linhas do `sistemaInstigar`, até condicioná-las à matéria.
+3. **Segue** `contrapor` ao caso cego: **pelo mérito ela já passa com 9 nas cinco
+   dimensões** nas 36 execuções. Falta só o aparelho da conta, que está com a Q3-D.
+   **É a segunda operação a um passo de voltar.**
+
+**E ele achou o que a autora não tinha visto**, além da diluição: a cláusula promovida fez
+o modelo **supor um episódio que a pessoa não escreveu** — 0 → 8 perguntas no `4.3` —,
+contra a linha *"Não suponha nenhum fato que ela não escreveu"* que segue viva **quatro
+linhas abaixo** da promovida. Promover uma cláusula não é só somar peso: é **mudar quem
+manda** entre linhas que se contradizem.
+
+**O defeito que virou volta imediata é o único vivo no aparelho do autor:** `Sabia.parseMapa`
+recusa por contrato uma lista lida até o fim, e `Sessao.vestirTudo` escreve **"a sábia não
+respondeu" sobre um HTTP 200 inteiro** — em `vestir`, rota **ligada**. É a mesma guarda que
+já consertamos no `contrapor`, uma função adiante. **Bug tem prioridade sobre função nova.**
+
+**Duas perguntas de worker, respondidas sem parar o laço.** A letra 09w, que **eu** escrevi
+no `LETRAS-ADR.md` — reservar é ato de quem despacha, e foi por confirmar letra por
+mensagem que houve duas colisões ontem. E uma fronteira de arquivo que valia a pergunta: o
+padrão que conserta o corte **já existe inline** numa view aprovada no G4 da V8. Autorizei
+extrair o componente e converter a view, com guarda dura — **prova de identidade por
+captura antes e depois; sem prova, para e a cópia vira dívida**. Criar componente e deixar
+a cópia inline ao lado é o slop que a lei nomeia.
+
+**E a volta foi procurar os irmãos por conta própria:** achou um **terceiro sítio** do
+mesmo corte calado no `RecordarView:440`, disse, e não o fotografou. Dívida com dono.
+
+## 10/09, 09h55 — pausa e retomada (uso 24%); `contrapor` aberta para ser a SEGUNDA a voltar
+
+Fala **0**, inbox limpo. **Três em edição:** **Q3-D** (o cartão que corta calado + o quinto
+parser), **MAC-2-A-D** (a cerca e o CRLF), **Q4-E** (`contrapor`, recém-aberta).
+
+### A Q4-D fechou o `vestir` e nomeou uma ESPÉCIE
+
+O defeito vivo morreu: `vestir` parou de dizer *"a sábia não respondeu"* sobre um HTTP 200
+inteiro, com **frase própria** (`nadaVestiu`) — porque `vestir` **memoiza**, e "peça de
+novo" ali seria falso. Detalhe que só quem leu a rota inteira encontra.
+
+**E ela leu os 12 parsers do app e contou a espécie: são CINCO.** Dois consertados na 09s,
+o do `vestir` agora, dois sem frase de tela, e **`RespostaNotas.interpretar`** — que é a
+rota que **acabou de ser aprovada para voltar**. Hoje é inofensivo porque `main` ainda a
+tem cortada; **no minuto da mescla, ela passa a poder mentir ao autor**. Virou **bloqueio
+da mescla**, não dívida, e a Q3-D o pegou.
+
+### O terceiro G3 da MAC-2-A contornou a garantia que eu tinha celebrado
+
+Refez as duas provas — **as duas se sustentam** — e então achou **três portas dos fundos**:
+`appendInterpolation<T>` aceitando `Substring` e `Any` **sem cerca**; `"\r\n"` sendo **UM
+`Character`** em Swift, o que faz `split(separator: "\n")` ver texto do Windows como **uma
+linha só** e a cerca não rebaixar nada; e o `Corpus.umaLinha` deixando o `\r`, de modo que
+**todo campo de uma linha plantava linha** — **2 e 4** seções medidas onde cabe 1.
+
+E **discordou com prova do "fato observado"** que a autora declarara sobre o YAML: a frase
+do `SPEC` que o sustentava é **falsa hoje**. Lei nova: *"fato observado" é uma alegação, e
+alegação se confere.* Mais: *guarda no tipo é um fato — mas a genérica que aceita tudo é a
+porta dos fundos do tipo*, e *toda guarda que parte texto declara o que considera fim de
+linha*. **O conserto já existia na casa** (`BlocoCaderno.swift:78-84`), e mandei reusar.
+
+### `contrapor` é a próxima, e está esperando um aparelho, não uma ideia
+
+O G3 disse com todas as letras: **pelo mérito ela passa com 9 nas cinco dimensões** nas 36
+execuções. Falta o **caso cego** e a corrida no aparelho da conta. Despachei a **Q4-E**
+(`ctx_3cc02f850bbb`) com uma espera **declarada**: prepara tudo — fixture, prompt, script,
+base remedida — e **a janela abre quando a Q3-D FECHAR A VOLTA**, não quando soltar a
+trava. É a lei de hoje: *duas voltas não dividem um aparelho onde qualquer uma instala,
+nem serializadas* — o `install` sobrevive à soltura.
+
+E a ordem de fora fica dita: **as quatro linhas do `sistemaInstigar` não entram.**
+`instigar` não volta nesta volta, e quem mexer nelas parou de fazer a que lhe coube.
+
+## 10/09, 10h35 — **P0 VIVO EM MAIN**: um `\r` derruba o selo, perde a autoria e apaga o arquivo
+
+**O achado mais grave do dia**, e veio de onde os bons vêm: um revisor a quem eu mandei
+**julgar sem consertar** seis `split(separator: "\n")`. Ele julgou, achou dois alcançáveis,
+**mediu a cadeia inteira com harness verbatim das linhas do `Corpus`** — e **parou e disse**
+antes de fechar o próprio G3.
+
+**A cadeia, em `Corpus.importarComEstado`**, chamada pelo `.fileImporter` do Perfil (o
+autor escolhe **qualquer** `.md` em Arquivos) e pela varredura da pasta `entrada/` (a pasta
+do Mac):
+
+1. **Arquivo em CRLF:** o regex do cabeçalho exige `\n` literal e dá **zero casamentos**.
+   Cai no ramo *"sem cabeçalho"*: o arquivo **inteiro vira UMA nota**, `origem = .autor`,
+   `contemProtegida = false`. Logo **`origem: modelo` vira voz do autor** — o `AGENTS.md`
+   proíbe em letra — e **o corpo de uma nota `estado: selada` É IMPORTADO**, coisa que o
+   caminho LF recusa.
+2. **Um `\r` sozinho na linha `origem:` basta:** o `split` não separa o CRLF (é **UM
+   `Character`**), `OrigemNota(rawValue:)` dá `nil` → `.autor`, e a comparação com
+   `"estado: selada"` falha porque **`CharacterSet.whitespaces` não contém `\r`**.
+3. **E então o app APAGA o arquivo:** `podeRetirar = !contemProtegida` →
+   `Entrada.confirmar` → `FileManager.removeItem`. **O arquivo com a nota selada é apagado
+   depois de ela ter entrado aberta.** Num arquivo misto, um bloco **some calado** e o
+   arquivo é apagado assim mesmo.
+
+**A medida, quatro linhas que não deixam dúvida:** LF puro → protegida **TRUE**; tudo CRLF
+→ casou **FALSE**, origem `autor`; `\r` só no estado → bloco **descartado**; **`\r` só na
+origem → origem vira `AUTOR`**. Um único byte perde a autoria.
+
+**Isto bate em três itens da lista fechada da §6** — privacidade, autoria e selo; e apagar
+trabalho do dono. **Abri a volta acima do teto**, porque bug tem prioridade sobre tudo e
+porque não há leitura benigna de "o dado do dono some depois de o selo ter sido violado".
+**P0-CRLF despachada** (`ctx_330d508f815b`), com duas perguntas de desenho que ela responde
+com prova: normalizar na **porta de entrada** basta? e, se não bastar, **o que falha
+fechado?** — porque hoje um cabeçalho que não casa **abre tudo**, e *portão que não enxerga
+tem de falhar fechado*.
+
+**E uma regra que sai daqui:** `podeRetirar = !contemProtegida` confia num booleano que o
+parser pode errar. **Um arquivo só se apaga quando o app tem certeza de que leu tudo o que
+havia nele** — bloco descartado por `continue` **é** incerteza.
+
+**O quarto achado, anotado:** `Sabia.swift:955` parte o texto **cru** da nota, então **a
+linha `?` do autor — a pergunta dele à sábia — nunca é achada e some calada** quando a nota
+veio de import. MÉDIO, com dono.
+
+**Estado:** quatro em edição, e desta vez de propósito — Q4-E (`contrapor`, com o aparelho
+da conta), re-G3 MAC-2-A (fechando), AX5-1 (a barra que some em letra grande) e P0-CRLF.
+
+## 10/09, 10h45 — pausa e retomada (uso 29%); quatro em edição, e a razão de cada uma
+
+Fala **0**, inbox limpo. **Quatro em edição — uma acima do teto, de propósito:**
+
+| volta | o que decide |
+|---|---|
+| **P0-CRLF** (`ctx_330d508f815b`) | o `\r` que viola o selo, perde a autoria e **apaga o arquivo do autor**. Acima do teto porque bug vem antes de tudo. |
+| **Q4-E** (`ctx_3cc02f850bbb`) | o caso cego do `contrapor` — **a segunda das sete a voltar**, com a janela do aparelho da conta já liberada para ela. |
+| **AX5-1** (`ctx_46025add6c64`) | em letra grande, **"Notas" e "Concluir" ficam inalcançáveis**. Acessibilidade quebrada em código que está no aparelho do dono. |
+| **re-G3 MAC-2-A** (`ctx_00f9e62f2baa`) | fecha a trilha do Mac, que espera este portão há um dia. |
+
+**O que este ciclo ensinou, e é sobre método, não sobre código:** as quatro coisas mais
+valiosas do dia — o quinto parser, a quinta rota do selo, o CRLF, e agora o P0 — vieram
+todas da **mesma pergunta feita a quem não escreveu o código**: *por onde mais entra?*
+Nenhuma veio de alguém procurando o defeito que lhe pediram; todas vieram de alguém
+**tentando contornar a garantia que o anterior tinha dado por boa**.
+
+E o P0 veio de uma instrução minha que quase não escrevi: mandei o revisor **julgar sem
+consertar** seis linhas que a volta anterior tinha deixado como dívida. Ele julgou, mediu, e
+**parou antes de fechar o próprio G3** — o oposto de terminar o que estava fazendo e
+mencionar de passagem. *Dívida declarada por uma volta é o melhor lugar para a seguinte
+procurar*, e **julgar não é consertar** é o que faz um revisor olhar sem pressa de resolver.
+
+## 10/09, 10h50 — DIRETRIZ §12: letra máxima sai do escopo, e a AX5-1 fecha sem mesclar
+
+**Ordem do dono, 10h35:** *"vamos parar de testar e perder tempo com letra máxima, nunca
+vou usar isso."* Executado, nesta ordem:
+
+1. **AX5-1 encerrada e o worktree removido**, sem mesclar nada. Ela não tinha commit
+   próprio; perderam-se três capturas e um teste de UI não comitados, listados antes de
+   apagar. O `worker-release` recusou porque só solta worker assentado — foi `worker-stop`
+   e depois release.
+2. **O P1 sai do RUMO como dívida e vira registro** — e a razão importa: **o defeito NÃO
+   REPRODUZIU.** A AX5-1 mediu a primeira corrida com o app **nascendo** em AX5 e a barra
+   estava em `y = 66`, dentro da tela, não em `y = -371`. A hipótese que sobrava era a letra
+   crescer **com o app de pé**, e ela não chegou a ser testada. Escrevi isso na linha de
+   registro para **ninguém pegar como pendência**.
+3. **Toda dívida de AX1–AX5/XXXL do RUMO está retirada em bloco**, com aviso no topo das
+   pendências: o item 2 do re-G4 da V12, o "refotografar AX5" da V19, a etiqueta de 60 pt em
+   AX XXXL, o "AX5 sangra pelos dois lados" da V18. Ficam como história; ninguém os pega.
+4. **O preâmbulo dos despachos mudou:** Dynamic Type vale até `large`, e é em `large` que se
+   fotografa. Vale para todo worker que eu despachar daqui em diante.
+5. **Continuam valendo:** alvos de 44 pt, contraste, rótulos e ordem na árvore. E **voz,
+   VoiceOver e iPad seguem proibidos**.
+
+**Uma nota de método, para quando isto for relido:** a volta fechada tinha acabado de
+**contradizer o próprio relatório que a originou**. Se ela tivesse consertado sem
+reproduzir, teríamos "consertado" algo que estava certo no caso medido — e o tempo que o
+dono mandou parar de gastar teria sido gasto duas vezes. **Reproduzir antes de consertar
+pagou mesmo na volta que morreu.**
+
+**O tempo liberado vai para a IA (§11)**, e ele já está lá: as três voltas vivas são
+`contrapor` na janela do aparelho da conta, o P0 do arquivo apagado, e o re-G3 que fecha a
+trilha do Mac.
+
+## 10/09, 11h00 — DIRETRIZ §13: a IA é o único foco, e a tela do Perfil é o alvo
+
+**Ordem do dono, 10h50:** *"vamos focar completamente e deixar a IA no Traço absurda de
+qualidade, máxima."* Ele mandou a captura do Perfil das 10h46, e ela é o enunciado do
+problema: o cartão CONTA diz **"Indisponível mesmo com a conta Grok — a medida de 08/09
+reprovou, e não há outro caminho"**, e as linhas dizem *"devolveu o vocabulário interno do
+app"* e *"fato inventado"*. **É o nosso jargão de bancada na tela dele**, ao lado de uma
+lista do que a IA **não** faz.
+
+**Executado:**
+
+- **A régua subiu, e está no preâmbulo de todo despacho daqui em diante:** sair da lista
+  agora exige **9 nas cinco dimensões em TRÊS corridas**, o **caso cego**, e **uma resposta
+  lida contra notas REAIS do aparelho da conta** — não só contra a fixture. Astra no G0 de
+  cada operação; o G3 lê a saída inteira, nunca o hash.
+- **Espera com estado em toda rota**, com o teto no pior caso **medido** (241 s, contra os
+  77 s publicados). *Espera calada é defeito de IA, não de design* — a frase é do dono e
+  resolve uma discussão que estava em aberto desde a §10.
+- **As três cadeiras são da IA.** Trilha do Mac, design e dívidas de tela param.
+
+**As três cadeiras, e por que cada uma:**
+
+| cadeira | o que decide |
+|---|---|
+| **MERGE-Q3D** (`ctx_0784537c33d7`) | ordem 1: `responderNasNotas` **chega ao autor**. Leva junto a reescrita do Perfil na língua dele — sem data, sem "medida", sem jargão —, porque a Q3-D já toca aquele arquivo. |
+| **Q4-E** (`ctx_3cc02f850bbb`) | `contrapor`, com a janela do aparelho da conta correndo desde 10h39. |
+| **RESPONDER** | a terceira, aberta agora pelo **G0 da Astra** (`ctx_129834bea510`) — a operação **mais visível** do app. Prepara tudo sem aparelho até a Q4-E soltar. |
+
+**Duas coisas que eu decidi e digo:**
+
+**A P0-CRLF continua.** A ordem diz que *nenhuma volta não-IA **abre*** — ela já está
+aberta, com o conserto pronto e medido, esperando só a trava. Matá-la deixaria vivo um
+defeito que **apaga arquivo do autor** depois de violar o selo. Fecha e não abre outra.
+
+**O gargalo é um aparelho com conta, e o próprio dono escreveu a saída:** cada operação
+custa uma janela de ~25 min nele, e são **seis** operações ainda cortadas. Um "pode" para o
+`34CC3F94` virar segundo aparelho de conta **dobra a velocidade** — a equipe abre o login
+pelo app e ele autoriza no Grok. **É a decisão mais barata do dia**, e é dele.
+
+## 10/09, 11h30 — pausa e retomada (uso 35%); duas voltas fecharam dizendo NÃO
+
+Fala **0**. **As duas que fecharam nesta janela disseram não, e as duas estavam certas.**
+
+**`contrapor` NÃO volta.** Nos seis casos normais passava com 9 nas cinco dimensões — o G3
+tinha dito "pelo mérito ela passa". **O caso cego derrubou as duas famílias, em lados
+opostos:** o `grok-4.3` devolveu **os três campos vazios sobre HTTP 200** sem nenhuma guarda
+nossa (a fixture escreve que os três vazios reprovam) e a base caiu de 18/18 para 15/18; o
+`grok-4.5` teve base perfeita e reprovou **3/3** no cego, propondo o ensaio que a nota fecha
+e chegando a dizer *"cópia restaurada dos dados reais"*. **A escolha por operação não salva
+a rota.** Foi a última prova a entrar e derrubou o que seis casos aprovavam — é exatamente
+por isso que a §13 pôs o caso cego na régua.
+
+**A trilha do Mac PARA sem mesclar.** O terceiro re-G3 deu NÃO PASSA e a §13 manda que ela
+só termine o G3 em curso **e mescle** — o G3 terminou e não aprova, então ela para. O que
+está pronto e provado fica no branch; o que falta ficou no RUMO com número.
+
+**E ele achou o caminho que ainda entrava, com o método que virou lei:** a `cercar` decide a
+cerca de código **depois de aparar o espaço**; a CommonMark decide **antes, contando o
+recuo**. Com quatro espaços elas discordam nos dois sentidos, e **o `## Relatos` do modelo
+vira seção de verdade enquanto o relato do AUTOR vira bloco de código**. Ele julgou com **o
+parser CommonMark da Apple como oráculo**, e disse por quê: *"escolhido por NÃO ser cópia da
+regra do código"* — a sonda da casa apara igual ao código e por isso era cega. **Terceira
+vez em dois dias que a sonda erra do mesmo jeito que o código.**
+
+**A lição de instrumento que sai daqui é a mais cara:** o **"9 de 54 e zero contra"** do
+LOTE-5, que sustentou o "a colheita subiu", era **UMA amostra, não uma propriedade**. Mesmo
+prompt, parser conferido byte a byte, e a remedida deu **10/54 com três contra vazios**.
+*A lei "uma corrida por modelo não mede modelo" vale também para a linha de base* — e eu
+tinha aceitado aquele delta como fato.
+
+**As três cadeiras agora:** **MERGE-Q3D** (mesclando; leva o Perfil na língua do autor e as
+seis frases do `semProvedor`, que é onde o autor lê o "não" no momento em que toca a
+operação), **TEMPO** (o teto de 240 s menor que os 241 s medidos, e a espera com estado) e
+**P0-CRLF** (o arquivo apagado). O `responder` espera o TEMPO fechar, por ordem da Astra:
+se o conserto do tempo entrar junto com a alavanca de prompt, **o ganho dele será atribuído
+ao prompt**.
+
+**A série 09 de ADRs acabou na `09z`.** A próxima volta usa `2026-09-10a`. Escrevi no
+`LETRAS-ADR.md` antes que alguém tropeçasse — a série 08 encheu sem aviso e custou três
+colisões numa tarde.
+
+## 10/09, 11h15 — a §12 violada, e quem foi: a AX5-1 — mas a letra ficou grande por MINHA mão
+
+**O dono viu o teste 3 em letra de acessibilidade às 11h04** e escreveu: *"está testando
+letra grande por quê? já falei que está proibido."* Trinta minutos depois de a §12 ser
+escrita. **Apurado, com prova, e a resposta tem duas partes:**
+
+**Quem pôs a letra em AX foi a volta `AX5-1`**, por volta das **10h39** — quatro minutos
+depois de a §12 ser escrita e **antes de a ordem chegar até mim**, às ~10h50. Era a única
+volta cuja tarefa ERA a letra grande, e o batimento dela às 10h39 dizia *"primeira corrida
+em AX5 passou (barra em y=66)"*.
+
+**Mas a letra FICOU grande porque eu a matei antes de ela restaurar.** O spec que eu mesmo
+escrevi mandava *"restaure `medium` ao fim, conferido por captura"*, e o `worker-stop` pulou
+exatamente essa linha. **Lei nova, e é minha:** *quem encerra um worker à força herda o
+`defer` dele* — aparelho, tamanho de letra, tema, orientação, trava, processo de apoio.
+Antes de matar, ler o que o spec mandava restaurar; depois de matar, restaurar e conferir
+por captura.
+
+**Os outros três estão limpos, conferidos um a um:** a Q4-E só **leu** `content_size` (sem
+valor, é consulta), a P0-CRLF só **escreveu `medium`** (restauração, com captura de prova
+`p0-03-aparelho-restaurado.png`), e a MAC-2-A G3, a Astra, a MERGE-Q3D e a TEMPO **não o
+chamaram nenhuma vez**.
+
+A lei entrou na ESTEIRA **ao lado da de VOZ** e no cabeçalho do preâmbulo de todo despacho.
+O `f5-fotografar.sh` perdeu o parâmetro de tamanho (o 4º lugar fica vazio de propósito, para
+não deslocar os chamadores) e o `ax5.yaml` já tinha sido apagado pelo dono em `e1dd206`.
+
+## 10/09, 11h15 — o gargalo acabou: DOIS aparelhos de conta, e a suíte saiu deles
+
+**Ordem do dono:** *"eu preciso que vocês resolvam, pode fazer o que for preciso, eu JÁ
+REALIZEI LOGIN. Não é para vocês ficarem toda hora criando novo simulador para ter que de
+novo fazer login no Grok."*
+
+| aparelho | papel |
+|---|---|
+| **teste 2** `B91C8DEF` | CONTA |
+| **teste 3** `34CC3F94` | **CONTA** (novo) — deixou de receber suíte |
+| **teste 4** `A1DF082C` | **SUÍTE** |
+
+**O teste 4 já existia** — religado, **não criado**. Isso importa: a ordem é que **ninguém
+crie simulador e ninguém apague simulador**, porque cada um novo custa **um login do Grok
+feito à mão pelo dono**. **Criar simulador passa a ser ato do orquestrador, uma vez,
+registrado aqui.** Este é o registro.
+
+**E a razão de a suíte sair dos aparelhos de conta é medida, não zelo:** `xcodebuild test`
+roda **hospedado no app** e o chaveiro é do **SIMULADOR** — foi exatamente assim que a suíte
+**apagou a conta do dono** em 09/09 (ADR 09l, volta K1). Enquanto a suíte correr onde há
+conta, a conta está a uma corrida de sumir — e ele acabou de refazer esse login à mão.
+
+**O efeito prático é o que ele pediu:** com dois aparelhos de conta, **as janelas de IA
+correm em paralelo**, cada uma com a trava do próprio UDID. Eram seis operações a ~25 min de
+janela cada, em série; agora são duas frentes. **Avisei as três voltas vivas na hora**, com a
+ordem de mudar o destino da suíte antes da próxima corrida.
+
+**Uma coisa eu não consegui confirmar sozinho e digo:** não li `ContaGrok.ligada` no teste 3
+de fora do app — o chaveiro do simulador não entrega a string, a árvore de AX voltou vazia
+(o defeito conhecido) e navegar até o Perfil exigiria dirigir a tela. **Fica como a primeira
+obrigação de quem abrir a próxima janela nele**, que é a regra que já valia: conferir a
+conta **antes** de instalar qualquer coisa.
+
+## 10/09, 11h25 — pausa e retomada (uso 41%); a letra grande acabou pela raiz, e a invariante do P0 tinha o nome errado
+
+Fala **0**. **Três em edição:** MERGE-Q3D e TEMPO em `reviewing`, e a **P0-CRLF-B**
+recém-aberta com as quatro correções que destravam a mescla do P0.
+
+### A letra grande: matei a classe, não o caso
+
+O dono viu letra de acessibilidade **pela segunda vez** às 11h12 e disse *"não é para perder
+tempo, foca"*. A causa que ele mesmo apontou estava certa e eu conferi: **os três worktrees
+vivos ainda tinham o `ax5.yaml` e o `f5-fotografar.sh` velhos com XXXL** — o conserto dele
+limpou `main`, e as cópias de trabalho ficaram para trás.
+
+Mandei a ordem de merge aos três, **e não parei aí**: varri **todos** os worktrees da
+máquina. **Zero `ax5.yaml`** restantes, **zero scripts** com `accessibility-extra`, zero em
+`/private/tmp`. Os dois aparelhos de conta em `large`. Um worktree morto que alguém retome
+amanhã não pode ressuscitar a proibição — **mandar três mensagens conserta o caso; apagar o
+arquivo em todo lugar mata a classe.**
+
+### O G3 do P0 derrubou a MINHA formulação, e tinha razão
+
+Eu tinha escrito a lei como *"o arquivo só se apaga quando o app **consumiu** tudo o que
+havia nele"*. O revisor derrubou com **dois contraexemplos, nenhum hipotético**:
+
+1. um descarte **no estilo da própria casa** — o teto de **140 grafemas da ADR 08h**, **sem
+   `continue`** — importou **140 de 659 caracteres** com `consumido = 1,00` **e apagou o
+   arquivo**;
+2. **sem código futuro nenhum**, os campos `dominio` e `recordada`, que **o próprio app
+   escreve e o importador nunca lê**, somem na volta pela `entrada/` com a conta dizendo
+   **100%**.
+
+**A invariante é cobertura de DELIMITAÇÃO, não de leitura** — o que foi reconhecido como
+pertencente a alguma nota, não o que o caminho de hoje por acaso consumiu. Corrigi a lei na
+ESTEIRA e a volta corrige o nome no código, no comentário e na ADR: **nome errado é dívida
+que se paga com juros, porque o próximo lê `consumido` e confia**.
+
+**E ele provou que o portão carrega peso real:** removendo só a linha da contagem, **o caso
+B volta a vazar corpo selado e a apagar o arquivo**. Aprovação condicionada a **quatro
+correções, todas de TEXTO** — e ele já disse que aprova a mescla com elas feitas.
+
+### O que fica de método
+
+O padrão que se repetiu o dia inteiro apareceu de novo, agora contra mim: **cada G3 achou o
+defeito contornando a garantia que o anterior deu por boa.** Desta vez a garantia era uma
+frase que **eu** escrevi na ESTEIRA. *A lei da casa também é candidata a ser derrubada por
+medida* — e é isso que a separa de doutrina.
+
+## 10/09, 11h41 — `responderNasNotas` CHEGOU AO AUTOR. `origin/main` = `47aff15`
+
+**A ordem 1 da §13 está cumprida, e a hora é esta: 11h41 de 10/09.** A operação saiu de
+`indisponivelPorQualidade`, entrou como **`.soGrok` com o modelo MEDIDO desta rota**, e a
+lista de cortadas do Perfil caiu de sete para **SEIS**.
+
+**E a tela passou a falar a língua do autor, nas DUAS telas.** O cartão CONTA abre com
+**"A IA faz por você…"** e **"Com a sua conta Grok, ela faz também: … responder nas Notas
+…"**. O cabeçalho velho — *"Indisponível mesmo com a conta Grok — a medida de 08/09
+reprovou"* — virou **"O que ela ainda não faz, nem com a sua conta ligada:"**. As seis
+linhas e os três consertos passaram para **segunda pessoa, no presente**. E as seis frases
+de `Politica.semProvedor` — o aviso que o autor lê **no momento em que toca a operação e ela
+não acontece** — perderam a data e a palavra "medida".
+
+**A data saiu do CÓDIGO junto**, e isso é o que impede a volta do jargão: `dataDe`, `dia`,
+`dataNaLinha` e `Reprovada.medidaEm` **não existem mais**. Enquanto a função de formatar
+data existir ali, alguém a chama de novo.
+
+**O portão acompanha e MORDE:** três testes leem o texto **inteiro pelo caminho da tela** e,
+devolvendo o cabeçalho velho e a frase velha do `contrapor`, **caem 5 asserções em 2
+suítes**. Suíte integral verde na árvore empurrada — **1025 testes em 163 suítes**, build
+LIMPO, 1 aviso (o herdado `NotasView.swift:814`), com dois testes exclusivos colados.
+
+**Dois fatos honestos que ele declarou, e valem mais que o placar:**
+
+1. **Uma corrida anterior deu 3 issues** em `IndiceTests.oIndiceAproximaESeloTira`
+   (`Indice.quantas` → 6 onde espera 2): **corrida entre essa suíte e `IntegridadeRotasTests`
+   sobre o mesmo `Indice` estático**, em arquivos que a mescla não toca, **verde nas duas
+   corridas seguintes**. Nomeado como dívida **sem dono** — e é o tipo de vermelho que, não
+   declarado, volta como fantasma na volta de outra pessoa.
+2. Ele **avisou retroativamente** no quadro do worktree `main` sobre o uso do aparelho,
+   **preservando as 14 linhas que já estavam lá**. Avisar depois é pior que avisar antes; não
+   avisar é pior que os dois.
+
+**Estado do Perfil agora:** a IA **faz** uma coisa por ele, escrito na língua dele, e o que
+ela ainda não faz está dito sem diagnóstico nosso. **Faltam seis para a lista chegar a
+zero.**
+
+## 10/09, 11h55 — pausa e retomada (uso 46%); o P0 aprovado, o TEMPO fechado, e um erro meu de dois donos
+
+Fala **0**. **Três em edição:** **MERGE-P0** (o defeito que apaga arquivo do autor sai de
+`main` hoje), **G3 TEMPO**, e o **`responder`**, que abre a seguir.
+
+### O P0 foi APROVADO e vai mesclar
+
+Nenhuma dimensão abaixo de 9 (Contrato 8→9, Estado honesto 8→9). O revisor conferiu as
+quatro correções **uma a uma, por linha e arquivo**, e provou o que importava: **o diff em
+target é 100% comentário** (`grep` de linha não-comentário vazio, `swiftc -parse rc=0`) e **o
+harness dele deu md5 IDÊNTICO** — `f79ea6ec…` — sobre os dois commits. *Se o comportamento
+tivesse mudado, não era comentário; não mudou.*
+
+E ele fez duas coisas que valem registro: **corrigiu um erro próprio** (o "140 de 659" era
+dele, e o certo é 140 de **699**), e **julgou a suíte não rodada como ausência DECLARADA E
+CORRETA**, porque nenhum arquivo de target mudou fora de comentário — em vez de exigir um
+verde ritual.
+
+### O TEMPO consertou a CAUSA, não o número
+
+O teto nasceu de **77,5 s medidos**, virou promessa, e acabou **menor que a espera real**. A
+volta separou **fato de decisão no código**: `esperaObservada = 241` (o fato, piso) e
+`teto = 300` (a decisão, margem declarada), **com uma guarda que fica vermelha se a decisão
+descer abaixo do fato**. É melhor do que eu pedi — eu tinha pedido a frase certa na ADR; ela
+pôs a frase **no código**.
+
+**Conferiu os limites externos com medida**, que era a pergunta da Astra: **nenhum abaixo de
+300 s**, com o valor do *pedido* governando o transporte (erro em **6,02 s** contra config de
+2 s), a x.ai servindo **241 s sem cortar**, e a montagem de contexto — **a metade da espera
+que não é rede** — custando **6,3 ms para 40 notas**.
+
+**E a espera era calada em SEIS das sete rotas** que raciocinam — `ProgressView` mudo, três
+sem saída nenhuma. As sete passaram a usar **um componente só**, reusando a `LinhaDeEstado`
+da 05t com o relógio da 09n. **Contar antes de consertar** mostrou que não era um caso: era
+o contrato faltando.
+
+### E um erro meu: entrei em worktree com dono vivo sem avisar
+
+A volta TEMPO achou, no worktree dela, **mudanças que não fez** — `maestro/ax5.yaml`
+deletado e `f5-fotografar.sh` editado — **não as commitou por conta própria** e perguntou de
+quem eram. **Eram minhas**, das ~11h20, quando varri a máquina atrás da letra grande.
+
+**Fiz a coisa certa pelo motivo certo e errei no como.** É exatamente o acidente de **dois
+donos num worktree** que eu venho cobrando o dia inteiro, e a regra vale contra mim
+primeiro. Avisei o run inteiro, com o que fiz e por quê, e a regra que passo a seguir:
+**avisar ANTES, dizer quais arquivos, e só tocar em ferramenta — nunca em código de
+candidato.**

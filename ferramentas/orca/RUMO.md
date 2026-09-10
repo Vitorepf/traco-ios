@@ -46,7 +46,8 @@ Sempre uma volta desta trilha em edição, em paralelo às voltas comuns, no pr�
 | F3b | Ditado próprio | áudio salvo antes de transcrever; falha preserva o áudio | MESCLADA (ADR 06c; G3, correção, re-G3 aprovado) |
 | F4 | **Os widgets da tela de início prestam** (era "widget próxima volta interativo") | refresh que funciona, identidade do Traço, vazio que oferece ação, densidade do médio, botão de feito na própria superfície | **EM EDIÇÃO, PRIORIDADE MÁXIMA** (worktree f4-widgets; ordem do dono 06/09 13:04, com print do iPhone) |
 | F5b | Ilha do compromisso vivo (era F5; a sigla F5 foi gasta pelos arquivos `f5-*` da F4-F, e "F6" já era dos widgets da tela bloqueada — o nome colidia duas vezes) | estados completos (compacta, expandida, mínima, fim). A mínima só aparece com DUAS atividades disputando a Ilha, e o StandBy não renderiza no simulador — as duas lacunas ficaram declaradas na F4-F | **MESCLADA em 09/09** (`d5f77e2`, ADR 08v; três G3, e o "t" cortado da F4 saiu do RUMO por prova — a Ilha não escala com Dynamic Type) |
-| F6 | Widgets da tela bloqueada | accessoryCircular e accessoryInline do dia | |
+| F6 | Widgets da tela bloqueada | accessoryCircular e accessoryInline do dia | **MESCLADA em 09/09** (`8b0d12b`, ADR 09r): inline e retângulo fotografados na bloqueada de verdade pela primeira vez (a F1 errou: o editor existe, a captura é que é cega; a árvore de AX o dirige). Feito visível no inline, vazio que oferece nas duas faces, retângulo em duas linhas. **O círculo foi construído e retirado**: o feito não roda na bloqueada. |
+| F6b | O feito na tela bloqueada | o `Button(intent:)` dos widgets da bloqueada (retângulo e círculo) ABRE O APP em vez de rodar `DestaqueFeitoIntent`; a cápsula do cartão vivo, com o mesmo tipo de intent, roda. Diagnóstico da F6: o intent corre no processo do app (`LiveActivityIntent`, ADR 04f) e a bloqueada não o lança; o caminho é um intent que corra na extensão do widget — mexe nos contratos 04f/05u (só o app escreve o instantâneo). **Dono: fora do app; uma consulta ao Astra antes.** Quando rodar, o círculo volta: um toque, feito, sem destrancar. | dívida nomeada em 09/09 |
 | F7 | Controle da Central de Controle | Recordar | |
 | F8 | Widget configurável | por pasta ou método | |
 | F9 | Spotlight | notas e trabalhos, com selo | |
@@ -474,6 +475,22 @@ acerto do modelo (que já foi medido).
 **Se o dono discordar, é uma linha para desfazer** — a decisão está aqui e o
 motivo também.
 
+### META DO DIA (10/09 07h30, ordem do dono): "o mais perto da nota 10/10 possível" — DIRETRIZ §11
+
+**Nota ao acordar: 7.** O Mac reiniciou às 23h38 (macOS 26.6.2) e às 07h07 (CLT 27.0); o
+Orca fechou e os quatro workers da noite morreram. O que ficou nos worktrees sem commit:
+
+| worktree | o que há | o que fazer |
+|---|---|---|
+| `q3-c` | a corrida do `responderNasNotas` com 4.3 e 4.5 (`prova/lote09d-*`, 44 linhas cada, 23h27) + `Sabia.swift` e teste alterados | **LER a saída inteira, pontuar pela rubrica, comitar a prova.** Se um passar, a operação volta hoje com captura no `B91C8DEF` |
+| `q4-c` | `Sabia`, `AvaliacaoIA`, `LenteView`, dois testes, `lote-ia-09e-*` | retomar; a janela do aparelho corre DEPOIS da leitura da Q3-C |
+| `mac-2-a` | branch `Vitorepf/mac-2-a` não mesclada; G3 no meio (4ª rota do selo, `EspelhoTrabalhoTests` alterado) | fechar o G3 e mesclar; depois MAC-2-B (o bot ESCREVE: `traco_trabalho_escrever`, `tentativa`, `relatar`) |
+
+**Ordem do dia:** (1) IA — Q3-C lida, `responder` de volta, instigar+contrapor; (2) jornada do
+espanhol ensaiada no aparelho da conta e build pronto para o iPhone do dono; (3) D1 espera a nota
+do dono; (4) `try!` restantes, F6b, MAC-2-B. **Pendente do dono:** nota do D1; "pode" para o
+teste 3 virar aparelho de conta; app atualizado no iPhone dele para a jornada real.
+
 ### META DO DIA (09/09 17h40, ordem do dono): "foque em melhorar imensamente a IA"
 
 **`responder` de volta HOJE; Q3 e Q4 medidas até a noite.** Sete operações
@@ -535,6 +552,22 @@ uma oração de pessoa, sem caminho de prova, sem data e sem contagem* — e o
 **V10 — Fundação de design.** Ciclo: multiplicar + eixo 4. Intenção: toda tela nasce dos mesmos tokens, componentes e movimentos. Obstáculo: Tema.swift tem tokens parciais, componentes repetidos por tela (cápsulas, chips, linhas de estado, disclosures), animações com curvas e durações soltas e reduce motion tratado em 10 arquivos. Evidência: Traco/Componentes/*.swift com preview por estado (normal, vazio, carregando, falha, desabilitado, AX5), Tema.swift com tokens nomeados (cor, tipo, espaço, raio, sombra, duração, curva), `Tema.movimento` que devolve o movimento certo sob reduce motion, e pelo menos três telas migradas sem mudança visual (captura antes = depois); suíte verde; shortstat com linhas líquidas ≤ 0. Escopo: Tema.swift, Traco/Componentes (novo), e as três telas migradas; duas frentes disjuntas (tokens+movimento em Tema / componentes+previews). Sistema: SISTEMA-CLARO.md.
 
 **V11 — Ambiente Markdown: conflitos e retry.** Ciclo: multiplicar. Intenção: o autor edita o Trabalho fora do Traço e volta sem perder nada, mesmo quando as duas pontas mudaram. Obstáculo: ADR 05l provou o retorno feliz; conflito (base antiga com nova versão local), retry após recusa de commit e revogação da origem com o seletor/exportador aberto não têm prova na UI. Evidência: prévia de conflito com as duas versões e escolha explícita (nova versão, nunca sobrescrita), retry que confirma a mesma versão sem duplicar, seletor aberto + selar a origem → material recolhido com linha honesta; testes + capturas dos estados + fluxo maestro em simulador de teste. Escopo: Traco/Trabalho/{IntercambioTrabalho,IntercambioTrabalhoView}.swift e testes; depende da V6 mesclada.
+
+> ## ⛔ LETRA MÁXIMA SAIU DO ESCOPO — DIRETRIZ §12 (dono, 10/09 10h35)
+>
+> *"vamos parar de testar e perder tempo com letra máxima, nunca vou usar isso"*
+>
+> **Toda dívida, pendência, captura ou item deste arquivo que fale de AX1–AX5 ou XXXL está
+> RETIRADO.** Ficam como história — ninguém os pega, ninguém os mede, ninguém os
+> refotografa. Isso inclui, entre outros: o item 2 do re-G4 da V12, o "refotografar AX5 do
+> escrever" da V19, a etiqueta de 60 pt em AX XXXL, e o "AX5 sangra pelos dois lados" do
+> re-G3 da V18. **Dynamic Type vale até `large`**, que é o padrão do iPhone e o que se
+> fotografa. O código que já existe fica como está: ninguém o remove nem o mantém, e se um
+> dia quebrar em AX5 **não é defeito**.
+>
+> **Continua valendo, e não é negociável:** alvos de **44 pt**, **contraste**, **rótulos** e
+> **ordem na árvore** — acessibilidade que o dono também sente. E **VOZ, VOICEOVER E iPAD
+> seguem PROIBIDOS**.
 
 ## Dívida nomeada — a suíte ainda escreve no `UserDefaults` real do app (K1, 09/09)
 
@@ -652,3 +685,231 @@ posse só, e ainda trouxe a variante em Dynamic Type XXXL. A dívida não existe
 lição, que é do laço e não dela: **eu li um worker travado onde havia um worker se
 recuperando**, porque a leitura veio da saída antiga. Antes de mandar parar, ler a
 saída MAIS NOVA.
+
+**Dívida: a frase `nadaPassouNaGuarda` nunca foi vista na tela (10/09).** Ela nasceu na
+Q4-C, está coberta por teste e é **inalcançável em produção** enquanto `instigar` e
+`contrapor` estiverem `indisponivelPorQualidade` — `Politica.aviso` responde antes. Não
+se fotografou, e fotografar exigiria uma segunda instalação no aparelho da conta para
+produzir nada. **Dono: quem devolver `instigar` ou `contrapor` à lista**, que fotografa a
+frase **no mesmo ato** do retorno.
+
+**Insumo pareado para a escolha de modelo por operação: `instigar` (10/09, LOTE-5).**
+Na mesma janela, mesmo prompt, mesmo binário, mesma fixture — **uma alavanca só, o
+modelo** —, o `grok-4.5` é melhor que o `grok-4.3` em `instigar`: **0/15 contra 1/15** de
+repetição inteiramente genérica e **89% contra 76%** de perguntas ancoradas na nota.
+Não decide nada sozinho, porque `instigar` **não voltou**; entra na mesa da volta que
+retomar a operação, ao lado da 09v (o modelo se escolhe por operação). **Dono: a volta
+seguinte de `instigar`.**
+
+**Dívida: o conserto do defeito oposto do `instigar` está ESCRITO e não aplicado
+(10/09).** A alavanca não é mais promoção nem mais proibição: é o requisito ficar
+**condicionado à matéria** — quando a nota dá pouco, pergunte o quê/quando/o que seria dar
+certo; quando dá mais, as perguntas saem do que ela escreveu e o *quando* entra só se
+faltar. **Uma frase, não um parágrafo.** Não foi aplicado para o binário comitado não
+divergir do medido. **Dono: a volta seguinte de `instigar`.**
+
+**Dívida: a janela de medida não preserva o que se vai querer conferir (10/09).** Os
+`lote-ia-09*-janela.sh` carimbam o **hash** do binário nos dois extremos do log, o que
+prova qual binário rodou — mas **não preservam o conteúdo** (o texto dos prompts extraído
+do binário). Quando o G3 da Q3-C foi refazer a conferência byte a byte, o
+`Traco.debug.dylib 57d02df3` **já não existia**: um build posterior o substituiu. **Dono:
+a próxima volta que tocar nas janelas de medida** — extrair e guardar os prompts junto do
+`.jsonl`, no mesmo ato da corrida.
+
+**`contrapor` está a UM passo de voltar (10/09, G3 da Q4-C).** Pelo mérito ela **passa com
+9 nas cinco dimensões** nas 36 execuções do LOTE-5, e a colheita **subiu** em vez de
+encolher — campos vazios **14/54 → 9/54** e **3/54 → 0/54**, o oposto da recusa covarde que
+se temia quando a guarda ficou mais dura. Falta só **o caso cego** e a corrida no aparelho
+da conta. **Dono: a próxima volta de IA**, assim que o `B91C8DEF` sair da Q3-D.
+
+**Dívida: as quatro linhas do `sistemaInstigar` ficam SEGURAS (10/09).** A cláusula
+promovida expulsou as três pernas da fixture num caso (**3/3 → 0/3** no `grok-4.3`, com
+"custo de errar" sumindo das três repetições) e fez o modelo **supor um episódio que a
+pessoa não escreveu** (**0 → 8** perguntas no `4.3`, 0 → 1 no `4.5`) — contra a linha *"Não
+suponha nenhum fato que ela não escreveu"*, que segue viva **quatro linhas abaixo da
+promovida**. A alavanca é condicionar à matéria, numa frase. **Dono: a volta seguinte de
+`instigar`.**
+
+**Mescla em TRÊS pedaços, recomendada pelo G3 e aceita (10/09).** (1) **Entra**: o conserto
+da guarda, o `sistemaContrapor` e a palavra `renda` — medidos, positivos, com a colheita
+maior. (2) **Segura**: as quatro linhas do `sistemaInstigar`. (3) **Segue**: `contrapor`
+ao caso cego. Separar por evidência, e não por arquivo, é o que permite entregar a metade
+provada sem carregar a metade que regrediu.
+
+**Dívida: o terceiro sítio do corte calado (10/09, achado pela Q3-D).**
+`Traco/Recordar/RecordarView.swift:440` tem a mesma forma dos dois do cartão da sábia — um
+`ScrollView` com teto (altura `geo/2`, na prova do Recordar) **sem sinal de sobra**. A
+Q3-D o encontrou ao procurar os irmãos, disse, e **não o fotografou nesta volta**, o que é
+o certo. Quando o componente `SinalDeSobra` existir, este é o próximo chamador. **Dono: a
+volta que tocar o Recordar.**
+
+**BLOQUEIA a mescla da Q3-C: `RespostaNotas.interpretar` é o quinto da espécie (10/09).**
+A Q4-D leu os **12 parsers do app** e nomeou a espécie — o parser que devolve `nil` tanto
+para *"não veio nada"* quanto para *"veio inteiro e o nosso contrato recusou"*. São
+**cinco**: dois consertados na 09s, o do `vestir` em `ffb6a56`, dois que não produzem frase
+de tela, e **`RespostaNotas.interpretar`**. Hoje é inofensivo porque `responderNasNotas`
+está cortada em `main` — **mas a Q3-C foi aprovada e vai mesclar**, e no minuto da mescla
+essa rota fica viva no aparelho do dono e pode dizer que a IA não respondeu **sobre um HTTP
+200 inteiro**. *Mesclar a operação de volta com esse parser como está é entregar uma mentira
+conhecida.* **Dono: a Q3-D, ou volta própria se não couber — mas antes da mescla.**
+
+**NÃO MESCLAR: as quatro linhas do `sistemaInstigar` no branch `q4-c` (10/09).** O branch
+carrega um hunk que **não pode entrar em `main`** — a promoção do *quando* no
+`sistemaInstigar`. Ele **não foi revertido de propósito**: reverter mudaria o binário e
+exigiria remedir `instigar`, e *a volta que mede fecha com o binário que mediu*. A Q4-E
+declara o arquivo, as linhas e o texto exato numa seção **NÃO MESCLAR** do relatório
+`ferramentas/orca/q4-instigar-contrapor.md`; esta linha aqui é o **segundo lugar**, porque
+aviso solto no meio de relato longo se perde.
+
+**Por que não entram, com número:** expulsaram as três pernas da fixture num caso (**3/3 →
+0/3** no `grok-4.3`, com "custo de errar" sumindo das três repetições) e fizeram o modelo
+**supor um episódio que a pessoa não escreveu** (**0 → 8** perguntas no `4.3`, 0 → 1 no
+`4.5`) — contra a linha *"Não suponha nenhum fato que ela não escreveu"*, que segue viva
+**quatro linhas abaixo** da promovida. **Dono da alavanca certa (condicionar à matéria): a
+volta seguinte de `instigar`.**
+
+**Dívida: varrer o repositório atrás dos irmãos do CRLF (10/09).** A MAC-2-A-D consertou
+os pontos que o G3 mediu e **declarou** que não varreu o resto. A varredura em `main`
+mostra **seis** `split(separator: "\n")` em `Traco/` — `AnaliseLocal.swift:295`,
+`Sabia.swift:955`, `VozDoAutor.swift:78` e `Corpus.swift:281/330/337`. Nem todos são
+defeito: só o são onde a entrada **pode** carregar CRLF. Dois merecem olhar primeiro —
+**`Sabia.swift:955`**, que parte **saída de modelo**, e **`VozDoAutor.swift:78`**, que
+parte texto do autor que pode ter vindo de import. **Dono: a volta que fechar a trilha do
+CRLF** — decidir caso a caso, com a entrada na mão, e não trocar tudo por reflexo.
+
+**RETIRADO por ordem do dono (DIRETRIZ §12, 10/09 10h35): o P1 de letra máxima.** Estava
+aqui a barra da Página em `y = -371 pt` em AX5, medida pela Q3-D. **Sai como dívida e fica
+como registro**, por três razões, e a terceira é a que importa: o dono não usa letra
+máxima e disse para parar; a volta AX5-1 foi fechada sem mesclar nada; e **o defeito não
+reproduziu** — a AX5-1 mediu a primeira corrida com o app nascendo em AX5 e a barra estava
+em `y = 66`, dentro da tela. A hipótese que sobrou era a letra crescer **com o app de pé**,
+e ela não chegou a ser testada. **Ninguém deve pegar isto como pendência.** O código que
+existe fica como está; se um dia quebrar em AX5, não é defeito. Continuam valendo alvos de
+44 pt, contraste, rótulos e ordem na árvore.
+
+**A espera do Grok foi de 241 s contra os 77 s de pior caso publicados (10/09).** A ADR
+2026-09-08r fixou o teto com **77,5 s** medidos em 36 execuções e 3,1× de folga; a corrida
+da Q3-D esperou **241 s**. Se o teto de tempo continuar calculado sobre os 77 s, ele
+**corta resposta boa** e a medida seguinte vai registrar um `semRetorno` **que é nosso, não
+do modelo** — a espécie que a Q4-D acabou de nomear. **Dono: a próxima volta que tocar o
+teto de tempo**, remedindo antes de mexer.
+
+**Dívida: a cópia inline do sinal de sobra fica onde está (10/09).** O
+`CartaoAnaliseView` **não** foi convertido para `SinalDeSobra`, e foi a minha própria
+guarda que o impediu: eu exigi **prova de identidade de comportamento**, e não há — o
+componente **acrescenta a palavra "continua"**. A Q3-D parou, como mandado, e deixou o
+conserto escrito. **Dono: a volta que tocar o Cartão de Análise**, junto de
+`RecordarView:443`, que é o terceiro sítio.
+
+## O G0 da Astra sobre `responder` (10/09) — o que ela achou POR LEITURA, e custou zero janelas
+
+**Risco que a fixture não pega, e é o principal:** `Sessao.perguntarASabia` captura
+pergunta, gesto e retrato, espera o contexto e **depois** lê `self.texto`; passados os
+`await`, exige apenas **algum** `.sabiaPensando` — **sem identidade da requisição e sem as
+dependências**. Logo **o cartão pode entregar uma resposta perfeitamente escrita para uma
+pergunta, ou para uma versão de nota, que já não é a atual**. Com esperas de quatro minutos,
+editar, trocar de página e cancelar **deixam de ser raros**. *Risco identificado por
+leitura, não reproduzido.* **O padrão certo já existe** — `dependenciasValidas`, no
+`responderNasNotas`: começar por ele, **não criar arquitetura paralela**. **Dono: a volta
+`responder`.**
+
+**Falsa intimidade:** as vizinhas entram como *"outra nota sua"* e o Retrato personaliza a
+resposta. **Texto de outra origem, ou hipótese antiga, pode virar voz e preferência do
+autor**, e um recorte pode suprimir **exatamente a correção mais recente**. Uma fixture
+curta montada direto sobre `Sabia.responder` **não passa pelo seletor** e não prova essa
+fronteira. **Dono: a volta `responder`.**
+
+**A divulgação é montada ANTES do corte.** `Sessao.contextoDoCaderno` junta ligações (3 ×
+1200), vizinhas (6 × 600) e candidatos a ecos; `Sabia.responder` corta o conjunto em
+**5000**. A pergunta sobrevive, mas **a correção no fim da nota e as vizinhas podem
+desaparecer** — e o que dizemos ao autor que foi enviado é montado **antes** disso.
+**Dono: a volta `responder`.** E a nota da Astra que vale copiar: *a fixture antiga chama o
+recorte de "limite do instrumento"; nesta rota é **limite do PRODUTO**, e não absolve
+Utilidade nem Contexto.*
+
+**O caso do responsável NÃO é mais cego.** Já foi revelado; vira **regressão obrigatória**,
+e o revisor **guarda um caso realmente novo até o candidato congelar**.
+
+**A sonda apaga a prova:** a `saida` de `responder` já passou por `limparResposta`.
+**Preservar o retorno BRUTO é indispensável** para saber o que **o app** apagou — sem isso,
+mede-se o modelo pelo que sobrou do nosso tratamento.
+
+**O plano de janelas, para não prometer o que não se cumpre:** o G0 custou **zero**. O
+retorno completo do `responder` pede **DUAS** janelas do aparelho da conta (~50 min de
+agenda), **não uma**: a do prompt congelado e a de requalificar o candidato se os controles
+de contexto ou entrega exigirem mudança. **Cada correção posterior que altere entrada,
+saída, modelo ou esforço invalida a certificação e pode exigir nova janela.** *Fazer os
+vermelhos determinísticos antes de ocupar a conta é o que evita gastar a janela mais cara
+descobrindo bug local.*
+
+## A trilha do Mac PARA aqui, sem mesclar (10/09, §13)
+
+O terceiro re-G3 da MAC-2-A deu **NÃO PASSA** (Correção 6, Privacidade 6, Fora do app 6,
+Contrato 7), e a §13 manda que **a trilha do Mac só termine o G3 que já estava no meio e
+mescle**. O G3 terminou e **não aprova** — logo **a trilha para, e o branch
+`Vitorepf/mac-2-a` fica onde está**, com o trabalho feito e o defeito nomeado. Ninguém abre
+volta nova nela até a IA chegar onde o dono pede.
+
+**O que fica pronto e provado no branch, e não se perde:** o selo com a invariante no laço
+(quinta rota inventada e o arquivo sumiu assim mesmo), a montagem por `[Linha]` que faz um
+`String` cru **não compilar**, o `Corpus.fimDeLinhaLF`, a genérica estreitada, e a sonda que
+conta título por estrutura.
+
+**O que falta, com número, para quem retomar:**
+1. **A cerca decide pelo texto APARADO; a CommonMark decide pelo CRU, contando o recuo.**
+   Com quatro espaços elas discordam nos dois sentidos, e **o `## Relatos` do modelo vira
+   seção de verdade enquanto o relato do AUTOR vira bloco de código**. Conserto: decidir
+   abertura e fecho pela **linha crua contando o recuo**, e **a mesma correção na
+   `TitulosDoMarkdown`** — senão a suíte continua incapaz de ver o que acabou de consertar.
+2. **(BAIXO) O cabeçalho YAML tem DOIS leitores e a defesa vale para um.** O
+   `servidor.py:78` usa `splitlines()` do Python, que quebra em `U+2028`, `U+0085`, VT e FF
+   — e o `umaLinha` não tira nenhum. Mediu-se o cabeçalho virando **6 linhas** com um
+   `estado: encerrado` forjado; **só não é forja viva porque o estado verdadeiro vem depois
+   e sobrescreve** — vale pela ORDEM, não pelo motivo escrito no SPEC.
+3. **(BAIXO) `Linha(stringLiteral:)` compila com `String` de runtime** e pula a `cercar`. O
+   Swift obriga esse init a existir; fecha-se por **portão de fonte**.
+
+**Limite herdado, declarado e que não desconta:** ninguém viu o bot ler a forma nova do
+arquivo — o exercício real é de antes destes consertos, e ninguém inventou captura.
+
+## `contrapor` NÃO volta: o caso cego reprovou os dois modelos (10/09)
+
+Nos seis casos normais ela passava com 9 nas cinco dimensões. **O caso cego — material que
+NEGA o que se pediria — derrubou as duas famílias, em lados opostos:**
+
+- **`grok-4.3`** (o modelo do app): `q4-contrapor-tudo-ou-nada` rep. 2 devolveu **os três
+  campos vazios sobre HTTP 200**, sem nenhuma guarda nossa — e a fixture daquele caso
+  escreve que os três vazios reprovam. A base caiu de **18/18 para 15/18**.
+- **`grok-4.5`**: base perfeita, e o caso cego reprovou **3/3** propondo o ensaio que a nota
+  fecha, um deles dizendo *"cópia restaurada dos dados reais"*.
+
+**Logo a escolha por operação (09v) não salva a rota**, e `contrapor` fica
+`indisponivelPorQualidade` com motivo novo na tela. **Dono: a próxima volta de `contrapor`.**
+
+**E a lição de instrumento, que vale para toda a frente de IA:** o **"9 de 54 e zero
+contra"** do LOTE-5 era **UMA amostra, não uma propriedade**. Mesmo prompt, parser conferido
+byte a byte — e a remedida devolveu **10/54 com três contra vazios**. *Delta medido uma vez
+é hipótese; a lei "uma corrida por modelo não mede modelo" vale também para a linha de
+base.*
+
+## As três dívidas que o P0 deixou nomeadas (10/09, ADR 09y)
+
+A volta P0-CRLF-B não as escreveu aqui **de propósito** — a ordem foi *"exatamente as
+quatro, não mais"*, e o RUMO é do orquestrador. Ficam com dono:
+
+- **P0-SELO-CEGO.** O portão de contagem só dispara quando **as duas contagens discordam**.
+  Um arquivo em que o cabeçalho casa e o corpo se perde por outro caminho ainda pode passar.
+  **Dono: a próxima volta de entrada.**
+- **P1-RECUSA-MUDA.** Quando o arquivo **não** é consumido, **nada diz isso ao autor**: ele
+  deixa um `.md` na pasta e não sabe por que a nota não apareceu. É a mesma família da
+  *espera calada* que o dono nomeou na §13 — e a §13 já decidiu, para a IA, que **silêncio
+  é defeito, não design**. **Dono: a próxima volta de entrada.**
+- **P2-CAMPO-QUE-SOME.** `dominio` e `recordada` — que **o próprio app escreve e o
+  importador nunca lê** — somem na volta pela `entrada/` **com a conta fechando em 100%**.
+  Não precisa de código futuro nem de CRLF: é o ida-e-volta de hoje perdendo campo do autor.
+  **Dono: a próxima volta de entrada.**
+
+**E uma correção de número na ESTEIRA, achada por quem releu:** onde estava *"140 de 659"*,
+o certo é **140 de 699**, e o **659** é o que o caminho de hoje importa. **A diferença de 40
+é a tinta do cabeçalho, creditada sem virar nota** — que é exatamente o defeito. *Lei com
+número errado é pior que lei sem número, porque o número é o que a próxima pessoa copia.*
