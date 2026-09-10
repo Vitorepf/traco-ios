@@ -669,3 +669,10 @@ posse só, e ainda trouxe a variante em Dynamic Type XXXL. A dívida não existe
 lição, que é do laço e não dela: **eu li um worker travado onde havia um worker se
 recuperando**, porque a leitura veio da saída antiga. Antes de mandar parar, ler a
 saída MAIS NOVA.
+
+**Dívida: a frase `nadaPassouNaGuarda` nunca foi vista na tela (10/09).** Ela nasceu na
+Q4-C, está coberta por teste e é **inalcançável em produção** enquanto `instigar` e
+`contrapor` estiverem `indisponivelPorQualidade` — `Politica.aviso` responde antes. Não
+se fotografou, e fotografar exigiria uma segunda instalação no aparelho da conta para
+produzir nada. **Dono: quem devolver `instigar` ou `contrapor` à lista**, que fotografa a
+frase **no mesmo ato** do retorno.

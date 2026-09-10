@@ -1119,3 +1119,38 @@ perguntas saem do que ela escreveu.
 viu, e **nomeou o defeito como causado pela mudança dela**, sem arredondar, antes de
 saber se o outro modelo repetia. *Quem mede o próprio conserto tem de poder reprovar-se —
 e a medida que só confirma quem a encomendou não é medida.*
+
+## A trava serializa COMANDO; não serializa o ESTADO do aparelho (10/09, Q4-C)
+
+Despachei a Q3-C e a Q4-C com o **mesmo** `B91C8DEF`, cada uma com "uma instalação por
+cima", e invoquei a trava como salvaguarda. **A trava não cobre isto.** Ela serializa
+comandos; o `install` é uma **mutação que sobrevive à soltura da trava** e troca o binário
+debaixo de quem vier depois. A Q4-C mediu sozinha das 10:55:25Z às 11:10:47Z, com o
+binário carimbado nos dois extremos do log e a conta ligada nas três leituras — e então
+percebeu que **qualquer captura sua feita depois do install da Q3-C seria do binário
+alheio**. Parou antes de tirá-la.
+
+**A lei, afiada:** *duas voltas não dividem um aparelho onde qualquer uma INSTALA, nem
+serializadas.* A trava basta para quem só lê a tela; não basta para quem escreve o
+aparelho. Quem despacha escreve o UDID de cada volta e confere que **nenhum se repete** —
+e se duas precisam do mesmo aparelho da conta, ou elas entram na MESMA janela com UM
+binário (que é o que os LOTES fazem), ou a segunda espera a primeira **fechar a volta**,
+não fechar a trava.
+
+**E o corolário que a Q4-C escreveu melhor do que o meu despacho:** *evidência
+contaminada, declarada e usada, é pior que evidência nenhuma.* Uma captura do binário do
+vizinho, com uma nota de rodapé honesta, ainda seria lida como prova da volta que a
+anexou.
+
+## Não se fotografa o que o app não pode mostrar (10/09, mesma volta)
+
+A Q4-C pediu uma segunda instalação para fotografar a frase nova (`nadaPassouNaGuarda`).
+A resposta estava na própria pergunta: a frase é **inalcançável em produção hoje**, porque
+`Politica.aviso` responde antes — `instigar` e `contrapor` seguem `indisponivelPorQualidade`.
+
+**A lei:** *motor sem superfície não conta como entregue — mas superfície que o app não
+pode alcançar não se fotografa.* Gastar o aparelho da conta atrás dessa captura produziria
+nada. O limite se declara, com o motivo, e **vira dívida nomeada com dono**: quem devolver
+a operação à lista fotografa a frase **no mesmo ato**. Não é acabamento esquecido, é
+consequência declarada — no dia do retorno, essa frase chega ao autor sem nunca ter sido
+vista na tela.
