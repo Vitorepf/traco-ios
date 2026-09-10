@@ -48,7 +48,7 @@ import Testing
     /// alavancas e não decidia o padrão global. São sete de novo. Quem tirar
     /// uma sem medida nova, PAREADA, quebra aqui — e a Q2-F (09q) FEZ a medida
     /// pareada: nenhum dos três modelos que a conta serve passou os 18 casos.
-    @Test func indisponivelPorQualidadeNaoTemExecutorNemComContaEAparelho() {
+    @Test func indisponivelPorQualidadeNaoTemExecutorNemComContaEAparelho() throws {
         let cortadas: [Politica.Operacao] = [.ecos, .calibragem, .recordar, .responderNasNotas,
                                             .instigar, .contrapor, .responder]
         #expect(Set(Politica.indisponiveis) == Set(cortadas))
@@ -73,14 +73,34 @@ import Testing
             let m = Politica.linha(op).motivo
             #expect(!m.isEmpty, "\(op) sem motivo para a tela")
             #expect(m.count <= 80, "\(op): motivo longo demais para a linha (\(m.count))")
-            #expect(!m.contains("prova/"), "\(op): caminho de prova na frase da tela")
-            #expect(!m.contains("08/09"), "\(op): data na frase da tela")
+            #expect(!m.contains("/"), "\(op): caminho de prova ou data na frase da tela")
             #expect(!m.contains("de 6"), "\(op): contagem da medida na frase da tela")
         }
         // O corte tem dois grupos, e o Perfil precisa distingui-los: sem
         // substituto medido, e com conserto já nomeado.
-        #expect(Politica.indisponiveis.filter { Politica.linha($0).conserto == nil }.count == 5)
-        #expect(Set(Politica.indisponiveis.filter { Politica.linha($0).conserto != nil }) == Set([.responderNasNotas, .responder]))
+        #expect(Politica.indisponiveis.filter { Politica.linha($0).conserto == nil }.count == 3)
+        #expect(Set(Politica.indisponiveis.filter { Politica.linha($0).conserto != nil })
+                == Set([.responderNasNotas, .responder, .instigar, .contrapor]))
+        // ADR 09i: `instigar` e `contrapor` entram no grupo "em correção" —
+        // o conserto está escrito, a MEDIDA é que falta. O texto vai inteiro
+        // para a tela (PerfilView `restoDa`), então fala do que o autor vê.
+        //
+        // ADR 09t: o LOTE-3 derrubou os motivos de 08/09 destas TRÊS e a linha
+        // passa a dizer o que ele leu. Guardado pela FRASE e pela data, no
+        // caminho real da tela — contar os dois grupos passava igual com o
+        // texto velho, e um portão que passa com o defeito de pé não guarda
+        // nada. Se um destes trechos sair da tabela sem medida nova, quebra
+        // aqui.
+        let emCorrecao = PerfilView.reprovadas.filter { $0.conserto != nil }
+        for (op, leitura) in [(Politica.Operacao.responderNasNotas, "quanto sobra do seu orçamento"),
+                              (.instigar, "não pede quando aconteceu"),
+                              (.contrapor, "inventa renda que você não escreveu")] {
+            let r = try #require(emCorrecao.first { $0.op == op })
+            let linha = PerfilView.restoDa(r, dataNaLinha: PerfilView.dataDe(emCorrecao).isEmpty)
+            #expect(linha.contains(leitura), "\(op): a tela não diz o que o LOTE-3 leu — \(linha)")
+            #expect(!linha.contains("08/09"), "\(op): motivo de 08/09 ainda na tela — \(linha)")
+            #expect(Politica.linha(op).medidaEm == "10/09/2026", "\(op): a data não é a do LOTE-3")
+        }
     }
 
     /// ADR 09n, REVERTIDA em 09/09 pelo G3 (`revisao-q2-responder.md`). A

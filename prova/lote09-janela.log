@@ -1,0 +1,23 @@
+[2026-09-09T22:18:15Z] binario instalado ANTES: 934d9b7f5d73e538fff5002381ad42e0919820f0e32764bbc1f13e0c506e3484
+[2026-09-09T22:18:15Z] INICIO lote-fumaca-1-antes.jsonl  fixture=q2-fumaca.json liberar=''
+app.traco: 78268
+[2026-09-09T22:18:17Z] FIM    lote-fumaca-1-antes.jsonl  linhas=       4 fimGravado=1
+[2026-09-09T22:18:17Z] INSTALL (unica): /tmp/dd-lote-ia-09/Build/Products/Debug-iphonesimulator/Traco.app  sha256(exec)=e9983ddb5a0f6d91b20c42e38b801eb889aac85112b56bd4da946830a5a96e71
+install exit=0
+[2026-09-09T22:18:22Z] binario instalado DEPOIS: e9983ddb5a0f6d91b20c42e38b801eb889aac85112b56bd4da946830a5a96e71
+[2026-09-09T22:18:22Z] INICIO lote-fumaca-2-pos-install.jsonl  fixture=q2-fumaca.json liberar=''
+app.traco: 78505
+[2026-09-09T22:18:25Z] FIM    lote-fumaca-2-pos-install.jsonl  linhas=       4 fimGravado=1
+[2026-09-09T22:18:25Z] INICIO lote-q3-responder-nas-notas.jsonl  fixture=q3-responder-nas-notas.json liberar='responderNasNotas'
+app.traco: 78600
+[2026-09-09T22:21:12Z] FIM    lote-q3-responder-nas-notas.jsonl  linhas=      44 fimGravado=1
+[2026-09-09T22:21:12Z] INICIO lote-q4-instigar-contrapor.jsonl  fixture=q4-instigar-contrapor-casos.json liberar='instigar,contrapor'
+app.traco: 84114
+[2026-09-09T22:25:58Z] FIM    lote-q4-instigar-contrapor.jsonl  linhas=      74 fimGravado=1
+[2026-09-09T22:25:58Z] INICIO lote-q2f-responder.jsonl  fixture=q2f-casos.json liberar='responder'
+app.traco: 92098
+[2026-09-09T22:28:40Z] FIM    lote-q2f-responder.jsonl  linhas=      40 fimGravado=1
+[2026-09-09T22:28:40Z] INICIO lote-fumaca-3-fim.jsonl  fixture=q2-fumaca.json liberar=''
+app.traco: 97771
+[2026-09-09T22:28:42Z] FIM    lote-fumaca-3-fim.jsonl  linhas=       4 fimGravado=1
+[2026-09-09T22:28:42Z] JANELA ENCERRADA

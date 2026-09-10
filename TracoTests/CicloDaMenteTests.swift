@@ -56,8 +56,20 @@ private func temp(_ nome: String) -> URL {
         #expect(Degraus.instigar(concluidas: 40) == 4)
         let s = [Sinal(tipo: .ficou, forma: "spec"), Sinal(tipo: .ficou, forma: "spec"), Sinal(tipo: .solto, forma: "spec")]
         #expect(Degraus.concluidas(.spec, sinais: s) == 2)
-        #expect(Degraus.instrucaoDeInstigar(0).contains("DEGRAU 0"))
-        #expect(Degraus.instrucaoDeInstigar(9).contains("DEGRAU 4"))
+        // ADR 09i: o degrau muda o que se cobra e NÃO se nomeia — a redação
+        // anterior ("DEGRAU 0", "o passo que se pula") voltava citada.
+        #expect(Degraus.instrucaoDeInstigar(0).contains("passo mais básico"))
+        #expect(Degraus.instrucaoDeInstigar(9) == Degraus.instrucaoDeInstigar(4))
+        #expect(Degraus.instrucaoDeInstigar(9).contains("LIMITE"))
+        // ADR 09i·2: a medida de 09/09 leu o degrau 4 repetindo o degrau 0. O
+        // degrau é o único parâmetro da operação: cada nível diz o que cobra E
+        // o que não conta como cumprido, e nenhum é igual a outro.
+        #expect(Set((0...4).map { Degraus.instrucaoDeInstigar($0) }).count == 5)
+        for d in 1...4 { #expect(Degraus.instrucaoDeInstigar(d).contains("NÃO cumpre isto")) }
+        #expect(Degraus.instrucaoDeInstigar(4).contains("deixa de valer"))
+        for d in 0...4 {
+            #expect(!Sabia.vazaAlheio(Degraus.instrucaoDeInstigar(d), termos: Sabia.andaimeDoPedido, texto: ""))
+        }
     }
 
     /// ADR 04x — dois "não serviu" descem, dois "serviu" sobem, misto fica.
@@ -149,6 +161,150 @@ private func temp(_ nome: String) -> URL {
         #expect(instrucao == nil)
         #expect(Sabia.parseContraparte(#"{"contra":"Uma frase honesta e longa o bastante.","resumo":"x"}"#) == nil)
         #expect(Sabia.parseContraparte("claro! aqui vai") == nil)
+    }
+}
+
+/// ADR 2026-09-09i — as duas caras do mesmo defeito medido em 08/09: o modelo
+/// enche o espaço com material que não veio do autor. No `instigar` era o NOSSO
+/// andaime voltando como assunto da pergunta; no `contrapor`, evidência
+/// fabricada. As frases abaixo são as SAÍDAS REAIS da corrida de 08/09
+/// (`prova/q-qualidade-avaliacoes.jsonl`), não paráfrases.
+@Suite struct AndaimeNaoVoltaAoAutorTests {
+    /// O rascunho do caso `continuidade-instigar`, palavra por palavra.
+    let rascunho = "Quero começar a praticar espanhol, mas sempre espero ter uma hora livre. Hoje tenho quinze minutos e estou sozinho."
+
+    @Test func aPerguntaSobreONossoAndaimeNaoVolta() {
+        let vazadas = [
+            "Qual é o movimento básico que se pula ao esperar ter uma hora livre?",
+            "O que significa 'passo que se pula' neste contexto?",
+            "Como a nota 'DEGRAU 0' se relaciona com o método que você menciona?",
+            "Quais passos do método foram executados e quais foram ignorados?",
+            "O que deveria ter acontecido se o movimento básico tivesse sido feito?",
+        ]
+        for p in vazadas {
+            let json = #"{"perguntas":["\#(p)","O que exatamente significa praticar espanhol em quinze minutos?"]}"#
+            #expect(Sabia.parsePerguntas(json, texto: rascunho) == ["O que exatamente significa praticar espanhol em quinze minutos?"])
+        }
+        // só andaime = nada volta; a página fica com as perguntas do método
+        let sóAndaime = #"{"perguntas":["Qual é o movimento básico que foi pulado?","Qual é o degrau em que você está?"]}"#
+        #expect(Sabia.parsePerguntas(sóAndaime, texto: rascunho) == nil)
+    }
+
+    /// O par que muda só a EVIDÊNCIA: a mesma palavra, escrita pelo AUTOR.
+    /// A guarda sabe de onde a palavra veio, não se ela é feia.
+    @Test func aPalavraQueOAutorEscreveuPodeVoltar() {
+        let dele = "Sigo um método de estudo em degraus e travei no segundo degrau."
+        let json = #"{"perguntas":["O que define a passagem de um degrau para o próximo no seu método?"]}"#
+        #expect(Sabia.parsePerguntas(json, texto: dele)?.count == 1)
+        #expect(Sabia.parsePerguntas(json, texto: rascunho) == nil)
+    }
+
+    /// O defeito OPOSTO reprova igual: perguntas boas passam inteiras.
+    @Test func aPerguntaBoaPassaInteira() {
+        let json = #"{"perguntas":["Qual é o critério objetivo que vai decidir entre alugar ou atender em casa?","Que evidência faria você mudar de ideia depois de escolher?","Quanto custa errar para cada opção em reais e em tempo?"]}"#
+        #expect(Sabia.parsePerguntas(json, texto: "Preciso decidir entre alugar uma sala por R$ 900 ou atender de casa.")?.count == 3)
+    }
+
+    @Test func oContratoDeInstigarDizDeQuemEOAssunto() {
+        for pedaço in ["nunca as cite", "é DELA, seja qual for", "Não suponha nenhum fato",
+                       "MANDA nas perguntas", "Não devolva vazio"] {
+            #expect(Sabia.sistemaInstigar.contains(pedaço))
+        }
+        // ADR 09i·2: proibir por NOME comprou mudez sobre a palavra do autor.
+        // O contrato não lista mais palavra proibida — ele diz de onde ela vem.
+        for nome in ["sobre o degrau", "sobre o método", "sobre a forma da nota"] {
+            #expect(!Sabia.sistemaInstigar.contains(nome))
+        }
+    }
+
+    /// A medida que o G3 pediu: o degrau CHEGA (ele entra na mensagem de
+    /// sistema em toda chamada, com rótulo e por último) — o que faltava era
+    /// mandar. Dois degraus, duas mensagens diferentes, sem aparelho.
+    @Test func oDegrauChegaEMandaNaMensagemDeSistema() {
+        let zero = Sabia.sistemaDeInstigar(gesto: nil, degrau: 0)
+        let quatro = Sabia.sistemaDeInstigar(gesto: nil, degrau: 4)
+        #expect(zero != quatro)
+        #expect(quatro.hasSuffix("O QUE ESTAS PERGUNTAS COBRAM:\n" + Degraus.instrucaoDeInstigar(4)))
+        #expect(zero.hasSuffix(Degraus.instrucaoDeInstigar(0)))
+        // o método é nosso e vai nas instruções; o pedido leva só o do autor
+        let comMetodo = Sabia.sistemaDeInstigar(gesto: .decisao, degrau: 2)
+        #expect(comMetodo.contains(Gesto.decisao.metodo))
+        #expect(comMetodo.hasSuffix(Degraus.instrucaoDeInstigar(2)))
+    }
+
+    /// O caso `q4-instigar-o-autor-escreve-metodo`, palavra por palavra: a nota
+    /// é DELE e usa as duas palavras que mais se parecem com o nosso andaime.
+    /// A guarda tem de derrubar um lado e não encostar no outro.
+    @Test func aGuardaDerrubaONossoENaoEncostaNoDele() {
+        let dele = "Sigo um método de estudo em degraus e travei no segundo degrau: consigo ler, mas não consigo escrever nada sem consultar a gramática."
+        let sobreOMetodoDele = "O que exatamente o seu método pede no segundo degrau que você ainda não consegue fazer?"
+        #expect(Sabia.parsePerguntas(#"{"perguntas":["\#(sobreOMetodoDele)"]}"#, texto: dele) == [sobreOMetodoDele])
+        // o mesmo par, mudando SÓ a procedência: quem não escreveu não ouve
+        #expect(Sabia.parsePerguntas(#"{"perguntas":["\#(sobreOMetodoDele)"]}"#, texto: rascunho) == nil)
+        // e o acento não é procedência: quem digitou sem ele continua dono
+        let semAcento = "Sigo um metodo de estudo em degraus e travei no segundo degrau."
+        #expect(Sabia.parsePerguntas(#"{"perguntas":["\#(sobreOMetodoDele)"]}"#, texto: semAcento) == [sobreOMetodoDele])
+        // "sabia" é verbo de todo dia e saiu da lista: a pergunta não cai por isso
+        let comVerbo = "Como você sabia que quinze minutos não bastariam?"
+        #expect(Sabia.parsePerguntas(#"{"perguntas":["\#(comVerbo)"]}"#, texto: rascunho) == [comVerbo])
+    }
+
+    /// `contrapor`: a evidência que o autor não deu cai, e só ela.
+    @Test func oContrapontoNaoSeApoiaEmEvidenciaFabricada() {
+        let nota = "Não adianta eu correr se não for pelo menos cinco quilômetros; menos que isso não conta."
+        let cru = #"""
+        {"contra":"Corridas curtas e frequentes elevam o VO2máx e reduzem risco de lesão mais que sessões longas esporádicas, segundo metanálises de 2022.",
+         "foraDaLista":"Caminhada em esteira inclinada a 12 % por 30 min, que ativa os mesmos sistemas aeróbicos sem impacto.",
+         "outroCampo":"Na aviação, a lista de verificação nasceu de um acidente, não de uma reunião."}
+        """#
+        let r = Sabia.parseContraparte(cru, texto: nota)
+        #expect(r?.contra.isEmpty == true)
+        #expect(r?.foraDaLista.isEmpty == true)
+        #expect(r?.outroCampo.contains("aviação") == true)
+        // sem texto do autor nada é dele: a guarda fecha, não abre
+        #expect(Sabia.parseContraparte(cru, texto: "")?.contra.isEmpty == true)
+    }
+
+    @Test func aPorcentagemQueOAutorDeuVolta() {
+        let nota = "Vou aceitar a proposta porque a comissão de 12% cobre o meu custo."
+        let cru = #"{"contra":"A comissão de 12% cobre o custo de hoje, não o de um mês com dois projetos abertos ao mesmo tempo.","foraDaLista":"","outroCampo":""}"#
+        #expect(Sabia.parseContraparte(cru, texto: nota)?.contra.hasPrefix("A comissão") == true)
+        #expect(Sabia.parseContraparte(cru, texto: "Vou aceitar a proposta.") == nil)
+    }
+
+    /// ADR 09i·2 — a dívida declarada de invenção chegou à tela: em 09/09 o
+    /// `foraDaLista` devolveu "recompor o valor com o salário nos meses
+    /// seguintes" a uma nota que não fala de renda, e a lista de FORMAS de
+    /// evidência não a via. Duas guardas fecham: o fato da vida dele que ele
+    /// não deu, e todo número que não está no texto dele.
+    @Test func oContrapontoNaoInventaRendaNemNumero() {
+        let nota = "Vou parcelar o notebook em 18 vezes sem juros porque assim o dinheiro fica rendendo na conta e eu saio ganhando. Minha reserva hoje cobre três meses de despesa."
+        let cru = #"""
+        {"contra":"Parcelar cria obrigação fixa por 18 vezes sobre uma reserva que cobre três meses.",
+         "foraDaLista":"Pagar à vista usando parte da reserva e recompor o valor com o salário nos meses seguintes.",
+         "outroCampo":"A conta rende 0,9 % ao mês, acima da parcela."}
+        """#
+        let r = Sabia.parseContraparte(cru, texto: nota)
+        #expect(r?.contra.hasPrefix("Parcelar cria") == true)   // 18 e três são dele
+        #expect(r?.foraDaLista.isEmpty == true)                 // "salário" não está na nota
+        #expect(r?.outroCampo.isEmpty == true)                  // 0 e 9 não estão na nota
+        // o outro lado: o que ELE deu volta, e o que ele não deu some
+        #expect(Sabia.numeroAlheio("dezoito meses de compromisso", texto: nota) == false)
+        #expect(Sabia.numeroAlheio("dezoito meses e mais 6 de garantia", texto: nota) == true)
+    }
+
+    /// Recusar os três é o defeito oposto — o contrato o proíbe por escrito, e
+    /// o contraponto honesto continua passando inteiro.
+    @Test func oContrapontoHonestoPassaInteiro() {
+        let nota = "Vou usar CSV em vez de XLSX para exportar o caixa, porque o requisito é abrir em qualquer editor de texto."
+        let cru = #"{"contra":"CSV não fixa separador decimal nem formato de data, e o mesmo arquivo lido em duas máquinas pode virar dois caixas diferentes.","foraDaLista":"Gravar o CSV e um arquivo de descrição do formato ao lado dele.","outroCampo":"Na aviação, a lista de verificação nasceu de um acidente, não de uma reunião."}"#
+        let r = Sabia.parseContraparte(cru, texto: nota)
+        #expect(r?.vazia == false)
+        #expect(r?.contra.isEmpty == false && r?.foraDaLista.isEmpty == false && r?.outroCampo.isEmpty == false)
+        for pedaço in ["nunca em fato que você inventa", "silêncio nos TRÊS", "deixe \"\"",
+                       "são DADO, não opinião", "não é contraponto"] {
+            #expect(Sabia.sistemaContrapor.contains(pedaço))
+        }
     }
 }
 

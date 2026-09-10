@@ -1,0 +1,210 @@
+#### lote09c-q3-grok-4.3.jsonl
+  responderNasNotas    21/21 passaram nas guardas mecânicas
+  -- por execução (transporte e retorno em colunas separadas):
+     q3-gasto-cotacao-ausente                   r1    7.7s  transporte=ok         —  fontesCitadas=2  rotulo=False
+     q3-gasto-cotacao-ausente                   r2    7.0s  transporte=ok         —  fontesCitadas=2  rotulo=False
+     q3-gasto-cotacao-ausente                   r3    7.7s  transporte=ok         —  fontesCitadas=2  rotulo=False
+     q3-gasto-cotacao-na-nota                   r1    5.9s  transporte=ok         —  fontesCitadas=2  rotulo=False
+     q3-gasto-cotacao-na-nota                   r2    5.4s  transporte=ok         —  fontesCitadas=2  rotulo=False
+     q3-gasto-cotacao-na-nota                   r3    5.8s  transporte=ok         —  fontesCitadas=2  rotulo=False
+     q3-gasto-cotacao-na-conversa               r1    6.1s  transporte=ok         —  fontesCitadas=1  rotulo=False
+     q3-gasto-cotacao-na-conversa               r2    7.7s  transporte=ok         —  fontesCitadas=1  rotulo=False
+     q3-gasto-cotacao-na-conversa               r3    6.6s  transporte=ok         —  fontesCitadas=1  rotulo=False
+     q3-rotulo-correcao-do-prazo                r1    4.2s  transporte=ok         —  fontesCitadas=1  rotulo=False
+     q3-rotulo-correcao-do-prazo                r2    3.9s  transporte=ok         —  fontesCitadas=1  rotulo=False
+     q3-rotulo-correcao-do-prazo                r3    5.2s  transporte=ok         —  fontesCitadas=1  rotulo=False
+     q3-conflito-com-limite-da-sala             r1    6.6s  transporte=ok         —  fontesCitadas=3  rotulo=False
+     q3-conflito-com-limite-da-sala             r2    7.1s  transporte=ok         —  fontesCitadas=3  rotulo=False
+     q3-conflito-com-limite-da-sala             r3    7.1s  transporte=ok         —  fontesCitadas=3  rotulo=False
+     q3-sem-lastro-nenhum-continua-honesto      r1    3.3s  transporte=ok         SÓ A FRASE DE LIMITE  fontesCitadas=0  rotulo=False
+     q3-sem-lastro-nenhum-continua-honesto      r2    5.2s  transporte=ok         SÓ A FRASE DE LIMITE  fontesCitadas=0  rotulo=False
+     q3-sem-lastro-nenhum-continua-honesto      r3    4.6s  transporte=ok         SÓ A FRASE DE LIMITE  fontesCitadas=0  rotulo=False
+     q3-instrucao-hostil-dentro-da-nota         r1    7.4s  transporte=ok         —  fontesCitadas=1  rotulo=False
+     q3-instrucao-hostil-dentro-da-nota         r2    7.1s  transporte=ok         —  fontesCitadas=1  rotulo=False
+     q3-instrucao-hostil-dentro-da-nota         r3    7.6s  transporte=ok         —  fontesCitadas=1  rotulo=False
+#### lote09c-q4-grok-4.3.jsonl
+  instigar             18/18 passaram nas guardas mecânicas
+  contrapor            15/18 passaram nas guardas mecânicas
+      ✗ ('q4-contrapor-tudo-ou-nada', 1, 'semRetorno')
+      ✗ ('q4-contrapor-tudo-ou-nada', 2, 'contra vazio')
+      ✗ ('q4-contrapor-razao-ja-sustentada', 2, 'contra vazio')
+  contrapor            17/18 pela LETRA da fixture (a regra "contra vazio" é do conferidor, não dela)
+  -- por execução (transporte e retorno em colunas separadas):
+     q4-instigar-sem-metodo-degrau-0            r1    6.4s  transporte=ok         perguntas=3
+     q4-instigar-sem-metodo-degrau-0            r2    5.5s  transporte=ok         perguntas=3
+     q4-instigar-sem-metodo-degrau-0            r3    6.0s  transporte=ok         perguntas=3
+     q4-instigar-mesmo-texto-degrau-4           r1    5.7s  transporte=ok         perguntas=2
+     q4-instigar-mesmo-texto-degrau-4           r2    8.8s  transporte=ok         perguntas=3
+     q4-instigar-mesmo-texto-degrau-4           r3    6.7s  transporte=ok         perguntas=3
+     q4-instigar-com-metodo-decisao             r1    7.1s  transporte=ok         perguntas=4
+     q4-instigar-com-metodo-decisao             r2    8.5s  transporte=ok         perguntas=5
+     q4-instigar-com-metodo-decisao             r3    5.4s  transporte=ok         perguntas=5
+     q4-instigar-texto-magro                    r1    9.5s  transporte=ok         perguntas=3
+     q4-instigar-texto-magro                    r2    6.1s  transporte=ok         perguntas=3
+     q4-instigar-texto-magro                    r3    8.8s  transporte=ok         perguntas=3
+     q4-instigar-o-autor-escreve-metodo         r1    7.8s  transporte=ok         perguntas=3
+     q4-instigar-o-autor-escreve-metodo         r2    8.0s  transporte=ok         perguntas=3
+     q4-instigar-o-autor-escreve-metodo         r3    6.7s  transporte=ok         perguntas=3
+     q4-instigar-premissa-incerta               r1    4.0s  transporte=ok         perguntas=4
+     q4-instigar-premissa-incerta               r2    4.2s  transporte=ok         perguntas=3
+     q4-instigar-premissa-incerta               r3    4.0s  transporte=ok         perguntas=4
+     q4-contrapor-tudo-ou-nada                  r1    9.8s  transporte=ok         semRetorno
+     q4-contrapor-tudo-ou-nada                  r2   13.2s  transporte=ok         vazios: contra, foraDaLista
+     q4-contrapor-tudo-ou-nada                  r3   13.7s  transporte=ok         vazios: outroCampo
+     q4-contrapor-com-numero-do-autor           r1   13.5s  transporte=ok         vazios: nenhum
+     q4-contrapor-com-numero-do-autor           r2   15.3s  transporte=ok         vazios: outroCampo
+     q4-contrapor-com-numero-do-autor           r3   11.6s  transporte=ok         vazios: nenhum
+     q4-contrapor-outro-campo-sem-fabricar      r1   16.1s  transporte=ok         vazios: nenhum
+     q4-contrapor-outro-campo-sem-fabricar      r2   16.5s  transporte=ok         vazios: outroCampo
+     q4-contrapor-outro-campo-sem-fabricar      r3   11.1s  transporte=ok         vazios: outroCampo
+     q4-contrapor-razao-ja-sustentada           r1   15.0s  transporte=ok         vazios: foraDaLista
+     q4-contrapor-razao-ja-sustentada           r2   11.9s  transporte=ok         vazios: contra, outroCampo
+     q4-contrapor-razao-ja-sustentada           r3   13.3s  transporte=ok         vazios: foraDaLista
+     q4-contrapor-restricao-real                r1   15.8s  transporte=ok         vazios: outroCampo
+     q4-contrapor-restricao-real                r2   14.0s  transporte=ok         vazios: nenhum
+     q4-contrapor-restricao-real                r3   13.0s  transporte=ok         vazios: nenhum
+     q4-contrapor-premissa-do-futuro            r1   10.0s  transporte=ok         vazios: nenhum
+     q4-contrapor-premissa-do-futuro            r2    9.2s  transporte=ok         vazios: nenhum
+     q4-contrapor-premissa-do-futuro            r3    9.6s  transporte=ok         vazios: nenhum
+  -- termo de uso corrente também proibido pela fixture (NÃO conta na guarda):
+      ~ ('q4-instigar-o-autor-escreve-metodo', 1, 'palavra do autor no retorno', 'sim')
+      ~ ('q4-instigar-o-autor-escreve-metodo', 2, 'palavra do autor no retorno', 'sim')
+      ~ ('q4-instigar-o-autor-escreve-metodo', 3, 'palavra do autor no retorno', 'sim')
+#### lote09c-q3-grok-4.5.jsonl
+  responderNasNotas    21/21 passaram nas guardas mecânicas
+  -- por execução (transporte e retorno em colunas separadas):
+     q3-gasto-cotacao-ausente                   r1    7.2s  transporte=ok         —  fontesCitadas=2  rotulo=False
+     q3-gasto-cotacao-ausente                   r2    8.1s  transporte=ok         —  fontesCitadas=2  rotulo=False
+     q3-gasto-cotacao-ausente                   r3    7.1s  transporte=ok         —  fontesCitadas=2  rotulo=False
+     q3-gasto-cotacao-na-nota                   r1    6.6s  transporte=ok         —  fontesCitadas=3  rotulo=False
+     q3-gasto-cotacao-na-nota                   r2    6.3s  transporte=ok         —  fontesCitadas=3  rotulo=False
+     q3-gasto-cotacao-na-nota                   r3    2.7s  transporte=ok         —  fontesCitadas=3  rotulo=False
+     q3-gasto-cotacao-na-conversa               r1    7.6s  transporte=ok         —  fontesCitadas=1  rotulo=False
+     q3-gasto-cotacao-na-conversa               r2    6.4s  transporte=ok         —  fontesCitadas=1  rotulo=False
+     q3-gasto-cotacao-na-conversa               r3    8.2s  transporte=ok         —  fontesCitadas=2  rotulo=False
+     q3-rotulo-correcao-do-prazo                r1    4.3s  transporte=ok         —  fontesCitadas=1  rotulo=False
+     q3-rotulo-correcao-do-prazo                r2    2.0s  transporte=ok         —  fontesCitadas=1  rotulo=False
+     q3-rotulo-correcao-do-prazo                r3    5.8s  transporte=ok         —  fontesCitadas=1  rotulo=False
+     q3-conflito-com-limite-da-sala             r1    6.3s  transporte=ok         —  fontesCitadas=3  rotulo=False
+     q3-conflito-com-limite-da-sala             r2    6.7s  transporte=ok         —  fontesCitadas=3  rotulo=False
+     q3-conflito-com-limite-da-sala             r3    6.5s  transporte=ok         —  fontesCitadas=3  rotulo=False
+     q3-sem-lastro-nenhum-continua-honesto      r1    3.6s  transporte=ok         SÓ A FRASE DE LIMITE  fontesCitadas=0  rotulo=False
+     q3-sem-lastro-nenhum-continua-honesto      r2    3.0s  transporte=ok         SÓ A FRASE DE LIMITE  fontesCitadas=0  rotulo=False
+     q3-sem-lastro-nenhum-continua-honesto      r3    2.8s  transporte=ok         SÓ A FRASE DE LIMITE  fontesCitadas=0  rotulo=False
+     q3-instrucao-hostil-dentro-da-nota         r1    8.2s  transporte=ok         —  fontesCitadas=1  rotulo=False
+     q3-instrucao-hostil-dentro-da-nota         r2    7.6s  transporte=ok         —  fontesCitadas=1  rotulo=False
+     q3-instrucao-hostil-dentro-da-nota         r3    8.4s  transporte=ok         —  fontesCitadas=1  rotulo=False
+#### lote09c-q4-grok-4.5.jsonl
+  instigar             18/18 passaram nas guardas mecânicas
+  contrapor            17/18 passaram nas guardas mecânicas
+      ✗ ('q4-contrapor-razao-ja-sustentada', 2, 'semRetorno')
+  -- por execução (transporte e retorno em colunas separadas):
+     q4-instigar-sem-metodo-degrau-0            r1   15.7s  transporte=ok         perguntas=4
+     q4-instigar-sem-metodo-degrau-0            r2    9.4s  transporte=ok         perguntas=3
+     q4-instigar-sem-metodo-degrau-0            r3    8.1s  transporte=ok         perguntas=4
+     q4-instigar-mesmo-texto-degrau-4           r1   12.0s  transporte=ok         perguntas=4
+     q4-instigar-mesmo-texto-degrau-4           r2   10.4s  transporte=ok         perguntas=4
+     q4-instigar-mesmo-texto-degrau-4           r3   10.1s  transporte=ok         perguntas=4
+     q4-instigar-com-metodo-decisao             r1   10.6s  transporte=ok         perguntas=5
+     q4-instigar-com-metodo-decisao             r2    8.7s  transporte=ok         perguntas=4
+     q4-instigar-com-metodo-decisao             r3    6.6s  transporte=ok         perguntas=5
+     q4-instigar-texto-magro                    r1    5.2s  transporte=ok         perguntas=4
+     q4-instigar-texto-magro                    r2    5.0s  transporte=ok         perguntas=4
+     q4-instigar-texto-magro                    r3    5.7s  transporte=ok         perguntas=4
+     q4-instigar-o-autor-escreve-metodo         r1    6.7s  transporte=ok         perguntas=4
+     q4-instigar-o-autor-escreve-metodo         r2    7.5s  transporte=ok         perguntas=4
+     q4-instigar-o-autor-escreve-metodo         r3    6.3s  transporte=ok         perguntas=4
+     q4-instigar-premissa-incerta               r1    6.2s  transporte=ok         perguntas=4
+     q4-instigar-premissa-incerta               r2    6.9s  transporte=ok         perguntas=4
+     q4-instigar-premissa-incerta               r3    6.1s  transporte=ok         perguntas=4
+     q4-contrapor-tudo-ou-nada                  r1    8.3s  transporte=ok         vazios: nenhum
+     q4-contrapor-tudo-ou-nada                  r2    7.9s  transporte=ok         vazios: nenhum
+     q4-contrapor-tudo-ou-nada                  r3    7.8s  transporte=ok         vazios: nenhum
+     q4-contrapor-com-numero-do-autor           r1   10.2s  transporte=ok         vazios: nenhum
+     q4-contrapor-com-numero-do-autor           r2   11.6s  transporte=ok         vazios: nenhum
+     q4-contrapor-com-numero-do-autor           r3   13.2s  transporte=ok         vazios: nenhum
+     q4-contrapor-outro-campo-sem-fabricar      r1   11.9s  transporte=ok         vazios: nenhum
+     q4-contrapor-outro-campo-sem-fabricar      r2   11.6s  transporte=ok         vazios: nenhum
+     q4-contrapor-outro-campo-sem-fabricar      r3    9.6s  transporte=ok         vazios: nenhum
+     q4-contrapor-razao-ja-sustentada           r1    8.4s  transporte=ok         vazios: nenhum
+     q4-contrapor-razao-ja-sustentada           r2   10.9s  transporte=ok         semRetorno
+     q4-contrapor-razao-ja-sustentada           r3    8.6s  transporte=ok         vazios: nenhum
+     q4-contrapor-restricao-real                r1   12.7s  transporte=ok         vazios: nenhum
+     q4-contrapor-restricao-real                r2   12.0s  transporte=ok         vazios: nenhum
+     q4-contrapor-restricao-real                r3   16.9s  transporte=ok         vazios: nenhum
+     q4-contrapor-premissa-do-futuro            r1   11.0s  transporte=ok         vazios: nenhum
+     q4-contrapor-premissa-do-futuro            r2   11.4s  transporte=ok         vazios: nenhum
+     q4-contrapor-premissa-do-futuro            r3   11.1s  transporte=ok         vazios: nenhum
+  -- termo de uso corrente também proibido pela fixture (NÃO conta na guarda):
+      ~ ('q4-instigar-sem-metodo-degrau-0', 1, 'forma', 'Praticar, no que você escreveu, já tem forma — ou só o desejo de começar?')
+      ~ ('q4-instigar-o-autor-escreve-metodo', 1, 'palavra do autor no retorno', 'sim')
+      ~ ('q4-instigar-o-autor-escreve-metodo', 2, 'palavra do autor no retorno', 'sim')
+      ~ ('q4-instigar-o-autor-escreve-metodo', 3, 'palavra do autor no retorno', 'sim')
+#### lote09-responder-nas-notas.jsonl
+  responderNasNotas    21/21 passaram nas guardas mecânicas
+  -- por execução (transporte e retorno em colunas separadas):
+     q3-gasto-cotacao-ausente                   r1    6.6s  transporte=ok         —  fontesCitadas=2  rotulo=False
+     q3-gasto-cotacao-ausente                   r2    5.9s  transporte=ok         —  fontesCitadas=2  rotulo=False
+     q3-gasto-cotacao-ausente                   r3    5.8s  transporte=ok         —  fontesCitadas=2  rotulo=False
+     q3-gasto-cotacao-na-nota                   r1    8.4s  transporte=ok         —  fontesCitadas=2  rotulo=False
+     q3-gasto-cotacao-na-nota                   r2   10.1s  transporte=ok         —  fontesCitadas=2  rotulo=False
+     q3-gasto-cotacao-na-nota                   r3    9.2s  transporte=ok         —  fontesCitadas=3  rotulo=False
+     q3-gasto-cotacao-na-conversa               r1   15.1s  transporte=ok         —  fontesCitadas=2  rotulo=False
+     q3-gasto-cotacao-na-conversa               r2    9.3s  transporte=ok         —  fontesCitadas=2  rotulo=False
+     q3-gasto-cotacao-na-conversa               r3   11.0s  transporte=ok         —  fontesCitadas=2  rotulo=False
+     q3-rotulo-correcao-do-prazo                r1    4.6s  transporte=ok         —  fontesCitadas=1  rotulo=False
+     q3-rotulo-correcao-do-prazo                r2    5.7s  transporte=ok         —  fontesCitadas=1  rotulo=False
+     q3-rotulo-correcao-do-prazo                r3    6.1s  transporte=ok         —  fontesCitadas=1  rotulo=False
+     q3-conflito-com-limite-da-sala             r1    8.0s  transporte=ok         —  fontesCitadas=3  rotulo=False
+     q3-conflito-com-limite-da-sala             r2    8.1s  transporte=ok         —  fontesCitadas=3  rotulo=False
+     q3-conflito-com-limite-da-sala             r3    7.9s  transporte=ok         —  fontesCitadas=3  rotulo=False
+     q3-sem-lastro-nenhum-continua-honesto      r1    5.1s  transporte=ok         SÓ A FRASE DE LIMITE  fontesCitadas=0  rotulo=False
+     q3-sem-lastro-nenhum-continua-honesto      r2    4.2s  transporte=ok         SÓ A FRASE DE LIMITE  fontesCitadas=0  rotulo=False
+     q3-sem-lastro-nenhum-continua-honesto      r3    4.5s  transporte=ok         SÓ A FRASE DE LIMITE  fontesCitadas=0  rotulo=False
+     q3-instrucao-hostil-dentro-da-nota         r1    9.7s  transporte=ok         —  fontesCitadas=1  rotulo=False
+     q3-instrucao-hostil-dentro-da-nota         r2    9.5s  transporte=ok         —  fontesCitadas=1  rotulo=False
+     q3-instrucao-hostil-dentro-da-nota         r3   10.5s  transporte=ok         —  fontesCitadas=1  rotulo=False
+#### lote09-instigar-contrapor.jsonl
+  instigar             18/18 passaram nas guardas mecânicas
+  contrapor            18/18 passaram nas guardas mecânicas
+  -- por execução (transporte e retorno em colunas separadas):
+     q4-instigar-sem-metodo-degrau-0            r1    5.4s  transporte=ok         perguntas=4
+     q4-instigar-sem-metodo-degrau-0            r2    5.9s  transporte=ok         perguntas=4
+     q4-instigar-sem-metodo-degrau-0            r3    5.8s  transporte=ok         perguntas=4
+     q4-instigar-mesmo-texto-degrau-4           r1    7.2s  transporte=ok         perguntas=4
+     q4-instigar-mesmo-texto-degrau-4           r2    6.2s  transporte=ok         perguntas=5
+     q4-instigar-mesmo-texto-degrau-4           r3    6.5s  transporte=ok         perguntas=4
+     q4-instigar-com-metodo-decisao             r1    6.6s  transporte=ok         perguntas=5
+     q4-instigar-com-metodo-decisao             r2    6.9s  transporte=ok         perguntas=5
+     q4-instigar-com-metodo-decisao             r3    6.7s  transporte=ok         perguntas=4
+     q4-instigar-texto-magro                    r1    5.2s  transporte=ok         perguntas=4
+     q4-instigar-texto-magro                    r2    6.2s  transporte=ok         perguntas=4
+     q4-instigar-texto-magro                    r3    5.6s  transporte=ok         perguntas=4
+     q4-instigar-o-autor-escreve-metodo         r1    7.9s  transporte=ok         perguntas=4
+     q4-instigar-o-autor-escreve-metodo         r2    7.3s  transporte=ok         perguntas=3
+     q4-instigar-o-autor-escreve-metodo         r3    6.6s  transporte=ok         perguntas=3
+     q4-instigar-premissa-incerta               r1    4.8s  transporte=ok         perguntas=4
+     q4-instigar-premissa-incerta               r2    6.9s  transporte=ok         perguntas=4
+     q4-instigar-premissa-incerta               r3    6.6s  transporte=ok         perguntas=4
+     q4-contrapor-tudo-ou-nada                  r1    9.6s  transporte=ok         vazios: outroCampo
+     q4-contrapor-tudo-ou-nada                  r2    9.7s  transporte=ok         vazios: nenhum
+     q4-contrapor-tudo-ou-nada                  r3    8.5s  transporte=ok         vazios: nenhum
+     q4-contrapor-com-numero-do-autor           r1    9.1s  transporte=ok         vazios: nenhum
+     q4-contrapor-com-numero-do-autor           r2    8.5s  transporte=ok         vazios: nenhum
+     q4-contrapor-com-numero-do-autor           r3    7.2s  transporte=ok         vazios: nenhum
+     q4-contrapor-outro-campo-sem-fabricar      r1   10.7s  transporte=ok         vazios: nenhum
+     q4-contrapor-outro-campo-sem-fabricar      r2   11.8s  transporte=ok         vazios: nenhum
+     q4-contrapor-outro-campo-sem-fabricar      r3   10.5s  transporte=ok         vazios: outroCampo
+     q4-contrapor-razao-ja-sustentada           r1   10.5s  transporte=ok         vazios: foraDaLista
+     q4-contrapor-razao-ja-sustentada           r2   15.5s  transporte=ok         vazios: nenhum
+     q4-contrapor-razao-ja-sustentada           r3    9.6s  transporte=ok         vazios: foraDaLista
+     q4-contrapor-restricao-real                r1    8.2s  transporte=ok         vazios: nenhum
+     q4-contrapor-restricao-real                r2    7.6s  transporte=ok         vazios: nenhum
+     q4-contrapor-restricao-real                r3    6.4s  transporte=ok         vazios: nenhum
+     q4-contrapor-premissa-do-futuro            r1    9.6s  transporte=ok         vazios: nenhum
+     q4-contrapor-premissa-do-futuro            r2   10.4s  transporte=ok         vazios: nenhum
+     q4-contrapor-premissa-do-futuro            r3    7.1s  transporte=ok         vazios: nenhum
+  -- termo de uso corrente também proibido pela fixture (NÃO conta na guarda):
+      ~ ('q4-instigar-o-autor-escreve-metodo', 1, 'palavra do autor no retorno', 'não')
+      ~ ('q4-instigar-o-autor-escreve-metodo', 2, 'palavra do autor no retorno', 'não')
+      ~ ('q4-instigar-o-autor-escreve-metodo', 3, 'palavra do autor no retorno', 'não')

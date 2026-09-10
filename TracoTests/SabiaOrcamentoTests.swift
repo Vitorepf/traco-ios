@@ -71,7 +71,7 @@ import Testing
     @Test func instigarNaoMandaCabecalhoDeMetodoVazio() throws {
         let semMetodo = try #require(Sabia.montarInstigar(texto: "rascunho", gesto: nil, degrau: 1, retrato: "RETRATO"))
         #expect(!semMetodo.contains("O MÉTODO"))
-        #expect(semMetodo.contains("DEGRAU 1"))
+        #expect(semMetodo.contains(Degraus.instrucaoDeInstigar(1)))
         #expect(semMetodo.contains("O RASCUNHO:\nrascunho"))
         #expect(semMetodo.contains("RETRATO"))
         let comMetodo = try #require(Sabia.montarInstigar(texto: "rascunho", gesto: .woop))

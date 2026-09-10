@@ -577,6 +577,44 @@ aberto, com dono:
    número de corridas se escolhe pela variância medida aqui (`prova/q2f-modelo-4*.jsonl`),
    não pelo orçamento. **Dono: quem retomar a escolha do modelo.**
 
+## Dívida nomeada — a trava dos 30 min contra a janela de uma chamada só (09/09, LOTE)
+
+A lei de 09/09 manda a **sequência inteira** dentro de UMA chamada de
+`com-trava.sh` ("a trava serializa comando, não sessão"). Mas `com-trava.sh` tem
+**duas** guardas de reclamação, e a segunda — `find "$L" -maxdepth 0 -mmin +30` —
+**não olha o PID do dono**: aos 30 min ela toma a trava de um dono VIVO. Uma
+janela longa e legítima pode ser roubada por baixo, que é exatamente o acidente
+que a lei nasceu para impedir.
+
+A janela do LOTE levou 10 min 27 s e o risco não se materializou; ela manteve o
+`mtime` fresco com um `touch` a cada 60 s **de dentro do próprio script**
+(`ferramentas/orca/lote-ia-09-janela.sh`), que morre com o script — a guarda de
+PID morto continua valendo. **`com-trava.sh` não foi tocado.**
+
+**Dono: orquestrador.** Decidir se a guarda dos 30 min passa a exigir também
+`kill -0` no dono, agora que a lei manda sequências inteiras numa chamada só.
+
+## Aberto — as guardas mecânicas não separam os três Grok (09/09, LOTE-2)
+
+O LOTE-2 rodou as fixtures da Q3 e da Q4 em `grok-4.5` e `grok-4.6` no mesmo
+binário e na mesma janela (`ferramentas/orca/lote-ia-09b.md`, 114 execuções, 0
+erro de transporte). Passando os três modelos pelo mesmo conferidor mecânico
+(`ferramentas/orca/lote-ia-09b-guardas.py` — só guardas que são frase literal da
+fixture: rótulo interno, `\bN\d+T\d+\b`, 2..5 perguntas, jargão do app, campo em
+branco), o placar é **57/57, 56/57 e 57/57** — e o único descumprimento é um
+`semRetorno` com HTTP 200.
+
+**Nenhum dos três viola as guardas estruturais que os revisores citaram como
+defeito.** Logo, a pergunta *"os consertos passam com um modelo melhor?"* **não
+se responde por contagem**: ela mora na prosa dos requisitos, e a leitura é do
+revisor. Quem for ler tem os quatro JSONL em `prova/lote09b-*.jsonl`, com as
+mesmas fixtures (`b0fc69f9…`, `ed9267c1…`) das corridas de `grok-4.3` do LOTE —
+os três modelos são comparáveis linha a linha.
+
+**A dívida da trava dos 30 min continua aberta** (bloco acima): esta janela levou
+18 min 48 s, quase o dobro da anterior, e cresce com o modelo mais lento.
+**Dono: orquestrador.**
+
 ## Dívida nomeada — o que o G3 da F6 deixou aprovado com ressalva (09/09, 22h4x)
 
 A volta F6 passou com **menor nota 9** e mescla. Estas quatro ficam, nenhuma segura
