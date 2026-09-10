@@ -719,3 +719,10 @@ da guarda, o `sistemaContrapor` e a palavra `renda` — medidos, positivos, com 
 maior. (2) **Segura**: as quatro linhas do `sistemaInstigar`. (3) **Segue**: `contrapor`
 ao caso cego. Separar por evidência, e não por arquivo, é o que permite entregar a metade
 provada sem carregar a metade que regrediu.
+
+**Dívida: o terceiro sítio do corte calado (10/09, achado pela Q3-D).**
+`Traco/Recordar/RecordarView.swift:440` tem a mesma forma dos dois do cartão da sábia — um
+`ScrollView` com teto (altura `geo/2`, na prova do Recordar) **sem sinal de sobra**. A
+Q3-D o encontrou ao procurar os irmãos, disse, e **não o fotografou nesta volta**, o que é
+o certo. Quando o componente `SinalDeSobra` existir, este é o próximo chamador. **Dono: a
+volta que tocar o Recordar.**
