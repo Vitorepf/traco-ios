@@ -208,7 +208,10 @@ enum Sabia {
     Cada valor em português, até 280 caracteres, INFORMAÇÃO e nunca instrução: proibido "você deve", "faça", "escreva", "tente".
     O contraponto se sustenta no que ELA escreveu e no que você sabe — nunca em fato que você inventa para
     ter o que dizer. Proibido: número, porcentagem, preço, data, prazo, estudo, pesquisa, metanálise,
-    estatística, fonte ou declaração de terceiro que ela não deu. Um caso de outro campo entra pelo que
+    estatística, fonte ou declaração de terceiro que ela não deu. Proibido também o que é DELA e ela não
+    escreveu: renda, salário, dívida, reserva, equipe, ferramenta, prazo ou obrigação. Se a nota não diz
+    quanto ela ganha, o gasto dela não "compromete a renda" nem "aperta o orçamento" — a frase que disser
+    isso é apagada inteira e ela fica sem contraponto nenhum. Um caso de outro campo entra pelo que
     você sabe nomear sem inventar detalhe; sem isso, deixe "". Melhor um contraponto de três linhas sem
     números do que um número que não existe.
     Nada de elogio, nada de conclusão por ela. Se um dos três não tiver conteúdo honesto, deixe "" — silêncio é resposta válida.
@@ -218,9 +221,18 @@ enum Sabia {
     e nenhuma alternativa sua pode violá-los — alternativa que o requisito dela já exclui não é contraponto,
     é troca de assunto. Se a razão dela sustenta a escolha, diga isso e mostre onde essa razão aperta na
     prática, dentro do requisito dela.
-    Não atribua a ela recurso, renda, salário, prazo, equipe, ferramenta ou obrigação que ela não escreveu.
     Se houver um bloco SOBRE QUEM ESCREVE, use-o para escolher o exemplo que ela ainda não viu.
     """
+
+    /// ADR 2026-09-09s — a frase do desfecho que não existia. Chegou inteira,
+    /// e nada do que veio sobreviveu ao nosso contrato: não é "não respondeu"
+    /// (isso é o provedor mudo) nem `Politica.semProvedor` (isso é ninguém
+    /// para responder). É a terceira coisa, e a tela precisa saber dizê-la.
+    /// Uma só para as duas rotas: o autor não precisa saber qual guarda foi —
+    /// precisa saber que houve resposta e que pedir de novo muda o resultado
+    /// (nem `instigar` nem `contrapor` memoizam).
+    nonisolated static let nadaPassouNaGuarda =
+        "a sábia respondeu, e nada do que veio era sobre a sua nota. Peça de novo."
 
     nonisolated struct Contraparte: Sendable, Equatable {
         var contra: String
@@ -252,6 +264,10 @@ enum Sabia {
     De 2 a 5 perguntas curtas em português, cada uma terminando em "?". Perguntas, não respostas. Nenhuma sugestão de texto.
     O QUE COBRAR está escrito no fim destas instruções e MANDA nas perguntas: pelo menos duas o cumprem
     ao pé da letra, e nenhuma troca a cobrança por outra mais fácil.
+    Nota CURTA — uma ou duas linhas — nunca fica sem perguntas, e não cobra menos: cobra o que falta.
+    Aí MANDA o vazio: uma pergunta pede O QUE aconteceu, outra pede QUANDO aconteceu — o dia, a semana,
+    o momento — e outra pede O QUE SERIA dar certo. "O que era?" e "o que mudou?" não cumprem a do
+    quando, e nenhuma das três pode ser trocada por uma mais fácil.
     O ASSUNTO de toda pergunta é o que ELA escreveu, nas coisas e nas palavras dela. Estas instruções são
     minhas, não dela: nunca as cite, nunca as explique e nunca pergunte sobre elas — ela não vê nada disso,
     e uma pergunta sobre o meu pedido não é uma pergunta para ela.
@@ -261,7 +277,6 @@ enum Sabia {
     Não suponha nenhum fato que ela não escreveu, nem dentro da pergunta: nada de "a tentativa anterior",
     "o episódio de antes", "a sua área", "o seu objetivo". Se falta o quê, o quando ou o que era, PEÇA que
     ela nomeie — pergunta que já traz o fato suposto não é pergunta, é palpite.
-    Não devolva vazio quando há texto: mesmo uma linha só dá o que perguntar — o quê, quando, o que era.
     """
 
     /// ADR 03i — a prova do Recordar. UMA pergunta que obriga a puxar a nota da
@@ -566,13 +581,17 @@ enum Sabia {
     /// pegou "recompor o valor com o salário" numa nota que não fala de renda.
     /// ponytail: lista de termos MEDIDOS, não teoria da invenção. A forma geral
     /// da precisão inventada é `numeroAlheio`, e o resto é contrato do prompt.
-    /// "renda", "juros" e "inflação" ficaram DE FORA de propósito: são também
-    /// propriedade geral do mundo ("parcelar compromete renda futura"), e a
-    /// lista que as calasse compraria de novo a recusa covarde. Se a medida
-    /// seguinte pegar invenção por outra palavra, é aqui que ela entra.
+    /// "renda" ficou DE FORA em 09/09 de propósito, com medo da recusa covarde:
+    /// calar "parcelar compromete renda futura" é calar propriedade geral do
+    /// mundo. O LOTE-3 cobrou o preço da hesitação — renda que a nota não
+    /// declara em 1 de 3 no grok-4.3 e 3 de 3 no grok-4.5, sempre sobre um
+    /// autor que não escreveu quanto ganha. Ela entra agora porque a ADR 09s
+    /// tirou o custo: a frase apagada deixou de virar "a sábia não respondeu"
+    /// e a tela DIZ o que aconteceu. "juros" e "inflação" continuam fora — são
+    /// propriedade do produto financeiro, não fato da vida dela.
     nonisolated static let fatoQueEleNaoDeu = ["%", "por cento", "metanalise",
                                               "segundo estudo", "segundo pesquisa", "estudos mostram",
-                                              "pesquisas mostram", "dados mostram", "salario"]
+                                              "pesquisas mostram", "dados mostram", "salario", "renda"]
 
     /// A forma GERAL da precisão que o autor não deu: todo número da frase tem
     /// de aparecer no texto dele. Palavra ele pode ter faltado; número que ele
@@ -586,6 +605,14 @@ enum Sabia {
     /// Três chaves, texto até 280, e nunca instrução. O que começa por
     /// imperativo é descartado — informação é o que a ADR o permite. E o que
     /// se apoia em evidência que o autor não deu cai igual (ADR 09i).
+    ///
+    /// ADR 2026-09-09s — `nil` é NÃO LI; a `Contraparte` VAZIA é li inteira e
+    /// nada meu sobreviveu. Eram a mesma coisa, e o LOTE-3 mostrou o preço:
+    /// HTTP 200 com "conteúdo completo" chegava à tela como "a sábia não
+    /// respondeu" (grok-4.5 rep. 2 do CSV, grok-4.3 rep. 1 do tudo-ou-nada).
+    /// A guarda que protege apagando produzia o silêncio. É a convenção que
+    /// `parseCalibragem`, `parseEcos` e `PadroesRemoto.parsePerguntas` já
+    /// seguem: lista vazia é resultado, não ausência de resultado.
     nonisolated static func parseContraparte(_ cru: String, texto: String = "") -> Contraparte? {
         guard let ini = cru.firstIndex(of: "{"), let fim = cru.lastIndex(of: "}"),
               let dados = String(cru[ini...fim]).data(using: .utf8),
@@ -594,16 +621,40 @@ enum Sabia {
         guard Set(j.keys).isSubset(of: ["contra", "foraDaLista", "outroCampo"]) else { return nil }
         func limpo(_ chave: String) -> String {
             let t = ((j[chave] as? String) ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
-            guard t.count >= 12, t.count <= 320 else { return "" }
+            guard !t.isEmpty else { return "" } // o modelo calou; não é guarda nossa
+            guard t.count >= 12, t.count <= 320 else { return apagou(chave, "tamanho") }
             let baixo = t.lowercased()
-            if baixo.contains(regex: #"^(você deve|voce deve|faça|faca|escreva|tente|comece|pare de|precisa|deve )"#) { return "" }
-            if vazaAlheio(t, termos: fatoQueEleNaoDeu, texto: texto) { return "" }
-            if numeroAlheio(t, texto: texto) { return "" }
+            if baixo.contains(regex: #"^(você deve|voce deve|faça|faca|escreva|tente|comece|pare de|precisa|deve )"#) { return apagou(chave, "imperativo") }
+            if vazaAlheio(t, termos: fatoQueEleNaoDeu, texto: texto) { return apagou(chave, "fato que ele não deu") }
+            if numeroAlheio(t, texto: texto) { return apagou(chave, "número que ele não deu") }
             return AnaliseRemota.umaFrase(t, teto: 280)
         }
-        let c = Contraparte(contra: limpo("contra"), foraDaLista: limpo("foraDaLista"), outroCampo: limpo("outroCampo"))
-        return c.vazia ? nil : c
+        return Contraparte(contra: limpo("contra"), foraDaLista: limpo("foraDaLista"), outroCampo: limpo("outroCampo"))
     }
+
+    /// ADR 08p, mesma linha: quando o provedor entrega e o NOSSO contrato
+    /// recusa, a sonda precisa do nome da guarda — sem ele o LOTE-3 só sabia
+    /// dizer "vazio", e a volta seguinte recomeça cega. Devolve "" para caber
+    /// dentro do `limpo`. Em Release não guarda nada.
+    @discardableResult
+    nonisolated static func apagou(_ chave: String, _ guarda: String) -> String {
+        #if DEBUG
+        tranca.lock(); defer { tranca.unlock() }
+        guardasQueApagaram.append("\(chave) · \(guarda)")
+        #endif
+        return ""
+    }
+
+    #if DEBUG
+    private nonisolated(unsafe) static var guardasQueApagaram: [String] = []
+    private nonisolated static let tranca = NSLock()
+    /// Só o nome da guarda e da chave, para a sonda. O texto bruto continua descartado.
+    nonisolated static func retirarGuardasQueApagaram() -> [String] {
+        tranca.lock(); defer { tranca.unlock() }
+        defer { guardasQueApagaram.removeAll() }
+        return guardasQueApagaram
+    }
+    #endif
 
     /// A pergunta da prova. Devolve nil (e o ritual fica com a frase fixa) se
     /// não houver conta, se a resposta não for pergunta, ou se ela VAZAR.
@@ -924,8 +975,9 @@ enum Sabia {
     /// Perguntas válidas: de 1 a 5, cada uma terminando em "?".
     /// ADR 2026-09-09i — `texto` é o rascunho do autor, e a pergunta que fala
     /// do nosso andaime sem que ele tenha escrito a palavra não volta para ele.
-    /// Cair para `nil` é o resultado honesto: a página fica com as perguntas do
-    /// método, que são dela, em vez de uma pergunta sobre a nossa máquina.
+    /// ADR 2026-09-09s — o IRMÃO do `parseContraparte`, com o mesmo defeito e
+    /// o mesmo conserto: `nil` é NÃO LI, lista VAZIA é li e a guarda não
+    /// deixou nada passar. Antes os dois viravam "a sábia não respondeu".
     nonisolated static func parsePerguntas(_ cru: String, texto: String = "") -> [String]? {
         guard let ini = cru.firstIndex(of: "{"), let fim = cru.lastIndex(of: "}") else { return nil }
         guard let dados = String(cru[ini...fim]).data(using: .utf8),
@@ -936,7 +988,7 @@ enum Sabia {
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { $0.hasSuffix("?") && $0.count > 8 && $0.count <= 240 }
             .filter { !vazaAlheio($0, termos: andaimeDoPedido, texto: texto) }
-        guard !limpas.isEmpty else { return nil }
+        if limpas.isEmpty, !lista.isEmpty { apagou("perguntas", "andaime do pedido ou forma") }
         return Array(limpas.prefix(5))
     }
 

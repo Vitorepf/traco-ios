@@ -421,7 +421,9 @@ struct SabiaTests {
     @Test func perguntasSoComInterrogacao() {
         let r = Sabia.parsePerguntas(#"{"perguntas":["Isso depende de quê?","Faça assim: x","E quando falhar, quem avisa?"]}"#)
         #expect(r == ["Isso depende de quê?", "E quando falhar, quem avisa?"])
-        #expect(Sabia.parsePerguntas(#"{"perguntas":["sem interrogação"]}"#) == nil)
+        // ADR 09s: veio e não sobrou nada = lista vazia; `nil` é não deu para ler
+        #expect(Sabia.parsePerguntas(#"{"perguntas":["sem interrogação"]}"#) == [])
+        #expect(Sabia.parsePerguntas("desculpe, não posso") == nil)
     }
 
     @Test func aplicarVesteSemMudarPalavras() {

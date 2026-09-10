@@ -115,6 +115,7 @@ enum AvaliacaoIA {
                     Grok.esquecerMemo()
                     _ = Grok.retirarDiagnosticos()
                     _ = MotorTrabalho.retirarRecusasDaPreparacao()
+                    _ = Sabia.retirarGuardasQueApagaram()
                     PadroesRemoto.esquecerMemo()
                     var registro: [String: Any] = ["id": caso.id, "operacao": caso.operacao,
                         "repeticao": repeticao, "entrada": try objeto(caso.entrada),
@@ -139,6 +140,11 @@ enum AvaliacaoIA {
                     // recusa, a linha redigida diz qual guarda foi.
                     let recusas = MotorTrabalho.retirarRecusasDaPreparacao()
                     if !recusas.isEmpty { registro["recusasDaPreparacao"] = recusas }
+                    // ADR 2026-09-09s: o LOTE-3 só sabia dizer "vazio". Quem
+                    // apagou a frase — e qual chave — é o que decide se a
+                    // guarda está certa ou estreita na volta seguinte.
+                    let guardas = Sabia.retirarGuardasQueApagaram()
+                    if !guardas.isEmpty { registro["guardasQueApagaram"] = guardas }
                     let duracao = inicio.duration(to: .now).components
                     registro["duracaoSegundos"] = Double(duracao.seconds) + Double(duracao.attoseconds) / 1e18
                     registro["evento"] = "casoConcluido"
