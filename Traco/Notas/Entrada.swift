@@ -58,7 +58,7 @@ nonisolated enum Entrada {
                 identidade.append(dados)
                 let chave = SHA256.hash(data: identidade).map { String(format: "%02x", $0) }.joined()
                 guard vistas.insert(chave).inserted else { continue }
-                saida.append(Arquivo(url: url, dados: dados, chave: chave, itens: itens, podeRetirar: !resultado.contemProtegida))
+                saida.append(Arquivo(url: url, dados: dados, chave: chave, itens: itens, podeRetirar: resultado.podeRetirar))
             }
         }
         return saida
@@ -66,6 +66,8 @@ nonisolated enum Entrada {
 
     /// Chamar apenas depois de persistir notas e recibo na mesma transação.
     /// Se outro editor já mudou o arquivo, ele será uma nova entrada.
+    /// ADR 09y: `podeRetirar` vem PRONTO do parser — quem leu o arquivo é o
+    /// único que sabe se leu tudo, e remontar o portão aqui foi o defeito.
     @discardableResult
     static func confirmar(_ arquivo: Arquivo) -> Bool {
         guard arquivo.podeRetirar else { return false }

@@ -299,23 +299,50 @@ enum Corpus {
         importarComEstado(conteudo).itens
     }
 
-    /// O coletor precisa saber se parte do arquivo foi recusada pelo selo:
-    /// importar suas notas abertas não autoriza apagar a fonte inteira.
+    /// ADR 09y: **um arquivo só se apaga quando o app DELIMITOU tudo o que
+    /// havia nele.** `consumido` é cobertura de DELIMITAÇÃO, **não de
+    /// leitura**: a fração dos caracteres com tinta que caiu DENTRO de um bloco
+    /// que foi `append`ado — não a fração que virou nota. A diferença é medida,
+    /// não teórica (G3, `ferramentas/orca/revisao-p0-crlf.md`): numa nota
+    /// exportada pelo próprio app com 699 caracteres de tinta, 659 viram texto
+    /// de nota e `consumido` diz **1,00** — os 40 restantes são a tinta do
+    /// CABEÇALHO, creditada sem virar nota nenhuma. E campo que este parser
+    /// nunca lê (`dominio` e `recordada`, que o app ESCREVE; `gesto:` fora do
+    /// catálogo) SOME na volta pela `entrada/` com a conta dizendo 100%, e o
+    /// arquivo é apagado. `podeRetirar` é o único portão que o coletor lê, para
+    /// que ninguém o remonte errado do lado de fora. Bloco recusado pelo selo,
+    /// cabeçalho que não fecha, corpo vazio, prosa antes do primeiro cabeçalho:
+    /// tudo isso deixa a cobertura abaixo de 1, e incerteza não apaga.
     nonisolated static func importarComEstado(_ conteudo: String) -> (
-        itens: [ItemImportado], contemProtegida: Bool
+        itens: [ItemImportado], podeRetirar: Bool, consumido: Double
     ) {
         let f = ISO8601DateFormatter()
         let padrao = try! NSRegularExpression(
             pattern: #"(?m)^---\n(?:id: \S+\n)?criada: (\S+)\n(?:editada: \S+\n)?(?:gesto: (.+)\n)?(?:metodo: (\S+)\n)?"#)
         let ns = conteudo as NSString
         let hits = padrao.matches(in: conteudo, range: NSRange(location: 0, length: ns.length))
+        // PORTÃO QUE NÃO ENXERGA FALHA FECHADO (ADR 09y). O regex acima só
+        // conhece o fim de linha LF; `cabecalhos` conta A MESMA FORMA partindo
+        // por `isNewline`, que enxerga CRLF e CR. Contagens diferentes = existe
+        // cabeçalho do Traço que este parser NÃO leu — e um cabeçalho não lido
+        // pode ser um selo. Então nada entra como do autor e nada se apaga, em
+        // vez de o arquivo inteiro virar uma nota aberta do autor.
+        // O QUE ESTE PORTÃO NÃO COBRE, e a ADR dizia que cobria: ele só dispara
+        // quando as duas contagens DISCORDAM. Quando AS DUAS são cegas ao mesmo
+        // cabeçalho malformado (`criada:` sem o espaço, selo escrito à mão sem
+        // linha `criada:`), o arquivo cai no `hits.isEmpty` logo abaixo, que é
+        // FAIL-OPEN: vira UMA nota aberta do autor com o corpo selado dentro, e
+        // é apagado. Já era assim em `main`; dívida P0-SELO-CEGO, medida pelo
+        // G3, com recomendação de uma linha em `revisao-p0-crlf.md` §3.
+        guard cabecalhos(conteudo) == hits.count else { return ([], false, 0) }
         guard !hits.isEmpty else {
             let limpo = conteudo.trimmingCharacters(in: .whitespacesAndNewlines)
-            if limpo.isEmpty || limpo.hasPrefix("# Traço") { return ([], false) }
-            return ([(limpo, nil, .now, .autor)], false)
+            if limpo.isEmpty || limpo.hasPrefix("# Traço") { return ([], false, 0) }
+            return ([(limpo, nil, .now, .autor)], true, 1)
         }
+        let tinta = comTinta(conteudo)
         var saida: [ItemImportado] = []
-        var contemProtegida = false
+        var lidos = 0
         for (i, hit) in hits.enumerated() {
             let inicioBloco = hit.range.location
             let fimBloco = i + 1 < hits.count ? hits[i + 1].range.location : ns.length
@@ -327,18 +354,17 @@ enum Corpus {
             let cabecalho = bloco[inicioCabecalho..<fecha.lowerBound]
             // ADR 08u: quem escreveu. O regex de cima só casa o prefixo fixo do
             // cabeçalho; a origem sai daqui, onde a ordem das linhas não importa.
-            let origem = cabecalho.split(separator: "\n").lazy
+            let origem = cabecalho.split(whereSeparator: \.isNewline).lazy
                 .compactMap { linha -> OrigemNota? in
                     let l = linha.trimmingCharacters(in: .whitespaces)
                     guard l.hasPrefix("origem: ") else { return nil }
                     return OrigemNota(rawValue: String(l.dropFirst(8)).trimmingCharacters(in: .whitespaces))
                 }
                 .first ?? .autor
-            if cabecalho.split(separator: "\n").contains(where: {
+            if cabecalho.split(whereSeparator: \.isNewline).contains(where: {
                 let linha = $0.trimmingCharacters(in: .whitespaces)
                 return linha == "estado: selada" || linha == "estado: queimada"
             }) {
-                contemProtegida = true
                 continue
             }
             let corpo = String(bloco[fecha.upperBound...]).trimmingCharacters(in: .whitespacesAndNewlines)
@@ -353,8 +379,47 @@ enum Corpus {
             let gestoNome = idDoMetodo
                 ?? nomeDoGesto.flatMap { Gesto.doNome($0)?.conhecido == true ? $0 : nil }
             saida.append((corpo, gestoNome, data, origem))
+            // A conta fecha-se sozinha SÓ PARA `continue`, e por construção:
+            // esta linha é a ÚLTIMA do corpo do laço, então todo caminho que
+            // pula o bloco deixa a conta curta sem bookkeeping por ramo.
+            // NÃO fecha para descarte que CONSOME SEM DELIMITAR, e o G3 mediu
+            // dois: truncar o que se guarda (o teto de 140 grafemas da ADR 08h,
+            // sem um `continue` novo, importou 140 de 699 caracteres com
+            // `consumido = 1,00` e APAGOU o arquivo) e ler um campo a menos
+            // (`dominio`/`recordada`). Filtrar `saida` depois do laço é a mesma
+            // família. Quem acrescentar um desses acrescenta o teste junto — a
+            // cobertura não o pega.
+            lidos += comTinta(bloco)
         }
-        return (saida, contemProtegida)
+        return (saida, lidos == tinta, tinta == 0 ? 1 : Double(lidos) / Double(tinta))
+    }
+
+    /// Bytes com tinta: tudo que não é espaço, tabulação nem quebra de linha. É
+    /// a unidade da cobertura — reindentar um arquivo, ou trocar o fim de linha
+    /// dele, não muda o que ele "havia". Contar por byte e não por
+    /// `CharacterSet.whitespacesAndNewlines` é 40× mais rápido (medido em
+    /// corpus de 562 KB: 0,6 ms contra 23,7 ms) e erra para o lado seguro —
+    /// espaço exótico que sobre sem ser lido conta como tinta e segura o
+    /// arquivo, que é a direção certa.
+    nonisolated private static func comTinta(_ s: String) -> Int {
+        var n = 0
+        for b in s.utf8 where b != 0x20 && b != 0x0A && b != 0x0D && b != 0x09 { n += 1 }
+        return n
+    }
+
+    /// Quantos cabeçalhos do Traço o arquivo tem, com QUALQUER fim de linha:
+    /// uma linha `---`, o `id:` opcional, e a linha `criada:`. `isNewline`
+    /// separa CRLF, CR e LF (em Swift `"\r\n"` é UM `Character`, e por isso
+    /// quem parte por `"\n"` lê um arquivo do Windows como uma linha só).
+    nonisolated private static func cabecalhos(_ s: String) -> Int {
+        let linhas = s.split(omittingEmptySubsequences: false, whereSeparator: \.isNewline)
+        var n = 0
+        for (i, linha) in linhas.enumerated() where linha == "---" {
+            var j = i + 1
+            if j < linhas.count, linhas[j].hasPrefix("id: ") { j += 1 }
+            if j < linhas.count, linhas[j].hasPrefix("criada: ") { n += 1 }
+        }
+        return n
     }
 
     // MARK: - Disco

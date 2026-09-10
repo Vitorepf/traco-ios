@@ -82,12 +82,66 @@ struct IntegridadeCorpusTests {
             let protegida = "---\ncriada: 1970-01-01T00:00:01Z\nestado: \(estado)\n---\n"
             for corpus in [aberta + "\n" + protegida, protegida + "\n" + aberta] {
                 let leitura = Corpus.importarComEstado(corpus)
-                #expect(leitura.contemProtegida)
+                #expect(!leitura.podeRetirar)
                 #expect(leitura.itens.count == 1)
                 #expect(try #require(leitura.itens.first).texto == "nota aberta")
             }
         }
-        #expect(!Corpus.importarComEstado(aberta).contemProtegida)
+        #expect(Corpus.importarComEstado(aberta).podeRetirar)
+    }
+
+    // MARK: - ADR 09y: um arquivo só se apaga quando o app leu tudo o que havia nele
+
+    /// A tabela do P0-CRLF, medida antes em harness com as linhas verbatim do
+    /// `Corpus`: os quatro casos do revisor (A–D), a prosa antes do primeiro
+    /// cabeçalho (E — que não precisa de `\r` nenhum), o arquivo misto (F) e a
+    /// nota aberta inteira em CRLF (G). Em `main`, SEIS dos sete apagavam o
+    /// arquivo do autor e três importavam o corpo de uma nota selada como voz
+    /// dele; o sétimo é o A, que sempre funcionou e aqui é a guarda contra
+    /// regressão do caminho que já estava certo.
+    @Test func arquivoSoSaiDaEntradaQuandoOAppLeuTudo() {
+        let selada = "---\ncriada: 2026-09-09T10:00:00Z\norigem: modelo\nestado: selada\n---\n\na dor que ninguém lê\n"
+        let aberta = "---\ncriada: 2026-09-09T10:00:00Z\n---\n\ncorpo aberto\n"
+        func crlf(_ s: String) -> String { s.replacingOccurrences(of: "\n", with: "\r\n") }
+        let casos: [(String, String)] = [
+            ("A) LF puro, selada", selada),
+            ("B) tudo CRLF, selada", crlf(selada)),
+            ("C) \\r só na linha do estado",
+             selada.replacingOccurrences(of: "estado: selada\n", with: "estado: selada\r\n")),
+            ("D) \\r só na linha da origem",
+             selada.replacingOccurrences(of: "origem: modelo\n", with: "origem: modelo\r\n")),
+            ("E) prosa do autor antes do 1º cabeçalho, sem um \\r",
+             "# minhas notas de hoje\n\numa linha que só existe aqui\n\n" + aberta),
+            ("F) misto: nota sã + \\r antes do ---",
+             aberta + "\n---\ncriada: 2026-09-09T11:00:00Z\r\nestado: selada\n---\n\noutra dor\n"),
+            ("G) nota aberta inteira em CRLF", crlf(aberta)),
+        ]
+        for (nome, md) in casos {
+            let r = Corpus.importarComEstado(md)
+            #expect(!r.podeRetirar, "\(nome): o arquivo do autor seria APAGADO")
+            #expect(r.consumido < 1, "\(nome): cobertura \(r.consumido) afirma ter lido tudo")
+            #expect(!r.itens.contains { $0.texto.contains("dor") },
+                    "\(nome): o corpo de uma nota SELADA entrou como nota")
+        }
+    }
+
+    /// A irmã que NÃO acusa: o que o parser leu inteiro continua entrando e
+    /// continua podendo sair da `entrada/`. Sem ela, `podeRetirar = false` fixo
+    /// passaria no teste de cima e ninguém veria a pasta parar de esvaziar.
+    @Test func oQueOAppLeuInteiroContinuaPodendoSairDaEntrada() throws {
+        let solta = "só uma ideia solta, sem cabeçalho nenhum"
+        let r = Corpus.importarComEstado(solta)
+        #expect(r.consumido == 1)
+        #expect(r.podeRetirar)
+        #expect(try #require(r.itens.first).texto == solta)
+
+        let exportada = Corpus.arquivoMd(texto: "três temas voltam", gesto: .woop,
+                                         campos: ["resultado": "energia"],
+                                         criadaEm: Date(timeIntervalSince1970: 0))
+        let volta = Corpus.importarComEstado(exportada)
+        #expect(volta.consumido == 1)
+        #expect(volta.podeRetirar)
+        #expect(volta.itens.count == 1)
     }
 
     @Test func bookmarkInvalidoLimpaConfiguracaoSemExecutarAcesso() throws {

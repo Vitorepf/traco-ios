@@ -79,7 +79,7 @@ que este arquivo existe para impedir — e ele reincidiu no próprio arquivo.
 | 09v | Q3-C · o modelo se escolhe POR OPERAÇÃO, com a comparação pareada na mão | reservada, volta viva |
 | 09w | Q3-D · o sinal de sobra: cartão com teto não corta calado | reservada, volta viva |
 | 09x | Q4-E · o caso cego do `contrapor`, e o modelo desta rota | reservada, volta viva |
-| 09y | P0-CRLF · o arquivo só se apaga quando o app leu tudo o que havia nele | reservada, volta viva |
+| 09y | P0-CRLF · o arquivo só se apaga quando o app delimitou tudo o que havia nele | em `main` |
 | 09z | MERGE-Q3D · o Perfil fala a língua do autor (cartão CONTA e `semProvedor`) | em `main` |
 
 **A SÉRIE 09 ACABA AQUI.** A `09z` é a última letra do dia 09. **A próxima volta usa
@@ -91,9 +91,15 @@ alguém tropeçar: a série 08 encheu sem aviso e custou três colisões numa ta
 | letra | dona | estado |
 |---|---:|---|
 | 10a | TEMPO · o teto vira margem declarada, e a espera ganha estado | reservada, volta viva |
-| 10b | RESPONDER · o pedido condicionado à matéria (G0 da Astra) | **ESCRITA** em SPEC.md — o prompt foi medido e NÃO fecha; `responder` fica cortada |
+| 10b | RESPONDER · o pedido condicionado à matéria (G0 da Astra) | **em `main`** — o prompt foi medido e NÃO fecha; `responder` fica cortada |
+| 10c | INSTIGAR · a irmã: condicionar à matéria também nas perguntas | reservada, volta viva |
+| 10d | CONTRAPOR · fechar a porta do caso cego no pedido | reservada, volta viva |
 
-**Próxima livre: 10c.**
+| 10e | SUPERFÍCIE · falar com a sábia: um componente só, a pergunta como título, a resposta como folha | reservada, volta viva |
+
+| 10f | SISTEMA-IA/conversa · a conversa com a sábia como folha do Traço | reservada, volta viva |
+
+**Próxima livre: 10g.**
 
 **A 09s colidiu, e quem mudou fui eu** (09/09, ~02h). Tomei a `09s` porque o
 "Próxima livre: 09s" que estava escrito aqui batia com o comando; no mesmo

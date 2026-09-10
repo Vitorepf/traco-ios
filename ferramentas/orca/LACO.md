@@ -3475,3 +3475,163 @@ donos num worktree** que eu venho cobrando o dia inteiro, e a regra vale contra 
 primeiro. Avisei o run inteiro, com o que fiz e por quê, e a regra que passo a seguir:
 **avisar ANTES, dizer quais arquivos, e só tocar em ferramenta — nunca em código de
 candidato.**
+
+## 10/09, 12h41 — regime das três operações em paralelo (§ ordem do dono, 12h40)
+
+- **11h41** `responderNasNotas` chegou ao autor — `main 47aff15`, lista do Perfil de 7 para 6.
+- **15h19Z** P0-CRLF em `main` (`1a9c258`): o app parou de apagar arquivo do autor.
+- **12h35** teto em `main` (`c0399f9`): `esperaObservada = 241` (fato) e `teto = 300`
+  (decisão), com guarda entre os dois. O G3 reprovou a espera com estado — a órfã gravava a
+  leitura da IA no trabalho do autor — e ela **nunca foi mesclada**.
+- **12h40** ordem do dono: **três cadeiras, uma por operação, dois aparelhos de conta**,
+  meta com hora (14h30 / 16h30 / 18h), relato de 30 em 30 min, **duas tentativas no cego**,
+  G3 em uma página, **zero commit só de documentação**.
+- **12h50** `responder` pediu para abrir a janela sem esperar o teto, **com número**: pior
+  caso da rota dela é **21 s em 54 execuções**, não os 241 s de outra rota. **Autorizei e
+  voltei atrás da minha ordem** — a regra aplicada sem olhar o número da rota era o erro que
+  eu venho cobrando. Guarda: **acima de 60 s numa chamada, me avisa**.
+- **Aberto:** `responder` no `B91C8DEF`, `contrapor` no `34CC3F94`, `instigar` sem aparelho.
+- **13h00** `responder`: BASE remedida no MESMO dylib (`681a249f`), pedido antigo por
+  ambiente — **14 de 20**. Latência média 10,2 s, **máx 45,9 s** (acima dos 21 s históricos,
+  dentro da guarda de 60 s). Ela declara que **a sua leitura é mais dura que a da Q2-F em
+  duas linhas** e usa a própria, não a histórica.
+- **12h55** `instigar` pronto **sem aparelho**: suíte 1027 verde, guarda vermelha por
+  mutação, dois casos cegos, medidor reproduzindo a tabela do G3 célula a célula. Espera
+  aparelho; letra 10c.
+- **12h50** TEMPO-B encerrou: Ato 1 mesclado, Ato 2 parado por ordem (não custa nada em
+  `main` — a espera nunca foi mesclada). Dívidas herdadas que ele achou e não tocou:
+  `cancelar()` no `onDisappear` só cancela `tarefa`; `LinhaDeEstado.swift` tem `#Preview`
+  AX5 anterior à §12 (fica, por §12 item 3 — e não é o que o dono viu: `#Preview` não roda
+  na suíte nem mexe no simulador).
+- **13h35** `responder` **NÃO VOLTA** — duas tentativas, as duas **piores que a base**:
+  base **14/20**, T1 **11/20**, T2 **12/20**, com **240 saídas lidas uma a uma** e a base
+  remedida no mesmo binário de cada braço. **O defeito é SIMÉTRICO:** quando o pedido manda
+  **ajudar**, o modelo **inventa a estrutura do documento** ("abra o PDF", "vá ao sumário");
+  quando manda **não inventar**, ele **para em "não consta X"** e não entrega o próximo ato.
+  **Nenhuma das duas versões separou as duas coisas.** Conclusão dela: **o prompt sozinho
+  não fecha esta rota no `grok-4.3`**; a alavanca seguinte é **contexto** (ordem da Astra),
+  *"porque metade do que sobrou é o modelo falando do documento que nunca viu"*. Nenhuma
+  chamada passou de 26,1 s — a guarda dos 60 s não disparou e o teto nunca mordeu.
+- **13h30** Lei nova: **a corrida se nomeia pela OPERAÇÃO e a série de letras de lote
+  morre.** O `instigar` e o `contrapor` colidiram **duas vezes em uma hora** na mesma série,
+  pela causa das colisões de ADR de ontem — recurso compartilhado sem registro, três workers
+  escolhendo "a próxima livre" ao mesmo tempo. *Nome que diz a operação não colide, porque
+  só há uma volta por operação.* Segunda vez hoje em que a solução certa é **sair do recurso
+  compartilhado**, não coordená-lo melhor.
+- **16h08Z — INCIDENTE ABERTO, sem dono.** O `B91C8DEF` apareceu `Shutdown` no meio da
+  janela do `responder`, **sem que ninguém assumisse**. Perguntei ao run inteiro e **ninguém
+  reivindicou**; as outras cadeiras têm **zero** `simctl shutdown` e `emulator kill` na
+  saída, o vigia de fala não toca em simulador, e o log do CoreSimulator **não registra quem
+  pediu**. **Fica ABERTO** até alguém assumir ou acontecer de novo com testemunha. Se
+  repetir num aparelho de conta **durante um install**, o risco deixa de ser dez minutos e
+  passa a ser a conta. Abortou **antes do install**; conta intacta (12 modelos antes e
+  depois). Procurei e **não achei quem foi** — as outras cadeiras têm zero `shutdown`/`kill`
+  na saída, e o log do CoreSimulator não registra o pedido. **O desenho segurou.**
+- **13h41** `B91C8DEF` passa ao `instigar`; `contrapor` segue no `34CC3F94`.
+- **13h55** Ordem do dono: **não esperar a meta para virar a alavanca**. Astra despachada no
+  **G0 de CONTEXTO** do `responder` (`ctx_95f3c122ad63`), com a direção dele: *o documento e
+  as notas que a pergunta cita entram INTEIROS, dentro do orçamento da 05m; e se não couber,
+  a resposta DIZ O QUE NÃO LEU — nunca fala do que não viu.* **Regra nova: cada operação tem
+  UMA rodada de prompt e UMA de contexto; a terceira alavanca é esquema de saída.**
+- **14h10 — DIRETRIZ §14.** O dono abriu a resposta da sábia no teste 3 às 13h58:
+  *"experiência deplorável, design deplorável e doentio"*. **Regra que muda o que é
+  "voltar": a operação só volta quando a SUPERFÍCIE passa no G4 e o dono vê** — sem tela
+  aprovada, fica indisponível **por melhor que meça**. Cadeira Fable aberta
+  (`ctx_331fbe8b415c`): **um componente único** em `Traco/Componentes` para `responder`,
+  `responderNasNotas`, `contrapor` e `instigar`. Vídeo previsto **17h30**. As duas cadeiras
+  de IA avisadas: **não gastar janela do aparelho de conta com captura de cartão** até o
+  componente existir — seria a captura da tela reprovada.
+- **14h00** `contrapor` **NÃO VOLTA**: duas tentativas na alavanca do pedido, mesma fixture
+  byte a byte, 8 casos × 3 × 2 modelos, uma janela e uma instalação por tentativa. **Derrubou
+  o que o LOTE-6 nomeou** — os três campos vazios sobre HTTP 200 do `grok-4.3` foram a
+  **ZERO e ficaram lá em 96 execuções**, e o `4.5` subiu de 0/3 para 2/3 no cego que o
+  derrubava. **Mas nenhum passa os DOIS cegos 3/3.** Defeito que sobra, nomeado: **para o
+  recurso que a nota diz NÃO ter, o modelo oferece um SUBSTITUTO** (ensaio sintético, cópia
+  mascarada, recorte representativo). Entregou também o portão que faltava **antes** do
+  prompt (`Grok.Diagnostico.retornoBruto`) — sem ele, *"os três vazios são do modelo"* era
+  **inferência**; com ele, ficou conferido.
+- **14h05** A Astra morreu no arranque: **`Agent startup blocked: codex-update-prompt`** — o
+  app do Codex pedindo atualização. **Não deixei a `responder` parada:** mandei o contrato de
+  contexto direto (a ordem do dono mais o que o G0 anterior da Astra já levantara — o corte
+  em 5000, a divulgação montada **antes** do corte, e a falsa intimidade que a volta já
+  **mediu**: em 2 de 3 a vizinha entrou na proposta como se fosse plano do autor). **Mais
+  contexto piora isso se a fronteira não vier junto**, então a fronteira é parte da alavanca.
+  Astra **redespachada** (`ctx_e81ab19886b0`) como **conferência**, não pré-requisito.
+- **14h11** Três cadeiras vivas: **superfície** (auditando, Fase 5 do roteiro),
+  **`instigar`** (`B91C8DEF`), **`responder`** (alavanca de contexto). Batimento da
+  `responder` está velho (15h31Z) e **o processo está vivo e trabalhando** — li os sinais
+  autoritativos, não a idade do batimento.
+- **14h30** `responder` fechou a rodada de PROMPT: **não volta**. Duas reescritas contra o
+  texto vigente **no mesmo binário** — 20 casos × 3 por braço, duas janelas, **240 saídas
+  lidas uma a uma** mais 6 de pergunta real. **Base 14 e 15 de 20; candidatos 12 e 12.** O
+  conserto **sai da linha do Perfil, porque foi tentado e medido** — a tela não promete o
+  que já falhou. **Mas fechou SETE defeitos de rota**, com vermelho e verde provados **antes
+  da conta**: identidade da requisição (o cartão podia responder a pergunta que já não era a
+  atual — o risco que a Astra achara por leitura), página lida antes do `await`, revalidação
+  de fonte antes de publicar, divulgação só das vizinhas que couberam, falha que fica junto
+  da pergunta, corte silencioso aos 900 fora do parser, e o **retorno BRUTO preservado no
+  portão das dezesseis rotas**.
+- **14h30 — o achado de raiz do dia:** *"o corpo de `perguntarASabia` era **inalcançável pela
+  suíte**, e por isso isto sobreviveu **sete voltas**."* **Função que a suíte não alcança é
+  zona onde defeito não custa nada para existir** — e explica por que sete passadas por ali
+  não viram nada. Mandei o G3 responder **o que MAIS está inalcançável**, com número: quantas
+  linhas da rota a suíte alcança agora contra antes.
+- **14h30** Próxima alavanca do `responder`, pela medida e não por gosto: **CONTEXTO**, não
+  esquema — *"nenhum texto de pedido conserta informação que não viajou"*.
+- **14h40 — a dúvida do dedupe pagou.** A auditoria respondeu **com os ids**: são **TRÊS
+  NOTAS DISTINTAS** (uuids `88E0CED5…`, `AA2CAFAE…`, `B5785094…`), plantadas ~20 min uma da
+  outra com o mesmo texto de 279 caracteres — **não** a mesma nota chegando três vezes.
+  **Deduplicar por texto apagaria duas notas reais do autor**, e ela **retirou o
+  `semRepetida` do diff**. O defeito é da TELA: *"Foram junto:"* cita
+  `enviadas.map(\.titulo)`, e o título é a **primeira linha do texto** — três notas iguais
+  viram três linhas iguais sem nada que as distinga. **E o conserto já existe uma função
+  adiante:** `RespostaNotas.interpretar` acrescenta *"(edição <data>)"* quando dois títulos
+  coincidem, na linha "Referência:"; **a linha das fontes não**. *Uma pergunta antes do
+  conserto separou "apagar dado do autor" de "citar texto onde devia citar nota".*
+- **14h40** Entrega limpa entre cadeiras: o diff da superfície (15 arquivos, +720/−241, sha
+  conferido, `git apply --check` limpo) passou para a **SISTEMA DA IA** como base, **sem
+  commit em dois branches**, com a lista do que resolve — inclusive `CartaoDeResposta`
+  (título = a pergunta, um só Fechar, fontes fechadas em "leu N notas suas", retorno como
+  controle), a palavra **"continua" removida** do `SinalDeSobra` (virou dobra com rótulo de
+  AX), o **`ProgressView` mudo fora da Lente**, e o Perfil **deixando de prometer** "responder
+  nas Notas" até a tela passar (§14).
+- **14h42 — retomada (uso 28%).** Quatro cadeiras, e o arranjo é o da §15: **AUDITORIA**
+  (`ctx_331fbe8b415c`, oito superfícies × seis estados, sem código, **entrega 17h**),
+  **SISTEMA DA IA** (`ctx_ed3f7a7fec60`, código pronto da conversa, ADR **10f**, build na
+  fila da trava), **`instigar`** (`ctx_5d157f299dc0`, janela no `B91C8DEF` desde 14h26, quatro
+  braços) e **G3 do `responder`** (`ctx_c032ff1737cd`, os sete consertos de rota).
+- **14h40** Pedi à 10f que declare a **09w SUPERADA** com a razão: o `SinalDeSobra` nasceu
+  hoje de manhã e vai ser apagado, porque **sem teto não há sobra a sinalizar**. Componente
+  apagado sem ADR dizendo por quê vira mistério em um mês. E que diga **o que a tela faz com
+  a cauda** — mediana 384, máximo medido 568: *"quase sempre cabe" não é contrato*.
+- **A Astra segue fora**: `Agent startup blocked: codex-update-prompt`, duas tentativas.
+  Precisa de um clique do dono no app do Codex. Nada está parado por ela — a `responder`
+  recebeu o contrato de contexto e o parecer entraria como conferência.
+- **14h50 — AUDITORIA DA IA NA TELA entregue**, duas horas antes do prazo. Oito superfícies,
+  14 capturas, **nota de 3 a 7 — nenhuma chega a 9**. Os quatro defeitos que **se repetem**,
+  e que por isso são contrato faltando e não bugs soltos: **espera muda em OITO rotas**;
+  *"serviu / não serviu"* como **dois links em quatro telas**; **caixa alta em seis**; e **a
+  frase de indisponível só depois do toque, em cinco** — a pessoa pede, espera, e só então
+  sabe que não ia funcionar. E o número que resume o pedir: **nove maneiras de pedir para
+  dezesseis operações**, com o Trabalho custando **seis toques mais dois textos**.
+- **14h50 — achado que muda o desenho:** *esperando* e *resposta* do `responder` **na Página
+  são INALCANÇÁVEIS em produção** — a rota bate em `Politica.aviso` e vira **toast de 8 s**.
+  A tela que está sendo desenhada para ela **não pode ser vista hoje**; nasce antes de a
+  operação voltar, e o teste dela não pode depender da rota estar ligada.
+- **14h50** A auditoria **não gastou nenhuma chamada da conta e não instalou nada** — o
+  helper de AX do `34CC3F94` não devolve árvore, e ela declarou em vez de contornar. Ficou
+  uma nota *"Como uso o traco"* digitada na Página desse aparelho: **dado de teste num
+  aparelho de conta**, declarado.
+- **15h11 — retomada (uso 32%).** Três cadeiras: **SISTEMA DA IA** (conversa construída sobre
+  o patch da auditoria, ADR **10f**, em revisão), **`instigar`** (2ª instalação às 18:11:44Z,
+  conta true antes e depois, `cmp` batendo com o produto dele, quatro braços correndo) e
+  **G3 do `responder`** (os sete consertos de rota).
+- **15h05 — conflito de regras resolvido, e vale registrar a razão.** "**UMA** instalação por
+  volta" contra "**DUAS** tentativas no caso cego" (§ regime das 12h40). **Ganhou a das duas
+  tentativas:** a regra da instalação única nasceu para impedir reinstalação **por hábito**,
+  e a das duas tentativas **pressupõe** uma segunda medida — sem ela, a segunda tentativa não
+  existiria. *Não era conflito real: era regra velha escrita para outro caso.*
+- **15h05 — o melhor diagnóstico do dia, do `instigar`:** *"a minha frase condicionava a
+  QUANTIDADE de matéria e não ao que a nota já resolveu"*. A cláusula nova diz o contrato em
+  uma linha: **"a nota que NEGA uma delas a fechou tanto quanto a que a responde"** — negar e
+  responder fecham a pergunta do mesmo jeito; **só o silêncio a deixa aberta**.

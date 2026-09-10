@@ -130,3 +130,28 @@ O teto continua **três voltas** e **um aparelho com conta**. O segundo (teste 3
 5. **Nada de portão de acessibilidade máxima (§12)**; captura só em large.
 
 **O gargalo continua sendo UM aparelho com conta.** Cada operação custa uma janela de ~25 min nele. O dono pode dobrar a velocidade dizendo "pode" para o teste 3 (`34CC3F94`) virar segundo aparelho de conta — a equipe abre o login pelo app e ele autoriza no Grok.
+
+## 14. Veredito do dono, 10/09 14h10 — a resposta da sábia nas Notas: "experiência deplorável, design deplorável e doentio"
+
+Capturas do teste 3 às 13h58, rota `responderNasNotas`, a que voltou às 11h41. **Uma operação não "volta ao autor" pelo motor: volta pela tela, e a tela foi vista pela primeira vez pelo dono.** O que ele viu, e que não pode existir de novo:
+
+- **Espera:** um cartão "a sábia pensa…" com um botão "Fechar" e mais nada — sem tempo, sem cancelar, sem relação com a pergunta (§10 já mandava: pensando, tempo passando, cancelar).
+- **Cabeçalho em caixa alta com jargão:** "A SÁBIA, SOBRE: COMO USAR O TRACO?" — a pessoa não pergunta a uma "sábia"; a pergunta dela é o título, em letra de gente.
+- **Resposta cortada com "CONTINUA"**, em letra grande sobre um cartão flutuante que cobre a lista.
+- **"Foram junto:" com a MESMA nota repetida três vezes** em texto miúdo cinza — é defeito (fonte duplicada) e é ruído; as fontes são títulos de nota tocáveis, uma vez cada, e só se a pessoa quiser ver.
+- **"serviu / não serviu"** soltos como links, e "Fechar" duas vezes na mesma tela.
+
+**Regra que vale para toda operação de IA daqui em diante:** a volta que devolve uma operação **inclui a superfície** — estado de espera, resposta, fontes, retorno — desenhada pelo Fable, julgada pelo G4 e **vista pelo dono antes de "voltou"**. Sem tela aprovada, a operação continua indisponível, por melhor que meça. A superfície da resposta é UMA para todas as operações que respondem em texto (responder, responderNasNotas, contrapor, instigar): componente único em `Traco/Componentes`, não um cartão por rota.
+
+**Complemento do dono, 14h25: "a forma do design e experiência para falar com a sábia é deplorável."** Não é só o cartão da resposta: é a CONVERSA inteira — o campo "buscar ou perguntar" misturado com a busca no pé das Notas, a pergunta que some quando se envia, a espera como cartão solto, a resposta como folha flutuante que cobre a lista, a volta sem continuação. A cadeira da superfície tem o escopo da experiência completa de falar com a sábia: onde a pessoa pergunta (de qualquer tela, um gesto só), como a pergunta fica visível enquanto pensa, como a resposta chega na língua visual do Traço (é uma folha do Traço, não um balão de chat), como se continua a conversa, como a resposta vira nota ou some, e as fontes. Curva-zero medida em toques. Auditar o fluxo todo antes de tocar; a referência do dono é "não parece feito por IA".
+
+## 15. Ordem do dono, 10/09 14h35 — "resolva toda a experiência, design e o uso da IA"
+
+Não é a conversa com a sábia só: é **toda superfície em que a IA aparece para o autor**, resolvida como UM sistema. As dezesseis operações têm tela: vestir e reconhecer a forma (cartão da forma), domínio, a Lente (instigar, contrapor, ecos, calibragem), Padrões, Recordar (pergunta e conferência), Trabalho (produzir, revisar, conferir tentativa, conferir o que voltou, preparar prática), a conversa (responder, responder nas Notas) e o Perfil (quem responde). Hoje cada uma tem o seu cartão, a sua espera e a sua frase; é isso que parece feito por IA.
+
+**Entrega, nesta ordem, e cada passo com vídeo ao dono:**
+1. **Auditoria da IA na tela (hoje)**: uma captura por superfície e por estado (pedir, esperando, resposta, sem provedor, falha, retorno), nota por superfície, os defeitos nomeados. Sem código.
+2. **Sistema da IA no Traço**: como a IA se apresenta em TODO lugar — onde se pede (um gesto, o mesmo em toda tela), a espera (uma só: pergunta visível, tempo, cancelar), a resposta (folha do Traço, origem visível, nunca a voz do autor), o retorno (serviu/não serviu como controle), a indisponibilidade (uma frase de pessoa, sem data nem medida), a falha. Componentes únicos em `Traco/Componentes`; nenhuma tela desenha a IA por conta própria. Régua: "não parece feito por IA"; curva-zero em toques.
+3. **Telas, por valor**: conversa com a sábia (§14), Lente, Trabalho, cartão da forma, Recordar, Padrões, Perfil. Cada uma pelo G4 e pelo dono.
+
+**Cadeiras:** duas de Fable na experiência (auditoria+sistema; depois telas), uma de IA medindo operações nos aparelhos (instigar, responder com contexto, contrapor com a alavanca do substituto). A medição não para, mas nenhuma operação volta sem a tela do sistema novo. Astra no G0 do sistema (fronteira da IA: forma, informação e pergunta; nunca a resposta do autor).
