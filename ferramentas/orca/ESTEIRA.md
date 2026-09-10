@@ -1633,3 +1633,32 @@ A mesma volta apontou que `TracoTests/EscritaVisivelTests.swift:495/:556/:651` r
 Fica **declarado**: os cinco chamadores de `editor(_:)` usam o **padrão** AX5, então mudar o
 padrão mexeria no que eles medem. **Quem um dia tocar essa suíte decide com as asserções na
 mão**, não por reflexo.
+
+## O conserto que trouxe de volta o defeito que veio matar (10/09, G3 da TEMPO)
+
+A volta TEMPO veio matar **a espera eterna e sem número**. O G3 achou que **a geração de
+`OficinaTrabalho` a recria, pior**: o comentário em `:264` afirma que as três rotas *"se
+excluem por guarda"* e **as linhas `:299/:345/:385` desmentem**. Com **duas chamadas em
+voo** — e as duas superfícies estão **na mesma rolagem**, então isso é o caso comum, não o
+raro — **o `defer` da primeira nunca roda**, `revisando` fica preso em `true`, e o `?? .now`
+dos três sítios faz **o relógio nunca chegar aos 4 s**. Exatamente o defeito que a volta
+existia para matar.
+
+**E o pior:** *"Parar de esperar"* cancela **só a última chamada**, deixando a órfã
+**gravar a leitura da IA no trabalho do autor**.
+
+**Duas leis:**
+
+1. *Comentário que afirma o que o código desmente é pior que comentário nenhum* — ele
+   **desliga a desconfiança** de quem lê. Aqui, três linhas contradiziam a frase logo acima
+   delas, e a frase foi escrita **pelo próprio autor do conserto**. Quando um comentário
+   afirmar uma invariante ("estas rotas se excluem"), **prove-a com teste ou apague-a**.
+2. *Todo conserto de concorrência se mede com DUAS chamadas em voo, não com uma.* Uma
+   chamada por vez esconde a classe inteira: `defer` que não roda, flag presa, cancelamento
+   que pega só a última, órfã que escreve depois de morta. **Se as duas superfícies cabem na
+   mesma rolagem, duas em voo é o caso COMUM.**
+
+**E o método do revisor merece cópia:** ele **plantou duas sondas** no teste 4 — *"1026
+testes, 2 falhas, as duas minhas: 1024 verdes do candidato"* —, **cada uma com irmã que não
+acusa**, e **as removeu ao fim**. A contagem separada (as minhas × as do candidato) é o que
+permite reprovar sem contaminar o placar do outro.
