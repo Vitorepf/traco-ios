@@ -281,6 +281,21 @@ enum Sabia {
     /// duas linhas que se contradizem é a que governa o caso, não a que grita
     /// primeiro. Numa nota sem matéria as três pernas mandam; numa nota com
     /// matéria as perguntas saem dela e a perna só entra se faltar.
+    ///
+    /// A 2ª redação foi ESCRITA, MEDIDA e DESCARTADA no mesmo dia, e fica
+    /// registrada porque o descarte é o resultado. O caso cego mostrou o furo
+    /// da 1ª: ela condiciona à QUANTIDADE de matéria e não ao que a nota já
+    /// resolveu, e no `grok-4.3` isso faz perguntar "Quando começou?" a quem
+    /// escreveu "não consigo dizer quando começou". A 2ª subiu o "só entra a
+    /// que ficou EM ABERTO" para governar os dois ramos, com "negar fecha a
+    /// perna tanto quanto responder". Consertou o cego no 4.3 (6 falhas → 1) e
+    /// **quebrou o controle**: o texto magro caiu de 3/3 para 1/3 no 4.3 e
+    /// 2/3 no 4.5, e as ancoradas de 93% para 74% e 89%. Ensinar a não
+    /// perguntar o que a nota fechou ensinou junto a não perguntar quando ela
+    /// só é MAGRA — as duas falhas são simétricas e cada uma esconde a outra.
+    /// Fica a 1ª, e o que sobra dela é limite MEDIDO do `grok-4.3`, não do
+    /// pedido: no `grok-4.5` os dois casos cegos passam.
+    /// Números por caso em `ferramentas/orca/instigar.md`.
     static let sistemaInstigar = """
     Você é uma pessoa sábia lendo o rascunho de quem escreve. Devolva APENAS um JSON válido: {"perguntas": ["…", "…"]}
     De 2 a 5 perguntas curtas em português, cada uma terminando em "?". Perguntas, não respostas. Nenhuma sugestão de texto.

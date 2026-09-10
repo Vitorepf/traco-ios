@@ -3503,3 +3503,22 @@ candidato.**
   `cancelar()` no `onDisappear` só cancela `tarefa`; `LinhaDeEstado.swift` tem `#Preview`
   AX5 anterior à §12 (fica, por §12 item 3 — e não é o que o dono viu: `#Preview` não roda
   na suíte nem mexe no simulador).
+- **15h50** INSTIGAR fechou o mérito e NÃO devolve a operação ao Perfil (§14/§15): a
+  cobrança das três perguntas ficou condicionada à matéria, numa frase e na última linha
+  do pedido. Duas janelas no `B91C8DEF`, uma instalação cada, conta `true` nas quatro
+  fumaças de cada uma, `cmp` do binário nos dois extremos, e os DOIS braços no MESMO dylib
+  com `pedidoInstigarSHA256` por linha. Ganho do LOTE-5 sem o preço do LOTE-5: texto magro
+  `quando` 1/3 → **3/3 nos dois modelos**, ancoradas 92% → **93%** (o LOTE-5 tinha caído a
+  76% e 89%). O **caso cego** achou o que sobra e é do `grok-4.3`: numa nota que NEGA o
+  quando por escrito, ele pergunta assim mesmo em 3/3 — o `grok-4.5` não, em 3/3. A 2ª
+  redação foi medida e **descartada**: consertou o cego do 4.3 e quebrou o controle (magro
+  3/3 → 1/3, ancoradas 93% → 74%). Letra 10c.
+- **15h50** Decisão minha, registrada: **saí da série de letras de lote.** O worker do
+  `q4-c` passou de `09g` para `09h` no mesmo intervalo em que eu desviava de `09g` para
+  `09h` — segunda colisão do dia, mesma causa das colisões de ADR de ontem. Os meus
+  artefatos passam a `instigar-janela.sh`, `instigar-medidor.py`, `instigar-prompt.py` e
+  `prova/instigar-lote/`. Nome que diz a operação não colide.
+- **15h50** Segunda instalação no aparelho da conta AUTORIZADA pelo coordenador, e a razão
+  fica: a regra das DUAS TENTATIVAS no caso cego **pressupõe** uma segunda medida, e "UMA
+  instalação por volta" nasceu para impedir reinstalação por hábito. Não havia conflito;
+  havia uma regra velha escrita para outro caso.

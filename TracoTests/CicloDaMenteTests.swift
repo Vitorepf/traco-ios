@@ -206,13 +206,19 @@ private func temp(_ nome: String) -> URL {
     }
 
     @Test func oContratoDeInstigarDizDeQuemEOAssunto() {
+        // ADR 10c·2: dobrar a quebra de linha antes de comparar. O literal
+        // quebra onde a coluna acaba, e a frase que o MODELO lê é a mesma —
+        // acoplar a asserção ao ponto de quebra faz o teste ficar vermelho por
+        // reformatação, que é ruído, e é o que aconteceu na 2ª redação.
+        let pedido = Sabia.sistemaInstigar.replacingOccurrences(of: "\n", with: " ")
         for pedaço in ["nunca as cite", "é DELA, seja qual for", "Não suponha nenhum fato",
                        "MANDA nas perguntas", "Não devolva vazio",
                        // ADR 10c: as DUAS pernas da condição. Uma sozinha é o
                        // defeito que a outra comprou — a nota magra sem o
                        // quando, ou a nota farta somando o gabarito.
-                       "se ela quase não dá", "se ela dá matéria"] {
-            #expect(Sabia.sistemaInstigar.contains(pedaço))
+                       "se ela quase não dá", "se ela dá matéria",
+                       "só entra a que a nota deixou sem resposta"] {
+            #expect(pedido.contains(pedaço))
         }
         // ADR 09i·2: proibir por NOME comprou mudez sobre a palavra do autor.
         // O contrato não lista mais palavra proibida — ele diz de onde ela vem.
@@ -221,7 +227,7 @@ private func temp(_ nome: String) -> URL {
         // vermelho aqui antes de gastar uma janela do aparelho da conta.
         for nome in ["sobre o degrau", "sobre o método", "sobre a forma da nota",
                      "Aí MANDA o vazio"] {
-            #expect(!Sabia.sistemaInstigar.contains(nome))
+            #expect(!pedido.contains(nome))
         }
     }
 

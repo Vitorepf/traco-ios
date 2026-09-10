@@ -24,22 +24,56 @@ CEGOS = ('revisor-instigar-nota-que-ja-responde', 'revisor-instigar-fatos-negado
 # As regexes do `lote-ia-09e-q4c.py`, copiadas por VALOR de propósito: importar
 # dele amarraria os dois instrumentos, e o dele é o que não pode mudar.
 #
-# `QUANDO` é a única que sai MAIS ESTREITA aqui, e o vigia é quem cobrou: o
-# `\bquando\b` solto do 09e casa com a conjunção — "O que muda QUANDO você põe
-# essa palavra?" não pergunta quando coisa nenhuma. No 09e isso não faz mal
-# (lá a coluna só conta se ALGUMA pergunta pede o quando, e o falso positivo
-# ajudaria o candidato); aqui ele REPROVA um caso cego, e falso positivo que
-# reprova é o pior tipo. Só conta o `quando` que interroga.
-QUANDO = re.compile(r'(?:^|[—–\-:;,?!(]\s*)[«"“\'(]*\s*quando\b|'      # "Quando …?" / "— quando …?"
-                    r'\b(?:desde|at[ée]|para|de|em) quando\b|'          # "desde quando", "até quando"
-                    r'\bfoi quando\b|'                                  # "…foi quando?"
-                    r'\bque dia\b|\bque hora\b|em que momento|'
-                    r'\bque semana\b|\bque m[êe]s\b|h[áa] quanto tempo', re.I)
-DARCERTO = re.compile(r'dar certo|daria certo|deu certo|ficaria diferente|seria .{0,12}sucesso', re.I)
-# estreita de propósito: o `OQUE` do 09e casa com "qual", que é meia língua.
-# aqui só o gabarito nu — "o que aconteceu?", "o que houve?".
-OQUEACONTECEU = re.compile(r'o que (foi que )?(aconteceu|houve|se passou)', re.I)
-CAUSA = re.compile(r'\bpor qu[êe]\b|por causa de qu|o que causou|qual (foi )?o motivo', re.I)
+# As duas saem MAIS ESTREITAS aqui, e quem cobrou foi a corrida: o conferidor
+# do 09e conta se ALGUMA pergunta PEDE o quando — ali um falso positivo ajuda o
+# candidato e não faz mal. Aqui ele REPROVA um caso cego, e **falso positivo que
+# reprova é o pior tipo**. Duas formas apareceram na BASE, e as duas são
+# perguntas legítimas que o proxy solto derrubava:
+#
+#   "Quando você diz que não foi por nada específico, o que ainda ficou sem
+#    definição?"                        → o `quando` é conjunção, não pergunta
+#   "Sem saber o que seria dar certo, o que a desistência resolveu de fato?"
+#                                       → o "dar certo" é premissa, não o pedido
+#
+# Regra, e ela é simétrica: o alvo só conta quando (1) está COLADO ao
+# interrogativo, (2) não vem precedido de subordinador, e (3) não é seguido de
+# vírgula mais outro interrogativo — que é a marca de que o pedido é o de
+# depois. O aperto favorece a BASE, não o candidato: ele tira reprovações do
+# braço antigo. `--vigia` prova as duas direções nas frases REAIS da corrida.
+QUANDO_ALVO = re.compile(r'(?:^|[—–:;(]\s*)[«"“\'(]*\s*quando\b|'
+                         r'\b(?:desde|at[ée]|para|de|em) quando\b|\bfoi quando\b|'
+                         r'\bque dia\b|\bque hora\b|em que momento|'
+                         r'\bque semana\b|\bque m[êe]s\b|h[áa] quanto tempo', re.I)
+# "o que seria/é/significa dar certo", com no máximo uma aspa ou preposição
+# curta no meio. "o que é o 'aqui' em que algo deveria dar certo" fica de fora
+# pelo tamanho do vão — ali o pedido é o "aqui", e a nota não o deu.
+DARCERTO_ALVO = re.compile(r'o que (?:seria|é|e|significa|significaria|era|'
+                           r'voc[êe] (?:quis dizer|chama|entende|considera))'
+                           r'[^?]{0,12}?dar certo', re.I)
+CAUSA_ALVO = re.compile(r'(?:^|[—–:;(]\s*)por qu[êe]\b|por causa de qu|'
+                        r'o que causou|qual (?:foi )?o motivo', re.I)
+OQUEACONTECEU = re.compile(r'o que (?:foi que )?(?:aconteceu|houve|se passou)', re.I)
+
+# "não sabe/não sei/não consigo dizer" entram porque são a NEGAÇÃO DELA sendo
+# citada de volta como premissa — e examinar a própria negação é o que a linha
+# PASSA da fixture autoriza: "O que é o aqui em que você NÃO SABE o que seria
+# dar certo?" pede o *aqui*, que a nota nunca deu.
+SUBORDINADOR = re.compile(r'sem saber|sem nomear|sem definir|sem dizer|j[áa] que|'
+                          r'n[ãa]o sabe|n[ãa]o sei|n[ãa]o consigo dizer|nem sabe|'
+                          r'embora|porque|depende|caso\b', re.I)
+DEPOIS_PEDE_OUTRA = re.compile(r',[^?]*\b(?:o que|que\b|quem|como|qual|quanto|onde|por qu[êe])', re.I)
+
+def pede(q, alvo):
+    """A pergunta PEDE isto, ou só menciona? Três testes, e o print do medidor
+    mostra a frase inteira para o revisor conferir o proxy."""
+    for m in alvo.finditer(q):
+        antes = q[max(0, m.start() - 25):m.start()]
+        if SUBORDINADOR.search(antes):
+            continue
+        if DEPOIS_PEDE_OUTRA.search(q[m.end():]):
+            continue
+        return True
+    return False
 
 VAZIAS = {'que','qual','quais','como','quando','onde','porque','para','pelo','pela','sobre',
           'seria','aconteceu','voce','seu','sua','isso','esse','essa','mais','menos','entre',
@@ -79,14 +113,15 @@ def cego(cid, ps):
     if len(ps) < 2:
         return ['RECUSA COVARDE: %d pergunta(s)' % len(ps)]
     faltas = []
+    ja = 'RESPONDEU' if cid == CEGOS[0] else 'NEGOU'
     for q in ps:
-        if QUANDO.search(q):
-            faltas.append('JÁ %s o quando: %r' % ('RESPONDEU' if cid == CEGOS[0] else 'NEGOU', q))
-        if DARCERTO.search(q):
-            faltas.append('JÁ %s o "dar certo": %r' % ('RESPONDEU' if cid == CEGOS[0] else 'NEGOU', q))
-        if cid == CEGOS[0] and OQUEACONTECEU.search(q):
+        if pede(q, QUANDO_ALVO):
+            faltas.append('JÁ %s o quando: %r' % (ja, q))
+        if pede(q, DARCERTO_ALVO):
+            faltas.append('JÁ %s o "dar certo": %r' % (ja, q))
+        if cid == CEGOS[0] and pede(q, OQUEACONTECEU):
             faltas.append('JÁ RESPONDEU o quê: %r' % q)
-        if cid == CEGOS[1] and CAUSA.search(q):
+        if cid == CEGOS[1] and pede(q, CAUSA_ALVO):
             faltas.append('JÁ NEGOU a causa: %r' % q)
     return faltas
 
@@ -175,24 +210,49 @@ def vigia(fixture):
     """A caça que nunca acusou nada não está provada, está muda: seis execuções
     sintéticas, três que TÊM de acusar e três que NÃO PODEM."""
     letra(fixture)
+    # As frases são REAIS: saíram do braço da BASE desta mesma corrida
+    # (`prova/instigar-lote/instigar-lote-base-grok-4.*.jsonl`). Metade tem de
+    # ser acusada e metade tem de passar — vigia que só acusa reprova tudo, e
+    # vigia que só se cala não enxerga nada.
     acusa = [
-        (CEGOS[0], ['Quando isso aconteceu?', 'O que você vai mandar agora?'], 'quando já respondido'),
-        (CEGOS[0], ['O que seria dar certo?', 'O que o aceite dele vale?'], 'dar certo já respondido'),
+        (CEGOS[0], ["O que você quis dizer com 'dar certo' nesse caso?", "E agora?"],
+         'a nota DIZ o que seria dar certo'),
+        (CEGOS[0], ['O que aconteceu?', 'O que você vai mandar agora?'],
+         'a nota DIZ o que aconteceu'),
+        (CEGOS[1], ['Quando começou isso?', 'De que você desistiu?'],
+         'a nota NEGA o quando com todas as letras'),
+        (CEGOS[1], ['O que seria dar certo aqui?', 'De que você desistiu?'],
+         'a nota NEGA o "dar certo"'),
+        (CEGOS[1], ['O que seria dar certo, na sua cabeça?', 'De que você desistiu?'],
+         'o pedido é o mesmo com um aposto no fim'),
         (CEGOS[1], ['O que você fez?'], 'recusa covarde (1 pergunta)'),
     ]
     cala = [
-        (CEGOS[0], ['O que você disse no telefonema?', 'O que o aceite dele vale sobre o preço errado?'], None),
-        (CEGOS[1], ['De que você desistiu?', 'O que você nota agora que não notava antes?'], None),
-        (CEGOS[1], ['Do que exatamente você desistiu?', 'O que muda quando você põe essa palavra?'], None),
+        # as três primeiras vieram da BASE e o proxy solto as derrubava
+        (CEGOS[1], ['Quando você diz que não foi por nada específico, o que ainda ficou sem definição?',
+                    'De que você desistiu?'], 'o "quando" é conjunção'),
+        (CEGOS[1], ['Sem saber o que seria dar certo, o que a desistência resolveu de fato?',
+                    'De que você desistiu?'], 'o "dar certo" é premissa, não o pedido'),
+        (CEGOS[1], ["O que é o 'aqui' em que algo deveria dar certo?",
+                    'De que você desistiu?'], 'o pedido é o "aqui", que a nota não deu'),
+        (CEGOS[0], ['O que você disse no telefonema?',
+                    'O que o aceite dele vale sobre o preço errado?'], None),
+        (CEGOS[0], ['O que fica em aberto quando "dar certo" depende dele aceitar o preço certo?',
+                    'O que você manda agora?'], 'menciona sem pedir'),
+        (CEGOS[1], ['Do que exatamente você desistiu?',
+                    'O que muda quando você põe essa palavra?'], None),
+        (CEGOS[1], ['O que é o aqui em que você não sabe o que seria dar certo?',
+                    'De que você desistiu?'], 'cita a negação DELA e pede o "aqui"'),
     ]
     erros = 0
     for cid, ps, porque in acusa:
         f = cego(cid, ps)
         print('  ACUSA?  %-42s %s  (%s)' % (cid, 'sim ✓' if f else 'NÃO ✗', porque))
         if not f: erros += 1
-    for cid, ps, _ in cala:
+    for cid, ps, porque in cala:
         f = cego(cid, ps)
-        print('  CALA?   %-42s %s%s' % (cid, 'sim ✓' if not f else 'NÃO ✗', '' if not f else '  ' + str(f)))
+        print('  CALA?   %-42s %s  (%s)%s' % (cid, 'sim ✓' if not f else 'NÃO ✗', porque or '—',
+                                              '' if not f else '  ' + str(f)))
         if f: erros += 1
     print('  vigia:', 'PROVADO nos dois sentidos' if not erros else '⛔ %d erro(s)' % erros)
     sys.exit(1 if erros else 0)

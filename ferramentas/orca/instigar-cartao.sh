@@ -11,6 +11,10 @@
 # não é ausência na tela (achado da Q4-E, e a razão do `--xy` no `f5-ler`).
 set -u
 D="${1:?udid}"; OUT="${2:?diretorio de saida}"; LER="${3:?binario do f5-ler}"
+# A janela de 17:49Z chamou este roteiro sem o 3º argumento, e o texto da nota
+# caiu em `$LER`: cada `achar` virou "command not found" e a captura morreu com
+# a medida já paga. Argumento posicional errado não pode custar uma janela.
+[ -x "$LER" ] || { echo "⛔ 3º argumento tem de ser o BINÁRIO do f5-ler, e '$LER' não é executável"; exit 9; }
 # sem acento de propósito: `orca emulator type` é US-ASCII e o corretor do iOS
 # devolve os acentos ("espanhol" fica igual, "quinze" fica igual).
 NOTA="${4:-Nao deu certo de novo.}"
@@ -71,6 +75,12 @@ espera 5
 foto "$PRE-00-abriu.png"
 
 # ---- (1) o cartão do `instigar`, com as perguntas reais ------------------
+# O aparelho de TRABALHO abre escrevendo, porque não tem nota nenhuma; o
+# aparelho da CONTA abre na LISTA, porque o autor tem notas lá. A janela de
+# 18:35Z tentou digitar sobre a lista e não achou a Lente. "Escrever" primeiro,
+# e o caminho passa a ser o mesmo nos dois.
+tocar "$PRE-00-abriu.png" "Escrever" || echo "[$(hora)] (sem aba Escrever: já estava no editor)"
+espera 3
 orca emulator tap 0.35 0.18 --device "$D" >/dev/null 2>&1   # foco no corpo da página
 espera 2
 orca emulator type "$NOTA" --device "$D" >/dev/null 2>&1
