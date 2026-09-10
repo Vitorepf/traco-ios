@@ -8959,13 +8959,18 @@ guarda foi — precisa saber que **houve** resposta e que pedir de novo muda o
 resultado (nem `instigar` nem `contrapor` memoizam).
 
 **O irmão, procurado e consertado no mesmo lugar.** `parsePerguntas` tinha a mesma
-forma (`guard !limpas.isEmpty else { return nil }`) e o mesmo desfecho. A espécie é
-**"guarda por campo que apaga e segue"**, e só esses dois a têm: `parseMapa`,
-`parseVoltaram` e `parsePerguntaDeRecordar` recusam a resposta INTEIRA no primeiro
-item inválido, que é honestamente *não deu para ler*. A convenção já era da casa —
-`parseCalibragem`, `parseEcos` e `PadroesRemoto.parsePerguntas` já separavam os dois
-desfechos, e os dois da Lente eram os únicos fora do passo. Por isso o conserto ficou
-onde os dois passam, e **não em cada chamador**: o terceiro chamador,
+forma (`guard !limpas.isEmpty else { return nil }`) e o mesmo desfecho. A espécie
+**"guarda por campo que apaga e segue"** só existe nesses dois, e é por isso que o
+conserto ficou neles. **Mas a FRASE errada na tela não acabou com a espécie:**
+`parseMapa` recusa por contrato uma lista lida até o fim (vazia, com dois títulos, ou
+mais curta que os blocos pendentes) e `Sessao.vestirTudo` escrevia *"a sábia não
+respondeu. o texto ficou como estava."* sobre um HTTP 200 inteiro. `vestir` é
+`.grokDepoisBordo` — rota **viva**, não cortada. Corrigido na emenda abaixo (Q4-D);
+a frase original desta ADR dizia que os três parsers restantes recusavam *"no
+primeiro item inválido, que é honestamente não deu para ler"*, e o código a
+contradizia. A convenção já era da casa — `parseCalibragem`, `parseEcos` e
+`PadroesRemoto.parsePerguntas` já separavam os dois desfechos. Por isso o conserto
+ficou onde os dois passam, e **não em cada chamador**: o terceiro chamador,
 `Sessao.instigarSobreAForma`, já lia `r?.first` e não precisou de uma linha.
 
 **A sonda passou a nomear a guarda.** `Sabia.apagou(chave, guarda)` grava — só em
@@ -9007,6 +9012,78 @@ o autor recebeu contraponto em vez de "a sábia não respondeu".
 chamar a Sábia: hoje **`nadaPassouNaGuarda` só é alcançável com o mesmo lever da
 sonda** (`TRACO_AVALIAR_LIBERAR`), que é como a medida a alcança. A frase existe para
 o dia em que as duas operações voltarem — e é a única das três que faltava.
+
+### Emenda à ADR 2026-09-09s (volta Q4-D) — a mesma guarda, uma função adiante, em rota VIVA
+
+**O que o G3 da Q4-C achou.** A separação de espécie estava certa; a justificativa,
+não. `Sabia.vestir` devolvia `nil` tanto para o provedor mudo quanto para o cru que
+chegou inteiro e que o NOSSO contrato recusou — e `Sessao.vestirTudo` escrevia *"a
+sábia não respondeu. o texto ficou como estava."* sobre um HTTP 200. Ao contrário de
+`instigar` e `contrapor`, **`vestir` não está cortada**: é `.grokDepoisBordo` na
+tabela `Politica`, a rota que o autor toca hoje em "Vestir tudo".
+
+**Quatro desfechos, e o quarto tem frase própria.**
+
+| desfecho | valor de `Sabia.vestir` | o que o autor lê |
+|---|---|---|
+| não há quem responda | a rota nem chama (`Sabia.disponivel`) | "nada a vestir aqui." |
+| ninguém devolveu nada | `nil` | "a sábia não respondeu. o texto ficou como estava." |
+| chegou inteiro e o contrato recusou | `[]` | `Sabia.nadaVestiu` |
+| chegou, foi aceito e não mudou nada | mapa que aplica igual | "nada a vestir aqui." |
+
+`nadaVestiu` **não** é o `nadaPassouNaGuarda` das duas rotas da Lente, e o motivo é
+medido, não estético: `vestir` **memoiza** (`memoPor: "vestir…"`, temperatura 0), então
+*"Peça de novo"* seria falso ali — o memo devolve o mesmo cru e o mesmo desfecho.
+A frase é *"a sábia respondeu, e o que veio não vestia este texto. ele ficou como
+estava."*
+
+**Onde ficou o conserto, e por que não em `parseMapa`.** A linha honesta é *chegou um
+cru?*, e quem sabe disso é `vestir`, não o parser: `parseMapa` não enxerga o
+`refinado.count == pendentes.count`, que é uma das três recusas. Duas linhas em
+`vestir` cobrem as três (mapa ilegível, lista vazia ou com dois títulos, lista mais
+curta que os pendentes) e mais a que o parser nunca veria. `parseMapa` fica como
+está — o seu contrato duro não mudou, só deixou de virar a frase errada.
+
+**A sonda distingue as duas quedas.** `apagou("vestir", …)` grava — só em DEBUG, só o
+nome — `vestir · mapa fora do contrato` ou `vestir · mapa menor que os blocos
+pendentes`. Sem isso o LOTE seguinte lê `Falha.semRetorno` e não sabe dizer se o
+provedor calou ou se fomos nós: é exatamente o que a corrida de 07/09 deixou sem
+resposta, com **6** `Falha.semRetorno` em `vestir`
+(`prova/qualidade-ia-contexto-vestir-20260907.jsonl`, `vestir-codigo-crlf` ×3 e
+`vestir-cerca-aberta-crlf` ×3).
+
+**Os irmãos, procurados de novo — 12 parsers lidos, a espécie tem 5.**
+
+| parser | separa os dois desfechos? | a tela mente? |
+|---|---|---|
+| `Sabia.parseContraparte` | sim, desde a 09s | não |
+| `Sabia.parsePerguntas` | sim, desde a 09s | não |
+| **`Sabia.parseMapa` + `Sabia.vestir`** | **sim, desde esta emenda** | **mentia — rota VIVA** |
+| `Sabia.parsePerguntaDeRecordar` | não (`Prova.vaza`, tamanho, "?") | não — o ritual cai na frase fixa; rota cortada |
+| `Sabia.parseVoltaram` | não (estado fora da lista) | não — o Recordar não mostra o cotejo; sem frase |
+| `RespostaNotas.interpretar` | não (teto de 900, `trechoIDs`, texto vazio) | **mentiria** — `NotasView` escreve "a sábia não respondeu."; rota `indisponivelPorQualidade`, logo inalcançável hoje |
+| `Sabia.parseCalibragem`, `Sabia.parseEcos`, `PadroesRemoto.parsePerguntas` | sim, desde sempre | não |
+| `AnaliseRemota.parseVeredito` | sim (`.silencio` é o terceiro desfecho) | não |
+| `PraticaTrabalho.parsePreparacao` | sim (`lerPreparacao` devolve `Result` com o nome da guarda, ADR 08p) | não |
+
+**Dívida nomeada, com dono.** `RespostaNotas.interpretar` é a única da lista que
+mentiria numa tela, e só não mente porque `responderNasNotas` está cortada. **Dono: a
+volta que tirar `responderNasNotas` de `indisponivelPorQualidade`** — o conserto tem
+de entrar junto, ou a rota volta mentindo. `parsePerguntaDeRecordar` e `parseVoltaram`
+ficam como estão: nenhuma das duas produz frase de tela, e mudá-las seria código para
+um caso que não existe.
+
+**Vermelho antes.** Com a forma antiga (`guard let cru = await gerar(usuario), let
+refinado = parseMapa(…), refinado.count == pendentes.count else { return locais !=
+blocos ? mapa : nil }`), a suíte nova acusa **5 issues em 2 dos 9 testes** — as três
+formas do 200 completo em `vestirComRespostaInteiraNaoEhSemRetorno` e as duas quedas
+que a sonda não sabia nomear. Sem a mutação, 9 de 9 passam.
+
+**Limite declarado, e ele não desconta nota.** `nadaVestiu` **não tem captura**: a
+rota exige `Sabia.disponivel`, que no `34CC3F94` é falso (sem conta e sem Apple
+Intelligence), e o aparelho da conta `B91C8DEF` estava com outra volta durante esta.
+A frase se prova por teste (`aTelaDoVestirDizQueHouveRespostaSemMandarPedirDeNovo`) e
+pelo caminho lido no código; a `.png` fica para a volta que tiver o aparelho.
 
 ### Emenda à ADR 2026-09-09i (volta Q4-C) — os dois requisitos que chegavam soltos no fim
 

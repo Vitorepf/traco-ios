@@ -736,6 +736,14 @@ final class Sessao {
                 if nadaLocal { self.mostrarToast("a sábia não respondeu. o texto ficou como estava.") }
                 return
             }
+            // Emenda à ADR 2026-09-09s: mapa VAZIO é a sábia tendo respondido e
+            // o nosso contrato tendo recusado o que veio. Dizer "não respondeu"
+            // sobre um 200 inteiro era o defeito; dizer "nada a vestir aqui."
+            // seria a outra metade da mentira — havia o que vestir.
+            guard !mapa.isEmpty else {
+                if nadaLocal { self.mostrarToast(Sabia.nadaVestiu) }
+                return
+            }
             let refinado = Sabia.aplicar(mapa, a: antes)
             guard refinado != base, refinado != antes else {
                 if nadaLocal { self.mostrarToast("nada a vestir aqui.") }

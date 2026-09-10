@@ -10,7 +10,10 @@ OUT="${1:?diretorio de saida}"
 L=/tmp/traco-instrumento.lock
 # a guarda dos 30 min de com-trava.sh não olha o PID e esta sequência é UMA
 # chamada longa por desenho. Morre com o script.
-( while :; do touch "$L" 2>/dev/null; sleep 60; done ) & TOUCHER=$!
+# So toca a trava se ela AINDA for o diretorio do dono: sem o teste, um `touch`
+# depois de a trava ser solta CRIA UM ARQUIVO no lugar dela, e ai `mkdir` falha
+# para sempre e a casa inteira para (10/09, aconteceu duas vezes).
+( while :; do [ -d "$L" ] && touch "$L" 2>/dev/null; sleep 60; done ) & TOUCHER=$!
 trap 'kill $TOUCHER 2>/dev/null' EXIT
 
 docs() { echo "$(xcrun simctl get_app_container $D $BID data)/Documents"; }

@@ -360,3 +360,220 @@ não o código de saída.
 | Complexidade | 9 | +1 constante, +1 função de 6 linhas, +1 bloco DEBUG; o `parseContraparte` **perdeu** uma linha |
 | Fora do app | n/a | nada fora do app |
 | Relato | 9 | este arquivo, com a linha de resultado colada e o defeito próprio declarado |
+
+---
+
+# Q4-D — a mesma guarda, VIVA numa rota que o autor usa hoje
+
+**Linha do ciclo.** G1 da trilha B (defeito), depois do G3 da Q4-C. Serve à intenção
+*"a IA responde ou diz por que não — nunca some"*; reduz o obstáculo *"o `vestir`, que
+está LIGADO, joga fora resposta completa e diz ao autor que a sábia não respondeu"*;
+prova-se por teste que reproduz primeiro e pela suíte.
+
+## O defeito, na rota que não está cortada
+
+O G3 da Q4-C achou que a espécie consertada na 09s tinha um caso vivo uma função
+adiante. Confirmado no código, e é pior do que "mais um parser": das cinco operações
+que a Lente e o Perfil discutem, `instigar`, `contrapor`, `responder`,
+`responderNasNotas` e `recordar` estão todas `indisponivelPorQualidade` —
+`Politica.aviso(_:)` responde antes de a Sábia ser chamada. **`vestir` não.** É
+`.grokDepoisBordo` na tabela `Politica` (`Politica.swift:130`), a rota que o autor
+toca em "Vestir tudo" com a conta ligada.
+
+E ali, `Sabia.vestir` (`Sabia.swift:378`) devolvia `nil` para duas coisas diferentes:
+
+- **ninguém devolveu nada** — `gerar` deu `nil` (provedor mudo, orçamento, cancelamento);
+- **chegou um cru inteiro e o NOSSO contrato o recusou** — `parseMapa` recusa lista
+  vazia (`!saida.isEmpty`), lista com dois títulos (`titulos <= 1`), índice fora do
+  intervalo ou forma desconhecida; e `vestir` recusa por conta própria o mapa mais
+  curto que os blocos pendentes (`refinado.count == pendentes.count`), que o parser
+  nem enxerga.
+
+`Sessao.vestirTudo` (`Sessao.swift:735`) escrevia, nos dois casos, **"a sábia não
+respondeu. o texto ficou como estava."** — sobre um HTTP 200 lido até o fim.
+
+## O conserto, e a escada que levou a ele
+
+A pergunta honesta é *chegou um cru?*, e **quem sabe disso é `vestir`, não o parser**.
+Por isso o conserto não foi em `parseMapa`: o contrato duro dele não mudou (nada passa
+a ser aceito), e ele nunca veria a quarta recusa, a do `refinado.count`. Duas linhas
+onde o desfecho já se decide cobrem as quatro:
+
+```swift
+guard let cru = await gerar(usuario) else { return locais != blocos ? mapa : nil }
+let refinado = parseMapa(cru, blocos: pendentes.count)
+guard let refinado, refinado.count == pendentes.count else {
+    apagou("vestir", refinado == nil ? "mapa fora do contrato" : "mapa menor que os blocos pendentes")
+    return locais != blocos ? mapa : []
+}
+```
+
+A lista **vazia** carrega o terceiro desfecho sem tipo novo, sem enum e sem camada: um
+mapa de sucesso nunca é vazio, porque `blocos` não é (`guard !blocos.isEmpty` na
+primeira linha da função). É a mesma convenção da 09s — `nil` é não li, vazio é li e
+não sobrou —, agora com a lista de `Rotulo` no lugar da `Contraparte`.
+
+Na tela, o quarto desfecho ganha frase própria, e **não** a `nadaPassouNaGuarda` da
+Lente. O motivo é medido, não estético: `vestir` **memoiza**
+(`memoPor: "vestir\u{1}…"`, temperatura 0), então *"Peça de novo"* — que a frase da
+Lente traz — seria falso ali; o memo devolve o mesmo cru e o mesmo desfecho.
+
+> `Sabia.nadaVestiu` = *"a sábia respondeu, e o que veio não vestia este texto. ele
+> ficou como estava."*
+
+Dizer *"nada a vestir aqui."* seria a outra metade da mentira: havia o que vestir, e
+a sábia respondeu.
+
+## O teste que reproduz, e o vermelho
+
+Escrito **antes** do conserto. Três `cru` legíveis, lidos até o fim, na forma exata do
+mapa que a sonda gravou em `prova/q-qualidade-avaliacoes.jsonl`
+(`qn-vestir-tabela-e-lista`): a lista vazia, a lista mais curta que os pendentes, e a
+lista com dois títulos. O teste exige antes que o motor local não tenha mexido no
+texto (`#require(Caderno.estruturar(dois) == dois)`), senão o desfecho não seria da
+sábia.
+
+Corrida de **09:13:01–09:13:33** (`34CC3F94`, sob `com-trava.sh`), com o conserto
+ainda fora da árvore:
+
+```
+✘ Test vestirComRespostaInteiraNaoEhSemRetorno() failed after 0.001 seconds with 3 issues.
+✘ Test aSondaSabeQuandoFoiOVestirQueApagou() failed after 0.002 seconds with 2 issues.
+✘ Test run with 9 tests in 1 suite failed after 0.032 seconds with 5 issues.
+```
+
+E de novo por **mutação**, depois do conserto, devolvendo a forma antiga do `guard`:
+as mesmas **5 issues em 2 dos 9 testes** (`mutacao.log`). Mutação desfeita no mesmo
+comando que a rodou; `git diff --stat` confere.
+
+## Verde, no meu aparelho e na minha árvore
+
+Build **LIMPO** (`rm -rf build` no mesmo `com-trava.sh`), `34CC3F94`,
+**12:16:13Z–12:18:12Z**:
+
+```
+✔ Test run with 1028 tests in 164 suites passed after 88.670 seconds.
+```
+
+Prova de que a corrida foi na MINHA árvore — três testes que só existem neste
+candidato aparecem no log:
+
+```
+✔ Test vestirComRespostaInteiraNaoEhSemRetorno() passed after 0.001 seconds.
+✔ Test aTelaDoVestirDizQueHouveRespostaSemMandarPedirDeNovo() passed after 0.001 seconds.
+✔ Test aSondaSabeQuandoFoiOVestirQueApagou() passed after 0.001 seconds.
+```
+
+**Warnings: 1**, e é o herdado de outra volta (`NotasView.swift:806`, `'+' was
+deprecated in iOS 26.0`). Zero novos, sobre build que compilou tudo.
+
+Repetido na árvore final, já com a ADR, o EVOLUCAO e o comentário do teste
+corrigidos (incremental, **12:36:28Z–12:38:06Z**, mesmo aparelho e mesma trava):
+`✔ Test run with 1028 tests in 164 suites passed after 88.886 seconds.`, com os
+quatro testes deste candidato — os três novos mais o
+`vestirNaoDisfarcaFalhaSemMelhoriaLocal` reescrito para o contrato novo — verdes no
+log (`suite-final.log`).
+
+## Os irmãos, procurados de novo: 12 parsers lidos, a espécie tem 5
+
+| parser | separa "não li" de "li e não passou"? | a tela mente? |
+|---|---|---|
+| `Sabia.parseContraparte` | sim, desde a 09s | não |
+| `Sabia.parsePerguntas` | sim, desde a 09s | não |
+| **`Sabia.parseMapa` + `Sabia.vestir`** | **sim, desde esta volta** | **mentia — rota VIVA** |
+| `Sabia.parsePerguntaDeRecordar` | **não** (`Prova.vaza`, tamanho, sufixo "?") | não — o ritual cai na frase fixa; rota cortada |
+| `Sabia.parseVoltaram` | **não** (estado fora de `estadosConferir`) | não — `RecordarView` só deixa de mostrar o cotejo; não há frase |
+| `RespostaNotas.interpretar` | **não** (teto de 900, `trechoIDs`, texto vazio) | **mentiria** — `NotasView.swift:190` escreve "a sábia não respondeu."; só não mente porque `responderNasNotas` está cortada |
+| `Sabia.parseCalibragem` | sim (filtra para lista possivelmente vazia) | não |
+| `Sabia.parseEcos` | sim (`continue`, nunca `return nil`) | não |
+| `PadroesRemoto.parsePerguntas` | sim | não |
+| `AnaliseRemota.parseVeredito` | sim (`.silencio` é o terceiro desfecho) | não |
+| `PraticaTrabalho.parsePreparacao` | sim (`lerPreparacao` devolve `Result` com o nome da guarda — ADR 08p) | não |
+| `Sabia.limparResposta` | n/a — só cai com string vazia, que é o provedor calando | não |
+
+**Consertei um** e não os outros, de propósito: `parsePerguntaDeRecordar` e
+`parseVoltaram` não produzem frase de tela nenhuma — mudá-las é código para um caso
+que não existe. **`RespostaNotas.interpretar` é dívida nomeada, com dono: a volta que
+tirar `responderNasNotas` de `indisponivelPorQualidade`.** O conserto tem de entrar
+junto, ou a rota volta mentindo. Está escrito na emenda da ADR.
+
+## A frase da ADR que o código contradizia — corrigida dentro da 09s
+
+O G3 escreveu a substituta e eu a apliquei sem inventar nada: a ADR dizia que
+`parseMapa`, `parseVoltaram` e `parsePerguntaDeRecordar` *"recusam a resposta INTEIRA
+no primeiro item inválido, que é honestamente não deu para ler"* e que *"os dois da
+Lente eram os únicos fora do passo"*. As duas metades eram falsas. O texto corrigido
+está em `SPEC.md`, dentro da letra 09s (que continua aparecendo **uma vez só** no
+`LETRAS-ADR.md`), e o **mesmo** comentário congelado no teste
+`todosOsParsersDeListaSeguemAMesmaRegra` foi corrigido junto — era o outro lugar onde
+a frase morava.
+
+## A sonda passou a saber qual das duas quedas foi
+
+`apagou("vestir", …)` grava, só em DEBUG e só o nome, `vestir · mapa fora do
+contrato` ou `vestir · mapa menor que os blocos pendentes`, e `AvaliacaoIA` já publica
+isso em `guardasQueApagaram`. É uma linha, e ela paga uma dívida velha: em
+`prova/qualidade-ia-contexto-vestir-20260907.jsonl` há **6** `Falha.semRetorno` em
+`vestir` (`vestir-codigo-crlf` ×3 e `vestir-cerca-aberta-crlf` ×3) e **não há como
+saber hoje** se o provedor calou ou se fomos nós — é exatamente a cegueira que esta
+volta existe para tirar. Com o conserto, a sonda deixa também de chamar de
+`semRetorno` um 200 que ela recebeu: passa a gravar `mapa: []`.
+
+## Estado honesto — o que NÃO foi feito
+
+- **`nadaVestiu` não tem captura.** A rota exige `Sabia.disponivel`
+  (`ContaGrok.ligada || noAparelho`), e no `34CC3F94` as duas são falsas: sem conta e
+  sem Apple Intelligence, `vestirTudo` sai antes, em "nada a vestir aqui.". O
+  `B91C8DEF` é o aparelho da conta e estava com a Q3-D durante toda esta volta — não
+  encostei nele. **Limite do instrumento, declarado; a `.png` é da volta que tiver o
+  aparelho.** A frase se prova por teste e pelo caminho lido no código.
+- **Não há saída real de um `vestir` que o `parseMapa` tenha recusado.** Procurei: a
+  sonda grava o `mapa` já interpretado, nunca o `cru`, então nenhum `.jsonl` do
+  `prova/` tem o payload bruto de uma recusa. Os `cru` do teste são a **forma exata**
+  dos mapas reais gravados, reduzidos às três recusas que o G3 nomeou. Os 6
+  `semRetorno` de 07/09 são o sinal de que a rota produz este silêncio, mas são
+  **datados** e a causa deles não está registrada — não os conto como prova do
+  mecanismo.
+- **Não medi nada com o Grok.** Esta é uma volta de defeito, não de qualidade de
+  saída: nenhuma linha de prompt mudou, e o `sistemaInstigar` ficou como o G3 pediu,
+  intocado.
+- **Não mexi no `contrapor`**, que é volta própria e depende do aparelho da conta.
+
+## Instrumento — o que usei, e como devolvi
+
+- **`34CC3F94` (teste 3), aparelho de TRABALHO:** build e as quatro corridas de suíte
+  (vermelho, verde da suíte nova, LIMPO integral, final). Achei ligado, deixei ligado.
+- **`B91C8DEF` (teste 2), aparelho da CONTA: não encostei.** Estava com a Q3-D. Nenhum
+  `install`, nenhum `boot`, nenhum `simctl` meu apontou para ele.
+- **Nenhum `xcodebuild` fora do `com-trava.sh`**, nem "rapidinho" — as quatro corridas
+  e a leitura de estado do aparelho passaram todas pela trava; duas delas esperaram
+  atrás da Q3-D (`q3d-build-suite.sh`, dono da trava às 09:18) e da MAC-2-A
+  (`volta.sh`, dona às 09:10), o que é a trava funcionando.
+- **Nada de `orca emulator kill`, nada de `erase`, nada de mouse.** Não usei
+  controle de computador nesta volta.
+- **Devolvido como achei:** `xcrun simctl ui 34CC3F94… content_size` → `medium`,
+  `increase_contrast` → `disabled`, com captura em
+  `scratchpad/34CC3F94-fim.png` (09:41). Não mudei orientação nem Movimento Reduzido
+  em momento nenhum.
+- **Ferramenta do `main` trazida antes de correr:** `com-trava.sh` e os três
+  `lote-ia-09*-janela.sh` que existem lá (o `09e` é deste branch e não está no `main`).
+
+## Scorecard da Q4-D (preenchido por mim; a nota é do revisor independente)
+
+| dimensão | nota | evidência |
+|---|---|---|
+| Visão | 9 | fecha a lacuna "a rota cala com HTTP 200" na única rota LIGADA que ainda a tinha; linha nova no EVOLUCAO com dono para o que sobra |
+| Contrato | 9 | emenda dentro da letra 09s, com a frase falsa corrigida onde ela morava (SPEC **e** comentário do teste); `LETRAS-ADR` com `09s` uma vez só; EVOLUCAO coerente |
+| Correção | 9 | vermelho antes (5 issues em 2 de 9) e por mutação depois; 1028 testes em 164 suítes verdes em corrida minha, com três testes exclusivos deste candidato colados; 1 warning, herdado |
+| Jornada real | 8 | a rota é a que o autor usa hoje e o caminho até a frase está lido linha a linha — mas **não há captura**, pelo limite declarado acima |
+| Design | 9 | `design-router` carregado, rota "ajuste local de copy": estados afetados listados (são quatro), sistema existente reusado (`mostrarToast`), nenhum token, layout, componente ou movimento tocado |
+| Simplicidade | 9 | quatro desfechos onde havia três, sem tipo novo, sem enum, sem tela nova e sem passo novo para o autor |
+| Movimento | n/a | nada anima |
+| Componentes | n/a | nenhum componente novo |
+| Acessibilidade | n/a | nenhuma superfície nova; a frase entra no toast que já existe |
+| Performance | n/a | nada em lista, editor ou parser de caminho quente |
+| Privacidade e autoria | 9 | `apagou` grava só o nome da guarda, nunca o cru; `#if DEBUG`; nenhuma palavra do autor sai do aparelho por causa desta volta |
+| Estado honesto | 9 | é o objeto da volta; o que não foi feito está acima, com o motivo, antes de alguém perguntar |
+| Complexidade | 9 | +1 constante, +2 linhas em `vestir`, +1 `guard` de 4 linhas em `Sessao`; nenhum arquivo novo, nenhum `xcodegen` |
+| Fora do app | n/a | nada fora do app |
+| Relato | 9 | esta seção, com as linhas de resultado coladas e os limites declarados |

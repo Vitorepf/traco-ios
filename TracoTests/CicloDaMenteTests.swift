@@ -736,10 +736,70 @@ private func temp(_ nome: String) -> URL {
         #expect(Sabia.parsePerguntas("claro! seguem as perguntas", texto: magro) == nil)
     }
 
+    /// O MESMO defeito uma função adiante, e desta vez numa rota VIVA:
+    /// `vestir` é `.grokDepoisBordo` na tabela `Politica`, ao contrário de
+    /// `instigar` e `contrapor`. `Sabia.vestir` devolvia `nil` tanto para o
+    /// provedor mudo quanto para o 200 que o NOSSO contrato recusou, e
+    /// `Sessao.vestirTudo` escrevia "a sábia não respondeu. o texto ficou como
+    /// estava." sobre uma resposta que existiu.
+    ///
+    /// Os três `cru` são JSON legível, lido até o fim, na forma exata do mapa
+    /// que a sonda gravou em `prova/q-qualidade-avaliacoes.jsonl`
+    /// (`qn-vestir-tabela-e-lista`): a lista VAZIA — o modelo dizendo
+    /// honestamente que não há o que vestir —, a lista mais CURTA que os
+    /// blocos pendentes, e a lista com DOIS títulos. Nenhum deles é "não deu
+    /// para ler", e os três caíam na mesma frase do provedor mudo.
+    @MainActor @Test func vestirComRespostaInteiraNaoEhSemRetorno() async throws {
+        let dois = "Esta explicação contém uma frase completa que o modelo ainda pode organizar."
+            + "\n\nEsta segunda explicação também é uma frase completa e segue em prosa corrida."
+        // sem melhoria local o desfecho é inteiramente da sábia: é o caso do defeito
+        try #require(Caderno.estruturar(dois) == dois)
+        let blocos = Sabia.blocos(dois)
+        try #require(blocos.count == 2)
+        for cru in ["[]",
+                    #"[{"i":0,"forma":"titulo"}]"#,
+                    #"[{"i":0,"forma":"titulo"},{"i":1,"forma":"titulo"}]"#] {
+            // ANTES: nil — e o toast dizia "a sábia não respondeu."
+            #expect(await Sabia.vestir(blocos: blocos, gesto: nil, gerar: { _ in cru }) == [])
+        }
+        // o provedor mudo continua sendo ausência de resposta
+        #expect(await Sabia.vestir(blocos: blocos, gesto: nil, gerar: { _ in nil }) == nil)
+    }
+
+    /// A tela do `vestir` tem a frase do terceiro desfecho, e ela não convida a
+    /// repetir: `vestir` MEMOIZA (`memoPor: "vestir…"`), então "peça de novo"
+    /// seria falso ali — pedir de novo devolve o mesmo cru, do memo.
+    @Test func aTelaDoVestirDizQueHouveRespostaSemMandarPedirDeNovo() {
+        #expect(Sabia.nadaVestiu != "a sábia não respondeu. o texto ficou como estava.")
+        #expect(Sabia.nadaVestiu.contains("respondeu"))
+        #expect(!Sabia.nadaVestiu.contains("não respondeu"))
+        #expect(!Sabia.nadaVestiu.lowercased().contains("de novo"))
+    }
+
+    /// A sonda distingue as duas quedas do `vestir`. Sem isto o LOTE seguinte
+    /// lê `Falha.semRetorno` e não sabe dizer se o provedor calou ou se fomos
+    /// nós — que é exatamente o que a corrida de 07/09 deixou sem resposta
+    /// (6 `semRetorno` em `prova/qualidade-ia-contexto-vestir-20260907.jsonl`).
+    @MainActor @Test func aSondaSabeQuandoFoiOVestirQueApagou() async throws {
+        let dois = "Esta explicação contém uma frase completa que o modelo ainda pode organizar."
+            + "\n\nEsta segunda explicação também é uma frase completa e segue em prosa corrida."
+        let blocos = Sabia.blocos(dois)
+        _ = Sabia.retirarGuardasQueApagaram()
+        _ = await Sabia.vestir(blocos: blocos, gesto: nil, gerar: { _ in "claro! aqui vai" })
+        #expect(Sabia.retirarGuardasQueApagaram() == ["vestir · mapa fora do contrato"])
+        _ = await Sabia.vestir(blocos: blocos, gesto: nil, gerar: { _ in #"[{"i":0,"forma":"titulo"}]"# })
+        #expect(Sabia.retirarGuardasQueApagaram() == ["vestir · mapa menor que os blocos pendentes"])
+    }
+
     /// A convenção da casa, congelada: `parseCalibragem`, `parseEcos` e
-    /// `PadroesRemoto.parsePerguntas` já separavam os dois desfechos. Os dois
-    /// da Lente eram os únicos fora do passo, e é por isso que o conserto foi
-    /// neles e não em cada chamador.
+    /// `PadroesRemoto.parsePerguntas` já separavam os dois desfechos, e é por
+    /// isso que o conserto da Lente foi nos parsers e não em cada chamador.
+    ///
+    /// Emenda (Q4-D): os dois da Lente NÃO eram os únicos fora do passo — a
+    /// frase original da ADR 09s dizia isso e o código a contradizia. `vestir`
+    /// tinha a mesma queda em rota viva, e está aqui em cima. Os que sobram
+    /// (`parsePerguntaDeRecordar`, `parseVoltaram`, `RespostaNotas.interpretar`)
+    /// estão na tabela da emenda, com dono para o único que mentiria numa tela.
     @Test func todosOsParsersDeListaSeguemAMesmaRegra() {
         let ilegivel = "claro! aqui vai"
         #expect(Sabia.parseCalibragem(ilegivel, pares: ["escolha: x"]) == nil)

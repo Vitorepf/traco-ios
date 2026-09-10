@@ -234,6 +234,13 @@ enum Sabia {
     nonisolated static let nadaPassouNaGuarda =
         "a sábia respondeu, e nada do que veio era sobre a sua nota. Peça de novo."
 
+    /// Emenda à 2026-09-09s — a mesma espécie uma função adiante, e numa rota
+    /// VIVA (`vestir` é `.grokDepoisBordo`). Frase própria, e não a de cima,
+    /// por um motivo medido: `vestir` MEMOIZA, então "peça de novo" seria
+    /// falso — o memo devolve o mesmo cru, e o mesmo desfecho.
+    nonisolated static let nadaVestiu =
+        "a sábia respondeu, e o que veio não vestia este texto. ele ficou como estava."
+
     nonisolated struct Contraparte: Sendable, Equatable {
         var contra: String
         var foraDaLista: String
@@ -368,9 +375,16 @@ enum Sabia {
         let pendentes = blocos.indices.filter { mapa[$0].forma == .prosa && formaExistente(blocos[$0]) == nil }
         guard !pendentes.isEmpty else { return mapa }
         let usuario = pendentes.enumerated().map { "[\($0.offset)] \(blocos[$0.element])" }.joined(separator: "\n\n")
-        guard let cru = await gerar(usuario), let refinado = parseMapa(cru, blocos: pendentes.count),
-              refinado.count == pendentes.count else {
-            return locais != blocos ? mapa : nil
+        // Emenda à ADR 2026-09-09s: `nil` é NÃO LI — ninguém devolveu nada.
+        // Chegou um cru e fomos NÓS que o recusamos (mapa ilegível, lista
+        // vazia, dois títulos, ou menos rótulos do que blocos pendentes)? Isso
+        // é o terceiro desfecho, e a lista VAZIA o carrega: um mapa de sucesso
+        // nunca é vazio, porque `blocos` não é.
+        guard let cru = await gerar(usuario) else { return locais != blocos ? mapa : nil }
+        let refinado = parseMapa(cru, blocos: pendentes.count)
+        guard let refinado, refinado.count == pendentes.count else {
+            apagou("vestir", refinado == nil ? "mapa fora do contrato" : "mapa menor que os blocos pendentes")
+            return locais != blocos ? mapa : []
         }
         for rotulo in refinado {
             let forma: FormaDeBloco = rotulo.forma == .titulo && mapa.contains(where: { $0.forma == .titulo })
