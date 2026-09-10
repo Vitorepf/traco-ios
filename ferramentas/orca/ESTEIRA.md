@@ -1176,7 +1176,10 @@ preguiça: a alavanca fica pronta e a medida fica honesta.
 ## A trava virou ARQUIVO e travou a casa por meia hora (10/09, achado da Q4-C)
 
 Às **08h25** o `/tmp/traco-instrumento.lock` deixou de ser diretório e virou **arquivo
-comum de 0 byte**. A primitiva do `com-trava.sh` é `mkdir` — atômica **porque** cria
+comum de 0 byte**. **A causa foi achada pela Q4-C e é de uma linha:** o *keep-alive* das
+janelas de medida fazia `touch "$L"` a cada 60 s para a trava não parecer velha — e um
+`touch` **depois** de a trava ser solta **CRIA um arquivo** no lugar dela. Aconteceu duas
+vezes hoje. Consertado nos quatro `lote-ia-09*-janela.sh`: `[ -d "$L" ] && touch "$L"`. A primitiva do `com-trava.sh` é `mkdir` — atômica **porque** cria
 diretório —, então ela passou a falhar **para sempre**, e dois workers (Q4-C e MAC-2-A-B)
 ficaram girando sem poder entrar. Pior: sem `$L/dono` legível, a **guarda de PID também
 cega**, e só a de 30 minutos salvava. Meia hora de instrumento parado com três voltas
@@ -1192,3 +1195,10 @@ guarda de PID só lê PID se o arquivo existir. Quando a forma quebra, a guarda 
 ela **falha aberta ou trava fechada**, e as duas são piores que o defeito. Aqui a
 degradação era silenciosa em ambos os sentidos, e quem a viu foi um worker esperando a
 vez, não o vigia.
+
+
+**E as duas camadas se justificam:** o `[ -d "$L" ]` do keep-alive ainda tem uma janela de
+corrida de microssegundos entre o teste e o `touch`; a guarda de forma no `com-trava.sh`
+cobre o resto. *Conserto de causa e conserto de sintoma não competem quando o sintoma é
+uma casa parada por meia hora* — mas o de causa vem primeiro, e sem ele o outro só encurta
+o estrago.
