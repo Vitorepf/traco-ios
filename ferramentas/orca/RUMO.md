@@ -576,3 +576,31 @@ aberto, com dono:
    corrida e 18 de 18 nas outras duas, idênticas. Antes de qualquer nova adoção, o
    número de corridas se escolhe pela variância medida aqui (`prova/q2f-modelo-4*.jsonl`),
    não pelo orçamento. **Dono: quem retomar a escolha do modelo.**
+
+## Dívida nomeada — o que o G3 da F6 deixou aprovado com ressalva (09/09, 22h4x)
+
+A volta F6 passou com **menor nota 9** e mescla. Estas quatro ficam, nenhuma segura
+nada, e três delas são a mesma espécie: **o relato afirmou mais do que a prova tinha**.
+
+1. **`NotasView.swift:806` tem um warning herdado de `main`.** O relato da F6 disse
+   "0 warning" — e o número veio de **build incremental**, que não recompila o que não
+   mudou. **Dono: a próxima volta que tocar NotasView.**
+2. **`f6-bloqueada-dia-ax5-claro.png` promete aparência e entrega tamanho de letra.**
+   O nome do arquivo diz "claro" e o par claro/escuro não difere em aparência: difere
+   em Dynamic Type. O revisor mediu por pixel (0,73 na fileira de acessório contra
+   11,87 no cartão vivo, mesmo build, mesmo minuto) e a medida provou coisa MELHOR do
+   que a legenda prometia — que as faces de acessório **não escalam**. **Dono: quem
+   reusar essas capturas; renomear, ou a próxima pessoa lê a legenda e erra.**
+3. **Não existe `#Preview` de `accessoryInline` em lugar nenhum**, ao contrário do que
+   o relato da F6 afirma. Por isso o braço **"Traço · sem dados" é o único sem prova**.
+   **Dono: a volta que voltar aos widgets** — ou o preview nasce, ou o braço se prova
+   na tela.
+4. **A ADR 04f (`SPEC.md:1281`) e o comentário em `TracoWidget.swift:686` seguem
+   afirmando o que a F6 desmentiu.** Documento que contradiz o código medido é a
+   trilha B3 na sua forma escrita. **Dono: a próxima volta de widget.**
+
+**E o `f6-plantar-bloqueada.sh` NÃO planta sozinho.** O revisor rodou duas vezes: parou
+no toque cego do retículo do inline, e depois num `^Traço$` ambíguo que abriu o app.
+É limite de instrumento e **não desconta nota** — mas significa que **as capturas do
+build candidato na tela bloqueada continuam sendo as do autor**, não reproduzidas de
+forma independente. **Dono: a trilha de instrumento.**

@@ -971,3 +971,31 @@ quanto um mais frouxo, com o agravante de parecer rigor.
 
 **E quem mede tem de saber notar isso.** Este apontou a diferença **contra o
 próprio número que produziu** — que é o comportamento que faz uma medida valer.
+
+## Build incremental não conta warning (09/09, achado no G3 da F6)
+
+O relato da F6 declarou **"0 warning"** e o revisor, recompilando, achou **um**, herdado
+de `main` em `NotasView.swift:806`. Não houve má-fé: `grep -c warning:` sobre a saída de
+um **build incremental** conta os warnings **dos arquivos que recompilaram**, e os
+outros simplesmente não aparecem — o número é verdadeiro sobre a corrida e falso sobre
+a árvore.
+
+**A lei:** *contagem de warning só vale sobre build que compilou tudo.* Quem declara
+"0 warning" declara junto **qual build produziu o número** — limpo ou incremental — e,
+se foi incremental, o número é da corrida, não da árvore. Vale para a régua de tempo
+pela mesma razão que o quadro longo da V12-C era a captura do teste: **o instrumento
+entra na medida, e medida sem o instrumento declarado não é medida.**
+
+## A legenda que promete menos do que a prova entrega (09/09, mesmo G3)
+
+O par `f6-bloqueada-dia-ax5-claro/escuro.png` foi anexado como prova de claro/escuro. As
+duas capturas **não diferem em aparência** — diferem em **tamanho de letra**. O revisor
+não descartou o par: mediu por pixel e descobriu que ele prova **coisa melhor** do que
+prometia — que as faces de acessório não escalam com Dynamic Type (0,73 de variação na
+fileira contra 11,87 no cartão vivo, mesmo build, mesmo minuto) — e **subiu** a nota de
+Acessibilidade que o autor tinha se dado.
+
+**A lei:** *abrir o artefato é obrigação em qualquer direção.* A captura que não
+sustenta a frase que a cita é achado; a que sustenta **outra** frase, melhor, também é —
+e quem só confere se a prova bate com a legenda perde metade dos dois casos. **O nome do
+arquivo não é evidência; o pixel é.**
