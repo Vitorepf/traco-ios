@@ -2804,3 +2804,73 @@ cega pelo espaço no caminho, o estado lido no efeito colateral em vez da trava,
 um matador educado com um daemon que não escuta pedidos. **A lei já está escrita e vale
 para as três: vigia que reporta zero tem de provar que enxerga — e matador que não
 confere o corpo não matou.**
+
+## 10/09, 08h00 — pausa e retomada (uso 8%); três no ar, e a manhã já decidiu duas coisas grandes
+
+Fala **0**. Inbox vazio. **Três em edição, que é o teto:** Q3-C fechando o retorno do
+`responderNasNotas`, Q4-C na janela do aparelho da conta, MAC-2-A-B com o conserto do
+selo. Nada a reabrir.
+
+### O `responderNasNotas` volta hoje, e o modelo passa a se escolher POR OPERAÇÃO
+
+O Q3-C-LER leu as **42 saídas inteiras** da corrida que sobreviveu ao reinício e o
+veredito é limpo: **`grok-4.5` passa 21/21** pela letra da fixture; **`grok-4.3` passa
+12/21** — reprova a sobra **0/3** e o conflito **0/3**. Linha de base intacta nos dois
+modelos, `escreveuRotuloInterno=false` em 42/42, HTTP 200 em 42/42.
+
+**E o worker achou uma contradição no MEU spec, e estava certo em parar:** eu mandei
+"volta hoje" e "não mude `Grok.modelo`" — e em produção o modelo é o `4.3`, o que
+reprova. Tirar a operação da lista hoje entregaria ao autor exatamente o modelo que
+falha. Ele ofereceu três saídas; **nenhuma era a resposta, e a quarta não precisa
+escolher:** `responderNasNotas` volta **com `grok-4.5` só para ela**, e o padrão global
+segue `grok-4.3`.
+
+A encanação já existia — `Grok.responder` tem `modelo:` na assinatura e o carrega até o
+pedido —, então é o **chamador** que passa o modelo medido. **Uma alavanca, um sítio.**
+Não é a alavanca dupla que derrubou a Q2-E: o esforço não se toca, e a escolha vem da
+comparação pareada que a §10 encomendou. **E há contraprova de que o global seria
+errado:** no LOTE-3 o `4.5` foi **pior** no `contrapor` (renda inventada 3/3 contra 1/3).
+Trocar o padrão consertaria a Q3 e estragaria a Q4, que está medindo agora.
+
+Impus uma restrição dura junto, que é o que impede isto de virar cegueira: **a sonda tem
+de continuar podendo medir outro modelo nessa rota** — o env vence primeiro, depois a
+escolha da operação, depois o padrão global. Sem isso, a próxima comparação pareada morre
+em silêncio. Letra **09v**, reservada no mesmo ato: é decisão nova, não emenda.
+
+### O G3 da MAC-2-A reprovou por PRIVACIDADE, e achou com sonda
+
+**Privacidade e autoria: 4.** `Sessao.calarAcoesDerivadas` tem **três chamadores**, e
+`trancarExpressivasVencidas` **sela de verdade sem ser um deles**; como
+`espelharTrabalhos` só escreve, o `.md` do trabalho de uma nota **selada** ficaria
+legível pelo bot no Mac **para sempre**. A sonda diz numa linha:
+`SONDA-3 expressiva vencida: trancada=true permitido=false existe=true`. **Nada foi
+mesclado.**
+
+Duas coisas que esse revisor fez muito bem: recuperou as quatro sondas que o reinício
+matou e as comitou — e **uma delas passa de propósito**, o controle que prova que a sonda
+enxerga. E separou com rigor o que está certo e não se mexe. **Leis novas na ESTEIRA:**
+*a guarda vai onde todos passam, não em cada um que passa* (o conserto certo é MENOR que
+o errado: a invariante no laço dispensa o `remover` de todos os chamadores); *toda sonda
+que acusa precisa de uma irmã que não acusa*; e `screencapture -l<windowid>` **fotografa
+janela sem levantá-la**, então "não dá para fotografar" precisa de mais prova.
+
+Mandei o conserto **procurar os irmãos**: se o espelho das NOTAS tiver o mesmo buraco,
+isso já está em `main`, no aparelho do dono, e vira **P0** — nesse caso ele para e diz.
+
+### Três orquestradores, e a cadeira que se decorava
+
+O Orca restaurou uma sessão velha no reinício e ela fez `run-use`, cortando o meu inbox
+em silêncio. Ela perguntou antes de agir, não tocou em `main` e saiu sem deixar órfão —
+melhor do que eu me portei duas vezes ontem. **A causa raiz estava no `vigia.sh`:** o
+handle do orquestrador era **decorado**, e tinha sido repontado para o terminal dela. O
+launchd cutucaria de dez em dez minutos uma sessão que ia morrer, e o laço pararia de ser
+reacendido sem ninguém notar. **Agora o vigia PERGUNTA a cadeira** (`run-show --id`), com
+reserva, e o `sed` que reescrevia o próprio arquivo sumiu. Handle decorado é irmão da
+caça cega: funciona até apontar para o lugar errado, e aí falha calado.
+
+E a caça-fala **saiu do scratchpad e entrou no repositório** — era por isso que ela se
+perdia a cada reinício. Com o grau de prova escrito dentro dela: **estopim com alvo
+plantado; falante só com mecanismo conferido e duas capturas em campo**, porque cópia de
+binário assinado o macOS mata (rc=137). **Eu tinha escrito "provada com alvo plantado" no
+commit anterior, sem qualificar — verdade para uma perna, falsa para a outra.** Corrigido
+no arquivo, que é onde a próxima pessoa procura.
