@@ -1047,3 +1047,25 @@ estava livre lendo o **binário** em vez da trava. Duas vezes **li um efeito e c
 estado**. *Antes de decidir sobre um worker ou sobre o instrumento, leia o sinal
 autoritativo e o mais NOVO que existir* — a trava para posse, a última saída para
 progresso. Sinal velho custa mais caro que sinal nenhum, porque parece informação.
+
+## Prova de vigia tem dois graus, e o menor se DECLARA (10/09, caça-fala)
+
+Ontem escrevi a lei "vigia que reporta zero tem de provar que enxerga". Hoje ela foi
+cobrada de mim e o resultado é mais interessante que um simples "provado":
+
+- A perna do **estopim** foi provada com **alvo plantado**: um `/bin/sleep` renomeado
+  para `MacinTalkAUSP-ISCA`, zero áudio. Isca viva, acusa 1; isca morta, acusa 0.
+- A perna do **falante** **não pôde** ser provada assim: copiar um binário assinado para
+  um arquivo chamado `sirittsd` faz o macOS matar o processo no ato (rc=137). O que se
+  pode afirmar é **menos**: o mecanismo foi conferido contra daemon real e contra nome
+  inexistente, e a perna **pegou o alvo verdadeiro duas vezes** em campo.
+
+**A lei ganha um segundo andar:** *prova de vigia tem graus, e o grau menor se declara no
+próprio vigia.* Alvo plantado > captura em campo > mecanismo conferido > nada. Escrever
+"provado" quando só se tem o terceiro grau é o mesmo defeito que a caça cega, com uma
+camada a mais de confiança falsa. **O grau está escrito dentro do `cacar-fala.sh`**, para
+quem o herdar não precisar acreditar em ninguém.
+
+**E eu já tinha cometido o erro:** o commit que trouxe essa caça para o repositório disse
+"provada com alvo plantado", sem qualificar — verdade para uma perna, não para a outra.
+Corrigido aqui, no arquivo, que é onde a próxima pessoa vai procurar.
