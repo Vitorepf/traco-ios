@@ -1239,3 +1239,39 @@ primeira pergunta é **qual caso morreu**, não **quantos pontos caíram**.
 honestidade e sem arredondar; o revisor, que não escreveu os casos, foi ao caso. *Nenhum
 dos dois viu sozinho o que os dois viram juntos* — é para isso que o G3 é de quem não fez
 a volta.
+
+## O keep-alive morre com a janela que ele mantém viva (10/09, 08h42, achado do re-G3)
+
+Consertei de manhã o `touch "$L"` dos quatro `lote-ia-09*-janela.sh` e a guarda de forma
+no `com-trava.sh`, achando que era aquilo. **Não era.** Às 08h42 a casa travou de novo, e
+o culpado era **outro** keep-alive com o mesmo defeito — `segurar-trava.sh`, num
+scratchpad de sessão do `q3-c` — e desta vez **não destravava nunca**:
+
+- `mkdir` **nunca** passa sobre um arquivo;
+- a retomada de dono morto lê `$L/dono`, que num arquivo **não existe**;
+- a retomada de 30 min olha o **mtime**, que o `touch` renova a cada 30 s.
+
+**As duas saídas do `com-trava.sh` mortas ao mesmo tempo.** Três workers parados.
+
+E o processo era **órfão**: `ppid = 1`, o worker que ele servia já estava
+`completed/succeeded/settled`, e as capturas dele já estavam comitadas. Ele segurava uma
+janela que tinha acabado, **anunciando no `dono` um trabalho que ninguém mais fazia**.
+
+**A lei, em duas metades:**
+1. *Todo `touch` numa trava confere que ela ainda é o diretório* — senão ele a **recria
+   como arquivo** assim que o dono a solta. O padrão é sistêmico: vale para qualquer
+   keep-alive, em qualquer script, inclusive os de scratchpad que ninguém revisa.
+2. *O keep-alive morre com a janela que ele mantém viva.* Um que sobrevive ao dono não
+   está protegendo nada — está **mentindo no `dono`** e travando a casa. Se ele pode ficar
+   órfão (`ppid 1`), ele vai ficar.
+
+**E a nota amarga:** `kill` não o matou; precisou de `kill -9`. **Segunda vez no dia** que
+um matador educado falha nesta máquina — a primeira foi o vigia de fala mandando SIGTERM a
+um `sirittsd` que o ignora, e o deixou vivo 19 minutos. *Matador que não confere o corpo
+não matou.*
+
+**O método do worker que achou merece cópia:** leu a trava por `stat` e o dono por `ps`,
+**não por efeito colateral**; e viu que *"só `rm` do arquivo não resolve, o `touch` o
+recria em até 30 s"* — que é a diferença entre destravar e **parecer** que destravou. E
+não matou processo alheio sozinho: escalou com o PID na mão e seguiu na leitura estática
+enquanto esperava.
