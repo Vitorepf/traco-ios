@@ -114,3 +114,7 @@ A nota de ontem à noite foi **7**. O que a sobe está medido, e a ordem do dia 
 4. **Dívidas que derrubam**: os cinco `try!`, F6b (o botão da bloqueada abre o app), MAC-2 pela metade (o bot ainda não escreve no Trabalho), MAC-3 fechada, a causa da voz.
 
 O teto continua **três voltas** e **um aparelho com conta**. O segundo (teste 3, `34CC3F94`, hoje o da suíte) só vira aparelho de conta quando o dono disser "pode" e fizer o login. As leis da ESTEIRA valem inteiras: VOZ, VOICEOVER E iPAD PROIBIDOS; nunca `erase`, `clearState`, `uninstall` ou `xcodebuild test` no `B91C8DEF`.
+
+## 12. Ordem do dono, 10/09 10h35 — "vamos parar de testar e perder tempo com letra máxima, nunca vou usar isso"
+
+**Letra máxima sai do escopo.** Nenhuma volta, portão, captura, teste, vídeo ou dívida em tamanhos de acessibilidade (AX1 a AX5, XXXL). A volta AX5-1 fecha agora sem mesclar nada; o P1 "a barra sai da tela em AX5" sai do RUMO como dívida e vira uma linha de registro. A linha "Dynamic Type" do scorecard passa a valer só até **large** (o padrão do iPhone) — é o que o dono usa e é o que se fotografa. O código que já existe fica como está: ninguém o remove nem o mantém; se um dia quebrar em AX5, não é defeito. Acessibilidade que continua valendo: alvos de 44 pt, contraste, rótulos e ordem na árvore — coisas que o dono também sente. O tempo que isso libera vai para a IA (§11).

@@ -90,7 +90,7 @@ Ordem do dono, repetida inúmeras vezes e reforçada em **08/09 19h35, com o Mac
 | Simplicidade | curva-zero: caminho comum evidente, passos, decisões e telas não crescem; poder avançado continua encontrável | contagem antes/depois |
 | Movimento | toda animação tem propósito, é interrompível, respeita movimento reduzido, duração e curva coerentes com o sistema | vídeo simctl + reduce motion |
 | Componentes | reutilizável, um lugar só em Traco/Componentes, estados completos, preview, nome em pt, sem duplicata | diff + preview |
-| Acessibilidade | VoiceOver com rótulos e ordem certa, Dynamic Type até XXL sem clipe, contraste, alvo ≥ 44 pt | captura AX + Dynamic Type |
+| Acessibilidade | rótulos e ordem certa na árvore, contraste, alvo ≥ 44 pt; Dynamic Type só até **large** — tamanhos de acessibilidade (AX1–AX5, XXXL) estão FORA DO ESCOPO por ordem do dono (DIRETRIZ §12, 10/09): não se testa, não se captura, não vira dívida | árvore AX + captura em large |
 | Performance | sem hitch em rolagem e digitação nas telas tocadas; Instruments quando toca lista, editor ou parser | trace ou medida |
 | Privacidade e autoria | selo, origem e rotas protegidas intactos; nada publica, gasta ou envia sem gesto | teste + leitura do diff |
 | Estado honesto | produzido, agendado, executado e observado distintos na tela; falha visível, nunca escondida | captura da falha |
