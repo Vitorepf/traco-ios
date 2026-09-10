@@ -130,3 +130,15 @@ O teto continua **três voltas** e **um aparelho com conta**. O segundo (teste 3
 5. **Nada de portão de acessibilidade máxima (§12)**; captura só em large.
 
 **O gargalo continua sendo UM aparelho com conta.** Cada operação custa uma janela de ~25 min nele. O dono pode dobrar a velocidade dizendo "pode" para o teste 3 (`34CC3F94`) virar segundo aparelho de conta — a equipe abre o login pelo app e ele autoriza no Grok.
+
+## 14. Veredito do dono, 10/09 14h10 — a resposta da sábia nas Notas: "experiência deplorável, design deplorável e doentio"
+
+Capturas do teste 3 às 13h58, rota `responderNasNotas`, a que voltou às 11h41. **Uma operação não "volta ao autor" pelo motor: volta pela tela, e a tela foi vista pela primeira vez pelo dono.** O que ele viu, e que não pode existir de novo:
+
+- **Espera:** um cartão "a sábia pensa…" com um botão "Fechar" e mais nada — sem tempo, sem cancelar, sem relação com a pergunta (§10 já mandava: pensando, tempo passando, cancelar).
+- **Cabeçalho em caixa alta com jargão:** "A SÁBIA, SOBRE: COMO USAR O TRACO?" — a pessoa não pergunta a uma "sábia"; a pergunta dela é o título, em letra de gente.
+- **Resposta cortada com "CONTINUA"**, em letra grande sobre um cartão flutuante que cobre a lista.
+- **"Foram junto:" com a MESMA nota repetida três vezes** em texto miúdo cinza — é defeito (fonte duplicada) e é ruído; as fontes são títulos de nota tocáveis, uma vez cada, e só se a pessoa quiser ver.
+- **"serviu / não serviu"** soltos como links, e "Fechar" duas vezes na mesma tela.
+
+**Regra que vale para toda operação de IA daqui em diante:** a volta que devolve uma operação **inclui a superfície** — estado de espera, resposta, fontes, retorno — desenhada pelo Fable, julgada pelo G4 e **vista pelo dono antes de "voltou"**. Sem tela aprovada, a operação continua indisponível, por melhor que meça. A superfície da resposta é UMA para todas as operações que respondem em texto (responder, responderNasNotas, contrapor, instigar): componente único em `Traco/Componentes`, não um cartão por rota.
