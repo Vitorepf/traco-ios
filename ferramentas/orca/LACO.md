@@ -2413,3 +2413,29 @@ O primeiro LOTE **contava transporte e retorno na mesma coluna** — e "zero err
 transporte" passou a significar duas coisas no mesmo relatório. As duas viraram
 colunas separadas na ESTEIRA, porque somá-las **esconde justamente o caso que mais
 interessa: o provedor que responde 200 e não diz nada.**
+
+## 09/09, 21h — as duas reaberturas, com os defeitos nomeados um a um
+
+**A Q3-B ataca a MEIA-RECUSA**, que é a irmã do defeito que ela já matou: depois de
+a recusa total morrer, sobrou a resposta que **reconhece o dado e para ali**. Três
+casos, um padrão só — *3/3 reconhecem os R$ 6,45 ditos pela pessoa e **0/3
+calculam***; *3/3 repetem "12/18 cadeiras, limite 15" e **0/3 dizem qual lista
+vale***. A frase do revisor virou lei: ***"expor números sem caminho é a recusa
+disfarçada"*** — parece resposta, e deixa o autor onde estava.
+
+**A Q4-B tem cinco P1, e mandei atacar o segundo primeiro:** ***a guarda comprou
+MUDEZ sobre palavras que são do autor***. É o defeito oposto ao que ela consertou —
+`vazaAlheio` derrubando frase que usa **palavra do autor**, não só jargão nosso.
+**Uma guarda que cala a voz do autor é pior que o vazamento que previne**, e é a
+terceira vez neste laço que apertar contra a invenção compra a recusa covarde.
+
+**As duas foram mandadas medir com a linha de base junto:** *quem consertou o caso
+3 e quebrou o caso 7 não consertou nada*. E **nenhuma corre no aparelho** — escrevem,
+provam o que se prova sem o Grok, e param; a corrida entra na próxima janela em
+lote, com um binário só, como a de hoje.
+
+**E entrou na ESTEIRA um erro meu de spec**, que o medidor do LOTE-2 pegou: pedi a
+ele **"casos passados"** e no mesmo texto **proibi que julgasse** — e "passou" só se
+decide lendo. Ele perguntou, o `ask` estourou em 900 s, e ele **decidiu dentro do
+papel e documentou o critério**. **Pedir a quem mede uma coluna que exige juízo é
+empurrar o juízo para quem foi proibido de julgar.**

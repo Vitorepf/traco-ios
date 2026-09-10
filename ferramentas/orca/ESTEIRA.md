@@ -878,3 +878,27 @@ diferentes no mesmo relatório.
 **Regra:** **transporte** (a chamada chegou e voltou) e **retorno** (veio conteúdo
 utilizável) são **colunas separadas**. Somá-las esconde exatamente o caso que mais
 interessa: **o provedor que responde 200 e não diz nada.**
+
+### Não peça a um medidor uma coluna que exige juízo (09/09)
+
+Eu escrevi no spec do LOTE-2: *"a tabela **operação × modelo × casos passados**"* —
+e proibi, no mesmo spec, que ele julgasse. **"Passou" só se decide lendo os
+requisitos em prosa contra a saída**, que é exatamente o juízo que eu tinha
+proibido. O worker viu a contradição, **perguntou**, o `ask` estourou em 900 s, e
+ele **decidiu dentro do papel e documentou o critério**: construiu um conferidor de
+**guardas literais** e disse que a leitura de mérito continua sendo do revisor.
+
+**Regra:** quem mede entrega **contagem do que é mecânico** e **saídas inteiras**.
+Se a coluna precisa de leitura, ela **não é do medidor** — e pedi-la é empurrar o
+juízo para quem foi proibido de julgar.
+
+### A meia-recusa: reconhecer o dado e parar ali (09/09, achado do G3 da Q3)
+
+Depois de matar a **recusa total**, apareceu a irmã dela: a resposta **reconhece o
+dado e não faz o que ele permite fazer**. Três casos, o mesmo padrão — *"3/3
+reconhecem os R$ 6,45 ditos pela pessoa; 0/3 calculam"*, *"3/3 repetem 12/18
+cadeiras e o limite 15; 0/3 dizem qual lista vale"*.
+
+**A frase do revisor é a régua:** ***"expor números sem caminho é a recusa
+disfarçada"***. Ela **parece resposta** e deixa o autor no mesmo lugar — e por isso
+passa por guarda nenhuma: **está tudo lá, menos o uso**.
