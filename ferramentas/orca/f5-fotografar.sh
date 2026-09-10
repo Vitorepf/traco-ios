@@ -17,7 +17,7 @@
 # captura é repetida até o OCR achar o texto `vezes` vezes; se em 90 s não
 # achou, o script FALHA e guarda o último quadro como *.nao-pronta.png.
 set -e
-U="$1"; SAIDA="$2"; TEMA="${3:-light}"; TAM="${4:-large}"
+U="$1"; SAIDA="$2"; TEMA="${3:-light}"; TAM=large  # DIRETRIZ §12: o 4º parâmetro foi removido; acessibilidade máxima é proibida
 LINHA="${LINHA:-terminar o capítulo do meio antes de dormir}"
 TEXTO="${5:-$(echo "$LINHA" | cut -d' ' -f1-2)}"; VEZES="${6:-1}"
 AQUI="$(cd "$(dirname "$0")" && pwd)"
