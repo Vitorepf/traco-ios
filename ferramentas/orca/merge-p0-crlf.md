@@ -281,9 +281,14 @@ To https://github.com/Vitorepf/traco-ios.git
 
 `origin/main` = **`6c5addf68be56e9049b1fd5a7f610d7d234e1419`**, às **2026-09-10T15:18:18Z (12h18 local)**.
 
-**Limpeza.** O worktree descartável e o branch temporário `merge-p0-crlf-tmp` foram
-removidos ao fim; `/tmp/merge-p0` também. Nada ficou escrito no checkout principal nem em
-worktree alheio.
+Esse é o SHA da mescla. **Este relatório é o commit seguinte**, `7fbe747`, empurrado às
+2026-09-10T15:18:55Z — um `.md` só, nada de código depois da suíte verde.
+
+**Limpeza, feita.** Worktree descartável (`/Users/vitorepf/traco-merge-p0`) e branch
+temporário (`merge-p0-crlf-tmp`) removidos, `/tmp/merge-p0` removido, `git worktree prune`
+rodado: `git worktree list | grep -c merge-p0` = **0**. Nada ficou escrito no checkout
+principal nem em worktree alheio. O worktree da volta, `p0-crlf`, fica de pé — quem o
+remove é o orquestrador.
 
 ## 7. Scorecard (preenchido por mim; a nota final é do revisor independente)
 
