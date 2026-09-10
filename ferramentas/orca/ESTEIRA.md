@@ -957,3 +957,17 @@ devolvia**.
 **"Chegou" e "mandou" são coisas diferentes.** Antes de concluir que o modelo
 ignora um parâmetro, **veja onde ele cai na instrução**: um dado que entra no fim
 de uma lista compete com a lista, e a lista costuma ganhar.
+
+### O conferidor mais duro que a fixture (09/09, LOTE-3)
+
+O placar mecânico caiu de **57/57 para 54/57** — e o próprio medidor mostrou que
+**duas das três quedas eram a RÉGUA, não o retorno**: a fixture nunca escreve
+*"contra vazio reprova"*, só *"os três campos vazios reprovam"*, e ali **os três
+não estavam vazios**. **Pela letra da fixture é 56/57.**
+
+**Regra:** o conferidor **lê a fixture, não a intenção de quem a escreveu**. Um
+conferidor mais duro que a fixture **reprova conserto bom** — e é tão perigoso
+quanto um mais frouxo, com o agravante de parecer rigor.
+
+**E quem mede tem de saber notar isso.** Este apontou a diferença **contra o
+próprio número que produziu** — que é o comportamento que faz uma medida valer.

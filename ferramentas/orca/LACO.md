@@ -2486,3 +2486,32 @@ voz do autor à guarda** (proibir por procedência em vez de por nome) **basta p
 as três operações voltarem**. Se bastar, são três saindo da lista de uma vez. Se
 não, teremos os defeitos que restam **nomeados com número**, que é como esta noite
 inteira andou.
+
+## 09/09, 23h — o LOTE-3 mediu, e a contagem mecânica mostra UMA coisa
+
+**114 execuções**, os **sete casos da Q3** e os **doze da Q4**, três repetições, em
+`grok-4.3` — e, na sobra da janela, **o mesmo par em `grok-4.5`**. Uma janela
+(00:38:42Z–00:54:55Z), **uma instalação** (o binário mudou: `e9983ddb…` →
+`c6cd0ca8…`), **quatro fumaças** com a conta ligada, **fixtures intactas por SHA**,
+zero erro de transporte.
+
+**A contagem mecânica mostra exatamente uma mudança, e ela é boa:** **a palavra do
+autor no `instigar` foi de 0 de 3 para 3 de 3**, nos dois modelos. **O conserto da
+mudez funcionou, e está medido.**
+
+**No resto ela não separa nada** — a coluna da frase de limite dá 3 de 21 nos dois
+binários. É a confirmação do que o LOTE-2 já dizia: **as guardas não veem o defeito
+semântico**, e **a leitura de mérito é inteira dos revisores**.
+
+**E o medidor fez uma coisa rara: apontou o erro contra o próprio número que
+produziu.** O placar caiu de 57/57 para 54/57, e ele mostrou que **duas das três
+quedas eram a RÉGUA, não o retorno** — a fixture escreve *"os três campos vazios
+reprovam"*, não *"contra vazio reprova"*, e ali **os três não estavam vazios**.
+**Pela letra da fixture é 56/57**, e a única queda real é **um `semRetorno` com HTTP
+200**. Virou lei: **o conferidor lê a fixture, não a intenção de quem a escreveu** —
+um conferidor mais duro que a fixture **reprova conserto bom**, e parece rigor.
+
+**Despachei os dois re-G3 em paralelo** (`ctx_27089bd110e7` e `ctx_c36b6342660e`),
+cada um com **a sua própria leitura anterior na mão** e a instrução de dizer **o
+que mudou de lado, caso a caso** — e com a linha de base: *os casos que já passavam
+não podem ter piorado*.
