@@ -2570,3 +2570,47 @@ trilha B — rota que cala — e entra na Q4-C com teste que reproduz primeiro.
 **Q3-C e Q4-C esperam a mescla**, de propósito: as duas vão mexer em `Sabia.swift`
 de novo, e começar de um `main` que já tem os dois lados casados é mais barato que
 casar duas vezes.
+
+## 09/09, 22h27 — pausa e retomada (uso 6%); a trilha do Mac reabre pela metade que não tem risco
+
+Fala **zero**, inbox vazio, os dois vivos: **MERGE-Q34 em `implementing`** (já passou
+da leitura do grafo para a mescla) e **G3 F6 em `investigating`** (lendo as doze
+capturas). Enquanto eles correm, escrevi **Q3-C e Q4-C inteiras**, prontas para
+despachar no instante em que a mescla pousar — a ordem do dono é que Q3 e Q4 não
+esperem a vez.
+
+**Escrever as specs mudou o diagnóstico duas vezes, e as duas valem mais que o
+conserto:**
+
+**O pedido da Q3 é mais fraco que a fixture.** O contrato diz *"faça a aritmética e
+entregue o número pedido, mais a comparação com o teto"* — e *"cabe no orçamento"*,
+que o `grok-4.5` escreveu, **É** uma comparação com o teto. A fixture cobra a
+grandeza (os R$ 2.646). **O modelo obedeceu; nós descrevemos a categoria e cobramos o
+número.** Terceira vez que esse defeito aparece na Q3 com nome diferente, e é a mesma
+família da regra chaveada pelo TIPO do fato e da fórmula como única instrução.
+
+**O `semRetorno` e a renda inventada são o MESMO defeito.** Em
+`Sabia.parseContraparte`, cada chave que cai numa guarda vira `""`; se as três caem,
+`Contraparte.vazia` devolve `nil` — e isso é o `Falha.semRetorno` com HTTP 200 e
+conteúdo completo. **A guarda que protege apagando é a que produz o silêncio.** E o
+conserto óbvio da renda — pôr `"renda"` na lista `fatoQueEleNaoDeu`, de onde foi
+deliberadamente excluída — **aumentaria** o silêncio se entrasse sozinho. Por isso a
+Q4-C tem o bug do motor como item 1, antes do prompt, com a armadilha nomeada e a
+ordem de procurar os irmãos: se outro parser tem essa forma, o conserto é onde os
+dois passam. Reservei **09s** para essa decisão e limpei um bloco duplicado do
+`LETRAS-ADR.md` que deixava duas linhas "Próxima livre".
+
+**Reabri a trilha fora do app, e cortei onde o risco corta.** A MAC-2 escrita no
+brief tem duas metades de risco muito diferente: **ler** o trabalho (o bot passa a ver
+o que a pessoa está tocando — nada é escrito nela, **não há contrato de autoria em
+jogo**) e **escrever** nele (versão do bot, tentativa, relato — é ali que a Astra
+entra no G0). Despachei **MAC-2-A** (`ctx_4ce94f11ccb7`) só com a leitura:
+`trabalhos/<id>.md` exportado pelo mesmo caminho por onde o `agenda.md` já sai, mais
+`traco_trabalhos()` e `traco_trabalho(id)` no molde das onze ferramentas que já
+existem, com autoteste. **Não é encolher por medo:** os casos 4, 5 e 6 começam todos
+por o bot LER o trabalho aberto, então a metade entregue presta sozinha, e a MAC-2-B
+fica com um escopo cujo portão é claro.
+
+**Três em edição (MERGE-Q34, MAC-2-A e o G3 da F6 fechando), com Q3-C e Q4-C na
+gaveta.** O Mac é do dono e ele está na máquina: a MAC-2-A leva a lei do ocioso < 60 s
+e a obrigação do §7 de avisar no comentário do worktree ao começar e ao terminar.
