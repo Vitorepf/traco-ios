@@ -876,6 +876,77 @@ private func temp(_ nome: String) -> URL {
         }
     }
 
+    /// ADR 2026-09-10d — a TERCEIRA alavanca: o esquema da saída. Não é uma
+    /// terceira redação do pedido, e este par prova isso — o CORPO das
+    /// instruções é byte a byte o mesmo nos dois braços; o que muda é a FORMA
+    /// que a resposta tem de ter, e essa a API aplica.
+    @Test func osDoisBracosDoContraporPedemAMesmaCoisaEDiferemSoNaForma() throws {
+        let corpo = "Cada valor em português, até 280 caracteres"
+        let iA = try #require(Sabia.sistemaContrapor.range(of: corpo))
+        let iB = try #require(Sabia.sistemaContraporComEsquema.range(of: corpo))
+        #expect(Sabia.sistemaContrapor[iA.lowerBound...] == Sabia.sistemaContraporComEsquema[iB.lowerBound...],
+                "o esquema virou uma terceira redação do pedido")
+        // A ORDEM é a alavanca: `fechadas` sai ANTES da proposta existir, e o
+        // modelo escreve da esquerda para a direita. Um esquema montado por
+        // dicionário de Swift perderia isto sem erro nenhum.
+        let e = Sabia.esquemaContrapor
+        let pos = try ["fechadas", "contra", "foraDaLista", "dependeDe", "outroCampo"].map {
+            try #require(e.range(of: "\"\($0)\":")).lowerBound
+        }
+        #expect(pos == pos.sorted(), "a ordem das chaves do esquema não é a da geração")
+        let j = try #require(try JSONSerialization.jsonObject(with: Data(e.utf8)) as? [String: Any])
+        #expect(j["additionalProperties"] as? Bool == false)
+        #expect((j["required"] as? [String])?.count == 5, "strict exige TODAS as chaves em required")
+    }
+
+    /// ADR 2026-09-10d — o esquema é lido, e o JOIN não decide.
+    ///
+    /// Este teste guarda a decisão medida no LOTE-9, não uma intenção. O join
+    /// `dependeDoQueElaFechou` foi escrito, medido (5 disparos, 1 acerto, 4
+    /// erros) e RETIRADO do caminho: `fechadas` e `dependeDe` continuam no
+    /// esquema — porque a FORMA medida é esta — e nenhum dos dois apaga nada.
+    @Test func oEsquemaEhLidoEOJoinNaoDecideMais() {
+        let nota = "Vou virar o banco de dados de uma vez no sábado à noite. Fazer em etapas eu já descartei: "
+            + "o esquema muda inteiro e as duas versões não rodam juntas. Não tenho ambiente de teste com os dados reais."
+        _ = Sabia.retirarGuardasQueApagaram()
+        // O caso que o join MATAVA no LOTE-9 (`4.5`, razões fechadas r1):
+        // "pausar a matrícula" depende da matrícula que ela TEM. Chega ao autor.
+        let boa = Sabia.parseContraparte(#"""
+        {"fechadas":["não quero trocar por outra academia","não quero treinar em casa"],"contra":"Manter a assinatura preserva o acesso a cinco minutos para o dia em que a vontade voltar.","foraDaLista":"pausar ou congelar a matrícula por um período, em vez de cancelar de vez","dependeDe":"a academia permitir pausa da matrícula sem trocar de unidade","outroCampo":""}
+        """#, texto: "Vou cancelar a assinatura da academia. Não quero trocar por outra academia nem treinar em casa.")
+        #expect(boa?.foraDaLista.isEmpty == false, "o join voltou e matou a proposta que o LOTE-9 mediu como boa")
+        #expect(Sabia.retirarGuardasQueApagaram().isEmpty, "alguma guarda se declarou dona deste silêncio")
+
+        // As duas chaves novas são LIDAS e não derrubam o contrato do parser.
+        let cego = Sabia.parseContraparte(#"""
+        {"fechadas":["fazer em etapas","ambiente de teste com os dados reais"],"contra":"O corte único concentra o risco na única noite em que o contrato ainda admite entrega.","foraDaLista":"virada em modo somente leitura, com retorno por restore se não fechar na madrugada","dependeDe":"uma cópia restaurável recente","outroCampo":""}
+        """#, texto: nota)
+        #expect(cego?.foraDaLista.isEmpty == false)
+        #expect(cego?.contra.isEmpty == false)
+        // O braço ANTIGO passa pelo MESMO parser sem as duas chaves.
+        let antigo = Sabia.parseContraparte(#"{"contra":"O corte único concentra o risco na noite do contrato.","foraDaLista":"virada em janela de manutenção fora do sábado à noite","outroCampo":""}"#, texto: nota)
+        #expect(antigo?.foraDaLista.isEmpty == false)
+        #expect(Sabia.retirarGuardasQueApagaram().isEmpty)
+    }
+
+    /// A DÍVIDA, com a prova de por que ela é dívida. O join continua no código
+    /// sem chamador, e este teste é o motivo: ele mostra, com os dois casos
+    /// MEDIDOS lado a lado, que casar palavra não separa "o recurso que ela não
+    /// tem" de "o recurso que ela tem, usado de outro jeito". Apagar a função
+    /// apagaria a prova, e a próxima volta recomeçaria pela mesma ideia.
+    @Test func oJoinPorPalavraNaoSeparaOQueElaNaoTemDoQueElaUsaDeOutroJeito() {
+        let fechadasDaAcademia = ["não quero trocar por outra academia", "não quero treinar em casa"]
+        // ACERTO (LOTE-9, `4.5`, alternativas negadas r2): o recurso é o que ela NÃO tem.
+        #expect(Sabia.dependeDoQueElaFechou("espelho ou cópia isolada dos dados reais só para medir a duração",
+                                            fechadas: ["fazer em etapas", "ambiente de teste com os dados reais"]))
+        // ERRO (LOTE-9, `4.5`, razões fechadas r1): o recurso é o que ela TEM.
+        #expect(Sabia.dependeDoQueElaFechou("a academia permitir pausa da matrícula sem trocar de unidade",
+                                            fechadas: fechadasDaAcademia),
+                "se este deixou de acusar, o desenho mudou e a dívida pode ser revista")
+        // A nota que não fecha nada não paga preço nenhum, e nunca pagou.
+        #expect(!Sabia.dependeDoQueElaFechou("um relógio ou o próprio tempo do percurso", fechadas: []))
+    }
+
     /// ADR 2026-09-10c — o portão que vem ANTES do prompt. Três campos vazios
     /// sobre HTTP 200 têm DUAS causas possíveis, e a tela e a ADR dependem de
     /// saber qual: o modelo calou, ou a nossa guarda apagou. `guardasQueApagaram`

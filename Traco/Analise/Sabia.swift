@@ -245,12 +245,46 @@ enum Sabia {
     /// fabricava a precisão que faltava para ter o que escrever. Agora o campo
     /// admite silêncio por escrito, e a evidência é proibida de nascer aqui.
     /// Recusar os três é o defeito oposto, e reprova igual.
-    static let sistemaContrapor = """
+    static let sistemaContrapor = formaContrapor + "\n" + corpoContrapor
+
+    /// ADR 2026-09-10d — a TERCEIRA alavanca: o ESQUEMA DA SAÍDA. As duas
+    /// primeiras foram redações do PEDIDO, medidas e descartadas (LOTE-7 e
+    /// LOTE-8); esta não pede nada de novo. O `corpoContrapor` é BYTE A BYTE o
+    /// mesmo nos dois braços — a única diferença é a FORMA que a resposta tem
+    /// de ter, e essa o esquema da API aplica, não o prompt.
+    static let sistemaContraporComEsquema = formaContraporComEsquema + "\n" + corpoContrapor
+
+    /// A forma antiga: três chaves, nenhuma delas conferível pelo nosso lado.
+    private static let formaContrapor = """
     Você lê a nota de quem escreve e devolve o que ela NÃO considerou. Responda APENAS um JSON válido, sem markdown:
     {"contra": "…", "foraDaLista": "…", "outroCampo": "…"}
     contra = a posição contrária à dela, no melhor que alguém competente a defenderia — e DENTRO do que ela já fixou ·
     foraDaLista = uma opção que não está entre as que ela listou ·
     outroCampo = um caso de outro campo (outra ciência, ofício, época) com a MESMA estrutura de problema; "" se você não tiver um que saiba de verdade.
+    """
+
+    /// A forma nova. Duas chaves a mais, e as duas são FATO, não juízo:
+    /// `fechadas` sai ANTES de qualquer proposta existir (o esquema a pede
+    /// primeiro, e o modelo escreve da esquerda para a direita — não há como
+    /// voltar e reescrevê-la depois de ver o que propôs); `dependeDe` é o
+    /// relato do que a proposta já escrita precisa para existir. O modelo nunca
+    /// diz "isto é permitido" — se dissesse, autocertificaria.
+    ///
+    /// O LOTE-9 mediu esta forma e ela é o que fica: no `grok-4.3`, o modelo
+    /// desta rota, o substituto sumiu do `foraDaLista` nos DOIS cegos, 3 de 3, e
+    /// o polo de controle SUBIU (11 → 13 de 18). A guarda que decidia por cima
+    /// dela foi medida junto e retirada — `dependeDoQueElaFechou`.
+    private static let formaContraporComEsquema = """
+    Você lê a nota de quem escreve e devolve o que ela NÃO considerou. Responda APENAS um JSON válido, sem markdown:
+    {"fechadas": ["…"], "contra": "…", "foraDaLista": "…", "dependeDe": "…", "outroCampo": "…"}
+    fechadas = tudo o que a nota diz não ter, já ter descartado, recusado ou posto fora da conta, um item por saída fechada, na palavra dela; [] se ela não fecha nada ·
+    contra = a posição contrária à dela, no melhor que alguém competente a defenderia — e DENTRO do que ela já fixou ·
+    foraDaLista = uma opção que não está entre as que ela listou ·
+    dependeDe = o recurso, meio ou condição de que a foraDaLista precisa para existir, nomeado em uma frase curta; "" só quando a foraDaLista está vazia ·
+    outroCampo = um caso de outro campo (outra ciência, ofício, época) com a MESMA estrutura de problema; "" se você não tiver um que saiba de verdade.
+    """
+
+    private static let corpoContrapor = """
     Cada valor em português, até 280 caracteres, INFORMAÇÃO e nunca instrução: proibido "você deve", "faça", "escreva", "tente".
     O contraponto se sustenta no que ELA escreveu e no que você sabe — nunca em fato que você inventa para
     ter o que dizer. Proibido: número, porcentagem, preço, data, prazo, estudo, pesquisa, metanálise,
@@ -275,6 +309,30 @@ enum Sabia {
     e mostre onde essa razão aperta na prática, dentro do requisito dela.
     Se houver um bloco SOBRE QUEM ESCREVE, use-o para escolher o exemplo que ela ainda não viu.
     """
+
+    /// O esquema que a API APLICA. Escrito à mão, e não por `JSONSerialization`,
+    /// por um motivo que não é estilo: dicionário de Swift não tem ordem e
+    /// `.sortedKeys` daria "contra, dependeDe, fechadas, foraDaLista,
+    /// outroCampo". A ORDEM é a alavanca — `fechadas` primeiro obriga o modelo
+    /// a enumerar o que a nota fecha antes de existir proposta nenhuma.
+    nonisolated static let esquemaContrapor = """
+    {"type":"object","additionalProperties":false,\
+    "properties":{\
+    "fechadas":{"type":"array","items":{"type":"string"}},\
+    "contra":{"type":"string"},\
+    "foraDaLista":{"type":"string"},\
+    "dependeDe":{"type":"string"},\
+    "outroCampo":{"type":"string"}},\
+    "required":["fechadas","contra","foraDaLista","dependeDe","outroCampo"]}
+    """
+
+    /// Os DOIS braços no MESMO dylib, e o antigo escolhido por ambiente. Sem
+    /// isto, comparar o esquema com o pedido é comparar dois binários e ficar
+    /// com a dúvida de qual rodou. Só a sonda liga esta chave; em produção a
+    /// rota nem chega aqui (`indisponivelPorQualidade`).
+    nonisolated static var contraporSemEsquema: Bool {
+        ProcessInfo.processInfo.environment["TRACO_AVALIAR_CONTRAPOR_ANTIGO"] == "1"
+    }
 
     /// ADR 2026-09-09s — a frase do desfecho que não existia. Chegou inteira,
     /// e nada do que veio sobreviveu ao nosso contrato: não é "não respondeu"
@@ -631,11 +689,13 @@ enum Sabia {
         guard gesto != .expressiva else { return nil }
         // ADR 09i: mesma linha do `instigar` — o método é nosso e vai nas
         // instruções; a nota e o retrato são dela e vão no pedido.
-        var sistema = sistemaContrapor
+        let comEsquema = !contraporSemEsquema
+        var sistema = comEsquema ? sistemaContraporComEsquema : sistemaContrapor
         let metodo = gesto?.metodo ?? ""
         if !metodo.isEmpty { sistema += "\n\nO método desta nota:\n\(metodo)" }
         let usuario = "A NOTA:\n\(texto.prefix(6000))" + blocoDoRetrato(retrato)
         guard let cru = await chamar(.contrapor, sistema: sistema, usuario: usuario, temperatura: 0.5,
+                                     esquema: comEsquema ? esquemaContrapor : nil,
                                      mensagemLocal: {
             montarContrapor(texto: texto, gesto: gesto, retrato: retrato)
         }) else { return nil }
@@ -712,7 +772,8 @@ enum Sabia {
               let dados = String(cru[ini...fim]).data(using: .utf8),
               let j = try? JSONSerialization.jsonObject(with: dados) as? [String: Any]
         else { return nil }
-        guard Set(j.keys).isSubset(of: ["contra", "foraDaLista", "outroCampo"]) else { return nil }
+        guard Set(j.keys).isSubset(of: ["fechadas", "contra", "foraDaLista", "dependeDe", "outroCampo"])
+        else { return nil }
         func limpo(_ chave: String) -> String {
             let t = ((j[chave] as? String) ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
             guard !t.isEmpty else { return "" } // o modelo calou; não é guarda nossa
@@ -723,7 +784,49 @@ enum Sabia {
             if numeroAlheio(t, texto: texto) { return apagou(chave, "número que ele não deu") }
             return AnaliseRemota.umaFrase(t, teto: 280)
         }
-        return Contraparte(contra: limpo("contra"), foraDaLista: limpo("foraDaLista"), outroCampo: limpo("outroCampo"))
+        // ADR 2026-09-10d — `fechadas` e `dependeDe` são lidos, conferidos pelo
+        // esquema da API e NÃO decidem nada aqui. O join foi escrito, medido no
+        // LOTE-9 e RETIRADO: ver `dependeDoQueElaFechou` logo abaixo. Ficam no
+        // esquema porque a FORMA medida é esta — tirá-los mudaria o pedido que
+        // deu o resultado, e aí o número não descreveria mais o que roda.
+        return Contraparte(contra: limpo("contra"), foraDaLista: limpo("foraDaLista"),
+                           outroCampo: limpo("outroCampo"))
+    }
+
+    /// **ESCRITA, MEDIDA E RETIRADA (ADR 2026-09-10d). Não a religue sem ler isto.**
+    /// A ideia era: a proposta morre quando o recurso de que ela depende é um
+    /// dos que a nota FECHOU; as duas falas são do modelo e o juízo é nosso,
+    /// então ele não autocertifica.
+    ///
+    /// Casar o TEXTO DA NOTA seria o atalho cego a este mesmo caso — a nota que
+    /// nega por outras palavras ("as duas versões não rodam juntas") passaria
+    /// inteira por uma busca de "não tenho". Casamos `dependeDe` contra
+    /// `fechadas`, que o modelo escreveu no mesmo fôlego e no mesmo vocabulário.
+    ///
+    /// **O LOTE-9 mediu e ela reprovou: 5 disparos, 1 acerto e 4 erros.** Os
+    /// quatro erros são a MESMA espécie, e é ela que condena o desenho: a
+    /// proposta usava de outro jeito um recurso que a autora **JÁ TEM** —
+    /// "pausar a matrícula" (da academia que ela tem), "auditar código gerado"
+    /// (a programação que ela sabe). Casar palavra não separa *"ela não tem X"*
+    /// de *"ela tem X e a proposta usa X de outro jeito"*: o join lê a palavra e
+    /// não lê a RELAÇÃO. E ler a relação é JUÍZO — que só o modelo faria, o que
+    /// devolve a autocertificação que este desenho existia para evitar.
+    ///
+    /// **Quem reprovava a operação éramos NÓS**: sem o join, o `grok-4.3` (o
+    /// modelo desta rota) passa os dois cegos 3 de 3 e o polo de controle sobe
+    /// de 11 para 13 de 18; com o join, cai para 2 de 3 e 12 de 18.
+    ///
+    /// A DÍVIDA, nomeada: falta a este desenho um campo que diga se o recurso
+    /// vem DE FORA do que ela tem — e esse campo tem de ser FATO, não juízo, ou
+    /// volta ao mesmo lugar. Fica aqui, sem chamador, porque a prova de que ela
+    /// erra é o teste ao lado, e apagar a função apagaria a prova.
+    nonisolated static func dependeDoQueElaFechou(_ dependeDe: String, fechadas: [String]) -> Bool {
+        func nucleo(_ t: String) -> Set<Substring> {
+            Set(dobrada(t).split(whereSeparator: { !$0.isLetter }).filter { $0.count >= 5 })
+        }
+        let precisa = nucleo(dependeDe)
+        guard !precisa.isEmpty else { return false }
+        return fechadas.contains { !nucleo($0).isDisjoint(with: precisa) }
     }
 
     /// ADR 08p, mesma linha: quando o provedor entrega e o NOSSO contrato
@@ -866,9 +969,11 @@ enum Sabia {
     /// só seguem no aparelho se a mensagem inteira couber.
     static func chamar(_ operacao: Politica.Operacao, sistema: String, usuario: String, temperatura: Double,
                        memoPor chave: String? = nil, esforco: String = Grok.esforcoMinimo,
+                       esquema: String? = nil,
                        mensagemLocal: (() -> String?)? = nil) async -> String? {
         await chamarComProveniencia(operacao, sistema: sistema, usuario: usuario, temperatura: temperatura,
-                                    memoPor: chave, esforco: esforco, mensagemLocal: mensagemLocal)?.texto
+                                    memoPor: chave, esforco: esforco, esquema: esquema,
+                                    mensagemLocal: mensagemLocal)?.texto
     }
 
     /// A mesma escada, dizendo QUEM respondeu. `chamar` devolve só o texto, e
@@ -889,11 +994,14 @@ enum Sabia {
     static func chamarComProveniencia(_ operacao: Politica.Operacao,
                                       sistema: String, usuario: String, temperatura: Double,
                                       memoPor chave: String? = nil, esforco: String = Grok.esforcoMinimo,
+                                      esquema: String? = nil,
                                       mensagemLocal: (() -> String?)? = nil) async -> (texto: String, provedor: String)? {
         guard let quem = Politica.provedor(operacao) else { return nil }
+        // O esquema é do PROTOCOLO da API e só existe do lado do Grok; a
+        // descida ao aparelho tem esquema tipado próprio, por rota.
         if quem == .grok, let r = await Grok.responder(sistema: sistema, usuario: usuario,
                                                        temperatura: temperatura,
-                                                       memoPor: chave, esforco: esforco) {
+                                                       memoPor: chave, esquema: esquema, esforco: esforco) {
             return (r, Politica.Provedor.grok.rawValue)
         }
         guard Politica.desceAoAparelho(operacao) else { return nil }

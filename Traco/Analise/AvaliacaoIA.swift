@@ -97,10 +97,23 @@ enum AvaliacaoIA {
             let arquivo = try FileHandle(forWritingTo: destino)
             defer { try? arquivo.close() }
             try arquivo.seekToEnd()
+            // ADR 2026-09-10d — os dois braços do `contrapor` vivem no MESMO
+            // dylib, então o SHA do binário não distingue qual rodou. O que
+            // distingue é o PEDIDO, e ele vai em TODA linha (não só no caso):
+            // a dúvida "o binário era outro" morre linha a linha, e não por
+            // um cabeçalho que se perde quando alguém corta o arquivo.
+            let sistemaContraporQueRodou = Sabia.contraporSemEsquema
+                ? Sabia.sistemaContrapor : Sabia.sistemaContraporComEsquema
+            let assinaturaDoContrapor: [String: Any] = [
+                "bracoContrapor": Sabia.contraporSemEsquema ? "antigo-sem-esquema" : "esquema-da-saida",
+                "pedidoContraporSHA256": SHA256.hash(data: Data(sistemaContraporQueRodou.utf8))
+                    .map { String(format: "%02x", $0) }.joined(),
+            ]
             func gravar(_ campos: [String: Any]) throws {
                 var linha = campos
                 linha["corrida"] = corrida
                 linha["data"] = Date.now.ISO8601Format()
+                linha.merge(assinaturaDoContrapor) { atual, _ in atual }
                 let json = try JSONSerialization.data(withJSONObject: linha, options: [.sortedKeys, .fragmentsAllowed])
                 try arquivo.write(contentsOf: json + Data([0x0A]))
                 try arquivo.synchronize()

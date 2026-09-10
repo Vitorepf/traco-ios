@@ -83,7 +83,7 @@ struct PerfilQualidadeTests {
             .recordar: "entrega a resposta junto com a pergunta",
             .responder: "inventa uma situação que você não escreveu, e às vezes só diz o que falta",
             .instigar: "quando você escreveu pouco, pergunta vago e não pergunta quando aconteceu",
-            .contrapor: "oferece a saída que você já tinha descartado",
+            .contrapor: "oferece um substituto para o que você disse que não tem",
         ]
         #expect(Set(esperado.keys) == Set(Politica.indisponiveis))
         for (op, frase) in esperado {

@@ -40,14 +40,36 @@ def medir(p):
     tresVazios, contraVazio, semBruto, fechada, cita = [], [], [], [], []
     guardas, erros = [], []
     campos_vazios = 0; campos_total = 0
+    # ADR 2026-09-10d — o POLO DE CONTROLE, e ele conta em ABSOLUTO. A volta do
+    # `instigar` mostrou hoje que consertar o caso cego derruba o controle, e
+    # que as duas falhas escondem uma à outra. Aqui o polo oposto é a nota que
+    # NÃO fecha nada: os seis casos da base, onde `fechadas` sai vazia e a
+    # guarda nova não tem o que casar. Se o `foraDaLista` encolher AQUI, a
+    # alavanca não passa por mais que o cego melhore. Porcentagem mentiria: uma
+    # taxa que sobe porque o modelo propõe MENOS é o retrato errado.
+    ctrl_fora = 0; ctrl_casos = 0; ctrl_chars = 0
+    braco = set()
+    # ADR 2026-09-10d, recontagem SEM O JOIN. A guarda `dependeDoQueElaFechou`
+    # apaga o `foraDaLista`, e o `bruto` guarda o que o modelo tinha escrito
+    # antes dela — então "o mesmo binário sem o join" se conta desta prova, sem
+    # segunda instalação. Todas as OUTRAS guardas continuam aplicadas: o que se
+    # desfaz aqui é só a decisão desta volta.
+    ctrl_fora_sj = 0; ctrl_chars_sj = 0; campos_vazios_sj = 0
+    fechada_sj = []
     for d in linhas:
         if d.get('evento') != 'casoConcluido' or d.get('operacao') != 'contrapor':
             continue
         cid, rep = d['id'], d['repeticao']
+        if d.get('bracoContrapor'): braco.add(d['bracoContrapor'])
         s = d.get('saida') or {}
         v = {k: (s.get(k) or '').strip() for k in ('contra', 'foraDaLista', 'outroCampo')}
         campos_total += 3; campos_vazios += sum(1 for x in v.values() if not x)
         bruto = [c.get('bruto') for c in (d.get('chamadasGrok') or [])]
+        # o `foraDaLista` como o MODELO escreveu, quando e só quando o join o apagou
+        semJoin = v['foraDaLista']
+        if any('depende do que a nota fecha' in g for g in (d.get('guardasQueApagaram') or [])):
+            try: semJoin = (json.loads(bruto[0]).get('foraDaLista') or '').strip()
+            except Exception: semJoin = 'BRUTO ILEGIVEL'
         if d.get('erro'): erros.append((cid, rep, d['erro'].split('.')[-1]))
         if d.get('guardasQueApagaram'): guardas.append((cid, rep, d['guardasQueApagaram']))
         if not any(v.values()):
@@ -58,6 +80,13 @@ def medir(p):
             if not (bruto and bruto[0]): semBruto.append((cid, rep))
         elif not v['contra']:
             contraVazio.append((cid, rep))
+        campos_vazios_sj += sum(1 for k, x in v.items() if not (semJoin if k == 'foraDaLista' else x))
+        if cid not in FECHADAS:   # a nota que nao fecha nada: o polo de controle
+            ctrl_casos += 1
+            if v['foraDaLista']: ctrl_fora += 1
+            ctrl_chars += len(v['foraDaLista'])
+            if semJoin: ctrl_fora_sj += 1
+            ctrl_chars_sj += len(semJoin)
         rx = FECHADAS.get(cid)
         if rx:
             # A coluna acusa SÓ no `foraDaLista`, que é o campo que PROPÕE por
@@ -73,11 +102,15 @@ def medir(p):
             # e só a leitura diz se ela é proposta ou limite.
             for k in ('contra', 'outroCampo'):
                 if v[k] and rx.search(dobra(v[k])): cita.append((cid, rep, k, v[k]))
-    return tresVazios, contraVazio, semBruto, fechada, cita, guardas, erros, campos_vazios, campos_total
+            if semJoin and rx.search(dobra(semJoin)) and not negada(semJoin, rx):
+                fechada_sj.append((cid, rep, semJoin))
+    return (tresVazios, contraVazio, semBruto, fechada, cita, guardas, erros,
+            campos_vazios, campos_total, ctrl_fora, ctrl_casos, ctrl_chars, sorted(braco),
+            ctrl_fora_sj, ctrl_chars_sj, fechada_sj, campos_vazios_sj)
 
 for p in sys.argv[1:]:
-    tv, cv, sb, fe, ci, gu, er, cvz, ct = medir(p)
-    print('####', p.split('/')[-1])
+    tv, cv, sb, fe, ci, gu, er, cvz, ct, cf, cc, cch, br, cfs, cchs, fes, cvzs = medir(p)
+    print('####', p.split('/')[-1], '| braço:', ','.join(br) or 'NAO DECLARADO')
     print('  A. saída FECHADA proposta no `foraDaLista` (a alavanca): %d' % len(fe))
     for r in fe: print('      ✗', r[0], 'r%s' % r[1], r[2])
     print('  A2. a mesma palavra em `contra`/`outroCampo` — SEM veredito, para o revisor ler: %d' % len(ci))
@@ -92,3 +125,11 @@ for p in sys.argv[1:]:
           % (len(er), len(gu), cvz, ct))
     for r in er: print('      ✗ erro', r)
     for r in gu: print('      ·', r[0], 'r%s' % r[1], '→', r[2])
+    print('  E. POLO DE CONTROLE (a nota que não fecha nada) — `foraDaLista` com texto: '
+          '%d de %d  · média %d caracteres' % (cf, cc, cch // cc if cc else 0))
+    print('  F. CONTA ABSOLUTA — campos com texto: %d de %d' % (ct - cvz, ct))
+    print('  G. SEM O JOIN (o `foraDaLista` que o MODELO escreveu) — controle: %d de %d '
+          '· média %d caracteres · saída fechada proposta: %d'
+          % (cfs, cc, cchs // cc if cc else 0, len(fes)))
+    print('     conta absoluta sem o join: %d de %d' % (ct - cvzs, ct))
+    for r in fes: print('      ✗', r[0], 'r%s' % r[1], '·', r[2][:160])
