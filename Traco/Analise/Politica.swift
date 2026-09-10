@@ -122,11 +122,16 @@ enum Politica {
                   medidaEm: "10/09/2026",
                   conserto: "pedir o quando SÓ quando a sua nota deixa pouco a examinar; com matéria, as perguntas saem do que você escreveu; escrito, falta medir")
         case .contrapor:
+            // ADR 2026-09-09x — esta linha esteve UM COMMIT fora da lista, e a
+            // medida a trouxe de volta. O G3 do LOTE-5 leu 36 execuções e deu 9
+            // nas cinco dimensões; a Q4-E remediu os MESMOS seis casos mais dois
+            // CEGOS e nenhum modelo passou nos dois lados. Não é opinião nova
+            // sobre a mesma prova: é prova nova sobre a mesma opinião.
             .init(regra: .indisponivelPorQualidade,
-                  porque: "com a conta ligada em 08/09 o Grok sustentou o contraponto em fato inventado, sempre no campo outroCampo ('metanálises de 2022', preço 12% menor na construção naval do século XV) — 1 de 6 casos — prova/q-qualidade.md; o conserto matou a evidência fabricada e ela não voltou. O LOTE-3 (6 casos × 3 em grok-4.3 e em grok-4.5) achou dois defeitos VIVOS: renda que a nota não declara — 1 de 3 no grok-4.3 e 3 de 3 no grok-4.5, e a lista de fatoQueEleNaoDeu exclui 'renda' de propósito — e contraponto que não chega onde a nota dá matéria: Falha.semRetorno com HTTP 200 e conteúdo completo no grok-4.5 rep. 2 do CSV e no grok-4.3 rep. 1 do tudo-ou-nada, mais um campo 'contra' vazio no grok-4.3 rep. 2 do CSV. O semRetorno com resposta inteira é defeito do NOSSO motor e teve volta própria (Q4-C). O LOTE-5 (mesma fixture, 72 execuções, 10/09 10:55Z-11:10Z) DERRUBOU os dois: renda que a nota não declara passou de 4 para 0, e semRetorno com HTTP 200 de 2 para 0 — a ADR 09s separou 'não li' de 'li e a guarda não deixou nada passar', e a 09i subiu a proibição por procedência para dentro do bloco Proibido. O conferidor mecânico INALTERADO (lote-ia-09c-guardas.py) foi de 68/72 para 72/72. O que falta é a leitura de mérito de quem não escreveu os casos — prova/lote09e-q4-grok-4.3.jsonl, prova/lote09e-q4-grok-4.5.jsonl e ferramentas/orca/q4-instigar-contrapor.md",
-                  motivo: "os dois defeitos medidos caíram; falta a leitura de quem não os escreveu",
+                  porque: "cortada em 08/09 (08q): o Grok sustentou o contraponto em fato inventado, sempre no outroCampo — 1 de 6 casos, prova/q-qualidade.md. O conserto matou a evidência fabricada e ela não voltou; o LOTE-5 derrubou os dois defeitos do LOTE-3 (renda que a nota não declara 4 → 0, Falha.semRetorno com HTTP 200 2 → 0) e o G3 independente deu 9 nas cinco dimensões lendo as 36 execuções. O LOTE-6 (Q4-E, 10/09 13:39Z-13:49Z, os MESMOS seis casos mais DOIS cegos escritos por quem não escreveu os seis, 48 execuções, uma janela, uma instalação) reprovou os DOIS modelos, em lados opostos: no grok-4.3, que é o modelo do app, q4-contrapor-tudo-ou-nada rep. 2 voltou com os TRÊS campos vazios sobre HTTP 200, sem nenhuma guarda nossa ter apagado nada — a recusa é do modelo, e aquela fixture escreve 'os três campos vazios reprovam: aqui há o que examinar'; mais dois 'contra' vazios, contra ZERO no LOTE-5. No grok-4.5 a base saiu perfeita (24 de 24, 0 campos vazios em 54) e o CASO CEGO reprovou 3 de 3: nas três repetições o foraDaLista propõe o ensaio prévio que a nota fecha por escrito, uma delas dizendo 'cópia restaurada dos dados reais' contra 'não tenho ambiente de teste com os dados reais'. A lição de instrumento é a maior: o '9 de 54 e contra 0' do LOTE-5 era UMA amostra, não uma propriedade — mesmo prompt e mesmo parser, byte a byte, e a remedida devolveu outro número — prova/lote09f-q4-grok-4.3.jsonl, prova/lote09f-q4-grok-4.5.jsonl e ferramentas/orca/q4-instigar-contrapor.md",
+                  motivo: "oferece a saída que você já tinha descartado; e às vezes não devolve nada",
                   medidaEm: "10/09/2026",
-                  conserto: "feito e medido: não atribui mais renda que você não escreveu, e resposta inteira nunca mais vira silêncio; falta a leitura de mérito")
+                  conserto: "escolher o modelo por operação não resolve — o 4.3 cala numa base e o 4.5 oferece o ensaio que a nota fecha; falta o pedido dizer que a restrição escrita fecha também a ALTERNATIVA, não só o argumento")
         case .vestir:
             .init(regra: .grokDepoisBordo, porque: "a forma local decide antes; o modelo só vê blocos pendentes (ADR 07a)")
         case .classificar:
@@ -192,12 +197,15 @@ enum Politica {
         // as três que o LOTE-3 remediu (ADR 09t). A frase não manda conectar
         // conta, não pede para tentar de novo e não promete guardar nada — quem
         // guardou o pedido é que diz isso, depois de confirmar.
+        // O `contrapor` esteve UM COMMIT fora desta lista, na 09x, e voltou
+        // pela medida — a frase dele diz o que o LOTE-6 leu, não o que o LOTE-5
+        // tinha lido. São sete.
         case .responder: "Responder à sua pergunta pela IA está indisponível: na medida de 08/09 ela inventou fato que o contexto não sustentava. O que você escreveu continua aqui, e a sua pergunta fica na nota."
         case .ecos: "Ecos entre notas está indisponível: a IA deixou de fora justamente os vínculos mais úteis quando medimos, em 08/09. As notas continuam buscáveis pelo texto."
         case .calibragem: "Ler o seu juízo pela IA está indisponível: na medida de 08/09 ela calou quando não havia erro a apontar. Os seus pares de previsão e resultado continuam aqui para você comparar."
         case .recordar: "A pergunta do Recordar pela IA está indisponível: na medida de 08/09 ela entregou a resposta dentro da própria pergunta. O ritual segue com a pergunta fixa."
         case .instigar: "Instigar pela IA está indisponível: na medida de 10/09, num texto curto, ela fez perguntas vagas e não pediu quando aconteceu. As perguntas do método continuam na página."
-        case .contrapor: "Contrapor pela IA está indisponível: na medida de 10/09 ela inventou renda que você não escreveu e, às vezes, calou onde a sua nota dava matéria. O Steelman e a Inversão continuam no catálogo, escritos por você."
+        case .contrapor: "Contrapor pela IA está indisponível: na medida de 10/09, num texto que já fecha as saídas, ela ofereceu justamente a que você tinha descartado — e às vezes não devolveu nada. O Steelman e a Inversão continuam no catálogo, escritos por você."
         case .responderNasNotas: "Responder sobre as suas notas pela IA está indisponível: na medida de 10/09 ela fez a conta do seu gasto e parou antes de dizer quanto sobra do seu orçamento. A busca pelo texto das notas continua."
         case .vestir, .classificar:
             "A sábia precisa da sua conta Grok (em Perfil) ou da Apple Intelligence ligada."

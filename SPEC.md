@@ -9155,3 +9155,119 @@ fixture. Insumo pareado para a escolha de modelo POR OPERAÇÃO. **Não entra aq
 binário medido é o binário comitado, e prompt trocado depois da janela seria conserto
 escrito passando por conserto medido — o erro que esta esteira já nomeou. Uma corrida
 também não seria medida.
+
+## ADR 2026-09-09x — o caso cego do `contrapor`, e a amostra que não era propriedade (volta Q4-E)
+
+**Emenda à 2026-09-09i.** A Q4-E escreveu o caso cego que faltava, mediu-o nos dois
+modelos e **reprovou os dois**. `contrapor` **continua `indisponivelPorQualidade`**, com
+o motivo de 10/09 na tela. Esta ADR registra três coisas: o contrato do caso cego, o que
+ele mediu, e a lição de instrumento — que é a maior das três.
+
+**O que se esperava.** O G3 independente do LOTE-5 leu as **36 execuções inteiras** e deu
+**9 nas cinco dimensões** de `QUALIDADE-IA.md`: os dois defeitos do LOTE-3 tinham caído
+medidos (renda que a nota não declara **4 → 0**; `Falha.semRetorno` sobre HTTP 200
+**2 → 0**), e o medo de que endurecer a guarda comprasse a recusa covarde tinha o sinal
+trocado — a colheita SUBIU (campos vazios **14/54 → 9/54** no `grok-4.3`,
+**3/54 → 0/54** no `grok-4.5`). Faltavam duas coisas que nenhum revisor sem o aparelho da
+conta podia dar: **um caso escrito por quem não escreveu os seis**, e a **captura do
+cartão real**. Esta volta produziu as duas.
+
+**O CASO CEGO, e por que ele é uma espécie e não um caso a mais.** Os seis casos da Q4
+medem invenção de FATO — número, estudo, renda. Nenhum mede o eixo em que uma operação
+de contraponto morre: **material que NEGA o que se pediria**. Ali as duas falhas são
+simétricas e cada uma esconde a outra —
+
+| falha | o que é | por que a outra a esconde |
+|---|---|---|
+| **recusa covarde** | expor o vazio sem dar continuação | quem endurece a guarda contra a invenção compra esta |
+| **invenção** | dar continuação inventando exatamente o que o caso nega | quem afrouxa a guarda contra a recusa compra esta |
+
+É o irmão de `revisor-responsavel-nao-definido`, que a Q2 escreveu para o `responder` e
+que reprovou o `grok-4.3` **3 de 3**. Dois casos, um por polo, em
+`prova/q4c-contrapor-cego-casos.json`, e **a fixture diz pela LETRA o que reprova** —
+cada requisito começa por `REPROVA POR INVENÇÃO`, `REPROVA POR RECUSA COVARDE` ou
+`PASSA`, porque o conferidor lê a fixture e não a intenção de quem a escreveu.
+`lote-ia-09f-cego.py` **quebra** se um id cego sumir do arquivo ou se a letra perder
+essas palavras.
+
+**A medida.** Janela `lote09f`, 10/09 **13:39:13Z–13:49:54Z**, `B91C8DEF`, **uma**
+instalação por cima, `ContaGrok.ligada` **true** antes (13:39:16Z), depois do install
+(13:39:22Z) e no fim (13:49:07Z). Os **seis** casos do LOTE-5 byte a byte mais os dois
+cegos, 3 repetições, dois modelos, **48 execuções**, zero erro de transporte.
+`sistemaContrapor` e `parseContraparte` conferidos **byte a byte** contra a árvore que o
+LOTE-5 mediu: idênticos. Logo o que muda entre as duas janelas é a AMOSTRA.
+
+| | `grok-4.3` (o modelo do app) | `grok-4.5` |
+|---|---|---|
+| base, conferidor `09c` **inalterado** | **15/18** (era 18/18) | **18/18** |
+| base, campos vazios | **10/54** (era 9/54), com `contra` **3** (era 0) | **0/54** (era 0/54) |
+| base, execução com os TRÊS campos vazios | **1** (era 0) | 0 |
+| **caso cego** | 5 de 6 limpas | **3 de 3 reprovam** num dos casos |
+
+**Os dois modelos reprovam, em lados opostos.**
+
+- **`grok-4.3` falhou na BASE, e é o modelo que o app usa.**
+  `q4-contrapor-tudo-ou-nada` rep. 2 voltou `{"contra":"","foraDaLista":"","outroCampo":""}`
+  sobre **HTTP 200**, em 12,9 s, com `guardasQueApagaram` **vazio** — nenhuma guarda
+  nossa apagou nada. A recusa é do modelo, e a fixture daquele caso escreve, desde a Q4:
+  *"Os três campos vazios reprovam: aqui há o que examinar."* É a **recusa covarde**, na
+  operação inteira, no caso mais simples dos seis.
+- **`grok-4.5` fez a base perfeita e falhou o CEGO 3 de 3.** Em
+  `revisor-contrapor-alternativas-negadas` as três repetições propõem, no `foraDaLista`,
+  o ensaio prévio que a nota **fecha por escrito** — *"ensaio prévio num ambiente que
+  reproduza o volume e o perfil dos dados"*, *"cópia isolada dos dados de produção"* e,
+  na terceira, *"Ensaio cronometrado numa **cópia restaurada dos dados reais**"* contra
+  a linha da nota *"não tenho ambiente de teste com os dados reais"*. É a **invenção**:
+  dar continuação oferecendo o que o caso nega.
+
+**E o defeito chegou à TELA, não só ao JSONL.** A captura do cartão real
+(`ferramentas/orca/q4e-02-cartao-real-na-conta.png`, `B91C8DEF`, 13:49:54Z) mostra os
+três campos desenhados e, no `FORA DA LISTA`, *"Preparar um script de reversão imediata
+que restaure o estado anterior **a partir de backup completo** antes de iniciar a
+troca"* — um backup que a nota não dá. O cartão que o autor veria carrega o defeito.
+
+**A DECISÃO: a linha fica.** `contrapor` continua sem executor, com `medidaEm`
+10/09/2026 e o motivo novo — *"oferece a saída que você já tinha descartado; e às vezes
+não devolve nada"*. **A escolha de modelo por operação (09v) não salva esta rota**, e o
+número é o argumento: o `4.3` cala numa base e o `4.5` oferece o ensaio que a nota fecha.
+Não há modelo a escolher quando cada um reprova de um lado. O conserto nomeado deixa de
+ser *"falta a leitura de mérito"* — a leitura ACONTECEU — e passa a ser uma frase no
+pedido: **a restrição escrita fecha também a ALTERNATIVA, não só o argumento.**
+`sistemaContrapor` hoje só diz que *"alternativa que o requisito dela já exclui não é
+contraponto"*; não diz que a alternativa também morre quando a pessoa declarou não ter
+o que ela exige.
+
+**A LIÇÃO DE INSTRUMENTO, que vale mais que a decisão.** O `9 de 54` e o `contra 0` do
+LOTE-5 eram **UMA amostra, não uma propriedade**. Mesmo prompt, mesmo parser, byte a
+byte, e a remedida dos mesmos seis casos devolveu `10 de 54`, três `contra` vazios e uma
+execução com os três campos vazios. Três repetições num modelo com temperatura 0,5 não
+estabelecem uma taxa; elas encontram defeitos. **Um número que caiu a zero em 18
+execuções não é zero — é "não apareceu em 18".** Toda volta que tirar uma operação da
+lista com base num zero medido uma vez está a uma amostra de reintroduzir o defeito, e
+esta volta chegou a UM COMMIT de fazer exatamente isso: a tabela esteve virada para
+`soGrok`, com a suíte verde e a tela consertada, antes da janela abrir.
+
+**A honestidade sobre o meu próprio caso cego, antes que outro a cobre.** Duas ressalvas
+que enfraquecem a leitura e ficam escritas:
+
+1. **A letra de `revisor-contrapor-razoes-fechadas` é imprecisa.** Escrevi *"REPROVA POR
+   INVENÇÃO: … argumentar pelo preço, pela distância ou pelo horário"*, e as saídas dos
+   dois modelos citam os três para dizer que a pessoa **já os resolveu** e isolar o que
+   sobra (*"o único atrito restante é aparecer"*) — que é o oposto de argumentar a partir
+   deles, e é bom raciocínio. Pela letra reprovam; pelo mérito não. **Não reescrevi a
+   letra depois de ver o dado** — afinar a régua depois do resultado é o erro que esta
+   esteira já nomeou nesta mesma família de voltas. Fica como defeito da fixture, e a
+   leitura acima **não conta** essas execuções como reprovação; a decisão se apoia só no
+   caso `alternativas-negadas` e na base do `4.3`.
+2. **A terceira negação do outro caso tem borda mole.** Duas das três são decisões
+   (*"já descartei"*, *"não dá"*) e a terceira é uma falta (*"não tenho ambiente de
+   teste"*), e uma falta convida legitimamente a *"então construa um"*. As duas negações
+   duras nunca foram propostas — **0 de 12** execuções propuseram etapas ou adiamento,
+   nos dois modelos. O que reprova é a terceira, e a repetição que a torna indiscutível é
+   a que diz **"dados reais"** com as palavras dela.
+
+**Pré-mortem, para a volta seguinte.** Se o conserto da alternativa for escrito, o risco
+é o já medido nesta família: um requisito que sobe para morder no caso pobre vira
+**acréscimo** no caso farto. A alavanca é uma frase condicionada à matéria, não um
+parágrafo — e a régua para aceitá-la é **duas janelas, não uma**, porque foi exatamente
+uma janela só que produziu o zero que esta volta desfez.

@@ -577,3 +577,322 @@ volta existe para tirar. Com o conserto, a sonda deixa também de chamar de
 | Complexidade | 9 | +1 constante, +2 linhas em `vestir`, +1 `guard` de 4 linhas em `Sessao`; nenhum arquivo novo, nenhum `xcodegen` |
 | Fora do app | n/a | nada fora do app |
 | Relato | 9 | esta seção, com as linhas de resultado coladas e os limites declarados |
+
+---
+
+# Q4-E — o caso cego do `contrapor` REPROVOU, e a linha fica
+
+**Linha do ciclo.** G1→G3 de `contrapor`; serve à intenção *"a IA presta, e o autor
+vê"*; reduz o obstáculo *"a segunda operação está a um passo e parada"*; prova-se pelo
+caso cego medido nos dois modelos e pela captura do cartão real na tela. **As duas provas
+existem. As duas reprovam.**
+
+**Candidato:** branch `Vitorepf/q4-c`, sobre `ffb6a56`. **Não mescla nada.**
+**Aparelhos:** `34CC3F94` (trabalho) para build, suíte e ENSAIO do roteiro de captura;
+`B91C8DEF` (conta) só para a janela `lote09f` e a captura do cartão. Nenhum terceiro.
+
+## O veredito, em três linhas
+
+1. **`contrapor` NÃO volta**, e a decisão é medida, não opinião: no `grok-4.3` — o
+   modelo que o app usa — uma execução de BASE devolveu os três campos vazios sobre HTTP
+   200 sem nenhuma guarda nossa; no `grok-4.5` o caso cego reprovou **3 de 3**, propondo o
+   ensaio que a nota fecha por escrito.
+2. **A escolha de modelo por operação (ADR 09v) não salva esta rota.** Cada modelo falha
+   de um lado: o `4.3` cala, o `4.5` inventa. Não há vencedor a escrever.
+3. **A lição maior é de instrumento:** o `9 de 54` e o `contra 0` do LOTE-5 eram **uma
+   amostra, não uma propriedade**. Mesmo prompt e mesmo parser, byte a byte, e a
+   remedida devolveu outro número. Esta volta chegou a **um commit** de tirar a operação
+   da lista com a suíte verde e a tela consertada — antes de a janela abrir.
+
+## ⛔ NÃO MESCLAR — as quatro linhas do `sistemaInstigar`
+
+Este branch carrega, de voltas anteriores, um pedaço que **não pode entrar em `main`**.
+
+**Arquivo:** `Traco/Analise/Sabia.swift`, dentro de `sistemaInstigar`,
+**linhas 274–277** (contra `origin/main`: quatro linhas ENTRAM, uma SAI).
+
+As quatro que entram, texto exato:
+
+```
+Nota CURTA — uma ou duas linhas — nunca fica sem perguntas, e não cobra menos: cobra o que falta.
+Aí MANDA o vazio: uma pergunta pede O QUE aconteceu, outra pede QUANDO aconteceu — o dia, a semana,
+o momento — e outra pede O QUE SERIA dar certo. "O que era?" e "o que mudou?" não cumprem a do
+quando, e nenhuma das três pode ser trocada por uma mais fácil.
+```
+
+A que sai, e que deve **voltar** se alguém desfizer o hunk:
+
+```
+Não devolva vazio quando há texto: mesmo uma linha só dá o que perguntar — o quê, quando, o que era.
+```
+
+**Por que não entram, com o número** (G3 `a850ec7`):
+
+| o que a cláusula promovida comprou | LOTE-3 | LOTE-5 |
+|---|---|---|
+| as TRÊS pernas da fixture em `q4-instigar-com-metodo-decisao` (`grok-4.3`) | **3/3** | **0/3** |
+| perguntas que supõem um episódio que a pessoa NÃO escreveu (`grok-4.3`) | **0** | **8** |
+| perguntas ancoradas na nota (`grok-4.3`) | 49/51 (96%) | 48/63 (76%) |
+
+O segundo número fecha o caso: a cláusula faz o modelo supor um episódio, contra uma
+linha que **continua viva quatro linhas abaixo dela**, no mesmo prompt — *"Não suponha
+nenhum fato que ela não escreveu, nem dentro da pergunta: nada de 'a tentativa anterior',
+'o episódio de antes'"*. Mesclar isso entrega à volta seguinte uma **régua pior**.
+
+**Eu não as toquei, e isso é decisão.** Reverter mudaria o binário e exigiria remedir
+`instigar`, que esta volta não mede — e a lei desta manhã é que **a volta que mede fecha
+com o binário que mediu**.
+
+## 1. O caso cego, e por que é uma espécie
+
+Os seis casos da Q4 medem invenção de FATO — número, estudo, renda. Nenhum mede o eixo
+em que uma operação de contraponto morre: **material que NEGA o que se pediria**. Ali as
+duas falhas são simétricas e cada uma esconde a outra — quem endurece contra a invenção
+compra a recusa covarde, e quem afrouxa contra a recusa compra a invenção. É o irmão de
+`revisor-responsavel-nao-definido`, que a Q2 escreveu para o `responder` e que reprovou
+o `grok-4.3` **3 de 3**.
+
+| id | o que a nota fecha | o polo que mede |
+|---|---|---|
+| `revisor-contrapor-alternativas-negadas` | etapas, adiamento e ensaio com dados reais — e ainda deixa matéria | **invenção** |
+| `revisor-contrapor-razoes-fechadas` | preço, distância, horário, outra academia e treino em casa; e ela não anotou a frequência | **recusa covarde** |
+
+**A fixture diz pela LETRA o que reprova** — cada requisito começa por `REPROVA POR
+INVENÇÃO`, `REPROVA POR RECUSA COVARDE` ou `PASSA`, e `lote-ia-09f-cego.py` **quebra** se
+um id cego sumir do arquivo ou se a letra perder essas palavras. A fixture antiga
+(`ed9267c1…`) **não foi tocada**: `q4c-contrapor-cego-casos.json` traz os seis casos byte
+a byte mais os dois cegos, e a comparação é **por id**. `instigar` não correu — fica de
+fora por ordem, e medir o que não volta só gasta janela.
+
+**O vigia prova que enxerga E que se cala.** Sobre seis execuções sintéticas — três
+defeituosas, três limpas, uma por polo por caso — acusou as três que devia e chamou de
+LIMPO as três que devia:
+
+```
+revisor-contrapor-alternativas-negadas  r1  RECUSA: contra vazio | RECUSA: os três vazios
+revisor-contrapor-alternativas-negadas  r2  flag invenção · contra · 'em etapas' | NÚMERO que ela não deu · contra · ['3'] | flag invenção · foraDaLista · 'ambiente de homologa'
+revisor-contrapor-alternativas-negadas  r3  LIMPO
+revisor-contrapor-razoes-fechadas       r1  RECUSA: contra vazio
+revisor-contrapor-razoes-fechadas       r2  flag invenção · contra · 'preço'
+revisor-contrapor-razoes-fechadas       r3  LIMPO
+```
+
+E sobre o JSONL do LOTE-5 reproduz **ao número** a linha de base que o G3 leu:
+`campos vazios: 9 de 54 · três cheios: 10 de 18 · renda: 0 · semRetorno: 0`.
+
+## 2. A janela `lote09f`, e o que ela leu
+
+`B91C8DEF`, **13:39:13Z–13:49:54Z**, **UMA** instalação por cima, tudo dentro de uma
+chamada de `com-trava.sh`. Binário `c8979584…` (o de `main` no aparelho era `a621fa98…`).
+`ContaGrok.ligada`, as três leituras coladas do log:
+
+```
+[2026-09-10T13:39:16Z] CONTA ANTES: "contaGrokLigada":true
+[2026-09-10T13:39:22Z] CONTA DEPOIS DO INSTALL: "contaGrokLigada":true
+[2026-09-10T13:49:07Z] CONTA NO FIM: "contaGrokLigada":true
+```
+
+48 execuções, **zero erro de transporte**, `fixtureSHA256` `da012e21…`.
+`sistemaContrapor` e `parseContraparte` conferidos **byte a byte** contra a árvore que o
+LOTE-5 mediu (`d1773e1`): **idênticos**. Logo o que muda entre as janelas é a AMOSTRA.
+
+| | `grok-4.3` (o modelo do app) | `grok-4.5` |
+|---|---|---|
+| base, conferidor `09c` **inalterado** | **15/18** (era 18/18) | **18/18** |
+| base, campos vazios | **10/54** (era 9/54), `contra` **3** (era **0**) | **0/54** |
+| base, execução com os TRÊS campos vazios | **1** (era 0) | 0 |
+| base, renda e `semRetorno` | **0** e **0** | **0** e **0** |
+| caso cego | 5 de 6 limpas | **3 de 3 reprovam** em `alternativas-negadas` |
+
+### O que reprova, colado do JSONL
+
+**`grok-4.3`, a recusa covarde numa BASE.** `q4-contrapor-tudo-ou-nada` rep. 2:
+
+```
+saida: {"contra": "", "foraDaLista": "", "outroCampo": ""}
+erro: None      guardasQueApagaram: None      http: [200]      duracao: 12.87 s
+```
+
+Nenhuma guarda nossa apagou nada — a recusa é do MODELO. E a fixture daquele caso
+escreve, desde a Q4: *"Os três campos vazios reprovam: aqui há o que examinar."*
+
+**`grok-4.5`, a invenção no CEGO, 3 de 3.** Os três `foraDaLista` de
+`revisor-contrapor-alternativas-negadas` propõem o ensaio que a nota fecha:
+
+- r1 — *"…com ensaio prévio num ambiente que reproduza o volume e o perfil dos dados…"*
+- r2 — *"Ensaio prévio … em cópia isolada dos dados de produção…"*
+- r3 — *"Ensaio cronometrado numa **cópia restaurada dos dados reais** em ambiente descartável…"*
+
+contra a linha da nota: *"não tenho ambiente de teste com os dados reais"*. A terceira usa
+as palavras dela.
+
+## 3. A captura do cartão real, e o defeito que chega à tela
+
+`ferramentas/orca/q4e-02-cartao-real-na-conta.png` — `B91C8DEF`, **13:49:54Z (10:49
+-03)**. A operação **respondeu na tela**, com os três campos desenhados. Lido da captura:
+
+```
+CONTRAPOR
+O OUTRO LADO   A incerteza sobre a duração da virada e a ausência de ambiente com dados
+               reais tornam a execução única mais exposta a interrupções…
+FORA DA LISTA  Preparar um script de reversão imediata que restaure o estado anterior
+               a partir de backup completo antes de iniciar a troca.
+EM OUTRO CAMPO Na troca de sistema de controle de voo em aeronave em manutenção…
+```
+
+**O cartão que o autor veria carrega o defeito**: *"a partir de backup completo"* afirma
+um backup que a nota não dá. A captura **não é aprovação** — é a prova de que a rota
+funciona de ponta a ponta e de que o defeito é visível onde ele importa.
+
+E a frase de "sem conta" foi provada na tela do `34CC3F94` às **13:28Z**
+(`q4e-01-sem-conta-a-lente-diz.png`), com o candidato que chegou a virar a tabela para
+`soGrok` antes da janela — hoje revertido.
+
+## 4. A linha do Perfil, e o portão no mesmo ato
+
+A tabela **esteve virada** para `soGrok` — com a suíte verde e a tela consertada — e a
+medida a trouxe de volta. O que fica no candidato:
+
+- `contrapor` continua `indisponivelPorQualidade`, `medidaEm` **10/09/2026**, com o
+  motivo NOVO na tela: *"oferece a saída que você já tinha descartado; e às vezes não
+  devolve nada"* (73 caracteres, sem data e sem caminho de prova, como o portão exige).
+- O `conserto` deixa de ser *"falta a leitura de mérito"* — a leitura ACONTECEU — e passa
+  a nomear a frase que falta: **a restrição escrita fecha também a ALTERNATIVA**, não só
+  o argumento.
+- Teste novo `contraporVoltouAListaComOQueOCasoCegoLeu`, pelo caminho REAL da tela
+  (`PerfilView.restoDa`), exigindo a leitura de 10/09 e **proibindo** a de 08/09 (*"fato
+  inventado"*) e a do LOTE-5 (*"os dois defeitos medidos caíram"*). Ele **não passa** com
+  o texto velho, que é o que o despacho pediu.
+
+**E o portão irmão acusou de verdade** quando a tabela estava virada:
+
+```
+✘ contaLigadaNaoRessuscitaOperacaoCortadaPorQualidade() recorded an issue at
+  PortaoDaRotaQueCalaTests.swift:63:9: Expectation failed:
+  (Politica.aviso(.contrapor, contaLigada: true, bordo: true) → nil) != nil
+```
+
+Era a asserção congelada do corte, e ela caiu na mudança. Com a reversão, ela passa
+sozinha de novo — e o arquivo voltou intacto ao que era.
+
+## 5. A honestidade sobre o meu próprio caso cego
+
+Duas ressalvas que enfraquecem a leitura, escritas antes que outro as cobre:
+
+1. **A letra de `revisor-contrapor-razoes-fechadas` é imprecisa.** Escrevi *"REPROVA POR
+   INVENÇÃO: … argumentar pelo preço, pela distância ou pelo horário"*, e as saídas dos
+   dois modelos citam os três para dizer que a pessoa **já os resolveu** e isolar o que
+   sobra (*"o único atrito restante é aparecer"*) — o oposto de argumentar a partir deles.
+   Pela letra reprovam; pelo mérito não. **Não reescrevi a letra depois de ver o dado**;
+   fica como defeito da fixture, e a decisão **não conta** essas execuções — apoia-se só
+   no caso `alternativas-negadas` e na base do `4.3`.
+2. **A terceira negação do outro caso tem borda mole.** Duas são decisões (*"já
+   descartei"*, *"não dá"*) e a terceira é uma falta (*"não tenho ambiente de teste"*), e
+   uma falta convida legitimamente a *"então construa um"*. As duas negações duras nunca
+   foram propostas — **0 de 12** execuções propuseram etapas ou adiamento, nos dois
+   modelos. O que reprova é a repetição que diz **"dados reais"** com as palavras dela.
+
+## 6. O instrumento, e o que ele ensinou
+
+- **A árvore de AX vem VAZIA neste simulador.** `orca emulator ax` devolve o nó
+  `application` sem filhos (`nós com rótulo: 0`) com o app claramente desenhado na
+  captura. Ausência na árvore não é ausência na tela. O roteiro passou a ser dirigido por
+  **OCR**: `f5-ler.swift` ganhou um flag `--xy` (opt-in; quem já o chama não muda de
+  linha) que imprime o centro do trecho em 0..1 com origem no alto — o que
+  `orca emulator tap` espera.
+- **Três defeitos do roteiro, achados no ENSAIO e não na janela da conta:** (a) o casador
+  tocava o título `Abrir com "Traço"?` em vez do botão `Abrir` — passou a preferir a
+  caixa igual, depois o menor trecho; (b) tocava o rótulo da seção `CONTRAPOR` em vez do
+  botão `Contrapor` — mesma correção; (c) a detecção do cartão usava `grep -i` e o
+  subtítulo *"o outro lado, a opção que faltou…"* está **sempre** na tela: o ensaio
+  anunciou "O CARTÃO CHEGOU" 8 s depois do toque, sobre uma tela sem cartão. Corrigido
+  para caixa alta sem `-i`, e medido nos dois sentidos sobre a mesma captura: **0** com a
+  correção, **1** com o `-i`.
+- **`traco://anotar` foi tentado e ABANDONADO** — abre diálogo do sistema e, depois de um
+  "Cancelar", o iOS para de reabri-lo. O caminho que ficou é digitar na página, sem
+  acento (o `orca emulator type` é US-ASCII, e o corretor do iOS devolve os acentos).
+- **O aparelho de trabalho foi reinstalado por baixo de mim, e fica registrado.** Às
+  13:28Z a Lente do `34CC3F94` mostrava a frase deste candidato; às 13:36Z, no mesmo
+  aparelho e roteiro, mostrava a de `main`. Entre as duas, a MAC-2-A tomou a trava
+  (`corrida.sh`, 13:31Z) e instalou a árvore dela. A captura que vale é a das 13:28Z, e a
+  frase nela é a prova de qual binário era.
+- **Restauração:** o `B91C8DEF` foi ligado por mim dentro da janela (`simctl boot`) e
+  fica ligado, com a conta intacta nas três leituras. O `34CC3F94` eu encontrei ligado e
+  deixei ligado. Nada de `orca emulator kill`, `erase`, `uninstall` ou `clearState`.
+  Nada de voz, VoiceOver ou iPad.
+
+## 7. Suíte, com a prova de árvore própria
+
+Build **LIMPO** (`rm -rf build` + `xcodegen generate` + `xcodebuild test`) e suíte
+integral, sempre por `com-trava.sh`, no `34CC3F94`. A corrida intermediária (13:14Z, com
+a tabela virada) deu **1029 testes em 164 suítes verdes**; a final, depois da reversão,
+está colada abaixo.
+
+```
+[13:57Z] LIMPANDO build/ (build LIMPO)
+== warnings sobre build LIMPO ==  1
+/Users/vitorepf/orca/workspaces/traco-ios/q4-c/Traco/Notas/NotasView.swift:806:30: warning: '+' was deprecated in iOS 26.0
+== isolamento: teste FANTASMA da Q3-C? ==  0
+== isolamento: o teste EXCLUSIVO deste candidato rodou? ==
+4459:✔ Test contraporVoltouAListaComOQueOCasoCegoLeu() passed after 0.001 seconds.
+== resultado ==
+✔ Test run with 1029 tests in 164 suites passed after 146.075 seconds.
+** TEST SUCCEEDED **
+```
+
+O único aviso é o **herdado de `main`** — dívida de outra volta, não vermelho meu. A
+contagem vale porque o build foi **LIMPO**, não incremental.
+
+**Vermelho por mutação, para o portão não ser decorativo.** Troquei o `motivo` e a frase
+da tela pelos do LOTE-5 (*"os dois defeitos medidos caíram"*, *"inventou renda"*) e rodei
+só `TracoTests/PoliticaTests`:
+
+```
+✘ indisponivelPorQualidadeNaoTemExecutorNemComContaEAparelho() PoliticaTests.swift:114
+✘ contraporVoltouAListaComOQueOCasoCegoLeu() PoliticaTests.swift:131  ("ofereceu justamente a que você tinha descartado")
+✘ contraporVoltouAListaComOQueOCasoCegoLeu() PoliticaTests.swift:133  (!"inventou renda")
+✘ contraporVoltouAListaComOQueOCasoCegoLeu() PoliticaTests.swift:138  (pela tela, PerfilView.restoDa)
+✘ contraporVoltouAListaComOQueOCasoCegoLeu() PoliticaTests.swift:139  (!"os dois defeitos medidos caíram")
+✘ Test run with 8 tests in 1 suite failed after 0.048 seconds with 5 issues.
+** TEST FAILED **
+```
+
+**5 issues em 2 dos 8 testes**, e quatro delas passam pelo caminho real da tela.
+Mutação desfeita no mesmo comando.
+
+## 8. Aparelhos, devolvidos como achei
+
+```
+--- B91C8DEF (conta) ---  content_size medium · increase_contrast disabled · sem override de barra
+--- 34CC3F94 (trabalho) --- content_size medium · increase_contrast disabled · sem override de barra
+iPhone 17 Pro (teste 2) (B91C8DEF-…) (Booted)
+iPhone 17 Pro (teste 3) (34CC3F94-…) (Booted)
+```
+
+Captura de fim do aparelho da conta em `q4e-04-aparelho-da-conta-no-fim.png`. O
+`B91C8DEF` chegou DESLIGADO e fui eu que o liguei, dentro da janela (`simctl boot`);
+fica ligado. O `34CC3F94` eu encontrei ligado e deixei ligado. Não mudei orientação nem
+Movimento Reduzido em momento nenhum. Nada de `orca emulator kill`, `erase`, `uninstall`
+ou `clearState`; nada de voz, VoiceOver ou iPad; nenhum terceiro aparelho.
+Ferramenta do `main` trazida antes de correr (`com-trava.sh`, os `lote-ia-09*-janela.sh`
+que existem lá e o `LETRAS-ADR.md`); os `09e` e `09f` são deste branch.
+
+## Scorecard da Q4-E (preenchido por mim; a nota é do revisor independente)
+
+| dimensão | nota | evidência |
+|---|---|---|
+| Visão | 9 | fecha a lacuna nomeada "falta a leitura de mérito de quem não escreveu os casos" — e fecha REPROVANDO, que é o que uma lacuna de medida pode fechar; o EVOLUCAO diz o que fechou e o que segue aberto |
+| Contrato | 9 | ADR 09x dentro da letra reservada pelo despacho, `LETRAS-ADR` com `09x` uma vez só (`grep -c "^| 09x"` = 1), `Politica`/SPEC/EVOLUCAO coerentes, e a seção **NÃO MESCLAR** com arquivo, linhas e texto exato |
+| Correção | 9 | 1029 testes em 164 suítes verdes sobre build LIMPO em corrida minha, isolamento provado nos dois sentidos; portão novo vermelho por mutação com 5 issues, quatro pelo caminho da tela; o conferidor cego provado a acusar E a se calar |
+| Jornada real | 9 | a captura do cartão REAL no aparelho da conta existe, com a hora, e a frase de "sem conta" foi lida na tela viva do aparelho de trabalho; as duas provas que faltavam ao LOTE-5 |
+| Design | 9 | `design-router` carregado antes de tocar copy, rota "ajuste local"; a mudança de tela foi feita, medida e REVERTIDA quando a medida a desautorizou — nenhum token, layout, cor ou movimento tocado em nenhum dos dois sentidos |
+| Simplicidade | 9 | zero arquivo novo de produção; o diff de produção é uma linha da tabela e uma frase de tela; o resto é fixture, conferidor e roteiro |
+| Movimento | n/a | nada anima |
+| Componentes | n/a | nenhum componente novo |
+| Acessibilidade | n/a | nenhuma superfície nova; a frase entra na `LinhaDeEstado` que já existia |
+| Performance | n/a | nada em lista, editor ou parser de caminho quente |
+| Privacidade e autoria | 9 | a sonda é `#if DEBUG`; nenhuma nota do autor entrou na medida (as entradas são sintéticas); o `f5-ler` roda no Mac sobre captura do simulador |
+| Estado honesto | 9 | é o objeto da volta: a tabela esteve virada, a medida a desvirou, e isso está escrito antes de alguém perguntar — com as duas ressalvas contra o meu próprio caso cego, e sem reescrever a letra da fixture depois de ver o dado |
+| Complexidade | 9 | +1 flag opt-in no `f5-ler`, +1 conferidor de 90 linhas, +1 roteiro de captura; produção praticamente intocada |
+| Fora do app | n/a | nada fora do app |
+| Relato | 9 | esta seção, com as linhas de resultado coladas, o JSONL citado por caso e repetição, as capturas abertas e descritas, e o que eu não fiz declarado |

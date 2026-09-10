@@ -62,8 +62,8 @@ que este arquivo existe para impedir — e ele reincidiu no próprio arquivo.
 | 09e | C1-D · a reconciliação da C1 | em `main` |
 | 09f | M1 e M1-B · a migração do caderno | em `main` |
 | 09g | C1-A · era 08w, depois 09d | em `main` |
-| 09h | Q3 · responder nas Notas | reservada, volta viva |
-| 09i | Q4 · instigar e contrapor | reservada, volta viva |
+| 09h | Q3, Q3-B e Q3-C · responder nas Notas | em `main` (emendas vivas) |
+| 09i | Q4, Q4-B e Q4-C · instigar e contrapor | em `main` (emendas vivas) |
 | 09j | FUSÃO · o toast é gaveta; o piso empata | em `main` |
 | 09k | D1 · as Notas sem slop | em `main` |
 | 09l | K1 · o cofre do dono não é da suíte | em `main` |
@@ -71,15 +71,16 @@ que este arquivo existe para impedir — e ele reincidiu no próprio arquivo.
 | 09n | Q2-E adotou e foi REVERTIDA; Q2-F refez a medida | em `main` |
 | 09o | B1 e B1-B · os `try!` e o portão que falha fechado | em `main` |
 | 09p | MAC-0-E · o servidor chega por `--chamar` | em `main` |
-| 09q | B2 · estados inalcançáveis e rotas que calam | reservada, volta viva |
-| 09r | F6 · os widgets da tela bloqueada | reservada, volta viva |
-| 09q | B2 · a frase existia e nenhuma tela a dizia | no branch `Vitorepf/volta-b2-silencio` |
-| 09r | F6 · os widgets da tela bloqueada | APROVADA no G3, à espera do G5 |
-| 09s | Q4-C · a guarda que apaga não pode virar silêncio num 200 (+ emenda Q4-D: o mesmo em `vestir`, rota viva) | escrita no branch `Vitorepf/q4-c` |
+| 09q | B2 · estados inalcançáveis e rotas que calam; a frase existia e nenhuma tela a dizia | em `main` |
+| 09r | F6 · os widgets da tela bloqueada | em `main` |
+| 09s | Q4-C · a guarda que apaga não pode virar silêncio num 200 | reservada, volta viva |
 | 09t | MERGE-Q34 · o que foi medido entra em main, e a tela diz o que a medida leu | em `main` |
 | 09u | MAC-2-A · o Trabalho chega ao Mac para ser lido | reservada, volta viva |
+| 09v | Q3-C · o modelo se escolhe POR OPERAÇÃO, com a comparação pareada na mão | reservada, volta viva |
+| 09w | Q3-D · o sinal de sobra: cartão com teto não corta calado | reservada, volta viva |
+| 09x | Q4-E · o caso cego do `contrapor`, e o modelo desta rota | reservada, volta viva |
 
-**Próxima livre: 09v.**
+**Próxima livre: 09y.**
 
 **A 09s colidiu, e quem mudou fui eu** (09/09, ~02h). Tomei a `09s` porque o
 "Próxima livre: 09s" que estava escrito aqui batia com o comando; no mesmo
@@ -104,3 +105,12 @@ Venceu quem já está em `main`; a MAC-2-A foi para a `09u`, com um `sed` de zer
 além da letra. **Duas colisões em uma hora, as duas minhas, as duas pela mesma falha:**
 eu confirmei letra por mensagem antes de escrevê-la aqui. A regra sobe de tom:
 **reservar é ESCREVER neste arquivo — dizer "é sua" por mensagem não reserva nada.**
+
+**Quatro linhas para duas letras, e o dono era eu** (09/09, 23h3x). O G5 da F6 achou o
+arquivo com `09q` e `09r` **duplicadas** — o par de cima dizendo "reservada, volta viva"
+e o de baixo o estado verdadeiro —, e com a `09q` ainda "no branch" embora a B2 esteja
+em `main` desde `3123140`. Nasceu de uma resolução de conflito minha que colou um bloco
+novo sem apagar o velho, e sobreviveu porque **ninguém lê uma tabela inteira; lê a linha
+que procura**. Consertado aqui. **A lição é a mesma da caça cega:** o registro que
+ninguém confere por inteiro apodrece em silêncio — quem escreve uma linha nova
+**confere que a letra aparece UMA vez só**, com `grep -c "^| 09x"`.
