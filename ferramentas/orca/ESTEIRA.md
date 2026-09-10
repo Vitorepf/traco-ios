@@ -1399,3 +1399,31 @@ guarda** — ele desliga o conserto **e** dá a impressão de que ele roda. Ao e
 **E a correção é minha:** eu mandei reusar aquele código dizendo que o repositório já
 resolvia isso. **Reusar é o degrau certo da escada — mas reusar sem conferir propaga o
 defeito com a autoridade de quem já estava lá.** O irmão que se reusa também se lê.
+
+## O arquivo só se apaga quando o app consumiu TUDO o que havia nele (10/09, P0-CRLF)
+
+A volta do `\r` mediu de novo, com harness próprio — cópia verbatim das linhas do `Corpus`,
+em vez de acreditar no revisor — e achou um **caso E** que muda o nome do defeito:
+
+> **prosa do autor antes do primeiro cabeçalho, LF puro, sem um único `\r`:**
+> `itens=1`, **leu 12 de 104 chars**, `apagaria=SIM`.
+
+O laço começa em `hits[0].range.location`: **tudo o que vem antes do primeiro
+`---\ncriada:` nunca é examinado**. Um `.md` que o autor escreva **à mão** na pasta
+`entrada/` do Mac, começando com um título, **perde essas linhas calado — e o arquivo é
+apagado**. Não é o bug do Windows. **O `\r` era só um dos jeitos de chegar nele.**
+
+**A lei, e ela cobre os seis casos de uma vez:** *o arquivo só se apaga quando o app
+consumiu **tudo** o que havia nele.* Menos de 100% é **incerteza**, e incerteza não apaga —
+bloco que caiu no `continue`, prosa antes do primeiro cabeçalho, bloco sem fecho, cabeçalho
+que não casou. **A pergunta certa não é "o regex casou?" e sim "quanto do arquivo eu
+consumi?"**, e isso é um número que o código calcula e o teste lê, não uma impressão.
+
+**A coluna que a volta inventou no próprio harness — `leu X de Y chars` — É a invariante.**
+Vale a atenção: a régua certa apareceu como coluna de diagnóstico antes de alguém perceber
+que era a regra. *Quando um medidor precisa de uma coluna nova para explicar o defeito,
+essa coluna costuma ser o contrato que faltava.*
+
+**E o corolário do portão:** hoje um cabeçalho que **não casa** vira "sem cabeçalho" e
+**abre tudo** — origem vira autor, selo não detectado. *Portão que não enxerga tem de
+falhar fechado*: formato não reconhecido **não entra como do autor** e **não apaga**.
