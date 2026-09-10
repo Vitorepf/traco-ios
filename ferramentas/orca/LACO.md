@@ -3283,3 +3283,63 @@ ao prompt**.
 **A série 09 de ADRs acabou na `09z`.** A próxima volta usa `2026-09-10a`. Escrevi no
 `LETRAS-ADR.md` antes que alguém tropeçasse — a série 08 encheu sem aviso e custou três
 colisões numa tarde.
+
+## 10/09, 11h15 — a §12 violada, e quem foi: a AX5-1 — mas a letra ficou grande por MINHA mão
+
+**O dono viu o teste 3 em letra de acessibilidade às 11h04** e escreveu: *"está testando
+letra grande por quê? já falei que está proibido."* Trinta minutos depois de a §12 ser
+escrita. **Apurado, com prova, e a resposta tem duas partes:**
+
+**Quem pôs a letra em AX foi a volta `AX5-1`**, por volta das **10h39** — quatro minutos
+depois de a §12 ser escrita e **antes de a ordem chegar até mim**, às ~10h50. Era a única
+volta cuja tarefa ERA a letra grande, e o batimento dela às 10h39 dizia *"primeira corrida
+em AX5 passou (barra em y=66)"*.
+
+**Mas a letra FICOU grande porque eu a matei antes de ela restaurar.** O spec que eu mesmo
+escrevi mandava *"restaure `medium` ao fim, conferido por captura"*, e o `worker-stop` pulou
+exatamente essa linha. **Lei nova, e é minha:** *quem encerra um worker à força herda o
+`defer` dele* — aparelho, tamanho de letra, tema, orientação, trava, processo de apoio.
+Antes de matar, ler o que o spec mandava restaurar; depois de matar, restaurar e conferir
+por captura.
+
+**Os outros três estão limpos, conferidos um a um:** a Q4-E só **leu** `content_size` (sem
+valor, é consulta), a P0-CRLF só **escreveu `medium`** (restauração, com captura de prova
+`p0-03-aparelho-restaurado.png`), e a MAC-2-A G3, a Astra, a MERGE-Q3D e a TEMPO **não o
+chamaram nenhuma vez**.
+
+A lei entrou na ESTEIRA **ao lado da de VOZ** e no cabeçalho do preâmbulo de todo despacho.
+O `f5-fotografar.sh` perdeu o parâmetro de tamanho (o 4º lugar fica vazio de propósito, para
+não deslocar os chamadores) e o `ax5.yaml` já tinha sido apagado pelo dono em `e1dd206`.
+
+## 10/09, 11h15 — o gargalo acabou: DOIS aparelhos de conta, e a suíte saiu deles
+
+**Ordem do dono:** *"eu preciso que vocês resolvam, pode fazer o que for preciso, eu JÁ
+REALIZEI LOGIN. Não é para vocês ficarem toda hora criando novo simulador para ter que de
+novo fazer login no Grok."*
+
+| aparelho | papel |
+|---|---|
+| **teste 2** `B91C8DEF` | CONTA |
+| **teste 3** `34CC3F94` | **CONTA** (novo) — deixou de receber suíte |
+| **teste 4** `A1DF082C` | **SUÍTE** |
+
+**O teste 4 já existia** — religado, **não criado**. Isso importa: a ordem é que **ninguém
+crie simulador e ninguém apague simulador**, porque cada um novo custa **um login do Grok
+feito à mão pelo dono**. **Criar simulador passa a ser ato do orquestrador, uma vez,
+registrado aqui.** Este é o registro.
+
+**E a razão de a suíte sair dos aparelhos de conta é medida, não zelo:** `xcodebuild test`
+roda **hospedado no app** e o chaveiro é do **SIMULADOR** — foi exatamente assim que a suíte
+**apagou a conta do dono** em 09/09 (ADR 09l, volta K1). Enquanto a suíte correr onde há
+conta, a conta está a uma corrida de sumir — e ele acabou de refazer esse login à mão.
+
+**O efeito prático é o que ele pediu:** com dois aparelhos de conta, **as janelas de IA
+correm em paralelo**, cada uma com a trava do próprio UDID. Eram seis operações a ~25 min de
+janela cada, em série; agora são duas frentes. **Avisei as três voltas vivas na hora**, com a
+ordem de mudar o destino da suíte antes da próxima corrida.
+
+**Uma coisa eu não consegui confirmar sozinho e digo:** não li `ContaGrok.ligada` no teste 3
+de fora do app — o chaveiro do simulador não entrega a string, a árvore de AX voltou vazia
+(o defeito conhecido) e navegar até o Perfil exigiria dirigir a tela. **Fica como a primeira
+obrigação de quem abrir a próxima janela nele**, que é a regra que já valia: conferir a
+conta **antes** de instalar qualquer coisa.
