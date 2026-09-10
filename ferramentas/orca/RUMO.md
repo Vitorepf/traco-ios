@@ -691,3 +691,11 @@ seguinte de `instigar`.**
 certo; quando dá mais, as perguntas saem do que ela escreveu e o *quando* entra só se
 faltar. **Uma frase, não um parágrafo.** Não foi aplicado para o binário comitado não
 divergir do medido. **Dono: a volta seguinte de `instigar`.**
+
+**Dívida: a janela de medida não preserva o que se vai querer conferir (10/09).** Os
+`lote-ia-09*-janela.sh` carimbam o **hash** do binário nos dois extremos do log, o que
+prova qual binário rodou — mas **não preservam o conteúdo** (o texto dos prompts extraído
+do binário). Quando o G3 da Q3-C foi refazer a conferência byte a byte, o
+`Traco.debug.dylib 57d02df3` **já não existia**: um build posterior o substituiu. **Dono:
+a próxima volta que tocar nas janelas de medida** — extrair e guardar os prompts junto do
+`.jsonl`, no mesmo ato da corrida.

@@ -1202,3 +1202,21 @@ corrida de microssegundos entre o teste e o `touch`; a guarda de forma no `com-t
 cobre o resto. *Conserto de causa e conserto de sintoma não competem quando o sintoma é
 uma casa parada por meia hora* — mas o de causa vem primeiro, e sem ele o outro só encurta
 o estrago.
+
+## O binário que a medida rodou é EVIDÊNCIA, e um rebuild a destrói (10/09, G3 da Q3-C)
+
+O autor da Q3-C achou que a árvore carregava um prompt **editado depois de a janela
+fechar** e resolveu certo: extraiu o texto **do binário medido** (`Traco.debug.dylib`
+`57d02df3`) e comitou esse, conferido byte a byte. Mandei o G3 refazer a conferência pelo
+binário — e o revisor respondeu: **`57d02df3` não existe mais em disco.** Um build
+posterior o substituiu.
+
+**A lei:** *o binário que a medida rodou é evidência da medida, e evidência que um rebuild
+apaga não é evidência.* Quem abre janela de medida guarda, junto do `.jsonl`, **o hash e o
+que for preciso para reproduzir a alegação** — o texto do prompt extraído, no mínimo. Sem
+isso, a frase "conferi byte a byte contra o binário medido" vira **palavra**, e a régua
+desta casa é que ninguém acredita em palavra.
+
+**E é uma dívida de forma, não de pessoa:** o carimbo do binário nos dois extremos do log
+(que os LOTES já fazem) prova **qual** binário rodou; não preserva **o conteúdo** que
+alguém vai querer conferir depois. Os dois são precisos.
