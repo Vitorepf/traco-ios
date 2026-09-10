@@ -112,6 +112,20 @@ final class Sessao {
     /// A pergunta em voo. Existe para PARAR: sem ela, "parar de esperar" só
     /// esconderia o cartão e a chamada seguiria paga até o teto (ADR 09n).
     private var perguntaTask: Task<Void, Never>?
+    /// A identidade da pergunta em voo (ADR 2026-09-10b). `nil` = não há
+    /// nenhuma esperando publicação.
+    @ObservationIgnored private var perguntaAtual: UUID?
+
+    /// Injeção SOMENTE da operação de IA (mesmo desenho de
+    /// `responderContextoNotas`): a seleção do contexto, a identidade da
+    /// requisição e a revalidação de acesso continuam as mesmas no app e nas
+    /// provas de retorno atrasado. Sem esta costura, o retorno tardio só se
+    /// provaria no aparelho da conta — e o defeito é de concorrência, que
+    /// aparelho nenhum reproduz sob encomenda.
+    @ObservationIgnored
+    var responderNaPagina: (String, String, Gesto?, String) async -> String? = {
+        await Sabia.responder(pergunta: $0, contexto: $1, gesto: $2, retrato: $3)
+    }
 
 
     /// Algum campo da forma tem resposta do autor. Campos recém-criados são
@@ -461,7 +475,7 @@ final class Sessao {
     /// O selo manda: `Rede.podeLigar` já corta expressiva (em curso ou
     /// fechada), trancada e queimada. Mesmo filtro da Rede, mesma regra de
     /// casamento — nenhuma lógica nova que pudesse divergir do selo.
-    func notasLigadas(no context: ModelContext, teto: Int = 3) -> [(titulo: String, prosa: String)] {
+    func notasLigadas(no context: ModelContext, teto: Int = 3) -> [(uuid: UUID, titulo: String, prosa: String)] {
         guard !Rede.mencoes(texto).isEmpty else { return [] }
         let todas = (try? context.fetch(FetchDescriptor<Nota>())) ?? []
         let lidas = todas.map(\.paraRede)
@@ -476,12 +490,12 @@ final class Sessao {
                                gesto: gesto, fechada: false, expressivaEmCurso: false,
                                vozDoAutor: true)
         let ligacoes = Rede.daqui(euUUID, Rede.ligacoes(lidas.filter { $0.uuid != euUUID } + [eu]))
-        var saida: [(titulo: String, prosa: String)] = []
+        var saida: [(uuid: UUID, titulo: String, prosa: String)] = []
         for l in ligacoes.prefix(teto) {
             guard let n = todas.first(where: { $0.uuid == l.para }) else { continue }
             let prosa = Caderno.prosa(de: n.texto).trimmingCharacters(in: .whitespacesAndNewlines)
             guard !prosa.isEmpty else { continue }
-            saida.append((n.tituloNaLista, String(prosa.prefix(1200))))
+            saida.append((n.uuid, n.tituloNaLista, String(prosa.prefix(1200))))
         }
         return saida
     }
@@ -516,7 +530,7 @@ final class Sessao {
         return partes.joined(separator: " · ")
     }
 
-    func contextoDoCaderno(no context: ModelContext, pergunta: String = "") async -> [(titulo: String, prosa: String)] {
+    func contextoDoCaderno(no context: ModelContext, pergunta: String = "") async -> [(uuid: UUID, titulo: String, prosa: String)] {
         var saida = notasLigadas(no: context)
         var jaTem = Set(saida.map(\.titulo))
         let todas = (try? context.fetch(FetchDescriptor<Nota>())) ?? []
@@ -530,7 +544,7 @@ final class Sessao {
             for v in Indice.vizinhas(de: pergunta, teto: 6, exceto: excluir.union([notaUUID].compactMap { $0 })) {
                 guard let n = podem.first(where: { $0.uuid == v.uuid }), !jaTem.contains(n.tituloNaLista) else { continue }
                 let prosa = Caderno.prosa(de: n.texto).trimmingCharacters(in: .whitespacesAndNewlines)
-                saida.append((n.tituloNaLista, String(prosa.prefix(600))))
+                saida.append((n.uuid, n.tituloNaLista, String(prosa.prefix(600))))
                 jaTem.insert(n.tituloNaLista)
             }
         }
@@ -556,17 +570,27 @@ final class Sessao {
             let n = candidatas[eco.i]
             let prosa = Caderno.prosa(de: n.texto).trimmingCharacters(in: .whitespacesAndNewlines)
             guard !prosa.isEmpty else { continue }
-            saida.append((n.tituloNaLista, String(prosa.prefix(1200))))
+            saida.append((n.uuid, n.tituloNaLista, String(prosa.prefix(1200))))
         }
         return saida
     }
 
     /// Responde a linha "?" num cartão. Sem conta, diz que precisa dela.
-    func perguntarASabia(no context: ModelContext) {
-        guard let q = perguntaNaNota, gesto != .expressiva else { return }
-        guard Sabia.disponivel else {
+    ///
+    /// ADR 2026-09-10b: `disponivel` e `aviso` chegam por parâmetro, com o
+    /// padrão da produção — mesmo desenho de `ConversaNotas.perguntar(disponivel:)`.
+    /// Sem isto o corpo desta função era INALCANÇÁVEL pela suíte: no simulador
+    /// de teste não há conta Grok e `Motores.desligados` derruba o aparelho, de
+    /// modo que toda chamada parava na primeira linha. Foi por isso que o
+    /// retorno tardio e a divulgação torta atravessaram sete voltas sem teste.
+    @discardableResult
+    func perguntarASabia(no context: ModelContext,
+                         disponivel: Bool = Sabia.disponivel,
+                         aviso: String? = Politica.aviso(.responder)) -> Task<Void, Never>? {
+        guard let q = perguntaNaNota, gesto != .expressiva else { return nil }
+        guard disponivel else {
             cartao = .semConta
-            return
+            return nil
         }
         // ADR 2026-09-09q: `responder` está indisponível por qualidade desde a
         // 08q. Com a conta ligada a rota girava o laço, batia em `nil` dentro
@@ -574,10 +598,10 @@ final class Sessao {
         // o que nunca vai dar certo. A frase honesta já existia em `Politica`
         // e nenhuma tela a mostrava. A pergunta volta ao cartão, como no
         // cancelamento da 09n: o que ele escreveu não se perde.
-        if let aviso = Politica.aviso(.responder) {
+        if let aviso {
             cartao = .pergunta(q)
             mostrarToast(aviso, duracao: .seconds(8))
-            return
+            return nil
         }
         // a resposta tem até 900 caracteres e o teclado cobria metade dela
         // (visto na primeira chamada real, 03/set). Quem pergunta vai LER.
@@ -585,27 +609,66 @@ final class Sessao {
         cartao = .sabiaPensando(pergunta: q, desde: .now)
         let g = gesto
         let retrato = retratoAtual()
+        // ADR 2026-09-10b: a PÁGINA se lê agora, junto da pergunta. Lê-la
+        // depois do await é ler a nota que o autor abriu enquanto esperava —
+        // com o teto do modelo em minutos, isso deixou de ser hipótese.
+        let pagina = Caderno.prosa(de: texto)
+        // Uma tentativa pertence à pergunta que a iniciou (mesmo padrão de
+        // `ConversaNotas.tentativa`): cancelar ajuda o serviço, a identidade
+        // impede o efeito tardio mesmo se ele ignorar o cancelamento. O guarda
+        // antigo exigia só ALGUM `.sabiaPensando`, e "algum" inclui a pergunta
+        // seguinte — o cartão podia responder à pergunta que já não é a atual.
+        let id = UUID()
+        perguntaAtual = id
         perguntaTask?.cancel()
-        perguntaTask = Task { [weak self] in
+        let nova = Task { [weak self] in
             guard let self else { return }
             let doCaderno = await self.contextoDoCaderno(no: context, pergunta: q)
-            guard case .sabiaPensando? = self.cartao else { return }
-            // o cartão diz o que viajou: quem manda texto à rede tem de saber qual
-            self.notasNaPergunta = doCaderno.map(\.titulo)
-            var contexto = Caderno.prosa(de: self.texto)
-            for n in doCaderno {
-                contexto += "\n\n--- outra nota sua: \(n.titulo) ---\n\(n.prosa)"
+            guard self.perguntaAtual == id else { return }
+            // As fontes com assinatura, para revalidar ANTES de publicar: selar,
+            // apagar ou editar uma vizinha durante a espera revoga o que ela
+            // emprestou. Mesma guarda do `responderNasNotas` (`dependenciasValidas`).
+            let fontes = self.fontesDoContexto(doCaderno, no: context)
+            let (contexto, viajaram) = Sabia.contextoDaPergunta(
+                pagina: pagina, vizinhas: doCaderno.map { (titulo: $0.titulo, prosa: $0.prosa) })
+            // o cartão diz o que viajou: quem manda texto à rede tem de saber
+            // qual — e só o que COUBE viajou (ADR 10b).
+            self.notasNaPergunta = viajaram
+            let r = await self.responderNaPagina(q, contexto, g, retrato)
+            guard self.perguntaAtual == id else { return }
+            self.perguntaAtual = nil
+            self.perguntaTask = nil
+            guard Self.dependenciasValidas(fontes, no: context) else {
+                self.notasNaPergunta = []
+                self.cartao = .pergunta(q)
+                self.mostrarToast("uma nota que ia junto mudou. a sua pergunta continua aqui.", duracao: .seconds(8))
+                return
             }
-            let r = await Sabia.responder(pergunta: q, contexto: contexto, gesto: g, retrato: retrato)
-            guard case .sabiaPensando? = self.cartao else { return }
             if let r {
                 self.cartao = .resposta(pergunta: q, texto: r)
                 Toque.suave()
             } else {
-                self.cartao = nil
-                self.mostrarToast("a sábia não respondeu. tente de novo.")
+                // ADR 2026-09-10b: a falha FICA junto da pergunta. Era
+                // `cartao = nil` mais um toast que passa — depois de minutos de
+                // espera, o autor voltava à página sem cartão nenhum e sem
+                // caminho de volta. `.pergunta(q)` é o mesmo cartão do
+                // cancelamento (09n): "Perguntar à sábia" a um toque.
+                self.notasNaPergunta = []
+                self.cartao = .pergunta(q)
+                self.mostrarToast("a sábia não respondeu. a sua pergunta continua aqui.", duracao: .seconds(8))
             }
         }
+        perguntaTask = nova
+        return nova
+    }
+
+    /// As fontes que sustentam o contexto da linha "?" — com assinatura, para
+    /// `dependenciasValidas` decidir se ainda valem quando a resposta chega.
+    func fontesDoContexto(_ vizinhas: [(uuid: UUID, titulo: String, prosa: String)],
+                          no context: ModelContext) -> [FonteNotas] {
+        guard !vizinhas.isEmpty, let notas = try? context.fetch(FetchDescriptor<Nota>()) else { return [] }
+        let porID = Dictionary(uniqueKeysWithValues: notas.map { ($0.uuid, $0) })
+        return vizinhas.compactMap { porID[$0.uuid].flatMap(Self.fonteParaPergunta) }
     }
 
     /// ADR 2026-09-09n: quem espera pode parar de esperar. O que a pessoa
@@ -613,6 +676,7 @@ final class Sessao {
     /// "Perguntar à sábia" a um toque, e a linha "?" nunca saiu da nota.
     func pararDeEsperarASabia() {
         guard case .sabiaPensando(let q, _)? = cartao else { return }
+        perguntaAtual = nil
         perguntaTask?.cancel()
         perguntaTask = nil
         cartao = .pergunta(q)

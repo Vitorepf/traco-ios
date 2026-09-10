@@ -1,7 +1,7 @@
 # Q4-F · CONTRAPOR — as duas tentativas, e o que o modelo faz de errado
 
 **Aparelho:** `34CC3F94-FDB5-4575-A4F5-80271829A18B` (conta). **Suíte:** `A1DF082C`.
-**ADR:** 2026-09-10c. **Prova:** `prova/lote09g/`, `prova/lote09h/`, `prova/q4f/`.
+**ADR:** 2026-09-10d. **Prova:** `prova/lote09g/`, `prova/lote09h/`, `prova/q4f/`.
 
 ## As cinco linhas do regime (a operação NÃO passou o caso cego em duas tentativas)
 
@@ -24,7 +24,7 @@
   nem como etapa antes; e quanto mais saídas ela fecha, mais o contraponto se
   aperta no que SOBRA.* Condicionada à matéria — sem promover lista, sem exigir
   número de campos, sem autocertificação.
-- **O portão antes do prompt:** `Grok.Diagnostico.retornoBruto` (DEBUG). Sem ele,
+- **O portão antes do prompt:** `Grok.Diagnostico.bruto` (DEBUG). Sem ele,
   "os três vazios são do modelo" era inferência. O conferidor acusa três vazios
   que chegam sem o bruto — e acusou, relendo o LOTE-6.
 - **Os três vazios sobre HTTP 200 foram a ZERO** e lá ficaram em 96 execuções.

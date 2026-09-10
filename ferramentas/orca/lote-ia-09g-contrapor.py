@@ -47,7 +47,7 @@ def medir(p):
         s = d.get('saida') or {}
         v = {k: (s.get(k) or '').strip() for k in ('contra', 'foraDaLista', 'outroCampo')}
         campos_total += 3; campos_vazios += sum(1 for x in v.values() if not x)
-        bruto = [c.get('retornoBruto') for c in (d.get('chamadasGrok') or [])]
+        bruto = [c.get('bruto') for c in (d.get('chamadasGrok') or [])]
         if d.get('erro'): erros.append((cid, rep, d['erro'].split('.')[-1]))
         if d.get('guardasQueApagaram'): guardas.append((cid, rep, d['guardasQueApagaram']))
         if not any(v.values()):

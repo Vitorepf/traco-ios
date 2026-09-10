@@ -117,14 +117,34 @@ nonisolated enum Grok {
     /// chamadas a `grok-4.6` — 28 % — sempre aos 91 s. Teto que corta a
     /// operação para o autor não é prudência: é a operação ausente.
     ///
-    /// O valor é MEDIDO, não escolhido: 240 s é o teto sob o qual nada encostou
-    /// em 30 chamadas do Trabalho (pior latência medida: 178 s). A 09n trouxe
-    /// a sábia para debaixo do mesmo teto — pior caso medido em `responder`
-    /// com o modelo escolhido: **77,5 s** em 36 execuções, 3,1× de folga. Um
-    /// número, não dois: o teto é do MODELO que raciocina, não da rota, e duas
-    /// cópias do mesmo teto divergem em silêncio (ADR 03l).
+    /// O valor tem duas partes, e confundi-las foi o defeito: um PISO OBSERVADO
+    /// e uma MARGEM DECLARADA sobre ele.
+    ///
+    /// Piso observado: 178 s numa execução do Trabalho (08r), 77,5 s de pior
+    /// caso em `responder` (09n, 36 execuções) — e **241 s** na corrida da Q3-D
+    /// em 10/09 (`ferramentas/orca/RUMO.md:790`, `LACO.md:3221`). Os 241 s
+    /// passaram POR CIMA dos 240: o teto cortou uma resposta que estava a
+    /// caminho, e o que chegou ao autor foi um `semRetorno` **nosso**, não do
+    /// modelo. Teto menor que a espera observada não é prudência: é a operação
+    /// ausente com a culpa no lugar errado.
+    ///
+    /// Margem declarada: **300 s**, ~1,25× sobre os 241 s observados. Isto NÃO
+    /// é um novo pior caso medido — ninguém mediu 300 — e NÃO é promessa ao
+    /// autor: é orçamento de engenharia, e quem diz a verdade do tempo ao autor
+    /// é a tela. A próxima medida que passar de 300 sobe o número de novo, com
+    /// a mesma distinção escrita.
+    ///
+    /// Um número, não dois: o teto é do MODELO que raciocina, não da rota, e
+    /// duas cópias do mesmo teto divergem em silêncio (ADR 03l). O teto governa
+    /// só a REDE; a espera que o autor sente inclui a montagem do contexto
+    /// antes dela.
     /// Ver `prova/qb-teto-*.jsonl` e `prova/q2-responder-modelo46.jsonl`.
-    static let teto: TimeInterval = 240
+    static let teto: TimeInterval = 300
+
+    /// A maior espera JÁ OBSERVADA numa chamada real, em segundos. Separada do
+    /// teto de propósito: uma é fato, a outra é decisão. O teste que as compara
+    /// fica vermelho no dia em que a decisão descer abaixo do fato.
+    static let esperaObservada: TimeInterval = 241
     private static let endereco = URL(string: "https://api.x.ai/v1/chat/completions")!
 
     // MARK: - memo
@@ -161,13 +181,13 @@ nonisolated enum Grok {
         /// em vez de dizer" (DIRETRIZ §8). Só o texto de erro do provedor, e
         /// só em DEBUG: nada do pedido, nada do token.
         var erroDaAPI: String?
-        /// ADR 2026-09-10c — o retorno BRUTO, antes de qualquer contrato nosso.
-        /// Sem ele, "os três campos vazios são do modelo" era INFERÊNCIA: a
-        /// ausência de `guardasQueApagaram` prova que nenhuma guarda apagou,
-        /// não prova o que o modelo escreveu. O LOTE-6 fechou uma linha de
-        /// `contrapor` com os três vazios sobre HTTP 200 e não deixou como
-        /// conferir. Só em DEBUG, como o `erroDaAPI` ao lado.
-        var retornoBruto: String?
+        /// ADR 2026-09-10b — o RETORNO BRUTO, antes de qualquer parser nosso.
+        /// A sonda gravava `saida` já depois de `Sabia.limparResposta`, então
+        /// medir a IA era medir o que sobrou do nosso tratamento: uma resposta
+        /// cortada aos 900 chegava ao JSONL indistinguível de uma que coube.
+        /// Fica no PORTÃO por onde todas as rotas passam — assim nenhuma das
+        /// dezesseis fica sem o bruto, e nenhuma sonda futura precisa lembrar.
+        var bruto: String?
         var desfecho: String
     }
     private nonisolated(unsafe) static var diagnosticos: [Diagnostico] = []
@@ -254,7 +274,7 @@ nonisolated enum Grok {
               let msg = textoCompleto(dados) else { return nil }
         #if DEBUG
         diagnostico.desfecho = "conteúdo completo"
-        diagnostico.retornoBruto = String(msg.prefix(2000))
+        diagnostico.bruto = msg
         #endif
         if let chave { memoGrava(chave, msg) }
         return msg

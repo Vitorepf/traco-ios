@@ -83,9 +83,16 @@ import Testing
         }
         // O corte tem dois grupos, e o Perfil precisa distingui-los: sem
         // substituto medido, e com conserto já nomeado.
-        #expect(Politica.indisponiveis.filter { Politica.linha($0).conserto == nil }.count == 3)
+        // ADR 2026-09-10b: `responder` MUDOU DE GRUPO — do "já sabemos o que
+        // falta" para o "sem conserto conhecido". O conserto que estava escrito
+        // era o prompt parar de inventar a estrutura do documento; ele foi
+        // TENTADO, duas vezes, medido contra a base no mesmo binário, e as duas
+        // versões saíram piores (base 14 e 15 de 20; candidatos 12 e 12). Manter a frase na
+        // tela seria prometer ao autor um conserto que já falhou.
+        #expect(Politica.indisponiveis.filter { Politica.linha($0).conserto == nil }.count == 4)
         #expect(Set(Politica.indisponiveis.filter { Politica.linha($0).conserto != nil })
-                == Set([.responder, .instigar, .contrapor]))
+                == Set([.instigar, .contrapor]))
+        #expect(Politica.linha(.responder).conserto == nil, "o conserto do prompt foi medido e não fecha (ADR 10b)")
         // ADR 09i: `instigar` e `contrapor` entram no grupo "em correção" —
         // o conserto está escrito, a MEDIDA é que falta. O texto vai inteiro
         // para a tela (PerfilView `restoDa`), então fala do que o autor vê.
@@ -218,24 +225,29 @@ import Testing
         #expect(!Politica.desceAoAparelho(.responder))
         #expect(!Politica.pelaConta.contains(.responder))
         #expect(Politica.indisponiveis.contains(.responder))
-        #expect(Politica.linha(.responder).medidaEm == "09/09/2026")
-        // O conserto do prompt FICA e está nomeado. A Q2-F mudou QUAL é o
-        // conserto que falta: não é mais "escolher o modelo" — três foram
-        // medidos e nenhum passou —, é o prompt impedir a invenção da estrutura
-        // de um documento, que derruba `4.3` e `4.5` no caso do relatório.
-        let conserto = try #require(Politica.linha(.responder).conserto)
-        #expect(conserto.contains("estrutura do documento"))
-        #expect(!conserto.contains("comparação pareada"))
+        #expect(Politica.linha(.responder).medidaEm == "10/09/2026")
+        // ADR 2026-09-10b: o conserto do prompt SAIU, porque foi medido. Duas
+        // reescritas de `sistemaResponder` correram contra o texto vigente no
+        // MESMO binário — 20 casos × 3 cada braço, `TRACO_AVALIAR_PEDIDO` como
+        // única variável — e as duas ficaram piores: base 14 e 15 de 20 nas
+        // duas janelas, candidatos 12 e 12. O defeito é simétrico e nenhuma das duas o
+        // separou: mandar ajudar traz de volta "abra o PDF, vá ao sumário";
+        // mandar não inventar faz o modelo parar em "não consta X" sem o
+        // próximo ato. Quem escrever um conserto novo aqui precisa de uma
+        // corrida que bata os 14 de 20 da base.
+        #expect(Politica.linha(.responder).conserto == nil)
+        #expect(!PerfilView.reprovadas.filter { $0.conserto != nil }.contains { $0.op == .responder })
         // A LINHA QUE O AUTOR LÊ no Perfil, montada pelo mesmo caminho da tela
-        // — `reprovadas` lê a tabela e `linhaDa` escreve. Sem isto o conserto
+        // — `reprovadas` lê a tabela e `linhaDa` escreve. Sem isto a mudança
         // seria dado sem superfície.
-        let emCorrecao = PerfilView.reprovadas.filter { $0.conserto != nil }
-        let r = try #require(emCorrecao.first { $0.op == .responder })
+        let semConserto = PerfilView.reprovadas.filter { $0.conserto == nil }
+        let r = try #require(semConserto.first { $0.op == .responder })
         let linha = String(PerfilView.linhaDa(r).characters)
-        // ADR 09z: a linha é a mesma máquina, na língua do autor — sem a data
-        // e sem o nosso plano de obra ("trocar de modelo não resolve").
-        #expect(linha == "responder à sua pergunta — inventa uma situação que você não escreveu"
-                + " · falta ela parar de inventar também a estrutura do documento que você pediu")
+        // ADR 09z: a língua é a do autor — sem a data e sem o nosso plano de
+        // obra. A metade nova ("só diz o que falta") é o que as duas tentativas
+        // acharam de pé, e o autor lê as duas metades do defeito.
+        #expect(linha == "responder à sua pergunta — inventa uma situação que você não escreveu,"
+                + " e às vezes só diz o que falta")
         // O piso de esforço nasceu de uma falha CALADA e sobrevive à reversão:
         // `"none"` é recusado por modelo que raciocina, e a rota calaria.
         #expect(Grok.esforcoMinimo == "low")

@@ -9711,3 +9711,194 @@ prova que todo byte caiu dentro de um bloco importado, **não** que virou nota.
 `TracoTests/IntegridadeCorpusTests.swift` (a tabela A–G como teste, mais a irmã que NÃO
 acusa: `.md` solto e nota exportada continuam com `consumido == 1` e `podeRetirar`). Relato,
 harness e as duas colunas em `ferramentas/orca/p0-crlf-import.md`. Sem mesclar.
+
+## ADR 2026-09-10a — TEMPO · o teto de espera vira piso observado mais margem declarada
+
+**A distância.** O teto de tempo de toda rota que raciocina era **240 s**, e a
+espera medida na corrida da Q3-D em 10/09 foi de **241 s**
+(`ferramentas/orca/RUMO.md:790`, `LACO.md:3221`). **O teto era menor que o
+observado**: ele cortava uma resposta que estava a caminho, e o que chegava ao
+autor era um `semRetorno` **nosso**, não do modelo — a espécie que a Q4-D
+nomeou. O número de 240 nasceu de uma medida honesta (ADR 08r: 178 s de pior
+execução; 09n: 77,5 s em `responder`, 3,1× de folga) e envelheceu em silêncio
+quando o modelo passou a raciocinar mais.
+
+**Decisão, em duas partes que não se confundem.**
+
+1. **Piso observado** (fato): `Grok.esperaObservada = 241`, uma constante do
+   código e não um número enterrado num relatório. O teste
+   `oTetoCobreAPiorLatenciaMedida` compara os dois e fica **vermelho** no dia em
+   que a decisão descer abaixo do fato — provado nesta volta rebaixando o teto a
+   240 e vendo a guarda acusar nas duas linhas, e vendo-a calar de volta em 300.
+2. **Margem declarada** (decisão): `Grok.teto = 300`, **~1,25× de folga sobre os
+   241 s observados**. Escrito assim de propósito, e a forma importa mais que o
+   número: **isto não é um novo pior caso medido — ninguém mediu 300 — e não é
+   promessa ao autor.** "Medimos 300" seria falso; "damos 300 de folga sobre os
+   241 observados" é verdade. Foi tratando folga como promessa que o teto
+   anterior nasceu de 77,5 s e durou até a folga acabar. A próxima medida que
+   passar de 300 sobe o número de novo, com esta mesma distinção escrita ao lado.
+
+**Limites externos, conferidos** (a Astra pediu no G0: *"se houver limite de
+transporte, de sessão ou do provedor abaixo de 300 s, o nosso número é
+decorativo"*). **Não achei nenhum abaixo de 300 s**, e cada um com a sua prova:
+
+- **Transporte.** `URLSessionConfiguration` traz `timeoutIntervalForRequest = 60`
+  de fábrica; se ela ganhasse do pedido, `Grok.teto` seria decoração e toda
+  chamada morreria a 1 minuto. Medido por **transporte controlado** — um
+  `NWListener` local que aceita e nunca responde, config em 2 s e pedido em 6 s:
+  o erro chegou aos **~6 s**, então **o valor do PEDIDO governa**
+  (`oTetoDoPedidoGanhaDoTetoDaSessao`). Sem rede, sem conta, sem chamada real.
+- **Sessão.** `timeoutIntervalForResource` fica no padrão (7 dias) e não vincula;
+  `Grok.responder` usa `URLSession.shared` sem configuração própria.
+- **Provedor.** A chamada da Q3-D **esperou 241 s e voltou**: a x.ai não corta
+  abaixo disso, e essa mesma observação prova que o valor do pedido vence os 60 s
+  de fábrica também para cima.
+- **O que o teto NÃO governa.** Ele conta a REDE. A espera que o autor sente
+  começa no toque e inclui a montagem do contexto antes da chamada.
+
+**O que esta ADR NÃO decide.** Um teto maior sem tela é uma espera calada mais
+longa — 300 s de laço mudo são piores que 240. A tela que diz **pensando, tempo e
+cancelar** em cada rota (DIRETRIZ §13 item 3) é a outra metade da mesma volta, e
+entra por **emenda a esta ADR** quando fechar: ela reprovou no G3 de 10/09
+(`ferramentas/orca/revisao-tempo.md`) e o teto não, por isso o teto entra sozinho.
+
+**Consequência.** `Grok.teto = 300` e `Grok.esperaObservada = 241` em
+`Traco/Analise/Grok.swift`; provas em `TracoTests/GrokContratoTests.swift`
+(`oTetoCobreAPiorLatenciaMedida`, `oTetoDoPedidoGanhaDoTetoDaSessao`, com o
+`EscutaMuda` ao lado delas). Relato em `ferramentas/orca/tempo-e-espera.md`.
+## ADR 2026-09-10b — o prompt do `responder` foi a alavanca, e ela não fecha a rota (volta RESPONDER)
+
+**Decisão.** `responder` **continua** `indisponivelPorQualidade`, e `sistemaResponder`
+**fica exatamente como estava** (o contrato de sustentação da 08z, 2.235
+caracteres, sha256 `d42d61ea…`). Duas reescritas do pedido foram medidas contra
+ele **no mesmo binário**, 20 casos × 3 repetições cada braço, e as duas ficaram
+**piores que a base**: base **14 e 15 de 20** nas duas janelas, candidatos **12 e
+12**. O `conserto` da linha do Perfil — *"falta ela parar de inventar também a
+estrutura do documento que você pediu"* — **sai da tabela**: ele foi tentado e
+medido, e prometer ao autor um conserto que já falhou é mentira na tela. O
+`motivo` ganha a segunda metade do defeito, que o autor sente e a tela não dizia.
+
+**Por quê.** O defeito é **simétrico** e nenhuma das duas versões o separou. Uma
+face inventa a estrutura do documento que a pessoa não descreveu (*"abra o PDF",
+"vá ao sumário", "pule metodologia e anexos"*); a outra para em *"não consta X"*
+sem entregar o próximo ato. O candidato 1 matou a primeira e matou a continuação
+junto (`revisor-orcamento-cotacao-datada` **3 de 3 → 0 de 3**); o candidato 2
+devolveu a continuação e o PDF voltou com ela (`q2-relatorio-tres-restricoes`
+**3 de 3 → 1 de 3**). `revisor-responsavel-nao-definido` — o caso do revisor,
+revelado e agora regressão — reprova **1 de 3 nas duas**: a distinção que a Astra
+pediu (*"não consta quem apresenta"* × *"ninguém foi escolhido"*) o pedido
+conseguiu ensinar; a continuação, não.
+
+**A armadilha da Q4-C, de novo, e desta vez armada por mim.** A cláusula *"diga
+ONDE ela confirma pelo nome e endereço que ela deu"*, escrita para o caso rico,
+fez o modelo **afirmar** que a pessoa tinha nome e endereço no caso em que ela não
+deu nenhum (`q2-biblioteca-sem-horario` **3 de 3 → 1 de 3**). Condicionar a
+cláusula no candidato 2 (*"que ela TIVER dado"*) **não resolveu**: 2 de 3 ainda
+afirmaram. **Uma cláusula que nomeia um dado ensina o modelo a supor que o dado
+existe, mesmo condicionada.** Fica registrado para quem escrever a próxima.
+
+**Uma alavanca, e como isso foi garantido.** Modelo (`grok-4.3`), esforço
+(`medium`), temperatura (0,3), contexto, formato e teto de saída ficaram idênticos
+aos da Q2-F. Para a base ser remedida no MESMO binário — sem o que se compararia
+o pedido novo contra uma régua que também mudou —, o pedido anterior viajou no
+mesmo dylib sob `TRACO_AVALIAR_PEDIDO=base` (DEBUG, por ambiente, como
+`TRACO_AVALIAR_MODELO`). A costura **foi apagada no fecho**, porque o candidato
+foi rejeitado e não há segundo texto a segurar; o que fica é
+`pedidoResponderSHA256` em cada registro do JSONL, para a corrida dizer de si
+mesma qual texto mandou. A Q2-F teve de reconstruir isso procurando 2.235 bytes
+dentro do dylib instalado.
+
+**O RETORNO BRUTO passa a ser preservado, e no portão.** A `saida` da sonda já
+vinha depois de `Sabia.limparResposta`: medir a IA era medir o que sobrou do nosso
+tratamento. `Grok.Diagnostico.bruto` (DEBUG) guarda o retorno antes de qualquer
+parser nosso, **no único lugar por onde as dezesseis rotas passam** — não numa
+guarda por chamador. A evidência liga material elegível → pacote enviado → saída
+bruta → saída tratada → texto na tela.
+
+**O corte silencioso aos 900 SAIU do parser.** A ADR 04r punha *"um teto, 900, no
+prompt e no parser"*, e o parser cortava com "…". Das 54 execuções do `grok-4.5`
+na Q2-F, quatro passavam dos 900 e chegariam ao autor **partidas no meio da
+frase** — e a parte que morre é sempre a última, que é onde mora a ressalva. Os
+900 continuam no PEDIDO, que é onde eles são um pedido; o cartão já rola (05y).
+**Limite visual e perda de conteúdo deixam de ser a mesma coisa.**
+
+**Quatro defeitos de rota, achados por leitura e fechados com vermelho e verde.**
+`Sessao.perguntarASabia` exigia apenas **algum** `.sabiaPensando` depois dos
+`await` — e "algum" inclui a pergunta seguinte: com esperas de minutos, o cartão
+podia responder à pergunta que já não era a atual. Passa a ter **identidade de
+requisição** (`UUID` por tentativa, o padrão de `ConversaNotas.tentativa`; nenhuma
+arquitetura paralela). A **página se lê junto da pergunta**, não depois do
+`await`. As fontes são **revalidadas antes de publicar** com
+`Sessao.dependenciasValidas`, a mesma guarda do `responderNasNotas`. E a
+**divulgação passa a corresponder ao que viajou**: `Sabia.contextoDaPergunta`
+monta o contexto e devolve os títulos que couberam, porque a lista era montada
+antes do corte de 5.000 e o cartão nomeava à rede notas que nunca saíram do
+aparelho. A falha deixou de ser `cartao = nil` mais um toast que passa: volta ao
+`.pergunta`, o mesmo cartão do cancelamento (09n).
+
+**A raiz de por que isso sobreviveu sete voltas.** O corpo de `perguntarASabia`
+era **inalcançável pela suíte**: sem conta Grok e com `Motores.desligados`, toda
+chamada parava na primeira linha. `disponivel:` e `aviso:` passam a chegar por
+parâmetro, com o padrão da produção — o desenho que `ConversaNotas.perguntar(disponivel:)`
+já usava. Superfície sem prova é o irmão do motor sem tela.
+
+**A frase da Astra para o Perfil NÃO foi adotada, e não por gosto.** *"Responde às
+perguntas que você deixa nas notas."* é palavra por palavra o que a linha de
+`responderNasNotas` já diz na mesma tela. Adotá-la literalmente faria o Perfil
+dizer a mesma coisa duas vezes para duas operações diferentes. Fica aberto: quando
+`responder` voltar, as duas precisam de nomes que o autor distinga — a linha `?`
+na própria nota × a barra das Notas.
+
+**Consequência.** `Traco/Analise/Sabia.swift`, `Traco/Analise/Grok.swift`,
+`Traco/Analise/Politica.swift`, `Traco/Analise/AvaliacaoIA.swift`,
+`Traco/App/Sessao.swift`, `TracoTests/RespostaNaPaginaTests.swift` (13 testes
+novos, 7 vermelhos sem os consertos), `TracoTests/PoliticaTests.swift`,
+`TracoTests/PerfilQualidadeTests.swift`, `TracoTests/ColheitaRestanteTests.swift`.
+`ferramentas/orca/lote-ia-09d-janela.sh` deixou de ser cópia por volta: UDID,
+trava e as corridas saem do ambiente e dos argumentos, e a fixture aceita caminho
+absoluto — prova com dado real mora fora do repositório. Prova em `prova/10b/`,
+`prova/10b2/` e `prova/10b-casos.json`; a pergunta REAL do aparelho da conta em
+local de acesso restrito (`~/orca/prova-restrita/responder/`, modo 600), com as
+saídas em `prova/10b*/10b*-real.jsonl`. Leitura em `ferramentas/orca/responder.md`.
+
+**Emenda do G3 (mesma ADR, no fecho da volta).** Quatro coisas que a leitura
+independente cobrou, e todas são pequenas:
+
+1. **Os dois pedidos reprovados ficam legíveis.** `pedidoResponderSHA256`
+   identifica um texto; não deixa ninguém lê-lo, e o produto desta volta é *"a
+   próxima tentativa não repete estas duas"*. Os textos estão em
+   `prova/10b/pedido-candidato-1.txt` (3.065 caracteres, `20a0b7af…`) e
+   `pedido-candidato-2.txt` (3.632, `72840c9a…`), byte a byte os que as 120
+   linhas de cada candidato registram — recuperados por bytes do dylib das
+   janelas, porque a costura saiu do Swift antes de qualquer commit.
+2. **O botão morto do medidor foi apagado.** `lote-ia-09d-janela.sh` ainda
+   exportava `SIMCTL_CHILD_TRACO_AVALIAR_PEDIDO` sem nenhum leitor em Swift:
+   quem usasse o 6º campo de uma corrida mediria o pedido ATUAL achando que
+   mediu o anterior, **em silêncio** — a rota que cala (§8) dentro do próprio
+   instrumento de medida. O campo agora **para a corrida** em vez de sumir:
+   quem quiser dois braços devolve o seletor ao Swift primeiro.
+3. **O sétimo conserto ganhou guarda.** Apagar `diagnostico.bruto = msg` deixava
+   a suíte INTEIRA verde (1038 de 1038): havia prova de CORRIDA (180 de 180
+   chamadas com bruto no JSONL) e nenhuma prova de ÁRVORE. O corpo de
+   `Grok.responder` é inalcançável da suíte por desenho — `Motores.desligados` é
+   `true` em todo processo de teste, e é ele que impede a suíte de gastar a
+   assinatura do autor —, então o que se guarda é a **forma do portão**: na
+   janela entre o conteúdo aceito e a memoização, desfecho completo e bruto são
+   escritos juntos. O teste **carrega a própria mutação** (a mesma regra, sobre a
+   fonte com a linha removida, tem de reprovar), porque um portão que não acha
+   nada passaria calado — que é exatamente o defeito que ele guarda.
+4. **O ramo `.semConta` fechou:** era a única linha de `perguntarASabia` que a
+   suíte não pisava (47 de 49) e é o único ramo que um autor **sem** conta Grok
+   alcança hoje. **49 de 49.**
+
+Fica sem conserto, nomeado: o relatório desta volta cita no corpo o título de
+duas notas reais do aparelho da conta, contra a régua de redação que ele mesmo
+aplicou ao JSONL. Baixo risco e dívida do próximo que abrir o arquivo.
+
+**Próxima alavanca, e o motivo com número.** A ordem da Astra segue: **CONTEXTO**,
+não esquema. Metade do que sobrou é o modelo falando de um documento que nunca
+viu, e nenhum texto de pedido conserta isso — o pedido não substitui a informação
+que não viajou. `Sessao.contextoDoCaderno` junta ligações, vizinhas e ecos **antes**
+do corte de 5.000, e `q2-dado-alem-do-recorte` já mostra o dado decisivo do lado de
+fora. **Não é limite do instrumento; é limite do PRODUTO**, e não absolve
+Utilidade nem Contexto.

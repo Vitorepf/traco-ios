@@ -130,7 +130,14 @@ enum AvaliacaoIA {
                         // ADR 08z: a corrida diz em que condição foi feita. Uma
                         // operação indisponível por qualidade só alcança o
                         // provedor se estiver listada aqui.
-                        "operacoesLiberadasParaAvaliacao": Politica.liberadasParaAvaliacao.sorted()]
+                        "operacoesLiberadasParaAvaliacao": Politica.liberadasParaAvaliacao.sorted(),
+                        // ADR 2026-09-10b: QUAL pedido rodou este caso. A Q2-F
+                        // teve de reconstruir isso procurando os 2.327 bytes do
+                        // prompt DENTRO do dylib instalado; uma linha aqui e a
+                        // corrida diz de si mesma qual texto mandou. Identifica
+                        // o braço — a leitura das saídas continua sendo a régua.
+                        "pedidoResponderSHA256": SHA256.hash(data: Data(Sabia.sistemaResponder.utf8))
+                            .map { String(format: "%02x", $0) }.joined()]
                     registro["evento"] = "casoIniciado"
                     try gravar(registro)
                     let inicio = ContinuousClock.now
@@ -229,6 +236,10 @@ enum AvaliacaoIA {
                     // ADR 09h: o autor não vê o rótulo interno; a MEDIDA vê.
                     "escreveuRotuloInterno": r.escreveuRotuloInterno]
         case "responder":
+            // ADR 2026-09-10b: o que sai daqui é a saída TRATADA. O retorno
+            // BRUTO do provedor viaja em `chamadasGrok[].bruto` — sem ele a
+            // medida lia o que sobrou do nosso `limparResposta` e chamava
+            // isso de "o modelo". A evidência liga os dois na mesma linha.
             return try exigir(await Sabia.responder(pergunta: exigir(e.pergunta, "pergunta"),
                 contexto: e.contexto ?? "", gesto: gesto, retrato: e.retrato ?? ""))
         case "instigar":

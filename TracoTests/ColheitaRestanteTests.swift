@@ -448,11 +448,17 @@ struct SabiaTests {
         #expect(Sabia.perguntaNaNota("?") == nil)
     }
 
-    @Test func respostaTemTetoESemMarkdownPesado() {
-        let r = Sabia.limparResposta("## Título\n**forte** e " + String(repeating: "x", count: 2000), teto: 100)
-        #expect(r?.hasSuffix("…") == true)
+    /// ADR 2026-09-10b: o teto dos 900 saiu do PARSER e ficou no pedido. O que
+    /// voltou chega inteiro — cortar apagava a ressalva do fim, que é a parte
+    /// que mais importa (4 das 54 execuções do `grok-4.5` na Q2-F passavam dos
+    /// 900). O markdown pesado continua caindo; o conteúdo, não.
+    @Test func respostaChegaInteiraESemMarkdownPesado() {
+        let longa = "## Título\n**forte** e " + String(repeating: "x", count: 2000)
+        let r = Sabia.limparResposta(longa)
+        #expect(r?.hasSuffix("…") == false)
         #expect(r?.contains("**") == false)
         #expect(r?.hasPrefix("Título") == true)
+        #expect(r?.hasSuffix(String(repeating: "x", count: 2000)) == true)
     }
 
     @Test func formasDeEstrategiaEntramNaLista() {
