@@ -1,0 +1,24 @@
+[2026-09-09T23:14:47Z] binario instalado: e9983ddb5a0f6d91b20c42e38b801eb889aac85112b56bd4da946830a5a96e71
+[2026-09-09T23:14:47Z] sha256 BATE — NAO instalo
+[2026-09-09T23:14:47Z] INICIO lote09b-fumaca-1-antes.jsonl  fixture=q2-fumaca.json liberar='' modelo='<padrao>'
+app.traco: 80382
+[2026-09-09T23:14:50Z] FIM    lote09b-fumaca-1-antes.jsonl  linhas=       4 fimGravado=1
+[2026-09-09T23:14:50Z] INICIO lote09b-q3-grok-4.5.jsonl  fixture=q3-responder-nas-notas.json liberar='responderNasNotas' modelo='grok-4.5'
+app.traco: 80468
+[2026-09-09T23:17:05Z] FIM    lote09b-q3-grok-4.5.jsonl  linhas=      44 fimGravado=1
+[2026-09-09T23:17:05Z] INICIO lote09b-q4-grok-4.5.jsonl  fixture=q4-instigar-contrapor-casos.json liberar='instigar,contrapor' modelo='grok-4.5'
+app.traco: 84391
+[2026-09-09T23:22:03Z] FIM    lote09b-q4-grok-4.5.jsonl  linhas=      74 fimGravado=1
+[2026-09-09T23:22:03Z] INICIO lote09b-fumaca-2-entre.jsonl  fixture=q2-fumaca.json liberar='' modelo='<padrao>'
+app.traco: 91542
+[2026-09-09T23:22:05Z] FIM    lote09b-fumaca-2-entre.jsonl  linhas=       4 fimGravado=1
+[2026-09-09T23:22:05Z] INICIO lote09b-q3-grok-4.6.jsonl  fixture=q3-responder-nas-notas.json liberar='responderNasNotas' modelo='grok-4.6'
+app.traco: 91608
+[2026-09-09T23:25:49Z] FIM    lote09b-q3-grok-4.6.jsonl  linhas=      44 fimGravado=1
+[2026-09-09T23:25:49Z] INICIO lote09b-q4-grok-4.6.jsonl  fixture=q4-instigar-contrapor-casos.json liberar='instigar,contrapor' modelo='grok-4.6'
+app.traco: 97582
+[2026-09-09T23:33:33Z] FIM    lote09b-q4-grok-4.6.jsonl  linhas=      74 fimGravado=1
+[2026-09-09T23:33:33Z] INICIO lote09b-fumaca-3-fim.jsonl  fixture=q2-fumaca.json liberar='' modelo='<padrao>'
+app.traco: 9741
+[2026-09-09T23:33:35Z] FIM    lote09b-fumaca-3-fim.jsonl  linhas=       4 fimGravado=1
+[2026-09-09T23:33:35Z] JANELA ENCERRADA

@@ -119,12 +119,14 @@ enum Politica {
             .init(regra: .indisponivelPorQualidade,
                   porque: "com a conta ligada em 08/09 o Grok devolveu ao autor o vocabulário interno que o app passa no pedido ('o movimento básico que se pula', 'neste degrau 0', 'a forma nota'), em vez de perguntar sobre o que ele escreveu — 1 de 6 casos — prova/q-qualidade.md",
                   motivo: "devolveu o vocabulário interno do app",
-                  medidaEm: "08/09/2026")
+                  medidaEm: "08/09/2026",
+                  conserto: "as perguntas passaram a ser só sobre o que você escreveu, e o vocabulário do app não volta nelas; falta medir")
         case .contrapor:
             .init(regra: .indisponivelPorQualidade,
                   porque: "com a conta ligada em 08/09 o Grok sustentou o contraponto em fato inventado, sempre no campo outroCampo ('metanálises de 2022', preço 12% menor na construção naval do século XV) — 1 de 6 casos — prova/q-qualidade.md",
                   motivo: "sustentou o contraponto em fato inventado",
-                  medidaEm: "08/09/2026")
+                  medidaEm: "08/09/2026",
+                  conserto: "o contraponto só se apoia no que você escreveu, e o exemplo de outro campo pode ficar em branco; falta medir")
         case .vestir:
             .init(regra: .grokDepoisBordo, porque: "a forma local decide antes; o modelo só vê blocos pendentes (ADR 07a)")
         case .classificar:

@@ -47,6 +47,16 @@ enum AvaliacaoIA {
         var pratica: DocumentoTrabalho.Pratica?
         var tentativa: String?
         var apoioUtilizado: String?
+        var conversa: [Troca]?
+    }
+
+    /// ADR 2026-09-09h — a produção passa a conversa anterior
+    /// (`Sessao.responderNasNotas`) e a sonda não passava: a base `conversa` e
+    /// a mistura "fato na fala dela + gasto na nota" nunca foram medidas. Só
+    /// as duas falas; `dependencias` é estado do caderno, que a sonda não tem.
+    private struct Troca: Codable {
+        var pergunta: String
+        var resposta: String
     }
 
     private enum Falha: Error {
@@ -202,8 +212,12 @@ enum AvaliacaoIA {
             // medida de 08/09 leu como atribuição genérica do provedor. A
             // sonda só exercita a rota que a produção usa (Sessao.responderNasNotas).
             let r = try exigir(await Sabia.responderNasNotas(pergunta: exigir(e.pergunta, "pergunta"),
-                fontes: exigir(e.fontes, "fontes"), retrato: e.retrato ?? ""))
-            return ["texto": r.texto, "fontesEnviadas": try objeto(r.enviadas), "fontesCitadas": try objeto(r.citadas)]
+                fontes: exigir(e.fontes, "fontes"),
+                conversa: (e.conversa ?? []).map { .init(pergunta: $0.pergunta, resposta: $0.resposta) },
+                retrato: e.retrato ?? ""))
+            return ["texto": r.texto, "fontesEnviadas": try objeto(r.enviadas), "fontesCitadas": try objeto(r.citadas),
+                    // ADR 09h: o autor não vê o rótulo interno; a MEDIDA vê.
+                    "escreveuRotuloInterno": r.escreveuRotuloInterno]
         case "responder":
             return try exigir(await Sabia.responder(pergunta: exigir(e.pergunta, "pergunta"),
                 contexto: e.contexto ?? "", gesto: gesto, retrato: e.retrato ?? ""))
