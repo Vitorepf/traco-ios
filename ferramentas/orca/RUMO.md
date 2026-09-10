@@ -736,3 +736,18 @@ está cortada em `main` — **mas a Q3-C foi aprovada e vai mesclar**, e no minu
 essa rota fica viva no aparelho do dono e pode dizer que a IA não respondeu **sobre um HTTP
 200 inteiro**. *Mesclar a operação de volta com esse parser como está é entregar uma mentira
 conhecida.* **Dono: a Q3-D, ou volta própria se não couber — mas antes da mescla.**
+
+**NÃO MESCLAR: as quatro linhas do `sistemaInstigar` no branch `q4-c` (10/09).** O branch
+carrega um hunk que **não pode entrar em `main`** — a promoção do *quando* no
+`sistemaInstigar`. Ele **não foi revertido de propósito**: reverter mudaria o binário e
+exigiria remedir `instigar`, e *a volta que mede fecha com o binário que mediu*. A Q4-E
+declara o arquivo, as linhas e o texto exato numa seção **NÃO MESCLAR** do relatório
+`ferramentas/orca/q4-instigar-contrapor.md`; esta linha aqui é o **segundo lugar**, porque
+aviso solto no meio de relato longo se perde.
+
+**Por que não entram, com número:** expulsaram as três pernas da fixture num caso (**3/3 →
+0/3** no `grok-4.3`, com "custo de errar" sumindo das três repetições) e fizeram o modelo
+**supor um episódio que a pessoa não escreveu** (**0 → 8** perguntas no `4.3`, 0 → 1 no
+`4.5`) — contra a linha *"Não suponha nenhum fato que ela não escreveu"*, que segue viva
+**quatro linhas abaixo** da promovida. **Dono da alavanca certa (condicionar à matéria): a
+volta seguinte de `instigar`.**
