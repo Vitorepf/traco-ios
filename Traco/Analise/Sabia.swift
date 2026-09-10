@@ -272,8 +272,15 @@ enum Sabia {
     ///
     /// O LOTE-9 mediu esta forma e ela é o que fica: no `grok-4.3`, o modelo
     /// desta rota, o substituto sumiu do `foraDaLista` nos DOIS cegos, 3 de 3, e
-    /// o polo de controle SUBIU (11 → 13 de 18). A guarda que decidia por cima
-    /// dela foi medida junto e retirada — `dependeDoQueElaFechou`.
+    /// o polo de controle NÃO CAIU (11 → 13 de 18). O G3 mediu o piso de ruído
+    /// e ele proíbe a seta: o MESMO braço, com o MESMO pedido (SHA `e4b665fb…`),
+    /// a MESMA fixture e o MESMO parser deu 16 de 18 no LOTE-8 e 11 de 18 aqui.
+    /// Oscilação de 5 num polo onde a alavanca move 2: "não caiu" é o que os
+    /// números sustentam, "subiu" não é. Pelo mesmo motivo o 3 de 3 diz que o
+    /// defeito não apareceu em três tiradas, não que a forma o fechou — o braço
+    /// SEM esquema foi de 1/3 (LOTE-8) a 3/3 (LOTE-9) no cego das razões
+    /// fechadas sem que nada mudasse. A guarda que decidia por cima dela foi
+    /// medida junto e retirada — `dependeDoQueElaFechou`.
     private static let formaContraporComEsquema = """
     Você lê a nota de quem escreve e devolve o que ela NÃO considerou. Responda APENAS um JSON válido, sem markdown:
     {"fechadas": ["…"], "contra": "…", "foraDaLista": "…", "dependeDe": "…", "outroCampo": "…"}
