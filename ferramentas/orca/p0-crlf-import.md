@@ -61,16 +61,26 @@ baixo, marcou `contemProtegida = false` — e `Entrada.confirmar` **apagou o arq
 Sem Windows, sem `\r`, sem import de fora: basta o dono escrever um `.md` como uma
 pessoa escreve.
 
-## 3. O conserto — a invariante é COBERTURA, e ela é um número
+## 3. O conserto — a invariante é COBERTURA DE DELIMITAÇÃO, e ela é um número
 
 Quatro mudanças, todas em `Corpus.swift` menos uma linha em `Entrada.swift`.
 
 **1. `importarComEstado` devolve `(itens, podeRetirar, consumido)`.**
 `consumido` = fração dos **caracteres com tinta** (não-espaço, não-quebra: o `\r` não
-conta como conteúdo) que viraram nota. `podeRetirar` = `lidos == tinta`.
+conta como conteúdo) que caiu **dentro de um bloco `append`ado** — cobertura de
+DELIMITAÇÃO, não de leitura. `podeRetirar` = `lidos == tinta`.
 Qualquer `continue` — selo, cabeçalho que não fecha, corpo vazio — e a prosa antes do
-primeiro cabeçalho deixam a conta curta **sozinhos**. Não há bookkeeping por ramo, e
-um `continue` que alguém acrescente amanhã já está coberto.
+primeiro cabeçalho deixam a conta curta **sozinhos**, porque `lidos += comTinta(bloco)`
+é a última instrução do laço. Não há bookkeeping por ramo a esquecer.
+
+**CORRIGIDO depois do G3 (10/09):** eu escrevi aqui que *"um `continue` que alguém
+acrescente amanhã já está coberto"* e isso vale **só para `continue`**. O revisor mediu
+dois descartes que **consomem sem delimitar** e passam pela conta: o teto de 140 grafemas
+da ADR 08h, sem um `continue` novo, importou **140 de 699** caracteres com
+`consumido = 1,00` e **apagou o arquivo**; e `dominio`/`recordada`, que o app escreve e o
+importador nunca lê, somem com a conta dizendo **100%**. A tinta do cabeçalho é creditada
+sem virar nota (**659 de 699** na mesma nota exportada). O conserto não mudou — a
+alegação sobre ele, sim.
 
 **2. O portão saiu de quem chama.** `contemProtegida` deixou de existir. Quem sabe se
 leu tudo é quem leu; remontar a decisão do lado de fora

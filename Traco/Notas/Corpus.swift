@@ -299,13 +299,20 @@ enum Corpus {
         importarComEstado(conteudo).itens
     }
 
-    /// ADR 09y: **um arquivo só se apaga quando o app leu tudo o que havia
-    /// nele.** `consumido` é essa cobertura — a fração dos caracteres com tinta
-    /// do arquivo que viraram nota —, e `podeRetirar` é o único portão que o
-    /// coletor lê, para que ninguém o remonte errado do lado de fora. Bloco
-    /// recusado pelo selo, cabeçalho que não fecha, corpo vazio, prosa antes do
-    /// primeiro cabeçalho: tudo isso deixa a cobertura abaixo de 1, e incerteza
-    /// não apaga.
+    /// ADR 09y: **um arquivo só se apaga quando o app DELIMITOU tudo o que
+    /// havia nele.** `consumido` é cobertura de DELIMITAÇÃO, **não de
+    /// leitura**: a fração dos caracteres com tinta que caiu DENTRO de um bloco
+    /// que foi `append`ado — não a fração que virou nota. A diferença é medida,
+    /// não teórica (G3, `ferramentas/orca/revisao-p0-crlf.md`): numa nota
+    /// exportada pelo próprio app com 699 caracteres de tinta, 659 viram texto
+    /// de nota e `consumido` diz **1,00** — os 40 restantes são a tinta do
+    /// CABEÇALHO, creditada sem virar nota nenhuma. E campo que este parser
+    /// nunca lê (`dominio` e `recordada`, que o app ESCREVE; `gesto:` fora do
+    /// catálogo) SOME na volta pela `entrada/` com a conta dizendo 100%, e o
+    /// arquivo é apagado. `podeRetirar` é o único portão que o coletor lê, para
+    /// que ninguém o remonte errado do lado de fora. Bloco recusado pelo selo,
+    /// cabeçalho que não fecha, corpo vazio, prosa antes do primeiro cabeçalho:
+    /// tudo isso deixa a cobertura abaixo de 1, e incerteza não apaga.
     nonisolated static func importarComEstado(_ conteudo: String) -> (
         itens: [ItemImportado], podeRetirar: Bool, consumido: Double
     ) {
@@ -320,6 +327,13 @@ enum Corpus {
         // cabeçalho do Traço que este parser NÃO leu — e um cabeçalho não lido
         // pode ser um selo. Então nada entra como do autor e nada se apaga, em
         // vez de o arquivo inteiro virar uma nota aberta do autor.
+        // O QUE ESTE PORTÃO NÃO COBRE, e a ADR dizia que cobria: ele só dispara
+        // quando as duas contagens DISCORDAM. Quando AS DUAS são cegas ao mesmo
+        // cabeçalho malformado (`criada:` sem o espaço, selo escrito à mão sem
+        // linha `criada:`), o arquivo cai no `hits.isEmpty` logo abaixo, que é
+        // FAIL-OPEN: vira UMA nota aberta do autor com o corpo selado dentro, e
+        // é apagado. Já era assim em `main`; dívida P0-SELO-CEGO, medida pelo
+        // G3, com recomendação de uma linha em `revisao-p0-crlf.md` §3.
         guard cabecalhos(conteudo) == hits.count else { return ([], false, 0) }
         guard !hits.isEmpty else {
             let limpo = conteudo.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -365,6 +379,16 @@ enum Corpus {
             let gestoNome = idDoMetodo
                 ?? nomeDoGesto.flatMap { Gesto.doNome($0)?.conhecido == true ? $0 : nil }
             saida.append((corpo, gestoNome, data, origem))
+            // A conta fecha-se sozinha SÓ PARA `continue`, e por construção:
+            // esta linha é a ÚLTIMA do corpo do laço, então todo caminho que
+            // pula o bloco deixa a conta curta sem bookkeeping por ramo.
+            // NÃO fecha para descarte que CONSOME SEM DELIMITAR, e o G3 mediu
+            // dois: truncar o que se guarda (o teto de 140 grafemas da ADR 08h,
+            // sem um `continue` novo, importou 140 de 699 caracteres com
+            // `consumido = 1,00` e APAGOU o arquivo) e ler um campo a menos
+            // (`dominio`/`recordada`). Filtrar `saida` depois do laço é a mesma
+            // família. Quem acrescentar um desses acrescenta o teste junto — a
+            // cobertura não o pega.
             lidos += comTinta(bloco)
         }
         return (saida, lidos == tinta, tinta == 0 ? 1 : Double(lidos) / Double(tinta))

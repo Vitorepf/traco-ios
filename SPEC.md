@@ -9004,14 +9004,26 @@ examinado**. Basta o dono escrever um `.md` como uma pessoa escreve — um títu
 o começo do arquivo se perde antes de o arquivo ser apagado. O `\r` era um dos jeitos de
 chegar ao defeito, não o defeito.
 
-**Decisão — a invariante é COBERTURA DE LEITURA, e ela é um número.**
+**Decisão — a invariante é COBERTURA DE DELIMITAÇÃO, e ela é um número.**
 
 1. **`importarComEstado` devolve `(itens, podeRetirar, consumido)`.** `consumido` é a fração
    dos **caracteres com tinta** (tudo que não é espaço nem quebra: o `\r` não conta como
-   conteúdo) que viraram nota; `podeRetirar` é `lidos == tinta`. Bloco recusado pelo selo,
-   cabeçalho que não fecha, corpo vazio, prosa antes do primeiro cabeçalho — qualquer
-   `continue`, inclusive um que alguém acrescente amanhã, deixa a conta curta sozinho. Não
-   há bookkeeping por ramo a esquecer.
+   conteúdo) que caiu **dentro de um bloco `append`ado** — cobertura de **DELIMITAÇÃO**, não
+   de leitura; `podeRetirar` é `lidos == tinta`. Bloco recusado pelo selo, cabeçalho que não
+   fecha, corpo vazio, prosa antes do primeiro cabeçalho — **qualquer `continue`** deixa a
+   conta curta sozinho, e isso é estrutural: `lidos += comTinta(bloco)` é a última instrução
+   do corpo do laço, então não há bookkeeping por ramo a esquecer.
+
+   **E é só para `continue`.** A conta **não** encurta com descarte que consome sem
+   delimitar, e o G3 mediu dois sem inventar código futuro: (a) o **teto de 140 grafemas da
+   ADR 08h**, escrito no estilo desta casa e **sem um `continue` novo**, importou **140 de
+   699 caracteres com tinta**, com `consumido = 1,00`, e **apagou o arquivo**; (b) os campos
+   **`dominio` e `recordada`**, que o próprio app **escreve** (`Corpus.swift:147`) e o
+   importador **nunca lê**, somem na volta pela `entrada/` com a conta dizendo **100%** — e o
+   mesmo vale para `gesto:` fora do catálogo. Filtrar `saida` depois do laço é a mesma
+   família. **A tinta do CABEÇALHO é creditada inteira sem virar nota**: na mesma nota
+   exportada, 699 de tinta, **659** viram texto de nota, `consumido = 1,00`. Quem
+   acrescentar um descarte dessa forma acrescenta o teste junto.
 2. **O portão sai de quem chama.** `contemProtegida` deixa de existir: o único que sabe se
    leu tudo é quem leu, e remontar a decisão do lado de fora foi o defeito. `Entrada` agora
    escreve `podeRetirar: resultado.podeRetirar`.
@@ -9021,6 +9033,16 @@ chegar ao defeito, não o defeito.
    cabeçalho do Traço que este parser NÃO leu — e cabeçalho não lido pode ser um selo:
    **nada entra como do autor e nada se apaga**, em vez de o arquivo inteiro virar uma nota
    aberta. É o que fecha B e F.
+
+   **A garantia vale quando as duas contagens DISCORDAM, e o G3 mostrou onde ela não vale:**
+   quando **ambas** são cegas ao mesmo cabeçalho malformado, o arquivo cai no ramo
+   `hits.isEmpty`, que é **fail-open** — "nenhum cabeçalho do Traço ⇒ isto é prosa livre do
+   autor" ⇒ importa tudo e apaga. Medido: `criada:2026-…` sem o espaço, e selo escrito à mão
+   sem linha `criada:`, viram **uma nota aberta `origem: autor` com o corpo selado dentro**,
+   e o arquivo é apagado; `estado:selada` sem o espaço faz o corpo selado entrar como do
+   autor com `consumido = 1,00`. **Os três já apagavam em `main`** — esta volta não os
+   piorou, mas a frase "cabeçalho não lido pode ser um selo" só é verdadeira no eixo do fim
+   de linha. Fica como dívida com recomendação medida (abaixo).
 4. **As duas leituras do cabeçalho passam a saber o que é uma linha:**
    `cabecalho.split(whereSeparator: \.isNewline)` no lugar de `split(separator: "\n")` —
    stdlib, sem normalizador novo. É o que fecha D, onde `origem: modelo\r\nestado: selada`
@@ -9040,10 +9062,34 @@ que agora ou vem de um bloco que o parser entendeu inteiro, ou não vem. `Sabia.
 `VozDoAutor.swift:78` e `AnaliseLocal.swift:295` **não** são cobertos: leem texto já gravado,
 e nota importada antes deste conserto guarda o `\r` no banco. Continuam com dono no RUMO.
 
-**Dívida nomeada.** A recusa é MUDA: o arquivo fica na pasta e o autor não é avisado de que
-o formato não foi entendido. `Entrada.arquivos` descarta o arquivo sem itens (`continue`), e
-dar-lhe voz é mexer no toast de `Sessao.recolherEntrada` — acabamento fora do escopo de um
-P0 de perda de dado.
+**Dívidas nomeadas.**
+
+- **P1-RECUSA-MUDA.** A recusa é MUDA: o arquivo fica na pasta e o autor não é avisado de que
+  o formato não foi entendido. `Entrada.arquivos` descarta o arquivo sem itens
+  (`Entrada.swift:56`), a lista vazia sai no `guard !arquivos.isEmpty`
+  (`Sessao.swift:1394`) e com `total == 0` nem o toast final corre (`Sessao.swift:1428`): o
+  autor larga um `.md` na pasta, abre o app e **não acontece nada**. Esta volta **aumenta a
+  frequência** desse caminho — o que antes importava errado agora é recusado em silêncio. É a
+  troca certa (dado acima de aviso) e é um custo novo, da mesma família da *espera calada* da
+  DIRETRIZ §13. Dono na próxima volta de `entrada/`.
+- **P0-SELO-CEGO.** O ramo `hits.isEmpty` é fail-open (item 3). Recomendação **medida** pelo
+  G3: uma cláusula `||` nesse ramo — um arquivo que **abre** com a cerca `---` afirma ter
+  estrutura que este parser não entendeu. Fecha os dois casos de selo invisível **sem
+  regressão** nos dois que TÊM de continuar apagando (prosa solta e nota exportada ida e
+  volta). O caso `estado:selada` grudado não fecha por aí: pede leitura estrita das chaves do
+  cabeçalho, e é volta própria. Já existia em `main`.
+- **P2-CAMPO-QUE-SOME.** `dominio` e `recordada` são escritos pelo app e nunca lidos na volta
+  pela `entrada/`; `gesto:` fora do catálogo é descartado por `Gesto.doNome`. Somem, e o
+  arquivo é apagado dizendo 100% — é o preço de a cobertura ser de delimitação e não de
+  leitura, e o conserto é ler os campos ou não creditar o que não se lê.
+
+**O que o G3 derrubou, e por que está escrito aqui.** A primeira redação desta ADR prometia
+que *"qualquer `continue`, inclusive um que alguém acrescente amanhã"* fecharia a conta
+sozinho, e chamava a invariante de cobertura de **leitura**. O revisor derrubou os dois com
+número, em harness independente (`ferramentas/orca/revisao-p0-crlf/`, corpos extraídos por
+`awk` do código vivo). **O conserto não mudou; a alegação sobre ele mudou** — e o nome
+errado era a parte cara: o próximo lê `consumido` e confia. Cobertura de **delimitação**
+prova que todo byte caiu dentro de um bloco importado, **não** que virou nota.
 
 **Consequência.** `Traco/Notas/Corpus.swift`, `Traco/Notas/Entrada.swift`,
 `TracoTests/IntegridadeCorpusTests.swift` (a tabela A–G como teste, mais a irmã que NÃO
