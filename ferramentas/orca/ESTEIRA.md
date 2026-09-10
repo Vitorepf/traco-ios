@@ -1597,3 +1597,39 @@ perder o que se escreveu.
 antes de consertar uma.* Seis de sete não é "um caso": é o contrato faltando. E o conserto
 certo foi **reusar o que já havia** (a `LinhaDeEstado` da 05t com o relógio da 09n), não
 inventar componente.
+
+## `/tmp` quebra QUATRO portões de `main`, e o meu preâmbulo mandava usá-lo (10/09, MERGE-P0)
+
+**Achado que não era da volta e ela declarou.** As duas primeiras corridas da mescla deram
+**quatro vermelhos** — `aVarreduraAindaEnxerga`, `nenhumaOperacaoPerdeuASuaSuperficie`,
+`nenhumMovimentoNovoForaDeTema`, `nenhumTryBangNovoNaProducao` — porque
+`PortaoDoMovimentoTests.fontes(_:):128` **recorta o prefixo do caminho por string**, e
+**`/tmp` é link simbólico para `/private/tmp`**. **Qualquer checkout sob `/tmp` quebra os
+quatro.** E **chamar pelo caminho resolvido NÃO resolve**: o `/tmp` fica **assado no
+`#filePath`** do `.xctest`. Ela contornou montando em `/Users/vitorepf/traco-merge-p0`.
+
+**A parte que é minha:** o preâmbulo que eu mando em todo despacho dizia, em letra clara,
+*"Reproduzir o vermelho do pai: monte um checkout descartável em `/tmp`"*. **Eu vinha
+mandando os workers para dentro da armadilha**, e o custo é o pior possível: **quatro
+vermelhos falsos numa árvore boa**, que fazem a pessoa procurar defeito onde não há —
+*vermelho falso custa mais que verde falso, porque ninguém reconfere uma reprovação*.
+Corrigido no preâmbulo. **Dívida sem dono:** o portão devia comparar caminhos **resolvidos**,
+não prefixos de string.
+
+## Teste que roda AX5 em processo NÃO é o que o dono viu (10/09, mesma volta)
+
+A mesma volta apontou que `TracoTests/EscritaVisivelTests.swift:495/:556/:651` roda em
+`accessibilityExtraExtraExtraLarge` **em toda corrida da suíte**, e perguntou se viola a
+§12. **Registro o fato e NÃO conserto**, por duas razões:
+
+1. A **§12 item 3** é explícita: *"o código que já existe fica como está: ninguém o remove
+   nem o mantém"*. Isso entrou em `423789e`, **antes da ordem**.
+2. **E não é o que o dono viu.** Esses testes montam uma `UIContentSizeCategory` **em
+   processo**; **não mexem no `content_size` do simulador**. O que o dono viu duas vezes foi
+   o **aparelho** em letra grande, e a causa foi outra (a volta AX5-1, e depois as cópias
+   velhas dos scripts nos worktrees). **Atribuir a violação a estes testes seria culpar o
+   inocente** — e a casa já tem lei sobre isso.
+
+Fica **declarado**: os cinco chamadores de `editor(_:)` usam o **padrão** AX5, então mudar o
+padrão mexeria no que eles medem. **Quem um dia tocar essa suíte decide com as asserções na
+mão**, não por reflexo.
