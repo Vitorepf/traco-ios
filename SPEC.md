@@ -10210,14 +10210,19 @@ espaço com navegar — é fisicamente outra coisa.*
 faixa dos destinos. Teste do genérico: é a barra do sistema.
 
 **A decisão.**
-1. **Os quatro destinos numa pílula** que flutua a `Tema.margem` das bordas, altura
+1. **Os quatro destinos numa pílula** que flutua a `Tema.margem` das bordas — embaixo
+   também, descendo para dentro da área do indicador de início como a do Hermes —, altura
    `Tema.barraNav`, vidro com o fundo que sustenta a cor e `Sombra.flutuante` (a sombra que
    o Tema já chamava de "barra flutuante"). **Sem rótulo**: o nome vive no rótulo de
    acessibilidade e no visor de conteúdo grande do toque longo, como na barra do sistema.
-2. **Onde você está é uma cápsula `Tema.chip` cheia atrás do glifo**, com o glifo em
-   `Tema.tinta` e variante cheia; os outros em `Tema.tintaFraca`. O preto diz onde se está
-   (ADR 02h); a cápsula tem a altura do alvo (`Tema.alvo`), e o anel entre ela e a borda da
-   pílula é o que sobra: `(barraNav − alvo) / 2`. Acende sem transição — é estado.
+2. **Onde você está é uma cápsula `Tema.chipAtivo` (carvão) atrás do glifo**, com o glifo em
+   `.white` e variante cheia — a mesma cápsula da `Pilula` selecionada; os outros em
+   `Tema.tintaFraca`. O preto diz onde se está (ADR 02h). A primeira captura usou `Tema.chip`
+   e a cápsula sumia no branco da pílula. A cápsula tem a altura do alvo (`Tema.alvo`), e o
+   anel entre ela e a borda da pílula é o que sobra: `(barraNav − alvo) / 2`. **A cápsula anda** de uma aba à outra
+   (`Mola.escala`; sob Reduzir Movimento, corta), e o glifo aceso é uma camada inteira de
+   glifos brancos recortada por ela — nunca há branco sobre branco nem quadro sem aba acesa.
+   A `Mola.toque` foi medida e reprovada no vídeo: passava da borda e saía cortada reta.
 3. **Escrever é um círculo âmbar à direita, fora da pílula**, do mesmo diâmetro da pílula,
    glifo escuro (7,6:1). O âmbar continua a ser a assinatura da AÇÃO, uma vez na tela.
 

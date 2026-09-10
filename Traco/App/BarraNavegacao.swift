@@ -93,7 +93,9 @@ struct BarraNavegacao: View {
                         Capsule()
                             .frame(width: largura)
                             .offset(x: largura * CGFloat(Aba.naBarra.firstIndex(of: aba) ?? 0))
-                            .animation(Tema.movimento(.deslocamento, Tema.Mola.toque, reduzido: reduceMotion), value: aba)
+                            // `escala`, não `toque`: a de 0,65 passava da borda da
+                            // pílula e saía cortada reta na viagem de três casas
+                            .animation(Tema.movimento(.deslocamento, Tema.Mola.escala, reduzido: reduceMotion), value: aba)
                     }
                 }
                 .allowsHitTesting(false)
