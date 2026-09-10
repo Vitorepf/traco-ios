@@ -3,9 +3,34 @@ import SwiftUI
 enum Tema {
     // MARK: - O mundo claro (ADR 2026-09-02h; hex e medidas em SISTEMA-CLARO.md)
     //
-    // Papel, não tela. Um acento de estado, o preto (carvão). O âmbar é a
-    // assinatura de AÇÃO e vive como fill (cursor, Nova, agora); como texto
-    // usa `ambarTinta`, porque #D9A542 sobre o papel mede 2,0:1.
+    // Papel, não tela. A hierarquia vem de tipo, peso, tinta e espaço.
+    //
+    // A REGRA DA COR (Hermes §10, ADR 2026-09-10k). Cor só diz uma de duas
+    // coisas, e nada mais:
+    //
+    //   IDENTIDADE — o que uma coisa É, reconhecido antes de ler.
+    //     · o domínio de um compromisso: fundo pastel + tinta da mesma matiz
+    //       (`CalendarioTema.fundo(de:)`/`tinta(de:)`);
+    //     · o próprio Traço: o âmbar. Ele marca onde o traço do autor acontece
+    //       — o cursor, o círculo de Escrever — e só ali. Fill, nunca texto.
+    //
+    //   ESTADO — o que está acontecendo agora.
+    //     · carvão (`chipAtivo`): o ativo, o ligado, o escolhido — a cápsula
+    //       da aba, o interruptor ligado, o dia selecionado, a data marcada;
+    //     · âmbar: o AGORA do calendário (a linha e a hora que correm);
+    //     · `aviso`: o que falhou ou o que destrói;
+    //     · o azul de papel do calendário: a semana onde se está.
+    //
+    //   NADA MAIS. Rótulo, ação secundária, ícone de linha, glifo de ajuste e
+    //   fundo de linha são TINTA. Ação se reconhece pela FORMA — o chevron, o
+    //   peso, a linha que se toca —, nunca por pintar o texto de âmbar. Glifo
+    //   distingue pela forma antes da cor (Hermes §4). Quem precisar de uma
+    //   cor nova tem de dizer, aqui, se ela é identidade ou estado; se não for
+    //   nenhuma das duas, é enfeite, e enfeite não entra.
+    //
+    // `ambarTinta` existe porque #D9A542 sobre o papel mede 2,0:1 — é o âmbar
+    // que se lê onde a IDENTIDADE precisa de texto (a hora do agora). Não é
+    // licença para pintar botão.
     static let fundo = Color(hex: 0xF4F4F2)            // papel
     static let superficie = Color(hex: 0xFFFFFF)       // cartão
     static let superficieAlta = Color(hex: 0xFFFFFF)   // o que flutua (com sombra)
@@ -66,7 +91,10 @@ enum Tema {
     static let barra: Font = .body.weight(.semibold)
     /// 15 — metadado, legenda, apoio.
     static let meta: Font = .subheadline
-    /// 11 — rótulo de seção, sempre em caixa alta com tracking positivo.
+    /// 11 — o cabeçalho de seção, e SÓ ele (Hermes §5): versalete espaçado,
+    /// cinza fraco, pequeno. Caixa alta agrupa; nunca nomeia conteúdo — o
+    /// nome de um parágrafo, de uma coluna ou de uma etiqueta vai em frase
+    /// normal. Mora em `CabecalhoDeSecao`, que carrega a contagem e o recolher.
     static let label: Font = .caption2.weight(.semibold)
     static let trackingLabel: CGFloat = 1.2
     static let confirmacaoTitulo: Font = .title.weight(.semibold)
