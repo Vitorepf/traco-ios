@@ -1328,3 +1328,40 @@ compilar**. Suba: à mão em cada chamador → invariante no laço → impossív
 com TAB, setext, nada dentro de cerca de código) em vez de `hasPrefix` — porque *a sonda
 que erra do mesmo jeito que o código não guarda nada*. A prova de que ela enxerga: a
 reescrita ficou **vermelha na primeira corrida**, antes de a asserção apertar.
+
+## A garantia do tipo vale até a genérica que aceita tudo (10/09, 3º G3 da MAC-2-A)
+
+Celebrei ontem à tarde que o defeito virara **impossível**: `markdown` monta de `[Linha]`,
+`String` cru **não compila**. O revisor refez a prova — **ela se sustenta** — e então a
+contornou por três portas, e as três valem a lição:
+
+1. **`appendInterpolation<T>` aceitava `Substring` e `Any`**, que passam **sem cerca**. A
+   promessa "não compila" valia para `String` e **não para os primos**. *Guarda no tipo é
+   um fato — mas a genérica que aceita tudo é a porta dos fundos do tipo.* Estreite o
+   `where`, ou a garantia é decorativa.
+2. **`"\r\n"` é UM `Character` em Swift.** `split(separator: "\n")` sobre um texto com fim
+   de linha do Windows devolve **UMA linha**, e a cerca **não rebaixa nada**: as rotas
+   reabrem juntas e o ``` pendurado **engole as seções do próprio arquivo**.
+3. **`Corpus.umaLinha` trocava o `\n` e deixava o `\r`** — que é quebra pela mesma
+   CommonMark que a ADR cita. Todo campo de "uma linha" **plantava linha**: **2 e 4** seções
+   `## Relatos` medidas onde só cabe 1.
+
+**E o conserto já existia na casa:** `Traco/Caderno/BlocoCaderno.swift:78-84` normaliza CRLF
+com o comentário certo — *"CRLF entra por import de .md feito fora do iPhone. Sem
+normalizar, o `\r` sobrevive até a TELA"*. **Escrever a segunda normalização em vez de
+reusar a primeira seria o slop que a lei nomeia.**
+
+**A lei:** *toda guarda que parte texto declara o que considera fim de linha.* E o corolário
+que fecha o arco de dois dias — à mão em cada chamador → invariante no laço → impossível
+pelo tipo — **é que nenhum degrau dispensa a pergunta seguinte: por onde mais entra?**
+
+## Fato observado, ou defeito com outra roupa? (mesma volta)
+
+O autor declarou o cabeçalho YAML como **"fato observado"**. O revisor **discordou com
+prova**: enquanto o `umaLinha` deixar o `\r`, é **o mesmo defeito com outra roupa** — e a
+frase do `SPEC` que sustentava a declaração (*"o autor não consegue plantar linha ali"*) é
+**falsa hoje**, porque foi por ali que saíram as quatro seções.
+
+**A lei:** *"fato observado" é uma alegação, e alegação se confere.* Declarar limite é
+honesto; declarar limite sobre uma premissa que ninguém testou é a meia-recusa da
+engenharia. Feche a premissa primeiro — o que sobrar depois, aí sim, é fato.
