@@ -1,8 +1,12 @@
 #!/bin/bash
 # Uma captura da casa, com o ambiente que a face precisa — e só dada por boa
 # quando o CONTEÚDO esperado está na tela, lido por OCR.
-# Uso: f5-fotografar.sh <UDID> <saida.png> [tema] [tamanho] [texto] [vezes]
-#   tema: light | dark      tamanho: large | accessibility-extra-extra-extra-large
+# Uso: f5-fotografar.sh <UDID> <saida.png> [tema] [—] [texto] [vezes]
+#   tema: light | dark
+#   O 4º lugar era o TAMANHO e agora é IGNORADO (DIRETRIZ §12, dono, 10/09):
+#   o tamanho é sempre `large`. Acessibilidade máxima está PROIBIDA — nada de
+#   AX1..AX5 nem XXXL. O lugar fica vazio de propósito, para não deslocar o
+#   texto e o número de vezes nos chamadores que já existem.
 #   texto: trecho curto que a face tem de mostrar (padrão: as duas primeiras
 #          palavras de $LINHA, a mesma que f5-semear.sh planta)
 #   vezes: quantas faces têm de mostrá-lo (padrão 1; com o plantio padrão de
@@ -17,7 +21,7 @@
 # captura é repetida até o OCR achar o texto `vezes` vezes; se em 90 s não
 # achou, o script FALHA e guarda o último quadro como *.nao-pronta.png.
 set -e
-U="$1"; SAIDA="$2"; TEMA="${3:-light}"; TAM="${4:-large}"
+U="$1"; SAIDA="$2"; TEMA="${3:-light}"; TAM=large  # DIRETRIZ §12: o 4º parâmetro foi removido; acessibilidade máxima é proibida
 LINHA="${LINHA:-terminar o capítulo do meio antes de dormir}"
 TEXTO="${5:-$(echo "$LINHA" | cut -d' ' -f1-2)}"; VEZES="${6:-1}"
 AQUI="$(cd "$(dirname "$0")" && pwd)"
