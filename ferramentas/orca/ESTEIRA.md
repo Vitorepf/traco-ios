@@ -1097,3 +1097,25 @@ descontar nota, porque a chamada tinha prova de máquina e o retorno era verific
 **Mas o motivo não vira precedente:** `screencapture -l<windowid>` fotografa uma janela
 **sem trazê-la à frente**, o que respeita a lei do dono ativo (ocioso < 60 s, não levantar
 janela). Antes de declarar "não dá para fotografar", tente por id de janela.
+
+## O requisito promovido para morder no caso pobre vira TETO no caso rico (10/09, Q4-C)
+
+A Q4-C consertou três defeitos medidos de uma vez — `semRetorno` com HTTP 200 **1→0**,
+renda inventada **1→0**, e o texto magro passou a pedir *quando* **0/3 → 3/3**. E, na
+mesma medida, **nasceu o defeito oposto**: num caso em que a nota dá material farto, as
+perguntas viraram literalmente *"O que aconteceu? / Quando aconteceu? / O que seria dar
+certo?"* — a lista, sem nada da nota —, onde a base do LOTE-3 cobria critério, evidência
+e custo de errar.
+
+**A lei:** *requisito promovido para MORDER no caso pobre vira TETO no caso rico.*
+Promover uma lista fixa ao alto do pedido, com "pelo menos duas cumprem ao pé da letra",
+faz o modelo cumprir a lista **e parar**. No texto magro isso é o conserto; no texto
+farto é o dano. Quando a promoção regride a linha de base, a alavanca seguinte não é
+*mais* promoção nem *mais* proibição: é o requisito ficar **condicionado à matéria** —
+quando a nota dá pouco, pergunte o que/quando/o que seria dar certo; quando dá mais, as
+perguntas saem do que ela escreveu.
+
+**E o modo como isto apareceu é o que se quer de um medidor:** a própria volta mediu,
+viu, e **nomeou o defeito como causado pela mudança dela**, sem arredondar, antes de
+saber se o outro modelo repetia. *Quem mede o próprio conserto tem de poder reprovar-se —
+e a medida que só confirma quem a encomendou não é medida.*
