@@ -1722,3 +1722,29 @@ verde nenhum.
 **Regra:** prova de mutação fecha-se com a **suíte inteira**, ou com um filtro cujo número de
 testes executados se LÊ e é maior que zero. E ao escrever um `-only-testing`, o nome que vale
 é o do `@Suite`, que pode não ser o do arquivo — confira com `grep '@Suite'` antes.
+
+## A letra reserva-se na TABELA, e agora há quem confira: `letras-conferir.sh`
+
+Em 10/09/2026 houve **quatro** colisões de letra de ADR num só dia, todas pela mesma causa:
+alguém leu a linha de resumo **"Próxima livre"** em vez da tabela, e a linha estava velha.
+A quarta aconteceu **depois** de eu ter mandado uma mensagem a avisar — o que prova a lei
+irmã: *aviso por mensagem não serializa nada, e mensagem não conserta arquivo.*
+
+`ferramentas/orca/letras-conferir.sh` lê a TABELA e devolve `rc=1` (letra repetida na série
+aberta), `rc=2` ("Próxima livre" mente) ou `0`. **Corra-o antes de comitar o registro.**
+
+**Provado nos dois sentidos**, como a casa exige: com uma isca plantada — uma segunda `10i`
+na tabela — acusa `⛔ LETRA REPETIDA na série ABERTA` e sai `1`; sem a isca, acusa **zero**
+colisões vivas. A irmã que não acusa existe.
+
+**O que ele achou na primeira corrida, e ninguém tinha visto:** `08x` e `08y` estão
+**repetidas em `main` desde 08/09**. A `08x` é colisão real (duas voltas diferentes); a `08y`
+é linha duplicada da mesma volta. Série fechada não se renumera — as ADRs e o SPEC já a
+citam —, então ele **diz e não falha**. *Dívida histórica que se cala vira lei; dívida que se
+imprime a cada corrida, não.*
+
+**E ele apanhou-se a si próprio primeiro.** A primeira versão lia `Próxima livre` com um
+`grep` solto e casava com a **citação** dentro do parágrafo de história do arquivo — acusava
+`09s` onde a linha de verdade dizia `10i`. *O oráculo a casar com o texto errado é o defeito
+que esta casa passa o dia a apanhar nos outros;* agora ele só casa a linha que começa por
+`**Próxima livre:`.
