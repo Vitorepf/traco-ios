@@ -10227,5 +10227,8 @@ faixa dos destinos. Teste do genérico: é a barra do sistema.
    glifo escuro (7,6:1). O âmbar continua a ser a assinatura da AÇÃO, uma vez na tela.
 
 **Nenhum token novo.** Margem, altura, alvo, espaço entre itens, sombra e cores já existiam.
+**Prova** (`ferramentas/orca/pilula/`, 10/09 20h33, teste 4 em `large`, `pilula-filmar.sh`):
+vídeo de 15 s com o pé, as quatro abas, a viagem de três casas quadro a quadro
+(`desliza.png`) e o lado a lado contra o Hermes.
 **Fora:** a folha da resposta, a conversa, a busca e a marca "?" (ADR 10i).
 **Substitui** o parágrafo da barra do §20 ("Nova" liderando a barra).
