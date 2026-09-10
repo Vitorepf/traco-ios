@@ -9902,3 +9902,88 @@ que não viajou. `Sessao.contextoDoCaderno` junta ligações, vizinhas e ecos **
 do corte de 5.000, e `q2-dado-alem-do-recorte` já mostra o dado decisivo do lado de
 fora. **Não é limite do instrumento; é limite do PRODUTO**, e não absolve
 Utilidade nem Contexto.
+
+## ADR 2026-09-10c — INSTIGAR · a cobrança fica condicionada à matéria da nota
+
+**A distância.** O `sistemaInstigar` cobrava três perguntas — *o quê aconteceu*, *quando
+aconteceu*, *o que seria dar certo* — e a Q4-C mediu o preço de as cobrar **sem
+condição**. A cláusula promovida ao alto do pedido curou a nota magra (`quando` de 0/3 a
+3/3 no `q4-instigar-texto-magro`) e envenenou a nota farta: o modelo **somou** as três
+pernas às perguntas que já faria, e as perguntas ancoradas na nota caíram de **96% para
+76%** no `grok-4.3` e de **97% para 89%** no `grok-4.5`. A Q4-C escreveu o conserto e
+**não o aplicou de propósito**, para o binário comitado não divergir do medido; a dívida
+ficou nomeada no `RUMO.md` para esta volta.
+
+**Decisão.** O requisito passa a **depender da matéria que a nota dá**, numa frase e na
+ÚLTIMA linha do pedido: *"se ela quase não dá nenhuma, uma pergunta pede O QUE aconteceu,
+outra pede QUANDO aconteceu e outra pede O QUE SERIA dar certo, e nenhuma das três se
+troca por uma mais fácil; se ela dá matéria, as perguntas saem do que ELA escreveu, e
+dessas três só entra a que a nota deixou sem resposta."*
+
+**A posição é parte da decisão.** A cláusula do LOTE-5 entrava no ALTO do pedido e por
+isso governou tudo, inclusive contra a linha *"Não suponha nenhum fato que ela não
+escreveu"*, que seguia viva quatro linhas abaixo dela. Esta entra no fim, no lugar da
+linha que substitui. **Promover não é somar peso: é mudar quem manda entre linhas que se
+contradizem.**
+
+**A medida, e ela é pareada dentro do binário.** `Sabia.sistemaInstigarBase` guarda o
+pedido ANTERIOR em `#if DEBUG`, escolhido por ambiente (`TRACO_AVALIAR_PEDIDO=base`), e
+`AvaliacaoIA` grava `pedidoInstigarSHA256` em **toda linha** do JSONL. Os quatro braços —
+base e candidato × `grok-4.3` e `grok-4.5` — correm no MESMO dylib, na MESMA janela, com
+UMA instalação. Sem isso a comparação seria contra uma tabela feita com outro binário.
+`aBaseEOCandidatoDiferemSoNoDesfecho` falha se um espaço divergir no trecho comum: a
+duplicação de treze linhas do pedido só é segura porque um teste a vigia.
+
+**O resultado, 10/09, `B91C8DEF`, conta ligada e conferida nas quatro fumaças:** o texto
+magro pede o quando em **6/6** (2 modelos × 3) contra **4/12** da base nas duas janelas
+juntas — Fisher de uma cauda **p = 0,011** —, e as ancoradas ficam na faixa da PRÓPRIA
+base (**88–93%**), onde a promoção incondicional as derrubara a 76% e 89%. **Contra a base,
+o ganho de 1 ponto nas ancoradas é RUÍDO** (p = 0,54; a base contra ela mesma dá 0,37) e a
+contagem absoluta CAI, 55 → 52 no `grok-4.3`: o que se afirma é que o preço do LOTE-5 não
+voltou, não que o candidato ancore mais. `GENÉRICAS` 0/3 nos casos
+ricos; o degrau 4 continua não repetindo o degrau 0.
+
+**O caso cego, escrito nesta volta, e o que ele achou.** Dois casos de polos simétricos:
+uma nota que **já responde** as três perguntas e uma nota magra que as **nega** por
+escrito. No `grok-4.3` a redação vigente pergunta *"Quando começou?"* e *"O que seria dar
+certo?"* a quem escreveu que não sabe nem uma coisa nem outra — **3 de 3**. No `grok-4.5`
+isso não acontece em 3 de 3. **A causa é nomeável: a redação condiciona à QUANTIDADE de
+matéria, não ao que a nota já resolveu.**
+
+**A 2ª redação foi escrita, medida e DESCARTADA no mesmo dia, e o descarte é resultado.**
+*"Entra só a que a nota deixou EM ABERTO, e a nota que NEGA uma delas a fechou tanto
+quanto a que a responde"* levou o cego do 4.3 de 6 falhas a 1 — **e quebrou o controle**:
+texto magro de 3/3 a 1/3 no 4.3 e 2/3 no 4.5, ancoradas de 93% a 74% e 89%. Ensinar a não
+perguntar o que a nota fechou ensinou junto a não perguntar quando ela só é MAGRA. **As
+duas falhas são simétricas e cada uma esconde a outra**; escolher a 1ª é escolher com
+número, não por gosto.
+
+**Estado honesto, e ele tem três partes.** (1) O MÉRITO passou: a alavanca cura sem cobrar
+o preço, e no `grok-4.5` os dois cegos passam. (2) O que sobra é **limite medido do
+`grok-4.3`**, que é o padrão global — insumo para a 09v, ao lado do que o LOTE-5 já
+registrara. (3) A operação **não volta ao Perfil nesta volta**: pelas §14/§15 nenhuma
+operação retorna sem a superfície aprovada no G4 e vista pelo dono, e a superfície da
+resposta está sendo redesenhada. `Politica.linha(.instigar)` continua
+`indisponivelPorQualidade`; o que muda é o `motivo`, o `conserto` e a frase da tela, que
+passam a dizer o defeito que a medida de hoje achou — *"quando você diz que não sabe
+quando foi, ela pergunta assim mesmo"* — em vez do que já foi consertado.
+
+**Ressalva contra o próprio caso cego:** no `grok-4.5` o `fatos-negados` **também passa na
+base**, então ali ele não discrimina. E os dois cegos foram escritos pelo implementador,
+depois da alavanca congelada — é held-out do prompt, não do autor do prompt.
+
+**O carimbo do braço não pode sumir calado.** `pedidoInstigarSHA256` e o
+`pedidoResponderSHA256` da 10b caíam na mesma cauda do dicionário do registro, na linha em
+que `.map { … }.joined()]` fecha o literal — a mescla das duas voltas conflitava ali e uma
+resolução de afogadilho derrubaria uma das chaves **em silêncio**, deixando a corrida
+seguinte sem o braço e com cara de medida. Os dois carimbos passam a viver em
+`AvaliacaoIA.carimbosDoPedido`, uma linha por rota, e `AvaliacaoIACarimboTests` cai se uma
+sumir — inclusive por ler o fonte, porque a prova de valor ficaria verde se alguém apagasse
+a linha que os copia para o registro e o JSONL saísse sem o carimbo.
+
+Código em `Traco/Analise/Sabia.swift`, `Traco/Analise/AvaliacaoIA.swift`,
+`Traco/Analise/Grok.swift` e `Traco/Analise/Politica.swift`; provas em
+`TracoTests/CicloDaMenteTests.swift`, `TracoTests/PoliticaTests.swift`,
+`TracoTests/PerfilQualidadeTests.swift` e `TracoTests/AvaliacaoIACarimboTests.swift`; corridas inteiras em
+`prova/instigar-lote/t1/` e `prova/instigar-lote/t2/`, com o TEXTO dos dois pedidos
+guardado ao lado do JSONL. Relato em `ferramentas/orca/instigar.md`.

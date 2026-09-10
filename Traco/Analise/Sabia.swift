@@ -383,15 +383,37 @@ enum Sabia {
     /// Junto vieram o fato não suposto (o "de novo" virou "qual foi a tentativa
     /// anterior", que a nota não tem) e a primazia do que se cobra, que o
     /// degrau escreve — a lista fixa de buracos servia igual em todo degrau.
+    ///
+    /// ADR 2026-09-10c, a emenda desta volta: o LOTE-5 promoveu o quê/quando/o
+    /// que seria dar certo para o alto do pedido, SEM condição, e o remédio da
+    /// nota magra (0/3 → 3/3 no `quando`) virou veneno na nota farta — o modelo
+    /// SOMOU as três pernas às perguntas que já faria, e as perguntas ancoradas
+    /// na nota caíram de 96% para 76% no `grok-4.3` e de 97% para 89% no `4.5`.
+    /// A alavanca não é mais promoção nem mais proibição: é a cobrança ficar
+    /// CONDICIONADA À MATÉRIA, numa frase e na última linha — quem manda entre
+    /// duas linhas que se contradizem é a que governa o caso, não a que grita
+    /// primeiro. Numa nota sem matéria as três pernas mandam; numa nota com
+    /// matéria as perguntas saem dela e a perna só entra se faltar.
+    ///
+    /// A 2ª redação foi ESCRITA, MEDIDA e DESCARTADA no mesmo dia, e fica
+    /// registrada porque o descarte é o resultado. O caso cego mostrou o furo
+    /// da 1ª: ela condiciona à QUANTIDADE de matéria e não ao que a nota já
+    /// resolveu, e no `grok-4.3` isso faz perguntar "Quando começou?" a quem
+    /// escreveu "não consigo dizer quando começou". A 2ª subiu o "só entra a
+    /// que ficou EM ABERTO" para governar os dois ramos, com "negar fecha a
+    /// perna tanto quanto responder". Consertou o cego no 4.3 (6 falhas → 1) e
+    /// **quebrou o controle**: o texto magro caiu de 3/3 para 1/3 no 4.3 e
+    /// 2/3 no 4.5, e as ancoradas de 93% para 74% e 89%. Ensinar a não
+    /// perguntar o que a nota fechou ensinou junto a não perguntar quando ela
+    /// só é MAGRA — as duas falhas são simétricas e cada uma esconde a outra.
+    /// Fica a 1ª, e o que sobra dela é limite MEDIDO do `grok-4.3`, não do
+    /// pedido: no `grok-4.5` os dois casos cegos passam.
+    /// Números por caso em `ferramentas/orca/instigar.md`.
     static let sistemaInstigar = """
     Você é uma pessoa sábia lendo o rascunho de quem escreve. Devolva APENAS um JSON válido: {"perguntas": ["…", "…"]}
     De 2 a 5 perguntas curtas em português, cada uma terminando em "?". Perguntas, não respostas. Nenhuma sugestão de texto.
     O QUE COBRAR está escrito no fim destas instruções e MANDA nas perguntas: pelo menos duas o cumprem
     ao pé da letra, e nenhuma troca a cobrança por outra mais fácil.
-    Nota CURTA — uma ou duas linhas — nunca fica sem perguntas, e não cobra menos: cobra o que falta.
-    Aí MANDA o vazio: uma pergunta pede O QUE aconteceu, outra pede QUANDO aconteceu — o dia, a semana,
-    o momento — e outra pede O QUE SERIA dar certo. "O que era?" e "o que mudou?" não cumprem a do
-    quando, e nenhuma das três pode ser trocada por uma mais fácil.
     O ASSUNTO de toda pergunta é o que ELA escreveu, nas coisas e nas palavras dela. Estas instruções são
     minhas, não dela: nunca as cite, nunca as explique e nunca pergunte sobre elas — ela não vê nada disso,
     e uma pergunta sobre o meu pedido não é uma pergunta para ela.
@@ -401,7 +423,52 @@ enum Sabia {
     Não suponha nenhum fato que ela não escreveu, nem dentro da pergunta: nada de "a tentativa anterior",
     "o episódio de antes", "a sua área", "o seu objetivo". Se falta o quê, o quando ou o que era, PEÇA que
     ela nomeie — pergunta que já traz o fato suposto não é pergunta, é palpite.
+    Não devolva vazio quando há texto, e a cobrança depende da MATÉRIA que a nota dá: se ela quase não dá
+    nenhuma, uma pergunta pede O QUE aconteceu, outra pede QUANDO aconteceu e outra pede O QUE SERIA dar
+    certo, e nenhuma das três se troca por uma mais fácil; se ela dá matéria, as perguntas saem do que ELA
+    escreveu, e dessas três só entra a que a nota deixou sem resposta.
     """
+
+#if DEBUG
+    /// SÓ PARA A SONDA (DEBUG, por ambiente), e é o que torna esta comparação
+    /// PAREADA: o pedido ANTERIOR — o que o LOTE-3 mediu — vivendo no MESMO
+    /// binário do candidato. Sem isto os dois braços rodariam binários
+    /// diferentes, e a tabela do G3 da Q4-C, que é a minha régua, foi feita com
+    /// outro binário ainda: comparar contra ela mediria a alavanca somada a
+    /// tudo o que andou no `main` desde então.
+    ///
+    /// A ÚNICA diferença entre este texto e o de cima é a ÚLTIMA LINHA, e
+    /// `aBaseEOCandidatoDiferemSoNoDesfecho` falha se alguém encostar no resto.
+    /// Um binário, uma alavanca:
+    ///   xcrun simctl launch ... SIMCTL_CHILD_TRACO_AVALIAR_PEDIDO=base
+    static let sistemaInstigarBase = """
+    Você é uma pessoa sábia lendo o rascunho de quem escreve. Devolva APENAS um JSON válido: {"perguntas": ["…", "…"]}
+    De 2 a 5 perguntas curtas em português, cada uma terminando em "?". Perguntas, não respostas. Nenhuma sugestão de texto.
+    O QUE COBRAR está escrito no fim destas instruções e MANDA nas perguntas: pelo menos duas o cumprem
+    ao pé da letra, e nenhuma troca a cobrança por outra mais fácil.
+    O ASSUNTO de toda pergunta é o que ELA escreveu, nas coisas e nas palavras dela. Estas instruções são
+    minhas, não dela: nunca as cite, nunca as explique e nunca pergunte sobre elas — ela não vê nada disso,
+    e uma pergunta sobre o meu pedido não é uma pergunta para ela.
+    A palavra que ELA escreveu na nota é DELA, seja qual for: pergunte pela coisa dela que a palavra
+    nomeia, e nunca desvie do assunto para não repetir uma palavra que está na nota. Proibida é só a
+    palavra que existe aqui neste pedido e não está na nota dela.
+    Não suponha nenhum fato que ela não escreveu, nem dentro da pergunta: nada de "a tentativa anterior",
+    "o episódio de antes", "a sua área", "o seu objetivo". Se falta o quê, o quando ou o que era, PEÇA que
+    ela nomeie — pergunta que já traz o fato suposto não é pergunta, é palpite.
+    Não devolva vazio quando há texto: mesmo uma linha só dá o que perguntar — o quê, quando, o que era.
+    """
+
+    private static let pedidoBase = ProcessInfo.processInfo.environment["TRACO_AVALIAR_PEDIDO"] == "base"
+#endif
+
+    /// O pedido que `instigar` manda AGORA. Em Release é sempre o vigente.
+    static var pedidoDeInstigar: String {
+#if DEBUG
+        pedidoBase ? sistemaInstigarBase : sistemaInstigar
+#else
+        sistemaInstigar
+#endif
+    }
 
     /// ADR 03i — a prova do Recordar. UMA pergunta que obriga a puxar a nota da
     /// memória, e que não pode entregar nada: `Prova.vaza` recusa a que citar.
@@ -684,7 +751,7 @@ enum Sabia {
     /// fim de uma lista fixa de buracos que servia igual em qualquer degrau.
     /// Agora vem com rótulo, por último, e cada nível diz o que não cumpre.
     static func sistemaDeInstigar(gesto: Gesto?, degrau: Int) -> String {
-        var sistema = sistemaInstigar
+        var sistema = pedidoDeInstigar
         let metodo = gesto?.metodo ?? ""
         if !metodo.isEmpty { sistema += "\n\nO que as perguntas desta nota devem cobrar:\n\(metodo)" }
         return sistema + "\n\nO QUE ESTAS PERGUNTAS COBRAM:\n" + Degraus.instrucaoDeInstigar(degrau)

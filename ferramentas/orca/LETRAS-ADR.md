@@ -101,7 +101,9 @@ alguém tropeçar: a série 08 encheu sem aviso e custou três colisões numa ta
 
 | 10g | RESPONDER · o contexto como alavanca: a nota citada inteira, e o que não coube se DIZ | reservada, volta viva |
 
-**Próxima livre: 10h.**
+| 10h | A CAUDA · a prova que não se pode abrir não é prova; e a razão da tela é o defeito de HOJE (`recordar` suprime, não vaza; `calibragem` nem chama com um par só) | **em `main`** — as 5 citações órfãs corrigidas, portão novo, `recordar` e `calibragem` reescritas |
+
+**Próxima livre: 10i.**
 
 **A 09s colidiu, e quem mudou fui eu** (09/09, ~02h). Tomei a `09s` porque o
 "Próxima livre: 09s" que estava escrito aqui batia com o comando; no mesmo

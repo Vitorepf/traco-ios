@@ -913,3 +913,48 @@ quatro, não mais"*, e o RUMO é do orquestrador. Ficam com dono:
 o certo é **140 de 699**, e o **659** é o que o caminho de hoje importa. **A diferença de 40
 é a tinta do cabeçalho, creditada sem virar nota** — que é exatamente o defeito. *Lei com
 número errado é pior que lei sem número, porque o número é o que a próxima pessoa copia.*
+
+## P0-IRMÃOS-CRLF — a varredura irmã, feita e MEDIDA (10/09, 19h4x, orquestrador)
+
+O P0-CRLF fechou a rota de ENTRADA. Esta é a varredura dos irmãos que ficaram, e ela vem
+com a reprodução rodada, não com suspeita.
+
+**A regra, e ela é curta:** só o `split(separator: "\n")` é cego, porque resolve para
+`split(separator: Character)` e num texto CRLF o `Character` é `"\r\n"`.
+**`components(separatedBy: "\n")` NÃO é cego** — a busca do Foundation é escalar, não
+grafema. Medido: no mesmo texto CRLF de quatro linhas, `components` = 4, `split("\n")` = **1**,
+`split(whereSeparator: \.isNewline)` = 3. Minha primeira varredura acusou sete sítios; a
+medida derrubou três. **Varredura por texto acusa demais, e três dos sete estavam certos.**
+
+**A armadilha para quem for consertar:** `split` **omite subsequências vazias** e
+`components` **não**. Trocar um pelo outro em cima de um `.enumerated()` **renumera as linhas
+do autor**, porque as linhas em branco somem. Onde o número da linha importa, o certo é
+`split(omittingEmptySubsequences: false, whereSeparator: \.isNewline)` — medido: 4, igual ao
+`components`.
+
+**Os quatro sítios que sobram, e cada um falha de um jeito diferente:**
+
+- **P0. `Traco/Analise/Sabia.swift:1037` — `perguntaNaNota`.** Reproduzido nos DOIS polos:
+  numa nota CRLF cuja linha `?` não é a primeira, devolve **`nil`** — e o botão do cartão
+  existe só `if sessao.perguntaNaNota != nil` (`CartaoAnaliseView.swift:227`), então o autor
+  escreve a pergunta e o Traço age como se não houvesse nenhuma. E numa nota CRLF que
+  **começa** com `?`, `corpo` vira **a NOTA INTEIRA** — que viaja como a pergunta e, na
+  superfície nova, é o **título** do cartão. O irmão certo está duas funções abaixo, no mesmo
+  arquivo, já escrito: `split(whereSeparator: \.isNewline)`.
+- **P0. `Traco/Notas/Corpus.swift:281`** — os campos do gesto legado na IMPORTAÇÃO. Em CRLF
+  o bloco é uma linha só: casa **no máximo UM** `hasPrefix("campo: ")` e os demais campos do
+  autor **somem em silêncio**. E o `range(of: "\n\n" + cabeçalho)` da linha 272 é grafema,
+  logo nem acha o cabeçalho em `"\r\n\r\n"`. Mesma família que apagava arquivo do autor,
+  mesmo arquivo, sítio que a varredura anterior não pegou.
+- **P1. `Traco/Modelo/VozDoAutor.swift:78` — `trecho(em:termo:)`.** Em CRLF as linhas são
+  uma só, então o trecho da busca devolve o **começo da nota** cortado em 56, e não a linha
+  que tem o termo. O autor busca uma palavra e o resultado não a mostra.
+- **P1. `Traco/Analise/AnaliseLocal.swift:295`** — a heurística *"três linhas curtas viram
+  Destaque"*. Em CRLF `linhas.count` é 1, o `>= 3` nunca é verdade, e o roteamento **nunca
+  dispara** para nota vinda de fora.
+
+**Dono: a próxima cadeira que vagar.** Não vai para quem está medindo — mexer no
+`Sabia.swift` no meio de uma janela troca o binário que a medida promete constante.
+
+**Reprodução:** `ferramentas/orca/crlf-irmaos.swift`, roda com `swift` e imprime os dois
+polos do `perguntaNaNota` e as quatro contagens. Quem consertar tem de fazê-la mudar.
