@@ -79,7 +79,7 @@ que este arquivo existe para impedir — e ele reincidiu no próprio arquivo.
 | 09v | Q3-C · o modelo se escolhe POR OPERAÇÃO, com a comparação pareada na mão | reservada, volta viva |
 | 09w | Q3-D · o sinal de sobra: cartão com teto não corta calado | reservada, volta viva |
 | 09x | Q4-E · o caso cego do `contrapor`, e o modelo desta rota | reservada, volta viva |
-| 09y | P0-CRLF · o arquivo só se apaga quando o app leu tudo o que havia nele | reservada, volta viva |
+| 09y | P0-CRLF · o arquivo só se apaga quando o app delimitou tudo o que havia nele | em `main` |
 | 09z | MERGE-Q3D · o Perfil fala a língua do autor (cartão CONTA e `semProvedor`) | em `main` |
 
 **A SÉRIE 09 ACABA AQUI.** A `09z` é a última letra do dia 09. **A próxima volta usa
