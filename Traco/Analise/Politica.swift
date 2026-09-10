@@ -90,17 +90,17 @@ enum Politica {
         case .conferir:
             .init(regra: .soGrok, porque: "o aparelho confirmou 3 de 3 um ponto explicitamente contradito e perdeu 3 de 3 uma paráfrase correta; o Grok acertou 6 de 6 casos com a conta ligada em 08/09 — prova/qualidade-ia-q5-avaliacao-base.md e prova/q-qualidade-avaliacoes.jsonl")
         case .ecos:
-            .init(regra: .indisponivelPorQualidade, porque: "sem retorno 6 de 6 no aparelho; e com a conta ligada em 08/09 o Grok devolveu lista vazia justamente onde o vínculo era o mais útil (18 inscritos contra a sala que comporta 15) — 3 de 6 casos reprovados — prova/q-qualidade.md, corridas em prova/q-qualidade-avaliacoes.jsonl",
+            .init(regra: .indisponivelPorQualidade, porque: "sem retorno 6 de 6 no aparelho; e com a conta ligada em 08/09 o Grok devolveu lista vazia justamente onde o vínculo era o mais útil (18 inscritos contra a sala que comporta 15) — 3 de 6 casos reprovados — ferramentas/orca/q-qualidade.md, corridas em prova/q-qualidade-avaliacoes.jsonl",
                   motivo: "deixa de fora justamente as notas que mais tinham a ver",
                   medidaEm: "08/09/2026")
         case .calibragem:
-            .init(regra: .indisponivelPorQualidade, porque: "vazio 6 de 6 no aparelho; com a conta ligada em 08/09 o Grok cala quando não há erro a apontar e a rota nem chega ao provedor com um par só — no máximo 3 de 6 casos — prova/q-qualidade.md",
+            .init(regra: .indisponivelPorQualidade, porque: "vazio 6 de 6 no aparelho; com a conta ligada em 08/09 o Grok cala quando não há erro a apontar e a rota nem chega ao provedor com um par só — no máximo 3 de 6 casos — ferramentas/orca/q-qualidade.md",
                   motivo: "não diz nada quando você não errou",
                   medidaEm: "08/09/2026")
         case .padroes:
             .init(regra: .soGrok, porque: "falhou 3 de 3 e 2 de 3 no aparelho; as perguntas locais cobrem — prova/qualidade-ia-q5-avaliacao-base.md")
         case .recordar:
-            .init(regra: .indisponivelPorQualidade, porque: "3 de 3 no aparelho; e com a conta ligada em 08/09 o Grok vazou o alvo (a guarda de Prova.vaza suprimiu a pergunta e o autor ficou sem nada) ou devolveu a resposta dentro do enunciado — 1 de 6 casos — prova/q-qualidade.md. A frase fixa do ritual continua cobrindo",
+            .init(regra: .indisponivelPorQualidade, porque: "3 de 3 no aparelho; e com a conta ligada em 08/09 o Grok vazou o alvo (a guarda de Prova.vaza suprimiu a pergunta e o autor ficou sem nada) ou devolveu a resposta dentro do enunciado — 1 de 6 casos — ferramentas/orca/q-qualidade.md. A frase fixa do ritual continua cobrindo",
                   motivo: "entrega a resposta junto com a pergunta",
                   medidaEm: "08/09/2026")
         case .responderNasNotas:
@@ -113,13 +113,13 @@ enum Politica {
                   medidaEm: "10/09/2026")
         case .instigar:
             .init(regra: .indisponivelPorQualidade,
-                  porque: "com a conta ligada em 08/09 o Grok devolveu ao autor o vocabulário interno que o app passa no pedido ('o movimento básico que se pula', 'neste degrau 0', 'a forma nota') — 1 de 6 casos — prova/q-qualidade.md; o conserto tirou o andaime e o G3 do LOTE-1 achou três defeitos novos. O LOTE-3 mediu a Q4-B (6 casos × 3 em grok-4.3 e em grok-4.5) e DERRUBOU dois: o degrau 4 deixou de repetir as perguntas do degrau 0 (3 de 3 nos dois modelos) e a proibição por procedência devolveu o método e o degrau que o AUTOR escreveu (3 de 3 nos dois, inclusive com 'metodo' sem acento). Sobrou o texto magro: as perguntas saem vagas e não pedem QUANDO aconteceu — 3 de 3 no grok-4.3 e 2 de 3 no grok-4.5 — prova/lote09c-q4-grok-4.3.jsonl, prova/lote09c-q4-grok-4.5.jsonl e ferramentas/orca/revisao-q4-instigar.md",
+                  porque: "com a conta ligada em 08/09 o Grok devolveu ao autor o vocabulário interno que o app passa no pedido ('o movimento básico que se pula', 'neste degrau 0', 'a forma nota') — 1 de 6 casos — ferramentas/orca/q-qualidade.md; o conserto tirou o andaime e o G3 do LOTE-1 achou três defeitos novos. O LOTE-3 mediu a Q4-B (6 casos × 3 em grok-4.3 e em grok-4.5) e DERRUBOU dois: o degrau 4 deixou de repetir as perguntas do degrau 0 (3 de 3 nos dois modelos) e a proibição por procedência devolveu o método e o degrau que o AUTOR escreveu (3 de 3 nos dois, inclusive com 'metodo' sem acento). Sobrou o texto magro: as perguntas saem vagas e não pedem QUANDO aconteceu — 3 de 3 no grok-4.3 e 2 de 3 no grok-4.5 — prova/lote09c-q4-grok-4.3.jsonl, prova/lote09c-q4-grok-4.5.jsonl e ferramentas/orca/revisao-q4-instigar.md",
                   motivo: "quando você escreveu pouco, pergunta vago e não pergunta quando aconteceu",
                   medidaEm: "10/09/2026",
                   conserto: "falta ela perguntar quando aconteceu mesmo quando você escreveu pouco")
         case .contrapor:
             .init(regra: .indisponivelPorQualidade,
-                  porque: "com a conta ligada em 08/09 o Grok sustentou o contraponto em fato inventado, sempre no campo outroCampo ('metanálises de 2022', preço 12% menor na construção naval do século XV) — 1 de 6 casos — prova/q-qualidade.md; o conserto matou a evidência fabricada e ela não voltou. O LOTE-3 (6 casos × 3 em grok-4.3 e em grok-4.5) achou dois defeitos VIVOS: renda que a nota não declara — 1 de 3 no grok-4.3 e 3 de 3 no grok-4.5, e a lista de fatoQueEleNaoDeu exclui 'renda' de propósito — e contraponto que não chega onde a nota dá matéria: Falha.semRetorno com HTTP 200 e conteúdo completo no grok-4.5 rep. 2 do CSV e no grok-4.3 rep. 1 do tudo-ou-nada, mais um campo 'contra' vazio no grok-4.3 rep. 2 do CSV. O semRetorno com resposta inteira é defeito do NOSSO motor e tem volta própria (Q4-C) — prova/lote09c-q4-grok-4.3.jsonl, prova/lote09c-q4-grok-4.5.jsonl e ferramentas/orca/revisao-q4-instigar.md",
+                  porque: "com a conta ligada em 08/09 o Grok sustentou o contraponto em fato inventado, sempre no campo outroCampo ('metanálises de 2022', preço 12% menor na construção naval do século XV) — 1 de 6 casos — ferramentas/orca/q-qualidade.md; o conserto matou a evidência fabricada e ela não voltou. O LOTE-3 (6 casos × 3 em grok-4.3 e em grok-4.5) achou dois defeitos VIVOS: renda que a nota não declara — 1 de 3 no grok-4.3 e 3 de 3 no grok-4.5, e a lista de fatoQueEleNaoDeu exclui 'renda' de propósito — e contraponto que não chega onde a nota dá matéria: Falha.semRetorno com HTTP 200 e conteúdo completo no grok-4.5 rep. 2 do CSV e no grok-4.3 rep. 1 do tudo-ou-nada, mais um campo 'contra' vazio no grok-4.3 rep. 2 do CSV. O semRetorno com resposta inteira é defeito do NOSSO motor e tem volta própria (Q4-C) — prova/lote09c-q4-grok-4.3.jsonl, prova/lote09c-q4-grok-4.5.jsonl e ferramentas/orca/revisao-q4-instigar.md",
                   motivo: "inventa uma renda que você não escreveu, e às vezes não responde",
                   medidaEm: "10/09/2026",
                   conserto: "falta ela não inventar renda sua, e nunca voltar em branco quando tem o que dizer")
