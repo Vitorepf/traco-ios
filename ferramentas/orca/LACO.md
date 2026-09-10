@@ -3057,3 +3057,46 @@ a cópia inline ao lado é o slop que a lei nomeia.
 
 **E a volta foi procurar os irmãos por conta própria:** achou um **terceiro sítio** do
 mesmo corte calado no `RecordarView:440`, disse, e não o fotografou. Dívida com dono.
+
+## 10/09, 09h55 — pausa e retomada (uso 24%); `contrapor` aberta para ser a SEGUNDA a voltar
+
+Fala **0**, inbox limpo. **Três em edição:** **Q3-D** (o cartão que corta calado + o quinto
+parser), **MAC-2-A-D** (a cerca e o CRLF), **Q4-E** (`contrapor`, recém-aberta).
+
+### A Q4-D fechou o `vestir` e nomeou uma ESPÉCIE
+
+O defeito vivo morreu: `vestir` parou de dizer *"a sábia não respondeu"* sobre um HTTP 200
+inteiro, com **frase própria** (`nadaVestiu`) — porque `vestir` **memoiza**, e "peça de
+novo" ali seria falso. Detalhe que só quem leu a rota inteira encontra.
+
+**E ela leu os 12 parsers do app e contou a espécie: são CINCO.** Dois consertados na 09s,
+o do `vestir` agora, dois sem frase de tela, e **`RespostaNotas.interpretar`** — que é a
+rota que **acabou de ser aprovada para voltar**. Hoje é inofensivo porque `main` ainda a
+tem cortada; **no minuto da mescla, ela passa a poder mentir ao autor**. Virou **bloqueio
+da mescla**, não dívida, e a Q3-D o pegou.
+
+### O terceiro G3 da MAC-2-A contornou a garantia que eu tinha celebrado
+
+Refez as duas provas — **as duas se sustentam** — e então achou **três portas dos fundos**:
+`appendInterpolation<T>` aceitando `Substring` e `Any` **sem cerca**; `"\r\n"` sendo **UM
+`Character`** em Swift, o que faz `split(separator: "\n")` ver texto do Windows como **uma
+linha só** e a cerca não rebaixar nada; e o `Corpus.umaLinha` deixando o `\r`, de modo que
+**todo campo de uma linha plantava linha** — **2 e 4** seções medidas onde cabe 1.
+
+E **discordou com prova do "fato observado"** que a autora declarara sobre o YAML: a frase
+do `SPEC` que o sustentava é **falsa hoje**. Lei nova: *"fato observado" é uma alegação, e
+alegação se confere.* Mais: *guarda no tipo é um fato — mas a genérica que aceita tudo é a
+porta dos fundos do tipo*, e *toda guarda que parte texto declara o que considera fim de
+linha*. **O conserto já existia na casa** (`BlocoCaderno.swift:78-84`), e mandei reusar.
+
+### `contrapor` é a próxima, e está esperando um aparelho, não uma ideia
+
+O G3 disse com todas as letras: **pelo mérito ela passa com 9 nas cinco dimensões** nas 36
+execuções. Falta o **caso cego** e a corrida no aparelho da conta. Despachei a **Q4-E**
+(`ctx_3cc02f850bbb`) com uma espera **declarada**: prepara tudo — fixture, prompt, script,
+base remedida — e **a janela abre quando a Q3-D FECHAR A VOLTA**, não quando soltar a
+trava. É a lei de hoje: *duas voltas não dividem um aparelho onde qualquer uma instala,
+nem serializadas* — o `install` sobrevive à soltura.
+
+E a ordem de fora fica dita: **as quatro linhas do `sistemaInstigar` não entram.**
+`instigar` não volta nesta volta, e quem mexer nelas parou de fazer a que lhe coube.
