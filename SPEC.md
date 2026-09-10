@@ -8876,3 +8876,56 @@ aparelho) continuam com o andaime na carga — a `Politica` não deixa estas dua
 descerem ao aparelho, e quem mudar isso leva a separação junto. E a lista
 `fatoQueEleNaoDeu` é de termos MEDIDOS, não teoria da invenção: se a corrida
 seguinte pegar invenção por outra palavra, é ali que ela entra.
+
+## ADR 2026-09-09s — o que foi medido entra em `main`, e a tela passa a dizer o que a medida leu (volta MERGE-Q34)
+
+**O que entrou.** Quatro pontas que estavam presas em worktree: `Vitorepf/lote-ia-09`
+(LOTE-1 e LOTE-2, 76 e 114 execuções), `Vitorepf/lote-ia-09c` (LOTE-3, 114 execuções
+numa janela só de 00:38:42Z a 00:54:55Z, com Q3-B `e83dd11` e Q4-B `dcbf7c6` já
+fundidos dentro) e os dois re-G3 (`508cdd9`, `91a314c`). Os SHA citados pelos
+relatórios continuam alcançáveis: nada foi reescrito, e as quatro mesclas são
+`--no-ff`. **Nenhuma `regra` de `Politica` mudou** — `responderNasNotas`, `instigar`
+e `contrapor` seguem `indisponivelPorQualidade`, porque os dois re-G3 as reprovaram.
+
+**A única decisão da mescla.** O `SPEC.md` foi o único conflito das quatro. Os dois
+lados eram a MESMA ADR em dois momentos: o `HEAD` trazia a 09h/09i como a Q3 e a Q4
+as escreveram, e o `lote-ia-09c` as trazia com as emendas da Q3-B e da Q4-B. Venceu o
+09c, e a conferência é a que a `LETRAS-ADR.md` exige do tamanho da alegação: o diff
+do lado resolvido contra o 09c é **vazio**, e a única linha que o 09c remove do HEAD é
+o título curto da 09h, que ele substitui pelo longo. O `Sabia.swift` não conflitou:
+a fusão de Q3-B com Q4-B já tinha sido feita no 09c (`65dd87c`, `b9059fc`), e o `main`
+não tocou em código desde `9b99770` — andou só em `ESTEIRA.md` e `LACO.md`.
+
+**A prova deixou de morar num worktree.** Os dois relatórios de revisão citavam
+`../lote-ia-09c/prova/…` e `../lote-ia-09/prova/…` — caminho que some com o worktree.
+Agora citam o caminho dentro do repositório, e os cinco alvos existem.
+
+**A tela parou de acusar defeito morto.** Motivo velho na tela é o defeito da trilha
+B3 ao contrário: em vez de prometer o que o motor não sustenta, acusa o que a medida
+já derrubou. O LOTE-3 derrubou, com 42 saídas Q3 e 72 Q4 lidas por inteiro:
+
+| operação | o que a tela dizia | o que o LOTE-3 leu |
+|---|---|---|
+| `responderNasNotas` | "recusou por inteiro perguntas que as suas notas ajudavam a responder" (08/09) | a meia-recusa acabou: **6 de 6** calculam R$ 3.354; o que sobra é a conta pela metade — **6 de 6** omitem os R$ 2.646 |
+| `instigar` | "fez as mesmas perguntas de sempre e calou sobre as suas palavras" (09/09, LOTE-1) | o degrau 4 parou de repetir o degrau 0 (**3/3** nos dois modelos) e o método do AUTOR voltou (**3/3** nos dois, com `metodo` sem acento); sobrou a pergunta vaga no texto curto |
+| `contrapor` | "negou uma razão que você já sustentou e inventou renda sua" (09/09, LOTE-1) | a negação da razão saiu da leitura; ficaram a renda inventada (1/3 no `4.3`, 3/3 no `4.5`) e o contraponto que não chega |
+
+`medidaEm` das três passa a **10/09/2026** — a janela do LOTE-3 é 00:38Z–00:54Z de
+10/09 UTC. O `conserto` passa a dizer o que **falta medir**, não o que já se mediu.
+As três frases de `semProvedor` — o que o autor lê no ponto em que toca — mudaram
+junto, pelo mesmo motivo: elas também nomeavam o defeito de 08/09.
+
+**O portão que não guardava nada.** O teste dos dois grupos contava
+`conserto == nil` / `!= nil` e passava idêntico com o texto velho, que é o defeito
+da V12-E. Agora ele lê a linha pelo caminho REAL da tela (`PerfilView.reprovadas`
+→ `restoDa`) e exige o trecho novo, a data nova e a ausência do "08/09". A guarda de
+data era chaveada na string `"08/09"` e teria deixado passar um `"10/09"` dentro da
+oração: virou uma barra, que não tem o que fazer numa frase de tela — nem em caminho
+de prova, nem em data.
+
+**Fora de escopo, com dono.** O `Falha.semRetorno` com HTTP 200 e conteúdo completo
+é defeito do NOSSO motor e tem volta própria (Q4-C); aqui ele só deixou de ser
+omitido pela linha do Perfil. O jargão de `conserto`/`porque` que chega à tela do
+autor continua sendo dívida nomeada no RUMO.
+
+**Consequência.** Relatório em `ferramentas/orca/merge-q34.md`.

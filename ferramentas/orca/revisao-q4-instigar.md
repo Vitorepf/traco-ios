@@ -201,10 +201,10 @@ aprovação, não fabriquei essa prova nem rodei nova chamada.
 
 ### Evidência e limite
 
-- Lote e janela: `../lote-ia-09c/ferramentas/orca/lote-ia-09c.md` §§2–4 e
-  `../lote-ia-09c/prova/lote09c-janela.log`.
-- Saídas completas lidas: `../lote-ia-09c/prova/lote09c-q4-grok-4.3.jsonl` e
-  `../lote-ia-09c/prova/lote09c-q4-grok-4.5.jsonl`.
+- Lote e janela: `ferramentas/orca/lote-ia-09c.md` §§2–4 e
+  `prova/lote09c-janela.log`.
+- Saídas completas lidas: `prova/lote09c-q4-grok-4.3.jsonl` e
+  `prova/lote09c-q4-grok-4.5.jsonl`.
 - A causa atribuída está confirmada no candidato:
   `Sabia.vazaAlheio` dobra e compara texto do autor, enquanto
   `sistemaInstigar` manda a procedência; `fatoQueEleNaoDeu` ainda exclui

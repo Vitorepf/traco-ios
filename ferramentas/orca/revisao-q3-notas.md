@@ -10,7 +10,7 @@ reprova e há violações em mais de um caso nas três repetições.
   `79ff054`, corrida `B08D1B09-D26C-40FD-AD1E-6DD0361C3382`, no binário
   `e9983ddb…`, `grok-4.3`/`low`.
 - Li as **21 saídas completas** de
-  `../lote-ia-09/prova/lote09-responder-nas-notas.jsonl`: 7 casos × 3,
+  `prova/lote09-responder-nas-notas.jsonl`: 7 casos × 3,
   21 HTTP 200, zero erro de transporte. Não rodei sonda, build, suíte, nem
   toquei em simulador; a janela do LOTE foi a de 22:18:26Z–22:21:11Z.
 - A conversa está na medida, portanto esta parte é pareada com a rota nova:
