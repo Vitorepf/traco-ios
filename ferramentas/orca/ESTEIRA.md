@@ -999,3 +999,29 @@ Acessibilidade que o autor tinha se dado.
 sustenta a frase que a cita é achado; a que sustenta **outra** frase, melhor, também é —
 e quem só confere se a prova bate com a legenda perde metade dos dois casos. **O nome do
 arquivo não é evidência; o pixel é.**
+
+## A caça-fala estava CEGA — o vigia que diz zero tem de provar que enxerga (09/09, 23h25)
+
+Por horas o laço reportou **`FALA: 0`** com **quatro processos de síntese vivos** dentro
+dos dois simuladores ligados (`SiriAUSP` e `MacinTalkAUSP`, desde 20h27 e 21h18). A
+causa é de uma linha: o script lia `ps -Ao pid=,comm=` e pegava **`$2`** como caminho —
+e o caminho do runtime do simulador **tem espaço** (`iOS 26.5.simruntime`), então `$2`
+era só o primeiro pedaço e o `basename` nunca casava com o nome procurado.
+
+E às **23h20 o `sirittsd` do Mac subiu**, com `ppid 1`. Matei em ~2 minutos. **Nenhum
+comando de worker explica**: os quatro em curso não pediram `siri`, nem botão, nem
+`say`, nem VoiceOver; o dono estava ativo na máquina ~5 minutos antes. **Não sei quem
+foi, e digo isso em vez de inventar culpado.**
+
+**A lei:** *vigia que reporta zero tem de provar que enxerga.* Quem escreve uma caça —
+de fala, de warning, de vazamento — **planta o alvo uma vez e confere que a caça o
+acha**; caça que nunca acusou nada não está provada, está muda. É a mesma família de
+"portão que não enxerga tem de falhar fechado" e de "medir o que a regex conta antes de
+congelar".
+
+**E o corolário que essa caça ensinou:** *separe o que FALA do que FALARIA.* O daemon do
+Mac (`sirittsd`, `speechsynthesisd`) é o que sai pelo alto-falante do dono — alarme, e
+se mata. O plugin de síntese carregado dentro de um simulador ligado é o **estopim**:
+reporta-se com o aparelho e **não se mata às cegas**, porque derrubar o áudio de um
+simulador tira o chão de uma suíte em curso. Contar os dois no mesmo número é o que
+transforma um alarme real em ruído que ninguém lê.
