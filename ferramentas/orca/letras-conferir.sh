@@ -7,6 +7,50 @@
 #
 #   sh ferramentas/orca/letras-conferir.sh [caminho]   (padrão: o do repositório)
 #   rc=0 limpo · rc=1 letra repetida · rc=2 "Próxima livre" mente
+# --todos: varre o registro de TODOS os worktrees e acusa a letra que duas voltas
+# reservaram em branches diferentes. É o modo que importa: as quatro colisões de
+# 10/09 foram TODAS cruzadas, e cada arquivo passava sozinho — porque a colisão
+# não vive dentro de um arquivo, vive ENTRE eles, e só aparece na mescla.
+if [ "$1" = --todos ]; then
+  tmp=$(mktemp); : > "$tmp"
+  git worktree list --porcelain 2>/dev/null | awk '/^worktree /{print $2}' | while read -r w; do
+    r="$w/ferramentas/orca/LETRAS-ADR.md"
+    [ -f "$r" ] || continue
+    grep -oE '^\| [0-9]{2}[a-z] ' "$r" | tr -d '| ' | sed "s|\$|	$(basename "$w")|" >> "$tmp"
+  done
+  # SÓ a série aberta. A primeira versão varria tudo e acusou VINTE E UMA letras:
+  # branches parados há dias têm a redação ANTIGA da mesma linha, e comparar
+  # descrição entre pontos diferentes da história acusa diferença onde há só
+  # tempo. O sinal ficou afogado no ruído do próprio conferidor.
+  # Colisão acontece na série que se está a escrever AGORA; é lá que ele olha.
+  aberta=$(cut -f1 "$tmp" | sort -u | tail -1 | cut -c1-2)
+  echo "letras da série $aberta reservadas em MAIS DE UM worktree:"
+  achou=0
+  for l in $(cut -f1 "$tmp" | sort -u | grep "^$aberta"); do
+    onde=$(awk -F'\t' -v L="$l" '$1==L{print $2}' "$tmp" | sort -u)
+    n=$(echo "$onde" | grep -c .)
+    [ "$n" -le 1 ] && continue
+    # a mesma volta em vários worktrees não é colisão: compara o TEXTO da linha
+    textos=$(git worktree list --porcelain 2>/dev/null | awk '/^worktree /{print $2}' | while read -r w; do
+      r="$w/ferramentas/orca/LETRAS-ADR.md"; [ -f "$r" ] || continue
+      grep -E "^\| $l " "$r" | cut -d'|' -f3 | sed 's/^ *//;s/ *$//'
+    done | sort -u | grep -c .)
+    [ "$textos" -le 1 ] && continue
+    # Se a letra JÁ ESTÁ em `main`, `main` é a verdade e a diferença é só branch
+    # parado com a redação velha — resolve-se sozinha na mescla. Colisão VIVA é a
+    # letra que duas voltas escreveram e que `main` ainda não conhece.
+    if git show origin/main:ferramentas/orca/LETRAS-ADR.md 2>/dev/null | grep -qE "^\| $l "; then
+      echo "  · $l já está em \`main\` — a diferença é branch parado, some na mescla"
+      continue
+    fi
+    echo "  ⛔ $l VIVA em dois lugares, e \`main\` não a conhece: $(echo $onde | tr '\n' ' ')"
+    achou=1
+  done
+  [ $achou -eq 0 ] && echo "  nenhuma."
+  rm -f "$tmp"
+  exit $achou
+fi
+
 A="${1:-ferramentas/orca/LETRAS-ADR.md}"
 [ -f "$A" ] || { echo "não achei $A"; exit 3; }
 

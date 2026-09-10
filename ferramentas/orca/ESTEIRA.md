@@ -1748,3 +1748,27 @@ imprime a cada corrida, não.*
 `09s` onde a linha de verdade dizia `10i`. *O oráculo a casar com o texto errado é o defeito
 que esta casa passa o dia a apanhar nos outros;* agora ele só casa a linha que começa por
 `**Próxima livre:`.
+
+### `--todos`: a colisão não vive dentro de um arquivo, vive ENTRE eles
+
+As quatro colisões de 10/09 foram **todas cruzadas**: cada `LETRAS-ADR.md` passava sozinho,
+porque dentro de um arquivo a letra aparece uma vez só. **A colisão nasce entre branches e só
+aparece na mescla** — tarde, com o relatório e o SPEC já a citarem a letra errada.
+
+`letras-conferir.sh --todos` varre o registro de todos os worktrees. Ele levou **três
+tentativas** a ver só o que importa, e as três falhas são a mesma:
+
+1. varrer todas as séries acusou **21 letras** — branch parado há dias tem a redação ANTIGA
+   da mesma linha, e comparar descrição entre pontos diferentes da história acusa diferença
+   onde há só tempo;
+2. restringir à série aberta deixou **duas**, uma delas a `10d`, que só divergia por ter sido
+   renumerada nesse dia;
+3. o discriminador certo é o **`main`**: se a letra já lá está, `main` é a verdade e a
+   diferença some na mescla. **Colisão viva é a letra que duas voltas escreveram e que o
+   `main` ainda não conhece.** Ficou **uma**, e era a verdadeira.
+
+**A irmã que não acusa está no mesmo dado:** a `10i` também vive nos dois worktrees, com a
+mesma descrição, e ele fica calado.
+
+*Um oráculo que acusa demais afoga o sinal tão bem quanto um que não acusa nada — e o autor
+dele confia no silêncio das duas maneiras.*
