@@ -9296,3 +9296,58 @@ prova que todo byte caiu dentro de um bloco importado, **não** que virou nota.
 `TracoTests/IntegridadeCorpusTests.swift` (a tabela A–G como teste, mais a irmã que NÃO
 acusa: `.md` solto e nota exportada continuam com `consumido == 1` e `podeRetirar`). Relato,
 harness e as duas colunas em `ferramentas/orca/p0-crlf-import.md`. Sem mesclar.
+
+## ADR 2026-09-10a — TEMPO · o teto de espera vira piso observado mais margem declarada
+
+**A distância.** O teto de tempo de toda rota que raciocina era **240 s**, e a
+espera medida na corrida da Q3-D em 10/09 foi de **241 s**
+(`ferramentas/orca/RUMO.md:790`, `LACO.md:3221`). **O teto era menor que o
+observado**: ele cortava uma resposta que estava a caminho, e o que chegava ao
+autor era um `semRetorno` **nosso**, não do modelo — a espécie que a Q4-D
+nomeou. O número de 240 nasceu de uma medida honesta (ADR 08r: 178 s de pior
+execução; 09n: 77,5 s em `responder`, 3,1× de folga) e envelheceu em silêncio
+quando o modelo passou a raciocinar mais.
+
+**Decisão, em duas partes que não se confundem.**
+
+1. **Piso observado** (fato): `Grok.esperaObservada = 241`, uma constante do
+   código e não um número enterrado num relatório. O teste
+   `oTetoCobreAPiorLatenciaMedida` compara os dois e fica **vermelho** no dia em
+   que a decisão descer abaixo do fato — provado nesta volta rebaixando o teto a
+   240 e vendo a guarda acusar nas duas linhas, e vendo-a calar de volta em 300.
+2. **Margem declarada** (decisão): `Grok.teto = 300`, **~1,25× de folga sobre os
+   241 s observados**. Escrito assim de propósito, e a forma importa mais que o
+   número: **isto não é um novo pior caso medido — ninguém mediu 300 — e não é
+   promessa ao autor.** "Medimos 300" seria falso; "damos 300 de folga sobre os
+   241 observados" é verdade. Foi tratando folga como promessa que o teto
+   anterior nasceu de 77,5 s e durou até a folga acabar. A próxima medida que
+   passar de 300 sobe o número de novo, com esta mesma distinção escrita ao lado.
+
+**Limites externos, conferidos** (a Astra pediu no G0: *"se houver limite de
+transporte, de sessão ou do provedor abaixo de 300 s, o nosso número é
+decorativo"*). **Não achei nenhum abaixo de 300 s**, e cada um com a sua prova:
+
+- **Transporte.** `URLSessionConfiguration` traz `timeoutIntervalForRequest = 60`
+  de fábrica; se ela ganhasse do pedido, `Grok.teto` seria decoração e toda
+  chamada morreria a 1 minuto. Medido por **transporte controlado** — um
+  `NWListener` local que aceita e nunca responde, config em 2 s e pedido em 6 s:
+  o erro chegou aos **~6 s**, então **o valor do PEDIDO governa**
+  (`oTetoDoPedidoGanhaDoTetoDaSessao`). Sem rede, sem conta, sem chamada real.
+- **Sessão.** `timeoutIntervalForResource` fica no padrão (7 dias) e não vincula;
+  `Grok.responder` usa `URLSession.shared` sem configuração própria.
+- **Provedor.** A chamada da Q3-D **esperou 241 s e voltou**: a x.ai não corta
+  abaixo disso, e essa mesma observação prova que o valor do pedido vence os 60 s
+  de fábrica também para cima.
+- **O que o teto NÃO governa.** Ele conta a REDE. A espera que o autor sente
+  começa no toque e inclui a montagem do contexto antes da chamada.
+
+**O que esta ADR NÃO decide.** Um teto maior sem tela é uma espera calada mais
+longa — 300 s de laço mudo são piores que 240. A tela que diz **pensando, tempo e
+cancelar** em cada rota (DIRETRIZ §13 item 3) é a outra metade da mesma volta, e
+entra por **emenda a esta ADR** quando fechar: ela reprovou no G3 de 10/09
+(`ferramentas/orca/revisao-tempo.md`) e o teto não, por isso o teto entra sozinho.
+
+**Consequência.** `Grok.teto = 300` e `Grok.esperaObservada = 241` em
+`Traco/Analise/Grok.swift`; provas em `TracoTests/GrokContratoTests.swift`
+(`oTetoCobreAPiorLatenciaMedida`, `oTetoDoPedidoGanhaDoTetoDaSessao`, com o
+`EscutaMuda` ao lado delas). Relato em `ferramentas/orca/tempo-e-espera.md`.
