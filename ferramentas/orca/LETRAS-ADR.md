@@ -92,8 +92,9 @@ alguém tropeçar: a série 08 encheu sem aviso e custou três colisões numa ta
 |---|---:|---|
 | 10a | TEMPO · o teto vira margem declarada, e a espera ganha estado | reservada, volta viva |
 | 10b | RESPONDER · o pedido condicionado à matéria (G0 da Astra) | reservada, volta viva |
+| 10c | INSTIGAR · a irmã: condicionar à matéria também nas perguntas | reservada, volta viva |
 
-**Próxima livre: 10c.**
+**Próxima livre: 10d.**
 
 **A 09s colidiu, e quem mudou fui eu** (09/09, ~02h). Tomei a `09s` porque o
 "Próxima livre: 09s" que estava escrito aqui batia com o comando; no mesmo
