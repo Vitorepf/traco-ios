@@ -299,4 +299,30 @@ struct RespostaNotasTests {
         #expect(cru.components(separatedBy: "\"grok-4").count - 1 == 1,
                 "modelo escrito em mais de um sítio em Sabia.swift")
     }
+
+    /// ADR 2026-09-09w — O PORTÃO DO SINAL DE SOBRA, e ele guarda uma
+    /// INVARIANTE, não um sítio: no cartão da sábia, **todo teto de altura tem
+    /// um sinal de sobra**.
+    ///
+    /// A prova de tela deste defeito vive na `SinalDeSobraUITests`, e ela precisa
+    /// de aparelho. Este portão é o que corre na suíte de sempre e cai em
+    /// segundos: quem puser um `.frame(maxHeight:)` novo no cartão, ou tirar o
+    /// sinal de um dos que existem, fica vermelho aqui antes de chegar à tela.
+    ///
+    /// Conta na forma MEDIDA (10/09): `.frame(maxHeight:` e `.sinalDeSobra(`
+    /// aparecem 2 vezes cada em `NotasView.swift`, nenhuma delas dentro de
+    /// comentário — e `codigoVisivel(apagandoTema: false)` apaga comentário e
+    /// literal, então o que se conta é código.
+    @Test func todoTetoDoCartaoTemSinalDeSobra() throws {
+        let fonte = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent().deletingLastPathComponent()
+            .appendingPathComponent("Traco/Notas/NotasView.swift")
+        let codigo = PortaoDoMovimentoTests.codigoVisivel(
+            try String(contentsOf: fonte, encoding: .utf8), apagandoTema: false)
+        let tetos = codigo.components(separatedBy: ".frame(maxHeight:").count - 1
+        let sinais = codigo.components(separatedBy: ".sinalDeSobra(").count - 1
+        #expect(tetos == 2, "a sonda mudou de forma: \(tetos) tetos em NotasView, não 2 — meça de novo antes de mexer no portão")
+        #expect(sinais == tetos,
+                "\(tetos) tetos de altura e só \(sinais) sinais de sobra: um deles corta calado, e foi assim que a resposta terminou em \"(A nota\" em 10/09")
+    }
 }

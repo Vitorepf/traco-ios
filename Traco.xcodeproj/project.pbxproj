@@ -13,6 +13,7 @@
 		044F8E891B30FDC832EC1B3B /* SuperficieFora.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD30107ACE35F098EB5AACE5 /* SuperficieFora.swift */; };
 		04FD23B1D01D9095B4435ED5 /* Intencoes.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5C891E43910EF91FDBE00CB /* Intencoes.swift */; };
 		05008721B50DE83B33C36004 /* CamposFormaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B496594B9155DDF9FAE0B85C /* CamposFormaView.swift */; };
+		05416C6838F479CA0663B4ED /* SinalDeSobraUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0396420E52C37953FE6E9DEB /* SinalDeSobraUITests.swift */; };
 		074CEFA001610B7014480820 /* ColheitaEixosTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF372B1BEFF3653F9B724C23 /* ColheitaEixosTests.swift */; };
 		08DA99533D3C1F8E0515EA2E /* caderno-v1-fea00dd.store in Resources */ = {isa = PBXBuildFile; fileRef = F1B42F690F6695FA7EEA5BE3 /* caderno-v1-fea00dd.store */; };
 		0BD2BD74128AD32BFB929D54 /* RecordarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B3F4812CA2DDBAB60FE7D78 /* RecordarView.swift */; };
@@ -96,6 +97,7 @@
 		6D43C242414B765A5F777549 /* ConferenciaTrabalhoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAD1B67DFB05E314DF1EEA2C /* ConferenciaTrabalhoTests.swift */; };
 		6FE571EA2BB37EDD9AFAB3BE /* PortaoDaRotaQueCalaTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2B43D86ACD015F18D155F6B /* PortaoDaRotaQueCalaTests.swift */; };
 		6FEC54E297B9BCE0985F0CC1 /* MotorTrabalhoContextoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E02DEF691F4862133348FB4F /* MotorTrabalhoContextoTests.swift */; };
+		6FEFCC572AA0DF4C6C6462F6 /* SinalDeSobra.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4512ED3CD451648EFEF96B78 /* SinalDeSobra.swift */; };
 		7057AA877D102932F6BA332B /* CalendarioTrabalho.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69538E5E0F75960015C9C279 /* CalendarioTrabalho.swift */; };
 		722F9FD612A8F04C3EBFD92B /* VersoesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F27C76D6940C416F3957AA3 /* VersoesView.swift */; };
 		7644E15C3410D8E219D656BB /* BuracosFuncionaisTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26D439FE100A61693F59D02A /* BuracosFuncionaisTests.swift */; };
@@ -257,6 +259,7 @@
 		00FF648389CB7C318B68A693 /* Calendario.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Calendario.swift; sourceTree = "<group>"; };
 		01E13C7C695CD548A18F4EE2 /* RevisaoSemanal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RevisaoSemanal.swift; sourceTree = "<group>"; };
 		021C8E770A726E850C84515E /* Rotulo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Rotulo.swift; sourceTree = "<group>"; };
+		0396420E52C37953FE6E9DEB /* SinalDeSobraUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SinalDeSobraUITests.swift; sourceTree = "<group>"; };
 		04AD4822CC87D350BD7C56E1 /* ProvaTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProvaTests.swift; sourceTree = "<group>"; };
 		0654F54BA318B17E77C8F1F5 /* Traco.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Traco.entitlements; sourceTree = "<group>"; };
 		06D8B8DA8F9AB5510FC4CB69 /* RedeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedeView.swift; sourceTree = "<group>"; };
@@ -307,6 +310,7 @@
 		4349401ACAFEEF5811D2D889 /* Metodos.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Metodos.json; sourceTree = "<group>"; };
 		43C245F482C5E68ABE6C0BD1 /* TrabalhoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrabalhoView.swift; sourceTree = "<group>"; };
 		44CF1006FD54376D4F9A5274 /* PaginaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaginaView.swift; sourceTree = "<group>"; };
+		4512ED3CD451648EFEF96B78 /* SinalDeSobra.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SinalDeSobra.swift; sourceTree = "<group>"; };
 		45F7D6C2522EBEC32146B677 /* LeituraMarkdownTrabalhoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeituraMarkdownTrabalhoTests.swift; sourceTree = "<group>"; };
 		4779123F03E7ECFA8CAEB9B9 /* CatalogoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogoTests.swift; sourceTree = "<group>"; };
 		481F4361236B561E2D58A0D1 /* PadroesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PadroesView.swift; sourceTree = "<group>"; };
@@ -506,6 +510,7 @@
 				948CA481153CAE57BEF667E4 /* LinhasDeProveniencia.swift */,
 				9622B1F0FCBD585B72089CD2 /* Pilula.swift */,
 				021C8E770A726E850C84515E /* Rotulo.swift */,
+				4512ED3CD451648EFEF96B78 /* SinalDeSobra.swift */,
 				E22B84151D11BBFF7BDAFB6F /* Vazio.swift */,
 			);
 			path = Componentes;
@@ -826,6 +831,7 @@
 				143310676A48BCCD8C1D3252 /* CurvaZeroRetomadaUITests.swift */,
 				390F139B808A32B771BB1C55 /* EscritaVisivelUITests.swift */,
 				A52F94C2E4691C0B7230E405 /* PerguntaSobreviveUITests.swift */,
+				0396420E52C37953FE6E9DEB /* SinalDeSobraUITests.swift */,
 			);
 			path = TracoUITests;
 			sourceTree = "<group>";
@@ -1192,6 +1198,7 @@
 				504F76B11137DE02C2174E62 /* SerieView.swift in Sources */,
 				8963B4E83A2289A6F95A4424 /* Sessao.swift in Sources */,
 				9126267EEFE39B2AAB498CF2 /* Sinais.swift in Sources */,
+				6FEFCC572AA0DF4C6C6462F6 /* SinalDeSobra.swift in Sources */,
 				BE9E364EB4D15B9B4A0FD32C /* SintaxeLocal.swift in Sources */,
 				F28182FA5448CBF7FD5242E7 /* Superficie.swift in Sources */,
 				044F8E891B30FDC832EC1B3B /* SuperficieFora.swift in Sources */,
@@ -1220,6 +1227,7 @@
 				4FCEFA3CEE1B97C7FDCC02B3 /* CurvaZeroRetomadaUITests.swift in Sources */,
 				1F3CC3DB7BCF54870BAF6417 /* EscritaVisivelUITests.swift in Sources */,
 				A8C1B1BDB1CF0E86F5DE99AC /* PerguntaSobreviveUITests.swift in Sources */,
+				05416C6838F479CA0663B4ED /* SinalDeSobraUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

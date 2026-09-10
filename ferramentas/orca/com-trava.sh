@@ -6,6 +6,14 @@ L=/tmp/traco-instrumento.lock
 # segurou o instrumento por 50 min com seis workers parados atrás. Nada legítimo
 # aqui passa de 30 min (a suíte integral leva ~8 s, o build alguns minutos).
 until mkdir "$L" 2>/dev/null; do
+  # A primitiva é `mkdir`, então a trava TEM de ser um diretório. Em 10/09 ela
+  # virou um arquivo comum de 0 byte e dois workers giraram sem poder entrar:
+  # `mkdir` falha para sempre, e sem `$L/dono` a guarda de PID também cega.
+  # Só a de 30 min salvava — meia hora de instrumento parado. Isto custa 2 linhas.
+  if [ -e "$L" ] && [ ! -d "$L" ]; then
+    echo "com-trava: a trava virou ARQUIVO; removendo para destravar" >&2
+    rm -f "$L"; continue
+  fi
   D=$(head -1 "$L/dono" 2>/dev/null | awk '{print $2}')
   if [ -n "$D" ] && ! kill -0 "$D" 2>/dev/null; then
     echo "com-trava: dono $D morreu sem soltar a trava — retomando" >&2

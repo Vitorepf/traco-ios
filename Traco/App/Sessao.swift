@@ -19,7 +19,17 @@ final class Sessao {
     var segundosRestantes = 15 * 60
     /// SPEC §20: um destino por vez. `mostrarNotas`/`mostrarPadroes` continuam
     /// existindo como ponte para a lógica antiga (foco, rota, notificação).
-    var aba: Aba = .escrever
+    var aba: Aba = {
+        #if DEBUG
+        // Instrumento de evidência do ensaio do cartão da sábia: a prova é do
+        // CARTÃO, e chegar até ele pela Página fazia o teste depender de uma
+        // tela que não é a dele — em AX5 a topbar da Página fica em y=-371 e
+        // não volta com rolagem, e o teste ficava vermelho por um defeito de
+        // outra área. Só com o mesmo argumento que semeia a resposta.
+        if ConversaNotas.ensaioDaRespostaLonga { return .notas }
+        #endif
+        return .escrever
+    }()
     /// A última tela de arquivo visitada: voltar ao arquivo devolve onde parou.
     var abaArquivo: Aba = .notas
     var mostrarRecordar = false

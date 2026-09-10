@@ -800,3 +800,171 @@ presa ao log dela), mas fica escrito.
   `xcodebuild test` no aparelho da conta.
 - **Limites declarados, que não descontam nota:** VoiceOver falado não foi usado
   (proibido); acessibilidade se prova por árvore de AX e captura. iPad não existe.
+
+---
+
+# Q3-D — a resposta parou de cortar calada (ADR 2026-09-09w, emenda à 09v)
+
+*Secção acrescentada em 10/09/2026. Nada acima foi reescrito.*
+
+## O que se via, e o que se vê
+
+O G3 da Q3-C deu **Jornada real = 8** por uma frase: o cartão terminava em
+`"(A nota"` e nada dizia que havia mais. Hoje, a **mesma pergunta**, no **mesmo
+aparelho**, com a **conta ligada**:
+
+- **antes** — `ferramentas/orca/q3c-01-cartao-com-a-sobra.png`: o texto para a
+  meio de um parêntese e o bloco "Foram junto:" começa logo abaixo, como se a
+  frase tivesse acabado.
+- **depois** — `ferramentas/orca/q3d-04-cartao-medium.png`: a resposta inteira
+  se lê até *"…em relação a esse teto para o restante."*; a linha seguinte
+  (*Referência: "Reservei R$ 6000 para a…"*) mergulha num degradê e, sobre ele,
+  à direita, **CONTINUA**.
+- **em AX5** — `ferramentas/orca/q3d-05-cartao-ax5.png`: **CONTINUA** está lá,
+  em `accessibility-extra-extra-extra-large`.
+
+A resposta real desta corrida, lida inteira na árvore de AX (**419 grafemas**):
+
+> Com a cotação que o banco te cobrou hoje (R$ 6,45 por euro), hospedagem 400 €
+> + transporte 120 € = 520 €. Em reais: 520 × 6,45 = R$ 3.354. Esse é o gasto
+> previsto só com hospedagem e transporte. Você reservou R$ 6.000 para a viagem;
+> sobram R$ 2.646 em relação a esse teto para o restante.
+> Referência: "Reservei R$ 6000 para a viagem. Hospedagem 400 euros. Transporte
+> 120 euros. Hoje o banco me cobrou R$ 6,45 por euro."
+
+## Por que o teto ficou em 220 (a medida, não o gosto)
+
+| medida | valor |
+|---|---|
+| resposta real na tela | 419 grafemas |
+| 18 corridas da mesma pergunta (09–10/09) | 203–568, mediana 384 |
+| cabe nos 220 pt em `medium` | ~9 linhas ≈ 330 grafemas |
+| os 568 grafemas em AX5 | **3.120,7 pt** de conteúdo numa janela de 220 — 15 páginas |
+| cabe nos 220 pt **em AX5** | **40 grafemas** |
+
+Subir o teto não fecha o buraco (nenhum teto que deixe a lista atrás cabe 40
+grafemas). Descer o teto de 900 do prompt para 40 fecharia — e anularia a medida
+que a Q3-C acabou de fazer com 900. **Avisar fecha em todo tamanho de letra, e é
+o diff mais curto.**
+
+## O diff
+
+`Traco/Componentes/SinalDeSobra.swift` (novo, 78 linhas com prévias e o porquê) —
+degradê no pé **enquanto** há sobra, mais a palavra *continua*, com identificador
+para a suíte. `onScrollGeometryChange` apaga o sinal quando a pessoa chega ao
+fim. `NotasView.swift`: duas linhas de chamada, nos **dois** `ScrollView` com
+teto do cartão (resposta 220 pt, pergunta pendente 120 pt).
+
+O padrão **não é meu**: é o do `CartaoAnaliseView` (G4 da V8), que estava lá
+copiado à mão. O que acrescentei foi a palavra — porque um degradê não entra na
+árvore de AX, e afordância que nenhum teste vê some na volta seguinte.
+
+## Os testes, e a linha colada
+
+`TracoTests` (aparelho de TRABALHO `34CC3F94`, build **LIMPO**, sob `com-trava.sh`):
+
+```
+✔ Test todoTetoDoCartaoTemSinalDeSobra() passed after 0.004 seconds.
+✔ Test run with 1022 tests in 163 suites passed after 107.870 seconds.
+```
+
+`todoTetoDoCartaoTemSinalDeSobra` **só existe neste candidato** — é a prova de
+que a suíte correu a MINHA árvore, e não a de outra volta. Ele guarda a
+invariante, não o sítio: todo `.frame(maxHeight:)` de `NotasView` tem um
+`.sinalDeSobra(`.
+
+`TracoUITests` — **duas passadas seguidas**, para não vender flake como verde:
+
+```
+Test Case '-[TracoUITests.SinalDeSobraUITests testRespostaLongaAvisaQueContinua]' passed
+Test Case '-[TracoUITests.SinalDeSobraUITests testRespostaLongaAvisaQueContinuaEmAX5]' passed
+Test Case '-[TracoUITests.SinalDeSobraUITests testOSinalSaiQuandoAPessoaChegaAoFim]' passed
+Test Case '-[TracoUITests.PerguntaSobreviveUITests testCartaoDaPerguntaSobreviveATrocaDeAba]' passed
+Test Case '-[TracoUITests.PerguntaSobreviveUITests testBuscaEmEdicaoSobreviveATrocaDeAba]' passed
+```
+
+**O vigia prova que enxerga.** `testOSinalSaiQuandoAPessoaChegaAoFim` rola o
+cartão até ao fim e exige que o sinal **SUMA**. Sem essa metade, um degradê
+pintado para sempre no pé passaria verde.
+
+**Warnings: 1**, em build **LIMPO** (`clean build`) — `NotasView.swift:814`, o
+`+` de `Text` depreciado. É o warning herdado que o spec nomeia em `:806`: as
+minhas 8 linhas acima empurraram-no. **Zero warnings novos.**
+
+## A janela do aparelho da conta, com a conta conferida
+
+| momento | hora | `contaGrokLigada` |
+|---|---|---|
+| fumaça 1, ANTES do install | 12:47:24Z | **true** |
+| **install único** (`a621fa98…`, era `8eec8f5e…`) | 12:47:25Z | — |
+| fumaça 2, DEPOIS do install | 12:47:26Z | **true** |
+| fumaça 3 | 12:53:39Z | **true** |
+| fumaça 4, FIM da janela | 12:59:37Z | **true** |
+
+`prova/q3d-fumaca-{1-antes,2-pos-install,3-fim,4-fim}.jsonl`. **A conta não
+caiu.** Nenhum `erase`, `clearState`, `uninstall` ou `xcodebuild test` neste
+aparelho. **Uma** instalação, às 12:47:25Z.
+
+**A espera.** Da pergunta ao cartão foram **241 s** — três vezes o pior caso de
+77 s que a DIRETRIZ §10 assumiu. A tela aguentou (o cartão diz *"a sábia
+pensa…"* com o contador e o "Fechar"), mas o número está fora da medida
+publicada e fica escrito aqui.
+
+## O que encontrei e NÃO consertei (dívida nomeada, com o conserto escrito)
+
+1. **O cartão da sábia transborda a tela inteira em AX5** —
+   `q3d-05-cartao-ax5.png`. A causa não é o teto da resposta: é a linha
+   *"Foram junto: …"*, que tem `fixedSize(vertical: true)` e nenhum teto, e em
+   AX5 toma ~20 linhas. Candidato de uma linha:
+   `.lineLimit(tamanhoTexto.isAccessibilitySize ? 3 : nil)` em
+   `NotasView.swift`. **Não medi**, e não meço sem uma segunda instalação no
+   aparelho da conta — que esta volta já gastou.
+2. **Em AX5 a topbar da Página fica fora da tela e não volta com rolagem** —
+   `notas-da-pagina` medido em `{{20.0, -496.0}}` e `{{20.0, -371.3}}` em duas
+   corridas seguidas. Quem usa letra AX5 **não alcança "Notas" nem "Concluir"**
+   pela barra de cima. É de `Traco/Pagina`, que o meu papel me proíbe tocar sem
+   tarefa. Foi por causa disto que o ensaio passou a abrir já nas Notas: um
+   teste do cartão não pode ficar refém da tela do lado.
+3. **O terceiro sítio do mesmo defeito**: `RecordarView.swift:443`, o
+   `ScrollView` de altura `geo/2` da prova do Recordar. Uma linha:
+   `.sinalDeSobra("sobra-pergunta-prova")`.
+4. **`CartaoAnaliseView.swift:182-195` continua com a cópia inline** do padrão.
+   A troca foi autorizada com a guarda de provar identidade por captura
+   antes/depois; como o componente **acrescenta a palavra**, identidade não há —
+   e a guarda manda parar nesse caso. Fica dito.
+
+**Quarto sítio da classe: não existe.** Varri `ScrollView` com teto em todo
+`Traco/`: são quatro no total (`NotasView` ×2, `RecordarView`, `CartaoAnalise`),
+e os `.clipped()` do `CalendarioEscalas` e do `CadernoView` são geometria e
+movimento, não prosa cortada.
+
+## Instrumento
+
+- **`34CC3F94` (teste 3), trabalho:** build limpo e as duas suítes, sempre sob
+  `com-trava.sh`. **Encontrado ligado, deixado ligado.**
+- **`B91C8DEF` (teste 2), conta:** encontrado **LIGADO** (o spec dizia
+  desligado). **Uma** instalação por cima, conta conferida nas quatro fumaças,
+  `content_size` devolvido a `medium` e conferido por captura
+  (`q3d-06-restaurado-medium.png`). Nenhum `xcodebuild test` nele.
+- **Nenhum terceiro aparelho ligado. Nenhum uso do mouse.** Aviso posto e
+  fechado no comentário do worktree `main`.
+- **A trava:** cada sequência foi UMA chamada de `com-trava.sh`. Não usei
+  keep-alive — foi um `segurar-trava.sh` desta mesma pasta (PID 15493, já morto
+  quando comecei) que travou a casa às 08:44. Numa corrida a suíte veio com
+  **514 de 1022 testes e 2 falhas**: havia um `xcodebuild test` de outra volta
+  no mesmo UDID. Repetida sem vizinho, **1022/1022 verde**. Fica escrito porque
+  é a armadilha que o spec nomeia.
+- **Limites declarados, que não descontam nota:** VoiceOver falado não foi usado
+  (proibido); acessibilidade provou-se por árvore de AX e captura. iPad não
+  existe. A captura em AX5 do aparelho da conta foi feita trocando o
+  `content_size` com o app de pé, não com arranque em AX5.
+
+## Scorecard (preenchido por mim; a nota final é do revisor)
+
+| dimensão | nota | porquê |
+|---|---|---|
+| Jornada real | 9 | a mesma pergunta, o mesmo aparelho, a resposta inteira e o aviso do que sobra — nas duas letras |
+| Prova | 9 | captura antes/depois, 1022/1022 com teste exclusivo do candidato, UI duas passadas, conta conferida 4× |
+| Acessibilidade | 8 | o sinal existe em AX5 e está fotografado; o cartão transborda a tela em AX5 por outra causa, medida e nomeada, não consertada |
+| Código | 9 | 89 linhas, um componente que apaga uma cópia à mão da casa, invariante guardada onde todos passam |
+| Honestidade | 9 | o que não medi está escrito como não medido; a espera de 241 s e a suíte de 514 estão no relato |

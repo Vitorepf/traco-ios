@@ -9024,3 +9024,58 @@ nota 3 de 3 (09h). A frase da tela deixa de dizer "indisponível" e passa a dize
 que falta a quem não tem conta. Relatório em
 `ferramentas/orca/q3-responder-nas-notas.md`, com a matriz caso × modelo ×
 repetição e as 42 saídas lidas inteiras.
+
+## ADR 2026-09-09w — o sinal de sobra: cartão com teto não corta calado (emenda à 2026-09-09v, volta Q3-D)
+
+**Emenda, não revisão.** A 09v continua de pé: `responderNasNotas` passou no G3
+com `grok-4.5`, saiu de `indisponivelPorQualidade` e **não volta para a lista**.
+Isto aqui é a tela.
+
+**O defeito.** A primeira captura do cartão com resposta real terminava a frase
+em `"(A nota"` — parêntese aberto, meia frase — e **nada** dizia que havia mais
+(`ferramentas/orca/q3c-01-cartao-com-a-sobra.png`). O `ScrollView` do cartão
+sempre rolou; o que faltava era o AVISO de que valia a pena rolar. O corte é
+código anterior; foi a 09v que o tornou alcançável, porque antes não havia
+resposta nenhuma para cortar.
+
+**A escolha, por medida.** As três saídas possíveis eram subir o teto, avisar, e
+encolher o texto. A medida decidiu:
+
+| medida | valor | de onde |
+|---|---|---|
+| resposta real na tela, aparelho da conta | **419 grafemas** | árvore de AX, 10/09 12:59Z |
+| 18 corridas da mesma pergunta (09–10/09) | **203 a 568**, mediana 384 | `prova/lote09{b,c,d}-q3-*.jsonl` |
+| o que cabe nos 220 pt em `medium` | ~9 linhas ≈ **330 grafemas** | captura |
+| conteúdo dos 568 grafemas em AX5 | **3.120,7 pt** numa janela de 220 (15 páginas) | árvore de AX, 10/09 |
+| o que caberia nos 220 pt **em AX5** | **40 grafemas** | 3.120,7 ÷ 568 = 5,49 pt/grafema |
+
+**Subir o teto não resolve**: nenhum teto que deixe a lista visível atrás cabe
+40 grafemas. **Encolher o texto não resolve e é caro**: o teto de 900 do prompt
+teria de descer a 40 para calar o corte em AX5, e a 09v acabou de medir com 900
+— mexer nele anula a medida. **Avisar resolve em todo tamanho de letra**, e é o
+diff mais curto. Por isso o teto de 220 **FICA** e o que entra é o sinal.
+
+**O sinal, e ele é duas coisas.** `Traco/Componentes/SinalDeSobra.swift`:
+- o **degradê** no pé é a dobra do papel — diz sem palavra que a linha continua
+  por baixo. Não é invento: nasceu no `CartaoAnaliseView` (G4 da V8, "o corte
+  seco a meio glifo não dizia nada") e estava lá **copiado à mão**;
+- a **palavra** ("continua") diz o mesmo a quem o degradê não alcança, e é ela
+  que a suíte enxerga — um degradê não entra na árvore de AX, e afordância que
+  nenhum teste vê some na volta seguinte.
+
+Some sozinho quando a pessoa chega ao fim (`onScrollGeometryChange`): sinal que
+mente uma vez não é mais lido. Aplicado nos **dois** `ScrollView` com teto do
+cartão — a resposta (220 pt) e a pergunta pendente (120 pt), irmãos do mesmo
+defeito no mesmo cartão.
+
+**A invariante, guardada onde todos passam.** `todoTetoDoCartaoTemSinalDeSobra`
+conta em `NotasView.swift`: **todo `.frame(maxHeight:)` tem um `.sinalDeSobra(`**.
+Quem puser um teto novo, ou tirar um sinal, fica vermelho na suíte de sempre —
+antes de chegar à tela.
+
+**O que NÃO entrou, e por quê:** o `CartaoAnaliseView` continua com a cópia
+inline. A troca foi autorizada, com a guarda de provar identidade por captura
+antes/depois; como o componente **acrescenta a palavra**, identidade não há, e
+produzir um cartão de análise que transborde exigia uma segunda jornada fora da
+janela de uma instalação. Dívida nomeada, com o conserto escrito. O terceiro
+sítio (`RecordarView.swift:443`) idem.
