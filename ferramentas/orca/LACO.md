@@ -2659,3 +2659,47 @@ mescladas por uma passada de instrumento, em vez de duas.
 **Estado:** MERGE-Q34 (mescla + F6) e MAC-2-A em edição, Q3-C e Q4-C escritas na gaveta
 esperando o push, e **quatro commits meus segurados** — não empurro até `origin/main`
 receber o dele, porque foi o que combinei.
+
+## 09/09, 23h09 — a mescla pousou, a trilha do Mac entregou, e quatro voltas saem juntas
+
+**`origin/main` = `7d5e482`.** A **MERGE-Q34** entrou às ~23h: as quatro pontas por
+`--no-ff` sem reescrever nada, **suíte 1019 verde**, e as três linhas do Perfil vistas
+na tela em `medium` **e em XXXL, sem clipe**. **Nenhuma regra de `Politica` mudou** — as
+três seguem `indisponivelPorQualidade` —, mas o motivo, a data (10/09) e o conserto
+passaram a dizer o que o LOTE-3 leu, junto com **as três frases de `semProvedor` que
+nomeavam o mesmo defeito morto**. E o teste dos dois grupos, que **passava idêntico com
+o texto velho**, agora lê a linha pelo caminho real da tela — com a prova do vermelho
+colada. Era a guarda inocente outra vez, e desta vez foi pega.
+
+**MAC-2-A entregou.** O app exporta `trabalhos/<id>.md` **pelo mesmo mecanismo do
+corpus** (`PastaEspelho.comAcesso` + `Corpus.escreverSeMudou`), **sem nenhum arquivo
+Swift de produção novo**; quem decide o que sai é `AcessoTrabalho`, e **o selo TIRA o
+`.md` no ato** por `Sessao.calarAcoesDerivadas`, o ponto por onde as três rotas do selo
+já passavam. O servidor foi de 12 para 14 ferramentas com autoteste. E houve o
+exercício de verdade às **22h57**: o Grok Bot chamou `--chamar traco_trabalhos` e
+`--chamar traco_trabalho` por execução local, com vigia de `ps` (ppid 94992 =
+`local-exec-daemon`), e leu o trabalho inteiro com a origem da versão preservada.
+
+## Duas colisões de letra em uma hora, as duas minhas
+
+A `09s` e a `09t` colidiram. A causa é a mesma nas duas: **eu confirmei letra por
+mensagem antes de escrevê-la no `LETRAS-ADR.md`**. Nos dois casos venceu quem já tinha
+escrito a ADR, e mudou quem era mais barato mover — a MERGE-Q34 renumerou a dela, a
+MAC-2-A vai renumerar a dela para `09u`. **A regra sobe de tom: reservar é ESCREVER
+naquele arquivo; dizer "é sua" por mensagem não reserva nada.**
+
+E o worker da mescla achou uma coisa que ninguém tinha notado: **a `09p` está no
+registro como da MAC-0-E e não existe em arquivo nenhum de `main`**. Ou a ADR não
+nasceu, ou nasceu com outro nome. Fica como está, e **ninguém a reaproveita** até a
+MAC-0-E dizer qual das duas é.
+
+## Quatro despachadas de uma vez, e por quê
+
+- **Q3-C** (`ctx_c9b2f3b23199`) e **Q4-C** (`ctx_1b89d575eeb3`) — a prioridade do dono.
+  Cada uma com **uma alavanca só** e os defeitos nomeados com número.
+- **G5 F6** (`ctx_6c92c5162c58`) — a volta aprovada não fica parada em branch.
+- **G3 MAC-2-A** (`ctx_d2270e54886b`) — a trilha fora do app segue o seu portão.
+
+Duas em edição (Q3-C, Q4-C), um G5 e um G3: é o teto, com a trilha do Mac viva. As
+quatro dividem o `34CC3F94` pela trava e **só as duas de IA tocam o `B91C8DEF`**, uma
+instalação cada, com `ContaGrok` conferido antes e depois.
