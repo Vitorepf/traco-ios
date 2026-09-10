@@ -3,7 +3,11 @@
 # do Claude tem folga, manda ele continuar. Sai calado em qualquer outro caso.
 # Agendado por launchd (app.traco.vigia) a cada 10 min. Log em ~/Library/Logs/traco-vigia.log
 export PATH="$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
-H=term_92c6194d-bdb5-42e1-9f3a-4d8f9676300c
+# A cadeira se PERGUNTA, não se decora: o handle fixo já apontou para a sessão errada
+# (10/09, uma terceira sessão de orquestrador foi acordada por um H desatualizado).
+RUN=run_ba86df7ee906
+H=$(orca orchestration run-show --id "$RUN" --json 2>/dev/null | node -pe 'JSON.parse(require("fs").readFileSync(0)).result.run.coordinator_handle' 2>/dev/null)
+[ -z "$H" ] || [ "$H" = undefined ] && H=term_c68d9dfa-795f-4778-9c4d-eb046e7d767c
 LOG=~/Library/Logs/traco-vigia.log
 say(){ echo "$(date '+%F %T') $*" >> "$LOG"; }
 orca status --json 2>/dev/null | grep -q '"reachable": true' || { say "orca fora"; exit 0; }
@@ -17,7 +21,7 @@ if [ -n "$USO" ] && [ "${IDADE:-999}" -lt 15 ] && [ "${USO%.*}" -ge 98 ]; then s
 ULT=$(grep reacendi "$LOG" 2>/dev/null | tail -1 | cut -c1-19); [ -n "$ULT" ] && [ $(( $(date +%s) - $(date -j -f "%Y-%m-%d %H:%M:%S" "$ULT" +%s) )) -lt 1800 ] && { say "cutuquei há pouco"; exit 0; }
 if ! orca terminal show --terminal "$H" --json 2>/dev/null | grep -q '"ok": true'; then
   say "orquestrador sumiu; subo outro"
-  cd /Users/vitorepf/develop/traco-ios && NOVO=$(./ferramentas/orca/equipe.sh "Retomada pelo vigia: leia ferramentas/orca/papeis/laco-evolucao.md, ESTEIRA.md, RUMO.md e LACO.md; workers em Opus 5 enquanto a cota do Fable nao voltar; faça run-use no laço run_ba86df7ee906, processe o inbox e continue de onde parou.") && say "novo orquestrador: $NOVO" && sed -i "" "s/^H=term_.*/H=${NOVO#orquestrador: }/" "$0"
+  cd /Users/vitorepf/develop/traco-ios && NOVO=$(./ferramentas/orca/equipe.sh "Retomada pelo vigia: leia ferramentas/orca/papeis/laco-evolucao.md, ESTEIRA.md, RUMO.md e LACO.md; workers em Opus 5 enquanto a cota do Fable nao voltar; faça run-use no laço run_ba86df7ee906, processe o inbox e continue de onde parou.") && say "novo orquestrador: $NOVO"
   exit 0
 fi
 # parado = TUI ociosa por 60 s
