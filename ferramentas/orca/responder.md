@@ -270,10 +270,22 @@ fica aberta para quando `responder` voltar: as duas precisam de nomes que o auto
 distinga (a linha `?` na própria nota × a barra das Notas).
 
 **Não há captura de cartão com resposta**, porque não houve resposta nova a
-mostrar — o fecho de tela é para quando o mérito passa. A linha do Perfil acima é
-afirmada pelo caminho da própria tela (`PerfilView.reprovadas` → `linhaDa`) em
-`PoliticaTests` e `PerfilQualidadeTests`. **Isso é executado, não visto**, e fica
-declarado como limite, do mesmo jeito que a Q2-F declarou.
+mostrar — o fecho de tela é para quando o mérito passa.
+
+**A linha do Perfil, essa, foi VISTA:**
+`ferramentas/orca/10b-perfil-responder-fica-na-lista-large.png`, tema claro,
+tamanho `large`, 14h15 de 10/09. Ela mostra `responder` no grupo *"O que ela ainda
+não faz, nem com a sua conta ligada"* — quatro linhas agora, era três — e as duas
+metades do defeito na frase. O grupo *"Também não faz ainda, e já sabemos o que
+falta"* ficou com `instigar` e `contrapor`, que continuam tendo conserto escrito.
+
+A captura é do **teste 4** (`A1DF082C`), não do aparelho da conta, e de propósito:
+esta lista é montada de `Politica.indisponiveis`, que **não depende da conta** — a
+linha é a mesma nos dois aparelhos, e fotografá-la ali poupou uma terceira
+instalação no `B91C8DEF`. O binário fotografado é o do fecho desta volta,
+conferido por `cmp` contra o meu produto de build. A frase também é afirmada pelo
+caminho da própria tela (`PerfilView.reprovadas` → `linhaDa`) em `PoliticaTests` e
+`PerfilQualidadeTests`, então o portão morde mesmo sem a foto.
 
 ---
 
