@@ -118,7 +118,11 @@ enum AvaliacaoIA {
                     PadroesRemoto.esquecerMemo()
                     var registro: [String: Any] = ["id": caso.id, "operacao": caso.operacao,
                         "repeticao": repeticao, "entrada": try objeto(caso.entrada),
-                        "modeloConfigurado": Grok.modelo,
+                        // ADR 2026-09-09v: o nome diz o que o campo é. Desde que
+                        // uma rota pode ter modelo próprio, o padrão global NÃO
+                        // é mais "o modelo que rodou este caso" — quem quer isso
+                        // lê `chamadasGrok[].modeloSolicitado`, que é por chamada.
+                        "modeloPadraoGlobal": Grok.modelo,
                         "contaGrokLigada": ContaGrok.ligada,
                         "modeloDoAparelhoDisponivel": AnaliseDeBordo.disponivel,
                         "motoresDesligados": Motores.desligados,

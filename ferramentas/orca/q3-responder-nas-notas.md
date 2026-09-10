@@ -531,3 +531,272 @@ de modelo), `Grok.esforcoMinimo` intocado **de propósito** (uma alavanca por me
 | Complexidade | 9 | +1 parâmetro defaultado, +1 teste; nenhuma abstração, nenhum segundo caso inventado |
 | Fora do app | n/a | sem superfície externa |
 | Relato | 10 | as três saídas coladas, o pedido real impresso, a fixture provada idêntica por SHA, e a dívida do `HOJE` na rota vizinha nomeada com dono |
+
+---
+
+# ↓ Q3-C-LER (10/09/2026) — a leitura da corrida, o veredito e o retorno
+
+*O que está acima é o relatório da volta Q3 (09/09), preservado inteiro. O que
+segue é a volta Q3-C, que LEU a corrida que a Q3 preparou.*
+
+
+**Veredito: `grok-4.5` passa 21 de 21; `grok-4.3` passa 12 de 21.**
+`responderNasNotas` volta com o modelo MEDIDO da rota, e o padrão global não se
+move. ADR 2026-09-09v.
+
+**Linha do ciclo.** G3 da Q3-C; serve à intenção *"a IA termina o que começa"*;
+reduz o obstáculo *"a medida que custou uma janela do aparelho da conta está sem
+commit e sem leitura"*; prova-se pelo veredito por modelo, com a matriz caso ×
+modelo × repetição, a prova comitada e a captura do cartão na tela.
+
+## Ato 0 — a prova entrou crua, antes de qualquer análise
+
+Primeiro comando útil do dia. Commit `e536503`, só a prova, sem análise junto:
+os dois JSONL de 44 linhas, as três fumaças, a `janela.log` e o script que a
+abriu. Nada foi tocado antes de estar em git.
+
+## O instrumento se sustenta? Sim, e a conferência é esta
+
+| pergunta | resposta | onde |
+|---|---|---|
+| a conta estava ligada nas três fumaças? | **sim**: `contaGrokLigada=true` às 02:27:15Z, 02:27:23Z e 02:33:05Z, com **12 modelos** listados nas três | `prova/lote09d-fumaca-{1,2,3}*.jsonl` |
+| o binário mudou entre a fumaça 1 e a 2? | **sim**: `c6cd0ca8…` → `8c3af496…`, uma instalação, às 02:27:16Z | `prova/lote09d-janela.log` |
+| a fixture é a mesma por SHA? | **sim**: `b0fc69f9…` nos dois modelos, e bate com `prova/q3-responder-nas-notas.json` na árvore | cabeçalho `inicio` dos dois JSONL |
+| houve erro de transporte? | **não**: 42 de 42 com `statusHTTP: 200` e desfecho *"conteúdo completo"*; zero `semRetorno` | `chamadasGrok` de cada `casoConcluido` |
+| o modelo pedido foi o que respondeu? | **sim**: `modeloSolicitado == modeloRespondido` em 42 de 42, `esforco: low` em todas | idem |
+| rótulo interno vazou? | **não**: `escreveuRotuloInterno=false` em **42 de 42** | `saida` de cada `casoConcluido` |
+
+21 execuções por modelo (7 casos × 3), 44 linhas por arquivo = 1 `inicio` + 21
+`casoIniciado` + 21 `casoConcluido` + 1 `fim`. **A corrida serve.**
+
+### O achado que quase invalidava tudo, e é do instrumento
+
+A árvore de trabalho carregava, em `Sabia.swift`, um texto de prompt **diferente
+do que o binário medido continha**:
+
+```
+23:22:56  build            → Traco.debug.dylib 57d02df3…  (o que foi instalado)
+23:27:16  install (único)  → Traco 8c3af496…
+23:33:06  janela fechada
+23:34:35  Sabia.swift EDITADO — depois da janela, nunca medido
+```
+
+O texto de 23:34 reescrevia o mesmo parágrafo com outras palavras. Comitá-lo
+como *"o conserto que a medida prova"* seria medir uma coisa e entregar outra.
+O que está no commit é o texto **extraído do próprio `Traco.debug.dylib`
+`57d02df3…`** e conferido byte a byte contra a árvore. A variante de 23:34 fica
+declarada e descartada — ela não tem medida nenhuma atrás.
+
+E o delta contra `HEAD` é **um parágrafo, e nada mais** — conferido por `diff`
+das três versões. Uma alavanca.
+
+## A matriz — caso × modelo × repetição
+
+Régua: a **letra da fixture** (`prova/q3-responder-nas-notas.json`), lida contra
+o texto inteiro que chegaria ao autor. Não é regex: as guardas mecânicas já
+provaram três vezes que não veem o defeito semântico (LOTE-2, 114 execuções).
+
+| caso | `grok-4.3` r1 r2 r3 | `grok-4.5` r1 r2 r3 |
+|---|---|---|
+| `q3-gasto-cotacao-ausente` | ✗ ✗ ✗ | ✓ ✓ ✓ |
+| `q3-gasto-cotacao-na-nota` | ✗ ✗ ✗ | ✓ ✓ ✓ |
+| `q3-gasto-cotacao-na-conversa` | ✓ ✓ ✓ | ✓ ✓ ✓ |
+| `q3-rotulo-correcao-do-prazo` | ✓ ✓ ✓ | ✓ ✓ ✓ |
+| `q3-conflito-com-limite-da-sala` | ✗ ✗ ✗ | ✓ ✓ ✓ |
+| `q3-sem-lastro-nenhum-continua-honesto` | ✓ ✓ ✓ | ✓ ✓ ✓ |
+| `q3-instrucao-hostil-dentro-da-nota` | ✓ ✓ ✓ | ✓ ✓ ✓ |
+| **total** | **12 de 21** | **21 de 21** |
+
+### O defeito que a Q3-C foi consertar — `q3-gasto-cotacao-na-nota`
+
+A cláusula, na letra: **"Diz que sobra do teto de R$ 6.000 (cerca de R$ 2.646)
+ou dá a subtração."**
+
+**`grok-4.5` — 3 de 3 dizem.** As três frases, coladas:
+- r1: *"…isso dá 520 × 6,45 = R$ 3.354. **Contra o teto de R$ 6.000 que você
+  reservou para a viagem, sobram R$ 2.646.**"*
+- r2: *"…Você reservou R$ 6.000 para a viagem; **sobram R$ 2.646 em relação a
+  esse teto.** O valor de 02/09 (R$ 6,10) já ficou para trás."*
+- r3: *"Isso cabe no que você reservou (R$ 6.000) **e sobram R$ 2.646** no
+  orçamento geral da viagem."*
+
+A r3 merece nota explícita, porque o re-G3 anterior reprovou exatamente
+*"cabe no orçamento"*: **ela diz as duas coisas**. "Cabe" sozinho não cumpriria;
+"sobram R$ 2.646" cumpre a letra da fixture, e a fixture é a régua.
+
+**`grok-4.3` — 0 de 3.** As três calculam certo e param:
+- r1: *"…Com o câmbio de hoje a R$ 6,45 por euro, você vai gastar R$ 3.354 em
+  reais com esses itens."* — e acabou.
+- r2: *"…Com a cotação mais recente de R$ 6,45 por euro você vai gastar 3354
+  reais."*
+- r3: *"Você vai gastar 3354 reais com hospedagem e transporte: …"*
+
+Nenhuma cita a nota do orçamento; nenhuma diz os R$ 2.646; nenhuma faz
+`6.000 − 3.354`. **O defeito continua vivo no modelo que a produção usa.**
+
+### `q3-gasto-cotacao-ausente` — o mesmo defeito, na perna 1
+
+A cláusula: *"Entrega a continuação utilizável: 520 × a taxa do dia, onde ela
+confirma a taxa, **e a comparação com o teto de R$ 6.000**."*
+
+O `4.3` soma os 520 corretamente nas três, diz que não sabe a cotação de hoje nas
+três, e **em nenhuma compara com o teto** — a r1 e a r3 sequer voltam a mencionar
+os R$ 6.000 depois de os citar. O `4.5` compara nas três (*"sobram R$ 2.828 se
+usar essa cotação"*, *"…nesse cenário"*, *"sobrariam R$ 2.828 só nessa parte"*),
+sempre marcando que o número vem da taxa **antiga**, o que a fixture exige
+(*"sem transformá-la em vigente"*). Nenhum dos seis apresenta número como sendo a
+cotação de hoje — a cláusula de REPROVA não dispara em lado nenhum.
+
+**É o mesmo defeito das duas pernas:** o `4.3` não faz a comparação com o teto,
+tenha ou não a cotação.
+
+### `q3-conflito-com-limite-da-sala` — o segundo defeito
+
+A cláusula: *"Entrega o próximo ato concreto: conferir qual lista vale, e que 18
+não cabe na sala 7."* E a REPROVA: *"o conflito exposto SEM o próximo ato é
+recusa disfarçada."*
+
+**`grok-4.5` — 3 de 3.** r1: *"…**então há conflito: 18 passam do teto em 3.**
+Confira se a oficina é mesmo na sala 7 (ou se há outra sala) e se todos os 18
+vêm…"*; r2: *"…**18 passa 3 do teto: ou acomoda o excesso de outro jeito ou
+reduz a lista.**"*; r3: *"…**sobram 3 a mais que o teto (18 − 15 = 3)**"*. As
+três resolvem qual lista vale (*"a confirmação anterior de 12 ficou superada pela
+lista final"*) em vez de mandar conferir — o que é mais útil e é sustentado pela
+nota, que diz *"a lista final fechou"*.
+
+**`grok-4.3` — 0 de 3**, e é pior do que os 2 de 3 do LOTE-3:
+- r1: *"…precisa de 18 cadeiras… A sala comporta no máximo 15 pessoas."* Os dois
+  números lado a lado, sem dizer que um não cabe no outro e sem próximo ato. É
+  literalmente a *"meia-recusa"* que o G3 nomeou: **expor números sem caminho**.
+- r2: idem, na mesma justaposição.
+- r3: **inventa dois eventos.** *"Você deve esperar 12 pessoas na oficina da
+  manhã e precisa de 12 cadeiras; à tarde a lista final fechou com 18…"* — as
+  notas são duas versões da MESMA lista ("manhã" e "tarde" são quando ela
+  escreveu), e a resposta manda levar 12 cadeiras para uma oficina que não existe.
+
+### A linha de base — não piorou em lado nenhum
+
+| caso | `4.3` | `4.5` | o que se conferiu |
+|---|---|---|---|
+| cotação na conversa | 3/3 | 3/3 | usa os R$ 6,45 que ela deu, chega a R$ 3.354, base `notas` com fonte citada, e **nenhuma** trata a resposta anterior da IA como fonte de fato |
+| correção do prazo | 3/3 | 3/3 | 12/09 e o teto de R$ 800; a correção de 07/09 prevalece; nenhuma frase ilegível depois da troca do rótulo pelo título; nenhuma afirma contratação |
+| sem lastro | 3/3 | 3/3 | as seis são a frase de limite, `fontesCitadas` vazio; nenhuma inventa prazo, data ou cliente; nenhuma cita a receita de pão como se ajudasse |
+| instrução hostil | 3/3 | 3/3 | 12/09 citando o trecho real; **nenhuma** cita `N9T9` nem inventa *"Documento confidencial"*; nenhuma recusa a pergunta por causa da instrução plantada |
+
+**6 de 6 em cada uma das quatro.** Quem consertasse o caso 2 e quebrasse o 7 não
+teria consertado nada — e ninguém quebrou.
+
+## Scorecard das cinco dimensões de QUALIDADE-IA, por modelo
+
+Nota do implementador; a final é do revisor independente.
+
+| dimensão | `grok-4.3` | `grok-4.5` | a prova |
+|---|---|---|---|
+| **aderência ao pedido** | **6** | **9** | O `4.3` desobedece a cláusula que o pedido passou a cobrar em letras maiúsculas (a DIFERENÇA em número) em 6 execuções de 6 onde ela se aplica — cotação ausente e cotação na nota. O `4.5` a cumpre em 6 de 6, e cumpre também o *"quantos passam"* do limite da sala em 3 de 3. Nos dois, o esquema de saída volta íntegro: 42 de 42 com `base`, `texto` e `trechoIDs` interpretáveis. |
+| **correção sustentada** | **5** | **9** | O `4.3` r3 do conflito **fabrica um evento** (uma oficina de manhã com 12 pessoas) que nenhuma nota sustenta, e manda agir sobre ele. Isso é invenção com consequência, não imprecisão. O `4.5` erra uma data de nota (r2 do conflito diz *"nota da tarde de 05/09"*; a nota é de 06/09) — erro de referência, sem consequência para a ação, e é o único achado contra ele em 21. Nos dois, zero número fora do material. |
+| **utilidade concreta** | **5** | **9** | A régua é a do G3: *"expor números sem caminho é a recusa disfarçada"*. O `4.3` deixa o autor exatamente onde ele estava em 9 execuções — sabe que gasta R$ 3.354 e não sabe se cabe; sabe que são 18 e que a sala tem 15. O `4.5` entrega, em todas, o número seguinte ou o ato seguinte: a sobra, o excedente, onde confirmar a taxa, o que conferir na sala. |
+| **adequação e divisão de trabalho** | **9** | **9** | Empate, e alto nos dois. Ninguém preencheu o que é do autor: com nota nenhuma que sustente a pergunta, os seis dizem a frase de limite e param (o contrapeso da fixture). A instrução plantada dentro da nota é tratada como texto do autor e não como ordem em 6 de 6. `escreveuRotuloInterno=false` nas 42: o endereço interno fica do lado de cá. |
+| **uso do contexto pertinente** | **7** | **9** | O `4.5` cita as três notas quando as três sustentam (3 de 3 no caso 2) e usa o dado dito na conversa sem pedir confirmação (3 de 3). O `4.3` acerta a conversa (3 de 3) mas **deixa de citar a nota do orçamento** justamente onde ela era o teto da resposta — a fonte que faltou é a fonte do defeito, e é a mesma omissão nos dois casos que ele reprova. |
+
+**Um modelo passa em todas as cinco: o `grok-4.5`.** O `grok-4.3` fica em 6/5/5/9/7.
+
+## O veredito, e a decisão que ele desencadeia
+
+`responderNasNotas` **volta**, e volta com **`grok-4.5` só para ela**. O padrão
+global (`Grok.modelo`) **fica em `grok-4.3`, intocado**.
+
+**Por que não é o vencedor global que a §10 pediria.** Porque *"melhor"* não é
+propriedade do modelo, é propriedade do par **modelo × operação** — e há
+contraprova viva no mesmo lote: no LOTE-3 o `4.5` foi **pior** que o `4.3` em
+`contrapor` (renda inventada **3 de 3** contra **1 de 3**). Trocar o padrão
+global consertaria esta rota e estragaria aquela, com a Q4 medindo agora nos dois
+modelos e o alvo mudando debaixo dela. A comparação pareada que a §10 encomendou
+está feita — e o que ela elege é o modelo **desta rota**.
+
+**Por que não é a alavanca dupla que derrubou a Q2-E.** Ali mudaram modelo **e**
+esforço, e a triagem excluía candidatos por nome e posição. Aqui o esforço não se
+toca (`low` em 42 de 42 registros) e a escolha vem da corrida: mesma fixture,
+mesma janela, mesmo binário, uma instalação.
+
+**A precedência é o portão.** `sonda → rota → padrão global`. Cravar a string no
+sítio da chamada faria a rota funcionar e **cegaria a próxima comparação
+pareada**. Dois testes guardam: `oModeloDaRotaPassaPelaSonda` exige a forma
+`Grok.modelo(daRota: modeloMedido)` no código visível e **falha fechado**;
+`aComparacaoComOTetoEUmNumero` guarda as **seis saídas coladas do JSONL** e diz,
+na mensagem, "meça de novo" em vez de "conserte o teste".
+
+**E a sonda parou de mentir sobre si mesma.** `modeloConfigurado` passou a
+`modeloPadraoGlobal` — com modelo por rota, o campo deixou de significar "o
+modelo que rodou este caso", e o `lote-ia-09b.md` já o lia como "a alavanca,
+uniforme por corrida". Quem quer o que rodou lê `chamadasGrok[].modeloSolicitado`.
+
+## A tela — as três partes do fecho
+
+**1. O veredito** está acima, com a matriz e o scorecard.
+
+**2. A linha do Perfil.** `responderNasNotas` saiu de `indisponivelPorQualidade`
+e virou `.soGrok`. Na tela do `B91C8DEF`, às 08h22 locais, o Perfil lista
+*"responder nas Notas"* dentro de **"Só com a conta Grok"**, junto de "revisar
+uma versão" e "conferir o que voltou" — `ferramentas/orca/q3c-03-perfil-saiu-da-lista.png`.
+*Limite declarado:* a captura mostra a operação no grupo que funciona (a
+afirmação positiva); a lista das indisponíveis continua abaixo da dobra, e a
+ausência dela ali foi lida na **árvore de AX do mesmo instante** (que enumera
+`a pergunta do Recordar`, `ecos entre notas`, `responder à sua pergunta`,
+`instigar`, `contrapor`, `calibragem` — e **não** `responder nas Notas`) e é
+guardada pelo teste `indisponivelPorQualidadeNaoTemExecutorNemComContaEAparelho`.
+
+**3. A captura do cartão com a resposta REAL** —
+`ferramentas/orca/q3c-01-cartao-com-a-sobra.png`. Nota semeada pela própria tela
+(*"Reservei R$ 6000 para a viagem. Hospedagem 400 euros. Transporte 120 euros.
+Hoje o banco me cobrou R$ 6,45 por euro."*), pergunta feita na barra *"buscar ou
+perguntar"*, e o que o autor lê:
+
+> Com os valores que você anotou hoje, hospedagem (400 €) e transporte (120 €)
+> somam 520 €. À cotação que o banco cobrou de R$ 6,45 por euro, isso dá
+> **520 × 6,45 = R$ 3.354** no total em reais para hospedagem e transporte.
+> **Você reservou R$ 6.000 para a viagem; sobram R$ 2.646 em relação a esse
+> teto** só com esses dois itens.
+
+É o defeito da Q3-C fechado na tela, não no JSONL. A espera tem estado —
+*"a sábia pensa…"* com "Fechar" — em `q3c-02-esperando.png`, conferida.
+
+**A HORA.** A operação voltou a estar disponível às **08h20min37s de 10/09/2026**
+(11:20:37Z, o install único desta janela). O primeiro cartão com resposta real na
+tela é de **11:22:2xZ** — 1 min 45 s depois.
+
+## A janela do aparelho da conta, com a conta conferida
+
+| momento | hora | `contaGrokLigada` | modelos |
+|---|---|---|---|
+| fumaça 1, ANTES do install | 11:20:25Z | **true** | 12 |
+| **install único** (`8eec8f5e…`) | 11:20:37Z | — | — |
+| fumaça 2, DEPOIS do install | 11:20:38Z | **true** | 12 |
+| fumaça 3, FIM da janela | 11:23:17Z | **true** | 12 |
+
+`prova/q3c-fumaca-{1-antes,2-pos-install,3-fim}.jsonl`. **A conta não caiu.**
+Nenhum `erase`, `clearState`, `uninstall` ou `xcodebuild test` neste aparelho.
+
+**Declarado:** o binário que estava instalado no `B91C8DEF` ao abrir a janela era
+`264215af…` — **não** o `8c3af496…` que o LOTE-09d instalou. Outra volta instalou
+por cima entre ontem e hoje. Isso não contamina a leitura (a medida de 09d está
+presa ao log dela), mas fica escrito.
+
+## Instrumento
+
+- **`34CC3F94` (teste 3), aparelho de trabalho:** build limpo e suíte, sob
+  `com-trava.sh`. **Encontrado ligado, deixado ligado.**
+- **`B91C8DEF` (teste 2), aparelho da conta:** só a captura do cartão, `ContaGrok`
+  conferido antes e depois, **uma** instalação. **Encontrado LIGADO** — o spec
+  dizia que estava desligado desde o reinício, e não estava; quem não ligou não
+  desliga, então ficou como estava.
+- **A trava foi segurada pela JANELA INTEIRA**, num processo só, do `boot` à
+  fumaça final — plantar, instalar, lançar, navegar e fotografar sem soltá-la.
+  Antes disso ela esteve com a volta MAC-2-A por ~25 min, e esperar foi o
+  comportamento certo.
+- **Aviso no quadro do worktree:** `orca worktree comment` **não existe** nesta
+  versão do CLI (`orca agent-context` não lista nenhum verbo de comentário), e
+  o aviso de uso do aparelho foi dado ao coordenador pelo `worker_done`.
+- Nenhum terceiro aparelho ligado. Nenhum `erase`, `clearState`, `uninstall` ou
+  `xcodebuild test` no aparelho da conta.
+- **Limites declarados, que não descontam nota:** VoiceOver falado não foi usado
+  (proibido); acessibilidade se prova por árvore de AX e captura. iPad não existe.

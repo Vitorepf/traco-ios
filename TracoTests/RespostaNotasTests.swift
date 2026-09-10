@@ -214,4 +214,89 @@ struct RespostaNotasTests {
         #expect(r.resposta?.contains("Parte da conversa anterior ficou fora") == true)
         #expect(r.conversaValida?.isEmpty == true)
     }
+
+    /// ADR 2026-09-09v — A COMPARAÇÃO PAREADA, guardada como código.
+    ///
+    /// O que a fixture cobra, na letra: *"Diz que sobra do teto de R$ 6.000
+    /// (cerca de R$ 2.646) ou dá a subtração."* No LOTE-3 de 10/09 as **seis**
+    /// execuções acertaram os R$ 3.354 e **nenhuma** disse a sobra; o pedido só
+    /// cobrava *"a comparação com o teto"*, e "cabe" É uma comparação — o modelo
+    /// obedecia. O pedido passou a cobrar a GRANDEZA, e o LOTE-09d mediu os dois
+    /// modelos na MESMA janela, com o MESMO binário, uma alavanca só:
+    ///
+    /// | modelo | diz a grandeza | matriz inteira |
+    /// |---|---|---|
+    /// | `grok-4.5` | **3 de 3** | 21 de 21 |
+    /// | `grok-4.3` | **0 de 3** | 12 de 21 |
+    ///
+    /// Por isso a rota tem modelo próprio. Estas seis strings são as saídas
+    /// coladas de `prova/lote09d-q3-grok-4.{3,5}.jsonl` — texto medido, não
+    /// frase inventada. Quem apontar `Sabia.modeloMedido` para o 4.3 sem uma
+    /// corrida nova quebra aqui, e a mensagem diz por quê.
+    @Test func aComparacaoComOTetoEUmNumero() {
+        // a sobra em número, ou a subtração escrita. "Cabe" não é grandeza.
+        func dizAGrandeza(_ t: String) -> Bool {
+            t.range(of: #"(?<![\d.,])2\.?646(?![\d])"#, options: .regularExpression) != nil
+                || t.range(of: #"6\.?000\s*[-−–]\s*(R\$ ?)?3\.?354"#, options: .regularExpression) != nil
+        }
+        // a régua primeiro: ela reprova o que o LOTE-3 entregou e aprova as
+        // duas formas que a fixture aceita. Régua que nunca fica vermelha não
+        // mede nada (lei da 09/09).
+        #expect(!dizAGrandeza("Com o câmbio de hoje a R$ 6,45 por euro, você vai gastar R$ 3.354."))
+        #expect(!dizAGrandeza("520 × 6,45 = R$ 3.354. Cabe no que você reservou (R$ 6.000)."))
+        #expect(dizAGrandeza("São R$ 3.354; sobram R$ 2.646 do teto de R$ 6.000."))
+        #expect(dizAGrandeza("R$ 6.000 − R$ 3.354 deixa a viagem dentro do teto."))
+
+        #expect(Self.sobraNoQuatroCincoDoLote09d.allSatisfy(dizAGrandeza),
+                "o grok-4.5 deixou de dizer a sobra: a rota perdeu o motivo de ter modelo próprio")
+        #expect(Self.sobraNoQuatroTresDoLote09d.allSatisfy { !dizAGrandeza($0) },
+                "o grok-4.3 passou a dizer a sobra: meça de novo e reveja Sabia.modeloMedido")
+
+        // e o executor da rota é o modelo que a medida escolheu, com o padrão
+        // global INTOCADO — o 4.5 é pior no `contrapor` (renda inventada 3 de 3
+        // contra 1 de 3 no LOTE-3), então um vencedor único estragaria aquela.
+        #expect(Sabia.modeloMedido == "grok-4.5")
+        #expect(Grok.modelo == "grok-4.3")
+        #expect(Grok.modelo(daRota: Sabia.modeloMedido) == "grok-4.5")
+    }
+
+    /// As saídas de `q3-gasto-cotacao-na-nota` no LOTE-09d, coladas do JSONL.
+    /// Trocar de corrida é trocar estas seis.
+    static let sobraNoQuatroTresDoLote09d = [
+        "Hospedagem de 400 euros e transporte de 120 euros somam 520 euros. Com o câmbio de hoje a R$ 6,45 por euro, você vai gastar R$ 3.354 em reais com esses itens.\nReferência: “Lista de gastos — 05/09/2026”; “Câmbio de hoje — 09/09/2026”",
+        "Hospedagem 400 euros e transporte 120 euros somam 520 euros. Com a cotação mais recente de R$ 6,45 por euro você vai gastar 3354 reais.\nReferência: “Lista de gastos — 05/09/2026”; “Câmbio de hoje — 09/09/2026”",
+        "Você vai gastar 3354 reais com hospedagem e transporte: 400 euros de hospedagem mais 120 euros de transporte somam 520 euros, convertidos pela cotação de hoje de R$ 6,45 por euro com IOF incluído.\nReferência: “Lista de gastos — 05/09/2026”; “Câmbio de hoje — 09/09/2026”",
+    ]
+    static let sobraNoQuatroCincoDoLote09d = [
+        "Você anotou hospedagem de 400 euros e transporte de 120 euros, total 520 euros. Com o câmbio de hoje do banco (R$ 6,45 por euro, IOF incluso), isso dá 520 × 6,45 = R$ 3.354. Contra o teto de R$ 6.000 que você reservou para a viagem, sobram R$ 2.646.\nReferência: “Orçamento da viagem — 02/09/2026”; “Lista de gastos — 05/09/2026”; “Câmbio de hoje — 09/09/2026”",
+        "Hospedagem 400 € e transporte 120 € somam 520 €. Com o câmbio de hoje do seu banco (R$ 6,45/€, IOF incluso), isso dá 520 × 6,45 = R$ 3.354. Você reservou R$ 6.000 para a viagem; sobram R$ 2.646 em relação a esse teto. O valor de 02/09 (R$ 6,10) já ficou para trás.\nReferência: “Orçamento da viagem — 02/09/2026”; “Lista de gastos — 05/09/2026”; “Câmbio de hoje — 09/09/2026”",
+        "Você vai gastar R$ 3.354 com hospedagem e transporte: 400 € de hospedagem + 120 € de transporte = 520 €, multiplicados pelo câmbio de hoje do seu banco (R$ 6,45 por euro, IOF incluso). Isso cabe no que você reservou (R$ 6.000) e sobram R$ 2.646 no orçamento geral da viagem. O valor em euro de 02/09 já não vale; use o de hoje.\nReferência: “Lista de gastos — 05/09/2026”; “Câmbio de hoje — 09/09/2026”; “Orçamento da viagem — 02/09/2026”",
+    ]
+
+    /// ADR 2026-09-09v — O PORTÃO DA SONDA. Cravar `"grok-4.5"` no sítio da
+    /// chamada faria a rota funcionar e **cegaria a próxima comparação
+    /// pareada**: `TRACO_AVALIAR_MODELO` deixaria de alcançar justamente a rota
+    /// escolhida, e o silêncio pareceria acordo. A precedência é
+    /// sonda → rota → padrão global, e ela só existe se a chamada passar por
+    /// `Grok.modelo(daRota:)`.
+    ///
+    /// O portão falha FECHADO (lei da 09o): ele exige a forma que conhece e
+    /// reprova qualquer outra, inclusive uma que funcionasse.
+    @Test func oModeloDaRotaPassaPelaSonda() throws {
+        let fonte = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent().deletingLastPathComponent()
+            .appendingPathComponent("Traco/Analise/Sabia.swift")
+        let cru = try String(contentsOf: fonte, encoding: .utf8)
+        let codigo = PortaoDoMovimentoTests.codigoVisivel(cru, apagandoTema: false)
+        let chamadas = codigo.components(separatedBy: "Grok.responder(").count - 1
+        #expect(chamadas >= 1, "a chamada de produção sumiu — o portão perdeu o que guardava")
+        #expect(codigo.contains("modelo: Grok.modelo(daRota: modeloMedido)"),
+                "o modelo da rota não passa pela sonda: TRACO_AVALIAR_MODELO deixaria de medir esta rota")
+        // E o literal do modelo mora num lugar só, com a medida ao lado. Aqui a
+        // conta é sobre o CRU: `codigoVisivel` apaga string junto com
+        // comentário, e contar literal no texto sem literais dá zero — foi o
+        // vermelho desta volta, e o portão diz de si mesmo o que lê.
+        #expect(cru.components(separatedBy: "\"grok-4").count - 1 == 1,
+                "modelo escrito em mais de um sítio em Sabia.swift")
+    }
 }
