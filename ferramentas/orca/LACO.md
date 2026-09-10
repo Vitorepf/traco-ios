@@ -3147,3 +3147,26 @@ veio de import. MÉDIO, com dono.
 
 **Estado:** quatro em edição, e desta vez de propósito — Q4-E (`contrapor`, com o aparelho
 da conta), re-G3 MAC-2-A (fechando), AX5-1 (a barra que some em letra grande) e P0-CRLF.
+
+## 10/09, 10h45 — pausa e retomada (uso 29%); quatro em edição, e a razão de cada uma
+
+Fala **0**, inbox limpo. **Quatro em edição — uma acima do teto, de propósito:**
+
+| volta | o que decide |
+|---|---|
+| **P0-CRLF** (`ctx_330d508f815b`) | o `\r` que viola o selo, perde a autoria e **apaga o arquivo do autor**. Acima do teto porque bug vem antes de tudo. |
+| **Q4-E** (`ctx_3cc02f850bbb`) | o caso cego do `contrapor` — **a segunda das sete a voltar**, com a janela do aparelho da conta já liberada para ela. |
+| **AX5-1** (`ctx_46025add6c64`) | em letra grande, **"Notas" e "Concluir" ficam inalcançáveis**. Acessibilidade quebrada em código que está no aparelho do dono. |
+| **re-G3 MAC-2-A** (`ctx_00f9e62f2baa`) | fecha a trilha do Mac, que espera este portão há um dia. |
+
+**O que este ciclo ensinou, e é sobre método, não sobre código:** as quatro coisas mais
+valiosas do dia — o quinto parser, a quinta rota do selo, o CRLF, e agora o P0 — vieram
+todas da **mesma pergunta feita a quem não escreveu o código**: *por onde mais entra?*
+Nenhuma veio de alguém procurando o defeito que lhe pediram; todas vieram de alguém
+**tentando contornar a garantia que o anterior tinha dado por boa**.
+
+E o P0 veio de uma instrução minha que quase não escrevi: mandei o revisor **julgar sem
+consertar** seis linhas que a volta anterior tinha deixado como dívida. Ele julgou, mediu, e
+**parou antes de fechar o próprio G3** — o oposto de terminar o que estava fazendo e
+mencionar de passagem. *Dívida declarada por uma volta é o melhor lugar para a seguinte
+procurar*, e **julgar não é consertar** é o que faz um revisor olhar sem pressa de resolver.
