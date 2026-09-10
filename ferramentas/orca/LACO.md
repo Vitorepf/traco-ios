@@ -3668,3 +3668,24 @@ candidato.**
 - **15h55** Cadeiras: **SISTEMA DA IA** (conversa, ADR 10f), **RESPONDER-B** (mescla dos sete
   consertos) e **RESPONDER · contexto** (`ctx_6ec67217c8d5`, a última alavanca antes do
   esquema, os dois aparelhos de conta livres).
+- **15h49 — os SETE consertos de rota do `responder` em `origin/main` (`c9211b9`)**, suíte
+  **1043 em 164** verde, build limpo. E a volta fez duas coisas que valem: **recuperou os dois
+  pedidos reprovados por BYTES dos dylibs mortos** que o `containermanagerd` guarda, com os
+  shas batendo exatamente com o `pedidoResponderSHA256` das 120 linhas de cada candidato — o
+  texto voltou a ser **legível**, não só identificável; e o **botão morto** do medidor agora
+  **PARA a corrida** em vez de medir o pedido errado em silêncio. **`.semConta` fechou:
+  `perguntarASabia` foi de 47 para 49 de 49.**
+- **15h49 — distinção que faltava:** o corpo de `Grok.responder` é **inalcançável da suíte
+  POR DESENHO** — `Motores.desligados` é `true` em todo processo de teste, e é ele que impede
+  a suíte de gastar a assinatura do dono. **Inalcançável por desenho ≠ inalcançável por
+  descuido**: ali a guarda vigia a **forma** do portão e **carrega a própria mutação**.
+- **16h05 — a conversa com a sábia está pronta** (ADR **10f**, `caec065`): gesto **perguntar
+  separado da busca**, **resposta inteira na área da lista** sem teto nem dobra, trocas com
+  "pergunte de novo", **falha junto da pergunta**, **um Fechar**. Jornada real no `34CC3F94`,
+  pergunta respondida em **9 s**, **vídeo de 15 s já enviado ao dono**. Defeito achado na
+  própria tela e consertado: **a avaliação morava na view e voltava ao trocar de aba**.
+- **16h10 — G4 despachado** (`ctx_e5dbb180c4c3`), e ele é **o portão de seis operações**. Pus
+  um ponto para ser julgado com dureza: **a dedup das fontes ficou POR TEXTO**, e a auditoria
+  de hoje, com os uuids na mão, tinha **retirado** esse dedupe dizendo que *"o defeito é a
+  tela citar TEXTO onde devia citar NOTA"*. Nenhuma nota some do disco — **mas o autor passa a
+  ver UMA fonte onde TRÊS viajaram**, contra o contrato que o `responder` acabou de mesclar.
