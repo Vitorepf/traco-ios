@@ -319,3 +319,80 @@ a linha de motivo da 10b continua verdadeira.
 
 **Nada disto mescla com dimensão abaixo de 9.** É o que a medida diz, e é por
 isso que `responder` fica cortada.
+
+---
+
+# 11. G3 — leitura independente (10/09, revisor)
+
+Página inteira em `ferramentas/orca/g3-contrapor-responder-ctx.md`, peça 2.
+**PASSA. O código MESCLA.** Os dois vereditos ficam como estão: `responder`
+continua `indisponivelPorQualidade`, e o conserto entra. Três coisas mudam.
+
+**§3.2 — a varredura que provava o CONTROLE era mais fraca do que a que achou
+as 9, e a prova foi refeita.** O padrão publicado (`não li|não leu|não veio|não
+chegou|truncad|caracteres não|não coube|parcial`) pega **5 das 9** declarações
+que a §3.1 cita: não vê *"Faltam os 1043 caracteres finais"*, *"não foram
+lidos"* nem *"não consta aqui"*, devolve **0 de 3** em `10c-reuniao-nao-cabe`
+(que a §3.1 credita com 2 de 3) e ainda acusa **1 de 3 no braço ANTIGO** em
+`10c-relatorio-nao-cabe`. Vigia com metade do alcance a dizer zero não prova que
+enxerga. O padrão afinado nas nove está agora em
+`ferramentas/orca/lote-10c-declara-corte.py`, com `--provar` a falhar se alguma
+escapar e com a irmã que não acusa (*"coleta incompleta de julho"* fica calada).
+Com ele, e é o que sustenta a §3.2:
+
+| | não cabe (30) | **CONTROLE** (30) |
+|---|---:|---:|
+| `antigo` | **0** | **0** |
+| `novo` | 11 | **0** |
+
+**A conclusão sobrevive inteira** — zero confissões espúrias no polo de
+controle, e o braço velho a 0 de 30 dos dois lados. E a assimetria fecha o §2:
+0 de 30 tem variância zero, ruído não desce abaixo de zero, e **Fisher exato
+0/30 contra 9/30 dá p = 0,0019**. As 9 não são ruído.
+
+**§3.3 — o desconto de `10c-duas-vizinhas-cabem` não se sustenta, e o placar
+muda para o outro lado.** O caso tem quatro requisitos escritos e as três saídas
+do braço novo **não violam nenhum**: tudo coube, nenhuma diz que deixou de ler
+(*"As anotações da conta não aparecem na nota"* é ausência no caderno, não
+leitura parcial), as duas notas são usadas pelo que são, *"fechar o orçamento"*
+não vira decisão tomada, nada é inventado. O caso foi reprovado por um critério
+**que não está escrito nele** — "leu a pergunta como eu quis" — e depois
+descontado. As duas coisas cancelam-se: sem a cobrança, o lado "tudo cabe" é
+**7 e 7** e o placar total é **7 (antigo) contra 8 (novo)**, não o empate.
+
+E a observação que o desconto enterrou vale mais escrita: com 2,1× mais contexto
+o modelo **ancorou mais na letra da página** — o velho ignorou "da conta" e
+respondeu sobre a semana, o novo levou a palavra a sério 3 de 3, com a MESMA
+entrada. É plausivelmente o mesmo mecanismo que custa preço e prazo na pergunta
+real da §4, e como mecanismo tem valor para a volta seguinte.
+
+**O caso cego de fora (`prova/responder-ctx/casos-cegos.md`) — o C5 não está
+coberto.** Os 20 casos cobrem os dois polos: (a) com folga, (b) no magro muito
+bem (`acordar-cedo-sem-vizinha`, `espanhol-sem-vizinha`, sem vizinha nenhuma).
+Duas lacunas de tamanho — o C2 pede corte de 5 % e os desta volta cortam ~20 %;
+o C3 pede três notas de 300 a 400 PALAVRAS e as vizinhas que cabem aqui têm 105
+a 307 caracteres, logo **o zero do controle foi medido em material magro**. Mas
+a lacuna que importa é o **C5: nenhum dos 20 pergunta por uma nota que NÃO
+EXISTE**, e nada distingue *"não coube"* de *"não há"*. É a alavanca desta volta
+que cria o risco: ela ensinou a rota a dizer *"não veio aqui"*, *"não consta
+aqui"*, *"não chegou aqui"* — as três frases estão em
+`10c-duas-notas-uma-fica-de-fora` e são exatamente as que o C5 reprova quando
+não há nada que pudesse ter vindo. O detalhe que fecha: a vizinha de
+`10c-contrato-nao-cabe` chama-se **"Contrato do estúdio"**, o nome que o C5
+exige que não exista — os dois casos são espelho um do outro, e só um rodou.
+**Recomendado como a primeira corrida da volta seguinte**, antes de qualquer
+alavanca nova: 1 caso × 3 × 2 braços.
+
+**Por que o código entra mesmo com a perda da §4.** Segui a rota: `notasLigadas`
+→ `contextoDoCaderno` → `contextoDaPergunta` → `responderNaPagina`, e é o único
+consumidor (`responderNasNotas`, que está viva, passa por `contextoDasNotas`).
+Com `responder` cortada, **nem o ganho nem a perda alcançam autor nenhum hoje**.
+O que entra é a remoção de uma tesoura que fazia o app afirmar ao autor que a
+nota dele não tem o que ela tem; a perda de preço e prazo na pergunta real
+(2 de 3 → 0 de 3, n = 3, uma pergunta) é real, fica escrita, e vai ao RUMO como
+o custo nomeado da alavanca seguinte.
+
+**Instrumento do G3:** nenhuma chamada nova ao provedor, nenhum aparelho de
+conta tocado. Suíte na árvore JÁ MESCLADA com `main`: **1070 testes em 167
+suítes, `** TEST SUCCEEDED **`**, 152,9 s no teste 4 `A1DF082C`, sob
+`com-trava.sh`. Build limpo, só o warning herdado de `NotasView.swift:814`.
