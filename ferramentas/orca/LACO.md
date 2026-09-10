@@ -3016,3 +3016,44 @@ no preâmbulo.
 
 **Regra nova, que dois revisores alcançaram sozinhos:** *revisor reporta, não decide
 contrato* — a ADR é do autor, o veredito é do revisor.
+
+## 10/09, 09h10 — pausa e retomada (uso 20%); três em edição, e a mescla vai em três pedaços
+
+Fala **0**, inbox limpo. **Três em edição, teto cheio, nada a reabrir:** **Q3-D** (o cartão
+que corta calado), **MAC-2-A-C** (a cerca com três furos) e **Q4-D** (a guarda que calava,
+viva no `vestir`).
+
+**O G3 da Q4-C fechou com a decomposição mais útil do dia:** REPROVA para mescla
+(Correção 7, Contrato 8) e **APROVA a medida** — ele recalculou os quatro números do LOTE-5
+do zero, a partir do JSONL cru, e **todos batem ao grafema**. E recomendou mesclar **em
+três pedaços, separando por evidência e não por arquivo**:
+
+1. **Entra** o conserto da guarda, o `sistemaContrapor` e a palavra `renda` — medidos,
+   positivos, e a **colheita SUBIU**: campos vazios **14/54 → 9/54** e **3/54 → 0/54**, o
+   oposto da recusa covarde que se temia ao endurecer a guarda.
+2. **Segura** as quatro linhas do `sistemaInstigar`, até condicioná-las à matéria.
+3. **Segue** `contrapor` ao caso cego: **pelo mérito ela já passa com 9 nas cinco
+   dimensões** nas 36 execuções. Falta só o aparelho da conta, que está com a Q3-D.
+   **É a segunda operação a um passo de voltar.**
+
+**E ele achou o que a autora não tinha visto**, além da diluição: a cláusula promovida fez
+o modelo **supor um episódio que a pessoa não escreveu** — 0 → 8 perguntas no `4.3` —,
+contra a linha *"Não suponha nenhum fato que ela não escreveu"* que segue viva **quatro
+linhas abaixo** da promovida. Promover uma cláusula não é só somar peso: é **mudar quem
+manda** entre linhas que se contradizem.
+
+**O defeito que virou volta imediata é o único vivo no aparelho do autor:** `Sabia.parseMapa`
+recusa por contrato uma lista lida até o fim, e `Sessao.vestirTudo` escreve **"a sábia não
+respondeu" sobre um HTTP 200 inteiro** — em `vestir`, rota **ligada**. É a mesma guarda que
+já consertamos no `contrapor`, uma função adiante. **Bug tem prioridade sobre função nova.**
+
+**Duas perguntas de worker, respondidas sem parar o laço.** A letra 09w, que **eu** escrevi
+no `LETRAS-ADR.md` — reservar é ato de quem despacha, e foi por confirmar letra por
+mensagem que houve duas colisões ontem. E uma fronteira de arquivo que valia a pergunta: o
+padrão que conserta o corte **já existe inline** numa view aprovada no G4 da V8. Autorizei
+extrair o componente e converter a view, com guarda dura — **prova de identidade por
+captura antes e depois; sem prova, para e a cópia vira dívida**. Criar componente e deixar
+a cópia inline ao lado é o slop que a lei nomeia.
+
+**E a volta foi procurar os irmãos por conta própria:** achou um **terceiro sítio** do
+mesmo corte calado no `RecordarView:440`, disse, e não o fotografou. Dívida com dono.
