@@ -84,6 +84,17 @@ enum Sabia {
     /// que a substitui é a mesma que a 08z/09n mediu funcionando em
     /// `sistemaResponder`: responder o sustentado, nomear o dado ausente,
     /// seguir ajudando. Recusar por inteiro reprova igual a inventar.
+    ///
+    /// ADR 2026-09-09h, emenda (Q3-C): o LOTE-3 de 10/09 acertou os R$ 3.354 em
+    /// 6 de 6 execuções e NENHUMA disse quanto sobra dos R$ 6.000 — o 4.5
+    /// escreveu "cabe no que você reservou". *Comparação com o teto* era o que
+    /// este pedido cobrava, e "cabe" É uma comparação: o modelo obedeceu. O
+    /// pedido passa a cobrar a GRANDEZA — a diferença em número —, e a mesma
+    /// palavra faz o limite da sala virar "18 passa de 15 em 3".
+    ///
+    /// Uma alavanca só: este parágrafo é o ÚNICO delta desta volta, conferido
+    /// por diff contra o texto que o binário medido carrega
+    /// (`Traco.debug.dylib` 57d02df3…, instalado às 02:27:16Z de 10/09).
     static let sistemaResponderNasNotas = """
     Responda à PERGUNTA INTEIRA, em português, em um único texto de até 900
     caracteres. Cubra todos os elementos pedidos, sem repetir uma parte e
@@ -112,10 +123,12 @@ enum Sabia {
     acabou de dizer. Desconhecido é só o que não está em parte nenhuma do
     material que você recebeu.
     TERMINE A CONTA. Se o material traz todos os termos, faça a aritmética e
-    entregue o número pedido, mais a comparação com o teto, o prazo ou o
-    limite que ela anotou. Nunca prometa calcular depois, nem devolva a
-    multiplicação para ela fazer: a fórmula com o nome no lugar do valor é
-    para quando o valor falta de verdade.
+    entregue o número pedido e, contra o teto, o prazo ou o limite que ela
+    anotou, a DIFERENÇA em número: quanto sobra, quanto passa, quantos dias
+    faltam. Dizer que cabe, ou que não cabe, sem o número, não é a diferença.
+    Nunca prometa calcular depois, nem devolva a multiplicação para ela
+    fazer: a fórmula com o nome no lugar do valor é para quando o valor
+    falta de verdade.
     Um fato de hoje AUSENTE do material — cotação, preço corrente, horário de
     hoje — se responde assim: diga que não sabe, diga ONDE ela confirma, e
     responda o resto da pergunta com o material que tem. Não chute valores, e
@@ -139,6 +152,15 @@ enum Sabia {
     contrato. Contexto parcial não prova ausência de um fato no acervo.
     """
 
+    /// O modelo desta rota, e ele é MEDIDO (ADR 2026-09-09v). No LOTE-09d, a
+    /// mesma fixture nos dois modelos, na mesma janela e no mesmo binário:
+    /// `grok-4.5` **21 de 21**, `grok-4.3` **12 de 21** — o 4.3 calcula os
+    /// R$ 3.354 e não diz os R$ 2.646 em 3 de 3, e expõe os 18 inscritos contra
+    /// a sala de 15 sem o próximo ato em 3 de 3. O padrão global fica no 4.3
+    /// porque o 4.5 é PIOR no `contrapor`: quem trocar isto por um vencedor
+    /// único conserta esta rota e estraga aquela.
+    static let modeloMedido = "grok-4.5"
+
     static func responderNasNotas(pergunta: String, fontes: [FonteNotas],
                                   conversa: [Sessao.TrocaNasNotas] = [], catalogo: String = "",
                                   retrato: String = "", validarAcesso: ([FonteNotas]) -> Bool = { _ in true },
@@ -152,7 +174,8 @@ enum Sabia {
             if let gerarRemoto { cru = await gerarRemoto(pacote) }
             else {
                 cru = await Grok.responder(sistema: sistemaResponderNasNotas, usuario: pacote.mensagem,
-                                          temperatura: 0.3, esquema: RespostaNotas.esquemaRemoto(pacote))
+                                          temperatura: 0.3, esquema: RespostaNotas.esquemaRemoto(pacote),
+                                          modelo: Grok.modelo(daRota: modeloMedido))
             }
             guard !Task.isCancelled, validarAcesso(pacote.fontes) else { return nil }
             if let cru, let resposta = RespostaNotas.interpretar(cru, pacote: pacote) { return resposta }

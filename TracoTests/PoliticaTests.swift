@@ -49,7 +49,12 @@ import Testing
     /// uma sem medida nova, PAREADA, quebra aqui — e a Q2-F (09q) FEZ a medida
     /// pareada: nenhum dos três modelos que a conta serve passou os 18 casos.
     @Test func indisponivelPorQualidadeNaoTemExecutorNemComContaEAparelho() throws {
-        let cortadas: [Politica.Operacao] = [.ecos, .calibragem, .recordar, .responderNasNotas,
+        // ADR 2026-09-09v: a `responderNasNotas` SAIU daqui em 10/09. Ela é a
+        // primeira das sete a voltar, e voltou por MEDIDA: 21 de 21 no
+        // `grok-4.5` contra 12 de 21 no `grok-4.3`, mesma fixture, mesma
+        // janela, mesmo binário. Quem a puser de volta nesta lista sem uma
+        // corrida nova quebra aqui — e quem tirar outra sem medida também.
+        let cortadas: [Politica.Operacao] = [.ecos, .calibragem, .recordar,
                                             .instigar, .contrapor, .responder]
         #expect(Set(Politica.indisponiveis) == Set(cortadas))
         // ADR 08z: a chave da sonda só existe em DEBUG e só abre o que ela
@@ -80,7 +85,7 @@ import Testing
         // substituto medido, e com conserto já nomeado.
         #expect(Politica.indisponiveis.filter { Politica.linha($0).conserto == nil }.count == 3)
         #expect(Set(Politica.indisponiveis.filter { Politica.linha($0).conserto != nil })
-                == Set([.responderNasNotas, .responder, .instigar, .contrapor]))
+                == Set([.responder, .instigar, .contrapor]))
         // ADR 09i: `instigar` e `contrapor` entram no grupo "em correção" —
         // o conserto está escrito, a MEDIDA é que falta. O texto vai inteiro
         // para a tela (PerfilView `restoDa`), então fala do que o autor vê.
@@ -92,8 +97,7 @@ import Testing
         // nada. Se um destes trechos sair da tabela sem medida nova, quebra
         // aqui.
         let emCorrecao = PerfilView.reprovadas.filter { $0.conserto != nil }
-        for (op, leitura) in [(Politica.Operacao.responderNasNotas, "quanto sobra do seu orçamento"),
-                              (.instigar, "não pede quando aconteceu"),
+        for (op, leitura) in [(Politica.Operacao.instigar, "não pede quando aconteceu"),
                               (.contrapor, "inventa renda que você não escreveu")] {
             let r = try #require(emCorrecao.first { $0.op == op })
             let linha = PerfilView.restoDa(r, dataNaLinha: PerfilView.dataDe(emCorrecao).isEmpty)
@@ -101,6 +105,18 @@ import Testing
             #expect(!linha.contains("08/09"), "\(op): motivo de 08/09 ainda na tela — \(linha)")
             #expect(Politica.linha(op).medidaEm == "10/09/2026", "\(op): a data não é a do LOTE-3")
         }
+        // ADR 09v — O RETORNO tem de chegar à TELA, não só à tabela: a operação
+        // que voltou some da lista de reprovadas do Perfil, e a frase que o
+        // autor lê no ponto em que toca deixa de dizer "indisponível". Contar a
+        // lista sozinha passaria igual com a linha velha (defeito da V12-E).
+        #expect(!Politica.indisponiveis.contains(.responderNasNotas))
+        #expect(!PerfilView.reprovadas.contains { $0.op == .responderNasNotas })
+        #expect(Politica.linha(.responderNasNotas).regra == .soGrok)
+        #expect(Politica.provedor(.responderNasNotas, contaLigada: true, bordo: true) == .grok)
+        #expect(Politica.provedor(.responderNasNotas, contaLigada: false, bordo: true) == nil)
+        let voltou = Politica.semProvedor(.responderNasNotas)
+        #expect(!voltou.contains("indisponível"), "a tela ainda diz indisponível — \(voltou)")
+        #expect(voltou.contains("conta Grok"), "sem conta, a tela tem de dizer o que falta — \(voltou)")
     }
 
     /// ADR 09n, REVERTIDA em 09/09 pelo G3 (`revisao-q2-responder.md`). A

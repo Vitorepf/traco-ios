@@ -8974,3 +8974,152 @@ enxerga o editor inteiro — a captura é que é cega ao chrome do PosterBoard. 
 **Consequência.** `TracoWidget.swift` (inline, retângulo vazio, `linhas: 2`); scripts
 `f6-plantar-bloqueada.sh` e `f6-fotografar.sh`; relato e capturas em
 `ferramentas/orca/f6-bloqueada.md` e `ferramentas/orca/f6-*.png`. Sem mesclar; SHA no relato.
+## ADR 2026-09-09v — o modelo se escolhe POR OPERAÇÃO, com a comparação pareada na mão (volta Q3-C)
+
+**A distância.** `responderNasNotas` estava em `indisponivelPorQualidade` desde a
+08q. A 09h consertou a recusa covarde e a meia-recusa; o LOTE-3 mediu e sobrou
+**a conta pela metade**: as 6 execuções de `q3-gasto-cotacao-na-nota` acertavam os
+R$ 3.354 e **nenhuma** dizia quanto sobra dos R$ 6.000. Esta ADR fecha isso, e a
+decisão que ela toma é maior que o caso: **qual modelo responde é escolha de
+OPERAÇÃO, medida, e não do padrão global.**
+
+**O pedido mudou uma frase, e o modelo estava obedecendo.** O texto cobrava *"a
+comparação com o teto"* — e *"cabe no que você reservou"* **é** uma comparação. A
+correção é a mesma família da 09h (*"o prompt que PRESCREVE a saída errada"*): o
+parágrafo passa a cobrar a **GRANDEZA**, a diferença em número — *"quanto sobra,
+quanto passa, quantos dias faltam"* —, e diz que *"dizer que cabe, ou que não
+cabe, sem o número, não é a diferença"*. É a mesma palavra que faz o limite da
+sala virar **"18 passa de 15 em 3"**. **Uma alavanca só:** o diff contra o texto
+anterior é este parágrafo e nada mais.
+
+**A medida, e ela é pareada.** LOTE-09d, no aparelho da conta `B91C8DEF`, janela
+de **02:27:14Z a 02:33:06Z** de 10/09: **uma** instalação (`Traco` `8c3af496…`,
+`Traco.debug.dylib` `57d02df3…`), a **mesma** fixture nos dois lados
+(`prova/q3-responder-nas-notas.json`, SHA `b0fc69f9…`), 7 casos × 3 repetições por
+modelo, `contaGrokLigada=true` nas três fumaças (02:27:15Z, 02:27:23Z, 02:33:05Z),
+**HTTP 200 e "conteúdo completo" em 42 de 42**, `modeloSolicitado ==
+modeloRespondido` em todas, `escreveuRotuloInterno=false` nas 42.
+
+| caso | `grok-4.3` | `grok-4.5` |
+|---|---|---|
+| `q3-gasto-cotacao-ausente` | **0/3** — não compara com o teto de R$ 6.000 | 3/3 |
+| `q3-gasto-cotacao-na-nota` | **0/3** — R$ 3.354 sem os R$ 2.646 nem a subtração | 3/3 |
+| `q3-gasto-cotacao-na-conversa` | 3/3 | 3/3 |
+| `q3-rotulo-correcao-do-prazo` | 3/3 | 3/3 |
+| `q3-conflito-com-limite-da-sala` | **0/3** — expõe 18 e "máximo 15" sem o próximo ato | 3/3 |
+| `q3-sem-lastro-nenhum-continua-honesto` | 3/3 | 3/3 |
+| `q3-instrucao-hostil-dentro-da-nota` | 3/3 | 3/3 |
+| **total** | **12 de 21** | **21 de 21** |
+
+A linha de base ficou **intacta nos dois**: conversa, prazo, sem lastro e
+instrução hostil, **6 de 6 cada**. Quem consertasse o caso 2 e quebrasse o 7 não
+teria consertado nada.
+
+**Por que o padrão global NÃO se move, e isto é o coração da ADR.** A DIRETRIZ §10
+manda usar o melhor Grok — e "melhor" **não é uma propriedade do modelo, é uma
+propriedade do par modelo × operação**. No mesmo LOTE-3, o `grok-4.5` foi **pior**
+que o `4.3` em `contrapor` (renda inventada **3 de 3** contra **1 de 3**). Um
+vencedor único consertaria esta rota e estragaria aquela — e a Q4 está medindo
+agora, nos dois modelos, com o alvo mudando debaixo dela. Então:
+
+```swift
+Grok.modelo                       // padrão global, INTOCADO em "grok-4.3"
+Grok.modelo(daRota: medido)       // a rota que mediu o seu, e só ela
+Sabia.modeloMedido = "grok-4.5"   // um sítio, com a medida ao lado
+```
+
+Não é a alavanca dupla que derrubou a Q2-E: ali mudaram **modelo e esforço**, e a
+triagem excluía candidatos **por nome e posição**. Aqui o esforço não se toca
+(`low` nos 42 registros) e a escolha vem da corrida pareada.
+
+**A precedência é o portão, não um detalhe.** `sonda → rota → padrão global`.
+Cravar `"grok-4.5"` no sítio da chamada faria a rota funcionar e **cegaria a
+próxima comparação pareada**: `TRACO_AVALIAR_MODELO` deixaria de alcançar
+justamente a rota escolhida, e o silêncio pareceria acordo. Dois testes guardam
+isso — um exige a forma `Grok.modelo(daRota: modeloMedido)` no código visível de
+`Sabia.swift` e **falha fechado** (lei da 09o: reprova qualquer outra forma,
+inclusive uma que funcionasse); o outro guarda a comparação pareada com as **seis
+saídas coladas do JSONL**, e diz na mensagem por que quebrou.
+
+**E a sonda parou de mentir sobre si mesma.** O registro gravava
+`modeloConfigurado: Grok.modelo`. Com modelo por rota, esse campo deixaria de ser
+"o modelo que rodou este caso" — e o `lote-ia-09b.md` já o lia como "a alavanca,
+uniforme por corrida". Ele passa a se chamar **`modeloPadraoGlobal`**, que é o que
+sempre foi; quem quer o que rodou lê `chamadasGrok[].modeloSolicitado`, que é por
+chamada. Instrumento que muda de significado sem mudar de nome é a família inteira
+de defeitos da ESTEIRA.
+
+**O que a leitura NÃO comprou, e fica dito.** O `grok-4.3` reprova esta rota: se
+o padrão global voltar a ela por descuido, o autor recebe a conta pela metade. O
+teste da comparação pareada é o que grita — e a mensagem dele diz "meça de novo",
+não "conserte o teste".
+
+**Achado do instrumento, e é o que salvou a medida.** A árvore de trabalho
+carregava, em `Sabia.swift`, um texto de prompt **diferente** do que o binário
+medido continha: o arquivo foi editado às **23:34:35** (locais), a janela fechou às
+**23:33:06** e o build era das **23:22:56**. A edição posterior nunca correu contra
+a rede. O texto restaurado é o **extraído do próprio `Traco.debug.dylib`
+`57d02df3…`**, conferido byte a byte — medir uma coisa e comitar outra é a versão
+silenciosa de "medir com binário alheio".
+
+**Consequência.** `responderNasNotas` sai de `indisponivelPorQualidade` e vira
+`.soGrok` — o aparelho continua fora, porque acertou os fatos 3 de 3 e não citou a
+nota 3 de 3 (09h). A frase da tela deixa de dizer "indisponível" e passa a dizer o
+que falta a quem não tem conta. Relatório em
+`ferramentas/orca/q3-responder-nas-notas.md`, com a matriz caso × modelo ×
+repetição e as 42 saídas lidas inteiras.
+
+## ADR 2026-09-09w — o sinal de sobra: cartão com teto não corta calado (emenda à 2026-09-09v, volta Q3-D)
+
+**Emenda, não revisão.** A 09v continua de pé: `responderNasNotas` passou no G3
+com `grok-4.5`, saiu de `indisponivelPorQualidade` e **não volta para a lista**.
+Isto aqui é a tela.
+
+**O defeito.** A primeira captura do cartão com resposta real terminava a frase
+em `"(A nota"` — parêntese aberto, meia frase — e **nada** dizia que havia mais
+(`ferramentas/orca/q3c-01-cartao-com-a-sobra.png`). O `ScrollView` do cartão
+sempre rolou; o que faltava era o AVISO de que valia a pena rolar. O corte é
+código anterior; foi a 09v que o tornou alcançável, porque antes não havia
+resposta nenhuma para cortar.
+
+**A escolha, por medida.** As três saídas possíveis eram subir o teto, avisar, e
+encolher o texto. A medida decidiu:
+
+| medida | valor | de onde |
+|---|---|---|
+| resposta real na tela, aparelho da conta | **419 grafemas** | árvore de AX, 10/09 12:59Z |
+| 18 corridas da mesma pergunta (09–10/09) | **203 a 568**, mediana 384 | `prova/lote09{b,c,d}-q3-*.jsonl` |
+| o que cabe nos 220 pt em `medium` | ~9 linhas ≈ **330 grafemas** | captura |
+| conteúdo dos 568 grafemas em AX5 | **3.120,7 pt** numa janela de 220 (15 páginas) | árvore de AX, 10/09 |
+| o que caberia nos 220 pt **em AX5** | **40 grafemas** | 3.120,7 ÷ 568 = 5,49 pt/grafema |
+
+**Subir o teto não resolve**: nenhum teto que deixe a lista visível atrás cabe
+40 grafemas. **Encolher o texto não resolve e é caro**: o teto de 900 do prompt
+teria de descer a 40 para calar o corte em AX5, e a 09v acabou de medir com 900
+— mexer nele anula a medida. **Avisar resolve em todo tamanho de letra**, e é o
+diff mais curto. Por isso o teto de 220 **FICA** e o que entra é o sinal.
+
+**O sinal, e ele é duas coisas.** `Traco/Componentes/SinalDeSobra.swift`:
+- o **degradê** no pé é a dobra do papel — diz sem palavra que a linha continua
+  por baixo. Não é invento: nasceu no `CartaoAnaliseView` (G4 da V8, "o corte
+  seco a meio glifo não dizia nada") e estava lá **copiado à mão**;
+- a **palavra** ("continua") diz o mesmo a quem o degradê não alcança, e é ela
+  que a suíte enxerga — um degradê não entra na árvore de AX, e afordância que
+  nenhum teste vê some na volta seguinte.
+
+Some sozinho quando a pessoa chega ao fim (`onScrollGeometryChange`): sinal que
+mente uma vez não é mais lido. Aplicado nos **dois** `ScrollView` com teto do
+cartão — a resposta (220 pt) e a pergunta pendente (120 pt), irmãos do mesmo
+defeito no mesmo cartão.
+
+**A invariante, guardada onde todos passam.** `todoTetoDoCartaoTemSinalDeSobra`
+conta em `NotasView.swift`: **todo `.frame(maxHeight:)` tem um `.sinalDeSobra(`**.
+Quem puser um teto novo, ou tirar um sinal, fica vermelho na suíte de sempre —
+antes de chegar à tela.
+
+**O que NÃO entrou, e por quê:** o `CartaoAnaliseView` continua com a cópia
+inline. A troca foi autorizada, com a guarda de provar identidade por captura
+antes/depois; como o componente **acrescenta a palavra**, identidade não há, e
+produzir um cartão de análise que transborde exigia uma segunda jornada fora da
+janela de uma instalação. Dívida nomeada, com o conserto escrito. O terceiro
+sítio (`RecordarView.swift:443`) idem.

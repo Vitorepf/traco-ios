@@ -104,11 +104,8 @@ enum Politica {
                   motivo: "entregou a resposta dentro da pergunta",
                   medidaEm: "08/09/2026")
         case .responderNasNotas:
-            .init(regra: .indisponivelPorQualidade,
-                  porque: "o aparelho acertou os fatos 3 de 3 e não citou a nota 3 de 3; com a conta ligada em 08/09 o Grok recusava por inteiro a pergunta que pedia fato atual — prova/q-qualidade.md. O conserto da Q3-B foi MEDIDO no LOTE-3 (7 casos × 3 em grok-4.3 e em grok-4.5, uma janela, uma instalação): a meia-recusa da conversa acabou (6 de 6 calculam os R$ 3.354 com a cotação que a pessoa deu, contra 0 de 3 antes), o HOJE chega em fuso local e nenhum rótulo interno escapou nas 42 saídas. O que sobrou é a conta pela METADE: em q3-gasto-cotacao-na-nota as 6 execuções calculam os R$ 3.354 e NENHUMA diz os R$ 2.646 nem faz a subtração do teto; e o conflito com o limite da sala ainda reprova 2 de 3 no grok-4.3 (3 de 3 no grok-4.5) — prova/lote09c-q3-grok-4.3.jsonl, prova/lote09c-q3-grok-4.5.jsonl e ferramentas/orca/revisao-q3-notas.md",
-                  motivo: "faz a conta do gasto e para antes de dizer quanto sobra do seu orçamento",
-                  medidaEm: "10/09/2026",
-                  conserto: "terminar a conta — dizer quanto sobra do teto em toda repetição — e resolver o conflito de listas também no modelo que o app usa; falta medir")
+            .init(regra: .soGrok,
+                  porque: "VOLTOU em 10/09, com a comparação pareada que a DIRETRIZ §10 pede. O LOTE-09d correu a MESMA fixture nos dois modelos, na mesma janela (02:27:24Z–02:33:03Z), com uma instalação só e a conta conferida ligada nas três fumaças: `grok-4.5` passa os 7 casos × 3 (21 de 21) e `grok-4.3` passa 12 de 21 — calcula os R$ 3.354 e NÃO diz os R$ 2.646 em 3 de 3, e expõe os 18 inscritos contra a sala de 15 sem o próximo ato em 3 de 3. A linha de base ficou intacta nos DOIS (cotação na conversa, prazo, sem lastro e instrução hostil, 6 de 6 cada) e `escreveuRotuloInterno` é false nas 42 saídas, lidas inteiras. Por isso o executor é o Grok com o modelo MEDIDO desta rota (`Sabia.modeloMedido`), e não o padrão global — que fica no 4.3 porque o 4.5 é pior no `contrapor`. O aparelho continua fora: ele acertou os fatos 3 de 3 e não citou a nota 3 de 3 (ADR 09h) — prova/lote09d-q3-grok-4.3.jsonl, prova/lote09d-q3-grok-4.5.jsonl e ferramentas/orca/q3-responder-nas-notas.md")
         case .responder:
             .init(regra: .indisponivelPorQualidade,
                   porque: "cortada em 08/09 (a 08q mediu 3 de 6: horário de biblioteca e um total de R$ 1.008 que o contexto não sustentava). O contrato de sustentação em `sistemaResponder` matou a fabricação de NÚMERO (0 em 108 execuções na 08z) e FICA. A escolha do modelo, que a 09n adotou e o G3 reprovou, foi refeita na Q2-F (ADR 09q) com UMA alavanca: dos doze modelos da conta, nove saem por frase da API (cinco `Model not found`, quatro recusam `reasoningEffort`), e os três que servem a requisição correram os 12 casos da 08z mais os 6 cegos do revisor, três vezes, com `medium` fixo — `grok-4.3` 15 de 18, `grok-4.5` 17 de 18, `grok-4.6` 16 de 18. NENHUM chega a 18, e o padrão atual reprova um caso cego em 3 de 3. prova/q2f-*.jsonl e ferramentas/orca/q2f-responder.md",
@@ -183,13 +180,15 @@ enum Politica {
         case .revisar: RevisaoTrabalho.semProvedor
         case .conferir: "Conferir o que voltou pela IA precisa da conta Grok; o modelo do aparelho errou a comparação."
         case .padroes: "Precisa da conta Grok; o modelo do aparelho não serviu aqui."
-        // As SEIS abaixo estão INDISPONÍVEIS POR QUALIDADE (ADR 08q; a
+        // ADR 09v: a `responderNasNotas` SAIU desta lista em 10/09 e virou
+        // `.soGrok` — a frase dela agora é a de quem só precisa de conta.
+        // As SEIS abaixo continuam INDISPONÍVEIS POR QUALIDADE (ADR 08q; a
         // `responder` saiu da lista na 09n e VOLTOU no mesmo dia, quando o G3
         // reprovou a escolha do modelo — o conserto do prompt ficou, a
         // comparação pareada é que falta): a conta
         // pode estar ligada e mesmo assim ninguém responde, porque o que
-        // respondia não atendeu na medida — 08/09 para três delas, 10/09 para
-        // as três que o LOTE-3 remediu (ADR 09t). A frase não manda conectar
+        // respondia não atendeu na medida — 08/09 para quatro delas, 10/09 para
+        // as duas que o LOTE-3 remediu (ADR 09t). A frase não manda conectar
         // conta, não pede para tentar de novo e não promete guardar nada — quem
         // guardou o pedido é que diz isso, depois de confirmar.
         case .responder: "Responder à sua pergunta pela IA está indisponível: na medida de 08/09 ela inventou fato que o contexto não sustentava. O que você escreveu continua aqui, e a sua pergunta fica na nota."
@@ -198,7 +197,7 @@ enum Politica {
         case .recordar: "A pergunta do Recordar pela IA está indisponível: na medida de 08/09 ela entregou a resposta dentro da própria pergunta. O ritual segue com a pergunta fixa."
         case .instigar: "Instigar pela IA está indisponível: na medida de 10/09, num texto curto, ela fez perguntas vagas e não pediu quando aconteceu. As perguntas do método continuam na página."
         case .contrapor: "Contrapor pela IA está indisponível: na medida de 10/09 ela inventou renda que você não escreveu e, às vezes, calou onde a sua nota dava matéria. O Steelman e a Inversão continuam no catálogo, escritos por você."
-        case .responderNasNotas: "Responder sobre as suas notas pela IA está indisponível: na medida de 10/09 ela fez a conta do seu gasto e parou antes de dizer quanto sobra do seu orçamento. A busca pelo texto das notas continua."
+        case .responderNasNotas: "Responder sobre as suas notas precisa da conta Grok (em Perfil); o modelo do aparelho não citou a nota que sustentava a resposta."
         case .vestir, .classificar:
             "A sábia precisa da sua conta Grok (em Perfil) ou da Apple Intelligence ligada."
         case .dominio: "O domínio pela IA precisa da Apple Intelligence ligada; sem ela, o léxico decide."

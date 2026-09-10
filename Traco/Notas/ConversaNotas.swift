@@ -46,6 +46,41 @@ final class ConversaNotas {
 
     var temCartao: Bool { estado != .ociosa || semModelo || !trocas.isEmpty }
 
+    #if DEBUG
+    /// Instrumento de evidência, só em Debug, e só sobre o SINAL DE SOBRA: o
+    /// simulador de teste não tem conta Grok e o aparelho que tem é o da conta,
+    /// onde a suíte não corre. Sem isto a resposta longa não se testa — e uma
+    /// afordância que nenhum teste vê volta a sumir na próxima volta. Não
+    /// fabrica token e não chama rede: o texto é uma resposta MEDIDA de verdade
+    /// (`prova/lote09b-q3-grok-4.6.jsonl`, caso `q3-gasto-cotacao-na-nota`, a
+    /// mais longa das 18 corridas de 09-10/09).
+    /// Liga com `simctl launch <UDID> app.traco -ensaio-resposta-longa-nas-notas`.
+    static let ensaioDaRespostaLonga = ProcessInfo.processInfo.arguments.contains("-ensaio-resposta-longa-nas-notas")
+
+    /// 568 grafemas. Sem dependências: `Sessao.dependenciasValidas([])` é
+    /// verdadeiro, então a revalidação da tela não a recolhe.
+    static let respostaMedida = """
+    Você anotou hospedagem de 400 euros e transporte de 120 euros (520 euros no total). Com o câmbio do banco de hoje, R$ 6,45 por euro já com IOF, isso dá R$ 3.354 (400×6,45 = R$ 2.580; 120×6,45 = R$ 774). Você reservou R$ 6.000 para a viagem, então esse trecho cabe no orçamento. Em 02/09 o euro estava a R$ 6,10, mas você mesmo anotou que isso muda todo dia; não sei a cotação de mercado neste instante — confirme no banco ou app de câmbio se for pagar agora.
+    Referência: “Orçamento da viagem — 02/09/2026”; “Lista de gastos — 05/09/2026”; “Câmbio de hoje — 09/09/2026”
+    """
+    #endif
+
+    init() {
+        #if DEBUG
+        if Self.ensaioDaRespostaLonga {
+            trocas = [.init(pergunta: "Quanto vou gastar em reais com hospedagem e transporte na viagem?",
+                            resposta: Self.respostaMedida)]
+            // os títulos vão junto porque a linha "Foram junto:" é parte do
+            // cartão e do seu tamanho: sem eles o ensaio media um cartão que
+            // não existe. São os quatro do aparelho da conta em 10/09.
+            titulos = ["Reservei R$ 6000 para a viagem. Hospedagem 400 euros. Transporte 120 euros. Hoje o banco me cobrou R$ 6,45 por euro.",
+                       "Vou de carro a Fortaleza no fim do mês. Medi no mapa: são 600 km só de ida. Não sei o consumo do carro nem o preço do litro.",
+                       "Plano da semana",
+                       "Proposta para o cliente da padaria"]
+        }
+        #endif
+    }
+
     @discardableResult
     func perguntar(disponivel: Bool, responder: @escaping Responder) -> Task<Void, Never>? {
         let pergunta = entrada
