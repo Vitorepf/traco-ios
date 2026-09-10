@@ -604,3 +604,11 @@ no toque cego do retículo do inline, e depois num `^Traço$` ambíguo que abriu
 É limite de instrumento e **não desconta nota** — mas significa que **as capturas do
 build candidato na tela bloqueada continuam sendo as do autor**, não reproduzidas de
 forma independente. **Dono: a trilha de instrumento.**
+
+**Dívida: a linha do Perfil nova não foi vista na tela (09/09, 22h5x).** A MERGE-Q34
+mudou as três linhas que o autor lê em Perfil (`responderNasNotas`, `instigar`,
+`contrapor`) e **não conseguiu fotografá-las**: dez rolagens seguidas devolveram
+posição vazia na árvore de AX, com outra volta reinstalando no mesmo aparelho entre as
+posses da trava. **Mandei parar** — a captura não estava no escopo dela e estava
+segurando a mescla. **Dono: a Q3-C e a Q4-C**, que são obrigadas a fotografar o cartão
+no aparelho da conta e passam por essa mesma tela no caminho.
