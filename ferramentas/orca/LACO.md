@@ -3389,3 +3389,41 @@ O padrão que se repetiu o dia inteiro apareceu de novo, agora contra mim: **cad
 defeito contornando a garantia que o anterior deu por boa.** Desta vez a garantia era uma
 frase que **eu** escrevi na ESTEIRA. *A lei da casa também é candidata a ser derrubada por
 medida* — e é isso que a separa de doutrina.
+
+## 10/09, 11h41 — `responderNasNotas` CHEGOU AO AUTOR. `origin/main` = `47aff15`
+
+**A ordem 1 da §13 está cumprida, e a hora é esta: 11h41 de 10/09.** A operação saiu de
+`indisponivelPorQualidade`, entrou como **`.soGrok` com o modelo MEDIDO desta rota**, e a
+lista de cortadas do Perfil caiu de sete para **SEIS**.
+
+**E a tela passou a falar a língua do autor, nas DUAS telas.** O cartão CONTA abre com
+**"A IA faz por você…"** e **"Com a sua conta Grok, ela faz também: … responder nas Notas
+…"**. O cabeçalho velho — *"Indisponível mesmo com a conta Grok — a medida de 08/09
+reprovou"* — virou **"O que ela ainda não faz, nem com a sua conta ligada:"**. As seis
+linhas e os três consertos passaram para **segunda pessoa, no presente**. E as seis frases
+de `Politica.semProvedor` — o aviso que o autor lê **no momento em que toca a operação e ela
+não acontece** — perderam a data e a palavra "medida".
+
+**A data saiu do CÓDIGO junto**, e isso é o que impede a volta do jargão: `dataDe`, `dia`,
+`dataNaLinha` e `Reprovada.medidaEm` **não existem mais**. Enquanto a função de formatar
+data existir ali, alguém a chama de novo.
+
+**O portão acompanha e MORDE:** três testes leem o texto **inteiro pelo caminho da tela** e,
+devolvendo o cabeçalho velho e a frase velha do `contrapor`, **caem 5 asserções em 2
+suítes**. Suíte integral verde na árvore empurrada — **1025 testes em 163 suítes**, build
+LIMPO, 1 aviso (o herdado `NotasView.swift:814`), com dois testes exclusivos colados.
+
+**Dois fatos honestos que ele declarou, e valem mais que o placar:**
+
+1. **Uma corrida anterior deu 3 issues** em `IndiceTests.oIndiceAproximaESeloTira`
+   (`Indice.quantas` → 6 onde espera 2): **corrida entre essa suíte e `IntegridadeRotasTests`
+   sobre o mesmo `Indice` estático**, em arquivos que a mescla não toca, **verde nas duas
+   corridas seguintes**. Nomeado como dívida **sem dono** — e é o tipo de vermelho que, não
+   declarado, volta como fantasma na volta de outra pessoa.
+2. Ele **avisou retroativamente** no quadro do worktree `main` sobre o uso do aparelho,
+   **preservando as 14 linhas que já estavam lá**. Avisar depois é pior que avisar antes; não
+   avisar é pior que os dois.
+
+**Estado do Perfil agora:** a IA **faz** uma coisa por ele, escrito na língua dele, e o que
+ela ainda não faz está dito sem diagnóstico nosso. **Faltam seis para a lista chegar a
+zero.**
