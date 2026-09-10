@@ -2468,3 +2468,21 @@ uma janela, **os SETE casos da Q3 e os doze da Q4** — linha de base junto, por
 *quem consertou o caso 3 e quebrou o caso 7 não consertou nada* —, três repetições,
 em `grok-4.3`, que é o padrão de produção. **Não vou trocar de modelo:** o LOTE-2
 já mostrou que **isso não move as guardas** e que o defeito era semântico.
+
+## 09/09, 22h30 — pausa e retomada (uso 3%); a janela do LOTE-3 está aberta
+
+Inbox vazio, fala zero, dois aparelhos ligados com dono declarado — o da conta e o
+de trabalho. **O LOTE-3 está com a janela aberta** no `B91C8DEF`: suíte **1019 em
+163 suítes verde** no aparelho de trabalho, install feito, os dois consertos
+semânticos num binário só.
+
+**Não abro frente nova.** As três voltas de IA estão nesta janela, e a §7 do dono é
+clara sobre a prioridade; **abrir mais agora só disputaria o instrumento**, que é o
+gargalo desde ontem. B2, F6 e as demais já entregaram ou estão fechadas.
+
+**O que esta corrida decide**, e vale escrever antes de saber o resultado: se
+**matar a meia-recusa** (a resposta que reconhece o dado e para ali) e **devolver a
+voz do autor à guarda** (proibir por procedência em vez de por nome) **basta para
+as três operações voltarem**. Se bastar, são três saindo da lista de uma vez. Se
+não, teremos os defeitos que restam **nomeados com número**, que é como esta noite
+inteira andou.
