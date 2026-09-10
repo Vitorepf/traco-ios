@@ -42,8 +42,9 @@ enum Aba: String, CaseIterable, Identifiable, Sendable {
     }
 }
 
-/// Barra inferior das telas de ARQUIVO: destino no polegar (`fitts-law`), padrão
-/// que o iOS já ensinou (`jakobs-law`), âmbar marcando onde você está.
+/// Barra inferior das telas de ARQUIVO (REFERENCIA-HERMES §2): os destinos numa
+/// pílula que flutua acima da borda, só ícone; a ação de escrever num círculo
+/// FORA dela. Criar não disputa espaço com navegar — é fisicamente outra coisa.
 /// Na escrita ela não existe — lá o foco é total (§3).
 struct BarraNavegacao: View {
     @Binding var aba: Aba
@@ -53,84 +54,75 @@ struct BarraNavegacao: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
-        HStack(spacing: 0) {
-            // ação, não destino: pílula âmbar cheia, sem estado de seleção.
-            // `law-of-similarity` — o que FAZ não pode parecer o que LEVA.
+        HStack(spacing: Tema.entreItens) {
+            HStack(spacing: 0) {
+                ForEach(Aba.naBarra) { item in
+                    let aceso = aba == item
+                    Button {
+                        guard !aceso else { return }
+                        Toque.selecao()
+                        aba = item
+                    } label: {
+                        Image(systemName: item.icone)
+                            .font(.system(size: 21, weight: aceso ? .semibold : .regular))
+                            .symbolVariant(aceso ? .fill : .none)
+                            .foregroundStyle(aceso ? Tema.tinta : Tema.tintaFraca)
+                            .frame(maxWidth: .infinity, minHeight: Tema.alvo)
+                            // onde você está: cápsula cheia atrás do glifo
+                            .background { if aceso { Capsule().fill(Tema.chip) } }
+                            // o aceso é ESTADO, não transição: acendia em fade meio
+                            // segundo depois do conteúdo, deixando quadros sem aba
+                            // selecionada nenhuma
+                            .animation(nil, value: aba)
+                            .contentShape(Capsule())
+                    }
+                    .buttonStyle(PressaoDiscreta())
+                    .accessibilityIdentifier("aba-\(item.rawValue)")
+                    .accessibilityLabel(item.titulo)
+                    .accessibilityHint(item.dica)
+                    .accessibilityAddTraits(aceso ? [.isButton, .isSelected] : .isButton)
+                    // sem rótulo na tela: o toque longo mostra o nome grande,
+                    // como a barra do sistema
+                    .accessibilityShowsLargeContentViewer {
+                        Label(item.titulo, systemImage: item.icone)
+                    }
+                }
+            }
+            .padding((Tema.barraNav - Tema.alvo) / 2)
+            .background {
+                // o fundo sustenta a cor, o vidro deixa o conteúdo passar por
+                // baixo sem sumir (apple-design §12)
+                Capsule()
+                    .fill(Tema.superficieAlta.opacity(0.85))
+                    .background(.ultraThinMaterial, in: Capsule())
+                    .overlay(Capsule().strokeBorder(Tema.linha, lineWidth: 0.5))
+                    .sombra(Tema.Sombra.flutuante)
+            }
+
+            // ação, não destino: círculo âmbar, uma vez na tela, glifo escuro
+            // por cima (7,6:1). `law-of-similarity` — o que FAZ não pode
+            // parecer o que LEVA.
             Button {
                 Toque.leve()
                 aoNovaNota()
             } label: {
-                VStack(spacing: 3) {
-                    // No mundo claro o preto diz onde você está e o âmbar volta
-                    // a ser a assinatura da AÇÃO: uma pílula, uma vez na tela,
-                    // com o glifo escuro por cima (7,6:1). Forma e cor a
-                    // separam dos destinos (law-of-similarity).
-                    Image(systemName: "square.and.pencil")
-                        .font(.system(size: 17, weight: .semibold))
-                        .foregroundStyle(Tema.tinta)
-                        .frame(width: 44, height: 24)
-                        .background(Tema.ambar, in: Capsule())
-                    Text("Escrever")
-                        .font(.caption2)
-                        .tracking(0.4)
-                        .foregroundStyle(Tema.tintaSuave)
-                }
-                .frame(maxWidth: .infinity, minHeight: Tema.alvo)
-                .contentShape(Rectangle())
+                Image(systemName: Aba.escrever.icone)
+                    .font(.system(size: 21, weight: .semibold))
+                    .foregroundStyle(Tema.tinta)
+                    .frame(width: Tema.barraNav, height: Tema.barraNav)
+                    .background(Tema.ambar, in: Circle())
+                    .sombra(Tema.Sombra.flutuante)
+                    .contentShape(Circle())
             }
             .buttonStyle(PressaoDiscreta())
             .accessibilityIdentifier("nova-nota")
             .accessibilityLabel("Escrever uma nota nova")
             .accessibilityHint("Guarda esta e abre uma página em branco")
-
-            ForEach(Aba.naBarra) { item in
-                Button {
-                    guard aba != item else { return }
-                    Toque.selecao()
-                    aba = item
-                } label: {
-                    VStack(spacing: 3) {
-                        Image(systemName: item.icone)
-                            .font(.system(size: 21, weight: aba == item ? .semibold : .regular))
-                            .symbolVariant(aba == item ? .fill : .none)
-                            .frame(height: 24)
-                        Text(item.titulo)
-                            .font(.caption2.weight(aba == item ? .semibold : .regular))
-                            .tracking(0.4)
-                    }
-                    .foregroundStyle(aba == item ? Tema.tinta : Tema.tintaFraca)
-                    // o aceso é ESTADO, não transição: acendia em fade meio
-                    // segundo depois do conteúdo, deixando quadros sem aba
-                    // selecionada nenhuma
-                    .animation(nil, value: aba)
-                    .frame(maxWidth: .infinity, minHeight: Tema.alvo)
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(PressaoDiscreta())
-                .accessibilityIdentifier("aba-\(item.rawValue)")
-                .accessibilityLabel(item.titulo)
-                .accessibilityHint(item.dica)
-                .accessibilityAddTraits(aba == item ? [.isButton, .isSelected] : .isButton)
+            .accessibilityShowsLargeContentViewer {
+                Label(Aba.escrever.titulo, systemImage: Aba.escrever.icone)
             }
-
         }
-        .padding(.top, 6)
-        .padding(.bottom, 2)
-        // barra de abas: o sistema também não escala o rótulo no lugar
-        .dynamicTypeSize(...DynamicTypeSize.xLarge)
-        .background {
-            // material de verdade: o conteúdo passa por baixo, não some atrás de
-            // uma faixa opaca (apple-design §12)
-            // o material lavava o âmbar: o fundo sustenta a cor, o vidro só
-            // deixa o conteúdo passar por baixo sem sumir (apple-design §12)
-            Rectangle()
-                .fill(Tema.superficie.opacity(0.85))
-                .background(.ultraThinMaterial)
-                .overlay(alignment: .top) {
-                    Rectangle().fill(Tema.linha).frame(height: 0.5)
-                }
-                .ignoresSafeArea(edges: .bottom)
-        }
+        .padding(.horizontal, Tema.margem)
         // movimento reduzido: a barra não desce — só apaga
         .offset(y: escondida && !reduceMotion ? 130 : 0)
         .opacity(escondida ? 0 : 1)
