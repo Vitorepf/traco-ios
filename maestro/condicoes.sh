@@ -10,7 +10,7 @@ M=~/bin/maestro
 FLUXOS=${@:-"maestro/caderno-lista.yaml maestro/notas-e-recordar.yaml maestro/perfil.yaml maestro/padroes.yaml maestro/forma-folha.yaml"}
 
 restaurar() {
-    xcrun simctl ui booted content_size medium >/dev/null 2>&1
+    xcrun simctl ui booted content_size large >/dev/null 2>&1
     xcrun simctl ui booted appearance dark >/dev/null 2>&1
     xcrun simctl ui booted increase_contrast disabled >/dev/null 2>&1
 }
@@ -27,13 +27,8 @@ roda() {
 
 echo "--- condições de aparelho ---"
 
-xcrun simctl ui booted content_size accessibility-extra-extra-extra-large >/dev/null 2>&1
-roda "corpo XXXL"
-
-xcrun simctl ui booted content_size extra-small >/dev/null 2>&1
-roda "corpo XS"
-
-xcrun simctl ui booted content_size medium >/dev/null 2>&1
+# DIRETRIZ §12 (10/09): tamanhos de letra de acessibilidade estão PROIBIDOS — só large.
+xcrun simctl ui booted content_size large >/dev/null 2>&1
 xcrun simctl ui booted appearance light >/dev/null 2>&1
 roda "aparência clara"
 

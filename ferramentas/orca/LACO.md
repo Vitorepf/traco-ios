@@ -3241,3 +3241,151 @@ defeito que **apaga arquivo do autor** depois de violar o selo. Fecha e não abr
 custa uma janela de ~25 min nele, e são **seis** operações ainda cortadas. Um "pode" para o
 `34CC3F94` virar segundo aparelho de conta **dobra a velocidade** — a equipe abre o login
 pelo app e ele autoriza no Grok. **É a decisão mais barata do dia**, e é dele.
+
+## 10/09, 11h30 — pausa e retomada (uso 35%); duas voltas fecharam dizendo NÃO
+
+Fala **0**. **As duas que fecharam nesta janela disseram não, e as duas estavam certas.**
+
+**`contrapor` NÃO volta.** Nos seis casos normais passava com 9 nas cinco dimensões — o G3
+tinha dito "pelo mérito ela passa". **O caso cego derrubou as duas famílias, em lados
+opostos:** o `grok-4.3` devolveu **os três campos vazios sobre HTTP 200** sem nenhuma guarda
+nossa (a fixture escreve que os três vazios reprovam) e a base caiu de 18/18 para 15/18; o
+`grok-4.5` teve base perfeita e reprovou **3/3** no cego, propondo o ensaio que a nota fecha
+e chegando a dizer *"cópia restaurada dos dados reais"*. **A escolha por operação não salva
+a rota.** Foi a última prova a entrar e derrubou o que seis casos aprovavam — é exatamente
+por isso que a §13 pôs o caso cego na régua.
+
+**A trilha do Mac PARA sem mesclar.** O terceiro re-G3 deu NÃO PASSA e a §13 manda que ela
+só termine o G3 em curso **e mescle** — o G3 terminou e não aprova, então ela para. O que
+está pronto e provado fica no branch; o que falta ficou no RUMO com número.
+
+**E ele achou o caminho que ainda entrava, com o método que virou lei:** a `cercar` decide a
+cerca de código **depois de aparar o espaço**; a CommonMark decide **antes, contando o
+recuo**. Com quatro espaços elas discordam nos dois sentidos, e **o `## Relatos` do modelo
+vira seção de verdade enquanto o relato do AUTOR vira bloco de código**. Ele julgou com **o
+parser CommonMark da Apple como oráculo**, e disse por quê: *"escolhido por NÃO ser cópia da
+regra do código"* — a sonda da casa apara igual ao código e por isso era cega. **Terceira
+vez em dois dias que a sonda erra do mesmo jeito que o código.**
+
+**A lição de instrumento que sai daqui é a mais cara:** o **"9 de 54 e zero contra"** do
+LOTE-5, que sustentou o "a colheita subiu", era **UMA amostra, não uma propriedade**. Mesmo
+prompt, parser conferido byte a byte, e a remedida deu **10/54 com três contra vazios**.
+*A lei "uma corrida por modelo não mede modelo" vale também para a linha de base* — e eu
+tinha aceitado aquele delta como fato.
+
+**As três cadeiras agora:** **MERGE-Q3D** (mesclando; leva o Perfil na língua do autor e as
+seis frases do `semProvedor`, que é onde o autor lê o "não" no momento em que toca a
+operação), **TEMPO** (o teto de 240 s menor que os 241 s medidos, e a espera com estado) e
+**P0-CRLF** (o arquivo apagado). O `responder` espera o TEMPO fechar, por ordem da Astra:
+se o conserto do tempo entrar junto com a alavanca de prompt, **o ganho dele será atribuído
+ao prompt**.
+
+**A série 09 de ADRs acabou na `09z`.** A próxima volta usa `2026-09-10a`. Escrevi no
+`LETRAS-ADR.md` antes que alguém tropeçasse — a série 08 encheu sem aviso e custou três
+colisões numa tarde.
+
+## 10/09, 11h15 — a §12 violada, e quem foi: a AX5-1 — mas a letra ficou grande por MINHA mão
+
+**O dono viu o teste 3 em letra de acessibilidade às 11h04** e escreveu: *"está testando
+letra grande por quê? já falei que está proibido."* Trinta minutos depois de a §12 ser
+escrita. **Apurado, com prova, e a resposta tem duas partes:**
+
+**Quem pôs a letra em AX foi a volta `AX5-1`**, por volta das **10h39** — quatro minutos
+depois de a §12 ser escrita e **antes de a ordem chegar até mim**, às ~10h50. Era a única
+volta cuja tarefa ERA a letra grande, e o batimento dela às 10h39 dizia *"primeira corrida
+em AX5 passou (barra em y=66)"*.
+
+**Mas a letra FICOU grande porque eu a matei antes de ela restaurar.** O spec que eu mesmo
+escrevi mandava *"restaure `medium` ao fim, conferido por captura"*, e o `worker-stop` pulou
+exatamente essa linha. **Lei nova, e é minha:** *quem encerra um worker à força herda o
+`defer` dele* — aparelho, tamanho de letra, tema, orientação, trava, processo de apoio.
+Antes de matar, ler o que o spec mandava restaurar; depois de matar, restaurar e conferir
+por captura.
+
+**Os outros três estão limpos, conferidos um a um:** a Q4-E só **leu** `content_size` (sem
+valor, é consulta), a P0-CRLF só **escreveu `medium`** (restauração, com captura de prova
+`p0-03-aparelho-restaurado.png`), e a MAC-2-A G3, a Astra, a MERGE-Q3D e a TEMPO **não o
+chamaram nenhuma vez**.
+
+A lei entrou na ESTEIRA **ao lado da de VOZ** e no cabeçalho do preâmbulo de todo despacho.
+O `f5-fotografar.sh` perdeu o parâmetro de tamanho (o 4º lugar fica vazio de propósito, para
+não deslocar os chamadores) e o `ax5.yaml` já tinha sido apagado pelo dono em `e1dd206`.
+
+## 10/09, 11h15 — o gargalo acabou: DOIS aparelhos de conta, e a suíte saiu deles
+
+**Ordem do dono:** *"eu preciso que vocês resolvam, pode fazer o que for preciso, eu JÁ
+REALIZEI LOGIN. Não é para vocês ficarem toda hora criando novo simulador para ter que de
+novo fazer login no Grok."*
+
+| aparelho | papel |
+|---|---|
+| **teste 2** `B91C8DEF` | CONTA |
+| **teste 3** `34CC3F94` | **CONTA** (novo) — deixou de receber suíte |
+| **teste 4** `A1DF082C` | **SUÍTE** |
+
+**O teste 4 já existia** — religado, **não criado**. Isso importa: a ordem é que **ninguém
+crie simulador e ninguém apague simulador**, porque cada um novo custa **um login do Grok
+feito à mão pelo dono**. **Criar simulador passa a ser ato do orquestrador, uma vez,
+registrado aqui.** Este é o registro.
+
+**E a razão de a suíte sair dos aparelhos de conta é medida, não zelo:** `xcodebuild test`
+roda **hospedado no app** e o chaveiro é do **SIMULADOR** — foi exatamente assim que a suíte
+**apagou a conta do dono** em 09/09 (ADR 09l, volta K1). Enquanto a suíte correr onde há
+conta, a conta está a uma corrida de sumir — e ele acabou de refazer esse login à mão.
+
+**O efeito prático é o que ele pediu:** com dois aparelhos de conta, **as janelas de IA
+correm em paralelo**, cada uma com a trava do próprio UDID. Eram seis operações a ~25 min de
+janela cada, em série; agora são duas frentes. **Avisei as três voltas vivas na hora**, com a
+ordem de mudar o destino da suíte antes da próxima corrida.
+
+**Uma coisa eu não consegui confirmar sozinho e digo:** não li `ContaGrok.ligada` no teste 3
+de fora do app — o chaveiro do simulador não entrega a string, a árvore de AX voltou vazia
+(o defeito conhecido) e navegar até o Perfil exigiria dirigir a tela. **Fica como a primeira
+obrigação de quem abrir a próxima janela nele**, que é a regra que já valia: conferir a
+conta **antes** de instalar qualquer coisa.
+
+## 10/09, 11h25 — pausa e retomada (uso 41%); a letra grande acabou pela raiz, e a invariante do P0 tinha o nome errado
+
+Fala **0**. **Três em edição:** MERGE-Q3D e TEMPO em `reviewing`, e a **P0-CRLF-B**
+recém-aberta com as quatro correções que destravam a mescla do P0.
+
+### A letra grande: matei a classe, não o caso
+
+O dono viu letra de acessibilidade **pela segunda vez** às 11h12 e disse *"não é para perder
+tempo, foca"*. A causa que ele mesmo apontou estava certa e eu conferi: **os três worktrees
+vivos ainda tinham o `ax5.yaml` e o `f5-fotografar.sh` velhos com XXXL** — o conserto dele
+limpou `main`, e as cópias de trabalho ficaram para trás.
+
+Mandei a ordem de merge aos três, **e não parei aí**: varri **todos** os worktrees da
+máquina. **Zero `ax5.yaml`** restantes, **zero scripts** com `accessibility-extra`, zero em
+`/private/tmp`. Os dois aparelhos de conta em `large`. Um worktree morto que alguém retome
+amanhã não pode ressuscitar a proibição — **mandar três mensagens conserta o caso; apagar o
+arquivo em todo lugar mata a classe.**
+
+### O G3 do P0 derrubou a MINHA formulação, e tinha razão
+
+Eu tinha escrito a lei como *"o arquivo só se apaga quando o app **consumiu** tudo o que
+havia nele"*. O revisor derrubou com **dois contraexemplos, nenhum hipotético**:
+
+1. um descarte **no estilo da própria casa** — o teto de **140 grafemas da ADR 08h**, **sem
+   `continue`** — importou **140 de 659 caracteres** com `consumido = 1,00` **e apagou o
+   arquivo**;
+2. **sem código futuro nenhum**, os campos `dominio` e `recordada`, que **o próprio app
+   escreve e o importador nunca lê**, somem na volta pela `entrada/` com a conta dizendo
+   **100%**.
+
+**A invariante é cobertura de DELIMITAÇÃO, não de leitura** — o que foi reconhecido como
+pertencente a alguma nota, não o que o caminho de hoje por acaso consumiu. Corrigi a lei na
+ESTEIRA e a volta corrige o nome no código, no comentário e na ADR: **nome errado é dívida
+que se paga com juros, porque o próximo lê `consumido` e confia**.
+
+**E ele provou que o portão carrega peso real:** removendo só a linha da contagem, **o caso
+B volta a vazar corpo selado e a apagar o arquivo**. Aprovação condicionada a **quatro
+correções, todas de TEXTO** — e ele já disse que aprova a mescla com elas feitas.
+
+### O que fica de método
+
+O padrão que se repetiu o dia inteiro apareceu de novo, agora contra mim: **cada G3 achou o
+defeito contornando a garantia que o anterior deu por boa.** Desta vez a garantia era uma
+frase que **eu** escrevi na ESTEIRA. *A lei da casa também é candidata a ser derrubada por
+medida* — e é isso que a separa de doutrina.

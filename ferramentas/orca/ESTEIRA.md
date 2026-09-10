@@ -1413,8 +1413,15 @@ O laço começa em `hits[0].range.location`: **tudo o que vem antes do primeiro
 `entrada/` do Mac, começando com um título, **perde essas linhas calado — e o arquivo é
 apagado**. Não é o bug do Windows. **O `\r` era só um dos jeitos de chegar nele.**
 
-**A lei, e ela cobre os seis casos de uma vez:** *o arquivo só se apaga quando o app
-consumiu **tudo** o que havia nele.* Menos de 100% é **incerteza**, e incerteza não apaga —
+**A lei, corrigida pelo G3 que a mediu — e a correção é minha:** *o arquivo só se apaga
+quando o app **delimitou** tudo o que havia nele.* Eu tinha escrito **cobertura de
+LEITURA**, e o revisor derrubou a alegação forte com dois contraexemplos: um descarte no
+estilo da própria casa (**teto de 140 grafemas da ADR 08h, sem `continue`**) importou **140
+de 659 caracteres** com `consumido = 1,00` **e apagou o arquivo**; e sem código futuro
+nenhum, os campos `dominio` e `recordada` — que **o próprio app escreve e o importador nunca
+lê** — somem na volta pela `entrada/` com a conta dizendo 100%. **A cobertura tem de contar
+o que foi DELIMITADO como pertencente a alguma nota, não o que foi consumido pelo caminho
+que existe hoje.** Menos de 100% é **incerteza**, e incerteza não apaga —
 bloco que caiu no `continue`, prosa antes do primeiro cabeçalho, bloco sem fecho, cabeçalho
 que não casou. **A pergunta certa não é "o regex casou?" e sim "quanto do arquivo eu
 consumi?"**, e isso é um número que o código calcula e o teste lê, não uma impressão.
@@ -1427,3 +1434,124 @@ essa coluna costuma ser o contrato que faltava.*
 **E o corolário do portão:** hoje um cabeçalho que **não casa** vira "sem cabeçalho" e
 **abre tudo** — origem vira autor, selo não detectado. *Portão que não enxerga tem de
 falhar fechado*: formato não reconhecido **não entra como do autor** e **não apaga**.
+
+## O oráculo não pode ser cópia da regra que ele julga (10/09, re-G3 da MAC-2-A)
+
+O terceiro re-G3 achou o caminho que ainda entrava: **`cercar` decide se a linha abre ou
+fecha cerca de código DEPOIS de aparar o espaço; a CommonMark §4.5 decide ANTES, contando o
+recuo** (até três espaços). Com **quatro** espaços as duas discordam **nos dois sentidos**.
+
+Na tela do bot: com uma cerca recuada quatro espaços dentro da resposta do modelo, **o
+`## Relatos` DELE vira seção de verdade do arquivo e o relato do AUTOR fica dentro de um
+bloco de código** — some o que ele escreveu e entra o que ele não escreveu.
+
+**E o método é a lição:** ele usou **o parser CommonMark da Apple como oráculo**, e disse
+por quê — *"escolhido por NÃO ser cópia da regra do código"*. A sonda da própria casa
+(`TitulosDoMarkdown`) **também apara antes de decidir**, e por isso era **cega a isto**.
+
+**A lei:** *o oráculo não pode ser cópia da regra que ele julga.* Uma sonda escrita a partir
+do código confirma o código, não o contrato — é a terceira vez em dois dias que isto
+aparece (a `SONDA-4` sem ver o TAB, a sonda do CRLF copiando o `contains` do código, e agora
+a régua de títulos aparando junto). **Quando existir um implementador independente do
+contrato — um parser de referência, uma biblioteca do sistema, o próprio consumidor —,
+julgue por ele.**
+
+**E a lista do que NÃO passou é prova tanto quanto o que passou:** `U+2028`, `U+0085`, `\r`
+isolado, CRLF nos quatro campos e no cabeçalho, cerca aberta e nunca fechada, e
+`Substring`, `NSString`, `String?`, `Any`, `Double`, `Bool`, `Character`, `UUID` e
+`[String]` na interpolação — **todos recusados pelo compilador, um a um por
+`swiftc -typecheck`**. Quem só publica o que quebrou não mostra o tamanho da garantia.
+
+## Uma trava de shell não serializa uma chamada MCP (10/09) — e o P0 aconteceu ao vivo
+
+**A causa raiz das três contaminações de hoje.** Havia um **`npx xcodebuildmcp@latest mcp`**
+vivo desde as 10h40, filho do `codex app-server` do ambiente de um worker Codex. **Um MCP de
+`xcodebuild` não passa pelo `com-trava.sh` POR CONSTRUÇÃO** — nenhuma trava de shell
+serializa uma chamada de ferramenta MCP. Enquanto ele existir, **a trava é decorativa** para
+quem o usa, e a suíte do vizinho roda no seu UDID.
+
+**E o P0 do dia aconteceu ao vivo, com hora e testemunha.** Às 10h56, dentro da própria
+trava, uma volta instalou o candidato dela e semeou sete `.md`; às **10h57**, entre duas
+chamadas dela, **outro build instalou no mesmo aparelho** (o contêiner trocou, o `cmp` do
+binário deu diferente) — e **apagou quatro dos sete arquivos em um minuto, sem pedir nada**,
+deixando exatamente os dois que o parser de `main` também recusa. **Um build sem o conserto
+apagou arquivos de um autor simulado**, e nenhuma fixture teria produzido essa prova.
+
+**Duas leis:**
+
+1. *Toda medida de comportamento no aparelho confere que o binário instalado é o SEU* — com
+   `cmp` contra o próprio produto de build, **antes e depois** da corrida. A frase é de quem
+   achou: **"a trava está livre não é o mesmo que o binário é o meu."**
+2. *Nada de `xcodebuild` por MCP.* Build e install passam por **chamada de shell sob
+   `com-trava.sh`**, sempre. Um servidor MCP de build vivo na máquina é hazard, não
+   conveniência — e se aparecer um, **encerre-o e diga**.
+
+**E o padrão de auditoria de suíte sobe:** contar testes pega contaminação que muda o total;
+**conferir os NOMES executados contra os declarados na própria árvore pega a que não muda**.
+A volta que achou isto auditou **901 nomes distintos** e declarou **zero de fora**. É o que
+passo a pedir.
+
+## ⛔ TAMANHO DE LETRA DE ACESSIBILIDADE É PROIBIDO (DIRETRIZ §12, dono, 10/09)
+
+Ao lado da proibição de VOZ, e pela mesma razão: **o dono disse que não usa, e ver o app em
+letra máxima o irrita.** Ele viu o aparelho de trabalho em tamanho AX às **11h04** e
+escreveu: *"está testando letra grande por quê? já falei que está proibido."* Foi **trinta
+minutos** depois de a §12 ser escrita.
+
+**Proibido, sem exceção:**
+- `xcrun simctl ui <UDID> content_size` com **qualquer valor acima de `large`**;
+- **flow** `ax5.yaml` ou equivalente;
+- `f5-fotografar.sh` com tamanho de acessibilidade — **o 4º parâmetro dele foi removido** e
+  o tamanho é sempre `large`;
+- **launch arg** de `ContentSizeCategory` acima de `large`;
+- spec, portão, captura, teste, vídeo ou dívida em AX1–AX5 / XXXL.
+
+**Dynamic Type vale até `large`**, que é o padrão do iPhone, e é em `large` que se
+fotografa. Código que já existe fica como está: **se quebrar em AX5, não é defeito**.
+
+**Continua valendo, e não é negociável:** alvos de **44 pt**, **contraste**, **rótulos** e
+**ordem na árvore**.
+
+## Quem mata um worker herda a restauração dele (10/09, a mesma violação)
+
+**Quem pôs a letra em AX foi a volta `AX5-1`**, às ~10h39 — quatro minutos depois de a §12
+ser escrita e antes de a ordem chegar até mim. Mas **a letra ficou grande porque EU a matei
+com `worker-stop` antes de o passo de restauração dela rodar**. O spec que eu mesmo escrevi
+para ela dizia *"restaure `medium` ao fim, conferido por captura"* — e matar o worker pulou
+exatamente essa linha.
+
+**A lei:** *quem encerra um worker à força herda o `defer` dele.* Aparelho, tamanho de
+letra, tema, orientação, trava, processo de apoio: o worker morto **não desfaz nada**, e o
+estado que ele deixou é responsabilidade de quem apertou o botão. **Antes de `worker-stop`,
+leia o que o spec mandava restaurar; depois de matar, restaure e confira por captura.**
+
+Os outros três foram conferidos e estão limpos: a Q4-E só **leu** `content_size` (consulta,
+sem valor), a P0-CRLF só **escreveu `medium`** (restauração, com captura de prova), e a
+MAC-2-A G3, a Astra, a MERGE-Q3D e a TEMPO **não o chamaram nenhuma vez**.
+
+## Os aparelhos, refeitos por ordem do dono (10/09, 11h10)
+
+Palavras dele: *"eu preciso que vocês resolvam, pode fazer o que for preciso, eu JÁ REALIZEI
+LOGIN. Não é para vocês ficarem toda hora criando novo simulador para ter que de novo fazer
+login no Grok."*
+
+| aparelho | UDID | papel | lei |
+|---|---|---|---|
+| teste 2 | `B91C8DEF-…` | **CONTA** | sonda de IA e capturas. **Nunca** `erase`, `clearState`, `uninstall` nem `xcodebuild test`. Install **por cima**. |
+| teste 3 | `34CC3F94-…` | **CONTA** (novo) | **a mesma lei, inteira.** Deixa de receber suíte hoje. |
+| teste 4 | `A1DF082C-…` | **SUÍTE** | build e teste. Nenhum aparelho de conta recebe suíte. |
+
+**Duas leis novas, e a segunda é a que o dono cobrou:**
+
+1. **Com DOIS aparelhos de conta, as janelas de IA correm em PARALELO** — uma operação em
+   cada, **cada um com a própria trava por UDID**. O gargalo de uma janela de ~25 min por
+   operação **cai pela metade**.
+2. **CRIAR SIMULADOR É ATO DO ORQUESTRADOR, uma vez, registrado no LACO.** Nenhum worker
+   cria; **ninguém apaga simulador**. Cada simulador novo custa um login do Grok feito **à
+   mão pelo dono** — é o recurso mais caro da casa e não se gasta por conveniência. O teste
+   4 **já existia**: foi religado, não criado.
+
+**E a razão de a suíte sair dos aparelhos de conta é medida, não zelo:** `xcodebuild test`
+roda hospedado no app e o chaveiro é do SIMULADOR — foi assim que a suíte **apagou a conta
+do dono** em 09/09 (ADR 09l, volta K1). Enquanto a suíte correr onde há conta, a conta está
+a uma corrida de sumir.

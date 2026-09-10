@@ -800,3 +800,94 @@ guarda que o impediu: eu exigi **prova de identidade de comportamento**, e não 
 componente **acrescenta a palavra "continua"**. A Q3-D parou, como mandado, e deixou o
 conserto escrito. **Dono: a volta que tocar o Cartão de Análise**, junto de
 `RecordarView:443`, que é o terceiro sítio.
+
+## O G0 da Astra sobre `responder` (10/09) — o que ela achou POR LEITURA, e custou zero janelas
+
+**Risco que a fixture não pega, e é o principal:** `Sessao.perguntarASabia` captura
+pergunta, gesto e retrato, espera o contexto e **depois** lê `self.texto`; passados os
+`await`, exige apenas **algum** `.sabiaPensando` — **sem identidade da requisição e sem as
+dependências**. Logo **o cartão pode entregar uma resposta perfeitamente escrita para uma
+pergunta, ou para uma versão de nota, que já não é a atual**. Com esperas de quatro minutos,
+editar, trocar de página e cancelar **deixam de ser raros**. *Risco identificado por
+leitura, não reproduzido.* **O padrão certo já existe** — `dependenciasValidas`, no
+`responderNasNotas`: começar por ele, **não criar arquitetura paralela**. **Dono: a volta
+`responder`.**
+
+**Falsa intimidade:** as vizinhas entram como *"outra nota sua"* e o Retrato personaliza a
+resposta. **Texto de outra origem, ou hipótese antiga, pode virar voz e preferência do
+autor**, e um recorte pode suprimir **exatamente a correção mais recente**. Uma fixture
+curta montada direto sobre `Sabia.responder` **não passa pelo seletor** e não prova essa
+fronteira. **Dono: a volta `responder`.**
+
+**A divulgação é montada ANTES do corte.** `Sessao.contextoDoCaderno` junta ligações (3 ×
+1200), vizinhas (6 × 600) e candidatos a ecos; `Sabia.responder` corta o conjunto em
+**5000**. A pergunta sobrevive, mas **a correção no fim da nota e as vizinhas podem
+desaparecer** — e o que dizemos ao autor que foi enviado é montado **antes** disso.
+**Dono: a volta `responder`.** E a nota da Astra que vale copiar: *a fixture antiga chama o
+recorte de "limite do instrumento"; nesta rota é **limite do PRODUTO**, e não absolve
+Utilidade nem Contexto.*
+
+**O caso do responsável NÃO é mais cego.** Já foi revelado; vira **regressão obrigatória**,
+e o revisor **guarda um caso realmente novo até o candidato congelar**.
+
+**A sonda apaga a prova:** a `saida` de `responder` já passou por `limparResposta`.
+**Preservar o retorno BRUTO é indispensável** para saber o que **o app** apagou — sem isso,
+mede-se o modelo pelo que sobrou do nosso tratamento.
+
+**O plano de janelas, para não prometer o que não se cumpre:** o G0 custou **zero**. O
+retorno completo do `responder` pede **DUAS** janelas do aparelho da conta (~50 min de
+agenda), **não uma**: a do prompt congelado e a de requalificar o candidato se os controles
+de contexto ou entrega exigirem mudança. **Cada correção posterior que altere entrada,
+saída, modelo ou esforço invalida a certificação e pode exigir nova janela.** *Fazer os
+vermelhos determinísticos antes de ocupar a conta é o que evita gastar a janela mais cara
+descobrindo bug local.*
+
+## A trilha do Mac PARA aqui, sem mesclar (10/09, §13)
+
+O terceiro re-G3 da MAC-2-A deu **NÃO PASSA** (Correção 6, Privacidade 6, Fora do app 6,
+Contrato 7), e a §13 manda que **a trilha do Mac só termine o G3 que já estava no meio e
+mescle**. O G3 terminou e **não aprova** — logo **a trilha para, e o branch
+`Vitorepf/mac-2-a` fica onde está**, com o trabalho feito e o defeito nomeado. Ninguém abre
+volta nova nela até a IA chegar onde o dono pede.
+
+**O que fica pronto e provado no branch, e não se perde:** o selo com a invariante no laço
+(quinta rota inventada e o arquivo sumiu assim mesmo), a montagem por `[Linha]` que faz um
+`String` cru **não compilar**, o `Corpus.fimDeLinhaLF`, a genérica estreitada, e a sonda que
+conta título por estrutura.
+
+**O que falta, com número, para quem retomar:**
+1. **A cerca decide pelo texto APARADO; a CommonMark decide pelo CRU, contando o recuo.**
+   Com quatro espaços elas discordam nos dois sentidos, e **o `## Relatos` do modelo vira
+   seção de verdade enquanto o relato do AUTOR vira bloco de código**. Conserto: decidir
+   abertura e fecho pela **linha crua contando o recuo**, e **a mesma correção na
+   `TitulosDoMarkdown`** — senão a suíte continua incapaz de ver o que acabou de consertar.
+2. **(BAIXO) O cabeçalho YAML tem DOIS leitores e a defesa vale para um.** O
+   `servidor.py:78` usa `splitlines()` do Python, que quebra em `U+2028`, `U+0085`, VT e FF
+   — e o `umaLinha` não tira nenhum. Mediu-se o cabeçalho virando **6 linhas** com um
+   `estado: encerrado` forjado; **só não é forja viva porque o estado verdadeiro vem depois
+   e sobrescreve** — vale pela ORDEM, não pelo motivo escrito no SPEC.
+3. **(BAIXO) `Linha(stringLiteral:)` compila com `String` de runtime** e pula a `cercar`. O
+   Swift obriga esse init a existir; fecha-se por **portão de fonte**.
+
+**Limite herdado, declarado e que não desconta:** ninguém viu o bot ler a forma nova do
+arquivo — o exercício real é de antes destes consertos, e ninguém inventou captura.
+
+## `contrapor` NÃO volta: o caso cego reprovou os dois modelos (10/09)
+
+Nos seis casos normais ela passava com 9 nas cinco dimensões. **O caso cego — material que
+NEGA o que se pediria — derrubou as duas famílias, em lados opostos:**
+
+- **`grok-4.3`** (o modelo do app): `q4-contrapor-tudo-ou-nada` rep. 2 devolveu **os três
+  campos vazios sobre HTTP 200**, sem nenhuma guarda nossa — e a fixture daquele caso
+  escreve que os três vazios reprovam. A base caiu de **18/18 para 15/18**.
+- **`grok-4.5`**: base perfeita, e o caso cego reprovou **3/3** propondo o ensaio que a nota
+  fecha, um deles dizendo *"cópia restaurada dos dados reais"*.
+
+**Logo a escolha por operação (09v) não salva a rota**, e `contrapor` fica
+`indisponivelPorQualidade` com motivo novo na tela. **Dono: a próxima volta de `contrapor`.**
+
+**E a lição de instrumento, que vale para toda a frente de IA:** o **"9 de 54 e zero
+contra"** do LOTE-5 era **UMA amostra, não uma propriedade**. Mesmo prompt, parser conferido
+byte a byte — e a remedida devolveu **10/54 com três contra vazios**. *Delta medido uma vez
+é hipótese; a lei "uma corrida por modelo não mede modelo" vale também para a linha de
+base.*

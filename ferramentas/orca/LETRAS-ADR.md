@@ -80,8 +80,19 @@ que este arquivo existe para impedir — e ele reincidiu no próprio arquivo.
 | 09w | Q3-D · o sinal de sobra: cartão com teto não corta calado | reservada, volta viva |
 | 09x | Q4-E · o caso cego do `contrapor`, e o modelo desta rota | reservada, volta viva |
 | 09y | P0-CRLF · o arquivo só se apaga quando o app leu tudo o que havia nele | reservada, volta viva |
+| 09z | MERGE-Q3D · o Perfil fala a língua do autor (cartão CONTA e `semProvedor`) | reservada, volta viva |
 
-**Próxima livre: 09z.**
+**A SÉRIE 09 ACABA AQUI.** A `09z` é a última letra do dia 09. **A próxima volta usa
+`2026-09-10a`**, e daí em diante a série do dia 10 — `10a`, `10b`, … Escrevo isto antes de
+alguém tropeçar: a série 08 encheu sem aviso e custou três colisões numa tarde.
+
+### Série do dia 10
+
+| letra | dona | estado |
+|---|---:|---|
+| 10a | TEMPO · o teto vira margem declarada, e a espera ganha estado | reservada, volta viva |
+
+**Próxima livre: 10b.**
 
 **A 09s colidiu, e quem mudou fui eu** (09/09, ~02h). Tomei a `09s` porque o
 "Próxima livre: 09s" que estava escrito aqui batia com o comando; no mesmo
