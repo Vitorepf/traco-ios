@@ -1,7 +1,12 @@
 #!/bin/bash
 # Serializa build, teste e maestro entre workers: só um por vez na máquina.
 # Uso: ferramentas/orca/com-trava.sh xcodebuild ...   |   com-trava.sh ./maestro/varrer.sh ...
-L=/tmp/traco-instrumento.lock
+# 10/09 (ADR 10g): `TRAVA` escolhe a trava. A ordem das 12h40 manda as janelas
+# de IA correrem em PARALELO, "cada uma com a trava do próprio UDID", e a
+# `lote-ia-09d-janela.sh` já lia `TRAVA` para manter a dela fresca — mas aqui o
+# caminho era fixo, então quem seguia a ordem segurava uma trava e mantinha
+# fresca OUTRA. Sem argumento, nada muda: build e suíte continuam na global.
+L="${TRAVA:-/tmp/traco-instrumento.lock}"
 # Trava velha demais é trava órfã: em 06/09 um driver do maestro pendurou e
 # segurou o instrumento por 50 min com seis workers parados atrás. Nada legítimo
 # aqui passa de 30 min (a suíte integral leva ~8 s, o build alguns minutos).

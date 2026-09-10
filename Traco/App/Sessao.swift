@@ -495,7 +495,15 @@ final class Sessao {
             guard let n = todas.first(where: { $0.uuid == l.para }) else { continue }
             let prosa = Caderno.prosa(de: n.texto).trimmingCharacters(in: .whitespacesAndNewlines)
             guard !prosa.isEmpty else { continue }
-            saida.append((n.uuid, n.tituloNaLista, String(prosa.prefix(1200))))
+            // ADR 2026-09-10g: a nota que o autor CITOU vai INTEIRA. O corte
+            // era aqui, aos 1.200, e ele acontecia ANTES de o orçamento ser
+            // consultado: quem escrevia `[[Relatório]]` mandava um começo de
+            // documento sem que nada dissesse que era um começo — e o modelo
+            // completava o resto. Quem decide o que cabe é
+            // `Sabia.contextoDaPergunta`, que sabe o orçamento inteiro e
+            // DECLARA o que sacrificou. Duas tesouras cortando o mesmo texto,
+            // e só uma sabendo dizer que cortou, era a cúmplice do defeito.
+            saida.append((n.uuid, n.tituloNaLista, prosa))
         }
         return saida
     }
