@@ -79,8 +79,12 @@ import Testing
         }
         // O corte tem dois grupos, e o Perfil precisa distingui-los: sem
         // substituto medido, e com conserto já nomeado.
-        #expect(Politica.indisponiveis.filter { Politica.linha($0).conserto == nil }.count == 5)
-        #expect(Set(Politica.indisponiveis.filter { Politica.linha($0).conserto != nil }) == Set([.responderNasNotas, .responder]))
+        #expect(Politica.indisponiveis.filter { Politica.linha($0).conserto == nil }.count == 3)
+        #expect(Set(Politica.indisponiveis.filter { Politica.linha($0).conserto != nil })
+                == Set([.responderNasNotas, .responder, .instigar, .contrapor]))
+        // ADR 09i: `instigar` e `contrapor` entram no grupo "em correção" —
+        // o conserto está escrito, a MEDIDA é que falta. O texto vai inteiro
+        // para a tela (PerfilView `restoDa`), então fala do que o autor vê.
     }
 
     /// ADR 09n, REVERTIDA em 09/09 pelo G3 (`revisao-q2-responder.md`). A

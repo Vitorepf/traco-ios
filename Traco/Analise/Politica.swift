@@ -117,14 +117,16 @@ enum Politica {
                   conserto: "o prompt já mata a invenção de número; trocar de modelo não resolve (três medidos, nenhum passou) — falta o prompt impedir também a invenção da ESTRUTURA de um documento")
         case .instigar:
             .init(regra: .indisponivelPorQualidade,
-                  porque: "com a conta ligada em 08/09 o Grok devolveu ao autor o vocabulário interno que o app passa no pedido ('o movimento básico que se pula', 'neste degrau 0', 'a forma nota'), em vez de perguntar sobre o que ele escreveu — 1 de 6 casos — prova/q-qualidade.md",
-                  motivo: "devolveu o vocabulário interno do app",
-                  medidaEm: "08/09/2026")
+                  porque: "com a conta ligada em 08/09 o Grok devolveu ao autor o vocabulário interno que o app passa no pedido ('o movimento básico que se pula', 'neste degrau 0', 'a forma nota'), em vez de perguntar sobre o que ele escreveu — 1 de 6 casos — prova/q-qualidade.md. O conserto de 09/09 tirou o andaime do pedido e o G3 mediu de novo, 6 casos × 3: o vazamento não voltou em 18 execuções, mas nasceram três defeitos — o degrau 4 repetiu as perguntas do degrau 0 (3 de 3), a proibição por NOME calou o método que o AUTOR escreveu (3 de 3) e o texto magro ganhou um episódio suposto (2 de 3) — prova/lote09-instigar-contrapor.jsonl e ferramentas/orca/revisao-q4-instigar.md",
+                  motivo: "fez as mesmas perguntas de sempre e calou sobre as suas palavras",
+                  medidaEm: "09/09/2026",
+                  conserto: "as perguntas mudam de verdade quando o degrau sobe, e a palavra que está na sua nota pode voltar na pergunta; falta medir")
         case .contrapor:
             .init(regra: .indisponivelPorQualidade,
-                  porque: "com a conta ligada em 08/09 o Grok sustentou o contraponto em fato inventado, sempre no campo outroCampo ('metanálises de 2022', preço 12% menor na construção naval do século XV) — 1 de 6 casos — prova/q-qualidade.md",
-                  motivo: "sustentou o contraponto em fato inventado",
-                  medidaEm: "08/09/2026")
+                  porque: "com a conta ligada em 08/09 o Grok sustentou o contraponto em fato inventado, sempre no campo outroCampo ('metanálises de 2022', preço 12% menor na construção naval do século XV) — 1 de 6 casos — prova/q-qualidade.md. O conserto de 09/09 matou a evidência fabricada nas 18 execuções do G3, e sobraram dois defeitos: o contraponto NEGA a razão já sustentada quando ela basta (3 de 3 no caso do CSV, empurrando XLSX contra o requisito de abrir em editor de texto) e inventou renda que a nota não tem (1 de 3) — prova/lote09-instigar-contrapor.jsonl e ferramentas/orca/revisao-q4-instigar.md",
+                  motivo: "negou uma razão que você já sustentou e inventou renda sua",
+                  medidaEm: "09/09/2026",
+                  conserto: "o contraponto respeita o requisito que você deu, e número ou renda que você não escreveu não chega à tela; falta medir")
         case .vestir:
             .init(regra: .grokDepoisBordo, porque: "a forma local decide antes; o modelo só vê blocos pendentes (ADR 07a)")
         case .classificar:

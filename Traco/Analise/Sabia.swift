@@ -190,14 +190,35 @@ enum Sabia {
 
     /// ADR 04m — contrapor: o que o autor não considerou. Informação, nunca
     /// instrução; a resposta, a opção escolhida e a analogia que fica são dele.
+    /// ADR 2026-09-09i — o contrato de SUSTENTAÇÃO do contraponto, irmão do de
+    /// `sistemaResponder` (08z), que na Q2 matou a fabricação de número. A
+    /// medida de 08/09 pegou o contraponto de pé em fato inventado, e SEMPRE
+    /// no `outroCampo`: "metanálises de 2022", "preço 12% menor na construção
+    /// naval do século XV". A causa estava no próprio pedido — a chave exigia
+    /// "um exemplo concreto de outro campo" em TODA chamada, e o modelo
+    /// fabricava a precisão que faltava para ter o que escrever. Agora o campo
+    /// admite silêncio por escrito, e a evidência é proibida de nascer aqui.
+    /// Recusar os três é o defeito oposto, e reprova igual.
     static let sistemaContrapor = """
     Você lê a nota de quem escreve e devolve o que ela NÃO considerou. Responda APENAS um JSON válido, sem markdown:
     {"contra": "…", "foraDaLista": "…", "outroCampo": "…"}
-    contra = a posição contrária à dela, no melhor que alguém competente a defenderia ·
+    contra = a posição contrária à dela, no melhor que alguém competente a defenderia — e DENTRO do que ela já fixou ·
     foraDaLista = uma opção que não está entre as que ela listou ·
-    outroCampo = um exemplo concreto de outro campo (outra ciência, ofício, época) que resolveu problema com a mesma estrutura.
+    outroCampo = um caso de outro campo (outra ciência, ofício, época) com a MESMA estrutura de problema; "" se você não tiver um que saiba de verdade.
     Cada valor em português, até 280 caracteres, INFORMAÇÃO e nunca instrução: proibido "você deve", "faça", "escreva", "tente".
+    O contraponto se sustenta no que ELA escreveu e no que você sabe — nunca em fato que você inventa para
+    ter o que dizer. Proibido: número, porcentagem, preço, data, prazo, estudo, pesquisa, metanálise,
+    estatística, fonte ou declaração de terceiro que ela não deu. Um caso de outro campo entra pelo que
+    você sabe nomear sem inventar detalhe; sem isso, deixe "". Melhor um contraponto de três linhas sem
+    números do que um número que não existe.
     Nada de elogio, nada de conclusão por ela. Se um dos três não tiver conteúdo honesto, deixe "" — silêncio é resposta válida.
+    Mas silêncio nos TRÊS só quando a nota realmente não deixa nada a examinar: quando a razão dela já
+    sustenta a escolha, diga o limite real dessa razão, e não uma objeção fabricada para preencher o campo.
+    O REQUISITO, a restrição e o motivo que ela escreveu são DADO, não opinião: nunca argumente contra eles,
+    e nenhuma alternativa sua pode violá-los — alternativa que o requisito dela já exclui não é contraponto,
+    é troca de assunto. Se a razão dela sustenta a escolha, diga isso e mostre onde essa razão aperta na
+    prática, dentro do requisito dela.
+    Não atribua a ela recurso, renda, salário, prazo, equipe, ferramenta ou obrigação que ela não escreveu.
     Se houver um bloco SOBRE QUEM ESCREVE, use-o para escolher o exemplo que ela ainda não viu.
     """
 
@@ -208,10 +229,39 @@ enum Sabia {
         var vazia: Bool { contra.isEmpty && foraDaLista.isEmpty && outroCampo.isEmpty }
     }
 
+    /// ADR 2026-09-09i — o contrato do ASSUNTO. A medida de 08/09 pegou o
+    /// provedor perguntando sobre o NOSSO andaime ("Qual é o movimento básico
+    /// que se pula?", "Como a nota 'DEGRAU 0' se relaciona com o método?", "A
+    /// forma 'nota' já foi usada?"): o degrau e o método viajavam no mesmo
+    /// texto do rascunho, e o que está ao lado do rascunho é citável. Agora o
+    /// andaime vem AQUI, nas instruções, e o pedido leva só o que veio do
+    /// autor. O contrato fecha a porta que sobra: o assunto é o que ela
+    /// escreveu, e pergunta sobre o pedido não é pergunta.
+    ///
+    /// A medida de 09/09 cobrou o preço da primeira redação: proibir por NOME
+    /// ("não pergunte sobre o método, sobre o degrau") comprou mudez sobre as
+    /// palavras do próprio autor — quem escreveu que travou no segundo degrau
+    /// do seu método de estudo ouviu três perguntas sobre gramática e nenhuma
+    /// sobre o método dele. A proibição agora é por PROCEDÊNCIA, como a guarda:
+    /// cai a palavra que só existe no pedido, e a palavra da nota é dela.
+    /// Junto vieram o fato não suposto (o "de novo" virou "qual foi a tentativa
+    /// anterior", que a nota não tem) e a primazia do que se cobra, que o
+    /// degrau escreve — a lista fixa de buracos servia igual em todo degrau.
     static let sistemaInstigar = """
     Você é uma pessoa sábia lendo o rascunho de quem escreve. Devolva APENAS um JSON válido: {"perguntas": ["…", "…"]}
-    De 2 a 5 perguntas curtas em português, cada uma terminando em "?", que apontem buracos, dependências,
-    termos ambíguos, o que falta decidir, o que pode dar errado. Perguntas, não respostas. Nenhuma sugestão de texto.
+    De 2 a 5 perguntas curtas em português, cada uma terminando em "?". Perguntas, não respostas. Nenhuma sugestão de texto.
+    O QUE COBRAR está escrito no fim destas instruções e MANDA nas perguntas: pelo menos duas o cumprem
+    ao pé da letra, e nenhuma troca a cobrança por outra mais fácil.
+    O ASSUNTO de toda pergunta é o que ELA escreveu, nas coisas e nas palavras dela. Estas instruções são
+    minhas, não dela: nunca as cite, nunca as explique e nunca pergunte sobre elas — ela não vê nada disso,
+    e uma pergunta sobre o meu pedido não é uma pergunta para ela.
+    A palavra que ELA escreveu na nota é DELA, seja qual for: pergunte pela coisa dela que a palavra
+    nomeia, e nunca desvie do assunto para não repetir uma palavra que está na nota. Proibida é só a
+    palavra que existe aqui neste pedido e não está na nota dela.
+    Não suponha nenhum fato que ela não escreveu, nem dentro da pergunta: nada de "a tentativa anterior",
+    "o episódio de antes", "a sua área", "o seu objetivo". Se falta o quê, o quando ou o que era, PEÇA que
+    ela nomeie — pergunta que já traz o fato suposto não é pergunta, é palpite.
+    Não devolva vazio quando há texto: mesmo uma linha só dá o que perguntar — o quê, quando, o que era.
     """
 
     /// ADR 03i — a prova do Recordar. UMA pergunta que obriga a puxar a nota da
@@ -436,44 +486,107 @@ enum Sabia {
         return limparResposta(cru, teto: tetoResposta)
     }
 
+    /// ADR 2026-09-09i — a linha entre o que é NOSSO e o que é DELA. O método
+    /// (ADR 03n) e o degrau (04j) continuam decidindo o que se cobra, mas vão
+    /// nas INSTRUÇÕES; o pedido leva só o rascunho e o retrato. O rótulo
+    /// "Forma: <nome>" saiu inteiro: o método já se apresenta pelo nome, e
+    /// sozinho ele só dava ao modelo uma palavra para citar — "A forma 'nota'
+    /// já foi usada em capítulos anteriores?", medido em 08/09.
     static func instigar(texto: String, gesto: Gesto?, degrau: Int = 0, retrato: String = "") async -> [String]? {
         guard gesto != .expressiva else { return nil }
-        // ADR 03n: o MÉTODO vai junto. Sem ele a sábia sabia o nome da forma e
-        // improvisava; com ele, ela cobra o movimento que o método existe para
-        // cobrar — o obstáculo interno, a falha já acontecida, o não-escopo.
-        var usuario = "Forma: \(gesto?.nome ?? "nota")"
-        let metodo = gesto?.metodo ?? ""
-        if !metodo.isEmpty { usuario += "\n\nO MÉTODO desta forma, que as perguntas devem cobrar:\n\(metodo)" }
-        // ADR 04j: o degrau sobe com a prática nesta forma
-        usuario += "\n\n" + Degraus.instrucaoDeInstigar(degrau)
-        usuario += blocoDoRetrato(retrato)
-        usuario += "\n\nO RASCUNHO:\n\(texto.prefix(6000))"
-        guard let cru = await chamar(.instigar, sistema: sistemaInstigar, usuario: usuario, temperatura: 0.4,
+        let usuario = "O RASCUNHO:\n\(texto.prefix(6000))" + blocoDoRetrato(retrato)
+        guard let cru = await chamar(.instigar, sistema: sistemaDeInstigar(gesto: gesto, degrau: degrau),
+                                     usuario: usuario, temperatura: 0.4,
                                      mensagemLocal: {
             montarInstigar(texto: texto, gesto: gesto, degrau: degrau, retrato: retrato)
         }) else { return nil }
-        return parsePerguntas(cru)
+        return parsePerguntas(cru, texto: texto)
+    }
+
+    /// A mensagem de SISTEMA montada, para que o degrau se meça sem aparelho.
+    /// A medida de 09/09 perguntou qual dos dois era o defeito — o parâmetro
+    /// não chegar, ou não servir. Ele chegava: a sonda passa o degrau e ele
+    /// entra aqui em toda chamada. O que faltava era MANDAR — vinha solto no
+    /// fim de uma lista fixa de buracos que servia igual em qualquer degrau.
+    /// Agora vem com rótulo, por último, e cada nível diz o que não cumpre.
+    static func sistemaDeInstigar(gesto: Gesto?, degrau: Int) -> String {
+        var sistema = sistemaInstigar
+        let metodo = gesto?.metodo ?? ""
+        if !metodo.isEmpty { sistema += "\n\nO que as perguntas desta nota devem cobrar:\n\(metodo)" }
+        return sistema + "\n\nO QUE ESTAS PERGUNTAS COBRAM:\n" + Degraus.instrucaoDeInstigar(degrau)
     }
 
     /// ADR 04m — o que o autor não considerou. Só a pedido; nunca memoiza,
     /// porque pedir de novo é pedir outro ângulo.
     static func contrapor(texto: String, gesto: Gesto?, retrato: String = "") async -> Contraparte? {
         guard gesto != .expressiva else { return nil }
-        var usuario = "Forma: \(gesto?.nome ?? "nota")"
+        // ADR 09i: mesma linha do `instigar` — o método é nosso e vai nas
+        // instruções; a nota e o retrato são dela e vão no pedido.
+        var sistema = sistemaContrapor
         let metodo = gesto?.metodo ?? ""
-        if !metodo.isEmpty { usuario += "\n\nO MÉTODO desta forma:\n\(metodo)" }
-        usuario += blocoDoRetrato(retrato)
-        usuario += "\n\nA NOTA:\n\(texto.prefix(6000))"
-        guard let cru = await chamar(.contrapor, sistema: sistemaContrapor, usuario: usuario, temperatura: 0.5,
+        if !metodo.isEmpty { sistema += "\n\nO método desta nota:\n\(metodo)" }
+        let usuario = "A NOTA:\n\(texto.prefix(6000))" + blocoDoRetrato(retrato)
+        guard let cru = await chamar(.contrapor, sistema: sistema, usuario: usuario, temperatura: 0.5,
                                      mensagemLocal: {
             montarContrapor(texto: texto, gesto: gesto, retrato: retrato)
         }) else { return nil }
-        return parseContraparte(cru)
+        return parseContraparte(cru, texto: texto)
+    }
+
+    /// ADR 2026-09-09i — o que não veio do autor não volta para ele. Uma frase
+    /// cai quando carrega um termo desta lista que o TEXTO DO AUTOR não tem. O
+    /// "que o autor não tem" é o ponto: quem escreveu "método" na própria nota
+    /// pode ouvir uma pergunta sobre o método dele, e quem deu a porcentagem
+    /// pode vê-la de volta. A guarda não sabe o que é verdade — ela sabe de
+    /// onde a palavra veio, que é o defeito medido em 08/09.
+    nonisolated static func vazaAlheio(_ frase: String, termos: [String], texto: String) -> Bool {
+        let f = dobrada(frase), t = dobrada(texto)
+        return termos.contains { f.contains($0) && !t.contains($0) }
+    }
+
+    /// Sem acento e sem caixa — os termos das listas já vêm escritos assim.
+    /// Procedência é de onde a palavra veio, não de como foi digitada: quem
+    /// escreveu "metodo" sem acento continua dono da palavra, e antes de 09/09
+    /// perdia a pergunta sobre o próprio método por causa de um agudo.
+    nonisolated static func dobrada(_ s: String) -> String {
+        s.folding(options: .diacriticInsensitive, locale: nil).lowercased()
+    }
+
+    /// O nosso ANDAIME: os rótulos que só existem no pedido, e que a medida de
+    /// 08/09 viu voltarem como assunto da pergunta.
+    /// "sábia" saiu da lista em 09/09: dobrado o acento ela vira "sabia", que é
+    /// verbo de todo dia — calar "Como você sabia disso?" é a recusa covarde
+    /// que esta guarda existe para não comprar.
+    nonisolated static let andaimeDoPedido = ["degrau", "metodo", "rascunho",
+                                              "movimento basico", "passo que se pula"]
+
+    /// O que o `contrapor` não pode dizer sem que o autor tenha dito antes: a
+    /// FORMA da evidência fabricada em 08/09 (porcentagem sem dono, citação de
+    /// pesquisa) e o FATO da vida dele que só ele pode dar — a medida de 09/09
+    /// pegou "recompor o valor com o salário" numa nota que não fala de renda.
+    /// ponytail: lista de termos MEDIDOS, não teoria da invenção. A forma geral
+    /// da precisão inventada é `numeroAlheio`, e o resto é contrato do prompt.
+    /// "renda", "juros" e "inflação" ficaram DE FORA de propósito: são também
+    /// propriedade geral do mundo ("parcelar compromete renda futura"), e a
+    /// lista que as calasse compraria de novo a recusa covarde. Se a medida
+    /// seguinte pegar invenção por outra palavra, é aqui que ela entra.
+    nonisolated static let fatoQueEleNaoDeu = ["%", "por cento", "metanalise",
+                                              "segundo estudo", "segundo pesquisa", "estudos mostram",
+                                              "pesquisas mostram", "dados mostram", "salario"]
+
+    /// A forma GERAL da precisão que o autor não deu: todo número da frase tem
+    /// de aparecer no texto dele. Palavra ele pode ter faltado; número que ele
+    /// não escreveu foi inventado aqui — era assim que nasciam "metanálises de
+    /// 2022" e "12 % menor no século XV". O 12% que ELE deu volta inteiro.
+    nonisolated static func numeroAlheio(_ frase: String, texto: String) -> Bool {
+        let dele = Set(texto.split(whereSeparator: { !$0.isNumber }))
+        return frase.split(whereSeparator: { !$0.isNumber }).contains { !dele.contains($0) }
     }
 
     /// Três chaves, texto até 280, e nunca instrução. O que começa por
-    /// imperativo é descartado — informação é o que a ADR o permite.
-    nonisolated static func parseContraparte(_ cru: String) -> Contraparte? {
+    /// imperativo é descartado — informação é o que a ADR o permite. E o que
+    /// se apoia em evidência que o autor não deu cai igual (ADR 09i).
+    nonisolated static func parseContraparte(_ cru: String, texto: String = "") -> Contraparte? {
         guard let ini = cru.firstIndex(of: "{"), let fim = cru.lastIndex(of: "}"),
               let dados = String(cru[ini...fim]).data(using: .utf8),
               let j = try? JSONSerialization.jsonObject(with: dados) as? [String: Any]
@@ -484,6 +597,8 @@ enum Sabia {
             guard t.count >= 12, t.count <= 320 else { return "" }
             let baixo = t.lowercased()
             if baixo.contains(regex: #"^(você deve|voce deve|faça|faca|escreva|tente|comece|pare de|precisa|deve )"#) { return "" }
+            if vazaAlheio(t, termos: fatoQueEleNaoDeu, texto: texto) { return "" }
+            if numeroAlheio(t, texto: texto) { return "" }
             return AnaliseRemota.umaFrase(t, teto: 280)
         }
         let c = Contraparte(contra: limpo("contra"), foraDaLista: limpo("foraDaLista"), outroCampo: limpo("outroCampo"))
@@ -807,7 +922,11 @@ enum Sabia {
     }
 
     /// Perguntas válidas: de 1 a 5, cada uma terminando em "?".
-    nonisolated static func parsePerguntas(_ cru: String) -> [String]? {
+    /// ADR 2026-09-09i — `texto` é o rascunho do autor, e a pergunta que fala
+    /// do nosso andaime sem que ele tenha escrito a palavra não volta para ele.
+    /// Cair para `nil` é o resultado honesto: a página fica com as perguntas do
+    /// método, que são dela, em vez de uma pergunta sobre a nossa máquina.
+    nonisolated static func parsePerguntas(_ cru: String, texto: String = "") -> [String]? {
         guard let ini = cru.firstIndex(of: "{"), let fim = cru.lastIndex(of: "}") else { return nil }
         guard let dados = String(cru[ini...fim]).data(using: .utf8),
               let j = try? JSONSerialization.jsonObject(with: dados) as? [String: Any],
@@ -816,6 +935,7 @@ enum Sabia {
         let limpas = lista
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { $0.hasSuffix("?") && $0.count > 8 && $0.count <= 240 }
+            .filter { !vazaAlheio($0, termos: andaimeDoPedido, texto: texto) }
         guard !limpas.isEmpty else { return nil }
         return Array(limpas.prefix(5))
     }
