@@ -13,8 +13,11 @@ struct NotasView: View {
     /// ADR 09c: a conversa vive na `Sessao` — em `@State` ela morria toda vez
     /// que a `RaizView` recriava esta view ao trocar de aba.
     private var conversaNotas: ConversaNotas { sessao.conversaNotas }
+    /// O que FILTRA a lista. No modo de perguntar, o que a pessoa escreve é
+    /// pergunta, não busca: a lista não se mexe (§14: duas intenções, um
+    /// gesto para cada).
     private var busca: String {
-        get { conversaNotas.entrada }
+        get { conversaNotas.modoPergunta ? "" : conversaNotas.entrada }
         nonmutating set { conversaNotas.entrada = newValue }
     }
     /// ADR 04n: as notas próximas da busca que a busca por letras não achou.
@@ -31,6 +34,7 @@ struct NotasView: View {
     @State private var escolhidas: Set<UUID> = []
     @State private var confirmarLote = false
     @State private var mostrarTrabalhos = false
+    @FocusState private var campoFocado: Bool
 
     var body: some View {
         telaNotas
@@ -56,33 +60,39 @@ struct NotasView: View {
             Tema.fundo.ignoresSafeArea()
             VStack(alignment: .leading, spacing: 0) {
                 topbar
-                regencia
-                lista
+                // §14 (complemento): a resposta é uma FOLHA do Traço na área
+                // da lista, não um cartão flutuando por cima do que a pessoa
+                // escreveu. Com conversa, a lista e a sua regência cedem o
+                // lugar; Fechar (um só, na topbar) devolve a lista.
+                if conversaNotas.temCartao {
+                    conversaDaSabia
+                } else {
+                    regencia
+                    lista
+                }
             }
+            .animation(Tema.corte(.easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion), value: conversaNotas.temCartao)
         }
         .sheet(isPresented: $mostrarTrabalhos) { TrabalhosView() }
         // ADR 05e: a barra vive no pé, na zona do polegar, acima da navegação
-        // e do teclado; o cartão da sábia sobe sobre ela só quando há conversa
+        // e do teclado; com conversa aberta, ela é a linha da pergunta seguinte
         .safeAreaInset(edge: .bottom, spacing: 0) {
-            VStack(spacing: 8) {
-                cartaoDaSabia
-                campoBusca
-            }
+            campoBusca
             .animation(Tema.corte(.easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion), value: conversaNotas.estado)
             .animation(Tema.corte(.easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion), value: conversaNotas.semModelo)
             .transaction { if reduceMotion { $0.disablesAnimations = true } }
             .onChange(of: conversaNotas.trocas.count) { antes, depois in
                 if depois > antes {
                     Toque.suave()
-                    AccessibilityNotification.Announcement("A sábia respondeu. A resposta está no cartão.").post()
+                    AccessibilityNotification.Announcement("A sábia respondeu.").post()
                 }
             }
             // VoiceOver: o cartão sobe sozinho no pé da tela — quem não vê precisa ouvir
             .onChange(of: conversaNotas.estado) { _, estado in
                 switch estado {
                 case .pensando: AccessibilityNotification.Announcement("A sábia está pensando.").post()
-                case .falhou: AccessibilityNotification.Announcement("A sábia não respondeu. Repetir pergunta disponível.").post()
-                case .recolhida: AccessibilityNotification.Announcement("A resposta foi recolhida porque uma fonte mudou ou deixou de estar acessível. Você pode repetir a pergunta.").post()
+                case .falhou: AccessibilityNotification.Announcement("A sábia não respondeu. Perguntar de novo está ao lado da pergunta.").post()
+                case .recolhida: AccessibilityNotification.Announcement("A resposta foi recolhida porque uma fonte mudou ou deixou de estar acessível. Você pode perguntar de novo.").post()
                 default: break
                 }
             }
@@ -97,7 +107,6 @@ struct NotasView: View {
 
     // MARK: ADR 05e — perguntar pela barra
 
-    @State private var avaliada: Set<String> = []
 
     private var conversa: [Sessao.TrocaNasNotas] { conversaNotas.trocas }
     private var pensando: Bool { conversaNotas.pensando }
@@ -110,12 +119,11 @@ struct NotasView: View {
     }
 
     private func revalidarConversa() {
-        if conversaNotas.revalidarFontes({ Sessao.dependenciasValidas($0, no: context) }) {
-            avaliada = []
-        }
+        conversaNotas.revalidarFontes { Sessao.dependenciasValidas($0, no: context) }
     }
 
     private func perguntar() {
+        guard conversaNotas.modoPergunta else { return }
         conversaNotas.perguntar(disponivel: Sabia.disponivel) { pergunta, anteriores in
             await sessao.responderNasNotas(pergunta, conversa: anteriores, no: context)
         }
@@ -127,106 +135,88 @@ struct NotasView: View {
         }
     }
 
-    /// O teto da resposta, por medida (ver `CartaoDeResposta`): 360 pt guardam
-    /// ~500 grafemas inteiros em `large`; a mediana das 18 corridas (384) cabe
-    /// com folga, só a cauda (568) rola. A lista atrás continua visível: o
-    /// cartão toma pouco mais de metade dos 874 pt do aparelho.
-    static let tetoDaResposta: CGFloat = 360
-
-    private func fecharCartao() {
+    private func fecharConversa() {
         var t = Transaction(); t.disablesAnimations = true
-        withTransaction(t) { conversaNotas.fechar(); avaliada = [] }
+        withTransaction(t) { conversaNotas.fechar() }
     }
 
     /// A nota que foi junto abre como da lista: queimada e trancada com as
-    /// mesmas guardas.
+    /// mesmas guardas. A conversa fica na sessão (ADR 09c) e está aqui na volta.
     private func abrirFonte(_ id: UUID) {
         guard let nota = notas.first(where: { $0.uuid == id }) else { return }
         abrirDaLista(nota)
     }
 
-    /// UM cartão por vez (DIRETRIZ §14): enquanto a sábia pensa, o título é a
-    /// pergunta nova e o corpo é a espera; a resposta que chega toma o lugar.
-    /// Resposta anterior e espera lado a lado eram dois "Fechar" na tela.
-    @ViewBuilder private var cartaoDaSabia: some View {
-        if conversaNotas.temCartao {
-            VStack(alignment: .leading, spacing: 10) {
-                if let desde = conversaNotas.esperandoDesde,
-                   case .pensando(let pergunta, _) = conversaNotas.estado {
-                    CartaoDeResposta(titulo: pergunta, pensandoDesde: desde,
-                                     cancelar: { conversaNotas.interromper() },
-                                     fechar: fecharCartao, rota: "sabia-notas") { EmptyView() }
-                } else if let ultima = conversa.last, conversaNotas.perguntaParaRepetir == nil {
+    /// A CONVERSA como folha do Traço (DIRETRIZ §14, complemento das 14h25):
+    /// a pergunta da pessoa é o título, em letra de gente; a resposta vem
+    /// inteira, na tinta do texto, sem teto e sem dobra; as trocas anteriores
+    /// ficam acima, na ordem em que aconteceram — perguntar de novo continua,
+    /// não recomeça. Só a última troca leva as fontes e o retorno. Enquanto a
+    /// sábia pensa, a pergunta nova já está na folha com a espera embaixo
+    /// (pensando, tempo, parar de esperar); se não respondeu, a falha fica
+    /// junto da pergunta com "Perguntar de novo" ao lado. Tudo pela mesma
+    /// `CartaoDeResposta` que a Página e a Lente usam — nenhuma tela desenha
+    /// a IA por conta própria (§15).
+    private var conversaDaSabia: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: Tema.entreSecoes) {
+                ForEach(Array(conversa.enumerated()), id: \.offset) { i, troca in
+                    let ultima = i == conversa.count - 1 && conversaNotas.perguntaParaRepetir == nil
+                    let retorno: ((Bool) -> Void)? = ultima && !conversaNotas.avaliadas.contains(troca.resposta) ? { serviu in
+                        Sinais.resposta(troca.resposta, forma: nil, serviu: serviu)
+                        conversaNotas.avaliadas.insert(troca.resposta)
+                        Toque.leve()
+                    } : nil
                     CartaoDeResposta(
-                        titulo: ultima.pergunta,
-                        fontes: conversaNotas.fontes.map { .init(id: $0.id, titulo: $0.titulo) },
+                        titulo: troca.pergunta,
+                        fontes: ultima ? conversaNotas.fontes.map { .init(id: $0.id, titulo: $0.titulo) } : [],
                         abrirFonte: abrirFonte,
-                        retorno: avaliada.contains(ultima.resposta) ? nil : { serviu in
-                            Sinais.resposta(ultima.resposta, forma: nil, serviu: serviu)
-                            avaliada.insert(ultima.resposta)
-                            Toque.leve()
-                        },
-                        avaliada: avaliada.contains(ultima.resposta),
-                        fechar: fecharCartao,
-                        teto: Self.tetoDaResposta, rota: "sabia-notas"
+                        retorno: retorno,
+                        avaliada: ultima && conversaNotas.avaliadas.contains(troca.resposta),
+                        rota: "sabia-notas"
                     ) {
-                        Text(ultima.resposta).textSelection(.enabled)
+                        // ADR 02o: a resposta chega ao lado, nunca na nota. Levar
+                        // um trecho para a nota é ato do autor — selecionar e
+                        // copiar —, com as palavras dele.
+                        Text(troca.resposta).textSelection(.enabled)
                     }
                 }
-                if let pergunta = conversaNotas.perguntaParaRepetir {
-                    ScrollView {
-                        Text(pergunta)
-                            .font(Tema.chrome)
-                            .foregroundStyle(Tema.tintaSuave)
-                            .fixedSize(horizontal: false, vertical: true)
-                            .textSelection(.enabled)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .accessibilityIdentifier("pergunta-pendente-notas")
-                    }
-                    // ADR 08p: o teto é teto, não altura — sem isto a pergunta de
-                    // uma linha guardava ~100 pt de vão até "a sábia não respondeu."
-                    .frame(maxHeight: 120)
-                    .sinalDeSobra("sobra-pergunta-notas")
-                    .fixedSize(horizontal: false, vertical: true)
-                    LinhaDeEstado(conversaNotas.estado == .recolhida(pergunta)
-                                  ? "A resposta foi recolhida porque uma fonte mudou ou deixou de estar acessível."
-                                  : conversaNotas.estado == .interrompida(pergunta)
-                                    ? "você parou de esperar."
-                                    : "a sábia não respondeu.", .falhou)
-                        .accessibilityIdentifier("sabia-falhou-notas")
-                    Button("Repetir pergunta") { repetirPergunta() }
-                        .font(Tema.meta)
-                        .foregroundStyle(Tema.ambarTinta)
-                        .alvo()
-                        .buttonStyle(.discreto)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .accessibilityIdentifier("repetir-pergunta-notas")
+                if case .pensando(let pergunta, let desde) = conversaNotas.estado {
+                    CartaoDeResposta(titulo: pergunta, pensandoDesde: desde,
+                                     cancelar: { conversaNotas.interromper() },
+                                     rota: "sabia-notas") { EmptyView() }
+                } else if let pergunta = conversaNotas.perguntaParaRepetir {
+                    CartaoDeResposta(
+                        titulo: pergunta,
+                        falhou: conversaNotas.estado == .recolhida(pergunta)
+                            ? "A resposta foi recolhida porque uma fonte mudou ou deixou de estar acessível."
+                            : conversaNotas.estado == .interrompida(pergunta)
+                                ? "você parou de esperar."
+                                : "a sábia não respondeu.",
+                        repetir: repetirPergunta,
+                        rota: "sabia-notas"
+                    ) { EmptyView() }
                 }
                 if conversaNotas.semModelo {
                     LinhaDeEstado("a sábia " + Sabia.porOndeEmPalavras + ". Sem ela, a busca continua.", .semConta)
                         .accessibilityIdentifier("sem-conta-notas")
                 }
-                // o fechar destes estados: os que têm `CartaoDeResposta` já o
-                // levam no canto — um só por tela
-                if conversaNotas.perguntaParaRepetir != nil || (conversaNotas.semModelo && conversa.isEmpty) {
-                    Button("Fechar", action: fecharCartao)
-                        .font(Tema.meta)
-                        .foregroundStyle(Tema.tintaSuave)
-                        .alvo()
-                        .buttonStyle(.discreto)
-                        .frame(maxWidth: .infinity, alignment: .trailing)
-                        .accessibilityIdentifier("fechar-sabia-notas")
-                }
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .cartao(.papel)
+            .frame(maxWidth: .infinity, alignment: .topLeading)
             .padding(.horizontal, Tema.margem)
-            .transition(Tema.transicao(.move(edge: .bottom).combined(with: .opacity), reduzido: reduceMotion))
-            // um cartão, lido inteiro na ordem: a pergunta, a resposta, quem foi junto, o retorno
+            .padding(.top, 4)
+            .padding(.bottom, Tema.entreSecoes)
+            // uma folha, lida inteira na ordem: cada pergunta, cada resposta,
+            // quem foi junto, o retorno. O contêiner é a pilha, não a rolagem:
+            // à árvore de AX a rolagem é `scrollView`, e a suíte procura a
+            // conversa como `otherElement` — foi assim que o ensaio "não pegou".
             .accessibilityElement(children: .contain)
-            .accessibilityLabel("Resposta da sábia")
+            .accessibilityLabel("Conversa com a sábia")
             .accessibilityIdentifier("cartao-sabia-notas")
         }
+        .scrollBounceBehavior(.always)
+        .scrollDismissesKeyboard(.interactively)
+        .transition(Tema.transicao(.opacity, reduzido: reduceMotion))
     }
 
     /// SPEC §20: navegar é da barra inferior. Aqui o título e o export do
@@ -235,6 +225,16 @@ struct NotasView: View {
         TituloTela(texto: escolhidas.isEmpty ? "Notas" : "\(escolhidas.count) escolhida\(escolhidas.count == 1 ? "" : "s")") {
             if !escolhidas.isEmpty {
                 loteAcoes
+            } else if conversaNotas.temCartao {
+                // o ÚNICO fechar da conversa (§14: eram dois), fora do caminho
+                // da leitura; a folha some e a lista volta
+                Button("Fechar", action: fecharConversa)
+                    .font(Tema.meta)
+                    .foregroundStyle(Tema.tintaSuave)
+                    .alvo(folgaH: 8)
+                    .buttonStyle(.discreto)
+                    .accessibilityHint("A conversa some; as suas notas voltam")
+                    .accessibilityIdentifier("fechar-resposta")
             } else if !filtradas.isEmpty {
                 // o gesto de compartilhar que todo iPhone conhece (jakobs-law);
                 // D1: só o glifo, sem o círculo de chip — a folha não tem botões redondos
@@ -424,26 +424,54 @@ struct NotasView: View {
     /// D1: a busca é uma LINHA no pé da folha, não uma barra de sistema —
     /// sem cartão branco nem lupa; a hairline acima e o caret âmbar dizem
     /// "escreva aqui", como na página.
+    ///
+    /// §14 (complemento): buscar e perguntar são DUAS intenções e cada uma
+    /// tem o seu gesto. A linha nasce como busca ("buscar"); a palavra
+    /// "perguntar" à direita, em tinta âmbar, é o gesto único de pedir à IA —
+    /// a linha vira a da pergunta ("pergunte sobre as suas notas"), o que já
+    /// estava escrito segue como rascunho, a lista para de filtrar, e enviar
+    /// pergunta. Com conversa aberta a linha já é de perguntar: é a
+    /// continuação, sem recomeçar.
     private var campoBusca: some View {
-        HStack(spacing: 8) {
+        let perguntando = conversaNotas.modoPergunta
+        let entrada = conversaNotas.entrada
+        return HStack(spacing: 8) {
             TextField(
                 "",
                 text: Bindable(conversaNotas).entrada,
-                prompt: Text("buscar ou perguntar").foregroundStyle(Tema.tintaFraca)
+                prompt: Text(perguntando
+                             ? (conversa.isEmpty ? "pergunte sobre as suas notas" : "pergunte de novo")
+                             : "buscar")
+                    .foregroundStyle(Tema.tintaFraca)
             )
                 .foregroundStyle(Tema.tinta)
                 .tint(Tema.ambar)
                 .font(Tema.corpo)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
-                .submitLabel(.send)
+                .submitLabel(perguntando ? .send : .search)
                 .onSubmit { perguntar() }
+                .focused($campoFocado)
                 .alvo()
                 .accessibilityIdentifier("busca-notas")
-                .accessibilityLabel("Buscar ou perguntar")
-                .accessibilityValue(busca.isEmpty ? "vazio" : busca)
-                .accessibilityHint(filtro == .trancadas ? "Indisponível no filtro de trancadas" : "Escrever filtra; enviar pergunta à sábia")
-            if !busca.isEmpty {
+                .accessibilityLabel(perguntando ? "Pergunte à sábia" : "Buscar")
+                .accessibilityValue(entrada.isEmpty ? "vazio" : entrada)
+                .accessibilityHint(filtro == .trancadas ? "Indisponível no filtro de trancadas"
+                                   : perguntando ? "Enviar pergunta à sábia" : "Escrever filtra a lista")
+            if !perguntando {
+                Button("perguntar") {
+                    conversaNotas.perguntando = true
+                    campoFocado = true
+                    Toque.selecao()
+                }
+                .font(Tema.meta)
+                .foregroundStyle(Tema.ambarTinta)
+                .alvo()
+                .buttonStyle(.discreto)
+                .accessibilityLabel("Perguntar à sábia")
+                .accessibilityHint("A linha vira a da pergunta; o que você escreveu segue como rascunho")
+                .accessibilityIdentifier("perguntar-modo")
+            } else if !entrada.isEmpty {
                 // ADR 05e: enviar é perguntar — o mesmo botão do calendário
                 Button {
                     perguntar()
@@ -461,11 +489,15 @@ struct NotasView: View {
                 .accessibilityLabel("Perguntar à sábia")
                 .accessibilityIdentifier("perguntar-notas")
             }
-            if !busca.isEmpty {
+            // a saída do que se está escrevendo: na busca, limpa e mostra
+            // tudo; na pergunta sem conversa, volta à busca (com conversa, o
+            // Fechar da folha é a saída — a linha só limpa o rascunho)
+            if !entrada.isEmpty || (perguntando && !conversaNotas.temCartao) {
                 Button {
                     busca = ""
                     filtro = nil
                     filtroDominio = nil
+                    if !conversaNotas.temCartao { conversaNotas.perguntando = false }
                 } label: {
                     Image(systemName: "xmark.circle.fill")
                         .foregroundStyle(Tema.tintaFraca)
@@ -475,7 +507,7 @@ struct NotasView: View {
                 .buttonStyle(.discreto)
                 .transition(Tema.transicao(.opacity.combined(with: .scale(scale: 0.8)), reduzido: reduceMotion))
                 .accessibilityIdentifier("limpar-busca")
-                .accessibilityLabel("Limpar busca")
+                .accessibilityLabel(perguntando && !conversaNotas.temCartao ? "Voltar à busca" : "Limpar")
             }
         }
         .alvo()

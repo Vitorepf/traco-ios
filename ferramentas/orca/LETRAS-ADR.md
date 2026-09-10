@@ -96,6 +96,7 @@ alguém tropeçar: a série 08 encheu sem aviso e custou três colisões numa ta
 | 10d | CONTRAPOR · fechar a porta do caso cego no pedido | reservada, volta viva |
 
 | 10e | SUPERFÍCIE · falar com a sábia: um componente só, a pergunta como título, a resposta como folha | reservada, volta viva |
+| 10f | SISTEMA-IA/conversa · a conversa com a sábia como folha do Traço | escrita no branch `Vitorepf/sistema-ia` |
 
 **Próxima livre: 10f.**
 

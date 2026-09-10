@@ -31,6 +31,17 @@ final class ConversaNotas {
     typealias Responder = @MainActor (String, [Sessao.TrocaNasNotas]) async -> Resultado
 
     var entrada = ""
+    /// DIRETRIZ §14 (complemento): buscar e perguntar são duas intenções e não
+    /// dividem um campo só porque cabem. A pessoa entra no modo de perguntar
+    /// por um gesto (a palavra "perguntar" na linha do pé) e sai por outro; com
+    /// conversa aberta, a linha já é de perguntar — é a continuação.
+    var perguntando = false
+    var modoPergunta: Bool { perguntando || temCartao }
+    /// As respostas já avaliadas ("anotado."). Vive AQUI, não na view: a
+    /// `NotasView` é recriada a cada troca de aba (ADR 09c), e guardada nela a
+    /// avaliação voltava a ser oferecida — visto no aparelho da conta em
+    /// 10/09, 15h41: "serviu / não serviu" de volta depois de ir ao Perfil.
+    var avaliadas: Set<String> = []
     private(set) var trocas: [Sessao.TrocaNasNotas] = []
     private(set) var estado: Estado = .ociosa
     private(set) var semModelo = false
@@ -162,6 +173,7 @@ final class ConversaNotas {
         let validas = trocas.filter { permitidas($0.dependencias) }
         guard validas.count != trocas.count else { return false }
         trocas = validas
+        avaliadas = []
         if case .pensando(let pergunta, _) = estado {
             invalidarTentativa()
             fontes = []
@@ -180,6 +192,8 @@ final class ConversaNotas {
         semModelo = false
         trocas = []
         fontes = []
+        perguntando = false
+        avaliadas = []
     }
 
     private func invalidarTentativa() {

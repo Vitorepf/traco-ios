@@ -180,4 +180,22 @@ struct ConversaNotasTests {
         await tarefa.value
         #expect(servico.pedidos.count == 1)
     }
+
+    /// §14 (complemento): buscar e perguntar são duas intenções. A linha só é
+    /// de perguntar por gesto (`perguntando`) ou porque há conversa; fechar a
+    /// conversa devolve a linha à busca. A irmã que não acusa: sem gesto e sem
+    /// conversa, o modo é busca.
+    @Test func oModoDePerguntarNasceDoGestoOuDaConversa() async throws {
+        let conversa = ConversaNotas()
+        #expect(!conversa.modoPergunta)
+        conversa.perguntando = true
+        #expect(conversa.modoPergunta)
+        conversa.perguntando = false
+        conversa.entrada = "quanto falta?"
+        let t = try #require(conversa.perguntar(disponivel: true) { _, _ in .init(resposta: "pouco") })
+        await t.value
+        #expect(conversa.modoPergunta, "com conversa aberta a linha é a da pergunta seguinte")
+        conversa.fechar()
+        #expect(!conversa.modoPergunta, "fechar a conversa tem de devolver a linha à busca")
+    }
 }

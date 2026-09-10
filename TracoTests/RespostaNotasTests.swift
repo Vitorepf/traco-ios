@@ -300,35 +300,26 @@ struct RespostaNotasTests {
                 "modelo escrito em mais de um sítio em Sabia.swift")
     }
 
-    /// ADR 2026-09-09w — O PORTÃO DO SINAL DE SOBRA, e ele guarda uma
-    /// INVARIANTE, não um sítio: no cartão da sábia, **todo teto de altura tem
-    /// um sinal de sobra**.
+    /// DIRETRIZ §14/§15 — a resposta é uma FOLHA e se lê inteira: nenhum teto
+    /// de altura na superfície da resposta nem na conversa das Notas. A ADR
+    /// 09w guardava "todo teto tem sinal de sobra"; a folha tirou a causa
+    /// (o cartão flutuando sobre a lista), e o portão passa a guardar a
+    /// ausência do teto — quem puser um `.frame(maxHeight:)` de volta corta
+    /// a resposta, e fica vermelho aqui antes de chegar à tela.
     ///
-    /// A prova de tela deste defeito vive na `SinalDeSobraUITests`, e ela precisa
-    /// de aparelho. Este portão é o que corre na suíte de sempre e cai em
-    /// segundos: quem puser um `.frame(maxHeight:)` novo no cartão, ou tirar o
-    /// sinal de um dos que existem, fica vermelho aqui antes de chegar à tela.
-    ///
-    /// Conta na forma MEDIDA (10/09): `.frame(maxHeight:` e `.sinalDeSobra(`
-    /// aparecem 2 vezes cada em `NotasView.swift`, nenhuma delas dentro de
-    /// comentário — e `codigoVisivel(apagandoTema: false)` apaga comentário e
-    /// literal, então o que se conta é código.
-    @Test func todoTetoDoCartaoTemSinalDeSobra() throws {
-        // DIRETRIZ §14: a resposta mudou-se para `CartaoDeResposta`, e o teto
-        // dela foi junto; nas Notas ficou só o da pergunta pendente. O portão
-        // conta nos DOIS arquivos — um teto sem sinal em qualquer um corta calado.
+    /// Conta na forma MEDIDA (10/09): 0 em cada arquivo; `codigoVisivel`
+    /// apaga comentário e literal, então o que se conta é código. A irmã que
+    /// acusa: um trecho com o teto escrito conta 1.
+    @Test func aRespostaNaoTemTeto() throws {
         let raiz = URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent().deletingLastPathComponent()
-        var tetosNoTotal = 0
         for caminho in ["Traco/Notas/NotasView.swift", "Traco/Componentes/CartaoDeResposta.swift"] {
             let codigo = PortaoDoMovimentoTests.codigoVisivel(
                 try String(contentsOf: raiz.appendingPathComponent(caminho), encoding: .utf8), apagandoTema: false)
             let tetos = codigo.components(separatedBy: ".frame(maxHeight:").count - 1
-            let sinais = codigo.components(separatedBy: ".sinalDeSobra(").count - 1
-            #expect(sinais == tetos,
-                    "\(caminho): \(tetos) tetos de altura e \(sinais) sinais de sobra: um deles corta calado, e foi assim que a resposta terminou em \"(A nota\" em 10/09")
-            tetosNoTotal += tetos
+            #expect(tetos == 0, "\(caminho): \(tetos) teto(s) de altura — a resposta deixou de ser folha e volta a cortar")
         }
-        #expect(tetosNoTotal == 2, "a sonda mudou de forma: \(tetosNoTotal) tetos nos dois arquivos, não 2 — meça de novo antes de mexer no portão")
+        #expect(PortaoDoMovimentoTests.codigoVisivel("ScrollView { t }.frame(maxHeight: 360)", apagandoTema: false)
+                    .components(separatedBy: ".frame(maxHeight:").count - 1 == 1, "a sonda não enxerga o teto")
     }
 }

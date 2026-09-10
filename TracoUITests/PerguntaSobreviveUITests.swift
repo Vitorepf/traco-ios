@@ -82,8 +82,9 @@ import XCTest
         let app = XCUIApplication()
         abrirNotas(app)
 
+        // §14: perguntar é um gesto próprio — a palavra na linha do pé
+        app.buttons["perguntar-modo"].firstMatch.tap()
         let busca = app.textFields["busca-notas"].firstMatch
-        busca.tap()
         busca.typeText("o que eu aprendi ontem")
         app.buttons["perguntar-notas"].firstMatch.tap()
 

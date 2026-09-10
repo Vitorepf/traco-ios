@@ -54,8 +54,7 @@ struct SuperficieDaRespostaTests {
         let raiz = URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent().deletingLastPathComponent()
         let arquivos = ["Traco/Notas/NotasView.swift", "Traco/Pagina/CartaoAnaliseView.swift",
-                        "Traco/Pagina/LenteView.swift", "Traco/Componentes/CartaoDeResposta.swift",
-                        "Traco/Componentes/SinalDeSobra.swift"]
+                        "Traco/Pagina/LenteView.swift", "Traco/Componentes/CartaoDeResposta.swift"]
         let proibidos = ["A sábia, sobre", "Foram junto", "Text(\"continua\")", "ProgressView()"]
         for caminho in arquivos {
             let codigo = PortaoDoMovimentoTests.codigoVisivel(

@@ -49,16 +49,19 @@ import XCTest
 
         // e parar NÃO PERDE a pergunta
         parar.tap()
-        XCTAssertTrue(app.staticTexts["pergunta-pendente-notas"].firstMatch.waitForExistence(timeout: 5),
-                      "parar de esperar perdeu a pergunta do autor")
-        XCTAssertTrue(app.buttons["repetir-pergunta-notas"].firstMatch.exists,
+        XCTAssertTrue(app.staticTexts["sabia-notas-falhou"].firstMatch.waitForExistence(timeout: 5),
+                      "parar de esperar não deixou a falha junto da pergunta")
+        XCTAssertTrue(app.buttons["repetir-sabia-notas"].firstMatch.exists,
                       "perguntar de novo tem de ser um toque")
         XCTAssertFalse(app.staticTexts["sabia-notas-pensando"].firstMatch.exists,
                        "parou de esperar e a espera continuou na tela")
+        XCTAssertEqual(app.staticTexts["pergunta-sabia-notas"].firstMatch.label, "Quanto ainda me falta no pretérito?",
+                       "parar de esperar perdeu a pergunta do autor")
     }
 
     /// A resposta semeada: título = pergunta, fontes fechadas numa linha que
-    /// abre em títulos tocáveis, retorno como controle, um só fechar.
+    /// abre em títulos tocáveis, retorno como controle, um só fechar — e a
+    /// linha do pé já é a da pergunta seguinte (continuação, §14).
     func testARespostaTemPerguntaFontesRetornoEUmFechar() {
         let app = XCUIApplication()
         app.launchArguments += ["-autoAnalise", "<true/>", "-ensaio-resposta-longa-nas-notas"]
@@ -79,12 +82,32 @@ import XCTest
         XCTAssertEqual(app.buttons.matching(identifier: "fonte-sabia-notas").count, 4, "uma fonte por nota, uma vez cada")
 
         XCTAssertTrue(app.buttons["serviu"].firstMatch.exists && app.buttons["nao-serviu"].firstMatch.exists)
-        app.buttons["serviu"].firstMatch.tap()
+        // a folha se lê inteira: com a resposta medida (568 grafemas) e as
+        // quatro fontes abertas, o retorno fica abaixo da dobra da TELA — a
+        // pessoa rola, e o teste rola com ela
+        let serviu = app.buttons["serviu"].firstMatch
+        let linhaDoPe = app.textFields["busca-notas"].firstMatch
+        // "hittable" pela moldura não basta: no meio da rolagem o controle
+        // passa POR TRÁS da linha do pé (opaca) e o toque cai nela
+        for _ in 0..<4 where serviu.frame.maxY > linhaDoPe.frame.minY { app.swipeUp() }
+        XCTAssertTrue(serviu.frame.maxY <= linhaDoPe.frame.minY, "o retorno ficou atrás da linha do pé: \(serviu.frame) vs \(linhaDoPe.frame)")
+        serviu.tap()
         XCTAssertTrue(app.staticTexts["retorno-anotado"].firstMatch.waitForExistence(timeout: 3), "o retorno não confirmou")
         XCTAssertFalse(app.buttons["serviu"].firstMatch.exists, "o controle ficou depois de avaliado")
 
+        // e a avaliação SOBREVIVE à troca de aba (ADR 09c): no aparelho da
+        // conta, ir ao Perfil e voltar oferecia "serviu / não serviu" de novo
+        app.buttons["aba-perfil"].firstMatch.tap()
+        app.buttons["aba-notas"].firstMatch.tap()
+        XCTAssertTrue(app.otherElements["cartao-sabia-notas"].firstMatch.waitForExistence(timeout: 5), "a conversa sumiu ao trocar de aba")
+        XCTAssertFalse(app.buttons["serviu"].firstMatch.exists, "trocar de aba ofereceu o retorno de novo — a avaliação morava na view")
+
         XCTAssertEqual(app.buttons.matching(NSPredicate(format: "label == 'Fechar'")).count, 1, "mais de um Fechar")
+        XCTAssertEqual(app.textFields["busca-notas"].firstMatch.placeholderValue, "pergunte de novo",
+                       "com a conversa aberta, a linha do pé tem de ser a da pergunta seguinte")
         app.buttons["fechar-resposta"].firstMatch.tap()
         XCTAssertFalse(app.otherElements["cartao-sabia-notas"].firstMatch.waitForExistence(timeout: 2), "fechar não fechou")
+        XCTAssertEqual(app.textFields["busca-notas"].firstMatch.placeholderValue, "buscar",
+                       "fechar a conversa tem de devolver a linha à busca")
     }
 }

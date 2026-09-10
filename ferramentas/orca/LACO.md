@@ -3578,3 +3578,4 @@ candidato.**
   linhas da rota a suíte alcança agora contra antes.
 - **14h30** Próxima alavanca do `responder`, pela medida e não por gosto: **CONTEXTO**, não
   esquema — *"nenhum texto de pedido conserta informação que não viajou"*.
+- **10/09 15h55 — SISTEMA-IA/conversa (branch `Vitorepf/sistema-ia`, ADR 10f):** a conversa com a sábia virou folha do Traço — gesto "perguntar" separado da busca, resposta inteira na área da lista (teto e `SinalDeSobra` apagados), continuação sem recomeçar, falha junto da pergunta, um Fechar; base = diff da cadeira irmã (`dde4136`). Suíte 1033/164 verde no teste 4; UI 4/4; jornada real no `34CC3F94` com conta conectada antes/depois e vídeo enviado ao dono. Defeito achado na tela: a avaliação morava na view e voltava após trocar de aba — movida para a sessão. Dívida: "guardar como nota" exige `OrigemNota` da sábia (arquiteto). Relatório: `ferramentas/orca/sistema-ia-conversa.md`.

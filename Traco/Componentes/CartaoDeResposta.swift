@@ -14,23 +14,21 @@ import SwiftUI
 /// letra de gente — ela não pergunta a uma "sábia"), depois **o que a IA
 /// diz** (o corpo, na tinta do texto), depois **de onde veio** (as notas, só
 /// se ela quiser ver, tocáveis, uma vez cada), depois **serviu ou não** (um
-/// controle, não dois links) — e **um** fechar, no canto, fora do caminho da
-/// leitura. Enquanto a IA pensa, no lugar do corpo fica a `Espera`:
-/// pensando, tempo e parar de esperar (§13 item 3).
+/// controle, não dois links). O fechar, quando a rota o tem, fica no canto,
+/// fora do caminho da leitura.
 ///
-/// O corpo é do chamador (`Conteudo`): nas Notas e na Página é a prosa da
-/// resposta; no Contrapor são três parágrafos; no Instigar, perguntas. O
-/// componente não sabe o que há dentro — só onde cada coisa fica.
+/// Os TRÊS estados da IA cabem aqui, sob a mesma pergunta (§15): enquanto
+/// pensa, o corpo é a `Espera` (pensando, tempo, parar de esperar); quando não
+/// respondeu, o corpo é a falha **com a recuperação ao lado** — um toque
+/// pergunta de novo; quando respondeu, o corpo é do chamador (`Conteudo`):
+/// nas Notas e na Página é a prosa; no Contrapor, três parágrafos; no
+/// Instigar, perguntas. O componente não sabe o que há dentro — só onde cada
+/// coisa fica.
 ///
-/// **O teto, por medida.** Nas Notas o cartão sobe sobre a lista e não pode
-/// cobri-la inteira (ADR 02o: a resposta chega AO LADO, nunca dentro). As 18
-/// corridas de 09–10/09 mediram respostas de 203 a 568 grafemas, mediana 384;
-/// em `large`, com `Tema.corpo`, cabem ~35 grafemas por linha de ~25 pt, então
-/// **o teto de 360 pt guarda ~500 grafemas inteiros** — a mediana cabe com
-/// folga, e só a cauda longa (568) rola. O teto antigo, de 220 pt, cortava
-/// ~330 grafemas: a mediana já transbordava, e a palavra "continua" virava a
-/// primeira coisa que o olho lia. A palavra saiu; a dobra (`SinalDeSobra`)
-/// fica, sem letra, e a árvore de AX continua a enxergá-la.
+/// Sem teto de altura: a resposta é uma folha do Traço e se lê inteira (§15,
+/// "resposta inteira, sem a palavra CONTINUA na dobra"). O teto de 220/360 pt
+/// existia porque o cartão flutuava sobre a lista; a folha não flutua sobre
+/// nada, e a dobra saiu com ele.
 struct CartaoDeResposta<Conteudo: View>: View {
     /// Uma nota que foi junto. `id` nil onde a rota só tem o título (a Página).
     struct Fonte: Identifiable {
@@ -43,6 +41,11 @@ struct CartaoDeResposta<Conteudo: View>: View {
     /// Enquanto houver hora, o corpo dá lugar à espera.
     var pensandoDesde: Date? = nil
     var cancelar: (() -> Void)? = nil
+    /// A frase da falha, na língua de quem lê; com ela, o corpo é a falha e a
+    /// recuperação (`repetir`), nunca a resposta.
+    var falhou: String? = nil
+    var repetir: (() -> Void)? = nil
+    var rotuloDoRepetir = "Perguntar de novo"
     var fontes: [Fonte] = []
     /// A linha fechada das fontes; nil monta "leu N notas suas".
     var resumoDasFontes: String? = nil
@@ -50,12 +53,11 @@ struct CartaoDeResposta<Conteudo: View>: View {
     /// Nil: sem controle de retorno (já avaliada, ou a rota não avalia).
     var retorno: ((Bool) -> Void)? = nil
     var avaliada = false
-    /// Nil: o cartão não se fecha por aqui (a Lente, onde a seção fica).
+    /// Nil: o cartão não se fecha por aqui (a Lente, onde a seção fica; as
+    /// Notas, onde o fechar é da folha inteira).
     var fechar: (() -> Void)? = nil
-    /// Com teto, o corpo rola dentro dele e a dobra avisa o que sobra.
-    var teto: CGFloat? = nil
-    /// Prefixo dos identificadores de AX: `resposta-<rota>`, `sobra-<rota>`,
-    /// `<rota>-pensando`.
+    /// Prefixo dos identificadores de AX: `pergunta-<rota>`, `resposta-<rota>`,
+    /// `<rota>-pensando`, `<rota>-falhou`, `repetir-<rota>`, `fontes-<rota>`.
     let rota: String
     @ViewBuilder let conteudo: () -> Conteudo
     @State private var mostrarFontes = false
@@ -71,6 +73,18 @@ struct CartaoDeResposta<Conteudo: View>: View {
             if let pensandoDesde {
                 Espera(frase: Espera.aSabiaPensa, desde: pensandoDesde,
                        identificador: "\(rota)-pensando", cancelar: cancelar)
+            } else if let falhou {
+                LinhaDeEstado(falhou, .falhou)
+                    .accessibilityIdentifier("\(rota)-falhou")
+                if let repetir {
+                    Button(rotuloDoRepetir, action: repetir)
+                        .font(Tema.meta)
+                        .foregroundStyle(Tema.ambarTinta)
+                        .alvo()
+                        .buttonStyle(.discreto)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .accessibilityIdentifier("repetir-\(rota)")
+                }
             } else {
                 corpo
                 if !fontes.isEmpty { fontesQueForamJunto }
@@ -108,21 +122,13 @@ struct CartaoDeResposta<Conteudo: View>: View {
         }
     }
 
-    @ViewBuilder private var corpo: some View {
-        let texto = conteudo()
+    private var corpo: some View {
+        conteudo()
             .font(Tema.corpo)
             .foregroundStyle(Tema.tinta)
             .fixedSize(horizontal: false, vertical: true)
             .frame(maxWidth: .infinity, alignment: .leading)
             .accessibilityIdentifier("resposta-\(rota)")
-        if let teto {
-            ScrollView { texto }
-                .frame(maxHeight: teto)
-                .sinalDeSobra("sobra-\(rota)")
-                .fixedSize(horizontal: false, vertical: true)
-        } else {
-            texto
-        }
     }
 
     /// Fechada: uma linha que diz quantas. Aberta: os títulos, um por linha,
@@ -180,17 +186,19 @@ struct ControleDeRetorno: View {
     init(_ responder: @escaping (Bool) -> Void) { self.responder = responder }
 
     var body: some View {
-        HStack(spacing: 0) {
+        // o fio precisa de ar dos dois lados: colado, "serviu|não serviu" lia
+        // como uma palavra só (visto na captura do aparelho da conta, 15h40)
+        HStack(spacing: 10) {
             Button("serviu") { responder(true) }
                 .accessibilityIdentifier("serviu")
-            Rectangle().fill(Tema.linha).frame(width: 1, height: 20)
+            Rectangle().fill(Tema.tintaMorta).frame(width: 1, height: 18)
             Button("não serviu") { responder(false) }
                 .accessibilityIdentifier("nao-serviu")
         }
         .font(Tema.meta)
         .foregroundStyle(Tema.tintaSuave)
         .buttonStyle(.compacto)
-        .padding(.horizontal, 4)
+        .padding(.horizontal, 10)
         .cartao(.campo, recuo: [])
         .fixedSize()
         .accessibilityElement(children: .contain)
@@ -203,12 +211,11 @@ struct ControleDeRetorno: View {
         titulo: "Quanto vou gastar em reais com hospedagem e transporte na viagem?",
         fontes: [.init(id: UUID(), titulo: "Reservei R$ 6000 para a viagem"),
                  .init(id: UUID(), titulo: "Câmbio de hoje")],
-        abrirFonte: { _ in }, retorno: { _ in }, fechar: {}, teto: 360, rota: "preview"
+        abrirFonte: { _ in }, retorno: { _ in }, rota: "preview"
     ) {
         Text("Com a cotação que o banco te cobrou hoje (R$ 6,45 por euro), hospedagem 400 € + transporte 120 € = 520 €. Em reais: 520 × 6,45 = R$ 3.354. Você reservou R$ 6.000; sobram R$ 2.646 para o restante.")
             .textSelection(.enabled)
     }
-    .cartao(.papel)
     .padding()
     .background(Tema.fundo)
 }
@@ -217,6 +224,12 @@ struct ControleDeRetorno: View {
     CartaoDeResposta(titulo: "Como uso o Traço?", pensandoDesde: .now.addingTimeInterval(-12),
                      cancelar: {}, fechar: {}, rota: "preview") { Text("") }
         .cartao(.papel)
+        .padding()
+        .background(Tema.fundo)
+}
+
+#Preview("não respondeu, e a saída ao lado") {
+    CartaoDeResposta(titulo: "O que falta no plano?", falhou: "a sábia não respondeu.", repetir: {}, rota: "preview") { Text("") }
         .padding()
         .background(Tema.fundo)
 }
