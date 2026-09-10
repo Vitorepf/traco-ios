@@ -185,6 +185,21 @@ struct ConversaNotasTests {
     /// de perguntar por gesto (`perguntando`) ou porque há conversa; fechar a
     /// conversa devolve a linha à busca. A irmã que não acusa: sem gesto e sem
     /// conversa, o modo é busca.
+    /// ADR 10i: a busca e a pergunta são dois textos em dois lugares — enviar
+    /// a pergunta não toca no que a pessoa estava buscando, e a busca fica
+    /// na sessão como a conversa (a view é recriada a cada aba).
+    @Test func aBuscaEAPerguntaSaoDoisTextos() async throws {
+        let conversa = ConversaNotas()
+        conversa.busca = "orçamento"
+        conversa.entrada = "quanto falta?"
+        let t = try #require(conversa.perguntar(disponivel: true) { _, _ in .init(resposta: "pouco") })
+        await t.value
+        #expect(conversa.entrada.isEmpty, "a pergunta enviada sai da linha")
+        #expect(conversa.busca == "orçamento", "a busca não é a pergunta")
+        conversa.fechar()
+        #expect(conversa.busca == "orçamento", "fechar a conversa não apaga a busca")
+    }
+
     @Test func oModoDePerguntarNasceDoGestoOuDaConversa() async throws {
         let conversa = ConversaNotas()
         #expect(!conversa.modoPergunta)

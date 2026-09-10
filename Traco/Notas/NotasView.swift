@@ -13,12 +13,12 @@ struct NotasView: View {
     /// ADR 09c: a conversa vive na `Sessao` — em `@State` ela morria toda vez
     /// que a `RaizView` recriava esta view ao trocar de aba.
     private var conversaNotas: ConversaNotas { sessao.conversaNotas }
-    /// O que FILTRA a lista. No modo de perguntar, o que a pessoa escreve é
-    /// pergunta, não busca: a lista não se mexe (§14: duas intenções, um
-    /// gesto para cada).
+    /// O que FILTRA a lista. É outro texto que o da pergunta (§14: duas
+    /// intenções, dois lugares): a busca é uma linha da lista; a pergunta é a
+    /// linha "?" da folha.
     private var busca: String {
-        get { conversaNotas.modoPergunta ? "" : conversaNotas.entrada }
-        nonmutating set { conversaNotas.entrada = newValue }
+        get { conversaNotas.busca }
+        nonmutating set { conversaNotas.busca = newValue }
     }
     /// ADR 04n: as notas próximas da busca que a busca por letras não achou.
     @State private var peloSentido: [Nota] = []
@@ -34,13 +34,24 @@ struct NotasView: View {
     @State private var escolhidas: Set<UUID> = []
     @State private var confirmarLote = false
     @State private var mostrarTrabalhos = false
-    @FocusState private var campoFocado: Bool
+    @FocusState private var perguntaFocada: Bool
 
     var body: some View {
         telaNotas
             // ADR 04n: a busca por letras é a primeira; o índice de sentido
             // responde logo atrás, com o que ela não achou
-            .onChange(of: busca) { _, nova in procurarPeloSentido(nova, entre: filtradas) }
+            .onChange(of: busca) { _, nova in
+                // ADR 10i: a segunda porta do mesmo gesto — quem escreve "?"
+                // na busca está a perguntar, como na página. A linha da busca
+                // devolve o que já tinha e a folha abre com a pergunta começada.
+                if nova.hasPrefix("?") {
+                    busca = ""
+                    conversaNotas.entrada = String(nova.dropFirst()).trimmingCharacters(in: .whitespaces)
+                    abrirPergunta()
+                    return
+                }
+                procurarPeloSentido(nova, entre: filtradas)
+            }
             .onChange(of: fontesVigentesDaConversa) { _, _ in revalidarConversa() }
             .onChange(of: faseDaCena) { _, fase in
                 if fase == .active { revalidarConversa() }
@@ -64,20 +75,17 @@ struct NotasView: View {
                 // da lista, não um cartão flutuando por cima do que a pessoa
                 // escreveu. Com conversa, a lista e a sua regência cedem o
                 // lugar; Fechar (um só, na topbar) devolve a lista.
-                if conversaNotas.temCartao {
+                // ADR 10i: a folha também abre VAZIA, só com a linha "?" — é
+                // a entrada. O pé da tela fica livre: nada permanente ali.
+                if conversaNotas.modoPergunta {
                     conversaDaSabia
                 } else {
+                    linhaDeBusca
                     regencia
                     lista
                 }
             }
-            .animation(Tema.corte(.easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion), value: conversaNotas.temCartao)
-        }
-        .sheet(isPresented: $mostrarTrabalhos) { TrabalhosView() }
-        // ADR 05e: a barra vive no pé, na zona do polegar, acima da navegação
-        // e do teclado; com conversa aberta, ela é a linha da pergunta seguinte
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            campoBusca
+            .animation(Tema.corte(.easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion), value: conversaNotas.modoPergunta)
             .animation(Tema.corte(.easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion), value: conversaNotas.estado)
             .animation(Tema.corte(.easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion), value: conversaNotas.semModelo)
             .transaction { if reduceMotion { $0.disablesAnimations = true } }
@@ -99,10 +107,15 @@ struct NotasView: View {
             .onChange(of: conversaNotas.semModelo) { _, sem in
                 if sem { AccessibilityNotification.Announcement("A sábia " + Sabia.porOndeEmPalavras + ". A busca continua.").post() }
             }
-            .padding(.top, 8)
-            // D1: opaco — sem o cartão branco, a lista passava por baixo da linha de busca
-            .background(Tema.fundo)
         }
+        .sheet(isPresented: $mostrarTrabalhos) { TrabalhosView() }
+    }
+
+    /// ADR 10i: o gesto de perguntar. A folha abre com a linha "?" em branco
+    /// e o teclado de pé; a busca que estava a ser escrita fica onde estava.
+    private func abrirPergunta() {
+        conversaNotas.perguntando = true
+        Toque.selecao()
     }
 
     // MARK: ADR 05e — perguntar pela barra
@@ -201,6 +214,13 @@ struct NotasView: View {
                     LinhaDeEstado("a sábia " + Sabia.porOndeEmPalavras + ". Sem ela, a busca continua.", .semConta)
                         .accessibilityIdentifier("sem-conta-notas")
                 }
+                // ADR 10i: a linha "?" — a entrada. Sozinha na folha vazia;
+                // no pé da conversa quando há resposta (perguntar de novo
+                // continua). Não existe enquanto a sábia pensa nem enquanto
+                // uma pergunta espera "Perguntar de novo": uma coisa por vez.
+                if !pensando, conversaNotas.perguntaParaRepetir == nil {
+                    linhaDaPergunta
+                }
             }
             .frame(maxWidth: .infinity, alignment: .topLeading)
             .padding(.horizontal, Tema.margem)
@@ -225,7 +245,7 @@ struct NotasView: View {
         TituloTela(texto: escolhidas.isEmpty ? "Notas" : "\(escolhidas.count) escolhida\(escolhidas.count == 1 ? "" : "s")") {
             if !escolhidas.isEmpty {
                 loteAcoes
-            } else if conversaNotas.temCartao {
+            } else if conversaNotas.modoPergunta {
                 // o ÚNICO fechar da conversa (§14: eram dois), fora do caminho
                 // da leitura; a folha some e a lista volta
                 Button("Fechar", action: fecharConversa)
@@ -235,24 +255,30 @@ struct NotasView: View {
                     .buttonStyle(.discreto)
                     .accessibilityHint("A conversa some; as suas notas voltam")
                     .accessibilityIdentifier("fechar-resposta")
-            } else if !filtradas.isEmpty {
-                // o gesto de compartilhar que todo iPhone conhece (jakobs-law);
-                // D1: só o glifo, sem o círculo de chip — a folha não tem botões redondos
-                Button {
-                    contextoURL = Corpus.urlComoContexto(
-                        filtradas.map(FatiaCorpus.de), nome: "traco-contexto.md")
-                } label: {
-                    Image(systemName: "square.and.arrow.up")
-                        .font(.body.weight(.medium))
-                        .foregroundStyle(Tema.tintaSuave)
+            } else {
+                HStack(spacing: 4) {
+                    if !filtradas.isEmpty {
+                        // o gesto de compartilhar que todo iPhone conhece (jakobs-law);
+                        // D1: só o glifo, sem o círculo de chip — a folha não tem botões redondos
+                        Button {
+                            contextoURL = Corpus.urlComoContexto(
+                                filtradas.map(FatiaCorpus.de), nome: "traco-contexto.md")
+                        } label: {
+                            Image(systemName: "square.and.arrow.up")
+                                .font(.body.weight(.medium))
+                                .foregroundStyle(Tema.tintaSuave)
+                        }
+                        .frame(width: Tema.alvo, height: Tema.alvo)
+                        .contentShape(Rectangle())
+                        .buttonStyle(.discreto)
+                        .accessibilityLabel("Como contexto")
+                        .accessibilityHint("Entrega estas notas à sua IA, sem servidor")
+                        // ao lado do título: em AX5 crescia até partir "Notas" em duas linhas
+                        .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
+                    }
+                    // ADR 10i: a marca de perguntar, a mesma de toda tela do arquivo
+                    MarcaDePergunta(acao: abrirPergunta)
                 }
-                .frame(width: Tema.alvo, height: Tema.alvo)
-                .contentShape(Rectangle())
-                .buttonStyle(.discreto)
-                .accessibilityLabel("Como contexto")
-                .accessibilityHint("Entrega estas notas à sua IA, sem servidor")
-                // ao lado do título: em AX5 crescia até partir "Notas" em duas linhas
-                .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
             }
         }
     }
@@ -427,51 +453,92 @@ struct NotasView: View {
     ///
     /// §14 (complemento): buscar e perguntar são DUAS intenções e cada uma
     /// tem o seu gesto. A linha nasce como busca ("buscar"); a palavra
-    /// "perguntar" à direita, em tinta âmbar, é o gesto único de pedir à IA —
-    /// a linha vira a da pergunta ("pergunte sobre as suas notas"), o que já
-    /// estava escrito segue como rascunho, a lista para de filtrar, e enviar
-    /// pergunta. Com conversa aberta a linha já é de perguntar: é a
-    /// continuação, sem recomeçar.
-    private var campoBusca: some View {
-        let perguntando = conversaNotas.modoPergunta
-        let entrada = conversaNotas.entrada
-        return HStack(spacing: 8) {
+    /// D1 (ADR 09k) + ADR 10i: a busca é uma LINHA da lista, no lugar de
+    /// busca — sob o título, antes das notas —, sem cartão branco nem lupa:
+    /// hairline abaixo e o caret âmbar dizem "escreva aqui". Só filtra.
+    /// Escrever "?" nela é a segunda porta do gesto de perguntar (ver `body`).
+    private var linhaDeBusca: some View {
+        HStack(spacing: 8) {
             TextField(
                 "",
-                text: Bindable(conversaNotas).entrada,
-                prompt: Text(perguntando
-                             ? (conversa.isEmpty ? "pergunte sobre as suas notas" : "pergunte de novo")
-                             : "buscar")
-                    .foregroundStyle(Tema.tintaFraca)
+                text: Bindable(conversaNotas).busca,
+                prompt: Text("buscar").foregroundStyle(Tema.tintaFraca)
             )
                 .foregroundStyle(Tema.tinta)
                 .tint(Tema.ambar)
                 .font(Tema.corpo)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
-                .submitLabel(perguntando ? .send : .search)
-                .onSubmit { perguntar() }
-                .focused($campoFocado)
+                .submitLabel(.search)
                 .alvo()
                 .accessibilityIdentifier("busca-notas")
-                .accessibilityLabel(perguntando ? "Pergunte à sábia" : "Buscar")
-                .accessibilityValue(entrada.isEmpty ? "vazio" : entrada)
-                .accessibilityHint(filtro == .trancadas ? "Indisponível no filtro de trancadas"
-                                   : perguntando ? "Enviar pergunta à sábia" : "Escrever filtra a lista")
-            if !perguntando {
-                Button("perguntar") {
-                    conversaNotas.perguntando = true
-                    campoFocado = true
-                    Toque.selecao()
+                .accessibilityLabel("Buscar")
+                .accessibilityValue(busca.isEmpty ? "vazio" : busca)
+                .accessibilityHint(filtro == .trancadas ? "Indisponível no filtro de trancadas" : "Escrever filtra a lista; \"?\" no início pergunta")
+            if !busca.isEmpty {
+                Button {
+                    busca = ""
+                    filtro = nil
+                    filtroDominio = nil
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(Tema.tintaFraca)
+                        .frame(width: Tema.alvo, height: Tema.alvo)
+                        .contentShape(Rectangle())
                 }
-                .font(Tema.meta)
-                .foregroundStyle(Tema.ambarTinta)
-                .alvo()
                 .buttonStyle(.discreto)
-                .accessibilityLabel("Perguntar à sábia")
-                .accessibilityHint("A linha vira a da pergunta; o que você escreveu segue como rascunho")
-                .accessibilityIdentifier("perguntar-modo")
-            } else if !entrada.isEmpty {
+                .transition(Tema.transicao(.opacity.combined(with: .scale(scale: 0.8)), reduzido: reduceMotion))
+                .accessibilityIdentifier("limpar-busca")
+                .accessibilityLabel("Limpar")
+            }
+        }
+        .alvo()
+        .padding(.horizontal, Tema.margem)
+        .overlay(alignment: .bottom) { Rectangle().fill(Tema.linha).frame(height: 0.5).padding(.horizontal, Tema.margem) }
+        .padding(.bottom, 8)
+        .opacity(filtro == .trancadas ? 0.4 : 1)
+        .disabled(filtro == .trancadas)
+    }
+
+    /// ADR 10i: a linha "?" — o mesmo sinal da página ("? qual plano
+    /// compensa"), aqui com o "?" já escrito em âmbar-tinta e a pergunta a
+    /// seguir. Enviar pergunta; o "?" não é campo permanente: a linha só existe
+    /// dentro da folha, e a folha só existe enquanto se pergunta.
+    private var linhaDaPergunta: some View {
+        let entrada = conversaNotas.entrada
+        let primeira = conversa.isEmpty
+        return HStack(alignment: .firstTextBaseline, spacing: 8) {
+            Text("?")
+                .font(Tema.corpo.weight(.semibold))
+                .foregroundStyle(Tema.ambarTinta)
+                .accessibilityHidden(true)
+            TextField(
+                "",
+                text: Bindable(conversaNotas).entrada,
+                prompt: Text(primeira ? "pergunte sobre as suas notas" : "pergunte de novo")
+                    .foregroundStyle(Tema.tintaFraca),
+                axis: .vertical
+            )
+                .lineLimit(1...4)
+                .foregroundStyle(Tema.tinta)
+                .tint(Tema.ambar)
+                .font(Tema.corpo)
+                .textInputAutocapitalization(.sentences)
+                .submitLabel(.send)
+                // a linha quebra como na página; com eixo vertical o Return
+                // escreve "\n" em vez de submeter — a quebra É o enviar
+                .onChange(of: conversaNotas.entrada) { _, nova in
+                    guard nova.contains("\n") else { return }
+                    conversaNotas.entrada = nova.replacingOccurrences(of: "\n", with: " ")
+                    perguntar()
+                }
+                .focused($perguntaFocada)
+                .alvo()
+                .accessibilityIdentifier("pergunta-notas")
+                .accessibilityLabel(primeira ? "Pergunte sobre as suas notas" : "Pergunte de novo")
+                .accessibilityValue(entrada.isEmpty ? "vazio" : entrada)
+                .accessibilityHint("Enviar pergunta à sábia")
+            if !entrada.isEmpty {
                 // ADR 05e: enviar é perguntar — o mesmo botão do calendário
                 Button {
                     perguntar()
@@ -485,37 +552,16 @@ struct NotasView: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.discreto)
-                .disabled(pensando)
                 .accessibilityLabel("Perguntar à sábia")
                 .accessibilityIdentifier("perguntar-notas")
             }
-            // a saída do que se está escrevendo: na busca, limpa e mostra
-            // tudo; na pergunta sem conversa, volta à busca (com conversa, o
-            // Fechar da folha é a saída — a linha só limpa o rascunho)
-            if !entrada.isEmpty || (perguntando && !conversaNotas.temCartao) {
-                Button {
-                    busca = ""
-                    filtro = nil
-                    filtroDominio = nil
-                    if !conversaNotas.temCartao { conversaNotas.perguntando = false }
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(Tema.tintaFraca)
-                        .frame(width: Tema.alvo, height: Tema.alvo)
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(.discreto)
-                .transition(Tema.transicao(.opacity.combined(with: .scale(scale: 0.8)), reduzido: reduceMotion))
-                .accessibilityIdentifier("limpar-busca")
-                .accessibilityLabel(perguntando && !conversaNotas.temCartao ? "Voltar à busca" : "Limpar")
-            }
         }
-        .alvo()
-        .padding(.horizontal, Tema.margem)
-        .padding(.bottom, 4)
-        .overlay(alignment: .top) { Rectangle().fill(Tema.linha).frame(height: 0.5) }
-        .opacity(filtro == .trancadas ? 0.4 : 1)
-        .disabled(filtro == .trancadas)
+        .overlay(alignment: .bottom) { Rectangle().fill(Tema.linha).frame(height: 0.5) }
+        .onAppear {
+            // a folha vazia nasce pronta para escrever; com conversa, quem
+            // rola até aqui toca quando quiser
+            if primeira { Task { @MainActor in perguntaFocada = true } }
+        }
     }
 
     /// D1: o rótulo de seção da folha é uma palavra em tinta fraca — "hoje",

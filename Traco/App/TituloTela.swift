@@ -32,3 +32,26 @@ extension TituloTela where Acao == EmptyView {
         self.init(texto: texto) { EmptyView() }
     }
 }
+
+/// ADR 2026-09-10i — a marca de perguntar: um "?" em âmbar-tinta na linha do
+/// título, o MESMO em toda tela do arquivo. É o sinal que o Traço já tem para
+/// pergunta — a linha "?" da página — posto onde não há página para escrever.
+/// O toque abre a folha da conversa nas Notas com a linha "?" em branco e o
+/// teclado de pé. Não é campo: só existe enquanto se pergunta.
+struct MarcaDePergunta: View {
+    var acao: () -> Void
+
+    var body: some View {
+        Button(action: acao) {
+            Text("?")
+                .font(Tema.corpo.weight(.semibold))
+                .foregroundStyle(Tema.ambarTinta)
+                .frame(width: Tema.alvo, height: Tema.alvo)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(PressaoDiscreta())
+        .accessibilityLabel("Perguntar às suas notas")
+        .accessibilityHint("Abre a folha da pergunta; a resposta vem das suas notas")
+        .accessibilityIdentifier("perguntar-modo")
+    }
+}

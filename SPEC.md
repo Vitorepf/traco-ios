@@ -9504,3 +9504,53 @@ Utilidade nem Contexto.
 **Curva-zero, em toques.** Perguntar a primeira vez: 3 (perguntar, escrever, enviar) — era 2, mas ambíguo (escrever filtrava e enviar perguntava do mesmo campo). Perguntar de novo: 2 (era: fechar, escrever, enviar — 3, e a troca anterior sumia). Ler a resposta inteira: 0 (era 1 a 2 rolagens dentro do cartão com teto). Ver as fontes: 1, só se quiser. Retorno: 1. Fechar: 1 (era 2 Fechar na tela).
 
 **Prova.** Suíte no teste 4 com a árvore própria (`SuperficieDaRespostaTests`, `RespostaNotasTests.aRespostaNaoTemTeto`, `ConversaNotasTests.oModoDePerguntarNasceDoGestoOuDaConversa`, `EsperaComEstadoUITests`, `PerguntaSobreviveUITests`); jornada real no aparelho da conta `34CC3F94` em `large`, com `ContaGrok` antes e depois e `cmp` do binário (`ferramentas/orca/sistema-ia-conversa/`), vídeo do trecho.
+
+## ADR 2026-09-10i — ENTRADA · perguntar é a marca "?", a mesma em toda tela; a busca volta à lista; o pé fica livre
+
+**Palavra do dono (10/09, 16h50), sobre a captura da barra "buscar ou perguntar" pousada
+sobre as abas nas Notas:** *"olha esse lixo de design e experiência, você não fez merda
+alguma sobre isso."* A régua dele, dita de manhã: *"não parece feito por IA."* O pedido,
+nas palavras dele: **busca é busca** — na lista, no lugar de busca; **perguntar é um gesto
+com identidade do Traço, o mesmo em toda tela**; **sem campo permanente a ocupar o pé**.
+
+**O que estava errado (diagnóstico, tela inteira com o pé — `ferramentas/orca/entrada-da-ia/antes-*.png`).**
+Um campo de texto de sistema, com placeholder genérico, no pé da tela, por cima da barra de
+abas: dois andares de chrome no pé. Buscar e perguntar dividiam o campo (ADR 05e); a folha
+da conversa (ADR 10f) trocou o placeholder por "buscar" + a palavra "perguntar", mas o campo
+continuou no pé, permanente, e "pergunte de novo" ficou lá mesmo com a resposta aberta. Teste
+do genérico: trocando o nome, a tela servia a qualquer app com um campo no pé. Nenhuma outra
+tela tinha o gesto — só as Notas —, e a página perguntava de outro jeito (a linha "?").
+
+**A decisão.**
+1. **O sinal de perguntar já existia e é do Traço: a linha que começa com "?"** (ADR o, na
+   página). A entrada passa a ser esse sinal em toda parte. Na página, continua a ser a linha
+   escrita. No arquivo (Notas, Padrões, Perfil — toda tela com `TituloTela`), é **a marca "?"
+   em âmbar-tinta na linha do título**, `MarcaDePergunta`: um glifo, uma posição, o mesmo em
+   toda tela. O âmbar é a assinatura de AÇÃO do Traço (ADR 02h); o "?" é o que a pessoa já
+   escreve na página quando quer perguntar.
+2. **O toque abre a folha da conversa (10f) VAZIA, com a linha "?" em branco e o teclado de
+   pé**: "? | pergunte sobre as suas notas". Enviar pergunta; a folha mostra pensando, tempo,
+   parar, a resposta inteira, fontes e retorno, como a 10f. Com resposta aberta, a linha "?"
+   vive **no pé da folha**, depois do retorno ("pergunte de novo") — não no pé da tela. Não
+   existe enquanto a sábia pensa nem enquanto uma pergunta espera "Perguntar de novo": uma
+   coisa por vez. Fechar (um só, no título) devolve a lista.
+3. **A busca volta ao lugar de busca: uma linha da lista**, sob o título, antes das notas —
+   "buscar", hairline, caret âmbar, sem cartão nem lupa (a linha da 09k, no lugar da 09k).
+   Só filtra. **O pé da tela fica com a barra de abas e mais nada.**
+4. **Duas portas, um gesto.** Escrever "?" na linha da busca abre a mesma folha com a
+   pergunta começada — é o que quem já aprendeu o "?" na página vai tentar. Da Padrões ou do
+   Perfil, a marca leva às Notas com a folha aberta: a resposta vem das notas, e é lá que ela
+   mora. A busca em escrita fica onde estava (vive na `ConversaNotas`, como a conversa, porque a
+   `NotasView` é recriada a cada aba — ADR 09c).
+
+**Curva-zero.** Perguntar a primeira vez: 3 toques (marca, escrever, enviar) — os mesmos da 10f,
+sem ambiguidade e sem campo no caminho de quem só quer ler a lista. Perguntar de novo: 2. Buscar:
+1 toque + escrever, na primeira linha, onde todo iPhone a procura. O custo assumido: a marca é um
+glifo, e quem nunca escreveu "?" na página descobre-a pelo rótulo ("Perguntar às suas notas") ou
+tocando — a folha diz o que é na primeira linha.
+
+**Fora:** a linha "?" da página (é a mesma coisa, e não se refaz); a folha da resposta (10f); o
+Calendário, que não tem `TituloTela` (a marca chega quando ele a tiver); Lente e Trabalho, cujos
+pedidos são outras operações com o seu próprio botão.
+
+**Substitui** a ADR 05e no ponto do campo: a barra "buscar ou perguntar" deixa de existir.
