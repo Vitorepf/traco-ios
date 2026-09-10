@@ -3475,3 +3475,19 @@ donos num worktree** que eu venho cobrando o dia inteiro, e a regra vale contra 
 primeiro. Avisei o run inteiro, com o que fiz e por quê, e a regra que passo a seguir:
 **avisar ANTES, dizer quais arquivos, e só tocar em ferramenta — nunca em código de
 candidato.**
+
+## 10/09, 12h41 — regime das três operações em paralelo (§ ordem do dono, 12h40)
+
+- **11h41** `responderNasNotas` chegou ao autor — `main 47aff15`, lista do Perfil de 7 para 6.
+- **15h19Z** P0-CRLF em `main` (`1a9c258`): o app parou de apagar arquivo do autor.
+- **12h35** teto em `main` (`c0399f9`): `esperaObservada = 241` (fato) e `teto = 300`
+  (decisão), com guarda entre os dois. O G3 reprovou a espera com estado — a órfã gravava a
+  leitura da IA no trabalho do autor — e ela **nunca foi mesclada**.
+- **12h40** ordem do dono: **três cadeiras, uma por operação, dois aparelhos de conta**,
+  meta com hora (14h30 / 16h30 / 18h), relato de 30 em 30 min, **duas tentativas no cego**,
+  G3 em uma página, **zero commit só de documentação**.
+- **12h50** `responder` pediu para abrir a janela sem esperar o teto, **com número**: pior
+  caso da rota dela é **21 s em 54 execuções**, não os 241 s de outra rota. **Autorizei e
+  voltei atrás da minha ordem** — a regra aplicada sem olhar o número da rota era o erro que
+  eu venho cobrando. Guarda: **acima de 60 s numa chamada, me avisa**.
+- **Aberto:** `responder` no `B91C8DEF`, `contrapor` no `34CC3F94`, `instigar` sem aparelho.
