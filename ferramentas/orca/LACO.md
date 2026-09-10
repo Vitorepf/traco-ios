@@ -3518,8 +3518,18 @@ candidato.**
   escolhendo "a próxima livre" ao mesmo tempo. *Nome que diz a operação não colide, porque
   só há uma volta por operação.* Segunda vez hoje em que a solução certa é **sair do recurso
   compartilhado**, não coordená-lo melhor.
-- **16h08Z** O `B91C8DEF` apareceu `Shutdown` no meio da janela do `responder`, **sem que
-  ninguém assumisse**. Abortou **antes do install**; conta intacta (12 modelos antes e
+- **16h08Z — INCIDENTE ABERTO, sem dono.** O `B91C8DEF` apareceu `Shutdown` no meio da
+  janela do `responder`, **sem que ninguém assumisse**. Perguntei ao run inteiro e **ninguém
+  reivindicou**; as outras cadeiras têm **zero** `simctl shutdown` e `emulator kill` na
+  saída, o vigia de fala não toca em simulador, e o log do CoreSimulator **não registra quem
+  pediu**. **Fica ABERTO** até alguém assumir ou acontecer de novo com testemunha. Se
+  repetir num aparelho de conta **durante um install**, o risco deixa de ser dez minutos e
+  passa a ser a conta. Abortou **antes do install**; conta intacta (12 modelos antes e
   depois). Procurei e **não achei quem foi** — as outras cadeiras têm zero `shutdown`/`kill`
   na saída, e o log do CoreSimulator não registra o pedido. **O desenho segurou.**
 - **13h41** `B91C8DEF` passa ao `instigar`; `contrapor` segue no `34CC3F94`.
+- **13h55** Ordem do dono: **não esperar a meta para virar a alavanca**. Astra despachada no
+  **G0 de CONTEXTO** do `responder` (`ctx_95f3c122ad63`), com a direção dele: *o documento e
+  as notas que a pergunta cita entram INTEIROS, dentro do orçamento da 05m; e se não couber,
+  a resposta DIZ O QUE NÃO LEU — nunca fala do que não viu.* **Regra nova: cada operação tem
+  UMA rodada de prompt e UMA de contexto; a terceira alavanca é esquema de saída.**
