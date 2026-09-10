@@ -200,7 +200,10 @@ final continua pedindo casos de quem não os viu.
   grok-4.5`, `revisor-instigar-fatos-negados` r1, o modelo devolveu 4 perguntas e
   `parsePerguntas` deixou 3. Nos outros sete, zero — e é um fato lido, não um silêncio. **A
   versão anterior desta linha dizia "nas quatro corridas: nenhuma", e as quatro eram as que
-  eu tinha rodado.**
+  eu tinha rodado.** Não é achado isolado: no mesmo dia outra volta apanhou o
+  `parsePerguntas` do `instigar` como corte NOSSO (`LACO.md`, 17h28), e é para isso que o
+  `Diagnostico.bruto` desta volta existe — *antes de acusar o modelo, prove que a nossa
+  tesoura não passou ali.*
 - **A média esconde o caso que foi a zero.** A coluna sai por caso, e a média vem depois,
   com a etiqueta dizendo o que ela esconde.
 
