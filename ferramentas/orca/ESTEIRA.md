@@ -1305,3 +1305,26 @@ vai reconferir uma reprovação.
 `revisor.md` já mandava passar pela trava; um worker foi visto às 08h49 rodando direto,
 com a trava inexistente e outro esperando na fila. **Nenhuma corrida no aparelho de
 trabalho fora da trava, nem "rapidinho".**
+
+## A guarda mais forte é a que o COMPILADOR aplica (10/09, MAC-2-A-C)
+
+Duas voltas seguidas ensinaram a mesma coisa em degraus. Primeiro: *a guarda vai onde
+todos passam, não em cada um que passa* — e a invariante saiu dos chamadores para o laço
+que escreve. O revisor então achou o mesmo defeito **uma função adiante**: a `cercar` era
+aplicada **à mão** em três dos quatro campos crus, e o quarto forjava a seção.
+
+A MAC-2-A-C subiu o último degrau: **`markdown` passou a montar o arquivo a partir de
+`[Linha]`, não de `[String]`.** Literal de Swift é estrutura; valor interpolado que começa
+linha passa por `cercar` **para existir**. Um `String` cru **não compila** — e ela provou
+isso de propósito, colhendo o erro (*"cannot convert value of type String to expected
+argument type EspelhoTrabalhos.Linha"*) e desfazendo a mutação.
+
+**A lei, no seu degrau mais alto:** *guarda em tempo de execução é uma promessa; guarda no
+tipo é um fato.* Quando a forma do dado pode carregar a regra, **carregue** — o quinto
+campo que alguém acrescentar amanhã não vai lembrar de cercar, mas também **não vai
+compilar**. Suba: à mão em cada chamador → invariante no laço → impossível pelo tipo.
+
+**E a sonda subiu junto:** passou a contar título **por ESTRUTURA** (ATX com espaço, ATX
+com TAB, setext, nada dentro de cerca de código) em vez de `hasPrefix` — porque *a sonda
+que erra do mesmo jeito que o código não guarda nada*. A prova de que ela enxerga: a
+reescrita ficou **vermelha na primeira corrida**, antes de a asserção apertar.
