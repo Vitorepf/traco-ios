@@ -245,28 +245,118 @@ enum Sabia {
     /// fabricava a precisão que faltava para ter o que escrever. Agora o campo
     /// admite silêncio por escrito, e a evidência é proibida de nascer aqui.
     /// Recusar os três é o defeito oposto, e reprova igual.
-    static let sistemaContrapor = """
+    static let sistemaContrapor = formaContrapor + "\n" + corpoContrapor
+
+    /// ADR 2026-09-10d — a TERCEIRA alavanca: o ESQUEMA DA SAÍDA. As duas
+    /// primeiras foram redações do PEDIDO, medidas e descartadas (LOTE-7 e
+    /// LOTE-8); esta não pede nada de novo. O `corpoContrapor` é BYTE A BYTE o
+    /// mesmo nos dois braços — a única diferença é a FORMA que a resposta tem
+    /// de ter, e essa o esquema da API aplica, não o prompt.
+    static let sistemaContraporComEsquema = formaContraporComEsquema + "\n" + corpoContrapor
+
+    /// A forma antiga: três chaves, nenhuma delas conferível pelo nosso lado.
+    private static let formaContrapor = """
     Você lê a nota de quem escreve e devolve o que ela NÃO considerou. Responda APENAS um JSON válido, sem markdown:
     {"contra": "…", "foraDaLista": "…", "outroCampo": "…"}
     contra = a posição contrária à dela, no melhor que alguém competente a defenderia — e DENTRO do que ela já fixou ·
     foraDaLista = uma opção que não está entre as que ela listou ·
     outroCampo = um caso de outro campo (outra ciência, ofício, época) com a MESMA estrutura de problema; "" se você não tiver um que saiba de verdade.
+    """
+
+    /// A forma nova. Duas chaves a mais, e as duas são FATO, não juízo:
+    /// `fechadas` sai ANTES de qualquer proposta existir (o esquema a pede
+    /// primeiro, e o modelo escreve da esquerda para a direita — não há como
+    /// voltar e reescrevê-la depois de ver o que propôs); `dependeDe` é o
+    /// relato do que a proposta já escrita precisa para existir. O modelo nunca
+    /// diz "isto é permitido" — se dissesse, autocertificaria.
+    ///
+    /// O LOTE-9 mediu esta forma e ela é o que fica: no `grok-4.3`, o modelo
+    /// desta rota, o substituto sumiu do `foraDaLista` nos DOIS cegos, 3 de 3, e
+    /// o polo de controle NÃO CAIU (11 → 13 de 18). O G3 mediu o piso de ruído
+    /// e ele proíbe a seta: o MESMO braço, com o MESMO pedido (SHA `e4b665fb…`),
+    /// a MESMA fixture e o MESMO parser deu 16 de 18 no LOTE-8 e 11 de 18 aqui.
+    /// Oscilação de 5 num polo onde a alavanca move 2: "não caiu" é o que os
+    /// números sustentam, "subiu" não é. Pelo mesmo motivo o 3 de 3 diz que o
+    /// defeito não apareceu em três tiradas, não que a forma o fechou — o braço
+    /// SEM esquema foi de 1/3 (LOTE-8) a 3/3 (LOTE-9) no cego das razões
+    /// fechadas sem que nada mudasse. A guarda que decidia por cima dela foi
+    /// medida junto e retirada — `dependeDoQueElaFechou`.
+    private static let formaContraporComEsquema = """
+    Você lê a nota de quem escreve e devolve o que ela NÃO considerou. Responda APENAS um JSON válido, sem markdown:
+    {"fechadas": ["…"], "contra": "…", "foraDaLista": "…", "dependeDe": "…", "outroCampo": "…"}
+    fechadas = tudo o que a nota diz não ter, já ter descartado, recusado ou posto fora da conta, um item por saída fechada, na palavra dela; [] se ela não fecha nada ·
+    contra = a posição contrária à dela, no melhor que alguém competente a defenderia — e DENTRO do que ela já fixou ·
+    foraDaLista = uma opção que não está entre as que ela listou ·
+    dependeDe = o recurso, meio ou condição de que a foraDaLista precisa para existir, nomeado em uma frase curta; "" só quando a foraDaLista está vazia ·
+    outroCampo = um caso de outro campo (outra ciência, ofício, época) com a MESMA estrutura de problema; "" se você não tiver um que saiba de verdade.
+    """
+
+    private static let corpoContrapor = """
     Cada valor em português, até 280 caracteres, INFORMAÇÃO e nunca instrução: proibido "você deve", "faça", "escreva", "tente".
     O contraponto se sustenta no que ELA escreveu e no que você sabe — nunca em fato que você inventa para
     ter o que dizer. Proibido: número, porcentagem, preço, data, prazo, estudo, pesquisa, metanálise,
-    estatística, fonte ou declaração de terceiro que ela não deu. Um caso de outro campo entra pelo que
+    estatística, fonte ou declaração de terceiro que ela não deu. Proibido também o que é DELA e ela não
+    escreveu: renda, salário, dívida, reserva, equipe, ferramenta, prazo ou obrigação. Se a nota não diz
+    quanto ela ganha, o gasto dela não "compromete a renda" nem "aperta o orçamento" — a frase que disser
+    isso é apagada inteira e ela fica sem contraponto nenhum. Um caso de outro campo entra pelo que
     você sabe nomear sem inventar detalhe; sem isso, deixe "". Melhor um contraponto de três linhas sem
     números do que um número que não existe.
     Nada de elogio, nada de conclusão por ela. Se um dos três não tiver conteúdo honesto, deixe "" — silêncio é resposta válida.
     Mas silêncio nos TRÊS só quando a nota realmente não deixa nada a examinar: quando a razão dela já
     sustenta a escolha, diga o limite real dessa razão, e não uma objeção fabricada para preencher o campo.
-    O REQUISITO, a restrição e o motivo que ela escreveu são DADO, não opinião: nunca argumente contra eles,
-    e nenhuma alternativa sua pode violá-los — alternativa que o requisito dela já exclui não é contraponto,
-    é troca de assunto. Se a razão dela sustenta a escolha, diga isso e mostre onde essa razão aperta na
-    prática, dentro do requisito dela.
-    Não atribua a ela recurso, renda, salário, prazo, equipe, ferramenta ou obrigação que ela não escreveu.
+    O REQUISITO, a restrição e o motivo que ela escreveu são DADO, não opinião — e é DADO também
+    o que ela já descartou, recusou ou disse não ter. Nunca argumente contra isso, e nada disso volta
+    como proposta sua: nem como alternativa no foraDaLista, nem como etapa antes.
+    Saída que ela mesma fechou não é contraponto, é troca de assunto.
+    O que ela pôs fora da conta fica fora, a favor e contra: não sustente a posição dela com o motivo
+    que ela mesma descartou. E falta que ela declara é CONDIÇÃO, não lacuna a preencher — não ofereça
+    substituto para o recurso que ela disse não ter.
+    Quanto mais saídas ela fecha, mais o contraponto se aperta no que SOBRA — o que ela fixou e
+    ainda não examinou —, e é aí que ele tem de morder. Se a razão dela sustenta a escolha, diga isso
+    e mostre onde essa razão aperta na prática, dentro do requisito dela.
     Se houver um bloco SOBRE QUEM ESCREVE, use-o para escolher o exemplo que ela ainda não viu.
     """
+
+    /// O esquema que a API APLICA. Escrito à mão, e não por `JSONSerialization`,
+    /// por um motivo que não é estilo: dicionário de Swift não tem ordem e
+    /// `.sortedKeys` daria "contra, dependeDe, fechadas, foraDaLista,
+    /// outroCampo". A ORDEM é a alavanca — `fechadas` primeiro obriga o modelo
+    /// a enumerar o que a nota fecha antes de existir proposta nenhuma.
+    nonisolated static let esquemaContrapor = """
+    {"type":"object","additionalProperties":false,\
+    "properties":{\
+    "fechadas":{"type":"array","items":{"type":"string"}},\
+    "contra":{"type":"string"},\
+    "foraDaLista":{"type":"string"},\
+    "dependeDe":{"type":"string"},\
+    "outroCampo":{"type":"string"}},\
+    "required":["fechadas","contra","foraDaLista","dependeDe","outroCampo"]}
+    """
+
+    /// Os DOIS braços no MESMO dylib, e o antigo escolhido por ambiente. Sem
+    /// isto, comparar o esquema com o pedido é comparar dois binários e ficar
+    /// com a dúvida de qual rodou. Só a sonda liga esta chave; em produção a
+    /// rota nem chega aqui (`indisponivelPorQualidade`).
+    nonisolated static var contraporSemEsquema: Bool {
+        ProcessInfo.processInfo.environment["TRACO_AVALIAR_CONTRAPOR_ANTIGO"] == "1"
+    }
+
+    /// ADR 2026-09-09s — a frase do desfecho que não existia. Chegou inteira,
+    /// e nada do que veio sobreviveu ao nosso contrato: não é "não respondeu"
+    /// (isso é o provedor mudo) nem `Politica.semProvedor` (isso é ninguém
+    /// para responder). É a terceira coisa, e a tela precisa saber dizê-la.
+    /// Uma só para as duas rotas: o autor não precisa saber qual guarda foi —
+    /// precisa saber que houve resposta e que pedir de novo muda o resultado
+    /// (nem `instigar` nem `contrapor` memoizam).
+    nonisolated static let nadaPassouNaGuarda =
+        "a sábia respondeu, e nada do que veio era sobre a sua nota. Peça de novo."
+
+    /// Emenda à 2026-09-09s — a mesma espécie uma função adiante, e numa rota
+    /// VIVA (`vestir` é `.grokDepoisBordo`). Frase própria, e não a de cima,
+    /// por um motivo medido: `vestir` MEMOIZA, então "peça de novo" seria
+    /// falso — o memo devolve o mesmo cru, e o mesmo desfecho.
+    nonisolated static let nadaVestiu =
+        "a sábia respondeu, e o que veio não vestia este texto. ele ficou como estava."
 
     nonisolated struct Contraparte: Sendable, Equatable {
         var contra: String
@@ -293,7 +383,65 @@ enum Sabia {
     /// Junto vieram o fato não suposto (o "de novo" virou "qual foi a tentativa
     /// anterior", que a nota não tem) e a primazia do que se cobra, que o
     /// degrau escreve — a lista fixa de buracos servia igual em todo degrau.
+    ///
+    /// ADR 2026-09-10c, a emenda desta volta: o LOTE-5 promoveu o quê/quando/o
+    /// que seria dar certo para o alto do pedido, SEM condição, e o remédio da
+    /// nota magra (0/3 → 3/3 no `quando`) virou veneno na nota farta — o modelo
+    /// SOMOU as três pernas às perguntas que já faria, e as perguntas ancoradas
+    /// na nota caíram de 96% para 76% no `grok-4.3` e de 97% para 89% no `4.5`.
+    /// A alavanca não é mais promoção nem mais proibição: é a cobrança ficar
+    /// CONDICIONADA À MATÉRIA, numa frase e na última linha — quem manda entre
+    /// duas linhas que se contradizem é a que governa o caso, não a que grita
+    /// primeiro. Numa nota sem matéria as três pernas mandam; numa nota com
+    /// matéria as perguntas saem dela e a perna só entra se faltar.
+    ///
+    /// A 2ª redação foi ESCRITA, MEDIDA e DESCARTADA no mesmo dia, e fica
+    /// registrada porque o descarte é o resultado. O caso cego mostrou o furo
+    /// da 1ª: ela condiciona à QUANTIDADE de matéria e não ao que a nota já
+    /// resolveu, e no `grok-4.3` isso faz perguntar "Quando começou?" a quem
+    /// escreveu "não consigo dizer quando começou". A 2ª subiu o "só entra a
+    /// que ficou EM ABERTO" para governar os dois ramos, com "negar fecha a
+    /// perna tanto quanto responder". Consertou o cego no 4.3 (6 falhas → 1) e
+    /// **quebrou o controle**: o texto magro caiu de 3/3 para 1/3 no 4.3 e
+    /// 2/3 no 4.5, e as ancoradas de 93% para 74% e 89%. Ensinar a não
+    /// perguntar o que a nota fechou ensinou junto a não perguntar quando ela
+    /// só é MAGRA — as duas falhas são simétricas e cada uma esconde a outra.
+    /// Fica a 1ª, e o que sobra dela é limite MEDIDO do `grok-4.3`, não do
+    /// pedido: no `grok-4.5` os dois casos cegos passam.
+    /// Números por caso em `ferramentas/orca/instigar.md`.
     static let sistemaInstigar = """
+    Você é uma pessoa sábia lendo o rascunho de quem escreve. Devolva APENAS um JSON válido: {"perguntas": ["…", "…"]}
+    De 2 a 5 perguntas curtas em português, cada uma terminando em "?". Perguntas, não respostas. Nenhuma sugestão de texto.
+    O QUE COBRAR está escrito no fim destas instruções e MANDA nas perguntas: pelo menos duas o cumprem
+    ao pé da letra, e nenhuma troca a cobrança por outra mais fácil.
+    O ASSUNTO de toda pergunta é o que ELA escreveu, nas coisas e nas palavras dela. Estas instruções são
+    minhas, não dela: nunca as cite, nunca as explique e nunca pergunte sobre elas — ela não vê nada disso,
+    e uma pergunta sobre o meu pedido não é uma pergunta para ela.
+    A palavra que ELA escreveu na nota é DELA, seja qual for: pergunte pela coisa dela que a palavra
+    nomeia, e nunca desvie do assunto para não repetir uma palavra que está na nota. Proibida é só a
+    palavra que existe aqui neste pedido e não está na nota dela.
+    Não suponha nenhum fato que ela não escreveu, nem dentro da pergunta: nada de "a tentativa anterior",
+    "o episódio de antes", "a sua área", "o seu objetivo". Se falta o quê, o quando ou o que era, PEÇA que
+    ela nomeie — pergunta que já traz o fato suposto não é pergunta, é palpite.
+    Não devolva vazio quando há texto, e a cobrança depende da MATÉRIA que a nota dá: se ela quase não dá
+    nenhuma, uma pergunta pede O QUE aconteceu, outra pede QUANDO aconteceu e outra pede O QUE SERIA dar
+    certo, e nenhuma das três se troca por uma mais fácil; se ela dá matéria, as perguntas saem do que ELA
+    escreveu, e dessas três só entra a que a nota deixou sem resposta.
+    """
+
+#if DEBUG
+    /// SÓ PARA A SONDA (DEBUG, por ambiente), e é o que torna esta comparação
+    /// PAREADA: o pedido ANTERIOR — o que o LOTE-3 mediu — vivendo no MESMO
+    /// binário do candidato. Sem isto os dois braços rodariam binários
+    /// diferentes, e a tabela do G3 da Q4-C, que é a minha régua, foi feita com
+    /// outro binário ainda: comparar contra ela mediria a alavanca somada a
+    /// tudo o que andou no `main` desde então.
+    ///
+    /// A ÚNICA diferença entre este texto e o de cima é a ÚLTIMA LINHA, e
+    /// `aBaseEOCandidatoDiferemSoNoDesfecho` falha se alguém encostar no resto.
+    /// Um binário, uma alavanca:
+    ///   xcrun simctl launch ... SIMCTL_CHILD_TRACO_AVALIAR_PEDIDO=base
+    static let sistemaInstigarBase = """
     Você é uma pessoa sábia lendo o rascunho de quem escreve. Devolva APENAS um JSON válido: {"perguntas": ["…", "…"]}
     De 2 a 5 perguntas curtas em português, cada uma terminando em "?". Perguntas, não respostas. Nenhuma sugestão de texto.
     O QUE COBRAR está escrito no fim destas instruções e MANDA nas perguntas: pelo menos duas o cumprem
@@ -309,6 +457,18 @@ enum Sabia {
     ela nomeie — pergunta que já traz o fato suposto não é pergunta, é palpite.
     Não devolva vazio quando há texto: mesmo uma linha só dá o que perguntar — o quê, quando, o que era.
     """
+
+    private static let pedidoBase = ProcessInfo.processInfo.environment["TRACO_AVALIAR_PEDIDO"] == "base"
+#endif
+
+    /// O pedido que `instigar` manda AGORA. Em Release é sempre o vigente.
+    static var pedidoDeInstigar: String {
+#if DEBUG
+        pedidoBase ? sistemaInstigarBase : sistemaInstigar
+#else
+        sistemaInstigar
+#endif
+    }
 
     /// ADR 03i — a prova do Recordar. UMA pergunta que obriga a puxar a nota da
     /// memória, e que não pode entregar nada: `Prova.vaza` recusa a que citar.
@@ -399,9 +559,16 @@ enum Sabia {
         let pendentes = blocos.indices.filter { mapa[$0].forma == .prosa && formaExistente(blocos[$0]) == nil }
         guard !pendentes.isEmpty else { return mapa }
         let usuario = pendentes.enumerated().map { "[\($0.offset)] \(blocos[$0.element])" }.joined(separator: "\n\n")
-        guard let cru = await gerar(usuario), let refinado = parseMapa(cru, blocos: pendentes.count),
-              refinado.count == pendentes.count else {
-            return locais != blocos ? mapa : nil
+        // Emenda à ADR 2026-09-09s: `nil` é NÃO LI — ninguém devolveu nada.
+        // Chegou um cru e fomos NÓS que o recusamos (mapa ilegível, lista
+        // vazia, dois títulos, ou menos rótulos do que blocos pendentes)? Isso
+        // é o terceiro desfecho, e a lista VAZIA o carrega: um mapa de sucesso
+        // nunca é vazio, porque `blocos` não é.
+        guard let cru = await gerar(usuario) else { return locais != blocos ? mapa : nil }
+        let refinado = parseMapa(cru, blocos: pendentes.count)
+        guard let refinado, refinado.count == pendentes.count else {
+            apagou("vestir", refinado == nil ? "mapa fora do contrato" : "mapa menor que os blocos pendentes")
+            return locais != blocos ? mapa : []
         }
         for rotulo in refinado {
             let forma: FormaDeBloco = rotulo.forma == .titulo && mapa.contains(where: { $0.forma == .titulo })
@@ -523,7 +690,18 @@ enum Sabia {
     /// duas cópias do mesmo número divergiriam em silêncio (ADR 03l).
     nonisolated static let tetoDoContextoDaNota = 5000
 
-    /// A página mais as vizinhas que CABEM, e os títulos das que couberam.
+    /// Abaixo disto o pedaço que sobrou não sustenta leitura nenhuma: a nota
+    /// fica de fora INTEIRA e declarada, em vez de virar três linhas soltas
+    /// que o modelo completa de cabeça — que é o defeito medido na 10b.
+    nonisolated static let minimoDeNotaParcial = 400
+
+    /// Quantos nomes o aviso cita, e quanto de cada título. Os dois existem
+    /// para o aviso caber na reserva sem ser truncado (ver o teste).
+    nonisolated static let nomesNoAviso = 4
+    nonisolated static let tituloNoAviso = 50
+
+    /// A página mais as notas que CABEM, os títulos das que couberam, e — a
+    /// peça nova — o que NÃO coube, dito dentro do próprio contexto.
     ///
     /// ADR 2026-09-10b. A divulgação do cartão ("foram junto: …") era montada
     /// da lista inteira de vizinhas, ANTES do corte — e o corte é aqui. Com o
@@ -532,17 +710,94 @@ enum Sabia {
     /// nenhuma. Mesma lei da `mensagemDoAparelho` (ADR 05o): rótulo e conteúdo
     /// viajam juntos ou não viajam, e a ordem É a prioridade — a ligada
     /// explícita do autor vem antes da vizinha que o índice achou.
+    ///
+    /// ADR 2026-09-10g — o CONTEXTO como alavanca, depois que o pedido
+    /// reprovou duas vezes. Metade do que sobrou do defeito é o modelo falando
+    /// de um documento que nunca viu, e a montagem era cúmplice de duas
+    /// maneiras:
+    ///
+    /// 1. **A nota citada chegava pela metade e em silêncio.** Quem escreve
+    ///    `[[Relatório]]` e pergunta sobre ele mandava 1.200 caracteres de um
+    ///    documento de 9.000, sem uma palavra dizendo que havia mais. Um
+    ///    modelo que recebe um começo de documento e uma pergunta sobre o
+    ///    documento inteiro **completa o resto** — não porque mente, mas
+    ///    porque nada no pedido diz que aquilo é um começo. Agora a nota
+    ///    citada entra INTEIRA quando cabe; e quando não cabe, o corte é dito.
+    /// 2. **A vizinha parecia plano do autor.** O rótulo era só "outra nota
+    ///    sua", e em 2 de 3 execuções da pergunta real do aparelho o conteúdo
+    ///    da vizinha voltou dentro da proposta como se fosse decisão dele
+    ///    (a "falsa intimidade" medida na 10b). O rótulo passa a dizer a
+    ///    FRONTEIRA, que é o que faltava: material de outro dia, não o plano
+    ///    desta pergunta.
+    ///
+    /// O risco que a alavanca CRIA — e que a medida tem de cobrar — é o
+    /// simétrico: dizer que não leu o que leu. Por isso o aviso só existe
+    /// quando algo ficou de fora de verdade, e a passada cheia vem primeiro.
     nonisolated static func contextoDaPergunta(pagina: String, vizinhas: [(titulo: String, prosa: String)],
                                                teto: Int = tetoDoContextoDaNota) -> (contexto: String, viajaram: [String]) {
-        var contexto = pagina
-        var viajaram: [String] = []
-        for n in vizinhas {
-            let bloco = "\n\n--- outra nota sua: \(n.titulo) ---\n\(n.prosa)"
-            guard contexto.count + bloco.count <= teto else { break }
-            contexto += bloco
-            viajaram.append(n.titulo)
+        // Passe 1 com o orçamento INTEIRO: quando tudo cabe não há aviso, e
+        // não se paga reserva nenhuma.
+        let cheio = montarContexto(pagina: pagina, vizinhas: vizinhas, teto: teto)
+        guard !cheio.naoLeu.isEmpty else { return (cheio.contexto, cheio.viajaram) }
+        // A reserva é o tamanho do PRÓPRIO aviso, nunca uma constante. Um
+        // bloco fixo de 800 fazia uma nota que faltava por 276 caracteres
+        // levar junto a nota que CABIA — quebrando a guarda que a 10b acabou
+        // de plantar (`aDivulgacaoNomeiaSoAsVizinhasQueCouberam`).
+        // ponytail: laço de ponto fixo com teto de 3 — encolher o orçamento só
+        // pode ACRESCENTAR linha ao aviso, então ele cresce e para; o `prefix`
+        // final é o cinto que segura a invariante mesmo se não parasse.
+        var reserva = avisoDoQueNaoCoube(cheio.naoLeu).count
+        var m = cheio, aviso = ""
+        for _ in 0..<3 {
+            m = montarContexto(pagina: pagina, vizinhas: vizinhas, teto: teto - reserva)
+            aviso = avisoDoQueNaoCoube(m.naoLeu)
+            if aviso.count <= reserva { break }
+            reserva = aviso.count
         }
-        return (contexto, viajaram)
+        return (m.contexto + String(aviso.prefix(max(0, teto - m.contexto.count))), m.viajaram)
+    }
+
+    /// A montagem crua, sem o aviso: o que coube, quem viajou, e o que ficou
+    /// de fora em linguagem de leitor ("você leu os primeiros N de M").
+    nonisolated static func montarContexto(pagina: String, vizinhas: [(titulo: String, prosa: String)],
+                                           teto: Int)
+    -> (contexto: String, viajaram: [String], naoLeu: [String]) {
+        var contexto = String(pagina.prefix(max(0, teto)))
+        var viajaram: [String] = []
+        var naoLeu: [String] = []
+        if contexto.count < pagina.count {
+            naoLeu.append("A sua própria página: você leu os primeiros \(contexto.count) de \(pagina.count) caracteres.")
+        }
+        for n in vizinhas {
+            let cabeca = "\n\n--- outra nota sua, escrita em outro dia (é material dela, não o plano desta pergunta): \(n.titulo) ---\n"
+            let sobra = teto - contexto.count - cabeca.count
+            let nome = "«\(n.titulo.prefix(tituloNoAviso))»"
+            if n.prosa.count <= sobra {
+                contexto += cabeca + n.prosa
+                viajaram.append(n.titulo)
+            } else if sobra >= minimoDeNotaParcial {
+                contexto += cabeca + String(n.prosa.prefix(sobra))
+                viajaram.append(n.titulo)
+                naoLeu.append("\(nome): você leu os primeiros \(sobra) de \(n.prosa.count) caracteres; o resto não veio.")
+            } else {
+                naoLeu.append("\(nome): não veio nada dela.")
+            }
+        }
+        return (contexto, viajaram, naoLeu)
+    }
+
+    /// O contrato da segunda metade (ordem do dono, 10/09 13h55): *"li as duas
+    /// primeiras páginas e não o resto" é resposta; "vá ao sumário" é
+    /// invenção*. O aviso diz o que ficou de fora e manda seguir com o que
+    /// leu — nunca manda parar.
+    nonisolated static func avisoDoQueNaoCoube(_ naoLeu: [String]) -> String {
+        guard !naoLeu.isEmpty else { return "" }
+        let nomeados = naoLeu.prefix(nomesNoAviso)
+        let resto = naoLeu.count - nomeados.count
+        return "\n\n--- O QUE NÃO COUBE, E VOCÊ NÃO LEU ---\n"
+            + "Nada disto está acima. Se a resposta depender do que ficou de fora, DIGA o que você não leu e siga ajudando com o que leu; nunca descreva o que não veio.\n"
+            + nomeados.joined(separator: "\n")
+            + (resto > 0 ? "\ne mais \(resto)." : "")
     }
 
     static func responder(pergunta: String, contexto: String, gesto: Gesto?, retrato: String = "") async -> String? {
@@ -584,7 +839,7 @@ enum Sabia {
     /// fim de uma lista fixa de buracos que servia igual em qualquer degrau.
     /// Agora vem com rótulo, por último, e cada nível diz o que não cumpre.
     static func sistemaDeInstigar(gesto: Gesto?, degrau: Int) -> String {
-        var sistema = sistemaInstigar
+        var sistema = pedidoDeInstigar
         let metodo = gesto?.metodo ?? ""
         if !metodo.isEmpty { sistema += "\n\nO que as perguntas desta nota devem cobrar:\n\(metodo)" }
         return sistema + "\n\nO QUE ESTAS PERGUNTAS COBRAM:\n" + Degraus.instrucaoDeInstigar(degrau)
@@ -596,11 +851,13 @@ enum Sabia {
         guard gesto != .expressiva else { return nil }
         // ADR 09i: mesma linha do `instigar` — o método é nosso e vai nas
         // instruções; a nota e o retrato são dela e vão no pedido.
-        var sistema = sistemaContrapor
+        let comEsquema = !contraporSemEsquema
+        var sistema = comEsquema ? sistemaContraporComEsquema : sistemaContrapor
         let metodo = gesto?.metodo ?? ""
         if !metodo.isEmpty { sistema += "\n\nO método desta nota:\n\(metodo)" }
         let usuario = "A NOTA:\n\(texto.prefix(6000))" + blocoDoRetrato(retrato)
         guard let cru = await chamar(.contrapor, sistema: sistema, usuario: usuario, temperatura: 0.5,
+                                     esquema: comEsquema ? esquemaContrapor : nil,
                                      mensagemLocal: {
             montarContrapor(texto: texto, gesto: gesto, retrato: retrato)
         }) else { return nil }
@@ -640,13 +897,17 @@ enum Sabia {
     /// pegou "recompor o valor com o salário" numa nota que não fala de renda.
     /// ponytail: lista de termos MEDIDOS, não teoria da invenção. A forma geral
     /// da precisão inventada é `numeroAlheio`, e o resto é contrato do prompt.
-    /// "renda", "juros" e "inflação" ficaram DE FORA de propósito: são também
-    /// propriedade geral do mundo ("parcelar compromete renda futura"), e a
-    /// lista que as calasse compraria de novo a recusa covarde. Se a medida
-    /// seguinte pegar invenção por outra palavra, é aqui que ela entra.
+    /// "renda" ficou DE FORA em 09/09 de propósito, com medo da recusa covarde:
+    /// calar "parcelar compromete renda futura" é calar propriedade geral do
+    /// mundo. O LOTE-3 cobrou o preço da hesitação — renda que a nota não
+    /// declara em 1 de 3 no grok-4.3 e 3 de 3 no grok-4.5, sempre sobre um
+    /// autor que não escreveu quanto ganha. Ela entra agora porque a ADR 09s
+    /// tirou o custo: a frase apagada deixou de virar "a sábia não respondeu"
+    /// e a tela DIZ o que aconteceu. "juros" e "inflação" continuam fora — são
+    /// propriedade do produto financeiro, não fato da vida dela.
     nonisolated static let fatoQueEleNaoDeu = ["%", "por cento", "metanalise",
                                               "segundo estudo", "segundo pesquisa", "estudos mostram",
-                                              "pesquisas mostram", "dados mostram", "salario"]
+                                              "pesquisas mostram", "dados mostram", "salario", "renda"]
 
     /// A forma GERAL da precisão que o autor não deu: todo número da frase tem
     /// de aparecer no texto dele. Palavra ele pode ter faltado; número que ele
@@ -660,24 +921,99 @@ enum Sabia {
     /// Três chaves, texto até 280, e nunca instrução. O que começa por
     /// imperativo é descartado — informação é o que a ADR o permite. E o que
     /// se apoia em evidência que o autor não deu cai igual (ADR 09i).
+    ///
+    /// ADR 2026-09-09s — `nil` é NÃO LI; a `Contraparte` VAZIA é li inteira e
+    /// nada meu sobreviveu. Eram a mesma coisa, e o LOTE-3 mostrou o preço:
+    /// HTTP 200 com "conteúdo completo" chegava à tela como "a sábia não
+    /// respondeu" (grok-4.5 rep. 2 do CSV, grok-4.3 rep. 1 do tudo-ou-nada).
+    /// A guarda que protege apagando produzia o silêncio. É a convenção que
+    /// `parseCalibragem`, `parseEcos` e `PadroesRemoto.parsePerguntas` já
+    /// seguem: lista vazia é resultado, não ausência de resultado.
     nonisolated static func parseContraparte(_ cru: String, texto: String = "") -> Contraparte? {
         guard let ini = cru.firstIndex(of: "{"), let fim = cru.lastIndex(of: "}"),
               let dados = String(cru[ini...fim]).data(using: .utf8),
               let j = try? JSONSerialization.jsonObject(with: dados) as? [String: Any]
         else { return nil }
-        guard Set(j.keys).isSubset(of: ["contra", "foraDaLista", "outroCampo"]) else { return nil }
+        guard Set(j.keys).isSubset(of: ["fechadas", "contra", "foraDaLista", "dependeDe", "outroCampo"])
+        else { return nil }
         func limpo(_ chave: String) -> String {
             let t = ((j[chave] as? String) ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
-            guard t.count >= 12, t.count <= 320 else { return "" }
+            guard !t.isEmpty else { return "" } // o modelo calou; não é guarda nossa
+            guard t.count >= 12, t.count <= 320 else { return apagou(chave, "tamanho") }
             let baixo = t.lowercased()
-            if baixo.contains(regex: #"^(você deve|voce deve|faça|faca|escreva|tente|comece|pare de|precisa|deve )"#) { return "" }
-            if vazaAlheio(t, termos: fatoQueEleNaoDeu, texto: texto) { return "" }
-            if numeroAlheio(t, texto: texto) { return "" }
+            if baixo.contains(regex: #"^(você deve|voce deve|faça|faca|escreva|tente|comece|pare de|precisa|deve )"#) { return apagou(chave, "imperativo") }
+            if vazaAlheio(t, termos: fatoQueEleNaoDeu, texto: texto) { return apagou(chave, "fato que ele não deu") }
+            if numeroAlheio(t, texto: texto) { return apagou(chave, "número que ele não deu") }
             return AnaliseRemota.umaFrase(t, teto: 280)
         }
-        let c = Contraparte(contra: limpo("contra"), foraDaLista: limpo("foraDaLista"), outroCampo: limpo("outroCampo"))
-        return c.vazia ? nil : c
+        // ADR 2026-09-10d — `fechadas` e `dependeDe` são lidos, conferidos pelo
+        // esquema da API e NÃO decidem nada aqui. O join foi escrito, medido no
+        // LOTE-9 e RETIRADO: ver `dependeDoQueElaFechou` logo abaixo. Ficam no
+        // esquema porque a FORMA medida é esta — tirá-los mudaria o pedido que
+        // deu o resultado, e aí o número não descreveria mais o que roda.
+        return Contraparte(contra: limpo("contra"), foraDaLista: limpo("foraDaLista"),
+                           outroCampo: limpo("outroCampo"))
     }
+
+    /// **ESCRITA, MEDIDA E RETIRADA (ADR 2026-09-10d). Não a religue sem ler isto.**
+    /// A ideia era: a proposta morre quando o recurso de que ela depende é um
+    /// dos que a nota FECHOU; as duas falas são do modelo e o juízo é nosso,
+    /// então ele não autocertifica.
+    ///
+    /// Casar o TEXTO DA NOTA seria o atalho cego a este mesmo caso — a nota que
+    /// nega por outras palavras ("as duas versões não rodam juntas") passaria
+    /// inteira por uma busca de "não tenho". Casamos `dependeDe` contra
+    /// `fechadas`, que o modelo escreveu no mesmo fôlego e no mesmo vocabulário.
+    ///
+    /// **O LOTE-9 mediu e ela reprovou: 5 disparos, 1 acerto e 4 erros.** Os
+    /// quatro erros são a MESMA espécie, e é ela que condena o desenho: a
+    /// proposta usava de outro jeito um recurso que a autora **JÁ TEM** —
+    /// "pausar a matrícula" (da academia que ela tem), "auditar código gerado"
+    /// (a programação que ela sabe). Casar palavra não separa *"ela não tem X"*
+    /// de *"ela tem X e a proposta usa X de outro jeito"*: o join lê a palavra e
+    /// não lê a RELAÇÃO. E ler a relação é JUÍZO — que só o modelo faria, o que
+    /// devolve a autocertificação que este desenho existia para evitar.
+    ///
+    /// **Quem reprovava a operação éramos NÓS**: sem o join, o `grok-4.3` (o
+    /// modelo desta rota) passa os dois cegos 3 de 3 e o polo de controle sobe
+    /// de 11 para 13 de 18; com o join, cai para 2 de 3 e 12 de 18.
+    ///
+    /// A DÍVIDA, nomeada: falta a este desenho um campo que diga se o recurso
+    /// vem DE FORA do que ela tem — e esse campo tem de ser FATO, não juízo, ou
+    /// volta ao mesmo lugar. Fica aqui, sem chamador, porque a prova de que ela
+    /// erra é o teste ao lado, e apagar a função apagaria a prova.
+    nonisolated static func dependeDoQueElaFechou(_ dependeDe: String, fechadas: [String]) -> Bool {
+        func nucleo(_ t: String) -> Set<Substring> {
+            Set(dobrada(t).split(whereSeparator: { !$0.isLetter }).filter { $0.count >= 5 })
+        }
+        let precisa = nucleo(dependeDe)
+        guard !precisa.isEmpty else { return false }
+        return fechadas.contains { !nucleo($0).isDisjoint(with: precisa) }
+    }
+
+    /// ADR 08p, mesma linha: quando o provedor entrega e o NOSSO contrato
+    /// recusa, a sonda precisa do nome da guarda — sem ele o LOTE-3 só sabia
+    /// dizer "vazio", e a volta seguinte recomeça cega. Devolve "" para caber
+    /// dentro do `limpo`. Em Release não guarda nada.
+    @discardableResult
+    nonisolated static func apagou(_ chave: String, _ guarda: String) -> String {
+        #if DEBUG
+        tranca.lock(); defer { tranca.unlock() }
+        guardasQueApagaram.append("\(chave) · \(guarda)")
+        #endif
+        return ""
+    }
+
+    #if DEBUG
+    private nonisolated(unsafe) static var guardasQueApagaram: [String] = []
+    private nonisolated static let tranca = NSLock()
+    /// Só o nome da guarda e da chave, para a sonda. O texto bruto continua descartado.
+    nonisolated static func retirarGuardasQueApagaram() -> [String] {
+        tranca.lock(); defer { tranca.unlock() }
+        defer { guardasQueApagaram.removeAll() }
+        return guardasQueApagaram
+    }
+    #endif
 
     /// A pergunta da prova. Devolve nil (e o ritual fica com a frase fixa) se
     /// não houver conta, se a resposta não for pergunta, ou se ela VAZAR.
@@ -795,9 +1131,11 @@ enum Sabia {
     /// só seguem no aparelho se a mensagem inteira couber.
     static func chamar(_ operacao: Politica.Operacao, sistema: String, usuario: String, temperatura: Double,
                        memoPor chave: String? = nil, esforco: String = Grok.esforcoMinimo,
+                       esquema: String? = nil,
                        mensagemLocal: (() -> String?)? = nil) async -> String? {
         await chamarComProveniencia(operacao, sistema: sistema, usuario: usuario, temperatura: temperatura,
-                                    memoPor: chave, esforco: esforco, mensagemLocal: mensagemLocal)?.texto
+                                    memoPor: chave, esforco: esforco, esquema: esquema,
+                                    mensagemLocal: mensagemLocal)?.texto
     }
 
     /// A mesma escada, dizendo QUEM respondeu. `chamar` devolve só o texto, e
@@ -818,11 +1156,14 @@ enum Sabia {
     static func chamarComProveniencia(_ operacao: Politica.Operacao,
                                       sistema: String, usuario: String, temperatura: Double,
                                       memoPor chave: String? = nil, esforco: String = Grok.esforcoMinimo,
+                                      esquema: String? = nil,
                                       mensagemLocal: (() -> String?)? = nil) async -> (texto: String, provedor: String)? {
         guard let quem = Politica.provedor(operacao) else { return nil }
+        // O esquema é do PROTOCOLO da API e só existe do lado do Grok; a
+        // descida ao aparelho tem esquema tipado próprio, por rota.
         if quem == .grok, let r = await Grok.responder(sistema: sistema, usuario: usuario,
                                                        temperatura: temperatura,
-                                                       memoPor: chave, esforco: esforco) {
+                                                       memoPor: chave, esquema: esquema, esforco: esforco) {
             return (r, Politica.Provedor.grok.rawValue)
         }
         guard Politica.desceAoAparelho(operacao) else { return nil }
@@ -998,8 +1339,9 @@ enum Sabia {
     /// Perguntas válidas: de 1 a 5, cada uma terminando em "?".
     /// ADR 2026-09-09i — `texto` é o rascunho do autor, e a pergunta que fala
     /// do nosso andaime sem que ele tenha escrito a palavra não volta para ele.
-    /// Cair para `nil` é o resultado honesto: a página fica com as perguntas do
-    /// método, que são dela, em vez de uma pergunta sobre a nossa máquina.
+    /// ADR 2026-09-09s — o IRMÃO do `parseContraparte`, com o mesmo defeito e
+    /// o mesmo conserto: `nil` é NÃO LI, lista VAZIA é li e a guarda não
+    /// deixou nada passar. Antes os dois viravam "a sábia não respondeu".
     nonisolated static func parsePerguntas(_ cru: String, texto: String = "") -> [String]? {
         guard let ini = cru.firstIndex(of: "{"), let fim = cru.lastIndex(of: "}") else { return nil }
         guard let dados = String(cru[ini...fim]).data(using: .utf8),
@@ -1010,7 +1352,7 @@ enum Sabia {
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { $0.hasSuffix("?") && $0.count > 8 && $0.count <= 240 }
             .filter { !vazaAlheio($0, termos: andaimeDoPedido, texto: texto) }
-        guard !limpas.isEmpty else { return nil }
+        if limpas.isEmpty, !lista.isEmpty { apagou("perguntas", "andaime do pedido ou forma") }
         return Array(limpas.prefix(5))
     }
 
@@ -1093,3 +1435,38 @@ enum Sabia {
         return resultado
     }
 }
+
+#if DEBUG
+extension Sabia {
+    /// INSTRUMENTO, nunca produção (ADR 2026-09-10g): a montagem como ela era
+    /// na 10b, para que os DOIS braços da medida corram o MESMO dylib. Sem
+    /// isto, "antes" e "depois" seriam duas compilações e a medida somaria a
+    /// alavanca ao build.
+    ///
+    /// Ela tem um leitor de verdade — `AvaliacaoIA`, sob
+    /// `TRACO_AVALIAR_CONTEXTO=antigo`. Um seletor sem leitor foi o achado do
+    /// G3 da 10b: quem o usasse mediria o braço atual achando que mediu o
+    /// anterior. Se o leitor sair, esta função sai junto, no mesmo commit.
+    ///
+    /// O braço reproduz o CAMINHO INTEIRO de antes, não só esta função: o
+    /// corte aos 1.200 morava em `Sessao.notasLigadas`, e sem ele aqui o
+    /// "antigo" receberia a nota inteira e a jogaria fora por não caber —
+    /// mediria uma terceira coisa, que nunca rodou para autor nenhum.
+    nonisolated static let corteDaNotaLigadaAte10b = 1_200
+
+    nonisolated static func contextoDaPerguntaComoEraNa10b(
+        pagina: String, vizinhas: [(titulo: String, prosa: String)],
+        teto: Int = tetoDoContextoDaNota) -> (contexto: String, viajaram: [String]) {
+        var contexto = pagina
+        var viajaram: [String] = []
+        for v in vizinhas {
+            let n = (titulo: v.titulo, prosa: String(v.prosa.prefix(corteDaNotaLigadaAte10b)))
+            let bloco = "\n\n--- outra nota sua: \(n.titulo) ---\n\(n.prosa)"
+            guard contexto.count + bloco.count <= teto else { break }
+            contexto += bloco
+            viajaram.append(n.titulo)
+        }
+        return (contexto, viajaram)
+    }
+}
+#endif

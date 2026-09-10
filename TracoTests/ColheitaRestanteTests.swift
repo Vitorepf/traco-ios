@@ -360,10 +360,14 @@ struct SabiaTests {
         #expect(Sabia.aplicar(mapa, a: texto) == "# Plano do app\n\n" + codigo + "\n\n## " + prosa)
     }
 
+    /// Emenda à ADR 2026-09-09s: a falha continua sem disfarce, mas ela tem
+    /// DUAS formas. Ninguém devolveu nada é `nil`; um cru que chegou e o nosso
+    /// contrato recusou é a lista VAZIA — e a tela diz coisas diferentes.
     @MainActor @Test func vestirNaoDisfarcaFalhaSemMelhoriaLocal() async {
         let prosa = "Esta explicação contém uma frase completa que o modelo ainda pode organizar."
-        for retorno in [String?.none, "inválido", #"[{"i":9,"forma":"lista"}]"#] {
-            #expect(await Sabia.vestir(blocos: [prosa], gesto: nil, gerar: { _ in retorno }) == nil)
+        #expect(await Sabia.vestir(blocos: [prosa], gesto: nil, gerar: { _ in nil }) == nil)
+        for retorno in ["inválido", #"[{"i":9,"forma":"lista"}]"#] {
+            #expect(await Sabia.vestir(blocos: [prosa], gesto: nil, gerar: { _ in retorno }) == [])
         }
     }
 
@@ -421,7 +425,9 @@ struct SabiaTests {
     @Test func perguntasSoComInterrogacao() {
         let r = Sabia.parsePerguntas(#"{"perguntas":["Isso depende de quê?","Faça assim: x","E quando falhar, quem avisa?"]}"#)
         #expect(r == ["Isso depende de quê?", "E quando falhar, quem avisa?"])
-        #expect(Sabia.parsePerguntas(#"{"perguntas":["sem interrogação"]}"#) == nil)
+        // ADR 09s: veio e não sobrou nada = lista vazia; `nil` é não deu para ler
+        #expect(Sabia.parsePerguntas(#"{"perguntas":["sem interrogação"]}"#) == [])
+        #expect(Sabia.parsePerguntas("desculpe, não posso") == nil)
     }
 
     @Test func aplicarVesteSemMudarPalavras() {

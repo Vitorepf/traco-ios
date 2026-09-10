@@ -18,6 +18,8 @@ struct LenteView: View {
     @State private var instigandoDesde: Date?
     @State private var tarefaInstigar: Task<Void, Never>?
     /// ADR 04m: o que o autor não considerou. Nil = nada pedido ou nada honesto.
+    /// ADR 2026-09-09s: a `Contraparte` VAZIA nunca chega aqui — ela é aviso,
+    /// não conteúdo, e mostrá-la seria uma seção com três rótulos e nada.
     @State private var contraparte: Sabia.Contraparte?
     @State private var contrapondoDesde: Date?
     @State private var tarefaContrapor: Task<Void, Never>?
@@ -335,8 +337,13 @@ struct LenteView: View {
             // quem parou de esperar não recebe o que chegar depois
             guard !Task.isCancelled else { return }
             instigandoDesde = nil
-            if let r { perguntasDaSabia = r; Toque.suave() }
-            else { aviso = (.instigar, "a sábia não respondeu.", .falhou); Toque.aviso() }
+            // as TRÊS saídas ficam: a espera com tempo não pode engolir a
+            // distinção entre "o modelo calou" e "nada passou na nossa guarda"
+            switch r {
+            case .some(let q) where !q.isEmpty: perguntasDaSabia = q; Toque.suave()
+            case .some: aviso = (.instigar, Sabia.nadaPassouNaGuarda, .falhou); Toque.aviso()
+            case .none: aviso = (.instigar, "a sábia não respondeu.", .falhou); Toque.aviso()
+            }
         }
     }
 
@@ -353,8 +360,11 @@ struct LenteView: View {
             let r = await Sabia.contrapor(texto: t, gesto: g, retrato: r0)
             guard !Task.isCancelled else { return }
             contrapondoDesde = nil
-            if let r { contraparte = r; Toque.suave() }
-            else { aviso = (.contrapor, "a sábia não respondeu.", .falhou); Toque.aviso() }
+            switch r {
+            case .some(let c) where !c.vazia: contraparte = c; Toque.suave()
+            case .some: aviso = (.contrapor, Sabia.nadaPassouNaGuarda, .falhou); Toque.aviso()
+            case .none: aviso = (.contrapor, "a sábia não respondeu.", .falhou); Toque.aviso()
+            }
         }
     }
 

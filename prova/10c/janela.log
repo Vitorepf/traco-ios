@@ -1,0 +1,40 @@
+[2026-09-10T19:11:23Z] cmp ANTES (binario instalado x meu produto de build):
+/Users/vitorepf/Library/Developer/CoreSimulator/Devices/34CC3F94-FDB5-4575-A4F5-80271829A18B/data/Containers/Bundle/Application/C961F3AD-1403-4177-8F55-F19C71C33AE3/Traco.app/Traco /Users/vitorepf/orca/workspaces/traco-ios/responder-ctx/build/Build/Products/Debug-iphonesimulator/Traco.app/Traco differ: char 46263, line 46
+  DIFERENTES (esperado antes do install)
+[2026-09-10T19:11:23Z] binario ANTES:  029ddda581a7e6b2cabd37f23f7cde406e9efec3de1f13134440b75724c906cd
+[2026-09-10T19:11:23Z] a instalar:     8870c4ac43f1eb39aa48ed36cb7cac59d8feb9b23b2537c2c3fcbe8b975e8b1f
+[2026-09-10T19:11:23Z] INICIO 10c-fumaca-1-antes.jsonl  fixture=q2-fumaca.json (ab4c3857ea8f) liberar='' modelo='<padrao>' contexto='<novo>'
+app.traco: 61859
+[2026-09-10T19:11:25Z] FIM    10c-fumaca-1-antes.jsonl  linhas=       4 fimGravado=1
+[2026-09-10T19:11:25Z] INSTALL (unico da janela): xcrun simctl install 34CC3F94-FDB5-4575-A4F5-80271829A18B /Users/vitorepf/orca/workspaces/traco-ios/responder-ctx/build/Build/Products/Debug-iphonesimulator/Traco.app
+[2026-09-10T19:11:26Z] binario DEPOIS: 8870c4ac43f1eb39aa48ed36cb7cac59d8feb9b23b2537c2c3fcbe8b975e8b1f
+[2026-09-10T19:11:26Z] dylib  DEPOIS:  07f0328844f956e709c7b4577d5a87bd6c276d212d1db9f6c6926f865e4baee8
+[2026-09-10T19:11:26Z] INICIO 10c-fumaca-2-pos-install.jsonl  fixture=q2-fumaca.json (ab4c3857ea8f) liberar='' modelo='<padrao>' contexto='<novo>'
+app.traco: 61968
+[2026-09-10T19:11:28Z] FIM    10c-fumaca-2-pos-install.jsonl  linhas=       4 fimGravado=1
+[2026-09-10T19:11:29Z] INICIO 10c-base.jsonl  fixture=10c-casos.json (da3cf1881cda) liberar='responder' modelo='<padrao>' contexto='antigo'
+app.traco: 62068
+[2026-09-10T19:20:25Z] FIM    10c-base.jsonl  linhas=     122 fimGravado=1
+[2026-09-10T19:20:25Z] INICIO 10c-candidato.jsonl  fixture=10c-casos.json (da3cf1881cda) liberar='responder' modelo='<padrao>' contexto='novo'
+app.traco: 83995
+[2026-09-10T19:30:51Z] FIM    10c-candidato.jsonl  linhas=     122 fimGravado=1
+[2026-09-10T19:30:51Z] INICIO 10c-cegos-antigo.jsonl  fixture=g3-cegos-revisor.json (330e43fd1b62) liberar='responder' modelo='<padrao>' contexto='antigo'
+app.traco: 17440
+[2026-09-10T19:32:14Z] FIM    10c-cegos-antigo.jsonl  linhas=      20 fimGravado=1
+[2026-09-10T19:32:14Z] INICIO 10c-cegos-novo.jsonl  fixture=g3-cegos-revisor.json (330e43fd1b62) liberar='responder' modelo='<padrao>' contexto='novo'
+app.traco: 23156
+[2026-09-10T19:33:24Z] FIM    10c-cegos-novo.jsonl  linhas=      20 fimGravado=1
+[2026-09-10T19:33:25Z] INICIO 10c-real-antigo.jsonl  fixture=10c-real.json (143e3d4534c5) liberar='responder' modelo='<padrao>' contexto='antigo'
+app.traco: 26174
+[2026-09-10T19:33:53Z] FIM    10c-real-antigo.jsonl  linhas=       8 fimGravado=1
+[2026-09-10T19:33:53Z] INICIO 10c-real-novo.jsonl  fixture=10c-real.json (143e3d4534c5) liberar='responder' modelo='<padrao>' contexto='novo'
+app.traco: 28053
+[2026-09-10T19:34:22Z] FIM    10c-real-novo.jsonl  linhas=       8 fimGravado=1
+[2026-09-10T19:34:22Z] INICIO 10c-fumaca-3-fim.jsonl  fixture=q2-fumaca.json (ab4c3857ea8f) liberar='' modelo='<padrao>' contexto='<novo>'
+app.traco: 30168
+[2026-09-10T19:34:24Z] FIM    10c-fumaca-3-fim.jsonl  linhas=       4 fimGravado=1
+[2026-09-10T19:34:24Z] binario FIM:    8870c4ac43f1eb39aa48ed36cb7cac59d8feb9b23b2537c2c3fcbe8b975e8b1f
+[2026-09-10T19:34:24Z] JANELA ENCERRADA
+[2026-09-10T19:34:24Z] cmp DEPOIS (binario instalado x meu produto de build):
+  IGUAIS — o binario medido e o MEU
+  dylib IGUAL

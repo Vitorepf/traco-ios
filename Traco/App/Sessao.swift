@@ -495,7 +495,15 @@ final class Sessao {
             guard let n = todas.first(where: { $0.uuid == l.para }) else { continue }
             let prosa = Caderno.prosa(de: n.texto).trimmingCharacters(in: .whitespacesAndNewlines)
             guard !prosa.isEmpty else { continue }
-            saida.append((n.uuid, n.tituloNaLista, String(prosa.prefix(1200))))
+            // ADR 2026-09-10g: a nota que o autor CITOU vai INTEIRA. O corte
+            // era aqui, aos 1.200, e ele acontecia ANTES de o orçamento ser
+            // consultado: quem escrevia `[[Relatório]]` mandava um começo de
+            // documento sem que nada dissesse que era um começo — e o modelo
+            // completava o resto. Quem decide o que cabe é
+            // `Sabia.contextoDaPergunta`, que sabe o orçamento inteiro e
+            // DECLARA o que sacrificou. Duas tesouras cortando o mesmo texto,
+            // e só uma sabendo dizer que cortou, era a cúmplice do defeito.
+            saida.append((n.uuid, n.tituloNaLista, prosa))
         }
         return saida
     }
@@ -820,6 +828,14 @@ final class Sessao {
             guard let self, self.texto == base else { return } // o autor mexeu: silêncio
             guard let mapa else {
                 if nadaLocal { self.mostrarToast("a sábia não respondeu. o texto ficou como estava.") }
+                return
+            }
+            // Emenda à ADR 2026-09-09s: mapa VAZIO é a sábia tendo respondido e
+            // o nosso contrato tendo recusado o que veio. Dizer "não respondeu"
+            // sobre um 200 inteiro era o defeito; dizer "nada a vestir aqui."
+            // seria a outra metade da mentira — havia o que vestir.
+            guard !mapa.isEmpty else {
+                if nadaLocal { self.mostrarToast(Sabia.nadaVestiu) }
                 return
             }
             let refinado = Sabia.aplicar(mapa, a: antes)

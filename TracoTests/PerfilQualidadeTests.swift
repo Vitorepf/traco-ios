@@ -81,6 +81,13 @@ struct PerfilQualidadeTests {
     }
 
     /// Cada uma das seis cortadas fala do EFEITO para o autor, no presente.
+    ///
+    /// ADR 2026-09-10h — `recordar` dizia "entrega a resposta junto com a
+    /// pergunta", e a corrida que sustentava a linha mostra sobretudo o
+    /// CONTRÁRIO: em 5 das 18 execuções não veio pergunta nenhuma, porque a
+    /// NOSSA guarda de 4-gramas derrubou a que estava certa. Motivo que nomeia
+    /// o defeito errado mente para o autor tanto quanto prometer uma volta que
+    /// não aconteceu.
     /// Guardado pela frase, uma a uma: um portão que só conta as seis passaria
     /// igual com o texto de diagnóstico que o dono fotografou.
     @Test("as seis linhas cortadas dizem o que acontece com ele, não o nosso diagnóstico")
@@ -88,10 +95,10 @@ struct PerfilQualidadeTests {
         let esperado: [Politica.Operacao: String] = [
             .ecos: "deixa de fora justamente as notas que mais tinham a ver",
             .calibragem: "não diz nada quando você não errou",
-            .recordar: "entrega a resposta junto com a pergunta",
+            .recordar: "muitas vezes não devolve pergunta nenhuma, e a que vem já entrega a resposta",
             .responder: "inventa uma situação que você não escreveu, e às vezes só diz o que falta",
-            .instigar: "quando você escreveu pouco, pergunta vago e não pergunta quando aconteceu",
-            .contrapor: "inventa uma renda que você não escreveu",
+            .instigar: "quando você diz que não sabe quando foi, ela pergunta assim mesmo",
+            .contrapor: "oferece um substituto para o que você disse que não tem",
         ]
         #expect(Set(esperado.keys) == Set(Politica.indisponiveis))
         for (op, frase) in esperado {

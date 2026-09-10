@@ -350,6 +350,25 @@ import Testing
         #expect(s.notasLigadas(no: context).isEmpty)
     }
 
+    /// ADR 2026-09-10g: a nota que a pergunta CITA vai INTEIRA. O corte aos
+    /// 1.200 era feito aqui, antes de qualquer orçamento ser consultado — quem
+    /// escrevia `[[Relatório]]` mandava um começo de documento sem que nada
+    /// dissesse que era um começo, e o modelo completava o resto. Quem sacrifica
+    /// agora é `Sabia.contextoDaPergunta`, que sabe o orçamento e DECLARA o
+    /// corte. Duas tesouras no mesmo texto, e só uma sabendo dizer que cortou.
+    @Test func aNotaLigadaVaiINTEIRAENAOPELOSPrimeiros1200() throws {
+        let context = try contexto()
+        let fim = "ESTA LINHA MORA DEPOIS DO CARACTERE 1200"
+        context.insert(Nota(texto: "Relatório\n\n" + String(repeating: "x", count: 4_000) + "\n" + fim))
+
+        let s = Sessao()
+        s.texto = "lendo [[Relatório]]\n? por onde começo"
+        let ligadas = s.notasLigadas(no: context)
+        #expect(ligadas.count == 1)
+        #expect(ligadas.first?.prosa.count ?? 0 > 4_000)
+        #expect(ligadas.first?.prosa.contains(fim) == true)
+    }
+
     /// Teto: o contexto da pergunta não vira o caderno inteiro.
     @Test func oTetoSegura() throws {
         let context = try contexto()

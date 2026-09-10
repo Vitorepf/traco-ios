@@ -210,3 +210,351 @@ aprovação, não fabriquei essa prova nem rodei nova chamada.
   `sistemaInstigar` manda a procedência; `fatoQueEleNaoDeu` ainda exclui
   deliberadamente `renda`. Os testes locais verdes e a contagem 3/3 medem esses
   guardas, mas não substituem esta leitura semântica.
+
+## re-G3 — LOTE-5 (Q4-C): a volta REPROVA para mescla; `contrapor` está pronta para voltar, `instigar` não (10/09)
+
+**Candidato:** `bff6d1a67733027869c1794afa8f23000af5d258`, branch `Vitorepf/q4-c`,
+não mesclado. **Binário medido:** `264215af…`, da árvore de `d1773e1` (07:42:29
+-03 = 10:42:29Z), comitado **antes** da janela (10:55:25Z). **Revisor
+independente:** não escrevi os casos, não escrevi o conserto, não toquei no
+`B91C8DEF`.
+
+### Veredito, em três linhas
+
+1. **A volta não mescla como está.** Duas dimensões abaixo de 9: **Correção 7** e
+   **Contrato 8**. Nenhuma delas se conserta com medida nova — uma pede um
+   pedaço de diff de fora, a outra pede uma frase.
+2. **`contrapor` PODE VOLTAR pelo mérito.** Li as 36 execuções inteiras: os três
+   defeitos do LOTE-3 caíram, o medo de que a guarda comprasse mudez **não se
+   realizou e o inverso aconteceu**, e as cinco dimensões de `QUALIDADE-IA.md`
+   dão 9 nas 36. O que falta não é qualidade: é **caso cego de quem não o
+   escreveu** e a **captura com a hora** — e as duas exigem o aparelho da conta,
+   que este despacho me proíbe de tocar. Recomendo a volta assim que existirem.
+3. **`instigar` NÃO VOLTA, e a razão é maior do que a que o autor escreveu.** A
+   promoção do *quando* comprou, além da diluição que ele mediu, **dois defeitos
+   que o relatório não nomeia** — e um deles viola uma linha do contrato que
+   continua viva no mesmo prompt.
+
+### O que eu rodei, e a corrida que joguei fora
+
+Build **LIMPO** (`rm -rf build` + `xcodegen generate` + `xcodebuild test`, que
+compila app **e** pacote de testes numa passada) e suíte integral, sempre por
+`ferramentas/orca/com-trava.sh`, no **`34CC3F94`** (aparelho de trabalho, que
+encontrei ligado e deixei ligado). **Não toquei no `B91C8DEF`.**
+
+```
+[11:45:15Z] LIMPANDO build/ (build LIMPO, nao incremental)
+warnings=1 errors=0
+Traco/Notas/NotasView.swift:806:30: warning: '+' was deprecated in iOS 26.0
+```
+
+O único aviso é o herdado de `main`, dívida de outra volta. **Contagem sobre
+build que compilou tudo**, como manda a lei de 09/09.
+
+**A primeira corrida da suíte saiu CONTAMINADA e eu a descartei.** Ela acusou
+seis testes vermelhos — e um deles, `RespostaNotasTests.oModeloDaRotaPassaPelaSonda()`,
+**não existe nesta árvore**: `git log -S` o encontra em `319e9a5` (Q3-C), e
+`git merge-base --is-ancestor 319e9a5 HEAD` diz que não é meu ancestral. Logo o
+pacote que rodou no meu UDID não era o meu. Às 08:49 vi por quê: um
+`xcodebuild test -destination id=34CC3F94` (pid 83730) rodando **com
+`/tmp/traco-instrumento.lock` inexistente**, enquanto a MAC-2-A esperava na fila
+do `com-trava.sh`. Escalei na hora. Refiz com sonda de isolamento antes e depois:
+
+```
+[11:52:39Z] xcodebuild alheios no meu UDID ANTES: 0
+[11:54:13Z] xcodebuild test saiu 0
+-- isolamento: o teste FANTASMA da Q3-C apareceu? 0  (0 = corrida limpa)
+-- isolamento: a suite NOVA desta volta rodou? 2  (>0 = e o meu pacote)
+✔ Test run with 1025 tests in 164 suites passed after 88.948 seconds.
+** TEST SUCCEEDED **
+```
+
+**A alegação do autor — 1025 testes em 164 suítes, verdes — está confirmada por
+corrida minha.** Fica a lição de instrumento: *"suíte verde" só vale colando a
+contagem E provando que um teste exclusivo da própria árvore apareceu no log* —
+sem a segunda metade, a minha primeira corrida teria virado seis achados falsos
+contra este candidato.
+
+### Os números do autor, recalculados do zero
+
+Não conferi a tabela dele: reescrevi a conta a partir do JSONL cru e comparei.
+
+| o que ele afirma | o que a minha conta deu | bate? |
+|---|---|---|
+| mesma fixture, SHA `ed9267c1…` | os **quatro** JSONL (base e agora) trazem `ed9267c19b26dc61…` | sim |
+| 72 execuções de cada lado | 36 `casoConcluido` por arquivo × 2 = 72 e 72; 18 `instigar` + 18 `contrapor` em cada | sim |
+| HTTP 200 em tudo, modelo respondido = modelo pedido | 36/36 `statusHTTP 200` nos quatro; `modeloRespondido` = `grok-4.3`/`grok-4.5` conforme o arquivo | sim |
+| `semRetorno` com 200: 2 → 0 | 2 → 0 | sim |
+| renda que a nota não declara: 4 → 0 | 4 → 0 | sim |
+| conferidor mecânico INALTERADO | `shasum` do `lote-ia-09c-guardas.py` no candidato = `shasum` em `7d5e482`: `f27c0766…` idêntico; `git diff` vazio | sim |
+| ancoradas 49/51 → 48/63 (`4.3`) e 59/61 → 63/71 (`4.5`) | **49/51 → 48/63** e **59/61 → 63/71**, ao grafema | sim |
+
+**E a conferência que ele não fez, que era a que podia derrubar tudo:** o
+`semRetorno` cair de 2 para 0 podia ser mera troca de rótulo — o mesmo desfecho
+deixando de ser erro e virando saída vazia. **Não é.** A saída vazia também
+sumiu:
+
+| campos vazios nas 18 execuções de `contrapor` | LOTE-3 | LOTE-5 |
+|---|---|---|
+| `grok-4.3` | 14 de 54 (`contra` 3, `foraDaLista` 4, `outroCampo` 7) | **9 de 54** (`contra` **0**) |
+| `grok-4.5` | 3 de 54 | **0 de 54** |
+| execuções com os três campos cheios | 8/18 e 17/18 | **10/18 e 18/18** |
+| execuções com os três campos VAZIOS | 1 e 1 (as duas do `semRetorno`) | **0 e 0** |
+
+O medo declarado em 09/09 — pôr `"renda"` na lista compraria a recusa covarde —
+**tinha o sinal trocado: a colheita subiu.** E a sonda prova que quem fez o
+trabalho foi o prompt, não a guarda: em 72 execuções a guarda apagou **uma** vez
+(`foraDaLista · tamanho`), e **nenhuma** por `fato que ele não deu`.
+
+### As duas conferências duras que o despacho pediu
+
+**1. A coluna nova correu na base?** Correu, e com o mesmo código. Não aceitei o
+`prova/lote09e-medida.txt` como prova: importei o `conteudo()`/`VAZIAS` do
+`lote-ia-09e-q4c.py` comitado e recontei os quatro arquivos — os quatro números
+bateram exatamente, inclusive a exclusão do `q4-instigar-texto-magro`, que é
+onde o cabeçalho do medidor declara que a coluna **não se lê** (a nota é "Não
+deu certo de novo.", sem palavra de conteúdo, e genérica é o desfecho certo).
+
+*Uma ressalva, que não reprova mas tem de ficar escrita:* o medidor foi **editado
+depois da janela** (`bff6d1a` mexe em `lote-ia-09e-q4c.py`), e uma das edições —
+tirar `"última vez"` da régua do QUANDO — **baixou a nota da BASE**, não a do
+candidato. Medi o efeito: com `"última vez"` dentro, a manchete seria **2/6 →
+6/6** em vez de **1/6 → 6/6**. A justificativa está certa contra a letra da
+fixture ("faça o autor NOMEAR o quando"; *"o que você tentou da última vez?"*
+pede O QUÊ) e está declarada no cabeçalho do medidor — mas não na manchete da
+ADR nem do relatório, e afinar a régua depois de ver o dado sempre pede que
+quem afina diga para que lado a régua andou.
+
+**2. O portão do Perfil morde por mutação?** Morde, nas **três** asserções e pelo
+caminho REAL da tela. Troquei o `motivo` do `instigar` por uma frase de 92
+caracteres com data e barra — o erro que o autor diz que o portão pegou nele —
+e rodei só `TracoTests/PoliticaTests`:
+
+```
+✘ PoliticaTests.swift:75: Expectation failed: (m.count → 92) <= 80
+✘ PoliticaTests.swift:76: Expectation failed: !((m → "em 10/09 …/lote09e").contains("/") → true)
+✘ PoliticaTests.swift:106: Expectation failed: (linha → " — em 10/09 … · 10/09 · conserto: …")
+                                               .contains(leitura → "perguntas de gabarito que não falam da sua nota")
+✘ Test run with 7 tests in 1 suite failed after 0.036 seconds with 3 issues.
+```
+
+A terceira é a que importa: ela passa por `PerfilView.restoDa`, o helper da tela
+de verdade, não por uma contagem de grupos. Mutação desfeita no mesmo comando;
+`git diff` da árvore vazio.
+
+### P1 — os dois defeitos de `instigar` que o relatório NÃO nomeia
+
+O autor mediu a diluição e a nomeou com honestidade (96% → 76% e 97% → 89%). Ela
+é real e eu a reproduzi. Mas ela **subestima** o dano, e a coluna dele (repetição
+em que NENHUMA pergunta carrega palavra da nota) é grossa demais para pegar o
+que segue.
+
+**P1-A · A cláusula promovida expulsou a cobrança do MÉTODO, que é a razão de o
+método existir.** Em `q4-instigar-com-metodo-decisao` a fixture cobra, por
+escrito, que *"as perguntas cobram critério, evidência e custo de errar"*. Contei
+as três pernas por repetição:
+
+| as TRÊS pernas do método (critério + evidência + custo de errar) | LOTE-3 | LOTE-5 |
+|---|---|---|
+| `grok-4.3` | **3/3** | **0/3** |
+| `grok-4.5` | 3/3 | **3/3** |
+
+No `grok-4.3`, "custo de errar" **desapareceu das três repetições**, e em duas
+delas some também o critério e a evidência. A coluna do autor marcou esse caso
+como 1/3 (só a r2 ficou sem palavra da nota); a perda verdadeira é 3/3. E o
+`sistemaInstigar` proíbe exatamente isto, na linha logo acima da que subiu:
+*"O QUE COBRAR … MANDA nas perguntas: pelo menos duas o cumprem ao pé da letra,
+e **nenhuma troca a cobrança por outra mais fácil**."* A cláusula promovida
+trocou a cobrança por outra mais fácil.
+
+**P1-B · A cláusula promovida faz o modelo SUPOR um episódio que a pessoa não
+escreveu.** Três das notas ricas não descrevem episódio nenhum — uma decisão
+pendente (a sala), uma crença sobre o mercado (o vídeo curto) e uma intenção
+("quero começar a praticar espanhol"). Contei as perguntas que pressupõem um
+episódio (`aconteceu`/`ocorreu`) **e** não carregam palavra da nota:
+
+| perguntas que supõem um episódio que ela não escreveu | LOTE-3 | LOTE-5 |
+|---|---|---|
+| `grok-4.3` | **0** | **8** |
+| `grok-4.5` | **0** | **1** |
+
+Exemplos crus do `grok-4.3`: em `mesmo-texto-degrau-4`, `com-metodo-decisao` e
+`premissa-incerta`, a repetição 2 abre com *"O que aconteceu? / Quando
+aconteceu?"* sobre notas em que **nada aconteceu**. Isto não é diluição: é a
+violação literal de uma linha que **continua viva no mesmo prompt**, quatro
+linhas abaixo da promovida — *"Não suponha nenhum fato que ela não escreveu, nem
+dentro da pergunta: nada de 'a tentativa anterior', 'o episódio de antes'"*. O
+requisito novo e o requisito velho se contradizem quando a nota não tem episódio,
+e o modelo obedece ao que está mais alto.
+
+**A alavanca que o autor escreveu conserta os dois**, e é a mesma frase:
+condicionar o requisito à MATÉRIA da nota. Isso reforça a decisão dele de não
+aplicá-la antes de medir — e reforça também que **este pedaço do diff não deve
+entrar em `main` como está**, porque quem vier depois herda a régua pior.
+
+### P2 — a ADR fecha a espécie, mas a frase que a fecha não é verdadeira
+
+A ADR 09s escreve: *"a espécie é 'guarda por campo que apaga e segue', e só esses
+dois a têm: `parseMapa`, `parseVoltaram` e `parsePerguntaDeRecordar` recusam a
+resposta INTEIRA no primeiro item inválido, que é honestamente não deu para
+ler"*, e o teste `todosOsParsersDeListaSeguemAMesmaRegra` congela que *"os dois
+da Lente eram os únicos fora do passo"*.
+
+A separação de espécie está certa e o conserto está no lugar certo. **A
+justificativa não está.** `Sabia.parseMapa` devolve `nil` em três caminhos em que
+a resposta foi lida inteira e quem a recusou fomos nós:
+
+- `guard titulos <= 1, !saida.isEmpty else { return nil }` — uma lista **vazia**,
+  JSON perfeitamente legível, e uma lista com dois títulos, lida até o fim;
+- em `Sabia.vestir`, `refinado.count == pendentes.count` — o modelo rotulou menos
+  blocos do que pedimos, e nós jogamos a resposta inteira fora.
+
+E o desfecho chega ao autor como **a frase que esta ADR existe para matar**:
+`Sessao.swift:736` escreve *"a sábia não respondeu. o texto ficou como estava."*
+sobre um HTTP 200 lido por inteiro. `vestir` **não está cortada** — é
+`.grokDepoisBordo` na tabela `Politica`, rota viva hoje, ao contrário de
+`instigar` e `contrapor`. `parsePerguntaDeRecordar` também recusa por guarda de
+conteúdo (`Prova.vaza`) e não por ilegibilidade, embora ali o dano seja nenhum:
+o ritual cai numa frase fixa, não numa acusação de silêncio.
+
+Isto não é medida nova nem volta nova: é **uma frase da ADR a corrigir e uma
+dívida a nomear com dono**. Mas enquanto a frase estiver escrita como está, a
+próxima volta lê "a classe está fechada" e não olha para `vestir`.
+
+### P3 — a tela do Perfil mudou, é alcançável hoje, e não tem captura
+
+O limite que o autor declara é **verdadeiro e não desconta**: conferi em
+`LenteView.swift:305` e `:325` que `Politica.aviso(_:)` responde **antes** da
+chamada enquanto as duas operações estiverem cortadas, então
+`Sabia.nadaPassouNaGuarda` é literalmente infotografável hoje. E parar a captura
+ao ver a Q3-C instalando no mesmo `B91C8DEF` foi **acerto**, não falha.
+
+Mas o limite cobre uma tela, não duas. **A linha do Perfil mudou nesta volta e é
+alcançável hoje, sem conta**, e este branch não acrescenta uma única `.png`. O
+substituto é forte — `PoliticaTests` passa pelo `PerfilView.restoDa`, exige a
+frase nova e proíbe a data velha, e eu provei por mutação que ele morde — e por
+isso a dimensão fica em 8, não abaixo. Eu também não a produzi: o `34CC3F94`
+teve três voltas na fila o tempo todo, e captura de tela é artefato do G2 de quem
+implementa, não do revisor.
+
+### Mérito, operação por operação — as cinco de `QUALIDADE-IA.md`
+
+Li as 72 saídas inteiras, não o hash.
+
+**`contrapor` — 36 execuções, dois modelos**
+
+| dimensão | nota | o que li |
+|---|---:|---|
+| aderência ao pedido | 9 | 18/18 nas guardas mecânicas nos dois modelos; nenhum algarismo alheio à nota nos três campos das 36; `burrice` aparece uma vez e como CITAÇÃO da tese dele (*"a tese de que recusar trabalho grande é burrice não remove o limite de capacidade"*), que é o oposto de devolver julgamento |
+| correção sustentada | 9 | renda que a nota não declara: 4 → **0**; evidência fabricada não voltou; o contra se apoia no que ela escreveu (reserva de três meses, 18 parcelas, rendimento na conta) |
+| utilidade concreta | 9 | colheita SUBIU (tabela acima); no caso do CSV, o limite real do formato passou a ser nomeado 2/3 no `4.3` (era 1/3) e **3/3** no `4.5` (era 2/3) — "separador", "vírgula" |
+| adequação e divisão de trabalho | 9 | informação, nunca instrução; a decisão fica com ele em 36/36 |
+| uso do contexto pertinente | 9 | a premissa sustentada é RECONHECIDA em 3/3 nos dois modelos no caso do CSV, que era o P1-4 do re-G3 anterior |
+
+Ponto mais fraco, para o caso cego atacar: `q4-contrapor-razao-ja-sustentada`
+r1 do `grok-4.3` reconhece a premissa e **não nomeia limite nenhum** — devolve a
+razão dela um pouco mais formal. Não quebra requisito escrito; é a execução que
+menos entrega das 36.
+
+**`instigar` — 36 execuções, dois modelos**
+
+| dimensão | `4.3` | `4.5` | o que li |
+|---|---:|---:|---|
+| aderência ao pedido | **7** | 9 | as três pernas do método 3/3 → **0/3** no `4.3`; a cláusula promovida trocou a cobrança por outra mais fácil, que o próprio prompt proíbe |
+| correção sustentada | **7** | 9 | 8 perguntas supõem um episódio que ela não escreveu (era 0); no `4.5`, 1 |
+| utilidade concreta | **8** | 9 | ancoradas 96% → 76%; média da pergunta caiu de 12,8 para 8,8 palavras — mais curtas e mais vazias |
+| adequação e divisão de trabalho | **8** | 9 | *"O que aconteceu? / Quando aconteceu? / O que seria dar certo?"* como abertura de uma nota sobre uma decisão pendente |
+| uso do contexto pertinente | **7** | 9 | 1 repetição de 15 sem nada da nota no `4.3`, 0 de 15 no `4.5` |
+
+O que ficou **melhor e é para guardar**: no texto magro as três pernas saem 6/6
+contra 1/6, e no `4.5` o efeito colateral quase não existe. A janela é uma
+comparação de UMA alavanca e **o `grok-4.5` é claramente melhor que o `grok-4.3`
+em `instigar`** — insumo pareado, como o autor diz, e agora com duas colunas
+minhas confirmando o mesmo sentido (0 contra 8 episódios supostos; 3/3 contra
+0/3 nas pernas do método).
+
+### Scorecard das 15 dimensões
+
+| dimensão | nota | evidência |
+|---|---:|---|
+| Visão | 9 | fecha a lacuna nomeada "a rota cala com HTTP 200"; diff do EVOLUCAO diz o que fechou e o que segue aberto |
+| Contrato | **8** | ADR, SPEC, `Politica`, EVOLUCAO e `LETRAS-ADR` coerentes, letra 09s uma vez só (`grep -c "^| 09s"` = 1) — **menos** a frase do P2, que o código contradiz em `parseMapa`/`vestir` |
+| Correção | **7** | 1025 testes em 164 suítes verdes em corrida MINHA, isolamento provado; portão do Perfil vermelho por mutação nas três asserções — **mas** P1-A e P1-B, medidos por mim, somados à diluição que o autor mediu |
+| Jornada real | **8** | a linha do Perfil mudou, é alcançável e não tem `.png` (P3); a frase da Lente é infotografável e isso NÃO desconta |
+| Design | n/a | nenhum token, layout ou movimento tocado; a frase entra num `LinhaDeEstado` que já existia |
+| Simplicidade | 9 | três desfechos onde havia dois, sem tela nova nem passo novo para o autor |
+| Movimento | n/a | nada anima |
+| Componentes | n/a | nenhum componente novo |
+| Acessibilidade | n/a | nenhuma superfície nova alcançável; a frase nova ainda não tem tela |
+| Performance | n/a | nada em lista, editor ou parser de caminho quente |
+| Privacidade e autoria | 9 | conferido no código: `guardasQueApagaram` grava só `chave · guarda`, nunca o texto; `AvaliacaoIA` é `#if DEBUG` do arquivo inteiro, logo nada disso existe em Release |
+| Estado honesto | 9 | é o objeto da volta e o relatório o pratica: o defeito comprado está na ADR, no EVOLUCAO e na tela, com número; e parar a captura contaminada foi a decisão certa |
+| Complexidade | 9 | +54/−21 linhas de código de produção fora de comentário, metade delas texto de prompt; `parseContraparte` encolheu |
+| Fora do app | n/a | nada fora do app |
+| Relato | 9 | evidência citada, linha de resultado colada, defeito próprio declarado antes de eu perguntar |
+
+### O que eu recomendo, em três pedaços
+
+1. **Corrigir a frase do P2** — uma frase na ADR 09s e no comentário do teste,
+   dizendo que a espécie está fechada mas que a MESMA frase de tela ainda sai de
+   `vestir` sobre um 200 lido inteiro — e **nomear a dívida com dono**:
+   `parseMapa` + `Sessao.vestirTudo`. É o diff mais curto que existe e não pede
+   medida nenhuma.
+2. **Segurar o pedaço do `sistemaInstigar`** (quatro linhas que entram, uma que
+   sai) e a linha do Perfil do `instigar` que o acompanha. O resto da volta — o
+   conserto da guarda (`parseContraparte`, `parsePerguntas`, `LenteView`,
+   `AvaliacaoIA` e os testes), o `sistemaContrapor` e o `"renda"` — está medido,
+   positivo e sem regressão, e deve entrar. Mesclar a cláusula promovida como
+   está entrega à volta seguinte uma régua pior do que a de hoje; e como
+   `instigar` segue cortada, segurá-la não tira nada do autor.
+3. **Levar `contrapor` ao caso cego.** Pelo mérito ela passa. O que falta é o que
+   `QUALIDADE-IA.md` exige de qualquer volta e nenhum revisor sem o aparelho da
+   conta pode dar: casos novos de quem não os escreveu, e a captura com a hora.
+
+### A frase a corrigir, escrita aqui para o autor não adivinhar
+
+A correção do P2 é do autor, dentro da letra dele (09s). É esta frase, na ADR
+2026-09-09s do `SPEC.md` e repetida no comentário do teste
+`todosOsParsersDeListaSeguemAMesmaRegra`:
+
+> "A espécie é **'guarda por campo que apaga e segue'**, e só esses dois a têm:
+> `parseMapa`, `parseVoltaram` e `parsePerguntaDeRecordar` recusam a resposta
+> INTEIRA no primeiro item inválido, **que é honestamente *não deu para ler***.
+> […] e os dois da Lente eram os únicos fora do passo."
+
+O que a torna falsa é a metade em negrito, não a separação de espécie: em
+`parseMapa`, `!saida.isEmpty` e `titulos <= 1` disparam sobre uma lista **lida
+até o fim**, e em `Sabia.vestir` o `refinado.count == pendentes.count` joga fora
+uma resposta inteira porque ela veio curta. O que basta escrever no lugar:
+
+> A espécie "guarda por campo que apaga e segue" só existe nesses dois, e é por
+> isso que o conserto ficou neles. **Mas a FRASE errada na tela não acabou com a
+> espécie:** `parseMapa` recusa por contrato uma lista lida até o fim (vazia,
+> com dois títulos, ou mais curta que os blocos pendentes) e `Sessao.vestirTudo`
+> escreve *"a sábia não respondeu. o texto ficou como estava."* sobre um HTTP 200
+> inteiro. `vestir` é `.grokDepoisBordo` — rota **viva**, não cortada. Dívida
+> nomeada, dono: a volta seguinte de `vestir`.
+
+### A lição que este G3 deixa para a ESTEIRA: a porcentagem escondeu o caso que morreu
+
+A diluição que o autor mediu está certa e é honesta — 96% → 76%. Mas ela é uma
+**média sobre 63 perguntas**, e a média sobreviveu ao caso que morreu: em
+`q4-instigar-com-metodo-decisao` o `grok-4.3` foi de **3/3 para 0/3** nas três
+pernas que a fixture cobra por escrito, e isso aparece na média como "76%".
+A régua que pega isso não é a porcentagem: é **contar, por caso e por repetição,
+o requisito que a fixture escreveu**, e deixar o caso reprovar sozinho. É o que
+`QUALIDADE-IA.md` já manda ("qualquer requisito obrigatório descumprido reprova
+o caso, independentemente da média") e o que uma coluna agregada faz esquecer.
+
+### Limites deste G3
+
+- **Não escrevi caso cego** e não podia: caso cego exige corrida, corrida exige o
+  `B91C8DEF`, e o despacho me proíbe de tocá-lo. Tudo o que eu chamo de mérito
+  saiu das 72 saídas que já existiam, lidas inteiras.
+- **Não fotografei nada.** As duas capturas que faltam são as do G2 do autor.
+- **As minhas duas colunas novas são proxy**, como as dele: "supõe episódio"
+  conta `aconteceu`/`ocorreu` sem palavra da nota, e "as três pernas" conta
+  `critério`/`evidência`/`custo de errar` por expressão. Colei as saídas cruas de
+  cada achado acima para que a leitura não dependa da minha regex.
+- **Não corrigi uma linha de código.** A árvore está como o autor a deixou:
+  `git status` limpo depois da mutação.
