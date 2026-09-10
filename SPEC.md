@@ -9271,7 +9271,32 @@ que enfraquecem a leitura e ficam escritas:
 **acréscimo** no caso farto. A alavanca é uma frase condicionada à matéria, não um
 parágrafo — e a régua para aceitá-la é **duas janelas, não uma**, porque foi exatamente
 uma janela só que produziu o zero que esta volta desfez.
-## ADR 2026-09-10c — o que ela já descartou é DADO, e o retorno bruto vira prova (volta Q4-F)
+## ADR 2026-09-10d — o que ela já descartou é DADO, e a alavanca é o ESQUEMA DA SAÍDA (volta Q4-F, LOTE-7 a LOTE-9)
+
+**A letra.** Esta ADR nasceu `10c` e a `10c` é do `instigar`, que está em `main`
+(`LETRAS-ADR.md`). Renumerada para **`10d`** pelo G3 de 10/09, que foi quem
+encontrou as duas com o mesmo número no mesmo arquivo. Reservar é ato de quem
+despacha, e o registro é este.
+
+**O LOTE-9, que é o fecho desta ADR.** Depois das duas tentativas do PEDIDO,
+a terceira alavanca foi o **ESQUEMA DA SAÍDA** — o `corpoContrapor` byte a byte
+o mesmo nos dois braços, e a API a aplicar a FORMA: `fechadas` e `dependeDe`,
+duas chaves de FATO, com `fechadas` PRIMEIRO. A guarda que decidia por cima
+dela (`Sabia.dependeDoQueElaFechou`) foi medida junto e **retirada**: 5
+disparos, 1 acerto, 4 erros, todos sobre proposta que usava de outro jeito um
+recurso que a autora JÁ TEM. Fica sem chamador, com o teste que prova por que
+erra, e a dívida nomeada: falta um campo que diga se o recurso vem DE FORA do
+que ela tem, e que seja FATO. **O G3 conferiu a recontagem** (o pedido não
+menciona o join, os `requisitos` da fixture não viajam, o `bruto` guarda o que
+o modelo escreveu antes da guarda — reproduz célula a célula) **e cortou uma
+seta**: o polo de controle NÃO subiu. O mesmo braço, com o mesmo pedido
+(`e4b665fb…`), a mesma fixture e o mesmo parser deu 16 de 18 no LOTE-8 e 11 de
+18 no LOTE-9, e foi de 1/3 a 3/3 num cego entre as duas janelas sem nada mudar.
+Três tiradas por caso dizem que o defeito não apareceu, não que a forma o
+fechou (Fisher p = 0,40). Por isso a frase da tela continua a nomear o
+substituto, e a régua da volta seguinte pede uma SEGUNDA janela.
+Leitura em `ferramentas/orca/q4f-contrapor.md` e no G3
+`ferramentas/orca/g3-contrapor-responder-ctx.md`; prova em `prova/lote09i/`.
 
 **Decisão.** O `contrapor` continua `indisponivelPorQualidade`. Gastei as DUAS
 tentativas do regime numa alavanca só — o PEDIDO — e nenhum dos dois modelos
