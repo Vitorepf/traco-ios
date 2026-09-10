@@ -8455,3 +8455,105 @@ contraponto honesto, que é o defeito oposto. **Dívida nomeada:**
 `Sabia.montarInstigar`/`montarContrapor` (o caminho do aparelho) continuam com o
 andaime na carga; a `Politica` não deixa estas duas operações descerem ao
 aparelho, e o dia em que deixar, essa separação tem de ir junto.
+
+---
+
+### Emenda de 09/09, depois do G3 — o vazamento morreu e nasceram cinco defeitos
+
+O G3 mediu o candidato na fixture inteira (6 casos × 3 por operação, 36
+execuções, `grok-4.3`, `prova/lote09-instigar-contrapor.jsonl`) e **reprovou as
+duas de novo**. O que o conserto acima entregou: **o andaime não voltou em
+nenhuma das 18 execuções do `instigar`**, e **a evidência fabricada não voltou
+em nenhuma das 18 do `contrapor`**. O diagnóstico estava certo; a conclusão de
+que ele bastava, não. O que a leitura das 36 saídas achou:
+
+| # | operação | defeito | frequência |
+|---|---|---|---|
+| 1 | `instigar` | o degrau 4 repetiu as perguntas do degrau 0 | 3 de 3 |
+| 2 | `instigar` | calou sobre o **método que o AUTOR escreveu** | 3 de 3 |
+| 3 | `instigar` | texto magro ganhou um episódio suposto | 2 de 3 |
+| 4 | `contrapor` | negou uma razão que o autor já sustentou | 3 de 3 |
+| 5 | `contrapor` | inventou renda que a nota não tem | 1 de 3 |
+
+**O 2 é o primeiro, e ele é a lei deste laço.** No caso
+`q4-instigar-o-autor-escreve-metodo` a nota diz *"Sigo um método de estudo em
+degraus e travei no segundo degrau"* — e as três saídas falaram só de leitura,
+escrita e gramática. **A guarda estava inocente:** `vazaAlheio` compara com o
+texto do autor, e o texto tem as duas palavras; nada foi derrubado. Quem comprou
+a mudez foi **a redação**: `sistemaInstigar` proibia por NOME — *"Não pergunte
+sobre o método, sobre o degrau, sobre a forma da nota"* — e o modelo obedeceu
+contra o vocabulário da pessoa. **Apertar contra a invenção compra a recusa
+covarde**, de novo, e desta vez o preço foi o autor perder a própria voz.
+
+Conserto: **a proibição passa a ser por PROCEDÊNCIA, como a guarda já era.** O
+contrato não lista mais palavra proibida; ele diz *a palavra que ELA escreveu na
+nota é DELA, seja qual for* e *proibida é só a palavra que existe aqui neste
+pedido e não está na nota dela*. E a guarda ganhou o que lhe faltava: **acento
+não é procedência**. `Sabia.dobrada` dobra acento e caixa antes de comparar, de
+modo que quem digita "metodo" sem agudo continua dono da palavra — antes,
+perdia a pergunta sobre o próprio método por causa de um til. No mesmo ato,
+**"sábia" saiu da lista do andaime**: dobrado o acento ela vira "sabia", verbo de
+todo dia, e uma lista que calasse *"Como você sabia disso?"* compraria a mesma
+covardia que este parágrafo condena.
+
+**O 1, medido antes de escrito.** A pergunta era *o degrau não serve ou não
+chega?* — e a resposta é **chega**: a sonda passa `degrau` (`AvaliacaoIA`
+→ `Sabia.instigar`) e ele entra na mensagem de sistema em toda chamada. O que
+faltava era **mandar**. Ele vinha solto no fim de uma lista fixa de buracos
+("buracos, dependências, termos ambíguos, o que falta decidir, o que pode dar
+errado") que servia igual em qualquer degrau — e o modelo cumpria a lista, não o
+degrau. Agora: a lista fixa **saiu**, o bloco vem com rótulo (`O QUE ESTAS
+PERGUNTAS COBRAM:`) e por último, o contrato diz que ele **manda**, e cada nível
+de `instrucaoDeInstigar` diz também **o que NÃO conta como cumprido** — o degrau
+4 rejeita por escrito as três perguntas que ele devolvia no lugar do limite.
+`Sabia.sistemaDeInstigar(gesto:degrau:)` existe para que isso se prove **sem
+aparelho**: dois degraus, duas mensagens diferentes, em teste.
+
+**O 3.** *"Não deu certo de novo."* virou *"Qual foi a tentativa anterior que
+também não deu certo?"* — o "de novo" não autoriza supor o episódio. O contrato
+proíbe o fato suposto **dentro** da pergunta e manda pedir que ela nomeie.
+
+**O 4.** O autor escreveu o requisito — *o arquivo abre em qualquer editor de
+texto* — e o contraponto empurrou XLSX e JSON, que o requisito exclui. A culpa é
+da definição de `contra`: "a posição contrária à dela" mandava argumentar contra
+tudo, inclusive contra o que ela fixou. Agora **o requisito, a restrição e o
+motivo que ela escreveu são DADO, não opinião**: nenhuma alternativa pode
+violá-los, e quando a razão dela sustenta a escolha o contraponto é o **limite
+real** dessa razão dentro do requisito dela.
+
+**O 5, que era dívida declarada e virou defeito.** A ADR acima declarou que a
+guarda cobria a *forma* da evidência e não toda invenção — e o G3 mostrou essa
+dívida **na tela**: `foraDaLista` devolveu *"recompor o valor com o salário nos
+meses seguintes"* a uma nota que não fala de renda. **Dívida declarada que a
+pessoa vê não é dívida, é defeito.** Duas guardas fecham, sem tentar julgar
+verdade:
+
+```swift
+Sabia.numeroAlheio(frase, texto:)   // todo número da frase tem de estar no texto dele
+Sabia.fatoQueEleNaoDeu              // + "salario": o fato da vida dele que só ele dá
+```
+
+`numeroAlheio` é a **forma geral** do que a lista só pegava por amostra: era
+assim que nasciam "metanálises de 2022" e "12 % menor no século XV", e o 12% que
+o autor DEU continua voltando inteiro. `renda`, `juros` e `inflação` ficaram
+**deliberadamente de fora** da lista: são também propriedade geral do mundo
+("parcelar compromete renda futura"), e calá-las seria comprar a covardia pela
+terceira vez nesta ADR.
+
+**Vermelho e verde desta emenda.** Três mutações no candidato — `numeroAlheio`
+sempre `false`, `dobrada` sem dobrar o acento, e o degrau 4 na redação antiga —
+derrubam **9 issues em 11 provas de 2 suítes** (`** TEST FAILED **`), cada uma
+apontando o seu conserto. Restaurado: **1010 testes em 162 suítes, 0 issues,
+88,8 s** no `34CC3F94`, sem aviso novo de compilação.
+
+**O que esta emenda NÃO prova.** Nada correu contra a rede: a fixture é a
+MESMA (`prova/q4-instigar-contrapor-casos.json`, 12 casos × 3), de propósito —
+a régua não muda entre a reprovação e o conserto, e a linha de base entra na
+mesma corrida para que nenhum caso que já passava piore em silêncio. As duas
+linhas seguem `indisponivelPorQualidade`, agora com o motivo de 09/09 na tela.
+
+**Dívida que fica, com dono.** `montarInstigar`/`montarContrapor` (o caminho do
+aparelho) continuam com o andaime na carga — a `Politica` não deixa estas duas
+descerem ao aparelho, e quem mudar isso leva a separação junto. E a lista
+`fatoQueEleNaoDeu` é de termos MEDIDOS, não teoria da invenção: se a corrida
+seguinte pegar invenção por outra palavra, é ali que ela entra.
