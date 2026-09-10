@@ -1454,3 +1454,32 @@ isolado, CRLF nos quatro campos e no cabeçalho, cerca aberta e nunca fechada, e
 `Substring`, `NSString`, `String?`, `Any`, `Double`, `Bool`, `Character`, `UUID` e
 `[String]` na interpolação — **todos recusados pelo compilador, um a um por
 `swiftc -typecheck`**. Quem só publica o que quebrou não mostra o tamanho da garantia.
+
+## Uma trava de shell não serializa uma chamada MCP (10/09) — e o P0 aconteceu ao vivo
+
+**A causa raiz das três contaminações de hoje.** Havia um **`npx xcodebuildmcp@latest mcp`**
+vivo desde as 10h40, filho do `codex app-server` do ambiente de um worker Codex. **Um MCP de
+`xcodebuild` não passa pelo `com-trava.sh` POR CONSTRUÇÃO** — nenhuma trava de shell
+serializa uma chamada de ferramenta MCP. Enquanto ele existir, **a trava é decorativa** para
+quem o usa, e a suíte do vizinho roda no seu UDID.
+
+**E o P0 do dia aconteceu ao vivo, com hora e testemunha.** Às 10h56, dentro da própria
+trava, uma volta instalou o candidato dela e semeou sete `.md`; às **10h57**, entre duas
+chamadas dela, **outro build instalou no mesmo aparelho** (o contêiner trocou, o `cmp` do
+binário deu diferente) — e **apagou quatro dos sete arquivos em um minuto, sem pedir nada**,
+deixando exatamente os dois que o parser de `main` também recusa. **Um build sem o conserto
+apagou arquivos de um autor simulado**, e nenhuma fixture teria produzido essa prova.
+
+**Duas leis:**
+
+1. *Toda medida de comportamento no aparelho confere que o binário instalado é o SEU* — com
+   `cmp` contra o próprio produto de build, **antes e depois** da corrida. A frase é de quem
+   achou: **"a trava está livre não é o mesmo que o binário é o meu."**
+2. *Nada de `xcodebuild` por MCP.* Build e install passam por **chamada de shell sob
+   `com-trava.sh`**, sempre. Um servidor MCP de build vivo na máquina é hazard, não
+   conveniência — e se aparecer um, **encerre-o e diga**.
+
+**E o padrão de auditoria de suíte sobe:** contar testes pega contaminação que muda o total;
+**conferir os NOMES executados contra os declarados na própria árvore pega a que não muda**.
+A volta que achou isto auditou **901 nomes distintos** e declarou **zero de fora**. É o que
+passo a pedir.
