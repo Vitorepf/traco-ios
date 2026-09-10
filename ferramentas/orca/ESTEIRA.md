@@ -1427,3 +1427,30 @@ essa coluna costuma ser o contrato que faltava.*
 **E o corolário do portão:** hoje um cabeçalho que **não casa** vira "sem cabeçalho" e
 **abre tudo** — origem vira autor, selo não detectado. *Portão que não enxerga tem de
 falhar fechado*: formato não reconhecido **não entra como do autor** e **não apaga**.
+
+## O oráculo não pode ser cópia da regra que ele julga (10/09, re-G3 da MAC-2-A)
+
+O terceiro re-G3 achou o caminho que ainda entrava: **`cercar` decide se a linha abre ou
+fecha cerca de código DEPOIS de aparar o espaço; a CommonMark §4.5 decide ANTES, contando o
+recuo** (até três espaços). Com **quatro** espaços as duas discordam **nos dois sentidos**.
+
+Na tela do bot: com uma cerca recuada quatro espaços dentro da resposta do modelo, **o
+`## Relatos` DELE vira seção de verdade do arquivo e o relato do AUTOR fica dentro de um
+bloco de código** — some o que ele escreveu e entra o que ele não escreveu.
+
+**E o método é a lição:** ele usou **o parser CommonMark da Apple como oráculo**, e disse
+por quê — *"escolhido por NÃO ser cópia da regra do código"*. A sonda da própria casa
+(`TitulosDoMarkdown`) **também apara antes de decidir**, e por isso era **cega a isto**.
+
+**A lei:** *o oráculo não pode ser cópia da regra que ele julga.* Uma sonda escrita a partir
+do código confirma o código, não o contrato — é a terceira vez em dois dias que isto
+aparece (a `SONDA-4` sem ver o TAB, a sonda do CRLF copiando o `contains` do código, e agora
+a régua de títulos aparando junto). **Quando existir um implementador independente do
+contrato — um parser de referência, uma biblioteca do sistema, o próprio consumidor —,
+julgue por ele.**
+
+**E a lista do que NÃO passou é prova tanto quanto o que passou:** `U+2028`, `U+0085`, `\r`
+isolado, CRLF nos quatro campos e no cabeçalho, cerca aberta e nunca fechada, e
+`Substring`, `NSString`, `String?`, `Any`, `Double`, `Bool`, `Character`, `UUID` e
+`[String]` na interpolação — **todos recusados pelo compilador, um a um por
+`swiftc -typecheck`**. Quem só publica o que quebrou não mostra o tamanho da garantia.
