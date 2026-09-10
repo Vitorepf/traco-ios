@@ -902,3 +902,32 @@ cadeiras e o limite 15; 0/3 dizem qual lista vale"*.
 **A frase do revisor é a régua:** ***"expor números sem caminho é a recusa
 disfarçada"***. Ela **parece resposta** e deixa o autor no mesmo lugar — e por isso
 passa por guarda nenhuma: **está tudo lá, menos o uso**.
+
+### Contrato que cobra "hoje" sem dizer que dia é hoje é inexequível (09/09, Q3-B)
+
+O pedido mandava tratar **"um fato de HOJE"** à parte — e **nunca dizia que dia é
+hoje**. A nota *"Câmbio de hoje — 09/09"* chegava ao modelo **indistinguível de uma
+de um ano atrás**. Não é o modelo falhando: **é o contrato pedindo o impossível.**
+
+**Regra:** toda cláusula que depende do **agora** — hoje, ontem, esta semana,
+vencido, atual — só é exequível se **o agora vai junto**. Antes de acusar o modelo
+de ignorar a regra, **procure o dado que a regra precisa e que ninguém mandou**.
+
+**E a sonda pegou o bug do próprio conserto:** `ISO8601Format()` devolvia
+`2026-09-10T00:24Z` às **21h24 de 09/09** em Brasília — **invertendo o sentido de
+"hoje"**. Data em UTC num contrato que fala do dia do autor **é o dia errado por
+três horas todo fim de tarde.**
+
+### O prompt que PRESCREVE a saída errada (09/09, Q3-B)
+
+Três dos quatro defeitos da meia-recusa estavam **escritos por nós, como
+instrução**:
+
+- a regra do fato atual era chaveada **pelo TIPO do fato** (*"cotação"*), então
+  **com o valor na mão** o modelo **obedecia** e mandava confirmar no banco;
+- *"a fórmula com os nomes no lugar do que falta"* era **a única instrução** para o
+  cálculo — e saiu exatamente *"multiplique 520 pela taxa"*;
+- *"explique o limite"* era **licença para parar no conflito**.
+
+**Antes de chamar de defeito do modelo, leia o pedido como se fosse uma ordem
+literal** — porque é o que ele é. **O modelo estava obedecendo.**
