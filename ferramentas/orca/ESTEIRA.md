@@ -1558,3 +1558,42 @@ login no Grok."*
 roda hospedado no app e o chaveiro é do SIMULADOR — foi assim que a suíte **apagou a conta
 do dono** em 09/09 (ADR 09l, volta K1). Enquanto a suíte correr onde há conta, a conta está
 a uma corrida de sumir.
+
+## Separe o FATO da DECISÃO no código, e ponha guarda entre os dois (10/09, TEMPO)
+
+O teto de tempo nasceu de **77,5 s medidos**, virou **promessa**, e a folga acabou — até o
+dia em que ele ficou **menor que a espera real** (240 s contra **241 s observados**) e passou
+a **cortar resposta boa**, entregando ao autor um `semRetorno` **que era nosso**.
+
+A volta TEMPO consertou a causa, não o número:
+
+```
+Grok.esperaObservada = 241   // FATO: o que se mediu. Piso.
+Grok.teto            = 300   // DECISÃO: margem declarada sobre o observado.
+```
+
+**e uma guarda entre os dois, que fica vermelha se a decisão descer abaixo do fato.**
+
+**A lei:** *fato medido e decisão de engenharia são coisas diferentes e moram em nomes
+diferentes, com uma guarda ligando os dois.* Um único número que serve às duas coisas vira
+promessa: o próximo lê `teto = 300`, não sabe de onde veio, e o trata como medida. **A ADR
+diz "300 de folga sobre os 241 observados", nunca "medimos 300".**
+
+**E os limites de fora entram na conta, ou o número é decorativo.** Ela conferiu, com
+medida: o valor do **pedido** governa o transporte (`NWListener` local, config 2 s × pedido
+6 s → erro em **6,02 s**), `timeoutIntervalForResource` no padrão, **a x.ai serviu 241 s sem
+cortar**, e a montagem de contexto — **a metade da espera que não é rede** — custa **6,3 ms
+para 40 notas**. *Teto que só governa a nossa metade não é teto.*
+
+## A espera era calada em SEIS das sete rotas (10/09, mesma volta)
+
+O dono escreveu na §13: *"espera calada é defeito de IA, não de design"*. A volta foi contar:
+**seis das sete superfícies que raciocinam** não diziam nada — **`ProgressView` mudo, e três
+delas sem saída nenhuma**. As sete passaram a usar **um componente só**, com **pensando,
+tempo e cancelar** — e **cancelar devolve a pergunta**, que é a diferença entre desistir e
+perder o que se escreveu.
+
+**A lei:** *quando um defeito de superfície aparece numa rota, conte em quantas ele existe
+antes de consertar uma.* Seis de sete não é "um caso": é o contrato faltando. E o conserto
+certo foi **reusar o que já havia** (a `LinhaDeEstado` da 05t com o relógio da 09n), não
+inventar componente.
