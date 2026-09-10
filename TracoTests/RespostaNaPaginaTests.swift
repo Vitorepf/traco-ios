@@ -31,20 +31,91 @@ struct RespostaNaPaginaTests {
         let naoCabe = (titulo: "Não cabe", prosa: String(repeating: "c", count: 900))
         let r = Sabia.contextoDaPergunta(pagina: pagina, vizinhas: [cabe, naoCabe])
         #expect(r.viajaram == ["Cabe"])
-        #expect(r.contexto.contains("--- outra nota sua: Cabe ---"))
-        #expect(!r.contexto.contains("Não cabe"))
+        #expect(r.contexto.contains("outra nota sua, escrita em outro dia"))
+        #expect(r.contexto.contains("Cabe ---"))
+        // ADR 10g: a PROSA da que não coube continua em casa — o que muda é
+        // que o nome dela agora é dito, no bloco do que não se leu.
+        #expect(!r.contexto.contains(String(repeating: "c", count: 20)))
         #expect(r.contexto.count <= Sabia.tetoDoContextoDaNota)
     }
 
-    /// A ordem É a prioridade (ADR 05o): a ligada explícita do autor vem antes
-    /// da vizinha do índice, e quem não couber fica de fora INTEIRA, com o
-    /// rótulo — nunca meia nota sem cabeçalho.
-    @Test func vizinhaQueNaoCabeFicaDeForaInteiraComORotulo() {
-        let pagina = String(repeating: "a", count: Sabia.tetoDoContextoDaNota - 10)
-        let r = Sabia.contextoDaPergunta(pagina: pagina, vizinhas: [(titulo: "Alguma", prosa: "texto")])
-        #expect(r.viajaram.isEmpty)
-        #expect(r.contexto == pagina)
-        #expect(!r.contexto.contains("outra nota sua"))
+    // MARK: ADR 10g — o que não coube se DIZ, e o que coube não se nega
+
+    /// A metade que fecha a simetria (ordem do dono, 10/09 13h55): *"li as duas
+    /// primeiras páginas e não o resto" é resposta; "vá ao sumário" é invenção*.
+    /// Antes, a nota que não cabia sumia em silêncio e o modelo completava o
+    /// resto de cabeça — não porque mente, mas porque nada dizia que faltava.
+    @Test func aNotaQueNaoCoubeEDITAPELONOME() {
+        let pagina = String(repeating: "a", count: 4_000)
+        let r = Sabia.contextoDaPergunta(pagina: pagina,
+                                         vizinhas: [(titulo: "Relatório de setembro",
+                                                     prosa: String(repeating: "c", count: 4_000))])
+        #expect(r.contexto.contains("O QUE NÃO COUBE"))
+        #expect(r.contexto.contains("Relatório de setembro"))
+        #expect(r.contexto.count <= Sabia.tetoDoContextoDaNota)
+    }
+
+    /// O RISCO que a alavanca cria, e a irmã que não acusa: quando tudo cabe,
+    /// não há uma palavra sobre não ter lido. Uma guarda que só sabe acusar
+    /// não está provada — esta é a que tem de ficar calada.
+    @Test func quandoTudoCabeNadaSeDizSobreNaoTerLido() {
+        let r = Sabia.contextoDaPergunta(pagina: "a minha página",
+                                         vizinhas: [(titulo: "A", prosa: "um"),
+                                                    (titulo: "B", prosa: "dois")])
+        #expect(r.viajaram == ["A", "B"])
+        #expect(!r.contexto.contains("NÃO COUBE"))
+        #expect(!r.contexto.lowercased().contains("não leu"))
+    }
+
+    /// Meia nota entra — mas dizendo quanto entrou. Abaixo do mínimo ela fica
+    /// de fora inteira, porque três linhas soltas de um documento é o convite
+    /// exato para o modelo completar o resto.
+    @Test func aNotaGrandeEntraPELAMETADEEDIZQUANTO() {
+        let r = Sabia.contextoDaPergunta(pagina: "curta",
+                                         vizinhas: [(titulo: "Doc", prosa: String(repeating: "d", count: 9_000))])
+        #expect(r.viajaram == ["Doc"])
+        #expect(r.contexto.contains("você leu os primeiros"))
+        #expect(r.contexto.contains("de 9000 caracteres"))
+        #expect(r.contexto.count <= Sabia.tetoDoContextoDaNota)
+    }
+
+    /// A invariante do orçamento sobrevive ao pior caso: o aviso tem de CABER,
+    /// senão o `prefix(teto)` de `Sabia.responder` o corta justamente na
+    /// corrida em que ele é a resposta.
+    @Test func oAvisoCabeNoOrcamentoNoPiorCaso() {
+        let vizinhas = (1...40).map { (titulo: "Nota \($0) " + String(repeating: "t", count: 80),
+                                       prosa: String(repeating: "x", count: 3_000)) }
+        let r = Sabia.contextoDaPergunta(pagina: String(repeating: "a", count: 4_900), vizinhas: vizinhas)
+        #expect(r.contexto.count <= Sabia.tetoDoContextoDaNota)
+        #expect(r.contexto.contains("O QUE NÃO COUBE"))
+        #expect(r.contexto.hasSuffix("."))
+    }
+
+    /// A página também é texto do autor: quando ela sozinha estoura, o corte
+    /// dela se declara em vez de acontecer em silêncio dentro de `responder`.
+    @Test func aPaginaCortadaSeDECLARA() {
+        let r = Sabia.contextoDaPergunta(pagina: String(repeating: "a", count: 12_000),
+                                         vizinhas: [(titulo: "A", prosa: "um")])
+        #expect(r.contexto.contains("A sua própria página"))
+        #expect(r.contexto.count <= Sabia.tetoDoContextoDaNota)
+    }
+
+    /// O INSTRUMENTO tambem se mede. O braço `antigo` da medida da 10g existe
+    /// para reproduzir o caminho INTEIRO de antes, e o corte aos 1.200 morava
+    /// em `Sessao.notasLigadas` — fora desta função. Sem esta guarda o braço
+    /// velho jogava a nota fora por não caber e media uma TERCEIRA montagem,
+    /// que nunca rodou para autor nenhum. Custou uma janela de aparelho de
+    /// conta em 10/09 para eu descobrir isso lendo o JSONL.
+    @Test func oBracoAntigoReproduzOCorteAos1200() {
+        let doc = String(repeating: "z", count: 9_000)
+        let velho = Sabia.contextoDaPerguntaComoEraNa10b(pagina: "curta",
+                                                         vizinhas: [(titulo: "Doc", prosa: doc)])
+        #expect(velho.viajaram == ["Doc"])
+        #expect(velho.contexto.count < 1_400)
+        #expect(!velho.contexto.contains("O QUE NÃO COUBE"))
+        // e a irmã: o braço NOVO manda muito mais do mesmo documento
+        let novo = Sabia.contextoDaPergunta(pagina: "curta", vizinhas: [(titulo: "Doc", prosa: doc)])
+        #expect(novo.contexto.count > 4_000)
     }
 
     @Test func todasCabemQuandoOCadernoEPequeno() {

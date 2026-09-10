@@ -31,6 +31,14 @@ enum AvaliacaoIA {
         var texto: String?
         var pergunta: String?
         var contexto: String?
+        /// ADR 2026-09-10g: a sonda passava `contexto` já PRONTO, e com isso a
+        /// montagem — que é a alavanca desta volta — ficava fora da medida.
+        /// Com `pagina` e `vizinhas` a sonda entra pela mesma porta da
+        /// produção: `Sabia.contextoDaPergunta` monta, e o que viaja é o que
+        /// o autor veria viajar. `contexto` continua valendo para as fixtures
+        /// antigas (`prova/10b-casos.json` roda sem uma palavra mudada).
+        var pagina: String?
+        var vizinhas: [Vizinha]?
         var fontes: [FonteNotas]?
         var retrato: String?
         var gesto: String?
@@ -54,6 +62,11 @@ enum AvaliacaoIA {
     /// (`Sessao.responderNasNotas`) e a sonda não passava: a base `conversa` e
     /// a mistura "fato na fala dela + gasto na nota" nunca foram medidas. Só
     /// as duas falas; `dependencias` é estado do caderno, que a sonda não tem.
+    private struct Vizinha: Codable {
+        var titulo: String
+        var prosa: String
+    }
+
     private struct Troca: Codable {
         var pergunta: String
         var resposta: String
@@ -62,6 +75,23 @@ enum AvaliacaoIA {
     private enum Falha: Error {
         case arquivoInvalido, loteInvalido, operacaoDesconhecida(String)
         case entradaAusente(String), semRetorno
+    }
+
+    /// O braço do CONTEXTO (ADR 2026-09-10g). Os dois moram no MESMO binário
+    /// e o ambiente escolhe qual roda: `TRACO_AVALIAR_CONTEXTO=antigo` devolve
+    /// a montagem da 10b, qualquer outro valor (ou nenhum) roda a desta volta.
+    /// Sem isto, "antes" e "depois" seriam dois dylibs — e a medida somaria a
+    /// compilação à alavanca.
+    static let bracoDoContexto = ProcessInfo.processInfo.environment["TRACO_AVALIAR_CONTEXTO"] ?? "novo"
+
+    /// A montagem do braço escolhido, ou `nil` quando a fixture não traz
+    /// `pagina` — aí o caso é dos antigos e usa o `contexto` já pronto.
+    private static func montagem(_ e: Entrada) -> (contexto: String, viajaram: [String])? {
+        guard let pagina = e.pagina else { return nil }
+        let vz = (e.vizinhas ?? []).map { (titulo: $0.titulo, prosa: $0.prosa) }
+        return bracoDoContexto == "antigo"
+            ? Sabia.contextoDaPerguntaComoEraNa10b(pagina: pagina, vizinhas: vz)
+            : Sabia.contextoDaPergunta(pagina: pagina, vizinhas: vz)
     }
 
     static func executarSeSolicitado() async {
@@ -136,7 +166,23 @@ enum AvaliacaoIA {
                         // corrida diz de si mesma qual texto mandou. Identifica
                         // o braço — a leitura das saídas continua sendo a régua.
                         "pedidoResponderSHA256": SHA256.hash(data: Data(Sabia.sistemaResponder.utf8))
-                            .map { String(format: "%02x", $0) }.joined()]
+                            .map { String(format: "%02x", $0) }.joined(),
+                        // ADR 2026-09-10g: QUAL montagem rodou este caso. Vai
+                        // em TODA linha, inclusive nas dos casos que não usam
+                        // montagem — uma linha sem braço é uma linha que não
+                        // sabe dizer de que corrida é.
+                        "contextoBraco": bracoDoContexto]
+                    if let m = montagem(caso.entrada) {
+                        // O texto INTEIRO que viajou, e o seu sha: a leitura do
+                        // G3 é sobre o que o modelo recebeu, não sobre o que a
+                        // fixture prometeu. Sem isto o braço seria uma palavra
+                        // no cabeçalho, sem prova de que mudou alguma coisa.
+                        registro["contextoMontado"] = m.contexto
+                        registro["contextoSHA256"] = SHA256.hash(data: Data(m.contexto.utf8))
+                            .map { String(format: "%02x", $0) }.joined()
+                        registro["contextoChars"] = m.contexto.count
+                        registro["contextoViajaram"] = m.viajaram
+                    }
                     registro["evento"] = "casoIniciado"
                     try gravar(registro)
                     let inicio = ContinuousClock.now
@@ -235,7 +281,8 @@ enum AvaliacaoIA {
             // medida lia o que sobrou do nosso `limparResposta` e chamava
             // isso de "o modelo". A evidência liga os dois na mesma linha.
             return try exigir(await Sabia.responder(pergunta: exigir(e.pergunta, "pergunta"),
-                contexto: e.contexto ?? "", gesto: gesto, retrato: e.retrato ?? ""))
+                contexto: montagem(e)?.contexto ?? e.contexto ?? "",
+                gesto: gesto, retrato: e.retrato ?? ""))
         case "instigar":
             return try exigir(await Sabia.instigar(texto: texto, gesto: gesto, degrau: e.degrau ?? 0, retrato: e.retrato ?? ""))
         case "contrapor":

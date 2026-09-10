@@ -21,9 +21,16 @@
 #   daquela volta; o `export` ficou aqui e a variável passou a não ter leitor.
 #   Quem a usasse mediria o pedido ATUAL achando que mediu o anterior — a rota
 #   que cala (DIRETRIZ §8), dentro do próprio medidor. Em vez de apagar em
-#   silêncio, o campo agora PARA a corrida: quem quiser dois braços devolve o
+#   silêncio, o campo PARAVA a corrida: quem quisesse dois braços devolvia o
 #   seletor ao Swift primeiro. Os textos dos braços da 10b estão em
 #   `prova/10b/pedido-candidato-{1,2}.txt`.
+#
+# 10/09 (ADR 10g): o 6º campo VOLTA, agora como `contexto`, e desta vez com
+#   leitor: `AvaliacaoIA.bracoDoContexto` lê `TRACO_AVALIAR_CONTEXTO` e
+#   `antigo` roda `Sabia.contextoDaPerguntaComoEraNa10b`. Toda linha do JSONL
+#   sai com `contextoBraco`, então a corrida diz de si mesma qual montagem
+#   rodou — a mesma cura que o `pedidoResponderSHA256` deu ao braço do pedido.
+#   Se o leitor sair do Swift, este campo volta a PARAR a corrida.
 # As três fumaças e a instalação única continuam obrigatórias e fixas.
 set -u
 D="${D:-B91C8DEF-B0A7-454A-95DE-5D7BA7B040A9}"
@@ -43,19 +50,20 @@ docs() { echo "$(xcrun simctl get_app_container $D $BID data)/Documents"; }
 hora() { date -u +%Y-%m-%dT%H:%M:%SZ; }
 sha()  { shasum -a 256 "$1" | awk '{print $1}'; }
 
-rodar() { # saida fixture liberar modelo timeout
-  local saida="$1" fix="$2" lib="${3:-}" mod="${4:-}" tmo="${5:-600}"
+rodar() { # saida fixture liberar modelo timeout contexto
+  local saida="$1" fix="$2" lib="${3:-}" mod="${4:-}" tmo="${5:-600}" ctx="${6:-}"
   local DOCS; DOCS="$(docs)"
   local src="$RAIZ/prova/$fix"; [ -f "$fix" ] && src="$fix"
   local nome; nome="$(basename "$fix")"
   rm -f "$DOCS/avaliacoes-ia.jsonl"
   cp "$src" "$DOCS/$nome" || { echo "fixture ausente: $src"; return 3; }
   fix="$nome"
-  echo "[$(hora)] INICIO $saida  fixture=$fix ($(sha "$src" | cut -c1-12)) liberar='$lib' modelo='${mod:-<padrao>}'"
+  echo "[$(hora)] INICIO $saida  fixture=$fix ($(sha "$src" | cut -c1-12)) liberar='$lib' modelo='${mod:-<padrao>}' contexto='${ctx:-<novo>}'"
   # modelo vazio = NÃO exportar: "" não é nil no Swift e viraria modelo em branco
   local -a MODENV=(); [ -n "$mod" ] && MODENV=(SIMCTL_CHILD_TRACO_AVALIAR_MODELO="$mod")
+  local -a CTXENV=(); [ -n "$ctx" ] && CTXENV=(SIMCTL_CHILD_TRACO_AVALIAR_CONTEXTO="$ctx")
   env SIMCTL_CHILD_TRACO_AVALIAR_IA="$fix" SIMCTL_CHILD_TRACO_AVALIAR_LIBERAR="$lib" \
-    ${MODENV[@]+"${MODENV[@]}"} \
+    ${MODENV[@]+"${MODENV[@]}"} ${CTXENV[@]+"${CTXENV[@]}"} \
     xcrun simctl launch --terminate-running-process $D $BID || echo "launch FALHOU"
   local i=0
   while [ $i -lt $((tmo/2)) ]; do
@@ -84,8 +92,7 @@ rodar $PREFIXO-fumaca-2-pos-install.jsonl q2-fumaca.json "" "" 180
 # 4) as corridas da volta, na MESMA janela e sem reinstalar
 for c in ${CORRIDAS[@]+"${CORRIDAS[@]}"}; do
   IFS=: read -r _s _f _l _m _t _p <<<"$c"
-  [ -n "${_p:-}" ] && { echo "CORRIDA '$c': o 6º campo (pedido) não tem leitor em Swift desde o fecho da 10b — devolva o seletor antes de usá-lo"; exit 3; }
-  rodar "$_s" "$_f" "$_l" "$_m" "${_t:-600}"
+  rodar "$_s" "$_f" "$_l" "$_m" "${_t:-600}" "${_p:-}"
 done
 
 # 5) fumaça FIM

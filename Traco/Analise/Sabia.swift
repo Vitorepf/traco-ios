@@ -523,7 +523,18 @@ enum Sabia {
     /// duas cópias do mesmo número divergiriam em silêncio (ADR 03l).
     nonisolated static let tetoDoContextoDaNota = 5000
 
-    /// A página mais as vizinhas que CABEM, e os títulos das que couberam.
+    /// Abaixo disto o pedaço que sobrou não sustenta leitura nenhuma: a nota
+    /// fica de fora INTEIRA e declarada, em vez de virar três linhas soltas
+    /// que o modelo completa de cabeça — que é o defeito medido na 10b.
+    nonisolated static let minimoDeNotaParcial = 400
+
+    /// Quantos nomes o aviso cita, e quanto de cada título. Os dois existem
+    /// para o aviso caber na reserva sem ser truncado (ver o teste).
+    nonisolated static let nomesNoAviso = 4
+    nonisolated static let tituloNoAviso = 50
+
+    /// A página mais as notas que CABEM, os títulos das que couberam, e — a
+    /// peça nova — o que NÃO coube, dito dentro do próprio contexto.
     ///
     /// ADR 2026-09-10b. A divulgação do cartão ("foram junto: …") era montada
     /// da lista inteira de vizinhas, ANTES do corte — e o corte é aqui. Com o
@@ -532,17 +543,94 @@ enum Sabia {
     /// nenhuma. Mesma lei da `mensagemDoAparelho` (ADR 05o): rótulo e conteúdo
     /// viajam juntos ou não viajam, e a ordem É a prioridade — a ligada
     /// explícita do autor vem antes da vizinha que o índice achou.
+    ///
+    /// ADR 2026-09-10g — o CONTEXTO como alavanca, depois que o pedido
+    /// reprovou duas vezes. Metade do que sobrou do defeito é o modelo falando
+    /// de um documento que nunca viu, e a montagem era cúmplice de duas
+    /// maneiras:
+    ///
+    /// 1. **A nota citada chegava pela metade e em silêncio.** Quem escreve
+    ///    `[[Relatório]]` e pergunta sobre ele mandava 1.200 caracteres de um
+    ///    documento de 9.000, sem uma palavra dizendo que havia mais. Um
+    ///    modelo que recebe um começo de documento e uma pergunta sobre o
+    ///    documento inteiro **completa o resto** — não porque mente, mas
+    ///    porque nada no pedido diz que aquilo é um começo. Agora a nota
+    ///    citada entra INTEIRA quando cabe; e quando não cabe, o corte é dito.
+    /// 2. **A vizinha parecia plano do autor.** O rótulo era só "outra nota
+    ///    sua", e em 2 de 3 execuções da pergunta real do aparelho o conteúdo
+    ///    da vizinha voltou dentro da proposta como se fosse decisão dele
+    ///    (a "falsa intimidade" medida na 10b). O rótulo passa a dizer a
+    ///    FRONTEIRA, que é o que faltava: material de outro dia, não o plano
+    ///    desta pergunta.
+    ///
+    /// O risco que a alavanca CRIA — e que a medida tem de cobrar — é o
+    /// simétrico: dizer que não leu o que leu. Por isso o aviso só existe
+    /// quando algo ficou de fora de verdade, e a passada cheia vem primeiro.
     nonisolated static func contextoDaPergunta(pagina: String, vizinhas: [(titulo: String, prosa: String)],
                                                teto: Int = tetoDoContextoDaNota) -> (contexto: String, viajaram: [String]) {
-        var contexto = pagina
-        var viajaram: [String] = []
-        for n in vizinhas {
-            let bloco = "\n\n--- outra nota sua: \(n.titulo) ---\n\(n.prosa)"
-            guard contexto.count + bloco.count <= teto else { break }
-            contexto += bloco
-            viajaram.append(n.titulo)
+        // Passe 1 com o orçamento INTEIRO: quando tudo cabe não há aviso, e
+        // não se paga reserva nenhuma.
+        let cheio = montarContexto(pagina: pagina, vizinhas: vizinhas, teto: teto)
+        guard !cheio.naoLeu.isEmpty else { return (cheio.contexto, cheio.viajaram) }
+        // A reserva é o tamanho do PRÓPRIO aviso, nunca uma constante. Um
+        // bloco fixo de 800 fazia uma nota que faltava por 276 caracteres
+        // levar junto a nota que CABIA — quebrando a guarda que a 10b acabou
+        // de plantar (`aDivulgacaoNomeiaSoAsVizinhasQueCouberam`).
+        // ponytail: laço de ponto fixo com teto de 3 — encolher o orçamento só
+        // pode ACRESCENTAR linha ao aviso, então ele cresce e para; o `prefix`
+        // final é o cinto que segura a invariante mesmo se não parasse.
+        var reserva = avisoDoQueNaoCoube(cheio.naoLeu).count
+        var m = cheio, aviso = ""
+        for _ in 0..<3 {
+            m = montarContexto(pagina: pagina, vizinhas: vizinhas, teto: teto - reserva)
+            aviso = avisoDoQueNaoCoube(m.naoLeu)
+            if aviso.count <= reserva { break }
+            reserva = aviso.count
         }
-        return (contexto, viajaram)
+        return (m.contexto + String(aviso.prefix(max(0, teto - m.contexto.count))), m.viajaram)
+    }
+
+    /// A montagem crua, sem o aviso: o que coube, quem viajou, e o que ficou
+    /// de fora em linguagem de leitor ("você leu os primeiros N de M").
+    nonisolated static func montarContexto(pagina: String, vizinhas: [(titulo: String, prosa: String)],
+                                           teto: Int)
+    -> (contexto: String, viajaram: [String], naoLeu: [String]) {
+        var contexto = String(pagina.prefix(max(0, teto)))
+        var viajaram: [String] = []
+        var naoLeu: [String] = []
+        if contexto.count < pagina.count {
+            naoLeu.append("A sua própria página: você leu os primeiros \(contexto.count) de \(pagina.count) caracteres.")
+        }
+        for n in vizinhas {
+            let cabeca = "\n\n--- outra nota sua, escrita em outro dia (é material dela, não o plano desta pergunta): \(n.titulo) ---\n"
+            let sobra = teto - contexto.count - cabeca.count
+            let nome = "«\(n.titulo.prefix(tituloNoAviso))»"
+            if n.prosa.count <= sobra {
+                contexto += cabeca + n.prosa
+                viajaram.append(n.titulo)
+            } else if sobra >= minimoDeNotaParcial {
+                contexto += cabeca + String(n.prosa.prefix(sobra))
+                viajaram.append(n.titulo)
+                naoLeu.append("\(nome): você leu os primeiros \(sobra) de \(n.prosa.count) caracteres; o resto não veio.")
+            } else {
+                naoLeu.append("\(nome): não veio nada dela.")
+            }
+        }
+        return (contexto, viajaram, naoLeu)
+    }
+
+    /// O contrato da segunda metade (ordem do dono, 10/09 13h55): *"li as duas
+    /// primeiras páginas e não o resto" é resposta; "vá ao sumário" é
+    /// invenção*. O aviso diz o que ficou de fora e manda seguir com o que
+    /// leu — nunca manda parar.
+    nonisolated static func avisoDoQueNaoCoube(_ naoLeu: [String]) -> String {
+        guard !naoLeu.isEmpty else { return "" }
+        let nomeados = naoLeu.prefix(nomesNoAviso)
+        let resto = naoLeu.count - nomeados.count
+        return "\n\n--- O QUE NÃO COUBE, E VOCÊ NÃO LEU ---\n"
+            + "Nada disto está acima. Se a resposta depender do que ficou de fora, DIGA o que você não leu e siga ajudando com o que leu; nunca descreva o que não veio.\n"
+            + nomeados.joined(separator: "\n")
+            + (resto > 0 ? "\ne mais \(resto)." : "")
     }
 
     static func responder(pergunta: String, contexto: String, gesto: Gesto?, retrato: String = "") async -> String? {
@@ -1093,3 +1181,38 @@ enum Sabia {
         return resultado
     }
 }
+
+#if DEBUG
+extension Sabia {
+    /// INSTRUMENTO, nunca produção (ADR 2026-09-10g): a montagem como ela era
+    /// na 10b, para que os DOIS braços da medida corram o MESMO dylib. Sem
+    /// isto, "antes" e "depois" seriam duas compilações e a medida somaria a
+    /// alavanca ao build.
+    ///
+    /// Ela tem um leitor de verdade — `AvaliacaoIA`, sob
+    /// `TRACO_AVALIAR_CONTEXTO=antigo`. Um seletor sem leitor foi o achado do
+    /// G3 da 10b: quem o usasse mediria o braço atual achando que mediu o
+    /// anterior. Se o leitor sair, esta função sai junto, no mesmo commit.
+    ///
+    /// O braço reproduz o CAMINHO INTEIRO de antes, não só esta função: o
+    /// corte aos 1.200 morava em `Sessao.notasLigadas`, e sem ele aqui o
+    /// "antigo" receberia a nota inteira e a jogaria fora por não caber —
+    /// mediria uma terceira coisa, que nunca rodou para autor nenhum.
+    nonisolated static let corteDaNotaLigadaAte10b = 1_200
+
+    nonisolated static func contextoDaPerguntaComoEraNa10b(
+        pagina: String, vizinhas: [(titulo: String, prosa: String)],
+        teto: Int = tetoDoContextoDaNota) -> (contexto: String, viajaram: [String]) {
+        var contexto = pagina
+        var viajaram: [String] = []
+        for v in vizinhas {
+            let n = (titulo: v.titulo, prosa: String(v.prosa.prefix(corteDaNotaLigadaAte10b)))
+            let bloco = "\n\n--- outra nota sua: \(n.titulo) ---\n\(n.prosa)"
+            guard contexto.count + bloco.count <= teto else { break }
+            contexto += bloco
+            viajaram.append(n.titulo)
+        }
+        return (contexto, viajaram)
+    }
+}
+#endif

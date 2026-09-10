@@ -9487,3 +9487,122 @@ que não viajou. `Sessao.contextoDoCaderno` junta ligações, vizinhas e ecos **
 do corte de 5.000, e `q2-dado-alem-do-recorte` já mostra o dado decisivo do lado de
 fora. **Não é limite do instrumento; é limite do PRODUTO**, e não absolve
 Utilidade nem Contexto.
+
+## ADR 2026-09-10g — o contexto do `responder`: a nota citada vai inteira, e o que não coube se DIZ (volta RESPONDER-CTX)
+
+**Decisão.** `responder` **continua** `indisponivelPorQualidade`. A alavanca do CONTEXTO
+foi medida contra a montagem anterior **no mesmo binário e com o mesmo pedido**
+(`pedidoResponderSHA256 d42d61ea…` nas 120 linhas dos dois braços), 20 casos × 3,
+e o resultado é **move, não fecha**: na metade que ela ataca, as repetições que
+dizem o que não leram vão de **0 de 30 para 9 de 30**; por caso, o placar empata
+em **7 de 20**. **O código FICA assim mesmo** — e essa é a parte que não é
+hipótese.
+
+A montagem do contexto da linha "?" passa a cumprir um contrato de duas metades, e
+as duas são a mesma lei: **o que o autor citou entra inteiro dentro do orçamento
+da ADR 05m; o que não coube é DITO dentro do próprio contexto, nunca calado.**
+
+1. `Sessao.notasLigadas` **para de cortar aos 1.200**. O corte morava lá, antes de
+   qualquer orçamento ser consultado — duas tesouras no mesmo texto e só uma
+   sabendo dizer que cortou. Quem sacrifica agora é `Sabia.contextoDaPergunta`,
+   que conhece o orçamento inteiro.
+2. `Sabia.contextoDaPergunta` manda a nota INTEIRA quando ela cabe; quando não
+   cabe, manda o que couber (mínimo de 400 caracteres, senão nem começa) e
+   fecha o contexto com o bloco **O QUE NÃO COUBE, E VOCÊ NÃO LEU** — nome da
+   nota e quantos caracteres de quantos chegaram —, mais a ordem de *dizer o que
+   não leu e seguir ajudando com o que leu*. A página do autor, quando ela
+   sozinha estoura o orçamento, entra na mesma lista.
+3. O rótulo da vizinha passa a dizer a **fronteira**: era `--- outra nota sua: X ---`
+   e agora diz que é material de outro dia, **não o plano desta pergunta**.
+
+**Por quê.** A 10b mediu o PEDIDO duas vezes e reprovou as duas (base 14 e 15 de
+20; candidatos 12 e 12), e a conclusão de quem mediu foi que *"nenhum texto de
+pedido conserta informação que não viajou"*. Metade do defeito que sobrou é o
+modelo **falando de um documento que nunca viu** — e a montagem era cúmplice
+disso: quem escrevia `[[Relatório]]` e perguntava sobre o relatório mandava
+1.200 caracteres de um documento de 9.000, **sem uma palavra dizendo que aquilo
+era um começo**. Um modelo que recebe o começo de um documento e uma pergunta
+sobre o documento inteiro completa o resto; não porque mente, mas porque nada no
+que ele recebeu diz que falta.
+
+**A segunda metade é o que fecha a simetria** (ordem do dono, 10/09 13h55):
+*"li as duas primeiras páginas e não o resto" é resposta; "vá ao sumário" é
+invenção*. Ela ataca a face que sobrou **sem mandar o modelo parar de ajudar** —
+que foi exatamente onde as duas reescritas do pedido morreram.
+
+**O risco que a alavanca CRIA, e que foi medido junto.** Dizer que não leu o que
+leu. É o outro lado da mesma moeda e quase ninguém se lembra de medir: se ele
+quebrar, a alavanca fez o modelo mentir para o outro lado. Por isso o aviso só
+existe quando algo ficou de fora **de verdade** — a passada com o orçamento
+inteiro vem primeiro, e só se ela deixar alguém de fora é que o aviso nasce e
+cobra o seu próprio lugar. Metade da fixture (10 casos) é feita de casos em que
+**tudo cabe**, e o requisito deles é o silêncio.
+
+**A reserva é do tamanho do aviso, não uma constante.** A primeira versão tirava
+800 caracteres fixos do orçamento e isso fazia uma nota que faltava por 276
+caracteres **levar junto a nota que cabia** — quebrando `aDivulgacaoNomeiaSoAsVizinhasQueCouberam`,
+a guarda que a 10b acabou de plantar. O laço de ponto fixo (teto de três voltas,
+`prefix` final como cinto) paga só o que o aviso ocupa.
+
+**Uma alavanca, e como isso foi garantido.** Modelo (`grok-4.3`), esforço
+(`medium`), temperatura (0,3), **o pedido** (`sistemaResponder`, sha256
+`d42d61ea…`) e o teto de saída ficaram idênticos nos dois braços. Os dois
+braços correm o **mesmo dylib**: `Sabia.contextoDaPerguntaComoEraNa10b` (DEBUG)
+reproduz a montagem anterior e o ambiente escolhe por
+`TRACO_AVALIAR_CONTEXTO=antigo`. **Toda linha do JSONL carrega `contextoBraco`,
+`contextoSHA256`, `contextoChars`, `contextoViajaram` e o `contextoMontado`
+inteiro** — a corrida diz de si mesma qual montagem rodou e o que exatamente
+viajou.
+
+**O braço velho é o CAMINHO velho, não só a função velha, e isto custou uma
+janela.** O corte aos 1.200 morava em `Sessao.notasLigadas`, fora da função
+trocada; a primeira janela rodou com um braço "antigo" que **jogava a nota fora
+inteira** por não caber, e mediu uma terceira montagem que nunca rodou para autor
+nenhum. Descoberto lendo o JSONL na quinta linha, com a janela viva. O conserto
+tem guarda própria (`oBracoAntigoReproduzOCorteAos1200`) e a lição é a da casa:
+**o instrumento também se mede**.
+
+**Custo assumido, nomeado.**
+- Quando a página do autor sozinha estoura o orçamento, ela perde a cauda para o
+  aviso caber. O corte já existia (`responder` faz `prefix(teto)`); o que muda é
+  que agora ele é **declarado** em vez de silencioso.
+- As vizinhas achadas pelo ÍNDICE continuam cortadas em 600, e os ecos em 1.200.
+  O contrato desta ADR fala do que a pergunta **cita** — a ligação explícita —,
+  e alargar o resto sem medir seria trocar de alavanca no meio.
+- **Acabamento, dívida nomeada:** o rótulo mistura registro ("outra nota **sua** …
+  é material **dela**") e o aviso da página diz "A **sua** própria página" a quem
+  o `sistemaResponder` chama de "você" (o modelo). Está assim no binário que foi
+  medido e **fica assim**: trocar palavra depois da medida é entregar o que não
+  se mediu. A correção de registro é uma alavanca de PEDIDO e pede a sua medida.
+
+**O que a medida entrega para a próxima volta, com nome e prova.** O modelo
+declara o corte quando **o que falta é o assunto NOMEADO da pergunta** (a
+cláusula de rescisão, os encaminhamentos da reunião, a nota ausente pelo nome:
+`10c-duas-notas-uma-fica-de-fora` foi de 0 para **3 de 3**). Ele ignora o mesmo
+bloco quando consegue, em vez disso, **afirmar a ausência no caderno** — *"não há
+horário"*, *"faltam três dados"*, *"a única data é 20 de setembro"* —, e aí a
+saída fala do CADERNO em vez da leitura dele. Seis casos, dezoito repetições, o
+mesmo padrão. **É esse o alvo seguinte, e ele não é contexto.**
+
+**E o RUÍDO foi isolado, de graça.** Os três casos do revisor da 10b não têm
+`pagina`, então a montagem não roda e **os dois braços mandaram entrada byte a
+byte idêntica** (`contextoChars: null` nos seis registros). Ainda assim
+`cego-g3-tudo-sustentado-sem-carencia` foi de **3 de 3 para 1 de 3**. **Uma
+diferença de ±2 repetições num caso NÃO é sinal** — nem aqui, nem nas medidas
+anteriores desta rota.
+
+**Volta:** multiplicar ao responder — o segundo cérebro deixa de falar de um
+documento que ele não recebeu.
+**O que a IA sabe:** só a página, as notas que o autor citou (inteiras quando
+cabem) e o nome do que não coube. Nada novo sai do aparelho.
+**Prova:** nove guardas focadas novas em `RespostaNaPaginaTests` e
+`BuracosFuncionaisTests`, incluindo a irmã que **não** acusa
+(`quandoTudoCabeNadaSeDizSobreNaoTerLido`) e a que mede o próprio instrumento
+(`oBracoAntigoReproduzOCorteAos1200`); suíte integral **`** TEST SUCCEEDED **`,
+1.210 verdes, zero vermelhos** no teste 4 (`A1DF082C`). Medida de comportamento:
+138 chamadas reais, HTTP 200 em 100 %, `grok-4.3` em 100 %, `ContaGrok.ligada` em
+100 % (fumaças 19:11:24Z, 19:11:27Z e 19:34:23Z), `cmp` do binário e do dylib
+IGUAIS no fecho. `prova/10c/`, leitura em `ferramentas/orca/responder-ctx.md`.
+**Nenhum teste comprova a qualidade semântica do modelo.**
+**Fora:** o pedido (`sistemaResponder`, intocado), o esquema de saída, a
+superfície do cartão e do Perfil, as vizinhas do índice e os ecos.
