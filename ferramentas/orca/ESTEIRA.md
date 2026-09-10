@@ -1417,7 +1417,10 @@ apagado**. Não é o bug do Windows. **O `\r` era só um dos jeitos de chegar ne
 quando o app **delimitou** tudo o que havia nele.* Eu tinha escrito **cobertura de
 LEITURA**, e o revisor derrubou a alegação forte com dois contraexemplos: um descarte no
 estilo da própria casa (**teto de 140 grafemas da ADR 08h, sem `continue`**) importou **140
-de 659 caracteres** com `consumido = 1,00` **e apagou o arquivo**; e sem código futuro
+de 699 caracteres do arquivo** com a conta dizendo **1,00 e apagou o arquivo** — e o número
+tem três partes, corrigido pela volta que o releu: **699** é o que o arquivo tem, **140** é
+o que aquele descarte importa, e **659** é o que o caminho de HOJE importa; **a diferença de
+40 é a tinta do cabeçalho, creditada sem virar nota**; e sem código futuro
 nenhum, os campos `dominio` e `recordada` — que **o próprio app escreve e o importador nunca
 lê** — somem na volta pela `entrada/` com a conta dizendo 100%. **A cobertura tem de contar
 o que foi DELIMITADO como pertencente a alguma nota, não o que foi consumido pelo caminho
