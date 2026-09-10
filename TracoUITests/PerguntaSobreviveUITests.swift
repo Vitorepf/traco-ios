@@ -58,8 +58,13 @@ import XCTest
         XCTAssertTrue(app.staticTexts["calendario-titulo"].firstMatch.waitForExistence(timeout: 5),
                       "PRÉ-CONDIÇÃO: o Calendário não abriu — a aba não trocou")
         app.buttons["aba-notas"].firstMatch.tap()
-        XCTAssertTrue(app.textFields["busca-notas"].firstMatch.waitForExistence(timeout: 5),
-                      "as Notas não voltaram")
+        // ADR 10i: com conversa aberta as Notas voltam como FOLHA (sem a linha
+        // da busca); sem conversa, como lista (com ela)
+        let voltou = NSPredicate { _, _ in
+            app.textFields["busca-notas"].firstMatch.exists || app.otherElements["cartao-sabia-notas"].firstMatch.exists
+        }
+        XCTAssertEqual(XCTWaiter().wait(for: [XCTNSPredicateExpectation(predicate: voltou, object: nil)], timeout: 5), .completed,
+                       "as Notas não voltaram")
     }
 
     func testBuscaEmEdicaoSobreviveATrocaDeAba() {
@@ -82,10 +87,13 @@ import XCTest
         let app = XCUIApplication()
         abrirNotas(app)
 
-        // §14: perguntar é um gesto próprio — a palavra na linha do pé
+        // ADR 10i: perguntar é a marca "?" no título; a folha abre com a
+        // linha "?" em branco e o teclado de pé
         app.buttons["perguntar-modo"].firstMatch.tap()
-        let busca = app.textFields["busca-notas"].firstMatch
-        busca.typeText("o que eu aprendi ontem")
+        let pergunta = app.textFields["pergunta-notas"].firstMatch
+        XCTAssertTrue(pergunta.waitForExistence(timeout: 5), "a linha \"?\" não apareceu")
+        XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 5), "a folha abriu sem o teclado de pé")
+        pergunta.typeText("o que eu aprendi ontem")
         app.buttons["perguntar-notas"].firstMatch.tap()
 
         let cartao = app.otherElements["cartao-sabia-notas"].firstMatch

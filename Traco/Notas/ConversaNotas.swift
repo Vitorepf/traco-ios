@@ -30,11 +30,15 @@ final class ConversaNotas {
     }
     typealias Responder = @MainActor (String, [Sessao.TrocaNasNotas]) async -> Resultado
 
+    /// A pergunta em escrita, na linha "?" da folha.
     var entrada = ""
+    /// A busca em escrita, na linha da lista. Vive aqui (e não na view) pelo
+    /// mesmo motivo da conversa: a `NotasView` é recriada a cada troca de aba.
+    var busca = ""
     /// DIRETRIZ §14 (complemento): buscar e perguntar são duas intenções e não
-    /// dividem um campo só porque cabem. A pessoa entra no modo de perguntar
-    /// por um gesto (a palavra "perguntar" na linha do pé) e sai por outro; com
-    /// conversa aberta, a linha já é de perguntar — é a continuação.
+    /// dividem um campo. Perguntar é o gesto do Traço — a marca "?" — e abre a
+    /// folha com a linha "?" em branco; sai-se por Fechar. Com conversa aberta,
+    /// a folha já está aberta e a linha "?" no pé dela é a continuação.
     var perguntando = false
     var modoPergunta: Bool { perguntando || temCartao }
     /// As respostas já avaliadas ("anotado."). Vive AQUI, não na view: a

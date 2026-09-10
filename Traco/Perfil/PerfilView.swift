@@ -63,7 +63,13 @@ struct PerfilView: View {
         ZStack {
             Tema.fundo.ignoresSafeArea()
             VStack(alignment: .leading, spacing: 0) {
-            TituloTela("Perfil")
+            // ADR 10i: a marca de perguntar, a mesma de toda tela do arquivo
+            TituloTela(texto: "Perfil") {
+                MarcaDePergunta {
+                    sessao.conversaNotas.perguntando = true
+                    sessao.irPara(.notas, no: context)
+                }
+            }
             ScrollView {
                 VStack(alignment: .leading, spacing: Tema.entreSecoes) {
                     conta.emCartao()

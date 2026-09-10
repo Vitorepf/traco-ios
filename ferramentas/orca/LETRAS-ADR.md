@@ -101,6 +101,7 @@ alguém tropeçar: a série 08 encheu sem aviso e custou três colisões numa ta
 | 10g | RESPONDER · o contexto como alavanca: a nota citada inteira, e o que não coube se DIZ | **em `main`** — G3 em `ferramentas/orca/g3-contrapor-responder-ctx.md`: a operação FICA cortada, o código entra; varredura do controle refeita (`lote-10c-declara-corte.py`), desconto do §3.3 retratado, e o **C5 (a nota que não existe) fica por medir** |
 
 | 10h | A CAUDA · a prova que não se pode abrir não é prova; e a razão da tela é o defeito de HOJE (`recordar` suprime, não vaza; `calibragem` nem chama com um par só) | **em `main`** — as 5 citações órfãs corrigidas, portão novo, `recordar` e `calibragem` reescritas |
+| 10i | ENTRADA · perguntar é a marca "?", a mesma em toda tela; a busca volta à lista; o pé fica livre | reservada, volta viva (worktree `superficie`, branch `Vitorepf/entrada`) |
 
 **Próxima livre: 10i.**
 

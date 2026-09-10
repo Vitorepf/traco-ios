@@ -175,7 +175,14 @@ struct PadroesView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             // §20: voltar é da barra inferior. Aqui fica o nome da tela, e só.
-            TituloTela("Padrões")
+            // ADR 10i: a marca de perguntar, a mesma de toda tela do arquivo;
+            // a folha da pergunta mora nas Notas
+            TituloTela(texto: "Padrões") {
+                MarcaDePergunta {
+                    sessao.conversaNotas.perguntando = true
+                    sessao.irPara(.notas, no: context)
+                }
+            }
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {

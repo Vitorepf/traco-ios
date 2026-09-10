@@ -13,7 +13,27 @@
 #    perna pegou o `sirittsd` de verdade DUAS vezes — 23h20 de 09/09 e 07h36 de
 #    10/09. Mecanismo provado e caça provada em campo, SEM alvo plantado.
 #    Para fechar direito: isca assinada, ou um `--fingir` no próprio script.
+#
+#  - E O QUE ESTE ARQUIVO NÃO FAZIA, descoberto em campo às 19h42 de 10/09: ele
+#    RELATAVA e não MATAVA. Eu li "FALA: 1" e o `sirittsd` continuou vivo, cinco
+#    minutos, a sair pelo alto-falante do dono. **Vigia que vê e não age é pior
+#    que vigia cego: o cego não dá falsa paz.** O `kill -9` abaixo fecha isso, e é
+#    -9 de propósito — o `pkill` do dono usou SIGTERM em 09/09 e o `sirittsd`
+#    IGNOROU-O, sobrevivendo 19 minutos.
 f=$(pgrep -x sirittsd; pgrep -x speechsynthesisd); e=$(pgrep -f 'SiriAUSP|MacinTalkAUSP')
 echo "FALA: $(echo "$f" | grep -c .)   (estopim no simulador: $(echo "$e" | grep -c .))"
-[ -n "$f" ] && ps -p $(echo $f | tr ' ' ',') -o pid=,lstart=
+if [ -n "$f" ]; then
+  ps -p $(echo $f | tr ' ' ',') -o pid=,lstart=
+  # SIGTERM não serve: o sirittsd ignora-o. VOZ É PROIBIDA — mata-se, não se pede.
+  for p in $f; do kill -9 "$p" 2>/dev/null && echo "MORTO $p (kill -9)"; done
+  sleep 1
+  r=$(pgrep -x sirittsd; pgrep -x speechsynthesisd)
+  if [ -n "$r" ]; then
+    echo "⛔ AINDA FALA depois do kill -9: $r — ESCALAR AO DONO AGORA"
+    exit 5
+  fi
+  echo "CALADO depois do kill."
+fi
+# O ESTOPIM não se mata: é plugin dentro de um simulador ligado, e matá-lo às
+# cegas derruba o vizinho. Relata-se e vive-se com ele.
 exit 0

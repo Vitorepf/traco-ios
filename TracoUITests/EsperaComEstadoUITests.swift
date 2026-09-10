@@ -86,11 +86,11 @@ import XCTest
         // quatro fontes abertas, o retorno fica abaixo da dobra da TELA — a
         // pessoa rola, e o teste rola com ela
         let serviu = app.buttons["serviu"].firstMatch
-        let linhaDoPe = app.textFields["busca-notas"].firstMatch
-        // "hittable" pela moldura não basta: no meio da rolagem o controle
-        // passa POR TRÁS da linha do pé (opaca) e o toque cai nela
-        for _ in 0..<4 where serviu.frame.maxY > linhaDoPe.frame.minY { app.swipeUp() }
-        XCTAssertTrue(serviu.frame.maxY <= linhaDoPe.frame.minY, "o retorno ficou atrás da linha do pé: \(serviu.frame) vs \(linhaDoPe.frame)")
+        // ADR 10i: o pé está livre — a barra de abas é o único chrome
+        // abaixo; a folha rola até o retorno ficar acima dela
+        let barra = app.buttons["aba-notas"].firstMatch
+        for _ in 0..<4 where serviu.frame.maxY > barra.frame.minY { app.swipeUp() }
+        XCTAssertTrue(serviu.frame.maxY <= barra.frame.minY, "o retorno ficou atrás da barra: \(serviu.frame) vs \(barra.frame)")
         serviu.tap()
         XCTAssertTrue(app.staticTexts["retorno-anotado"].firstMatch.waitForExistence(timeout: 3), "o retorno não confirmou")
         XCTAssertFalse(app.buttons["serviu"].firstMatch.exists, "o controle ficou depois de avaliado")
@@ -103,11 +103,15 @@ import XCTest
         XCTAssertFalse(app.buttons["serviu"].firstMatch.exists, "trocar de aba ofereceu o retorno de novo — a avaliação morava na view")
 
         XCTAssertEqual(app.buttons.matching(NSPredicate(format: "label == 'Fechar'")).count, 1, "mais de um Fechar")
-        XCTAssertEqual(app.textFields["busca-notas"].firstMatch.placeholderValue, "pergunte de novo",
-                       "com a conversa aberta, a linha do pé tem de ser a da pergunta seguinte")
+        // ADR 10i: a linha "?" no pé da FOLHA é a pergunta seguinte; não há
+        // campo permanente no pé da tela
+        XCTAssertEqual(app.textFields["pergunta-notas"].firstMatch.placeholderValue, "pergunte de novo",
+                       "com a conversa aberta, a linha \"?\" no pé da folha é a da pergunta seguinte")
+        XCTAssertFalse(app.textFields["busca-notas"].firstMatch.exists, "a busca não pertence à folha da conversa")
         app.buttons["fechar-resposta"].firstMatch.tap()
         XCTAssertFalse(app.otherElements["cartao-sabia-notas"].firstMatch.waitForExistence(timeout: 2), "fechar não fechou")
         XCTAssertEqual(app.textFields["busca-notas"].firstMatch.placeholderValue, "buscar",
-                       "fechar a conversa tem de devolver a linha à busca")
+                       "fechar a conversa tem de devolver a lista com a sua busca")
+        XCTAssertTrue(app.buttons["perguntar-modo"].firstMatch.exists, "a marca \"?\" tem de voltar ao título")
     }
 }
