@@ -1025,3 +1025,25 @@ se mata. O plugin de síntese carregado dentro de um simulador ligado é o **est
 reporta-se com o aparelho e **não se mata às cegas**, porque derrubar o áudio de um
 simulador tira o chão de uma suíte em curso. Contar os dois no mesmo número é o que
 transforma um alarme real em ruído que ninguém lê.
+
+## O estado do instrumento se lê na TRAVA, não no efeito colateral (09/09, 23h30)
+
+Perguntaram-me se a janela do aparelho da conta estava livre. Olhei o **binário
+instalado** — ainda o do LOTE-3 — e respondi "ninguém entrou, pode abrir". Estava
+errado: a Q3-C **já tinha a trava desde 23h27:13** e simplesmente ainda não chegara ao
+`install`. O worker da Q4-C me corrigiu com a prova certa: `/tmp/traco-instrumento.lock`
+com PID, script e hora, mais casos concluindo no `avaliacoes-ia.jsonl` com
+`contaGrokLigada=true`. Ele **não colidiu**: entrou na fila do `com-trava.sh`, que é o
+desenho.
+
+**A lei:** *o dono do instrumento se lê na trava — PID, script e hora —, nunca por
+efeito colateral.* Binário instalado, última captura, fase do batimento e arquivo de
+prova **todos atrasam** em relação à posse: dizem o que já aconteceu, não o que está
+acontecendo. Quem responde "o aparelho está livre" sem ter lido a trava está adivinhando.
+
+**E o padrão maior, que é meu e apareceu duas vezes na mesma hora:** mandei a MERGE-Q34
+parar lendo a saída **antiga** dela, quando ela já se recuperara; e disse que a janela
+estava livre lendo o **binário** em vez da trava. Duas vezes **li um efeito e chamei de
+estado**. *Antes de decidir sobre um worker ou sobre o instrumento, leia o sinal
+autoritativo e o mais NOVO que existir* — a trava para posse, a última saída para
+progresso. Sinal velho custa mais caro que sinal nenhum, porque parece informação.
