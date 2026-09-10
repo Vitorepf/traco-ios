@@ -74,7 +74,7 @@ que este arquivo existe para impedir — e ele reincidiu no próprio arquivo.
 | 09q | B2 · estados inalcançáveis e rotas que calam | reservada, volta viva |
 | 09r | F6 · os widgets da tela bloqueada | reservada, volta viva |
 | 09q | B2 · a frase existia e nenhuma tela a dizia | no branch `Vitorepf/volta-b2-silencio` |
-| 09r | F6 · os widgets da tela bloqueada | APROVADA no G3, à espera do G5 |
+| 09r | F6 · os widgets da tela bloqueada | em `main` |
 | 09s | Q4-C · a guarda que apaga não pode virar silêncio num 200 | reservada, volta viva |
 | 09t | MERGE-Q34 · o que foi medido entra em main, e a tela diz o que a medida leu | em `main` |
 | 09u | MAC-2-A · o Trabalho chega ao Mac para ser lido | reservada, volta viva |
