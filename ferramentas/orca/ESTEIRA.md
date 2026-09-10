@@ -1413,8 +1413,15 @@ O laço começa em `hits[0].range.location`: **tudo o que vem antes do primeiro
 `entrada/` do Mac, começando com um título, **perde essas linhas calado — e o arquivo é
 apagado**. Não é o bug do Windows. **O `\r` era só um dos jeitos de chegar nele.**
 
-**A lei, e ela cobre os seis casos de uma vez:** *o arquivo só se apaga quando o app
-consumiu **tudo** o que havia nele.* Menos de 100% é **incerteza**, e incerteza não apaga —
+**A lei, corrigida pelo G3 que a mediu — e a correção é minha:** *o arquivo só se apaga
+quando o app **delimitou** tudo o que havia nele.* Eu tinha escrito **cobertura de
+LEITURA**, e o revisor derrubou a alegação forte com dois contraexemplos: um descarte no
+estilo da própria casa (**teto de 140 grafemas da ADR 08h, sem `continue`**) importou **140
+de 659 caracteres** com `consumido = 1,00` **e apagou o arquivo**; e sem código futuro
+nenhum, os campos `dominio` e `recordada` — que **o próprio app escreve e o importador nunca
+lê** — somem na volta pela `entrada/` com a conta dizendo 100%. **A cobertura tem de contar
+o que foi DELIMITADO como pertencente a alguma nota, não o que foi consumido pelo caminho
+que existe hoje.** Menos de 100% é **incerteza**, e incerteza não apaga —
 bloco que caiu no `continue`, prosa antes do primeiro cabeçalho, bloco sem fecho, cabeçalho
 que não casou. **A pergunta certa não é "o regex casou?" e sim "quanto do arquivo eu
 consumi?"**, e isso é um número que o código calcula e o teste lê, não uma impressão.
