@@ -699,3 +699,23 @@ do binário). Quando o G3 da Q3-C foi refazer a conferência byte a byte, o
 `Traco.debug.dylib 57d02df3` **já não existia**: um build posterior o substituiu. **Dono:
 a próxima volta que tocar nas janelas de medida** — extrair e guardar os prompts junto do
 `.jsonl`, no mesmo ato da corrida.
+
+**`contrapor` está a UM passo de voltar (10/09, G3 da Q4-C).** Pelo mérito ela **passa com
+9 nas cinco dimensões** nas 36 execuções do LOTE-5, e a colheita **subiu** em vez de
+encolher — campos vazios **14/54 → 9/54** e **3/54 → 0/54**, o oposto da recusa covarde que
+se temia quando a guarda ficou mais dura. Falta só **o caso cego** e a corrida no aparelho
+da conta. **Dono: a próxima volta de IA**, assim que o `B91C8DEF` sair da Q3-D.
+
+**Dívida: as quatro linhas do `sistemaInstigar` ficam SEGURAS (10/09).** A cláusula
+promovida expulsou as três pernas da fixture num caso (**3/3 → 0/3** no `grok-4.3`, com
+"custo de errar" sumindo das três repetições) e fez o modelo **supor um episódio que a
+pessoa não escreveu** (**0 → 8** perguntas no `4.3`, 0 → 1 no `4.5`) — contra a linha *"Não
+suponha nenhum fato que ela não escreveu"*, que segue viva **quatro linhas abaixo da
+promovida**. A alavanca é condicionar à matéria, numa frase. **Dono: a volta seguinte de
+`instigar`.**
+
+**Mescla em TRÊS pedaços, recomendada pelo G3 e aceita (10/09).** (1) **Entra**: o conserto
+da guarda, o `sistemaContrapor` e a palavra `renda` — medidos, positivos, com a colheita
+maior. (2) **Segura**: as quatro linhas do `sistemaInstigar`. (3) **Segue**: `contrapor`
+ao caso cego. Separar por evidência, e não por arquivo, é o que permite entregar a metade
+provada sem carregar a metade que regrediu.
