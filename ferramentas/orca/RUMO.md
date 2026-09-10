@@ -676,3 +676,18 @@ Q4-C, está coberta por teste e é **inalcançável em produção** enquanto `in
 se fotografou, e fotografar exigiria uma segunda instalação no aparelho da conta para
 produzir nada. **Dono: quem devolver `instigar` ou `contrapor` à lista**, que fotografa a
 frase **no mesmo ato** do retorno.
+
+**Insumo pareado para a escolha de modelo por operação: `instigar` (10/09, LOTE-5).**
+Na mesma janela, mesmo prompt, mesmo binário, mesma fixture — **uma alavanca só, o
+modelo** —, o `grok-4.5` é melhor que o `grok-4.3` em `instigar`: **0/15 contra 1/15** de
+repetição inteiramente genérica e **89% contra 76%** de perguntas ancoradas na nota.
+Não decide nada sozinho, porque `instigar` **não voltou**; entra na mesa da volta que
+retomar a operação, ao lado da 09v (o modelo se escolhe por operação). **Dono: a volta
+seguinte de `instigar`.**
+
+**Dívida: o conserto do defeito oposto do `instigar` está ESCRITO e não aplicado
+(10/09).** A alavanca não é mais promoção nem mais proibição: é o requisito ficar
+**condicionado à matéria** — quando a nota dá pouco, pergunte o quê/quando/o que seria dar
+certo; quando dá mais, as perguntas saem do que ela escreveu e o *quando* entra só se
+faltar. **Uma frase, não um parágrafo.** Não foi aplicado para o binário comitado não
+divergir do medido. **Dono: a volta seguinte de `instigar`.**

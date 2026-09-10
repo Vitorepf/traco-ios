@@ -1107,7 +1107,11 @@ perguntas viraram literalmente *"O que aconteceu? / Quando aconteceu? / O que se
 certo?"* — a lista, sem nada da nota —, onde a base do LOTE-3 cobria critério, evidência
 e custo de errar.
 
-**A lei:** *requisito promovido para MORDER no caso pobre vira TETO no caso rico.*
+**A lei:** *requisito promovido para MORDER no caso pobre deixa de governar só onde
+falta matéria.* A medida da Q4-C nomeou a forma melhor do que eu: o requisito vira
+**acréscimo** na nota farta — o modelo cumpre a lista promovida **e a soma** às perguntas
+que já faria —, e às vezes vira **substituição**, com as três perguntas da lista e nada
+da nota (`q4-instigar-com-metodo-decisao` r2).
 Promover uma lista fixa ao alto do pedido, com "pelo menos duas cumprem ao pé da letra",
 faz o modelo cumprir a lista **e parar**. No texto magro isso é o conserto; no texto
 farto é o dano. Quando a promoção regride a linha de base, a alavanca seguinte não é
@@ -1154,3 +1158,17 @@ nada. O limite se declara, com o motivo, e **vira dívida nomeada com dono**: qu
 a operação à lista fotografa a frase **no mesmo ato**. Não é acabamento esquecido, é
 consequência declarada — no dia do retorno, essa frase chega ao autor sem nunca ter sido
 vista na tela.
+
+
+## O conserto escrito depois da medida NÃO entra no binário medido (10/09, Q4-C)
+
+A Q4-C escreveu o conserto do defeito oposto e **não o aplicou, de propósito**. A razão é
+exata: *"aplicá-la agora faria o binário comitado divergir do binário medido, e uma
+corrida nova também não seria medida"* — porque não haveria tempo nem janela para medi-la
+com a mesma alavanca única.
+
+**A lei:** *a volta que mede fecha com o binário que mediu.* O conserto que nasce da
+leitura da medida é **dívida nomeada da volta seguinte**, não um remendo de última hora —
+senão o relatório descreve um binário e o commit entrega outro, e ninguém percebe porque
+os dois têm o mesmo SHA de árvore. Escrever o conserto e não aplicá-lo é disciplina, não
+preguiça: a alavanca fica pronta e a medida fica honesta.
