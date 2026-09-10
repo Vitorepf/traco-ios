@@ -237,6 +237,28 @@ Orientação e Movimento Reduzido não foram tocados.
    passei a calcular o arrasto a partir da posição lida: `(y − alvo)/11,4`. Enquadrou em dois
    passos.
 
+## 4b. O push
+
+Antes de empurrar li a lista inteira, `git log --oneline origin/main..HEAD`: **21 commits**,
+e nenhum órfão de portão. Cinco são meus (as quatro mesclas `--no-ff` mais o trabalho e a
+reconciliação da letra); dois são os re-G3; três são as corridas LOTE-1/2/3, que são a
+evidência que esses re-G3 leram; dois são os G3 anteriores (`a357160`, `511b7e2`); quatro são
+Q3, Q4, Q3-B e Q4-B, todos lidos por um G3; e quatro são mesclas internas das pontas.
+
+```
+To https://github.com/Vitorepf/traco-ios.git
+   75953b1..19f64c6  HEAD -> main
+```
+
+`origin/main` = **`19f64c68d72fc88194bbc967c9ca018c73e8b974`**. Conferido depois do push, sobre
+`origin/main`: os quatro SHA que os relatórios citam (`e83dd11`, `dcbf7c6`, `508cdd9`,
+`91a314c`) continuam alcançáveis; **28** arquivos de prova dos lotes e das fixtures estão lá;
+a ADR `2026-09-09t` está no `SPEC.md`; e a `09s` continua sendo da Q4-C no registro.
+
+**Aparelhos ao fim.** `34CC3F94` **ligado**, como o achei — não o liguei e não o desligo —,
+com `content_size` de volta em `medium`. `B91C8DEF` **intocado**: nenhum install, nenhuma
+sonda, nenhuma leitura de conta, nenhuma chamada de rede.
+
 ## 5. Escopo — o que NÃO fiz, e de quem é
 
 - **`Falha.semRetorno` com HTTP 200 e conteúdo completo** é defeito do NOSSO motor e tem volta
