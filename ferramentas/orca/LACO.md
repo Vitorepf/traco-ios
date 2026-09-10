@@ -3635,3 +3635,19 @@ candidato.**
   QUANTIDADE de matéria e não ao que a nota já resolveu"*. A cláusula nova diz o contrato em
   uma linha: **"a nota que NEGA uma delas a fechou tanto quanto a que a responde"** — negar e
   responder fecham a pergunta do mesmo jeito; **só o silêncio a deixa aberta**.
+- **15h42 — retomada (uso 35%).** Três cadeiras, todas vivas: **SISTEMA DA IA**
+  (`ctx_ed3f7a7fec60`, conversa em revisão sobre o patch da auditoria, ADR 10f),
+  **`instigar`** (`ctx_5d157f299dc0`, 2ª janela fechando no `B91C8DEF`) e **RESPONDER-B**
+  (`ctx_73f6e78915ef`, os quatro acertos do G3 comitados em `95845ae`, `main` das 15h20
+  trazido para dentro em `3ad638b`, build+suíte na fila da trava). Inbox vazio, fala **0**.
+- **15h30 — o G3 do `responder` APROVOU os sete consertos**, e a leitura dele é robusta por
+  um detalhe: **onde discordou do autor, discordou sempre CONTRA a base**, em casos que ela
+  já reprovava. Conferiu a própria evidência (sha do `sistemaResponder` batendo com as 120
+  linhas de base; os 18 casos da Q2-F byte a byte; conta ligada + HTTP 200 + `grok-4.3` em
+  **240 de 240**). **Seis dos sete acusam por mutação; o sétimo NÃO tem guarda** — apagou
+  `diagnostico.bruto = msg` e a suíte passou com 1038 verdes. *Conserto sem guarda é conserto
+  com prazo de validade*, e o teste que morde entrou no despacho.
+- **15h30 — a raiz confirmada, e pior:** antes **NENHUM teste chamava `perguntarASabia`**
+  (zero de 49 linhas); agora a suíte alcança **47 de 49**. **Sobra só o ramo `.semConta` — o
+  único que um autor SEM conta Grok alcança hoje.** O caminho mais percorrido pelo público
+  era o único que a suíte não pisava.
