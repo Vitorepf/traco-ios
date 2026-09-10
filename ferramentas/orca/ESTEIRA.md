@@ -1700,3 +1700,25 @@ que dela NÃO se clona, e dizer isso por escrito.*
 **Lei irmã, do mesmo dia:** *o enquadramento que corta o pé esconde exatamente o que o dono vê
 primeiro.* O G4 da conversa aprovou hoje uma folha pousada **em cima** da barra que o dono
 chama de lixo, porque as capturas cortavam o pé. **Vídeo e captura mostram a tela INTEIRA.**
+
+## `-only-testing` que casa com NADA corre zero testes e diz **TEST SUCCEEDED**
+
+Medido em 10/09 às 20h2x, a provar por mutação a guarda do CRLF. O arquivo é
+`TracoTests/ColheitaRestanteTests.swift`, mas o `@Suite` dentro dele chama-se **`SabiaTests`**
+— e no Swift Testing o filtro do `xcodebuild` vai pelo nome da SUÍTE, não pelo do arquivo.
+Resultado:
+
+```
+-only-testing:TracoTests/ColheitaRestanteTests                       -> ** TEST SUCCEEDED **
+-only-testing:TracoTests/ColheitaRestanteTests/aLinhaComInterrog...  -> Executed 0 tests  ** TEST SUCCEEDED **
+suíte inteira, com a mesma mutação                                   -> ✘ 3 issues  ** TEST FAILED **
+```
+
+**Eu quase comitei um teste que não guardava nada, e a prova que o dizia verde era a prova
+cega.** É a lei do vigia outra vez, e desta vez apanhou-me a mim: *quem diz zero tem de
+provar que enxerga*. Uma corrida filtrada que não imprime **quantos** testes correu não prova
+verde nenhum.
+
+**Regra:** prova de mutação fecha-se com a **suíte inteira**, ou com um filtro cujo número de
+testes executados se LÊ e é maior que zero. E ao escrever um `-only-testing`, o nome que vale
+é o do `@Suite`, que pode não ser o do arquivo — confira com `grep '@Suite'` antes.

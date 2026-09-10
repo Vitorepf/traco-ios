@@ -292,7 +292,9 @@ enum AnaliseLocal: Sendable {
         // o rodapé do Destaque fecha a mesma função e obedece o mesmo cálculo:
         // três linhas curtas de desabafo não são uma lista para destacar.
         guard !pessoal else { return nil }
-        let linhas = x.split(separator: "\n").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
+        // `whereSeparator`: em CRLF isto contava UMA linha e o `>= 3` nunca era
+        // verdade, então o Destaque não pegava nota vinda de fora.
+        let linhas = x.split(whereSeparator: \.isNewline).map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
         if linhas.count >= 3 && linhas.allSatisfy({ $0.count < 60 }) {
             return .destaque
         }

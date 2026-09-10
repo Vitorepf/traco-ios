@@ -15,13 +15,24 @@ func perguntaNaNota(_ texto: String) -> String? {
     return corpo.count >= 4 ? corpo : nil
 }
 
-print("— perguntaNaNota, os dois polos —")
-print("LF, ? no meio     ->", perguntaNaNota("texto\n? como defino isso\nmais") ?? "nil")
-print("CRLF, ? no meio   ->", perguntaNaNota("texto\r\n? como defino isso\r\nmais") ?? "nil",
-      "   <- o botão do cartão SOME")
+/// O conserto que entrou em `main` em 10/09 20h3x: uma palavra.
+func perguntaNaNotaConsertada(_ texto: String) -> String? {
+    let linhas = texto.split(whereSeparator: \.isNewline).map { $0.trimmingCharacters(in: .whitespaces) }
+    guard let linha = linhas.last(where: { $0.hasPrefix("?") }) else { return nil }
+    let corpo = String(linha.dropFirst()).trimmingCharacters(in: .whitespaces)
+    return corpo.count >= 4 ? corpo : nil
+}
+
 let comecaComPergunta = "? como defino isso\r\nresto da nota do autor\r\nmais uma linha"
-print("CRLF, ? no topo   ->", (perguntaNaNota(comecaComPergunta) ?? "nil").debugDescription,
-      "\n                     <- a NOTA INTEIRA viaja como a pergunta")
+print("— perguntaNaNota, os dois polos: ANTES  ->  DEPOIS —")
+print("LF, ? no meio     ->", perguntaNaNota("texto\n? como defino isso\nmais") ?? "nil",
+      " -> ", perguntaNaNotaConsertada("texto\n? como defino isso\nmais") ?? "nil")
+print("CRLF, ? no meio   ->", (perguntaNaNota("texto\r\n? como defino isso\r\nmais") ?? "nil"),
+      " -> ", perguntaNaNotaConsertada("texto\r\n? como defino isso\r\nmais") ?? "nil",
+      "   (antes: o botão do cartão SUMIA)")
+print("CRLF, ? no topo   ->", (perguntaNaNota(comecaComPergunta) ?? "nil").debugDescription)
+print("                     -> ", (perguntaNaNotaConsertada(comecaComPergunta) ?? "nil").debugDescription,
+      "   (antes: a NOTA INTEIRA viajava como a pergunta)")
 
 print("\n— quem é cego, e quem não é —")
 let n = "primeira\r\n\r\nterceira\r\nquarta"   // quatro linhas, uma em branco

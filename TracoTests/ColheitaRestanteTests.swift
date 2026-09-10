@@ -448,6 +448,22 @@ struct SabiaTests {
         #expect(Sabia.perguntaNaNota("?") == nil)
     }
 
+    /// A guarda do P0-IRMÃOS-CRLF: em texto do Windows o fim de linha é UM
+    /// `Character`, e `split(separator: "\n")` via a nota inteira como UMA linha.
+    /// Os dois polos reprovavam — e o segundo é o pior, porque a pergunta é a
+    /// LINHA DE AUTOR da conversa.
+    @Test func aLinhaComInterrogacaoEAPerguntaTambemEmTextoDoWindows() {
+        // polo 1: com o `?` no meio, devolvia nil e o botão do cartão sumia
+        #expect(Sabia.perguntaNaNota("texto\r\n? como defino isso\r\nmais") == "como defino isso")
+        // polo 2: com o `?` na primeira linha, o corpo virava a NOTA INTEIRA
+        let comecaComPergunta = "? como defino isso\r\nresto da nota do autor\r\nmais uma linha"
+        #expect(Sabia.perguntaNaNota(comecaComPergunta) == "como defino isso")
+        // e a irmã que NÃO acusa: sem pergunta, continua nil em CRLF
+        #expect(Sabia.perguntaNaNota("sem pergunta\r\nnenhuma linha começa com o sinal") == nil)
+        // o `\r` sozinho também é quebra de linha pela CommonMark
+        #expect(Sabia.perguntaNaNota("texto\r? como defino isso\rmais") == "como defino isso")
+    }
+
     /// ADR 2026-09-10b: o teto dos 900 saiu do PARSER e ficou no pedido. O que
     /// voltou chega inteiro — cortar apagava a ressalva do fim, que é a parte
     /// que mais importa (4 das 54 execuções do `grok-4.5` na Q2-F passavam dos

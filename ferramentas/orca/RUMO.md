@@ -953,7 +953,27 @@ do autor**, porque as linhas em branco somem. Onde o número da linha importa, o
   Destaque"*. Em CRLF `linhas.count` é 1, o `>= 3` nunca é verdade, e o roteamento **nunca
   dispara** para nota vinda de fora.
 
-**Dono: a próxima cadeira que vagar.** Não vai para quem está medindo — mexer no
+**FECHADOS TRÊS DOS QUATRO, em 10/09 20h3x (orquestrador).** `Sabia.perguntaNaNota`,
+`VozDoAutor.trecho` e `AnaliseLocal` passaram a `split(whereSeparator: \.isNewline)`, com
+a guarda `aLinhaComInterrogacaoEAPerguntaTambemEmTextoDoWindows` nos **dois polos** mais a
+irmã que NÃO acusa, mais o caso do `\r` sozinho. A reprodução passou a mostrar
+**antes → depois** lado a lado, em vez de só o defeito.
+
+**O QUARTO FICA, e a razão é uma decisão de desenho que não se toma às pressas.**
+`Corpus.swift` tem DOIS problemas no mesmo caminho, e o segundo não se fecha com uma palavra:
+
+- a linha 281 (`bloco.split(separator: "\n")`) é a cegueira de sempre;
+- mas a linha 272, `texto.range(of: "\n\n" + cabecalhoLegado)`, **também não acha o
+  cabeçalho em CRLF** — o `range(of:)` compara por `Character` e `"\r\n\r\n"` não casa com
+  `"\n\n"`. Trocar só o `split` deixa o cabeçalho legado por achar.
+
+O conserto certo é **normalizar na entrada**, e o repositório já decidiu isso uma vez: o
+normalizador virou `Corpus.fimDeLinhaLF(_:)` na volta P0-CRLF — **mas essa extração ficou no
+branch `mac-2-a`, que não mesclou, e não está em `main`.** Antes de a chamar aqui é preciso
+decidir se o corpo devolvido ao autor pode sair normalizado (LF) quando o arquivo dele era
+CRLF. **Isso é conteúdo do autor, e não é decisão de quem está de passagem.**
+
+**Dono: quem trouxer o `fimDeLinhaLF` do `mac-2-a` para `main`.** Não vai para quem está medindo — mexer no
 `Sabia.swift` no meio de uma janela troca o binário que a medida promete constante.
 
 **Reprodução:** `ferramentas/orca/crlf-irmaos.swift`, roda com `swift` e imprime os dois

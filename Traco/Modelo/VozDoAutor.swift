@@ -75,7 +75,10 @@ enum VozDoAutor: Sendable {
     }
 
     nonisolated static func trecho(em voz: String, termo: String, limite: Int = 56) -> String {
-        let linhas = voz.split(separator: "\n").map(String.init)
+        // `whereSeparator` e não `"\n"`: em CRLF o fim de linha é um só `Character`
+        // e a voz virava UMA linha — o trecho da busca devolvia o começo da nota
+        // cortado, em vez da linha que tem o termo.
+        let linhas = voz.split(whereSeparator: \.isNewline).map(String.init)
         let linha = linhas.first { $0.localizedCaseInsensitiveContains(termo) } ?? VozDoAutor.titulo(voz)
         return truncar(linha, limite)
     }

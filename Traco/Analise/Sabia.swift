@@ -1375,8 +1375,15 @@ enum Sabia {
     }
 
     /// A linha "?" da nota: a última linha que começa com "?" e tem pergunta.
+    ///
+    /// `split(whereSeparator:)` e não `split(separator: "\n")`: em texto vindo do
+    /// Windows o fim de linha é UM `Character` (`"\r\n"`), o `"\n"` sozinho nunca
+    /// casa, e a nota inteira virava UMA linha. Media-se então nos dois polos —
+    /// com o `?` no meio devolvia `nil` e **o botão do cartão sumia**; com o `?`
+    /// na primeira linha o corpo virava **a nota inteira**, que viajava como a
+    /// pergunta e, na conversa, é a LINHA DE AUTOR. Ver `crlf-irmaos.swift`.
     nonisolated static func perguntaNaNota(_ texto: String) -> String? {
-        let linhas = texto.split(separator: "\n").map { $0.trimmingCharacters(in: .whitespaces) }
+        let linhas = texto.split(whereSeparator: \.isNewline).map { $0.trimmingCharacters(in: .whitespaces) }
         guard let linha = linhas.last(where: { $0.hasPrefix("?") }) else { return nil }
         let corpo = String(linha.dropFirst()).trimmingCharacters(in: .whitespaces)
         return corpo.count >= 4 ? corpo : nil
