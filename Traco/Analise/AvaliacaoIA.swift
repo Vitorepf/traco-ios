@@ -129,7 +129,14 @@ enum AvaliacaoIA {
                         // ADR 08z: a corrida diz em que condição foi feita. Uma
                         // operação indisponível por qualidade só alcança o
                         // provedor se estiver listada aqui.
-                        "operacoesLiberadasParaAvaliacao": Politica.liberadasParaAvaliacao.sorted()]
+                        "operacoesLiberadasParaAvaliacao": Politica.liberadasParaAvaliacao.sorted(),
+                        // ADR 2026-09-10c: QUAL pedido rodou este caso. A volta
+                        // troca o pedido de `instigar` e mede os DOIS braços no
+                        // MESMO binário; sem esta linha os dois JSONL seriam
+                        // indistinguíveis. Identifica o braço — a leitura das
+                        // saídas inteiras continua sendo a régua.
+                        "pedidoInstigarSHA256": SHA256.hash(data: Data(Sabia.pedidoDeInstigar.utf8))
+                            .map { String(format: "%02x", $0) }.joined()]
                     registro["evento"] = "casoIniciado"
                     try gravar(registro)
                     let inicio = ContinuousClock.now
@@ -226,6 +233,11 @@ enum AvaliacaoIA {
             return try exigir(await Sabia.responder(pergunta: exigir(e.pergunta, "pergunta"),
                 contexto: e.contexto ?? "", gesto: gesto, retrato: e.retrato ?? ""))
         case "instigar":
+            // ADR 2026-09-10c: o que sai daqui é a saída TRATADA — `parsePerguntas`
+            // já derrubou a pergunta curta, a longa e a que vazou o nosso andaime,
+            // e some sem deixar rastro. O retorno BRUTO viaja em
+            // `chamadasGrok[].bruto`: sem ele a medida conta o que sobrou da nossa
+            // guarda e chama isso de "o modelo".
             return try exigir(await Sabia.instigar(texto: texto, gesto: gesto, degrau: e.degrau ?? 0, retrato: e.retrato ?? ""))
         case "contrapor":
             let r = try exigir(await Sabia.contrapor(texto: texto, gesto: gesto, retrato: e.retrato ?? ""))
