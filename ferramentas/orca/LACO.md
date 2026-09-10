@@ -2739,3 +2739,18 @@ workers vivos**: Q3-C e Q4-C em `implementing`/`reviewing`, o G5 da F6 fechando 
 "suíte limpa na árvore final", e o G3 da MAC-2-A com o batimento mais bonito da noite:
 **"achei 4ª rota do selo por leitura, vou provar com sonda"** — era exatamente o que o
 despacho pedia dele, procurar a rota que o autor não viu.
+
+## 10/09, 07h30 — o Mac reiniciou duas vezes; a equipe morreu às 23h38; ordem do dono: o mais perto de 10
+
+**Não foi worker.** macOS 26.6.2 instalou às 23h38 de 09/09 e reiniciou (23h45); as
+Command Line Tools 27.0 instalaram às 07h03 e reiniciaram de novo (07h07). O Orca fechou
+com os quatro workers (Q3-C, Q4-C, G5 F6, G3 MAC-2-A). `main` = `origin/main` = `52fc5b6`.
+**A janela da Q3-C tinha acabado às 23h33** — cinco minutos antes do desligamento — e a
+prova está no worktree, sem commit e sem leitura. O vigia da fala morreu no reinício;
+relancei (`cala-a-fala.sh`, 12 h) e derrubei o `sirittsd` do Mac que subiu no boot.
+O `teste 3` (`34CC3F94`) voltou sozinho a `Booted` às 07h17 — o CoreSimulator restaura o
+que estava ligado no desligamento; o `B91C8DEF` não voltou. Xcode segue 26.6 (17F113).
+
+**Ordem do dono às 07h30: "o foco de hoje é atingir o mais perto da nota 10/10 possível."**
+Escrita como DIRETRIZ §11 e META DO DIA no RUMO. Nota ao acordar: **7**. Subo o Orca e o
+orquestrador pelo `equipe.sh` com esta ordem; primeira tarefa: **ler a Q3-C que já existe**.

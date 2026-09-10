@@ -475,6 +475,22 @@ acerto do modelo (que já foi medido).
 **Se o dono discordar, é uma linha para desfazer** — a decisão está aqui e o
 motivo também.
 
+### META DO DIA (10/09 07h30, ordem do dono): "o mais perto da nota 10/10 possível" — DIRETRIZ §11
+
+**Nota ao acordar: 7.** O Mac reiniciou às 23h38 (macOS 26.6.2) e às 07h07 (CLT 27.0); o
+Orca fechou e os quatro workers da noite morreram. O que ficou nos worktrees sem commit:
+
+| worktree | o que há | o que fazer |
+|---|---|---|
+| `q3-c` | a corrida do `responderNasNotas` com 4.3 e 4.5 (`prova/lote09d-*`, 44 linhas cada, 23h27) + `Sabia.swift` e teste alterados | **LER a saída inteira, pontuar pela rubrica, comitar a prova.** Se um passar, a operação volta hoje com captura no `B91C8DEF` |
+| `q4-c` | `Sabia`, `AvaliacaoIA`, `LenteView`, dois testes, `lote-ia-09e-*` | retomar; a janela do aparelho corre DEPOIS da leitura da Q3-C |
+| `mac-2-a` | branch `Vitorepf/mac-2-a` não mesclada; G3 no meio (4ª rota do selo, `EspelhoTrabalhoTests` alterado) | fechar o G3 e mesclar; depois MAC-2-B (o bot ESCREVE: `traco_trabalho_escrever`, `tentativa`, `relatar`) |
+
+**Ordem do dia:** (1) IA — Q3-C lida, `responder` de volta, instigar+contrapor; (2) jornada do
+espanhol ensaiada no aparelho da conta e build pronto para o iPhone do dono; (3) D1 espera a nota
+do dono; (4) `try!` restantes, F6b, MAC-2-B. **Pendente do dono:** nota do D1; "pode" para o
+teste 3 virar aparelho de conta; app atualizado no iPhone dele para a jornada real.
+
 ### META DO DIA (09/09 17h40, ordem do dono): "foque em melhorar imensamente a IA"
 
 **`responder` de volta HOJE; Q3 e Q4 medidas até a noite.** Sete operações

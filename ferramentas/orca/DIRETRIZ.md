@@ -103,3 +103,14 @@ Decisão sobre a régua da Q2: o dono aceita a espera em troca da resposta que s
 O preço, assumido pelo dono: 36 s de média e 77 s de pior caso em vez de 1,4 s. Então a espera vira estado da tela, nunca silêncio: o cartão diz que está pensando, mostra o tempo passando, deixa cancelar, e o tempo limite da chamada sobe para caber o pior caso medido, como a ADR 08r fez no Trabalho. Espera sem estado é defeito de design.
 
 Uma operação sai de `indisponivelPorQualidade` quando passa com o melhor modelo; se nem com ele passar, continua na lista com a medida nova.
+
+## 11. Ordem do dono, 10/09 07h30 — "o foco de hoje é atingir o mais perto da nota 10/10 possível"
+
+A nota de ontem à noite foi **7**. O que a sobe está medido, e a ordem do dia é a ordem de valor:
+
+1. **A IA que responde ao autor** (vale mais de um ponto). `responderNasNotas` primeiro — a corrida da Q3-C JÁ EXISTE no disco (`~/orca/workspaces/traco-ios/q3-c/prova/lote09d-*`, 4.3 e 4.5, 44 linhas cada, 23h27 de 09/09) e ninguém leu: lê-se antes de gastar o aparelho outra vez. Depois `responder` (o conserto é o prompt proibir inventar estrutura de documento; comparação de UMA alavanca, três corridas por candidato), depois instigar e contrapor, ecos, calibragem, Recordar. Cada uma sai da lista com nota 9 nas cinco dimensões e captura no aparelho da conta (`B91C8DEF`).
+2. **A jornada real do espanhol**, de ponta a ponta, no iPhone do dono e pelo Mac com o bot — depende do dono ter o app atualizado; a equipe deixa o build pronto e a jornada ensaiada no aparelho da conta.
+3. **Design sem slop** — o D1 (Notas) espera a nota do dono. Aprovado, a régua vai a Página, Calendário e Recordar; reprovado, a régua muda antes de tocar em outra tela. Ninguém redesenha outra tela antes do veredito.
+4. **Dívidas que derrubam**: os cinco `try!`, F6b (o botão da bloqueada abre o app), MAC-2 pela metade (o bot ainda não escreve no Trabalho), MAC-3 fechada, a causa da voz.
+
+O teto continua **três voltas** e **um aparelho com conta**. O segundo (teste 3, `34CC3F94`, hoje o da suíte) só vira aparelho de conta quando o dono disser "pode" e fizer o login. As leis da ESTEIRA valem inteiras: VOZ, VOICEOVER E iPAD PROIBIDOS; nunca `erase`, `clearState`, `uninstall` ou `xcodebuild test` no `B91C8DEF`.
