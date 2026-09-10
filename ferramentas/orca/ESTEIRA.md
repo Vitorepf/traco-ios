@@ -1521,3 +1521,30 @@ leia o que o spec mandava restaurar; depois de matar, restaure e confira por cap
 Os outros três foram conferidos e estão limpos: a Q4-E só **leu** `content_size` (consulta,
 sem valor), a P0-CRLF só **escreveu `medium`** (restauração, com captura de prova), e a
 MAC-2-A G3, a Astra, a MERGE-Q3D e a TEMPO **não o chamaram nenhuma vez**.
+
+## Os aparelhos, refeitos por ordem do dono (10/09, 11h10)
+
+Palavras dele: *"eu preciso que vocês resolvam, pode fazer o que for preciso, eu JÁ REALIZEI
+LOGIN. Não é para vocês ficarem toda hora criando novo simulador para ter que de novo fazer
+login no Grok."*
+
+| aparelho | UDID | papel | lei |
+|---|---|---|---|
+| teste 2 | `B91C8DEF-…` | **CONTA** | sonda de IA e capturas. **Nunca** `erase`, `clearState`, `uninstall` nem `xcodebuild test`. Install **por cima**. |
+| teste 3 | `34CC3F94-…` | **CONTA** (novo) | **a mesma lei, inteira.** Deixa de receber suíte hoje. |
+| teste 4 | `A1DF082C-…` | **SUÍTE** | build e teste. Nenhum aparelho de conta recebe suíte. |
+
+**Duas leis novas, e a segunda é a que o dono cobrou:**
+
+1. **Com DOIS aparelhos de conta, as janelas de IA correm em PARALELO** — uma operação em
+   cada, **cada um com a própria trava por UDID**. O gargalo de uma janela de ~25 min por
+   operação **cai pela metade**.
+2. **CRIAR SIMULADOR É ATO DO ORQUESTRADOR, uma vez, registrado no LACO.** Nenhum worker
+   cria; **ninguém apaga simulador**. Cada simulador novo custa um login do Grok feito **à
+   mão pelo dono** — é o recurso mais caro da casa e não se gasta por conveniência. O teste
+   4 **já existia**: foi religado, não criado.
+
+**E a razão de a suíte sair dos aparelhos de conta é medida, não zelo:** `xcodebuild test`
+roda hospedado no app e o chaveiro é do SIMULADOR — foi assim que a suíte **apagou a conta
+do dono** em 09/09 (ADR 09l, volta K1). Enquanto a suíte correr onde há conta, a conta está
+a uma corrida de sumir.
