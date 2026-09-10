@@ -2921,3 +2921,32 @@ tocar** no aparelho: a captura já existe, ele a lê.
 
 **Despachei o G3** (`ctx_3ab06afd2c3b`). Se aprovar, a operação fica; se reprovar, volta
 para a lista, **e isso é resultado**. O revisor não a devolveu, então é ele quem diz.
+
+## 10/09, 08h35 — pausa e retomada (uso 11%); a trava tinha virado ARQUIVO
+
+Fala **0**. Três no ar: **G3 da Q3-C** (`ctx_3ab06afd2c3b`) lendo a operação que voltou,
+**Q4-C** fechando com a suíte final, **MAC-2-A-B** no conserto do selo. Teto cheio, nada
+a reabrir.
+
+**O achado desta volta veio de um worker ESPERANDO A VEZ, não do vigia.** Às 08h25 o
+`/tmp/traco-instrumento.lock` deixou de ser diretório e virou **arquivo comum de 0 byte**.
+A primitiva do `com-trava.sh` é `mkdir` — atômica **porque** cria diretório —, então
+passou a falhar para sempre, e dois workers giraram sem poder entrar. Pior: sem
+`$L/dono` legível, **a guarda de PID cega junto**, e só a de 30 minutos salvaria. Meia
+hora de instrumento parado com três voltas vivas.
+
+**Consertei em duas linhas, com defeito plantado nos dois sentidos:** planto um arquivo no
+lugar da trava e o `com-trava.sh` acusa *"a trava virou ARQUIVO; removendo para
+destravar"* e entra; sem o defeito, entra igual. **Lei nova:** *toda guarda que depende da
+FORMA de uma coisa confere a forma antes de confiar nela* — `mkdir` só é atômico sobre
+diretório, e quando a forma quebra a guarda não avisa: ela falha aberta ou trava fechada,
+e as duas são piores que o defeito.
+
+**E o portão do Perfil mordeu o autor da Q4-C**, que é para o que ele existe: o motivo que
+ela escreveu tinha 91 caracteres e não passou. Portão que só reprova estranho não é
+portão.
+
+Estado do dia até aqui: **`responderNasNotas` de volta às 08h20min37s**, com a sobra na
+tela; `instigar` e `contrapor` seguem cortadas com motivo novo e o conserto do defeito
+oposto **escrito e não aplicado**, de propósito, para o binário comitado não divergir do
+medido.
