@@ -1069,3 +1069,31 @@ quem o herdar não precisar acreditar em ninguém.
 **E eu já tinha cometido o erro:** o commit que trouxe essa caça para o repositório disse
 "provada com alvo plantado", sem qualificar — verdade para uma perna, não para a outra.
 Corrigido aqui, no arquivo, que é onde a próxima pessoa vai procurar.
+
+## A guarda vai onde todos passam, não em cada um que passa (10/09, G3 da MAC-2-A)
+
+O G3 reprovou a MAC-2-A com **Privacidade e autoria em 4**, e o defeito é uma forma que
+vai voltar: `Sessao.calarAcoesDerivadas` tem **três chamadores**, e
+`trancarExpressivasVencidas` **sela de verdade sem ser um deles**. Como
+`espelharTrabalhos` só escreve e nunca retira, o `.md` do trabalho de uma nota **selada**
+ficaria legível pelo bot no Mac **para sempre**. A sonda do revisor diz em uma linha:
+`SONDA-3 expressiva vencida: trancada=true permitido=false existe=true`.
+
+**A lei:** *guarda espalhada por chamador é uma lista de gente que precisa lembrar;
+guarda no laço que escreve é uma invariante.* Quatro rotas selam hoje; a quinta que
+alguém escrever amanhã não vai chamar nada, e tem de ficar correta mesmo assim. **O
+conserto certo é quase sempre MENOR que o errado** — aqui, a invariante no laço de
+espelhar dispensa o `remover` de todos os chamadores.
+
+**E o controle que prova a régua:** das quatro sondas do revisor, **uma passa de
+propósito**. Sem ela, três vermelhos não distinguem "achei o defeito" de "a sonda está
+quebrada". *Toda sonda que acusa precisa de uma irmã que não acusa.*
+
+## Fotografar janela sem levantá-la (10/09, mesmo G3)
+
+Alegou-se que a conversa do Grok Bot não podia ser capturada porque a janela está fora da
+área capturável — e a ausência da captura foi aceita como **limite de instrumento**, sem
+descontar nota, porque a chamada tinha prova de máquina e o retorno era verificável.
+**Mas o motivo não vira precedente:** `screencapture -l<windowid>` fotografa uma janela
+**sem trazê-la à frente**, o que respeita a lei do dono ativo (ocioso < 60 s, não levantar
+janela). Antes de declarar "não dá para fotografar", tente por id de janela.
