@@ -9123,3 +9123,55 @@ antes/depois; como o componente **acrescenta a palavra**, identidade não há, e
 produzir um cartão de análise que transborde exigia uma segunda jornada fora da
 janela de uma instalação. Dívida nomeada, com o conserto escrito. O terceiro
 sítio (`RecordarView.swift:443`) idem.
+
+## ADR 2026-09-09z — o Perfil fala a língua do autor: o cartão CONTA e o aviso da rota (volta MERGE-Q3D)
+
+**A distância.** O dono mandou a captura do Perfil das 10h46. O cartão CONTA dizia
+*"Indisponível mesmo com a conta Grok — **a medida de 08/09** reprovou, e não há
+outro caminho"*, e as linhas traziam *"devolveu o **vocabulário interno do app**"*
+e *"**fato inventado**". Palavras dele: aquilo é o **nosso jargão na tela dele**.
+Duas coisas estavam erradas ao mesmo tempo. A primeira é a língua: data, "medida",
+"reprovou" e o nosso plano de obra (*"trocar de modelo não resolve (três medidos,
+nenhum passou)"*) são o vocabulário de quem MEDE, não o de quem USA. A segunda é
+que, depois desta mescla, o cabeçalho ficaria **falso**: `responderNasNotas` voltou
+(ADR 09v), e a IA passa a fazer alguma coisa mesmo na lista que o cartão abria
+negando.
+
+**A decisão.** O cartão diz primeiro **o que a IA FAZ por ele hoje**, e só depois o
+que ela ainda não faz. As frases de tela, nas DUAS telas que falam disso, seguem um
+molde só — o que veio do G0 da Astra: *"Responde as perguntas que você deixa nas
+notas."* Segunda pessoa, presente, **efeito para o autor**, sem data, sem "medida",
+sem causa nossa. A operação que não voltou continua dizendo que não faz; muda a
+língua, não a promessa.
+
+As duas telas, porque **jargão numa só é meia correção**:
+- **o cartão CONTA** (`PerfilView`), que ele lê quando vai lá olhar;
+- **`Politica.semProvedor`**, o aviso que ele lê **no momento em que toca a operação
+  e ela não acontece** — o pior lugar possível para encontrar "na medida de 08/09".
+
+**O que saiu do código, e não só do texto.** A DATA deixou de ter caminho até a
+tela: `PerfilView.dataDe`, `PerfilView.dia` e o parâmetro `dataNaLinha` **não
+existem mais**, e `Reprovada` perdeu o campo `medidaEm`. `Politica.Linha.medidaEm`
+FICA — é o registro, e os testes continuam exigindo que exista. O que morreu foi a
+tubulação, não o dado: assim ninguém devolve a data à tela por descuido.
+
+**O portão, e a prova de que ele morde.** As quatro frases do cartão saíram da
+`body` e viraram texto nomeado (`oQueAIAFaz`, `oQueAContaAcrescenta`,
+`aberturaSemConserto`, `aberturaEmCorrecao`, `nadaCortado`) **para o teste poder
+lê-las**. Antes eram literais no meio da view, e o portão só sabia contar linhas —
+passava idêntico com o texto velho, que é o defeito da V12-E outra vez. Agora dois
+testes leem o TEXTO INTEIRO pelo caminho da tela e recusam data (`\d\d/\d\d`) e
+onze palavras nossas. Medido por mutação: devolvendo o cabeçalho velho ao cartão e
+a frase velha do `contrapor` ao aviso, **5 asserções caem em 2 suítes**; sem elas,
+verde.
+
+**Consequência.** `Traco/Perfil/PerfilView.swift`, `Traco/Analise/Politica.swift`,
+`TracoTests/PerfilQualidadeTests.swift`, `TracoTests/PoliticaTests.swift`; captura
+em `large` do cartão novo em `ferramentas/orca/q3d-07-perfil-na-lingua-do-autor.png`
+e relatório em `ferramentas/orca/merge-q3d.md`.
+
+**Dívida nomeada, com dono.** As frases de `semProvedor` das rotas que **têm**
+executor (`produzir`, `conferir`, `padroes`, `revisar`, `prepararPratica`) ainda
+explicam a escolha pelo diagnóstico (*"o modelo do aparelho errou a comparação"*).
+Não têm data nem "medida" — passam o portão —, mas não estão no molde. Fica para a
+volta que tocar cada uma.

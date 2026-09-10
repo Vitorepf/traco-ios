@@ -91,17 +91,17 @@ enum Politica {
             .init(regra: .soGrok, porque: "o aparelho confirmou 3 de 3 um ponto explicitamente contradito e perdeu 3 de 3 uma paráfrase correta; o Grok acertou 6 de 6 casos com a conta ligada em 08/09 — prova/qualidade-ia-q5-avaliacao-base.md e prova/q-qualidade-avaliacoes.jsonl")
         case .ecos:
             .init(regra: .indisponivelPorQualidade, porque: "sem retorno 6 de 6 no aparelho; e com a conta ligada em 08/09 o Grok devolveu lista vazia justamente onde o vínculo era o mais útil (18 inscritos contra a sala que comporta 15) — 3 de 6 casos reprovados — prova/q-qualidade.md, corridas em prova/q-qualidade-avaliacoes.jsonl",
-                  motivo: "deixou de fora os vínculos mais úteis",
+                  motivo: "deixa de fora justamente as notas que mais tinham a ver",
                   medidaEm: "08/09/2026")
         case .calibragem:
             .init(regra: .indisponivelPorQualidade, porque: "vazio 6 de 6 no aparelho; com a conta ligada em 08/09 o Grok cala quando não há erro a apontar e a rota nem chega ao provedor com um par só — no máximo 3 de 6 casos — prova/q-qualidade.md",
-                  motivo: "calou quando não havia erro a apontar",
+                  motivo: "não diz nada quando você não errou",
                   medidaEm: "08/09/2026")
         case .padroes:
             .init(regra: .soGrok, porque: "falhou 3 de 3 e 2 de 3 no aparelho; as perguntas locais cobrem — prova/qualidade-ia-q5-avaliacao-base.md")
         case .recordar:
             .init(regra: .indisponivelPorQualidade, porque: "3 de 3 no aparelho; e com a conta ligada em 08/09 o Grok vazou o alvo (a guarda de Prova.vaza suprimiu a pergunta e o autor ficou sem nada) ou devolveu a resposta dentro do enunciado — 1 de 6 casos — prova/q-qualidade.md. A frase fixa do ritual continua cobrindo",
-                  motivo: "entregou a resposta dentro da pergunta",
+                  motivo: "entrega a resposta junto com a pergunta",
                   medidaEm: "08/09/2026")
         case .responderNasNotas:
             .init(regra: .soGrok,
@@ -109,21 +109,21 @@ enum Politica {
         case .responder:
             .init(regra: .indisponivelPorQualidade,
                   porque: "cortada em 08/09 (a 08q mediu 3 de 6: horário de biblioteca e um total de R$ 1.008 que o contexto não sustentava). O contrato de sustentação em `sistemaResponder` matou a fabricação de NÚMERO (0 em 108 execuções na 08z) e FICA. A escolha do modelo, que a 09n adotou e o G3 reprovou, foi refeita na Q2-F (ADR 09q) com UMA alavanca: dos doze modelos da conta, nove saem por frase da API (cinco `Model not found`, quatro recusam `reasoningEffort`), e os três que servem a requisição correram os 12 casos da 08z mais os 6 cegos do revisor, três vezes, com `medium` fixo — `grok-4.3` 15 de 18, `grok-4.5` 17 de 18, `grok-4.6` 16 de 18. NENHUM chega a 18, e o padrão atual reprova um caso cego em 3 de 3. prova/q2f-*.jsonl e ferramentas/orca/q2f-responder.md",
-                  motivo: "inventou cenário que o contexto não sustentava",
+                  motivo: "inventa uma situação que você não escreveu",
                   medidaEm: "09/09/2026",
-                  conserto: "o prompt já mata a invenção de número; trocar de modelo não resolve (três medidos, nenhum passou) — falta o prompt impedir também a invenção da ESTRUTURA de um documento")
+                  conserto: "falta ela parar de inventar também a estrutura do documento que você pediu")
         case .instigar:
             .init(regra: .indisponivelPorQualidade,
                   porque: "com a conta ligada em 08/09 o Grok devolveu ao autor o vocabulário interno que o app passa no pedido ('o movimento básico que se pula', 'neste degrau 0', 'a forma nota') — 1 de 6 casos — prova/q-qualidade.md; o conserto tirou o andaime e o G3 do LOTE-1 achou três defeitos novos. O LOTE-3 mediu a Q4-B (6 casos × 3 em grok-4.3 e em grok-4.5) e DERRUBOU dois: o degrau 4 deixou de repetir as perguntas do degrau 0 (3 de 3 nos dois modelos) e a proibição por procedência devolveu o método e o degrau que o AUTOR escreveu (3 de 3 nos dois, inclusive com 'metodo' sem acento). Sobrou o texto magro: as perguntas saem vagas e não pedem QUANDO aconteceu — 3 de 3 no grok-4.3 e 2 de 3 no grok-4.5 — prova/lote09c-q4-grok-4.3.jsonl, prova/lote09c-q4-grok-4.5.jsonl e ferramentas/orca/revisao-q4-instigar.md",
-                  motivo: "no texto curto, ainda faz perguntas vagas e não pede quando aconteceu",
+                  motivo: "quando você escreveu pouco, pergunta vago e não pergunta quando aconteceu",
                   medidaEm: "10/09/2026",
-                  conserto: "no texto curto, a pergunta pede o quê, QUANDO aconteceu e o que seria dar certo; falta medir")
+                  conserto: "falta ela perguntar quando aconteceu mesmo quando você escreveu pouco")
         case .contrapor:
             .init(regra: .indisponivelPorQualidade,
                   porque: "com a conta ligada em 08/09 o Grok sustentou o contraponto em fato inventado, sempre no campo outroCampo ('metanálises de 2022', preço 12% menor na construção naval do século XV) — 1 de 6 casos — prova/q-qualidade.md; o conserto matou a evidência fabricada e ela não voltou. O LOTE-3 (6 casos × 3 em grok-4.3 e em grok-4.5) achou dois defeitos VIVOS: renda que a nota não declara — 1 de 3 no grok-4.3 e 3 de 3 no grok-4.5, e a lista de fatoQueEleNaoDeu exclui 'renda' de propósito — e contraponto que não chega onde a nota dá matéria: Falha.semRetorno com HTTP 200 e conteúdo completo no grok-4.5 rep. 2 do CSV e no grok-4.3 rep. 1 do tudo-ou-nada, mais um campo 'contra' vazio no grok-4.3 rep. 2 do CSV. O semRetorno com resposta inteira é defeito do NOSSO motor e tem volta própria (Q4-C) — prova/lote09c-q4-grok-4.3.jsonl, prova/lote09c-q4-grok-4.5.jsonl e ferramentas/orca/revisao-q4-instigar.md",
-                  motivo: "inventa renda que você não escreveu e às vezes cala onde a nota dá matéria",
+                  motivo: "inventa uma renda que você não escreveu, e às vezes não responde",
                   medidaEm: "10/09/2026",
-                  conserto: "não atribuir renda que você não escreveu, e nunca devolver vazio quando a resposta veio inteira; falta medir")
+                  conserto: "falta ela não inventar renda sua, e nunca voltar em branco quando tem o que dizer")
         case .vestir:
             .init(regra: .grokDepoisBordo, porque: "a forma local decide antes; o modelo só vê blocos pendentes (ADR 07a)")
         case .classificar:
@@ -184,20 +184,23 @@ enum Politica {
         // `.soGrok` — a frase dela agora é a de quem só precisa de conta.
         // As SEIS abaixo continuam INDISPONÍVEIS POR QUALIDADE (ADR 08q; a
         // `responder` saiu da lista na 09n e VOLTOU no mesmo dia, quando o G3
-        // reprovou a escolha do modelo — o conserto do prompt ficou, a
-        // comparação pareada é que falta): a conta
-        // pode estar ligada e mesmo assim ninguém responde, porque o que
-        // respondia não atendeu na medida — 08/09 para quatro delas, 10/09 para
-        // as duas que o LOTE-3 remediu (ADR 09t). A frase não manda conectar
-        // conta, não pede para tentar de novo e não promete guardar nada — quem
-        // guardou o pedido é que diz isso, depois de confirmar.
-        case .responder: "Responder à sua pergunta pela IA está indisponível: na medida de 08/09 ela inventou fato que o contexto não sustentava. O que você escreveu continua aqui, e a sua pergunta fica na nota."
-        case .ecos: "Ecos entre notas está indisponível: a IA deixou de fora justamente os vínculos mais úteis quando medimos, em 08/09. As notas continuam buscáveis pelo texto."
-        case .calibragem: "Ler o seu juízo pela IA está indisponível: na medida de 08/09 ela calou quando não havia erro a apontar. Os seus pares de previsão e resultado continuam aqui para você comparar."
-        case .recordar: "A pergunta do Recordar pela IA está indisponível: na medida de 08/09 ela entregou a resposta dentro da própria pergunta. O ritual segue com a pergunta fixa."
-        case .instigar: "Instigar pela IA está indisponível: na medida de 10/09, num texto curto, ela fez perguntas vagas e não pediu quando aconteceu. As perguntas do método continuam na página."
-        case .contrapor: "Contrapor pela IA está indisponível: na medida de 10/09 ela inventou renda que você não escreveu e, às vezes, calou onde a sua nota dava matéria. O Steelman e a Inversão continuam no catálogo, escritos por você."
-        case .responderNasNotas: "Responder sobre as suas notas precisa da conta Grok (em Perfil); o modelo do aparelho não citou a nota que sustentava a resposta."
+        // reprovou a escolha do modelo): a conta pode estar ligada e mesmo
+        // assim ninguém responde, porque o que respondia não atendeu.
+        //
+        // ADR 09z — a LÍNGUA destas seis é a do autor, e este é o pior lugar
+        // possível para o nosso jargão: ele lê isto NO MOMENTO em que toca a
+        // operação e ela não acontece. Sem data, sem "medida", sem causa
+        // nossa: o que ela ainda não faz por ele, no presente, e o que ele
+        // pode fazer agora. A frase não manda conectar conta, não pede para
+        // tentar de novo e não promete guardar nada — quem guardou o pedido é
+        // que diz isso, depois de confirmar.
+        case .responder: "Responder à sua pergunta pela IA está indisponível: ela ainda inventa uma situação que você não escreveu. O que você escreveu continua aqui, e a sua pergunta fica na nota."
+        case .ecos: "Ecos entre notas está indisponível: a IA ainda deixa de fora justamente as notas que mais tinham a ver. As suas notas continuam buscáveis pelo texto."
+        case .calibragem: "Ler o seu juízo pela IA está indisponível: ela ainda não diz nada quando você não errou. Os seus pares de previsão e resultado continuam aqui para você comparar."
+        case .recordar: "A pergunta do Recordar pela IA está indisponível: ela ainda entrega a resposta junto com a pergunta. O ritual segue com a pergunta fixa."
+        case .instigar: "Instigar pela IA está indisponível: quando você escreveu pouco, ela ainda pergunta vago e não pergunta quando aconteceu. As perguntas do método continuam na página."
+        case .contrapor: "Contrapor pela IA está indisponível: ela ainda inventa uma renda que você não escreveu e, às vezes, não responde. O Steelman e a Inversão continuam no catálogo, escritos por você."
+        case .responderNasNotas: "Responder as perguntas que você deixa nas notas precisa da sua conta Grok (em Perfil)."
         case .vestir, .classificar:
             "A sábia precisa da sua conta Grok (em Perfil) ou da Apple Intelligence ligada."
         case .dominio: "O domínio pela IA precisa da Apple Intelligence ligada; sem ela, o léxico decide."

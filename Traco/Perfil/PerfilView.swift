@@ -552,8 +552,8 @@ struct PerfilView: View {
             // ADR 07b: a tabela de quem responde, na única tela que fala de
             // provedor. Função que o autor não vê não foi entregue.
             VStack(alignment: .leading, spacing: 4) {
-                Text("Pelo aparelho, sem conta: " + Politica.peloAparelho.map(Politica.nome).joined(separator: ", ") + ".")
-                Text("Só com a conta Grok: " + Politica.pelaConta.map(Politica.nome).joined(separator: ", ") + ". Medido em 07/09: nessas, o modelo do aparelho não serviu.")
+                Text(Self.oQueAIAFaz)
+                Text(Self.oQueAContaAcrescenta)
             }
             .font(Tema.meta)
             .foregroundStyle(Tema.tintaFraca)
@@ -561,24 +561,47 @@ struct PerfilView: View {
             .padding(.top, Tema.entreItens)
             .accessibilityElement(children: .combine)
             .accessibilityIdentifier("quem-responde")
-            // A terceira linha: o que a MEDIDA reprovou. Sem ela, a operação
-            // reprovada sumia das duas listas de cima e o autor via menos
-            // coisa sem explicação — resultado pior calado.
+            // A terceira linha: o que ela ainda não faz. Sem ela, a operação
+            // cortada sumia das duas listas de cima e o autor via menos coisa
+            // sem explicação — resultado pior calado.
             indisponiveisPorQualidade
                 .padding(.top, Tema.entreItens)
         }
     }
 
+    // MARK: - O que a IA faz, e o que ela ainda não faz (volta Q)
+
+    /// ADR 2026-09-09z — as quatro frases do cartão CONTA, fora da `body` para
+    /// o teste poder LÊ-LAS. Antes eram literais no meio da view, e o portão
+    /// só sabia contar linhas: passava idêntico com o texto velho.
+    ///
+    /// A língua é a do autor (DIRETRIZ §13): sem data, sem "medida", sem
+    /// "reprovou" e sem o nosso plano de obra. O cartão diz o que a IA FAZ por
+    /// ele, e a lista do que ela não faz vem depois — não antes.
+    static var oQueAIAFaz: String {
+        "A IA faz por você, no aparelho e sem conta: "
+            + Politica.peloAparelho.map(Politica.nome).joined(separator: ", ") + "."
+    }
+
+    static var oQueAContaAcrescenta: String {
+        "Com a sua conta Grok, ela faz também: "
+            + Politica.pelaConta.map(Politica.nome).joined(separator: ", ")
+            + ". Nessas, o modelo do aparelho não dá conta sozinho."
+    }
+
+    static let aberturaSemConserto = "O que ela ainda não faz, nem com a sua conta ligada:"
+    static let aberturaEmCorrecao = "Também não faz ainda, e já sabemos o que falta:"
+    static let nadaCortado = "Não há nada que ela deixe de fazer."
+
     // MARK: - Indisponível por qualidade (volta Q)
 
-    /// Uma operação que a medida reprovou, como a tabela a entrega: motivo,
-    /// data e conserto são DADO da medição e moram em `Politica`; aqui só se
-    /// formata (ADR 08q).
+    /// Uma operação cortada por qualidade, como a tabela a entrega: motivo e
+    /// conserto são DADO da medição e moram em `Politica`; aqui só se formata
+    /// (ADR 08q). A data fica lá e não sobe à tela (ADR 09z).
     struct Reprovada {
         let op: Politica.Operacao
         let motivo: String
-        let medidaEm: String?
-        /// nil = sem substituto medido; com nome = em correção
+        /// nil = sem conserto conhecido; com frase = já se sabe o que falta
         let conserto: String?
     }
 
@@ -587,7 +610,7 @@ struct PerfilView: View {
     static var reprovadas: [Reprovada] {
         Politica.indisponiveis.map { op in
             let l = Politica.linha(op)
-            return Reprovada(op: op, motivo: l.motivo, medidaEm: l.medidaEm, conserto: l.conserto)
+            return Reprovada(op: op, motivo: l.motivo, conserto: l.conserto)
         }
     }
 
@@ -602,15 +625,13 @@ struct PerfilView: View {
         let emCorrecao = todas.filter { $0.conserto != nil }
         return VStack(alignment: .leading, spacing: Tema.entreItens) {
             if todas.isEmpty {
-                Text("Nenhuma operação indisponível por qualidade.")
+                Text(Self.nadaCortado)
             } else {
                 if !semConserto.isEmpty {
-                    grupoReprovado(semConserto,
-                                   "Indisponível mesmo com a conta Grok — a medida\(Self.dataDe(semConserto)) reprovou, e não há outro caminho:")
+                    grupoReprovado(semConserto, Self.aberturaSemConserto)
                 }
                 if !emCorrecao.isEmpty {
-                    grupoReprovado(emCorrecao,
-                                   "Em correção, com conserto nomeado e sem data — a medida\(Self.dataDe(emCorrecao)) reprovou:")
+                    grupoReprovado(emCorrecao, Self.aberturaEmCorrecao)
                 }
             }
         }
@@ -624,12 +645,11 @@ struct PerfilView: View {
     /// Uma linha por operação: o quê, em tinta um degrau mais escura para a
     /// margem virar coluna varrível; o porquê recua.
     private func grupoReprovado(_ lista: [Reprovada], _ abertura: String) -> some View {
-        let dataNaLinha = Self.dataDe(lista).isEmpty
-        return VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: 4) {
             Text(abertura)
                 .fixedSize(horizontal: false, vertical: true)
             ForEach(lista, id: \.op.rawValue) { r in
-                Text(Self.linhaDa(r, dataNaLinha: dataNaLinha))
+                Text(Self.linhaDa(r))
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
@@ -639,30 +659,18 @@ struct PerfilView: View {
     /// corpo. `AttributedString` em vez de `Text + Text` (`+` está obsoleto no
     /// iOS 26) e em vez de interpolação, que passaria o motivo do autor por
     /// Markdown — o motivo é prosa da tabela `Politica`, não marcação.
-    static func linhaDa(_ r: Reprovada, dataNaLinha: Bool) -> AttributedString {
+    static func linhaDa(_ r: Reprovada) -> AttributedString {
         var nome = AttributedString(Politica.nome(r.op))
         nome.foregroundColor = Tema.tintaSuave
-        return nome + AttributedString(restoDa(r, dataNaLinha: dataNaLinha))
+        return nome + AttributedString(restoDa(r))
     }
 
-    /// O que vem depois do nome: " — motivo", a data só quando o grupo não a
-    /// compartilha, e o conserto quando existe.
-    static func restoDa(_ r: Reprovada, dataNaLinha: Bool) -> String {
-        " — " + r.motivo
-            + (dataNaLinha ? " · " + dia(r.medidaEm) : "")
-            + (r.conserto.map { " · conserto: " + $0 } ?? "")
+    /// O que vem depois do nome: " — motivo", e o conserto quando existe.
+    /// ADR 09z: a DATA da medida saiu da tela. `medidaEm` continua na tabela,
+    /// que é o registro — o autor é que não lê a nossa agenda de medições.
+    static func restoDa(_ r: Reprovada) -> String {
+        " — " + r.motivo + (r.conserto.map { " · " + $0 } ?? "")
     }
-
-    /// " de 08/09" quando todas as linhas do grupo têm a mesma data; senão
-    /// vazio, e a data desce a cada linha.
-    static func dataDe(_ lista: [Reprovada]) -> String {
-        let datas = Set(lista.map { dia($0.medidaEm) })
-        return datas.count == 1 && datas.first != "" ? " de " + datas.first! : ""
-    }
-
-    /// A tabela guarda "08/09/2026"; a tela diz "08/09", como a linha de cima
-    /// ("Medido em 07/09"). Um idioma só: sem formatador, sem parser.
-    static func dia(_ s: String?) -> String { String((s ?? "").prefix(5)) }
 
     private func entrar() {
         entrando = true

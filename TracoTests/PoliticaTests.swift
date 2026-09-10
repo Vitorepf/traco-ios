@@ -97,10 +97,10 @@ import Testing
         // nada. Se um destes trechos sair da tabela sem medida nova, quebra
         // aqui.
         let emCorrecao = PerfilView.reprovadas.filter { $0.conserto != nil }
-        for (op, leitura) in [(Politica.Operacao.instigar, "não pede quando aconteceu"),
-                              (.contrapor, "inventa renda que você não escreveu")] {
+        for (op, leitura) in [(Politica.Operacao.instigar, "não pergunta quando aconteceu"),
+                              (.contrapor, "inventa uma renda que você não escreveu")] {
             let r = try #require(emCorrecao.first { $0.op == op })
-            let linha = PerfilView.restoDa(r, dataNaLinha: PerfilView.dataDe(emCorrecao).isEmpty)
+            let linha = PerfilView.restoDa(r)
             #expect(linha.contains(leitura), "\(op): a tela não diz o que o LOTE-3 leu — \(linha)")
             #expect(!linha.contains("08/09"), "\(op): motivo de 08/09 ainda na tela — \(linha)")
             #expect(Politica.linha(op).medidaEm == "10/09/2026", "\(op): a data não é a do LOTE-3")
@@ -117,6 +117,32 @@ import Testing
         let voltou = Politica.semProvedor(.responderNasNotas)
         #expect(!voltou.contains("indisponível"), "a tela ainda diz indisponível — \(voltou)")
         #expect(voltou.contains("conta Grok"), "sem conta, a tela tem de dizer o que falta — \(voltou)")
+    }
+
+    /// ADR 2026-09-09z, ordem do dono (DIRETRIZ §13). O Perfil o autor lê
+    /// quando vai lá olhar; ESTE aviso ele lê no momento em que toca a
+    /// operação e ela não acontece — o pior lugar possível para encontrar
+    /// "na medida de 08/09". Uma língua só nas duas telas.
+    ///
+    /// O portão lê a frase INTEIRA das dezesseis, pelo caminho da tela: com o
+    /// texto velho a data derruba `.responder`, `.ecos`, `.calibragem`,
+    /// `.recordar`, `.instigar` e `.contrapor` na primeira asserção.
+    @Test func oAvisoDaRotaFalaALinguaDoAutor() {
+        for op in Politica.Operacao.allCases {
+            let f = Politica.semProvedor(op)
+            #expect(f.range(of: #"\d\d/\d\d"#, options: .regularExpression) == nil,
+                    "\(op): data na tela do autor — \(f)")
+            let baixo = f.lowercased()
+            for jargao in ["medida", "medido", "medimos", "reprov", "prompt", "esquema",
+                           "fixture", "jsonl", "grok-4", "vocabulário interno", "fato inventado",
+                           "contexto não sustent"] {
+                #expect(!baixo.contains(jargao), "\(op): jargão nosso — '\(jargao)' em \(f)")
+            }
+        }
+        // A que VOLTOU fala no molde do G0: o que ela FAZ por ele, e só o que
+        // falta para poder fazer. Sem o diagnóstico de por que o aparelho saiu.
+        #expect(Politica.semProvedor(.responderNasNotas)
+                == "Responder as perguntas que você deixa nas notas precisa da sua conta Grok (em Perfil).")
     }
 
     /// ADR 09n, REVERTIDA em 09/09 pelo G3 (`revisao-q2-responder.md`). A
@@ -153,17 +179,18 @@ import Testing
         // medidos e nenhum passou —, é o prompt impedir a invenção da estrutura
         // de um documento, que derruba `4.3` e `4.5` no caso do relatório.
         let conserto = try #require(Politica.linha(.responder).conserto)
-        #expect(conserto.contains("ESTRUTURA"))
+        #expect(conserto.contains("estrutura do documento"))
         #expect(!conserto.contains("comparação pareada"))
         // A LINHA QUE O AUTOR LÊ no Perfil, montada pelo mesmo caminho da tela
-        // — `reprovadas` lê a tabela, `dataDe` decide se a data desce à linha,
-        // `linhaDa` escreve. Sem isto o conserto seria dado sem superfície.
+        // — `reprovadas` lê a tabela e `linhaDa` escreve. Sem isto o conserto
+        // seria dado sem superfície.
         let emCorrecao = PerfilView.reprovadas.filter { $0.conserto != nil }
         let r = try #require(emCorrecao.first { $0.op == .responder })
-        let linha = String(PerfilView.linhaDa(r, dataNaLinha: PerfilView.dataDe(emCorrecao).isEmpty)
-            .characters)
-        #expect(linha.hasPrefix("responder à sua pergunta — inventou cenário que o contexto não sustentava · 09/09 · conserto: "))
-        #expect(linha.contains("três medidos, nenhum passou"))
+        let linha = String(PerfilView.linhaDa(r).characters)
+        // ADR 09z: a linha é a mesma máquina, na língua do autor — sem a data
+        // e sem o nosso plano de obra ("trocar de modelo não resolve").
+        #expect(linha == "responder à sua pergunta — inventa uma situação que você não escreveu"
+                + " · falta ela parar de inventar também a estrutura do documento que você pediu")
         // O piso de esforço nasceu de uma falha CALADA e sobrevive à reversão:
         // `"none"` é recusado por modelo que raciocina, e a rota calaria.
         #expect(Grok.esforcoMinimo == "low")
