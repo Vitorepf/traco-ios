@@ -180,7 +180,7 @@ struct CapsulaDeEspera: View {
             HStack(spacing: 8) {
                 MarcaDeAutor(autor: .sabia)
                     .opacity(reduceMotion || s.isMultiple(of: 2) ? 1 : 0.35)
-                    .animation(reduceMotion ? nil : .easeInOut(duration: Tema.Duracao.relogio), value: s)
+                    .animation(Tema.movimento(.laco, .easeInOut(duration: Tema.Duracao.relogio), reduzido: reduceMotion), value: s)
                 Text(frase + "…")
                     .foregroundStyle(Tema.tintaSuave)
                     .lineLimit(1)
