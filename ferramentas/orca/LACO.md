@@ -3595,3 +3595,15 @@ candidato.**
   controle), a palavra **"continua" removida** do `SinalDeSobra` (virou dobra com rótulo de
   AX), o **`ProgressView` mudo fora da Lente**, e o Perfil **deixando de prometer** "responder
   nas Notas" até a tela passar (§14).
+- **14h42 — retomada (uso 28%).** Quatro cadeiras, e o arranjo é o da §15: **AUDITORIA**
+  (`ctx_331fbe8b415c`, oito superfícies × seis estados, sem código, **entrega 17h**),
+  **SISTEMA DA IA** (`ctx_ed3f7a7fec60`, código pronto da conversa, ADR **10f**, build na
+  fila da trava), **`instigar`** (`ctx_5d157f299dc0`, janela no `B91C8DEF` desde 14h26, quatro
+  braços) e **G3 do `responder`** (`ctx_c032ff1737cd`, os sete consertos de rota).
+- **14h40** Pedi à 10f que declare a **09w SUPERADA** com a razão: o `SinalDeSobra` nasceu
+  hoje de manhã e vai ser apagado, porque **sem teto não há sobra a sinalizar**. Componente
+  apagado sem ADR dizendo por quê vira mistério em um mês. E que diga **o que a tela faz com
+  a cauda** — mediana 384, máximo medido 568: *"quase sempre cabe" não é contrato*.
+- **A Astra segue fora**: `Agent startup blocked: codex-update-prompt`, duas tentativas.
+  Precisa de um clique do dono no app do Codex. Nada está parado por ela — a `responder`
+  recebeu o contrato de contexto e o parecer entraria como conferência.
