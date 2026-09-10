@@ -3533,3 +3533,20 @@ candidato.**
   as notas que a pergunta cita entram INTEIROS, dentro do orçamento da 05m; e se não couber,
   a resposta DIZ O QUE NÃO LEU — nunca fala do que não viu.* **Regra nova: cada operação tem
   UMA rodada de prompt e UMA de contexto; a terceira alavanca é esquema de saída.**
+- **14h10 — DIRETRIZ §14.** O dono abriu a resposta da sábia no teste 3 às 13h58:
+  *"experiência deplorável, design deplorável e doentio"*. **Regra que muda o que é
+  "voltar": a operação só volta quando a SUPERFÍCIE passa no G4 e o dono vê** — sem tela
+  aprovada, fica indisponível **por melhor que meça**. Cadeira Fable aberta
+  (`ctx_331fbe8b415c`): **um componente único** em `Traco/Componentes` para `responder`,
+  `responderNasNotas`, `contrapor` e `instigar`. Vídeo previsto **17h30**. As duas cadeiras
+  de IA avisadas: **não gastar janela do aparelho de conta com captura de cartão** até o
+  componente existir — seria a captura da tela reprovada.
+- **14h00** `contrapor` **NÃO VOLTA**: duas tentativas na alavanca do pedido, mesma fixture
+  byte a byte, 8 casos × 3 × 2 modelos, uma janela e uma instalação por tentativa. **Derrubou
+  o que o LOTE-6 nomeou** — os três campos vazios sobre HTTP 200 do `grok-4.3` foram a
+  **ZERO e ficaram lá em 96 execuções**, e o `4.5` subiu de 0/3 para 2/3 no cego que o
+  derrubava. **Mas nenhum passa os DOIS cegos 3/3.** Defeito que sobra, nomeado: **para o
+  recurso que a nota diz NÃO ter, o modelo oferece um SUBSTITUTO** (ensaio sintético, cópia
+  mascarada, recorte representativo). Entregou também o portão que faltava **antes** do
+  prompt (`Grok.Diagnostico.retornoBruto`) — sem ele, *"os três vazios são do modelo"* era
+  **inferência**; com ele, ficou conferido.
