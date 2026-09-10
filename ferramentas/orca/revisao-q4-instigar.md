@@ -135,3 +135,78 @@ O lote prova o binário e a conta ligados, mas não muda o julgamento semântico
 acima; nenhuma nova chamada de rede foi feita por esta revisão. A captura do
 cartão no aparelho da conta é exigência de aprovação e não existe nesta
 reprovação; inventá-la a partir de JSONL seria evidência falsa.
+
+---
+
+## re-G3 — LOTE-3: REPROVADAS, separadamente (10/09)
+
+Li por inteiro as 72 saídas Q4 do LOTE-3: 36 no `grok-4.3`, que é a comparação
+pareada com o LOTE-1, e 36 no `grok-4.5`, na sobra da mesma janela. O candidato
+é `dcbf7c6`, incorporado no binário `c6cd0ca8…`; a janela ficou sob uma chamada
+de `com-trava.sh`, das 00:38:42Z às 00:54:55Z, no `B91C8DEF`, com uma instalação,
+quatro fumaças de conta ligada/12 modelos e zero erro de transporte. Esta
+revisão não instalou, lançou ou testou aparelho algum.
+
+### O que mudou de lado
+
+- **P1 1 resolvido:** no par do degrau 4, as três respostas de cada modelo
+  perguntam quando a regra da hora livre deixa de valer e o que a contrariaria;
+  não repetem a cobrança do degrau 0.
+- **P1 2 resolvido, e a atribuição anterior cai no órgão:** `vazaAlheio` já
+  comparava contra a nota, portanto não derrubava `método`/`degrau` que ela
+  contém. A proibição nominal em `sistemaInstigar` era a causa. A nova regra de
+  procedência e `dobrada` devolveram as palavras do autor em **3/3** no 4.3 e
+  **3/3** no 4.5, inclusive quando a nota usa `metodo` sem acento.
+- **P1 3 mudou, mas não fechou:** o texto magro não ganha mais um episódio
+  concreto. Em compensação, no 4.3 as três saídas deixam de pedir *quando* e
+  devolvem perguntas vagas como “O que era?”/“O que mudou de novo?”; no 4.5,
+  duas de três também não pedem quando. A fixture pede que a pessoa nomeie o
+  quê, quando e o que seria dar certo. Pergunta genérica é falha de atendimento,
+  não um passe por não inventar.
+
+### `contrapor`: falhas materiais novas ou remanescentes
+
+- **P1 4 não fecha em toda a matriz:** no CSV, o 4.3 rep. 2 deixa `contra`
+  vazio e só oferece JSON; não reconhece a razão que sustenta CSV nem nomeia
+  limite real. No 4.5 rep. 2 há `Falha.semRetorno` apesar de HTTP 200 e
+  “conteúdo completo”. Recusar ou não retornar onde há matéria a contrapor
+  falha tanto quanto inventar.
+- **P1 5 persiste:** no caso do notebook, 4.3 rep. 1 escreve “compromete renda
+  futura”; o 4.5 escreve renda nas três repetições. A nota não declara renda.
+  Isto viola também a instrução vigente (“Não atribua ... renda ... que ela não
+  escreveu”); a lista do parser a deixa passar porque `renda` foi excluída dela.
+- Há ainda indisponibilidade e retorno sem nexo: 4.3 rep. 1 de tudo-ou-nada é
+  `Falha.semRetorno`; a rep. 2 fala em páginas e total diário, sem correr nem
+  premissa correspondente. Não conto as duas regras extras do conferidor como
+  defeito por si, mas estas saídas completas já reprovam por mérito.
+
+### Scorecard de qualidade
+
+| dimensão | instigar | contrapor | prova lida |
+|---|---:|---:|---|
+| aderência ao pedido | 8 | 4 | texto magro não pergunta quando; CSV e retornos vazios não contrapõem o que a nota sustenta |
+| correção sustentada | 9 | 3 | episódio concreto não voltou; renda não dada e retorno sem nexo voltaram |
+| utilidade concreta | 8 | 4 | perguntas vagas não avançam o texto magro; sem retorno e alternativa deslocada deixam a pessoa sem exame útil |
+| adequação e divisão de trabalho | 8 | 5 | instigar ainda pede pouco do contexto magro; contrapor alterna exame útil com recusa/desvio |
+| uso do contexto pertinente | 8 | 3 | método/degrau agora voltam 3/3; CSV e ausência de renda seguem desrespeitados |
+
+Uma dimensão abaixo de 9 reprova; portanto **nenhuma operação volta a estar
+disponível**. Não há hora de retorno. `instigar` fica em
+`indisponivelPorQualidade` com motivo novo: **“no texto curto, a medida ainda
+faz perguntas vagas e não pede quando aconteceu.”** `contrapor` fica com motivo
+novo: **“a medida ainda inventa renda e às vezes não entrega contraponto onde a
+nota dá matéria.”** Não há captura de cartão real: o LOTE-3 mediu a rota de
+produção em JSONL, mas não fotografou uma resposta no cartão; como não há
+aprovação, não fabriquei essa prova nem rodei nova chamada.
+
+### Evidência e limite
+
+- Lote e janela: `../lote-ia-09c/ferramentas/orca/lote-ia-09c.md` §§2–4 e
+  `../lote-ia-09c/prova/lote09c-janela.log`.
+- Saídas completas lidas: `../lote-ia-09c/prova/lote09c-q4-grok-4.3.jsonl` e
+  `../lote-ia-09c/prova/lote09c-q4-grok-4.5.jsonl`.
+- A causa atribuída está confirmada no candidato:
+  `Sabia.vazaAlheio` dobra e compara texto do autor, enquanto
+  `sistemaInstigar` manda a procedência; `fatoQueEleNaoDeu` ainda exclui
+  deliberadamente `renda`. Os testes locais verdes e a contagem 3/3 medem esses
+  guardas, mas não substituem esta leitura semântica.
