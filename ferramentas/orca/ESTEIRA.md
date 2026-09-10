@@ -1662,3 +1662,41 @@ existia para matar.
 testes, 2 falhas, as duas minhas: 1024 verdes do candidato"* —, **cada uma com irmã que não
 acusa**, e **as removeu ao fim**. A contagem separada (as minhas × as do candidato) é o que
 permite reprovar sem contaminar o placar do outro.
+
+## O portão do Hermes: nenhuma tela de IA passa no G4 sem responder aos sete pontos
+
+**Ordem do dono, 10/09/2026 17h20.** A régua abstrata *"não parece feito por IA"* **fica
+substituída** por um app real que ele aprova: o **Hermes**, lido tela a tela em
+`ferramentas/orca/REFERENCIA-HERMES.md`, com as capturas em `ferramentas/orca/referencia-hermes/`.
+
+**Nenhuma tela de IA passa no G4 sem responder POR ESCRITO aos sete pontos, com captura LADO
+A LADO contra a referência.** Não é nota de rodapé: é a estrutura do relatório — sete
+respostas, sete pares de imagem.
+
+1. **A folha branca flutuante morre.** A conversa não tem balão nem caixa: linha de autor em
+   versalete colorido + texto puro em largura inteira + **fio recuado** entre trocas.
+2. **A espera é uma cápsula com tempo** acima do campo (avatar animado, o que faz, tempo
+   decorrido), e **o botão do campo vira PARAR** enquanto corre.
+3. **Buscar e perguntar são separados.** Busca contextual por tela — *"Search sessions"*,
+   *"Search bots"* —, nunca um campo só a dizer *"buscar ou perguntar"*.
+4. **A barra de baixo é pílula flutuante sem rótulos**, e **a ação principal fica FORA dela**.
+5. **Caixa alta só em cabeçalho de seção**, nunca em rótulo de conteúdo.
+6. **Três níveis de tipo por linha**, divisor recuado, identidade à esquerda com **forma
+   própria**.
+7. **Cor só como identidade ou estado.** Nada decorativo.
+
+**Duas leis que saem daqui e valem em todo o app:**
+
+- **Nenhuma caixa nova sem prova de que o TIPO não resolve.** Caixa dentro de caixa é a
+  assinatura do slop; a hierarquia sai de tipo, peso, cor de texto e espaço.
+- **O vazio é uma linha normal, não uma tela especial.** Sem ilustração, título e botão para
+  dizer que não há nada.
+
+**E a armadilha, dita para não se repetir:** o Hermes tem entrada por **voz** no mesmo botão
+que muda de estado. **VOZ, VOICEOVER E iPAD SÃO PROIBIDOS NO TRAÇO, SEM EXCEÇÃO.** Clona-se o
+**princípio do botão que muda de estado** — nunca a voz. *Clonar uma referência é escolher o
+que dela NÃO se clona, e dizer isso por escrito.*
+
+**Lei irmã, do mesmo dia:** *o enquadramento que corta o pé esconde exatamente o que o dono vê
+primeiro.* O G4 da conversa aprovou hoje uma folha pousada **em cima** da barra que o dono
+chama de lixo, porque as capturas cortavam o pé. **Vídeo e captura mostram a tela INTEIRA.**

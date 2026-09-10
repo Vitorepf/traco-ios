@@ -13,7 +13,9 @@ struct LenteView: View {
     var retrato: String = ""
     @State private var perguntasDaSabia: [String] = []
     @State private var instigando = false
-    /// ADR 04m: o que o autor não considerou. Nil = nada pedido ou nada honesto.
+    /// ADR 04m: o que o autor não considerou. Nil = nada pedido ainda.
+    /// ADR 2026-09-09s: a `Contraparte` VAZIA nunca chega aqui — ela é aviso,
+    /// não conteúdo, e mostrá-la seria uma seção com três rótulos e nada.
     @State private var contraparte: Sabia.Contraparte?
     @State private var contrapondo = false
     @State private var avaliouContraparte = false
@@ -311,8 +313,11 @@ struct LenteView: View {
         Task {
             let r = await Sabia.instigar(texto: t, gesto: g, degrau: degrau, retrato: r0)
             instigando = false
-            if let r { perguntasDaSabia = r; Toque.suave() }
-            else { aviso = (.instigar, "a sábia não respondeu.", .falhou); Toque.aviso() }
+            switch r {
+            case .some(let q) where !q.isEmpty: perguntasDaSabia = q; Toque.suave()
+            case .some: aviso = (.instigar, Sabia.nadaPassouNaGuarda, .falhou); Toque.aviso()
+            case .none: aviso = (.instigar, "a sábia não respondeu.", .falhou); Toque.aviso()
+            }
         }
     }
 
@@ -327,8 +332,11 @@ struct LenteView: View {
         Task {
             let r = await Sabia.contrapor(texto: t, gesto: g, retrato: r0)
             contrapondo = false
-            if let r { contraparte = r; Toque.suave() }
-            else { aviso = (.contrapor, "a sábia não respondeu.", .falhou); Toque.aviso() }
+            switch r {
+            case .some(let c) where !c.vazia: contraparte = c; Toque.suave()
+            case .some: aviso = (.contrapor, Sabia.nadaPassouNaGuarda, .falhou); Toque.aviso()
+            case .none: aviso = (.contrapor, "a sábia não respondeu.", .falhou); Toque.aviso()
+            }
         }
     }
 

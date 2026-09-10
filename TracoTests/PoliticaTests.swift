@@ -103,9 +103,25 @@ import Testing
         // texto velho, e um portão que passa com o defeito de pé não guarda
         // nada. Se um destes trechos sair da tabela sem medida nova, quebra
         // aqui.
+        //
+        // ADR 09s e emenda à 09i (Q4-C): o LOTE-5 derrubou os DOIS motivos do
+        // `contrapor` (renda 4 → 0, `semRetorno` com 200 2 → 0) e o do
+        // `instigar` (o magro pede o quando, 1/6 → 6/6). A linha muda porque a
+        // MEDIDA mudou — e a do `instigar` passa a dizer o defeito OPOSTO que
+        // a mesma janela comprou, que é o que o autor encontra hoje.
+        //
+        // ADR 09x (Q4-E): a linha do `contrapor` esteve UM COMMIT fora desta
+        // lista e VOLTOU pela medida. O LOTE-6 remediu os mesmos seis casos e
+        // dois CEGOS, e reprovou os dois modelos em lados opostos — o `4.3`
+        // devolveu os três campos vazios numa base, sobre HTTP 200 e sem guarda
+        // nossa; o `4.5` propôs, 3 de 3 no caso cego, o ensaio que a nota fecha.
+        // A linha passa a dizer ISSO. Se alguém a tirar daqui de novo, precisa
+        // de uma medida que passe nos DOIS lados, não de uma que passe num.
         let emCorrecao = PerfilView.reprovadas.filter { $0.conserto != nil }
-        for (op, leitura) in [(Politica.Operacao.instigar, "não pergunta quando aconteceu"),
-                              (.contrapor, "inventa uma renda que você não escreveu")] {
+        // A `responderNasNotas` saiu daqui na 09v: virou `.soGrok`, o `conserto`
+        // ficou `nil` e ela não entra mais em `emCorrecao`.
+        for (op, leitura) in [(Politica.Operacao.instigar, "quando você diz que não sabe quando foi"),
+                              (.contrapor, "oferece um substituto para o que você disse que não tem")] {
             let r = try #require(emCorrecao.first { $0.op == op })
             let linha = PerfilView.restoDa(r)
             #expect(linha.contains(leitura), "\(op): a tela não diz o que o LOTE-3 leu — \(linha)")
@@ -150,6 +166,37 @@ import Testing
         // falta para poder fazer. Sem o diagnóstico de por que o aparelho saiu.
         #expect(Politica.semProvedor(.responderNasNotas)
                 == "Responder as perguntas que você deixa nas notas precisa da sua conta Grok (em Perfil).")
+    }
+
+    /// ADR 2026-09-09x — a Q4-E levou `contrapor` ao CASO CEGO e ele reprovou.
+    /// Este teste guarda as duas metades do resultado: a operação continua sem
+    /// executor, e a frase que o autor lê diz o defeito de 10/09 — não o de
+    /// 08/09 ("sustentou o contraponto em fato inventado") nem o do LOTE-5
+    /// ("inventou renda"), que a medida já tinha derrubado.
+    @Test func contraporVoltouAListaComOQueOCasoCegoLeu() throws {
+        #expect(Politica.linha(.contrapor).regra == .indisponivelPorQualidade)
+        #expect(Politica.provedor(.contrapor, contaLigada: true, bordo: true) == nil)
+        #expect(!Politica.desceAoAparelho(.contrapor))
+        #expect(Politica.linha(.contrapor).medidaEm == "10/09/2026")
+        let frase = Politica.semProvedor(.contrapor)
+        #expect(frase.contains("oferece um substituto para o que você disse que não tem"))
+        #expect(!frase.contains("fato inventado"), "a frase de 08/09 sobreviveu à medida que a derrubou")
+        #expect(!frase.contains("inventou renda"), "a frase do LOTE-5 sobreviveu ao LOTE-6")
+        #expect(!frase.contains("saída que você já tinha descartado"),
+                "o motivo do LOTE-8 ficou na tela; o LOTE-9 mediu OUTRO defeito")
+        // e a linha do Perfil, pelo caminho REAL da tela
+        let emCorrecao = PerfilView.reprovadas.filter { $0.conserto != nil }
+        let r = try #require(emCorrecao.first { $0.op == .contrapor })
+        // ADR 09z: a data saiu da tela e `restoDa` voltou a ter um argumento só.
+        let linha = PerfilView.restoDa(r)
+        #expect(!linha.contains("10/09"), "a data voltou para a linha do autor")
+        #expect(linha.contains("oferece um substituto para o que você disse que não tem"))
+        #expect(!linha.contains("os dois defeitos medidos caíram"), "a linha do LOTE-5 ainda está na tela")
+        // o conserto nomeado deixa de ser "falta a leitura de mérito": a leitura
+        // ACONTECEU e reprovou; o que falta é uma frase no pedido.
+        let conserto = try #require(Politica.linha(.contrapor).conserto)
+        #expect(conserto.contains("aceitar essa falta como ela é"), "o conserto não nomeia o defeito que sobrou — \(conserto)")
+        #expect(!conserto.contains("leitura de mérito"))
     }
 
     /// ADR 09n, REVERTIDA em 09/09 pelo G3 (`revisao-q2-responder.md`). A

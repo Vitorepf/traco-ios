@@ -1,0 +1,90 @@
+[2026-09-10T13:39:08Z] estado do B91C8DEF-B0A7-454A-95DE-5D7BA7B040A9:     iPhone 17 Pro (teste 2) (B91C8DEF-B0A7-454A-95DE-5D7BA7B040A9) (Shutdown) 
+Monitoring boot status for iPhone 17 Pro (teste 2) (B91C8DEF-B0A7-454A-95DE-5D7BA7B040A9).
+[2026-09-10 13:39:09 +0000] Status=2, isTerminal=NO, Elapsed=00:00.
+	Waiting on Data Migration
+		Reason:(null)
+		Migration Elapsed:00:00 seconds
+
+[2026-09-10 13:39:10 +0000] Status=4, isTerminal=NO, Elapsed=00:01.
+	Waiting on System App
+
+[2026-09-10 13:39:11 +0000] Status=4, isTerminal=NO, Elapsed=00:02.
+	Waiting on System App
+
+[2026-09-10 13:39:12 +0000] Status=4, isTerminal=NO, Elapsed=00:03.
+	Waiting on System App
+
+[2026-09-10 13:39:13 +0000] Status=4294967295, isTerminal=YES, Elapsed=00:04.
+	Finished
+
+[2026-09-10T13:39:13Z] binario ANTES:  a621fa98516b6a132fdb5ab7c448d80917f33dbd589e1908060f52757c0f0117
+[2026-09-10T13:39:13Z] a instalar:     c897958450aa2481369838dd84e3d0eac2fd2b5b3e0c61b1bbe14c7cf6e1c40a
+[2026-09-10T13:39:13Z] fixture nova:   da012e21bcde220c5f745f9bd7e5d7bcf7b2f845095bbe7ef889c844f2afb029
+[2026-09-10T13:39:14Z] INICIO lote09f-fumaca-1-antes.jsonl  fixture=q2-fumaca.json liberar='' modelo='<padrao>'
+app.traco: 92244
+[2026-09-10T13:39:16Z] FIM    lote09f-fumaca-1-antes.jsonl  linhas=       4 fimGravado=1
+[2026-09-10T13:39:16Z] CONTA ANTES: "contaGrokLigada":true
+[2026-09-10T13:39:16Z] INSTALL (unico da janela): xcrun simctl install B91C8DEF-B0A7-454A-95DE-5D7BA7B040A9 /Users/vitorepf/orca/workspaces/traco-ios/q4-c/build/Build/Products/Debug-iphonesimulator/Traco.app
+[2026-09-10T13:39:19Z] binario DEPOIS: c897958450aa2481369838dd84e3d0eac2fd2b5b3e0c61b1bbe14c7cf6e1c40a
+[2026-09-10T13:39:20Z] INICIO lote09f-fumaca-2-pos-install.jsonl  fixture=q2-fumaca.json liberar='' modelo='<padrao>'
+app.traco: 92467
+[2026-09-10T13:39:22Z] FIM    lote09f-fumaca-2-pos-install.jsonl  linhas=       4 fimGravado=1
+[2026-09-10T13:39:22Z] CONTA DEPOIS DO INSTALL: "contaGrokLigada":true
+[2026-09-10T13:39:22Z] INICIO lote09f-q4-grok-4.3.jsonl  fixture=q4c-contrapor-cego-casos.json liberar='contrapor' modelo='grok-4.3'
+app.traco: 92531
+[2026-09-10T13:44:08Z] FIM    lote09f-q4-grok-4.3.jsonl  linhas=      50 fimGravado=1
+[2026-09-10T13:44:08Z] INICIO lote09f-fumaca-3-meio.jsonl  fixture=q2-fumaca.json liberar='' modelo='<padrao>'
+app.traco: 6227
+[2026-09-10T13:44:11Z] FIM    lote09f-fumaca-3-meio.jsonl  linhas=       4 fimGravado=1
+[2026-09-10T13:44:11Z] INICIO lote09f-q4-grok-4.5.jsonl  fixture=q4c-contrapor-cego-casos.json liberar='contrapor' modelo='grok-4.5'
+app.traco: 6761
+[2026-09-10T13:49:05Z] FIM    lote09f-q4-grok-4.5.jsonl  linhas=      50 fimGravado=1
+[2026-09-10T13:49:05Z] INICIO lote09f-fumaca-4-fim.jsonl  fixture=q2-fumaca.json liberar='' modelo='<padrao>'
+app.traco: 17165
+[2026-09-10T13:49:07Z] FIM    lote09f-fumaca-4-fim.jsonl  linhas=       4 fimGravado=1
+[2026-09-10T13:49:07Z] CONTA NO FIM: "contaGrokLigada":true
+[2026-09-10T13:49:07Z] binario FIM:    c897958450aa2481369838dd84e3d0eac2fd2b5b3e0c61b1bbe14c7cf6e1c40a
+[2026-09-10T13:49:14Z] foto q4e-00-abriu.png
+[2026-09-10T13:49:23Z] foto q4e-01-nota-escrita.png
+[2026-09-10T13:49:23Z] foto q4e-01-nota-escrita.png
+[2026-09-10T13:49:24Z] toquei [Lente] em 0.8454 0.9302
+[2026-09-10T13:49:29Z] foto q4e-02-lente.png
+[2026-09-10T13:49:30Z] toquei [Contrapor] em 0.1814 0.5567
+[2026-09-10T13:49:38Z] foto q4e-03-esperando.png
+[2026-09-10T13:49:45Z] foto q4e-03-esperando.png
+[2026-09-10T13:49:53Z] foto q4e-03-esperando.png
+[2026-09-10T13:49:54Z] O CARTÃO CHEGOU
+[2026-09-10T13:49:54Z] foto q4e-04-cartao.png
+[2026-09-10T13:49:54Z] === O QUE A TELA DIZ, lido da captura ===
+10:49
+Lente
+55 palavras • 4 frases
+ADVÉRBIOS
+o verbo devia bastar
+ambiente
+quanto
+Pronto
+× 1
+x1
+INSTIGAR
+perguntas sobre o que falta — nunca respostas
+Instigar
+CONTRAPOR
+o outro lado, a opção que faltou, o exemplo de outro campo
+O OUTRO LADO
+A incerteza sobre a duração da virada e
+a ausência de ambiente com dados
+reais tornam a execução única mais
+exposta a interrupções que só se
+revelam durante o processo, mesmo
+com a impossibilidade de coexistência
+das versões.
+FORA DA LISTA
+Preparar um script de reversão
+imediata que restaure o estado anterior
+a partir de backup completo antes de
+iniciar a troca.
+EM OUTRO CAMPO
+Na troca de sistema de controle de voo
+em aeronave em manutenção
+[2026-09-10T13:49:54Z] JANELA ENCERRADA

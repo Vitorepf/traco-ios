@@ -1,0 +1,47 @@
+[2026-09-10T10:55:25Z] estado do B91C8DEF-B0A7-454A-95DE-5D7BA7B040A9:     iPhone 17 Pro (teste 2) (B91C8DEF-B0A7-454A-95DE-5D7BA7B040A9) (Shutdown) 
+Monitoring boot status for iPhone 17 Pro (teste 2) (B91C8DEF-B0A7-454A-95DE-5D7BA7B040A9).
+[2026-09-10 10:55:27 +0000] Status=2, isTerminal=NO, Elapsed=00:01.
+	Waiting on Data Migration
+		Reason:(null)
+		Migration Elapsed:00:00 seconds
+
+[2026-09-10 10:55:28 +0000] Status=4, isTerminal=NO, Elapsed=00:02.
+	Waiting on System App
+
+[2026-09-10 10:55:29 +0000] Status=4, isTerminal=NO, Elapsed=00:03.
+	Waiting on System App
+
+[2026-09-10 10:55:30 +0000] Status=4, isTerminal=NO, Elapsed=00:04.
+	Waiting on System App
+
+[2026-09-10 10:55:31 +0000] Status=4294967295, isTerminal=YES, Elapsed=00:05.
+	Finished
+
+[2026-09-10T10:55:31Z] ligado:     iPhone 17 Pro (teste 2) (B91C8DEF-B0A7-454A-95DE-5D7BA7B040A9) (Booted) 
+[2026-09-10T10:55:31Z] binario ANTES:  2c040c4ea99d5403b4bdaa7b59758f69849daf90418bf82e238d72a1135e49d3
+[2026-09-10T10:55:32Z] a instalar:     264215afa69e4bdce243fa87aec50be846c3dc634a2f0e4deb0cea265ff63a52
+[2026-09-10T10:55:32Z] INICIO lote09e-fumaca-1-antes.jsonl  fixture=q2-fumaca.json liberar='' modelo='<padrao>'
+app.traco: 73358
+[2026-09-10T10:55:37Z] FIM    lote09e-fumaca-1-antes.jsonl  linhas=       4 fimGravado=1
+[2026-09-10T10:55:37Z] CONTA ANTES: "contaGrokLigada":true
+[2026-09-10T10:55:37Z] INSTALL (unico da janela): xcrun simctl install B91C8DEF-B0A7-454A-95DE-5D7BA7B040A9 /Users/vitorepf/orca/workspaces/traco-ios/q4-c/build/Build/Products/Debug-iphonesimulator/Traco.app
+[2026-09-10T10:55:41Z] binario DEPOIS: 264215afa69e4bdce243fa87aec50be846c3dc634a2f0e4deb0cea265ff63a52
+[2026-09-10T10:55:41Z] INICIO lote09e-fumaca-2-pos-install.jsonl  fixture=q2-fumaca.json liberar='' modelo='<padrao>'
+app.traco: 73884
+[2026-09-10T10:55:43Z] FIM    lote09e-fumaca-2-pos-install.jsonl  linhas=       4 fimGravado=1
+[2026-09-10T10:55:43Z] CONTA DEPOIS DO INSTALL: "contaGrokLigada":true
+[2026-09-10T10:55:43Z] INICIO lote09e-q4-grok-4.3.jsonl  fixture=q4-instigar-contrapor-casos.json liberar='instigar,contrapor' modelo='grok-4.3'
+app.traco: 74015
+[2026-09-10T11:03:16Z] FIM    lote09e-q4-grok-4.3.jsonl  linhas=      74 fimGravado=1
+[2026-09-10T11:03:16Z] INICIO lote09e-fumaca-3-meio.jsonl  fixture=q2-fumaca.json liberar='' modelo='<padrao>'
+app.traco: 90312
+[2026-09-10T11:03:19Z] FIM    lote09e-fumaca-3-meio.jsonl  linhas=       4 fimGravado=1
+[2026-09-10T11:03:19Z] INICIO lote09e-q4-grok-4.5.jsonl  fixture=q4-instigar-contrapor-casos.json liberar='instigar,contrapor' modelo='grok-4.5'
+app.traco: 90473
+[2026-09-10T11:10:44Z] FIM    lote09e-q4-grok-4.5.jsonl  linhas=      74 fimGravado=1
+[2026-09-10T11:10:44Z] INICIO lote09e-fumaca-4-fim.jsonl  fixture=q2-fumaca.json liberar='' modelo='<padrao>'
+app.traco: 3601
+[2026-09-10T11:10:47Z] FIM    lote09e-fumaca-4-fim.jsonl  linhas=       4 fimGravado=1
+[2026-09-10T11:10:47Z] CONTA NO FIM: "contaGrokLigada":true
+[2026-09-10T11:10:47Z] binario FIM:    264215afa69e4bdce243fa87aec50be846c3dc634a2f0e4deb0cea265ff63a52
+[2026-09-10T11:10:47Z] JANELA ENCERRADA

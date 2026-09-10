@@ -156,9 +156,11 @@ private func temp(_ nome: String) -> URL {
         let ok = Sabia.parseContraparte(#"{"contra":"A tese oposta sustenta que o custo de trocar supera o ganho de velocidade.","foraDaLista":"Adiar a escolha um mês e medir o uso real.","outroCampo":"Na aviação, a lista de verificação nasceu de um acidente, não de uma reunião."}"#)
         #expect(ok?.contra.hasPrefix("A tese oposta") == true)
         #expect(ok?.outroCampo.contains("aviação") == true)
-        // instrução é descartada; chave extra derruba tudo; sem conteúdo = nil
+        // instrução é descartada; chave extra e não-JSON derrubam tudo.
+        // ADR 09s: esvaziada pela guarda é VAZIA, não `nil` — `nil` ficou só
+        // para o que não deu para ler.
         let instrucao = Sabia.parseContraparte(#"{"contra":"Você deve reconsiderar a opção A com calma.","foraDaLista":"","outroCampo":""}"#)
-        #expect(instrucao == nil)
+        #expect(instrucao?.vazia == true)
         #expect(Sabia.parseContraparte(#"{"contra":"Uma frase honesta e longa o bastante.","resumo":"x"}"#) == nil)
         #expect(Sabia.parseContraparte("claro! aqui vai") == nil)
     }
@@ -187,7 +189,7 @@ private func temp(_ nome: String) -> URL {
         }
         // só andaime = nada volta; a página fica com as perguntas do método
         let sóAndaime = #"{"perguntas":["Qual é o movimento básico que foi pulado?","Qual é o degrau em que você está?"]}"#
-        #expect(Sabia.parsePerguntas(sóAndaime, texto: rascunho) == nil)
+        #expect(Sabia.parsePerguntas(sóAndaime, texto: rascunho) == [])  // ADR 09s: leu e não sobrou nada
     }
 
     /// O par que muda só a EVIDÊNCIA: a mesma palavra, escrita pelo AUTOR.
@@ -196,7 +198,7 @@ private func temp(_ nome: String) -> URL {
         let dele = "Sigo um método de estudo em degraus e travei no segundo degrau."
         let json = #"{"perguntas":["O que define a passagem de um degrau para o próximo no seu método?"]}"#
         #expect(Sabia.parsePerguntas(json, texto: dele)?.count == 1)
-        #expect(Sabia.parsePerguntas(json, texto: rascunho) == nil)
+        #expect(Sabia.parsePerguntas(json, texto: rascunho) == [])
     }
 
     /// O defeito OPOSTO reprova igual: perguntas boas passam inteiras.
@@ -206,15 +208,50 @@ private func temp(_ nome: String) -> URL {
     }
 
     @Test func oContratoDeInstigarDizDeQuemEOAssunto() {
+        // ADR 10c·2: dobrar a quebra de linha antes de comparar. O literal
+        // quebra onde a coluna acaba, e a frase que o MODELO lê é a mesma —
+        // acoplar a asserção ao ponto de quebra faz o teste ficar vermelho por
+        // reformatação, que é ruído, e é o que aconteceu na 2ª redação.
+        let pedido = Sabia.sistemaInstigar.replacingOccurrences(of: "\n", with: " ")
         for pedaço in ["nunca as cite", "é DELA, seja qual for", "Não suponha nenhum fato",
-                       "MANDA nas perguntas", "Não devolva vazio"] {
-            #expect(Sabia.sistemaInstigar.contains(pedaço))
+                       "MANDA nas perguntas", "Não devolva vazio",
+                       // ADR 10c: as DUAS pernas da condição. Uma sozinha é o
+                       // defeito que a outra comprou — a nota magra sem o
+                       // quando, ou a nota farta somando o gabarito.
+                       "se ela quase não dá", "se ela dá matéria",
+                       "só entra a que a nota deixou sem resposta"] {
+            #expect(pedido.contains(pedaço))
         }
         // ADR 09i·2: proibir por NOME comprou mudez sobre a palavra do autor.
         // O contrato não lista mais palavra proibida — ele diz de onde ela vem.
-        for nome in ["sobre o degrau", "sobre o método", "sobre a forma da nota"] {
-            #expect(!Sabia.sistemaInstigar.contains(nome))
+        // ADR 10c: e "Aí MANDA o vazio" é a cláusula INCONDICIONAL do LOTE-5,
+        // que o G3 mediu a diluir a nota farta. Quem a trouxer de volta fica
+        // vermelho aqui antes de gastar uma janela do aparelho da conta.
+        for nome in ["sobre o degrau", "sobre o método", "sobre a forma da nota",
+                     "Aí MANDA o vazio"] {
+            #expect(!pedido.contains(nome))
         }
+    }
+
+    /// ADR 10c — a duplicação do pedido base é segura porque isto a vigia. Os
+    /// dois braços rodam no MESMO binário e a ÚNICA diferença permitida é o
+    /// DESFECHO: um espaço a mais no meio faria a corrida medir duas coisas e
+    /// chamar de uma alavanca só.
+    @Test func aBaseEOCandidatoDiferemSoNoDesfecho() {
+        let comum = "ela nomeie — pergunta que já traz o fato suposto não é pergunta, é palpite.\n"
+        func ate(_ s: String) -> String {
+            guard let f = s.range(of: comum)?.upperBound else { return "" }
+            return String(s[..<f])
+        }
+        #expect(!ate(Sabia.sistemaInstigar).isEmpty)
+        #expect(ate(Sabia.sistemaInstigarBase) == ate(Sabia.sistemaInstigar))
+        // e o desfecho MUDA, senão não há alavanca nenhuma para medir
+        #expect(Sabia.sistemaInstigarBase != Sabia.sistemaInstigar)
+        #expect(Sabia.sistemaInstigarBase.hasSuffix("mesmo uma linha só dá o que perguntar — o quê, quando, o que era."))
+        #expect(!Sabia.sistemaInstigarBase.contains("depende da MATÉRIA"))
+        // em Release o braço da base não existe; em DEBUG, sem a variável, o
+        // pedido vigente é o candidato — a sonda é que troca, nunca a produção.
+        #expect(Sabia.pedidoDeInstigar == Sabia.sistemaInstigar)
     }
 
     /// A medida que o G3 pediu: o degrau CHEGA (ele entra na mensagem de
@@ -240,7 +277,7 @@ private func temp(_ nome: String) -> URL {
         let sobreOMetodoDele = "O que exatamente o seu método pede no segundo degrau que você ainda não consegue fazer?"
         #expect(Sabia.parsePerguntas(#"{"perguntas":["\#(sobreOMetodoDele)"]}"#, texto: dele) == [sobreOMetodoDele])
         // o mesmo par, mudando SÓ a procedência: quem não escreveu não ouve
-        #expect(Sabia.parsePerguntas(#"{"perguntas":["\#(sobreOMetodoDele)"]}"#, texto: rascunho) == nil)
+        #expect(Sabia.parsePerguntas(#"{"perguntas":["\#(sobreOMetodoDele)"]}"#, texto: rascunho) == [])
         // e o acento não é procedência: quem digitou sem ele continua dono
         let semAcento = "Sigo um metodo de estudo em degraus e travei no segundo degrau."
         #expect(Sabia.parsePerguntas(#"{"perguntas":["\#(sobreOMetodoDele)"]}"#, texto: semAcento) == [sobreOMetodoDele])
@@ -269,7 +306,7 @@ private func temp(_ nome: String) -> URL {
         let nota = "Vou aceitar a proposta porque a comissão de 12% cobre o meu custo."
         let cru = #"{"contra":"A comissão de 12% cobre o custo de hoje, não o de um mês com dois projetos abertos ao mesmo tempo.","foraDaLista":"","outroCampo":""}"#
         #expect(Sabia.parseContraparte(cru, texto: nota)?.contra.hasPrefix("A comissão") == true)
-        #expect(Sabia.parseContraparte(cru, texto: "Vou aceitar a proposta.") == nil)
+        #expect(Sabia.parseContraparte(cru, texto: "Vou aceitar a proposta.")?.vazia == true)
     }
 
     /// ADR 09i·2 — a dívida declarada de invenção chegou à tela: em 09/09 o
@@ -288,6 +325,12 @@ private func temp(_ nome: String) -> URL {
         #expect(r?.contra.hasPrefix("Parcelar cria") == true)   // 18 e três são dele
         #expect(r?.foraDaLista.isEmpty == true)                 // "salário" não está na nota
         #expect(r?.outroCampo.isEmpty == true)                  // 0 e 9 não estão na nota
+        // ADR 09s: "renda" entrou na lista. O LOTE-3 pegou o grok-4.5 escrevendo
+        // renda nas TRÊS repetições desta mesma nota, que não declara nenhuma.
+        #expect(Sabia.parseContraparte(#"{"contra":"Parcelar em 18 vezes compromete renda futura que hoje você não tem garantida.","foraDaLista":"","outroCampo":""}"#, texto: nota)?.contra.isEmpty == true)
+        // e a procedência continua mandando: quem escreveu "renda" ouve de volta
+        let declarou = nota + " Minha renda é fixa e entra todo dia 5."
+        #expect(Sabia.parseContraparte(#"{"contra":"A parcela fixa por 18 meses aposta que a renda de hoje continua igual.","foraDaLista":"","outroCampo":""}"#, texto: declarou)?.contra.isEmpty == false)
         // o outro lado: o que ELE deu volta, e o que ele não deu some
         #expect(Sabia.numeroAlheio("dezoito meses de compromisso", texto: nota) == false)
         #expect(Sabia.numeroAlheio("dezoito meses e mais 6 de garantia", texto: nota) == true)
@@ -679,5 +722,277 @@ private func temp(_ nome: String) -> URL {
         let inicioCatalogo = try #require(texto.range(of: "FORMAS DO TRAÇO"))
         #expect(inicioNotas.lowerBound < inicioCatalogo.lowerBound)
         #expect(inicioConversa.lowerBound < inicioCatalogo.lowerBound)
+    }
+}
+
+/// A GUARDA QUE APAGA NÃO PODE VIRAR SILÊNCIO — ADR 2026-09-09s.
+///
+/// O LOTE-3 devolveu `Falha.semRetorno` com HTTP 200 e "conteúdo completo" em
+/// `grok-4.5` rep. 2 do CSV e em `grok-4.3` rep. 1 do tudo-ou-nada
+/// (`prova/lote09c-q4-grok-4.5.jsonl`, `prova/lote09c-q4-grok-4.3.jsonl`). A
+/// resposta chegava inteira; as três chaves caíam nas guardas; `Contraparte`
+/// ficava vazia; o parser devolvia `nil`; a Lente escrevia "a sábia não
+/// respondeu." sobre uma resposta que existiu.
+///
+/// A prova é a distinção, não o texto: `nil` é NÃO LI, vazio é LI E NÃO SOBROU.
+/// Os dois irmãos — `parseContraparte` e `parsePerguntas` — passam pela mesma
+/// régua, porque o defeito era da FORMA, não de uma rota.
+@Suite struct GuardaQueApagaNaoEhSilencioTests {
+
+    /// O caso `q4-contrapor-tudo-ou-nada`, com a nota palavra por palavra. Ela
+    /// escreve "cinco quilômetros" por extenso, então TODO algarismo da
+    /// resposta é alheio: as três chaves caem, e é este o desfecho medido.
+    @Test func respostaInteiraEsvaziadaNaoEhSemRetorno() {
+        let nota = "Não adianta eu correr se não for pelo menos cinco quilômetros; menos que isso não conta."
+        let cru = #"""
+        {"contra":"Sessões de 20 minutos já elevam a capacidade aeróbica, segundo estudos de treinamento intervalado.",
+         "foraDaLista":"Correr 2 km três vezes por semana em vez de 5 km uma vez.",
+         "outroCampo":"Na natação, 30 % do ganho vem de séries curtas."}
+        """#
+        let r = Sabia.parseContraparte(cru, texto: nota)
+        // ANTES: nil — e a tela dizia "a sábia não respondeu."
+        #expect(r != nil)
+        #expect(r?.vazia == true)
+        // o mesmo cru sem JSON legível continua sendo ausência de resposta
+        #expect(Sabia.parseContraparte("desculpe, não posso ajudar com isso", texto: nota) == nil)
+    }
+
+    /// O irmão: `parsePerguntas` tinha a mesma forma e o mesmo desfecho.
+    @Test func oIrmaoDoInstigarDistingueOsMesmosDoisDesfechos() {
+        let magro = "Não deu certo de novo."
+        let sóAndaime = #"{"perguntas":["Qual é o movimento básico que se pula?","Em que degrau você está?"]}"#
+        #expect(Sabia.parsePerguntas(sóAndaime, texto: magro) == [])
+        #expect(Sabia.parsePerguntas("claro! seguem as perguntas", texto: magro) == nil)
+    }
+
+    /// O MESMO defeito uma função adiante, e desta vez numa rota VIVA:
+    /// `vestir` é `.grokDepoisBordo` na tabela `Politica`, ao contrário de
+    /// `instigar` e `contrapor`. `Sabia.vestir` devolvia `nil` tanto para o
+    /// provedor mudo quanto para o 200 que o NOSSO contrato recusou, e
+    /// `Sessao.vestirTudo` escrevia "a sábia não respondeu. o texto ficou como
+    /// estava." sobre uma resposta que existiu.
+    ///
+    /// Os três `cru` são JSON legível, lido até o fim, na forma exata do mapa
+    /// que a sonda gravou em `prova/q-qualidade-avaliacoes.jsonl`
+    /// (`qn-vestir-tabela-e-lista`): a lista VAZIA — o modelo dizendo
+    /// honestamente que não há o que vestir —, a lista mais CURTA que os
+    /// blocos pendentes, e a lista com DOIS títulos. Nenhum deles é "não deu
+    /// para ler", e os três caíam na mesma frase do provedor mudo.
+    @MainActor @Test func vestirComRespostaInteiraNaoEhSemRetorno() async throws {
+        let dois = "Esta explicação contém uma frase completa que o modelo ainda pode organizar."
+            + "\n\nEsta segunda explicação também é uma frase completa e segue em prosa corrida."
+        // sem melhoria local o desfecho é inteiramente da sábia: é o caso do defeito
+        try #require(Caderno.estruturar(dois) == dois)
+        let blocos = Sabia.blocos(dois)
+        try #require(blocos.count == 2)
+        for cru in ["[]",
+                    #"[{"i":0,"forma":"titulo"}]"#,
+                    #"[{"i":0,"forma":"titulo"},{"i":1,"forma":"titulo"}]"#] {
+            // ANTES: nil — e o toast dizia "a sábia não respondeu."
+            #expect(await Sabia.vestir(blocos: blocos, gesto: nil, gerar: { _ in cru }) == [])
+        }
+        // o provedor mudo continua sendo ausência de resposta
+        #expect(await Sabia.vestir(blocos: blocos, gesto: nil, gerar: { _ in nil }) == nil)
+    }
+
+    /// A tela do `vestir` tem a frase do terceiro desfecho, e ela não convida a
+    /// repetir: `vestir` MEMOIZA (`memoPor: "vestir…"`), então "peça de novo"
+    /// seria falso ali — pedir de novo devolve o mesmo cru, do memo.
+    @Test func aTelaDoVestirDizQueHouveRespostaSemMandarPedirDeNovo() {
+        #expect(Sabia.nadaVestiu != "a sábia não respondeu. o texto ficou como estava.")
+        #expect(Sabia.nadaVestiu.contains("respondeu"))
+        #expect(!Sabia.nadaVestiu.contains("não respondeu"))
+        #expect(!Sabia.nadaVestiu.lowercased().contains("de novo"))
+    }
+
+    /// A sonda distingue as duas quedas do `vestir`. Sem isto o LOTE seguinte
+    /// lê `Falha.semRetorno` e não sabe dizer se o provedor calou ou se fomos
+    /// nós — que é exatamente o que a corrida de 07/09 deixou sem resposta
+    /// (6 `semRetorno` em `prova/qualidade-ia-contexto-vestir-20260907.jsonl`).
+    @MainActor @Test func aSondaSabeQuandoFoiOVestirQueApagou() async throws {
+        let dois = "Esta explicação contém uma frase completa que o modelo ainda pode organizar."
+            + "\n\nEsta segunda explicação também é uma frase completa e segue em prosa corrida."
+        let blocos = Sabia.blocos(dois)
+        _ = Sabia.retirarGuardasQueApagaram()
+        _ = await Sabia.vestir(blocos: blocos, gesto: nil, gerar: { _ in "claro! aqui vai" })
+        #expect(Sabia.retirarGuardasQueApagaram() == ["vestir · mapa fora do contrato"])
+        _ = await Sabia.vestir(blocos: blocos, gesto: nil, gerar: { _ in #"[{"i":0,"forma":"titulo"}]"# })
+        #expect(Sabia.retirarGuardasQueApagaram() == ["vestir · mapa menor que os blocos pendentes"])
+    }
+
+    /// A convenção da casa, congelada: `parseCalibragem`, `parseEcos` e
+    /// `PadroesRemoto.parsePerguntas` já separavam os dois desfechos, e é por
+    /// isso que o conserto da Lente foi nos parsers e não em cada chamador.
+    ///
+    /// Emenda (Q4-D): os dois da Lente NÃO eram os únicos fora do passo — a
+    /// frase original da ADR 09s dizia isso e o código a contradizia. `vestir`
+    /// tinha a mesma queda em rota viva, e está aqui em cima. Os que sobram
+    /// (`parsePerguntaDeRecordar`, `parseVoltaram`, `RespostaNotas.interpretar`)
+    /// estão na tabela da emenda, com dono para o único que mentiria numa tela.
+    @Test func todosOsParsersDeListaSeguemAMesmaRegra() {
+        let ilegivel = "claro! aqui vai"
+        #expect(Sabia.parseCalibragem(ilegivel, pares: ["escolha: x"]) == nil)
+        #expect(Sabia.parseCalibragem(#"{"perguntas":["Inventada sem citação?"]}"#, pares: ["escolha: x"]) == [])
+        #expect(Sabia.parseEcos(ilegivel, candidatas: ["uma nota"]) == nil)
+        #expect(Sabia.parseEcos(#"{"ecos":[{"i":9,"trecho":"não existe"}]}"#, candidatas: ["uma nota"]) == [])
+        #expect(PadroesRemoto.parsePerguntas(ilegivel) == nil)
+        #expect(PadroesRemoto.parsePerguntas(#"{"perguntas":[]}"#) == [])
+    }
+
+    /// A tela só tem a frase certa se ela existir. Três desfechos, três frases
+    /// distintas — e nenhuma delas manda conectar conta que já está ligada.
+    @Test func aTelaTemUmaFraseParaCadaUmDosTresDesfechos() {
+        let naoRespondeu = "a sábia não respondeu."
+        #expect(Sabia.nadaPassouNaGuarda != naoRespondeu)
+        #expect(Sabia.nadaPassouNaGuarda != Politica.semProvedor(.contrapor))
+        #expect(Sabia.nadaPassouNaGuarda != Politica.semProvedor(.instigar))
+        // ela DIZ que houve resposta — é a única informação nova que o autor tem
+        #expect(Sabia.nadaPassouNaGuarda.contains("respondeu"))
+        #expect(!Sabia.nadaPassouNaGuarda.contains("não respondeu"))
+    }
+
+    /// A sonda passa a nomear a guarda. Sem isto o LOTE-3 seguinte só saberia
+    /// dizer "vazio" de novo, e a volta depois dele recomeçaria cega.
+    @Test func aSondaSabeQualGuardaApagou() {
+        _ = Sabia.retirarGuardasQueApagaram()
+        let nota = "Vou parcelar o notebook em 18 vezes sem juros. Minha reserva cobre três meses."
+        _ = Sabia.parseContraparte(#"{"contra":"Parcelar em 18 vezes compromete a renda dos meses seguintes.","foraDaLista":"","outroCampo":""}"#, texto: nota)
+        let guardas = Sabia.retirarGuardasQueApagaram()
+        #expect(guardas == ["contra · fato que ele não deu"])
+        #expect(Sabia.retirarGuardasQueApagaram().isEmpty)  // retirar esvazia
+    }
+
+    /// O contrato do `contrapor` promoveu a proibição por procedência para o
+    /// alto, ao lado da que já matou a evidência fabricada (Q4-B, 3/3).
+    @Test func oContratoDeContraporProibeORecursoQueElaNaoEscreveu() {
+        for pedaço in ["Proibido também o que é DELA e ela não", "renda, salário, dívida",
+                       "apagada inteira"] {
+            #expect(Sabia.sistemaContrapor.contains(pedaço))
+        }
+        // saiu do fim: era a penúltima linha e não mandava em nada
+        #expect(!Sabia.sistemaContrapor.contains("Não atribua a ela recurso"))
+    }
+
+    /// ADR 2026-09-10c — a alavanca do LOTE-7, e é UMA. O caso cego do revisor
+    /// derrubou as duas famílias em PONTAS OPOSTAS na Q4-E: o `grok-4.5`
+    /// propôs, 3 de 3, o ensaio com os dados reais que a nota fecha por
+    /// escrito; o `grok-4.3` fechou uma base com os três campos vazios. A
+    /// frase antiga só dava por DADO o requisito, a restrição e o motivo — e
+    /// uma saída DESCARTADA não é nenhum dos três, então o modelo a lia como
+    /// opinião a rebater ou lacuna a preencher.
+    ///
+    /// A regra nova é uma só e fecha as duas de uma vez, condicionada à
+    /// MATÉRIA: o que ela descartou é dado (fecha a invenção) e, quanto mais
+    /// ela fecha, mais o contraponto se aperta no que SOBRA (fecha a recusa
+    /// covarde). Sem promover lista, sem exigir número de campos, sem pedir
+    /// autocertificação — foi assim que a Q4-C comprou o defeito oposto.
+    @Test func oContratoDeContraporFechaASaidaQueElaMesmaDescartou() {
+        for pedaço in ["é DADO também",
+                       "o que ela já descartou, recusou ou disse não ter",
+                       "nem como alternativa no foraDaLista, nem como etapa antes",
+                       "Saída que ela mesma fechou não é contraponto, é troca de assunto",
+                       "Quanto mais saídas ela fecha, mais o contraponto se aperta no que SOBRA",
+                       // tentativa 2: as duas pontas que sobraram na primeira
+                       "O que ela pôs fora da conta fica fora, a favor e contra",
+                       "não ofereça",
+                       "substituto para o recurso que ela disse não ter"] {
+            #expect(Sabia.sistemaContrapor.contains(pedaço))
+        }
+        // A guarda que acusa precisa da irmã que NÃO acusa: a regra é abstrata
+        // e não pode carregar as palavras do caso cego, ou passa por decorar.
+        for doCegoQueNaoEntra in ["homologação", "faseamento", "academia", "banco de dados"] {
+            #expect(!Sabia.sistemaContrapor.contains(doCegoQueNaoEntra))
+        }
+    }
+
+    /// ADR 2026-09-10d — a TERCEIRA alavanca: o esquema da saída. Não é uma
+    /// terceira redação do pedido, e este par prova isso — o CORPO das
+    /// instruções é byte a byte o mesmo nos dois braços; o que muda é a FORMA
+    /// que a resposta tem de ter, e essa a API aplica.
+    @Test func osDoisBracosDoContraporPedemAMesmaCoisaEDiferemSoNaForma() throws {
+        let corpo = "Cada valor em português, até 280 caracteres"
+        let iA = try #require(Sabia.sistemaContrapor.range(of: corpo))
+        let iB = try #require(Sabia.sistemaContraporComEsquema.range(of: corpo))
+        #expect(Sabia.sistemaContrapor[iA.lowerBound...] == Sabia.sistemaContraporComEsquema[iB.lowerBound...],
+                "o esquema virou uma terceira redação do pedido")
+        // A ORDEM é a alavanca: `fechadas` sai ANTES da proposta existir, e o
+        // modelo escreve da esquerda para a direita. Um esquema montado por
+        // dicionário de Swift perderia isto sem erro nenhum.
+        let e = Sabia.esquemaContrapor
+        let pos = try ["fechadas", "contra", "foraDaLista", "dependeDe", "outroCampo"].map {
+            try #require(e.range(of: "\"\($0)\":")).lowerBound
+        }
+        #expect(pos == pos.sorted(), "a ordem das chaves do esquema não é a da geração")
+        let j = try #require(try JSONSerialization.jsonObject(with: Data(e.utf8)) as? [String: Any])
+        #expect(j["additionalProperties"] as? Bool == false)
+        #expect((j["required"] as? [String])?.count == 5, "strict exige TODAS as chaves em required")
+    }
+
+    /// ADR 2026-09-10d — o esquema é lido, e o JOIN não decide.
+    ///
+    /// Este teste guarda a decisão medida no LOTE-9, não uma intenção. O join
+    /// `dependeDoQueElaFechou` foi escrito, medido (5 disparos, 1 acerto, 4
+    /// erros) e RETIRADO do caminho: `fechadas` e `dependeDe` continuam no
+    /// esquema — porque a FORMA medida é esta — e nenhum dos dois apaga nada.
+    @Test func oEsquemaEhLidoEOJoinNaoDecideMais() {
+        let nota = "Vou virar o banco de dados de uma vez no sábado à noite. Fazer em etapas eu já descartei: "
+            + "o esquema muda inteiro e as duas versões não rodam juntas. Não tenho ambiente de teste com os dados reais."
+        _ = Sabia.retirarGuardasQueApagaram()
+        // O caso que o join MATAVA no LOTE-9 (`4.5`, razões fechadas r1):
+        // "pausar a matrícula" depende da matrícula que ela TEM. Chega ao autor.
+        let boa = Sabia.parseContraparte(#"""
+        {"fechadas":["não quero trocar por outra academia","não quero treinar em casa"],"contra":"Manter a assinatura preserva o acesso a cinco minutos para o dia em que a vontade voltar.","foraDaLista":"pausar ou congelar a matrícula por um período, em vez de cancelar de vez","dependeDe":"a academia permitir pausa da matrícula sem trocar de unidade","outroCampo":""}
+        """#, texto: "Vou cancelar a assinatura da academia. Não quero trocar por outra academia nem treinar em casa.")
+        #expect(boa?.foraDaLista.isEmpty == false, "o join voltou e matou a proposta que o LOTE-9 mediu como boa")
+        #expect(Sabia.retirarGuardasQueApagaram().isEmpty, "alguma guarda se declarou dona deste silêncio")
+
+        // As duas chaves novas são LIDAS e não derrubam o contrato do parser.
+        let cego = Sabia.parseContraparte(#"""
+        {"fechadas":["fazer em etapas","ambiente de teste com os dados reais"],"contra":"O corte único concentra o risco na única noite em que o contrato ainda admite entrega.","foraDaLista":"virada em modo somente leitura, com retorno por restore se não fechar na madrugada","dependeDe":"uma cópia restaurável recente","outroCampo":""}
+        """#, texto: nota)
+        #expect(cego?.foraDaLista.isEmpty == false)
+        #expect(cego?.contra.isEmpty == false)
+        // O braço ANTIGO passa pelo MESMO parser sem as duas chaves.
+        let antigo = Sabia.parseContraparte(#"{"contra":"O corte único concentra o risco na noite do contrato.","foraDaLista":"virada em janela de manutenção fora do sábado à noite","outroCampo":""}"#, texto: nota)
+        #expect(antigo?.foraDaLista.isEmpty == false)
+        #expect(Sabia.retirarGuardasQueApagaram().isEmpty)
+    }
+
+    /// A DÍVIDA, com a prova de por que ela é dívida. O join continua no código
+    /// sem chamador, e este teste é o motivo: ele mostra, com os dois casos
+    /// MEDIDOS lado a lado, que casar palavra não separa "o recurso que ela não
+    /// tem" de "o recurso que ela tem, usado de outro jeito". Apagar a função
+    /// apagaria a prova, e a próxima volta recomeçaria pela mesma ideia.
+    @Test func oJoinPorPalavraNaoSeparaOQueElaNaoTemDoQueElaUsaDeOutroJeito() {
+        let fechadasDaAcademia = ["não quero trocar por outra academia", "não quero treinar em casa"]
+        // ACERTO (LOTE-9, `4.5`, alternativas negadas r2): o recurso é o que ela NÃO tem.
+        #expect(Sabia.dependeDoQueElaFechou("espelho ou cópia isolada dos dados reais só para medir a duração",
+                                            fechadas: ["fazer em etapas", "ambiente de teste com os dados reais"]))
+        // ERRO (LOTE-9, `4.5`, razões fechadas r1): o recurso é o que ela TEM.
+        #expect(Sabia.dependeDoQueElaFechou("a academia permitir pausa da matrícula sem trocar de unidade",
+                                            fechadas: fechadasDaAcademia),
+                "se este deixou de acusar, o desenho mudou e a dívida pode ser revista")
+        // A nota que não fecha nada não paga preço nenhum, e nunca pagou.
+        #expect(!Sabia.dependeDoQueElaFechou("um relógio ou o próprio tempo do percurso", fechadas: []))
+    }
+
+    /// ADR 2026-09-10c — o portão que vem ANTES do prompt. Três campos vazios
+    /// sobre HTTP 200 têm DUAS causas possíveis, e a tela e a ADR dependem de
+    /// saber qual: o modelo calou, ou a nossa guarda apagou. `guardasQueApagaram`
+    /// separa as duas — e este par prova que ela ENXERGA: a irmã que acusa e a
+    /// irmã que não acusa, sobre a mesma nota e a mesma forma de retorno.
+    @Test func tresVaziosDoModeloNaoSaoTresVaziosDaGuarda() {
+        let nota = "Vou parcelar o notebook em 18 vezes sem juros. Minha reserva cobre três meses."
+        _ = Sabia.retirarGuardasQueApagaram()
+        // o MODELO calou: vem vazio, nenhuma guarda tem o que apagar
+        let calou = Sabia.parseContraparte(#"{"contra":"","foraDaLista":"","outroCampo":""}"#, texto: nota)
+        #expect(calou?.vazia == true)
+        #expect(Sabia.retirarGuardasQueApagaram().isEmpty, "o modelo calou e uma guarda se declarou dona do silêncio")
+        // a GUARDA apagou: veio conteúdo, e nada dele era sobre a nota dela
+        let apagada = Sabia.parseContraparte(
+            #"{"contra":"Parcelar em 18 vezes compromete a renda dos meses seguintes.","foraDaLista":"","outroCampo":""}"#,
+            texto: nota)
+        #expect(apagada?.vazia == true)
+        #expect(Sabia.retirarGuardasQueApagaram() == ["contra · fato que ele não deu"])
     }
 }

@@ -13,6 +13,26 @@ enum AvaliacaoIA {
         "responderNasNotas", "responder", "instigar", "contrapor", "vestir", "recordar",
         "conferir", "ecos", "calibragem", "padroes", "classificar", "dominio", "modelosGrok"]
 
+    /// QUAL pedido rodou cada caso, pelo dado e não pelo nome do arquivo. A
+    /// 10b precisou reconstruir isto procurando os 2.327 bytes do prompt DENTRO
+    /// do dylib instalado; a 10c mede DOIS braços de `instigar` no MESMO
+    /// binário, e sem o carimbo os dois JSONL seriam indistinguíveis.
+    ///
+    /// **Está aqui, e não na cauda do dicionário do registro, porque lá as duas
+    /// chaves caíam na mesma linha que fecha o literal** — e uma mescla de
+    /// afogadilho derrubava uma delas EM SILÊNCIO, deixando a corrida seguinte
+    /// com cara de medida. Um carimbo que some sem barulho é pior que um
+    /// carimbo que nunca existiu. `AvaliacaoIACarimboTests` fica vermelho se
+    /// qualquer uma sumir, e a rota nova entra aqui em vez de na cauda.
+    static var carimbosDoPedido: [String: String] {
+        ["pedidoResponderSHA256": sha256(Sabia.sistemaResponder),
+         "pedidoInstigarSHA256": sha256(Sabia.pedidoDeInstigar)]
+    }
+
+    static func sha256(_ t: String) -> String {
+        SHA256.hash(data: Data(t.utf8)).map { String(format: "%02x", $0) }.joined()
+    }
+
     private struct Lote: Codable {
         var repeticoes: Int?
         var casos: [Caso]
@@ -127,10 +147,23 @@ enum AvaliacaoIA {
             let arquivo = try FileHandle(forWritingTo: destino)
             defer { try? arquivo.close() }
             try arquivo.seekToEnd()
+            // ADR 2026-09-10d — os dois braços do `contrapor` vivem no MESMO
+            // dylib, então o SHA do binário não distingue qual rodou. O que
+            // distingue é o PEDIDO, e ele vai em TODA linha (não só no caso):
+            // a dúvida "o binário era outro" morre linha a linha, e não por
+            // um cabeçalho que se perde quando alguém corta o arquivo.
+            let sistemaContraporQueRodou = Sabia.contraporSemEsquema
+                ? Sabia.sistemaContrapor : Sabia.sistemaContraporComEsquema
+            let assinaturaDoContrapor: [String: Any] = [
+                "bracoContrapor": Sabia.contraporSemEsquema ? "antigo-sem-esquema" : "esquema-da-saida",
+                "pedidoContraporSHA256": SHA256.hash(data: Data(sistemaContraporQueRodou.utf8))
+                    .map { String(format: "%02x", $0) }.joined(),
+            ]
             func gravar(_ campos: [String: Any]) throws {
                 var linha = campos
                 linha["corrida"] = corrida
                 linha["data"] = Date.now.ISO8601Format()
+                linha.merge(assinaturaDoContrapor) { atual, _ in atual }
                 let json = try JSONSerialization.data(withJSONObject: linha, options: [.sortedKeys, .fragmentsAllowed])
                 try arquivo.write(contentsOf: json + Data([0x0A]))
                 try arquivo.synchronize()
@@ -145,6 +178,7 @@ enum AvaliacaoIA {
                     Grok.esquecerMemo()
                     _ = Grok.retirarDiagnosticos()
                     _ = MotorTrabalho.retirarRecusasDaPreparacao()
+                    _ = Sabia.retirarGuardasQueApagaram()
                     PadroesRemoto.esquecerMemo()
                     var registro: [String: Any] = ["id": caso.id, "operacao": caso.operacao,
                         "repeticao": repeticao, "entrada": try objeto(caso.entrada),
@@ -160,13 +194,6 @@ enum AvaliacaoIA {
                         // operação indisponível por qualidade só alcança o
                         // provedor se estiver listada aqui.
                         "operacoesLiberadasParaAvaliacao": Politica.liberadasParaAvaliacao.sorted(),
-                        // ADR 2026-09-10b: QUAL pedido rodou este caso. A Q2-F
-                        // teve de reconstruir isso procurando os 2.327 bytes do
-                        // prompt DENTRO do dylib instalado; uma linha aqui e a
-                        // corrida diz de si mesma qual texto mandou. Identifica
-                        // o braço — a leitura das saídas continua sendo a régua.
-                        "pedidoResponderSHA256": SHA256.hash(data: Data(Sabia.sistemaResponder.utf8))
-                            .map { String(format: "%02x", $0) }.joined(),
                         // ADR 2026-09-10g: QUAL montagem rodou este caso. Vai
                         // em TODA linha, inclusive nas dos casos que não usam
                         // montagem — uma linha sem braço é uma linha que não
@@ -183,6 +210,11 @@ enum AvaliacaoIA {
                         registro["contextoChars"] = m.contexto.count
                         registro["contextoViajaram"] = m.viajaram
                     }
+                    // ADR 2026-09-10b, generalizado em `main`: QUAL pedido rodou
+                    // este caso, por operação. A Q2-F teve de reconstruir isso
+                    // procurando o prompt DENTRO do dylib instalado; uma linha
+                    // aqui e a corrida diz de si mesma qual texto mandou.
+                    for (chave, sha) in carimbosDoPedido { registro[chave] = sha }
                     registro["evento"] = "casoIniciado"
                     try gravar(registro)
                     let inicio = ContinuousClock.now
@@ -196,6 +228,11 @@ enum AvaliacaoIA {
                     // recusa, a linha redigida diz qual guarda foi.
                     let recusas = MotorTrabalho.retirarRecusasDaPreparacao()
                     if !recusas.isEmpty { registro["recusasDaPreparacao"] = recusas }
+                    // ADR 2026-09-09s: o LOTE-3 só sabia dizer "vazio". Quem
+                    // apagou a frase — e qual chave — é o que decide se a
+                    // guarda está certa ou estreita na volta seguinte.
+                    let guardas = Sabia.retirarGuardasQueApagaram()
+                    if !guardas.isEmpty { registro["guardasQueApagaram"] = guardas }
                     let duracao = inicio.duration(to: .now).components
                     registro["duracaoSegundos"] = Double(duracao.seconds) + Double(duracao.attoseconds) / 1e18
                     registro["evento"] = "casoConcluido"
@@ -284,6 +321,11 @@ enum AvaliacaoIA {
                 contexto: montagem(e)?.contexto ?? e.contexto ?? "",
                 gesto: gesto, retrato: e.retrato ?? ""))
         case "instigar":
+            // ADR 2026-09-10c: o que sai daqui é a saída TRATADA — `parsePerguntas`
+            // já derrubou a pergunta curta, a longa e a que vazou o nosso andaime,
+            // e some sem deixar rastro. O retorno BRUTO viaja em
+            // `chamadasGrok[].bruto`: sem ele a medida conta o que sobrou da nossa
+            // guarda e chama isso de "o modelo".
             return try exigir(await Sabia.instigar(texto: texto, gesto: gesto, degrau: e.degrau ?? 0, retrato: e.retrato ?? ""))
         case "contrapor":
             let r = try exigir(await Sabia.contrapor(texto: texto, gesto: gesto, retrato: e.retrato ?? ""))
