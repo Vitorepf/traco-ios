@@ -12,9 +12,18 @@
 #           aparelho deixou de ser constante.
 #   TRAVA — a trava é do PRÓPRIO UDID. A global punha as janelas em fila, e a
 #           ordem de 10/09 12h40 é que elas corram juntas.
-#   as CORRIDAS vêm como `saida:fixture:liberar:modelo:timeout:pedido`, e
+#   as CORRIDAS vêm como `saida:fixture:liberar:modelo:timeout`, e
 #           `fixture` aceita caminho ABSOLUTO — prova com dado real mora fora
 #           do repositório, em local de acesso restrito.
+#
+# 10/09 (G3 da 10b): o 6º campo, `pedido`, MORREU. O seletor de braço em Swift
+#   que lia `TRACO_AVALIAR_PEDIDO` era costura de sonda da 10b e saiu no fecho
+#   daquela volta; o `export` ficou aqui e a variável passou a não ter leitor.
+#   Quem a usasse mediria o pedido ATUAL achando que mediu o anterior — a rota
+#   que cala (DIRETRIZ §8), dentro do próprio medidor. Em vez de apagar em
+#   silêncio, o campo agora PARA a corrida: quem quiser dois braços devolve o
+#   seletor ao Swift primeiro. Os textos dos braços da 10b estão em
+#   `prova/10b/pedido-candidato-{1,2}.txt`.
 # As três fumaças e a instalação única continuam obrigatórias e fixas.
 set -u
 D="${D:-B91C8DEF-B0A7-454A-95DE-5D7BA7B040A9}"
@@ -34,8 +43,8 @@ docs() { echo "$(xcrun simctl get_app_container $D $BID data)/Documents"; }
 hora() { date -u +%Y-%m-%dT%H:%M:%SZ; }
 sha()  { shasum -a 256 "$1" | awk '{print $1}'; }
 
-rodar() { # saida fixture liberar modelo timeout pedido
-  local saida="$1" fix="$2" lib="${3:-}" mod="${4:-}" tmo="${5:-600}" ped="${6:-}"
+rodar() { # saida fixture liberar modelo timeout
+  local saida="$1" fix="$2" lib="${3:-}" mod="${4:-}" tmo="${5:-600}"
   local DOCS; DOCS="$(docs)"
   local src="$RAIZ/prova/$fix"; [ -f "$fix" ] && src="$fix"
   local nome; nome="$(basename "$fix")"
@@ -45,8 +54,6 @@ rodar() { # saida fixture liberar modelo timeout pedido
   echo "[$(hora)] INICIO $saida  fixture=$fix ($(sha "$src" | cut -c1-12)) liberar='$lib' modelo='${mod:-<padrao>}'"
   # modelo vazio = NÃO exportar: "" não é nil no Swift e viraria modelo em branco
   local -a MODENV=(); [ -n "$mod" ] && MODENV=(SIMCTL_CHILD_TRACO_AVALIAR_MODELO="$mod")
-  # ADR 10b: o BRAÇO do pedido, pelo mesmo canal e pela mesma regra do modelo.
-  [ -n "$ped" ] && MODENV+=(SIMCTL_CHILD_TRACO_AVALIAR_PEDIDO="$ped")
   env SIMCTL_CHILD_TRACO_AVALIAR_IA="$fix" SIMCTL_CHILD_TRACO_AVALIAR_LIBERAR="$lib" \
     ${MODENV[@]+"${MODENV[@]}"} \
     xcrun simctl launch --terminate-running-process $D $BID || echo "launch FALHOU"
@@ -77,7 +84,8 @@ rodar $PREFIXO-fumaca-2-pos-install.jsonl q2-fumaca.json "" "" 180
 # 4) as corridas da volta, na MESMA janela e sem reinstalar
 for c in ${CORRIDAS[@]+"${CORRIDAS[@]}"}; do
   IFS=: read -r _s _f _l _m _t _p <<<"$c"
-  rodar "$_s" "$_f" "$_l" "$_m" "${_t:-600}" "${_p:-}"
+  [ -n "${_p:-}" ] && { echo "CORRIDA '$c': o 6º campo (pedido) não tem leitor em Swift desde o fecho da 10b — devolva o seletor antes de usá-lo"; exit 3; }
+  rodar "$_s" "$_f" "$_l" "$_m" "${_t:-600}"
 done
 
 # 5) fumaça FIM

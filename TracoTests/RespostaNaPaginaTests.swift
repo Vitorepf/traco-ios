@@ -215,6 +215,27 @@ struct RespostaNaPaginaTests {
         s.perguntarASabia(no: c.mainContext, disponivel: true, aviso: Politica.semProvedor(.responder))
         #expect(s.cartao == .pergunta("Qual é o prazo?"))
     }
+
+    /// **O ramo que faltava.** Medido no fecho da 10b com `xccov`, o corpo desta
+    /// função saiu de 0 para 47 das 49 linhas — e as duas que sobravam eram
+    /// `cartao = .semConta` e o `return nil` dela. O G3 viu a ironia: é o único
+    /// ramo que um autor SEM conta Grok alcança hoje, ou seja, o caminho mais
+    /// percorrido pelo público era o que a suíte não pisava.
+    ///
+    /// A ordem também é o contrato: sem conta o autor lê "sem conta", não o
+    /// aviso de qualidade — por isso o `aviso` aqui é o da PRODUÇÃO, e mesmo
+    /// assim o cartão é `.semConta`. Nenhuma tarefa abre, e o modelo não é
+    /// chamado por caminho nenhum.
+    @Test func semContaOCartaoDizSemConta() throws {
+        let c = try caderno()
+        let s = sessaoComPergunta("? Qual é o prazo?")
+        s.responderNaPagina = { _, _, _, _ in Issue.record("chamou o modelo sem conta"); return "x" }
+        let tarefa = s.perguntarASabia(no: c.mainContext, disponivel: false,
+                                       aviso: Politica.aviso(.responder))
+        #expect(tarefa == nil)
+        #expect(s.cartao == .semConta)
+        #expect(s.notasNaPergunta.isEmpty)
+    }
 }
 
 /// Duas peças mínimas para a prova de retorno atrasado: um sinal que só abre

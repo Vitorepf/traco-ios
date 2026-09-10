@@ -33,12 +33,21 @@ correm o mesmo dylib** e a única variável entre eles é o texto do pedido.
 | | base | candidato 1 | candidato 2 |
 |---|---|---|---|
 | `pedidoResponderSHA256` | `d42d61ea…` | `20a0b7af…` | `72840c9a…` |
+| o texto, guardado | `Sabia.sistemaResponder` | `prova/10b/pedido-candidato-1.txt` | `prova/10b/pedido-candidato-2.txt` |
 | caracteres | 2.235 | 3.065 | 3.632 |
 | ocorrências no dylib instalado (busca de bytes) | 2 | 2 | 2 |
 
 Cada registro do JSONL carrega `pedidoResponderSHA256`, então **a corrida diz de
 si mesma qual texto mandou** — a Q2-F teve de reconstruir isso procurando 2.235
 bytes dentro do dylib.
+
+**Os dois textos reprovados estão guardados** (G3, achado 3): sha identifica, não
+deixa ler, e o produto desta volta é *"a próxima tentativa não repete estas duas"*.
+`shasum -a 256 prova/10b/pedido-candidato-1.txt` devolve `20a0b7af694c…` e o do 2
+devolve `72840c9a4c70…` — os mesmos das 120 linhas de cada candidato. Recuperados
+por bytes do dylib das janelas (o texto do candidato 1 também sobreviveu num
+`.bom` de trabalho), porque o seletor saiu do Swift no fecho e as reescritas nunca
+chegaram a um commit.
 
 ### A separação que o orquestrador cobrou: alavanca × instrumento
 
@@ -178,7 +187,12 @@ leitura — e a resposta é do modelo, não do autor.
 | candidato 1 | **0 de 3.** Em 2 de 3 a vizinha "Ideia: um caderno que responde" e o *"fechar o orçamento"* do "Plano da semana" entram na proposta da padaria **como se fossem plano dela** — exatamente a falsa intimidade que a Astra previu e que fixture curta não pega. |
 | candidato 2 | **2 de 3.** A r1 e a r3 nomeiam o que falta de verdade (mecanismo de atualização, quem altera, frequência, formato atual, restrições técnicas, orçamento e prazo) sem inventar a resposta do cliente. A r2 ainda puxa as duas vizinhas, mas agora **atribuídas** (*"conforme sua nota sobre servidor"*), o que é honesto e não é o defeito. |
 
-É o único lugar onde o candidato 2 é claramente melhor que a base — e não basta.
+**Contra a base não há comparação a fazer aqui, e a frase anterior deste
+relatório dizia que havia — corrigido no G3:** a base **nunca foi rodada nesta
+pergunta** (a coluna dela é `—` na tabela acima), porque a janela do aparelho de
+conta acabou. O que estes seis registros comparam é candidato 2 **contra candidato
+1**, e o 2 é claramente melhor — 2 de 3 contra 0 de 3. Não basta, e não diz nada
+sobre o texto que está no app.
 
 ---
 

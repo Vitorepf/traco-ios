@@ -9271,6 +9271,40 @@ absoluto — prova com dado real mora fora do repositório. Prova em `prova/10b/
 local de acesso restrito (`~/orca/prova-restrita/responder/`, modo 600), com as
 saídas em `prova/10b*/10b*-real.jsonl`. Leitura em `ferramentas/orca/responder.md`.
 
+**Emenda do G3 (mesma ADR, no fecho da volta).** Quatro coisas que a leitura
+independente cobrou, e todas são pequenas:
+
+1. **Os dois pedidos reprovados ficam legíveis.** `pedidoResponderSHA256`
+   identifica um texto; não deixa ninguém lê-lo, e o produto desta volta é *"a
+   próxima tentativa não repete estas duas"*. Os textos estão em
+   `prova/10b/pedido-candidato-1.txt` (3.065 caracteres, `20a0b7af…`) e
+   `pedido-candidato-2.txt` (3.632, `72840c9a…`), byte a byte os que as 120
+   linhas de cada candidato registram — recuperados por bytes do dylib das
+   janelas, porque a costura saiu do Swift antes de qualquer commit.
+2. **O botão morto do medidor foi apagado.** `lote-ia-09d-janela.sh` ainda
+   exportava `SIMCTL_CHILD_TRACO_AVALIAR_PEDIDO` sem nenhum leitor em Swift:
+   quem usasse o 6º campo de uma corrida mediria o pedido ATUAL achando que
+   mediu o anterior, **em silêncio** — a rota que cala (§8) dentro do próprio
+   instrumento de medida. O campo agora **para a corrida** em vez de sumir:
+   quem quiser dois braços devolve o seletor ao Swift primeiro.
+3. **O sétimo conserto ganhou guarda.** Apagar `diagnostico.bruto = msg` deixava
+   a suíte INTEIRA verde (1038 de 1038): havia prova de CORRIDA (180 de 180
+   chamadas com bruto no JSONL) e nenhuma prova de ÁRVORE. O corpo de
+   `Grok.responder` é inalcançável da suíte por desenho — `Motores.desligados` é
+   `true` em todo processo de teste, e é ele que impede a suíte de gastar a
+   assinatura do autor —, então o que se guarda é a **forma do portão**: na
+   janela entre o conteúdo aceito e a memoização, desfecho completo e bruto são
+   escritos juntos. O teste **carrega a própria mutação** (a mesma regra, sobre a
+   fonte com a linha removida, tem de reprovar), porque um portão que não acha
+   nada passaria calado — que é exatamente o defeito que ele guarda.
+4. **O ramo `.semConta` fechou:** era a única linha de `perguntarASabia` que a
+   suíte não pisava (47 de 49) e é o único ramo que um autor **sem** conta Grok
+   alcança hoje. **49 de 49.**
+
+Fica sem conserto, nomeado: o relatório desta volta cita no corpo o título de
+duas notas reais do aparelho da conta, contra a régua de redação que ele mesmo
+aplicou ao JSONL. Baixo risco e dívida do próximo que abrir o arquivo.
+
 **Próxima alavanca, e o motivo com número.** A ordem da Astra segue: **CONTEXTO**,
 não esquema. Metade do que sobrou é o modelo falando de um documento que nunca
 viu, e nenhum texto de pedido conserta isso — o pedido não substitui a informação
