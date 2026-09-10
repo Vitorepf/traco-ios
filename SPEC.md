@@ -9987,3 +9987,20 @@ Código em `Traco/Analise/Sabia.swift`, `Traco/Analise/AvaliacaoIA.swift`,
 `TracoTests/PerfilQualidadeTests.swift` e `TracoTests/AvaliacaoIACarimboTests.swift`; corridas inteiras em
 `prova/instigar-lote/t1/` e `prova/instigar-lote/t2/`, com o TEXTO dos dois pedidos
 guardado ao lado do JSONL. Relato em `ferramentas/orca/instigar.md`.
+
+## ADR 2026-09-10f — SISTEMA-IA/conversa · a conversa com a sábia é uma folha do Traço
+
+**Palavra do dono (10/09, 14h10 e 14h25, DIRETRIZ §14):** a resposta da sábia nas Notas era "experiência deplorável, design deplorável e doentio" — e não só o cartão: "a forma do design e experiência para falar com a sábia é deplorável". §15: a IA se apresenta como UM sistema, e a conversa é a primeira tela.
+
+**O que estava errado, na tela do aparelho da conta (`ferramentas/orca/sistema-ia-00-antes-34CC3F94-large.png`):** um campo "buscar ou perguntar" com duas intenções; a pergunta sumia ao enviar; a espera era um cartão "a sábia pensa…" com um Fechar e mais nada; a resposta subia num cartão flutuante sobre a lista, cortada com "CONTINUA"; "Foram junto:" com a mesma nota três vezes; "serviu / não serviu" soltos; dois Fechar; nenhuma continuação.
+
+**A decisão.**
+1. **Pedir é um gesto próprio.** A linha do pé nasce como busca ("buscar"); a palavra **perguntar**, em tinta âmbar à direita, é o gesto único de pedir à IA. Ela vira a linha da pergunta ("pergunte sobre as suas notas"), o que já estava escrito segue como rascunho, a lista para de filtrar, e enviar pergunta. `ConversaNotas.perguntando` guarda o modo; `modoPergunta` é o gesto OU a conversa aberta. A ADR 05e ("Buscar ou perguntar", um campo) fica substituída neste ponto.
+2. **A resposta é uma folha do Traço na área da lista, não um cartão sobre ela.** Com conversa, a lista e a regência cedem o lugar; a folha se lê inteira — **sem teto de altura e sem dobra** (a ADR 09w guardava "todo teto tem sinal"; a folha tirou a causa, e o portão passa a guardar a ausência de teto). `SinalDeSobra` e o teto de `CartaoDeResposta` foram apagados.
+3. **Continuação, não recomeço.** As trocas ficam na folha na ordem em que aconteceram; a linha do pé, com conversa, diz "pergunte de novo". Só a última troca leva as fontes e o retorno.
+4. **Os três estados sob a mesma pergunta**, pela `CartaoDeResposta` (uma só, para Notas, Página e Lente): pensando (a `Espera`: pensando, tempo, parar de esperar); **falhou, junto da pergunta e com "Perguntar de novo" ao lado** (estado novo do componente, com `rota-falhou` e `repetir-rota` na árvore); respondeu (a prosa, as fontes numa linha que abre em títulos tocáveis, o retorno como controle).
+5. **Um Fechar**, na topbar, fora do caminho da leitura. Fechar apaga a conversa e devolve a linha à busca. A resposta não vira nota por conta própria (ADR 02o): levar um trecho é selecionar e copiar, com as palavras do autor. **Dívida nomeada:** "guardar como nota" com origem própria exige um caso `OrigemNota` que hoje não existe (Modelo, arquiteto) — sem ele, uma nota "da sábia" mentiria a origem.
+
+**Curva-zero, em toques.** Perguntar a primeira vez: 3 (perguntar, escrever, enviar) — era 2, mas ambíguo (escrever filtrava e enviar perguntava do mesmo campo). Perguntar de novo: 2 (era: fechar, escrever, enviar — 3, e a troca anterior sumia). Ler a resposta inteira: 0 (era 1 a 2 rolagens dentro do cartão com teto). Ver as fontes: 1, só se quiser. Retorno: 1. Fechar: 1 (era 2 Fechar na tela).
+
+**Prova.** Suíte no teste 4 com a árvore própria (`SuperficieDaRespostaTests`, `RespostaNotasTests.aRespostaNaoTemTeto`, `ConversaNotasTests.oModoDePerguntarNasceDoGestoOuDaConversa`, `EsperaComEstadoUITests`, `PerguntaSobreviveUITests`); jornada real no aparelho da conta `34CC3F94` em `large`, com `ContaGrok` antes e depois e `cmp` do binário (`ferramentas/orca/sistema-ia-conversa/`), vídeo do trecho.

@@ -12,12 +12,17 @@ struct LenteView: View {
     /// ADR 04i: o retrato viaja com a instigação e o contrapor.
     var retrato: String = ""
     @State private var perguntasDaSabia: [String] = []
-    @State private var instigando = false
-    /// ADR 04m: o que o autor não considerou. Nil = nada pedido ainda.
+    /// Desde quando a sábia instiga; nil = não está. A hora é o que a
+    /// `Espera` mostra andando (DIRETRIZ §13 item 3), e a tarefa é o que
+    /// "Parar de esperar" cancela.
+    @State private var instigandoDesde: Date?
+    @State private var tarefaInstigar: Task<Void, Never>?
+    /// ADR 04m: o que o autor não considerou. Nil = nada pedido ou nada honesto.
     /// ADR 2026-09-09s: a `Contraparte` VAZIA nunca chega aqui — ela é aviso,
     /// não conteúdo, e mostrá-la seria uma seção com três rótulos e nada.
     @State private var contraparte: Sabia.Contraparte?
-    @State private var contrapondo = false
+    @State private var contrapondoDesde: Date?
+    @State private var tarefaContrapor: Task<Void, Never>?
     @State private var avaliouContraparte = false
     /// O que a rota da sábia tem a DIZER: a frase da tabela quando ninguém
     /// responde, ou a falha quando quem responde não respondeu. Era um `Bool`
@@ -175,21 +180,30 @@ struct LenteView: View {
                                     .padding(.vertical, 10)
                                     .accessibilityIdentifier("lente-aviso-instigar")
                             }
+                            // §13 item 3: era um `ProgressView` mudo — um laço
+                            // igual no 1º e no 241º segundo. A espera diz o tempo
+                            // e tem saída, como nas Notas e na Página.
+                            if let desde = instigandoDesde {
+                                Espera(frase: Espera.aSabiaPensa, desde: desde,
+                                       identificador: "lente-instigar-pensando") {
+                                    tarefaInstigar?.cancel()
+                                    instigandoDesde = nil
+                                }
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 6)
+                            }
                             Button {
                                 instigar()
                             } label: {
-                                HStack(spacing: 8) {
-                                    if instigando { ProgressView().tint(Tema.tintaSuave) }
-                                    Text(perguntasDaSabia.isEmpty ? "Instigar" : "Mais perguntas")
-                                        .font(Tema.barra)
-                                }
-                                .foregroundStyle(Tema.ambarTinta)
-                                .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .leading)
-                                .padding(.horizontal, 14)
-                                .contentShape(Rectangle())
+                                Text(perguntasDaSabia.isEmpty ? "Instigar" : "Mais perguntas")
+                                    .font(Tema.barra)
+                                    .foregroundStyle(Tema.ambarTinta)
+                                    .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .leading)
+                                    .padding(.horizontal, 14)
+                                    .contentShape(Rectangle())
                             }
                             .buttonStyle(PressaoDiscreta())
-                            .disabled(instigando)
+                            .disabled(instigandoDesde != nil)
                             .accessibilityIdentifier("instigar")
                         }
                     }
@@ -211,17 +225,18 @@ struct LenteView: View {
                                     }
                                     .font(Tema.barra)
                                     .foregroundStyle(Tema.ambarTinta)
+                                    .buttonStyle(PressaoDiscreta())
+                                    .alvo()
+                                    // §14: o retorno é um CONTROLE, o mesmo das
+                                    // Notas e da Página, não dois links soltos
                                     if !avaliouContraparte {
-                                        Button("serviu") { Sinais.resposta(c.contra, forma: gesto, serviu: true); avaliouContraparte = true; Toque.leve() }
-                                            .accessibilityIdentifier("serviu")
-                                        Button("não serviu") { Sinais.resposta(c.contra, forma: gesto, serviu: false); avaliouContraparte = true; Toque.leve() }
-                                            .accessibilityIdentifier("nao-serviu")
+                                        ControleDeRetorno { serviu in
+                                            Sinais.resposta(c.contra, forma: gesto, serviu: serviu)
+                                            avaliouContraparte = true
+                                            Toque.leve()
+                                        }
                                     }
                                 }
-                                .font(Tema.label)
-                                .foregroundStyle(Tema.tintaFraca)
-                                .buttonStyle(PressaoDiscreta())
-                                .alvo()
                                 .padding(.horizontal, 14)
                             }
                             if let aviso, aviso.op == .contrapor {
@@ -230,21 +245,27 @@ struct LenteView: View {
                                     .padding(.vertical, 10)
                                     .accessibilityIdentifier("lente-aviso-contrapor")
                             }
+                            if let desde = contrapondoDesde {
+                                Espera(frase: Espera.aSabiaPensa, desde: desde,
+                                       identificador: "lente-contrapor-pensando") {
+                                    tarefaContrapor?.cancel()
+                                    contrapondoDesde = nil
+                                }
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 6)
+                            }
                             Button {
                                 contrapor()
                             } label: {
-                                HStack(spacing: 8) {
-                                    if contrapondo { ProgressView().tint(Tema.tintaSuave) }
-                                    Text(contraparte == nil ? "Contrapor" : "Outro ângulo")
-                                        .font(Tema.barra)
-                                }
-                                .foregroundStyle(Tema.ambarTinta)
-                                .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .leading)
-                                .padding(.horizontal, 14)
-                                .contentShape(Rectangle())
+                                Text(contraparte == nil ? "Contrapor" : "Outro ângulo")
+                                    .font(Tema.barra)
+                                    .foregroundStyle(Tema.ambarTinta)
+                                    .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .leading)
+                                    .padding(.horizontal, 14)
+                                    .contentShape(Rectangle())
                             }
                             .buttonStyle(PressaoDiscreta())
-                            .disabled(contrapondo)
+                            .disabled(contrapondoDesde != nil)
                             .accessibilityIdentifier("contrapor")
                             .accessibilityHint("Vai à sábia; a resposta fica aqui, nunca na nota")
                         }
@@ -304,15 +325,20 @@ struct LenteView: View {
     private func instigar() {
         if let frase = Politica.aviso(.instigar) { aviso = (.instigar, frase, .semConta); return }
         aviso = nil
-        instigando = true
+        instigandoDesde = .now
         let t = prosa
         let g = gesto
         let r0 = retrato
         // ADR 04j: o degrau da instigação sobe com a prática nesta forma
         let degrau = g.map { Degraus.instigar($0, sinais: Sinais.todos()) } ?? 0
-        Task {
+        tarefaInstigar?.cancel()
+        tarefaInstigar = Task {
             let r = await Sabia.instigar(texto: t, gesto: g, degrau: degrau, retrato: r0)
-            instigando = false
+            // quem parou de esperar não recebe o que chegar depois
+            guard !Task.isCancelled else { return }
+            instigandoDesde = nil
+            // as TRÊS saídas ficam: a espera com tempo não pode engolir a
+            // distinção entre "o modelo calou" e "nada passou na nossa guarda"
             switch r {
             case .some(let q) where !q.isEmpty: perguntasDaSabia = q; Toque.suave()
             case .some: aviso = (.instigar, Sabia.nadaPassouNaGuarda, .falhou); Toque.aviso()
@@ -324,14 +350,16 @@ struct LenteView: View {
     private func contrapor() {
         if let frase = Politica.aviso(.contrapor) { aviso = (.contrapor, frase, .semConta); return }
         aviso = nil
-        contrapondo = true
+        contrapondoDesde = .now
         avaliouContraparte = false
         let t = prosa
         let g = gesto
         let r0 = retrato
-        Task {
+        tarefaContrapor?.cancel()
+        tarefaContrapor = Task {
             let r = await Sabia.contrapor(texto: t, gesto: g, retrato: r0)
-            contrapondo = false
+            guard !Task.isCancelled else { return }
+            contrapondoDesde = nil
             switch r {
             case .some(let c) where !c.vazia: contraparte = c; Toque.suave()
             case .some: aviso = (.contrapor, Sabia.nadaPassouNaGuarda, .falhou); Toque.aviso()

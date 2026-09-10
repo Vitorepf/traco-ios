@@ -96,8 +96,7 @@ alguém tropeçar: a série 08 encheu sem aviso e custou três colisões numa ta
 | 10d | CONTRAPOR · a alavanca é o ESQUEMA DA SAÍDA, e o join que decidia por cima dela reprovou | **em `main`** — G3 em `ferramentas/orca/g3-contrapor-responder-ctx.md`: forma fica, join sai como dívida nomeada, e o "controle SUBIU" virou "não caiu" (o mesmo braço oscila 5) |
 
 | 10e | SUPERFÍCIE · falar com a sábia: um componente só, a pergunta como título, a resposta como folha | reservada, volta viva |
-
-| 10f | SISTEMA-IA/conversa · a conversa com a sábia como folha do Traço | reservada, volta viva |
+| 10f | SISTEMA-IA/conversa · a conversa com a sábia como folha do Traço | escrita; mesclada em `main` 10/09 (G4 `ferramentas/orca/g4-conversa.md`) |
 
 | 10g | RESPONDER · o contexto como alavanca: a nota citada inteira, e o que não coube se DIZ | reservada, volta viva |
 

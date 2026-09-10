@@ -28,6 +28,28 @@ struct RespostaNotasTests {
         #expect(!r.texto.contains("Rascunho antigo"))
     }
 
+    /// G4 da conversa, dívida 1: a nota sem linha de título chegava à
+    /// "Referência:" INTEIRA — a tela citando texto onde devia citar nota. O
+    /// teto vive no tipo (`FonteNotas.tetoDoTitulo`), então basta montar a
+    /// fonte para prová-lo, por qualquer porta. Irmã que não acusa:
+    /// `atribuiSomenteFonteSelecionadaSemPedirTituloAoModelo` ("Proposta atual"
+    /// fica como está). Fica vermelho se alguém tirar o teto do `init`.
+    @Test func oTituloDaFonteTemTetoEAReferenciaCitaANotaNaoOTexto() throws {
+        let paragrafo = String(repeating: "Reservei R$ 6000 para a viagem. Hospedagem 400 euros. ", count: 4)
+            .trimmingCharacters(in: .whitespaces)
+        let f = fonte(paragrafo, texto: paragrafo)
+        #expect(f.titulo.count <= FonteNotas.tetoDoTitulo + 1, "o teto conta grafemas mais a reticência")
+        #expect(f.titulo.hasSuffix("…"))
+        #expect(paragrafo.hasPrefix(String(f.titulo.dropLast(1)).trimmingCharacters(in: .whitespaces)), "o corte é prefixo, não invenção")
+        let r = try #require(RespostaNotas.interpretar(resposta(["N1T1"], texto: "Você reservou R$ 6.000."), pacote: pacote([f])))
+        #expect(!r.texto.contains(paragrafo), "a Referência não repete a nota")
+        #expect(r.texto.contains("Referência: “\(f.titulo)”"))
+        // e a porta do CRLF: `split("\n")` vê a nota toda como uma linha, o
+        // tipo a devolve numa só, sem quebra
+        let crlf = fonte("Plano da semana\r\nSegunda: ensaiar\r\nTerça: entregar", texto: "x")
+        #expect(crlf.titulo == "Plano da semana Segunda: ensaiar Terça: entregar")
+    }
+
     @Test func tituloIgualNaoFundeIdentidadesNemAtribuiNotaErrada() throws {
         let antiga = fonte("Proposta", texto: "Prazo antigo 10/09.")
         var atual = fonte("Proposta", texto: "Prazo corrigido 12/09.")
@@ -300,29 +322,26 @@ struct RespostaNotasTests {
                 "modelo escrito em mais de um sítio em Sabia.swift")
     }
 
-    /// ADR 2026-09-09w — O PORTÃO DO SINAL DE SOBRA, e ele guarda uma
-    /// INVARIANTE, não um sítio: no cartão da sábia, **todo teto de altura tem
-    /// um sinal de sobra**.
+    /// DIRETRIZ §14/§15 — a resposta é uma FOLHA e se lê inteira: nenhum teto
+    /// de altura na superfície da resposta nem na conversa das Notas. A ADR
+    /// 09w guardava "todo teto tem sinal de sobra"; a folha tirou a causa
+    /// (o cartão flutuando sobre a lista), e o portão passa a guardar a
+    /// ausência do teto — quem puser um `.frame(maxHeight:)` de volta corta
+    /// a resposta, e fica vermelho aqui antes de chegar à tela.
     ///
-    /// A prova de tela deste defeito vive na `SinalDeSobraUITests`, e ela precisa
-    /// de aparelho. Este portão é o que corre na suíte de sempre e cai em
-    /// segundos: quem puser um `.frame(maxHeight:)` novo no cartão, ou tirar o
-    /// sinal de um dos que existem, fica vermelho aqui antes de chegar à tela.
-    ///
-    /// Conta na forma MEDIDA (10/09): `.frame(maxHeight:` e `.sinalDeSobra(`
-    /// aparecem 2 vezes cada em `NotasView.swift`, nenhuma delas dentro de
-    /// comentário — e `codigoVisivel(apagandoTema: false)` apaga comentário e
-    /// literal, então o que se conta é código.
-    @Test func todoTetoDoCartaoTemSinalDeSobra() throws {
-        let fonte = URL(fileURLWithPath: #filePath)
+    /// Conta na forma MEDIDA (10/09): 0 em cada arquivo; `codigoVisivel`
+    /// apaga comentário e literal, então o que se conta é código. A irmã que
+    /// acusa: um trecho com o teto escrito conta 1.
+    @Test func aRespostaNaoTemTeto() throws {
+        let raiz = URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent().deletingLastPathComponent()
-            .appendingPathComponent("Traco/Notas/NotasView.swift")
-        let codigo = PortaoDoMovimentoTests.codigoVisivel(
-            try String(contentsOf: fonte, encoding: .utf8), apagandoTema: false)
-        let tetos = codigo.components(separatedBy: ".frame(maxHeight:").count - 1
-        let sinais = codigo.components(separatedBy: ".sinalDeSobra(").count - 1
-        #expect(tetos == 2, "a sonda mudou de forma: \(tetos) tetos em NotasView, não 2 — meça de novo antes de mexer no portão")
-        #expect(sinais == tetos,
-                "\(tetos) tetos de altura e só \(sinais) sinais de sobra: um deles corta calado, e foi assim que a resposta terminou em \"(A nota\" em 10/09")
+        for caminho in ["Traco/Notas/NotasView.swift", "Traco/Componentes/CartaoDeResposta.swift"] {
+            let codigo = PortaoDoMovimentoTests.codigoVisivel(
+                try String(contentsOf: raiz.appendingPathComponent(caminho), encoding: .utf8), apagandoTema: false)
+            let tetos = codigo.components(separatedBy: ".frame(maxHeight:").count - 1
+            #expect(tetos == 0, "\(caminho): \(tetos) teto(s) de altura — a resposta deixou de ser folha e volta a cortar")
+        }
+        #expect(PortaoDoMovimentoTests.codigoVisivel("ScrollView { t }.frame(maxHeight: 360)", apagandoTema: false)
+                    .components(separatedBy: ".frame(maxHeight:").count - 1 == 1, "a sonda não enxerga o teto")
     }
 }

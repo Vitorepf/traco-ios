@@ -8,7 +8,11 @@ import Observation
 final class ConversaNotas {
     enum Estado: Equatable {
         case ociosa
-        case pensando(String)
+        /// A hora em que a espera começou viaja com a pergunta, como no
+        /// `CartaoAnalisar.sabiaPensando` da Página: a conversa vive na SESSÃO
+        /// (ADR 09c) e a `NotasView` é recriada a cada troca de aba — um
+        /// relógio guardado na view mentiria na volta.
+        case pensando(String, desde: Date)
         case falhou(String)
         case interrompida(String)
         case recolhida(String)
@@ -16,7 +20,9 @@ final class ConversaNotas {
 
     struct Resultado {
         var resposta: String?
-        var titulos: [String]
+        /// As notas que foram junto, com identidade: a tela as mostra como
+        /// títulos tocáveis, uma vez cada (§14).
+        var fontes: [FonteNotas] = []
         var dependencias: [FonteNotas] = []
         var fontesCitadas: [FonteNotas] = []
         var conversaValida: [Sessao.TrocaNasNotas]? = nil
@@ -25,16 +31,30 @@ final class ConversaNotas {
     typealias Responder = @MainActor (String, [Sessao.TrocaNasNotas]) async -> Resultado
 
     var entrada = ""
+    /// DIRETRIZ §14 (complemento): buscar e perguntar são duas intenções e não
+    /// dividem um campo só porque cabem. A pessoa entra no modo de perguntar
+    /// por um gesto (a palavra "perguntar" na linha do pé) e sai por outro; com
+    /// conversa aberta, a linha já é de perguntar — é a continuação.
+    var perguntando = false
+    var modoPergunta: Bool { perguntando || temCartao }
+    /// As respostas já avaliadas ("anotado."). Vive AQUI, não na view: a
+    /// `NotasView` é recriada a cada troca de aba (ADR 09c), e guardada nela a
+    /// avaliação voltava a ser oferecida — visto no aparelho da conta em
+    /// 10/09, 15h41: "serviu / não serviu" de volta depois de ir ao Perfil.
+    var avaliadas: Set<String> = []
     private(set) var trocas: [Sessao.TrocaNasNotas] = []
     private(set) var estado: Estado = .ociosa
     private(set) var semModelo = false
-    private(set) var titulos: [String] = []
+    private(set) var fontes: [FonteNotas] = []
     @ObservationIgnored private var tarefa: Task<Void, Never>?
     @ObservationIgnored private var tentativa: UUID?
 
-    var pensando: Bool {
-        if case .pensando = estado { return true }
-        return false
+    var pensando: Bool { esperandoDesde != nil }
+
+    /// Desde quando a sábia está pensando, ou nil se não está.
+    var esperandoDesde: Date? {
+        if case .pensando(_, let desde) = estado { return desde }
+        return nil
     }
 
     var perguntaParaRepetir: String? {
@@ -57,6 +77,12 @@ final class ConversaNotas {
     /// Liga com `simctl launch <UDID> app.traco -ensaio-resposta-longa-nas-notas`.
     static let ensaioDaRespostaLonga = ProcessInfo.processInfo.arguments.contains("-ensaio-resposta-longa-nas-notas")
 
+    /// O irmão para a ESPERA (DIRETRIZ §13 item 3): semeia `.pensando` sem
+    /// tarefa nenhuma em voo, para a suíte ver pensando, tempo e parar de
+    /// esperar sem gastar uma chamada — o aparelho da conta é o recurso mais
+    /// caro que temos. Liga com `-ensaio-espera-nas-notas`.
+    static let ensaioDaEspera = ProcessInfo.processInfo.arguments.contains("-ensaio-espera-nas-notas")
+
     /// 568 grafemas. Sem dependências: `Sessao.dependenciasValidas([])` é
     /// verdadeiro, então a revalidação da tela não a recolhe.
     static let respostaMedida = """
@@ -70,13 +96,17 @@ final class ConversaNotas {
         if Self.ensaioDaRespostaLonga {
             trocas = [.init(pergunta: "Quanto vou gastar em reais com hospedagem e transporte na viagem?",
                             resposta: Self.respostaMedida)]
-            // os títulos vão junto porque a linha "Foram junto:" é parte do
-            // cartão e do seu tamanho: sem eles o ensaio media um cartão que
-            // não existe. São os quatro do aparelho da conta em 10/09.
-            titulos = ["Reservei R$ 6000 para a viagem. Hospedagem 400 euros. Transporte 120 euros. Hoje o banco me cobrou R$ 6,45 por euro.",
-                       "Vou de carro a Fortaleza no fim do mês. Medi no mapa: são 600 km só de ida. Não sei o consumo do carro nem o preço do litro.",
-                       "Plano da semana",
-                       "Proposta para o cliente da padaria"]
+            // as fontes vão junto porque a linha delas é parte do cartão e do
+            // seu tamanho: sem elas o ensaio media um cartão que não existe.
+            // São os quatro títulos do aparelho da conta em 10/09.
+            fontes = ["Reservei R$ 6000 para a viagem. Hospedagem 400 euros. Transporte 120 euros. Hoje o banco me cobrou R$ 6,45 por euro.",
+                      "Vou de carro a Fortaleza no fim do mês. Medi no mapa: são 600 km só de ida. Não sei o consumo do carro nem o preço do litro.",
+                      "Plano da semana",
+                      "Proposta para o cliente da padaria"]
+                .map { FonteNotas(id: UUID(), titulo: $0, texto: $0, editadaEm: .now) }
+        }
+        if Self.ensaioDaEspera {
+            estado = .pensando("Quanto ainda me falta no pretérito?", desde: .now)
         }
         #endif
     }
@@ -103,7 +133,7 @@ final class ConversaNotas {
         invalidarTentativa()
         let id = UUID()
         tentativa = id
-        estado = .pensando(pergunta)
+        estado = .pensando(pergunta, desde: .now)
         semModelo = false
         let anteriores = trocas
         let nova = Task { [weak self] in
@@ -113,11 +143,11 @@ final class ConversaNotas {
             self.tarefa = nil
             if let validas = resultado.conversaValida {
                 self.trocas = validas
-                self.titulos = []
+                self.fontes = []
             }
             if let resposta = resultado.resposta {
                 self.trocas.append(.init(pergunta: pergunta, resposta: resposta, dependencias: resultado.dependencias))
-                self.titulos = resultado.titulos
+                self.fontes = resultado.fontes
                 self.estado = .ociosa
             } else {
                 self.estado = resultado.fontesMudaram ? .recolhida(pergunta) : .falhou(pergunta)
@@ -129,7 +159,7 @@ final class ConversaNotas {
 
     /// Sair da tela não perde o pedido interrompido nem o rascunho seguinte.
     func interromper() {
-        if case .pensando(let pergunta) = estado {
+        if case .pensando(let pergunta, _) = estado {
             invalidarTentativa()
             estado = .interrompida(pergunta)
         }
@@ -143,12 +173,13 @@ final class ConversaNotas {
         let validas = trocas.filter { permitidas($0.dependencias) }
         guard validas.count != trocas.count else { return false }
         trocas = validas
-        if case .pensando(let pergunta) = estado {
+        avaliadas = []
+        if case .pensando(let pergunta, _) = estado {
             invalidarTentativa()
-            titulos = []
+            fontes = []
             estado = .recolhida(pergunta)
         } else if let ultima, !permitidas(ultima.dependencias) {
-            titulos = []
+            fontes = []
             estado = .recolhida(perguntaParaRepetir ?? ultima.pergunta)
         }
         return true
@@ -160,7 +191,9 @@ final class ConversaNotas {
         estado = .ociosa
         semModelo = false
         trocas = []
-        titulos = []
+        fontes = []
+        perguntando = false
+        avaliadas = []
     }
 
     private func invalidarTentativa() {

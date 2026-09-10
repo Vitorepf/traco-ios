@@ -26,7 +26,7 @@ final class Sessao {
         // tela que não é a dele — em AX5 a topbar da Página fica em y=-371 e
         // não volta com rolagem, e o teste ficava vermelho por um defeito de
         // outra área. Só com o mesmo argumento que semeia a resposta.
-        if ConversaNotas.ensaioDaRespostaLonga { return .notas }
+        if ConversaNotas.ensaioDaRespostaLonga || ConversaNotas.ensaioDaEspera { return .notas }
         #endif
         return .escrever
     }()
@@ -739,7 +739,19 @@ final class Sessao {
         let vizinhas = Indice.vizinhas(de: pergunta, teto: teto, minimo: 0.15)
         guard let notas = try? context.fetch(FetchDescriptor<Nota>()) else { return [] }
         let porID = Dictionary(uniqueKeysWithValues: notas.map { ($0.uuid, $0) })
-        return vizinhas.compactMap { v in porID[v.uuid].flatMap(Self.fonteParaPergunta) }
+        return Self.semRepetida(vizinhas.compactMap { v in porID[v.uuid].flatMap(Self.fonteParaPergunta) })
+    }
+
+    /// DIRETRIZ §14: o dono viu a MESMA nota três vezes em "Foram junto:". A
+    /// raiz não era a tela — o aparelho da conta tinha três notas com o texto
+    /// idêntico (`ZNOTA` do teste 3, 10/09), e três notas iguais são três
+    /// vizinhas iguais no índice, com a mesma proximidade. Mandar as três ao
+    /// modelo é ruído no pedido e ruído na tela; quem duplica é a montagem, e é
+    /// ela que deixa de duplicar. Fica a primeira (a mais próxima), pelo TEXTO:
+    /// duas notas com o mesmo texto são a mesma fonte para a pergunta.
+    static func semRepetida(_ fontes: [FonteNotas]) -> [FonteNotas] {
+        var vistos = Set<String>()
+        return fontes.filter { vistos.insert($0.texto).inserted }
     }
 
     /// Injeção somente da operação de IA; seleção e revalidação de acesso
@@ -771,11 +783,11 @@ final class Sessao {
         let aindaValidas = Self.conversaValida(validas, no: context)
         let fontesValidas = Self.dependenciasValidas(dependencias, no: context)
         guard !Task.isCancelled, let retorno, fontesValidas else {
-            return .init(resposta: nil, titulos: [], conversaValida: aindaValidas, fontesMudaram: !fontesValidas)
+            return .init(resposta: nil, conversaValida: aindaValidas, fontesMudaram: !fontesValidas)
         }
         let avisoHistorico = validas.count == conversa.count ? ""
             : "\n\nParte da conversa anterior ficou fora desta consulta porque suas fontes mudaram ou deixaram de estar acessíveis."
-        return .init(resposta: retorno.texto + avisoHistorico, titulos: retorno.enviadas.map(\.titulo),
+        return .init(resposta: retorno.texto + avisoHistorico, fontes: retorno.enviadas,
                      dependencias: dependencias, fontesCitadas: retorno.citadas,
                      conversaValida: aindaValidas)
     }

@@ -74,8 +74,7 @@ struct CartaoAnaliseView: View {
     /// em diante o número aparece e anda — é o que separa "está pensando" de
     /// "travou", e a medida diz que ele vai passar dos trinta (ADR 09n).
     static func fraseDaEspera(desde: Date, agora: Date) -> String {
-        let s = max(0, Int(agora.timeIntervalSince(desde)))
-        return s < 4 ? "a sábia pensa…" : "a sábia pensa há \(s) s…"
+        Espera.linha(Espera.aSabiaPensa, desde: desde, agora: agora)
     }
 
     /// A linha: o mesmo trilho âmbar do cartão inteiro e a frase que importa,
@@ -241,8 +240,11 @@ struct CartaoAnaliseView: View {
         case .forma(let gesto, _): gesto.nome
         case .vestida(let gesto, _): gesto.nome
         case .pergunta: "Sua pergunta"
-        case .sabiaPensando(let q, _): "A sábia, sobre: \(q)"
-        case .resposta(let q, _): "A sábia, sobre: \(q)"
+        // §14: a pessoa não pergunta a uma "sábia" — o título é a pergunta
+        // dela, e quem o desenha é o `CartaoDeResposta`. Este só serve à
+        // linha recolhida, que estes dois cartões nunca são (`podeRecolher`).
+        case .sabiaPensando: "Sua pergunta"
+        case .resposta: "Sua pergunta"
         case .vestido: "Vestido"
         case .semConta: "Sem conta"
         case .expressiva: "Escrita expressiva"
@@ -321,47 +323,35 @@ struct CartaoAnaliseView: View {
                         .foregroundStyle(Tema.tinta)
                         .fixedSize(horizontal: false, vertical: true)
                 }
-            case .sabiaPensando(_, let desde):
+            case .sabiaPensando(let q, let desde):
+                // ADR 09n desenhou aqui o relógio da espera; a DIRETRIZ §14
+                // levou-o para a superfície ÚNICA da resposta, com a pergunta
+                // da pessoa como título e a saída ao lado do tempo. A saída
+                // que estava no pé (`acoes`) mudou-se para cá com ele.
                 corpoCartao(trilho: Tema.ambar) {
-                    chip(kicker, aviso: false)
-                    // ADR 09n. O que estava aqui era um `ProgressView` do
-                    // sistema: um laço que gira igual ao 1º e ao 70º segundo,
-                    // e a espera passou de 1,4 s para 36 s de média. Um laço
-                    // que não sabe quanto falta não informa nada — é o
-                    // "spinner mudo" que a §10 proíbe. `LinhaDeEstado` é o
-                    // componente que o app já tem para isto (ADR 05t: uma
-                    // frase, sem glifo, sem laço), e o movimento honesto é o
-                    // SEGUNDO que anda: ele prova que o app está vivo E diz
-                    // quanto já se esperou. `TimelineView` acorda a linha uma
-                    // vez por segundo sem `@State`, sem timer e sem animação
-                    // — o que Movimento Reduzido não tem o que reduzir.
-                    TimelineView(.periodic(from: desde, by: 1)) { agora in
-                        LinhaDeEstado(Self.fraseDaEspera(desde: desde, agora: agora.date), .pensando)
-                    }
-                    .accessibilityIdentifier("sabia-pensando")
+                    CartaoDeResposta(titulo: q, pensandoDesde: desde,
+                                     cancelar: { sessao.pararDeEsperarASabia() },
+                                     rota: "sabia") { EmptyView() }
                 }
-            case .resposta(_, let texto):
+            case .resposta(let q, let texto):
                 corpoCartao(trilho: Tema.ambar) {
-                    chip(kicker, aviso: false)
-                    Text(texto)
-                        .font(Tema.corpo)
-                        .foregroundStyle(Tema.tinta)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .textSelection(.enabled)
-                        .accessibilityIdentifier("resposta-sabia")
-                    if !sessao.notasNaPergunta.isEmpty || sessao.notasLidasNaPergunta > 0 {
-                        // honestidade sobre a rede, como o Perfil faz: o autor
-                        // vê QUAIS notas foram junto INTEIRAS — e quantas do
-                        // caderno foram lidas para achar os ecos. Dizer só as
-                        // três que voltaram, com quarenta viajando, é meia
-                        // verdade (varredura 04/set).
-                        Text(sessao.divulgacaoDaPergunta)
-                            .font(Tema.label)
-                            .foregroundStyle(Tema.tintaFraca)
-                            .fixedSize(horizontal: false, vertical: true)
-                            .accessibilityIdentifier("notas-na-pergunta")
+                    // honestidade sobre a rede, como o Perfil faz: o autor vê
+                    // QUAIS notas foram junto INTEIRAS — e quantas do caderno
+                    // foram lidas para achar os ecos (varredura 04/set). A
+                    // linha fechada é a divulgação inteira; aberta, os títulos.
+                    CartaoDeResposta(
+                        titulo: q,
+                        fontes: sessao.notasNaPergunta.map { .init(id: nil, titulo: $0) },
+                        resumoDasFontes: sessao.divulgacaoDaPergunta,
+                        retorno: avaliou ? nil : { serviu in
+                            sessao.avaliarResposta(texto, serviu: serviu)
+                            avaliou = true
+                        },
+                        avaliada: avaliou,
+                        rota: "sabia"
+                    ) {
+                        Text(texto).textSelection(.enabled)
                     }
-                    avaliacao(texto, resposta: true)
                 }
             case .vestido:
                 corpoCartao(trilho: Tema.ambar) {
@@ -396,7 +386,7 @@ struct CartaoAnaliseView: View {
 
     private var temAcoes: Bool {
         switch cartao {
-        case .aviso: false
+        case .aviso, .sabiaPensando: false
         default: true
         }
     }
@@ -407,16 +397,10 @@ struct CartaoAnaliseView: View {
         case .aviso:
             EmptyView()
         case .sabiaPensando:
-            // ADR 09n: esperar 77 s sem saída é a pessoa presa ao cartão. A
-            // saída é discreta de propósito — o caminho principal é ESPERAR,
-            // porque a resposta está a caminho —, e não perde nada: a pergunta
-            // volta ao cartão com "Perguntar à sábia" a um toque, e a linha "?"
-            // nunca saiu da nota.
-            Button("Parar de esperar") { sessao.pararDeEsperarASabia() }
-                .buttonStyle(.compacto)
-                .foregroundStyle(Tema.tintaSuave)
-                .accessibilityIdentifier("parar-de-esperar")
-                .accessibilityHint("A sua pergunta fica no cartão; perguntar de novo é um toque")
+            // ADR 09n: a saída existe e não perde nada — a pergunta volta ao
+            // cartão com "Perguntar à sábia" a um toque. Desde a §14 ela mora
+            // na `Espera`, ao lado do tempo, e não no pé.
+            EmptyView()
         case .forma(let gesto, _):
             Button("Abrir a forma \(gesto.nome)") {
                 sessao.usarForma(gesto)

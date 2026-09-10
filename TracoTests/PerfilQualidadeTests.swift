@@ -62,14 +62,22 @@ struct PerfilQualidadeTests {
         }
     }
 
-    /// O outro lado da mesma ordem: o cartão diz o que a IA FAZ por ele hoje —
-    /// e hoje ela responde sobre as notas dele (ADR 09v). Se `responderNasNotas`
-    /// voltar para a lista de cortadas sem medida nova, isto fica vermelho.
-    @Test("a primeira linha do cartão é o que a IA faz, e responder nas Notas está lá")
+    /// O outro lado da mesma ordem: o cartão diz o que a IA FAZ por ele hoje.
+    /// DIRETRIZ §14: `responderNasNotas` responde (ADR 09v), mas a TELA da
+    /// resposta foi vista pelo dono antes de prestar — até ele aprovar a
+    /// superfície, o Perfil não a lista em "faz também": diz, na língua dele,
+    /// que a tela ainda está sendo acertada. Continua fora das cortadas.
+    @Test("a primeira linha do cartão é o que a IA faz, e responder nas Notas não promete até a tela passar")
     func oCartaoAbreComOQueElaFaz() {
         #expect(PerfilView.oQueAIAFaz.hasPrefix("A IA faz por você"))
-        #expect(PerfilView.oQueAContaAcrescenta.contains(Politica.nome(.responderNasNotas)))
+        #expect(!PerfilView.oQueAContaAcrescenta.contains(Politica.nome(.responderNasNotas)))
+        #expect(PerfilView.notasAindaSemTela.contains("Notas"))
+        #expect(PerfilView.notasAindaSemTela.contains("tela"))
         #expect(!PerfilView.reprovadas.contains { $0.op == .responderNasNotas })
+        let baixo = PerfilView.notasAindaSemTela.lowercased()
+        for jargao in ["medida", "reprov", "superfície", "g4", "aprova"] {
+            #expect(!baixo.contains(jargao), "jargão nosso na tela do autor: '\(jargao)'")
+        }
     }
 
     /// Cada uma das seis cortadas fala do EFEITO para o autor, no presente.
