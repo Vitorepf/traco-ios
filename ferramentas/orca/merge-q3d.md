@@ -203,6 +203,50 @@ conteúdo. Nenhum dos dois arquivos foi tocado por esta mescla
 **Dívida nomeada, sem dono:** ou `Indice` ganha estado por suíte, ou as duas suítes entram
 no mesmo grupo serializado. Não é desta volta consertar; é desta volta DIZER.
 
+### 4c. A corrida FINAL, sobre a árvore exata que foi empurrada
+
+Depois de trazer o `main` das 11h40 (só documentos e scripts — **nenhum arquivo Swift
+mudou** lá desde `b663efd`), corri a suíte de novo, do zero, para a árvore verde ser a
+árvore empurrada e não uma parecida:
+
+```
+✔ Test run with 1025 tests in 163 suites passed after 146.067 seconds.
+** TEST SUCCEEDED **
+   avisos no build LIMPO: 1 (Traco/Notas/NotasView.swift:814:30, herdado)
+✔ Test todoTetoDoCartaoTemSinalDeSobra() passed after 0.004 seconds.
+✔ Test oAvisoDaRotaFalaALinguaDoAutor() passed after 0.001 seconds.
+✔ Test "o cartão CONTA não leva data, nem 'medida', nem o nosso plano de obra" passed after 0.001 seconds.
+✔ Test "a primeira linha do cartão é o que a IA faz, e responder nas Notas está lá" passed after 0.001 seconds.
+✔ Test "as seis linhas cortadas dizem o que acontece com ele, não o nosso diagnóstico" passed after 0.001 seconds.
+```
+
+`IndiceTests` passou nesta corrida também — a terceira de três, e a segunda seguida.
+
+---
+
+## 4d. O push
+
+Antes de empurrar li a lista inteira, `git log --oneline origin/main..HEAD`: **8 commits**,
+nenhum órfão de portão. Quatro são meus (a mescla `--no-ff` da volta, a copy do Perfil, a
+mescla do `main` novo e a linha da letra); `319e9a5` (Q3-C) tem o G3 `e8205e1` logo acima;
+`2448c0a` (Q3-D) entra por ordem explícita deste despacho, que a nomeia como **bloqueio**
+desta mescla; e `e536503` é a prova crua da janela do aparelho da conta, que não se toca.
+
+```
+To https://github.com/Vitorepf/traco-ios.git
+   aa4d68e..1388c09  HEAD -> main
+```
+
+`origin/main` = **`1388c09a0fa9aadbe6e637e9298a2cd29e699786`**, às **11h41 de 10/09**.
+Conferido DEPOIS do push, lendo `origin/main`:
+
+- `Politica.linha(.responderNasNotas).regra` é **`.soGrok`** — a operação tem executor;
+- a lista de cortadas do portão é **seis**: `ecos`, `calibragem`, `recordar`, `instigar`,
+  `contrapor`, `responder`;
+- a ADR `2026-09-09z` está no `SPEC.md`, **uma vez só**, e a linha `09z` no `LETRAS-ADR.md`
+  também;
+- o relatório e a captura da tela viva estão lá.
+
 ---
 
 ## 5. A tela viva
