@@ -23,6 +23,26 @@ DARCERTO = re.compile(r'dar certo|daria certo|deu certo|ficaria diferente|seria 
 # rendimento, valor do notebook, renda nem inflação."
 RENDA = re.compile(r'\brendas?\b|\bsal[áa]rios?\b', re.I)
 
+# fixture, q4-instigar-com-metodo-decisao: "As perguntas cobram criterio,
+# evidencia e custo de errar — mas FALAM DA SALA, do limite de R$ 1.000 e dos
+# clientes"; e q4-instigar-sem-metodo-degrau-0: "Toda pergunta e sobre praticar
+# espanhol nos quinze minutos QUE ELE TEM". As duas linhas cobram a mesma coisa
+# mecanica: a pergunta carrega uma coisa que o autor escreveu. PROXY: a
+# repeticao em que NENHUMA pergunta compartilha uma palavra de conteudo com a
+# nota e GENERICA. O merito continua sendo do revisor; isto so conta a palavra.
+# NAO SE LE no q4-instigar-texto-magro: ali a nota e 'Nao deu certo de novo.',
+# sem palavra de conteudo, e a fixture PEDE que a pergunta nomeie o que falta —
+# generica e o desfecho certo. A coluna vale nos cinco casos que tem materia.
+import unicodedata
+VAZIAS = {'que','qual','quais','como','quando','onde','porque','para','pelo','pela','sobre',
+          'seria','aconteceu','voce','seu','sua','isso','esse','essa','mais','menos','entre',
+          'ainda','tem','ter','foi','era','dar','certo','nao','sim','com','sem','uma','uns',
+          'dos','das','nos','nas','por','mas','dele','dela'}
+def dobra(t):
+    return ''.join(c for c in unicodedata.normalize('NFD', t.lower()) if unicodedata.category(c) != 'Mn')
+def conteudo(t):
+    return {w for w in re.findall(r'[a-z0-9]{4,}', dobra(t)) if w not in VAZIAS}
+
 def linhas(p): return [json.loads(l) for l in open(p) if l.strip()]
 
 def medir(p):
@@ -40,9 +60,12 @@ def medir(p):
             apagou.append((cid, rep, d['guardasQueApagaram']))
         if d['operacao'] == 'instigar':
             ps = s or []
+            dela = conteudo(d['entrada'].get('texto') or '')
+            ancorada = [q for q in ps if conteudo(q) & dela]
             quando[cid].append((rep, len(ps), bool([q for q in ps if QUANDO.search(q)]), ps,
                                 bool([q for q in ps if OQUE.search(q)]),
-                                bool([q for q in ps if DARCERTO.search(q)])))
+                                bool([q for q in ps if DARCERTO.search(q)]),
+                                len(ancorada)))
             degrau[cid].append((rep, ps))
         if d['operacao'] == 'contrapor':
             s = s or {}
@@ -65,11 +88,17 @@ for p in sys.argv[1:]:
         alvo = (cid == 'q4-instigar-texto-magro')   # só o magro é cobrado pela letra
         pede = sum(1 for r in rs if r[2])
         tres = sum(1 for r in rs if r[2] and r[4] and r[5])
-        print('      %-42s quando %d/%d · as TRÊS %d/%d%s  (perguntas: %s)'
-              % (cid, pede, len(rs), tres, len(rs), '  ← o caso da fixture' if alvo else '',
+        genericas = sum(1 for r in rs if r[6] == 0)
+        print('      %-42s quando %d/%d · as TRÊS %d/%d · GENÉRICAS %d/%d%s  (perguntas: %s)'
+              % (cid, pede, len(rs), tres, len(rs), genericas, len(rs),
+                 '  ← o caso da fixture' if alvo else '',
                  ', '.join(str(r[1]) for r in rs)))
+        for r in rs:
+            if r[6] == 0:
+                print('         r%s GENÉRICA — nenhuma pergunta carrega palavra da nota:' % r[0])
+                for x in r[3]: print('            -', x)
         if not alvo: continue
-        for rep, _, q, ps, oq, dc in rs:
+        for rep, _, q, ps, oq, dc, _anc in rs:
             print('         r%s  quando=%s  oquê=%s  darcerto=%s'
                   % (rep, 'sim' if q else 'NÃO', 'sim' if oq else 'NÃO', 'sim' if dc else 'NÃO'))
             for x in ps: print('            -', x)

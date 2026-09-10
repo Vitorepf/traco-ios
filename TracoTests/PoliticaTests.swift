@@ -91,10 +91,16 @@ import Testing
         // texto velho, e um portão que passa com o defeito de pé não guarda
         // nada. Se um destes trechos sair da tabela sem medida nova, quebra
         // aqui.
+        //
+        // ADR 09s e emenda à 09i (Q4-C): o LOTE-5 derrubou os DOIS motivos do
+        // `contrapor` (renda 4 → 0, `semRetorno` com 200 2 → 0) e o do
+        // `instigar` (o magro pede o quando, 1/6 → 6/6). A linha muda porque a
+        // MEDIDA mudou — e a do `instigar` passa a dizer o defeito OPOSTO que
+        // a mesma janela comprou, que é o que o autor encontra hoje.
         let emCorrecao = PerfilView.reprovadas.filter { $0.conserto != nil }
         for (op, leitura) in [(Politica.Operacao.responderNasNotas, "quanto sobra do seu orçamento"),
-                              (.instigar, "não pede quando aconteceu"),
-                              (.contrapor, "inventa renda que você não escreveu")] {
+                              (.instigar, "perguntas de gabarito que não falam da sua nota"),
+                              (.contrapor, "os dois defeitos medidos caíram")] {
             let r = try #require(emCorrecao.first { $0.op == op })
             let linha = PerfilView.restoDa(r, dataNaLinha: PerfilView.dataDe(emCorrecao).isEmpty)
             #expect(linha.contains(leitura), "\(op): a tela não diz o que o LOTE-3 leu — \(linha)")

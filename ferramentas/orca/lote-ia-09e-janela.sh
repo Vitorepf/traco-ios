@@ -6,10 +6,13 @@ set -u
 D=B91C8DEF-B0A7-454A-95DE-5D7BA7B040A9   # aparelho da CONTA: só sonda e captura
 BID=app.traco
 RAIZ=/Users/vitorepf/orca/workspaces/traco-ios/q4-c
-APP=/Users/vitorepf/Library/Developer/Xcode/DerivedData/Traco-bvscsnaukjkuykexchbrtdmlirih/Build/Products/Debug-iphonesimulator/Traco.app
+APP="$RAIZ/build/Build/Products/Debug-iphonesimulator/Traco.app"
 OUT="${1:?diretorio de saida}"
 L=/tmp/traco-instrumento.lock
-( while :; do touch "$L" 2>/dev/null; sleep 60; done ) & TOUCHER=$!
+# So toca a trava se ela AINDA for o diretorio do dono: sem o teste, um touch
+# que corra depois do `rm -rf` do com-trava CRIA /tmp/traco-instrumento.lock
+# como ARQUIVO, e ai o `mkdir` de todo mundo falha para sempre. Aconteceu.
+( while :; do [ -d "$L" ] && touch "$L" 2>/dev/null; sleep 60; done ) & TOUCHER=$!
 trap 'kill $TOUCHER 2>/dev/null' EXIT
 
 docs() { echo "$(xcrun simctl get_app_container $D $BID data)/Documents"; }
@@ -35,11 +38,25 @@ rodar() { # saida fixture liberar modelo timeout
   echo "[$(hora)] FIM    $saida  linhas=$(wc -l < "$OUT/$saida" 2>/dev/null) fimGravado=$(grep -c '"evento":"fim"' "$OUT/$saida" 2>/dev/null)"
 }
 
+# O aparelho da conta voltou DESLIGADO do reinicio do Mac. Ligar faz parte da
+# sequencia: a trava ja e minha aqui, e o boot nao pode cair fora dela.
+echo "[$(hora)] estado do $D: $(xcrun simctl list devices | grep $D)"
+xcrun simctl boot $D 2>/dev/null
+xcrun simctl bootstatus $D -b || { echo "BOOT FALHOU"; exit 2; }
+echo "[$(hora)] ligado: $(xcrun simctl list devices | grep $D)"
+xcrun simctl get_app_container $D $BID app >/dev/null 2>&1 || { echo "APP NAO INSTALADO no aparelho da conta"; exit 2; }
+
 echo "[$(hora)] binario ANTES:  $(sha "$(xcrun simctl get_app_container $D $BID app)/Traco")"
 echo "[$(hora)] a instalar:     $(sha "$APP/Traco")"
 
 # 1) fumaça ANTES: a conta responde com o binário que já estava lá
 rodar lote09e-fumaca-1-antes.jsonl q2-fumaca.json "" "" 180
+
+# A leitura que MANDA parar: sem conta, a janela nao acontece (ordem do dono).
+conta() { grep -o '"contaGrokLigada":[a-z]*' "$OUT/$1" | tail -1; }
+echo "[$(hora)] CONTA ANTES: $(conta lote09e-fumaca-1-antes.jsonl)"
+grep -q '"contaGrokLigada":true' "$OUT/lote09e-fumaca-1-antes.jsonl" || {
+  echo "[$(hora)] ⛔ CONTA CAIDA ANTES DE QUALQUER COISA — nao instalo, nao corro"; exit 4; }
 
 # 2) A ÚNICA instalação da janela. Por cima: sem uninstall/erase/clearState.
 echo "[$(hora)] INSTALL (unico da janela): xcrun simctl install $D $APP"
@@ -49,11 +66,16 @@ echo "[$(hora)] binario DEPOIS: $(sha "$(xcrun simctl get_app_container $D $BID 
 # 3) fumaça DEPOIS: a conta sobreviveu ao install por cima?
 rodar lote09e-fumaca-2-pos-install.jsonl q2-fumaca.json "" "" 180
 
+echo "[$(hora)] CONTA DEPOIS DO INSTALL: $(conta lote09e-fumaca-2-pos-install.jsonl)"
+grep -q '"contaGrokLigada":true' "$OUT/lote09e-fumaca-2-pos-install.jsonl" || {
+  echo "[$(hora)] ⛔ CONTA CAIU NO INSTALL POR CIMA — comando: xcrun simctl install $D $APP"; exit 5; }
+
 # 4) os 12 casos × 3, nos dois modelos, SEM reinstalar entre eles
 rodar lote09e-q4-grok-4.3.jsonl q4-instigar-contrapor-casos.json "instigar,contrapor" grok-4.3 2400
 rodar lote09e-fumaca-3-meio.jsonl q2-fumaca.json "" "" 180
 rodar lote09e-q4-grok-4.5.jsonl q4-instigar-contrapor-casos.json "instigar,contrapor" grok-4.5 2400
 rodar lote09e-fumaca-4-fim.jsonl q2-fumaca.json "" "" 180
 
+echo "[$(hora)] CONTA NO FIM: $(conta lote09e-fumaca-4-fim.jsonl)"
 echo "[$(hora)] binario FIM:    $(sha "$(xcrun simctl get_app_container $D $BID app)/Traco")"
 echo "[$(hora)] JANELA ENCERRADA"

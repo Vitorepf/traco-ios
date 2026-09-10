@@ -8929,3 +8929,152 @@ omitido pela linha do Perfil. O jargão de `conserto`/`porque` que chega à tela
 autor continua sendo dívida nomeada no RUMO.
 
 **Consequência.** Relatório em `ferramentas/orca/merge-q34.md`.
+
+## ADR 2026-09-09s — a guarda que apaga não é silêncio: `nil` é não li, vazio é li e não sobrou (volta Q4-C)
+
+**O defeito, com número.** O LOTE-3 (12 casos × 3 repetições em `grok-4.3` e
+`grok-4.5`, fixture `q4-instigar-contrapor-casos.json`, SHA `ed9267c1…`, 72
+execuções) devolveu **duas** execuções com `Falha.semRetorno` sobre **HTTP 200 e
+conteúdo completo**: `q4-contrapor-tudo-ou-nada` rep. 1 no `grok-4.3` e
+`q4-contrapor-razao-ja-sustentada` rep. 2 no `grok-4.5`
+(`prova/lote09c-q4-grok-4.3.jsonl`, `prova/lote09c-q4-grok-4.5.jsonl`). A resposta
+chegou inteira; a Lente escrevia **"a sábia não respondeu."**
+
+**A causa, à vista no código.** Em `Sabia.parseContraparte`, o `limpo(_:)` devolve
+`""` quando a frase cai numa guarda — imperativo, `vazaAlheio`, `numeroAlheio`,
+tamanho. Se as três chaves caem, `Contraparte.vazia` é verdadeira e a função devolvia
+`nil`. **A guarda que protege apagando produzia o silêncio**, e o silêncio era
+indistinguível do provedor mudo.
+
+**A decisão: três desfechos, não dois.**
+
+| desfecho | valor | o que o autor lê |
+|---|---|---|
+| não há quem responda | `Politica.aviso(_:)`, antes da chamada | a frase da tabela `Politica` |
+| o provedor não devolveu nada legível | `nil` | "a sábia não respondeu." |
+| leu inteiro e nada meu sobreviveu | `Contraparte` vazia / `[]` | `Sabia.nadaPassouNaGuarda` |
+
+`nadaPassouNaGuarda` é UMA frase para as duas rotas: o autor não precisa saber qual
+guarda foi — precisa saber que **houve** resposta e que pedir de novo muda o
+resultado (nem `instigar` nem `contrapor` memoizam).
+
+**O irmão, procurado e consertado no mesmo lugar.** `parsePerguntas` tinha a mesma
+forma (`guard !limpas.isEmpty else { return nil }`) e o mesmo desfecho. A espécie é
+**"guarda por campo que apaga e segue"**, e só esses dois a têm: `parseMapa`,
+`parseVoltaram` e `parsePerguntaDeRecordar` recusam a resposta INTEIRA no primeiro
+item inválido, que é honestamente *não deu para ler*. A convenção já era da casa —
+`parseCalibragem`, `parseEcos` e `PadroesRemoto.parsePerguntas` já separavam os dois
+desfechos, e os dois da Lente eram os únicos fora do passo. Por isso o conserto ficou
+onde os dois passam, e **não em cada chamador**: o terceiro chamador,
+`Sessao.instigarSobreAForma`, já lia `r?.first` e não precisou de uma linha.
+
+**A sonda passou a nomear a guarda.** `Sabia.apagou(chave, guarda)` grava — só em
+DEBUG, só o nome da chave e da guarda, nunca o texto bruto — e `AvaliacaoIA` publica
+em `guardasQueApagaram`. Sem isso o LOTE seguinte só saberia dizer "vazio", e a volta
+depois dele recomeçaria cega. É a mesma linha da ADR 08p.
+
+**E foi isto que tornou o defeito da renda barato de consertar.** `fatoQueEleNaoDeu`
+excluía `"renda"` de propósito, com medo da recusa covarde: calar "parcelar
+compromete renda futura" é calar propriedade geral do mundo. Pôr `"renda"` na lista
+**sozinha** aumentaria este defeito — mais frases apagadas, mais `nil`, mais
+silêncio. Com o desfecho novo o custo saiu, e `"renda"` entrou. `"juros"` e
+`"inflação"` continuam fora: são propriedade do produto financeiro, não fato da vida
+dela.
+
+**Vermelho antes.** Com a mutação que devolve a forma antiga
+(`return c.vazia ? nil : c` e `guard !limpas.isEmpty else { return nil }`), a suíte
+nova acusa **3 issues em 2 dos 6 testes** — `(r → nil) != nil`,
+`(r?.vazia → nil) == true` e `(parsePerguntas(…) → nil) == []`. Sem a mutação, 6 de 6
+passam. Mutação desfeita no mesmo minuto: não fica dívida viva.
+
+**A medida, no aparelho da conta.** Janela `lote09e`, 10/09 **10:55:25Z–11:10:47Z**,
+`B91C8DEF`, UMA instalação por cima, `ContaGrok.ligada` **true** antes (10:55:37Z),
+depois do install (10:55:43Z) e no fim (11:10:47Z). Mesma fixture, 72 execuções:
+
+| item | LOTE-3 | LOTE-5 |
+|---|---|---|
+| `semRetorno` com HTTP 200 e conteúdo completo | **2** | **0** |
+| guardas nomeadas por execução | o campo não existia | 1 (`foraDaLista · tamanho`) |
+| guardas mecânicas (conferidor `09c`, **inalterado**) | 68/72 (70/72 pela letra) | **72/72** |
+
+A execução que a guarda apagou é a prova de que o conserto é o certo e não um
+apagamento do sintoma: em `q4-contrapor-razao-ja-sustentada` rep. 1 do `grok-4.3` a
+guarda de tamanho derrubou o `foraDaLista`, **os outros dois campos sobreviveram**, e
+o autor recebeu contraponto em vez de "a sábia não respondeu".
+
+**Limite declarado, e ele não desconta nota.** `instigar` e `contrapor` continuam
+`indisponivelPorQualidade`, então `Politica.aviso(_:)` responde antes de a Lente
+chamar a Sábia: hoje **`nadaPassouNaGuarda` só é alcançável com o mesmo lever da
+sonda** (`TRACO_AVALIAR_LIBERAR`), que é como a medida a alcança. A frase existe para
+o dia em que as duas operações voltarem — e é a única das três que faltava.
+
+### Emenda à ADR 2026-09-09i (volta Q4-C) — os dois requisitos que chegavam soltos no fim
+
+A Q4-B já tinha escrito a lei: *"um dado que entra no fim de uma lista compete com a
+lista, e a lista costuma ganhar."* O LOTE-3 cobrou esse preço duas vezes na 09i, e a
+emenda **troca palavras, não acrescenta parágrafo**.
+
+**1. `sistemaContrapor` — a proibição por PROCEDÊNCIA subiu.** *"Não atribua a ela
+recurso, renda, salário, prazo, equipe, ferramenta ou obrigação que ela não
+escreveu"* era a **penúltima linha** e não mandava em nada: o `grok-4.5` escreveu
+renda que a nota não declara nas **três** repetições de
+`q4-contrapor-outro-campo-sem-fabricar`, e o `grok-4.3` em **uma**. Ela passa a viver
+dentro do bloco **Proibido**, ao lado do que já matou a evidência fabricada, com o
+exemplo medido e a consequência escrita. A guarda `fatoQueEleNaoDeu` ganha `"renda"`
+no mesmo movimento — o que só ficou barato depois da 09s.
+
+**2. `sistemaInstigar` — a cobrança do QUANDO subiu.** *"Não devolva vazio quando há
+texto…"* era a **última linha**, escrita como consolo contra o vazio. No texto magro
+("Não deu certo de novo.") as perguntas saíam vagas — *"O que era?"*, *"O que mudou
+de novo?"* — e o **quando** faltava em 3 de 3 no `grok-4.3` e 2 de 3 no `grok-4.5`. A
+linha some do fim e vira cobrança no ALTO, logo abaixo do que **MANDA**, com as três
+pernas nomeadas e o contraexemplo medido.
+
+**A medida (mesma janela `lote09e`, 72 execuções, mesma fixture):**
+
+| item | LOTE-3 | LOTE-5 |
+|---|---|---|
+| renda/salário que a nota não declara, no `contrapor` | **4** (1 no `4.3`, 3 no `4.5`) | **0** |
+| texto magro pede QUANDO | **1/6** | **6/6** |
+| texto magro cumpre as TRÊS pernas | **1/6** | **6/6** |
+| base Q4-B: degrau 4 repete o degrau 0 | não | **não** |
+
+**E o defeito OPOSTO apareceu, medido, e é meu.** Promover a cobrança fez com que ela
+mandasse **também onde não devia**. Em `q4-instigar-com-metodo-decisao` rep. 2 do
+`grok-4.3` as perguntas voltaram como o gabarito nu — *"O que aconteceu? / Quando
+aconteceu? / O que seria dar certo?"* — sem a sala, sem o limite de R$ 1.000, sem os
+clientes, que é exatamente o que aquela linha da fixture cobra; a base do LOTE-3
+cobria critério, evidência e custo de errar em 3 de 3. Para não depender de tê-lo
+visto, o medidor ganhou coluna mecânica — *repetição em que NENHUMA pergunta
+compartilha palavra de conteúdo com a nota* — e ela correu **também sobre a base**:
+**0 de 30 no LOTE-3, 1 de 30 no LOTE-5**, só no `grok-4.3`.
+
+**E o caso extremo é a ponta, não o tamanho.** Contando pergunta a pergunta, a
+diluição está nos **DOIS** modelos, porque a cláusula promovida não substituiu
+perguntas — ela ACRESCENTOU, e o acrescentado é a perna do gabarito: as perguntas
+ancoradas na nota, nos cinco casos com matéria, caíram de **49/51 (96%) para 48/63
+(76%)** no `grok-4.3` e de **59/61 (97%) para 63/71 (89%)** no `grok-4.5`. Os dois
+casos que mais perdem são `com-metodo-decisao` (12/14 → 8/11 no `4.3`; 13/14 → 10/15
+no `4.5`) e `premissa-incerta` (11/11 → 9/15 no `4.3`), que são justamente os dois em
+que a fixture cobra coisa própria. A coluna não se lê no texto magro: ali a nota não
+tem palavra de conteúdo e genérica é o desfecho certo.
+
+**A forma do defeito, para a volta seguinte reconhecê-la:** o requisito que subiu para
+MORDER na nota pobre virou **acréscimo** na nota farta. Promover uma lista fixa e dizer
+"pelo menos duas cumprem ao pé da letra" faz o modelo cumprir a lista e somá-la ao que
+já faria — no texto magro isso é o conserto, no texto farto é o dano.
+
+**Dívida nomeada, com a alavanca já escrita e NÃO aplicada** (dona: a volta seguinte
+de `instigar`): a alavanca **não é mais promoção nem mais proibição** — é o requisito
+ficar **CONDICIONADO à matéria**. Quando a nota dá pouco, pergunte o quê, o quando e o
+que seria dar certo; quando ela dá mais, as perguntas saem do que ELA escreveu e o
+*quando* entra só se faltar. **Uma frase, não um parágrafo** — inchar o pedido é como
+se compraram os defeitos anteriores.
+
+**A janela também é uma comparação de UMA alavanca**, e nela o `grok-4.5` é melhor que
+o `grok-4.3` em `instigar`: 0/15 contra 1/15 de repetição inteiramente genérica, e 89%
+contra 76% de perguntas ancoradas, com o mesmo prompt, o mesmo binário e a mesma
+fixture. Insumo pareado para a escolha de modelo POR OPERAÇÃO. **Não entra aqui de propósito:** o
+binário medido é o binário comitado, e prompt trocado depois da janela seria conserto
+escrito passando por conserto medido — o erro que esta esteira já nomeou. Uma corrida
+também não seria medida.
