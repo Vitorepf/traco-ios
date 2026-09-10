@@ -178,8 +178,12 @@ struct CartaoDeResposta<Conteudo: View>: View {
 
 /// "serviu / não serviu" como CONTROLE: as duas saídas num campo só, separadas
 /// por um fio, cada uma com alvo de 44. Eram dois links soltos em cinza, sem
-/// borda e sem relação visível entre si (§14). A cor é a do texto de apoio: o
-/// retorno é opcional, e a resposta acima é o que importa.
+/// borda e sem relação visível entre si (§14). A cor E O PESO são os do texto
+/// de apoio (`meta`): o retorno é opcional, e a resposta acima é o que importa.
+/// O G4 apanhou `.compacto` pondo `Tema.barra` no rótulo — "serviu | não
+/// serviu" saía maior e mais pesado que "leu 4 notas suas", e o peso desmentia
+/// a frase acima. Por isso `.discreto` com `alvo()` em cada saída, como o
+/// "repetir" e a linha das fontes deste mesmo arquivo.
 struct ControleDeRetorno: View {
     let responder: (Bool) -> Void
 
@@ -190,14 +194,16 @@ struct ControleDeRetorno: View {
         // como uma palavra só (visto na captura do aparelho da conta, 15h40)
         HStack(spacing: 10) {
             Button("serviu") { responder(true) }
+                .alvo()
                 .accessibilityIdentifier("serviu")
             Rectangle().fill(Tema.tintaMorta).frame(width: 1, height: 18)
             Button("não serviu") { responder(false) }
+                .alvo()
                 .accessibilityIdentifier("nao-serviu")
         }
         .font(Tema.meta)
         .foregroundStyle(Tema.tintaSuave)
-        .buttonStyle(.compacto)
+        .buttonStyle(.discreto)
         .padding(.horizontal, 10)
         .cartao(.campo, recuo: [])
         .fixedSize()

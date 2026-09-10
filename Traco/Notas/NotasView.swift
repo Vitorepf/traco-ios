@@ -830,9 +830,8 @@ struct NotasView: View {
                         let comSub = !(sub == "hoje" && busca.isEmpty)
                         let palavras = [nota.gesto?.nome, nota.origem.etiqueta].compactMap { $0 }
                         if comSub || !palavras.isEmpty {
-                            (Text(palavras.joined(separator: " · ") + (comSub && !palavras.isEmpty ? " · " : ""))
-                                .foregroundStyle(Tema.tintaSuave)
-                             + (comSub ? DestaqueBusca.texto(sub, termo: busca, base: Tema.tintaFraca) : Text("")))
+                            // interpolação de Text em Text: o `+` foi descontinuado no iOS 26 (único warning do build)
+                            Text("\(Text(palavras.joined(separator: " · ") + (comSub && !palavras.isEmpty ? " · " : "")).foregroundStyle(Tema.tintaSuave))\(comSub ? DestaqueBusca.texto(sub, termo: busca, base: Tema.tintaFraca) : Text(""))")
                                 .font(Tema.meta)
                                 .lineLimit(1)
                         }

@@ -28,6 +28,28 @@ struct RespostaNotasTests {
         #expect(!r.texto.contains("Rascunho antigo"))
     }
 
+    /// G4 da conversa, dívida 1: a nota sem linha de título chegava à
+    /// "Referência:" INTEIRA — a tela citando texto onde devia citar nota. O
+    /// teto vive no tipo (`FonteNotas.tetoDoTitulo`), então basta montar a
+    /// fonte para prová-lo, por qualquer porta. Irmã que não acusa:
+    /// `atribuiSomenteFonteSelecionadaSemPedirTituloAoModelo` ("Proposta atual"
+    /// fica como está). Fica vermelho se alguém tirar o teto do `init`.
+    @Test func oTituloDaFonteTemTetoEAReferenciaCitaANotaNaoOTexto() throws {
+        let paragrafo = String(repeating: "Reservei R$ 6000 para a viagem. Hospedagem 400 euros. ", count: 4)
+            .trimmingCharacters(in: .whitespaces)
+        let f = fonte(paragrafo, texto: paragrafo)
+        #expect(f.titulo.count <= FonteNotas.tetoDoTitulo + 1, "o teto conta grafemas mais a reticência")
+        #expect(f.titulo.hasSuffix("…"))
+        #expect(paragrafo.hasPrefix(String(f.titulo.dropLast(1)).trimmingCharacters(in: .whitespaces)), "o corte é prefixo, não invenção")
+        let r = try #require(RespostaNotas.interpretar(resposta(["N1T1"], texto: "Você reservou R$ 6.000."), pacote: pacote([f])))
+        #expect(!r.texto.contains(paragrafo), "a Referência não repete a nota")
+        #expect(r.texto.contains("Referência: “\(f.titulo)”"))
+        // e a porta do CRLF: `split("\n")` vê a nota toda como uma linha, o
+        // tipo a devolve numa só, sem quebra
+        let crlf = fonte("Plano da semana\r\nSegunda: ensaiar\r\nTerça: entregar", texto: "x")
+        #expect(crlf.titulo == "Plano da semana Segunda: ensaiar Terça: entregar")
+    }
+
     @Test func tituloIgualNaoFundeIdentidadesNemAtribuiNotaErrada() throws {
         let antiga = fonte("Proposta", texto: "Prazo antigo 10/09.")
         var atual = fonte("Proposta", texto: "Prazo corrigido 12/09.")

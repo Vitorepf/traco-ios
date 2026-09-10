@@ -4,10 +4,32 @@ import Foundation
 /// seleciona apenas IDs de trechos existentes na mensagem que recebeu.
 nonisolated struct FonteNotas: Codable, Equatable, Sendable {
     var id: UUID
-    var titulo: String
+    /// Um título que aceita uma nota inteira não é um título (G4 da conversa,
+    /// dívida 1, e `P0-IRMÃOS-CRLF`, os dois em 10/09): `tituloNaLista` é a
+    /// primeira linha SEM teto, e num texto CRLF a primeira linha é a nota toda
+    /// — a "Referência:" citava o parágrafo que a resposta acabara de
+    /// parafrasear. O teto vive AQUI, no tipo, e não em `interpretar`, porque é
+    /// por aqui que toda fonte passa: a que `Sessao.fonteParaPergunta` monta da
+    /// nota, a do ensaio em Debug e a que um chamador novo montar amanhã. A
+    /// linha "Referência:", a linha das fontes e o pedido ao modelo herdam o
+    /// corte sem que cada um precise lembrar de cortar; `private(set)` fecha a
+    /// porta de trás. O texto inteiro segue em `texto`, que é o que o modelo lê.
+    private(set) var titulo: String
     var texto: String
     var editadaEm: Date
     var assinatura: String? = nil
+
+    /// Grafemas. Cabe em duas linhas de `meta` em `large`; acima disso a
+    /// citação deixa de nomear e passa a repetir.
+    static let tetoDoTitulo = 80
+
+    init(id: UUID, titulo: String, texto: String, editadaEm: Date, assinatura: String? = nil) {
+        self.id = id
+        self.titulo = VozDoAutor.truncar(titulo.split(whereSeparator: \.isNewline).joined(separator: " "), Self.tetoDoTitulo)
+        self.texto = texto
+        self.editadaEm = editadaEm
+        self.assinatura = assinatura
+    }
 }
 
 nonisolated enum RespostaNotas {
