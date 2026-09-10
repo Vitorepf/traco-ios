@@ -161,6 +161,13 @@ nonisolated enum Grok {
         /// em vez de dizer" (DIRETRIZ §8). Só o texto de erro do provedor, e
         /// só em DEBUG: nada do pedido, nada do token.
         var erroDaAPI: String?
+        /// ADR 2026-09-10c — o retorno BRUTO, antes de qualquer contrato nosso.
+        /// Sem ele, "os três campos vazios são do modelo" era INFERÊNCIA: a
+        /// ausência de `guardasQueApagaram` prova que nenhuma guarda apagou,
+        /// não prova o que o modelo escreveu. O LOTE-6 fechou uma linha de
+        /// `contrapor` com os três vazios sobre HTTP 200 e não deixou como
+        /// conferir. Só em DEBUG, como o `erroDaAPI` ao lado.
+        var retornoBruto: String?
         var desfecho: String
     }
     private nonisolated(unsafe) static var diagnosticos: [Diagnostico] = []
@@ -247,6 +254,7 @@ nonisolated enum Grok {
               let msg = textoCompleto(dados) else { return nil }
         #if DEBUG
         diagnostico.desfecho = "conteúdo completo"
+        diagnostico.retornoBruto = String(msg.prefix(2000))
         #endif
         if let chave { memoGrava(chave, msg) }
         return msg

@@ -82,8 +82,8 @@ struct PerfilQualidadeTests {
             .calibragem: "não diz nada quando você não errou",
             .recordar: "entrega a resposta junto com a pergunta",
             .responder: "inventa uma situação que você não escreveu",
-            .instigar: "quando você escreveu pouco, pergunta vago e não pergunta quando aconteceu",
-            .contrapor: "inventa uma renda que você não escreveu",
+            .instigar: "acrescenta perguntas de gabarito que não falam da sua nota",
+            .contrapor: "oferece a saída que você já tinha descartado",
         ]
         #expect(Set(esperado.keys) == Set(Politica.indisponiveis))
         for (op, frase) in esperado {

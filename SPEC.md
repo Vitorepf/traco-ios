@@ -9271,6 +9271,80 @@ que enfraquecem a leitura e ficam escritas:
 **acréscimo** no caso farto. A alavanca é uma frase condicionada à matéria, não um
 parágrafo — e a régua para aceitá-la é **duas janelas, não uma**, porque foi exatamente
 uma janela só que produziu o zero que esta volta desfez.
+## ADR 2026-09-10c — o que ela já descartou é DADO, e o retorno bruto vira prova (volta Q4-F)
+
+**Decisão.** O `contrapor` continua `indisponivelPorQualidade`. Gastei as DUAS
+tentativas do regime numa alavanca só — o PEDIDO — e nenhum dos dois modelos
+passou os DOIS casos cegos em 3 de 3. Fica no `main` o que a medida sustenta: a
+regra nova no `sistemaContrapor`, o retorno BRUTO preservado, e a linha do Perfil
+dizendo o defeito que sobrou. A rota volta a ter executor quando alguém passar os
+dois cegos nos dois lados, não num.
+
+**Contexto.** O LOTE-6 (ADR 09x) reprovou as duas famílias em pontas OPOSTAS: o
+`grok-4.3` fechou uma base com os TRÊS campos vazios sobre HTTP 200, e o
+`grok-4.5` propôs, 3 de 3 no caso cego, o ensaio prévio que a nota fecha por
+escrito. O pedido dava por DADO o requisito, a restrição e o motivo — e uma saída
+que ela DESCARTOU não é nenhum dos três. O modelo lia o descarte como opinião a
+rebater, ou como lacuna a preencher.
+
+**A alavanca, e é uma.** Uma regra só, condicionada à MATÉRIA, fechando as duas
+covardias no mesmo fôlego: *o que ela já descartou, recusou ou disse não ter é
+DADO; nada disso volta como proposta sua, nem no `foraDaLista`, nem como etapa
+antes; e quanto mais saídas ela fecha, mais o contraponto se aperta no que SOBRA.*
+A segunda metade é o antídoto do que a Q4-C comprou: fechar portas sem dizer onde
+morder rende mudez. Nada de promover lista, nada de exigir número de campos, nada
+de autocertificação.
+
+**O portão que vem ANTES do prompt.** "Os três vazios são do modelo" era
+INFERÊNCIA: a ausência de `guardasQueApagaram` prova que nenhuma guarda apagou,
+não prova o que o modelo escreveu. `Grok.Diagnostico.retornoBruto` passa a
+guardar o retorno antes de qualquer contrato nosso, só em DEBUG, ao lado do
+`erroDaAPI`. O conferidor desta volta ACUSA quando três vazios chegam sem o bruto
+ao lado — e acusou, relendo o LOTE-6.
+
+**A medida.** Mesma fixture do LOTE-6, byte a byte (`q4c-contrapor-cego-casos.json`,
+SHA `da012e21…`), 8 casos × 3 repetições × 2 modelos, no aparelho da conta
+`34CC3F94`. Uma janela e uma instalação por tentativa, `cmp` do `.debug.dylib`
+antes e no fim, `ContaGrok.ligada` true nas quatro fumaças de cada janela.
+
+| | cego `alternativas-negadas` | cego `razoes-fechadas` | três vazios | campos vazios |
+|---|---|---|---|---|
+| LOTE-6 `4.3` | 2/3 | ~1/3 | **1** | 12/72 |
+| LOTE-6 `4.5` | **0/3** | 3/3 | 0 | 0/72 |
+| LOTE-7 t1 `4.3` | 2/3 | 0–1/3 | **0** | 14/72 |
+| LOTE-7 t1 `4.5` | 1/3 | 3/3 | 0 | 0/72 |
+| LOTE-8 t2 `4.3` | 1/3 | 1/3 | **0** | **10/72** |
+| LOTE-8 t2 `4.5` | **2/3** | **3/3** | 0 | 0/72 |
+
+O que a alavanca comprou, medido: os três campos vazios do `4.3` foram a zero e
+lá ficaram em 96 execuções; as propostas da saída fechada no `foraDaLista` do
+`4.3` caíram de 3 para 0 na tentativa 1; e o `4.5` subiu de 0/3 para 2/3 no cego
+que o derrubava. O que NÃO comprou: 3 de 3 nos dois cegos, em modelo nenhum.
+
+**O defeito que sobra, nomeado.** Para o recurso que a nota diz NÃO ter, o modelo
+oferece um SUBSTITUTO — "ensaio com dado sintético", "cópia mascarada",
+"recorte representativo". A falta declarada é lida como lacuna a preencher. A
+tentativa 2 escreveu isso no pedido em letra grande (*falta que ela declara é
+CONDIÇÃO, não lacuna a preencher*) e o `4.5` melhorou, o `4.3` piorou. A alavanca
+seguinte não é escrever a proibição mais forte: é a que a Q4-C já ensinou a não
+repetir.
+
+**A tela.** A linha do Perfil perdeu a metade que a medida não sustenta mais.
+"e às vezes não devolve nada" saiu: 1 em 24 no LOTE-6, 0 em 48 no LOTE-7 e 0 em
+48 no LOTE-8, com frase própria (`Sabia.nadaPassouNaGuarda`) quando acontece.
+Sobra o que o autor encontra: *"ela ainda oferece a saída que você já tinha
+descartado"*. Fotografada em `large` no `34CC3F94` às 16:52:20Z —
+`prova/q4f/q4e-04-cartao.png`.
+
+**Pré-mortem.** Se esta ADR envelhecer mal, é por uma destas: (a) a tabela acima
+é UMA amostra de 3 repetições por célula, e o próprio LOTE-5 já devolveu número
+diferente na remedida — comparar por seta é o erro que a 09x nomeou, e as
+diferenças de 1/3 aqui não são propriedade; (b) a coluna mecânica do conferidor
+sub-acusa (não pegou "convênio", "caminhadas", "replicação paralela") e
+sobre-acusava antes de eu restringi-la ao `foraDaLista` — o mérito é do revisor,
+e é a leitura dele que decide, não a minha nem a do `grep`; (c) o G3 ainda não
+leu a saída inteira desta volta.
+
 ## ADR 2026-09-09r — Os widgets da tela bloqueada, vistos na bloqueada de verdade (volta F6)
 
 **Contexto.** `accessoryInline` e `accessoryRectangular` existem desde a 05u e nunca tinham

@@ -240,10 +240,16 @@ enum Sabia {
     Nada de elogio, nada de conclusão por ela. Se um dos três não tiver conteúdo honesto, deixe "" — silêncio é resposta válida.
     Mas silêncio nos TRÊS só quando a nota realmente não deixa nada a examinar: quando a razão dela já
     sustenta a escolha, diga o limite real dessa razão, e não uma objeção fabricada para preencher o campo.
-    O REQUISITO, a restrição e o motivo que ela escreveu são DADO, não opinião: nunca argumente contra eles,
-    e nenhuma alternativa sua pode violá-los — alternativa que o requisito dela já exclui não é contraponto,
-    é troca de assunto. Se a razão dela sustenta a escolha, diga isso e mostre onde essa razão aperta na
-    prática, dentro do requisito dela.
+    O REQUISITO, a restrição e o motivo que ela escreveu são DADO, não opinião — e é DADO também
+    o que ela já descartou, recusou ou disse não ter. Nunca argumente contra isso, e nada disso volta
+    como proposta sua: nem como alternativa no foraDaLista, nem como etapa antes.
+    Saída que ela mesma fechou não é contraponto, é troca de assunto.
+    O que ela pôs fora da conta fica fora, a favor e contra: não sustente a posição dela com o motivo
+    que ela mesma descartou. E falta que ela declara é CONDIÇÃO, não lacuna a preencher — não ofereça
+    substituto para o recurso que ela disse não ter.
+    Quanto mais saídas ela fecha, mais o contraponto se aperta no que SOBRA — o que ela fixou e
+    ainda não examinou —, e é aí que ele tem de morder. Se a razão dela sustenta a escolha, diga isso
+    e mostre onde essa razão aperta na prática, dentro do requisito dela.
     Se houver um bloco SOBRE QUEM ESCREVE, use-o para escolher o exemplo que ela ainda não viu.
     """
 

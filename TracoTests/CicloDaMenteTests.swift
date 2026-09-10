@@ -843,4 +843,56 @@ private func temp(_ nome: String) -> URL {
         // saiu do fim: era a penúltima linha e não mandava em nada
         #expect(!Sabia.sistemaContrapor.contains("Não atribua a ela recurso"))
     }
+
+    /// ADR 2026-09-10c — a alavanca do LOTE-7, e é UMA. O caso cego do revisor
+    /// derrubou as duas famílias em PONTAS OPOSTAS na Q4-E: o `grok-4.5`
+    /// propôs, 3 de 3, o ensaio com os dados reais que a nota fecha por
+    /// escrito; o `grok-4.3` fechou uma base com os três campos vazios. A
+    /// frase antiga só dava por DADO o requisito, a restrição e o motivo — e
+    /// uma saída DESCARTADA não é nenhum dos três, então o modelo a lia como
+    /// opinião a rebater ou lacuna a preencher.
+    ///
+    /// A regra nova é uma só e fecha as duas de uma vez, condicionada à
+    /// MATÉRIA: o que ela descartou é dado (fecha a invenção) e, quanto mais
+    /// ela fecha, mais o contraponto se aperta no que SOBRA (fecha a recusa
+    /// covarde). Sem promover lista, sem exigir número de campos, sem pedir
+    /// autocertificação — foi assim que a Q4-C comprou o defeito oposto.
+    @Test func oContratoDeContraporFechaASaidaQueElaMesmaDescartou() {
+        for pedaço in ["é DADO também",
+                       "o que ela já descartou, recusou ou disse não ter",
+                       "nem como alternativa no foraDaLista, nem como etapa antes",
+                       "Saída que ela mesma fechou não é contraponto, é troca de assunto",
+                       "Quanto mais saídas ela fecha, mais o contraponto se aperta no que SOBRA",
+                       // tentativa 2: as duas pontas que sobraram na primeira
+                       "O que ela pôs fora da conta fica fora, a favor e contra",
+                       "não ofereça",
+                       "substituto para o recurso que ela disse não ter"] {
+            #expect(Sabia.sistemaContrapor.contains(pedaço))
+        }
+        // A guarda que acusa precisa da irmã que NÃO acusa: a regra é abstrata
+        // e não pode carregar as palavras do caso cego, ou passa por decorar.
+        for doCegoQueNaoEntra in ["homologação", "faseamento", "academia", "banco de dados"] {
+            #expect(!Sabia.sistemaContrapor.contains(doCegoQueNaoEntra))
+        }
+    }
+
+    /// ADR 2026-09-10c — o portão que vem ANTES do prompt. Três campos vazios
+    /// sobre HTTP 200 têm DUAS causas possíveis, e a tela e a ADR dependem de
+    /// saber qual: o modelo calou, ou a nossa guarda apagou. `guardasQueApagaram`
+    /// separa as duas — e este par prova que ela ENXERGA: a irmã que acusa e a
+    /// irmã que não acusa, sobre a mesma nota e a mesma forma de retorno.
+    @Test func tresVaziosDoModeloNaoSaoTresVaziosDaGuarda() {
+        let nota = "Vou parcelar o notebook em 18 vezes sem juros. Minha reserva cobre três meses."
+        _ = Sabia.retirarGuardasQueApagaram()
+        // o MODELO calou: vem vazio, nenhuma guarda tem o que apagar
+        let calou = Sabia.parseContraparte(#"{"contra":"","foraDaLista":"","outroCampo":""}"#, texto: nota)
+        #expect(calou?.vazia == true)
+        #expect(Sabia.retirarGuardasQueApagaram().isEmpty, "o modelo calou e uma guarda se declarou dona do silêncio")
+        // a GUARDA apagou: veio conteúdo, e nada dele era sobre a nota dela
+        let apagada = Sabia.parseContraparte(
+            #"{"contra":"Parcelar em 18 vezes compromete a renda dos meses seguintes.","foraDaLista":"","outroCampo":""}"#,
+            texto: nota)
+        #expect(apagada?.vazia == true)
+        #expect(Sabia.retirarGuardasQueApagaram() == ["contra · fato que ele não deu"])
+    }
 }

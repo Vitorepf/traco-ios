@@ -172,19 +172,21 @@ import Testing
         #expect(!Politica.desceAoAparelho(.contrapor))
         #expect(Politica.linha(.contrapor).medidaEm == "10/09/2026")
         let frase = Politica.semProvedor(.contrapor)
-        #expect(frase.contains("ofereceu justamente a que você tinha descartado"))
+        #expect(frase.contains("oferece a saída que você já tinha descartado"))
         #expect(!frase.contains("fato inventado"), "a frase de 08/09 sobreviveu à medida que a derrubou")
         #expect(!frase.contains("inventou renda"), "a frase do LOTE-5 sobreviveu ao LOTE-6")
         // e a linha do Perfil, pelo caminho REAL da tela
         let emCorrecao = PerfilView.reprovadas.filter { $0.conserto != nil }
         let r = try #require(emCorrecao.first { $0.op == .contrapor })
-        let linha = PerfilView.restoDa(r, dataNaLinha: PerfilView.dataDe(emCorrecao).isEmpty)
+        // ADR 09z: a data saiu da tela e `restoDa` voltou a ter um argumento só.
+        let linha = PerfilView.restoDa(r)
+        #expect(!linha.contains("10/09"), "a data voltou para a linha do autor")
         #expect(linha.contains("oferece a saída que você já tinha descartado"))
         #expect(!linha.contains("os dois defeitos medidos caíram"), "a linha do LOTE-5 ainda está na tela")
         // o conserto nomeado deixa de ser "falta a leitura de mérito": a leitura
         // ACONTECEU e reprovou; o que falta é uma frase no pedido.
         let conserto = try #require(Politica.linha(.contrapor).conserto)
-        #expect(conserto.contains("ALTERNATIVA"))
+        #expect(conserto.contains("substituto para o que você disse que não tem"), "o conserto não nomeia o defeito que sobrou — \(conserto)")
         #expect(!conserto.contains("leitura de mérito"))
     }
 
