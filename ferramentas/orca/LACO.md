@@ -2754,3 +2754,53 @@ que estava ligado no desligamento; o `B91C8DEF` não voltou. Xcode segue 26.6 (1
 **Ordem do dono às 07h30: "o foco de hoje é atingir o mais perto da nota 10/10 possível."**
 Escrita como DIRETRIZ §11 e META DO DIA no RUMO. Nota ao acordar: **7**. Subo o Orca e o
 orquestrador pelo `equipe.sh` com esta ordem; primeira tarefa: **ler a Q3-C que já existe**.
+
+## 10/09, 07h50 — retomada depois de dois reinícios; três voltas no ar e um vigia que não matava
+
+**Retomo com o Orca reatado** (`run-use --id run_ba86df7ee906` — o terminal tinha sido
+descercado no reinício) e as três voltas da noite **retomadas nos worktrees que já
+existem**, sem recomeçar nada. Ordem do dono das 07h30: **"o mais perto da nota 10/10
+possível"**, nota ao acordar **7**.
+
+**Despachei nesta ordem, que é a da DIRETRIZ §11:**
+
+1. **Q3-C-LER** (`ctx_4eb22f672283`, worktree `q3-c`) — **a primeira tarefa do dia, por
+   ordem expressa.** A corrida do `responderNasNotas` **já existe** e custou uma janela
+   do aparelho da conta: 7 casos × 3 repetições em `grok-4.3` e `grok-4.5`, três fumaças
+   da conta, janela de 23h27:13 a ~23h33. **Ato 0 do despacho: comitar a prova CRUA,
+   intocada, antes de qualquer análise** — ela sobreviveu a dois reinícios por sorte, sem
+   commit. Depois ler as 42 saídas inteiras e pontuar por modelo. Se um passar,
+   `responderNasNotas` volta hoje com captura no `B91C8DEF` e **a hora**.
+2. **Q4-C** (`ctx_2b25da78a052`) — mesmo Ato 0: comitar o que sobreviveu
+   (`Sabia`, `AvaliacaoIA`, a Lente, dois testes, `lote-ia-09e-*` que nunca correu), e só
+   então medir. A janela do aparelho corre **depois** da leitura da Q3-C, e a trava põe
+   na fila quem chegar segundo.
+3. **G3 MAC-2-A** (`ctx_b8b71210c065`) — o revisor morreu com
+   `EspelhoTrabalhoTests` alterado e o batimento mais valioso da noite: *"achei 4ª rota
+   do selo por leitura, vou provar com sonda"*. O despacho manda ler esse diff **antes de
+   tudo**: é a pista de uma rota do selo que o autor não viu.
+
+**O padrão que os três despachos compartilham, e é a lição da madrugada:** *o primeiro
+comando útil do dia é comitar o que sobreviveu.* Três worktrees guardavam trabalho sem
+commit — inclusive uma medida que gastou o aparelho da conta — e dois reinícios já
+tinham passado por cima.
+
+## E o vigia da fala do dono NÃO estava matando
+
+Ele relançou `cala-a-fala.sh` às 07h07 e me disse "FALA 0 agora". Às **07h36 a minha
+caça acusou FALA 1**: `sirittsd`, **pid 8646, vivo desde 07:17:29** — ou seja,
+**sobreviveu 19 minutos e cerca de 380 tentativas do vigia dele**. Matei com `kill -9` e
+caiu na hora.
+
+**A causa provável está numa letra:** o vigia dele usa `pkill -x`, que manda **SIGTERM**,
+e o `sirittsd` **ignora SIGTERM**; o meu `kill -9` (SIGKILL) derrubou de primeira. Subi
+um segundo vigia com `pkill -9 -x`, de 3 em 3 segundos por 12 h, e reescrevi a caça —
+que também tinha se perdido no reinício — com os dois níveis de ontem (**falante** é o
+daemon do Mac, alarme e se mata; **estopim** é o plugin dentro de um simulador ligado,
+que se reporta e não se mata às cegas). Estado agora: **FALA 0, estopim 0**.
+
+É a terceira vez em doze horas que um vigia meu ou nosso **agia sem funcionar**: a caça
+cega pelo espaço no caminho, o estado lido no efeito colateral em vez da trava, e agora
+um matador educado com um daemon que não escuta pedidos. **A lei já está escrita e vale
+para as três: vigia que reporta zero tem de provar que enxerga — e matador que não
+confere o corpo não matou.**
