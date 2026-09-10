@@ -32,6 +32,22 @@ for l in sys.stdin:
         t=p[1].strip()
         cand.append((0 if t==alvo else 1 if t.lower()==a else 2, len(t), p[0]))
 if cand: print(sorted(cand)[0][2])'; }
+# Arrasto LENTO, com pontos intermediários e uma parada antes do `end`. O
+# arrasto de UM ponto é um FLIQUE: a rolagem do simulador amplifica (6 a 24x
+# pela medida de 09/09) e um flique de 0,02 já passava do cartão inteiro. E
+# `orca emulator` não tem `swipe` — o verbo é `gesture`, e cada ponto exige
+# `type`: um `swipe` inventado falha em silêncio e a captura sai de onde
+# estava. Os dois custaram três ensaios; ficam escritos.
+lento() { # lento <de> <ate>
+  python3 -c '
+import json,sys
+de, ate = float(sys.argv[1]), float(sys.argv[2]); n = 6
+p  = [{"type": "begin", "x": 0.5, "y": de}]
+p += [{"type": "move", "x": 0.5, "y": de + (ate - de) * i / n} for i in range(1, n + 1)]
+p += [{"type": "move", "x": 0.5, "y": ate}, {"type": "end", "x": 0.5, "y": ate}]
+print(json.dumps(p))' "$1" "$2"; }
+rolar() { orca emulator gesture "$(lento "$1" "$2")" --device "$D" >/dev/null 2>&1; espera 2; }
+
 tocar() { # tocar <foto> <trecho>
   local xy; foto "$1"; xy=$(achar "$1" "$2")
   [ -z "$xy" ] && { echo "[$(hora)] NAO ACHEI [$2] em $1"; return 1; }
@@ -42,7 +58,15 @@ tocar() { # tocar <foto> <trecho>
 pkill -f "serve-sim.*$D" 2>/dev/null && espera 2
 orca emulator attach "$D" --json >/dev/null 2>&1 || { echo "attach FALHOU"; exit 1; }
 
+# LIBERAR abre a rota na TELA, e não só na sonda: `Politica.aviso` delega a
+# `Politica.provedor`, que em DEBUG consulta `liberadasParaAvaliacao`. Por isso
+# a captura do cartão VIVO não exige virar a tabela antes de a medida decidir —
+# o ensaio no teste 4 mostrou a tela dizendo a frase de indisponível sem ele.
+# Sem `TRACO_AVALIAR_IA`: a sonda não roda aqui, quem pergunta é a tela.
 xcrun simctl launch --terminate-running-process "$D" app.traco >/dev/null 2>&1
+espera 2
+env SIMCTL_CHILD_TRACO_AVALIAR_LIBERAR=instigar \
+  xcrun simctl launch --terminate-running-process "$D" app.traco >/dev/null 2>&1
 espera 5
 foto "$PRE-00-abriu.png"
 
@@ -77,19 +101,36 @@ echo "[$(hora)] === O QUE A TELA DIZ (cartão do instigar), lido da captura ==="
 [ "$CHEGOU" = sim ] || echo "[$(hora)] ⚠ o cartão NÃO chegou no tempo do laço — a captura acima é o que havia"
 
 # ---- (2) o cartão CONTA do Perfil, que é a tela que o dono mandou mudar ----
-tocar "$PRE-04-cartao-instigar.png" "Perfil" || {
-  orca emulator tap 0.893 0.9317 --device "$D" >/dev/null 2>&1; espera 2
-  tocar "$PRE-05-sem-teclado.png" "Perfil" || { echo "[$(hora)] sem aba Perfil"; exit 4; }; }
+# A Lente é uma FOLHA e cobre a barra de abas: o ensaio no teste 4 procurou
+# "Perfil" com ela aberta e não achou, porque não estava na tela. Fecha antes.
+tocar "$PRE-04-cartao-instigar.png" "Pronto" || {
+  orca emulator swipe 0.5 0.35 0.5 0.95 --device "$D" >/dev/null 2>&1; espera 2; }
+espera 2
+# e o EDITOR também esconde a barra de abas enquanto tem foco (`escondida`), e
+# o app ABRE escrevendo. Três ensaios para achar a saída: "Concluir" cai numa
+# nota NOVA, ainda no editor; a coordenada do glifo de abaixar o teclado colide
+# com o botão "Lente" da barra de baixo quando o teclado já está abaixado, e
+# num dos ensaios mandou o app para o fundo. O que sai do editor é o "Notas"
+# do TOPO ESQUERDO — volta para a lista, e aí a barra de abas está na tela.
+tocar "$PRE-05-lente-fechada.png" "Notas" || { echo "[$(hora)] sem o Notas do topo"; exit 4; }
 espera 3
+tocar "$PRE-05b-lista-de-notas.png" "Perfil" || { echo "[$(hora)] sem aba Perfil"; exit 4; }
+espera 3
+# A rolagem do Perfil GUARDA a posição entre visitas, então "abriu o Perfil"
+# não é uma posição conhecida. Dois arrastos LONGOS para baixo levam ao topo
+# (medido: a terceira linha vira "CONTA"), e daí UM arrasto de 0,08 põe a lista
+# de indisponíveis inteira na tela — os dois grupos, das seis operações à do
+# `contrapor`. Calibrado no aparelho de trabalho em 10/09; o `grep` abaixo é o
+# que impede a captura cega de mentir sobre o que viu.
+rolar 0.30 0.85; rolar 0.30 0.85
 foto "$PRE-06-perfil-topo.png"
-# o cartão CONTA fica abaixo: desce até a palavra aparecer, e diz em que passo
-for i in 1 2 3 4 5 6; do
-  "$LER" "$OUT/$PRE-06-perfil-topo.png" | grep -qiE "^CONTA$|Indispon" && { echo "[$(hora)] CONTA visível no passo $i"; break; }
-  orca emulator swipe 0.5 0.75 0.5 0.35 --device "$D" >/dev/null 2>&1
-  espera 2; foto "$PRE-06-perfil-topo.png"
-done
+"$LER" "$OUT/$PRE-06-perfil-topo.png" | sed -n 3p | grep -qi "CONTA" \
+  || echo "[$(hora)] ⚠ o topo do Perfil não é o cartão CONTA — a calibragem mudou"
+rolar 0.70 0.62
 foto "$PRE-07-cartao-conta.png"
+"$LER" "$OUT/$PRE-07-cartao-conta.png" | grep -qE "ainda não faz|Não há nada que ela deixe" \
+  || echo "[$(hora)] ⚠ a lista de indisponíveis NÃO está nesta captura"
 echo "[$(hora)] === O QUE A TELA DIZ (cartão CONTA do Perfil), lido da captura ==="
 "$LER" "$OUT/$PRE-07-cartao-conta.png"
-echo "[$(hora)] === o `instigar` ainda está na lista de indisponíveis? ==="
+echo "[$(hora)] === o instigar ainda esta na lista de indisponiveis? ==="
 "$LER" "$OUT/$PRE-07-cartao-conta.png" | grep -i "instigar" || echo "  (nenhuma linha com 'instigar' na captura)"
