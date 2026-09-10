@@ -74,8 +74,9 @@ que este arquivo existe para impedir — e ele reincidiu no próprio arquivo.
 | 09q | B2 · estados inalcançáveis e rotas que calam | reservada, volta viva |
 | 09r | F6 · os widgets da tela bloqueada | reservada, volta viva |
 | 09s | Q4-C · a guarda que apaga não pode virar silêncio num 200 | reservada, volta viva |
+| 09t | MAC-2-A · o Trabalho chega ao Mac para ser lido | reservada, volta viva |
 
-**Próxima livre: 09t.**
+**Próxima livre: 09u.**
 
 **A série 08 está CHEIA** — de `08a` a `08z`, com `08c` e `08d` como buracos.
 
