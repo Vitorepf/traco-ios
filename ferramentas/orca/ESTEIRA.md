@@ -1365,3 +1365,37 @@ frase do `SPEC` que sustentava a declaração (*"o autor não consegue plantar l
 **A lei:** *"fato observado" é uma alegação, e alegação se confere.* Declarar limite é
 honesto; declarar limite sobre uma premissa que ninguém testou é a meia-recusa da
 engenharia. Feche a premissa primeiro — o que sobrar depois, aí sim, é fato.
+
+## O atalho rápido que é CEGO ao caso que ele guarda (10/09, MAC-2-A-D)
+
+Mandei reusar o normalizador de CRLF que **já existia** no repositório
+(`BlocoCaderno.fatiasSemMemo`) — e a volta descobriu, consertando, que **ele nunca
+correu**. A forma era:
+
+```swift
+let normal = fonte.contains("\r") ? fonte.replacing... : fonte
+```
+
+**`String.contains("\r")` resolve para `contains(_ element: Character)`** — e num texto
+CRLF o `Character` é **`"\r\n"`**, não `"\r"`. Logo **`false`**, e o normalizador **não
+roda**. Medido: `false` por `contains`, `true` por `unicodeScalars`. Ou seja: **o import
+de `.md` do Windows nunca foi normalizado no Caderno**, e o `\r` sobrevivia até a tela —
+exatamente o que o comentário daquele código dizia estar impedindo.
+
+**E a sonda que guardava o caso estava verde pelo mesmo furo:**
+`!visivel.contains("\r")` — **a sonda copiou a expressão do código**. *A sonda que erra
+igual ao código não guarda nada*, e é a segunda vez em dois dias que isso aparece (a
+primeira foi a `SONDA-4` sem ver o TAB).
+
+**A lei:** *o atalho de desempenho tem de enxergar o mesmo que o caminho lento.* Um
+`guard` que evita trabalho e é cego ao caso que o trabalho trata é **pior que não ter
+guarda** — ele desliga o conserto **e** dá a impressão de que ele roda. Ao escrever
+"só normaliza se precisar", prove que o "se precisar" enxerga.
+
+**Em Swift, concretamente:** para procurar `\r` num texto que pode ser CRLF, use
+`s.unicodeScalars.contains("\r")`. Para "tem alguma quebra?", `contains(where: \.isNewline)`,
+**nunca** `contains("\n")`.
+
+**E a correção é minha:** eu mandei reusar aquele código dizendo que o repositório já
+resolvia isso. **Reusar é o degrau certo da escada — mas reusar sem conferir propaga o
+defeito com a autoridade de quem já estava lá.** O irmão que se reusa também se lê.

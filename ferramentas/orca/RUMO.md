@@ -751,3 +751,12 @@ aviso solto no meio de relato longo se perde.
 `4.5`) — contra a linha *"Não suponha nenhum fato que ela não escreveu"*, que segue viva
 **quatro linhas abaixo** da promovida. **Dono da alavanca certa (condicionar à matéria): a
 volta seguinte de `instigar`.**
+
+**Dívida: varrer o repositório atrás dos irmãos do CRLF (10/09).** A MAC-2-A-D consertou
+os pontos que o G3 mediu e **declarou** que não varreu o resto. A varredura em `main`
+mostra **seis** `split(separator: "\n")` em `Traco/` — `AnaliseLocal.swift:295`,
+`Sabia.swift:955`, `VozDoAutor.swift:78` e `Corpus.swift:281/330/337`. Nem todos são
+defeito: só o são onde a entrada **pode** carregar CRLF. Dois merecem olhar primeiro —
+**`Sabia.swift:955`**, que parte **saída de modelo**, e **`VozDoAutor.swift:78`**, que
+parte texto do autor que pode ter vindo de import. **Dono: a volta que fechar a trilha do
+CRLF** — decidir caso a caso, com a entrada na mão, e não trocar tudo por reflexo.
