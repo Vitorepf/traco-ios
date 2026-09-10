@@ -97,7 +97,9 @@ alguém tropeçar: a série 08 encheu sem aviso e custou três colisões numa ta
 
 | 10e | SUPERFÍCIE · falar com a sábia: um componente só, a pergunta como título, a resposta como folha | reservada, volta viva |
 
-**Próxima livre: 10f.**
+| 10f | SISTEMA-IA/conversa · a conversa com a sábia como folha do Traço | reservada, volta viva |
+
+**Próxima livre: 10g.**
 
 **A 09s colidiu, e quem mudou fui eu** (09/09, ~02h). Tomei a `09s` porque o
 "Próxima livre: 09s" que estava escrito aqui batia com o comando; no mesmo
