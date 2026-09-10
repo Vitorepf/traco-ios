@@ -95,7 +95,9 @@ alguém tropeçar: a série 08 encheu sem aviso e custou três colisões numa ta
 | 10c | INSTIGAR · a irmã: condicionar à matéria também nas perguntas | reservada, volta viva |
 | 10d | CONTRAPOR · fechar a porta do caso cego no pedido | reservada, volta viva |
 
-**Próxima livre: 10e.**
+| 10e | SUPERFÍCIE · falar com a sábia: um componente só, a pergunta como título, a resposta como folha | reservada, volta viva |
+
+**Próxima livre: 10f.**
 
 **A 09s colidiu, e quem mudou fui eu** (09/09, ~02h). Tomei a `09s` porque o
 "Próxima livre: 09s" que estava escrito aqui batia com o comando; no mesmo
