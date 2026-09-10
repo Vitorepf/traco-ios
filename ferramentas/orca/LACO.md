@@ -3550,3 +3550,14 @@ candidato.**
   mascarada, recorte representativo). Entregou também o portão que faltava **antes** do
   prompt (`Grok.Diagnostico.retornoBruto`) — sem ele, *"os três vazios são do modelo"* era
   **inferência**; com ele, ficou conferido.
+- **14h05** A Astra morreu no arranque: **`Agent startup blocked: codex-update-prompt`** — o
+  app do Codex pedindo atualização. **Não deixei a `responder` parada:** mandei o contrato de
+  contexto direto (a ordem do dono mais o que o G0 anterior da Astra já levantara — o corte
+  em 5000, a divulgação montada **antes** do corte, e a falsa intimidade que a volta já
+  **mediu**: em 2 de 3 a vizinha entrou na proposta como se fosse plano do autor). **Mais
+  contexto piora isso se a fronteira não vier junto**, então a fronteira é parte da alavanca.
+  Astra **redespachada** (`ctx_e81ab19886b0`) como **conferência**, não pré-requisito.
+- **14h11** Três cadeiras vivas: **superfície** (auditando, Fase 5 do roteiro),
+  **`instigar`** (`B91C8DEF`), **`responder`** (alavanca de contexto). Batimento da
+  `responder` está velho (15h31Z) e **o processo está vivo e trabalhando** — li os sinais
+  autoritativos, não a idade do batimento.
