@@ -93,7 +93,7 @@ alguém tropeçar: a série 08 encheu sem aviso e custou três colisões numa ta
 | 10a | TEMPO · o teto vira margem declarada, e a espera ganha estado | reservada, volta viva |
 | 10b | RESPONDER · o pedido condicionado à matéria (G0 da Astra) | **em `main`** — o prompt foi medido e NÃO fecha; `responder` fica cortada |
 | 10c | INSTIGAR · a irmã: condicionar à matéria também nas perguntas | reservada, volta viva |
-| 10d | CONTRAPOR · fechar a porta do caso cego no pedido | reservada, volta viva |
+| 10d | CONTRAPOR · a alavanca é o ESQUEMA DA SAÍDA, e o join que decidia por cima dela reprovou | **em `main`** — G3 em `ferramentas/orca/g3-contrapor-responder-ctx.md`: forma fica, join sai como dívida nomeada, e o "controle SUBIU" virou "não caiu" (o mesmo braço oscila 5) |
 
 | 10e | SUPERFÍCIE · falar com a sábia: um componente só, a pergunta como título, a resposta como folha | reservada, volta viva |
 
