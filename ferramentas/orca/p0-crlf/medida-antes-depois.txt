@@ -1,0 +1,26 @@
+caso                   | itens | origem | APAGA? | selo vazou? | consumido
+-----------------------|-------|--------|--------|-------------|----------
+ANTES  A) LF puro, selada     | 0     | -  | nao    | nao         | -
+DEPOIS A) LF puro, selada     | 0     | -  | nao    | nao         | 0.00
+
+ANTES  B) tudo CRLF, selada   | 1     | autor  | SIM    | SIM         | -
+DEPOIS B) tudo CRLF, selada   | 0     | -  | nao    | nao         | 0.00
+
+ANTES  C) \r so no estado     | 0     | -  | SIM    | nao         | -
+DEPOIS C) \r so no estado     | 0     | -  | nao    | nao         | 0.00
+
+ANTES  D) \r so na origem     | 1     | autor  | SIM    | SIM         | -
+DEPOIS D) \r so na origem     | 0     | -  | nao    | nao         | 0.00
+
+ANTES  E) prosa antes do 1o   | 1     | autor  | SIM    | nao         | -
+DEPOIS E) prosa antes do 1o   | 1     | autor  | nao    | nao         | 0.52
+
+ANTES  F) misto LF + \r       | 1     | autor  | SIM    | SIM         | -
+DEPOIS F) misto LF + \r       | 0     | -  | nao    | nao         | 0.00
+
+ANTES  G) .md sem cabecalho   | 1     | autor  | SIM    | nao         | -
+DEPOIS G) .md sem cabecalho   | 1     | autor  | SIM    | nao         | 1.00
+
+ANTES  H) nota ABERTA em CRLF | 1     | autor  | SIM    | nao         | -
+DEPOIS H) nota ABERTA em CRLF | 0     | -  | nao    | nao         | 0.00
+

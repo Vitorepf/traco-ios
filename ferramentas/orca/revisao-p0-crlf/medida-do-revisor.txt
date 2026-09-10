@@ -1,0 +1,34 @@
+caso                      | ANTES apaga | DEPOIS apaga | consumido | itens | perdeu o que vazaria/sumiria?
+--------------------------|-------------|--------------|-----------|-------|------------------------------
+D  \r so na origem        | SIM         | nao(vazio)   |      0.00 |     0 | -
+E  prosa antes do 1o      | SIM         | nao          |      0.52 |     1 | -
+N1 criada: sem espaco     | SIM         | SIM          |      1.00 |     1 | VAZOU no import
+N2 selo a mao, sem criada | SIM         | SIM          |      1.00 |     1 | VAZOU no import
+N3 gesto desconhecido     | SIM         | SIM          |      1.00 |     1 | SUMIU e o arquivo APAGA
+N4 export com dominio     | SIM         | SIM          |      1.00 |     1 | SUMIU e o arquivo APAGA
+N6 estado:selada grudado  | SIM         | SIM          |      1.00 |     1 | VAZOU no import
+N7 selo so-metadado       | nao(vazio)  | nao(vazio)   |      0.00 |     0 | -
+N8 so-metadado nao selado | SIM         | nao          |      0.35 |     1 | -
+N9 U+2028 no cabecalho    | SIM         | nao(vazio)   |      0.00 |     0 | -
+N10 cabecalho nao fecha   | nao(vazio)  | nao(vazio)   |      0.00 |     0 | -
+N11 termina no corpo      | SIM         | SIM          |      1.00 |     1 | -
+N12 tudo CRLF, selada     | SIM         | nao(vazio)   |      0.00 |     0 | -
+N13 prosa depois do fim   | SIM         | SIM          |      1.00 |     1 | VAZOU no import
+AMANHA (teto de 140 grafemas, SEM continue novo):
+  caracteres no arquivo : 699
+  caracteres importados : 140
+  consumido             : 1.00
+  podeRetirar (APAGA?)  : SIM
+DEPOIS (candidato de hoje): importados 659, consumido 1.00, apaga SIM
+
+A COBERTURA SOZINHA BASTA? (mesmo codigo, so sem a linha do portao)
+  B tudo CRLF, selada    sem portao: apaga=SIM consumido=1.00 vazou=SIM   | COM portao: apaga=nao vazou=nao
+  N1 criada: sem espaco  sem portao: apaga=SIM consumido=1.00 vazou=SIM   | COM portao: apaga=SIM vazou=SIM
+  N2 selo a mao          sem portao: apaga=SIM consumido=1.00 vazou=SIM   | COM portao: apaga=SIM vazou=SIM
+
+RECOMENDACAO MEDIDA (uma linha no ramo sem cabecalho). regressao em algum caso bom?
+  N1 selo invisivel                      hoje: apaga=SIM  |  com a linha: apaga=nao
+  N2 selo a mao                          hoje: apaga=SIM  |  com a linha: apaga=nao
+  G  prosa solta (tem de APAGAR)         hoje: apaga=SIM  |  com a linha: apaga=SIM
+  exportada ida e volta (tem de APAGAR)  hoje: apaga=SIM  |  com a linha: apaga=SIM
+  E  prosa antes do 1o (nao apaga)       hoje: apaga=nao  |  com a linha: apaga=nao

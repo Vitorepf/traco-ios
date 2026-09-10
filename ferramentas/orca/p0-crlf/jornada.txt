@@ -1,0 +1,40 @@
+== Thu Sep 10 11:01:30 -03 2026 — 34CC3F94-FDB5-4575-A4F5-80271829A18B
+== binário instalado bate com o candidato?
+SIM — cmp idêntico
+== antes de lançar: entrada/
+a-lf-selada.md
+b-tudo-crlf.md
+c-cr-no-estado.md
+d-cr-na-origem.md
+e-prosa-antes.md
+f-misto.md
+g-md-solto.md
+== depois de o app recolher a entrada: entrada/ (o que SOBREVIVEU)
+a-lf-selada.md
+b-tudo-crlf.md
+c-cr-no-estado.md
+d-cr-na-origem.md
+e-prosa-antes.md
+f-misto.md
+== o que virou nota (notas/, escrito pelo próprio app)
+notas/08a0c693-e8a0-411a-bdd7-f362cb4cead4.md:8:corpo aberto
+notas/404a4858-f645-4c86-b488-1ac57591d36d.md:8:só uma ideia solta, sem cabeçalho nenhum
+notas/db15835f-2a43-473e-9d82-6c5f8e1bbdee.md:8:corpo aberto
+notas/1984527b-0861-4b3e-8ec1-d1157610ff0d.md:8:só uma ideia solta, sem cabeçalho nenhum
+== algum corpo SELADO entrou no caderno? (só entrada/ pode casar)
+Traço/entrada/f-misto.md:12:outra dor
+Traço/entrada/d-cr-na-origem.md:7:a dor que ninguém lê
+Traço/entrada/a-lf-selada.md:7:a dor que ninguém lê
+Traço/entrada/b-tudo-crlf.md:7:a dor que ninguém lê
+Traço/entrada/c-cr-no-estado.md:7:a dor que ninguém lê
+== binário instalado ainda é o candidato, DEPOIS da corrida?
+SIM
+
+--- lido depois, fora do script ---
+As quatro notas em notas/ são duas corridas da mesma jornada (a de 10h56 e a de
+11h01): "corpo aberto" é o caso E, "só uma ideia solta" é o caso G. As duas que
+o caderno guarda são as duas que o parser leu inteiras — nenhuma das seladas.
+
+O "dor" que casa em traco-corpus.md, quando casa, é a linha do CONTRATO do
+corpus ("o texto da dor não está aqui e não deve ser pedido"), não conteúdo de
+nota. Conferido por grep -o.
