@@ -36,6 +36,10 @@ struct SuperficieDaRespostaTests {
         #expect(Espera.linha(frase, desde: t0, agora: t0.addingTimeInterval(3)) == "a sábia pensa…")
         #expect(Espera.linha(frase, desde: t0, agora: t0.addingTimeInterval(4)) == "a sábia pensa há 4 s…")
         #expect(Espera.linha(frase, desde: t0, agora: t0.addingTimeInterval(241)) == "a sábia pensa há 241 s…")
+        // a cápsula das Notas (REFERENCIA-HERMES §8): o relógio do Hermes
+        #expect(CapsulaDeEspera.tempo(desde: t0, agora: t0) == "0:00")
+        #expect(CapsulaDeEspera.tempo(desde: t0, agora: t0.addingTimeInterval(7)) == "0:07")
+        #expect(CapsulaDeEspera.tempo(desde: t0, agora: t0.addingTimeInterval(241)) == "4:01")
         // a Página delega à mesma linha: não há dois relógios
         #expect(CartaoAnaliseView.fraseDaEspera(desde: t0, agora: t0.addingTimeInterval(47)) == "a sábia pensa há 47 s…")
     }

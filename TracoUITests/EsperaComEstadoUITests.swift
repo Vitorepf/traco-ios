@@ -39,9 +39,20 @@ import XCTest
         XCTAssertEqual(XCTWaiter().wait(for: [expectation(for: andou, evaluatedWith: espera)], timeout: 10),
                        .completed, "o relógio parou em '\(primeiro)' — laço mudo com outra roupa")
 
-        // 3. PARAR: existe, é alcançável e tem alvo de 44 pt; e há UM fechar
+        // REFERENCIA-HERMES §8: a espera é uma CÁPSULA estreita, colada acima
+        // do campo — não um cartão que toma a tela
+        let campo = app.textFields["pergunta-notas"].firstMatch
+        XCTAssertTrue(campo.exists, "o campo sumiu enquanto a sábia pensa — a cápsula não tem onde colar")
+        XCTAssertLessThan(espera.frame.height, 60, "a cápsula não é estreita: \(espera.frame)")
+        XCTAssertLessThanOrEqual(espera.frame.maxY, campo.frame.minY, "a cápsula não está acima do campo")
+        XCTAssertLessThan(campo.frame.minY - espera.frame.maxY, 24, "a cápsula não está colada ao campo")
+        XCTAssertTrue(app.descendants(matching: .any)["autor-voce"].firstMatch.exists, "a pergunta não tem linha de autor")
+
+        // 3. PARAR: é o botão do CAMPO (§9) — existe, é alcançável e tem alvo de
+        // 44 pt; enviar não está lá ao mesmo tempo; e há UM fechar
         let parar = app.buttons["parar-de-esperar"].firstMatch
         XCTAssertTrue(parar.exists, "esperar 241 s sem saída é a pessoa presa ao cartão")
+        XCTAssertFalse(app.buttons["perguntar-notas"].firstMatch.exists, "parar e enviar no campo ao mesmo tempo")
         XCTAssertTrue(parar.isHittable, "a saída existe na árvore mas não é alcançável")
         XCTAssertGreaterThanOrEqual(parar.frame.height, 44, "alvo abaixo de 44 pt (\(parar.frame.height))")
         XCTAssertEqual(app.buttons.matching(NSPredicate(format: "label == 'Fechar'")).count, 1,
@@ -55,6 +66,7 @@ import XCTest
                       "perguntar de novo tem de ser um toque")
         XCTAssertFalse(app.staticTexts["sabia-notas-pensando"].firstMatch.exists,
                        "parou de esperar e a espera continuou na tela")
+        XCTAssertFalse(app.buttons["parar-de-esperar"].firstMatch.exists, "o botão do campo não voltou de parar")
         XCTAssertEqual(app.staticTexts["pergunta-sabia-notas"].firstMatch.label, "Quanto ainda me falta no pretérito?",
                        "parar de esperar perdeu a pergunta do autor")
     }
@@ -72,6 +84,9 @@ import XCTest
         XCTAssertEqual(app.staticTexts["pergunta-sabia-notas"].firstMatch.label,
                        "Quanto vou gastar em reais com hospedagem e transporte na viagem?")
         XCTAssertFalse(app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'A SÁBIA'")).firstMatch.exists)
+        // REFERENCIA-HERMES §6: cada mensagem tem a sua linha de autor
+        XCTAssertTrue(app.descendants(matching: .any)["autor-voce"].firstMatch.exists, "a pergunta não tem linha de autor")
+        XCTAssertTrue(app.descendants(matching: .any)["autor-sabia"].firstMatch.exists, "a resposta não tem linha de autor")
 
         let fontes = app.buttons["fontes-sabia-notas"].firstMatch
         XCTAssertTrue(fontes.exists, "a linha das fontes não existe")
@@ -86,11 +101,11 @@ import XCTest
         // quatro fontes abertas, o retorno fica abaixo da dobra da TELA — a
         // pessoa rola, e o teste rola com ela
         let serviu = app.buttons["serviu"].firstMatch
-        // ADR 10i: o pé está livre — a barra de abas é o único chrome
-        // abaixo; a folha rola até o retorno ficar acima dela
-        let barra = app.buttons["aba-notas"].firstMatch
-        for _ in 0..<4 where serviu.frame.maxY > barra.frame.minY { app.swipeUp() }
-        XCTAssertTrue(serviu.frame.maxY <= barra.frame.minY, "o retorno ficou atrás da barra: \(serviu.frame) vs \(barra.frame)")
+        // §9: o campo mora no pé da conversa; a folha rola até o retorno
+        // ficar acima dele
+        let pe = app.textFields["pergunta-notas"].firstMatch
+        for _ in 0..<4 where serviu.frame.maxY > pe.frame.minY { app.swipeUp() }
+        XCTAssertTrue(serviu.frame.maxY <= pe.frame.minY, "o retorno ficou atrás do campo: \(serviu.frame) vs \(pe.frame)")
         serviu.tap()
         XCTAssertTrue(app.staticTexts["retorno-anotado"].firstMatch.waitForExistence(timeout: 3), "o retorno não confirmou")
         XCTAssertFalse(app.buttons["serviu"].firstMatch.exists, "o controle ficou depois de avaliado")
@@ -103,8 +118,8 @@ import XCTest
         XCTAssertFalse(app.buttons["serviu"].firstMatch.exists, "trocar de aba ofereceu o retorno de novo — a avaliação morava na view")
 
         XCTAssertEqual(app.buttons.matching(NSPredicate(format: "label == 'Fechar'")).count, 1, "mais de um Fechar")
-        // ADR 10i: a linha "?" no pé da FOLHA é a pergunta seguinte; não há
-        // campo permanente no pé da tela
+        // ADR 10i: a linha "?" no pé da conversa é a pergunta seguinte; ela
+        // só existe com a conversa aberta
         XCTAssertEqual(app.textFields["pergunta-notas"].firstMatch.placeholderValue, "pergunte de novo",
                        "com a conversa aberta, a linha \"?\" no pé da folha é a da pergunta seguinte")
         XCTAssertFalse(app.textFields["busca-notas"].firstMatch.exists, "a busca não pertence à folha da conversa")

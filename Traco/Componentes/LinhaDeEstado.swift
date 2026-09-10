@@ -153,6 +153,7 @@ struct LinhaDeAutor: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(autor == .voce ? "Você" : "A sábia")
         .accessibilityAddTraits(.isHeader)
+        .accessibilityIdentifier(autor == .voce ? "autor-voce" : "autor-sabia")
     }
 }
 
