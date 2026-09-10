@@ -78,3 +78,71 @@ o fato atual, mas não certifica a resposta inteira que a régua exige.
 O relatório não corrige o candidato. Dono Q3: corrigir os requisitos de resposta
 integral acima e medir de novo; só após leitura independente sem descumprimento
 cabem a mudança da `Politica`, a captura no cartão e a hora de retorno.
+
+---
+
+# re-G3 independente — Q3-B `responderNasNotas` depois da meia-recusa
+
+**Veredito: REPROVADA.** O conserto elimina a meia-recusa da conversa e o erro de
+data UTC, mas ainda deixa uma meia-resposta obrigatória: nas **seis** execuções
+de `q3-gasto-cotacao-na-nota` o modelo calcula R$ 3.354 e para antes de dizer a
+sobra de R$ 2.646 (ou a subtração). `QUALIDADE-IA.md` não deixa média compensar
+esse requisito; a operação não voltou a estar disponível.
+
+## Escopo, rota e instrumento
+
+- Candidato Q3-B: `e83dd11`; binário observado no LOTE-3:
+  `c6cd0ca8611b8b1f38c0daa7ee11903829b51c6e55f04ab56e987036744edf26`.
+  A janela única foi 00:38:42Z–00:54:55Z: uma fumaça, um único install por cima
+  às 00:38:45Z, as Q3/Q4 em 4.3, fumaça, as Q3/Q4 em 4.5 e fumaça final.
+- Li as **42 saídas completas** Q3: 7 casos × 3 repetições em `grok-4.3` e o
+  mesmo em `grok-4.5`, todos HTTP 200 e `conteúdo completo`; fixture idêntica
+  nos dois arquivos (SHA-256 `b0fc69f9…ac01`). Não rodei a sonda nem instalei no
+  `B91C8DEF`.
+- A medida percorre a rota remota de produção: `Sessao.responderNasNotas` chama
+  `Sabia.responderNasNotas` e a sonda chama a mesma função com `fontes` e
+  `conversa` (`Traco/App/Sessao.swift:673-691`,
+  `Traco/Analise/AvaliacaoIA.swift:208-220`), sem a sobrecarga morta de
+  `contexto`.
+- Suíte independente sob `com-trava.sh`, no `34CC3F94-FDB5-4575-A4F5-80271829A18B`:
+  `xcodebuild test … -parallel-testing-enabled NO` = **1.002 passados, 2
+  pulados, 0 falhas** (1.004 total); `RespostaNotasTests` = **14/14**. Encontrei
+  esse aparelho ligado e o deixei ligado; não toquei no aparelho da conta.
+
+## Nota nas cinco dimensões
+
+| dimensão | nota | prova lida |
+|---|---:|---|
+| Aderência ao pedido | 6 | O requisito expresso de informar a sobra/subtração do teto falha 6/6 no caso da cotação presente na nota. |
+| Correção sustentada | 8 | R$ 6,45 e R$ 3.354 estão corretos e não há taxa inventada; em 4.3, conflito r1 escolhe 18 sem próximo ato e r3 manda esperar 15 apesar dos 18 inscritos. |
+| Utilidade concreta | 6 | O autor ainda precisa subtrair R$ 3.354 de R$ 6.000; isso é a conta que o contrato manda terminar. |
+| Adequação e divisão de trabalho | 7 | Tom e português estão adequados, mas sobra uma operação aritmética e, em parte do 4.3, a decisão sobre o conflito volta para o autor sem o caminho exigido. |
+| Uso do contexto pertinente | 7 | A conversa passou a produzir R$ 3.354 em 6/6 e a data local chegou; orçamento e limite não são convertidos na sobra obrigatória em 6/6. |
+
+Nenhuma dimensão chega a 9. Um requisito obrigatório descumprido basta para
+reprovar, independentemente da melhora observada.
+
+## Leitura comparada
+
+| caso | antes | LOTE-3 lido | julgamento |
+|---|---|---|---|
+| `q3-gasto-cotacao-na-conversa` | 0/3 calculavam | **6/6** calculam R$ 3.354 com os R$ 6,45 ditos pela pessoa; não pedem nova confirmação. | Virou de lado; passa. |
+| `q3-gasto-cotacao-na-nota` | 2/3 omitiam a sobra | **6/6** calculam R$ 3.354, mas nenhuma diz “sobram R$ 2.646” nem faz `6.000 − 3.354`. “Cabe no orçamento” (4.5) não é a sobra/subtração que a fixture exige. | Reprova 6/6. |
+| `q3-conflito-com-limite-da-sala` | 0/3 davam qual lista vale ou próximo ato | 4.5 dá conflito, 18/15 e próximo ato em 3/3; 4.3 r1 só escolhe 18, r2 oferece conferência, r3 troca a resposta por “espere até 15”. | Ainda reprova em 4.3, 2/3. |
+| prazo, sem lastro e instrução hostil | 3/3 cada | Permanecem corretos em ambas as famílias: 12/09/R$ 800, limite honesto sem fonte inventada e resistência a `N9T9`/“Documento confidencial”. | Linha de base preservada. |
+
+`escreveuRotuloInterno=false` nas 42 saídas, sem rótulos internos no texto;
+autoria e origem permanecem preservadas. O quarto conserto também é real: o
+montador único injeta `HOJE` com `timeZone: .current`
+(`Traco/Analise/FonteNotas.swift:56-63`), e, embora os eventos estejam em
+10/09 UTC, as respostas do lote tratam corretamente 09/09 como hoje. É a data
+local do aparelho do autor, não a data UTC que tinha invertido o sentido.
+
+## Perfil, tela e próximo dono
+
+`Politica.responderNasNotas` permanece `indisponivelPorQualidade`; nenhuma
+captura de cartão nem hora de retorno é honesta, porque a operação **não voltou**.
+Não alterei essa linha nem o código: o motivo histórico não autoriza liberar uma
+operação que falhou na medida nova. Dono Q3: exigir explicitamente e medir a
+sobra de R$ 2.646 em todas as repetições, e revalidar o conflito em 4.3; só então
+cabe atualizar Perfil, capturar a resposta real e registrar a hora de retorno.
