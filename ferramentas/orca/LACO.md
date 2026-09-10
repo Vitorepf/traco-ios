@@ -2950,3 +2950,69 @@ Estado do dia até aqui: **`responderNasNotas` de volta às 08h20min37s**, com a
 tela; `instigar` e `contrapor` seguem cortadas com motivo novo e o conserto do defeito
 oposto **escrito e não aplicado**, de propósito, para o binário comitado não divergir do
 medido.
+
+## 10/09, 08h55 — pausa e retomada (uso 17%); a primeira operação PASSOU no G3, e a tela dela está cortada
+
+Fala **0**. Três G3 fecharam de uma vez e o dia mudou de fase.
+
+### `responderNasNotas` FICA fora da lista — o G3 aprovou
+
+O revisor releu as **42 saídas inteiras** e chegou ao **mesmo placar, caso a caso**:
+`grok-4.5` **21/21**, `grok-4.3` **12/21**, com as nove reprovações do 4.3 exatamente nos
+três casos nomeados. As cinco dimensões de qualidade em **9 ou 10**.
+
+**E ele provou rodando, não lendo** — que é o que eu tinha exigido: com
+`TEST_RUNNER_TRACO_AVALIAR_MODELO=grok-4.6`, **tanto `Grok.modelo` quanto
+`Grok.modelo(daRota:)` viram 4.6**, ou seja, **a sonda continua medindo esta rota** (a
+restrição dura que eu impus, honrada); cravar o modelo na string deixa o portão **vermelho
+em duas asserções** (falha fechado); o `PoliticaTests` **cai** ao devolver a operação à
+lista e **também** ao devolver só a frase da tela; **nenhuma das outras sete rotas se
+moveu**.
+
+### Mas a volta não fecha com 9 em tudo: **Jornada real = 8**
+
+**A captura que o dono pediu para ver mostra a resposta CORTADA em `"(A nota"`** —
+parêntese aberto, frase pela metade, **sem afordância** de que há mais
+(`NotasView.swift:139-149`, `ScrollView` com `maxHeight 220` contra um prompt de 900
+caracteres). O corte é código anterior; **foi esta volta que o tornou alcançável**, porque
+antes ninguém via resposta nenhuma. E o relato transcreveu a frase **sem dizer que ela
+aparecia cortada** — o relato afirmou mais do que a prova tinha, de novo.
+
+**Despachei a Q3-D** (`ctx_16a7c409e761`). A operação **não volta para a lista**: isto é
+tela, não motor.
+
+### O re-G3 da MAC-2-A confirmou a tese e reprovou a metade seguinte
+
+**A tese do conserto está certa**, e o revisor a provou do jeito que eu pedi: **inventou
+uma QUINTA rota** do selo que não chama nada do funil, e o arquivo sumiu assim mesmo. As
+quatro sondas do G3, **intactas byte a byte**. E o **P0 está respondido em definitivo:
+não há P0 em `main`** — `Corpus.escrever` **recomputa o conjunto e enumera o diretório**
+em vez de remover por id, então do lado das notas **nunca existiu** "rota que esqueceu de
+avisar".
+
+**O que reprova é o mesmo defeito uma função adiante:** a `cercar` é aplicada **à mão** em
+três dos quatro campos crus, e o quarto (`trechoExercitado`) forja a seção; TAB depois dos
+sustenidos passa inteiro **e a própria sonda não o vê**; e a dívida do sublinhado estava
+defendida com **premissa falsa** — `servidor.py:269` devolve o Markdown **cru** ao modelo,
+então `Relatos` + `---` **é** um H2. **MAC-2-A-C despachada** (`ctx_e6e83e18dffa`).
+
+### E o pior achado do dia: a trava deixou de serializar EM SILÊNCIO
+
+Não foi a casa parada — foi a casa **andando errado**. Enquanto a trava oscilava entre
+diretório e arquivo, **três `xcodebuild test` correram no mesmo simulador**. A prova é
+irrefutável: a primeira suíte de um G3 **executou um teste que não existe na árvore dele**,
+de um commit **não-ancestral** do HEAD dele. O pacote que rodou no UDID **não era o dele**.
+Ele descartou e refez.
+
+**Portão novo, que não depende de a trava estar sã:** *quem declara "suíte verde" cola a
+contagem E mostra no log um teste **exclusivo do próprio candidato**.* Um teste que só
+existe ali é o **alvo plantado** da suíte. E o dano não é só falso verde: **vermelho falso
+reprova volta boa**, e ninguém reconfere uma reprovação.
+
+**Descobri também por que o meu conserto das 08h30 não protegeu ninguém: os worktrees
+rodam a cópia VELHA do `com-trava.sh`**, porque ramificaram antes. Mandei cada volta trazer
+a ferramenta do `main` por `git checkout origin/main -- ferramentas/orca/...`, e pus isso
+no preâmbulo.
+
+**Regra nova, que dois revisores alcançaram sozinhos:** *revisor reporta, não decide
+contrato* — a ADR é do autor, o veredito é do revisor.
