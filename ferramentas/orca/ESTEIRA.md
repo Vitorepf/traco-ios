@@ -1275,3 +1275,33 @@ não matou.*
 recria em até 30 s"* — que é a diferença entre destravar e **parecer** que destravou. E
 não matou processo alheio sozinho: escalou com o PID na mão e seguiu na leitura estática
 enquanto esperava.
+
+## A trava deixou de serializar EM SILÊNCIO, e três xcodebuild correram no mesmo aparelho
+
+O pior efeito do dia não foi a casa parada — foi a casa **andando errado**. Enquanto a
+trava oscilava entre diretório e arquivo, ela **parou de serializar sem avisar ninguém**, e
+**três `xcodebuild test` correram no mesmo simulador**. Com o mesmo bundle id, duas
+corridas se instalam por cima uma da outra e **as duas medem errado**.
+
+A prova é de um revisor e é irrefutável: a primeira suíte dele **executou
+`RespostaNotasTests.oModeloDaRotaPassaPelaSonda()`** — um teste que **não existe na árvore
+dele**, e que `git log -S` localiza no commit `319e9a5` de outra volta, confirmado
+**não-ancestral** do HEAD dele. O pacote que rodou no UDID dele **não era o dele**. Ele
+descartou a corrida e refez.
+
+**A lei:** *suíte verde medida com a trava quebrada não é suíte verde.* E porque a quebra
+é silenciosa, o portão não pode depender de a trava estar sã:
+
+> **Quem declara "suíte verde" cola a contagem E prova que rodou a PRÓPRIA árvore** —
+> mostrando no log um teste **exclusivo do seu candidato**. Sem isso, o número pode ser do
+> vizinho.
+
+É a mesma família do controle que prova a régua: um teste que só existe aqui é o **alvo
+plantado** da suíte. E o dano não é só falso verde: **vermelho falso reprova volta boa**,
+e uma volta reprovada por engano custa mais que uma aprovada por engano, porque ninguém
+vai reconferir uma reprovação.
+
+**E o `xcodebuild test` chamado FORA do `com-trava.sh` é a causa que sobra.** A lei do
+`revisor.md` já mandava passar pela trava; um worker foi visto às 08h49 rodando direto,
+com a trava inexistente e outro esperando na fila. **Nenhuma corrida no aparelho de
+trabalho fora da trava, nem "rapidinho".**
