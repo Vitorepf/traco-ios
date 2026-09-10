@@ -3343,3 +3343,49 @@ de fora do app — o chaveiro do simulador não entrega a string, a árvore de A
 (o defeito conhecido) e navegar até o Perfil exigiria dirigir a tela. **Fica como a primeira
 obrigação de quem abrir a próxima janela nele**, que é a regra que já valia: conferir a
 conta **antes** de instalar qualquer coisa.
+
+## 10/09, 11h25 — pausa e retomada (uso 41%); a letra grande acabou pela raiz, e a invariante do P0 tinha o nome errado
+
+Fala **0**. **Três em edição:** MERGE-Q3D e TEMPO em `reviewing`, e a **P0-CRLF-B**
+recém-aberta com as quatro correções que destravam a mescla do P0.
+
+### A letra grande: matei a classe, não o caso
+
+O dono viu letra de acessibilidade **pela segunda vez** às 11h12 e disse *"não é para perder
+tempo, foca"*. A causa que ele mesmo apontou estava certa e eu conferi: **os três worktrees
+vivos ainda tinham o `ax5.yaml` e o `f5-fotografar.sh` velhos com XXXL** — o conserto dele
+limpou `main`, e as cópias de trabalho ficaram para trás.
+
+Mandei a ordem de merge aos três, **e não parei aí**: varri **todos** os worktrees da
+máquina. **Zero `ax5.yaml`** restantes, **zero scripts** com `accessibility-extra`, zero em
+`/private/tmp`. Os dois aparelhos de conta em `large`. Um worktree morto que alguém retome
+amanhã não pode ressuscitar a proibição — **mandar três mensagens conserta o caso; apagar o
+arquivo em todo lugar mata a classe.**
+
+### O G3 do P0 derrubou a MINHA formulação, e tinha razão
+
+Eu tinha escrito a lei como *"o arquivo só se apaga quando o app **consumiu** tudo o que
+havia nele"*. O revisor derrubou com **dois contraexemplos, nenhum hipotético**:
+
+1. um descarte **no estilo da própria casa** — o teto de **140 grafemas da ADR 08h**, **sem
+   `continue`** — importou **140 de 659 caracteres** com `consumido = 1,00` **e apagou o
+   arquivo**;
+2. **sem código futuro nenhum**, os campos `dominio` e `recordada`, que **o próprio app
+   escreve e o importador nunca lê**, somem na volta pela `entrada/` com a conta dizendo
+   **100%**.
+
+**A invariante é cobertura de DELIMITAÇÃO, não de leitura** — o que foi reconhecido como
+pertencente a alguma nota, não o que o caminho de hoje por acaso consumiu. Corrigi a lei na
+ESTEIRA e a volta corrige o nome no código, no comentário e na ADR: **nome errado é dívida
+que se paga com juros, porque o próximo lê `consumido` e confia**.
+
+**E ele provou que o portão carrega peso real:** removendo só a linha da contagem, **o caso
+B volta a vazar corpo selado e a apagar o arquivo**. Aprovação condicionada a **quatro
+correções, todas de TEXTO** — e ele já disse que aprova a mescla com elas feitas.
+
+### O que fica de método
+
+O padrão que se repetiu o dia inteiro apareceu de novo, agora contra mim: **cada G3 achou o
+defeito contornando a garantia que o anterior deu por boa.** Desta vez a garantia era uma
+frase que **eu** escrevi na ESTEIRA. *A lei da casa também é candidata a ser derrubada por
+medida* — e é isso que a separa de doutrina.
