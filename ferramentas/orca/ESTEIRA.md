@@ -1220,3 +1220,22 @@ desta casa é que ninguém acredita em palavra.
 **E é uma dívida de forma, não de pessoa:** o carimbo do binário nos dois extremos do log
 (que os LOTES já fazem) prova **qual** binário rodou; não preserva **o conteúdo** que
 alguém vai querer conferir depois. Os dois são precisos.
+
+## A porcentagem que faz média esconde o caso que foi a ZERO (10/09, G3 da Q4-C)
+
+A Q4-C mediu a regressão que o próprio conserto comprou e a reportou honestamente:
+perguntas ancoradas na nota caíram de **96% (49/51) para 76% (48/63)** no `grok-4.3`. O
+G3 reproduziu os números — e então **leu caso a caso**, e achou o que a média tinha
+diluído: em `q4-instigar-com-metodo-decisao`, **as TRÊS pernas da fixture** — critério,
+evidência e custo de errar — caíram de **3/3 para 0/3**. Não é uma piora de vinte pontos:
+naquele caso a operação **parou de fazer o que a fixture pede**, inteiramente.
+
+**A lei:** *coluna que faz média entre casos esconde o caso que foi a zero.* Uma
+porcentagem agregada é boa para dizer que **algo** mudou e péssima para dizer **o quê**.
+Toda régua nova nasce com a leitura **por caso** ao lado; e quando a agregada piorar, a
+primeira pergunta é **qual caso morreu**, não **quantos pontos caíram**.
+
+**E o modo como apareceu vale tanto quanto o achado:** o autor reportou a média com
+honestidade e sem arredondar; o revisor, que não escreveu os casos, foi ao caso. *Nenhum
+dos dois viu sozinho o que os dois viram juntos* — é para isso que o G3 é de quem não fez
+a volta.
