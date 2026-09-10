@@ -3607,3 +3607,18 @@ candidato.**
 - **A Astra segue fora**: `Agent startup blocked: codex-update-prompt`, duas tentativas.
   Precisa de um clique do dono no app do Codex. Nada está parado por ela — a `responder`
   recebeu o contrato de contexto e o parecer entraria como conferência.
+- **14h50 — AUDITORIA DA IA NA TELA entregue**, duas horas antes do prazo. Oito superfícies,
+  14 capturas, **nota de 3 a 7 — nenhuma chega a 9**. Os quatro defeitos que **se repetem**,
+  e que por isso são contrato faltando e não bugs soltos: **espera muda em OITO rotas**;
+  *"serviu / não serviu"* como **dois links em quatro telas**; **caixa alta em seis**; e **a
+  frase de indisponível só depois do toque, em cinco** — a pessoa pede, espera, e só então
+  sabe que não ia funcionar. E o número que resume o pedir: **nove maneiras de pedir para
+  dezesseis operações**, com o Trabalho custando **seis toques mais dois textos**.
+- **14h50 — achado que muda o desenho:** *esperando* e *resposta* do `responder` **na Página
+  são INALCANÇÁVEIS em produção** — a rota bate em `Politica.aviso` e vira **toast de 8 s**.
+  A tela que está sendo desenhada para ela **não pode ser vista hoje**; nasce antes de a
+  operação voltar, e o teste dela não pode depender da rota estar ligada.
+- **14h50** A auditoria **não gastou nenhuma chamada da conta e não instalou nada** — o
+  helper de AX do `34CC3F94` não devolve árvore, e ela declarou em vez de contornar. Ficou
+  uma nota *"Como uso o traco"* digitada na Página desse aparelho: **dado de teste num
+  aparelho de conta**, declarado.
