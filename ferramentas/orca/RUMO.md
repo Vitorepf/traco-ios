@@ -760,3 +760,24 @@ defeito: só o são onde a entrada **pode** carregar CRLF. Dois merecem olhar pr
 **`Sabia.swift:955`**, que parte **saída de modelo**, e **`VozDoAutor.swift:78`**, que
 parte texto do autor que pode ter vindo de import. **Dono: a volta que fechar a trilha do
 CRLF** — decidir caso a caso, com a entrada na mão, e não trocar tudo por reflexo.
+
+**P1 de acessibilidade, medido e ainda não consertado (10/09, achado pela Q3-D):** em
+`accessibility-extra-extra-extra-large` a **barra de cima da Página fica em `y = -371 pt` e
+não volta com rolagem** — quem usa letra grande **não alcança "Notas" nem "Concluir"**.
+Entra e não sai. Mais: o cartão **transborda a tela inteira** pela linha `"Foram junto:"`,
+que não tem teto. A Q3-D mediu enquanto fazia outra coisa, **disse**, e não consertou
+porque `Traco/Pagina` está fora do papel dela. **Volta AX5-1 despachada.**
+
+**A espera do Grok foi de 241 s contra os 77 s de pior caso publicados (10/09).** A ADR
+2026-09-08r fixou o teto com **77,5 s** medidos em 36 execuções e 3,1× de folga; a corrida
+da Q3-D esperou **241 s**. Se o teto de tempo continuar calculado sobre os 77 s, ele
+**corta resposta boa** e a medida seguinte vai registrar um `semRetorno` **que é nosso, não
+do modelo** — a espécie que a Q4-D acabou de nomear. **Dono: a próxima volta que tocar o
+teto de tempo**, remedindo antes de mexer.
+
+**Dívida: a cópia inline do sinal de sobra fica onde está (10/09).** O
+`CartaoAnaliseView` **não** foi convertido para `SinalDeSobra`, e foi a minha própria
+guarda que o impediu: eu exigi **prova de identidade de comportamento**, e não há — o
+componente **acrescenta a palavra "continua"**. A Q3-D parou, como mandado, e deixou o
+conserto escrito. **Dono: a volta que tocar o Cartão de Análise**, junto de
+`RecordarView:443`, que é o terceiro sítio.
