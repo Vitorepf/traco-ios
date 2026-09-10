@@ -73,11 +73,9 @@ que este arquivo existe para impedir — e ele reincidiu no próprio arquivo.
 | 09p | MAC-0-E · o servidor chega por `--chamar` | em `main` |
 | 09q | B2 · estados inalcançáveis e rotas que calam | reservada, volta viva |
 | 09r | F6 · os widgets da tela bloqueada | reservada, volta viva |
+| 09s | Q4-C · a guarda que apaga não pode virar silêncio num 200 | reservada, volta viva |
 
-**Próxima livre: 09s.**
-| 09q | B2 · a frase existia e nenhuma tela a dizia | no branch `Vitorepf/volta-b2-silencio` |
-
-**Próxima livre: 09r.**
+**Próxima livre: 09t.**
 
 **A série 08 está CHEIA** — de `08a` a `08z`, com `08c` e `08d` como buracos.
 
