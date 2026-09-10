@@ -3100,3 +3100,50 @@ nem serializadas* — o `install` sobrevive à soltura.
 
 E a ordem de fora fica dita: **as quatro linhas do `sistemaInstigar` não entram.**
 `instigar` não volta nesta volta, e quem mexer nelas parou de fazer a que lhe coube.
+
+## 10/09, 10h35 — **P0 VIVO EM MAIN**: um `\r` derruba o selo, perde a autoria e apaga o arquivo
+
+**O achado mais grave do dia**, e veio de onde os bons vêm: um revisor a quem eu mandei
+**julgar sem consertar** seis `split(separator: "\n")`. Ele julgou, achou dois alcançáveis,
+**mediu a cadeia inteira com harness verbatim das linhas do `Corpus`** — e **parou e disse**
+antes de fechar o próprio G3.
+
+**A cadeia, em `Corpus.importarComEstado`**, chamada pelo `.fileImporter` do Perfil (o
+autor escolhe **qualquer** `.md` em Arquivos) e pela varredura da pasta `entrada/` (a pasta
+do Mac):
+
+1. **Arquivo em CRLF:** o regex do cabeçalho exige `\n` literal e dá **zero casamentos**.
+   Cai no ramo *"sem cabeçalho"*: o arquivo **inteiro vira UMA nota**, `origem = .autor`,
+   `contemProtegida = false`. Logo **`origem: modelo` vira voz do autor** — o `AGENTS.md`
+   proíbe em letra — e **o corpo de uma nota `estado: selada` É IMPORTADO**, coisa que o
+   caminho LF recusa.
+2. **Um `\r` sozinho na linha `origem:` basta:** o `split` não separa o CRLF (é **UM
+   `Character`**), `OrigemNota(rawValue:)` dá `nil` → `.autor`, e a comparação com
+   `"estado: selada"` falha porque **`CharacterSet.whitespaces` não contém `\r`**.
+3. **E então o app APAGA o arquivo:** `podeRetirar = !contemProtegida` →
+   `Entrada.confirmar` → `FileManager.removeItem`. **O arquivo com a nota selada é apagado
+   depois de ela ter entrado aberta.** Num arquivo misto, um bloco **some calado** e o
+   arquivo é apagado assim mesmo.
+
+**A medida, quatro linhas que não deixam dúvida:** LF puro → protegida **TRUE**; tudo CRLF
+→ casou **FALSE**, origem `autor`; `\r` só no estado → bloco **descartado**; **`\r` só na
+origem → origem vira `AUTOR`**. Um único byte perde a autoria.
+
+**Isto bate em três itens da lista fechada da §6** — privacidade, autoria e selo; e apagar
+trabalho do dono. **Abri a volta acima do teto**, porque bug tem prioridade sobre tudo e
+porque não há leitura benigna de "o dado do dono some depois de o selo ter sido violado".
+**P0-CRLF despachada** (`ctx_330d508f815b`), com duas perguntas de desenho que ela responde
+com prova: normalizar na **porta de entrada** basta? e, se não bastar, **o que falha
+fechado?** — porque hoje um cabeçalho que não casa **abre tudo**, e *portão que não enxerga
+tem de falhar fechado*.
+
+**E uma regra que sai daqui:** `podeRetirar = !contemProtegida` confia num booleano que o
+parser pode errar. **Um arquivo só se apaga quando o app tem certeza de que leu tudo o que
+havia nele** — bloco descartado por `continue` **é** incerteza.
+
+**O quarto achado, anotado:** `Sabia.swift:955` parte o texto **cru** da nota, então **a
+linha `?` do autor — a pergunta dele à sábia — nunca é achada e some calada** quando a nota
+veio de import. MÉDIO, com dono.
+
+**Estado:** quatro em edição, e desta vez de propósito — Q4-E (`contrapor`, com o aparelho
+da conta), re-G3 MAC-2-A (fechando), AX5-1 (a barra que some em letra grande) e P0-CRLF.
