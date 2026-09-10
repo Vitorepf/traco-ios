@@ -3491,3 +3491,15 @@ candidato.**
   voltei atrás da minha ordem** — a regra aplicada sem olhar o número da rota era o erro que
   eu venho cobrando. Guarda: **acima de 60 s numa chamada, me avisa**.
 - **Aberto:** `responder` no `B91C8DEF`, `contrapor` no `34CC3F94`, `instigar` sem aparelho.
+- **13h00** `responder`: BASE remedida no MESMO dylib (`681a249f`), pedido antigo por
+  ambiente — **14 de 20**. Latência média 10,2 s, **máx 45,9 s** (acima dos 21 s históricos,
+  dentro da guarda de 60 s). Ela declara que **a sua leitura é mais dura que a da Q2-F em
+  duas linhas** e usa a própria, não a histórica.
+- **12h55** `instigar` pronto **sem aparelho**: suíte 1027 verde, guarda vermelha por
+  mutação, dois casos cegos, medidor reproduzindo a tabela do G3 célula a célula. Espera
+  aparelho; letra 10c.
+- **12h50** TEMPO-B encerrou: Ato 1 mesclado, Ato 2 parado por ordem (não custa nada em
+  `main` — a espera nunca foi mesclada). Dívidas herdadas que ele achou e não tocou:
+  `cancelar()` no `onDisappear` só cancela `tarefa`; `LinhaDeEstado.swift` tem `#Preview`
+  AX5 anterior à §12 (fica, por §12 item 3 — e não é o que o dono viu: `#Preview` não roda
+  na suíte nem mexe no simulador).
