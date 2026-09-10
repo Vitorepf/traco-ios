@@ -8974,3 +8974,78 @@ enxerga o editor inteiro — a captura é que é cega ao chrome do PosterBoard. 
 **Consequência.** `TracoWidget.swift` (inline, retângulo vazio, `linhas: 2`); scripts
 `f6-plantar-bloqueada.sh` e `f6-fotografar.sh`; relato e capturas em
 `ferramentas/orca/f6-bloqueada.md` e `ferramentas/orca/f6-*.png`. Sem mesclar; SHA no relato.
+
+## ADR 2026-09-09y — Um arquivo só se apaga quando o app leu tudo o que havia nele (volta P0-CRLF)
+
+**Contexto.** `Corpus.importarComEstado` é a porta por onde entra todo `.md` de fora: o
+`.fileImporter` do Perfil (`PerfilView.swift:112`) e a varredura de `entrada/`
+(`Entrada.swift:53`), que é a pasta do Mac. Ela devolvia um booleano, `contemProtegida`, e
+o coletor REMONTAVA o portão do lado de fora — `podeRetirar = !contemProtegida`
+(`Entrada.swift:61`) — antes de `Entrada.confirmar` chamar `FileManager.removeItem`. Um
+revisor mandado julgar (sem consertar) seis `split(separator: "\n")` mediu a cadeia com
+harness verbatim das linhas do `Corpus` e parou para dizer: em Swift **`"\r\n"` é UM
+`Character`**, então um `.md` do Windows atravessa o parser inteiro sem ser visto.
+
+**O que a medida mostrou** (refiz o harness do zero, com as linhas verbatim dos DOIS lados,
+em vez de confiar na tabela — e foi refazendo que apareceu o caso E):
+
+| caso | em `main` | |
+|---|---|---|
+| A) LF puro, selada | recusada ✔ | arquivo fica |
+| B) tudo em CRLF | **regex dá ZERO casamentos** | arquivo inteiro vira UMA nota `origem: autor`, o corpo SELADO entra, e o arquivo é APAGADO |
+| C) `\r` só na linha do estado | bloco cai no `continue` | 0 de 88 caracteres lidos, e o arquivo é APAGADO |
+| D) `\r` só na linha da origem | `origem: modelo` vira **AUTOR** | selo não detectado, corpo entra, arquivo APAGADO |
+| E) **prosa do autor antes do 1º cabeçalho, sem um único `\r`** | 12 de 104 caracteres lidos | o resto some CALADO e o arquivo é APAGADO |
+| F) misto: nota sã + `\r` antes do `---` | o corpo selado é absorvido pela nota sã | arquivo APAGADO |
+
+**O caso E muda o nome da volta.** Ele não precisa de Windows nem de import: o laço começa
+em `hits[0].range.location`, e tudo que vier antes do primeiro `---\ncriada:` **nunca é
+examinado**. Basta o dono escrever um `.md` como uma pessoa escreve — um título em cima — e
+o começo do arquivo se perde antes de o arquivo ser apagado. O `\r` era um dos jeitos de
+chegar ao defeito, não o defeito.
+
+**Decisão — a invariante é COBERTURA DE LEITURA, e ela é um número.**
+
+1. **`importarComEstado` devolve `(itens, podeRetirar, consumido)`.** `consumido` é a fração
+   dos **caracteres com tinta** (tudo que não é espaço nem quebra: o `\r` não conta como
+   conteúdo) que viraram nota; `podeRetirar` é `lidos == tinta`. Bloco recusado pelo selo,
+   cabeçalho que não fecha, corpo vazio, prosa antes do primeiro cabeçalho — qualquer
+   `continue`, inclusive um que alguém acrescente amanhã, deixa a conta curta sozinho. Não
+   há bookkeeping por ramo a esquecer.
+2. **O portão sai de quem chama.** `contemProtegida` deixa de existir: o único que sabe se
+   leu tudo é quem leu, e remontar a decisão do lado de fora foi o defeito. `Entrada` agora
+   escreve `podeRetirar: resultado.podeRetirar`.
+3. **Portão que não enxerga falha fechado.** O regex do cabeçalho só conhece o fim de linha
+   LF. `Corpus.cabecalhos(_:)` conta A MESMA FORMA (`---`, `id:` opcional, `criada:`)
+   partindo por `\.isNewline`, que enxerga CRLF, CR e LF. Contagens diferentes = existe
+   cabeçalho do Traço que este parser NÃO leu — e cabeçalho não lido pode ser um selo:
+   **nada entra como do autor e nada se apaga**, em vez de o arquivo inteiro virar uma nota
+   aberta. É o que fecha B e F.
+4. **As duas leituras do cabeçalho passam a saber o que é uma linha:**
+   `cabecalho.split(whereSeparator: \.isNewline)` no lugar de `split(separator: "\n")` —
+   stdlib, sem normalizador novo. É o que fecha D, onde `origem: modelo\r\nestado: selada`
+   voltava como UMA linha e derrubava a origem E o selo de uma vez.
+
+**O que isto NÃO faz, e por quê.** Não normaliza CRLF na porta. `Corpus.fimDeLinhaLF(_:)`
+chega a `main` pela MAC-2-A (ADR 09u, terceira emenda) e duas versões da mesma função no
+mesmo arquivo é o slop que a casa nomeia. Enquanto ela não chega, uma nota **aberta** inteira
+em CRLF **não importa** — fica na `entrada/`, intacta. É o custo declarado de falhar fechado,
+e é a direção segura: nada se perde. Quando `fimDeLinhaLF` entrar na primeira linha de
+`importarComEstado`, B, C, F e a nota aberta em CRLF passam de "recusadas em segurança" a
+"lidas certo", e as guardas 3 e 4 continuam sendo o portão.
+
+**De graça, e por isso dito e não tocado:** `Corpus.swift:281` (`separarCampos`) partia por
+`"\n"` — os dois chamadores dele (`Sessao.swift:1402` e `:1829`) recebem `ItemImportado.texto`,
+que agora ou vem de um bloco que o parser entendeu inteiro, ou não vem. `Sabia.swift:955`,
+`VozDoAutor.swift:78` e `AnaliseLocal.swift:295` **não** são cobertos: leem texto já gravado,
+e nota importada antes deste conserto guarda o `\r` no banco. Continuam com dono no RUMO.
+
+**Dívida nomeada.** A recusa é MUDA: o arquivo fica na pasta e o autor não é avisado de que
+o formato não foi entendido. `Entrada.arquivos` descarta o arquivo sem itens (`continue`), e
+dar-lhe voz é mexer no toast de `Sessao.recolherEntrada` — acabamento fora do escopo de um
+P0 de perda de dado.
+
+**Consequência.** `Traco/Notas/Corpus.swift`, `Traco/Notas/Entrada.swift`,
+`TracoTests/IntegridadeCorpusTests.swift` (a tabela A–G como teste, mais a irmã que NÃO
+acusa: `.md` solto e nota exportada continuam com `consumido == 1` e `podeRetirar`). Relato,
+harness e as duas colunas em `ferramentas/orca/p0-crlf-import.md`. Sem mesclar.

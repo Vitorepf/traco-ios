@@ -1,0 +1,6 @@
+bytes: 561999
+comTinta (CharacterSet):   23.1 ms  (resultado 474000)
+escalar.properties  :   18.6 ms  (resultado 474000)
+Character.isWhitespace:   20.5 ms  (resultado 474000)
+byte UTF-8          :    0.6 ms  (resultado 484000)
+cabecalhos          :    6.0 ms  (resultado 2000)
