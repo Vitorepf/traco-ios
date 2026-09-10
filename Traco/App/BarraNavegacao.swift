@@ -63,18 +63,7 @@ struct BarraNavegacao: View {
                         Toque.selecao()
                         aba = item
                     } label: {
-                        Image(systemName: item.icone)
-                            .font(.system(size: 21, weight: aceso ? .semibold : .regular))
-                            .symbolVariant(aceso ? .fill : .none)
-                            .foregroundStyle(aceso ? Tema.tinta : Tema.tintaFraca)
-                            .frame(maxWidth: .infinity, minHeight: Tema.alvo)
-                            // onde você está: cápsula cheia atrás do glifo
-                            .background { if aceso { Capsule().fill(Tema.chip) } }
-                            // o aceso é ESTADO, não transição: acendia em fade meio
-                            // segundo depois do conteúdo, deixando quadros sem aba
-                            // selecionada nenhuma
-                            .animation(nil, value: aba)
-                            .contentShape(Capsule())
+                        glifo(item).foregroundStyle(Tema.tintaFraca)
                     }
                     .buttonStyle(PressaoDiscreta())
                     .accessibilityIdentifier("aba-\(item.rawValue)")
@@ -87,6 +76,28 @@ struct BarraNavegacao: View {
                         Label(item.titulo, systemImage: item.icone)
                     }
                 }
+            }
+            .overlay {
+                // onde você está: a cápsula carvão da `Pilula` selecionada, com o
+                // glifo cheio em branco. É uma camada inteira recortada pela
+                // cápsula que anda — o glifo nunca fica branco sobre branco
+                // enquanto ela chega, e nenhum quadro fica sem aba acesa.
+                HStack(spacing: 0) {
+                    ForEach(Aba.naBarra) { glifo($0).symbolVariant(.fill) }
+                }
+                .foregroundStyle(.white)
+                .background(Tema.chipAtivo)
+                .mask {
+                    GeometryReader { g in
+                        let largura = g.size.width / CGFloat(Aba.naBarra.count)
+                        Capsule()
+                            .frame(width: largura)
+                            .offset(x: largura * CGFloat(Aba.naBarra.firstIndex(of: aba) ?? 0))
+                            .animation(Tema.movimento(.deslocamento, Tema.Mola.toque, reduzido: reduceMotion), value: aba)
+                    }
+                }
+                .allowsHitTesting(false)
+                .accessibilityHidden(true)
             }
             .padding((Tema.barraNav - Tema.alvo) / 2)
             .background {
@@ -123,10 +134,25 @@ struct BarraNavegacao: View {
             }
         }
         .padding(.horizontal, Tema.margem)
+        // folga embaixo igual à dos lados: a pílula desce para dentro da área
+        // do indicador de início, como a do Hermes (~17 pt da borda).
+        // ponytail: num iPhone de botão (área segura 0) a pílula sobe 20 pt
+        // acima da reserva de `Tema.barraNav` da RaizView; somar a diferença
+        // à reserva se esse aparelho entrar na conta.
+        .frame(maxHeight: .infinity, alignment: .bottom)
+        .padding(.bottom, Tema.margem)
+        .ignoresSafeArea(.container, edges: .bottom)
         // movimento reduzido: a barra não desce — só apaga
         .offset(y: escondida && !reduceMotion ? 130 : 0)
         .opacity(escondida ? 0 : 1)
         .animation(Tema.movimento(.deslocamento, Tema.Mola.teclado, reduzido: reduceMotion), value: escondida)
         .accessibilityHidden(escondida)
+    }
+
+    private func glifo(_ item: Aba) -> some View {
+        Image(systemName: item.icone)
+            .font(.system(size: 21))
+            .frame(maxWidth: .infinity, minHeight: Tema.alvo)
+            .contentShape(Capsule())
     }
 }
