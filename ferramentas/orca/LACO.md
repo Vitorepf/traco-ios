@@ -3241,3 +3241,45 @@ defeito que **apaga arquivo do autor** depois de violar o selo. Fecha e não abr
 custa uma janela de ~25 min nele, e são **seis** operações ainda cortadas. Um "pode" para o
 `34CC3F94` virar segundo aparelho de conta **dobra a velocidade** — a equipe abre o login
 pelo app e ele autoriza no Grok. **É a decisão mais barata do dia**, e é dele.
+
+## 10/09, 11h30 — pausa e retomada (uso 35%); duas voltas fecharam dizendo NÃO
+
+Fala **0**. **As duas que fecharam nesta janela disseram não, e as duas estavam certas.**
+
+**`contrapor` NÃO volta.** Nos seis casos normais passava com 9 nas cinco dimensões — o G3
+tinha dito "pelo mérito ela passa". **O caso cego derrubou as duas famílias, em lados
+opostos:** o `grok-4.3` devolveu **os três campos vazios sobre HTTP 200** sem nenhuma guarda
+nossa (a fixture escreve que os três vazios reprovam) e a base caiu de 18/18 para 15/18; o
+`grok-4.5` teve base perfeita e reprovou **3/3** no cego, propondo o ensaio que a nota fecha
+e chegando a dizer *"cópia restaurada dos dados reais"*. **A escolha por operação não salva
+a rota.** Foi a última prova a entrar e derrubou o que seis casos aprovavam — é exatamente
+por isso que a §13 pôs o caso cego na régua.
+
+**A trilha do Mac PARA sem mesclar.** O terceiro re-G3 deu NÃO PASSA e a §13 manda que ela
+só termine o G3 em curso **e mescle** — o G3 terminou e não aprova, então ela para. O que
+está pronto e provado fica no branch; o que falta ficou no RUMO com número.
+
+**E ele achou o caminho que ainda entrava, com o método que virou lei:** a `cercar` decide a
+cerca de código **depois de aparar o espaço**; a CommonMark decide **antes, contando o
+recuo**. Com quatro espaços elas discordam nos dois sentidos, e **o `## Relatos` do modelo
+vira seção de verdade enquanto o relato do AUTOR vira bloco de código**. Ele julgou com **o
+parser CommonMark da Apple como oráculo**, e disse por quê: *"escolhido por NÃO ser cópia da
+regra do código"* — a sonda da casa apara igual ao código e por isso era cega. **Terceira
+vez em dois dias que a sonda erra do mesmo jeito que o código.**
+
+**A lição de instrumento que sai daqui é a mais cara:** o **"9 de 54 e zero contra"** do
+LOTE-5, que sustentou o "a colheita subiu", era **UMA amostra, não uma propriedade**. Mesmo
+prompt, parser conferido byte a byte, e a remedida deu **10/54 com três contra vazios**.
+*A lei "uma corrida por modelo não mede modelo" vale também para a linha de base* — e eu
+tinha aceitado aquele delta como fato.
+
+**As três cadeiras agora:** **MERGE-Q3D** (mesclando; leva o Perfil na língua do autor e as
+seis frases do `semProvedor`, que é onde o autor lê o "não" no momento em que toca a
+operação), **TEMPO** (o teto de 240 s menor que os 241 s medidos, e a espera com estado) e
+**P0-CRLF** (o arquivo apagado). O `responder` espera o TEMPO fechar, por ordem da Astra:
+se o conserto do tempo entrar junto com a alavanca de prompt, **o ganho dele será atribuído
+ao prompt**.
+
+**A série 09 de ADRs acabou na `09z`.** A próxima volta usa `2026-09-10a`. Escrevi no
+`LETRAS-ADR.md` antes que alguém tropeçasse — a série 08 encheu sem aviso e custou três
+colisões numa tarde.
