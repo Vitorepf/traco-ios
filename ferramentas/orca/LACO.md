@@ -3578,5 +3578,131 @@ candidato.**
   linhas da rota a suíte alcança agora contra antes.
 - **14h30** Próxima alavanca do `responder`, pela medida e não por gosto: **CONTEXTO**, não
   esquema — *"nenhum texto de pedido conserta informação que não viajou"*.
+- **14h40 — a dúvida do dedupe pagou.** A auditoria respondeu **com os ids**: são **TRÊS
+  NOTAS DISTINTAS** (uuids `88E0CED5…`, `AA2CAFAE…`, `B5785094…`), plantadas ~20 min uma da
+  outra com o mesmo texto de 279 caracteres — **não** a mesma nota chegando três vezes.
+  **Deduplicar por texto apagaria duas notas reais do autor**, e ela **retirou o
+  `semRepetida` do diff**. O defeito é da TELA: *"Foram junto:"* cita
+  `enviadas.map(\.titulo)`, e o título é a **primeira linha do texto** — três notas iguais
+  viram três linhas iguais sem nada que as distinga. **E o conserto já existe uma função
+  adiante:** `RespostaNotas.interpretar` acrescenta *"(edição <data>)"* quando dois títulos
+  coincidem, na linha "Referência:"; **a linha das fontes não**. *Uma pergunta antes do
+  conserto separou "apagar dado do autor" de "citar texto onde devia citar nota".*
+- **14h40** Entrega limpa entre cadeiras: o diff da superfície (15 arquivos, +720/−241, sha
+  conferido, `git apply --check` limpo) passou para a **SISTEMA DA IA** como base, **sem
+  commit em dois branches**, com a lista do que resolve — inclusive `CartaoDeResposta`
+  (título = a pergunta, um só Fechar, fontes fechadas em "leu N notas suas", retorno como
+  controle), a palavra **"continua" removida** do `SinalDeSobra` (virou dobra com rótulo de
+  AX), o **`ProgressView` mudo fora da Lente**, e o Perfil **deixando de prometer** "responder
+  nas Notas" até a tela passar (§14).
+- **14h42 — retomada (uso 28%).** Quatro cadeiras, e o arranjo é o da §15: **AUDITORIA**
+  (`ctx_331fbe8b415c`, oito superfícies × seis estados, sem código, **entrega 17h**),
+  **SISTEMA DA IA** (`ctx_ed3f7a7fec60`, código pronto da conversa, ADR **10f**, build na
+  fila da trava), **`instigar`** (`ctx_5d157f299dc0`, janela no `B91C8DEF` desde 14h26, quatro
+  braços) e **G3 do `responder`** (`ctx_c032ff1737cd`, os sete consertos de rota).
+- **14h40** Pedi à 10f que declare a **09w SUPERADA** com a razão: o `SinalDeSobra` nasceu
+  hoje de manhã e vai ser apagado, porque **sem teto não há sobra a sinalizar**. Componente
+  apagado sem ADR dizendo por quê vira mistério em um mês. E que diga **o que a tela faz com
+  a cauda** — mediana 384, máximo medido 568: *"quase sempre cabe" não é contrato*.
+- **A Astra segue fora**: `Agent startup blocked: codex-update-prompt`, duas tentativas.
+  Precisa de um clique do dono no app do Codex. Nada está parado por ela — a `responder`
+  recebeu o contrato de contexto e o parecer entraria como conferência.
+- **14h50 — AUDITORIA DA IA NA TELA entregue**, duas horas antes do prazo. Oito superfícies,
+  14 capturas, **nota de 3 a 7 — nenhuma chega a 9**. Os quatro defeitos que **se repetem**,
+  e que por isso são contrato faltando e não bugs soltos: **espera muda em OITO rotas**;
+  *"serviu / não serviu"* como **dois links em quatro telas**; **caixa alta em seis**; e **a
+  frase de indisponível só depois do toque, em cinco** — a pessoa pede, espera, e só então
+  sabe que não ia funcionar. E o número que resume o pedir: **nove maneiras de pedir para
+  dezesseis operações**, com o Trabalho custando **seis toques mais dois textos**.
+- **14h50 — achado que muda o desenho:** *esperando* e *resposta* do `responder` **na Página
+  são INALCANÇÁVEIS em produção** — a rota bate em `Politica.aviso` e vira **toast de 8 s**.
+  A tela que está sendo desenhada para ela **não pode ser vista hoje**; nasce antes de a
+  operação voltar, e o teste dela não pode depender da rota estar ligada.
+- **14h50** A auditoria **não gastou nenhuma chamada da conta e não instalou nada** — o
+  helper de AX do `34CC3F94` não devolve árvore, e ela declarou em vez de contornar. Ficou
+  uma nota *"Como uso o traco"* digitada na Página desse aparelho: **dado de teste num
+  aparelho de conta**, declarado.
+- **15h11 — retomada (uso 32%).** Três cadeiras: **SISTEMA DA IA** (conversa construída sobre
+  o patch da auditoria, ADR **10f**, em revisão), **`instigar`** (2ª instalação às 18:11:44Z,
+  conta true antes e depois, `cmp` batendo com o produto dele, quatro braços correndo) e
+  **G3 do `responder`** (os sete consertos de rota).
+- **15h05 — conflito de regras resolvido, e vale registrar a razão.** "**UMA** instalação por
+  volta" contra "**DUAS** tentativas no caso cego" (§ regime das 12h40). **Ganhou a das duas
+  tentativas:** a regra da instalação única nasceu para impedir reinstalação **por hábito**,
+  e a das duas tentativas **pressupõe** uma segunda medida — sem ela, a segunda tentativa não
+  existiria. *Não era conflito real: era regra velha escrita para outro caso.*
+- **15h05 — o melhor diagnóstico do dia, do `instigar`:** *"a minha frase condicionava a
+  QUANTIDADE de matéria e não ao que a nota já resolveu"*. A cláusula nova diz o contrato em
+  uma linha: **"a nota que NEGA uma delas a fechou tanto quanto a que a responde"** — negar e
+  responder fecham a pergunta do mesmo jeito; **só o silêncio a deixa aberta**.
+- **15h42 — retomada (uso 35%).** Três cadeiras, todas vivas: **SISTEMA DA IA**
+  (`ctx_ed3f7a7fec60`, conversa em revisão sobre o patch da auditoria, ADR 10f),
+  **`instigar`** (`ctx_5d157f299dc0`, 2ª janela fechando no `B91C8DEF`) e **RESPONDER-B**
+  (`ctx_73f6e78915ef`, os quatro acertos do G3 comitados em `95845ae`, `main` das 15h20
+  trazido para dentro em `3ad638b`, build+suíte na fila da trava). Inbox vazio, fala **0**.
+- **15h30 — o G3 do `responder` APROVOU os sete consertos**, e a leitura dele é robusta por
+  um detalhe: **onde discordou do autor, discordou sempre CONTRA a base**, em casos que ela
+  já reprovava. Conferiu a própria evidência (sha do `sistemaResponder` batendo com as 120
+  linhas de base; os 18 casos da Q2-F byte a byte; conta ligada + HTTP 200 + `grok-4.3` em
+  **240 de 240**). **Seis dos sete acusam por mutação; o sétimo NÃO tem guarda** — apagou
+  `diagnostico.bruto = msg` e a suíte passou com 1038 verdes. *Conserto sem guarda é conserto
+  com prazo de validade*, e o teste que morde entrou no despacho.
+- **15h30 — a raiz confirmada, e pior:** antes **NENHUM teste chamava `perguntarASabia`**
+  (zero de 49 linhas); agora a suíte alcança **47 de 49**. **Sobra só o ramo `.semConta` — o
+  único que um autor SEM conta Grok alcança hoje.** O caminho mais percorrido pelo público
+  era o único que a suíte não pisava.
+- **15h50 — `instigar`: MÉRITO APROVADO, SUPERFÍCIE PENDENTE** (ADR **10c**, `1361d3b`). A
+  **1ª redação venceu e entrega o ganho do LOTE-5 sem o preço do LOTE-5**: texto magro
+  **1/3 → 3/3 nos dois modelos**, ancoradas **92 → 93%** onde a promoção incondicional as
+  derrubara a **76% e 89%**, genéricas **0/3** nos casos ricos, degrau 4 sem repetir o 0. A
+  **2ª foi medida e DESCARTADA** — consertou o cego do `4.3` e **quebrou o controle** (magro
+  3/3 → 1/3, ancoradas 93 → 74%). *Medir e descartar vale mais que não ter medido: agora há
+  número dizendo que aquele caminho não serve.*
+- **15h50** O que sobra é **limite do `grok-4.3`**, achado pelo caso cego: numa nota que
+  **NEGA o "quando" por escrito** ele pergunta assim mesmo **3/3**; o `4.5` **não pergunta
+  3/3**. A decisão da **09v** ficou **pronta e medida**, com as quatro linhas exatas que
+  mudam — quem fechar depois não remede.
+- **15h50 — neguei a TERCEIRA instalação** no `B91C8DEF` para a captura: pela §14/§15 a
+  operação não volta sem a tela nova, e a foto seria **da superfície que o dono reprovou às
+  13h58**. Fecho escrito como *captura não feita, e por quê*.
+- **15h55** Cadeiras: **SISTEMA DA IA** (conversa, ADR 10f), **RESPONDER-B** (mescla dos sete
+  consertos) e **RESPONDER · contexto** (`ctx_6ec67217c8d5`, a última alavanca antes do
+  esquema, os dois aparelhos de conta livres).
+- **15h49 — os SETE consertos de rota do `responder` em `origin/main` (`c9211b9`)**, suíte
+  **1043 em 164** verde, build limpo. E a volta fez duas coisas que valem: **recuperou os dois
+  pedidos reprovados por BYTES dos dylibs mortos** que o `containermanagerd` guarda, com os
+  shas batendo exatamente com o `pedidoResponderSHA256` das 120 linhas de cada candidato — o
+  texto voltou a ser **legível**, não só identificável; e o **botão morto** do medidor agora
+  **PARA a corrida** em vez de medir o pedido errado em silêncio. **`.semConta` fechou:
+  `perguntarASabia` foi de 47 para 49 de 49.**
+- **15h49 — distinção que faltava:** o corpo de `Grok.responder` é **inalcançável da suíte
+  POR DESENHO** — `Motores.desligados` é `true` em todo processo de teste, e é ele que impede
+  a suíte de gastar a assinatura do dono. **Inalcançável por desenho ≠ inalcançável por
+  descuido**: ali a guarda vigia a **forma** do portão e **carrega a própria mutação**.
+- **16h05 — a conversa com a sábia está pronta** (ADR **10f**, `caec065`): gesto **perguntar
+  separado da busca**, **resposta inteira na área da lista** sem teto nem dobra, trocas com
+  "pergunte de novo", **falha junto da pergunta**, **um Fechar**. Jornada real no `34CC3F94`,
+  pergunta respondida em **9 s**, **vídeo de 15 s já enviado ao dono**. Defeito achado na
+  própria tela e consertado: **a avaliação morava na view e voltava ao trocar de aba**.
+- **16h10 — G4 despachado** (`ctx_e5dbb180c4c3`), e ele é **o portão de seis operações**. Pus
+  um ponto para ser julgado com dureza: **a dedup das fontes ficou POR TEXTO**, e a auditoria
+  de hoje, com os uuids na mão, tinha **retirado** esse dedupe dizendo que *"o defeito é a
+  tela citar TEXTO onde devia citar NOTA"*. Nenhuma nota some do disco — **mas o autor passa a
+  ver UMA fonte onde TRÊS viajaram**, contra o contrato que o `responder` acabou de mesclar.
+
+- **19h20 — G3 do `instigar` despachado** (`ctx_0766d9723f50`, Opus, worktree `instigar`, sem aparelho): três fios dados de saída — a base rodou nas DUAS janelas com o mesmo SHA de pedido e o relatório nunca as compara (é a medida do ruído, e o ganho declarado nas ancoradas é de UM ponto); a porcentagem subiu enquanto a CONTA absoluta de perguntas ancoradas CAIU (55/60 → 52/56); e o ganho inteiro repousa sobre UM caso × três repetições.
+- **19h23 — o caso cego do `responder` encomendado** ao G3-INSTIGAR antes do G3, por ser a única cadeira que não viu a montagem nem escreveu o contrato: cinco casos nos dois polos mais a nota que NÃO EXISTE, em `prova/responder-ctx/casos-cegos.md`. RESPONDER-CTX avisado a **não** escrever nem olhar antes de fechar a 1ª tentativa.
+- **19h30 — `contrapor` reaberto na TERCEIRA alavanca** (`ctx_0f413549317c`, worktree `q4-c`, aparelho de conta `B91C8DEF` que estava ocioso com a conta viva): a do PEDIDO já queimou duas tentativas, então esta é a do **esquema da saída** (ordem do dono das 13h55). Defeito que sobra: *para o recurso que a nota diz NÃO ter, o modelo oferece um SUBSTITUTO*. Duas leis dadas contra o desenho fácil — **fato separado da decisão** (senão o modelo autocertifica) e **guarda que casa TEXTO é cega** à nota que nega por outras palavras. Controle obrigatório: a nota que não nega nada não pode perder contraponto, e mede-se a CONTA absoluta, não a taxa.
+- **19h30 — colisão de letra apanhada antes de mesclar:** o branch `q4-c` escreveu `10c` para o `contrapor`, e no `main` a `10c` é do `instigar` e a `10d` já é do `contrapor`. Resolvida a favor do `main`, renumeração dentro do despacho. **Quatro cadeiras**, duas com aparelho de conta em paralelo (§ ordem das 11h10), duas sem aparelho.
+- **19h45 — a varredura irmã do CRLF, feita e MEDIDA** (`P0-IRMÃOS-CRLF` no RUMO, reprodução em `ferramentas/orca/crlf-irmaos.swift`). A minha primeira varredura por texto acusou **sete** sítios; a medida derrubou **três** — `components(separatedBy: "\n")` **não é cego**, só o `split(separator: "\n")` é. Sobram quatro, e cada um falha de um jeito diferente. O pior é `Sabia.perguntaNaNota`, nos DOIS polos: em nota CRLF com o `?` no meio devolve `nil` e **o botão do cartão some**; com o `?` no topo, `corpo` vira **a nota inteira** — que viaja como a pergunta e, na superfície nova, é o **título** do cartão. Não vai para quem está medindo: mexer no `Sabia.swift` no meio de uma janela troca o binário que a medida promete constante.
 - **10/09 15h55 — SISTEMA-IA/conversa (branch `Vitorepf/sistema-ia`, ADR 10f):** a conversa com a sábia virou folha do Traço — gesto "perguntar" separado da busca, resposta inteira na área da lista (teto e `SinalDeSobra` apagados), continuação sem recomeçar, falha junto da pergunta, um Fechar; base = diff da cadeira irmã (`dde4136`). Suíte 1033/164 verde no teste 4; UI 4/4; jornada real no `34CC3F94` com conta conectada antes/depois e vídeo enviado ao dono. Defeito achado na tela: a avaliação morava na view e voltava após trocar de aba — movida para a sessão. Dívida: "guardar como nota" exige `OrigemNota` da sábia (arquiteto). Relatório: `ferramentas/orca/sistema-ia-conversa.md`.
 - **10/09 16h25 — G4 da conversa (ADR 10f, `caec065`): PASSA.** Seis itens do dono provados na tela e na suíte (1033/164, UI 4/4, mutação da avaliação vermelha na linha certa); dedupe por texto corre antes do pedido viajar, a tela nomeia o que viajou; cauda: texto ≤ 900 + folha em ScrollView, 568 grafemas cabem numa tela em large. Dívida que o dono vai ver: "Referência:" cita a nota inteira quando a nota não tem título (uma linha em `interpretar`, rota do responder). Relatório: `ferramentas/orca/g4-conversa.md`.
+
+## 10/09, 19h50 — o G4 da conversa PASSA, e ele era o portão de seis operações
+
+- **19h47 — G4 da conversa: PASSA** (`d0bc5ba` sobre `caec065`). Os seis itens que o dono reprovou às 13h58 estão consertados e provados um a um, com a avaliação-que-voltava-ao-trocar-de-aba provada por **mutação vermelha na linha certa**. Suíte 1033/164, UI 4/4, `cmp` do binário, tudo em `large`.
+- **19h47 — e ele derrubou a MINHA premissa, com código.** Eu desafiei a dedup por texto dizendo *"o autor passa a ver UMA fonte onde TRÊS viajaram"*. Errado: `Sessao.semRepetida` corre em `contextoDasNotas` **antes** de o pacote ser montado, a tela mostra `retorno.enviadas`, logo "leu 2 notas suas" = 2 viajaram. **A dedupe é conserto, não mentira**, e o contrato do `responder` está cumprido. *Desafio de orquestrador também se mede contra o código.*
+- **19h47 — o defeito verdadeiro estava UMA LINHA ACIMA:** a linha `Referência:` cita a **nota inteira** quando a nota não tem título, porque `tituloNaLista` é a primeira linha e não tem teto. É a tela citando TEXTO onde devia citar NOTA — que era o meu desafio, no sítio certo.
+- **19h48 — e converge com o que eu medi meia hora antes:** `Sabia.perguntaNaNota` numa nota CRLF que começa por `?` devolve a **nota inteira**, que viaja como a pergunta e vira o **título** do cartão. Dois achados independentes, mesma frase: **um título que aceita uma nota inteira não é um título.**
+- **19h50 — MERGE-CONVERSA despachado** (`ctx_1ac24b773eed`, Fable, worktree `sistema-ia`): fecha as duas dívidas do G4, mescla a folha em `main` e manda o vídeo de 15 s ao dono — o que desfaz o *"deplorável"* das 13h58. Proibido tocar no `Sabia.swift`: duas voltas estão a medir com ele.
+- **19h50 — o XXXL na suíte de `main`, apanhado pelo G4:** é teste de unidade, põe o `DynamicTypeSize` em processo e **não põe letra grande em aparelho nenhum** — não é o que o dono viu às 11h04. A §12 disse que o código existente fica como está, então **não gastei cadeira a apagar teste**. Fica para ele decidir se quer que saiam.

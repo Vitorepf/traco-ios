@@ -124,6 +124,49 @@ struct GrokContratoTests {
         #expect(Grok.textoCompleto(Data("{}".utf8)) == nil)
     }
 
+    /// **A guarda do sétimo conserto da 10b.** O G3 apagou `diagnostico.bruto = msg`
+    /// e a suíte INTEIRA ficou verde — 1038 de 1038. Não por descuido de quem
+    /// escreveu os testes: o corpo de `Grok.responder` é INALCANÇÁVEL daqui.
+    /// `Motores.desligados` é `true` em todo processo de teste, e é ele que
+    /// impede a suíte de gastar a assinatura do autor (é função, não defeito).
+    /// Havia prova de CORRIDA — 180 de 180 chamadas com `bruto` no JSONL — e
+    /// nenhuma prova de ÁRVORE: amanhã a linha some e nada fica vermelho.
+    ///
+    /// Então guarda-se a FORMA do portão, na janela entre o conteúdo aceito e a
+    /// memoização: ali o desfecho completo e o bruto são escritos JUNTOS, ou o
+    /// que a sonda mede deixa de ser o modelo e passa a ser o que sobrou do
+    /// nosso parser. Fora dessa janela o campo não prova nada — declarado e
+    /// nunca escrito é exatamente o defeito.
+    ///
+    /// **E o vigia prova que enxerga na própria execução:** a mesma regra, sobre
+    /// a mesma fonte com a linha removida, tem de REPROVAR. Sem isso um portão
+    /// que não achou nada passaria calado, que é o defeito que ele guarda.
+    @Test func oPortaoPreservaORetornoBrutoQuandoOConteudoVemCompleto() throws {
+        let grok = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent().deletingLastPathComponent()
+            .appending(path: "Traco/Analise/Grok.swift")
+        let fonte = try String(contentsOf: grok, encoding: .utf8)
+
+        // a única saída com conteúdo: do `textoCompleto` aceito até a memoização
+        func janela(_ texto: String) throws -> Substring {
+            let inicio = try #require(texto.range(of: "let msg = textoCompleto(dados)"),
+                                      "o portão mudou de forma: este teste deixou de olhar código")
+            let fim = try #require(texto.range(of: "memoGrava(chave, msg)"),
+                                   "o portão mudou de forma: este teste deixou de olhar código")
+            return texto[inicio.upperBound..<fim.lowerBound]
+        }
+
+        let saida = try janela(fonte)
+        #expect(saida.contains(#"diagnostico.desfecho = "conteúdo completo""#))
+        #expect(saida.contains("diagnostico.bruto = msg"),
+                "a saída de conteúdo completo parou de preservar o retorno BRUTO do provedor")
+
+        let mutante = fonte.replacingOccurrences(of: "\n        diagnostico.bruto = msg", with: "")
+        #expect(mutante.count < fonte.count, "a mutação não tirou nada: a linha mudou de forma")
+        let saidaMutante = try janela(mutante)
+        #expect(!saidaMutante.contains("diagnostico.bruto = msg"))
+    }
+
     @Test func schemaVaiNoProtocoloESchemaInvalidoNaoDegradaParaTextoLivre() throws {
         let esquema = #"{"type":"object","properties":{"texto":{"type":"string"}},"required":["texto"],"additionalProperties":false}"#
         let dados = try #require(Grok.corpo(sistema: "Contrato", usuario: "Pedido", temperatura: 0, esquema: esquema))

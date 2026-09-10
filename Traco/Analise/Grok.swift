@@ -181,6 +181,13 @@ nonisolated enum Grok {
         /// em vez de dizer" (DIRETRIZ §8). Só o texto de erro do provedor, e
         /// só em DEBUG: nada do pedido, nada do token.
         var erroDaAPI: String?
+        /// ADR 2026-09-10b — o RETORNO BRUTO, antes de qualquer parser nosso.
+        /// A sonda gravava `saida` já depois de `Sabia.limparResposta`, então
+        /// medir a IA era medir o que sobrou do nosso tratamento: uma resposta
+        /// cortada aos 900 chegava ao JSONL indistinguível de uma que coube.
+        /// Fica no PORTÃO por onde todas as rotas passam — assim nenhuma das
+        /// dezesseis fica sem o bruto, e nenhuma sonda futura precisa lembrar.
+        var bruto: String?
         var desfecho: String
     }
     private nonisolated(unsafe) static var diagnosticos: [Diagnostico] = []
@@ -267,6 +274,7 @@ nonisolated enum Grok {
               let msg = textoCompleto(dados) else { return nil }
         #if DEBUG
         diagnostico.desfecho = "conteúdo completo"
+        diagnostico.bruto = msg
         #endif
         if let chave { memoGrava(chave, msg) }
         return msg
