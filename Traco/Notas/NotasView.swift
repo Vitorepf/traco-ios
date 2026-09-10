@@ -174,7 +174,8 @@ struct NotasView: View {
     private var conversaDaSabia: some View {
         let emEspera: String? = if case .pensando(let p, _) = conversaNotas.estado { p } else { nil }
         let aRepetir = conversaNotas.perguntaParaRepetir
-        return ScrollView {
+        return VStack(spacing: 0) {
+        ScrollView {
             VStack(alignment: .leading, spacing: 0) {
                 ForEach(Array(conversa.enumerated()), id: \.offset) { i, troca in
                     let ultima = i == conversa.count - 1 && aRepetir == nil
@@ -239,19 +240,20 @@ struct NotasView: View {
         .scrollBounceBehavior(.always)
         .scrollDismissesKeyboard(.interactively)
         // §8 e §9: o campo fica no pé da conversa, e a cápsula colada acima
-        // dele enquanto a sábia pensa. Rolar a resposta não os leva.
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            VStack(spacing: 8) {
-                if let desde = conversaNotas.esperandoDesde {
-                    CapsulaDeEspera(frase: Espera.aSabiaPensa, desde: desde,
-                                    identificador: "sabia-notas-pensando")
-                        .transition(Tema.transicao(.opacity, reduzido: reduceMotion))
-                }
-                linhaDaPergunta
+        // dele enquanto a sábia pensa. Rolar a resposta não os leva. Pilha, e
+        // não `safeAreaInset`: como inset o pé virava barra SOBRE a rolagem, e
+        // o iOS 26 pintava a sombra da borda nele — o pé flutuava por cima da
+        // conversa, o que o Hermes não faz.
+        VStack(spacing: 8) {
+            if let desde = conversaNotas.esperandoDesde {
+                CapsulaDeEspera(frase: Espera.aSabiaPensa, desde: desde,
+                                identificador: "sabia-notas-pensando")
+                    .transition(Tema.transicao(.opacity, reduzido: reduceMotion))
             }
-            .padding(.horizontal, Tema.margem)
-            .padding(.top, 8)
-            .background(Tema.fundo)
+            linhaDaPergunta
+        }
+        .padding(.horizontal, Tema.margem)
+        .padding(.top, 8)
         }
         .transition(Tema.transicao(.opacity, reduzido: reduceMotion))
     }
@@ -552,39 +554,47 @@ struct NotasView: View {
     private var linhaDaPergunta: some View {
         let entrada = conversaNotas.entrada
         let primeira = conversa.isEmpty
-        return HStack(alignment: .firstTextBaseline, spacing: 8) {
-            Text("?")
-                .font(Tema.corpo.weight(.semibold))
-                .foregroundStyle(Tema.ambarTinta)
-                .accessibilityHidden(true)
-            TextField(
-                "",
-                text: Bindable(conversaNotas).entrada,
-                // o texto do campo diz o estado (§9): enquanto ela pensa, a
-                // próxima pode ser escrita, mas só segue quando ela responder
-                prompt: Text(pensando ? "escreva a próxima" : primeira ? "pergunte sobre as suas notas" : "pergunte de novo")
-                    .foregroundStyle(Tema.tintaFraca),
-                axis: .vertical
-            )
-                .lineLimit(1...4)
-                .foregroundStyle(Tema.tinta)
-                .tint(Tema.ambar)
-                .font(Tema.corpo)
-                .textInputAutocapitalization(.sentences)
-                .submitLabel(.send)
-                // a linha quebra como na página; com eixo vertical o Return
-                // escreve "\n" em vez de submeter — a quebra É o enviar
-                .onChange(of: conversaNotas.entrada) { _, nova in
-                    guard nova.contains("\n") else { return }
-                    conversaNotas.entrada = nova.replacingOccurrences(of: "\n", with: " ")
-                    perguntar()
-                }
-                .focused($perguntaFocada)
-                .alvo()
-                .accessibilityIdentifier("pergunta-notas")
-                .accessibilityLabel(pensando ? "Escreva a próxima" : primeira ? "Pergunte sobre as suas notas" : "Pergunte de novo")
-                .accessibilityValue(entrada.isEmpty ? "vazio" : entrada)
-                .accessibilityHint("Enviar pergunta à sábia")
+        // o campo de eixo vertical não dá linha de base (o "?" subia meia
+        // linha acima do texto): os dois alinham pelo TOPO com o mesmo recuo e
+        // a mesma letra, e a primeira linha coincide em qualquer tamanho. O
+        // botão desce ao pé da linha, como o enviar de toda conversa.
+        return HStack(alignment: .bottom, spacing: 8) {
+            HStack(alignment: .top, spacing: 8) {
+                Text("?")
+                    .font(Tema.corpo.weight(.semibold))
+                    .foregroundStyle(Tema.ambarTinta)
+                    .padding(.vertical, 10)
+                    .accessibilityHidden(true)
+                TextField(
+                    "",
+                    text: Bindable(conversaNotas).entrada,
+                    // o texto do campo diz o estado (§9): enquanto ela pensa, a
+                    // próxima pode ser escrita, mas só segue quando ela responder
+                    prompt: Text(pensando ? "escreva a próxima" : primeira ? "pergunte sobre as suas notas" : "pergunte de novo")
+                        .foregroundStyle(Tema.tintaFraca),
+                    axis: .vertical
+                )
+                    .lineLimit(1...4)
+                    .foregroundStyle(Tema.tinta)
+                    .tint(Tema.ambar)
+                    .font(Tema.corpo)
+                    .textInputAutocapitalization(.sentences)
+                    .submitLabel(.send)
+                    // a linha quebra como na página; com eixo vertical o Return
+                    // escreve "\n" em vez de submeter — a quebra É o enviar
+                    .onChange(of: conversaNotas.entrada) { _, nova in
+                        guard nova.contains("\n") else { return }
+                        conversaNotas.entrada = nova.replacingOccurrences(of: "\n", with: " ")
+                        perguntar()
+                    }
+                    .focused($perguntaFocada)
+                    .padding(.vertical, 10)
+                    .contentShape(Rectangle())
+                    .accessibilityIdentifier("pergunta-notas")
+                    .accessibilityLabel(pensando ? "Escreva a próxima" : primeira ? "Pergunte sobre as suas notas" : "Pergunte de novo")
+                    .accessibilityValue(entrada.isEmpty ? "vazio" : entrada)
+                    .accessibilityHint("Enviar pergunta à sábia")
+            }
             // §9: o botão MUDA COM O ESTADO, no mesmo lugar e na mesma forma —
             // parar enquanto a sábia pensa, enviar quando ela está livre. A cor
             // é estado (§10): o vermelho do aviso só existe enquanto há o que parar.
