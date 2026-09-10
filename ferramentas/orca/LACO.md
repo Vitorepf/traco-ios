@@ -3202,3 +3202,42 @@ pagou mesmo na volta que morreu.**
 **O tempo liberado vai para a IA (§11)**, e ele já está lá: as três voltas vivas são
 `contrapor` na janela do aparelho da conta, o P0 do arquivo apagado, e o re-G3 que fecha a
 trilha do Mac.
+
+## 10/09, 11h00 — DIRETRIZ §13: a IA é o único foco, e a tela do Perfil é o alvo
+
+**Ordem do dono, 10h50:** *"vamos focar completamente e deixar a IA no Traço absurda de
+qualidade, máxima."* Ele mandou a captura do Perfil das 10h46, e ela é o enunciado do
+problema: o cartão CONTA diz **"Indisponível mesmo com a conta Grok — a medida de 08/09
+reprovou, e não há outro caminho"**, e as linhas dizem *"devolveu o vocabulário interno do
+app"* e *"fato inventado"*. **É o nosso jargão de bancada na tela dele**, ao lado de uma
+lista do que a IA **não** faz.
+
+**Executado:**
+
+- **A régua subiu, e está no preâmbulo de todo despacho daqui em diante:** sair da lista
+  agora exige **9 nas cinco dimensões em TRÊS corridas**, o **caso cego**, e **uma resposta
+  lida contra notas REAIS do aparelho da conta** — não só contra a fixture. Astra no G0 de
+  cada operação; o G3 lê a saída inteira, nunca o hash.
+- **Espera com estado em toda rota**, com o teto no pior caso **medido** (241 s, contra os
+  77 s publicados). *Espera calada é defeito de IA, não de design* — a frase é do dono e
+  resolve uma discussão que estava em aberto desde a §10.
+- **As três cadeiras são da IA.** Trilha do Mac, design e dívidas de tela param.
+
+**As três cadeiras, e por que cada uma:**
+
+| cadeira | o que decide |
+|---|---|
+| **MERGE-Q3D** (`ctx_0784537c33d7`) | ordem 1: `responderNasNotas` **chega ao autor**. Leva junto a reescrita do Perfil na língua dele — sem data, sem "medida", sem jargão —, porque a Q3-D já toca aquele arquivo. |
+| **Q4-E** (`ctx_3cc02f850bbb`) | `contrapor`, com a janela do aparelho da conta correndo desde 10h39. |
+| **RESPONDER** | a terceira, aberta agora pelo **G0 da Astra** (`ctx_129834bea510`) — a operação **mais visível** do app. Prepara tudo sem aparelho até a Q4-E soltar. |
+
+**Duas coisas que eu decidi e digo:**
+
+**A P0-CRLF continua.** A ordem diz que *nenhuma volta não-IA **abre*** — ela já está
+aberta, com o conserto pronto e medido, esperando só a trava. Matá-la deixaria vivo um
+defeito que **apaga arquivo do autor** depois de violar o selo. Fecha e não abre outra.
+
+**O gargalo é um aparelho com conta, e o próprio dono escreveu a saída:** cada operação
+custa uma janela de ~25 min nele, e são **seis** operações ainda cortadas. Um "pode" para o
+`34CC3F94` virar segundo aparelho de conta **dobra a velocidade** — a equipe abre o login
+pelo app e ele autoriza no Grok. **É a decisão mais barata do dia**, e é dele.
