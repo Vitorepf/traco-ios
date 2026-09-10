@@ -1172,3 +1172,23 @@ leitura da medida é **dívida nomeada da volta seguinte**, não um remendo de �
 senão o relatório descreve um binário e o commit entrega outro, e ninguém percebe porque
 os dois têm o mesmo SHA de árvore. Escrever o conserto e não aplicá-lo é disciplina, não
 preguiça: a alavanca fica pronta e a medida fica honesta.
+
+## A trava virou ARQUIVO e travou a casa por meia hora (10/09, achado da Q4-C)
+
+Às **08h25** o `/tmp/traco-instrumento.lock` deixou de ser diretório e virou **arquivo
+comum de 0 byte**. A primitiva do `com-trava.sh` é `mkdir` — atômica **porque** cria
+diretório —, então ela passou a falhar **para sempre**, e dois workers (Q4-C e MAC-2-A-B)
+ficaram girando sem poder entrar. Pior: sem `$L/dono` legível, a **guarda de PID também
+cega**, e só a de 30 minutos salvava. Meia hora de instrumento parado com três voltas
+vivas.
+
+**O conserto custou duas linhas** e está provado com **defeito plantado**: planto um
+arquivo no lugar da trava, o `com-trava.sh` acusa *"a trava virou ARQUIVO; removendo para
+destravar"* e entra; sem o defeito, entra igual (o controle).
+
+**A lei:** *toda guarda que depende da FORMA de uma coisa confere a forma antes de confiar
+nela.* `mkdir` só é atômico sobre diretório; `flock` só serializa sobre descritor; a
+guarda de PID só lê PID se o arquivo existir. Quando a forma quebra, a guarda não avisa —
+ela **falha aberta ou trava fechada**, e as duas são piores que o defeito. Aqui a
+degradação era silenciosa em ambos os sentidos, e quem a viu foi um worker esperando a
+vez, não o vigia.
