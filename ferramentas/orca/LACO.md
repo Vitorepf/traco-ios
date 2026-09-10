@@ -3689,3 +3689,6 @@ candidato.**
   de hoje, com os uuids na mão, tinha **retirado** esse dedupe dizendo que *"o defeito é a
   tela citar TEXTO onde devia citar NOTA"*. Nenhuma nota some do disco — **mas o autor passa a
   ver UMA fonte onde TRÊS viajaram**, contra o contrato que o `responder` acabou de mesclar.
+
+- **19h20 — G3 do `instigar` despachado** (`ctx_0766d9723f50`, Opus, worktree `instigar`, sem aparelho): três fios dados de saída — a base rodou nas DUAS janelas com o mesmo SHA de pedido e o relatório nunca as compara (é a medida do ruído, e o ganho declarado nas ancoradas é de UM ponto); a porcentagem subiu enquanto a CONTA absoluta de perguntas ancoradas CAIU (55/60 → 52/56); e o ganho inteiro repousa sobre UM caso × três repetições.
+- **19h23 — o caso cego do `responder` encomendado** ao G3-INSTIGAR antes do G3, por ser a única cadeira que não viu a montagem nem escreveu o contrato: cinco casos nos dois polos mais a nota que NÃO EXISTE, em `prova/responder-ctx/casos-cegos.md`. RESPONDER-CTX avisado a **não** escrever nem olhar antes de fechar a 1ª tentativa.
