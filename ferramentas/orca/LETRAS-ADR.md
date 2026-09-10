@@ -73,10 +73,11 @@ que este arquivo existe para impedir — e ele reincidiu no próprio arquivo.
 | 09p | MAC-0-E · o servidor chega por `--chamar` | em `main` |
 | 09q | B2 · estados inalcançáveis e rotas que calam | reservada, volta viva |
 | 09r | F6 · os widgets da tela bloqueada | reservada, volta viva |
-| 09s | Q4-C · a guarda que apaga não pode virar silêncio num 200 | reservada, volta viva |
+| 09s | MERGE-Q34 · o medido entra em main e a tela para de acusar defeito morto | em `main` |
 | 09t | MAC-2-A · o Trabalho chega ao Mac para ser lido | reservada, volta viva |
+| 09u | Q4-C · a guarda que apaga não pode virar silêncio num 200 | reservada, volta viva |
 
-**Próxima livre: 09u.**
+**Próxima livre: 09v.**
 
 **A série 08 está CHEIA** — de `08a` a `08z`, com `08c` e `08d` como buracos.
 
