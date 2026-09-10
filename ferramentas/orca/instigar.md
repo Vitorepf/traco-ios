@@ -72,7 +72,7 @@ um caso cego sumir da fixture ou se a letra perder as palavras `REPROVA POR` / `
 | instalações | **UMA**, por cima | **UMA**, por cima |
 | `ContaGrok.ligada` antes | `true` (17:27:00Z) | `true` (18:11:43Z) |
 | `ContaGrok.ligada` depois do install | `true` (17:27:03Z) | `true` (18:11:47Z) |
-| `ContaGrok.ligada` no fim | `true` (17:49:21Z) | `true` (18:35:xxZ) |
+| `ContaGrok.ligada` no fim | `true` (17:49:21Z) | `true` (18:35:06Z) |
 | `cmp` do binário | bate com o meu produto | bate com o meu produto |
 | binário | `cd84aeaf…` do início ao fim | `fb2a28b1…` do início ao fim |
 | pedidos extraídos do dylib | candidato `90fd80e7`, base `5110e22a` | candidato `7c505d21`, base `5110e22a` |
