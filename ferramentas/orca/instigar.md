@@ -204,3 +204,49 @@ final continua pedindo casos de quem não os viu.
 **Limites do instrumento, declarados (não descontam nota):** VoiceOver falado não se prova
 em simulador; a árvore de AX volta vazia neste aparelho e a navegação é por OCR; e o caso
 cego é held-out do prompt, não de quem escreveu o prompt.
+
+## 10. O fecho, em uma linha: **MÉRITO APROVADO, SUPERFÍCIE PENDENTE**
+
+O mérito passou e está medido. A operação **não volta ao Perfil nesta volta**, e a
+**captura de fecho não foi tirada** — não por falta de instrumento, mas porque a
+superfície está em redesenho (§14/§15, ordens do dono de 14h10 e 14h35, depois de ele
+abrir o cartão às 13h58 e escrever *"experiência deplorável, design deplorável e
+doentio"*). Uma captura tirada hoje seria da tela que ele acabou de reprovar, e custaria
+uma **terceira instalação** no aparelho da conta — cuja conta ele refez à mão hoje, e que
+já apareceu `Shutdown` sozinho às 16h08Z. **A captura será tirada no componente novo.**
+
+O roteiro está pronto e ensaiado para quando esse dia chegar: `instigar-cartao.sh`, com a
+navegação fechada e os dois defeitos das tentativas de hoje já consertados.
+
+## 11. A decisão que fica PRONTA para quem devolver o `instigar` (ADR 09v)
+
+Esta rota tem **comparação pareada limpa** — mesma fixture, mesma janela, mesmo binário,
+um SHA de pedido por arquivo — e o número diz o que fazer. **Não é preciso remedir.**
+
+| | `grok-4.3` (padrão global) | `grok-4.5` |
+|---|---|---|
+| cego `nota-que-ja-responde` | passa | passa |
+| cego `fatos-negados` | **6 falhas em 3 execuções** | **passa** |
+| texto magro `quando` | 3/3 | 3/3 |
+| ancoradas | 93% | 93% |
+
+**A recomendação: `instigar` vai para o `grok-4.5`**, como `responderNasNotas` foi na 09v,
+e o padrão global fica onde está — o 4.5 é PIOR no `contrapor`, e um vencedor único
+consertaria uma rota e estragaria outra.
+
+**A linha exata que muda**, para quem fizer:
+
+1. `Sabia.swift`, ao lado de `modeloMedido` (que hoje é da rota das Notas), uma constante
+   própria: `static let modeloMedidoInstigar = "grok-4.5"`.
+2. `Sabia.chamar` e `Sabia.chamarComProveniencia` ganham `modelo: String? = nil` e o
+   repassam a `Grok.responder` — hoje só `responderNasNotas` tem modelo por rota, e ela o
+   consegue **furando** o `chamar` e falando direto com o `Grok`. Enfiar o parâmetro no
+   `chamar` é o que evita a segunda rota furando o portão pelo mesmo motivo.
+3. `Sabia.instigar` passa `modelo: Grok.modelo(daRota: modeloMedidoInstigar)`. A
+   precedência `sonda → rota → padrão global` já existe em `Grok.modelo(daRota:)` e
+   continua deixando `TRACO_AVALIAR_MODELO` medir esta rota.
+4. `Politica.linha(.instigar)` vira `.soGrok`, o `motivo`/`conserto` saem, e a linha some
+   da lista do Perfil sozinha — a tela lê `Politica.indisponiveis`, não uma cópia.
+
+**E a ordem importa:** o passo 4 é o que a §14/§15 prende. Os passos 1–3 podem entrar
+antes, se alguém quiser o modelo certo no lugar antes da tela — mas medir de novo, não.
