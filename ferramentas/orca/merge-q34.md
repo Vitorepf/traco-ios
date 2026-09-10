@@ -79,10 +79,23 @@ zero marcadores de conflito.
 desde `9b99770` — andou só em `ferramentas/orca/ESTEIRA.md` e `LACO.md`. A fusão de Q3-B com
 Q4-B já estava feita no 09c (`65dd87c`, `b9059fc`) e foi aproveitada, não refeita.
 
-**Letra de ADR.** Rodei o comando que a `LETRAS-ADR.md` prescreve sobre TODAS as refs vivas.
-`09r` já é da F6 (`Vitorepf/volta-f6-bloqueada`), e o "Próxima livre: 09s" do arquivo estava
-certo — tomei a **09s** e registrei no mesmo ato. De quebra, o comando desmentiu a linha que
-dava `09p` à MAC-0-E: `09p` **não aparece em ref nenhuma**, e fica marcada como buraco.
+**Letra de ADR: colidi, e quem mudou fui eu.** Rodei o comando que a `LETRAS-ADR.md`
+prescreve sobre todas as refs vivas, vi `09r` com a F6 e o "Próxima livre: 09s" batendo, e
+**tomei a `09s`**. No mesmo intervalo o orquestrador reservou a `09s` para a **Q4-C**, e
+`origin/main` andou (`75953b1`) enquanto eu terminava. Apliquei a regra do próprio arquivo —
+*muda quem é mais barato de mover, não quem chegou depois*: a minha ADR **nenhum revisor tinha
+conferido** e renumerá-la é um `sed`; a da Q4-C já está no spec de uma volta por despachar.
+Minha ADR é a **2026-09-09t**, e a prova é do tamanho da alegação, como o arquivo manda —
+normalizando a letra nos dois lados, o diff é **0 linha** em `SPEC.md`, `Politica.swift`,
+`PoliticaTests.swift` e `EVOLUCAO.md`: só a letra mudou.
+
+A lição é minha e está escrita no registro: **reservar é ato de quem despacha.** Eu devia ter
+pedido a letra, não me servido dela.
+
+De quebra, o comando desmentiu a linha que dá `09p` à MAC-0-E: `git grep '2026-09-09p'` não
+acha nada em `origin/main`, **em arquivo nenhum**. Não a marquei como buraco por conta própria
+— deixei dito no registro que ou a ADR não nasceu ou nasceu com outro nome, e que ninguém a
+reaproveita até a MAC-0-E dizer qual das duas é.
 
 **A prova saiu do worktree.** Os dois relatórios de revisão citavam `../lote-ia-09c/prova/…`
 e `../lote-ia-09/prova/…` — caminho que morre com o worktree. Agora citam o caminho dentro do
@@ -175,16 +188,19 @@ o que se quer ler quando ela quebrar.
 ## 4. Instrumento
 
 **Suíte integral**, `34CC3F94`, sob `com-trava.sh`, `-parallel-testing-enabled NO`. Rodei
-duas vezes: uma na árvore mesclada (01:25:37Z → 01:29:22Z) e a **final sobre o commit que vai
-para `main`** (01:58:09Z → 02:00:04Z).
+três vezes, e colo as três — a última é a do commit que vai para `main`.
 
 ```
-✔ Test run with 1019 tests in 163 suites passed after 89.089 seconds.
-** TEST SUCCEEDED **
-
-✔ Test run with 1019 tests in 163 suites passed after 108.625 seconds.
-** TEST SUCCEEDED **
+01:25:37Z→01:29:22Z  ✔ Test run with 1019 tests in 163 suites passed after  89.089 seconds.
+                     ** TEST SUCCEEDED **
+01:58:09Z→02:00:04Z  ✔ Test run with 1019 tests in 163 suites passed after 108.625 seconds.
+                     ** TEST SUCCEEDED **
+02:02:04Z→02:03:44Z  ✔ Test run with 1019 tests in 163 suites passed after  89.224 seconds.
+                     ** TEST SUCCEEDED **
 ```
+
+A terceira é a que vale: correu **depois** de trazer o `origin/main` que reservou a `09s` e
+de rebatizar a minha ADR para `09t`.
 
 **Sobre `grep -c warning:`, sem arredondar para o meu lado.** A corrida final deu **0**, mas
 ela é incremental e não recompilou tudo; a primeira, que compilou mais, deu **1** — e esse um

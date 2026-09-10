@@ -85,7 +85,7 @@ import Testing
         // o conserto está escrito, a MEDIDA é que falta. O texto vai inteiro
         // para a tela (PerfilView `restoDa`), então fala do que o autor vê.
         //
-        // ADR 09s: o LOTE-3 derrubou os motivos de 08/09 destas TRÊS e a linha
+        // ADR 09t: o LOTE-3 derrubou os motivos de 08/09 destas TRÊS e a linha
         // passa a dizer o que ele leu. Guardado pela FRASE e pela data, no
         // caminho real da tela — contar os dois grupos passava igual com o
         // texto velho, e um portão que passa com o defeito de pé não guarda

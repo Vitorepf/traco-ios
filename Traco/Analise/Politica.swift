@@ -189,7 +189,7 @@ enum Politica {
         // comparação pareada é que falta): a conta
         // pode estar ligada e mesmo assim ninguém responde, porque o que
         // respondia não atendeu na medida — 08/09 para três delas, 10/09 para
-        // as três que o LOTE-3 remediu (ADR 09s). A frase não manda conectar
+        // as três que o LOTE-3 remediu (ADR 09t). A frase não manda conectar
         // conta, não pede para tentar de novo e não promete guardar nada — quem
         // guardou o pedido é que diz isso, depois de confirmar.
         case .responder: "Responder à sua pergunta pela IA está indisponível: na medida de 08/09 ela inventou fato que o contexto não sustentava. O que você escreveu continua aqui, e a sua pergunta fica na nota."

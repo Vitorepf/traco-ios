@@ -75,11 +75,23 @@ que este arquivo existe para impedir — e ele reincidiu no próprio arquivo.
 | 09r | F6 · os widgets da tela bloqueada | reservada, volta viva |
 | 09q | B2 · a frase existia e nenhuma tela a dizia | no branch `Vitorepf/volta-b2-silencio` |
 | 09r | F6 · os widgets da tela bloqueada | no branch `Vitorepf/volta-f6-bloqueada` |
-| 09s | MERGE-Q34 · o que foi medido entra em main, e a tela diz o que a medida leu | em `main` |
+| 09s | Q4-C · a guarda que apaga não pode virar silêncio num 200 | reservada, volta viva |
+| 09t | MERGE-Q34 · o que foi medido entra em main, e a tela diz o que a medida leu | em `main` |
 
-**Próxima livre: 09t.** Lido pelo comando acima em 09/09, sobre TODAS as refs
-vivas: `09p` não aparece em ref nenhuma e fica como **buraco** — a linha que a
-dava à MAC-0-E foi escrita de memória, e buraco não se reaproveita.
+**Próxima livre: 09u.**
+
+**A 09s colidiu, e quem mudou fui eu** (09/09, ~02h). Tomei a `09s` porque o
+"Próxima livre: 09s" que estava escrito aqui batia com o comando; no mesmo
+intervalo o orquestrador a reservou para a **Q4-C**, em `main`. Mudou quem é mais
+barato de mover, que é a regra: a minha ADR **nenhum revisor tinha conferido**, e
+renumerá-la é um `sed` em quatro lugares; a da Q4-C já está no spec de uma volta
+por despachar. E a lição, que é minha: **reservar é ato de quem despacha** — eu
+devia ter pedido a letra, não me servido dela.
+
+**A `09p` continua sem ADR.** `git grep '2026-09-09p'` não acha nada em
+`origin/main`, em arquivo nenhum, embora a linha acima a dê à MAC-0-E. Ou a ADR
+não nasceu, ou nasceu com outro nome. Fica **como está**, e ninguém a reaproveita
+até que a MAC-0-E diga qual das duas é.
 
 **A série 08 está CHEIA** — de `08a` a `08z`, com `08c` e `08d` como buracos.
 

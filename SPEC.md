@@ -8877,7 +8877,7 @@ descerem ao aparelho, e quem mudar isso leva a separação junto. E a lista
 `fatoQueEleNaoDeu` é de termos MEDIDOS, não teoria da invenção: se a corrida
 seguinte pegar invenção por outra palavra, é ali que ela entra.
 
-## ADR 2026-09-09s — o que foi medido entra em `main`, e a tela passa a dizer o que a medida leu (volta MERGE-Q34)
+## ADR 2026-09-09t — o que foi medido entra em `main`, e a tela passa a dizer o que a medida leu (volta MERGE-Q34)
 
 **O que entrou.** Quatro pontas que estavam presas em worktree: `Vitorepf/lote-ia-09`
 (LOTE-1 e LOTE-2, 76 e 114 execuções), `Vitorepf/lote-ia-09c` (LOTE-3, 114 execuções
