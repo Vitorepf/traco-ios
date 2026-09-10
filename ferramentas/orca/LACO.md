@@ -3503,3 +3503,23 @@ candidato.**
   `cancelar()` no `onDisappear` só cancela `tarefa`; `LinhaDeEstado.swift` tem `#Preview`
   AX5 anterior à §12 (fica, por §12 item 3 — e não é o que o dono viu: `#Preview` não roda
   na suíte nem mexe no simulador).
+- **13h35** `responder` **NÃO VOLTA** — duas tentativas, as duas **piores que a base**:
+  base **14/20**, T1 **11/20**, T2 **12/20**, com **240 saídas lidas uma a uma** e a base
+  remedida no mesmo binário de cada braço. **O defeito é SIMÉTRICO:** quando o pedido manda
+  **ajudar**, o modelo **inventa a estrutura do documento** ("abra o PDF", "vá ao sumário");
+  quando manda **não inventar**, ele **para em "não consta X"** e não entrega o próximo ato.
+  **Nenhuma das duas versões separou as duas coisas.** Conclusão dela: **o prompt sozinho
+  não fecha esta rota no `grok-4.3`**; a alavanca seguinte é **contexto** (ordem da Astra),
+  *"porque metade do que sobrou é o modelo falando do documento que nunca viu"*. Nenhuma
+  chamada passou de 26,1 s — a guarda dos 60 s não disparou e o teto nunca mordeu.
+- **13h30** Lei nova: **a corrida se nomeia pela OPERAÇÃO e a série de letras de lote
+  morre.** O `instigar` e o `contrapor` colidiram **duas vezes em uma hora** na mesma série,
+  pela causa das colisões de ADR de ontem — recurso compartilhado sem registro, três workers
+  escolhendo "a próxima livre" ao mesmo tempo. *Nome que diz a operação não colide, porque
+  só há uma volta por operação.* Segunda vez hoje em que a solução certa é **sair do recurso
+  compartilhado**, não coordená-lo melhor.
+- **16h08Z** O `B91C8DEF` apareceu `Shutdown` no meio da janela do `responder`, **sem que
+  ninguém assumisse**. Abortou **antes do install**; conta intacta (12 modelos antes e
+  depois). Procurei e **não achei quem foi** — as outras cadeiras têm zero `shutdown`/`kill`
+  na saída, e o log do CoreSimulator não registra o pedido. **O desenho segurou.**
+- **13h41** `B91C8DEF` passa ao `instigar`; `contrapor` segue no `34CC3F94`.
