@@ -2703,3 +2703,39 @@ MAC-0-E dizer qual das duas é.
 Duas em edição (Q3-C, Q4-C), um G5 e um G3: é o teto, com a trilha do Mac viva. As
 quatro dividem o `34CC3F94` pela trava e **só as duas de IA tocam o `B91C8DEF`**, uma
 instalação cada, com `ContaGrok` conferido antes e depois.
+
+## 09/09, 23h25 — pausa e retomada (uso 15%); A CAÇA-FALA ESTAVA CEGA
+
+**Achado grave, e é do laço, não de worker.** A retomada acusou **`FALA: 1`** — o
+`sirittsd` do Mac, vivo desde **23h20:04**, `ppid 1`. **Matei em cerca de dois
+minutos.** Fui procurar o culpado e **não achei**: nenhum dos quatro workers em curso
+pediu `siri`, botão, `say` ou VoiceOver; o dono esteve ativo na máquina uns cinco
+minutos antes. **Digo que não sei quem foi, em vez de nomear alguém sem prova.**
+
+**Mas a caçada revelou coisa pior que o processo: a MINHA CAÇA ESTAVA CEGA.** Ela lia
+`ps -Ao pid=,comm=` e pegava `$2` como caminho — e **o caminho do runtime do simulador
+tem espaço** (`iOS 26.5.simruntime`). Resultado: **quatro processos de síntese vivos
+dentro dos dois simuladores ligados desde 20h27 e 21h18** (`SiriAUSP`,
+`MacinTalkAUSP`) **nunca apareceram**, e o laço reportou `FALA: 0` a cada volta, hora
+após hora, com convicção. **O vigia que eu repito em toda retomada estava mudo, não
+limpo.**
+
+Reescrevi a caça (`cacar-fala.sh`, 2ª versão) sem depender de campo, e com **dois
+níveis, porque não são a mesma coisa**: **FALANTE** é o daemon do Mac, o que sai pelo
+alto-falante do dono — alarme, e se mata; **ESTOPIM** é o plugin de síntese carregado
+dentro de um simulador ligado — não é fala, é a máquina que falaria; reporta-se com o
+aparelho e **não se mata às cegas**, porque derrubar o áudio de um simulador tira o
+chão de uma suíte em curso. Estado agora: **FALA 0, estopim 4** — e agora isso é uma
+frase honesta, não uma cegueira.
+
+**Lei nova na ESTEIRA:** *vigia que reporta zero tem de provar que enxerga.* Quem
+escreve uma caça — de fala, de warning, de vazamento — **planta o alvo uma vez e
+confere que a caça o acha**. Caça que nunca acusou nada não está provada: está muda.
+
+## E o resto andou bem
+
+**F6 mesclada** — `origin/main` = `c940b06`, com a F6b como dívida nomeada. **Os quatro
+workers vivos**: Q3-C e Q4-C em `implementing`/`reviewing`, o G5 da F6 fechando com
+"suíte limpa na árvore final", e o G3 da MAC-2-A com o batimento mais bonito da noite:
+**"achei 4ª rota do selo por leitura, vou provar com sonda"** — era exatamente o que o
+despacho pedia dele, procurar a rota que o autor não viu.
