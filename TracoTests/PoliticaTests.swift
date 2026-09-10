@@ -104,7 +104,7 @@ import Testing
         // nada. Se um destes trechos sair da tabela sem medida nova, quebra
         // aqui.
         let emCorrecao = PerfilView.reprovadas.filter { $0.conserto != nil }
-        for (op, leitura) in [(Politica.Operacao.instigar, "não pergunta quando aconteceu"),
+        for (op, leitura) in [(Politica.Operacao.instigar, "quando você diz que não sabe quando foi"),
                               (.contrapor, "inventa uma renda que você não escreveu")] {
             let r = try #require(emCorrecao.first { $0.op == op })
             let linha = PerfilView.restoDa(r)

@@ -3503,6 +3503,27 @@ candidato.**
   `cancelar()` no `onDisappear` só cancela `tarefa`; `LinhaDeEstado.swift` tem `#Preview`
   AX5 anterior à §12 (fica, por §12 item 3 — e não é o que o dono viu: `#Preview` não roda
   na suíte nem mexe no simulador).
+- **15h50** INSTIGAR fechou o mérito e NÃO devolve a operação ao Perfil (§14/§15): a
+  cobrança das três perguntas ficou condicionada à matéria, numa frase e na última linha
+  do pedido. Duas janelas no `B91C8DEF`, uma instalação cada, conta `true` nas quatro
+  fumaças de cada uma, `cmp` do binário nos dois extremos, e os DOIS braços no MESMO dylib
+  com `pedidoInstigarSHA256` por linha. Ganho do LOTE-5 sem o preço do LOTE-5: texto magro
+  `quando` 1/3 → **3/3 nos dois modelos** (e, pooled nas duas janelas, **6/6 contra 4/12**,
+  p = 0,011), ancoradas na faixa da própria base, **88–93%**, onde o LOTE-5 tinha caído a
+  76% e 89%. *[corrigido às 20h40, depois do G3: a redação das 15h50 dizia "ancoradas 92% →
+  93%" e esse 1 ponto é ruído — a base rodou duas vezes e discorda 3 a 4 pontos.]* O **caso cego** achou o que sobra e é do `grok-4.3`: numa nota que NEGA o
+  quando por escrito, ele pergunta assim mesmo em 3/3 — o `grok-4.5` não, em 3/3. A 2ª
+  redação foi medida e **descartada**: consertou o cego do 4.3 e quebrou o controle (magro
+  3/3 → 1/3, ancoradas 93% → 74%). Letra 10c.
+- **15h50** Decisão minha, registrada: **saí da série de letras de lote.** O worker do
+  `q4-c` passou de `09g` para `09h` no mesmo intervalo em que eu desviava de `09g` para
+  `09h` — segunda colisão do dia, mesma causa das colisões de ADR de ontem. Os meus
+  artefatos passam a `instigar-janela.sh`, `instigar-medidor.py`, `instigar-prompt.py` e
+  `prova/instigar-lote/`. Nome que diz a operação não colide.
+- **15h50** Segunda instalação no aparelho da conta AUTORIZADA pelo coordenador, e a razão
+  fica: a regra das DUAS TENTATIVAS no caso cego **pressupõe** uma segunda medida, e "UMA
+  instalação por volta" nasceu para impedir reinstalação por hábito. Não havia conflito;
+  havia uma regra velha escrita para outro caso.
 - **13h35** `responder` **NÃO VOLTA** — duas tentativas, as duas **piores que a base**:
   base **14/20**, T1 **11/20**, T2 **12/20**, com **240 saídas lidas uma a uma** e a base
   remedida no mesmo binário de cada braço. **O defeito é SIMÉTRICO:** quando o pedido manda
@@ -3653,7 +3674,8 @@ candidato.**
   era o único que a suíte não pisava.
 - **15h50 — `instigar`: MÉRITO APROVADO, SUPERFÍCIE PENDENTE** (ADR **10c**, `1361d3b`). A
   **1ª redação venceu e entrega o ganho do LOTE-5 sem o preço do LOTE-5**: texto magro
-  **1/3 → 3/3 nos dois modelos**, ancoradas **92 → 93%** onde a promoção incondicional as
+  **1/3 → 3/3 nos dois modelos** (pooled, **6/6 contra 4/12**, p = 0,011), ancoradas na
+  faixa da própria base **88–93%** — 1 ponto contra a base é ruído — onde a promoção incondicional as
   derrubara a **76% e 89%**, genéricas **0/3** nos casos ricos, degrau 4 sem repetir o 0. A
   **2ª foi medida e DESCARTADA** — consertou o cego do `4.3` e **quebrou o controle** (magro
   3/3 → 1/3, ancoradas 93 → 74%). *Medir e descartar vale mais que não ter medido: agora há
@@ -3736,6 +3758,8 @@ candidato.**
 - **17h25 — a instalação das 17h40 NÃO para.** O que se instala é melhor do que a tela que ele tem e ele precisa de ver mudança hoje; a régua nova é o destino, não um motivo para adiar o passo que já estava a um minuto de pousar.
 - **17h28 — o `contrapor` FECHOU, e a recontagem provou o meu ponto:** sem o join, o `grok-4.3` passa **os DOIS cegos 3/3** e o controle sobe de 11 para 13. **É exatamente o que a segunda instalação teria dado, sem gastar a janela.** Lei: *a medida que se pode recontar não se remede.* O join sai; a guarda vira dívida nomeada.
 - **17h28 — e a CAUDA fechou com a mesma forma: *as três FICAM, mas duas por defeito NOSSO — e a tela do `recordar` mentia.*** Junto com o `parsePerguntas` do `instigar` e o join do `contrapor`, são **quatro achados no mesmo dia** em que o defeito atribuído à IA era **corte nosso**. *Antes de acusar o modelo, prove que a nossa tesoura não passou ali.*
+- **17h30 — INSTIGAR-FIX: os quatro consertos do G3 feitos, e um quinto que ele não pediu.** A `base · t2` entrou na tabela da §5 com a coluna de perguntas ao todo, e reproduz o G3 à vírgula (52/59 = 88% e 66/74 = 89%; magro 0/3 e 2/3). O item 1 da §5 passou a dizer **"não repete o colapso do LOTE-5"** com o número que aguenta — magro **6/6 contra 4/12**, p = 0,011 — e a dizer que o ganho de 1 ponto nas ancoradas é ruído (p = 0,54) e que a **contagem absoluta CAI, 55 → 52**. A §11 passou a ser narrada pelo `fatos-negados` separando os MODELOS (**10 de 12 contra 0 de 12**, quatro corridas, duas janelas, os dois pedidos), com a ressalva de que é UM caso escrito por quem escreveu o pedido. VoiceOver saiu da §9; "seis e seis" virou **6 e 7** na §3 e no docstring do `--vigia`; a calibração passou a dizer que 48/63 e 63/71 vivem no `q4-c` e que o que se confere aqui é 49/51 e 59/61. **O quinto:** rodar a base t2 derrubou também o *"nas quatro corridas, nenhuma pergunta derrubada"* da §7 — há **uma**, em `base · t2 · grok-4.5`, e as quatro corridas eram as que eu tinha rodado. As notas do scorecard baixaram para **8 / 7 / 8** com a razão colada.
+- **17h30 — a mescla de `origin/main`, e a chave que ia sumir em silêncio.** Quatro conflitos; o de código era o do `AvaliacaoIA.swift`. Conserto aos DOIS níveis: as duas chaves saíram da cauda do literal para `AvaliacaoIA.carimbosDoPedido`, onde cada rota tem a sua linha e um conflito futuro é visível, e `AvaliacaoIACarimboTests` fica vermelho se uma sumir — três provas, sendo uma que lê o fonte, porque o teste de valor ficaria VERDE se alguém apagasse a linha que os copia para o registro e o JSONL saísse sem o carimbo. Os outros três conflitos eram aditivos. **E o defeito de honestidade viajava em quatro arquivos, não num:** o `93% contra 92%` estava no `porque` da `Politica` (que o autor LÊ no Perfil), no SPEC, no EVOLUCAO e no LACO. Os quatro corrigidos.
 - **17h42 — retomada** (uso 4%). Fala **0**. **A instalação das 17h40 NÃO aconteceu:** o binário no aparelho do dono ainda era das **16h11**, e a conversa não estava em `main`. O trabalho estava feito (`0a1b3fc` fecha as duas dívidas do G4, `f3b3df8` já mesclara) — faltava empurrar e instalar. Pressionei com uma instrução só e a ordem invertida do costume: **empurrar e instalar primeiro, relatório e vídeo depois.** *O relatório não é a entrega; o aparelho é.*
 - **17h44 — duas voltas fecharam:** o **`instigar` POUSOU em `main`** (`46b12f9`, 1049/166 verde) com os quatro consertos do G3 e o conflito do `AvaliacaoIA.swift` resolvido sem perder carimbo; e o **`contrapor` fechou** com o esquema a passar os dois cegos 3/3 no `grok-4.3` e a guarda dele próprio reprovada.
 - **17h46 — três cadeiras, exatamente a forma que o dono pediu:** **cadeira 1** (`sistema-ia`) conversa e componentes pela régua do Hermes, vídeo 20h30; **cadeira 2** (`superficie`) barra de baixo e entrada, vídeo 19h30; e **UMA de IA** — mas não a medir: **G3-POUSO**, a julgar e a pousar o `contrapor` e o `responder`-contexto, que fecharam com mérito medido e **continuam num branch**. *Para o dono, o que está num branch não aconteceu* — foi ele que o disse hoje, e é a razão desta cadeira existir.

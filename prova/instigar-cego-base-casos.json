@@ -1,0 +1,122 @@
+{
+  "repeticoes": 3,
+  "casos": [
+    {
+      "id": "q4-instigar-sem-metodo-degrau-0",
+      "operacao": "instigar",
+      "entrada": {
+        "texto": "Quero começar a praticar espanhol, mas sempre espero ter uma hora livre. Hoje tenho quinze minutos e estou sozinho.",
+        "degrau": 0
+      },
+      "requisitos": [
+        "O CASO MEDIDO em 08/09, palavra por palavra: foi aqui que voltou 'Qual é o movimento básico que se pula ao esperar ter uma hora livre?'.",
+        "Toda pergunta é sobre praticar espanhol nos quinze minutos que ele tem, não sobre o pedido do app.",
+        "Nenhuma pergunta cita degrau, método, forma, rascunho, sábia, 'movimento básico' ou 'passo que se pula'.",
+        "De 2 a 5 perguntas; retorno vazio reprova neste caso legítimo."
+      ]
+    },
+    {
+      "id": "q4-instigar-mesmo-texto-degrau-4",
+      "operacao": "instigar",
+      "entrada": {
+        "texto": "Quero começar a praticar espanhol, mas sempre espero ter uma hora livre. Hoje tenho quinze minutos e estou sozinho.",
+        "degrau": 4
+      },
+      "requisitos": [
+        "PAR do caso anterior: muda SÓ o degrau. Serve para ver se a cobrança sobe sem que o degrau vire assunto.",
+        "No degrau 4 as perguntas cobram o LIMITE: onde o que ele escreveu deixa de valer, o que o contradiz.",
+        "As perguntas do degrau 4 são visivelmente diferentes das do degrau 0 — degrau que não muda nada é degrau que não serve.",
+        "Nenhuma pergunta nomeia o degrau nem o nível de experiência dele."
+      ]
+    },
+    {
+      "id": "q4-instigar-com-metodo-decisao",
+      "operacao": "instigar",
+      "entrada": {
+        "texto": "Preciso decidir entre alugar uma sala por R$ 900 por mês ou atender de casa. Meu limite de despesa mensal é R$ 1.000 e ainda não tenho clientes suficientes.",
+        "gesto": "decisao",
+        "degrau": 0
+      },
+      "requisitos": [
+        "PAR do primeiro: mesma operação COM método. O método é o que se cobra, nunca o assunto da pergunta.",
+        "As perguntas cobram critério, evidência e custo de errar — mas falam da sala, do limite de R$ 1.000 e dos clientes.",
+        "Nenhuma pergunta usa a palavra 'método', 'degrau' ou 'forma' para se referir ao pedido do app.",
+        "Não inventa terceira alternativa como se fosse fato, nem número de clientes."
+      ]
+    },
+    {
+      "id": "q4-instigar-texto-magro",
+      "operacao": "instigar",
+      "entrada": {
+        "texto": "Não deu certo de novo.",
+        "degrau": 0
+      },
+      "requisitos": [
+        "DEFEITO OPOSTO: com pouco texto o modelo enchia o espaço com o nosso andaime ('Qual é o movimento básico que foi pulado?'). Vazio também reprova.",
+        "Devolve pergunta que faz o autor nomear o quê, quando e o que era 'dar certo'.",
+        "Não supõe qual foi o episódio, nem o domínio, nem que houve repetição do mesmo evento.",
+        "Não consola, não diagnostica, não conclui nada sobre o autor."
+      ]
+    },
+    {
+      "id": "q4-instigar-o-autor-escreve-metodo",
+      "operacao": "instigar",
+      "entrada": {
+        "texto": "Sigo um método de estudo em degraus e travei no segundo degrau: consigo ler, mas não consigo escrever nada sem consultar a gramática.",
+        "degrau": 1
+      },
+      "requisitos": [
+        "PAR que muda SÓ a procedência da palavra: aqui 'método' e 'degrau' são DELE. A guarda é relativa ao texto do autor e não pode calar a pergunta que usa as palavras dele.",
+        "Pelo menos uma pergunta fala do método de estudo dele ou do segundo degrau dele, sem virar pergunta sobre o app.",
+        "Retorno vazio reprova: a guarda que engole o vocabulário do autor é tão defeito quanto o vazamento."
+      ]
+    },
+    {
+      "id": "q4-instigar-premissa-incerta",
+      "operacao": "instigar",
+      "entrada": {
+        "texto": "Todo mundo do meu mercado já usa vídeo curto, então se eu não publicar três vídeos por semana eu fico invisível.",
+        "degrau": 2
+      },
+      "requisitos": [
+        "CASO MEDIDO em 08/09: voltou 'Qual é o movimento básico que está sendo pulado ao publicar três vídeos por semana?'.",
+        "A pergunta examina a premissa 'todo mundo já usa' ou o salto para 'três por semana', sem afirmar que a premissa é falsa.",
+        "Não traz estatística, pesquisa ou nome de concorrente inventados.",
+        "Sem vocabulário interno do app."
+      ]
+    },
+    {
+      "id": "revisor-instigar-nota-que-ja-responde",
+      "operacao": "instigar",
+      "entrada": {
+        "texto": "Ontem de manhã mandei a proposta com o preço errado: 4.800 onde era 8.400. O cliente respondeu em vinte minutos aceitando. Dar certo, para mim, seria ele aceitar o preço certo sem eu parecer amador. Liguei pedindo desculpa e ele não respondeu mais.",
+        "degrau": 0
+      },
+      "requisitos": [
+        "CASO CEGO do `instigar`, escrito na volta INSTIGAR depois que a alavanca já estava congelada no arquivo. A nota NEGA por antecipação as três perguntas do gabarito: ela diz O QUÊ aconteceu (o preço errado), QUANDO aconteceu (ontem de manhã) e O QUE SERIA dar certo (ele aceitar o preço certo sem ela parecer amadora).",
+        "REPROVA POR PERGUNTA JÁ RESPONDIDA: perguntar o que aconteceu, quando aconteceu, que dia/semana/momento foi, ou o que seria dar certo. As três estão escritas na nota, com todas as letras — repetir a pergunta cuja resposta está na frente é o defeito que esta volta veio matar.",
+        "REPROVA POR FATO SUPOSTO: perguntar por contrato, chefe, sócio, proposta anterior, prejuízo, margem, prazo de resposta ou qualquer coisa que a nota não dá. Os únicos números dela são 4.800, 8.400 e vinte minutos.",
+        "REPROVA POR RECUSA COVARDE: retorno vazio, ou menos de duas perguntas. A nota deixa matéria de sobra por examinar — o aceite em vinte minutos sobre o preço errado, o telefonema sem resposta, e o que ela faz agora.",
+        "PASSA: pergunta que sai do que ela escreveu e a nota não responde — o que o aceite dele vale sobre o preço errado, o que ela disse no telefonema, o que ela vai mandar agora, ou o que fez o 8.400 virar 4.800.",
+        "PASSA: repetir palavra dela (proposta, preço, cliente, 4.800, 8.400, vinte minutos) não é supor fato — a palavra é dela.",
+        "Nenhuma pergunta cita degrau, método, forma, rascunho ou 'movimento básico'."
+      ]
+    },
+    {
+      "id": "revisor-instigar-fatos-negados",
+      "operacao": "instigar",
+      "entrada": {
+        "texto": "Desisti. Não consigo dizer quando começou, não foi por causa de nada específico, e eu nem sei o que seria dar certo aqui.",
+        "degrau": 0
+      },
+      "requisitos": [
+        "CASO CEGO do `instigar`, PAR do anterior e POLO OPOSTO: aqui a nota é magra COMO a do `q4-instigar-texto-magro`, e ainda assim NEGA por escrito duas das três pernas do gabarito. Ela nega o QUANDO ('não consigo dizer quando começou') e nega o QUE SERIA dar certo ('nem sei o que seria dar certo aqui'). O QUE, essa ela nunca diz: 'desisti' de quê nunca é nomeado.",
+        "REPROVA POR PERGUNTA JÁ NEGADA: perguntar quando começou, quando aconteceu, que dia/semana/momento foi, o que seria dar certo, ou qual foi a causa. A nota fecha as três com todas as letras, e disparar o gabarito em cima delas é o defeito medido no LOTE-5.",
+        "REPROVA POR RECUSA COVARDE: retorno vazio, ou menos de duas perguntas. Nota magra não autoriza silêncio — e esta deixa aberto justamente o que mais importa: de que ela desistiu.",
+        "REPROVA POR FATO SUPOSTO: perguntar por projeto, emprego, curso, relação, pessoa, tentativa anterior ou domínio nenhum. A nota não diz de que se trata, e a pergunta que já traz isso é palpite.",
+        "PASSA: a perna do O QUÊ entra, porque a nota a deixou sem resposta — pedir que ela nomeie do que desistiu é a pergunta certa e a que a matéria dela pede.",
+        "PASSA: examinar a própria negação também vale — o que ela nota agora que não notava antes de poder dizer 'desisti', ou o que faria a frase deixar de ser verdade."
+      ]
+    }
+  ]
+}
