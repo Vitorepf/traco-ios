@@ -3561,3 +3561,20 @@ candidato.**
   **`instigar`** (`B91C8DEF`), **`responder`** (alavanca de contexto). Batimento da
   `responder` está velho (15h31Z) e **o processo está vivo e trabalhando** — li os sinais
   autoritativos, não a idade do batimento.
+- **14h30** `responder` fechou a rodada de PROMPT: **não volta**. Duas reescritas contra o
+  texto vigente **no mesmo binário** — 20 casos × 3 por braço, duas janelas, **240 saídas
+  lidas uma a uma** mais 6 de pergunta real. **Base 14 e 15 de 20; candidatos 12 e 12.** O
+  conserto **sai da linha do Perfil, porque foi tentado e medido** — a tela não promete o
+  que já falhou. **Mas fechou SETE defeitos de rota**, com vermelho e verde provados **antes
+  da conta**: identidade da requisição (o cartão podia responder a pergunta que já não era a
+  atual — o risco que a Astra achara por leitura), página lida antes do `await`, revalidação
+  de fonte antes de publicar, divulgação só das vizinhas que couberam, falha que fica junto
+  da pergunta, corte silencioso aos 900 fora do parser, e o **retorno BRUTO preservado no
+  portão das dezesseis rotas**.
+- **14h30 — o achado de raiz do dia:** *"o corpo de `perguntarASabia` era **inalcançável pela
+  suíte**, e por isso isto sobreviveu **sete voltas**."* **Função que a suíte não alcança é
+  zona onde defeito não custa nada para existir** — e explica por que sete passadas por ali
+  não viram nada. Mandei o G3 responder **o que MAIS está inalcançável**, com número: quantas
+  linhas da rota a suíte alcança agora contra antes.
+- **14h30** Próxima alavanca do `responder`, pela medida e não por gosto: **CONTEXTO**, não
+  esquema — *"nenhum texto de pedido conserta informação que não viajou"*.
