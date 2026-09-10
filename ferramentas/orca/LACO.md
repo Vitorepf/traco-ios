@@ -2614,3 +2614,48 @@ fica com um escopo cujo portão é claro.
 **Três em edição (MERGE-Q34, MAC-2-A e o G3 da F6 fechando), com Q3-C e Q4-C na
 gaveta.** O Mac é do dono e ele está na máquina: a MAC-2-A leva a lei do ocioso < 60 s
 e a obrigação do §7 de avisar no comentário do worktree ao começar e ao terminar.
+
+## 09/09, 22h55 — pausa e retomada (uso 10%); a F6 passou e eu tirei a mescla de um buraco
+
+Fala **zero**. **G3 da F6: APROVADO**, menor nota 9, Estado honesto e Complexidade em
+10 (`dff973d`). O revisor fez a coisa mais difícil da esteira: **abriu os artefatos nas
+duas direções**. Mediu por pixel o par AX5 que o autor anexou como prova de
+claro/escuro, viu que as duas capturas **não diferem em aparência** — diferem em
+tamanho de letra — e concluiu que elas provam **coisa melhor** do que a legenda
+prometia: as faces de acessório **não escalam** com Dynamic Type (0,73 na fileira
+contra 11,87 no cartão vivo, mesmo build, mesmo minuto). E **subiu** a nota de
+Acessibilidade que o autor tinha se dado, de 8 para 9.
+
+Três achados são da mesma espécie — **o relato afirmou mais do que a prova tinha**: o
+"0 warning" veio de build incremental (há um herdado de `main` em `NotasView.swift:806`);
+o `#Preview` de `accessoryInline` que o relato cita **não existe**, e por isso o braço
+"Traço · sem dados" é o único sem prova; e o `f6-plantar-bloqueada.sh` **não planta
+sozinho** — parou no toque cego do retículo e depois num `^Traço$` ambíguo que abriu o
+app —, então as capturas do build candidato na bloqueada continuam sendo as do autor.
+Quatro dívidas no RUMO, nenhuma segura a mescla. **Duas leis novas na ESTEIRA:**
+contagem de warning só vale sobre build que compilou tudo, e abrir o artefato é
+obrigação nas duas direções — quem só confere se a prova bate com a legenda perde
+metade dos casos.
+
+**E precisei intervir na mescla.** Ela estava havia 27 minutos tentando **fotografar a
+linha nova do Perfil** — dez rolagens seguidas devolvendo posição vazia na árvore de AX,
+com **outra volta reinstalando no mesmo aparelho entre as posses da trava**. O instinto
+dela era bom (motor sem superfície não foi entregue, e aquele texto vai inteiro para a
+tela do autor), mas **a captura não estava no escopo** e o meu próprio despacho diz que
+esta volta não mede, guarda o que já foi medido. **Mandei parar** e ir direto para
+suíte e push. A captura virou dívida com dono: cai na Q3-C e na Q4-C, que são obrigadas
+a fotografar o cartão no aparelho da conta e passam por essa tela no caminho.
+
+Vale reler o que ela mesma escreveu ao descobrir a causa — *"the device is being
+reinstalled by another session between my lock holds"*. É a lei que já custou caro
+ontem: **a trava serializa COMANDO, não SEQUÊNCIA**. O preâmbulo manda pôr a sequência
+inteira numa chamada só de `com-trava.sh`, e a volta que não põe descobre isso do jeito
+mais lento.
+
+**Encadeei a F6 como SEGUNDO ATO do mesmo worker da Q34**: mesma árvore limpa de `main`,
+mesma corrida de suíte, resolução do `LETRAS-ADR` já escrita para ele. Duas voltas
+mescladas por uma passada de instrumento, em vez de duas.
+
+**Estado:** MERGE-Q34 (mescla + F6) e MAC-2-A em edição, Q3-C e Q4-C escritas na gaveta
+esperando o push, e **quatro commits meus segurados** — não empurro até `origin/main`
+receber o dele, porque foi o que combinei.
