@@ -2874,3 +2874,50 @@ plantado; falante só com mecanismo conferido e duas capturas em campo**, porque
 binário assinado o macOS mata (rc=137). **Eu tinha escrito "provada com alvo plantado" no
 commit anterior, sem qualificar — verdade para uma perna, falsa para a outra.** Corrigido
 no arquivo, que é onde a próxima pessoa procura.
+
+## 10/09, 08h20min37s — `responderNasNotas` VOLTOU. A primeira das sete.
+
+**A hora, que o dono pediu por escrito: 08h20min37s de 10/09/2026** (11:20:37Z). É a
+**primeira das sete operações** a sair de `indisponivelPorQualidade` desde que a lista
+foi criada.
+
+**E o cartão real, na tela do `B91C8DEF`, diz:**
+
+> *"520 × 6,45 = R$ 3.354 … Você reservou R$ 6.000 para a viagem; **sobram R$ 2.646** em
+> relação a esse teto"*
+
+Essa segunda frase é exatamente a que faltava **6 de 6** no LOTE-3, nos dois modelos. O
+autor não precisa mais fazer a subtração que o contrato mandava a operação terminar.
+
+**A medida:** `grok-4.5` passa **21/21** pela letra da fixture; `grok-4.3` passa **12/21**
+— reprova a sobra do teto 0/3, a comparação com o teto 0/3 e o próximo ato 0/3 (no
+conflito, r3 ainda **inventa duas oficinas** e manda esperar 12). Linha de base intacta
+nos dois, `escreveuRotuloInterno=false` e HTTP 200 em **42/42**. Suíte **1021 em 163
+suítes, 0 falhas**, build limpo com o warning herdado. Conta conferida ligada **três
+vezes** na janela, com 12 modelos nas três.
+
+**O modelo passa a se escolher POR OPERAÇÃO** (ADR 09v): `.soGrok` com `grok-4.5` só para
+esta rota, padrão global intocado em `grok-4.3`, precedência **sonda → rota → global** com
+portão que falha fechado. E `modeloConfigurado` virou `modeloPadraoGlobal`, porque com
+modelo por rota **o campo tinha deixado de significar o que dizia** — renomear o campo foi
+mais honesto que mantê-lo mentindo.
+
+### O achado que quase invalidou tudo, e foi o próprio autor que o pegou
+
+**A árvore carregava um prompt EDITADO às 23:34:35 — depois de a janela fechar às
+23:33:06.** O texto no disco **não era** o texto medido. Ele extraiu o prompt **do binário
+medido** (`Traco.debug.dylib 57d02df3`), conferiu byte a byte, e comitou esse. Sem isso, a
+medida seria de um prompt e a entrega de outro, **com o mesmo SHA de árvore e ninguém
+percebendo**. Mandei o G3 refazer essa conferência pelo binário, não pelo relato: é a
+alegação mais forte e mais frágil da volta.
+
+### E o mistério do binário estranho era meu erro
+
+O autor encontrou o `B91C8DEF` **ligado** (o spec dizia desligado) e com o binário
+`264215af`, não o do LOTE-09d. Não era terceiro: era a **Q4-C**, que instalou às
+10:55:32Z. Eu despachei as duas voltas no mesmo aparelho da conta. A lei já está escrita —
+*a trava serializa comando, não o ESTADO do aparelho* — e o G3 sai com a ordem de **não
+tocar** no aparelho: a captura já existe, ele a lê.
+
+**Despachei o G3** (`ctx_3ab06afd2c3b`). Se aprovar, a operação fica; se reprovar, volta
+para a lista, **e isso é resultado**. O revisor não a devolveu, então é ele quem diz.
