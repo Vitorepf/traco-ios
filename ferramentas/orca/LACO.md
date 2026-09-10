@@ -3578,3 +3578,20 @@ candidato.**
   linhas da rota a suíte alcança agora contra antes.
 - **14h30** Próxima alavanca do `responder`, pela medida e não por gosto: **CONTEXTO**, não
   esquema — *"nenhum texto de pedido conserta informação que não viajou"*.
+- **14h40 — a dúvida do dedupe pagou.** A auditoria respondeu **com os ids**: são **TRÊS
+  NOTAS DISTINTAS** (uuids `88E0CED5…`, `AA2CAFAE…`, `B5785094…`), plantadas ~20 min uma da
+  outra com o mesmo texto de 279 caracteres — **não** a mesma nota chegando três vezes.
+  **Deduplicar por texto apagaria duas notas reais do autor**, e ela **retirou o
+  `semRepetida` do diff**. O defeito é da TELA: *"Foram junto:"* cita
+  `enviadas.map(\.titulo)`, e o título é a **primeira linha do texto** — três notas iguais
+  viram três linhas iguais sem nada que as distinga. **E o conserto já existe uma função
+  adiante:** `RespostaNotas.interpretar` acrescenta *"(edição <data>)"* quando dois títulos
+  coincidem, na linha "Referência:"; **a linha das fontes não**. *Uma pergunta antes do
+  conserto separou "apagar dado do autor" de "citar texto onde devia citar nota".*
+- **14h40** Entrega limpa entre cadeiras: o diff da superfície (15 arquivos, +720/−241, sha
+  conferido, `git apply --check` limpo) passou para a **SISTEMA DA IA** como base, **sem
+  commit em dois branches**, com a lista do que resolve — inclusive `CartaoDeResposta`
+  (título = a pergunta, um só Fechar, fontes fechadas em "leu N notas suas", retorno como
+  controle), a palavra **"continua" removida** do `SinalDeSobra` (virou dobra com rótulo de
+  AX), o **`ProgressView` mudo fora da Lente**, e o Perfil **deixando de prometer** "responder
+  nas Notas" até a tela passar (§14).
