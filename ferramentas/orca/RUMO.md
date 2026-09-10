@@ -726,3 +726,13 @@ provada sem carregar a metade que regrediu.
 Q3-D o encontrou ao procurar os irmãos, disse, e **não o fotografou nesta volta**, o que é
 o certo. Quando o componente `SinalDeSobra` existir, este é o próximo chamador. **Dono: a
 volta que tocar o Recordar.**
+
+**BLOQUEIA a mescla da Q3-C: `RespostaNotas.interpretar` é o quinto da espécie (10/09).**
+A Q4-D leu os **12 parsers do app** e nomeou a espécie — o parser que devolve `nil` tanto
+para *"não veio nada"* quanto para *"veio inteiro e o nosso contrato recusou"*. São
+**cinco**: dois consertados na 09s, o do `vestir` em `ffb6a56`, dois que não produzem frase
+de tela, e **`RespostaNotas.interpretar`**. Hoje é inofensivo porque `responderNasNotas`
+está cortada em `main` — **mas a Q3-C foi aprovada e vai mesclar**, e no minuto da mescla
+essa rota fica viva no aparelho do dono e pode dizer que a IA não respondeu **sobre um HTTP
+200 inteiro**. *Mesclar a operação de volta com esse parser como está é entregar uma mentira
+conhecida.* **Dono: a Q3-D, ou volta própria se não couber — mas antes da mescla.**
