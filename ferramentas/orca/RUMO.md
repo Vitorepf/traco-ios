@@ -841,3 +841,53 @@ de contexto ou entrega exigirem mudança. **Cada correção posterior que altere
 saída, modelo ou esforço invalida a certificação e pode exigir nova janela.** *Fazer os
 vermelhos determinísticos antes de ocupar a conta é o que evita gastar a janela mais cara
 descobrindo bug local.*
+
+## A trilha do Mac PARA aqui, sem mesclar (10/09, §13)
+
+O terceiro re-G3 da MAC-2-A deu **NÃO PASSA** (Correção 6, Privacidade 6, Fora do app 6,
+Contrato 7), e a §13 manda que **a trilha do Mac só termine o G3 que já estava no meio e
+mescle**. O G3 terminou e **não aprova** — logo **a trilha para, e o branch
+`Vitorepf/mac-2-a` fica onde está**, com o trabalho feito e o defeito nomeado. Ninguém abre
+volta nova nela até a IA chegar onde o dono pede.
+
+**O que fica pronto e provado no branch, e não se perde:** o selo com a invariante no laço
+(quinta rota inventada e o arquivo sumiu assim mesmo), a montagem por `[Linha]` que faz um
+`String` cru **não compilar**, o `Corpus.fimDeLinhaLF`, a genérica estreitada, e a sonda que
+conta título por estrutura.
+
+**O que falta, com número, para quem retomar:**
+1. **A cerca decide pelo texto APARADO; a CommonMark decide pelo CRU, contando o recuo.**
+   Com quatro espaços elas discordam nos dois sentidos, e **o `## Relatos` do modelo vira
+   seção de verdade enquanto o relato do AUTOR vira bloco de código**. Conserto: decidir
+   abertura e fecho pela **linha crua contando o recuo**, e **a mesma correção na
+   `TitulosDoMarkdown`** — senão a suíte continua incapaz de ver o que acabou de consertar.
+2. **(BAIXO) O cabeçalho YAML tem DOIS leitores e a defesa vale para um.** O
+   `servidor.py:78` usa `splitlines()` do Python, que quebra em `U+2028`, `U+0085`, VT e FF
+   — e o `umaLinha` não tira nenhum. Mediu-se o cabeçalho virando **6 linhas** com um
+   `estado: encerrado` forjado; **só não é forja viva porque o estado verdadeiro vem depois
+   e sobrescreve** — vale pela ORDEM, não pelo motivo escrito no SPEC.
+3. **(BAIXO) `Linha(stringLiteral:)` compila com `String` de runtime** e pula a `cercar`. O
+   Swift obriga esse init a existir; fecha-se por **portão de fonte**.
+
+**Limite herdado, declarado e que não desconta:** ninguém viu o bot ler a forma nova do
+arquivo — o exercício real é de antes destes consertos, e ninguém inventou captura.
+
+## `contrapor` NÃO volta: o caso cego reprovou os dois modelos (10/09)
+
+Nos seis casos normais ela passava com 9 nas cinco dimensões. **O caso cego — material que
+NEGA o que se pediria — derrubou as duas famílias, em lados opostos:**
+
+- **`grok-4.3`** (o modelo do app): `q4-contrapor-tudo-ou-nada` rep. 2 devolveu **os três
+  campos vazios sobre HTTP 200**, sem nenhuma guarda nossa — e a fixture daquele caso
+  escreve que os três vazios reprovam. A base caiu de **18/18 para 15/18**.
+- **`grok-4.5`**: base perfeita, e o caso cego reprovou **3/3** propondo o ensaio que a nota
+  fecha, um deles dizendo *"cópia restaurada dos dados reais"*.
+
+**Logo a escolha por operação (09v) não salva a rota**, e `contrapor` fica
+`indisponivelPorQualidade` com motivo novo na tela. **Dono: a próxima volta de `contrapor`.**
+
+**E a lição de instrumento, que vale para toda a frente de IA:** o **"9 de 54 e zero
+contra"** do LOTE-5 era **UMA amostra, não uma propriedade**. Mesmo prompt, parser conferido
+byte a byte — e a remedida devolveu **10/54 com três contra vazios**. *Delta medido uma vez
+é hipótese; a lei "uma corrida por modelo não mede modelo" vale também para a linha de
+base.*
