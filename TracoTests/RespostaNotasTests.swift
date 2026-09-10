@@ -95,6 +95,24 @@ struct RespostaNotasTests {
         #expect(schema["additionalProperties"] as? Bool == false)
     }
 
+    /// ADR 2026-09-09h — o contrato cobra tratar "fato de HOJE ausente do
+    /// material" à parte, e o pedido não dizia que dia é hoje: uma nota
+    /// "Câmbio de hoje — 09/09" era indistinguível de uma de um ano atrás.
+    /// O vermelho que este teste guarda é duplo: a data sair do pedido, e o
+    /// espaço que ela ocupa furar o teto que já era apertado.
+    @Test func oPedidoDizQueDiaEHojeSemFurarOTeto() throws {
+        let agora = Date(timeIntervalSince1970: 1_783_000_000)
+        let p = try #require(RespostaNotas.montar(pergunta: "A cotação da nota de hoje ainda vale?",
+                                                 fontes: [fonte()], conversa: [], catalogo: "",
+                                                 retrato: "", teto: 900, agora: agora))
+        #expect(p.mensagem.contains("HOJE: " + agora.formatted(Date.ISO8601FormatStyle(timeZone: .current))))
+        // O rótulo do dia é o LOCAL, e é isso que a igualdade acima pinça: em
+        // UTC, 21h de 09/09 em Brasília vira 10/09, e a nota "de hoje" passaria
+        // a ser de ontem aos olhos do modelo. Numa máquina em UTC a asserção
+        // passaria dos dois jeitos — limite declarado, não guarda que mente.
+        #expect(p.mensagem.count <= 900 && p.fontes.count == 1 && p.omitidas == 0)
+    }
+
     /// ADR 2026-09-09h, metade 1: VERMELHO antes do conserto — o parser
     /// trocava por `limiteSemBase` TUDO o que viesse com base `insuficiente`,
     /// inclusive a resposta parcial que usava as notas. Medido em 08/09,

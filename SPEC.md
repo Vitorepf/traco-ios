@@ -8361,7 +8361,7 @@ o `try!` de `regex(_:)` em vez de afrouxar o portão. Dívida nomeada no RUMO.
 `ferramentas/orca/b1b-portao-aninhado.md`. Suíte integral 997/0 em 161 suítes, 0 warning, no
 `34CC3F94`.
 
-## ADR 2026-09-09h — Faltar um dado não é motivo para calar, e `N1T1` é endereço nosso (volta Q3)
+## ADR 2026-09-09h — Faltar um dado não é motivo para calar, reconhecer o dado não é responder, e `N1T1` é endereço nosso (volta Q3)
 
 **A distância.** `responderNasNotas` está em `indisponivelPorQualidade` desde a
 08q. Remedida em 08/09 **com a conta ligada e pelo caminho de fontes tipadas que
@@ -8441,5 +8441,65 @@ Nada a mudar aqui.
 lista de `citadas`: a referência continua sendo o que o modelo **declarou** em
 `trechoIDs`. Uma nota nomeada no texto sem ter sido declarada aparece pelo título e
 fica fora da linha "Referência". Dívida nomeada no RUMO, dona Q3.
+
+**A SEGUNDA PASSADA (G3 reprovou a primeira) — a MEIA-RECUSA.** O G3 independente
+leu as 21 saídas do LOTE-1 (`prova/lote09-responder-nas-notas.jsonl`, corrida
+`B08D1B09`, `grok-4.3`/`low`) e confirmou que **a recusa total morreu** e que
+autoria e origem ficaram de pé: três casos passam **3 de 3** (a correção do prazo,
+a frase de limite honesta, a instrução hostil desobedecida). Reprovou por outros
+três, e os três têm **um padrão só**: a resposta **reconhece o dado e para ali**.
+Não recusa — *não faz o que o dado permite fazer*.
+
+| caso | medida | o que faltou |
+|---|---|---|
+| `q3-gasto-cotacao-na-conversa` | **3/3** reconhecem os R$ 6,45 ditos pela pessoa; **0/3** calculam os R$ 3.354; a rep 1 ainda manda *"confirme a taxa atual no banco"* | usar o que já foi dito |
+| `q3-gasto-cotacao-na-nota` | 1/3 calcula; **2/3** omitem a sobra; a rep 2 diz *"você não tem o valor atual"* apesar da nota de 09/09 | ler a nota como dado |
+| `q3-conflito-com-limite-da-sala` | **3/3** repetem 12/18 cadeiras e o limite 15; **0/3** dizem qual lista vale ou oferecem próximo ato | o próximo ato |
+
+**E não é o modelo.** O LOTE-2 rodou a mesma fixture em `4.3`, `4.5` e `4.6`:
+57/57, 56/57 e 57/57 nas guardas estruturais, e **os três reprovados pela leitura**.
+Modelo maior não conserta o que é nosso. Reler o prompt diz o que é:
+
+1. **A regra do "fato de hoje" era chaveada pelo TIPO do fato, não pela presença.**
+   O contrato dizia *"um fato de hoje que você não pode saber — **cotação**, preço
+   corrente, horário — se responde assim: diga que não sabe, diga ONDE ela
+   confirma"*. Com os R$ 6,45 na mão, o modelo **obedecia**: "cotação" estava na
+   lista, e nada no texto abria exceção para o valor que a pessoa acabou de dar.
+   **Nós mandamos pedir confirmação.** Agora a regra vale só para o fato **AUSENTE
+   do material**, e entra o que `sistemaResponder` já media funcionando: *um dado
+   que ela deu, você USA, e não pede confirmação extra do que ela acabou de dizer*.
+2. **Nós prescrevemos devolver a conta.** *"A fórmula ou o critério com os nomes no
+   lugar do que falta"* é a instrução certa **quando o termo falta** — e era a única
+   que existia. Saiu exatamente isso: *"Some 520 euros e multiplique pela cotação do
+   dia"*. Entra **TERMINE A CONTA**: com todos os termos no material, faça a
+   aritmética, entregue o número e a comparação com o teto, o prazo ou o limite que
+   ela anotou; nunca prometa calcular depois nem devolva a multiplicação.
+3. **"Explique o limite" era licença para parar.** O conflito agora sai com **o
+   próximo ato verificável** — qual dado ela confere para decidir, e o que já é
+   certo apesar do conflito —, e *números expostos sem próximo ato não são
+   resposta*. Junto, "correção" deixa de depender da palavra: *"a lista final
+   fechou"* e *"agora é"* valem, e **o dado mais recente prevalece**.
+
+**A metade estrutural: o pedido não dizia que dia é hoje.** Um contrato que cobra
+tratar "um fato de HOJE" à parte é inexequível sem o agora: a nota *"Câmbio de hoje
+— 09/09"* chegava como uma data qualquer, indistinguível de uma de um ano atrás, e
+sem poder datar o presente o modelo **hedgeava** — foi isso que a rep 3 fez
+("depende da cotação atual; em 02/09 era 6,10 e em 09/09 6,45"). `RespostaNotas.montar`
+passa a abrir o pedido com `HOJE: <ISO>`, **no fuso LOCAL**: a sonda desta volta
+imprimiu `2026-09-10T00:24Z` às 21h24 de 09/09 em Brasília, e o rótulo do dia
+inverteria o sentido de "hoje". `agora` é parâmetro com `.now` por padrão, para a
+medida ser determinística. `editadaEm` continua em Z — ordena igual.
+
+**Guardado por teste:** `oPedidoDizQueDiaEHojeSemFurarOTeto`, visto **vermelho** com
+a linha do `HOJE` revertida e o resto do conserto de pé (as outras 13 passaram). Ele
+guarda os dois vermelhos: a data sair do pedido, e o espaço dela furar o teto.
+
+**Os três clauses do prompt NÃO têm prova offline, e isso é dito e não disfarçado.**
+Prompt se mede contra o provedor; asserção de que a string contém as palavras que eu
+acabei de escrever não prova comportamento nenhum. A prova é a corrida em lote, na
+**mesma fixture** — `prova/q3-responder-nas-notas.json`, SHA
+`b0fc69f9e7ba4ec5d5715d073f08515c3840058b4dce08bd770b932c4adcac01`, **byte a byte a
+que o LOTE-1 rodou** —, com **as três repetições e a linha de base junto**: quem
+consertou o caso 3 e quebrou o caso 7 não consertou nada.
 
 **Consequência.** Relatório em `ferramentas/orca/q3-responder-nas-notas.md`.
