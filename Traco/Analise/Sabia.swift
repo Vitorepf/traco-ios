@@ -30,19 +30,42 @@ enum Sabia {
     separadas por | ou tabulação · prosa = tudo o mais. Na dúvida, prosa. Nenhuma outra chave, nenhum texto.
     """
 
-    /// ADR 04r: UM teto, 900, no prompt e no parser.
+    /// ADR 04r: 900 caracteres. ADR 2026-09-10b: só no PEDIDO — o parser
+    /// deixou de cortar (ver `limparResposta`). É o tamanho que se pede ao
+    /// modelo, não uma tesoura sobre o que ele devolveu.
     nonisolated static let tetoResposta = 900
 
-    /// ADR 2026-09-08z — o contrato de SUSTENTAÇÃO. A medida de 08/09 pegou o
-    /// provedor completando lacuna com fato (R$ 1.008 de gasolina num pedido
-    /// sem distância, consumo nem preço; a biblioteca "abre às 13h"). A versão
-    /// anterior pedia "informação, opções e critérios" e não proibia nada: com
-    /// as opções cobradas em toda resposta, o modelo preenchia os números que
-    /// faltavam para ter o que listar. O contrato agora vem de
-    /// `MotorTrabalho.sistema` (a única rota medida que preserva os dados e
-    /// nomeia o que falta), adaptado ao cartão: responde o sustentado, nomeia
-    /// o dado ausente, e continua ajudando com fórmula, critério ou caminho.
-    /// Recusar por inteiro é o defeito oposto, e reprova igual.
+    /// ADR 2026-09-08z — o contrato de SUSTENTAÇÃO, e ele FICA. A medida de
+    /// 08/09 pegou o provedor completando lacuna com fato (R$ 1.008 de gasolina
+    /// num pedido sem distância, consumo nem preço; a biblioteca "abre às 13h").
+    /// Responde o sustentado, nomeia o dado ausente, e continua ajudando com
+    /// fórmula, critério ou caminho. Recusar por inteiro reprova igual.
+    ///
+    /// ADR 2026-09-10b — DUAS reescritas deste texto foram medidas contra ele
+    /// no MESMO binário, 20 casos × 3, em DUAS janelas, e as duas ficaram
+    /// PIORES: base **14 e 15 de 20**, candidatos **12 e 12**. O texto fica, e
+    /// o que se aprendeu fica escrito para a próxima tentativa não repetir:
+    ///
+    /// 1. O defeito é SIMÉTRICO e nenhuma das duas versões o separou. Quando o
+    ///    pedido manda ajudar, o modelo inventa a estrutura do documento ("abra
+    ///    o PDF", "vá ao sumário", "pule metodologia e anexos"); quando o pedido
+    ///    manda não inventar, ele para em "não consta X" e a continuação some.
+    ///    O candidato 1 matou a invenção e matou a continuação junto
+    ///    (`revisor-orcamento-cotacao-datada` 3/3 → 0/3); o candidato 2 devolveu
+    ///    a continuação e o PDF voltou com ela (`q2-relatorio` 3/3 → 1/3).
+    /// 2. Promover uma cláusula para morder no caso rico a faz AFIRMAR no caso
+    ///    pobre — a armadilha que a Q4-C já havia cobrado. "Diga ONDE ela
+    ///    confirma pelo nome e endereço que ela deu" fez o modelo afirmar que a
+    ///    pessoa tinha nome e endereço num caso em que ela não deu nenhum
+    ///    (`q2-biblioteca-sem-horario` 3/3 → 1/3, nas DUAS tentativas).
+    /// 3. `revisor-responsavel-nao-definido` reprovou 1 de 3 nas duas: a metade
+    ///    que falta é sempre a mesma ("Decida e anote o nome" aparece numa
+    ///    execução e some nas outras duas).
+    ///
+    /// Conclusão medida: o PROMPT sozinho não fecha esta rota no `grok-4.3`. A
+    /// alavanca seguinte da ordem da Astra é o CONTEXTO — metade do que sobrou
+    /// é o modelo falando de um documento que nunca viu.
+    /// Prova: `prova/10b/` e `prova/10b2/`, leitura em `ferramentas/orca/responder.md`.
     static let sistemaResponder = """
     Você é uma pessoa sábia ao lado de quem escreve. Ela deixou uma pergunta na própria nota e você
     responde em português, direto, sem elogio, sem rodeio, no máximo 900 caracteres.
@@ -564,9 +587,37 @@ enum Sabia {
         return mensagemDoAparelho(carga: "PONTOS:\n\(lista)\n\nDE MEMÓRIA:\n\(escrito)", teto: teto)
     }
 
+    /// O que cabe no contexto que viaja com a linha "?" (era o literal 5000
+    /// dentro de `responder`). Nomeado porque agora tem DOIS leitores: o corte
+    /// final aqui, e `contextoDaPergunta`, que decide quais vizinhas entram —
+    /// duas cópias do mesmo número divergiriam em silêncio (ADR 03l).
+    nonisolated static let tetoDoContextoDaNota = 5000
+
+    /// A página mais as vizinhas que CABEM, e os títulos das que couberam.
+    ///
+    /// ADR 2026-09-10b. A divulgação do cartão ("foram junto: …") era montada
+    /// da lista inteira de vizinhas, ANTES do corte — e o corte é aqui. Com o
+    /// caderno cheio, o autor lia o nome de uma nota que nunca saiu do
+    /// aparelho: divulgação que não corresponde ao que viajou é pior que
+    /// nenhuma. Mesma lei da `mensagemDoAparelho` (ADR 05o): rótulo e conteúdo
+    /// viajam juntos ou não viajam, e a ordem É a prioridade — a ligada
+    /// explícita do autor vem antes da vizinha que o índice achou.
+    nonisolated static func contextoDaPergunta(pagina: String, vizinhas: [(titulo: String, prosa: String)],
+                                               teto: Int = tetoDoContextoDaNota) -> (contexto: String, viajaram: [String]) {
+        var contexto = pagina
+        var viajaram: [String] = []
+        for n in vizinhas {
+            let bloco = "\n\n--- outra nota sua: \(n.titulo) ---\n\(n.prosa)"
+            guard contexto.count + bloco.count <= teto else { break }
+            contexto += bloco
+            viajaram.append(n.titulo)
+        }
+        return (contexto, viajaram)
+    }
+
     static func responder(pergunta: String, contexto: String, gesto: Gesto?, retrato: String = "") async -> String? {
         guard gesto != .expressiva else { return nil }
-        let usuario = "\(rotuloContextoDaNota)\n\(contexto.prefix(5000))"
+        let usuario = "\(rotuloContextoDaNota)\n\(contexto.prefix(tetoDoContextoDaNota))"
             + blocoDoRetrato(retrato) + "\n\nPergunta: \(pergunta)"
         // ADR 09n: `medium` é o esforço MEDIDO desta rota — com ele o modelo
         // escolhido passou os doze casos e as 36 execuções; com `none` a
@@ -576,7 +627,7 @@ enum Sabia {
                                      mensagemLocal: { montarResponder(pergunta: pergunta, contexto: contexto,
                                                                       retrato: retrato, rotulo: rotuloContextoDaNota) })
         else { return nil }
-        return limparResposta(cru, teto: tetoResposta)
+        return limparResposta(cru)
     }
 
     /// ADR 2026-09-09i — a linha entre o que é NOSSO e o que é DELA. O método
@@ -1033,14 +1084,22 @@ enum Sabia {
         return Array(limpas.prefix(5))
     }
 
-    /// A resposta tem teto e nunca vem em markdown pesado: é para ler no cartão.
-    nonisolated static func limparResposta(_ cru: String, teto: Int = tetoResposta) -> String? {
+    /// A resposta chega INTEIRA e sem markdown pesado: é para ler no cartão.
+    ///
+    /// ADR 2026-09-10b — o corte aos 900 saiu. A ADR 04r punha "um teto, 900,
+    /// no prompt e no parser", e o parser cortava com "…": das 54 execuções do
+    /// `grok-4.5` na Q2-F, QUATRO passaram dos 900 e chegariam ao autor
+    /// partidas no meio da frase. A parte que morre é sempre a última, e a
+    /// última é onde mora a ressalva ("confirme a cotação", "isto supõe ida e
+    /// volta") — perda silenciosa vendida como resposta completa. Os 900
+    /// continuam no PEDIDO, que é onde eles são um pedido; o que voltou é do
+    /// autor, e o cartão já rola (ADR 05y). Limite visual e perda de conteúdo
+    /// deixam de ser a mesma coisa.
+    nonisolated static func limparResposta(_ cru: String) -> String? {
         var s = cru.trimmingCharacters(in: .whitespacesAndNewlines)
         s = s.replacingOccurrences(of: "**", with: "")
         s = s.replacingOccurrences(of: #"(?m)^#+\s*"#, with: "", options: .regularExpression)
-        guard !s.isEmpty else { return nil }
-        if s.count > teto { s = String(s.prefix(teto)).trimmingCharacters(in: .whitespaces) + "…" }
-        return s
+        return s.isEmpty ? nil : s
     }
 
     /// A linha "?" da nota: a última linha que começa com "?" e tem pergunta.

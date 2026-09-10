@@ -207,13 +207,14 @@ def relatar(p, anc, falhas, vistos, shas, derrubadas, semBruto):
 
 
 def vigia(fixture):
-    """A caça que nunca acusou nada não está provada, está muda: seis execuções
-    sintéticas, três que TÊM de acusar e três que NÃO PODEM."""
+    """A caça que nunca acusou nada não está provada, está muda: 13 execuções
+    sintéticas, 6 que TÊM de acusar e 7 que NÃO PODEM. Não são metades iguais, e
+    nunca precisaram ser — o que o portão cobra é que ele acuse E cale."""
     letra(fixture)
     # As frases são REAIS: saíram do braço da BASE desta mesma corrida
-    # (`prova/instigar-lote/instigar-lote-base-grok-4.*.jsonl`). Metade tem de
-    # ser acusada e metade tem de passar — vigia que só acusa reprova tudo, e
-    # vigia que só se cala não enxerga nada.
+    # (`prova/instigar-lote/instigar-lote-base-grok-4.*.jsonl`). Umas têm de ser
+    # acusadas e outras têm de passar — vigia que só acusa reprova tudo, e vigia
+    # que só se cala não enxerga nada.
     acusa = [
         (CEGOS[0], ["O que você quis dizer com 'dar certo' nesse caso?", "E agora?"],
          'a nota DIZ o que seria dar certo'),

@@ -91,11 +91,17 @@ alguém tropeçar: a série 08 encheu sem aviso e custou três colisões numa ta
 | letra | dona | estado |
 |---|---:|---|
 | 10a | TEMPO · o teto vira margem declarada, e a espera ganha estado | reservada, volta viva |
-| 10b | RESPONDER · o pedido condicionado à matéria (G0 da Astra) | reservada, volta viva |
+| 10b | RESPONDER · o pedido condicionado à matéria (G0 da Astra) | **em `main`** — o prompt foi medido e NÃO fecha; `responder` fica cortada |
 | 10c | INSTIGAR · a irmã: condicionar à matéria também nas perguntas | reservada, volta viva |
 | 10d | CONTRAPOR · fechar a porta do caso cego no pedido | reservada, volta viva |
 
-**Próxima livre: 10e.**
+| 10e | SUPERFÍCIE · falar com a sábia: um componente só, a pergunta como título, a resposta como folha | reservada, volta viva |
+
+| 10f | SISTEMA-IA/conversa · a conversa com a sábia como folha do Traço | reservada, volta viva |
+
+| 10g | RESPONDER · o contexto como alavanca: a nota citada inteira, e o que não coube se DIZ | reservada, volta viva |
+
+**Próxima livre: 10h.**
 
 **A 09s colidiu, e quem mudou fui eu** (09/09, ~02h). Tomei a `09s` porque o
 "Próxima livre: 09s" que estava escrito aqui batia com o comando; no mesmo

@@ -1,0 +1,25 @@
+[2026-09-10T15:44:08Z] binario ANTES:  c897958450aa2481369838dd84e3d0eac2fd2b5b3e0c61b1bbe14c7cf6e1c40a
+[2026-09-10T15:44:09Z] a instalar:     34bb498b9545ec1af0a69158d219edc3f1fd71a084a2821c73160ddbe1b65e16
+[2026-09-10T15:44:09Z] INICIO 10b-fumaca-1-antes.jsonl  fixture=q2-fumaca.json (ab4c3857ea8f) liberar='' modelo='<padrao>'
+app.traco: 10986
+[2026-09-10T15:44:11Z] FIM    10b-fumaca-1-antes.jsonl  linhas=       4 fimGravado=1
+[2026-09-10T15:44:11Z] INSTALL (unico da janela): xcrun simctl install B91C8DEF-B0A7-454A-95DE-5D7BA7B040A9 /Users/vitorepf/orca/workspaces/traco-ios/responder/build/Build/Products/Debug-iphonesimulator/Traco.app
+[2026-09-10T15:44:15Z] binario DEPOIS: 34bb498b9545ec1af0a69158d219edc3f1fd71a084a2821c73160ddbe1b65e16
+[2026-09-10T15:44:15Z] dylib  DEPOIS:  681a249fe756cc621ea1f4f796f6b04307cf39beb2d7b85bfdf10869e61ea3b2
+[2026-09-10T15:44:16Z] INICIO 10b-fumaca-2-pos-install.jsonl  fixture=q2-fumaca.json (ab4c3857ea8f) liberar='' modelo='<padrao>'
+app.traco: 11323
+[2026-09-10T15:44:18Z] FIM    10b-fumaca-2-pos-install.jsonl  linhas=       4 fimGravado=1
+[2026-09-10T15:44:18Z] INICIO 10b-base.jsonl  fixture=10b-casos.json (0af49dc5f5b3) liberar='responder' modelo='<padrao>'
+app.traco: 11446
+[2026-09-10T15:54:33Z] FIM    10b-base.jsonl  linhas=     122 fimGravado=1
+[2026-09-10T15:54:33Z] INICIO 10b-candidato.jsonl  fixture=10b-casos.json (0af49dc5f5b3) liberar='responder' modelo='<padrao>'
+app.traco: 29083
+[2026-09-10T16:03:41Z] FIM    10b-candidato.jsonl  linhas=     122 fimGravado=1
+[2026-09-10T16:03:41Z] INICIO 10b-real.jsonl  fixture=10b-real.json (0997ec346bed) liberar='responder' modelo='<padrao>'
+app.traco: 45222
+[2026-09-10T16:04:15Z] FIM    10b-real.jsonl  linhas=       8 fimGravado=1
+[2026-09-10T16:04:15Z] INICIO 10b-fumaca-3-fim.jsonl  fixture=q2-fumaca.json (ab4c3857ea8f) liberar='' modelo='<padrao>'
+app.traco: 46277
+[2026-09-10T16:04:18Z] FIM    10b-fumaca-3-fim.jsonl  linhas=       4 fimGravado=1
+[2026-09-10T16:04:18Z] binario FIM:    34bb498b9545ec1af0a69158d219edc3f1fd71a084a2821c73160ddbe1b65e16
+[2026-09-10T16:04:18Z] JANELA ENCERRADA

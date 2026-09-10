@@ -13,6 +13,26 @@ enum AvaliacaoIA {
         "responderNasNotas", "responder", "instigar", "contrapor", "vestir", "recordar",
         "conferir", "ecos", "calibragem", "padroes", "classificar", "dominio", "modelosGrok"]
 
+    /// QUAL pedido rodou cada caso, pelo dado e não pelo nome do arquivo. A
+    /// 10b precisou reconstruir isto procurando os 2.327 bytes do prompt DENTRO
+    /// do dylib instalado; a 10c mede DOIS braços de `instigar` no MESMO
+    /// binário, e sem o carimbo os dois JSONL seriam indistinguíveis.
+    ///
+    /// **Está aqui, e não na cauda do dicionário do registro, porque lá as duas
+    /// chaves caíam na mesma linha que fecha o literal** — e uma mescla de
+    /// afogadilho derrubava uma delas EM SILÊNCIO, deixando a corrida seguinte
+    /// com cara de medida. Um carimbo que some sem barulho é pior que um
+    /// carimbo que nunca existiu. `AvaliacaoIACarimboTests` fica vermelho se
+    /// qualquer uma sumir, e a rota nova entra aqui em vez de na cauda.
+    static var carimbosDoPedido: [String: String] {
+        ["pedidoResponderSHA256": sha256(Sabia.sistemaResponder),
+         "pedidoInstigarSHA256": sha256(Sabia.pedidoDeInstigar)]
+    }
+
+    static func sha256(_ t: String) -> String {
+        SHA256.hash(data: Data(t.utf8)).map { String(format: "%02x", $0) }.joined()
+    }
+
     private struct Lote: Codable {
         var repeticoes: Int?
         var casos: [Caso]
@@ -129,14 +149,8 @@ enum AvaliacaoIA {
                         // ADR 08z: a corrida diz em que condição foi feita. Uma
                         // operação indisponível por qualidade só alcança o
                         // provedor se estiver listada aqui.
-                        "operacoesLiberadasParaAvaliacao": Politica.liberadasParaAvaliacao.sorted(),
-                        // ADR 2026-09-10c: QUAL pedido rodou este caso. A volta
-                        // troca o pedido de `instigar` e mede os DOIS braços no
-                        // MESMO binário; sem esta linha os dois JSONL seriam
-                        // indistinguíveis. Identifica o braço — a leitura das
-                        // saídas inteiras continua sendo a régua.
-                        "pedidoInstigarSHA256": SHA256.hash(data: Data(Sabia.pedidoDeInstigar.utf8))
-                            .map { String(format: "%02x", $0) }.joined()]
+                        "operacoesLiberadasParaAvaliacao": Politica.liberadasParaAvaliacao.sorted()]
+                    for (chave, sha) in carimbosDoPedido { registro[chave] = sha }
                     registro["evento"] = "casoIniciado"
                     try gravar(registro)
                     let inicio = ContinuousClock.now
@@ -230,6 +244,10 @@ enum AvaliacaoIA {
                     // ADR 09h: o autor não vê o rótulo interno; a MEDIDA vê.
                     "escreveuRotuloInterno": r.escreveuRotuloInterno]
         case "responder":
+            // ADR 2026-09-10b: o que sai daqui é a saída TRATADA. O retorno
+            // BRUTO do provedor viaja em `chamadasGrok[].bruto` — sem ele a
+            // medida lia o que sobrou do nosso `limparResposta` e chamava
+            // isso de "o modelo". A evidência liga os dois na mesma linha.
             return try exigir(await Sabia.responder(pergunta: exigir(e.pergunta, "pergunta"),
                 contexto: e.contexto ?? "", gesto: gesto, retrato: e.retrato ?? ""))
         case "instigar":
