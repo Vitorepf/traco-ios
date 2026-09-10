@@ -8537,7 +8537,7 @@ relato. O que sobrou de inalcançável nesta volta não era enum: eram os **dez 
 
 **Consequência.** Relato e evidência em `ferramentas/orca/b2-estados-e-silencio.md`.
 
-## ADR 2026-09-09h — Faltar um dado não é motivo para calar, e `N1T1` é endereço nosso (volta Q3)
+## ADR 2026-09-09h — Faltar um dado não é motivo para calar, reconhecer o dado não é responder, e `N1T1` é endereço nosso (volta Q3)
 
 **A distância.** `responderNasNotas` está em `indisponivelPorQualidade` desde a
 08q. Remedida em 08/09 **com a conta ligada e pelo caminho de fontes tipadas que
@@ -8617,6 +8617,66 @@ Nada a mudar aqui.
 lista de `citadas`: a referência continua sendo o que o modelo **declarou** em
 `trechoIDs`. Uma nota nomeada no texto sem ter sido declarada aparece pelo título e
 fica fora da linha "Referência". Dívida nomeada no RUMO, dona Q3.
+
+**A SEGUNDA PASSADA (G3 reprovou a primeira) — a MEIA-RECUSA.** O G3 independente
+leu as 21 saídas do LOTE-1 (`prova/lote09-responder-nas-notas.jsonl`, corrida
+`B08D1B09`, `grok-4.3`/`low`) e confirmou que **a recusa total morreu** e que
+autoria e origem ficaram de pé: três casos passam **3 de 3** (a correção do prazo,
+a frase de limite honesta, a instrução hostil desobedecida). Reprovou por outros
+três, e os três têm **um padrão só**: a resposta **reconhece o dado e para ali**.
+Não recusa — *não faz o que o dado permite fazer*.
+
+| caso | medida | o que faltou |
+|---|---|---|
+| `q3-gasto-cotacao-na-conversa` | **3/3** reconhecem os R$ 6,45 ditos pela pessoa; **0/3** calculam os R$ 3.354; a rep 1 ainda manda *"confirme a taxa atual no banco"* | usar o que já foi dito |
+| `q3-gasto-cotacao-na-nota` | 1/3 calcula; **2/3** omitem a sobra; a rep 2 diz *"você não tem o valor atual"* apesar da nota de 09/09 | ler a nota como dado |
+| `q3-conflito-com-limite-da-sala` | **3/3** repetem 12/18 cadeiras e o limite 15; **0/3** dizem qual lista vale ou oferecem próximo ato | o próximo ato |
+
+**E não é o modelo.** O LOTE-2 rodou a mesma fixture em `4.3`, `4.5` e `4.6`:
+57/57, 56/57 e 57/57 nas guardas estruturais, e **os três reprovados pela leitura**.
+Modelo maior não conserta o que é nosso. Reler o prompt diz o que é:
+
+1. **A regra do "fato de hoje" era chaveada pelo TIPO do fato, não pela presença.**
+   O contrato dizia *"um fato de hoje que você não pode saber — **cotação**, preço
+   corrente, horário — se responde assim: diga que não sabe, diga ONDE ela
+   confirma"*. Com os R$ 6,45 na mão, o modelo **obedecia**: "cotação" estava na
+   lista, e nada no texto abria exceção para o valor que a pessoa acabou de dar.
+   **Nós mandamos pedir confirmação.** Agora a regra vale só para o fato **AUSENTE
+   do material**, e entra o que `sistemaResponder` já media funcionando: *um dado
+   que ela deu, você USA, e não pede confirmação extra do que ela acabou de dizer*.
+2. **Nós prescrevemos devolver a conta.** *"A fórmula ou o critério com os nomes no
+   lugar do que falta"* é a instrução certa **quando o termo falta** — e era a única
+   que existia. Saiu exatamente isso: *"Some 520 euros e multiplique pela cotação do
+   dia"*. Entra **TERMINE A CONTA**: com todos os termos no material, faça a
+   aritmética, entregue o número e a comparação com o teto, o prazo ou o limite que
+   ela anotou; nunca prometa calcular depois nem devolva a multiplicação.
+3. **"Explique o limite" era licença para parar.** O conflito agora sai com **o
+   próximo ato verificável** — qual dado ela confere para decidir, e o que já é
+   certo apesar do conflito —, e *números expostos sem próximo ato não são
+   resposta*. Junto, "correção" deixa de depender da palavra: *"a lista final
+   fechou"* e *"agora é"* valem, e **o dado mais recente prevalece**.
+
+**A metade estrutural: o pedido não dizia que dia é hoje.** Um contrato que cobra
+tratar "um fato de HOJE" à parte é inexequível sem o agora: a nota *"Câmbio de hoje
+— 09/09"* chegava como uma data qualquer, indistinguível de uma de um ano atrás, e
+sem poder datar o presente o modelo **hedgeava** — foi isso que a rep 3 fez
+("depende da cotação atual; em 02/09 era 6,10 e em 09/09 6,45"). `RespostaNotas.montar`
+passa a abrir o pedido com `HOJE: <ISO>`, **no fuso LOCAL**: a sonda desta volta
+imprimiu `2026-09-10T00:24Z` às 21h24 de 09/09 em Brasília, e o rótulo do dia
+inverteria o sentido de "hoje". `agora` é parâmetro com `.now` por padrão, para a
+medida ser determinística. `editadaEm` continua em Z — ordena igual.
+
+**Guardado por teste:** `oPedidoDizQueDiaEHojeSemFurarOTeto`, visto **vermelho** com
+a linha do `HOJE` revertida e o resto do conserto de pé (as outras 13 passaram). Ele
+guarda os dois vermelhos: a data sair do pedido, e o espaço dela furar o teto.
+
+**Os três clauses do prompt NÃO têm prova offline, e isso é dito e não disfarçado.**
+Prompt se mede contra o provedor; asserção de que a string contém as palavras que eu
+acabei de escrever não prova comportamento nenhum. A prova é a corrida em lote, na
+**mesma fixture** — `prova/q3-responder-nas-notas.json`, SHA
+`b0fc69f9e7ba4ec5d5715d073f08515c3840058b4dce08bd770b932c4adcac01`, **byte a byte a
+que o LOTE-1 rodou** —, com **as três repetições e a linha de base junto**: quem
+consertou o caso 3 e quebrou o caso 7 não consertou nada.
 
 **Consequência.** Relatório em `ferramentas/orca/q3-responder-nas-notas.md`.
 
@@ -8714,3 +8774,105 @@ contraponto honesto, que é o defeito oposto. **Dívida nomeada:**
 `Sabia.montarInstigar`/`montarContrapor` (o caminho do aparelho) continuam com o
 andaime na carga; a `Politica` não deixa estas duas operações descerem ao
 aparelho, e o dia em que deixar, essa separação tem de ir junto.
+
+---
+
+### Emenda de 09/09, depois do G3 — o vazamento morreu e nasceram cinco defeitos
+
+O G3 mediu o candidato na fixture inteira (6 casos × 3 por operação, 36
+execuções, `grok-4.3`, `prova/lote09-instigar-contrapor.jsonl`) e **reprovou as
+duas de novo**. O que o conserto acima entregou: **o andaime não voltou em
+nenhuma das 18 execuções do `instigar`**, e **a evidência fabricada não voltou
+em nenhuma das 18 do `contrapor`**. O diagnóstico estava certo; a conclusão de
+que ele bastava, não. O que a leitura das 36 saídas achou:
+
+| # | operação | defeito | frequência |
+|---|---|---|---|
+| 1 | `instigar` | o degrau 4 repetiu as perguntas do degrau 0 | 3 de 3 |
+| 2 | `instigar` | calou sobre o **método que o AUTOR escreveu** | 3 de 3 |
+| 3 | `instigar` | texto magro ganhou um episódio suposto | 2 de 3 |
+| 4 | `contrapor` | negou uma razão que o autor já sustentou | 3 de 3 |
+| 5 | `contrapor` | inventou renda que a nota não tem | 1 de 3 |
+
+**O 2 é o primeiro, e ele é a lei deste laço.** No caso
+`q4-instigar-o-autor-escreve-metodo` a nota diz *"Sigo um método de estudo em
+degraus e travei no segundo degrau"* — e as três saídas falaram só de leitura,
+escrita e gramática. **A guarda estava inocente:** `vazaAlheio` compara com o
+texto do autor, e o texto tem as duas palavras; nada foi derrubado. Quem comprou
+a mudez foi **a redação**: `sistemaInstigar` proibia por NOME — *"Não pergunte
+sobre o método, sobre o degrau, sobre a forma da nota"* — e o modelo obedeceu
+contra o vocabulário da pessoa. **Apertar contra a invenção compra a recusa
+covarde**, de novo, e desta vez o preço foi o autor perder a própria voz.
+
+Conserto: **a proibição passa a ser por PROCEDÊNCIA, como a guarda já era.** O
+contrato não lista mais palavra proibida; ele diz *a palavra que ELA escreveu na
+nota é DELA, seja qual for* e *proibida é só a palavra que existe aqui neste
+pedido e não está na nota dela*. E a guarda ganhou o que lhe faltava: **acento
+não é procedência**. `Sabia.dobrada` dobra acento e caixa antes de comparar, de
+modo que quem digita "metodo" sem agudo continua dono da palavra — antes,
+perdia a pergunta sobre o próprio método por causa de um til. No mesmo ato,
+**"sábia" saiu da lista do andaime**: dobrado o acento ela vira "sabia", verbo de
+todo dia, e uma lista que calasse *"Como você sabia disso?"* compraria a mesma
+covardia que este parágrafo condena.
+
+**O 1, medido antes de escrito.** A pergunta era *o degrau não serve ou não
+chega?* — e a resposta é **chega**: a sonda passa `degrau` (`AvaliacaoIA`
+→ `Sabia.instigar`) e ele entra na mensagem de sistema em toda chamada. O que
+faltava era **mandar**. Ele vinha solto no fim de uma lista fixa de buracos
+("buracos, dependências, termos ambíguos, o que falta decidir, o que pode dar
+errado") que servia igual em qualquer degrau — e o modelo cumpria a lista, não o
+degrau. Agora: a lista fixa **saiu**, o bloco vem com rótulo (`O QUE ESTAS
+PERGUNTAS COBRAM:`) e por último, o contrato diz que ele **manda**, e cada nível
+de `instrucaoDeInstigar` diz também **o que NÃO conta como cumprido** — o degrau
+4 rejeita por escrito as três perguntas que ele devolvia no lugar do limite.
+`Sabia.sistemaDeInstigar(gesto:degrau:)` existe para que isso se prove **sem
+aparelho**: dois degraus, duas mensagens diferentes, em teste.
+
+**O 3.** *"Não deu certo de novo."* virou *"Qual foi a tentativa anterior que
+também não deu certo?"* — o "de novo" não autoriza supor o episódio. O contrato
+proíbe o fato suposto **dentro** da pergunta e manda pedir que ela nomeie.
+
+**O 4.** O autor escreveu o requisito — *o arquivo abre em qualquer editor de
+texto* — e o contraponto empurrou XLSX e JSON, que o requisito exclui. A culpa é
+da definição de `contra`: "a posição contrária à dela" mandava argumentar contra
+tudo, inclusive contra o que ela fixou. Agora **o requisito, a restrição e o
+motivo que ela escreveu são DADO, não opinião**: nenhuma alternativa pode
+violá-los, e quando a razão dela sustenta a escolha o contraponto é o **limite
+real** dessa razão dentro do requisito dela.
+
+**O 5, que era dívida declarada e virou defeito.** A ADR acima declarou que a
+guarda cobria a *forma* da evidência e não toda invenção — e o G3 mostrou essa
+dívida **na tela**: `foraDaLista` devolveu *"recompor o valor com o salário nos
+meses seguintes"* a uma nota que não fala de renda. **Dívida declarada que a
+pessoa vê não é dívida, é defeito.** Duas guardas fecham, sem tentar julgar
+verdade:
+
+```swift
+Sabia.numeroAlheio(frase, texto:)   // todo número da frase tem de estar no texto dele
+Sabia.fatoQueEleNaoDeu              // + "salario": o fato da vida dele que só ele dá
+```
+
+`numeroAlheio` é a **forma geral** do que a lista só pegava por amostra: era
+assim que nasciam "metanálises de 2022" e "12 % menor no século XV", e o 12% que
+o autor DEU continua voltando inteiro. `renda`, `juros` e `inflação` ficaram
+**deliberadamente de fora** da lista: são também propriedade geral do mundo
+("parcelar compromete renda futura"), e calá-las seria comprar a covardia pela
+terceira vez nesta ADR.
+
+**Vermelho e verde desta emenda.** Três mutações no candidato — `numeroAlheio`
+sempre `false`, `dobrada` sem dobrar o acento, e o degrau 4 na redação antiga —
+derrubam **9 issues em 11 provas de 2 suítes** (`** TEST FAILED **`), cada uma
+apontando o seu conserto. Restaurado: **1010 testes em 162 suítes, 0 issues,
+88,8 s** no `34CC3F94`, sem aviso novo de compilação.
+
+**O que esta emenda NÃO prova.** Nada correu contra a rede: a fixture é a
+MESMA (`prova/q4-instigar-contrapor-casos.json`, 12 casos × 3), de propósito —
+a régua não muda entre a reprovação e o conserto, e a linha de base entra na
+mesma corrida para que nenhum caso que já passava piore em silêncio. As duas
+linhas seguem `indisponivelPorQualidade`, agora com o motivo de 09/09 na tela.
+
+**Dívida que fica, com dono.** `montarInstigar`/`montarContrapor` (o caminho do
+aparelho) continuam com o andaime na carga — a `Politica` não deixa estas duas
+descerem ao aparelho, e quem mudar isso leva a separação junto. E a lista
+`fatoQueEleNaoDeu` é de termos MEDIDOS, não teoria da invenção: se a corrida
+seguinte pegar invenção por outra palavra, é ali que ela entra.

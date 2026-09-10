@@ -1,0 +1,31 @@
+[2026-09-10T00:38:42Z] binario ANTES:  e9983ddb5a0f6d91b20c42e38b801eb889aac85112b56bd4da946830a5a96e71
+[2026-09-10T00:38:42Z] a instalar:     c6cd0ca8611b8b1f38c0daa7ee11903829b51c6e55f04ab56e987036744edf26
+[2026-09-10T00:38:42Z] INICIO lote09c-fumaca-1-antes.jsonl  fixture=q2-fumaca.json liberar='' modelo='<padrao>'
+app.traco: 17618
+[2026-09-10T00:38:45Z] FIM    lote09c-fumaca-1-antes.jsonl  linhas=       4 fimGravado=1
+[2026-09-10T00:38:45Z] INSTALL (unico da janela): xcrun simctl install B91C8DEF-B0A7-454A-95DE-5D7BA7B040A9 /Users/vitorepf/orca/workspaces/traco-ios/lote-ia-09c/build/Build/Products/Debug-iphonesimulator/Traco.app
+[2026-09-10T00:38:50Z] binario DEPOIS: c6cd0ca8611b8b1f38c0daa7ee11903829b51c6e55f04ab56e987036744edf26
+[2026-09-10T00:38:50Z] dylib  DEPOIS:  c021fe965fe36d84a43939e96d0838130b8353d48deaf2a58d9e8090d9981aba
+[2026-09-10T00:38:50Z] INICIO lote09c-fumaca-2-pos-install.jsonl  fixture=q2-fumaca.json liberar='' modelo='<padrao>'
+app.traco: 17900
+[2026-09-10T00:38:52Z] FIM    lote09c-fumaca-2-pos-install.jsonl  linhas=       4 fimGravado=1
+[2026-09-10T00:38:52Z] INICIO lote09c-q3-grok-4.3.jsonl  fixture=q3-responder-nas-notas.json liberar='responderNasNotas' modelo='grok-4.3'
+app.traco: 17971
+[2026-09-10T00:41:04Z] FIM    lote09c-q3-grok-4.3.jsonl  linhas=      44 fimGravado=1
+[2026-09-10T00:41:04Z] INICIO lote09c-q4-grok-4.3.jsonl  fixture=q4-instigar-contrapor-casos.json liberar='instigar,contrapor' modelo='grok-4.3'
+app.traco: 21722
+[2026-09-10T00:46:58Z] FIM    lote09c-q4-grok-4.3.jsonl  linhas=      74 fimGravado=1
+[2026-09-10T00:46:58Z] INICIO lote09c-fumaca-3-fim.jsonl  fixture=q2-fumaca.json liberar='' modelo='<padrao>'
+app.traco: 30174
+[2026-09-10T00:47:01Z] FIM    lote09c-fumaca-3-fim.jsonl  linhas=       4 fimGravado=1
+[2026-09-10T00:47:01Z] INICIO lote09c-q3-grok-4.5.jsonl  fixture=q3-responder-nas-notas.json liberar='responderNasNotas' modelo='grok-4.5'
+app.traco: 30237
+[2026-09-10T00:49:08Z] FIM    lote09c-q3-grok-4.5.jsonl  linhas=      44 fimGravado=1
+[2026-09-10T00:49:08Z] INICIO lote09c-q4-grok-4.5.jsonl  fixture=q4-instigar-contrapor-casos.json liberar='instigar,contrapor' modelo='grok-4.5'
+app.traco: 33924
+[2026-09-10T00:54:52Z] FIM    lote09c-q4-grok-4.5.jsonl  linhas=      74 fimGravado=1
+[2026-09-10T00:54:53Z] INICIO lote09c-fumaca-4-fim45.jsonl  fixture=q2-fumaca.json liberar='' modelo='<padrao>'
+app.traco: 41741
+[2026-09-10T00:54:55Z] FIM    lote09c-fumaca-4-fim45.jsonl  linhas=       4 fimGravado=1
+[2026-09-10T00:54:55Z] binario FIM:    c6cd0ca8611b8b1f38c0daa7ee11903829b51c6e55f04ab56e987036744edf26
+[2026-09-10T00:54:55Z] JANELA ENCERRADA

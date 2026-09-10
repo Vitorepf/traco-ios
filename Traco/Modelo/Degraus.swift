@@ -34,7 +34,12 @@ nonisolated enum Degraus {
 
     /// O que cobrar em cada degrau — vai nas INSTRUÇÕES da instigação (ADR
     /// 2026-09-09i), nunca ao lado do rascunho. E vai escrito no mundo de quem
-    /// escreve: a redação anterior nomeava a nossa máquina ("DEGRAU 0", "nesta
+    /// escreve. A medida de 09/09 mostrou o outro lado: a instrução CHEGA
+    /// (a sonda passa o degrau, e ele entra na mensagem de sistema), mas as
+    /// respostas do 4 repetiam as do 0 — porque cada nível dizia só o que
+    /// cobrar, e a cobrança fácil servia para todos. Agora cada nível também
+    /// diz o que NÃO conta como cumprido, que é a diferença que se vê na tela.
+    /// A redação anterior nomeava a nossa máquina ("DEGRAU 0", "nesta
     /// forma", "o MOVIMENTO básico do método", "o passo que se pula") e a
     /// medida de 08/09 viu essas palavras voltarem como ASSUNTO da pergunta —
     /// "Qual é o movimento básico que se pula?" para um autor que escreveu
@@ -43,10 +48,10 @@ nonisolated enum Degraus {
     nonisolated static func instrucaoDeInstigar(_ degrau: Int) -> String {
         switch max(0, min(4, degrau)) {
         case 0: "Cobre o passo mais básico que este texto ainda não deu: o que ele trata como resolvido e não está."
-        case 1: "Cobre a RELAÇÃO entre duas coisas que ela escreveu: uma contradiz a outra? uma depende da outra?"
-        case 2: "Cobre a EVIDÊNCIA: como ela sabe o que escreveu, e o que mostraria o contrário."
-        case 3: "Cobre o CUSTO de errar: o que ela perde se estiver enganada, e para que lado ela costuma errar."
-        default: "Cobre o LIMITE: onde o que ela escreveu deixa de valer, e o que a contradiz."
+        case 1: "Cobre a RELAÇÃO entre duas coisas que ela escreveu: uma contradiz a outra? uma depende da outra? Perguntar o que cada uma significa, sozinha, NÃO cumpre isto."
+        case 2: "Cobre a EVIDÊNCIA: como ela sabe o que escreveu, e o que mostraria o contrário. Perguntar o que ela quis dizer ou o que vai fazer NÃO cumpre isto."
+        case 3: "Cobre o CUSTO de errar: o que ela perde se estiver enganada, e para que lado ela costuma errar. Perguntar se vai dar certo NÃO cumpre isto."
+        default: "Cobre o LIMITE: pegue a afirmação de que tudo ali depende e pergunte em que caso ela deixa de valer, e o que ela veria acontecer se estivesse enganada. Perguntar o que ela quis dizer, o que vai fazer com o que tem, ou o que pode dar errado, NÃO cumpre isto."
         }
     }
 

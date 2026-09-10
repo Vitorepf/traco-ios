@@ -163,3 +163,159 @@ O defeito é irmão e resolvi assim, para as duas voltas não divergirem:
 (2) guarda de saída **relativa ao autor**, `Sabia.vazaAlheio`. Se a Q3 for filtrar
 `N1T1`/`N2T1` no texto, **chame `vazaAlheio` com os IDs dos trechos** em vez de
 escrever outra guarda.
+
+
+---
+
+# Q4-B — o G3 reprovou as duas, e a guarda tinha comprado mudez
+
+**Candidato anterior:** `aec62d4`. **Revisão:** `ferramentas/orca/revisao-q4-instigar.md`
+(`511b7e2`). **Medida lida:** `prova/lote09-instigar-contrapor.jsonl` (36 execuções,
+6 casos × 3 por operação, `grok-4.3`, 22:21:13Z–22:25:58Z de 09/09, sem erro de
+transporte). **Aparelho de trabalho:** `34CC3F94-FDB5-4575-A4F5-80271829A18B`,
+encontrado LIGADO (não fui eu quem ligou) e deixado como achei — a lei do preâmbulo
+manda não desligar o que não se ligou. **Não encostei no `B91C8DEF`**, não instalei,
+não lancei sonda, não usei voz, VoiceOver nem iPad. Toda corrida por
+`ferramentas/orca/com-trava.sh`; segurei a trava três vezes, e só isso.
+
+## O que o candidato anterior ganhou, e não é pouco
+
+O andaime **não voltou em nenhuma das 18 execuções** do `instigar`; a evidência
+fabricada **não voltou em nenhuma das 18** do `contrapor`. O diagnóstico de 08/09
+estava certo. O que caiu foi a conclusão de que ele bastava.
+
+## O ponto 2 primeiro: a guarda estava inocente, a redação é que calou
+
+O caso `q4-instigar-o-autor-escreve-metodo` diz, na voz do autor: *"Sigo um método
+de estudo em degraus e travei no segundo degrau: consigo ler, mas não consigo
+escrever nada sem consultar a gramática."* As três saídas, lidas do JSONL:
+
+```
+rep 1  O que exatamente você consegue ler sem consultar a gramática?
+       Por que a escrita exige consulta enquanto a leitura não?  (+2)
+rep 2  Como conseguir ler se relaciona com não conseguir escrever…?  (+2)
+rep 3  O que impede a leitura de ajudar na escrita…?  (+2)
+```
+
+Nenhuma toca o método dele nem o segundo degrau dele.
+
+**Medi de quem era a culpa antes de escrever.** `vazaAlheio` compara com o texto do
+autor, e o texto tem "método" e "degrau": a guarda **não derrubou nada** neste caso —
+`t.contains("degrau")` e `t.contains("método")` são verdadeiros. Quem comprou a mudez
+foi `sistemaInstigar`, que proibia **por nome**: *"Não pergunte sobre o método, sobre
+o degrau, sobre a forma da nota"*. O modelo obedeceu — contra o vocabulário da pessoa.
+
+**Conserto:** a proibição passa a ser **por procedência**, que é o que a guarda já era.
+O contrato não lista mais palavra proibida; diz *a palavra que ELA escreveu na nota é
+DELA, seja qual for* e *proibida é só a palavra que existe aqui neste pedido e não está
+na nota dela*.
+
+**E a guarda tinha, sim, um buraco de procedência — o acento.** Autor que digita
+"metodo" sem agudo perdia a pergunta sobre o próprio método, porque a lista tinha as
+duas grafias e o texto dele só uma. `Sabia.dobrada` dobra acento e caixa antes de
+comparar. No mesmo ato **"sábia" saiu da lista**: dobrada ela vira "sabia", verbo de
+todo dia — calar *"Como você sabia disso?"* é a recusa covarde que esta guarda existe
+para não comprar.
+
+**Os dois lados, em prova** (`aGuardaDerrubaONossoENaoEncostaNoDele`): a mesma pergunta
+sobre "o seu método no segundo degrau" **passa** com a nota dele (com e sem acento) e
+**cai** com a nota do espanhol, que não tem a palavra.
+
+## O degrau: chega, mas não mandava
+
+A pergunta do dispatch era *não serve ou não chega?*. **Chega:** a sonda passa `degrau`
+(`AvaliacaoIA.swift:211` → `Sabia.instigar`) e ele entra na mensagem de sistema em toda
+chamada. O JSONL confirma `"entrada":{"degrau":4,…}` no caso. As saídas 0 e 4 do mesmo
+texto, lado a lado:
+
+```
+degrau 0  O que exatamente você vai fazer nesses quinze minutos…?
+degrau 4  O que exatamente você faria nos quinze minutos que tem hoje?
+degrau 4  O que pode dar errado se você tentar praticar espanhol com tão pouco tempo?
+```
+
+O degrau vinha **solto no fim** de uma lista fixa de buracos — *"buracos, dependências,
+termos ambíguos, o que falta decidir, o que pode dar errado"* — que serve igual em
+qualquer degrau. O modelo cumpria a lista. *"O que pode dar errado"* estava **escrito no
+contrato**, e é literalmente o que o degrau 4 devolveu.
+
+**Conserto:** a lista fixa **saiu**; o bloco vem com rótulo (`O QUE ESTAS PERGUNTAS
+COBRAM:`) e por último; o contrato diz que ele **manda** (duas perguntas o cumprem ao pé
+da letra); e cada nível diz também **o que NÃO conta como cumprido** — o 4 rejeita por
+escrito as três perguntas que devolvia no lugar do limite. `Sabia.sistemaDeInstigar`
+existe para provar isso **sem aparelho**: dois degraus, duas mensagens.
+
+## Os outros três
+
+| # | conserto |
+|---|---|
+| 3 · episódio suposto | o contrato proíbe fato suposto **dentro** da pergunta e manda pedir que ela nomeie |
+| 4 · nega a razão sustentada | requisito, restrição e motivo dela são **DADO, não opinião**; nenhuma alternativa pode violá-los, e o contraponto vira o **limite real** da razão dela |
+| 5 · renda inventada | `numeroAlheio` (todo número da frase tem de estar no texto dele) + `salario` na lista; `renda`, `juros` e `inflação` ficam **de fora** de propósito — são propriedade geral do mundo, e calá-las é a covardia de novo |
+
+O 5 era **dívida declarada** na ADR anterior. O G3 mostrou a dívida na tela do autor,
+e dívida que a pessoa vê não é dívida: é defeito. Fechada.
+
+## O instrumento
+
+**Vermelho** (três mutações no candidato: `numeroAlheio` sempre `false`, `dobrada` sem
+dobrar o acento, degrau 4 na redação antiga):
+
+```
+✘ Test oDegrauSobeComAPratica() … .contains("NÃO cumpre isto")
+✘ Test aPerguntaSobreONossoAndaimeNaoVolta() failed after 0.006 seconds with 4 issues.
+✘ Test oContrapontoNaoSeApoiaEmEvidenciaFabricada() failed … with 2 issues.
+✘ Test oContrapontoNaoInventaRendaNemNumero() failed … with 2 issues.
+✘ Test run with 11 tests in 2 suites failed after 0.015 seconds with 9 issues.
+** TEST FAILED **
+```
+
+**Verde**, restaurado, suíte integral:
+
+```
+✔ Test run with 1010 tests in 162 suites passed after 88.786 seconds.
+** TEST SUCCEEDED **
+```
+
+Sem aviso novo de compilação (o único aviso do build é o pré-existente de
+`NotasView.swift:806`, `Text` + `String`, que não é meu).
+
+## A medida que falta, e por que a fixture não mudou
+
+`prova/q4-instigar-contrapor-casos.json` fica **igual**, de propósito: a régua não
+muda entre a reprovação e o conserto, e os 12 casos × 3 trazem **a linha de base
+junto** — nenhum caso que já passava pode piorar em silêncio. Roda com
+`TRACO_AVALIAR_LIBERAR=instigar,contrapor` (ADR 08z). **Não corri no aparelho**, por
+ordem do dispatch: a corrida entra na próxima janela em lote.
+
+## Scorecard desta passada (preenchido por mim; a nota é do revisor)
+
+| dimensão | nota | evidência |
+|---|---|---|
+| Visão | 8 | ataca os cinco P1 do G3 e devolve a voz do autor; não fecha lacuna do EVOLUCAO — conserto escrito ≠ conserto medido, e por isso não toquei o EVOLUCAO |
+| Contrato | 9 | emenda da ADR 09i em SPEC.md, com os cinco defeitos, a causa medida de cada um e o que fica de dívida; `Politica` reescrita com o motivo de 09/09 |
+| Correção | 9 | vermelho 9 issues em 11 provas por três mutações atribuíveis; verde 1010/162/0 |
+| Jornada real | n/a | esta passada não corre no aparelho por ordem do dispatch |
+| Design | n/a | motor puro, nenhuma view tocada |
+| Simplicidade | 9 | nenhum passo novo para o autor; `motivo` e `conserto` do Perfil em linguagem de pessoa (64 e 58 caracteres) |
+| Movimento | n/a | sem animação |
+| Componentes | n/a | sem componente de UI |
+| Acessibilidade | n/a | sem superfície nova |
+| Performance | 9 | uma varredura de dígitos e duas de `contains` por frase, sobre uma chamada de rede de dezenas de segundos |
+| Privacidade e autoria | 9 | o texto do autor só é LIDO pelas guardas; nada novo é gravado ou enviado; a mudança devolve ao autor palavras que eram dele |
+| Estado honesto | 9 | as duas linhas seguem `indisponivelPorQualidade` com o motivo novo; o `conserto` diz "falta medir" |
+| Complexidade | 9 | **+63 linhas líquidas em `Traco/`, ~14 de lógica** — e dessas, **8 são novas** (`dobrada` 3, `numeroAlheio` 4, o call site 1); `sistemaDeInstigar` é montagem **movida** de dentro do `instigar` para que o degrau se prove sem aparelho. O resto é prompt e doc; **nenhum arquivo novo**, nenhuma dependência, nenhuma abstração sem segundo caso |
+| Fora do app | n/a | sem superfície fora do app |
+| Relato | 9 | este arquivo, com as saídas reais do JSONL citadas e as duas linhas do instrumento coladas |
+
+## Dívida nomeada, com dono
+
+1. **`montarInstigar`/`montarContrapor`** (caminho do aparelho) continuam com o andaime
+   na carga. A `Politica` não deixa estas duas descerem ao aparelho. Dono: quem mudar
+   essa linha da tabela.
+2. **`fatoQueEleNaoDeu` é lista de termos MEDIDOS**, não teoria da invenção. Se a
+   corrida seguinte pegar invenção por outra palavra, é ali que ela entra. Dono: quem
+   ler a próxima medida.
+3. **O `conserto` de `responder` na tabela diz "prompt" na tela do autor** — jargão
+   nosso. Continua de pé, não é meu. Dono: quem tocar a Q2-F.
+4. **Casos escritos e lidos por quem implementa.** A leitura de casos cegos é do revisor.
