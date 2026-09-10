@@ -800,3 +800,44 @@ guarda que o impediu: eu exigi **prova de identidade de comportamento**, e não 
 componente **acrescenta a palavra "continua"**. A Q3-D parou, como mandado, e deixou o
 conserto escrito. **Dono: a volta que tocar o Cartão de Análise**, junto de
 `RecordarView:443`, que é o terceiro sítio.
+
+## O G0 da Astra sobre `responder` (10/09) — o que ela achou POR LEITURA, e custou zero janelas
+
+**Risco que a fixture não pega, e é o principal:** `Sessao.perguntarASabia` captura
+pergunta, gesto e retrato, espera o contexto e **depois** lê `self.texto`; passados os
+`await`, exige apenas **algum** `.sabiaPensando` — **sem identidade da requisição e sem as
+dependências**. Logo **o cartão pode entregar uma resposta perfeitamente escrita para uma
+pergunta, ou para uma versão de nota, que já não é a atual**. Com esperas de quatro minutos,
+editar, trocar de página e cancelar **deixam de ser raros**. *Risco identificado por
+leitura, não reproduzido.* **O padrão certo já existe** — `dependenciasValidas`, no
+`responderNasNotas`: começar por ele, **não criar arquitetura paralela**. **Dono: a volta
+`responder`.**
+
+**Falsa intimidade:** as vizinhas entram como *"outra nota sua"* e o Retrato personaliza a
+resposta. **Texto de outra origem, ou hipótese antiga, pode virar voz e preferência do
+autor**, e um recorte pode suprimir **exatamente a correção mais recente**. Uma fixture
+curta montada direto sobre `Sabia.responder` **não passa pelo seletor** e não prova essa
+fronteira. **Dono: a volta `responder`.**
+
+**A divulgação é montada ANTES do corte.** `Sessao.contextoDoCaderno` junta ligações (3 ×
+1200), vizinhas (6 × 600) e candidatos a ecos; `Sabia.responder` corta o conjunto em
+**5000**. A pergunta sobrevive, mas **a correção no fim da nota e as vizinhas podem
+desaparecer** — e o que dizemos ao autor que foi enviado é montado **antes** disso.
+**Dono: a volta `responder`.** E a nota da Astra que vale copiar: *a fixture antiga chama o
+recorte de "limite do instrumento"; nesta rota é **limite do PRODUTO**, e não absolve
+Utilidade nem Contexto.*
+
+**O caso do responsável NÃO é mais cego.** Já foi revelado; vira **regressão obrigatória**,
+e o revisor **guarda um caso realmente novo até o candidato congelar**.
+
+**A sonda apaga a prova:** a `saida` de `responder` já passou por `limparResposta`.
+**Preservar o retorno BRUTO é indispensável** para saber o que **o app** apagou — sem isso,
+mede-se o modelo pelo que sobrou do nosso tratamento.
+
+**O plano de janelas, para não prometer o que não se cumpre:** o G0 custou **zero**. O
+retorno completo do `responder` pede **DUAS** janelas do aparelho da conta (~50 min de
+agenda), **não uma**: a do prompt congelado e a de requalificar o candidato se os controles
+de contexto ou entrega exigirem mudança. **Cada correção posterior que altere entrada,
+saída, modelo ou esforço invalida a certificação e pode exigir nova janela.** *Fazer os
+vermelhos determinísticos antes de ocupar a conta é o que evita gastar a janela mais cara
+descobrindo bug local.*
