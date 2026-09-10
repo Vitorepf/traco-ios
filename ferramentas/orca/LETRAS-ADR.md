@@ -86,7 +86,13 @@ que este arquivo existe para impedir — e ele reincidiu no próprio arquivo.
 `2026-09-10a`**, e daí em diante a série do dia 10 — `10a`, `10b`, … Escrevo isto antes de
 alguém tropeçar: a série 08 encheu sem aviso e custou três colisões numa tarde.
 
-**Próxima livre: 10a.**
+### Série do dia 10
+
+| letra | dona | estado |
+|---|---:|---|
+| 10a | TEMPO · o teto vira margem declarada, e a espera ganha estado | reservada, volta viva |
+
+**Próxima livre: 10b.**
 
 **A 09s colidiu, e quem mudou fui eu** (09/09, ~02h). Tomei a `09s` porque o
 "Próxima livre: 09s" que estava escrito aqui batia com o comando; no mesmo
