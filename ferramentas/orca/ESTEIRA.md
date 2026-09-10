@@ -931,3 +931,29 @@ instrução**:
 
 **Antes de chamar de defeito do modelo, leia o pedido como se fosse uma ordem
 literal** — porque é o que ele é. **O modelo estava obedecendo.**
+
+### A guarda inocente: acuse o instrumento só depois de medi-lo (09/09, Q4-B)
+
+O G3 escreveu que **a guarda `vazaAlheio` comprou mudez sobre palavras do autor**.
+A Q4-B foi medir e **a guarda estava INOCENTE** — o texto do autor tinha *"método"*
+e *"degrau"*, e **nada foi derrubado**. Quem calava era **`sistemaInstigar`, que
+proibia POR NOME**.
+
+O conserto mudou de lugar por causa disso: a proibição passou a ser **por
+PROCEDÊNCIA** — e a guarda passou a **dobrar acento e caixa**, para que *"quem
+digita 'metodo' sem agudo continue dono da palavra"*.
+
+**Regra:** **acusação de revisor é hipótese até ser medida**, inclusive quando ele
+está certo sobre o sintoma. Consertar o componente acusado sem medir teria
+**mexido no inocente e deixado o culpado**.
+
+### Parâmetro que chega mas não manda (09/09, Q4-B)
+
+O **degrau chegava** ao modelo — a sonda passa, entra na mensagem de sistema — **e
+não mandava**, porque vinha **solto no fim de uma lista fixa de buracos** que
+incluía *"o que pode dar errado"*, **que é literalmente o que o degrau 4
+devolvia**.
+
+**"Chegou" e "mandou" são coisas diferentes.** Antes de concluir que o modelo
+ignora um parâmetro, **veja onde ele cai na instrução**: um dado que entra no fim
+de uma lista compete com a lista, e a lista costuma ganhar.

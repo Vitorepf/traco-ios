@@ -2439,3 +2439,32 @@ ele **"casos passados"** e no mesmo texto **proibi que julgasse** — e "passou"
 decide lendo. Ele perguntou, o `ask` estourou em 900 s, e ele **decidiu dentro do
 papel e documentou o critério**. **Pedir a quem mede uma coluna que exige juízo é
 empurrar o juízo para quem foi proibido de julgar.**
+
+## 09/09, 22h — os dois consertos semânticos prontos, e os dois desmentem o diagnóstico anterior
+
+**A Q4-B mediu antes de escrever e achou a guarda INOCENTE.** O G3 dissera que
+`vazaAlheio` comprara mudez sobre palavras do autor; ela foi ver e **nada tinha
+sido derrubado** — o texto dele tem *"método"* e *"degrau"*. **Quem calava era o
+`sistemaInstigar`, proibindo POR NOME.** A proibição virou **por procedência**, e a
+guarda passou a dobrar acento e caixa, para *"quem digita 'metodo' sem agudo
+continuar dono da palavra"*.
+
+**Se ela tivesse consertado o componente acusado, teria mexido no inocente e
+deixado o culpado.** Virou lei: **acusação de revisor é hipótese até ser medida**,
+mesmo quando ele está certo sobre o sintoma.
+
+**E o degrau chegava mas não mandava:** entrava na mensagem de sistema **solto no
+fim de uma lista fixa de buracos** que incluía *"o que pode dar errado"* — **que é
+exatamente o que o degrau 4 devolvia**. *"Chegou" e "mandou" são coisas
+diferentes*, e um dado que cai no fim de uma lista **compete com a lista**.
+
+**As duas voltas provaram o vermelho por mutação atribuível** (a Q4-B com três,
+`11 tests / 9 issues`) e restauraram o verde: **1004** e **1010** testes. **As duas
+fixtures ficaram intactas** — a da Q3 **provada byte a byte idêntica** à do LOTE-1,
+o que torna a comparação **pareada de verdade**.
+
+**Despachei o LOTE-3** (`ctx_9d620de10206`): os dois consertos **num binário só**,
+uma janela, **os SETE casos da Q3 e os doze da Q4** — linha de base junto, porque
+*quem consertou o caso 3 e quebrou o caso 7 não consertou nada* —, três repetições,
+em `grok-4.3`, que é o padrão de produção. **Não vou trocar de modelo:** o LOTE-2
+já mostrou que **isso não move as guardas** e que o defeito era semântico.
