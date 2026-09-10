@@ -3651,3 +3651,20 @@ candidato.**
   (zero de 49 linhas); agora a suíte alcança **47 de 49**. **Sobra só o ramo `.semConta` — o
   único que um autor SEM conta Grok alcança hoje.** O caminho mais percorrido pelo público
   era o único que a suíte não pisava.
+- **15h50 — `instigar`: MÉRITO APROVADO, SUPERFÍCIE PENDENTE** (ADR **10c**, `1361d3b`). A
+  **1ª redação venceu e entrega o ganho do LOTE-5 sem o preço do LOTE-5**: texto magro
+  **1/3 → 3/3 nos dois modelos**, ancoradas **92 → 93%** onde a promoção incondicional as
+  derrubara a **76% e 89%**, genéricas **0/3** nos casos ricos, degrau 4 sem repetir o 0. A
+  **2ª foi medida e DESCARTADA** — consertou o cego do `4.3` e **quebrou o controle** (magro
+  3/3 → 1/3, ancoradas 93 → 74%). *Medir e descartar vale mais que não ter medido: agora há
+  número dizendo que aquele caminho não serve.*
+- **15h50** O que sobra é **limite do `grok-4.3`**, achado pelo caso cego: numa nota que
+  **NEGA o "quando" por escrito** ele pergunta assim mesmo **3/3**; o `4.5` **não pergunta
+  3/3**. A decisão da **09v** ficou **pronta e medida**, com as quatro linhas exatas que
+  mudam — quem fechar depois não remede.
+- **15h50 — neguei a TERCEIRA instalação** no `B91C8DEF` para a captura: pela §14/§15 a
+  operação não volta sem a tela nova, e a foto seria **da superfície que o dono reprovou às
+  13h58**. Fecho escrito como *captura não feita, e por quê*.
+- **15h55** Cadeiras: **SISTEMA DA IA** (conversa, ADR 10f), **RESPONDER-B** (mescla dos sete
+  consertos) e **RESPONDER · contexto** (`ctx_6ec67217c8d5`, a última alavanca antes do
+  esquema, os dois aparelhos de conta livres).
