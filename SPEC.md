@@ -477,11 +477,10 @@ descobribilidade sem ocupar a tela; some com o teclado.
 
 `hicks-law`: quatro destinos no arquivo, não cinco. A casa não se escolhe — volta-se para ela. O quarto destino é o calendário (ADR 2026-09-02g): o dono pediu o clone, não um atalho de agenda.
 
-**A barra carrega UMA ação: "Nova".** Começar uma nota não é destino, é ato — por
-isso tem forma própria (pílula âmbar cheia, sem estado de seleção) e **lidera** a
-barra, separada dos destinos por um fio (`law-of-common-region`). No fim da barra
-ela roubava o olho do último destino e lia como um quarto item torto. O ícone
-duplicado no topo das Notas foi removido: a mesma ação em dois lugares é ruído.
+**A barra carrega UMA ação: Escrever.** Começar uma nota não é destino, é ato — por
+isso tem forma própria: **um círculo âmbar FORA da pílula dos destinos**, à direita
+(ADR 2026-09-10j). O ícone duplicado no topo das Notas foi removido: a mesma ação em
+dois lugares é ruído.
 
 **Layout (o erro que custou três tentativas):** a escrita fica PARADA no fundo e
 só o arquivo desliza sobre ela. Trilho de duas páginas (HStack deslocado) e ZStack
@@ -10197,3 +10196,31 @@ Calendário, que não tem `TituloTela` (a marca chega quando ele a tiver); Lente
 pedidos são outras operações com o seu próprio botão.
 
 **Substitui** a ADR 05e no ponto do campo: a barra "buscar ou perguntar" deixa de existir.
+
+## ADR 2026-09-10j — PÍLULA · os destinos numa pílula flutuante só de ícones; Escrever num círculo fora dela
+
+**Ordem do dono (10/09), clonar o Hermes** (`ferramentas/orca/REFERENCIA-HERMES.md` §2,
+capturas em `ferramentas/orca/referencia-hermes/`): *pílula flutuante, destacada da borda,
+com folga embaixo; zero rótulos; o ativo marcado por cápsula preenchida atrás do ícone; e a
+ação principal num botão circular separado, fora da pílula, à direita. Criar não disputa
+espaço com navegar — é fisicamente outra coisa.*
+
+**O que estava errado.** Barra de largura inteira colada à borda, cinco ícones com rótulo
+("Escrever, Notas, Calendário, Padrões, Perfil"), a ação em pílula âmbar DENTRO da mesma
+faixa dos destinos. Teste do genérico: é a barra do sistema.
+
+**A decisão.**
+1. **Os quatro destinos numa pílula** que flutua a `Tema.margem` das bordas, altura
+   `Tema.barraNav`, vidro com o fundo que sustenta a cor e `Sombra.flutuante` (a sombra que
+   o Tema já chamava de "barra flutuante"). **Sem rótulo**: o nome vive no rótulo de
+   acessibilidade e no visor de conteúdo grande do toque longo, como na barra do sistema.
+2. **Onde você está é uma cápsula `Tema.chip` cheia atrás do glifo**, com o glifo em
+   `Tema.tinta` e variante cheia; os outros em `Tema.tintaFraca`. O preto diz onde se está
+   (ADR 02h); a cápsula tem a altura do alvo (`Tema.alvo`), e o anel entre ela e a borda da
+   pílula é o que sobra: `(barraNav − alvo) / 2`. Acende sem transição — é estado.
+3. **Escrever é um círculo âmbar à direita, fora da pílula**, do mesmo diâmetro da pílula,
+   glifo escuro (7,6:1). O âmbar continua a ser a assinatura da AÇÃO, uma vez na tela.
+
+**Nenhum token novo.** Margem, altura, alvo, espaço entre itens, sombra e cores já existiam.
+**Fora:** a folha da resposta, a conversa, a busca e a marca "?" (ADR 10i).
+**Substitui** o parágrafo da barra do §20 ("Nova" liderando a barra).
