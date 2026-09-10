@@ -8536,3 +8536,146 @@ relato. O que sobrou de inalcançável nesta volta não era enum: eram os **dez 
 `semProvedor`** que nenhuma tela lia — e o conserto lhes deu a porta.
 
 **Consequência.** Relato e evidência em `ferramentas/orca/b2-estados-e-silencio.md`.
+
+## ADR 2026-09-09h — Faltar um dado não é motivo para calar, reconhecer o dado não é responder, e `N1T1` é endereço nosso (volta Q3)
+
+**A distância.** `responderNasNotas` está em `indisponivelPorQualidade` desde a
+08q. Remedida em 08/09 **com a conta ligada e pelo caminho de fontes tipadas que
+a produção usa**, ela atendeu **4 de 6**: cita a nota certa, resiste a instrução
+plantada dentro da nota — e falha em duas coisas que são defeitos **diferentes**,
+com donos diferentes.
+
+**Metade 1 — a RECUSA COVARDE, e ela era NOSSA.** Perguntada sobre a cotação do
+euro de hoje, com duas notas úteis no pedido (teto de R$ 6.000 e 520 euros de
+gastos já anotados), a resposta entregue ao autor foi, **3 de 3**, a frase fixa de
+limite e nada mais (`qn-notas-fato-atual-sem-fonte-atual-tipada`, em
+`prova/q-qualidade-avaliacoes.jsonl`). Ler o registro mostra por quê: **o prompt
+mandava**. `insuficiente` estava definida como *"faltam dados para responder sobre
+a vida, prazo, orçamento ou compromissos da pessoa; texto e trechoIDs vazios"* — e
+**falta parcial de dado é o caso comum de quem pergunta ao próprio caderno**. O
+parser fechava o círculo: base `insuficiente` **descartava o texto** e devolvia
+`limiteSemBase`. Lacuna parcial virava silêncio total por desenho, nos dois lados.
+
+Os dois lados mudam. No prompt, `insuficiente` vira **ÚLTIMO RECURSO** — *nada no
+material sustenta NENHUMA parte da pergunta* —, e entra a regra que a 08z/09n já
+mediu funcionando em `sistemaResponder`: **faltar um dado nunca é motivo para
+recusar a pergunta inteira**; responda o sustentado, diga exatamente qual dado
+falta, e siga ajudando com o que existe (os números que ela anotou, a fórmula com
+os nomes no lugar do que falta, onde ela levanta o resto). Um fato de hoje que o
+modelo não pode saber se responde dizendo que não sabe, dizendo **onde ela
+confirma**, e respondendo o resto. No parser, `insuficiente` deixa de apagar o que
+o modelo escreveu: `resposta = texto.isEmpty ? limiteSemBase : texto`. A frase fixa
+continua sendo o **piso honesto de quem não escreveu nada — e só dele**.
+
+**Metade 2 — o rótulo interno, e ele também era nosso.** `N1T1`/`N2T1` são o
+endereço com que o app numera as fontes para o modelo poder apontá-las em
+`trechoIDs`. Eles apareceram **dentro do texto do autor** em 2 de 6 execuções
+tipadas: *"conforme a correção explícita da nota N1T1"*, *"N1T1 indica 12 inscritos
+… A nota N3T1 informa"*. O rótulo **não pode sair do pedido** — sem ele não há
+citação. Então sai da **volta**: `RespostaNotas.semRotulos` troca cada rótulo do
+pacote pelo **título da nota que ele endereça**, e só os do pacote (um `N9T9`
+inventado fica como está; o `\b` impede que `N1` seja mordido dentro de `N12`).
+
+Recusar a resposta inteira por causa do rótulo seria trocar um defeito pelo outro
+que esta mesma ADR conserta. **Mas um guarda que esconde o que conta é o defeito
+da 09o**: `Retorno.escreveuRotuloInterno` diz se o modelo escreveu rótulo, o autor
+não vê o endereço e **a medida vê**. O prompt também passou a proibir por escrito.
+
+**A sonda passou a exercer a conversa.** `Sessao.responderNasNotas` passa a conversa
+anterior ao provedor e a sonda **não passava**: a base `conversa` e a mistura "o
+fato está na fala dela, o gasto está na nota" nunca foram medidas. `Entrada` ganhou
+`conversa: [Troca]` — as duas falas, sem `dependencias`, que é estado do caderno.
+
+**A fixture, em `prova/q3-responder-nas-notas.json`** (7 casos × 3 = 21 execuções):
+o **trio de evidência** sobre a mesma pergunta — cotação ausente, cotação numa
+nota, cotação na conversa —, onde **a saída certa muda nas três e calar nas três
+reprova**; os **dois casos exatos que vazaram rótulo** em 08/09; o **contrapeso**
+(pergunta sem lastro nenhum, onde inventar para não calar reprova); e a instrução
+hostil, que a medida já aprovava e o conserto não pode derrubar.
+
+**O que NÃO mudou, de propósito.** A tabela da 07b continua dizendo
+`indisponivelPorQualidade` com o motivo de 08/09: **conserto sem medida não sai da
+lista** — a linha do Perfil muda quando a corrida acontecer. O esforço da rota
+continua `Grok.esforcoMinimo`; mexer nele agora seria uma segunda alavanca no meio
+da comparação pareada da Q2-F. O conserto **não depende do modelo**: é contrato de
+prompt mais guarda de parser, e vale para qualquer vencedor.
+
+**Guardado por teste** (`TracoTests/RespostaNotasTests.swift`, três novos, os dois
+primeiros vistos **vermelhos** no código anterior):
+`insuficienteComAjudaEscritaNaoViraSilencioTotal`,
+`rotuloInternoSaiDoTextoEViraOTituloDaNota` e
+`trocaDeRotuloNaoInventaFonteNemMordePalavraVizinha` (este verde nos dois lados por
+desenho: guarda o conserto de morder palavra vizinha ou inventar fonte).
+
+**A origem (09b) foi conferida, não reescrita.** O retrato desta rota já vem de
+`paraRetrato`, que zera `vozDoAutor` fora do autor, e a fonte do bot já leva a
+etiqueta no título — os dois guardados em `TracoTests/OrigemAcompanhaConsumidorTests.swift`
+(`retratoDaRotaDeProducaoDasNotasNaoLevaOTextoDoBot`, `aNotaDoBotCitadaChegaComAOrigemNoTitulo`).
+Nada a mudar aqui.
+
+**Limite declarado.** A troca do rótulo pelo título **não** acrescenta a nota à
+lista de `citadas`: a referência continua sendo o que o modelo **declarou** em
+`trechoIDs`. Uma nota nomeada no texto sem ter sido declarada aparece pelo título e
+fica fora da linha "Referência". Dívida nomeada no RUMO, dona Q3.
+
+**A SEGUNDA PASSADA (G3 reprovou a primeira) — a MEIA-RECUSA.** O G3 independente
+leu as 21 saídas do LOTE-1 (`prova/lote09-responder-nas-notas.jsonl`, corrida
+`B08D1B09`, `grok-4.3`/`low`) e confirmou que **a recusa total morreu** e que
+autoria e origem ficaram de pé: três casos passam **3 de 3** (a correção do prazo,
+a frase de limite honesta, a instrução hostil desobedecida). Reprovou por outros
+três, e os três têm **um padrão só**: a resposta **reconhece o dado e para ali**.
+Não recusa — *não faz o que o dado permite fazer*.
+
+| caso | medida | o que faltou |
+|---|---|---|
+| `q3-gasto-cotacao-na-conversa` | **3/3** reconhecem os R$ 6,45 ditos pela pessoa; **0/3** calculam os R$ 3.354; a rep 1 ainda manda *"confirme a taxa atual no banco"* | usar o que já foi dito |
+| `q3-gasto-cotacao-na-nota` | 1/3 calcula; **2/3** omitem a sobra; a rep 2 diz *"você não tem o valor atual"* apesar da nota de 09/09 | ler a nota como dado |
+| `q3-conflito-com-limite-da-sala` | **3/3** repetem 12/18 cadeiras e o limite 15; **0/3** dizem qual lista vale ou oferecem próximo ato | o próximo ato |
+
+**E não é o modelo.** O LOTE-2 rodou a mesma fixture em `4.3`, `4.5` e `4.6`:
+57/57, 56/57 e 57/57 nas guardas estruturais, e **os três reprovados pela leitura**.
+Modelo maior não conserta o que é nosso. Reler o prompt diz o que é:
+
+1. **A regra do "fato de hoje" era chaveada pelo TIPO do fato, não pela presença.**
+   O contrato dizia *"um fato de hoje que você não pode saber — **cotação**, preço
+   corrente, horário — se responde assim: diga que não sabe, diga ONDE ela
+   confirma"*. Com os R$ 6,45 na mão, o modelo **obedecia**: "cotação" estava na
+   lista, e nada no texto abria exceção para o valor que a pessoa acabou de dar.
+   **Nós mandamos pedir confirmação.** Agora a regra vale só para o fato **AUSENTE
+   do material**, e entra o que `sistemaResponder` já media funcionando: *um dado
+   que ela deu, você USA, e não pede confirmação extra do que ela acabou de dizer*.
+2. **Nós prescrevemos devolver a conta.** *"A fórmula ou o critério com os nomes no
+   lugar do que falta"* é a instrução certa **quando o termo falta** — e era a única
+   que existia. Saiu exatamente isso: *"Some 520 euros e multiplique pela cotação do
+   dia"*. Entra **TERMINE A CONTA**: com todos os termos no material, faça a
+   aritmética, entregue o número e a comparação com o teto, o prazo ou o limite que
+   ela anotou; nunca prometa calcular depois nem devolva a multiplicação.
+3. **"Explique o limite" era licença para parar.** O conflito agora sai com **o
+   próximo ato verificável** — qual dado ela confere para decidir, e o que já é
+   certo apesar do conflito —, e *números expostos sem próximo ato não são
+   resposta*. Junto, "correção" deixa de depender da palavra: *"a lista final
+   fechou"* e *"agora é"* valem, e **o dado mais recente prevalece**.
+
+**A metade estrutural: o pedido não dizia que dia é hoje.** Um contrato que cobra
+tratar "um fato de HOJE" à parte é inexequível sem o agora: a nota *"Câmbio de hoje
+— 09/09"* chegava como uma data qualquer, indistinguível de uma de um ano atrás, e
+sem poder datar o presente o modelo **hedgeava** — foi isso que a rep 3 fez
+("depende da cotação atual; em 02/09 era 6,10 e em 09/09 6,45"). `RespostaNotas.montar`
+passa a abrir o pedido com `HOJE: <ISO>`, **no fuso LOCAL**: a sonda desta volta
+imprimiu `2026-09-10T00:24Z` às 21h24 de 09/09 em Brasília, e o rótulo do dia
+inverteria o sentido de "hoje". `agora` é parâmetro com `.now` por padrão, para a
+medida ser determinística. `editadaEm` continua em Z — ordena igual.
+
+**Guardado por teste:** `oPedidoDizQueDiaEHojeSemFurarOTeto`, visto **vermelho** com
+a linha do `HOJE` revertida e o resto do conserto de pé (as outras 13 passaram). Ele
+guarda os dois vermelhos: a data sair do pedido, e o espaço dela furar o teto.
+
+**Os três clauses do prompt NÃO têm prova offline, e isso é dito e não disfarçado.**
+Prompt se mede contra o provedor; asserção de que a string contém as palavras que eu
+acabei de escrever não prova comportamento nenhum. A prova é a corrida em lote, na
+**mesma fixture** — `prova/q3-responder-nas-notas.json`, SHA
+`b0fc69f9e7ba4ec5d5715d073f08515c3840058b4dce08bd770b932c4adcac01`, **byte a byte a
+que o LOTE-1 rodou** —, com **as três repetições e a linha de base junto**: quem
+consertou o caso 3 e quebrou o caso 7 não consertou nada.
+
+**Consequência.** Relatório em `ferramentas/orca/q3-responder-nas-notas.md`.
