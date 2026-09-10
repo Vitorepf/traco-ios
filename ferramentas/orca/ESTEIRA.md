@@ -1483,3 +1483,41 @@ apagou arquivos de um autor simulado**, e nenhuma fixture teria produzido essa p
 **conferir os NOMES executados contra os declarados na própria árvore pega a que não muda**.
 A volta que achou isto auditou **901 nomes distintos** e declarou **zero de fora**. É o que
 passo a pedir.
+
+## ⛔ TAMANHO DE LETRA DE ACESSIBILIDADE É PROIBIDO (DIRETRIZ §12, dono, 10/09)
+
+Ao lado da proibição de VOZ, e pela mesma razão: **o dono disse que não usa, e ver o app em
+letra máxima o irrita.** Ele viu o aparelho de trabalho em tamanho AX às **11h04** e
+escreveu: *"está testando letra grande por quê? já falei que está proibido."* Foi **trinta
+minutos** depois de a §12 ser escrita.
+
+**Proibido, sem exceção:**
+- `xcrun simctl ui <UDID> content_size` com **qualquer valor acima de `large`**;
+- **flow** `ax5.yaml` ou equivalente;
+- `f5-fotografar.sh` com tamanho de acessibilidade — **o 4º parâmetro dele foi removido** e
+  o tamanho é sempre `large`;
+- **launch arg** de `ContentSizeCategory` acima de `large`;
+- spec, portão, captura, teste, vídeo ou dívida em AX1–AX5 / XXXL.
+
+**Dynamic Type vale até `large`**, que é o padrão do iPhone, e é em `large` que se
+fotografa. Código que já existe fica como está: **se quebrar em AX5, não é defeito**.
+
+**Continua valendo, e não é negociável:** alvos de **44 pt**, **contraste**, **rótulos** e
+**ordem na árvore**.
+
+## Quem mata um worker herda a restauração dele (10/09, a mesma violação)
+
+**Quem pôs a letra em AX foi a volta `AX5-1`**, às ~10h39 — quatro minutos depois de a §12
+ser escrita e antes de a ordem chegar até mim. Mas **a letra ficou grande porque EU a matei
+com `worker-stop` antes de o passo de restauração dela rodar**. O spec que eu mesmo escrevi
+para ela dizia *"restaure `medium` ao fim, conferido por captura"* — e matar o worker pulou
+exatamente essa linha.
+
+**A lei:** *quem encerra um worker à força herda o `defer` dele.* Aparelho, tamanho de
+letra, tema, orientação, trava, processo de apoio: o worker morto **não desfaz nada**, e o
+estado que ele deixou é responsabilidade de quem apertou o botão. **Antes de `worker-stop`,
+leia o que o spec mandava restaurar; depois de matar, restaure e confira por captura.**
+
+Os outros três foram conferidos e estão limpos: a Q4-E só **leu** `content_size` (consulta,
+sem valor), a P0-CRLF só **escreveu `medium`** (restauração, com captura de prova), e a
+MAC-2-A G3, a Astra, a MERGE-Q3D e a TEMPO **não o chamaram nenhuma vez**.
