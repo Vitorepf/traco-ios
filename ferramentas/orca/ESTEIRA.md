@@ -1772,3 +1772,22 @@ mesma descrição, e ele fica calado.
 
 *Um oráculo que acusa demais afoga o sinal tão bem quanto um que não acusa nada — e o autor
 dele confia no silêncio das duas maneiras.*
+
+## Antes de instalar no aparelho do dono, veja se ele está a ESCREVER
+
+Em 10/09 às 20h47, ao conferir que a pílula tinha pousado, tirei uma captura do `34CC3F94` e
+ela não batia com a das 20h40: **ele estava no editor, com uma nota aberta e o caret a
+piscar.** Estava a usar o aparelho.
+
+`simctl install` por cima **mata o app**. Se ele estiver a escrever, a instalação leva o que
+ele ainda não guardou — e o Traço existe para guardar o que ele escreve.
+
+**Regra:** antes de instalar num aparelho de conta, **tire uma captura**. Se ela mostrar o
+editor com texto ou caret, **não instale**: ou espere, ou avise e pergunte. A lista, o Perfil
+e o Calendário são seguros; o editor não. É a irmã da lei de 08/09 sobre o Mac — *idle < 60 s:
+não levantar janela nem escrever em campo* — aplicada ao simulador que ele olha.
+
+**E não dirija o aparelho dele para conferir nada.** Confira no outro aparelho de conta, que
+tem o mesmo binário. Em 10/09 os meus toques de conferência entraram no editor e abriram um
+menu modal — no aparelho errado teria sido em cima do que ele estava a escrever. *Conferência
+faz-se no gêmeo, nunca no que o dono tem na mão.*
