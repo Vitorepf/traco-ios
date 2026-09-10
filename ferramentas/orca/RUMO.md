@@ -891,3 +891,25 @@ contra"** do LOTE-5 era **UMA amostra, não uma propriedade**. Mesmo prompt, par
 byte a byte — e a remedida devolveu **10/54 com três contra vazios**. *Delta medido uma vez
 é hipótese; a lei "uma corrida por modelo não mede modelo" vale também para a linha de
 base.*
+
+## As três dívidas que o P0 deixou nomeadas (10/09, ADR 09y)
+
+A volta P0-CRLF-B não as escreveu aqui **de propósito** — a ordem foi *"exatamente as
+quatro, não mais"*, e o RUMO é do orquestrador. Ficam com dono:
+
+- **P0-SELO-CEGO.** O portão de contagem só dispara quando **as duas contagens discordam**.
+  Um arquivo em que o cabeçalho casa e o corpo se perde por outro caminho ainda pode passar.
+  **Dono: a próxima volta de entrada.**
+- **P1-RECUSA-MUDA.** Quando o arquivo **não** é consumido, **nada diz isso ao autor**: ele
+  deixa um `.md` na pasta e não sabe por que a nota não apareceu. É a mesma família da
+  *espera calada* que o dono nomeou na §13 — e a §13 já decidiu, para a IA, que **silêncio
+  é defeito, não design**. **Dono: a próxima volta de entrada.**
+- **P2-CAMPO-QUE-SOME.** `dominio` e `recordada` — que **o próprio app escreve e o
+  importador nunca lê** — somem na volta pela `entrada/` **com a conta fechando em 100%**.
+  Não precisa de código futuro nem de CRLF: é o ida-e-volta de hoje perdendo campo do autor.
+  **Dono: a próxima volta de entrada.**
+
+**E uma correção de número na ESTEIRA, achada por quem releu:** onde estava *"140 de 659"*,
+o certo é **140 de 699**, e o **659** é o que o caminho de hoje importa. **A diferença de 40
+é a tinta do cabeçalho, creditada sem virar nota** — que é exatamente o defeito. *Lei com
+número errado é pior que lei sem número, porque o número é o que a próxima pessoa copia.*
