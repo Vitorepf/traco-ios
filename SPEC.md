@@ -10232,3 +10232,64 @@ vídeo de 15 s com o pé, as quatro abas, a viagem de três casas quadro a quadr
 (`desliza.png`) e o lado a lado contra o Hermes.
 **Fora:** a folha da resposta, a conversa, a busca e a marca "?" (ADR 10i).
 **Substitui** o parágrafo da barra do §20 ("Nova" liderando a barra).
+
+## ADR 2026-09-10k — SISTEMA · caixa alta só agrupa, a linha tem três níveis, a cor tem regra escrita
+
+**Ordem do dono (10/09), clonar o Hermes** (`ferramentas/orca/REFERENCIA-HERMES.md` §4, §5,
+§10; pontos 5, 6 e 7 da lista da cadeira): *caixa alta agrupa, nunca nomeia conteúdo; o
+cabeçalho de seção é sussurrado e carrega a contagem e o recolher; toda linha de lista tem
+identidade à esquerda com forma própria, título e subtítulo cortado, e um fio RECUADO; cor só
+é identidade ou estado.*
+
+**O que estava errado, medido.** O regex do portão novo acha **37 linhas** na árvore de
+`cfbb19c` nas telas desta volta (Perfil 12, Padrões 11, Lente 11, a marca "?" 1, Do caderno 1,
+o ano do calendário 1): "CONTA" dentro do cartão da conta, "O OUTRO LADO", "ÚLTIMOS 30 DIAS",
+"PRÉ-MORTEM" e "SEU" em âmbar de 9 pt, o nome da forma em caixa alta como cabeçalho da Lente
+e como etiqueta no Do caderno, "JAN" no ano — e o âmbar em rótulo, botão, interruptor e data.
+Hoje acha **zero**.
+
+**A decisão.**
+1. **Caixa alta só no `CabecalhoDeSecao`** (`Componentes/Rotulo.swift`): versalete espaçado,
+   `tintaFraca`, `Tema.label`. À direita, **a contagem** quando a seção é uma lista que se
+   conta (Métodos, Latência, Calendário, Perguntas, os achados da Lente, os compromissos do
+   dia, Do caderno) e **o chevron que recolhe**. O recolher é lembrado por tela
+   (`Recolhidas`, chave `secoes-recolhidas.<tela>`): densidade é escolha de quem lê. A lista
+   do calendário recolhe por dia e esquece ao sair. **O nome de um parágrafo, de uma coluna ou
+   de uma etiqueta vai em frase normal** ("O outro lado", "Últimos 30 dias", "Jan").
+2. **`LinhaDeLista`, a mesma em toda tela**: glifo à esquerda (SF Symbol em `tintaSuave`,
+   distingue pela forma — o domínio do compromisso é o único que traz cor, e é identidade);
+   título `Tema.chrome` em tinta; subtítulo `Tema.meta` em `tintaSuave`, **uma linha,
+   cortado**; fio de 0,5 pt na **coluna do texto** — começa no título e acaba antes do
+   acessório (chevron, interruptor, contagem). Uma linha é um elemento de acessibilidade.
+   Exceções escritas no componente: o título que É o conteúdo quebra (a pergunta dos Padrões,
+   a pergunta da Instigar, o registro da latência); o par esperava/aconteceu pede duas linhas
+   de subtítulo. O vazio e a espera são linhas normais ("lendo as suas notas…", "Nada
+   marcado", "Ainda não há série").
+3. **As seções pousam no papel.** Saíram o cartão de cada seção do Perfil e dos Padrões, a
+   caixa cinza de cada seção da Lente, o cartão branco de cada compromisso na lista do
+   calendário e a caixa do Do caderno. A única caixa que ficou é o campo de escrever o trecho
+   na Lente: ali o tipo não diz "escreva aqui". A letra miúda de uma seção vai inteira, em
+   `.footnote`, embaixo das linhas — é a única cópia do que ela diz; o subtítulo é que corta.
+4. **A regra da cor, escrita no `Tema`**, onde quem vier depois a lê: **identidade** — o
+   domínio de um compromisso, e o âmbar como o traço do autor (o cursor, o círculo de
+   Escrever) — ou **estado** — carvão para o ativo, o ligado e o escolhido; âmbar para o agora
+   do calendário; `aviso` para o que falhou ou destrói; o azul de papel para a semana onde se
+   está. **Nada mais.** Por isso: interruptor ligado e data marcada em carvão; Entrar,
+   Abrir os Ajustes, Instigar, Contrapor e Copiar em tinta, reconhecidos pelo chevron e pelo
+   peso; a marca "?" em tinta; "Esquecer tudo" e "Apagar todos os compromissos" em `aviso`; a
+   ação do toast do calendário em branco sublinhado.
+5. **Densidade do Perfil.** A letra miúda de quem responde saiu da conta para a seção própria
+   "Quem responde", que **nasce recolhida** — o estado da conta já está nas linhas de cima, e
+   o cabeçalho mantém a tabela à vista. O Perfil abre com Conta em três linhas.
+
+**Reescreve** a frase da 10j "o âmbar continua a ser a assinatura da AÇÃO": o âmbar é **o
+traço do autor**. O círculo de Escrever fica como está — é o lugar do traço.
+**Portão:** `TemaTests.telasDoSistemaSeguemARegraDaCorEDaCaixaAlta`, com a irmã que não
+acusa (`CalendarioTema.agora` e `.rotulo()` passam).
+**Fora, nomeado e não tocado:** `NotasView` e `CartaoDeResposta` (a cadeira da conversa); o
+mesmo regex ainda acha âmbar ou caixa alta fora da regra em `CartaoAnaliseView` (10),
+`PortalArquivoView` (10), `RedeView` (8), `PaginaView`, `FechoExpressivaView`, `SerieView`,
+`PortalCodigoView`, `CamposFormaView`, `Pilula` e no `BotaoPrimario` — o próximo corte. E o
+**microfone no campo do calendário** (`Ditado`): voz é proibida na casa.
+**Prova:** `ferramentas/orca/sistema/` — fotos em `large`, vídeo de 15 s com o pé
+(`sistema-filmar.sh`) e o lado a lado contra o Hermes.
