@@ -43,9 +43,11 @@ struct MarcaDePergunta: View {
 
     var body: some View {
         Button(action: acao) {
+            // ADR 10k: tinta. Perguntar é ação, e ação se reconhece pela
+            // forma e pelo lugar — o âmbar é do traço do autor e do agora
             Text("?")
                 .font(Tema.corpo.weight(.semibold))
-                .foregroundStyle(Tema.ambarTinta)
+                .foregroundStyle(Tema.tinta)
                 .frame(width: Tema.alvo, height: Tema.alvo)
                 .contentShape(Rectangle())
         }

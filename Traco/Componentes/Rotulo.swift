@@ -96,6 +96,8 @@ struct LinhaDeLista<Glifo: View, Acessorio: View>: View {
     /// dos Padrões), cortá-lo seria esconder a coisa que se veio ler
     var linhasDoTitulo: Int? = 1
     var fio = true
+    /// O que destrói tem o título em `aviso` — é ESTADO, pela regra da cor
+    var destrutiva = false
     @ViewBuilder var glifo: () -> Glifo
     @ViewBuilder var acessorio: () -> Acessorio
     @ScaledMetric(relativeTo: .body) private var coluna: CGFloat = 28
@@ -109,40 +111,42 @@ struct LinhaDeLista<Glifo: View, Acessorio: View>: View {
                 .foregroundStyle(Tema.tintaSuave)
                 .frame(width: coluna)
                 .accessibilityHidden(true)
-            HStack(alignment: .center, spacing: 12) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(titulo)
-                        .font(Tema.chrome)
-                        .foregroundStyle(Tema.tinta)
-                        .lineLimit(linhasDoTitulo)
-                        .multilineTextAlignment(.leading)
-                        .fixedSize(horizontal: false, vertical: linhasDoTitulo == nil)
-                    if let subtitulo, !subtitulo.isEmpty {
-                        Text(subtitulo)
-                            .font(Tema.meta)
-                            .foregroundStyle(Tema.tintaSuave)
-                            .lineLimit(1)
-                            .truncationMode(.tail)
-                    }
+            VStack(alignment: .leading, spacing: 2) {
+                Text(titulo)
+                    .font(Tema.chrome)
+                    .foregroundStyle(destrutiva ? Tema.aviso : Tema.tinta)
+                    .lineLimit(linhasDoTitulo)
+                    .multilineTextAlignment(.leading)
+                    .fixedSize(horizontal: false, vertical: linhasDoTitulo == nil)
+                if let subtitulo, !subtitulo.isEmpty {
+                    Text(subtitulo)
+                        .font(Tema.meta)
+                        .foregroundStyle(Tema.tintaSuave)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                acessorio()
             }
             .padding(.vertical, 10)
-            .frame(minHeight: Tema.alvo)
+            .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .leading)
+            // o fio mora na coluna do TEXTO: começa onde o título começa e
+            // acaba onde ele acaba, antes do acessório
             .overlay(alignment: .bottom) {
                 if fio { Rectangle().fill(Tema.linha).frame(height: 0.5) }
             }
+            acessorio()
         }
         .contentShape(Rectangle())
+        // uma linha, um elemento: "Grok, sem conta…" — como se lê de olho
+        .accessibilityElement(children: .combine)
     }
 }
 
 extension LinhaDeLista where Glifo == Image, Acessorio == EmptyView {
     /// A forma mais comum: glifo do SF Symbols em tinta suave, sem acessório.
     init(_ simbolo: String, _ titulo: String, _ subtitulo: String? = nil,
-         linhasDoTitulo: Int? = 1, fio: Bool = true) {
+         linhasDoTitulo: Int? = 1, fio: Bool = true, destrutiva: Bool = false) {
         self.init(titulo: titulo, subtitulo: subtitulo, linhasDoTitulo: linhasDoTitulo, fio: fio,
+                  destrutiva: destrutiva,
                   glifo: { Image(systemName: simbolo) }, acessorio: { EmptyView() })
     }
 }
@@ -150,10 +154,39 @@ extension LinhaDeLista where Glifo == Image, Acessorio == EmptyView {
 extension LinhaDeLista where Glifo == Image, Acessorio == Chevron {
     /// A linha que se toca: o chevron é a forma da ação — não a cor.
     init(tocavel simbolo: String, _ titulo: String, _ subtitulo: String? = nil,
-         linhasDoTitulo: Int? = 1, fio: Bool = true) {
+         linhasDoTitulo: Int? = 1, fio: Bool = true, destrutiva: Bool = false) {
         self.init(titulo: titulo, subtitulo: subtitulo, linhasDoTitulo: linhasDoTitulo, fio: fio,
+                  destrutiva: destrutiva,
                   glifo: { Image(systemName: simbolo) }, acessorio: { Chevron() })
     }
+}
+
+/// As seções que o autor recolheu, lembradas entre aberturas — uma chave por
+/// tela. Recolher é escolha de densidade de quem lê, não estado da sessão:
+/// a seção fechada ontem continua fechada hoje.
+struct Recolhidas: DynamicProperty {
+    @AppStorage private var guardadas: String
+
+    /// `deInicio`: as seções que nascem recolhidas até o autor abrir uma vez —
+    /// letra miúda de consulta, cujo cabeçalho basta para ser achada.
+    init(_ tela: String, deInicio: [String] = []) {
+        _guardadas = AppStorage(wrappedValue: deInicio.sorted().joined(separator: ","),
+                                "secoes-recolhidas.\(tela)")
+    }
+
+    subscript(_ secao: String) -> Binding<Bool> {
+        Binding(
+            get: { conjunto.contains(secao) },
+            set: { fechar in
+                var s = conjunto
+                if fechar { s.insert(secao) } else { s.remove(secao) }
+                guardadas = s.sorted().joined(separator: ",")
+            })
+    }
+
+    func aberta(_ secao: String) -> Bool { !conjunto.contains(secao) }
+
+    private var conjunto: Set<String> { Set(guardadas.split(separator: ",").map(String.init)) }
 }
 
 /// O acessório da linha que se toca. Cinza-escuro, como no Hermes.
