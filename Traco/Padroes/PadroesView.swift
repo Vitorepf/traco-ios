@@ -20,47 +20,49 @@ struct PadroesView: View {
     /// não vê olhando um de cada vez. Vazio = nada verificado, e nada se mostra.
     @State private var sobreOJuizo: [String] = []
     /// ADR 04q: dois períodos lado a lado, sem seta e sem placar.
-    @State private var trajetoria: Trajetoria?
+    @State private var trajetoriaLida: Trajetoria?
+    /// Hermes §5: a densidade se controla no cabeçalho de cada seção.
+    var recolhidas = Recolhidas("padroes")
 
     private func lerSemana() {
         var eventos: [EventoCalendario] = []
         if case .eventos(let lidos) = CalendarioDisco.carregar() { eventos = lidos }
         semana = RevisaoSemanal.ler(notas: notas.map(\.paraSemana), eventos: eventos)
-        trajetoria = Trajetoria.ler(notas: notas.map(\.paraTrajetoria), sinais: Sinais.todos())
+        trajetoriaLida = Trajetoria.ler(notas: notas.map(\.paraTrajetoria), sinais: Sinais.todos())
     }
 
     // MARK: - A trajetória (ADR 04q)
 
-    @ViewBuilder private var cartaoTrajetoria: some View {
-        if let t = trajetoria, !t.vazia {
-            VStack(alignment: .leading, spacing: 12) {
-                Text("TRAJETÓRIA")
-                    .font(Tema.label)
-                    .tracking(Tema.trackingLabel)
-                    .foregroundStyle(Tema.tintaSuave)
-                Text("Dois períodos, lado a lado. Sem nota, sem seta: quem lê é você.")
-                    .font(.footnote)
-                    .foregroundStyle(Tema.tintaFraca)
-                HStack(alignment: .top, spacing: 12) {
-                    periodo(t.recente)
-                    Rectangle().fill(Tema.linha).frame(width: 0.5)
-                    periodo(t.anterior)
+    /// Hermes §1 e §5 (ADR 10k): a trajetória pousa no papel, sob um
+    /// cabeçalho que recolhe. Os nomes das duas colunas eram caixa alta
+    /// dentro de um cartão — nomeavam conteúdo; agora são frase normal.
+    @ViewBuilder private var trajetoria: some View {
+        if let t = self.trajetoriaLida, !t.vazia {
+            secao("Trajetória", id: "trajetoria") {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Dois períodos, lado a lado. Sem nota, sem seta: quem lê é você.")
+                        .font(.footnote)
+                        .foregroundStyle(Tema.tintaFraca)
+                        .fixedSize(horizontal: false, vertical: true)
+                    HStack(alignment: .top, spacing: 12) {
+                        periodo(t.recente)
+                        Rectangle().fill(Tema.linha).frame(width: 0.5)
+                        periodo(t.anterior)
+                    }
                 }
+                .padding(.top, 4)
             }
-            .padding(16)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .superficieElevada()
-            .padding(.bottom, 8)
             .accessibilityIdentifier("trajetoria")
         }
     }
 
     private func periodo(_ p: Trajetoria.Periodo) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(p.rotulo)
-                .font(Tema.label)
-                .tracking(Tema.trackingLabel)
-                .foregroundStyle(Tema.tintaFraca)
+            // o modelo guarda o rótulo em caixa alta para o texto exportado;
+            // na tela ele é o NOME de uma coluna, e nome vai em frase normal
+            Text(p.rotulo.lowercased().capitalizadoNoInicio)
+                .font(Tema.meta.weight(.semibold))
+                .foregroundStyle(Tema.tinta)
             Text("\(p.notas) \(p.notas == 1 ? "nota" : "notas")")
                 .font(Tema.meta)
                 .foregroundStyle(Tema.tintaSuave)
@@ -151,15 +153,9 @@ struct PadroesView: View {
     /// a memória apaga é a expectativa de ANTES; só o papel guarda.
     @ViewBuilder private var juizo: some View {
         if !sobreOJuizo.isEmpty {
-            VStack(alignment: .leading, spacing: 6) {
-                Text("Sobre o seu juízo")
-                    .font(Tema.meta.weight(.semibold))
-                    .foregroundStyle(Tema.tinta)
+            VStack(alignment: .leading, spacing: 0) {
                 ForEach(sobreOJuizo, id: \.self) { p in
-                    Text("— " + p)
-                        .font(Tema.meta)
-                        .foregroundStyle(Tema.tintaSuave)
-                        .fixedSize(horizontal: false, vertical: true)
+                    LinhaDeLista("person.fill.questionmark", p, "sobre o seu juízo", linhasDoTitulo: nil)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -168,6 +164,7 @@ struct PadroesView: View {
         } else if let c = semana?.calibragem, c.count >= 2, Politica.provedor(.calibragem) == nil {
             // ADR 07b: há pares para ler e ninguém que leia — dito, não calado
             LinhaDeEstado(Politica.semProvedor(.calibragem), .semConta)
+                .padding(.vertical, 8)
                 .accessibilityIdentifier("juizo-sem-provedor")
         }
     }
@@ -185,61 +182,15 @@ struct PadroesView: View {
             }
 
             ScrollView {
-                VStack(alignment: .leading, spacing: 14) {
+                // Hermes §1, §4 e §5 (ADR 10k): três seções no papel, sem
+                // cartão; a pergunta é uma linha como outra qualquer
+                VStack(alignment: .leading, spacing: Tema.entreSecoes) {
                     revisaoDaSemana
-                    cartaoTrajetoria
-                    if !carregou {
-                        Text("lendo as suas notas…")
-                            .font(Tema.corpo)
-                            .foregroundStyle(Tema.tintaFraca)
-                            .padding(.top, 8)
-                    } else if perguntas.isEmpty {
-                        Text("ainda não há o que ler. escreva primeiro.")
-                            .font(Tema.corpo)
-                            .foregroundStyle(Tema.tintaSuave)
-                    } else {
-                        // "Li" dava um EU à IA — e o app não é interlocutor.
-                        // Se é preciso avisar que quem conclui é o autor, é
-                        // porque a frase anterior sugeriu o contrário.
-                        // contagem + instrução são METADADO: no corpo de 20pt
-                        // pesavam igual às próprias perguntas, que são o
-                        // conteúdo. Mesmo tamanho da contagem em Notas.
-                        Text("\(abertas.count) \(abertas.count == 1 ? "nota" : "notas"), \(perguntas.count) \(perguntas.count == 1 ? "pergunta" : "perguntas"). Toque numa para responder — a resposta vira nota sua.")
-                            .font(Tema.meta)
-                            .foregroundStyle(Tema.tintaSuave)
-                            .padding(.bottom, 8)
-
-                        ForEach(Array(perguntas.enumerated()), id: \.offset) { indice, pergunta in
-                            Button {
-                                sessao.novaPagina()
-                                sessao.perguntaPadroes = pergunta
-                                sessao.mostrarPadroes = false
-                                sessao.mostrarNotas = false
-                            } label: {
-                                HStack(alignment: .center, spacing: 12) {
-                                    Text(pergunta)
-                                        .font(Tema.corpo)
-                                        .foregroundStyle(Tema.tinta)
-                                        .multilineTextAlignment(.leading)
-                                        .frame(maxWidth: .infinity, alignment: .leading)
-                                    Image(systemName: "chevron.right")
-                                        .font(.footnote.weight(.semibold))
-                                        .foregroundStyle(Tema.tintaFraca)
-                                        .accessibilityHidden(true)
-                                }
-                                .padding(16)
-                                .superficieElevada()
-                                .frame(minHeight: Tema.alvo)
-                            }
-                            .buttonStyle(PressaoDiscreta())
-                            .opacity(reduceMotion || visiveis > indice ? 1 : 0)
-                            .offset(y: reduceMotion || visiveis > indice ? 0 : 8)
-                            .accessibilityIdentifier("pergunta-padroes-\(indice)")
-                            .accessibilityHint("Abre uma página vazia com esta pergunta no cartão")
-                        }
-                    }
+                    trajetoria
+                    perguntasDaSemana
                 }
-                .padding(Tema.margem)
+                .padding(.horizontal, Tema.margem)
+                .padding(.bottom, Tema.margem)
             }
         }
         .background(Tema.fundo.ignoresSafeArea())
@@ -258,147 +209,127 @@ struct PadroesView: View {
         }
     }
 
+    // MARK: - As perguntas
+
+    /// A contagem mora no cabeçalho (o "45" do Hermes); a espera e o vazio
+    /// são LINHAS normais, na posição de qualquer outra (Hermes §11).
+    private var perguntasDaSemana: some View {
+        secao("Perguntas", id: "perguntas", contagem: carregou && !perguntas.isEmpty ? perguntas.count : nil) {
+            if !carregou {
+                LinhaDeLista("hourglass", "lendo as suas notas…", fio: false)
+            } else if perguntas.isEmpty {
+                LinhaDeLista("text.bubble", "ainda não há o que ler", "escreva primeiro — as perguntas nascem das suas notas abertas",
+                             fio: false)
+            } else {
+                ForEach(Array(perguntas.enumerated()), id: \.offset) { indice, pergunta in
+                    Button {
+                        sessao.novaPagina()
+                        sessao.perguntaPadroes = pergunta
+                        sessao.mostrarPadroes = false
+                        sessao.mostrarNotas = false
+                    } label: {
+                        // o título É a pergunta: quebra, não corta. O glifo é
+                        // o de escrever — responder é abrir uma página
+                        LinhaDeLista(tocavel: "square.and.pencil", pergunta, nil,
+                                     linhasDoTitulo: nil, fio: indice < perguntas.count - 1)
+                    }
+                    .buttonStyle(PressaoDiscreta())
+                    .opacity(reduceMotion || visiveis > indice ? 1 : 0)
+                    .offset(y: reduceMotion || visiveis > indice ? 0 : 8)
+                    .accessibilityIdentifier("pergunta-padroes-\(indice)")
+                    .accessibilityHint("Abre uma página vazia com esta pergunta no cartão")
+                }
+                // "Li" dava um EU à IA — e o app não é interlocutor. A contagem
+                // de notas e o que acontece ao tocar são METADADO: letra miúda
+                Text("Das suas \(abertas.count) \(abertas.count == 1 ? "nota aberta" : "notas abertas"). Toque numa para responder — a resposta vira nota sua.")
+                    .font(.footnote)
+                    .foregroundStyle(Tema.tintaFraca)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.top, 8)
+            }
+        }
+    }
+
     // MARK: - A semana (ADR q)
 
+    /// Uma lista só, sem subtítulos em negrito: o que era cabeçalho de bloco
+    /// ("Planos sem a falha nomeada") desce para o SUBTÍTULO de cada linha, e
+    /// o glifo diz o tipo pela forma antes de ler (Hermes §4).
     @ViewBuilder
     private var revisaoDaSemana: some View {
         if let r = semana, !r.vazia {
-            VStack(alignment: .leading, spacing: 12) {
-                Text("ESTA SEMANA")
-                    .font(Tema.label)
-                    .tracking(Tema.trackingLabel)
-                    .foregroundStyle(Tema.tintaSuave)
+            let total = r.porForma.reduce(0) { $0 + $1.quantas }
+            secao("Esta semana", id: "semana") {
                 if !r.porForma.isEmpty {
-                    Text(r.porForma.map { "\($0.quantas) \($0.forma?.nome.lowercased() ?? "sem forma")" }.joined(separator: " · "))
-                        .font(Tema.meta)
-                        .foregroundStyle(Tema.tintaSuave)
+                    LinhaDeLista("doc.on.doc", "\(total) \(total == 1 ? "nota" : "notas") em sete dias",
+                                 r.porForma.map { "\($0.quantas) \($0.forma?.nome.lowercased() ?? "sem forma")" }.joined(separator: " · "))
                 }
-                if !r.destaques.isEmpty {
-                    bloco("Os destaques", r.destaques)
-                }
-                if !r.decisoesAConferir.isEmpty {
-                    bloco("Decisões a conferir", r.decisoesAConferir)
-                }
-                if !r.desejos.isEmpty {
-                    bloco("O que está em jogo", r.desejos)
-                }
-                if !r.semRisco.isEmpty {
-                    bloco("Planos sem a falha nomeada", r.semRisco, premortem: true)
-                }
-                if !r.proximos.isEmpty {
-                    bloco("Próximos sete dias", r.proximos)
-                }
-                if !r.calibragem.isEmpty {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Decisões conferidas")
-                            .font(Tema.meta.weight(.semibold))
-                            .foregroundStyle(Tema.tinta)
-                        ForEach(r.calibragem) { c in
-                            Button {
-                                if let nota = Sessao.buscar(uuid: c.id, no: context) {
-                                    sessao.abrir(nota)
-                                    sessao.irPara(.escrever, no: context)
-                                }
-                            } label: {
-                                VStack(alignment: .leading, spacing: 3) {
-                                    Text(c.escolha)
-                                        .font(Tema.meta)
-                                        .foregroundStyle(Tema.tinta)
-                                        .lineLimit(1)
-                                    HStack(alignment: .top, spacing: 6) {
-                                        Text("esperava")
-                                            .font(Tema.label)
-                                            .tracking(Tema.trackingLabel)
-                                            .foregroundStyle(Tema.tintaFraca)
-                                            .frame(width: 74, alignment: .leading)
-                                        Text(c.esperava)
-                                            .font(Tema.meta)
-                                            .foregroundStyle(Tema.tintaSuave)
-                                            .lineLimit(2)
-                                    }
-                                    HStack(alignment: .top, spacing: 6) {
-                                        Text("aconteceu")
-                                            .font(Tema.label)
-                                            .tracking(Tema.trackingLabel)
-                                            .foregroundStyle(Tema.tintaFraca)
-                                            .frame(width: 74, alignment: .leading)
-                                        Text(c.aconteceu)
-                                            .font(Tema.meta)
-                                            .foregroundStyle(Tema.tinta)
-                                            .lineLimit(2)
-                                    }
-                                }
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .contentShape(Rectangle())
-                            }
-                            .buttonStyle(PressaoDiscreta())
-                            .accessibilityIdentifier("calibragem")
+                bloco("star", "destaque", r.destaques)
+                bloco("arrow.triangle.branch", "decisão a conferir", r.decisoesAConferir)
+                bloco("scope", "o que está em jogo", r.desejos)
+                bloco("exclamationmark.triangle", "sem a falha nomeada · abrir o pré-mortem", r.semRisco, premortem: true)
+                bloco("calendar", "nos próximos sete dias", r.proximos)
+                ForEach(r.calibragem) { c in
+                    Button {
+                        if let nota = Sessao.buscar(uuid: c.id, no: context) {
+                            sessao.abrir(nota)
+                            sessao.irPara(.escrever, no: context)
                         }
-                        juizo
+                    } label: {
+                        // o par é o conteúdo: duas linhas, não uma
+                        LinhaDeLista(titulo: c.escolha,
+                                     subtitulo: "esperava " + c.esperava + "\naconteceu " + c.aconteceu,
+                                     linhasDoSubtitulo: 2,
+                                     glifo: { Image(systemName: "checkmark.seal") },
+                                     acessorio: { Chevron() })
                     }
+                    .buttonStyle(PressaoDiscreta())
+                    .accessibilityIdentifier("calibragem")
                 }
-                if !r.sentidos.isEmpty {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("O que ficou claro")
-                            .font(Tema.meta.weight(.semibold))
-                            .foregroundStyle(Tema.tinta)
-                        ForEach(r.sentidos, id: \.self) { linha in
-                            Text("— " + linha)
-                                .font(Tema.meta)
-                                .foregroundStyle(Tema.tintaSuave)
-                        }
-                    }
+                if !r.calibragem.isEmpty { juizo }
+                ForEach(r.sentidos, id: \.self) { linha in
+                    LinhaDeLista("lightbulb", linha, "ficou claro", linhasDoTitulo: 2)
                 }
             }
-            .padding(16)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .superficieElevada()
-            .padding(.bottom, 8)
             .accessibilityIdentifier("revisao-semana")
         }
     }
 
-    private func bloco(_ titulo: String, _ linhas: [RevisaoSemanal.Linha], premortem: Bool = false) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(titulo)
-                .font(Tema.meta.weight(.semibold))
-                .foregroundStyle(Tema.tinta)
-            ForEach(linhas) { linha in
-                Button {
-                    guard let nota = Sessao.buscar(uuid: linha.id, no: context) else { return }
-                    if premortem {
-                        // um toque abre o pré-mortem DESTE plano; o plano fica
-                        sessao.abrirPremortem(de: nota, no: context)
-                    } else {
-                        sessao.abrir(nota)
-                        sessao.irPara(.escrever, no: context)
-                    }
-                } label: {
-                    HStack(alignment: .firstTextBaseline, spacing: 8) {
-                        if let q = linha.quando {
-                            Text(RevisaoSemanalFormato.quando(q))
-                                .font(Tema.meta.monospacedDigit())
-                                .foregroundStyle(Tema.tintaFraca)
-                        }
-                        Text(linha.texto)
-                            .font(Tema.meta)
-                            .foregroundStyle(Tema.tintaSuave)
-                            .lineLimit(2)
-                            .multilineTextAlignment(.leading)
-                        if premortem {
-                            Spacer(minLength: 4)
-                            Text("PRÉ-MORTEM")
-                                .font(.system(size: 9, weight: .semibold))
-                                .tracking(0.8)
-                                .foregroundStyle(Tema.ambarTinta)
-                        }
-                    }
-                    .frame(maxWidth: .infinity, minHeight: 28, alignment: .leading)
-                    .contentShape(Rectangle())
+    @ViewBuilder
+    private func bloco(_ simbolo: String, _ tipo: String, _ linhas: [RevisaoSemanal.Linha],
+                       premortem: Bool = false) -> some View {
+        ForEach(linhas) { linha in
+            Button {
+                guard let nota = Sessao.buscar(uuid: linha.id, no: context) else { return }
+                if premortem {
+                    // um toque abre o pré-mortem DESTE plano; o plano fica
+                    sessao.abrirPremortem(de: nota, no: context)
+                } else {
+                    sessao.abrir(nota)
+                    sessao.irPara(.escrever, no: context)
                 }
-                .buttonStyle(PressaoDiscreta())
+            } label: {
+                // o "PRÉ-MORTEM" em caixa alta e âmbar era etiqueta pintada;
+                // agora é o fim do subtítulo, em frase normal (ADR 10k)
+                LinhaDeLista(tocavel: simbolo, linha.texto,
+                             (linha.quando.map { RevisaoSemanalFormato.quando($0) + " · " } ?? "") + tipo,
+                             linhasDoTitulo: 2)
+            }
+            .buttonStyle(PressaoDiscreta())
+        }
+    }
+
+    /// Uma seção no papel: o cabeçalho sussurrado, com o recolher lembrado.
+    private func secao<Conteudo: View>(_ titulo: String, id: String, contagem: Int? = nil,
+                                       @ViewBuilder _ conteudo: () -> Conteudo) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            CabecalhoDeSecao(titulo, contagem: contagem, recolhida: recolhidas[id])
+                .accessibilityIdentifier("secao-\(id)")
+            if recolhidas.aberta(id) {
+                conteudo()
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 

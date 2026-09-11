@@ -806,15 +806,15 @@ struct PerfilView: View {
                 get: { Revisoes.hora },
                 set: { Revisoes.hora = $0 }
             ))
-            hora("sunrise", "Manhã", "quando você escreve “de manhã”", valor: Binding(
+            hora("sunrise", "Manhã", "para “de manhã” numa nota", valor: Binding(
                 get: { Ancora.hora(.manha) },
                 set: { Ancora.gravar(.manha, hora: $0) }
             ))
-            hora("sun.max", "Tarde", "quando você escreve “à tarde”", valor: Binding(
+            hora("sun.max", "Tarde", "para “à tarde” numa nota", valor: Binding(
                 get: { Ancora.hora(.tarde) },
                 set: { Ancora.gravar(.tarde, hora: $0) }
             ))
-            hora("moon", "Noite", "quando escreve “à noite”, e a revisão de domingo", fio: false, valor: Binding(
+            hora("moon", "Noite", "para “à noite”, e a revisão", fio: false, valor: Binding(
                 get: { Ancora.hora(.noite) },
                 set: {
                     Ancora.gravar(.noite, hora: $0)

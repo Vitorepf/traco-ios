@@ -95,6 +95,9 @@ struct LinhaDeLista<Glifo: View, Acessorio: View>: View {
     /// nil deixa o título quebrar: quando o título É o conteúdo (a pergunta
     /// dos Padrões), cortá-lo seria esconder a coisa que se veio ler
     var linhasDoTitulo: Int? = 1
+    /// o subtítulo corta numa linha; o par esperava/aconteceu dos Padrões é o
+    /// único que pede duas, porque a comparação é o conteúdo
+    var linhasDoSubtitulo = 1
     var fio = true
     /// O que destrói tem o título em `aviso` — é ESTADO, pela regra da cor
     var destrutiva = false
@@ -122,7 +125,7 @@ struct LinhaDeLista<Glifo: View, Acessorio: View>: View {
                     Text(subtitulo)
                         .font(Tema.meta)
                         .foregroundStyle(Tema.tintaSuave)
-                        .lineLimit(1)
+                        .lineLimit(linhasDoSubtitulo)
                         .truncationMode(.tail)
                 }
             }
