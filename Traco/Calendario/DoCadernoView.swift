@@ -26,45 +26,24 @@ struct DoCadernoView: View {
             .filter { !$0.fechada && $0.gesto != .expressiva && $0.temVoz }
     }
 
+    /// ADR 10k: "DO CADERNO" é cabeçalho de seção — agrupa, e conta. O nome
+    /// da forma à direita, em caixa alta, era etiqueta nomeando conteúdo:
+    /// desce ao subtítulo, em frase normal, e a caixa cinza em volta sai.
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("DO CADERNO")
-                .font(.caption2.weight(.semibold))
-                .tracking(1.2)
-                .foregroundStyle(CalendarioTema.tintaSuave)
-                .accessibilityAddTraits(.isHeader)
+        VStack(alignment: .leading, spacing: 0) {
+            CabecalhoDeSecao("Do caderno", contagem: vizinhas.count)
                 .accessibilityIdentifier("ficha-do-caderno")
-            VStack(spacing: 0) {
-                ForEach(Array(vizinhas.enumerated()), id: \.element.uuid) { i, nota in
-                    Button {
-                        aoAbrir(nota.uuid)
-                    } label: {
-                        HStack(spacing: 8) {
-                            Text(nota.tituloNaLista)
-                                .font(.callout)
-                                .foregroundStyle(CalendarioTema.tinta)
-                                .lineLimit(2)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                            if let g = nota.gesto {
-                                Text(g.nome.uppercased())
-                                    .font(CalendarioTema.letra)
-                                    .tracking(0.8)
-                                    .foregroundStyle(CalendarioTema.tintaSuave)
-                            }
-                        }
-                        .padding(.vertical, 10)
-                        .alvo()
-                    }
-                    .buttonStyle(PressaoClara())
-                    .accessibilityHint("Abre a nota")
-                    .accessibilityIdentifier("do-caderno-nota")
-                    if i < vizinhas.count - 1 {
-                        Rectangle().fill(CalendarioTema.linha).frame(height: 0.5)
-                    }
+            ForEach(Array(vizinhas.enumerated()), id: \.element.uuid) { i, nota in
+                Button {
+                    aoAbrir(nota.uuid)
+                } label: {
+                    LinhaDeLista(tocavel: "doc.text", nota.tituloNaLista, nota.gesto?.nome,
+                                 linhasDoTitulo: 2, fio: i < vizinhas.count - 1)
                 }
+                .buttonStyle(PressaoClara())
+                .accessibilityHint("Abre a nota")
+                .accessibilityIdentifier("do-caderno-nota")
             }
-            .padding(.horizontal, 14)
-            .background(CalendarioTema.campo, in: RoundedRectangle(cornerRadius: CalendarioTema.raioCampo, style: .continuous))
         }
     }
 }

@@ -645,9 +645,10 @@ struct CalendarioAnoView: View {
             }
         } label: {
             VStack(alignment: .leading, spacing: 4) {
-                Text(Calendario.mesCurto(mes, agenda.cal).uppercased())
-                    .font(.caption2.weight(.semibold))
-                    .tracking(0.6)
+                // ADR 10k: o nome do mês nomeia a grade que está embaixo —
+                // é conteúdo, então vai em frase normal, sem caixa alta
+                Text(Calendario.mesCurto(mes, agenda.cal).capitalizadoNoInicio)
+                    .font(.caption.weight(.semibold))
                     .foregroundStyle(actual ? CalendarioTema.tinta : CalendarioTema.tintaSuave)
                 VStack(spacing: 1) {
                     ForEach(0..<6, id: \.self) { linha in
