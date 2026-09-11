@@ -10291,5 +10291,11 @@ mesmo regex ainda acha âmbar ou caixa alta fora da regra em `CartaoAnaliseView`
 `PortalArquivoView` (10), `RedeView` (8), `PaginaView`, `FechoExpressivaView`, `SerieView`,
 `PortalCodigoView`, `CamposFormaView`, `Pilula` e no `BotaoPrimario` — o próximo corte. E o
 **microfone no campo do calendário** (`Ditado`): voz é proibida na casa.
-**Prova:** `ferramentas/orca/sistema/` — fotos em `large`, vídeo de 15 s com o pé
-(`sistema-filmar.sh`) e o lado a lado contra o Hermes.
+**Prova** (`ferramentas/orca/sistema/`, 10/09 21h35, teste 4 em `large`): vídeo de 15 s com
+o pé (`sistema-filmar.sh`: Conta recolhe e abre, Quem responde abre e fecha, a rolagem até o
+interruptor em carvão, Padrões, a agenda em lista), seis fotos (`sistema-fotografar.sh`) e
+`lado-a-lado.png` contra o Hermes. Suíte integral no teste 4 sob `com-trava.sh`,
+`-parallel-testing-enabled NO`: **1079 testes em 168 suítes, verdes**. O filme achou o que o
+teste não acha: o primeiro corte não rolava — o `bc` escrevia `.666` sem o zero e o JSON do
+gesto morria calado; e a foto de "Quem responde aberta" saiu fechada, porque o toque mirava
+o lugar do cabeçalho com Conta RECOLHIDA.

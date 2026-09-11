@@ -1,6 +1,6 @@
 #!/bin/bash
 # SISTEMA (ADR 10k) — instala o build e fotografa as telas da varredura em large:
-# Perfil (topo e dois passos abaixo), Padrões, Calendário em lista.
+# Perfil (topo, Quem responde aberta, os ajustes), Padrões, Calendário em lista e a Lente.
 # Uso: sistema-fotografar.sh <UDID> <Traco.app> <saida> — sob com-trava.sh, no aparelho de suíte (teste 4)
 set -u
 D="${1:?udid}"; APP="${2:?Traco.app}"; OUT="${3:?saida}"; BID=app.traco
@@ -11,7 +11,7 @@ tocar()  { orca emulator tap $1 $2 --device "$D" >/dev/null 2>&1; echo "[$(hora)
 foto()   { xcrun simctl io "$D" screenshot "$OUT/$1" >/dev/null 2>&1; echo "[$(hora)] foto $1"; }
 # rolagem curta e SEM duração: com "duration" o arrasto vira toque longo e não rola;
 # sem ela rende várias vezes o que se pede (memória)
-rolar()  { orca emulator gesture --points "[{\"type\":\"begin\",\"x\":0.5,\"y\":$1},{\"type\":\"move\",\"x\":0.5,\"y\":$(echo "($1+$2)/2" | bc -l)},{\"type\":\"end\",\"x\":0.5,\"y\":$2}]" --device "$D" >/dev/null 2>&1; echo "[$(hora)] rolar $1→$2"; }
+rolar()  { orca emulator gesture --points "[{\"type\":\"begin\",\"x\":0.5,\"y\":$1},{\"type\":\"move\",\"x\":0.5,\"y\":$(perl -e "printf '%.3f', ($1+$2)/2")},{\"type\":\"end\",\"x\":0.5,\"y\":$2}]" --device "$D" >/dev/null 2>&1; echo "[$(hora)] rolar $1→$2"; }
 Y=0.947; NOTAS=0.151; CAL=0.330; PAD=0.510; PERFIL=0.689
 
 pkill -f "serve-sim.*$D" 2>/dev/null && espera 2
@@ -23,10 +23,17 @@ cmp -s "$INST" "$APP/Traco" && echo "[$(hora)] cmp: binario instalado e o meu" |
 xcrun simctl launch --terminate-running-process "$D" $BID >/dev/null 2>&1
 espera 3
 tocar 0.02 0.5 "puxador do arquivo"; espera 2
-tocar $PERFIL $Y perfil; espera 2; foto perfil-1.png
-rolar 0.70 0.64; espera 1.5; foto perfil-2.png
-rolar 0.70 0.64; espera 1.5; foto perfil-3.png
-rolar 0.70 0.64; espera 1.5; foto perfil-4.png
-tocar $PAD $Y padroes; espera 3; foto padroes-1.png
-rolar 0.70 0.64; espera 1.5; foto padroes-2.png
-tocar $CAL $Y calendario; espera 2; foto calendario.png
+tocar $PERFIL $Y perfil; espera 2; foto 01-perfil.png
+tocar 0.5 0.467 "abre Quem responde (Conta aberta)"; espera 1.5; foto 02-perfil-quem-responde.png
+tocar 0.5 0.467 "recolhe Quem responde"; espera 1.2
+rolar 0.70 0.60; espera 1.8; foto 03-perfil-ajustes.png
+tocar $PAD $Y padroes; espera 3; foto 04-padroes.png
+tocar $CAL $Y calendario; espera 2
+tocar 0.103 0.796 "calendario em lista"; espera 2; foto 05-calendario-lista.png
+tocar 0.103 0.796 "calendario em grade"; espera 1.5
+# a Lente abre de uma nota: a segunda da lista do aparelho de suíte é o WOOP
+# "Quero correr de manha" (dado deste aparelho; outro aparelho pede outra linha)
+tocar $NOTAS $Y notas; espera 2
+tocar 0.3 0.44 "nota WOOP"; espera 2.5
+tocar 0.845 0.93 "Lente"; espera 2.5; foto 06-lente.png
+tocar 0.89 0.128 "Pronto"; espera 1
