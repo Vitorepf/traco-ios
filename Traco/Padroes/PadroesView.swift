@@ -38,7 +38,7 @@ struct PadroesView: View {
     /// dentro de um cartão — nomeavam conteúdo; agora são frase normal.
     @ViewBuilder private var trajetoria: some View {
         if let t = self.trajetoriaLida, !t.vazia {
-            secao("Trajetória", id: "trajetoria") {
+            recolhidas.secao("Trajetória", id: "trajetoria") {
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Dois períodos, lado a lado. Sem nota, sem seta: quem lê é você.")
                         .font(.footnote)
@@ -214,7 +214,7 @@ struct PadroesView: View {
     /// A contagem mora no cabeçalho (o "45" do Hermes); a espera e o vazio
     /// são LINHAS normais, na posição de qualquer outra (Hermes §11).
     private var perguntasDaSemana: some View {
-        secao("Perguntas", id: "perguntas", contagem: carregou && !perguntas.isEmpty ? perguntas.count : nil) {
+        recolhidas.secao("Perguntas", id: "perguntas", contagem: carregou && !perguntas.isEmpty ? perguntas.count : nil) {
             if !carregou {
                 LinhaDeLista("hourglass", "lendo as suas notas…", fio: false)
             } else if perguntas.isEmpty {
@@ -259,7 +259,7 @@ struct PadroesView: View {
     private var revisaoDaSemana: some View {
         if let r = semana, !r.vazia {
             let total = r.porForma.reduce(0) { $0 + $1.quantas }
-            secao("Esta semana", id: "semana") {
+            recolhidas.secao("Esta semana", id: "semana") {
                 if !r.porForma.isEmpty {
                     LinhaDeLista("doc.on.doc", "\(total) \(total == 1 ? "nota" : "notas") em sete dias",
                                  r.porForma.map { "\($0.quantas) \($0.forma?.nome.lowercased() ?? "sem forma")" }.joined(separator: " · "))
@@ -319,18 +319,6 @@ struct PadroesView: View {
         }
     }
 
-    /// Uma seção no papel: o cabeçalho sussurrado, com o recolher lembrado.
-    private func secao<Conteudo: View>(_ titulo: String, id: String, contagem: Int? = nil,
-                                       @ViewBuilder _ conteudo: () -> Conteudo) -> some View {
-        VStack(alignment: .leading, spacing: 0) {
-            CabecalhoDeSecao(titulo, contagem: contagem, recolhida: recolhidas[id])
-                .accessibilityIdentifier("secao-\(id)")
-            if recolhidas.aberta(id) {
-                conteudo()
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
 }
 
 enum RevisaoSemanalFormato {

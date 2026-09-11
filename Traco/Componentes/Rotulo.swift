@@ -189,6 +189,21 @@ struct Recolhidas: DynamicProperty {
 
     func aberta(_ secao: String) -> Bool { !conjunto.contains(secao) }
 
+    /// Uma seção no papel (ADR 10k): o cabeçalho sussurrado, com o recolher
+    /// lembrado, e o conteúdo embaixo. Sem cartão — o grupo é feito pelo
+    /// espaço e pelo cabeçalho, não por uma caixa.
+    func secao<Conteudo: View>(_ titulo: String, id: String, contagem: Int? = nil,
+                               @ViewBuilder _ conteudo: () -> Conteudo) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            CabecalhoDeSecao(titulo, contagem: contagem, recolhida: self[id])
+                .accessibilityIdentifier("secao-\(id)")
+            if aberta(id) {
+                conteudo()
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
     private var conjunto: Set<String> { Set(guardadas.split(separator: ",").map(String.init)) }
 }
 

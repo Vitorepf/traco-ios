@@ -162,7 +162,7 @@ struct PerfilView: View {
     }
 
     private var sabiaEVoce: some View {
-        secao("A sábia e você", id: "sabia") {
+        recolhidas.secao("A sábia e você", id: "sabia") {
             chave("person.text.rectangle", "A sábia conhece você",
                   "Um retrato feito só com as suas palavras e contagens viaja junto de cada pergunta: as formas que usa, os obstáculos que nomeou, o que não voltou no Recordar. Nunca conclui, nunca pontua.",
                   id: "ajuste-retrato",
@@ -227,7 +227,7 @@ struct PerfilView: View {
 
     private var latencia: some View {
         let s = serieDaLatencia
-        return secao("Latência da descoberta", id: "latencia",
+        return recolhidas.secao("Latência da descoberta", id: "latencia",
                      contagem: s.vazia ? nil : Latencia.paraTela(s).count) {
             if s.vazia {
                 // Hermes §11: o vazio é uma linha normal, não uma cerimônia
@@ -344,7 +344,7 @@ struct PerfilView: View {
         let doApp = Catalogo.doApp.count
         let doAutor = Catalogo.doAutor.count
         let problemas = Catalogo.problemas
-        return secao("Métodos", id: "metodos", contagem: doApp + doAutor) {
+        return recolhidas.secao("Métodos", id: "metodos", contagem: doApp + doAutor) {
             linhaAcao("books.vertical",
                       "\(doApp) do app" + (doAutor > 0 ? " · \(doAutor) seu\(doAutor == 1 ? "" : "s")" : ""),
                       "a lista, e de onde vem cada um", fio: false) {
@@ -435,7 +435,7 @@ struct PerfilView: View {
         // Três linhas: quem é a conta e como ela está; o que fazer com ela; e o
         // motor do aparelho. A letra miúda da política desceu para a seção de
         // baixo, que se recolhe — era ela que fazia deste o cartão mais alto.
-        secao("Conta", id: "conta") {
+        recolhidas.secao("Conta", id: "conta") {
             // nome e estado são UMA coisa: a conta e como ela está
             LinhaDeLista("person.crop.circle", "Grok", estado ?? "verificando…")
                 .accessibilityIdentifier("estado-conta")
@@ -486,7 +486,7 @@ struct PerfilView: View {
     /// Função que o autor não vê não foi entregue: o CABEÇALHO fica sempre à
     /// vista logo abaixo da conta, e um toque abre a letra miúda inteira.
     private var quemResponde: some View {
-        secao("Quem responde", id: "quem-responde") {
+        recolhidas.secao("Quem responde", id: "quem-responde") {
             VStack(alignment: .leading, spacing: Tema.entreItens) {
                 Text("A análise e a sábia usam a sua assinatura do Grok — sem chave de API, sem cobrança por uso. Sem a conta, a sábia responde pelo modelo do aparelho (Apple Intelligence), sem rede, com uma janela menor. Hoje: " + Sabia.porOndeEmPalavras + ". Notas trancadas e expressivas jamais vão à rede.")
                 VStack(alignment: .leading, spacing: 4) {
@@ -649,7 +649,7 @@ struct PerfilView: View {
     /// ESTADO e VOLTA aqui. Sem isto, quem tocou "Não Permitir" uma vez ficava
     /// num beco: o app parava de sugerir e nunca dizia por quê.
     private var permissoes: some View {
-        secao("Permissões", id: "permissoes") {
+        recolhidas.secao("Permissões", id: "permissoes") {
             LinhaDeLista("calendar", "Calendários do aparelho", sistema.estadoEmPalavras)
                 .accessibilityIdentifier("estado-calendario")
             LinhaDeLista("bell", "Avisos",
@@ -687,7 +687,7 @@ struct PerfilView: View {
     /// entre os dois é a linha que explica: este vive aqui e não sincroniza.
     private var calendario: some View {
         // a contagem de compromissos mora no cabeçalho, como o "45" do Hermes
-        secao("Calendário", id: "calendario", contagem: agenda.eventos.count) {
+        recolhidas.secao("Calendário", id: "calendario", contagem: agenda.eventos.count) {
             chave("calendar.day.timeline.left", "Semana começa na segunda",
                   "O calendário do Traço vive no aparelho. Não sincroniza, e nunca escreve numa nota.",
                   id: "ajustes-segunda",
@@ -715,7 +715,7 @@ struct PerfilView: View {
     /// ADR 2026-09-04e — o modo férias. O Traço cala o que ELE inventou de
     /// cobrar; o que o autor marcou continua tocando.
     private var ferias: some View {
-        secao("Férias", id: "ferias") {
+        recolhidas.secao("Férias", id: "ferias") {
             chave("beach.umbrella", "Modo férias",
                   "O Traço para de cobrar memória: a fila do Recordar, a revisão de domingo e a série da expressiva esperam. Os seus compromissos continuam avisando — férias não desmarca dentista.",
                   id: "ajuste-ferias",
@@ -793,7 +793,7 @@ struct PerfilView: View {
     }
 
     private var ajustes: some View {
-        secao("Ajustes", id: "ajustes") {
+        recolhidas.secao("Ajustes", id: "ajustes") {
             chave("doc.text.magnifyingglass", "Análise automática",
                   "A análise chega sozinha na pausa da escrita. Você nunca precisa lembrar do botão.",
                   id: "ajuste-auto-analise",
@@ -858,7 +858,7 @@ struct PerfilView: View {
     // MARK: - Dados (§20: exportar/importar são AÇÃO, não navegação — moram aqui)
 
     private var dados: some View {
-        secao("Dados", id: "dados") {
+        recolhidas.secao("Dados", id: "dados") {
             linhaAcao("square.and.arrow.up", "Exportar todas as notas", "um .md com as abertas; trancadas nunca saem") {
                 corpusURL = Corpus.exportar(notas: notas)
             }
@@ -940,20 +940,6 @@ struct PerfilView: View {
 
     // MARK: - As peças da tela (ADR 10k)
 
-    /// Uma seção no papel: o cabeçalho sussurrado, com o recolher lembrado,
-    /// e as linhas embaixo. Sem cartão — o grupo é feito pelo espaço e pelo
-    /// cabeçalho, não por uma caixa.
-    private func secao<Conteudo: View>(_ titulo: String, id: String, contagem: Int? = nil,
-                                       @ViewBuilder _ conteudo: () -> Conteudo) -> some View {
-        VStack(alignment: .leading, spacing: 0) {
-            CabecalhoDeSecao(titulo, contagem: contagem, recolhida: recolhidas[id])
-                .accessibilityIdentifier("secao-\(id)")
-            if recolhidas.aberta(id) {
-                conteudo()
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
 
     /// Ação parece ação: chevron à direita (critique-affordance), e o título
     /// em TINTA — é a forma que diz "toque", não o âmbar (ADR 10k).

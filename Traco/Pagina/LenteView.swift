@@ -35,6 +35,9 @@ struct LenteView: View {
     /// ADR 05x: a proveniência da forma, recolhida por padrão.
     @State private var deOndeVem = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    /// Hermes §5: a densidade se controla no cabeçalho — e a seção recolhida
+    /// fica recolhida na próxima nota também.
+    var recolhidas = Recolhidas("lente")
 
     private var prosa: String { Caderno.prosa(de: texto) }
     /// O `NLTagger` e cinco regex sobre a nota inteira: pesado demais para o
@@ -73,16 +76,13 @@ struct LenteView: View {
 
                 // ADR 05x: a forma desta nota e de onde ela vem. Informação,
                 // nunca selo: fonte, função, o que o Traço adaptou, evidência.
+                // ADR 10k: o cabeçalho era o NOME da forma em caixa alta —
+                // caixa alta nomeando conteúdo. Agora a seção agrupa, e o
+                // nome da forma é o título da linha.
                 if let gesto {
-                    secao(gesto.nome, "a forma desta nota") {
+                    secao("A forma desta nota", id: "forma") {
                         if let estado = gesto.estadoDoMetodo {
-                            Text(estado)
-                                .font(Tema.meta)
-                                .foregroundStyle(Tema.tintaSuave)
-                                .fixedSize(horizontal: false, vertical: true)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(.horizontal, 14)
-                                .padding(.vertical, 10)
+                            LinhaDeLista("exclamationmark.triangle", gesto.nome, estado, fio: false)
                                 .accessibilityIdentifier("metodo-ausente")
                         } else {
                             Button {
@@ -90,20 +90,17 @@ struct LenteView: View {
                                     deOndeVem.toggle()
                                 }
                             } label: {
-                                HStack(spacing: 10) {
-                                    Text("De onde vem")
-                                        .font(Tema.barra)
-                                        .foregroundStyle(Tema.tinta)
-                                    Spacer()
-                                    Image(systemName: "chevron.down")
-                                        .font(.caption2.weight(.semibold))
-                                        .foregroundStyle(Tema.tintaSuave)
-                                        .rotationEffect(.degrees(deOndeVem ? 180 : 0))
-                                        .accessibilityHidden(true)
-                                }
-                                .frame(maxWidth: .infinity, minHeight: Tema.alvo)
-                                .padding(.horizontal, 14)
-                                .contentShape(Rectangle())
+                                LinhaDeLista(
+                                    titulo: gesto.nome,
+                                    subtitulo: "de onde vem: fonte, função, o que o Traço adaptou",
+                                    fio: !deOndeVem,
+                                    glifo: { Image(systemName: "book.closed") },
+                                    acessorio: {
+                                        Image(systemName: "chevron.down")
+                                            .font(.caption.weight(.semibold))
+                                            .foregroundStyle(Tema.tintaFraca)
+                                            .rotationEffect(.degrees(deOndeVem ? 180 : 0))
+                                    })
                             }
                             .buttonStyle(PressaoDiscreta())
                             .accessibilityIdentifier("de-onde-vem")
@@ -111,7 +108,6 @@ struct LenteView: View {
                             .accessibilityValue(deOndeVem ? "aberto" : "recolhido")
                             if deOndeVem {
                                 LinhasDeProveniencia(gesto.metodoDef)
-                                    .padding(.horizontal, 14)
                                     .padding(.vertical, 10)
                                     .transition(Tema.transicao(.opacity, reduzido: reduceMotion))
                             }
@@ -120,7 +116,8 @@ struct LenteView: View {
                 }
 
                 if !apontados.isEmpty {
-                    secao("Apontados por você", "um toque tira a marca") {
+                    secao("Apontados por você", id: "apontados", contagem: apontados.count,
+                          nota: "um toque tira a marca") {
                         ForEach(apontados) { a in
                             Button {
                                 if let notaUUID, Apontar.desmarcar(notaUUID, id: a.id) {
@@ -128,7 +125,9 @@ struct LenteView: View {
                                     Toque.leve()
                                 }
                             } label: {
-                                linha(a.trecho, nil, rotulo: a.rotulo.nome)
+                                // o rótulo era cápsula em caixa alta; agora é o
+                                // subtítulo, e o glifo diz o tipo pela forma
+                                linha(a.trecho, nil, tipo: a.rotulo, rotulo: a.rotulo.nome)
                             }
                             .buttonStyle(PressaoDiscreta())
                             .accessibilityHint("Tira a marca")
@@ -141,27 +140,32 @@ struct LenteView: View {
                         // ADR 06h: "acho que", "um pouco" e "na verdade" são os
                         // hedges que o próprio catálogo ensina (a Inversão diz
                         // "costuma ser"). A contagem é verdade; a função, não.
-                        secao("Palavras de apoio", "contadas por palavra inteira") {
+                        secao("Palavras de apoio", id: "muletas", contagem: l.muletas.count,
+                              nota: "contadas por palavra inteira") {
                             ForEach(l.muletas) { achado($0.termo, $0.vezes, sugerido: .muleta) }
                         }
                     }
                     if !l.frasesFeitas.isEmpty {
-                        secao("Frases de outro", "quando aparecem, o pensamento parou um instante") {
+                        secao("Frases de outro", id: "frases", contagem: l.frasesFeitas.count,
+                              nota: "quando aparecem, o pensamento parou um instante") {
                             ForEach(l.frasesFeitas, id: \.self) { achado($0, nil, sugerido: .fraseFeita) }
                         }
                     }
                     if !l.passivas.isEmpty {
-                        secao("Passivas", "quem faz ficou escondido") {
+                        secao("Passivas", id: "passivas", contagem: l.passivas.count,
+                              nota: "quem faz ficou escondido") {
                             ForEach(l.passivas, id: \.self) { achado($0, nil, sugerido: .passiva) }
                         }
                     }
                     if !l.adverbios.isEmpty {
-                        secao("Advérbios", "o verbo devia bastar") {
+                        secao("Advérbios", id: "adverbios", contagem: l.adverbios.count,
+                              nota: "o verbo devia bastar") {
                             ForEach(l.adverbios) { achado($0.termo, $0.vezes, sugerido: .vago) }
                         }
                     }
                     if !l.adjetivos.isEmpty {
-                        secao("Adjetivos repetidos", "um é escolha; três é hábito") {
+                        secao("Adjetivos repetidos", id: "adjetivos", contagem: l.adjetivos.count,
+                              nota: "um é escolha; três é hábito") {
                             ForEach(l.adjetivos) { achado($0.termo, $0.vezes, sugerido: .vago) }
                         }
                     }
@@ -169,14 +173,15 @@ struct LenteView: View {
 
                 // ADR o: instigar — a sábia devolve perguntas, nunca respostas
                 if notaUUID != nil, gesto != .expressiva {
-                    secao("Instigar", "perguntas sobre o que falta — nunca respostas") {
+                    secao("Instigar", id: "instigar", contagem: perguntasDaSabia.isEmpty ? nil : perguntasDaSabia.count,
+                          nota: "perguntas sobre o que falta — nunca respostas") {
                         VStack(alignment: .leading, spacing: 0) {
                             ForEach(perguntasDaSabia, id: \.self) { q in
-                                linha(q, nil, rotulo: nil)
+                                // a pergunta é o conteúdo: quebra, não corta
+                                LinhaDeLista("questionmark.bubble", q, nil, linhasDoTitulo: nil)
                             }
                             if let aviso, aviso.op == .instigar {
                                 LinhaDeEstado(aviso.texto, aviso.estado)
-                                    .padding(.horizontal, 14)
                                     .padding(.vertical, 10)
                                     .accessibilityIdentifier("lente-aviso-instigar")
                             }
@@ -189,18 +194,15 @@ struct LenteView: View {
                                     tarefaInstigar?.cancel()
                                     instigandoDesde = nil
                                 }
-                                .padding(.horizontal, 14)
                                 .padding(.vertical, 6)
                             }
+                            // ADR 10k: a ação se reconhece pelo chevron, e o
+                            // título é tinta — o âmbar era a cor do cursor
                             Button {
                                 instigar()
                             } label: {
-                                Text(perguntasDaSabia.isEmpty ? "Instigar" : "Mais perguntas")
-                                    .font(Tema.barra)
-                                    .foregroundStyle(Tema.ambarTinta)
-                                    .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .leading)
-                                    .padding(.horizontal, 14)
-                                    .contentShape(Rectangle())
+                                LinhaDeLista(tocavel: "plus.bubble", perguntasDaSabia.isEmpty ? "Instigar" : "Mais perguntas",
+                                             "vai à sábia; as perguntas ficam aqui", fio: false)
                             }
                             .buttonStyle(PressaoDiscreta())
                             .disabled(instigandoDesde != nil)
@@ -212,19 +214,22 @@ struct LenteView: View {
                 // ADR 04m: contrapor — a posição contrária, a opção fora da
                 // lista, o exemplo de outro campo. Informação, nunca instrução.
                 if notaUUID != nil, gesto != .expressiva {
-                    secao("Contrapor", "o outro lado, a opção que faltou, o exemplo de outro campo") {
+                    secao("Contrapor", id: "contrapor",
+                          nota: "o outro lado, a opção que faltou, o exemplo de outro campo") {
                         VStack(alignment: .leading, spacing: 0) {
                             if let c = contraparte {
-                                if !c.contra.isEmpty { paragrafo("O OUTRO LADO", c.contra) }
-                                if !c.foraDaLista.isEmpty { paragrafo("FORA DA LISTA", c.foraDaLista) }
-                                if !c.outroCampo.isEmpty { paragrafo("EM OUTRO CAMPO", c.outroCampo) }
+                                // ADR 10k: "O OUTRO LADO" em caixa alta nomeava
+                                // o parágrafo; é nome de conteúdo — frase normal
+                                if !c.contra.isEmpty { paragrafo("O outro lado", c.contra) }
+                                if !c.foraDaLista.isEmpty { paragrafo("Fora da lista", c.foraDaLista) }
+                                if !c.outroCampo.isEmpty { paragrafo("Em outro campo", c.outroCampo) }
                                 HStack(spacing: 14) {
                                     Button("Copiar") {
                                         UIPasteboard.general.string = [c.contra, c.foraDaLista, c.outroCampo].filter { !$0.isEmpty }.joined(separator: "\n\n")
                                         Toque.leve()
                                     }
                                     .font(Tema.barra)
-                                    .foregroundStyle(Tema.ambarTinta)
+                                    .foregroundStyle(Tema.tinta)
                                     .buttonStyle(PressaoDiscreta())
                                     .alvo()
                                     // §14: o retorno é um CONTROLE, o mesmo das
@@ -237,11 +242,9 @@ struct LenteView: View {
                                         }
                                     }
                                 }
-                                .padding(.horizontal, 14)
                             }
                             if let aviso, aviso.op == .contrapor {
                                 LinhaDeEstado(aviso.texto, aviso.estado)
-                                    .padding(.horizontal, 14)
                                     .padding(.vertical, 10)
                                     .accessibilityIdentifier("lente-aviso-contrapor")
                             }
@@ -251,18 +254,13 @@ struct LenteView: View {
                                     tarefaContrapor?.cancel()
                                     contrapondoDesde = nil
                                 }
-                                .padding(.horizontal, 14)
                                 .padding(.vertical, 6)
                             }
                             Button {
                                 contrapor()
                             } label: {
-                                Text(contraparte == nil ? "Contrapor" : "Outro ângulo")
-                                    .font(Tema.barra)
-                                    .foregroundStyle(Tema.ambarTinta)
-                                    .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .leading)
-                                    .padding(.horizontal, 14)
-                                    .contentShape(Rectangle())
+                                LinhaDeLista(tocavel: "arrow.left.arrow.right", contraparte == nil ? "Contrapor" : "Outro ângulo",
+                                             "vai à sábia; a resposta fica aqui, nunca na nota", fio: false)
                             }
                             .buttonStyle(PressaoDiscreta())
                             .disabled(contrapondoDesde != nil)
@@ -273,15 +271,19 @@ struct LenteView: View {
                 }
 
                 if notaUUID != nil {
-                    secao("Apontar um trecho", "cole ou escreva um pedaço do seu texto e diga o que ele é") {
-                        VStack(spacing: 0) {
+                    secao("Apontar um trecho", id: "apontar",
+                          nota: "cole ou escreva um pedaço do seu texto e diga o que ele é") {
+                        VStack(alignment: .leading, spacing: 0) {
+                            // o campo é a única caixa da Lente: é onde se escreve,
+                            // e o tipo sozinho não diz "escreva aqui"
                             TextField("um trecho do texto", text: $trechoNovo, axis: .vertical)
                                 .font(.callout)
                                 .lineLimit(1...3)
                                 .padding(.horizontal, 14)
                                 .padding(.vertical, 10)
+                                .background(Tema.superficieBaixa, in: RoundedRectangle(cornerRadius: Tema.Raio.campo, style: .continuous))
+                                .padding(.top, 4)
                                 .accessibilityIdentifier("apontar-trecho")
-                            Rectangle().fill(Tema.linha).frame(height: 1).padding(.leading, 14)
                             HStack(spacing: 8) {
                                 ForEach(RotuloApontar.allCases, id: \.self) { r in
                                     Button(r.nome) { marcar(trechoNovo, r) }
@@ -293,13 +295,11 @@ struct LenteView: View {
                                         .disabled(trechoNovo.trimmingCharacters(in: .whitespaces).isEmpty)
                                 }
                             }
-                            .padding(.horizontal, 14)
                             .padding(.vertical, 10)
                             if recusado {
                                 Text("esse trecho não está no seu texto.")
                                     .font(Tema.meta)
                                     .foregroundStyle(Tema.aviso)
-                                    .padding(.horizontal, 14)
                                     .padding(.bottom, 10)
                             }
                         }
@@ -368,12 +368,14 @@ struct LenteView: View {
         }
     }
 
-    private func paragrafo(_ rotulo: String, _ texto: String) -> some View {
+    /// Um ângulo da contraparte: o nome do ângulo numa linha de peso, o
+    /// texto inteiro embaixo, e o fio entre um e outro (Hermes §6: texto puro
+    /// em largura inteira, sem balão, sem caixa alta no nome).
+    private func paragrafo(_ nome: String, _ texto: String) -> some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(rotulo)
-                .font(Tema.label)
-                .tracking(Tema.trackingLabel)
-                .foregroundStyle(Tema.tintaFraca)
+            Text(nome)
+                .font(Tema.meta.weight(.semibold))
+                .foregroundStyle(Tema.tintaSuave)
             Text(texto)
                 .font(Tema.corpo)
                 .foregroundStyle(Tema.tinta)
@@ -381,8 +383,8 @@ struct LenteView: View {
                 .textSelection(.enabled)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 14)
         .padding(.vertical, 10)
+        .overlay(alignment: .bottom) { Rectangle().fill(Tema.linha).frame(height: 0.5) }
         .accessibilityIdentifier("contraparte")
     }
 
@@ -405,22 +407,20 @@ struct LenteView: View {
         return "\(p) · \(f)"
     }
 
-    private func secao<C: View>(_ titulo: String, _ nota: String, @ViewBuilder _ conteudo: () -> C) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(titulo.uppercased())
-                    .font(Tema.label)
-                    .tracking(Tema.trackingLabel)
-                    .foregroundStyle(Tema.tintaSuave)
+    /// Hermes §5: cabeçalho sussurrado com a contagem e o recolher; a nota
+    /// de uma linha desce para baixo dele, e o conteúdo pousa no papel — a
+    /// caixa cinza em volta de cada seção saiu (ADR 10k).
+    private func secao<C: View>(_ titulo: String, id: String, contagem: Int? = nil, nota: String? = nil,
+                                @ViewBuilder _ conteudo: () -> C) -> some View {
+        recolhidas.secao(titulo, id: id, contagem: contagem) {
+            if let nota {
                 Text(nota)
                     .font(.footnote)
                     .foregroundStyle(Tema.tintaFraca)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.bottom, 4)
             }
-            .padding(.leading, 4)
-            VStack(spacing: 0) {
-                conteudo()
-            }
-            .background(Tema.superficieBaixa, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+            conteudo()
         }
     }
 
@@ -434,42 +434,38 @@ struct LenteView: View {
                     Button(r.nome) { marcar(termo, r) }
                 }
             } label: {
-                linha(termo, vezes, rotulo: nil)
+                linha(termo, vezes, tipo: sugerido, rotulo: nil)
             }
             .accessibilityHint("Apontar este trecho com um rótulo")
         } else {
-            linha(termo, vezes, rotulo: nil)
+            linha(termo, vezes, tipo: sugerido, rotulo: nil)
         }
     }
 
-    private func linha(_ termo: String, _ vezes: Int?, rotulo: String?) -> some View {
-        HStack(spacing: 10) {
-            Text(termo)
-                .font(.callout)
-                .foregroundStyle(Tema.tinta)
-                .lineLimit(2)
-                .multilineTextAlignment(.leading)
-            Spacer()
-            if let rotulo {
-                Text(rotulo.uppercased())
-                    .font(Tema.label)
-                    .tracking(Tema.trackingLabel)
-                    .foregroundStyle(Tema.tintaSuave)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(Tema.chip, in: Capsule())
-            }
-            if let vezes {
-                Text("×\(vezes)")
-                    .font(.callout.monospacedDigit())
-                    .foregroundStyle(Tema.tintaSuave)
-            }
-        }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 10)
-        .alvo()
-        .overlay(alignment: .bottom) {
-            Rectangle().fill(Tema.linha).frame(height: 1).padding(.leading, 14)
+    /// A linha da Lente é a linha do app (Hermes §4): o glifo diz o TIPO do
+    /// achado pela forma — o mesmo glifo no achado e no apontado —, o termo é
+    /// o título, o rótulo apontado é o subtítulo, e a contagem é o acessório.
+    private func linha(_ termo: String, _ vezes: Int?, tipo: RotuloApontar, rotulo: String?) -> some View {
+        LinhaDeLista(
+            titulo: termo,
+            subtitulo: rotulo,
+            linhasDoTitulo: 2,
+            glifo: { Image(systemName: Self.glifo(tipo)) },
+            acessorio: {
+                if let vezes {
+                    Text("×\(vezes)")
+                        .font(Tema.meta.monospacedDigit())
+                        .foregroundStyle(Tema.tintaSuave)
+                }
+            })
+    }
+
+    static func glifo(_ tipo: RotuloApontar) -> String {
+        switch tipo {
+        case .fraseFeita: "text.quote"
+        case .vago: "cloud"
+        case .passiva: "eye.slash"
+        case .muleta: "ellipsis.bubble"
         }
     }
 }
