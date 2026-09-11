@@ -102,7 +102,7 @@ alguém tropeçar: a série 08 encheu sem aviso e custou três colisões numa ta
 
 | 10h | A CAUDA · a prova que não se pode abrir não é prova; e a razão da tela é o defeito de HOJE (`recordar` suprime, não vaza; `calibragem` nem chama com um par só) | **em `main`** — as 5 citações órfãs corrigidas, portão novo, `recordar` e `calibragem` reescritas |
 | 10i | ENTRADA · perguntar é a marca "?", a mesma em toda tela; a busca volta à lista; o pé fica livre | reservada, volta viva (worktree `superficie`, branch `Vitorepf/entrada`) |
-| 10j | CONVERSA-HERMES · a conversa sem caixa (linha de autor, texto, fio recuado) e a espera como cápsula com tempo colada ao campo, cujo botão muda com o estado | reservada, volta viva (worktree `sistema-ia`, branch `Vitorepf/sistema-ia`) |
+| 10j | CONVERSA-HERMES · a conversa sem caixa (linha de autor, texto, fio recuado) e a espera como cápsula com tempo colada ao campo, cujo botão muda com o estado | escrita no branch `Vitorepf/sistema-ia` (portão dos sete em `ferramentas/orca/conversa-hermes.md`); o coordenador mescla |
 
 **Próxima livre: 10k.**
 
