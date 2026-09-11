@@ -20,7 +20,8 @@ enum CalendarioTema {
     static let tintaMorta = Tema.tintaMorta
     static let linha = Tema.linha
     static let luzBorda = Tema.luzBorda
-    /// A assinatura do Traço, uma vez por tela: o "agora". Fill, nunca texto.
+    /// A assinatura do Traço, uma vez por tela: o "agora" — ESTADO, pela regra
+    /// da cor do `Tema`. Fill, nunca texto.
     static let agora = Tema.ambar
     static let agoraTinta = Tema.ambarTinta
     static let aviso = Tema.aviso
@@ -227,8 +228,10 @@ struct CalendarioToast: View {
                         UIApplication.shared.open(url)
                     }
                 }
-                .font(CalendarioTema.meta.weight(.semibold))
-                .foregroundStyle(Tema.ambar)
+                // ADR 10k: ação pelo peso e pelo lugar; âmbar é o agora
+                .font(CalendarioTema.meta.weight(.bold))
+                .foregroundStyle(.white)
+                .underline()
                 .accessibilityIdentifier("toast-ajustes")
             }
         }

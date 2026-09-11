@@ -493,8 +493,15 @@ struct CalendarioChipDia: View {
     }
 }
 
+/// A agenda em lista é a lista do app (Hermes §4 e §5, ADR 10k): o dia é o
+/// cabeçalho de seção, com a contagem e o recolher; cada compromisso é uma
+/// linha de três níveis no papel — sem o cartão branco que cada um tinha.
+/// A identidade à esquerda é o DOMÍNIO: forma do ícone e matiz, as duas
+/// cores de identidade que a regra do `Tema` deixa entrar.
 struct CalendarioListaView: View {
     @Bindable var agenda: CalendarioAgenda
+    /// o recolher de um dia vale enquanto a lista está aberta: amanhã é outro dia
+    @State private var recolhidos: Set<Date> = []
 
     var body: some View {
         let grupos = Dictionary(grouping: agenda.eventosDaEscala()) {
@@ -504,44 +511,43 @@ struct CalendarioListaView: View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 20) {
                 if dias.isEmpty {
-                    Text("Nada marcado.")
-                        .font(CalendarioTema.evento)
-                        .foregroundStyle(CalendarioTema.tintaSuave)
-                        .padding(.top, 24)
+                    // Hermes §11: o vazio é uma linha normal
+                    LinhaDeLista("calendar", "Nada marcado", "escreva no campo: “dentista sexta às 14h30”", fio: false)
+                        .padding(.top, 12)
                         .accessibilityIdentifier("calendario-lista-vazia")
                 }
                 ForEach(dias, id: \.self) { dia in
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text(Calendario.diaPorExtenso(dia, agenda.cal))
-                            .font(CalendarioTema.meta)
-                            .foregroundStyle(CalendarioTema.tintaSuave)
-                            .padding(.leading, 4)
-                        ForEach(grupos[dia] ?? []) { evento in
-                            Button {
-                                agenda.abrir(evento)
-                            } label: {
-                                HStack(spacing: 12) {
-                                    Image(systemName: CalendarioTema.icone(de: evento))
-                                        .font(.caption.weight(.semibold))
-                                        .foregroundStyle(CalendarioTema.tinta(de: evento))
-                                        .frame(width: 28, height: 28)
-                                        .background(CalendarioTema.fundo(de: evento), in: Circle())
-                                    Text(evento.titulo)
-                                        .font(CalendarioTema.evento)
-                                        .foregroundStyle(CalendarioTema.tinta)
-                                        .lineLimit(1)
-                                    Spacer(minLength: 8)
-                                    Text(Calendario.intervalo(evento, agenda.cal))
-                                        .font(CalendarioTema.hora)
-                                        .foregroundStyle(CalendarioTema.tintaSuave)
+                    let doDia = grupos[dia] ?? []
+                    VStack(alignment: .leading, spacing: 0) {
+                        CabecalhoDeSecao(Calendario.diaPorExtenso(dia, agenda.cal), contagem: doDia.count,
+                                         recolhida: Binding(
+                                            get: { recolhidos.contains(dia) },
+                                            set: { if $0 { recolhidos.insert(dia) } else { recolhidos.remove(dia) } }))
+                        if !recolhidos.contains(dia) {
+                            ForEach(doDia) { evento in
+                                Button {
+                                    agenda.abrir(evento)
+                                } label: {
+                                    LinhaDeLista(
+                                        titulo: evento.titulo,
+                                        subtitulo: Calendario.intervalo(evento, agenda.cal)
+                                            + (evento.doSistema ? " · do seu iPhone" : ""),
+                                        glifo: {
+                                            Image(systemName: CalendarioTema.icone(de: evento))
+                                                .font(.caption.weight(.semibold))
+                                                .foregroundStyle(CalendarioTema.tinta(de: evento))
+                                                .frame(width: 28, height: 28)
+                                                .background(CalendarioTema.fundo(de: evento), in: Circle())
+                                                .overlay {
+                                                    if CalendarioTema.temContorno(evento) {
+                                                        Circle().strokeBorder(CalendarioTema.contorno(de: evento), lineWidth: 1)
+                                                    }
+                                                }
+                                        },
+                                        acessorio: { Chevron() })
                                 }
-                                .padding(.horizontal, 14)
-                                .padding(.vertical, 12)
-                                .alvo()
-                                .background(CalendarioTema.cartao, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-                                .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                                .buttonStyle(PressaoClara())
                             }
-                            .buttonStyle(PressaoClara())
                         }
                     }
                 }

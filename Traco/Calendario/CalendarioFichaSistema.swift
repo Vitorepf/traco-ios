@@ -27,18 +27,23 @@ struct CalendarioFichaSistemaView: View {
                 .frame(maxWidth: .infinity)
                 .accessibilityIdentifier("sistema-titulo")
 
+            // ADR 10k: o "QUANDO" ficava DENTRO do cartão, nomeando o que
+            // estava nele; agora é cabeçalho, fora, como na ficha do Traço
             VStack(alignment: .leading, spacing: 8) {
                 Text("Quando")
                     .rotulo(Tema.tintaSuave)
-                Text(Calendario.diaPorExtenso(evento.inicio, agenda.cal))
-                    .font(.callout)
-                Text(Calendario.intervalo(evento, agenda.cal))
-                    .font(.callout)
-                    .foregroundStyle(CalendarioTema.tintaSuave)
-                    .monospacedDigit()
+                    .padding(.leading, 4)
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(Calendario.diaPorExtenso(evento.inicio, agenda.cal))
+                        .font(.callout)
+                    Text(Calendario.intervalo(evento, agenda.cal))
+                        .font(.callout)
+                        .foregroundStyle(CalendarioTema.tintaSuave)
+                        .monospacedDigit()
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .cartao(.campo)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .cartao(.campo)
 
             if !doCaderno.isEmpty {
                 DoCadernoView(vizinhas: doCaderno) { uuid in

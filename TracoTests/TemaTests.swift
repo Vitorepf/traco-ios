@@ -289,4 +289,46 @@ struct TemaTests {
         s.pararDeEsperarASabia()
         #expect(s.cartao == .resposta(pergunta: "q", texto: "t"))
     }
+
+    // MARK: - A regra da cor e a caixa alta (ADR 10k, Hermes §5 e §10)
+
+    /// As telas da varredura do sistema não pintam de âmbar nem escrevem em
+    /// caixa alta por conta própria. O âmbar é o traço do autor e o agora
+    /// (`CalendarioTema.agora`); a caixa alta é do `CabecalhoDeSecao` e do
+    /// `.rotulo()` que ele usa. Na árvore de `cfbb19c` este regex achava 37
+    /// linhas nestes arquivos; hoje acha zero. Quem precisar de outra cor muda
+    /// a regra escrita no `Tema` primeiro — e diz se é identidade ou estado.
+    @Test func telasDoSistemaSeguemARegraDaCorEDaCaixaAlta() throws {
+        let raiz = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent().deletingLastPathComponent()
+        let arquivos = [
+            "Traco/Perfil/PerfilView.swift",
+            "Traco/Padroes/PadroesView.swift",
+            "Traco/Pagina/LenteView.swift",
+            "Traco/App/TituloTela.swift",
+            "Traco/Calendario/CalendarioView.swift",
+            "Traco/Calendario/CalendarioFicha.swift",
+            "Traco/Calendario/CalendarioFichaSistema.swift",
+            "Traco/Calendario/CalendarioEscalas.swift",
+            "Traco/Calendario/DoCadernoView.swift",
+        ]
+        let proibido = try Regex(#"Tema\.ambar|\.uppercased\(\)|textCase\(\.uppercase\)|Tema\.label\b|trackingLabel"#)
+        // a sonda que acusa tem irmã que não acusa: pega o defeito velho e
+        // deixa passar o agora do calendário e o rótulo de seção sancionado
+        #expect("    .foregroundStyle(Tema.ambarTinta)".contains(proibido))
+        #expect(#"Text(g.nome.uppercased())"#.contains(proibido))
+        #expect(#"    .font(Tema.label)"#.contains(proibido))
+        #expect(!"    .fill(CalendarioTema.agora)".contains(proibido))
+        #expect(!#"    Text("Quando").rotulo(Tema.tintaSuave)"#.contains(proibido))
+        var achados: [String] = []
+        for caminho in arquivos {
+            let texto = try String(contentsOf: raiz.appending(path: caminho), encoding: .utf8)
+            #expect(texto.contains("View"), "\(caminho) não parece uma tela")
+            for (n, linha) in texto.split(separator: "\n", omittingEmptySubsequences: false).enumerated()
+            where linha.contains(proibido) && !linha.trimmingCharacters(in: .whitespaces).hasPrefix("//") {
+                achados.append("\(caminho):\(n + 1): \(linha.trimmingCharacters(in: .whitespaces))")
+            }
+        }
+        #expect(achados.isEmpty, "cor ou caixa alta fora da regra:\n\(achados.joined(separator: "\n"))")
+    }
 }

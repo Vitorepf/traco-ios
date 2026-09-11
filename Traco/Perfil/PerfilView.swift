@@ -58,6 +58,10 @@ struct PerfilView: View {
     /// ADR 06j: as hipóteses do Trabalho entram na latência pela mesma tela.
     @Query private var trabalhos: [Trabalho]
     @State private var serieDaLatencia = Latencia.Serie()
+    /// Hermes §5: a densidade se controla no cabeçalho de cada seção. A tabela
+    /// de quem responde nasce recolhida: o estado da conta já está nas linhas
+    /// de cima, e o cabeçalho a mantém à vista (ADR 10k).
+    var recolhidas = Recolhidas("perfil", deInicio: ["quem-responde"])
 
     var body: some View {
         ZStack {
@@ -71,22 +75,27 @@ struct PerfilView: View {
                 }
             }
             ScrollView {
+                // Hermes §1 e §4 (ADR 10k): as seções pousam no PAPEL. O
+                // cartão em volta de cada uma nomeava o conteúdo com caixa
+                // alta dentro de uma caixa; agora o cabeçalho sussurra e
+                // agrupa, e as linhas se separam por fio recuado.
                 VStack(alignment: .leading, spacing: Tema.entreSecoes) {
-                    conta.emCartao()
-                    permissoes.emCartao()
-                    calendario.emCartao()
-                    ajustes.emCartao()
-                    sabiaEVoce.emCartao()
+                    conta
+                    quemResponde
+                    permissoes
+                    calendario
+                    ajustes
+                    sabiaEVoce
                     // a latência vem logo depois do retrato: é a mesma família
                     // — o que o autor registrou, em contagem e sem conclusão
-                    latencia.emCartao()
-                    metodos.emCartao()
+                    latencia
+                    metodos
                     // as férias vêm DEPOIS dos ajustes de todo dia: primeiro o
                     // que vale sempre, depois a exceção (serial-position, e o
                     // fluxo do Perfil provou que o contrário empurra a análise
                     // automática para fora da primeira tela)
-                    ferias.emCartao()
-                    dados.emCartao()
+                    ferias
+                    dados
                     Spacer(minLength: 8)
                 }
                 .padding(.horizontal, Tema.margem)
@@ -153,9 +162,8 @@ struct PerfilView: View {
     }
 
     private var sabiaEVoce: some View {
-        VStack(alignment: .leading, spacing: Tema.entreItens) {
-            rotulo("A SÁBIA E VOCÊ")
-            chave("A sábia conhece você",
+        recolhidas.secao("A sábia e você", id: "sabia") {
+            chave("person.text.rectangle", "A sábia conhece você",
                   "Um retrato feito só com as suas palavras e contagens viaja junto de cada pergunta: as formas que usa, os obstáculos que nomeou, o que não voltou no Recordar. Nunca conclui, nunca pontua.",
                   id: "ajuste-retrato",
                   ligado: Binding(
@@ -166,43 +174,32 @@ struct PerfilView: View {
                         Toque.leve()
                     }))
             if retratoLigado {
-                Text(retratoTexto.isEmpty ? "ainda não há retrato — ele nasce das suas notas e dos sinais." : retratoTexto)
-                    .font(.footnote)
-                    .foregroundStyle(retratoTexto.isEmpty ? Tema.tintaFraca : Tema.tintaSuave)
-                    .fixedSize(horizontal: false, vertical: true)
+                // o retrato é CONTEÚDO (é o que viaja), não subtítulo: inteiro
+                prosa(retratoTexto.isEmpty ? "ainda não há retrato — ele nasce das suas notas e dos sinais." : retratoTexto,
+                      cor: retratoTexto.isEmpty ? Tema.tintaFraca : Tema.tintaSuave)
                     .accessibilityIdentifier("retrato")
                     .accessibilityLabel("O retrato, exatamente como viaja")
             }
-            VStack(alignment: .leading, spacing: 4) {
-                // ADR 06h: o que está embaixo é contagem (12 sinais desde…),
-                // e a VISAO manda distinguir observação de conclusão.
-                Text("O que o Traço registrou — contagem, não conclusão")
-                    .font(Tema.chrome)
-                    .foregroundStyle(Tema.tinta)
-                Text(sinaisEmPalavras)
-                    .font(.footnote)
-                    .foregroundStyle(Tema.tintaFraca)
-                    .accessibilityIdentifier("sinais")
-                if !degrausEmPalavras.isEmpty {
-                    // ADR 04x: o autor vê o que a sábia vai cobrar dele
-                    Text("O que a sábia cobra, por forma: " + degrausEmPalavras)
-                        .font(.footnote)
-                        .foregroundStyle(Tema.tintaSuave)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .accessibilityIdentifier("degraus")
-                }
-                if !formasSugeridas.isEmpty {
-                    Text("Você soltou três vezes seguidas: " + formasSugeridas.map(\.nome).joined(separator: ", ")
-                         + ". Por isso o Traço passou a sugerir em vez de vestir. Abrir uma por vontade própria devolve o vestir.")
-                        .font(.footnote)
-                        .foregroundStyle(Tema.tintaSuave)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .accessibilityIdentifier("formas-sugeridas")
-                }
+            // ADR 06h: o que está embaixo é contagem (12 sinais desde…),
+            // e a VISAO manda distinguir observação de conclusão.
+            // o título quebra: "contagem, não conclusão" é a frase da 06h e não se corta
+            LinhaDeLista("number", "O que o Traço registrou — contagem, não conclusão", sinaisEmPalavras,
+                         linhasDoTitulo: nil, fio: degrausEmPalavras.isEmpty && formasSugeridas.isEmpty)
+                .accessibilityIdentifier("sinais")
+            if !degrausEmPalavras.isEmpty {
+                // ADR 04x: o autor vê o que a sábia vai cobrar dele
+                prosa("O que a sábia cobra, por forma: " + degrausEmPalavras)
+                    .accessibilityIdentifier("degraus")
             }
-            .padding(.top, 4)
-            linhaAcao("Esquecer tudo") { confirmarEsquecer = true }
-                .accessibilityIdentifier("esquecer-sinais")
+            if !formasSugeridas.isEmpty {
+                prosa("Você soltou três vezes seguidas: " + formasSugeridas.map(\.nome).joined(separator: ", ")
+                      + ". Por isso o Traço passou a sugerir em vez de vestir. Abrir uma por vontade própria devolve o vestir.")
+                    .accessibilityIdentifier("formas-sugeridas")
+            }
+            linhaAcao("trash", "Esquecer tudo", "os sinais somem; as notas ficam", destrutiva: true, fio: false) {
+                confirmarEsquecer = true
+            }
+            .accessibilityIdentifier("esquecer-sinais")
         }
     }
 
@@ -230,23 +227,20 @@ struct PerfilView: View {
 
     private var latencia: some View {
         let s = serieDaLatencia
-        return VStack(alignment: .leading, spacing: Tema.entreItens) {
-            rotulo("LATÊNCIA DA DESCOBERTA")
-            Text("Quanto tempo passa entre afirmar uma coisa e saber se estava certa. Sai das hipóteses do Trabalho e das decisões com data de conferir — nada a preencher aqui. Hipótese sem resposta é informação; abandonar é resultado.")
-                .font(.footnote)
-                .foregroundStyle(Tema.tintaFraca)
-                .fixedSize(horizontal: false, vertical: true)
+        return recolhidas.secao("Latência da descoberta", id: "latencia",
+                     contagem: s.vazia ? nil : Latencia.paraTela(s).count) {
             if s.vazia {
-                Text("ainda não há série — ela nasce quando você propõe uma hipótese num Trabalho ou escreve uma Decisão com data de conferir.")
-                    .font(.footnote)
-                    .foregroundStyle(Tema.tintaFraca)
-                    .fixedSize(horizontal: false, vertical: true)
+                // Hermes §11: o vazio é uma linha normal, não uma cerimônia
+                LinhaDeLista("hourglass", "Ainda não há série",
+                             "ela nasce quando você propõe uma hipótese num Trabalho ou escreve uma Decisão com data de conferir.")
                     .accessibilityIdentifier("latencia-vazia")
             } else {
                 resumo(s)
                 if !s.meses.isEmpty { meses(s.meses) }
                 registrosDaLatencia(s)
             }
+            prosa("Quanto tempo passa entre afirmar uma coisa e saber se estava certa. Sai das hipóteses do Trabalho e das decisões com data de conferir — nada a preencher aqui. Hipótese sem resposta é informação; abandonar é resultado.")
+                .padding(.top, 8)
         }
     }
 
@@ -259,21 +253,10 @@ struct PerfilView: View {
         let medida = Latencia.emPalavras(.init(descobertos: s.descobertos))
         let composicao = Latencia.emPalavras(
             .init(abertos: s.abertos, abandonados: s.abandonados, semData: s.semData))
-        return VStack(alignment: .leading, spacing: 4) {
-            if !medida.isEmpty {
-                Text(medida)
-                    .font(Tema.chrome)
-                    .foregroundStyle(Tema.tinta)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            if !composicao.isEmpty {
-                Text(composicao)
-                    .font(Tema.meta)
-                    .foregroundStyle(Tema.tintaSuave)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-        }
-        .accessibilityIdentifier("latencia-resumo")
+        // a manchete pode ser longa: o título quebra, a composição corta
+        return LinhaDeLista("hourglass", medida.isEmpty ? composicao : medida,
+                            medida.isEmpty ? nil : composicao, linhasDoTitulo: nil)
+            .accessibilityIdentifier("latencia-resumo")
     }
 
     /// A série: um mês por linha, na ordem do tempo, só em palavras. Não há
@@ -313,33 +296,31 @@ struct PerfilView: View {
     /// esconderia justamente o que nunca voltou. O corte é POR ESTADO
     /// (`Latencia.paraTela`) para que os quatro sobrevivam a ele.
     private func registrosDaLatencia(_ s: Latencia.Serie) -> some View {
-        return VStack(alignment: .leading, spacing: 10) {
-            ForEach(Latencia.paraTela(s)) { r in
-                VStack(alignment: .leading, spacing: 2) {
-                    // Dois degraus no mesmo sentido: a linha da MEDIDA é a
-                    // maior e a mais escura, a frase da hipótese recua. Era o
-                    // contrário — 12pt (degrau que a ADR 05u reserva a fora do
-                    // app) e o cinza mais fraco justo no número (G4 da L1).
-                    Text(Latencia.rotulo(r.estado) + " · " + medidaDe(r)
-                         + (r.autoria.map { " · " + $0 } ?? ""))
-                        .font(Tema.meta)
-                        .foregroundStyle(Tema.tintaSuave)
-                        // era o único Text da seção sem isto: em AX5, no degrau
-                        // maior, a linha passou a pedir a largura ideal e
-                        // empurrou a CAMADA inteira para fora da tela
-                        .fixedSize(horizontal: false, vertical: true)
-                    if !r.texto.isEmpty {
-                        Text(r.texto)
-                            .font(.footnote)
-                            .foregroundStyle(Tema.tintaFraca)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                }
-                .accessibilityElement(children: .combine)
+        let lista = Latencia.paraTela(s)
+        return VStack(alignment: .leading, spacing: 0) {
+            ForEach(lista) { r in
+                // Dois degraus no mesmo sentido: a linha da MEDIDA é o título,
+                // a frase da hipótese recua para o subtítulo (G4 da L1). A
+                // identidade à esquerda é o ESTADO pela forma — círculo vazio
+                // em aberto, relógio devido, visto descoberto, xis abandonado.
+                LinhaDeLista(Self.glifo(r.estado),
+                             Latencia.rotulo(r.estado) + " · " + medidaDe(r)
+                                + (r.autoria.map { " · " + $0 } ?? ""),
+                             r.texto.isEmpty ? nil : r.texto,
+                             linhasDoTitulo: nil, fio: r.id != lista.last?.id)
             }
         }
-        .padding(.top, 4)
+        .accessibilityElement(children: .contain)
         .accessibilityIdentifier("latencia-registros")
+    }
+
+    static func glifo(_ estado: Latencia.Estado) -> String {
+        switch estado {
+        case .afirmado: "circle"
+        case .devido: "clock"
+        case .descoberto: "checkmark.circle"
+        case .abandonado: "xmark.circle"
+        }
     }
 
     private func medidaDe(_ r: Latencia.Registro) -> String {
@@ -363,23 +344,21 @@ struct PerfilView: View {
         let doApp = Catalogo.doApp.count
         let doAutor = Catalogo.doAutor.count
         let problemas = Catalogo.problemas
-        return VStack(alignment: .leading, spacing: Tema.entreItens) {
-            rotulo("MÉTODOS")
-            linhaAcao("\(doApp) do app" + (doAutor > 0 ? " · \(doAutor) seu\(doAutor == 1 ? "" : "s")" : "")) {
+        return recolhidas.secao("Métodos", id: "metodos", contagem: doApp + doAutor) {
+            linhaAcao("books.vertical",
+                      "\(doApp) do app" + (doAutor > 0 ? " · \(doAutor) seu\(doAutor == 1 ? "" : "s")" : ""),
+                      "a lista, e de onde vem cada um", fio: false) {
                 mostrarMetodos = true
             }
             .accessibilityIdentifier("metodos")
             if !problemas.isEmpty {
+                // `aviso` é ESTADO: o arquivo que falhou
                 ForEach(problemas, id: \.self) { p in
-                    Text("não entrou — " + p)
-                        .font(.footnote)
-                        .foregroundStyle(Tema.aviso)
-                        .fixedSize(horizontal: false, vertical: true)
+                    prosa("não entrou — " + p, cor: Tema.aviso)
                 }
             }
-            Text("Cada método é um arquivo. Os seus vivem em Arquivos › Traço › metodos, ou em metodos/ na pasta espelhada: um JSON com id, nome, campos e o movimento que a sábia cobra. O app lê ao abrir.")
-                .font(.footnote)
-                .foregroundStyle(Tema.tintaFraca)
+            prosa("Cada método é um arquivo. Os seus vivem em Arquivos › Traço › metodos, ou em metodos/ na pasta espelhada: um JSON com id, nome, campos e o movimento que a sábia cobra. O app lê ao abrir.")
+                .padding(.top, 8)
         }
     }
 
@@ -399,43 +378,30 @@ struct PerfilView: View {
             .padding(.top, 20)
             .padding(.bottom, 12)
             ScrollView {
-                VStack(alignment: .leading, spacing: 14) {
+                VStack(alignment: .leading, spacing: 0) {
                     ForEach(Catalogo.todos) { m in
                         let aberta = provenienciaAberta == m.id
-                        VStack(alignment: .leading, spacing: 3) {
+                        VStack(alignment: .leading, spacing: 0) {
                             // ADR 05x: a linha inteira abre "de onde vem"; o alvo
                             // de 44 vive no toque, não numa linha a mais (G3, B7).
+                            // ADR 10k: o "SEU" em caixa alta e âmbar era etiqueta
+                            // pintada; agora quem é do autor se vê pela FORMA do
+                            // glifo, e a origem desce ao subtítulo em frase normal.
                             Button {
                                 provenienciaAberta = aberta ? nil : m.id
                             } label: {
-                                VStack(alignment: .leading, spacing: 3) {
-                                    HStack(alignment: .firstTextBaseline, spacing: 8) {
-                                        Text(m.nome)
-                                            .font(Tema.corpo.weight(.semibold))
-                                            .foregroundStyle(Tema.tinta)
-                                            .layoutPriority(1)
-                                        if m.doAutor {
-                                            Text("SEU")
-                                                .font(.system(size: 9, weight: .semibold))
-                                                .tracking(0.8)
-                                                .foregroundStyle(Tema.ambarTinta)
-                                        }
-                                        Spacer(minLength: 0)
-                                        Text(m.origem)
-                                            .font(Tema.label)
-                                            .foregroundStyle(Tema.tintaFraca)
+                                LinhaDeLista(
+                                    titulo: m.nome,
+                                    subtitulo: ([m.doAutor ? "seu" : "", m.origem] + m.campos.map(\.rotulo))
+                                        .filter { !$0.isEmpty }.joined(separator: " · "),
+                                    fio: !aberta,
+                                    glifo: { Image(systemName: m.doAutor ? "person.crop.square" : "book.closed") },
+                                    acessorio: {
                                         Image(systemName: "chevron.down")
-                                            .font(.caption2.weight(.semibold))
-                                            .foregroundStyle(Tema.tintaSuave)
+                                            .font(.caption.weight(.semibold))
+                                            .foregroundStyle(Tema.tintaFraca)
                                             .rotationEffect(.degrees(aberta ? 180 : 0))
-                                            .accessibilityHidden(true)
-                                    }
-                                    Text(m.campos.map(\.rotulo).joined(separator: " · "))
-                                        .font(.footnote)
-                                        .foregroundStyle(Tema.tintaSuave)
-                                        .fixedSize(horizontal: false, vertical: true)
-                                }
-                                .alvo()
+                                    })
                             }
                             .buttonStyle(.discreto)
                             .accessibilityIdentifier("de-onde-vem-\(m.id)")
@@ -466,114 +432,81 @@ struct PerfilView: View {
     // MARK: - Conta
 
     private var conta: some View {
-        // spacing 0 e folgas por GRUPO: com um vão igual entre os cinco irmãos,
-        // o nome, o estado, a ação e a nota de rodapé pareciam quatro coisas
-        // soltas — e o cartão ficava alto e oco ao lado dos vizinhos. São três
-        // grupos: quem é a conta, o que fazer, e a letra miúda
-        // (law-of-proximity).
-        VStack(alignment: .leading, spacing: 0) {
-            rotulo("CONTA")
+        // Três linhas: quem é a conta e como ela está; o que fazer com ela; e o
+        // motor do aparelho. A letra miúda da política desceu para a seção de
+        // baixo, que se recolhe — era ela que fazia deste o cartão mais alto.
+        recolhidas.secao("Conta", id: "conta") {
             // nome e estado são UMA coisa: a conta e como ela está
-            Text("Grok")
-                .font(Tema.chrome.weight(.semibold))
-                .foregroundStyle(Tema.tinta)
-                .padding(.top, Tema.entreItens)
-            Text(estado ?? "verificando…")
-                .font(Tema.meta)
-                .foregroundStyle(Tema.tintaSuave)
-                .padding(.top, 2)
+            LinhaDeLista("person.crop.circle", "Grok", estado ?? "verificando…")
                 .accessibilityIdentifier("estado-conta")
 
             if let codigo {
-                VStack(alignment: .leading, spacing: 10) {
+                // o código é o CONTEÚDO desta hora: grande, em tinta, sem caixa
+                VStack(alignment: .leading, spacing: 6) {
                     Text("Aprove no navegador com este código:")
-                        .font(.subheadline)
+                        .font(Tema.meta)
                         .foregroundStyle(Tema.tintaSuave)
                     Text(codigo.userCode)
                         .font(.title.monospaced().weight(.semibold))
-                        .foregroundStyle(Tema.ambarTinta)
+                        .foregroundStyle(Tema.tinta)
                         .textSelection(.enabled)
                         .accessibilityIdentifier("codigo-dispositivo")
-                    Button("Abrir a página de aprovação") { abrir(codigo.url) }
-                        .font(Tema.chrome.weight(.semibold))
-                        .foregroundStyle(Tema.ambarTinta)
-                        .alvo()
-                        .buttonStyle(PressaoDiscreta())
                 }
-                .padding(14)
-                .background(Tema.superficie, in: RoundedRectangle(cornerRadius: Tema.raio, style: .continuous))
-                .padding(.top, Tema.entreItens)
+                .padding(.vertical, 10)
+                linhaAcao("safari", "Abrir a página de aprovação", nil) { abrir(codigo.url) }
             }
 
-            // a AÇÃO, separada de quem a conta é
+            // a AÇÃO, separada de quem a conta é — reconhecida pelo chevron,
+            // não pelo âmbar (ADR 10k)
             if ligada {
-                Button("Sair da conta — voltar ao motor local") {
+                linhaAcao("rectangle.portrait.and.arrow.right", "Sair da conta", "voltar ao motor local") {
                     ContaGrok.sair()
                     ligada = false
                     codigo = nil
                     Task { estado = await ContaGrok.estado() }
                 }
-                // peso de AÇÃO: idêntico ao parágrafo explicativo, a única
-                // ação do cartão lia como prosa (visto na captura do dono no
-                // iPhone real, 01/set — critique-affordance). Discreta segue
-                // sendo (sair é raro); tocável precisa parecer.
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(Tema.tintaSuave)
-                .alvo()
-                .buttonStyle(PressaoDiscreta())
-                .padding(.top, 6)
                 .accessibilityIdentifier("sair-conta")
             } else {
-                Button(entrando ? "esperando aprovação…" : "Entrar com a conta Grok") {
+                linhaAcao("person.badge.key", entrando ? "esperando aprovação…" : "Entrar com a conta Grok",
+                          "sem chave de API, sem cobrança por uso") {
                     entrar()
                 }
-                .font(Tema.chrome)
-                .foregroundStyle(Tema.ambarTinta)
-                .alvo()
-                .buttonStyle(PressaoDiscreta())
                 .disabled(entrando)
-                .padding(.top, 6)
                 .accessibilityIdentifier("entrar-conta")
             }
 
             if #available(iOS 26.0, *) {
-                Rectangle().fill(Tema.linha).frame(height: 0.5)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("No aparelho")
-                        .font(Tema.corpo)
-                        .foregroundStyle(Tema.tinta)
-                    Text(AnaliseDeBordo.estadoEmPalavras)
-                        .font(.footnote)
-                        .foregroundStyle(Tema.tintaFraca)
+                LinhaDeLista("iphone", "No aparelho", AnaliseDeBordo.estadoEmPalavras, fio: false)
+                    .accessibilityIdentifier("estado-de-bordo")
+            }
+        }
+    }
+
+    /// ADR 07b: a tabela de quem responde, na única tela que fala de provedor.
+    /// Função que o autor não vê não foi entregue: o CABEÇALHO fica sempre à
+    /// vista logo abaixo da conta, e um toque abre a letra miúda inteira.
+    private var quemResponde: some View {
+        recolhidas.secao("Quem responde", id: "quem-responde") {
+            VStack(alignment: .leading, spacing: Tema.entreItens) {
+                Text("A análise e a sábia usam a sua assinatura do Grok — sem chave de API, sem cobrança por uso. Sem a conta, a sábia responde pelo modelo do aparelho (Apple Intelligence), sem rede, com uma janela menor. Hoje: " + Sabia.porOndeEmPalavras + ". Notas trancadas e expressivas jamais vão à rede.")
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(Self.oQueAIAFaz)
+                    Text(Self.oQueAContaAcrescenta)
+                    Text(Self.notasAindaSemTela)
+                        .accessibilityIdentifier("perfil-notas-sem-tela")
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
                 .accessibilityElement(children: .combine)
-                .accessibilityIdentifier("estado-de-bordo")
+                .accessibilityIdentifier("quem-responde")
+                // A terceira linha: o que ela ainda não faz. Sem ela, a operação
+                // cortada sumia das duas listas de cima e o autor via menos coisa
+                // sem explicação — resultado pior calado.
+                indisponiveisPorQualidade
             }
-            Text("A análise e a sábia usam a sua assinatura do Grok — sem chave de API, sem cobrança por uso. Sem a conta, a sábia responde pelo modelo do aparelho (Apple Intelligence), sem rede, com uma janela menor. Hoje: " + Sabia.porOndeEmPalavras + ". Notas trancadas e expressivas jamais vão à rede.")
-                .font(Tema.meta)
-                .foregroundStyle(Tema.tintaFraca)
-                .frame(maxWidth: medidaMiuda, alignment: .leading)
-                .padding(.top, Tema.entreItens)
-            // ADR 07b: a tabela de quem responde, na única tela que fala de
-            // provedor. Função que o autor não vê não foi entregue.
-            VStack(alignment: .leading, spacing: 4) {
-                Text(Self.oQueAIAFaz)
-                Text(Self.oQueAContaAcrescenta)
-                Text(Self.notasAindaSemTela)
-                    .accessibilityIdentifier("perfil-notas-sem-tela")
-            }
-            .font(Tema.meta)
+            .font(.footnote)
             .foregroundStyle(Tema.tintaFraca)
+            .fixedSize(horizontal: false, vertical: true)
             .frame(maxWidth: medidaMiuda, alignment: .leading)
-            .padding(.top, Tema.entreItens)
-            .accessibilityElement(children: .combine)
-            .accessibilityIdentifier("quem-responde")
-            // A terceira linha: o que ela ainda não faz. Sem ela, a operação
-            // cortada sumia das duas listas de cima e o autor via menos coisa
-            // sem explicação — resultado pior calado.
-            indisponiveisPorQualidade
-                .padding(.top, Tema.entreItens)
+            .padding(.top, 4)
         }
     }
 
@@ -653,7 +586,7 @@ struct PerfilView: View {
                 }
             }
         }
-        .font(Tema.meta)
+        .font(.footnote)
         .foregroundStyle(Tema.tintaFraca)
         .frame(maxWidth: medidaMiuda, alignment: .leading)
         .accessibilityElement(children: .contain)
@@ -716,52 +649,32 @@ struct PerfilView: View {
     /// ESTADO e VOLTA aqui. Sem isto, quem tocou "Não Permitir" uma vez ficava
     /// num beco: o app parava de sugerir e nunca dizia por quê.
     private var permissoes: some View {
-        VStack(alignment: .leading, spacing: Tema.entreItens) {
-            rotulo("PERMISSÕES")
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Calendários do aparelho")
-                    .font(Tema.chrome.weight(.semibold))
-                    .foregroundStyle(Tema.tinta)
-                Text(sistema.estadoEmPalavras)
-                    .font(Tema.meta)
-                    .foregroundStyle(Tema.tintaSuave)
-                    .accessibilityIdentifier("estado-calendario")
-            }
-            Text("Apple, Google, iCloud — o Traço lê todos os que estão em Ajustes › Apps › Calendário › Contas, e nunca escreve em nenhum. Serve para o campo do calendário já sugerir o seu próximo compromisso.")
-                .font(.footnote)
-                .foregroundStyle(Tema.tintaFraca)
+        recolhidas.secao("Permissões", id: "permissoes") {
+            LinhaDeLista("calendar", "Calendários do aparelho", sistema.estadoEmPalavras)
+                .accessibilityIdentifier("estado-calendario")
+            LinhaDeLista("bell", "Avisos",
+                         avisosLigados
+                            ? "ligados — o Recordar, a revisão de domingo e os seus compromissos cobram na hora."
+                            : "desligados. Sem eles, nada te cobra: nem o Recordar, nem os compromissos.",
+                         fio: sistema.negado || !avisosLigados)
+                .accessibilityIdentifier("estado-avisos")
             if sistema.negado || !avisosLigados {
-                Button("Abrir os Ajustes do Traço") {
+                linhaAcao("gear", "Abrir os Ajustes do Traço", "o iOS só deixa mudar uma permissão negada por lá",
+                          fio: false) {
                     if let url = URL(string: UIApplication.openSettingsURLString) { abrir(url) }
                 }
-                .font(Tema.chrome.weight(.semibold))
-                .foregroundStyle(Tema.ambarTinta)
-                .alvo()
-                .buttonStyle(PressaoDiscreta())
                 .accessibilityIdentifier("abrir-ajustes")
                 .accessibilityHint("O iOS só deixa mudar uma permissão negada por lá")
             }
-            Rectangle().fill(Tema.linha).frame(height: 0.5)
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Avisos")
-                    .font(Tema.chrome.weight(.semibold))
-                    .foregroundStyle(Tema.tinta)
-                Text(avisosLigados
-                     ? "ligados — o Recordar, a revisão de domingo e os seus compromissos cobram na hora."
-                     : "desligados. Sem eles, nada te cobra: nem o Recordar, nem os compromissos.")
-                    .font(Tema.meta)
-                    .foregroundStyle(Tema.tintaSuave)
-                    .accessibilityIdentifier("estado-avisos")
-                // ADR 04b: o iPhone guarda 64 pendentes e descarta o resto em
-                // SILÊNCIO. Um app que promete cobrar tem de mostrar quanto já
-                // prometeu — senão o teto vira a mesma mentira da ADR 04a.
-                if !orcamentoDosAvisos.isEmpty {
-                    Text(orcamentoDosAvisos)
-                        .font(.footnote)
-                        .foregroundStyle(Tema.tintaSuave)
-                        .accessibilityIdentifier("orcamento-avisos")
-                }
+            // ADR 04b: o iPhone guarda 64 pendentes e descarta o resto em
+            // SILÊNCIO. Um app que promete cobrar tem de mostrar quanto já
+            // prometeu — senão o teto vira a mesma mentira da ADR 04a.
+            if !orcamentoDosAvisos.isEmpty {
+                prosa(orcamentoDosAvisos, cor: Tema.tintaSuave)
+                    .accessibilityIdentifier("orcamento-avisos")
             }
+            prosa("Apple, Google, iCloud — o Traço lê todos os que estão em Ajustes › Apps › Calendário › Contas, e nunca escreve em nenhum. Serve para o campo do calendário já sugerir o seu próximo compromisso.")
+                .padding(.top, 8)
         }
         .task {
             await sistema.pedirAcesso()
@@ -773,36 +686,22 @@ struct PerfilView: View {
     /// O calendário do Traço — o do aparelho é a seção de cima, e a diferença
     /// entre os dois é a linha que explica: este vive aqui e não sincroniza.
     private var calendario: some View {
-        VStack(alignment: .leading, spacing: Tema.entreItens) {
-            rotulo("CALENDÁRIO")
-            Toggle(isOn: Binding(
-                get: { agenda.segundaPrimeiro },
-                set: { agenda.segundaPrimeiro = $0 }
-            )) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Semana começa na segunda")
-                        .font(Tema.corpo)
-                        .foregroundStyle(Tema.tinta)
-                    Text("O calendário do Traço vive no aparelho. Não sincroniza, e nunca escreve numa nota.")
-                        .font(.footnote)
-                        .foregroundStyle(Tema.tintaFraca)
-                }
+        // a contagem de compromissos mora no cabeçalho, como o "45" do Hermes
+        recolhidas.secao("Calendário", id: "calendario", contagem: agenda.eventos.count) {
+            chave("calendar.day.timeline.left", "Semana começa na segunda",
+                  "O calendário do Traço vive no aparelho. Não sincroniza, e nunca escreve numa nota.",
+                  id: "ajustes-segunda",
+                  ligado: Binding(
+                    get: { agenda.segundaPrimeiro },
+                    set: { agenda.segundaPrimeiro = $0 }
+                  ))
+            linhaAcao("trash", "Apagar todos os compromissos",
+                      agenda.eventos.count == 1 ? "1 compromisso" : "\(agenda.eventos.count) compromissos",
+                      destrutiva: true, fio: false) {
+                confirmarApagarCalendario = true
             }
-            .tint(Tema.ambar)
-            .accessibilityIdentifier("ajustes-segunda")
-            Rectangle().fill(Tema.linha).frame(height: 0.5)
-            HStack {
-                Text(agenda.eventos.count == 1 ? "1 compromisso" : "\(agenda.eventos.count) compromissos")
-                    .font(Tema.corpo)
-                    .foregroundStyle(Tema.tintaSuave)
-                Spacer()
-                Button("Apagar tudo", role: .destructive) { confirmarApagarCalendario = true }
-                    .font(Tema.meta)
-                    .foregroundStyle(Tema.aviso)
-                    .disabled(agenda.eventos.isEmpty)
-                    .accessibilityIdentifier("ajustes-apagar-tudo")
-            }
-            .alvo()
+            .disabled(agenda.eventos.isEmpty)
+            .accessibilityIdentifier("ajustes-apagar-tudo")
         }
         .confirmationDialog("Apagar todos os compromissos?",
                             isPresented: $confirmarApagarCalendario, titleVisibility: .visible) {
@@ -816,9 +715,8 @@ struct PerfilView: View {
     /// ADR 2026-09-04e — o modo férias. O Traço cala o que ELE inventou de
     /// cobrar; o que o autor marcou continua tocando.
     private var ferias: some View {
-        VStack(alignment: .leading, spacing: Tema.entreItens) {
-            rotulo("FÉRIAS")
-            chave("Modo férias",
+        recolhidas.secao("Férias", id: "ferias") {
+            chave("beach.umbrella", "Modo férias",
                   "O Traço para de cobrar memória: a fila do Recordar, a revisão de domingo e a série da expressiva esperam. Os seus compromissos continuam avisando — férias não desmarca dentista.",
                   id: "ajuste-ferias",
                   ligado: Binding(
@@ -842,7 +740,6 @@ struct PerfilView: View {
 
             if feriasLigado {
                 DatePicker(
-                    "Até",
                     selection: Binding(
                         get: { feriasAte ?? Calendar.current.date(byAdding: .day, value: 7, to: .now) ?? .now },
                         set: { nova in
@@ -853,25 +750,22 @@ struct PerfilView: View {
                     ),
                     in: Date()...,
                     displayedComponents: .date
-                )
-                .font(Tema.corpo)
-                .tint(Tema.ambarTinta)
+                ) {
+                    LinhaDeLista("calendar", "Até")
+                }
+                // a data marcada é ESTADO: carvão, não âmbar (ADR 10k)
+                .tint(Tema.chipAtivo)
                 .accessibilityIdentifier("ferias-ate")
 
-                Button("Sem data — desligo eu mesmo") {
+                linhaAcao("infinity", "Sem data", "desligo eu mesmo") {
                     feriasAte = nil
                     Ferias.ate = nil
                     reagendarCobranças()
                 }
-                .font(Tema.meta)
-                .foregroundStyle(Tema.tintaSuave)
-                .frame(minHeight: Tema.alvo, alignment: .leading)
-                .contentShape(Rectangle())
-                .buttonStyle(PressaoDiscreta())
                 .accessibilityIdentifier("ferias-sem-data")
             }
 
-            chave("E nos feriados",
+            chave("flag", "E nos feriados",
                   "Desligado, o Traço cobra no feriado também — dia em casa é bom dia para recordar.",
                   id: "ajuste-ferias-feriados",
                   ligado: Binding(
@@ -880,11 +774,10 @@ struct PerfilView: View {
                         feriasNosFeriados = novo
                         Ferias.incluiFeriados = novo
                         reagendarCobranças()
-                    }))
+                    }),
+                  fio: false)
 
-            Text(estadoDasFerias)
-                .font(Tema.meta)
-                .foregroundStyle(Tema.tintaSuave)
+            prosa(estadoDasFerias, cor: Tema.tintaSuave)
                 .accessibilityIdentifier("estado-ferias")
         }
     }
@@ -900,9 +793,8 @@ struct PerfilView: View {
     }
 
     private var ajustes: some View {
-        VStack(alignment: .leading, spacing: Tema.entreItens) {
-            rotulo("AJUSTES")
-            chave("Análise automática",
+        recolhidas.secao("Ajustes", id: "ajustes") {
+            chave("doc.text.magnifyingglass", "Análise automática",
                   "A análise chega sozinha na pausa da escrita. Você nunca precisa lembrar do botão.",
                   id: "ajuste-auto-analise",
                   ligado: Binding(
@@ -910,19 +802,19 @@ struct PerfilView: View {
                     set: { novo in
                         if novo != sessao.autoAnalise { sessao.alternarAutoAnalise() }
                     }))
-            hora("Recordar às", valor: Binding(
+            hora("arrow.counterclockwise", "Recordar", "a fila do dia", valor: Binding(
                 get: { Revisoes.hora },
                 set: { Revisoes.hora = $0 }
             ))
-            hora("manhã", valor: Binding(
+            hora("sunrise", "Manhã", "para “de manhã” numa nota", valor: Binding(
                 get: { Ancora.hora(.manha) },
                 set: { Ancora.gravar(.manha, hora: $0) }
             ))
-            hora("tarde", valor: Binding(
+            hora("sun.max", "Tarde", "para “à tarde” numa nota", valor: Binding(
                 get: { Ancora.hora(.tarde) },
                 set: { Ancora.gravar(.tarde, hora: $0) }
             ))
-            hora("noite", valor: Binding(
+            hora("moon", "Noite", "para “à noite”, e a revisão", fio: false, valor: Binding(
                 get: { Ancora.hora(.noite) },
                 set: {
                     Ancora.gravar(.noite, hora: $0)
@@ -940,30 +832,23 @@ struct PerfilView: View {
     /// leem como parte do controle, e o dedo do autor acerta um alvo de 350pt.
     /// O gesto vive no RÓTULO — o interruptor continua consumindo o toque dele,
     /// então nada alterna duas vezes.
-    private func chave(_ titulo: String, _ explicacao: String, id: String,
-                       ligado: Binding<Bool>) -> some View {
+    ///
+    /// ADR 10k: ligado é ESTADO, e estado é carvão — o âmbar do interruptor
+    /// era a mesma cor do cursor dizendo outra coisa.
+    private func chave(_ simbolo: String, _ titulo: String, _ explicacao: String, id: String,
+                       ligado: Binding<Bool>, fio: Bool = true) -> some View {
         Toggle(isOn: ligado) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(titulo)
-                    .font(Tema.corpo)
-                    .foregroundStyle(Tema.tinta)
-                Text(explicacao)
-                    .font(.footnote)
-                    .foregroundStyle(Tema.tintaFraca)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .contentShape(Rectangle())
-            .onTapGesture { ligado.wrappedValue.toggle() }
+            LinhaDeLista(simbolo, titulo, explicacao, fio: fio)
+                .onTapGesture { ligado.wrappedValue.toggle() }
         }
-        .tint(Tema.ambar)
+        .tint(Tema.chipAtivo)
         .accessibilityIdentifier(id)
     }
 
-    private func hora(_ titulo: String, valor: Binding<Int>) -> some View {
+    private func hora(_ simbolo: String, _ titulo: String, _ explicacao: String, fio: Bool = true,
+                      valor: Binding<Int>) -> some View {
         Stepper(value: valor, in: 0...23) {
-            Text("\(titulo) \(valor.wrappedValue)h")
-                .font(Tema.corpo)
-                .foregroundStyle(Tema.tinta)
+            LinhaDeLista(simbolo, "\(titulo) às \(valor.wrappedValue)h", explicacao, fio: fio)
         }
         .tint(Tema.tintaSuave)
         .accessibilityLabel(titulo)
@@ -973,92 +858,60 @@ struct PerfilView: View {
     // MARK: - Dados (§20: exportar/importar são AÇÃO, não navegação — moram aqui)
 
     private var dados: some View {
-        VStack(alignment: .leading, spacing: Tema.entreItens) {
-            rotulo("DADOS")
-            linhaAcao("Exportar todas as notas (.md)") {
+        recolhidas.secao("Dados", id: "dados") {
+            linhaAcao("square.and.arrow.up", "Exportar todas as notas", "um .md com as abertas; trancadas nunca saem") {
                 corpusURL = Corpus.exportar(notas: notas)
             }
             .accessibilityIdentifier("exportar-corpus")
             .accessibilityHint("Gera um Markdown com as notas abertas. Trancadas nunca saem.")
-            Rectangle().fill(Tema.linha).frame(height: 0.5)
-            linhaAcao("Importar notas (.md)") { importarMd = true }
-                .accessibilityIdentifier("importar-md")
-                .accessibilityHint("Traz notas de arquivos Markdown. Import nunca cria trancada.")
-            Rectangle().fill(Tema.linha).frame(height: 0.5)
-            Toggle(isOn: Binding(
-                get: { Revisoes.revisaoSemanalLigada },
-                set: { ligada in
-                    UserDefaults.standard.set(ligada, forKey: Revisoes.chaveRevisaoSemanal)
-                    Revisoes.agendarRevisaoSemanal()
-                }
-            )) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Revisão da semana no domingo")
-                        .font(Tema.chrome)
-                        .foregroundStyle(Tema.tinta)
-                    Text("um aviso sem conteúdo, na hora da noite, abrindo os Padrões")
-                        .font(.footnote)
-                        .foregroundStyle(Tema.tintaFraca)
-                }
+            linhaAcao("square.and.arrow.down", "Importar notas", "de arquivos .md; o import nunca cria trancada") {
+                importarMd = true
             }
-            .tint(Tema.ambar)
-            .accessibilityIdentifier("revisao-semanal")
-            Rectangle().fill(Tema.linha).frame(height: 0.5)
+            .accessibilityIdentifier("importar-md")
+            .accessibilityHint("Traz notas de arquivos Markdown. Import nunca cria trancada.")
+            chave("calendar.badge.clock", "Revisão da semana no domingo",
+                  "um aviso sem conteúdo, na hora da noite, abrindo os Padrões",
+                  id: "revisao-semanal",
+                  ligado: Binding(
+                    get: { Revisoes.revisaoSemanalLigada },
+                    set: { ligada in
+                        UserDefaults.standard.set(ligada, forKey: Revisoes.chaveRevisaoSemanal)
+                        Revisoes.agendarRevisaoSemanal()
+                    }))
             // ADR 2026-09-02n: a pasta pode viver no iCloud Drive do autor
             // porque é a nuvem DELE — escolhida no seletor do sistema, sem
             // conta do Traço, sem entitlement. Qualquer provedor serve.
             if let nome = PastaEspelho.nome {
-                linhaAcao("Espelhando em “\(nome)”") { escolherPasta = true }
-                    .accessibilityIdentifier("espelho-pasta")
-                    .accessibilityHint("Toque para trocar a pasta")
-                linhaAcao("Parar de espelhar") {
+                linhaAcao("folder", "Espelhando em “\(nome)”", PastaEspelho.estado ?? "toque para trocar a pasta") {
+                    escolherPasta = true
+                }
+                .accessibilityIdentifier("espelho-pasta")
+                .accessibilityHint("Toque para trocar a pasta")
+                linhaAcao("folder.badge.minus", "Parar de espelhar", nil) {
                     PastaEspelho.limpar()
                     Toque.leve()
                 }
                 .accessibilityIdentifier("espelho-parar")
             } else {
-                linhaAcao("Espelhar numa pasta (iCloud Drive…)") { escolherPasta = true }
-                    .accessibilityIdentifier("espelho-pasta")
-                    .accessibilityHint("Escolhe uma pasta sua; o Traço grava lá uma cópia da pasta do segundo cérebro a cada nota concluída")
+                linhaAcao("folder.badge.plus", "Espelhar numa pasta", PastaEspelho.estado ?? "iCloud Drive ou outra nuvem sua") {
+                    escolherPasta = true
+                }
+                .accessibilityIdentifier("espelho-pasta")
+                .accessibilityHint("Escolhe uma pasta sua; o Traço grava lá uma cópia da pasta do segundo cérebro a cada nota concluída")
             }
-            // ADR 05s: a cópia que não chegou à pasta não fica muda (ADR 03e)
-            if let estadoDoEspelho = PastaEspelho.estado {
-                Text(estadoDoEspelho)
-                    .font(Tema.meta)
-                    .foregroundStyle(Tema.tintaSuave)
-                    .accessibilityIdentifier("estado-espelho")
-            }
-            Text("O backup automático grava no app Arquivos a cada nota concluída — nada disso depende de nuvem nem de conta. Se escolher uma pasta, a mesma cópia vai para lá; o Traço só escreve, nunca lê de volta — exceto a subpasta entrada/.")
-                .font(.footnote)
-                .foregroundStyle(Tema.tintaFraca)
-            // ADR 04p: a entrada do Mac
-            VStack(alignment: .leading, spacing: 2) {
-                Text("Entrada")
-                    .font(Tema.chrome)
-                    .foregroundStyle(Tema.tinta)
-                Text("O que o Mac deixa em Traço/entrada (um .md por nota, pelo companheiro MCP ou por qualquer editor) vira nota aberta ao abrir o app. " + Entrada.ultimaEmPalavras)
-                    .font(.footnote)
-                    .foregroundStyle(Tema.tintaFraca)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .accessibilityIdentifier("entrada")
-            }
-            .padding(.top, 4)
+            // ADR 04p: a entrada do Mac — o subtítulo é o ESTADO (a última
+            // que entrou); o que ela é desce para a letra miúda da seção
+            LinhaDeLista("tray.and.arrow.down", "Entrada do Mac", Entrada.ultimaEmPalavras)
+                .accessibilityIdentifier("entrada")
             // ADR 04n: o índice de sentido
-            VStack(alignment: .leading, spacing: 2) {
-                Text("Índice de sentido")
-                    .font(Tema.chrome)
-                    .foregroundStyle(Tema.tinta)
-                Text(Indice.disponivel
-                     ? "\(indiceQuantas) \(indiceQuantas == 1 ? "nota" : "notas") no índice. Feito no aparelho: a busca acha pelo sentido, os ecos vêm das mais próximas, e a sábia lê o que se parece com a sua pergunta. Trancadas nunca entram."
-                     : "este aparelho não tem o modelo de frases em português — a busca pelo sentido e os ecos por proximidade ficam desligados.")
-                    .font(.footnote)
-                    .foregroundStyle(Tema.tintaFraca)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .accessibilityIdentifier("indice-sentido")
-            }
-            .padding(.top, 4)
+            LinhaDeLista("text.magnifyingglass", "Índice de sentido",
+                         Indice.disponivel
+                            ? "\(indiceQuantas) \(indiceQuantas == 1 ? "nota" : "notas") no índice"
+                            : "este aparelho não tem o modelo de frases em português",
+                         fio: Indice.disponivel)
+                .accessibilityIdentifier("indice-sentido")
             if Indice.disponivel {
-                linhaAcao("Refazer o índice de sentido") {
+                linhaAcao("arrow.clockwise", "Refazer o índice de sentido", nil, fio: false) {
                     Indice.apagarTudo()
                     sessao.sincronizarIndice(no: context)
                     Toque.leve()
@@ -1069,43 +922,44 @@ struct PerfilView: View {
                 }
                 .accessibilityIdentifier("refazer-indice")
             }
+            // ADR 05s: a cópia que não chegou à pasta não fica muda (ADR 03e) —
+            // ela é o subtítulo da linha do espelho; aqui fica o que as linhas são
+            VStack(alignment: .leading, spacing: 8) {
+                Text("O backup automático grava no app Arquivos a cada nota concluída — nada disso depende de nuvem nem de conta. Se escolher uma pasta, a mesma cópia vai para lá; o Traço só escreve, nunca lê de volta — exceto a subpasta entrada/.")
+                Text("O que o Mac deixa em Traço/entrada (um .md por nota, pelo companheiro MCP ou por qualquer editor) vira nota aberta ao abrir o app.")
+                Text(Indice.disponivel
+                     ? "O índice de sentido é feito no aparelho: a busca acha pelo sentido, os ecos vêm das mais próximas, e a sábia lê o que se parece com a sua pergunta. Trancadas nunca entram."
+                     : "Sem o modelo de frases, a busca pelo sentido e os ecos por proximidade ficam desligados.")
+            }
+            .font(.footnote)
+            .foregroundStyle(Tema.tintaFraca)
+            .fixedSize(horizontal: false, vertical: true)
+            .padding(.top, 8)
         }
     }
 
-    /// Ação parece ação: chevron à direita (critique-affordance). Sem ele, era
-    /// texto branco idêntico ao rótulo morto ao lado.
-    private func linhaAcao(_ titulo: String, acao: @escaping () -> Void) -> some View {
+    // MARK: - As peças da tela (ADR 10k)
+
+
+    /// Ação parece ação: chevron à direita (critique-affordance), e o título
+    /// em TINTA — é a forma que diz "toque", não o âmbar (ADR 10k).
+    private func linhaAcao(_ simbolo: String, _ titulo: String, _ subtitulo: String?,
+                           destrutiva: Bool = false, fio: Bool = true,
+                           acao: @escaping () -> Void) -> some View {
         Button(action: acao) {
-            HStack {
-                Text(titulo)
-                    .font(Tema.chrome)
-                    .foregroundStyle(Tema.tinta)
-                Spacer()
-                Image(systemName: "chevron.right")
-                    .font(.footnote.weight(.semibold))
-                    .foregroundStyle(Tema.tintaFraca)
-                    .padding(.trailing, 2)
-            }
-            .frame(maxWidth: .infinity, minHeight: Tema.alvo)
-            .contentShape(Rectangle())
+            LinhaDeLista(tocavel: simbolo, titulo, subtitulo, fio: fio, destrutiva: destrutiva)
         }
         .buttonStyle(PressaoDiscreta())
     }
 
-    private func rotulo(_ t: String) -> some View {
-        Text(t)
-            .font(Tema.label)
-            .tracking(Tema.trackingLabel)
-            .foregroundStyle(Tema.tintaFraca)
-    }
-}
-
-private extension View {
-    /// Seção com região própria: sobre preto, espaçamento sozinho não agrupa.
-    func emCartao() -> some View {
-        self
+    /// A letra miúda de uma seção: inteira, porque é a única cópia do que ela
+    /// diz — o subtítulo das linhas é que corta.
+    private func prosa(_ texto: String, cor: Color = Tema.tintaFraca) -> some View {
+        Text(texto)
+            .font(.footnote)
+            .foregroundStyle(cor)
+            .fixedSize(horizontal: false, vertical: true)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(16)
-            .superficieElevada()
+            .padding(.vertical, 6)
     }
 }
