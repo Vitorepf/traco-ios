@@ -37,7 +37,9 @@ struct CartaoDeResposta<Conteudo: View>: View {
     }
 
     /// A pergunta da pessoa, ou o que ela pediu. Em letra normal, sempre.
-    let titulo: String
+    /// Nil na conversa das Notas: lá a pergunta é a mensagem de VOCÊ, acima,
+    /// e este cartão é só o que a SÁBIA diz (REFERENCIA-HERMES §6).
+    let titulo: String?
     /// Enquanto houver hora, o corpo dá lugar à espera.
     var pensandoDesde: Date? = nil
     var cancelar: (() -> Void)? = nil
@@ -69,7 +71,7 @@ struct CartaoDeResposta<Conteudo: View>: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            cabecalho
+            if let titulo { cabecalho(titulo) }
             if let pensandoDesde {
                 Espera(frase: Espera.aSabiaPensa, desde: pensandoDesde,
                        identificador: "\(rota)-pensando", cancelar: cancelar)
@@ -103,7 +105,7 @@ struct CartaoDeResposta<Conteudo: View>: View {
     /// A pergunta em `chrome` e tinta suave: é o contexto, e o que a IA diz é
     /// o assunto (o corpo, maior e em tinta). O fechar divide a linha com ela
     /// — um só, no canto, alvo de 44.
-    private var cabecalho: some View {
+    private func cabecalho(_ titulo: String) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: 8) {
             Text(titulo)
                 .font(Tema.chrome)
@@ -176,7 +178,7 @@ struct CartaoDeResposta<Conteudo: View>: View {
     }
 }
 
-/// "serviu / não serviu" como CONTROLE: as duas saídas num campo só, separadas
+/// "serviu / não serviu" como CONTROLE: as duas saídas lado a lado, separadas
 /// por um fio, cada uma com alvo de 44. Eram dois links soltos em cinza, sem
 /// borda e sem relação visível entre si (§14). A cor E O PESO são os do texto
 /// de apoio (`meta`): o retorno é opcional, e a resposta acima é o que importa.
@@ -204,8 +206,10 @@ struct ControleDeRetorno: View {
         .font(Tema.meta)
         .foregroundStyle(Tema.tintaSuave)
         .buttonStyle(.discreto)
-        .padding(.horizontal, 10)
-        .cartao(.campo, recuo: [])
+        // sem o cartão `.campo` que o envolvia: era a última caixa dentro da
+        // conversa (REFERENCIA-HERMES §1 e §6). O fio entre as duas saídas já
+        // dá a relação que a borda dava; a caixa não resolvia nada que o tipo
+        // não resolva.
         .fixedSize()
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Esta resposta serviu?")

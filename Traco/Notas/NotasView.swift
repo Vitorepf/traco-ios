@@ -160,72 +160,72 @@ struct NotasView: View {
         abrirDaLista(nota)
     }
 
-    /// A CONVERSA como folha do Traço (DIRETRIZ §14, complemento das 14h25):
-    /// a pergunta da pessoa é o título, em letra de gente; a resposta vem
-    /// inteira, na tinta do texto, sem teto e sem dobra; as trocas anteriores
-    /// ficam acima, na ordem em que aconteceram — perguntar de novo continua,
-    /// não recomeça. Só a última troca leva as fontes e o retorno. Enquanto a
-    /// sábia pensa, a pergunta nova já está na folha com a espera embaixo
-    /// (pensando, tempo, parar de esperar); se não respondeu, a falha fica
-    /// junto da pergunta com "Perguntar de novo" ao lado. Tudo pela mesma
-    /// `CartaoDeResposta` que a Página e a Lente usam — nenhuma tela desenha
-    /// a IA por conta própria (§15).
+    /// A CONVERSA sem balão e sem caixa (REFERENCIA-HERMES §6): cada mensagem
+    /// é uma linha de autor — VOCÊ em âmbar, SÁBIA no verde dela — e, embaixo,
+    /// o texto puro em largura inteira; entre uma e outra, um fio recuado,
+    /// alinhado com o texto. A resposta vem inteira, sem teto e sem dobra; as
+    /// trocas anteriores ficam acima, na ordem — perguntar de novo continua,
+    /// não recomeça. Só a última leva as fontes e o retorno. Enquanto a sábia
+    /// pensa, a pergunta já está na folha e a espera é a CÁPSULA colada acima
+    /// do campo (§8); se não respondeu, a falha é a mensagem da SÁBIA, com
+    /// "Perguntar de novo" ao lado. O que a sábia diz passa pela mesma
+    /// `CartaoDeResposta` da Página e da Lente — nenhuma tela desenha a IA por
+    /// conta própria (§15).
     private var conversaDaSabia: some View {
+        let emEspera: String? = if case .pensando(let p, _) = conversaNotas.estado { p } else { nil }
+        let aRepetir = conversaNotas.perguntaParaRepetir
+        return VStack(spacing: 0) {
         ScrollView {
-            VStack(alignment: .leading, spacing: Tema.entreSecoes) {
+            VStack(alignment: .leading, spacing: 0) {
                 ForEach(Array(conversa.enumerated()), id: \.offset) { i, troca in
-                    let ultima = i == conversa.count - 1 && conversaNotas.perguntaParaRepetir == nil
+                    let ultima = i == conversa.count - 1 && aRepetir == nil
                     let retorno: ((Bool) -> Void)? = ultima && !conversaNotas.avaliadas.contains(troca.resposta) ? { serviu in
                         Sinais.resposta(troca.resposta, forma: nil, serviu: serviu)
                         conversaNotas.avaliadas.insert(troca.resposta)
                         Toque.leve()
                     } : nil
-                    CartaoDeResposta(
-                        titulo: troca.pergunta,
-                        fontes: ultima ? conversaNotas.fontes.map { .init(id: $0.id, titulo: $0.titulo) } : [],
-                        abrirFonte: abrirFonte,
-                        retorno: retorno,
-                        avaliada: ultima && conversaNotas.avaliadas.contains(troca.resposta),
-                        rota: "sabia-notas"
-                    ) {
-                        // ADR 02o: a resposta chega ao lado, nunca na nota. Levar
-                        // um trecho para a nota é ato do autor — selecionar e
-                        // copiar —, com as palavras dele.
-                        Text(troca.resposta).textSelection(.enabled)
+                    mensagemDaPessoa(troca.pergunta, fio: i > 0)
+                    mensagem(.sabia, fio: true) {
+                        CartaoDeResposta(
+                            titulo: nil,
+                            fontes: ultima ? conversaNotas.fontes.map { .init(id: $0.id, titulo: $0.titulo) } : [],
+                            abrirFonte: abrirFonte,
+                            retorno: retorno,
+                            avaliada: ultima && conversaNotas.avaliadas.contains(troca.resposta),
+                            rota: "sabia-notas"
+                        ) {
+                            // ADR 02o: a resposta chega ao lado, nunca na nota. Levar
+                            // um trecho para a nota é ato do autor — selecionar e
+                            // copiar —, com as palavras dele.
+                            Text(troca.resposta).textSelection(.enabled)
+                        }
                     }
                 }
-                if case .pensando(let pergunta, let desde) = conversaNotas.estado {
-                    CartaoDeResposta(titulo: pergunta, pensandoDesde: desde,
-                                     cancelar: { conversaNotas.interromper() },
-                                     rota: "sabia-notas") { EmptyView() }
-                } else if let pergunta = conversaNotas.perguntaParaRepetir {
-                    CartaoDeResposta(
-                        titulo: pergunta,
-                        falhou: conversaNotas.estado == .recolhida(pergunta)
-                            ? "A resposta foi recolhida porque uma fonte mudou ou deixou de estar acessível."
-                            : conversaNotas.estado == .interrompida(pergunta)
-                                ? "você parou de esperar."
-                                : "a sábia não respondeu.",
-                        repetir: repetirPergunta,
-                        rota: "sabia-notas"
-                    ) { EmptyView() }
+                if let pergunta = emEspera ?? aRepetir {
+                    mensagemDaPessoa(pergunta, fio: !conversa.isEmpty)
+                }
+                if let pergunta = aRepetir {
+                    mensagem(.sabia, fio: true) {
+                        CartaoDeResposta(
+                            titulo: nil,
+                            falhou: conversaNotas.estado == .recolhida(pergunta)
+                                ? "A resposta foi recolhida porque uma fonte mudou ou deixou de estar acessível."
+                                : conversaNotas.estado == .interrompida(pergunta)
+                                    ? "você parou de esperar."
+                                    : "a sábia não respondeu.",
+                            repetir: repetirPergunta,
+                            rota: "sabia-notas"
+                        ) { EmptyView() }
+                    }
                 }
                 if conversaNotas.semModelo {
                     LinhaDeEstado("a sábia " + Sabia.porOndeEmPalavras + ". Sem ela, a busca continua.", .semConta)
+                        .padding(.vertical, 16)
                         .accessibilityIdentifier("sem-conta-notas")
-                }
-                // ADR 10i: a linha "?" — a entrada. Sozinha na folha vazia;
-                // no pé da conversa quando há resposta (perguntar de novo
-                // continua). Não existe enquanto a sábia pensa nem enquanto
-                // uma pergunta espera "Perguntar de novo": uma coisa por vez.
-                if !pensando, conversaNotas.perguntaParaRepetir == nil {
-                    linhaDaPergunta
                 }
             }
             .frame(maxWidth: .infinity, alignment: .topLeading)
             .padding(.horizontal, Tema.margem)
-            .padding(.top, 4)
-            .padding(.bottom, Tema.entreSecoes)
             // uma folha, lida inteira na ordem: cada pergunta, cada resposta,
             // quem foi junto, o retorno. O contêiner é a pilha, não a rolagem:
             // à árvore de AX a rolagem é `scrollView`, e a suíte procura a
@@ -234,9 +234,56 @@ struct NotasView: View {
             .accessibilityLabel("Conversa com a sábia")
             .accessibilityIdentifier("cartao-sabia-notas")
         }
+        // a conversa curta pousa junto do campo, como no Hermes; a longa
+        // continua a abrir pelo começo, que é por onde se lê
+        .defaultScrollAnchor(.bottom, for: .alignment)
         .scrollBounceBehavior(.always)
         .scrollDismissesKeyboard(.interactively)
+        // §8 e §9: o campo fica no pé da conversa, e a cápsula colada acima
+        // dele enquanto a sábia pensa. Rolar a resposta não os leva. Pilha, e
+        // não `safeAreaInset`: como inset o pé virava barra SOBRE a rolagem, e
+        // o iOS 26 pintava a sombra da borda nele — o pé flutuava por cima da
+        // conversa, o que o Hermes não faz.
+        VStack(spacing: 8) {
+            if let desde = conversaNotas.esperandoDesde {
+                CapsulaDeEspera(frase: Espera.aSabiaPensa, desde: desde,
+                                identificador: "sabia-notas-pensando")
+                    .transition(Tema.transicao(.opacity, reduzido: reduceMotion))
+            }
+            linhaDaPergunta
+        }
+        .padding(.horizontal, Tema.margem)
+        .padding(.top, 8)
+        }
         .transition(Tema.transicao(.opacity, reduzido: reduceMotion))
+    }
+
+    /// Uma mensagem: a linha de autor e, embaixo, o que foi dito. O fio vai
+    /// no topo, na largura do texto — recuado, nunca de ponta a ponta.
+    private func mensagem<C: View>(_ autor: Autor, fio: Bool, @ViewBuilder _ texto: () -> C) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            LinhaDeAutor(autor)
+            texto()
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.vertical, 16)
+        .overlay(alignment: .top) {
+            if fio { Rectangle().fill(Tema.linha).frame(height: 0.5) }
+        }
+    }
+
+    /// A pergunta da pessoa, na mesma letra e tinta da resposta: no Hermes o
+    /// que o USER diz e o que o bot diz pesam igual — quem distingue é a
+    /// linha de autor, não o cinza.
+    private func mensagemDaPessoa(_ pergunta: String, fio: Bool) -> some View {
+        mensagem(.voce, fio: fio) {
+            Text(pergunta)
+                .font(Tema.corpo)
+                .foregroundStyle(Tema.tinta)
+                .fixedSize(horizontal: false, vertical: true)
+                .textSelection(.enabled)
+                .accessibilityIdentifier("pergunta-sabia-notas")
+        }
     }
 
     /// SPEC §20: navegar é da barra inferior. Aqui o título e o export do
@@ -507,61 +554,81 @@ struct NotasView: View {
     private var linhaDaPergunta: some View {
         let entrada = conversaNotas.entrada
         let primeira = conversa.isEmpty
-        return HStack(alignment: .firstTextBaseline, spacing: 8) {
-            Text("?")
-                .font(Tema.corpo.weight(.semibold))
-                .foregroundStyle(Tema.ambarTinta)
-                .accessibilityHidden(true)
-            TextField(
-                "",
-                text: Bindable(conversaNotas).entrada,
-                prompt: Text(primeira ? "pergunte sobre as suas notas" : "pergunte de novo")
-                    .foregroundStyle(Tema.tintaFraca),
-                axis: .vertical
-            )
-                .lineLimit(1...4)
-                .foregroundStyle(Tema.tinta)
-                .tint(Tema.ambar)
-                .font(Tema.corpo)
-                .textInputAutocapitalization(.sentences)
-                .submitLabel(.send)
-                // a linha quebra como na página; com eixo vertical o Return
-                // escreve "\n" em vez de submeter — a quebra É o enviar
-                .onChange(of: conversaNotas.entrada) { _, nova in
-                    guard nova.contains("\n") else { return }
-                    conversaNotas.entrada = nova.replacingOccurrences(of: "\n", with: " ")
-                    perguntar()
-                }
-                .focused($perguntaFocada)
-                .alvo()
-                .accessibilityIdentifier("pergunta-notas")
-                .accessibilityLabel(primeira ? "Pergunte sobre as suas notas" : "Pergunte de novo")
-                .accessibilityValue(entrada.isEmpty ? "vazio" : entrada)
-                .accessibilityHint("Enviar pergunta à sábia")
-            if !entrada.isEmpty {
+        // o campo de eixo vertical não dá linha de base (o "?" subia meia
+        // linha acima do texto): os dois alinham pelo TOPO com o mesmo recuo e
+        // a mesma letra, e a primeira linha coincide em qualquer tamanho. O
+        // botão desce ao pé da linha, como o enviar de toda conversa.
+        return HStack(alignment: .bottom, spacing: 8) {
+            HStack(alignment: .top, spacing: 8) {
+                Text("?")
+                    .font(Tema.corpo.weight(.semibold))
+                    .foregroundStyle(Tema.ambarTinta)
+                    .padding(.vertical, 10)
+                    .accessibilityHidden(true)
+                TextField(
+                    "",
+                    text: Bindable(conversaNotas).entrada,
+                    // o texto do campo diz o estado (§9): enquanto ela pensa, a
+                    // próxima pode ser escrita, mas só segue quando ela responder
+                    prompt: Text(pensando ? "escreva a próxima" : primeira ? "pergunte sobre as suas notas" : "pergunte de novo")
+                        .foregroundStyle(Tema.tintaFraca),
+                    axis: .vertical
+                )
+                    .lineLimit(1...4)
+                    .foregroundStyle(Tema.tinta)
+                    .tint(Tema.ambar)
+                    .font(Tema.corpo)
+                    .textInputAutocapitalization(.sentences)
+                    .submitLabel(.send)
+                    // a linha quebra como na página; com eixo vertical o Return
+                    // escreve "\n" em vez de submeter — a quebra É o enviar
+                    .onChange(of: conversaNotas.entrada) { _, nova in
+                        guard nova.contains("\n") else { return }
+                        conversaNotas.entrada = nova.replacingOccurrences(of: "\n", with: " ")
+                        perguntar()
+                    }
+                    .focused($perguntaFocada)
+                    .padding(.vertical, 10)
+                    .contentShape(Rectangle())
+                    .accessibilityIdentifier("pergunta-notas")
+                    .accessibilityLabel(pensando ? "Escreva a próxima" : primeira ? "Pergunte sobre as suas notas" : "Pergunte de novo")
+                    .accessibilityValue(entrada.isEmpty ? "vazio" : entrada)
+                    .accessibilityHint("Enviar pergunta à sábia")
+            }
+            // §9: o botão MUDA COM O ESTADO, no mesmo lugar e na mesma forma —
+            // parar enquanto a sábia pensa, enviar quando ela está livre. A cor
+            // é estado (§10): o vermelho do aviso só existe enquanto há o que parar.
+            if pensando {
+                botaoDoCampo("stop.fill", fundo: Tema.aviso) { conversaNotas.interromper() }
+                    .accessibilityLabel("Parar de esperar")
+                    .accessibilityHint("A pergunta fica, para perguntar de novo")
+                    .accessibilityIdentifier("parar-de-esperar")
+            } else if !entrada.isEmpty {
                 // ADR 05e: enviar é perguntar — o mesmo botão do calendário
-                Button {
-                    perguntar()
-                } label: {
-                    Image(systemName: "arrow.up")
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(.white)
-                        .frame(width: 30, height: 30)
-                        .background(Tema.chipAtivo, in: RoundedRectangle(cornerRadius: 9, style: .continuous))
-                        .frame(width: Tema.alvo, height: Tema.alvo)
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(.discreto)
-                .accessibilityLabel("Perguntar à sábia")
-                .accessibilityIdentifier("perguntar-notas")
+                botaoDoCampo("arrow.up", fundo: Tema.chipAtivo, acao: perguntar)
+                    .accessibilityLabel("Perguntar à sábia")
+                    .accessibilityIdentifier("perguntar-notas")
             }
         }
         .overlay(alignment: .bottom) { Rectangle().fill(Tema.linha).frame(height: 0.5) }
         .onAppear {
-            // a folha vazia nasce pronta para escrever; com conversa, quem
-            // rola até aqui toca quando quiser
+            // a folha vazia nasce pronta para escrever; com conversa, o
+            // teclado não sobe por cima da resposta — quem quer, toca
             if primeira { Task { @MainActor in perguntaFocada = true } }
         }
+    }
+
+    private func botaoDoCampo(_ glifo: String, fundo: Color, acao: @escaping () -> Void) -> some View {
+        Button(action: acao) {
+            Image(systemName: glifo)
+                .font(.subheadline.weight(.bold))
+                .foregroundStyle(.white)
+                .frame(width: 30, height: 30)
+                .background(fundo, in: RoundedRectangle(cornerRadius: 9, style: .continuous))
+                .frame(width: Tema.alvo, height: Tema.alvo)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.discreto)
     }
 
     /// D1: o rótulo de seção da folha é uma palavra em tinta fraca — "hoje",

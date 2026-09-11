@@ -10299,3 +10299,24 @@ interruptor em carvão, Padrões, a agenda em lista), seis fotos (`sistema-fotog
 teste não acha: o primeiro corte não rolava — o `bc` escrevia `.666` sem o zero e o JSON do
 gesto morria calado; e a foto de "Quem responde aberta" saiu fechada, porque o toque mirava
 o lugar do cabeçalho com Conta RECOLHIDA.
+
+## ADR 2026-09-10l — CONVERSA-HERMES · a conversa sem caixa, e a espera como cápsula com tempo colada ao campo
+
+**Ordem do dono (10/09, 17h, `ferramentas/orca/REFERENCIA-HERMES.md` §6, §8 e §9):** *"clone a maior parte"* do Hermes. Os pontos 1 e 2 da lista da cadeira do SISTEMA DA IA: matar a folha da resposta e trocar a espera pela cápsula com tempo, com o botão do campo virando parar.
+
+**O que estava errado (captura `ferramentas/orca/sistema-ia-conversa/07-resposta-large.png`).** A pergunta era um título cinza e a resposta um bloco sem dono; quem falava só se sabia pela posição. A espera era uma linha "a sábia pensa há N s…" com "Parar de esperar" embaixo da pergunta, e o campo SUMIA enquanto ela pensava (ADR 10i, item 2) — não havia onde colar estado nenhum. O retorno "serviu | não serviu" morava num cartão `.campo`: a última caixa dentro da conversa.
+
+**A decisão.**
+1. **Cada mensagem é uma linha de autor e o texto puro, em largura inteira.** `LinhaDeAutor`: a marca (ponto para VOCÊ, retângulo para a SÁBIA — a forma distingue antes da cor) e o nome em versalete espaçado (`Tema.label` + `trackingLabel`). A pergunta vai em `Tema.corpo` e `tinta`, como a resposta: no Hermes o que o USER diz e o que o bot diz pesam igual; quem distingue é a linha de autor, não o cinza. **Entre uma mensagem e outra, um fio de 0,5 pt na largura do texto** — recuado pela margem, nunca de ponta a ponta. A falha é a mensagem da SÁBIA (o Hermes põe o erro sob `ARCHITECT`), com "Perguntar de novo" ao lado. A conversa curta pousa junto do campo (`defaultScrollAnchor(.bottom, for: .alignment)`); a longa abre pelo começo, que é por onde se lê.
+2. **Cor é identidade ou estado, e está escrita no `Tema`.** VOCÊ é o âmbar (`ambarTinta`) — o do caret e do "?", o acento do app, como o azul do `USER` no Hermes. A SÁBIA ganha `Tema.sabia` (#1F6B5A, 5,8:1 sobre o papel), só na marca e no nome. O vermelho (`Tema.aviso`) só existe no botão de parar, enquanto há o que parar.
+3. **A espera é a `CapsulaDeEspera`**: estreita (34 pt), colada 8 pt acima do campo, a marca da sábia cintilando no mesmo segundo do relógio (classe `.laco`: com Movimento Reduzido fica acesa e só o número anda), "a sábia pensa…" e o tempo decorrido à direita em `m:ss`. Sem botão.
+4. **O campo fica no pé da conversa, sempre, e o botão dele muda com o estado**: parar (quadrado branco em vermelho) enquanto a sábia pensa; enviar (seta em carvão) quando ela está livre e há texto — mesmo lugar, mesma forma. O texto de espera do campo diz o estado: "escreva a próxima" enquanto ela pensa. O pé é uma PILHA sob a rolagem, não `safeAreaInset`: como inset ele virava barra sobre a rolagem e o iOS 26 pintava a sombra de borda nele — o pé flutuava por cima da conversa.
+5. **O retorno perde a caixa.** "serviu | não serviu" fica lado a lado com o fio no meio; vale também para a Lente, o outro lugar do `ControleDeRetorno`.
+
+**Não muda:** o `switch` de três saídas da Lente (`Sabia.nadaPassouNaGuarda` separa "o modelo calou" de "nada passou na nossa guarda"); a `Espera` da Lente e da Página; a barra de baixo e a busca (outra cadeira); a marca "?" (ADR 10i).
+
+**Substitui** a ADR 10i no ponto em que a linha "?" não existia enquanto a sábia pensava nem enquanto uma pergunta esperava "Perguntar de novo", e a ADR 10f no ponto da espera nas Notas (a `Espera` sob a pergunta).
+
+**Curva-zero, em toques.** Parar: 1, sempre no mesmo lugar (era 1, sob a pergunta, que andava). Perguntar de novo depois de uma resposta longa: tocar e escrever (era rolar até o fim da folha, depois do retorno, tocar e escrever). Saber quem disse o quê: 0 — está escrito.
+
+**Prova.** `EsperaComEstadoUITests` (a cápsula existe, tem menos de 60 pt, está acima do campo e colada a ele; parar é o botão do campo e enviar não está lá ao mesmo tempo; as linhas de autor existem; o retorno fica acima do campo), `SuperficieDaRespostaTests` (`CapsulaDeEspera.tempo`), suíte integral no teste 4; vídeo e capturas lado a lado em `ferramentas/orca/conversa-hermes/`, portão dos sete em `ferramentas/orca/conversa-hermes.md`.

@@ -56,6 +56,11 @@ enum Tema {
     static let ambarSuave = Color(hex: 0xD9A542).opacity(0.22)
     /// O âmbar que se lê: 5,8:1 sobre o papel.
     static let ambarTinta = Color(hex: 0x7A5A16)
+    /// A cor da sábia (REFERENCIA-HERMES §6 e §10): IDENTIDADE, nunca enfeite —
+    /// só a marca e o nome dela na conversa. 5,8:1 sobre o papel. Quem pergunta
+    /// é o âmbar (`ambarTinta`): o mesmo do caret e do "?", o acento do app,
+    /// como o azul do `USER` no Hermes.
+    static let sabia = Color(hex: 0x1F6B5A)
     /// 5,3:1 sobre o papel.
     static let aviso = Color(hex: 0xB5432F)
     static let codigoFundo = Color(hex: 0xEBEBEA)

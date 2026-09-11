@@ -104,8 +104,9 @@ alguém tropeçar: a série 08 encheu sem aviso e custou três colisões numa ta
 | 10i | ENTRADA · perguntar é a marca "?", a mesma em toda tela; a busca volta à lista; o pé fica livre | reservada, volta viva (worktree `superficie`, branch `Vitorepf/entrada`) |
 | 10j | PÍLULA · os destinos numa pílula flutuante só de ícones; Escrever num círculo fora dela (Hermes §2) | reservada, volta viva (worktree `superficie`, branch `Vitorepf/entrada`) |
 | 10k | SISTEMA · caixa alta só agrupa (cabeçalho com contagem e recolher), linha de três níveis com fio recuado, a regra da cor escrita no Tema (Hermes §4, §5, §10) | reservada, volta viva (worktree `superficie`, branch `Vitorepf/entrada`) |
+| 10l | CONVERSA-HERMES · a conversa sem caixa (linha de autor, texto, fio recuado) e a espera como cápsula com tempo colada ao campo, cujo botão muda com o estado | escrita no branch `Vitorepf/sistema-ia` (portão dos sete em `ferramentas/orca/conversa-hermes.md`); o coordenador mescla |
 
-**Próxima livre: 10l.**
+**Próxima livre: 10m.**
 
 **A 09s colidiu, e quem mudou fui eu** (09/09, ~02h). Tomei a `09s` porque o
 "Próxima livre: 09s" que estava escrito aqui batia com o comando; no mesmo
