@@ -116,10 +116,11 @@ struct RetomadaTrabalhoTests {
     /// grep -n 'rolarPara = ' Traco/Trabalho/TrabalhoView.swift
     /// ```
     ///
-    /// São **8** destinos literais hoje — `trabalho-atos`, `trabalho-retorno`,
+    /// São **9** destinos literais hoje — `trabalho-atos`, `trabalho-retorno`,
     /// `trabalho-historico`, `trabalho-erro`, `trabalho-preparando`,
-    /// `pratica-adaptando`, `pedido`, `tentativa` — e mais dois por variável
-    /// (`chave`, `falta`), que este portão não alcança e não finge alcançar.
+    /// `pratica-adaptando`, `pedido`, `tentativa`, `versao` — e mais dois por
+    /// variável (`chave`, `falta`), que este portão não alcança e não finge
+    /// alcançar. `versao` entrou com a gaveta que devolve o cursor ao artefato.
     @Test func todaRolagemDaFolhaTemDestinoQueExiste() throws {
         let caminho = URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent().deletingLastPathComponent()
@@ -134,9 +135,33 @@ struct RetomadaTrabalhoTests {
         // `campo(…)` marca o campo com `.id(chave)`: a chave também é destino.
         ancoras.formUnion(fonte.matches(of: /chave: "([a-z][a-z-]*)"/).map { String($0.output.1) })
         // sem esta linha uma regex quebrada deixaria a varredura vazia e VERDE
-        #expect(alvos.count == 8, "a varredura achou \(alvos.count) destinos: \(alvos.sorted())")
+        #expect(alvos.count == 9, "a varredura achou \(alvos.count) destinos: \(alvos.sorted())")
         for alvo in alvos.sorted() {
             #expect(ancoras.contains(alvo), "a folha rola para \"\(alvo)\" e ninguém tem esse .id")
         }
+        // C9: a oferta rola por variável (`ancoraDaProximaEstacao`), não por
+        // literal em `rolarPara =`. Os três destinos têm de existir no arquivo.
+        for alvo in ["trabalho-producao", "trabalho-praticar", "trabalho-atos"] {
+            #expect(ancoras.contains(alvo), "a oferta rola para \"\(alvo)\" e ninguém tem esse .id")
+        }
+        #expect(fonte.contains("trabalho-oferta-retomada"))
+        #expect(fonte.contains("trabalho-ir-ao-proximo-passo"))
+        #expect(fonte.contains("trabalho-ir-a-estacao"))
+        #expect(fonte.contains("trabalho-dificuldade-retomada"))
+        #expect(fonte.contains("trabalho-ir-a-dificuldade"))
+        #expect(fonte.contains("ancoraDaDificuldade"))
+        #expect(ancoras.contains(TrabalhoView.ancoraDaDificuldade),
+                "a retomada rola para a dificuldade e ninguém tem esse .id")
+        #expect(fonte.contains("else if let oferta"),
+                "nó plantado e oferta da jornada não podem aparecer juntos")
+        #expect(fonte.contains("abrirGavetaDaVersao"),
+                "a gaveta da versão precisa devolver o cursor ao campo")
+        #expect(fonte.contains("campoEmFoco = \"versao\""),
+                "sem devolver o foco, o teclado fica no pedido")
+        #expect(fonte.contains("trabalho-campo-versao"),
+                "a primeira versão mora na estação, sem botão a revelar")
+        #expect(fonte.contains("trabalho-guardar-versao"))
+        #expect(!fonte.contains("trabalho-escrever-versao"),
+                "o toque de revelar a primeira versão voltou — a estação é o campo")
     }
 }

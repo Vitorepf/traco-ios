@@ -42,6 +42,11 @@ nonisolated enum RespostaNotas {
         /// escrito, a próxima medida não saberia dizer se o prompt melhorou —
         /// portão que esconde o que conta (09o). A sonda grava este campo.
         var escreveuRotuloInterno: Bool = false
+        /// ADR 2026-09-12a — a guarda de obra recusa localmente com esta base.
+        /// `nil` nas outras rotas: quem interpretou o JSON já aplicou a base.
+        var base: String? = nil
+        /// Nome da obra ausente. A tela oferece plantar; sem aceite não há nó.
+        var obraParaPlantar: String? = nil
     }
 
     struct Pacote: Sendable {

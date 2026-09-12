@@ -132,10 +132,15 @@ enum Sabia {
     - conversa: informação fornecida pela pessoa na conversa anterior, quando
       não depende de uma nota; trechoIDs vazio. Respeite suas correções.
     - geral: explicação geral, métodos ou raciocínio que não afirma fatos
-      desconhecidos da vida da pessoa; trechoIDs vazio.
+      desconhecidos da vida da pessoa; trechoIDs vazio. Pedido de livro,
+      autor ou tese que NÃO está nas notas recebidas NÃO é geral: a base é
+      insuficiente, a frase é "não está no caderno", e oferece plantar.
+      Não invente o que a obra diz.
     - insuficiente: ÚLTIMO RECURSO. Nada no material sustenta NENHUMA parte da
       pergunta e ela é sobre a vida da pessoa; texto e trechoIDs vazios. Se
       qualquer nota ou fala dela sustenta alguma parte, a base NÃO é esta.
+      Exceção: obra nomeada ausente das notas — recuse com "não está no
+      caderno" e ofereça plantar; não use saber-de-mundo.
     Faltar um dado nunca é motivo para recusar a pergunta inteira. Responda
     tudo o que as notas, a conversa e o conhecimento geral sustentam, diga
     exatamente qual dado falta, e siga ajudando com o que existe: os números e
@@ -190,6 +195,9 @@ enum Sabia {
                                   gerarRemoto: ((RespostaNotas.Pacote) async -> String?)? = nil,
                                   gerarLocal: ((RespostaNotas.Pacote) async -> String?)? = nil) async -> RespostaNotas.Retorno? {
         guard !Task.isCancelled else { return nil }
+        if let recusa = GuardaDeObra.recusarSeAusente(pergunta: pergunta, fontes: fontes) {
+            return recusa
+        }
         if let pacote = RespostaNotas.montar(pergunta: pergunta, fontes: fontes, conversa: conversa,
                                              catalogo: catalogo, retrato: retrato, teto: 16_000) {
             guard validarAcesso(pacote.fontes) else { return nil }
@@ -800,19 +808,30 @@ enum Sabia {
             + (resto > 0 ? "\ne mais \(resto)." : "")
     }
 
-    static func responder(pergunta: String, contexto: String, gesto: Gesto?, retrato: String = "") async -> String? {
+    static func responder(pergunta: String, contexto: String, gesto: Gesto?, retrato: String = "",
+                          gerar: ((String) async -> String?)? = nil) async -> String? {
         guard gesto != .expressiva else { return nil }
+        let fontesDaPagina = [FonteNotas(id: UUID(), titulo: "página", texto: contexto, editadaEm: .now)]
+        if let recusa = GuardaDeObra.recusarSeAusente(pergunta: pergunta, fontes: fontesDaPagina) {
+            return recusa.texto
+        }
         let usuario = "\(rotuloContextoDaNota)\n\(contexto.prefix(tetoDoContextoDaNota))"
             + blocoDoRetrato(retrato) + "\n\nPergunta: \(pergunta)"
         // ADR 09n: `medium` é o esforço MEDIDO desta rota — com ele o modelo
         // escolhido passou os doze casos e as 36 execuções; com `none` a
         // fabricação de cenário volta. Custa a espera, que o cartão mostra.
-        guard let cru = await chamar(.responder, sistema: sistemaResponder, usuario: usuario, temperatura: 0.3,
-                                     esforco: "medium",
-                                     mensagemLocal: { montarResponder(pergunta: pergunta, contexto: contexto,
-                                                                      retrato: retrato, rotulo: rotuloContextoDaNota) })
-        else { return nil }
-        return limparResposta(cru)
+        // `gerar` é só a mutação da prova: a guarda tem de calar ANTES.
+        let cru: String?
+        if let gerar { cru = await gerar(usuario) }
+        else {
+            cru = await chamar(.responder, sistema: sistemaResponder, usuario: usuario, temperatura: 0.3,
+                               esforco: "medium",
+                               mensagemLocal: { montarResponder(pergunta: pergunta, contexto: contexto,
+                                                                retrato: retrato, rotulo: rotuloContextoDaNota) })
+        }
+        guard let cru else { return nil }
+        guard let limpa = limparResposta(cru) else { return nil }
+        return SustentacaoPagina.filtrar(limpa, pergunta: pergunta, contexto: contexto)
     }
 
     /// ADR 2026-09-09i — a linha entre o que é NOSSO e o que é DELA. O método
@@ -829,7 +848,7 @@ enum Sabia {
                                      mensagemLocal: {
             montarInstigar(texto: texto, gesto: gesto, degrau: degrau, retrato: retrato)
         }) else { return nil }
-        return parsePerguntas(cru, texto: texto)
+        return perguntasInstigadas(cru, texto: texto)
     }
 
     /// A mensagem de SISTEMA montada, para que o degrau se meça sem aparelho.
@@ -951,8 +970,9 @@ enum Sabia {
         // LOTE-9 e RETIRADO: ver `dependeDoQueElaFechou` logo abaixo. Ficam no
         // esquema porque a FORMA medida é esta — tirá-los mudaria o pedido que
         // deu o resultado, e aí o número não descreveria mais o que roda.
-        return Contraparte(contra: limpo("contra"), foraDaLista: limpo("foraDaLista"),
-                           outroCampo: limpo("outroCampo"))
+        let bruta = Contraparte(contra: limpo("contra"), foraDaLista: limpo("foraDaLista"),
+                               outroCampo: limpo("outroCampo"))
+        return GuardaDeContrapor.filtrar(bruta, texto: texto)
     }
 
     /// **ESCRITA, MEDIDA E RETIRADA (ADR 2026-09-10d). Não a religue sem ler isto.**
@@ -1330,13 +1350,21 @@ enum Sabia {
             else { continue }
             let t = bruto.trimmingCharacters(in: .whitespacesAndNewlines)
             guard t.count >= 8, t.count <= 120,
-                  candidatas[i].lowercased().contains(t.lowercased())
+                  GuardaDeEcos.cita(t, na: candidatas[i])
             else { continue }
             vistos.insert(i)
             saida.append(Eco(i: i, trecho: t))
             if saida.count == 3 { break }
         }
         return saida
+    }
+
+    /// Parse + tesoura local. O pedido vigente não muda (ADR 10c): a 2ª
+    /// redação que ensinava a não perguntar o fechado calou a nota magra.
+    /// `nil` continua NÃO LI; lista vazia é li e a guarda não deixou nada.
+    nonisolated static func perguntasInstigadas(_ cru: String, texto: String) -> [String]? {
+        guard let lidas = parsePerguntas(cru, texto: texto) else { return nil }
+        return GuardaDeInstigar.filtrar(lidas, texto: texto)
     }
 
     /// Perguntas válidas: de 1 a 5, cada uma terminando em "?".

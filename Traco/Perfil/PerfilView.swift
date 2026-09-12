@@ -155,7 +155,8 @@ struct PerfilView: View {
     private func lerRetrato() {
         let sinais = Sinais.todos()
         sinaisEmPalavras = Sinais.emPalavras()
-        retratoTexto = Retrato.ler(notas: notas.map(\.paraRetrato), sinais: sinais)
+        retratoTexto = Retrato.ler(notas: notas.map(\.paraRetrato), sinais: sinais,
+                                  observados: AcessoTrabalho.juizosObservados(de: trabalhos, no: context))
         formasSugeridas = Gesto.allCases.filter { $0 != .expressiva && Sinais.sugerirEmVezDeVestir($0, sinais: sinais) }
         degrausEmPalavras = Degraus.emPalavras(sinais: sinais)
         indiceQuantas = Indice.quantas

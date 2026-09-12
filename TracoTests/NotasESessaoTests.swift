@@ -625,42 +625,73 @@ struct AnaliseRemotaTests {
 
 @MainActor
 struct AutoVestirTests {
+    /// Três «solto» no disco do simulador fazem a forma ser sugerida, não
+    /// vestida — e o teste da Q4 mentia. Cada prova traz o próprio arquivo.
+    private func comSinaisLimpos(_ corpo: () async throws -> Void) async throws {
+        let anterior = Sinais.url
+        Sinais.url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("sinais-autovestir-\(UUID().uuidString).json")
+        Sinais.esquecerTudo()
+        defer {
+            Sinais.esquecerTudo()
+            Sinais.url = anterior
+        }
+        try await corpo()
+    }
+
+    /// A análise corre numa Task. Esperar o cartão, não um sono fixo.
+    private func esperar(_ s: Sessao, ate limite: Int = 40, _ pronto: (Sessao) -> Bool) async {
+        for _ in 0..<limite {
+            if pronto(s) { return }
+            try? await Task.sleep(for: .milliseconds(25))
+        }
+    }
+
     @Test func pausaVesteDireto() async throws {
-        let s = Sessao()
-        s.autoAnalise = true
-        s.texto = "quero correr de manhã"
-        s.agendarAutoAnalise(depois: 0)
-        try await Task.sleep(for: .milliseconds(120))
-        #expect(s.gesto == .woop) // vestida sozinha (§17.3)
-        #expect(s.campos.keys.sorted() == ["obstaculo", "plano", "resultado"])
-        #expect(s.texto == "quero correr de manhã") // as palavras do autor intactas
-        if case .vestida(.woop, _) = s.cartao {} else { Issue.record("cartão devia ser .vestida") }
+        try await comSinaisLimpos {
+            let s = Sessao()
+            s.autoAnalise = true
+            s.texto = "quero correr de manhã"
+            s.agendarAutoAnalise(depois: 0)
+            await esperar(s) { $0.gesto == .woop }
+            #expect(s.gesto == .woop) // vestida sozinha (§17.3)
+            #expect(s.campos.keys.sorted() == ["obstaculo", "plano", "resultado"])
+            #expect(s.texto == "quero correr de manhã") // as palavras do autor intactas
+            if case .vestida(.woop, _) = s.cartao {} else { Issue.record("cartão devia ser .vestida") }
+        }
     }
 
     @Test func soltarDesfazESuprimeNaNota() async throws {
-        let s = Sessao()
-        s.autoAnalise = true
-        s.texto = "quero correr de manhã"
-        s.agendarAutoAnalise(depois: 0)
-        try await Task.sleep(for: .milliseconds(120))
-        s.soltarForma()
-        #expect(s.gesto == nil)
-        #expect(s.campos.isEmpty)
-        s.agendarAutoAnalise(depois: 0)
-        try await Task.sleep(for: .milliseconds(120))
-        #expect(s.gesto == nil) // §17.2: opt-out por nota — não re-veste
-        s.novaPagina()
-        #expect(s.autoSuprimidaNaNota == false) // página nova zera a supressão
+        try await comSinaisLimpos {
+            let s = Sessao()
+            s.autoAnalise = true
+            s.texto = "quero correr de manhã"
+            s.agendarAutoAnalise(depois: 0)
+            await esperar(s) { $0.gesto == .woop }
+            s.soltarForma()
+            #expect(s.gesto == nil)
+            #expect(s.campos.isEmpty)
+            s.agendarAutoAnalise(depois: 0)
+            await esperar(s, ate: 16) { $0.gesto != nil }
+            #expect(s.gesto == nil) // §17.2: opt-out por nota — não re-veste
+            s.novaPagina()
+            #expect(s.autoSuprimidaNaNota == false) // página nova zera a supressão
+        }
     }
 
     @Test func expressivaNuncaComecaSozinha() async throws {
-        let s = Sessao()
-        s.autoAnalise = true
-        s.texto = "hoje foi pesado, briguei com meu sócio e senti que tudo pode desmoronar, dói pensar nisso e o medo não sai da cabeça de jeito nenhum"
-        s.agendarAutoAnalise(depois: 0)
-        try await Task.sleep(for: .milliseconds(120))
-        #expect(s.timerLigado == false) // timer é compromisso: só com toque
-        #expect(s.cartao == .expressiva) // a oferta aparece; a decisão é do autor
+        try await comSinaisLimpos {
+            let s = Sessao()
+            s.autoAnalise = true
+            s.texto = "hoje foi pesado, briguei com meu sócio e senti que tudo pode desmoronar, dói pensar nisso e o medo não sai da cabeça de jeito nenhum"
+            s.agendarAutoAnalise(depois: 0)
+            await esperar(s) {
+                if case .expressiva = $0.cartao { return true }
+                return false
+            }
+            #expect(s.timerLigado == false) // timer é compromisso: só com toque
+            #expect(s.cartao == .expressiva) // a oferta aparece; a decisão é do autor
+        }
     }
 }
 

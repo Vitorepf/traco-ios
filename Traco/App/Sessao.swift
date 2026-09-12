@@ -556,6 +556,15 @@ final class Sessao {
                 jaTem.insert(n.tituloNaLista)
             }
         }
+        // A rota `ecos` está cortada (08q). Sem este portão o contexto da
+        // Página ainda montava 40 candidatas e chamava `Sabia.ecos` — `chamar`
+        // devolvia nil sem rede, mas o caminho ficava minado: se `responder`
+        // voltasse e `ecos` não, a pergunta dispararia a rota morta e a
+        // divulgação diria que leu o começo de notas que ninguém viu.
+        guard Politica.provedor(.ecos) != nil else {
+            notasLidasNaPergunta = 0
+            return saida
+        }
         // ADR 04n: as candidatas a eco são as 40 mais PRÓXIMAS desta nota, não
         // as 40 primeiras de um fetch sem ordem — e só quando há índice
         let proximas = Indice.vizinhas(de: Caderno.prosa(de: texto), teto: 40, minimo: 0.15,
@@ -663,7 +672,7 @@ final class Sessao {
                 // cancelamento (09n): "Perguntar à sábia" a um toque.
                 self.notasNaPergunta = []
                 self.cartao = .pergunta(q)
-                self.mostrarToast("a sábia não respondeu. a sua pergunta continua aqui.", duracao: .seconds(8))
+                self.mostrarToast(Grok.avisoDaFalha(), duracao: .seconds(8))
             }
         }
         perguntaTask = nova
@@ -776,8 +785,11 @@ final class Sessao {
         // guarde suas dependências, inclusive quando não são fontes citadas.
         let notas = (try? context.fetch(FetchDescriptor<Nota>())) ?? []
         let fontesDoRetrato = notas.compactMap(Self.fonteParaPergunta)
+        let trabalhos = (try? context.fetch(FetchDescriptor<Trabalho>())) ?? []
+        let observados = AcessoTrabalho.juizosObservados(de: trabalhos, no: context)
         let retrato = Retrato.ligado
-            ? Retrato.ler(notas: notas.map(\.paraRetrato), sinais: Sinais.todos()) : ""
+            ? Retrato.ler(notas: notas.map(\.paraRetrato), sinais: Sinais.todos(),
+                          observados: observados) : ""
         let catalogo = Catalogo.todos.filter { $0.id != Gesto.expressiva.rawValue }
             .map { "\($0.nome): \($0.definicao)" }.joined(separator: "\n")
         let retorno = await responderContextoNotas(pergunta, fontes, validas, catalogo, retrato) { enviadas in
@@ -797,7 +809,25 @@ final class Sessao {
             : "\n\nParte da conversa anterior ficou fora desta consulta porque suas fontes mudaram ou deixaram de estar acessíveis."
         return .init(resposta: retorno.texto + avisoHistorico, fontes: retorno.enviadas,
                      dependencias: dependencias, fontesCitadas: retorno.citadas,
-                     conversaValida: aindaValidas)
+                     conversaValida: aindaValidas,
+                     obraParaPlantar: retorno.obraParaPlantar)
+    }
+
+    /// Fase 0: aceite da guarda de obra. A nota é o nome que ela pediu —
+    /// origem dela, sem tese inventada. Sem aceite não há cânone.
+    @discardableResult
+    func plantarObra(_ nome: String, no context: ModelContext) -> Nota? {
+        guard let texto = GuardaDeObra.textoPlantado(nome) else { return nil }
+        let nota = Nota(texto: texto)
+        nota.dominio = Dominio.inferir(voz: nota.vozDoAutor)
+        context.insert(nota)
+        guard persistir(context) else {
+            mostrarToast("não consegui plantar — a obra não entrou.")
+            return nil
+        }
+        mostrarToast("obra plantada.")
+        Toque.leve()
+        return nota
     }
 
     /// Veste o texto inteiro: motor local agora; a sábia, se ligada, refina
@@ -827,7 +857,7 @@ final class Sessao {
             let mapa = await Sabia.vestir(blocos: Sabia.blocos(antes), gesto: g)
             guard let self, self.texto == base else { return } // o autor mexeu: silêncio
             guard let mapa else {
-                if nadaLocal { self.mostrarToast("a sábia não respondeu. o texto ficou como estava.") }
+                if nadaLocal { self.mostrarToast(Grok.avisoDaFalha()) }
                 return
             }
             // Emenda à ADR 2026-09-09s: mapa VAZIO é a sábia tendo respondido e
@@ -888,6 +918,12 @@ final class Sessao {
     func instigarSobreAForma(_ g: Gesto) {
         perguntaDaSabia = nil
         guard g != .expressiva, Sabia.disponivel else { return }
+        // A Lente já mostra `Politica.aviso(.instigar)`. Abrir a forma é
+        // automático — como classificar, o silêncio é a resposta. Sem este
+        // portão a conta ligada disparava `Sabia.instigar` na rota cortada e
+        // `chamar` devolvia nil; a pergunta do template cobria, e a volta da
+        // rota religaria o disparo sozinho.
+        guard Politica.aviso(.instigar) == nil else { return }
         let prosa = Caderno.prosa(de: texto)
         guard prosa.count >= 80 else { return } // texto curto não tem buraco a apontar
         let geracao = geracaoDaPagina
@@ -908,11 +944,14 @@ final class Sessao {
     /// As notas do disco, lidas para o retrato. A view injeta (`notasParaRetrato`)
     /// porque a sessão não guarda um contexto; nos testes fica vazio.
     var notasParaRetrato: () -> [Retrato.NotaLida] = { [] }
+    /// Juízos de Trabalhos que a view já passou por `AcessoTrabalho`.
+    var observadosParaRetrato: () -> [Retrato.JuizoObservado] = { [] }
 
     /// O bloco SOBRE QUEM ESCREVE — vazio quando desligado, sem conta, ou sem nada.
     func retratoAtual(sinais: [Sinal]? = nil) -> String {
         guard Retrato.ligado, Sabia.disponivel else { return "" }
-        return Retrato.ler(notas: notasParaRetrato(), sinais: sinais ?? Sinais.todos())
+        return Retrato.ler(notas: notasParaRetrato(), sinais: sinais ?? Sinais.todos(),
+                           observados: observadosParaRetrato())
     }
 
     /// O autor disse se a pergunta da forma serviu (ADR 04h).

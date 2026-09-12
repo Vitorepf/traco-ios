@@ -222,6 +222,16 @@ final class OficinaTrabalho {
                 // Praticar o diz; nada de meia evidência mandada calada.
                 guard verificarAcesso(), !Task.isCancelled, documento.pedidoAtivo?.id == pedido.id else { return }
                 alterar { $0.marcarAjusteIndisponivel(pedido.id) }
+            } catch MotorTrabalho.Erro.provedorCalou(let frase) {
+                // Q1/Q2: timeout e recusa não viram "exercício inválido" nem
+                // "versão malsucedida". O nome fica na tela; o escrito fica.
+                guard verificarAcesso(), !Task.isCancelled, documento.pedidoAtivo?.id == pedido.id else { return }
+                if documento.praticaPedida {
+                    alterar { $0.marcarPraticaIndisponivel(pedido.id) }
+                } else {
+                    alterar { $0.falharPedido(pedido.id) }
+                }
+                if salvo { erro = frase }
             } catch MotorTrabalho.Erro.praticaIndisponivel {
                 // P1 (volta 6): quem escolheu praticar não recebe a produção
                 // delegada. O estado fica no pedido; a seção Praticar o lê.
@@ -230,7 +240,10 @@ final class OficinaTrabalho {
             } catch {
                 guard verificarAcesso(), !Task.isCancelled, documento.pedidoAtivo?.id == pedido.id else { return }
                 alterar { $0.falharPedido(pedido.id) }
-                if salvo { erro = "A IA não conseguiu preparar esta versão. O pedido e seu trabalho foram preservados." }
+                if salvo {
+                    erro = Grok.falhaPendente().map(Grok.frase)
+                        ?? "A IA não conseguiu preparar esta versão. O pedido e seu trabalho foram preservados."
+                }
             }
         }
         Self.execucoes[pedido.id] = tarefa
@@ -440,7 +453,13 @@ final class OficinaTrabalho {
 
 @MainActor
 enum MotorTrabalho {
-    enum Erro: Error { case indisponivel, respostaVazia, praticaIndisponivel, ajusteIndisponivel }
+    enum Erro: Error, Equatable {
+        case indisponivel, respostaVazia, praticaIndisponivel, ajusteIndisponivel
+        /// O provedor calou com nome (timeout, cancelar, limite, recusa).
+        /// Distinto de `praticaIndisponivel`: ali quem recusou foi o nosso
+        /// contrato, não a espera.
+        case provedorCalou(String)
+    }
     /// ADR 07b: produzir é só Grok — o aparelho reprovou 3 de 3 (Politica).
     static var disponivel: Bool { Politica.provedor(.produzir) != nil }
     /// A janela do provedor remoto. Acima disso a montagem desce ao aparelho.
@@ -481,6 +500,7 @@ enum MotorTrabalho {
             contexto.append("RESULTADO DESEJADO:\n\(d.intencaoAtual.resultado)")
         }
         contexto.append("APOIO ESCOLHIDO: \(d.apoio.rawValue)")
+        if !d.colheitaDeJuizos.isEmpty { contexto.append(d.colheitaDeJuizos) }
         if d.apoio == .combinar, d.praticaPedida, let trecho = d.trechoExercitado {
             contexto.append("DIVISÃO DO TRABALHO:\nA pessoa vai exercitar: \(trecho)\nProduza o restante do trabalho delegado, pronto para uso. Reserve um espaço identificado para a contribuição dela; não resolva esse trecho por ela.")
         }
@@ -535,6 +555,7 @@ enum MotorTrabalho {
                 throw Erro.ajusteIndisponivel
             }
             guard let preparada = await preparar(d, p, contaLigada) else {
+                if let falha = Grok.falhaPendente() { throw Erro.provedorCalou(Grok.frase(falha)) }
                 throw Erro.praticaIndisponivel
             }
             try Task.checkCancellation()
@@ -567,10 +588,12 @@ enum MotorTrabalho {
         guard disponivel else { throw Erro.indisponivel }
         try Task.checkCancellation()
         let remoto = pedido(d, p, teto: tetoRemoto, praticaPreservada: praticaPreservada)
-        if remoto.count <= tetoRemoto,
-           let texto = await Grok.responder(sistema: sistema, usuario: remoto, temperatura: 0.3, esforco: "medium"),
-           !texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            return .init(texto: texto, produtor: remoto.contains("[CONTEXTO PARCIAL:") ? "Grok · parte do histórico" : "Grok")
+        if remoto.count <= tetoRemoto {
+            if let texto = await Grok.responder(sistema: sistema, usuario: remoto, temperatura: 0.3, esforco: "medium"),
+               !texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                return .init(texto: texto, produtor: remoto.contains("[CONTEXTO PARCIAL:") ? "Grok · parte do histórico" : "Grok")
+            }
+            if let falha = Grok.falhaPendente() { throw Erro.provedorCalou(Grok.frase(falha)) }
         }
         try Task.checkCancellation()
         // ADR 07b: sem a tabela deixar, a falha do Grok é indisponibilidade
@@ -597,6 +620,9 @@ extension MotorTrabalho {
                                 contaLigada: Bool = ContaGrok.ligada)
         async -> (pratica: DocumentoTrabalho.Pratica, produtor: String)? {
         guard contaLigada else { return nil }
+        // Esta tentativa ainda não falhou: um timeout velho não pode
+        // nomear uma recusa nossa (janela, contrato).
+        Grok.limparFalha()
         let mensagem = PraticaTrabalho.montarPreparacao(d, p)
         // ADR 08j: no ajuste, "o que mudou" entra no contrato de saída — do
         // esquema à leitura. ADR 08r: o teto é o medido, não o 90 suposto.
@@ -670,6 +696,7 @@ extension MotorTrabalho {
             return registro(.concluida, executor: executor, resultados: resultados)
         }
         return registro(.indisponivel, executor: PraticaTrabalho.naoExecutada,
-            motivo: "O provedor não devolveu feedback completo. Sua tentativa continua guardada; tente novamente.")
+            motivo: Grok.falhaPendente().map(Grok.frase)
+                ?? "O provedor não devolveu feedback completo. Sua tentativa continua guardada; tente novamente.")
     }
 }

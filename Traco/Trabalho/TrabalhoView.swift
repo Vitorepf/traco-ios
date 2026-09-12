@@ -213,7 +213,37 @@ struct TrabalhoView: View {
             }
             .accessibilityIdentifier("trabalho-continuar-ato")
         }
+        if let no = o.documento.dificuldadePlantada {
+            VStack(alignment: .leading, spacing: 6) {
+                Text(no)
+                    .font(Tema.meta)
+                    .foregroundStyle(Tema.tintaSuave)
+                    .accessibilityIdentifier("trabalho-dificuldade-texto")
+                acaoSecundaria("Ver a dificuldade") {
+                    irADificuldadePlantada()
+                }
+                .accessibilityIdentifier("trabalho-ir-a-dificuldade")
+            }
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("trabalho-dificuldade-retomada")
+        } else if let oferta = o.documento.ofertaDaJornada {
+            VStack(alignment: .leading, spacing: 6) {
+                Text(oferta)
+                    .font(Tema.meta)
+                    .foregroundStyle(Tema.tintaSuave)
+                    .accessibilityIdentifier("trabalho-oferta-texto")
+                if o.documento.proximaEstacao != nil {
+                    acaoSecundaria("Ir ao próximo passo") {
+                        irAProximaEstacao(o)
+                    }
+                    .accessibilityIdentifier("trabalho-ir-ao-proximo-passo")
+                }
+            }
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("trabalho-oferta-retomada")
+        }
         desdeAUltimaVisita(o)
+        colheita(o)
         if let retorno = o.documento.evidencias.last {
             VStack(alignment: .leading, spacing: 6) {
                 // ADR 08y: a data estava fora daqui, e "Último retorno" sem
@@ -273,6 +303,23 @@ struct TrabalhoView: View {
                 .accessibilityElement(children: .contain)
                 .accessibilityIdentifier("trabalho-desde-a-ultima-visita")
             }
+        }
+    }
+
+    /// C5: a colheita mora no Trabalho, não só no pedido à IA. As mesmas
+    /// linhas que viajam. Não é aprendizagem.
+    @ViewBuilder private func colheita(_ o: OficinaTrabalho) -> some View {
+        let linhas = o.documento.linhasDaColheita
+        if !linhas.isEmpty {
+            VStack(alignment: .leading, spacing: 6) {
+                secao("Juízos que você informou")
+                ForEach(Array(linhas.enumerated()), id: \.offset) { _, linha in
+                    Text(linha).font(Tema.meta)
+                }
+                Text("O próximo pedido leva estes juízos. Não é prova de que você aprendeu.")
+                    .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+            }
+            .accessibilityIdentifier("trabalho-colheita-juizos")
         }
     }
 
@@ -436,15 +483,20 @@ struct TrabalhoView: View {
                 }
             }
             if o.documento.versaoAtual == nil {
-                if editandoVersao {
-                    campo("Sua versão", chave: "versao")
-                    acaoSecundaria("Guardar minha versão") { guardarVersao(o) }
-                        .accessibilityHint(vazio("versao") ? "Escreva a versão primeiro" : "")
-                } else {
-                    acaoSecundaria("Escrever minha própria versão") { gaveta { editandoVersao = true } }
-                }
+                // A primeira versão mora na estação, sem gaveta a revelar.
+                // O toque em «Escrever minha própria versão» sintetizado pelo
+                // teste não abria o campo — o botão ficava na árvore e o
+                // teclado no pedido. Campo vazio não é edição pendente
+                // (`alterado` julga por diferença).
+                campo("Sua versão", chave: "versao")
+                    .accessibilityElement(children: .contain)
+                    .accessibilityIdentifier("trabalho-campo-versao")
+                acaoSecundaria("Guardar minha versão") { guardarVersao(o) }
+                    .accessibilityHint(vazio("versao") ? "Escreva a versão primeiro" : "")
+                    .accessibilityIdentifier("trabalho-guardar-versao")
             }
         }
+        .id("trabalho-producao")
     }
 
     /// O motivo é lido na MESMA ordem em que o guarda desvia
@@ -477,7 +529,7 @@ struct TrabalhoView: View {
                         Text(linha).font(Tema.meta).foregroundStyle(Tema.tintaSuave)
                             .accessibilityIdentifier("pratica-sem-provedor")
                     } else if o.documento.praticaIndisponivel {
-                        Text(PraticaTrabalho.preparacaoIndisponivel).font(Tema.meta).foregroundStyle(Tema.aviso)
+                        Text(o.erro ?? PraticaTrabalho.preparacaoIndisponivel).font(Tema.meta).foregroundStyle(Tema.aviso)
                             .accessibilityIdentifier("pratica-preparacao-indisponivel")
                     } else {
                         Text("Nenhum exercício preparado ainda. Escreva acima o que você quer praticar e toque em preparar: a IA prepara enunciado, exemplo e critérios; a tentativa é sua.")
@@ -495,6 +547,7 @@ struct TrabalhoView: View {
                     tentativas(artefatoID: pratica == nil ? nil : versao?.id, pratica: pratica, oficina: o)
                 }
             }
+            .id("trabalho-praticar")
         }
     }
 
@@ -536,8 +589,21 @@ struct TrabalhoView: View {
     private func dificuldade(_ o: OficinaTrabalho) -> some View {
         VStack(alignment: .leading, spacing: Tema.entreItens) {
             secao("Dificuldade")
+            if let oferta = o.documento.ofertaDaJornada {
+                Text(oferta)
+                    .font(Tema.meta)
+                    .foregroundStyle(Tema.tintaSuave)
+                    .accessibilityIdentifier("trabalho-oferta-jornada")
+                if o.documento.proximaEstacao != nil {
+                    acaoSecundaria("Ir ao próximo passo") {
+                        irAProximaEstacao(o)
+                    }
+                    .accessibilityIdentifier("trabalho-ir-a-estacao")
+                }
+            }
             campo("O que está dificultando isso?", chave: "dificuldade",
                   exemplo: "Pode ser contexto, recursos, acesso ou divisão do trabalho")
+                .accessibilityElement(children: .contain)
                 .accessibilityIdentifier("pratica-dificuldade")
             acaoSecundaria("Guardar esta dificuldade") {
                 guard !faltaCampo("dificuldade") else { return }
@@ -848,9 +914,11 @@ struct TrabalhoView: View {
             // imprimia o parágrafo da versão duas vezes para sempre.
             if editandoVersao || Self.alterado(rascunhos, "versao", em: o.documento) {
                 campo("Editar a versão", chave: "versao", padrao: a.conteudo)
+                    .accessibilityElement(children: .contain)
                     .accessibilityIdentifier("trabalho-editar-versao")
                 acaoSecundaria("Guardar como nova versão") { guardarVersao(o, base: a.id) }
                     .accessibilityHint(vazio("versao") ? "Escreva a versão primeiro" : "")
+                    .accessibilityIdentifier("trabalho-guardar-nova-versao")
             } else {
                 // ADR 08k: enquanto a IA prepara ou adapta, entrar em edição
                 // abriria a fresta que o contrato proíbe — a pessoa editaria a
@@ -859,8 +927,9 @@ struct TrabalhoView: View {
                 acaoSecundaria("Editar esta versão") {
                     guard !preparacaoEmCurso(o) else { return }
                     definir("versao", a.conteudo)
-                    gaveta { editandoVersao = true }
+                    abrirGavetaDaVersao()
                 }
+                .accessibilityIdentifier("trabalho-abrir-edicao-versao")
             }
         }
         .cartao(.papel)
@@ -1026,6 +1095,7 @@ struct TrabalhoView: View {
         VStack(alignment: .leading, spacing: Tema.entreItens) {
             secao("Próximo ato")
             campo("O que você vai fazer com este trabalho?", chave: "acao", exemplo: "Ensaiar a apresentação")
+                .accessibilityElement(children: .contain)
                 .accessibilityIdentifier("trabalho-acao")
             Pilula("Preparar este ato", forma: .larga, selecionada: true) {
                 guard !levouAoObstaculo(o), !faltaCampo("acao") else { return }
@@ -1087,6 +1157,8 @@ struct TrabalhoView: View {
                         let chave = "relato-\(acao.id.uuidString)"
                         let chaveResultado = "resultado-\(acao.id.uuidString)"
                         campo("O que aconteceu?", chave: chave, exemplo: "O que funcionou ou faltou")
+                            .accessibilityElement(children: .contain)
+                            .accessibilityIdentifier("trabalho-relato")
                         trilhoDoResultado(chaveResultado)
                         Text("Informar o resultado é opcional, e vale para tentativa parcial e para fracasso. Sem ele, o relato fica como não observado — nunca como sucesso.")
                             .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
@@ -1159,6 +1231,47 @@ struct TrabalhoView: View {
     static func acaoObservada(_ d: DocumentoTrabalho) -> String? {
         guard let e = d.ultimaObservacao else { return nil }
         return d.acoes.first { $0.id == e.acaoID }?.texto
+    }
+
+    /// C9 / D1: o nó que ela plantou mora no campo `dificuldade`. A retomada
+    /// rola para essa âncora; não inventa rótulo.
+    static let ancoraDaDificuldade = "dificuldade"
+
+    /// C9: a oferta nomeia a estação; a rolagem vai a uma âncora que a folha
+    /// promete ter quando essa estação falta. Sem wizard — um gesto, o mesmo
+    /// da retomada. `contaLigada` decide se a produção com IA está visível.
+    static func ancoraDaProximaEstacao(_ d: DocumentoTrabalho, contaLigada: Bool) -> String? {
+        switch d.proximaEstacao {
+        case .artefato, .ajuste:
+            let producaoVisivel = !d.praticaPedida || PraticaTrabalho.oferta(contaLigada: contaLigada) == nil
+            return producaoVisivel ? "trabalho-producao" : "trabalho-praticar"
+        case .acao, .evidencia:
+            return "trabalho-atos"
+        case nil:
+            return nil
+        }
+    }
+
+    private func irAProximaEstacao(_ o: OficinaTrabalho) {
+        switch o.documento.proximaEstacao {
+        case .artefato where o.documento.versaoAtual == nil:
+            campoEmFoco = "versao"
+            rolarPara = "versao"
+        case .ajuste:
+            if let conteudo = o.documento.versaoAtual?.conteudo {
+                definir("versao", conteudo)
+            }
+            abrirGavetaDaVersao()
+        default:
+            guard let ancora = Self.ancoraDaProximaEstacao(o.documento, contaLigada: ContaGrok.ligada) else { return }
+            campoEmFoco = nil
+            rolarPara = ancora
+        }
+    }
+
+    private func irADificuldadePlantada() {
+        campoEmFoco = nil
+        rolarPara = Self.ancoraDaDificuldade
     }
 
     /// A causa do pedido nascido de um relato, como DADO: aponta a evidência
@@ -1341,12 +1454,29 @@ struct TrabalhoView: View {
                 .focused($campoEmFoco, equals: chave)
                 .cartao(.campo)
                 .accessibilityLabel(titulo)
+                .accessibilityIdentifier(chave)
         }
+        // Identificador no VStack combina os filhos num StaticText: o campo
+        // some da árvore e o toque seguinte digita no pedido — ou na busca.
+        .accessibilityElement(children: .contain)
     }
 
     /// A gaveta que abre no lugar (§21: altura animada, um driver só).
     private func gaveta(_ mudar: @escaping () -> Void) {
         withAnimation(Tema.gaveta(reduzido: reduceMotion), mudar)
+    }
+
+    /// A folha nasce com o cursor no pedido. Sem devolver o foco à versão,
+    /// a gaveta abre e o teclado continua no campo de cima: o que se digita
+    /// não entra no artefato. O foco espera o campo entrar na árvore — o
+    /// mesmo `yield` do pedido ao nascer o trabalho.
+    private func abrirGavetaDaVersao() {
+        gaveta { editandoVersao = true }
+        Task { @MainActor in
+            await Task.yield()
+            campoEmFoco = "versao"
+            rolarPara = "versao"
+        }
     }
 
     private func vazio(_ chave: String) -> Bool {

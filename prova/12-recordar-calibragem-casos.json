@@ -1,0 +1,210 @@
+{
+ "repeticoes": 3,
+ "casos": [
+  {
+   "id": "q5-calibragem-dependencia-externa",
+   "operacao": "calibragem",
+   "entrada": {
+    "itens": [
+     "ANTES: Previ terminar a proposta na terça; considerei apenas o tempo de escrita. DEPOIS: Terminei na sexta porque esperei três dias pela aprovação do cliente.",
+     "ANTES: Previ concluir o orçamento na segunda; não reservei prazo para receber preços do fornecedor. DEPOIS: Concluí na quinta, depois que o fornecedor respondeu.",
+     "ANTES: Previ fechar o contrato na quarta contando apenas minhas horas de revisão. DEPOIS: Ficou pronto na segunda seguinte após a revisão jurídica externa."
+    ]
+   },
+   "requisitos": [
+    "Retorna de uma a três perguntas pertinentes sobre a dependência de resposta/aprovação externa omitida nas previsões.",
+    "A pergunta ajuda a comparar previsões e resultados entre casos, sem se limitar a repetir uma frase isolada.",
+    "Cada pergunta cita fragmento literal de um dos pares, termina em ? e tem até 280 caracteres e duas frases.",
+    "Não atribui o atraso a incapacidade, preguiça, personalidade ou intenção do autor; o texto só sustenta omissão de dependências nessas previsões.",
+    "Não oferece nota, diagnóstico, elogio, conclusão fechada, regra universal ou afirmação de aprendizagem."
+   ]
+  },
+  {
+   "id": "q5-calibragem-sem-atraso",
+   "operacao": "calibragem",
+   "entrada": {
+    "itens": [
+     "ANTES: Reservei duas horas para revisar o texto. DEPOIS: A revisão levou duas horas.",
+     "ANTES: Previ esperar três dias pela resposta do fornecedor. DEPOIS: A resposta chegou em três dias."
+    ]
+   },
+   "requisitos": [
+    "Aceita [] ou perguntas úteis sustentadas por estes dois pares; não exigir que todo conjunto revele uma falha.",
+    "Se houver pergunta, sua premissa não afirma atraso, excesso de otimismo ou dependência esquecida: nada disso ocorreu nos pares.",
+    "Perguntas presentes precisam de citação literal, até 280 caracteres e duas frases, terminando em ?.",
+    "Não conclui que a pessoa é calibrada, competente ou que aprendeu a prever apenas porque estes dois resultados coincidiram.",
+    "Retorno vazio é uma decisão semântica possível; nil/erro não é prova de que o conjunto foi avaliado."
+   ]
+  },
+  {
+   "id": "qn-calibragem-superestimou-o-ganho",
+   "operacao": "calibragem",
+   "entrada": {
+    "itens": [
+     "ANTES: Previ que trocar o editor de texto me faria escrever o dobro por dia. DEPOIS: Escrevi praticamente a mesma quantidade nas duas semanas seguintes.",
+     "ANTES: Previ que comprar o segundo monitor reduziria pela metade o tempo de revisão. DEPOIS: O tempo de revisão ficou parecido; o que mudou foi eu trocar menos de janela.",
+     "ANTES: Previ que o teclado novo acabaria com o erro de digitação. DEPOIS: Continuo errando nas mesmas palavras longas."
+    ]
+   },
+   "requisitos": [
+    "Retorna de uma a três perguntas pertinentes à superestimação do efeito de trocar de ferramenta.",
+    "A pergunta faz comparar previsões e resultados entre os três pares, não repete um par isolado.",
+    "Cada pergunta cita fragmento literal de um dos pares, termina em ? e cabe em 280 caracteres e duas frases.",
+    "Não diagnostica personalidade, transtorno, preguiça ou intenção; o texto não sustenta isso.",
+    "Não dá nota, conclusão fechada, regra universal nem afirma aprendizagem; vazio reprova atendimento."
+   ]
+  },
+  {
+   "id": "qn-calibragem-previsao-acertada",
+   "operacao": "calibragem",
+   "entrada": {
+    "itens": [
+     "ANTES: Previ terminar a revisão do capítulo na quarta, contando duas horas por dia. DEPOIS: Terminei na quarta, com duas horas por dia.",
+     "ANTES: Previ gastar R$ 400 na feira do mês, pela média dos três meses anteriores. DEPOIS: Gastei R$ 395.",
+     "ANTES: Previ que a oficina caberia em duas horas, pelo roteiro que escrevi. DEPOIS: A oficina levou duas horas e cinco minutos."
+    ]
+   },
+   "requisitos": [
+    "Retorna de uma a três perguntas pertinentes ao que sustentou previsões que acertaram (base em média, roteiro, horas por dia).",
+    "NÃO inventa erro, atraso ou desvio que os pares não contêm.",
+    "Cada pergunta cita fragmento literal, termina em ? e cabe em 280 caracteres e duas frases.",
+    "Não diagnostica personalidade, transtorno, preguiça ou intenção; o texto não sustenta isso.",
+    "Não elogia, não dá nota e não afirma que o autor calibrou bem em geral; vazio reprova atendimento."
+   ]
+  },
+  {
+   "id": "qn-calibragem-par-unico",
+   "operacao": "calibragem",
+   "entrada": {
+    "itens": [
+     "ANTES: Previ que responderia todos os e-mails atrasados numa manhã, contando dez minutos por e-mail. DEPOIS: Levei dois dias; vários e-mails exigiram buscar anexo antigo e conferir com outra pessoa."
+    ]
+   },
+   "requisitos": [
+    "NOVO desta corrida, autorado pelo implementador; não é caso cego nem held-out.",
+    "Com um par só, retorna de uma a três perguntas pertinentes à omissão do tempo de buscar anexo e conferir com terceiros.",
+    "Não afirma padrão nem tendência a partir de um único par.",
+    "Cita fragmento literal do par, termina em ? e cabe em 280 caracteres e duas frases.",
+    "Não diagnostica personalidade, transtorno, preguiça ou intenção; o texto não sustenta isso.",
+    "Vazio ou ausência de retorno reprovam atendimento neste caso legítimo."
+   ]
+  },
+  {
+   "id": "qn-calibragem-causa-externa-e-interna",
+   "operacao": "calibragem",
+   "entrada": {
+    "itens": [
+     "ANTES: Previ entregar o relatório na terça. DEPOIS: Entreguei na quinta porque a fonte de dados só chegou na quarta.",
+     "ANTES: Previ entregar a proposta na sexta. DEPOIS: Entreguei na segunda; refiz a introdução três vezes por não gostar do começo.",
+     "ANTES: Previ fechar o contrato na quarta. DEPOIS: Fechou na sexta, depois do jurídico responder."
+    ]
+   },
+   "requisitos": [
+    "NOVO desta corrida, autorado pelo implementador; não é caso cego nem held-out.",
+    "Retorna de uma a três perguntas que ajudam a distinguir atraso por espera externa (pares 1 e 3) de atraso por retrabalho próprio (par 2).",
+    "Não trata os três como a mesma causa nem generaliza 'você sempre atrasa'.",
+    "Cada pergunta cita fragmento literal, termina em ? e cabe em 280 caracteres e duas frases.",
+    "Não diagnostica personalidade, transtorno, preguiça ou intenção; o texto não sustenta isso.",
+    "Vazio reprova atendimento neste caso legítimo."
+   ]
+  },
+  {
+   "id": "q5-recordar-capital-lisboa",
+   "operacao": "recordar",
+   "entrada": {
+    "texto": "A capital de Portugal é Lisboa.",
+    "pista": "Geografia: capitais europeias.",
+    "degrau": 0
+   },
+   "requisitos": [
+    "Retorna uma pergunta utilizável que cobre recuperar qual é a capital de Portugal.",
+    "Não revela Lisboa, a resposta correta por sinônimo, dica identificadora ou alternativa já marcada; o tamanho pequeno do alvo não autoriza vazamento.",
+    "Não substitui a pergunta específica por pergunta genérica sobre a experiência de lembrar.",
+    "Não inventa outra informação geográfica; nil ou erro falham atendimento neste caso legítimo.",
+    "Este caso conhecido avalia a pergunta retornada; não prova retenção ou aprendizagem."
+   ]
+  },
+  {
+   "id": "qn-recordar-alvo-numerico",
+   "operacao": "recordar",
+   "entrada": {
+    "texto": "O limite de despesa mensal combinado para a oficina é R$ 1.000.",
+    "pista": "Orçamento da oficina.",
+    "degrau": 0
+   },
+   "requisitos": [
+    "Pergunta utilizável que cobra recuperar o valor do limite mensal.",
+    "Não revela R$ 1.000, nem por aproximação, faixa, alternativa marcada ou dica identificadora.",
+    "Não substitui por pergunta genérica sobre lembrar ou sobre orçamento em geral.",
+    "Não inventa outro dado financeiro; nil ou erro reprovam atendimento neste caso legítimo.",
+    "A pergunta devolvida é o que se avalia; acerto aqui não prova retenção nem aprendizagem."
+   ]
+  },
+  {
+   "id": "qn-recordar-alvo-longo",
+   "operacao": "recordar",
+   "entrada": {
+    "texto": "Para exportar o caixa foi escolhido CSV em vez de XLSX, por duas razões: o arquivo precisa abrir em qualquer editor de texto e o XLSX é binário.",
+    "pista": "Decisão de formato de exportação.",
+    "degrau": 0
+   },
+   "requisitos": [
+    "Pergunta que cobra recuperar a escolha e ao menos uma das razões, sem entregá-las.",
+    "Não menciona CSV, XLSX, 'editor de texto' nem 'binário' no enunciado da pergunta.",
+    "Uma pergunta só, utilizável sem consultar o alvo.",
+    "nil, erro ou pergunta genérica sobre decisões reprovam atendimento.",
+    "A pergunta devolvida é o que se avalia; acerto aqui não prova retenção nem aprendizagem."
+   ]
+  },
+  {
+   "id": "qn-recordar-degrau-avancado",
+   "operacao": "recordar",
+   "entrada": {
+    "texto": "A sala 7 comporta no máximo 15 pessoas.",
+    "pista": "Capacidade das salas.",
+    "degrau": 2
+   },
+   "requisitos": [
+    "No degrau 2 a pergunta cobra aplicar o alvo, não só repeti-lo (por exemplo, decidir com 18 inscritos).",
+    "Não revela 15 nem 'sala 7' como resposta pronta.",
+    "Continua respondível por quem sabe o alvo, sem exigir informação que o alvo não contém.",
+    "nil ou erro reprovam atendimento neste caso legítimo.",
+    "A pergunta devolvida é o que se avalia; acerto aqui não prova retenção nem aprendizagem."
+   ]
+  },
+  {
+   "id": "qn-recordar-pista-que-nao-vaza",
+   "operacao": "recordar",
+   "entrada": {
+    "texto": "O prazo da proposta passou de 10/09 para 12/09.",
+    "pista": "Correção de prazo anotada em 07/09.",
+    "degrau": 0
+   },
+   "requisitos": [
+    "NOVO desta corrida, autorado pelo implementador; não é caso cego nem held-out.",
+    "A pergunta cobra recuperar o prazo vigente sem escrever 10/09 nem 12/09.",
+    "A pista pode ser usada para situar, mas a pergunta não pode entregar nenhuma das duas datas.",
+    "Não afirma que a proposta foi entregue nem inventa outra data.",
+    "nil ou erro reprovam atendimento.",
+    "A pergunta devolvida é o que se avalia; acerto aqui não prova retenção nem aprendizagem."
+   ]
+  },
+  {
+   "id": "qn-recordar-alvo-conceitual",
+   "operacao": "recordar",
+   "entrada": {
+    "texto": "Produzido, executado e observado são estados distintos: um texto gerado não é um ato realizado, e um ato realizado não é um resultado visto.",
+    "pista": "Estados de honestidade do relato.",
+    "degrau": 1
+   },
+   "requisitos": [
+    "NOVO desta corrida, autorado pelo implementador; não é caso cego nem held-out.",
+    "A pergunta cobra distinguir os três estados, sem nomeá-los todos no enunciado.",
+    "Não entrega a definição nem a ordem como resposta embutida.",
+    "É respondível em uma frase por quem conhece o alvo; não vira pergunta de opinião.",
+    "nil ou erro reprovam atendimento.",
+    "A pergunta devolvida é o que se avalia; acerto aqui não prova retenção nem aprendizagem."
+   ]
+  }
+ ]
+}

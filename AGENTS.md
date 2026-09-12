@@ -72,6 +72,12 @@ Não crie formulário ou aprovação ritual para registrar essa decisão.
   autoriza remover proteção nem inventar permissão para publicar ou gastar.
 - Simplicidade reduz esforço de operar e compreender, preservando informação
   necessária, controle e recuperação. Não esconder falha para limpar a tela.
+- Traço é só do dono: português, iPhone, sem público. Nunca propor nem citar
+  leitor de tela, outro aparelho, outro idioma, loja ou “até você decidir”.
+  Lei fechada; histórico que mencione isso não reabre.
+- Um caderno (ADR 2026-09-12a): classificar em silêncio; pesquisa ≠ voz;
+  obra ausente das Fontes cai na guarda local («não está no caderno»).
+  Não inventar Território nem wizard de taxonomia.
 
 ## Entradas técnicas
 
@@ -103,8 +109,8 @@ não vazia, JSON válido e testes de transporte não aprovam utilidade semântic
 Use revisão independente para contratos substanciais e confronte seus achados.
 
 Atualize contrato e matriz de evolução quando mudar comportamento. Declare
-limites de execução, provedor, acessibilidade e evidência. Um incremento aprovado
-não conclui toda a visão; passes históricos não certificam o candidato atual.
+limites de execução, provedor e evidência. Um incremento aprovado não conclui
+toda a visão; passes históricos não certificam o candidato atual.
 <!-- atlas:manual:end -->
 
 ## Atlas Pointers

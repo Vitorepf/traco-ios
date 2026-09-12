@@ -235,14 +235,28 @@ nonisolated enum Grok {
                           timeout: TimeInterval = Grok.teto, memoPor chave: String? = nil,
                           esquema: String? = nil, esforco: String = Grok.esforcoMinimo,
                           modelo: String = Grok.modelo) async -> String? {
-        guard !Motores.desligados, !Task.isCancelled else { return nil }
+        // Esta chamada ainda não falhou. Sem limpar, um timeout velho
+        // vira o motivo de uma recusa nova — inclusive quando o portão
+        // de teste devolve nil sem nomear.
+        limparFalha()
+        guard !Motores.desligados else { return nil }
+        if Task.isCancelled {
+            registrarFalha(.cancelada)
+            return nil
+        }
         // Uma chave do chamador não pode reutilizar uma resposta de outro
         // pedido/schema. A validação continua depois da geração estruturada.
         let chave = chave.map { "\($0)\u{1}\(modelo)\u{1}\(esforco)\u{1}\(sistema)\u{1}\(usuario)\u{1}\(temperatura)\u{1}\(esquema ?? "")" }
         if let chave, let guardada = memoLido(chave) { return guardada }
-        guard let token = await ContaGrok.token() else { return nil }
-        guard !Task.isCancelled,
-              let corpo = corpo(sistema: sistema, usuario: usuario,
+        guard let token = await ContaGrok.token() else {
+            registrarFalha(.semConta)
+            return nil
+        }
+        guard !Task.isCancelled else {
+            registrarFalha(.cancelada)
+            return nil
+        }
+        guard let corpo = corpo(sistema: sistema, usuario: usuario,
                                 temperatura: temperatura, esquema: esquema, esforco: esforco, modelo: modelo) else { return nil }
         var pedido = URLRequest(url: endereco)
         pedido.httpMethod = "POST"
@@ -254,7 +268,18 @@ nonisolated enum Grok {
         var diagnostico = Diagnostico(modeloSolicitado: modelo, esforco: esforco, desfecho: "sem resposta de transporte")
         defer { registrar(diagnostico) }
         #endif
-        guard let (dados, resposta) = try? await URLSession.shared.data(for: pedido) else { return nil }
+        let dados: Data
+        let resposta: URLResponse
+        do {
+            (dados, resposta) = try await URLSession.shared.data(for: pedido)
+        } catch {
+            let falha = falhaDoErro(error)
+            registrarFalha(falha)
+            #if DEBUG
+            diagnostico.desfecho = falha.rawValue
+            #endif
+            return nil
+        }
         #if DEBUG
         diagnostico.statusHTTP = (resposta as? HTTPURLResponse)?.statusCode
         let envelope = (try? JSONSerialization.jsonObject(with: dados)) as? [String: Any]
@@ -268,15 +293,25 @@ nonisolated enum Grok {
             diagnostico.erroDaAPI = String(describing: erro ?? "sem corpo de erro").prefix(400).description
         }
         #endif
-        guard
-              !Task.isCancelled,
-              (resposta as? HTTPURLResponse)?.statusCode == 200,
-              let msg = textoCompleto(dados) else { return nil }
+        if Task.isCancelled {
+            registrarFalha(.cancelada)
+            return nil
+        }
+        guard (resposta as? HTTPURLResponse)?.statusCode == 200,
+              let msg = textoCompleto(dados) else {
+            let falha = falhaDoCorpo(dados) ?? .transporte
+            registrarFalha(falha)
+            #if DEBUG
+            diagnostico.desfecho = falha.rawValue
+            #endif
+            return nil
+        }
         #if DEBUG
         diagnostico.desfecho = "conteúdo completo"
         diagnostico.bruto = msg
         #endif
         if let chave { memoGrava(chave, msg) }
+        limparFalha()
         return msg
     }
 
@@ -319,5 +354,78 @@ nonisolated enum Grok {
               !msg.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         else { return nil }
         return msg
+    }
+
+    /// Q7 — o vazio tem nome. Timeout, cancelar, limite e recusa não viram
+    /// resposta pronta nem qualidade simulada. O que a pessoa escreveu fica.
+    enum FalhaHonesta: String, Sendable, Equatable {
+        case cancelada, timeout, recusa, limite, transporte, semConta
+    }
+
+    private nonisolated(unsafe) static var ultimaFalha: FalhaHonesta?
+
+    static func retirarFalha() -> FalhaHonesta? {
+        tranca.lock(); defer { tranca.unlock() }
+        defer { ultimaFalha = nil }
+        return ultimaFalha
+    }
+
+    /// Lê sem consumir. `nil` = esta chamada não nomeou a falha.
+    static func falhaPendente() -> FalhaHonesta? {
+        tranca.lock(); defer { tranca.unlock() }
+        return ultimaFalha
+    }
+
+    static func registrarFalha(_ f: FalhaHonesta) {
+        tranca.lock(); defer { tranca.unlock() }
+        ultimaFalha = f
+    }
+
+    static func limparFalha() {
+        tranca.lock(); defer { tranca.unlock() }
+        ultimaFalha = nil
+    }
+
+    static func falhaDoErro(_ erro: Error) -> FalhaHonesta {
+        if erro is CancellationError { return .cancelada }
+        if let u = erro as? URLError {
+            if u.code == .timedOut { return .timeout }
+            if u.code == .cancelled { return .cancelada }
+        }
+        return .transporte
+    }
+
+    static func falhaDoCorpo(_ dados: Data) -> FalhaHonesta? {
+        if textoCompleto(dados) != nil { return nil }
+        guard let raiz = try? JSONSerialization.jsonObject(with: dados) as? [String: Any],
+              let escolhas = raiz["choices"] as? [[String: Any]],
+              let escolha = escolhas.first
+        else { return .transporte }
+        let mensagem = escolha["message"] as? [String: Any]
+        if let recusa = mensagem?["refusal"] as? String, !recusa.isEmpty { return .recusa }
+        switch escolha["finish_reason"] as? String {
+        case "length": return .limite
+        case "content_filter": return .recusa
+        default: return .transporte
+        }
+    }
+
+    static func frase(_ f: FalhaHonesta) -> String {
+        switch f {
+        case .cancelada: "Você parou. O que escreveu continua aqui."
+        case .timeout: "A espera estourou. O que escreveu continua aqui; nada foi inventado no lugar."
+        case .recusa: "O provedor recusou. O que escreveu continua aqui; não invento no lugar."
+        case .limite: "A resposta veio cortada pelo limite. Não mostro um pedaço como se fosse o todo."
+        case .transporte: "A rede não entregou. O que escreveu continua aqui."
+        case .semConta: "Falta a conta. O que escreveu continua aqui."
+        }
+    }
+
+    /// O que a tela diz quando a chamada calou. Lê sem consumir — a
+    /// view pode perguntar mais de uma vez no mesmo estado.
+    static func avisoDaFalha() -> String {
+        tranca.lock(); defer { tranca.unlock() }
+        if let f = ultimaFalha { return frase(f) }
+        return "a sábia não respondeu. o que você escreveu continua aqui."
     }
 }

@@ -337,6 +337,120 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
     /// O último resultado informado no Trabalho inteiro — o que a revisão
     /// seguinte tem para orientar-se. `nil` = nada observado ainda.
     var ultimaObservacao: Evidencia? { evidencias.last { $0.resultado != nil } }
+
+    /// Colheita de juízo no mundo — o enum vigente, sem outro. O Retrato
+    /// só recebe o que o chamador já autorizou.
+    var juizosObservados: [Retrato.JuizoObservado] {
+        evidencias.reversed().compactMap { e in
+            guard let r = e.resultado else { return nil }
+            let relato = e.texto.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !relato.isEmpty else { return nil }
+            return .init(rotulo: r.rotulo, relato: relato)
+        }
+    }
+
+    /// Fase 2 item 2 / D1: só o nó que ela plantou. Sem nó, não inventa rótulo
+    /// de inteligência, personalidade ou capacidade.
+    var dificuldadePlantada: String? {
+        let t = dificuldadeVigente?.texto.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        return t.isEmpty ? nil : t
+    }
+
+    /// C5: juízos deste trabalho, nas palavras dela. A folha mostra; o
+    /// próximo pedido leva. Vazio quando ainda não informou resultado.
+    var linhasDaColheita: [String] {
+        juizosObservados.prefix(5).map { "“\($0.relato)” (\($0.rotulo))" }
+    }
+
+    /// O bloco que viaja no pedido e na preparação. Não é aprendizagem.
+    var colheitaDeJuizos: String {
+        let linhas = linhasDaColheita
+        guard !linhas.isEmpty else { return "" }
+        return "JUÍZOS QUE VOCÊ INFORMOU (observação dela, não aprendizagem nem rótulo):\n"
+            + linhas.joined(separator: "\n")
+    }
+
+    /// C9: as estações da jornada Markdown. Distintas. HTML não é exigência.
+    /// `desenvolvimento` é oportunidade (prática pedida ou dificuldade
+    /// plantada), não prova de que ela aprendeu.
+    struct Jornada: Equatable, Sendable {
+        var intencao: Bool
+        var artefato: Bool
+        var acao: Bool
+        var evidencia: Bool
+        var ajuste: Bool
+        var desenvolvimento: Bool
+        var pontaAPonta: Bool { intencao && artefato && acao && evidencia && ajuste }
+    }
+
+    /// Pedido de IA com causa, em curso ou pronto. Cancelado ou falho não fecha.
+    var ajustePorPedido: Bool {
+        pedidos.contains {
+            $0.ajuste != nil && ($0.estado == .preparando || $0.estado == .pronto)
+        }
+    }
+
+    /// Versão nova depois do primeiro relato: ajustou o artefato a partir do
+    /// que observou, sem exigir a IA. A primeira versão — antes da evidência —
+    /// é a estação artefato, não ajuste.
+    var ajustePorVersaoDepoisDoRelato: Bool {
+        let quando = evidencias.compactMap { e -> Date? in
+            e.texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : e.data
+        }.min()
+        guard let quando else { return false }
+        // O toque e o teste caem no mesmo segundo: `>` sozinho deixava a
+        // versão humana contemporânea do relato de fora.
+        return artefatos.contains { $0.data > quando }
+            || (artefatos.count >= 2 && artefatos.contains { $0.data >= quando })
+    }
+
+    var jornada: Jornada {
+        .init(
+            intencao: !intencaoAtual.texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+            artefato: !(versaoAtual?.conteudo.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true),
+            acao: !acoes.isEmpty,
+            evidencia: evidencias.contains {
+                !$0.texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            },
+            ajuste: ajustePorPedido || ajustePorVersaoDepoisDoRelato,
+            desenvolvimento: praticaPedida || dificuldadePlantada != nil)
+    }
+
+    /// Estação do ciclo ainda em falta. Não é rótulo da pessoa.
+    enum Estacao: Equatable, Sendable {
+        case artefato
+        case acao
+        case evidencia
+        case ajuste
+    }
+
+    var proximaEstacao: Estacao? {
+        guard jornada.intencao, !jornada.pontaAPonta else { return nil }
+        if !jornada.artefato { return .artefato }
+        if !jornada.acao { return .acao }
+        if !jornada.evidencia { return .evidencia }
+        return .ajuste
+    }
+
+    /// Fase 2 item 2 / C9: «está difícil» é o nó plantado ou a próxima
+    /// estação desta jornada. Sem nó, não inventa gargalo.
+    var ofertaDaJornada: String? {
+        guard dificuldadePlantada == nil, jornada.intencao else { return nil }
+        switch proximaEstacao {
+        case .artefato:
+            return "Sem dificuldade plantada, a jornada continua aqui: o próximo passo é um artefato utilizável."
+        case .acao:
+            return "Sem dificuldade plantada, a jornada continua aqui: o próximo passo é uma ação no que foi delegado."
+        case .evidencia:
+            return "Sem dificuldade plantada, a jornada continua aqui: o próximo passo é registrar o que aconteceu."
+        case .ajuste:
+            return "Sem dificuldade plantada, a jornada continua aqui: o próximo passo é ajustar a partir do que você observou."
+        case nil:
+            return jornada.pontaAPonta
+                ? "Este trabalho já tem intenção, artefato, ação, evidência e ajuste. Sem dificuldade plantada, não invento um gargalo."
+                : nil
+        }
+    }
     /// ADR 08n: executar e observar são eixos independentes, e a regra que
     /// olha um só apaga o outro. Cancelar exige as DUAS condições: pendente
     /// (o ato realizado não se desfaz) E não observado (o resultado que a

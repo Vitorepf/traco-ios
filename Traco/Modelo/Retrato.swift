@@ -25,14 +25,24 @@ nonisolated enum Retrato {
         var vozDoAutor: Bool
     }
 
+    /// Juízo no mundo, já cortado pelo tipo existente (`ResultadoObservado`).
+    /// Sem enum novo: o rótulo e o relato são as palavras dela.
+    nonisolated struct JuizoObservado: Sendable {
+        var rotulo: String
+        var relato: String
+    }
+
     static var ligado: Bool {
         get { UserDefaults.standard.object(forKey: chaveLigado) as? Bool ?? true }
         set { UserDefaults.standard.set(newValue, forKey: chaveLigado) }
     }
 
     /// O retrato como texto. Vazio quando não há nada: retrato vazio não viaja.
+    /// `observados` são relatos do Trabalho que o chamador já autorizou —
+    /// o Retrato não busca disco nem fura selo.
     nonisolated static func ler(notas: [NotaLida], sinais: [Sinal], agora: Date = .now,
-                                cal: Calendar = .current) -> String {
+                                cal: Calendar = .current,
+                                observados: [JuizoObservado] = []) -> String {
         // o selo corta antes: expressiva, selada e queimada não entram, nem como contagem
         let abertas = notas.filter { !$0.fechada && !$0.expressiva && $0.vozDoAutor }
         let trintaAtras = cal.date(byAdding: .day, value: -30, to: agora) ?? agora
@@ -51,6 +61,26 @@ nonisolated enum Retrato {
         let obstaculos = ultimos(abertas, gesto: .woop, campo: "obstaculo", quantos: 5)
         if !obstaculos.isEmpty {
             blocos.append("Obstáculos internos que já nomeou: " + obstaculos.map { "“\($0)”" }.joined(separator: "; ") + ".")
+        }
+
+        let proximas = ultimos(abertas, gesto: .woop, campo: "plano", quantos: 5)
+        if !proximas.isEmpty {
+            blocos.append("Próximas que já escreveu: " + proximas.map { "“\($0)”" }.joined(separator: "; ") + ".")
+        }
+
+        let destiladas = ultimos(abertas, gesto: .destilar, campo: "frase", quantos: 5)
+        if !destiladas.isEmpty {
+            blocos.append("Juízos que já cortou numa frase: " + destiladas.map { "“\($0)”" }.joined(separator: "; ") + ".")
+        }
+
+        let noMundo = observados.prefix(5).compactMap { j -> String? in
+            let relato = j.relato.trimmingCharacters(in: .whitespacesAndNewlines)
+            let rotulo = j.rotulo.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !relato.isEmpty, !rotulo.isEmpty else { return nil }
+            return "“\(relato)” (\(rotulo))"
+        }
+        if !noMundo.isEmpty {
+            blocos.append("Resultados que você informou: " + noMundo.joined(separator: "; ") + ".")
         }
 
         let naoVoltou = sinais.filter { $0.tipo == .naoVoltou }.suffix(5)

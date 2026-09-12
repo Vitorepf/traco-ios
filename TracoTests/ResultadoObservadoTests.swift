@@ -103,6 +103,15 @@ struct ResultadoObservadoTests {
         #expect(throws: DocumentoTrabalho.Erro.self) { try forjado.validar() }
     }
 
+    @Test func juizosObservadosSaoSoRelatoComResultado() throws {
+        var (d, acao) = try comAcao()
+        try d.registrarRelato("aconteceu, ainda sem juízo", acaoID: acao)
+        #expect(d.juizosObservados.isEmpty)
+        try d.registrarRelato("a conversa adiou", acaoID: acao, resultado: .parcial)
+        #expect(d.juizosObservados.map(\.relato) == ["a conversa adiou"])
+        #expect(d.juizosObservados.first?.rotulo == DocumentoTrabalho.ResultadoObservado.parcial.rotulo)
+    }
+
     // MARK: - 2. `cancelada` deixa de ser inalcançável
 
     /// O estado existia no contrato e só os testes o alcançavam. Agora há
@@ -326,5 +335,213 @@ struct ResultadoObservadoTests {
         #expect(nucleo.contains(e.texto))
         #expect(PraticaTrabalho.origemDoAjuste(causa, tentativaEm: e.data)
             .hasPrefix("A partir do resultado que você informou"))
+    }
+
+    // MARK: - Fase 3 · C5 / D1 / C9
+
+    @Test func aColheitaDoJuizoViajaNoPedidoENaPreparacao() throws {
+        var (d, acao) = try comAcao()
+        try d.registrarRelato("a conversa com a Ana adiou", acaoID: acao, resultado: .parcial)
+        #expect(d.linhasDaColheita.contains { $0.contains("a conversa com a Ana adiou") })
+        #expect(d.linhasDaColheita.contains { $0.contains("Funcionou em parte") })
+        #expect(d.colheitaDeJuizos.contains("a conversa com a Ana adiou"))
+        #expect(d.colheitaDeJuizos.contains("Funcionou em parte"))
+        #expect(d.colheitaDeJuizos.contains("não aprendizagem"))
+        #expect(!d.colheitaDeJuizos.contains("você aprendeu"))
+        #expect(d.colheitaDeJuizos.contains(d.linhasDaColheita[0]))
+        let folha = try String(contentsOf: URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent().deletingLastPathComponent()
+            .appending(path: "Traco/Trabalho/TrabalhoView.swift"), encoding: .utf8)
+        #expect(folha.contains("trabalho-colheita-juizos"))
+        #expect(folha.contains("linhasDaColheita"))
+
+        let pedido = MotorTrabalho.pedido(d, try d.iniciarPedido("revise a página"), teto: 100_000)
+        #expect(pedido.contains("JUÍZOS QUE VOCÊ INFORMOU"))
+        #expect(pedido.contains("a conversa com a Ana adiou"))
+
+        d.apoio = .praticar
+        let preparacao = PraticaTrabalho.montarPreparacao(d, try d.iniciarPedido("adapte o ensaio"))
+        #expect(preparacao.contains("a conversa com a Ana adiou"))
+        #expect(preparacao.contains("Funcionou em parte"))
+    }
+
+    @Test func oGargaloNaoGanhaRotuloDePessoa() throws {
+        var d = DocumentoTrabalho(intencao: "Fechar o contrato")
+        #expect(d.dificuldadePlantada == nil)
+        try d.proporHipotese("o cliente só responde de manhã", propostaPor: "Você")
+        #expect(d.dificuldadePlantada == "o cliente só responde de manhã")
+        let h = try #require(d.hipoteses.first)
+        #expect(h.contexto == "Fechar o contrato")
+        let obj = try #require(JSONSerialization.jsonObject(with: JSONEncoder().encode(h)) as? [String: Any])
+        #expect(obj["tipo"] == nil && obj["rotulo"] == nil && obj["capacidade"] == nil)
+
+        try d.avaliarHipotese(h.id, estado: .contestada)
+        #expect(d.dificuldadePlantada == nil, "nó contestado não é gargalo vigente")
+
+        var vazio = DocumentoTrabalho(intencao: "Outra")
+        let p = try vazio.iniciarPedido("entregue a página")
+        let pedido = MotorTrabalho.pedido(vazio, p, teto: 3500)
+        #expect(!pedido.contains("inteligência"))
+        #expect(!pedido.contains("personalidade"))
+        #expect(!pedido.contains("falta de capacidade"))
+        #expect(vazio.colheitaDeJuizos.isEmpty)
+    }
+
+    @Test func aJornadaMarkdownFechaSemHTMLNemWizard() throws {
+        var d = DocumentoTrabalho(intencao: "Uma página de oferta para a clínica")
+        #expect(d.jornada.intencao)
+        #expect(!d.jornada.pontaAPonta)
+        #expect(d.jornada.artefato == false && d.jornada.acao == false)
+
+        try d.guardarVersaoHumana("# Oferta\nConsulta de 50 minutos.")
+        try d.prepararAcao("Mostrar a página à Ana")
+        try d.registrarRelato("ela pediu o preço por escrito", acaoID: d.acoes[0].id, resultado: .parcial)
+        let causa = try #require(TrabalhoView.causaDoRelato(d))
+        try d.iniciarPedido("escreva o preço na página", ajuste: causa)
+
+        #expect(d.jornada.pontaAPonta)
+        #expect(d.versaoAtual?.formato == .markdown)
+        #expect(!d.jornada.desenvolvimento)
+        try d.proporHipotese("ela trava no preço", propostaPor: "Você")
+        #expect(d.jornada.desenvolvimento)
+        #expect(d.dificuldadePlantada == "ela trava no preço")
+        #expect(d.ofertaDaJornada == nil)
+    }
+
+    @Test func aJornadaFechaComVersaoHumanaDepoisDoRelato() throws {
+        var d = DocumentoTrabalho(intencao: "Uma página de oferta para a clínica")
+        try d.guardarVersaoHumana("# Oferta\nConsulta de 50 minutos.")
+        try d.prepararAcao("Mostrar a página à Ana")
+        try d.registrarRelato("ela pediu o preço por escrito", acaoID: d.acoes[0].id, resultado: .parcial)
+        #expect(!d.jornada.ajuste)
+        #expect(!d.ajustePorPedido)
+        #expect(!d.ajustePorVersaoDepoisDoRelato)
+        #expect(d.ofertaDaJornada?.contains("ajustar") == true)
+
+        try d.guardarVersaoHumana("# Oferta\nConsulta de 50 minutos.\n\nPreço: 180.",
+                                  base: d.versaoAtual?.id)
+        #expect(d.ajustePorVersaoDepoisDoRelato)
+        #expect(!d.ajustePorPedido)
+        #expect(d.jornada.ajuste)
+        #expect(d.jornada.pontaAPonta)
+        #expect(d.ofertaDaJornada?.contains("não invento um gargalo") == true)
+        #expect(d.versaoAtual?.origem == .pessoa)
+    }
+
+    @Test func duasVersoesAntesDoRelatoNaoFechamAjuste() throws {
+        var d = DocumentoTrabalho(intencao: "Uma página de oferta para a clínica")
+        try d.guardarVersaoHumana("# Oferta\nRascunho.")
+        try d.guardarVersaoHumana("# Oferta\nConsulta.", base: d.versaoAtual?.id)
+        try d.prepararAcao("Mostrar à Ana")
+        try d.registrarRelato("ela pediu o preço", acaoID: d.acoes[0].id, resultado: .parcial)
+        #expect(d.artefatos.count == 2)
+        #expect(!d.ajustePorVersaoDepoisDoRelato)
+        #expect(!d.jornada.ajuste)
+        #expect(d.ofertaDaJornada?.contains("ajustar") == true)
+    }
+
+    @Test func estaDificilEOnoPlantadoOuAProximaEstacao() throws {
+        var d = DocumentoTrabalho(intencao: "Uma página de oferta para a clínica")
+        #expect(d.ofertaDaJornada?.contains("artefato utilizável") == true)
+        #expect(d.ofertaDaJornada?.contains("inteligência") != true)
+
+        try d.guardarVersaoHumana("# Oferta\nConsulta de 50 minutos.")
+        #expect(d.ofertaDaJornada?.contains("ação no que foi delegado") == true)
+
+        try d.prepararAcao("Mostrar a página à Ana")
+        #expect(d.ofertaDaJornada?.contains("registrar o que aconteceu") == true)
+
+        try d.registrarRelato("ela pediu o preço", acaoID: d.acoes[0].id, resultado: .parcial)
+        #expect(d.ofertaDaJornada?.contains("ajustar a partir do que você observou") == true)
+
+        let causa = try #require(TrabalhoView.causaDoRelato(d))
+        let pedido = try d.iniciarPedido("escreva o preço na página", ajuste: causa)
+        #expect(d.ofertaDaJornada?.contains("não invento um gargalo") == true)
+
+        d.apoio = .praticar
+        let preparacao = PraticaTrabalho.montarPreparacao(d, pedido)
+        #expect(preparacao.contains("NÃO INVENTE UM GARGALO"))
+        #expect(preparacao.contains("não invento um gargalo"))
+
+        try d.proporHipotese("ela trava no preço", propostaPor: "Você")
+        #expect(d.ofertaDaJornada == nil)
+        #expect(d.dificuldadePlantada == "ela trava no preço")
+    }
+
+    @Test func ajusteCanceladoNaoFechaAJornada() throws {
+        var d = DocumentoTrabalho(intencao: "Uma página de oferta para a clínica")
+        try d.guardarVersaoHumana("# Oferta\nConsulta de 50 minutos.")
+        try d.prepararAcao("Mostrar a página à Ana")
+        try d.registrarRelato("ela pediu o preço", acaoID: d.acoes[0].id, resultado: .parcial)
+        let causa = try #require(TrabalhoView.causaDoRelato(d))
+        try d.iniciarPedido("escreva o preço na página", ajuste: causa)
+        #expect(d.jornada.ajuste)
+        d.cancelarPedido()
+        #expect(!d.jornada.ajuste)
+        #expect(!d.jornada.pontaAPonta)
+        #expect(d.ofertaDaJornada?.contains("ajustar") == true)
+    }
+
+    @Test func aOfertaApontaAEstacaoEmFaltaSemWizard() throws {
+        var d = DocumentoTrabalho(intencao: "Uma página de oferta para a clínica")
+        #expect(d.proximaEstacao == .artefato)
+        #expect(TrabalhoView.ancoraDaProximaEstacao(d, contaLigada: true) == "trabalho-producao")
+        #expect(TrabalhoView.ancoraDaProximaEstacao(d, contaLigada: false) == "trabalho-producao")
+
+        d.apoio = .praticar
+        #expect(d.proximaEstacao == .artefato)
+        #expect(TrabalhoView.ancoraDaProximaEstacao(d, contaLigada: true) == "trabalho-producao")
+        #expect(TrabalhoView.ancoraDaProximaEstacao(d, contaLigada: false) == "trabalho-praticar")
+
+        d.apoio = .delegar
+        try d.guardarVersaoHumana("# Oferta\nConsulta de 50 minutos.")
+        #expect(d.proximaEstacao == .acao)
+        #expect(TrabalhoView.ancoraDaProximaEstacao(d, contaLigada: true) == "trabalho-atos")
+
+        try d.prepararAcao("Mostrar a página à Ana")
+        #expect(d.proximaEstacao == .evidencia)
+        #expect(TrabalhoView.ancoraDaProximaEstacao(d, contaLigada: true) == "trabalho-atos")
+
+        try d.registrarRelato("ela pediu o preço", acaoID: d.acoes[0].id, resultado: .parcial)
+        #expect(d.proximaEstacao == .ajuste)
+        #expect(TrabalhoView.ancoraDaProximaEstacao(d, contaLigada: true) == "trabalho-producao")
+
+        let causa = try #require(TrabalhoView.causaDoRelato(d))
+        try d.iniciarPedido("escreva o preço na página", ajuste: causa)
+        #expect(d.proximaEstacao == nil)
+        #expect(TrabalhoView.ancoraDaProximaEstacao(d, contaLigada: true) == nil)
+        #expect(d.ofertaDaJornada?.contains("não invento um gargalo") == true)
+
+        try d.proporHipotese("ela trava no preço", propostaPor: "Você")
+        #expect(d.proximaEstacao == nil)
+        #expect(d.ofertaDaJornada == nil)
+    }
+
+    @Test func aRetomadaMostraONoPlantadoOuAJornadaFechada() throws {
+        #expect(TrabalhoView.ancoraDaDificuldade == "dificuldade")
+        var d = DocumentoTrabalho(intencao: "Uma página de oferta para a clínica")
+        #expect(d.dificuldadePlantada == nil)
+        #expect(d.ofertaDaJornada?.contains("artefato utilizável") == true)
+
+        try d.guardarVersaoHumana("# Oferta\nConsulta.")
+        try d.prepararAcao("Mostrar à Ana")
+        try d.registrarRelato("ela pediu o preço", acaoID: d.acoes[0].id, resultado: .parcial)
+        let causa = try #require(TrabalhoView.causaDoRelato(d))
+        try d.iniciarPedido("escreva o preço", ajuste: causa)
+        #expect(d.proximaEstacao == nil)
+        #expect(d.ofertaDaJornada?.contains("não invento um gargalo") == true)
+        #expect(d.dificuldadePlantada == nil)
+
+        try d.proporHipotese("ela trava no preço", propostaPor: "Você")
+        #expect(d.dificuldadePlantada == "ela trava no preço")
+        #expect(d.ofertaDaJornada == nil)
+
+        let folha = try String(contentsOf: URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent().deletingLastPathComponent()
+            .appending(path: "Traco/Trabalho/TrabalhoView.swift"), encoding: .utf8)
+        #expect(folha.contains("trabalho-dificuldade-retomada"))
+        #expect(folha.contains("trabalho-oferta-retomada"))
+        #expect(folha.contains("dificuldadePlantada"))
+        #expect(folha.contains("else if let oferta"))
     }
 }
