@@ -359,7 +359,7 @@ nonisolated enum Calendario {
 
     nonisolated static func intervalo(_ e: EventoCalendario, _ cal: Calendar) -> String {
         if e.diaInteiro { return "Dia inteiro" }
-        if e.origemTrabalho != nil { return horaCurta(e.inicio, cal) }
+        if e.origemTrabalho != nil, e.duracaoMinutos == 0 { return horaCurta(e.inicio, cal) }
         return "\(horaCurta(e.inicio, cal)) – \(horaCurta(e.fim, cal))"
     }
 
@@ -963,6 +963,12 @@ extension ProximoCompromisso {
         proximasFatias(eventos, cal: cal, manha: manha, agora: agora, mudo: mudo).first
     }
 
+    /// Deixa de nota não entra. Ação de Trabalho elegível entra: o selo já a
+    /// tirou em `CalendarioTrabalho.eventos`. Uma tesoura só (ADR 2026-09-11a).
+    nonisolated static func candidatosAoProximo(_ eventos: [EventoCalendario]) -> [EventoCalendario] {
+        eventos.filter { !$0.eDeixa }
+    }
+
     /// Todas as ocorrências do horizonte, em ordem. Quem corta em `candidatas`
     /// é `publicar` — e corta CONTANDO (ADR 06d, achado A do G4): a face
     /// precisa saber quantos ficaram de fora para não fechar um número falso.
@@ -971,14 +977,15 @@ extension ProximoCompromisso {
     static func proximasFatias(_ eventos: [EventoCalendario], cal: Calendar,
                                manha: Int, agora: Date, mudo: UUID? = nil) -> [Fatia] {
         let ate = fimDoHorizonte(agora: agora, cal: cal)
-        let vivos = eventos.filter { !$0.eDeixa && $0.origemTrabalho == nil }
+        let vivos = candidatosAoProximo(eventos)
         return Calendario.ocorrencias(vivos, de: agora, a: ate, cal)
             .filter { $0.fim > agora }
             .sorted { $0.inicio < $1.inicio }
             .map { e in
                 Fatia(id: e.id, titulo: e.titulo, inicio: e.inicio, fim: e.fim,
                       diaInteiro: e.diaInteiro,
-                      aviso: (e.editavel && e.id != mudo && Avisos.permitidosNoUltimoOlhar)
+                      aviso: (!e.eDeixa && !e.doSistema && e.avisoMinutos != nil
+                              && e.id != mudo && Avisos.permitidosNoUltimoOlhar)
                           ? Aviso.instante(de: e, cal, manha: manha) : nil,
                       lembrarEm: nil, doSistema: e.doSistema)
             }

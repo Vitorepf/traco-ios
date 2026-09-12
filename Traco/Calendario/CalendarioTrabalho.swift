@@ -12,8 +12,13 @@ enum CalendarioTrabalho {
                   let documento = try? trabalho.ler() else { return [] }
             return documento.acoes.compactMap { acao in
                 guard acao.estado == .pendente, let data = acao.agendadaEm else { return nil }
+                let fim: Date = if let minutos = acao.duracaoMinutos, minutos > 0 {
+                    data.addingTimeInterval(TimeInterval(minutos * 60))
+                } else {
+                    data
+                }
                 return EventoCalendario(id: acao.id, titulo: acao.texto,
-                    inicio: data, fim: data, origemTrabalho: trabalho.uuid,
+                    inicio: data, fim: fim, origemTrabalho: trabalho.uuid,
                     avisoMinutos: acao.avisoMinutos)
             }
         }

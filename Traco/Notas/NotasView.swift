@@ -736,7 +736,7 @@ struct NotasView: View {
     /// o fato é a porta. O "›" fica no texto, tipográfico, para continuar a
     /// ler-se como "abre" (jakobs-law). Rola com o arquivo e some na busca.
     @ViewBuilder private var linhaTrabalhos: some View {
-        if busca.isEmpty, filtro == nil, filtroDominio == nil {
+        if NotasFiltro.mostraTrabalhos(busca: busca, filtro: filtro, dominio: filtroDominio) {
             Button { mostrarTrabalhos = true } label: {
                 Text(trabalhos.isEmpty ? "trabalhos ›"
                      : "\(trabalhos.count) trabalho\(trabalhos.count == 1 ? "" : "s") ›")

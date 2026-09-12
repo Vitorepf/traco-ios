@@ -40,6 +40,30 @@ struct CalendarioTrabalhoTests {
         #expect(agenda.eventos.isEmpty)
     }
 
+    @Test func duracaoExplicitaProjetaIntervaloEMarcoPermanecePonto() throws {
+        let (container, _, trabalho, id) = try exemplo()
+        let oficina = try OficinaTrabalho(trabalho: trabalho, context: container.mainContext)
+        #expect(oficina.alterar { try $0.agendar(id, para: instante, duracaoMinutos: 45) })
+        let comDuracao = try #require(CalendarioTrabalho.eventos([trabalho], no: container.mainContext).first)
+        #expect(comDuracao.inicio == instante)
+        #expect(comDuracao.fim == instante.addingTimeInterval(45 * 60))
+        #expect(comDuracao.duracaoMinutos == 45)
+        #expect(comDuracao.avisoMinutos == 0)
+        #expect(Calendario.intervalo(comDuracao, cal).contains("–"))
+
+        #expect(oficina.alterar { try $0.agendar(id, para: instante) })
+        let marco = try #require(CalendarioTrabalho.eventos([trabalho], no: container.mainContext).first)
+        #expect(marco.inicio == instante && marco.fim == instante && marco.duracaoMinutos == 0)
+
+        var json = try #require(JSONSerialization.jsonObject(with: JSONEncoder().encode(oficina.documento)) as? [String: Any])
+        var acoes = try #require(json["acoes"] as? [[String: Any]])
+        acoes[0].removeValue(forKey: "duracaoMinutos")
+        json["acoes"] = acoes
+        let lido = try JSONDecoder().decode(DocumentoTrabalho.self, from: JSONSerialization.data(withJSONObject: json))
+        #expect(lido.acoes[0].duracaoMinutos == nil)
+        try lido.validar()
+    }
+
     @Test func reagendarReprojetaMesmaIdentidadeERemoverPreservaAcao() throws {
         let (container, _, trabalho, id) = try exemplo()
         let oficina = try OficinaTrabalho(trabalho: trabalho, context: container.mainContext)
@@ -146,11 +170,12 @@ struct CalendarioTrabalhoTests {
         let agenda = CalendarioAgenda(agora: instante, cal: cal, disco: url, eventos: [])
         agenda.guardar(e)
         #expect(agenda.eventos.isEmpty)
+        // ADR 2026-09-11a: a ação entra na seleção do próximo; não entra no disco.
         let fatia = ProximoCompromisso.proximaFatia([e, proprio], cal: cal, manha: 8,
             agora: instante.addingTimeInterval(-60))
-        #expect(fatia?.id == proprio.id)
+        #expect(fatia?.id == e.id)
         #expect(ProximoCompromisso.proximaFatia([e], cal: cal, manha: 8,
-            agora: instante.addingTimeInterval(-60)) == nil)
+            agora: instante.addingTimeInterval(-60))?.id == e.id)
     }
 
     @Test func execucaoSaiDaAgendaMasNaoCriaResultadoEDataPodeSerRemovida() throws {

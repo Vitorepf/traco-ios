@@ -6,8 +6,9 @@ import SwiftUI
 ///
 /// Só id e um título público. O selo entra ANTES de qualquer representação:
 /// expressiva (em curso ou fechada), selada e queimada não viram entidade;
-/// Trabalho só depois de `AcessoTrabalho`; compromisso só o que o autor
-/// marcou (deixa de nota e projeção do Trabalho ficam com os donos, ADR 05k).
+/// Trabalho só depois de `AcessoTrabalho`; compromisso é o que o autor
+/// marcou, inclusive ação de Trabalho elegível (ADR 2026-09-11a). Deixa de
+/// nota não vira compromisso. Ação não vira linha no `calendario.json`.
 /// O `perform()` de quem recebe a entidade revalida de novo: o sistema pode
 /// devolver uma entidade antiga, e proteção acontece depois da consulta.
 
@@ -167,17 +168,16 @@ struct CompromissoEntity: AppEntity {
         DisplayRepresentation(title: "\(titulo)", subtitle: "\(Superficie.quando(inicio, diaInteiro: diaInteiro))")
     }
 
-    /// Só o que o autor marcou, nas duas semanas seguintes. Deixa de nota e
-    /// projeção do Trabalho não são compromissos (ADR 05k).
+    /// Só o que o autor marcou, nas duas semanas seguintes. Deixa de nota
+    /// não entra. Ação de Trabalho elegível entra na mesma seleção do
+    /// widget (ADR 2026-09-11a). Não vira linha no `calendario.json`.
     @MainActor
     static func proximos(agora: Date = .now) -> [CompromissoEntity] {
-        guard case .eventos(let eventos) = CalendarioDisco.carregar() else { return [] }
+        var eventos: [EventoCalendario] = []
+        if case .eventos(let lidos) = CalendarioDisco.carregar() { eventos = lidos }
+        eventos += ProximoCompromisso.acoesDoTrabalho()
         let cal = Calendario.gregoriano()
-        let ate = cal.date(byAdding: .day, value: 14, to: agora) ?? agora
-        return Calendario.ocorrencias(eventos.filter { $0.editavel && !$0.eDeixa && $0.origemTrabalho == nil },
-                                      de: agora, a: ate, cal)
-            .filter { $0.fim > agora }
-            .sorted { $0.inicio < $1.inicio }
+        return ProximoCompromisso.proximasFatias(eventos, cal: cal, manha: Ancora.hora(.manha), agora: agora)
             .map { CompromissoEntity(id: Superficie.ocorrencia($0.id, $0.inicio), compromisso: $0.id,
                                      titulo: $0.titulo, inicio: $0.inicio, diaInteiro: $0.diaInteiro) }
     }

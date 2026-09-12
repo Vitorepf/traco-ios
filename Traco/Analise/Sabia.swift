@@ -1226,11 +1226,14 @@ enum Sabia {
     - Na dúvida, menos perguntas — ou nenhuma: {"perguntas": []}.
     """
 
+    /// A porta da calibragem: um par já é matéria. Vazio não é. A rota da
+    /// Politica continua cortada; esta porta não chama provedor (ADR 2026-09-11a).
+    nonisolated static func paresDaCalibragem(_ pares: [String]) -> Bool { !pares.isEmpty }
+
     /// Lê a calibragem. `pares` é o texto EXATO que viaja, e contra o qual a
     /// citação literal é conferida.
     static func lerCalibragem(pares: [String]) async -> [String]? {
-        // um par não é padrão: com menos de dois, a leitura seria adivinhação
-        guard pares.count >= 2 else { return nil }
+        guard paresDaCalibragem(pares) else { return nil }
         let corpo = pares.enumerated()
             .map { "DECISÃO \($0.offset + 1):\n\($0.element)" }
             .joined(separator: "\n\n")

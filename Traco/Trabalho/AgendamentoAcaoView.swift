@@ -93,10 +93,11 @@ struct AgendamentoAcaoView: View {
     /// O que o aviso virou depois de guardar (ou o que o centro tem, quando a
     /// folha reabre); `nil` enquanto não se sabe.
     var aviso: ResultadoDoAviso? = nil
-    var guardar: (Date?, Int?) -> Void
+    var guardar: (Date?, Int?, Int?) -> Void
     var verNoCalendario: (Date) -> Bool
     @State private var data = Date.now
     @State private var avisoMinutos: Int? = 0
+    @State private var duracaoMinutos: Int?
     @State private var falhouAoAbrir = false
     /// A permissão de hoje, lida aqui: a promessa é desta tela, e uma fonte só
     /// evita a janela em que a frase promete antes de a leitura voltar.
@@ -117,7 +118,7 @@ struct AgendamentoAcaoView: View {
                 }
                 if acao.estado == .pendente { quando }
                 if acao.agendadaEm != nil {
-                    Pilula("Retirar o horário", forma: .filtro) { guardar(nil, nil) }
+                    Pilula("Retirar o horário", forma: .filtro) { guardar(nil, nil, nil) }
                         .accessibilityHint(podeGuardar ? "" : "Guarde as alterações do trabalho primeiro")
                         .accessibilityIdentifier("trabalho-retirar-horario")
                 }
@@ -138,6 +139,7 @@ struct AgendamentoAcaoView: View {
             // ação antiga com horário e sem a chave fica "não avisa", como foi
             // prometido a ela; ação nova nasce "na hora"
             avisoMinutos = acao.agendadaEm == nil ? 0 : acao.avisoMinutos
+            duracaoMinutos = acao.duracaoMinutos
         }
         .task { permissao = await Avisos.estado() }
         .onChange(of: scenePhase) { _, fase in
@@ -159,6 +161,8 @@ struct AgendamentoAcaoView: View {
                     .padding(.vertical, 6)
                     .accessibilityIdentifier("trabalho-dia-hora")
                 divisoria
+                seletorDeDuracao
+                divisoria
                 seletorDeAviso
                 divisoria
                 linhaDoAviso
@@ -167,7 +171,7 @@ struct AgendamentoAcaoView: View {
             .tint(Tema.tinta)
             .cartao(.campo, recuo: .horizontal)
             Pilula(acao.agendadaEm == nil ? "Marcar no calendário" : "Guardar novo horário",
-                   forma: .larga, selecionada: true) { guardar(data, avisoMinutos) }
+                   forma: .larga, selecionada: true) { guardar(data, avisoMinutos, duracaoMinutos) }
                 .accessibilityHint(podeGuardar ? "" : "Guarde as alterações do trabalho primeiro")
                 .accessibilityIdentifier("trabalho-agendar")
             Text("Marcar um horário não confirma a realização.")
@@ -177,6 +181,35 @@ struct AgendamentoAcaoView: View {
 
     private var divisoria: some View {
         Rectangle().fill(Tema.linha).frame(height: 1)
+    }
+
+    /// Marco (uma hora) ou intervalo. A duração não inventa realização.
+    private var seletorDeDuracao: some View {
+        Menu {
+            Button {
+                Toque.selecao()
+                duracaoMinutos = nil
+            } label: {
+                Label("Marco", systemImage: duracaoMinutos == nil ? "checkmark" : "")
+            }
+            ForEach(DocumentoTrabalho.duracoesDaAcao, id: \.self) { minutos in
+                Button {
+                    Toque.selecao()
+                    duracaoMinutos = minutos
+                } label: {
+                    Label(DocumentoTrabalho.nomeDaDuracao(minutos),
+                          systemImage: duracaoMinutos == minutos ? "checkmark" : "")
+                }
+            }
+        } label: {
+            LinhaQueAbre("Duração", valor: DocumentoTrabalho.nomeDaDuracao(duracaoMinutos)) {
+                Image(systemName: duracaoMinutos == nil ? "mappin" : "clock")
+                    .font(.footnote)
+                    .foregroundStyle(Tema.tinta)
+            }
+        }
+        .accessibilityLabel("Duração: \(DocumentoTrabalho.nomeDaDuracao(duracaoMinutos))")
+        .accessibilityIdentifier("trabalho-duracao")
     }
 
     /// Lista fechada do compromisso, na linha que abre da casa (ADR 05f).
@@ -211,6 +244,7 @@ struct AgendamentoAcaoView: View {
     /// A escolha na tela ainda não é a do disco.
     private var alterado: Bool {
         data != acao.agendadaEm || avisoMinutos != acao.avisoMinutos
+            || duracaoMinutos != acao.duracaoMinutos
     }
 
     /// A promessa em unidade do mundo do autor, antes de guardar.

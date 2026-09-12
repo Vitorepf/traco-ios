@@ -514,7 +514,7 @@ struct ForaDoAppTests {
         }
     }
 
-    @Test("compromisso: só o que o autor marcou — deixa e projeção do Trabalho ficam com os donos")
+    @Test("compromisso: deixa fica de fora; ação de Trabalho elegível entra na mesma seleção")
     func compromissoSoDoAutor() async throws {
         let url = CalendarioDisco.urlPadrao()
         let antes = try? Data(contentsOf: url)
@@ -522,14 +522,94 @@ struct ForaDoAppTests {
             if let antes { try? antes.write(to: url) } else { try? FileManager.default.removeItem(at: url) }
         }
         let agora = Date()
-        let meu = EventoCalendario(titulo: "Dentista", inicio: agora.addingTimeInterval(3600), fim: agora.addingTimeInterval(7200))
-        let deixa = EventoCalendario(titulo: "correr", inicio: agora.addingTimeInterval(1800), fim: agora.addingTimeInterval(3000), origem: UUID())
-        let doTrabalho = EventoCalendario(titulo: "ação", inicio: agora.addingTimeInterval(1800), fim: agora.addingTimeInterval(3000), origemTrabalho: UUID())
+        let cal = Calendario.gregoriano()
+        let meu = EventoCalendario(titulo: "Dentista", inicio: agora.addingTimeInterval(3600),
+                                   fim: agora.addingTimeInterval(7200))
+        let deixa = EventoCalendario(titulo: "correr", inicio: agora.addingTimeInterval(1800),
+                                     fim: agora.addingTimeInterval(3000), origem: UUID())
+        let doTrabalho = EventoCalendario(titulo: "Ensaiar", inicio: agora.addingTimeInterval(1800),
+                                          fim: agora.addingTimeInterval(4500), origemTrabalho: UUID(),
+                                          avisoMinutos: 15)
         try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
         try CalendarioDisco.gravar([meu, deixa, doTrabalho])
-        let vistos = CompromissoEntity.proximos(agora: agora)
-        #expect(vistos.map(\.compromisso) == [meu.id])
-        #expect(vistos.first?.id == Superficie.ocorrencia(meu.id, meu.inicio))
+
+        let antesEspelho = SuperficieDisco.defaults.bool(forKey: Avisos.chaveEspelho)
+        SuperficieDisco.defaults.set(true, forKey: Avisos.chaveEspelho)
+        defer { SuperficieDisco.defaults.set(antesEspelho, forKey: Avisos.chaveEspelho) }
+        let fatias = ProximoCompromisso.proximasFatias(
+            [meu, deixa, doTrabalho], cal: cal, manha: 8, agora: agora)
+        #expect(Set(fatias.map(\.id)) == [meu.id, doTrabalho.id])
+        #expect(!fatias.contains { $0.id == deixa.id })
+        let daAcao = try #require(fatias.first { $0.id == doTrabalho.id })
+        #expect(daAcao.titulo == "Ensaiar")
+        #expect(daAcao.fim > daAcao.inicio)
+        #expect(daAcao.aviso != nil)
+
+        try await comDisco { ctx in
+            var d = DocumentoTrabalho(intencao: "Oferta")
+            try d.prepararAcao("Ensaiar a abertura")
+            let acaoID = try #require(d.acoes.first?.id)
+            try d.agendar(acaoID, para: agora.addingTimeInterval(2400), aviso: 15, duracaoMinutos: 30)
+            let trabalho = try Trabalho(documento: d)
+            ctx.insert(trabalho)
+            try ctx.save()
+            let vistos = CompromissoEntity.proximos(agora: agora)
+            #expect(vistos.contains { $0.compromisso == acaoID })
+            #expect(vistos.contains { $0.compromisso == meu.id })
+            #expect(!vistos.contains { $0.titulo == "correr" })
+        }
+    }
+
+    @Test("commit do Trabalho republica a Superfície no mesmo instante")
+    func commitDoTrabalhoPublicaOProximo() async throws {
+        try await isolado { _, _ in
+            let calURL = CalendarioDisco.urlPadrao()
+            let antesCal = try? Data(contentsOf: calURL)
+            defer {
+                if let antesCal { try? antesCal.write(to: calURL) }
+                else { try? FileManager.default.removeItem(at: calURL) }
+            }
+            try FileManager.default.createDirectory(at: calURL.deletingLastPathComponent(),
+                                                    withIntermediateDirectories: true)
+            try CalendarioDisco.gravar([])
+            try await comDisco { ctx in
+                var d = DocumentoTrabalho(intencao: "Oferta")
+                try d.prepararAcao("Ensaiar a abertura")
+                let acaoID = try #require(d.acoes.first?.id)
+                let trabalho = try Trabalho(documento: d)
+                ctx.insert(trabalho)
+                try ctx.save()
+                let oficina = try OficinaTrabalho(trabalho: trabalho, context: ctx)
+                let agora = Date()
+                let quando = agora.addingTimeInterval(3600)
+                #expect(oficina.alterar { try $0.agendar(acaoID, para: quando, duracaoMinutos: 30) })
+                let lido = try #require(ProximoCompromisso.lido(agora: agora))
+                #expect(lido.id == acaoID)
+                #expect(lido.titulo == "Ensaiar a abertura")
+                // Superfície grava Date em segundos inteiros (.secondsSince1970).
+                #expect(abs(lido.inicio.timeIntervalSince(quando)) < 1)
+                #expect(abs(lido.fim.timeIntervalSince(lido.inicio) - 30 * 60) < 1)
+
+                #expect(oficina.alterar { try $0.marcarExecutada(acaoID) })
+                #expect(ProximoCompromisso.lido(agora: agora)?.id != acaoID)
+            }
+        }
+    }
+
+    @Test("origem protegida continua fora da seleção do próximo")
+    func acaoDeOrigemProtegidaNaoEntraNoProximo() async throws {
+        try await comDisco { ctx in
+            let nota = Nota(texto: "origem", trancada: true)
+            ctx.insert(nota)
+            var d = DocumentoTrabalho(intencao: "protegido", notaOrigemID: nota.uuid)
+            try d.prepararAcao("Ato restrito")
+            let id = try #require(d.acoes.first?.id)
+            try d.agendar(id, para: Date().addingTimeInterval(3600), duracaoMinutos: 20)
+            ctx.insert(try Trabalho(documento: d))
+            try ctx.save()
+            #expect(ProximoCompromisso.acoesDoTrabalho(no: ctx).isEmpty)
+            #expect(CompromissoEntity.proximos().allSatisfy { $0.compromisso != id })
+        }
     }
 
     @Test("proteção depois da consulta: o intent revalida e não abre")

@@ -55,7 +55,7 @@ import Testing
 
     @Test func quatroPalavrasSeguidasDoAlvoEVazamento() {
         #expect(Prova.vaza("Por que a atenção é um músculo?", alvo: nota))
-        // e o acento e a pontuação não salvam a citação
+        // e o acento e a pontuação não salvam a citação do predicado
         #expect(Prova.vaza("E o “treinar é repetir com” espaçamento?", alvo: nota))
     }
 
@@ -70,6 +70,22 @@ import Testing
         #expect(Prova.vaza("Qual palavra descreve saudade?", alvo: "saudade"))
         #expect(!Prova.vaza("Qual palavra você guardou?", alvo: "saudade"))
         #expect(Prova.vaza("Você faz o quê: sai para caminhar?", alvo: "sai para caminhar"))
+    }
+
+    /// ADR 2026-09-11a — a régua olha o alvo da recuperação, não o 4-grama
+    /// do enunciado. Casos nomeados da medida de 08/09 (Politica.recordar).
+    @Test func aPerguntaDaCapitalNaoVazaLisboa() {
+        let alvo = "A capital de Portugal é Lisboa."
+        #expect(!Prova.vaza("Qual é a capital de Portugal?", alvo: alvo))
+        #expect(Prova.vaza("Qual é a capital de Portugal? Lisboa?", alvo: alvo))
+        #expect(Prova.predicados(alvo) == ["Lisboa."])
+    }
+
+    @Test func aPerguntaQueEntregaOQuinzeVaza() {
+        let alvo = "A sala 7 comporta no máximo 15 pessoas."
+        #expect(Prova.vaza("Por que o limite de ocupação é exatamente 15?", alvo: alvo))
+        #expect(!Prova.vaza("Qual é o limite de ocupação da sala?", alvo: alvo))
+        #expect(Prova.numeros(em: alvo) == ["7", "15"])
     }
 
     @Test func alvoVazioNaoVazaNada() {

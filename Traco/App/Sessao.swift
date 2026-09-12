@@ -966,7 +966,8 @@ final class Sessao {
                     lista = [evento]
                 }
                 try? CalendarioDisco.gravar(lista)
-                ProximoCompromisso.publicar(lista, cal: cal, mudo: evento.id)
+                ProximoCompromisso.publicar(ProximoCompromisso.comAcoesDoTrabalho(lista),
+                                            cal: cal, mudo: evento.id)
                 mostrarToast(marcado)
                 agendarEContar(evento, em: lista, cal: cal, marcado: marcado)
             }
@@ -1002,7 +1003,8 @@ final class Sessao {
                                 cal: Calendar, marcado: String) {
         Task { [weak self] in
             let r = await Revisoes.agendarCompromisso(e, cal: cal)
-            ProximoCompromisso.publicar(lista, cal: cal, mudo: r.vaiTocar ? nil : e.id)
+            ProximoCompromisso.publicar(ProximoCompromisso.comAcoesDoTrabalho(lista),
+                                        cal: cal, mudo: r.vaiTocar ? nil : e.id)
             guard let self else { return }
             switch r {
             case .agendado(let quando):

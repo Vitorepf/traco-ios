@@ -179,6 +179,10 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
         /// alerta. Chave ausente no disco (ação de antes) fica `nil`: a ela
         /// foi prometido "sem alerta", e a promessa vale.
         var avisoMinutos: Int?
+        /// ADR 2026-09-11a: minutos de duração. `nil` = marco (uma hora só).
+        /// Chave ausente no disco antigo fica `nil`: a ela foi prometido um
+        /// ponto, não um intervalo.
+        var duracaoMinutos: Int?
         var estado: EstadoAcao = .pendente
         var executadaEm: Date?
     }
@@ -646,16 +650,34 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
                               produtor: origem == .mista ? "Você, a partir de versão anterior" : "Você",
                               intencaoID: intencaoAtual.id, anteriorID: anterior?.id))
     }
+    /// Lista fechada da duração da ação. `nil` no seletor é marco.
+    static let duracoesDaAcao = [15, 30, 45, 60, 90, 120]
+
+    static func nomeDaDuracao(_ minutos: Int?) -> String {
+        guard let minutos else { return "Marco" }
+        if minutos % 60 == 0 { return minutos == 60 ? "1 hora" : "\(minutos / 60) horas" }
+        return "\(minutos) min"
+    }
+
     mutating func prepararAcao(_ texto: String) throws {
         guard !texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw Erro.vazio }
         acoes.append(.init(texto: texto, artefatoID: versaoAtual?.id))
     }
-    mutating func agendar(_ acaoID: UUID, para data: Date?, aviso: Int? = 0) throws {
+    mutating func agendar(_ acaoID: UUID, para data: Date?, aviso: Int? = 0,
+                          duracaoMinutos: Int? = nil) throws {
         guard let i = acoes.firstIndex(where: { $0.id == acaoID }) else { throw Erro.referencia }
         guard data == nil || acoes[i].estado == .pendente else { throw Erro.referencia }
         acoes[i].agendadaEm = data
         // ação sem horário não tem aviso; fora da lista fechada não entra
         acoes[i].avisoMinutos = data == nil ? nil : (Aviso.opcoes.contains(aviso) ? aviso : 0)
+        if data == nil {
+            acoes[i].duracaoMinutos = nil
+        } else if let minutos = duracaoMinutos {
+            guard minutos > 0 else { throw Erro.referencia }
+            acoes[i].duracaoMinutos = minutos
+        } else {
+            acoes[i].duracaoMinutos = nil
+        }
     }
     /// ADR 08m: `resultado` é o que a pessoa VIU acontecer, e é opcional —
     /// contar o que houve sem classificar continua valendo. Registrar um
@@ -788,6 +810,8 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
         }
         for a in acoes where !(a.artefatoID.map(artefatoIDs.contains) ?? true) { throw Erro.referencia }
         for a in acoes where a.agendadaEm == nil && a.avisoMinutos != nil { throw Erro.referencia }
+        for a in acoes where a.agendadaEm == nil && a.duracaoMinutos != nil { throw Erro.referencia }
+        for a in acoes where (a.duracaoMinutos ?? 1) <= 0 { throw Erro.referencia }
         for e in evidencias {
             guard let a = acoes.first(where: { $0.id == e.acaoID }), a.artefatoID == e.artefatoID else { throw Erro.referencia }
             // ADR 08m: resultado observado é do RELATO de um ato no mundo. Numa

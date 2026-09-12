@@ -223,7 +223,7 @@ struct MarcarCompromissoIntent: AppIntent {
             return .result(dialog: "Não consegui gravar. O compromisso não entrou.")
         }
         let aviso = await Revisoes.agendarCompromisso(evento, cal: cal)
-        ProximoCompromisso.publicar(eventos, cal: cal)
+        ProximoCompromisso.publicar(ProximoCompromisso.comAcoesDoTrabalho(eventos), cal: cal)
         let quando = evento.diaInteiro
             ? Calendario.diaPorExtenso(evento.inicio, cal)
             : "\(Calendario.diaPorExtenso(evento.inicio, cal)) às \(Calendario.horaCurta(evento.inicio, cal))"

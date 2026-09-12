@@ -1055,8 +1055,9 @@ struct TrabalhoView: View {
                             .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
                     }
                     AgendamentoAcaoView(acao: acao, podeGuardar: o.salvo, aviso: o.avisos[acao.id],
-                                        guardar: { data, aviso in
-                        aplicar(o) { try $0.agendar(acao.id, para: data, aviso: aviso) }
+                                        guardar: { data, aviso, duracao in
+                        aplicar(o) { try $0.agendar(acao.id, para: data, aviso: aviso,
+                                                    duracaoMinutos: duracao) }
                     }, verNoCalendario: { data in
                         guard o.verificarAcesso(), o.salvo else { revalidar(); return false }
                         o.cancelar()

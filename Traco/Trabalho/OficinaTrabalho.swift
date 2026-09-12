@@ -124,6 +124,10 @@ final class OficinaTrabalho {
             erro = nil
             recusaDoCommit = .nenhuma
             sincronizarAvisos()
+            // ADR 2026-09-11a: o calendário publica a Superfície no commit.
+            // Sem isto, agendar/executar/cancelar no Trabalho deixava widget,
+            // bloqueada e Ilha no instantâneo anterior até o próximo ativo.
+            ProximoCompromisso.publicarMundo(no: context)
             return true
         } catch {
             // Reverta somente esta escrita. O contexto também pode conter uma

@@ -1,4 +1,5 @@
 import Foundation
+import SwiftData
 #if canImport(ActivityKit)
 import ActivityKit
 #endif
@@ -113,20 +114,49 @@ nonisolated enum ProximoCompromisso: Sendable {
         defaults.removeObject(forKey: chaveSonecaEm)
     }
 
+    /// Ações de Trabalho elegíveis no caderno vivo. O selo já calou as
+    /// protegidas. Vazio se o disco do SwiftData não está aberto.
+    @MainActor
+    static func acoesDoTrabalho(no context: ModelContext? = DiscoTraco.compartilhado?.mainContext) -> [EventoCalendario] {
+        guard let context else { return [] }
+        let trabalhos = (try? context.fetch(FetchDescriptor<Trabalho>())) ?? []
+        return CalendarioTrabalho.eventos(trabalhos, no: context)
+    }
+
+    /// Compromissos já na mão + ações elegíveis. Uma lista só para publicar.
+    @MainActor
+    static func comAcoesDoTrabalho(_ eventos: [EventoCalendario],
+                                   no context: ModelContext? = DiscoTraco.compartilhado?.mainContext) -> [EventoCalendario] {
+        eventos + acoesDoTrabalho(no: context)
+    }
+
+    /// O que o calendário faz depois de gravar: disco + ações do caderno,
+    /// na tesoura do próximo. O commit do Trabalho passa por aqui (ADR 2026-09-11a).
+    @MainActor
+    static func publicarMundo(no context: ModelContext? = DiscoTraco.compartilhado?.mainContext,
+                              agora: Date = .now, mudo: UUID? = nil) {
+        var eventos: [EventoCalendario] = []
+        if case .eventos(let lidos) = CalendarioDisco.carregar() { eventos = lidos }
+        publicar(comAcoesDoTrabalho(eventos, no: context), cal: Calendario.gregoriano(),
+                 agora: agora, mudo: mudo)
+    }
+
     /// Relê o compromisso ANTES de agir: o disco do calendário é a verdade;
     /// o que veio do iPhone só existe na projeção e vale se ainda é o mesmo.
+    /// Ação de Trabalho vive no agregado, não no `calendario.json`.
     /// Fora disso a ocorrência é velha — e cartão velho não altera nada.
     @MainActor
     static func revalidar(ocorrencia: String, agora: Date = .now) -> Fatia? {
-        if case .eventos(let eventos) = CalendarioDisco.carregar() {
-            let cal = Calendario.gregoriano()
-            let ate = cal.date(byAdding: .day, value: 15, to: agora) ?? agora
-            if let e = Calendario.ocorrencias(eventos.filter { !$0.eDeixa && $0.origemTrabalho == nil },
-                                              de: agora.addingTimeInterval(-86400), a: ate, cal)
-                .first(where: { Superficie.ocorrencia($0.id, $0.inicio) == ocorrencia && $0.fim > agora }) {
-                return Fatia(id: e.id, titulo: e.titulo, inicio: e.inicio, fim: e.fim, diaInteiro: e.diaInteiro,
-                             aviso: lido(agora: agora)?.aviso)
-            }
+        var lista: [EventoCalendario] = []
+        if case .eventos(let eventos) = CalendarioDisco.carregar() { lista = eventos }
+        lista += acoesDoTrabalho()
+        let cal = Calendario.gregoriano()
+        let ate = cal.date(byAdding: .day, value: 15, to: agora) ?? agora
+        if let e = Calendario.ocorrencias(candidatosAoProximo(lista),
+                                          de: agora.addingTimeInterval(-86400), a: ate, cal)
+            .first(where: { Superficie.ocorrencia($0.id, $0.inicio) == ocorrencia && $0.fim > agora }) {
+            return Fatia(id: e.id, titulo: e.titulo, inicio: e.inicio, fim: e.fim, diaInteiro: e.diaInteiro,
+                         aviso: lido(agora: agora)?.aviso)
         }
         if let f = lido(agora: agora), f.doSistema, f.ocorrencia == ocorrencia { return f }
         return nil

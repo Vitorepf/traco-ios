@@ -166,9 +166,12 @@ import Testing
         #expect(Sabia.parseCalibragem(#"{"perguntas":[]}"#, pares: pares)?.isEmpty == true)
     }
 
-    /// Um par não é padrão: com menos de dois, a leitura seria adivinhação.
+    /// ADR 2026-09-11a — um par passa da porta. Vazio não. A rota da Politica
+    /// continua cortada: `lerCalibragem` ainda devolve nil sem provedor.
     @Test func umParSoNaoEPadrao() async {
-        #expect(await Sabia.lerCalibragem(pares: [pares[0]]) == nil)
+        #expect(Sabia.paresDaCalibragem([pares[0]]))
+        #expect(Sabia.paresDaCalibragem(pares))
+        #expect(!Sabia.paresDaCalibragem([]))
         #expect(await Sabia.lerCalibragem(pares: []) == nil)
     }
 

@@ -680,7 +680,7 @@ struct AjusteDoExercicioTests {
         #expect(PraticaTrabalho.validar(preparada(mudanca: "Mudei o segundo bloco.")) != nil)
         #expect(PraticaTrabalho.validar(preparada(mudanca: String(repeating: "a", count: 401))) == nil)
         let vazando = String(p.exemplo.split(separator: " ").prefix(6).joined(separator: " "))
-        #expect(Prova.vaza(vazando, alvo: p.exemplo))
+        #expect(Prova.vazaCitacao(vazando, alvo: p.exemplo))
         #expect(PraticaTrabalho.validar(preparada(mudanca: vazando)) == nil)
     }
 

@@ -347,7 +347,8 @@ final class CalendarioAgenda {
     /// ADR 04a: o compromisso existe FORA do app — widget, tela bloqueada e
     /// Ilha. Toda escrita no calendário republica o próximo.
     func publicarProximo(agora: Date = .now, mudo: UUID? = nil) {
-        ProximoCompromisso.publicar(eventos + doSistema, cal: cal, agora: agora, mudo: mudo)
+        ProximoCompromisso.publicar(ProximoCompromisso.comAcoesDoTrabalho(eventos + doSistema),
+                                    cal: cal, agora: agora, mudo: mudo)
     }
 
     /// Lido quando a ficha abre: o estado do sistema muda fora do app.

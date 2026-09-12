@@ -378,10 +378,9 @@ nonisolated enum PraticaTrabalho {
     /// A mesma prova, dizendo qual guarda recusou.
     ///
     /// `pedidoDoAutor` são as palavras que a PESSOA escreveu neste pedido —
-    /// objetivo, resultado e instrução vigente. Não entra na régua: nada passa
-    /// nem cai por causa dele. Serve só para a recusa por vazamento CONTAR
-    /// quantas palavras do trecho já eram vocabulário do próprio pedido
-    /// (defeito NOSSO) e quantas só existem no exemplo (a guarda acertou).
+    /// objetivo, resultado e instrução vigente. Se TODAS as palavras do trecho
+    /// que casou já estavam no pedido, é vocabulário da tarefa — não recusa
+    /// (ADR 2026-09-11a). Trecho que só existe no exemplo continua recusa.
     /// Ausente = não conferido, e a recusa diz isso em vez de supor (ADR 08p).
     static func provar(_ p: Preparada, dificuldade: DocumentoTrabalho.Hipotese? = nil,
                        pedidoDoAutor: String? = nil) -> Result<DocumentoTrabalho.Pratica, Recusa> {
@@ -425,9 +424,10 @@ nonisolated enum PraticaTrabalho {
             return .failure(.exemploContidoNoEnunciado(exemplo: palavras(normalExemplo), enunciado: palavras(normalEnunciado)))
         }
         for (i, c) in criterios.enumerated() {
-            if let casado = Prova.vazamento(c, alvo: p.exemplo) {
+            if let casado = Prova.vazamento(c, alvo: p.exemplo, modo: .citacao) {
                 // O trecho morre aqui: só a posição e a contagem seguem viagem.
                 let m = medida(casado.trecho)
+                if let n = m.noPedido, n == m.palavras, m.palavras > 0 { continue }
                 return .failure(.criterioVazaOExemplo(
                     indice: i, palavra: casado.palavra, de: casado.de,
                     trechoPalavras: m.palavras, noPedidoDoAutor: m.noPedido))
@@ -443,11 +443,14 @@ nonisolated enum PraticaTrabalho {
             guard mudanca.count <= Limite.mudanca else {
                 return .failure(.campoAcimaDoTeto("mudanca", tamanho: mudanca.count, teto: Limite.mudanca))
             }
-            if let casado = Prova.vazamento(mudanca, alvo: p.exemplo) {
+            if let casado = Prova.vazamento(mudanca, alvo: p.exemplo, modo: .citacao) {
                 let m = medida(casado.trecho)
-                return .failure(.mudancaVazaOExemplo(
-                    palavra: casado.palavra, de: casado.de,
-                    trechoPalavras: m.palavras, noPedidoDoAutor: m.noPedido))
+                if let n = m.noPedido, n == m.palavras, m.palavras > 0 { /* vocabulário do pedido */ }
+                else {
+                    return .failure(.mudancaVazaOExemplo(
+                        palavra: casado.palavra, de: casado.de,
+                        trechoPalavras: m.palavras, noPedidoDoAutor: m.noPedido))
+                }
             }
         }
         return .success(.init(capacidade: p.capacidade, situacao: p.situacao,
@@ -581,7 +584,7 @@ nonisolated enum PraticaTrabalho {
                 saida.append(recusa("A IA não apontou evidência na sua tentativa. Este critério não foi conferido."))
                 continue
             }
-            guard observacao.count <= Limite.observacao, !Prova.vaza(observacao, alvo: p.exemplo) else {
+            guard observacao.count <= Limite.observacao, !Prova.vazaCitacao(observacao, alvo: p.exemplo) else {
                 saida.append(recusa("A observação repete o exemplo ou passa do teto; não a mostrei. Este critério não foi conferido."))
                 continue
             }
