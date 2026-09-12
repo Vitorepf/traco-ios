@@ -107,6 +107,17 @@ import XCTest
         irAte(app, id).tap()
     }
 
+    private func anexar(_ app: XCUIApplication, _ nome: String) {
+        let foto = XCTAttachment(screenshot: app.screenshot())
+        foto.name = nome
+        foto.lifetime = .keepAlways
+        add(foto)
+        let arvore = XCTAttachment(string: app.debugDescription)
+        arvore.name = nome + "-arvore"
+        arvore.lifetime = .keepAlways
+        add(arvore)
+    }
+
     func testAJornadaMarkdownFechaSemIANemWizard() {
         let app = XCUIApplication()
         abrirTrabalhos(app)
@@ -154,6 +165,19 @@ import XCTest
                       "C5: a colheita não apareceu na retomada")
         XCTAssertTrue(oferta.label.contains("ajustar"),
                       "depois do relato a oferta não pede o ajuste")
+        anexar(app, "antes-do-ajuste")
+
+        tocar(app, "trabalho-abrir-edicao-versao")
+        escrever(app, em: esperarCampoDaVersao(app), ".")
+        soltarTeclado(app)
+        tocar(app, "trabalho-guardar-nova-versao")
+        irAoTopo(app)
+        XCTAssertTrue(oferta.waitForExistence(timeout: 5))
+        XCTAssertTrue(oferta.label.contains("ajustar"),
+                      "edição comum sem causa não fecha o ajuste: \(oferta.label)")
+        XCTAssertTrue(app.descendants(matching: .any)["trabalho-ir-ao-proximo-passo"].firstMatch.exists,
+                      "edição comum ainda deixa ir ao próximo passo")
+        anexar(app, "edicao-comum-sem-causa")
 
         tocar(app, "trabalho-ir-ao-proximo-passo")
         escrever(app, em: esperarCampoDaVersao(app), " Preco 180.")
@@ -161,6 +185,7 @@ import XCTest
         tocar(app, "trabalho-guardar-nova-versao")
 
         irAoTopo(app)
+        anexar(app, "depois-do-ajuste-explicito")
         XCTAssertTrue(oferta.waitForExistence(timeout: 5))
         XCTAssertTrue(oferta.label.contains("não invento um gargalo"),
                       "jornada fechada sem o aviso honesto: \(oferta.label)")

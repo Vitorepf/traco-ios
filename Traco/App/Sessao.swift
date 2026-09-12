@@ -825,6 +825,11 @@ final class Sessao {
             mostrarToast("não consegui plantar — a obra não entrou.")
             return nil
         }
+        // A próxima pergunta lê o índice e o holofote: sem projeção a obra
+        // plantada existe no disco e some da consulta. Persistência falhou
+        // não chega aqui — o selo das outras notas segue em `paraIndice`.
+        Indice.atualizar(Self.paraIndice(nota), geracao: Geracao.proxima())
+        if let todas = try? context.fetch(FetchDescriptor<Nota>()) { projetarTudo(todas) }
         mostrarToast("obra plantada.")
         Toque.leve()
         return nota

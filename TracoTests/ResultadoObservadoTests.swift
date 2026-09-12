@@ -397,7 +397,9 @@ struct ResultadoObservadoTests {
         try d.prepararAcao("Mostrar a página à Ana")
         try d.registrarRelato("ela pediu o preço por escrito", acaoID: d.acoes[0].id, resultado: .parcial)
         let causa = try #require(TrabalhoView.causaDoRelato(d))
-        try d.iniciarPedido("escreva o preço na página", ajuste: causa)
+        let p = try d.iniciarPedido("escreva o preço na página", ajuste: causa)
+        #expect(!d.jornada.pontaAPonta, "preparando não fecha")
+        try d.receber("# Oferta\nConsulta de 50 minutos.\n\nPreço: 180.", produtor: "Fake", pedidoID: p.id)
 
         #expect(d.jornada.pontaAPonta)
         #expect(d.versaoAtual?.formato == .markdown)
@@ -418,11 +420,14 @@ struct ResultadoObservadoTests {
         #expect(!d.ajustePorVersaoDepoisDoRelato)
         #expect(d.ofertaDaJornada?.contains("ajustar") == true)
 
+        let causa = try #require(TrabalhoView.causaDoAjusteHumano(d))
         try d.guardarVersaoHumana("# Oferta\nConsulta de 50 minutos.\n\nPreço: 180.",
-                                  base: d.versaoAtual?.id)
+                                  base: d.versaoAtual?.id, ajuste: causa)
         #expect(d.ajustePorVersaoDepoisDoRelato)
-        #expect(!d.ajustePorPedido)
+        #expect(d.ajustePorPedido)
         #expect(d.jornada.ajuste)
+        #expect(d.ajuste(de: try #require(d.versaoAtual))?.evidenciaID
+                == d.evidencias.last?.id)
         #expect(d.jornada.pontaAPonta)
         #expect(d.ofertaDaJornada?.contains("não invento um gargalo") == true)
         #expect(d.versaoAtual?.origem == .pessoa)
@@ -456,6 +461,8 @@ struct ResultadoObservadoTests {
 
         let causa = try #require(TrabalhoView.causaDoRelato(d))
         let pedido = try d.iniciarPedido("escreva o preço na página", ajuste: causa)
+        #expect(d.ofertaDaJornada?.contains("ajustar") == true, "preparando não fecha a estação")
+        try d.receber("# Oferta\nPreço: 180.", produtor: "Fake", pedidoID: pedido.id)
         #expect(d.ofertaDaJornada?.contains("não invento um gargalo") == true)
 
         d.apoio = .praticar
@@ -475,7 +482,7 @@ struct ResultadoObservadoTests {
         try d.registrarRelato("ela pediu o preço", acaoID: d.acoes[0].id, resultado: .parcial)
         let causa = try #require(TrabalhoView.causaDoRelato(d))
         try d.iniciarPedido("escreva o preço na página", ajuste: causa)
-        #expect(d.jornada.ajuste)
+        #expect(!d.jornada.ajuste, "pedido em curso não fecha")
         d.cancelarPedido()
         #expect(!d.jornada.ajuste)
         #expect(!d.jornada.pontaAPonta)
@@ -507,7 +514,9 @@ struct ResultadoObservadoTests {
         #expect(TrabalhoView.ancoraDaProximaEstacao(d, contaLigada: true) == "trabalho-producao")
 
         let causa = try #require(TrabalhoView.causaDoRelato(d))
-        try d.iniciarPedido("escreva o preço na página", ajuste: causa)
+        let pedido = try d.iniciarPedido("escreva o preço na página", ajuste: causa)
+        #expect(d.proximaEstacao == .ajuste, "preparando mantém a estação")
+        try d.receber("# Oferta\nPreço: 180.", produtor: "Fake", pedidoID: pedido.id)
         #expect(d.proximaEstacao == nil)
         #expect(TrabalhoView.ancoraDaProximaEstacao(d, contaLigada: true) == nil)
         #expect(d.ofertaDaJornada?.contains("não invento um gargalo") == true)
@@ -527,7 +536,9 @@ struct ResultadoObservadoTests {
         try d.prepararAcao("Mostrar à Ana")
         try d.registrarRelato("ela pediu o preço", acaoID: d.acoes[0].id, resultado: .parcial)
         let causa = try #require(TrabalhoView.causaDoRelato(d))
-        try d.iniciarPedido("escreva o preço", ajuste: causa)
+        let pedido = try d.iniciarPedido("escreva o preço", ajuste: causa)
+        #expect(d.proximaEstacao == .ajuste)
+        try d.receber("# Oferta\nPreço: 180.", produtor: "Fake", pedidoID: pedido.id)
         #expect(d.proximaEstacao == nil)
         #expect(d.ofertaDaJornada?.contains("não invento um gargalo") == true)
         #expect(d.dificuldadePlantada == nil)
@@ -543,5 +554,160 @@ struct ResultadoObservadoTests {
         #expect(folha.contains("trabalho-oferta-retomada"))
         #expect(folha.contains("dificuldadePlantada"))
         #expect(folha.contains("else if let oferta"))
+        #expect(folha.contains("capturarAjusteHumano"))
+        #expect(folha.contains("causaCapturada"))
+    }
+
+    @Test func pedidoEmCursoFalhaOuCanceladoNaoFecha() throws {
+        var d = DocumentoTrabalho(intencao: "Uma página de oferta para a clínica")
+        try d.guardarVersaoHumana("# Oferta\nConsulta.")
+        try d.prepararAcao("Mostrar à Ana")
+        let e = try d.registrarRelato("ela pediu o preço", acaoID: d.acoes[0].id, resultado: .parcial)
+        let causa = DocumentoTrabalho.Ajuste(gatilho: .resultadoInformado, motivo: e.texto, evidenciaID: e.id)
+        let p = try d.iniciarPedido("Ajustar preço", ajuste: causa)
+        #expect(!d.ajustePorPedido && !d.jornada.ajuste)
+        #expect(d.proximaEstacao == .ajuste)
+        d.falharPedido(p.id)
+        #expect(!d.jornada.ajuste && d.proximaEstacao == .ajuste)
+        let p2 = try d.iniciarPedido("Ajustar de novo", ajuste: causa)
+        d.cancelarPedido()
+        #expect(d.pedidos.contains { $0.id == p2.id && $0.estado == .cancelado })
+        #expect(!d.jornada.ajuste && d.proximaEstacao == .ajuste)
+    }
+
+    @Test func prontoSemArtefatoNaoFechaEEntregaCausalFecha() throws {
+        var d = DocumentoTrabalho(intencao: "Uma página de oferta para a clínica")
+        try d.guardarVersaoHumana("# Oferta\nConsulta.")
+        try d.prepararAcao("Mostrar à Ana")
+        let e = try d.registrarRelato("ela pediu o preço", acaoID: d.acoes[0].id, resultado: .parcial)
+        let causa = DocumentoTrabalho.Ajuste(gatilho: .resultadoInformado, motivo: e.texto, evidenciaID: e.id)
+        d.pedidos.append(.init(instrucao: "Ajustar", intencaoID: d.intencaoAtual.id,
+                               artefatoID: d.versaoAtual?.id, estado: .pronto, ajuste: causa))
+        #expect(!d.ajustePorPedido, "pronto sem artefato não fecha")
+        #expect(!d.jornada.ajuste)
+        let p = try d.iniciarPedido("Ajustar preço", ajuste: causa)
+        try d.receber("# Oferta\nPreço: 180.", produtor: "Fake", pedidoID: p.id)
+        let versao = try #require(d.versaoAtual)
+        #expect(d.ajustePorPedido)
+        #expect(d.jornada.ajuste)
+        #expect(versao.intencaoID == d.intencaoAtual.id)
+        #expect(d.ajuste(de: versao)?.evidenciaID == e.id)
+        #expect(d.pedidoDe(versao)?.id == p.id)
+    }
+
+    @Test func edicaoAlheiaERoundtripLegadoNaoInventamCausalidade() throws {
+        var d = DocumentoTrabalho(intencao: "Uma página de oferta para a clínica")
+        try d.guardarVersaoHumana("# Oferta\nConsulta.")
+        try d.prepararAcao("Mostrar à Ana")
+        try d.registrarRelato("ela pediu o preço", acaoID: d.acoes[0].id, resultado: .parcial)
+        try d.guardarVersaoHumana("# Oferta\nConsulta.\nPontuação.", base: d.versaoAtual?.id)
+        #expect(!d.ajustePorVersaoDepoisDoRelato)
+        #expect(d.ajuste(de: try #require(d.versaoAtual)) == nil)
+        #expect(!d.jornada.ajuste)
+        let volta = try JSONDecoder().decode(DocumentoTrabalho.self, from: JSONEncoder().encode(d))
+        #expect(!volta.jornada.ajuste)
+        #expect(volta.ajuste(de: try #require(volta.versaoAtual)) == nil)
+        try volta.validar()
+    }
+
+    @Test func ajusteHumanoExplicitoFechaComCausaReal() throws {
+        var d = DocumentoTrabalho(intencao: "Uma página de oferta para a clínica")
+        try d.guardarVersaoHumana("# Oferta\nConsulta.")
+        try d.prepararAcao("Mostrar à Ana")
+        let e = try d.registrarRelato("ela pediu o preço", acaoID: d.acoes[0].id, resultado: .parcial)
+        let causa = try #require(TrabalhoView.causaDoAjusteHumano(d))
+        #expect(causa.gatilho == .resultadoInformado)
+        #expect(causa.evidenciaID == e.id)
+        try d.guardarVersaoHumana("# Oferta\nPreço: 180.", base: d.versaoAtual?.id, ajuste: causa)
+        let versao = try #require(d.versaoAtual)
+        #expect(d.ajustePorVersaoDepoisDoRelato)
+        #expect(d.jornada.pontaAPonta)
+        #expect(versao.origem == .pessoa)
+        #expect(versao.intencaoID == d.intencaoAtual.id)
+        #expect(d.ajuste(de: versao)?.evidenciaID == e.id)
+        try d.validar()
+    }
+
+    @Test func reverIntencaoENovoResultadoNaoFechamComAjusteAntigo() throws {
+        var d = DocumentoTrabalho(intencao: "Oferta A")
+        try d.guardarVersaoHumana("Primeira oferta")
+        try d.prepararAcao("Mostrar à Ana")
+        let e = try d.registrarRelato("Pediu preço", acaoID: d.acoes[0].id, resultado: .parcial)
+        let p = try d.iniciarPedido("Ajustar preço", ajuste: .init(gatilho: .resultadoInformado,
+                                                                   motivo: e.texto, evidenciaID: e.id))
+        try d.receber("Preço 180", produtor: "Fake", pedidoID: p.id)
+        #expect(d.jornada.ajuste)
+        try d.reverIntencao("Projeto B", resultado: "Outra entrega")
+        #expect(!d.jornada.ajuste)
+        #expect(d.proximaEstacao != nil)
+        try d.validar()
+        let volta = try JSONDecoder().decode(DocumentoTrabalho.self, from: JSONEncoder().encode(d))
+        #expect(!volta.jornada.ajuste)
+        try volta.validar()
+
+        var mesmo = DocumentoTrabalho(intencao: "Oferta A")
+        try mesmo.guardarVersaoHumana("Primeira oferta")
+        try mesmo.prepararAcao("Mostrar à Ana")
+        let e1 = try mesmo.registrarRelato("Pediu preço", acaoID: mesmo.acoes[0].id, resultado: .parcial)
+        let p1 = try mesmo.iniciarPedido("Ajustar", ajuste: .init(gatilho: .resultadoInformado,
+                                                                  motivo: e1.texto, evidenciaID: e1.id))
+        try mesmo.receber("Preço 180", produtor: "Fake", pedidoID: p1.id)
+        #expect(mesmo.jornada.ajuste)
+        try mesmo.prepararAcao("Enviar de novo")
+        try mesmo.registrarRelato("Pediu desconto", acaoID: mesmo.acoes[1].id, resultado: .naoFuncionou)
+        #expect(!mesmo.jornada.ajuste, "resultado novo não fecha com a causa antiga")
+        try mesmo.validar()
+    }
+
+    @Test func causaInvalidaNaoCancelaPedidoAtivo() throws {
+        var d = DocumentoTrabalho(intencao: "C")
+        try d.guardarVersaoHumana("Base")
+        let ativo = try d.iniciarPedido("Gerar versão")
+        #expect(ativo.estado == .preparando)
+        #expect(throws: DocumentoTrabalho.Erro.self) {
+            try d.guardarVersaoHumana("Edição recusada",
+                                      ajuste: .init(gatilho: .resultadoInformado,
+                                                    motivo: "Sem evidência", evidenciaID: UUID()))
+        }
+        #expect(d.pedidos.first { $0.id == ativo.id }?.estado == .preparando)
+        #expect(d.artefatos.count == 1)
+    }
+
+    @Test func causaCapturadaNoGestoNaoTrocaEvidenciaSilenciosamente() throws {
+        var d = DocumentoTrabalho(intencao: "Oferta")
+        try d.guardarVersaoHumana("Versão A")
+        try d.prepararAcao("Mostrar")
+        let e1 = try d.registrarRelato("Pediu preço", acaoID: d.acoes[0].id, resultado: .parcial)
+        var rascunhos: [String: String] = [:]
+        TrabalhoView.capturarAjusteHumano(d, em: &rascunhos)
+        let capturada = try #require(TrabalhoView.causaCapturada(em: rascunhos))
+        #expect(capturada.evidenciaID == e1.id)
+        #expect(TrabalhoView.baseCapturada(em: rascunhos) == d.versaoAtual?.id)
+        try d.prepararAcao("Outra ação")
+        let e2 = try d.registrarRelato("Pediu desconto", acaoID: d.acoes[1].id, resultado: .naoFuncionou)
+        #expect(TrabalhoView.causaDoAjusteHumano(d)?.evidenciaID == e2.id)
+        #expect(TrabalhoView.causaCapturada(em: rascunhos)?.evidenciaID == e1.id)
+        #expect(throws: DocumentoTrabalho.Erro.self) {
+            try d.guardarVersaoHumana("Ajuste com causa velha", base: d.versaoAtual?.id, ajuste: capturada)
+        }
+        TrabalhoView.limparAjusteHumano(&rascunhos)
+        #expect(TrabalhoView.causaCapturada(em: rascunhos) == nil)
+        #expect(d.pedidos.filter { $0.estado == .pronto }.isEmpty)
+    }
+
+    @Test func pedidoDoAutorNaoFechaDepoisDeNovoResultado() throws {
+        var d = DocumentoTrabalho(intencao: "Oferta")
+        try d.guardarVersaoHumana("Versão inicial")
+        try d.prepararAcao("Mostrar primeira versão")
+        try d.registrarRelato("Recebi comentários", acaoID: d.acoes[0].id)
+        let causa = try #require(TrabalhoView.causaDoAjusteHumano(d))
+        #expect(causa.gatilho == .pedidoDoAutor)
+        try d.guardarVersaoHumana("Meu ajuste", base: d.versaoAtual?.id, ajuste: causa)
+        #expect(d.jornada.ajuste)
+        try d.prepararAcao("Mostrar ajuste")
+        try d.registrarRelato("Não resolveu", acaoID: d.acoes[1].id, resultado: .naoFuncionou)
+        #expect(!d.jornada.ajuste)
+        #expect(d.proximaEstacao == .ajuste)
+        try d.validar()
     }
 }

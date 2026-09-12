@@ -34,6 +34,17 @@ struct Q4CadernoUnicoTests {
     }
 
     @Test func plantarInfereDominioDaNotaNaoDaPagina() throws {
+        let tmp = FileManager.default.temporaryDirectory.appendingPathComponent("q4-plantar-\(UUID())")
+        try FileManager.default.createDirectory(at: tmp, withIntermediateDirectories: true)
+        let indice = Indice.url, corpus = Corpus.diretorio
+        Indice.url = tmp.appendingPathComponent("indice.json")
+        Corpus.diretorio = tmp
+        Indice.apagarTudo()
+        defer {
+            Indice.apagarTudo()
+            Indice.url = indice
+            Corpus.diretorio = corpus
+        }
         let c = try ModelContainer.traco(emMemoria: true)
         let s = Sessao()
         s.dominio = .dinheiro
@@ -46,6 +57,8 @@ struct Q4CadernoUnicoTests {
         #expect(sessao.contains("func plantarObra"))
         #expect(sessao.contains("Dominio.inferir(voz: nota.vozDoAutor)"))
         #expect(!trechoDePlantar(sessao).contains("aplicarDominio"))
+        #expect(trechoDePlantar(sessao).contains("projetarTudo"))
+        #expect(trechoDePlantar(sessao).contains("Indice.atualizar"))
     }
 
     @Test func oCodigoNaoInventaTerritorioNemWizardDeTaxonomia() throws {

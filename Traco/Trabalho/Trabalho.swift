@@ -383,25 +383,37 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
         var pontaAPonta: Bool { intencao && artefato && acao && evidencia && ajuste }
     }
 
-    /// Pedido de IA com causa, em curso ou pronto. Cancelado ou falho não fecha.
-    var ajustePorPedido: Bool {
-        pedidos.contains {
-            $0.ajuste != nil && ($0.estado == .preparando || $0.estado == .pronto)
+    /// Entrega causal da intenção vigente: pedido pronto, versão nascida dele,
+    /// evidência da causa ainda é a observação atual. História de outra
+    /// intenção ou de um resultado já superado não fecha a jornada.
+    func entregaCausalVigente(_ p: Pedido) -> Bool {
+        guard let aj = p.ajuste, p.estado == .pronto, p.intencaoID == intencaoAtual.id else { return false }
+        guard artefatos.contains(where: { $0.pedidoID == p.id && $0.intencaoID == intencaoAtual.id })
+        else { return false }
+        if let id = aj.evidenciaID {
+            guard let e = evidencias.first(where: { $0.id == id }) else { return false }
+            if let aid = e.artefatoID {
+                guard let art = artefatos.first(where: { $0.id == aid }), art.intencaoID == p.intencaoID
+                else { return false }
+            }
         }
+        if let ultima = ultimaObservacao {
+            guard aj.evidenciaID == ultima.id else { return false }
+        }
+        return true
     }
 
-    /// Versão nova depois do primeiro relato: ajustou o artefato a partir do
-    /// que observou, sem exigir a IA. A primeira versão — antes da evidência —
-    /// é a estação artefato, não ajuste.
+    var ajustePorPedido: Bool { pedidos.contains(where: entregaCausalVigente) }
+
+    /// Versão humana cuja causa ainda fecha a intenção vigente. Tempo depois
+    /// do relato não inventa vínculo.
     var ajustePorVersaoDepoisDoRelato: Bool {
-        let quando = evidencias.compactMap { e -> Date? in
-            e.texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : e.data
-        }.min()
-        guard let quando else { return false }
-        // O toque e o teste caem no mesmo segundo: `>` sozinho deixava a
-        // versão humana contemporânea do relato de fora.
-        return artefatos.contains { $0.data > quando }
-            || (artefatos.count >= 2 && artefatos.contains { $0.data >= quando })
+        artefatos.contains { a in
+            (a.origem == .pessoa || a.origem == .mista)
+                && a.intencaoID == intencaoAtual.id
+                && ajuste(de: a) != nil
+                && a.pedidoID.map({ id in pedidos.contains { $0.id == id && entregaCausalVigente($0) } }) == true
+        }
     }
 
     var jornada: Jornada {
@@ -622,6 +634,7 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
         // contestou DEPOIS continua explicando a versão que já nasceu dela —
         // recusar o documento inteiro por isso apagaria a história.
         if let aj = pedido.ajuste, aj.conferenciaID != nil, leituraDoAjuste(aj) == nil { throw Erro.referencia }
+        if let aj = pedido.ajuste { try recusarAjusteEmConflito(aj) }
         cancelarPedido()
         pedidos.append(pedido)
         return pedido
@@ -754,15 +767,34 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
     /// por exemplo —, guardar por cima diria que este texto responde a um
     /// material que ela não leu. `nil` = base não declarada (importação e
     /// registro antigo), e aí ninguém reconstrói o que ela estava lendo.
-    mutating func guardarVersaoHumana(_ texto: String, base: UUID? = nil) throws {
+    /// `ajuste` é a causa que a pessoa registrou ao guardar. Nil = edição
+    /// comum, sem vínculo. Não se infere pelo relógio.
+    mutating func guardarVersaoHumana(_ texto: String, base: UUID? = nil, ajuste: Ajuste? = nil) throws {
         guard !texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw Erro.vazio }
         guard base == nil || base == versaoAtual?.id else { throw Erro.pedidoAntigo }
-        cancelarPedido()
         let anterior = versaoAtual
+        var pedidoNovo: Pedido?
+        if let ajuste {
+            let p = Pedido(instrucao: ajuste.motivo, intencaoID: intencaoAtual.id,
+                           artefatoID: anterior?.id, estado: .pronto, ajuste: ajuste)
+            try validarAjuste(p)
+            try recusarAjusteEmConflito(ajuste)
+            pedidoNovo = p
+        }
+        cancelarPedido()
         let origem: Origem = anterior.map { $0.origem == .pessoa ? .pessoa : .mista } ?? .pessoa
+        if let p = pedidoNovo { pedidos.append(p) }
         artefatos.append(.init(conteudo: texto, origem: origem,
                               produtor: origem == .mista ? "Você, a partir de versão anterior" : "Você",
-                              intencaoID: intencaoAtual.id, anteriorID: anterior?.id))
+                              intencaoID: intencaoAtual.id, anteriorID: anterior?.id,
+                              pedidoID: pedidoNovo?.id))
+    }
+
+    /// Causa apontando um resultado que já não é o vigente. História antiga
+    /// continua válida em `validar()`; um ajuste NOVO não troca a evidência.
+    func recusarAjusteEmConflito(_ aj: Ajuste) throws {
+        guard aj.gatilho == .resultadoInformado, let id = aj.evidenciaID else { return }
+        guard ultimaObservacao?.id == id else { throw Erro.referencia }
     }
     /// Lista fechada da duração da ação. `nil` no seletor é marco.
     static let duracoesDaAcao = [15, 30, 45, 60, 90, 120]

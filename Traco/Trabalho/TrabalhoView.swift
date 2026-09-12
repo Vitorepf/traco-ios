@@ -926,6 +926,7 @@ struct TrabalhoView: View {
                 // progresso em curso, como em toda ação que compete com ele.
                 acaoSecundaria("Editar esta versão") {
                     guard !preparacaoEmCurso(o) else { return }
+                    limpar([Self.chaveCausaDoAjuste, Self.chaveBaseDoAjuste])
                     definir("versao", a.conteudo)
                     abrirGavetaDaVersao()
                 }
@@ -1258,6 +1259,10 @@ struct TrabalhoView: View {
             campoEmFoco = "versao"
             rolarPara = "versao"
         case .ajuste:
+            var r = rascunhos
+            Self.capturarAjusteHumano(o.documento, em: &r)
+            rascunhos = r
+            UserDefaults.standard.set(rascunhos, forKey: chaveRascunho)
             if let conteudo = o.documento.versaoAtual?.conteudo {
                 definir("versao", conteudo)
             }
@@ -1664,8 +1669,46 @@ struct TrabalhoView: View {
     private func guardarVersao(_ o: OficinaTrabalho, base: UUID? = nil) {
         guard !faltaCampo("versao") else { return }
         let texto = rascunhos["versao"] ?? ""
-        aplicar(o, limpar: ["versao"]) { try $0.guardarVersaoHumana(texto, base: base) }
+        let ajuste = Self.causaCapturada(em: rascunhos)
+        let baseUsada = Self.baseCapturada(em: rascunhos) ?? base
+        aplicar(o, limpar: ["versao", Self.chaveCausaDoAjuste, Self.chaveBaseDoAjuste]) {
+            try $0.guardarVersaoHumana(texto, base: baseUsada, ajuste: ajuste)
+        }
         if o.salvo { editandoVersao = false }
+    }
+
+    /// Causa do gesto explícito na estação de ajuste. Reusa o relato observado
+    /// quando ele existe; sem resultado, a pessoa pediu o ajuste ao escrever.
+    static func causaDoAjusteHumano(_ d: DocumentoTrabalho) -> DocumentoTrabalho.Ajuste? {
+        if let causa = causaDoRelato(d) { return causa }
+        return .init(gatilho: .pedidoDoAutor, motivo: "Você escreveu o ajuste.")
+    }
+
+    static let chaveCausaDoAjuste = "ajuste-causa"
+    static let chaveBaseDoAjuste = "ajuste-base"
+
+    /// Grava causa e base no rascunho já existente, no momento do gesto.
+    static func capturarAjusteHumano(_ d: DocumentoTrabalho, em rascunhos: inout [String: String]) {
+        limparAjusteHumano(&rascunhos)
+        guard let causa = causaDoAjusteHumano(d),
+              let dados = try? JSONEncoder().encode(causa),
+              let json = String(data: dados, encoding: .utf8) else { return }
+        rascunhos[chaveCausaDoAjuste] = json
+        if let id = d.versaoAtual?.id { rascunhos[chaveBaseDoAjuste] = id.uuidString }
+    }
+
+    static func causaCapturada(em rascunhos: [String: String]) -> DocumentoTrabalho.Ajuste? {
+        guard let s = rascunhos[chaveCausaDoAjuste], let dados = s.data(using: .utf8) else { return nil }
+        return try? JSONDecoder().decode(DocumentoTrabalho.Ajuste.self, from: dados)
+    }
+
+    static func baseCapturada(em rascunhos: [String: String]) -> UUID? {
+        rascunhos[chaveBaseDoAjuste].flatMap(UUID.init(uuidString:))
+    }
+
+    static func limparAjusteHumano(_ rascunhos: inout [String: String]) {
+        rascunhos.removeValue(forKey: chaveCausaDoAjuste)
+        rascunhos.removeValue(forKey: chaveBaseDoAjuste)
     }
 
     @discardableResult private func guardar(_ o: OficinaTrabalho) -> Bool {

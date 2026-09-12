@@ -198,8 +198,14 @@ enum Sabia {
         if let recusa = GuardaDeObra.recusarSeAusente(pergunta: pergunta, fontes: fontes) {
             return recusa
         }
+        if let recusa = GuardaDeObra.recusarSeConsultaInsuficiente(pergunta: pergunta, fontes: fontes) {
+            return recusa
+        }
         if let pacote = RespostaNotas.montar(pergunta: pergunta, fontes: fontes, conversa: conversa,
                                              catalogo: catalogo, retrato: retrato, teto: 16_000) {
+            if let recusa = GuardaDeObra.recusarSeConsultaInsuficiente(pergunta: pergunta, fontes: pacote.fontes) {
+                return recusa
+            }
             guard validarAcesso(pacote.fontes) else { return nil }
             let cru: String?
             if let gerarRemoto { cru = await gerarRemoto(pacote) }
@@ -213,8 +219,12 @@ enum Sabia {
         }
         guard !Task.isCancelled,
               let pacote = RespostaNotas.montar(pergunta: pergunta, fontes: fontes, conversa: conversa,
-                                                catalogo: catalogo, retrato: retrato, teto: tetoNoAparelho),
-              validarAcesso(pacote.fontes) else { return nil }
+                                                catalogo: catalogo, retrato: retrato, teto: tetoNoAparelho)
+        else { return nil }
+        if let recusa = GuardaDeObra.recusarSeConsultaInsuficiente(pergunta: pergunta, fontes: pacote.fontes) {
+            return recusa
+        }
+        guard validarAcesso(pacote.fontes) else { return nil }
         let cru: String?
         if let gerarLocal { cru = await gerarLocal(pacote) }
         else {
@@ -813,6 +823,9 @@ enum Sabia {
         guard gesto != .expressiva else { return nil }
         let fontesDaPagina = [FonteNotas(id: UUID(), titulo: "página", texto: contexto, editadaEm: .now)]
         if let recusa = GuardaDeObra.recusarSeAusente(pergunta: pergunta, fontes: fontesDaPagina) {
+            return recusa.texto
+        }
+        if let recusa = GuardaDeObra.recusarSeConsultaInsuficiente(pergunta: pergunta, fontes: fontesDaPagina) {
             return recusa.texto
         }
         let usuario = "\(rotuloContextoDaNota)\n\(contexto.prefix(tetoDoContextoDaNota))"
