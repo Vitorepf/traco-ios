@@ -56,6 +56,15 @@ enum AcessoTrabalho {
         estado(trabalho, no: context).permitido
     }
 
+    /// Juízos no mundo só depois da tesoura. O Retrato não busca disco:
+    /// o chamador passa o que esta função já autorizou.
+    static func juizosObservados(de trabalhos: [Trabalho],
+                                 no context: ModelContext) -> [Retrato.JuizoObservado] {
+        trabalhos.filter { permitido($0, no: context) }
+            .compactMap { try? $0.ler() }
+            .flatMap(\.juizosObservados)
+    }
+
     /// Os Trabalhos que nasceram desta nota. Só o vínculo é decodificado: selar
     /// a origem não é motivo para abrir o conteúdo de ninguém.
     static func derivados(daNota nota: UUID, no context: ModelContext) -> [UUID] {

@@ -217,9 +217,12 @@ enum RevisaoTrabalho {
             return registro(.indisponivel, executor: naoExecutada,
                 motivo: "Limite do provedor: o pedido, o artefato e os critérios somam \(mensagem.count) caracteres e a janela é de \(teto). Não mandei um pedaço deles.")
         }
+        // Sem limpar, um timeout de outra rota vira o motivo desta.
+        Grok.limparFalha()
         guard let resposta = await chamar(sistema, mensagem) else {
             return registro(.indisponivel, executor: naoExecutada,
-                motivo: "Não recebi uma revisão completa do provedor. O artefato continua guardado; tente novamente.")
+                motivo: Grok.falhaPendente().map(Grok.frase)
+                    ?? "Não recebi uma revisão completa do provedor. O artefato continua guardado; tente novamente.")
         }
         let executor = "\(resposta.provedor) \(sufixoDoExecutor)"
         guard let resultados = parse(resposta.texto, pedido: pedido, intencao: intencao, artefato: artefato, instrucoesAnteriores: instrucoesAnteriores) else {

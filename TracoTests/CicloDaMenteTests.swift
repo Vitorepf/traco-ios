@@ -99,7 +99,7 @@ private func temp(_ nome: String) -> URL {
 
     @Test func oRetratoSoTemAsPalavrasDoAutorEContagens() {
         let notas = [
-            nota(.woop, ["obstaculo": "o celular na cama"]),
+            nota(.woop, ["obstaculo": "o celular na cama", "plano": "se eu pegar o celular, então deixo ele na sala"]),
             nota(.woop, ["obstaculo": "a preguiça das 6h"]),
             nota(.palavra, ["minhas": "sofrer por antecipação"]),
             nota(.decisao, ["espero": "vender em 2 semanas", "aconteceu": "demorou um mês"]),
@@ -113,7 +113,10 @@ private func temp(_ nome: String) -> URL {
         let r = Retrato.ler(notas: notas, sinais: sinais)
         #expect(r.contains("o celular na cama"))
         #expect(r.contains("a preguiça das 6h"))
+        #expect(r.contains("se eu pegar o celular, então deixo ele na sala"))
+        #expect(r.contains("Próximas que já escreveu"))
         #expect(r.contains("sofrer por antecipação"))
+        #expect(!r.contains("Juízos que já cortou"))
         #expect(r.contains("2 de 5 pontos não voltaram"))
         #expect(r.contains("aquém do esperado em 1, igual em 1, além em 0"))
         #expect(!r.contains("o que fica de fora?")) // sinal sem dependências não autoriza reenviar a pergunta
@@ -148,6 +151,24 @@ private func temp(_ nome: String) -> URL {
         #expect(Retrato.ler(notas: [], sinais: []).isEmpty)
         #expect(Sabia.blocoDoRetrato("").isEmpty)
         #expect(Sabia.blocoDoRetrato("Formas: 2 WOOP.").contains("SOBRE QUEM ESCREVE"))
+    }
+
+    /// Fase 2: colheita de juízo — Destilar e ResultadoObservado, sem enum novo.
+    @Test func oRetratoColheOJuizoDestiladoEOresultadoInformado() {
+        let destilada = nota(.destilar, ["frase": "o plano cabe nesta semana"])
+        let pesquisa = Retrato.NotaLida(gesto: .destilar, fechada: false, expressiva: false,
+                                        criadaEm: .now, campos: ["frase": "tese inventada do bot"],
+                                        vozDoAutor: false)
+        let r = Retrato.ler(notas: [destilada, pesquisa], sinais: [],
+                            observados: [.init(rotulo: DocumentoTrabalho.ResultadoObservado.parcial.rotulo,
+                                               relato: "a conversa com a Ana adiou")])
+        #expect(r.contains("o plano cabe nesta semana"))
+        #expect(r.contains("Juízos que já cortou numa frase"))
+        #expect(r.contains("a conversa com a Ana adiou"))
+        #expect(r.contains("Funcionou em parte"))
+        #expect(!r.contains("tese inventada do bot"))
+        #expect(Set(DocumentoTrabalho.ResultadoObservado.allCases.map(\.rawValue))
+            == Set(["funcionou", "parcial", "naoFuncionou"]))
     }
 }
 

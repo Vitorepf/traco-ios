@@ -237,6 +237,52 @@ struct PraticaTrabalhoTests {
         #expect(PraticaTrabalho.oferta(contaLigada: true) == nil)
     }
 
+    /// Q2: a espera que estourou não é "exercício inválido". Recusa nossa
+    /// continua `praticaIndisponivel`, sem frase de timeout.
+    @Test func timeoutDaPreparacaoNaoMenteQueOExercicioEraInvalido() async throws {
+        defer { _ = Grok.retirarFalha() }
+        var d = DocumentoTrabalho(intencao: "Praticar espanhol")
+        d.apoio = .praticar
+        let p = try d.iniciarPedido("Quero praticar.")
+        do {
+            _ = try await MotorTrabalho.produzir(d, p, contaLigada: true, preparar: { _, _, _ in
+                Grok.registrarFalha(.timeout)
+                return nil
+            })
+            Issue.record("o timeout tinha de calar a preparação")
+        } catch MotorTrabalho.Erro.provedorCalou(let frase) {
+            #expect(frase == Grok.frase(.timeout))
+            #expect(frase.contains("estourou"))
+            #expect(!frase.contains("exercício válido"))
+        } catch {
+            Issue.record("erro errado: \(error)")
+        }
+
+        Grok.limparFalha()
+        await #expect(throws: MotorTrabalho.Erro.praticaIndisponivel) {
+            _ = try await MotorTrabalho.produzir(d, p, contaLigada: true, preparar: { _, _, _ in nil })
+        }
+    }
+
+    @Test func timeoutDaPreparacaoFicaNoPedidoENaTelaSemInventarExercicio() async throws {
+        defer { _ = Grok.retirarFalha() }
+        var d = DocumentoTrabalho(intencao: "Praticar espanhol sozinho, do zero")
+        d.apoio = .praticar
+        let container = try container()
+        let trabalho = try Trabalho(documento: d)
+        container.mainContext.insert(trabalho)
+        try container.mainContext.save()
+        let o = try OficinaTrabalho(trabalho: trabalho, context: container.mainContext,
+                                    produzir: { _, _ in throw MotorTrabalho.Erro.provedorCalou(Grok.frase(.timeout)) })
+        let tarefa = try #require(o.gerar("Quero praticar me apresentar em espanhol."))
+        await tarefa.value
+        #expect(o.documento.artefatos.isEmpty)
+        #expect(o.documento.praticaIndisponivel)
+        #expect(o.erro == Grok.frase(.timeout))
+        #expect(try trabalho.ler().pedidos.last?.estado == .praticaIndisponivel)
+        #expect(o.guardarTentativa("Hola, soy Vitor.", apoioUtilizado: "nenhum", artefatoID: nil))
+    }
+
     /// Decisão (b) no feedback: sem conta, nada é lido — nem pelo aparelho.
     @Test func semContaGrokOFeedbackFicaIndisponivelSemLerATentativa() async throws {
         let pratica = try pratica()

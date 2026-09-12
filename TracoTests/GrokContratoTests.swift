@@ -122,6 +122,27 @@ struct GrokContratoTests {
         #expect(try Grok.textoCompleto(resposta("stop", texto: " \n")) == nil)
         #expect(try Grok.textoCompleto(resposta("stop", recusa: "Não posso atender")) == nil)
         #expect(Grok.textoCompleto(Data("{}".utf8)) == nil)
+        #expect(try Grok.falhaDoCorpo(resposta("length")) == .limite)
+        #expect(try Grok.falhaDoCorpo(resposta("stop", recusa: "Não posso atender")) == .recusa)
+        #expect(try Grok.falhaDoCorpo(resposta("content_filter")) == .recusa)
+        #expect(Grok.falhaDoCorpo(Data("{}".utf8)) == .transporte)
+        #expect(try Grok.falhaDoCorpo(resposta("stop")) == nil)
+        #expect(Grok.falhaDoErro(CancellationError()) == .cancelada)
+        #expect(Grok.falhaDoErro(URLError(.timedOut)) == .timeout)
+        #expect(Grok.falhaDoErro(URLError(.cancelled)) == .cancelada)
+        for f in [Grok.FalhaHonesta.timeout, .cancelada, .limite, .recusa] {
+            let frase = Grok.frase(f)
+            #expect(frase.contains("continua aqui") || frase.contains("Não mostro um pedaço"))
+            #expect(!frase.contains("pronto"))
+        }
+        _ = Grok.retirarFalha()
+        Grok.registrarFalha(.timeout)
+        #expect(Grok.falhaPendente() == .timeout)
+        #expect(Grok.avisoDaFalha().contains("estourou"))
+        #expect(Grok.avisoDaFalha().contains("continua aqui"))
+        #expect(Grok.falhaPendente() == .timeout, "avisoDaFalha não consome")
+        #expect(Grok.retirarFalha() == .timeout)
+        #expect(Grok.falhaPendente() == nil)
     }
 
     /// **A guarda do sétimo conserto da 10b.** O G3 apagou `diagnostico.bruto = msg`

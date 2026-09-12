@@ -2,7 +2,9 @@
 
 **Todo o registro abaixo é histórico, datado por seção; não é a fila obrigatória atual.** “Aberto”, “fechado”, “garantido”, “lei”, “hoje” e contagens de testes referem-se à respectiva sessão, não certificam o candidato presente. Revalide ocorrência, autorização, prioridade e prova antes de reutilizar qualquer item. Falas e conclusões antigas são preservadas como evidência de evolução, não como instruções vigentes.
 
-A autoridade de propósito é [VISAO-PRODUTO.md](VISAO-PRODUTO.md): intenção→realização→desenvolvimento, com IA autorizada a produzir trabalho delegado e origem preservada. Proibições antigas de toda geração, resposta/resumo, rede, busca semântica, tema claro ou VoiceOver não podem ser extraídas deste histórico como veto global. Regras locais de prática, Expressiva e selo continuam conforme [SPEC](SPEC.md) e ADRs vigentes.
+A autoridade de propósito é [VISAO-PRODUTO.md](VISAO-PRODUTO.md): intenção→realização→desenvolvimento, com IA autorizada a produzir trabalho delegado e origem preservada. Proibições antigas de toda geração, resposta/resumo, rede, busca semântica ou tema claro não podem ser extraídas deste histórico como veto global. Regras locais de prática, Expressiva e selo continuam conforme [SPEC](SPEC.md) e ADRs vigentes.
+
+**Lei do dono (12/09/2026, fechada):** o app é só dele, em português, no iPhone. Linhas históricas deste arquivo sobre outro idioma, loja, outro aparelho ou leitor de tela estão mortas. Não reabrir, não listar, não “adiar”.
 
 O estado operativo e a distância entre visão e implementação ficam em [EVOLUCAO.md](EVOLUCAO.md), confrontados com código e prova atuais. O processo vigente está em [META.md](META.md). Este arquivo não manda instalar CLI, autenticar conta, executar chamadas pagas, comitar WIP ou retomar campanhas antigas. Evidência científica, disponibilidade e comportamento de serviços citados abaixo não foram reverificados nesta revisão documental.
 

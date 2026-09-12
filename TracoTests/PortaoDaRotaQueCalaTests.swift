@@ -1,4 +1,5 @@
 import Foundation
+import SwiftData
 import Testing
 @testable import Traco
 
@@ -98,7 +99,7 @@ struct PortaoDaRotaQueCalaTests {
     ///
     /// | operação | julgamento |
     /// |---|---|
-    /// | `responderNasNotas` | **DÍVIDA REAL** (RUMO, frente das Notas): `NotasView` diz "a sábia não respondeu.", com "Repetir" ao lado, para uma operação que a 08q cortou. Mesmo defeito que a `responder` tinha; fica de fora da B2 porque a tela das Notas é da frente de design D1, que a está reescrevendo. |
+    /// | `responderNasNotas` | sem dano agora: a rota VOLTOU em 10/09 (`soGrok`). Sem conta a folha diz `Sabia.porOndeEmPalavras`; falha usa `Grok.avisoDaFalha` (timeout, cancelar, limite, recusa). O "Repetir" é da rota viva, não de uma operação cortada. |
     /// | `recordar` | sem dano: o ritual segue com a pergunta fixa e nada foi prometido (`pedirPergunta`: "Silêncio em qualquer falha"). |
     /// | `padroes` | sem dano: `PadroesView` faz `remotas ?? locais` — o autor vê perguntas de qualquer jeito. |
     /// | `vestir` | a rota diz por frase própria: "nada a vestir aqui." e "a sábia não respondeu. o texto ficou como estava." (B2). |
@@ -153,5 +154,66 @@ struct PortaoDaRotaQueCalaTests {
         #expect(Set(Self.mostram.keys).isDisjoint(with: Self.calam))
         #expect(Self.mostram.count == 10 && Self.calam.count == 6,
                 "a conta da B2 era 10 com superfície e 6 sem; mudou sem passar pelo julgamento")
+    }
+
+    /// Superfície (Lente, Rede) não cobre o disparo automático. Abrir a forma
+    /// e montar o contexto da Página tinham o mesmo defeito da B2: olhavam
+    /// `Sabia.disponivel` / seguiam em frente e `chamar` calava sem rede.
+    @Test func aFormaAbertaNaoDisparaInstigarCortado() throws {
+        let trecho = try Self.trechoEmSessao(apos: "func instigarSobreAForma")
+        #expect(trecho.contains("guard Politica.aviso(.instigar) == nil else { return }"),
+                "a forma aberta não consulta a Politica")
+        let aviso = try #require(trecho.range(of: "Politica.aviso(.instigar)"))
+        let chamada = try #require(trecho.range(of: "Sabia.instigar("),
+                                   "o trecho não achou a chamada — a varredura parou de enxergar")
+        #expect(aviso.lowerBound < chamada.lowerBound,
+                "a forma aberta chama instigar sem olhar a Politica")
+        #expect(!trecho.contains("Politica.aviso(.recordar)"),
+                "a varredura passou a ver comentário como portão")
+    }
+
+    @Test func oContextoDoCadernoNaoDisparaEcosCortado() throws {
+        let trecho = try Self.trechoEmSessao(apos: "func contextoDoCaderno")
+        #expect(trecho.contains("guard Politica.provedor(.ecos) != nil else {"),
+                "o contexto da Página não consulta a Politica")
+        let porta = try #require(trecho.range(of: "Politica.provedor(.ecos)"))
+        let chamada = try #require(trecho.range(of: "Sabia.ecos("),
+                                   "o trecho não achou a chamada — a varredura parou de enxergar")
+        #expect(porta.lowerBound < chamada.lowerBound,
+                "o contexto da Página chama ecos sem olhar a Politica")
+        #expect(trecho.contains("notasLidasNaPergunta = 0"),
+                "sem ecos a divulgação ainda conta candidatas que ninguém leu")
+        #expect(!trecho.contains("Politica.provedor(.recordar)"),
+                "a varredura passou a ver um portão que não está neste trecho")
+    }
+
+    /// Sem índice, as outras notas do caderno ainda seriam candidatas a eco
+    /// (`ordem.isEmpty`). O código velho gravava essa conta e chamava a rota
+    /// cortada; o novo zera a divulgação e devolve só ligações e vizinhas.
+    @Test func semEcosADivulgacaoNaoContaCandidatasNaoLidas() async throws {
+        #expect(Politica.provedor(.ecos) == nil, "ecos voltou sem remedição")
+        let c = try ModelContainer.traco(emMemoria: true)
+        c.mainContext.insert(Nota(texto: "Vizinha um\n\nprosa longa o bastante para o caderno"))
+        c.mainContext.insert(Nota(texto: "Vizinha dois\n\noutra prosa que o eco local enxergaria"))
+        let s = Sessao()
+        s.texto = "minha página atual com prosa suficiente"
+        s.notasLidasNaPergunta = 99
+        let saida = await s.contextoDoCaderno(no: c.mainContext, pergunta: "qual o prazo?")
+        #expect(s.notasLidasNaPergunta == 0,
+                "sem ecos ainda conta \(s.notasLidasNaPergunta) candidatas")
+        #expect(saida.allSatisfy { !$0.titulo.hasPrefix("Vizinha") },
+                "eco cortado ainda embutiu nota que ninguém escolheu")
+    }
+
+    private static func trechoEmSessao(apos marca: String) throws -> String {
+        let fonte = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent().deletingLastPathComponent()
+            .appending(path: "Traco/App/Sessao.swift")
+        let texto = try String(contentsOf: fonte, encoding: .utf8)
+        let visivel = PortaoDoMovimentoTests.codigoVisivel(texto, apagandoTema: false)
+        guard let inicio = visivel.range(of: marca) else { return "" }
+        let depois = visivel[inicio.lowerBound...]
+        guard let fim = depois.range(of: "\n    func ") else { return String(depois.prefix(2400)) }
+        return String(depois[..<fim.lowerBound])
     }
 }

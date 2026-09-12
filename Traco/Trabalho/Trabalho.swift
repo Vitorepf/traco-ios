@@ -337,6 +337,132 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
     /// O último resultado informado no Trabalho inteiro — o que a revisão
     /// seguinte tem para orientar-se. `nil` = nada observado ainda.
     var ultimaObservacao: Evidencia? { evidencias.last { $0.resultado != nil } }
+
+    /// Colheita de juízo no mundo — o enum vigente, sem outro. O Retrato
+    /// só recebe o que o chamador já autorizou.
+    var juizosObservados: [Retrato.JuizoObservado] {
+        evidencias.reversed().compactMap { e in
+            guard let r = e.resultado else { return nil }
+            let relato = e.texto.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !relato.isEmpty else { return nil }
+            return .init(rotulo: r.rotulo, relato: relato)
+        }
+    }
+
+    /// Fase 2 item 2 / D1: só o nó que ela plantou. Sem nó, não inventa rótulo
+    /// de inteligência, personalidade ou capacidade.
+    var dificuldadePlantada: String? {
+        let t = dificuldadeVigente?.texto.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        return t.isEmpty ? nil : t
+    }
+
+    /// C5: juízos deste trabalho, nas palavras dela. A folha mostra; o
+    /// próximo pedido leva. Vazio quando ainda não informou resultado.
+    var linhasDaColheita: [String] {
+        juizosObservados.prefix(5).map { "“\($0.relato)” (\($0.rotulo))" }
+    }
+
+    /// O bloco que viaja no pedido e na preparação. Não é aprendizagem.
+    var colheitaDeJuizos: String {
+        let linhas = linhasDaColheita
+        guard !linhas.isEmpty else { return "" }
+        return "JUÍZOS QUE VOCÊ INFORMOU (observação dela, não aprendizagem nem rótulo):\n"
+            + linhas.joined(separator: "\n")
+    }
+
+    /// C9: as estações da jornada Markdown. Distintas. HTML não é exigência.
+    /// `desenvolvimento` é oportunidade (prática pedida ou dificuldade
+    /// plantada), não prova de que ela aprendeu.
+    struct Jornada: Equatable, Sendable {
+        var intencao: Bool
+        var artefato: Bool
+        var acao: Bool
+        var evidencia: Bool
+        var ajuste: Bool
+        var desenvolvimento: Bool
+        var pontaAPonta: Bool { intencao && artefato && acao && evidencia && ajuste }
+    }
+
+    /// Entrega causal da intenção vigente: pedido pronto, versão nascida dele,
+    /// evidência da causa ainda é a observação atual. História de outra
+    /// intenção ou de um resultado já superado não fecha a jornada.
+    func entregaCausalVigente(_ p: Pedido) -> Bool {
+        guard let aj = p.ajuste, p.estado == .pronto, p.intencaoID == intencaoAtual.id else { return false }
+        guard artefatos.contains(where: { $0.pedidoID == p.id && $0.intencaoID == intencaoAtual.id })
+        else { return false }
+        if let id = aj.evidenciaID {
+            guard let e = evidencias.first(where: { $0.id == id }) else { return false }
+            if let aid = e.artefatoID {
+                guard let art = artefatos.first(where: { $0.id == aid }), art.intencaoID == p.intencaoID
+                else { return false }
+            }
+        }
+        if let ultima = ultimaObservacao {
+            guard aj.evidenciaID == ultima.id else { return false }
+        }
+        return true
+    }
+
+    var ajustePorPedido: Bool { pedidos.contains(where: entregaCausalVigente) }
+
+    /// Versão humana cuja causa ainda fecha a intenção vigente. Tempo depois
+    /// do relato não inventa vínculo.
+    var ajustePorVersaoDepoisDoRelato: Bool {
+        artefatos.contains { a in
+            (a.origem == .pessoa || a.origem == .mista)
+                && a.intencaoID == intencaoAtual.id
+                && ajuste(de: a) != nil
+                && a.pedidoID.map({ id in pedidos.contains { $0.id == id && entregaCausalVigente($0) } }) == true
+        }
+    }
+
+    var jornada: Jornada {
+        .init(
+            intencao: !intencaoAtual.texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+            artefato: !(versaoAtual?.conteudo.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true),
+            acao: !acoes.isEmpty,
+            evidencia: evidencias.contains {
+                !$0.texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            },
+            ajuste: ajustePorPedido || ajustePorVersaoDepoisDoRelato,
+            desenvolvimento: praticaPedida || dificuldadePlantada != nil)
+    }
+
+    /// Estação do ciclo ainda em falta. Não é rótulo da pessoa.
+    enum Estacao: Equatable, Sendable {
+        case artefato
+        case acao
+        case evidencia
+        case ajuste
+    }
+
+    var proximaEstacao: Estacao? {
+        guard jornada.intencao, !jornada.pontaAPonta else { return nil }
+        if !jornada.artefato { return .artefato }
+        if !jornada.acao { return .acao }
+        if !jornada.evidencia { return .evidencia }
+        return .ajuste
+    }
+
+    /// Fase 2 item 2 / C9: «está difícil» é o nó plantado ou a próxima
+    /// estação desta jornada. Sem nó, não inventa gargalo.
+    var ofertaDaJornada: String? {
+        guard dificuldadePlantada == nil, jornada.intencao else { return nil }
+        switch proximaEstacao {
+        case .artefato:
+            return "Sem dificuldade plantada, a jornada continua aqui: o próximo passo é um artefato utilizável."
+        case .acao:
+            return "Sem dificuldade plantada, a jornada continua aqui: o próximo passo é uma ação no que foi delegado."
+        case .evidencia:
+            return "Sem dificuldade plantada, a jornada continua aqui: o próximo passo é registrar o que aconteceu."
+        case .ajuste:
+            return "Sem dificuldade plantada, a jornada continua aqui: o próximo passo é ajustar a partir do que você observou."
+        case nil:
+            return jornada.pontaAPonta
+                ? "Este trabalho já tem intenção, artefato, ação, evidência e ajuste. Sem dificuldade plantada, não invento um gargalo."
+                : nil
+        }
+    }
     /// ADR 08n: executar e observar são eixos independentes, e a regra que
     /// olha um só apaga o outro. Cancelar exige as DUAS condições: pendente
     /// (o ato realizado não se desfaz) E não observado (o resultado que a
@@ -508,6 +634,7 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
         // contestou DEPOIS continua explicando a versão que já nasceu dela —
         // recusar o documento inteiro por isso apagaria a história.
         if let aj = pedido.ajuste, aj.conferenciaID != nil, leituraDoAjuste(aj) == nil { throw Erro.referencia }
+        if let aj = pedido.ajuste { try recusarAjusteEmConflito(aj) }
         cancelarPedido()
         pedidos.append(pedido)
         return pedido
@@ -640,15 +767,34 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
     /// por exemplo —, guardar por cima diria que este texto responde a um
     /// material que ela não leu. `nil` = base não declarada (importação e
     /// registro antigo), e aí ninguém reconstrói o que ela estava lendo.
-    mutating func guardarVersaoHumana(_ texto: String, base: UUID? = nil) throws {
+    /// `ajuste` é a causa que a pessoa registrou ao guardar. Nil = edição
+    /// comum, sem vínculo. Não se infere pelo relógio.
+    mutating func guardarVersaoHumana(_ texto: String, base: UUID? = nil, ajuste: Ajuste? = nil) throws {
         guard !texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw Erro.vazio }
         guard base == nil || base == versaoAtual?.id else { throw Erro.pedidoAntigo }
-        cancelarPedido()
         let anterior = versaoAtual
+        var pedidoNovo: Pedido?
+        if let ajuste {
+            let p = Pedido(instrucao: ajuste.motivo, intencaoID: intencaoAtual.id,
+                           artefatoID: anterior?.id, estado: .pronto, ajuste: ajuste)
+            try validarAjuste(p)
+            try recusarAjusteEmConflito(ajuste)
+            pedidoNovo = p
+        }
+        cancelarPedido()
         let origem: Origem = anterior.map { $0.origem == .pessoa ? .pessoa : .mista } ?? .pessoa
+        if let p = pedidoNovo { pedidos.append(p) }
         artefatos.append(.init(conteudo: texto, origem: origem,
                               produtor: origem == .mista ? "Você, a partir de versão anterior" : "Você",
-                              intencaoID: intencaoAtual.id, anteriorID: anterior?.id))
+                              intencaoID: intencaoAtual.id, anteriorID: anterior?.id,
+                              pedidoID: pedidoNovo?.id))
+    }
+
+    /// Causa apontando um resultado que já não é o vigente. História antiga
+    /// continua válida em `validar()`; um ajuste NOVO não troca a evidência.
+    func recusarAjusteEmConflito(_ aj: Ajuste) throws {
+        guard aj.gatilho == .resultadoInformado, let id = aj.evidenciaID else { return }
+        guard ultimaObservacao?.id == id else { throw Erro.referencia }
     }
     /// Lista fechada da duração da ação. `nil` no seletor é marco.
     static let duracoesDaAcao = [15, 30, 45, 60, 90, 120]

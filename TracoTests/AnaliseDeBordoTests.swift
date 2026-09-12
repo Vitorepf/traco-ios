@@ -168,11 +168,21 @@ import Testing
 
     /// ADR 2026-09-11a — um par passa da porta. Vazio não. A rota da Politica
     /// continua cortada: `lerCalibragem` ainda devolve nil sem provedor.
-    @Test func umParSoNaoEPadrao() async {
+    @Test func umParJaEMateriaNaPorta() async {
         #expect(Sabia.paresDaCalibragem([pares[0]]))
         #expect(Sabia.paresDaCalibragem(pares))
         #expect(!Sabia.paresDaCalibragem([]))
         #expect(await Sabia.lerCalibragem(pares: []) == nil)
+        #expect(Politica.provedor(.calibragem, contaLigada: true, bordo: true) == nil)
+    }
+
+    @Test func aFolhaDosPadroesUsaAPortaDeUmPar() throws {
+        let folha = try String(contentsOf: URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent().deletingLastPathComponent()
+            .appending(path: "Traco/Padroes/PadroesView.swift"), encoding: .utf8)
+        #expect(folha.contains("Sabia.paresDaCalibragem"))
+        #expect(!folha.contains("count >= 2"))
+        #expect(!folha.contains("um caso não é padrão"))
     }
 
     @Test func oTetoDeTresSegura() {

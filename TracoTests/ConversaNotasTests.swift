@@ -213,4 +213,22 @@ struct ConversaNotasTests {
         conversa.fechar()
         #expect(!conversa.modoPergunta, "fechar a conversa tem de devolver a linha à busca")
     }
+
+    @Test func aOfertaDePlantarViajaNaFolhaESomeAoFechar() async throws {
+        let conversa = ConversaNotas()
+        conversa.entrada = "O que defende o Tratado das Nuvens Invertidas?"
+        let t = try #require(conversa.perguntar(disponivel: true) { _, _ in
+            .init(resposta: "não está no caderno", obraParaPlantar: "Tratado das Nuvens Invertidas")
+        })
+        await t.value
+        #expect(conversa.obraParaPlantar == "Tratado das Nuvens Invertidas")
+        conversa.entrada = "outra"
+        let segunda = try #require(conversa.perguntar(disponivel: true) { _, _ in
+            .init(resposta: "prazo 12/09")
+        })
+        await segunda.value
+        #expect(conversa.obraParaPlantar == nil)
+        conversa.fechar()
+        #expect(conversa.obraParaPlantar == nil)
+    }
 }

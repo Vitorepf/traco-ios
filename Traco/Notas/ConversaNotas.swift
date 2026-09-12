@@ -27,6 +27,8 @@ final class ConversaNotas {
         var fontesCitadas: [FonteNotas] = []
         var conversaValida: [Sessao.TrocaNasNotas]? = nil
         var fontesMudaram = false
+        /// Nome da obra que a guarda recusou. A folha oferece plantar.
+        var obraParaPlantar: String? = nil
     }
     typealias Responder = @MainActor (String, [Sessao.TrocaNasNotas]) async -> Resultado
 
@@ -46,6 +48,8 @@ final class ConversaNotas {
     /// avaliação voltava a ser oferecida — visto no aparelho da conta em
     /// 10/09, 15h41: "serviu / não serviu" de volta depois de ir ao Perfil.
     var avaliadas: Set<String> = []
+    /// Oferta da guarda de obra. Vive aqui: a `NotasView` recria a cada aba.
+    var obraParaPlantar: String? = nil
     private(set) var trocas: [Sessao.TrocaNasNotas] = []
     private(set) var estado: Estado = .ociosa
     private(set) var semModelo = false
@@ -135,6 +139,7 @@ final class ConversaNotas {
 
     private func iniciar(_ pergunta: String, responder: @escaping Responder) -> Task<Void, Never> {
         invalidarTentativa()
+        obraParaPlantar = nil
         let id = UUID()
         tentativa = id
         estado = .pensando(pergunta, desde: .now)
@@ -149,12 +154,21 @@ final class ConversaNotas {
                 self.trocas = validas
                 self.fontes = []
             }
-            if let resposta = resultado.resposta {
+            // Q6 / ADR 12a: se a fonte mudou ou o selo caiu no await, a
+            // resposta que chegou já é derivação recusada — a pergunta fica
+            // para repetir. Resposta e `fontesMudaram` juntos não publicam.
+            if resultado.fontesMudaram {
+                self.fontes = []
+                self.obraParaPlantar = nil
+                self.estado = .recolhida(pergunta)
+            } else if let resposta = resultado.resposta {
                 self.trocas.append(.init(pergunta: pergunta, resposta: resposta, dependencias: resultado.dependencias))
                 self.fontes = resultado.fontes
+                self.obraParaPlantar = resultado.obraParaPlantar
                 self.estado = .ociosa
             } else {
-                self.estado = resultado.fontesMudaram ? .recolhida(pergunta) : .falhou(pergunta)
+                self.obraParaPlantar = nil
+                self.estado = .falhou(pergunta)
             }
         }
         tarefa = nova
@@ -178,6 +192,7 @@ final class ConversaNotas {
         guard validas.count != trocas.count else { return false }
         trocas = validas
         avaliadas = []
+        obraParaPlantar = nil
         if case .pensando(let pergunta, _) = estado {
             invalidarTentativa()
             fontes = []
@@ -198,6 +213,7 @@ final class ConversaNotas {
         fontes = []
         perguntando = false
         avaliadas = []
+        obraParaPlantar = nil
     }
 
     private func invalidarTentativa() {

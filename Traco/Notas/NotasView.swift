@@ -135,6 +135,13 @@ struct NotasView: View {
         conversaNotas.revalidarFontes { Sessao.dependenciasValidas($0, no: context) }
     }
 
+    private func plantarObraDaGuarda() {
+        guard let nome = conversaNotas.obraParaPlantar else { return }
+        if sessao.plantarObra(nome, no: context) != nil {
+            conversaNotas.obraParaPlantar = nil
+        }
+    }
+
     private func perguntar() {
         guard conversaNotas.modoPergunta else { return }
         conversaNotas.perguntar(disponivel: Sabia.disponivel) { pergunta, anteriores in
@@ -186,18 +193,28 @@ struct NotasView: View {
                     } : nil
                     mensagemDaPessoa(troca.pergunta, fio: i > 0)
                     mensagem(.sabia, fio: true) {
-                        CartaoDeResposta(
-                            titulo: nil,
-                            fontes: ultima ? conversaNotas.fontes.map { .init(id: $0.id, titulo: $0.titulo) } : [],
-                            abrirFonte: abrirFonte,
-                            retorno: retorno,
-                            avaliada: ultima && conversaNotas.avaliadas.contains(troca.resposta),
-                            rota: "sabia-notas"
-                        ) {
-                            // ADR 02o: a resposta chega ao lado, nunca na nota. Levar
-                            // um trecho para a nota é ato do autor — selecionar e
-                            // copiar —, com as palavras dele.
-                            Text(troca.resposta).textSelection(.enabled)
+                        VStack(alignment: .leading, spacing: 10) {
+                            CartaoDeResposta(
+                                titulo: nil,
+                                fontes: ultima ? conversaNotas.fontes.map { .init(id: $0.id, titulo: $0.titulo) } : [],
+                                abrirFonte: abrirFonte,
+                                retorno: retorno,
+                                avaliada: ultima && conversaNotas.avaliadas.contains(troca.resposta),
+                                rota: "sabia-notas"
+                            ) {
+                                // ADR 02o: a resposta chega ao lado, nunca na nota. Levar
+                                // um trecho para a nota é ato do autor — selecionar e
+                                // copiar —, com as palavras dele.
+                                Text(troca.resposta).textSelection(.enabled)
+                            }
+                            if ultima, conversaNotas.obraParaPlantar != nil {
+                                Button("Plantar esta obra", action: plantarObraDaGuarda)
+                                    .font(Tema.meta)
+                                    .foregroundStyle(Tema.ambarTinta)
+                                    .alvo()
+                                    .buttonStyle(.discreto)
+                                    .accessibilityIdentifier("plantar-sabia-notas")
+                            }
                         }
                     }
                 }
@@ -212,7 +229,7 @@ struct NotasView: View {
                                 ? "A resposta foi recolhida porque uma fonte mudou ou deixou de estar acessível."
                                 : conversaNotas.estado == .interrompida(pergunta)
                                     ? "você parou de esperar."
-                                    : "a sábia não respondeu.",
+                                    : Grok.avisoDaFalha(),
                             repetir: repetirPergunta,
                             rota: "sabia-notas"
                         ) { EmptyView() }

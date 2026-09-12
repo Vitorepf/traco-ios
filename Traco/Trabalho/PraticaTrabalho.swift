@@ -133,9 +133,13 @@ nonisolated enum PraticaTrabalho {
         if !d.intencaoAtual.resultado.isEmpty {
             partes.append("COMO ELA RECONHECE O RESULTADO:\n\(d.intencaoAtual.resultado)")
         }
-        if let dificuldade = d.dificuldadeVigente {
-            partes.append("O QUE ELA DIZ QUE ESTÁ DIFICULTANDO (hipótese \(dificuldade.estado.rawValue), proposta por \(dificuldade.propostaPor ?? "autoria desconhecida")):\n\(dificuldade.texto)")
+        if let dificuldade = d.dificuldadePlantada {
+            let h = d.dificuldadeVigente
+            partes.append("O QUE ELA DIZ QUE ESTÁ DIFICULTANDO (hipótese \(h?.estado.rawValue ?? "proposta"), proposta por \(h?.propostaPor ?? "autoria desconhecida")):\n\(dificuldade)")
+        } else if let oferta = d.ofertaDaJornada {
+            partes.append("NÃO INVENTE UM GARGALO.\n\(oferta)")
         }
+        if !d.colheitaDeJuizos.isEmpty { partes.append(d.colheitaDeJuizos) }
         if d.apoio == .combinar, let trecho = d.trechoExercitado?.trimmingCharacters(in: .whitespacesAndNewlines), !trecho.isEmpty {
             partes.append("O TRECHO QUE ELA VAI EXERCITAR (o resto é entrega delegada):\n\(trecho)")
         }

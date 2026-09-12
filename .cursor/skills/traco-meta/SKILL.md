@@ -11,7 +11,7 @@ Leia [VISAO-PRODUTO.md](../../../VISAO-PRODUTO.md), as ADRs vigentes da [SPEC.md
 
 Traço transforma intenções em realizações usando mente, IA e ambiente compartilhado; durante o trabalho, desenvolve capacidades relevantes para realizações futuras. Notas, formas, escrita e calendário são componentes. A IA pode produzir o que foi delegado, preservando origem e sem se passar pela pessoa. Delegar programação ou redação não é dívida cognitiva por definição; se a intenção é aprender essa atividade, preserve a prática escolhida. Não transformar toda tarefa em exercício.
 
-A Análise das notas pessoais conserva seus contratos específicos; produção em Trabalho não autoriza preencher relatos íntimos, respostas de prática ou notas como se fossem voz humana. Expressivas, notas seladas e conteúdo privado permanecem protegidos em todas as rotas, inclusive derivadas. Consultar [anti.md](anti.md) para erros concretos de fronteira.
+A Análise das notas pessoais conserva seus contratos específicos; produção em Trabalho não autoriza preencher relatos íntimos, respostas de prática ou notas como se fossem voz humana. Expressivas, notas seladas e conteúdo privado permanecem protegidos em todas as rotas, inclusive derivadas. O produto é só do dono: português, iPhone, sem público. A lei fechada em [anti.md](anti.md) manda calar — não “adiar” — o que ele vetou. Consultar [anti.md](anti.md) para erros concretos de fronteira.
 
 ## Contratar antes de implementar
 

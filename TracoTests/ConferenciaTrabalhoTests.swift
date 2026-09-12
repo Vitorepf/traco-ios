@@ -580,6 +580,24 @@ struct ConferenciaTrabalhoTests {
         #expect(!linha.contains("Nenhum provedor respondeu"))
     }
 
+    /// Q1: timeout não vira "revisão incompleta". O artefato fica.
+    @Test func timeoutDaRevisaoNomeiaAEsperaEPreservaOArtefato() async throws {
+        defer { _ = Grok.retirarFalha() }
+        let (d, p) = try paraRevisar()
+        let c = await RevisaoTrabalho.revisar(pedido: p, intencao: d.intencaoAtual,
+                                              artefato: bilingue, criterios: [],
+                                              janela: { 100_000 }, chamar: { _, _ in
+            Grok.registrarFalha(.timeout)
+            return nil
+        })
+        #expect(c.estado == .indisponivel)
+        #expect(c.executor == RevisaoTrabalho.naoExecutada)
+        #expect(c.motivo == Grok.frase(.timeout))
+        #expect(RevisaoTrabalho.linha(c).contains("estourou"))
+        #expect(!RevisaoTrabalho.linha(c).contains("Não recebi uma revisão completa"))
+        #expect(d.versaoAtual?.conteudo == bilingue)
+    }
+
     @Test func gerarNaoDisparaRevisaoDaIA() async throws {
         let container = try ModelContainer.traco(emMemoria: true)
         let d = DocumentoTrabalho(intencao: "Praticar espanhol sozinho, do zero",

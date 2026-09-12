@@ -106,7 +106,21 @@ alguém tropeçar: a série 08 encheu sem aviso e custou três colisões numa ta
 | 10k | SISTEMA · caixa alta só agrupa (cabeçalho com contagem e recolher), linha de três níveis com fio recuado, a regra da cor escrita no Tema (Hermes §4, §5, §10) | reservada, volta viva (worktree `superficie`, branch `Vitorepf/entrada`) |
 | 10l | CONVERSA-HERMES · a conversa sem caixa (linha de autor, texto, fio recuado) e a espera como cápsula com tempo colada ao campo, cujo botão muda com o estado | escrita no branch `Vitorepf/sistema-ia` (portão dos sete em `ferramentas/orca/conversa-hermes.md`); o coordenador mescla |
 
-**Próxima livre: 10m.**
+**Próxima livre: 10m.** *(série 10; a série 12 está abaixo)*
+
+## 2026-09-11
+
+| letra | dona | estado |
+|---|---|---|
+| 11a | Ação no tempo e no próximo compromisso; a régua olha o alvo da recuperação | em `main` |
+
+## 2026-09-12
+
+| letra | dona | estado |
+|---|---|---|
+| 12a | Um caderno; a guarda de obra é local | esta volta |
+
+**Próxima livre: 12b.**
 
 **A 09s colidiu, e quem mudou fui eu** (09/09, ~02h). Tomei a `09s` porque o
 "Próxima livre: 09s" que estava escrito aqui batia com o comando; no mesmo

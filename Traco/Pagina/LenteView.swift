@@ -342,7 +342,7 @@ struct LenteView: View {
             switch r {
             case .some(let q) where !q.isEmpty: perguntasDaSabia = q; Toque.suave()
             case .some: aviso = (.instigar, Sabia.nadaPassouNaGuarda, .falhou); Toque.aviso()
-            case .none: aviso = (.instigar, "a sábia não respondeu.", .falhou); Toque.aviso()
+            case .none: aviso = (.instigar, Grok.avisoDaFalha(), .falhou); Toque.aviso()
             }
         }
     }
@@ -363,7 +363,7 @@ struct LenteView: View {
             switch r {
             case .some(let c) where !c.vazia: contraparte = c; Toque.suave()
             case .some: aviso = (.contrapor, Sabia.nadaPassouNaGuarda, .falhou); Toque.aviso()
-            case .none: aviso = (.contrapor, "a sábia não respondeu.", .falhou); Toque.aviso()
+            case .none: aviso = (.contrapor, Grok.avisoDaFalha(), .falhou); Toque.aviso()
             }
         }
     }

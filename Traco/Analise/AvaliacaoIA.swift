@@ -29,6 +29,20 @@ enum AvaliacaoIA {
          "pedidoInstigarSHA256": sha256(Sabia.pedidoDeInstigar)]
     }
 
+    /// Identidade da régua 11a e da porta de um par, sem gastar o provedor.
+    /// Em 12/09 o aparelho do dono carimbou os pedidos vigentes e mesmo assim
+    /// `qn-calibragem-par-unico` calou em 0,3 ms com a rota liberada — a porta
+    /// velha (`pares.count >= 2`) ainda estava no binário instalado. Sem estas
+    /// chaves, carimbo de prompt casa com candidato novo e mede código velho.
+    static var carimbosDaRegua: [String: String] {
+        [
+            "portaCalibragemAceitaUmPar": Sabia.paresDaCalibragem(["um"]) ? "true" : "false",
+            "reguaLisboaNaoVaza": Prova.vaza(
+                "Qual é a capital de Portugal?",
+                alvo: "A capital de Portugal é Lisboa.") ? "false" : "true",
+        ]
+    }
+
     static func sha256(_ t: String) -> String {
         SHA256.hash(data: Data(t.utf8)).map { String(format: "%02x", $0) }.joined()
     }
@@ -164,6 +178,11 @@ enum AvaliacaoIA {
                 linha["corrida"] = corrida
                 linha["data"] = Date.now.ISO8601Format()
                 linha.merge(assinaturaDoContrapor) { atual, _ in atual }
+                // Pedido, régua e porta em TODA linha — inclusive `inicio`.
+                // A fumaça de 12/09 no aparelho casou o pedido e mediu a porta
+                // velha; carimbo só no caso deixava o cabeçalho mentir.
+                for (chave, sha) in carimbosDoPedido { linha[chave] = sha }
+                for (chave, v) in carimbosDaRegua { linha[chave] = v }
                 let json = try JSONSerialization.data(withJSONObject: linha, options: [.sortedKeys, .fragmentsAllowed])
                 try arquivo.write(contentsOf: json + Data([0x0A]))
                 try arquivo.synchronize()
@@ -214,7 +233,6 @@ enum AvaliacaoIA {
                     // este caso, por operação. A Q2-F teve de reconstruir isso
                     // procurando o prompt DENTRO do dylib instalado; uma linha
                     // aqui e a corrida diz de si mesma qual texto mandou.
-                    for (chave, sha) in carimbosDoPedido { registro[chave] = sha }
                     registro["evento"] = "casoIniciado"
                     try gravar(registro)
                     let inicio = ContinuousClock.now
@@ -240,6 +258,9 @@ enum AvaliacaoIA {
                 }
             }
             try gravar(["evento": "fim"])
+            // A fixture é nossa, não do caderno. Some depois da corrida para
+            // não ficar no Files. O JSONL fica — quem mediu é que o recolhe.
+            try? FileManager.default.removeItem(at: origem)
         } catch {
             // Uma falha de IO não vira corrida concluída; preserve o prefixo
             // JSONL já sincronizado e exponha o motivo no console do processo.

@@ -79,6 +79,14 @@ O calendário organiza tempo, compromissos e retomadas. Deve conectar uma inten�
 
 Uma tentativa precisa poder ligar objetivo, responsável, artefato, ação e evidência. Esses são conceitos do domínio, não uma exigência de cinco telas ou de um sistema pesado de gestão. A pessoa não deve administrar os vínculos manualmente quando o contexto permite construí-los e corrigi-los com simplicidade.
 
+## Um caderno, parâmetros escondidos
+
+Um caderno. A pessoa escreve; a IA veste a forma no momento certo e organiza por baixo. Não é um modo, um território nem um painel de categorias.
+
+Os parâmetros (gesto, domínio, origem, liga; e, quando o campo está plantado, função e o par “se encantar → / se travar →”) ficam escondidos. A IA e o Retrato leem. A pessoa não preenche taxonomia. Classificar em silêncio. Pesquisa chega como pesquisa; só vira nó depois do aceite. Obra que não está no caderno não se inventa: diz-se que não está e oferece-se plantar.
+
+A primeira prova desta visão continua sendo uma oferta ou um protótipo ponta a ponta, não “estudar um campo”.
+
 ## Distância entre visão e implementação
 
 A auditoria inicial de 05/09/2026 encontrou uma base em notas, métodos, escrita, recordação, calendário, contexto semântico, Markdown e entrada MCP. Encontrou também contratos que ainda restringem produção pela IA globalmente, sinais centrados em uso e ausência, nas rotas examinadas, de um ciclo operacional completo de realização e desenvolvimento.

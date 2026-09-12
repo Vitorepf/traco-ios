@@ -141,10 +141,17 @@ struct PadroesView: View {
     }
 
     /// A única leitura do app que olha para o AUTOR e não para um texto.
-    /// Só entra com dois pares ou mais: um caso não é padrão.
+    /// A porta é a da Sabia (ADR 11a): um par já é matéria. A rota continua
+    /// cortada — `provedor` é nil até remedição.
+    private var paresDoJuizo: [String] {
+        (semana?.calibragem ?? []).map {
+            "escolha: \($0.escolha)\nesperava: \($0.esperava)\naconteceu: \($0.aconteceu)"
+        }
+    }
+
     private func lerCalibragem() async {
-        guard let c = semana?.calibragem, c.count >= 2, Politica.provedor(.calibragem) != nil else { return }
-        let pares = c.map { "escolha: \($0.escolha)\nesperava: \($0.esperava)\naconteceu: \($0.aconteceu)" }
+        let pares = paresDoJuizo
+        guard Sabia.paresDaCalibragem(pares), Politica.provedor(.calibragem) != nil else { return }
         let r = await Sabia.lerCalibragem(pares: pares)
         withAnimation(Tema.movimento(.deslocamento, .easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion)) { sobreOJuizo = r ?? [] }
     }
@@ -161,7 +168,7 @@ struct PadroesView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .accessibilityIdentifier("sobre-o-juizo")
             .transition(Tema.transicao(.opacity.combined(with: .offset(y: 8)), reduzido: reduceMotion))
-        } else if let c = semana?.calibragem, c.count >= 2, Politica.provedor(.calibragem) == nil {
+        } else if Sabia.paresDaCalibragem(paresDoJuizo), Politica.provedor(.calibragem) == nil {
             // ADR 07b: há pares para ler e ninguém que leia — dito, não calado
             LinhaDeEstado(Politica.semProvedor(.calibragem), .semConta)
                 .padding(.vertical, 8)

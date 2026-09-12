@@ -124,6 +124,11 @@ struct PaginaView: View {
             sessao.notasParaRetrato = {
                 ((try? context.fetch(FetchDescriptor<Nota>())) ?? []).map(\.paraRetrato)
             }
+            sessao.observadosParaRetrato = {
+                AcessoTrabalho.juizosObservados(
+                    de: (try? context.fetch(FetchDescriptor<Trabalho>())) ?? [],
+                    no: context)
+            }
             // ADR 04n / 04p: o índice de sentido e a entrada do Mac, no arranque
             sessao.sincronizarIndice(no: context)
             sessao.recolherEntrada(no: context)

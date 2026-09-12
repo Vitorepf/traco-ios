@@ -1,0 +1,29 @@
+{
+ "repeticoes": 1,
+ "casos": [
+  {
+   "id": "qn-calibragem-par-unico",
+   "operacao": "calibragem",
+   "entrada": {
+    "itens": [
+     "ANTES: Previ que responderia todos os e-mails atrasados numa manhã, contando dez minutos por e-mail. DEPOIS: Levei dois dias; vários e-mails exigiram buscar anexo antigo e conferir com outra pessoa."
+    ]
+   },
+   "requisitos": [
+    "IDENTIDADE da porta 11a: um par já é matéria. Se chamadasGrok ficar vazio, a porta velha (pares.count >= 2) ainda está no binário."
+   ]
+  },
+  {
+   "id": "q5-recordar-capital-lisboa",
+   "operacao": "recordar",
+   "entrada": {
+    "texto": "A capital de Portugal é Lisboa.",
+    "pista": "Geografia: capitais europeias.",
+    "degrau": 0
+   },
+   "requisitos": [
+    "IDENTIDADE da régua 11a: 'Qual é a capital de Portugal?' não vaza Lisboa. Se o bruto pede a capital sem dizer Lisboa e a saída é nil, a régua velha (4-grama do enunciado) ainda está no binário."
+   ]
+  }
+ ]
+}

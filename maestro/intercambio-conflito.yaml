@@ -43,10 +43,8 @@ appId: app.traco
 - waitForAnimationToEnd: {timeout: 1000}
 - tapOn: {id: "trabalho-criar"}
 - extendedWaitUntil:
-    visible: "Escrever minha própria versão"
+    visible: "Sua versão"
     timeout: 15000
-- tapOn: "Escrever minha própria versão"
-- waitForAnimationToEnd: {timeout: 1500}
 - tapOn: "Escreva aqui"
 - inputText: "Versao 1 - a que sai no arquivo"
 # `hideKeyboard` não fecha este teclado; o arrasto fecha (a folha usa

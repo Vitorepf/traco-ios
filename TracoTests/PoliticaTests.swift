@@ -257,6 +257,37 @@ import Testing
                            esforco: "medium") != nil)
     }
 
+    /// ADR 2026-09-12a — a Politica descreve o código de HOJE. A régua do
+    /// Recordar e a porta da calibragem já mudaram na 11a; o texto velho
+    /// (4-grama do enunciado; `pares.count >= 2`) mentia. As rotas continuam
+    /// cortadas até remedição.
+    @Test func politicaNomeiaARegraAtualDoRecordarEDaCalibragem() {
+        let rec = Politica.linha(.recordar)
+        #expect(rec.regra == .indisponivelPorQualidade)
+        #expect(rec.porque.contains("predicado"))
+        #expect(rec.porque.contains("Lisboa"))
+        #expect(!rec.porque.contains("4-grama"))
+        #expect(!rec.porque.contains("ainda não foi medido"))
+        let cal = Politica.linha(.calibragem)
+        #expect(cal.regra == .indisponivelPorQualidade)
+        #expect(cal.porque.contains("um par"))
+        #expect(!cal.porque.contains("pares.count >= 2"))
+        #expect(!cal.porque.contains("um par não é padrão"))
+        let inst = Politica.linha(.instigar)
+        #expect(inst.regra == .indisponivelPorQualidade)
+        #expect(inst.porque.contains("GuardaDeInstigar"))
+        #expect(inst.porque.contains("nota magra"))
+        #expect(inst.motivo.contains("quando você diz que não sabe quando foi"))
+        let cont = Politica.linha(.contrapor)
+        #expect(cont.regra == .indisponivelPorQualidade)
+        #expect(cont.porque.contains("GuardaDeContrapor"))
+        #expect(cont.porque.contains("NOTA"))
+        #expect(cont.motivo.contains("substituto"))
+        let ecos = Politica.linha(.ecos)
+        #expect(ecos.regra == .indisponivelPorQualidade)
+        #expect(ecos.porque.contains("GuardaDeEcos"))
+    }
+
     /// Sem conta e sem aparelho (a suíte), produzir é indisponibilidade dita —
     /// não resposta vazia nem versão do aparelho.
     @Test func produzirSemProvedorEIndisponivel() async {
