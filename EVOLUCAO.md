@@ -41,6 +41,8 @@ do usuário, nem encerra a visão integral.
 
 Não há autorização inferida para publicar, gastar ou enviar mensagens externas. Produção local e validação prosseguem; dependências reais entram como pendências explícitas. O AGENTS.md deste repositório foi criado para orientar agentes pela visão vigente; AGENTS de outros projetos e skills de terceiros não foram alterados.
 
+Atualização 12/09/2026 — ADR 2026-09-12a: o criador fixou o caderno único e os parâmetros escondidos (visão + contrato). Não há modo território nem notificação de taxonomia. Pesquisa de um campo desconhecido pode ser delegada; o achado é `pesquisa` e só vira nó com aceite. Citar obra fora das Fontes contradiz o contrato. Digestibilidade consultável, Q6 e Retrato como modelo de capacidade continuam visão. Esta linha não certifica jornada no aparelho.
+
 Atualização 11/09/2026 — ADR 2026-09-11a: ação do Trabalho com duração opcional (intervalo vs marco); a mesma seleção do próximo compromisso inclui ação elegível (widget, bloqueada, Ilha, Siri) e continua a excluir deixa e origem protegida; porta dos Trabalhos não some na busca. `Prova.vaza` olha o predicado e os números (Lisboa não vaza pelo 4-grama do enunciado; 15 vaza). Prática não recusa vocabulário do pedido. Porta da calibragem aceita um par; a rota na Politica permanece cortada.
 
 - **Fora do app: a frase do autor inteira, e o dia no médio** (08/09, ADR 2026-09-08g).

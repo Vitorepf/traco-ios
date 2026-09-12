@@ -34,10 +34,14 @@ trecho. Este documento orienta trabalho, não concede permissões externas.
 
 ## Entenda o produto antes de alterar comportamento
 
-Leia [VISAO-PRODUTO.md](VISAO-PRODUTO.md). Traço combina mente humana, IA e
-ambiente compartilhado para transformar intenção em realização e desenvolver
-as capacidades relevantes para realizar mais depois. Notas, calendário,
-métodos, segundo cérebro e MD/HTML são meios para esses dois ciclos.
+Leia [VISAO-PRODUTO.md](VISAO-PRODUTO.md), inclusive a seção **Um caderno,
+parâmetros escondidos**, e a ADR 2026-09-12a em [SPEC.md](SPEC.md). Traço
+combina mente humana, IA e ambiente compartilhado para transformar intenção
+em realização e desenvolver as capacidades relevantes para realizar mais
+depois. É um caderno só: prosa primeiro; a IA veste a forma e organiza por
+baixo. Não invente modo território, painel de categoria nem cânone sem
+Fontes. Notas, calendário, métodos, segundo cérebro e MD/HTML são meios
+para esses dois ciclos.
 
 Fontes, em ordem de função:
 
@@ -72,6 +76,10 @@ Não crie formulário ou aprovação ritual para registrar essa decisão.
   autoriza remover proteção nem inventar permissão para publicar ou gastar.
 - Simplicidade reduz esforço de operar e compreender, preservando informação
   necessária, controle e recuperação. Não esconder falha para limpar a tela.
+- Classificar cala. Parâmetro (método, domínio, origem, ligação, função num
+  campo) serve à IA e ao Retrato; não vira aviso de taxonomia no aparelho.
+- Achado de pesquisa não é voz. Nó de um território só depois do aceite.
+  Sem a obra nas Fontes, a sábia diz que não está no caderno — não inventa.
 
 ## Entradas técnicas
 

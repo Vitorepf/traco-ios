@@ -7,7 +7,7 @@ alwaysApply: true
 
 Produto iOS para transformar intenções em realizações e desenvolver capacidades relevantes. Notas, calendário, métodos e escrita são meios; não definem sozinhos sua finalidade.
 
-**Autoridade:** [VISAO-PRODUTO.md](../../VISAO-PRODUTO.md) fixa a tese; [SPEC.md](../../SPEC.md), com precedência das ADRs vigentes, fixa contratos. [EVOLUCAO.md](../../EVOLUCAO.md) distingue capacidades e provas pendentes; [SISTEMA-CLARO.md](../../SISTEMA-CLARO.md) orienta o visual. A existência desta regra não certifica implementação.
+**Autoridade:** [VISAO-PRODUTO.md](../../VISAO-PRODUTO.md) fixa a tese (leia **Um caderno, parâmetros escondidos**); [SPEC.md](../../SPEC.md), com precedência das ADRs vigentes — a 2026-09-12a no caderno único —, fixa contratos. [EVOLUCAO.md](../../EVOLUCAO.md) distingue capacidades e provas pendentes; [SISTEMA-CLARO.md](../../SISTEMA-CLARO.md) orienta o visual. A existência desta regra não certifica implementação.
 
 Três participantes cooperam no objetivo:
 

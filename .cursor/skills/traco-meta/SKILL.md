@@ -5,13 +5,13 @@ description: Conduzir trabalho prolongado no traco-ios com fidelidade à visão 
 
 # Traço — execução orientada ao resultado
 
-Leia [VISAO-PRODUTO.md](../../../VISAO-PRODUTO.md), as ADRs vigentes da [SPEC.md](../../../SPEC.md) e a matriz [EVOLUCAO.md](../../../EVOLUCAO.md). O [SISTEMA-CLARO.md](../../../SISTEMA-CLARO.md) orienta decisões visuais. Este arquivo organiza a execução; não substitui o propósito nem amplia a autorização da tarefa. Se já houver coordenador ou gate-loop, participe do ciclo existente.
+Leia [VISAO-PRODUTO.md](../../../VISAO-PRODUTO.md) (incluindo **Um caderno, parâmetros escondidos**), as ADRs vigentes da [SPEC.md](../../../SPEC.md) — a 2026-09-12a governa caderno único, parâmetro escondido e pesquisa que não vira voz — e a matriz [EVOLUCAO.md](../../../EVOLUCAO.md). O [SISTEMA-CLARO.md](../../../SISTEMA-CLARO.md) orienta decisões visuais. Este arquivo organiza a execução; não substitui o propósito nem amplia a autorização da tarefa. Se já houver coordenador ou gate-loop, participe do ciclo existente.
 
 ## Propósito e fronteiras
 
 Traço transforma intenções em realizações usando mente, IA e ambiente compartilhado; durante o trabalho, desenvolve capacidades relevantes para realizações futuras. Notas, formas, escrita e calendário são componentes. A IA pode produzir o que foi delegado, preservando origem e sem se passar pela pessoa. Delegar programação ou redação não é dívida cognitiva por definição; se a intenção é aprender essa atividade, preserve a prática escolhida. Não transformar toda tarefa em exercício.
 
-A Análise das notas pessoais conserva seus contratos específicos; produção em Trabalho não autoriza preencher relatos íntimos, respostas de prática ou notas como se fossem voz humana. Expressivas, notas seladas e conteúdo privado permanecem protegidos em todas as rotas, inclusive derivadas. Consultar [anti.md](anti.md) para erros concretos de fronteira.
+A Análise das notas pessoais conserva seus contratos específicos; produção em Trabalho não autoriza preencher relatos íntimos, respostas de prática ou notas como se fossem voz humana. Expressivas, notas seladas e conteúdo privado permanecem protegidos em todas as rotas, inclusive derivadas. Consultar [anti.md](anti.md) para erros concretos de fronteira. Não inventar modo território, formulário de metadados, notificação de classificação nem cânone ausente das Fontes.
 
 ## Contratar antes de implementar
 

@@ -78,7 +78,7 @@ de falhas e a evidência do fluxo.
 
 | Arquivo | Papel |
 |---|---|
-| [VISAO-PRODUTO.md](VISAO-PRODUTO.md) | Tese vigente, objetivo, delegação e critérios de realização/desenvolvimento. |
+| [VISAO-PRODUTO.md](VISAO-PRODUTO.md) | Tese vigente, objetivo, delegação, caderno único e critérios de realização/desenvolvimento. |
 | [AGENTS.md](AGENTS.md) | Entrada operacional para agentes: finalidade, fontes, invariantes, código e verificação. |
 | [SPEC.md](SPEC.md) | Contratos atuais e ADRs datadas. Seções 1, 2, 12 e 19 seguem a visão; veto universal antigo à geração foi substituído. |
 | [EVOLUCAO.md](EVOLUCAO.md) | Matriz integral: estado comprovado e trabalho ainda necessário. |
@@ -122,4 +122,5 @@ maestro/       fluxos E2E; cenarios/ = famílias hostis
 - `DOSSIE.md`, `VIZINHANCA.md`, `REFERENCIAS.md`, `CATALOGO.md`, `COLHEITA.md` — o mercado e o que se colheu dele.
 - `ferramentas/traco-mcp/` — o companheiro no Mac: servidor MCP de consulta e entrada de notas na pasta do Traço; não é ainda um executor geral de realizações.
 - SPEC ADRs 2026-09-02o a q — contratos locais da sábia/prática, formas Decisão e Pré-mortem e revisão da semana; não são veto global à produção delegada.
+- SPEC ADR 2026-09-12a e a seção **Um caderno, parâmetros escondidos** da visão — um bloco só; classificar cala; pesquisa não vira voz; sem modo território.
 - SPEC ADRs 2026-09-04g a s — o ciclo da mente: o sinal (serviu / não serviu), o retrato que viaja com cada pergunta, degraus para instigar e vestir, as formas que se encadeiam (DEPOIS DISTO), o catálogo de 21 métodos como dado (`Traco/Modelo/Metodos.json` + `Documents/Traço/metodos/*.json`), Contrapor, o índice de sentido no aparelho, o corpus incremental, a entrada do Mac (`entrada/`, pelo MCP `traco_escrever`), a trajetória nos Padrões, e a doutrina "abundante no ato, calada na pausa".

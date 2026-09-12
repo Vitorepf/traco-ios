@@ -10330,3 +10330,19 @@ A ação do Trabalho pode ter duração opcional (`duracaoMinutos` no JSON do ag
 **Não muda:** selo, origem, rotas cortadas `responder` / `instigar` / `contrapor` / `ecos` / `recordar` / `calibragem`. Sem SwiftData V6.
 
 **Prova:** `ProvaTests` (Lisboa / 15 / saudade), `PraticaTrabalhoTests.vocabularioDoPedidoNaoEVazamentoDoExemplo`, `AnaliseDeBordoTests.umParSoNaoEPadrao`, `CalendarioTrabalhoTests.duracaoExplicitaProjetaIntervaloEMarcoPermanecePonto`, `ForaDoAppTests.compromissoSoDoAutor`, `ForaDoAppTests.commitDoTrabalhoPublicaOProximo` (`OficinaTrabalho.alterar` → `ProximoCompromisso.lido`), `NotasFiltroTests.aPortaDosTrabalhosNaoDependeDaBuscaNemDoFiltro`, `ResultadoObservadoTests.aCausaDoRelatoFicaGuardadaNaVersaoQueNasceuDela`.
+
+## ADR 2026-09-12a — Um caderno; parâmetros escondidos; pesquisa que não vira voz
+
+Esclarecimento do criador, 12/09/2026. A tese está na seção [Um caderno, parâmetros escondidos](VISAO-PRODUTO.md#um-caderno-parâmetros-escondidos). Esta ADR é o contrato para quem implementa ou conversa com o produto. Não cria tela, modo, objeto `Território` nem wizard de quatro direções.
+
+**Um bloco.** Pensamento, diário, dúvida e assunto novo usam a página que já existe. Método um por nota; o objetivo atravessa pelo Trabalho. Não são quatro apps. Exemplos de campo (um livro, retórica, um ofício) ilustram o quarto momento; não autorizam feature com o nome do exemplo.
+
+**Parâmetro escondido.** Gesto, domínio, origem, ligação e — quando a pessoa plantar um campo — função no território (`bebe` / `irmã` / `banhou` / `julga` / `salva`) e “se encantar →” / “se travar →” vivem na nota ou na hub. A IA e o Retrato leem. A pessoa não preenche um painel de categoria. Classificar cala: a forma aparece se couber; silêncio se não couber. É proibido notificar taxonomia (assunto, método, tipo de obra, categoria) como aviso no aparelho. O que pode aparecer é o que muda o próximo ato: forma vestida, ligação, “não está no caderno”, “esta é mais curta”.
+
+**Pesquisa e Fontes.** Delegar o mapa de um campo desconhecido é lícito. O achado tem origem `pesquisa` (ou equivalente já no disco). Nó só depois do aceite da pessoa. Nome na hub não é nota; nota só quando for ler ou quando ela aceitar o que a pesquisa trouxe. A sábia não cita obra, autor ou tese que não esteja nas Fontes do pedido: a base é `insuficiente` e ela diz que não está no caderno — oferece plantar, não inventa. Se o propósito é aprender, ela não substitui a leitura. `ResultadoObservado` continua sendo de ato no mundo (ADR 08m). Mudança de juízo depois de estudar é frase da pessoa no Destilar ou no Trabalho, não um quarto valor do enum.
+
+**Recusas (não implementar, mesmo que pareçam o produto).** Oráculo do campo (“já sei o cânone”). Uma raiz que explica tudo. Placar, streak ou nota da IA como prova. Sábia na voz do autor. Sofrer = violar uma lei. Imagem sem obstáculo como método (o WOOP existe contra isso). Abrir Expressiva “para a IA ajudar”. Declarar resultado externo porque o plano existe. Diagnóstico de personalidade. Chat genérico como finalidade.
+
+**Não muda.** Selo, origem, voz do autor, um método por nota. Rotas `responder`, `instigar`, `contrapor`, `ecos`, `recordar` e `calibragem` seguem a `Politica` vigente — esta ADR não as reabre. Continuidade entre sessões (Q6) e Retrato como modelo de capacidade continuam visão. Digestibilidade como campo consultável pela sábia não entra sem contrato e prova próprios.
+
+**Prova desta ADR.** Documental. Agente ou incremento que crie modo território, formulário de metadados, notificação de classificação ou cânone sem Fontes contradiz este contrato. Código novo que toque classificação, Fontes ou pesquisa declara esta ADR e a seção da visão.

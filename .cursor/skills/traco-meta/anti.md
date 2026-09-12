@@ -22,6 +22,7 @@ Aplicar à tarefa e às ADRs vigentes da [SPEC](../../../SPEC.md), sob a tese de
 - Não exigir aprender sintaxe para operar a jornada comum. Fonte explícita para edição externa, código ou formato não suportado é diferente de vazamento acidental de marca na leitura.
 - Não criar botão sem ação em tarefa estática de artefato, esconder erro para limpar a tela ou perder texto ao voltar.
 - Não impor régua, método ou wizard antes de saber se ajuda o objetivo. Preservar acesso a poder e detalhe sem transformar o produto em um catálogo de formas.
+- Não criar modo território, painel de categoria nem aviso de taxonomia. Classificar cala. Não citar obra, autor ou tese que não esteja nas Fontes do pedido.
 - Não aplicar tema, paleta ou tamanho de fonte históricos por automatismo. Usar sistema vigente, Dynamic Type, VoiceOver e movimento reduzido nos estados afetados. Teste temporário não redefine preferência da pessoa.
 - Não copiar outra implementação ou redesenhar superfície fora do pedido. Julgar identidade e uso com artefato real, sem referências inventadas.
 

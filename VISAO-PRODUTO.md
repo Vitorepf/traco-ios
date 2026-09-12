@@ -71,6 +71,27 @@ Escrita é um instrumento central para tornar o pensamento examinável e trabalh
 
 Uma prática espiritual pode fornecer significado; uma obra filosófica, uma lente; um estudo, evidência delimitada. O catálogo deve distinguir essas funções, a fonte, a adaptação feita pelo Traço e o que se sabe sobre o uso proposto. Beleza, tradição, nome técnico ou citação não certificam eficácia. Afirmar superioridade universal da escrita ou melhora clínica requer evidência específica que esta decisão documental não fornece.
 
+## Um caderno, parâmetros escondidos
+
+Esclarecimento do criador em 12/09/2026. Não abre um modo novo nem um catálogo de territórios. O contrato é a ADR 2026-09-12a em [SPEC.md](SPEC.md). Esta seção orienta agentes e evolução; não certifica jornada no aparelho.
+
+O princípio é o de um caderno só — prosa primeiro, mistura permitida, caneta antes da estante. Pensamento a examinar, diário para não repetir um erro, dúvida que conversa com o que já foi vivido, e assunto novo sem mapa cabem na mesma página. A IA não é a página. Veste a forma na hora e organiza por baixo. O humano vê prosa, forma e próximo passo. O segundo cérebro vê origem, método, ligação e função — escondidos o bastante para não virar o trabalho.
+
+Quatro momentos, o mesmo bloco:
+
+| A pessoa está assim | O caderno faz | A IA pode | A IA não pode |
+|---|---|---|---|
+| Pensamento com problema | escrever; depois vestir um método que caiba | apontar a técnica; não reescrever a frase | inventar o problema nem a solução |
+| Diário / não repetir | prosa ou Expressiva; selo se for íntimo | calar no íntimo; no resto, lembrar o que *ela* escreveu | ler selado, diagnosticar, “você sempre faz isso” |
+| Dúvida | conversa sobre o acervo | cruzar o caderno e empurrar uma conclusão *dela* | concluir no lugar dela; usar o que não é voz |
+| Assunto novo / “está difícil” | hub e poucos nós, quando ela aceitar | pesquisar, propor ligação, sugerir um degrau mais leve já plantado ou à espera de aceite | plantar cânone como se fosse dela; fingir que leu por ela |
+
+Um campo (um livro, retórica, um ofício) não é o produto. É uma porta do quarto momento. O território desse campo — de onde bebe, irmãs, quem se banhou, o que julga, o que salva — é rede de notas com origem, evidência e ligação, não playlist e não oráculo. A sorte de achar a obra certa na hora certa é o obstáculo. O Traço o reduz se o mapa está no ambiente. Aumenta a sorte se a sábia inventa bibliografia.
+
+Pesquisar o campo pode ser delegado quando a pessoa não conhece nada. O achado entra como pesquisa, não como voz. Ela aceita o que vira nó. Sem aceite, não há cânone. Se o objetivo é aprender o campo, a IA não lê a obra no lugar da pessoa: estrutura, compara, aponta o degrau. A leitura continua sendo a prática. “Conhecimento pleno o mais rápido possível” é intenção, não estado da sábia.
+
+Classificar cala. Gravar parâmetro (método, domínio, função no território, digestibilidade) serve à IA e ao Retrato. Notificar taxonomia no aparelho — “isto é diário, categoria Y” — transforma o caderno em arquivo de etiquetas e contradiz a curva-zero. Mostrar só o que muda o próximo ato: a forma vestida, uma ligação, “isto não está no caderno”, “esta daqui é mais curta”.
+
 Curva-zero significa reduzir o esforço de operar e compreender a representação. Texto, imagem ou interação devem ser escolhidos pela tarefa. Preservar precisão e acesso ao detalhe; não esconder incerteza em um visual convincente. O esforço de prática só se justifica quando serve à capacidade pretendida.
 
 ## Calendário como ponte para a ação
