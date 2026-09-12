@@ -2,6 +2,20 @@
 
 Mantido pelo orquestrador a cada fecho (ESTEIRA.md). Volta que não está aqui não abre. Ordem = valor para a visão (dois ciclos) ÷ esforço, com a regra da frente de front-end: auditoria → fundação → telas. Notas de tela no scorecard só existem depois da V9.
 
+## Em curso (12/09 — a semanal do Claude no fim, e só o Codex a trabalhar)
+
+**Cotas às 11h51:** Claude semanal **99%** (reset domingo 20:00), janela de sessão 0%, `fableWeekly` **null** (o campo não veio na resposta — não é zero, é ausente). **Codex semanal 0%.** Enquanto isto durar: **nenhum worker Claude**. O que corre é o que é Codex — revisor (G5.6 Terra) e Astra.
+
+| volta | dívida que fecha | área | simulador | estado |
+|---|---|---|---|---|
+| G3-10k-10l | as duas voltas do Hermes pousaram em `main` em 11/09 **sem revisor independente** — a mesma dívida da limpeza de 07/09 | revisão do diff `cfbb19c..HEAD` (42 arquivos, +1483/−932), sem tocar código | teste 4 `A1DF082C` | **EM CURSO** (`ctx_e404d7d0a4f3`, worktree `volta-g3-10k-10l`) |
+
+**Achados que a 10k deixou nomeados e não tocados, e que a próxima volta de app paga** (o G3 confirma por arquivo:linha): o **microfone no campo do calendário (Ditado), que fere a lei da voz** — este é o primeiro, é lei e não é gosto; o "WOOP" em caixa alta nas Notas; e âmbar/caixa alta fora da regra em `CartaoAnaliseView`, `PortalArquivoView`, `RedeView`, `PaginaView`, `BotaoPrimario` e `Pilula`.
+
+**Risco de design nomeado pela própria cadeira da 10l, à espera de G4:** o âmbar é ao mesmo tempo a identidade de VOCÊ e a cor de ação ("Perguntar de novo") — a regra da cor recém-escrita no `Tema` diz *identidade ou estado*, e este uso é os dois.
+
+**Lição de instrumento de 12/09, que custou três dispatches:** um diálogo de atualização no CLI de um fornecedor (`Agent startup blocked: codex-update-prompt`) **mata todo dispatch daquele fornecedor**, e o erro não o diz. O sinal está no `terminal read`, não no receipt. `terminal send` não alcança um dispatch já falhado e `--interrupt` desliga o agente. Cura: atualizar o CLI.
+
 ## Em curso (08/09 de manhã — o laço retomado pelo vigia)
 
 Três voltas abertas ao mesmo tempo, cada uma no próprio worktree filho nascido de `main` (5065929), áreas de arquivo disjuntas, todas tirando dívida da limpeza de 07/09. Workers em Opus 5 (cotas às 10h20: janela 9%, semanal 11%, Fable semanal 6% — o Fable voltou no reset de domingo).
