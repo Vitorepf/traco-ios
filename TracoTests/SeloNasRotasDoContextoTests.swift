@@ -91,29 +91,31 @@ struct SeloNasRotasDoContextoTests {
             no: c.mainContext).isEmpty)
 
         let s = Sessao()
-        var chamou = false
-        let inventado = #"{"base":"geral","texto":"Voss defende um decreto e a tese secreta.","trechoIDs":[]}"#
+        var enviouSelada = false, gerou = 0, conferiu = 0
+        let ajuda = #"{"base":"insuficiente","texto":"Nesta consulta não veio material da obra.","trechoIDs":[]}"#
         s.responderContextoNotas = { pergunta, fontes, conversa, catalogo, retrato, validar in
-            await Sabia.responderNasNotas(
+            enviouSelada = fontes.contains { $0.texto.contains("tese secreta") }
+            return await Sabia.responderNasNotas(
                 pergunta: pergunta, fontes: fontes, conversa: conversa,
                 catalogo: catalogo, retrato: retrato, validarAcesso: validar,
                 gerarRemoto: { _ in
-                    chamou = true
-                    return inventado
+                    gerou += 1
+                    return #"{"base":"geral","texto":"Voss defende um decreto e a tese secreta.","trechoIDs":[]}"#
                 },
-                gerarLocal: { _ in
-                    chamou = true
-                    return inventado
+                conferirRemoto: { _, _ in
+                    conferiu += 1
+                    return ajuda
                 })
         }
         let r = await s.responderNasNotas(
             "O que defende o Tratado das Nuvens Invertidas de Mélanie Voss?",
             conversa: [], no: c.mainContext)
-        #expect(!chamou, "nota selada no índice velho não autoriza chamar o modelo")
-        #expect(r.resposta?.contains(GuardaDeObra.fraseNaoEstaNoCaderno) == true)
+        #expect(!enviouSelada, "nota selada no índice velho não viaja como fonte")
+        #expect(gerou == 1 && conferiu == 1)
         #expect(r.resposta?.contains("tese secreta") != true)
         #expect(r.resposta?.contains("decreto") != true)
-        #expect(r.obraParaPlantar != nil)
+        #expect(r.resposta?.contains(GuardaDeObra.fraseNaoEstaNoCaderno) != true)
+        #expect(r.obraParaPlantar == nil)
     }
 
     @Test func indiceNaoGuardaNotaQueNaoPodeEntrar() {

@@ -24,16 +24,24 @@ nonisolated enum GuardaDeObra {
         return recusa(pedido)
     }
 
-    /// Nome puro nesta consulta, ou a obra não entrou no pacote. Não diz que
-    /// falta no caderno. Não afirma tese.
+    /// Nome puro nesta consulta. Não diz que falta no caderno. Não afirma tese.
+    /// Seleção que não casa o pedido NÃO recusa: a rota das Notas não extrapola
+    /// o recorte ao caderno; geração e conferência leem o material enviado.
     static func recusarSeConsultaInsuficiente(pergunta: String, fontes: [FonteNotas]) -> RespostaNotas.Retorno? {
-        guard let pedido = pedido(pergunta) else { return nil }
-        if estaNasFontes(pedido, fontes: fontes) {
-            if fontes.contains(where: { eIdentidade(pedido.nome, na: $0) && !soONome($0, pedido: pedido) }) {
-                return nil
-            }
-            return recusaNomePuro(pedido)
+        guard let pedido = pedido(pergunta), estaNasFontes(pedido, fontes: fontes) else { return nil }
+        if fontes.contains(where: { eIdentidade(pedido.nome, na: $0) && !soONome($0, pedido: pedido) }) {
+            return nil
         }
+        return recusaNomePuro(pedido)
+    }
+
+    /// A obra estava nas fontes da seleção e não coube no pacote efetivo.
+    /// Limite desta consulta, não ausência no caderno.
+    static func recusarSeOmitidaDoPacote(pergunta: String, originais: [FonteNotas],
+                                         efetivas: [FonteNotas]) -> RespostaNotas.Retorno? {
+        guard let pedido = pedido(pergunta),
+              estaNasFontes(pedido, fontes: originais),
+              !estaNasFontes(pedido, fontes: efetivas) else { return nil }
         return recusaForaDestaConsulta(pedido)
     }
 

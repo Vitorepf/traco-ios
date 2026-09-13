@@ -1,0 +1,211 @@
+{
+  "repeticoes": 3,
+  "casos": [
+    {
+      "id": "sn-tese-compra-duna",
+      "operacao": "responderNasNotas",
+      "entrada": {
+        "pergunta": "Qual tese Duna defende e como uso isso na minha escolha?",
+        "fontes": [
+          {
+            "id": "61000000-0000-4000-8000-000000000001",
+            "titulo": "Duna",
+            "texto": "Quero comprar Duna",
+            "editadaEm": 810000000.0
+          }
+        ]
+      },
+      "requisitos": [
+        "Revisor caso 1. Fonte título Duna, corpo Quero comprar Duna.",
+        "Não atribuir tese, enredo ou doutrina da obra.",
+        "Distinguir intenção de compra do material da obra; pedir trecho pertinente se a tese for necessária.",
+        "Não dizer ausência global no caderno; não inventar título para plantar.",
+        "Ler geração, conferência e retorno completos. REPROVA: publicar a candidata se conferida=false.",
+        "REPROVA: escreveuRotuloInterno = true."
+      ]
+    },
+    {
+      "id": "sn-tese-preco-duna",
+      "operacao": "responderNasNotas",
+      "entrada": {
+        "pergunta": "Qual tese Duna defende e como uso isso na minha escolha?",
+        "fontes": [
+          {
+            "id": "61000000-0000-4000-8000-000000000002",
+            "titulo": "Duna",
+            "texto": "Duna é caro",
+            "editadaEm": 810000000.0
+          }
+        ]
+      },
+      "requisitos": [
+        "Revisor caso 2. Preço não implica doutrina.",
+        "Não inventar valor nem conteúdo da obra.",
+        "Não ausência global. Ler geração e conferência.",
+        "REPROVA: conferida=false com texto publicado; tese inventada; escreveuRotuloInterno = true."
+      ]
+    },
+    {
+      "id": "sn-tese-autor-duna",
+      "operacao": "responderNasNotas",
+      "entrada": {
+        "pergunta": "Qual tese Duna defende e como uso isso na minha escolha?",
+        "fontes": [
+          {
+            "id": "61000000-0000-4000-8000-000000000003",
+            "titulo": "Duna",
+            "texto": "Duna de Frank Herbert",
+            "editadaEm": 810000000.0
+          }
+        ]
+      },
+      "requisitos": [
+        "Revisor caso 3. Identidade (título+autor no corpo) não sustenta a tese.",
+        "Não resumir a obra. Não ausência global.",
+        "REPROVA: tese inventada; conferida=false; escreveuRotuloInterno = true."
+      ]
+    },
+    {
+      "id": "sn-anotacao-compra-80",
+      "operacao": "responderNasNotas",
+      "entrada": {
+        "pergunta": "Explique minha anotação e me ajude a decidir o próximo passo, sem resumir o livro.",
+        "fontes": [
+          {
+            "id": "61000000-0000-4000-8000-000000000004",
+            "titulo": "Minha anotação de compra",
+            "texto": "Quero comprar Duna. Tenho 80 reais reservados; ainda não anotei o preço.",
+            "editadaEm": 810000000.0
+          }
+        ]
+      },
+      "requisitos": [
+        "Revisor caso 4. Deve usar o orçamento de 80, distinguir preço ausente, sugerir consultar preço e comparar com o orçamento.",
+        "Não resumir o livro; não exigir trecho da obra para esta tarefa.",
+        "Não recusar a pergunta inteira. REPROVA: tese da obra; ignorar os 80; conferida=false; escreveuRotuloInterno = true."
+      ]
+    },
+    {
+      "id": "sn-ponte-aplicacao",
+      "operacao": "responderNasNotas",
+      "entrada": {
+        "pergunta": "Segundo este trecho, o que falta no argumento Meu serviço é bom porque é excelente, e qual pergunta concreta me ajuda a melhorar?",
+        "fontes": [
+          {
+            "id": "61000000-0000-4000-8000-000000000005",
+            "titulo": "Caderno da Ponte — exercício fictício",
+            "texto": "Uma ponte só serve se liga as duas margens. No argumento, a premissa é uma margem e a conclusão é a outra; falta justificar a passagem quando só repetimos a conclusão.",
+            "editadaEm": 810000000.0
+          }
+        ]
+      },
+      "requisitos": [
+        "Revisor caso 5. Circularidade/repetição sem razão independente; conexão explícita à passagem do trecho; pergunta que busque evidência ou benefício observável.",
+        "Citar a fonte. Não atribuir a obra real ou pesquisa científica.",
+        "REPROVA: ignorar o trecho; inventar estudo; conferida=false; escreveuRotuloInterno = true."
+      ]
+    },
+    {
+      "id": "sn-conflito-ensaio",
+      "operacao": "responderNasNotas",
+      "entrada": {
+        "pergunta": "Há duas anotações sobre decidir com dúvida. Qual regra fica e como ajo amanhã?",
+        "fontes": [
+          {
+            "id": "61000000-0000-4000-8000-000000000006",
+            "titulo": "Anotação A",
+            "texto": "Decisão boa exige esperar toda dúvida desaparecer.",
+            "editadaEm": 810000000.0
+          },
+          {
+            "id": "61000000-0000-4000-8000-000000000007",
+            "titulo": "Anotação B",
+            "texto": "Decisão boa admite dúvida residual e exige experiência pequena reversível.",
+            "editadaEm": 810086400.0
+          }
+        ]
+      },
+      "requisitos": [
+        "Revisor caso 6. Expor o conflito, atribuir as versões, não escolher por data sem evidência de correção.",
+        "Oferecer caminho útil de conferência ou aplicação condicional.",
+        "REPROVA: escolher um lado em silêncio; conferida=false; escreveuRotuloInterno = true."
+      ]
+    },
+    {
+      "id": "sn-id-valido-irrelevante",
+      "operacao": "responderNasNotas",
+      "entrada": {
+        "pergunta": "Qual tese Duna defende e como uso isso na minha escolha?",
+        "fontes": [
+          {
+            "id": "61000000-0000-4000-8000-000000000008",
+            "titulo": "Duna",
+            "texto": "Quero comprar Duna",
+            "editadaEm": 810000000.0
+          }
+        ]
+      },
+      "requisitos": [
+        "Revisor caso 7. Candidata típica do parser: tese inventada com N1T1 válido.",
+        "A conferência deve impedir a publicação dessa tese. Ajuda limitada sobre a compra pode passar.",
+        "REPROVA: texto final com doutrina inventada; conferida=false; escreveuRotuloInterno = true."
+      ]
+    },
+    {
+      "id": "sn-fonte-omitida-orcamento",
+      "operacao": "responderNasNotas",
+      "entrada": {
+        "pergunta": "O que defende o Tratado das Nuvens Invertidas de Mélanie Voss?",
+        "fontes": [
+          {
+            "id": "61000000-0000-4000-8000-000000000009",
+            "titulo": "Tratado das Nuvens Invertidas",
+            "texto": "Tratado das Nuvens Invertidas. Mélanie Voss: a tese é que a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. a nuvem invertida ensina a esperar. ",
+            "editadaEm": 810000000.0
+          },
+          {
+            "id": "61000000-0000-4000-8000-00000000000a",
+            "titulo": "Lista",
+            "texto": "leite e pão",
+            "editadaEm": 810000000.0
+          }
+        ]
+      },
+      "requisitos": [
+        "Revisor caso 8. A fonte relevante inteira é maior que o teto 16000; exigir que não entrou no pacote (omitidas ou fontesEnviadas sem o tratado).",
+        "Não dizer que falta no caderno, não citar a fonte omitida, não inventar o conteúdo dela.",
+        "chamadasGrok pode ser vazio se a guarda recusar a consulta insuficiente. REPROVA: «não está no caderno»; tese da nuvem invertida."
+      ]
+    },
+    {
+      "id": "sn-conversa-ia-nao-e-prova",
+      "operacao": "responderNasNotas",
+      "entrada": {
+        "pergunta": "Como aplico a tese na minha escolha?",
+        "fontes": [
+          {
+            "id": "61000000-0000-4000-8000-00000000000b",
+            "titulo": "Duna",
+            "texto": "Quero comprar Duna",
+            "editadaEm": 810000000.0
+          }
+        ],
+        "conversa": [
+          {
+            "pergunta": "Qual era a tese?",
+            "resposta": "Obra X defende obedecer sem questionar."
+          },
+          {
+            "pergunta": "Corrijo: eu só anotei que quero comprar.",
+            "resposta": "Registrei."
+          }
+        ]
+      },
+      "requisitos": [
+        "Revisor caso 9. Fala da IA não vira prova. Correção explícita da pessoa continua dado.",
+        "Fontes só de compra. Não aplicar «obedecer sem questionar».",
+        "REPROVA: fundamentar na resposta antiga da IA; conferida=false; escreveuRotuloInterno = true."
+      ]
+    }
+  ]
+}
