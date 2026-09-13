@@ -29,10 +29,15 @@ struct AvaliacaoIACarimboTests {
     @Test("as DUAS rotas medidas carimbam, e o carimbo é o sha do pedido que rodou")
     func osDoisCarimbos() {
         let c = AvaliacaoIA.carimbosDoPedido
-        #expect(Set(c.keys) == ["pedidoResponderSHA256", "pedidoInstigarSHA256"],
+        #expect(Set(c.keys) == ["pedidoResponderSHA256", "pedidoInstigarSHA256",
+                               "pedidoResponderNasNotasSHA256", "pedidoConferenciaNotasSHA256"],
                 "uma rota medida perdeu o carimbo do braço: \(c.keys.sorted())")
         #expect(c["pedidoResponderSHA256"] == Self.sha(Sabia.sistemaResponder))
         #expect(c["pedidoInstigarSHA256"] == Self.sha(Sabia.pedidoDeInstigar))
+        #expect(c["pedidoResponderNasNotasSHA256"] == Self.sha(Sabia.sistemaResponderNasNotas))
+        #expect(c["pedidoConferenciaNotasSHA256"] == Self.sha(Sabia.sistemaConferirNasNotas))
+        #expect(c["pedidoResponderNasNotasSHA256"] != c["pedidoConferenciaNotasSHA256"],
+                "geração e conferência com o mesmo sha: a fumaça não distinguiria o binário")
     }
 
     /// Carimbo que não distingue os braços não carimba nada. O `instigar` roda

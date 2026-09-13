@@ -26,7 +26,9 @@ enum AvaliacaoIA {
     /// qualquer uma sumir, e a rota nova entra aqui em vez de na cauda.
     static var carimbosDoPedido: [String: String] {
         ["pedidoResponderSHA256": sha256(Sabia.sistemaResponder),
-         "pedidoInstigarSHA256": sha256(Sabia.pedidoDeInstigar)]
+         "pedidoInstigarSHA256": sha256(Sabia.pedidoDeInstigar),
+         "pedidoResponderNasNotasSHA256": sha256(Sabia.sistemaResponderNasNotas),
+         "pedidoConferenciaNotasSHA256": sha256(Sabia.sistemaConferirNasNotas)]
     }
 
     /// Identidade da régua 11a e da porta de um par, sem gastar o provedor.
@@ -330,9 +332,18 @@ enum AvaliacaoIA {
                 fontes: exigir(e.fontes, "fontes"),
                 conversa: (e.conversa ?? []).map { .init(pergunta: $0.pergunta, resposta: $0.resposta) },
                 retrato: e.retrato ?? ""))
-            return ["texto": r.texto, "fontesEnviadas": try objeto(r.enviadas), "fontesCitadas": try objeto(r.citadas),
-                    // ADR 09h: o autor não vê o rótulo interno; a MEDIDA vê.
-                    "escreveuRotuloInterno": r.escreveuRotuloInterno]
+            var saida: [String: Any] = [
+                "texto": r.texto, "fontesEnviadas": try objeto(r.enviadas), "fontesCitadas": try objeto(r.citadas),
+                // ADR 09h: o autor não vê o rótulo interno; a MEDIDA vê.
+                "escreveuRotuloInterno": r.escreveuRotuloInterno,
+                "conferida": r.conferida,
+                "reparadaNaConferencia": r.reparadaNaConferencia,
+            ]
+            if let candidato = r.candidato { saida["candidato"] = candidato }
+            if let conferencia = r.conferencia { saida["conferencia"] = conferencia }
+            if let base = r.base { saida["base"] = base }
+            if let obra = r.obraParaPlantar { saida["obraParaPlantar"] = obra }
+            return saida
         case "responder":
             // ADR 2026-09-10b: o que sai daqui é a saída TRATADA. O retorno
             // BRUTO do provedor viaja em `chamadasGrok[].bruto` — sem ele a

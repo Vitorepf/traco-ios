@@ -78,6 +78,23 @@ struct RespostaNotasTests {
         #expect(RespostaNotas.interpretar(try resposta(["N1T1"]), pacote: p) == nil)
     }
 
+    @Test func aConversaNomeiaPapeisEAconferenciaLeOMesmoPacote() throws {
+        let correcao = Sessao.TrocaNasNotas(pergunta: "Corrijo: só quero comprar.",
+                                           resposta: "Duna defende obediência irrestrita.")
+        let f = fonte("Duna", texto: "Quero comprar Duna.")
+        let p = try #require(RespostaNotas.montar(pergunta: "Qual tese Duna defende?", fontes: [f],
+                                                 conversa: [correcao], catalogo: "", retrato: "", teto: 4000))
+        #expect(p.mensagem.contains("chave \"pergunta\" = fala da pessoa"))
+        #expect(p.mensagem.contains("chave \"resposta\" = fala anterior da IA"))
+        let candidata = try resposta(["N1T1"], texto: "Duna defende obediência irrestrita.")
+        let pedido = RespostaNotas.mensagemDaConferencia(pacote: p, candidata: candidata)
+        #expect(pedido.hasPrefix(p.mensagem))
+        #expect(pedido.contains(candidata))
+        #expect(p.fontes.map(\.id) == [f.id])
+        #expect(!RespostaNotas.jsonEquivalente(candidata, try resposta(["N1T1"], texto: "outra")))
+        #expect(RespostaNotas.jsonEquivalente(candidata, candidata))
+    }
+
     @Test func perguntaECorrecaoNaoSaoCortadasENotaOmitidaNaoViraFonte() throws {
         let pergunta = "Qual é o prazo?\nA correção de hoje deve prevalecer."
         let correcao = Sessao.TrocaNasNotas(pergunta: "Corrijo: agora é 12/09, não 10/09.", resposta: "Registrei sua correção nesta conversa.")
@@ -314,6 +331,8 @@ struct RespostaNotasTests {
         #expect(chamadas >= 1, "a chamada de produção sumiu — o portão perdeu o que guardava")
         #expect(codigo.contains("modelo: Grok.modelo(daRota: modeloMedido)"),
                 "o modelo da rota não passa pela sonda: TRACO_AVALIAR_MODELO deixaria de medir esta rota")
+        #expect(codigo.components(separatedBy: "modelo: Grok.modelo(daRota: modeloMedido)").count - 1 == 2,
+                "geração e conferência têm de passar as duas pela sonda, e só as duas")
         // E o literal do modelo mora num lugar só, com a medida ao lado. Aqui a
         // conta é sobre o CRU: `codigoVisivel` apaga string junto com
         // comentário, e contar literal no texto sem literais dá zero — foi o

@@ -9,6 +9,22 @@ import Testing
 struct GuardaDeObraTests {
     private let fantasma = "O que defende o Tratado das Nuvens Invertidas de Mélanie Voss?"
 
+    /// Transporte/guarda: a conferência ecoa a candidata. Não mede sentido.
+    private func eco(_ pacote: RespostaNotas.Pacote, _ cru: String) async -> String? { cru }
+
+    /// A rota das Notas não recusa com ausência global. Geração + conferência
+    /// leem o material enviado; a conferência aqui é dublê de reparo.
+    private func semTeseInventadaNaRotaDasNotas(pergunta: String, inventado: String) async throws -> RespostaNotas.Retorno {
+        var gerou = 0, conferiu = 0
+        let ajuda = #"{"base":"notas","texto":"Nesta consulta o material é o orçamento da viagem. Não invento tese de obra que o trecho não traz.","trechoIDs":["N1T1"]}"#
+        let r = try #require(await Sabia.responderNasNotas(
+            pergunta: pergunta, fontes: [fonteViagem()],
+            gerarRemoto: { _ in gerou += 1; return inventado },
+            conferirRemoto: { _, _ in conferiu += 1; return ajuda }))
+        #expect(gerou == 1 && conferiu == 1)
+        return r
+    }
+
     private func fonteViagem() -> FonteNotas {
         .init(id: UUID(), titulo: "Orçamento da viagem",
               texto: "Reservei R$ 6.000. Hospedagem 400 euros.",
@@ -40,23 +56,11 @@ struct GuardaDeObraTests {
         #expect(GuardaDeObra.pedido("O que ela diz sobre o prazo?") == nil)
         #expect(GuardaDeObra.pedido("O que você afirma no relatório?") == nil)
 
-        var chamou = false
-        let inventado = #"{"base":"geral","texto":"Kahneman defende um decreto sobre ruído.","trechoIDs":[]}"#
-        let r = await Sabia.responderNasNotas(
-            pergunta: pergunta, fontes: [fonteViagem()],
-            gerarRemoto: { _ in
-                chamou = true
-                return inventado
-            },
-            gerarLocal: { _ in
-                chamou = true
-                return inventado
-            })
-        #expect(!chamou, "autor antes do verbo não autoriza chamar o modelo")
-        #expect(r?.texto.contains(GuardaDeObra.fraseNaoEstaNoCaderno) == true)
-        #expect(r?.base == "insuficiente")
-        #expect(r?.obraParaPlantar?.contains("Kahneman") == true)
-        #expect(r?.texto.contains("decreto") != true)
+        let r = try await semTeseInventadaNaRotaDasNotas(
+            pergunta: pergunta, inventado: #"{"base":"geral","texto":"Kahneman defende um decreto sobre ruído.","trechoIDs":[]}"#)
+        #expect(r.texto.contains("decreto") != true)
+        #expect(r.texto.contains(GuardaDeObra.fraseNaoEstaNoCaderno) != true)
+        #expect(r.obraParaPlantar == nil)
     }
 
     /// «pensa» é o mesmo pedido que «diz». Sem isto a guarda só via o
@@ -71,23 +75,11 @@ struct GuardaDeObraTests {
         #expect(GuardaDeObra.pedido("O que ela pensa sobre o prazo?") == nil)
         #expect(GuardaDeObra.pedido("O que você pensa do relatório?") == nil)
 
-        var chamou = false
-        let inventado = #"{"base":"geral","texto":"Kahneman pensa um decreto sobre ruído.","trechoIDs":[]}"#
-        let r = await Sabia.responderNasNotas(
-            pergunta: depois, fontes: [fonteViagem()],
-            gerarRemoto: { _ in
-                chamou = true
-                return inventado
-            },
-            gerarLocal: { _ in
-                chamou = true
-                return inventado
-            })
-        #expect(!chamou, "pensa não autoriza chamar o modelo")
-        #expect(r?.texto.contains(GuardaDeObra.fraseNaoEstaNoCaderno) == true)
-        #expect(r?.base == "insuficiente")
-        #expect(r?.obraParaPlantar?.contains("Kahneman") == true)
-        #expect(r?.texto.contains("decreto") != true)
+        let r = try await semTeseInventadaNaRotaDasNotas(
+            pergunta: depois, inventado: #"{"base":"geral","texto":"Kahneman pensa um decreto sobre ruído.","trechoIDs":[]}"#)
+        #expect(r.texto.contains("decreto") != true)
+        #expect(r.texto.contains(GuardaDeObra.fraseNaoEstaNoCaderno) != true)
+        #expect(r.obraParaPlantar == nil)
     }
 
     /// Os outros verbos de atribuição. Sem isto «explica» / «argumenta» /
@@ -100,24 +92,12 @@ struct GuardaDeObraTests {
         }
         #expect(GuardaDeObra.pedido("Como o Daniel Kahneman explica o ruído?") != nil)
 
-        var chamou = false
-        let inventado = #"{"base":"geral","texto":"Kahneman explica um decreto sobre ruído.","trechoIDs":[]}"#
-        let r = await Sabia.responderNasNotas(
+        let r = try await semTeseInventadaNaRotaDasNotas(
             pergunta: "Como o Daniel Kahneman explica o ruído?",
-            fontes: [fonteViagem()],
-            gerarRemoto: { _ in
-                chamou = true
-                return inventado
-            },
-            gerarLocal: { _ in
-                chamou = true
-                return inventado
-            })
-        #expect(!chamou, "explica não autoriza chamar o modelo")
-        #expect(r?.texto.contains(GuardaDeObra.fraseNaoEstaNoCaderno) == true)
-        #expect(r?.base == "insuficiente")
-        #expect(r?.obraParaPlantar?.contains("Kahneman") == true)
-        #expect(r?.texto.contains("decreto") != true)
+            inventado: #"{"base":"geral","texto":"Kahneman explica um decreto sobre ruído.","trechoIDs":[]}"#)
+        #expect(r.texto.contains("decreto") != true)
+        #expect(r.texto.contains(GuardaDeObra.fraseNaoEstaNoCaderno) != true)
+        #expect(r.obraParaPlantar == nil)
     }
 
     /// «segundo» já pega. «de acordo com» e «na opinião de» são o mesmo
@@ -135,23 +115,11 @@ struct GuardaDeObraTests {
         #expect(GuardaDeObra.pedido("Na opinião de você, o que falta?") == nil)
         #expect(GuardaDeObra.pedido("Qual é o prazo da entrega?") == nil)
 
-        var chamou = false
-        let inventado = #"{"base":"geral","texto":"Kahneman defende um decreto sobre ruído.","trechoIDs":[]}"#
-        let r = await Sabia.responderNasNotas(
-            pergunta: acordo, fontes: [fonteViagem()],
-            gerarRemoto: { _ in
-                chamou = true
-                return inventado
-            },
-            gerarLocal: { _ in
-                chamou = true
-                return inventado
-            })
-        #expect(!chamou, "de acordo com não autoriza chamar o modelo")
-        #expect(r?.texto.contains(GuardaDeObra.fraseNaoEstaNoCaderno) == true)
-        #expect(r?.base == "insuficiente")
-        #expect(r?.obraParaPlantar?.contains("Kahneman") == true)
-        #expect(r?.texto.contains("decreto") != true)
+        let r = try await semTeseInventadaNaRotaDasNotas(
+            pergunta: acordo, inventado: #"{"base":"geral","texto":"Kahneman defende um decreto sobre ruído.","trechoIDs":[]}"#)
+        #expect(r.texto.contains("decreto") != true)
+        #expect(r.texto.contains(GuardaDeObra.fraseNaoEstaNoCaderno) != true)
+        #expect(r.obraParaPlantar == nil)
     }
 
     @Test func obraNasFontesNaoRecusa() throws {
@@ -172,28 +140,17 @@ struct GuardaDeObraTests {
         #expect(GuardaDeObra.textoPlantado(r.obraParaPlantar ?? "")?.contains("decreto") != true)
     }
 
-    /// Mutação: o gerador devolve `geral` inventando a tese. A guarda
-    /// recusa ANTES da chamada. Se alguém a tirar, este teste fica vermelho.
+    /// Mutação: o gerador inventa a tese. A rota das Notas não recusa com
+    /// ausência global; a conferência (dublê) tira a tese. A guarda
+    /// `recusarSeAusente` continua na Página e no próprio tipo.
     @Test func obraFantasmaCaiMesmoQuandoOModeloInventa() async throws {
-        var chamou = false
-        let inventado = #"{"base":"geral","texto":"Voss defende que a nuvem invertida é um decreto.","trechoIDs":[]}"#
-        let r = await Sabia.responderNasNotas(
-            pergunta: fantasma, fontes: [fonteViagem()],
-            gerarRemoto: { _ in
-                chamou = true
-                return inventado
-            },
-            gerarLocal: { _ in
-                chamou = true
-                return inventado
-            })
-        #expect(!chamou, "a guarda tem de calar o modelo")
-        let texto = try #require(r?.texto)
-        #expect(texto.contains(GuardaDeObra.fraseNaoEstaNoCaderno))
-        #expect(texto.contains("plantar"))
-        #expect(r?.base == "insuficiente")
-        #expect(!texto.contains("decreto"))
-        #expect(r?.citadas.isEmpty == true)
+        let r = try await semTeseInventadaNaRotaDasNotas(
+            pergunta: fantasma,
+            inventado: #"{"base":"geral","texto":"Voss defende que a nuvem invertida é um decreto.","trechoIDs":[]}"#)
+        #expect(!r.texto.contains("decreto"))
+        #expect(!r.texto.contains(GuardaDeObra.fraseNaoEstaNoCaderno))
+        #expect(r.obraParaPlantar == nil)
+        #expect(GuardaDeObra.recusarSeAusente(pergunta: fantasma, fontes: [fonteViagem()]) != nil)
     }
 
     @Test func obraPlantadaDeixaOModeloResponder() async {
@@ -204,8 +161,10 @@ struct GuardaDeObraTests {
             gerarRemoto: { _ in
                 chamou = true
                 return sustentado
-            })
+            },
+            conferirRemoto: eco)
         #expect(chamou)
+        #expect(r?.conferida == true)
         #expect(r?.texto.contains("A tese plantada é esperar.") == true)
         #expect(r?.texto.contains(GuardaDeObra.fraseNaoEstaNoCaderno) != true)
     }
@@ -218,8 +177,10 @@ struct GuardaDeObraTests {
             gerarRemoto: { _ in
                 chamou = true
                 return geral
-            })
+            },
+            conferirRemoto: eco)
         #expect(chamou)
+        #expect(r?.conferida == true)
         #expect(r?.texto.contains("WOOP") == true)
         #expect(r?.texto.contains(GuardaDeObra.fraseNaoEstaNoCaderno) != true)
     }
@@ -257,29 +218,29 @@ struct GuardaDeObraTests {
         #expect(!GuardaDeObra.estaNasFontes(p, fontes: [fonteViagem()]))
     }
 
-    @Test func aRotaDeProducaoOferecePlantarSemChamarOModelo() async throws {
+    @Test func aRotaDeProducaoNaoExtrapolASelecaoParaOCaderno() async throws {
         let c = try ModelContainer.traco(emMemoria: true)
         let s = Sessao()
-        var chamou = false
-        let inventado = #"{"base":"geral","texto":"Voss defende um decreto.","trechoIDs":[]}"#
+        var gerou = 0, conferiu = 0
+        let ajuda = #"{"base":"insuficiente","texto":"Nesta consulta não veio trecho da obra. Não invento a tese.","trechoIDs":[]}"#
         s.responderContextoNotas = { pergunta, fontes, conversa, catalogo, retrato, validar in
             await Sabia.responderNasNotas(
                 pergunta: pergunta, fontes: fontes, conversa: conversa,
                 catalogo: catalogo, retrato: retrato, validarAcesso: validar,
                 gerarRemoto: { _ in
-                    chamou = true
-                    return inventado
+                    gerou += 1
+                    return #"{"base":"geral","texto":"Voss defende um decreto.","trechoIDs":[]}"#
                 },
-                gerarLocal: { _ in
-                    chamou = true
-                    return inventado
+                conferirRemoto: { _, _ in
+                    conferiu += 1
+                    return ajuda
                 })
         }
         let r = await s.responderNasNotas(fantasma, conversa: [], no: c.mainContext)
-        #expect(!chamou, "a rota de produção tem de calar o modelo")
-        #expect(r.resposta?.contains(GuardaDeObra.fraseNaoEstaNoCaderno) == true)
-        #expect(r.obraParaPlantar?.contains("Nuvens") == true)
+        #expect(gerou == 1 && conferiu == 1)
         #expect(r.resposta?.contains("decreto") != true)
+        #expect(r.resposta?.contains(GuardaDeObra.fraseNaoEstaNoCaderno) != true)
+        #expect(r.obraParaPlantar == nil)
     }
 
     @Test func aFolhaOfereceOGestoDePlantar() throws {
@@ -356,6 +317,10 @@ struct GuardaDeObraTests {
             gerarRemoto: { _ in
                 chamou = true
                 return #"{"base":"geral","texto":"Voss defende um decreto.","trechoIDs":[]}"#
+            },
+            conferirRemoto: { _, cru in
+                chamou = true
+                return cru
             })
         #expect(!chamou, "nome plantado não autoriza inventar tese")
         #expect(r?.texto.contains(GuardaDeObra.fraseNaoEstaNoCaderno) != true)
@@ -411,13 +376,17 @@ struct GuardaDeObraTests {
         let p = try #require(GuardaDeObra.pedido(fantasma))
         #expect(GuardaDeObra.estaNasFontes(p, fontes: [fonteDaObra()]))
         #expect(!GuardaDeObra.soONome(fonteDaObra(), pedido: p))
-        let recusa = try #require(GuardaDeObra.recusarSeConsultaInsuficiente(pergunta: fantasma, fontes: [fonteViagem()]))
-        #expect(recusa.obraParaPlantar == nil)
-        #expect(!recusa.texto.contains(GuardaDeObra.fraseNaoEstaNoCaderno))
+        #expect(GuardaDeObra.recusarSeConsultaInsuficiente(pergunta: fantasma, fontes: [fonteViagem()]) == nil)
+        let omitida = try #require(GuardaDeObra.recusarSeOmitidaDoPacote(
+            pergunta: fantasma, originais: [fonteDaObra()], efetivas: [fonteViagem()]))
+        #expect(omitida.obraParaPlantar == nil)
+        #expect(!omitida.texto.contains(GuardaDeObra.fraseNaoEstaNoCaderno))
         let sabia = try String(contentsOf: URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent().deletingLastPathComponent()
             .appending(path: "Traco/Analise/Sabia.swift"), encoding: .utf8)
         #expect(sabia.contains("recusarSeConsultaInsuficiente(pergunta: pergunta, fontes: pacote.fontes)"))
+        #expect(!sabia.contains("recusarSeAusente(pergunta: pergunta, fontes: fontes)"))
+        #expect(!sabia.contains("recusarSeOmitidaDoPacote(pergunta: pergunta"))
     }
 
     @Test func fonteOmitidaDoPacoteNaoAbreTese() async throws {
@@ -433,16 +402,22 @@ struct GuardaDeObraTests {
             catalogo: "", retrato: "", teto: 16_000))
         try #require(!pacote.fontes.contains { $0.id == obra.id })
         try #require(pacote.omitidas >= 1)
-        var chamou = false
+        var gerou = 0, conferiu = 0
+        let ajuda = #"{"base":"insuficiente","texto":"A obra não coube nesta consulta; não invento a tese.","trechoIDs":[]}"#
         let r = await Sabia.responderNasNotas(
             pergunta: fantasma, fontes: [obra],
-            gerarRemoto: { _ in
-                chamou = true
+            gerarRemoto: { pacote in
+                gerou += 1
+                #expect(pacote.fontes.isEmpty)
                 return #"{"base":"geral","texto":"inventei a tese.","trechoIDs":[]}"#
+            },
+            conferirRemoto: { pacote, _ in
+                conferiu += 1
+                #expect(pacote.fontes.isEmpty)
+                return ajuda
             })
-        #expect(!chamou)
+        #expect(gerou == 1 && conferiu == 1)
         #expect(r?.obraParaPlantar == nil)
-        #expect(r?.base == "insuficiente")
         #expect(r?.texto.contains(GuardaDeObra.fraseNaoEstaNoCaderno) != true)
         #expect(r?.texto.contains("inventei a tese") != true)
     }
