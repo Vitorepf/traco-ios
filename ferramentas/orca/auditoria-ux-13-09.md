@@ -316,3 +316,21 @@ Depois de ver o build no teste 4: **"melhorou muito, mas eu daria uma nota 6 no 
 - (41) **Dono, 14h50, sobre o pé inteiro (campo + pílula + âmbar): "esse componente está uma nota 7 no máximo."** Diagnóstico (Fase 5 do roteador): dois vidros diferentes (resolvido na 39), margens desalinhadas (39), e um vão de 22 pt entre campo e pílula, maior que a margem da tela — liam como dois objetos soltos. O campo agora cola na pílula (vão 12 pt): o pé é um bloco. Capturas `pe-bloco-depois-14-09.png` (recorte `pe-bloco-depois-recorte-14-09.png`). Suíte 1206/182 verde. O que ainda pesa no 7 e fica para as próximas voltas: a experiência de ESCREVER no campo (o que acontece ao digitar: a lista filtra, a pílula some, a resposta abre como folha) — a julgar em vídeo com ele.
 - (42) A experiência de escrever no campo das Notas tinha um defeito que engana: ao digitar, no instante em que a busca chegava a zero, o campo era recriado (o overlay estava num `Group` de dois ramos — vazio/cheio — e um overlay num Group nasce em cada ramo) e perdia o foco e as teclas seguintes: de "o que me trava para dormir cedo" só entrava "O que me ". Contêiner estável (`ZStack { lista }`). Agora a frase inteira entra e a busca pelo sentido acha "Quero dormir mais cedo esta semana" sem a palavra. Capturas `campo-teclas-perdidas-antes-14-09.png` / `campo-frase-inteira-depois-14-09.png`. Suíte 1206/182 verde.
 - (43) A folha da conversa (a resposta da sábia) tinha um TERCEIRO desenho de campo: a linha "?" com fio, sem microfone. Virou o mesmo `CampoFlutuante` (componente ganha `aoParar:` — o botão vira parar, em aviso, enquanto a sábia pensa; ids `pergunta-notas` / `perguntar-notas` / `parar-de-esperar` mantidos para os UITests). Capturas `conversa-linha-antes-14-09.png` / `conversa-campo-depois-14-09.png`. Suíte 1206/182 verde. Um campo só em seis lugares: Notas, conversa, página, calendário, Trabalhos, Trabalho.
+
+## N. Placar depois de quarenta e três voltas (14/09, 15h05) — estimativa minha; a nota que vale é a dele (6 na seção L, 7 para o pé)
+
+Régua: as mesmas seis dimensões (simplicidade · IA sozinha · acabamento · movimento · texto · família), 0–10, sobre a tela viva no Air com dados semeados. Desde o veredito: pé unificado (um campo em seis lugares, mesmo material da pílula, colado), rolagem que se dissolve, linhas que se acendem, três formulários a menos (Trabalhos, Trabalho ×2), rótulos sem parênteses, frases de manual fora, Hoje só quando não está à vista, campo que não perde teclas.
+
+| Tela | Simplicidade | IA sozinha | Acabamento | Movimento | Texto | Família | Média |
+|---|---|---|---|---|---|---|---|
+| Notas | 9 | 8 | 8,5 | 8 | 8,5 | 9 | 8,5 |
+| Conversa | 9 | 7 | 8,5 | 7,5 | 8,5 | 9 | 8,3 |
+| Página | 9 | 7,5 | 8,5 | 8 | 8,5 | 9 | 8,4 |
+| Calendário | 8,5 | 8,5 | 9 | 8,5 | 9 | 9 | 8,8 |
+| Padrões | 8,5 | 8 | 8,5 | 7,5 | 8,5 | 8,5 | 8,3 |
+| Perfil | 8 | 7 | 8,5 | 7,5 | 8,5 | 8,5 | 8,0 |
+| Trabalhos | 9 | 8 | 8,5 | 7,5 | 9 | 9 | 8,5 |
+| Trabalho | 8 | 7 | 8 | 7 | 8,5 | 8,5 | 7,8 |
+| Lente / Recordar | — | — | — | — | — | — | não revistas nesta fase |
+
+Nenhuma tela em 9 em todas as dimensões. A minha estimativa correu 2 pontos acima do olho dele na seção K; descontado isso, o pé está perto de 7 e as telas entre 6 e 7. O que mais falta, na ordem que ele deu: (1) acabamento — Lente e Recordar por olhar; a folha da conversa nasce vazia por cima; (2) IA sozinha — sem Grok no aparelho de trabalho só provo as rotas locais (estruturar, sentido, calendário da nota, forma); (3) movimento — só a linha foi filmada; as trocas de folha, o teclado e a resposta da sábia ainda não.
