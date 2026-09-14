@@ -478,8 +478,11 @@ struct RecordarView: View {
                 }
                 // as duas saídas honestas: adiar não é falhar, e pular não
                 // pode custar um degrau da escada
-                rodape("Revelar", ativa: !memoriaVazia,
-                       dica: memoriaVazia ? "Escreva de memória primeiro" : "Mostra memória e nota lado a lado",
+                // a ação principal não nasce fantasma (laço de 14/09): revelar
+                // sem ter escrito é decisão da pessoa, e a folha mostra o que
+                // não voltou — tudo — sem julgar
+                rodape("Revelar",
+                       dica: "Mostra memória e nota lado a lado",
                        acao: {
                            Toque.suave()
                            foco = false
