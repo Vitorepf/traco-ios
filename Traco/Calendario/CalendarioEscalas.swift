@@ -280,8 +280,11 @@ struct CalendarioSemanaView: View {
     }
 
     private let horas = Calendario.horasDaSemana
-    private let origem = 3 * 60
-    private let span = 18 * 60
+    // O dia inteiro, 0–24 h. A escala 03–21 prendia à borda o que caía fora
+    // (`faixa`), e o jantar das 20h sumia debaixo do dentista das 22h30
+    // (auditoria 13/09, defeito 2). As horas escritas seguem de 3 em 3.
+    private let origem = 0
+    private let span = 24 * 60
 
     /// O chrome flutuante cobre este tanto do fundo: a última linha fica acima dele.
     static let reservaChrome: CGFloat = 150
@@ -365,8 +368,26 @@ struct CalendarioSemanaView: View {
         }
     }
 
+    private struct Pista { let evento: EventoCalendario; let x: CGFloat; let w: CGFloat; let indice: Int }
+
+    /// Pistas por sobreposição VISUAL, não de horário: a pílula tem largura
+    /// mínima (48 pt ≈ 4 h em 24) e a última do dia é presa à borda, então
+    /// dois compromissos afastados no relógio colidem na tela — o jantar das
+    /// 20h sumia debaixo do dentista das 23h30 (auditoria 13/09, defeito 2).
+    private func pistas(_ eventos: [EventoCalendario], largura: CGFloat) -> [Pista] {
+        var fins: [CGFloat] = []
+        var saida: [Pista] = []
+        for e in eventos.filter({ !$0.diaInteiro }).sorted(by: { $0.inicio < $1.inicio }) {
+            let (x, w) = faixa(e, largura: largura)
+            let indice = fins.firstIndex { $0 <= x } ?? fins.count
+            if indice == fins.count { fins.append(x + w) } else { fins[indice] = x + w }
+            saida.append(Pista(evento: e, x: x, w: w, indice: indice))
+        }
+        return saida
+    }
+
     private func barra(dia: Date, eventos: [EventoCalendario], hoje: Bool, largura: CGFloat, altura: CGFloat) -> some View {
-        let colunas = Calendario.colunas(eventos)
+        let marcados = pistas(eventos, largura: largura)
         let inteiros = eventos.filter(\.diaInteiro)
         return ZStack(alignment: .leading) {
             Capsule().fill(CalendarioTema.chip)
@@ -385,7 +406,7 @@ struct CalendarioSemanaView: View {
             }
             // pistas: o dia inteiro ocupa a de cima; os marcados dividem as outras.
             // Três ao mesmo tempo é o teto visível; o quarto conta no "+n".
-            let maisPistas = min(3, colunas.map(\.total).max() ?? 1)
+            let maisPistas = min(3, max(1, (marcados.map(\.indice).max() ?? 0) + 1))
             let pistas = maisPistas + (inteiros.isEmpty ? 0 : 1)
             let alturaPilula: CGFloat = pistas <= 1 ? 22 : (pistas == 2 ? 20 : 14)
             let passo = alturaPilula + 2
@@ -393,19 +414,15 @@ struct CalendarioSemanaView: View {
             ForEach(Array(inteiros.prefix(1))) { evento in
                 pilula(evento, x: 4, w: largura - 8, y: topo, h: alturaPilula)
             }
-            ForEach(colunas, id: \.evento.id) { coluna in
-                if coluna.indice < 3 {
-                    let (x, w) = faixa(coluna.evento, largura: largura)
-                    let pista = coluna.indice + (inteiros.isEmpty ? 0 : 1)
-                    pilula(coluna.evento, x: x, w: w, y: topo + CGFloat(pista) * passo, h: alturaPilula)
-                }
+            ForEach(marcados.filter { $0.indice < 3 }, id: \.evento.id) { p in
+                let pista = p.indice + (inteiros.isEmpty ? 0 : 1)
+                pilula(p.evento, x: p.x, w: p.w, y: topo + CGFloat(pista) * passo, h: alturaPilula)
             }
-            if let extra = colunas.first(where: { $0.indice >= 3 }) {
-                let (x, _) = faixa(extra.evento, largura: largura)
-                Text("+\(colunas.filter { $0.indice >= 3 }.count)")
+            if let extra = marcados.first(where: { $0.indice >= 3 }) {
+                Text("+\(marcados.filter { $0.indice >= 3 }.count)")
                     .font(.system(size: 9, weight: .bold))
                     .foregroundStyle(CalendarioTema.tintaSuave)
-                    .offset(x: x + 2, y: altura / 2 - 9)
+                    .offset(x: extra.x + 2, y: altura / 2 - 9)
             }
         }
     }
