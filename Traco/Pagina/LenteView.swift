@@ -30,8 +30,6 @@ struct LenteView: View {
     /// (ADR 2026-09-09q).
     @State private var aviso: (op: Politica.Operacao, texto: String, estado: LinhaDeEstado.Estado)?
     @State private var apontados: [Apontamento] = []
-    @State private var trechoNovo = ""
-    @State private var recusado = false
     /// ADR 05x: a proveniência da forma, recolhida por padrão.
     @State private var deOndeVem = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -264,38 +262,9 @@ struct LenteView: View {
                     }
                 }
 
-                if notaUUID != nil {
-                    secao("Apontar um trecho", id: "apontar",
-                          nota: "cole ou escreva um pedaço do seu texto e diga o que ele é") {
-                        VStack(alignment: .leading, spacing: 0) {
-                            // o campo é a única caixa da Lente: é onde se escreve,
-                            // e o tipo sozinho não diz "escreva aqui"
-                            TextField("um trecho do texto", text: $trechoNovo, axis: .vertical)
-                                .font(Tema.corpo)
-                                .lineLimit(1...3)
-                                .cartao(.campo)
-                                .accessibilityIdentifier("apontar-trecho")
-                            HStack(spacing: 8) {
-                                ForEach(RotuloApontar.allCases, id: \.self) { r in
-                                    Button(r.nome) { marcar(trechoNovo, r) }
-                                        .font(Tema.meta.weight(.medium))
-                                        .foregroundStyle(trechoNovo.isEmpty ? Tema.tintaMorta : Tema.tintaSuave)
-                                        .padding(.horizontal, 10)
-                                        .frame(height: 30)
-                                        .background(Tema.chip, in: Capsule())
-                                        .disabled(trechoNovo.trimmingCharacters(in: .whitespaces).isEmpty)
-                                }
-                            }
-                            .padding(.vertical, 10)
-                            if recusado {
-                                Text("esse trecho não está no seu texto.")
-                                    .font(Tema.meta)
-                                    .foregroundStyle(Tema.aviso)
-                                    .padding(.bottom, 10)
-                            }
-                        }
-                    }
-                }
+                // "Apontar um trecho" (campo livre + quatro rótulos) saiu: a Lente já
+                // acha muletas, frases feitas, passivas e advérbios sozinha, e cada
+                // achado leva os rótulos na própria linha (laço de 14/09)
             }
             .padding(Tema.margem)
             .padding(.top, 8)
@@ -383,11 +352,8 @@ struct LenteView: View {
         guard let notaUUID else { return }
         if Apontar.marcar(notaUUID, trecho: trecho, rotulo: rotulo, noTexto: prosa) {
             apontados = Apontar.listar(notaUUID)
-            trechoNovo = ""
-            recusado = false
             Toque.suave()
         } else {
-            recusado = true
             Toque.aviso()
         }
     }
