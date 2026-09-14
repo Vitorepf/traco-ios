@@ -520,34 +520,11 @@ struct PaginaView: View {
 
     private var acoesDaPagina: some View {
         Group {
-            // O âmbar marca o que o AUTOR ainda precisa fazer. Com a análise
-            // automática ligada — cujo próprio texto promete "você nunca precisa
-            // lembrar do botão" — o app já faz isto sozinho: o botão fica de pé
-            // como atalho, mas para de gritar (von-restorff).
-            Button("Analisar") { sessao.analisar() }
-                .foregroundStyle(
-                    sessao.paginaVazia || sessao.gesto != nil || sessao.cartao != nil ? Tema.tintaFraca
-                        : sessao.autoAnalise ? Tema.tintaSuave
-                        : Tema.ambarTinta
-                )
-                .disabled(sessao.paginaVazia)
-                .simultaneousGesture(LongPressGesture(minimumDuration: 0.6).onEnded { _ in
-                    sessao.alternarAutoAnalise() // §17: opt-out sem tela de ajustes
-                })
-                .accessibilityLabel("Analisar")
-                .accessibilityHint("Classifica o que você escreveu. Não escreve na nota.")
-                // o toque longo tem par no rotor: quem usa VoiceOver liga e desliga por ação
-                .accessibilityAction(named: Text(sessao.autoAnalise ? "Desligar análise automática" : "Ligar análise automática")) {
-                    sessao.alternarAutoAnalise()
-                }
-
-            // A barra chega com corpo OU com alvo só nos campos. Recordar
-            // não some porque a prosa viveu no Se / na frase, não no corpo.
-            Button("Recordar") { sessao.irRecordar(no: context) }
-                .foregroundStyle(Tema.tintaSuave)
-                .disabled(!sessao.podeRecordar)
-                .accessibilityLabel("Recordar")
-                .accessibilityHint("Esconde a nota e cobra a memória")
+            // Laço de simplicidade (14/09): "Analisar" saiu — a análise é
+            // automática (§17), e o interruptor vive no Perfil. "Recordar"
+            // saiu — a cobrança chega pelo aviso e pelo toque longo da nota
+            // nas Notas. A pergunta do goal ("a IA não podia fazer isso
+            // sozinha?") tinha resposta sim nos dois.
             Button("Anexar") { abrirArquivo = true }
                 .foregroundStyle(Tema.tintaSuave)
                 .accessibilityLabel("Anexar arquivo")
