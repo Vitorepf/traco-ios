@@ -1758,8 +1758,18 @@ final class Sessao {
             return
         }
         guard temVoz else { return }
+        // A régua de formatos saiu da página (dono, 14/09): título, seção e
+        // lista nascem do próprio texto ao concluir, pelo motor local que o
+        // "Todas" já usava. Nenhuma palavra muda — só a forma do que é curto
+        // e paralelo. A expressiva fica intocada (selo).
+        let original = texto
+        if gesto != .expressiva {
+            let local = Caderno.estruturar(texto)
+            if local != texto { texto = local }
+        }
         let nomeGesto = gesto?.nome.lowercased()
-        guard salvar(no: context) else { return }
+        // gravação recusada devolve as palavras como estavam (integridade)
+        guard salvar(no: context) else { texto = original; return }
         // Só uma gravação confirmada pode contar como conclusão.
         if let g = gesto, g != .expressiva, camposComResposta { Sinais.ficou(g) }
         // peak-end-rule: o fim do percurso não devolvia NADA — nem confirmação,

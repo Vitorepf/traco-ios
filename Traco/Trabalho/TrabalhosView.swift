@@ -140,16 +140,11 @@ struct TrabalhosView: View {
                         criadoAgora = nil
                         aberto = trabalho
                     } label: {
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text(trabalho.titulo).font(Tema.chrome.weight(.semibold))
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                            Text(trabalho.atualizadoEm, format: .dateTime.day().month().year())
-                                .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
-                                .monospacedDigit()
-                        }
-                        .cartao(.papel)
-                        .frame(minHeight: Tema.alvo)
-                        .contentShape(Rectangle())
+                        // a linha da casa (ADR 10k), sem cartão: o cartão
+                        // branco era a única caixa da lista
+                        LinhaDeLista(tocavel: "hammer", trabalho.titulo,
+                                     trabalho.atualizadoEm.formatted(date: .abbreviated, time: .omitted),
+                                     linhasDoTitulo: 2)
                     }
                     .buttonStyle(.discreto)
                     .accessibilityIdentifier("trabalho-na-lista")

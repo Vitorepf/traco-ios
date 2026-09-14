@@ -195,6 +195,11 @@ struct CadernoView: View {
                 }
                 .transition(.identity)
         } else if reguaEmCena, !esconderRegua, !folhaEmCena {
+            // A régua de formatos saiu da página (ordem do dono, 14/09: "uma
+            // das piores formas para opções visuais de texto"). Título, seção
+            // e lista nascem do texto pelo `Caderno.estruturar` ao concluir; o
+            // catálogo continua no arquivo. O código fica até a próxima volta
+            // decidir o que sobra dele.
             regua
                 .padding(.horizontal, Tema.margem)
                 .padding(.vertical, 4)
@@ -429,69 +434,24 @@ struct CadernoView: View {
     }
 
     private var regua: some View {
-        // ScrollView horizontal SEM altura engole todo o espaço oferecido: era
-        // ela que abria o vão entre a régua e a barra de ações
+        // A régua de formatos saiu (dono, 14/09: "uma das piores formas para
+        // opções visuais de texto"). Título, seção e lista nascem do texto ao
+        // concluir (`Caderno.estruturar`); o catálogo vive no arquivo. O que
+        // fica é o pé que o teclado precisa: um glifo para o recolher.
         HStack(spacing: 0) {
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 16) {
-                    ForEach(PapelForma.regua) { papel in
-                        Button(papel.nome) {
-                            Toque.selecao()
-                            withAnimation(Tema.movimento(.deslocamento, .easeOut(duration: Tema.Duracao.curta), reduzido: reduceMotion)) { transformar(papel) }
-                        }
-                        .buttonStyle(.discreto)
-                        // 44 de alvo num chip de 26–57 pt de texto: a folga
-                        // cresce 9 para cada lado e o layout fica onde estava
-                        .alvo(folgaH: 9)
-                        .accessibilityIdentifier("regua-\(papel.slug)")
-                        .accessibilityHint("Dá esta forma à linha do cursor")
-                    }
-                    // o último chip precisa SAIR de baixo da máscara de fade,
-                    // senão fica cortado para sempre e é inalcançável
-                    Color.clear.frame(width: 24)
-                }
-                // o primeiro chip começa 9 pt antes da margem para o alvo
-                // dele não ser cortado pelo ScrollView; o texto não se move
-                .padding(.leading, 9)
-            }
-            .padding(.leading, -9)
-            .mask(
-                HStack(spacing: 0) {
-                    Rectangle()
-                    LinearGradient(colors: [.black, .clear], startPoint: .leading, endPoint: .trailing)
-                        .frame(width: 24)
-                }
-            )
-            .accessibilityIdentifier("regua")
-            .accessibilityLabel("Régua de formas")
-
-            // "Todas" é uma PORTA, não uma forma — e estava encostada nos chips
-            // com 8pt de folga, logo depois de "Citação" cortada pela máscara. O
-            // dedo que mirava a forma abria a folha. Fio vertical + folga fazem
-            // dela um grupo à parte (law-of-common-region + fitts-law).
-            Rectangle()
-                .fill(Tema.linha)
-                .frame(width: 0.5, height: 20)
-                .padding(.leading, 12)
-            Button("Todas") {
-                Toque.selecao()
-                menuFormas = true
-            }
-            .buttonStyle(.discreto)
-            .alvo(folgaH: 9)
-            .padding(.leading, 12)
-            .accessibilityIdentifier("regua-todas")
-            .accessibilityHint("Abre a lista com todas as formas")
+            Spacer(minLength: 0)
             Button {
                 descendoDoTitulo = false
                 editando = nil
                 Teclado.recolher()
             } label: {
                 Image(systemName: "keyboard.chevron.compact.down")
+                    .foregroundStyle(Tema.tintaSuave)
                     .frame(width: Tema.alvo, height: Tema.alvo)
-                    .padding(.leading, 8)
             }
+            .buttonStyle(.discreto)
             .accessibilityLabel("Esconder teclado")
+            .accessibilityIdentifier("regua")
         }
         // 11pt é pequeno para um instrumento — mas medi: a 15pt cabem 5 das 12
         // formas e a máscara de fade cai num VÃO entre chips, sem sinalizar
