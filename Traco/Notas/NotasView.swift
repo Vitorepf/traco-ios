@@ -230,15 +230,18 @@ struct NotasView: View {
                     mensagem(.sabia, fio: true) {
                         CartaoDeResposta(
                             titulo: nil,
+                            // a rota das Notas é só Grok (Politica, ADR 09v): sem
+                            // a conta, a frase é a da Politica e a saída é o Perfil —
+                            // "Falta a conta" com "Perguntar de novo" enganava, e o
+                            // Perfil dizia "modelo do aparelho pronto" (vídeo 14/09)
                             falhou: conversaNotas.estado == .recolhida(pergunta)
                                 ? "A resposta foi recolhida porque uma fonte mudou ou deixou de estar acessível."
                                 : conversaNotas.estado == .interrompida(pergunta)
                                     ? "você parou de esperar."
+                                    : !ContaGrok.ligada ? Politica.semProvedor(.responderNasNotas)
                                     : Grok.avisoDaFalha(),
-                            // sem conta nem modelo, repetir dá o mesmo erro: a
-                            // saída é o Perfil (auditoria 13/09, defeito 3)
-                            repetir: Sabia.disponivel ? repetirPergunta : { sessao.irPara(.perfil, no: context) },
-                            rotuloDoRepetir: Sabia.disponivel ? "Perguntar de novo" : "Entrar com a conta Grok",
+                            repetir: ContaGrok.ligada ? repetirPergunta : { sessao.irPara(.perfil, no: context) },
+                            rotuloDoRepetir: ContaGrok.ligada ? "Perguntar de novo" : "Entrar com a conta Grok",
                             rota: "sabia-notas"
                         ) { EmptyView() }
                     }
