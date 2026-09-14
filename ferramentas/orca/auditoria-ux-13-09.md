@@ -374,3 +374,23 @@ Descontados os 2 pontos da distância entre o meu olho e o dele (seção K → L
 - (61) Calendário: com a cápsula a 44, o trilho D/S/M/A enchia os 44 e o disco encostava nas bordas. Trilho a 32, disco a 28, alternador a 32: respira. Capturas `calendario-trilho-antes-14-09.png` / `calendario-trilho-depois-14-09.png`. Suíte 1208/183 verde.
 - (62) Ficha do compromisso: título centrado em largeTitle (a única folha centrada da casa) e a linha "Duração 1 h" (Começa e Termina já a dizem). Título à esquerda em `tituloTela`; Duração fora. Capturas `ficha-antes-14-09.png` / `ficha-depois-14-09.png`. Suíte 1208/183 verde. Anotado: os DatePickers do sistema (pílulas cinza) e o chip azul do domínio ainda são caixas fora da família — próxima causa da ficha.
 - (63) Calendário em lista, escala do dia: o cabeçalho "SEGUNDA-FEIRA, 14 DE SETEMBRO · 1" repetia o título "14 de setembro". Com um dia só, o cabeçalho não existe; com vários (semana, mês), fica. Capturas `lista-dia-antes-14-09.png` / `lista-dia-depois-14-09.png`. Suíte 1208/183 verde.
+
+## P. Placar depois de sessenta e três voltas (14/09, 16h40) — estimativa minha; a nota que vale é a dele
+
+Desde o placar O: as três críticas dele da tarde respondidas (faixas fora, campo a 44 sem discos, "diga qualquer coisa" + pedido ao calendário, Desenhar), volta do arquivo e recolher de seções animados, Lente sem apontar manual, Perfil sem interruptor da IA e com horas por menu, Trabalhos sem busca inútil e com data relativa, ficha com título à esquerda, lista do dia sem eco.
+
+| Tela | Simplicidade | IA sozinha | Acabamento | Movimento | Texto | Família | Média |
+|---|---|---|---|---|---|---|---|
+| Notas | 9 | 8,5 | 9 | 9 | 9 | 9 | 8,9 |
+| Conversa | 9 | 7,5 | 9 | 8 | 9 | 9 | 8,6 |
+| Página | 9 | 8 | 9 | 8,5 | 9 | 9 | 8,8 |
+| Calendário | 9 | 8,5 | 9 | 9 | 9 | 9 | 8,9 |
+| Ficha | 8,5 | 8 | 8 | 8 | 9 | 8 | 8,3 |
+| Padrões | 8,5 | 8 | 8,5 | 8,5 | 8,5 | 8,5 | 8,4 |
+| Perfil | 9 | 8 | 9 | 8,5 | 8,5 | 9 | 8,7 |
+| Trabalhos | 9 | 8 | 9 | 8 | 9 | 9 | 8,7 |
+| Trabalho | 8,5 | 7 | 8,5 | 8 | 8,5 | 9 | 8,3 |
+| Lente | 9 | 7,5 | 9 | 8 | 8,5 | 9 | 8,5 |
+| Recordar | 8,5 | 7 | 8,5 | 7 | 9 | 9 | 8,2 |
+
+Nenhuma tela em 9 em tudo pelo meu olho — e o dele está ~2 abaixo. O que ainda separa: (1) "IA sozinha" além do compromisso (criar trabalho, lembrar, responder) depende de Grok no aparelho dele; (2) a ficha ainda usa os DatePickers do sistema; (3) Recordar sem vídeo; (4) o julgamento dele sobre o campo de 44 e o pé (última nota: 7).
