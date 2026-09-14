@@ -10387,4 +10387,4 @@ A rota `responderNasNotas` distingue identidade, material e afirmação. ID vál
 
 **Prova.** Cada volta tem commit próprio com a causa, suíte integral verde no 17e, captura em `large` e, para o pé, vídeo (`ferramentas/orca/auditoria-ux-13-09/`). Placar por tela e o registro das voltas em `ferramentas/orca/auditoria-ux-13-09.md` §H–J.
 
-**Dívida declarada:** os fluxos maestro que tocavam a régua, os filtros, Analisar/Recordar e o menu de domínio ficaram sem alvo (lista na §H); `JornadaC9UITests` digita em "Sua versão" sem abrir seção, por isso ela segue aberta; o "+" do calendário (Novo compromisso / Colar) saiu com a cápsula única e ainda não tem outra porta além de escrever.
+**Dívida declarada:** os fluxos maestro que tocavam a régua, os filtros, Analisar/Recordar e o menu de domínio ficaram sem alvo (lista na §H); `JornadaC9UITests` digita em "Sua versão" sem abrir seção, por isso ela segue aberta; o "+" do calendário saiu com a cápsula única; Novo compromisso e Colar vivem no toque longo do alternador lista/grade.

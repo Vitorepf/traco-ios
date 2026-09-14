@@ -280,21 +280,27 @@ struct CalendarioView: View {
 
     private func interruptor(agora: Date) -> some View {
         HStack(spacing: 6) {
-            // lista ou grade: um alternador só, o glifo do que se vai ver
-            Button {
-                Toque.selecao()
-                withAnimation(CalendarioTema.morph(reduceMotion)) {
-                    agenda.modo = agenda.modo == .lista ? .grelha : .lista
-                }
+            // lista ou grade: um alternador só, o glifo do que se vai ver. O
+            // toque longo guarda o que o "+" oferecia (novo em branco, colar):
+            // o poder fica, sem mais um objeto na cápsula.
+            Menu {
+                Button("Novo compromisso") { agenda.novoEmBranco() }
+                Button("Colar") { agenda.colar() }
             } label: {
                 Image(systemName: agenda.modo == .lista ? "calendar" : "list.bullet")
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(CalendarioTema.tinta)
                     .frame(width: 32, height: Tema.alvo)
                     .contentShape(Rectangle())
+            } primaryAction: {
+                Toque.selecao()
+                withAnimation(CalendarioTema.morph(reduceMotion)) {
+                    agenda.modo = agenda.modo == .lista ? .grelha : .lista
+                }
             }
             .buttonStyle(PressaoClara())
             .accessibilityLabel(agenda.modo == .lista ? "Ver em grade" : "Ver em lista")
+            .accessibilityHint("Toque longo: novo compromisso ou colar")
             .accessibilityIdentifier("modo-alternar")
             HStack(spacing: 0) {
                 ForEach(EscalaCalendario.allCases, id: \.self) { escala in
