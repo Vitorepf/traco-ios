@@ -231,3 +231,4 @@ Mesma régua da seção A. Sem vídeo por tela além dos dois gravados; sem o ve
 
 O portão do goal (9 em tudo, com vídeo e "aqui a pessoa faz uma coisa só") não fecha sem duas coisas que só o dono dá: o veredito em vídeo e a decisão sobre as caixas do sistema (`.cartao(.campo)`, que vive na página, na ficha, no Trabalho e na Lente). Tudo o que dava para decidir sozinho, pela régua do goal, foi decidido e está em `main`.
 - 85430f8 — Ficha: os sete dias da semana só com repetição ou ao tocar "Repete". Captura `air-ficha-sem-chips.png`. A frase da hora passada vira "nada vai tocar" nas duas telas.
+- 5d18351 — Cartão: `.campo` vira texto no papel com fio; ficha, Trabalho, intercâmbio e agendamento perdem a caixa cinza de uma vez. Captura `air-ficha-no-papel.png`. Trabalho e intercâmbio não fotografados nesta volta (mesmo modificador).
