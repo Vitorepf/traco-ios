@@ -33,6 +33,10 @@ struct TrabalhoView: View {
     @State private var oficina: OficinaTrabalho?
     @State private var erroDeLeitura: String?
     @State private var rascunhos: [String: String] = [:]
+    /// As seções que não são o próximo passo nascem recolhidas (Hermes §5: a
+    /// densidade se controla no cabeçalho): a folha abre com a intenção, o
+    /// que preparar e o próximo ato — o resto está a um toque, lembrado.
+    var recolhidas = Recolhidas("trabalho", deInicio: ["apoio", "praticar", "dificuldade"])
     @State private var limparAposCommit: [String] = []
     /// A gaveta da versão: escrever a primeira e editar a atual nunca convivem.
     @State private var editandoVersao = false
@@ -360,8 +364,8 @@ struct TrabalhoView: View {
     /// e é a decisão que muda o que "Preparar" faz. Fica no caminho, com o
     /// padrão já marcado: ninguém precisa decidir para começar.
     private func apoio(_ o: OficinaTrabalho) -> some View {
+        recolhidas.secao("Neste trabalho, prefiro", id: "apoio") {
         VStack(alignment: .leading, spacing: 8) {
-            secao("Neste trabalho, prefiro")
             // Em tamanho de acessibilidade três cápsulas não cabem lado a
             // lado e a linha empurrava a folha inteira para fora da tela pelos
             // dois lados (visto em AX5, na V9 e aqui). Empilhar preserva as
@@ -377,6 +381,7 @@ struct TrabalhoView: View {
                 .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
                 .accessibilityIdentifier("trabalho-apoio-explicacao")
             if o.documento.apoio == .combinar { delimitacao(o) }
+        }
         }
     }
 
@@ -517,8 +522,8 @@ struct TrabalhoView: View {
     /// A tentativa existe SEM exercício e SEM conta: a prática é da pessoa.
     @ViewBuilder private func praticar(_ o: OficinaTrabalho) -> some View {
         if o.documento.apoio != .delegar {
+            recolhidas.secao("Praticar", id: "praticar") {
             VStack(alignment: .leading, spacing: Tema.entreItens) {
-                secao("Praticar")
                 if o.documento.praticaPedida {
                     let versao = o.documento.versaoAtual
                     let pratica = versao?.pratica
@@ -546,6 +551,7 @@ struct TrabalhoView: View {
                     }
                     tentativas(artefatoID: pratica == nil ? nil : versao?.id, pratica: pratica, oficina: o)
                 }
+            }
             }
             .id("trabalho-praticar")
         }
@@ -587,8 +593,8 @@ struct TrabalhoView: View {
     /// contesta, e confirmar é concordar neste contexto, não ser avaliada.
     /// Mora no fim: é o trabalho que revela o obstáculo (VISAO-PRODUTO).
     private func dificuldade(_ o: OficinaTrabalho) -> some View {
+        recolhidas.secao("Dificuldade", id: "dificuldade") {
         VStack(alignment: .leading, spacing: Tema.entreItens) {
-            secao("Dificuldade")
             // a retomada do topo já mostra a oferta quando não há dificuldade
             // plantada; repetir o parágrafo na mesma folha era ruído (13/09)
             if o.documento.dificuldadePlantada != nil, let oferta = o.documento.ofertaDaJornada {
@@ -636,6 +642,7 @@ struct TrabalhoView: View {
                     .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
             }
             if o.documento.apoio == .delegar { tentativasGuardadas(o) }
+        }
         }
     }
 
@@ -1298,8 +1305,8 @@ struct TrabalhoView: View {
     @ViewBuilder private func retorno(_ o: OficinaTrabalho) -> some View {
         let relatos = o.documento.evidencias.filter { $0.tentativa == nil }
         if !relatos.isEmpty {
+            recolhidas.secao("O que aconteceu", id: "retorno") {
             VStack(alignment: .leading, spacing: Tema.entreItens) {
-                secao("O que aconteceu")
                 ForEach(relatos) { e in
                     VStack(alignment: .leading, spacing: 6) {
                         Text("Relato de \(e.atribuidaA) · \(e.data.formatted(date: .abbreviated, time: .shortened))")
@@ -1345,6 +1352,7 @@ struct TrabalhoView: View {
                     }
                     .accessibilityIdentifier("trabalho-revisar")
                 }
+            }
             }
             .id("trabalho-retorno")
         }
