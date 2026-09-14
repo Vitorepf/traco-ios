@@ -101,6 +101,7 @@ struct PerfilView: View {
                 .padding(.horizontal, Tema.margem)
                 .padding(.bottom, 24)
             }
+            .desvanece(topo: 24, pe: 48)
             }
         }
         .fileImporter(isPresented: $escolherPasta, allowedContentTypes: [.folder]) { resultado in

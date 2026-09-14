@@ -196,6 +196,8 @@ struct PadroesView: View {
                 .padding(.horizontal, Tema.margem)
                 .padding(.bottom, Tema.margem)
             }
+            // a rolagem se dissolve sob o título e sobre a pílula, não corta
+            .desvanece(topo: 24, pe: 48)
         }
         .background(Tema.fundo.ignoresSafeArea())
         .task {
