@@ -26,6 +26,7 @@ struct PaginaView: View {
     @State private var trabalhoAberto: Trabalho?
     @ScaledMetric(relativeTo: .body) private var corpoFolga: CGFloat = 9
     @State private var abrirArquivo = false
+    @State private var abrirDesenho = false
     @State private var lenteAberta = false
     @State private var chegou = false
     #if DEBUG
@@ -483,6 +484,7 @@ struct PaginaView: View {
             foco: $focoPagina,
             folga: corpoFolga,
             abrirArquivo: $abrirArquivo,
+            abrirDesenho: $abrirDesenho,
             aoTocarRegua: { sessao.tocarRegua($0) },
             aoVestirTudo: { sessao.vestirTudo() },
             titulosParaLigar: titulosParaLigar
@@ -533,7 +535,7 @@ struct PaginaView: View {
     /// DITA NA PÁGINA (descarregar o pensamento por voz); escrever no campo e
     /// enviar pergunta à sábia sobre esta nota, e a resposta abre nas Notas.
     private var bottomBar: some View {
-        CampoFlutuante(texto: $perguntaDaPagina, dica: sessao.paginaVazia ? "ditar ou perguntar" : "perguntar sobre esta nota", ditado: ditado,
+        CampoFlutuante(texto: $perguntaDaPagina, dica: "diga qualquer coisa", ditado: ditado,
                        identificador: "pergunta-da-pagina", rotuloEnviar: "Perguntar à sábia",
                        rotuloDitar: "Ditar na página", aoEnviar: perguntarDaPagina,
                        aoComecarDitado: { baseDoDitado = sessao.texto }) {
@@ -542,6 +544,8 @@ struct PaginaView: View {
                     Button("Trabalhar nisto", action: trabalharNisto)
                         .accessibilityIdentifier("trabalhar-nisto")
                 }
+                Button("Desenhar") { abrirDesenho = true }
+                    .accessibilityIdentifier("desenhar")
                 Button("Anexar") { abrirArquivo = true }
                     .accessibilityIdentifier("abrir-arquivo")
                 Button("Lente") {

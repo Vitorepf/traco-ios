@@ -28,6 +28,8 @@ struct CadernoView: View {
     var foco: FocusState<Bool>.Binding
     var folga: CGFloat
     @Binding var abrirArquivo: Bool
+    /// O "+" da página pediu a folha de desenho.
+    @Binding var abrirDesenho: Bool
     /// §17 × dedo em voo: o toque na régua avisa a sessão para SEGURAR o vestir
     /// automático — a forma não veste no meio do alcance e o chip não salta.
     var aoTocarRegua: ((Bool) -> Void)? = nil
@@ -49,6 +51,7 @@ struct CadernoView: View {
     @State private var foto: PhotosPickerItem?
     @State private var video: PhotosPickerItem?
     @State private var menuFoto = false
+    @State private var menuDesenho = false
     @State private var menuVideo = false
     @State private var importaAudio = false
     @State private var importaFicheiro = false
@@ -355,6 +358,17 @@ struct CadernoView: View {
                 abrirArquivo = false
             }
         }
+        .onChange(of: abrirDesenho) { _, pedido in
+            if pedido {
+                menuDesenho = true
+                abrirDesenho = false
+            }
+        }
+        // desenhar também é colocar o que se pensa (dono, 14/09): a folha de
+        // desenho pendura a imagem na nota pelo mesmo caminho da foto
+        .sheet(isPresented: $menuDesenho) {
+            DesenhoView { png in gravar(dados: png, nome: "desenho.png", tipo: .png) }
+        }
         .photosPicker(isPresented: $menuFoto, selection: $foto, matching: .images)
         .photosPicker(isPresented: $menuVideo, selection: $video, matching: .videos)
         .onChange(of: foto) { _, item in
@@ -370,6 +384,7 @@ struct CadernoView: View {
             importarResultado(resultado)
         }
         .confirmationDialog("Anexar", isPresented: $menuArquivo, titleVisibility: .visible) {
+            Button("Desenhar") { menuDesenho = true }
             Button("Foto") { menuFoto = true }
             Button("Vídeo") { menuVideo = true }
             Button("Áudio") { importaAudio = true }
