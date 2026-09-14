@@ -1107,7 +1107,9 @@ struct TrabalhoView: View {
             campo("O que você vai fazer com este trabalho?", chave: "acao", exemplo: "Ensaiar a apresentação")
                 .accessibilityElement(children: .contain)
                 .accessibilityIdentifier("trabalho-acao")
-            Pilula("Preparar este ato", forma: .larga, selecionada: true) {
+            // um primário por folha: preparar a versão é o próximo passo; o ato
+            // vem depois dela e pesa como o resto (laço de simplicidade, 14/09)
+            Pilula("Preparar este ato", forma: .filtro) {
                 guard !levouAoObstaculo(o), !faltaCampo("acao") else { return }
                 aplicar(o, limpar: ["acao"]) { try $0.prepararAcao(rascunhos["acao"] ?? "") }
             }
