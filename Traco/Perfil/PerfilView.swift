@@ -924,19 +924,8 @@ struct PerfilView: View {
                 }
                 .accessibilityIdentifier("refazer-indice")
             }
-            // ADR 05s: a cópia que não chegou à pasta não fica muda (ADR 03e) —
-            // ela é o subtítulo da linha do espelho; aqui fica o que as linhas são
-            VStack(alignment: .leading, spacing: 8) {
-                Text("O backup automático grava no app Arquivos a cada nota concluída — nada disso depende de nuvem nem de conta. Se escolher uma pasta, a mesma cópia vai para lá; o Traço só escreve, nunca lê de volta — exceto a subpasta entrada/.")
-                Text("O que o Mac deixa em Traço/entrada (um .md por nota, pelo companheiro MCP ou por qualquer editor) vira nota aberta ao abrir o app.")
-                Text(Indice.disponivel
-                     ? "O índice de sentido é feito no aparelho: a busca acha pelo sentido, os ecos vêm das mais próximas, e a sábia lê o que se parece com a sua pergunta. Trancadas nunca entram."
-                     : "Sem o modelo de frases, a busca pelo sentido e os ecos por proximidade ficam desligados.")
-            }
-            .font(.footnote)
-            .foregroundStyle(Tema.tintaFraca)
-            .fixedSize(horizontal: false, vertical: true)
-            .padding(.top, 8)
+            // o que as linhas fazem (backup, pasta, entrada/, índice) está no
+            // subtítulo de cada uma; os três parágrafos de manual saíram (14/09)
         }
     }
 

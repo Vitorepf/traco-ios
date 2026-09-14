@@ -40,10 +40,6 @@ struct PadroesView: View {
         if let t = self.trajetoriaLida, !t.vazia {
             recolhidas.secao("Trajetória", id: "trajetoria") {
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("Dois períodos, lado a lado. Sem nota, sem seta: quem lê é você.")
-                        .font(.footnote)
-                        .foregroundStyle(Tema.tintaFraca)
-                        .fixedSize(horizontal: false, vertical: true)
                     HStack(alignment: .top, spacing: 12) {
                         periodo(t.recente)
                         Rectangle().fill(Tema.linha).frame(width: 0.5)
