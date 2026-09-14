@@ -492,7 +492,7 @@ struct EscritaVisivelTests {
     /// o seguidor correr (`ferramentas/orca/c1/c1-04-residuo-gaveta-cartao.png`).
     /// Aqui a medida é POR QUADRO, com o instante de cada um — é o que troca
     /// "~0,11 s numa varredura de 220" por uma conta que se repete.
-    @Test(arguments: [UIContentSizeCategory.accessibilityExtraExtraExtraLarge, .large])
+    @Test(arguments: [UIContentSizeCategory.large]) // só large: letra grande saiu do produto (dono, 14/09)
     func aLinhaFicaNoPapelEmCadaQuadroDaGaveta(tamanho: UIContentSizeCategory) throws {
         let cenario = try Cenario(cena: Self.cena(), tamanho: tamanho)
         defer { cenario.desmontar() }
@@ -553,7 +553,7 @@ struct EscritaVisivelTests {
         #expect(sobrou.isEmpty, "a camada adversarial não saiu: \(sobrou.first?.intrusos.joined(separator: " | ") ?? "")")
     }
 
-    @Test(arguments: [UIContentSizeCategory.accessibilityExtraExtraExtraLarge, .large])
+    @Test(arguments: [UIContentSizeCategory.large]) // só large: letra grande saiu do produto (dono, 14/09)
     func aLinhaAtivaEOCaretFicamNaAreaLivreDoPapel(tamanho: UIContentSizeCategory) throws {
         let cenario = try Cenario(cena: Self.cena(), tamanho: tamanho)
         defer { cenario.desmontar() }
@@ -648,7 +648,7 @@ struct EscritaVisivelTests {
     /// entrelinha do papel e a fonte de corpo em AX XXXL — o tamanho em que a
     /// 09d mediu a diferença entre a linha e o caret.
     private static func editor(_ texto: String, largura: CGFloat = 160,
-                               tamanho: UIContentSizeCategory = .accessibilityExtraExtraExtraLarge) throws -> UITextView {
+                               tamanho: UIContentSizeCategory = .large) throws -> UITextView {
         let tv = UITextView(frame: CGRect(x: 0, y: 0, width: largura, height: 2000))
         let paragrafo = NSMutableParagraphStyle()
         paragrafo.lineSpacing = folga

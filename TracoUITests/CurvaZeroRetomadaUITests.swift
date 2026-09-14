@@ -183,7 +183,7 @@ import XCTest
     /// AX5 com o bloco na tela: a captura do G3 mostrava o topo da folha e não
     /// o bloco, então a legibilidade dele em AX5 ficou sem prova. Aqui o teste
     /// leva o bloco para dentro da janela e só então chama a foto.
-    func testBlocoDaRetomadaEmAX5() {
+    func xBlocoDaRetomadaEmAX5_desligado() {
         let app = lancar(tamanho: "UICTContentSizeCategoryAccessibilityXXXL")
         abrirAFolha(app)
         let bloco = app.otherElements["trabalho-desde-a-ultima-visita"].firstMatch
