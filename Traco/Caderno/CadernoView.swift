@@ -434,47 +434,12 @@ struct CadernoView: View {
     }
 
     private var regua: some View {
-        // A régua de formatos saiu (dono, 14/09: "uma das piores formas para
-        // opções visuais de texto"). Título, seção e lista nascem do texto ao
-        // concluir (`Caderno.estruturar`); o catálogo vive no arquivo. O que
-        // fica é o pé que o teclado precisa: um glifo para o recolher.
-        HStack(spacing: 0) {
-            Spacer(minLength: 0)
-            Button {
-                descendoDoTitulo = false
-                editando = nil
-                Teclado.recolher()
-            } label: {
-                Image(systemName: "keyboard.chevron.compact.down")
-                    .foregroundStyle(Tema.tintaSuave)
-                    .frame(width: Tema.alvo, height: Tema.alvo)
-            }
-            .buttonStyle(.discreto)
-            .accessibilityLabel("Esconder teclado")
-            .accessibilityIdentifier("regua")
-        }
-        // 11pt é pequeno para um instrumento — mas medi: a 15pt cabem 5 das 12
-        // formas e a máscara de fade cai num VÃO entre chips, sem sinalizar
-        // nada; a 11pt cabem 6 e o fade pega glifo. Enquanto a régua for uma
-        // fileira única de 12 rótulos, alcance vence legibilidade. A troca certa
-        // é de ESTRUTURA, não de corpo de letra — e é decisão do dono.
-        .font(Tema.label)
-        .foregroundStyle(Tema.tintaSuave)
-        // a régua é chrome, como a barra de baixo: em AX5 sobrava 1,5 chip e
-        // "Seção" saía cortada sob a máscara; o teto é o mesmo das barras do sistema
-        .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
-        // 44, não 36: o .clipped() do encaixe corta o que passa da moldura, e
-        // com 36 o alvo de toque dos chips ficava ABAIXO do mínimo da Apple —
-        // o dedo errava a forma perto da borda (fitts-law)
-        .frame(height: Tema.alvo)
-        // toque em voo à régua SEGURA o vestir automático (o chip não salta sob
-        // o dedo). minimumDistance 0 pega o instante do encostar; simultâneo,
-        // não rouba o tap dos chips nem o rolar horizontal da fileira.
-        .simultaneousGesture(
-            DragGesture(minimumDistance: 0)
-                .onChanged { _ in aoTocarRegua?(true) }
-                .onEnded { _ in aoTocarRegua?(false) }
-        )
+        // Nada aqui (dono, 14/09: "qual aplicativo tem um botão só para
+        // fechar o teclado?"). O teclado recolhe pelo arrasto da página. O
+        // encaixe fica com 1 pt para o papel continuar a medir a janela do
+        // teclado como antes (portão da escrita visível).
+        Color.clear.frame(height: 1)
+            .accessibilityHidden(true)
     }
 
     private func editorUna(_ fatia: FatiaCaderno) -> some View {

@@ -30,6 +30,7 @@ struct NotasView: View {
     @State private var serieDe: UUID?
     @State private var contextoURL: URL?
     @State private var ordem: OrdemNotas = .criadaEm
+    @State private var ditado = Ditado()
     /// Q4: seleção múltipla. Vazio = modo normal; não-vazio = modo lote.
     @State private var escolhidas: Set<UUID> = []
     @State private var confirmarLote = false
@@ -80,9 +81,13 @@ struct NotasView: View {
                 if conversaNotas.modoPergunta {
                     conversaDaSabia
                 } else {
-                    linhaDeBusca
                     regencia
                     lista
+                    // Dono, 14/09: buscar e perguntar moram em cima da pílula,
+                    // num campo flutuante como o do calendário — digitar filtra,
+                    // enviar pergunta, o microfone dita. O "buscar" do topo e a
+                    // marca "?" saíram: é um gesto só, no lugar do polegar.
+                    campoDeBuscaEPergunta
                 }
             }
             .animation(Tema.corte(.easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion), value: conversaNotas.modoPergunta)
@@ -343,8 +348,6 @@ struct NotasView: View {
                         // ao lado do título: em AX5 crescia até partir "Notas" em duas linhas
                         .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
                     }
-                    // ADR 10i: a marca de perguntar, a mesma de toda tela do arquivo
-                    MarcaDePergunta(acao: abrirPergunta)
                 }
             }
         }
@@ -630,6 +633,71 @@ struct NotasView: View {
             // teclado não sobe por cima da resposta — quem quer, toca
             if primeira { Task { @MainActor in perguntaFocada = true } }
         }
+    }
+
+    /// O campo do pé (dono, 14/09): a mesma cápsula do calendário. Digitar
+    /// filtra a lista ao vivo; enviar leva a frase à sábia como pergunta; o
+    /// microfone dita para o mesmo campo. Um lugar, três atos, sem menu.
+    private var campoDeBuscaEPergunta: some View {
+        let temTexto = !busca.trimmingCharacters(in: .whitespaces).isEmpty
+        return HStack(spacing: 8) {
+            TextField("", text: Bindable(conversaNotas).busca,
+                      prompt: Text("buscar ou perguntar").foregroundStyle(Tema.tintaFraca))
+                .font(.callout)
+                .foregroundStyle(Tema.tinta)
+                .tint(Tema.ambar)
+                .textInputAutocapitalization(.sentences)
+                .submitLabel(.send)
+                .onSubmit(perguntarDaBusca)
+                .padding(.leading, 14)
+                .frame(minHeight: Tema.alvo)
+                .accessibilityIdentifier("busca-notas")
+                .accessibilityLabel("Buscar ou perguntar")
+                .accessibilityValue(busca.isEmpty ? "vazio" : busca)
+                .accessibilityHint("Escrever filtra a lista; enviar pergunta à sábia")
+            Button {
+                if temTexto {
+                    ditado.parar()
+                    perguntarDaBusca()
+                } else {
+                    ditado.alternar()
+                }
+            } label: {
+                Image(systemName: temTexto ? "arrow.up" : (ditado.gravando ? "stop.fill" : "mic"))
+                    .font(.subheadline.weight(.bold))
+                    .contentTransition(.symbolEffect(.replace))
+                    .foregroundStyle(temTexto || ditado.gravando ? .white : Tema.tinta)
+                    .frame(width: 36, height: 36)
+                    .background(temTexto || ditado.gravando ? Tema.chipAtivo : Tema.chip,
+                                in: RoundedRectangle(cornerRadius: Tema.Raio.controle, style: .continuous))
+                    .frame(width: Tema.alvo, height: Tema.alvo)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.discreto)
+            .accessibilityLabel(temTexto ? "Perguntar à sábia" : ditado.gravando ? "Parar de gravar" : "Ditar")
+            .accessibilityIdentifier(temTexto ? "perguntar-notas" : "ditar-notas")
+        }
+        .padding(.leading, 2)
+        .padding(.trailing, 4)
+        .padding(.vertical, 2)
+        .background(Capsule().fill(Tema.superficie))
+        .overlay(Capsule().strokeBorder(Tema.luzBorda, lineWidth: 1))
+        .sombra(Tema.Sombra.campo)
+        .padding(.horizontal, 14)
+        .padding(.bottom, 8)
+        .onAppear { ditado.aoTexto = { [conversaNotas] falado in conversaNotas.busca = falado } }
+        .onDisappear { ditado.parar() }
+    }
+
+    /// Enviar do campo do pé: a busca vira a pergunta e a folha da conversa abre.
+    private func perguntarDaBusca() {
+        let texto = busca.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !texto.isEmpty else { return }
+        conversaNotas.entrada = texto
+        conversaNotas.busca = ""
+        conversaNotas.perguntando = true
+        Toque.selecao()
+        perguntar()
     }
 
     private func botaoDoCampo(_ glifo: String, fundo: Color, acao: @escaping () -> Void) -> some View {
