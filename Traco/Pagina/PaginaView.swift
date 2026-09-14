@@ -472,7 +472,9 @@ struct PaginaView: View {
 
     private var editor: some View {
         CadernoView(
-            rodape: (!sessao.paginaVazia || sessao.podeRecordar) && !folhaEmCena ? AnyView(bottomBar) : nil,
+            // o pé é voz + pergunta + "+": a página em branco é a hora de ditar
+            // (dono, 14/09: "microfone nas notas, sempre à mão"); só a folha o cobre
+            rodape: folhaEmCena ? nil : AnyView(bottomBar),
             abaixo: camposAbaixo,
             acima: folhaEmCena ? nil : AnyView(acimaDoPe),
             esconderRegua: Self.esconderRegua(cartao: sessao.cartao, tamanho: tamanhoTexto),
@@ -531,7 +533,7 @@ struct PaginaView: View {
     /// DITA NA PÁGINA (descarregar o pensamento por voz); escrever no campo e
     /// enviar pergunta à sábia sobre esta nota, e a resposta abre nas Notas.
     private var bottomBar: some View {
-        CampoFlutuante(texto: $perguntaDaPagina, dica: "perguntar sobre esta nota", ditado: ditado,
+        CampoFlutuante(texto: $perguntaDaPagina, dica: sessao.paginaVazia ? "ditar ou perguntar" : "perguntar sobre esta nota", ditado: ditado,
                        identificador: "pergunta-da-pagina", rotuloEnviar: "Perguntar à sábia",
                        rotuloDitar: "Ditar na página", aoEnviar: perguntarDaPagina,
                        aoComecarDitado: { baseDoDitado = sessao.texto }) {
