@@ -886,10 +886,16 @@ nonisolated enum CalendarioFrase {
         "em", "e", "ao", "aos", "com", "para", "pra", "por",
     ]
 
+    /// O verbo do pedido não é o título: "me lembra de ligar para a Ana amanhã
+    /// 15h" marca "Ligar para a Ana" (o campo recebe pedidos — dono, 14/09).
+    nonisolated private static let verbosDePedido =
+        #"^(?:me\s+)?(?:lembra|lembre|lembrar|marca|marcar|marque|agenda|agendar|agende|coloca|colocar|coloque|anota|anotar|anote|adiciona|adicionar|adicione|bota|botar)(?:\s+me)?(?:\s+(?:de|um|uma|o|a))?\s+"#
+
     nonisolated private static func limparTitulo(_ texto: String) -> String {
         var palavras = texto
             .replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression)
             .trimmingCharacters(in: CharacterSet(charactersIn: " ,.-–"))
+            .replacingOccurrences(of: verbosDePedido, with: "", options: [.regularExpression, .caseInsensitive])
             .split(separator: " ")
             .map(String.init)
         while let ultima = palavras.last, conectores.contains(ultima.lowercased()) { palavras.removeLast() }
