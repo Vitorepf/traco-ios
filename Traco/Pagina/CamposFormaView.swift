@@ -22,7 +22,7 @@ struct CamposFormaView: View {
             // SPEC §20: a casa não tem chrome. Palavra é escrever o sentido
             // (minhas / frase / onde). Look Up é o do iOS no texto seleccionado.
             ForEach(Array(visiveis.enumerated()), id: \.element.id) { indice, campo in
-                LinhaCampo(id: campo.id, rotulo: campo.rotulo, teto: campo.teto, texto: valor(campo.id))
+                LinhaCampo(id: campo.id, rotulo: campo.nome, dica: campo.dica, teto: campo.teto, texto: valor(campo.id))
                     // a forma chega como quem entra: campo a campo, um respiro
                     // entre eles (ancorado em `nascida`, que muda DEPOIS do
                     // onAppear — dispara garantido)
@@ -109,6 +109,7 @@ struct CamposFormaView: View {
 private struct LinhaCampo: View {
     let id: String
     let rotulo: String
+    var dica: String? = nil
     var teto: Int? = nil
     @Binding var texto: String
 
@@ -144,7 +145,8 @@ private struct LinhaCampo: View {
             // fio embaixo — o mesmo idioma da busca das Notas e do `.campo`
             // do sistema. A caixa branca era a última caixa da página. O fio
             // diz que recebe texto; o âmbar do caret diz onde.
-            TextField("", text: $texto, axis: .vertical)
+            // a dica do catálogo mora dentro do campo e some ao escrever
+            TextField("", text: $texto, prompt: dica.map { Text($0).foregroundStyle(Tema.tintaFraca) }, axis: .vertical)
                 .font(Tema.corpo)
                 .foregroundStyle(Tema.tinta)
                 .textFieldStyle(.plain)

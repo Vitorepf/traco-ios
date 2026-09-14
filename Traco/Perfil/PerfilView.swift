@@ -394,7 +394,7 @@ struct PerfilView: View {
                             } label: {
                                 LinhaDeLista(
                                     titulo: m.nome,
-                                    subtitulo: ([m.doAutor ? "seu" : "", m.origem] + m.campos.map(\.rotulo))
+                                    subtitulo: ([m.doAutor ? "seu" : "", m.origem] + m.campos.map(\.nome))
                                         .filter { !$0.isEmpty }.joined(separator: " · "),
                                     fio: !aberta,
                                     glifo: { Image(systemName: m.doAutor ? "person.crop.square" : "book.closed") },

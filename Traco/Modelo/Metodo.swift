@@ -218,6 +218,20 @@ nonisolated struct CampoForma: Identifiable, Hashable, Codable, Sendable {
     /// roubou o dia). Some enquanto está vazio e a hora não chegou.
     var soDepois: Bool = false
 
+    /// O rótulo do catálogo traz a dica entre parênteses — "Resultado (o
+    /// melhor desfecho)". Na tela o nome é o rótulo e a dica vai para dentro
+    /// do campo, onde some ao escrever; no Markdown o rótulo inteiro continua
+    /// a ser a chave (Corpus), por isso não se mexe no JSON.
+    var nome: String {
+        guard let i = rotulo.range(of: " (") else { return rotulo }
+        return String(rotulo[..<i.lowerBound])
+    }
+    var dica: String? {
+        guard let i = rotulo.range(of: " ("), rotulo.hasSuffix(")") else { return nil }
+        let d = rotulo[i.upperBound..<rotulo.index(before: rotulo.endIndex)]
+        return d.isEmpty ? nil : String(d)
+    }
+
     init(id: String, rotulo: String, teto: Int? = nil, soDepois: Bool = false) {
         self.id = id
         self.rotulo = rotulo
