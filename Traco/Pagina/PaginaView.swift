@@ -12,6 +12,9 @@ struct PaginaView: View {
     @Query(sort: \Nota.editadaEm, order: .reverse) private var notas: [Nota]
     @FocusState private var focoPagina: Bool
     @State private var mostrarCampos = false
+    @State private var perguntaDaPagina = ""
+    @State private var ditado = Ditado()
+    @State private var baseDoDitado = ""
     /// A folha dos campos está a subir ou em cena: o encaixe inteiro (cartão e
     /// pé) sai POR CORTE antes de ela subir e volta por corte quando ela desce.
     /// Com o encaixe em cena enquanto o teclado descia, o papel crescia na hora
@@ -518,75 +521,114 @@ struct PaginaView: View {
         }
     }
 
-    private var acoesDaPagina: some View {
-        Group {
-            // Laço de simplicidade (14/09): "Analisar" saiu — a análise é
-            // automática (§17), e o interruptor vive no Perfil. "Recordar"
-            // saiu — a cobrança chega pelo aviso e pelo toque longo da nota
-            // nas Notas. A pergunta do goal ("a IA não podia fazer isso
-            // sozinha?") tinha resposta sim nos dois.
-            Button("Anexar") { abrirArquivo = true }
-                .foregroundStyle(Tema.tintaSuave)
-                .accessibilityLabel("Anexar arquivo")
-                .accessibilityHint("Anexar foto, vídeo, áudio, gravação ou arquivo")
-                .accessibilityIdentifier("abrir-arquivo")
-            // a lente da língua: regra local, aponta e não reescreve
-            Button("Lente") {
-                guard sessao.salvar(no: context) else { return }
-                lenteAberta = true
-            }
-                .foregroundStyle(Tema.tintaSuave)
-                .disabled(sessao.paginaVazia)
-                .accessibilityLabel("Lente da língua")
-                .accessibilityHint("Palavras de apoio, frases de outro, passivas e adjetivos repetidos. Só aponta.")
-                .accessibilityIdentifier("abrir-lente")
-        }
-    }
-
-    @ViewBuilder private var trabalharNistoBotao: some View {
-        if sessao.temVoz, sessao.gesto != .expressiva {
-            Button("Trabalhar nisto", action: trabalharNisto)
-                .foregroundStyle(Tema.ambarTinta)
-                .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .leading)
-                .accessibilityHint("Cria um trabalho com esta intenção; sua nota é preservada")
-                .accessibilityIdentifier("trabalhar-nisto")
-        }
-    }
-
+    /// O pé da página (dono, 14/09): o mesmo campo flutuante das Notas e do
+    /// Calendário. O "+" guarda Trabalhar nisto, Anexar e Lente; o microfone
+    /// DITA NA PÁGINA (descarregar o pensamento por voz); escrever no campo e
+    /// enviar pergunta à sábia sobre esta nota, e a resposta abre nas Notas.
     private var bottomBar: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            if tamanhoTexto.isAccessibilitySize {
-                // em AX cada ação ocupa a LARGURA inteira — lado a lado, as
-                // quatro espremiam "Mais ações da nota" a "Mais ações d…" (AX5,
-                // 06/09). "Trabalhar nisto" fica FORA do menu, como era antes
-                // desta volta: com as cinco dentro, o menu ficava mais alto que a
-                // tela e a quinta só existia depois de rolar, sem afordância
-                // nenhuma (G3 da V12, M3 — `v12-rev-ax5-menu.png`). Quatro cabem.
-                trabalharNistoBotao
-                Menu("Mais ações da nota") {
-                    acoesDaPagina
+        let temTexto = !perguntaDaPagina.trimmingCharacters(in: .whitespaces).isEmpty
+        return HStack(spacing: 8) {
+            Menu {
+                if sessao.temVoz, sessao.gesto != .expressiva {
+                    Button("Trabalhar nisto", action: trabalharNisto)
+                        .accessibilityIdentifier("trabalhar-nisto")
                 }
-                .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .leading)
-                .accessibilityIdentifier("mais-acoes-da-nota")
-            } else {
-                trabalharNistoBotao
-                HStack(spacing: 8) { acoesDaPagina }
+                Button("Anexar") { abrirArquivo = true }
+                    .accessibilityIdentifier("abrir-arquivo")
+                Button("Lente") {
+                    guard sessao.salvar(no: context) else { return }
+                    lenteAberta = true
+                }
+                .disabled(sessao.paginaVazia)
+                .accessibilityIdentifier("abrir-lente")
+            } label: {
+                Image(systemName: "plus")
+                    .font(.callout.weight(.semibold))
+                    .foregroundStyle(Tema.tinta)
+                    .frame(width: Tema.alvo, height: Tema.alvo)
+                    .contentShape(Rectangle())
             }
+            .buttonStyle(.discreto)
+            .accessibilityLabel("Mais")
+            .accessibilityIdentifier("mais-acoes-da-nota")
+
+            TextField("", text: $perguntaDaPagina,
+                      prompt: Text("perguntar sobre esta nota").foregroundStyle(Tema.tintaFraca))
+                .font(.callout)
+                .foregroundStyle(Tema.tinta)
+                .tint(Tema.ambar)
+                .textInputAutocapitalization(.sentences)
+                .submitLabel(.send)
+                .onSubmit(perguntarDaPagina)
+                .frame(minHeight: Tema.alvo)
+                .accessibilityIdentifier("pergunta-da-pagina")
+                .accessibilityLabel("Perguntar sobre esta nota")
+
+            Button {
+                if temTexto {
+                    ditado.parar()
+                    perguntarDaPagina()
+                } else if ditado.gravando {
+                    ditado.parar()
+                } else {
+                    baseDoDitado = sessao.texto
+                    ditado.alternar()
+                }
+            } label: {
+                Image(systemName: temTexto ? "arrow.up" : (ditado.gravando ? "stop.fill" : "mic"))
+                    .font(.subheadline.weight(.bold))
+                    .contentTransition(.symbolEffect(.replace))
+                    .foregroundStyle(temTexto || ditado.gravando ? .white : Tema.tinta)
+                    .frame(width: 36, height: 36)
+                    .background(temTexto || ditado.gravando ? Tema.chipAtivo : Tema.chip,
+                                in: RoundedRectangle(cornerRadius: Tema.Raio.controle, style: .continuous))
+                    .frame(width: Tema.alvo, height: Tema.alvo)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.discreto)
+            .accessibilityLabel(temTexto ? "Perguntar à sábia" : ditado.gravando ? "Parar de ditar" : "Ditar na página")
         }
+        .padding(.leading, 2)
+        .padding(.trailing, 4)
+        .padding(.vertical, 2)
+        .background(Capsule().fill(Tema.superficie))
+        .overlay(Capsule().strokeBorder(Tema.luzBorda, lineWidth: 1))
+        .sombra(Tema.Sombra.campo)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 8)
+        .background(Tema.fundo)
         // o pé não cede ao cartão: se falta altura, é o texto do cartão que rola
         .fixedSize(horizontal: false, vertical: true)
         .sheet(isPresented: $lenteAberta) {
             LenteView(texto: sessao.texto, notaUUID: sessao.gesto == .expressiva ? nil : sessao.notaUUID, gesto: sessao.gesto,
                       retrato: sessao.retratoAtual())
         }
-        .font(Tema.barra)
-        .buttonStyle(BarraBotaoStyle())
-        .padding(.horizontal, Tema.margem)
-        .padding(.vertical, 8)
-        .background(Tema.fundo)
-        .overlay(alignment: .top) {
-            Rectangle().fill(Tema.linha).frame(height: 0.5)
+        .onAppear {
+            // o ditado escreve NA PÁGINA, depois do que já estava: a
+            // transcrição chega inteira a cada vez, então a base é fixa
+            ditado.aoTexto = { [weak sessao] falado in
+                guard let sessao else { return }
+                let sep = baseDoDitado.isEmpty || baseDoDitado.hasSuffix("\n") ? "" : " "
+                sessao.texto = baseDoDitado + sep + falado
+            }
         }
+        .onDisappear { ditado.parar() }
+    }
+
+    /// Enviar do campo: a pergunta vai à sábia com as notas como fonte e a
+    /// conversa abre nas Notas — a página é guardada antes.
+    private func perguntarDaPagina() {
+        let q = perguntaDaPagina.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !q.isEmpty else { return }
+        perguntaDaPagina = ""
+        sessao.conversaNotas.entrada = q
+        sessao.conversaNotas.perguntando = true
+        let sessao = self.sessao
+        sessao.conversaNotas.perguntar(disponivel: Sabia.disponivel) { pergunta, anteriores in
+            await sessao.responderNasNotas(pergunta, conversa: anteriores, no: context)
+        }
+        Toque.selecao()
+        sessao.irNotas(no: context)
     }
 
     private var timerBar: some View {
