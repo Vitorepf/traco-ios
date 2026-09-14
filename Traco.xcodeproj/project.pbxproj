@@ -172,6 +172,7 @@
 		B0DA1DDC6B301ED85EBC8430 /* RespostaNotasTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11D6ADE9EFC408B160AE0F5C /* RespostaNotasTests.swift */; };
 		B1A0B7674B844F8483CA35C2 /* LinhaDoTempoWidgetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E87C7FB979BD1A3D4211AE /* LinhaDoTempoWidgetTests.swift */; };
 		B4026232B29E9D53DD9CE8A3 /* Calendario.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00FF648389CB7C318B68A693 /* Calendario.swift */; };
+		B44797995DC2638291E7AD3E /* Desvanece.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C0E481BB46182D5E6A54383 /* Desvanece.swift */; };
 		B941B2650E94D6E093A1394A /* PadroesRemoto.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE5E37AF9BC96722920E0256 /* PadroesRemoto.swift */; };
 		BC0DD1281A087EBFC727F40C /* Degraus.swift in Sources */ = {isa = PBXBuildFile; fileRef = C48E78EE65F3C16DDD899BE9 /* Degraus.swift */; };
 		BCF1CFAEE27C3C17E48BEA29 /* AcessoTrabalho.swift in Sources */ = {isa = PBXBuildFile; fileRef = 158CF7573787781EE7AC21C3 /* AcessoTrabalho.swift */; };
@@ -372,6 +373,7 @@
 		6A0D2FB8492AF79193900392 /* NotasView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotasView.swift; sourceTree = "<group>"; };
 		6ABFF933270D2D46AF26A28A /* CalendarioSistema.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarioSistema.swift; sourceTree = "<group>"; };
 		6B3F4812CA2DDBAB60FE7D78 /* RecordarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordarView.swift; sourceTree = "<group>"; };
+		6C0E481BB46182D5E6A54383 /* Desvanece.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Desvanece.swift; sourceTree = "<group>"; };
 		6D7CE67A64B6C967531AEBDB /* Cartao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cartao.swift; sourceTree = "<group>"; };
 		6D9CC2EA0F0A4BA7D91CB26E /* Superficie.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Superficie.swift; sourceTree = "<group>"; };
 		6DBB3255C8D14DB1494C3558 /* ContaGrok.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContaGrok.swift; sourceTree = "<group>"; };
@@ -555,6 +557,7 @@
 				6D7CE67A64B6C967531AEBDB /* Cartao.swift */,
 				D4C0E492D101C4E1988379FF /* CartaoDeResposta.swift */,
 				7DF4DB2A8B1FE3987EEA5C93 /* ChipDominio.swift */,
+				6C0E481BB46182D5E6A54383 /* Desvanece.swift */,
 				9E3647BCEC3CE110E057EBC1 /* LinhaDeEstado.swift */,
 				63779AF022C1F93A0C3E8385 /* LinhaQueAbre.swift */,
 				948CA481153CAE57BEF667E4 /* LinhasDeProveniencia.swift */,
@@ -1221,6 +1224,7 @@
 				0FA3C90485245DA99E3B96B8 /* DestaqueBusca.swift in Sources */,
 				A730B9AC03A66E91B4194C3E /* DestaqueDoDia.swift in Sources */,
 				1425C8343284780C8896D088 /* DestaqueFeitoIntent.swift in Sources */,
+				B44797995DC2638291E7AD3E /* Desvanece.swift in Sources */,
 				3E9C38ACB5C95C91C6618836 /* Ditado.swift in Sources */,
 				0110F9852FCC1ED6D9E0C3E9 /* DitadoProprio.swift in Sources */,
 				FD701A5CEA9D1D7F0F5F50CE /* DitadoProprioView.swift in Sources */,

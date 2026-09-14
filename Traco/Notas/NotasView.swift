@@ -82,12 +82,13 @@ struct NotasView: View {
                     conversaDaSabia
                 } else {
                     regencia
-                    lista
                     // Dono, 14/09: buscar e perguntar moram em cima da pílula,
                     // num campo flutuante como o do calendário — digitar filtra,
                     // enviar pergunta, o microfone dita. O "buscar" do topo e a
                     // marca "?" saíram: é um gesto só, no lugar do polegar.
-                    campoDeBuscaEPergunta
+                    // Como no calendário, o campo FLUTUA sobre a lista (a última
+                    // linha passa por baixo), em vez de cortá-la em cheio.
+                    lista.overlay(alignment: .bottom) { campoDeBuscaEPergunta }
                 }
             }
             .animation(Tema.corte(.easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion), value: conversaNotas.modoPergunta)
@@ -877,6 +878,9 @@ struct NotasView: View {
         // dispensa o teclado). Vale nos DOIS ramos: era só do cheio, e o vazio
         // ficou para trás.
         .scrollDismissesKeyboard(.interactively)
+        // a última linha rola para cima do campo flutuante, nunca fica sob ele
+        .contentMargins(.bottom, Tema.alvo + 28, for: .scrollContent)
+        .desvanece(topo: 24, pe: 48, reservaPe: Tema.alvo + 16)
     }
 
     private struct SecaoMes {
