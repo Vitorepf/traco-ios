@@ -796,14 +796,9 @@ struct PerfilView: View {
 
     private var ajustes: some View {
         recolhidas.secao("Ajustes", id: "ajustes") {
-            chave("doc.text.magnifyingglass", "Análise automática",
-                  "A análise chega sozinha na pausa da escrita. Você nunca precisa lembrar do botão.",
-                  id: "ajuste-auto-analise",
-                  ligado: Binding(
-                    get: { sessao.autoAnalise },
-                    set: { novo in
-                        if novo != sessao.autoAnalise { sessao.alternarAutoAnalise() }
-                    }))
+            // "Análise automática" não é ajuste: a IA age sozinha na pausa da
+            // escrita, sempre (goal de 14/09: "a IA não podia decidir isso?").
+            // O estado continua a existir para o instrumento (`-autoAnalise`).
             hora("arrow.counterclockwise", "Recordar", "a fila do dia", valor: Binding(
                 get: { Revisoes.hora },
                 set: { Revisoes.hora = $0 }
