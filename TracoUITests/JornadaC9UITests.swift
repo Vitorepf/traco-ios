@@ -132,7 +132,7 @@ import XCTest
         irAoTopo(app)
         let oferta = app.descendants(matching: .any)["trabalho-oferta-texto"].firstMatch
         XCTAssertTrue(oferta.waitForExistence(timeout: 5), "a oferta não está na retomada")
-        XCTAssertTrue(oferta.label.contains("artefato"), "estação inicial não é o artefato: \(oferta.label)")
+        XCTAssertTrue(oferta.label.contains("versão pronta"), "estação inicial não é a versão: \(oferta.label)")
         XCTAssertFalse(oferta.label.contains("inteligência"))
 
         tocar(app, "trabalho-ir-ao-proximo-passo")

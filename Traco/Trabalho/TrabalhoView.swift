@@ -36,7 +36,7 @@ struct TrabalhoView: View {
     /// As seções que não são o próximo passo nascem recolhidas (Hermes §5: a
     /// densidade se controla no cabeçalho): a folha abre com a intenção, o
     /// que preparar e o próximo ato — o resto está a um toque, lembrado.
-    var recolhidas = Recolhidas("trabalho", deInicio: ["apoio", "praticar", "dificuldade"])
+    var recolhidas = Recolhidas("trabalho", deInicio: ["apoio", "praticar", "dificuldade", "minha-versao"])
     @State private var limparAposCommit: [String] = []
     /// A gaveta da versão: escrever a primeira e editar a atual nunca convivem.
     @State private var editandoVersao = false
@@ -488,17 +488,18 @@ struct TrabalhoView: View {
                 }
             }
             if o.documento.versaoAtual == nil {
-                // A primeira versão mora na estação, sem gaveta a revelar.
-                // O toque em «Escrever minha própria versão» sintetizado pelo
-                // teste não abria o campo — o botão ficava na árvore e o
-                // teclado no pedido. Campo vazio não é edição pendente
-                // (`alterado` julga por diferença).
-                campo("Sua versão", chave: "versao")
-                    .accessibilityElement(children: .contain)
-                    .accessibilityIdentifier("trabalho-campo-versao")
-                acaoSecundaria("Guardar minha versão") { guardarVersao(o) }
-                    .accessibilityHint(vazio("versao") ? "Escreva a versão primeiro" : "")
-                    .accessibilityIdentifier("trabalho-guardar-versao")
+                // Escrever a própria versão é o caminho de quem NÃO delegou:
+                // nasce recolhido (laço de 14/09) e abre sozinho quando "Ir ao
+                // próximo passo" leva à versão (`irAProximaEstacao`). Campo
+                // vazio não é edição pendente (`alterado` julga por diferença).
+                recolhidas.secao("Escrever eu mesmo", id: "minha-versao") {
+                    campo("Sua versão", chave: "versao")
+                        .accessibilityElement(children: .contain)
+                        .accessibilityIdentifier("trabalho-campo-versao")
+                    acaoSecundaria("Guardar minha versão") { guardarVersao(o) }
+                        .accessibilityHint(vazio("versao") ? "Escreva a versão primeiro" : "")
+                        .accessibilityIdentifier("trabalho-guardar-versao")
+                }
             }
         }
         .id("trabalho-producao")
@@ -1267,6 +1268,7 @@ struct TrabalhoView: View {
     private func irAProximaEstacao(_ o: OficinaTrabalho) {
         switch o.documento.proximaEstacao {
         case .artefato where o.documento.versaoAtual == nil:
+            recolhidas["minha-versao"].wrappedValue = false
             campoEmFoco = "versao"
             rolarPara = "versao"
         case .ajuste:
