@@ -333,10 +333,24 @@ struct TrabalhoView: View {
 
     private func intencao(_ o: OficinaTrabalho) -> some View {
         VStack(alignment: .leading, spacing: Tema.entreItens) {
-            Text(o.documento.intencaoAtual.texto)
-                .font(Tema.tituloTela)
-                .tracking(Tema.trackingTitulo)
-                .accessibilityAddTraits(.isHeader)
+            // a intenção É o título: tocar nele abre a revisão — o chip
+            // "Rever a intenção" era um segundo objeto para o mesmo ato (14/09)
+            Button {
+                gaveta { editandoIntencao = true }
+            } label: {
+                Text(o.documento.intencaoAtual.texto)
+                    .font(Tema.tituloTela)
+                    .tracking(Tema.trackingTitulo)
+                    .foregroundStyle(Tema.tinta)
+                    .multilineTextAlignment(.leading)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.discreto)
+            .disabled(editandoIntencao)
+            .accessibilityAddTraits(.isHeader)
+            .accessibilityHint("Toque para rever a intenção")
+            .accessibilityIdentifier("trabalho-rever-intencao")
             if !o.documento.intencaoAtual.resultado.isEmpty {
                 Text(o.documento.intencaoAtual.resultado)
                     .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
@@ -351,9 +365,6 @@ struct TrabalhoView: View {
                     gaveta { editandoIntencao = false }
                 }
                 .accessibilityIdentifier("trabalho-guardar-intencao")
-            } else {
-                acaoSecundaria("Rever a intenção") { gaveta { editandoIntencao = true } }
-                    .accessibilityIdentifier("trabalho-rever-intencao")
             }
         }
     }
