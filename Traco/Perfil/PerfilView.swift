@@ -779,8 +779,12 @@ struct PerfilView: View {
                     }),
                   fio: false)
 
-            prosa(estadoDasFerias, cor: Tema.tintaSuave)
-                .accessibilityIdentifier("estado-ferias")
+            // desligado, os dois interruptores já dizem tudo; a linha só existe
+            // quando há algo calado e até quando (laço de 14/09)
+            if Ferias.vigente() {
+                prosa(estadoDasFerias, cor: Tema.tintaSuave)
+                    .accessibilityIdentifier("estado-ferias")
+            }
         }
     }
 
