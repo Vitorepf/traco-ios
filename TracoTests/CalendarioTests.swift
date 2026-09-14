@@ -439,4 +439,20 @@ struct CalendarioAgendaTests {
         #expect(Calendario.diasEmLetras([2, 6], cal) == "seg · sex")
         #expect(Calendario.diasEmLetras([], cal) == "")
     }
+
+    @Test("vários compromissos numa frase só viram vários; sem marca em todas as partes, é um")
+    func variosNumaFrase() throws {
+        let cal = Calendario.gregoriano(fuso: TimeZone(identifier: "America/Sao_Paulo")!)
+        let agora = cal.date(from: DateComponents(year: 2026, month: 9, day: 14, hour: 9))!
+        let dois = CalendarioFrase.lerVarios("dentista sexta 14h e reunião segunda 10h", ancora: agora, agora: agora, cal)
+        #expect(dois.count == 2)
+        #expect(dois.map(\.titulo) == ["Dentista", "Reunião"])
+        let tres = CalendarioFrase.lerVarios("dentista sexta 14h; correr terça 6h30, almoço quinta 12h", ancora: agora, agora: agora, cal)
+        #expect(tres.count == 3)
+        let um = CalendarioFrase.lerVarios("jantar com a Ana e o Pedro às 20h", ancora: agora, agora: agora, cal)
+        #expect(um.count == 1)
+        #expect(um.first?.titulo == "Jantar com a Ana e o Pedro")
+        let semMarca = CalendarioFrase.lerVarios("dentista sexta 14h e ligar para a Ana", ancora: agora, agora: agora, cal)
+        #expect(semMarca.count == 1)
+    }
 }

@@ -219,26 +219,35 @@ final class CalendarioAgenda {
             ir(para: nova)
             return
         }
-        guard let evento = CalendarioFrase.ler(
+        let lidos = CalendarioFrase.lerVarios(
             frase, ancora: ancora, agora: agora, cal,
             manha: Ancora.hora(.manha), tarde: Ancora.hora(.tarde), noite: Ancora.hora(.noite)
-        ) else {
+        )
+        guard let evento = lidos.first else {
             if !frase.trimmingCharacters(in: .whitespaces).isEmpty {
                 mostrar("faltou o quê: escreva o compromisso, com dia e hora se quiser.")
             }
             return
         }
-        eventos.append(evento)
+        eventos.append(contentsOf: lidos)
         guard gravar() else {
-            eventos.removeAll { $0.id == evento.id }
+            let ids = Set(lidos.map(\.id))
+            eventos.removeAll { ids.contains($0.id) }
             return
         }
         prosa = ""
         Teclado.recolher()
         Toque.suave()
-        avisar(evento, anunciar: false) // a ficha abre em seguida e diz melhor
         ancora = Calendario.inicioDoDia(evento.inicio, cal)
-        ficha = evento
+        if lidos.count == 1 {
+            avisar(evento, anunciar: false) // a ficha abre em seguida e diz melhor
+            ficha = evento
+        } else {
+            // vários numa frase (goal de 14/09): todos marcados, nenhuma ficha
+            // a abrir — a lista do dia mostra; os avisos seguem cada um
+            for e in lidos { avisar(e, anunciar: false) }
+            mostrar("\(lidos.count) compromissos marcados.")
+        }
     }
 
     /// Um compromisso em branco no dia âncora, para quem prefere a ficha.

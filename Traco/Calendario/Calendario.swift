@@ -656,6 +656,37 @@ nonisolated enum CalendarioFrase {
         )
     }
 
+    /// Vários compromissos numa frase só ("dentista sexta 14h e reunião
+    /// segunda 10h; correr terça 6h") — a pessoa fala dez e os dez ficam
+    /// marcados (goal de 14/09). A frase parte em " e ", vírgula, ponto e
+    /// vírgula e quebra de linha, mas SÓ vira vários quando TODAS as partes
+    /// carregam dia, hora ou repetição: "jantar com a Ana e o Pedro às 20h" é
+    /// um compromisso, e "o Pedro" sem marca nunca vira evento sozinho.
+    nonisolated static func lerVarios(
+        _ prosa: String, ancora: Date, agora: Date, _ cal: Calendar,
+        manha: Int = 8, tarde: Int = 14, noite: Int = 20
+    ) -> [EventoCalendario] {
+        let partes = prosa
+            .replacingOccurrences(of: "\\s+e\\s+", with: "\n", options: .regularExpression)
+            .split(whereSeparator: { $0 == "\n" || $0 == ";" || $0 == "," })
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+        guard partes.count > 1, partes.allSatisfy({ temMarca($0, agora: agora, cal, manha: manha, tarde: tarde, noite: noite) }) else {
+            return ler(prosa, ancora: ancora, agora: agora, cal, manha: manha, tarde: tarde, noite: noite).map { [$0] } ?? []
+        }
+        return partes.compactMap { ler($0, ancora: ancora, agora: agora, cal, manha: manha, tarde: tarde, noite: noite) }
+    }
+
+    /// A parte carrega dia, hora, repetição ou "dia inteiro"?
+    nonisolated private static func temMarca(_ texto: String, agora: Date, _ cal: Calendar,
+                                             manha: Int, tarde: Int, noite: Int) -> Bool {
+        if comerRepeticao(texto) != nil { return true }
+        if comerDia(texto, agora: agora, cal) != nil { return true }
+        if comerDiaInteiro(texto) != nil { return true }
+        if comerHora(texto, manha: manha, tarde: tarde, noite: noite) != nil { return true }
+        return false
+    }
+
     // MARK: dia
 
     /// Os sete dias da semana, com o número do `weekday` do Calendar.
