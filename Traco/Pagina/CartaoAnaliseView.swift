@@ -409,34 +409,14 @@ struct CartaoAnaliseView: View {
             .accessibilityHint("Campos vazios nascem abaixo do seu texto")
             botaoPergunta
         case .vestida:
-            ladoALado {
-                // ADR 04r: abrir os campos é ATO — é aqui que a sábia instiga
-                // A QUINTA da classe A1 (G4 da V12): este toque muda o cartão
-                // (`instigarSePreciso`) E apresenta a folha no MESMO quadro; a
-                // altura do encaixe interpolava enquanto o teclado descia, e o
-                // pé do cartão ficava legível sobre o corpo do cartão por ~215
-                // ms sem RM. A troca de estado do cartão corta, como o `fechar()`
-                // e o `onChange(of: camposComResposta)` já cortam.
-                Button("Preencher os campos") {
-                    var t = Transaction(); t.disablesAnimations = true
-                    withTransaction(t) {
-                        // volta à linha antes de a folha subir: o teclado
-                        // desce com ela, e um cartão ALTO por baixo de um pé
-                        // que viaja 334 pt é o par legível outra vez
-                        abertoNoTeclado = false
-                        sessao.instigarSePreciso()
-                    }
-                    aoAbrirCampos?()
-                }
-                    .buttonStyle(.primario(alinhamento: .leading))
-                    .accessibilityIdentifier("abrir-campos")
-                    .accessibilityHint("Os campos da forma abrem numa folha; o seu texto fica intacto")
-                Button("Deixar como nota") { sessao.soltarForma() }
-                    .buttonStyle(.compacto)
-                    .foregroundStyle(Tema.tintaSuave)
-                    .accessibilityIdentifier("soltar-forma")
-                    .accessibilityHint("Desfaz a forma; o seu texto fica intacto")
-            }
+            // Laço de 14/09: a forma já vestiu e os campos já estão na folha.
+            // "Preencher os campos" pedia um toque para chegar onde o dedo já
+            // chega; a única decisão que sobra é desfazer, e ela pesa pouco.
+            Button("Desfazer") { sessao.soltarForma() }
+                .buttonStyle(.compacto)
+                .foregroundStyle(Tema.tintaSuave)
+                .accessibilityIdentifier("soltar-forma")
+                .accessibilityHint("Desfaz a forma; o seu texto fica intacto")
             botaoPergunta
         case .pergunta:
             Button("Perguntar à sábia") { sessao.perguntarASabia(no: context) }
