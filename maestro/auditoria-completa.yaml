@@ -43,7 +43,7 @@ appId: app.traco
 - takeScreenshot: /tmp/traco-verify/auditoria/11-nota-aberta
 - tapOn: Recordar
 - extendedWaitUntil:
-    visible: "RECORDAR"
+    visible: "Recordar"
     timeout: 5000
 - takeScreenshot: /tmp/traco-verify/auditoria/12-recordar
 - tapOn: "voltar"

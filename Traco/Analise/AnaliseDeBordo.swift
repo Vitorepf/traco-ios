@@ -39,7 +39,7 @@ nonisolated enum AnaliseDeBordo {
     static var estadoEmPalavras: String {
         switch SystemLanguageModel.default.availability {
         case .available:
-            "pronto — a análise não precisa de conta nem de sinal."
+            "pronto — sem conta e sem sinal"
         case .unavailable(.deviceNotEligible):
             "este aparelho não tem o modelo do sistema."
         case .unavailable(.appleIntelligenceNotEnabled):

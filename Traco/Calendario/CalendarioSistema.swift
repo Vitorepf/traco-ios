@@ -67,8 +67,8 @@ final class CalendarioSistema {
     var estadoEmPalavras: String {
         switch estado {
         case .fullAccess: proximos.isEmpty
-            ? "lendo os seus calendários — nada nos próximos sete dias."
-            : "lendo os seus calendários — \(proximos.count) compromisso\(proximos.count == 1 ? "" : "s") nos próximos sete dias."
+            ? "lendo — nada nos próximos sete dias"
+            : "lendo — \(proximos.count) em sete dias"
         case .writeOnly: "o iOS deu só escrita, e o Traço não escreve. Libere a leitura em Ajustes."
         case .denied: "acesso negado. O campo volta a mostrar um exemplo."
         case .restricted: "acesso restrito neste aparelho."

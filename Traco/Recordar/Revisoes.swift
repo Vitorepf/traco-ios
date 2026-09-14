@@ -724,7 +724,9 @@ enum Avisos {
             let n = await pendentes()
             return n >= teto
                 ? "\(n) de \(teto) avisos — o iPhone não guarda mais que isso; apague um para marcar outro."
-                : "\(n) de \(teto) avisos ativos."
+                // o teto do iPhone só importa quando aperta: "0 de 64" era
+                // número interno sem sentido para quem lê (auditoria 13/09)
+                : n == 0 ? "nenhum aviso marcado." : "\(n) aviso\(n == 1 ? "" : "s") marcado\(n == 1 ? "" : "s")."
         }
     }
 }

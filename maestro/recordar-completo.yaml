@@ -9,7 +9,7 @@ appId: app.traco
     direction: DOWN
 - tapOn: Recordar
 - extendedWaitUntil:
-    visible: "RECORDAR"
+    visible: "Recordar"
     timeout: 4000
 - extendedWaitUntil:
     visible: "O que estava escrito?"

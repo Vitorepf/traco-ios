@@ -367,7 +367,8 @@ struct RecordarView: View {
         // (`law-of-continuity`). Quem quer largura inteira ainda pede.
         VStack(alignment: .leading, spacing: 0) {
             CabecalhoDeFolha(saida: .voltar, aoSair: { dismiss() }) {
-                Text("RECORDAR").rotulo()
+                // caixa alta só agrupa (ADR 10k); o nome da folha vai em frase
+                Text("Recordar").font(Tema.chrome).foregroundStyle(Tema.tintaSuave)
             }
             .padding(.horizontal, Tema.margem)
             // cabeçalho é chrome: como a barra do sistema, não cresce em AX

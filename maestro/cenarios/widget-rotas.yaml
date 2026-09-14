@@ -13,7 +13,7 @@ appId: app.traco
 # traco://recordar → recordarMaisRecente → o Recordar da nota mais recente
 - openLink: traco://recordar
 - extendedWaitUntil:
-    visible: "RECORDAR"
+    visible: "Recordar"
     timeout: 8000
 - assertVisible: "Leia uma última vez — a nota vai se esconder."
 - takeScreenshot: /tmp/traco-verify/widget-recordar

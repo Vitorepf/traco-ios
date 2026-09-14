@@ -655,8 +655,8 @@ struct PerfilView: View {
                 .accessibilityIdentifier("estado-calendario")
             LinhaDeLista("bell", "Avisos",
                          avisosLigados
-                            ? "ligados — o Recordar, a revisão de domingo e os seus compromissos cobram na hora."
-                            : "desligados. Sem eles, nada te cobra: nem o Recordar, nem os compromissos.",
+                            ? "ligados — o Traço cobra na hora"
+                            : "desligados — nada te cobra",
                          fio: sistema.negado || !avisosLigados)
                 .accessibilityIdentifier("estado-avisos")
             if sistema.negado || !avisosLigados {

@@ -21,7 +21,7 @@ appId: app.traco
     timeout: 5000
 - tapOn: Recordar
 - extendedWaitUntil:
-    visible: "RECORDAR"
+    visible: "Recordar"
     timeout: 4000
 - assertVisible: "Leia uma última vez — a nota vai se esconder."
 - takeScreenshot: /tmp/traco-verify/nav/13-recordar
