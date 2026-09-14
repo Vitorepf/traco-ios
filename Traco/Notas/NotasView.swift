@@ -356,18 +356,12 @@ struct NotasView: View {
     /// A seta da régua (V13) deixa de ser necessária: o menu mostra os 29 de
     /// uma vez, nenhum fica escondido à direita.
     private var regencia: some View {
-        let eixo = tamanhoTexto.isAccessibilitySize
-            ? AnyLayout(VStackLayout(alignment: .leading, spacing: 4))
-            : AnyLayout(HStackLayout(spacing: 8))
-        return eixo {
-            menuFiltro
-            if !tamanhoTexto.isAccessibilitySize {
-                Text("·").font(Tema.meta).foregroundStyle(Tema.tintaFraca).accessibilityHidden(true)
-            }
-            menuOrdem
-        }
-        .padding(.horizontal, Tema.margem)
-        .padding(.bottom, 12)
+        // Laço de simplicidade (goal de 14/09): filtrar por 29 formas e
+        // domínios e escolher a ordem eram decisões de taxonomia — a IA
+        // classifica em silêncio e a busca acha. As duas palavras saem do
+        // cabeçalho; os menus ficam no código até a próxima volta julgar o
+        // que sobra deles (o filtro de trancadas, por exemplo).
+        Color.clear.frame(height: 0)
         .sheet(isPresented: Binding(get: { contextoURL != nil },
                                     set: { if !$0 { contextoURL = nil } })) {
             if let contextoURL { CompartilharArquivo(url: contextoURL) }
