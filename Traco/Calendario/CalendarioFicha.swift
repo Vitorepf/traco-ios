@@ -22,10 +22,12 @@ struct CalendarioFichaView: View {
                     dismiss()
                 }, prefixo: "ficha")
 
+                // título à esquerda, como todo título do app (era centrado —
+                // a única folha centrada da casa)
                 TextField("Título", text: $evento.titulo, axis: .vertical)
-                    .font(.system(.largeTitle, weight: .bold))
-                    .tracking(CalendarioTema.tituloTracking)
-                    .multilineTextAlignment(.center)
+                    .font(Tema.tituloTela)
+                    .tracking(Tema.trackingTitulo)
+                    .multilineTextAlignment(.leading)
                     .lineLimit(3)
                     .foregroundStyle(CalendarioTema.tinta)
                     .focused($tituloEmFoco)
@@ -77,16 +79,7 @@ struct CalendarioFichaView: View {
                                 set: { evento = evento.comFim($0) }
                             ), displayedComponents: .hourAndMinute)
                             .padding(.vertical, 6)
-                            divisoria
-                            HStack {
-                                Text("Duração")
-                                Spacer()
-                                Text(duracao)
-                                    .monospacedDigit()
-                                    .foregroundStyle(CalendarioTema.tintaSuave)
-                                    .contentTransition(.numericText())
-                            }
-                            .padding(.vertical, 10)
+                            // "Duração" saiu: Começa e Termina já a dizem
                         }
                     }
                     .font(.callout)
@@ -319,11 +312,4 @@ struct CalendarioFichaView: View {
         }
     }
 
-    private var duracao: String {
-        let m = evento.duracaoMinutos
-        if m < 60 { return "\(m) min" }
-        let h = m / 60
-        let resto = m % 60
-        return resto == 0 ? "\(h) h" : "\(h) h \(resto) min"
-    }
 }
