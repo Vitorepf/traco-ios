@@ -230,7 +230,10 @@ struct NotasView: View {
                                 : conversaNotas.estado == .interrompida(pergunta)
                                     ? "você parou de esperar."
                                     : Grok.avisoDaFalha(),
-                            repetir: repetirPergunta,
+                            // sem conta nem modelo, repetir dá o mesmo erro: a
+                            // saída é o Perfil (auditoria 13/09, defeito 3)
+                            repetir: Sabia.disponivel ? repetirPergunta : { sessao.irPara(.perfil, no: context) },
+                            rotuloDoRepetir: Sabia.disponivel ? "Perguntar de novo" : "Entrar com a conta Grok",
                             rota: "sabia-notas"
                         ) { EmptyView() }
                     }

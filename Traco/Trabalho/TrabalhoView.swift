@@ -589,7 +589,9 @@ struct TrabalhoView: View {
     private func dificuldade(_ o: OficinaTrabalho) -> some View {
         VStack(alignment: .leading, spacing: Tema.entreItens) {
             secao("Dificuldade")
-            if let oferta = o.documento.ofertaDaJornada {
+            // a retomada do topo já mostra a oferta quando não há dificuldade
+            // plantada; repetir o parágrafo na mesma folha era ruído (13/09)
+            if o.documento.dificuldadePlantada != nil, let oferta = o.documento.ofertaDaJornada {
                 Text(oferta)
                     .font(Tema.meta)
                     .foregroundStyle(Tema.tintaSuave)

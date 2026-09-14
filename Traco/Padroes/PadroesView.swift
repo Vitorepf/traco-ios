@@ -275,7 +275,9 @@ struct PadroesView: View {
                 bloco("arrow.triangle.branch", "decisão a conferir", r.decisoesAConferir)
                 bloco("scope", "o que está em jogo", r.desejos)
                 bloco("exclamationmark.triangle", "sem a falha nomeada · abrir o pré-mortem", r.semRisco, premortem: true)
-                bloco("calendar", "nos próximos sete dias", r.proximos)
+                // a hora já diz quando; "nos próximos sete dias" repetido em
+                // cada linha era ruído (auditoria 13/09, defeito 10)
+                bloco("calendar", "", r.proximos)
                 ForEach(r.calibragem) { c in
                     Button {
                         if let nota = Sessao.buscar(uuid: c.id, no: context) {
@@ -319,7 +321,8 @@ struct PadroesView: View {
                 // o "PRÉ-MORTEM" em caixa alta e âmbar era etiqueta pintada;
                 // agora é o fim do subtítulo, em frase normal (ADR 10k)
                 LinhaDeLista(tocavel: simbolo, linha.texto,
-                             (linha.quando.map { RevisaoSemanalFormato.quando($0) + " · " } ?? "") + tipo,
+                             [linha.quando.map(RevisaoSemanalFormato.quando), tipo.isEmpty ? nil : tipo]
+                                .compactMap { $0 }.joined(separator: " · "),
                              linhasDoTitulo: 2)
             }
             .buttonStyle(PressaoDiscreta())
@@ -332,7 +335,10 @@ enum RevisaoSemanalFormato {
     static func quando(_ d: Date) -> String {
         let f = DateFormatter()
         f.locale = Locale(identifier: "pt_BR")
-        f.dateFormat = "EEE d, HH:mm"
+        // meia-noite em ponto é dia inteiro (aniversário, feriado): dizer
+        // "00:00" era mentir a hora (auditoria 13/09, defeito 9)
+        let c = Calendar.current.dateComponents([.hour, .minute], from: d)
+        f.dateFormat = c.hour == 0 && c.minute == 0 ? "EEE d, 'dia inteiro'" : "EEE d, HH:mm"
         return f.string(from: d).replacingOccurrences(of: ".", with: "")
     }
 }

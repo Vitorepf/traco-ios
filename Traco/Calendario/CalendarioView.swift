@@ -407,34 +407,26 @@ struct CalendarioView: View {
             .accessibilityLabel("Marcar em palavras")
             .accessibilityHint("Escreva o compromisso em palavras, como no exemplo")
 
-            // um botão, dois estados: com texto ele envia; vazio ele grava a
-            // voz. Antes, vazio, era um alvo de 44pt que não fazia nada.
-            Button {
-                if temTexto {
-                    ditado.parar()
+            // Voz é proibida na casa (ESTEIRA, ADR 10k): o botão só existe
+            // quando há texto a marcar; vazio, o campo fala por si.
+            if temTexto {
+                Button {
                     agenda.adicionarDaProsa()
-                } else {
-                    ditado.alternar()
+                } label: {
+                    Image(systemName: "arrow.up")
+                        .font(.subheadline.weight(.bold))
+                        .foregroundStyle(.white)
+                        .frame(width: CalendarioTema.controle, height: CalendarioTema.controle)
+                        .background(CalendarioTema.chipActivo,
+                                    in: RoundedRectangle(cornerRadius: CalendarioTema.raioAcao, style: .continuous))
+                        .frame(width: Tema.alvo, height: Tema.alvo)
+                        .contentShape(Rectangle())
                 }
-            } label: {
-                Image(systemName: temTexto ? "arrow.up" : (ditado.gravando ? "stop.fill" : "mic"))
-                    .font(.subheadline.weight(.bold))
-                    .contentTransition(.symbolEffect(.replace))
-                    .foregroundStyle(temTexto || ditado.gravando ? .white : CalendarioTema.tinta)
-                    .frame(width: CalendarioTema.controle, height: CalendarioTema.controle)
-                    .background(
-                        temTexto || ditado.gravando ? CalendarioTema.chipActivo : CalendarioTema.chip,
-                        in: RoundedRectangle(cornerRadius: CalendarioTema.raioAcao, style: .continuous)
-                    )
-                    .frame(width: Tema.alvo, height: Tema.alvo)
-                    .contentShape(Rectangle())
+                .buttonStyle(PressaoClara())
+                .transition(Tema.transicao(.opacity, reduzido: reduceMotion))
+                .accessibilityLabel("Marcar o compromisso")
+                .accessibilityIdentifier("calendario-marcar")
             }
-            .buttonStyle(PressaoClara())
-            .animation(Tema.movimento(.opacidade, .easeOut(duration: Tema.Duracao.curta), reduzido: reduceMotion), value: temTexto)
-            .animation(Tema.movimento(.opacidade, .easeOut(duration: Tema.Duracao.curta), reduzido: reduceMotion), value: ditado.gravando)
-            .accessibilityLabel(temTexto ? "Marcar o compromisso"
-                : ditado.gravando ? "Parar de gravar" : "Ditar o compromisso")
-            .accessibilityIdentifier("calendario-marcar")
         }
         .padding(.leading, 2)
         .padding(.trailing, 4)
@@ -508,6 +500,11 @@ struct CalendarioListaView: View {
             Calendario.inicioDoDia($0.inicio, agenda.cal)
         }
         let dias = grupos.keys.sorted()
+        // A lista pousa em hoje (ou no primeiro dia depois de hoje), como o
+        // Calendário do iPhone: o passado fica acima, para quem quiser subir.
+        let hoje = Calendario.inicioDoDia(agenda.ancora, agenda.cal)
+        let alvo = dias.first { $0 >= hoje } ?? dias.last
+        ScrollViewReader { proxy in
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 20) {
                 if dias.isEmpty {
@@ -554,6 +551,8 @@ struct CalendarioListaView: View {
             }
             .padding(.horizontal, CalendarioTema.margem)
             .padding(.bottom, 160)
+        }
+        .onAppear { if let alvo { proxy.scrollTo(alvo, anchor: .top) } }
         }
     }
 }
