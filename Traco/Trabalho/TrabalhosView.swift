@@ -17,7 +17,7 @@ struct TrabalhosView: View {
     @State private var busca = ""
     @AppStorage("trabalho.nova-intencao") private var intencao = ""
     @State private var erro: String?
-    @FocusState private var intencaoEmFoco: Bool
+    @State private var ditado = Ditado()
 
     private var encontrados: [Trabalho] {
         let q = busca.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -68,39 +68,21 @@ struct TrabalhosView: View {
         }
     }
 
-    /// A intenção primeiro: o campo e a única ação cheia da tela.
+    /// A intenção primeiro — no MESMO campo das Notas, da página e do
+    /// calendário (dono, 14/09): escrever ou falar, enviar. Um botão cheio
+    /// desligado com uma frase a explicar por que estava desligado era o
+    /// formulário; agora a seta só aparece quando há o que começar.
     private var abertura: some View {
         VStack(alignment: .leading, spacing: Tema.entreItens) {
             Text("Trabalhos")
                 .font(Tema.tituloTela)
                 .tracking(Tema.trackingTitulo)
-            // A abertura é um convite, não um rótulo de formulário: a caixa
-            // alta fica para as seções ("SEUS TRABALHOS"), que são nomes.
-            Text("O que você quer realizar?")
-                .font(Tema.chrome.weight(.semibold))
-            TextField("Comece com uma intenção", text: $intencao, axis: .vertical)
-                .lineLimit(2...8)
-                .focused($intencaoEmFoco)
-                .cartao(.campo)
-                .accessibilityIdentifier("trabalho-nova-intencao")
-            // A ação principal não vira fantasma por falta de texto: tocar sem
-            // intenção leva o foco ao campo que falta (curva-zero §3, "erro
-            // localizado e ajuda acionável"). Desabilitar aqui apagava a única
-            // ação da tela — o defeito 2 da V9 pelo avesso.
-            Pilula("Começar este trabalho", forma: .larga, selecionada: true) {
-                guard podeCriar else { intencaoEmFoco = true; return }
-                criar()
-            }
-            .accessibilityIdentifier("trabalho-criar")
-            .accessibilityHint(podeCriar ? "" : "Escreva a intenção primeiro")
-            if !podeCriar {
-                Text("Escreva a intenção acima para começar.")
-                    .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
-            } else {
-                Text("Sua intenção fica como rascunho neste aparelho até começar o trabalho.")
-                    .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
-                Pilula("Limpar intenção", forma: .filtro) { intencao = "" }
-            }
+            CampoFlutuante(texto: $intencao, dica: "o que você quer realizar?", ditado: ditado,
+                           identificador: "trabalho-nova-intencao", identificadorDoBotao: "trabalho-criar",
+                           rotuloEnviar: "Começar este trabalho", rotuloDitar: "Ditar a intenção",
+                           aoEnviar: { if podeCriar { criar() } })
+                .onAppear { ditado.aoTexto = { falado in intencao = falado } }
+                .onDisappear { ditado.parar() }
             if let erro {
                 Text(erro).font(Tema.meta).foregroundStyle(Tema.aviso)
             }
