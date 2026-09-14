@@ -10290,7 +10290,7 @@ acusa (`CalendarioTema.agora` e `.rotulo()` passam).
 mesmo regex ainda acha âmbar ou caixa alta fora da regra em `CartaoAnaliseView` (10),
 `PortalArquivoView` (10), `RedeView` (8), `PaginaView`, `FechoExpressivaView`, `SerieView`,
 `PortalCodigoView`, `CamposFormaView`, `Pilula` e no `BotaoPrimario` — o próximo corte. E o
-**microfone no campo do calendário** (`Ditado`): voz é proibida na casa.
+**microfone no campo do calendário** (`Ditado`): ~~voz é proibida na casa~~ — **corrigido em 14/09: voz no app é caminho principal (ordem do dono); proibido é Siri/TTS nos simuladores. O microfone fica.**
 **Prova** (`ferramentas/orca/sistema/`, 10/09 21h35, teste 4 em `large`): vídeo de 15 s com
 o pé (`sistema-filmar.sh`: Conta recolhe e abre, Quem responde abre e fecha, a rolagem até o
 interruptor em carvão, Padrões, a agenda em lista), seis fotos (`sistema-fotografar.sh`) e

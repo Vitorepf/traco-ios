@@ -72,6 +72,9 @@ Regra, para todo portão novo: **o teste declara o estado que exige como PRÉ-CO
 
 ### ⛔ VOZ, VOICEOVER E iPAD SÃO PROIBIDOS NO TRAÇO — SEM EXCEÇÃO
 
+**CORREÇÃO DO DONO, 14/09/2026:** esta lei é do INSTRUMENTO, não do produto. *"Deveria ser capaz de apertar o microfone e dizer todos os eventos que eu preciso que marque. Até mesmo nas notas, se eu quiser descarregar todos os meus pensamentos. Por voz é a melhor forma possível, é mais rápida."* Microfone no calendário e ditado nas notas são caminho principal do app: **nunca remover, nunca "clonar o princípio sem a voz"**. O que continua proibido é acionar Siri, ditado, Speak Screen, VoiceOver ou `say` NOS SIMULADORES, porque o som sai pelo Mac dele. iPad continua fora.
+
+
 Ordem do dono, repetida inúmeras vezes e reforçada em **08/09 19h35, com o Mac dele falando alto**. Proibido: comando por voz, acionar a Siri (inclusive `orca emulator button siri`), ditado por voz, Speak Screen, **VoiceOver ligado em simulador**, `say`, síntese de fala por qualquer caminho, e **iPad em qualquer forma**. Vale para todo worker, todo juiz e todo revisor, e vai **no preâmbulo de todo spec**.
 
 **O que vale no lugar:** prova de Siri é **no iPhone do dono, com ele** — no simulador ela não é evidência; teste de acessibilidade é **por árvore de acessibilidade e captura conferida no mesmo instante**, com o VoiceOver falado **declarado como limite**, o que **não desconta nota**; e **um simulador por worker**, dito no relato.
