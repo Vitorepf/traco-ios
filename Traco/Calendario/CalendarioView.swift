@@ -292,7 +292,7 @@ struct CalendarioView: View {
                 Image(systemName: agenda.modo == .lista ? "calendar" : "list.bullet")
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(CalendarioTema.tinta)
-                    .frame(width: 32, height: Tema.alvo)
+                    .frame(width: 32, height: 32)
                     .contentShape(Rectangle())
             } primaryAction: {
                 Toque.selecao()
@@ -313,10 +313,12 @@ struct CalendarioView: View {
                             agenda.ir(para: escala)
                         }
                     } label: {
+                        // o trilho respira dentro da cápsula de 44: 32 de trilho,
+                        // 28 de disco (antes enchia os 44 e encostava nas bordas)
                         Text(escala.letra)
                             .font(CalendarioTema.escala)
                             .foregroundStyle(ligado ? .white : CalendarioTema.tintaSuave)
-                            .frame(width: 32, height: 32)
+                            .frame(width: 28, height: 28)
                             .background {
                                 if ligado {
                                     Circle()
@@ -325,7 +327,7 @@ struct CalendarioView: View {
                                         .matchedGeometryEffect(id: "escala-selecionada", in: morph)
                                 }
                             }
-                            .frame(width: 34, height: Tema.alvo)
+                            .frame(width: 32, height: 32)
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(PressaoClara())
@@ -334,7 +336,7 @@ struct CalendarioView: View {
                     .accessibilityAddTraits(ligado ? [.isButton, .isSelected] : .isButton)
                 }
             }
-            .padding(.horizontal, 3)
+            .padding(.horizontal, 2)
             .background(Capsule().fill(CalendarioTema.trilho))
             .animation(CalendarioTema.morph(reduceMotion), value: agenda.escala)
 
