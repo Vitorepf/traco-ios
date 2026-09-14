@@ -976,10 +976,11 @@ struct NotasView: View {
             .accessibilityIdentifier("nota-notas")
 
             if !nota.fechada, nota.gesto != .expressiva, nota.dominio != nil || nota.dominioTravado {
-                // ADR 05d: a palavra abre o menu; nada apaga num toque
-                ChipDominio(atual: nota.dominio, travado: nota.dominioTravado,
-                            aoEscolher: { sessao.escolherDominio($0, na: nota, no: context) },
-                            aoDevolver: { sessao.devolverDominio(nota, no: context) })
+                // Laço de simplicidade (14/09): o domínio é identidade, não
+                // decisão — a palavra só diz. Corrigir mora no toque longo da
+                // linha ("Escolher", "Sem domínio", "Devolver ao app"), com o
+                // mesmo poder e nenhum chevron a pedir escolha em cada linha.
+                ChipDominio(atual: nota.dominio, travado: nota.dominioTravado)
                     .accessibilityIdentifier("chip-dominio")
             }
         }
