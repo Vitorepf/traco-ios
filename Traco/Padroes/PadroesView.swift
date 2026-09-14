@@ -269,7 +269,7 @@ struct PadroesView: View {
                 bloco("star", "destaque", r.destaques)
                 bloco("arrow.triangle.branch", "decisão a conferir", r.decisoesAConferir)
                 bloco("scope", "o que está em jogo", r.desejos)
-                bloco("exclamationmark.triangle", "sem a falha nomeada · abrir o pré-mortem", r.semRisco, premortem: true)
+                bloco("exclamationmark.triangle", "o que pode dar errado ainda não tem nome", r.semRisco, premortem: true)
                 // a hora já diz quando; "nos próximos sete dias" repetido em
                 // cada linha era ruído (auditoria 13/09, defeito 10)
                 bloco("calendar", "", r.proximos)

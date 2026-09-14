@@ -394,3 +394,4 @@ Desde o placar O: as três críticas dele da tarde respondidas (faixas fora, cam
 | Recordar | 8,5 | 7 | 8,5 | 7 | 9 | 9 | 8,2 |
 
 Nenhuma tela em 9 em tudo pelo meu olho — e o dele está ~2 abaixo. O que ainda separa: (1) "IA sozinha" além do compromisso (criar trabalho, lembrar, responder) depende de Grok no aparelho dele; (2) a ficha ainda usa os DatePickers do sistema; (3) Recordar sem vídeo; (4) o julgamento dele sobre o campo de 44 e o pé (última nota: 7).
+- (64) Padrões: "sem a falha nomeada · abrir o pré-mortem" era jargão de método com instrução; agora "o que pode dar errado ainda não tem nome". Capturas `padroes-premortem-antes-14-09.png` / `padroes-premortem-depois-14-09.png`. Suíte 1208/183 verde.
