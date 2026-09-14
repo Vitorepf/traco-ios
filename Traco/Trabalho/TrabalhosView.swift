@@ -110,9 +110,17 @@ struct TrabalhosView: View {
     @ViewBuilder private var lista: some View {
         VStack(alignment: .leading, spacing: Tema.entreItens) {
             Text("Seus trabalhos").rotulo(Tema.tintaSuave)
-            TextField("Buscar trabalhos", text: $busca)
-                .cartao(.campo)
+            // a busca é a mesma linha das Notas (ADR 10i): hairline, sem caixa
+            TextField("", text: $busca, prompt: Text("buscar").foregroundStyle(Tema.tintaFraca))
+                .font(Tema.corpo)
+                .tint(Tema.ambar)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+                .submitLabel(.search)
+                .alvo()
+                .overlay(alignment: .bottom) { Rectangle().fill(Tema.linha).frame(height: 0.5) }
                 .accessibilityIdentifier("trabalhos-busca")
+                .accessibilityLabel("Buscar trabalhos")
             if encontrados.isEmpty {
                 // ponytail: `Vazio` traz a margem de tela embutida e aqui ela
                 // dobraria; a frase e a saída são as mesmas dele.
