@@ -413,7 +413,12 @@ struct PaginaView: View {
 
     private var topbar: some View {
         HStack {
-            Button("Notas") { sessao.irNotas(no: context) }
+            // "Notas" solto lia como título da página (auditoria 13/09,
+            // defeito 5): o chevron diz que é a saída para o arquivo. A
+            // tentativa de 13/09 caía só em AX5, que saiu da suíte.
+            Button { sessao.irNotas(no: context) } label: {
+                Text("‹ Notas").lineLimit(1).fixedSize()
+            }
                 .keyboardShortcut("l", modifiers: .command)
                 .alvo()
                 .accessibilityIdentifier("notas-da-pagina")
