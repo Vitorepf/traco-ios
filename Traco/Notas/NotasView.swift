@@ -647,7 +647,9 @@ struct NotasView: View {
                        identificador: "busca-notas", identificadorDoBotao: busca.isEmpty ? "ditar-notas" : "perguntar-notas",
                        rotuloEnviar: "Perguntar à sábia", rotuloDitar: "Ditar", aoEnviar: perguntarDaBusca)
             .padding(.horizontal, Tema.margem)
-            .padding(.bottom, 8)
+            // cola na pílula: o pé é UM bloco (campo sobre a pílula), não dois
+            // vidros com um vão maior do que a margem da tela entre eles
+            .padding(.bottom, -6)
             .onAppear { ditado.aoTexto = { [conversaNotas] falado in conversaNotas.busca = falado } }
             .onDisappear { ditado.parar() }
     }
