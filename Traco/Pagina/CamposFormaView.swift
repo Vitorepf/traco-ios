@@ -132,21 +132,20 @@ private struct LinhaCampo: View {
                             : "\(texto.count) de \(teto)")
                 }
             }
-            // o campo precisa PARECER que recebe texto: sem superfície própria,
-            // a folha inteira lia como somente-leitura (critique-affordance)
+            // Laço de simplicidade (14/09): o campo é texto no papel com um
+            // fio embaixo — o mesmo idioma da busca das Notas e do `.campo`
+            // do sistema. A caixa branca era a última caixa da página. O fio
+            // diz que recebe texto; o âmbar do caret diz onde.
             TextField("", text: $texto, axis: .vertical)
                 .font(Tema.corpo)
                 .foregroundStyle(Tema.tinta)
                 .textFieldStyle(.plain)
                 .tint(Tema.ambar)
                 .lineLimit(1...5)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 10)
+                .padding(.vertical, 8)
                 .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .topLeading)
-                .background(Tema.superficieAlta, in: RoundedRectangle(cornerRadius: Tema.Raio.controle, style: .continuous))
-                .overlay {
-                    RoundedRectangle(cornerRadius: Tema.Raio.controle, style: .continuous)
-                        .strokeBorder(preenchido ? Tema.ambar.opacity(0.28) : Tema.linha, lineWidth: 0.5)
+                .overlay(alignment: .bottom) {
+                    Rectangle().fill(preenchido ? Tema.ambar.opacity(0.5) : Tema.linha).frame(height: 0.5)
                 }
                 .accessibilityLabel(rotulo)
                 .accessibilityIdentifier("campo-\(id)")
