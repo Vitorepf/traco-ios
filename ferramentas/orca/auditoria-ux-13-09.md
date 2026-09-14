@@ -299,3 +299,4 @@ O que sobe o placar daqui não é volta minha: é o dono ver os seis vídeos e a
 ## L. Veredito do dono (14/09, 14h05)
 
 Depois de ver o build no teste 4: **"melhorou muito, mas eu daria uma nota 6 no máximo para geral."** Esta é a nota que vale; a minha 8,1 (seção K) era estimativa e fica como registro da distância entre o que eu vejo e o que ele vê. O portão continua a 9.
+- 31d9998 — Concluir marca no calendário as linhas com dia e hora (30). Instalado no teste 4.
