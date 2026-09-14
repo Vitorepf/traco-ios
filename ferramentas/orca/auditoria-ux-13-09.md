@@ -207,3 +207,4 @@ Sem vídeo (movimento não avaliado). Sem aparelho real. Sem VoiceOver, sem AX, 
 - 475c1e2 — Perfil: consulta nasce recolhida (sábia, latência, métodos, calendário); ajustes abertos. Captura `17e-perfil-recolhido.png`.
 - 928b23e — Página: "Analisar" e "Recordar" saem do pé; ficam Trabalhar nisto, Anexar e Lente. Vídeo de 27 s com o pé: `pe-pagina-14-09.mp4` (17e, large; teclado com o glifo, texto, pé de três). Fluxos maestro que tocavam Analisar/Recordar: `auto-analise`, `recordar*`, `aceite`, `auditoria-completa` e mais quatro — sem alvo.
 - 2eeebfc — Calendário: escalas e Hoje sob o título; pé com campo + pílula. Captura `air-calendario-2-andares.png`.
+- 5191eb8 — Trabalho: um primário por folha ("Preparar este ato" vira secundário).
