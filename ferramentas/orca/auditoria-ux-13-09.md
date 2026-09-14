@@ -267,3 +267,4 @@ Mesma régua. Estimativa minha; o veredito do dono em vídeo continua a ser o po
 - 4ec7ce6 — Notas: falha sem conta com a frase da Politica e saída para o Perfil (21).
 - Vídeo `padroes-perfil-14-09.mp4` (Air, 21 s): Padrões rolando; Perfil com Conta recolhendo e abrindo.
 - e8d0c76 — Padrões e Perfil sem a marca "?" (22). UITests EsperaComEstado e PerguntaSobrevive ficam sem "perguntar-modo" — reescrever pelo campo "busca-notas".
+- Vídeo `trabalho-14-09.mp4` (Air, 21 s): lista de Trabalhos em linha, a folha abrindo com intenção, o que preparar e o próximo ato; apoio, dificuldade e histórico recolhidos; campos no papel; um primário.
