@@ -271,3 +271,4 @@ Mesma régua. Estimativa minha; o veredito do dono em vídeo continua a ser o po
 - 23b2c5a — Trabalho: "Sua versão" recolhida em "Escrever eu mesmo"; abre pelo "Ir ao próximo passo" (23).
 - 9be6996 — Cartão da forma vestida: só "Desfazer" (24). EscritaVisivelUITests tocava "abrir-campos" — sem alvo.
   Captura `air-cartao-desfazer.png`: texto, três campos no papel, encadeamento, cartão com Desfazer, campo do pé.
+- a276c30 — Página: "Depois disto" só com os campos exigidos respondidos (25).
