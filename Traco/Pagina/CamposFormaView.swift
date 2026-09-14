@@ -46,15 +46,23 @@ struct CamposFormaView: View {
     /// ADR 04k — a linha DEPOIS DISTO: um botão por encadeamento, aceso quando
     /// os campos de origem têm resposta. O toque copia as palavras do autor
     /// para a próxima forma e liga as duas. A IA não escreve nada aqui.
+    private func pronto(_ e: Metodo.Encadeamento) -> Bool {
+        e.exige.allSatisfy { !(campos[$0] ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+    }
+
     @ViewBuilder private var depoisDisto: some View {
-        if let aoEncadear, !gesto.encadeamentos.isEmpty {
+        // Laço de 14/09: a porta só aparece quando o que ela exige já foi
+        // respondido — uma oferta apagada, com os campos vazios, era um
+        // objeto a mais dizendo "ainda não"
+        let prontos = gesto.encadeamentos.filter(pronto)
+        if let aoEncadear, !prontos.isEmpty {
             VStack(alignment: .leading, spacing: 4) {
                 Text("Depois disto")
                     .font(Tema.meta)
                     .foregroundStyle(Tema.tintaSuave)
                     .padding(.top, 8)
-                ForEach(gesto.encadeamentos) { e in
-                    let pronto = e.exige.allSatisfy { !(campos[$0] ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+                ForEach(prontos) { e in
+                    let pronto = true
                     Button {
                         aoEncadear(e)
                     } label: {
