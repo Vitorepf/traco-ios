@@ -71,12 +71,9 @@ struct PerfilView: View {
             Tema.fundo.ignoresSafeArea()
             VStack(alignment: .leading, spacing: 0) {
             // ADR 10i: a marca de perguntar, a mesma de toda tela do arquivo
-            TituloTela(texto: "Perfil") {
-                MarcaDePergunta {
-                    sessao.conversaNotas.perguntando = true
-                    sessao.irPara(.notas, no: context)
-                }
-            }
+            // perguntar mora no campo do pé das Notas (ADR 2026-09-14a); a
+            // marca "?" aqui era uma segunda porta para o mesmo lugar
+            TituloTela("Perfil")
             ScrollView {
                 // Hermes §1 e §4 (ADR 10k): as seções pousam no PAPEL. O
                 // cartão em volta de cada uma nomeava o conteúdo com caixa

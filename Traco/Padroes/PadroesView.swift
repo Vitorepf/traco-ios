@@ -181,12 +181,9 @@ struct PadroesView: View {
             // §20: voltar é da barra inferior. Aqui fica o nome da tela, e só.
             // ADR 10i: a marca de perguntar, a mesma de toda tela do arquivo;
             // a folha da pergunta mora nas Notas
-            TituloTela(texto: "Padrões") {
-                MarcaDePergunta {
-                    sessao.conversaNotas.perguntando = true
-                    sessao.irPara(.notas, no: context)
-                }
-            }
+            // perguntar mora no campo do pé das Notas (ADR 2026-09-14a); a
+            // marca "?" aqui era uma segunda porta para o mesmo lugar
+            TituloTela("Padrões")
 
             ScrollView {
                 // Hermes §1, §4 e §5 (ADR 10k): três seções no papel, sem
