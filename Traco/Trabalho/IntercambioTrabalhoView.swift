@@ -45,8 +45,11 @@ struct IntercambioTrabalhoView: View {
         if preview != nil || lendo { .revisao } else if arquivo != nil { .exportacao } else if importar { .seletor } else { .nenhum }
     }
 
+    // a mesma seção recolhível da folha do Trabalho (a chave é a da tela)
+    var recolhidas = Recolhidas("trabalho", deInicio: ["intercambio"])
+
     var body: some View {
-        DisclosureGroup("Editar com outras ferramentas") {
+        recolhidas.secao("Editar com outras ferramentas", id: "intercambio") {
             // O proxy é do ScrollView da folha do Trabalho: o ScrollViewReader
             // não cria rolagem, só dá acesso à que já envolve esta tela.
             ScrollViewReader { rolagem in

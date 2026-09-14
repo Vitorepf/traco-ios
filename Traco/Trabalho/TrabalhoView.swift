@@ -36,12 +36,11 @@ struct TrabalhoView: View {
     /// As seções que não são o próximo passo nascem recolhidas (Hermes §5: a
     /// densidade se controla no cabeçalho): a folha abre com a intenção, o
     /// que preparar e o próximo ato — o resto está a um toque, lembrado.
-    var recolhidas = Recolhidas("trabalho", deInicio: ["apoio", "praticar", "dificuldade", "minha-versao"])
+    var recolhidas = Recolhidas("trabalho", deInicio: ["apoio", "praticar", "dificuldade", "minha-versao", "historico", "intercambio"])
     @State private var limparAposCommit: [String] = []
     /// A gaveta da versão: escrever a primeira e editar a atual nunca convivem.
     @State private var editandoVersao = false
     @State private var editandoIntencao = false
-    @State private var historicoAberto = false
     @State private var confirmarDescarte = false
     @State private var recuperacao: String?
     @State private var confirmarApagarCopia = false
@@ -269,7 +268,7 @@ struct TrabalhoView: View {
                 Text(retorno.texto).lineLimit(3)
                 acaoSecundaria("Ver retorno e histórico") {
                     campoEmFoco = nil
-                    if retorno.tentativa != nil { historicoAberto = true }
+                    if retorno.tentativa != nil { recolhidas["historico"].wrappedValue = false }
                     rolarPara = retorno.tentativa == nil ? "trabalho-retorno" : "trabalho-historico"
                 }
             }
@@ -1387,7 +1386,9 @@ struct TrabalhoView: View {
 
     /// Uma gaveta só, e sem gaveta dentro de gaveta: cada versão é um cartão.
     private func historico(_ o: OficinaTrabalho) -> some View {
-        DisclosureGroup("Histórico de versões (\(o.documento.artefatos.count))", isExpanded: $historicoAberto) {
+        // a mesma seção recolhível das outras (cabeçalho sussurrado + contagem),
+        // não uma DisclosureGroup do sistema no meio delas (laço de 14/09)
+        recolhidas.secao("Histórico de versões", id: "historico", contagem: o.documento.artefatos.count) {
             VStack(alignment: .leading, spacing: Tema.entreItens) {
                 let livres = o.documento.tentativas(doArtefato: nil)
                 if !livres.isEmpty {
@@ -1414,8 +1415,6 @@ struct TrabalhoView: View {
                 }
             }.padding(.top, 8)
         }
-        .font(Tema.chrome)
-        .tint(Tema.tintaSuave)
         .id("trabalho-historico")
     }
 
