@@ -61,7 +61,10 @@ struct PerfilView: View {
     /// Hermes §5: a densidade se controla no cabeçalho de cada seção. A tabela
     /// de quem responde nasce recolhida: o estado da conta já está nas linhas
     /// de cima, e o cabeçalho a mantém à vista (ADR 10k).
-    var recolhidas = Recolhidas("perfil", deInicio: ["quem-responde"])
+    // Laço de simplicidade (14/09): o que é AJUSTE fica aberto (conta,
+    // permissões, férias, ajustes, dados); o que é CONSULTA nasce recolhido —
+    // o cabeçalho basta para ser achado, e a página abre em uma tela.
+    var recolhidas = Recolhidas("perfil", deInicio: ["quem-responde", "sabia", "latencia", "metodos", "calendario"])
 
     var body: some View {
         ZStack {
