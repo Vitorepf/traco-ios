@@ -846,12 +846,31 @@ struct PerfilView: View {
         .accessibilityIdentifier(id)
     }
 
+    /// A hora se escolhe num menu, na própria linha: o `Stepper` do sistema
+    /// era uma caixa cinza com − e + fora da família, e 23 toques para ir de
+    /// 21h a 8h (laço de 14/09).
     private func hora(_ simbolo: String, _ titulo: String, _ explicacao: String, fio: Bool = true,
                       valor: Binding<Int>) -> some View {
-        Stepper(value: valor, in: 0...23) {
-            LinhaDeLista(simbolo, "\(titulo) às \(valor.wrappedValue)h", explicacao, fio: fio)
+        Menu {
+            ForEach(0..<24, id: \.self) { h in
+                Button { valor.wrappedValue = h } label: {
+                    if h == valor.wrappedValue { Label("\(h)h", systemImage: "checkmark") } else { Text("\(h)h") }
+                }
+            }
+        } label: {
+            LinhaDeLista(titulo: titulo, subtitulo: explicacao, fio: fio,
+                         glifo: { Image(systemName: simbolo) },
+                         acessorio: {
+                             HStack(spacing: 4) {
+                                 Text("\(valor.wrappedValue)h").foregroundStyle(Tema.tintaSuave)
+                                 Image(systemName: "chevron.up.chevron.down")
+                                     .font(.caption2.weight(.semibold))
+                                     .foregroundStyle(Tema.tintaFraca)
+                             }
+                             .font(Tema.chrome)
+                         })
         }
-        .tint(Tema.tintaSuave)
+        .buttonStyle(.linha)
         .accessibilityLabel(titulo)
         .accessibilityValue("\(valor.wrappedValue) horas")
     }
