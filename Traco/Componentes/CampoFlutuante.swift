@@ -46,13 +46,21 @@ struct CampoFlutuante<Mais: View>: View {
                     ditado.alternar()
                 }
             } label: {
+                // ocioso, o microfone é só o glifo — a caixa cinza dentro da
+                // cápsula branca lia como um botão barato; com texto, o enviar
+                // é o círculo carvão com a sombra de controle do calendário
                 Image(systemName: temTexto ? "arrow.up" : (ditado.gravando ? "stop.fill" : "mic"))
                     .font(.subheadline.weight(.bold))
                     .contentTransition(.symbolEffect(.replace))
                     .foregroundStyle(temTexto || ditado.gravando ? .white : Tema.tinta)
-                    .frame(width: 36, height: 36)
-                    .background(temTexto || ditado.gravando ? Tema.chipAtivo : Tema.chip,
-                                in: RoundedRectangle(cornerRadius: Tema.Raio.controle, style: .continuous))
+                    .frame(width: 34, height: 34)
+                    .background {
+                        if temTexto || ditado.gravando {
+                            Circle()
+                                .fill(ditado.gravando && !temTexto ? Tema.aviso : Tema.chipAtivo)
+                                .shadow(color: CalendarioTema.sombraControle, radius: 4, y: 2)
+                        }
+                    }
                     .frame(width: Tema.alvo, height: Tema.alvo)
                     .contentShape(Rectangle())
             }
@@ -62,12 +70,17 @@ struct CampoFlutuante<Mais: View>: View {
             .accessibilityLabel(temTexto ? rotuloEnviar : ditado.gravando ? "Parar de ditar" : rotuloDitar)
             .accessibilityIdentifier(identificadorDoBotao ?? (identificador + (temTexto ? "-enviar" : "-ditar")))
         }
-        .padding(.leading, 2)
+        .padding(.leading, 6)
         .padding(.trailing, 4)
-        .padding(.vertical, 2)
-        .background(Capsule().fill(Tema.superficie))
-        .overlay(Capsule().strokeBorder(Tema.luzBorda, lineWidth: 1))
-        .sombra(Tema.Sombra.campo)
+        .padding(.vertical, 4)
+        // vidro sobre alumínio: a cápsula branca com o fio de luz no topo e a
+        // sombra flutuante — o material do pé do calendário que o dono aprovou
+        .background {
+            Capsule()
+                .fill(Tema.superficie)
+                .overlay(Capsule().strokeBorder(Tema.luzBorda, lineWidth: 1))
+                .sombra(Tema.Sombra.flutuante)
+        }
     }
 }
 

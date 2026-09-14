@@ -71,11 +71,7 @@ struct CalendarioView: View {
         .confirmationDialog("Marcar", isPresented: $agenda.menuMais, titleVisibility: .hidden) {
             Button("Novo compromisso") { agenda.novoEmBranco() }
             Button("Colar") { agenda.colar() }
-            Button(agenda.modo == .lista ? "Ver em grade" : "Ver em lista") {
-                withAnimation(CalendarioTema.morph(reduceMotion)) {
-                    agenda.modo = agenda.modo == .lista ? .grelha : .lista
-                }
-            }
+
             Button("Cancelar", role: .cancel) {}
         }
         // sem id na raiz: ele cobria os ids de TODOS os filhos (34 elementos
@@ -273,10 +269,10 @@ struct CalendarioView: View {
         // Dono, 14/09: UMA linha, não duas — as escalas à esquerda, o campo
         // (escrever ou falar) à direita. "Hoje" só existe quando não se está
         // em hoje; lista/grade mora no "+", que é raro.
-        HStack(spacing: 8) {
-            interruptor(agora: agora)
-            campoProsa
-        }
+        // Dono, 14/09: UMA linha, e com o material da cápsula anterior — o
+        // que vai à esquerda (lista/grade, escalas, Hoje) entra na mesma
+        // cápsula de vidro do campo, como o "+" entrava.
+        campoProsa(agora: agora)
         .padding(.horizontal, 14)
         .padding(.bottom, 8)
         .dynamicTypeSize(...DynamicTypeSize.xLarge)
@@ -284,6 +280,22 @@ struct CalendarioView: View {
 
     private func interruptor(agora: Date) -> some View {
         HStack(spacing: 6) {
+            // lista ou grade: um alternador só, o glifo do que se vai ver
+            Button {
+                Toque.selecao()
+                withAnimation(CalendarioTema.morph(reduceMotion)) {
+                    agenda.modo = agenda.modo == .lista ? .grelha : .lista
+                }
+            } label: {
+                Image(systemName: agenda.modo == .lista ? "calendar" : "list.bullet")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(CalendarioTema.tinta)
+                    .frame(width: 32, height: Tema.alvo)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(PressaoClara())
+            .accessibilityLabel(agenda.modo == .lista ? "Ver em grade" : "Ver em lista")
+            .accessibilityIdentifier("modo-alternar")
             HStack(spacing: 0) {
                 ForEach(EscalaCalendario.allCases, id: \.self) { escala in
                     let ligado = agenda.escala == escala
@@ -301,6 +313,7 @@ struct CalendarioView: View {
                                 if ligado {
                                     Circle()
                                         .fill(CalendarioTema.chipActivo)
+                                        .shadow(color: CalendarioTema.sombraControle, radius: 4, y: 2)
                                         .matchedGeometryEffect(id: "escala-selecionada", in: morph)
                                 }
                             }
@@ -341,22 +354,12 @@ struct CalendarioView: View {
         .fixedSize()
     }
 
-    private var campoProsa: some View {
+    private func campoProsa(agora: Date) -> some View {
         CampoFlutuante(texto: $agenda.prosa, dica: dicaDoCampo, ditado: ditado,
                        identificador: "calendario-prosa", identificadorDoBotao: "calendario-marcar",
                        rotuloEnviar: "Marcar o compromisso", rotuloDitar: "Ditar o compromisso",
                        aoEnviar: { agenda.adicionarDaProsa() }) {
-            Button {
-                agenda.menuMais = true
-            } label: {
-                Image(systemName: "plus")
-                    .font(.callout.weight(.semibold))
-                    .foregroundStyle(Tema.tinta)
-                    .frame(width: Tema.alvo, height: Tema.alvo)
-                    .contentShape(Rectangle())
-            }
-            .buttonStyle(.discreto)
-            .accessibilityLabel("Marcar")
+            interruptor(agora: agora)
         }
     }
 }

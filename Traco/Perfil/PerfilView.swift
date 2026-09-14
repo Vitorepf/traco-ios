@@ -677,8 +677,8 @@ struct PerfilView: View {
                 prosa(orcamentoDosAvisos, cor: Tema.tintaSuave)
                     .accessibilityIdentifier("orcamento-avisos")
             }
-            prosa("Apple, Google, iCloud — o Traço lê todos os que estão em Ajustes › Apps › Calendário › Contas, e nunca escreve em nenhum. Serve para o campo do calendário já sugerir o seu próximo compromisso.")
-                .padding(.top, 8)
+            // a linha "Calendários do aparelho" já diz o estado; o parágrafo
+            // de quatro linhas que explicava o mesmo saiu (laço de 14/09)
         }
         .task {
             await sistema.pedirAcesso()
