@@ -241,15 +241,27 @@ struct CalendarioFichaView: View {
     /// frase — quem marcasse pela ficha não tinha caminho nenhum para repetir.
     private var repeticao: some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Text("Repete")
-                Spacer()
-                Text(evento.repete
-                     ? Calendario.diasEmLetras(evento.repeteEm, agenda.cal)
-                     : "não repete")
-                    .foregroundStyle(CalendarioTema.tintaSuave)
-                    .accessibilityIdentifier("ficha-repete-dias")
+            // os sete dias só aparecem quando há repetição ou quando a pessoa
+            // toca a linha para marcar uma: "não repete" com sete chips em
+            // baixo era decisão oferecida sem ser pedida (laço de 14/09)
+            Button {
+                Toque.selecao()
+                withAnimation(Tema.gaveta(reduzido: reduceMotion)) { editandoRepeticao.toggle() }
+            } label: {
+                HStack {
+                    Text("Repete")
+                    Spacer()
+                    Text(evento.repete
+                         ? Calendario.diasEmLetras(evento.repeteEm, agenda.cal)
+                         : "não repete")
+                        .foregroundStyle(CalendarioTema.tintaSuave)
+                        .accessibilityIdentifier("ficha-repete-dias")
+                }
+                .contentShape(Rectangle())
             }
+            .buttonStyle(.discreto)
+            .accessibilityHint("Abre os dias da semana")
+            if editandoRepeticao || evento.repete {
             HStack(spacing: 6) {
                 ForEach(diasDaSemana, id: \.numero) { dia in
                     let ligado = evento.repeteEm.contains(dia.numero)
@@ -275,12 +287,17 @@ struct CalendarioFichaView: View {
                     .accessibilityIdentifier("ficha-repete-\(dia.numero)")
                 }
             }
+            .transition(.identity)
+            }
         }
         .padding(.vertical, 10)
         .accessibilityIdentifier("ficha-repete")
     }
 
     /// Os sete dias na ordem da semana do autor (domingo ou segunda primeiro).
+    @State private var editandoRepeticao = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     private var diasDaSemana: [(numero: Int, letra: String, nome: String)] {
         Calendario.semana(da: Date(timeIntervalSince1970: 0), agenda.cal).map { dia in
             (agenda.cal.component(.weekday, from: dia),
