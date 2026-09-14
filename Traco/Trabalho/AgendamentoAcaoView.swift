@@ -79,7 +79,7 @@ enum PromessaDoAviso: Equatable {
         case .toca(let quando): "Toca \(quando)."
         case .seDeixarem(let quando): "Toca \(quando), se você permitir os avisos quando o iPhone perguntar."
         case .desligados: "O iPhone está com os avisos do Traço desligados — nada vai tocar."
-        case .jaPassou: "A hora do aviso já passou — esta ação ficou sem alarme."
+        case .jaPassou: "A hora do aviso já passou — nada vai tocar."
         }
     }
 }

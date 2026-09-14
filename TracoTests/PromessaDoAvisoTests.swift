@@ -59,7 +59,7 @@ struct PromessaDoAvisoTests {
                                          instante: agora.addingTimeInterval(-31 * 60), repete: false, agora: agora)
             #expect(p == .jaPassou)
             #expect(!p.texto.contains("Toca"))
-            #expect(p.texto == "A hora do aviso já passou — esta ação ficou sem alarme.")
+            #expect(p.texto == "A hora do aviso já passou — nada vai tocar.")
         }
     }
 
