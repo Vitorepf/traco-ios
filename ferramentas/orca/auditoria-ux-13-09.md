@@ -205,3 +205,5 @@ Sem vídeo (movimento não avaliado). Sem aparelho real. Sem VoiceOver, sem AX, 
 - **Próximas causas, na ordem do goal:** o pé da página (Trabalhar nisto + Analisar/Recordar/Anexar/Lente — "Analisar" já é automático; proposta com vídeo para o dono); o menu de domínio por linha nas Notas (correção vira toque longo); os três andares do calendário; o Perfil (12 seções → o que é ajuste de verdade); vídeo de movimento de cada tela.
 - 2a7c95f — Notas: domínio por linha vira identidade (sem menu); corrigir no toque longo. Captura `17e-notas-dominio-identidade.png`.
 - 475c1e2 — Perfil: consulta nasce recolhida (sábia, latência, métodos, calendário); ajustes abertos. Captura `17e-perfil-recolhido.png`.
+- 928b23e — Página: "Analisar" e "Recordar" saem do pé; ficam Trabalhar nisto, Anexar e Lente. Vídeo de 27 s com o pé: `pe-pagina-14-09.mp4` (17e, large; teclado com o glifo, texto, pé de três). Fluxos maestro que tocavam Analisar/Recordar: `auto-analise`, `recordar*`, `aceite`, `auditoria-completa` e mais quatro — sem alvo.
+- 2eeebfc — Calendário: escalas e Hoje sob o título; pé com campo + pílula. Captura `air-calendario-2-andares.png`.
