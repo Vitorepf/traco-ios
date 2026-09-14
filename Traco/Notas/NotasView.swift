@@ -88,7 +88,11 @@ struct NotasView: View {
                     // marca "?" saíram: é um gesto só, no lugar do polegar.
                     // Como no calendário, o campo FLUTUA sobre a lista (a última
                     // linha passa por baixo), em vez de cortá-la em cheio.
-                    lista.overlay(alignment: .bottom) { campoDeBuscaEPergunta }
+                    // ZStack de propósito: `lista` é um Group com dois ramos
+                    // (vazio / cheio) e um overlay no Group nasce em CADA ramo —
+                    // quando a busca chegava a zero, o campo era recriado no
+                    // meio da palavra e perdia o foco e as teclas seguintes.
+                    ZStack { lista }.overlay(alignment: .bottom) { campoDeBuscaEPergunta }
                 }
             }
             .animation(Tema.corte(.easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion), value: conversaNotas.modoPergunta)
