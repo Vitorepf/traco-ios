@@ -417,7 +417,7 @@ struct CartaoAnaliseView: View {
                 // pé do cartão ficava legível sobre o corpo do cartão por ~215
                 // ms sem RM. A troca de estado do cartão corta, como o `fechar()`
                 // e o `onChange(of: camposComResposta)` já cortam.
-                Button("Abrir os campos") {
+                Button("Preencher os campos") {
                     var t = Transaction(); t.disablesAnimations = true
                     withTransaction(t) {
                         // volta à linha antes de a folha subir: o teclado

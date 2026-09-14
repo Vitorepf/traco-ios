@@ -124,25 +124,31 @@ struct CalendarioFichaView: View {
                         .accessibilityIdentifier("ficha-aviso")
                         .accessibilityLabel("Avisar: \(Aviso.nome(evento.avisoMinutos, diaInteiro: evento.diaInteiro))")
 
-                        // a promessa em unidade do mundo dele: não "30 min
-                        // antes", mas a hora em que o iPhone vai tocar
-                        if let promessa = Aviso.promessa(de: evento, agenda.cal,
-                                                         manha: Ancora.hora(.manha)) {
+                        // A promessa passa pelo mesmo tipo da folha do Trabalho
+                        // (`PromessaDoAviso`): hora passada e avisos desligados
+                        // calam a frase, em vez de prometer o que não vai tocar.
+                        let promessa = PromessaDoAviso.para(
+                            minutos: evento.avisoMinutos, estado: agenda.estadoDosAvisos,
+                            hora: Aviso.promessa(de: evento, agenda.cal, manha: Ancora.hora(.manha)) ?? "",
+                            instante: Aviso.instante(de: evento, agenda.cal, manha: Ancora.hora(.manha)),
+                            repete: evento.repete)
+                        switch promessa {
+                        case .semAviso:
+                            EmptyView()
+                        case .toca, .seDeixarem, .jaPassou:
                             divisoria
-                            Text("Toca \(promessa).")
+                            Text(promessa.texto)
                                 .font(.footnote)
-                                .foregroundStyle(CalendarioTema.tintaSuave)
+                                .foregroundStyle(promessa == .jaPassou ? CalendarioTema.aviso : CalendarioTema.tintaSuave)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.vertical, 10)
                                 .accessibilityIdentifier("ficha-aviso-promessa")
-                        }
-
-                        // ADR 03e: permissão negada não é beco — a tela diz, e
-                        // dá a única volta que o iOS permite
-                        if agenda.estadoDosAvisos == .negado, evento.avisoMinutos != nil {
+                        case .desligados:
+                            // ADR 03e: permissão negada não é beco — a tela diz, e
+                            // dá a única volta que o iOS permite
                             divisoria
                             VStack(alignment: .leading, spacing: 8) {
-                                Text("Os avisos do Traço estão desligados no iPhone — nada vai tocar.")
+                                Text(promessa.texto)
                                     .font(.footnote)
                                     .foregroundStyle(CalendarioTema.aviso)
                                 Button("Abrir os Ajustes") {
