@@ -235,3 +235,4 @@ O portão do goal (9 em tudo, com vídeo e "aqui a pessoa faz uma coisa só") n�
 - 416dc1f — Campos da forma na página: texto no papel com fio (volta 11). Captura `air-campos-no-papel.png`.
 - fa65b43 — Notas: buscar e perguntar num campo flutuante sobre a pílula, com microfone (`air-notas-campo-pe.png`, `air-notas-busca-correr.png`); "buscar" do topo e marca "?" fora. Página: barra de fechar teclado fora (`air-pagina-sem-barra.png`). Substitui a ADR 10i nesses dois pontos — a ADR precisa de nota.
 - 2f9cded — Página: pé vira o campo flutuante ("+", pergunta, microfone que dita na página). Captura `air-pagina-campo-pe.png`. As três abas de conteúdo partilham agora um só idioma de pé.
+- 94211f3 — REVERTIDO 2eeebfc: as escalas e o Hoje do calendário voltam para o pé (dono, 14/09: "mudou para o topo sem sentido"). O pé do calendário, com escalas, campo e pílula, é decisão do dono — não mexer.
