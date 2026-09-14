@@ -48,6 +48,9 @@ struct TrabalhoView: View {
     @State private var copiaCopiada = false
     @State private var exibicaoSuspensa = false
     @FocusState private var campoEmFoco: String?
+    @FocusState private var pedidoNoCursor: Bool
+    @State private var ditadoDoPedido = Ditado()
+    @State private var ditadoDoAto = Ditado()
     @State private var rolarPara: String?
     /// Quando esta folha foi aberta da última vez. `nil` = primeira visita
     /// registrada; não há "desde quando" a contar. Fica em `@State` para que a
@@ -132,7 +135,7 @@ struct TrabalhoView: View {
                     // intenção e tocar "Começar este trabalho" vem dizer o que
                     // quer preparado — a folha já abre com o cursor lá, e a
                     // jornada intenção → versão preparada perde um toque.
-                    campoEmFoco = "pedido"
+                    pedidoNoCursor = true
                 }
             }
             // O texto que o autor não escreveu começa no alto: sem isto o foco
@@ -459,9 +462,27 @@ struct TrabalhoView: View {
         let combinando = o.documento.apoio == .combinar && o.documento.praticaPedida
         return VStack(alignment: .leading, spacing: Tema.entreItens) {
             secao(combinando ? "Preparar entrega e exercício" : o.documento.praticaPedida ? "Preparar um exercício" : "Preparar uma versão")
-            campo(combinando ? "O que você quer produzir e praticar?" : o.documento.praticaPedida ? "O que você quer praticar?" : "O que você quer que a IA prepare ou ajuste?",
-                  chave: "pedido", exemplo: o.documento.praticaPedida ? "Quero praticar me apresentar em espanhol" : "Prepare uma apresentação curta")
-                .accessibilityIdentifier("trabalho-pedido")
+            // O pedido entra pelo MESMO campo das outras telas (dono, 14/09):
+            // escrever ou falar, e a seta nasce com o texto. O botão cheio
+            // desligado e a frase "escreva acima" eram o formulário.
+            CampoFlutuante(texto: Binding(get: { rascunhos["pedido"] ?? "" },
+                                          set: { novo in
+                                              guard novo != (rascunhos["pedido"] ?? "") else { return }
+                                              definir("pedido", novo)
+                                          }),
+                           dica: combinando ? "o que produzir e praticar?" : o.documento.praticaPedida ? "o que você quer praticar?" : "o que a IA deve preparar?",
+                           ditado: ditadoDoPedido, identificador: "trabalho-pedido", identificadorDoBotao: "trabalho-gerar",
+                           rotuloEnviar: combinando ? "Preparar entrega e exercício" : o.documento.praticaPedida ? "Preparar exercício com IA" : o.documento.versaoAtual == nil ? "Preparar com IA" : "Preparar nova versão com IA",
+                           rotuloDitar: "Ditar o pedido",
+                           aoEnviar: {
+                               guard !levouAoQueFalta(o, campoObrigatorio: "pedido") else { return }
+                               let instrucao = rascunhos["pedido"] ?? ""
+                               o.gerar(instrucao, ajuste: Self.causaDoPedidoEscrito(o.documento, instrucao))
+                           },
+                           foco: $pedidoNoCursor)
+                .id("pedido")
+                .onAppear { ditadoDoPedido.aoTexto = { falado in definir("pedido", falado) } }
+                .onDisappear { ditadoDoPedido.parar() }
             if o.documento.pedidoAtivo != nil {
                 ProgressView("A IA está preparando…")
                     .font(Tema.meta)
@@ -469,21 +490,9 @@ struct TrabalhoView: View {
                     .accessibilityIdentifier("trabalho-preparando")
                 acaoSecundaria("Cancelar preparação") { o.cancelar() }
             } else {
-                // Nada desabilita aqui: a ação principal desabilitada perdia a
-                // cápsula inteira e virava legenda a 1,53:1 (revisão da volta
-                // 18). Tocar leva ao que falta — o campo vazio, a edição
-                // pendente, a saída do erro —, e o motivo continua escrito
-                // abaixo (curva-zero §3).
-                let travado = !o.salvo || edicaoPendente(o)
-                Pilula(combinando ? "Preparar entrega e exercício" : o.documento.praticaPedida ? "Preparar exercício com IA" : o.documento.versaoAtual == nil ? "Preparar com IA" : "Preparar nova versão com IA",
-                       forma: .larga, selecionada: true) {
-                    guard !levouAoQueFalta(o, campoObrigatorio: "pedido") else { return }
-                    let instrucao = rascunhos["pedido"] ?? ""
-                    o.gerar(instrucao, ajuste: Self.causaDoPedidoEscrito(o.documento, instrucao))
-                }
-                    .accessibilityIdentifier("trabalho-gerar")
-                    .accessibilityHint(travado || vazio("pedido") ? motivoDoTravamento(o) : "")
-                if travado || vazio("pedido") {
+                // o campo vazio já diz o que falta; só o que o autor não vê
+                // (edição pendente, salvamento) continua escrito
+                if !o.salvo || edicaoPendente(o) {
                     Text(motivoDoTravamento(o))
                         .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
                         .accessibilityIdentifier("trabalho-gerar-travado")
@@ -1026,7 +1035,7 @@ struct TrabalhoView: View {
                         acaoDeSaida("Pedir ajuste") {
                             guard acesso.permitido, o.verificarAcesso() else { revalidar(); return }
                             definir("pedido", ajuste)
-                            campoEmFoco = "pedido"
+                            pedidoNoCursor = true
                             rolarPara = "pedido"
                         }
                         .accessibilityIdentifier("trabalho-pedir-ajuste")
@@ -1116,21 +1125,24 @@ struct TrabalhoView: View {
     private func atos(_ o: OficinaTrabalho) -> some View {
         VStack(alignment: .leading, spacing: Tema.entreItens) {
             secao("Próximo ato")
-            campo("O que você vai fazer com este trabalho?", chave: "acao", exemplo: "Ensaiar a apresentação")
-                .accessibilityElement(children: .contain)
-                .accessibilityIdentifier("trabalho-acao")
-            // um primário por folha: preparar a versão é o próximo passo; o ato
-            // vem depois dela e pesa como o resto (laço de simplicidade, 14/09)
-            Pilula("Preparar este ato", forma: .filtro) {
-                guard !levouAoObstaculo(o), !faltaCampo("acao") else { return }
-                aplicar(o, limpar: ["acao"]) { try $0.prepararAcao(rascunhos["acao"] ?? "") }
-            }
-            .accessibilityIdentifier("trabalho-preparar-acao")
-            .accessibilityHint(vazio("acao") ? "Escreva o ato primeiro" : "")
-            Text(vazio("acao")
-                 ? "Escreva acima o ato. Preparar não marca como realizado; você pode escolher um horário para cada ação."
-                 : "Preparar não marca como realizado. Você pode escolher um horário para cada ação.")
-                .font(Tema.meta).foregroundStyle(Tema.tintaSuave)
+            // o ato entra pelo mesmo campo (dono, 14/09): dizer o que vai fazer,
+            // escrevendo ou falando; a seta prepara. O horário de cada ato mora
+            // na ficha dele, logo abaixo — a frase que o explicava saiu.
+            CampoFlutuante(texto: Binding(get: { rascunhos["acao"] ?? "" },
+                                          set: { novo in
+                                              guard novo != (rascunhos["acao"] ?? "") else { return }
+                                              definir("acao", novo)
+                                          }),
+                           dica: "o que você vai fazer com isto?", ditado: ditadoDoAto,
+                           identificador: "acao", identificadorDoBotao: "trabalho-preparar-acao",
+                           rotuloEnviar: "Preparar este ato", rotuloDitar: "Ditar o ato",
+                           aoEnviar: {
+                               guard !levouAoObstaculo(o), !faltaCampo("acao") else { return }
+                               aplicar(o, limpar: ["acao"]) { try $0.prepararAcao(rascunhos["acao"] ?? "") }
+                           })
+                .id("acao")
+                .onAppear { ditadoDoAto.aoTexto = { falado in definir("acao", falado) } }
+                .onDisappear { ditadoDoAto.parar() }
             ForEach(o.documento.acoes) { acao in
                 VStack(alignment: .leading, spacing: Tema.entreItens) {
                     Text(acao.texto).font(Tema.chrome.weight(.semibold))

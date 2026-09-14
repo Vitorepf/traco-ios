@@ -16,8 +16,11 @@ struct CampoFlutuante<Mais: View>: View {
     var aoEnviar: () -> Void
     /// Chamado ANTES de começar a ditar (a página fixa a base do texto).
     var aoComecarDitado: () -> Void = {}
+    /// Quem monta o campo pode levar o cursor a ele (a folha do Trabalho).
+    var foco: FocusState<Bool>.Binding? = nil
     @ViewBuilder var mais: () -> Mais
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @FocusState private var focoProprio: Bool
 
     var body: some View {
         let temTexto = !texto.trimmingCharacters(in: .whitespaces).isEmpty
@@ -35,6 +38,7 @@ struct CampoFlutuante<Mais: View>: View {
                 .accessibilityIdentifier(identificador)
                 .accessibilityLabel(dica)
                 .accessibilityValue(texto.isEmpty ? "vazio" : texto)
+                .focused(foco ?? $focoProprio)
             Button {
                 if temTexto {
                     ditado.parar()
@@ -87,10 +91,12 @@ struct CampoFlutuante<Mais: View>: View {
 extension CampoFlutuante where Mais == EmptyView {
     init(texto: Binding<String>, dica: String, ditado: Ditado, identificador: String,
          identificadorDoBotao: String? = nil, rotuloEnviar: String, rotuloDitar: String,
-         aoEnviar: @escaping () -> Void, aoComecarDitado: @escaping () -> Void = {}) {
+         aoEnviar: @escaping () -> Void, aoComecarDitado: @escaping () -> Void = {},
+         foco: FocusState<Bool>.Binding? = nil) {
         self.init(texto: texto, dica: dica, ditado: ditado, identificador: identificador,
                   identificadorDoBotao: identificadorDoBotao, rotuloEnviar: rotuloEnviar,
-                  rotuloDitar: rotuloDitar, aoEnviar: aoEnviar, aoComecarDitado: aoComecarDitado) { EmptyView() }
+                  rotuloDitar: rotuloDitar, aoEnviar: aoEnviar, aoComecarDitado: aoComecarDitado,
+                  foco: foco) { EmptyView() }
     }
 }
 
