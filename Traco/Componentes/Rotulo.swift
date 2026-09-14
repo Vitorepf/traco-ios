@@ -168,13 +168,19 @@ extension LinhaDeLista where Glifo == Image, Acessorio == Chevron {
 /// tela. Recolher é escolha de densidade de quem lê, não estado da sessão:
 /// a seção fechada ontem continua fechada hoje.
 struct Recolhidas: DynamicProperty {
-    @AppStorage private var guardadas: String
+    /// O estado vivo é `@State` (anima dentro do `withAnimation` do cabeçalho);
+    /// o disco recebe a cópia. Com `@AppStorage` direto, a mudança chegava à
+    /// árvore fora da transação e a seção abria e fechava em corte (vídeo de
+    /// 14/09, volta 57).
+    @State private var conjunto: Set<String>
+    private let chave: String
 
     /// `deInicio`: as seções que nascem recolhidas até o autor abrir uma vez —
     /// letra miúda de consulta, cujo cabeçalho basta para ser achada.
     init(_ tela: String, deInicio: [String] = []) {
-        _guardadas = AppStorage(wrappedValue: deInicio.sorted().joined(separator: ","),
-                                "secoes-recolhidas.\(tela)")
+        chave = "secoes-recolhidas.\(tela)"
+        let guardadas = UserDefaults.standard.string(forKey: chave) ?? deInicio.sorted().joined(separator: ",")
+        _conjunto = State(initialValue: Set(guardadas.split(separator: ",").map(String.init)))
     }
 
     subscript(_ secao: String) -> Binding<Bool> {
@@ -183,7 +189,8 @@ struct Recolhidas: DynamicProperty {
             set: { fechar in
                 var s = conjunto
                 if fechar { s.insert(secao) } else { s.remove(secao) }
-                guardadas = s.sorted().joined(separator: ",")
+                conjunto = s
+                UserDefaults.standard.set(s.sorted().joined(separator: ","), forKey: chave)
             })
     }
 
@@ -204,7 +211,6 @@ struct Recolhidas: DynamicProperty {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    private var conjunto: Set<String> { Set(guardadas.split(separator: ",").map(String.init)) }
 }
 
 /// O acessório da linha que se toca. Cinza-escuro, como no Hermes.
