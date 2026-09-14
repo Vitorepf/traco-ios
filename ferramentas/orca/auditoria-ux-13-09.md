@@ -345,3 +345,23 @@ Nenhuma tela em 9 em todas as dimensões. A minha estimativa correu 2 pontos aci
 - (51) Perfil › Ajustes: o interruptor "Análise automática" pedia à pessoa que decidisse se a IA age — a IA age sempre, na pausa da escrita; o interruptor saiu (o estado fica para o instrumento, `-autoAnalise`). Capturas `perfil-ajustes-antes-14-09.png` / `perfil-ajustes-depois-14-09.png`. Suíte 1208/183 verde.
 - (52) Perfil › Férias: a linha "desligado. O Traço cobra todo dia, como sempre." repetia o que os dois interruptores desligados já diziam. Só existe quando há férias vigentes (o que está calado e até quando). Captura `perfil-ferias-depois-14-09.png` (antes em `perfil-ajustes-depois-14-09.png`). Suíte 1208/183 verde.
 - (53) Perfil › Ajustes: as quatro horas (Recordar, Manhã, Tarde, Noite) eram `Stepper` do sistema — caixa cinza com − e +, fora da família, e 23 toques para ir de 21h a 8h. Viraram menu na própria linha: valor à direita com a seta dupla (`LinhaDeLista` + `Menu`, `.linha`). Captura `perfil-horas-menu-depois-14-09.png` (antes em `perfil-ajustes-antes-14-09.png`). Suíte 1208/183 verde.
+- (54, julgamento) Calendário em vídeo: as quatro trocas de escala (D→S→M→A→D) animam em 9/6/8/7 quadros a 20 fps, sem quadro vazio, com o título em morph numérico e a seleção deslizando no trilho; mês e ano vistos ao vivo (`calendario-mes-14-09.png`, `calendario-ano-14-09.png`, vídeo `calendario-escalas-14-09.mp4`). Nada a corrigir nesta volta; anotado: no mês, o feriado "Independência" sai cortado sem reticências no chip (uma palavra só, longa).
+
+## O. Placar depois de cinquenta e três voltas (14/09, 16h05) — estimativa minha; a nota que vale é a dele
+
+Desde o placar N: campo único em seis lugares, colado à pílula, "diga qualquer coisa"; pedido com dia e hora vai ao calendário; conversa da sábia com o mesmo campo; volta do arquivo desliza; Desenhar; imagem limpa; Trabalho sem gavetas do sistema; Perfil sem interruptor da análise, sem frase das férias, horas por menu; Lente com uma seção "À sábia"; Recordar sem botão fantasma.
+
+| Tela | Simplicidade | IA sozinha | Acabamento | Movimento | Texto | Família | Média |
+|---|---|---|---|---|---|---|---|
+| Notas | 9 | 8,5 | 9 | 8,5 | 9 | 9 | 8,8 |
+| Conversa | 9 | 7,5 | 9 | 8 | 9 | 9 | 8,6 |
+| Página | 9 | 8 | 9 | 8,5 | 9 | 9 | 8,8 |
+| Calendário | 9 | 8,5 | 9 | 9 | 9 | 9 | 8,9 |
+| Padrões | 8,5 | 8 | 8,5 | 7,5 | 8,5 | 8,5 | 8,3 |
+| Perfil | 8,5 | 7,5 | 9 | 7,5 | 8,5 | 9 | 8,3 |
+| Trabalhos | 9 | 8 | 9 | 7,5 | 9 | 9 | 8,6 |
+| Trabalho | 8,5 | 7 | 8,5 | 7 | 8,5 | 9 | 8,1 |
+| Lente | 8 | 7 | 8,5 | 7 | 8,5 | 8,5 | 7,9 |
+| Recordar | 8,5 | 7 | 8,5 | 7 | 9 | 9 | 8,2 |
+
+Descontados os 2 pontos da distância entre o meu olho e o dele (seção K → L), o geral está perto de 7. O que ainda separa de 9, na ordem dele: (1) acabamento — Padrões (as duas colunas da trajetória), a folha da conversa que nasce vazia por cima, o chip do feriado; (2) IA sozinha — os pedidos que não são compromisso ("cria um trabalho", "me lembra") ainda vão à sábia como pergunta; sem Grok no aparelho de trabalho, a prova das rotas de IA depende do teste 4; (3) movimento — Padrões, Perfil e Trabalho não têm troca de estado filmada.
