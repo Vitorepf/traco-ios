@@ -265,3 +265,4 @@ Mesma régua. Estimativa minha; o veredito do dono em vídeo continua a ser o po
 - fa5696b — Calendário: Novo/Colar no toque longo do alternador (20).
 - Vídeo `pe-notas-14-09.mp4` (Air, 26 s): o campo do pé sobe com o teclado, "correr" filtra ao vivo ("1 nota com Correr" + pelo sentido), enviar abre a conversa com a pergunta. **Achado novo (engana):** sem conta Grok e com o modelo do aparelho "pronto" no Perfil, a resposta falha com "Falta a conta. O que escreveu continua aqui." e oferece "Perguntar de novo" — `Sabia.disponivel` é verdadeiro pelo modelo de bordo, mas a rota `responder` das Notas cai no Grok. Próxima causa: a falha tem de dizer a verdade da rota (Politica) ou a rota tem de usar o modelo do aparelho.
 - 4ec7ce6 — Notas: falha sem conta com a frase da Politica e saída para o Perfil (21).
+- Vídeo `padroes-perfil-14-09.mp4` (Air, 21 s): Padrões rolando; Perfil com Conta recolhendo e abrindo.
