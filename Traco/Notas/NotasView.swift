@@ -804,7 +804,8 @@ struct NotasView: View {
                                 .foregroundStyle(peloSentido.isEmpty ? Tema.tintaSuave : Tema.tintaFraca)
                                 .padding(.top, 12)
                         }
-                        linhaTrabalhos
+                        // a porta dos Trabalhos não entra no resultado de uma busca
+                        if busca.isEmpty { linhaTrabalhos }
                         secaoDaVolta
                         ForEach(meses(visiveis), id: \.titulo) { mes in
                             secao(mes.titulo)
