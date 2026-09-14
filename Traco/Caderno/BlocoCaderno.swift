@@ -518,7 +518,7 @@ enum Caderno: Sendable {
     nonisolated static func estruturar(_ texto: String) -> String {
         var temTitulo = false
         var mudancas: [(Range<String.Index>, String)] = []
-        for intervalo in intervalosParaVestir(texto) {
+        for (indice, intervalo) in intervalosParaVestir(texto).enumerated() {
             let bloco = texto[intervalo].split(whereSeparator: \.isNewline).map(String.init)
             // bloco que já carrega forma/marca é escolha do autor — não se toca
             if bloco.contains(where: jaVestida) {
@@ -528,6 +528,16 @@ enum Caderno: Sendable {
                 continue
             }
             if bloco.count >= 2, bloco.allSatisfy(curtaSemPonto) {
+                // a nota que começa com três ou mais linhas curtas coladas
+                // ("Plano de sábado / comprar pão / ligar…") é um título e a
+                // sua lista, não quatro itens (dono, 14/09, sem a régua)
+                if indice == 0, !temTitulo, bloco.count >= 3 {
+                    let titulo = "# " + bloco[0].trimmingCharacters(in: .whitespaces)
+                    let itens = bloco.dropFirst().map { "- " + $0.trimmingCharacters(in: .whitespaces) }
+                    mudancas.append((intervalo, ([titulo] + itens).joined(separator: "\n")))
+                    temTitulo = true
+                    continue
+                }
                 // linhas curtas paralelas = lista: cada uma vira item
                 mudancas.append((intervalo, bloco.map { "- " + $0.trimmingCharacters(in: .whitespaces) }.joined(separator: "\n")))
                 continue

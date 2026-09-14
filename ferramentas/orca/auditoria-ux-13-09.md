@@ -195,3 +195,9 @@ Sem vídeo (movimento não avaliado). Sem aparelho real. Sem VoiceOver, sem AX, 
 - 47c825b — busca dos Trabalhos vira a linha das Notas (19).
 - **Decisões do dono que a auditoria listou e que ficam como estão:** o risco de feriado no ano (03/set, "em qualquer visualização"); o chevron nas ações da Lente (ADR 10k: "a ação se reconhece pelo chevron"); a medida como título na Latência (G4 da L1); os três andares do calendário; o pé da página.
 - **Ainda aberto, e por quê:** Trabalho fora da família (7 em E) pede desenho com veredito do dono — o campo em caixa é `.cartao(.campo)` do sistema, usado também na ficha e na Lente, e trocar o estilo muda três telas de uma vez; a caixa dos campos da forma na página, pelo mesmo motivo; o pré-aviso antes do diálogo de permissão (15) seria uma coisa a mais na tela, e foi deixado de lado; "‹ Notas" (5), ver acima.
+
+## H. Laço de simplicidade (goal de 14/09)
+
+- 0ba3a47 — Trabalho: apoio, praticar e dificuldade nascem recolhidas; a folha abre com intenção, o que preparar e o próximo ato. Antes/depois em `auditoria-ux-13-09/air-trabalho-antes-1.png` / `-depois-1.png`.
+- **Não feito e por quê:** "Sua versão" recolhida — `JornadaC9UITests` digita nela e toca "Guardar minha versão" sem abrir seção; colapsar quebra a jornada guardada. Precisa de decisão: quando "Delegar" é a escolha, a versão própria devia ser um toque a mais, e o teste devia abrir a seção.
+- 1b50dcc — Página: a régua de formatos sai (ordem do dono, 14/09); título/seção/lista nascem do texto ao concluir; no pé do teclado fica só o glifo de recolher. Trabalhos: linha no lugar do cartão. Os fluxos maestro `caderno-*.yaml` que tocavam a régua ficam sem alvo — aposentar ou reescrever pelo texto.
