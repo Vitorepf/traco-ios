@@ -208,3 +208,25 @@ Sem vídeo (movimento não avaliado). Sem aparelho real. Sem VoiceOver, sem AX, 
 - 928b23e — Página: "Analisar" e "Recordar" saem do pé; ficam Trabalhar nisto, Anexar e Lente. Vídeo de 27 s com o pé: `pe-pagina-14-09.mp4` (17e, large; teclado com o glifo, texto, pé de três). Fluxos maestro que tocavam Analisar/Recordar: `auto-analise`, `recordar*`, `aceite`, `auditoria-completa` e mais quatro — sem alvo.
 - 2eeebfc — Calendário: escalas e Hoje sob o título; pé com campo + pílula. Captura `air-calendario-2-andares.png`.
 - 5191eb8 — Trabalho: um primário por folha ("Preparar este ato" vira secundário).
+- Vídeo das abas `abas-14-09.mp4` (Air, 20 s: Notas → Calendário → Padrões). Nos quadros de 12 s e 18 s a cápsula da pílula aparece no Calendário com Padrões na tela; **ao vivo não reproduz** (duas capturas `simctl` com a cápsula certa depois de toques rápidos) — suspeita do gravador, que estica o relógio e não grava quadro parado (memória `recordvideo-estica-o-relogio`). Fica como risco a filmar de novo com `--fps`.
+
+## I. Placar refeito depois de oito voltas (14/09, 11h)
+
+Mesma régua da seção A. Sem vídeo por tela além dos dois gravados; sem o veredito do dono, que é quem julga motion e acabamento. Estimativa minha, para dizer a distância, não para fechar o portão.
+
+| tela | Design | Simplicidade | Componentes | Texto | Estado honesto | Hermes | média | o que ainda falta para 9 |
+|---|---|---|---|---|---|---|---|---|
+| 1 Página | 7 | 8 | 7 | 7 | 8 | 7 | **7,3** | campos da forma em caixa branca; cartão + campos ainda são duas camadas; "Notas" no canto como título |
+| 2 Notas | 8 | 9 | 8 | 8 | 8 | 9 | **8,3** | subtítulo por linha ainda mistura forma e data; "trabalhos ›" como texto cinza |
+| 3 Conversa | 8 | 8 | 9 | 7 | 7 | 9 | **8,0** | conversa vazia é uma tela em branco; pensando/resposta não vistos com conta |
+| 4 Calendário | 8 | 8 | 7 | 8 | 7 | 7 | **7,5** | trilho sob o título ainda tem 7 controles; mês e ano continuam densos |
+| 5 Ficha | 7 | 7 | 6 | 8 | 8 | 5 | **6,8** | três cartões cinza; Repete + sete chips; título sem cara de editável |
+| 6 Padrões | 8 | 9 | 9 | 8 | 8 | 9 | **8,5** | quase lá: falta o vídeo e o olho do dono |
+| 7 Perfil | 8 | 8 | 8 | 6 | 8 | 8 | **7,7** | letra miúda de quatro linhas por seção; "Latência da descoberta" |
+| 8 Trabalho | 6 | 7 | 6 | 6 | 8 | 5 | **6,3** | campos em caixa; "Sua versão" sempre aberta; ainda três telas de rolagem quando há versão |
+| 9 Recordar | 6 | 8 | 7 | 8 | 8 | 6 | **7,2** | "hoje não" sem cara de botão; folha vazia com um caret |
+| 10 Lente | 7 | 7 | 8 | 7 | 8 | 7 | **7,3** | ações com chevron; letra miúda sob cada cabeçalho |
+| 11 Navegação | 8 | 9 | 7 | 7 | 8 | 8 | **7,8** | três palavras para sair de folha; puxador de 3 pt |
+| **média** | 7,4 | 8,0 | 7,5 | 7,3 | 7,8 | 7,3 | **7,5** | era 6,9 em 13/09 |
+
+O portão do goal (9 em tudo, com vídeo e "aqui a pessoa faz uma coisa só") não fecha sem duas coisas que só o dono dá: o veredito em vídeo e a decisão sobre as caixas do sistema (`.cartao(.campo)`, que vive na página, na ficha, no Trabalho e na Lente). Tudo o que dava para decidir sozinho, pela régua do goal, foi decidido e está em `main`.
