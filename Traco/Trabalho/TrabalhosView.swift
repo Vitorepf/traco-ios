@@ -128,8 +128,9 @@ struct TrabalhosView: View {
                     } label: {
                         // a linha da casa (ADR 10k), sem cartão: o cartão
                         // branco era a única caixa da lista
+                        // "há 2 dias", como nas Notas — não "13 de set. de 2026"
                         LinhaDeLista(tocavel: "hammer", trabalho.titulo,
-                                     trabalho.atualizadoEm.formatted(date: .abbreviated, time: .omitted),
+                                     VozDoAutor.relativo(trabalho.atualizadoEm),
                                      linhasDoTitulo: 2)
                     }
                     .buttonStyle(.linha)
