@@ -796,10 +796,12 @@ struct NotasView: View {
                                 .accessibilityIdentifier("contagem-busca")
                         }
                         // O arquivo tem tempo: seções por mês, não um pergaminho cego.
+                        // com achados pelo sentido logo abaixo, "nenhuma nota com…"
+                        // é nota de rodapé, não manchete
                         if visiveis.isEmpty, !busca.isEmpty {
                             Text(vazioTitulo)
-                                .font(Tema.corpo)
-                                .foregroundStyle(Tema.tintaSuave)
+                                .font(peloSentido.isEmpty ? Tema.corpo : Tema.meta)
+                                .foregroundStyle(peloSentido.isEmpty ? Tema.tintaSuave : Tema.tintaFraca)
                                 .padding(.top, 12)
                         }
                         linhaTrabalhos
