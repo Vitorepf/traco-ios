@@ -155,6 +155,7 @@
 		9A7198E223ED751893053F68 /* SabiaOrcamentoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC88C57426827914E30265B /* SabiaOrcamentoTests.swift */; };
 		9AE336A415F4A83195416BE2 /* Gesto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 854249702104D325072DC8FA /* Gesto.swift */; };
 		9BC040C354342C4A9337EAB9 /* DoCadernoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F39FDF5D127D1C7D7B719758 /* DoCadernoView.swift */; };
+		9D4A7DE2A579D091FC13AB6F /* HojeAVistaTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 036D93791373C39C70BA427B /* HojeAVistaTests.swift */; };
 		A04760162DE7D02C4FD467F8 /* Rede.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAC68B6A9734928BF14264CD /* Rede.swift */; };
 		A0486FAC7D0CE9DEEED3F113 /* Metodo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 492D4F0932CB8F2B1D329BA6 /* Metodo.swift */; };
 		A12EC39DE749ED01C731FA65 /* CalendarioView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C84F5A9736B63E8169395C4D /* CalendarioView.swift */; };
@@ -285,6 +286,7 @@
 		00FF648389CB7C318B68A693 /* Calendario.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Calendario.swift; sourceTree = "<group>"; };
 		01E13C7C695CD548A18F4EE2 /* RevisaoSemanal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RevisaoSemanal.swift; sourceTree = "<group>"; };
 		021C8E770A726E850C84515E /* Rotulo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Rotulo.swift; sourceTree = "<group>"; };
+		036D93791373C39C70BA427B /* HojeAVistaTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HojeAVistaTests.swift; sourceTree = "<group>"; };
 		04AD4822CC87D350BD7C56E1 /* ProvaTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProvaTests.swift; sourceTree = "<group>"; };
 		0654F54BA318B17E77C8F1F5 /* Traco.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Traco.entitlements; sourceTree = "<group>"; };
 		06D8B8DA8F9AB5510FC4CB69 /* RedeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedeView.swift; sourceTree = "<group>"; };
@@ -720,6 +722,7 @@
 				3812F59AB690B3EEE53733B6 /* GuardaDeEcosTests.swift */,
 				E2CF0DDF404F7CD7357532DC /* GuardaDeInstigarTests.swift */,
 				727E99F9253F86D264C4B346 /* GuardaDeObraTests.swift */,
+				036D93791373C39C70BA427B /* HojeAVistaTests.swift */,
 				B0BBA6436049FAFFC6A04D00 /* IntegridadeCorpusTests.swift */,
 				0AACA865AA4D86AF3CFEEEAC /* IntegridadeEntradaTests.swift */,
 				CEE5A0BF90A8A66D87A0B64C /* IntegridadeRotasTests.swift */,
@@ -1137,6 +1140,7 @@
 				45DF067252E28EF6D29A5766 /* GuardaDeEcosTests.swift in Sources */,
 				ECA4462D1B0AE97F289B7ECC /* GuardaDeInstigarTests.swift in Sources */,
 				760D209CD0A589044B965AD7 /* GuardaDeObraTests.swift in Sources */,
+				9D4A7DE2A579D091FC13AB6F /* HojeAVistaTests.swift in Sources */,
 				FCC9FDE2F1DE401A5F60C4E0 /* IntegridadeCorpusTests.swift in Sources */,
 				4588AF25A6B240A074095E45 /* IntegridadeEntradaTests.swift in Sources */,
 				793BE3AE186B9D29159CC21E /* IntegridadeRotasTests.swift in Sources */,

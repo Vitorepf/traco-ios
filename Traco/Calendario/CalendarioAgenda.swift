@@ -119,6 +119,18 @@ final class CalendarioAgenda {
 
     func ancoraEHoje(_ agora: Date) -> Bool { Calendario.eHoje(ancora, agora: agora, cal) }
 
+    /// Hoje já está na tela? No dia é a âncora; na semana, no mês e no ano é o
+    /// período à vista. O "Hoje" do pé só existe quando a resposta é não —
+    /// na semana de hoje ele reancorava dentro da mesma semana (nada mudava).
+    func hojeAVista(_ agora: Date) -> Bool {
+        switch escala {
+        case .dia: return ancoraEHoje(agora)
+        case .semana: return semana.contains { Calendario.mesmoDia($0, agora, cal) }
+        case .mes: return cal.isDate(ancora, equalTo: agora, toGranularity: .month)
+        case .ano: return cal.isDate(ancora, equalTo: agora, toGranularity: .year)
+        }
+    }
+
     var segundaPrimeiro: Bool {
         get { cal.firstWeekday == 2 }
         set {

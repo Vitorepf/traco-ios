@@ -338,7 +338,7 @@ struct CalendarioView: View {
             .background(Capsule().fill(CalendarioTema.trilho))
             .animation(CalendarioTema.morph(reduceMotion), value: agenda.escala)
 
-            if !(agenda.ancoraEHoje(agora) && agenda.escala == .dia) {
+            if !agenda.hojeAVista(agora) {
                 Button {
                     Toque.selecao()
                     withAnimation(CalendarioTema.morph(reduceMotion)) {
@@ -365,7 +365,7 @@ struct CalendarioView: View {
     private func campoProsa(agora: Date) -> some View {
         // com o Hoje à vista a linha aperta: a dica encurta para "marcar" em
         // vez de sair cortada a meio ("Dentista 1…", vídeo de 14/09)
-        let emHoje = agenda.ancoraEHoje(agora) && agenda.escala == .dia
+        let emHoje = agenda.hojeAVista(agora)
         return CampoFlutuante(texto: $agenda.prosa, dica: emHoje ? dicaDoCampo : "marcar", ditado: ditado,
                        identificador: "calendario-prosa", identificadorDoBotao: "calendario-marcar",
                        rotuloEnviar: "Marcar o compromisso", rotuloDitar: "Ditar o compromisso",
