@@ -412,14 +412,10 @@ struct LenteView: View {
     /// caixa cinza em volta de cada seção saiu (ADR 10k).
     private func secao<C: View>(_ titulo: String, id: String, contagem: Int? = nil, nota: String? = nil,
                                 @ViewBuilder _ conteudo: () -> C) -> some View {
+        // Laço de simplicidade (14/09): a nota de rodapé sob cada cabeçalho
+        // era uma frase de explicação por seção — quatro na folha. O cabeçalho
+        // nomeia e a linha diz o que faz; a explicação fica no código.
         recolhidas.secao(titulo, id: id, contagem: contagem) {
-            if let nota {
-                Text(nota)
-                    .font(.footnote)
-                    .foregroundStyle(Tema.tintaFraca)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .padding(.bottom, 4)
-            }
             conteudo()
         }
     }
