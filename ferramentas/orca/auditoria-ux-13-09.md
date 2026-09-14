@@ -261,3 +261,4 @@ Mesma régua. Estimativa minha; o veredito do dono em vídeo continua a ser o po
 - f55c2c9 — Lente: sem as frases de explicação sob cada cabeçalho (16).
 - 36332dc — Página: "‹ Notas" no canto (17; defeito 5 fechado).
 - 057ff5b — Calendário: a linha única volta a ter o material (cápsula de vidro, trilha, círculo com sombra) e o alternador lista/grade (19). Captura `air-cal-vidro.png`. Perfil sem o parágrafo sob Permissões (18).
+- Vídeo `pe-calendario-14-09.mp4` (Air, 32 s): D → S → M → D na cápsula única, o Hoje entrando e saindo, o texto no campo com o enviar a aparecer. Quando o Hoje está à vista, a dica do campo corta em "Dentista…" — é o estado passageiro.
