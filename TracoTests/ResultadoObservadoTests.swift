@@ -447,11 +447,11 @@ struct ResultadoObservadoTests {
 
     @Test func estaDificilEOnoPlantadoOuAProximaEstacao() throws {
         var d = DocumentoTrabalho(intencao: "Uma página de oferta para a clínica")
-        #expect(d.ofertaDaJornada?.contains("artefato utilizável") == true)
+        #expect(d.ofertaDaJornada?.contains("versão pronta") == true)
         #expect(d.ofertaDaJornada?.contains("inteligência") != true)
 
         try d.guardarVersaoHumana("# Oferta\nConsulta de 50 minutos.")
-        #expect(d.ofertaDaJornada?.contains("ação no que foi delegado") == true)
+        #expect(d.ofertaDaJornada?.contains("ação sobre o que foi delegado") == true)
 
         try d.prepararAcao("Mostrar a página à Ana")
         #expect(d.ofertaDaJornada?.contains("registrar o que aconteceu") == true)
@@ -530,7 +530,7 @@ struct ResultadoObservadoTests {
         #expect(TrabalhoView.ancoraDaDificuldade == "dificuldade")
         var d = DocumentoTrabalho(intencao: "Uma página de oferta para a clínica")
         #expect(d.dificuldadePlantada == nil)
-        #expect(d.ofertaDaJornada?.contains("artefato utilizável") == true)
+        #expect(d.ofertaDaJornada?.contains("versão pronta") == true)
 
         try d.guardarVersaoHumana("# Oferta\nConsulta.")
         try d.prepararAcao("Mostrar à Ana")

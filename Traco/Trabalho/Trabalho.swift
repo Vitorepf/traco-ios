@@ -450,13 +450,13 @@ nonisolated struct DocumentoTrabalho: Codable, Sendable, Equatable, Identifiable
         guard dificuldadePlantada == nil, jornada.intencao else { return nil }
         switch proximaEstacao {
         case .artefato:
-            return "Sem dificuldade plantada, a jornada continua aqui: o próximo passo é um artefato utilizável."
+            return "Nada te trava por agora. O próximo passo é a versão pronta para usar."
         case .acao:
-            return "Sem dificuldade plantada, a jornada continua aqui: o próximo passo é uma ação no que foi delegado."
+            return "Nada te trava por agora. O próximo passo é uma ação sobre o que foi delegado."
         case .evidencia:
-            return "Sem dificuldade plantada, a jornada continua aqui: o próximo passo é registrar o que aconteceu."
+            return "Nada te trava por agora. O próximo passo é registrar o que aconteceu."
         case .ajuste:
-            return "Sem dificuldade plantada, a jornada continua aqui: o próximo passo é ajustar a partir do que você observou."
+            return "Nada te trava por agora. O próximo passo é ajustar a partir do que você observou."
         case nil:
             return jornada.pontaAPonta
                 ? "Este trabalho já tem intenção, artefato, ação, evidência e ajuste. Sem dificuldade plantada, não invento um gargalo."
