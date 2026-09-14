@@ -204,3 +204,4 @@ Sem vídeo (movimento não avaliado). Sem aparelho real. Sem VoiceOver, sem AX, 
 - 162df2c — Notas: "Todas ⌄ · Mais recentes ⌄" saem do cabeçalho; sobra título, buscar, trabalhos › e a lista. Captura `17e-notas-sem-menus.png`.
 - **Próximas causas, na ordem do goal:** o pé da página (Trabalhar nisto + Analisar/Recordar/Anexar/Lente — "Analisar" já é automático; proposta com vídeo para o dono); o menu de domínio por linha nas Notas (correção vira toque longo); os três andares do calendário; o Perfil (12 seções → o que é ajuste de verdade); vídeo de movimento de cada tela.
 - 2a7c95f — Notas: domínio por linha vira identidade (sem menu); corrigir no toque longo. Captura `17e-notas-dominio-identidade.png`.
+- 475c1e2 — Perfil: consulta nasce recolhida (sábia, latência, métodos, calendário); ajustes abertos. Captura `17e-perfil-recolhido.png`.
