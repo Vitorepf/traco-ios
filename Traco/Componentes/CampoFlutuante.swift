@@ -18,6 +18,8 @@ struct CampoFlutuante<Mais: View>: View {
     var aoComecarDitado: () -> Void = {}
     /// Quem monta o campo pode levar o cursor a ele (a folha do Trabalho).
     var foco: FocusState<Bool>.Binding? = nil
+    /// Enquanto a outra ponta trabalha (a sábia pensa), o botão vira parar.
+    var aoParar: (() -> Void)? = nil
     @ViewBuilder var mais: () -> Mais
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @FocusState private var focoProprio: Bool
@@ -40,7 +42,9 @@ struct CampoFlutuante<Mais: View>: View {
                 .accessibilityValue(texto.isEmpty ? "vazio" : texto)
                 .focused(foco ?? $focoProprio)
             Button {
-                if temTexto {
+                if let aoParar {
+                    aoParar()
+                } else if temTexto {
                     ditado.parar()
                     aoEnviar()
                 } else if ditado.gravando {
@@ -53,15 +57,15 @@ struct CampoFlutuante<Mais: View>: View {
                 // ocioso, o microfone é só o glifo — a caixa cinza dentro da
                 // cápsula branca lia como um botão barato; com texto, o enviar
                 // é o círculo carvão com a sombra de controle do calendário
-                Image(systemName: temTexto ? "arrow.up" : (ditado.gravando ? "stop.fill" : "mic"))
+                Image(systemName: aoParar != nil ? "stop.fill" : temTexto ? "arrow.up" : (ditado.gravando ? "stop.fill" : "mic"))
                     .font(.subheadline.weight(.bold))
                     .contentTransition(.symbolEffect(.replace))
-                    .foregroundStyle(temTexto || ditado.gravando ? .white : Tema.tinta)
+                    .foregroundStyle(aoParar != nil || temTexto || ditado.gravando ? .white : Tema.tinta)
                     .frame(width: 34, height: 34)
                     .background {
-                        if temTexto || ditado.gravando {
+                        if aoParar != nil || temTexto || ditado.gravando {
                             Circle()
-                                .fill(ditado.gravando && !temTexto ? Tema.aviso : Tema.chipAtivo)
+                                .fill(aoParar != nil || (ditado.gravando && !temTexto) ? Tema.aviso : Tema.chipAtivo)
                                 .shadow(color: CalendarioTema.sombraControle, radius: 4, y: 2)
                         } else {
                             // ocioso, um disco quase invisível: o microfone tem
@@ -75,7 +79,7 @@ struct CampoFlutuante<Mais: View>: View {
             .buttonStyle(.discreto)
             .animation(Tema.movimento(.opacidade, .easeOut(duration: Tema.Duracao.curta), reduzido: reduceMotion), value: temTexto)
             .animation(Tema.movimento(.opacidade, .easeOut(duration: Tema.Duracao.curta), reduzido: reduceMotion), value: ditado.gravando)
-            .accessibilityLabel(temTexto ? rotuloEnviar : ditado.gravando ? "Parar de ditar" : rotuloDitar)
+            .accessibilityLabel(aoParar != nil ? "Parar de esperar" : temTexto ? rotuloEnviar : ditado.gravando ? "Parar de ditar" : rotuloDitar)
             .accessibilityIdentifier(identificadorDoBotao ?? (identificador + (temTexto ? "-enviar" : "-ditar")))
         }
         .padding((Tema.barraNav - Tema.alvo) / 2)
@@ -97,11 +101,11 @@ extension CampoFlutuante where Mais == EmptyView {
     init(texto: Binding<String>, dica: String, ditado: Ditado, identificador: String,
          identificadorDoBotao: String? = nil, rotuloEnviar: String, rotuloDitar: String,
          aoEnviar: @escaping () -> Void, aoComecarDitado: @escaping () -> Void = {},
-         foco: FocusState<Bool>.Binding? = nil) {
+         foco: FocusState<Bool>.Binding? = nil, aoParar: (() -> Void)? = nil) {
         self.init(texto: texto, dica: dica, ditado: ditado, identificador: identificador,
                   identificadorDoBotao: identificadorDoBotao, rotuloEnviar: rotuloEnviar,
                   rotuloDitar: rotuloDitar, aoEnviar: aoEnviar, aoComecarDitado: aoComecarDitado,
-                  foco: foco) { EmptyView() }
+                  foco: foco, aoParar: aoParar) { EmptyView() }
     }
 }
 

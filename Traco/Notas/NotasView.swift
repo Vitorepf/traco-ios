@@ -572,75 +572,26 @@ struct NotasView: View {
         .disabled(filtro == .trancadas)
     }
 
-    /// ADR 10i: a linha "?" — o mesmo sinal da página ("? qual plano
-    /// compensa"), aqui com o "?" já escrito em âmbar-tinta e a pergunta a
-    /// seguir. Enviar pergunta; o "?" não é campo permanente: a linha só existe
-    /// dentro da folha, e a folha só existe enquanto se pergunta.
+    /// A entrada da conversa é o MESMO campo do pé das Notas (dono, 14/09:
+    /// "tamanho, experiência, empacotamento"): a linha "?" com fio era um
+    /// terceiro desenho de campo, sem microfone. O botão vira parar enquanto
+    /// a sábia pensa; a próxima pergunta pode ser escrita, mas só segue depois.
     private var linhaDaPergunta: some View {
-        let entrada = conversaNotas.entrada
         let primeira = conversa.isEmpty
-        // o campo de eixo vertical não dá linha de base (o "?" subia meia
-        // linha acima do texto): os dois alinham pelo TOPO com o mesmo recuo e
-        // a mesma letra, e a primeira linha coincide em qualquer tamanho. O
-        // botão desce ao pé da linha, como o enviar de toda conversa.
-        return HStack(alignment: .bottom, spacing: 8) {
-            HStack(alignment: .top, spacing: 8) {
-                Text("?")
-                    .font(Tema.corpo.weight(.semibold))
-                    .foregroundStyle(Tema.ambarTinta)
-                    .padding(.vertical, 10)
-                    .accessibilityHidden(true)
-                TextField(
-                    "",
-                    text: Bindable(conversaNotas).entrada,
-                    // o texto do campo diz o estado (§9): enquanto ela pensa, a
-                    // próxima pode ser escrita, mas só segue quando ela responder
-                    prompt: Text(pensando ? "escreva a próxima" : primeira ? "pergunte sobre as suas notas" : "pergunte de novo")
-                        .foregroundStyle(Tema.tintaFraca),
-                    axis: .vertical
-                )
-                    .lineLimit(1...4)
-                    .foregroundStyle(Tema.tinta)
-                    .tint(Tema.ambar)
-                    .font(Tema.corpo)
-                    .textInputAutocapitalization(.sentences)
-                    .submitLabel(.send)
-                    // a linha quebra como na página; com eixo vertical o Return
-                    // escreve "\n" em vez de submeter — a quebra É o enviar
-                    .onChange(of: conversaNotas.entrada) { _, nova in
-                        guard nova.contains("\n") else { return }
-                        conversaNotas.entrada = nova.replacingOccurrences(of: "\n", with: " ")
-                        perguntar()
-                    }
-                    .focused($perguntaFocada)
-                    .padding(.vertical, 10)
-                    .contentShape(Rectangle())
-                    .accessibilityIdentifier("pergunta-notas")
-                    .accessibilityLabel(pensando ? "Escreva a próxima" : primeira ? "Pergunte sobre as suas notas" : "Pergunte de novo")
-                    .accessibilityValue(entrada.isEmpty ? "vazio" : entrada)
-                    .accessibilityHint("Enviar pergunta à sábia")
+        return CampoFlutuante(texto: Bindable(conversaNotas).entrada,
+                              dica: pensando ? "escreva a próxima" : primeira ? "pergunte sobre as suas notas" : "pergunte de novo",
+                              ditado: ditado, identificador: "pergunta-notas",
+                              identificadorDoBotao: pensando ? "parar-de-esperar" : "perguntar-notas",
+                              rotuloEnviar: "Perguntar à sábia", rotuloDitar: "Ditar a pergunta",
+                              aoEnviar: perguntar, foco: $perguntaFocada,
+                              aoParar: pensando ? { conversaNotas.interromper() } : nil)
+            .onAppear {
+                ditado.aoTexto = { [conversaNotas] falado in conversaNotas.entrada = falado }
+                // a folha vazia nasce pronta para escrever; com conversa, o
+                // teclado não sobe por cima da resposta — quem quer, toca
+                if primeira { Task { @MainActor in perguntaFocada = true } }
             }
-            // §9: o botão MUDA COM O ESTADO, no mesmo lugar e na mesma forma —
-            // parar enquanto a sábia pensa, enviar quando ela está livre. A cor
-            // é estado (§10): o vermelho do aviso só existe enquanto há o que parar.
-            if pensando {
-                botaoDoCampo("stop.fill", fundo: Tema.aviso) { conversaNotas.interromper() }
-                    .accessibilityLabel("Parar de esperar")
-                    .accessibilityHint("A pergunta fica, para perguntar de novo")
-                    .accessibilityIdentifier("parar-de-esperar")
-            } else if !entrada.isEmpty {
-                // ADR 05e: enviar é perguntar — o mesmo botão do calendário
-                botaoDoCampo("arrow.up", fundo: Tema.chipAtivo, acao: perguntar)
-                    .accessibilityLabel("Perguntar à sábia")
-                    .accessibilityIdentifier("perguntar-notas")
-            }
-        }
-        .overlay(alignment: .bottom) { Rectangle().fill(Tema.linha).frame(height: 0.5) }
-        .onAppear {
-            // a folha vazia nasce pronta para escrever; com conversa, o
-            // teclado não sobe por cima da resposta — quem quer, toca
-            if primeira { Task { @MainActor in perguntaFocada = true } }
-        }
+            .onDisappear { ditado.parar() }
     }
 
     /// O campo do pé (dono, 14/09): a mesma cápsula do calendário. Digitar
@@ -667,19 +618,6 @@ struct NotasView: View {
         conversaNotas.perguntando = true
         Toque.selecao()
         perguntar()
-    }
-
-    private func botaoDoCampo(_ glifo: String, fundo: Color, acao: @escaping () -> Void) -> some View {
-        Button(action: acao) {
-            Image(systemName: glifo)
-                .font(.subheadline.weight(.bold))
-                .foregroundStyle(.white)
-                .frame(width: 30, height: 30)
-                .background(fundo, in: RoundedRectangle(cornerRadius: 9, style: .continuous))
-                .frame(width: Tema.alvo, height: Tema.alvo)
-                .contentShape(Rectangle())
-        }
-        .buttonStyle(.discreto)
     }
 
     /// D1: o rótulo de seção da folha é uma palavra em tinta fraca — "hoje",
