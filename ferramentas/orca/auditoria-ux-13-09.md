@@ -273,3 +273,22 @@ Mesma régua. Estimativa minha; o veredito do dono em vídeo continua a ser o po
   Captura `air-cartao-desfazer.png`: texto, três campos no papel, encadeamento, cartão com Desfazer, campo do pé.
 - a276c30 — Página: "Depois disto" só com os campos exigidos respondidos (25).
 - 5da9531 — Perfil: "Hipóteses em aberto" no lugar de "Latência da descoberta" (26). A ficha: título como campo grande, igual ao Calendário do iPhone — não é causa.
+
+## K. Placar depois de vinte e seis voltas (14/09, 13h50)
+
+| tela | Design | Simplicidade | Componentes | Texto | Estado honesto | Hermes | média | o que falta para 9 |
+|---|---|---|---|---|---|---|---|---|
+| 1 Página | 8 | 9 | 9 | 8 | 8 | 9 | **8,5** | o cartão e os campos ainda são dois objetos; ditar na página não foi provado no aparelho |
+| 2 Notas | 9 | 9 | 9 | 8 | 9 | 9 | **8,8** | o subtítulo da nota mistura forma e campos; vídeo com conta Grok |
+| 3 Conversa | 8 | 9 | 9 | 8 | 8 | 9 | **8,5** | pensando/resposta não vistos com conta |
+| 4 Calendário | 9 | 9 | 9 | 8 | 7 | 9 | **8,5** | mês e ano densos; a dica corta quando o Hoje aparece |
+| 5 Ficha | 8 | 9 | 8 | 8 | 8 | 8 | **8,2** | "Repete" pede um toque para ver os dias |
+| 6 Padrões | 8 | 9 | 9 | 8 | 8 | 9 | **8,5** | olho do dono |
+| 7 Perfil | 8 | 8 | 8 | 7 | 8 | 8 | **7,8** | letra miúda nas seções recolhidas; doze seções ainda existem |
+| 8 Trabalho | 7 | 8 | 8 | 7 | 8 | 8 | **7,7** | ainda três telas com versão; a jornada intenção → versão → ato não foi vista com IA |
+| 9 Recordar | 6 | 8 | 7 | 8 | 8 | 6 | **7,2** | folha vazia com um caret; "hoje não" em meta |
+| 10 Lente | 7 | 8 | 8 | 7 | 8 | 7 | **7,5** | ações com chevron (ADR 10k) |
+| 11 Navegação | 8 | 9 | 8 | 8 | 8 | 8 | **8,2** | três palavras para sair de folha; puxador de 3 pt |
+| **média** | 7,8 | 8,6 | 8,4 | 7,7 | 8,0 | 8,2 | **8,1** | era 6,9 em 13/09; 7,8 há dez voltas |
+
+O que sobe o placar daqui não é volta minha: é o dono ver os seis vídeos e a jornada com a conta Grok ligada (pensando, resposta, versão preparada), que eu não posso provar nos simuladores de trabalho.
