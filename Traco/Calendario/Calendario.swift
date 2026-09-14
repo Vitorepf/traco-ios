@@ -677,6 +677,25 @@ nonisolated enum CalendarioFrase {
         return partes.compactMap { ler($0, ancora: ancora, agora: agora, cal, manha: manha, tarde: tarde, noite: noite) }
     }
 
+    /// Uma linha de NOTA que é compromisso: precisa de dia (ou repetição) E
+    /// hora (ou "dia inteiro"). "reunião sexta 14h" entra; "ligar para a Ana"
+    /// e "sexta" sozinhos não — a nota não vira agenda por acidente.
+    nonisolated static func lerDatado(
+        _ linha: String, agora: Date, _ cal: Calendar,
+        manha: Int = 8, tarde: Int = 14, noite: Int = 20
+    ) -> EventoCalendario? {
+        let limpa = linha
+            .replacingOccurrences(of: "^\\s*([-*#]+|\\d+\\.|\\[[ x]\\])\\s*", with: "", options: .regularExpression)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        guard limpa.count >= 6 else { return nil }
+        let temDia = comerRepeticao(limpa) != nil || comerDia(limpa, agora: agora, cal) != nil
+        let temHora = comerHora(limpa, manha: manha, tarde: tarde, noite: noite) != nil || comerDiaInteiro(limpa) != nil
+        guard temDia, temHora else { return nil }
+        guard let e = ler(limpa, ancora: agora, agora: agora, cal, manha: manha, tarde: tarde, noite: noite),
+              e.titulo.count >= 3 else { return nil }
+        return e
+    }
+
     /// A parte carrega dia, hora, repetição ou "dia inteiro"?
     nonisolated private static func temMarca(_ texto: String, agora: Date, _ cal: Calendar,
                                              manha: Int, tarde: Int, noite: Int) -> Bool {

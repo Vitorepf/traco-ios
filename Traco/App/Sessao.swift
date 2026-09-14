@@ -1038,6 +1038,40 @@ final class Sessao {
         Toque.suave()
     }
 
+    /// As linhas da nota que trazem dia E hora viram compromissos, uma vez
+    /// cada (mesmo título e mesma hora não entram duas vezes). Toast com o
+    /// que entrou; a ficha não abre — a pessoa está a concluir, não a marcar.
+    func marcarCompromissosDaNota(agora: Date = .now) {
+        let cal = Calendario.gregoriano()
+        let novos = texto.split(whereSeparator: \.isNewline).compactMap {
+            CalendarioFrase.lerDatado(String($0), agora: agora, cal,
+                                      manha: Ancora.hora(.manha), tarde: Ancora.hora(.tarde), noite: Ancora.hora(.noite))
+        }
+        guard !novos.isEmpty else { return }
+        var lista: [EventoCalendario] = []
+        if let agenda { lista = agenda.eventos } else if case .eventos(let atual) = CalendarioDisco.carregar() { lista = atual }
+        let existentes = Set(lista.map { $0.titulo.lowercased() + "@" + String(Int($0.inicio.timeIntervalSince1970)) })
+        let ineditos = novos.filter { !existentes.contains($0.titulo.lowercased() + "@" + String(Int($0.inicio.timeIntervalSince1970))) }
+        guard !ineditos.isEmpty else { return }
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "pt_BR")
+        f.dateFormat = "EEEE d, HH:mm"
+        if let agenda {
+            for e in ineditos { agenda.guardar(e) }
+        } else {
+            lista.append(contentsOf: ineditos)
+            try? CalendarioDisco.gravar(lista)
+            ProximoCompromisso.publicar(ProximoCompromisso.comAcoesDoTrabalho(lista), cal: cal, mudo: nil)
+            for e in ineditos { agendarEContar(e, em: lista, cal: cal, marcado: "\(e.titulo) marcado para \(f.string(from: e.inicio))") }
+        }
+        if ineditos.count == 1, let e = ineditos.first {
+            mostrarToast("guardada · \(e.titulo) marcado para \(f.string(from: e.inicio))")
+        } else {
+            mostrarToast("guardada · \(ineditos.count) compromissos marcados")
+        }
+        Toque.suave()
+    }
+
     /// ADR 06d (revisão G3, A2): pede o alarme de verdade e conta o que
     /// aconteceu. A superfície só ganha o sino quando o iOS aceitou; a frase
     /// que fica na tela é a que o sistema respondeu, nunca "com aviso" por
@@ -1770,6 +1804,9 @@ final class Sessao {
         let nomeGesto = gesto?.nome.lowercased()
         // gravação recusada devolve as palavras como estavam (integridade)
         guard salvar(no: context) else { texto = original; return }
+        // Goal de 14/09: "agenda o que tem hora". A linha da nota que traz dia
+        // e hora vira compromisso sozinha; a nota fica como está.
+        if gesto != .expressiva { marcarCompromissosDaNota() }
         // Só uma gravação confirmada pode contar como conclusão.
         if let g = gesto, g != .expressiva, camposComResposta { Sinais.ficou(g) }
         // peak-end-rule: o fim do percurso não devolvia NADA — nem confirmação,

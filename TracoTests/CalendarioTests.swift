@@ -455,4 +455,17 @@ struct CalendarioAgendaTests {
         let semMarca = CalendarioFrase.lerVarios("dentista sexta 14h e ligar para a Ana", ancora: agora, agora: agora, cal)
         #expect(semMarca.count == 1)
     }
+
+    @Test("a linha da nota só vira compromisso com dia E hora")
+    func linhaDatada() throws {
+        let cal = Calendario.gregoriano(fuso: TimeZone(identifier: "America/Sao_Paulo")!)
+        let agora = cal.date(from: DateComponents(year: 2026, month: 9, day: 14, hour: 9))!
+        let e = try #require(CalendarioFrase.lerDatado("- Reunião com o time sexta 14h", agora: agora, cal))
+        #expect(e.titulo == "Reunião com o time")
+        #expect(cal.component(.hour, from: e.inicio) == 14)
+        #expect(CalendarioFrase.lerDatado("ligar para a Ana", agora: agora, cal) == nil)
+        #expect(CalendarioFrase.lerDatado("sexta", agora: agora, cal) == nil)
+        #expect(CalendarioFrase.lerDatado("às 14h", agora: agora, cal) == nil)
+        #expect(CalendarioFrase.lerDatado("# Plano da semana", agora: agora, cal) == nil)
+    }
 }
