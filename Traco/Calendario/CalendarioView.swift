@@ -457,10 +457,14 @@ struct CalendarioListaView: View {
                 ForEach(dias, id: \.self) { dia in
                     let doDia = grupos[dia] ?? []
                     VStack(alignment: .leading, spacing: 0) {
-                        CabecalhoDeSecao(Calendario.diaPorExtenso(dia, agenda.cal), contagem: doDia.count,
-                                         recolhida: Binding(
-                                            get: { recolhidos.contains(dia) },
-                                            set: { if $0 { recolhidos.insert(dia) } else { recolhidos.remove(dia) } }))
+                        // um dia só (a escala do dia): o título já o nomeia — o
+                        // cabeçalho "SEGUNDA-FEIRA, 14 DE SETEMBRO" era eco
+                        if dias.count > 1 {
+                            CabecalhoDeSecao(Calendario.diaPorExtenso(dia, agenda.cal), contagem: doDia.count,
+                                             recolhida: Binding(
+                                                get: { recolhidos.contains(dia) },
+                                                set: { if $0 { recolhidos.insert(dia) } else { recolhidos.remove(dia) } }))
+                        }
                         if !recolhidos.contains(dia) {
                             ForEach(doDia) { evento in
                                 Button {
