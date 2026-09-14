@@ -292,3 +292,4 @@ Mesma régua. Estimativa minha; o veredito do dono em vídeo continua a ser o po
 | **média** | 7,8 | 8,6 | 8,4 | 7,7 | 8,0 | 8,2 | **8,1** | era 6,9 em 13/09; 7,8 há dez voltas |
 
 O que sobe o placar daqui não é volta minha: é o dono ver os seis vídeos e a jornada com a conta Grok ligada (pensando, resposta, versão preparada), que eu não posso provar nos simuladores de trabalho.
+- b1618c7 — Trabalho: título tocável no lugar do chip "Rever a intenção" (27).
