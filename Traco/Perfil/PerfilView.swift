@@ -228,7 +228,7 @@ struct PerfilView: View {
 
     private var latencia: some View {
         let s = serieDaLatencia
-        return recolhidas.secao("Latência da descoberta", id: "latencia",
+        return recolhidas.secao("Hipóteses em aberto", id: "latencia",
                      contagem: s.vazia ? nil : Latencia.paraTela(s).count) {
             if s.vazia {
                 // Hermes §11: o vazio é uma linha normal, não uma cerimônia
