@@ -258,3 +258,4 @@ Mesma régua. Estimativa minha; o veredito do dono em vídeo continua a ser o po
 | **média** | 7,6 | 8,3 | 8,1 | 7,3 | 7,8 | 7,9 | **7,8** | era 6,9 em 13/09 e 7,5 há dez voltas |
 
 **Decisões do dono desta manhã que reescrevem ADRs:** a busca e a pergunta das Notas moram num campo flutuante sobre a pílula (contraria a ADR 10i, que as pôs no topo); a régua de formatos não existe (contraria o §22 do SPEC e a ADR 05f no ponto da régua); o pé do calendário é uma linha (escalas + campo). As três precisam de nota nas ADRs.
+- f55c2c9 — Lente: sem as frases de explicação sob cada cabeçalho (16).
