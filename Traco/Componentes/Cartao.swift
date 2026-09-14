@@ -20,6 +20,20 @@ struct Cartao: ViewModifier {
     var recuo: Edge.Set = .all
 
     func body(content: Content) -> some View {
+        if case .campo = estilo {
+            // Laço de simplicidade (14/09) e Hermes §1: o campo deixa de ser
+            // uma caixa cinza e vira o que a busca das Notas já é — texto no
+            // papel com um fio de 0,5 pt embaixo. Vale para os quatro lugares
+            // que o usam (ficha, Trabalho, intercâmbio, agendamento) de uma vez.
+            content
+                .padding(.vertical, 10)
+                .overlay(alignment: .bottom) { Rectangle().fill(Tema.linha).frame(height: 0.5) }
+        } else {
+            caixa(content)
+        }
+    }
+
+    private func caixa(_ content: Content) -> some View {
         content
             .padding(recuo, 14)
             .background {
