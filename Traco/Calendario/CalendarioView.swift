@@ -131,7 +131,7 @@ struct CalendarioView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 // a rolagem se dissolve sob os dias e acima da cápsula do pé
-                .desvanece(pe: 48, reservaPe: Tema.alvo + 16)
+                .desvanece(pe: 48, reservaPe: Tema.alvo + 16, fundo: CalendarioTema.fundo)
             }
 
             chrome(agora: agora)

@@ -54,7 +54,12 @@ struct RaizView: View {
                 // sem animação na troca de aba: saída em corte + entrada em fade
                 // deixava um quadro inteiramente VAZIO no meio (k423). Troca
                 // seca não tem vão — e aba não tem direção espacial mesmo.
-                .transaction { t in t.animation = nil }
+                // Só para a troca de ABA: `.transaction { animation = nil }`
+                // zerava TODA animação herdada pela subárvore, inclusive o
+                // deslize da camada do arquivo (Camadas) — a lista aparecia
+                // cravada no lugar final enquanto a pílula, irmã de fora, ainda
+                // viajava (rajada de capturas de 14/09, volta 46).
+                .animation(nil, value: sessao.abaArquivo)
 
                 // a barra vive DENTRO da camada: fora dela andava 34px enquanto
                 // o corpo andava 233px, e não era recortada pela borda
