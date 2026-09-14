@@ -9,9 +9,21 @@ enum VozDoAutor: Sendable {
                                       options: .regularExpression)
     }
 
+    /// Os valores dos campos na ORDEM DO MÉTODO (resultado, obstáculo, plano),
+    /// não na do dicionário — que mudava a cada leitura e embaralhava a nota no
+    /// Recordar ("plano, obstáculo, resultado"). O método é o que tem esses
+    /// campos; sem método, a ordem das chaves.
+    nonisolated static func respostasNaOrdemDoMetodo(_ campos: [String: String]) -> [String] {
+        let chaves = Set(campos.keys)
+        let ordem = Catalogo.todos.first { Set($0.campos.map(\.id)).isSuperset(of: chaves) }?.campos.map(\.id) ?? []
+        return campos
+            .sorted { (ordem.firstIndex(of: $0.key) ?? ordem.count, $0.key) < (ordem.firstIndex(of: $1.key) ?? ordem.count, $1.key) }
+            .map(\.value)
+    }
+
     nonisolated static func juntar(texto: String, campos: [String: String],
                                    sentido: String = "") -> String {
-        let respostas = campos.values
+        let respostas = respostasNaOrdemDoMetodo(campos)
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
         let prosa = Caderno.prosa(de: texto)
