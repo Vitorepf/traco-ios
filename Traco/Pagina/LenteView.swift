@@ -172,9 +172,11 @@ struct LenteView: View {
                 }
 
                 // ADR o: instigar — a sábia devolve perguntas, nunca respostas
+                // As duas idas à sábia numa seção só: "INSTIGAR" sobre a linha
+                // "Instigar" (e o mesmo em Contrapor) era o cabeçalho repetindo
+                // a linha — dois nomes para uma coisa (laço de 14/09).
                 if notaUUID != nil, gesto != .expressiva {
-                    secao("Instigar", id: "instigar", contagem: perguntasDaSabia.isEmpty ? nil : perguntasDaSabia.count,
-                          nota: "perguntas sobre o que falta — nunca respostas") {
+                    secao("À sábia", id: "sabia", contagem: perguntasDaSabia.isEmpty ? nil : perguntasDaSabia.count) {
                         VStack(alignment: .leading, spacing: 0) {
                             ForEach(perguntasDaSabia, id: \.self) { q in
                                 // a pergunta é o conteúdo: quebra, não corta
@@ -202,21 +204,13 @@ struct LenteView: View {
                                 instigar()
                             } label: {
                                 LinhaDeLista(tocavel: "plus.bubble", perguntasDaSabia.isEmpty ? "Instigar" : "Mais perguntas",
-                                             "vai à sábia; as perguntas ficam aqui", fio: false)
+                                             "perguntas sobre o que falta, nunca respostas")
                             }
-                            .buttonStyle(PressaoDiscreta())
+                            .buttonStyle(.linha)
                             .disabled(instigandoDesde != nil)
                             .accessibilityIdentifier("instigar")
-                        }
-                    }
-                }
-
-                // ADR 04m: contrapor — a posição contrária, a opção fora da
-                // lista, o exemplo de outro campo. Informação, nunca instrução.
-                if notaUUID != nil, gesto != .expressiva {
-                    secao("Contrapor", id: "contrapor",
-                          nota: "o outro lado, a opção que faltou, o exemplo de outro campo") {
-                        VStack(alignment: .leading, spacing: 0) {
+                        // ADR 04m: contrapor — a posição contrária, a opção fora da
+                        // lista, o exemplo de outro campo. Informação, nunca instrução.
                             if let c = contraparte {
                                 // ADR 10k: "O OUTRO LADO" em caixa alta nomeava
                                 // o parágrafo; é nome de conteúdo — frase normal
@@ -260,9 +254,9 @@ struct LenteView: View {
                                 contrapor()
                             } label: {
                                 LinhaDeLista(tocavel: "arrow.left.arrow.right", contraparte == nil ? "Contrapor" : "Outro ângulo",
-                                             "vai à sábia; a resposta fica aqui, nunca na nota", fio: false)
+                                             "o outro lado, a opção que faltou", fio: false)
                             }
-                            .buttonStyle(PressaoDiscreta())
+                            .buttonStyle(.linha)
                             .disabled(contrapondoDesde != nil)
                             .accessibilityIdentifier("contrapor")
                             .accessibilityHint("Vai à sábia; a resposta fica aqui, nunca na nota")
@@ -277,12 +271,9 @@ struct LenteView: View {
                             // o campo é a única caixa da Lente: é onde se escreve,
                             // e o tipo sozinho não diz "escreva aqui"
                             TextField("um trecho do texto", text: $trechoNovo, axis: .vertical)
-                                .font(.callout)
+                                .font(Tema.corpo)
                                 .lineLimit(1...3)
-                                .padding(.horizontal, 14)
-                                .padding(.vertical, 10)
-                                .background(Tema.superficieBaixa, in: RoundedRectangle(cornerRadius: Tema.Raio.campo, style: .continuous))
-                                .padding(.top, 4)
+                                .cartao(.campo)
                                 .accessibilityIdentifier("apontar-trecho")
                             HStack(spacing: 8) {
                                 ForEach(RotuloApontar.allCases, id: \.self) { r in
