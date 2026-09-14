@@ -32,8 +32,8 @@ struct CalendarioView: View {
         // a recomendação longa cortava a meio da palavra ("Independência do
         // Brasil depois de a…"): exemplo que não cabe não é exemplo
         // na linha única do pé o campo tem ~130 pt: o exemplo tem de caber
-        if let r = Recomendacao.primeira(de: sistema.proximos, agenda.cal), r.count <= 18 { return r }
-        return "Dentista sexta 14h"
+        if let r = Recomendacao.primeira(de: sistema.proximos, agenda.cal), r.count <= 12 { return r }
+        return "Dentista 14h"
     }
 
     init(agenda: CalendarioAgenda = CalendarioAgenda()) {
