@@ -19,10 +19,18 @@ extension View {
         }
         .overlay(alignment: .bottom) {
             if pe > 0 || reservaPe > 0 {
-                VStack(spacing: 0) {
-                    LinearGradient(colors: [fundo.opacity(0), fundo], startPoint: .top, endPoint: .bottom)
-                        .frame(height: pe)
-                    if reservaPe > 0 { fundo.frame(height: reservaPe) }
+                // a rolagem continua por baixo da área segura (pílula, indicador
+                // de início): a pintura desce até a borda da tela, como a
+                // máscara cortava — a altura da área segura vem da geometria
+                GeometryReader { g in
+                    let ins = g.safeAreaInsets.bottom
+                    VStack(spacing: 0) {
+                        Spacer(minLength: 0)
+                        LinearGradient(colors: [fundo.opacity(0), fundo], startPoint: .top, endPoint: .bottom)
+                            .frame(height: pe)
+                        fundo.frame(height: reservaPe + ins)
+                    }
+                    .frame(width: g.size.width, height: g.size.height + ins, alignment: .bottom)
                 }
                 .allowsHitTesting(false)
             }

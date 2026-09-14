@@ -1042,17 +1042,34 @@ final class Sessao {
     /// cada (mesmo título e mesma hora não entram duas vezes). Toast com o
     /// que entrou; a ficha não abre — a pessoa está a concluir, não a marcar.
     func marcarCompromissosDaNota(agora: Date = .now) {
+        marcarCompromissos(em: texto, agora: agora, prefixoDoToast: "guardada · ")
+    }
+
+    /// O que traz dia E hora vira compromisso sozinho — da nota ao concluir e
+    /// de qualquer frase dita no campo das Notas (dono, 14/09: o campo fala
+    /// com a IA, então recebe qualquer coisa: buscar, perguntar, pedir). Uma
+    /// frase com vários ("dentista amanhã 14h e correr terça 6h") marca todos
+    /// quando TODAS as partes têm dia e hora. Devolve quantos marcou.
+    @discardableResult
+    func marcarCompromissos(em prosa: String, agora: Date = .now, prefixoDoToast: String = "") -> Int {
         let cal = Calendario.gregoriano()
-        let novos = texto.split(whereSeparator: \.isNewline).compactMap {
-            CalendarioFrase.lerDatado(String($0), agora: agora, cal,
-                                      manha: Ancora.hora(.manha), tarde: Ancora.hora(.tarde), noite: Ancora.hora(.noite))
+        let (m, t, n) = (Ancora.hora(.manha), Ancora.hora(.tarde), Ancora.hora(.noite))
+        func datado(_ s: Substring) -> EventoCalendario? {
+            CalendarioFrase.lerDatado(String(s), agora: agora, cal, manha: m, tarde: t, noite: n)
         }
-        guard !novos.isEmpty else { return }
+        var novos = prosa.split(whereSeparator: \.isNewline).compactMap(datado)
+        if novos.isEmpty {
+            let partes = prosa.replacingOccurrences(of: "\\s+e\\s+", with: "\n", options: .regularExpression)
+                .split(whereSeparator: { $0 == "\n" || $0 == ";" || $0 == "," })
+            let lidos = partes.compactMap(datado)
+            if partes.count > 1, lidos.count == partes.count { novos = lidos }
+        }
+        guard !novos.isEmpty else { return 0 }
         var lista: [EventoCalendario] = []
         if let agenda { lista = agenda.eventos } else if case .eventos(let atual) = CalendarioDisco.carregar() { lista = atual }
         let existentes = Set(lista.map { $0.titulo.lowercased() + "@" + String(Int($0.inicio.timeIntervalSince1970)) })
         let ineditos = novos.filter { !existentes.contains($0.titulo.lowercased() + "@" + String(Int($0.inicio.timeIntervalSince1970))) }
-        guard !ineditos.isEmpty else { return }
+        guard !ineditos.isEmpty else { return 0 }
         let f = DateFormatter()
         f.locale = Locale(identifier: "pt_BR")
         f.dateFormat = "EEEE d, HH:mm"
@@ -1065,11 +1082,12 @@ final class Sessao {
             for e in ineditos { agendarEContar(e, em: lista, cal: cal, marcado: "\(e.titulo) marcado para \(f.string(from: e.inicio))") }
         }
         if ineditos.count == 1, let e = ineditos.first {
-            mostrarToast("guardada · \(e.titulo) marcado para \(f.string(from: e.inicio))")
+            mostrarToast("\(prefixoDoToast)\(e.titulo) marcado para \(f.string(from: e.inicio))")
         } else {
-            mostrarToast("guardada · \(ineditos.count) compromissos marcados")
+            mostrarToast("\(prefixoDoToast)\(ineditos.count) compromissos marcados")
         }
         Toque.suave()
+        return ineditos.count
     }
 
     /// ADR 06d (revisão G3, A2): pede o alarme de verdade e conta o que

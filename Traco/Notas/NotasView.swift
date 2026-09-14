@@ -579,7 +579,7 @@ struct NotasView: View {
     private var linhaDaPergunta: some View {
         let primeira = conversa.isEmpty
         return CampoFlutuante(texto: Bindable(conversaNotas).entrada,
-                              dica: pensando ? "escreva a próxima" : primeira ? "pergunte sobre as suas notas" : "pergunte de novo",
+                              dica: pensando ? "escreva a próxima" : primeira ? "diga qualquer coisa" : "diga mais",
                               ditado: ditado, identificador: "pergunta-notas",
                               identificadorDoBotao: pensando ? "parar-de-esperar" : "perguntar-notas",
                               rotuloEnviar: "Perguntar à sábia", rotuloDitar: "Ditar a pergunta",
@@ -598,7 +598,7 @@ struct NotasView: View {
     /// filtra a lista ao vivo; enviar leva a frase à sábia como pergunta; o
     /// microfone dita para o mesmo campo. Um lugar, três atos, sem menu.
     private var campoDeBuscaEPergunta: some View {
-        CampoFlutuante(texto: Bindable(conversaNotas).busca, dica: "buscar ou perguntar", ditado: ditado,
+        CampoFlutuante(texto: Bindable(conversaNotas).busca, dica: "diga qualquer coisa", ditado: ditado,
                        identificador: "busca-notas", identificadorDoBotao: busca.isEmpty ? "ditar-notas" : "perguntar-notas",
                        rotuloEnviar: "Perguntar à sábia", rotuloDitar: "Ditar", aoEnviar: perguntarDaBusca)
             .padding(.horizontal, Tema.margem)
@@ -613,6 +613,11 @@ struct NotasView: View {
     private func perguntarDaBusca() {
         let texto = busca.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !texto.isEmpty else { return }
+        // pedido com dia e hora é do calendário, não da sábia
+        if sessao.marcarCompromissos(em: texto) > 0 {
+            conversaNotas.busca = ""
+            return
+        }
         conversaNotas.entrada = texto
         conversaNotas.busca = ""
         conversaNotas.perguntando = true
