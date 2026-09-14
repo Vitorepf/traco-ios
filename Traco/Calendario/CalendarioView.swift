@@ -275,7 +275,7 @@ struct CalendarioView: View {
         // que vai à esquerda (lista/grade, escalas, Hoje) entra na mesma
         // cápsula de vidro do campo, como o "+" entrava.
         campoProsa(agora: agora)
-        .padding(.horizontal, 14)
+        .padding(.horizontal, Tema.margem)
         .padding(.bottom, 8)
         .dynamicTypeSize(...DynamicTypeSize.xLarge)
     }

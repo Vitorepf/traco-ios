@@ -26,15 +26,15 @@ struct CampoFlutuante<Mais: View>: View {
         let temTexto = !texto.trimmingCharacters(in: .whitespaces).isEmpty
         HStack(spacing: 8) {
             mais()
-            TextField("", text: $texto, prompt: Text(dica).foregroundStyle(Tema.tintaFraca))
-                .font(.callout)
+            TextField("", text: $texto, prompt: Text(dica).foregroundStyle(Tema.tintaSuave))
+                .font(Tema.chrome)
                 .foregroundStyle(Tema.tinta)
                 .tint(Tema.ambar)
                 .textInputAutocapitalization(.sentences)
                 .submitLabel(.send)
                 .onSubmit(aoEnviar)
                 .frame(minHeight: Tema.alvo)
-                .padding(.leading, Mais.self == EmptyView.self ? 14 : 0)
+                .padding(.leading, Mais.self == EmptyView.self ? 16 : 0)
                 .accessibilityIdentifier(identificador)
                 .accessibilityLabel(dica)
                 .accessibilityValue(texto.isEmpty ? "vazio" : texto)
@@ -63,6 +63,10 @@ struct CampoFlutuante<Mais: View>: View {
                             Circle()
                                 .fill(ditado.gravando && !temTexto ? Tema.aviso : Tema.chipAtivo)
                                 .shadow(color: CalendarioTema.sombraControle, radius: 4, y: 2)
+                        } else {
+                            // ocioso, um disco quase invisível: o microfone tem
+                            // corpo, como o "+" e o enviar, sem virar botão cinza
+                            Circle().fill(Tema.linha)
                         }
                     }
                     .frame(width: Tema.alvo, height: Tema.alvo)
@@ -74,15 +78,16 @@ struct CampoFlutuante<Mais: View>: View {
             .accessibilityLabel(temTexto ? rotuloEnviar : ditado.gravando ? "Parar de ditar" : rotuloDitar)
             .accessibilityIdentifier(identificadorDoBotao ?? (identificador + (temTexto ? "-enviar" : "-ditar")))
         }
-        .padding(.leading, 6)
-        .padding(.trailing, 4)
-        .padding(.vertical, 4)
-        // vidro sobre alumínio: a cápsula branca com o fio de luz no topo e a
-        // sombra flutuante — o material do pé do calendário que o dono aprovou
+        .padding((Tema.barraNav - Tema.alvo) / 2)
+        // a MESMA cápsula da pílula de navegação (BarraNavegacao): material,
+        // fio, sombra e altura iguais — os dois objetos do pé são da mesma
+        // família, não dois vidros diferentes empilhados (dono, 14/09: "olha o
+        // tamanho, experiência, empacotamento")
         .background {
             Capsule()
-                .fill(Tema.superficie)
-                .overlay(Capsule().strokeBorder(Tema.luzBorda, lineWidth: 1))
+                .fill(Tema.superficieAlta.opacity(0.85))
+                .background(.ultraThinMaterial, in: Capsule())
+                .overlay(Capsule().strokeBorder(Tema.linha, lineWidth: 0.5))
                 .sombra(Tema.Sombra.flutuante)
         }
     }
@@ -109,8 +114,10 @@ struct BotaoMais<Conteudo: View>: View {
     var body: some View {
         Menu { conteudo() } label: {
             Image(systemName: "plus")
-                .font(.callout.weight(.semibold))
+                .font(.subheadline.weight(.bold))
                 .foregroundStyle(Tema.tinta)
+                .frame(width: 34, height: 34)
+                .background(Circle().fill(Tema.linha))
                 .frame(width: Tema.alvo, height: Tema.alvo)
                 .contentShape(Rectangle())
         }

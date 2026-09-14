@@ -646,7 +646,7 @@ struct NotasView: View {
         CampoFlutuante(texto: Bindable(conversaNotas).busca, dica: "buscar ou perguntar", ditado: ditado,
                        identificador: "busca-notas", identificadorDoBotao: busca.isEmpty ? "ditar-notas" : "perguntar-notas",
                        rotuloEnviar: "Perguntar à sábia", rotuloDitar: "Ditar", aoEnviar: perguntarDaBusca)
-            .padding(.horizontal, 14)
+            .padding(.horizontal, Tema.margem)
             .padding(.bottom, 8)
             .onAppear { ditado.aoTexto = { [conversaNotas] falado in conversaNotas.busca = falado } }
             .onDisappear { ditado.parar() }

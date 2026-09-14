@@ -552,7 +552,7 @@ struct PaginaView: View {
                 .accessibilityIdentifier("abrir-lente")
             }
         }
-        .padding(.horizontal, 14)
+        .padding(.horizontal, Tema.margem)
         .padding(.vertical, 8)
         .background(Tema.fundo)
         // o pé não cede ao cartão: se falta altura, é o texto do cartão que rola
