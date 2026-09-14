@@ -293,3 +293,4 @@ Mesma régua. Estimativa minha; o veredito do dono em vídeo continua a ser o po
 
 O que sobe o placar daqui não é volta minha: é o dono ver os seis vídeos e a jornada com a conta Grok ligada (pensando, resposta, versão preparada), que eu não posso provar nos simuladores de trabalho.
 - b1618c7 — Trabalho: título tocável no lugar do chip "Rever a intenção" (27).
+- e265bfe — Calendário: vários compromissos numa frase (28). Build instalado no teste 4 a pedido do dono.
