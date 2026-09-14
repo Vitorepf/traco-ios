@@ -1060,8 +1060,12 @@ struct NotasView: View {
         // arquivo do esforço, não streak: quantas vezes esta nota foi recordada
         let recordadas = Revisoes.contagem(nota.uuid)
         let sufixo = recordadas > 0 ? " · recordada \(recordadas)×" : ""
-        let respostas = nota.campos.values
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+        // na ordem dos campos do método, não na do dicionário: a linha da
+        // nota mudava de texto a cada abertura (auditoria 13/09, defeito 14)
+        let ordem = nota.gesto?.metodoDef.campos.map(\.id) ?? []
+        let respostas = nota.campos
+            .sorted { (ordem.firstIndex(of: $0.key) ?? ordem.count, $0.key) < (ordem.firstIndex(of: $1.key) ?? ordem.count, $1.key) }
+            .map { $0.value.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
         if respostas.isEmpty {
             return VozDoAutor.relativo(nota.criadaEm) + sufixo

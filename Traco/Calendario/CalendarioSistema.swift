@@ -70,7 +70,7 @@ final class CalendarioSistema {
             ? "lendo — nada nos próximos sete dias"
             : "lendo — \(proximos.count) em sete dias"
         case .writeOnly: "o iOS deu só escrita, e o Traço não escreve. Libere a leitura em Ajustes."
-        case .denied: "acesso negado. O campo volta a mostrar um exemplo."
+        case .denied: "acesso negado — o campo mostra um exemplo"
         case .restricted: "acesso restrito neste aparelho."
         default: "ainda não perguntei. Abra o Calendário e eu peço."
         }

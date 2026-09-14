@@ -719,7 +719,8 @@ enum Avisos {
     static func emPalavras() async -> String {
         switch await estado() {
         case .naoPerguntado: return "ainda não pedi — marco um compromisso e o iPhone pergunta."
-        case .negado: return "desligados no iPhone: nada do Traço vai te cobrar."
+        // a linha "Avisos — desligados" já diz; repetir embaixo era ruído
+        case .negado: return ""
         case .concedido:
             let n = await pendentes()
             return n >= teto

@@ -660,7 +660,7 @@ struct PerfilView: View {
                          fio: sistema.negado || !avisosLigados)
                 .accessibilityIdentifier("estado-avisos")
             if sistema.negado || !avisosLigados {
-                linhaAcao("gear", "Abrir os Ajustes do Traço", "o iOS só deixa mudar uma permissão negada por lá",
+                linhaAcao("gear", "Abrir os Ajustes do Traço", "só o iOS muda uma permissão negada",
                           fio: false) {
                     if let url = URL(string: UIApplication.openSettingsURLString) { abrir(url) }
                 }
