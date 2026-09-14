@@ -361,7 +361,10 @@ struct CalendarioView: View {
     }
 
     private func campoProsa(agora: Date) -> some View {
-        CampoFlutuante(texto: $agenda.prosa, dica: dicaDoCampo, ditado: ditado,
+        // com o Hoje à vista a linha aperta: a dica encurta para "marcar" em
+        // vez de sair cortada a meio ("Dentista 1…", vídeo de 14/09)
+        let emHoje = agenda.ancoraEHoje(agora) && agenda.escala == .dia
+        return CampoFlutuante(texto: $agenda.prosa, dica: emHoje ? dicaDoCampo : "marcar", ditado: ditado,
                        identificador: "calendario-prosa", identificadorDoBotao: "calendario-marcar",
                        rotuloEnviar: "Marcar o compromisso", rotuloDitar: "Ditar o compromisso",
                        aoEnviar: { agenda.adicionarDaProsa() }) {
