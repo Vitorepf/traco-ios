@@ -194,8 +194,6 @@ struct CalendarioView: View {
                     .accessibilityAddTraits(.isHeader)
                     .accessibilityIdentifier("calendario-titulo")
             }
-            interruptor(agora: agora)
-                .padding(.top, 6)
             if let feriado {
                 Text(feriado.facultativo ? "\(feriado.nome) · ponto facultativo" : feriado.nome)
                     .font(CalendarioTema.meta)
@@ -267,11 +265,8 @@ struct CalendarioView: View {
     // MARK: chrome flutuante
 
     private func chrome(agora: Date) -> some View {
-        // Laço de simplicidade (14/09): o pé tinha três andares — escalas,
-        // prosa e pílula. As escalas e o Hoje subiram para debaixo do título,
-        // onde o Calendário do iPhone os põe; no pé fica o campo, que é onde
-        // se escreve e se fala, e a pílula.
         VStack(spacing: 10) {
+            interruptor(agora: agora)
             campoProsa
         }
         .padding(.horizontal, 14)
@@ -340,9 +335,16 @@ struct CalendarioView: View {
                 .accessibilityIdentifier("calendario-hoje")
                 .opacity(agenda.ancoraEHoje(agora) && agenda.escala == .dia ? 0.55 : 1)
         }
-        // pousa no papel, sob o título: sem a cápsula branca flutuante que o
-        // fazia um segundo chrome (Hermes §1: nenhuma caixa sem prova)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
         .frame(maxWidth: .infinity, alignment: .leading)
+        .background {
+            Capsule()
+                .fill(CalendarioTema.cartao)
+                // vidro sobre alumínio, não cartão: o fio de luz no topo
+                .overlay(Capsule().strokeBorder(CalendarioTema.luzBorda, lineWidth: 1))
+                .sombra(Tema.Sombra.flutuante)
+        }
     }
 
     private func modoBotao(_ modo: ModoCalendario, icone: String) -> some View {
