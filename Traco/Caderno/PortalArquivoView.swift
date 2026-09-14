@@ -49,10 +49,10 @@ struct PortalArquivoView: View {
         }
     }
 
+    /// A imagem se apresenta sozinha: sem "IMAGEM" em caixa alta por cima nem
+    /// o nome do arquivo por baixo ("desenho.png" não é legenda) — laço de 14/09
     private func portalImagem(_ id: String, _ alt: String) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            SinalTipo(nome: "imagem")
-                .onTapGesture(perform: aoEditar)
             if let data = AnexoDisco.dados(id, nome: alt), let ui = UIImage(data: data) {
                 Image(uiImage: ui)
                     .resizable()
@@ -66,11 +66,6 @@ struct PortalArquivoView: View {
             } else {
                 falta(alt.isEmpty ? "imagem em falta" : alt)
                     .onTapGesture(perform: aoEditar)
-            }
-            if !alt.isEmpty {
-                Text(alt)
-                    .font(Tema.label)
-                    .foregroundStyle(Tema.tintaFraca)
             }
         }
         .accessibilityElement(children: .combine)
