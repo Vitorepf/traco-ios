@@ -60,6 +60,26 @@ struct RaizView: View {
                 // cravada no lugar final enquanto a pílula, irmã de fora, ainda
                 // viajava (rajada de capturas de 14/09, volta 46).
                 .animation(nil, value: sessao.abaArquivo)
+                // o aviso da Sessão ("Ligar para a Ana marcado para…") só
+                // vivia na página; nas Notas o pedido marcava e a tela calava.
+                // Aqui ele pousa sobre o campo, com o mesmo cartão da página.
+                .overlay(alignment: .bottom) {
+                    if let toast = sessao.toast, sessao.aba != .escrever {
+                        Text(toast)
+                            .font(Tema.corpo)
+                            .foregroundStyle(Tema.tintaSuave)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 12)
+                            .cartao(.papel, recuo: [])
+                            .padding(.horizontal, Tema.margem)
+                            .padding(.bottom, 56)
+                            .transition(Tema.transicao(.opacity.combined(with: .offset(y: 6)), reduzido: reduceMotion))
+                            .accessibilityIdentifier("toast-arquivo")
+                            .allowsHitTesting(false)
+                    }
+                }
+                .animation(Tema.movimento(.deslocamento, .easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion), value: sessao.toast)
 
                 // a barra vive DENTRO da camada: fora dela andava 34px enquanto
                 // o corpo andava 233px, e não era recortada pela borda
