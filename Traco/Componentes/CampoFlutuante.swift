@@ -28,15 +28,15 @@ struct CampoFlutuante<Mais: View>: View {
         let temTexto = !texto.trimmingCharacters(in: .whitespaces).isEmpty
         HStack(spacing: 8) {
             mais()
-            TextField("", text: $texto, prompt: Text(dica).foregroundStyle(Tema.tintaSuave))
-                .font(Tema.chrome)
+            TextField("", text: $texto, prompt: Text(dica).foregroundStyle(Tema.tintaFraca))
+                .font(Tema.meta)
                 .foregroundStyle(Tema.tinta)
                 .tint(Tema.ambar)
                 .textInputAutocapitalization(.sentences)
                 .submitLabel(.send)
                 .onSubmit(aoEnviar)
-                .frame(minHeight: Tema.alvo)
-                .padding(.leading, Mais.self == EmptyView.self ? 16 : 0)
+                .frame(minHeight: 36)
+                .padding(.leading, Mais.self == EmptyView.self ? 14 : 2)
                 .accessibilityIdentifier(identificador)
                 .accessibilityLabel(dica)
                 .accessibilityValue(texto.isEmpty ? "vazio" : texto)
@@ -57,23 +57,21 @@ struct CampoFlutuante<Mais: View>: View {
                 // ocioso, o microfone é só o glifo — a caixa cinza dentro da
                 // cápsula branca lia como um botão barato; com texto, o enviar
                 // é o círculo carvão com a sombra de controle do calendário
+                // ocioso, o microfone é só o glifo, em tinta, sem disco: menos
+                // camadas (dono, 14/09: "clean, ultra premium"); com texto, o
+                // enviar é o único objeto escuro — um disco carvão pequeno
                 Image(systemName: aoParar != nil ? "stop.fill" : temTexto ? "arrow.up" : (ditado.gravando ? "stop.fill" : "mic"))
-                    .font(.subheadline.weight(.bold))
+                    .font(aoParar != nil || temTexto || ditado.gravando ? .footnote.weight(.bold) : .body.weight(.medium))
                     .contentTransition(.symbolEffect(.replace))
                     .foregroundStyle(aoParar != nil || temTexto || ditado.gravando ? .white : Tema.tinta)
-                    .frame(width: 34, height: 34)
+                    .frame(width: 30, height: 30)
                     .background {
                         if aoParar != nil || temTexto || ditado.gravando {
                             Circle()
                                 .fill(aoParar != nil || (ditado.gravando && !temTexto) ? Tema.aviso : Tema.chipAtivo)
-                                .shadow(color: CalendarioTema.sombraControle, radius: 4, y: 2)
-                        } else {
-                            // ocioso, um disco quase invisível: o microfone tem
-                            // corpo, como o "+" e o enviar, sem virar botão cinza
-                            Circle().fill(Tema.linha)
                         }
                     }
-                    .frame(width: Tema.alvo, height: Tema.alvo)
+                    .frame(width: 40, height: 40)
                     .contentShape(Rectangle())
             }
             .buttonStyle(.discreto)
@@ -82,17 +80,18 @@ struct CampoFlutuante<Mais: View>: View {
             .accessibilityLabel(aoParar != nil ? "Parar de esperar" : temTexto ? rotuloEnviar : ditado.gravando ? "Parar de ditar" : rotuloDitar)
             .accessibilityIdentifier(identificadorDoBotao ?? (identificador + (temTexto ? "-enviar" : "-ditar")))
         }
-        .padding((Tema.barraNav - Tema.alvo) / 2)
-        // a MESMA cápsula da pílula de navegação (BarraNavegacao): material,
-        // fio, sombra e altura iguais — os dois objetos do pé são da mesma
-        // família, não dois vidros diferentes empilhados (dono, 14/09: "olha o
-        // tamanho, experiência, empacotamento")
+        .padding(.horizontal, 4)
+        .padding(.vertical, 2)
+        // a MESMA cápsula da pílula de navegação (material e fio), mais baixa
+        // (40 pt: uma linha de texto, não uma barra) e com a sombra do campo,
+        // mais suave — menos camadas, mais caro (dono, 14/09: "diminua o
+        // tamanho, clean, ultra premium")
         .background {
             Capsule()
                 .fill(Tema.superficieAlta.opacity(0.85))
                 .background(.ultraThinMaterial, in: Capsule())
                 .overlay(Capsule().strokeBorder(Tema.linha, lineWidth: 0.5))
-                .sombra(Tema.Sombra.flutuante)
+                .sombra(Tema.Sombra.campo)
         }
     }
 }
@@ -118,11 +117,9 @@ struct BotaoMais<Conteudo: View>: View {
     var body: some View {
         Menu { conteudo() } label: {
             Image(systemName: "plus")
-                .font(.subheadline.weight(.bold))
+                .font(.body.weight(.medium))
                 .foregroundStyle(Tema.tinta)
-                .frame(width: 34, height: 34)
-                .background(Circle().fill(Tema.linha))
-                .frame(width: Tema.alvo, height: Tema.alvo)
+                .frame(width: 40, height: 40)
                 .contentShape(Rectangle())
         }
         .buttonStyle(.discreto)
