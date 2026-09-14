@@ -20,7 +20,7 @@ appId: app.traco
 - extendedWaitUntil:
     visible: "Virar Pré-mortem"
     timeout: 8000
-- assertVisible: "DEPOIS DISTO"
+- assertVisible: "Depois disto"
 - takeScreenshot: /tmp/traco-verify/ciclo/37-inversao-depois-disto
 - tapOn: "Virar Pré-mortem"
 - extendedWaitUntil:

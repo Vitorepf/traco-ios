@@ -568,7 +568,9 @@ struct CalendarioMesView: View {
                         .frame(height: tamChip + 6)
                         .frame(maxWidth: .infinity)
                         .overlay(alignment: .leading) {
-                            Text(evento.titulo)
+                            // a coluna do mês cabe uma palavra: "Jantar" lê,
+                            // "Jantar co" não (auditoria 13/09, defeito 26)
+                            Text(evento.titulo.split(separator: " ").first.map(String.init) ?? evento.titulo)
                                 .font(.system(size: tamChip, weight: .semibold))
                                 .foregroundStyle(CalendarioTema.tinta(de: evento))
                                 .lineLimit(1)

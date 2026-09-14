@@ -49,8 +49,9 @@ struct CamposFormaView: View {
     @ViewBuilder private var depoisDisto: some View {
         if let aoEncadear, !gesto.encadeamentos.isEmpty {
             VStack(alignment: .leading, spacing: 4) {
-                Text("DEPOIS DISTO")
-                    .rotulo()
+                Text("Depois disto")
+                    .font(Tema.meta)
+                    .foregroundStyle(Tema.tintaSuave)
                     .padding(.top, 8)
                 ForEach(gesto.encadeamentos) { e in
                     let pronto = e.exige.allSatisfy { !(campos[$0] ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
@@ -115,8 +116,11 @@ private struct LinhaCampo: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .firstTextBaseline) {
+                // nome de campo é conteúdo, vai em frase (ADR 10k); a caixa
+                // alta gritava três vezes por forma (auditoria 13/09, defeito 17)
                 Text(rotulo)
-                    .rotulo(Tema.tintaSuave)
+                    .font(Tema.meta)
+                    .foregroundStyle(Tema.tintaSuave)
                 if let teto {
                     Spacer(minLength: 8)
                     Text("\(texto.count)/\(teto)")

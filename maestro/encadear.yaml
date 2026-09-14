@@ -24,7 +24,7 @@ appId: app.traco
 - extendedWaitUntil:
     visible: "Virar Se–então"
     timeout: 8000
-- assertVisible: "DEPOIS DISTO"
+- assertVisible: "Depois disto"
 - takeScreenshot: /tmp/traco-verify/ciclo/01-depois-disto
 - tapOn: "Virar Se–então"
 - extendedWaitUntil:
