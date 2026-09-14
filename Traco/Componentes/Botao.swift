@@ -49,6 +49,10 @@ extension ButtonStyle where Self == PressaoDiscreta {
     static var discreto: PressaoDiscreta { PressaoDiscreta() }
 }
 
+extension ButtonStyle where Self == PressaoDeLinha {
+    static var linha: PressaoDeLinha { PressaoDeLinha() }
+}
+
 extension ButtonStyle where Self == BotaoPrimario {
     static var primario: BotaoPrimario { BotaoPrimario() }
     static func primario(alinhamento: Alignment) -> BotaoPrimario { BotaoPrimario(alinhamento: alinhamento) }

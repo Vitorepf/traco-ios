@@ -405,7 +405,7 @@ struct PerfilView: View {
                                             .rotationEffect(.degrees(aberta ? 180 : 0))
                                     })
                             }
-                            .buttonStyle(.discreto)
+                            .buttonStyle(.linha)
                             .accessibilityIdentifier("de-onde-vem-\(m.id)")
                             .accessibilityHint(aberta ? "Recolhe" : "De onde vem: fonte, função, o que o Traço adaptou e a evidência")
                             .accessibilityValue(aberta ? "aberto" : "recolhido")
@@ -951,7 +951,7 @@ struct PerfilView: View {
         Button(action: acao) {
             LinhaDeLista(tocavel: simbolo, titulo, subtitulo, fio: fio, destrutiva: destrutiva)
         }
-        .buttonStyle(PressaoDiscreta())
+        .buttonStyle(.linha)
     }
 
     /// A letra miúda de uma seção: inteira, porque é a única cópia do que ela

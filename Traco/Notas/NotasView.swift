@@ -1000,10 +1000,10 @@ struct NotasView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .contentShape(Rectangle())
+                // a linha de um título só mede 25; o alvo pega 10 do vão de cada lado
+                .alvo(folgaV: 10)
             }
-            .buttonStyle(.discreto)
-            // a linha de um título só mede 25; o alvo pega 10 do vão de cada lado
-            .alvo(folgaV: 10)
+            .buttonStyle(.linha)
             .tint(Tema.tinta)
             .accessibilityLabel(nota.trancada ? "Expressiva trancada" : titulo(nota))
             .accessibilityHint(nota.trancada ? "Reabrir pede confirmação dupla" : "Segure para recordar a memória")

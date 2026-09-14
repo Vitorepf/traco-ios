@@ -115,7 +115,7 @@ struct PadroesView: View {
                         .frame(maxWidth: .infinity, minHeight: 24, alignment: .leading)
                         .contentShape(Rectangle())
                 }
-                .buttonStyle(PressaoDiscreta())
+                .buttonStyle(.linha)
             }
         }
     }
@@ -239,7 +239,7 @@ struct PadroesView: View {
                         LinhaDeLista(tocavel: "square.and.pencil", pergunta, nil,
                                      linhasDoTitulo: nil, fio: indice < perguntas.count - 1)
                     }
-                    .buttonStyle(PressaoDiscreta())
+                    .buttonStyle(.linha)
                     .opacity(reduceMotion || visiveis > indice ? 1 : 0)
                     .offset(y: reduceMotion || visiveis > indice ? 0 : 8)
                     .accessibilityIdentifier("pergunta-padroes-\(indice)")
@@ -291,7 +291,7 @@ struct PadroesView: View {
                                      glifo: { Image(systemName: "checkmark.seal") },
                                      acessorio: { Chevron() })
                     }
-                    .buttonStyle(PressaoDiscreta())
+                    .buttonStyle(.linha)
                     .accessibilityIdentifier("calibragem")
                 }
                 if !r.calibragem.isEmpty { juizo }
@@ -324,7 +324,7 @@ struct PadroesView: View {
                                 .compactMap { $0 }.joined(separator: " · "),
                              linhasDoTitulo: 2)
             }
-            .buttonStyle(PressaoDiscreta())
+            .buttonStyle(.linha)
         }
     }
 

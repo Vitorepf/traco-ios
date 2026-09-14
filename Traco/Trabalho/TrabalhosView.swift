@@ -128,7 +128,7 @@ struct TrabalhosView: View {
                                      trabalho.atualizadoEm.formatted(date: .abbreviated, time: .omitted),
                                      linhasDoTitulo: 2)
                     }
-                    .buttonStyle(.discreto)
+                    .buttonStyle(.linha)
                     .accessibilityIdentifier("trabalho-na-lista")
                     .accessibilityHint("Abre intenção, versões e próximos atos")
                 } else {

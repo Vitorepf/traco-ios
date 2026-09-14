@@ -283,6 +283,26 @@ struct PressaoDiscreta: ButtonStyle {
     }
 }
 
+/// Pressão numa LINHA de lista: a linha não encolhe (uma frase inteira a
+/// afundar 6 % lê como botão de app, não como folha); ela se acende por
+/// baixo, como a linha do Notes e do Mail, e apaga ao soltar. A luz sai um
+/// pouco da coluna do texto para os lados, para não parecer um selo justo.
+struct PressaoDeLinha: ButtonStyle {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .contentShape(Rectangle())
+            .background {
+                RoundedRectangle(cornerRadius: Tema.Raio.controle, style: .continuous)
+                    .fill(Tema.linha)
+                    .padding(.horizontal, -8)
+                    .opacity(configuration.isPressed ? 1 : 0)
+            }
+            .animation(Tema.movimento(.opacidade, configuration.isPressed ? .easeOut(duration: Tema.Duracao.toque) : .easeOut(duration: Tema.Duracao.curta), reduzido: reduceMotion), value: configuration.isPressed)
+    }
+}
+
 extension View {
     func sombra(_ s: Tema.Sombra) -> some View {
         shadow(color: s.cor, radius: s.raio, y: s.y)
