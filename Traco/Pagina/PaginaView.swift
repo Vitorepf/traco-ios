@@ -526,9 +526,11 @@ struct PaginaView: View {
     /// DITA NA PÁGINA (descarregar o pensamento por voz); escrever no campo e
     /// enviar pergunta à sábia sobre esta nota, e a resposta abre nas Notas.
     private var bottomBar: some View {
-        let temTexto = !perguntaDaPagina.trimmingCharacters(in: .whitespaces).isEmpty
-        return HStack(spacing: 8) {
-            Menu {
+        CampoFlutuante(texto: $perguntaDaPagina, dica: "perguntar sobre esta nota", ditado: ditado,
+                       identificador: "pergunta-da-pagina", rotuloEnviar: "Perguntar à sábia",
+                       rotuloDitar: "Ditar na página", aoEnviar: perguntarDaPagina,
+                       aoComecarDitado: { baseDoDitado = sessao.texto }) {
+            BotaoMais(rotulo: "Mais", identificador: "mais-acoes-da-nota") {
                 if sessao.temVoz, sessao.gesto != .expressiva {
                     Button("Trabalhar nisto", action: trabalharNisto)
                         .accessibilityIdentifier("trabalhar-nisto")
@@ -541,59 +543,8 @@ struct PaginaView: View {
                 }
                 .disabled(sessao.paginaVazia)
                 .accessibilityIdentifier("abrir-lente")
-            } label: {
-                Image(systemName: "plus")
-                    .font(.callout.weight(.semibold))
-                    .foregroundStyle(Tema.tinta)
-                    .frame(width: Tema.alvo, height: Tema.alvo)
-                    .contentShape(Rectangle())
             }
-            .buttonStyle(.discreto)
-            .accessibilityLabel("Mais")
-            .accessibilityIdentifier("mais-acoes-da-nota")
-
-            TextField("", text: $perguntaDaPagina,
-                      prompt: Text("perguntar sobre esta nota").foregroundStyle(Tema.tintaFraca))
-                .font(.callout)
-                .foregroundStyle(Tema.tinta)
-                .tint(Tema.ambar)
-                .textInputAutocapitalization(.sentences)
-                .submitLabel(.send)
-                .onSubmit(perguntarDaPagina)
-                .frame(minHeight: Tema.alvo)
-                .accessibilityIdentifier("pergunta-da-pagina")
-                .accessibilityLabel("Perguntar sobre esta nota")
-
-            Button {
-                if temTexto {
-                    ditado.parar()
-                    perguntarDaPagina()
-                } else if ditado.gravando {
-                    ditado.parar()
-                } else {
-                    baseDoDitado = sessao.texto
-                    ditado.alternar()
-                }
-            } label: {
-                Image(systemName: temTexto ? "arrow.up" : (ditado.gravando ? "stop.fill" : "mic"))
-                    .font(.subheadline.weight(.bold))
-                    .contentTransition(.symbolEffect(.replace))
-                    .foregroundStyle(temTexto || ditado.gravando ? .white : Tema.tinta)
-                    .frame(width: 36, height: 36)
-                    .background(temTexto || ditado.gravando ? Tema.chipAtivo : Tema.chip,
-                                in: RoundedRectangle(cornerRadius: Tema.Raio.controle, style: .continuous))
-                    .frame(width: Tema.alvo, height: Tema.alvo)
-                    .contentShape(Rectangle())
-            }
-            .buttonStyle(.discreto)
-            .accessibilityLabel(temTexto ? "Perguntar à sábia" : ditado.gravando ? "Parar de ditar" : "Ditar na página")
         }
-        .padding(.leading, 2)
-        .padding(.trailing, 4)
-        .padding(.vertical, 2)
-        .background(Capsule().fill(Tema.superficie))
-        .overlay(Capsule().strokeBorder(Tema.luzBorda, lineWidth: 1))
-        .sombra(Tema.Sombra.campo)
         .padding(.horizontal, 14)
         .padding(.vertical, 8)
         .background(Tema.fundo)

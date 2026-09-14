@@ -26,14 +26,14 @@ struct CalendarioView: View {
     /// Os calendários que já estão no iPhone: alimentam a recomendação do
     /// campo (sete dias) E a grade (a faixa visível), sempre só leitura.
     @State private var sistema = CalendarioSistema()
-    @FocusState private var prosaEmFoco: Bool
 
     /// O exemplo inventado só aparece quando não há compromisso de verdade.
     private var dicaDoCampo: String {
         // a recomendação longa cortava a meio da palavra ("Independência do
         // Brasil depois de a…"): exemplo que não cabe não é exemplo
-        if let r = Recomendacao.primeira(de: sistema.proximos, agenda.cal), r.count <= 30 { return r }
-        return "Dentista sexta às 14:30"
+        // na linha única do pé o campo tem ~130 pt: o exemplo tem de caber
+        if let r = Recomendacao.primeira(de: sistema.proximos, agenda.cal), r.count <= 18 { return r }
+        return "Dentista sexta 14h"
     }
 
     init(agenda: CalendarioAgenda = CalendarioAgenda()) {
@@ -71,6 +71,11 @@ struct CalendarioView: View {
         .confirmationDialog("Marcar", isPresented: $agenda.menuMais, titleVisibility: .hidden) {
             Button("Novo compromisso") { agenda.novoEmBranco() }
             Button("Colar") { agenda.colar() }
+            Button(agenda.modo == .lista ? "Ver em grade" : "Ver em lista") {
+                withAnimation(CalendarioTema.morph(reduceMotion)) {
+                    agenda.modo = agenda.modo == .lista ? .grelha : .lista
+                }
+            }
             Button("Cancelar", role: .cancel) {}
         }
         // sem id na raiz: ele cobria os ids de TODOS os filhos (34 elementos
@@ -265,7 +270,10 @@ struct CalendarioView: View {
     // MARK: chrome flutuante
 
     private func chrome(agora: Date) -> some View {
-        VStack(spacing: 10) {
+        // Dono, 14/09: UMA linha, não duas — as escalas à esquerda, o campo
+        // (escrever ou falar) à direita. "Hoje" só existe quando não se está
+        // em hoje; lista/grade mora no "+", que é raro.
+        HStack(spacing: 8) {
             interruptor(agora: agora)
             campoProsa
         }
@@ -275,11 +283,7 @@ struct CalendarioView: View {
     }
 
     private func interruptor(agora: Date) -> some View {
-        HStack(spacing: 8) {
-            HStack(spacing: 2) {
-                modoBotao(.lista, icone: "list.bullet")
-                modoBotao(.grelha, icone: "calendar")
-            }
+        HStack(spacing: 6) {
             HStack(spacing: 0) {
                 ForEach(EscalaCalendario.allCases, id: \.self) { escala in
                     let ligado = agenda.escala == escala
@@ -292,16 +296,15 @@ struct CalendarioView: View {
                         Text(escala.letra)
                             .font(CalendarioTema.escala)
                             .foregroundStyle(ligado ? .white : CalendarioTema.tintaSuave)
-                            .frame(width: CalendarioTema.controle, height: CalendarioTema.controle)
+                            .frame(width: 32, height: 32)
                             .background {
                                 if ligado {
                                     Circle()
                                         .fill(CalendarioTema.chipActivo)
-                                        .shadow(color: CalendarioTema.sombraControle, radius: 4, y: 2)
                                         .matchedGeometryEffect(id: "escala-selecionada", in: morph)
                                 }
                             }
-                            .frame(width: 40, height: Tema.alvo)
+                            .frame(width: 34, height: Tema.alvo)
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(PressaoClara())
@@ -310,12 +313,12 @@ struct CalendarioView: View {
                     .accessibilityAddTraits(ligado ? [.isButton, .isSelected] : .isButton)
                 }
             }
-            .padding(.horizontal, 2)
+            .padding(.horizontal, 3)
             .background(Capsule().fill(CalendarioTema.trilho))
             .animation(CalendarioTema.morph(reduceMotion), value: agenda.escala)
 
-            // sempre presente: um botão que aparece e some mexe no layout inteiro
-            Button {
+            if !(agenda.ancoraEHoje(agora) && agenda.escala == .dia) {
+                Button {
                     Toque.selecao()
                     withAnimation(CalendarioTema.morph(reduceMotion)) {
                         agenda.irHoje(agora: agora)
@@ -324,123 +327,37 @@ struct CalendarioView: View {
                     Text("Hoje")
                         .font(CalendarioTema.chrome)
                         .foregroundStyle(.white)
-                        .padding(.horizontal, 14)
-                        .frame(height: CalendarioTema.controle)
+                        .padding(.horizontal, 10)
+                        .frame(height: 32)
                         .background(CalendarioTema.chipActivo, in: Capsule())
-                        .shadow(color: CalendarioTema.sombraControle, radius: 4, y: 2)
                         .frame(height: Tema.alvo)
                         .contentShape(Capsule())
                 }
                 .buttonStyle(PressaoClara())
                 .accessibilityIdentifier("calendario-hoje")
-                .opacity(agenda.ancoraEHoje(agora) && agenda.escala == .dia ? 0.55 : 1)
+                .transition(Tema.transicao(.opacity, reduzido: reduceMotion))
+            }
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background {
-            Capsule()
-                .fill(CalendarioTema.cartao)
-                // vidro sobre alumínio, não cartão: o fio de luz no topo
-                .overlay(Capsule().strokeBorder(CalendarioTema.luzBorda, lineWidth: 1))
-                .sombra(Tema.Sombra.flutuante)
-        }
-    }
-
-    private func modoBotao(_ modo: ModoCalendario, icone: String) -> some View {
-        let ligado = agenda.modo == modo
-        return Button {
-            Toque.selecao()
-            agenda.modo = modo
-        } label: {
-            Image(systemName: icone)
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(ligado ? .white : CalendarioTema.tintaSuave)
-                .frame(width: CalendarioTema.controle, height: CalendarioTema.controle)
-                .background {
-                    if ligado {
-                        RoundedRectangle(cornerRadius: CalendarioTema.raioAcao, style: .continuous)
-                            .fill(CalendarioTema.chipActivo)
-                            .shadow(color: CalendarioTema.sombraControle, radius: 4, y: 2)
-                            .matchedGeometryEffect(id: "modo-selecionado", in: morph)
-                    }
-                }
-                .frame(width: 40, height: Tema.alvo)
-                .contentShape(Rectangle())
-        }
-        .buttonStyle(PressaoClara())
-        .accessibilityIdentifier("modo-\(modo.rawValue)")
-        .accessibilityLabel(modo == .lista ? "Lista" : "Grade")
-        .accessibilityAddTraits(ligado ? [.isButton, .isSelected] : .isButton)
+        .fixedSize()
     }
 
     private var campoProsa: some View {
-        let temTexto = !agenda.prosa.trimmingCharacters(in: .whitespaces).isEmpty
-        return HStack(spacing: 8) {
+        CampoFlutuante(texto: $agenda.prosa, dica: dicaDoCampo, ditado: ditado,
+                       identificador: "calendario-prosa", identificadorDoBotao: "calendario-marcar",
+                       rotuloEnviar: "Marcar o compromisso", rotuloDitar: "Ditar o compromisso",
+                       aoEnviar: { agenda.adicionarDaProsa() }) {
             Button {
                 agenda.menuMais = true
             } label: {
                 Image(systemName: "plus")
                     .font(.callout.weight(.semibold))
-                    .foregroundStyle(CalendarioTema.tinta)
+                    .foregroundStyle(Tema.tinta)
                     .frame(width: Tema.alvo, height: Tema.alvo)
                     .contentShape(Rectangle())
             }
-            .buttonStyle(PressaoClara())
+            .buttonStyle(.discreto)
             .accessibilityLabel("Marcar")
-
-            TextField(
-                "",
-                text: $agenda.prosa,
-                prompt: Text(dicaDoCampo)
-                    .foregroundStyle(CalendarioTema.tintaFraca)
-            )
-            .font(.callout)
-            .foregroundStyle(CalendarioTema.tinta)
-            .textInputAutocapitalization(.sentences)
-            .submitLabel(.done)
-            .focused($prosaEmFoco)
-            .onSubmit { agenda.adicionarDaProsa() }
-            // ADR 05c: o campo nunca se preenche sozinho — a recomendação é o
-            // exemplo cinza, e o cinza é fantasma (jakobs-law). Tocar é tocar.
-            .accessibilityIdentifier("calendario-prosa")
-            .accessibilityLabel("Marcar em palavras")
-            .accessibilityHint("Escreva o compromisso em palavras, como no exemplo")
-
-            // um botão, dois estados: com texto ele envia; vazio ele grava a
-            // voz. Antes, vazio, era um alvo de 44pt que não fazia nada.
-            Button {
-                if temTexto {
-                    ditado.parar()
-                    agenda.adicionarDaProsa()
-                } else {
-                    ditado.alternar()
-                }
-            } label: {
-                Image(systemName: temTexto ? "arrow.up" : (ditado.gravando ? "stop.fill" : "mic"))
-                    .font(.subheadline.weight(.bold))
-                    .contentTransition(.symbolEffect(.replace))
-                    .foregroundStyle(temTexto || ditado.gravando ? .white : CalendarioTema.tinta)
-                    .frame(width: CalendarioTema.controle, height: CalendarioTema.controle)
-                    .background(
-                        temTexto || ditado.gravando ? CalendarioTema.chipActivo : CalendarioTema.chip,
-                        in: RoundedRectangle(cornerRadius: CalendarioTema.raioAcao, style: .continuous)
-                    )
-                    .frame(width: Tema.alvo, height: Tema.alvo)
-                    .contentShape(Rectangle())
-            }
-            .buttonStyle(PressaoClara())
-            .animation(Tema.movimento(.opacidade, .easeOut(duration: Tema.Duracao.curta), reduzido: reduceMotion), value: temTexto)
-            .animation(Tema.movimento(.opacidade, .easeOut(duration: Tema.Duracao.curta), reduzido: reduceMotion), value: ditado.gravando)
-            .accessibilityLabel(temTexto ? "Marcar o compromisso"
-                : ditado.gravando ? "Parar de gravar" : "Ditar o compromisso")
-            .accessibilityIdentifier("calendario-marcar")
         }
-        .padding(.leading, 2)
-        .padding(.trailing, 4)
-        .padding(.vertical, 2)
-        .background(Capsule().fill(CalendarioTema.trilho))
-        .sombra(Tema.Sombra.campo)
     }
 }
 

@@ -639,54 +639,13 @@ struct NotasView: View {
     /// filtra a lista ao vivo; enviar leva a frase à sábia como pergunta; o
     /// microfone dita para o mesmo campo. Um lugar, três atos, sem menu.
     private var campoDeBuscaEPergunta: some View {
-        let temTexto = !busca.trimmingCharacters(in: .whitespaces).isEmpty
-        return HStack(spacing: 8) {
-            TextField("", text: Bindable(conversaNotas).busca,
-                      prompt: Text("buscar ou perguntar").foregroundStyle(Tema.tintaFraca))
-                .font(.callout)
-                .foregroundStyle(Tema.tinta)
-                .tint(Tema.ambar)
-                .textInputAutocapitalization(.sentences)
-                .submitLabel(.send)
-                .onSubmit(perguntarDaBusca)
-                .padding(.leading, 14)
-                .frame(minHeight: Tema.alvo)
-                .accessibilityIdentifier("busca-notas")
-                .accessibilityLabel("Buscar ou perguntar")
-                .accessibilityValue(busca.isEmpty ? "vazio" : busca)
-                .accessibilityHint("Escrever filtra a lista; enviar pergunta à sábia")
-            Button {
-                if temTexto {
-                    ditado.parar()
-                    perguntarDaBusca()
-                } else {
-                    ditado.alternar()
-                }
-            } label: {
-                Image(systemName: temTexto ? "arrow.up" : (ditado.gravando ? "stop.fill" : "mic"))
-                    .font(.subheadline.weight(.bold))
-                    .contentTransition(.symbolEffect(.replace))
-                    .foregroundStyle(temTexto || ditado.gravando ? .white : Tema.tinta)
-                    .frame(width: 36, height: 36)
-                    .background(temTexto || ditado.gravando ? Tema.chipAtivo : Tema.chip,
-                                in: RoundedRectangle(cornerRadius: Tema.Raio.controle, style: .continuous))
-                    .frame(width: Tema.alvo, height: Tema.alvo)
-                    .contentShape(Rectangle())
-            }
-            .buttonStyle(.discreto)
-            .accessibilityLabel(temTexto ? "Perguntar à sábia" : ditado.gravando ? "Parar de gravar" : "Ditar")
-            .accessibilityIdentifier(temTexto ? "perguntar-notas" : "ditar-notas")
-        }
-        .padding(.leading, 2)
-        .padding(.trailing, 4)
-        .padding(.vertical, 2)
-        .background(Capsule().fill(Tema.superficie))
-        .overlay(Capsule().strokeBorder(Tema.luzBorda, lineWidth: 1))
-        .sombra(Tema.Sombra.campo)
-        .padding(.horizontal, 14)
-        .padding(.bottom, 8)
-        .onAppear { ditado.aoTexto = { [conversaNotas] falado in conversaNotas.busca = falado } }
-        .onDisappear { ditado.parar() }
+        CampoFlutuante(texto: Bindable(conversaNotas).busca, dica: "buscar ou perguntar", ditado: ditado,
+                       identificador: "busca-notas", identificadorDoBotao: busca.isEmpty ? "ditar-notas" : "perguntar-notas",
+                       rotuloEnviar: "Perguntar à sábia", rotuloDitar: "Ditar", aoEnviar: perguntarDaBusca)
+            .padding(.horizontal, 14)
+            .padding(.bottom, 8)
+            .onAppear { ditado.aoTexto = { [conversaNotas] falado in conversaNotas.busca = falado } }
+            .onDisappear { ditado.parar() }
     }
 
     /// Enviar do campo do pé: a busca vira a pergunta e a folha da conversa abre.
