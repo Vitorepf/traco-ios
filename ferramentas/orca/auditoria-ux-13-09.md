@@ -237,3 +237,24 @@ O portão do goal (9 em tudo, com vídeo e "aqui a pessoa faz uma coisa só") n�
 - 2f9cded — Página: pé vira o campo flutuante ("+", pergunta, microfone que dita na página). Captura `air-pagina-campo-pe.png`. As três abas de conteúdo partilham agora um só idioma de pé.
 - 94211f3 — REVERTIDO 2eeebfc: as escalas e o Hoje do calendário voltam para o pé (dono, 14/09: "mudou para o topo sem sentido"). O pé do calendário, com escalas, campo e pílula, é decisão do dono — não mexer.
 - c160bb5 — `CampoFlutuante` em `Traco/Componentes`: um pé para Notas, página e calendário (14). Calendário em UMA linha: escalas + campo; Hoje condicional; lista/grade no "+" (15, ordem do dono). Captura `air-cal-uma-linha.png`.
+
+## J. Placar refeito depois de quinze voltas (14/09, 12h30)
+
+Mesma régua. Estimativa minha; o veredito do dono em vídeo continua a ser o portão.
+
+| tela | Design | Simplicidade | Componentes | Texto | Estado honesto | Hermes | média | o que ainda falta para 9 |
+|---|---|---|---|---|---|---|---|---|
+| 1 Página | 8 | 9 | 8 | 7 | 8 | 8 | **8,0** | "Notas" no canto como título; o cartão e os campos ainda são duas camadas |
+| 2 Notas | 8 | 9 | 9 | 8 | 8 | 9 | **8,5** | "trabalhos ›" como texto cinza; subtítulo mistura forma e data |
+| 3 Conversa | 8 | 8 | 9 | 7 | 7 | 9 | **8,0** | conversa vazia em branco; pensando/resposta não vistos com conta |
+| 4 Calendário | 8 | 9 | 8 | 8 | 7 | 8 | **8,0** | mês e ano densos; lista/grade escondido no "+" pede um toque a mais |
+| 5 Ficha | 8 | 8 | 8 | 8 | 8 | 8 | **8,0** | título sem cara de editável; "Repete" pede toque para ver os dias |
+| 6 Padrões | 8 | 9 | 9 | 8 | 8 | 9 | **8,5** | vídeo e olho do dono |
+| 7 Perfil | 8 | 8 | 8 | 6 | 8 | 8 | **7,7** | letra miúda de quatro linhas por seção; "Latência da descoberta" |
+| 8 Trabalho | 7 | 7 | 7 | 6 | 8 | 7 | **7,0** | "Sua versão" sempre aberta (UITest); ainda três telas com versão |
+| 9 Recordar | 6 | 8 | 7 | 8 | 8 | 6 | **7,2** | folha vazia com um caret; RECORDAR virou frase, o resto ficou |
+| 10 Lente | 7 | 7 | 8 | 7 | 8 | 7 | **7,3** | letra miúda sob cada cabeçalho; ações com chevron |
+| 11 Navegação | 8 | 9 | 8 | 7 | 8 | 8 | **8,0** | três palavras para sair de folha; puxador de 3 pt |
+| **média** | 7,6 | 8,3 | 8,1 | 7,3 | 7,8 | 7,9 | **7,8** | era 6,9 em 13/09 e 7,5 há dez voltas |
+
+**Decisões do dono desta manhã que reescrevem ADRs:** a busca e a pergunta das Notas moram num campo flutuante sobre a pílula (contraria a ADR 10i, que as pôs no topo); a régua de formatos não existe (contraria o §22 do SPEC e a ADR 05f no ponto da régua); o pé do calendário é uma linha (escalas + campo). As três precisam de nota nas ADRs.
