@@ -557,7 +557,7 @@ struct PaginaView: View {
     /// DITA NA PÁGINA (descarregar o pensamento por voz); escrever no campo e
     /// enviar pergunta à sábia sobre esta nota, e a resposta abre nas Notas.
     private var bottomBar: some View {
-        CampoFlutuante(texto: $perguntaDaPagina, dica: "diga qualquer coisa", ditado: ditado,
+        CampoFlutuante(texto: $perguntaDaPagina, dica: "Fale com o Traço", ditado: ditado,
                        identificador: "pergunta-da-pagina", rotuloEnviar: "Perguntar à sábia",
                        rotuloDitar: "Ditar na página", aoEnviar: perguntarDaPagina,
                        aoComecarDitado: { baseDoDitado = sessao.texto }) {

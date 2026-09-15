@@ -579,7 +579,7 @@ struct NotasView: View {
     private var linhaDaPergunta: some View {
         let primeira = conversa.isEmpty
         return CampoFlutuante(texto: Bindable(conversaNotas).entrada,
-                              dica: pensando ? "escreva a próxima" : primeira ? "diga qualquer coisa" : "diga mais",
+                              dica: pensando ? "Escreva a próxima" : primeira ? "Fale com o Traço" : "Continue a conversa",
                               ditado: ditado, identificador: "pergunta-notas",
                               identificadorDoBotao: pensando ? "parar-de-esperar" : "perguntar-notas",
                               rotuloEnviar: "Perguntar à sábia", rotuloDitar: "Ditar a pergunta",
@@ -598,13 +598,13 @@ struct NotasView: View {
     /// filtra a lista ao vivo; enviar leva a frase à sábia como pergunta; o
     /// microfone dita para o mesmo campo. Um lugar, três atos, sem menu.
     private var campoDeBuscaEPergunta: some View {
-        CampoFlutuante(texto: Bindable(conversaNotas).busca, dica: "diga qualquer coisa", ditado: ditado,
+        CampoFlutuante(texto: Bindable(conversaNotas).busca, dica: "Fale com o Traço", ditado: ditado,
                        identificador: "busca-notas", identificadorDoBotao: busca.isEmpty ? "ditar-notas" : "perguntar-notas",
                        rotuloEnviar: "Perguntar à sábia", rotuloDitar: "Ditar", aoEnviar: perguntarDaBusca)
-            .padding(.horizontal, Tema.margem)
-            // cola na pílula: o pé é UM bloco (campo sobre a pílula), não dois
-            // vidros com um vão maior do que a margem da tela entre eles
-            .padding(.bottom, -6)
+            // centrado na tela, com a largura da pílula (dono, 15/09: "tá muito
+            // à esquerda e ficou espaço à direita"): margem + metade do âmbar
+            .padding(.horizontal, Tema.margem + (Tema.barraNav + Tema.entreItens) / 2)
+            .padding(.bottom, 2)
             .onAppear { ditado.aoTexto = { [conversaNotas] falado in conversaNotas.busca = falado } }
             .onDisappear { ditado.parar() }
     }

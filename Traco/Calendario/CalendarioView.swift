@@ -34,7 +34,7 @@ struct CalendarioView: View {
         // na linha única do pé o campo tem ~130 pt: o exemplo tem de caber
         if let r = Recomendacao.primeira(de: sistema.proximos, agenda.cal), r.count <= 12 { return r }
         // o exemplo fixo lia como um segundo compromisso (auditoria 15/09, 12)
-        return "marcar"
+        return "Marcar"
     }
 
     init(agenda: CalendarioAgenda = CalendarioAgenda()) {
@@ -278,8 +278,8 @@ struct CalendarioView: View {
         // que vai à esquerda (lista/grade, escalas, Hoje) entra na mesma
         // cápsula de vidro do campo, como o "+" entrava.
         campoProsa(agora: agora)
-        .padding(.horizontal, Tema.margem)
-        .padding(.bottom, -6)
+        .padding(.horizontal, Tema.margem + (Tema.barraNav + Tema.entreItens) / 2)
+        .padding(.bottom, 2)
         .dynamicTypeSize(...DynamicTypeSize.xLarge)
     }
 
@@ -371,7 +371,7 @@ struct CalendarioView: View {
         // com o Hoje à vista a linha aperta: a dica encurta para "marcar" em
         // vez de sair cortada a meio ("Dentista 1…", vídeo de 14/09)
         let emHoje = agenda.hojeAVista(agora)
-        return CampoFlutuante(texto: $agenda.prosa, dica: emHoje ? dicaDoCampo : "marcar", ditado: ditado,
+        return CampoFlutuante(texto: $agenda.prosa, dica: emHoje ? dicaDoCampo : "Marcar", ditado: ditado,
                        identificador: "calendario-prosa", identificadorDoBotao: "calendario-marcar",
                        rotuloEnviar: "Marcar o compromisso", rotuloDitar: "Ditar o compromisso",
                        aoEnviar: { agenda.adicionarDaProsa() }) {

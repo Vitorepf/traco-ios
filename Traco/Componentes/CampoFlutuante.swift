@@ -26,8 +26,9 @@ struct CampoFlutuante<Mais: View>: View {
 
     var body: some View {
         let temTexto = !texto.trimmingCharacters(in: .whitespaces).isEmpty
-        HStack(spacing: 8) {
+        HStack(spacing: 6) {
             mais()
+            HStack(spacing: 4) {
             TextField("", text: $texto, prompt: Text(dica).foregroundStyle(Tema.tintaFraca))
                 .font(Tema.meta)
                 .foregroundStyle(Tema.tinta)
@@ -35,8 +36,8 @@ struct CampoFlutuante<Mais: View>: View {
                 .textInputAutocapitalization(.sentences)
                 .submitLabel(.send)
                 .onSubmit(aoEnviar)
-                .frame(minHeight: 30)
-                .padding(.leading, Mais.self == EmptyView.self ? 14 : 2)
+                .frame(minHeight: 32)
+                .padding(.leading, Mais.self == EmptyView.self ? 14 : 4)
                 .accessibilityIdentifier(identificador)
                 .accessibilityLabel(dica)
                 .accessibilityValue(texto.isEmpty ? "vazio" : texto)
@@ -61,17 +62,19 @@ struct CampoFlutuante<Mais: View>: View {
                 // camadas (dono, 14/09: "clean, ultra premium"); com texto, o
                 // enviar é o único objeto escuro — um disco carvão pequeno
                 Image(systemName: aoParar != nil ? "stop.fill" : temTexto ? "arrow.up" : (ditado.gravando ? "stop.fill" : "mic"))
-                    .font(aoParar != nil || temTexto || ditado.gravando ? .caption.weight(.bold) : .subheadline.weight(.medium))
+                    .font(aoParar != nil || temTexto || ditado.gravando ? .caption2.weight(.bold) : .footnote.weight(.medium))
                     .contentTransition(.symbolEffect(.replace))
-                    .foregroundStyle(aoParar != nil || temTexto || ditado.gravando ? .white : Tema.tinta)
+                    .foregroundStyle(aoParar != nil || temTexto || ditado.gravando ? .white : Tema.tintaSuave)
                     .frame(width: 26, height: 26)
                     .background {
+                        // o disco se LEVANTA do poço, como a escala escolhida
                         if aoParar != nil || temTexto || ditado.gravando {
                             Circle()
                                 .fill(aoParar != nil || (ditado.gravando && !temTexto) ? Tema.aviso : Tema.chipAtivo)
+                                .shadow(color: CalendarioTema.sombraControle, radius: 3, y: 1.5)
                         }
                     }
-                    .frame(width: 34, height: 34)
+                    .frame(width: 32, height: 32)
                     .contentShape(Rectangle())
             }
             .buttonStyle(.discreto)
@@ -79,22 +82,15 @@ struct CampoFlutuante<Mais: View>: View {
             .animation(Tema.movimento(.opacidade, .easeOut(duration: Tema.Duracao.curta), reduzido: reduceMotion), value: ditado.gravando)
             .accessibilityLabel(aoParar != nil ? "Parar de esperar" : temTexto ? rotuloEnviar : ditado.gravando ? "Parar de ditar" : rotuloDitar)
             .accessibilityIdentifier(identificadorDoBotao ?? (identificador + (temTexto ? "-enviar" : "-ditar")))
+            }
+            .padding(.trailing, 2)
         }
-        // dono, 15/09: "essa barra está enorme" — 36 pt de altura, uma linha de
-        // texto e nada mais; a pílula de baixo é que tem 52
-        .padding(.horizontal, 4)
-        .padding(.vertical, 1)
-        // a MESMA cápsula da pílula de navegação (material e fio), mais baixa
-        // (40 pt: uma linha de texto, não uma barra) e com a sombra do campo,
-        // mais suave — menos camadas, mais caro (dono, 14/09: "diminua o
-        // tamanho, clean, ultra premium")
-        .background {
-            Capsule()
-                .fill(Tema.superficieAlta.opacity(0.85))
-                .background(.ultraThinMaterial, in: Capsule())
-                .overlay(Capsule().strokeBorder(Tema.linha, lineWidth: 0.5))
-                .sombra(Tema.Sombra.campo)
-        }
+        // dono, 15/09: o poço cinza com borda branca "está amador". O material
+        // é o VIDRO do sistema (iOS 26+): reflexo, profundidade e sombra da
+        // própria Apple, o mesmo da pílula e do botão âmbar — um material só no
+        // pé, sem sombra desenhada à mão somando cinza no papel.
+        .padding(4)
+        .glassEffect(.regular.interactive(), in: .capsule)
     }
 }
 

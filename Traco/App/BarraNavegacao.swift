@@ -102,15 +102,9 @@ struct BarraNavegacao: View {
                 .accessibilityHidden(true)
             }
             .padding((Tema.barraNav - Tema.alvo) / 2)
-            .background {
-                // o fundo sustenta a cor, o vidro deixa o conteúdo passar por
-                // baixo sem sumir (apple-design §12)
-                Capsule()
-                    .fill(Tema.superficieAlta.opacity(0.85))
-                    .background(.ultraThinMaterial, in: Capsule())
-                    .overlay(Capsule().strokeBorder(Tema.linha, lineWidth: 0.5))
-                    .sombra(Tema.Sombra.flutuante)
-            }
+            // o vidro do sistema (iOS 26+): o mesmo material do campo acima —
+            // a sombra desenhada à mão deixava uma faixa cinza sob o pé
+            .glassEffect(.regular, in: .capsule)
 
             // ação, não destino: círculo âmbar, uma vez na tela, glifo escuro
             // por cima (7,6:1). `law-of-similarity` — o que FAZ não pode
@@ -123,8 +117,7 @@ struct BarraNavegacao: View {
                     .font(.system(size: 21, weight: .semibold))
                     .foregroundStyle(Tema.tinta)
                     .frame(width: Tema.barraNav, height: Tema.barraNav)
-                    .background(Tema.ambar, in: Circle())
-                    .sombra(Tema.Sombra.flutuante)
+                    .glassEffect(.regular.tint(Tema.ambar).interactive(), in: .circle)
                     .contentShape(Circle())
             }
             .buttonStyle(PressaoDiscreta())
