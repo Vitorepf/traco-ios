@@ -45,11 +45,6 @@ targets:
       properties:
         com.apple.security.application-groups:
           - group.app.traco
-        # iOS 27: a nuvem privada da Apple (PrivateCloudComputeLanguageModel)
-        # aborta o processo sem este entitlement — "Fatal error: Missing
-        # entitlement" derrubou a suíte em 15/09. No aparelho, a capacidade
-        # tem de estar ligada no App ID.
-        com.apple.developer.private-cloud-compute: true
         # ADR 04a/04e: o que o AUTOR marcou atravessa o Foco; o que o app
         # inventou de cobrar, não. Um alarme de dentista que o modo Foco
         # engole é exatamente "está marcado e não adianta nada".

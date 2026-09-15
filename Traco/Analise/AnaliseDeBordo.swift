@@ -39,6 +39,14 @@ nonisolated enum AnaliseDeBordo {
     /// Compute) — sem conta, sem cobrança, e o texto não vai a terceiros. Onde
     /// existe, é ele o executor "de bordo"; o modelo pequeno do aparelho fica
     /// para quando não há rede. Uma decisão só, aqui, para as quatro sessões.
+    ///
+    /// DESLIGADO na compilação (bandeira `NUVEM_PRIVADA`): o entitlement
+    /// `com.apple.developer.private-cloud-compute` não é concedido à conta de
+    /// desenvolvedor (15/09, a assinatura para o iPhone recusou), e sem ele o
+    /// FoundationModels ABORTA o processo na primeira chamada. Quando a Apple
+    /// liberar a capacidade: entitlement no `project.yml` e
+    /// `SWIFT_ACTIVE_COMPILATION_CONDITIONS: NUVEM_PRIVADA`.
+    #if NUVEM_PRIVADA
     @available(iOS 27.0, *)
     private enum Nuvem {
         static let modelo: PrivateCloudComputeLanguageModel? = {
@@ -59,6 +67,14 @@ nonisolated enum AnaliseDeBordo {
         }
         return LanguageModelSession(instructions: instructions)
     }
+    #else
+    static var nuvemPrivada: (any Sendable)? { nil }
+
+    /// A sessão de bordo: o modelo do aparelho.
+    static func sessao(instructions: String) -> LanguageModelSession {
+        LanguageModelSession(instructions: instructions)
+    }
+    #endif
 
     /// Verdadeiro quando a sessão de bordo corre na nuvem privada — quem conta
     /// tokens contra `SystemLanguageModel.default` não deve fazê-lo aí.
