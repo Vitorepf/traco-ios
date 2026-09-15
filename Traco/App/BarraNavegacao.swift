@@ -113,11 +113,29 @@ struct BarraNavegacao: View {
                 Toque.leve()
                 aoNovaNota()
             } label: {
+                // dono, 15/09: "consegue deixar ele ultra premium e elegante".
+                // O vidro tingido turvava o âmbar e deixava um aro marrom; o
+                // botão é uma peça de âmbar polido: luz de cima (degradê curto),
+                // fio de luz na metade de cima, contorno quase invisível embaixo,
+                // um brilho âmbar curto por baixo e o glifo mais fino.
                 Image(systemName: Aba.escrever.icone)
-                    .font(.system(size: 21, weight: .semibold))
+                    .font(.system(size: 19, weight: .medium))
                     .foregroundStyle(Tema.tinta)
                     .frame(width: Tema.barraNav, height: Tema.barraNav)
-                    .glassEffect(.regular.tint(Tema.ambar).interactive(), in: .circle)
+                    .background {
+                        Circle()
+                            .fill(LinearGradient(colors: [Color(hex: 0xE9BC62), Tema.ambar, Color(hex: 0xCF9B3A)],
+                                                 startPoint: .top, endPoint: .bottom))
+                            .overlay {
+                                Circle().strokeBorder(
+                                    LinearGradient(colors: [.white.opacity(0.7), .white.opacity(0)],
+                                                   startPoint: .top, endPoint: .center),
+                                    lineWidth: 1)
+                            }
+                            .overlay(Circle().strokeBorder(Tema.ambarTinta.opacity(0.18), lineWidth: 0.5))
+                            .shadow(color: Tema.ambar.opacity(0.32), radius: 8, y: 4)
+                            .shadow(color: Tema.sombraContato, radius: 1, y: 0.5)
+                    }
                     .contentShape(Circle())
             }
             .buttonStyle(PressaoDiscreta())
