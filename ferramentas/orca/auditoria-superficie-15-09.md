@@ -187,3 +187,13 @@ Placar I (estimativa minha): Calendário 8,8 · Notas 8,5 · Página 8,2 · Lent
 - (95) Ficha: o trabalho de 14/09 que ficara fora do commit entrou — data e hora na mesma linha das outras, com o seletor do sistema logo abaixo ao toque; a última pílula cinza da ficha saiu (`09-ficha.png` já a mostra).
 - (96) Perfil: "Índice de sentido" vira "Busca pelo sentido", e "Refazer o índice" vira "Refazer a busca" — nome de uso, não de motor.
 - (97) Perfil: a explicação do modo férias cabe mesmo em duas linhas ao lado do interruptor ("o Recordar e a revisão esperam; compromissos avisam"). Captura `69-perfil-ferias-v2.png`; a linha renomeada em `68-perfil-busca-sentido.png`.
+
+## J. Com a conta do Grok ligada (15/09, 11h30) — IA de verdade, e o iOS 27
+
+O dono ligou a conta no Air E66EF2AD (`70-arranque-conta.png`). Daqui em diante esse aparelho não se desinstala.
+
+- (98) Esquema `GestoDeBordo`: no iOS 27 o tipo nomeado entra uma vez (`dependencies`) e a propriedade o cita por `referenceTo` — a suíte passou de 4 vermelhos para 1 (`Indice.disponivel`, que o simulador não tem).
+- (99) O campo do pé tem 36 pt — "essa barra está enorme" (dono).
+- Pergunta real ao Grok, primeira volta (`73-pergunta-grok-resposta2.png`, 17 s): resposta ERRADA — "não há registro de decisão sobre plano de celular" — porque `contextoDasNotas` escolhia as fontes só pelo índice de sentido, e sem ele (ou com ele a perder) a nota "Decidir se troco de plano de celular" não ia junto.
+- (100) Fontes por palavra: as notas que têm as palavras da pergunta (`NotasFiltro.casa`) entram depois das vizinhas, até o teto. Segunda volta (`75-pergunta-fontes-resposta.png`): "Você decidiu ficar com o plano de celular atual, em vez de trocar. Referência: …" e "leu 1 nota sua ›".
+- (101) iOS 27: `PrivateCloudComputeLanguageModel` — o modelo maior da Apple na nuvem privada, sem conta e sem o texto ir a terceiros — vira o executor de bordo quando disponível (`AnaliseDeBordo.sessao(instructions:)`, uma decisão para as quatro sessões); o Perfil diz "nuvem privada da Apple" (`74-perfil-nuvem.png`). Custou um abort: sem o entitlement `com.apple.developer.private-cloud-compute` o FoundationModels mata o processo; entrou no `project.yml`. No iPhone, a capacidade tem de estar ligada no App ID.
