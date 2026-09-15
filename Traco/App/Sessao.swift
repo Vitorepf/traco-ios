@@ -762,7 +762,23 @@ final class Sessao {
         let vizinhas = Indice.vizinhas(de: pergunta, teto: teto, minimo: 0.15)
         guard let notas = try? context.fetch(FetchDescriptor<Nota>()) else { return [] }
         let porID = Dictionary(uniqueKeysWithValues: notas.map { ($0.uuid, $0) })
-        return Self.semRepetida(vizinhas.compactMap { v in porID[v.uuid].flatMap(Self.fonteParaPergunta) })
+        var fontes = vizinhas.compactMap { v in porID[v.uuid].flatMap(Self.fonteParaPergunta) }
+        // 15/09, com a conta ligada: "o que eu decidi sobre o plano de celular?"
+        // foi ao Grok SEM a nota "Decidir se troco de plano de celular" — só o
+        // índice de sentido escolhia as fontes, e sem ele (ou com ele a perder a
+        // nota) a sábia respondia "não há registro". As notas que têm as
+        // PALAVRAS da pergunta (a mesma régua da busca) entram depois das
+        // vizinhas, até o teto.
+        if fontes.count < teto {
+            let ja = Set(vizinhas.map(\.uuid))
+            let porPalavra = notas
+                .filter { !ja.contains($0.uuid) && NotasFiltro.casa($0.textoDeQualquerOrigem, busca: pergunta) }
+                .sorted { $0.editadaEm > $1.editadaEm }
+                .prefix(teto - fontes.count)
+                .compactMap(Self.fonteParaPergunta)
+            fontes += porPalavra
+        }
+        return Self.semRepetida(fontes)
     }
 
     /// DIRETRIZ §14: o dono viu a MESMA nota três vezes em "Foram junto:". A
