@@ -1819,7 +1819,6 @@ final class Sessao {
             let local = Caderno.estruturar(texto)
             if local != texto { texto = local }
         }
-        let nomeGesto = gesto?.nome.lowercased()
         // gravação recusada devolve as palavras como estavam (integridade)
         guard salvar(no: context) else { texto = original; return }
         // Goal de 14/09: "agenda o que tem hora". A linha da nota que traz dia
@@ -1829,7 +1828,9 @@ final class Sessao {
         if let g = gesto, g != .expressiva, camposComResposta { Sinais.ficou(g) }
         // peak-end-rule: o fim do percurso não devolvia NADA — nem confirmação,
         // nem onde a nota foi parar. Uma linha, e ela some sozinha.
-        mostrarToast(nomeGesto.map { "\($0) guardada" } ?? "guardada")
+        // "especificação guardada" dizia o nome do método; a pessoa só quer
+        // saber ONDE a nota foi parar (auditoria 15/09, alto 1)
+        mostrarToast("guardada em Notas")
         // FILA P1.5: a nota concluída marca a própria revisão — o Recordar chega
         // no dia certo sem o autor lembrar (§17).
         // Exp 9: o corpus vive também no app Arquivos — backup sem nuvem, sem conta.

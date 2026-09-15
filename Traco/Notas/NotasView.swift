@@ -941,7 +941,9 @@ struct NotasView: View {
                         // direita da mesma linha — irmão do botão (abaixo).
                         let sub = subtitulo(nota)
                         let comSub = !(sub == "hoje" && busca.isEmpty)
-                        let palavras = [nota.gesto?.nome, nota.origem.etiqueta].compactMap { $0 }
+                        // o nome do método ("WOOP", "Destaque") saiu da linha:
+                        // os campos e os itens já dizem a forma (auditoria 15/09)
+                        let palavras = [nota.origem.etiqueta].compactMap { $0 }
                         if comSub || !palavras.isEmpty {
                             // interpolação de Text em Text: o `+` foi descontinuado no iOS 26 (único warning do build)
                             Text("\(Text(palavras.joined(separator: " · ") + (comSub && !palavras.isEmpty ? " · " : "")).foregroundStyle(Tema.tintaSuave))\(comSub ? DestaqueBusca.texto(sub, termo: busca, base: Tema.tintaFraca) : Text(""))")
@@ -1049,6 +1051,15 @@ struct NotasView: View {
             .map { $0.value.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
         if respostas.isEmpty {
+            // uma lista mostra os itens ("passagens · hotel · seguro"), não o
+            // nome da forma nem só a data
+            if nota.gesto == .destaque {
+                let itens = Caderno.prosa(de: nota.textoDeQualquerOrigem)
+                    .split(whereSeparator: \.isNewline).dropFirst()
+                    .map { $0.trimmingCharacters(in: .whitespaces) }
+                    .filter { !$0.isEmpty }
+                if !itens.isEmpty { return VozDoAutor.truncar(itens.joined(separator: " · "), 56) + sufixo }
+            }
             return VozDoAutor.relativo(nota.criadaEm) + sufixo
         }
         return VozDoAutor.truncar(respostas.joined(separator: " · "), 56) + sufixo
