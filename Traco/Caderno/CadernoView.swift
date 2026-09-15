@@ -110,7 +110,12 @@ struct CadernoView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     editorUna(una)
                         .padding(.horizontal, Tema.margem)
-                        .frame(maxWidth: .infinity, minHeight: abaixo == nil ? geo.size.height : 160,
+                        // com campos, o editor cede: 160 pt sob um título de uma
+                        // linha era um buraco entre o título e a forma
+                        // (auditoria 15/09, capturas 05 e 47); 96 = duas linhas
+                        // de corpo mais o respiro, e o papel inteiro continua
+                        // tocável para escrever
+                        .frame(maxWidth: .infinity, minHeight: abaixo == nil ? geo.size.height : 96,
                                alignment: .topLeading)
                     // os campos nascem CORTANDO, como a régua e o cartão: sob
                     // Reduzir Movimento nada dissolve, e o fade padrão do
