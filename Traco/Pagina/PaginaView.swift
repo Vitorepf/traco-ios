@@ -125,6 +125,17 @@ struct PaginaView: View {
             sessao.trancarExpressivasVencidas(no: context)
             sessao.varrerAnexosOrfaos(no: context)
             sessao.rearmarSeries(no: context)
+            // o Trabalho recebe as notas da pessoa que falam da intenção como
+            // material (a mesma régua de palavras da busca; até seis, 600 letras)
+            MotorTrabalho.materialDoAutor = { intencao in
+                let notas = (try? context.fetch(FetchDescriptor<Nota>())) ?? []
+                return notas
+                    .filter { !$0.fechada && $0.gesto != .expressiva && $0.temVoz
+                              && NotasFiltro.casa($0.textoDeQualquerOrigem, busca: intencao) }
+                    .sorted { $0.editadaEm > $1.editadaEm }
+                    .prefix(6)
+                    .map { String($0.textoDeQualquerOrigem.prefix(600)) }
+            }
             // ADR 04i: o retrato lê o disco quando a sábia precisa dele
             sessao.notasParaRetrato = {
                 ((try? context.fetch(FetchDescriptor<Nota>())) ?? []).map(\.paraRetrato)
