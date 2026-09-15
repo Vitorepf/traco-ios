@@ -100,11 +100,10 @@ struct RaizView: View {
         } escrita: {
             ZStack(alignment: .leading) {
                 Tema.fundo.ignoresSafeArea()
+                // a alça âmbar da borda saiu: "‹ Notas" e o gesto de borda já
+                // são a saída, e o âmbar só marca onde o traço do autor
+                // acontece (auditoria 15/09, 10)
                 PaginaView(sessao: sessao)
-                if !tecladoAberto {
-                    AbaArquivo { sessao.irPara(sessao.abaArquivo, no: context) }
-                        .transition(.opacity)
-                }
             }
             .animation(Tema.movimento(.opacidade, .easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion), value: tecladoAberto)
         }

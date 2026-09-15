@@ -9,10 +9,10 @@ appId: app.traco
     direction: DOWN
 # a lei do atrito: o arquivo não pode depender de LEMBRAR um gesto invisível
 - extendedWaitUntil:
-    visible: {id: "aba-arquivo"}
+    visible: {id: "notas-da-pagina"}
     timeout: 5000
 - tapOn:
-    id: "aba-arquivo"
+    id: "notas-da-pagina"
 - extendedWaitUntil:
     visible:
       id: aba-notas

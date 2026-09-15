@@ -17,7 +17,7 @@ appId: app.traco
 # a nota volta e o Recordar abre
 - swipe: {direction: DOWN}
 - waitForAnimationToEnd: {timeout: 1500}
-- tapOn: {id: "aba-arquivo"}
+- tapOn: {id: "notas-da-pagina"}
 - extendedWaitUntil:
     visible: {id: "nota-notas"}
     timeout: 5000

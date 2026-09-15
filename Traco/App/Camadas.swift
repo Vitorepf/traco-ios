@@ -174,31 +174,3 @@ enum Trilho {
     }
 }
 
-/// A aba do arquivo, na borda esquerda da escrita.
-///
-/// Auditoria de UX: o arquivo inteiro (Notas · Padrões · Perfil) dependia de o
-/// autor LEMBRAR que existe uma borda arrastável, marcada por um traço cinza de
-/// 3pt sobre preto. Num app cuja lei é "atrito é bug, não posso ter de lembrar
-/// de nada" (§17), isso não era escolha estética — era o bug definido pela
-/// própria lei. Agora é âmbar, visível, e **tocável**: o gesto continua para
-/// quem já sabe, o toque existe para quem não sabe.
-struct AbaArquivo: View {
-    var aoTocar: () -> Void
-
-    var body: some View {
-        Button(action: aoTocar) {
-            Capsule()
-                .fill(Tema.ambar.opacity(0.55))
-                .frame(width: 4, height: 64)
-                .padding(.leading, 3)
-                .padding(.vertical, 20)
-                .padding(.trailing, Tema.alvo - 7)   // 3 + 4 + 37 = 44 de alvo, sem chrome largo
-                .contentShape(Rectangle())
-        }
-        .buttonStyle(.discreto)
-        .frame(maxHeight: .infinity, alignment: .center)
-        .accessibilityIdentifier("aba-arquivo")
-        .accessibilityLabel("Abrir as notas")
-        .accessibilityHint("Também abre arrastando da borda esquerda")
-    }
-}
