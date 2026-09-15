@@ -932,14 +932,14 @@ struct PerfilView: View {
             LinhaDeLista("tray.and.arrow.down", "Entrada do Mac", Entrada.ultimaEmPalavras)
                 .accessibilityIdentifier("entrada")
             // ADR 04n: o índice de sentido
-            LinhaDeLista("text.magnifyingglass", "Índice de sentido",
+            LinhaDeLista("text.magnifyingglass", "Busca pelo sentido",
                          Indice.disponivel
-                            ? "\(indiceQuantas) \(indiceQuantas == 1 ? "nota" : "notas") no índice"
+                            ? "\(indiceQuantas) \(indiceQuantas == 1 ? "nota" : "notas") indexadas"
                             : "este aparelho não tem o modelo de frases em português",
                          fio: Indice.disponivel)
                 .accessibilityIdentifier("indice-sentido")
             if Indice.disponivel {
-                linhaAcao("arrow.clockwise", "Refazer o índice de sentido", nil, fio: false) {
+                linhaAcao("arrow.clockwise", "Refazer a busca pelo sentido", nil, fio: false) {
                     Indice.apagarTudo()
                     sessao.sincronizarIndice(no: context)
                     Toque.leve()
