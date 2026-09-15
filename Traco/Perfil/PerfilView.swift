@@ -727,7 +727,7 @@ struct PerfilView: View {
     private var ferias: some View {
         recolhidas.secao("Férias", id: "ferias") {
             chave("beach.umbrella", "Modo férias",
-                  "o Recordar, a revisão de domingo e a série esperam; os compromissos continuam avisando",
+                  "o Recordar e a revisão esperam; compromissos avisam",
                   id: "ajuste-ferias",
                   ligado: Binding(
                     get: { feriasLigado },

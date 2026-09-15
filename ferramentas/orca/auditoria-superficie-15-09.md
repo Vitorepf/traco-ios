@@ -186,3 +186,4 @@ Placar I (estimativa minha): Calendário 8,8 · Notas 8,5 · Página 8,2 · Lent
 - (94) Trabalhos vazio: o cabeçalho "SEUS TRABALHOS" sobre a frase de vazio saiu — chrome sem lista. A captura `67-trabalhos-vazio.png` ficou com um trabalho na lista (o cabeçalho fica, como deve); o estado vazio não foi recapturado.
 - (95) Ficha: o trabalho de 14/09 que ficara fora do commit entrou — data e hora na mesma linha das outras, com o seletor do sistema logo abaixo ao toque; a última pílula cinza da ficha saiu (`09-ficha.png` já a mostra).
 - (96) Perfil: "Índice de sentido" vira "Busca pelo sentido", e "Refazer o índice" vira "Refazer a busca" — nome de uso, não de motor.
+- (97) Perfil: a explicação do modo férias cabe mesmo em duas linhas ao lado do interruptor ("o Recordar e a revisão esperam; compromissos avisam"). Captura `69-perfil-ferias-v2.png`; a linha renomeada em `68-perfil-busca-sentido.png`.
