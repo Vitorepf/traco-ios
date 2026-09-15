@@ -72,7 +72,7 @@ Formato: estado → evidência → impacto → correção mínima.
 
 19. **Caixa desigual no mesmo papel.** Botões com inicial minúscula (10: "serviu", "não serviu", "soltar a pergunta", "ver todas as formas", "voltar") contra 83 com maiúscula. Agrupador de lista em minúscula ("setembro", "hoje") nas Notas e em versalete ("SEUS TRABALHOS") nos Trabalhos, para o mesmo papel. → Uma caixa por papel.
 
-20. **Feriado é número riscado** no mês e no ano (`11-mes.png`, `12-ano.png`): lê como cancelado. Aberto desde 13/09 (#25). → Ponto sob o número, como os compromissos.
+20. **Feriado é número riscado** no mês e no ano (`11-mes.png`, `12-ano.png`): lê como cancelado. Aberto desde 13/09 (#25). → Ponto sob o número, como os compromissos. *Não mexido: o risco é decisão do dono (03/09, "em qualquer tipo de escala"), registrada em `CalendarioEscalas.swift:716`.*
 
 21. **Empacotamento.** Ícone: tile preto com traço âmbar (`AppIcon.png`) — o mundo escuro que o app deixou em 02/09; na tela de início ele não pertence ao papel que abre. Launch screen gerada pelo sistema: fundo branco puro por um instante antes do papel #F4F4F2. Nome "Traço", versão 0.1.0 (1), só retrato, só iPhone, categoria produtividade: coerentes. Textos de permissão em português de uso: bons. Catálogo de strings com 77 entradas contra centenas de `Text("…")` fixos: irrelevante para um app de um autor, mas é o que impede um segundo idioma. → Ícone em papel com o traço âmbar; `UILaunchScreen` com `UIColorName` = papel.
 
@@ -103,3 +103,22 @@ Formato: estado → evidência → impacto → correção mínima.
 ## E. Limites desta auditoria
 
 Um aparelho, um tamanho de fonte, sem conta Grok, sem vídeo. O Trabalho foi visto só na folha recém-criada; Recordar, Ditado próprio, Fecho da expressiva, widgets e Ilha não foram abertos. Os placares são estimativa; a nota que vale é a do dono diante do build.
+
+## F. Voltas depois da auditoria (15/09, 07h–08h) — goal do dono: média 9,3
+
+Instrumento: às 06h54 o Xcode virou 27.0 e os simuladores iOS 26.5 morreram; o runtime iOS 27 foi baixado (8 GB) e o laço seguiu num iPhone Air novo (E66EF2AD), com as mesmas notas semeadas. Suíte: 1214 testes; os 4 vermelhos são do iOS 27 (esquema `GestoDeBordo` do FoundationModels ×3, `Indice.disponivel` ×1), anteriores a estas voltas e fora delas — chip aberto para a correção.
+
+- (70) Xcode 27: `FrenteDeQueima` nonisolated e o `onChange` do gesto em duas linhas — o compilador novo recusava os dois.
+- (71) Alto 1: o aviso do Concluir diz "guardada em Notas", não "especificação guardada"; a linha da nota deixa de levar o nome do método ("WOOP ·", "Destaque") e, numa lista, mostra os itens. Captura `31-notas-sem-metodo.png`.
+- (72) Alto 2: sem provedor, a pergunta fica como busca e a lista responde; `NotasFiltro.casa` acha a nota por metade das palavras com 4+ letras, por prefixo ("decidi" acha "Decidir"); o trecho da linha vem da linha que tem a palavra. Teste `perguntaAchaANotaPelasPalavras`. Rajada `33-pergunta-por-palavras-rajada.png`: "1 nota com…" e a nota da decisão à vista.
+- (73) Alto 3: "O que aconteceu?" abre a nota rolada no campo cobrado, com o cursor nele (`Sessao.campoPedido` → `CamposFormaView.campoInicial`). Captura `32-volta-no-campo.png`.
+- (74) Médio 6: `LinhaDeLista` com duas linhas de subtítulo; Lente "de onde vem". Captura `35-perfil-duas-linhas.png`.
+- (75) Médio 12: a dica do calendário é "marcar". Captura `37-calendario-marcar.png`.
+- (76) Médio 7 e 8: Padrões sem a cópia do calendário; "5 sem forma · 1 woop" vira "5 soltas · 1 WOOP".
+- (77) Médio 6: as explicações das férias cabem em duas linhas. Captura `36-perfil-ferias.png`.
+- (78) Médio 10: a alça âmbar da borda saiu (`AbaArquivo` apagada; três fluxos maestro passam a tocar "‹ Notas"). Captura `42-arranque-sem-devicehub.png` (borda limpa).
+- (79) Médio 9: "‹ Voltar" com o desenho do "‹ Notas" nas folhas (Trabalhos, Trabalho, Recordar, campos).
+- (80) Médio 11: abrir uma nota da lista não levanta o teclado (`Sessao.acabouDeAbrir`).
+- (81) Alto 4: o Trabalho novo prepara a primeira versão sozinho quando há provedor (a intenção É o pedido); sem provedor a folha diz quem falta em vez de perguntar "o que a IA deve preparar?"; antes da primeira versão não há "Editar com outras ferramentas", "Próximo ato" nem "Histórico 0" — oito cabeçalhos viram quatro. Captura `45-trabalho-novo.png`.
+
+Nota do instrumento: nas capturas depois das 07h28 o teclado do iPhone não aparece porque o simulador ficou com o teclado físico do Mac ligado (DeviceHub); o cursor está lá e o texto entra — não é defeito do app.

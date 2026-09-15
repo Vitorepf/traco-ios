@@ -129,12 +129,17 @@ struct TrabalhoView: View {
                     await Task.yield()
                     rolagem.scrollTo(acaoEmFoco, anchor: .top)
                 } else if pedidoEmFoco, vazio("pedido") {
-                    // Curva-zero: o toque no campo do pedido só existia para
-                    // revelar o passo seguinte. Quem acabou de escrever a
-                    // intenção e tocar "Começar este trabalho" vem dizer o que
-                    // quer preparado — a folha já abre com o cursor lá, e a
-                    // jornada intenção → versão preparada perde um toque.
-                    pedidoNoCursor = true
+                    // Goal de 14/09: a intenção É o pedido. Quem acabou de
+                    // dizer o que quer realizar não responde "o que a IA deve
+                    // preparar?" de novo — a primeira versão nasce sozinha
+                    // (auditoria 15/09, alto 4). Sem provedor, o cursor fica
+                    // no campo como antes.
+                    if let o = oficina, o.documento.versaoAtual == nil, o.documento.pedidos.isEmpty,
+                       !o.documento.praticaPedida, MotorTrabalho.disponivel {
+                        _ = o.gerar(o.documento.intencaoAtual.texto)
+                    } else {
+                        pedidoNoCursor = true
+                    }
                 }
             }
             // O texto que o autor não escreveu começa no alto: sem isto o foco
@@ -201,11 +206,15 @@ struct TrabalhoView: View {
         producao(o)
         praticar(o)
         if let versao = o.documento.versaoAtual { artefato(versao, oficina: o) }
-        IntercambioTrabalhoView(oficina: o, permiteImportar: !edicaoPendente(o))
-        atos(o)
+        // antes da primeira versão não há o que editar fora, o que fazer com
+        // ela nem histórico: oito cabeçalhos viram três (auditoria 15/09, 4)
+        if o.documento.versaoAtual != nil {
+            IntercambioTrabalhoView(oficina: o, permiteImportar: !edicaoPendente(o))
+            atos(o)
+        }
         retorno(o)
         dificuldade(o)
-        historico(o)
+        if !o.documento.artefatos.isEmpty { historico(o) }
         rodape(o)
     }
 
@@ -461,6 +470,12 @@ struct TrabalhoView: View {
         let combinando = o.documento.apoio == .combinar && o.documento.praticaPedida
         return VStack(alignment: .leading, spacing: Tema.entreItens) {
             secao(combinando ? "Preparar entrega e exercício" : o.documento.praticaPedida ? "Preparar um exercício" : "Preparar uma versão")
+            if !o.documento.praticaPedida, !MotorTrabalho.disponivel {
+                // sem quem prepare, um campo que pergunta "o que a IA deve
+                // preparar?" é uma promessa falsa: a folha diz quem falta
+                LinhaDeEstado(Politica.semProvedor(.produzir), .semConta)
+                    .accessibilityIdentifier("trabalho-sem-provedor")
+            } else {
             // O pedido entra pelo MESMO campo das outras telas (dono, 14/09):
             // escrever ou falar, e a seta nasce com o texto. O botão cheio
             // desligado e a frase "escreva acima" eram o formulário.
@@ -482,6 +497,7 @@ struct TrabalhoView: View {
                 .id("pedido")
                 .onAppear { ditadoDoPedido.aoTexto = { falado in definir("pedido", falado) } }
                 .onDisappear { ditadoDoPedido.parar() }
+            }
             if o.documento.pedidoAtivo != nil {
                 ProgressView("A IA está preparando…")
                     .font(Tema.meta)
