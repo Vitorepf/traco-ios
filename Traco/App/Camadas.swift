@@ -49,7 +49,14 @@ struct Camadas<Arquivo: View, Escrita: View>: View {
 
             arquivo()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .shadow(color: Color(hex: 0x1C1C1E, opacity: 0.22), radius: 18, x: 6)
+                // a sombra é da FOLHA, não de cada coisa dentro dela: sem o
+                // grupo, o SwiftUI dá sombra a cada filho — halo cinza em volta
+                // do título "Notas", do ícone de compartilhar, e uma faixa até
+                // 38 tons abaixo do papel entre o campo e a pílula (dono, 15/09:
+                // "extremamente zoado"). Só enquanto a folha anda: parada, a
+                // borda está fora da tela e a sombra não tem o que mostrar.
+                .compositingGroup()
+                .shadow(color: Color(hex: 0x1C1C1E, opacity: pos == 0 || pos <= -largura ? 0 : 0.22), radius: 18, x: 6)
                 .offset(x: pos)
                 // movimento reduzido: corte total. Já teve fade de opacidade
                 // aqui; como `arrastando` cai um quadro antes de `arquivoAberto`
