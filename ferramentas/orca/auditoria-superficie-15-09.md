@@ -183,4 +183,4 @@ O que ainda pesa e por quê não entrou hoje: (a) "IA sozinha" no Trabalho e em 
 
 Placar I (estimativa minha): Calendário 8,8 · Notas 8,5 · Página 8,2 · Lente 8,0 · Padrões 7,9 · Trabalhos 7,9 · Perfil 7,8 · Ficha 7,8 · Conversa 7,8 · Trabalho 7,4 — média **8,2**. O teto sem provedor no aparelho continua o mesmo: "IA sozinha" mede a frase honesta, não o ato.
 - (93) Baixo 21: o ícone passa ao papel — o traço âmbar sobre #F4F4F2, reconstruído do PNG escuro pela cobertura do canal R (`icone-escuro-antes.png` → `66-icone-na-casa.png`). Na tela de início ele pertence ao mundo em que o app abre.
-- (94) Trabalhos vazio: o cabeçalho "SEUS TRABALHOS" sobre a frase de vazio saiu — chrome sem lista. Captura `67-trabalhos-vazio.png`.
+- (94) Trabalhos vazio: o cabeçalho "SEUS TRABALHOS" sobre a frase de vazio saiu — chrome sem lista. A captura `67-trabalhos-vazio.png` ficou com um trabalho na lista (o cabeçalho fica, como deve); o estado vazio não foi recapturado.
