@@ -153,3 +153,23 @@ Nota do instrumento: nas capturas depois das 07h28 o teclado do iPhone não apar
 | **média** | 8,1 | 7,3 | 8,2 | 8,0 | 7,9 | **7,9** |
 
 De 7,2 para 7,9 pelo meu olho (o do dono corre ~2 abaixo: ~6). O que ainda separa de 9: a "IA sozinha" no Trabalho e em Padrões depende de provedor no aparelho (sem Grok nem Apple Intelligence no simulador, a primeira versão não nasce — só a frase honesta); as 78 fontes fora da escala (15) e os raios/paddings literais (16) continuam; os cabeçalhos com chevron de seções de um item (13); as permissões sem contexto (5, decisão do dono no §3); o ícone no mundo escuro (21). Movimento não foi filmado nesta passada.
+
+## H. Placar depois de vinte e uma voltas (15/09, 08h50) — estimativa minha; a que vale é a do dono
+
+Desde o placar G: feriado em vermelho (87), Lente sem chevrons (88), tipo no degrau (89), permissão do calendário por toque no Perfil (90); e o diálogo do toque provado em `60-perfil-dialogo-por-toque.png`.
+
+| Tela | Simplicidade | IA sozinha | Acabamento | Tipo e texto | Sistema | Média |
+|---|---|---|---|---|---|---|
+| Página | 8,5 | 7 | 8,5 | 8,5 | 8,5 | 8,2 |
+| Notas | 9 | 8 | 8,5 | 8,5 | 8,5 | 8,5 |
+| Conversa nas Notas | 8 | 8 | 7,5 | 7,5 | 8 | 7,8 |
+| Calendário (D/S/M/A) | 9 | 8 | 9 | 8,5 | 8,5 | 8,6 |
+| Ficha | 8 | 7,5 | 8 | 8 | 7,5 | 7,8 |
+| Padrões | 7,5 | 6,5 | 8 | 8 | 8 | 7,6 |
+| Perfil | 8 | 7 | 8 | 8 | 8 | 7,8 |
+| Trabalhos | 8,5 | 7,5 | 8 | 8 | 7,5 | 7,9 |
+| Trabalho | 7 | 6,5 | 7,5 | 7 | 6,5 | 6,9 |
+| Lente | 8,5 | 7 | 8,5 | 8 | 8 | 8,0 |
+| **média** | 8,2 | 7,3 | 8,2 | 8,0 | 7,9 | **8,1** |
+
+O que ainda pesa e por quê não entrou hoje: (a) "IA sozinha" no Trabalho e em Padrões só sobe com provedor no aparelho — no simulador não há Grok nem Apple Intelligence, então a primeira versão não nasce e o placar mede a frase honesta, não o ato; (b) os quatro testes vermelhos do iOS 27 (esquema `GestoDeBordo`) derrubam a classificação de bordo no iPhone atualizado — chip aberto; (c) movimento: nenhuma tela filmada nesta passada; (d) o ícone escuro é identidade sua; (e) 60 fontes fora da escala ficam, a maioria em glifos. A nota 9,3 é sua: o Air (E66EF2AD) está ligado com o build de agora.
