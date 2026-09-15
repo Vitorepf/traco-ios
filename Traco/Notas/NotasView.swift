@@ -340,24 +340,22 @@ struct NotasView: View {
                 // frase cinza "6 trabalhos ›" solta sob o título. Os Trabalhos
                 // são DESTINO e moram na linha do título, num botão de vidro
                 // com a contagem, ao lado do compartilhar (o mesmo material).
-                HStack(spacing: 8) {
+                HStack(spacing: 0) {
                     Button { mostrarTrabalhos = true } label: {
-                        HStack(spacing: 5) {
+                        HStack(spacing: 6) {
                             Image(systemName: "hammer")
-                                .font(.footnote.weight(.semibold))
                             if !trabalhos.isEmpty {
-                                Text("\(trabalhos.count)")
-                                    .font(Tema.meta.weight(.semibold))
-                                    .monospacedDigit()
+                                Text("\(trabalhos.count)").monospacedDigit()
                             }
                         }
+                        .font(.body.weight(.medium))
                         .foregroundStyle(Tema.tinta)
-                        .padding(.horizontal, 12)
-                        .frame(height: 34)
-                        .glassEffect(.regular.interactive(), in: .capsule)
+                        .padding(.leading, 14)
+                        .padding(.trailing, filtradas.isEmpty ? 14 : 10)
+                        .frame(height: 40)
+                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.discreto)
-                    .alvo()
                     .accessibilityLabel(trabalhos.isEmpty ? "Trabalhos" : "Trabalhos, \(trabalhos.count)")
                     .accessibilityHint("Retoma intenções, versões e próximos atos")
                     .accessibilityIdentifier("abrir-trabalhos")
@@ -368,13 +366,13 @@ struct NotasView: View {
                                 filtradas.map(FatiaCorpus.de), nome: "traco-contexto.md")
                         } label: {
                             Image(systemName: "square.and.arrow.up")
-                                .font(.footnote.weight(.semibold))
+                                .font(.body.weight(.medium))
                                 .foregroundStyle(Tema.tinta)
-                                .frame(width: 34, height: 34)
-                                .glassEffect(.regular.interactive(), in: .circle)
+                                .padding(.leading, 10)
+                                .padding(.trailing, 14)
+                                .frame(height: 40)
+                                .contentShape(Rectangle())
                         }
-                        .frame(width: Tema.alvo, height: Tema.alvo)
-                        .contentShape(Rectangle())
                         .buttonStyle(.discreto)
                         .accessibilityLabel("Como contexto")
                         .accessibilityHint("Entrega estas notas à sua IA, sem servidor")
@@ -382,6 +380,10 @@ struct NotasView: View {
                         .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
                     }
                 }
+                // dono, 15/09: as ações do título numa cápsula de vidro só, como
+                // os apps da Apple no iOS 26/27 — dois vidros de tamanhos e pesos
+                // diferentes liam como peças soltas
+                .glassEffect(.regular.interactive(), in: .capsule)
             }
         }
     }
