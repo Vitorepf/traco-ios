@@ -665,7 +665,7 @@ struct NotasView: View {
         if !busca.isEmpty, !peloSentido.isEmpty {
             secao("pelo sentido")
             Text("falam disto sem usar a palavra")
-                .font(.footnote)
+                .font(Tema.meta)
                 .foregroundStyle(Tema.tintaFraca)
                 .padding(.bottom, 6)
             ForEach(Array(peloSentido.enumerated()), id: \.element.uuid) { i, nota in
@@ -919,20 +919,20 @@ struct NotasView: View {
                             .foregroundStyle(Tema.tintaSuave)
                         if !nota.sentido.isEmpty {
                             DestaqueBusca.texto(nota.sentido, termo: busca, base: Tema.tinta)
-                                .font(.subheadline)
+                                .font(Tema.meta)
                                 .lineLimit(2)
                         }
                         Text(nota.minutosEscritos >= 1
                              ? "\(nota.minutosEscritos) min · \(VozDoAutor.relativo(nota.criadaEm))"
                              : VozDoAutor.relativo(nota.criadaEm))
-                            .font(.subheadline)
+                            .font(Tema.meta)
                             .foregroundStyle(Tema.tintaFraca)
                     } else if nota.trancada {
                         Text("Expressiva — trancada")
                             .font(Tema.corpo)
                             .foregroundStyle(Tema.tintaSuave)
                         Text("não se relê · \(VozDoAutor.relativo(nota.criadaEm))")
-                            .font(.subheadline)
+                            .font(Tema.meta)
                             .foregroundStyle(Tema.tintaFraca)
                     } else {
                         // D1: o título é a primeira linha do autor, na letra da

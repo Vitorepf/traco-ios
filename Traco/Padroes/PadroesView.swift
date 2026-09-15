@@ -244,7 +244,7 @@ struct PadroesView: View {
                 // "Li" dava um EU à IA — e o app não é interlocutor. A contagem
                 // de notas e o que acontece ao tocar são METADADO: letra miúda
                 Text("Das suas \(abertas.count) \(abertas.count == 1 ? "nota aberta" : "notas abertas"). Toque numa para responder — a resposta vira nota sua.")
-                    .font(.footnote)
+                    .font(Tema.meta)
                     .foregroundStyle(Tema.tintaFraca)
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.top, 8)

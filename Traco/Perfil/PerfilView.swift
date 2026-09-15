@@ -271,7 +271,7 @@ struct PerfilView: View {
             // corte e esta não tinha nenhum — no aparelho de quem escreve há
             // anos era o pedaço que crescia sem fim, e é de onde a barra saiu.
             Text("O tempo do meio entre as descobertas de cada mês, nos 12 últimos.")
-                .font(.footnote)
+                .font(Tema.meta)
                 .foregroundStyle(Tema.tintaFraca)
                 .fixedSize(horizontal: false, vertical: true)
             VStack(alignment: .leading, spacing: entreMeses) {
@@ -504,7 +504,7 @@ struct PerfilView: View {
                 // sem explicação — resultado pior calado.
                 indisponiveisPorQualidade
             }
-            .font(.footnote)
+            .font(Tema.meta)
             .foregroundStyle(Tema.tintaFraca)
             .fixedSize(horizontal: false, vertical: true)
             .frame(maxWidth: medidaMiuda, alignment: .leading)
@@ -588,7 +588,7 @@ struct PerfilView: View {
                 }
             }
         }
-        .font(.footnote)
+        .font(Tema.meta)
         .foregroundStyle(Tema.tintaFraca)
         .frame(maxWidth: medidaMiuda, alignment: .leading)
         .accessibilityElement(children: .contain)
@@ -965,7 +965,7 @@ struct PerfilView: View {
     /// diz — o subtítulo das linhas é que corta.
     private func prosa(_ texto: String, cor: Color = Tema.tintaFraca) -> some View {
         Text(texto)
-            .font(.footnote)
+            .font(Tema.meta)
             .foregroundStyle(cor)
             .fixedSize(horizontal: false, vertical: true)
             .frame(maxWidth: .infinity, alignment: .leading)
