@@ -18,6 +18,9 @@ final class Sessao {
     /// O campo que a "volta" nas Notas veio cobrar: a página abre com o cursor
     /// nele, em vez de no título com o campo abaixo da dobra (auditoria 15/09, 3).
     var campoPedido: String?
+    /// A nota acabou de ser aberta da lista: a página não rouba o foco para o
+    /// título — ler não é escrever; o cursor entra no toque (auditoria 15/09, 11).
+    var acabouDeAbrir = false
     var timerLigado = false
     var segundosRestantes = 15 * 60
     /// SPEC §20: um destino por vez. `mostrarNotas`/`mostrarPadroes` continuam
@@ -1802,6 +1805,7 @@ final class Sessao {
             retomarExpressiva(prazo: nota.expressivaPrazo)
         }
         campoPedido = campo
+        acabouDeAbrir = true
     }
 
     func concluir(no context: ModelContext) {

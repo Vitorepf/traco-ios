@@ -745,6 +745,9 @@ struct PaginaView: View {
         guard sessao.aba == .escrever, sessao.confirmacao == nil,
               sessao.fechoExpressiva == nil, !mostrarCampos
         else { return }
+        // nota aberta da lista chega sem teclado: metade da nota ficava
+        // escondida atrás dele (auditoria 15/09, 11)
+        if sessao.acabouDeAbrir { sessao.acabouDeAbrir = false; return }
         focoPagina = true
     }
 }
