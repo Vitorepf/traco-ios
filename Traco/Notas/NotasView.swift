@@ -618,6 +618,12 @@ struct NotasView: View {
             conversaNotas.busca = ""
             return
         }
+        // sem quem responda, a pergunta fica como busca: a lista (por palavra
+        // e pelo sentido) já mostra o que as notas dizem sobre isso; abrir uma
+        // folha vazia só para dizer "precisa da conta" apagava a resposta que
+        // estava à vista (auditoria 15/09, alto 2). Nenhum aviso: a lista É a
+        // resposta, e o Perfil já diz quem responde.
+        guard Politica.provedor(.responderNasNotas) != nil else { return }
         conversaNotas.entrada = texto
         conversaNotas.busca = ""
         conversaNotas.perguntando = true

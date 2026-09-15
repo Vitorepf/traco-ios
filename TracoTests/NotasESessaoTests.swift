@@ -26,6 +26,17 @@ struct NotasFiltroTests {
         #expect(falso.isEmpty)
     }
 
+    /// Auditoria 15/09, alto 2: sem a sábia, a pergunta acha a nota pelas
+    /// palavras — metade delas, por prefixo; uma palavra só continua inteira.
+    @Test func perguntaAchaANotaPelasPalavras() {
+        let decisao = Nota(texto: "Decidir se troco de plano de celular\nFico com o atual.", gesto: .decisao)
+        let outra = Nota(texto: "Lista de compras do churrasco\ncarvão\ngelo", gesto: .destaque)
+        let achados = NotasFiltro.visiveis([decisao, outra], busca: "o que eu decidi sobre o plano de celular?", filtro: nil)
+        #expect(achados.map(\.texto) == [decisao.texto])
+        #expect(NotasFiltro.visiveis([decisao, outra], busca: "viagem hotel seguro", filtro: nil).isEmpty)
+        #expect(VozDoAutor.trecho(em: decisao.texto, termo: "o que eu decidi sobre o plano de celular?").hasPrefix("Decidir"))
+    }
+
     @Test func trancadaNaoEntraNaBusca() {
         let secreta = Nota(texto: "o celular na cama", gesto: .expressiva, trancada: true)
         let aberta = Nota(texto: "quero o celular na cozinha", gesto: .woop)

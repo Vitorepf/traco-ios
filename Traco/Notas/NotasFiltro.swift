@@ -23,15 +23,22 @@ enum NotasFiltro {
             if !nota.fechada && (!nota.temVoz || nota.tituloNaLista.isEmpty) { return false }
             if let filtro, let g = filtro.gesto, nota.gesto != g { return false }
             if let dominio, nota.dominio != dominio { return false }
-            if !busca.isEmpty {
-                // "analise" acha "análise": busca sem acento e sem caixa
-                return nota.textoDeQualquerOrigem.range(
-                    of: busca,
-                    options: [.caseInsensitive, .diacriticInsensitive],
-                    locale: .current
-                ) != nil
-            }
+            if !busca.isEmpty { return casa(nota.textoDeQualquerOrigem, busca: busca) }
             return true
         }
+    }
+
+    /// "analise" acha "análise": busca sem acento e sem caixa. E uma PERGUNTA
+    /// ("o que eu decidi sobre o plano de celular?") acha a nota que tem
+    /// metade das palavras com quatro letras ou mais, por prefixo — "decidi"
+    /// acha "Decidir". Sem a sábia no aparelho, é o que responde (auditoria
+    /// 15/09, alto 2). Uma palavra só continua a exigir a palavra inteira.
+    static func casa(_ texto: String, busca: String) -> Bool {
+        let opcoes: String.CompareOptions = [.caseInsensitive, .diacriticInsensitive]
+        if texto.range(of: busca, options: opcoes, locale: .current) != nil { return true }
+        let palavras = busca.split { !$0.isLetter && !$0.isNumber }.map(String.init).filter { $0.count >= 4 }
+        guard palavras.count >= 2 else { return false }
+        let achadas = palavras.filter { texto.range(of: $0, options: opcoes, locale: .current) != nil }.count
+        return achadas * 2 >= palavras.count
     }
 }

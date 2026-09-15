@@ -91,7 +91,12 @@ enum VozDoAutor: Sendable {
         // e a voz virava UMA linha — o trecho da busca devolvia o começo da nota
         // cortado, em vez da linha que tem o termo.
         let linhas = voz.split(whereSeparator: \.isNewline).map(String.init)
-        let linha = linhas.first { $0.localizedCaseInsensitiveContains(termo) } ?? VozDoAutor.titulo(voz)
+        // a pergunta inteira não está em linha nenhuma: vale a linha que tem
+        // uma das palavras dela (a busca por palavras do NotasFiltro)
+        let palavras = termo.split { !$0.isLetter && !$0.isNumber }.map(String.init).filter { $0.count >= 4 }
+        let linha = linhas.first { $0.localizedCaseInsensitiveContains(termo) }
+            ?? linhas.first { l in palavras.contains { l.localizedCaseInsensitiveContains($0) } }
+            ?? VozDoAutor.titulo(voz)
         return truncar(linha, limite)
     }
 }
