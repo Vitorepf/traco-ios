@@ -60,8 +60,13 @@ nonisolated enum AnaliseDeBordo {
         ids.append("expressiva")
         ids.append("nenhum")
         let gesto = DynamicGenerationSchema(name: "GestoDeBordo", description: "A forma que o texto pede. 'nenhum' quando não é nenhuma delas.", anyOf: ids)
+        // iOS 27: o tipo nomeado entra UMA vez, como dependência; a propriedade
+        // o cita por referência. Inline e em `dependencies` ao mesmo tempo dava
+        // "Duplicate type GestoDeBordo in schema Escolha" e a classificação de
+        // bordo morria calada (suíte de 15/09).
         let raiz = DynamicGenerationSchema(name: "Escolha", properties: [
-            DynamicGenerationSchema.Property(name: "gesto", description: "A forma que o texto pede.", schema: gesto),
+            DynamicGenerationSchema.Property(name: "gesto", description: "A forma que o texto pede.",
+                                             schema: DynamicGenerationSchema(referenceTo: "GestoDeBordo")),
         ])
         return try GenerationSchema(root: raiz, dependencies: [gesto])
     }
@@ -93,7 +98,8 @@ nonisolated enum AnaliseDeBordo {
         let ids = Dominio.allCases.map(\.rawValue) + ["nenhum"]
         let rotulo = DynamicGenerationSchema(name: "DominioDeBordo", description: "A área da vida de que o texto trata.", anyOf: ids)
         let raiz = DynamicGenerationSchema(name: "EscolhaDominio", properties: [
-            DynamicGenerationSchema.Property(name: "dominio", description: "A área da vida.", schema: rotulo),
+            DynamicGenerationSchema.Property(name: "dominio", description: "A área da vida.",
+                                             schema: DynamicGenerationSchema(referenceTo: "DominioDeBordo")),
         ])
         let sessao = LanguageModelSession(instructions: """
         Você classifica um texto em português numa ÁREA DA VIDA. Você nunca escreve texto.
