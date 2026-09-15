@@ -92,10 +92,12 @@ struct CalendarioView: View {
             }
             ditado.aoTexto = { [weak agenda] falado in agenda?.prosa = falado }
         }
-        // o acesso ao calendário é pedido AQUI, olhando um calendário — nunca
-        // no arranque (§3: o app abre na página em branco, sem cerimônia)
+        // o acesso ao calendário não é pedido aqui: o diálogo do iOS caía na
+        // primeira aba, sem contexto (auditoria 15/09, alto 5). Quem pede é um
+        // toque na linha "Calendários do aparelho" do Perfil; aqui só se lê o
+        // que já foi permitido.
         .task {
-            await sistema.pedirAcesso()
+            await sistema.atualizar()
             recarregarSistema()
         }
         .onChange(of: agenda.escala) { _, _ in recarregarSistema() }

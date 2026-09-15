@@ -652,8 +652,16 @@ struct PerfilView: View {
     /// num beco: o app parava de sugerir e nunca dizia por quê.
     private var permissoes: some View {
         recolhidas.secao("Permissões", id: "permissoes") {
-            LinhaDeLista("calendar", "Calendários do aparelho", sistema.estadoEmPalavras)
+            if sistema.estado == .notDetermined {
+                // o pedido ao iOS é um toque do autor, com o porquê à vista
+                linhaAcao("calendar", "Calendários do aparelho", sistema.estadoEmPalavras) {
+                    Task { await sistema.pedirAcesso() }
+                }
                 .accessibilityIdentifier("estado-calendario")
+            } else {
+                LinhaDeLista("calendar", "Calendários do aparelho", sistema.estadoEmPalavras)
+                    .accessibilityIdentifier("estado-calendario")
+            }
             LinhaDeLista("bell", "Avisos",
                          avisosLigados
                             ? "ligados — o Traço cobra na hora"
@@ -679,7 +687,7 @@ struct PerfilView: View {
             // de quatro linhas que explicava o mesmo saiu (laço de 14/09)
         }
         .task {
-            await sistema.pedirAcesso()
+            await sistema.atualizar()
             avisosLigados = await Revisoes.autorizadaParaAvisar()
             orcamentoDosAvisos = await Avisos.emPalavras()
         }

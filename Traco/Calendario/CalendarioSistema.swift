@@ -72,8 +72,16 @@ final class CalendarioSistema {
         case .writeOnly: "o iOS deu só escrita, e o Traço não escreve. Libere a leitura em Ajustes."
         case .denied: "acesso negado — o campo mostra um exemplo"
         case .restricted: "acesso restrito neste aparelho."
-        default: "ainda não perguntei. Abra o Calendário e eu peço."
+        default: "toque para ler os seus calendários"
         }
+    }
+
+    /// Relê o estado sem perguntar nada: o autor pode ter mudado nos Ajustes.
+    /// É o que as telas chamam ao abrir — o pedido em si é um toque dele
+    /// (auditoria 15/09, alto 5: o diálogo do iOS caía na primeira aba).
+    func atualizar() async {
+        estado = EKEventStore.authorizationStatus(for: .event)
+        if podeLer { await recarregar() }
     }
 
     /// Pede o acesso UMA vez, e só quando o autor está olhando um calendário —

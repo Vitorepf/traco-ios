@@ -130,6 +130,12 @@ Nota do instrumento: nas capturas depois das 07h28 o teclado do iPhone não apar
 
 - (86) Efeito da 85: com a flag armada, a página NOVA (círculo de escrever) nascia sem cursor; `novaPagina()` agora a apaga. Capturas `54-nota-aberta-v3.png` (nota da lista sem teclado) e `55-pagina-nova-v3.png` (página nova com teclado).
 
+- (87) Baixo 20, com a palavra do dono ("para ficar claro quando é um dia de feriado"): o feriado é o número em vermelho de folhinha (`CalendarioTema.feriado`, 5,3:1) no dia, no mês e no ano; o risco diagonal saiu (`RiscoFeriado` apagado). Capturas `56-mes-feriado.png`, `57-ano-feriado.png`.
+- (88) Médio 13: as seções da Lente perdem o chevron de recolher — folha curta, um ou dois itens por seção.
+- (89) Baixo 15: `.footnote` e `.subheadline` soltos no Perfil (4), nas Notas (4) e em Padrões (1) entram no degrau `meta` da escala.
+
+- (90) Alto 5: o acesso aos calendários do iPhone deixa de ser pedido ao abrir a aba — as telas só releem o que já foi permitido (`CalendarioSistema.atualizar`); o pedido é um toque na linha "Calendários do aparelho — toque para ler os seus calendários" do Perfil. Capturas `58-calendario-sem-dialogo.png` (aba aberta com a permissão zerada, sem diálogo) e `59-perfil-linha-calendario.png`. O aviso de notificações continua a ser pedido no primeiro compromisso marcado, que é o momento com contexto.
+
 ## G. Placar depois de catorze voltas (15/09, 08h30) — estimativa minha; a que vale é a do dono
 
 | Tela | Simplicidade | IA sozinha | Acabamento | Tipo e texto | Sistema | Média |
