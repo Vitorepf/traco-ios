@@ -200,3 +200,13 @@ O dono ligou a conta no Air E66EF2AD (`70-arranque-conta.png`). Daqui em diante 
 - Trabalho com a conta (`81-trabalho-versao-sozinha.png`): a intenção "Escrever o roteiro de um vídeo de 2 minutos apresentando o Traço" gerou a Versão 1 SOZINHA em menos de 2 s, sem o campo "o que a IA deve preparar?" — o alto 4 fechado de verdade. O conteúdo, porém, é uma recusa honesta: "Falta a descrição factual do que é o Traço… não é possível produzir o roteiro" — a IA não recebe as notas do autor como material (há notas sobre o app na lista). Próxima causa: as notas com as palavras da intenção vão junto ao pedido, como já vão à pergunta das Notas.
 - Classificação de bordo viva (`84-nota-classificada-ideias.png`): a nota "O que é o Traço" ganhou o domínio "Ideias" sozinha, pelo modelo do iOS 27 — antes do conserto do esquema isso morria calado.
 - (102) Trabalho: as notas da pessoa vão ao pedido como material. Primeira régua (metade das palavras do pedido) não achou a nota "O que é o Traço" — o pedido tem verbo e formato, a nota tem o assunto. Régua do material: uma palavra do assunto basta, ordenado por quantas casam (`NotasFiltro.pontuacao`).
+
+## K. Vidro do sistema e a IA do Trabalho com a conta (15/09, tarde)
+
+- (104) iPhone: a nuvem privada da Apple fica atrás da bandeira `NUVEM_PRIVADA` e o entitlement sai — a conta não tem a capacidade, a assinatura recusava, e sem ele o iOS 27 aborta o app.
+- (105) Camadas: `.compositingGroup()` antes da sombra da folha. Sem ele cada filho ganhava sombra: halo cinza no título "Notas" (`92-halo-titulo-antes.png`) e o pé 38 tons abaixo do papel (`90-pe-antes.png`). Depois: papel liso em 244 no topo e entre campo e pílula.
+- (106) Pé: campo, pílula e botão âmbar num vidro só (`glassEffect`); campo de 40 pt, largura da pílula, centrado (margens medidas 183 px = 183 px); "Fale com o Traço"; "Marcar". Capturas `99-pe-notas-vidro.png`, `100-pe-calendario-vidro.png`. Dono: "melhorou muito".
+- (107) Cápsulas e o ✕ das folhas no mesmo vidro: cinza chapado vira vidro claro, carvão vira vidro tingido (`101-trabalho-vidro-e-narration-en.png`).
+- IA do Trabalho com as notas (volta 103 provada): o roteiro traz "O Traço é um caderno que responde" e o papel claro com traço âmbar, da nota "O que é o Traço".
+- (108) O roteiro saía com "Narration:" em inglês: a instrução pede tudo no idioma da pessoa, rótulos inclusive (`102-…`: "Cena", "Tela", "Narração").
+- (109) Um roteiro de 30 s saía "0:00–5:00, 5:00–10:00" — o exemplo da instrução era em blocos de 5 minutos e o modelo copiava. Agora a instrução dá a escala ("30 segundos vão de 0:00 a 0:30"): `103-roteiro-pt-segundos.png`, 20 s em 0:00–0:10 e 0:10–0:20.
