@@ -25,6 +25,11 @@ enum CalendarioTema {
     static let agora = Tema.ambar
     static let agoraTinta = Tema.ambarTinta
     static let aviso = Tema.aviso
+    /// IDENTIDADE do dia de feriado (regra da cor do `Tema`): o número em
+    /// vermelho de folhinha, que toda pessoa lê como "não é dia útil" — o risco
+    /// diagonal lia como "cancelado" (auditoria 15/09, 20; dono: "para ficar
+    /// claro quando é um dia de feriado"). 5,3:1 sobre o papel.
+    static let feriado = Color(hex: 0xB5432F)
 
     /// Sombra com tinta, não preto puro: cinza-quente.
     static let sombraFlutuante = Tema.Sombra.flutuante.cor

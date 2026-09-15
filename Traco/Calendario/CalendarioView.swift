@@ -394,17 +394,15 @@ struct CalendarioChipDia: View {
 
     var body: some View {
         let lado: CGFloat = compacto ? 36 : 44
-        // o dia que não é útil vem cortado: um risco no número, na tinta que
-        // ele já tem. Sem cor própria, sem ícone — o corte é o recado inteiro.
+        // o dia que não é útil vem em vermelho de folhinha — o risco lia como
+        // "cancelado" (auditoria 15/09, 20)
         let feriado = Feriados.de(dia, cal)
         VStack(spacing: compacto ? 0 : 1) {
             Text(Calendario.letraDoDia(dia, cal))
                 .font(CalendarioTema.letra)
             Text(Calendario.formatar(dia, "d", cal))
                 .font(compacto ? CalendarioTema.meta.monospacedDigit() : CalendarioTema.dia)
-                .riscoDeFeriado(feriado != nil,
-                                largura: compacto ? 13 : 15,
-                                cor: activo ? .white : CalendarioTema.tintaSuave)
+                .foregroundStyle(activo ? .white : feriado != nil ? CalendarioTema.feriado : CalendarioTema.tintaSuave)
         }
         .foregroundStyle(activo ? .white : CalendarioTema.tintaSuave)
         .frame(width: lado, height: lado)

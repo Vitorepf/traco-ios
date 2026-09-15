@@ -546,11 +546,9 @@ struct CalendarioMesView: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text(Calendario.formatar(dia, "d", agenda.cal))
                     .font(CalendarioTema.dia)
-                    .foregroundStyle(activo ? .white : (noMes ? CalendarioTema.tinta : CalendarioTema.tintaMorta))
-                    .riscoDeFeriado(
-                        Feriados.eFeriado(dia, agenda.cal),
-                        largura: 15,
-                        cor: activo ? .white : (noMes ? CalendarioTema.tinta : CalendarioTema.tintaMorta))
+                    // feriado em vermelho de folhinha, não riscado
+                    .foregroundStyle(activo ? .white : !noMes ? CalendarioTema.tintaMorta
+                                     : Feriados.eFeriado(dia, agenda.cal) ? CalendarioTema.feriado : CalendarioTema.tinta)
                     .frame(width: 28, height: 28)
                     .background {
                         if activo {
@@ -712,13 +710,10 @@ struct CalendarioAnoView: View {
         return Text("\(numero)")
             .font(.system(size: tamDia, weight: ancora || hoje ? .bold : .medium))
             .monospacedDigit()
-            .foregroundStyle(ancora ? .white : (noMes ? CalendarioTema.tinta : CalendarioTema.tintaMorta))
-            // o ano também recebe o risco (dono, 03/set: "em qualquer tipo de
-            // visualização"). Menor e mais fino, na proporção do número de 8pt.
-            .riscoDeFeriado(
-                noMes && Feriados.eFeriado(dia, agenda.cal),
-                largura: tamDia, espessura: 0.7,
-                cor: ancora ? .white : CalendarioTema.tinta)
+            // o ano também marca o feriado (dono, 03/set: "em qualquer tipo de
+            // visualização"): o número em vermelho de folhinha
+            .foregroundStyle(ancora ? .white : !noMes ? CalendarioTema.tintaMorta
+                             : Feriados.eFeriado(dia, agenda.cal) ? CalendarioTema.feriado : CalendarioTema.tinta)
             .frame(maxWidth: .infinity, minHeight: 13)
             .background {
                 if ancora {
