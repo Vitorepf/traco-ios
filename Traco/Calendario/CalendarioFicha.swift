@@ -7,6 +7,7 @@ struct CalendarioFichaView: View {
     @Bindable var agenda: CalendarioAgenda
     @Environment(\.dismiss) private var dismiss
     @FocusState private var tituloEmFoco: Bool
+    @State private var seletorAberto: String?
     // ADR 04w: o que a mente já pensou sobre isto, antes do ato
     @Query private var notas: [Nota]
     @State private var doCaderno: [Nota] = []
@@ -59,26 +60,23 @@ struct CalendarioFichaView: View {
                         divisoria
                         // série: a data é o COMEÇO dela, não "o dia" — dizer
                         // "Data" numa coisa que acontece toda sexta é mentira
-                        DatePicker(evento.repete ? "A partir de" : "Data", selection: Binding(
+                        linhaDeData(evento.repete ? "A partir de" : "Data", selection: Binding(
                             get: { evento.inicio },
                             set: { evento = evento.movido(paraODiaDe: $0, agenda.cal) }
-                        ), displayedComponents: .date)
-                        .padding(.vertical, 6)
+                        ), componentes: .date)
                         divisoria
                         repeticao
                         if !evento.diaInteiro {
                             divisoria
-                            DatePicker("Começa", selection: Binding(
+                            linhaDeData("Começa", selection: Binding(
                                 get: { evento.inicio },
                                 set: { evento = evento.comInicio($0) }
-                            ), displayedComponents: .hourAndMinute)
-                            .padding(.vertical, 6)
+                            ), componentes: .hourAndMinute)
                             divisoria
-                            DatePicker("Termina", selection: Binding(
+                            linhaDeData("Termina", selection: Binding(
                                 get: { evento.fim },
                                 set: { evento = evento.comFim($0) }
-                            ), displayedComponents: .hourAndMinute)
-                            .padding(.vertical, 6)
+                            ), componentes: .hourAndMinute)
                             // "Duração" saiu: Começa e Termina já a dizem
                         }
                     }
@@ -301,6 +299,60 @@ struct CalendarioFichaView: View {
 
     private var divisoria: some View {
         Rectangle().fill(CalendarioTema.linha).frame(height: 1)
+    }
+
+    /// A data e a hora na MESMA linha das outras (título, valor em tinta
+    /// suave, seta) — o seletor do sistema, com a sua pílula cinza, era a
+    /// única caixa da ficha. Tocar a linha abre o seletor LOGO ABAIXO, como no
+    /// Calendário do iPhone; tocar de novo fecha. (Um seletor invisível por
+    /// cima do valor não recebia o toque no iOS 26.)
+    private func linhaDeData(_ titulo: String, selection: Binding<Date>,
+                             componentes: DatePickerComponents) -> some View {
+        let aberto = seletorAberto == titulo
+        return VStack(spacing: 0) {
+            Button {
+                Toque.selecao()
+                withAnimation(CalendarioTema.morph(reduceMotion)) {
+                    seletorAberto = aberto ? nil : titulo
+                }
+            } label: {
+                HStack {
+                    Text(titulo)
+                    Spacer()
+                    HStack(spacing: 4) {
+                        Text(componentes == .date
+                             ? selection.wrappedValue.formatted(.dateTime.weekday(.abbreviated).day().month(.abbreviated))
+                             : selection.wrappedValue.formatted(date: .omitted, time: .shortened))
+                            .monospacedDigit()
+                            .contentTransition(.numericText())
+                        Image(systemName: "chevron.up.chevron.down")
+                            .font(.caption2.weight(.semibold))
+                    }
+                    .foregroundStyle(aberto ? CalendarioTema.tinta : CalendarioTema.tintaSuave)
+                }
+                .padding(.vertical, 10)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.linha)
+            .accessibilityLabel(titulo)
+            .accessibilityValue(selection.wrappedValue.formatted(date: componentes == .date ? .abbreviated : .omitted,
+                                                               time: componentes == .date ? .omitted : .shortened))
+            if aberto {
+                Group {
+                    if componentes == .date {
+                        DatePicker("", selection: selection, displayedComponents: .date)
+                            .datePickerStyle(.graphical)
+                    } else {
+                        DatePicker("", selection: selection, displayedComponents: .hourAndMinute)
+                            .datePickerStyle(.wheel)
+                    }
+                }
+                .labelsHidden()
+                .tint(CalendarioTema.tinta)
+                .frame(maxWidth: .infinity)
+                .transition(Tema.transicao(.opacity, reduzido: reduceMotion))
+            }
+        }
     }
 
     private func secao<Conteudo: View>(_ titulo: String, @ViewBuilder _ conteudo: () -> Conteudo) -> some View {
