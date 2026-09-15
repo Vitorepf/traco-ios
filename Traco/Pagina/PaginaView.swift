@@ -568,6 +568,9 @@ struct PaginaView: View {
         .sheet(isPresented: $lenteAberta) {
             LenteView(texto: sessao.texto, notaUUID: sessao.gesto == .expressiva ? nil : sessao.notaUUID, gesto: sessao.gesto,
                       retrato: sessao.retratoAtual())
+                // a Lente cabe em meia folha: em folha inteira o conteúdo
+                // ocupava 45 % e o resto era papel vazio (auditoria 15/09, 14)
+                .presentationDetents([.medium, .large])
         }
         .onAppear {
             // o ditado escreve NA PÁGINA, depois do que já estava: a
