@@ -35,7 +35,6 @@ struct LenteView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     /// Hermes §5: a densidade se controla no cabeçalho — e a seção recolhida
     /// fica recolhida na próxima nota também.
-    var recolhidas = Recolhidas("lente")
 
     private var prosa: String { Caderno.prosa(de: texto) }
     /// O `NLTagger` e cinco regex sobre a nota inteira: pesado demais para o
@@ -372,9 +371,14 @@ struct LenteView: View {
         // Laço de simplicidade (14/09): a nota de rodapé sob cada cabeçalho
         // era uma frase de explicação por seção — quatro na folha. O cabeçalho
         // nomeia e a linha diz o que faz; a explicação fica no código.
-        recolhidas.secao(titulo, id: id, contagem: contagem) {
+        // a folha é curta e as seções têm um ou dois itens: recolher era
+        // chrome sem conteúdo para esconder (auditoria 15/09, 13)
+        VStack(alignment: .leading, spacing: 0) {
+            CabecalhoDeSecao(titulo, contagem: contagem)
+                .accessibilityIdentifier("secao-\(id)")
             conteudo()
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     /// Um achado da lente. Com nota no disco, o toque abre os rótulos para
