@@ -125,6 +125,9 @@ Nota do instrumento: nas capturas depois das 07h28 o teclado do iPhone não apar
 - (82) Médio 14: a Lente abre a meia altura (`presentationDetents([.medium, .large])`). Captura `49-lente-meia.png`.
 - (83) Baixo 21: a tela de arranque nasce no papel (#F4F4F2) — `UILaunchScreen.UIColorName = Papel` no `project.yml` (o xcodegen escreve o `Info-extra.plist`); conferido no `Info.plist` do build. A rajada de 6 quadros não pegou o quadro do arranque; a prova é o plist.
 
+- (84) Página: com campos, o editor cede a 96 pt em vez de 160 — o buraco entre o título e a forma (capturas 05 e 47).
+- (85) Médio 11, de verdade: a captura 47 "sem teclado" era o teclado físico do Mac ligado no simulador, não o app; com o teclado do iPhone de volta, a nota da lista ainda abria com ele. Causa: `mostrarNotas` e `aba` mudam no mesmo `abrir` e `restaurarFoco` corria duas vezes — a flag consumida na primeira deixava a segunda levantar o teclado. Agora a flag só se apaga quando o autor toca o papel. Captura `51-nota-aberta-v2.png` (teclado do iPhone ativo na sessão, nota aberta sem ele).
+
 ## G. Placar depois de catorze voltas (15/09, 08h30) — estimativa minha; a que vale é a do dono
 
 | Tela | Simplicidade | IA sozinha | Acabamento | Tipo e texto | Sistema | Média |

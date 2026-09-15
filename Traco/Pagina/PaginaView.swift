@@ -150,6 +150,9 @@ struct PaginaView: View {
                 restaurarFoco()
             }
         }
+        .onChange(of: focoPagina) { _, agora in
+            if agora { sessao.acabouDeAbrir = false }
+        }
         .onChange(of: sessao.mostrarNotas) { _, aberto in
             if aberto {
                 focoPagina = false
@@ -749,8 +752,11 @@ struct PaginaView: View {
               sessao.fechoExpressiva == nil, !mostrarCampos
         else { return }
         // nota aberta da lista chega sem teclado: metade da nota ficava
-        // escondida atrás dele (auditoria 15/09, 11)
-        if sessao.acabouDeAbrir { sessao.acabouDeAbrir = false; return }
+        // escondida atrás dele (auditoria 15/09, 11). A flag NÃO se consome
+        // aqui: `mostrarNotas` e `aba` mudam no mesmo abrir e chamam isto
+        // duas vezes — consumida na primeira, a segunda levantava o teclado.
+        // Quem a apaga é o toque do autor no papel (`focoPagina` fica true).
+        if sessao.acabouDeAbrir { return }
         focoPagina = true
     }
 }
