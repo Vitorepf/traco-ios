@@ -33,7 +33,8 @@ struct CalendarioView: View {
         // Brasil depois de a…"): exemplo que não cabe não é exemplo
         // na linha única do pé o campo tem ~130 pt: o exemplo tem de caber
         if let r = Recomendacao.primeira(de: sistema.proximos, agenda.cal), r.count <= 12 { return r }
-        return "Dentista 14h"
+        // o exemplo fixo lia como um segundo compromisso (auditoria 15/09, 12)
+        return "marcar"
     }
 
     init(agenda: CalendarioAgenda = CalendarioAgenda()) {
