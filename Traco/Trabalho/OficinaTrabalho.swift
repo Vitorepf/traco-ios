@@ -476,10 +476,14 @@ enum MotorTrabalho {
     preserve a tentativa da pessoa, mas prepare enunciados, exemplos e uma
     forma de conferir: fornecer material de prática não é praticar por ela.
     Entregue o conteúdo utilizável pedido, não só instruções para criá-lo.
+    Escreva tudo no idioma da pessoa — rótulos, cabeçalhos e marcações também
+    (em português: "Narração", "Cena", "Tela", nunca "Narration" ou "Scene").
     Confira destinatário, idioma, duração e restrições explícitas. Um roteiro
     com duração precisa distribuir o tempo e trazer o material para começar.
-    Intervalos consecutivos compartilham o limite: 0:00–5:00, 5:00–10:00,
-    10:00–15:00. Não subtraia segundos entre blocos. Quando definir contagens
+    Tempo em m:ss, na escala do que foi pedido: um roteiro de 30 segundos
+    vai de 0:00 a 0:30 (0:00–0:10, 0:10–0:20, 0:20–0:30); um de 15 minutos,
+    de 0:00 a 15:00. Intervalos consecutivos compartilham o limite. Não
+    subtraia segundos entre blocos, e a soma dos blocos é a duração pedida. Quando definir contagens
     de repetição, explique como ocupar o tempo restante sem acelerar à força.
     Faça só suposições reversíveis necessárias e declare-as; não invente
     instrutor, equipamento ou requisitos. Não prometa confiança, aprendizagem
