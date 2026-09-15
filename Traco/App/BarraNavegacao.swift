@@ -90,8 +90,8 @@ struct BarraNavegacao: View {
                 .mask {
                     GeometryReader { g in
                         let largura = g.size.width / CGFloat(Aba.naBarra.count)
-                        // concêntrica com a pílula: 16 − 4 de respiro = 12
-                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        // concêntrica com a pílula: 18 − 4 de respiro = 14
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
                             .frame(width: largura)
                             .offset(x: largura * CGFloat(Aba.naBarra.firstIndex(of: aba) ?? 0))
                             // `escala`, não `toque`: a de 0,65 passava da borda da
@@ -106,8 +106,9 @@ struct BarraNavegacao: View {
             // o vidro do sistema (iOS 26+): o mesmo material do campo acima —
             // a sombra desenhada à mão deixava uma faixa cinza sob o pé
             // dono, 15/09: "tudo mais quadrado, como os apps e widgets" — a
-            // pílula é o Dock do Traço: cantos contínuos, raio 16 em 52 pt
-            .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            // pílula é o Dock do Traço: cantos contínuos, raio 18 em 52 pt —
+            // a proporção do Dock do iPhone (medida na captura do dono)
+            .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
 
             // ação, não destino: círculo âmbar, uma vez na tela, glifo escuro
             // por cima (7,6:1). `law-of-similarity` — o que FAZ não pode
@@ -125,21 +126,8 @@ struct BarraNavegacao: View {
                     .font(.system(size: 19, weight: .medium))
                     .foregroundStyle(Tema.tinta)
                     .frame(width: Tema.barraNav, height: Tema.barraNav)
-                    .background {
-                        RoundedRectangle(cornerRadius: 16, style: .continuous)
-                            .fill(LinearGradient(colors: [Color(hex: 0xE9BC62), Tema.ambar, Color(hex: 0xCF9B3A)],
-                                                 startPoint: .top, endPoint: .bottom))
-                            .overlay {
-                                RoundedRectangle(cornerRadius: 16, style: .continuous).strokeBorder(
-                                    LinearGradient(colors: [.white.opacity(0.7), .white.opacity(0)],
-                                                   startPoint: .top, endPoint: .center),
-                                    lineWidth: 1)
-                            }
-                            .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).strokeBorder(Tema.ambarTinta.opacity(0.18), lineWidth: 0.5))
-                            .shadow(color: Tema.ambar.opacity(0.32), radius: 8, y: 4)
-                            .shadow(color: Tema.sombraContato, radius: 1, y: 0.5)
-                    }
-                    .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .background { pecaDeAmbar }
+                    .contentShape(Superelipse())
             }
             .buttonStyle(PressaoDiscreta())
             .accessibilityIdentifier("nova-nota")
@@ -163,6 +151,22 @@ struct BarraNavegacao: View {
         .opacity(escondida ? 0 : 1)
         .animation(Tema.movimento(.deslocamento, Tema.Mola.teclado, reduzido: reduceMotion), value: escondida)
         .accessibilityHidden(escondida)
+    }
+
+    /// O botão âmbar como peça polida, na forma dos ícones do iPhone: luz de
+    /// cima em degradê curto, fio de luz na metade de cima, contorno quase
+    /// invisível e um brilho âmbar curto por baixo.
+    private var pecaDeAmbar: some View {
+        let forma = Superelipse()
+        let luz = LinearGradient(colors: [Color(hex: 0xE9BC62), Tema.ambar, Color(hex: 0xCF9B3A)],
+                                 startPoint: .top, endPoint: .bottom)
+        let fio = LinearGradient(colors: [.white.opacity(0.7), .white.opacity(0)],
+                                 startPoint: .top, endPoint: .center)
+        return forma.fill(luz)
+            .overlay { forma.stroke(fio, lineWidth: 1).clipShape(forma) }
+            .overlay { forma.stroke(Tema.ambarTinta.opacity(0.18), lineWidth: 0.5) }
+            .shadow(color: Tema.ambar.opacity(0.32), radius: 8, y: 4)
+            .shadow(color: Tema.sombraContato, radius: 1, y: 0.5)
     }
 
     private func glifo(_ item: Aba) -> some View {
