@@ -90,17 +90,15 @@ struct BarraNavegacao: View {
                 .mask {
                     GeometryReader { g in
                         let largura = g.size.width / CGFloat(Aba.naBarra.count)
-                        let caixa = min(g.size.height, largura)
-                        // dono, 15/09: a seleção é um LOSANGO — um quadrado de
-                        // cantos suaves girado 45°, com a diagonal da altura
-                        // da aba (lado = diagonal / √2), centrado no glifo
-                        let lado = caixa / 1.3
-                        RoundedRectangle(cornerRadius: lado * 0.22, style: .continuous)
+                        let lado = min(g.size.height, largura)
+                        // dono, 15/09: a seleção na forma de ícone do iPhone
+                        // (superelipse), um quadrado centrado no glifo — a mesma
+                        // forma do botão de escrever. O losango foi provado e
+                        // preterido: apertava o glifo e era uma terceira forma.
+                        Superelipse()
                             .frame(width: lado, height: lado)
-                            .rotationEffect(.degrees(45))
-                            .frame(width: caixa, height: caixa)
-                            .offset(x: largura * CGFloat(Aba.naBarra.firstIndex(of: aba) ?? 0) + (largura - caixa) / 2,
-                                    y: (g.size.height - caixa) / 2)
+                            .offset(x: largura * CGFloat(Aba.naBarra.firstIndex(of: aba) ?? 0) + (largura - lado) / 2,
+                                    y: (g.size.height - lado) / 2)
                             // `escala`, não `toque`: a de 0,65 passava da borda da
                             // pílula e saía cortada reta na viagem de três casas
                             .animation(Tema.movimento(.deslocamento, Tema.Mola.escala, reduzido: reduceMotion), value: aba)
