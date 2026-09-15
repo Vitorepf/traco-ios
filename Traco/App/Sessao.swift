@@ -1722,6 +1722,9 @@ final class Sessao {
 
     func novaPagina() {
         campoPedido = nil
+        // a página nova é para escrever: o cursor volta (a flag da nota aberta
+        // da lista, se ficou armada, não vale aqui)
+        acabouDeAbrir = false
         geracaoDaPagina += 1
         pararTimer()
         criadaEmDaPagina = nil

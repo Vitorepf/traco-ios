@@ -128,6 +128,8 @@ Nota do instrumento: nas capturas depois das 07h28 o teclado do iPhone não apar
 - (84) Página: com campos, o editor cede a 96 pt em vez de 160 — o buraco entre o título e a forma (capturas 05 e 47).
 - (85) Médio 11, de verdade: a captura 47 "sem teclado" era o teclado físico do Mac ligado no simulador, não o app; com o teclado do iPhone de volta, a nota da lista ainda abria com ele. Causa: `mostrarNotas` e `aba` mudam no mesmo `abrir` e `restaurarFoco` corria duas vezes — a flag consumida na primeira deixava a segunda levantar o teclado. Agora a flag só se apaga quando o autor toca o papel. Captura `51-nota-aberta-v2.png` (teclado do iPhone ativo na sessão, nota aberta sem ele).
 
+- (86) Efeito da 85: com a flag armada, a página NOVA (círculo de escrever) nascia sem cursor; `novaPagina()` agora a apaga. Capturas `54-nota-aberta-v3.png` (nota da lista sem teclado) e `55-pagina-nova-v3.png` (página nova com teclado).
+
 ## G. Placar depois de catorze voltas (15/09, 08h30) — estimativa minha; a que vale é a do dono
 
 | Tela | Simplicidade | IA sozinha | Acabamento | Tipo e texto | Sistema | Média |
