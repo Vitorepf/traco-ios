@@ -117,16 +117,15 @@ struct BarraNavegacao: View {
                 Toque.leve()
                 aoNovaNota()
             } label: {
-                // dono, 15/09: "consegue deixar ele ultra premium e elegante".
-                // O vidro tingido turvava o âmbar e deixava um aro marrom; o
-                // botão é uma peça de âmbar polido: luz de cima (degradê curto),
-                // fio de luz na metade de cima, contorno quase invisível embaixo,
-                // um brilho âmbar curto por baixo e o glifo mais fino.
+                // dono, 15/09: "em vez de amarelo, no estilo de vidro, igual
+                // esses" — o mesmo vidro da pílula e das ações do título, na
+                // forma dos ícones do iPhone. A identidade fica no TRAÇO: o
+                // glifo em âmbar-tinta (5,8:1), o âmbar onde o autor escreve.
                 Image(systemName: Aba.escrever.icone)
-                    .font(.system(size: 19, weight: .medium))
-                    .foregroundStyle(Tema.tinta)
+                    .font(.system(size: 20, weight: .medium))
+                    .foregroundStyle(Tema.ambarTinta)
                     .frame(width: Tema.barraNav, height: Tema.barraNav)
-                    .background { pecaDeAmbar }
+                    .glassEffect(.regular.interactive(), in: Superelipse())
                     .contentShape(Superelipse())
             }
             .buttonStyle(PressaoDiscreta())
@@ -151,22 +150,6 @@ struct BarraNavegacao: View {
         .opacity(escondida ? 0 : 1)
         .animation(Tema.movimento(.deslocamento, Tema.Mola.teclado, reduzido: reduceMotion), value: escondida)
         .accessibilityHidden(escondida)
-    }
-
-    /// O botão âmbar como peça polida, na forma dos ícones do iPhone: luz de
-    /// cima em degradê curto, fio de luz na metade de cima, contorno quase
-    /// invisível e um brilho âmbar curto por baixo.
-    private var pecaDeAmbar: some View {
-        let forma = Superelipse()
-        let luz = LinearGradient(colors: [Color(hex: 0xE9BC62), Tema.ambar, Color(hex: 0xCF9B3A)],
-                                 startPoint: .top, endPoint: .bottom)
-        let fio = LinearGradient(colors: [.white.opacity(0.7), .white.opacity(0)],
-                                 startPoint: .top, endPoint: .center)
-        return forma.fill(luz)
-            .overlay { forma.stroke(fio, lineWidth: 1).clipShape(forma) }
-            .overlay { forma.stroke(Tema.ambarTinta.opacity(0.18), lineWidth: 0.5) }
-            .shadow(color: Tema.ambar.opacity(0.32), radius: 8, y: 4)
-            .shadow(color: Tema.sombraContato, radius: 1, y: 0.5)
     }
 
     private func glifo(_ item: Aba) -> some View {
