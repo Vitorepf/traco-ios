@@ -292,7 +292,9 @@ struct CalendarioSemanaView: View {
     var body: some View {
         let mapa = agenda.porDia
         GeometryReader { geo in
-            let alturaLinha = min(CalendarioTema.semanaBarra,
+            // as linhas crescem até 76 pt para ocupar a tela: com o teto de 52
+            // a metade de baixo ficava vazia (auditoria 15/09, 14)
+            let alturaLinha = min(76,
                                   max(40, (geo.size.height - Self.reservaChrome - 14 - 8 - 6 * 8) / 7))
             VStack(alignment: .leading, spacing: 8) {
                 cabecalhoHoras
