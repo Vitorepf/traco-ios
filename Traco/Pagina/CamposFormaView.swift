@@ -13,16 +13,19 @@ struct CamposFormaView: View {
     /// Quando a conferência é devida (a hora do "espero" já passou). Nil = não.
     var conferenciaDevida: Bool = false
     /// ADR 04k: para onde esta forma leva. Nil = a folha não encadeia (Recordar).
+    /// O campo que recebe o cursor ao nascer (a "volta" das Notas cobra um campo).
+    var campoInicial: String? = nil
     var aoEncadear: ((Metodo.Encadeamento) -> Void)?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var nascida = false
+    @FocusState private var campoFocado: String?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             // SPEC §20: a casa não tem chrome. Palavra é escrever o sentido
             // (minhas / frase / onde). Look Up é o do iOS no texto seleccionado.
             ForEach(Array(visiveis.enumerated()), id: \.element.id) { indice, campo in
-                LinhaCampo(id: campo.id, rotulo: campo.nome, dica: campo.dica, teto: campo.teto, texto: valor(campo.id))
+                LinhaCampo(id: campo.id, rotulo: campo.nome, dica: campo.dica, teto: campo.teto, texto: valor(campo.id), foco: $campoFocado)
                     // a forma chega como quem entra: campo a campo, um respiro
                     // entre eles (ancorado em `nascida`, que muda DEPOIS do
                     // onAppear — dispara garantido)
@@ -38,6 +41,8 @@ struct CamposFormaView: View {
             withAnimation(Tema.movimento(.deslocamento, .easeOut(duration: Tema.Duracao.longa), reduzido: reduceMotion)) {
                 nascida = true
             }
+            // o foco pede a árvore montada: um tique depois do onAppear
+            if let campoInicial { Task { @MainActor in campoFocado = campoInicial } }
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("forma-\(gesto.rawValue)")
@@ -112,6 +117,7 @@ private struct LinhaCampo: View {
     var dica: String? = nil
     var teto: Int? = nil
     @Binding var texto: String
+    var foco: FocusState<String?>.Binding
 
     private var preenchido: Bool {
         !texto.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
@@ -152,6 +158,7 @@ private struct LinhaCampo: View {
                 .textFieldStyle(.plain)
                 .tint(Tema.ambar)
                 .lineLimit(1...5)
+                .focused(foco, equals: id)
                 .padding(.vertical, 8)
                 .frame(maxWidth: .infinity, minHeight: Tema.alvo, alignment: .topLeading)
                 .overlay(alignment: .bottom) {

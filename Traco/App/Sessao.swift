@@ -15,6 +15,9 @@ final class Sessao {
     var perguntaPadroes: String?
     var cartao: CartaoAnalisar?
     var toast: String?
+    /// O campo que a "volta" nas Notas veio cobrar: a página abre com o cursor
+    /// nele, em vez de no título com o campo abaixo da dobra (auditoria 15/09, 3).
+    var campoPedido: String?
     var timerLigado = false
     var segundosRestantes = 15 * 60
     /// SPEC §20: um destino por vez. `mostrarNotas`/`mostrarPadroes` continuam
@@ -1715,6 +1718,7 @@ final class Sessao {
     var geracaoDaPagina = 0
 
     func novaPagina() {
+        campoPedido = nil
         geracaoDaPagina += 1
         pararTimer()
         criadaEmDaPagina = nil
@@ -1767,7 +1771,8 @@ final class Sessao {
         Toque.suave()
     }
 
-    func abrir(_ nota: Nota, mesmoTrancada: Bool = false) {
+    func abrir(_ nota: Nota, mesmoTrancada: Bool = false, campo: String? = nil) {
+        campoPedido = nil
         // queimada não abre: não existe texto. Dizer isso é honestidade, não erro.
         if nota.queimada {
             mostrarToast("essa você queimou. ficou a data e o que você entendeu.")
@@ -1796,6 +1801,7 @@ final class Sessao {
         if nota.gesto == .expressiva, !nota.trancada {
             retomarExpressiva(prazo: nota.expressivaPrazo)
         }
+        campoPedido = campo
     }
 
     func concluir(no context: ModelContext) {

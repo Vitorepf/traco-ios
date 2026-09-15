@@ -81,6 +81,7 @@ struct PaginaView: View {
                                 gesto: gesto,
                                 campos: $sessao.campos,
                                 conferenciaDevida: sessao.conferenciaDevida,
+                                campoInicial: sessao.campoPedido,
                                 aoEncadear: { e in
                                     mostrarCampos = false
                                     sessao.encadear(e, no: context)
@@ -461,6 +462,7 @@ struct PaginaView: View {
             gesto: gesto,
             campos: $sessao.campos,
             conferenciaDevida: sessao.conferenciaDevida,
+                                campoInicial: sessao.campoPedido,
             aoEncadear: { sessao.encadear($0, no: context) }
         ))
     }

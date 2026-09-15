@@ -698,7 +698,7 @@ struct NotasView: View {
             VStack(alignment: .leading, spacing: 0) {
                 ForEach(Array(devidas.enumerated()), id: \.offset) { i, par in
                     Button {
-                        sessao.abrir(par.nota)
+                        sessao.abrir(par.nota, campo: par.campo.id)
                     } label: {
                         VStack(alignment: .leading, spacing: 4) {
                             Text(Volta.cobranca(par.campo))
