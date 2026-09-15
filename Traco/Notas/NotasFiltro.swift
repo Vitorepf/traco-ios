@@ -36,9 +36,23 @@ enum NotasFiltro {
     static func casa(_ texto: String, busca: String) -> Bool {
         let opcoes: String.CompareOptions = [.caseInsensitive, .diacriticInsensitive]
         if texto.range(of: busca, options: opcoes, locale: .current) != nil { return true }
-        let palavras = busca.split { !$0.isLetter && !$0.isNumber }.map(String.init).filter { $0.count >= 4 }
+        let palavras = Self.palavras(busca)
         guard palavras.count >= 2 else { return false }
-        let achadas = palavras.filter { texto.range(of: $0, options: opcoes, locale: .current) != nil }.count
-        return achadas * 2 >= palavras.count
+        return pontuacao(texto, palavras: palavras) * 2 >= palavras.count
+    }
+
+    /// As palavras que contam numa busca: quatro letras ou mais, sem repetição.
+    static func palavras(_ busca: String) -> [String] {
+        var vistas = Set<String>()
+        return busca.split { !$0.isLetter && !$0.isNumber }.map(String.init)
+            .filter { $0.count >= 4 && vistas.insert($0.lowercased()).inserted }
+    }
+
+    /// Quantas das palavras o texto tem (por prefixo, sem caixa nem acento).
+    /// É a régua do MATERIAL de um Trabalho: uma nota que fala do assunto
+    /// ("Traço") entra mesmo sem repetir o verbo do pedido.
+    static func pontuacao(_ texto: String, palavras: [String]) -> Int {
+        let opcoes: String.CompareOptions = [.caseInsensitive, .diacriticInsensitive]
+        return palavras.filter { texto.range(of: $0, options: opcoes, locale: .current) != nil }.count
     }
 }
