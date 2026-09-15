@@ -336,17 +336,42 @@ struct NotasView: View {
                     .accessibilityHint("A conversa some; as suas notas voltam")
                     .accessibilityIdentifier("fechar-resposta")
             } else {
-                HStack(spacing: 4) {
+                // dono, 15/09: "abaixo de Notas está extremamente zoado" — a
+                // frase cinza "6 trabalhos ›" solta sob o título. Os Trabalhos
+                // são DESTINO e moram na linha do título, num botão de vidro
+                // com a contagem, ao lado do compartilhar (o mesmo material).
+                HStack(spacing: 8) {
+                    Button { mostrarTrabalhos = true } label: {
+                        HStack(spacing: 5) {
+                            Image(systemName: "hammer")
+                                .font(.footnote.weight(.semibold))
+                            if !trabalhos.isEmpty {
+                                Text("\(trabalhos.count)")
+                                    .font(Tema.meta.weight(.semibold))
+                                    .monospacedDigit()
+                            }
+                        }
+                        .foregroundStyle(Tema.tinta)
+                        .padding(.horizontal, 12)
+                        .frame(height: 34)
+                        .glassEffect(.regular.interactive(), in: .capsule)
+                    }
+                    .buttonStyle(.discreto)
+                    .alvo()
+                    .accessibilityLabel(trabalhos.isEmpty ? "Trabalhos" : "Trabalhos, \(trabalhos.count)")
+                    .accessibilityHint("Retoma intenções, versões e próximos atos")
+                    .accessibilityIdentifier("abrir-trabalhos")
                     if !filtradas.isEmpty {
-                        // o gesto de compartilhar que todo iPhone conhece (jakobs-law);
-                        // D1: só o glifo, sem o círculo de chip — a folha não tem botões redondos
+                        // o gesto de compartilhar que todo iPhone conhece (jakobs-law)
                         Button {
                             contextoURL = Corpus.urlComoContexto(
                                 filtradas.map(FatiaCorpus.de), nome: "traco-contexto.md")
                         } label: {
                             Image(systemName: "square.and.arrow.up")
-                                .font(.body.weight(.medium))
-                                .foregroundStyle(Tema.tintaSuave)
+                                .font(.footnote.weight(.semibold))
+                                .foregroundStyle(Tema.tinta)
+                                .frame(width: 34, height: 34)
+                                .glassEffect(.regular.interactive(), in: .circle)
                         }
                         .frame(width: Tema.alvo, height: Tema.alvo)
                         .contentShape(Rectangle())
@@ -729,31 +754,6 @@ struct NotasView: View {
         }
     }
 
-    /// ADR 08p: Trabalhos é destino, não ação — nem link âmbar no chrome (§20,
-    /// 05f) nem, desde a D1, linha de menu com ícone e seta na borda. É uma
-    /// FRASE em tinta suave que diz o que há — "3 trabalhos ›" — no idioma que a
-    /// página em branco já usa ("1 volta a conferir"): a folha afirma um fato e
-    /// o fato é a porta. O "›" fica no texto, tipográfico, para continuar a
-    /// ler-se como "abre" (jakobs-law). Rola com o arquivo e some na busca.
-    @ViewBuilder private var linhaTrabalhos: some View {
-        if NotasFiltro.mostraTrabalhos(busca: busca, filtro: filtro, dominio: filtroDominio) {
-            Button { mostrarTrabalhos = true } label: {
-                Text(trabalhos.isEmpty ? "trabalhos ›"
-                     : "\(trabalhos.count) trabalho\(trabalhos.count == 1 ? "" : "s") ›")
-                    .font(Tema.meta)
-                    .foregroundStyle(Tema.tintaSuave)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .contentShape(Rectangle())
-                    .padding(.vertical, 6)
-                    .alvo(folgaV: 8)
-            }
-            .buttonStyle(.discreto)
-            .accessibilityLabel(trabalhos.isEmpty ? "Trabalhos" : "Trabalhos, \(trabalhos.count)")
-            .accessibilityHint("Retoma intenções, versões e próximos atos")
-            .accessibilityIdentifier("abrir-trabalhos")
-        }
-    }
-
     private var lista: some View {
         let visiveis = filtradas
         return Group {
@@ -773,7 +773,6 @@ struct NotasView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 0) {
                         // a porta dos Trabalhos existe mesmo com o arquivo vazio
-                        linhaTrabalhos.padding(.horizontal, Tema.margem)
                         Vazio(frase: vazioTitulo, acao: busca.isEmpty && filtro == nil && filtroDominio == nil
                               ? .init("escrever na página") {
                                   sessao.novaPagina()
@@ -811,7 +810,6 @@ struct NotasView: View {
                                 .padding(.top, 12)
                         }
                         // a porta dos Trabalhos não entra no resultado de uma busca
-                        if busca.isEmpty { linhaTrabalhos }
                         secaoDaVolta
                         ForEach(meses(visiveis), id: \.titulo) { mes in
                             secao(mes.titulo)
