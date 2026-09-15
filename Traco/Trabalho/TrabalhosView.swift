@@ -91,7 +91,8 @@ struct TrabalhosView: View {
 
     @ViewBuilder private var lista: some View {
         VStack(alignment: .leading, spacing: Tema.entreItens) {
-            Text("Seus trabalhos").rotulo(Tema.tintaSuave)
+            // sem trabalhos, um cabeçalho sobre uma frase vazia era chrome
+            if !trabalhos.isEmpty { Text("Seus trabalhos").rotulo(Tema.tintaSuave) }
             // a busca só existe quando há o que buscar: com meia dúzia de
             // trabalhos a lista inteira cabe no olho (laço de 14/09)
             if trabalhos.count > 5 || !busca.isEmpty {

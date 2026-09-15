@@ -182,3 +182,5 @@ O que ainda pesa e por quê não entrou hoje: (a) "IA sozinha" no Trabalho e em 
 - Movimento, primeira medição: vídeo de 11 s das trocas de aba a 20 quadros/s (`64-troca-de-aba-quadros.png`, 8 quadros = 400 ms): o conteúdo troca em corte no primeiro quadro e a cápsula carvão da pílula desliza em ~300 ms; nenhum quadro vazio, nenhum salto (média de diferença entre quadros ≤ 17 em 0–255). A troca seca é decisão registrada (k423); o que se vê é coerente com ela.
 
 Placar I (estimativa minha): Calendário 8,8 · Notas 8,5 · Página 8,2 · Lente 8,0 · Padrões 7,9 · Trabalhos 7,9 · Perfil 7,8 · Ficha 7,8 · Conversa 7,8 · Trabalho 7,4 — média **8,2**. O teto sem provedor no aparelho continua o mesmo: "IA sozinha" mede a frase honesta, não o ato.
+- (93) Baixo 21: o ícone passa ao papel — o traço âmbar sobre #F4F4F2, reconstruído do PNG escuro pela cobertura do canal R (`icone-escuro-antes.png` → `66-icone-na-casa.png`). Na tela de início ele pertence ao mundo em que o app abre.
+- (94) Trabalhos vazio: o cabeçalho "SEUS TRABALHOS" sobre a frase de vazio saiu — chrome sem lista. Captura `67-trabalhos-vazio.png`.
