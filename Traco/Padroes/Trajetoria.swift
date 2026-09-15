@@ -62,7 +62,7 @@ nonisolated struct Trajetoria: Equatable, Sendable {
         let abertas = notas.filter { !$0.fechada && $0.gesto != .expressiva && $0.vozDoAutor && $0.criadaEm >= de && $0.criadaEm <= a }
         p.notas = abertas.count
         var conta: [String: Int] = [:]
-        for n in abertas { conta[n.gesto?.nome ?? "sem forma", default: 0] += 1 }
+        for n in abertas { conta[n.gesto?.nome ?? "soltas", default: 0] += 1 }
         p.porForma = conta.sorted { $0.value == $1.value ? $0.key < $1.key : $0.value > $1.value }
             .prefix(6).map { "\($0.value) \($0.key.lowercased())" }
 

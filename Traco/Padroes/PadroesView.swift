@@ -263,16 +263,18 @@ struct PadroesView: View {
             let total = r.porForma.reduce(0) { $0 + $1.quantas }
             recolhidas.secao("Esta semana", id: "semana") {
                 if !r.porForma.isEmpty {
+                    // "5 sem forma · 1 woop" era contagem de método; "5 soltas ·
+                    // 1 WOOP" é o que a pessoa lê (auditoria 15/09, 8)
                     LinhaDeLista("doc.on.doc", "\(total) \(total == 1 ? "nota" : "notas") em sete dias",
-                                 r.porForma.map { "\($0.quantas) \($0.forma?.nome.lowercased() ?? "sem forma")" }.joined(separator: " · "))
+                                 r.porForma.map { "\($0.quantas) \($0.forma?.nome ?? ($0.quantas == 1 ? "solta" : "soltas"))" }.joined(separator: " · "))
                 }
                 bloco("star", "destaque", r.destaques)
                 bloco("arrow.triangle.branch", "decisão a conferir", r.decisoesAConferir)
                 bloco("scope", "o que está em jogo", r.desejos)
                 bloco("exclamationmark.triangle", "o que pode dar errado ainda não tem nome", r.semRisco, premortem: true)
-                // a hora já diz quando; "nos próximos sete dias" repetido em
-                // cada linha era ruído (auditoria 13/09, defeito 10)
-                bloco("calendar", "", r.proximos)
+                // os compromissos da semana moram no Calendário, uma aba ao
+                // lado: repeti-los aqui era a agenda, não um padrão
+                // (auditoria 15/09, 7)
                 ForEach(r.calibragem) { c in
                     Button {
                         if let nota = Sessao.buscar(uuid: c.id, no: context) {
