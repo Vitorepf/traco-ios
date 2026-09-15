@@ -719,7 +719,7 @@ struct PerfilView: View {
     private var ferias: some View {
         recolhidas.secao("Férias", id: "ferias") {
             chave("beach.umbrella", "Modo férias",
-                  "O Traço para de cobrar memória: a fila do Recordar, a revisão de domingo e a série da expressiva esperam. Os seus compromissos continuam avisando — férias não desmarca dentista.",
+                  "o Recordar, a revisão de domingo e a série esperam; os compromissos continuam avisando",
                   id: "ajuste-ferias",
                   ligado: Binding(
                     get: { feriasLigado },
@@ -768,7 +768,7 @@ struct PerfilView: View {
             }
 
             chave("flag", "E nos feriados",
-                  "Desligado, o Traço cobra no feriado também — dia em casa é bom dia para recordar.",
+                  "desligado, o Traço cobra no feriado também",
                   id: "ajuste-ferias-feriados",
                   ligado: Binding(
                     get: { feriasNosFeriados },
