@@ -30,7 +30,10 @@ struct Q4CadernoUnicoTests {
         #expect(!trecho.isEmpty)
         #expect(!trecho.contains("Grok."))
         #expect(!trecho.contains("AnaliseRemota"))
-        #expect(trecho.contains("LanguageModelSession"))
+        // a sessão de bordo nasce em `AnaliseDeBordo.sessao(instructions:)`
+        // (iOS 27: nuvem privada quando há) — o que se prova é que não há rede
+        // de terceiros no caminho
+        #expect(trecho.contains("sessao(instructions:") || trecho.contains("LanguageModelSession"))
     }
 
     @Test func plantarInfereDominioDaNotaNaoDaPagina() throws {

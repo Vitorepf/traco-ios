@@ -32,12 +32,42 @@ nonisolated enum AnaliseDeBordo {
     /// Existe modelo neste aparelho? Falso no simulador sem Apple Intelligence,
     /// em aparelho antigo, e enquanto o modelo ainda está baixando.
     static var disponivel: Bool {
-        SystemLanguageModel.default.isAvailable
+        SystemLanguageModel.default.isAvailable || nuvemPrivada != nil
     }
+
+    /// iOS 27: o modelo maior da Apple na nuvem privada (Private Cloud
+    /// Compute) — sem conta, sem cobrança, e o texto não vai a terceiros. Onde
+    /// existe, é ele o executor "de bordo"; o modelo pequeno do aparelho fica
+    /// para quando não há rede. Uma decisão só, aqui, para as quatro sessões.
+    @available(iOS 27.0, *)
+    private enum Nuvem {
+        static let modelo: PrivateCloudComputeLanguageModel? = {
+            let m = PrivateCloudComputeLanguageModel()
+            return m.isAvailable ? m : nil
+        }()
+    }
+
+    static var nuvemPrivada: (any Sendable)? {
+        if #available(iOS 27.0, *) { return Nuvem.modelo }
+        return nil
+    }
+
+    /// A sessão de bordo: nuvem privada quando há, senão o modelo do aparelho.
+    static func sessao(instructions: String) -> LanguageModelSession {
+        if #available(iOS 27.0, *), let nuvem = Nuvem.modelo {
+            return LanguageModelSession(model: nuvem, instructions: instructions)
+        }
+        return LanguageModelSession(instructions: instructions)
+    }
+
+    /// Verdadeiro quando a sessão de bordo corre na nuvem privada — quem conta
+    /// tokens contra `SystemLanguageModel.default` não deve fazê-lo aí.
+    static var naNuvemPrivada: Bool { nuvemPrivada != nil }
 
     /// Em uma linha, para o Perfil — honesto como o da conta Grok.
     static var estadoEmPalavras: String {
-        switch SystemLanguageModel.default.availability {
+        if naNuvemPrivada { return "nuvem privada da Apple — sem conta, o texto não sai para terceiros" }
+        return switch SystemLanguageModel.default.availability {
         case .available:
             "pronto — sem conta e sem sinal"
         case .unavailable(.deviceNotEligible):
@@ -101,7 +131,7 @@ nonisolated enum AnaliseDeBordo {
             DynamicGenerationSchema.Property(name: "dominio", description: "A área da vida.",
                                              schema: DynamicGenerationSchema(referenceTo: "DominioDeBordo")),
         ])
-        let sessao = LanguageModelSession(instructions: """
+        let sessao = sessao(instructions: """
         Você classifica um texto em português numa ÁREA DA VIDA. Você nunca escreve texto.
         trabalho = emprego, clientes, projetos, prazos, colegas
         casa = a casa em si, contas da casa, reforma, compras da casa, vizinhos
@@ -137,7 +167,7 @@ nonisolated enum AnaliseDeBordo {
         guard disponivel, gestoAtual != .expressiva else { return nil }
         let prosa = texto.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !prosa.isEmpty else { return nil }
-        let sessao = LanguageModelSession(instructions: instrucoesDoCatalogo)
+        let sessao = sessao(instructions: instrucoesDoCatalogo)
         guard let esquema = try? esquema(),
               let r = try? await sessao.respond(to: String(prosa.prefix(4000)), schema: esquema),
               let escolhido = try? r.content.value(String.self, forProperty: "gesto")

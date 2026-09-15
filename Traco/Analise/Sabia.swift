@@ -1122,7 +1122,7 @@ enum Sabia {
         guard !Task.isCancelled, Politica.desceAoAparelho(.conferir), noAparelho,
               let usuario = montarConferir(pontos: pontos, memoria: escrito),
               let esquema = try? esquemaConferir(pontos: pontos.count) else { return nil }
-        let sessao = LanguageModelSession(instructions: sistemaConferir)
+        let sessao = AnaliseDeBordo.sessao(instructions: sistemaConferir)
         guard let resposta = try? await sessao.respond(to: usuario, schema: esquema,
                                                       options: GenerationOptions(temperature: 0)),
               !Task.isCancelled else { return nil }
@@ -1253,13 +1253,14 @@ enum Sabia {
             // ADR 07b: 3.500 caracteres era chute; desde o iOS 26.4 o modelo
             // conta os tokens de verdade. Pedido + instruções + resposta
             // dividem a mesma janela — sem espaço para a resposta, cala.
-            if #available(iOS 26.4, *) {
+            // na nuvem privada (iOS 27) a janela é outra: a conta é do modelo pequeno
+            if #available(iOS 26.4, *), !AnaliseDeBordo.naNuvemPrivada {
                 let modelo = SystemLanguageModel.default
                 if let pedido = try? await modelo.tokenCount(for: Prompt(usuario)),
                    let instrucoes = try? await modelo.tokenCount(for: Instructions(sistema)),
                    pedido + instrucoes + reservaDeResposta > modelo.contextSize { return nil }
             }
-            let sessao = LanguageModelSession(instructions: sistema)
+            let sessao = AnaliseDeBordo.sessao(instructions: sistema)
             let opcoes = GenerationOptions(temperature: temperatura, maximumResponseTokens: reservaDeResposta)
             guard let r = try? await sessao.respond(to: usuario, options: opcoes) else { return nil }
             return r.content
