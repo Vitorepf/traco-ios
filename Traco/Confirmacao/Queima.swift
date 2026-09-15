@@ -87,7 +87,8 @@ struct QueimaModifier: ViewModifier, Animatable {
 }
 
 /// Máscara: o que fica é o papel ACIMA da frente (o fogo sobe).
-struct FrenteDeQueima: Shape {
+// Xcode 27: `Shape` exige `path(in:)` fora do ator principal (isolamento padrão MainActor)
+nonisolated struct FrenteDeQueima: Shape {
     var progresso: CGFloat
     var animatableData: CGFloat {
         get { progresso }

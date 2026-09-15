@@ -196,7 +196,9 @@ struct PaginaView: View {
         // a forma vestiu sozinha, mas a folha NÃO sobe sozinha: modal no meio da
         // escrita rouba a página. A alça "abrir campos" é a porta, a um toque.
         .onChange(of: sessao.gesto) { _, g in
-            if g == nil || g == .expressiva { mostrarCampos = false }
+            // duas comparações numa linha estouravam o type-checker do Xcode 27
+            let semForma: Bool = g == nil
+            if semForma || g == .expressiva { mostrarCampos = false }
         }
         .onChange(of: mostrarCampos) { _, aberto in
             if !aberto {
