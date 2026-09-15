@@ -90,10 +90,14 @@ struct BarraNavegacao: View {
                 .mask {
                     GeometryReader { g in
                         let largura = g.size.width / CGFloat(Aba.naBarra.count)
-                        // concêntrica com a pílula: 18 − 4 de respiro = 14
-                        RoundedRectangle(cornerRadius: 14, style: .continuous)
-                            .frame(width: largura)
-                            .offset(x: largura * CGFloat(Aba.naBarra.firstIndex(of: aba) ?? 0))
+                        let lado = min(g.size.height, largura)
+                        // dono, 15/09: a seleção na forma de ícone do iPhone
+                        // (superelipse), um quadrado centrado no glifo, não a
+                        // barra que ocupava a aba inteira
+                        Superelipse()
+                            .frame(width: lado, height: lado)
+                            .offset(x: largura * CGFloat(Aba.naBarra.firstIndex(of: aba) ?? 0) + (largura - lado) / 2,
+                                    y: (g.size.height - lado) / 2)
                             // `escala`, não `toque`: a de 0,65 passava da borda da
                             // pílula e saía cortada reta na viagem de três casas
                             .animation(Tema.movimento(.deslocamento, Tema.Mola.escala, reduzido: reduceMotion), value: aba)
