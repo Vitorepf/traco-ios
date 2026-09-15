@@ -35,7 +35,7 @@ struct CampoFlutuante<Mais: View>: View {
                 .textInputAutocapitalization(.sentences)
                 .submitLabel(.send)
                 .onSubmit(aoEnviar)
-                .frame(minHeight: 36)
+                .frame(minHeight: 30)
                 .padding(.leading, Mais.self == EmptyView.self ? 14 : 2)
                 .accessibilityIdentifier(identificador)
                 .accessibilityLabel(dica)
@@ -61,17 +61,17 @@ struct CampoFlutuante<Mais: View>: View {
                 // camadas (dono, 14/09: "clean, ultra premium"); com texto, o
                 // enviar é o único objeto escuro — um disco carvão pequeno
                 Image(systemName: aoParar != nil ? "stop.fill" : temTexto ? "arrow.up" : (ditado.gravando ? "stop.fill" : "mic"))
-                    .font(aoParar != nil || temTexto || ditado.gravando ? .footnote.weight(.bold) : .body.weight(.medium))
+                    .font(aoParar != nil || temTexto || ditado.gravando ? .caption.weight(.bold) : .subheadline.weight(.medium))
                     .contentTransition(.symbolEffect(.replace))
                     .foregroundStyle(aoParar != nil || temTexto || ditado.gravando ? .white : Tema.tinta)
-                    .frame(width: 30, height: 30)
+                    .frame(width: 26, height: 26)
                     .background {
                         if aoParar != nil || temTexto || ditado.gravando {
                             Circle()
                                 .fill(aoParar != nil || (ditado.gravando && !temTexto) ? Tema.aviso : Tema.chipAtivo)
                         }
                     }
-                    .frame(width: 40, height: 40)
+                    .frame(width: 34, height: 34)
                     .contentShape(Rectangle())
             }
             .buttonStyle(.discreto)
@@ -80,8 +80,10 @@ struct CampoFlutuante<Mais: View>: View {
             .accessibilityLabel(aoParar != nil ? "Parar de esperar" : temTexto ? rotuloEnviar : ditado.gravando ? "Parar de ditar" : rotuloDitar)
             .accessibilityIdentifier(identificadorDoBotao ?? (identificador + (temTexto ? "-enviar" : "-ditar")))
         }
+        // dono, 15/09: "essa barra está enorme" — 36 pt de altura, uma linha de
+        // texto e nada mais; a pílula de baixo é que tem 52
         .padding(.horizontal, 4)
-        .padding(.vertical, 2)
+        .padding(.vertical, 1)
         // a MESMA cápsula da pílula de navegação (material e fio), mais baixa
         // (40 pt: uma linha de texto, não uma barra) e com a sombra do campo,
         // mais suave — menos camadas, mais caro (dono, 14/09: "diminua o
