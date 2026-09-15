@@ -173,3 +173,12 @@ Desde o placar G: feriado em vermelho (87), Lente sem chevrons (88), tipo no deg
 | **média** | 8,2 | 7,3 | 8,2 | 8,0 | 7,9 | **8,1** |
 
 O que ainda pesa e por quê não entrou hoje: (a) "IA sozinha" no Trabalho e em Padrões só sobe com provedor no aparelho — no simulador não há Grok nem Apple Intelligence, então a primeira versão não nasce e o placar mede a frase honesta, não o ato; (b) os quatro testes vermelhos do iOS 27 (esquema `GestoDeBordo`) derrubam a classificação de bordo no iPhone atualizado — chip aberto; (c) movimento: nenhuma tela filmada nesta passada; (d) o ícone escuro é identidade sua; (e) 60 fontes fora da escala ficam, a maioria em glifos. A nota 9,3 é sua: o Air (E66EF2AD) está ligado com o build de agora.
+
+## I. Voltas 91–92 e o movimento (15/09, 10h)
+
+- (91) Médio 14: as linhas da semana crescem até 76 pt e ocupam a tela; com o teto de 52 a metade de baixo ficava vazia. Captura `62-semana-cheia.png`.
+- (92) Alto 4, segunda parte: no Trabalho novo sem provedor, a oferta "Nada te trava por agora…" com o chip "Ir ao próximo passo" saiu (era promessa), e "Escrever eu mesmo" nasce aberto — o único caminho para a primeira versão; com provedor continua recolhido, porque a versão nasce sozinha. Captura `65-trabalho-novo-v2.png`: título, quatro cabeçalhos, o campo da versão à mão.
+- Padrões hoje (`61-padroes.png`): semana em uma linha, trajetória, duas perguntas geradas no aparelho — sem cópia do calendário.
+- Movimento, primeira medição: vídeo de 11 s das trocas de aba a 20 quadros/s (`64-troca-de-aba-quadros.png`, 8 quadros = 400 ms): o conteúdo troca em corte no primeiro quadro e a cápsula carvão da pílula desliza em ~300 ms; nenhum quadro vazio, nenhum salto (média de diferença entre quadros ≤ 17 em 0–255). A troca seca é decisão registrada (k423); o que se vê é coerente com ela.
+
+Placar I (estimativa minha): Calendário 8,8 · Notas 8,5 · Página 8,2 · Lente 8,0 · Padrões 7,9 · Trabalhos 7,9 · Perfil 7,8 · Ficha 7,8 · Conversa 7,8 · Trabalho 7,4 — média **8,2**. O teto sem provedor no aparelho continua o mesmo: "IA sozinha" mede a frase honesta, não o ato.

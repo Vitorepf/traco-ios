@@ -36,7 +36,11 @@ struct TrabalhoView: View {
     /// As seções que não são o próximo passo nascem recolhidas (Hermes §5: a
     /// densidade se controla no cabeçalho): a folha abre com a intenção, o
     /// que preparar e o próximo ato — o resto está a um toque, lembrado.
-    var recolhidas = Recolhidas("trabalho", deInicio: ["apoio", "praticar", "dificuldade", "minha-versao", "historico", "intercambio"])
+    // sem provedor, "Escrever eu mesmo" é o único caminho para a primeira
+    // versão: nasce aberto (auditoria 15/09, 4); com provedor fica recolhido
+    // (laço de 14/09), porque a versão nasce sozinha
+    var recolhidas = Recolhidas("trabalho", deInicio: ["apoio", "praticar", "dificuldade", "historico", "intercambio"]
+                                + (MotorTrabalho.disponivel ? ["minha-versao"] : []))
     @State private var limparAposCommit: [String] = []
     /// A gaveta da versão: escrever a primeira e editar a atual nunca convivem.
     @State private var editandoVersao = false
@@ -241,7 +245,10 @@ struct TrabalhoView: View {
             }
             .accessibilityElement(children: .contain)
             .accessibilityIdentifier("trabalho-dificuldade-retomada")
-        } else if let oferta = o.documento.ofertaDaJornada {
+        } else if let oferta = o.documento.ofertaDaJornada, o.documento.versaoAtual != nil {
+            // antes da primeira versão a oferta ("o próximo passo é a versão
+            // pronta") era uma promessa: com provedor ela já nasce sozinha, e
+            // sem provedor a seção de preparar diz quem falta (auditoria 15/09, 4)
             VStack(alignment: .leading, spacing: 6) {
                 Text(oferta)
                     .font(Tema.meta)
