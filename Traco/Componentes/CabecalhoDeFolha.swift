@@ -51,7 +51,7 @@ struct CabecalhoDeFolha<Titulo: View>: View {
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(Tema.tinta)
                     .frame(width: CalendarioTema.controle, height: CalendarioTema.controle)
-                    .background(Tema.chip, in: Circle())
+                    .glassEffect(.regular.interactive(), in: .circle)
                     .frame(width: Tema.alvo, height: Tema.alvo)
                     .contentShape(Rectangle())
             }

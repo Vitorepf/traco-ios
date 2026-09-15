@@ -68,6 +68,20 @@ struct Pilula<Conteudo: View>: View {
         return cheia ? Tema.chipAtivo : Tema.chip
     }
 
+    /// O material das cápsulas que se tocam (15/09): o vidro do sistema, o
+    /// mesmo do pé — a cápsula cinza chapada lia como controle barato ao lado
+    /// dele. Cheia é vidro tingido de carvão; desligada não tem material, só a
+    /// hairline (a forma continua visível, o convite não).
+    @ViewBuilder private func vidro<V: View>(_ v: V) -> some View {
+        if !ativa {
+            v
+        } else if cheia {
+            v.glassEffect(.regular.tint(Tema.chipAtivo).interactive(), in: .capsule)
+        } else {
+            v.glassEffect(.regular.interactive(), in: .capsule)
+        }
+    }
+
     private var fonte: Font {
         switch forma {
         case .filtro: Tema.meta.weight(.medium)
@@ -90,17 +104,13 @@ struct Pilula<Conteudo: View>: View {
             .foregroundStyle(Self.tinta(ativa: ativa, cheia: cheia, forma: forma))
         switch forma {
         case .filtro:
-            base.padding(.horizontal, 12).padding(.vertical, 8).frame(minHeight: 34)
-                .background(fundo, in: Capsule())
+            vidro(base.padding(.horizontal, 12).padding(.vertical, 8).frame(minHeight: 34))
         case .controle:
-            base.padding(.horizontal, 12).frame(height: CalendarioTema.controle)
-                .background(fundo, in: Capsule())
+            vidro(base.padding(.horizontal, 12).frame(height: CalendarioTema.controle))
         case .acao:
-            base.padding(.horizontal, 14).frame(height: CalendarioTema.controle)
-                .background(fundo, in: Capsule())
+            vidro(base.padding(.horizontal, 14).frame(height: CalendarioTema.controle))
         case .larga:
-            base.frame(maxWidth: .infinity, minHeight: Tema.alvo)
-                .background(fundo, in: Capsule())
+            vidro(base.frame(maxWidth: .infinity, minHeight: Tema.alvo))
         case .etiqueta:
             base.textCase(.uppercase).tracking(Tema.trackingLabel)
                 .padding(.horizontal, 6).padding(.vertical, 2)
