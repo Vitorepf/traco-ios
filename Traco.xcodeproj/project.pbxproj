@@ -1415,7 +1415,6 @@
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Transformar em letra o que você ditou. O reconhecimento acontece no aparelho — o áudio não sai daqui.";
 				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIFileSharingEnabled = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIStatusBarStyle = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1597,7 +1596,6 @@
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Transformar em letra o que você ditou. O reconhecimento acontece no aparelho — o áudio não sai daqui.";
 				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIFileSharingEnabled = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIStatusBarStyle = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (

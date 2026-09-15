@@ -122,3 +122,23 @@ Instrumento: às 06h54 o Xcode virou 27.0 e os simuladores iOS 26.5 morreram; o 
 - (81) Alto 4: o Trabalho novo prepara a primeira versão sozinho quando há provedor (a intenção É o pedido); sem provedor a folha diz quem falta em vez de perguntar "o que a IA deve preparar?"; antes da primeira versão não há "Editar com outras ferramentas", "Próximo ato" nem "Histórico 0" — oito cabeçalhos viram quatro. Captura `45-trabalho-novo.png`.
 
 Nota do instrumento: nas capturas depois das 07h28 o teclado do iPhone não aparece porque o simulador ficou com o teclado físico do Mac ligado (DeviceHub); o cursor está lá e o texto entra — não é defeito do app.
+- (82) Médio 14: a Lente abre a meia altura (`presentationDetents([.medium, .large])`). Captura `49-lente-meia.png`.
+- (83) Baixo 21: a tela de arranque nasce no papel (#F4F4F2) — `UILaunchScreen.UIColorName = Papel` no `project.yml` (o xcodegen escreve o `Info-extra.plist`); conferido no `Info.plist` do build. A rajada de 6 quadros não pegou o quadro do arranque; a prova é o plist.
+
+## G. Placar depois de catorze voltas (15/09, 08h30) — estimativa minha; a que vale é a do dono
+
+| Tela | Simplicidade | IA sozinha | Acabamento | Tipo e texto | Sistema | Média |
+|---|---|---|---|---|---|---|
+| Página | 8,5 | 7 | 8,5 | 8,5 | 8 | 8,1 |
+| Notas | 9 | 8 | 8,5 | 8,5 | 8,5 | 8,5 |
+| Conversa nas Notas | 8 | 8 | 7,5 | 7,5 | 8 | 7,8 |
+| Calendário (D/S/M/A) | 8,5 | 8 | 9 | 8,5 | 8,5 | 8,5 |
+| Ficha | 8 | 7,5 | 8 | 8 | 7,5 | 7,8 |
+| Padrões | 7,5 | 6,5 | 8 | 7,5 | 8 | 7,5 |
+| Perfil | 7,5 | 7 | 8 | 8 | 8 | 7,7 |
+| Trabalhos | 8,5 | 7,5 | 8 | 8 | 7,5 | 7,9 |
+| Trabalho | 7 | 6,5 | 7,5 | 7 | 6,5 | 6,9 |
+| Lente | 8 | 7 | 8,5 | 8 | 8 | 7,9 |
+| **média** | 8,1 | 7,3 | 8,2 | 8,0 | 7,9 | **7,9** |
+
+De 7,2 para 7,9 pelo meu olho (o do dono corre ~2 abaixo: ~6). O que ainda separa de 9: a "IA sozinha" no Trabalho e em Padrões depende de provedor no aparelho (sem Grok nem Apple Intelligence no simulador, a primeira versão não nasce — só a frase honesta); as 78 fontes fora da escala (15) e os raios/paddings literais (16) continuam; os cabeçalhos com chevron de seções de um item (13); as permissões sem contexto (5, decisão do dono no §3); o ícone no mundo escuro (21). Movimento não foi filmado nesta passada.
