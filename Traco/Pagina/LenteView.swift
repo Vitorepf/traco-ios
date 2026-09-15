@@ -90,7 +90,7 @@ struct LenteView: View {
                             } label: {
                                 LinhaDeLista(
                                     titulo: gesto.nome,
-                                    subtitulo: "de onde vem: fonte, função, o que o Traço adaptou",
+                                    subtitulo: "de onde vem",
                                     fio: !deOndeVem,
                                     glifo: { Image(systemName: "book.closed") },
                                     acessorio: {
