@@ -90,7 +90,8 @@ struct BarraNavegacao: View {
                 .mask {
                     GeometryReader { g in
                         let largura = g.size.width / CGFloat(Aba.naBarra.count)
-                        Capsule()
+                        // concêntrica com a pílula: 16 − 4 de respiro = 12
+                        RoundedRectangle(cornerRadius: 12, style: .continuous)
                             .frame(width: largura)
                             .offset(x: largura * CGFloat(Aba.naBarra.firstIndex(of: aba) ?? 0))
                             // `escala`, não `toque`: a de 0,65 passava da borda da
@@ -104,7 +105,9 @@ struct BarraNavegacao: View {
             .padding((Tema.barraNav - Tema.alvo) / 2)
             // o vidro do sistema (iOS 26+): o mesmo material do campo acima —
             // a sombra desenhada à mão deixava uma faixa cinza sob o pé
-            .glassEffect(.regular, in: .capsule)
+            // dono, 15/09: "tudo mais quadrado, como os apps e widgets" — a
+            // pílula é o Dock do Traço: cantos contínuos, raio 16 em 52 pt
+            .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
 
             // ação, não destino: círculo âmbar, uma vez na tela, glifo escuro
             // por cima (7,6:1). `law-of-similarity` — o que FAZ não pode
@@ -123,20 +126,20 @@ struct BarraNavegacao: View {
                     .foregroundStyle(Tema.tinta)
                     .frame(width: Tema.barraNav, height: Tema.barraNav)
                     .background {
-                        Circle()
+                        RoundedRectangle(cornerRadius: 16, style: .continuous)
                             .fill(LinearGradient(colors: [Color(hex: 0xE9BC62), Tema.ambar, Color(hex: 0xCF9B3A)],
                                                  startPoint: .top, endPoint: .bottom))
                             .overlay {
-                                Circle().strokeBorder(
+                                RoundedRectangle(cornerRadius: 16, style: .continuous).strokeBorder(
                                     LinearGradient(colors: [.white.opacity(0.7), .white.opacity(0)],
                                                    startPoint: .top, endPoint: .center),
                                     lineWidth: 1)
                             }
-                            .overlay(Circle().strokeBorder(Tema.ambarTinta.opacity(0.18), lineWidth: 0.5))
+                            .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).strokeBorder(Tema.ambarTinta.opacity(0.18), lineWidth: 0.5))
                             .shadow(color: Tema.ambar.opacity(0.32), radius: 8, y: 4)
                             .shadow(color: Tema.sombraContato, radius: 1, y: 0.5)
                     }
-                    .contentShape(Circle())
+                    .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
             }
             .buttonStyle(PressaoDiscreta())
             .accessibilityIdentifier("nova-nota")
