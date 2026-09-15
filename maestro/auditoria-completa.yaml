@@ -46,7 +46,7 @@ appId: app.traco
     visible: "Recordar"
     timeout: 5000
 - takeScreenshot: /tmp/traco-verify/auditoria/12-recordar
-- tapOn: "voltar"
+- tapOn: "‹ Voltar"
 - swipe:
     start: 1%, 50%
     end: 85%, 50%

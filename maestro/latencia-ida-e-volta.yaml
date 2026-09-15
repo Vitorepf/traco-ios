@@ -81,7 +81,7 @@ appId: app.traco
 - tapOn: {id: "trabalho-voltar"}
 - waitForAnimationToEnd: {timeout: 1500}
 # a folha do Trabalho volta para a LISTA de trabalhos, que ainda cobre a barra
-- tapOn: "voltar"
+- tapOn: "‹ Voltar"
 - extendedWaitUntil:
     visible: {id: "aba-perfil"}
     timeout: 15000

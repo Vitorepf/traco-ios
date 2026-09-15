@@ -59,13 +59,11 @@ struct CabecalhoDeFolha<Titulo: View>: View {
             .accessibilityLabel("Fechar")
             .accessibilityIdentifier(prefixo.map { "\($0)-fechar" } ?? "")
         case .voltar:
+            // o mesmo desenho do "‹ Notas" da página: chevron tipográfico e
+            // a caixa das outras saídas (Pronto, Fechar) — "voltar" em
+            // minúscula era a nona palavra para sair (auditoria 15/09, 9)
             Button(action: aoSair) {
-                HStack(spacing: 5) {
-                    Image(systemName: "chevron.backward")
-                        .font(.subheadline.weight(.semibold))
-                    Text("voltar")
-                        .font(Tema.chrome)
-                }
+                Text("‹ Voltar").font(Tema.chrome).lineLimit(1).fixedSize()
             }
             .foregroundStyle(Tema.tinta)
             .alvo()
