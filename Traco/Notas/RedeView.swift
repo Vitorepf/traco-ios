@@ -61,7 +61,8 @@ struct RedeView: View {
         VStack(alignment: .leading, spacing: 20) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Ligações")
+                    // o mesmo nome do menu que abre a folha (auditoria 16/09 noite)
+                    Text("Notas ligadas")
                         .font(.title2.weight(.bold))
                         .tracking(-0.4)
                     Text(nota.tituloNaLista)
@@ -81,7 +82,7 @@ struct RedeView: View {
                             Text("Esta nota ainda não se liga a nenhuma.")
                                 .font(Tema.corpo)
                                 .foregroundStyle(Tema.tintaSuave)
-                            Text("Escreva [[o título de outra nota]] no texto, ou preencha “Liga a”. A ligação é sua; o app só a segue.")
+                            Text("Para ligar, escreva no texto o título de outra nota entre colchetes duplos: [[Título]].")
                                 .font(Tema.meta)
                                 .foregroundStyle(Tema.tintaFraca)
                         }
@@ -169,7 +170,6 @@ struct RedeView: View {
         } else if Politica.provedor(.ecos) == nil {
             // ADR 07b: a seção que não veio diz por quê, em vez de calar
             LinhaDeEstado(Politica.semProvedor(.ecos), .semConta)
-                .padding(.leading, 4)
                 .accessibilityIdentifier("rede-sem-provedor")
         }
     }

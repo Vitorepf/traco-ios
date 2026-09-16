@@ -204,7 +204,7 @@ enum Politica {
         // tentar de novo e não promete guardar nada — quem guardou o pedido é
         // que diz isso, depois de confirmar.
         case .responder: "Responder à sua pergunta pela IA está indisponível: ela ainda inventa uma situação que você não escreveu e, às vezes, só diz o que falta em vez de ajudar. O que você escreveu continua aqui, e a sua pergunta fica na nota."
-        case .ecos: "Ecos entre notas está indisponível: a IA ainda deixa de fora justamente as notas que mais tinham a ver. As suas notas continuam buscáveis pelo texto."
+        case .ecos: "Sugerir notas parecidas está indisponível: a IA deixava de fora justamente as que mais tinham a ver."
         case .calibragem: "Ler o seu juízo pela IA está indisponível: ela ainda não diz nada quando você não errou. Os seus pares de previsão e resultado continuam aqui para você comparar."
         case .recordar: "A pergunta do Recordar pela IA está indisponível: muitas vezes ela ainda não devolve pergunta nenhuma, e a que vem já entrega a resposta. O ritual segue com a pergunta fixa."
         case .instigar: "Instigar pela IA está indisponível: quando você diz que não sabe quando foi, ela pergunta assim mesmo. As perguntas do método continuam na página."
