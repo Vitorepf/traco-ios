@@ -33,8 +33,9 @@ struct CalendarioView: View {
         // Brasil depois de a…"): exemplo que não cabe não é exemplo
         // na linha única do pé o campo tem ~130 pt: o exemplo tem de caber
         if let r = Recomendacao.primeira(de: sistema.proximos, agenda.cal), r.count <= 12 { return r }
-        // o exemplo fixo lia como um segundo compromisso (auditoria 15/09, 12)
-        return "Marcar"
+        // o exemplo fixo lia como um segundo compromisso (auditoria 15/09, 12);
+        // a ação por extenso ocupa o campo sem inventar compromisso (dono, 16/09)
+        return "Novo compromisso"
     }
 
     init(agenda: CalendarioAgenda = CalendarioAgenda()) {
@@ -391,7 +392,7 @@ struct CalendarioView: View {
         // com o Hoje à vista a linha aperta: a dica encurta para "marcar" em
         // vez de sair cortada a meio ("Dentista 1…", vídeo de 14/09)
         let emHoje = agenda.hojeAVista(agora)
-        return CampoFlutuante(texto: $agenda.prosa, dica: emHoje ? dicaDoCampo : "Marcar", ditado: ditado,
+        return CampoFlutuante(texto: $agenda.prosa, dica: emHoje ? dicaDoCampo : "Novo compromisso", dicaCurta: "Marcar", ditado: ditado,
                        identificador: "calendario-prosa", identificadorDoBotao: "calendario-marcar",
                        rotuloEnviar: "Marcar o compromisso", rotuloDitar: "Ditar o compromisso",
                        aoEnviar: { agenda.adicionarDaProsa() }) {

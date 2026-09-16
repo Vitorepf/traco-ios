@@ -8,6 +8,10 @@ import SwiftUI
 struct CampoFlutuante<Mais: View>: View {
     @Binding var texto: String
     var dica: String
+    /// A dica longa ocupa o campo quando cabe; quando o campo aperta (o Hoje à
+    /// vista, iPhone estreito), vale a curta — nunca reticências no meio da
+    /// palavra (dono, 16/09: "vazio entre Marcar e o microfone").
+    var dicaCurta: String? = nil
     var ditado: Ditado
     var identificador: String
     var identificadorDoBotao: String? = nil
@@ -23,13 +27,20 @@ struct CampoFlutuante<Mais: View>: View {
     @ViewBuilder var mais: () -> Mais
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @FocusState private var focoProprio: Bool
+    @State private var larguraDoTexto: CGFloat = .infinity
+
+    private var dicaQueCabe: String {
+        guard let dicaCurta else { return dica }
+        let largura = (dica as NSString).size(withAttributes: [.font: UIFont.preferredFont(forTextStyle: .body)]).width
+        return largura <= larguraDoTexto ? dica : dicaCurta
+    }
 
     var body: some View {
         let temTexto = !texto.trimmingCharacters(in: .whitespaces).isEmpty
         HStack(spacing: 6) {
             mais()
             HStack(spacing: 4) {
-            TextField("", text: $texto, prompt: Text(dica).foregroundStyle(Tema.tintaFraca))
+            TextField("", text: $texto, prompt: Text(dicaQueCabe).foregroundStyle(Tema.tintaFraca))
                 // dono, 16/09: "tão fino que está feio" — o texto sobe ao corpo
                 // (17) na MESMA altura de 40; peso vem do tipo, não do tamanho
                 .font(.body)
@@ -40,6 +51,7 @@ struct CampoFlutuante<Mais: View>: View {
                 .onSubmit(aoEnviar)
                 .frame(minHeight: 32)
                 .padding(.leading, Mais.self == EmptyView.self ? 14 : 4)
+                .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { larguraDoTexto = $0 - (Mais.self == EmptyView.self ? 14 : 4) - 2 }
                 .accessibilityIdentifier(identificador)
                 .accessibilityLabel(dica)
                 .accessibilityValue(texto.isEmpty ? "vazio" : texto)
@@ -64,7 +76,9 @@ struct CampoFlutuante<Mais: View>: View {
                 // camadas (dono, 14/09: "clean, ultra premium"); com texto, o
                 // enviar é o único objeto escuro — um disco carvão pequeno
                 Image(systemName: aoParar != nil ? "stop.fill" : temTexto ? "arrow.up" : (ditado.gravando ? "stop.fill" : "mic"))
-                    .font(aoParar != nil || temTexto || ditado.gravando ? .footnote.weight(.bold) : .body.weight(.medium))
+                    // dono, 16/09: o microfone ocioso "fino" — sobe a 19 semibold, o peso
+                    // dos glifos do trilho
+                    .font(aoParar != nil || temTexto || ditado.gravando ? .footnote.weight(.bold) : .system(size: 19, weight: .semibold))
                     .contentTransition(.symbolEffect(.replace))
                     .foregroundStyle(aoParar != nil || temTexto || ditado.gravando ? .white : Tema.tinta)
                     .frame(width: 30, height: 30)
