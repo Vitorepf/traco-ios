@@ -473,7 +473,7 @@ struct CalendarioSemanaView: View {
                 .padding(.leading, 7)
                 .frame(width: w, height: h, alignment: .leading)
                 .desvanece(12)
-                .background(CalendarioTema.fundo(de: evento))
+                .background(CalendarioTema.fundoSobreChip(de: evento))
                 .clipShape(Capsule())
                 .overlay { if CalendarioTema.temContorno(evento) { Capsule().strokeBorder(CalendarioTema.contorno(de: evento), lineWidth: 1) } }
                 .frame(height: Tema.alvo)

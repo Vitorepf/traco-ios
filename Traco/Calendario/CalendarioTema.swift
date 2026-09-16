@@ -101,6 +101,13 @@ enum CalendarioTema {
         return evento.eDeixa ? cartao : fundo(de: evento.dominio)
     }
 
+    /// Na faixa da semana o fundo já é o chip: o compromisso sem cor de domínio
+    /// sumia cinza sobre cinza (auditoria 16/09 noite) e passa ao cartão.
+    static func fundoSobreChip(de evento: EventoCalendario) -> Color {
+        guard !evento.doSistema, !evento.eDeixa, evento.dominio == nil || evento.dominio == .ideias else { return fundo(de: evento) }
+        return cartao
+    }
+
     static func tinta(de evento: EventoCalendario) -> Color {
         if evento.doSistema { return tintaSuave }
         return evento.eDeixa ? tinta : tinta(de: evento.dominio)
