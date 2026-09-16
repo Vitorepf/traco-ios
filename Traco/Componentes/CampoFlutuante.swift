@@ -30,7 +30,9 @@ struct CampoFlutuante<Mais: View>: View {
             mais()
             HStack(spacing: 4) {
             TextField("", text: $texto, prompt: Text(dica).foregroundStyle(Tema.tintaFraca))
-                .font(Tema.meta)
+                // dono, 16/09: "tão fino que está feio" — o texto sobe ao corpo
+                // (17) na MESMA altura de 40; peso vem do tipo, não do tamanho
+                .font(.body)
                 .foregroundStyle(Tema.tinta)
                 .tint(Tema.ambar)
                 .textInputAutocapitalization(.sentences)
@@ -62,10 +64,10 @@ struct CampoFlutuante<Mais: View>: View {
                 // camadas (dono, 14/09: "clean, ultra premium"); com texto, o
                 // enviar é o único objeto escuro — um disco carvão pequeno
                 Image(systemName: aoParar != nil ? "stop.fill" : temTexto ? "arrow.up" : (ditado.gravando ? "stop.fill" : "mic"))
-                    .font(aoParar != nil || temTexto || ditado.gravando ? .caption2.weight(.bold) : .footnote.weight(.medium))
+                    .font(aoParar != nil || temTexto || ditado.gravando ? .footnote.weight(.bold) : .body.weight(.medium))
                     .contentTransition(.symbolEffect(.replace))
-                    .foregroundStyle(aoParar != nil || temTexto || ditado.gravando ? .white : Tema.tintaSuave)
-                    .frame(width: 26, height: 26)
+                    .foregroundStyle(aoParar != nil || temTexto || ditado.gravando ? .white : Tema.tinta)
+                    .frame(width: 30, height: 30)
                     .background {
                         // o disco se LEVANTA do poço, como a escala escolhida
                         if aoParar != nil || temTexto || ditado.gravando {
@@ -90,7 +92,9 @@ struct CampoFlutuante<Mais: View>: View {
         // própria Apple, o mesmo da pílula e do botão âmbar — um material só no
         // pé, sem sombra desenhada à mão somando cinza no papel.
         .padding(4)
-        .glassEffect(.regular.interactive(), in: .capsule)
+        // dono, 16/09: sólido sem sair do vidro — um véu de papel dá corpo ao
+        // material fino, sem borda nem sombra desenhada
+        .glassEffect(.regular.tint(.white.opacity(0.35)).interactive(), in: .capsule)
     }
 }
 

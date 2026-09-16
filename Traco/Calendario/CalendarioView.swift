@@ -294,7 +294,7 @@ struct CalendarioView: View {
                 Button("Colar") { agenda.colar() }
             } label: {
                 Image(systemName: agenda.modo == .lista ? "calendar" : "list.bullet")
-                    .font(.subheadline.weight(.semibold))
+                    .font(.body.weight(.semibold))
                     .foregroundStyle(CalendarioTema.tinta)
                     .frame(width: 32, height: 32)
                     .contentShape(Rectangle())
@@ -320,9 +320,9 @@ struct CalendarioView: View {
                         // o trilho respira dentro da cápsula de 44: 32 de trilho,
                         // 28 de disco (antes enchia os 44 e encostava nas bordas)
                         Text(escala.letra)
-                            .font(CalendarioTema.escala)
-                            .foregroundStyle(ligado ? .white : CalendarioTema.tintaSuave)
-                            .frame(width: 28, height: 28)
+                            .font(.body.weight(.semibold))
+                            .foregroundStyle(ligado ? .white : CalendarioTema.tinta)
+                            .frame(width: 30, height: 30)
                             .background {
                                 if ligado {
                                     Circle()
