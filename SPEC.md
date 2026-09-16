@@ -10440,3 +10440,15 @@ A rota `responderNasNotas` distingue identidade, material e afirmação. ID vál
 **Não muda:** a ponte de sinônimos (nada ampliado olhando fixture ou reserva), a E2, nenhuma tela.
 
 **Dívida:** a alavanca seguinte — reordenar as 10 melhores pelo modelo escolhendo SÓ o índice, em segundo plano, com o cartão continuando literal — precisa de medida com a conta viva, que mora no Air (onde a suíte não roda); fica para uma volta no aparelho da conta. Até lá o sinal `exposto` é hipótese, não conselho. "Uma vez por nota" vale dentro da janela de 500 sinais: uma Decisão reaberta depois disso ganha outra exposição.
+
+## ADR 2026-09-16e — O resultado ajusta as regras; o «serviu», nunca
+
+**Causa.** Aprender por aprovação ("serviu") vira sicofancia: a regra que agrada sobe, a que funciona não. O único juízo que ensina é o que o autor escreve DEPOIS, no mundo: o que aconteceu e o saldo da Decisão.
+
+**Decisão.** Na volta da Decisão com `Sinal.exposto`, `aconteceu` escrito e `saldo` que COMEÇA por aquém, igual ou além (com ou sem "ficou"; "não ficou aquém", "nada além do esperado" e duas respostas não contam), `Sessao.registrarConselho` grava `Sinal.resultado` com a chave da regra exposta e o saldo; o saldo corrigido substitui (vale o último da nota). `Conselho.pesos` lê SÓ `resultado` — aquém ×0,6, igual ×1, além ×1,25, entre 0,2 e 2 — e o peso multiplica a nota do BM25 na exposição seguinte e no recorte da obra na rota das Notas. A exposição escolhe a melhor seção ADMITIDA (um peso não põe na frente a que a decisão mal toca); uma Decisão cuja volta já estava escrita não é exposta depois do fato; a janela de 500 sinais despeja primeiro o que não é exposição nem resultado.
+
+**Prova:** `ResultadoAjustaRegrasTests` — a regra que falhou duas vezes deixa o primeiro lugar e a escolha não cala (vermelho visto com aquém ×1,0: 3 falhas); «não serviu» em `resposta`/`pergunta`/`exposto` não gera peso; ponta a ponta: sem saldo legível nada, "Aquém" uma vez, correção para "igual" volta o peso a 1, 600 sinais depois exposição e resultados continuam. Revisão adversária (confirmado e corrigido): peso calava a exposição, saldo lido ao contrário com negação, exposição e resultado despejados pela janela, exposição depois do fato, saldo congelado, teste que passava com `nil`. Suíte 1239/0.
+
+**Não muda:** o Retrato continua a contar a calibragem por palavras de sinal (grosseiro de propósito); nada aparece ao autor.
+
+**Dívida:** a exposição não se refaz se escolha, opções ou critério forem reescritos depois; o peso vale por regra, não por tipo de decisão.

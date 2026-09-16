@@ -21,6 +21,9 @@ nonisolated struct Sinal: Codable, Sendable, Equatable, Identifiable {
         /// ADR 16d: a regra de obra que a Decisão concluída achou, em sombra —
         /// registrada, nunca mostrada
         case exposto
+        /// ADR 16e: o autor escreveu o que aconteceu e o saldo numa Decisão
+        /// com regra exposta — a regra ganha esse saldo. Nunca vem do «serviu».
+        case resultado
     }
 
     var id: UUID = UUID()
@@ -44,6 +47,8 @@ nonisolated struct Sinal: Codable, Sendable, Equatable, Identifiable {
     var regra: String?
     var contraria: String?
     var porque: [String]?
+    /// `resultado`: "aquem", "igual" ou "alem" — o saldo nas palavras da forma.
+    var saldo: String?
 }
 
 nonisolated enum Sinais {
@@ -76,7 +81,12 @@ nonisolated enum Sinais {
         // diário inteiro do autor sumia. Arquivo ilegível não se sobrescreve.
         guard var lista = ler() else { return false }
         lista.append(sinal)
-        if lista.count > teto { lista.removeFirst(lista.count - teto) }
+        // a janela despeja primeiro o que não é conselho: sem a exposição, a
+        // volta da Decisão não acha a regra; sem o resultado, o peso volta a 1
+        while lista.count > teto {
+            let i = lista.firstIndex { $0.tipo != .exposto && $0.tipo != .resultado } ?? lista.startIndex
+            lista.remove(at: i)
+        }
         return gravar(lista)
     }
 

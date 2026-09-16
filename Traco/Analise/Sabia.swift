@@ -233,8 +233,10 @@ enum Sabia {
         if let recusa = GuardaDeObra.recusarSeConsultaInsuficiente(pergunta: pergunta, fontes: fontes) {
             return recusa
         }
+        // ADR 16e: o resultado no mundo pesa na escolha das seções da obra
         guard let pacote = RespostaNotas.montar(pergunta: pergunta, fontes: fontes, conversa: conversa,
-                                                catalogo: catalogo, retrato: retrato, teto: 16_000)
+                                                catalogo: catalogo, retrato: retrato, teto: 16_000,
+                                                pesos: Conselho.pesos(Sinais.todos()))
         else { return nil }
         if let recusa = GuardaDeObra.recusarSeConsultaInsuficiente(pergunta: pergunta, fontes: pacote.fontes) {
             return recusa

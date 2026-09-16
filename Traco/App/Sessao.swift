@@ -1911,9 +1911,24 @@ final class Sessao {
         guard nota.origem == .autor, !nota.fechada,
               let consulta = Conselho.consulta(gesto: nota.gesto, campos: nota.campos) else { return }
         let sinais = Sinais.todos()
-        guard !sinais.contains(where: { $0.tipo == .exposto && $0.nota == nota.uuid }) else { return }
+        if let exposto = sinais.last(where: { $0.tipo == .exposto && $0.nota == nota.uuid }) {
+            // ADR 16e: a volta — "aconteceu" e "saldo" escritos dão à regra
+            // exposta o saldo, uma vez; o «serviu» não passa por aqui
+            let aconteceu = (nota.campos["aconteceu"] ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            // o saldo corrigido substitui (`pesos` lê o último da nota); o mesmo não se repete
+            guard !aconteceu.isEmpty, let saldo = Conselho.saldo(nota.campos["saldo"] ?? ""),
+                  sinais.last(where: { $0.tipo == .resultado && $0.nota == nota.uuid })?.saldo != saldo.rawValue
+            else { return }
+            Sinais.registrar(Sinal(tipo: .resultado, forma: nota.gestoRaw, nota: nota.uuid,
+                                   regra: exposto.regra, saldo: saldo.rawValue))
+            return
+        }
+        // a volta já escrita antes da exposição: a regra escolhida agora não
+        // estava lá quando ele decidiu — não se expõe depois do fato (revisão E4)
+        guard (nota.campos["aconteceu"] ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
         let obras = ((try? context.fetch(FetchDescriptor<Nota>())) ?? []).filter { $0.origem == .obra && !$0.fechada }
-        guard let achado = Conselho.escolher(consulta: consulta, obras: obras.map(\.texto), pesos: [:]) else { return }
+        guard let achado = Conselho.escolher(consulta: consulta, obras: obras.map(\.texto),
+                                             pesos: Conselho.pesos(sinais)) else { return }
         Sinais.registrar(Sinal(tipo: .exposto, forma: nota.gestoRaw, texto: achado.regra.secao.texto,
                                nota: nota.uuid, regra: achado.regra.secao.chave,
                                contraria: achado.outra?.secao.texto, porque: achado.regra.termos))
