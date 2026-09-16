@@ -628,10 +628,11 @@ struct NotasView: View {
         CampoFlutuante(texto: Bindable(conversaNotas).busca, dica: "Fale com o Traço", ditado: ditado,
                        identificador: "busca-notas", identificadorDoBotao: busca.isEmpty ? "ditar-notas" : "perguntar-notas",
                        rotuloEnviar: "Perguntar à sábia", rotuloDitar: "Ditar", aoEnviar: perguntarDaBusca)
-            // centrado na tela, com a largura da pílula (dono, 15/09: "tá muito
-            // à esquerda e ficou espaço à direita"): margem + metade do âmbar
-            .padding(.horizontal, Tema.margem + (Tema.barraNav + Tema.entreItens) / 2)
-            .padding(.bottom, 2)
+            // a largura exata do pé (abas + botão de escrever), centrado: as
+            // pontas do campo alinham com as pontas da fileira de baixo
+            .frame(width: Tema.larguraDoPe)
+            .frame(maxWidth: .infinity)
+            .padding(.bottom, Tema.doca - 14)   // 1u até o Dock, a folga da grade
             .onAppear { ditado.aoTexto = { [conversaNotas] falado in conversaNotas.busca = falado } }
             .onDisappear { ditado.parar() }
     }

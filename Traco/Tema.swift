@@ -129,7 +129,26 @@ enum Tema {
     static let entreSecoes: CGFloat = 32
     static let alvo: CGFloat = 44
     /// SPEC §20: altura da barra inferior — o encaixe que mantém TODA tela acima dela.
-    static let barraNav: CGFloat = 52
+    #if TRACO_APP
+    // MARK: - O Dock (dono, 15/09)
+    //
+    // Leve e de ponta a ponta: o pé ocupa a largura da tela menos as margens;
+    // o Dock tem 60 pt e o botão de escrever é um quadrado de 60 ao lado, a 8
+    // pt. Dentro do Dock, quatro abas de 44 distribuídas por igual — a folga
+    // da borda até a primeira é a mesma folga entre elas. A seleção fica a 8
+    // pt de cima e de baixo. Cantos concêntricos: Dock e botão 20, seleção 12.
+    // (A versão de 80 pt, com tudo em múltiplos de W/38, ficou pesada.)
+    static var larguraDoPe: CGFloat { UIScreen.main.bounds.width - 2 * margem }
+    static let doca: CGFloat = 8
+    static let ladoDaAba: CGFloat = 44
+    static let barraNav: CGFloat = 60
+    static let raioDoca: CGFloat = 20
+    static let raioDaAba: CGFloat = raioDoca - doca                      // 12
+    /// A folga entre as abas, igual à da borda: (Dock − 4 abas) ÷ 5.
+    static var folgaDasAbas: CGFloat {
+        (larguraDoPe - barraNav - doca - 4 * ladoDaAba) / 5
+    }
+    #endif
     static let margem: CGFloat = 20
     /// O TextEditor traz ~5pt de recuo interno: sem compensar, a linha editada
     /// nasce num degrau à direita do portal vizinho (medido: 26pt vs 21pt na

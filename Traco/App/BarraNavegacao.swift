@@ -54,8 +54,8 @@ struct BarraNavegacao: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
-        HStack(spacing: Tema.entreItens) {
-            HStack(spacing: 0) {
+        HStack(spacing: Tema.doca) {
+            HStack(spacing: Tema.folgaDasAbas) {
                 ForEach(Aba.naBarra) { item in
                     let aceso = aba == item
                     Button {
@@ -82,38 +82,33 @@ struct BarraNavegacao: View {
                 // glifo cheio em branco. É uma camada inteira recortada pela
                 // cápsula que anda — o glifo nunca fica branco sobre branco
                 // enquanto ela chega, e nenhum quadro fica sem aba acesa.
-                HStack(spacing: 0) {
+                HStack(spacing: Tema.folgaDasAbas) {
                     ForEach(Aba.naBarra) { glifo($0).symbolVariant(.fill) }
                 }
                 .foregroundStyle(.white)
                 .background(Tema.chipAtivo)
                 .mask {
-                    GeometryReader { g in
-                        let largura = g.size.width / CGFloat(Aba.naBarra.count)
-                        let lado = min(g.size.height, largura)
-                        // dono, 15/09: a seleção na forma de ícone do iPhone
-                        // (superelipse), um quadrado centrado no glifo — a mesma
-                        // forma do botão de escrever. O losango foi provado e
-                        // preterido: apertava o glifo e era uma terceira forma.
-                        Superelipse()
-                            .frame(width: lado, height: lado)
-                            .offset(x: largura * CGFloat(Aba.naBarra.firstIndex(of: aba) ?? 0) + (largura - lado) / 2,
-                                    y: (g.size.height - lado) / 2)
-                            // `escala`, não `toque`: a de 0,65 passava da borda da
-                            // pílula e saía cortada reta na viagem de três casas
-                            .animation(Tema.movimento(.deslocamento, Tema.Mola.escala, reduzido: reduceMotion), value: aba)
-                    }
+                    // dono, 15/09: a seleção na forma de ícone, um quadrado
+                    // centrado no glifo — a mesma forma do botão de escrever. O
+                    // losango foi provado e preterido: apertava o glifo e era uma
+                    // terceira forma. Lado e passo são fixos: não há o que medir.
+                    RoundedRectangle(cornerRadius: Tema.raioDaAba, style: .continuous)
+                        .frame(width: Tema.ladoDaAba, height: Tema.ladoDaAba)
+                        .offset(x: (Tema.ladoDaAba + Tema.folgaDasAbas) * CGFloat(Aba.naBarra.firstIndex(of: aba) ?? 0))
+                        // `escala`, não `toque`: a de 0,65 passava da borda da
+                        // pílula e saía cortada reta na viagem de três casas
+                        .animation(Tema.movimento(.deslocamento, Tema.Mola.escala, reduzido: reduceMotion), value: aba)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                 }
                 .allowsHitTesting(false)
                 .accessibilityHidden(true)
             }
-            .padding((Tema.barraNav - Tema.alvo) / 2)
-            // o vidro do sistema (iOS 26+): o mesmo material do campo acima —
-            // a sombra desenhada à mão deixava uma faixa cinza sob o pé
-            // dono, 15/09: "tudo mais quadrado, como os apps e widgets" — a
-            // pílula é o Dock do Traço: cantos contínuos, raio 18 em 52 pt —
-            // a proporção do Dock do iPhone (medida na captura do dono)
-            .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            // a folga da borda até a primeira aba é a folga entre as abas;
+            // em cima e embaixo, 8 pt até a seleção
+            .padding(.horizontal, Tema.folgaDasAbas)
+            .padding(.vertical, Tema.doca)
+            // o vidro do sistema, cantos contínuos concêntricos com a seleção
+            .glassEffect(.regular, in: RoundedRectangle(cornerRadius: Tema.raioDoca, style: .continuous))
 
             // ação, não destino: círculo âmbar, uma vez na tela, glifo escuro
             // por cima (7,6:1). `law-of-similarity` — o que FAZ não pode
@@ -127,11 +122,11 @@ struct BarraNavegacao: View {
                 // forma dos ícones do iPhone. A identidade fica no TRAÇO: o
                 // glifo em âmbar-tinta (5,8:1), o âmbar onde o autor escreve.
                 Image(systemName: Aba.escrever.icone)
-                    .font(.system(size: 20, weight: .medium))
+                    .font(.system(size: 24, weight: .medium))
                     .foregroundStyle(Tema.ambarTinta)
                     .frame(width: Tema.barraNav, height: Tema.barraNav)
-                    .glassEffect(.regular.interactive(), in: Superelipse())
-                    .contentShape(Superelipse())
+                    .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: Tema.raioDoca, style: .continuous))
+                    .contentShape(RoundedRectangle(cornerRadius: Tema.raioDoca, style: .continuous))
             }
             .buttonStyle(PressaoDiscreta())
             .accessibilityIdentifier("nova-nota")
@@ -159,8 +154,10 @@ struct BarraNavegacao: View {
 
     private func glifo(_ item: Aba) -> some View {
         Image(systemName: item.icone)
-            .font(.system(size: 21))
-            .frame(maxWidth: .infinity, minHeight: Tema.alvo)
+            // o glifo ocupa ~46 % do quadrado, como o desenho de um ícone no
+            // Dock (dono, 15/09: "os ícones talvez muito pequenos")
+            .font(.system(size: 24))
+            .frame(width: Tema.ladoDaAba, height: Tema.ladoDaAba)
             .contentShape(Capsule())
     }
 }

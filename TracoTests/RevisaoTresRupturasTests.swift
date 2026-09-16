@@ -5,7 +5,11 @@ import Testing
 
 @MainActor @Suite(.serialized)
 struct RevisaoTresRupturasTests {
-    @Test func plantarChegaAConsultaRealSemFonteManual() async throws {
+    // o 17e do Xcode 27 não traz o embedding de palavras em português: sem
+    // ele o teste não mede a recuperação — pula, dizendo por quê, em vez de
+    // falhar a suíte por falta de instrumento
+    @Test(.enabled(if: Indice.disponivel, "sem NLEmbedding PT no aparelho: o instrumento não alcança a recuperação"))
+    func plantarChegaAConsultaRealSemFonteManual() async throws {
         let raiz = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at: raiz, withIntermediateDirectories: true)
         let indice = Indice.url, corpus = Corpus.diretorio
@@ -21,7 +25,6 @@ struct RevisaoTresRupturasTests {
             Corpus.diretorio = corpus; PastaEspelho.defaults = espelho
             defaults.removePersistentDomain(forName: nomeDefaults)
         }
-        try #require(Indice.disponivel, "sem embedding: instrumento não alcança a recuperação")
         let c = try ModelContainer.traco(emMemoria: true), s = Sessao()
         let nome = "Tratado do Pensamento e Planejamento"
         let n = try #require(s.plantarObra(nome, no: c.mainContext))
