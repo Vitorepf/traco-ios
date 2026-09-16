@@ -8,9 +8,9 @@ A [visão vigente](VISAO-PRODUTO.md), consolidada com o criador em 05/09/2026,
 define os dois ciclos: **multiplicar a capacidade de realizar agora** e
 **melhorar capacidades relevantes para multiplicar mais no futuro**. Notas,
 calendário, métodos, segundo cérebro e Markdown são partes desse sistema.
-O Traço junta [cinco tipos de app](VISAO-PRODUTO.md#cinco-tipos-de-app-num-caderno-só)
-— caderno, segundo cérebro (a base), biblioteca com IA, diário de decisões e
-tutor com IA — e o diferencial está em ligá-los.
+O Traço junta [seis tipos de app](VISAO-PRODUTO.md#seis-tipos-de-app-num-caderno-só)
+— caderno, segundo cérebro (a base), biblioteca com IA, diário de decisões,
+tutor com IA e fazer (Trabalho e Calendário) — e o diferencial está em ligá-los.
 HTML pode ampliar suas representações e artefatos interativos.
 
 **Direção não é implementação concluída.** A base atual oferece escrita,

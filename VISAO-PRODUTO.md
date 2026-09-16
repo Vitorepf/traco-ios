@@ -10,9 +10,9 @@ A amplitude é intencional: criação, raciocínio, planejamento, estratégia, l
 
 O Traço deve encurtar o caminho entre intenção e resultado com clareza, boa divisão de trabalho, métodos pertinentes e verificação. Um artefato pronto, uma ação executada e um resultado no mundo são avanços diferentes. A aplicação deve mostrar qual deles ocorreu. Resultados que dependem de outras pessoas, condições materiais ou tempo não podem ser declarados alcançados apenas porque a IA produziu um plano convincente.
 
-## Cinco tipos de app num caderno só
+## Seis tipos de app num caderno só
 
-Decisão de 16/09/2026, com o criador. Não há nome de mercado para o Traço porque ele fica no cruzamento de cinco tipos de app que hoje existem separados. Cada um faz bem uma parte e falha exatamente onde o outro começa:
+Decisão de 16/09/2026, com o criador. Não há nome de mercado para o Traço porque ele fica no cruzamento de seis tipos de app que hoje existem separados. Cada um faz bem uma parte e falha exatamente onde o outro começa:
 
 | Tipo | Exemplos | O que falta nele | O que o Traço toma dele |
 |---|---|---|---|
@@ -21,10 +21,11 @@ Decisão de 16/09/2026, com o criador. Não há nome de mercado para o Traço po
 | **Biblioteca com IA** | NotebookLM, Readwise, Recall | Guarda os mestres, mas não sabe da sua vida | As obras dos mestres como consulta com fonte (vídeo, minuto), nunca como voz do autor (ADR 16a) |
 | **Diário de decisões** | Planilha de decisões | Não traz conselho nem aprende sozinho | A Decisão com data de conferir e o «o que aconteceu» que volta (ADR 05b, 16e) |
 | **Tutor com IA** | ChatGPT como estudo | Esquece você e pensa por você | A IA que pergunta, contrapõe e ensina sem escrever como o autor (ADR o, 14a) |
+| **Fazer** | Things, Fantastical, Notion (projetos) | Organiza a ação, mas não sabe o que você pensou nem decidiu antes dela | Trabalho (a spec de um projeto, versões, entregas) e Calendário (agenda, avisos, widget): onde o pensamento vira ação |
 
-**O segundo cérebro é a base.** É a memória que torna os outros quatro possíveis: sem ela não há mestre certo na hora certa nem resultado para comparar. É também o tipo mais disputado — como segundo cérebro puro, o Traço compete de igual para igual com apps que fazem isso há anos.
+**O segundo cérebro é a base.** É a memória que torna os outros possíveis: sem ela não há mestre certo na hora certa nem resultado para comparar. É também o tipo mais disputado — como segundo cérebro puro, o Traço compete de igual para igual com apps que fazem isso há anos.
 
-**O diferencial fica em cima da base.** A decisão que você escreve encontra, na hora e com a fonte, o que seus mestres disseram, e depois é confrontada com o que de fato aconteceu. Nenhum dos cinco tipos faz isso sozinho, porque nenhum junta a sua escrita, o acervo dos mestres e o resultado. Nome sugerido para a categoria: **um conselho de mestres que vive no seu caderno.**
+**O diferencial fica em cima da base.** A decisão que você escreve encontra, na hora e com a fonte, o que seus mestres disseram, e depois é confrontada com o que de fato aconteceu. Nenhum dos seis tipos faz isso sozinho, porque nenhum junta a sua escrita, o acervo dos mestres e o resultado. Nome sugerido para a categoria: **um conselho de mestres que vive no seu caderno.**
 
 **Estado em 16/09/2026 (datado, não certificado):**
 - *Caderno:* forte — 28 formas reconhecidas sem menu.
@@ -32,6 +33,7 @@ Decisão de 16/09/2026, com o criador. Não há nome de mercado para o Traço po
 - *Biblioteca:* 75 regras conferidas de Hormozi e Lenny; o Grok escolhe a regra certa em 38 de 40 (ADR 16g).
 - *Diário de decisões:* a Decisão cobra a conferência na data e o resultado ajusta as regras (ADR 16e).
 - *Tutor:* instigar e contrapor seguem cortados por qualidade (ADR 08q).
+- *Fazer:* Calendário é a parte mais polida (dia, semana, mês, ano, widget, avisos); Trabalho tem spec, versões e entregas. Os cinco primeiros ajudam a pensar e decidir; o sexto transforma em ação — nenhum dos dois é congelado (dono, 16/09).
 
 Uma mudança que fortalece só um tipo isolado, sem ligá-lo aos outros, tende a copiar um concorrente. A que aproxima dois tipos — a nota que encontra o mestre, a decisão que volta com o resultado — é a que só o Traço pode fazer.
 
@@ -143,3 +145,4 @@ Uma função pode servir principalmente a um dos ciclos; não precisa anexar um 
 Exemplos de decisão: gerar código e um protótipo para a empresa desejada pode pertencer; exigir que a pessoa memorize esse código para liberar a entrega, sem objetivo de aprendizagem, não. Preparar frases e um ensaio para praticar idioma pode pertencer; marcar a fluência como alcançada porque houve três respostas, não. Adicionar um método exige pertinência e proveniência; copiá-lo de uma lista de concorrentes não basta.
 
 Estas perguntas são um critério de desenvolvimento, não telas obrigatórias nem ritual de autorização. Instruções de entrada do repositório: [AGENTS.md](AGENTS.md). A restrição local de uma ferramenta existente não redefine a finalidade global: se faltar uma rota compatível com autoria e proteção, evoluir o contrato e demonstrá-la, em vez de negar a finalidade ou remover guardas indiscriminadamente.
+
