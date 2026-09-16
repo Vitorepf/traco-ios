@@ -286,15 +286,19 @@ struct CalendarioSemanaView: View {
     private let origem = 0
     private let span = 24 * 60
 
-    /// O chrome flutuante cobre este tanto do fundo: a última linha fica acima dele.
-    static let reservaChrome: CGFloat = 150
+    /// O pé cobre este tanto do fundo das grades: o campo de 40 pt desce 6
+    /// para dentro da reserva do Dock (34 à vista) e a grade para 12 acima dele,
+    /// a mesma folga entre o campo e o Dock. Era 150 do pé de duas linhas, e
+    /// semana, mês e ano deixavam um vão enorme com o conteúdo espremido
+    /// (dono, 16/09).
+    static let reservaChrome: CGFloat = 46
 
     var body: some View {
         let mapa = agenda.porDia
         GeometryReader { geo in
             // as linhas crescem até 76 pt para ocupar a tela: com o teto de 52
             // a metade de baixo ficava vazia (auditoria 15/09, 14)
-            let alturaLinha = min(76,
+            let alturaLinha = min(92,
                                   max(40, (geo.size.height - Self.reservaChrome - 14 - 8 - 6 * 8) / 7))
             VStack(alignment: .leading, spacing: 8) {
                 cabecalhoHoras
@@ -339,7 +343,8 @@ struct CalendarioSemanaView: View {
                     agenda.ir(para: .dia)
                 }
             } label: {
-                CalendarioChipDia(dia: dia, activo: activo, hoje: hoje, cal: agenda.cal, compacto: true)
+                // com a linha alta o chip volta ao tamanho do dia (44), com a letra
+                CalendarioChipDia(dia: dia, activo: activo, hoje: hoje, cal: agenda.cal, compacto: alturaLinha < 60)
                     .matchedGeometryEffect(id: idDia(dia, agenda.cal), in: morph, isSource: agenda.escala == .semana)
             }
             .buttonStyle(PressaoClara())
@@ -410,7 +415,10 @@ struct CalendarioSemanaView: View {
             // Três ao mesmo tempo é o teto visível; o quarto conta no "+n".
             let maisPistas = min(3, max(1, (marcados.map(\.indice).max() ?? 0) + 1))
             let pistas = maisPistas + (inteiros.isEmpty ? 0 : 1)
-            let alturaPilula: CGFloat = pistas <= 1 ? 22 : (pistas == 2 ? 20 : 14)
+            // a pílula cresce com a faixa: na linha alta o nome se lê inteiro
+            let alturaPilula: CGFloat = pistas <= 1 ? min(30, max(22, altura * 0.38))
+                : pistas == 2 ? min(26, max(20, (altura - 14) / 2 - 2))
+                : max(14, min(20, (altura - 12) / 3 - 2))
             let passo = alturaPilula + 2
             let topo = -CGFloat(pistas - 1) / 2 * passo
             ForEach(Array(inteiros.prefix(1))) { evento in
@@ -435,7 +443,7 @@ struct CalendarioSemanaView: View {
             agenda.abrir(evento)
         } label: {
             Text(evento.titulo)
-                .font(.system(size: h < 18 ? 9 : 11, weight: .semibold))
+                .font(.system(size: h < 18 ? 9 : (h < 24 ? 11 : 12), weight: .semibold))
                 .foregroundStyle(CalendarioTema.tinta(de: evento))
                 .lineLimit(1)
                 .fixedSize(horizontal: true, vertical: false)
@@ -461,7 +469,8 @@ struct CalendarioSemanaView: View {
         let inicio = Calendario.minutosDoDia(evento.inicio, agenda.cal)
         let fim = Calendario.minutosDoDia(evento.fim, agenda.cal)
         let bruto = CGFloat(max(20, fim - inicio)) / CGFloat(span) * largura
-        let w = min(largura - 8, max(48, bruto))
+        // 60 pt de mínimo: numa linha alta o nome de uma palavra cabe inteiro
+        let w = min(largura - 8, max(60, bruto))
         let x = min(max(4, fracao(inicio) * largura), max(4, largura - w - 4))
         return (x, w)
     }
@@ -488,7 +497,7 @@ struct CalendarioMesView: View {
             withAnimation(CalendarioTema.morph(reduceMotion)) { agenda.ir(dia: novo) }
         }
     }
-    @ScaledMetric(relativeTo: .caption2) private var tamChip: CGFloat = 10
+    @ScaledMetric(relativeTo: .caption2) private var tamChip: CGFloat = 11
 
     var body: some View {
         let mapa = agenda.porDia
@@ -505,7 +514,7 @@ struct CalendarioMesView: View {
             HStack(spacing: 4) {
                 ForEach(Array(Calendario.letrasDaSemana(agenda.cal).enumerated()), id: \.offset) { _, letra in
                     Text(letra)
-                        .font(CalendarioTema.letra)
+                        .font(CalendarioTema.meta)
                         .foregroundStyle(CalendarioTema.tintaFraca)
                         .frame(maxWidth: .infinity)
                 }
@@ -535,7 +544,12 @@ struct CalendarioMesView: View {
         let noMes = Calendario.mesmoMes(dia, agenda.ancora, agenda.cal)
         let activo = Calendario.mesmoDia(dia, agenda.ancora, agenda.cal)
         let hoje = Calendario.eHoje(dia, agora: agora, agenda.cal)
-        let visiveis = Array(eventos.prefix(2))
+        // cabem tantas etiquetas quanto a célula alta comporta: número (28 + 3),
+        // uma linha guardada para o "+n", e o resto em etiquetas de tamChip + 9
+        // quando todos cabem, o "+n" não guarda linha
+        let semMais = max(1, Int((altura - 31) / (tamChip + 9)))
+        let cabem = eventos.count <= semMais ? semMais : max(1, Int((altura - 31 - (tamChip + 2)) / (tamChip + 9)))
+        let visiveis = Array(eventos.prefix(cabem))
         let extra = eventos.count - visiveis.count
 
         return Button {
@@ -632,25 +646,45 @@ struct CalendarioAnoView: View {
             withAnimation(CalendarioTema.morph(reduceMotion)) { agenda.ir(dia: novo) }
         }
     }
-    @ScaledMetric(relativeTo: .caption2) private var tamDia: CGFloat = 8
+    /// O ano ocupa a tela inteira: as quatro linhas de meses dividem a altura
+    /// acima do pé, e o número cresce com a célula (dono, 16/09: "tem um
+    /// espaço enorme, enquanto todo o espaço dele é comprimido").
+    private struct Medida {
+        // margem + respiro = 18: o "Jan" alinha com o título do ano
+        static let margem: CGFloat = 14, colunas: CGFloat = 6, linhas: CGFloat = 10, respiro: CGFloat = 4, titulo: CGFloat = 20
+        let celulaL: CGFloat, celulaA: CGFloat, fonte: CGFloat
+        init(largura: CGFloat, altura: CGFloat) {
+            let cartaoL = (largura - 2 * Self.margem - 2 * Self.colunas) / 3
+            let cartaoA = (altura - CalendarioSemanaView.reservaChrome - 3 * Self.linhas) / 4
+            celulaL = max(10, (cartaoL - 2 * Self.respiro) / 7)
+            // a célula não passa de 1,3 da largura: número espichado não é leitura
+            celulaA = min(celulaL * 1.3, max(13, (cartaoA - 2 * Self.respiro - Self.titulo - 4 - 5) / 6))
+            // a largura manda: "28" precisa de ar dos dois lados na coluna de 17 pt
+            fonte = min(13, max(8, min(celulaA * 0.62, celulaL * 0.62)))
+        }
+    }
 
     var body: some View {
         let mapa = agenda.porDia
-        ScrollView {
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 3), spacing: 16) {
-                ForEach(agenda.meses, id: \.self) { mes in
-                    mesMini(mes, mapa: mapa)
+        GeometryReader { geo in
+            let m = Medida(largura: geo.size.width, altura: geo.size.height)
+            ScrollView {
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: Medida.colunas), count: 3), spacing: Medida.linhas) {
+                    ForEach(agenda.meses, id: \.self) { mes in
+                        mesMini(mes, mapa: mapa, m: m)
+                    }
                 }
+                .padding(.horizontal, Medida.margem)
+                .padding(.bottom, CalendarioSemanaView.reservaChrome)
             }
-            .padding(.horizontal, 16)
-            .padding(.bottom, 180)
+            .scrollBounceBehavior(.basedOnSize)
         }
         .gesture(Arrasto { passo in andar(passo) })
         .accessibilityAction(named: Text("Ano seguinte")) { andar(1) }
         .accessibilityAction(named: Text("Ano anterior")) { andar(-1) }
     }
 
-    private func mesMini(_ mes: Date, mapa: [Date: [EventoCalendario]]) -> some View {
+    private func mesMini(_ mes: Date, mapa: [Date: [EventoCalendario]], m: Medida) -> some View {
         let actual = Calendario.mesmoMes(mes, agenda.ancora, agenda.cal)
         let celulas = Calendario.grelhaDoMes(da: mes, agenda.cal)
         let compromissos = celulas
@@ -667,21 +701,22 @@ struct CalendarioAnoView: View {
                 // ADR 10k: o nome do mês nomeia a grade que está embaixo —
                 // é conteúdo, então vai em frase normal, sem caixa alta
                 Text(Calendario.mesCurto(mes, agenda.cal).capitalizadoNoInicio)
-                    .font(.caption.weight(.semibold))
+                    .font(.subheadline.weight(.semibold))
                     .foregroundStyle(actual ? CalendarioTema.tinta : CalendarioTema.tintaSuave)
+                    .frame(height: Medida.titulo)
                 VStack(spacing: 1) {
                     ForEach(0..<6, id: \.self) { linha in
                         HStack(spacing: 1) {
                             ForEach(0..<7, id: \.self) { col in
                                 let i = linha * 7 + col
                                 let dia = celulas.indices.contains(i) ? celulas[i] : mes
-                                celulaAno(dia, mes: mes, eventos: mapa[Calendario.inicioDoDia(dia, agenda.cal)] ?? [])
+                                celulaAno(dia, mes: mes, eventos: mapa[Calendario.inicioDoDia(dia, agenda.cal)] ?? [], m: m)
                             }
                         }
                     }
                 }
             }
-            .padding(8)
+            .padding(Medida.respiro)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background {
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
@@ -700,7 +735,7 @@ struct CalendarioAnoView: View {
         .accessibilityIdentifier(actual ? "calendario-ano-actual" : "calendario-ano-\(Calendario.formatar(mes, "yyyy-MM", agenda.cal))")
     }
 
-    private func celulaAno(_ dia: Date, mes: Date, eventos: [EventoCalendario]) -> some View {
+    private func celulaAno(_ dia: Date, mes: Date, eventos: [EventoCalendario], m: Medida) -> some View {
         let noMes = Calendario.mesmoMes(dia, mes, agenda.cal)
         let ancora = noMes && Calendario.mesmoDia(dia, agenda.ancora, agenda.cal)
         let hoje = noMes && Calendario.eHoje(dia, agora: agora, agenda.cal)
@@ -710,20 +745,23 @@ struct CalendarioAnoView: View {
         let tinta = noMes ? eventos.first?.dominio : nil
         let numero = agenda.cal.component(.day, from: dia)
         return Text("\(numero)")
-            .font(.system(size: tamDia, weight: ancora || hoje ? .bold : .medium))
+            .font(.system(size: m.fonte, weight: ancora || hoje ? .bold : .medium))
             .monospacedDigit()
+            .tracking(-0.3)
             // o ano também marca o feriado (dono, 03/set: "em qualquer tipo de
             // visualização"): o número em vermelho de folhinha
             .foregroundStyle(ancora ? .white : !noMes ? CalendarioTema.tintaMorta
                              : Feriados.eFeriado(dia, agenda.cal) ? CalendarioTema.feriado : CalendarioTema.tinta)
-            .frame(maxWidth: .infinity, minHeight: 13)
+            .frame(maxWidth: .infinity)
+            .frame(height: m.celulaA)
             .background {
+                // meio ponto de ar entre discos vizinhos: a semana não vira uma barra
                 if ancora {
-                    Circle().fill(CalendarioTema.chipActivo)
+                    Circle().fill(CalendarioTema.chipActivo).padding(0.5)
                 } else if naSemana {
-                    Circle().fill(CalendarioTema.semanaAncora)
+                    Circle().fill(CalendarioTema.semanaAncora).padding(0.5)
                 } else if let tinta, !eventos.isEmpty {
-                    Circle().fill(CalendarioTema.fundo(de: tinta))
+                    Circle().fill(CalendarioTema.fundo(de: tinta)).padding(0.5)
                 } else if hoje {
                     Circle().strokeBorder(CalendarioTema.tinta, lineWidth: 1)
                 }

@@ -118,6 +118,8 @@ struct CalendarioView: View {
         }
     }
 
+    private var rola: Bool { agenda.modo == .lista || agenda.escala == .dia }
+
     private func conteudo(agora: Date) -> some View {
         ZStack(alignment: .bottom) {
             Rectangle().fill(CalendarioTema.papel).ignoresSafeArea()
@@ -133,8 +135,11 @@ struct CalendarioView: View {
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                // a rolagem se dissolve sob os dias e acima da cápsula do pé
-                .desvanece(pe: 48, reservaPe: Tema.alvo + 16)
+                // só o que ROLA se dissolve acima da cápsula do pé (lista e
+                // dia). Semana, mês e ano são grades que cabem inteiras: a
+                // máscara apagava a última faixa delas e obrigava a reserva de
+                // 150 pt que deixava um vão sobre o pé (dono, 16/09)
+                .desvanece(pe: rola ? 48 : 0, reservaPe: rola ? Tema.alvo + 16 : 0)
             }
 
             chrome(agora: agora)
