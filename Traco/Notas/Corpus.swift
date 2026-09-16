@@ -191,6 +191,14 @@ enum Corpus {
         ))
     }
 
+    /// ADR 2026-09-16f: o `traco-corpus.md` da pasta espelhada é o caderno que
+    /// o Claude lê de uma vez — obra (texto de mestre, que pode mandar) não vai
+    /// nele; quem a lê é o servidor `traco-obras`, como dado não confiável. O
+    /// export e o backup continuam completos.
+    nonisolated static func corpoDoEspelho(fatias: [FatiaCorpus]) -> String {
+        corpoDoCorpus(fatias: fatias.filter { !$0.origem.eObra })
+    }
+
     nonisolated static func corpoDoCorpus(fatias: [FatiaCorpus]) -> String {
         let saidas = fatias
             .filter { !$0.nuncaSai }
@@ -560,7 +568,7 @@ enum Corpus {
     nonisolated private static func escreverAgregados(_ vivas: [FatiaCorpus], em raiz: URL, geracao g: Int) {
         let corpus = raiz.appendingPathComponent("traco-corpus.md")
         guard avanca(corpus, g) else { return }
-        escreverSeMudou(corpoDoCorpus(fatias: vivas).data(using: .utf8), em: corpus)
+        escreverSeMudou(corpoDoEspelho(fatias: vivas).data(using: .utf8), em: corpus)
         escreverSeMudou(indice(fatias: vivas).data(using: .utf8),
                         em: raiz.appendingPathComponent("INDICE.md"))
         // ADR 08u: o quarto arquivo solto. Os compromissos vêm do mesmo disco
