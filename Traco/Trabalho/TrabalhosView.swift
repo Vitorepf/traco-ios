@@ -51,7 +51,8 @@ struct TrabalhosView: View {
         // ela. Por `safeAreaInset` (ver TrabalhoView: irmão de VStack estoura
         // a largura em AX5).
         .safeAreaInset(edge: .top, spacing: 0) {
-            CabecalhoDeFolha(saida: .voltar, aoSair: { dismiss() }, prefixo: "trabalhos")
+            // folha fecha, não volta (auditoria 16/09 noite)
+            CabecalhoDeFolha(saida: .fechar, aoSair: { dismiss() }, prefixo: "trabalhos")
                 .padding(.horizontal, Tema.margem)
                 .frame(maxWidth: .infinity)
                 .background(Tema.fundo)
@@ -77,7 +78,7 @@ struct TrabalhosView: View {
             Text("Trabalhos")
                 .font(Tema.tituloTela)
                 .tracking(Tema.trackingTitulo)
-            CampoFlutuante(texto: $intencao, dica: "o que você quer realizar?", ditado: ditado,
+            CampoFlutuante(texto: $intencao, dica: "O que você quer realizar?", ditado: ditado,
                            identificador: "trabalho-nova-intencao", identificadorDoBotao: "trabalho-criar",
                            rotuloEnviar: "Começar este trabalho", rotuloDitar: "Ditar a intenção",
                            aoEnviar: { if podeCriar { criar() } })
@@ -130,7 +131,7 @@ struct TrabalhosView: View {
                         // a linha da casa (ADR 10k), sem cartão: o cartão
                         // branco era a única caixa da lista
                         // "há 2 dias", como nas Notas — não "13 de set. de 2026"
-                        LinhaDeLista(tocavel: "hammer", trabalho.titulo,
+                        LinhaDeLista(tocavel: "briefcase", trabalho.titulo,
                                      VozDoAutor.relativo(trabalho.atualizadoEm),
                                      linhasDoTitulo: 2)
                     }

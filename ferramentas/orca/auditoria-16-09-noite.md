@@ -13,14 +13,14 @@ Pedido do dono: "tem muitas coisas quebradas e de péssima qualidade". Auditor s
 
 ## MÉDIA
 - [x] Concluir cinza na página (parece desabilitado) e âmbar na Decisão; concluir sem retorno visível (04, 05, 08, 09, 32) — cor corrigida; retorno: o toast "guardada em Notas" existe, conferir se some sob o teclado.
-- [ ] Menu "+" sem ícones, "Lente" é jargão (06).
+- [x] Menu "+" sem ícones, "Lente" é jargão (06).
 - [x] 4 cartões "Hora de conferir" tomam a tela e repetem notas de Hoje (10, 14).
 - [x] Prévia da busca repete o título e não mostra o trecho do termo (18).
 - [x] Campo de uma linha rola para o lado e esconde o começo da pergunta (20).
 - [ ] Busca vazia pobre; grupo do topo muda de forma (19).
-- [ ] Toque longo: menu sem ícones, rótulos vagos ("Como contexto", "Ligações", "Escolher") (15).
+- [x] Toque longo: menu sem ícones, rótulos vagos ("Como contexto", "Ligações", "Escolher") (15).
 - [ ] Ligações: jargão e texto desalinhado 4 pt (16).
-- [ ] Trabalhos: "‹ Voltar" numa folha, minúsculas, vazio só texto, martelo não diz o que é (30).
+- [x] Trabalhos: "‹ Voltar" numa folha, minúsculas, vazio só texto, martelo não diz o que é (30).
 - [ ] Recordar: sem pista da nota; alça cola no voltar; "hoje não" minúsculo (69).
 - [ ] Conversa: quatro nomes para a mesma coisa; ícone de nova conversa = nova nota; conversa perdida ao voltar (21, 29, 74).
 - [→] Conversa: resposta em bloco único (72–73).

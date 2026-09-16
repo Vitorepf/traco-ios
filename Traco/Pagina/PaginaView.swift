@@ -569,14 +569,15 @@ struct PaginaView: View {
                        aoComecarDitado: { baseDoDitado = sessao.texto }) {
             BotaoMais(rotulo: "Mais", identificador: "mais-acoes-da-nota") {
                 if sessao.temVoz, sessao.gesto != .expressiva {
-                    Button("Trabalhar nisto", action: trabalharNisto)
+                    // ícones e nomes de uso (auditoria 16/09 noite: menu sem ícone e "Lente" era jargão)
+                    Button("Trabalhar nisto", systemImage: "briefcase", action: trabalharNisto)
                         .accessibilityIdentifier("trabalhar-nisto")
                 }
-                Button("Desenhar") { abrirDesenho = true }
+                Button("Desenhar", systemImage: "pencil.and.scribble") { abrirDesenho = true }
                     .accessibilityIdentifier("desenhar")
-                Button("Anexar") { abrirArquivo = true }
+                Button("Anexar", systemImage: "paperclip") { abrirArquivo = true }
                     .accessibilityIdentifier("abrir-arquivo")
-                Button("Lente") {
+                Button("Ler como está escrito", systemImage: "text.magnifyingglass") {
                     guard sessao.salvar(no: context) else { return }
                     lenteAberta = true
                 }

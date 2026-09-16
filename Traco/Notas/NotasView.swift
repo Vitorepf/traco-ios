@@ -349,7 +349,8 @@ struct NotasView: View {
                 HStack(spacing: 0) {
                     Button { mostrarTrabalhos = true } label: {
                         HStack(spacing: 6) {
-                            Image(systemName: "hammer")
+                            // a pasta diz "trabalho"; o martelo não dizia o que era (auditoria 16/09 noite)
+                            Image(systemName: "briefcase")
                             if !trabalhos.isEmpty {
                                 Text("\(trabalhos.count)").monospacedDigit()
                             }
@@ -1073,21 +1074,21 @@ struct NotasView: View {
         .animation(Tema.animacao(.easeOut(duration: Tema.Duracao.curta), reduzido: reduceMotion), value: escolhidas.contains(nota.uuid))
         .contextMenu {
             if !nota.trancada {
-                Button("Recordar") { sessao.recordarDaNotas(nota) }
+                Button("Recordar", systemImage: "brain.head.profile") { sessao.recordarDaNotas(nota) }
             }
             let fatia = FatiaCorpus.de(nota)
             if !fatia.nuncaSai {
-                Button("Como contexto") {
+                Button("Enviar para outra IA", systemImage: "square.and.arrow.up") {
                     contextoURL = Corpus.urlComoContexto([fatia], nome: "traco-contexto.md")
                 }
             }
             if !nota.fechada, nota.gesto != .expressiva {
-                Button("Versões") { versoesDe = nota }
-                Button("Ligações") { redeDe = nota }
+                Button("Versões", systemImage: "clock.arrow.circlepath") { versoesDe = nota }
+                Button("Notas ligadas", systemImage: "link") { redeDe = nota }
             }
             // ADR 05d: o domínio também se escolhe daqui, sem depender do chip
             if !nota.fechada, nota.gesto != .expressiva {
-                Menu("Domínio") {
+                Menu("Domínio", systemImage: "tag") {
                     ForEach(Dominio.allCases) { d in
                         Button(d.nome) { sessao.escolherDominio(d, na: nota, no: context) }
                     }
@@ -1099,14 +1100,14 @@ struct NotasView: View {
             }
             // R3: as quatro linhas juntas, depois do quarto fecho
             if nota.gesto == .expressiva, nota.serieUUID != nil {
-                Button("Ver a série") { serieDe = nota.serieUUID }
+                Button("Ver a série", systemImage: "square.stack") { serieDe = nota.serieUUID }
             }
-            Button("Escolher") {
+            Button("Selecionar", systemImage: "checkmark.circle") {
                 Toque.selecao()
                 escolhidas.insert(nota.uuid)
             }
             // ADR 2026-08-31f: apagar existe, com atrito — trancada exige dupla.
-            Button("Apagar", role: .destructive) {
+            Button("Apagar", systemImage: "trash", role: .destructive) {
                 sessao.confirmacao = nota.trancada ? .apagarTrancada(nota.uuid) : .apagar(nota.uuid)
             }
         }
