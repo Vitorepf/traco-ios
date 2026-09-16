@@ -1,0 +1,72 @@
+[
+  {
+    "pergunta": "Um cliente me perguntou na ligação quantos alunos eu já atendi e eu travei, porque qualquer número parecia pouco ou demais. Como eu devia ter respondido?",
+    "arquivo": "hormozi.md",
+    "secao": 21,
+    "video": "https://www.youtube.com/watch?v=RVbvhPGFi6E",
+    "porque": "Pergunta-armadilha do prospecto cuja resposta certa não se conhece: devolver com outra pergunta."
+  },
+  {
+    "pergunta": "Quem da equipe deve atender os contatos mais quentes?",
+    "arquivo": "hormozi.md",
+    "secao": 18,
+    "video": "https://www.youtube.com/watch?v=cy2k1GdA-9o",
+    "porque": "Distribuição de leads: os melhores vão para o melhor vendedor."
+  },
+  {
+    "pergunta": "Posso mudar o texto do anúncio que já vende bem?",
+    "arquivo": "hormozi.md",
+    "secao": 33,
+    "video": "https://www.youtube.com/watch?v=N5MExtki_VI",
+    "porque": "Copy que funciona não se mexe; troca-se criativo e gancho."
+  },
+  {
+    "pergunta": "Cobrar parcelado em vez de mensalidade segura mais o cliente?",
+    "arquivo": "hormozi.md",
+    "secao": 36,
+    "video": "https://www.youtube.com/watch?v=1UhvBSQFy6A",
+    "porque": "Plano de pagamento evade menos que recorrência mensal pelo mesmo valor."
+  },
+  {
+    "pergunta": "Gasto uns 500 reais em anúncio pra fechar cada aluno e só recupero isso lá pelo terceiro mês, o caixa não aguenta crescer. Dá pra receber mais logo na entrada?",
+    "arquivo": "hormozi.md",
+    "secao": 25,
+    "video": "https://www.youtube.com/watch?v=A_tx40lNpf8",
+    "porque": "Recuperar o custo de aquisição nos primeiros 30 dias com taxa de entrada, setup ou bloco adiantado."
+  },
+  {
+    "pergunta": "Tive uma reunião boa com uma empresa interessada, no final o diretor disse que ia me escrever depois pra combinar os próximos passos e sumiu. O que eu fiz de errado?",
+    "arquivo": "lenny.md",
+    "secao": 25,
+    "video": "https://www.youtube.com/watch?v=969dwgu98qc",
+    "porque": "Agendar a segunda conversa dentro da primeira; o 'te escrevo depois' é sinal de desinteresse."
+  },
+  {
+    "pergunta": "Na reunião de planejamento meu sócio chuta um prazo primeiro e aí todo mundo concorda com ele, ninguém fala o que realmente acha. Como faço essa conversa de outro jeito?",
+    "arquivo": "lenny.md",
+    "secao": 14,
+    "video": "https://www.youtube.com/watch?v=svQMODvIGAE",
+    "porque": "Estimativa feita antes, sozinho e por escrito, porque opinião dita em grupo ancora os outros."
+  },
+  {
+    "pergunta": "Devo trazer um figurão do Google pra liderar produto?",
+    "arquivo": "lenny.md",
+    "secao": 7,
+    "video": "https://www.youtube.com/watch?v=v3pofqabzhs",
+    "porque": "Primeira contratação sênior de produto: caçar nome grande é o erro típico do fundador."
+  },
+  {
+    "pergunta": "Ninguém do plano gratuito assina o pago, o que faço?",
+    "arquivo": "lenny.md",
+    "secao": 35,
+    "video": "https://www.youtube.com/watch?v=2BKmNmnEj9w",
+    "porque": "Free que esconde o pago não cria desejo; amostrar o pago dentro do uso real."
+  },
+  {
+    "pergunta": "Estou fazendo um app que junta diaristas e famílias, mas ainda não tenho quase ninguém de nenhum dos dois lados e não sei qual atacar primeiro.",
+    "arquivo": "lenny.md",
+    "secao": 23,
+    "video": "https://www.youtube.com/watch?v=CYwgStMln6U",
+    "porque": "Marketplace sem PMF: ir fundo num lado só e usar muleta para o outro."
+  }
+]

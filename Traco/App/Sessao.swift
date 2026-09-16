@@ -729,7 +729,9 @@ final class Sessao {
     /// texto do bot como se fosse a voz de quem escreveu.
     static func fonteParaPergunta(_ nota: Nota) -> FonteNotas? {
         guard !nota.fechada, nota.gesto != .expressiva, nota.temVoz else { return nil }
-        let prosa = nota.textoDeQualquerOrigem.trimmingCharacters(in: .whitespacesAndNewlines)
+        // a obra viaja crua: `prosa` tiraria os `## ` que separam as regras
+        let obra = nota.origem.eObra
+        let prosa = (obra ? nota.texto : nota.textoDeQualquerOrigem).trimmingCharacters(in: .whitespacesAndNewlines)
         guard !prosa.isEmpty else { return nil }
         let titulo = nota.tituloNaLista + (nota.origem.etiqueta.map { " · \($0)" } ?? "")
         // A voz junta campos; sua ordem não é identidade. Assinatura usa a
@@ -738,7 +740,8 @@ final class Sessao {
                                                nota.gestoRaw ?? "", nota.tituloNaLista])
         let assinatura = SHA256.hash(data: dados).map { String(format: "%02x", $0) }.joined()
         return FonteNotas(id: nota.uuid, titulo: titulo, texto: prosa,
-                          editadaEm: nota.editadaEm, assinatura: assinatura)
+                          editadaEm: nota.editadaEm, assinatura: assinatura, obra: obra,
+                          obraConferida: nota.origem == .obra)
     }
 
     static func dependenciasValidas(_ fontes: [FonteNotas], no context: ModelContext) -> Bool {
@@ -762,7 +765,9 @@ final class Sessao {
         let vizinhas = Indice.vizinhas(de: pergunta, teto: teto, minimo: 0.15)
         guard let notas = try? context.fetch(FetchDescriptor<Nota>()) else { return [] }
         let porID = Dictionary(uniqueKeysWithValues: notas.map { ($0.uuid, $0) })
-        var fontes = vizinhas.compactMap { v in porID[v.uuid].flatMap(Self.fonteParaPergunta) }
+        // ADR 2026-09-16c: a obra não disputa as vagas das notas por palavra
+        // (um dossiê tem todas as palavras); entra depois, pelas suas seções
+        var fontes = vizinhas.compactMap { v in porID[v.uuid].flatMap { $0.origem.eObra ? nil : Self.fonteParaPergunta($0) } }
         // 15/09, com a conta ligada: "o que eu decidi sobre o plano de celular?"
         // foi ao Grok SEM a nota "Decidir se troco de plano de celular" — só o
         // índice de sentido escolhia as fontes, e sem ele (ou com ele a perder a
@@ -772,13 +777,20 @@ final class Sessao {
         if fontes.count < teto {
             let ja = Set(vizinhas.map(\.uuid))
             let porPalavra = notas
-                .filter { !ja.contains($0.uuid) && NotasFiltro.casa($0.textoDeQualquerOrigem, busca: pergunta) }
+                .filter { !$0.origem.eObra && !ja.contains($0.uuid) && NotasFiltro.casa($0.textoDeQualquerOrigem, busca: pergunta) }
                 .sorted { $0.editadaEm > $1.editadaEm }
                 .prefix(teto - fontes.count)
                 .compactMap(Self.fonteParaPergunta)
             fontes += porPalavra
         }
-        return Self.semRepetida(fontes)
+        // a obra entra se a pergunta toca DE FATO uma seção (dois radicais dela,
+        // sem contar a ponte de sinônimos); a suposta sem seções, pela palavra
+        let obras = notas.filter { $0.origem.eObra }.compactMap(Self.fonteParaPergunta).filter { fonte in
+            Obra.secoesEmCache(fonte.texto).isEmpty
+                ? NotasFiltro.casa(fonte.texto, busca: pergunta)
+                : Obra.ranquear(pergunta: pergunta, texto: fonte.texto).contains(where: Obra.admite)
+        }
+        return Self.semRepetida(fontes + obras)
     }
 
     /// DIRETRIZ §14: o dono viu a MESMA nota três vezes em "Foram junto:". A
@@ -1396,7 +1408,9 @@ final class Sessao {
             .map { ns.substring(with: $0.range) }
         return Indice.NotaLida(uuid: n.uuid, editadaEm: n.editadaEm,
                                voz: ([n.textoDeQualquerOrigem] + marcadores).joined(separator: "\n"),
-                               podeEntrar: !n.fechada && n.gesto != .expressiva && n.temVoz)
+                               // ADR 16c: obra não entra no índice de sentido — um vetor
+                               // dos 3.000 primeiros caracteres de um livro não é o livro
+                               podeEntrar: !n.fechada && n.gesto != .expressiva && n.temVoz && !n.origem.eObra)
     }
 
     /// No arranque: o índice inteiro contra o disco (entra o que pode, sai o

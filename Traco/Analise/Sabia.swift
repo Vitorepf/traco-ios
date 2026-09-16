@@ -239,6 +239,13 @@ enum Sabia {
         if let recusa = GuardaDeObra.recusarSeConsultaInsuficiente(pergunta: pergunta, fontes: pacote.fontes) {
             return recusa
         }
+        // ADR 2026-09-16c: a obra pedida estava na seleção e NADA coube — o
+        // modelo responderia «não tenho registro» sobre o que está no caderno.
+        // Com alguma fonte no pacote, a 12b vale: a pergunta segue.
+        if pacote.fontes.isEmpty,
+           let recusa = GuardaDeObra.recusarSeOmitidaDoPacote(pergunta: pergunta, originais: fontes, efetivas: pacote.fontes) {
+            return recusa
+        }
         // Omissão do orçamento não encerra a pergunta: o pacote efetivo segue
         // à geração e à conferência. Inventar a fonte omitida continua proibido
         // pelo pedido; outra nota que coube pode ajudar a parte apoiada.

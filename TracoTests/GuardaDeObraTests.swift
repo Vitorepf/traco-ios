@@ -386,7 +386,8 @@ struct GuardaDeObraTests {
             .appending(path: "Traco/Analise/Sabia.swift"), encoding: .utf8)
         #expect(sabia.contains("recusarSeConsultaInsuficiente(pergunta: pergunta, fontes: pacote.fontes)"))
         #expect(!sabia.contains("recusarSeAusente(pergunta: pergunta, fontes: fontes)"))
-        #expect(!sabia.contains("recusarSeOmitidaDoPacote(pergunta: pergunta"))
+        // ADR 16c: a guarda da obra omitida tem chamador, e só quando nada coube
+        #expect(sabia.contains("if pacote.fontes.isEmpty,\n           let recusa = GuardaDeObra.recusarSeOmitidaDoPacote(pergunta: pergunta"))
     }
 
     @Test func fonteOmitidaDoPacoteNaoAbreTese() async throws {
@@ -416,7 +417,11 @@ struct GuardaDeObraTests {
                 #expect(pacote.fontes.isEmpty)
                 return ajuda
             })
-        #expect(gerou == 1 && conferiu == 1)
+        // ADR 2026-09-16c: a obra pedida estava na seleção e NADA coube — a
+        // recusa é local («fora desta consulta») e o modelo não é chamado; com
+        // outra fonte no pacote, a 12b vale e a pergunta segue
+        #expect(gerou == 0 && conferiu == 0)
+        #expect(r?.texto.contains(GuardaDeObra.fraseForaDestaConsulta) == true)
         #expect(r?.obraParaPlantar == nil)
         #expect(r?.texto.contains(GuardaDeObra.fraseNaoEstaNoCaderno) != true)
         #expect(r?.texto.contains("inventei a tese") != true)

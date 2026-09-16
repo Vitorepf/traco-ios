@@ -1,0 +1,57 @@
+[
+  {
+    "escolha": "Qual contrato a agência pega no próximo semestre, já que a equipe só dá conta de um",
+    "opcoes": "Entrar na concorrência da rede de supermercados, que pagaria umas seis vezes mais, mas a gente disputa com três agências grandes\nFechar o contrato menor com a rede de farmácias, que já disse que quer e só falta assinar",
+    "criterio": "Quanto cada um rende de verdade quando eu desconto a chance de não sair, e não só o valor no papel",
+    "decidido": "Fechar com a rede de farmácias e não entrar na concorrência do supermercado",
+    "espero": "Contrato assinado até o fim do mês e o semestre pago sem buraco no caixa; confiro em março se o valor entrou como combinado",
+    "arquivo": "hormozi.md",
+    "secao": 13,
+    "video": "https://www.youtube.com/watch?v=A9qHKjFPJ-E",
+    "porque": "A escolha é entre um prêmio grande e improvável e um menor quase certo, pesado por quanto paga vezes a chance de acontecer."
+  },
+  {
+    "escolha": "Abrir a lavanderia como franquia ou com marca própria",
+    "opcoes": "Comprar a franquia de lavanderia, que cobra 5% do faturamento mais 1% de fundo de propaganda\nAbrir com marca própria usando as mesmas máquinas e o mesmo ponto",
+    "criterio": "Quanto sobra para mim no fim do mês, sabendo que lavanderia deixa uns 10% de lucro sobre o que fatura",
+    "decidido": "Abrir com marca própria e contratar só a consultoria de montagem",
+    "espero": "Chegar ao ponto de equilíbrio em oito meses sem pagar taxa todo mês; confiro no fechamento de cada trimestre quanto ficou de lucro",
+    "arquivo": "hormozi.md",
+    "secao": 16,
+    "video": "https://www.youtube.com/watch?v=xZ8d9g6BcKM",
+    "porque": "A decisão gira em torno de quanto uma taxa sobre o faturamento come do lucro num negócio de margem baixa."
+  },
+  {
+    "escolha": "Quanto tempo meu e do time vai para Instagram e YouTube",
+    "opcoes": "Postar todo dia e gravar dois vídeos por semana, umas dez horas semanais\nPostar uma vez por semana só para o perfil parecer vivo e jogar o resto do tempo nas ligações e nos parceiros",
+    "criterio": "Quem vira cliente chega pelas ligações do time e pelos parceiros; o perfil só é aberto por quem já foi contatado e quer ver se a empresa existe e é séria",
+    "decidido": "Uma postagem boa por semana e o tempo que sobrar vai para ligações e parceiros",
+    "espero": "Mais reuniões marcadas sem cair a taxa de quem aceita conversar; olho os números no fim de cada mês até dezembro",
+    "arquivo": "hormozi.md",
+    "secao": 9,
+    "video": "https://www.youtube.com/watch?v=MD5-HByRxoA",
+    "porque": "O conteúdo orgânico aqui só precisa servir de prova de que a empresa é real para quem chega por outro canal."
+  },
+  {
+    "escolha": "Se o app que liga condomínios a eletricistas e encanadores faz agora uma campanha para cadastrar mais profissionais",
+    "opcoes": "Pagar anúncio e indicação para cadastrar mais 300 profissionais na cidade\nParar de cadastrar e primeiro ver se mais profissional faz o síndico ser atendido mais rápido",
+    "criterio": "Se ter mais gente cadastrada melhora o que o síndico sente, ou se já passamos do ponto em que isso muda alguma coisa",
+    "decidido": "Segurar a campanha e medir o tempo de atendimento por bairro antes de cadastrar mais",
+    "espero": "Descobrir em quais bairros falta profissional e em quais sobra; em seis semanas decido se retomo a campanha só onde falta",
+    "arquivo": "lenny.md",
+    "secao": 6,
+    "video": "https://www.youtube.com/watch?v=AlTQ6O2qooI",
+    "porque": "É uma decisão de trazer mais oferta num marketplace sem saber se isso melhora a experiência de quem contrata."
+  },
+  {
+    "escolha": "Como tocar a reforma do sistema de agendamento da clínica",
+    "opcoes": "Pedir estimativa de tudo que queremos e esperar o tempo que o dev disser, que ele chutou em quatro meses\nDizer que o projeto vale no máximo seis semanas e cortar o que não couber nesse tempo",
+    "criterio": "Quanto tempo esse projeto vale para a clínica, e não quanto tempo ele leva para ficar completo",
+    "decidido": "Seis semanas fechadas; o que não couber fica de fora",
+    "espero": "Agendamento novo no ar em seis semanas com o essencial funcionando; no fim da sexta semana vejo o que entrou e o que ficou",
+    "arquivo": "lenny.md",
+    "secao": 33,
+    "video": "https://www.youtube.com/watch?v=GF-yUANql0c",
+    "porque": "A escolha troca a pergunta da estimativa pelo tempo máximo que o negócio aceita gastar, com escopo como o que se ajusta."
+  }
+]

@@ -18,17 +18,39 @@ nonisolated struct FonteNotas: Codable, Equatable, Sendable {
     var texto: String
     var editadaEm: Date
     var assinatura: String? = nil
+    /// ADR 2026-09-16c: texto de mestre. Viaja recortado nas seções que a
+    /// pergunta pede e diz ao modelo que não é fato da vida da pessoa.
+    var obra: Bool = false
+    /// Obra DECLARADA (`origem: obra`, a biblioteca que passou pelos portões).
+    /// Só ela cita «Mestre, “Vídeo”, minuto»: numa obra suposta essas linhas
+    /// são texto de quem escreveu o arquivo e poderiam forjar a autoria.
+    var obraConferida: Bool = false
 
     /// Grafemas. Cabe em duas linhas de `meta` em `large`; acima disso a
     /// citação deixa de nomear e passa a repetir.
     static let tetoDoTitulo = 80
 
-    init(id: UUID, titulo: String, texto: String, editadaEm: Date, assinatura: String? = nil) {
+    init(id: UUID, titulo: String, texto: String, editadaEm: Date, assinatura: String? = nil,
+         obra: Bool = false, obraConferida: Bool = false) {
         self.id = id
         self.titulo = VozDoAutor.truncar(titulo.split(whereSeparator: \.isNewline).joined(separator: " "), Self.tetoDoTitulo)
         self.texto = texto
         self.editadaEm = editadaEm
         self.assinatura = assinatura
+        self.obra = obra || obraConferida
+        self.obraConferida = obraConferida
+    }
+}
+
+extension RespostaNotas {
+    /// A linha fechada das fontes na conversa das Notas: a obra não é «nota
+    /// sua» (ADR 16c, revisão).
+    static func resumoDasFontes(_ fontes: [FonteNotas]) -> String {
+        let obras = fontes.count(where: \.obra), notas = fontes.count - obras
+        let deNotas = notas == 1 ? "leu 1 nota sua" : "leu \(notas) notas suas"
+        guard obras > 0 else { return deNotas }
+        let deObras = obras == 1 ? "1 obra" : "\(obras) obras"
+        return notas == 0 ? "leu \(deObras)" : "\(deNotas) e \(deObras)"
     }
 }
 
@@ -87,7 +109,8 @@ nonisolated enum RespostaNotas {
     /// como de ontem. O rótulo do dia é o que o contrato cobra; `editadaEm`
     /// continua em Z, que ordena igual.
     static func montar(pergunta: String, fontes: [FonteNotas], conversa: [Sessao.TrocaNasNotas],
-                       catalogo: String, retrato: String, teto: Int, agora: Date = .now) -> Pacote? {
+                       catalogo: String, retrato: String, teto: Int, agora: Date = .now,
+                       pesos: [String: Double] = [:]) -> Pacote? {
         guard !pergunta.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
               Set(fontes.map(\.id)).count == fontes.count else { return nil }
         var historico = conversa.map { ["pergunta": $0.pergunta] }
@@ -114,24 +137,52 @@ nonisolated enum RespostaNotas {
         }
         var pacote = Pacote(mensagem: carga(historico), fontes: [], omitidas: 0,
                              respostasOmitidas: respostasOmitidas, mensagensDaPessoa: conversa.count)
-        for fonte in fontes {
-            let indice = pacote.fontes.count + 1
-            let linhas = fonte.texto.components(separatedBy: "\n")
-            let bloco = "\n\nNOTA (JSON; ID do trecho = fonteID + T + posição da linha, começando em 1):\n" + json([
+        func bloco(_ fonte: FonteNotas, indice: Int) -> String {
+            var campos: [String: Any] = [
                 "fonteID": "N\(indice)", "titulo": fonte.titulo,
-                "editadaEm": fonte.editadaEm.ISO8601Format(), "linhas": linhas,
-            ])
-            guard pacote.mensagem.count + bloco.count + reserva <= teto else {
-                pacote.omitidas += 1
-                continue
-            }
-            pacote.mensagem += bloco
-            pacote.fontes.append(fonte)
+                "editadaEm": fonte.editadaEm.ISO8601Format(), "linhas": fonte.texto.components(separatedBy: "\n"),
+            ]
+            if fonte.obra { campos["origem"] = Obra.origemNoPedido }
+            return "\n\nNOTA (JSON; ID do trecho = fonteID + T + posição da linha, começando em 1):\n" + json(campos)
         }
+        func caber(_ fonte: FonteNotas) -> Bool {
+            let b = bloco(fonte, indice: pacote.fontes.count + 1)
+            guard pacote.mensagem.count + b.count + reserva <= teto else { return false }
+            pacote.mensagem += b
+            pacote.fontes.append(fonte)
+            return true
+        }
+        for fonte in fontes where !fonte.obra {
+            if !caber(fonte) { pacote.omitidas += 1 }
+        }
+        // ADR 2026-09-16c (revisão): o que é DELA — formas e retrato — vem antes
+        // da obra; a obra não empurra quem escreve para fora do pedido
         for (rotulo, texto) in [("FORMAS DO TRAÇO", catalogo), ("SOBRE QUEM ESCREVE", retrato)] where !texto.isEmpty {
             let bloco = "\n\n\(rotulo) (JSON; contexto auxiliar):\n" + json(["texto": texto])
             if pacote.mensagem.count + bloco.count + reserva <= teto { pacote.mensagem += bloco }
             else { pacote.omitidas += 1 }
+        }
+        for original in fontes where original.obra {
+            // A obra inteira não cabe (o dossiê tem 1,5 MB e era pulado
+            // INTEIRO): viajam, literais, as seções que a pergunta pede — até
+            // três, uma a uma enquanto cabem. Sem seção que a pergunta
+            // realmente toque, não é assunto: não entra nem conta como omitida.
+            let achados = Obra.ranquear(pergunta: pergunta, texto: original.texto, pesos: pesos)
+            guard !Obra.secoesEmCache(original.texto).isEmpty else {
+                if !caber(original) { pacote.omitidas += 1 }  // obra suposta sem `## `: vai inteira, se couber
+                continue
+            }
+            guard achados.contains(where: Obra.admite) else { continue }
+            var escolhidas: [String] = []
+            for achado in achados.prefix(3) {
+                var tentativa = original
+                tentativa.texto = (escolhidas + [achado.secao.texto]).joined(separator: "\n\n")
+                let b = bloco(tentativa, indice: pacote.fontes.count + 1)
+                if pacote.mensagem.count + b.count + reserva <= teto { escolhidas.append(achado.secao.texto) }
+            }
+            var recortada = original
+            recortada.texto = escolhidas.joined(separator: "\n\n")
+            if escolhidas.isEmpty || !caber(recortada) { pacote.omitidas += 1 }
         }
         if pacote.omitidas > 0 { pacote.mensagem += aviso }
         if pacote.respostasOmitidas > 0 { pacote.mensagem += avisoHistorico }
@@ -217,9 +268,16 @@ nonisolated enum RespostaNotas {
             if pacote.fontes.isEmpty { resposta = limiteSemBase }
             else {
                 guard !citadas.isEmpty, !texto.isEmpty else { return nil }
-                let titulos = citadas.map { fonte in
+                let titulos = citadas.flatMap { fonte -> [String] in
+                    if fonte.obra {
+                        let posicoes = ids.filter { trechos[$0]?.fonte.id == fonte.id }
+                            .compactMap { Int($0.split(separator: "T").last ?? "") }
+                        let refs = Obra.referencias(de: fonte.texto, posicoes: posicoes,
+                                                    conferida: fonte.obraConferida, tituloDaFonte: fonte.titulo)
+                        if !refs.isEmpty { return refs }
+                    }
                     let repetido = pacote.fontes.count(where: { $0.titulo == fonte.titulo }) > 1
-                    return "“\(fonte.titulo)”" + (repetido ? " (edição \(fonte.editadaEm.ISO8601Format()))" : "")
+                    return ["“\(fonte.titulo)”" + (repetido ? " (edição \(fonte.editadaEm.ISO8601Format()))" : "")]
                 }.joined(separator: "; ")
                 resposta = texto + "\nReferência: " + titulos
             }

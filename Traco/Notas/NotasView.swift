@@ -207,6 +207,7 @@ struct NotasView: View {
                             CartaoDeResposta(
                                 titulo: nil,
                                 fontes: ultima ? conversaNotas.fontes.map { .init(id: $0.id, titulo: $0.titulo) } : [],
+                                resumoDasFontes: ultima ? RespostaNotas.resumoDasFontes(conversaNotas.fontes) : nil,
                                 abrirFonte: abrirFonte,
                                 retorno: retorno,
                                 avaliada: ultima && conversaNotas.avaliadas.contains(troca.resposta),
