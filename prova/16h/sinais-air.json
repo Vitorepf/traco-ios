@@ -1,0 +1,32 @@
+[
+ {
+  "tipo": "ficou",
+  "id": "64ACB0F6-E031-40F9-AD4D-8D2B2F40FDA3",
+  "quando": "2026-09-16T18:12:27Z",
+  "forma": "decisao"
+ },
+ {
+  "quando": "2026-09-16T18:12:34Z",
+  "regra": "https://www.youtube.com/watch?v=MD5-HByRxoA&t=232s",
+  "nota": "0ADE3FD3-98B0-4C0C-9B29-DE869008E741",
+  "porque": [
+   "postado"
+  ],
+  "id": "D65B1135-04EE-4E71-9401-494EAC2FE035",
+  "forma": "decisao",
+  "tipo": "exposto"
+ },
+ {
+  "tipo": "ficou",
+  "id": "CF12D64B-E697-422E-A245-6D00739CAA15",
+  "quando": "2026-09-16T18:19:09Z",
+  "forma": "decisao"
+ },
+ {
+  "tipo": "visto",
+  "id": "DEB4B320-9F03-48EC-A078-787BD79DEBAE",
+  "quando": "2026-09-16T18:38:30Z",
+  "nota": "0ADE3FD3-98B0-4C0C-9B29-DE869008E741",
+  "regra": "https://www.youtube.com/watch?v=MD5-HByRxoA&t=232s"
+ }
+]

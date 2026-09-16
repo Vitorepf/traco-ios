@@ -5,7 +5,11 @@ import SwiftUI
 
 @Observable
 final class Sessao {
-    var texto: String = ""
+    var texto: String = "" {
+        // ADR 16h: escrever a nota seguinte — teclado, ditado, colar — fecha o
+        // conselho da que já foi concluída (não segura a análise automática)
+        didSet { if case .conselho(let c)? = cartao, c.nota != notaUUID, !paginaVazia { cartao = nil } }
+    }
     var gesto: Gesto?
     var campos: [String: String] = [:]
     var notaUUID: UUID?
@@ -1836,6 +1840,9 @@ final class Sessao {
         notasNaPergunta = []
         cartao = nil
         mostrarNotas = false
+        // a análise pendente era do texto de antes; não apaga o conselho desta
+        autoTask?.cancel()
+        oferecerConselho(nota.uuid)
         mostrarPadroes = false
         if nota.gesto == .expressiva, !nota.trancada {
             retomarExpressiva(prazo: nota.expressivaPrazo)
@@ -1891,9 +1898,11 @@ final class Sessao {
             // Exp 3: Spotlight indexa só as abertas (o selo vale para o sistema)
             Holofote.indexar(notas: todas)
         }
+        let (concluida, camposConcluidos) = (notaUUID, campos)
         if let notaUUID, let nota = Self.buscar(uuid: notaUUID, no: context) {
-            // ADR 16d: o conselho em sombra — registra, não mostra
-            Self.registrarConselho(nota, no: context)
+            // ADR 16d/16h: o conselho registra; o cartão aparece no fim do
+            // concluir, ou ao reabrir a nota se a escolha chegar tarde
+            Self.registrarConselho(nota, no: context, aoExpor: { [weak self] in self?.oferecerConselho($0) })
             Revisoes.agendar(uuid: nota.uuid, criadaEm: nota.criadaEm, gesto: nota.gesto, trancada: nota.fechada, texto: nota.texto, campos: nota.campos) { [weak self] in
                 Task { @MainActor in
                     self?.mostrarToast("revisões precisam de permissão — Ajustes › Traço › Notificações.")
@@ -1901,13 +1910,48 @@ final class Sessao {
             }
         }
         novaPagina()
+        if let concluida {
+            conselhoDaConclusao = (concluida, .now.addingTimeInterval(8), camposConcluidos)
+            oferecerConselho(concluida)
+        }
         Toque.leve()
     }
 
+    /// ADR 2026-09-16h: a nota concluída cujo conselho ainda pode aparecer na
+    /// página em branco — até 8 s depois do concluir —, com os campos dela.
+    var conselhoDaConclusao: (nota: UUID, ate: Date, campos: [String: String])?
+
+    /// O cartão do conselho aparece DEPOIS do ato: com a nota aberta, ou na
+    /// página em branco nos 8 s depois de concluí-la — e só com a Página à
+    /// vista. Não passa por cima de outro cartão nem da página que o autor já
+    /// escreve, nem depois da volta escrita (`Conselho.cartao`).
+    func oferecerConselho(_ uuid: UUID, agora: Date = .now) {
+        let conclusao = conselhoDaConclusao.flatMap { $0.nota == uuid && agora <= $0.ate ? $0.campos : nil }
+        let camposDaNota = notaUUID == uuid ? campos : (notaUUID == nil && paginaVazia ? conclusao : nil)
+        guard aba == .escrever, cartao == nil, let camposDaNota,
+              let c = Conselho.cartao(nota: uuid, campos: camposDaNota, sinais: Sinais.todos()) else { return }
+        cartao = .conselho(c)
+    }
+
+    /// O cartão foi DESENHADO: só então é visto, uma vez por nota. Gravado na
+    /// oferta, a aba de cima ou a resposta da sábia o apagavam antes de o autor
+    /// ver — e ele nunca mais voltava (revisão da E1). Sem gravar, ele sai.
+    func conselhoApareceu(_ c: Conselho.Cartao) {
+        guard case .conselho(let atual)? = cartao, atual == c,
+              !Sinais.todos().contains(where: { $0.tipo == .visto && $0.nota == c.nota }) else { return }
+        if !Sinais.registrar(Sinal(tipo: .visto, nota: c.nota, regra: c.chave)) { cartao = nil }
+    }
+
     /// ADR 2026-09-16d: Decisão ou Pré-mortem concluídos com o ato escrito
-    /// procuram nas obras CONFERIDAS a regra e a outra voz e registram em
-    /// sombra (`Sinal.exposto`), uma vez por nota. Nada aparece ao autor.
-    static func registrarConselho(_ nota: Nota, no context: ModelContext) {
+    /// procuram nas obras CONFERIDAS a regra e a outra voz e registram
+    /// (`Sinal.exposto`), uma vez por nota; o cartão (16h) mostra a regra.
+    /// `perguntar` é o Grok da conta (nil sem ela); `aoExpor` avisa quando a
+    /// escolha em segundo plano grava.
+    static func registrarConselho(_ nota: Nota, no context: ModelContext,
+                                  perguntar: ((String, String, String) async -> String?)? = Politica.provedor(.escolherRegra) == nil ? nil : { s, u, e in
+                                      await Sabia.chamar(.escolherRegra, sistema: s, usuario: u, temperatura: 0, esquema: e)
+                                  },
+                                  aoExpor: (@MainActor (UUID) -> Void)? = nil) {
         guard nota.origem == .autor, !nota.fechada,
               let consulta = Conselho.consulta(gesto: nota.gesto, campos: nota.campos) else { return }
         let sinais = Sinais.todos()
@@ -1937,14 +1981,12 @@ final class Sessao {
         }
         // ADR 2026-09-16g: com a conta, o Grok escolhe pelo sentido entre as 30
         // melhores — em segundo plano, porque concluir não espera a rede
-        guard Politica.provedor(.escolherRegra) != nil else {
+        guard let perguntar else {
             if let achado = Conselho.escolher(consulta: consulta, obras: obras, pesos: pesos) { expor(achado) }
             return
         }
         Task { @MainActor in
-            let achado = await Conselho.escolherPeloSentido(consulta: consulta, obras: obras, pesos: pesos) { s, u, e in
-                await Sabia.chamar(.escolherRegra, sistema: s, usuario: u, temperatura: 0, esquema: e)
-            }
+            let achado = await Conselho.escolherPeloSentido(consulta: consulta, obras: obras, pesos: pesos, perguntar: perguntar)
             // a rede pode levar minutos: expõe só se a nota ainda é a mesma
             // decisão, aberta, sem a volta escrita (revisão E4: nunca depois do
             // fato) e sem exposição de outra conclusão nesse meio-tempo
@@ -1954,6 +1996,7 @@ final class Sessao {
                   Conselho.consulta(gesto: atual.gesto, campos: atual.campos) == consulta,
                   !Sinais.todos().contains(where: { $0.tipo == .exposto && $0.nota == uuid }) else { return }
             expor((achado.regra, achado.outra))
+            aoExpor?(uuid)
         }
     }
 
@@ -2290,6 +2333,8 @@ enum CartaoAnalisar: Equatable {
     case vestido(antes: String)
     /// pediu a sábia sem conta ligada
     case semConta
+    /// ADR 2026-09-16h: a regra do mestre depois do ato, literal
+    case conselho(Conselho.Cartao)
 }
 
 enum DestinoConfirmacao {

@@ -1,11 +1,11 @@
 import Foundation
 
-/// ADR 2026-09-16d/e — o conselho em SOMBRA.
+/// ADR 2026-09-16d/e/h — o conselho.
 ///
 /// Uma Decisão (ou um Pré-mortem) concluída com o ato do autor já escrito
 /// procura nas obras CONFERIDAS a regra que mais conversa com o que ele pesou.
-/// Nada aparece: o app registra a regra literal, a outra voz e as palavras que
-/// as ligaram (`Sinal.exposto`). Quando ele volta e escreve o que aconteceu e o
+/// O app registra a regra literal, a outra voz e as palavras que as ligaram
+/// (`Sinal.exposto`) e, depois do ato, mostra a regra num cartão (16h). Quando ele volta e escreve o que aconteceu e o
 /// saldo, a regra exposta ganha esse saldo (`Sinal.resultado`) e isso pesa na
 /// busca seguinte. O «serviu» nunca pesa: aprender por aprovação é sicofancia.
 nonisolated enum Conselho {
@@ -43,6 +43,54 @@ nonisolated enum Conselho {
         guard let primeira = achados.first(where: Obra.admite) else { return nil }
         let outra = achados.first { Obra.admite($0) && $0.secao.mestre != nil && $0.secao.mestre != primeira.secao.mestre }
         return (primeira, outra)
+    }
+
+    // MARK: o cartão (ADR 2026-09-16h)
+
+    /// O que o autor vê depois do ato: a seção exposta em linhas LITERAIS da
+    /// obra conferida — nenhuma palavra gerada, nenhuma pergunta de escolha.
+    /// ponytail: a outra voz (16d) fica fora do cartão — é a 1ª seção de outro
+    /// mestre pelas palavras, não medida; no Air veio fora do assunto. Volta
+    /// quando o modelo a escolher com gabarito próprio (dívida da ADR 16h).
+    struct Cartao: Equatable, Sendable {
+        struct Voz: Equatable, Sendable {
+            var regra: String
+            var condicao: String?
+            var caso: String?
+            var mestre: String?
+            /// O título do vídeo, como está na linha `Vídeo:`.
+            var video: String?
+            var minuto: String?
+            /// O vídeo no minuto (`&t=`), só se é endereço do YouTube.
+            var link: URL?
+        }
+        var nota: UUID
+        var chave: String
+        var regra: Voz
+    }
+
+    static func voz(_ texto: String) -> Cartao.Voz? {
+        guard let s = Obra.secoes(texto).first else { return nil }
+        let linhas = s.texto.split(separator: "\n")
+        func campo(_ nome: String) -> String? {
+            linhas.first { $0.hasPrefix(nome + ": ") }.map { String($0.dropFirst(nome.count + 2)) }
+        }
+        // "não dita" é a biblioteca dizendo que a fala não deu condição: não é linha a ler
+        return Cartao.Voz(regra: campo("Regra") ?? s.titulo, condicao: campo("Condição").flatMap { $0 == "não dita" ? nil : $0 },
+                          caso: campo("Caso"), mestre: s.mestre,
+                          video: campo("Vídeo")?.components(separatedBy: " — ").first,
+                          minuto: campo("Minuto"), link: Obra.link(s.chave))
+    }
+
+    /// A última exposição da nota, se ainda não foi vista — uma vez por nota —
+    /// e nunca depois do fato: com "aconteceu" escrito ou saldo gravado, a
+    /// regra chegaria enquanto ele julga o resultado que a pesa (16e).
+    static func cartao(nota: UUID, campos: [String: String], sinais: [Sinal]) -> Cartao? {
+        guard (campos["aconteceu"] ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+              !sinais.contains(where: { ($0.tipo == .visto || $0.tipo == .resultado) && $0.nota == nota }),
+              let e = sinais.last(where: { $0.tipo == .exposto && $0.nota == nota }),
+              let regra = e.texto.flatMap(voz) else { return nil }
+        return Cartao(nota: nota, chave: e.regra ?? "", regra: regra)
     }
 
     // MARK: a escolha pelo sentido (ADR 2026-09-16g)

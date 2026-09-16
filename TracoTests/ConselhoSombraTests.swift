@@ -15,7 +15,8 @@ struct ConselhoSombraTests {
     static let obras = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
         .appending(path: "ferramentas/obras")
 
-    private func isolado(_ executar: (ModelContext) throws -> Void) throws {
+    /// O caderno de teste com a biblioteca; `fim` desfaz os desvios.
+    private func preparar() throws -> (ModelContainer, () -> Void) {
         let raiz = FileManager.default.temporaryDirectory.appendingPathComponent("conselho-\(UUID())")
         try FileManager.default.createDirectory(at: raiz, withIntermediateDirectories: true)
         let corpus = Corpus.diretorio, espelho = PastaEspelho.defaults, sinais = Sinais.url
@@ -24,7 +25,7 @@ struct ConselhoSombraTests {
         Corpus.diretorio = raiz
         PastaEspelho.defaults = defaults
         Sinais.url = raiz.appendingPathComponent("sinais.json")
-        defer {
+        let fim = {
             Corpus.diretorio = corpus; PastaEspelho.defaults = espelho; Sinais.url = sinais
             defaults.removePersistentDomain(forName: nome)
             try? FileManager.default.removeItem(at: raiz)
@@ -38,6 +39,12 @@ struct ConselhoSombraTests {
             c.mainContext.insert(obra)
         }
         try c.mainContext.save()
+        return (c, fim)
+    }
+
+    private func isolado(_ executar: (ModelContext) throws -> Void) throws {
+        let (c, fim) = try preparar()
+        defer { fim() }
         try executar(c.mainContext)
     }
 
@@ -91,7 +98,7 @@ struct ConselhoSombraTests {
         #expect(m.total == 5)
     }
 
-    @Test func registraEmSombraUmaVezSemMostrarNada() throws {
+    @Test func registraUmaVezPorNota() throws {
         let d = Decisao(escolha: "Baixar ou não o preço da mentoria porque os clientes estão cancelando",
                         opcoes: "baixar o preço\nmanter e dar mais valor", criterio: "o que segura o cliente sem cortar o faturamento",
                         decidido: "manter o preço", espero: "cancelamento cai em 60 dias",
@@ -104,8 +111,8 @@ struct ConselhoSombraTests {
             #expect(e.texto?.hasPrefix("## ") == true && e.regra?.hasPrefix("https://www.youtube.com/watch?v=") == true)
             #expect(e.contraria == nil || e.contraria?.contains(e.texto ?? "") == false)
             #expect(!(e.porque ?? []).isEmpty)
-            // nada aparece: o fim é o de sempre
-            #expect(s.cartao == nil && s.toast == "guardada em Notas")
+            // o fim é o de sempre, e o cartão do conselho (ADR 16h) mostra a regra
+            #expect(s.toast == "guardada em Notas")
             // abrir e concluir de novo não registra outra vez
             let nota = try #require(ctx.fetch(FetchDescriptor<Nota>()).first { $0.gesto == .decisao })
             s.abrir(nota)
@@ -226,5 +233,155 @@ struct ConselhoSombraTests {
             return #"{"regra":\#(n)}"#
         }
         #expect(r?.via == .palavras && r?.regra.secao == palavras?.regra.secao)
+    }
+
+    // MARK: ADR 2026-09-16h — o cartão do conselho aparece
+
+    private let precoDaMentoria = Decisao(escolha: "Baixar ou não o preço da mentoria porque os clientes estão cancelando",
+                                          opcoes: "baixar o preço\nmanter e dar mais valor",
+                                          criterio: "o que segura o cliente sem cortar o faturamento",
+                                          decidido: "manter o preço", espero: "cancelamento cai em 60 dias",
+                                          arquivo: "hormozi.md", secao: 1, video: "")
+
+    private func conselho(_ s: Sessao) -> Conselho.Cartao? {
+        if case .conselho(let c)? = s.cartao { c } else { nil }
+    }
+
+    private func vistos(_ nota: UUID? = nil) -> Int {
+        Sinais.todos().count { $0.tipo == .visto && (nota == nil || $0.nota == nota) }
+    }
+
+    /// O cartão é a seção exposta em linhas LITERAIS: nada nele é texto que
+    /// não esteja na seção, e o link é a chave da regra. Visto é o desenhado.
+    @Test func concluirMostraARegraLiteralUmaVez() throws {
+        try isolado { ctx in
+            let s = concluir(precoDaMentoria, no: ctx)
+            let exposto = try #require(Sinais.todos().last { $0.tipo == .exposto })
+            let c = try #require(conselho(s), "o fim do concluir não mostrou o conselho")
+            let secao = try #require(exposto.texto)
+            #expect(c.nota == exposto.nota && c.chave == exposto.regra)
+            #expect(secao.contains("Regra: " + c.regra.regra))
+            #expect(c.regra.condicao.map { secao.contains("Condição: " + $0) }
+                    ?? (secao.contains("Condição: não dita") || !secao.contains("Condição: ")))
+            #expect(c.regra.condicao != "não dita")
+            #expect(c.regra.caso.map { secao.contains("Caso: " + $0) } ?? !secao.contains("Caso: "))
+            #expect(c.regra.mestre.map { secao.contains("Mestre: " + $0) } == true)
+            #expect(c.regra.video.map { secao.contains("Vídeo: " + $0 + " — ") } == true)
+            #expect(c.regra.minuto.map { secao.contains("Minuto: " + $0) } == true)
+            #expect(c.regra.link?.absoluteString == exposto.regra)
+            #expect(c.regra.link?.absoluteString.contains("&t=") == true, "o link abre no minuto")
+            // chega com o cursor na página em branco: recolhido, escondia a fonte (Air)
+            #expect(!CartaoAnaliseView.podeRecolher(.conselho(c)))
+            #expect(vistos() == 0, "oferecido ainda não é visto")
+            s.conselhoApareceu(c)
+            s.conselhoApareceu(c)
+            #expect(vistos(c.nota) == 1)
+            // um toque fecha; reabrir a nota não traz o cartão de novo
+            s.cartao = nil
+            let nota = try #require(ctx.fetch(FetchDescriptor<Nota>()).first { $0.uuid == c.nota })
+            s.abrir(nota)
+            #expect(s.cartao == nil)
+        }
+    }
+
+    /// Revisão da E1: gravado na oferta, a resposta da sábia ou a aba de cima
+    /// apagavam o cartão antes de o autor ver, e ele nunca mais voltava.
+    @Test func apagadoAntesDeAparecerVoltaAoReabrir() throws {
+        try isolado { ctx in
+            let s = concluir(precoDaMentoria, no: ctx)
+            let uuid = try #require(conselho(s)?.nota)
+            s.cartao = .resposta(pergunta: "?", texto: "a sábia respondeu por cima")
+            let nota = try #require(ctx.fetch(FetchDescriptor<Nota>()).first { $0.uuid == uuid })
+            s.abrir(nota)
+            #expect(conselho(s)?.nota == uuid)
+            #expect(vistos() == 0)
+        }
+    }
+
+    /// Com a conta, a escolha chega depois do concluir: até 8 s na página em
+    /// branco e à vista ela aparece; depois disso, com o autor escrevendo outra
+    /// coisa ou noutra aba, espera a nota ser reaberta.
+    @Test func chegouTardeApareceAoReabrir() throws {
+        try isolado { ctx in
+            let s = concluir(precoDaMentoria, no: ctx)
+            let c = try #require(conselho(s))
+            s.cartao = nil
+            let campos = try #require(ctx.fetch(FetchDescriptor<Nota>()).first { $0.uuid == c.nota }).campos
+            s.conselhoDaConclusao = (c.nota, Date.now.addingTimeInterval(8), campos)
+            s.oferecerConselho(c.nota, agora: .now.addingTimeInterval(9))
+            #expect(s.cartao == nil, "passou dos 8 s: não aparece na página em branco")
+            s.aba = .notas
+            s.oferecerConselho(c.nota, agora: .now.addingTimeInterval(1))
+            #expect(s.cartao == nil, "atrás das Notas ninguém vê")
+            s.aba = .escrever
+            s.texto = "outra coisa"
+            s.oferecerConselho(c.nota, agora: .now.addingTimeInterval(1))
+            #expect(s.cartao == nil, "o autor já escreve outra coisa")
+            s.novaPagina()
+            s.conselhoDaConclusao = (c.nota, Date.now.addingTimeInterval(8), campos)
+            s.oferecerConselho(c.nota, agora: .now.addingTimeInterval(7))
+            #expect(conselho(s) == c, "dentro dos 8 s, na página em branco, aparece")
+            s.cartao = nil
+            s.novaPagina()
+            let nota = try #require(ctx.fetch(FetchDescriptor<Nota>()).first { $0.uuid == c.nota })
+            s.abrir(nota)
+            #expect(conselho(s) == c)
+            #expect(c.regra.mestre == "Alex Hormozi" && c.regra.minuto != nil)
+        }
+    }
+
+    /// Nunca depois do fato: a primeira reabertura costuma ser a volta, e a
+    /// regra chegaria enquanto ele escreve o saldo que a pesa (16e).
+    @Test func naVoltaEscritaNaoAparece() throws {
+        try isolado { ctx in
+            let s = concluir(precoDaMentoria, no: ctx)
+            let uuid = try #require(conselho(s)?.nota)
+            s.cartao = nil
+            // o diário só com a exposição: nenhum `visto` cala por outro motivo
+            let semVisto = Sinais.todos().filter { $0.tipo != .visto }
+            try FileManager.default.removeItem(at: Sinais.url)
+            for sinal in semVisto { Sinais.registrar(sinal) }
+            #expect(Conselho.cartao(nota: uuid, campos: [:], sinais: semVisto) != nil, "a irmã que não acusa")
+            #expect(Conselho.cartao(nota: uuid, campos: [:], sinais: semVisto
+                + [Sinal(tipo: .resultado, nota: uuid, regra: "x", saldo: "igual")]) == nil)
+            let nota = try #require(ctx.fetch(FetchDescriptor<Nota>()).first { $0.uuid == uuid })
+            nota.campos["aconteceu"] = "o cancelamento caiu pela metade"
+            s.abrir(nota)
+            #expect(s.cartao == nil)
+        }
+    }
+
+    /// Escrever a nota seguinte — teclado, ditado, colar: todos escrevem em
+    /// `Sessao.texto` — fecha o cartão da que já foi concluída.
+    @Test func escreverOutraNotaFechaOCartao() throws {
+        try isolado { ctx in
+            let s = concluir(precoDaMentoria, no: ctx)
+            #expect(conselho(s) != nil)
+            s.texto = "Hoje"
+            #expect(s.cartao == nil)
+        }
+    }
+
+    /// A ligação real: a escolha em segundo plano (16g) grava e avisa; a
+    /// Sessao na página em branco mostra. A suíte não tem conta, então o
+    /// Grok entra injetado.
+    @Test func aEscolhaQueChegaDepoisApareceNaPaginaEmBranco() async throws {
+        let (c, fim) = try preparar()
+        defer { fim() }
+        let ctx = c.mainContext
+        let d = precoDaMentoria
+        let nota = Nota(texto: d.escolha, gesto: .decisao,
+                        campos: ["escolha": d.escolha, "opcoes": d.opcoes, "criterio": d.criterio,
+                                 "decidido": d.decidido, "espero": d.espero])
+        ctx.insert(nota)
+        try ctx.save()
+        let s = Sessao()
+        s.conselhoDaConclusao = (nota.uuid, Date.now.addingTimeInterval(8), nota.campos)
+        Sessao.registrarConselho(nota, no: ctx, perguntar: { _, _, _ in #"{"regra":1}"# },
+                                 aoExpor: { s.oferecerConselho($0) })
+        #expect(s.cartao == nil, "a escolha ainda não voltou")
+        for _ in 0..<100 where conselho(s) == nil { try await Task.sleep(for: .milliseconds(20)) }
+        #expect(Sinais.todos().filter { $0.tipo == .exposto && $0.nota == nota.uuid }.count == 1)
+        #expect(conselho(s)?.nota == nota.uuid)
     }
 }

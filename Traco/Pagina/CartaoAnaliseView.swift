@@ -61,7 +61,10 @@ struct CartaoAnaliseView: View {
     /// Fora do `body` para ter teste.
     static func podeRecolher(_ cartao: CartaoAnalisar) -> Bool {
         switch cartao {
-        case .aviso, .semConta, .sabiaPensando, .resposta: false
+        // o CONSELHO (ADR 16h) chega na página em branco, com o cursor
+        // posto e ninguém escrevendo: recolhido, escondia mestre, vídeo e
+        // minuto (visto no Air); a primeira tecla da nota seguinte já o fecha
+        case .aviso, .semConta, .sabiaPensando, .resposta, .conselho: false
         default: true
         }
     }
@@ -248,6 +251,7 @@ struct CartaoAnaliseView: View {
         case .vestido: "Vestido"
         case .semConta: "Sem conta"
         case .expressiva: "Escrita expressiva"
+        case .conselho: "Conselho"
         }
     }
 
@@ -265,6 +269,7 @@ struct CartaoAnaliseView: View {
         case .vestido: "As suas palavras, com forma. Nenhuma mudou."
         case .semConta: "a sábia " + Sabia.porOndeEmPalavras + "."
         case .expressiva: "Isto pede 15 minutos — fato E sentimento, sobre o mesmo evento."
+        case .conselho(let c): c.regra.regra
         }
     }
 
@@ -374,6 +379,12 @@ struct CartaoAnaliseView: View {
                         .foregroundStyle(Tema.tinta)
                         .fixedSize(horizontal: false, vertical: true)
                 }
+            case .conselho(let c):
+                // ADR 2026-09-16h: depois do ato, a regra do mestre — o
+                // desenho da leitura mora em `CartaoDoConselhoView`
+                corpoCartao(trilho: Tema.ambar) { CartaoDoConselhoView(voz: c.regra) }
+                    // visto é o que foi desenhado, não o que foi oferecido
+                    .onAppear { sessao.conselhoApareceu(c) }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -453,6 +464,12 @@ struct CartaoAnaliseView: View {
                 sessao.comecarExpressiva(no: context)
             }
             .buttonStyle(.primario(alinhamento: .leading))
+        case .conselho:
+            // uma saída só: nenhuma escolha, nenhum «serviu» (ADR 14a e 16e)
+            Button("Fechar", action: fechar)
+                .buttonStyle(.compacto)
+                .foregroundStyle(Tema.tintaSuave)
+                .accessibilityIdentifier("fechar-conselho")
         }
     }
 

@@ -373,6 +373,7 @@ struct PaginaView: View {
         case .sabiaPensando: "sabiaPensando"
         case .vestido: "vestido"
         case .semConta: "semConta"
+        case .conselho: "conselho"
         }
     }
 
@@ -692,6 +693,7 @@ struct PaginaView: View {
         case .resposta: "A sábia respondeu. A resposta está no cartão."
         case .vestido: "Vestido. Desfazer disponível."
         case .semConta: "A sábia " + Sabia.porOndeEmPalavras + "."
+        case .conselho: "Conselho dos mestres no cartão."
         default: nil
         }
     }

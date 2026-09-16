@@ -106,7 +106,8 @@ struct PortaoDaRotaQueCalaTests {
     /// | `classificar`, `dominio` | rotas AUTOMÁTICAS, sem gesto do autor. §17: no modo automático o silêncio é invisível, e um toast a cada pausa seria ruído. |
     static let calam: Set<Politica.Operacao> =
         [.responderNasNotas, .recordar, .padroes, .vestir, .classificar, .dominio,
-         // ADR 2026-09-16g: roda sozinha ao concluir e registra em sombra — não há tela a avisar
+         // ADR 2026-09-16g/h: roda sozinha ao concluir; se o Grok cala, a escolha é pelas
+         // palavras e o cartão mostra essa — não há falha a avisar
          .escolherRegra]
 
     private static func fontesVisiveis() throws -> [String: String] {

@@ -94,10 +94,13 @@ nonisolated enum Obra {
         let titulo = video.components(separatedBy: " — ").first ?? video
         let partes = [s.mestre, titulo.isEmpty ? nil : "“\(titulo)”", campo("Minuto").map { "minuto \($0)" }]
             .compactMap { $0 }
-        // só o endereço do YouTube vira link na citação
-        let youtube = s.chave.range(of: #"^https://www\.youtube\.com/watch\?v=[A-Za-z0-9_-]{11}(&t=\d+s)?$"#,
-                                    options: .regularExpression) != nil
-        return partes.isEmpty ? "“\(s.titulo)”" : partes.joined(separator: ", ") + (youtube ? " — \(s.chave)" : "")
+        return partes.isEmpty ? "“\(s.titulo)”" : partes.joined(separator: ", ") + (link(s.chave) != nil ? " — \(s.chave)" : "")
+    }
+
+    /// Só o endereço do YouTube vira link — na citação e no cartão do conselho.
+    static func link(_ chave: String) -> URL? {
+        chave.range(of: #"^https://www\.youtube\.com/watch\?v=[A-Za-z0-9_-]{11}(&t=\d+s)?$"#,
+                    options: .regularExpression) != nil ? URL(string: chave) : nil
     }
 
     static func radical(_ palavra: String) -> String { String(palavra.prefix(4)) }

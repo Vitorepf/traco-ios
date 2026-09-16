@@ -18,12 +18,15 @@ nonisolated struct Sinal: Codable, Sendable, Equatable, Identifiable {
         case resposta
         /// a conferência do Recordar: quantos pontos não voltaram
         case naoVoltou
-        /// ADR 16d: a regra de obra que a Decisão concluída achou, em sombra —
-        /// registrada, nunca mostrada
+        /// ADR 16d: a regra de obra que a Decisão concluída achou; desde a 16h
+        /// o cartão a mostra depois do ato
         case exposto
         /// ADR 16e: o autor escreveu o que aconteceu e o saldo numa Decisão
         /// com regra exposta — a regra ganha esse saldo. Nunca vem do «serviu».
         case resultado
+        /// ADR 16h: o cartão do conselho apareceu ao autor — uma vez por nota.
+        /// Não é «serviu» e não pesa: `Conselho.pesos` lê só `resultado`.
+        case visto
     }
 
     var id: UUID = UUID()
@@ -84,7 +87,8 @@ nonisolated enum Sinais {
         // a janela despeja primeiro o que não é conselho: sem a exposição, a
         // volta da Decisão não acha a regra; sem o resultado, o peso volta a 1
         while lista.count > teto {
-            let i = lista.firstIndex { $0.tipo != .exposto && $0.tipo != .resultado } ?? lista.startIndex
+            // e sem o `visto`, o cartão voltaria a aparecer
+            let i = lista.firstIndex { ![.exposto, .resultado, .visto].contains($0.tipo) } ?? lista.startIndex
             lista.remove(at: i)
         }
         return gravar(lista)
@@ -134,7 +138,7 @@ nonisolated enum Sinais {
     /// Em uma linha, para o Perfil.
     static func emPalavras() -> String {
         // a sombra (ADR 16d) não é gesto do autor: fora da contagem
-        let lista = todos().filter { $0.tipo != .exposto }
+        let lista = todos().filter { $0.tipo != .exposto && $0.tipo != .visto }
         guard let primeiro = lista.first else { return "nenhum sinal ainda — eles nascem quando você solta uma forma, conclui uma, ou diz se uma pergunta serviu." }
         let f = DateFormatter()
         f.locale = Locale(identifier: "pt_BR")
