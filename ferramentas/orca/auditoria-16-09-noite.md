@@ -33,9 +33,9 @@ Pedido do dono: "tem muitas coisas quebradas e de péssima qualidade". Auditor s
 ## BAIXA
 - [ ] Sombra do Dock escondido; "voltas a conferir" x "Hora de conferir" (01).
 - [x] Lente: "FRASES DE OUTRO", ícone de nuvem, divisórias desiguais (07). Três estilos de "Pronto" (07, 16, 43, 62) — 32bb58ac.
-- [x] Notas: títulos com ponto final, prévias em minúscula (e começando por «.»), cabeçalhos 4 pt dentro — 32bb58ac. [ ] toque longo em "Hora de conferir" abre em vez de menu (12, 14, 68, 70).
+- [x] Notas: títulos com ponto final, prévias em minúscula (e começando por «.»), cabeçalhos 4 pt dentro — 32bb58ac. [x] toque longo em "Hora de conferir" abre em vez de menu (12, 14, 68, 70).
 - [x] Compartilhar exporta tudo sem dizer (31) — rótulo de acessibilidade, 32bb58ac.
-- [x] Conversa: "· obra" órfão; placeholder muda 3 vezes; topo sem fundo ao rolar — 32bb58ac. [ ] "leu 1 obra" x 3 vídeos; abrir fontes empurra ações para baixo do campo (21–28, 73).
+- [x] Conversa: "· obra" órfão; placeholder muda 3 vezes; topo sem fundo ao rolar — 32bb58ac. [x] abrir fontes empurra ações para baixo do campo; "leu 1 nota sua e 2 obras" confere com a lista (21–28, 73).
 - [x] Decisão: sublinhado âmbar em campo sem foco (33) — 32bb58ac.
 - [x] Calendário: grade do dia para em 23:00 (32bb58ac); [ ] faixas no gradiente da lista; linhas cortam cápsulas na semana; semana do ano em azul (36, 37, 39, 40).
 - [x] Padrões: aspas retas, ícone de lápis repetido, minúsculas (51, 52) — 32bb58ac. [ ] Perfil: vãos de 80 pt entre seções recolhidas, divisórias desiguais (60, 65). Métodos: "Expressiva" sem seta (62).
