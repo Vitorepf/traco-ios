@@ -20,7 +20,8 @@ struct Q4CadernoUnicoTests {
         #expect(Politica.provedor(.dominio, contaLigada: false, bordo: true) == .bordo)
         #expect(Politica.linha(.classificar).regra == .grokDepoisBordo)
         #expect(Politica.linha(.vestir).regra == .grokDepoisBordo)
-        #expect(Politica.Operacao.allCases.count == 16)
+        // ADR 2026-09-16g: `escolherRegra` é a 17ª, a escolha em sombra da regra
+        #expect(Politica.Operacao.allCases.count == 17)
     }
 
     @Test func oMotorDeDominioNaoChamaARede() throws {

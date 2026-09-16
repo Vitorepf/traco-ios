@@ -528,7 +528,7 @@ struct PerfilView: View {
 
     static var oQueAContaAcrescenta: String {
         "Com a sua conta Grok, ela faz também: "
-            + Politica.pelaConta.filter { $0 != .responderNasNotas }.map(Politica.nome).joined(separator: ", ")
+            + Politica.pelaConta.filter { $0 != .responderNasNotas && $0 != .escolherRegra }.map(Politica.nome).joined(separator: ", ")
             + ". Nessas, o modelo do aparelho não dá conta sozinho."
     }
 

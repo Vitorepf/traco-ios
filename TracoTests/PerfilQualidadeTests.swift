@@ -71,6 +71,8 @@ struct PerfilQualidadeTests {
     func oCartaoAbreComOQueElaFaz() {
         #expect(PerfilView.oQueAIAFaz.hasPrefix("A IA faz por você"))
         #expect(!PerfilView.oQueAContaAcrescenta.contains(Politica.nome(.responderNasNotas)))
+        // ADR 2026-09-16g: a escolha da regra é sombra — o Perfil não promete o que ninguém vê
+        #expect(!PerfilView.oQueAContaAcrescenta.contains(Politica.nome(.escolherRegra)))
         #expect(PerfilView.notasAindaSemTela.contains("Notas"))
         #expect(PerfilView.notasAindaSemTela.contains("tela"))
         #expect(!PerfilView.reprovadas.contains { $0.op == .responderNasNotas })

@@ -105,7 +105,9 @@ struct PortaoDaRotaQueCalaTests {
     /// | `vestir` | a rota diz por frase própria: "nada a vestir aqui." e "a sábia não respondeu. o texto ficou como estava." (B2). |
     /// | `classificar`, `dominio` | rotas AUTOMÁTICAS, sem gesto do autor. §17: no modo automático o silêncio é invisível, e um toast a cada pausa seria ruído. |
     static let calam: Set<Politica.Operacao> =
-        [.responderNasNotas, .recordar, .padroes, .vestir, .classificar, .dominio]
+        [.responderNasNotas, .recordar, .padroes, .vestir, .classificar, .dominio,
+         // ADR 2026-09-16g: roda sozinha ao concluir e registra em sombra — não há tela a avisar
+         .escolherRegra]
 
     private static func fontesVisiveis() throws -> [String: String] {
         let raiz = URL(fileURLWithPath: #filePath)
@@ -152,7 +154,7 @@ struct PortaoDaRotaQueCalaTests {
         #expect(cobertas == Set(Politica.Operacao.allCases),
                 "operação fora da tabela: \(Set(Politica.Operacao.allCases).subtracting(cobertas))")
         #expect(Set(Self.mostram.keys).isDisjoint(with: Self.calam))
-        #expect(Self.mostram.count == 10 && Self.calam.count == 6,
+        #expect(Self.mostram.count == 10 && Self.calam.count == 7,
                 "a conta da B2 era 10 com superfície e 6 sem; mudou sem passar pelo julgamento")
     }
 

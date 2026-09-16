@@ -1926,12 +1926,35 @@ final class Sessao {
         // a volta já escrita antes da exposição: a regra escolhida agora não
         // estava lá quando ele decidiu — não se expõe depois do fato (revisão E4)
         guard (nota.campos["aconteceu"] ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
-        let obras = ((try? context.fetch(FetchDescriptor<Nota>())) ?? []).filter { $0.origem == .obra && !$0.fechada }
-        guard let achado = Conselho.escolher(consulta: consulta, obras: obras.map(\.texto),
-                                             pesos: Conselho.pesos(sinais)) else { return }
-        Sinais.registrar(Sinal(tipo: .exposto, forma: nota.gestoRaw, texto: achado.regra.secao.texto,
-                               nota: nota.uuid, regra: achado.regra.secao.chave,
-                               contraria: achado.outra?.secao.texto, porque: achado.regra.termos))
+        let obras = ((try? context.fetch(FetchDescriptor<Nota>())) ?? []).filter { $0.origem == .obra && !$0.fechada }.map(\.texto)
+        guard !obras.isEmpty else { return }
+        let pesos = Conselho.pesos(sinais)
+        let (uuid, forma) = (nota.uuid, nota.gestoRaw)
+        func expor(_ achado: (regra: Obra.Achado, outra: Obra.Achado?)) {
+            Sinais.registrar(Sinal(tipo: .exposto, forma: forma, texto: achado.regra.secao.texto,
+                                   nota: uuid, regra: achado.regra.secao.chave,
+                                   contraria: achado.outra?.secao.texto, porque: achado.regra.termos))
+        }
+        // ADR 2026-09-16g: com a conta, o Grok escolhe pelo sentido entre as 30
+        // melhores — em segundo plano, porque concluir não espera a rede
+        guard Politica.provedor(.escolherRegra) != nil else {
+            if let achado = Conselho.escolher(consulta: consulta, obras: obras, pesos: pesos) { expor(achado) }
+            return
+        }
+        Task { @MainActor in
+            let achado = await Conselho.escolherPeloSentido(consulta: consulta, obras: obras, pesos: pesos) { s, u, e in
+                await Sabia.chamar(.escolherRegra, sistema: s, usuario: u, temperatura: 0, esquema: e)
+            }
+            // a rede pode levar minutos: expõe só se a nota ainda é a mesma
+            // decisão, aberta, sem a volta escrita (revisão E4: nunca depois do
+            // fato) e sem exposição de outra conclusão nesse meio-tempo
+            guard let achado, let atual = Self.buscar(uuid: uuid, no: context),
+                  atual.origem == .autor, !atual.fechada,
+                  (atual.campos["aconteceu"] ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                  Conselho.consulta(gesto: atual.gesto, campos: atual.campos) == consulta,
+                  !Sinais.todos().contains(where: { $0.tipo == .exposto && $0.nota == uuid }) else { return }
+            expor((achado.regra, achado.outra))
+        }
     }
 
     /// Trocar de aba NUNCA perde texto: salva antes de sair (§20).

@@ -11,7 +11,7 @@ enum AvaliacaoIA {
     private static var iniciou = false
     private static let operacoes = ["produzir", "prepararPratica", "conferirTentativa", "revisar",
         "responderNasNotas", "responder", "instigar", "contrapor", "vestir", "recordar",
-        "conferir", "ecos", "calibragem", "padroes", "classificar", "dominio", "modelosGrok"]
+        "conferir", "ecos", "calibragem", "padroes", "classificar", "dominio", "modelosGrok", "escolherRegra"]
 
     /// QUAL pedido rodou cada caso, pelo dado e não pelo nome do arquivo. A
     /// 10b precisou reconstruir isto procurando os 2.327 bytes do prompt DENTRO
@@ -393,6 +393,26 @@ enum AvaliacaoIA {
                 pessoal: AnaliseLocal.escritaPessoal(texto: texto, campos: campos))
             return ["escolhido": veredito(escolhido), "local": veredito(local),
                     "modelo": remoto.map { veredito($0) as Any } ?? NSNull()]
+        case "escolherRegra":
+            // ADR 2026-09-16g: `texto` é a consulta que a Decisão monta; `itens`
+            // são os arquivos da biblioteca postos no Documents ao lado da
+            // fixture. Sai a regra escolhida e por qual via — `palavras` numa
+            // linha é o modelo que não respondeu, não acerto dele.
+            let documentos = try FileManager.default.url(for: .documentDirectory, in: .userDomainMask,
+                                                         appropriateFor: nil, create: false)
+            let obras = try itens.map { nome -> String in
+                guard nome == URL(fileURLWithPath: nome).lastPathComponent else { throw Falha.arquivoInvalido }
+                let bruto = try String(contentsOf: documentos.appendingPathComponent(nome), encoding: .utf8)
+                return try exigir(Corpus.importar(bruto).first?.texto, "obra \(nome)")
+            }
+            let achado = await Conselho.escolherPeloSentido(consulta: texto, obras: obras, pesos: [:]) { s, u, esquema in
+                await Sabia.chamar(.escolherRegra, sistema: s, usuario: u, temperatura: 0, esquema: esquema)
+            }
+            guard let achado else { return ["via": "modelo", "regra": NSNull()] }
+            let ranking = Obra.ranquear(pergunta: texto, textos: obras)
+            return ["via": achado.via.rawValue, "regra": achado.regra.secao.chave,
+                    "titulo": achado.regra.secao.titulo,
+                    "posicaoNoBM25": (ranking.firstIndex { $0.secao.chave == achado.regra.secao.chave } ?? -2) + 1]
         case "dominio":
             let dominio = try exigir(await AnaliseDeBordo.dominio(texto: texto))
             return ["dominio": dominio.map { $0.rawValue as Any } ?? NSNull()]

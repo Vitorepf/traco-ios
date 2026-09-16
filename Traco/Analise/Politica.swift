@@ -23,6 +23,7 @@ enum Politica {
         case responderNasNotas, responder, instigar, contrapor, vestir
         case recordar, conferir, ecos, calibragem, padroes
         case classificar, dominio
+        case escolherRegra
     }
 
     enum Regra: Equatable, Sendable {
@@ -135,6 +136,9 @@ enum Politica {
             .init(regra: .grokDepoisBordo, porque: "o aparelho acertou 3 de 3 com esquema tipado; as regex arbitram por último (ADR 04c/06h)")
         case .dominio:
             .init(regra: .soBordo, porque: "rótulo fechado com esquema tipado sobre 2.000 caracteres; o léxico cobre sem modelo")
+        case .escolherRegra:
+            // sem conta, a escolha não some: cai no BM25 local (Conselho.escolher)
+            .init(regra: .soGrok, porque: "o BM25 punha a regra certa em 1º lugar em 14 de 40 casos escritos antes do código (8/20 perguntas, 3/10 da reserva, 1/5 e 2/5 decisões); o grok-4.3 escolhendo entre as 30 melhores acertou 38 de 40 nas 3 repetições, e os dois que errou tinham a certa fora das 30 (posições 47 e 62) — num deles disse que nenhuma servia, 3 de 3. Mediana 4 s — prova/16g/")
         }
     }
 
@@ -209,6 +213,7 @@ enum Politica {
         case .vestir, .classificar:
             "A sábia precisa da sua conta Grok (em Perfil) ou da Apple Intelligence ligada."
         case .dominio: "O domínio pela IA precisa da Apple Intelligence ligada; sem ela, o léxico decide."
+        case .escolherRegra: "Escolher a regra dos mestres pelo sentido precisa da sua conta Grok (em Perfil); sem ela, a escolha é pelas palavras."
         }
     }
 
@@ -254,6 +259,7 @@ enum Politica {
         case .padroes: "perguntas dos Padrões"
         case .classificar: "reconhecer a forma"
         case .dominio: "o domínio da nota"
+        case .escolherRegra: "escolher a regra dos mestres"
         }
     }
 }
