@@ -343,7 +343,7 @@ struct CalendarioView: View {
             // a gota carvão escorre de uma letra à outra; a letra fica branca só
             // onde a gota está — uma camada branca recortada por ela, como o Dock
             .background {
-                Gota(indice: indice, passo: 32, lado: 30, casas: EscalaCalendario.allCases.count, cor: CalendarioTema.chipActivo)
+                Gota(indice: indice, passo: 32, lado: 30, casas: EscalaCalendario.allCases.count, raio: Tema.raioDeCasa(30), cor: CalendarioTema.chipActivo)
                     .offset(x: 1)
                     .shadow(color: CalendarioTema.sombraControle, radius: 4, y: 2)
             }
@@ -356,12 +356,13 @@ struct CalendarioView: View {
                     }
                 }
                 .foregroundStyle(.white)
-                .mask { Gota(indice: indice, passo: 32, lado: 30, casas: EscalaCalendario.allCases.count).offset(x: 1) }
+                .mask { Gota(indice: indice, passo: 32, lado: 30, casas: EscalaCalendario.allCases.count, raio: Tema.raioDeCasa(30)).offset(x: 1) }
                 .allowsHitTesting(false)
                 .accessibilityHidden(true)
             }
             .padding(.horizontal, 2)
-            .background(Capsule().fill(CalendarioTema.trilho))
+            // concêntrico com o campo: 14 do campo − 4 de respiro
+            .background(RoundedRectangle(cornerRadius: Tema.raioDoCampo - 4, style: .continuous).fill(CalendarioTema.trilho))
 
             if !agenda.hojeAVista(agora) {
                 Button {
@@ -429,10 +430,12 @@ struct CalendarioChipDia: View {
         }
         .foregroundStyle(activo ? .white : CalendarioTema.tintaSuave)
         .frame(width: lado, height: lado)
-        .background(activo ? CalendarioTema.chipActivo : CalendarioTema.chip, in: Circle())
+        .background(activo ? CalendarioTema.chipActivo : CalendarioTema.chip,
+                    in: RoundedRectangle(cornerRadius: Tema.raioDeCasa(lado), style: .continuous))
         .overlay {
             if hoje, !activo {
-                Circle().strokeBorder(CalendarioTema.tinta, lineWidth: 1.5)
+                RoundedRectangle(cornerRadius: Tema.raioDeCasa(lado), style: .continuous)
+                    .strokeBorder(CalendarioTema.tinta, lineWidth: 1.5)
             }
         }
         .frame(width: Tema.alvo, height: Tema.alvo)
@@ -501,10 +504,10 @@ struct CalendarioListaView: View {
                                                 .font(.caption.weight(.semibold))
                                                 .foregroundStyle(CalendarioTema.tinta(de: evento))
                                                 .frame(width: 28, height: 28)
-                                                .background(CalendarioTema.fundo(de: evento), in: Circle())
+                                                .background(CalendarioTema.fundo(de: evento), in: RoundedRectangle(cornerRadius: Tema.raioDeCasa(28), style: .continuous))
                                                 .overlay {
                                                     if CalendarioTema.temContorno(evento) {
-                                                        Circle().strokeBorder(CalendarioTema.contorno(de: evento), lineWidth: 1)
+                                                        RoundedRectangle(cornerRadius: Tema.raioDeCasa(28), style: .continuous).strokeBorder(CalendarioTema.contorno(de: evento), lineWidth: 1)
                                                     }
                                                 }
                                         },

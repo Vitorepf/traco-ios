@@ -144,6 +144,13 @@ enum Tema {
     static let barraNav: CGFloat = 60
     static let raioDoca: CGFloat = 20
     static let raioDaAba: CGFloat = raioDoca - doca                      // 12
+    /// dono, 16/09: uma forma só — toda casa (dia, escala, envio) é um quadrado
+    /// de cantos contínuos com raio de ~27 % do lado: 44 → 12 (o da aba do
+    /// Dock), 30 → 8, 28 → 8. Redondo fica só o que marca instante (agora) ou
+    /// carrega palavra (Hoje, pílulas de compromisso).
+    static func raioDeCasa(_ lado: CGFloat) -> CGFloat { (lado * 0.27).rounded() }
+    /// o campo do pé: um Dock menor, concêntrico com o trilho de dentro (14 − 4)
+    static let raioDoCampo: CGFloat = 14
     /// A folga entre as abas, igual à da borda: (Dock − 4 abas) ÷ 5.
     static var folgaDasAbas: CGFloat {
         (larguraDoPe - barraNav - doca - 4 * ladoDaAba) / 5

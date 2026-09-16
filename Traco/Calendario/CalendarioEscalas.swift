@@ -149,7 +149,11 @@ struct CalendarioDiaView: View {
     }
 
     private var horas: some View {
-        VStack(spacing: 0) {
+        // o rótulo da hora cheia some quando a etiqueta do agora cai sobre ele:
+        // às 14:11 o "14:00" aparecia por baixo do "14:11" (16/09)
+        let agoraNaGrade = Calendario.eHoje(agenda.ancora, agora: agora, agenda.cal)
+            ? Calendario.minutosDoDia(agora, agenda.cal) : nil
+        return VStack(spacing: 0) {
             ForEach(0..<24, id: \.self) { hora in
                 HStack(alignment: .top, spacing: 10) {
                     Text(String(format: "%02d:00", hora))
@@ -157,6 +161,7 @@ struct CalendarioDiaView: View {
                         .foregroundStyle(CalendarioTema.tintaFraca)
                         .frame(width: gutter - 14, alignment: .trailing)
                         .offset(y: -7)
+                        .opacity(agoraNaGrade.map { abs($0 - hora * 60) < 20 } == true ? 0 : 1)
                     Rectangle()
                         .fill(CalendarioTema.linha)
                         .frame(height: 1)
@@ -573,9 +578,9 @@ struct CalendarioMesView: View {
                     .frame(width: 28, height: 28)
                     .background {
                         if activo {
-                            Circle().fill(CalendarioTema.chipActivo)
+                            RoundedRectangle(cornerRadius: Tema.raioDeCasa(28), style: .continuous).fill(CalendarioTema.chipActivo)
                         } else if hoje {
-                            Circle().strokeBorder(CalendarioTema.tinta, lineWidth: 1.5)
+                            RoundedRectangle(cornerRadius: Tema.raioDeCasa(28), style: .continuous).strokeBorder(CalendarioTema.tinta, lineWidth: 1.5)
                         }
                     }
                     .matchedGeometryEffect(id: idDia(dia, agenda.cal), in: morph, isSource: agenda.escala == .mes)
@@ -749,6 +754,16 @@ struct CalendarioAnoView: View {
         let naSemana = noMes && agenda.semana.contains { Calendario.mesmoDia($0, dia, agenda.cal) }
         let tinta = noMes ? eventos.first?.dominio : nil
         let numero = agenda.cal.component(.day, from: dia)
+        // a casa do ano é um quadrado contínuo; a semana da âncora vira UMA
+        // faixa, arredondada só nas pontas (dono, 16/09: "como uma régua")
+        let lado = min(m.celulaL, m.celulaA) - 1
+        let raio = Tema.raioDeCasa(lado)
+        func tambemNaSemana(_ passo: Int) -> Bool {
+            guard let vizinho = agenda.cal.date(byAdding: .day, value: passo, to: dia) else { return false }
+            return Calendario.mesmoMes(vizinho, mes, agenda.cal)
+                && agenda.semana.contains { Calendario.mesmoDia($0, vizinho, agenda.cal) }
+        }
+        let antes = naSemana && tambemNaSemana(-1), depois = naSemana && tambemNaSemana(1)
         return Text("\(numero)")
             .font(.system(size: m.fonte, weight: ancora || hoje ? .bold : .medium))
             .monospacedDigit()
@@ -760,15 +775,27 @@ struct CalendarioAnoView: View {
             .frame(maxWidth: .infinity)
             .frame(height: m.celulaA)
             .background {
-                // meio ponto de ar entre discos vizinhos: a semana não vira uma barra
-                if ancora {
-                    Circle().fill(CalendarioTema.chipActivo).padding(0.5)
-                } else if naSemana {
-                    Circle().fill(CalendarioTema.semanaAncora).padding(0.5)
-                } else if let tinta, !eventos.isEmpty {
-                    Circle().fill(CalendarioTema.fundo(de: tinta)).padding(0.5)
-                } else if hoje {
-                    Circle().strokeBorder(CalendarioTema.tinta, lineWidth: 1)
+                ZStack {
+                    if naSemana {
+                        UnevenRoundedRectangle(topLeadingRadius: antes ? 0 : raio, bottomLeadingRadius: antes ? 0 : raio,
+                                               bottomTrailingRadius: depois ? 0 : raio, topTrailingRadius: depois ? 0 : raio,
+                                               style: .continuous)
+                            .fill(CalendarioTema.semanaAncora)
+                            .frame(height: lado)
+                            // cobre o 1 pt entre as casas: a faixa é contínua
+                            .padding(.leading, antes ? -0.5 : 0)
+                            .padding(.trailing, depois ? -0.5 : 0)
+                    } else if let tinta, !eventos.isEmpty {
+                        RoundedRectangle(cornerRadius: raio, style: .continuous)
+                            .fill(CalendarioTema.fundo(de: tinta)).frame(width: lado, height: lado)
+                    } else if hoje, !ancora {
+                        RoundedRectangle(cornerRadius: raio, style: .continuous)
+                            .strokeBorder(CalendarioTema.tinta, lineWidth: 1).frame(width: lado, height: lado)
+                    }
+                    if ancora {
+                        RoundedRectangle(cornerRadius: raio, style: .continuous)
+                            .fill(CalendarioTema.chipActivo).frame(width: lado, height: lado)
+                    }
                 }
             }
             .opacity(noMes ? 1 : 0.4)

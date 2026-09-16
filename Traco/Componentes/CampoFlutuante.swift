@@ -85,7 +85,7 @@ struct CampoFlutuante<Mais: View>: View {
                     .background {
                         // o disco se LEVANTA do poço, como a escala escolhida
                         if aoParar != nil || temTexto || ditado.gravando {
-                            Circle()
+                            RoundedRectangle(cornerRadius: Tema.raioDeCasa(30), style: .continuous)
                                 .fill(aoParar != nil || (ditado.gravando && !temTexto) ? Tema.aviso : Tema.chipAtivo)
                                 .shadow(color: CalendarioTema.sombraControle, radius: 3, y: 1.5)
                         }
@@ -108,7 +108,8 @@ struct CampoFlutuante<Mais: View>: View {
         .padding(4)
         // dono, 16/09: sólido sem sair do vidro — um véu de papel dá corpo ao
         // material fino, sem borda nem sombra desenhada
-        .glassEffect(.regular.tint(.white.opacity(0.35)).interactive(), in: .capsule)
+        .glassEffect(.regular.tint(.white.opacity(0.35)).interactive(),
+                     in: RoundedRectangle(cornerRadius: Tema.raioDoCampo, style: .continuous))
     }
 }
 
