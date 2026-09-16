@@ -80,6 +80,7 @@
 		472ADC766DC54F75D9875100 /* OficinaTrabalho.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBE905DFA3CEA272597F706D /* OficinaTrabalho.swift */; };
 		47CDB34EC591FC6D2C9B98F1 /* AnaliseRemota.swift in Sources */ = {isa = PBXBuildFile; fileRef = 559F50CC1AF6E37EF3CA94F7 /* AnaliseRemota.swift */; };
 		486EC2401CBBFE2E2F5F4FC6 /* Entidades.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB7E188EF083C0B2B0088DA0 /* Entidades.swift */; };
+		49ADA82274E9A44C3913E570 /* ConversaDaSabia.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA951E2A9D7997908CD5BA9 /* ConversaDaSabia.swift */; };
 		49F55E4771098FD4F183F1D0 /* Tema.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A273C7A77EA3B9F5AAAC13A /* Tema.swift */; };
 		4C0511B2C80DED6265BDA8C1 /* CalendarioSistema.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ABFF933270D2D46AF26A28A /* CalendarioSistema.swift */; };
 		4C087E51618A29E54C7DB4BF /* AnexoDisco.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6781E6B90271EAB559E46EB7 /* AnexoDisco.swift */; };
@@ -408,6 +409,7 @@
 		7537CF8C51549F26D7FCB726 /* CalendarioTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarioTests.swift; sourceTree = "<group>"; };
 		77A3A724DB0AF234875ED779 /* GuardaDeEcos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuardaDeEcos.swift; sourceTree = "<group>"; };
 		79DD9F72B5E30D1ABEEE668D /* caderno-v3-degrau.store */ = {isa = PBXFileReference; path = "caderno-v3-degrau.store"; sourceTree = "<group>"; };
+		7AA951E2A9D7997908CD5BA9 /* ConversaDaSabia.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversaDaSabia.swift; sourceTree = "<group>"; };
 		7AADD8085337A3F3C82395E8 /* AgendamentoAcaoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgendamentoAcaoView.swift; sourceTree = "<group>"; };
 		7BB175F2F50DED6365BFB989 /* DestaqueDoDia.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DestaqueDoDia.swift; sourceTree = "<group>"; };
 		7DF4DB2A8B1FE3987EEA5C93 /* ChipDominio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChipDominio.swift; sourceTree = "<group>"; };
@@ -877,6 +879,7 @@
 		C338321710072474EE95E8D4 /* Notas */ = {
 			isa = PBXGroup;
 			children = (
+				7AA951E2A9D7997908CD5BA9 /* ConversaDaSabia.swift */,
 				D78CA40BB6261B7ED51A389D /* ConversaNotas.swift */,
 				3012217369C9A480FC336A64 /* Corpus.swift */,
 				1629E684196EC743E4367A0E /* DestaqueBusca.swift */,
@@ -1272,6 +1275,7 @@
 				12A2466D7114FEF5B38C47AD /* Conselho.swift in Sources */,
 				7F26309223D4872E96CFEA82 /* ContaGrok.swift in Sources */,
 				9050F8D6125AE134178EA234 /* ConteudoTrabalhoView.swift in Sources */,
+				49ADA82274E9A44C3913E570 /* ConversaDaSabia.swift in Sources */,
 				2EEAEF428EDFD4A27B3A9AB7 /* ConversaNotas.swift in Sources */,
 				8B41722379ED1CB7724E946C /* Corpus.swift in Sources */,
 				BC0DD1281A087EBFC727F40C /* Degraus.swift in Sources */,

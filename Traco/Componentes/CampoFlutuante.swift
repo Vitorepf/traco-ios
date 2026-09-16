@@ -86,7 +86,9 @@ struct CampoFlutuante<Mais: View>: View {
                         // o disco se LEVANTA do poço, como a escala escolhida
                         if aoParar != nil || temTexto || ditado.gravando {
                             RoundedRectangle(cornerRadius: Tema.raioDeCasa(30), style: .continuous)
-                                .fill(aoParar != nil || (ditado.gravando && !temTexto) ? Tema.aviso : Tema.chipAtivo)
+                                // parar de esperar a sábia é carvão, como o enviar (dono, 16/09: o quadrado
+                                // vermelho parecia erro); vermelho só na gravação do ditado
+                                .fill(aoParar == nil && ditado.gravando && !temTexto ? Tema.aviso : Tema.chipAtivo)
                                 .shadow(color: CalendarioTema.sombraControle, radius: 3, y: 1.5)
                         }
                     }

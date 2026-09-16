@@ -39,13 +39,13 @@ import XCTest
         XCTAssertEqual(XCTWaiter().wait(for: [expectation(for: andou, evaluatedWith: espera)], timeout: 10),
                        .completed, "o relógio parou em '\(primeiro)' — laço mudo com outra roupa")
 
-        // REFERENCIA-HERMES §8: a espera é uma CÁPSULA estreita, colada acima
-        // do campo — não um cartão que toma a tela
+        // dono, 16/09 (conversa redesenhada): a espera é UMA linha logo abaixo
+        // da pergunta, que sobe ao topo — não uma faixa colada ao campo
         let campo = app.textFields["pergunta-notas"].firstMatch
-        XCTAssertTrue(campo.exists, "o campo sumiu enquanto a sábia pensa — a cápsula não tem onde colar")
-        XCTAssertLessThan(espera.frame.height, 60, "a cápsula não é estreita: \(espera.frame)")
-        XCTAssertLessThanOrEqual(espera.frame.maxY, campo.frame.minY, "a cápsula não está acima do campo")
-        XCTAssertLessThan(campo.frame.minY - espera.frame.maxY, 24, "a cápsula não está colada ao campo")
+        XCTAssertTrue(campo.exists, "o campo sumiu enquanto a sábia pensa")
+        XCTAssertLessThan(espera.frame.height, 60, "a espera não é uma linha: \(espera.frame)")
+        XCTAssertGreaterThanOrEqual(espera.frame.minY, titulo.frame.maxY, "a espera não está abaixo da pergunta")
+        XCTAssertLessThan(espera.frame.minY - titulo.frame.maxY, 40, "a espera não está logo abaixo da pergunta")
         XCTAssertTrue(app.descendants(matching: .any)["autor-voce"].firstMatch.exists, "a pergunta não tem linha de autor")
 
         // 3. PARAR: é o botão do CAMPO (§9) — existe, é alcançável e tem alvo de
@@ -54,9 +54,11 @@ import XCTest
         XCTAssertTrue(parar.exists, "esperar 241 s sem saída é a pessoa presa ao cartão")
         XCTAssertFalse(app.buttons["perguntar-notas"].firstMatch.exists, "parar e enviar no campo ao mesmo tempo")
         XCTAssertTrue(parar.isHittable, "a saída existe na árvore mas não é alcançável")
-        XCTAssertGreaterThanOrEqual(parar.frame.height, 44, "alvo abaixo de 44 pt (\(parar.frame.height))")
-        XCTAssertEqual(app.buttons.matching(NSPredicate(format: "label == 'Fechar'")).count, 1,
-                       "mais de um Fechar na tela")
+        // o campo do pé tem 40 pt (dono, 14–16/09): o botão mede 32 dentro dele,
+        // e o campo inteiro em volta é a zona de toque
+        XCTAssertGreaterThanOrEqual(parar.frame.height, 32, "botão abaixo de 32 pt (\(parar.frame.height))")
+        XCTAssertEqual(app.buttons.matching(NSPredicate(format: "label == 'Voltar às notas'")).count, 1,
+                       "a conversa precisa de uma saída, e uma só")
 
         // e parar NÃO PERDE a pergunta
         parar.tap()
@@ -117,16 +119,17 @@ import XCTest
         XCTAssertTrue(app.otherElements["cartao-sabia-notas"].firstMatch.waitForExistence(timeout: 5), "a conversa sumiu ao trocar de aba")
         XCTAssertFalse(app.buttons["serviu"].firstMatch.exists, "trocar de aba ofereceu o retorno de novo — a avaliação morava na view")
 
-        XCTAssertEqual(app.buttons.matching(NSPredicate(format: "label == 'Fechar'")).count, 1, "mais de um Fechar")
+        XCTAssertEqual(app.buttons.matching(NSPredicate(format: "label == 'Voltar às notas'")).count, 1, "mais de uma saída")
         // ADR 10i: a linha "?" no pé da conversa é a pergunta seguinte; ela
         // só existe com a conversa aberta
-        XCTAssertEqual(app.textFields["pergunta-notas"].firstMatch.placeholderValue, "pergunte de novo",
+        XCTAssertEqual(app.textFields["pergunta-notas"].firstMatch.placeholderValue, "Continue a conversa",
                        "com a conversa aberta, a linha \"?\" no pé da folha é a da pergunta seguinte")
         XCTAssertFalse(app.textFields["busca-notas"].firstMatch.exists, "a busca não pertence à folha da conversa")
         app.buttons["fechar-resposta"].firstMatch.tap()
         XCTAssertFalse(app.otherElements["cartao-sabia-notas"].firstMatch.waitForExistence(timeout: 2), "fechar não fechou")
-        XCTAssertEqual(app.textFields["busca-notas"].firstMatch.placeholderValue, "buscar",
+        XCTAssertEqual(app.textFields["busca-notas"].firstMatch.placeholderValue, "Fale com o Traço",
                        "fechar a conversa tem de devolver a lista com a sua busca")
-        XCTAssertTrue(app.buttons["perguntar-modo"].firstMatch.exists, "a marca \"?\" tem de voltar ao título")
+        // a marca "?" do título saiu em 14/09: perguntar é o mesmo campo do pé
+        XCTAssertTrue(app.textFields["busca-notas"].firstMatch.exists, "o campo de buscar e perguntar tem de voltar")
     }
 }

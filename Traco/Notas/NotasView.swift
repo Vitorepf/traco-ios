@@ -35,6 +35,9 @@ struct NotasView: View {
     @State private var escolhidas: Set<UUID> = []
     @State private var confirmarLote = false
     @State private var mostrarTrabalhos = false
+    /// A altura visível da conversa: o último bloco ocupa ao menos isso, para
+    /// a pergunta enviada poder subir ao topo mesmo com resposta curta.
+    @State private var alturaDaConversa: CGFloat = 0
     @FocusState private var perguntaFocada: Bool
 
     var body: some View {
@@ -177,165 +180,142 @@ struct NotasView: View {
         abrirDaLista(nota)
     }
 
-    /// A CONVERSA sem balão e sem caixa (REFERENCIA-HERMES §6): cada mensagem
-    /// é uma linha de autor — VOCÊ em âmbar, SÁBIA no verde dela — e, embaixo,
-    /// o texto puro em largura inteira; entre uma e outra, um fio recuado,
-    /// alinhado com o texto. A resposta vem inteira, sem teto e sem dobra; as
-    /// trocas anteriores ficam acima, na ordem — perguntar de novo continua,
-    /// não recomeça. Só a última leva as fontes e o retorno. Enquanto a sábia
-    /// pensa, a pergunta já está na folha e a espera é a CÁPSULA colada acima
-    /// do campo (§8); se não respondeu, a falha é a mensagem da SÁBIA, com
-    /// "Perguntar de novo" ao lado. O que a sábia diz passa pela mesma
-    /// `CartaoDeResposta` da Página e da Lente — nenhuma tela desenha a IA por
-    /// conta própria (§15).
+    /// A CONVERSA (dono, 16/09: "horrível… design totalmente quebrado"). Quem
+    /// pergunta fala num balão à direita; a sábia responde sem balão e sem
+    /// rótulo, em parágrafos; a espera é uma linha logo abaixo da pergunta, que
+    /// sobe ao topo quando é enviada; as fontes e as ações moram colados à
+    /// resposta. A regra de conteúdo continua a mesma: a resposta chega ao
+    /// lado, nunca na nota (ADR 02o), e só a última leva fontes e retorno.
     private var conversaDaSabia: some View {
-        let emEspera: String? = if case .pensando(let p, _) = conversaNotas.estado { p } else { nil }
+        let emEspera = conversaNotas.esperandoDesde
+        let pergunta: String? = if case .pensando(let p, _) = conversaNotas.estado { p } else { nil }
         let aRepetir = conversaNotas.perguntaParaRepetir
+        let vazia = conversa.isEmpty && pergunta == nil && aRepetir == nil && !conversaNotas.semModelo
         return VStack(spacing: 0) {
+        ScrollViewReader { rolagem in
         ScrollView {
-            VStack(alignment: .leading, spacing: 0) {
+            VStack(alignment: .leading, spacing: 32) {
+                if vazia {
+                    AberturaDaConversa().padding(.top, 8)
+                }
                 ForEach(Array(conversa.enumerated()), id: \.offset) { i, troca in
-                    let ultima = i == conversa.count - 1 && aRepetir == nil
-                    let retorno: ((Bool) -> Void)? = ultima && !conversaNotas.avaliadas.contains(troca.resposta) ? { serviu in
-                        Sinais.resposta(troca.resposta, forma: nil, serviu: serviu)
-                        conversaNotas.avaliadas.insert(troca.resposta)
-                        Toque.leve()
-                    } : nil
-                    mensagemDaPessoa(troca.pergunta, fio: i > 0)
-                    mensagem(.sabia, fio: true) {
-                        VStack(alignment: .leading, spacing: 10) {
-                            CartaoDeResposta(
-                                titulo: nil,
-                                fontes: ultima ? conversaNotas.fontes.map { .init(id: $0.id, titulo: $0.titulo) } : [],
-                                resumoDasFontes: ultima ? RespostaNotas.resumoDasFontes(conversaNotas.fontes) : nil,
-                                abrirFonte: abrirFonte,
-                                retorno: retorno,
-                                avaliada: ultima && conversaNotas.avaliadas.contains(troca.resposta),
-                                rota: "sabia-notas"
-                            ) {
-                                // ADR 02o: a resposta chega ao lado, nunca na nota. Levar
-                                // um trecho para a nota é ato do autor — selecionar e
-                                // copiar —, com as palavras dele.
-                                Text(troca.resposta).textSelection(.enabled)
+                    let ultima = i == conversa.count - 1 && aRepetir == nil && pergunta == nil
+                    VStack(alignment: .leading, spacing: 16) {
+                        BalaoDaPergunta(texto: troca.pergunta)
+                        VStack(alignment: .leading, spacing: 14) {
+                            RespostaDaSabia(texto: troca.resposta)
+                            if ultima, !conversaNotas.fontes.isEmpty {
+                                FontesDaResposta(
+                                    resumo: RespostaNotas.resumoDasFontes(conversaNotas.fontes),
+                                    fontes: conversaNotas.fontes.map { .init(id: $0.id, titulo: $0.titulo, obra: $0.obra) },
+                                    abrir: abrirFonte)
                             }
                             if ultima, conversaNotas.obraParaPlantar != nil {
                                 Button("Plantar esta obra", action: plantarObraDaGuarda)
-                                    .font(Tema.meta)
-                                    .foregroundStyle(Tema.ambarTinta)
+                                    .font(.subheadline.weight(.semibold))
+                                    .foregroundStyle(Tema.tinta)
+                                    .padding(.horizontal, 16)
+                                    .frame(height: 38)
+                                    .glassEffect(.regular.interactive(), in: .capsule)
                                     .alvo()
                                     .buttonStyle(.discreto)
                                     .accessibilityIdentifier("plantar-sabia-notas")
                             }
+                            AcoesDaResposta(
+                                texto: troca.resposta,
+                                retorno: ultima && !conversaNotas.avaliadas.contains(troca.resposta) ? { serviu in
+                                    Sinais.resposta(troca.resposta, forma: nil, serviu: serviu)
+                                    conversaNotas.avaliadas.insert(troca.resposta)
+                                    Toque.leve()
+                                } : nil,
+                                avaliada: conversaNotas.avaliadas.contains(troca.resposta))
+                        }
+                        .accessibilityElement(children: .contain)
+                        .accessibilityIdentifier("autor-sabia")
+                    }
+                    .frame(minHeight: i == conversa.count - 1 && pergunta == nil && aRepetir == nil
+                           ? max(0, alturaDaConversa - 32) : nil, alignment: .top)
+                    .id("troca-\(i)")
+                }
+                if let p = pergunta ?? aRepetir {
+                    VStack(alignment: .leading, spacing: 16) {
+                        BalaoDaPergunta(texto: p)
+                        if let emEspera {
+                            PensandoDaSabia(desde: emEspera)
+                                .transition(Tema.transicao(.opacity, reduzido: reduceMotion))
+                        } else if let aRepetir {
+                            FalhaDaSabia(
+                                // a rota das Notas é só Grok (Politica, ADR 09v): sem
+                                // a conta, a frase é a da Politica e a saída é o Perfil
+                                frase: conversaNotas.estado == .recolhida(aRepetir)
+                                    ? "A resposta foi recolhida porque uma fonte mudou ou deixou de estar acessível."
+                                    : conversaNotas.estado == .interrompida(aRepetir)
+                                        ? "Você parou de esperar."
+                                        : !ContaGrok.ligada ? Politica.semProvedor(.responderNasNotas)
+                                        : Grok.avisoDaFalha(),
+                                rotulo: ContaGrok.ligada ? "Perguntar de novo" : "Entrar com a conta Grok",
+                                acao: ContaGrok.ligada ? repetirPergunta : { sessao.irPara(.perfil, no: context) })
                         }
                     }
-                }
-                if let pergunta = emEspera ?? aRepetir {
-                    mensagemDaPessoa(pergunta, fio: !conversa.isEmpty)
-                }
-                if let pergunta = aRepetir {
-                    mensagem(.sabia, fio: true) {
-                        CartaoDeResposta(
-                            titulo: nil,
-                            // a rota das Notas é só Grok (Politica, ADR 09v): sem
-                            // a conta, a frase é a da Politica e a saída é o Perfil —
-                            // "Falta a conta" com "Perguntar de novo" enganava, e o
-                            // Perfil dizia "modelo do aparelho pronto" (vídeo 14/09)
-                            falhou: conversaNotas.estado == .recolhida(pergunta)
-                                ? "A resposta foi recolhida porque uma fonte mudou ou deixou de estar acessível."
-                                : conversaNotas.estado == .interrompida(pergunta)
-                                    ? "você parou de esperar."
-                                    : !ContaGrok.ligada ? Politica.semProvedor(.responderNasNotas)
-                                    : Grok.avisoDaFalha(),
-                            repetir: ContaGrok.ligada ? repetirPergunta : { sessao.irPara(.perfil, no: context) },
-                            rotuloDoRepetir: ContaGrok.ligada ? "Perguntar de novo" : "Entrar com a conta Grok",
-                            rota: "sabia-notas"
-                        ) { EmptyView() }
-                    }
+                    .frame(minHeight: max(0, alturaDaConversa - 32), alignment: .top)
+                    .id("pendente")
                 }
                 if conversaNotas.semModelo {
                     LinhaDeEstado("a sábia " + Sabia.porOndeEmPalavras + ". Sem ela, a busca continua.", .semConta)
-                        .padding(.vertical, 16)
                         .accessibilityIdentifier("sem-conta-notas")
+                        .id("sem-modelo")
                 }
             }
             .frame(maxWidth: .infinity, alignment: .topLeading)
             .padding(.horizontal, Tema.margem)
-            // uma folha, lida inteira na ordem: cada pergunta, cada resposta,
-            // quem foi junto, o retorno. O contêiner é a pilha, não a rolagem:
-            // à árvore de AX a rolagem é `scrollView`, e a suíte procura a
-            // conversa como `otherElement` — foi assim que o ensaio "não pegou".
+            .padding(.top, 8)
+            .padding(.bottom, 24)
             .accessibilityElement(children: .contain)
             .accessibilityLabel("Conversa com a sábia")
             .accessibilityIdentifier("cartao-sabia-notas")
         }
-        // a conversa curta pousa junto do campo, como no Hermes; a longa
-        // continua a abrir pelo começo, que é por onde se lê
-        .defaultScrollAnchor(.bottom, for: .alignment)
         .scrollBounceBehavior(.always)
         .scrollDismissesKeyboard(.interactively)
-        // §8 e §9: o campo fica no pé da conversa, e a cápsula colada acima
-        // dele enquanto a sábia pensa. Rolar a resposta não os leva. Pilha, e
-        // não `safeAreaInset`: como inset o pé virava barra SOBRE a rolagem, e
-        // o iOS 26 pintava a sombra da borda nele — o pé flutuava por cima da
-        // conversa, o que o Hermes não faz.
-        VStack(spacing: 8) {
-            if let desde = conversaNotas.esperandoDesde {
-                CapsulaDeEspera(frase: Espera.aSabiaPensa, desde: desde,
-                                identificador: "sabia-notas-pensando")
-                    .transition(Tema.transicao(.opacity, reduzido: reduceMotion))
+        .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { alturaDaConversa = $0 }
+        // a pergunta enviada sobe ao topo, com a espera logo abaixo; a resposta
+        // que chega começa no topo, que é por onde se lê
+        .onChange(of: conversaNotas.esperandoDesde) { _, desde in
+            guard desde != nil else { return }
+            withAnimation(Tema.animacao(.easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion)) {
+                rolagem.scrollTo("pendente", anchor: .top)
             }
-            linhaDaPergunta
         }
-        .padding(.horizontal, Tema.margem)
-        .padding(.top, 8)
+        .onChange(of: conversa.count) { antes, depois in
+            guard depois > antes else { return }
+            withAnimation(Tema.animacao(.easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion)) {
+                rolagem.scrollTo("troca-\(depois - 1)", anchor: .top)
+            }
+        }
+        // sem modelo, o aviso nasce abaixo do último bloco (que ocupa a tela): rola até ele
+        .onChange(of: conversaNotas.semModelo) { _, sem in
+            guard sem else { return }
+            withAnimation(Tema.animacao(.easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion)) {
+                rolagem.scrollTo("sem-modelo", anchor: .top)
+            }
+        }
+        .onAppear { if !conversa.isEmpty { rolagem.scrollTo("troca-\(conversa.count - 1)", anchor: .top) } }
+        }
+        linhaDaPergunta
+            .padding(.horizontal, Tema.margem)
+            .padding(.top, 8)
         }
         .transition(Tema.transicao(.opacity, reduzido: reduceMotion))
     }
 
-    /// Uma mensagem: a linha de autor e, embaixo, o que foi dito. O fio vai
-    /// no topo, na largura do texto — recuado, nunca de ponta a ponta.
-    private func mensagem<C: View>(_ autor: Autor, fio: Bool, @ViewBuilder _ texto: () -> C) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            LinhaDeAutor(autor)
-            texto()
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.vertical, 16)
-        .overlay(alignment: .top) {
-            if fio { Rectangle().fill(Tema.linha).frame(height: 0.5) }
-        }
-    }
-
-    /// A pergunta da pessoa, na mesma letra e tinta da resposta: no Hermes o
-    /// que o USER diz e o que o bot diz pesam igual — quem distingue é a
-    /// linha de autor, não o cinza.
-    private func mensagemDaPessoa(_ pergunta: String, fio: Bool) -> some View {
-        mensagem(.voce, fio: fio) {
-            Text(pergunta)
-                .font(Tema.corpo)
-                .foregroundStyle(Tema.tinta)
-                .fixedSize(horizontal: false, vertical: true)
-                .textSelection(.enabled)
-                .accessibilityIdentifier("pergunta-sabia-notas")
-        }
-    }
-
     /// SPEC §20: navegar é da barra inferior. Aqui o título e o export do
     /// conjunto visível — a casa de escrever não carrega este chrome.
-    private var topbar: some View {
+    @ViewBuilder private var topbar: some View {
+        if conversaNotas.modoPergunta, escolhidas.isEmpty {
+            topoDaConversa
+        } else {
         TituloTela(texto: escolhidas.isEmpty ? "Notas" : "\(escolhidas.count) escolhida\(escolhidas.count == 1 ? "" : "s")") {
             if !escolhidas.isEmpty {
                 loteAcoes
-            } else if conversaNotas.modoPergunta {
-                // o ÚNICO fechar da conversa (§14: eram dois), fora do caminho
-                // da leitura; a folha some e a lista volta
-                Button("Fechar", action: fecharConversa)
-                    .font(Tema.meta)
-                    .foregroundStyle(Tema.tintaSuave)
-                    .alvo(folgaH: 8)
-                    .buttonStyle(.discreto)
-                    .accessibilityHint("A conversa some; as suas notas voltam")
-                    .accessibilityIdentifier("fechar-resposta")
             } else {
                 // dono, 15/09: "abaixo de Notas está extremamente zoado" — a
                 // frase cinza "6 trabalhos ›" solta sob o título. Os Trabalhos
@@ -387,6 +367,54 @@ struct NotasView: View {
                 .glassEffect(.regular.interactive(), in: .capsule)
             }
         }
+        }
+    }
+
+    /// O topo da conversa: não é a lista, então não se chama "Notas" nem tem
+    /// "Fechar". Voltar às notas à esquerda, o escopo no meio, e uma conversa
+    /// nova à direita — botões de vidro, como o Journal e o Granola.
+    private var topoDaConversa: some View {
+        HStack(spacing: 12) {
+            Button(action: fecharConversa) {
+                Image(systemName: "chevron.left")
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(Tema.tinta)
+                    .frame(width: 44, height: 44)
+                    .contentShape(Circle())
+            }
+            .buttonStyle(.discreto)
+            .glassEffect(.regular.interactive(), in: .circle)
+            .accessibilityLabel("Voltar às notas")
+            .accessibilityHint("A conversa some; as suas notas voltam")
+            .accessibilityIdentifier("fechar-resposta")
+            Spacer(minLength: 0)
+            Text("Suas notas")
+                .font(.body.weight(.semibold))
+                .foregroundStyle(Tema.tinta)
+                .accessibilityAddTraits(.isHeader)
+            Spacer(minLength: 0)
+            Button {
+                Toque.selecao()
+                conversaNotas.fechar()
+                conversaNotas.perguntando = true
+                perguntaFocada = true
+            } label: {
+                Image(systemName: "square.and.pencil")
+                    .font(.body.weight(.medium))
+                    .foregroundStyle(Tema.tinta)
+                    .frame(width: 44, height: 44)
+                    .contentShape(Circle())
+            }
+            .buttonStyle(.discreto)
+            .glassEffect(.regular.interactive(), in: .circle)
+            .opacity(conversa.isEmpty && !pensando && conversaNotas.perguntaParaRepetir == nil ? 0 : 1)
+            .disabled(conversa.isEmpty && !pensando && conversaNotas.perguntaParaRepetir == nil)
+            .accessibilityLabel("Nova conversa")
+            .accessibilityIdentifier("nova-conversa")
+        }
+        .padding(.horizontal, Tema.margem)
+        .padding(.top, 4)
+        .padding(.bottom, 8)
     }
 
     /// D1 (DIRETRIZ §9): a régua de 29 cápsulas e a cápsula da ordem viram
