@@ -19,7 +19,7 @@ Pedido do dono: "tem muitas coisas quebradas e de péssima qualidade". Auditor s
 - [x] Campo de uma linha rola para o lado e esconde o começo da pergunta (20).
 - [ ] Busca vazia pobre; grupo do topo muda de forma (19).
 - [x] Toque longo: menu sem ícones, rótulos vagos ("Como contexto", "Ligações", "Escolher") (15).
-- [ ] Ligações: jargão e texto desalinhado 4 pt (16).
+- [x] Ligações: jargão e texto desalinhado 4 pt (16).
 - [x] Trabalhos: "‹ Voltar" numa folha, minúsculas, vazio só texto, martelo não diz o que é (30).
 - [x] Recordar: sem pista da nota; alça cola no voltar; "hoje não" minúsculo (69). — 32bb58ac (não visto na tela: pede fila do dia)
 - [x] Conversa: ícone de nova conversa = nova nota; conversa perdida ao voltar (21, 29, 74) — «Continuar a conversa», 32bb58ac. [ ] ainda: «sábia» (31 textos) x «IA» (Perfil) x «Suas notas».
