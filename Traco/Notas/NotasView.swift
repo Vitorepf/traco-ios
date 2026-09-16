@@ -694,12 +694,14 @@ struct NotasView: View {
         // dono, 16/09 (cartões): o rótulo mora no eixo do TEXTO dos cartões,
         // não na borda deles, e respira mais acima do que abaixo — pertence
         // ao grupo que abre. Mês com maiúscula, como no calendário.
+        // Atlas das Notas (Journal, Apple Notes): o mês é TÍTULO do grupo, em
+        // tinta, não rótulo cinza — é ele que organiza a folha
         Text(titulo.capitalizadoNoInicio)
-            .font(Tema.meta.weight(.semibold))
-            .foregroundStyle(Tema.tintaSuave)
-            .padding(.leading, 16)
-            .padding(.top, 22)
-            .padding(.bottom, 8)
+            .font(.title3.weight(.semibold))
+            .foregroundStyle(Tema.tinta)
+            .padding(.leading, 4)
+            .padding(.top, 26)
+            .padding(.bottom, 10)
             .accessibilityAddTraits(.isHeader)
     }
 
@@ -926,10 +928,11 @@ struct NotasView: View {
 
     private func botaoNota(_ nota: Nota) -> some View {
         // Dois botões irmãos — nunca um Button dentro do outro. O domínio
-        // promete um toque; aninhado, o toque abria a nota. D1: alinhados
-        // pela última linha de base, a palavra do domínio fecha a última
-        // linha da nota, na margem — tipografia, não caixa.
-        HStack(alignment: .lastTextBaseline, spacing: 8) {
+        // promete um toque; aninhado, o toque abria a nota. Dono, 16/09 (Atlas
+        // das Notas — Journal, Apple Notes, Wispr): o cartão lê em três andares
+        // — título em peso, a prévia do texto e um rodapé com fio que assina a
+        // nota (quando, e de qual domínio).
+        ZStack(alignment: .bottomTrailing) {
             Button {
                 if escolhidas.isEmpty {
                     abrirDaLista(nota)
@@ -939,58 +942,52 @@ struct NotasView: View {
                     escolhidas.insert(nota.uuid)
                 }
             } label: {
-                VStack(alignment: .leading, spacing: 4) {
-                    if nota.queimada {
-                        // §8: a queimada não finge existir. Mostra o que sobrou —
-                        // e o que sobrou é justamente o que se multiplica.
-                        Text("Expressiva — queimada")
-                            .font(Tema.corpo)
-                            .foregroundStyle(Tema.tintaSuave)
-                        if !nota.sentido.isEmpty {
-                            DestaqueBusca.texto(nota.sentido, termo: busca, base: Tema.tinta)
-                                .font(Tema.meta)
-                                .lineLimit(2)
-                        }
-                        Text(nota.minutosEscritos >= 1
-                             ? "\(nota.minutosEscritos) min · \(VozDoAutor.relativo(nota.criadaEm))"
-                             : VozDoAutor.relativo(nota.criadaEm))
-                            .font(Tema.meta)
-                            .foregroundStyle(Tema.tintaFraca)
-                    } else if nota.trancada {
-                        Text("Expressiva — trancada")
-                            .font(Tema.corpo)
-                            .foregroundStyle(Tema.tintaSuave)
-                        Text("não se relê · \(VozDoAutor.relativo(nota.criadaEm))")
-                            .font(Tema.meta)
-                            .foregroundStyle(Tema.tintaFraca)
-                    } else {
-                        // D1: o título é a primeira linha do autor, na letra da
-                        // página (`corpo`, regular) — a lista é o sumário da folha
-                        DestaqueBusca.texto(titulo(nota), termo: busca, base: Tema.tinta)
-                            .font(Tema.corpo)
-                            // em AX o teto de duas linhas cortava "Quero dormir mais cedo est…"
-                            .lineLimit(tamanhoTexto.isAccessibilitySize ? nil : 2)
-                        // D1: método e quem escreveu (ADR 08u) ditos com uma
-                        // palavra em tinta suave, o trecho em tinta fraca; nada
-                        // em selo. O domínio é a palavra com seta, na margem
-                        // direita da mesma linha — irmão do botão (abaixo).
-                        let sub = subtitulo(nota)
-                        let comSub = !(sub == "hoje" && busca.isEmpty)
-                        // o nome do método ("WOOP", "Destaque") saiu da linha:
-                        // os campos e os itens já dizem a forma (auditoria 15/09)
-                        let palavras = [nota.origem.etiqueta].compactMap { $0 }
-                        if comSub || !palavras.isEmpty {
-                            // interpolação de Text em Text: o `+` foi descontinuado no iOS 26 (único warning do build)
-                            Text("\(Text(palavras.joined(separator: " · ") + (comSub && !palavras.isEmpty ? " · " : "")).foregroundStyle(Tema.tintaSuave))\(comSub ? DestaqueBusca.texto(sub, termo: busca, base: Tema.tintaFraca) : Text(""))")
-                                .font(Tema.meta)
-                                .lineLimit(1)
+                VStack(alignment: .leading, spacing: 0) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        if nota.queimada {
+                            // §8: a queimada não finge existir. Mostra o que sobrou —
+                            // e o que sobrou é justamente o que se multiplica.
+                            Text("Expressiva — queimada")
+                                .font(.body.weight(.semibold))
+                                .foregroundStyle(Tema.tintaSuave)
+                            if !nota.sentido.isEmpty {
+                                DestaqueBusca.texto(nota.sentido, termo: busca, base: Tema.tintaSuave)
+                                    .font(.subheadline)
+                                    .lineLimit(2)
+                            }
+                        } else if nota.trancada {
+                            Text("Expressiva — trancada")
+                                .font(.body.weight(.semibold))
+                                .foregroundStyle(Tema.tintaSuave)
+                            Text("não se relê")
+                                .font(.subheadline)
+                                .foregroundStyle(Tema.tintaFraca)
+                        } else {
+                            let partes = partesDoCartao(nota)
+                            DestaqueBusca.texto(partes.titulo, termo: busca, base: Tema.tinta)
+                                .font(.body.weight(.semibold))
+                                .lineLimit(tamanhoTexto.isAccessibilitySize ? nil : 2)
+                            if let previa = partes.previa {
+                                DestaqueBusca.texto(previa, termo: busca, base: Tema.tintaSuave)
+                                    .font(.subheadline)
+                                    .lineSpacing(1)
+                                    .lineLimit(tamanhoTexto.isAccessibilitySize ? nil : 2)
+                            }
                         }
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.bottom, 12)
+                    Rectangle().fill(Tema.linha).frame(height: 0.5)
+                    Text(rodape(nota))
+                        .font(.footnote.weight(.medium))
+                        .foregroundStyle(Tema.tintaFraca)
+                        .lineLimit(1)
+                        .frame(maxWidth: .infinity, minHeight: 36, alignment: .leading)
+                        // o domínio mora à direita do rodapé, por cima (irmão)
+                        .padding(.trailing, temDominio(nota) ? 96 : 0)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .contentShape(Rectangle())
-                // a linha de um título só mede 25; o alvo pega 10 do vão de cada lado
-                .alvo(folgaV: 10)
             }
             .buttonStyle(PressaoDeCartao())
             .tint(Tema.tinta)
@@ -998,17 +995,16 @@ struct NotasView: View {
             .accessibilityHint(nota.trancada ? "Reabrir pede confirmação dupla" : "Segure para recordar a memória")
             .accessibilityIdentifier("nota-notas")
 
-            if !nota.fechada, nota.gesto != .expressiva, nota.dominio != nil || nota.dominioTravado {
+            if temDominio(nota) {
                 // Laço de simplicidade (14/09): o domínio é identidade, não
-                // decisão — a palavra só diz. Corrigir mora no toque longo da
-                // linha ("Escolher", "Sem domínio", "Devolver ao app"), com o
-                // mesmo poder e nenhum chevron a pedir escolha em cada linha.
+                // decisão — a palavra só diz. Corrigir mora no toque longo.
                 ChipDominio(atual: nota.dominio, travado: nota.dominioTravado)
+                    .font(.footnote.weight(.medium))
+                    .frame(minHeight: 36)
                     .accessibilityIdentifier("chip-dominio")
             }
         }
-        .padding(.vertical, 8)
-        .alvo()
+        .padding(.top, 8)
         // dono, 16/09: cada nota é um objeto sobre o papel — a separação é o
         // vão entre cartões, não um fio entre linhas
         .cartao(selecionado: escolhidas.contains(nota.uuid))
@@ -1058,6 +1054,60 @@ struct NotasView: View {
         OrdemNotas.ordenar(
             NotasFiltro.visiveis(notas, busca: busca, filtro: filtro, dominio: filtroDominio),
             por: ordem)
+    }
+
+    private func temDominio(_ nota: Nota) -> Bool {
+        !nota.fechada && nota.gesto != .expressiva && (nota.dominio != nil || nota.dominioTravado)
+    }
+
+    /// Título e prévia do cartão. O título é a primeira FRASE quando a primeira
+    /// linha é um parágrafo inteiro (quase toda nota escrita de uma vez); a
+    /// prévia é o que vem depois — nunca a repetição do título.
+    private func partesDoCartao(_ nota: Nota) -> (titulo: String, previa: String?) {
+        let base = titulo(nota)
+        var t = base
+        if base.count > 70, let r = base.range(of: #"[.!?:](\s|$)"#, options: .regularExpression),
+           base.distance(from: base.startIndex, to: r.lowerBound) >= 12 {
+            // "Celular na cama: se eu pegar…" — os dois-pontos nomeiam a nota e saem do título
+            t = String(base[..<(base[r.lowerBound] == ":" ? r.lowerBound : r.upperBound)]).trimmingCharacters(in: .whitespaces)
+        }
+        if !busca.isEmpty {
+            let sub = subtitulo(nota)
+            return (t, sub == VozDoAutor.relativo(nota.criadaEm) || base.hasPrefix(sub) ? restoDaNota(nota, depoisDe: t) : sub)
+        }
+        // forma com campos: a prévia são as respostas, na ordem do método, sem a
+        // que só repete o título ("Baixar o preço…" · "Baixar o preço porque…")
+        let ordem = nota.gesto?.metodoDef.campos.map(\.id) ?? []
+        let dobrar = { (x: String) in x.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: nil) }
+        let respostas = nota.campos
+            .sorted { (ordem.firstIndex(of: $0.key) ?? ordem.count, $0.key) < (ordem.firstIndex(of: $1.key) ?? ordem.count, $1.key) }
+            .map { $0.value.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty && !dobrar($0).hasPrefix(dobrar(t)) && !dobrar(t).hasPrefix(dobrar($0)) }
+        if !respostas.isEmpty { return (t, respostas.joined(separator: " · ")) }
+        return (t, restoDaNota(nota, depoisDe: t))
+    }
+
+    private func restoDaNota(_ nota: Nota, depoisDe titulo: String) -> String? {
+        let prosa = Caderno.prosa(de: nota.textoDeQualquerOrigem)
+            .replacingOccurrences(of: "\n", with: " ")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let r = prosa.range(of: titulo) else { return nil }
+        let resto = prosa[r.upperBound...].trimmingCharacters(in: CharacterSet(charactersIn: ":").union(.whitespacesAndNewlines))
+        return resto.isEmpty ? nil : resto
+    }
+
+    /// O rodapé que assina a nota: quando, e as marcas que valem (origem,
+    /// recordada). O domínio fica à direita, no chip.
+    private func rodape(_ nota: Nota) -> String {
+        // hoje o grupo já diz "Hoje": o rodapé diz a hora
+        var partes = [Calendar.current.isDateInToday(nota.criadaEm)
+                      ? nota.criadaEm.formatted(date: .omitted, time: .shortened)
+                      : VozDoAutor.relativo(nota.criadaEm).capitalizadoNoInicio]
+        if let origem = nota.origem.etiqueta { partes.append(origem) }
+        if nota.queimada, nota.minutosEscritos >= 1 { partes.append("\(nota.minutosEscritos) min") }
+        let recordadas = Revisoes.contagem(nota.uuid)
+        if recordadas > 0 { partes.append("recordada \(recordadas)×") }
+        return partes.joined(separator: " · ")
     }
 
     private func titulo(_ nota: Nota) -> String {

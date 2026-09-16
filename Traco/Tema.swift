@@ -128,7 +128,7 @@ enum Tema {
     /// Ritmo vertical: tudo múltiplo de 4. Dentro de seção 12, entre seções 32.
     static let entreItens: CGFloat = 12
     /// o vão que separa uma nota da outra: o papel à vista entre dois cartões
-    static let entreCartoes: CGFloat = 10
+    static let entreCartoes: CGFloat = 12
     static let entreSecoes: CGFloat = 32
     static let alvo: CGFloat = 44
     /// SPEC §20: altura da barra inferior — o encaixe que mantém TODA tela acima dela.
@@ -365,7 +365,9 @@ private struct CartaoDeNota: ViewModifier {
                     // duas sombras: a de contato desenha a borda de baixo, a
                     // ambiente dá a altura — apertado, a folha desce ao papel
                     .shadow(color: Tema.sombraContato.opacity(apertado ? 0.6 : 1), radius: 0.5, y: 0.5)
-                    .shadow(color: Tema.sombraFlutuante.opacity(apertado ? 0.3 : 0.75), radius: apertado ? 3 : 12, y: apertado ? 1 : 5)
+                    // halo quase invisível, como o Journal e o Airbnb: a borda de 0,5 separa,
+                    // a sombra só dá altura
+                    .shadow(color: Tema.sombraFlutuante.opacity(apertado ? 0.25 : 0.55), radius: apertado ? 3 : 10, y: apertado ? 1 : 4)
                     .animation(Tema.movimento(.opacidade, apertado ? .easeOut(duration: Tema.Duracao.toque) : .easeOut(duration: Tema.Duracao.media), reduzido: reduceMotion), value: apertado)
             }
             // o fio de tinta a 8 %: branco sobre papel precisa da borda para ser objeto
