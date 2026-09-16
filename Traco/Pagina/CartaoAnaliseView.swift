@@ -139,7 +139,15 @@ struct CartaoAnaliseView: View {
         // recolher e abrir é troca de VIEW no mesmo encaixe: CORTA. Sem isto o
         // SwiftUI dissolvia a linha sobre o corpo do cartão nas mesmas linhas —
         // a classe A1 outra vez, agora no gatilho novo (05y).
-        if recolhido, podeRecolher, !abertoNoTeclado {
+        if case .conselho(let c) = cartao {
+            // dono, 16/09: o conselho é uma CAPA própria (CartaoDoConselhoView),
+            // sem trilho, sem rolagem de cartão e sem «Fechar» no pé
+            CartaoDoConselhoView(voz: c.regra, fechar: fechar, teto: tetoDoEncaixe ?? .infinity)
+                // visto é o que foi desenhado, não o que foi oferecido
+                .onAppear { sessao.conselhoApareceu(c) }
+                .accessibilityIdentifier("cartao-analise")
+                .transition(.identity)
+        } else if recolhido, podeRecolher, !abertoNoTeclado {
             cartaoRecolhido.transition(.identity)
         } else {
             cartaoInteiro.transition(.identity)
@@ -379,12 +387,9 @@ struct CartaoAnaliseView: View {
                         .foregroundStyle(Tema.tinta)
                         .fixedSize(horizontal: false, vertical: true)
                 }
-            case .conselho(let c):
-                // ADR 2026-09-16h: depois do ato, a regra do mestre — o
-                // desenho da leitura mora em `CartaoDoConselhoView`
-                corpoCartao(trilho: Tema.ambar) { CartaoDoConselhoView(voz: c.regra) }
-                    // visto é o que foi desenhado, não o que foi oferecido
-                    .onAppear { sessao.conselhoApareceu(c) }
+            case .conselho:
+                // ADR 2026-09-16h: a capa do conselho não passa por aqui (`body`)
+                EmptyView()
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -465,11 +470,8 @@ struct CartaoAnaliseView: View {
             }
             .buttonStyle(.primario(alinhamento: .leading))
         case .conselho:
-            // uma saída só: nenhuma escolha, nenhum «serviu» (ADR 14a e 16e)
-            Button("Fechar", action: fechar)
-                .buttonStyle(.compacto)
-                .foregroundStyle(Tema.tintaSuave)
-                .accessibilityIdentifier("fechar-conselho")
+            // a saída mora na capa (✕), sem escolha nem «serviu» (ADR 14a e 16e)
+            EmptyView()
         }
     }
 
