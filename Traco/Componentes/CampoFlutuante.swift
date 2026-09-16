@@ -99,7 +99,7 @@ struct CampoFlutuante<Mais: View>: View {
             .accessibilityLabel(aoParar != nil ? "Parar de esperar" : temTexto ? rotuloEnviar : ditado.gravando ? "Parar de ditar" : rotuloDitar)
             .accessibilityIdentifier(identificadorDoBotao ?? (identificador + (temTexto ? "-enviar" : "-ditar")))
             }
-            .padding(.trailing, 2)
+            .padding(.trailing, 1)
         }
         // dono, 15/09: o poço cinza com borda branca "está amador". O material
         // é o VIDRO do sistema (iOS 26+): reflexo, profundidade e sombra da

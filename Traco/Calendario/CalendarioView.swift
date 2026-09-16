@@ -295,6 +295,10 @@ struct CalendarioView: View {
     }
 
     private func interruptor(agora: Date) -> some View {
+        // dono, 16/09: o vão do microfone sobrava e o da lista faltava — a
+        // lista e o microfone ficam a ~14 da borda e os vãos entre lista,
+        // trilho, texto e microfone ficam em ~15, sem roubar a largura que
+        // "Novo compromisso" precisa
         HStack(spacing: 6) {
             // lista ou grade: um alternador só, o glifo do que se vai ver. O
             // toque longo guarda o que o "+" oferecia (novo em branco, colar):
@@ -360,7 +364,8 @@ struct CalendarioView: View {
                 .allowsHitTesting(false)
                 .accessibilityHidden(true)
             }
-            .padding(.horizontal, 2)
+            // a gota fica a 2 das pontas do trilho (era 3), perto do 1 de cima e de baixo
+            .padding(.horizontal, 1)
             // concêntrico com o campo: 14 do campo − 4 de respiro
             .background(RoundedRectangle(cornerRadius: Tema.raioDoCampo - 4, style: .continuous).fill(CalendarioTema.trilho))
 
@@ -386,6 +391,8 @@ struct CalendarioView: View {
                 .transition(Tema.transicao(.scale(scale: 0.4, anchor: .leading).combined(with: .opacity), reduzido: reduceMotion))
             }
         }
+        .padding(.leading, 3)
+        .padding(.trailing, 3)
         .fixedSize()
     }
 
